@@ -16,6 +16,7 @@ import { getAnonCopyId } from '../lib/anonCopyId';
 import { generateUniqueTitle } from '../utils/planTitle';
 import { MitigationSheetPreview } from './MitigationSheetPreview';
 import type { PlanData, SavedPlan } from '../types';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import './MitigationSheet.css';
 
 // --- 型 ---
@@ -87,6 +88,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
   >(null);
 
   const listRef = useRef<HTMLDivElement>(null);
+  useSmoothWheelScroll(listRef);
 
   const contentIds = activeTab === 'savage' ? savageIds : ultimateIds;
 

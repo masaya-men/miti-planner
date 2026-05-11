@@ -9,7 +9,7 @@
 //   - backdrop: z=99990
 //   - sheet 本体: z=99991
 //   - LimitResolutionSheet (Task 6) は内部で z=99992/99993 を使い、 本シートの上に重ねる。
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,7 @@ import { LimitResolutionSheet } from './LimitResolutionSheet';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import type { ProgressEvent } from '../lib/shareImportTypes';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
 /** 1 アイテムの進捗を 0-1 で返す (Phase B-1.5 polish 第 2 弾 #4 Revision)。
  *  ステージ重み: check 33% / local 66% / server 100%、 in_progress は手前 10/50/80%。
@@ -102,6 +103,11 @@ export function ShareImportSheet() {
     const setProgress = useShareImportFlow((s) => s.setProgress);
     const setLimitContext = useShareImportFlow((s) => s.setLimitContext);
     const close = useShareImportFlow((s) => s.close);
+
+    const leftListRef = useRef<HTMLDivElement>(null);
+    const rightPreviewRef = useRef<HTMLDivElement>(null);
+    useSmoothWheelScroll(leftListRef);
+    useSmoothWheelScroll(rightPreviewRef);
 
     const authUser = useAuthStore((s) => s.user);
 
@@ -337,7 +343,7 @@ export function ShareImportSheet() {
                             <>
                                 <div className="flex-1 overflow-hidden flex flex-row min-h-0">
                                     {/* Left list (#1: 単一でも常に描画) */}
-                                    <div className="flex-shrink-0 w-[140px] md:w-[200px] border-r border-app-border p-2 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
+                                    <div ref={leftListRef} className="flex-shrink-0 w-[140px] md:w-[200px] border-r border-app-border p-2 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
                                         <LayoutGroup>
                                             {importItems.map((item) => {
                                                 const itemPlanId = item.sourcePlanId ?? item.sourceShareId;
@@ -382,7 +388,7 @@ export function ShareImportSheet() {
                                     </div>
 
                                     {/* Right preview */}
-                                    <div className="flex-1 min-w-0 overflow-y-auto p-3">
+                                    <div ref={rightPreviewRef} className="flex-1 min-w-0 overflow-y-auto p-3">
                                         {activeItem && (
                                             <MitigationSheetPreview
                                                 planData={activeItem.planData}

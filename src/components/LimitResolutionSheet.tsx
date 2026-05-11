@@ -8,7 +8,7 @@
 // - 削除進捗の 3 段テキストを廃止 → SweepOverlay (red) + ✓ ドロップイン + カード退場
 // - spring 値を MitigationSheet と統一 (stiffness: 300, damping: 28)
 // - motion.div に layout prop で内容拡張時の高さアニメ滑らか化
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +24,7 @@ import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import type { DeleteProgressEvent } from '../lib/shareImportTypes';
 import type { SavedPlan } from '../types';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
 /** 1 プランの削除進捗を 0-1 で返す (Phase B-1.5 polish 第 2 弾 #4 Revision)。
  *  ステージ重み: local_delete 33% / server_delete 66% / capacity_freed 100%。 */
@@ -78,6 +79,11 @@ export function LimitResolutionSheet() {
     const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const listRef = useRef<HTMLDivElement>(null);
+    const previewRef = useRef<HTMLDivElement>(null);
+    useSmoothWheelScroll(listRef);
+    useSmoothWheelScroll(previewRef);
 
     // 2 回目以降の上限ヒットで前回の local state が残る問題への対処。
     // 本コンポーネントは ShareImportSheet から無条件レンダリングされており、
@@ -259,7 +265,7 @@ export function LimitResolutionSheet() {
                     mobile (hidden md:block) を撤去、 全環境で flex-row。 */}
                 <div className="flex-1 overflow-hidden flex flex-row min-h-0">
                     {/* リスト */}
-                    <div className="flex-shrink-0 w-[140px] md:w-[200px] border-r border-app-border p-2 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
+                    <div ref={listRef} className="flex-shrink-0 w-[140px] md:w-[200px] border-r border-app-border p-2 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
                         <LayoutGroup>
                             <AnimatePresence>
                                 {targetPlans.map(plan => {
@@ -297,7 +303,7 @@ export function LimitResolutionSheet() {
                     </div>
 
                     {/* プレビュー (mobile も表示)。 hidden md:block を撤去 */}
-                    <div className="flex-1 min-w-0 overflow-y-auto border-l border-app-border bg-app-surface2/30">
+                    <div ref={previewRef} className="flex-1 min-w-0 overflow-y-auto border-l border-app-border bg-app-surface2/30">
                         <MitigationSheetPreview
                             planData={activePlan?.data ?? null}
                             loading={false}

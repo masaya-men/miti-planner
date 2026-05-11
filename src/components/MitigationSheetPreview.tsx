@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { PlanData, AppliedMitigation, PartyMember } from '../types';
 import { getPhaseName } from '../types';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useThemeStore } from '../store/useThemeStore';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
 interface Props {
   planData: PlanData | null;
@@ -15,6 +16,8 @@ const ROW_HEIGHT = 22; // px — 各行の高さ
 export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading }) => {
   const jobs = useJobs();
   const mitigationDefs = useMitigations();
+  const wrapRef = useRef<HTMLDivElement>(null);
+  useSmoothWheelScroll(wrapRef);
   const { i18n } = useTranslation();
   const contentLanguage = useThemeStore(s => s.contentLanguage);
   const lang = contentLanguage || (i18n.language.startsWith('ja') ? 'ja' : i18n.language.startsWith('zh') ? 'zh' : i18n.language.startsWith('ko') ? 'ko' : 'en');
@@ -114,7 +117,7 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading }) =
 
   if (loading) {
     return (
-      <div className="miti-table-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div ref={wrapRef} className="miti-table-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="miti-spinner" />
       </div>
     );
@@ -122,7 +125,7 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading }) =
 
   if (!planData) {
     return (
-      <div className="miti-table-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div ref={wrapRef} className="miti-table-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <span style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>-</span>
       </div>
     );
@@ -142,7 +145,7 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading }) =
   };
 
   return (
-    <div className="miti-table-wrap">
+    <div ref={wrapRef} className="miti-table-wrap">
       <table className="miti-table">
         <thead>
           <tr>

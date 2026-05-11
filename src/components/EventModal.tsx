@@ -14,6 +14,7 @@ import { clsx } from 'clsx';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
 import { SegmentButton } from './ui/SegmentButton';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 // SPRING は今後のアニメーション実装で使用予定
 // import { SPRING } from '../tokens/motionTokens';
@@ -153,6 +154,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const isTutorialActive = tutorialState.isActive;
     const currentStep = isTutorialActive ? tutorialState.getCurrentStep() : null;
     const mitiPresetDoneRef = useRef(false);
+    const formRef = useRef<HTMLFormElement>(null);
+    useSmoothWheelScroll(formRef);
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
@@ -692,7 +695,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     </div>
                 )}
 
-                <form id="event-modal-form" onSubmit={handleSubmit} className={clsx("overflow-y-auto custom-scrollbar", isMobile ? "p-4 space-y-4 max-h-[75vh]" : "p-6 space-y-6 max-h-[75vh]")}>
+                <form ref={formRef} id="event-modal-form" onSubmit={handleSubmit} className={clsx("overflow-y-auto custom-scrollbar", isMobile ? "p-4 space-y-4 max-h-[75vh]" : "p-6 space-y-6 max-h-[75vh]")}>
                     {/* Input Mode Toggle */}
                     <SegmentButton
                         options={[

@@ -11,6 +11,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { calculateLinkedShieldValue } from '../utils/calculator';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
 interface MitigationSelectorProps {
     isOpen: boolean;
@@ -38,6 +39,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
     const [selectedSingleTargetMit, setSelectedSingleTargetMit] = React.useState<Mitigation | null>(null);
     const [selectedCopyShieldMit, setSelectedCopyShieldMit] = React.useState<Mitigation | null>(null);
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+    useSmoothWheelScroll(scrollContainerRef);
     const { partyMembers, currentLevel, timelineMitigations } = useMitigationStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();

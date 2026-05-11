@@ -24,6 +24,10 @@ vi.mock('../../hooks/useSkillsData', () => ({
     ],
 }));
 
+vi.mock('../../lib/scroll/useSmoothWheelScroll', () => ({
+    useSmoothWheelScroll: () => {},
+}));
+
 vi.mock('../../data/contentRegistry', () => ({
     getContentById: (id: string) => {
         const map: Record<string, { name: { ja: string; en: string } }> = {

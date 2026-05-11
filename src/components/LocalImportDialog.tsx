@@ -11,6 +11,7 @@ import { getPhaseName } from '../types';
 import i18n from '../i18n';
 import { parsePlanLimitError, type ParsedPlanLimit } from '../utils/planLimitError';
 import { SweepOverlay } from './SweepOverlay';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
 /** 1 件あたりに見せる sweep アニメーション秒数 (実 Firestore が早く返ってもこの時間以上はかける) */
 const PER_PLAN_MS = 1200;
@@ -65,6 +66,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
     const uploadStartTimes = useRef<Map<string, number>>(new Map());
     /** body スクロールエリア (sweep 中の行を viewport 中央へ自動スクロールする用) */
     const bodyRef = useRef<HTMLDivElement | null>(null);
+    useSmoothWheelScroll(bodyRef);
 
     // ダイアログが「閉→開」に変化した瞬間にだけ plans をスナップショット + state を再初期化
     // (deps から plans を外すことで、取り込み中の親の plans 縮小に反応しない)
