@@ -278,7 +278,7 @@ interface AppliedMitigation {
 
 ## 6. 影響範囲と既存機能保護
 
-### 6.1 修正ファイル一覧 (合計 11)
+### 6.1 修正ファイル一覧 (合計 12)
 
 | # | ファイル | 種別 | 変更量 | リスク |
 |---|---|---|---|---|
@@ -289,10 +289,22 @@ interface AppliedMitigation {
 | 5 | `src/utils/astrologianAutoInsert.ts` | 新規 | +120 行 | ⚪ 安全 (scholarAutoInsert.ts のコピー改) |
 | 6 | `src/store/useMitigationStore.ts` | 修正 | +30 行 | 🟡 慎重 (5 箇所配線、テスト必須) |
 | 7 | `src/data/mockData.ts` | 修正 | +200 行 | ⚪ 安全 (データ追加のみ) |
-| 8 | `public/icons/` | 追加 | +7 PNG | ⚪ 安全 |
-| 9 | `src/utils/__tests__/astrologianAutoInsert.test.ts` | 新規 | +新規 | ⚪ 安全 |
-| 10 | `scripts/seed-icons.ts` 実行 | 運用 | - | ⚪ 安全 |
-| 11 | `scripts/seed-skills-stats.ts` 実行 | 運用 | - | ⚪ 安全 |
+| 8 | **`src/utils/calculator.ts`** (`SKILL_DATA` への追加) | 修正 | +1 行 | 🔴 **必須** (忘れるとバリア値 0 になる過去バグ再発) |
+| 9 | `public/icons/` | 追加 | +7 PNG | ⚪ 安全 |
+| 10 | `src/utils/__tests__/astrologianAutoInsert.test.ts` | 新規 | +新規 | ⚪ 安全 |
+| 11 | `scripts/seed-icons.ts` 実行 | 運用 | - | ⚪ 安全 |
+| 12 | `scripts/seed-skills-stats.ts` 実行 | 運用 | - | ⚪ 安全 |
+
+#### `SKILL_DATA` への追加 (calculator.ts L140 の辞書)
+
+ビエルゴの塔 (The Spire) のバリア値は `computedValues["ビエルゴの塔"]` から取得されるため、 既存類似スキル「星天交差」 (Celestial Intersection) と同じ形式で 1 行追加する:
+
+```typescript
+// src/utils/calculator.ts SKILL_DATA に追加
+"ビエルゴの塔": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["ast"], "icon": "The_Spire.png", "nameEn": "The Spire", "minLevel": 30 },
+```
+
+> **過去バグの真因**: 新規シールドスキルを追加した際にこの `SKILL_DATA` 追加を忘れると、 `computedValues[jaName] = undefined` となりバリア値が 0 で計算される。 mockData.ts への定義追加だけでは不十分なため、 必ず両方を更新する。 The Arrow / The Bole / The Ewer / Lady of Crowns はバリアではないので `SKILL_DATA` への追加は不要。 The Spire のみが対象。
 
 ### 6.2 既存機能を破損しないための原則
 
@@ -302,6 +314,8 @@ interface AppliedMitigation {
 4. **計算系 (calculator / resourceTracker / autoPlanner) は autoHidden を見ない**: Astral Draw の `value: 0`, `duration: 1` で軽減計算に乗らない → 計算結果は変わらない
 5. **親 duration を 1 に設定**: 「Astral アクティブ」 と長時間誤判定される箇所がなくなる → CheatSheetView の軽減アイコン余剰も発生しない
 6. **既存テストへの影響**: AST スキル系のテストは新スキル追加で件数増加するが、 既存テストは全件無修正でパス予定
+7. **`SKILL_DATA` への追加忘れ防止**: The Spire 実装時に必ず `calculator.ts` の `SKILL_DATA` 辞書も更新する。 過去バグの主原因のため、 実装プランで明示的なチェック項目とする
+8. **healingIncrease は既存ロジックで自動適用**: The Arrow を `scope: 'target', healingIncrease: 10` で実装すれば、 calculator.ts L264-275 の既存処理が自動的に拾う。 同じ対象に対するシールド計算時に +10% が適用される (クラーシス・生命回生法と同じ動き)
 
 ### 6.3 描画箇所での autoHidden 除外 (Timeline.tsx の 4 箇所)
 
@@ -342,6 +356,8 @@ interface AppliedMitigation {
 - `hideEmptyRows` トグル (展開ボタン) を押すと -3 秒の Astral Draw も含めて全行表示される
 - 既存 AST スキル (Neutral Sect → Sun Sign 等) の挙動は変わらない
 - 既存学者・賢者・白魔の挙動は完全に変わらない
+- **ビエルゴの塔のバリア値が 0 ではない**: 単体に配置して被ダメを軽減する計算結果が正しく出る (`computedValues["ビエルゴの塔"]` が `SKILL_DATA` から計算されること)
+- **オシュオンの矢の被回復+10% が他のシールドに反映される**: 同じ対象に The Arrow と The Spire (or 他者の鼓舞激励の策) を重ねると、 バリア値が +10% で計算される
 
 ## 8. 実装外 (YAGNI で除外)
 
