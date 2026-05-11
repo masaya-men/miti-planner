@@ -87,6 +87,7 @@ export interface AppliedMitigation {
     ownerId: string; // Party Member ID (e.g. "MT")
     targetId?: string; // Party Member ID of the target (e.g. "ST") for single-target buffs
     linkedMitigationId?: string; // ID of the linked shield instance (for copiesShield skills like deployment_tactics)
+    autoHidden?: boolean; // 自動配置されたが、行展開トリガーにしない (戦闘前 Astral Draw 等)
 }
 
 export interface TimelineEvent {
