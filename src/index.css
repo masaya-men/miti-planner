@@ -89,18 +89,10 @@
   animation: conflict-pulse 1s ease-in-out infinite;
 }
 
-/* ShareImportSheet ローディング中の呼吸アニメ (Phase B-1.5 polish 第 2 弾 #5 Rev 3)。
-   bottom-0 で画面下端に固定されたシートを 16px ほど浮かせて呼吸させる。
-   framer-motion が transform: translateY を使っているので、 bottom 経由なら衝突しない。
-   animation-delay でシートの slide-in (~600ms) が終わってから呼吸を始める。 */
-@keyframes sheet-breathe {
-  0%, 100% { bottom: 0; }
-  50% { bottom: 16px; }
-}
-.animate-sheet-breathe {
-  animation: sheet-breathe 1.5s ease-in-out infinite;
-  animation-delay: 1s;
-}
+/* 注: 旧 Rev 3 で sheet-breathe CSS animation を入れていたが、 状態遷移時に bottom 値が
+   一気に 0 に戻って「下でバウンス」 して見える問題が出たため Rev 4 で削除。
+   呼吸アニメは framer-motion 側で transform: translateY 経由で行う (smooth tween で
+   切り替えられるので snap が起きない)。 */
 
 @layer base {
 

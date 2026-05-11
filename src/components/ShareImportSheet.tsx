@@ -161,11 +161,26 @@ export function ShareImportSheet() {
         close();
     };
 
-    // 読み込み中の演出フラグ (Phase B-1.5 polish 第 2 弾 #5)。
-    // - シートが画面下部に小さく出て上下に「ぽよんぽよん…」 とアニメ
-    // - 完了後にバウンドしながら y=0 まで上がってきて止まる
-    // - 操作不能を示すため backdrop + sheet 上で cursor: not-allowed
+    // 読み込み中の演出フラグ。
     const isLoadingPhase = status === 'loading';
+
+    // Rev 4: 2 段階アニメ。
+    //   Phase A: slide-in (y 100% → 0) with bouncy spring → ~700ms 後に hasSettled=true
+    //   Phase B: hasSettled=true → 呼吸ループ (y: 0 ↔ -12px) を framer-motion で発火
+    //   loading → preview 遷移時は、 呼吸の現在値から y=0 へ smooth tween で戻し、
+    //   layout (height growth) も smooth tween で同時進行 → 「同じシートが伸びる」 演出。
+    const [hasSettled, setHasSettled] = useState(false);
+    useEffect(() => {
+        if (isLoadingPhase) {
+            // 初期 slide-in (~700ms) が終わってから呼吸モードに切替
+            const tid = window.setTimeout(() => setHasSettled(true), 700);
+            return () => {
+                window.clearTimeout(tid);
+            };
+        }
+        // loading を抜けたら次回開示用にリセット
+        setHasSettled(false);
+    }, [isLoadingPhase]);
 
     const handleImport = async () => {
         const itemsToImport = importItems.filter((i) =>
@@ -208,43 +223,93 @@ export function ShareImportSheet() {
                         aria-labelledby="share-import-title"
                         // 読み込み中は:
                         //   - min-h-[55vh] でシートを画面下から 55vh 分しっかり見せる
-                        //   - animate-sheet-breathe (CSS keyframe) で bottom を 0↔16px に呼吸させる
+                        //   - 呼吸アニメは framer-motion の animate keyframe で扱う (snap 防止)
                         //   - cursor-not-allowed で操作不能であることを明示
-                        className={`glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-border ${isLoadingPhase ? 'min-h-[55vh] animate-sheet-breathe cursor-not-allowed' : ''}`}
+                        className={`glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-border ${isLoadingPhase ? 'min-h-[55vh] cursor-not-allowed' : ''}`}
                         layout
                         initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
+                        animate={
+                            // Phase A (slide-in): まず y=0 に着地
+                            // Phase B (breathing): hasSettled で keyframe ループに切替
+                            // 非 loading: 常に y=0
+                            isLoadingPhase && hasSettled
+                                ? { y: [0, -12, 0] }
+                                : { y: 0 }
+                        }
                         exit={{ y: '100%' }}
                         transition={{
-                            // バウンスが見える程度の低 damping spring。
-                            // - slide-in (mount で y=100% → 0%) : 複数オシレーション可視
-                            // - 読み込み完了の高さ拡張 (layout): 同じバウンスで「上に出てきてバウンスして止まる」
-                            type: 'spring',
-                            stiffness: 160,
-                            damping: 9,
-                            mass: 1.6,
-                            layout: { type: 'spring', stiffness: 160, damping: 9, mass: 1.6 },
+                            y: isLoadingPhase
+                                ? hasSettled
+                                    ? {
+                                          // 呼吸 (1 cycle = 1.6 秒、 上下 12px、 ease-in-out で柔らかく)
+                                          duration: 1.6,
+                                          repeat: Infinity,
+                                          ease: 'easeInOut',
+                                      }
+                                    : {
+                                          // 初期 slide-in (100% → 0): 控えめなバウンス spring。
+                                          // 強すぎず弱すぎず、 着地感が伝わる程度。
+                                          type: 'spring',
+                                          stiffness: 200,
+                                          damping: 22,
+                                          mass: 1.0,
+                                      }
+                                : {
+                                      // 読み込み完了時: 呼吸の途中値からでも snap せず smooth に y=0 に戻す
+                                      type: 'tween',
+                                      duration: 0.6,
+                                      ease: 'easeOut',
+                                  },
+                            layout: {
+                                // Issue B 対応: 高さ拡張 (= 上に伸びる) は bouncy spring を廃止し、
+                                // ゆっくり smooth な tween で「ずるっと伸びる」 演出に。
+                                type: 'tween',
+                                duration: 0.9,
+                                ease: [0.25, 0.1, 0.25, 1],
+                            },
                         }}
                     >
-                        {/* 読み込み中: 専用レイアウトでシート上半分にしっかり情報を出す。
-                            ヘッダ + body の構造から離れて中央に大きく「読み込んでいます…」 を出し、
-                            その下に LoadingDots、 さらに sub-text。 シートの上部 (55vh の上半分くらい)
-                            にユーザーの目線が来るよう justify-center で中央寄せ。 */}
-                        {isLoadingPhase ? (
-                            <div className="flex-1 flex flex-col items-center justify-center gap-6 px-6 py-12">
-                                <h2
-                                    id="share-import-title"
-                                    className="text-app-4xl font-black text-app-text tracking-wide text-center"
+                        {/* Rev 4 設計:
+                            メインコンテンツ (header + body + footer) を「ローディング中以外」 で
+                            常時レンダリングし、 ローディング表示を absolute inset-0 のオーバーレイ
+                            として上に重ねる。 status 遷移時には:
+                              - ローディングオーバーレイが fade-out
+                              - メインが fade-in (少し delay)
+                              - シート全体は同じ motion.div のまま (= 別シートに見えない)
+                              - layout (高さ) は smooth tween で「上に伸びる」 演出
+                            これにより「読み込んでいるシートそのものが上にせり上がる」 印象になる。 */}
+                        <AnimatePresence>
+                            {isLoadingPhase && (
+                                <motion.div
+                                    key="loading-overlay"
+                                    className="absolute inset-0 z-[1] flex flex-col items-center justify-center gap-6 px-6 py-12 bg-app-surface/95 rounded-t-2xl"
+                                    initial={{ opacity: 1 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.55, ease: 'easeOut' }}
                                 >
-                                    {t('share_import.loading')}
-                                </h2>
-                                <LoadingDots />
-                                <p className="text-app-md text-app-text-muted text-center">
-                                    {t('share_import.loading_sub')}
-                                </p>
-                            </div>
-                        ) : (
-                            <>
+                                    <h2
+                                        id="share-import-title"
+                                        className="text-app-4xl font-black text-app-text tracking-wide text-center"
+                                    >
+                                        {t('share_import.loading')}
+                                    </h2>
+                                    <LoadingDots />
+                                    <p className="text-app-md text-app-text-muted text-center">
+                                        {t('share_import.loading_sub')}
+                                    </p>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {!isLoadingPhase && (
+                            <motion.div
+                                key="main-content"
+                                className="flex flex-col flex-1 min-h-0"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.5, delay: 0.25, ease: 'easeOut' }}
+                            >
                         <div className="px-5 pt-5 pb-3 shrink-0 border-b border-app-border">
                             <h2
                                 id="share-import-title"
@@ -378,7 +443,7 @@ export function ShareImportSheet() {
                                 </div>
                             </>
                         )}
-                            </>
+                            </motion.div>
                         )}
                     </motion.div>
                 </Fragment>
