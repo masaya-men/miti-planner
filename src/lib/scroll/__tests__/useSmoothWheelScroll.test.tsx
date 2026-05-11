@@ -32,7 +32,7 @@ describe('useSmoothWheelScroll', () => {
         renderHook(() => useSmoothWheelScroll(refObj as React.RefObject<HTMLElement | null>));
 
         const event = new WheelEvent('wheel', { deltaY: -50, bubbles: true, cancelable: true });
-        const preventSpy = (event.preventDefault = (() => { (event as unknown as { _prevented: boolean })._prevented = true; }) as () => void);
+        event.preventDefault = (() => { (event as unknown as { _prevented: boolean })._prevented = true; }) as () => void;
         el.dispatchEvent(event);
         expect((event as unknown as { _prevented?: boolean })._prevented).not.toBe(true);
     });
