@@ -8,7 +8,7 @@
 // - 削除進捗の 3 段テキストを廃止 → SweepOverlay (red) + ✓ ドロップイン + カード退場
 // - spring 値を MitigationSheet と統一 (stiffness: 300, damping: 28)
 // - motion.div に layout prop で内容拡張時の高さアニメ滑らか化
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -59,6 +59,21 @@ export function LimitResolutionSheet() {
     const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
     const [activeId, setActiveId] = useState<string | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // 2 回目以降の上限ヒットで前回の local state が残る問題への対処。
+    // 本コンポーネントは ShareImportSheet から無条件レンダリングされており、
+    // limitContext===null で return null になっても React インスタンスは生存 → useState 永続。
+    // よって handleDelete 成功後など limitContext===null になった次に新しい limitContext で
+    // 再開されたとき、 isDeleting=true / checkedIds=前回選択 が引き継がれて操作不能になる。
+    // limitContext が非 null に遷移したタイミングで全 local state を新規開示扱いでリセットする。
+    const limitContextActive = limitContext !== null;
+    useEffect(() => {
+        if (limitContextActive) {
+            setCheckedIds(new Set());
+            setActiveId(null);
+            setIsDeleting(false);
+        }
+    }, [limitContextActive]);
 
     // reason に応じてリストを切り替え (#7)。
     // - max_per_content: 同じ contentId のプランだけ

@@ -349,6 +349,91 @@ describe('LimitResolutionSheet', () => {
         expect(screen.queryByText('t2')).toBeNull();
     });
 
+    it('2 回目以降の上限ヒットで isDeleting / checkedIds がリセットされ操作可能 (#2 致命バグ回帰防止)', async () => {
+        // 真因: handleDelete 成功パスで local state (isDeleting / checkedIds / activeId) を
+        // リセットしないまま setLimitContext(null) する。 LimitResolutionSheet は ShareImportSheet
+        // 側から無条件レンダリングされており、 limitContext===null で return null になっても
+        // React コンポーネントインスタンスは生存 → useState の値が永続。
+        // 結果、 2 回目の上限ヒットで isDeleting=true が引き継がれ、 チェック・キャンセル・削除
+        // ボタン全てが死ぬ。
+        const resolve1 = vi.fn();
+        mockedExecutePlanDeletions.mockResolvedValue(undefined);
+
+        usePlanStore.setState({
+            plans: [
+                { id: 'e1', contentId: 'fru', ownerId: 'u', title: 't1', updatedAt: 0, data: {} } as any,
+                { id: 'e2', contentId: 'fru', ownerId: 'u', title: 't2', updatedAt: 1, data: {} } as any,
+            ],
+        } as any);
+        useShareImportFlow.setState({
+            status: 'limit_hit',
+            limitContext: {
+                reason: 'max_per_content',
+                contentId: 'fru',
+                neededCount: 1,
+                planId: 'in1',
+                resolve: resolve1,
+            },
+        });
+
+        const { rerender } = render(<LimitResolutionSheet />);
+
+        // 1 回目: チェック → 削除 → 成功 (handleDelete success path)
+        fireEvent.click(screen.getAllByRole('checkbox')[0]);
+        fireEvent.click(
+            screen.getByRole('button', { name: /button_delete_and_resume/i }),
+        );
+
+        await waitFor(() => {
+            expect(mockedExecutePlanDeletions).toHaveBeenCalledTimes(1);
+        });
+        await waitFor(() => {
+            expect(useShareImportFlow.getState().limitContext).toBeNull();
+        });
+
+        // executeShareImport の for-loop が次の item で再度上限ヒットしたシミュレーション。
+        // (実コードでは setLimitContext({ ...新ctx, resolve }) で再 set される)
+        usePlanStore.setState({
+            plans: [
+                { id: 'e2', contentId: 'fru', ownerId: 'u', title: 't2', updatedAt: 1, data: {} } as any,
+                { id: 'f1', contentId: 'm12s', ownerId: 'u', title: 'f1', updatedAt: 2, data: {} } as any,
+            ],
+        } as any);
+        const resolve2 = vi.fn();
+        useShareImportFlow.setState({
+            status: 'limit_hit',
+            limitContext: {
+                reason: 'max_per_content',
+                contentId: 'm12s',
+                neededCount: 1,
+                planId: 'in2',
+                resolve: resolve2,
+            },
+        });
+        rerender(<LimitResolutionSheet />);
+
+        // ★ 観測対象 1: キャンセルボタンが操作可能 (isDeleting=false にリセットされている)
+        await waitFor(() => {
+            const cancelBtn = screen.getByRole('button', { name: /button_cancel/i });
+            expect(cancelBtn).not.toBeDisabled();
+        });
+
+        // ★ 観測対象 2: 削除ボタンは「未チェック」のため disabled (checkedCount===0 由来)。
+        //   ただし isDeleting=true 由来の disabled ではなく、 チェックすれば有効化されるはず。
+        const deleteBtn = screen.getByRole('button', { name: /button_delete_and_resume/i });
+        expect(deleteBtn).toBeDisabled();
+
+        // ★ 観測対象 3: 新 limitContext のリスト (f1 のみ) のチェックボックスを ON にできる
+        fireEvent.click(screen.getByRole('checkbox'));
+        await waitFor(() => {
+            expect(deleteBtn).not.toBeDisabled();
+        });
+
+        // ★ 観測対象 4: キャンセル押下で resolve2 が呼ばれる (handleCancel の isDeleting ガードに弾かれない)
+        fireEvent.click(screen.getByRole('button', { name: /button_cancel/i }));
+        expect(resolve2).toHaveBeenCalledWith('cancelled');
+    });
+
     it('preview パネルは mobile でも描画される (hidden md:block 撤去確認)', () => {
         useShareImportFlow.setState({
             limitContext: {
