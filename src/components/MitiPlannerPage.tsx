@@ -10,7 +10,6 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 import { MobileGuide } from './MobileGuide';
-import { dlog } from '../utils/debugLog';
 
 const MOBILE_GUIDE_KEY = 'lopo_mobile_guide_completed';
 
@@ -70,30 +69,16 @@ export const MitiPlannerPage: React.FC = () => {
         const planStoreState = usePlanStore.getState();
         const hasAnyPlan = planStoreState.plans.length > 0;
 
-        dlog('tutorial', 'check fired', {
-            isMobile,
-            isActive,
-            hasCompleted,
-            hasVisitedShare,
-            timelineEventsLen: timelineEvents.length,
-            plansLen: planStoreState.plans.length,
-            hasAnyPlan,
-            authUser: authUser?.uid ?? null,
-            migrationDone,
-        });
-
         if (isMobile) {
             // モバイル: 簡易ガイドを未完了なら表示
             const guideCompleted = localStorage.getItem(MOBILE_GUIDE_KEY) === 'true';
             if (!guideCompleted && !hasVisitedShare && timelineEvents.length === 0 && !hasAnyPlan) {
-                dlog('tutorial', 'mobile guide WILL FIRE');
                 const timer = setTimeout(() => setMobileGuideOpen(true), 600);
                 return () => clearTimeout(timer);
             }
         } else {
             // PC: 従来のチュートリアル
             if (!hasCompleted && !isActive && !hasVisitedShare && timelineEvents.length === 0 && !hasAnyPlan) {
-                dlog('tutorial', 'PC tutorial WILL FIRE');
                 const timer = setTimeout(() => useTutorialStore.getState().startTutorial('main'), 500);
                 return () => clearTimeout(timer);
             }

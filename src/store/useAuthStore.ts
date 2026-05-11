@@ -21,7 +21,6 @@ import { useMitigationStore } from './useMitigationStore';
 import { deleteTeamLogo } from '../utils/logoUpload';
 import { deleteAvatar } from '../utils/avatarUpload';
 import { apiFetch } from '../lib/apiClient';
-import { dlog } from '../utils/debugLog';
 
 type AuthProvider = 'discord' | 'twitter';
 
@@ -123,17 +122,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     signOut: async () => {
         const currentUser = auth.currentUser;
-        const planStateAtStart = usePlanStore.getState();
-        dlog('signout', 'start', {
-            uid: currentUser?.uid,
-            plansCount: planStateAtStart.plans.length,
-            plansSummary: planStateAtStart.plans.map(p => ({
-                id: p.id, ownerId: p.ownerId, contentId: p.contentId, title: p.title,
-            })),
-            dirtyCount: planStateAtStart._dirtyPlanIds.size,
-            dirtyIds: [...planStateAtStart._dirtyPlanIds],
-            deletedCount: planStateAtStart._deletedPlanIds.size,
-        });
         // ① ログアウト前にFirestoreに未同期の変更を全て反映
         if (currentUser) {
             try {
@@ -147,16 +135,11 @@ export const useAuthStore = create<AuthState>((set) => ({
                 }
                 // 全プランをFirestoreに強制同期（_isSyncingバイパス）
                 const profileName = useAuthStore.getState().profileDisplayName || 'User';
-                dlog('signout', 'forceSyncAll start', {
-                    dirtyCount: usePlanStore.getState()._dirtyPlanIds.size,
-                });
                 await planState.forceSyncAll(
                     currentUser.uid,
                     profileName,
                 );
-                dlog('signout', 'forceSyncAll done');
             } catch (err) {
-                dlog('signout', 'forceSyncAll FAILED', { err, msg: err instanceof Error ? err.message : String(err) });
                 console.error('ログアウト前の同期エラー:', err);
             }
         }
@@ -176,10 +159,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         // 「ローカルにあるプラン」はユーザーの私物 → ログアウトしても消さない
         // 「アカウントに紐づくプラン (ownerId=uid)」は logout でローカル state から外す → 再ログインで Firestore から復元
         const localPlans = usePlanStore.getState().plans.filter(p => p.ownerId === 'local');
-        dlog('signout', 'about to filter state', {
-            beforeCount: usePlanStore.getState().plans.length,
-            keepingLocalCount: localPlans.length,
-        });
         const prevCurrentId = usePlanStore.getState().currentPlanId;
         const newCurrentId = prevCurrentId && localPlans.some(p => p.id === prevCurrentId) ? prevCurrentId : null;
         usePlanStore.setState({
@@ -194,10 +173,6 @@ export const useAuthStore = create<AuthState>((set) => ({
             localStorage.removeItem('mitigation-storage');
             useMitigationStore.getState().resetForTutorial();
         }
-        dlog('signout', 'state filtered', {
-            afterCount: localPlans.length,
-            currentPlanId: newCurrentId,
-        });
     },
 
     deleteAccount: async () => {

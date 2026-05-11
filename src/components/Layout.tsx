@@ -30,7 +30,6 @@ import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 import { LocalImportDialog } from './LocalImportDialog';
 import { useLocalImportDialog } from '../store/useLocalImportDialog';
 import { ShareImportSheet } from './ShareImportSheet';
-import { dlog } from '../utils/debugLog';
 import { getToken } from 'firebase/app-check';
 import { appCheck, auth } from '../lib/firebase';
 
@@ -398,27 +397,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // ログアウト時（authUser=null）にフラグをリセット → 再ログイン時にmigrateOnLoginが再実行される
     React.useEffect(() => {
         if (!authUser) {
-            dlog('layout', 'logout detected (authUser=null)', {
-                plansCount: usePlanStore.getState().plans.length,
-                hasMigrated,
-            });
             setHasMigrated(false);
             usePlanStore.getState()._migrationDone && usePlanStore.setState({ _migrationDone: false });
         }
     }, [authUser, hasMigrated]);
     React.useEffect(() => {
         if (authLoading || !authUser || hasMigrated) return;
-        dlog('layout', 'login effect fired', {
-            uid: authUser.uid,
-            stateBeforeMigrate: {
-                plansCount: usePlanStore.getState().plans.length,
-                plansSummary: usePlanStore.getState().plans.map(p => ({
-                    id: p.id, ownerId: p.ownerId, contentId: p.contentId, title: p.title,
-                })),
-                currentPlanId: usePlanStore.getState().currentPlanId,
-                dirtyCount: usePlanStore.getState()._dirtyPlanIds.size,
-            },
-        });
         setHasMigrated(true);
         // 注: 以前ここで setIsImportPreparing(true) して「ログイン中」 オーバーレイを
         // 表示していたが、 ユーザーフィードバックで撤去。 migrate / pullFromFirestore は
@@ -431,7 +415,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         ).then(() => {
             // マイグレーション後: Firestoreからマージした最新データをMitigationStoreに反映
             const { currentPlanId, plans } = usePlanStore.getState();
-            dlog('layout', 'migrateOnLogin resolved', { plansCount: plans.length, currentPlanId });
             if (currentPlanId) {
                 const plan = plans.find(p => p.id === currentPlanId);
                 if (plan?.data) {
@@ -441,56 +424,37 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 }
             }
         }).catch((err) => {
-            dlog('layout', 'migrateOnLogin REJECTED', { err, msg: err instanceof Error ? err.message : String(err) });
             console.error('[LoPo] migrateOnLogin失敗、PULLで回復を試行:', err);
         }).finally(async () => {
             usePlanStore.setState({ _migrationDone: true });
-            // PULL: 他端末の変更を確実に取得
+            // PULL: 他端末の変更を確実に取得 (失敗しても致命ではないので無視)
             try {
                 await planStore.pullFromFirestore(authUser.uid);
-            } catch (err) {
-                dlog('layout', 'pullFromFirestore REJECTED', { err, msg: err instanceof Error ? err.message : String(err) });
+            } catch {
+                // pull 失敗 → 次回 pull で回復
             }
 
             // B-1 Revision 3: ローカル取り込みダイアログを開く前に App Check + ID トークンを揃える
             // - OAuth リダイレクト直後は reCAPTCHA Enterprise トークン未取得で createPlan が permission-denied になる
             // - ダイアログを開く時点でトークン完備にしておけば、ユーザーが「取り込む」押下した瞬間に成功する
-            const appCheckExists = !!appCheck;
-            const authUserExists = !!auth.currentUser;
-            dlog('layout', 'token preflight', { appCheckExists, authUserExists });
             try {
-                const tokenResults: { source: string; tokenLen: number }[] = [];
                 if (appCheck) {
                     // forceRefresh: true で確実に新規トークン取得 (post-OAuth キャッシュ空対策)
-                    const r = await getToken(appCheck, true);
-                    tokenResults.push({ source: 'appCheck', tokenLen: r?.token?.length ?? 0 });
+                    await getToken(appCheck, true);
                 }
                 if (auth.currentUser) {
-                    const t = await auth.currentUser.getIdToken(true);
-                    tokenResults.push({ source: 'idToken', tokenLen: t?.length ?? 0 });
+                    await auth.currentUser.getIdToken(true);
                 }
-                dlog('layout', 'tokens ready', { tokenResults });
-            } catch (err) {
-                dlog('layout', 'token wait FAILED (continuing)', {
-                    err,
-                    msg: err instanceof Error ? err.message : String(err),
-                    code: (err as any)?.code,
-                });
+            } catch {
                 // トークン取得失敗でもダイアログは出す (executeLocalImport で再試行可能)
             }
 
             // 自動トリガー: ローカルプランがあるときは常に表示する (Phase B-1.5 Task 11)
             // 旧 `lopo_local_import_dont_show` localStorage フラグは既存ユーザーの値を残したまま読み捨てる
             const localPlanCount = usePlanStore.getState().plans.filter(p => p.ownerId === 'local').length;
-            dlog('layout', 'auto-trigger check', {
-                localPlanCount,
-                willOpenDialog: localPlanCount > 0,
-                plansCountAfterPull: usePlanStore.getState().plans.length,
-            });
             if (localPlanCount > 0) {
                 // 微小ディレイ (40ms) は state コミット安定化のため残す
                 setTimeout(() => {
-                    dlog('layout', 'opening dialog');
                     useLocalImportDialog.getState().open();
                 }, 40);
             }

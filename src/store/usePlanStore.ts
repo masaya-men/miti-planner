@@ -12,7 +12,6 @@ import { ensurePhaseEndTimes } from '../utils/phaseMigration';
 import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { compressPlanData, decompressPlanData } from '../utils/compression';
 import { generateUniqueTitle } from '../utils/planTitle';
-import { dlog } from '../utils/debugLog';
 import { getToken } from 'firebase/app-check';
 import { appCheck, auth } from '../lib/firebase';
 import { setLastOpened } from '../utils/lastOpenedStore';
@@ -112,15 +111,6 @@ export const usePlanStore = create<PlanState>()(
                 const normalizedPlan: SavedPlan = plan.ownerId === ''
                     ? { ...plan, ownerId: 'local' }
                     : plan;
-                dlog('store', 'addPlan', {
-                    id: normalizedPlan.id,
-                    ownerId: normalizedPlan.ownerId,
-                    ownerIdNormalized: plan.ownerId !== normalizedPlan.ownerId,
-                    contentId: normalizedPlan.contentId,
-                    title: normalizedPlan.title,
-                    plansBefore: get().plans.length,
-                    dataExists: normalizedPlan.data !== undefined && normalizedPlan.data !== null,
-                });
                 // 新規作成プランの lastOpened を即記録: silentCompressStale が
                 // 「未記録 = 7日以上未開封」と誤判定して作成直後の plan.data を
                 // 圧縮 (data → undefined / compressedData セット) するのを防ぐ
@@ -231,12 +221,8 @@ export const usePlanStore = create<PlanState>()(
             pullFromFirestore: async (uid) => {
                 const state = get();
                 if (state._isSyncing) {
-                    dlog('store', 'pullFromFirestore SKIP (isSyncing=true)');
                     return;
                 }
-                dlog('store', 'pullFromFirestore start', {
-                    plansCount: state.plans.length,
-                });
 
                 set({ _isSyncing: true, _cloudStatus: 'syncing' });
                 try {
@@ -244,10 +230,6 @@ export const usePlanStore = create<PlanState>()(
                         state.plans,
                         uid,
                     );
-                    dlog('store', 'pullFromFirestore fetched', {
-                        mergedCount: merged.length,
-                        changed,
-                    });
                     if (changed) {
                         set({ plans: merged });
                         const currentPlanId = get().currentPlanId;
@@ -563,11 +545,6 @@ export const usePlanStore = create<PlanState>()(
              * ローカルが新しいプランはFirestoreに書き戻す（端末間同期の要）
              */
             migrateOnLogin: async (uid, _displayName) => {
-                dlog('store', 'migrateOnLogin start', {
-                    uid,
-                    plansCount: get().plans.length,
-                    dirtyBefore: [...get()._dirtyPlanIds],
-                });
                 // 並行する syncDirtyPlans 経路を抑制 (二重書き込み + 競合コピー生成防止)
                 // - _isSyncing=true で syncToFirestore を即 return させる
                 // - _dirtyPlanIds をクリアして、ログアウト中の dirty キューが
@@ -585,16 +562,10 @@ export const usePlanStore = create<PlanState>()(
                         _deletedPlanIds: new Set<string>(),
                         _lastSyncAt: Date.now(),
                     });
-                    dlog('store', 'migrateOnLogin set state', {
-                        mergedCount: merged.length,
-                        dirtyIds,
-                    });
                 } catch (err) {
-                    dlog('store', 'migrateOnLogin THREW', { err, msg: err instanceof Error ? err.message : String(err) });
                     console.error('マイグレーションエラー:', err);
                 } finally {
                     set({ _isSyncing: false });
-                    dlog('store', 'migrateOnLogin finally (isSyncing=false)');
                 }
             },
 
@@ -603,26 +574,15 @@ export const usePlanStore = create<PlanState>()(
             executeLocalImport: async (uid, displayName, planIds, onProgress) => {
                 // App Check + Auth トークンを揃えてから書き込む (post-OAuth で未準備な場合に備える)
                 // forceRefresh: true で確実に新規トークン取得 (キャッシュが空 / 期限切れでも動く)
-                const appCheckExists = !!appCheck;
-                const authUserExists = !!auth.currentUser;
-                dlog('store', 'executeLocalImport token preflight', { appCheckExists, authUserExists });
                 try {
-                    const tokenResults: { source: string; tokenLen: number }[] = [];
                     if (appCheck) {
-                        const r = await getToken(appCheck, true);
-                        tokenResults.push({ source: 'appCheck', tokenLen: r?.token?.length ?? 0 });
+                        await getToken(appCheck, true);
                     }
                     if (auth.currentUser) {
-                        const t = await auth.currentUser.getIdToken(true);
-                        tokenResults.push({ source: 'idToken', tokenLen: t?.length ?? 0 });
+                        await auth.currentUser.getIdToken(true);
                     }
-                    dlog('store', 'executeLocalImport tokens ready', { tokenResults });
-                } catch (err) {
-                    dlog('store', 'executeLocalImport token wait FAILED', {
-                        err,
-                        msg: err instanceof Error ? err.message : String(err),
-                        code: (err as any)?.code,
-                    });
+                } catch {
+                    // トークン取得失敗でも続行 (createPlan 側で permission-denied として扱う)
                 }
 
                 const results: { id: string; status: 'success' | 'failed'; error?: string }[] = [];
@@ -633,18 +593,6 @@ export const usePlanStore = create<PlanState>()(
                         continue;
                     }
                     onProgress?.({ id: planId, status: 'uploading' });
-                    dlog('store', 'executeLocalImport createPlan attempt', {
-                        id: planId,
-                        contentId: plan.contentId,
-                        planKeys: Object.keys(plan).sort(),
-                        dataExists: plan.data !== undefined && plan.data !== null,
-                        dataIsObject: typeof plan.data === 'object' && plan.data !== null,
-                        dataKeys: plan.data && typeof plan.data === 'object' ? Object.keys(plan.data).sort() : [],
-                        timelineEventsLen: plan.data?.timelineEvents?.length ?? -1,
-                        partyMembersLen: plan.data?.partyMembers?.length ?? -1,
-                        archived: plan.archived,
-                        compressedDataExists: plan.compressedData !== undefined && plan.compressedData !== null,
-                    });
 
                     // 防御: data が無いプランは createPlan しても Rules で弾かれる
                     // 圧縮済みなら decompress を試みる、それ以外は失敗扱いで次へ
@@ -660,17 +608,12 @@ export const usePlanStore = create<PlanState>()(
                                         ),
                                     }));
                                     recovered = true;
-                                    dlog('store', 'executeLocalImport recovered compressed data', { id: planId });
                                 }
-                            } catch (err) {
-                                dlog('store', 'executeLocalImport decompress failed', {
-                                    id: planId,
-                                    msg: err instanceof Error ? err.message : String(err),
-                                });
+                            } catch {
+                                // decompress 失敗 → recovered=false のまま下の分岐で NO_DATA 扱い
                             }
                         }
                         if (!recovered) {
-                            dlog('store', 'executeLocalImport SKIP - no data', { id: planId });
                             results.push({ id: planId, status: 'failed', error: 'NO_DATA' });
                             onProgress?.({ id: planId, status: 'failed', error: 'NO_DATA' });
                             continue;
@@ -691,12 +634,10 @@ export const usePlanStore = create<PlanState>()(
                         }));
                         results.push({ id: planId, status: 'success' });
                         onProgress?.({ id: planId, status: 'success' });
-                        dlog('store', 'executeLocalImport createPlan ok', { id: planId });
                     } catch (err) {
                         const msg = err instanceof Error ? err.message : String(err);
                         results.push({ id: planId, status: 'failed', error: msg });
                         onProgress?.({ id: planId, status: 'failed', error: msg });
-                        dlog('store', 'executeLocalImport createPlan FAILED', { id: planId, msg });
                     }
                 }
                 return results;

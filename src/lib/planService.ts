@@ -29,7 +29,6 @@ import { db } from './firebase';
 import { COLLECTIONS, PLAN_LIMITS } from '../types/firebase';
 import type { FirestorePlan, FirestoreUserPlanCounts } from '../types/firebase';
 import type { SavedPlan } from '../types';
-import { dlog } from '../utils/debugLog';
 
 // ========================================
 // 型変換ヘルパー
@@ -222,43 +221,12 @@ async function createPlan(
     );
   }
 
-  // 診断: バッチコミット直前に、プラン本体のみ単体で書き込みテスト → カウンター更新の問題か
-  // プラン書き込みの問題かを切り分ける。失敗時は単体エラーが見えるのでログに残す。
+  // プラン本体は単体 setDoc、 counter は別バッチで更新。
+  // counter 更新が失敗してもプラン本体は既に書き込み済みなので throw しない (repairPlanCounts でリカバリ)。
   const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
   const planData = toFirestoreCreate(plan, uid, displayName);
+  await setDoc(planRef, planData);
 
-  // 投げるデータの内訳をログに残す (Rules 評価で何が弾かれるかの手がかり)
-  dlog('migrate', 'createPlan toFirestore detail', {
-    planId: plan.id,
-    fields: Object.keys(planData).sort(),
-    ownerId: planData.ownerId,
-    title: planData.title,
-    titleLen: typeof planData.title === 'string' ? planData.title.length : -1,
-    contentId: planData.contentId,
-    contentIdType: typeof planData.contentId,
-    isPublic: planData.isPublic,
-    isPublicType: typeof planData.isPublic,
-    version: planData.version,
-    copyCount: planData.copyCount,
-    useCount: planData.useCount,
-    dataExists: planData.data !== undefined && planData.data !== null,
-    dataIsObject: typeof planData.data === 'object' && planData.data !== null && !Array.isArray(planData.data),
-    dataKeys: planData.data && typeof planData.data === 'object' ? Object.keys(planData.data).sort() : [],
-  });
-
-  // 単独 setDoc で plan 単体の書き込みを試行 (バッチ操作の counter update 影響を排除)
-  try {
-    await setDoc(planRef, planData);
-    dlog('migrate', 'createPlan plan-only setDoc OK');
-  } catch (err) {
-    dlog('migrate', 'createPlan plan-only setDoc FAILED', {
-      msg: err instanceof Error ? err.message : String(err),
-      code: (err as any)?.code,
-    });
-    throw err;
-  }
-
-  // 成功したら counter のみ別途更新 (バッチが原因なら ここで分かる)
   const countRef = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
   const countUpdate: Record<string, any> = {
     total: increment(1),
@@ -271,13 +239,8 @@ async function createPlan(
     const counterBatch = writeBatch(db);
     counterBatch.update(countRef, countUpdate);
     await counterBatch.commit();
-    dlog('migrate', 'createPlan counter update OK');
-  } catch (err) {
-    dlog('migrate', 'createPlan counter update FAILED (plan was already written!)', {
-      msg: err instanceof Error ? err.message : String(err),
-      code: (err as any)?.code,
-    });
-    // プランは既に書き込み済みなので throw しない (整合性は repairPlanCounts で次回リカバリ)
+  } catch {
+    // counter 失敗時は無視 (plan 本体は書き込み済み、 repairPlanCounts でリカバリ)
   }
 }
 
@@ -418,34 +381,16 @@ async function migrateLocalPlansToFirestore(
   localPlans: SavedPlan[],
   uid: string,
 ): Promise<{ merged: SavedPlan[]; dirtyIds: string[] }> {
-  dlog('migrate', 'start', {
-    uid,
-    localPlansCount: localPlans.length,
-    localPlanSummary: localPlans.map(p => ({
-      id: p.id,
-      ownerId: p.ownerId,
-      contentId: p.contentId,
-      title: p.title,
-      updatedAt: p.updatedAt,
-    })),
-  });
-
   // カウンターを実データから修復（過去の同期失敗で壊れている可能性があるため）
   try {
     await repairPlanCounts(uid);
-    dlog('migrate', 'repairPlanCounts ok');
   } catch (err) {
-    dlog('migrate', 'repairPlanCounts FAILED', { err });
     console.error('カウンター修復エラー（続行）:', err);
   }
 
   // Firestoreから既存プランを取得
   const remotePlans = await fetchUserPlans(uid);
   const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
-  dlog('migrate', 'fetched remote', {
-    remoteCount: remotePlans.length,
-    remoteIds: [...remoteMap.keys()],
-  });
 
   // マージ + ローカルが新しいプランをFirestoreに書き戻し
   const merged: SavedPlan[] = [];
@@ -485,11 +430,6 @@ async function migrateLocalPlansToFirestore(
   // updatedAt降順でソート
   merged.sort((a, b) => b.updatedAt - a.updatedAt);
 
-  dlog('migrate', 'done', {
-    mergedCount: merged.length,
-    dirtyIds,
-    mergedSummary: merged.map(p => ({ id: p.id, ownerId: p.ownerId, contentId: p.contentId })),
-  });
   return { merged, dirtyIds };
 }
 
