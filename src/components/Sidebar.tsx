@@ -253,6 +253,18 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                             />
                         )}
 
+                        {/* 上限到達バッジ (Phase B-1.5 polish 第 2 弾 #3): コンテンツが
+                            プラン保存上限に達したら閉じ状態でも常に「上限 5/5」 を表示。
+                            i18n キーは expanded 時の表示と完全に同じ (sidebar.plan_limit) で揃える。 */}
+                        {contentPlans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT && !multiSelect.isEnabled && (
+                            <span className="shrink-0 text-app-xs font-medium text-app-text-muted/60 px-1">
+                                {t('sidebar.plan_limit', {
+                                    current: contentPlans.length,
+                                    max: PLAN_LIMITS.MAX_PLANS_PER_CONTENT,
+                                })}
+                            </span>
+                        )}
+
                         {/* クリック領域を維持するための flex-1 スペーサー（絶タブは正式名称が flex-1 で広がるため不要） */}
                         {!showFullName && <div className="flex-1 min-w-0" />}
                     </button>

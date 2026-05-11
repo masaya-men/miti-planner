@@ -12,7 +12,7 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【最優先 2026-05-11 セッション 6・Phase B-1.5 polish 第 2 弾 (#2 #1 完了 / #4 fix-2 中央オーバーレイ + sweep バグ修正 完了 / #3 次セッション)】**: 第 2 弾フィードバック 4 件のうち #2 #1 完了、 #4 は実機検証で「個別 sweep ほとんど見えない / 画面端で行われていて不親切」 のフィードバック → 方針転換し中央プログレスバー追加 + 個別 sweep mount バグ修正完了。 実機検証評価待ち。 #3 は次セッション。
+- **【完了 2026-05-11 セッション 6・Phase B-1.5 polish 第 2 弾 (全 4 件完走)】**: フィードバック #2 (致命) / #1 (loading 時間) / #4 (sweep + 中央バー、 Rev 4 まで反復) / #3 (sidebar 上限バッジ) すべて完了。 ユーザー実機 OK。
 
   **#2: 【致命 完了】 2 回目以降の上限解消で操作不能**: systematic-debugging で真因特定 (LimitResolutionSheet は ShareImportSheet から無条件レンダリングされており、 limitContext===null で `return null;` してもコンポーネントインスタンスは生存し useState 値が永続。 handleDelete 成功パスが isDeleting=true / checkedIds をリセットしないまま setLimitContext(null) するため、 2 回目の上限ヒット時に持ち越された isDeleting=true で全操作が死ぬ)。 修正: `useEffect` で limitContext null → 非 null 遷移時に local state を新規開示扱いでリセット。 回帰防止 vitest 追加。
 
@@ -25,16 +25,22 @@
     - fix-1 (sweep + isActive 青被り抑制) もそのまま維持。 個別 sweep もアニメ修正で視認可能になり、 中央オーバーレイと併用。
     - 回帰防止 vitest: SweepOverlay mount アニメ / ImportProgressOverlay 10 件 / 既存 SharePlanCard 3 件 全 PASS。
 
-  **#3 (次セッション): 上限到達コンテンツに常に「5/5」 上限表示**: 仕様確定。 サイドバーで上限到達 (`plansForContent.length >= MAX_PLANS_PER_CONTENT`) のコンテンツは、 開いていなくても常に「5/5」 と上限表示を出す。 修正対象: `Sidebar.tsx` の上限表示出現条件のみ。
+  **#3 完了**: `Sidebar.tsx` のコンテンツヘッダ行に「上限 5/5」 バッジを追加。 `contentPlans.length >= MAX_PLANS_PER_CONTENT && !multiSelect.isEnabled` の条件で常時表示 (開閉問わず)。 i18n キーは expanded 時の `sidebar.plan_limit` と統一。
 
-  **実機検証チェックリスト (Vercel デプロイ後にユーザーが試す)**:
-  1. **#1**: 共有 URL を踏むと、 シートが滑り込んだあと「読み込み中…」 がはっきり見えてから preview に切り替わる
-  2. **#2**: 2 層 5/5 上限ヒット → 削除して再開 → 3 層 5/5 上限ヒットでシート再開示後、 チェック・キャンセル・削除ボタンすべて操作できる
-  3. **#4 fix-2**: 共有 URL を踏んで取り込み中、 プレビューペインの中央に「取り込み中… 1/N」 横バーが表示される。 単一取り込みでもバーが 0→100% に充填されて見える。 個別カード sweep も今度はちゃんと左→右に走る。 削除中 (LimitResolutionSheet) も同様に赤バーが中央表示される。
+  **#4 反復履歴 (Rev 1 → Rev 4)**: ユーザーフィードバックを 4 周受けて、 最終形は「シート内で中身がクロスフェード + smooth tween で高さ拡張 (バウンス廃止) + 中央プログレスバー (画面真ん中、 createPortal) + 個別 sweep mount アニメ修正」。 ログイン中オーバーレイは OAuth リダイレクト時のみ復活 (`isAuthRedirecting`)、 旧 `isImportPreparing` は完全撤去 (ただログイン状態を確認する場面では出さない)。
 
   **設計書 / 実装プラン (第 1 弾)**:
   - `docs/superpowers/specs/2026-05-09-share-import-polish-design.md`
   - `docs/superpowers/plans/2026-05-09-share-import-polish.md`
+
+  **第 2 弾の主要 commits (a87f2ad まで)**:
+  - 3ed6f94 fix(LimitResolutionSheet): #2 致命 useEffect で local state リセット
+  - dbc6be8 fix(useShareImportFlow): #1 loading 最低時間保証
+  - ffe13b1 fix(SharePlanCard): #4 fix-1 sweep + isActive 青被り抑制
+  - ce2f822 fix(share-import): 中央バー + SweepOverlay mount アニメ修正
+  - 24c51e8 fix(share-import): ログイン中オーバーレイ撤去 (誤撤去) / バー画面中央
+  - 0d6537f fix(share-import): Rev 3 シート読み込み画面再設計 + isAuthRedirecting 復活
+  - a87f2ad fix(share-import): Rev 4 同一シート中身クロスフェード + バウンス廃止
 
 - **【完了 2026-05-09 セッション 5・Phase B-1.5 polish (Task 6 fix + Task 7-10 + final review I-1)】**: subagent-driven-development の残タスクを完走。 Task 6 review (I-1 / I-3 / Minor #2) → Task 7 ShareImportSheet polish → Task 8 LocalImportDialog SweepOverlay 移行 → Task 9 ShareImportProgressIndicator 削除 → Task 10 final review → final reviewer Important I-1 即修正。 全 vitest 573/573 PASS、 tsc clean、 vite build success、 触らない箇所 (usePlanStore / planService / silentCompressStale / checkPlanLimit / MitigationSheet / buildShareImportItems) は origin/main からの diff 0 行維持。 push + Vercel デプロイ済 (HEAD: 8aaa9dc、 セッション 5 で 5 コミット追加)。
 
