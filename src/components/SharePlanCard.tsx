@@ -54,13 +54,24 @@ export function SharePlanCard(props: SharePlanCardProps) {
         sweepStatus,
         sweepColor = 'blue',
     } = props;
+    // Phase B-1.5 polish 第 2 弾 #4: sweep (取り込み / 削除演出) 中に isActive の
+    // 青背景 (bg-app-blue/10) が乗っていると、 青 sweep (width 0→100% も同系青) が
+    // 視認できなくなる。 sweep 中は isActive 背景を抑制し sweep に視覚的主役を譲る。
+    // ただし isRedFlagged (上限ヒット赤フラグ) は重要シグナルなので sweep 中も赤背景を
+    // 保持する (赤背景 + 青 sweep は色相が異なるため両方視認可能)。
+    // sweep が無いとき (preview / 未削除) は元の precedence (isActive > isRedFlagged) を維持。
+    const isSweeping = sweepStatus !== undefined && sweepStatus !== 'idle';
     const baseClass = isExiting
         ? 'pointer-events-none'
-        : isActive
-          ? 'active bg-app-blue/10 border-app-blue/40'
-          : isRedFlagged
-            ? 'bg-app-red/15 border-app-red/40'
-            : 'bg-app-surface2/30 border-app-border hover:bg-app-surface2/50';
+        : isSweeping
+          ? (isRedFlagged
+              ? 'bg-app-red/15 border-app-red/40'
+              : 'bg-app-surface2/30 border-app-border')
+          : isActive
+            ? 'active bg-app-blue/10 border-app-blue/40'
+            : isRedFlagged
+              ? 'bg-app-red/15 border-app-red/40'
+              : 'bg-app-surface2/30 border-app-border hover:bg-app-surface2/50';
     return (
         <motion.div
             data-testid="share-plan-card"

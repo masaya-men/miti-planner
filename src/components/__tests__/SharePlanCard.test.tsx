@@ -101,4 +101,49 @@ describe('SharePlanCard', () => {
         const sweep = container.querySelector('[aria-hidden="true"]');
         expect(sweep).toBeNull();
     });
+
+    it('sweepStatus=active かつ isActive=true のとき isActive 青背景は抑制される (#4)', () => {
+        // 真因 (#4): 青 sweep (取り込み演出 width 0→100%) と isActive の青背景が
+        // 重なって sweep が視認できない問題。 sweep 中は isActive 背景を抑制し、
+        // sweep オーバーレイ自体に視覚的主役を譲る。
+        const { container } = render(
+            <SharePlanCard
+                {...baseProps}
+                isActive={true}
+                sweepStatus="active"
+                sweepColor="blue"
+            />,
+        );
+        const card = container.firstChild as HTMLElement;
+        // 青背景クラス (bg-app-blue/10) と 'active' クラスが付与されていないこと
+        expect(card.className).not.toContain('bg-app-blue');
+        expect(card.className).not.toContain('active');
+        // sweep 中の plain 背景クラスが付与されていること
+        expect(card.className).toContain('bg-app-surface2/30');
+    });
+
+    it('sweepStatus=active かつ isRedFlagged=true のとき赤背景は保持される (#4 例外)', () => {
+        // 上限ヒット赤フラグ (limit hit reveal 中) は sweep より優先して赤背景を保持。
+        // 赤背景 + 青 sweep は色相が異なるため両方視認できる。
+        const { container } = render(
+            <SharePlanCard
+                {...baseProps}
+                isRedFlagged={true}
+                sweepStatus="active"
+                sweepColor="blue"
+            />,
+        );
+        const card = container.firstChild as HTMLElement;
+        expect(card.className).toContain('app-red');
+    });
+
+    it('sweepStatus 未指定 + isActive=true は従来通り青背景を維持 (#4 既存挙動保護)', () => {
+        // preview 状態など sweep が無いときは元通り isActive 青背景を出す。
+        const { container } = render(
+            <SharePlanCard {...baseProps} isActive={true} />,
+        );
+        const card = container.firstChild as HTMLElement;
+        expect(card.className).toContain('active');
+        expect(card.className).toContain('bg-app-blue');
+    });
 });
