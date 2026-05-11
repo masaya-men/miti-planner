@@ -181,7 +181,8 @@
         "button_import_count": "{{count}}개 가져오기",
         "button_cancel": "취소",
         "done_summary": "경감표 {{count}}개를 가져왔습니다",
-        "cancelled_some": "{{cancelled}}개 취소되었습니다"
+        "cancelled_some": "{{cancelled}}개 취소되었습니다",
+        "progress_label": "가져오는 중…"
     },
     "limit_resolution": {
         "title_per_content": "{{contentName}}은(는) 이미 {{current}}/{{max}}개입니다",
@@ -192,7 +193,8 @@
         "button_delete_and_resume": "{{count}}개 삭제하고 재개",
         "button_delete_and_resume_disabled": "삭제할 경감표를 체크해주세요",
         "button_cancel": "취소",
-        "resume_message": "{{count}}개 가져오기를 재개합니다"
+        "resume_message": "{{count}}개 가져오기를 재개합니다",
+        "progress_label": "삭제하는 중…"
     },
     "aa_settings": {
         "title": "AA 추가 모드",

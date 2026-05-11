@@ -189,7 +189,8 @@
         "button_import_count": "Import {{count}} sheet(s)",
         "button_cancel": "Cancel",
         "done_summary": "Imported {{count}} sheet(s)",
-        "cancelled_some": "{{cancelled}} cancelled"
+        "cancelled_some": "{{cancelled}} cancelled",
+        "progress_label": "Importing…"
     },
     "limit_resolution": {
         "title_per_content": "{{contentName}} is at {{current}}/{{max}}",
@@ -200,7 +201,8 @@
         "button_delete_and_resume": "Delete {{count}} and resume",
         "button_delete_and_resume_disabled": "Check sheets to remove",
         "button_cancel": "Cancel",
-        "resume_message": "Resuming {{count}} import(s)"
+        "resume_message": "Resuming {{count}} import(s)",
+        "progress_label": "Deleting…"
     },
     "aa_settings": {
         "title": "Add AA Mode",

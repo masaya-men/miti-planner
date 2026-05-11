@@ -181,7 +181,8 @@
         "button_import_count": "导入 {{count}} 个",
         "button_cancel": "取消",
         "done_summary": "已导入 {{count}} 个减伤表",
-        "cancelled_some": "已取消 {{cancelled}} 个"
+        "cancelled_some": "已取消 {{cancelled}} 个",
+        "progress_label": "正在导入…"
     },
     "limit_resolution": {
         "title_per_content": "{{contentName}} 已经有 {{current}}/{{max}} 个",
@@ -192,7 +193,8 @@
         "button_delete_and_resume": "删除 {{count}} 个并继续",
         "button_delete_and_resume_disabled": "请勾选要删除的减伤表",
         "button_cancel": "取消",
-        "resume_message": "正在恢复 {{count}} 个导入"
+        "resume_message": "正在恢复 {{count}} 个导入",
+        "progress_label": "正在删除…"
     },
     "aa_settings": {
         "title": "添加自动攻击模式",

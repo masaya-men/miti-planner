@@ -17,11 +17,32 @@ import { useShareImportFlow } from '../store/useShareImportFlow';
 import { useAuthStore } from '../store/useAuthStore';
 import { MitigationSheetPreview } from './MitigationSheetPreview';
 import { SharePlanCard } from './SharePlanCard';
+import { ImportProgressOverlay } from './ImportProgressOverlay';
 import { executeShareImport } from '../lib/executeShareImport';
 import { LimitResolutionSheet } from './LimitResolutionSheet';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import type { ProgressEvent } from '../lib/shareImportTypes';
+
+/** 1 アイテムの進捗を 0-1 で返す (Phase B-1.5 polish 第 2 弾 #4 Revision)。
+ *  ステージ重み: check 33% / local 66% / server 100%、 in_progress は手前 10/50/80%。
+ *  中央オーバーレイの linear bar 充填率算出に使う。 */
+function getImportItemFraction(events: ProgressEvent[]): number {
+    if (events.length === 0) return 0;
+    const server = events.find(e => e.stage === 'server');
+    if (server) return server.status === 'in_progress' ? 0.8 : 1.0;
+    const local = events.find(e => e.stage === 'local');
+    if (local) return local.status === 'in_progress' ? 0.5 : 0.66;
+    const check = events.find(e => e.stage === 'check');
+    if (check) return check.status === 'in_progress' ? 0.1 : 0.33;
+    return 0;
+}
+
+/** アイテムが「処理終了 (success/failed/cancelled/skipped どれか)」か。 */
+function isImportItemTerminal(events: ProgressEvent[]): boolean {
+    if (events.length === 0) return false;
+    return !events.some(e => e.status === 'in_progress');
+}
 
 // done 状態に遷移してからシートを閉じるまでの遅延 (ms)。
 // ユーザーが「完了表示」 を視認する時間を確保するための定数。
@@ -88,6 +109,28 @@ export function ShareImportSheet() {
         importItems.find(
             (i) => (i.sourcePlanId ?? i.sourceShareId) === activeItemId,
         ) ?? importItems[0];
+
+    // 中央オーバーレイ用の集計 (importing / done 中のみ意味あり)
+    const overlayMetrics = (() => {
+        if (importItems.length === 0) {
+            return { percent: 0, completedCount: 0, totalCount: 0 };
+        }
+        let totalFraction = 0;
+        let completedCount = 0;
+        for (const item of importItems) {
+            const planId = item.sourcePlanId ?? item.sourceShareId;
+            const events = Array.from(progressMap.values()).filter(
+                (e) => e.planId === planId,
+            );
+            totalFraction += getImportItemFraction(events);
+            if (isImportItemTerminal(events)) completedCount += 1;
+        }
+        return {
+            percent: (totalFraction / importItems.length) * 100,
+            completedCount,
+            totalCount: importItems.length,
+        };
+    })();
 
     const handleBackdropClick = () => {
         if (status === 'importing' || status === 'limit_hit') return;
@@ -223,14 +266,30 @@ export function ShareImportSheet() {
                                         </LayoutGroup>
                                     </div>
 
-                                    {/* Right preview */}
-                                    <div className="flex-1 min-w-0 overflow-y-auto p-3">
-                                        {activeItem && (
-                                            <MitigationSheetPreview
-                                                planData={activeItem.planData}
-                                                loading={false}
-                                            />
-                                        )}
+                                    {/* Right preview + center overlay (#4 Revision)。
+                                        relative + flex-col 親の中に scroll 子と overlay 子を並べる。
+                                        overlay は inset-0 + flex 中央寄せで preview ペインの中央に
+                                        固定表示される (内側 scroll とは独立)。 */}
+                                    <div className="relative flex-1 min-w-0 flex flex-col">
+                                        <div className="flex-1 overflow-y-auto p-3">
+                                            {activeItem && (
+                                                <MitigationSheetPreview
+                                                    planData={activeItem.planData}
+                                                    loading={false}
+                                                />
+                                            )}
+                                        </div>
+                                        <ImportProgressOverlay
+                                            visible={status === 'importing' || status === 'done'}
+                                            percent={overlayMetrics.percent}
+                                            label={t('share_import.progress_label')}
+                                            countLabel={
+                                                isBundle
+                                                    ? `${overlayMetrics.completedCount}/${overlayMetrics.totalCount}`
+                                                    : undefined
+                                            }
+                                            color="blue"
+                                        />
                                     </div>
                                 </div>
 

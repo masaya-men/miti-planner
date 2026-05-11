@@ -189,7 +189,8 @@
         "button_import_count": "{{count}} 件を取り込む",
         "button_cancel": "キャンセル",
         "done_summary": "{{count}} 件の軽減表を取り込みました",
-        "cancelled_some": "{{cancelled}} 件はキャンセルしました"
+        "cancelled_some": "{{cancelled}} 件はキャンセルしました",
+        "progress_label": "取り込み中…"
     },
     "limit_resolution": {
         "title_per_content": "{{contentName}} は既に {{current}}/{{max}} 件です",
@@ -200,7 +201,8 @@
         "button_delete_and_resume": "{{count}} 件削除して再開",
         "button_delete_and_resume_disabled": "削除する軽減表をチェックしてください",
         "button_cancel": "キャンセル",
-        "resume_message": "{{count}} 件の取り込みを再開します"
+        "resume_message": "{{count}} 件の取り込みを再開します",
+        "progress_label": "削除中…"
     },
     "aa_settings": {
         "title": "AA追加モード",

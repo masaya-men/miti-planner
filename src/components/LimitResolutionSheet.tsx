@@ -17,12 +17,31 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { MitigationSheetPreview } from './MitigationSheetPreview';
 import { SharePlanCard } from './SharePlanCard';
+import { ImportProgressOverlay } from './ImportProgressOverlay';
 import { executePlanDeletions } from '../lib/executePlanDeletions';
 import { PLAN_LIMITS } from '../types/firebase';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import type { DeleteProgressEvent } from '../lib/shareImportTypes';
 import type { SavedPlan } from '../types';
+
+/** 1 プランの削除進捗を 0-1 で返す (Phase B-1.5 polish 第 2 弾 #4 Revision)。
+ *  ステージ重み: local_delete 33% / server_delete 66% / capacity_freed 100%。 */
+function getDeleteItemFraction(events: DeleteProgressEvent[]): number {
+    if (events.length === 0) return 0;
+    const capacity = events.find(e => e.stage === 'capacity_freed');
+    if (capacity) return capacity.status === 'in_progress' ? 0.8 : 1.0;
+    const server = events.find(e => e.stage === 'server_delete');
+    if (server) return server.status === 'in_progress' ? 0.5 : 0.66;
+    const local = events.find(e => e.stage === 'local_delete');
+    if (local) return local.status === 'in_progress' ? 0.1 : 0.33;
+    return 0;
+}
+
+function isDeleteItemTerminal(events: DeleteProgressEvent[]): boolean {
+    if (events.length === 0) return false;
+    return !events.some(e => e.status === 'in_progress');
+}
 
 const DELETE_STAGES: DeleteProgressEvent['stage'][] = [
     'local_delete',
@@ -90,6 +109,27 @@ export function LimitResolutionSheet() {
 
     const activePlan: SavedPlan | undefined =
         targetPlans.find(p => p.id === activeId) ?? targetPlans[0];
+
+    // 中央オーバーレイ用の集計 (isDeleting 中のみ表示)。
+    // checked された plan の進捗を集計し、 percent / count を出す。
+    const overlayMetrics = (() => {
+        const ids = Array.from(checkedIds);
+        if (ids.length === 0) return { percent: 0, completedCount: 0, totalCount: 0 };
+        let totalFraction = 0;
+        let completedCount = 0;
+        for (const id of ids) {
+            const events = DELETE_STAGES
+                .map(stage => deleteProgressMap.get(`${id}:${stage}`))
+                .filter((e): e is DeleteProgressEvent => !!e);
+            totalFraction += getDeleteItemFraction(events);
+            if (isDeleteItemTerminal(events)) completedCount += 1;
+        }
+        return {
+            percent: (totalFraction / ids.length) * 100,
+            completedCount,
+            totalCount: ids.length,
+        };
+    })();
 
     // contentId をユーザーフレンドリーなコンテンツ名に解決 (per_content モード時のヘッダ用)。
     // テスト環境では i18n オブジェクトが渡らない場合があるので optional chaining + デフォルト 'en'。
@@ -255,11 +295,25 @@ export function LimitResolutionSheet() {
                         </LayoutGroup>
                     </div>
 
-                    {/* プレビュー (mobile も表示)。 hidden md:block を撤去 */}
-                    <div className="flex-1 min-w-0 overflow-y-auto border-l border-app-border bg-app-surface2/30">
-                        <MitigationSheetPreview
-                            planData={activePlan?.data ?? null}
-                            loading={false}
+                    {/* プレビュー + 中央オーバーレイ (#4 Revision)。
+                        relative + flex-col 親の中に scroll 子と overlay 子を並べる。 */}
+                    <div className="relative flex-1 min-w-0 flex flex-col border-l border-app-border bg-app-surface2/30">
+                        <div className="flex-1 overflow-y-auto">
+                            <MitigationSheetPreview
+                                planData={activePlan?.data ?? null}
+                                loading={false}
+                            />
+                        </div>
+                        <ImportProgressOverlay
+                            visible={isDeleting}
+                            percent={overlayMetrics.percent}
+                            label={t('limit_resolution.progress_label')}
+                            countLabel={
+                                overlayMetrics.totalCount > 1
+                                    ? `${overlayMetrics.completedCount}/${overlayMetrics.totalCount}`
+                                    : undefined
+                            }
+                            color="red"
                         />
                     </div>
                 </div>

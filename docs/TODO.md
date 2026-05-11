@@ -12,26 +12,25 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【最優先 2026-05-11 セッション 6・Phase B-1.5 polish 第 2 弾 (#2 #1 #4 完了 / #3 次セッション)】**: 第 2 弾フィードバック 4 件のうち 3 件を完了、 実機検証評価待ち。 #3 (サイドバー上限到達常時表示) は仕様自体は確定だが Sidebar の影響範囲が広く独立タスクとして次セッションで扱う。
+- **【最優先 2026-05-11 セッション 6・Phase B-1.5 polish 第 2 弾 (#2 #1 完了 / #4 fix-2 中央オーバーレイ + sweep バグ修正 完了 / #3 次セッション)】**: 第 2 弾フィードバック 4 件のうち #2 #1 完了、 #4 は実機検証で「個別 sweep ほとんど見えない / 画面端で行われていて不親切」 のフィードバック → 方針転換し中央プログレスバー追加 + 個別 sweep mount バグ修正完了。 実機検証評価待ち。 #3 は次セッション。
 
   **#2: 【致命 完了】 2 回目以降の上限解消で操作不能**: systematic-debugging で真因特定 (LimitResolutionSheet は ShareImportSheet から無条件レンダリングされており、 limitContext===null で `return null;` してもコンポーネントインスタンスは生存し useState 値が永続。 handleDelete 成功パスが isDeleting=true / checkedIds をリセットしないまま setLimitContext(null) するため、 2 回目の上限ヒット時に持ち越された isDeleting=true で全操作が死ぬ)。 修正: `useEffect` で limitContext null → 非 null 遷移時に local state を新規開示扱いでリセット。 回帰防止 vitest 追加。
 
-  **#1: 【完了】 「読み込み中」 が見えない**: 真因 = API 高速応答時に loading フェーズが裏で一瞬で完了。 修正: `useShareImportFlow.start()` に `padLoadingDelay(startedAt)` helper 導入、 success/error/exception の 3 経路すべてで `MIN_LOADING_VISIBLE_MS = 1200ms` を最低保証 (シート slide-in ~350ms + 視認時間 ~850ms)。 回帰防止 vitest 2 件追加。
+  **#1: 【完了】 「読み込み中」 が見えない**: 真因 = API 高速応答時に loading フェーズが裏で一瞬で完了。 修正: `useShareImportFlow.start()` に `padLoadingDelay(startedAt)` helper 導入、 success/error/exception の 3 経路すべてで `MIN_LOADING_VISIBLE_MS = 1200ms` を最低保証。 回帰防止 vitest 2 件追加。
 
-  **#4: 【完了】 取り込み青 sweep と isActive 青背景の被り**: 修正: SharePlanCard.baseClass で sweepStatus が active/success/failed のとき isActive 青背景を抑制し plain 背景に切替。 isRedFlagged は sweep 中も保持 (色相違いで両立)。 sweep 無し時の precedence は据え置き。 回帰防止 vitest 3 件追加 (sweep+active 抑制 / sweep+redFlag 保持 / sweep 無し既存挙動)。
+  **#4 fix-1 + fix-2: 個別 sweep バグ修正 + 中央プログレスバー追加 (方針転換)**: 実機検証で「個別 sweep ほとんど見えない (特に 1 件取り込み時はアニメ感ゼロ)」「画面の端で行われていて不親切、 中央に業界水準的なプログレスバーが欲しい」 と新たなフィードバック。 修正内容:
+    1. **SweepOverlay mount アニメバグ修正**: 旧実装は status='active' で mount 時に既に width=100% で出るため CSS transition が「値変化」 を検知できず 0→100% の充填アニメが視認できなかった (1 件取り込みでアニメ完全に見えない事象の真因)。 useState で '0%' で mount → useEffect + requestAnimationFrame で '100%' に flip して transition を確実に発火。
+    2. **ImportProgressOverlay コンポーネント新設**: 右プレビューペイン中央に glass-tier3 カード型バー (ラベル「取り込み中…」 + バンドルは件数 「3/5」 + 横バー 0-100%)。 ステージ加重 (check 33% / local 66% / server 100%、 in_progress は手前 10/50/80%) で滑らかに充填。
+    3. **ShareImportSheet / LimitResolutionSheet 統合**: 取り込み中は青バー、 削除中は赤バー。 i18n 4 言語追加 (`share_import.progress_label` / `limit_resolution.progress_label`)。
+    - fix-1 (sweep + isActive 青被り抑制) もそのまま維持。 個別 sweep もアニメ修正で視認可能になり、 中央オーバーレイと併用。
+    - 回帰防止 vitest: SweepOverlay mount アニメ / ImportProgressOverlay 10 件 / 既存 SharePlanCard 3 件 全 PASS。
 
-  **#3 (次セッション): 上限到達コンテンツに常に「5/5」 上限表示**: 仕様確定。 サイドバーで上限到達 (`plansForContent.length >= MAX_PLANS_PER_CONTENT`) のコンテンツは、 開いていなくても常に「5/5」 と上限表示を出す。 修正対象: `Sidebar.tsx` の上限表示出現条件のみ。 次セッションで影響範囲確認 → 実装 → push。
-
-  **このセッションでデプロイした 3 commits**:
-  - `fix(LimitResolutionSheet)`: 2 回目以降の上限ヒットで local state リセット (useEffect)
-  - `fix(useShareImportFlow)`: loading フェーズに最低 1200ms 視認時間保証
-  - `fix(SharePlanCard)`: sweep 中 isActive 青背景を抑制し sweep を視認可能に
-  - 全 vitest 579 PASS、 tsc clean、 build 成功
+  **#3 (次セッション): 上限到達コンテンツに常に「5/5」 上限表示**: 仕様確定。 サイドバーで上限到達 (`plansForContent.length >= MAX_PLANS_PER_CONTENT`) のコンテンツは、 開いていなくても常に「5/5」 と上限表示を出す。 修正対象: `Sidebar.tsx` の上限表示出現条件のみ。
 
   **実機検証チェックリスト (Vercel デプロイ後にユーザーが試す)**:
-  1. **#1**: 共有 URL を踏むと、 シートが滑り込んだあと「読み込み中…」 がはっきり見えてから preview に切り替わる (1 秒程度の loading 体験)
+  1. **#1**: 共有 URL を踏むと、 シートが滑り込んだあと「読み込み中…」 がはっきり見えてから preview に切り替わる
   2. **#2**: 2 層 5/5 上限ヒット → 削除して再開 → 3 層 5/5 上限ヒットでシート再開示後、 チェック・キャンセル・削除ボタンすべて操作できる
-  3. **#4**: 共有 URL を踏んで取り込み中、 選択中の青背景カードでも青 sweep プログレスバーが左→右に流れて見える
+  3. **#4 fix-2**: 共有 URL を踏んで取り込み中、 プレビューペインの中央に「取り込み中… 1/N」 横バーが表示される。 単一取り込みでもバーが 0→100% に充填されて見える。 個別カード sweep も今度はちゃんと左→右に走る。 削除中 (LimitResolutionSheet) も同様に赤バーが中央表示される。
 
   **設計書 / 実装プラン (第 1 弾)**:
   - `docs/superpowers/specs/2026-05-09-share-import-polish-design.md`
