@@ -279,7 +279,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "earths_reply", jobId: "mnk", name: { ja: "金剛周天", en: "Earth's Reply", zh: "金刚周天", ko: "금강주천" }, icon: "/icons/Earths_Reply.png",
-        recast: 1, duration: 1, type: "all", value: 0, isShield: false, scope: "party", minLevel: 64, requires: "riddle_of_earth", requiresWindow: 30
+        recast: 1, duration: 1, type: "all", value: 0, isShield: false, scope: "party", minLevel: 64, requires: "riddle_of_earth", requiresWindow: 30, maxCharges: 1
     },
 
     // --- Dark Knight ---
@@ -669,7 +669,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- White Mage ---
     {
         id: "divine_caress", jobId: "whm", name: { ja: "ディヴァインカレス", en: "Divine Caress", zh: "神爱抚", ko: "만상투기" }, icon: "/icons/Divine_Caress.png",
-        recast: 1, duration: 10, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, requires: "temperance", requiresWindow: 30, minLevel: 100, family: "ph_sub_120"
+        recast: 1, duration: 10, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, requires: "temperance", requiresWindow: 30, maxCharges: 1, minLevel: 100, family: "ph_sub_120"
     },
     {
         id: "plenary_indulgence", jobId: "whm", name: { ja: "インドゥルゲンティア", en: "Plenary Indulgence", zh: "全大赦", ko: "대사면" }, icon: "/icons/Plenary_Indulgence.png",

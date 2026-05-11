@@ -308,7 +308,7 @@ export function validateMitigationPlacement(
             const expectedName = (lang === 'en' || lang === 'en-US' || !expectedNameObj.ja) ? expectedNameObj.en : expectedNameObj.ja;
             return {
                 available: false,
-                message: t('mitigation.draw_alternate_required', { expected: expectedName, defaultValue: `次は${expectedName}のみ使用可` })
+                message: t('mitigation.draw_alternate_required', { expected: expectedName, defaultValue: `次は${expectedName}` })
             };
         }
     }
@@ -331,6 +331,17 @@ export function validateMitigationPlacement(
                     available: false,
                     message: t('mitigation.requires_parent', { parent: parentNameStr, defaultValue: `${parentNameStr}の効果中のみ使用可能` })
                 };
+            }
+            // 同ドローセッション内の単発使用制約: 最新ドロー以降に同カードを既に使っていれば配置不可
+            // (ゲーム仕様: 各カードは 1 ドローで 1 枚配布され、 1 回しか使えない)
+            const latestDrawTime = drawsBeforeNow[0].time;
+            const cardUsedAfterLatestDraw = relevantMitigations.some(am =>
+                am.mitigationId === m.id &&
+                am.time >= latestDrawTime &&
+                am.time < selectedTime
+            );
+            if (cardUsedAfterLatestDraw) {
+                return { available: false };
             }
             // AST カードは既存の parentInstances ベースの判定をスキップ
         } else {
@@ -450,6 +461,14 @@ export function validateMitigationPlacement(
     // Charge check (maxCharges) — charge system handles cooldown internally
     if (m.maxCharges) {
         const remaining = getRemainingCharges(m.id, selectedTime, relevantMitigations);
+        // 1 回限りスキル (sun_sign / divine_caress 等) はチャージ概念がユーザーにとって不自然なので
+        // バッジ・文言を出さず、 単に配置不可とだけ伝える。
+        if (m.maxCharges === 1) {
+            if (remaining <= 0) {
+                return { available: false };
+            }
+            return { available: true };
+        }
         const badge = `${remaining}/${m.maxCharges}`;
         if (remaining <= 0) {
             const label = t('mitigation.no_charges', 'No charges');

@@ -20,6 +20,8 @@ const tStub = (key: string, options?: unknown) => {
 
 const astralDraw = MITIGATIONS.find(m => m.id === 'astral_draw')!;
 const umbralDraw = MITIGATIONS.find(m => m.id === 'umbral_draw')!;
+const theArrow = MITIGATIONS.find(m => m.id === 'the_arrow')!;
+const theBole = MITIGATIONS.find(m => m.id === 'the_bole')!;
 
 function makeApplied(id: string, time: number): AppliedMitigation {
     return {
@@ -72,6 +74,49 @@ describe('AST ドロー交互制約', () => {
         ];
         // ignoreInstanceId で自身を除外 → 直前は Umbral (9s) → Astral 配置可
         const result = validateMitigationPlacement(astralDraw, 65, applied, tStub, existing.id);
+        expect(result.available).toBe(true);
+    });
+});
+
+describe('AST カード単発使用制約 (ドローセッション内 1 回)', () => {
+    it('Astral 直後に The Arrow 配置可', () => {
+        const applied = [makeApplied('astral_draw', -3)];
+        const result = validateMitigationPlacement(theArrow, 5, applied, tStub);
+        expect(result.available).toBe(true);
+    });
+
+    it('同 Astral セッション内で The Arrow 再使用は不可', () => {
+        const applied = [
+            makeApplied('astral_draw', -3),
+            makeApplied('the_arrow', 5),
+        ];
+        const result = validateMitigationPlacement(theArrow, 30, applied, tStub);
+        expect(result.available).toBe(false);
+    });
+
+    it('Umbral 後 → Astral 切替で The Arrow リセット可能', () => {
+        const applied = [
+            makeApplied('astral_draw', -3),
+            makeApplied('the_arrow', 5),
+            makeApplied('umbral_draw', 9),
+            makeApplied('astral_draw', 65),
+        ];
+        const result = validateMitigationPlacement(theArrow, 70, applied, tStub);
+        expect(result.available).toBe(true);
+    });
+
+    it('Umbral カード (The Bole) は Astral 中は使えない', () => {
+        const applied = [makeApplied('astral_draw', -3)];
+        const result = validateMitigationPlacement(theBole, 5, applied, tStub);
+        expect(result.available).toBe(false);
+    });
+
+    it('Umbral 直後の The Bole 単発使用可', () => {
+        const applied = [
+            makeApplied('astral_draw', -3),
+            makeApplied('umbral_draw', 9),
+        ];
+        const result = validateMitigationPlacement(theBole, 15, applied, tStub);
         expect(result.available).toBe(true);
     });
 });

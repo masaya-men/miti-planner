@@ -298,7 +298,7 @@
         "no_charges": "无充能",
         "cd_remaining": "CD {{seconds}}秒",
         "combat_only": "仅战斗中可用",
-        "draw_alternate_required": "下次只能使用{{expected}}",
+        "draw_alternate_required": "下次：{{expected}}",
         "seraph_cancels_dissipation": "效果期间放置将移除转化。",
         "cd_overlap": "相同减伤在 {{seconds}} 秒后放置。请移除或调整。",
         "next_at": "在 {{gap}} 秒后放置。请移除或调整。",
