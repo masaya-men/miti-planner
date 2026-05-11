@@ -295,28 +295,26 @@ export function LimitResolutionSheet() {
                         </LayoutGroup>
                     </div>
 
-                    {/* プレビュー + 中央オーバーレイ (#4 Revision)。
-                        relative + flex-col 親の中に scroll 子と overlay 子を並べる。 */}
-                    <div className="relative flex-1 min-w-0 flex flex-col border-l border-app-border bg-app-surface2/30">
-                        <div className="flex-1 overflow-y-auto">
-                            <MitigationSheetPreview
-                                planData={activePlan?.data ?? null}
-                                loading={false}
-                            />
-                        </div>
-                        <ImportProgressOverlay
-                            visible={isDeleting}
-                            percent={overlayMetrics.percent}
-                            label={t('limit_resolution.progress_label')}
-                            countLabel={
-                                overlayMetrics.totalCount > 1
-                                    ? `${overlayMetrics.completedCount}/${overlayMetrics.totalCount}`
-                                    : undefined
-                            }
-                            color="red"
+                    {/* プレビュー (mobile も表示)。 hidden md:block を撤去 */}
+                    <div className="flex-1 min-w-0 overflow-y-auto border-l border-app-border bg-app-surface2/30">
+                        <MitigationSheetPreview
+                            planData={activePlan?.data ?? null}
+                            loading={false}
                         />
                     </div>
                 </div>
+                {/* 中央オーバーレイ (#4 Revision 2): portal で document.body に出る。 */}
+                <ImportProgressOverlay
+                    visible={isDeleting}
+                    percent={overlayMetrics.percent}
+                    label={t('limit_resolution.progress_label')}
+                    countLabel={
+                        overlayMetrics.totalCount > 1
+                            ? `${overlayMetrics.completedCount}/${overlayMetrics.totalCount}`
+                            : undefined
+                    }
+                    color="red"
+                />
 
                 {/* Footer: キャンセル + 削除して再開 */}
                 <div className="px-5 py-3 shrink-0 border-t border-app-border flex items-center justify-between gap-3 bg-app-surface/40">

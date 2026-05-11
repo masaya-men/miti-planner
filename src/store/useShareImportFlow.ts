@@ -14,15 +14,15 @@ import type {
 } from '../lib/shareImportTypes';
 
 /**
- * loading → 次状態 (preview / error) への最小所要時間 (Phase B-1.5 polish 第 2 弾 #1)。
+ * loading → 次状態 (preview / error) への最小所要時間。
  *
- * シート slide-in は spring (stiffness 300, damping 28) で ~350ms 程度で settle する。
- * API が高速 (キャッシュ済 / 軽量プラン) のとき loading 状態が裏で一瞬で完了してしまい、
- * シートが y=0 に到達した頃には既に preview に切り替わっていて「下にちらっとシートが
- * 見える」 だけになる問題があった。 シート slide-in 完了後にも「読み込み中…」 を
- * 800ms 程度視認できるよう、 トータルで 1200ms を最低保証する。
+ * Phase B-1.5 polish 第 2 弾 #5 (Revision 2): ユーザーが「シートが下からぽよんぽよん
+ * 跳ねながら読み込み演出をして、 ちゃんとゆっくり見せてから preview に上がってきて
+ * 欲しい」 と希望。 ShareImportSheet 側の loading keyframe (slide-in + 2 回ぽよん) が
+ * 2.6 秒なので、 その完了後に少し余韻 (~200ms) を残してから preview へ遷移する形に
+ * 揃える。 API が 2800ms より速くてもパディングして必ずこの所要時間を保証。
  */
-export const MIN_LOADING_VISIBLE_MS = 1200;
+export const MIN_LOADING_VISIBLE_MS = 2800;
 
 const padLoadingDelay = async (startedAt: number): Promise<void> => {
   const elapsed = Date.now() - startedAt;

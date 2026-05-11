@@ -1,8 +1,11 @@
-// Phase B-1.5 polish 第 2 弾 #4 (Revision): 個別カード sweep に加え、 取り込み/削除
-// の進捗を画面中央 (右プレビューペイン中央) に業界水準の横バー + テキストで表示する。
-// 端の細い列に隠れがちな sweep の代わりに視認性の高い指標を提供。
-// preview ペインに `position: relative` を付与した上で、 このコンポーネントを
-// 子に置く。
+// Phase B-1.5 polish 第 2 弾 #4 (Revision 2): 取り込み/削除進捗を画面の真ん中
+// (ビューポート中心) に業界水準の横バー + テキストで表示する。
+// 旧 Revision 1 では preview ペイン中央に absolute で出していたが、 mobile/PC とも
+// preview ペインが画面右寄りで「モニターの真ん中」 にならないフィードバックを受け、
+// createPortal で document.body にマウントし `position: fixed; inset: 0` で画面
+// 全体中央に固定するよう変更。 z-index は ShareImportSheet (z=99991) と
+// LimitResolutionSheet (z=99993) より上の 99995 を使う。
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface ImportProgressOverlayProps {
@@ -28,7 +31,7 @@ export function ImportProgressOverlay({
     const clampedPercent = Math.max(0, Math.min(100, percent));
     const barColor = color === 'blue' ? 'bg-app-blue' : 'bg-app-red';
 
-    return (
+    return createPortal(
         <AnimatePresence>
             {visible && (
                 <motion.div
@@ -40,7 +43,7 @@ export function ImportProgressOverlay({
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.92 }}
                     transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-                    className="absolute inset-0 flex items-center justify-center pointer-events-none z-20 px-4"
+                    className="fixed inset-0 flex items-center justify-center pointer-events-none z-[99995] px-4"
                 >
                     <div className="glass-tier3 px-5 py-4 rounded-xl border border-app-border shadow-xl w-full max-w-[320px]">
                         <div className="flex items-center justify-between mb-3 gap-3">
@@ -72,6 +75,7 @@ export function ImportProgressOverlay({
                     </div>
                 </motion.div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body,
     );
 }

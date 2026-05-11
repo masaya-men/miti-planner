@@ -133,9 +133,16 @@ export function ShareImportSheet() {
     })();
 
     const handleBackdropClick = () => {
-        if (status === 'importing' || status === 'limit_hit') return;
+        // loading 中も backdrop クリックは無視 (シートを誤って閉じさせない、 操作不能演出)
+        if (status === 'importing' || status === 'limit_hit' || status === 'loading') return;
         close();
     };
+
+    // 読み込み中の演出フラグ (Phase B-1.5 polish 第 2 弾 #5)。
+    // - シートが画面下部に小さく出て上下に「ぽよんぽよん…」 とアニメ
+    // - 完了後にバウンドしながら y=0 まで上がってきて止まる
+    // - 操作不能を示すため backdrop + sheet 上で cursor: not-allowed
+    const isLoadingPhase = status === 'loading';
 
     const handleImport = async () => {
         const itemsToImport = importItems.filter((i) =>
@@ -164,7 +171,7 @@ export function ShareImportSheet() {
                 <Fragment key="share-import-sheet-fragment">
                     <motion.div
                         key="share-import-backdrop"
-                        className="fixed inset-0 z-[99990] bg-black/60"
+                        className={`fixed inset-0 z-[99990] bg-black/60 ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -176,36 +183,59 @@ export function ShareImportSheet() {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="share-import-title"
-                        className="glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-border"
+                        className={`glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-border ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
                         // 注意: layout prop は子要素の position 自動アニメも引き起こすため、
                         // sheet 直下のこの 1 個に限定する (子は通常の <div> に維持)。
                         layout
                         initial={{ y: '100%' }}
-                        animate={{ y: 0 }}
+                        animate={
+                            isLoadingPhase
+                                // 読み込み中の一連の動き (Phase B-1.5 polish 第 2 弾 #5)。
+                                // 1) 100% → 65% (slide-in)
+                                // 2) 65% で一拍ホールド
+                                // 3) 65→58→65 で 1 回ぽよん
+                                // 4) 65% で一拍ホールド
+                                // 5) 65→58→65 で 2 回目ぽよん
+                                // total 2.6 秒。 シートは「画面の下から半分出てきて 2 回ぽよん」 と
+                                // ユーザーに認知される。
+                                ? { y: ['100%', '65%', '65%', '58%', '65%', '65%', '58%', '65%'] }
+                                : { y: 0 }
+                        }
                         exit={{ y: '100%' }}
-                        transition={{
-                            type: 'spring',
-                            stiffness: 300,
-                            damping: 28,
-                            layout: { type: 'spring', stiffness: 300, damping: 28 },
-                        }}
+                        transition={
+                            isLoadingPhase
+                                ? {
+                                      duration: 2.6,
+                                      times: [0, 0.18, 0.35, 0.45, 0.55, 0.72, 0.85, 1],
+                                      ease: 'easeOut',
+                                  }
+                                : {
+                                      // 読み込み完了 → y=0 に上がる時はバウンドしてから止まる。
+                                      // 低 damping + mass で複数オシレーションを見せる
+                                      // (「ぽよんぽよんしてバウンスして止まる」 の最終段)。
+                                      type: 'spring',
+                                      stiffness: 120,
+                                      damping: 8,
+                                      mass: 1.2,
+                                      layout: { type: 'spring', stiffness: 300, damping: 28 },
+                                  }
+                        }
                     >
                         <div className="px-5 pt-5 pb-3 shrink-0 border-b border-app-border">
                             <h2
                                 id="share-import-title"
                                 className="text-app-2xl font-black text-app-text tracking-wide"
                             >
-                                {isBundle
-                                    ? t('share_import.title_bundle', { count: importItems.length })
-                                    : t('share_import.title')}
+                                {/* 読み込み中はシートが y=65% 付近で上下に揺れていて、 ヘッダ
+                                    だけが画面下から覗いている状態。 title を「読み込んでいます…」
+                                    にしてユーザーがいま何が起きているか分かるようにする。 */}
+                                {status === 'loading'
+                                    ? t('share_import.loading')
+                                    : isBundle
+                                        ? t('share_import.title_bundle', { count: importItems.length })
+                                        : t('share_import.title')}
                             </h2>
                         </div>
-
-                        {status === 'loading' && (
-                            <div className="p-8 text-center text-app-text-muted">
-                                {t('share_import.loading')}
-                            </div>
-                        )}
 
                         {status === 'error' && (
                             <div className="p-8 text-center text-app-red">
@@ -266,32 +296,30 @@ export function ShareImportSheet() {
                                         </LayoutGroup>
                                     </div>
 
-                                    {/* Right preview + center overlay (#4 Revision)。
-                                        relative + flex-col 親の中に scroll 子と overlay 子を並べる。
-                                        overlay は inset-0 + flex 中央寄せで preview ペインの中央に
-                                        固定表示される (内側 scroll とは独立)。 */}
-                                    <div className="relative flex-1 min-w-0 flex flex-col">
-                                        <div className="flex-1 overflow-y-auto p-3">
-                                            {activeItem && (
-                                                <MitigationSheetPreview
-                                                    planData={activeItem.planData}
-                                                    loading={false}
-                                                />
-                                            )}
-                                        </div>
-                                        <ImportProgressOverlay
-                                            visible={status === 'importing' || status === 'done'}
-                                            percent={overlayMetrics.percent}
-                                            label={t('share_import.progress_label')}
-                                            countLabel={
-                                                isBundle
-                                                    ? `${overlayMetrics.completedCount}/${overlayMetrics.totalCount}`
-                                                    : undefined
-                                            }
-                                            color="blue"
-                                        />
+                                    {/* Right preview */}
+                                    <div className="flex-1 min-w-0 overflow-y-auto p-3">
+                                        {activeItem && (
+                                            <MitigationSheetPreview
+                                                planData={activeItem.planData}
+                                                loading={false}
+                                            />
+                                        )}
                                     </div>
                                 </div>
+                                {/* 中央オーバーレイ (#4 Revision 2): createPortal で document.body に
+                                    マウントされ、 画面真ん中に fixed 表示される。 JSX のこの位置は
+                                    レンダリングツリーの一員という意味だけで、 実際の DOM 位置は body 直下。 */}
+                                <ImportProgressOverlay
+                                    visible={status === 'importing' || status === 'done'}
+                                    percent={overlayMetrics.percent}
+                                    label={t('share_import.progress_label')}
+                                    countLabel={
+                                        isBundle
+                                            ? `${overlayMetrics.completedCount}/${overlayMetrics.totalCount}`
+                                            : undefined
+                                    }
+                                    color="blue"
+                                />
 
                                 {/* Footer (キャンセルボタン追加) */}
                                 <div className="px-5 py-3 shrink-0 border-t border-app-border flex items-center justify-between gap-3 bg-app-surface/40">

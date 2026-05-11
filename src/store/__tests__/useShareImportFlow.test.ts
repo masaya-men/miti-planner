@@ -210,11 +210,9 @@ describe('useShareImportFlow', () => {
       useShareImportFlow.getState().close();
     });
 
-    it('API が高速応答でも loading → preview の遷移は最低 1100ms 以上経過する', async () => {
-      // 真因 (#1): API がキャッシュ済 / 軽量プランで一瞬で応答すると、 シート slide-in
-      // (spring ~350ms) が完了するより前に preview に遷移してしまう。
-      // シート完全表示後にも「読み込み中…」 を視認できるよう、 トータル 1200ms 以上を
-      // 最低保証する (テスト誤差を見て 1100ms 以上で判定)。
+    it('API が高速応答でも loading → preview の遷移は最低 2700ms 以上経過する', async () => {
+      // ShareImportSheet 側の loading keyframe (slide-in + 2 回ぽよん) が 2.6 秒なので、
+      // padLoadingDelay は 2800ms を最低保証する設定。 テスト誤差を見て 2700ms で判定。
       const { apiFetch } = await import('../../lib/apiClient');
       vi.mocked(apiFetch).mockResolvedValue({
         ok: true,
@@ -234,7 +232,7 @@ describe('useShareImportFlow', () => {
       await useShareImportFlow.getState().start('fast');
       const elapsed = Date.now() - startedAt;
 
-      expect(elapsed).toBeGreaterThanOrEqual(1100);
+      expect(elapsed).toBeGreaterThanOrEqual(2700);
       expect(useShareImportFlow.getState().status).toBe('preview');
     });
 
@@ -250,7 +248,7 @@ describe('useShareImportFlow', () => {
       await useShareImportFlow.getState().start('err');
       const elapsed = Date.now() - startedAt;
 
-      expect(elapsed).toBeGreaterThanOrEqual(1100);
+      expect(elapsed).toBeGreaterThanOrEqual(2700);
       expect(useShareImportFlow.getState().status).toBe('error');
     });
   });

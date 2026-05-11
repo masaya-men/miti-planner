@@ -14,7 +14,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PulseSettings } from './PulseSettings';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
-import { Loader2, Sun, Moon, Star } from 'lucide-react';
+import { Sun, Moon, Star } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { SyncButton } from './SyncButton';
 import { showToast } from './Toast';
@@ -358,13 +358,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // B-1 Revision 3: ローカル取り込みダイアログ
     const localImportOpen = useLocalImportDialog(s => s.isOpen);
+    // 注: 以前ここに isImportPreparing / isAuthRedirecting state を持っていたが、
+    // ユーザーフィードバックで「ログイン中 / 利用の準備中」 オーバーレイは不要との
+    // 判断で撤去。 migrate / pullFromFirestore はバックグラウンドで継続実行する
+    // (画面操作とは独立)。
     const closeLocalImportDialog = useLocalImportDialog(s => s.close);
     /** 表示対象: state 内の `ownerId='local'` プランをそのまま渡す */
     const localImportPlans = usePlanStore(
         useShallow(s => s.plans.filter(p => p.ownerId === 'local')),
     );
-    /** 取り込み準備中（migrate + fetch + 700ms 待機）にローディングオーバーレイを表示 */
-    const [isImportPreparing, setIsImportPreparing] = React.useState(false);
 
     const handleLocalImport = React.useCallback(
         async (
@@ -418,9 +420,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             },
         });
         setHasMigrated(true);
-        // 取り込みダイアログ表示 or 「ダイアログ不要」確定までローディングオーバーレイを出す
-        // (ユーザーが migrate/fetch 完了前に画面操作 → ダイアログとの競合 を防ぐ)
-        setIsImportPreparing(true);
+        // 注: 以前ここで setIsImportPreparing(true) して「ログイン中」 オーバーレイを
+        // 表示していたが、 ユーザーフィードバックで撤去。 migrate / pullFromFirestore は
+        // ユーザー操作とは独立にバックグラウンドで完了させる。
         const planStore = usePlanStore.getState();
         const profileName = useAuthStore.getState().profileDisplayName || 'User';
         planStore.migrateOnLogin(
@@ -486,14 +488,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 plansCountAfterPull: usePlanStore.getState().plans.length,
             });
             if (localPlanCount > 0) {
-                // 認証オーバーレイから連続的にダイアログへ繋ぐため微小ディレイ (40ms)
+                // 微小ディレイ (40ms) は state コミット安定化のため残す
                 setTimeout(() => {
                     dlog('layout', 'opening dialog');
                     useLocalImportDialog.getState().open();
-                    setIsImportPreparing(false);
                 }, 40);
-            } else {
-                setIsImportPreparing(false);
             }
         });
     }, [authUser, authLoading, hasMigrated]);
@@ -504,46 +503,15 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // 初回ログイン判定
     const isNewUser = useAuthStore((s) => s.isNewUser);
 
-    // リダイレクト認証の戻り検知（Discord/Twitter — ページロード前に即座に判定）
-    const justLoggedInUser = useAuthStore((s) => s.justLoggedInUser);
-    const [isAuthRedirecting, setIsAuthRedirecting] = React.useState(() =>
-        localStorage.getItem('lopo_auth_redirecting') === 'true'
-    );
-    // justLoggedInUserが設定されたら or processPendingAuth完了後にリダイレクト画面を消す
-    React.useEffect(() => {
-        if (justLoggedInUser || !localStorage.getItem('lopo_auth_redirecting')) {
-            setIsAuthRedirecting(false);
-        }
-    }, [justLoggedInUser]);
+    // 注: 以前ここに isAuthRedirecting state + 「ログイン中」 オーバーレイがあったが、
+    // ユーザーフィードバックで撤去。 OAuth 戻り時の認証完了は justLoggedInUser で
+    // LoginModal 側が検知して自然に閉じる動線で十分。
 
     return (
         <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
 
             {/* 初回ログイン: ウェルカムセットアップ画面 */}
             {isNewUser && <WelcomeSetup />}
-
-            {/* リダイレクト認証中オーバーレイ — Discord/Twitterからの戻り時、processPendingAuth完了前に表示 */}
-            {isAuthRedirecting && !justLoggedInUser && (
-                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg">
-                    <div className="flex flex-col items-center gap-4">
-                        <Loader2 size={28} className="animate-spin text-app-text-muted" />
-                        <p className="text-app-2xl font-medium text-app-text-muted">{t('login.authenticating')}</p>
-                    </div>
-                </div>
-            )}
-
-            {/* B-1 Revision 3: 取り込みダイアログ準備中オーバーレイ
-                - migrateOnLogin / pullFromFirestore 完了 → ダイアログ open までの隙間を覆う
-                - ユーザーが「ログイン直後に画面操作 → ダイアログとの競合」を起こさないため
-                - isAuthRedirecting と同じレイアウト (spinner + 文言) でインジケータ位置を統一 */}
-            {isImportPreparing && !isAuthRedirecting && !localImportOpen && (
-                <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-app-bg">
-                    <div className="flex flex-col items-center gap-4">
-                        <Loader2 size={28} className="animate-spin text-app-text-muted" />
-                        <p className="text-app-2xl font-medium text-app-text-muted">{t('login.authenticating')}</p>
-                    </div>
-                </div>
-            )}
 
             {/* 背景エフェクト — ParticleBackgroundは一時的に無効化 */}
             {/* <ParticleBackground /> */}
