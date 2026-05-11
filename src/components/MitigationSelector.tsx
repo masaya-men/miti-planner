@@ -328,10 +328,10 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
 
                 <div className="relative h-[280px] sm:h-[320px] overflow-hidden rounded-lg">
                     {/* 背景のスキルリスト */}
-                    <div 
+                    <div
                         className={clsx(
-                            "absolute inset-0 flex flex-col transition-all duration-300 pr-1 custom-scrollbar overflow-y-auto space-y-1",
-                            selectedSingleTargetMit ? "pointer-events-none pb-[140px]" : "opacity-100 blur-0 pb-1"
+                            "absolute inset-0 flex flex-col transition-all duration-300 pr-1 custom-scrollbar space-y-1",
+                            selectedSingleTargetMit ? "pointer-events-none overflow-hidden pb-[140px]" : "overflow-y-auto opacity-100 blur-0 pb-1"
                         )}
                         ref={scrollContainerRef}
                     >
