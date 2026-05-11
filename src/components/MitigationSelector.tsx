@@ -277,6 +277,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 key="mitigation-modal-content" // アニメーション等のために全体コンテナにも念のため付与
                 ref={panelRef}
                 data-tutorial-modal
+                data-lenis-prevent
                 onClick={e => e.stopPropagation()} // 中身のクリックで閉じないように
                 className={clsx(
                     "pointer-events-auto shadow-sm p-2 flex flex-col glass-tier3",

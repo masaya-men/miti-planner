@@ -341,6 +341,7 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
             <div className="absolute inset-0 bg-black/60 backdrop-blur-[3px] animate-[fadeIn_300ms_ease-out]" />
 
             <motion.div
+                data-lenis-prevent
                 initial={{ opacity: 0, scale: 0.92, y: 16 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}

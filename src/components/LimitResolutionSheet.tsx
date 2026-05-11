@@ -226,6 +226,7 @@ export function LimitResolutionSheet() {
             <motion.div
                 key="limit-resolution-sheet"
                 data-testid="limit-resolution-sheet"
+                data-lenis-prevent
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="limit-resolution-title"

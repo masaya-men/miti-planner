@@ -218,6 +218,7 @@ export function ShareImportSheet() {
                     <motion.div
                         key="share-import-sheet"
                         data-testid="share-import-sheet"
+                        data-lenis-prevent
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="share-import-title"

@@ -385,6 +385,7 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
           {/* ボトムシート */}
           <motion.div
             className="miti-sheet"
+            data-lenis-prevent
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
