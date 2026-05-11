@@ -2565,7 +2565,7 @@ const Timeline: React.FC = () => {
 
                                         {(() => {
                                             const visibleMitigations = timelineMitigations.filter(m =>
-                                                (showPreStart || (m.time + m.duration > 0)) && !m.autoHidden
+                                                showPreStart || (m.time + m.duration > 0)
                                             );
 
                                             const mitigationsByOwner: Record<string, typeof timelineMitigations> = {};
