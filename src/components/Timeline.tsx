@@ -2066,7 +2066,7 @@ const Timeline: React.FC = () => {
                             {/* モバイル: フェーズなし → ラベルをフェーズ位置に表示 */}
                             {(() => {
                                 const hasPhases = phases.length > 0;
-                                const mobileLabelInPhaseSlot = !hasPhases;
+                                const mobileLabelInPhaseSlot = !hasPhases && isMobileView;
                                 return (
                                     <>
                                         {!phaseColumnCollapsed ? (
