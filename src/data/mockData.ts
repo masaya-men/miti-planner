@@ -536,7 +536,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "sun_sign", jobId: "ast", name: { ja: "サンサイン", en: "Sun Sign", zh: "太阳星座", ko: "태양궁" }, icon: "/icons/Sun_Sign.png",
-        recast: 1, duration: 15, type: "all", value: 10, isShield: false, requires: "neutral_sect", maxCharges: 1, minLevel: 100, family: "ph_sub_120"
+        recast: 1, duration: 15, type: "all", value: 10, isShield: false, requires: "neutral_sect", requiresWindow: 30, maxCharges: 1, minLevel: 100, family: "ph_sub_120"
     },
     {
         id: "earthly_star", jobId: "ast", name: { ja: "アーサリースター", en: "Earthly Star", zh: "地星", ko: "지상의 별" }, icon: "/icons/Earthly_Star.png",
