@@ -972,7 +972,7 @@ const Timeline: React.FC = () => {
 
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    useSmoothWheelScroll(scrollContainerRef);
+    useSmoothWheelScroll(scrollContainerRef, { horizontalScrollOnShift: true });
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());

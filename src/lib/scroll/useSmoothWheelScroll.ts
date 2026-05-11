@@ -5,6 +5,8 @@ import { useTutorialStore } from '../../store/useTutorialStore';
 type Options = {
     readonly stiffness?: number;
     readonly disabled?: boolean;
+    /** true なら Shift+ホイールで横スクロール (deltaY を scrollLeft へ即時反映、 spring なし) */
+    readonly horizontalScrollOnShift?: boolean;
 };
 
 const MAX_DT = 0.05;
@@ -20,7 +22,7 @@ export function useSmoothWheelScroll(
     ref: RefObject<HTMLElement | null>,
     options: Options = {},
 ): void {
-    const { stiffness = 200, disabled: explicitDisabled = false } = options;
+    const { stiffness = 200, disabled: explicitDisabled = false, horizontalScrollOnShift = false } = options;
     const isTutorialActive = useTutorialStore((s) => s.isActive);
     const disabled = explicitDisabled || isTutorialActive;
     const stateRef = useRef<{ targetDy: number; velY: number; lastTime: number }>({ targetDy: 0, velY: 0, lastTime: 0 });
@@ -85,6 +87,16 @@ export function useSmoothWheelScroll(
             else if (e.deltaMode === 2) dy *= window.innerHeight;
             if (dy === 0) return;
 
+            // Shift+ホイール: deltaY を scrollLeft に即時反映 (spring なし、 ネイティブ感覚優先)
+            if (horizontalScrollOnShift && e.shiftKey) {
+                const maxLeft = el.scrollWidth - el.clientWidth;
+                if (maxLeft > 0) {
+                    e.preventDefault();
+                    el.scrollLeft = Math.max(0, Math.min(maxLeft, el.scrollLeft + dy));
+                }
+                return;
+            }
+
             const boundary = isAtScrollBoundary(el.scrollTop, el.scrollHeight, el.clientHeight, dy);
             if (boundary !== null) return;
 
@@ -124,5 +136,5 @@ export function useSmoothWheelScroll(
             stateRef.current.velY = 0;
             stateRef.current.lastTime = 0;
         };
-    }, [ref, stiffness, disabled]);
+    }, [ref, stiffness, disabled, horizontalScrollOnShift]);
 }
