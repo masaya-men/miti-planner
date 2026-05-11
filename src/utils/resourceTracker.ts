@@ -295,39 +295,58 @@ export function validateMitigationPlacement(
 
     // 👇 ここから追加：前提スキル（requires）の完全ブロック制約
     if (m.requires) {
-        // 配置済みの軽減の中から、前提スキル（例：ニュートラルセクト）を探す
-        const parentInstances = relevantMitigations.filter(am => am.mitigationId === m.requires);
+        // AST カード専用: 最新のドローが対応する種別か (手札は次のドローまで保持される仕様)
+        if (m.requires === 'astral_draw' || m.requires === 'umbral_draw') {
+            const drawsBeforeNow = relevantMitigations
+                .filter(am => am.mitigationId === 'astral_draw' || am.mitigationId === 'umbral_draw')
+                .filter(am => am.time <= selectedTime)
+                .sort((a, b) => b.time - a.time);
+            if (drawsBeforeNow.length === 0 || drawsBeforeNow[0].mitigationId !== m.requires) {
+                const parentDef = getMitigationsFromStore().find(d => d.id === m.requires);
+                const parentNameObj = parentDef ? parentDef.name : { ja: '前提スキル', en: 'Prerequisite' };
+                const lang = t('lang_info', 'ja');
+                const parentNameStr = (lang === 'en' || lang === 'en-US' || !parentNameObj.ja) ? parentNameObj.en : parentNameObj.ja;
+                return {
+                    available: false,
+                    message: t('mitigation.requires_parent', { parent: parentNameStr, defaultValue: `${parentNameStr}の効果中のみ使用可能` })
+                };
+            }
+            // AST カードは既存の parentInstances ベースの判定をスキップ
+        } else {
+            // 配置済みの軽減の中から、前提スキル（例：ニュートラルセクト）を探す
+            const parentInstances = relevantMitigations.filter(am => am.mitigationId === m.requires);
 
-        // 移動させようとしている時間が、前提スキルの効果時間内に収まっているかチェック
-        // requiresWindow がある場合はそちらを使用（例: 金剛周天は金剛の極意の30秒窓）
-        const requiresWindow = m.requiresWindow;
-        let isActiveParent = parentInstances.some(p => {
-            const window = requiresWindow ?? p.duration;
-            return selectedTime >= p.time && selectedTime < (p.time + window);
-        });
+            // 移動させようとしている時間が、前提スキルの効果時間内に収まっているかチェック
+            // requiresWindow がある場合はそちらを使用（例: 金剛周天は金剛の極意の30秒窓）
+            const requiresWindow = m.requiresWindow;
+            let isActiveParent = parentInstances.some(p => {
+                const window = requiresWindow ?? p.duration;
+                return selectedTime >= p.time && selectedTime < (p.time + window);
+            });
 
-        // AST SpecialCase: Horoscope also allows Helios skills (which normally require Neutral Sect)
-        // This check must run even if Neutral Sect (parentInstances) is empty.
-        if (!isActiveParent && m.requires === 'neutral_sect' && (m.id === 'aspected_helios' || m.id === 'helios_conjunction')) {
-            const horoscopeInstances = relevantMitigations.filter(am => am.mitigationId === 'horoscope');
-            isActiveParent = horoscopeInstances.some(h => selectedTime >= h.time && selectedTime < (h.time + h.duration));
-        }
-
-        // 収まっていない場合は、エラーメッセージを返して配置をブロック！
-        if (!isActiveParent) {
-            const parentDef = getMitigationsFromStore().find(d => d.id === m.requires);
-            // Fix: parentDef.name is a LocalizedString object { ja: string, en: string }. 
-            // We must extract the string based on context or use i18next's capabilities.
-            const parentNameObj = parentDef ? parentDef.name : { ja: '前提スキル', en: 'Prerequisite' };
-            const lang = t('lang_info', 'ja'); 
-            const parentNameStr = (lang === 'en' || lang === 'en-US' || !parentNameObj.ja) ? parentNameObj.en : parentNameObj.ja;
-
-            let message = t('mitigation.requires_parent', { parent: parentNameStr, defaultValue: `${parentNameStr}の効果中のみ使用可能` });
-            if (m.requires === 'neutral_sect' && (m.id === 'aspected_helios' || m.id === 'helios_conjunction')) {
-                message = t('mitigation.ast_helios_requires', 'ニュートラルセクトまたはホロスコープの効果中のみ使用可能');
+            // AST SpecialCase: Horoscope also allows Helios skills (which normally require Neutral Sect)
+            // This check must run even if Neutral Sect (parentInstances) is empty.
+            if (!isActiveParent && m.requires === 'neutral_sect' && (m.id === 'aspected_helios' || m.id === 'helios_conjunction')) {
+                const horoscopeInstances = relevantMitigations.filter(am => am.mitigationId === 'horoscope');
+                isActiveParent = horoscopeInstances.some(h => selectedTime >= h.time && selectedTime < (h.time + h.duration));
             }
 
-            return { available: false, message };
+            // 収まっていない場合は、エラーメッセージを返して配置をブロック！
+            if (!isActiveParent) {
+                const parentDef = getMitigationsFromStore().find(d => d.id === m.requires);
+                // Fix: parentDef.name is a LocalizedString object { ja: string, en: string }.
+                // We must extract the string based on context or use i18next's capabilities.
+                const parentNameObj = parentDef ? parentDef.name : { ja: '前提スキル', en: 'Prerequisite' };
+                const lang = t('lang_info', 'ja');
+                const parentNameStr = (lang === 'en' || lang === 'en-US' || !parentNameObj.ja) ? parentNameObj.en : parentNameObj.ja;
+
+                let message = t('mitigation.requires_parent', { parent: parentNameStr, defaultValue: `${parentNameStr}の効果中のみ使用可能` });
+                if (m.requires === 'neutral_sect' && (m.id === 'aspected_helios' || m.id === 'helios_conjunction')) {
+                    message = t('mitigation.ast_helios_requires', 'ニュートラルセクトまたはホロスコープの効果中のみ使用可能');
+                }
+
+                return { available: false, message };
+            }
         }
     }
     // 👆 追加ここまで
