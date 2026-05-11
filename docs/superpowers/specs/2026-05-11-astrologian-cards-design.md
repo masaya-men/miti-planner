@@ -141,7 +141,7 @@ interface AppliedMitigation {
 ```typescript
 {
     id: "astral_draw", jobId: "ast",
-    name: { ja: "アストラルドロー", en: "Astral Draw", zh: "星界抽卡", ko: "아스트랄 드로우" },
+    name: { ja: "アストラルドロー", en: "Astral Draw", zh: "星极抽卡", ko: "별빛 점지" },
     icon: "/icons/Astral_Draw.png",
     recast: 55, duration: 1, type: "all", value: 0, isShield: false,
     minLevel: 30, family: "ast_draw_astral",
@@ -149,7 +149,7 @@ interface AppliedMitigation {
 },
 {
     id: "umbral_draw", jobId: "ast",
-    name: { ja: "アンブラルドロー", en: "Umbral Draw", zh: "灵极抽卡", ko: "엄브럴 드로우" },
+    name: { ja: "アンブラルドロー", en: "Umbral Draw", zh: "灵极抽卡", ko: "그림자 점지" },
     icon: "/icons/Umbral_Draw.png",
     recast: 55, duration: 1, type: "all", value: 0, isShield: false,
     minLevel: 30, family: "ast_draw_umbral",
@@ -162,7 +162,7 @@ interface AppliedMitigation {
 ```typescript
 {
     id: "the_arrow", jobId: "ast",
-    name: { ja: "オシュオンの矢", en: "The Arrow", zh: "射手", ko: "사수의 화살" },
+    name: { ja: "オシュオンの矢", en: "The Arrow", zh: "放浪神之箭", ko: "오쉬온의 화살" },
     icon: "/icons/The_Arrow.png",
     recast: 1, duration: 15, type: "all", value: 0, isShield: false,
     scope: "target", healingIncrease: 10,
@@ -177,7 +177,7 @@ interface AppliedMitigation {
 ```typescript
 {
     id: "the_spire", jobId: "ast",
-    name: { ja: "ビエルゴの塔", en: "The Spire", zh: "塔", ko: "탑" },
+    name: { ja: "ビエルゴの塔", en: "The Spire", zh: "建筑神之塔", ko: "비레고의 탑" },
     icon: "/icons/The_Spire.png",
     recast: 1, duration: 30, type: "all", value: 0, isShield: true,
     valueType: 'potency', shieldPotency: 400, scope: "target",
@@ -192,7 +192,7 @@ interface AppliedMitigation {
 ```typescript
 {
     id: "the_bole", jobId: "ast",
-    name: { ja: "世界樹の幹", en: "The Bole", zh: "世界树", ko: "세계수의 줄기" },
+    name: { ja: "世界樹の幹", en: "The Bole", zh: "世界树之干", ko: "세계수의 줄기" },
     icon: "/icons/The_Bole.png",
     recast: 1, duration: 15, type: "all", value: 10, isShield: false,
     scope: "target",
@@ -207,7 +207,7 @@ interface AppliedMitigation {
 ```typescript
 {
     id: "the_ewer", jobId: "ast",
-    name: { ja: "サリャクの水瓶", en: "The Ewer", zh: "水瓶", ko: "물병" },
+    name: { ja: "サリャクの水瓶", en: "The Ewer", zh: "河流神之瓶", ko: "살리아크의 물병" },
     icon: "/icons/The_Ewer.png",
     recast: 1, duration: 15, type: "all", value: 0, isShield: false,
     scope: "target",
@@ -222,7 +222,7 @@ interface AppliedMitigation {
 ```typescript
 {
     id: "lady_of_crowns", jobId: "ast",
-    name: { ja: "クラウンレディ", en: "Lady of Crowns", zh: "皇冠之贵妇", ko: "왕관 부인" },
+    name: { ja: "クラウンレディ", en: "Lady of Crowns", zh: "王冠之贵妇", ko: "여왕의 날개" },
     icon: "/icons/Lady_of_Crowns.png",
     recast: 1, duration: 1, type: "all", value: 0, isShield: false,
     requires: "umbral_draw",
@@ -231,7 +231,7 @@ interface AppliedMitigation {
 }
 ```
 
-> 注: 上記の `family` 値はすべて既存類似スキル (celestial_intersection / exaltation / krasis / celestial_opposition) と同じ値を使用。 実装時に最終的な family 値は既存類似スキルとの整合を再確認する。 `i18n` 各言語名 (zh / ko) は実装時に i18n リソースを参照して正確な訳語を確定する。
+> 注: 上記の `family` 値はすべて既存類似スキル (celestial_intersection / exaltation / krasis / celestial_opposition) と同じ値を使用。 実装時に最終的な family 値は既存類似スキルとの整合を再確認する。 `i18n` 各言語名 (zh / ko) はユーザーから公式ジョブガイド (FF14 中国版 / 韓国版) より正確な訳語を提供済み (2026-05-11)。
 
 ### 4.2 表示順 (`MITIGATION_DISPLAY_ORDER` に挿入)
 
