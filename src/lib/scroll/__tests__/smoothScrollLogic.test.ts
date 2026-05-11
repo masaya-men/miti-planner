@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isSmoothScrollSupported, isAtScrollBoundary } from '../smoothScrollLogic';
+import { isSmoothScrollSupported, isAtScrollBoundary, springStep } from '../smoothScrollLogic';
 
 function makeWindow(opts: { hoverHover: boolean; pointerFine: boolean; reduceMotion: boolean; matchMediaUndefined?: boolean }): Window {
     const matchMedia = (query: string): MediaQueryList => {
@@ -67,5 +67,39 @@ describe('isAtScrollBoundary', () => {
         expect(isAtScrollBoundary(0, 1000, 500, 50)).toBeNull();
         // 同じく bottom で上方向
         expect(isAtScrollBoundary(500, 1000, 500, -50)).toBeNull();
+    });
+});
+
+describe('springStep', () => {
+    it('通常: targetDy > 0 のとき velY と stepY が正方向に更新される', () => {
+        const result = springStep({ targetDy: 100, velY: 0 }, 1 / 60, 200, 2 * Math.sqrt(200), 0.05);
+        expect(result.atRest).toBe(false);
+        expect(result.state.velY).toBeGreaterThan(0);
+        expect(result.stepY).toBeGreaterThan(0);
+        // targetDy は stepY 分だけ減る
+        expect(result.state.targetDy).toBeLessThan(100);
+    });
+
+    it('静止状態: targetDy=0 && velY=0 なら atRest=true で何もしない', () => {
+        const result = springStep({ targetDy: 0, velY: 0 }, 1 / 60, 200, 2 * Math.sqrt(200), 0.05);
+        expect(result.atRest).toBe(true);
+        expect(result.stepY).toBe(0);
+        expect(result.state).toEqual({ targetDy: 0, velY: 0 });
+    });
+
+    it('dt clamp: dt > maxDt の場合は maxDt に丸める (スパイク防止)', () => {
+        const stiff = 200;
+        const damp = 2 * Math.sqrt(stiff);
+        const big = springStep({ targetDy: 100, velY: 0 }, 1.0, stiff, damp, 0.05);  // dt=1.0
+        const max = springStep({ targetDy: 100, velY: 0 }, 0.05, stiff, damp, 0.05);  // dt=maxDt
+        // dt が同じ値に丸められるので velY も stepY も同一
+        expect(big.state.velY).toBe(max.state.velY);
+        expect(big.stepY).toBe(max.stepY);
+    });
+
+    it('静止判定: targetDy が 0.05 未満かつ velY が 0.5 未満で atRest=true、 state は完全に 0 にリセット', () => {
+        const result = springStep({ targetDy: 0.01, velY: 0.1 }, 1 / 60, 200, 2 * Math.sqrt(200), 0.05);
+        expect(result.atRest).toBe(true);
+        expect(result.state).toEqual({ targetDy: 0, velY: 0 });
     });
 });

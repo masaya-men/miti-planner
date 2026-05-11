@@ -19,3 +19,36 @@ export function isAtScrollBoundary(
     if (scrollTop >= max - 1 && deltaY > 0) return 'bottom';
     return null;
 }
+
+export interface SpringState {
+    targetDy: number;
+    velY: number;
+}
+
+export interface SpringStepResult {
+    state: SpringState;
+    stepY: number;
+    atRest: boolean;
+}
+
+export function springStep(
+    state: SpringState,
+    dt: number,
+    stiffness: number,
+    damping: number,
+    maxDt: number,
+): SpringStepResult {
+    if (state.targetDy === 0 && state.velY === 0) {
+        return { state: { targetDy: 0, velY: 0 }, stepY: 0, atRest: true };
+    }
+    const dtClamped = Math.min(maxDt, dt);
+    const a = stiffness * state.targetDy - damping * state.velY;
+    const velY = state.velY + a * dtClamped;
+    const stepY = velY * dtClamped;
+    const targetDy = state.targetDy - stepY;
+    const atRest = Math.abs(targetDy) < 0.05 && Math.abs(velY) < 0.5;
+    if (atRest) {
+        return { state: { targetDy: 0, velY: 0 }, stepY, atRest: true };
+    }
+    return { state: { targetDy, velY }, stepY, atRest: false };
+}
