@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import clsx from 'clsx';
 import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
@@ -971,6 +972,7 @@ const Timeline: React.FC = () => {
 
     const aaSettingsButtonRef = useRef<HTMLButtonElement>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    useSmoothWheelScroll(scrollContainerRef);
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());
