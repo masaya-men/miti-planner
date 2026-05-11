@@ -43,12 +43,27 @@
   - a87f2ad fix(share-import): Rev 4 同一シート中身クロスフェード + バウンス廃止
   - 13a9e15 feat(Sidebar): #3 上限到達コンテンツに常時「上限 5/5」 バッジ
 
-- **【次セッション最優先候補 (セッション 7 で着手予定)】**:
-  - **セッション A (#2 + #4 をまとめて 1 セッション)**:
-    1. **🧹 診断ログ撤去**: `src/utils/debugLog.ts` + 各所 `dlog()` 呼び出しを全削除 (Phase B-1 真因確定で役割終了)。 `scripts/inspect-user-plans.ts` は残す。 機械的作業、 リスク低。
-    2. **🛡️ 致命バグ修正の自動テスト追加**: `addPlan` 正規化ガード + SharePage コピー結果が `ownerId='local'` であることを assert する vitest を追加 (過去 5 回再発した致命バグの回帰防御)。
-  - **セッション B (別セッション)**:
-    3. **🌀 表エリアスムーズスクロール導入**: Timeline の縦スクロールを Lenis (Studio Freight) で補間。 PC のみ対象、 スマホは慣性スクロール既存。 brainstorming で対象範囲確定 → 実装。
+- **【完了 2026-05-11 セッション 7・後片付けセッション A (#2 完走 + #4 既存防御確認)】**: 候補 6 件のうち #2 (診断ログ撤去) と #4 (致命バグ自動テスト) をまとめて処理。
+
+  **#2 診断ログ撤去 (2 commits)**:
+  - `src/utils/debugLog.ts` ファイル削除 (Phase B-1 真因 = silentCompressStale 誤発動が確定済みで役割終了)
+  - 5 ファイルから `dlog()` 呼び出し全削除 (Layout / MitiPlannerPage / planService / useAuthStore / usePlanStore)
+  - 連動: `tokenResults` / `appCheckExists` / `planStateAtStart` 等の診断専用変数も撤去 (トークン取得の副作用は保持)
+  - `planService.createPlan`: 診断のためにあった `setDoc` 単独 try/catch (rethrow しかしていない) を直接呼びに簡略化
+  - vitest 589/589 PASS、 tsc clean、 vite build success、 net -265 行
+  - commits: e0adc8f (TODO 整理) / fd4b917 (debug 撤去)
+
+  **#4 既存テストで防御済みを確認 (新規実装なし)**:
+  - `usePlanStore.addPlanGuard.test.ts` 7 件 → `addPlan` 入口で `ownerId='' → 'local'` 矯正 (universal 保護、 どの呼び出し元からでも防御)
+  - `buildShareImportItems.test.ts` の `buildNewPlan` テスト → 旧 SharePage の役割を引き継いだ関数が `ownerId='local'` を返すことを assert (現在の共有 URL 自動取り込みフロー)
+  - `addPlan` を呼ぶ 6 入口 (createPlanFromTemplate / 下にコピー / 競合コピー x2 / NewPlanModal / Sidebar / MitigationSheet 野良主流コピー) は全て `ownerId: 'local'` ハードコード済み + universal ガードでダブル防御。 個別テストは冗長と判断し追加せず
+
+  **整理した memory**:
+  - `project_minna_mitigation.md` 削除 (該当機能は既にボトムシート統合済みで obsolete)
+  - MEMORY.md からも該当 entry 削除
+
+- **【次セッション最優先候補】**:
+  - **セッション B**: **🌀 表エリアスムーズスクロール導入** — Timeline の縦スクロールを Lenis (Studio Freight) で補間。 PC のみ対象、 スマホは慣性スクロール既存。 brainstorming で対象範囲確定 → 実装。
   - **保留 (フィードバックがあれば再開)**:
     - 削除プラン復活現象 (要再現報告)
     - 未取り込みバッジ (役立つタイミング不明で見送り)
