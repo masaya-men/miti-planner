@@ -12,6 +12,22 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
+- **【完了 2026-05-12 セッション 10・占星術師実装の後片付け 8 件】**: セッション 9 で発見されたバグ + 派生要望をすべて解消。 全 622/622 vitest PASS、 tsc clean、 build success。 8 commits push 済 (HEAD: aeda1c1)、 Vercel 自動デプロイ。
+
+  **commits (時系列)**:
+  - 1278a45 fix(mockData): sun_sign に requiresWindow: 30 追加 (公式仕様、 既存バグ)。 mockData は Firestore /master/skills 優先のため、 反映には seed-skills-stats.ts 実行が必須 (このセッションで実行済)
+  - 7ef9e32 fix(modals): モーダル/シート 6 箇所に data-lenis-prevent 付与 (セッション 8 の Lenis 横取りでモーダル内 wheel スクロール不可だった既存バグ)
+  - a84d60f fix(Timeline): autoHidden mitigation はコンパクト時のみアイコン非表示 (セッション 9 の 953b4f2 リグレッション = 戦闘前 Astral Draw が 0:09 行に誤表示)
+  - c5d05fc fix(MitigationSelector): 対象選択中は背景リストの wheel を overflow-hidden で無効化 (pointer-events-none が wheel に効かないため上下端で操作不能)
+  - 4a8e844 fix(scroll): Tutorial 中は useSmoothWheelScroll の wheel を block + native も止める (新規作成チュートリアル STEP 6 で + ボタンが画面外に行く既存バグ。 useTutorialStore.isActive を hook 内で購読、 呼び出し側 5 箇所無変更)
+  - df9ea42 feat(modals): モーダル/シート 7 箇所に自前 spring スクロール配線 (MitigationSelector / EventModal / LocalImportDialog / ShareImportSheet x2 / LimitResolutionSheet x2 / MitigationSheet / MitigationSheetPreview)
+  - 72c6f87 fix(EventModal): 占星術師カード 3 枚 (Arrow/Spire/Bole) のソート位置を scope='target' グループに修正。 旧 getSortKey は effectiveMit = parent で scope/group まで継承させていたため、 親 Astral Draw の scope=undefined で group 0 に誤配置。 新方式は scope/jobId/group は mit 自身、 recast のみ親借り
+  - aeda1c1 feat(Timeline): Shift+ホイールで表エリア横スクロール (useSmoothWheelScroll に horizontalScrollOnShift option 追加、 Timeline でのみ有効化)
+
+  **波及確認のメモ**:
+  - useSmoothWheelScroll は usePlanStore → Firebase の transitive deps があるため、 import するテストには `vi.mock('../../lib/scroll/useSmoothWheelScroll')` か `vi.mock('../../../store/useTutorialStore')` を仕込む (LocalImportDialog.test, useSmoothWheelScroll.test で実施済)
+  - Sun Sign のように `requires` を持つスキルは EventModal の getSortKey で「親が EXCLUDED_IDS にない & parent が見つかる」 ときに親 recast を借りる。 sun_sign / aspected_helios / helios_conjunction は既存挙動と同じ位置に並ぶことを確認済
+
 - **【完了 2026-05-11 セッション 6・Phase B-1.5 polish 第 2 弾 (全 4 件完走)】**: フィードバック #2 (致命) / #1 (loading 時間) / #4 (sweep + 中央バー、 Rev 4 まで反復) / #3 (sidebar 上限バッジ) すべて完了。 ユーザー実機 OK。
 
   **#2: 【致命 完了】 2 回目以降の上限解消で操作不能**: systematic-debugging で真因特定 (LimitResolutionSheet は ShareImportSheet から無条件レンダリングされており、 limitContext===null で `return null;` してもコンポーネントインスタンスは生存し useState 値が永続。 handleDelete 成功パスが isDeleting=true / checkedIds をリセットしないまま setLimitContext(null) するため、 2 回目の上限ヒット時に持ち越された isDeleting=true で全操作が死ぬ)。 修正: `useEffect` で limitContext null → 非 null 遷移時に local state を新規開示扱いでリセット。 回帰防止 vitest 追加。
