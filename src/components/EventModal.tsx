@@ -203,28 +203,28 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     ];
 
     const getSortKey = (mit: typeof MITIGATIONS[0]) => {
-        // requires チェック: 前提スキルがあり、それが除外されていなければ親のキーで配置（親の直後に並ぶ）
-        let effectiveMit = mit;
-        let recastOffset = 0;
+        // requires がある場合、 親の recast を借りて「親の直後」 に並ぶよう調整する。
+        // ただし scope/jobId/group は mit 自身を維持する (例: 占星カードは scope='target' を
+        // 保持しつつ、 親 Astral Draw の recast 55 に隣接配置)。
+        let parentRecast: number | null = null;
         if (mit.requires && !EXCLUDED_IDS.includes(mit.requires)) {
             const parent = MITIGATIONS.find(m => m.id === mit.requires);
             if (parent) {
-                effectiveMit = parent;
-                recastOffset = 0.5;
+                parentRecast = parent.recast ?? null;
             }
         }
 
-        const job = JOBS.find(j => j.id === effectiveMit.jobId);
+        const job = JOBS.find(j => j.id === mit.jobId);
         const role = job?.role || 'dps';
         const roleOrder = role === 'tank' ? 0 : role === 'healer' ? 1 : 2;
-        const jobOrder = JOBS.findIndex(j => j.id === effectiveMit.jobId);
+        const jobOrder = JOBS.findIndex(j => j.id === mit.jobId);
         const safeJobOrder = jobOrder === -1 ? 999 : jobOrder;
 
         // グループ判定
         let groupOrder: number;
-        if (effectiveMit.id.startsWith('tank_lb')) {
+        if (mit.id.startsWith('tank_lb')) {
             groupOrder = 1;
-        } else if (effectiveMit.scope === 'self' || effectiveMit.scope === 'target') {
+        } else if (mit.scope === 'self' || mit.scope === 'target') {
             groupOrder = 2;
         } else {
             // scope === 'party' または scope === undefined
@@ -234,14 +234,16 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         // LB レベル (1/2/3)
         let lbLevel = 0;
         if (groupOrder === 1) {
-            const m = effectiveMit.id.match(/tank_lb(\d)/);
+            const m = mit.id.match(/tank_lb(\d)/);
             lbLevel = m ? parseInt(m[1], 10) : 0;
         }
 
         // scope 内順序: グループ 2 でのみ意味あり（self=0, target=1）
-        const scopeInnerOrder = effectiveMit.scope === 'self' ? 0 : effectiveMit.scope === 'target' ? 1 : 0;
+        const scopeInnerOrder = mit.scope === 'self' ? 0 : mit.scope === 'target' ? 1 : 0;
 
-        const recast = (effectiveMit.recast ?? 999) + recastOffset;
+        const recast = parentRecast !== null
+            ? parentRecast + 0.5
+            : (mit.recast ?? 999);
 
         return { groupOrder, roleOrder, safeJobOrder, scopeInnerOrder, lbLevel, recast };
     };
