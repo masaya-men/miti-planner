@@ -57,6 +57,7 @@ import { BackupRestoreModal } from './BackupRestoreModal';
 import { ContextMenu } from './ui/ContextMenu';
 import { decompressPlanData } from '../utils/compression';
 import { setLastOpened } from '../utils/lastOpenedStore';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
 // ─────────────────────────────────────────────
 // Props
@@ -836,6 +837,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const floatingBarRef = useRef<HTMLDivElement>(null);
     const [floatingBarFlash, setFloatingBarFlash] = useState(false);
     const prevSelectedCount = useRef(multiSelect.selectedIds.length);
+    // タブ別コンテンツリスト用 ref + スムーズスクロール
+    const savageListRef = useRef<HTMLDivElement>(null);
+    const ultimateListRef = useRef<HTMLDivElement>(null);
+    const otherListRef = useRef<HTMLDivElement>(null);
+    const archiveListRef = useRef<HTMLDivElement>(null);
+    useSmoothWheelScroll(savageListRef);
+    useSmoothWheelScroll(ultimateListRef);
+    useSmoothWheelScroll(otherListRef);
+    useSmoothWheelScroll(archiveListRef);
     React.useEffect(() => {
         const count = multiSelect.selectedIds.length;
         if (count !== prevSelectedCount.current && count > 0) {
@@ -1281,7 +1291,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* 零式タブ (savage) */}
                     {activeTab === 'savage' && (
-                        <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
+                        <div ref={savageListRef} className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
                             {(() => {
                                 const savageContents = getSavageForCurrentExpansion();
                                 const seriesIds = [...new Set(savageContents.map(c => c.seriesId))];
@@ -1332,7 +1342,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* 絶タブ (ultimate) */}
                     {activeTab === 'ultimate' && (
-                        <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
+                        <div ref={ultimateListRef} className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
                             {getAllUltimates().map(content => (
                                 <ContentTreeItem
                                     key={content.id}
@@ -1362,7 +1372,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* その他タブ (other) */}
                     {activeTab === 'other' && (
-                        <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
+                        <div ref={otherListRef} className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
                             {getOtherContents().map(content => (
                                 <ContentTreeItem
                                     key={content.id}
@@ -1414,7 +1424,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* アーカイブタブ (archive) */}
                     {activeTab === 'archive' && (
-                        <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
+                        <div ref={archiveListRef} className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
                             {(() => {
                                 const archivedPlans = plans.filter(p => p.archived);
                                 if (archivedPlans.length === 0) {
