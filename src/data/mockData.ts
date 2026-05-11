@@ -49,6 +49,13 @@ export const MITIGATION_DISPLAY_ORDER = [
     'earthly_star',
     'horoscope',
     'celestial_intersection',
+    'astral_draw',
+    'umbral_draw',
+    'the_arrow',
+    'the_spire',
+    'the_bole',
+    'the_ewer',
+    'lady_of_crowns',
     'exaltation',
     'celestial_opposition',
     'kerachole',
@@ -550,6 +557,71 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "celestial_intersection", jobId: "ast", name: { ja: "星天交差", en: "Celestial Intersection", zh: "天星交错", ko: "천궁의 교차" }, icon: "/icons/Celestial_Intersection.png",
         recast: 30, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, scope: "target", maxCharges: 2, minLevel: 74, family: "ph_target_shield"
+    },
+    {
+        id: "astral_draw", jobId: "ast",
+        name: { ja: "アストラルドロー", en: "Astral Draw", zh: "星极抽卡", ko: "별빛 점지" },
+        icon: "/icons/Astral_Draw.png",
+        recast: 55, duration: 1, type: "all", value: 0, isShield: false,
+        minLevel: 30, family: "ast_draw_astral",
+        note: "アストラル4枚を獲得 (Balance/Arrow/Spire/Lord)。次のドローまで保持。"
+    },
+    {
+        id: "umbral_draw", jobId: "ast",
+        name: { ja: "アンブラルドロー", en: "Umbral Draw", zh: "灵极抽卡", ko: "그림자 점지" },
+        icon: "/icons/Umbral_Draw.png",
+        recast: 55, duration: 1, type: "all", value: 0, isShield: false,
+        minLevel: 30, family: "ast_draw_umbral",
+        note: "アンブラル4枚を獲得 (Spear/Bole/Ewer/Lady)。次のドローまで保持。"
+    },
+    {
+        id: "the_arrow", jobId: "ast",
+        name: { ja: "オシュオンの矢", en: "The Arrow", zh: "放浪神之箭", ko: "오쉬온의 화살" },
+        icon: "/icons/The_Arrow.png",
+        recast: 1, duration: 15, type: "all", value: 0, isShield: false,
+        scope: "target", healingIncrease: 10,
+        requires: "astral_draw",
+        note: "対象の被回復+10%",
+        minLevel: 30, family: "healer_ogcd_target_buff"
+    },
+    {
+        id: "the_spire", jobId: "ast",
+        name: { ja: "ビエルゴの塔", en: "The Spire", zh: "建筑神之塔", ko: "비레고의 탑" },
+        icon: "/icons/The_Spire.png",
+        recast: 1, duration: 30, type: "all", value: 0, isShield: true,
+        valueType: 'potency', shieldPotency: 400, scope: "target",
+        requires: "astral_draw",
+        note: "バリア (回復力400相当) / 30秒",
+        minLevel: 30, family: "ph_target_shield"
+    },
+    {
+        id: "the_bole", jobId: "ast",
+        name: { ja: "世界樹の幹", en: "The Bole", zh: "世界树之干", ko: "세계수의 줄기" },
+        icon: "/icons/The_Bole.png",
+        recast: 1, duration: 15, type: "all", value: 10, isShield: false,
+        scope: "target",
+        requires: "umbral_draw",
+        note: "対象の被ダメージ-10%",
+        minLevel: 30, family: "ph_target_miti"
+    },
+    {
+        id: "the_ewer", jobId: "ast",
+        name: { ja: "サリャクの水瓶", en: "The Ewer", zh: "河流神之瓶", ko: "살리아크의 물병" },
+        icon: "/icons/The_Ewer.png",
+        recast: 1, duration: 15, type: "all", value: 0, isShield: false,
+        scope: "target",
+        requires: "umbral_draw",
+        note: "対象に HoT (威力200/tick × 5)",
+        minLevel: 30, family: "healer_ogcd_target_buff"
+    },
+    {
+        id: "lady_of_crowns", jobId: "ast",
+        name: { ja: "クラウンレディ", en: "Lady of Crowns", zh: "王冠之贵妇", ko: "여왕의 날개" },
+        icon: "/icons/Lady_of_Crowns.png",
+        recast: 1, duration: 1, type: "all", value: 0, isShield: false,
+        requires: "umbral_draw",
+        note: "範囲回復 (回復力400 / 即時)",
+        minLevel: 30, family: "healer_ogcd_aoe_heal"
     },
 
     // --- Warrior ---
