@@ -12,46 +12,30 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【最優先 2026-05-09 実機検証フィードバック・Phase B-1.5 polish 第 2 弾 (4 件 / うち #2 致命操作不能バグ)】**: セッション 5 のデプロイ直後、 ユーザー実機検証で 4 件の問題発覚。 週制限解放 (約 13 時間後) を待って次セッションで対応する。
+- **【最優先 2026-05-11 セッション 6・Phase B-1.5 polish 第 2 弾 (#2 #1 #4 完了 / #3 次セッション)】**: 第 2 弾フィードバック 4 件のうち 3 件を完了、 実機検証評価待ち。 #3 (サイドバー上限到達常時表示) は仕様自体は確定だが Sidebar の影響範囲が広く独立タスクとして次セッションで扱う。
 
-  **#1: 「読み込み中」 が見えない (タイミング)**: URL を踏んでからタブが開くまでの間に loading フェーズが裏で完了してしまっており、 タブ表示時には既に preview 状態。 「下にちらっとシートが見える」 程度。 ユーザーが何が起きているか分からない。 修正方針: シートが**完全に表示された後** (= y=0 アニメ完了後) に最低 600-800ms 程度 loading 表示を保証する。 候補実装は (a) `setStatus('loading')` から `setStatus('preview')` までの最小遅延を `executeShareImport` 入口で保証、 (b) sheet の `onAnimationComplete` を待ってから API 結果を反映する 2 段階。 spec §3.5 の 2 段階アニメ「読み込み中→データ来た」 の意図そのもの。
+  **#2: 【致命 完了】 2 回目以降の上限解消で操作不能**: systematic-debugging で真因特定 (LimitResolutionSheet は ShareImportSheet から無条件レンダリングされており、 limitContext===null で `return null;` してもコンポーネントインスタンスは生存し useState 値が永続。 handleDelete 成功パスが isDeleting=true / checkedIds をリセットしないまま setLimitContext(null) するため、 2 回目の上限ヒット時に持ち越された isDeleting=true で全操作が死ぬ)。 修正: `useEffect` で limitContext null → 非 null 遷移時に local state を新規開示扱いでリセット。 回帰防止 vitest 追加。
 
-  **#2: 【致命】 2 回目以降の上限解消で操作不能 (チェックも押せず、 キャンセルも押せない)**: 2 層 (M11S) で 5/5 上限ヒット → 1 件削除して再開 → 続けて 3 層 (M12S P1) でも 5/5 上限ヒット → LimitResolutionSheet が再度開くが**チェックボックスも押せず、 キャンセルボタンも押せない**。 操作不能。
-    - **着手手順 (推測修正禁止 / memory feedback_no_guessing_fixes / feedback_understand_before_fix 適用)**:
-      1. **再現環境を作る**: dev で 2 層 5/5 + 3 層 5/5 のローカル plans 状態を seed → バンドル URL を踏んで連続上限ヒット
-      2. **観察**: React DevTools で LimitResolutionSheet の useState (isDeleting / checkedIds / activeId) を 2 回目開示時点で確認
-      3. **データ確認**: `useShareImportFlow.getState()` の limitContext / status / redFlaggedPlanIds と、 `LimitResolutionSheet` がいつ unmount されているか (createPortal の AnimatePresence exit 完了タイミング含む) を実測
-      4. **真因特定**: 観察結果から仕組みを理解した上で原因を 1 つに絞り込む。 推測複数を一気に直さない
-      5. **最小修正 → 再現テスト追加 → 実機検証** (1 件ずつ / memory feedback_one_fix_one_verify 適用)
-    - **仮説候補 (調査の出発点としてのみ。 確定前に直さない)**:
-      - (a) 成功パスで `setIsDeleting(false)` を呼ばないので state が持ち越される
-      - (b) `setLimitContext(null)` の後に新しい limitContext を set すると component instance が同一 → 内部 state がリセットされない
-      - (c) executeShareImport ループ中の 2 回目発火で onLimitHit 待機中に、 1 回目の resolve が漏れている (Promise の二重発火 / closure 汚染)
-      - (d) executeShareImport の `setRedFlag` / `clearRedFlag` の try/finally 順序が、 2 回目発火と競合
-    - 真因が分かるまでは「修正方針」 を確定させない。
+  **#1: 【完了】 「読み込み中」 が見えない**: 真因 = API 高速応答時に loading フェーズが裏で一瞬で完了。 修正: `useShareImportFlow.start()` に `padLoadingDelay(startedAt)` helper 導入、 success/error/exception の 3 経路すべてで `MIN_LOADING_VISIBLE_MS = 1200ms` を最低保証 (シート slide-in ~350ms + 視認時間 ~850ms)。 回帰防止 vitest 2 件追加。
 
-  **#3: 上限到達コンテンツに常に「5/5」 上限表示**: 仕様確定 (ブレスト不要)。 サイドバーで上限到達 (`plansForContent.length >= MAX_PLANS_PER_CONTENT`) のコンテンツは、 開いていなくても常に「5/5」 と上限表示を出す。 既に開いているコンテンツに出ている上限表示と同じものを、 上限到達コンテンツでは閉じ状態でも表示。 修正対象: `Sidebar.tsx` の上限表示出現条件のみ。 ブレスト不要。
+  **#4: 【完了】 取り込み青 sweep と isActive 青背景の被り**: 修正: SharePlanCard.baseClass で sweepStatus が active/success/failed のとき isActive 青背景を抑制し plain 背景に切替。 isRedFlagged は sweep 中も保持 (色相違いで両立)。 sweep 無し時の precedence は据え置き。 回帰防止 vitest 3 件追加 (sweep+active 抑制 / sweep+redFlag 保持 / sweep 無し既存挙動)。
 
-  **#4: 取り込みインジケーターの青 sweep がプレビュー選択中 (青背景) と被って見えない**: `SharePlanCard` の `isActive` 時 `bg-app-blue/10 border-app-blue/40` と sweep 中の青 width 0→100% が両方青で重なる → ユーザーがプログレスバー (sweep) を視認できない。
-    - 修正方針候補: (a) sweep 中は isActive スタイルを抑制 (例: `isActive && !sweepStatus` で適用)、 (b) isActive の表現を別軸 (左に縦の青ライン 3px、 背景なし) に変更、 (c) sweep の色を別色 (cyan / teal) にする。 spec §3.3 「青 sweep = 取り込み演出」 の象徴性を保つなら (a) または (b) が妥当。 LimitResolutionSheet 側の赤 sweep は `bg-app-red/15` で被らないので変更不要。
-    - 修正は SharePlanCard 1 ファイル + 視覚テスト追加。
+  **#3 (次セッション): 上限到達コンテンツに常に「5/5」 上限表示**: 仕様確定。 サイドバーで上限到達 (`plansForContent.length >= MAX_PLANS_PER_CONTENT`) のコンテンツは、 開いていなくても常に「5/5」 と上限表示を出す。 修正対象: `Sidebar.tsx` の上限表示出現条件のみ。 次セッションで影響範囲確認 → 実装 → push。
 
-  **次セッション再開時の入口**:
-  1. 4 件の優先順: #2 (致命) → #1 (UX) → #4 (UX) → #3 (新仕様、 ブレスト要)
-  2. #2 は最優先。 修正方針 (A) + (B) で着手 → 再現 vitest 追加 → 実機検証
-  3. #1 は loading 表示の最低時間保証ロジックを `executeShareImport` 入口に挿入
-  4. #4 は SharePlanCard の `baseClass` ロジックに `sweepStatus` 引数を渡して isActive 抑制
-  5. #3 は `brainstorming` で対象範囲確定 → Sidebar 改修プラン
+  **このセッションでデプロイした 3 commits**:
+  - `fix(LimitResolutionSheet)`: 2 回目以降の上限ヒットで local state リセット (useEffect)
+  - `fix(useShareImportFlow)`: loading フェーズに最低 1200ms 視認時間保証
+  - `fix(SharePlanCard)`: sweep 中 isActive 青背景を抑制し sweep を視認可能に
+  - 全 vitest 579 PASS、 tsc clean、 build 成功
 
-  **このセッションでデプロイ済の Phase B-1.5 polish 第 1 弾**:
-  - HEAD: `9f8f7e9`、 セッション 5 で 6 commits 追加
-  - 全 vitest 573/573 PASS、 tsc clean、 build success
-  - 実機 OK 部分: spring 統一 / レイアウト統一 / 単一プランの左カラム描画 / コンテンツ名 + プラン名 2 行 / max_total 事前判定 (実機未検証) / キャンセルボタン (実機未検証だが仕様通り)
+  **実機検証チェックリスト (Vercel デプロイ後にユーザーが試す)**:
+  1. **#1**: 共有 URL を踏むと、 シートが滑り込んだあと「読み込み中…」 がはっきり見えてから preview に切り替わる (1 秒程度の loading 体験)
+  2. **#2**: 2 層 5/5 上限ヒット → 削除して再開 → 3 層 5/5 上限ヒットでシート再開示後、 チェック・キャンセル・削除ボタンすべて操作できる
+  3. **#4**: 共有 URL を踏んで取り込み中、 選択中の青背景カードでも青 sweep プログレスバーが左→右に流れて見える
 
-  **設計書 / 実装プラン**:
+  **設計書 / 実装プラン (第 1 弾)**:
   - `docs/superpowers/specs/2026-05-09-share-import-polish-design.md`
   - `docs/superpowers/plans/2026-05-09-share-import-polish.md`
-  - 第 2 弾用の新規 spec / plan は次セッションで作成 (subagent-driven-development チェーン継続)
 
 - **【完了 2026-05-09 セッション 5・Phase B-1.5 polish (Task 6 fix + Task 7-10 + final review I-1)】**: subagent-driven-development の残タスクを完走。 Task 6 review (I-1 / I-3 / Minor #2) → Task 7 ShareImportSheet polish → Task 8 LocalImportDialog SweepOverlay 移行 → Task 9 ShareImportProgressIndicator 削除 → Task 10 final review → final reviewer Important I-1 即修正。 全 vitest 573/573 PASS、 tsc clean、 vite build success、 触らない箇所 (usePlanStore / planService / silentCompressStale / checkPlanLimit / MitigationSheet / buildShareImportItems) は origin/main からの diff 0 行維持。 push + Vercel デプロイ済 (HEAD: 8aaa9dc、 セッション 5 で 5 コミット追加)。
 
