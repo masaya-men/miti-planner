@@ -175,6 +175,7 @@ export const SKILL_DATA = {
     "アスペクト・ヘリオス (Nセクト)": { "potency": 250, "type": "potency", "multiplier": 1.5, "jobs": ["ast"], "icon": "Aspected_Helios.png", "nameEn": "Aspected Helios (Neutral)", "maxLevel": 95, "minLevel": 80 },
     "コンジャンクション・ヘリオス (Nセクト)": { "potency": 250, "type": "potency", "multiplier": 1.5, "jobs": ["ast"], "icon": "Helios_Conjunction.png", "nameEn": "Helios Conjunction (Neutral)", "minLevel": 96 },
     "星天交差": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["ast"], "icon": "Celestial_Intersection.png", "nameEn": "Celestial Intersection", "minLevel": 74 },
+    "ビエルゴの塔": { "potency": 400, "type": "potency", "multiplier": 1, "jobs": ["ast"], "icon": "The_Spire.png", "nameEn": "The Spire", "minLevel": 30 },
 
     // --- Others from CSV ---
     // e.g. Divine Veil (listed above), Tempera Grassa (above), TBN (above)
