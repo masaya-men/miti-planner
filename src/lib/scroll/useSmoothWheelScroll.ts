@@ -1,5 +1,6 @@
 import { useEffect, useRef, type RefObject } from 'react';
 import { isAtScrollBoundary, isSmoothScrollSupported, springStep } from './smoothScrollLogic';
+import { useTutorialStore } from '../../store/useTutorialStore';
 
 type Options = {
     readonly stiffness?: number;
@@ -13,21 +14,30 @@ const EXTERNAL_SCROLL_DIFF_THRESHOLD = 10;
  * 特定要素のホイール縦スクロールを critical-damped spring で補間する hook。
  * 横スクロール (deltaX) と境界 (top/bottom で対応方向) ではネイティブに任せる。
  * 外部から scrollTop が大幅変動 (>10px) したら内部 state をリセット → JS scrollTo/scrollIntoView との干渉防止。
+ * Tutorial 中は自動的に wheel をブロックして意図しないスクロールでターゲット要素が画面外に行くのを防ぐ。
  */
 export function useSmoothWheelScroll(
     ref: RefObject<HTMLElement | null>,
     options: Options = {},
 ): void {
-    const { stiffness = 200, disabled = false } = options;
+    const { stiffness = 200, disabled: explicitDisabled = false } = options;
+    const isTutorialActive = useTutorialStore((s) => s.isActive);
+    const disabled = explicitDisabled || isTutorialActive;
     const stateRef = useRef<{ targetDy: number; velY: number; lastTime: number }>({ targetDy: 0, velY: 0, lastTime: 0 });
     const rafRef = useRef<number | null>(null);
     const lastAppliedScrollTopRef = useRef<number>(0);
 
     useEffect(() => {
-        if (disabled) return;
         if (!isSmoothScrollSupported(window)) return;
         const el = ref.current;
         if (!el) return;
+
+        // disabled=true (Tutorial 中など): wheel を preventDefault でブロックして native scroll も止める
+        if (disabled) {
+            const blockHandler = (e: WheelEvent): void => { e.preventDefault(); };
+            el.addEventListener('wheel', blockHandler, { passive: false });
+            return (): void => { el.removeEventListener('wheel', blockHandler); };
+        }
 
         const damping = 2 * Math.sqrt(stiffness);
         lastAppliedScrollTopRef.current = el.scrollTop;

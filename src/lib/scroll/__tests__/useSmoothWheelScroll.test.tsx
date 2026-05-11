@@ -1,6 +1,15 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
+
+// usePlanStore -> Firebase の transitive deps を切るため Tutorial store を mock
+vi.mock('../../../store/useTutorialStore', () => ({
+    useTutorialStore: Object.assign(
+        <T,>(selector: (s: { isActive: boolean }) => T) => selector({ isActive: false }),
+        { getState: () => ({ isActive: false }) }
+    ),
+}));
+
 import { useSmoothWheelScroll } from '../useSmoothWheelScroll';
 
 function setMatchMediaPc(): void {
