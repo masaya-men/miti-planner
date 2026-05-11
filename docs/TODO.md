@@ -33,7 +33,7 @@
   - `docs/superpowers/specs/2026-05-09-share-import-polish-design.md`
   - `docs/superpowers/plans/2026-05-09-share-import-polish.md`
 
-  **第 2 弾の主要 commits (a87f2ad まで)**:
+  **第 2 弾の主要 commits (13a9e15 まで)**:
   - 3ed6f94 fix(LimitResolutionSheet): #2 致命 useEffect で local state リセット
   - dbc6be8 fix(useShareImportFlow): #1 loading 最低時間保証
   - ffe13b1 fix(SharePlanCard): #4 fix-1 sweep + isActive 青被り抑制
@@ -41,6 +41,15 @@
   - 24c51e8 fix(share-import): ログイン中オーバーレイ撤去 (誤撤去) / バー画面中央
   - 0d6537f fix(share-import): Rev 3 シート読み込み画面再設計 + isAuthRedirecting 復活
   - a87f2ad fix(share-import): Rev 4 同一シート中身クロスフェード + バウンス廃止
+  - 13a9e15 feat(Sidebar): #3 上限到達コンテンツに常時「上限 5/5」 バッジ
+
+- **【次セッション最優先候補 (どれから着手するかセッション開始時に相談)】**:
+  1. **🐛 削除プラン復活現象の調査** (要再現): シークレットウィンドウで非ログインコピー → 削除したつもり → ログインしたら同じプランが取り込みダイアログで復活する報告。 仮説 (a) シークレット window の localStorage 分離 (b) `deletePlan` が `ownerId === 'local'` のとき `_deletedPlanIds` に追加せず Firestore 削除指示を出さない (c) `getLocalPlanIds` が削除済みプラン拾う、 のいずれか。 再現手順 → systematic-debugging で真因特定 → 修正。
+  2. **🧹 診断ログ撤去**: `src/utils/debugLog.ts` + 各所 `dlog()` 呼び出しを全削除 (Phase B-1 真因確定で役割終了)。 `scripts/inspect-user-plans.ts` は残す。 機械的作業、 リスク低。
+  3. **🏷️ 未取り込みバッジ**: サイドバーで `ownerId='local'` (未取り込み) と `uid` (取り込み済) を視覚区別する小バッジ。 現状混在で混乱の元。 brainstorming 軽くやってから実装。
+  4. **🛡️ 致命バグ修正の自動テスト追加**: `addPlan` 正規化ガード + SharePage コピー結果が `ownerId='local'` であることを assert する vitest を追加 (過去 5 回再発した致命バグの回帰防御)。
+  5. **🌀 表エリアスムーズスクロール導入**: Timeline の縦スクロールを Lenis (Studio Freight) で補間。 PC のみ対象、 スマホは慣性スクロール既存。 brainstorming で対象範囲確定 → 実装。
+  6. **📜 みんなの軽減表 (公開) の利用規約更新**: 軽減データ集約・公開の旨を明記してから集約機能着手 (memory project_minna_mitigation)。
 
 - **【完了 2026-05-09 セッション 5・Phase B-1.5 polish (Task 6 fix + Task 7-10 + final review I-1)】**: subagent-driven-development の残タスクを完走。 Task 6 review (I-1 / I-3 / Minor #2) → Task 7 ShareImportSheet polish → Task 8 LocalImportDialog SweepOverlay 移行 → Task 9 ShareImportProgressIndicator 削除 → Task 10 final review → final reviewer Important I-1 即修正。 全 vitest 573/573 PASS、 tsc clean、 vite build success、 触らない箇所 (usePlanStore / planService / silentCompressStale / checkPlanLimit / MitigationSheet / buildShareImportItems) は origin/main からの diff 0 行維持。 push + Vercel デプロイ済 (HEAD: 8aaa9dc、 セッション 5 で 5 コミット追加)。
 
