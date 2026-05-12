@@ -2669,14 +2669,18 @@ const Timeline: React.FC = () => {
                                                 const PLACEMENT_STEP = 12;
                                                 const FULL_LANE_WIDTH = 24;
                                                 const HALF_LANE_WIDTH = 12;
+                                                const ICON_WIDTH = 24;
+                                                const VISUAL_OFFSET = 2;  // 列左端からアイコンまでの視覚的オフセット
                                                 const member = partyMembers.find(m => m.id === ownerMitigations[0]?.ownerId);
                                                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
                                                 // 初回マウント時 layout 未確定 (refs が null) のため fallback 値で 1 フレーム描画。 2pass 目で実測値に上書きされる
                                                 const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 125 : 50;
                                                 const colStart = layout?.left ?? 0;
                                                 const colWidth = layout?.width ?? fallbackColWidth;
-                                                const MAX_LEFT = colWidth - 24;
+                                                const MAX_LEFT = colWidth - ICON_WIDTH;
 
+                                                // ── Phase 1: 全アイコンの配置位置 (candidateLeft) を確定 ──
+                                                // 既存のレーン詰めロジックを Phase 1 として分離。 時間重複を avoid して左から詰める
                                                 const assignedPositions: { m: any, left: number }[] = [];
 
                                                 displayItems.forEach(mitigation => {
@@ -2707,6 +2711,31 @@ const Timeline: React.FC = () => {
                                                     if (candidateLeft > MAX_LEFT) candidateLeft = MAX_LEFT;
 
                                                     assignedPositions.push({ m: mitigation, left: candidateLeft });
+                                                });
+
+                                                // ── Phase 2: クラスタ中央寄せシフト ──
+                                                // アイコン 2 個以上のとき、 左右余白が均等になるよう全体をシフト
+                                                // 1 個のときは左寄せ維持 (中央配置は不格好なので)
+                                                let clusterShift = 0;
+                                                const placedNonVirtual = assignedPositions.filter(p => !p.m.isVirtual);
+                                                if (placedNonVirtual.length >= 2) {
+                                                    const lefts = placedNonVirtual.map(p => p.left);
+                                                    const minLeft = Math.min(...lefts);
+                                                    const maxLeft = Math.max(...lefts);
+                                                    // 視覚的左マージン = VISUAL_OFFSET + minLeft + clusterShift
+                                                    // 視覚的右マージン = colWidth - (VISUAL_OFFSET + maxLeft + ICON_WIDTH + clusterShift)
+                                                    // 両者を等しくする clusterShift を求める
+                                                    clusterShift = (colWidth - minLeft - maxLeft - ICON_WIDTH - 2 * VISUAL_OFFSET) / 2;
+                                                    if (clusterShift < 0) clusterShift = 0;  // overflow 防止
+                                                }
+
+                                                // ── Phase 3: rendering (positions に clusterShift を加算) ──
+                                                // position 検索用 map
+                                                const positionByMitId = new Map<string, number>();
+                                                assignedPositions.forEach(p => positionByMitId.set(p.m.id, p.left));
+
+                                                displayItems.forEach(mitigation => {
+                                                    const candidateLeft = positionByMitId.get(mitigation.id) ?? 0;
 
                                                     const offsetTime = showPreStart ? -10 : 0;
                                                     const durationSeconds = Math.max(1, mitigation.duration);
@@ -2765,7 +2794,7 @@ const Timeline: React.FC = () => {
                                                         }
                                                     }
 
-                                                    const absoluteLeft = colStart + 2 + candidateLeft;
+                                                    const absoluteLeft = colStart + VISUAL_OFFSET + candidateLeft + clusterShift;
 
                                                     renderedItems.push(
                                                         <MitigationItem
