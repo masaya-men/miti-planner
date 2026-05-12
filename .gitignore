@@ -86,3 +86,8 @@ tmp/
 
 .vercel
 .firebase/
+
+# Playwright
+/playwright-report/
+/test-results/
+/playwright/.cache/

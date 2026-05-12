@@ -1851,6 +1851,19 @@ const Timeline: React.FC = () => {
         }
     }, []);
 
+    // メンバーごとに安定した ref コールバックをキャッシュ。
+    // JSX 内でインライン関数 `(el) => setMemberHeaderRef(id, el)` を書くと
+    // 毎レンダーで新インスタンスが生成され React が detach→attach を繰り返し、
+    // setRefVersion → 再レンダー → 無限ループを起こす。
+    // useRef に id→callback をキャッシュすることで関数参照を安定化する。
+    const memberRefCallbacks = useRef<Map<string, (el: HTMLDivElement | null) => void>>(new Map());
+    const getMemberRefCallback = useCallback((id: string) => {
+        if (!memberRefCallbacks.current.has(id)) {
+            memberRefCallbacks.current.set(id, (el: HTMLDivElement | null) => setMemberHeaderRef(id, el));
+        }
+        return memberRefCallbacks.current.get(id)!;
+    }, [setMemberHeaderRef]);
+
     const memberRefEntries = useMemo(
         (): MemberRefEntry[] => sortedPartyMembers.map(m => ({ id: m.id, el: memberHeaderRefs.current.get(m.id) ?? null })),
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2179,7 +2192,7 @@ const Timeline: React.FC = () => {
                             {sortedPartyMembers.map((member, index) => (
                                 <div
                                     key={member.id}
-                                    ref={(el) => setMemberHeaderRef(member.id, el)}
+                                    ref={getMemberRefCallback(member.id)}
                                     data-member-id={member.id}
                                     data-member-role={member.role}
                                     style={{ width: getColumnCssVar(member.role), minWidth: getColumnCssVar(member.role), maxWidth: getColumnCssVar(member.role) }}
