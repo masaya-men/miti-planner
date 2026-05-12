@@ -1339,5 +1339,24 @@ button, [role="button"], .touch-none {
         --col-label-collapsed-w: 16px;
         /* コントロールバー左チャンク幅 (PHASE + LABEL + TIME 合計) */
         --col-header-chunk-w: calc(var(--col-phase-w) + var(--col-label-w) + var(--col-time-w));
+
+        /* === Font-size tokens (PC 用 clamp+vw、 max = base = 開発者画面 px) === */
+        /* philosophy v2 § 4-1: rem 不使用、 px ベース、 1489 で base 到達、 1920+ で max 固定 */
+        /* min は base × 0.85〜0.92 (1366 で読みやすい最小値の目安) */
+        --font-size-3xs: clamp(5px,  0.403vw, 6px);
+        --font-size-2xs: clamp(6px,  0.470vw, 7px);
+        --font-size-xs:  clamp(7px,  0.537vw, 8px);
+        --font-size-sm:  clamp(8px,  0.604vw, 9px);
+        --font-size-base: clamp(9px,  0.671vw, 10px);
+        --font-size-md:  clamp(10px, 0.738vw, 11px);
+        --font-size-lg:  clamp(11px, 0.806vw, 12px);
+        --font-size-xl:  clamp(11px, 0.873vw, 13px);
+        --font-size-2xl: clamp(12px, 0.940vw, 14px);
+        --font-size-2xl-plus: clamp(14px, 1.074vw, 16px);
+        --font-size-3xl: clamp(16px, 1.209vw, 18px);
+        --font-size-4xl: clamp(17px, 1.343vw, 20px);
+        --font-size-4xl-plus: clamp(21px, 1.612vw, 24px);
+        --font-size-5xl: clamp(22px, 1.746vw, 26px);
+        --font-size-6xl: clamp(30px, 2.418vw, 36px);
     }
 }
