@@ -3,7 +3,7 @@ import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
 import { getPhaseName } from '../types';
-import { getColumnWidth } from '../utils/calculator';
+import { getColumnCssVar } from '../utils/calculator';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
@@ -196,7 +196,7 @@ export const TimelineRow = memo(({
                 <div
                     data-phase-col
                     className={clsx(
-                        "md:w-[60px] border-r h-full relative items-center justify-center group-hover:text-app-text",
+                        "md:w-[var(--col-phase-w)] md:min-w-[var(--col-phase-w)] md:max-w-[var(--col-phase-w)] border-r h-full relative items-center justify-center group-hover:text-app-text",
                         "border-app-border",
                         "md:cursor-pointer md:hover:bg-app-surface2",
                         hasPhases ? "w-[24px] flex" : "w-[24px] hidden md:flex",
@@ -235,8 +235,8 @@ export const TimelineRow = memo(({
                 <div
                     data-label-col
                     className={clsx(
-                        "md:flex md:w-[50px] md:min-w-[50px] md:max-w-[50px] border-r border-app-border h-full items-center justify-center cursor-pointer hover:bg-app-surface2",
-                        hasPhases ? "hidden" : "w-[24px] flex md:w-[50px]",
+                        "md:flex md:w-[var(--col-label-w)] md:min-w-[var(--col-label-w)] md:max-w-[var(--col-label-w)] border-r border-app-border h-full items-center justify-center cursor-pointer hover:bg-app-surface2",
+                        hasPhases ? "hidden" : "w-[24px] flex md:w-[var(--col-label-w)]",
                     )}
                     onClick={(e) => {
                         if (labelSelectMode) {
@@ -270,7 +270,7 @@ export const TimelineRow = memo(({
             {/* Time Column — スマホ: 軽減追加 */}
             <div
                 className={clsx(
-                    "w-[36px] md:w-[60px] border-r h-full flex items-center justify-center relative font-mono text-app-sm md:text-app-2xl group-hover:text-app-text group-hover:font-black",
+                    "w-[36px] min-w-[36px] md:w-[var(--col-time-w)] md:min-w-[var(--col-time-w)] md:max-w-[var(--col-time-w)] border-r h-full flex items-center justify-center relative font-mono text-app-sm md:text-app-2xl group-hover:text-app-text group-hover:font-black",
                     "border-app-border text-app-text-sec hover:bg-app-surface2"
                 )}
                 onClick={handleMobileTap}
@@ -280,7 +280,7 @@ export const TimelineRow = memo(({
 
             {/* Event Column */}
             <div className={clsx(
-                "flex-1 md:flex-none md:w-[200px] border-r h-full relative flex flex-col",
+                "flex-1 md:flex-none md:w-[var(--col-mechanic-w)] md:min-w-[var(--col-mechanic-w)] md:max-w-[var(--col-mechanic-w)] border-r h-full relative flex flex-col",
                 "border-app-border hover:bg-app-surface2"
             )}>
                 {events.length === 0 ? (
@@ -470,7 +470,7 @@ export const TimelineRow = memo(({
             {/* U.Dmg Column */}
             <div
                 className={clsx(
-                    "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-app-base md:text-app-2xl font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
+                    "w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] border-r h-full flex flex-col items-center justify-center text-app-base md:text-app-2xl font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
                     "border-app-border text-app-text-sec"
                 )}
                 onClick={(e) => {
@@ -503,7 +503,7 @@ export const TimelineRow = memo(({
                             undefined
                 }
                 className={clsx(
-                    "w-[50px] md:w-[100px] border-r h-full flex flex-col items-center justify-center text-app-base md:text-app-2xl font-mono font-black  group-hover:text-app-text cursor-pointer md:cursor-default",
+                    "w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] border-r h-full flex flex-col items-center justify-center text-app-base md:text-app-2xl font-mono font-black group-hover:text-app-text cursor-pointer md:cursor-default",
                     "border-app-border text-app-text-primary"
                 )}
                 onClick={(e) => {
@@ -628,7 +628,7 @@ export const TimelineRow = memo(({
                             "hidden md:flex h-full items-center justify-center relative group/cell cursor-pointer  border-r",
                             "border-app-border hover:bg-app-surface2"
                         )}
-                        style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
+                        style={{ width: getColumnCssVar(member.role), minWidth: getColumnCssVar(member.role), maxWidth: getColumnCssVar(member.role) }}
                         onClick={(e) => onCellClick(member.id, time, e)}
                     >
                         <Tooltip content={t('mitigation.select')} position="top">

@@ -2404,7 +2404,7 @@ const Timeline: React.FC = () => {
                                             );
                                         }
                                     } else {
-                                        // PC: 既存の TimelineRow — 変更禁止
+                                        // PC: TimelineRow (body 行)
                                         renderItems.push(
                                             <TimelineRow
                                                 key={time}
