@@ -119,6 +119,18 @@
     --font-size-5xl: 26px;
     --font-size-6xl: 36px;
 
+    /* === タイムライン列幅トークン — モバイル既定値 (768px 未満はこの px がそのまま使われる) === */
+    --col-phase-w: 24px;
+    --col-label-w: 24px;
+    --col-time-w: 36px;
+    --col-mechanic-w: 100%;  /* モバイルは flex-1 相当 */
+    --col-counter-w: 50px;   /* RAW / TAKEN 共通 */
+    --col-th-w: 0px;         /* モバイルではパーティ列を非表示 */
+    --col-dps-w: 0px;
+    --col-member-start: 0px; /* メンバー列の開始 left */
+    --col-phase-collapsed-w: 16px;
+    --col-label-collapsed-w: 16px;
+
     line-height: 1.6;
     color-scheme: dark;
 
@@ -290,6 +302,18 @@
     --font-size-4xl-plus: 24px;
     --font-size-5xl: 26px;
     --font-size-6xl: 36px;
+
+    /* === タイムライン列幅トークン — モバイル既定値 (768px 未満はこの px がそのまま使われる) === */
+    --col-phase-w: 24px;
+    --col-label-w: 24px;
+    --col-time-w: 36px;
+    --col-mechanic-w: 100%;  /* モバイルは flex-1 相当 */
+    --col-counter-w: 50px;   /* RAW / TAKEN 共通 */
+    --col-th-w: 0px;         /* モバイルではパーティ列を非表示 */
+    --col-dps-w: 0px;
+    --col-member-start: 0px; /* メンバー列の開始 left */
+    --col-phase-collapsed-w: 16px;
+    --col-label-collapsed-w: 16px;
 
     --row-hover-line-color: rgba(0, 0, 0, 0.15);
 
@@ -1273,4 +1297,29 @@ button, [role="button"], .touch-none {
     .label-select-preview .preview-highlight[data-time-row] {
         background-color: rgba(59, 130, 246, 0.1);
     }
+}
+
+/* === タイムライン列幅トークン — PC 上書き (min-width: 768px) ===
+   1489px 基準: col-th-w=8.395vw≈125px, col-dps-w=3.358vw≈50px,
+   col-phase-w=4.030vw≈60px, col-label-w=3.358vw≈50px, col-time-w=4.030vw≈60px,
+   col-mechanic-w=13.432vw≈200px, col-counter-w=6.716vw≈100px */
+@media (min-width: 768px) {
+  :root,
+  .theme-dark,
+  .theme-light {
+    --col-phase-w: clamp(48px, 4.030vw, 80px);
+    --col-label-w: clamp(40px, 3.358vw, 70px);
+    --col-time-w: clamp(48px, 4.030vw, 80px);
+    --col-mechanic-w: clamp(160px, 13.432vw, 280px);
+    --col-counter-w: clamp(80px, 6.716vw, 140px);
+    --col-th-w: clamp(110px, 8.395vw, 180px);
+    --col-dps-w: clamp(45px, 3.358vw, 80px);
+    /* メンバー列開始位置 = PHASE + LABEL + TIME + MECHANIC + RAW + TAKEN */
+    --col-member-start: calc(
+      var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) +
+      var(--col-mechanic-w) + var(--col-counter-w) + var(--col-counter-w)
+    );
+    --col-phase-collapsed-w: 16px;
+    --col-label-collapsed-w: 16px;
+  }
 }
