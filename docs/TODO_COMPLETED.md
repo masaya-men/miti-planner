@@ -37,9 +37,55 @@
 
 ### 残課題 (セッション 17 へ引き継ぎ)
 
-- 左飛びバグ 本番再発 (ローカルでは直ったが本番で残る、 layout 確定までの時間が本番では長い)
 - 列幅 0.5px ズレ (許容範囲、 列幅拡張時に同時治療予定)
 - 表エリア全幅化 / リキャスト専用行 / 効果中スキル最上行残し の 3 大計画 (詳細: `docs/.private/2026-05-12-table-area-improvements.md`)
+
+---
+
+## 完了（2026-05-12 セッション 16 末・左から飛んでくるバグ 根本治療）
+
+**背景**: セッション 16 で `layoutReady` (1 フレーム visibility:hidden) を実装したが本番で再発。 brainstorming で真因を特定し、 React の `useLayoutEffect` で根本治療。
+
+**結果**: ユーザー本番実機 OK 確認。 1 commit push 済。
+
+### 真因
+
+`useEffect` は paint **後**に実行される → 1 pass 目で `colStart=0` のアイコンが画面に paint された後、 2 pass 目で正位置にジャンプ。 これが「左 (x=0) から飛んでくる」 現象。
+
+プラン切替 (C) で発生しなかった理由 = Timeline コンポーネントが unmount されず `memberLayout` Map が継続保持されていたため。 A (ハードリロード) / B (別ページから戻る) では新規マウントで Map がリセット → 1 pass が必ず空。
+
+### 修正内容
+
+`src/components/Timeline.layoutHooks.ts` の **1 行のみ**変更:
+
+```diff
+-import { useState, useEffect } from 'react';
++import { useState, useLayoutEffect } from 'react';
+...
+-  useEffect(() => {
++  useLayoutEffect(() => {
+```
+
+`useLayoutEffect` は paint **前**に実行され、 内部の `setState` も同期再 render される。 結果として 1 pass 目の「colStart=0」 状態は paint されず、 2 pass 目の正位置のみが画面に出る。 ユーザー視覚的には「最初から正位置にある」 状態。
+
+### 既存機能の保持
+
+- `MitigationItem` の `layoutReady` prop + `visibility: hidden` ロジックは保険として維持
+- 既存テスト 636/636 そのまま PASS
+- パフォーマンス影響なし (useLayoutEffect 内は 8 要素の `offsetLeft`/`offsetWidth` 読込のみ、 1ms 未満)
+
+### 設計書 / 実装プラン
+
+- `docs/superpowers/specs/2026-05-12-left-flying-icons-fix-design.md`
+- `docs/superpowers/plans/2026-05-12-left-flying-icons-fix.md`
+
+### 振り返り / 教訓
+
+- brainstorming で真因を分析する段階で「プラン切替で発生しない理由」 を考察したのが突破口
+- ユーザー仮説「ローディング画面で隠れている」 は方向は正しいが原因が違った (= Timeline の unmount 有無)
+- 1 行変更で根本治療できた = React の lifecycle 理解が決定的に重要だった
+
+---
 
 ---
 
