@@ -1328,11 +1328,12 @@ button, [role="button"], .touch-none {
         --col-time-w: clamp(48px, 4.030vw, 60px);
         --col-mechanic-w: clamp(160px, 13.432vw, 200px);
         --col-counter-w: clamp(80px, 6.716vw, 100px);
-        /* 左右余白 2px (= VISUAL_OFFSET) で対称になる列幅:
-           T/H = 2L + 5×ICON(24) + 2L = 124px (最大 5 アイコン)
-           DPS = 2L + 2×ICON(24) + 2L = 52px  (最大 2 アイコン) */
-        --col-th-w: clamp(109px, 8.327vw, 124px);
-        --col-dps-w: clamp(46px, 3.492vw, 52px);
+        /* 軽減アイコン列は viewport / サイドメニュー / 表エリア幅に依存しない固定 px。
+           アイコン (24px 固定) の最大同時並び数で必要幅が決まる機能要件のため:
+           T/H = 2L + 5×ICON(24) + 2L = 124px (最大 5 アイコン、 左右余白 2px ずつで対称)
+           DPS = 2L + 2×ICON(24) + 2L = 52px  (最大 2 アイコン、 同上) */
+        --col-th-w: 124px;
+        --col-dps-w: 52px;
         /* メンバー列開始位置 = PHASE + LABEL + TIME + MECHANIC + RAW + TAKEN */
         --col-member-start: calc(
             var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) +
