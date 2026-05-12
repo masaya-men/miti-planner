@@ -25,6 +25,10 @@ describe('calculateAngle', () => {
     expect(calculateAngle(-10, 60)).toBe(360);
     expect(calculateAngle(100, 60)).toBe(0);
   });
+  it('returns 0 when recastSec is 0 or negative', () => {
+    expect(calculateAngle(0, 0)).toBe(0);
+    expect(calculateAngle(10, -5)).toBe(0);
+  });
 });
 
 describe('getActiveRecasts', () => {
@@ -69,6 +73,13 @@ describe('getActiveRecasts', () => {
     expect(result[0].mitigationId).toBe('thrill');
     expect(result[1].mitigationId).toBe('holmgang');
   });
+
+  it('excludes mitigations whose def.recast is 0 or negative', () => {
+    const zeroRecast = makeMitigation('instant', 0);
+    const placements = [makePlacement('p1', 'instant', 0)];
+    const result = getActiveRecasts(placements, [zeroRecast], 5);
+    expect(result).toHaveLength(0);
+  });
 });
 
 describe('selectVisibleByLimit', () => {
@@ -98,5 +109,16 @@ describe('selectVisibleByLimit', () => {
     ];
     const result = selectVisibleByLimit(actives, 6);
     expect(result.map(r => r.mitigationId)).toEqual(['b', 'a']);
+  });
+
+  it('returns empty array when input is empty', () => {
+    expect(selectVisibleByLimit([], 6)).toEqual([]);
+  });
+
+  it('returns empty array when limit is 0 even if input is non-empty', () => {
+    const actives = [
+      { placementId: 'p1', mitigationId: 'a', remaining: 30, placementTime: 0, recast: 60, ownerId: 'T1' },
+    ];
+    expect(selectVisibleByLimit(actives, 0)).toEqual([]);
   });
 });

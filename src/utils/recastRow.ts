@@ -45,31 +45,42 @@ export function getActiveRecasts(
   const defMap = new Map<string, Mitigation>();
   for (const def of defs) defMap.set(def.id, def);
 
-  // (ownerId, mitigationId) 単位で最も新しい placement を保持
-  const latestByKey = new Map<string, AppliedMitigation>();
+  // (ownerId, mitigationId) 単位で最も新しい placement を保持。
+  // ネストした Map にすることで、 id に区切り文字 (例: '::') が含まれていても
+  // キー衝突が起きない (文字列連結方式の弱点を回避)。
+  const latestByOwner = new Map<string, Map<string, AppliedMitigation>>();
   for (const p of placements) {
     if (p.time > currentTime) continue;
-    const key = `${p.ownerId}::${p.mitigationId}`;
-    const existing = latestByKey.get(key);
+    let inner = latestByOwner.get(p.ownerId);
+    if (!inner) {
+      inner = new Map<string, AppliedMitigation>();
+      latestByOwner.set(p.ownerId, inner);
+    }
+    const existing = inner.get(p.mitigationId);
     if (!existing || p.time > existing.time) {
-      latestByKey.set(key, p);
+      inner.set(p.mitigationId, p);
     }
   }
 
   const result: ActiveRecast[] = [];
-  for (const p of latestByKey.values()) {
-    const def = defMap.get(p.mitigationId);
-    if (!def || def.recast <= 0) continue;
-    const remaining = def.recast - (currentTime - p.time);
-    if (remaining <= 0 || remaining > def.recast) continue;
-    result.push({
-      placementId: p.id,
-      mitigationId: p.mitigationId,
-      ownerId: p.ownerId,
-      placementTime: p.time,
-      recast: def.recast,
-      remaining,
-    });
+  for (const inner of latestByOwner.values()) {
+    for (const p of inner.values()) {
+      const def = defMap.get(p.mitigationId);
+      if (!def || def.recast <= 0) continue;
+      const remaining = def.recast - (currentTime - p.time);
+      // p.time <= currentTime はループ前段でフィルタ済みなので
+      // remaining <= def.recast は数学的に保証される。
+      // よってここでは remaining <= 0 のみチェックすればよい。
+      if (remaining <= 0) continue;
+      result.push({
+        placementId: p.id,
+        mitigationId: p.mitigationId,
+        ownerId: p.ownerId,
+        placementTime: p.time,
+        recast: def.recast,
+        remaining,
+      });
+    }
   }
 
   result.sort((a, b) => a.remaining - b.remaining);
@@ -84,6 +95,9 @@ export function getActiveRecasts(
  * 「残り時間が短いものを優先的に隠す」 = 「もうすぐ消えるから新規スキルにスペースを譲る」 という意図。
  */
 export function selectVisibleByLimit(actives: ActiveRecast[], limit: number): ActiveRecast[] {
+  // limit <= 0 のときは常に空配列を返す。
+  // (slice(-0) は slice(0) と等価で全件返してしまうため、 明示的に早期 return する)
+  if (limit <= 0) return [];
   if (actives.length <= limit) {
     return [...actives].sort((a, b) => a.placementTime - b.placementTime);
   }
