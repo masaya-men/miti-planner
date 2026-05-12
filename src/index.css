@@ -1309,13 +1309,15 @@ button, [role="button"], .touch-none {
     :root,
     .theme-dark,
     .theme-light {
-        --col-phase-w: clamp(48px, 4.030vw, 80px);
-        --col-label-w: clamp(40px, 3.358vw, 70px);
-        --col-time-w: clamp(48px, 4.030vw, 80px);
-        --col-mechanic-w: clamp(160px, 13.432vw, 280px);
-        --col-counter-w: clamp(80px, 6.716vw, 140px);
-        --col-th-w: clamp(110px, 8.395vw, 180px);
-        --col-dps-w: clamp(45px, 3.358vw, 80px);
+        /* max = base (= 開発者画面 1489 で見せたい px) — philosophy v2 */
+        /* ultrawide で要素拡大せず、 1489+ で全列固定 */
+        --col-phase-w: clamp(48px, 4.030vw, 60px);
+        --col-label-w: clamp(40px, 3.358vw, 50px);
+        --col-time-w: clamp(48px, 4.030vw, 60px);
+        --col-mechanic-w: clamp(160px, 13.432vw, 200px);
+        --col-counter-w: clamp(80px, 6.716vw, 100px);
+        --col-th-w: clamp(110px, 8.395vw, 125px);
+        --col-dps-w: clamp(45px, 3.358vw, 50px);
         /* メンバー列開始位置 = PHASE + LABEL + TIME + MECHANIC + RAW + TAKEN */
         --col-member-start: calc(
             var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) +
