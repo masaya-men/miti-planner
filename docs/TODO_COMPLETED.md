@@ -2,6 +2,29 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-12 セッション 17・表エリア全幅化 / メンバー列幅拡張）
+
+**背景**: セッション 14 で sizing 思想 v2 (container max-width 1489) を導入したが、 「フォーカスモード時にタイムラインが画面端まで広がる」 という本来の目的が未達。 メンバー列幅 (T/H 126 / DPS 53) の合計が利用可能幅に届かず、 タイムライン右側に約 153px の空白が残っていた。
+
+**設計書 / 計画書**:
+- `docs/superpowers/specs/2026-05-12-table-area-fullwidth-design.md`
+- `docs/superpowers/plans/2026-05-12-table-area-fullwidth-implementation.md`
+
+### 完了内容
+
+- T/H 列幅 126 → **151px** (6 アイコン対称、 セッション 16 の対称性思想踏襲)
+- DPS 列幅 53px 維持 (2 アイコン対称)
+- 各メンバー列の左右マージン **2.9px** (新規 CSS 変数 `--col-member-pad-x`、 実機目視確定)
+- 縦スクロールバー非表示 (グローバル、 管理画面 `[data-admin-page]` のみ復活)
+- 横スクロールバーは残す (通常モード時の「あえて溢れさせる」 UX 目印 = サイドバー閉じ導線)
+- 構造リファクタ: `getColumnCssVar` をマージン込み全幅返却に拡張、 Timeline.tsx / TimelineRow.tsx の inline calc 一元化
+- `useMeasuredMemberLayout` で padding 吸収 (内側エリア計測)
+- dev tool: ColumnWidthSlider にマージンスライダー追加 (動的微調整可)
+
+**結果**: 1 commit + 1 merge push 済、 vitest 636/636 PASS、 tsc clean、 build ✓
+
+---
+
 ## 完了（2026-05-12 セッション 16・軽減アイコン列の対称化 + 互い違いバグ修正 + 左飛びバグ部分修正）
 
 **背景**: セッション 15 で軽減アイコン中央寄せシフトを実装したが「ユーザー意図と乖離」 で revert。 セッション 16 で真因解明:
