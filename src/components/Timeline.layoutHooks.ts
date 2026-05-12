@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useLayoutEffect } from 'react';
 
 export interface MemberRefEntry {
   id: string;
@@ -21,7 +21,7 @@ export const useMeasuredMemberLayout = (
 ): Map<string, MemberLayoutEntry> => {
   const [layout, setLayout] = useState<Map<string, MemberLayoutEntry>>(() => new Map());
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const compute = () => {
       const next = new Map<string, MemberLayoutEntry>();
       for (const { id, el } of entries) {
