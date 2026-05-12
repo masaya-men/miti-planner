@@ -28,15 +28,6 @@ export const getColumnCssVar = (role: string): string => {
 };
 
 /**
- * @deprecated Task 5 で削除予定。 Use getColumnCssVar for CSS, or measured layout from memberLayout for px.
- * px 累積に依存していたコードを段階的に移行するため当面残置。
- */
-export const getColumnWidth = (role: string): number => {
-    if (role === 'tank' || role === 'healer') return 125; // 25px * 5 slots
-    return 50; // 25px * 2 slots for DPS
-};
-
-/**
  * Calculates the function f(POT) - Potency Multiplier (always 1 for base calcs, but conceptually exists)
  */
 
