@@ -9,11 +9,12 @@ import { useEffect, useState } from 'react';
  * - 同時に「タンク列の幅」 と「軽減 5 個並べたときの右余白」 (現在 viewport の実値) を表示
  * - 視覚的に最適値を見つけたら、 その数値を src/index.css に反映
  */
-const DEFAULT_TH = 126;
+const DEFAULT_TH = 151;
 const DEFAULT_DPS = 53;
+const DEFAULT_PAD = 2.9;
 const ICON_WIDTH = 24;
 const VISUAL_OFFSET = 2;
-const T_H_MAX_ICONS = 5;
+const T_H_MAX_ICONS = 6;
 const DPS_MAX_ICONS = 2;
 
 type IconMeasure = {
@@ -35,6 +36,7 @@ type Probe = {
 export const ColumnWidthSlider: React.FC = () => {
     const [thW, setThW] = useState(DEFAULT_TH);
     const [dpsW, setDpsW] = useState(DEFAULT_DPS);
+    const [memberPadX, setMemberPadX] = useState(DEFAULT_PAD);
     const [actualThW, setActualThW] = useState(0);
     const [probe, setProbe] = useState<Probe | null>(null);
     const [collapsed, setCollapsed] = useState(false);
@@ -46,6 +48,10 @@ export const ColumnWidthSlider: React.FC = () => {
     useEffect(() => {
         document.documentElement.style.setProperty('--col-dps-w', `${dpsW}px`);
     }, [dpsW]);
+
+    useEffect(() => {
+        document.documentElement.style.setProperty('--col-member-pad-x', `${memberPadX}px`);
+    }, [memberPadX]);
 
     // 実 DOM の計測 (列幅 + 軽減アイコン位置)
     useEffect(() => {
@@ -187,6 +193,24 @@ export const ColumnWidthSlider: React.FC = () => {
                 </div>
             </div>
 
+            <div style={{ marginBottom: 10 }}>
+                <label>
+                    メンバー列マージン (左右各): <strong>{memberPadX.toFixed(1)}px</strong>
+                </label>
+                <input
+                    type="range"
+                    min={0}
+                    max={10}
+                    step={0.1}
+                    value={memberPadX}
+                    onChange={(e) => setMemberPadX(Number(e.target.value))}
+                    style={{ width: '100%', display: 'block' }}
+                />
+                <div style={{ fontSize: 10, color: '#aaa' }}>
+                    8 列合計マージン: {(memberPadX * 16).toFixed(1)}px
+                </div>
+            </div>
+
             <div style={{ fontSize: 10, color: '#aaa', marginTop: 8, borderTop: '1px solid #444', paddingTop: 6 }}>
                 viewport: {typeof window !== 'undefined' ? window.innerWidth : '?'} × {typeof window !== 'undefined' ? window.innerHeight : '?'} / DPR {typeof window !== 'undefined' ? window.devicePixelRatio.toFixed(2) : '?'}<br />
                 計算式: W = 2L({VISUAL_OFFSET}) + N×ICON({ICON_WIDTH}) + 右余白<br />
@@ -228,7 +252,7 @@ export const ColumnWidthSlider: React.FC = () => {
             )}
 
             <button
-                onClick={() => { setThW(DEFAULT_TH); setDpsW(DEFAULT_DPS); }}
+                onClick={() => { setThW(DEFAULT_TH); setDpsW(DEFAULT_DPS); setMemberPadX(DEFAULT_PAD); }}
                 style={{
                     marginTop: 8,
                     padding: '4px 8px',
@@ -241,7 +265,7 @@ export const ColumnWidthSlider: React.FC = () => {
                     width: '100%',
                 }}
             >
-                デフォルト ({DEFAULT_TH} / {DEFAULT_DPS}) に戻す
+                デフォルト ({DEFAULT_TH} / {DEFAULT_DPS} / pad {DEFAULT_PAD}) に戻す
             </button>
         </div>
     );
