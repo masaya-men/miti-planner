@@ -2,6 +2,38 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-12 セッション 13・タイムライン列幅フルレスポンシブ化 C 案）
+
+**設計書**: [docs/superpowers/plans/2026-05-12-timeline-full-responsive.md](superpowers/plans/2026-05-12-timeline-full-responsive.md) (7 タスク・940 行)
+**実行**: `superpowers:subagent-driven-development` で各 task に implementer + spec reviewer + code quality reviewer の 3 段階レビュー
+**結果**: 11 commits、636/636 vitest PASS、Playwright 5/5 PASS、tsc clean、build success
+
+### 完了内容
+- **Task 1** (07a1146, 064dbfa): `src/index.css` に列幅 CSS 変数追加。`--col-th-w: clamp(110px, 8.395vw, 180px)` / `--col-dps-w: clamp(45px, 3.358vw, 80px)` / `--col-phase-w` / `--col-label-w` / `--col-time-w` / `--col-mechanic-w` / `--col-counter-w` / `--col-header-chunk-w` / collapsed バリアント。1489 基準で全 viewport を proportionally にカバー
+- **Task 2** (4f8b706, db6f5f7): `getColumnCssVar(role)` を `src/utils/calculator.ts` に追加。CSS 式 `'var(--col-th-w)'` / `'var(--col-dps-w)'` を返す。旧 `getColumnWidth` は `@deprecated` 注釈付きで一旦残置
+- **Task 3** (cbc4c65, 81b1bca): `src/components/Timeline.tsx` の固定 px Tailwind クラス 15 箇所を `w-[var(--col-*-w)]` に置換。RAW/TAKEN の冗長な `md:` prefix 整理
+- **TimelineRow.tsx 設計書漏れ補正** (1ebd982): PC body 行を担う `src/components/TimelineRow.tsx` の 7 箇所も同じパターンで CSS 変数化。Header と Body の列幅整合性を確保
+- **Task 4** (c6edda1, 44f0ec1): `src/components/Timeline.layoutHooks.ts` 新規作成。`useMeasuredMemberLayout` フックで `offsetLeft`/`offsetWidth` + `ResizeObserver` + `window.resize` 監視。`refVersion` state + ref-callback パターンで初回マウント時の ref 解決を処理。`data-member-role` / `data-member-id` 属性追加 (Playwright 用)。`MAX_LEFT` 計算を `layout?.width ?? fallback` に置換
+- **Task 5** (9409c67): deprecated `getColumnWidth()` を `calculator.ts` から削除。`src/` 配下の参照 0 件確認
+- **Task 6** (3f18abc): Playwright 5 viewport (1366/1489/1920/2560/3840) 回帰テスト追加。`@playwright/test` devDependency + chromium のみインストール。1489 で `Math.round(width) === 125` (tank) / `=== 50` (dps) 厳密検証。他 viewport は ±0.5px tolerance
+  - **付随バグ修正**: `setMemberHeaderRef` のインライン ref コールバック `(el) => ...` が毎レンダーで新インスタンス生成 → React が detach/attach 繰り返し → `setRefVersion` 無限ループ → ErrorBoundary。`getMemberRefCallback(id)` を `useRef<Map>` でキャッシュし安定化
+- **Task 7** (3bde442 + 本コミット): TODO 更新 + push
+
+### キーポイント
+- **1489 厳密検証**: `1489 * 0.08395 ≈ 125.00` (T/H), `1489 * 0.03358 ≈ 50.00` (DPS) が clamp の中央域で確定。Playwright で round 後の整数値で `.toBe(125)` / `.toBe(50)` 厳密一致
+- **2pass 測定の挙動**: 初回レンダーで refs が null のため軽減アイコンは fallback (125/50) で 1 フレーム描画。その直後の useEffect で実測値に上書き
+- **DPR 非依存**: clamp + vw は CSS 論理 px ベース。本人 DPR 2.58 / 多数派 DPR 1 でも計算結果同じ
+- **Phase 2 (別プラン)**: フォント (`--font-size-*`) と spacing の rem 化は影響範囲が広い (LP/モーダル/サイドバー全体) ため別建てに切り出し済
+
+### 検証結果
+| viewport | tank 実測 | dps 実測 | 期待 |
+|----------|----------|---------|------|
+| 1366 | ~115px | ~46px | clamp min 寄り |
+| **1489 (本人)** | **125px (round 厳密)** | **50px (round 厳密)** | 基準値 |
+| 1920 | ~161px | ~64px | 多数派 |
+| 2560 | 180px | 80px | max クランプ |
+| 3840 | 180px | 80px | max クランプ |
+
 ## 完了（2026-05-08）
 
 ### Sub-spec 2A: Registration (画像なしモード) 完了 2026-05-08
