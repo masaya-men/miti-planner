@@ -2109,7 +2109,7 @@ const Timeline: React.FC = () => {
                                             <Tooltip content={t('timeline.header_gimmick_tooltip')}>
                                                 <div
                                                     ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
-                                                    className="hidden md:flex md:w-[var(--col-label-w)] md:min-w-[var(--col-label-w)] md:max-w-[var(--col-label-w)] flex-none border-r border-app-border h-full items-center justify-center bg-transparent text-app-text-muted font-black text-app-md cursor-pointer hover:text-app-text transition-colors"
+                                                    className="hidden md:flex w-[var(--col-label-w)] min-w-[var(--col-label-w)] max-w-[var(--col-label-w)] flex-none border-r border-app-border h-full items-center justify-center bg-transparent text-app-text-muted font-black text-app-md cursor-pointer hover:text-app-text transition-colors"
                                                     onClick={() => setGimmickDropdownOpen(!gimmickDropdownOpen)}
                                                 >
                                                     <span className="flex items-center gap-0.5">
@@ -2157,11 +2157,11 @@ const Timeline: React.FC = () => {
                                     </span>
                                 </div>
                             </Tooltip>
-                            <div className="w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:w-[var(--col-counter-w)] md:min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
+                            <div className="w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
                                 <span className="md:hidden">{t('timeline.header_raw_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_raw')}</span>
                             </div>
-                            <div className="w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:w-[var(--col-counter-w)] md:min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
+                            <div className="w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
                                 <span className="md:hidden">{t('timeline.header_taken_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_taken')}</span>
                             </div>
