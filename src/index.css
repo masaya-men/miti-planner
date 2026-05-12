@@ -1328,8 +1328,11 @@ button, [role="button"], .touch-none {
         --col-time-w: clamp(48px, 4.030vw, 60px);
         --col-mechanic-w: clamp(160px, 13.432vw, 200px);
         --col-counter-w: clamp(80px, 6.716vw, 100px);
-        --col-th-w: clamp(110px, 8.395vw, 125px);
-        --col-dps-w: clamp(45px, 3.358vw, 50px);
+        /* 左右余白 2px (= VISUAL_OFFSET) で対称になる列幅:
+           T/H = 2L + 5×ICON(24) + 2L = 124px (最大 5 アイコン)
+           DPS = 2L + 2×ICON(24) + 2L = 52px  (最大 2 アイコン) */
+        --col-th-w: clamp(109px, 8.327vw, 124px);
+        --col-dps-w: clamp(46px, 3.492vw, 52px);
         /* メンバー列開始位置 = PHASE + LABEL + TIME + MECHANIC + RAW + TAKEN */
         --col-member-start: calc(
             var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) +

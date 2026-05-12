@@ -9,23 +9,23 @@ const VIEWPORTS = [
 ];
 
 // 期待値: clamp(min, vw, max) 計算 — philosophy v2 (max = base、 開発者画面 px)
-// --col-th-w:  clamp(110px, 8.395vw, 125px)  ← max を base に統一
-// --col-dps-w: clamp(45px, 3.358vw, 50px)    ← max を base に統一
+// --col-th-w:  clamp(109px, 8.327vw, 124px)  ← 左右余白 2px で対称 (5×ICON + 2L)
+// --col-dps-w: clamp(46px, 3.492vw, 52px)    ← 左右余白 2px で対称 (2×ICON + 2L)
 // 1489+ では max クランプで base 固定、 ultrawide でも要素拡大しない
 const EXPECTED_TH_WIDTH: Record<string, number> = {
-    '1366-laptop': 115,        // 1366 * 0.08395 = 114.68 → vw 自然値 (min/max 範囲内)
-    '1489-user-actual': 125,   // 基準値 (1489 * 0.08395 = 125.00 = max)
-    '1920-majority': 125,      // max クランプ (1920 * 0.08395 = 161.18 > 125)
-    '2560-27inch-4k-150': 125, // max クランプ (固定)
-    '3840-native-4k': 125,     // max クランプ (固定)
+    '1366-laptop': 114,        // 1366 * 0.08327 = 113.75 → vw 自然値 (min/max 範囲内)
+    '1489-user-actual': 124,   // 基準値 (1489 * 0.08327 = 124.00 = max)
+    '1920-majority': 124,      // max クランプ (1920 * 0.08327 = 159.88 > 124)
+    '2560-27inch-4k-150': 124, // max クランプ (固定)
+    '3840-native-4k': 124,     // max クランプ (固定)
 };
 
 const EXPECTED_DPS_WIDTH: Record<string, number> = {
-    '1366-laptop': 46,         // 1366 * 0.03358 = 45.87 → vw 自然値
-    '1489-user-actual': 50,    // 基準値 (1489 * 0.03358 ≈ 50 = max)
-    '1920-majority': 50,       // max クランプ (1920 * 0.03358 = 64.47 > 50)
-    '2560-27inch-4k-150': 50,  // max クランプ (固定)
-    '3840-native-4k': 50,      // max クランプ (固定)
+    '1366-laptop': 48,         // 1366 * 0.03492 = 47.70 → vw 自然値
+    '1489-user-actual': 52,    // 基準値 (1489 * 0.03492 = 52.00 = max)
+    '1920-majority': 52,       // max クランプ (1920 * 0.03492 = 67.05 > 52)
+    '2560-27inch-4k-150': 52,  // max クランプ (固定)
+    '3840-native-4k': 52,      // max クランプ (固定)
 };
 
 for (const vp of VIEWPORTS) {
@@ -54,10 +54,10 @@ for (const vp of VIEWPORTS) {
         expect(dpsBox).not.toBeNull();
         expect(dpsBox!.width).toBeCloseTo(EXPECTED_DPS_WIDTH[vp.name], 0);
 
-        // 1489 はユーザー本人環境の絶対基準 - サブピクセル誤差は許容するが整数値で 125/50 を要求
+        // 1489 はユーザー本人環境の絶対基準 - サブピクセル誤差は許容するが整数値で 124/52 を要求
         if (vp.name === '1489-user-actual') {
-            expect(Math.round(tankBox!.width)).toBe(125);
-            expect(Math.round(dpsBox!.width)).toBe(50);
+            expect(Math.round(tankBox!.width)).toBe(124);
+            expect(Math.round(dpsBox!.width)).toBe(52);
         }
 
         await ctx.close();

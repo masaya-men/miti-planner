@@ -71,6 +71,10 @@ interface MitigationItemProps {
     timeToYMap: Map<number, number>;
     isVirtual?: boolean;
     iconOverride?: string;
+    // 初回マウントで memberLayout が未計測 (refs 未確定) の 1 フレーム間、
+    // colStart=0 で左端に描画されて「左から飛んでくる」 のを防ぐ。
+    // false の間はアイコンを visibility: hidden で隠す。
+    layoutReady?: boolean;
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
@@ -143,7 +147,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
         scrollContainerRef, activeMitigations, overlapOffset = 0, recastHeight, timeToYMap,
-        isVirtual = false, iconOverride
+        isVirtual = false, iconOverride, layoutReady = true
     } = props;
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -424,7 +428,12 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
             <div
                 ref={containerRef}
                 className="absolute flex flex-col items-center group select-none pointer-events-none animate-in zoom-in-90 fade-in duration-200"
-                style={{ left: `${left}px`, top: `${top + 13}px`, width: '24px' }}
+                style={{
+                    left: `${left}px`,
+                    top: `${top + 13}px`,
+                    width: '24px',
+                    visibility: layoutReady ? undefined : 'hidden',
+                }}
             >
                 <div
                     ref={indicatorRef}
@@ -2670,14 +2679,16 @@ const Timeline: React.FC = () => {
                                                 const FULL_LANE_WIDTH = 24;
                                                 const HALF_LANE_WIDTH = 12;
                                                 const ICON_WIDTH = 24;
-                                                const VISUAL_OFFSET = 2;  // 列左端からアイコンまでの視覚的オフセット
+                                                const VISUAL_OFFSET = 2;  // 列左端からアイコンまでの視覚的オフセット (= 列幅設計の左右余白 L)
                                                 const member = partyMembers.find(m => m.id === ownerMitigations[0]?.ownerId);
                                                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
                                                 // 初回マウント時 layout 未確定 (refs が null) のため fallback 値で 1 フレーム描画。 2pass 目で実測値に上書きされる
-                                                const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 125 : 50;
+                                                // 列幅は 左右余白 2L + N×ICON で対称: T/H=124 (N=5), DPS=52 (N=2)
+                                                const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 124 : 52;
                                                 const colStart = layout?.left ?? 0;
                                                 const colWidth = layout?.width ?? fallbackColWidth;
-                                                const MAX_LEFT = colWidth - ICON_WIDTH;
+                                                // アイコン右端を「列右端 - VISUAL_OFFSET」 にキャップするため、 配置可能な最大 left は colWidth - VISUAL_OFFSET - ICON_WIDTH
+                                                const MAX_LEFT = colWidth - VISUAL_OFFSET - ICON_WIDTH;
 
                                                 // ── Phase 1: 全アイコンの配置位置 (candidateLeft) を確定 ──
                                                 // 既存のレーン詰めロジックを Phase 1 として分離。 時間重複を avoid して左から詰める
@@ -2713,14 +2724,9 @@ const Timeline: React.FC = () => {
                                                     assignedPositions.push({ m: mitigation, left: candidateLeft });
                                                 });
 
-                                                // ── Phase 2: クラスタシフト ── (現在は無効化)
-                                                // セッション 15 で「中央寄せシフト」 を入れたが、 ユーザー意図 (列幅を増やして
-                                                // 余白を確保する方針) と乖離していたため revert。 次セッションで列幅自体を
-                                                // 増やす方向で再設計予定 (docs/TODO.md 参照)。
-                                                const clusterShift = 0;
-
-                                                // ── Phase 3: rendering (positions に clusterShift を加算) ──
-                                                // position 検索用 map
+                                                // ── Phase 2: rendering ──
+                                                // 列幅自体を「左右余白 2px + N×ICON_WIDTH」 で対称設計しているため、
+                                                // クラスタシフトは不要 (T/H=124 / DPS=52 で N=5 / N=2 が完全フィット)。
                                                 const positionByMitId = new Map<string, number>();
                                                 assignedPositions.forEach(p => positionByMitId.set(p.m.id, p.left));
 
@@ -2784,7 +2790,7 @@ const Timeline: React.FC = () => {
                                                         }
                                                     }
 
-                                                    const absoluteLeft = colStart + VISUAL_OFFSET + candidateLeft + clusterShift;
+                                                    const absoluteLeft = colStart + VISUAL_OFFSET + candidateLeft;
 
                                                     renderedItems.push(
                                                         <MitigationItem
@@ -2806,6 +2812,7 @@ const Timeline: React.FC = () => {
                                                             timeToYMap={timeToYMap}
                                                             isVirtual={mitigation.isVirtual}
                                                             iconOverride={mitigation.iconOverride}
+                                                            layoutReady={layout !== undefined}
                                                         />
                                                     );
                                                 });
