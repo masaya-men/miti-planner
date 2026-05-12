@@ -64,9 +64,9 @@ for (const vp of VIEWPORTS) {
     });
 }
 
-// Phase 2C: container max-width 中央寄せ検証
-// 3840 ultrawide で Timeline container (data-timeline-root) の幅が --container-max (1489px) に制限されているか確認
-test('Timeline container is capped at 1489px on 3840 ultrawide', async ({ browser }) => {
+// container max-width 中央寄せ検証 (Phase 2C + 全 shell 中央寄せ)
+// 3840 ultrawide で app-shell (Layout.tsx 最外層) の幅が --container-max (1489px) に制限されているか確認
+test('App shell is capped at 1489px and centered on 3840 ultrawide', async ({ browser }) => {
     const ctx = await browser.newContext({
         viewport: { width: 3840, height: 2160 },
         deviceScaleFactor: 1,
@@ -76,19 +76,18 @@ test('Timeline container is capped at 1489px on 3840 ultrawide', async ({ browse
     await page.waitForSelector('[data-member-role="tank"]', { state: 'attached', timeout: 15000 });
     await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r(null)))));
 
-    // data-timeline-root がある container の幅を計測
-    const container = page.locator('[data-timeline-root]').first();
-    const containerBox = await container.boundingBox();
-    expect(containerBox).not.toBeNull();
+    // data-app-shell (Layout.tsx 最外層) の幅を計測 — sidebar + main を含む全 shell が 1489 にキャップされる
+    const shell = page.locator('[data-app-shell]').first();
+    const shellBox = await shell.boundingBox();
+    expect(shellBox).not.toBeNull();
 
-    // 3840 viewport では max-width: 1489px が効いているはず
-    // ±2px tolerance はサブピクセル・スクロールバーを吸収
-    expect(containerBox!.width).toBeLessThanOrEqual(1489 + 2);
+    // 3840 viewport では max-width: 1489px が効いているはず (±2px tolerance)
+    expect(shellBox!.width).toBeLessThanOrEqual(1489 + 2);
 
-    // 中央寄せ: container の左端が viewport の左半分より右にある
-    // (Sidebar 幅 ≈ 300px 込みで考えると container は main column 内で中央寄せ)
-    // 最低限 container.x > 0 (= 画面端ぴったりではない = 中央寄せが機能している)
-    expect(containerBox!.x).toBeGreaterThan(0);
+    // 中央寄せ: shell の左マージンと右マージンがほぼ同じ (両側余白均等)
+    const leftMargin = shellBox!.x;
+    const rightMargin = 3840 - (shellBox!.x + shellBox!.width);
+    expect(Math.abs(leftMargin - rightMargin)).toBeLessThan(5);  // ±5px tolerance
 
     await ctx.close();
 });

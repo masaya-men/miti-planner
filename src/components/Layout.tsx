@@ -482,7 +482,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, [justLoggedInUser]);
 
     return (
-        <div className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 ${bgClass} relative`}>
+        <div data-app-shell className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 md:max-w-[var(--container-max)] md:mx-auto ${bgClass} relative`}>
 
             {/* 初回ログイン: ウェルカムセットアップ画面 */}
             {isNewUser && <WelcomeSetup />}
