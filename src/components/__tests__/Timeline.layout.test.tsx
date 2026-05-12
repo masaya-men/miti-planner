@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useMeasuredMemberLayout } from '../Timeline.layoutHooks';
 import type { MemberRefEntry } from '../Timeline.layoutHooks';
@@ -8,6 +8,7 @@ vi.mock('../../lib/firebase', () => ({ db: {}, auth: {}, storage: {}, analytics:
 
 describe('useMeasuredMemberLayout', () => {
   let mockRefs: Map<string, { offsetLeft: number; offsetWidth: number }>;
+  let originalResizeObserver: typeof ResizeObserver | undefined;
 
   beforeEach(() => {
     mockRefs = new Map([
@@ -15,6 +16,11 @@ describe('useMeasuredMemberLayout', () => {
       ['H1', { offsetLeft: 695, offsetWidth: 125 }],
       ['D1', { offsetLeft: 820, offsetWidth: 50 }],
     ]);
+    originalResizeObserver = (global as any).ResizeObserver;
+  });
+
+  afterEach(() => {
+    (global as any).ResizeObserver = originalResizeObserver;
   });
 
   it('refs から left/width を読み Map に格納', () => {

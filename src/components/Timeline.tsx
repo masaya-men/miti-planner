@@ -2657,8 +2657,10 @@ const Timeline: React.FC = () => {
                                                 const HALF_LANE_WIDTH = 12;
                                                 const member = partyMembers.find(m => m.id === ownerMitigations[0]?.ownerId);
                                                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
+                                                // 初回マウント時 layout 未確定 (refs が null) のため fallback 値で 1 フレーム描画。 2pass 目で実測値に上書きされる
+                                                const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 125 : 50;
                                                 const colStart = layout?.left ?? 0;
-                                                const colWidth = layout?.width ?? (member?.role === 'tank' || member?.role === 'healer' ? 125 : 50);
+                                                const colWidth = layout?.width ?? fallbackColWidth;
                                                 const MAX_LEFT = colWidth - 24;
 
                                                 const assignedPositions: { m: any, left: number }[] = [];

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface MemberRefEntry {
   id: string;
@@ -20,7 +20,6 @@ export const useMeasuredMemberLayout = (
   entries: MemberRefEntry[],
 ): Map<string, MemberLayoutEntry> => {
   const [layout, setLayout] = useState<Map<string, MemberLayoutEntry>>(() => new Map());
-  const observerRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
     const compute = () => {
@@ -36,7 +35,6 @@ export const useMeasuredMemberLayout = (
 
     if (typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver(() => compute());
-    observerRef.current = ro;
     for (const { el } of entries) {
       if (el) ro.observe(el);
     }
