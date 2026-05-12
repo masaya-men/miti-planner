@@ -1880,7 +1880,8 @@ const Timeline: React.FC = () => {
     return (
         <>
             {/* ── Main Content Column ── */}
-            <div className="flex flex-col h-full w-full bg-transparent overflow-hidden relative z-[1]">
+            {/* md: max-width で ultrawide 時に中央寄せ。 mobile は w-full を維持 */}
+            <div data-timeline-root className="flex flex-col h-full w-full bg-transparent overflow-hidden relative z-[1] md:max-w-[var(--container-max)] md:mx-auto">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
                 <div className={clsx(

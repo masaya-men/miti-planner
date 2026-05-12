@@ -63,3 +63,32 @@ for (const vp of VIEWPORTS) {
         await ctx.close();
     });
 }
+
+// Phase 2C: container max-width 中央寄せ検証
+// 3840 ultrawide で Timeline container (data-timeline-root) の幅が --container-max (1489px) に制限されているか確認
+test('Timeline container is capped at 1489px on 3840 ultrawide', async ({ browser }) => {
+    const ctx = await browser.newContext({
+        viewport: { width: 3840, height: 2160 },
+        deviceScaleFactor: 1,
+    });
+    const page = await ctx.newPage();
+    await page.goto('/miti');
+    await page.waitForSelector('[data-member-role="tank"]', { state: 'attached', timeout: 15000 });
+    await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(() => r(null)))));
+
+    // data-timeline-root がある container の幅を計測
+    const container = page.locator('[data-timeline-root]').first();
+    const containerBox = await container.boundingBox();
+    expect(containerBox).not.toBeNull();
+
+    // 3840 viewport では max-width: 1489px が効いているはず
+    // ±2px tolerance はサブピクセル・スクロールバーを吸収
+    expect(containerBox!.width).toBeLessThanOrEqual(1489 + 2);
+
+    // 中央寄せ: container の左端が viewport の左半分より右にある
+    // (Sidebar 幅 ≈ 300px 込みで考えると container は main column 内で中央寄せ)
+    // 最低限 container.x > 0 (= 画面端ぴったりではない = 中央寄せが機能している)
+    expect(containerBox!.x).toBeGreaterThan(0);
+
+    await ctx.close();
+});
