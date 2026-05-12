@@ -33,7 +33,9 @@ import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
-import { getColumnWidth, getColumnCssVar, calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
+import { getColumnCssVar, calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
+import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
+import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
@@ -1837,16 +1839,24 @@ const Timeline: React.FC = () => {
         });
     }, [partyMembers, partySortOrder]);
 
-    const memberLayout = useMemo(() => {
-        let currentLeft = 570;
-        const layout = new Map<string, { left: number; width: number }>();
-        sortedPartyMembers.forEach(m => {
-            const width = getColumnWidth(m.role);
-            layout.set(m.id, { left: currentLeft, width });
-            currentLeft += width;
-        });
-        return layout;
-    }, [sortedPartyMembers]);
+    // DOM 計測ベースの memberLayout (CSS clamp() に追従)
+    const [refVersion, setRefVersion] = useState(0);
+    const memberHeaderRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
+
+    const setMemberHeaderRef = useCallback((id: string, el: HTMLDivElement | null) => {
+        const prev = memberHeaderRefs.current.get(id);
+        if (prev !== el) {
+            memberHeaderRefs.current.set(id, el);
+            setRefVersion(v => v + 1);
+        }
+    }, []);
+
+    const memberRefEntries = useMemo(
+        (): MemberRefEntry[] => sortedPartyMembers.map(m => ({ id: m.id, el: memberHeaderRefs.current.get(m.id) ?? null })),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [sortedPartyMembers, refVersion],
+    );
+    const memberLayout = useMeasuredMemberLayout(memberRefEntries);
 
     const getJobIcon = (jobId: string | null) => {
         if (!jobId) return null;
@@ -2169,6 +2179,9 @@ const Timeline: React.FC = () => {
                             {sortedPartyMembers.map((member, index) => (
                                 <div
                                     key={member.id}
+                                    ref={(el) => setMemberHeaderRef(member.id, el)}
+                                    data-member-id={member.id}
+                                    data-member-role={member.role}
                                     style={{ width: getColumnCssVar(member.role), minWidth: getColumnCssVar(member.role), maxWidth: getColumnCssVar(member.role) }}
                                     className={clsx(
                                         "hidden md:flex flex-none border-r border-app-border h-full flex-col items-center justify-center p-0.5 relative group",
@@ -2644,8 +2657,8 @@ const Timeline: React.FC = () => {
                                                 const HALF_LANE_WIDTH = 12;
                                                 const member = partyMembers.find(m => m.id === ownerMitigations[0]?.ownerId);
                                                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
-                                                const colStart = layout ? layout.left : 0;
-                                                const colWidth = member ? getColumnWidth(member.role) : 50;
+                                                const colStart = layout?.left ?? 0;
+                                                const colWidth = layout?.width ?? (member?.role === 'tank' || member?.role === 'healer' ? 125 : 50);
                                                 const MAX_LEFT = colWidth - 24;
 
                                                 const assignedPositions: { m: any, left: number }[] = [];
