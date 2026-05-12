@@ -1304,22 +1304,22 @@ button, [role="button"], .touch-none {
    col-phase-w=4.030vw≈60px, col-label-w=3.358vw≈50px, col-time-w=4.030vw≈60px,
    col-mechanic-w=13.432vw≈200px, col-counter-w=6.716vw≈100px */
 @media (min-width: 768px) {
-  :root,
-  .theme-dark,
-  .theme-light {
-    --col-phase-w: clamp(48px, 4.030vw, 80px);
-    --col-label-w: clamp(40px, 3.358vw, 70px);
-    --col-time-w: clamp(48px, 4.030vw, 80px);
-    --col-mechanic-w: clamp(160px, 13.432vw, 280px);
-    --col-counter-w: clamp(80px, 6.716vw, 140px);
-    --col-th-w: clamp(110px, 8.395vw, 180px);
-    --col-dps-w: clamp(45px, 3.358vw, 80px);
-    /* メンバー列開始位置 = PHASE + LABEL + TIME + MECHANIC + RAW + TAKEN */
-    --col-member-start: calc(
-      var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) +
-      var(--col-mechanic-w) + var(--col-counter-w) + var(--col-counter-w)
-    );
-    --col-phase-collapsed-w: 16px;
-    --col-label-collapsed-w: 16px;
-  }
+    :root,
+    .theme-dark,
+    .theme-light {
+        --col-phase-w: clamp(48px, 4.030vw, 80px);
+        --col-label-w: clamp(40px, 3.358vw, 70px);
+        --col-time-w: clamp(48px, 4.030vw, 80px);
+        --col-mechanic-w: clamp(160px, 13.432vw, 280px);
+        --col-counter-w: clamp(80px, 6.716vw, 140px);
+        --col-th-w: clamp(110px, 8.395vw, 180px);
+        --col-dps-w: clamp(45px, 3.358vw, 80px);
+        /* メンバー列開始位置 = PHASE + LABEL + TIME + MECHANIC + RAW + TAKEN */
+        --col-member-start: calc(
+            var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) +
+            var(--col-mechanic-w) + var(--col-counter-w) + var(--col-counter-w)
+        );
+        --col-phase-collapsed-w: 16px;
+        --col-label-collapsed-w: 16px;
+    }
 }
