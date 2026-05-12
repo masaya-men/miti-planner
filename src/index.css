@@ -101,6 +101,12 @@
     font-family: 'Rajdhani', 'M PLUS 1', system-ui, sans-serif;
     font-weight: 500;
     letter-spacing: 0.02em;
+    /* ブラウザ内 font 設定 (chrome://settings) の影響を無効化するための保険 */
+    font-size: 16px;
+
+    /* === 共通基盤 (全プロジェクト共通の sizing 思想) === */
+    --container-max: 1489px;         /* 開発者画面幅 = 上限、 大画面で余白確保 */
+    --text-scale-multiplier: 1;      /* アプリ内 text size 設定の倍率 (将来 UI 追加用) */
 
     /* Font size tokens */
     --font-size-3xs: 6px;
@@ -286,6 +292,12 @@
 
   .theme-light {
     color-scheme: light;
+    /* ブラウザ内 font 設定 (chrome://settings) の影響を無効化するための保険 */
+    font-size: 16px;
+
+    /* === 共通基盤 (全プロジェクト共通の sizing 思想) === */
+    --container-max: 1489px;
+    --text-scale-multiplier: 1;
 
     /* Font size tokens */
     --font-size-3xs: 6px;
