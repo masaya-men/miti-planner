@@ -2645,7 +2645,7 @@ const Timeline: React.FC = () => {
                                                 const member = partyMembers.find(m => m.id === ownerMitigations[0]?.ownerId);
                                                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
                                                 const colStart = layout ? layout.left : 0;
-                                                const colWidth = (member?.role === 'tank' || member?.role === 'healer') ? 120 : 60;
+                                                const colWidth = member ? getColumnWidth(member.role) : 50;
                                                 const MAX_LEFT = colWidth - 24;
 
                                                 const assignedPositions: { m: any, left: number }[] = [];

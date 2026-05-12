@@ -12,6 +12,37 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
+- **【未着手・次セッション最優先 — 2026-05-12 議論済】 タイムラインのフルレスポンシブ化 (C 案)**:
+
+  **背景**: ユーザーの実環境は 27" 4K + Windows 拡縮 200% + アクセシビリティ 130% = **CSS 1489 / DPR 2.58**。 多数派ユーザーは 1920 (24" 4K@200% or 1080p) / 2560 (27" 4K@150%) / 1536 (4K@250%) など viewport がバラバラ。 現状の固定 px 列幅 (T/H=125 / DPS=50) は 1366 ノートを基準に作られた値で、 ユーザー本人の 1489 でも 1920 でも 2560 でも「空白多い or 右端余り」 のいずれかが発生する。
+
+  **方針**: 「ユーザーが見ているデザインを、 他のユーザーの画面で proportionally に再現する」 を目的に、 タイムライン (および LoPo 全体) を CSS clamp / rem / vw ベースの完全レスポンシブ設計に書き換える。
+
+  **タッチする範囲 (調査済み)**:
+  - `src/utils/calculator.ts:21-24` の `getColumnWidth()` → CSS 変数 or vw ベースの計算に
+  - `src/components/Timeline.tsx:1840-1846` の `memberLayout` (currentLeft の px 累積) → `offsetLeft` 実測 or % ベースに書き換え
+  - 軽減アイコン配置 ([Timeline.tsx:2648](src/components/Timeline.tsx#L2648) の colWidth) は既に getColumnWidth() 経由なので追従
+  - フォントサイズ階層 (DESIGN.md の `--font-size-*`) も rem ベースに統一
+  - padding / gap などスペーシングも rem に
+  - `src/utils/__tests__/calculator.test.ts:121-130` の固定値テスト書き直し
+  - min-width / max-width のキャップ設計 (DPS が極端に狭くならない、 1 人プランで広すぎない、 等)
+
+  **設計哲学との整合 (確認済み)**:
+  - DESIGN.md「情報密度が高い」 は比率の話、 px 単位の固定とは独立。 違反しない
+  - むしろ rem ベースでアクセシビリティ尊重するのは現代 Web の常識
+
+  **進め方**:
+  1. `superpowers:writing-plans` で設計書を 1 枚作る (具体的な clamp 値や vw 換算)
+  2. `superpowers:test-driven-development` で全 viewport (1366 / 1489 / 1920 / 2560 / 3840) のテストを先に書く
+  3. Playwright で 5 つの viewport の見た目を撮って回帰防止
+  4. リファクタは段階的に: 列幅 → スペーシング → フォント → 最終確認
+
+  **同時に検討すべき関連タスク**:
+  - リキャスト常駐パネル (前回「案 V」 として議論済、 列幅と独立して右余白を埋める機能。 但しレスポンシブ化が先で OK)
+  - 既存の 125/50 vs 120/60 不整合バグ修正 → 2026-05-12 のセッションで Timeline.tsx:2648 を getColumnWidth() 呼び出しに置換済 (このまま維持)
+
+  **重要な前提 (~/.claude/CLAUDE.md にも記録済)**: ユーザーは個人のアクセシビリティ理由で 130% テキストサイズを維持。 設計は 1920 多数派を基準としつつ、 ユーザーの 1489 環境でも崩壊しないことを必ず確認する。
+
 - **【完了 2026-05-12 セッション 10・占星術師実装の後片付け 11 件】**: セッション 9 で発見されたバグ + 派生要望 + 実機検証で次々判明したバグまでまとめて解消。 全 633/633 vitest PASS、 tsc clean、 build success。 11 commits push 済 (HEAD: 7c1bd11)、 Vercel 自動デプロイ。
 
   **commits (時系列)**:
