@@ -2713,26 +2713,11 @@ const Timeline: React.FC = () => {
                                                     assignedPositions.push({ m: mitigation, left: candidateLeft });
                                                 });
 
-                                                // ── Phase 2: クラスタ中央寄せシフト ──
-                                                // 横方向に複数レーンに広がっているとき (= 同時刻軽減が複数あって左から詰めた結果)
-                                                // のみ、 左右余白が均等になるよう全体をシフト。
-                                                // 単一レーン (全部 left=0、 異なる時刻で縦に並んでいるだけ) は左寄せ維持。
-                                                let clusterShift = 0;
-                                                const placedNonVirtual = assignedPositions.filter(p => !p.m.isVirtual);
-                                                if (placedNonVirtual.length >= 2) {
-                                                    const lefts = placedNonVirtual.map(p => p.left);
-                                                    const minLeft = Math.min(...lefts);
-                                                    const maxLeft = Math.max(...lefts);
-                                                    // maxLeft > minLeft = 横方向に「横並び」 が発生している
-                                                    // (= 同時刻アイコン が複数で衝突回避のためずらされている)
-                                                    if (maxLeft > minLeft) {
-                                                        // 視覚的左マージン = VISUAL_OFFSET + minLeft + clusterShift
-                                                        // 視覚的右マージン = colWidth - (VISUAL_OFFSET + maxLeft + ICON_WIDTH + clusterShift)
-                                                        // 両者を等しくする clusterShift を求める
-                                                        clusterShift = (colWidth - minLeft - maxLeft - ICON_WIDTH - 2 * VISUAL_OFFSET) / 2;
-                                                        if (clusterShift < 0) clusterShift = 0;  // overflow 防止
-                                                    }
-                                                }
+                                                // ── Phase 2: クラスタシフト ── (現在は無効化)
+                                                // セッション 15 で「中央寄せシフト」 を入れたが、 ユーザー意図 (列幅を増やして
+                                                // 余白を確保する方針) と乖離していたため revert。 次セッションで列幅自体を
+                                                // 増やす方向で再設計予定 (docs/TODO.md 参照)。
+                                                const clusterShift = 0;
 
                                                 // ── Phase 3: rendering (positions に clusterShift を加算) ──
                                                 // position 検索用 map

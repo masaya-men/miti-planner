@@ -12,7 +12,42 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【完了 2026-05-12 セッション 15 — UI 調整 (全 shell 中央寄せ + 軽減アイコン均等分散 + ツールバー仕切り整合)】**: ユーザー実機観察 (ヘッダー/サイドメニューが ultrawide で広がる、 軽減アイコンの左右余白非対称、 ツールバー仕切り累積ズレ) に対応。 Layout 全 shell を 1489px 中央寄せ、 軽減アイコンを 2 個以上なら左右均等余白に分散、 ツールバー Area B/C/D を表の `var(--col-*-w)` に整合。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
+- **【未解決・次セッション最優先 — 2026-05-12 セッション 15 末で残課題確定】 軽減アイコン配置と列幅の見直し**:
+
+  **ユーザー意図 (前 Claude が誤解していた点・正しい解釈)**:
+  - タンク/ヒーラー列幅 125 px は **同時刻 5 個並べると overflow する** (実機スクショで最後のアイコンが列を超えていた)
+  - ユーザー要望は「列幅を**増やす**」 こと。 これで最大数並べても**右側に視認できる余白**ができる
+  - 単一アイコンは左寄せで OK (列が広い分、 右側余白が自然に生まれる)
+  - 中央寄せ logic は不要・誤解だった
+
+  **このセッションでの状態**:
+  - Task A (Layout 全 shell 中央寄せ 1489px) — 適用済、 維持 ✓
+  - Task B (軽減アイコン中央寄せシフト) — **revert 済** (clusterShift=0 で無効化、 logic 構造は残置)
+  - Task C (toolbar Area A/B/C/D の `var(--col-*-w)` 整合 + 1px 補正) — 適用済、 維持 ✓
+  - 「左から飛んでくる」 バグ (Task 4 由来の DOM 計測 1pass 目で colStart=0 描画される問題) — **未修正**
+
+  **次セッションでやる設計** (philosophy v2 max=base に整合):
+  1. タンク/ヒーラー列幅 (`--col-th-w`) を 125 → ?? (例: 150-170) に増やす検討
+     - 同時刻 5 個並べたとき (`0, 24, 48, 72, 96` の 96+24=120px) を入れて右に余白
+     - vw 係数も `BASE/1489 × 100` で再計算
+     - min は base × 0.85-0.92
+  2. DPS 列幅 (`--col-dps-w`) も同様に検討 (今 50)
+  3. Playwright 期待値 (現在 125/50 厳密一致) を新値に更新
+  4. 「左から飛んでくる」 バグ修正: layout 未確定時は icon を `visibility: hidden` で隠す
+  5. 単一アイコンの位置は左寄せのまま (現状コード) で実機確認、 ユーザー OK なら確定
+
+  **触る箇所**:
+  - `src/index.css` の `@media (min-width: 768px)` 内 `--col-th-w` / `--col-dps-w`
+  - `playwright/timeline-responsive.spec.ts` の EXPECTED_TH_WIDTH / EXPECTED_DPS_WIDTH
+  - `src/components/Timeline.tsx:2716-2720` 付近 (clusterShift=0 の死コード削除、 ICON_WIDTH/VISUAL_OFFSET 定数も clean up)
+  - `src/components/Timeline.tsx:2670-2680` 付近 (layout 未確定時の visibility 制御)
+
+  **重要な前提 — 前 Claude のコミュニケーション失敗から学ぶ**:
+  - ユーザーが「列幅を増やす」 と言ったら、 縮める前提で否定しないこと
+  - 数値 (例「2px」) を口にするときは実測してから。 推測で答えない
+  - スクリーンショットで「あれ？」 と感じたら理解を確認、 早合点しない
+
+- **【完了 2026-05-12 セッション 15 — UI 調整 3 件】**: Task A (全 shell 中央寄せ) + Task B (中央寄せシフト、 後で revert) + Task C (toolbar 仕切り整合)。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
 
 - **【完了 2026-05-12 セッション 14 — sizing 思想 v2 適用 (全プロジェクト共通思想に統合)】**: 全プロジェクト共通の sizing philosophy (`~/.claude/design-philosophy-sizing.md`) を LoPo に適用。 列幅 max=base 統一 + font-size px clamp 化 + container max-width 1489 適用で「ultrawide で要素拡大せず余白拡大」 を実現。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
 
