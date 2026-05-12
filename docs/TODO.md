@@ -12,9 +12,9 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【完了 2026-05-12 セッション 13 — タイムライン列幅 フルレスポンシブ化 (C 案)】**: タイムライン列幅を固定 px から CSS `clamp(min, Nvw, max)` ベースに移行。1489 (本人) / 1920 (多数派) / 2560 / 3840 / 1366 の 5 viewport で proportionally 表示。1489 で 125/50 厳密一致 (Playwright 自動検証)。
-  - 11 commits、Playwright e2e 新規導入、Task 1-7 全完了。詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
-  - 次フェーズ (Phase 2、別プラン): フォント `--font-size-*` と spacing の rem 化 (LP/モーダル/サイドバー全体に波及するため別建て)。
+- **【完了 2026-05-12 セッション 14 — sizing 思想 v2 適用 (全プロジェクト共通思想に統合)】**: 全プロジェクト共通の sizing philosophy (`~/.claude/design-philosophy-sizing.md`) を LoPo に適用。 列幅 max=base 統一 + font-size px clamp 化 + container max-width 1489 適用で「ultrawide で要素拡大せず余白拡大」 を実現。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
+
+- **【完了 2026-05-12 セッション 13 — タイムライン列幅 フルレスポンシブ化 (C 案)】**: タイムライン列幅を固定 px から CSS `clamp(min, Nvw, max)` ベースに移行。 1489 で 125/50 厳密一致 (Playwright 自動検証)。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
 
 - **【完了 2026-05-12 セッション 10・占星術師実装の後片付け 11 件】**: セッション 9 で発見されたバグ + 派生要望 + 実機検証で次々判明したバグまでまとめて解消。 全 633/633 vitest PASS、 tsc clean、 build success。 11 commits push 済 (HEAD: 7c1bd11)、 Vercel 自動デプロイ。
 

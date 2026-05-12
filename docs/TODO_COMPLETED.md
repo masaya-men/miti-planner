@@ -2,6 +2,63 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-12 セッション 14・sizing 思想 v2 適用 — 全プロジェクト共通思想に統合）
+
+**設計書**: [docs/superpowers/plans/2026-05-12-sizing-philosophy-application.md](superpowers/plans/2026-05-12-sizing-philosophy-application.md)
+**統合 spec**: [docs/superpowers/specs/2026-05-12-sizing-philosophy-alignment.md](superpowers/specs/2026-05-12-sizing-philosophy-alignment.md)
+**全プロジェクト共通思想**: `C:\Users\masay\.claude\design-philosophy-sizing.md` (v2、 max=base + container max-width)
+**結果**: 5 commits、 build / vitest / tsc / playwright (6/6) 全 PASS
+
+### 背景
+
+AllMarks 側で全プロジェクト共通の sizing philosophy が確定 (`~/.claude/design-philosophy-sizing.md`)。 「開発者画面 = MAX、 ultrawide では余白増えるだけ」 という思想を LoPo にも適用。 セッション 13 で実装した「max = base × 1.4〜1.6」 (上下伸縮型) を「max = base」 (上限固定型) に修正。
+
+### 完了内容
+
+- **Task 1** (a740cd0): 列幅 7 token の clamp max を base に統一
+  - col-th-w: 180 → **125** (base)、 col-dps-w: 80 → **50**、 phase 80→60、 label 70→50、 time 80→60、 mechanic 280→200、 counter 140→100
+  - 1366 ノート: vw 自然値で base × 0.917 ≈ 92% 縮小 (不変)、 1489 で base、 1920+ で **max 固定**
+- **Task 2** (91e491f): Playwright 期待値を新方針に更新
+  - 1366: 115/46、 1489: 125/50、 1920+: **125/50 で固定** (旧 161/64, 180/80 から変更)
+- **Task 3** (78cd6e0): 共通基盤トークン追加
+  - `font-size: 16px` を `:root` に明示 (ブラウザ font 設定の影響を無効化)
+  - `--container-max: 1489px` (= 開発者画面幅、 ultrawide で中央寄せ用)
+  - `--text-scale-multiplier: 1` (将来のアプリ内 text size UI 用に予約)
+- **Task 4** (b5b8532): font-size tokens 15 個 を clamp+vw 化 (max=base)
+  - 全 14 token (-plus 含む) を PC 用 media query で clamp 上書き
+  - 1489 で既存 px 値 (10/11/12/13/14/16/18/20/24/26/36) と一致、 1920+ で max 固定
+  - モバイル (< 768px) は既存固定 px のまま (変更なし)
+- **Task 5+6** (6b46c78): Timeline 最外層に container max-width 適用 + audit
+  - Timeline.tsx 最外層に `md:max-w-[var(--container-max)] md:mx-auto` + `data-timeline-root` 属性
+  - **適用判定 (audit 結果)**:
+    - Timeline 最外層: **適用** (ultrawide で間延びするメインコンテンツ)
+    - LandingPage: **見送り** (内部で既に max-w-[1200px] mx-auto 自己完結)
+    - Layout.tsx の Sidebar + main flex container: **不適** (Sidebar ごと制限される)
+    - Sidebar / Modal: **不適** (既存 max-w 持つ、 portal mount 等)
+  - Playwright 中央寄せ assertion 追加 (3840 viewport で container 幅 ≤ 1489 + container.x > 0)
+- **Task 7** (本コミット): TODO 整理 + plan/spec ファイルを追加 + push
+
+### 検証結果
+
+| viewport | T/H 列 | DPS 列 | font-size-base (10px ベース) |
+|---|---|---|---|
+| 1366 ノート | 115px | 46px | 9.16px (92%) |
+| **1489 (本人)** | **125px** ← max | **50px** ← max | **10px** ← max |
+| 1920 | **125px** ← 固定 | **50px** ← 固定 | **10px** ← 固定 |
+| 2560+ | **125px** ← 固定 | **50px** ← 固定 | **10px** ← 固定 |
+| 3840 | **125px** + 中央寄せ余白 | **50px** + 中央寄せ余白 | **10px** + 中央寄せ余白 |
+
+build PASS、 vitest 636/636 PASS、 tsc clean、 Playwright 6/6 PASS (5 viewport + container max-width 中央寄せ assertion)。
+
+### 追加メモ
+
+- `getColumnCssVar()` / `useMeasuredMemberLayout` フックは変更不要 (CSS 変数経由なので clamp 値変更を自動追従)
+- `getMemberRefCallback` (セッション 13 で追加) は不変動作確認済
+- グローバル `~/.claude/CLAUDE.md` の LoPo 固有メモも削除済 (思想ノイズクリーンアップ)
+- アプリ内 text size 設定 UI (`data-text-scale` 属性 + multiplier) は将来 Phase で実装、 CSS 変数のみ予約済
+
+---
+
 ## 完了（2026-05-12 セッション 13・タイムライン列幅フルレスポンシブ化 C 案）
 
 **設計書**: [docs/superpowers/plans/2026-05-12-timeline-full-responsive.md](superpowers/plans/2026-05-12-timeline-full-responsive.md) (7 タスク・940 行)
