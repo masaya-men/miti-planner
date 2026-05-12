@@ -12,6 +12,8 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
+- **【完了 2026-05-12 セッション 15 — UI 調整 (全 shell 中央寄せ + 軽減アイコン均等分散 + ツールバー仕切り整合)】**: ユーザー実機観察 (ヘッダー/サイドメニューが ultrawide で広がる、 軽減アイコンの左右余白非対称、 ツールバー仕切り累積ズレ) に対応。 Layout 全 shell を 1489px 中央寄せ、 軽減アイコンを 2 個以上なら左右均等余白に分散、 ツールバー Area B/C/D を表の `var(--col-*-w)` に整合。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
+
 - **【完了 2026-05-12 セッション 14 — sizing 思想 v2 適用 (全プロジェクト共通思想に統合)】**: 全プロジェクト共通の sizing philosophy (`~/.claude/design-philosophy-sizing.md`) を LoPo に適用。 列幅 max=base 統一 + font-size px clamp 化 + container max-width 1489 適用で「ultrawide で要素拡大せず余白拡大」 を実現。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
 
 - **【完了 2026-05-12 セッション 13 — タイムライン列幅 フルレスポンシブ化 (C 案)】**: タイムライン列幅を固定 px から CSS `clamp(min, Nvw, max)` ベースに移行。 1489 で 125/50 厳密一致 (Playwright 自動検証)。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。

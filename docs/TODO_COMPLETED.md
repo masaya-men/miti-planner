@@ -2,6 +2,42 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-12 セッション 15・UI 調整 — 全 shell 中央寄せ + 軽減アイコン均等分散 + ツールバー仕切り整合）
+
+**背景**: セッション 14 で sizing 思想 v2 を適用した後、 ユーザーが実機 (DevTools 3840 emulation) で確認したところ 3 件の課題を発見:
+1. ヘッダーとサイドメニューが ultrawide で広がっていく (Timeline 単独のみ中央寄せだった)
+2. 軽減アイコンの左右余白が非対称 (列幅いっぱいに置いても右側に余白が残る)
+3. ツールバーの仕切りが表の縦罫線とズレており、 列を進むごとに累積していた
+
+**結果**: 3 commits、 build / vitest / tsc / playwright (6/6) 全 PASS
+
+### 完了内容
+
+- **Task A** (b3954c9): app-shell 全体を 1489px 中央寄せ
+  - `src/components/Layout.tsx` 最外層 (`data-app-shell`) に `md:max-w-[var(--container-max)] md:mx-auto` 適用
+  - `src/components/Timeline.tsx` の単独 max-width を除去 (二重化回避)
+  - Playwright 中央寄せテストを `data-app-shell` ベースに更新、 左右余白の差 < 5px を assert
+  - **挙動**: ultrawide で Sidebar + 主コンテンツ全体が 1489px に収まり、 両側に均等余白
+- **Task B** (4605a48): 軽減アイコンを均等分散配置
+  - `src/components/Timeline.tsx` の配置ロジックを 3 phase に分離 (placement → cluster shift → rendering)
+  - Phase 1: 既存のレーン詰めロジック (PLACEMENT_STEP=12) で `candidateLeft` 確定
+  - Phase 2: 非仮想アイコンが 2 個以上のとき `clusterShift = (colWidth - minLeft - maxLeft - ICON_WIDTH - 2*VISUAL_OFFSET) / 2` を計算
+  - Phase 3: `absoluteLeft = colStart + VISUAL_OFFSET + candidateLeft + clusterShift`
+  - **挙動**: 1 個のときは左寄せ維持 (中央配置の不格好さを回避)、 2 個以上は左右余白均等
+  - 例 (タンク列 125px、 5 アイコン): 旧 [0, 12, 24, 36, 48] → 新 [24.5, 36.5, 48.5, 60.5, 72.5]、 両側余白 26.5px
+- **Task C** (04532be): ツールバー仕切り線を表列幅 CSS 変数と整合
+  - `src/components/Timeline.tsx` の control bar 3 箇所 (Area B/C/D) の固定 px を `calc(var(--col-*-w) - 1px)` に置換
+  - Area B: `md:w-[199px]` → `md:w-[calc(var(--col-mechanic-w)-1px)]` (MECHANIC 列上)
+  - Area C: `md:w-[99px]` → `md:w-[calc(var(--col-counter-w)-1px)]` (U.Dmg 列上)
+  - Area D: `md:w-[99px]` → `md:w-[calc(var(--col-counter-w)-1px)]` (Dmg 列上)
+  - **挙動**: 全 viewport (1366-3840) でツールバー仕切りが表列境界と pixel 単位で揃う、 累積ズレ消失
+
+### 検証
+
+- build PASS、 vitest 636/636 PASS、 tsc clean、 Playwright 6/6 PASS
+
+---
+
 ## 完了（2026-05-12 セッション 14・sizing 思想 v2 適用 — 全プロジェクト共通思想に統合）
 
 **設計書**: [docs/superpowers/plans/2026-05-12-sizing-philosophy-application.md](superpowers/plans/2026-05-12-sizing-philosophy-application.md)
