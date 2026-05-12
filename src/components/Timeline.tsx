@@ -2661,17 +2661,21 @@ const Timeline: React.FC = () => {
                                                     }
                                                 });
 
+                                                // 時刻順を最優先 — 旧実装は recast 順を最優先していたため、 後の時刻に置かれた
+                                                // 短 recast の異時刻アイコンが先に配置され、 先の時刻の長 recast アイコンが
+                                                // 後から衝突回避で右にずれる現象が起きていた。 時刻順に並べることで「先に置いた
+                                                // アイコンが後で押されない」 を保証する。
                                                 displayItems.sort((a, b) => {
-                                                    if (a.time === b.time) {
-                                                        const isA_Base = a.mitigationId === 'horoscope' || a.mitigationId === 'earthly_star';
-                                                        const isB_Base = b.mitigationId === 'horoscope' || b.mitigationId === 'earthly_star';
-                                                        if (isA_Base && !isB_Base) return -1;
-                                                        if (!isA_Base && isB_Base) return 1;
-                                                    }
+                                                    if (a.time !== b.time) return a.time - b.time;
+                                                    // 同時刻のみタイブレーカー: horoscope/earthly_star (親) を先に
+                                                    const isA_Base = a.mitigationId === 'horoscope' || a.mitigationId === 'earthly_star';
+                                                    const isB_Base = b.mitigationId === 'horoscope' || b.mitigationId === 'earthly_star';
+                                                    if (isA_Base && !isB_Base) return -1;
+                                                    if (!isA_Base && isB_Base) return 1;
+                                                    // 同時刻 / 同種別なら recast 短い順 → id 順
                                                     const rA = getRecast(a.mitigationId);
                                                     const rB = getRecast(b.mitigationId);
                                                     if (rA !== rB) return rA - rB;
-                                                    if (a.time !== b.time) return a.time - b.time;
                                                     return a.mitigationId.localeCompare(b.mitigationId);
                                                 });
 
@@ -2683,8 +2687,9 @@ const Timeline: React.FC = () => {
                                                 const member = partyMembers.find(m => m.id === ownerMitigations[0]?.ownerId);
                                                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
                                                 // 初回マウント時 layout 未確定 (refs が null) のため fallback 値で 1 フレーム描画。 2pass 目で実測値に上書きされる
-                                                // 列幅は 左右余白 2L + N×ICON で対称: T/H=124 (N=5), DPS=52 (N=2)
-                                                const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 124 : 52;
+                                                // 実 DOM 計測で確定した対称値: T/H=126 (N=5), DPS=53 (N=2)
+                                                // 詳細は src/index.css のコメント参照
+                                                const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 126 : 53;
                                                 const colStart = layout?.left ?? 0;
                                                 const colWidth = layout?.width ?? fallbackColWidth;
                                                 // アイコン右端を「列右端 - VISUAL_OFFSET」 にキャップするため、 配置可能な最大 left は colWidth - VISUAL_OFFSET - ICON_WIDTH

@@ -12,35 +12,50 @@
 - **注意**: ENFORCE_APP_CHECK=true、Vercel関数9/12、月100ビルド制限
 - **軽減アプリ: 完成・公開済み（2026-04-13 完成ツイート済み）**
 
-- **【実機確認待ち・本番デプロイ済 — 2026-05-12 セッション 16】 軽減アイコン列幅の左右対称化 + 「左から飛んでくる」 バグ修正**:
+- **【本番デプロイ済・本番要確認 — 2026-05-12 セッション 16】 軽減アイコン列の対称化 + 互い違いバグ修正 + 左飛びバグ修正**:
 
-  **ユーザー意図 (セッション 16 で正確に把握できた)**:
-  - 「列幅を超えてる」 のではなく「**最大個数を置いたときの左右余白が非対称**」 が真の不満点だった
-  - 旧 T/H 125 px: 左 2px / 右 3px (1px 非対称)
-  - 旧 DPS 50 px: 左 2px / 右 0px (2px 非対称、 完全に列右端にめり込み)
-  - DPS (最大 2 個) も同じく綺麗に左右対称にしたい
+  **真因解明 — 3 つの DPR snap 要因の累積**:
+  1. 列ヘッダーの `border-r` 1px が DPR 2.6 で 0.77 CSS px に snap → 視覚的「右罫線」 が box 内側 1px に
+  2. アイコン inner div の `border border-app-border` も同様に snap → 絵柄が outer container の 0.8px 内側に描画
+  3. 絶対配置 (`style.left`) のサブピクセル round で実描画位置が +0.5px → 5 個並べで累積バイアス
 
-  **採用設計** (philosophy v2 max=base 準拠):
-  - 列幅 W = 2L + N × ICON_WIDTH の対称設計
-  - L (左右余白) = 2px (= 現状の VISUAL_OFFSET を維持)
-  - ICON_WIDTH = 24, N = 5 (T/H) / 2 (DPS)
-  - → **T/H 124px** / **DPS 52px** で左右各 2px 余白で完全対称
-  - clamp: `--col-th-w: clamp(109px, 8.327vw, 124px)` / `--col-dps-w: clamp(46px, 3.492vw, 52px)`
+  **採用値**: `--col-th-w: 126px` / `--col-dps-w: 53px` (固定 px、 viewport 非依存)
+  - 実 DOM 計測で完全対称に最も近い整数値 (絵柄基準ズレ 0.23px、 視覚識別困難)
+  - ただし整数列幅では DPR 2.6 環境で **完全 0 にはできない** (W=125.36 が真の対称、 整数化で 0.23 残)
+  - ユーザー観察: T/H 右が +0.5px 広い、 DPS 右が -0.5px 狭い (subpixel-rendering の方向違い)
 
-  **同時実装した別件**: 「左から飛んでくる」 バグ修正
-  - 真因: 初回マウントで memberLayout 未計測の 1 フレーム間、 `colStart = layout?.left ?? 0` で 0 になる
-  - 修正: `MitigationItem` に `layoutReady` prop 追加、 `layout === undefined` の間は `visibility: 'hidden'` で隠す
+  **同時に修正した別バグ 2 件**:
+  - **互い違いバグ**: `displayItems.sort` が recast 順最優先だったため、 短 recast の異時刻アイコンが先に配置 → 長 recast (= 上段、 時刻早い) が後から衝突回避で右にずれていた。 時刻順最優先に変更で解決
+  - **左飛びバグ**: `MitigationItem` に `layoutReady` prop 追加、 layout 未確定の 1 フレーム間 visibility: hidden
 
   **状態**:
-  - vitest 636/636 PASS、 tsc clean、 npm run build ✓
+  - vitest 636/636 PASS、 tsc clean、 build ✓
   - push 済 → Vercel 自動デプロイ
-  - **ユーザー実機確認待ち** (1489 で T/H 左右 2px 対称 + DPS 左右 2px 対称 + リロード直後にアイコンが左から飛んでこない)
-  - OK 確認後、 docs/TODO_COMPLETED.md に移動
+  - **本番動作確認待ち** (ローカルが重いため本番で動作検証)
+
+  **次セッションの判断ポイント (列幅 0.5px ズレの根本治療)**:
+  - 整数列幅では DPR 2.6 環境で物理的に完全対称化不可能 (subpixel rendering の制約)
+  - 治療オプション 3 つ:
+    - A. 現状 126/53 で許容 (視覚識別困難レベル、 push 済)
+    - B. CSS sub-pixel 値 (125.5px / 52.5px) でユーザー環境最適化 (他 DPR で 0.5px 差残)
+    - C. 列幅を広げて 0.5px ズレを相対的に目立たなくする (= 余白拡張の根本提案、 下記参照)
 
   **触ったファイル**:
-  - `src/index.css:1331-1335` (--col-th-w / --col-dps-w)
-  - `src/components/Timeline.tsx`: Props interface (56-78), destructure (146), 外側 div style (427-432), call site (2806), MAX_LEFT (2680), fallback 値 (2677), clusterShift 削除 (2717 周辺), absoluteLeft 式 (2784)
-  - `playwright/timeline-responsive.spec.ts` 期待値 124/52
+  - `src/index.css` `--col-th-w` / `--col-dps-w` (固定 px に変更)
+  - `src/components/Timeline.tsx`: layoutReady prop / sort 時刻順 / fallback 値 / MAX_LEFT 補正 / 死コード削除
+  - `playwright/timeline-responsive.spec.ts` 期待値 126/53
+  - DEV 用: `src/components/dev/ColumnWidthSlider.tsx` (本番非表示)
+
+- **【次セッション着手検討 — 列幅 拡張 (= 0.5px ズレ根本治療の C 案)】**: フルスクリーン時に表エリアが端まで行くようにしたい (ユーザー要望、 セッション 16 で確認)
+  - 現状: container max-width 1489px (philosophy v2) で 1489 以上の viewport で中央寄せ + 左右余白
+  - 希望: フルスクリーン時 (= ユーザー環境含む) では **表エリアが画面端まで広がる** ようにしたい
+  - 関連: 列幅を広げる (例: T/H 132〜152、 DPS 60〜80) で 余白を増やし、 0.5px ズレを相対的に目立たなくする副次効果あり
+  - 着手前に Claude と相談 (どこまで広げるか、 横スクロール量、 一般 viewport との両立)
+
+- **【次セッション着手検討 — リキャスト専用行】**: リキャスト本格表示の具体案
+  - 既存 TODO 行「リキャスト本格表示」 (line 439) と統合
+  - **専用行アプローチ**: タイムラインに各スキルのリキャスト時間専用の行を追加 (アイコン下に CD バー、 もしくは別行で進行表示)
+  - 着手前に Claude と相談 (UI 詳細、 行追加の影響範囲、 計算ロジック)
 
 - **【完了 2026-05-12 セッション 15 — UI 調整 3 件】**: Task A (全 shell 中央寄せ) + Task B (中央寄せシフト、 後で revert) + Task C (toolbar 仕切り整合)。 詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照。
 

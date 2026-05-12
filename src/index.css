@@ -1329,11 +1329,13 @@ button, [role="button"], .touch-none {
         --col-mechanic-w: clamp(160px, 13.432vw, 200px);
         --col-counter-w: clamp(80px, 6.716vw, 100px);
         /* 軽減アイコン列は viewport / サイドメニュー / 表エリア幅に依存しない固定 px。
-           アイコン (24px 固定) の最大同時並び数で必要幅が決まる機能要件のため:
-           T/H = 2L + 5×ICON(24) + 2L = 124px (最大 5 アイコン、 左右余白 2px ずつで対称)
-           DPS = 2L + 2×ICON(24) + 2L = 52px  (最大 2 アイコン、 同上) */
-        --col-th-w: 124px;
-        --col-dps-w: 52px;
+           実 DOM 計測で確定: 列ヘッダー border-r (1px) + アイコン inner div border (1px) +
+           絶対配置のサブピクセル累積 (DPR 2.6 環境) で T/H は +2px、 DPS は +1px の補正が必要。
+           完全対称になる列幅:
+           T/H = 126px (最大 5 アイコン、 罫線中央基準で左右 3.6/3.9px、 ズレ 0.23px)
+           DPS = 53px  (最大 2 アイコン、 同上) */
+        --col-th-w: 126px;
+        --col-dps-w: 53px;
         /* メンバー列開始位置 = PHASE + LABEL + TIME + MECHANIC + RAW + TAKEN */
         --col-member-start: calc(
             var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) +

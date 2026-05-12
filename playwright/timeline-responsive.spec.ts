@@ -8,23 +8,24 @@ const VIEWPORTS = [
     { name: '3840-native-4k', width: 3840, height: 2160, dpr: 1 },
 ];
 
-// 期待値: 軽減アイコン列は固定 px (アイコン最大並び数で決まる機能要件)
-// --col-th-w:  124px (= 2L + 5×ICON(24) + 2L、 viewport 非依存)
-// --col-dps-w: 52px  (= 2L + 2×ICON(24) + 2L、 viewport 非依存)
+// 期待値: 軽減アイコン列は固定 px (実 DOM 計測で確定した視覚対称値、 viewport 非依存)
+// --col-th-w:  126px (T/H、 N=5)
+// --col-dps-w: 53px  (DPS、 N=2)
+// 真因: 列ヘッダー border-r + inner div border + 絶対配置 subpixel round の累積
 const EXPECTED_TH_WIDTH: Record<string, number> = {
-    '1366-laptop': 124,
-    '1489-user-actual': 124,
-    '1920-majority': 124,
-    '2560-27inch-4k-150': 124,
-    '3840-native-4k': 124,
+    '1366-laptop': 126,
+    '1489-user-actual': 126,
+    '1920-majority': 126,
+    '2560-27inch-4k-150': 126,
+    '3840-native-4k': 126,
 };
 
 const EXPECTED_DPS_WIDTH: Record<string, number> = {
-    '1366-laptop': 52,
-    '1489-user-actual': 52,
-    '1920-majority': 52,
-    '2560-27inch-4k-150': 52,
-    '3840-native-4k': 52,
+    '1366-laptop': 53,
+    '1489-user-actual': 53,
+    '1920-majority': 53,
+    '2560-27inch-4k-150': 53,
+    '3840-native-4k': 53,
 };
 
 for (const vp of VIEWPORTS) {
@@ -53,10 +54,10 @@ for (const vp of VIEWPORTS) {
         expect(dpsBox).not.toBeNull();
         expect(dpsBox!.width).toBeCloseTo(EXPECTED_DPS_WIDTH[vp.name], 0);
 
-        // 1489 はユーザー本人環境の絶対基準 - サブピクセル誤差は許容するが整数値で 124/52 を要求
+        // 1489 はユーザー本人環境の絶対基準 - サブピクセル誤差は許容するが整数値で 126/53 を要求
         if (vp.name === '1489-user-actual') {
-            expect(Math.round(tankBox!.width)).toBe(124);
-            expect(Math.round(dpsBox!.width)).toBe(52);
+            expect(Math.round(tankBox!.width)).toBe(126);
+            expect(Math.round(dpsBox!.width)).toBe(53);
         }
 
         await ctx.close();
