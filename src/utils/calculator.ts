@@ -17,17 +17,21 @@ interface StatInput {
 // Math.floor logic for FF14 (truncates to integer)
 const floor = Math.floor;
 
-// CSS expression for column widths (defined in src/index.css)
+/**
+ * パーティメンバー列の CSS 幅式を返す。
+ * src/index.css の `--col-th-w` (タンク/ヒーラー) と `--col-dps-w` (DPS) を参照。
+ * clamp(min, vw, max) で 1366-3840 全 viewport をカバー。
+ */
 export const getColumnCssVar = (role: string): string => {
     if (role === 'tank' || role === 'healer') return 'var(--col-th-w)';
     return 'var(--col-dps-w)';
 };
 
 /**
- * @deprecated Use getColumnCssVar for CSS, or measured layout from memberLayout for px.
+ * @deprecated Task 5 で削除予定。 Use getColumnCssVar for CSS, or measured layout from memberLayout for px.
  * px 累積に依存していたコードを段階的に移行するため当面残置。
  */
-export const getColumnWidth = (role: string) => {
+export const getColumnWidth = (role: string): number => {
     if (role === 'tank' || role === 'healer') return 125; // 25px * 5 slots
     return 50; // 25px * 2 slots for DPS
 };
