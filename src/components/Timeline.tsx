@@ -1943,8 +1943,8 @@ const Timeline: React.FC = () => {
                             {/* 短い区切り線 — テーブルの Time|Event 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
 
-                            {/* Area B: MECHANIC(200) — 敵の攻撃カラムと揃う */}
-                            <div className="flex-1 md:flex-none md:w-[199px] md:min-w-[199px] flex items-center px-1 md:px-2 h-full">
+                            {/* Area B: MECHANIC — 敵の攻撃カラムと揃う (var(--col-mechanic-w) - 1px divider) */}
+                            <div className="flex-1 md:flex-none md:w-[calc(var(--col-mechanic-w)-1px)] md:min-w-[calc(var(--col-mechanic-w)-1px)] flex items-center px-1 md:px-2 h-full">
                                 <div className={clsx(
                                     "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full",
                                     isAaModeEnabled && "bg-app-toggle text-app-toggle-text"
@@ -1983,8 +1983,8 @@ const Timeline: React.FC = () => {
                             {/* 短い区切り線 — テーブルの Event|U.Dmg 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
 
-                            {/* Area C: U.Dmg(100) — 罫線トグル + チートシート（準備中） */}
-                            <div className="flex-none md:w-[99px] md:min-w-[99px] flex items-center justify-center gap-1 h-full">
+                            {/* Area C: U.Dmg — 罫線トグル + PiP (var(--col-counter-w) - 1px divider) */}
+                            <div className="flex-none md:w-[calc(var(--col-counter-w)-1px)] md:min-w-[calc(var(--col-counter-w)-1px)] flex items-center justify-center gap-1 h-full">
                                 <Tooltip content={t('timeline.row_borders')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().setShowRowBorders(!showRowBorders)}
@@ -2019,8 +2019,8 @@ const Timeline: React.FC = () => {
                             {/* 短い区切り線 — テーブルの U.Dmg|Dmg 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
 
-                            {/* Area D: Dmg(100) — Undo/Redo/ゴミ箱 */}
-                            <div className="flex-none md:w-[99px] md:min-w-[99px] flex items-center justify-center gap-0.5 h-full">
+                            {/* Area D: Dmg — Undo/Redo/ゴミ箱 (var(--col-counter-w) - 1px divider) */}
+                            <div className="flex-none md:w-[calc(var(--col-counter-w)-1px)] md:min-w-[calc(var(--col-counter-w)-1px)] flex items-center justify-center gap-0.5 h-full">
                                 <Tooltip content={t('timeline.undo')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().undo()}
