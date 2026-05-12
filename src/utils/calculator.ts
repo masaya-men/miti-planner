@@ -17,7 +17,16 @@ interface StatInput {
 // Math.floor logic for FF14 (truncates to integer)
 const floor = Math.floor;
 
-// Helper for column widths
+// CSS expression for column widths (defined in src/index.css)
+export const getColumnCssVar = (role: string): string => {
+    if (role === 'tank' || role === 'healer') return 'var(--col-th-w)';
+    return 'var(--col-dps-w)';
+};
+
+/**
+ * @deprecated Use getColumnCssVar for CSS, or measured layout from memberLayout for px.
+ * px 累積に依存していたコードを段階的に移行するため当面残置。
+ */
 export const getColumnWidth = (role: string) => {
     if (role === 'tank' || role === 'healer') return 125; // 25px * 5 slots
     return 50; // 25px * 2 slots for DPS

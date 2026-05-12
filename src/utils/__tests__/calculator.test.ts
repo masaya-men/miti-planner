@@ -44,7 +44,7 @@ import {
   calculatePotencyValue,
   calculateCriticalValue,
   calculateHpValue,
-  getColumnWidth,
+  getColumnCssVar,
   CRIT_MULTIPLIER,
 } from '../calculator';
 
@@ -118,13 +118,17 @@ describe('calculateHpValue', () => {
   });
 });
 
-describe('getColumnWidth', () => {
-  it('タンク/ヒーラーは125px', () => {
-    expect(getColumnWidth('tank')).toBe(125);
-    expect(getColumnWidth('healer')).toBe(125);
+describe('getColumnCssVar', () => {
+  it('タンクは var(--col-th-w) を返す', () => {
+    expect(getColumnCssVar('tank')).toBe('var(--col-th-w)');
   });
 
-  it('DPSは50px', () => {
-    expect(getColumnWidth('dps')).toBe(50);
+  it('ヒーラーは var(--col-th-w) を返す', () => {
+    expect(getColumnCssVar('healer')).toBe('var(--col-th-w)');
+  });
+
+  it('DPS (および未知ロール) は var(--col-dps-w) を返す', () => {
+    expect(getColumnCssVar('dps')).toBe('var(--col-dps-w)');
+    expect(getColumnCssVar('unknown')).toBe('var(--col-dps-w)');
   });
 });
