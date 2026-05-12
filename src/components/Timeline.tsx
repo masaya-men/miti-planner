@@ -1919,8 +1919,8 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
-                            {/* Area A: PHASE+LABEL+TIME — テーブルカラムと幅を揃える */}
-                            <div className="w-[var(--col-header-chunk-w)] min-w-[var(--col-header-chunk-w)] flex-none flex items-center px-1 md:px-2 h-full">
+                            {/* Area A: PHASE+LABEL+TIME — テーブルカラムと幅を揃える (var(--col-header-chunk-w) - 1px divider) */}
+                            <div className="w-[calc(var(--col-header-chunk-w)-1px)] min-w-[calc(var(--col-header-chunk-w)-1px)] flex-none flex items-center px-1 md:px-2 h-full">
                                 <button
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
@@ -2714,19 +2714,24 @@ const Timeline: React.FC = () => {
                                                 });
 
                                                 // ── Phase 2: クラスタ中央寄せシフト ──
-                                                // アイコン 2 個以上のとき、 左右余白が均等になるよう全体をシフト
-                                                // 1 個のときは左寄せ維持 (中央配置は不格好なので)
+                                                // 横方向に複数レーンに広がっているとき (= 同時刻軽減が複数あって左から詰めた結果)
+                                                // のみ、 左右余白が均等になるよう全体をシフト。
+                                                // 単一レーン (全部 left=0、 異なる時刻で縦に並んでいるだけ) は左寄せ維持。
                                                 let clusterShift = 0;
                                                 const placedNonVirtual = assignedPositions.filter(p => !p.m.isVirtual);
                                                 if (placedNonVirtual.length >= 2) {
                                                     const lefts = placedNonVirtual.map(p => p.left);
                                                     const minLeft = Math.min(...lefts);
                                                     const maxLeft = Math.max(...lefts);
-                                                    // 視覚的左マージン = VISUAL_OFFSET + minLeft + clusterShift
-                                                    // 視覚的右マージン = colWidth - (VISUAL_OFFSET + maxLeft + ICON_WIDTH + clusterShift)
-                                                    // 両者を等しくする clusterShift を求める
-                                                    clusterShift = (colWidth - minLeft - maxLeft - ICON_WIDTH - 2 * VISUAL_OFFSET) / 2;
-                                                    if (clusterShift < 0) clusterShift = 0;  // overflow 防止
+                                                    // maxLeft > minLeft = 横方向に「横並び」 が発生している
+                                                    // (= 同時刻アイコン が複数で衝突回避のためずらされている)
+                                                    if (maxLeft > minLeft) {
+                                                        // 視覚的左マージン = VISUAL_OFFSET + minLeft + clusterShift
+                                                        // 視覚的右マージン = colWidth - (VISUAL_OFFSET + maxLeft + ICON_WIDTH + clusterShift)
+                                                        // 両者を等しくする clusterShift を求める
+                                                        clusterShift = (colWidth - minLeft - maxLeft - ICON_WIDTH - 2 * VISUAL_OFFSET) / 2;
+                                                        if (clusterShift < 0) clusterShift = 0;  // overflow 防止
+                                                    }
                                                 }
 
                                                 // ── Phase 3: rendering (positions に clusterShift を加算) ──
