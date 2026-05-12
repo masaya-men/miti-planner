@@ -8,23 +8,24 @@ const VIEWPORTS = [
     { name: '3840-native-4k', width: 3840, height: 2160, dpr: 1 },
 ];
 
-// 期待値: clamp(min, vw, max) 計算
-// --col-th-w:  clamp(110px, 8.395vw, 180px)
-// --col-dps-w: clamp(45px, 3.358vw, 80px)
+// 期待値: clamp(min, vw, max) 計算 — philosophy v2 (max = base、 開発者画面 px)
+// --col-th-w:  clamp(110px, 8.395vw, 125px)  ← max を base に統一
+// --col-dps-w: clamp(45px, 3.358vw, 50px)    ← max を base に統一
+// 1489+ では max クランプで base 固定、 ultrawide でも要素拡大しない
 const EXPECTED_TH_WIDTH: Record<string, number> = {
-    '1366-laptop': 115,        // 1366 * 0.08395 = 114.68 → toBeCloseTo(115, 0) ±0.5
-    '1489-user-actual': 125,   // 基準値 (1489 * 0.08395 = 125.00)
-    '1920-majority': 161,      // 1920 * 0.08395 = 161.18
-    '2560-27inch-4k-150': 180, // max クランプ (2560 * 0.08395 = 214.91 > 180)
-    '3840-native-4k': 180,     // max クランプ
+    '1366-laptop': 115,        // 1366 * 0.08395 = 114.68 → vw 自然値 (min/max 範囲内)
+    '1489-user-actual': 125,   // 基準値 (1489 * 0.08395 = 125.00 = max)
+    '1920-majority': 125,      // max クランプ (1920 * 0.08395 = 161.18 > 125)
+    '2560-27inch-4k-150': 125, // max クランプ (固定)
+    '3840-native-4k': 125,     // max クランプ (固定)
 };
 
 const EXPECTED_DPS_WIDTH: Record<string, number> = {
-    '1366-laptop': 46,         // 1366 * 0.03358 = 45.87 → toBeCloseTo(46, 0) ±0.5
-    '1489-user-actual': 50,    // 基準値 (1489 * 0.03358 = 49.99 ≈ 50)
-    '1920-majority': 64,       // 1920 * 0.03358 = 64.47
-    '2560-27inch-4k-150': 80,  // max クランプ (2560 * 0.03358 = 85.97 > 80)
-    '3840-native-4k': 80,      // max クランプ
+    '1366-laptop': 46,         // 1366 * 0.03358 = 45.87 → vw 自然値
+    '1489-user-actual': 50,    // 基準値 (1489 * 0.03358 ≈ 50 = max)
+    '1920-majority': 50,       // max クランプ (1920 * 0.03358 = 64.47 > 50)
+    '2560-27inch-4k-150': 50,  // max クランプ (固定)
+    '3840-native-4k': 50,      // max クランプ (固定)
 };
 
 for (const vp of VIEWPORTS) {
