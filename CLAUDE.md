@@ -18,6 +18,7 @@
 - 迷ったら使う。スキップしない。
 
 ## 重要ドキュメント（該当タスク着手時に読む）
+- `docs/DESIGN.md` — デザインシステム詳細仕様 (カラー値・フォント・コンポーネント、 UI 作業時に参照)
 - `docs/DESIGN_DECISIONS.md` — 確定済み設計方針
 - `docs/ADMIN_SETUP.md` — 管理者手順・技術メモ
 - `docs/管理基盤設計書.md` — Firestore移行設計
