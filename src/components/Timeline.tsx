@@ -33,7 +33,7 @@ import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
-import { getColumnWidth, calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
+import { getColumnWidth, getColumnCssVar, calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
@@ -1895,8 +1895,8 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
-                            {/* Area A: PHASE(100) + TIME(70) = 170px — テーブルカラムと幅を揃える */}
-                            <div className="w-[30px] min-w-[30px] md:w-[170px] md:min-w-[170px] flex-none flex items-center px-1 md:px-2 h-full">
+                            {/* Area A: PHASE+LABEL+TIME — テーブルカラムと幅を揃える */}
+                            <div className="w-[var(--col-header-chunk-w)] min-w-[var(--col-header-chunk-w)] flex-none flex items-center px-1 md:px-2 h-full">
                                 <button
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
@@ -2073,7 +2073,7 @@ const Timeline: React.FC = () => {
                                             <Tooltip content={t('timeline.header_phase_tooltip')}>
                                                 <div
                                                     ref={phaseHeaderRef}
-                                                    className={`${mobileLabelInPhaseSlot ? 'hidden md:flex' : 'flex'} w-[24px] min-w-[24px] md:w-[60px] md:min-w-[60px] md:max-w-[60px] flex-none border-r border-app-border h-full items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors`}
+                                                    className={`${mobileLabelInPhaseSlot ? 'hidden md:flex' : 'flex'} w-[24px] min-w-[24px] md:w-[var(--col-phase-w)] md:min-w-[var(--col-phase-w)] md:max-w-[var(--col-phase-w)] flex-none border-r border-app-border h-full items-center justify-center text-app-text-muted font-black bg-transparent text-app-xs md:text-app-md md:cursor-pointer md:hover:text-app-text transition-colors`}
                                                     onClick={() => { if (window.innerWidth >= 768) setPhaseDropdownOpen(!phaseDropdownOpen); }}
                                                 >
                                                     <span className="md:hidden">{t('timeline.header_phase_short')}</span>
@@ -2087,7 +2087,7 @@ const Timeline: React.FC = () => {
                                             <Tooltip content={`${t('timeline.nav_phase_expand')} (Shift+P)`}>
                                                 <div
                                                     ref={phaseHeaderRef}
-                                                    className="w-[16px] min-w-[16px] max-w-[16px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
+                                                    className="w-[var(--col-phase-collapsed-w)] min-w-[var(--col-phase-collapsed-w)] max-w-[var(--col-phase-collapsed-w)] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
                                                     onClick={() => handleTogglePhaseCollapse()}
                                                 >
                                                     <ChevronDown size={12} className="text-app-text-muted -rotate-90" />
@@ -2109,7 +2109,7 @@ const Timeline: React.FC = () => {
                                             <Tooltip content={t('timeline.header_gimmick_tooltip')}>
                                                 <div
                                                     ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
-                                                    className="hidden md:flex w-[50px] min-w-[50px] max-w-[50px] flex-none border-r border-app-border h-full items-center justify-center bg-transparent text-app-text-muted font-black text-app-md cursor-pointer hover:text-app-text transition-colors"
+                                                    className="hidden md:flex md:w-[var(--col-label-w)] md:min-w-[var(--col-label-w)] md:max-w-[var(--col-label-w)] flex-none border-r border-app-border h-full items-center justify-center bg-transparent text-app-text-muted font-black text-app-md cursor-pointer hover:text-app-text transition-colors"
                                                     onClick={() => setGimmickDropdownOpen(!gimmickDropdownOpen)}
                                                 >
                                                     <span className="flex items-center gap-0.5">
@@ -2122,7 +2122,7 @@ const Timeline: React.FC = () => {
                                             <Tooltip content={`${t('timeline.nav_label_expand')} (Shift+L)`}>
                                                 <div
                                                     ref={!mobileLabelInPhaseSlot ? gimmickHeaderRef : undefined}
-                                                    className="w-[16px] min-w-[16px] max-w-[16px] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
+                                                    className="w-[var(--col-label-collapsed-w)] min-w-[var(--col-label-collapsed-w)] max-w-[var(--col-label-collapsed-w)] flex-none border-r border-app-border h-full hidden md:flex items-center justify-center cursor-pointer hover:bg-app-surface2 transition-colors"
                                                     onClick={() => handleToggleLabelCollapse()}
                                                 >
                                                     <ChevronDown size={12} className="text-app-text-muted -rotate-90" />
@@ -2135,7 +2135,7 @@ const Timeline: React.FC = () => {
                             <Tooltip content={t('timeline.header_time_tooltip')}>
                                 <div
                                     ref={timeHeaderRef}
-                                    className="w-[36px] min-w-[36px] md:w-[60px] md:min-w-[60px] md:max-w-[60px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
+                                    className="w-[36px] min-w-[36px] md:w-[var(--col-time-w)] md:min-w-[var(--col-time-w)] md:max-w-[var(--col-time-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted font-black text-app-xs md:text-app-base md:cursor-pointer md:hover:text-app-text transition-colors"
                                     onClick={() => { if (window.innerWidth >= 768) setTimeInputOpen(!timeInputOpen); }}
                                 >
                                     <span className="md:hidden">{t('timeline.header_time')}</span>
@@ -2145,7 +2145,7 @@ const Timeline: React.FC = () => {
                                     </span>
                                 </div>
                             </Tooltip>
-                            <Tooltip content={t('timeline.header_mechanic_tooltip')} wrapperClassName="flex-1 md:flex-none md:w-[200px] md:min-w-[200px] md:max-w-[200px] h-full">
+                            <Tooltip content={t('timeline.header_mechanic_tooltip')} wrapperClassName="flex-1 md:flex-none md:w-[var(--col-mechanic-w)] md:min-w-[var(--col-mechanic-w)] md:max-w-[var(--col-mechanic-w)] h-full">
                                 <div
                                     ref={mechanicHeaderRef}
                                     className="w-full border-r border-app-border h-full flex items-center bg-transparent text-app-text-muted text-app-sm md:text-app-base pl-2 justify-start font-black cursor-pointer hover:text-app-text transition-colors"
@@ -2157,11 +2157,11 @@ const Timeline: React.FC = () => {
                                     </span>
                                 </div>
                             </Tooltip>
-                            <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
+                            <div className="w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:w-[var(--col-counter-w)] md:min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
                                 <span className="md:hidden">{t('timeline.header_raw_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_raw')}</span>
                             </div>
-                            <div className="w-[50px] min-w-[50px] md:w-[100px] md:min-w-[100px] md:max-w-[100px] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
+                            <div className="w-[var(--col-counter-w)] min-w-[var(--col-counter-w)] md:w-[var(--col-counter-w)] md:min-w-[var(--col-counter-w)] md:max-w-[var(--col-counter-w)] flex-none border-r border-app-border h-full flex items-center justify-center bg-transparent text-app-text-muted text-app-xs md:text-app-base font-black">
                                 <span className="md:hidden">{t('timeline.header_taken_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_taken')}</span>
                             </div>
@@ -2169,7 +2169,7 @@ const Timeline: React.FC = () => {
                             {sortedPartyMembers.map((member, index) => (
                                 <div
                                     key={member.id}
-                                    style={{ width: `${getColumnWidth(member.role)}px`, minWidth: `${getColumnWidth(member.role)}px`, maxWidth: `${getColumnWidth(member.role)}px` }}
+                                    style={{ width: getColumnCssVar(member.role), minWidth: getColumnCssVar(member.role), maxWidth: getColumnCssVar(member.role) }}
                                     className={clsx(
                                         "hidden md:flex flex-none border-r border-app-border h-full flex-col items-center justify-center p-0.5 relative group",
                                         index === sortedPartyMembers.length - 1 && "border-r border-app-border",
@@ -2476,7 +2476,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
-                                                    className="absolute left-0 w-[24px] md:w-[60px] border-r border-b border-app-border bg-app-surface2 pointer-events-none z-10"
+                                                    className="absolute left-0 w-[24px] md:w-[var(--col-phase-w)] border-r border-b border-app-border bg-app-surface2 pointer-events-none z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                 >
                                                     <Tooltip content={t('timeline.click_rename', 'クリックして名前を変更')} position="right" wrapperClassName={clsx("sticky w-full", isMobileView ? "top-[52px]" : "top-0")}>
@@ -2529,8 +2529,8 @@ const Timeline: React.FC = () => {
                                                         className={clsx(
                                                             "absolute border-r border-b border-app-border/50 bg-app-surface2 pointer-events-none z-10",
                                                             hasPhases
-                                                                ? `hidden md:block ${phaseColumnCollapsed ? 'left-[16px]' : 'left-[60px]'} w-[50px]`
-                                                                : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:left-[16px]' : 'md:left-[60px]'} md:w-[50px]`
+                                                                ? `hidden md:block ${phaseColumnCollapsed ? 'left-[var(--col-phase-collapsed-w)]' : 'left-[var(--col-phase-w)]'} w-[var(--col-label-w)]`
+                                                                : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:left-[var(--col-phase-collapsed-w)]' : 'md:left-[var(--col-phase-w)]'} md:w-[var(--col-label-w)]`
                                                         )}
                                                         style={{ top: `${top}px`, height: `${height}px` }}
                                                     >
@@ -2556,9 +2556,9 @@ const Timeline: React.FC = () => {
                                                 "absolute pointer-events-none z-20 border-2 border-app-blue bg-app-blue/10 rounded-sm",
                                                 labelSelectMode
                                                     ? (phases.length > 0
-                                                        ? `hidden md:block ${phaseColumnCollapsed ? 'left-[16px]' : 'left-[60px]'} w-[50px]`
-                                                        : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:left-[16px]' : 'md:left-[60px]'} md:w-[50px]`)
-                                                    : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:w-[16px]' : 'md:w-[60px]'}`
+                                                        ? `hidden md:block ${phaseColumnCollapsed ? 'left-[var(--col-phase-collapsed-w)]' : 'left-[var(--col-phase-w)]'} w-[var(--col-label-w)]`
+                                                        : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:left-[var(--col-phase-collapsed-w)]' : 'md:left-[var(--col-phase-w)]'} md:w-[var(--col-label-w)]`)
+                                                    : `left-0 w-[24px] ${phaseColumnCollapsed ? 'md:w-[var(--col-phase-collapsed-w)]' : 'md:w-[var(--col-phase-w)]'}`
                                             )}
                                             style={{ display: 'none' }}
                                         />

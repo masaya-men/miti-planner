@@ -130,6 +130,7 @@
     --col-member-start: 0px; /* メンバー列の開始 left */
     --col-phase-collapsed-w: 16px;
     --col-label-collapsed-w: 16px;
+    --col-header-chunk-w: 30px;  /* モバイル既定値 (PHASE+LABEL+TIME 合計) */
 
     line-height: 1.6;
     color-scheme: dark;
@@ -314,6 +315,7 @@
     --col-member-start: 0px; /* メンバー列の開始 left */
     --col-phase-collapsed-w: 16px;
     --col-label-collapsed-w: 16px;
+    --col-header-chunk-w: 30px;  /* モバイル既定値 (PHASE+LABEL+TIME 合計) */
 
     --row-hover-line-color: rgba(0, 0, 0, 0.15);
 
@@ -1321,5 +1323,7 @@ button, [role="button"], .touch-none {
         );
         --col-phase-collapsed-w: 16px;
         --col-label-collapsed-w: 16px;
+        /* コントロールバー左チャンク幅 (PHASE + LABEL + TIME 合計) */
+        --col-header-chunk-w: calc(var(--col-phase-w) + var(--col-label-w) + var(--col-time-w));
     }
 }
