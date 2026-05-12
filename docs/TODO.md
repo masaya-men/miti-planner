@@ -49,6 +49,7 @@
 
 ## バグ・不具合 (要修正)
 
+- **中**: 互い違い配置時のチラつき (セッション 17 で発見) — 同時刻配置で一瞬完全に重なってから横にずれる。 配置前に重なり計算して最初から正位置に置きたい。 Timeline.tsx:2700-2810 のアイコン配置ロジックが対象
 - **中**: ラベル名が管理画面で取得できない (スプシヘッダー問題?)
 - **低 (動作影響なし)**: FFLogs インポート英語ログ / 無敵反映 / オートプラン同一技 / パルス設定スライダー初期位置 / ヘッダー縦罫線サブピクセル
 - **Phase 2 follow-up (優先度低)**: api/popular の `viewCount` 削除 / en/ko privacy_section1_auto_items の bullet 分割バグ / `MitigationSheet.copyPlan` の POST 失敗時 localStorage 残留

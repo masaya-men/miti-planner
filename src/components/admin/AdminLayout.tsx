@@ -35,7 +35,7 @@ export function AdminLayout() {
   }, [t]);
 
   return (
-    <div className="flex h-screen bg-app-bg text-app-text">
+    <div data-admin-page className="flex h-screen bg-app-bg text-app-text">
       {/* サイドナビ */}
       <nav className="w-56 border-r border-app-text/10 flex flex-col">
         <div className="p-4 border-b border-app-text/10">

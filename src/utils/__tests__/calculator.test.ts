@@ -119,16 +119,16 @@ describe('calculateHpValue', () => {
 });
 
 describe('getColumnCssVar', () => {
-  it('タンクは var(--col-th-w) を返す', () => {
-    expect(getColumnCssVar('tank')).toBe('var(--col-th-w)');
+  it('タンクはマージン込み全幅の calc() を返す', () => {
+    expect(getColumnCssVar('tank')).toBe('calc(var(--col-th-w) + var(--col-member-pad-x) * 2)');
   });
 
-  it('ヒーラーは var(--col-th-w) を返す', () => {
-    expect(getColumnCssVar('healer')).toBe('var(--col-th-w)');
+  it('ヒーラーはマージン込み全幅の calc() を返す', () => {
+    expect(getColumnCssVar('healer')).toBe('calc(var(--col-th-w) + var(--col-member-pad-x) * 2)');
   });
 
-  it('DPS (および未知ロール) は var(--col-dps-w) を返す', () => {
-    expect(getColumnCssVar('dps')).toBe('var(--col-dps-w)');
-    expect(getColumnCssVar('unknown')).toBe('var(--col-dps-w)');
+  it('DPS (および未知ロール) はマージン込み全幅の calc() を返す', () => {
+    expect(getColumnCssVar('dps')).toBe('calc(var(--col-dps-w) + var(--col-member-pad-x) * 2)');
+    expect(getColumnCssVar('unknown')).toBe('calc(var(--col-dps-w) + var(--col-member-pad-x) * 2)');
   });
 });

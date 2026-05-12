@@ -2205,7 +2205,13 @@ const Timeline: React.FC = () => {
                                     ref={getMemberRefCallback(member.id)}
                                     data-member-id={member.id}
                                     data-member-role={member.role}
-                                    style={{ width: getColumnCssVar(member.role), minWidth: getColumnCssVar(member.role), maxWidth: getColumnCssVar(member.role) }}
+                                    style={{
+                                        width: getColumnCssVar(member.role),
+                                        minWidth: getColumnCssVar(member.role),
+                                        maxWidth: getColumnCssVar(member.role),
+                                        paddingLeft: 'var(--col-member-pad-x)',
+                                        paddingRight: 'var(--col-member-pad-x)',
+                                    }}
                                     className={clsx(
                                         "hidden md:flex flex-none border-r border-app-border h-full flex-col items-center justify-center p-0.5 relative group",
                                         index === sortedPartyMembers.length - 1 && "border-r border-app-border",
@@ -2687,9 +2693,9 @@ const Timeline: React.FC = () => {
                                                 const member = partyMembers.find(m => m.id === ownerMitigations[0]?.ownerId);
                                                 const layout = memberLayout.get(ownerMitigations[0]?.ownerId);
                                                 // 初回マウント時 layout 未確定 (refs が null) のため fallback 値で 1 フレーム描画。 2pass 目で実測値に上書きされる
-                                                // 実 DOM 計測で確定した対称値: T/H=126 (N=5), DPS=53 (N=2)
+                                                // セッション 17: T/H=151 (N=6 対称), DPS=53 (N=2 維持)
                                                 // 詳細は src/index.css のコメント参照
-                                                const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 126 : 53;
+                                                const fallbackColWidth = member?.role === 'tank' || member?.role === 'healer' ? 151 : 53;
                                                 const colStart = layout?.left ?? 0;
                                                 const colWidth = layout?.width ?? fallbackColWidth;
                                                 // アイコン右端を「列右端 - VISUAL_OFFSET」 にキャップするため、 配置可能な最大 left は colWidth - VISUAL_OFFSET - ICON_WIDTH

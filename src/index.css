@@ -1332,10 +1332,13 @@ button, [role="button"], .touch-none {
            実 DOM 計測で確定: 列ヘッダー border-r (1px) + アイコン inner div border (1px) +
            絶対配置のサブピクセル累積 (DPR 2.6 環境) で T/H は +2px、 DPS は +1px の補正が必要。
            完全対称になる列幅:
-           T/H = 126px (最大 5 アイコン、 罫線中央基準で左右 3.6/3.9px、 ズレ 0.23px)
-           DPS = 53px  (最大 2 アイコン、 同上) */
-        --col-th-w: 126px;
+           T/H = 151px (最大 6 アイコン対称、 セッション 17 で 126→151 に拡張)
+           DPS = 53px  (最大 2 アイコン、 維持) */
+        --col-th-w: 151px;
         --col-dps-w: 53px;
+        /* 各メンバー列の左右マージン (セッション 17): 縦スクロールバー非表示、
+           横スクロールバー残し前提で、 ユーザー画面 1489 + DPR 2.58 で実機目視確定。 */
+        --col-member-pad-x: 2.9px;
         /* メンバー列開始位置 = PHASE + LABEL + TIME + MECHANIC + RAW + TAKEN */
         --col-member-start: calc(
             var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) +
@@ -1365,4 +1368,19 @@ button, [role="button"], .touch-none {
         --font-size-5xl: clamp(22px, 1.746vw, 26px);
         --font-size-6xl: clamp(30px, 2.418vw, 36px);
     }
+}
+
+/* === 縦スクロールバーのみ非表示 (セッション 17) ===
+   軽減アプリ / LP は縦スクロール可能なのが UX 上明白。 視覚的にスッキリさせる。
+   横スクロールバーは残す: 通常モード時に「あえて溢れさせる」 UX で
+   サイドバー閉じる導線として機能させるため、 視覚的に残す。
+   管理画面 ([data-admin-page]) は使いやすさ重視のためデフォルト挙動を残す。 */
+*::-webkit-scrollbar:vertical {
+    width: 0;
+    display: none;
+}
+[data-admin-page] *::-webkit-scrollbar:vertical,
+[data-admin-page]::-webkit-scrollbar:vertical {
+    width: revert;
+    display: revert;
 }
