@@ -4,6 +4,7 @@ import { X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import type { Phase } from '../types';
 import { getPhaseName } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
@@ -22,6 +23,8 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
     isOpen, onClose, phases, onJump, isCollapsed, onToggleCollapse, triggerRef
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLDivElement>(null);
+    useSmoothWheelScroll(listRef);
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     useEscapeClose(isOpen, onClose);
@@ -86,7 +89,7 @@ export const HeaderPhaseDropdown: React.FC<HeaderPhaseDropdownProps> = ({
             </div>
 
             {/* フェーズリスト */}
-            <div className="max-h-[240px] overflow-y-auto">
+            <div ref={listRef} className="max-h-[240px] overflow-y-auto">
                 {phases.length === 0 ? (
                     <div className="px-3 py-4 text-center text-app-text-muted text-app-lg">
                         {t('timeline.nav_no_phases')}

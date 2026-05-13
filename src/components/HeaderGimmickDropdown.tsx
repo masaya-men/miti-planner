@@ -4,6 +4,7 @@ import { X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import { useThemeStore } from '../store/useThemeStore';
 import type { Label } from '../types';
 import { getPhaseName } from '../types';
@@ -22,6 +23,8 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
     isOpen, onClose, labels, onJump, triggerRef, isCollapsed, onToggleCollapse
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
+    const listRef = useRef<HTMLDivElement>(null);
+    useSmoothWheelScroll(listRef);
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     useEscapeClose(isOpen, onClose);
@@ -83,7 +86,7 @@ export const HeaderGimmickDropdown: React.FC<HeaderGimmickDropdownProps> = ({
                 </button>
             </div>
 
-            <div className="max-h-[300px] overflow-y-auto">
+            <div ref={listRef} className="max-h-[300px] overflow-y-auto">
                 {sortedLabels.length === 0 ? (
                     <div className="px-3 py-4 text-center text-app-text-muted text-app-lg">
                         {t('timeline.nav_no_labels')}
