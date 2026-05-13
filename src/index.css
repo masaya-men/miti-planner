@@ -1391,7 +1391,8 @@ button, [role="button"], .touch-none {
   display: flex;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20; /* フェーズ/ラベルオーバーレイ (z-10) より上に */
+  isolation: isolate;
   background: var(--color-app-bg, #0a0a0a);
   width: max-content;
   min-width: 100%;

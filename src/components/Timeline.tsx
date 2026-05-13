@@ -1044,6 +1044,12 @@ const Timeline: React.FC = () => {
         if (!container) return;
         const handler = () => {
             const scrollTop = container.scrollTop;
+            // リキャスト行が sticky で占める分を控除して wrapper 座標系に変換
+            // (timeToYMap は wrapper 内の currentY=0 起点で構築されるため)
+            const recastRowEl = container.firstElementChild as HTMLElement | null;
+            const recastRowHeight = recastRowEl?.offsetHeight ?? 0;
+            const wrapperScroll = Math.max(0, scrollTop - recastRowHeight);
+
             const offsetTime = showPreStart ? -10 : 0;
             let currentTime: number;
             if (hideEmptyRows && timeToYMapRef.current.size > 0) {
@@ -1051,12 +1057,12 @@ const Timeline: React.FC = () => {
                 let closest = offsetTime;
                 let minDiff = Infinity;
                 timeToYMapRef.current.forEach((y, t) => {
-                    const diff = Math.abs(y - scrollTop);
+                    const diff = Math.abs(y - wrapperScroll);
                     if (diff < minDiff) { minDiff = diff; closest = t; }
                 });
                 currentTime = closest;
             } else {
-                currentTime = offsetTime + Math.round(scrollTop / pixelsPerSecond);
+                currentTime = offsetTime + Math.round(wrapperScroll / pixelsPerSecond);
             }
             recastRowRef.current?.update(currentTime);
         };
