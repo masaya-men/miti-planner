@@ -392,6 +392,9 @@
     "timeline": {
         "invalid_placement": "このタイミングには配置できません",
         "mitigation": "軽減",
+        "recast_row": {
+            "label": "リキャスト"
+        },
         "mitigation_drag_hint": "(ドラッグで移動 / 右クリックで削除)",
         "delete_event_confirm": "このイベントを削除してもよろしいですか？",
         "dissipation_to_post": "転化先 → 転化後に切替",

@@ -388,6 +388,9 @@
     "timeline": {
         "invalid_placement": "Invalid placement",
         "mitigation": "Mitigation",
+        "recast_row": {
+            "label": "Recast"
+        },
         "mitigation_drag_hint": "(Drag to move / Right-click to remove)",
         "delete_event_confirm": "Are you sure you want to delete this event?",
         "dissipation_to_post": "Pre-Dissipation → Post-Dissipation",

@@ -380,6 +380,9 @@
     "timeline": {
         "invalid_placement": "잘못된 배치",
         "mitigation": "경감",
+        "recast_row": {
+            "label": "리캐스트"
+        },
         "mitigation_drag_hint": "(드래그하여 이동 / 우클릭하여 제거)",
         "delete_event_confirm": "이 이벤트를 삭제하시겠습니까?",
         "dissipation_to_post": "전개 전 → 전개 후",
