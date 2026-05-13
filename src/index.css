@@ -1475,7 +1475,8 @@ button, [role="button"], .touch-none {
 /* Member cell — width は inline (getColumnCssVar) で指定 */
 .recast-cell {
   justify-content: flex-start;
-  gap: 3px;
+  /* 24px × 6 = 144px、 cell 内幅 151px ぎりぎり収まるので gap は 0 */
+  gap: 0;
   flex-wrap: wrap;
   padding-top: 4px;
   padding-bottom: 4px;
