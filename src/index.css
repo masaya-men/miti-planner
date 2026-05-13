@@ -1450,7 +1450,7 @@ button, [role="button"], .touch-none {
   z-index: 1;
   background: conic-gradient(
     transparent 0 var(--cd-angle, 0deg),
-    rgba(0, 0, 0, 0.55) var(--cd-angle, 0deg) 360deg
+    rgba(0, 0, 0, 0.40) var(--cd-angle, 0deg) 360deg
   );
 }
 .recast-num {
@@ -1460,7 +1460,7 @@ button, [role="button"], .touch-none {
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: 900;
   font-family: Arial, sans-serif;
   text-shadow: 0 0 3px #000, 0 0 2px #000, 0 0 1px #000;
