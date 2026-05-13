@@ -148,7 +148,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
-        scrollContainerRef, activeMitigations, overlapOffset = 0, recastHeight, timeToYMap,
+        scrollContainerRef, activeMitigations, overlapOffset = 0, timeToYMap,
         isVirtual = false, iconOverride, layoutReady = true
     } = props;
 
@@ -174,8 +174,8 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const colors = getMitigationColorClasses(def?.jobId, mitigation.ownerId, partySortOrder);
 
     const durationHeight = height;
-    const recast = def?.recast || 0;
-    const recastPx = recastHeight ?? (recast * pixelsPerSecond);
+    // recast / recastPx は廃止された点線描画 (border-dotted) でのみ使われていたため、 推論側 props (recastHeight)
+    // ごと参照しないようにした。 maxTime クリップは効果棒 (effectiveEndTime) で引き続き利用。
 
     // 👇 追加：Y座標から、コンパクトモード時でも正確に「どの時間の行を指しているか」を逆算する関数
     const getTimeFromY = (targetY: number): number => {
@@ -526,20 +526,9 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     ></div>
                 )}
 
-                {recastPx > durationHeight && !def?.copiesShield && (
-                    <div
-                        className={clsx(
-                            "absolute w-0 border-l-[2px] border-dotted border-app-border z-0 pointer-events-none",
-                            myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-30"
-                        )}
-                        style={{
-                            top: `${12 + Math.max(0, durationHeight)}px`,
-                            height: `${Math.max(0, recastPx - durationHeight)}px`,
-                            left: `calc(50% + ${overlapOffset}px)`,
-                            transform: 'translateX(-50%)'
-                        }}
-                    ></div>
-                )}
+                {/* リキャスト残時間点線は廃止 (セッション 18 のリキャスト専用行で代替可能)。
+                    関連クリップ ロジック (maxTime / recastEndTime / calculatedRecastHeight) は
+                    効果棒の長さ制御に残っているため撤去せず保持。 */}
             </div>
         </>
     );
@@ -2302,7 +2291,7 @@ const Timeline: React.FC = () => {
                         onScroll={handleScrollSync}
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
-                        <div className="relative bg-transparent md:w-max md:min-w-full" style={{
+                        <div className="relative bg-transparent md:w-max md:min-w-full overflow-hidden" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
                                 let maxPopulatedTime = -11;
@@ -2327,7 +2316,7 @@ const Timeline: React.FC = () => {
                                         totalHeight += pixelsPerSecond;
                                     }
                                 });
-                                return `calc(${totalHeight}px + 30vh)`;
+                                return `calc(${totalHeight}px + 50vh)`;
                             })()}`
                         }}>
                             {(() => {
