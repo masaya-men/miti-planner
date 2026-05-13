@@ -6,7 +6,7 @@ import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabe
 
 import { calculateMemberValues } from '../utils/calculator';
 import { buildScholarAutoInserts, buildAetherflowChainFrom, hasAnyAetherflow } from '../utils/scholarAutoInsert';
-import { buildAstrologianAutoInserts, hasAnyAstrologianDraw } from '../utils/astrologianAutoInsert';
+import { buildAstrologianAutoInserts, buildAstrologianDrawChainFrom, hasAnyAstrologianDraw } from '../utils/astrologianAutoInsert';
 import {
   getJobsFromStore,
   getMitigationsFromStore,
@@ -68,6 +68,9 @@ interface MitigationState {
 
     /** 手動でエーテルフローを置いたあとの「リキャストごとに配置しますか？」ポップアップ制御 */
     aetherflowChainPrompt: { memberId: string; startTime: number } | null;
+
+    /** 手動で占星ドロー (Astral/Umbral) を置いたあとの「リキャストごとに交互配置しますか？」ポップアップ制御 */
+    astrologianDrawChainPrompt: { memberId: string; startTime: number; startKind: 'astral_draw' | 'umbral_draw' } | null;
 
     // Undo/Redo History (not persisted)
     _history: HistorySnapshot[]; // 👈 軽減だけでなく、すべてのデータを履歴に持つように変更
@@ -135,6 +138,11 @@ interface MitigationState {
     dismissAetherflowChainPrompt: () => void;
     /** プロンプトの startTime から 60s 間隔で最終イベントまで aetherflow を連続配置する */
     confirmAetherflowChain: () => void;
+
+    /** 占星ドロー交互配置プロンプト制御 */
+    dismissAstrologianDrawChainPrompt: () => void;
+    /** プロンプトの startTime から 60s 間隔で最終イベントまで Astral/Umbral を交互配置する */
+    confirmAstrologianDrawChain: () => void;
 }
 
 // レベルに応じたサブステベース値を取得（遅延評価）
@@ -279,6 +287,7 @@ export const useMitigationStore = create<MitigationState>()(
                 timelineSortOrder: 'light_party',
                 conflictingMitigationId: null,
                 aetherflowChainPrompt: null,
+                astrologianDrawChainPrompt: null,
                 _history: [],
                 _future: [],
 
@@ -517,6 +526,22 @@ export const useMitigationStore = create<MitigationState>()(
                         return {
                             timelineMitigations: [...s.timelineMitigations, ...chain],
                             aetherflowChainPrompt: null,
+                        };
+                    });
+                },
+
+                dismissAstrologianDrawChainPrompt: () => set({ astrologianDrawChainPrompt: null }),
+
+                confirmAstrologianDrawChain: () => {
+                    const state = get();
+                    if (!state.astrologianDrawChainPrompt) return;
+                    const { memberId, startTime, startKind } = state.astrologianDrawChainPrompt;
+                    pushHistory();
+                    set((s) => {
+                        const chain = buildAstrologianDrawChainFrom(memberId, startTime, startKind, s.timelineMitigations, s.timelineEvents);
+                        return {
+                            timelineMitigations: [...s.timelineMitigations, ...chain],
+                            astrologianDrawChainPrompt: null,
                         };
                     });
                 },
@@ -796,13 +821,28 @@ export const useMitigationStore = create<MitigationState>()(
                         const newMitigations = [...currentMitigations, mitigation];
 
                         // 手動で aetherflow を置いたときは「リキャストごと配置」確認プロンプトを表示
-                        const promptPatch = mitigation.mitigationId === 'aetherflow'
+                        const aetherflowPromptPatch = mitigation.mitigationId === 'aetherflow'
                             ? { aetherflowChainPrompt: { memberId: mitigation.ownerId, startTime: mitigation.time } }
+                            : {};
+
+                        // 手動で astral_draw / umbral_draw を置いたときは「以降 60s 毎に交互配置」確認プロンプトを表示
+                        // ただし autoHidden (戦闘前 t=-3 の自動配置) はユーザー操作ではないのでトリガーしない
+                        const isManualDraw = !mitigation.autoHidden &&
+                            (mitigation.mitigationId === 'astral_draw' || mitigation.mitigationId === 'umbral_draw');
+                        const astrologianPromptPatch = isManualDraw
+                            ? {
+                                astrologianDrawChainPrompt: {
+                                    memberId: mitigation.ownerId,
+                                    startTime: mitigation.time,
+                                    startKind: mitigation.mitigationId as 'astral_draw' | 'umbral_draw',
+                                },
+                            }
                             : {};
 
                         return {
                             timelineMitigations: resolveShieldLinks(newMitigations, getMitigationsFromStore()),
-                            ...promptPatch,
+                            ...aetherflowPromptPatch,
+                            ...astrologianPromptPatch,
                         };
                     });
                     // Tutorial: notify that a mitigation has been added

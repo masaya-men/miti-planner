@@ -90,3 +90,43 @@ export function buildAstrologianAutoInserts(
 
     return inserts;
 }
+
+/**
+ * 手動でドロー (astral_draw or umbral_draw) を置いたあと、その時刻以降のリキャストごと
+ * 交互配置分を返す。
+ * - startTime + 60s から DRAW_INTERVAL (60s) 間隔で配置
+ * - 各時刻のスキルは「直前と逆」 (= startKind と異なるものから始まり、 以降交互)
+ * - 既存の astral_draw / umbral_draw との時刻差が DRAW_INTERVAL 未満ならスキップ
+ *   (リキャスト違反位置には絶対配置しない)
+ */
+export function buildAstrologianDrawChainFrom(
+    memberId: string,
+    startTime: number,
+    startKind: 'astral_draw' | 'umbral_draw',
+    existingMitigations: AppliedMitigation[],
+    timelineEvents: TimelineEvent[]
+): AppliedMitigation[] {
+    const memberMits = existingMitigations.filter(m => m.ownerId === memberId);
+    const inserts: AppliedMitigation[] = [];
+    const maxTime = timelineEvents.length > 0
+        ? timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
+        : 0;
+
+    let isAstral = startKind === 'umbral_draw'; // 次は startKind と逆
+    for (let t = startTime + DRAW_INTERVAL; t <= maxTime; t += DRAW_INTERVAL, isAstral = !isAstral) {
+        const dup = memberMits.some(
+            m => (m.mitigationId === 'astral_draw' || m.mitigationId === 'umbral_draw') &&
+                Math.abs(m.time - t) < DRAW_INTERVAL
+        );
+        if (dup) continue;
+        inserts.push({
+            id: genId(),
+            mitigationId: isAstral ? 'astral_draw' : 'umbral_draw',
+            ownerId: memberId,
+            time: t,
+            duration: 1,
+        });
+    }
+
+    return inserts;
+}

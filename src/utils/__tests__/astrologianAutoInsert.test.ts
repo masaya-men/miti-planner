@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { AppliedMitigation, TimelineEvent } from '../../types';
-import { hasAnyAstrologianDraw, buildAstrologianAutoInserts } from '../astrologianAutoInsert';
+import { hasAnyAstrologianDraw, buildAstrologianAutoInserts, buildAstrologianDrawChainFrom } from '../astrologianAutoInsert';
 
 const member = 'H1';
 
@@ -140,5 +140,93 @@ describe('buildAstrologianAutoInserts', () => {
             { id: 'umbral_draw', time: 485 },
             { id: 'astral_draw', time: 545 },
         ]);
+    });
+});
+
+describe('buildAstrologianDrawChainFrom', () => {
+    it('astral_draw を手動配置すると次は umbral_draw から 60s 毎交互', () => {
+        const events: TimelineEvent[] = [mkEvent(300)];
+        const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', [], events);
+        const drawTimes = inserts.map(i => ({ id: i.mitigationId, time: i.time }));
+        expect(drawTimes).toEqual([
+            { id: 'umbral_draw', time: 120 },
+            { id: 'astral_draw', time: 180 },
+            { id: 'umbral_draw', time: 240 },
+            { id: 'astral_draw', time: 300 },
+        ]);
+    });
+
+    it('umbral_draw を手動配置すると次は astral_draw から 60s 毎交互', () => {
+        const events: TimelineEvent[] = [mkEvent(300)];
+        const inserts = buildAstrologianDrawChainFrom(member, 60, 'umbral_draw', [], events);
+        const drawTimes = inserts.map(i => ({ id: i.mitigationId, time: i.time }));
+        expect(drawTimes).toEqual([
+            { id: 'astral_draw', time: 120 },
+            { id: 'umbral_draw', time: 180 },
+            { id: 'astral_draw', time: 240 },
+            { id: 'umbral_draw', time: 300 },
+        ]);
+    });
+
+    it('最終イベント時刻を超える位置には配置しない', () => {
+        const events: TimelineEvent[] = [mkEvent(150)];
+        const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', [], events);
+        const drawTimes = inserts.map(i => ({ id: i.mitigationId, time: i.time }));
+        expect(drawTimes).toEqual([
+            { id: 'umbral_draw', time: 120 },
+        ]);
+    });
+
+    it('既存のドローとリキャスト 60s 未満で衝突する位置はスキップ', () => {
+        const existing: AppliedMitigation[] = [
+            { id: '1', mitigationId: 'astral_draw', ownerId: member, time: 60, duration: 1 } as AppliedMitigation,
+            // 120s に既存 umbral_draw があるとそこをスキップする
+            { id: '2', mitigationId: 'umbral_draw', ownerId: member, time: 120, duration: 1 } as AppliedMitigation,
+        ];
+        const events: TimelineEvent[] = [mkEvent(300)];
+        const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', existing, events);
+        // 120s 位置の umbral_draw は既存なのでスキップ、 180s 以降は配置
+        const drawTimes = inserts.map(i => ({ id: i.mitigationId, time: i.time }));
+        expect(drawTimes).toEqual([
+            { id: 'astral_draw', time: 180 },
+            { id: 'umbral_draw', time: 240 },
+            { id: 'astral_draw', time: 300 },
+        ]);
+    });
+
+    it('他メンバーのドローは衝突判定に含めない', () => {
+        const existing: AppliedMitigation[] = [
+            { id: '1', mitigationId: 'umbral_draw', ownerId: 'H2', time: 120, duration: 1 } as AppliedMitigation,
+        ];
+        const events: TimelineEvent[] = [mkEvent(180)];
+        const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', existing, events);
+        const drawTimes = inserts.map(i => ({ id: i.mitigationId, time: i.time }));
+        expect(drawTimes).toEqual([
+            { id: 'umbral_draw', time: 120 },
+            { id: 'astral_draw', time: 180 },
+        ]);
+    });
+
+    it('startTime 自身は配置しない (startTime + 60 から)', () => {
+        const events: TimelineEvent[] = [mkEvent(180)];
+        const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', [], events);
+        expect(inserts.some(i => i.time === 60)).toBe(false);
+        expect(inserts[0].time).toBe(120);
+    });
+
+    it('イベントが無い (maxTime=0) ときは何も配置しない', () => {
+        const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', [], []);
+        expect(inserts).toEqual([]);
+    });
+
+    it('全インサートに ownerId と genId 由来の id が入る', () => {
+        const events: TimelineEvent[] = [mkEvent(300)];
+        const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', [], events);
+        for (const i of inserts) {
+            expect(i.ownerId).toBe(member);
+            expect(i.id).toBeDefined();
+            expect(i.id.length).toBeGreaterThan(0);
+            expect(i.duration).toBe(1);
+        }
     });
 });

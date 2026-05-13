@@ -2,6 +2,28 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-13 セッション 19・占星術師ドロー chain prompt）
+
+**背景**: セッション 18 末で実装方針確定済みだった「ユーザーが手動で astral_draw / umbral_draw を 1 個置いた時に "以降 60 秒毎に交互配置しますか?" と確認するモーダル」を完成。 学者の AetherflowChainPromptModal パターンを流用、 違いは「交互ロジック」 のみ。
+
+### 完了内容
+
+- `buildAstrologianDrawChainFrom()` 追加 (src/utils/astrologianAutoInsert.ts) — startKind と逆のスキルから 60s 毎に交互配置、 既存ドローとの時刻差 <60s でスキップ (リキャスト 55s より安全マージン)
+- `useMitigationStore` に `astrologianDrawChainPrompt` state + `dismiss`/`confirm` action 追加。 partialize 対象外で localStorage 非永続化 (リロード時に勝手に出ない)
+- `addMitigation` で `!autoHidden` かつ astral_draw / umbral_draw 配置時にプロンプト トリガー
+- `AstrologianDrawChainPromptModal.tsx` 新規 64 行 — AetherflowChainPromptModal と同一デザイン (glass-tier3 / 青 OK ボタン / Esc・×・背景クリックで閉じる)
+- i18n 4 言語追加 (FF14 公式訳語準拠: ドロー/Draw/점지/抽卡)
+- `Layout.tsx` でモーダル統合
+
+### コード品質・検証
+
+- vitest 678/678 PASS (新規 8 件含む)、 npm run build 5.98s 成功
+- 過去 SCH バグ 2 件 (9eafdf8「元の位置に戻る」 / 9787fd8「リキャスト未満配置」) の判例を AST 側でも回避確認済み: 5 store サイトすべて `hasAnyAstrologianDraw` ガード設置済み、 衝突閾値 60s で recast 55s より厳しめ
+
+**結果**: 実装 ~250 行、 1 セッション完結 (見込み ~150 行を超えたのはテスト追加分)。 commit 後 push + Vercel デプロイまで完了。
+
+---
+
 ## 完了（2026-05-13 セッション 18・リキャスト専用行 ツールバー統合版）
 
 **背景**: セッション 17 で表エリア全幅化 (T/H 151px、 6 アイコン対称) を完了。 次の目玉機能として「現在時刻でリキャスト中のスキルを FF14 ゲーム内 HUD と同じ clockswipe 形式で表示」 を実装。 brainstorming で「ツールバー統合 (案 C1)」 を採択 — 新規行を作らず、 既存ジョブアイコンを controlBar に物理移動し、 元のヘッダー位置にリキャスト中アイコンを配置。

@@ -27,6 +27,7 @@ import { MobileFAB } from './MobileFAB';
 import { GridOverlay } from './GridOverlay';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
+import { AstrologianDrawChainPromptModal } from './AstrologianDrawChainPromptModal';
 import { LocalImportDialog } from './LocalImportDialog';
 import { useLocalImportDialog } from '../store/useLocalImportDialog';
 import { ShareImportSheet } from './ShareImportSheet';
@@ -698,6 +699,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* エーテルフロー連鎖配置プロンプト（SCH が手動で aetherflow を置いたとき） */}
             <AetherflowChainPromptModal />
+
+            {/* 占星ドロー交互配置プロンプト（AST が手動で astral_draw / umbral_draw を置いたとき） */}
+            <AstrologianDrawChainPromptModal />
 
             {/* Mobile FAB — テーマ/同期/言語/ナビ（チュートリアル中は非表示） */}
             {!isTutorialActive && isMobile && (
