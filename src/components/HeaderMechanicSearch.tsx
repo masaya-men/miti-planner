@@ -4,7 +4,6 @@ import { X, Search } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
-import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import type { TimelineEvent, Phase } from '../types';
 import { getPhaseName as getPhaseNameStr } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
@@ -51,10 +50,6 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
 }) => {
     const popoverRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const mainListRef = useRef<HTMLDivElement>(null);
-    const subListRef = useRef<HTMLDivElement>(null);
-    useSmoothWheelScroll(mainListRef);
-    useSmoothWheelScroll(subListRef);
     const { t } = useTranslation();
     const [query, setQuery] = useState('');
     const [selectedMechanic, setSelectedMechanic] = useState<string | null>(null);
@@ -205,7 +200,13 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                     </div>
 
                     {/* リスト */}
-                    <div ref={mainListRef} className="max-h-[300px] overflow-y-auto">
+                    <div
+                        className="max-h-[300px] overflow-y-auto"
+                        onWheel={(e) => {
+                            e.currentTarget.scrollTop += e.deltaY;
+                            e.stopPropagation();
+                        }}
+                    >
                         {filtered.length === 0 ? (
                             <div className="px-3 py-4 text-center text-app-text-muted text-app-lg">
                                 {t('timeline.nav_no_results')}
@@ -242,7 +243,13 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                                 {selectedMechanic}
                             </span>
                         </div>
-                        <div ref={subListRef} className="max-h-[340px] overflow-y-auto">
+                        <div
+                            className="max-h-[340px] overflow-y-auto"
+                            onWheel={(e) => {
+                                e.currentTarget.scrollTop += e.deltaY;
+                                e.stopPropagation();
+                            }}
+                        >
                             {mechanics.find(m => m.name === selectedMechanic)?.occurrences.map((occ, i) => (
                                 <button
                                     key={i}
