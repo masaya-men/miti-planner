@@ -1388,7 +1388,29 @@ button, [role="button"], .touch-none {
 /* ===== リキャスト専用行 (セッション 18) ===== */
 
 .recast-row {
-  display: contents;
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-app-bg, #0a0a0a);
+  width: max-content;
+  min-width: 100%;
+  border-bottom: 1px solid var(--color-app-border);
+}
+
+.recast-label {
+  flex: 0 0 calc(var(--col-phase-w) + var(--col-label-w) + var(--col-time-w));
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 8px;
+  color: #6a8aa8;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(96, 165, 250, 0.10);
+  border-right: 1px solid var(--color-app-border);
+  min-height: 32px;
+  box-sizing: border-box;
 }
 
 .recast-cell {
@@ -1401,32 +1423,29 @@ button, [role="button"], .touch-none {
   border-right: 1px solid var(--color-app-border);
   min-height: 32px;
   background: rgba(96, 165, 250, 0.10);
+  flex: 0 0 auto;
+  box-sizing: border-box;
 }
 
-.recast-row.collapsed .recast-cell {
+.recast-cell[data-role="tank"],
+.recast-cell[data-role="healer"] {
+  width: calc(var(--col-th-w) + var(--col-member-pad-x) * 2);
+}
+.recast-cell[data-role="dps"] {
+  width: calc(var(--col-dps-w) + var(--col-member-pad-x) * 2);
+}
+
+/* 折り畳み時 */
+.recast-row.collapsed .recast-cell,
+.recast-row.collapsed .recast-label {
   min-height: 18px;
-  padding: 2px var(--col-member-pad-x);
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 .recast-row.collapsed .recast-icon {
   display: none !important;
 }
 
-.recast-label {
-  grid-column: span 3;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding-left: 8px;
-  color: #6a8aa8;
-  font-size: 10px;
-  font-weight: 600;
-  background: rgba(96, 165, 250, 0.10);
-  border-right: 1px solid var(--color-app-border);
-  min-height: 32px;
-}
-.recast-row.collapsed .recast-label {
-  min-height: 18px;
-}
 .recast-chev {
   display: inline-flex;
   align-items: center;

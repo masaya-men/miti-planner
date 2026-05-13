@@ -46,6 +46,7 @@ import { HeaderPhaseDropdown } from './HeaderPhaseDropdown';
 import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
 import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
+import { RecastRow, type RecastRowHandle } from './RecastRow';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -740,6 +741,9 @@ const Timeline: React.FC = () => {
     const [labelColumnCollapsed, setLabelColumnCollapsed] = useState(() => {
         try { return localStorage.getItem('lopo-label-col-collapsed') === 'true'; } catch { return false; }
     });
+    const [recastRowCollapsed, setRecastRowCollapsed] = useState(() => {
+        try { return localStorage.getItem('lopo-recast-row-collapsed') === 'true'; } catch { return false; }
+    });
     const phaseHeaderRef = useRef<HTMLDivElement>(null);
     const gimmickHeaderRef = useRef<HTMLDivElement>(null);
     const timeHeaderRef = useRef<HTMLDivElement>(null);
@@ -766,6 +770,14 @@ const Timeline: React.FC = () => {
         setLabelColumnCollapsed(prev => {
             const next = !prev;
             try { localStorage.setItem('lopo-label-col-collapsed', String(next)); } catch {}
+            return next;
+        });
+    };
+
+    const handleToggleRecastRow = () => {
+        setRecastRowCollapsed(prev => {
+            const next = !prev;
+            try { localStorage.setItem('lopo-recast-row-collapsed', String(next)); } catch {}
             return next;
         });
     };
@@ -987,6 +999,7 @@ const Timeline: React.FC = () => {
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());
+    const recastRowRef = useRef<RecastRowHandle>(null);
 
     const handleScrollSync = () => {
         if (!scrollContainerRef.current) return;
@@ -1024,6 +1037,33 @@ const Timeline: React.FC = () => {
         window.addEventListener('resize', syncPadding);
         return () => window.removeEventListener('resize', syncPadding);
     }, []);
+
+    // リキャスト行: スクロールに連動して current time を更新 (GPU 描画、 React 再レンダーなし)
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        const handler = () => {
+            const scrollTop = container.scrollTop;
+            const offsetTime = showPreStart ? -10 : 0;
+            let currentTime: number;
+            if (hideEmptyRows && timeToYMapRef.current.size > 0) {
+                // hideEmptyRows モード: Y に最も近い可視時刻を逆引き
+                let closest = offsetTime;
+                let minDiff = Infinity;
+                timeToYMapRef.current.forEach((y, t) => {
+                    const diff = Math.abs(y - scrollTop);
+                    if (diff < minDiff) { minDiff = diff; closest = t; }
+                });
+                currentTime = closest;
+            } else {
+                currentTime = offsetTime + Math.round(scrollTop / pixelsPerSecond);
+            }
+            recastRowRef.current?.update(currentTime);
+        };
+        handler(); // 初期化
+        container.addEventListener('scroll', handler, { passive: true });
+        return () => container.removeEventListener('scroll', handler);
+    }, [pixelsPerSecond, showPreStart, hideEmptyRows]);
 
     // AA モード中に Escape キーで終了
     useEffect(() => {
@@ -2261,6 +2301,15 @@ const Timeline: React.FC = () => {
                         onScroll={handleScrollSync}
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
+                        <RecastRow
+                            ref={recastRowRef}
+                            partyMembers={sortedPartyMembers}
+                            placements={timelineMitigations}
+                            mitigationDefs={MITIGATIONS}
+                            collapsed={recastRowCollapsed}
+                            onToggleCollapse={handleToggleRecastRow}
+                            labelText={t('timeline.recast_row.label', 'リキャスト')}
+                        />
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
