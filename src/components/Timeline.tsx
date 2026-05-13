@@ -2315,6 +2315,9 @@ const Timeline: React.FC = () => {
                             collapsed={recastRowCollapsed}
                             onToggleCollapse={handleToggleRecastRow}
                             labelText={t('timeline.recast_row.label', 'リキャスト')}
+                            phaseColumnCollapsed={phaseColumnCollapsed}
+                            labelColumnVisible={labelColumnVisible}
+                            labelColumnCollapsed={labelColumnCollapsed}
                         />
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {

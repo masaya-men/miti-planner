@@ -1393,53 +1393,96 @@ button, [role="button"], .touch-none {
   top: 0;
   z-index: 20; /* フェーズ/ラベルオーバーレイ (z-10) より上に */
   isolation: isolate;
-  background: var(--color-app-bg, #0a0a0a);
+  background: var(--color-app-bg);
   width: max-content;
   min-width: 100%;
   border-bottom: 1px solid var(--color-app-border);
+  height: 32px;
+  transition: height 0.15s;
 }
 
-.recast-label {
-  flex: 0 0 calc(var(--col-phase-w) + var(--col-label-w) + var(--col-time-w));
+.recast-row.collapsed {
+  height: 18px;
+}
+
+/* 共通スタイル: 全ての列 (phase, label, time, mechanic, counter, cell) */
+.recast-row > div {
   display: flex;
   align-items: center;
+  border-right: 1px solid var(--color-app-border);
+  background: var(--color-app-surface2);
+  box-sizing: border-box;
+  height: 100%;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+/* Phase column — chevron + (展開時のみ) ラベル文字 */
+.recast-col-phase {
+  width: var(--col-phase-w);
+  min-width: var(--col-phase-w);
+  max-width: var(--col-phase-w);
+  justify-content: flex-start;
   gap: 4px;
-  padding-left: 8px;
-  color: #6a8aa8;
+  padding-left: 4px;
+  padding-right: 4px;
+  color: var(--color-app-text-muted);
   font-size: 10px;
   font-weight: 600;
-  background: rgba(96, 165, 250, 0.10);
-  border-right: 1px solid var(--color-app-border);
-  min-height: 32px;
-  box-sizing: border-box;
+}
+.recast-col-phase[data-collapsed="true"] {
+  width: var(--col-phase-collapsed-w);
+  min-width: var(--col-phase-collapsed-w);
+  max-width: var(--col-phase-collapsed-w);
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
 }
 
+/* Label column */
+.recast-col-label {
+  width: var(--col-label-w);
+  min-width: var(--col-label-w);
+  max-width: var(--col-label-w);
+}
+.recast-col-label[data-collapsed="true"] {
+  width: var(--col-label-collapsed-w);
+  min-width: var(--col-label-collapsed-w);
+  max-width: var(--col-label-collapsed-w);
+}
+
+/* Time column */
+.recast-col-time {
+  width: var(--col-time-w);
+  min-width: var(--col-time-w);
+  max-width: var(--col-time-w);
+}
+
+/* Mechanic column */
+.recast-col-mechanic {
+  width: var(--col-mechanic-w);
+  min-width: var(--col-mechanic-w);
+  max-width: var(--col-mechanic-w);
+}
+
+/* Counter columns */
+.recast-col-counter {
+  width: var(--col-counter-w);
+  min-width: var(--col-counter-w);
+  max-width: var(--col-counter-w);
+}
+
+/* Member cell — width は inline (getColumnCssVar) で指定 */
 .recast-cell {
-  display: flex;
-  align-items: center;
   justify-content: flex-start;
   gap: 3px;
   flex-wrap: wrap;
-  padding: 4px var(--col-member-pad-x);
-  border-right: 1px solid var(--color-app-border);
-  min-height: 32px;
-  background: rgba(96, 165, 250, 0.10);
-  flex: 0 0 auto;
-  box-sizing: border-box;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
-.recast-cell[data-role="tank"],
-.recast-cell[data-role="healer"] {
-  width: calc(var(--col-th-w) + var(--col-member-pad-x) * 2);
-}
-.recast-cell[data-role="dps"] {
-  width: calc(var(--col-dps-w) + var(--col-member-pad-x) * 2);
-}
-
-/* 折り畳み時 */
-.recast-row.collapsed .recast-cell,
-.recast-row.collapsed .recast-label {
-  min-height: 18px;
+/* 折り畳み時: 内側 padding 縮小 + アイコン非表示 */
+.recast-row.collapsed > div {
   padding-top: 2px;
   padding-bottom: 2px;
 }
@@ -1447,6 +1490,7 @@ button, [role="button"], .touch-none {
   display: none !important;
 }
 
+/* Chevron */
 .recast-chev {
   display: inline-flex;
   align-items: center;
@@ -1456,14 +1500,27 @@ button, [role="button"], .touch-none {
   border-radius: 2px;
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.15s;
-  color: #6a8aa8;
+  transition: background-color 0.15s, color 0.15s;
+  color: var(--color-app-text-muted);
   font-size: 11px;
+  flex-shrink: 0;
 }
 .recast-chev:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-app-bg);
+  color: var(--color-app-text);
 }
 
+.recast-label-text {
+  color: var(--color-app-text-muted);
+  font-size: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Clockswipe icon — .recast-cell 内部の各アイコン
+   黒オーバーレイ (rgba(0,0,0,0.55)) と白文字+黒影は「暗くする+残秒」の
+   意図的表現で、 light/dark どちらのテーマでも有効。 */
 .recast-icon {
   display: var(--cd-display, none);
   order: var(--cd-order, 0);

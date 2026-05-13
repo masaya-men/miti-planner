@@ -2,6 +2,7 @@ import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import type { AppliedMitigation, Mitigation, PartyMember } from '../types';
 import { RecastIcon } from './RecastIcon';
 import { getActiveRecasts, selectVisibleByLimit, calculateAngle } from '../utils/recastRow';
+import { getColumnCssVar } from '../utils/calculator';
 
 export interface RecastRowHandle {
     /**
@@ -19,6 +20,10 @@ interface RecastRowProps {
     collapsed: boolean;
     onToggleCollapse: () => void;
     labelText: string;
+    /** ヘッダーと列構造を揃えるためのフラグ */
+    phaseColumnCollapsed: boolean;
+    labelColumnVisible: boolean;
+    labelColumnCollapsed: boolean;
 }
 
 /** T (tank) / H (healer) の表示上限 (1 メンバーあたり同時可視数) */
@@ -35,9 +40,22 @@ const LIMIT_DPS = 2;
  * - React の再レンダリングは placements / partyMembers / mitigationDefs が変わったときだけ
  *
  * これにより 60fps スクロールでも DOM の add/remove が起きず、 GPU 合成だけで完結する。
+ *
+ * 列構造はヘッダー (Timeline.tsx) と完全に整合させる:
+ * phase → label → time → mechanic → counter (RAW) → counter (TAKEN) → members...
  */
 export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
-    ({ partyMembers, placements, mitigationDefs, collapsed, onToggleCollapse, labelText }, ref) => {
+    ({
+        partyMembers,
+        placements,
+        mitigationDefs,
+        collapsed,
+        onToggleCollapse,
+        labelText,
+        phaseColumnCollapsed,
+        labelColumnVisible,
+        labelColumnCollapsed,
+    }, ref) => {
         // 各メンバーごとに 「過去に一度でも配置された mitigationId 一覧」 を構築。
         // これが各セルに mount するアイコンの集合 (静的)。
         const speciesByMember = useMemo(() => {
@@ -123,7 +141,11 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
 
         return (
             <div className={collapsed ? 'recast-row collapsed' : 'recast-row'}>
-                <div className="recast-label">
+                {/* Phase column — 折り畳み時は chevron のみ、展開時は chevron + ラベル文字 */}
+                <div
+                    className="recast-col-phase"
+                    data-collapsed={phaseColumnCollapsed ? 'true' : 'false'}
+                >
                     <span
                         className="recast-chev"
                         onClick={onToggleCollapse}
@@ -132,16 +154,46 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                     >
                         {collapsed ? '▶' : '▼'}
                     </span>
-                    {labelText}
+                    {!phaseColumnCollapsed && (
+                        <span className="recast-label-text">{labelText}</span>
+                    )}
                 </div>
+
+                {/* Label column (条件付き表示) */}
+                {labelColumnVisible && (
+                    <div
+                        className="recast-col-label"
+                        data-collapsed={labelColumnCollapsed ? 'true' : 'false'}
+                    />
+                )}
+
+                {/* Time column */}
+                <div className="recast-col-time" />
+
+                {/* Mechanic column */}
+                <div className="recast-col-mechanic" />
+
+                {/* Counter columns (RAW & TAKEN) */}
+                <div className="recast-col-counter" />
+                <div className="recast-col-counter" />
+
+                {/* Member cells — 幅は inline で getColumnCssVar から取得 */}
                 {partyMembers.map((member) => {
                     const species = speciesByMember.get(member.id) ?? [];
+                    const widthExpr = getColumnCssVar(member.role);
                     return (
                         <div
                             key={member.id}
                             className="recast-cell"
                             data-member={member.id}
                             data-role={member.role}
+                            style={{
+                                width: widthExpr,
+                                minWidth: widthExpr,
+                                maxWidth: widthExpr,
+                                paddingLeft: 'var(--col-member-pad-x)',
+                                paddingRight: 'var(--col-member-pad-x)',
+                            }}
                         >
                             {species.map((mitId) => {
                                 const def = defByMitId.get(mitId);

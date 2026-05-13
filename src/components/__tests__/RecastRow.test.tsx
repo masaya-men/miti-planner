@@ -27,34 +27,62 @@ const mkPlacement = (id: string, mitigationId: string, time: number, ownerId: st
     id, mitigationId, time, ownerId, duration: 0,
 });
 
+type RecastRowOverrides = Partial<React.ComponentProps<typeof RecastRow>> & {
+    ref?: React.Ref<RecastRowHandle>;
+};
+
+/** RecastRow を レイアウト Prop 込みで render するヘルパ。 個別テストで上書き可。 */
+const renderRecastRow = (overrides: RecastRowOverrides = {}) => {
+    return render(
+        <RecastRow
+            partyMembers={partyMembers}
+            placements={[]}
+            mitigationDefs={mitigations}
+            collapsed={false}
+            onToggleCollapse={() => {}}
+            labelText="リキャスト"
+            phaseColumnCollapsed={false}
+            labelColumnVisible={true}
+            labelColumnCollapsed={false}
+            {...overrides}
+        />,
+    );
+};
+
 describe('RecastRow', () => {
-    it('renders a label cell with chevron', () => {
-        const { container } = render(
-            <RecastRow
-                partyMembers={partyMembers}
-                placements={[]}
-                mitigationDefs={mitigations}
-                collapsed={false}
-                onToggleCollapse={() => {}}
-                labelText="リキャスト"
-            />,
-        );
-        expect(container.querySelector('.recast-label')).not.toBeNull();
+    it('renders a phase column with chevron and label text (展開時)', () => {
+        const { container } = renderRecastRow();
+        expect(container.querySelector('.recast-col-phase')).not.toBeNull();
         expect(container.querySelector('.recast-chev')).not.toBeNull();
+        expect(container.querySelector('.recast-label-text')?.textContent).toBe('リキャスト');
     });
 
-    it('renders one cell per member (8 cells)', () => {
-        const { container } = render(
-            <RecastRow
-                partyMembers={partyMembers}
-                placements={[]}
-                mitigationDefs={mitigations}
-                collapsed={false}
-                onToggleCollapse={() => {}}
-                labelText="リキャスト"
-            />,
-        );
-        expect(container.querySelectorAll('.recast-cell').length).toBe(8);
+    it('renders one member cell per member (8 cells)', () => {
+        const { container } = renderRecastRow();
+        // .recast-cell は メンバー専用 (data-member 必須)
+        expect(container.querySelectorAll('.recast-cell[data-member]').length).toBe(8);
+    });
+
+    it('renders all 6 column-cells before member cells (phase / label / time / mechanic / counter × 2)', () => {
+        const { container } = renderRecastRow();
+        expect(container.querySelector('.recast-col-phase')).not.toBeNull();
+        expect(container.querySelector('.recast-col-label')).not.toBeNull();
+        expect(container.querySelector('.recast-col-time')).not.toBeNull();
+        expect(container.querySelector('.recast-col-mechanic')).not.toBeNull();
+        expect(container.querySelectorAll('.recast-col-counter').length).toBe(2);
+    });
+
+    it('omits label column when labelColumnVisible=false', () => {
+        const { container } = renderRecastRow({ labelColumnVisible: false });
+        expect(container.querySelector('.recast-col-label')).toBeNull();
+    });
+
+    it('phaseColumnCollapsed=true hides label text and sets data-collapsed', () => {
+        const { container } = renderRecastRow({ phaseColumnCollapsed: true });
+        expect(container.querySelector('.recast-label-text')).toBeNull();
+        expect(container.querySelector('.recast-col-phase')?.getAttribute('data-collapsed')).toBe('true');
+        // chevron は引き続き残る
+        expect(container.querySelector('.recast-chev')).not.toBeNull();
     });
 
     it('renders one RecastIcon per placed mitigation species per member', () => {
@@ -63,16 +91,7 @@ describe('RecastRow', () => {
             mkPlacement('p2', 'thrill',   60, 'MT'),
             mkPlacement('p3', 'thrill',   100, 'MT'), // same species → 1 icon
         ];
-        const { container } = render(
-            <RecastRow
-                partyMembers={partyMembers}
-                placements={placements}
-                mitigationDefs={mitigations}
-                collapsed={false}
-                onToggleCollapse={() => {}}
-                labelText="リキャスト"
-            />,
-        );
+        const { container } = renderRecastRow({ placements });
         const mtCell = container.querySelector('[data-member="MT"]') as HTMLDivElement;
         expect(mtCell.querySelectorAll('.recast-icon').length).toBe(2);
     });
@@ -83,17 +102,7 @@ describe('RecastRow', () => {
             mkPlacement('p2', 'holmgang', 0, 'MT'), // at t=60 remaining=180
         ];
         const ref = createRef<RecastRowHandle>();
-        const { container } = render(
-            <RecastRow
-                ref={ref}
-                partyMembers={partyMembers}
-                placements={placements}
-                mitigationDefs={mitigations}
-                collapsed={false}
-                onToggleCollapse={() => {}}
-                labelText="リキャスト"
-            />,
-        );
+        const { container } = renderRecastRow({ placements, ref });
         ref.current?.update(60);
 
         const mtCell = container.querySelector('[data-member="MT"]') as HTMLDivElement;
@@ -105,17 +114,7 @@ describe('RecastRow', () => {
     it('on update(currentTime), hides icons whose recast expired', () => {
         const placements = [mkPlacement('p1', 'thrill', 0, 'MT')];
         const ref = createRef<RecastRowHandle>();
-        const { container } = render(
-            <RecastRow
-                ref={ref}
-                partyMembers={partyMembers}
-                placements={placements}
-                mitigationDefs={mitigations}
-                collapsed={false}
-                onToggleCollapse={() => {}}
-                labelText="リキャスト"
-            />,
-        );
+        const { container } = renderRecastRow({ placements, ref });
         ref.current?.update(100); // thrill recast 90 → expired
 
         const icon = container.querySelector('[data-member="MT"] .recast-icon') as HTMLDivElement;
@@ -139,17 +138,7 @@ describe('RecastRow', () => {
         ];
 
         const ref = createRef<RecastRowHandle>();
-        const { container } = render(
-            <RecastRow
-                ref={ref}
-                partyMembers={partyMembers}
-                placements={placements}
-                mitigationDefs={many}
-                collapsed={false}
-                onToggleCollapse={() => {}}
-                labelText="リキャスト"
-            />,
-        );
+        const { container } = renderRecastRow({ placements, mitigationDefs: many, ref });
         ref.current?.update(20);
 
         const mtCell = container.querySelector('[data-member="MT"]') as HTMLDivElement;
@@ -163,16 +152,7 @@ describe('RecastRow', () => {
     });
 
     it('collapsed=true adds .collapsed class to root', () => {
-        const { container } = render(
-            <RecastRow
-                partyMembers={partyMembers}
-                placements={[]}
-                mitigationDefs={mitigations}
-                collapsed={true}
-                onToggleCollapse={() => {}}
-                labelText="リキャスト"
-            />,
-        );
+        const { container } = renderRecastRow({ collapsed: true });
         expect(container.querySelector('.recast-row')?.classList.contains('collapsed')).toBe(true);
     });
 });
