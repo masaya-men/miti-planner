@@ -2,6 +2,40 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-13 セッション 18・リキャスト専用行 ツールバー統合版）
+
+**背景**: セッション 17 で表エリア全幅化 (T/H 151px、 6 アイコン対称) を完了。 次の目玉機能として「現在時刻でリキャスト中のスキルを FF14 ゲーム内 HUD と同じ clockswipe 形式で表示」 を実装。 brainstorming で「ツールバー統合 (案 C1)」 を採択 — 新規行を作らず、 既存ジョブアイコンを controlBar に物理移動し、 元のヘッダー位置にリキャスト中アイコンを配置。
+
+**設計書 / 計画書**:
+- `docs/superpowers/specs/2026-05-13-recast-row-design.md`
+- `docs/superpowers/plans/2026-05-13-recast-row.md`
+
+### 完了内容
+
+- **clockswipe 形式**: FF14 公式と同一 (12 時起点・時計回りに透明領域広がる、 conic-gradient で実装)
+- **配置済みスキルのリキャスト中のみ表示**、 明けたら即非表示 (動的)
+- **列ごと**: T/H 列最大 6 個、 DPS 列最大 2 個。 超過時は残時間短い順に削除 → 残ったものを配置時刻順で並び替え
+- **同 species 複数配置は最近 1 回に集約** (= ゲーム内 HUD と同じ動作)
+- **スクロール上端時刻に連動**: ref + CSS variable で DOM 直接更新 (React 再レンダーなし、 GPU 描画)
+- **ツールバー統合 (案 C1)**: ジョブアイコンを `JobPickerRow` として controlBar に物理移動、 ヘッダーには `RecastRow` を配置 → 新規行ゼロ
+- **位置整合**: Playwright で 8 メンバー列実測、 本文配置済みアイコンと x 座標完全一致 (diff 0.00px)
+- **視認性ブラッシュアップ**: overlay 0.55→0.40、 残秒テキスト 10→8px
+- **Clock アイコン ON/OFF トグル** (Area C、 デフォルト ON、 localStorage 永続化)
+- **Tooltip 対応** (各 RecastIcon にスキル名表示)
+- **テーマトークン経由** (ダーク/ライト両対応)
+- **i18n** ja/en/ko/zh
+
+### コード品質
+
+- 純粋関数 (recastRow.ts): 16 ユニットテスト、 nested Map 衝突回避、 上限/並び順/同 species 統合 全カバー
+- React コンポーネント: forwardRef + useImperativeHandle、 静的 DOM 戦略 (アイコン追加削除なし、 CSS variable で表示切替)
+- Map 化最適化 (mitigationDefs O(N×M) → O(N))
+- 既存機能リグレッションゼロ (handleScrollSync、 ジョブピッカー機能、 配置済みアイコン、 フェーズオーバーレイ 全て無傷)
+
+**結果**: feat/recast-row ブランチで TDD → spec/code-quality 2 段階レビュー × 7 タスク → main マージ。 vitest 669/669 PASS、 tsc clean、 build ✓。 Playwright 実機検証済み。
+
+---
+
 ## 完了（2026-05-12 セッション 17・表エリア全幅化 / メンバー列幅拡張）
 
 **背景**: セッション 14 で sizing 思想 v2 (container max-width 1489) を導入したが、 「フォーカスモード時にタイムラインが画面端まで広がる」 という本来の目的が未達。 メンバー列幅 (T/H 126 / DPS 53) の合計が利用可能幅に届かず、 タイムライン右側に約 153px の空白が残っていた。
