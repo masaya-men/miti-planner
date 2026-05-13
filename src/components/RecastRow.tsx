@@ -1,7 +1,7 @@
 import { forwardRef, useImperativeHandle, useMemo, useRef } from 'react';
 import type { AppliedMitigation, Mitigation, PartyMember } from '../types';
 import { RecastIcon } from './RecastIcon';
-import { getActiveRecasts, selectVisibleByLimit, calculateAngle } from '../utils/recastRow';
+import { getActiveRecasts, selectVisibleByLimit, calculateAngle, EXCLUDED_FROM_RECAST_ROW } from '../utils/recastRow';
 import { getColumnCssVar } from '../utils/calculator';
 import { Tooltip } from './ui/Tooltip';
 
@@ -12,6 +12,11 @@ export interface RecastRowHandle {
      * スクロールハンドラが毎フレーム呼ぶため、 re-render は厳禁。
      */
     update: (currentTime: number) => void;
+    /**
+     * 全アイコンを非表示にする (ON/OFF トグル OFF 時用)。
+     * セル自体は DOM に残るため罫線は維持される。
+     */
+    hideAll: () => void;
 }
 
 interface RecastRowProps {
@@ -56,6 +61,8 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
             for (const m of partyMembers) map.set(m.id, []);
             const seen = new Set<string>();
             for (const p of placements) {
+                // 除外スキル (高頻度回し系) は DOM にも mount しない
+                if (EXCLUDED_FROM_RECAST_ROW.has(p.mitigationId)) continue;
                 const key = p.ownerId + '|' + p.mitigationId;
                 if (seen.has(key)) continue;
                 seen.add(key);
@@ -77,6 +84,11 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
         const iconRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
 
         useImperativeHandle(ref, () => ({
+            hideAll: () => {
+                iconRefs.current.forEach((el) => {
+                    if (el) el.style.setProperty('--cd-display', 'none');
+                });
+            },
             update: (currentTime: number) => {
                 // owner 別に placements を分類 (毎回の O(N) ではあるが、 通常 N は数十程度)
                 const placementsByOwner = new Map<string, AppliedMitigation[]>();

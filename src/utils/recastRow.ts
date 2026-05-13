@@ -1,6 +1,22 @@
 import type { AppliedMitigation, Mitigation } from '../types';
 
 /**
+ * リキャスト行から除外するスキル ID 一覧。
+ * 「常に使い続ける高頻度回し系スキル」 はリキャスト管理対象外として扱う
+ * (1 枠を占有してしまうのが情報密度的にもったいないため)。
+ *
+ * 現在の除外対象:
+ * - aetherflow (学者: エーテルフロー、 recast 60s、 リソース生成系)
+ * - astral_draw (占星: アストラルドロー)
+ * - umbral_draw (占星: アンブラルドロー)
+ */
+export const EXCLUDED_FROM_RECAST_ROW: ReadonlySet<string> = new Set([
+  'aetherflow',
+  'astral_draw',
+  'umbral_draw',
+]);
+
+/**
  * リキャスト専用行で使用する「現在クールダウン中スキル」 の表現。
  * placement と def を結合した、 UI レンダリング用の派生データ。
  */
@@ -51,6 +67,8 @@ export function getActiveRecasts(
   const latestByOwner = new Map<string, Map<string, AppliedMitigation>>();
   for (const p of placements) {
     if (p.time > currentTime) continue;
+    // 除外スキル (高頻度回し系) は最初からスキップ
+    if (EXCLUDED_FROM_RECAST_ROW.has(p.mitigationId)) continue;
     let inner = latestByOwner.get(p.ownerId);
     if (!inner) {
       inner = new Map<string, AppliedMitigation>();

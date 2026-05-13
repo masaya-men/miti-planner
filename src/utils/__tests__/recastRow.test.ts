@@ -80,6 +80,24 @@ describe('getActiveRecasts', () => {
     const result = getActiveRecasts(placements, [zeroRecast], 5);
     expect(result).toHaveLength(0);
   });
+
+  it('excludes high-frequency rotation skills (aetherflow, astral_draw, umbral_draw)', () => {
+    const defs = [
+      makeMitigation('aetherflow', 60),
+      makeMitigation('astral_draw', 60),
+      makeMitigation('umbral_draw', 60),
+      makeMitigation('thrill', 90),
+    ];
+    const placements = [
+      makePlacement('p1', 'aetherflow', 0),
+      makePlacement('p2', 'astral_draw', 0),
+      makePlacement('p3', 'umbral_draw', 0),
+      makePlacement('p4', 'thrill', 0),
+    ];
+    const result = getActiveRecasts(placements, defs, 30);
+    expect(result).toHaveLength(1);
+    expect(result[0].mitigationId).toBe('thrill');
+  });
 });
 
 describe('selectVisibleByLimit', () => {

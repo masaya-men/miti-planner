@@ -1050,6 +1050,11 @@ const Timeline: React.FC = () => {
         const container = scrollContainerRef.current;
         if (!container) return;
         const handler = () => {
+            // OFF 時はアイコンを全部隠す (セルは残るので罫線維持)
+            if (!recastRowVisible) {
+                recastRowRef.current?.hideAll();
+                return;
+            }
             const scrollTop = container.scrollTop;
             const offsetTime = showPreStart ? -10 : 0;
             let currentTime: number;
@@ -1070,7 +1075,7 @@ const Timeline: React.FC = () => {
         handler(); // 初期化
         container.addEventListener('scroll', handler, { passive: true });
         return () => container.removeEventListener('scroll', handler);
-    }, [pixelsPerSecond, showPreStart, hideEmptyRows]);
+    }, [pixelsPerSecond, showPreStart, hideEmptyRows, recastRowVisible]);
 
     // AA モード中に Escape キーで終了
     useEffect(() => {
@@ -2272,15 +2277,14 @@ const Timeline: React.FC = () => {
                             </div>
 
                             {/* セッション 18 案 C1: ヘッダーのメンバー列領域はリキャストアイコン専用に。
-                                旧ジョブアイコン行は controlBar に移動 (JobPickerRow)。 */}
-                            {recastRowVisible && (
-                                <RecastRow
-                                    ref={recastRowRef}
-                                    partyMembers={sortedPartyMembers}
-                                    placements={timelineMitigations}
-                                    mitigationDefs={MITIGATIONS}
-                                />
-                            )}
+                                旧ジョブアイコン行は controlBar に移動 (JobPickerRow)。
+                                OFF 時もセルは render する (= 罫線は維持)。 中のアイコンだけ scroll handler で hideAll。 */}
+                            <RecastRow
+                                ref={recastRowRef}
+                                partyMembers={sortedPartyMembers}
+                                placements={timelineMitigations}
+                                mitigationDefs={MITIGATIONS}
+                            />
                         </div>
                     </div>
 
