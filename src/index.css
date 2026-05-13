@@ -1384,3 +1384,106 @@ button, [role="button"], .touch-none {
     width: revert;
     display: revert;
 }
+
+/* ===== リキャスト専用行 (セッション 18) ===== */
+
+.recast-row {
+  display: contents;
+}
+
+.recast-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3px;
+  flex-wrap: wrap;
+  padding: 4px var(--col-member-pad-x);
+  border-right: 1px solid var(--color-app-border);
+  min-height: 32px;
+  background: rgba(96, 165, 250, 0.10);
+}
+
+.recast-row.collapsed .recast-cell {
+  min-height: 18px;
+  padding: 2px var(--col-member-pad-x);
+}
+.recast-row.collapsed .recast-icon {
+  display: none !important;
+}
+
+.recast-label {
+  grid-column: span 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-left: 8px;
+  color: #6a8aa8;
+  font-size: 10px;
+  font-weight: 600;
+  background: rgba(96, 165, 250, 0.10);
+  border-right: 1px solid var(--color-app-border);
+  min-height: 32px;
+}
+.recast-row.collapsed .recast-label {
+  min-height: 18px;
+}
+.recast-chev {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s;
+  color: #6a8aa8;
+  font-size: 11px;
+}
+.recast-chev:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.recast-icon {
+  display: var(--cd-display, none);
+  order: var(--cd-order, 0);
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+}
+.recast-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.recast-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: conic-gradient(
+    transparent 0 var(--cd-angle, 0deg),
+    rgba(0, 0, 0, 0.55) var(--cd-angle, 0deg) 360deg
+  );
+}
+.recast-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 900;
+  font-family: Arial, sans-serif;
+  text-shadow: 0 0 3px #000, 0 0 2px #000, 0 0 1px #000;
+  z-index: 2;
+  line-height: 1;
+}
