@@ -1403,7 +1403,12 @@ button, [role="button"], .touch-none {
   height: 100%;
   flex-shrink: 0;
   flex-grow: 0;
-  /* padding-left/right は React 側 inline で設定 (VISUAL_OFFSET=2px 整合) */
+  /* 本文 MitigationItem の絶対配置 left = colStart(= JobPicker.offsetLeft + --col-member-pad-x)
+     + VISUAL_OFFSET(2) と完全整合させる左 padding。
+     RecastRow セルはヘッダー直下の flex child で JobPickerRow セルと同じ x で配置されるが、
+     セル自体には `--col-member-pad-x` 余白が付かないため、 ここで吸収する。 */
+  padding-left: calc(var(--col-member-pad-x) + 2px);
+  padding-right: 0;
 }
 
 /* Tooltip wrapper を flex 上「無いもの」として振る舞わせる。
@@ -1437,7 +1442,10 @@ button, [role="button"], .touch-none {
 .recast-icon::before {
   content: '';
   position: absolute;
-  inset: 0;
+  /* FF14 公式スキルアイコン画像は外周に 2-3px の装飾枠 (drop shadow / bevel) を含むため、
+     inset: 0 にするとオーバーレイがその枠まで覆ってしまい、 視覚的にアイコン本体より
+     大きく見えてしまう。 inset を入れて「アートワーク本体」 だけを覆う。 */
+  inset: 2px;
   pointer-events: none;
   z-index: 1;
   background: conic-gradient(

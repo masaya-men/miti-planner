@@ -25,8 +25,12 @@ const LIMIT_TH = 6;
 /** DPS の表示上限 */
 const LIMIT_DPS = 2;
 
-/** MitigationItem (本文) の VISUAL_OFFSET と整合する左 padding */
-const VISUAL_OFFSET_PX = '2px';
+// padding-left / padding-right は .recast-cell の CSS (src/index.css) で定義する。
+// 計算式: padding-left = calc(--col-member-pad-x + 2px)
+//   本文 MitigationItem の絶対配置 left = colStart + VISUAL_OFFSET(2)
+//   colStart = JobPicker.offsetLeft + computed paddingLeft (= --col-member-pad-x = 2.9px)
+//   なので RecastRow アイコンも同じ x にするには --col-member-pad-x + 2 が必要。
+// happy-dom が calc() padding-left の inline style を保持しない問題を避けるため CSS 側で定義する。
 
 /**
  * リキャスト専用行コンポーネント (セッション 18 ツールバー統合版)。
@@ -143,9 +147,8 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                                 width: widthExpr,
                                 minWidth: widthExpr,
                                 maxWidth: widthExpr,
-                                // 本文 MitigationItem の VISUAL_OFFSET と整合 (= 左 2px)
-                                paddingLeft: VISUAL_OFFSET_PX,
-                                paddingRight: '0',
+                                // padding は .recast-cell CSS で定義 (calc 値を inline で渡すと
+                                // happy-dom が値を保持しないため)
                             }}
                         >
                             {species.map((mitId) => {

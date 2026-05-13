@@ -61,13 +61,17 @@ describe('RecastRow (セッション 18 ツールバー統合版)', () => {
         expect(container.querySelector('.recast-chev')).toBeNull();
     });
 
-    it('member cell uses paddingLeft 2px (VISUAL_OFFSET 整合) and paddingRight 0', () => {
+    it('member cell uses .recast-cell class (padding-left/right は CSS 側で定義)', () => {
         const { container } = renderRecastRow();
         const cells = Array.from(container.querySelectorAll('.recast-cell[data-member]')) as HTMLDivElement[];
         expect(cells.length).toBeGreaterThan(0);
         for (const cell of cells) {
-            expect(cell.style.paddingLeft).toBe('2px');
-            expect(cell.style.paddingRight).toBe('0px');
+            // .recast-cell クラス経由で padding-left = calc(--col-member-pad-x + 2px), padding-right = 0 が当たる
+            // 本文 MitigationItem の絶対配置 (colStart + VISUAL_OFFSET) と x 整合する。
+            expect(cell.classList.contains('recast-cell')).toBe(true);
+            // inline style には padding が直接書かれない (CSS で定義)
+            expect(cell.style.paddingLeft).toBe('');
+            expect(cell.style.paddingRight).toBe('');
         }
     });
 
