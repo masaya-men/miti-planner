@@ -2814,6 +2814,9 @@ const Timeline: React.FC = () => {
                                                             effectiveEndTime = prevVisible;
                                                         }
                                                     }
+                                                    // エフェクト棒もタイムライン末尾 (= maxTime = 行追加用空白行) でクリップ。
+                                                    // 持続時間の長い学者スキル (鼓舞 30s 等) が末尾を超えて伸びる問題を防ぐ。
+                                                    effectiveEndTime = Math.min(effectiveEndTime, maxTime);
 
                                                     const startY = getMappedY(mitigation.time);
                                                     const endY = getMappedY(effectiveEndTime) + 24;
