@@ -802,11 +802,15 @@ const Timeline: React.FC = () => {
         }
     };
 
+    // 「タイムラインの最後の時間」 = イベント末尾・フェーズ endTime・ラベル endTime の max。
+    // この値は (1) リキャスト点線のクリップ (2) スクロール末尾余白の基準として使う。
     const maxTime = useMemo(() => {
         let max = 0;
         timelineEvents.forEach(ev => { if (ev.time > max) max = ev.time; });
+        phases.forEach(p => { if (p.endTime > max) max = p.endTime; });
+        labels.forEach(l => { if (l.endTime > max) max = l.endTime; });
         return max;
-    }, [timelineEvents]);
+    }, [timelineEvents, phases, labels]);
 
     const handleAutoPlan = useCallback(() => {
         const executePlan = () => {
@@ -2322,7 +2326,7 @@ const Timeline: React.FC = () => {
                                         totalHeight += pixelsPerSecond;
                                     }
                                 });
-                                return `calc(${totalHeight}px + 70vh)`;
+                                return `calc(${totalHeight}px + 30vh)`;
                             })()}`
                         }}>
                             {(() => {
@@ -2814,7 +2818,9 @@ const Timeline: React.FC = () => {
                                                     const endY = getMappedY(effectiveEndTime) + 24;
                                                     const def = MITIGATIONS.find((m: any) => m.id === mitigation.mitigationId);
                                                     const recast = def?.recast || def?.recast || 0;
-                                                    const recastEndTime = mitigation.time + Math.max(1, recast) - 1;
+                                                    // リキャスト点線は maxTime (= イベント・フェーズ・ラベル末尾の最大) でクリップ。
+                                                    // タイムライン末尾以降に点線が伸びるのを防ぐ。
+                                                    const recastEndTime = Math.min(mitigation.time + Math.max(1, recast) - 1, maxTime);
                                                     const recastEndY = getMappedY(recastEndTime) + 24;
                                                     const calculatedRecastHeight = Math.max(0, recastEndY - startY);
 
