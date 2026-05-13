@@ -2,6 +2,28 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-13 セッション 19 終盤・タイムライン末尾 stop + 点線廃止 + ジャンプドロップダウン scroll + vitest hang 対策）
+
+**背景**: 占星ドロー chain prompt 完了後、 ユーザーがタイムライン本体の挙動に複数の懸念を表明。 また vitest プロセスの hang 問題が顕在化したため、 開発環境改善も並行実施。
+
+### 完了内容
+
+- **タイムライン末尾の scroll stop** (commit b30b537): 内側コンテンツ div に `overflow-hidden` 追加 + 末尾余白 70vh → 50vh。 子要素 (フェーズ overlay 等) の overflow が親の scrollHeight に含まれなくなり、 最終イベントが画面中央付近で確実にスクロール末尾になる。 フェーズ高さ計算ロジックには一切触らない (= 過去苦労した安定区画を保護)
+- **リキャスト点線描画廃止** (commit b30b537): `<div className="...border-dotted...">` 削除。 セッション 18 のリキャスト専用行が clockswipe 形式で十分代替可能なため。 副次的に「学者列だけ点線が下まで伸びる」 本番限定バグ (= 真因不明、 ローカルでは再現せず) の疑似解決
+- **ジャンプドロップダウン scroll 修正** (commit 18733ac): `HeaderGimmickDropdown` / `HeaderPhaseDropdown` / `HeaderMechanicSearch` の内部リストが内部スクロール不可だった問題を、 `onWheel` で `scrollTop += deltaY` する形に変更。 ユーザー要望どおりスムーズスクロールは使わず最もシンプルな実装
+- **vitest プロセス hang の自動 cleanup hook** (.claude/settings.local.json): Windows + Git Bash + npx 環境でセッション間にゾンビ vitest が蓄積する問題。 SessionStart hook で 1.5h 以上経過した vitest プロセスを自動 kill。 vitest.config.ts にも teardownTimeout / hookTimeout 追加
+
+### コード品質・検証
+
+- npm run build 6.03s 成功 (TypeScript strict mode)
+- 過去の SCH バグ 2 件 + ユーザー報告データ (`afterLastEvent: []`) 検証 → 想定通り
+- ユーザー実機での 「学者列だけ伸びる」 症状は真因不明のまま (= 描画削除で疑似解決)、 必要なら別セッションで再調査の余地あり
+- リキャスト計算 (resourceTracker / scholarAutoInsert) は完全別ファイルで描画変更に影響なし
+
+**結果**: 4 つの commit (c225291 / 18733ac / b30b537 / 設定変更) を本番デプロイ。 セッション 19 全体としては実装 + 検証 + 開発環境改善まで完了。
+
+---
+
 ## 完了（2026-05-13 セッション 19・占星術師ドロー chain prompt）
 
 **背景**: セッション 18 末で実装方針確定済みだった「ユーザーが手動で astral_draw / umbral_draw を 1 個置いた時に "以降 60 秒毎に交互配置しますか?" と確認するモーダル」を完成。 学者の AetherflowChainPromptModal パターンを流用、 違いは「交互ロジック」 のみ。
