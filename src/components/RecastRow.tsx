@@ -54,6 +54,14 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
             return map;
         }, [partyMembers, placements]);
 
+        // mitigationDefs を id → def の Map に変換し、 JSX renderer の O(N×M) ルックアップを排除。
+        // 各セル × 各アイコンで .find() を回すと placements 数に応じて二乗で重くなるため、 Map.get() の O(1) を使う。
+        const defByMitId = useMemo(() => {
+            const m = new Map<string, Mitigation>();
+            for (const d of mitigationDefs) m.set(d.id, d);
+            return m;
+        }, [mitigationDefs]);
+
         // (ownerId, mitigationId) → DOM 要素の参照。 update() で直接書き換える。
         const iconRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
 
@@ -136,7 +144,7 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                             data-role={member.role}
                         >
                             {species.map((mitId) => {
-                                const def = mitigationDefs.find((d) => d.id === mitId);
+                                const def = defByMitId.get(mitId);
                                 if (!def) return null;
                                 const key = member.id + '|' + mitId;
                                 return (
