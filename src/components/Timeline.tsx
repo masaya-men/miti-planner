@@ -802,15 +802,16 @@ const Timeline: React.FC = () => {
         }
     };
 
-    // 「タイムラインの最後の時間」 = イベント末尾・フェーズ endTime・ラベル endTime の max。
-    // この値は (1) リキャスト点線のクリップ (2) スクロール末尾余白の基準として使う。
+    // 「タイムラインの最後の行」 = maxPopulatedTime + 1 (= 行追加用の空白行)。
+    // ユーザー仕様: 新規イベント追加用に最終イベント/軽減の 1 秒後の空白行が表示される。
+    // この空白行までは描画 (リキャスト点線含む) を許可、 それより下には伸ばさない。
+    // フェーズ・ラベルの endTime は意図的に除外 (= ユーザーの感覚に直接合わせる)。
     const maxTime = useMemo(() => {
         let max = 0;
         timelineEvents.forEach(ev => { if (ev.time > max) max = ev.time; });
-        phases.forEach(p => { if (p.endTime > max) max = p.endTime; });
-        labels.forEach(l => { if (l.endTime > max) max = l.endTime; });
-        return max;
-    }, [timelineEvents, phases, labels]);
+        timelineMitigations.forEach(m => { if (m.time > max) max = m.time; });
+        return max + 1;
+    }, [timelineEvents, timelineMitigations]);
 
     const handleAutoPlan = useCallback(() => {
         const executePlan = () => {
