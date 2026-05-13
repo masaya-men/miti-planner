@@ -31,58 +31,44 @@ type RecastRowOverrides = Partial<React.ComponentProps<typeof RecastRow>> & {
     ref?: React.Ref<RecastRowHandle>;
 };
 
-/** RecastRow を レイアウト Prop 込みで render するヘルパ。 個別テストで上書き可。 */
+/** RecastRow を最小 prop で render するヘルパ。 個別テストで上書き可。 */
 const renderRecastRow = (overrides: RecastRowOverrides = {}) => {
     return render(
         <RecastRow
             partyMembers={partyMembers}
             placements={[]}
             mitigationDefs={mitigations}
-            collapsed={false}
-            onToggleCollapse={() => {}}
-            labelText="リキャスト"
-            phaseColumnCollapsed={false}
-            labelColumnVisible={true}
-            labelColumnCollapsed={false}
             {...overrides}
         />,
     );
 };
 
-describe('RecastRow', () => {
-    it('renders a phase column with chevron and label text (展開時)', () => {
-        const { container } = renderRecastRow();
-        expect(container.querySelector('.recast-col-phase')).not.toBeNull();
-        expect(container.querySelector('.recast-chev')).not.toBeNull();
-        expect(container.querySelector('.recast-label-text')?.textContent).toBe('リキャスト');
-    });
-
+describe('RecastRow (セッション 18 ツールバー統合版)', () => {
     it('renders one member cell per member (8 cells)', () => {
         const { container } = renderRecastRow();
-        // .recast-cell は メンバー専用 (data-member 必須)
         expect(container.querySelectorAll('.recast-cell[data-member]').length).toBe(8);
     });
 
-    it('renders all 6 column-cells before member cells (phase / label / time / mechanic / counter × 2)', () => {
+    it('does NOT render legacy left-side column cells (phase / label / time / mechanic / counter)', () => {
         const { container } = renderRecastRow();
-        expect(container.querySelector('.recast-col-phase')).not.toBeNull();
-        expect(container.querySelector('.recast-col-label')).not.toBeNull();
-        expect(container.querySelector('.recast-col-time')).not.toBeNull();
-        expect(container.querySelector('.recast-col-mechanic')).not.toBeNull();
-        expect(container.querySelectorAll('.recast-col-counter').length).toBe(2);
-    });
-
-    it('omits label column when labelColumnVisible=false', () => {
-        const { container } = renderRecastRow({ labelColumnVisible: false });
+        // 旧 .recast-col-* / .recast-label / .recast-chev は撤去済み
+        expect(container.querySelector('.recast-col-phase')).toBeNull();
         expect(container.querySelector('.recast-col-label')).toBeNull();
+        expect(container.querySelector('.recast-col-time')).toBeNull();
+        expect(container.querySelector('.recast-col-mechanic')).toBeNull();
+        expect(container.querySelectorAll('.recast-col-counter').length).toBe(0);
+        expect(container.querySelector('.recast-label-text')).toBeNull();
+        expect(container.querySelector('.recast-chev')).toBeNull();
     });
 
-    it('phaseColumnCollapsed=true hides label text and sets data-collapsed', () => {
-        const { container } = renderRecastRow({ phaseColumnCollapsed: true });
-        expect(container.querySelector('.recast-label-text')).toBeNull();
-        expect(container.querySelector('.recast-col-phase')?.getAttribute('data-collapsed')).toBe('true');
-        // chevron は引き続き残る
-        expect(container.querySelector('.recast-chev')).not.toBeNull();
+    it('member cell uses paddingLeft 2px (VISUAL_OFFSET 整合) and paddingRight 0', () => {
+        const { container } = renderRecastRow();
+        const cells = Array.from(container.querySelectorAll('.recast-cell[data-member]')) as HTMLDivElement[];
+        expect(cells.length).toBeGreaterThan(0);
+        for (const cell of cells) {
+            expect(cell.style.paddingLeft).toBe('2px');
+            expect(cell.style.paddingRight).toBe('0px');
+        }
     });
 
     it('renders one RecastIcon per placed mitigation species per member', () => {
@@ -94,6 +80,19 @@ describe('RecastRow', () => {
         const { container } = renderRecastRow({ placements });
         const mtCell = container.querySelector('[data-member="MT"]') as HTMLDivElement;
         expect(mtCell.querySelectorAll('.recast-icon').length).toBe(2);
+    });
+
+    it('each icon is wrapped by a Tooltip (recast-tooltip-wrap) with the skill name as content/alt', () => {
+        const placements: AppliedMitigation[] = [
+            mkPlacement('p1', 'holmgang', 30, 'MT'),
+        ];
+        const { container } = renderRecastRow({ placements });
+        const mtCell = container.querySelector('[data-member="MT"]') as HTMLDivElement;
+        // Tooltip wrapper (display: contents) が間に挟まる
+        const wrap = mtCell.querySelector('.recast-tooltip-wrap');
+        expect(wrap).not.toBeNull();
+        const img = wrap?.querySelector('img');
+        expect(img?.getAttribute('alt')).toBe('鬨');
     });
 
     it('on update(currentTime), sets --cd-display=flex for active recasts', () => {
@@ -149,10 +148,5 @@ describe('RecastRow', () => {
             .filter(el => (el as HTMLElement).style.getPropertyValue('--cd-display') === 'flex');
         expect(mtVisible.length).toBe(6);
         expect(d1Visible.length).toBe(2);
-    });
-
-    it('collapsed=true adds .collapsed class to root', () => {
-        const { container } = renderRecastRow({ collapsed: true });
-        expect(container.querySelector('.recast-row')?.classList.contains('collapsed')).toBe(true);
     });
 });

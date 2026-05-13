@@ -23,7 +23,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Rows3, Settings, Crosshair, PictureInPicture2
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Rows3, Settings, Crosshair, PictureInPicture2, Clock
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
@@ -33,7 +33,7 @@ import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
-import { getColumnCssVar, calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
+import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -47,6 +47,7 @@ import { HeaderGimmickDropdown } from './HeaderGimmickDropdown';
 import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
+import { JobPickerRow } from './JobPickerRow';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -741,8 +742,12 @@ const Timeline: React.FC = () => {
     const [labelColumnCollapsed, setLabelColumnCollapsed] = useState(() => {
         try { return localStorage.getItem('lopo-label-col-collapsed') === 'true'; } catch { return false; }
     });
-    const [recastRowCollapsed, setRecastRowCollapsed] = useState(() => {
-        try { return localStorage.getItem('lopo-recast-row-collapsed') === 'true'; } catch { return false; }
+    // リキャスト行の表示 ON/OFF (セッション 18 案 C1 物理移動)。 デフォルト ON。
+    const [recastRowVisible, setRecastRowVisible] = useState(() => {
+        try {
+            const v = localStorage.getItem('lopo-recast-row-visible');
+            return v === null ? true : v === 'true';
+        } catch { return true; }
     });
     const phaseHeaderRef = useRef<HTMLDivElement>(null);
     const gimmickHeaderRef = useRef<HTMLDivElement>(null);
@@ -774,10 +779,10 @@ const Timeline: React.FC = () => {
         });
     };
 
-    const handleToggleRecastRow = () => {
-        setRecastRowCollapsed(prev => {
+    const handleToggleRecastRowVisible = () => {
+        setRecastRowVisible(prev => {
             const next = !prev;
-            try { localStorage.setItem('lopo-recast-row-collapsed', String(next)); } catch {}
+            try { localStorage.setItem('lopo-recast-row-visible', String(next)); } catch {}
             return next;
         });
     };
@@ -1039,17 +1044,13 @@ const Timeline: React.FC = () => {
     }, []);
 
     // リキャスト行: スクロールに連動して current time を更新 (GPU 描画、 React 再レンダーなし)
+    // セッション 18 案 C1: RecastRow は header (scroll container の外) に物理移動したので、
+    // scrollTop はそのまま wrapper 座標系として扱える (recastRowHeight 控除は不要)。
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container) return;
         const handler = () => {
             const scrollTop = container.scrollTop;
-            // リキャスト行が sticky で占める分を控除して wrapper 座標系に変換
-            // (timeToYMap は wrapper 内の currentY=0 起点で構築されるため)
-            const recastRowEl = container.firstElementChild as HTMLElement | null;
-            const recastRowHeight = recastRowEl?.offsetHeight ?? 0;
-            const wrapperScroll = Math.max(0, scrollTop - recastRowHeight);
-
             const offsetTime = showPreStart ? -10 : 0;
             let currentTime: number;
             if (hideEmptyRows && timeToYMapRef.current.size > 0) {
@@ -1057,12 +1058,12 @@ const Timeline: React.FC = () => {
                 let closest = offsetTime;
                 let minDiff = Infinity;
                 timeToYMapRef.current.forEach((y, t) => {
-                    const diff = Math.abs(y - wrapperScroll);
+                    const diff = Math.abs(y - scrollTop);
                     if (diff < minDiff) { minDiff = diff; closest = t; }
                 });
                 currentTime = closest;
             } else {
-                currentTime = offsetTime + Math.round(wrapperScroll / pixelsPerSecond);
+                currentTime = offsetTime + Math.round(scrollTop / pixelsPerSecond);
             }
             recastRowRef.current?.update(currentTime);
         };
@@ -2069,6 +2070,20 @@ const Timeline: React.FC = () => {
                                         </button>
                                     </Tooltip>
                                 )}
+                                {/* リキャスト行 ON/OFF (セッション 18 案 C1) */}
+                                <Tooltip content={recastRowVisible ? t('timeline.recast_row.hide', 'リキャスト非表示') : t('timeline.recast_row.show', 'リキャスト表示')}>
+                                    <button
+                                        onClick={handleToggleRecastRowVisible}
+                                        className={clsx(
+                                            "p-1 rounded transition-all duration-150 cursor-pointer",
+                                            recastRowVisible
+                                                ? "text-app-text hover:bg-app-surface2"
+                                                : "text-app-text-muted hover:bg-app-surface2"
+                                        )}
+                                    >
+                                        <Clock size={12} />
+                                    </button>
+                                </Tooltip>
                             </div>
 
                             {/* 短い区切り線 — テーブルの U.Dmg|Dmg 境界と揃う */}
@@ -2131,6 +2146,17 @@ const Timeline: React.FC = () => {
 
                             {/* 短い区切り線 — テーブルの Dmg|Job列 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
+
+                            {/* セッション 18 案 C1 物理移動: ジョブアイコン行を controlBar の右端に */}
+                            <JobPickerRow
+                                partyMembers={sortedPartyMembers}
+                                partySortOrder={partySortOrder}
+                                getJobIcon={getJobIcon}
+                                jobs={JOBS}
+                                handleJobIconClick={handleJobIconClick}
+                                getMemberRefCallback={getMemberRefCallback}
+                                t={t}
+                            />
                         </div>
                     </div>
 
@@ -2245,56 +2271,16 @@ const Timeline: React.FC = () => {
                                 <span className="hidden md:inline">{t('timeline.header_taken')}</span>
                             </div>
 
-                            {sortedPartyMembers.map((member, index) => (
-                                <div
-                                    key={member.id}
-                                    ref={getMemberRefCallback(member.id)}
-                                    data-member-id={member.id}
-                                    data-member-role={member.role}
-                                    style={{
-                                        width: getColumnCssVar(member.role),
-                                        minWidth: getColumnCssVar(member.role),
-                                        maxWidth: getColumnCssVar(member.role),
-                                        paddingLeft: 'var(--col-member-pad-x)',
-                                        paddingRight: 'var(--col-member-pad-x)',
-                                    }}
-                                    className={clsx(
-                                        "hidden md:flex flex-none border-r border-app-border h-full flex-col items-center justify-center p-0.5 relative group",
-                                        index === sortedPartyMembers.length - 1 && "border-r border-app-border",
-                                        partySortOrder === 'role' ? (
-                                            member.role === 'tank' ? "bg-gradient-to-b from-blue-600/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(37,99,235,0.5)]" :
-                                                member.role === 'healer' ? "bg-gradient-to-b from-green-500/20 via-green-500/5 to-transparent shadow-[inset_0_1px_0_rgba(34,197,94,0.5)]" :
-                                                    "bg-gradient-to-b from-red-500/20 via-red-500/5 to-transparent shadow-[inset_0_1px_0_rgba(239,68,68,0.5)]"
-                                        ) : (
-                                            ['MT', 'H1', 'D1', 'D3'].includes(member.id)
-                                                ? "bg-gradient-to-b from-blue-500/20 via-blue-600/5 to-transparent shadow-[inset_0_1px_0_rgba(59,130,246,0.5)]"
-                                                : "bg-gradient-to-b from-cyan-500/20 via-cyan-600/5 to-transparent shadow-[inset_0_1px_0_rgba(6,182,212,0.5)]"
-                                        )
-                                    )}
-                                >
-                                    <Tooltip content={member.jobId ? `${member.id} — ${t('ui.change_job_tooltip')}` : `${member.id} (${t('ui.change_job')})`} position="bottom" wrapperClassName="w-full h-full">
-                                        <div
-                                            className={clsx(
-                                                "flex items-center justify-center w-full h-full rounded cursor-pointer transition-all duration-300 relative"
-                                            )}
-                                            onClick={(e) => handleJobIconClick(member.id, e)}
-                                            onContextMenu={(e) => {
-                                                e.preventDefault();
-                                                if (!member.jobId) return;
-                                                useMitigationStore.getState().setMemberJob(member.id, null);
-                                            }}
-                                        >
-                                            {member.jobId ? (
-                                                <img src={getJobIcon(member.jobId) || ''} alt={member.jobId} className="w-6 h-6 object-contain opacity-90 drop-shadow-sm transition-transform group-hover:scale-125" />
-                                            ) : (
-                                                <div className="w-5 h-5 rounded-full border border-app-border bg-app-surface2 flex items-center justify-center hover:bg-app-surface2">
-                                                    <Plus size={10} className="text-app-text-muted" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </Tooltip>
-                                </div>
-                            ))}
+                            {/* セッション 18 案 C1: ヘッダーのメンバー列領域はリキャストアイコン専用に。
+                                旧ジョブアイコン行は controlBar に移動 (JobPickerRow)。 */}
+                            {recastRowVisible && (
+                                <RecastRow
+                                    ref={recastRowRef}
+                                    partyMembers={sortedPartyMembers}
+                                    placements={timelineMitigations}
+                                    mitigationDefs={MITIGATIONS}
+                                />
+                            )}
                         </div>
                     </div>
 
@@ -2307,18 +2293,6 @@ const Timeline: React.FC = () => {
                         onScroll={handleScrollSync}
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
-                        <RecastRow
-                            ref={recastRowRef}
-                            partyMembers={sortedPartyMembers}
-                            placements={timelineMitigations}
-                            mitigationDefs={MITIGATIONS}
-                            collapsed={recastRowCollapsed}
-                            onToggleCollapse={handleToggleRecastRow}
-                            labelText={t('timeline.recast_row.label', 'リキャスト')}
-                            phaseColumnCollapsed={phaseColumnCollapsed}
-                            labelColumnVisible={labelColumnVisible}
-                            labelColumnCollapsed={labelColumnCollapsed}
-                        />
                         <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;

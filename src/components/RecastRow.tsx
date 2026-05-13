@@ -3,6 +3,7 @@ import type { AppliedMitigation, Mitigation, PartyMember } from '../types';
 import { RecastIcon } from './RecastIcon';
 import { getActiveRecasts, selectVisibleByLimit, calculateAngle } from '../utils/recastRow';
 import { getColumnCssVar } from '../utils/calculator';
+import { Tooltip } from './ui/Tooltip';
 
 export interface RecastRowHandle {
     /**
@@ -17,13 +18,6 @@ interface RecastRowProps {
     partyMembers: PartyMember[];
     placements: AppliedMitigation[];
     mitigationDefs: Mitigation[];
-    collapsed: boolean;
-    onToggleCollapse: () => void;
-    labelText: string;
-    /** ヘッダーと列構造を揃えるためのフラグ */
-    phaseColumnCollapsed: boolean;
-    labelColumnVisible: boolean;
-    labelColumnCollapsed: boolean;
 }
 
 /** T (tank) / H (healer) の表示上限 (1 メンバーあたり同時可視数) */
@@ -31,8 +25,11 @@ const LIMIT_TH = 6;
 /** DPS の表示上限 */
 const LIMIT_DPS = 2;
 
+/** MitigationItem (本文) の VISUAL_OFFSET と整合する左 padding */
+const VISUAL_OFFSET_PX = '2px';
+
 /**
- * リキャスト専用行コンポーネント。
+ * リキャスト専用行コンポーネント (セッション 18 ツールバー統合版)。
  *
  * 設計の核心:
  * - 各メンバーセル内に、 **「過去に一度でも置かれた mitigationId」 ぶんだけ RecastIcon を mount する** (= 静的 DOM)
@@ -41,21 +38,13 @@ const LIMIT_DPS = 2;
  *
  * これにより 60fps スクロールでも DOM の add/remove が起きず、 GPU 合成だけで完結する。
  *
- * 列構造はヘッダー (Timeline.tsx) と完全に整合させる:
- * phase → label → time → mechanic → counter (RAW) → counter (TAKEN) → members...
+ * セッション 18 案 C1 物理移動:
+ * - 旧: scroll container の sticky 子として配置、 全列 (phase/label/time/mechanic/RAW/TAKEN/members) を内包
+ * - 新: header (`headerRef`) の flex container 内の右端、 メンバー列だけを直接子として返す Fragment
+ *   左側の列ヘッダー (敵の攻撃 / ラベル / Time / ...) は触らず、 そのまま残す
  */
 export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
-    ({
-        partyMembers,
-        placements,
-        mitigationDefs,
-        collapsed,
-        onToggleCollapse,
-        labelText,
-        phaseColumnCollapsed,
-        labelColumnVisible,
-        labelColumnCollapsed,
-    }, ref) => {
+    ({ partyMembers, placements, mitigationDefs }, ref) => {
         // 各メンバーごとに 「過去に一度でも配置された mitigationId 一覧」 を構築。
         // これが各セルに mount するアイコンの集合 (静的)。
         const speciesByMember = useMemo(() => {
@@ -140,44 +129,7 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
         }), [partyMembers, placements, mitigationDefs, speciesByMember]);
 
         return (
-            <div className={collapsed ? 'recast-row collapsed' : 'recast-row'}>
-                {/* Phase column — 折り畳み時は chevron のみ、展開時は chevron + ラベル文字 */}
-                <div
-                    className="recast-col-phase"
-                    data-collapsed={phaseColumnCollapsed ? 'true' : 'false'}
-                >
-                    <span
-                        className="recast-chev"
-                        onClick={onToggleCollapse}
-                        role="button"
-                        aria-label={collapsed ? 'expand recast row' : 'collapse recast row'}
-                    >
-                        {collapsed ? '▶' : '▼'}
-                    </span>
-                    {!phaseColumnCollapsed && (
-                        <span className="recast-label-text">{labelText}</span>
-                    )}
-                </div>
-
-                {/* Label column (条件付き表示) */}
-                {labelColumnVisible && (
-                    <div
-                        className="recast-col-label"
-                        data-collapsed={labelColumnCollapsed ? 'true' : 'false'}
-                    />
-                )}
-
-                {/* Time column */}
-                <div className="recast-col-time" />
-
-                {/* Mechanic column */}
-                <div className="recast-col-mechanic" />
-
-                {/* Counter columns (RAW & TAKEN) */}
-                <div className="recast-col-counter" />
-                <div className="recast-col-counter" />
-
-                {/* Member cells — 幅は inline で getColumnCssVar から取得 */}
+            <>
                 {partyMembers.map((member) => {
                     const species = speciesByMember.get(member.id) ?? [];
                     const widthExpr = getColumnCssVar(member.role);
@@ -191,29 +143,32 @@ export const RecastRow = forwardRef<RecastRowHandle, RecastRowProps>(
                                 width: widthExpr,
                                 minWidth: widthExpr,
                                 maxWidth: widthExpr,
-                                paddingLeft: 'var(--col-member-pad-x)',
-                                paddingRight: 'var(--col-member-pad-x)',
+                                // 本文 MitigationItem の VISUAL_OFFSET と整合 (= 左 2px)
+                                paddingLeft: VISUAL_OFFSET_PX,
+                                paddingRight: '0',
                             }}
                         >
                             {species.map((mitId) => {
                                 const def = defByMitId.get(mitId);
                                 if (!def) return null;
                                 const key = member.id + '|' + mitId;
+                                const tooltipLabel = def.name.ja || def.name.en || mitId;
                                 return (
-                                    <RecastIcon
-                                        key={key}
-                                        ref={(el) => {
-                                            iconRefs.current.set(key, el);
-                                        }}
-                                        iconUrl={def.icon}
-                                        alt={def.name.ja || def.name.en || mitId}
-                                    />
+                                    <Tooltip key={key} content={tooltipLabel} wrapperClassName="recast-tooltip-wrap">
+                                        <RecastIcon
+                                            ref={(el) => {
+                                                iconRefs.current.set(key, el);
+                                            }}
+                                            iconUrl={def.icon}
+                                            alt={tooltipLabel}
+                                        />
+                                    </Tooltip>
                                 );
                             })}
                         </div>
                     );
                 })}
-            </div>
+            </>
         );
     },
 );

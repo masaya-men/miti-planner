@@ -381,7 +381,9 @@
         "invalid_placement": "无效放置",
         "mitigation": "减伤",
         "recast_row": {
-            "label": "技能冷却"
+            "label": "技能冷却",
+            "show": "显示技能冷却",
+            "hide": "隐藏技能冷却"
         },
         "mitigation_drag_hint": "（拖拽移动 / 右键移除）",
         "delete_event_confirm": "确定要删除此事件吗？",

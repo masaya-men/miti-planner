@@ -1385,138 +1385,32 @@ button, [role="button"], .touch-none {
     display: revert;
 }
 
-/* ===== リキャスト専用行 (セッション 18) ===== */
+/* ===== リキャスト専用行 (セッション 18 ツールバー統合版) ===== */
 
-.recast-row {
-  display: flex;
-  position: sticky;
-  top: 0;
-  z-index: 20; /* フェーズ/ラベルオーバーレイ (z-10) より上に */
-  isolation: isolate;
-  background: var(--color-app-bg);
-  width: max-content;
-  min-width: 100%;
-  border-bottom: 1px solid var(--color-app-border);
-  height: 32px;
-  transition: height 0.15s;
-}
-
-.recast-row.collapsed {
-  height: 18px;
-}
-
-/* 共通スタイル: 全ての列 (phase, label, time, mechanic, counter, cell) */
-.recast-row > div {
+/* メンバー列 cell — ヘッダー (headerRef) の flex container 内に直接配置される。
+   旧 .recast-row ラッパー (sticky / phase / label / time / mechanic / counter 列) は廃止。
+   左側の列ヘッダーは Timeline.tsx のヘッダー JSX がそのまま担当する。 */
+.recast-cell {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  /* 24px × 6 = 144px、 cell 内幅 151px に収まるので gap は 0 */
+  gap: 0;
+  flex-wrap: wrap;
   border-right: 1px solid var(--color-app-border);
   background: var(--color-app-surface2);
   box-sizing: border-box;
   height: 100%;
   flex-shrink: 0;
   flex-grow: 0;
+  /* padding-left/right は React 側 inline で設定 (VISUAL_OFFSET=2px 整合) */
 }
 
-/* Phase column — chevron + (展開時のみ) ラベル文字 */
-.recast-col-phase {
-  width: var(--col-phase-w);
-  min-width: var(--col-phase-w);
-  max-width: var(--col-phase-w);
-  justify-content: flex-start;
-  gap: 4px;
-  padding-left: 4px;
-  padding-right: 4px;
-  color: var(--color-app-text-muted);
-  font-size: 10px;
-  font-weight: 600;
-}
-.recast-col-phase[data-collapsed="true"] {
-  width: var(--col-phase-collapsed-w);
-  min-width: var(--col-phase-collapsed-w);
-  max-width: var(--col-phase-collapsed-w);
-  justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
-}
-
-/* Label column */
-.recast-col-label {
-  width: var(--col-label-w);
-  min-width: var(--col-label-w);
-  max-width: var(--col-label-w);
-}
-.recast-col-label[data-collapsed="true"] {
-  width: var(--col-label-collapsed-w);
-  min-width: var(--col-label-collapsed-w);
-  max-width: var(--col-label-collapsed-w);
-}
-
-/* Time column */
-.recast-col-time {
-  width: var(--col-time-w);
-  min-width: var(--col-time-w);
-  max-width: var(--col-time-w);
-}
-
-/* Mechanic column */
-.recast-col-mechanic {
-  width: var(--col-mechanic-w);
-  min-width: var(--col-mechanic-w);
-  max-width: var(--col-mechanic-w);
-}
-
-/* Counter columns */
-.recast-col-counter {
-  width: var(--col-counter-w);
-  min-width: var(--col-counter-w);
-  max-width: var(--col-counter-w);
-}
-
-/* Member cell — width は inline (getColumnCssVar) で指定 */
-.recast-cell {
-  justify-content: flex-start;
-  /* 24px × 6 = 144px、 cell 内幅 151px ぎりぎり収まるので gap は 0 */
-  gap: 0;
-  flex-wrap: wrap;
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-/* 折り畳み時: 内側 padding 縮小 + アイコン非表示 */
-.recast-row.collapsed > div {
-  padding-top: 2px;
-  padding-bottom: 2px;
-}
-.recast-row.collapsed .recast-icon {
-  display: none !important;
-}
-
-/* Chevron */
-.recast-chev {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  border-radius: 2px;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.15s, color 0.15s;
-  color: var(--color-app-text-muted);
-  font-size: 11px;
-  flex-shrink: 0;
-}
-.recast-chev:hover {
-  background: var(--color-app-bg);
-  color: var(--color-app-text);
-}
-
-.recast-label-text {
-  color: var(--color-app-text-muted);
-  font-size: 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Tooltip wrapper を flex 上「無いもの」として振る舞わせる。
+   こうしないと Tooltip の wrapper div が .recast-cell の flex 子要素になってしまい、
+   RecastIcon に効いている --cd-display / --cd-order が flex 配置に反映されなくなる。 */
+.recast-tooltip-wrap {
+  display: contents !important;
 }
 
 /* Clockswipe icon — .recast-cell 内部の各アイコン

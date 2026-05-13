@@ -393,7 +393,9 @@
         "invalid_placement": "このタイミングには配置できません",
         "mitigation": "軽減",
         "recast_row": {
-            "label": "リキャスト"
+            "label": "リキャスト",
+            "show": "リキャスト表示",
+            "hide": "リキャスト非表示"
         },
         "mitigation_drag_hint": "(ドラッグで移動 / 右クリックで削除)",
         "delete_event_confirm": "このイベントを削除してもよろしいですか？",
