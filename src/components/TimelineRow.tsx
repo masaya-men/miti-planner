@@ -176,8 +176,12 @@ export const TimelineRow = memo(({
             )}
             style={{
                 top: `${top}px`,
-                '--hover-line-left': `${(phaseColumnCollapsed ? 16 : 60) + (labelColumnVisible ? 50 : 16)}px`,
-                '--hover-line-width': `${60 + 200 + 100 + 100}px`,
+                // hover line の left/width は CSS 変数 (viewport 連動 clamp) ベースで計算する。
+                // 旧実装は開発者画面 (1489) の max 値をハードコード (60+200+100+100=460px) して
+                // いたため、 1489 未満の viewport では実セル幅 < 460px となり罫線が右にはみ出していた。
+                // left = phase 列 + label 列 (collapsed/visible で切替)。 width = time + mechanic + counter ×2。
+                '--hover-line-left': `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'})`,
+                '--hover-line-width': 'calc(var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)',
             } as React.CSSProperties}
             onMouseEnter={() => {
                 if (timelineSelectMode || labelSelectMode) {
