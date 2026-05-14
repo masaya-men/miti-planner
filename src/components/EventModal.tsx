@@ -156,6 +156,8 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const mitiPresetDoneRef = useRef(false);
     const formRef = useRef<HTMLFormElement>(null);
     useSmoothWheelScroll(formRef);
+    const mitigationGridRef = useRef<HTMLDivElement>(null);
+    useSmoothWheelScroll(mitigationGridRef, { stiffness: 50 });
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
@@ -862,6 +864,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                                         )}
                                     </div>
                                     <div
+                                        ref={mitigationGridRef}
                                         id="mitigation-grid-container"
                                         className={clsx(
                                             "grid grid-cols-6 sm:grid-cols-8 gap-2 max-h-[160px] overflow-y-auto p-2 rounded-xl border custom-scrollbar shadow-inner transition-colors relative",
