@@ -2291,7 +2291,7 @@ const Timeline: React.FC = () => {
                         onScroll={handleScrollSync}
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
-                        <div className="relative bg-transparent md:w-max md:min-w-full overflow-y-hidden" style={{
+                        <div className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
                                 let maxPopulatedTime = -11;
