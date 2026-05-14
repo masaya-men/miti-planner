@@ -16,6 +16,14 @@ type Options = {
      *  境界到達時は元から早期 return するため、 子で受けきれない場合の親へのフォール
      *  バックは維持される (子の境界で親にスクロールが委譲される)。 */
     readonly stopPropagation?: boolean;
+    /** false の間は handler 未登録 (登録済みなら解除)。 conditionally rendered な要素
+     *  (例: Modal の `if (!isOpen) return null` パターン) では、 親 (Timeline 等) が
+     *  常時 mount される構造だと useEffect が ref.current=null 時に 1 回走って handler
+     *  未登録のまま固定される (deps が変わらないため再実行されない)。 isOpen のような
+     *  表示フラグを enabled に渡すと isOpen の変化で useEffect が再実行され、 ref.current
+     *  が当たったタイミングで handler が確実に登録される。 デフォルト true (常時 mount
+     *  要素では指定不要)。 */
+    readonly enabled?: boolean;
 };
 
 const MAX_DT = 0.05;
@@ -37,6 +45,7 @@ export function useSmoothWheelScroll(
         horizontalScrollOnShift = false,
         wheelMultiplier = 1,
         stopPropagation = false,
+        enabled = true,
     } = options;
     const isTutorialActive = useTutorialStore((s) => s.isActive);
     const disabled = explicitDisabled || isTutorialActive;
@@ -45,6 +54,7 @@ export function useSmoothWheelScroll(
     const lastAppliedScrollTopRef = useRef<number>(0);
 
     useEffect(() => {
+        if (!enabled) return;
         if (!isSmoothScrollSupported(window)) return;
         const el = ref.current;
         if (!el) return;
@@ -154,5 +164,5 @@ export function useSmoothWheelScroll(
             stateRef.current.velY = 0;
             stateRef.current.lastTime = 0;
         };
-    }, [ref, stiffness, disabled, horizontalScrollOnShift, wheelMultiplier, stopPropagation]);
+    }, [ref, stiffness, disabled, horizontalScrollOnShift, wheelMultiplier, stopPropagation, enabled]);
 }

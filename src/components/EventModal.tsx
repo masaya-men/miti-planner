@@ -155,9 +155,9 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const currentStep = isTutorialActive ? tutorialState.getCurrentStep() : null;
     const mitiPresetDoneRef = useRef(false);
     const formRef = useRef<HTMLFormElement>(null);
-    useSmoothWheelScroll(formRef);
+    useSmoothWheelScroll(formRef, { enabled: isOpen });
     const mitigationGridRef = useRef<HTMLDivElement>(null);
-    useSmoothWheelScroll(mitigationGridRef, { stiffness: 25, wheelMultiplier: 0.4, stopPropagation: true });
+    useSmoothWheelScroll(mitigationGridRef, { stiffness: 25, wheelMultiplier: 0.4, stopPropagation: true, enabled: isOpen });
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
