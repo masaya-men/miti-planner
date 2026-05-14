@@ -1370,19 +1370,15 @@ button, [role="button"], .touch-none {
     }
 }
 
-/* === 縦スクロールバーのみ非表示 (セッション 17) ===
-   軽減アプリ / LP は縦スクロール可能なのが UX 上明白。 視覚的にスッキリさせる。
-   横スクロールバーは残す: 通常モード時に「あえて溢れさせる」 UX で
-   サイドバー閉じる導線として機能させるため、 視覚的に残す。
-   管理画面 ([data-admin-page]) は使いやすさ重視のためデフォルト挙動を残す。 */
-*::-webkit-scrollbar:vertical {
+/* === タイムラインの縦スクロールバーのみ非表示 (セッション 17 → セッション 20 修正) ===
+   軽減表のタイムラインは縦スクロール可能なのが UX 上明白でかつ視覚的にスッキリさせたい。
+   旧実装はグローバル `*` ワイルドカードで全要素の縦バーを消していたため、 モーダル
+   (EventModal / 軽減セレクタ / ジャンプドロップダウン等) でも「スクロール可能」が
+   視覚的に伝わらず UX 上の不具合となっていた。 Timeline scroll container に限定する。
+   横バーは残す (通常モード時に「あえて溢れさせる」 UX サイドバー閉じる導線)。 */
+.timeline-scroll-container::-webkit-scrollbar:vertical {
     width: 0;
     display: none;
-}
-[data-admin-page] *::-webkit-scrollbar:vertical,
-[data-admin-page]::-webkit-scrollbar:vertical {
-    width: revert;
-    display: revert;
 }
 
 /* ===== リキャスト専用行 (セッション 18 ツールバー統合版) ===== */
