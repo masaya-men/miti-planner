@@ -12,7 +12,7 @@
 ## 現在の状態 (次セッションはここから読む)
 
 - **ブランチ**: main 直接
-- **最新本番デプロイ**: セッション 19 末 (占星ドロー chain prompt + タイムライン末尾 stop + 点線廃止 + ジャンプドロップダウン scroll 修正 + vitest hang 自動 cleanup hook)
+- **最新本番デプロイ**: セッション 20 末 (スクロール基盤大整理: 横スクロール復活 / Lenis 撤去 / 縦バー非表示を Timeline 専用化 / useSmoothWheelScroll に enabled・wheelMultiplier・stopPropagation 追加 / Modal handler 永久未登録バグ根本修正 + バグ修正: MitigationSelector 位置 clamp を timeline-rect 基準化 / hover-line を CSS 変数で viewport 連動)
 - **注意**: ENFORCE_APP_CHECK=true、 Vercel 関数 9/12、 月 100 ビルド制限
 - **軽減アプリ: 完成・公開済み** (2026-04-13 完成ツイート済み)
 - **既知の未解決**: 学者列の点線が下まで伸びる本番限定バグ (= 真因不明、 点線描画削除で疑似解決済、 必要なら別セッションで再調査)
