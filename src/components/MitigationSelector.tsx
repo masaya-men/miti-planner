@@ -70,19 +70,26 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         }
 
         const rect = panelRef.current.getBoundingClientRect();
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        
+        // タイムライン scroll container を基準に「タイムライン内に確実に収まる」位置を計算
+        // (フッター高さ等を window.innerHeight から差し引かなくても、 タイムライン rect の
+        // bottom がそのまま「フッター上端 = モーダルが置ける限界」になる)
+        const timelineEl = document.querySelector('.timeline-scroll-container') as HTMLElement | null;
+        const timelineRect = timelineEl?.getBoundingClientRect();
+        const xMin = (timelineRect ? timelineRect.left : 0) + 12;
+        const xMax = (timelineRect ? timelineRect.right : window.innerWidth) - 12;
+        const yMin = (timelineRect ? timelineRect.top : 0) + 12;
+        const yMax = (timelineRect ? timelineRect.bottom : window.innerHeight) - 12;
+
         let nx = position.x;
         let ny = position.y;
 
         // 右端チェック
-        if (nx + rect.width > vw - 12) {
-            nx = Math.max(12, vw - rect.width - 12);
+        if (nx + rect.width > xMax) {
+            nx = Math.max(xMin, xMax - rect.width);
         }
         // 下端チェック
-        if (ny + rect.height > vh - 12) {
-            ny = Math.max(12, vh - rect.height - 12);
+        if (ny + rect.height > yMax) {
+            ny = Math.max(yMin, yMax - rect.height);
         }
 
         // 差分がある場合のみ更新
