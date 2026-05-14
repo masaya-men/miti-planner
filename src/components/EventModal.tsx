@@ -157,7 +157,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     const formRef = useRef<HTMLFormElement>(null);
     useSmoothWheelScroll(formRef);
     const mitigationGridRef = useRef<HTMLDivElement>(null);
-    useSmoothWheelScroll(mitigationGridRef, { stiffness: 50, stopPropagation: true });
+    useSmoothWheelScroll(mitigationGridRef, { stiffness: 25, wheelMultiplier: 0.4, stopPropagation: true });
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
