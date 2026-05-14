@@ -7,6 +7,15 @@ type Options = {
     readonly disabled?: boolean;
     /** true なら Shift+ホイールで横スクロール (deltaY を scrollLeft へ即時反映、 spring なし) */
     readonly horizontalScrollOnShift?: boolean;
+    /** wheel deltaY に掛ける倍率 (デフォルト 1.0)。 stiffness を下げて両端イージングを
+     *  強くしつつ最高速度を維持したいときに 1.5-2.0 を指定する。 横スクロール (Shift+wheel)
+     *  にも同じ倍率が適用される。 */
+    readonly wheelMultiplier?: number;
+    /** true なら wheel preventDefault と同時に stopPropagation も呼び、 親要素の
+     *  useSmoothWheelScroll に伝播させない (= 入れ子スクロール領域での親子競合回避)。
+     *  境界到達時は元から早期 return するため、 子で受けきれない場合の親へのフォール
+     *  バックは維持される (子の境界で親にスクロールが委譲される)。 */
+    readonly stopPropagation?: boolean;
 };
 
 const MAX_DT = 0.05;
@@ -22,7 +31,13 @@ export function useSmoothWheelScroll(
     ref: RefObject<HTMLElement | null>,
     options: Options = {},
 ): void {
-    const { stiffness = 200, disabled: explicitDisabled = false, horizontalScrollOnShift = false } = options;
+    const {
+        stiffness = 200,
+        disabled: explicitDisabled = false,
+        horizontalScrollOnShift = false,
+        wheelMultiplier = 1,
+        stopPropagation = false,
+    } = options;
     const isTutorialActive = useTutorialStore((s) => s.isActive);
     const disabled = explicitDisabled || isTutorialActive;
     const stateRef = useRef<{ targetDy: number; velY: number; lastTime: number }>({ targetDy: 0, velY: 0, lastTime: 0 });
@@ -86,12 +101,14 @@ export function useSmoothWheelScroll(
             if (e.deltaMode === 1) dy *= 16;
             else if (e.deltaMode === 2) dy *= window.innerHeight;
             if (dy === 0) return;
+            dy *= wheelMultiplier;
 
             // Shift+ホイール: deltaY を scrollLeft に即時反映 (spring なし、 ネイティブ感覚優先)
             if (horizontalScrollOnShift && e.shiftKey) {
                 const maxLeft = el.scrollWidth - el.clientWidth;
                 if (maxLeft > 0) {
                     e.preventDefault();
+                    if (stopPropagation) e.stopPropagation();
                     el.scrollLeft = Math.max(0, Math.min(maxLeft, el.scrollLeft + dy));
                 }
                 return;
@@ -101,6 +118,7 @@ export function useSmoothWheelScroll(
             if (boundary !== null) return;
 
             e.preventDefault();
+            if (stopPropagation) e.stopPropagation();
             stateRef.current.targetDy += dy;
 
             if (rafRef.current === null) {
@@ -136,5 +154,5 @@ export function useSmoothWheelScroll(
             stateRef.current.velY = 0;
             stateRef.current.lastTime = 0;
         };
-    }, [ref, stiffness, disabled, horizontalScrollOnShift]);
+    }, [ref, stiffness, disabled, horizontalScrollOnShift, wheelMultiplier, stopPropagation]);
 }
