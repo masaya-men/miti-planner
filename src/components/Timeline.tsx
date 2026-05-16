@@ -3110,7 +3110,7 @@ const Timeline: React.FC = () => {
                                                                 });
                                                             }}
                                                             className={clsx(
-                                                                "aspect-square rounded-xl border flex items-center justify-center relative transition-all active:scale-90",
+                                                                "aspect-square rounded-xl border flex items-center justify-center relative overflow-hidden transition-all active:scale-90",
                                                                 isAlreadyPlaced
                                                                     ? "bg-app-text/20 border-app-text"
                                                                     : status.warning
@@ -3121,18 +3121,18 @@ const Timeline: React.FC = () => {
                                                             )}
                                                         >
                                                             <img src={mit.icon} className="w-9 h-9 object-contain rounded" />
-                                                            {/* リキャスト/使用不可メッセージ — アイコン中央にオーバーレイ */}
+                                                            {/* リキャスト/使用不可メッセージ — 軽くグレーアウト + 文字を下端に詰める */}
                                                             {!status.available && !isAlreadyPlaced && status.message && (
-                                                                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
-                                                                    <span className="text-[10px] leading-tight font-bold text-red-400 text-center px-0.5">
+                                                                <div className="absolute inset-0 bg-black/30">
+                                                                    <span className="absolute bottom-0.5 left-0 right-0 text-[10px] leading-tight font-bold text-red-400 text-center px-1 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
                                                                         {status.message}
                                                                     </span>
                                                                 </div>
                                                             )}
-                                                            {/* リキャスト競合警告 — 配置可能だが将来の配置と被る */}
+                                                            {/* リキャスト競合警告 — 軽くグレーアウト + 文字を下端に詰める */}
                                                             {status.warning && (status.shortMessage || status.message) && (
-                                                                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
-                                                                    <span className="text-[10px] leading-tight font-bold text-amber-400 text-center px-0.5">
+                                                                <div className="absolute inset-0 bg-black/30">
+                                                                    <span className="absolute bottom-0.5 left-0 right-0 text-[10px] leading-tight font-bold text-amber-400 text-center px-1 drop-shadow-[0_1px_1px_rgba(0,0,0,0.9)]">
                                                                         {status.shortMessage || status.message}
                                                                     </span>
                                                                 </div>
