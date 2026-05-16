@@ -5,6 +5,8 @@ import type { TemplateData } from '../data/templateLoader';
 import { getTemplate } from '../data/templateLoader';
 import type { PlanData } from '../types';
 import { useMitigationStore } from './useMitigationStore';
+// useAuthStore は関数内 getState() のみ使用 (module 評価時には触らない) → 循環 import 安全
+import { useAuthStore } from './useAuthStore';
 import { planService } from '../lib/planService';
 import { PLAN_LIMITS } from '../types/firebase';
 import { getContentById } from '../data/contentRegistry';
@@ -108,9 +110,26 @@ export const usePlanStore = create<PlanState>()(
                 // ownerId='' (空文字) は fetchAndMerge で「別端末で削除」と
                 // 誤判定されて localStorage から消える致命バグを起こす。
                 // 入口で 'local' に正規化して、どの呼び出し元でも安全に
-                const normalizedPlan: SavedPlan = plan.ownerId === ''
+                let normalizedPlan: SavedPlan = plan.ownerId === ''
                     ? { ...plan, ownerId: 'local' }
                     : plan;
+                // ログイン中なら最初から uid で作成 (sync race 回避)
+                // 旧仕様だと 'local' で作成 → 後の自動 sync 成功で uid 書換だったが、
+                // 自動 sync は useMitigationStore 変更を契機にデバウンス発火する設計で
+                // addPlan 単独では発火しない。リロード時 beforeunload の sync は
+                // unload と race して書換が persist に間に合わず ownerId='local' のまま
+                // 保存 → 次回起動で LocalImportDialog が誤発火していた。
+                // 最初から uid で作れば race 自体が消える。
+                if (normalizedPlan.ownerId === 'local') {
+                    const authState = useAuthStore.getState();
+                    if (authState.user?.uid) {
+                        normalizedPlan = {
+                            ...normalizedPlan,
+                            ownerId: authState.user.uid,
+                            ownerDisplayName: authState.profileDisplayName || normalizedPlan.ownerDisplayName,
+                        };
+                    }
+                }
                 // 新規作成プランの lastOpened を即記録: silentCompressStale が
                 // 「未記録 = 7日以上未開封」と誤判定して作成直後の plan.data を
                 // 圧縮 (data → undefined / compressedData セット) するのを防ぐ
