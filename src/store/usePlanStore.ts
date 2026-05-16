@@ -89,32 +89,6 @@ interface PlanState {
     silentCompressStale: () => Promise<void>;
 }
 
-/**
- * ログイン中なら ownerId='local' を uid に置換する共通 helper。
- *
- * 旧仕様: 新規プラン作成時に ownerId='local' で作り、 後の自動 sync 成功で uid 書換。
- * しかし自動 sync は useMitigationStore 変更を契機にデバウンス発火する設計のため、
- * addPlan / duplicatePlan 等の単独操作では sync 発火経路がない。
- * リロード時 beforeunload の sync は unload と race して書換が persist に間に合わず、
- * ownerId='local' のまま保存 → 次回起動で LocalImportDialog が誤発火するバグが発生した。
- *
- * → 新規プランを作る全経路の入口で、 ログイン中なら最初から uid をセットする (race-free)。
- * 未ログインなら 'local' のまま (sign-in 時に LocalImportDialog で明示同意の上で取込む設計)。
- *
- * **将来この helper を呼び忘れる新経路を作らないよう注意**。 ownerId='local' で plan を生成
- * → そのまま set している箇所があれば必ずこの helper を通すこと。
- */
-function applyOwnerIdIfLoggedIn(plan: SavedPlan): SavedPlan {
-    if (plan.ownerId !== 'local') return plan;
-    const authState = useAuthStore.getState();
-    if (!authState.user?.uid) return plan;
-    return {
-        ...plan,
-        ownerId: authState.user.uid,
-        ownerDisplayName: authState.profileDisplayName || plan.ownerDisplayName,
-    };
-}
-
 export const usePlanStore = create<PlanState>()(
     persist(
         (set, get) => ({
@@ -136,11 +110,26 @@ export const usePlanStore = create<PlanState>()(
                 // ownerId='' (空文字) は fetchAndMerge で「別端末で削除」と
                 // 誤判定されて localStorage から消える致命バグを起こす。
                 // 入口で 'local' に正規化して、どの呼び出し元でも安全に
-                const stage1: SavedPlan = plan.ownerId === ''
+                let normalizedPlan: SavedPlan = plan.ownerId === ''
                     ? { ...plan, ownerId: 'local' }
                     : plan;
-                // ログイン中なら最初から uid で作成 (sync race 回避)。 詳細は helper コメント参照。
-                const normalizedPlan = applyOwnerIdIfLoggedIn(stage1);
+                // ログイン中なら最初から uid で作成 (sync race 回避)
+                // 旧仕様だと 'local' で作成 → 後の自動 sync 成功で uid 書換だったが、
+                // 自動 sync は useMitigationStore 変更を契機にデバウンス発火する設計で
+                // addPlan 単独では発火しない。リロード時 beforeunload の sync は
+                // unload と race して書換が persist に間に合わず ownerId='local' のまま
+                // 保存 → 次回起動で LocalImportDialog が誤発火していた。
+                // 最初から uid で作れば race 自体が消える。
+                if (normalizedPlan.ownerId === 'local') {
+                    const authState = useAuthStore.getState();
+                    if (authState.user?.uid) {
+                        normalizedPlan = {
+                            ...normalizedPlan,
+                            ownerId: authState.user.uid,
+                            ownerDisplayName: authState.profileDisplayName || normalizedPlan.ownerDisplayName,
+                        };
+                    }
+                }
                 // 新規作成プランの lastOpened を即記録: silentCompressStale が
                 // 「未記録 = 7日以上未開封」と誤判定して作成直後の plan.data を
                 // 圧縮 (data → undefined / compressedData セット) するのを防ぐ
@@ -388,20 +377,16 @@ export const usePlanStore = create<PlanState>()(
                     }
                 }
 
-                // ログイン中なら ownerId='local' を uid に置換 (LocalImportDialog 誤発火防止)。
-                // duplicatePlan は addPlan を経由しないので、 ここで明示的に helper を呼ぶ必要がある。
-                const finalPlan = applyOwnerIdIfLoggedIn(newPlan);
-
                 // ソースプランの直後に挿入
                 const sourceIndex = get().plans.findIndex(p => p.id === planId);
                 const newPlans = [...get().plans];
-                newPlans.splice(sourceIndex + 1, 0, finalPlan);
+                newPlans.splice(sourceIndex + 1, 0, newPlan);
 
                 set({
                     plans: newPlans,
-                    _dirtyPlanIds: new Set([...get()._dirtyPlanIds, finalPlan.id]),
+                    _dirtyPlanIds: new Set([...get()._dirtyPlanIds, newPlan.id]),
                 });
-                return finalPlan;
+                return newPlan;
             },
 
             /**

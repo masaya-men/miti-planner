@@ -44,10 +44,6 @@
 
 ## バグ・不具合 (要修正)
 
-- **致命**: スマホで PC からの変更が同期されない (2026-05-16 報告、 10 分待っても反映なし)。 PULL 経路 / Firestore listener / Service Worker キャッシュのいずれかが疑わしい
-- **致命**: スマホ Timeline 左端のフェーズ列にジョブアイコンが見切れて出る (PC 用要素が media query 漏れの可能性、 2026-05-16 報告)
-- **高**: NewPlanModal の Lv100 リストに「絶妖星乱舞 (DMU)」 が出ない (contents.json には patch=7.51 で登録済、 商客物語など他 Lv100 ダンジョンは出る → カテゴリ/レベルフィルタロジック確認、 2026-05-16 報告)
-- **中**: vitest が無限ループでハングする (Bug 2 検証で再現)。 対症療法 (testTimeout) ではなく根本特定が必要
 - **中**: ラベル名が管理画面で取得できない (スプシヘッダー問題?)
 - **低 (動作影響なし)**: FFLogs インポート英語ログ / 無敵反映 / オートプラン同一技 / パルス設定スライダー初期位置 / ヘッダー縦罫線サブピクセル
 - **Phase 2 follow-up (優先度低)**: api/popular の `viewCount` 削除 / en/ko privacy_section1_auto_items の bullet 分割バグ / `MitigationSheet.copyPlan` の POST 失敗時 localStorage 残留
