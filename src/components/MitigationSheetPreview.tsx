@@ -26,14 +26,6 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading, dis
   const contentLanguage = useThemeStore(s => s.contentLanguage);
   const lang = contentLanguage || (i18n.language.startsWith('ja') ? 'ja' : i18n.language.startsWith('zh') ? 'zh' : i18n.language.startsWith('ko') ? 'ko' : 'en');
 
-  const getJobLabel = (jobId: string | null): string => {
-    if (!jobId) return '-';
-    const job = jobs.find(j => j.id === jobId);
-    if (!job) return jobId.substring(0, 3).toUpperCase();
-    const name = job.name[lang] ?? job.name.en ?? job.name.ja;
-    return name.substring(0, 3).toUpperCase();
-  };
-
   const formatTime = (seconds: number): string => {
     const totalSec = Math.floor(seconds);
     const m = Math.floor(totalSec / 60);
@@ -155,10 +147,22 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading, dis
           <tr>
             <th className="phase-col" />
             <th className="time-col">TIME</th>
-            <th className="attack-col">SKILL</th>
-            {members.map(member => (
-              <th key={member.id}>{getJobLabel(member.jobId)}</th>
-            ))}
+            <th className="attack-col" />
+            {members.map(member => {
+              const job = member.jobId ? jobs.find(j => j.id === member.jobId) : null;
+              return (
+                <th key={member.id} style={{ textAlign: 'center' }}>
+                  {job && (
+                    <img
+                      src={job.icon}
+                      alt={getPhaseName(job.name, lang)}
+                      title={getPhaseName(job.name, lang)}
+                      style={{ width: 14, height: 14, objectFit: 'contain', borderRadius: 3, verticalAlign: 'middle', display: 'inline-block' }}
+                    />
+                  )}
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody>

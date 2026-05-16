@@ -8,7 +8,7 @@
 // - 削除進捗の 3 段テキストを廃止 → SweepOverlay (red) + ✓ ドロップイン + カード退場
 // - spring 値を MitigationSheet と統一 (stiffness: 300, damping: 28)
 // - motion.div に layout prop で内容拡張時の高さアニメ滑らか化
-import { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -239,7 +239,8 @@ export function LimitResolutionSheet() {
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="limit-resolution-title"
-                className="glass-tier3 fixed bottom-0 left-0 right-0 z-[99993] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-red/30"
+                className="glass-tier3 fixed bottom-0 left-0 right-0 z-[99993] rounded-t-[20px] rounded-b-none flex flex-col h-[80vh] border-t border-app-red/30"
+                style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                 layout
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
@@ -268,7 +269,7 @@ export function LimitResolutionSheet() {
                     mobile (hidden md:block) を撤去、 全環境で flex-row。 */}
                 <div className="flex-1 overflow-hidden flex flex-row min-h-0">
                     {/* リスト */}
-                    <div ref={listRef} className="flex-shrink-0 w-[140px] md:w-[200px] border-r border-app-border p-2 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
+                    <div ref={listRef} className="flex-shrink-0 w-[140px] md:w-[280px] border-r border-app-border p-3 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
                         <LayoutGroup>
                             <AnimatePresence>
                                 {targetPlans.map(plan => {

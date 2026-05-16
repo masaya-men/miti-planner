@@ -9,7 +9,7 @@
 //   - backdrop: z=99990
 //   - sheet 本体: z=99991
 //   - LimitResolutionSheet (Task 6) は内部で z=99992/99993 を使い、 本シートの上に重ねる。
-import { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -225,11 +225,10 @@ export function ShareImportSheet() {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="share-import-title"
-                        // 読み込み中は:
-                        //   - min-h-[55vh] でシートを画面下から 55vh 分しっかり見せる
-                        //   - 呼吸アニメは framer-motion の animate keyframe で扱う (snap 防止)
-                        //   - cursor-not-allowed で操作不能であることを明示
-                        className={`glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-2xl rounded-b-none flex flex-col max-h-[90vh] border-t border-app-border ${isLoadingPhase ? 'min-h-[55vh] cursor-not-allowed' : ''}`}
+                        // MitigationSheet (みんなの軽減表) と統一: h-[80vh] / rounded-t-[20px] / share-modal-bg
+                        // 読み込み中は cursor-not-allowed で操作不能であることを明示 (呼吸アニメは維持)
+                        className={`glass-tier3 fixed bottom-0 left-0 right-0 z-[99991] rounded-t-[20px] rounded-b-none flex flex-col h-[80vh] border-t border-app-border ${isLoadingPhase ? 'cursor-not-allowed' : ''}`}
+                        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                         layout
                         initial={{ y: '100%' }}
                         animate={
@@ -340,7 +339,7 @@ export function ShareImportSheet() {
                             <>
                                 <div className="flex-1 overflow-hidden flex flex-row min-h-0">
                                     {/* Left list (#1: 単一でも常に描画) */}
-                                    <div ref={leftListRef} className="flex-shrink-0 w-[140px] md:w-[200px] border-r border-app-border p-2 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
+                                    <div ref={leftListRef} className="flex-shrink-0 w-[140px] md:w-[280px] border-r border-app-border p-3 overflow-y-auto bg-app-surface2/30 flex flex-col gap-2">
                                         <LayoutGroup>
                                             {importItems.map((item) => {
                                                 const itemPlanId = item.sourcePlanId ?? item.sourceShareId;
