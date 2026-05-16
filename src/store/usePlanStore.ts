@@ -424,7 +424,7 @@ export const usePlanStore = create<PlanState>()(
                     }
 
                     // dirtyプランの同期（リモート削除検出・競合検出付き）
-                    const { deletedRemotely, conflicted } = await planService.syncDirtyPlans(
+                    const { deletedRemotely, conflicted, syncedIds } = await planService.syncDirtyPlans(
                         syncingDirtyIds,
                         state.plans,
                         uid,
@@ -461,6 +461,8 @@ export const usePlanStore = create<PlanState>()(
                     }
 
                     // 同期完了 → 同期した分のみをdirty/deletedから除去（同期中に追加された分は残す）
+                    // 同時に ownerId='local' → uid に書き換え (LocalImportDialog 誤発火防止)
+                    const syncedIdSet = new Set(syncedIds);
                     set((current) => {
                         const remainingDirty = new Set(current._dirtyPlanIds);
                         for (const id of syncingDirtyIds) remainingDirty.delete(id);
@@ -469,7 +471,15 @@ export const usePlanStore = create<PlanState>()(
                         for (const id of syncingDeletedIds) {
                             if (!failedDeleteIds.has(id)) remainingDeleted.delete(id);
                         }
+                        const updatedPlans = syncedIdSet.size > 0
+                            ? current.plans.map(p =>
+                                syncedIdSet.has(p.id) && p.ownerId === 'local'
+                                    ? { ...p, ownerId: uid, ownerDisplayName: displayName }
+                                    : p
+                            )
+                            : current.plans;
                         return {
+                            plans: updatedPlans,
                             _dirtyPlanIds: remainingDirty,
                             _deletedPlanIds: remainingDeleted,
                             _lastSyncAt: Date.now(),
@@ -508,12 +518,28 @@ export const usePlanStore = create<PlanState>()(
                     // dirtyプランのみ同期（盲目的に全プランをpushしない）
                     // ログアウト時なので競合コピーは作らない（次回ログイン時にmigrateOnLoginが処理）
                     if (state._dirtyPlanIds.size > 0) {
-                        await planService.syncDirtyPlans(
-                            state._dirtyPlanIds,
-                            state.plans,
-                            uid,
-                            displayName,
-                        ).catch(err => console.error('Firestore強制同期エラー:', err));
+                        try {
+                            const { syncedIds } = await planService.syncDirtyPlans(
+                                state._dirtyPlanIds,
+                                state.plans,
+                                uid,
+                                displayName,
+                            );
+                            // 成功した分は ownerId='local' → uid に書き換え
+                            // (ログアウト直後に再ログインしたとき LocalImportDialog 誤発火を防ぐ)
+                            if (syncedIds.length > 0) {
+                                const syncedIdSet = new Set(syncedIds);
+                                set((current) => ({
+                                    plans: current.plans.map(p =>
+                                        syncedIdSet.has(p.id) && p.ownerId === 'local'
+                                            ? { ...p, ownerId: uid, ownerDisplayName: displayName }
+                                            : p
+                                    ),
+                                }));
+                            }
+                        } catch (err) {
+                            console.error('Firestore強制同期エラー:', err);
+                        }
                     }
                 };
 
@@ -695,7 +721,7 @@ export const usePlanStore = create<PlanState>()(
                                 }
                             }
                         }
-                        const { deletedRemotely, conflicted } = await planService.syncDirtyPlans(
+                        const { deletedRemotely, conflicted, syncedIds } = await planService.syncDirtyPlans(
                             pushState._dirtyPlanIds,
                             pushState.plans,
                             uid,
@@ -723,10 +749,19 @@ export const usePlanStore = create<PlanState>()(
                         for (const planId of deletedRemotely) {
                             get().deletePlan(planId);
                         }
-                        set({
+                        // 同期成功した分は ownerId='local' → uid に書き換え
+                        const syncedIdSet = new Set(syncedIds);
+                        set((current) => ({
+                            plans: syncedIdSet.size > 0
+                                ? current.plans.map(p =>
+                                    syncedIdSet.has(p.id) && p.ownerId === 'local'
+                                        ? { ...p, ownerId: uid, ownerDisplayName: displayName }
+                                        : p
+                                )
+                                : current.plans,
                             _dirtyPlanIds: new Set<string>(),
                             _deletedPlanIds: new Set<string>(),
-                        });
+                        }));
                     }
 
                     // PULL: Firestoreから最新を取得
