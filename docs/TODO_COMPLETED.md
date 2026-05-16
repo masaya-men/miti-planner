@@ -2,6 +2,42 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-16 セッション 22・バグ 5 件 + admin リファクタ + 同期ボタンインジケータ化）
+
+**背景**: セッション 21 末で記録した 4 バグ (スマホアイコン見切れ / DMU 出ない / ホイール不可 / 同期 error 一時表示) を解消。 途中で admin 「コンテンツ管理」 が長年機能していなかったことが判明し、 一括修正。 同期ボタンも仕様確定済の「インジケータ化」 を同セッションで実装。
+
+### 完了内容
+
+- **致命: スマホ Timeline 左端ジョブアイコン見切れ** ([Timeline.tsx](src/components/Timeline.tsx)): MitigationItem (PC 用ドラッグアイコン) rendering ブロックに `!isMobileTimeline` ガード追加。 元々 mobile は MitiIcons (MobileTimelineRow 内) が表示を担うのに PC 用も呼ばれて colStart=0 で左端に貼り付いていた。 1 行修正
+- **高: DMU が NewPlanModal に出ない**: `scripts/seed-contents.ts` を新規作成し contents.json → Firestore /master/contents をスマートマージ書込。 DMU 含む全 64 items を反映。 副次的に「contents.json 更新後の Firestore 同期問題」 を 1 コマンド化
+- **高: NewPlanModal の並び順**: [NewPlanModal.tsx](src/components/NewPlanModal.tsx) の filteredBosses をシリーズ単位で patch 降順にソート。 「新しいパッチが上」 のユーザー期待を回復
+- **高: admin コンテンツ管理が機能していなかった (積年バグ)**: ドロップダウンの KNOWN_SERIES の ID (`arcadion_hw` 等) が実体 (`aac_heavy` 等) と乖離していて NewPlanModal に出ないという長年の地雷。 [AdminContentForm.tsx](src/components/admin/AdminContentForm.tsx) / [AdminContents.tsx](src/components/admin/AdminContents.tsx) / [ContentWizard.tsx](src/components/admin/wizard/ContentWizard.tsx) の 3 ファイルで (1) KNOWN_SERIES 撤廃して CONTENT_SERIES から動的取得 (2) 絶 (ultimate) は seriesId = id 自動 + 新規時は series 同時作成 (3) 新シリーズモードに名前 (JA/EN) 入力追加 + series オブジェクトを API に同送
+- **高: admin 同期ボタン smart merge 統一**: [_syncHandler.ts](api/admin/_syncHandler.ts) が JOBS/MITIGATIONS/patchStats を完全上書きしていて、 admin で追加したスキル / ジョブを消す危険があった。 seed-skills-stats.ts と同じスマートマージ方式に統一。 [seed-skills-stats.ts](scripts/seed-skills-stats.ts) もジョブ / patchStats のマージを追加して挙動を統一
+- **高: 共有リンク取込プレビュー ホイール不可**: `useSmoothWheelScroll` の hook が条件レンダリング要素には `enabled` プロップを渡す必要がある (= hook の JSDoc にも明記された罠) のに、 [ShareImportSheet.tsx](src/components/ShareImportSheet.tsx) / [LimitResolutionSheet.tsx](src/components/LimitResolutionSheet.tsx) / [LocalImportDialog.tsx](src/components/LocalImportDialog.tsx) の 3 箇所で渡していなかった。 全て `enabled: isOpen` 相当を渡す形に修正
+- **中: 同期 error 一時表示**: `pullFromFirestore` ([usePlanStore.ts](src/store/usePlanStore.ts)) の失敗が `_cloudStatus='error'` を設定していた。 5 分定期 PULL / タブ切替 PULL の失敗が「再試行成功後にしばらくしてエラー表示 → リロードで治る」 の原因。 PULL は読み取りのみでデータ影響なしなので、 失敗時は直前の状態を維持するように変更。 PUSH 失敗のエラー表示は維持
+- **同期ボタン UI インジケータ化** (相談で仕様確定済): [SyncButton.tsx](src/components/SyncButton.tsx) を「ボタン」 から「インジケータ」 に格下げ。 通常時 = CloudCheck (色なし・文言なし) / 同期中 = RotateCw くるくる回転 (色なし・文言なし) / エラー時のみ赤 + 文言 (タップで再試行)。 スマホ FAB からは sync メニュー完全撤去 ([MobileFAB.tsx](src/components/MobileFAB.tsx))
+
+### 副産物 (継続利用ツール)
+
+- **`scripts/seed-contents.ts`**: contents.json → Firestore /master/contents をスマートマージ同期。 今後 add-content.mjs で新ボス追加後に 1 コマンドで Firestore 反映できる
+- **`scripts/audit-contents.ts`**: Firestore master/contents の健全性チェック。 「seriesId が壊れた items が無いか」 等を一発で監査
+
+### TODO / memory 更新
+
+- TODO.md の「相談したい」 から同期ボタン UI 改修 entry を完了として削除
+- バグセクションから完了 4 件 (致命 / 高 3 / 中 1) を削除
+- memory `feedback_content_firestore_sync.md` を更新: 「seed-contents.ts を実行する」 が正規ワークフロー
+
+### コード品質・検証
+
+- TypeScript build 通過 (strict)
+- vitest 71 ファイル 694 tests 全 pass (回帰なし)
+- 既存 Firestore データに対しては audit-contents で「異常なし」 確認済
+
+**結果**: ローカル開発を最大限活用しつつ admin の積年バグも一掃。 「今後 admin から普通に追加すれば NewPlanModal にもサイドメニューにも出る」 状態を確立。 Vercel ビルド 1 つで全部反映。
+
+---
+
 ## 完了（2026-05-13 セッション 19 終盤・タイムライン末尾 stop + 点線廃止 + ジャンプドロップダウン scroll + vitest hang 対策）
 
 **背景**: 占星ドロー chain prompt 完了後、 ユーザーがタイムライン本体の挙動に複数の懸念を表明。 また vitest プロセスの hang 問題が顕在化したため、 開発環境改善も並行実施。

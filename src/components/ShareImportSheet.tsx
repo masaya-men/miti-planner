@@ -106,8 +106,12 @@ export function ShareImportSheet() {
 
     const leftListRef = useRef<HTMLDivElement>(null);
     const rightPreviewRef = useRef<HTMLDivElement>(null);
-    useSmoothWheelScroll(leftListRef);
-    useSmoothWheelScroll(rightPreviewRef);
+    // status が preview/importing/limit_hit/done のときだけ list/preview の div が描画されるので、
+    // 同じ条件で hook を enable する (= ref.current 確定後に handler を登録)。
+    // 渡さないと initial mount 時に ref.current=null で早期 return → handler 未登録のまま固定される。
+    const isPreviewVisible = status === 'preview' || status === 'importing' || status === 'limit_hit' || status === 'done';
+    useSmoothWheelScroll(leftListRef, { enabled: isPreviewVisible });
+    useSmoothWheelScroll(rightPreviewRef, { enabled: isPreviewVisible });
 
     const authUser = useAuthStore((s) => s.user);
 

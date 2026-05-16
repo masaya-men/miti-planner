@@ -4,14 +4,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
     MoreHorizontal, X, List, Tag, Search,
-    Cloud, CloudCheck, CloudUpload, CloudAlert,
     Globe, Sun, Moon,
     Rows3, AlignJustify, PictureInPicture2, ChevronDown,
 } from 'lucide-react';
 import clsx from 'clsx';
-import { useAuthStore } from '../store/useAuthStore';
-import { usePlanStore } from '../store/usePlanStore';
-import { useMitigationStore } from '../store/useMitigationStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ContentLanguage } from '../store/useThemeStore';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
@@ -94,25 +90,9 @@ const langChipVariants = {
     },
 };
 
-// ─── Sync ボタン内ロジック（SyncButton.tsx と同じ） ───
-function useSyncState() {
-    const currentPlanId = usePlanStore(s => s.currentPlanId);
-    const cloudStatus = usePlanStore(s => s._cloudStatus);
-    const user = useAuthStore(s => s.user);
-    const profileDisplayName = useAuthStore(s => s.profileDisplayName);
-
-    const handleSync = () => {
-        if (!user) return;
-        const planStore = usePlanStore.getState();
-        if (planStore.currentPlanId) {
-            const snapshot = useMitigationStore.getState().getSnapshot();
-            planStore.updatePlan(planStore.currentPlanId, { data: snapshot });
-        }
-        planStore.manualSync(user.uid, profileDisplayName || 'User');
-    };
-
-    return { canSync: !!(currentPlanId && user), cloudStatus, handleSync };
-}
+// セッション 22: スマホは同期ボタン完全撤去。 FAB メニュー奥で結局見えないし、
+// 自動同期が信頼できる状態なので意味も乏しい。 PC ヘッダのインジケータ (SyncButton)
+// にエラー時のみ気づける形に集約。
 
 export const MobileFAB: React.FC<MobileFABProps> = ({
     onToggleTheme,
@@ -130,7 +110,6 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const [langOpen, setLangOpen] = React.useState(false);
     const [selectedLang, setSelectedLang] = React.useState<ContentLanguage | null>(null);
     const langTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-    const { canSync, cloudStatus, handleSync } = useSyncState();
 
     // メニューのスクロール可否（端のフェード + ↓ アイコン表示用）
     const menuRef = React.useRef<HTMLDivElement>(null);
@@ -224,30 +203,10 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         onToggleTheme();
     };
 
-    // 同期
-    const handleSyncClick = () => {
-        if (cloudStatus === 'syncing') return;
-        handleSync();
-        close();
-    };
-
     // ナビゲーションアクション
     const handlePhase = () => { close(); onPhaseJump?.(); };
     const handleLabel = () => { close(); onLabelJump?.(); };
     const handleSearch = () => { close(); onMechanicSearch?.(); };
-
-    // Sync アイコン選択
-    let SyncIcon = canSync ? CloudCheck : Cloud;
-    let syncIconClass = canSync ? 'text-app-blue' : 'text-app-text-muted';
-    let syncAnimate = '';
-    if (canSync && cloudStatus === 'syncing') {
-        SyncIcon = CloudUpload;
-        syncIconClass = 'text-app-text/40';
-        syncAnimate = 'animate-pulse';
-    } else if (canSync && cloudStatus === 'error') {
-        SyncIcon = CloudAlert;
-        syncIconClass = 'text-red-400';
-    }
 
     // FAB items
     const navItems = [
@@ -289,14 +248,6 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     ];
 
     const settingsItems = [
-        {
-            key: 'sync',
-            label: t('app.fab_sync'),
-            icon: <SyncIcon size={20} className={clsx(syncAnimate, syncIconClass)} />,
-            onClick: handleSyncClick,
-            accent: true,
-            disabled: canSync && cloudStatus === 'syncing',
-        },
         {
             key: 'language',
             label: t('app.fab_language'),

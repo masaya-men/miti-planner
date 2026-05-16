@@ -60,50 +60,71 @@ const db = getFirestore();
 
 console.log('✅ Firebase Admin 初期化完了');
 
-// /master/skills — マージ方式
-// 1. Firestoreの既存mitigationsを取得
+// /master/skills スマートマージ書き込み
+// - JOBS / MITIGATIONS は mockData.ts の値を反映、 Firestore のみに存在する admin 追加分は保持
+// - displayOrder も同様 (mockData の順序を底にして Firestore のみの id を末尾追加)
 const existingSkillsSnap = await db.doc('master/skills').get();
-const existingMitigations: any[] = existingSkillsSnap.exists
-  ? (existingSkillsSnap.data()?.mitigations ?? [])
-  : [];
+const existingSkills = existingSkillsSnap.exists ? existingSkillsSnap.data() : null;
+const existingJobs: any[] = existingSkills?.jobs ?? [];
+const existingMits: any[] = existingSkills?.mitigations ?? [];
+const existingOrder: string[] = existingSkills?.displayOrder ?? [];
 
-// 2. mockData.tsのIDセットを作成
-const mockIds = new Set(MITIGATIONS.map(m => m.id));
+const mockJobIds = new Set(JOBS.map(j => j.id));
+const mockMitIds = new Set(MITIGATIONS.map(m => m.id));
+const mockOrderSet = new Set(MITIGATION_DISPLAY_ORDER);
 
-// 3. Firestoreにしかないスキルを保持
-const firestoreOnly = existingMitigations.filter((m: any) => !mockIds.has(m.id));
-if (firestoreOnly.length > 0) {
-  console.log(`📌 Firestoreのみのスキルを保持: ${firestoreOnly.map((m: any) => m.id).join(', ')}`);
+const firestoreOnlyJobs = existingJobs.filter((j: any) => !mockJobIds.has(j.id));
+const firestoreOnlyMits = existingMits.filter((m: any) => !mockMitIds.has(m.id));
+const firestoreOnlyOrder = existingOrder.filter((id: string) => !mockOrderSet.has(id));
+
+if (firestoreOnlyJobs.length > 0) {
+  console.log(`📌 Firestore のみの jobs を保持: ${firestoreOnlyJobs.map((j: any) => j.id).join(', ')}`);
+}
+if (firestoreOnlyMits.length > 0) {
+  console.log(`📌 Firestore のみの mitigations を保持: ${firestoreOnlyMits.map((m: any) => m.id).join(', ')}`);
 }
 
-// 4. マージ: mockData.ts + Firestoreのみのスキル
-const mergedMitigations = [...MITIGATIONS, ...firestoreOnly];
+const mergedJobs = [...JOBS, ...firestoreOnlyJobs];
+const mergedMits = [...MITIGATIONS, ...firestoreOnlyMits];
+const mergedOrder = [...MITIGATION_DISPLAY_ORDER, ...firestoreOnlyOrder];
 
-const skillsDoc = {
-  jobs: JOBS,
-  mitigations: mergedMitigations,
-  displayOrder: MITIGATION_DISPLAY_ORDER,
+await db.doc('master/skills').set({
+  jobs: mergedJobs,
+  mitigations: mergedMits,
+  displayOrder: mergedOrder,
+});
+console.log(`✅ /master/skills 書き込み完了 (jobs: ${mergedJobs.length}, mitigations: ${mergedMits.length})`);
+
+// /master/stats — patchStats のみスマートマージ (admin で追加した patch を保持)
+const existingStatsSnap = await db.doc('master/stats').get();
+const existingStats = existingStatsSnap.exists ? existingStatsSnap.data() : null;
+const existingPatchStats: Record<string, unknown> = existingStats?.patchStats ?? {};
+
+const mockPatchStats = {
+  ...DT_PATCH_STATS,
+  ...EW_PATCH_STATS,
+  ...SHB_PATCH_STATS,
+  ...SB_PATCH_STATS,
 };
-await db.doc('master/skills').set(skillsDoc);
-console.log(`✅ /master/skills 書き込み完了 (mockData: ${MITIGATIONS.length}, Firestoreのみ保持: ${firestoreOnly.length}, 合計: ${mergedMitigations.length})`);
+const mockPatchKeys = new Set(Object.keys(mockPatchStats));
+const firestoreOnlyPatches: Record<string, unknown> = {};
+for (const [k, v] of Object.entries(existingPatchStats)) {
+  if (!mockPatchKeys.has(k)) firestoreOnlyPatches[k] = v;
+}
+if (Object.keys(firestoreOnlyPatches).length > 0) {
+  console.log(`📌 Firestore のみの patchStats を保持: ${Object.keys(firestoreOnlyPatches).join(', ')}`);
+}
 
-// /master/stats
-const statsDoc = {
+await db.doc('master/stats').set({
   levelModifiers: LEVEL_MODIFIERS,
-  patchStats: {
-    ...DT_PATCH_STATS,
-    ...EW_PATCH_STATS,
-    ...SHB_PATCH_STATS,
-    ...SB_PATCH_STATS,
-  },
+  patchStats: { ...mockPatchStats, ...firestoreOnlyPatches },
   defaultStatsByLevel: {
     100: '7.40',
     90: '6.40',
     80: '5.40',
     70: '4.40',
   },
-};
-await db.doc('master/stats').set(statsDoc);
+});
 console.log('✅ /master/stats 書き込み完了');
 
 // dataVersion を+1

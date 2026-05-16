@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
-import { AdminContentForm, type ContentData } from './AdminContentForm';
+import { AdminContentForm, type ContentData, type NewSeriesPayload } from './AdminContentForm';
 
 export function AdminContents() {
   const { t } = useTranslation();
@@ -53,32 +53,37 @@ export function AdminContents() {
   }, [fetchContents]);
 
   /** 保存（新規 or 更新） */
-  const handleSave = async (data: ContentData) => {
+  const handleSave = async (data: ContentData, newSeries?: NewSeriesPayload) => {
     try {
       setSaving(true);
       const isNew = !editing?.id;
+      const body: Record<string, unknown> = {
+        item: {
+          id: data.id,
+          name: {
+            ja: data.nameJa,
+            en: data.nameEn,
+            ...(data.nameZh ? { zh: data.nameZh } : {}),
+            ...(data.nameKo ? { ko: data.nameKo } : {}),
+          },
+          shortName: { ja: data.shortNameJa, en: data.shortNameEn },
+          category: data.category,
+          level: data.level,
+          patch: data.patch,
+          seriesId: data.seriesId,
+          order: data.order,
+          fflogsEncounterId: data.fflogsEncounterId,
+          hasCheckpoint: data.hasCheckpoint ?? false,
+        },
+      };
+      // 新規追加で「新シリーズも同時に作成」 指定がある場合のみ series を同送
+      if (isNew && newSeries) {
+        body.series = newSeries;
+      }
       const res = await apiFetch('/api/admin?resource=contents', {
         method: isNew ? 'POST' : 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          item: {
-            id: data.id,
-            name: {
-              ja: data.nameJa,
-              en: data.nameEn,
-              ...(data.nameZh ? { zh: data.nameZh } : {}),
-              ...(data.nameKo ? { ko: data.nameKo } : {}),
-            },
-            shortName: { ja: data.shortNameJa, en: data.shortNameEn },
-            category: data.category,
-            level: data.level,
-            patch: data.patch,
-            seriesId: data.seriesId,
-            order: data.order,
-            fflogsEncounterId: data.fflogsEncounterId,
-            hasCheckpoint: data.hasCheckpoint ?? false,
-          },
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(res.statusText);
       showToast(t('admin.contents_saved'));

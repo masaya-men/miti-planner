@@ -66,7 +66,8 @@ export const LocalImportDialog: React.FC<LocalImportDialogProps> = ({
     const uploadStartTimes = useRef<Map<string, number>>(new Map());
     /** body スクロールエリア (sweep 中の行を viewport 中央へ自動スクロールする用) */
     const bodyRef = useRef<HTMLDivElement | null>(null);
-    useSmoothWheelScroll(bodyRef);
+    // isOpen=false のときは return null で body も unmount される → 条件付き enable で罠回避。
+    useSmoothWheelScroll(bodyRef, { enabled: isOpen });
 
     // ダイアログが「閉→開」に変化した瞬間にだけ plans をスナップショット + state を再初期化
     // (deps から plans を外すことで、取り込み中の親の plans 縮小に反応しない)

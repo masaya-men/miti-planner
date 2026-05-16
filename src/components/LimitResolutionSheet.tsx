@@ -82,8 +82,11 @@ export function LimitResolutionSheet() {
 
     const listRef = useRef<HTMLDivElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
-    useSmoothWheelScroll(listRef);
-    useSmoothWheelScroll(previewRef);
+    // limitContext===null のときは return null で divs 自体が unmount される (= ref.current=null)。
+    // 同じ条件で hook を enable する (= isPreviewVisible 同様の罠回避)。
+    const isOpen = limitContext !== null;
+    useSmoothWheelScroll(listRef, { enabled: isOpen });
+    useSmoothWheelScroll(previewRef, { enabled: isOpen });
 
     // 2 回目以降の上限ヒットで前回の local state が残る問題への対処。
     // 本コンポーネントは ShareImportSheet から無条件レンダリングされており、

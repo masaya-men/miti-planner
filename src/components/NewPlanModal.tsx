@@ -71,10 +71,17 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     const titleInputRef = useRef<HTMLInputElement>(null);
 
     // 零式・絶の場合のみドロップダウン用のコンテンツリストを生成
+    // シリーズ単位で patch 降順 (新パッチ上)、 シリーズ内は order 昇順 (P1 → 本体、 1 層 → 4 層)。
     const filteredBosses = React.useMemo(() => {
         if (!level || !hasContentRegistry(category)) return [];
         const series = getSeriesByLevel(level).filter(s => s.category === category);
-        return series.flatMap(s => getContentBySeries(s.id));
+        const seriesWithContents = series.map(s => ({ series: s, contents: getContentBySeries(s.id) }));
+        seriesWithContents.sort((a, b) => {
+            const maxPatch = (items: ContentDefinition[]) =>
+                items.reduce((acc, c) => (c.patch.localeCompare(acc, undefined, { numeric: true }) > 0 ? c.patch : acc), '0');
+            return maxPatch(b.contents).localeCompare(maxPatch(a.contents), undefined, { numeric: true });
+        });
+        return seriesWithContents.flatMap(sc => sc.contents);
     }, [level, category]);
 
     // フィルタ変更時にbossをリセット

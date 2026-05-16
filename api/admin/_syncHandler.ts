@@ -59,22 +59,54 @@ export default async function handler(req: any, res: any) {
 
     const db = getAdminFirestore();
 
-    // /master/skills 書き込み
+    // /master/skills スマートマージ書き込み
+    // - JOBS / MITIGATIONS: mockData.ts の値を反映、 ただし Firestore のみに存在する admin 追加分は保持
+    // - displayOrder: mockData.ts の順序を底に、 Firestore のみの id を末尾追加
+    const existingSkillsSnap = await db.doc('master/skills').get();
+    const existingSkills = existingSkillsSnap.exists ? existingSkillsSnap.data() : null;
+    const existingJobs: any[] = existingSkills?.jobs ?? [];
+    const existingMits: any[] = existingSkills?.mitigations ?? [];
+    const existingOrder: string[] = existingSkills?.displayOrder ?? [];
+
+    const mockJobIds = new Set(JOBS.map((j) => j.id));
+    const mockMitIds = new Set(MITIGATIONS.map((m) => m.id));
+    const mockOrderSet = new Set(MITIGATION_DISPLAY_ORDER);
+
+    const firestoreOnlyJobs = existingJobs.filter((j: any) => !mockJobIds.has(j.id));
+    const firestoreOnlyMits = existingMits.filter((m: any) => !mockMitIds.has(m.id));
+    const firestoreOnlyOrder = existingOrder.filter((id: string) => !mockOrderSet.has(id));
+
+    const mergedJobs = [...JOBS, ...firestoreOnlyJobs];
+    const mergedMits = [...MITIGATIONS, ...firestoreOnlyMits];
+    const mergedOrder = [...MITIGATION_DISPLAY_ORDER, ...firestoreOnlyOrder];
+
     await db.doc('master/skills').set({
-      jobs: JOBS,
-      mitigations: MITIGATIONS,
-      displayOrder: MITIGATION_DISPLAY_ORDER,
+      jobs: mergedJobs,
+      mitigations: mergedMits,
+      displayOrder: mergedOrder,
     });
 
-    // /master/stats 書き込み
+    // /master/stats 書き込み (patchStats のみスマートマージ、 admin 追加した patch を保持)
+    const existingStatsSnap = await db.doc('master/stats').get();
+    const existingStats = existingStatsSnap.exists ? existingStatsSnap.data() : null;
+    const existingPatchStats: Record<string, unknown> = existingStats?.patchStats ?? {};
+
+    const mockPatchStats = {
+      ...DT_PATCH_STATS,
+      ...EW_PATCH_STATS,
+      ...SHB_PATCH_STATS,
+      ...SB_PATCH_STATS,
+    };
+    const mockPatchKeys = new Set(Object.keys(mockPatchStats));
+    // Firestore にしかない patch を抽出
+    const firestoreOnlyPatches: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(existingPatchStats)) {
+      if (!mockPatchKeys.has(k)) firestoreOnlyPatches[k] = v;
+    }
+
     await db.doc('master/stats').set({
       levelModifiers: LEVEL_MODIFIERS,
-      patchStats: {
-        ...DT_PATCH_STATS,
-        ...EW_PATCH_STATS,
-        ...SHB_PATCH_STATS,
-        ...SB_PATCH_STATS,
-      },
+      patchStats: { ...mockPatchStats, ...firestoreOnlyPatches },
       defaultStatsByLevel: {
         100: '7.40',
         90: '6.40',
@@ -96,9 +128,14 @@ export default async function handler(req: any, res: any) {
       adminUid,
       changes: {
         after: {
-          type: 'sync_from_source',
-          jobs: JOBS.length,
-          mitigations: MITIGATIONS.length,
+          type: 'sync_from_source_smart_merge',
+          mockJobs: JOBS.length,
+          mockMitigations: MITIGATIONS.length,
+          preservedJobs: firestoreOnlyJobs.length,
+          preservedMitigations: firestoreOnlyMits.length,
+          preservedPatchStats: Object.keys(firestoreOnlyPatches).length,
+          finalJobs: mergedJobs.length,
+          finalMitigations: mergedMits.length,
         },
       },
     });
@@ -106,14 +143,17 @@ export default async function handler(req: any, res: any) {
     // Discord通知
     await sendDiscordNotification({
       title: 'スキル・ステータス同期',
-      description: `ソースコードからFirestoreへ同期しました（jobs: ${JOBS.length}, mitigations: ${MITIGATIONS.length}）`,
+      description: `ソースコードからFirestoreへ同期しました（ジョブ ${mergedJobs.length} = mockData ${JOBS.length} + 保持 ${firestoreOnlyJobs.length}, スキル ${mergedMits.length} = mockData ${MITIGATIONS.length} + 保持 ${firestoreOnlyMits.length}）`,
       color: 0x3b82f6,
     });
 
     return res.status(200).json({
       ok: true,
-      jobs: JOBS.length,
-      mitigations: MITIGATIONS.length,
+      jobs: mergedJobs.length,
+      mitigations: mergedMits.length,
+      preservedJobs: firestoreOnlyJobs.length,
+      preservedMitigations: firestoreOnlyMits.length,
+      preservedPatchStats: Object.keys(firestoreOnlyPatches).length,
     });
   } catch (err: any) {
     console.error('[sync] error:', err);

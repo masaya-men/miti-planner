@@ -251,6 +251,10 @@ export const usePlanStore = create<PlanState>()(
                     return;
                 }
 
+                // PULL 開始時点の状態を捕捉。 PULL 失敗時はここに復元する (= ユーザーが見ていた
+                // 「同期済」 等の正しい状態を、 読み取り失敗だけで 'error' に上書きしないため)。
+                const prevStatus = state._cloudStatus;
+
                 set({ _isSyncing: true, _cloudStatus: 'syncing' });
                 try {
                     const { merged, changed } = await planService.fetchAndMerge(
@@ -286,7 +290,15 @@ export const usePlanStore = create<PlanState>()(
                     set({ _isSyncing: false, _cloudStatus: 'synced' });
                 } catch (err) {
                     console.error('Firestore PULL エラー:', err);
-                    set({ _isSyncing: false, _cloudStatus: 'error' });
+                    // PULL は読み取り操作 (= ユーザーデータには影響なし) なので、 失敗しても
+                    // 'error' で警告しない。 直前の状態を復元する。 たとえば PUSH 成功直後
+                    // ('synced') にバックグラウンド PULL が失敗しても、 'synced' を維持する。
+                    // これによりログイン後 5 分定期 PULL / タブ切替 PULL が失敗しても、
+                    // 「リロードしないと treat エラーが消えない」 という UX 違和感が解消される。
+                    set({
+                        _isSyncing: false,
+                        _cloudStatus: prevStatus === 'synced' ? 'synced' : 'idle',
+                    });
                 }
             },
 

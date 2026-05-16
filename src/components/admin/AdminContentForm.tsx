@@ -3,8 +3,9 @@
  * 新規追加・編集の両方に対応
  * 「間違えようがない」をコンセプトに、全フィールドに具体例と説明を表示
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CONTENT_SERIES } from '../../data/contentRegistry';
 
 /** コンテンツデータの型 */
 export interface ContentData {
@@ -40,19 +41,8 @@ const LEVELS = [
   { value: 70, ja: 'Lv70（紅蓮）', en: 'Lv70 (Stormblood)' },
 ] as const;
 
-/** 既存のシリーズ一覧 */
-const KNOWN_SERIES = [
-  { id: 'arcadion_hw', ja: '至天の座（ヘビー級）', en: 'Arcadion Heavyweight' },
-  { id: 'arcadion_cw', ja: '至天の座（クルーザー級）', en: 'Arcadion Cruiserweight' },
-  { id: 'arcadion_lw', ja: '至天の座（ライト級）', en: 'Arcadion Lightweight' },
-  { id: 'pandaemonium_4', ja: '煉獄編', en: 'Pandaemonium Anabaseios' },
-  { id: 'pandaemonium_3', ja: '天獄編', en: 'Pandaemonium Abyssos' },
-  { id: 'pandaemonium_2', ja: '辺獄編', en: 'Pandaemonium Asphodelos' },
-  { id: 'pandaemonium_1', ja: '万魔殿', en: 'Pandaemonium' },
-  { id: 'eden_4', ja: '再生編', en: "Eden's Promise" },
-  { id: 'eden_3', ja: '共鳴編', en: "Eden's Verse" },
-  { id: 'eden_2', ja: '覚醒編', en: "Eden's Gate" },
-] as const;
+// KNOWN_SERIES は廃止。 contentRegistry.ts の CONTENT_SERIES (= contents.json から自動生成) を動的に使う。
+// これで「ドロップダウンの ID」 と「実体の ID」 が必ず一致する。
 
 /** 零式の層選択 */
 const SAVAGE_TIERS = [
@@ -96,9 +86,17 @@ export function emptyContent(): ContentData {
   };
 }
 
+/** 新規シリーズも併せて作成する場合に onSave に渡されるオブジェクト */
+export interface NewSeriesPayload {
+  id: string;
+  name: { ja: string; en: string };
+  category: string;
+  level: number;
+}
+
 interface Props {
   initial: ContentData | null;
-  onSave: (data: ContentData) => Promise<void>;
+  onSave: (data: ContentData, newSeries?: NewSeriesPayload) => Promise<void>;
   onCancel: () => void;
   saving: boolean;
 }
@@ -111,8 +109,16 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [newSeriesMode, setNewSeriesMode] = useState(false);
   const [newSeriesId, setNewSeriesId] = useState('');
+  const [newSeriesNameJa, setNewSeriesNameJa] = useState('');
+  const [newSeriesNameEn, setNewSeriesNameEn] = useState('');
   const [fflogsUrlInput, setFflogsUrlInput] = useState('');
   const [fflogsUrlStatus, setFflogsUrlStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  // CONTENT_SERIES (contents.json から自動生成) を current level + category=savage で絞った動的リスト
+  const availableSeries = useMemo(
+    () => CONTENT_SERIES.filter(s => s.category === 'savage' && s.level === form.level),
+    [form.level]
+  );
 
   const handleFflogsUrlInput = (value: string) => {
     setFflogsUrlInput(value);
@@ -138,14 +144,44 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
 
   // カテゴリが零式かどうか
   const isSavage = form.category === 'savage';
+  // カテゴリが絶かどうか (絶は 1 ウルティメイト = 1 シリーズなので seriesId = id 自動)
+  const isUltimate = form.category === 'ultimate';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // シリーズの新規入力モードの場合、入力値を使用
     const finalForm = { ...form };
-    if (newSeriesMode && newSeriesId) {
-      finalForm.seriesId = newSeriesId;
+    let newSeriesPayload: NewSeriesPayload | undefined = undefined;
+
+    if (isUltimate) {
+      // 絶: seriesId = コンテンツ ID 自動。 新規追加なら series 自体も同時に作成
+      finalForm.seriesId = finalForm.id;
+      if (!isEdit) {
+        newSeriesPayload = {
+          id: finalForm.id,
+          name: { ja: finalForm.nameJa, en: finalForm.nameEn },
+          category: 'ultimate',
+          level: finalForm.level,
+        };
+      }
+    } else if (isSavage) {
+      // 零式: 既存シリーズか新規シリーズか
+      if (newSeriesMode && newSeriesId) {
+        finalForm.seriesId = newSeriesId;
+        if (!isEdit) {
+          newSeriesPayload = {
+            id: newSeriesId,
+            name: {
+              ja: newSeriesNameJa || newSeriesId,
+              en: newSeriesNameEn || newSeriesId,
+            },
+            category: 'savage',
+            level: finalForm.level,
+          };
+        }
+      }
+      // 既存シリーズ選択の場合は form.seriesId をそのまま使う (= 何もしない)
     }
+
     // 略称はコンテンツIDを大文字にしたものを自動設定
     if (!finalForm.shortNameJa) {
       finalForm.shortNameJa = finalForm.id.toUpperCase();
@@ -153,7 +189,7 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
     if (!finalForm.shortNameEn) {
       finalForm.shortNameEn = finalForm.id.toUpperCase();
     }
-    onSave(finalForm);
+    onSave(finalForm, newSeriesPayload);
   };
 
   const inputClass =
@@ -319,9 +355,9 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
                   }}
                 >
                   <option value="">（選択してください）</option>
-                  {KNOWN_SERIES.map((s) => (
+                  {availableSeries.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {isJa ? s.ja : s.en}
+                      {(isJa ? s.name.ja : s.name.en) || s.id}
                     </option>
                   ))}
                   <option value="__new__">＋ 新しいシリーズを追加...</option>
@@ -329,20 +365,44 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
               </div>
             ) : (
               <div className="space-y-2">
-                <div className="grid grid-cols-[1fr_auto] gap-2 items-center">
+                <div>
+                  <label className={`${labelClass} mt-1`}>シリーズ ID</label>
                   <input
                     className={inputClass}
                     value={newSeriesId}
                     onChange={(e) => setNewSeriesId(e.target.value)}
+                    placeholder="例: aac_heavy（英数字+アンダースコア）"
                     autoFocus
                   />
-                  <div className={`${exampleClass} whitespace-nowrap`}>
-                    例: arcadion_hw（英数字+アンダースコア）
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={labelClass}>シリーズ名（日本語）</label>
+                    <input
+                      className={inputClass}
+                      value={newSeriesNameJa}
+                      onChange={(e) => setNewSeriesNameJa(e.target.value)}
+                      placeholder="例: ヘビー級"
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>シリーズ名（英語）</label>
+                    <input
+                      className={inputClass}
+                      value={newSeriesNameEn}
+                      onChange={(e) => setNewSeriesNameEn(e.target.value)}
+                      placeholder="例: Heavyweight"
+                    />
                   </div>
                 </div>
                 <button
                   type="button"
-                  onClick={() => { setNewSeriesMode(false); setNewSeriesId(''); }}
+                  onClick={() => {
+                    setNewSeriesMode(false);
+                    setNewSeriesId('');
+                    setNewSeriesNameJa('');
+                    setNewSeriesNameEn('');
+                  }}
                   className="text-app-base text-app-text-muted hover:text-app-text"
                 >
                   ← 既存シリーズから選ぶ
@@ -369,6 +429,13 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
               前半/後半がある場合は別々のコンテンツとして追加してください
             </p>
           </div>
+        </div>
+      )}
+
+      {/* ── 絶 (ultimate) 専用: シリーズは自動 ── */}
+      {isUltimate && !isEdit && (
+        <div className="text-app-sm text-app-text-muted/60 italic px-2 py-1.5 border-l-2 border-app-text/20">
+          絶のシリーズはコンテンツ ID と同じ ID で自動作成されます (= 1 絶 1 シリーズ)。 操作不要。
         </div>
       )}
 

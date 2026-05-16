@@ -2635,7 +2635,8 @@ const Timeline: React.FC = () => {
                                             style={{ display: 'none' }}
                                         />
 
-                                        {(() => {
+                                        {/* スマホは MitiIcons (各行内) が軽減表示を担うので PC 用 MitigationItem は呼ばない (呼ぶと colStart=0 で左フェーズ列に見切れ流入) */}
+                                        {!isMobileTimeline && (() => {
                                             const visibleMitigations = timelineMitigations.filter(m =>
                                                 (showPreStart || (m.time + m.duration > 0)) && (!hideEmptyRows || !m.autoHidden)
                                             );

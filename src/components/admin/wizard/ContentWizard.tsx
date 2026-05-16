@@ -2,13 +2,14 @@
  * コンテンツ追加ウィザード
  * 管理画面からコンテンツ（零式・絶・ダンジョン等）を追加するための8ステップウィザード
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from './useWizard';
 import type { WizardStep } from './useWizard';
 import { AdminWizard } from './AdminWizard';
 import { apiFetch } from '../../../lib/apiClient';
 import { showToast } from '../../Toast';
+import { CONTENT_SERIES } from '../../../data/contentRegistry';
 
 // ---- 定義 ----------------------------------------------------------------
 
@@ -20,12 +21,6 @@ interface CategoryDef {
 
 interface LevelDef {
   value: number;
-  labelJa: string;
-  labelEn: string;
-}
-
-interface SeriesDef {
-  value: string;
   labelJa: string;
   labelEn: string;
 }
@@ -45,18 +40,8 @@ const LEVELS: LevelDef[] = [
   { value: 70,  labelJa: 'Lv70（紅蓮）',          labelEn: 'Lv70 (Stormblood)' },
 ];
 
-const KNOWN_SERIES: SeriesDef[] = [
-  { value: 'arcadion_hw',  labelJa: '至天の座（ヘビー級）',       labelEn: 'Arcadion Heavyweight' },
-  { value: 'arcadion_cw',  labelJa: '至天の座（クルーザー級）',   labelEn: 'Arcadion Cruiserweight' },
-  { value: 'arcadion_lw',  labelJa: '至天の座（ライト級）',       labelEn: 'Arcadion Lightweight' },
-  { value: 'pandaemonium_4', labelJa: '煉獄編',   labelEn: 'Pandaemonium Anabaseios' },
-  { value: 'pandaemonium_3', labelJa: '天獄編',   labelEn: 'Pandaemonium Abyssos' },
-  { value: 'pandaemonium_2', labelJa: '辺獄編',   labelEn: 'Pandaemonium Asphodelos' },
-  { value: 'pandaemonium_1', labelJa: '万魔殿',   labelEn: 'Pandaemonium' },
-  { value: 'eden_4', labelJa: '再生編', labelEn: "Eden's Promise" },
-  { value: 'eden_3', labelJa: '共鳴編', labelEn: "Eden's Verse" },
-  { value: 'eden_2', labelJa: '覚醒編', labelEn: "Eden's Gate" },
-];
+// KNOWN_SERIES は廃止。 CONTENT_SERIES (contents.json 由来) を動的に使う。
+// step 内で current level + category=savage で絞り込んで使用する。
 
 // ---- ステップ定義 --------------------------------------------------------
 
@@ -66,7 +51,8 @@ const WIZARD_STEPS: WizardStep[] = [
   { id: 'contentId',  label: 'admin.content_wiz_id',         required: true },
   { id: 'nameJa',     label: 'admin.content_wiz_name_ja',    required: true },
   { id: 'nameEn',     label: 'admin.content_wiz_name_en',    required: true },
-  { id: 'series',     label: 'admin.content_wiz_series',     required: true },
+  // シリーズ step は零式のときだけ表示 (絶は seriesId=contentId 自動、 dungeon/raid/custom は seriesId 不要)
+  { id: 'series',     label: 'admin.content_wiz_series',     required: true, condition: (d) => d.category === 'savage' },
   { id: 'patch',      label: 'admin.content_wiz_patch',      required: false },
   { id: 'fflogsId',   label: 'admin.content_wiz_fflogs',     required: false },
 ];
@@ -80,6 +66,8 @@ export function ContentWizard() {
   // マウント時に既存コンテンツIDを取得（重複チェック用）
   const [existingIds, setExistingIds] = useState<Set<string>>(new Set());
   const [newSeriesInput, setNewSeriesInput] = useState('');
+  const [newSeriesNameJaInput, setNewSeriesNameJaInput] = useState('');
+  const [newSeriesNameEnInput, setNewSeriesNameEnInput] = useState('');
   const [isNewSeriesMode, setIsNewSeriesMode] = useState(false);
 
   useEffect(() => {
@@ -99,32 +87,74 @@ export function ContentWizard() {
   const handleSubmit = async (data: Record<string, unknown>) => {
     const contentId = (data.contentId as string) ?? '';
     const level = typeof data.level === 'number' ? data.level : Number(data.level);
+    const category = (data.category as string) ?? '';
+    const nameJa = (data.nameJa as string) ?? '';
+    const nameEn = (data.nameEn as string) ?? '';
     const fflogsRaw = data.fflogsId as string | undefined;
     const fflogsEncounterId =
       fflogsRaw && fflogsRaw.trim() !== ''
         ? parseInt(fflogsRaw, 10) || null
         : null;
 
-    const payload = {
+    // category 別の seriesId 決定
+    // - ultimate: seriesId = contentId (1 ultimate = 1 series)
+    // - savage: data.series (既存 or 新規)
+    // - その他: 空 (シリーズ概念なし)
+    let seriesId = '';
+    if (category === 'ultimate') {
+      seriesId = contentId;
+    } else if (category === 'savage') {
+      seriesId = (data.series as string) ?? '';
+    }
+
+    // 新規シリーズ作成が必要なケース
+    // - ultimate 全件 (= 必ず series も新規作成)
+    // - savage で新規シリーズモード
+    let seriesPayload: undefined | {
+      id: string;
+      name: { ja: string; en: string };
+      category: string;
+      level: number;
+    } = undefined;
+    if (category === 'ultimate') {
+      seriesPayload = {
+        id: contentId,
+        name: { ja: nameJa, en: nameEn },
+        category: 'ultimate',
+        level,
+      };
+    } else if (category === 'savage' && isNewSeriesMode && newSeriesInput.trim()) {
+      seriesPayload = {
+        id: newSeriesInput.trim(),
+        name: {
+          ja: newSeriesNameJaInput.trim() || newSeriesInput.trim(),
+          en: newSeriesNameEnInput.trim() || newSeriesInput.trim(),
+        },
+        category: 'savage',
+        level,
+      };
+    }
+
+    const payload: Record<string, unknown> = {
       item: {
         id: contentId,
-        name: {
-          ja: (data.nameJa as string) ?? '',
-          en: (data.nameEn as string) ?? '',
-        },
+        name: { ja: nameJa, en: nameEn },
         shortName: {
           ja: contentId.toUpperCase(),
           en: contentId.toUpperCase(),
         },
-        category: (data.category as string) ?? '',
+        category,
         level,
         patch: (data.patch as string) ?? '',
-        seriesId: (data.series as string) ?? '',
+        seriesId,
         order: 1,
         fflogsEncounterId,
         hasCheckpoint: false,
       },
     };
+    if (seriesPayload) {
+      payload.series = seriesPayload;
+    }
 
     const res = await apiFetch('/api/admin?resource=contents', {
       method: 'POST',
@@ -198,6 +228,10 @@ export function ContentWizard() {
             t={t}
             newSeriesInput={newSeriesInput}
             setNewSeriesInput={setNewSeriesInput}
+            newSeriesNameJaInput={newSeriesNameJaInput}
+            setNewSeriesNameJaInput={setNewSeriesNameJaInput}
+            newSeriesNameEnInput={newSeriesNameEnInput}
+            setNewSeriesNameEnInput={setNewSeriesNameEnInput}
             isNewSeriesMode={isNewSeriesMode}
             setIsNewSeriesMode={setIsNewSeriesMode}
           />
@@ -216,7 +250,21 @@ export function ContentWizard() {
   const renderConfirmation = () => {
     const categoryDef = CATEGORIES.find((c) => c.value === data.category);
     const levelDef = LEVELS.find((l) => l.value === data.level);
-    const seriesDef = KNOWN_SERIES.find((s) => s.value === data.series);
+    const seriesId = (data.series as string) ?? '';
+    const seriesFromRegistry = CONTENT_SERIES.find((s) => s.id === seriesId);
+    const seriesDef = seriesFromRegistry
+      ? {
+          value: seriesFromRegistry.id,
+          labelJa: seriesFromRegistry.name.ja || seriesFromRegistry.id,
+          labelEn: seriesFromRegistry.name.en || seriesFromRegistry.id,
+        }
+      : isNewSeriesMode && newSeriesInput
+      ? {
+          value: newSeriesInput,
+          labelJa: newSeriesNameJaInput || newSeriesInput,
+          labelEn: newSeriesNameEnInput || newSeriesInput,
+        }
+      : undefined;
 
     const rows: { stepId: string; label: string; value: string }[] = [
       {
@@ -456,6 +504,10 @@ interface StepSeriesProps {
   t: (key: string) => string;
   newSeriesInput: string;
   setNewSeriesInput: (v: string) => void;
+  newSeriesNameJaInput: string;
+  setNewSeriesNameJaInput: (v: string) => void;
+  newSeriesNameEnInput: string;
+  setNewSeriesNameEnInput: (v: string) => void;
   isNewSeriesMode: boolean;
   setIsNewSeriesMode: (v: boolean) => void;
 }
@@ -467,10 +519,21 @@ function StepSeries({
   t,
   newSeriesInput,
   setNewSeriesInput,
+  newSeriesNameJaInput,
+  setNewSeriesNameJaInput,
+  newSeriesNameEnInput,
+  setNewSeriesNameEnInput,
   isNewSeriesMode,
   setIsNewSeriesMode,
 }: StepSeriesProps) {
-  const handleNewSeries = (value: string) => {
+  // CONTENT_SERIES (contents.json 由来) を current level + savage で絞り込み
+  const level = typeof data.level === 'number' ? data.level : Number(data.level);
+  const availableSeries = useMemo(
+    () => CONTENT_SERIES.filter((s) => s.category === 'savage' && s.level === level),
+    [level]
+  );
+
+  const handleNewSeriesId = (value: string) => {
     setNewSeriesInput(value);
     setField('series', value.trim());
   };
@@ -478,6 +541,8 @@ function StepSeries({
   const handleSelectExisting = (value: string) => {
     setIsNewSeriesMode(false);
     setNewSeriesInput('');
+    setNewSeriesNameJaInput('');
+    setNewSeriesNameEnInput('');
     setField('series', value);
   };
 
@@ -488,24 +553,24 @@ function StepSeries({
 
   return (
     <div className="flex flex-col gap-2">
-      {/* 既存シリーズ一覧 */}
+      {/* 既存シリーズ一覧 (contents.json 由来) */}
       {!isNewSeriesMode &&
-        KNOWN_SERIES.map((s) => (
+        availableSeries.map((s) => (
           <button
-            key={s.value}
+            key={s.id}
             type="button"
-            onClick={() => handleSelectExisting(s.value)}
+            onClick={() => handleSelectExisting(s.id)}
             className={`p-3 border text-left transition-colors ${
-              data.series === s.value && !isNewSeriesMode
+              data.series === s.id && !isNewSeriesMode
                 ? 'border-[var(--app-text)] bg-[var(--app-text)]/10'
                 : 'border-[var(--app-text)]/20 hover:border-[var(--app-text)]/40'
             }`}
           >
             <div className="text-app-2xl font-medium">
-              {isJa ? s.labelJa : s.labelEn}
+              {(isJa ? s.name.ja : s.name.en) || s.id}
             </div>
             <div className="text-app-lg text-[var(--app-text-muted)]">
-              {isJa ? s.labelEn : s.labelJa}
+              {(isJa ? s.name.en : s.name.ja) || s.id}
             </div>
           </button>
         ))}
@@ -526,10 +591,24 @@ function StepSeries({
           <input
             type="text"
             value={newSeriesInput}
-            onChange={(e) => handleNewSeries(e.target.value)}
-            placeholder={isJa ? '新しいシリーズID (e.g. arcadion_mw)' : 'New series ID (e.g. arcadion_mw)'}
+            onChange={(e) => handleNewSeriesId(e.target.value)}
+            placeholder={isJa ? '新しいシリーズID (例: aac_heavy)' : 'New series ID (e.g. aac_heavy)'}
             className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
             autoFocus
+          />
+          <input
+            type="text"
+            value={newSeriesNameJaInput}
+            onChange={(e) => setNewSeriesNameJaInput(e.target.value)}
+            placeholder={isJa ? 'シリーズ名 (日本語、 例: ヘビー級)' : 'Series name JA (e.g. ヘビー級)'}
+            className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
+          />
+          <input
+            type="text"
+            value={newSeriesNameEnInput}
+            onChange={(e) => setNewSeriesNameEnInput(e.target.value)}
+            placeholder={isJa ? 'シリーズ名 (英語、 例: Heavyweight)' : 'Series name EN (e.g. Heavyweight)'}
+            className="w-full border border-[var(--app-text)]/30 bg-transparent px-4 py-3 text-app-2xl focus:outline-none focus:border-[var(--app-text)] text-[var(--app-text)] placeholder:text-[var(--app-text-muted)]"
           />
           <button
             type="button"
@@ -537,6 +616,8 @@ function StepSeries({
               setIsNewSeriesMode(false);
               setField('series', '');
               setNewSeriesInput('');
+              setNewSeriesNameJaInput('');
+              setNewSeriesNameEnInput('');
             }}
             className="text-app-lg text-[var(--app-text-muted)] underline self-start hover:text-[var(--app-text)] transition-colors"
           >
