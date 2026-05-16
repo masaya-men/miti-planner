@@ -26,10 +26,10 @@ import {
     Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Rows3, Settings, Crosshair, PictureInPicture2, Clock
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
-import { useJobs, useMitigations } from '../hooks/useSkillsData';
+import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkillsData';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import clsx from 'clsx';
-import { PARTY_MEMBER_IDS, PARTY_MEMBER_ORDER } from '../constants/party';
+import { PARTY_MEMBER_IDS } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
@@ -3052,163 +3052,103 @@ const Timeline: React.FC = () => {
                                 </button>
                             </div>
                         </div>
-                        {/* 全メンバーの軽減を5列でフラット表示（MT→D4の順） */}
+                        {/* ジョブごとセクション化 (パーティ編成順 MT→D4)、 各セクション内は PC モーダルと同じ並び順 */}
                         <div className="flex-1 overflow-y-auto px-2 pb-4">
-                            <div className="grid grid-cols-5 gap-1.5">
-                                {(() => {
-                                    // 全メンバーの軽減スキルを収集
-                                    const allItems: { member: typeof partyMembers[0]; job: typeof JOBS[0]; mit: typeof MITIGATIONS[0] }[] = [];
-                                    for (const member of sortedPartyMembers) {
-                                        const job = JOBS.find(j => j.id === member.jobId);
-                                        if (!job) continue;
-                                        const mitis = MITIGATIONS.filter(m =>
+                            <div className="flex flex-col gap-3">
+                                {sortedPartyMembers.map(member => {
+                                    const job = JOBS.find(j => j.id === member.jobId);
+                                    if (!job) return null;
+                                    const mitis = MITIGATIONS
+                                        .filter(m =>
                                             m.jobId === job.id
                                             && !m.hidden
                                             && (!m.minLevel || m.minLevel <= currentLevel)
                                             && (!m.maxLevel || m.maxLevel >= currentLevel)
-                                        );
-                                        for (const mit of mitis) {
-                                            allItems.push({ member, job, mit });
-                                        }
-                                    }
+                                        )
+                                        .sort((a, b) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
+                                    if (mitis.length === 0) return null;
+                                    const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
 
-                                    // ── 並び順ルール ──
-                                    // 1. 全体軽減（scope:party）をリキャスト短い順、同名スキルはグループ化
-                                    // 2. ロール順: タンク→ヒーラー→DPS(1234)
-                                    // 3. 最後にヒーラー単体ケア → タンク個別軽減
-                                    const roleOrder: Record<string, number> = { tank: 0, healer: 1, dps: 2 };
+                                    return (
+                                        <section key={member.id}>
+                                            {/* セクションヘッダー: スロット記号 + ジョブアイコン + ジョブ名 */}
+                                            <div className="flex items-center gap-2 px-1 mb-1.5">
+                                                <span className="text-app-base font-black text-app-text-muted uppercase tracking-widest">
+                                                    {t(`modal.${member.id.toLowerCase()}`, member.id)}
+                                                </span>
+                                                <img src={job.icon} className="w-5 h-5 object-contain rounded" />
+                                                <span className="text-app-sm font-bold text-app-text">
+                                                    {getPhaseName(job.name, contentLanguage)}
+                                                </span>
+                                            </div>
+                                            <div className="grid grid-cols-5 gap-1.5">
+                                                {mitis.map(mit => {
+                                                    const isAlreadyPlaced = memberMitis.some(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
+                                                    const status = validateMitigationPlacement(
+                                                        mit, mobileMitiFlow.time, memberMitis, t
+                                                    );
+                                                    // スマホ: 競合警告時も配置不可にする（PCではwarningでも配置可能）
+                                                    const isClickable = (status.available && !status.warning) || isAlreadyPlaced;
 
-                                    // カテゴリ分類: 0=全体軽減, 1=ヒーラー単体, 2=タンク個別, 3=DPSその他
-                                    // ※ 大半のスキルにscopeが未設定のため、明示的にself/targetのもの以外は全体扱い
-                                    const getCategory = (item: typeof allItems[0]) => {
-                                        const scope = item.mit.scope;
-                                        const role = item.job.role;
-                                        // ヒーラー単体ケア（scope: target が明示されたヒーラースキル）
-                                        if (role === 'healer' && scope === 'target') return 1;
-                                        // タンク個別軽減（scope: self/target が明示されたタンクスキル）
-                                        if (role === 'tank' && (scope === 'self' || scope === 'target')) return 2;
-                                        // DPS自己防衛（scope: self が明示されたDPSスキル）
-                                        if (role === 'dps' && scope === 'self') return 3;
-                                        // それ以外は全て全体軽減（scope:party、scope未設定の大半のスキル含む）
-                                        return 0;
-                                    };
-
-                                    // 全体軽減のグループキー（同名スキルをまとめるためスキル名を使用）
-                                    const getGroupKey = (mit: typeof MITIGATIONS[0]) => mit.name?.ja || mit.id;
-
-                                    allItems.sort((a, b) => {
-                                        const catA = getCategory(a);
-                                        const catB = getCategory(b);
-                                        if (catA !== catB) return catA - catB;
-
-                                        if (catA === 0) {
-                                            // 全体軽減: ロール順（タンク→ヒーラー→DPS）が最優先
-                                            const rA = roleOrder[a.job.role] ?? 9;
-                                            const rB = roleOrder[b.job.role] ?? 9;
-                                            if (rA !== rB) return rA - rB;
-                                            // 同ロール内: スキル名でグループ化
-                                            const gA = getGroupKey(a.mit);
-                                            const gB = getGroupKey(b.mit);
-                                            if (gA !== gB) {
-                                                // 異なるスキル: リキャスト短い順
-                                                if (a.mit.recast !== b.mit.recast) return a.mit.recast - b.mit.recast;
-                                                return gA.localeCompare(gB);
-                                            }
-                                            // 同スキル名: メンバー順（MT→ST等）
-                                            return (PARTY_MEMBER_ORDER[a.member.id] ?? 9) - (PARTY_MEMBER_ORDER[b.member.id] ?? 9);
-                                        }
-
-                                        // ヒーラー単体 / タンク個別 / その他: 同名グループ化 → リキャスト短い順 → メンバー順
-                                        const gA = getGroupKey(a.mit);
-                                        const gB = getGroupKey(b.mit);
-                                        if (gA !== gB) {
-                                            if (a.mit.recast !== b.mit.recast) return a.mit.recast - b.mit.recast;
-                                            return gA.localeCompare(gB);
-                                        }
-                                        return (PARTY_MEMBER_ORDER[a.member.id] ?? 9) - (PARTY_MEMBER_ORDER[b.member.id] ?? 9);
-                                    });
-
-                                    // 同名スキルが複数メンバーに存在するか事前計算
-                                    const skillNameCount = new Map<string, number>();
-                                    for (const item of allItems) {
-                                        const name = item.mit.name?.ja || '';
-                                        skillNameCount.set(name, (skillNameCount.get(name) || 0) + 1);
-                                    }
-
-                                    return allItems.map(({ member, job, mit }) => {
-                                        const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
-                                        const isAlreadyPlaced = memberMitis.some(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
-                                        const status = validateMitigationPlacement(
-                                            mit, mobileMitiFlow.time, memberMitis, t
-                                        );
-                                        // スマホ: 競合警告時も配置不可にする（PCではwarningでも配置可能）
-                                        const isClickable = (status.available && !status.warning) || isAlreadyPlaced;
-                                        // 同名スキルが複数メンバーにある場合のみジョブバッジ表示
-                                        const isDuplicate = (skillNameCount.get(mit.name?.ja || '') || 0) > 1;
-
-                                        return (
-                                            <button
-                                                key={`${member.id}-${mit.id}`}
-                                                disabled={!isClickable}
-                                                onClick={() => {
-                                                    if (isAlreadyPlaced) {
-                                                        const amToRemove = memberMitis.find(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
-                                                        if (amToRemove) removeMitigation(amToRemove.id);
-                                                        return;
-                                                    }
-                                                    if (!status.available) return;
-                                                    addMitigation({
-                                                        id: genId(),
-                                                        mitigationId: mit.id,
-                                                        time: mobileMitiFlow.time,
-                                                        duration: mit.duration,
-                                                        ownerId: member.id,
-                                                    });
-                                                }}
-                                                className={clsx(
-                                                    "aspect-square rounded-xl border flex items-center justify-center relative transition-all active:scale-90",
-                                                    isAlreadyPlaced
-                                                        ? "bg-app-text/20 border-app-text"
-                                                        : status.warning
-                                                            ? "bg-amber-400/10 border-amber-400 opacity-60"
-                                                            : status.available
-                                                                ? "bg-app-surface2 border-app-border"
-                                                                : "bg-black/20 border-red-500/60 opacity-60"
-                                                )}
-                                            >
-                                                <img src={mit.icon} className="w-9 h-9 object-contain rounded" />
-                                                {/* リキャスト/使用不可メッセージ — アイコン中央にオーバーレイ */}
-                                                {!status.available && !isAlreadyPlaced && status.message && (
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
-                                                        <span className="text-[10px] leading-tight font-bold text-red-400 text-center px-0.5">
-                                                            {status.message}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                {/* リキャスト競合警告 — 配置可能だが将来の配置と被る */}
-                                                {status.warning && (status.shortMessage || status.message) && (
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
-                                                        <span className="text-[10px] leading-tight font-bold text-amber-400 text-center px-0.5">
-                                                            {status.shortMessage || status.message}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                                {/* 同名スキルが複数メンバーにある場合のみジョブバッジ */}
-                                                {isDuplicate && (
-                                                    <img
-                                                        src={job.icon}
-                                                        className="absolute -bottom-2 -right-2 w-9 h-9 rounded-full object-contain"
-                                                    />
-                                                )}
-                                                {isAlreadyPlaced && (
-                                                    <div className="absolute top-1 right-1">
-                                                        <X size={12} className="text-app-text drop-shadow-sm" />
-                                                    </div>
-                                                )}
-                                            </button>
-                                        );
-                                    });
-                                })()}
+                                                    return (
+                                                        <button
+                                                            key={`${member.id}-${mit.id}`}
+                                                            disabled={!isClickable}
+                                                            onClick={() => {
+                                                                if (isAlreadyPlaced) {
+                                                                    const amToRemove = memberMitis.find(am => am.mitigationId === mit.id && am.time === mobileMitiFlow.time);
+                                                                    if (amToRemove) removeMitigation(amToRemove.id);
+                                                                    return;
+                                                                }
+                                                                if (!status.available) return;
+                                                                addMitigation({
+                                                                    id: genId(),
+                                                                    mitigationId: mit.id,
+                                                                    time: mobileMitiFlow.time,
+                                                                    duration: mit.duration,
+                                                                    ownerId: member.id,
+                                                                });
+                                                            }}
+                                                            className={clsx(
+                                                                "aspect-square rounded-xl border flex items-center justify-center relative transition-all active:scale-90",
+                                                                isAlreadyPlaced
+                                                                    ? "bg-app-text/20 border-app-text"
+                                                                    : status.warning
+                                                                        ? "bg-amber-400/10 border-amber-400 opacity-60"
+                                                                        : status.available
+                                                                            ? "bg-app-surface2 border-app-border"
+                                                                            : "bg-black/20 border-red-500/60 opacity-60"
+                                                            )}
+                                                        >
+                                                            <img src={mit.icon} className="w-9 h-9 object-contain rounded" />
+                                                            {/* リキャスト/使用不可メッセージ — アイコン中央にオーバーレイ */}
+                                                            {!status.available && !isAlreadyPlaced && status.message && (
+                                                                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
+                                                                    <span className="text-[10px] leading-tight font-bold text-red-400 text-center px-0.5">
+                                                                        {status.message}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            {/* リキャスト競合警告 — 配置可能だが将来の配置と被る */}
+                                                            {status.warning && (status.shortMessage || status.message) && (
+                                                                <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
+                                                                    <span className="text-[10px] leading-tight font-bold text-amber-400 text-center px-0.5">
+                                                                        {status.shortMessage || status.message}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            {isAlreadyPlaced && (
+                                                                <div className="absolute top-1 right-1">
+                                                                    <X size={12} className="text-app-text drop-shadow-sm" />
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </section>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
