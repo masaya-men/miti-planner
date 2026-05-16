@@ -390,6 +390,7 @@ export function ShareImportSheet() {
                                             <MitigationSheetPreview
                                                 planData={activeItem.planData}
                                                 loading={false}
+                                                disableSmoothScroll
                                             />
                                         )}
                                     </div>

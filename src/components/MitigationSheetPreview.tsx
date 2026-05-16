@@ -9,15 +9,19 @@ import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 interface Props {
   planData: PlanData | null;
   loading: boolean;
+  /** true なら自前 spring スクロールを無効化し、 ブラウザネイティブのホイールに任せる。
+   *  共有取込プレビュー (ShareImportSheet) ではユーザー要望によりデフォルトスクロールを採用。
+   *  既定値 false (MitigationSheet / LimitResolutionSheet など他の利用箇所は従来通り spring)。 */
+  disableSmoothScroll?: boolean;
 }
 
 const ROW_HEIGHT = 22; // px — 各行の高さ
 
-export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading }) => {
+export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading, disableSmoothScroll = false }) => {
   const jobs = useJobs();
   const mitigationDefs = useMitigations();
   const wrapRef = useRef<HTMLDivElement>(null);
-  useSmoothWheelScroll(wrapRef);
+  useSmoothWheelScroll(wrapRef, { enabled: !disableSmoothScroll });
   const { i18n } = useTranslation();
   const contentLanguage = useThemeStore(s => s.contentLanguage);
   const lang = contentLanguage || (i18n.language.startsWith('ja') ? 'ja' : i18n.language.startsWith('zh') ? 'zh' : i18n.language.startsWith('ko') ? 'ko' : 'en');
