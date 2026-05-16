@@ -265,4 +265,15 @@ export interface SavedPlan {
     archived?: boolean;
     /** 圧縮済みデータ（archived時にdataの代わりに使用） */
     compressedData?: string;
+    /**
+     * プラン作成時にユーザーがログイン済みだったか。
+     * - true: ログイン中に作成 → Firestore に自動同期される / LocalImportDialog 対象外
+     * - false: ログアウト中に作成 → 明示的な「取り込み」 が必要 / ダイアログに表示
+     * - undefined: このフィールド導入前に作られた既存プラン → 安全側に倒し、 ダイアログ対象とする
+     *
+     * 設計意図: `ownerId='local'` マーカーは「Firestore に未アップロード」 の
+     * 技術判定に使われていて、 そこに「ユーザーが明示同意した取り込みが必要か」 という
+     * UX 判定も乗っていたため誤発火していた。 このフィールドで UX 判定を独立させる。
+     */
+    _createdLoggedIn?: boolean;
 }

@@ -87,6 +87,31 @@ interface PlanState {
     silentCompressStale: () => Promise<void>;
 }
 
+/**
+ * 新規作成プランに「ログイン中作成」 フラグを付与する共通 helper。
+ *
+ * 背景: `ownerId='local'` マーカーは「Firestore に未アップロード」 の技術判定に
+ * 使われていて、 これに「ユーザー本人の意思でアップしてない (= 取り込みダイアログ
+ * 対象)」 という UX 判定も乗せていたため誤発火していた。
+ *
+ * このフィールド (`_createdLoggedIn`) で UX 判定を独立させ、 ログイン中作成プランは
+ * Firestore SDK のオフラインキュー経由で自動同期される (= ダイアログ不要)。
+ *
+ * **新規プラン作成経路は必ずこの helper を通すこと**。 直接 `addPlan` を呼ぶ場合は
+ * addPlan 内で自動適用されるが、 `duplicatePlan` 等 `addPlan` を経由しない経路では
+ * 各実装内で明示的に呼ぶ必要がある。
+ *
+ * 認証状態は `auth.currentUser` から直接読む (useAuthStore 循環 import 回避)。
+ */
+function tagCreationIntent(plan: SavedPlan): SavedPlan {
+    // 既に uid 化されてる = 既存プランなので何もしない
+    if (plan.ownerId !== 'local') return plan;
+    // 既に明示的に設定済みなら尊重 (例: backupRestore で false を明示する等の将来用途)
+    if (plan._createdLoggedIn !== undefined) return plan;
+    const isLoggedIn = !!auth.currentUser?.uid;
+    return { ...plan, _createdLoggedIn: isLoggedIn };
+}
+
 export const usePlanStore = create<PlanState>()(
     persist(
         (set, get) => ({
@@ -108,9 +133,11 @@ export const usePlanStore = create<PlanState>()(
                 // ownerId='' (空文字) は fetchAndMerge で「別端末で削除」と
                 // 誤判定されて localStorage から消える致命バグを起こす。
                 // 入口で 'local' に正規化して、どの呼び出し元でも安全に
-                const normalizedPlan: SavedPlan = plan.ownerId === ''
+                const stage1: SavedPlan = plan.ownerId === ''
                     ? { ...plan, ownerId: 'local' }
                     : plan;
+                // 「ログイン中作成」 フラグ付与 (LocalImportDialog 誤発火防止)
+                const normalizedPlan = tagCreationIntent(stage1);
                 // 新規作成プランの lastOpened を即記録: silentCompressStale が
                 // 「未記録 = 7日以上未開封」と誤判定して作成直後の plan.data を
                 // 圧縮 (data → undefined / compressedData セット) するのを防ぐ
@@ -358,16 +385,20 @@ export const usePlanStore = create<PlanState>()(
                     }
                 }
 
+                // 「ログイン中作成」 フラグ付与 (LocalImportDialog 誤発火防止)。
+                // duplicatePlan は addPlan を経由しないので、 ここで明示的に helper を呼ぶ必要がある。
+                const finalPlan = tagCreationIntent(newPlan);
+
                 // ソースプランの直後に挿入
                 const sourceIndex = get().plans.findIndex(p => p.id === planId);
                 const newPlans = [...get().plans];
-                newPlans.splice(sourceIndex + 1, 0, newPlan);
+                newPlans.splice(sourceIndex + 1, 0, finalPlan);
 
                 set({
                     plans: newPlans,
-                    _dirtyPlanIds: new Set([...get()._dirtyPlanIds, newPlan.id]),
+                    _dirtyPlanIds: new Set([...get()._dirtyPlanIds, finalPlan.id]),
                 });
-                return newPlan;
+                return finalPlan;
             },
 
             /**
@@ -569,7 +600,11 @@ export const usePlanStore = create<PlanState>()(
                 }
             },
 
-            getLocalPlanIds: () => get().plans.filter(p => p.ownerId === 'local').map(p => p.id),
+            // ダイアログ取り込み候補。 `_createdLoggedIn === true` は自動同期されるので除外。
+            // Layout.tsx の localImportPlans / 自動トリガー判定と完全に同じフィルタにする。
+            getLocalPlanIds: () => get().plans
+                .filter(p => p.ownerId === 'local' && p._createdLoggedIn !== true)
+                .map(p => p.id),
 
             executeLocalImport: async (uid, displayName, planIds, onProgress) => {
                 // App Check + Auth トークンを揃えてから書き込む (post-OAuth で未準備な場合に備える)
@@ -622,6 +657,32 @@ export const usePlanStore = create<PlanState>()(
 
                     // 最新の plan オブジェクトを取得（decompress で書き換えた可能性に追従）
                     const planForUpload = get().plans.find(p => p.id === planId)!;
+
+                    // 「既に Firestore に存在する」 場合は createPlan をスキップして成功扱い。
+                    // 理由: 自動 sync (syncDirtyPlans) が既にこの plan を Firestore に
+                    // create 済みなのに、 ローカルの ownerId='local' マーカーが消えていない
+                    // ケースがある (タイミング / persist race)。 そのまま createPlan を呼ぶと
+                    // Firestore Rules の version 上書き禁止に抵触して permission-denied で
+                    // 失敗してしまう。 既にあるなら「アップロード完了」 と同じ状態なので
+                    // ownerId='local' → uid に書き換えるだけで OK。
+                    try {
+                        const alreadyExists = await planService.checkPlanExists(planId);
+                        if (alreadyExists) {
+                            set(state => ({
+                                plans: state.plans.map(p =>
+                                    p.id === planId
+                                        ? { ...p, ownerId: uid, ownerDisplayName: displayName }
+                                        : p
+                                ),
+                            }));
+                            results.push({ id: planId, status: 'success' });
+                            onProgress?.({ id: planId, status: 'success' });
+                            continue;
+                        }
+                    } catch {
+                        // checkPlanExists が失敗 (ネットワーク等) → 通常 createPlan に進む
+                    }
+
                     try {
                         await planService.createPlan(planForUpload, uid, displayName);
                         // 成功 → state 内の ownerId を 'local' → uid に書き換え

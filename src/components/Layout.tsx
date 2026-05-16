@@ -363,9 +363,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // 判断で撤去。 migrate / pullFromFirestore はバックグラウンドで継続実行する
     // (画面操作とは独立)。
     const closeLocalImportDialog = useLocalImportDialog(s => s.close);
-    /** 表示対象: state 内の `ownerId='local'` プランをそのまま渡す */
+    /**
+     * 表示対象: ダイアログで取り込み候補にする plans。
+     *
+     * 設計: `ownerId === 'local'` (= 未アップロード) かつ
+     * `_createdLoggedIn !== true` (= ログイン中に作られたものではない) のみ対象。
+     *
+     * 理由: ログイン中に作られたプランは Firestore SDK のオフラインキュー経由で
+     * 自動同期されるため、 ユーザーに「取り込み確認」 を出す必要が無い。
+     * このフィルタにより、 新規作成 / 複製 / コピー直後にリロードしても
+     * 誤発火しなくなる。 未ログイン中に作られたプランのみ明示同意フローに乗る。
+     */
     const localImportPlans = usePlanStore(
-        useShallow(s => s.plans.filter(p => p.ownerId === 'local')),
+        useShallow(s => s.plans.filter(p =>
+            p.ownerId === 'local' && p._createdLoggedIn !== true
+        )),
     );
 
     const handleLocalImport = React.useCallback(
@@ -452,7 +464,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             // 自動トリガー: ローカルプランがあるときは常に表示する (Phase B-1.5 Task 11)
             // 旧 `lopo_local_import_dont_show` localStorage フラグは既存ユーザーの値を残したまま読み捨てる
-            const localPlanCount = usePlanStore.getState().plans.filter(p => p.ownerId === 'local').length;
+            //
+            // 注意: フィルタは localImportPlans (= ファイル上部の useShallow) と必ず一致させる。
+            // `_createdLoggedIn === true` のプランはログイン中に作られた = 自動同期される
+            // ため除外し、 誤発火を防ぐ。
+            const localPlanCount = usePlanStore.getState().plans.filter(p =>
+                p.ownerId === 'local' && p._createdLoggedIn !== true
+            ).length;
             if (localPlanCount > 0) {
                 // 微小ディレイ (40ms) は state コミット安定化のため残す
                 setTimeout(() => {

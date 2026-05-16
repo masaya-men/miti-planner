@@ -35,7 +35,7 @@
 ## 既知の残課題 (中規模、 別セッションで設計から)
 
 - **同期不安定** (2026-04-29 報告): 軽減配置直後にタブを閉じて別端末で開くと出ない / 同期競合コピー / PC データが古い状態に戻る等の複合症状。 根本対応案: (1) sendBeacon ベース独自同期 (2) `syncDirtyPlans` 競合判定見直し (3) PULL 時にバージョン番号併用
-- **ローカル削除→即同期で復活 潜在バグ** (2026-04-28): `deletePlan` が `ownerId === 'local'` のとき `_deletedPlanIds` に追加しない。 修正: 同期成功後にローカル `ownerId` を `uid` に書き換え
+- **ローカル削除→即同期で復活 潜在バグ** (2026-04-28): `deletePlan` が `ownerId === 'local'` のとき `_deletedPlanIds` に追加しない。 修正: 同期成功後にローカル `ownerId` を `uid` に書き換え (Plan v4 で _createdLoggedIn 経由になったため再評価必要)
 - **EventModal 計算ロジック責務肥大**: `handleCalculate` を `applyHealingIncrease` / `applyMitigationFilters` / `applyShieldCalc` 等に分割。 calculator.ts と重複部分は将来共通化
 - **CRIT 倍率のステータス連動**: 現状 `CRIT_MULTIPLIER = 1.60` 固定 → `getCritMultiplier(level, ilv?)` 関数化 + IL 切替 UI
 - **Timeline 描画 120FPS 維持** (2026-05-14 計測): セッション 20 のスムーズスクロール調整 (stiffness 80 / wheelMultiplier 1.5) で paint 期間は短縮したが、 要素数の多いプランで 1 フレーム 8.33ms を超えカクつく可能性あり。 根本対応: (1) DevTools Performance で 1 フレーム内訳プロファイル → ボトルネック特定 (2) Timeline 列/行に `will-change: transform` 指定で compositor layer 化 (3) 仮想スクロール (画面外行を unmount) (4) onScroll handler の throttle / RAF 統合
