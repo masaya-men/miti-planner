@@ -66,7 +66,7 @@ vi.mock('../../lib/planService', () => ({
         updatePlan: vi.fn(async () => undefined),
         deletePlan: vi.fn(async () => undefined),
         fetchUserPlans: vi.fn(async () => []),
-        syncDirtyPlans: vi.fn(async () => ({ deletedRemotely: [], conflicted: [], syncedIds: [] })),
+        syncDirtyPlans: vi.fn(async () => ({ deletedRemotely: [], conflicted: [] })),
         fetchAndMerge: vi.fn(async () => ({ merged: [], changed: false })),
         checkPlanLimits: vi.fn(async () => undefined),
         checkPlanExists: vi.fn(async () => false),
@@ -184,100 +184,5 @@ describe('syncToFirestore({ onlyPlanIds })', () => {
         } else {
             expect(syncSpy).not.toHaveBeenCalled();
         }
-    });
-});
-
-describe('syncToFirestore: 同期成功後の ownerId 書き換え (LocalImportDialog 誤発火防止)', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        usePlanStore.setState({
-            plans: [],
-            _dirtyPlanIds: new Set(),
-            _deletedPlanIds: new Set(),
-            _lastSyncAt: 0,
-            _isSyncing: false,
-            _cloudStatus: 'synced',
-        } as any);
-    });
-
-    it('syncedIds に含まれるプランは ownerId が local → uid に書き換わる', async () => {
-        usePlanStore.setState({
-            plans: [makePlan('p1', 'c1'), makePlan('p2', 'c2')],
-            _dirtyPlanIds: new Set(['p1', 'p2']),
-        } as any);
-
-        vi.mocked(planService.syncDirtyPlans).mockResolvedValueOnce({
-            deletedRemotely: [],
-            conflicted: [],
-            syncedIds: ['p1', 'p2'],
-        });
-
-        await usePlanStore.getState().syncToFirestore(TEST_UID, TEST_DISPLAY_NAME, true);
-
-        const plans = usePlanStore.getState().plans;
-        const p1 = plans.find(p => p.id === 'p1');
-        const p2 = plans.find(p => p.id === 'p2');
-        expect(p1?.ownerId).toBe(TEST_UID);
-        expect(p1?.ownerDisplayName).toBe(TEST_DISPLAY_NAME);
-        expect(p2?.ownerId).toBe(TEST_UID);
-    });
-
-    it('syncedIds に含まれないプランは ownerId が local のまま保持される', async () => {
-        usePlanStore.setState({
-            plans: [makePlan('p1', 'c1'), makePlan('p2', 'c2')],
-            _dirtyPlanIds: new Set(['p1', 'p2']),
-        } as any);
-
-        // p1 は成功、p2 は失敗 (syncedIds に含まれない)
-        vi.mocked(planService.syncDirtyPlans).mockResolvedValueOnce({
-            deletedRemotely: [],
-            conflicted: [],
-            syncedIds: ['p1'],
-        });
-
-        await usePlanStore.getState().syncToFirestore(TEST_UID, TEST_DISPLAY_NAME, true);
-
-        const plans = usePlanStore.getState().plans;
-        expect(plans.find(p => p.id === 'p1')?.ownerId).toBe(TEST_UID);
-        expect(plans.find(p => p.id === 'p2')?.ownerId).toBe('local');
-    });
-
-    it('既に ownerId=uid のプランは上書きされない (副作用なし)', async () => {
-        const existingUidPlan = { ...makePlan('p1', 'c1'), ownerId: TEST_UID, ownerDisplayName: 'Existing' };
-        usePlanStore.setState({
-            plans: [existingUidPlan],
-            _dirtyPlanIds: new Set(['p1']),
-        } as any);
-
-        vi.mocked(planService.syncDirtyPlans).mockResolvedValueOnce({
-            deletedRemotely: [],
-            conflicted: [],
-            syncedIds: ['p1'],
-        });
-
-        await usePlanStore.getState().syncToFirestore(TEST_UID, TEST_DISPLAY_NAME, true);
-
-        const p1 = usePlanStore.getState().plans.find(p => p.id === 'p1');
-        expect(p1?.ownerId).toBe(TEST_UID);
-        expect(p1?.ownerDisplayName).toBe('Existing'); // 既存値を保持
-    });
-
-    it('syncedIds が空のとき plans 配列は変化しない', async () => {
-        const original = [makePlan('p1', 'c1'), makePlan('p2', 'c2')];
-        usePlanStore.setState({
-            plans: original,
-            _dirtyPlanIds: new Set(['p1']),
-        } as any);
-
-        vi.mocked(planService.syncDirtyPlans).mockResolvedValueOnce({
-            deletedRemotely: [],
-            conflicted: [],
-            syncedIds: [],
-        });
-
-        await usePlanStore.getState().syncToFirestore(TEST_UID, TEST_DISPLAY_NAME, true);
-
-        const plans = usePlanStore.getState().plans;
-        expect(plans).toBe(original); // 参照同一性で「変化なし」を確認
     });
 });

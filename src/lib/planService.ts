@@ -455,13 +455,10 @@ async function syncDirtyPlans(
   plans: SavedPlan[],
   uid: string,
   displayName: string,
-): Promise<{ deletedRemotely: string[]; conflicted: SavedPlan[]; syncedIds: string[] }> {
+): Promise<{ deletedRemotely: string[]; conflicted: SavedPlan[] }> {
   const deletedRemotely: string[] = [];
   const conflicted: SavedPlan[] = []; // 競合が発生したローカルプラン
-  // 同期成功 (updatePlan='updated' / createPlan 成功) した plan id。
-  // 呼び出し側はこれを使って state 内の ownerId='local' を uid に書き換える。
-  const syncedIds: string[] = [];
-  if (dirtyPlanIds.size === 0) return { deletedRemotely, conflicted, syncedIds };
+  if (dirtyPlanIds.size === 0) return { deletedRemotely, conflicted };
 
   const plansToSync = plans.filter((p) => dirtyPlanIds.has(p.id));
 
@@ -476,7 +473,6 @@ async function syncDirtyPlans(
             conflicted.push(plan);
             return;
           }
-          syncedIds.push(plan.id);
         } catch {
           // ownerId=uid のプランがFirestoreに存在しない → 別端末で削除された
           // ownerId='local' のプランはまだ未アップロードなので削除判定しない
@@ -488,7 +484,6 @@ async function syncDirtyPlans(
             }
           }
           await createPlan(plan, uid, displayName);
-          syncedIds.push(plan.id);
         }
       }
     }),
@@ -500,7 +495,7 @@ async function syncDirtyPlans(
     }
   }
 
-  return { deletedRemotely, conflicted, syncedIds };
+  return { deletedRemotely, conflicted };
 }
 
 // ========================================
