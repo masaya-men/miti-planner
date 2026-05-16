@@ -2,6 +2,28 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-16 セッション 23・共有取込シート UX 整備）
+
+**背景**: セッション 22 で残った共有取込プレビューのホイール不可をついに完全解消 (子コンポーネント側の取りこぼし)。 ついでにスマホ軽減追加シートをジョブ別セクション化し、 共有取込/上限解消シートのトンマナを「みんなの軽減表」 と統一。
+
+### 完了内容
+
+- **共有取込プレビュー ホイール完全復活**: セッション 22 では親 [ShareImportSheet.tsx](src/components/ShareImportSheet.tsx) の useSmoothWheelScroll を撤去したが、 子の [MitigationSheetPreview.tsx](src/components/MitigationSheetPreview.tsx) 内部にもう 1 つ自前 spring が残っていた。 prop `disableSmoothScroll` で個別 ON/OFF できる構造に変更 → ShareImportSheet からだけ disable。 MitigationSheet / LimitResolutionSheet は従来通り spring 維持
+- **スマホ軽減追加シート ジョブ別セクション化**: [Timeline.tsx](src/components/Timeline.tsx) のフラット 5 列 + 複雑 scope ソートを廃止 → パーティ編成順 (MT→D4) のジョブ別セクション + 各セクション内は PC モーダルと同じ `getMitigationPriority` 順。 セクションヘッダーに「MT [ジョブアイコン] 暗黒騎士」 表示
+- **スマホ軽減追加シート 使用不可オーバーレイ視認性向上**: グレーアウト `bg-black/60` → `bg-black/30`、 メッセージを box 中央 → 下端配置で奥のスキルアイコンを透視可能に、 button に `overflow-hidden` 追加で文字はみ出し防止
+- **共有取込/上限解消シートのトンマナ統一**: `--glass-tier3-bg: var(--share-modal-bg)` でライト白基調化、 高さ `h-[80vh]` 固定 / 角丸 `rounded-t-[20px]` / 左カラム PC 幅 280px / padding `p-3` で「みんなの軽減表」 と統一 ([ShareImportSheet.tsx](src/components/ShareImportSheet.tsx) / [LimitResolutionSheet.tsx](src/components/LimitResolutionSheet.tsx))
+- **MitigationSheetPreview ヘッダー整理**: `getJobLabel` (substring(0,3) 雑切り) を撤去 → ジョブ列ヘッダーをジョブアイコン (14px) に、 SKILL 列ヘッダー文字を削除 (列幅は維持)。 3 シート (共有取込 / 上限解消 / みんなの軽減表) すべてに反映
+
+### コード品質・検証
+
+- TypeScript build 通過 (strict)
+- vitest 71 ファイル 694 tests 全 pass (回帰なし)
+- 実機本番で OK 確認済
+
+**結果**: 「共有取込モーダルだけトンマナ違う」 「ジョブ名が変に省略」 「ホイール効かない」 の 3 大課題が同セッションで解消。 「みんなの軽減表」 と「共有取込」 で見た目が揃い、 ユーザーが期待していた統一感を実現。
+
+---
+
 ## 完了（2026-05-16 セッション 22・バグ 5 件 + admin リファクタ + 同期ボタンインジケータ化）
 
 **背景**: セッション 21 末で記録した 4 バグ (スマホアイコン見切れ / DMU 出ない / ホイール不可 / 同期 error 一時表示) を解消。 途中で admin 「コンテンツ管理」 が長年機能していなかったことが判明し、 一括修正。 同期ボタンも仕様確定済の「インジケータ化」 を同セッションで実装。
