@@ -462,6 +462,7 @@
         "nav_mechanic_search": "搜索机制...",
         "nav_mechanic_jump": "跳转到机制",
         "nav_mechanic_count": "×{{count}}",
+        "nav_mechanic_back": "返回",
         "nav_no_phases": "无阶段",
         "nav_label_jump": "跳转到标签",
         "nav_no_labels": "无标签",

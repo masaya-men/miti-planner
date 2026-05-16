@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useLayoutEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Search } from 'lucide-react';
+import { X, Search, ChevronLeft } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -142,6 +142,9 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
 
     if (!isOpen) return null;
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const isMobileDrillDown = isMobile && selectedMechanic !== null;
+
     const handleMechanicClick = (entry: MechanicEntry) => {
         if (entry.occurrences.length === 1) {
             onJump(entry.occurrences[0].time);
@@ -166,14 +169,15 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
             style={{
                 top: `${position.top}px`,
                 left: `${position.left}px`,
-                width: typeof window !== 'undefined' && window.innerWidth < 768
+                width: isMobile
                     ? `${Math.min(window.innerWidth - 16, 320)}px`
                     : selectedMechanic ? '420px' : '240px',
             }}
         >
-            <div className={clsx("flex", typeof window !== 'undefined' && window.innerWidth < 768 ? "flex-col" : "flex-row")}>
-                {/* 1段目: 攻撃名リスト */}
-                <div className={clsx("flex-shrink-0", typeof window !== 'undefined' && window.innerWidth < 768 ? "w-full" : "w-[240px]")}>
+            <div className={clsx("flex", isMobile ? "flex-col" : "flex-row")}>
+                {/* 1段目: 攻撃名リスト (スマホで出現箇所サブリスト表示中は非表示) */}
+                {!isMobileDrillDown && (
+                <div className={clsx("flex-shrink-0", isMobile ? "w-full" : "w-[240px]")}>
                     {/* ヘッダー */}
                     <div className="flex items-center justify-between px-3 py-2 bg-glass-header border-b border-glass-border">
                         <span className="text-app-lg font-black text-app-text uppercase tracking-wider">
@@ -234,14 +238,33 @@ export const HeaderMechanicSearch: React.FC<HeaderMechanicSearchProps> = ({
                         )}
                     </div>
                 </div>
+                )}
 
-                {/* 2段目: 出現箇所サブリスト */}
+                {/* 2段目: 出現箇所サブリスト (スマホでは 1 段目を置き換える) */}
                 {selectedMechanic && (
-                    <div className={clsx("flex-shrink-0", typeof window !== 'undefined' && window.innerWidth < 768 ? "w-full border-t border-glass-border" : "w-[180px] border-l border-glass-border")}>
-                        <div className="px-3 py-2 bg-glass-header border-b border-glass-border">
-                            <span className="text-app-lg font-bold text-app-text truncate block">
+                    <div className={clsx("flex-shrink-0", isMobile ? "w-full" : "w-[180px] border-l border-glass-border")}>
+                        <div className="flex items-center gap-2 px-3 py-2 bg-glass-header border-b border-glass-border">
+                            {isMobile && (
+                                <button
+                                    onClick={() => setSelectedMechanic(null)}
+                                    aria-label={t('timeline.nav_mechanic_back')}
+                                    className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90 flex-shrink-0"
+                                >
+                                    <ChevronLeft size={14} />
+                                </button>
+                            )}
+                            <span className="text-app-lg font-bold text-app-text truncate flex-1 min-w-0">
                                 {selectedMechanic}
                             </span>
+                            {isMobile && (
+                                <button
+                                    onClick={onClose}
+                                    aria-label={t('common.close')}
+                                    className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90 flex-shrink-0"
+                                >
+                                    <X size={14} />
+                                </button>
+                            )}
                         </div>
                         <div
                             className="max-h-[340px] overflow-y-auto"

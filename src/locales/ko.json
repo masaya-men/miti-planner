@@ -462,6 +462,7 @@
         "nav_mechanic_search": "기믹 검색...",
         "nav_mechanic_jump": "기믹으로 이동",
         "nav_mechanic_count": "×{{count}}",
+        "nav_mechanic_back": "뒤로",
         "nav_no_phases": "페이즈 없음",
         "nav_label_jump": "라벨로 이동",
         "nav_no_labels": "라벨 없음",

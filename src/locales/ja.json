@@ -474,6 +474,7 @@
         "nav_mechanic_search": "攻撃名を検索...",
         "nav_mechanic_jump": "攻撃にジャンプ",
         "nav_mechanic_count": "×{{count}}",
+        "nav_mechanic_back": "戻る",
         "nav_no_phases": "フェーズなし",
         "nav_label_jump": "ラベルにジャンプ",
         "nav_no_labels": "ラベルなし",

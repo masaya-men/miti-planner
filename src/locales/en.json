@@ -470,6 +470,7 @@
         "nav_mechanic_search": "Search mechanics...",
         "nav_mechanic_jump": "Jump to mechanic",
         "nav_mechanic_count": "×{{count}}",
+        "nav_mechanic_back": "Back",
         "nav_no_phases": "No phases",
         "nav_label_jump": "Jump to label",
         "nav_no_labels": "No labels",
