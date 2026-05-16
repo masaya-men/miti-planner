@@ -12,7 +12,7 @@
 ## 現在の状態 (次セッションはここから読む)
 
 - **ブランチ**: main 直接
-- **最新本番デプロイ**: セッション 20 末 (スクロール基盤大整理: 横スクロール復活 / Lenis 撤去 / 縦バー非表示を Timeline 専用化 / useSmoothWheelScroll に enabled・wheelMultiplier・stopPropagation 追加 / Modal handler 永久未登録バグ根本修正 + バグ修正: MitigationSelector 位置 clamp を timeline-rect 基準化 / hover-line を CSS 変数で viewport 連動)
+- **最新本番デプロイ**: セッション 21 末 (Plan v4 = LocalImportDialog 誤発火を _createdLoggedIn 意図フィールドで解消 / executeLocalImport に「既にある成功扱い」 追加 / vitest インフラ pool='forks' 化でハング・pollution 解消、 71 ファイル 694 tests 16 秒で完走、 元々失敗していた 89 件も全通過)
 - **注意**: ENFORCE_APP_CHECK=true、 Vercel 関数 9/12、 月 100 ビルド制限
 - **軽減アプリ: 完成・公開済み** (2026-04-13 完成ツイート済み)
 - **既知の未解決**: 学者列の点線が下まで伸びる本番限定バグ (= 真因不明、 点線描画削除で疑似解決済、 必要なら別セッションで再調査)
@@ -44,6 +44,10 @@
 
 ## バグ・不具合 (要修正)
 
+- **致命**: スマホ Timeline 左端フェーズ列にジョブアイコン見切れ (PC 用要素が media query 漏れ、 2026-05-16 報告)
+- **高**: NewPlanModal の Lv100 リストに「絶妖星乱舞 (DMU)」 が出ない (contents.json に patch=7.51 で登録済なのに、 2026-05-16 報告)
+- **高**: 共有リンク取込プレビュー (ShareImportSheet?) がマウスホイールでスクロールできない (Lenis 撤去後も残スクロール阻害コード疑い、 セッション 20 のスクロール基盤整理での見落とし可能性、 2026-05-16 報告)
+- **中**: ログアウト→ログイン取り込み、 初回失敗→再試行で成功、 その後一時的にクラウドマークが error、 リロードで正常に復帰 (UX 違和感、 2026-05-16 報告)
 - **中**: ラベル名が管理画面で取得できない (スプシヘッダー問題?)
 - **低 (動作影響なし)**: FFLogs インポート英語ログ / 無敵反映 / オートプラン同一技 / パルス設定スライダー初期位置 / ヘッダー縦罫線サブピクセル
 - **Phase 2 follow-up (優先度低)**: api/popular の `viewCount` 削除 / en/ko privacy_section1_auto_items の bullet 分割バグ / `MitigationSheet.copyPlan` の POST 失敗時 localStorage 残留
@@ -56,7 +60,7 @@
 - **UI / モバイル**: モーダル出現アニメ (スプリング物理ベース、 設計書あり)、 スマホ最適化、 タブレット対応
 - **インフラ**: shared_plans クリーンアップ (logoBase64 残留)、 CSP unsafe-inline 除去 (β後)、 Sentry 等エラー監視、 認証プライバシー / Firestore パス検証
 - **新機能 (将来)**: Floating Timeline (PiP, Tauri v2)、 FFLogs 精度向上、 ハウジングツアープランナー、 SA 法オートプラン改善、 詠唱バー注釈、 public/icons/ 削除 (バンドル -2.1MB)
-- **UI 改善 (検討中)**: SVG アイコンアニメ、 紹介 PV 動画 (CapCut/DaVinci)
+- **UI 改善 (検討中)**: SVG アイコンアニメ、 紹介 PV 動画 (CapCut/DaVinci)、 **サイドメニュー軽減表名の全文表示 (折返し対応、 切れ ⇄ 折返しのトグル等含めて要相談)**
 
 ---
 
