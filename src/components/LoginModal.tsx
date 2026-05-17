@@ -69,19 +69,20 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const [showDeleteAvatarConfirm, setShowDeleteAvatarConfirm] = React.useState(false);
     const [isAvatarBusy, setIsAvatarBusy] = React.useState(false);
 
-    // X (Twitter) ログイン廃止のお知らせ表示制御 — 一度 × で閉じたら 15 日間は再表示しない
-    const X_RETIRED_DISMISS_KEY = 'lopo_x_retired_dismissed_at';
-    const X_RETIRED_HIDE_DAYS = 15;
+    // X (Twitter) ログイン廃止のお知らせ表示制御
+    // - 表示期限 (2026-06-01) を過ぎたら以降ずっと非表示
+    // - × で閉じたら以降ずっと非表示
+    // 「廃止直後の 15 日間で告知を完了させ、 その後は新コンテンツに紛れるので不要」 という設計。
+    const X_RETIRED_DISMISS_KEY = 'lopo_x_retired_dismissed';
+    const X_RETIRED_VISIBLE_UNTIL = new Date('2026-06-01T00:00:00+09:00').getTime();
     const shouldShowXRetiredNotice = (): boolean => {
-        const raw = typeof window !== 'undefined' ? localStorage.getItem(X_RETIRED_DISMISS_KEY) : null;
-        if (!raw) return true;
-        const dismissedAt = Number(raw);
-        if (!Number.isFinite(dismissedAt)) return true;
-        return Date.now() - dismissedAt > X_RETIRED_HIDE_DAYS * 24 * 60 * 60 * 1000;
+        if (Date.now() >= X_RETIRED_VISIBLE_UNTIL) return false;
+        if (typeof window !== 'undefined' && localStorage.getItem(X_RETIRED_DISMISS_KEY)) return false;
+        return true;
     };
     const [showXRetiredNotice, setShowXRetiredNotice] = React.useState(shouldShowXRetiredNotice);
     const dismissXRetiredNotice = () => {
-        localStorage.setItem(X_RETIRED_DISMISS_KEY, String(Date.now()));
+        localStorage.setItem(X_RETIRED_DISMISS_KEY, '1');
         setShowXRetiredNotice(false);
     };
 
