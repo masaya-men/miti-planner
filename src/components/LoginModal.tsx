@@ -69,6 +69,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const [showDeleteAvatarConfirm, setShowDeleteAvatarConfirm] = React.useState(false);
     const [isAvatarBusy, setIsAvatarBusy] = React.useState(false);
 
+    // X (Twitter) ログイン廃止のお知らせ表示制御 — 一度 × で閉じたら 15 日間は再表示しない
+    const X_RETIRED_DISMISS_KEY = 'lopo_x_retired_dismissed_at';
+    const X_RETIRED_HIDE_DAYS = 15;
+    const shouldShowXRetiredNotice = (): boolean => {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem(X_RETIRED_DISMISS_KEY) : null;
+        if (!raw) return true;
+        const dismissedAt = Number(raw);
+        if (!Number.isFinite(dismissedAt)) return true;
+        return Date.now() - dismissedAt > X_RETIRED_HIDE_DAYS * 24 * 60 * 60 * 1000;
+    };
+    const [showXRetiredNotice, setShowXRetiredNotice] = React.useState(shouldShowXRetiredNotice);
+    const dismissXRetiredNotice = () => {
+        localStorage.setItem(X_RETIRED_DISMISS_KEY, String(Date.now()));
+        setShowXRetiredNotice(false);
+    };
+
     const handleAvatarComplete = async (blob: Blob) => {
         if (!user) return;
         setIsAvatarBusy(true);
@@ -331,12 +347,22 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                     ))}
                                 </div>
 
-                                {/* Twitter (X) ログイン廃止のお知らせ — 2026-05-17 撤去 */}
-                                <div className="mb-5 px-3 py-2.5 rounded-lg border border-app-border bg-app-surface2/30">
-                                    <p className="text-app-xs text-app-text-muted leading-relaxed whitespace-pre-line">
-                                        {t('login.twitter_retired_notice')}
-                                    </p>
-                                </div>
+                                {/* Twitter (X) ログイン廃止のお知らせ — × で閉じると 15 日表示しない */}
+                                {showXRetiredNotice && (
+                                    <div className="mb-5 relative px-3 py-2.5 pr-8 rounded-lg border border-app-border bg-app-surface2/30">
+                                        <p className="text-app-xs text-app-text-muted leading-relaxed whitespace-pre-line">
+                                            {t('login.twitter_retired_notice')}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={dismissXRetiredNotice}
+                                            aria-label="close"
+                                            className="absolute top-1.5 right-1.5 p-1 rounded text-app-text-muted/60 hover:text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+                                        >
+                                            <X size={12} />
+                                        </button>
+                                    </div>
+                                )}
 
                                 <div className="flex items-start gap-2 px-1">
                                     <Shield size={13} className="text-app-text-muted shrink-0 mt-0.5" />

@@ -110,7 +110,7 @@
         "title": "登录",
         "benefit_message": "无需登录即可创建、编辑和分享减伤表。登录后可保存数据并设置团队标志。",
         "privacy_message": "不会收集电子邮件等个人信息。仅使用您的显示名称和头像。",
-        "twitter_retired_notice": "X (Twitter) 登录因 X API 规范变更导致无法稳定运营，已于 2026 年 5 月停止。曾使用 X 登录的用户数据由运营者妥善保管。如有困扰，请通过 Discord 联系运营者。",
+        "twitter_retired_notice": "X (Twitter) 登录因 X 的规范变更，导致难以继续坚持 LoPo 的理念 (尽量不保留个人信息・免费运营)，已于 2026 年 5 月停止。\n\n实际使用过 X 登录的用户仅 1 名，本服务原本就不保存可识别个人的信息。减伤表数据以匿名形式备份保存中。如您是受影响的用户，请通过 Discord (运营者) 联系我们，我们会协助恢复。",
         "success_toast": "登录成功",
         "success_title": "登录成功！",
         "welcome": "欢迎，{{name}}！",

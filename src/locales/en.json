@@ -110,7 +110,7 @@
         "title": "Sign In",
         "benefit_message": "You can create, edit, and share mitigation sheets without logging in. Log in to save your sheets and set a team logo.",
         "privacy_message": "Sign in with Discord. No personal information such as email addresses is stored on our servers.",
-        "twitter_retired_notice": "X (Twitter) login was retired in May 2026 because X API changes made it unstable to operate. Data of users who previously logged in with X is being safely preserved by the maintainer. If you are affected, please reach out via Discord.",
+        "twitter_retired_notice": "X (Twitter) login was retired in May 2026 because X's policy changes made it hard to keep LoPo's principles (minimal personal data, free operation).\n\nOnly 1 user had ever signed in with X, and we never stored any personally identifying information to begin with. Mitigation sheet data has been backed up in its anonymous form. If you are affected, please reach out via Discord and we'll help you recover.",
         "success_toast": "Signed in successfully",
         "success_title": "Login Successful!",
         "welcome": "Welcome, {{name}}!",
