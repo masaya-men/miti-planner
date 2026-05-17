@@ -28,7 +28,9 @@ export async function getLinkedProviders(): Promise<LinkedProviders> {
         throw new Error('Not logged in');
     }
 
-    const res = await apiFetch('/api/auth/links', { method: 'GET' });
+    // cache: 'no-store' で ETag/304 を回避 (連携直後に古い未連携状態が表示されないように)。
+    // サーバー側も Cache-Control: no-store を返すが、 既にブラウザに残っているキャッシュを使わせないため二重に指定。
+    const res = await apiFetch('/api/auth/links', { method: 'GET', cache: 'no-store' });
 
     if (!res.ok) {
         const body = await res.text();

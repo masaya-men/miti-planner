@@ -59,6 +59,10 @@ export default async function handler(req: any, res: any) {
     setCors(req, res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
+    // 連携状態は変化頻度が高くキャッシュされると古い表示を招く (連携完了直後に古い未連携状態が表示される)
+    // ETag 304 でブラウザが cached body を返さないよう、 全レスポンスで no-store を明示。
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+
     if (!(await verifyAppCheck(req, res))) return;
 
     const uid = await getUidFromIdToken(req);
