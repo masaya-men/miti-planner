@@ -13,3 +13,4 @@ export { HousingOnboardingDialog, hasSeenHousingOnboarding } from './HousingOnbo
 export { HousingDuplicateWarningDialog } from './HousingDuplicateWarningDialog';
 export { HousingLoginPrompt } from './HousingLoginPrompt';
 export { HousingRegisterView } from './register/HousingRegisterView';
+export { HousingWorkspace } from './workspace';

@@ -13,7 +13,7 @@ let originalDocument: Globalish['document'];
 
 beforeAll(() => {
   originalDocument = g.document;
-  g.document = {
+  const mockDocument = {
     createElement: (tag: string) => {
       if (tag !== 'canvas') throw new Error(`unexpected tag: ${tag}`);
       let width = 0;
@@ -47,6 +47,10 @@ beforeAll(() => {
       return canvas;
     },
   };
+  // TypeScript の document.createElement は HTMLElementTagNameMap オーバーロードで
+  // 厳格に型付けされている。 テスト用の最小モックでは満たせないため、 unknown 経由で
+  // キャストして強制代入する (happy-dom/jsdom にも canvas 2D context が無いため必要)。
+  g.document = mockDocument as unknown as Globalish['document'];
 });
 
 afterAll(() => {
