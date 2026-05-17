@@ -11,27 +11,37 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main 直接
-- **最新本番デプロイ**: セッション 26 (X ログイン全撤去 + B-2 連携機能撤去 + アナウンス表示)
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12** (X 撤去で 2 枠解放、 残 2 枠)、 月 100 ビルド制限
-- **セッション 27 (2026-05-17〜18) 成果**: Sub-spec 2B 設計書 + Plan A-F (6 ファイル、 計 8,000 行、 61 task) を作成 + commit。 **コード実装はまだゼロ**。 モックアップは `docs/.private/housing-tour-mockup/` で確定済 (動画背景 xfade ループ + Lucky Graphics 流リキッドグラス)
-- **重要方針**: ハウジングは 1 ページ完結 Adaptive Workspace に大転換 (親仕様 §7-§8/§10/§11.2 オーバーライド)。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像。 iterate-first (詳細パラメータは実装中に調整)
+- **ブランチ**: main 直接、 **13 commits ahead of origin/main (未 push)**
+- **最新本番デプロイ**: セッション 26 (X ログイン全撤去)。 Plan A は production に出ていない
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド制限
+- **セッション 28 (2026-05-18) 成果**: **Plan A 完全実装** (13 task / 13 commit / 731 tests pass / build green)。 5 Zustand stores + displacementMap + SceneryVideo + LiquidGlassPanel + TopBar + StatusBar + HousingWorkspace + /housing ルート切替。 既存 HousingPage は `/housing/legacy` で保存
+- **重要**: Plan A は **UI が空のプレースホルダ**。 push すると production /housing が空スケルトンに退化するため、 Plan B/C 完了まで push 保留中
+- **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像。 iterate-first
 
 ---
 
-## 次セッション最優先 (Sub-spec 2B Plan A 実装着手)
+## 次セッション最優先 (Plan B + C 並列実装)
+
+**ブラウザ目視確認** (最初にやる):
+```bash
+npm run dev
+# http://localhost:5173/housing で動画背景 + TopBar + 3 カラム + StatusBar
+# http://localhost:5173/housing/legacy で旧タブ式 HousingPage
+```
+気になる点があれば iterate-first で調整方針を相談 → なければ Plan B/C へ。
 
 **手順**:
-1. `docs/superpowers/specs/2026-05-17-housing-sub-spec-2b-gallery-tour-design.md` を一読 (設計書、 649 行、 Sub-spec 2B 全体の意図確認)
-2. `docs/superpowers/plans/2026-05-17-housing-sub-spec-2b-plan-a-foundation.md` を開く (Plan A、 13 task、 約 1 日)
-3. `superpowers:subagent-driven-development` skill を invoke して **Plan A から実装開始**
-4. Plan A 完了後、 Plan B (Filter Panel) と Plan C (Center Area) は並列で subagent dispatch 可能
-5. 全 Plan A-F 完了で Sub-spec 2B 完成、 2 週間目標
+1. `docs/superpowers/plans/2026-05-17-housing-sub-spec-2b-plan-b-filter-panel.md` (左パネル Faceted Search) と
+   `docs/superpowers/plans/2026-05-17-housing-sub-spec-2b-plan-c-center-area.md` (中央 Map/Pinterest + inline expansion) を確認
+2. `superpowers:subagent-driven-development` skill 起動
+3. **Plan B と C は別パネル (左 / 中央) を触るので並列 subagent dispatch 可能**
+4. 完了後 Plan D (右パネル) → E (お気に入りモーダル) → F (Finishing + E2E + push + deploy)
 
-**Plan ファイル**:
-- A: Foundation (5 stores + 動画 + リキッドグラス + 骨格)
-- B: Filter Panel (Faceted Search)
-- C: Center Area (Map/Pinterest 切替 + inline expansion)
+**push/deploy タイミング**: Plan B + C 完了 (UI に意味ある中身が入る) で push → Vercel 自動デプロイ。 一度に 1 回で済ませて Vercel ビルド枠節約
+
+**残 Plan**:
+- B: Filter Panel (Faceted Search) — 並列 OK
+- C: Center Area (Map/Pinterest 切替 + inline expansion) — 並列 OK
 - D: Right Panel (auto-scroll + ツアー進行)
 - E: Favorites Modal (DnD + 矩形選択 + ツアー組立)
 - F: Finishing (登録接続 + ルート + a11y + E2E + 親仕様改訂)
@@ -70,10 +80,10 @@
 ## 未着手・将来計画
 
 - **多言語**: ハウジングツアーページ言語対応、 AA 名統一 (英語・中韓も "AA" に)
-- **UI / モバイル**: モーダル出現アニメ (スプリング物理ベース、 設計書あり)、 スマホ最適化、 タブレット対応
-- **インフラ**: shared_plans クリーンアップ (logoBase64 残留)、 CSP unsafe-inline 除去 (β後)、 Sentry 等エラー監視、 認証プライバシー / Firestore パス検証
-- **新機能 (将来)**: Floating Timeline (PiP, Tauri v2)、 FFLogs 精度向上、 ハウジングツアープランナー、 SA 法オートプラン改善、 詠唱バー注釈、 public/icons/ 削除 (バンドル -2.1MB)
-- **UI 改善 (検討中)**: SVG アイコンアニメ、 紹介 PV 動画 (CapCut/DaVinci)、 サイドメニュー軽減表名の全文表示 (折返し対応、 切れ ⇄ 折返しのトグル等含めて要相談)、 共有取込シートのスマホ左カラム幅統一 (現状 140px、 「みんなの軽減表」 と完全統一するなら 280px or 縦スタックだがプレビュー併存と相反、 要相談)
+- **UI / モバイル**: モーダル出現アニメ、 スマホ最適化、 タブレット対応
+- **インフラ**: shared_plans クリーンアップ、 CSP unsafe-inline 除去 (β後)、 Sentry、 認証プライバシー
+- **新機能 (将来)**: Floating Timeline (Tauri v2)、 FFLogs 精度向上、 ハウジングツアープランナー、 SA 法オートプラン改善、 詠唱バー注釈、 public/icons/ 削除 (-2.1MB)
+- **UI 改善 (検討中)**: SVG アイコンアニメ、 紹介 PV 動画、 サイドメニュー軽減表名 折返し対応、 共有取込シート スマホ左カラム幅統一 (要相談)
 - **デッドコード片付け**: Lenis (`src/lib/scroll/useSmoothScroll.ts` + テスト + `data-lenis-prevent` 属性 6 箇所 + package.json 依存) — `useSmoothScroll` はテスト以外どこからも呼ばれていない。 削除でバンドルサイズ削減
 
 ---
