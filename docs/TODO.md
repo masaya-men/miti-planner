@@ -11,31 +11,32 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main 直接、 **13 commits ahead of origin/main (未 push)**
+- **ブランチ**: main 直接、 **15 commits ahead of origin/main (未 push)**
 - **最新本番デプロイ**: セッション 26 (X ログイン全撤去)。 Plan A は production に出ていない
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド制限
-- **セッション 28 (2026-05-18) 成果**: **Plan A 完全実装** (13 task / 13 commit / 731 tests pass / build green)。 5 Zustand stores + displacementMap + SceneryVideo + LiquidGlassPanel + TopBar + StatusBar + HousingWorkspace + /housing ルート切替。 既存 HousingPage は `/housing/legacy` で保存
-- **重要**: Plan A は **UI が空のプレースホルダ**。 push すると production /housing が空スケルトンに退化するため、 Plan B/C 完了まで push 保留中
+- **セッション 29 (2026-05-18) 成果**: **モックアップ視覚再構築完了** (commit 34a680b)。 styles/housing.css 全面拡張 (独自デザイントークン / panel chrome / scenery overlay + starfield)。 LiquidGlassPanel に chrome 追加 (ring border + corner highlights + sheen + box-shadow)。 HousingWorkspace を CSS grid (60/1fr/40 行 × 280/1fr/360 列)。 TopBar = ブランド + パンくず + 丸薬テーマトグル (honey gradient)。 StatusBar = テレメトリ (Build/Lat-Lon/Theme + Stops/ETA/FPS + 言語切替小型 pill)。 検索/登録/❤/アバターは一旦撤去 (Plan E で再配置検討)。 **738 tests pass**。 両テーマ目視確認済み
+- **新ルール**: `/housing` 配下は LoPo 既存 UI デザイン制約 (白黒のみ / Inter 禁止 / honey 色禁止) **対象外**。 memory `feedback_housing_design_independent.md` 参照
+- **重要**: 中身はまだ placeholder。 push すると production /housing が空スケルトンに退化するため、 Plan B/C 完了まで push 保留継続
 - **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像。 iterate-first
 
 ---
 
 ## 次セッション最優先 (Plan B + C 並列実装)
 
-**ブラウザ目視確認** (最初にやる):
+**起動**:
 ```bash
 npm run dev
-# http://localhost:5173/housing で動画背景 + TopBar + 3 カラム + StatusBar
-# http://localhost:5173/housing/legacy で旧タブ式 HousingPage
+# http://localhost:5173/housing で確認 (Light/Dark 両テーマで chrome OK 確認済)
 ```
-気になる点があれば iterate-first で調整方針を相談 → なければ Plan B/C へ。
+追加の見た目調整希望があれば iterate-first、 なければ Plan B/C へ。
 
 **手順**:
 1. `docs/superpowers/plans/2026-05-17-housing-sub-spec-2b-plan-b-filter-panel.md` (左パネル Faceted Search) と
    `docs/superpowers/plans/2026-05-17-housing-sub-spec-2b-plan-c-center-area.md` (中央 Map/Pinterest + inline expansion) を確認
 2. `superpowers:subagent-driven-development` skill 起動
 3. **Plan B と C は別パネル (左 / 中央) を触るので並列 subagent dispatch 可能**
-4. 完了後 Plan D (右パネル) → E (お気に入りモーダル) → F (Finishing + E2E + push + deploy)
+4. CSS は `src/styles/housing.css` の design tokens (--housing-*) を利用、 ハードコード厳禁
+5. 完了後 Plan D (右パネル) → E (お気に入りモーダル + 検索/登録/❤/アバター再配置) → F (Finishing + E2E + push + deploy)
 
 **push/deploy タイミング**: Plan B + C 完了 (UI に意味ある中身が入る) で push → Vercel 自動デプロイ。 一度に 1 回で済ませて Vercel ビルド枠節約
 
@@ -80,11 +81,10 @@ npm run dev
 ## 未着手・将来計画
 
 - **多言語**: ハウジングツアーページ言語対応、 AA 名統一 (英語・中韓も "AA" に)
-- **UI / モバイル**: モーダル出現アニメ、 スマホ最適化、 タブレット対応
+- **UI / モバイル**: モーダル出現アニメ、 スマホ最適化、 タブレット対応 / SVG アイコンアニメ / 紹介 PV / サイドメニュー軽減表名折返し / 共有取込シートスマホ左カラム幅統一
 - **インフラ**: shared_plans クリーンアップ、 CSP unsafe-inline 除去 (β後)、 Sentry、 認証プライバシー
 - **新機能 (将来)**: Floating Timeline (Tauri v2)、 FFLogs 精度向上、 ハウジングツアープランナー、 SA 法オートプラン改善、 詠唱バー注釈、 public/icons/ 削除 (-2.1MB)
-- **UI 改善 (検討中)**: SVG アイコンアニメ、 紹介 PV 動画、 サイドメニュー軽減表名 折返し対応、 共有取込シート スマホ左カラム幅統一 (要相談)
-- **デッドコード片付け**: Lenis (`src/lib/scroll/useSmoothScroll.ts` + テスト + `data-lenis-prevent` 属性 6 箇所 + package.json 依存) — `useSmoothScroll` はテスト以外どこからも呼ばれていない。 削除でバンドルサイズ削減
+- **デッドコード片付け**: Lenis (`src/lib/scroll/useSmoothScroll.ts` + テスト + `data-lenis-prevent` 属性 6 箇所 + package.json 依存) — テスト以外未使用、 削除でバンドル減
 
 ---
 
@@ -92,10 +92,7 @@ npm run dev
 
 YouTube 埋め込み / こだわりトップページ (AI デザイン NG) / 軽減配置フィードバックアニメ / オートプラン精度改善 (スプシ教師データ) / YouTube 導線 (ジョブ別スキル回し動画) / スクショ OCR / 管理画面 FFLogs インポート / 横型タイムライン + 音ゲーモード (PiP) / Gemma 搭載 AI 機能
 
-### 多言語リファレンス URL (zh/ko 翻訳作業用)
-
-- 韓国語: https://guide.ff14.co.kr/job/paladin/1?type=E#pve
-- 中国語: https://actff1.web.sdo.com/project/20190917jobguid/index.html#/index
+(zh/ko 訳語確認 URL は memory `reference_ff14_jobguide_urls.md`)
 
 ---
 
