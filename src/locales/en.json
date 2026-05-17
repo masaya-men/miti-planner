@@ -1931,6 +1931,15 @@
             "funeral": "Funeral Parlor",
             "casino": "Casino",
             "theater": "Theater"
+        },
+        "workspace": {
+            "topbar": {
+                "logo_alt": "LoPo",
+                "search_placeholder": "Find a home...",
+                "register": "+ Add yours",
+                "favorites": "Favorites",
+                "profile": "Profile"
+            }
         }
     }
 }

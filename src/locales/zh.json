@@ -1895,6 +1895,15 @@
             "funeral": "丧葬场所",
             "casino": "赌场",
             "theater": "剧场"
+        },
+        "workspace": {
+            "topbar": {
+                "logo_alt": "LoPo",
+                "search_placeholder": "搜索房屋...",
+                "register": "+ 注册",
+                "favorites": "收藏",
+                "profile": "资料"
+            }
         }
     }
 }

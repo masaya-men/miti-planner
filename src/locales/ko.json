@@ -1895,6 +1895,15 @@
             "funeral": "장례식장",
             "casino": "카지노",
             "theater": "극장"
+        },
+        "workspace": {
+            "topbar": {
+                "logo_alt": "LoPo",
+                "search_placeholder": "집 찾기...",
+                "register": "+ 등록하기",
+                "favorites": "즐겨찾기",
+                "profile": "프로필"
+            }
         }
     }
 }

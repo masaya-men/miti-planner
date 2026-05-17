@@ -1952,6 +1952,15 @@
             "funeral": "葬祭場",
             "casino": "カジノ",
             "theater": "劇場"
+        },
+        "workspace": {
+            "topbar": {
+                "logo_alt": "LoPo",
+                "search_placeholder": "お家を探す...",
+                "register": "+ 登録する",
+                "favorites": "お気に入り",
+                "profile": "プロフィール"
+            }
         }
     }
 }
