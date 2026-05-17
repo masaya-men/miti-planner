@@ -1939,6 +1939,12 @@
                 "register": "+ Add yours",
                 "favorites": "Favorites",
                 "profile": "Profile"
+            },
+            "statusbar": {
+                "theme_label": "Theme",
+                "theme_light": "Light",
+                "theme_dark": "Dark",
+                "lang_label": "Lang"
             }
         }
     }

@@ -1960,6 +1960,12 @@
                 "register": "+ 登録する",
                 "favorites": "お気に入り",
                 "profile": "プロフィール"
+            },
+            "statusbar": {
+                "theme_label": "テーマ",
+                "theme_light": "Light",
+                "theme_dark": "Dark",
+                "lang_label": "言語"
             }
         }
     }

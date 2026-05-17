@@ -1903,6 +1903,12 @@
                 "register": "+ 등록하기",
                 "favorites": "즐겨찾기",
                 "profile": "프로필"
+            },
+            "statusbar": {
+                "theme_label": "테마",
+                "theme_light": "Light",
+                "theme_dark": "Dark",
+                "lang_label": "언어"
             }
         }
     }
