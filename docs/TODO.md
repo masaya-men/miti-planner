@@ -13,15 +13,18 @@
 
 - **ブランチ**: main 直接
 - **最新本番デプロイ**: セッション 24 (攻撃ジャンプ UI スマホドリルダウン化)
-- **注意**: ENFORCE_APP_CHECK=true、 Vercel 関数 9/12、 月 100 ビルド制限
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12** (T3 で `/api/auth/links` 追加、 残 1 枠)、 月 100 ビルド制限
 - **軽減アプリ: 完成・公開済み** (2026-04-13 完成ツイート済み)
 - **既知の未解決**: 学者列の点線が下まで伸びる本番限定バグ (= 真因不明、 点線描画削除で疑似解決済、 必要なら別セッションで再調査)
+- **進行中**: **ハウジング Phase B-2 (アカウントリンク) T1〜T4 完了・未デプロイ** (commits `9a25e95` / `5eb1970` / `80bad09` / `e703e28`)。 plan: `docs/superpowers/plans/2026-05-17-housing-phase-b2-account-link.md`
 
 ---
 
 ## 次セッション最優先
 
-1. **ハウジング Sub-spec 2B** (Gallery & Search) — 並行プロジェクト、 lopoly.app/housing 統合方針
+1. **ハウジング Phase B-2 続き (T5〜T9)** — Twitter handler 改修 / i18n / AccountLinkSection / LoginModal 配置 / 実機検証 + デプロイ。 plan の T5 から再開
+2. (B-2 完了後) **ハウジング Sub-spec 2B** (Gallery & Search) — lopoly.app/housing 統合本実装
+3. (要詰め) **個室・アパート問題** — `docs/.private/2026-05-17-housing-room-types-design.md` 参照、 登録モーダル実装前に確定必須
 
 ---
 
