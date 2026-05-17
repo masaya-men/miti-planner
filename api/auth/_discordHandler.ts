@@ -10,13 +10,6 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
-import {
-    sendLinkCompletePage,
-    sendLinkErrorPage,
-    writeAccountLink,
-    resolveFinalUid,
-    parseStateCookie,
-} from './_linkHelpers.js';
 
 const DISCORD_API = 'https://discord.com/api/v10';
 
@@ -71,25 +64,6 @@ export default async function handler(req: any, res: any) {
         if (req.method === 'POST') {
             if (!(await verifyAppCheck(req, res))) return;
 
-            // === link mode 判定: Authorization Bearer の Firebase ID Token から primaryUid を確定 ===
-            const isLinkMode = req.query?.mode === 'link';
-            let primaryUid: string | null = null;
-
-            if (isLinkMode) {
-                const authHeader = req.headers.authorization;
-                if (!authHeader?.startsWith('Bearer ')) {
-                    return res.status(401).json({ error: 'Missing Firebase ID token for link mode' });
-                }
-                initAdmin();
-                try {
-                    const { getAuth } = await import('firebase-admin/auth');
-                    const decoded = await getAuth().verifyIdToken(authHeader.slice(7));
-                    primaryUid = decoded.uid;
-                } catch {
-                    return res.status(401).json({ error: 'Invalid Firebase ID token' });
-                }
-            }
-
             const clientId = process.env.DISCORD_CLIENT_ID;
             if (!clientId) {
                 return res.status(500).json({ error: 'Server configuration error' });
@@ -98,12 +72,9 @@ export default async function handler(req: any, res: any) {
             const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth?provider=discord`;
             const stateParam = crypto.randomBytes(16).toString('hex');
 
-            // link mode の場合は cookie 値に primaryUid を埋め込む (callback で取り出す)
-            const cookieValue = isLinkMode ? `link:${primaryUid}:${stateParam}` : stateParam;
-
             // stateをHttpOnly cookieに保存（5分有効）— パスは統合後の /api/auth
             res.setHeader('Set-Cookie',
-                `discord_oauth_state=${cookieValue}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`
+                `discord_oauth_state=${stateParam}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`
             );
 
             const params = new URLSearchParams({
@@ -125,10 +96,7 @@ export default async function handler(req: any, res: any) {
         const cookies = parseCookies(req.headers.cookie || '');
         const savedState = cookies['discord_oauth_state'];
 
-        // link mode 判定 (cookie 値が link:<primaryUid>:<stateParam> 形式)
-        const { expectedState, linkPrimaryUid } = parseStateCookie(savedState);
-
-        if (!savedState || state !== expectedState) {
+        if (!savedState || state !== savedState) {
             return res.status(400).json({ error: 'State mismatch. Please try again.' });
         }
 
@@ -176,23 +144,11 @@ export default async function handler(req: any, res: any) {
         // idのみ取り出し、他の個人情報は即破棄
         const { id: discordUserId } = await userRes.json();
 
-        const candidateUid = `discord:${discordUserId}`;
-
-        // === link mode の callback ===
-        if (linkPrimaryUid) {
-            const errorCode = await writeAccountLink(candidateUid, linkPrimaryUid);
-            if (errorCode) return sendLinkErrorPage(res, errorCode);
-            return sendLinkCompletePage(res, 'discord');
-        }
-
-        // === 通常ログイン: account_links に紐付けがあれば primaryUid を使う ===
-        const finalUid = await resolveFinalUid(candidateUid);
-
         // ステップ5: Firebase カスタムトークン生成
-        const customToken = await getAuth().createCustomToken(finalUid, {
+        const firebaseUid = `discord:${discordUserId}`;
+        const customToken = await getAuth().createCustomToken(firebaseUid, {
             provider: 'discord',
         });
-        // ↑ discordId, avatar を Custom Claims から削除
 
         // ステップ6: トークンをlocalStorageに保存してアプリにリダイレクト
         res.setHeader('Content-Type', 'text/html');
