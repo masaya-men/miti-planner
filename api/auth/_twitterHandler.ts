@@ -10,6 +10,13 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
+import {
+    sendLinkCompletePage,
+    sendLinkErrorPage,
+    writeAccountLink,
+    resolveFinalUid,
+    parseStateCookie,
+} from './_linkHelpers.js';
 
 const TWITTER_AUTH_URL = 'https://twitter.com/i/oauth2/authorize';
 const TWITTER_TOKEN_URL = 'https://api.twitter.com/2/oauth2/token';
@@ -86,14 +93,35 @@ export default async function handler(req: any, res: any) {
         if (req.method === 'POST') {
             if (!(await verifyAppCheck(req, res))) return;
 
+            // === link mode 判定: Authorization Bearer の Firebase ID Token から primaryUid を確定 ===
+            const isLinkMode = req.query?.mode === 'link';
+            let primaryUid: string | null = null;
+
+            if (isLinkMode) {
+                const authHeader = req.headers.authorization;
+                if (!authHeader?.startsWith('Bearer ')) {
+                    return res.status(401).json({ error: 'Missing Firebase ID token for link mode' });
+                }
+                initAdmin();
+                try {
+                    const decoded = await getAuth().verifyIdToken(authHeader.slice(7));
+                    primaryUid = decoded.uid;
+                } catch {
+                    return res.status(401).json({ error: 'Invalid Firebase ID token' });
+                }
+            }
+
             const codeVerifier = generateCodeVerifier();
             const codeChallenge = generateCodeChallenge(codeVerifier);
             const stateParam = crypto.randomBytes(16).toString('hex');
 
-            // code_verifier を HttpOnly cookie に保存（5分有効）— パスは統合後の /api/auth
+            // link mode の場合は state cookie に primaryUid を埋め込む (callback で取り出す)
+            const stateCookieValue = isLinkMode ? `link:${primaryUid}:${stateParam}` : stateParam;
+
+            // code_verifier と state を HttpOnly cookie に保存（5分有効）— パスは統合後の /api/auth
             res.setHeader('Set-Cookie', [
                 `twitter_code_verifier=${codeVerifier}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`,
-                `twitter_oauth_state=${stateParam}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`,
+                `twitter_oauth_state=${stateCookieValue}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`,
             ]);
 
             const params = new URLSearchParams({
@@ -101,7 +129,7 @@ export default async function handler(req: any, res: any) {
                 client_id: clientId,
                 redirect_uri: redirectUri,
                 scope: 'users.read',
-                state: stateParam,
+                state: stateParam, // Twitter には stateParam のみ渡す
                 code_challenge: codeChallenge,
                 code_challenge_method: 'S256',
             });
@@ -124,7 +152,10 @@ export default async function handler(req: any, res: any) {
             return res.status(400).json({ error: 'Missing code_verifier cookie. Please try again.' });
         }
 
-        if (state !== savedState) {
+        // link mode 判定 (cookie 値が link:<primaryUid>:<stateParam> 形式)
+        const { expectedState, linkPrimaryUid } = parseStateCookie(savedState);
+
+        if (!savedState || state !== expectedState) {
             return res.status(400).json({ error: 'State mismatch. Please try again.' });
         }
 
@@ -162,6 +193,7 @@ export default async function handler(req: any, res: any) {
 
         // ステップ4: Twitter ユーザーID取得（displayName/photoURLは取得しない）
         let twitterUserId: string;
+        let userInfoFetched = false;
 
         try {
             const userRes = await fetch(TWITTER_USER_URL, {
@@ -171,6 +203,7 @@ export default async function handler(req: any, res: any) {
             if (userRes.ok) {
                 const { data } = await userRes.json();
                 twitterUserId = data.id;
+                userInfoFetched = true;
                 // displayName, photoURL は取得しない
             } else {
                 twitterUserId = crypto.createHash('sha256').update(access_token).digest('hex').slice(0, 16);
@@ -179,9 +212,24 @@ export default async function handler(req: any, res: any) {
             twitterUserId = crypto.createHash('sha256').update(access_token).digest('hex').slice(0, 16);
         }
 
+        const candidateUid = `twitter:${twitterUserId}`;
+
+        // === link mode の callback ===
+        if (linkPrimaryUid) {
+            // user info 取得失敗時の fallback uid (sha256) は安定しないため link 書き込み禁止
+            if (!userInfoFetched) {
+                return sendLinkErrorPage(res, 'twitter_user_info_failed');
+            }
+            const errorCode = await writeAccountLink(candidateUid, linkPrimaryUid);
+            if (errorCode) return sendLinkErrorPage(res, errorCode);
+            return sendLinkCompletePage(res, 'twitter');
+        }
+
+        // === 通常ログイン: account_links に紐付けがあれば primaryUid を使う ===
+        const finalUid = await resolveFinalUid(candidateUid);
+
         // ステップ5: Firebase カスタムトークン生成
-        const firebaseUid = `twitter:${twitterUserId}`;
-        const customToken = await getAuth().createCustomToken(firebaseUid, {
+        const customToken = await getAuth().createCustomToken(finalUid, {
             provider: 'twitter',
         });
 
