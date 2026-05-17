@@ -14,6 +14,7 @@ import { DisplayNameEditor } from './DisplayNameEditor';
 import { AvatarCropModal } from './AvatarCropModal';
 import { uploadAvatar, deleteAvatar } from '../utils/avatarUpload';
 import { showToast } from './Toast';
+import { AccountLinkSection } from './AccountLinkSection';
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -239,6 +240,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                         )}
                                     </div>
                                 </div>
+
+                                <AccountLinkSection />
 
                                 {isAdmin && (
                                     <button
