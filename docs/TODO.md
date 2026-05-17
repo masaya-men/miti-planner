@@ -12,18 +12,18 @@
 ## 現在の状態 (次セッションはここから読む)
 
 - **ブランチ**: main 直接
-- **最新本番デプロイ**: セッション 24 (攻撃ジャンプ UI スマホドリルダウン化)
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12** (T3 で `/api/auth/links` 追加、 残 1 枠)、 月 100 ビルド制限
+- **最新本番デプロイ**: セッション 26 (ハウジング B-2 アカウントリンク 全タスク完了・デプロイ済、 実機検証待ち)
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12** (B-2 T3 で `/api/auth/links` 追加、 残 1 枠)、 月 100 ビルド制限
 - **軽減アプリ: 完成・公開済み** (2026-04-13 完成ツイート済み)
 - **既知の未解決**: 学者列の点線が下まで伸びる本番限定バグ (= 真因不明、 点線描画削除で疑似解決済、 必要なら別セッションで再調査)
-- **進行中**: **ハウジング Phase B-2 (アカウントリンク) T1〜T4 完了・未デプロイ** (commits `9a25e95` / `5eb1970` / `80bad09` / `e703e28`)。 plan: `docs/superpowers/plans/2026-05-17-housing-phase-b2-account-link.md`
+- **直近の検証必要**: **B-2 (アカウントリンク) 実機検証** — Discord↔X 連携 / 解除 / lookup の 3 経路、 既存ログイン回帰なし。 plan T9 step 5 チェックリスト参照
 
 ---
 
 ## 次セッション最優先
 
-1. **ハウジング Phase B-2 続き (T5〜T9)** — Twitter handler 改修 / i18n / AccountLinkSection / LoginModal 配置 / 実機検証 + デプロイ。 plan の T5 から再開
-2. (B-2 完了後) **ハウジング Sub-spec 2B** (Gallery & Search) — lopoly.app/housing 統合本実装
+1. **B-2 実機検証** — Discord ログイン → X 連携 → ログアウト → X ログインで同データ / 解除 / 既存ログイン回帰なし。 plan `docs/superpowers/plans/2026-05-17-housing-phase-b2-account-link.md` T9 step 5
+2. (検証 OK 後) **ハウジング Sub-spec 2B** (Gallery & Search) — lopoly.app/housing 統合本実装
 3. (要詰め) **個室・アパート問題** — `docs/.private/2026-05-17-housing-room-types-design.md` 参照、 登録モーダル実装前に確定必須
 
 ---
