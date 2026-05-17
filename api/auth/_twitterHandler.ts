@@ -204,11 +204,21 @@ export default async function handler(req: any, res: any) {
                 const { data } = await userRes.json();
                 twitterUserId = data.id;
                 userInfoFetched = true;
+                console.log('[twitter] /users/me OK, id=', data.id);
                 // displayName, photoURL は取得しない
             } else {
+                // 真因特定用ログ (B-2 アカウント連携で fallback uid だと書き込み拒否される)
+                const errBody = await userRes.text().catch(() => '(body read failed)');
+                console.error('[twitter] /users/me failed', {
+                    status: userRes.status,
+                    statusText: userRes.statusText,
+                    body: errBody,
+                    scope: 'users.read',
+                });
                 twitterUserId = crypto.createHash('sha256').update(access_token).digest('hex').slice(0, 16);
             }
-        } catch {
+        } catch (e) {
+            console.error('[twitter] /users/me threw', e);
             twitterUserId = crypto.createHash('sha256').update(access_token).digest('hex').slice(0, 16);
         }
 
