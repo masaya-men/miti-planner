@@ -1,6 +1,344 @@
-/* Liquid Glass panels — pick up the SVG filter via CSS custom property.
-   Safari falls back gracefully (no backdrop-filter url support) since we
-   intentionally do not include a -webkit-backdrop-filter blur fallback. */
+/* ============================================================
+ * Housing workspace — independent design system.
+ * Does NOT inherit LoPo white/black or Inter-ban rules.
+ * Source of truth: docs/.private/housing-tour-mockup/index.html
+ * ============================================================ */
+
+.housing-workspace {
+  /* ===== Color tokens ===== */
+  --housing-honey: #ffc987;
+  --housing-honey-glow: #ffb35a;
+  --housing-candle: #ffe2b3;
+  --housing-panel-bg: rgba(255, 255, 255, 0.04);
+  --housing-panel-border: rgba(255, 255, 255, 0.22);
+  --housing-panel-border-strong: rgba(255, 255, 255, 0.36);
+  --housing-panel-inner: rgba(255, 255, 255, 0.05);
+  --housing-text: #ffffff;
+  --housing-text-dim: rgba(255, 255, 255, 0.78);
+  --housing-text-mute: rgba(255, 255, 255, 0.55);
+  --housing-divider: rgba(255, 255, 255, 0.12);
+  --housing-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 10px rgba(0, 0, 0, 0.32);
+
+  /* ===== Layout tokens ===== */
+  --housing-header-h: 60px;
+  --housing-status-h: 40px;
+  --housing-panel-radius: 18px;
+  --housing-main-gap: 14px;
+  --housing-main-padding: 14px;
+  --housing-left-w: 280px;
+  --housing-right-w: 360px;
+
+  /* ===== Typography ===== */
+  font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow);
+  -webkit-font-smoothing: antialiased;
+
+  background: #000;
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ===== Scenery overlay (theme dependent) ===== */
+.housing-scenery {
+  position: fixed; inset: 0; z-index: 0;
+  overflow: hidden;
+  background: #000;
+  pointer-events: none;
+}
+.housing-scenery::before,
+.housing-scenery::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+}
+.housing-workspace[data-theme="light"] .housing-scenery::before {
+  background:
+    radial-gradient(circle at 78% 32%, rgba(255, 220, 170, 0.18) 0%, transparent 35%),
+    linear-gradient(180deg, rgba(255, 200, 150, 0.05) 0%, transparent 40%, rgba(40, 20, 30, 0.15) 100%);
+  mix-blend-mode: soft-light;
+}
+.housing-workspace[data-theme="light"] .housing-scenery::after {
+  background: linear-gradient(180deg, transparent 55%, rgba(15, 10, 20, 0.35) 100%);
+}
+.housing-workspace[data-theme="dark"] .housing-scenery {
+  background:
+    radial-gradient(60% 40% at 50% 18%, #2a3a72 0%, transparent 60%),
+    radial-gradient(40% 30% at 80% 30%, #6d3a78 0%, transparent 55%),
+    linear-gradient(180deg, #050814 0%, #0a1230 35%, #0d1140 65%, #04060f 100%);
+}
+.housing-workspace[data-theme="dark"] .housing-scenery::before {
+  background:
+    radial-gradient(ellipse 70% 18% at 35% 45%, rgba(180, 200, 255, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 14% at 65% 55%, rgba(220, 180, 255, 0.12) 0%, transparent 60%);
+  mix-blend-mode: screen;
+}
+.housing-workspace[data-theme="dark"] .housing-scenery::after {
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #ffffff 50%, transparent 51%),
+    radial-gradient(1px 1px at 27% 42%, #ffffff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 45% 12%, #fff4d8 50%, transparent 51%),
+    radial-gradient(1px 1px at 62% 38%, #ffffff 50%, transparent 51%),
+    radial-gradient(1px 1px at 78% 22%, #ffffff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 88% 48%, #d8e6ff 50%, transparent 51%),
+    radial-gradient(1px 1px at 8% 62%, #ffffff 50%, transparent 51%),
+    radial-gradient(1px 1px at 33% 70%, #ffffff 50%, transparent 51%),
+    radial-gradient(2px 2px at 52% 28%, #ffe7b3 50%, transparent 51%),
+    radial-gradient(1px 1px at 70% 75%, #ffffff 50%, transparent 51%),
+    radial-gradient(1px 1px at 92% 82%, #ffffff 50%, transparent 51%),
+    radial-gradient(1px 1px at 20% 88%, #ffffff 50%, transparent 51%),
+    radial-gradient(1px 1px at 58% 92%, #cfe0ff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 82% 8%, #ffe7b3 50%, transparent 51%);
+  background-size: 100% 100%;
+  opacity: 0.9;
+}
+.housing-scenery-veil {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.18) 70%, rgba(0, 0, 0, 0.28));
+}
+
+/* ===== App shell ===== */
+.housing-shell {
+  position: relative; z-index: 2;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: var(--housing-header-h) 1fr var(--housing-status-h);
+}
+
+/* ===== TopBar (header) ===== */
+.housing-top {
+  position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  background: var(--housing-panel-bg);
+  border-bottom: 1px solid var(--housing-panel-border);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.30),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+.housing-top::after {
+  content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+  background: linear-gradient(to right,
+    transparent, rgba(255, 255, 255, 0.18) 30%, rgba(255, 255, 255, 0.30) 50%,
+    rgba(255, 255, 255, 0.18) 70%, transparent);
+  pointer-events: none;
+}
+.housing-brand {
+  display: flex; align-items: center; gap: 12px;
+  font-weight: 600; letter-spacing: 0.04em; font-size: 13px;
+}
+.housing-brand-mark {
+  width: 22px; height: 22px; border-radius: 4px;
+  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
+  box-shadow: 0 0 12px rgba(255, 180, 90, 0.55);
+}
+.housing-brand-sub {
+  color: var(--housing-text-mute);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.housing-crumbs {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12px; color: var(--housing-text-dim);
+}
+.housing-crumbs .sep { color: var(--housing-text-mute); }
+.housing-crumbs .now { color: var(--housing-text); }
+
+.housing-theme-toggle {
+  display: inline-flex; align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--housing-panel-border-strong);
+  border-radius: 999px;
+  padding: 3px;
+  font-size: 12px;
+}
+.housing-theme-toggle button {
+  appearance: none; border: 0; background: transparent;
+  color: var(--housing-text-dim);
+  padding: 6px 14px; border-radius: 999px;
+  cursor: pointer; font: inherit;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.housing-theme-toggle button:hover {
+  color: var(--housing-text);
+}
+.housing-theme-toggle button.is-on {
+  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
+  color: #2a1a08; font-weight: 600;
+  box-shadow: 0 0 12px rgba(255, 180, 90, 0.45);
+  text-shadow: none;
+}
+
+/* ===== Main 3-col ===== */
+.housing-main {
+  display: grid;
+  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  min-height: 0;
+}
+.housing-main[data-left-collapsed="true"] {
+  grid-template-columns: 0 1fr var(--housing-right-w);
+}
+.housing-main[data-right-collapsed="true"] {
+  grid-template-columns: var(--housing-left-w) 1fr 0;
+}
+.housing-main[data-left-collapsed="true"][data-right-collapsed="true"] {
+  grid-template-columns: 0 1fr 0;
+}
+
+/* ===== Glass Panel ===== */
+.housing-panel {
+  position: relative;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow:
+    0 24px 72px rgba(0, 0, 0, 0.5),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.32),
+    inset 0 -1.5px 2px rgba(255, 255, 255, 0.06),
+    inset 0 0 22px rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  isolation: isolate;
+}
+.housing-panel.is-liquid {
+  backdrop-filter: var(--liquid-filter, none);
+}
+/* Vertical gradient ring border (top + bottom brightest) */
+.housing-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.22) 14%,
+    rgba(255, 255, 255, 0.06) 32%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.06) 70%,
+    rgba(255, 255, 255, 0.22) 88%,
+    rgba(255, 255, 255, 0.45) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 5;
+}
+/* Horizontal sheen overlay (left/right rim) */
+.housing-panel::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.08) 12%,
+    transparent 35%,
+    transparent 65%,
+    rgba(255, 255, 255, 0.08) 88%,
+    rgba(255, 255, 255, 0.30) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: screen;
+}
+.housing-panel-corner {
+  position: absolute; width: 72px; height: 72px;
+  pointer-events: none; z-index: 4;
+  mix-blend-mode: screen;
+}
+.housing-panel-corner.tl { top: 0; left: 0;
+  background: radial-gradient(ellipse at 0% 0%, rgba(255, 255, 255, 0.30) 0%, transparent 70%); }
+.housing-panel-corner.tr { top: 0; right: 0;
+  background: radial-gradient(ellipse at 100% 0%, rgba(255, 255, 255, 0.18) 0%, transparent 70%); }
+.housing-panel-corner.bl { bottom: 0; left: 0;
+  background: radial-gradient(ellipse at 0% 100%, rgba(255, 255, 255, 0.14) 0%, transparent 70%); }
+.housing-panel-corner.br { bottom: 0; right: 0;
+  background: radial-gradient(ellipse at 100% 100%, rgba(255, 255, 255, 0.10) 0%, transparent 70%); }
+.housing-panel-sheen {
+  position: absolute; top: 0; left: 10%; right: 10%; height: 1.5px;
+  pointer-events: none; z-index: 6;
+  background: linear-gradient(to right,
+    transparent, rgba(255, 255, 255, 0.40) 25%, rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0.40) 75%, transparent);
+  filter: blur(0.4px);
+}
+.housing-panel-head {
+  padding: 14px 16px 10px;
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-panel-title {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--housing-text-dim);
+}
+.housing-panel-meta {
+  font-size: 11px; color: var(--housing-text-mute);
+  font-variant-numeric: tabular-nums;
+}
+.housing-panel-body {
+  flex: 1; min-height: 0; overflow: auto; padding: 14px 16px;
+}
+
+/* ===== StatusBar ===== */
+.housing-status {
+  position: relative;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  background: var(--housing-panel-bg);
+  border-top: 1px solid var(--housing-panel-border);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+  font-size: 11px; color: var(--housing-text-mute);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.housing-status::before {
+  content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+  background: linear-gradient(to right,
+    transparent, rgba(255, 255, 255, 0.14) 30%, rgba(255, 255, 255, 0.22) 50%,
+    rgba(255, 255, 255, 0.14) 70%, transparent);
+  pointer-events: none;
+}
+.housing-status-group {
+  display: flex; gap: 22px; align-items: center;
+}
+.housing-status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--housing-honey);
+  box-shadow: 0 0 6px var(--housing-honey);
+  margin-right: 6px; display: inline-block; vertical-align: middle;
+}
+.housing-accent { color: var(--housing-candle); }
+.housing-accent-honey { color: var(--housing-honey); }
+
+.housing-status-lang {
+  display: inline-flex; gap: 2px; align-items: center;
+}
+.housing-status-lang button {
+  appearance: none; border: 0; background: transparent;
+  color: var(--housing-text-mute); cursor: pointer;
+  font: inherit; font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-status-lang button:hover { color: var(--housing-text-dim); }
+.housing-status-lang button.is-on {
+  color: var(--housing-candle);
+  background: rgba(255, 226, 179, 0.08);
+}
+
+/* Backward-compat shim: a few tests/components still reference the old class */
 .liquid-glass-panel {
   backdrop-filter: var(--liquid-filter, none);
 }

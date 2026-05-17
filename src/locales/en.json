@@ -1935,12 +1935,30 @@
         "workspace": {
             "topbar": {
                 "logo_alt": "LoPo",
+                "subtitle": "Housing Tour",
+                "breadcrumb_label": "Breadcrumb",
+                "browse_placeholder": "Browse mode",
+                "theme_toggle_label": "Theme toggle",
+                "theme_light": "Light",
+                "theme_dark": "Dark",
                 "search_placeholder": "Find a home...",
                 "register": "+ Add yours",
                 "favorites": "Favorites",
                 "profile": "Profile"
             },
+            "panels": {
+                "left_title": "Filter",
+                "center_title": "Map",
+                "right_title": "Tour Script · auto"
+            },
             "statusbar": {
+                "build_label": "Build",
+                "lat_label": "Lat",
+                "lon_label": "Lon",
+                "theme_readout_label": "Theme",
+                "stops_label": "Stops",
+                "eta_label": "ETA",
+                "fps_label": "FPS",
                 "theme_label": "Theme",
                 "theme_light": "Light",
                 "theme_dark": "Dark",

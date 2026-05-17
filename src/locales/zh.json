@@ -1899,12 +1899,30 @@
         "workspace": {
             "topbar": {
                 "logo_alt": "LoPo",
+                "subtitle": "豪宅游览",
+                "breadcrumb_label": "面包屑",
+                "browse_placeholder": "浏览模式",
+                "theme_toggle_label": "主题切换",
+                "theme_light": "Light",
+                "theme_dark": "Dark",
                 "search_placeholder": "搜索房屋...",
                 "register": "+ 注册",
                 "favorites": "收藏",
                 "profile": "资料"
             },
+            "panels": {
+                "left_title": "Filter",
+                "center_title": "Map",
+                "right_title": "Tour Script · auto"
+            },
             "statusbar": {
+                "build_label": "Build",
+                "lat_label": "Lat",
+                "lon_label": "Lon",
+                "theme_readout_label": "Theme",
+                "stops_label": "Stops",
+                "eta_label": "ETA",
+                "fps_label": "FPS",
                 "theme_label": "主题",
                 "theme_light": "Light",
                 "theme_dark": "Dark",

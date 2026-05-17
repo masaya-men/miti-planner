@@ -1899,12 +1899,30 @@
         "workspace": {
             "topbar": {
                 "logo_alt": "LoPo",
+                "subtitle": "하우징 투어",
+                "breadcrumb_label": "경로",
+                "browse_placeholder": "브라우즈 모드",
+                "theme_toggle_label": "테마 전환",
+                "theme_light": "Light",
+                "theme_dark": "Dark",
                 "search_placeholder": "집 찾기...",
                 "register": "+ 등록하기",
                 "favorites": "즐겨찾기",
                 "profile": "프로필"
             },
+            "panels": {
+                "left_title": "Filter",
+                "center_title": "Map",
+                "right_title": "Tour Script · auto"
+            },
             "statusbar": {
+                "build_label": "Build",
+                "lat_label": "Lat",
+                "lon_label": "Lon",
+                "theme_readout_label": "Theme",
+                "stops_label": "Stops",
+                "eta_label": "ETA",
+                "fps_label": "FPS",
                 "theme_label": "테마",
                 "theme_light": "Light",
                 "theme_dark": "Dark",

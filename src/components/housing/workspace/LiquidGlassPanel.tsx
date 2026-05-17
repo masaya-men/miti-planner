@@ -1,31 +1,40 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { makeDisplacementMapDataURL } from '../../../lib/housing/displacementMap';
 
-export interface LiquidGlassPanelProps {
+export interface LiquidGlassPanelProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
+  /** Rim thickness (px) where refraction lives. */
   edge: number;
+  /** Corner radius (px) — matches CSS border-radius. */
   radius: number;
+  /** feDisplacementMap scale (px of max bend). */
   scale: number;
-  /** Chromatic aberration is intentionally unused (Lucky Graphics flavor — no color channel split). */
+  /** Chromatic aberration is intentionally unused (no color channel split). */
   chroma?: number;
-  className?: string;
-  style?: React.CSSProperties;
+  /** Set false to skip the decorative chrome (corners + top sheen). */
+  chrome?: boolean;
   children?: React.ReactNode;
 }
 
 /**
- * Liquid Glass Precision Lens panel.
- * - SVG <feImage> + <feDisplacementMap> only (no color channel split, no blur).
- * - Displacement map regenerated on resize via ResizeObserver.
- * - The actual visual filter is applied via CSS custom property `--liquid-filter`
- *   on the wrapper; consuming CSS reads it as `backdrop-filter: var(--liquid-filter, none)`.
+ * Liquid Glass panel — wraps content in a `.housing-panel.is-liquid` shell
+ * with a per-panel SVG `<feDisplacementMap>` refraction filter and the
+ * mockup chrome (gradient ring border + horizontal sheen + 4 corner
+ * highlights + top sheen line — all defined in `housing.css`).
+ *
+ * Displacement map is regenerated on resize via ResizeObserver.
+ * Pure-displacement filter (no color split, no blur) — the
+ * "Lucky Graphics Precision Lens" flavor.
  */
 export const LiquidGlassPanel: React.FC<LiquidGlassPanelProps> = ({
   edge,
   radius,
   scale,
+  chrome = true,
+  chroma: _chroma,
   className = '',
   style = {},
   children,
+  ...rest
 }) => {
   const rawId = useId();
   const filterId = `liquid-${rawId.replace(/:/g, '')}`;
@@ -33,7 +42,6 @@ export const LiquidGlassPanel: React.FC<LiquidGlassPanelProps> = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const [, setTick] = useState(0);
 
-  // Rebuild displacement map on resize.
   useEffect(() => {
     const wrapper = wrapperRef.current;
     const svg = svgRef.current;
@@ -45,7 +53,6 @@ export const LiquidGlassPanel: React.FC<LiquidGlassPanelProps> = ({
       const h = Math.round(rect.height);
       if (w < 4 || h < 4) return;
 
-      // Clear any prior <filter> and rebuild
       while (svg.firstChild) svg.removeChild(svg.firstChild);
 
       const ns = 'http://www.w3.org/2000/svg';
@@ -94,15 +101,20 @@ export const LiquidGlassPanel: React.FC<LiquidGlassPanelProps> = ({
     <div
       ref={wrapperRef}
       data-liquid-filter-id={filterId}
-      className={`liquid-glass-panel ${className}`}
-      style={{
-        ...style,
-        // Read by global CSS to apply the SVG filter as a backdrop.
-        // The actual backdrop-filter declaration lives in the consuming CSS.
-        position: style.position ?? 'relative',
-      }}
+      className={`housing-panel is-liquid liquid-glass-panel ${className}`}
+      style={style}
+      {...rest}
     >
       <svg ref={svgRef} width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true" />
+      {chrome && (
+        <>
+          <span className="housing-panel-corner tl" aria-hidden="true" />
+          <span className="housing-panel-corner tr" aria-hidden="true" />
+          <span className="housing-panel-corner bl" aria-hidden="true" />
+          <span className="housing-panel-corner br" aria-hidden="true" />
+          <span className="housing-panel-sheen" aria-hidden="true" />
+        </>
+      )}
       {children}
     </div>
   );

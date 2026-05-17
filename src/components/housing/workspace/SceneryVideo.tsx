@@ -5,8 +5,10 @@ export interface SceneryVideoProps {
 }
 
 /**
- * Two-video scenery background with theme-driven crossfade.
- * Inactive video is paused (saves GPU). `prefers-reduced-motion` pauses both.
+ * Background scenery layer: two crossfading videos behind the workspace,
+ * plus a theme-conditional gradient overlay and a darkening veil for legibility.
+ * Light: warm wash + bottom darken. Dark: starry night + milky-way + starfield.
+ * Inactive video is paused (GPU save). `prefers-reduced-motion` pauses both.
  */
 export const SceneryVideo: React.FC<SceneryVideoProps> = ({ theme }) => {
   const dayRef = useRef<HTMLVideoElement>(null);
@@ -32,42 +34,42 @@ export const SceneryVideo: React.FC<SceneryVideoProps> = ({ theme }) => {
   }, [theme]);
 
   return (
-    <div
-      className="fixed inset-0 z-0 overflow-hidden bg-black"
-      aria-hidden="true"
-    >
-      <video
-        ref={dayRef}
-        data-scenery="day"
-        data-active={theme === 'light' ? 'true' : 'false'}
-        autoPlay
-        loop
-        muted
-        playsInline
-        poster="/housing/scenery-day-poster.webp"
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-        style={{ opacity: theme === 'light' ? 1 : 0 }}
-      >
-        <source src="/housing/scenery-day.webm" type="video/webm" />
-        <source src="/housing/scenery-day.mp4" type="video/mp4" />
-      </video>
-      <video
-        ref={nightRef}
-        data-scenery="night"
-        data-active={theme === 'dark' ? 'true' : 'false'}
-        autoPlay
-        loop
-        muted
-        playsInline
-        poster="/housing/scenery-night-poster.webp"
-        preload="auto"
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
-        style={{ opacity: theme === 'dark' ? 1 : 0 }}
-      >
-        <source src="/housing/scenery-night.webm" type="video/webm" />
-        <source src="/housing/scenery-night.mp4" type="video/mp4" />
-      </video>
-    </div>
+    <>
+      <div className="housing-scenery" aria-hidden="true" data-scenery-root>
+        <video
+          ref={dayRef}
+          data-scenery="day"
+          data-active={theme === 'light' ? 'true' : 'false'}
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/housing/scenery-day-poster.webp"
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+          style={{ opacity: theme === 'light' ? 1 : 0, willChange: 'opacity' }}
+        >
+          <source src="/housing/scenery-day.webm" type="video/webm" />
+          <source src="/housing/scenery-day.mp4" type="video/mp4" />
+        </video>
+        <video
+          ref={nightRef}
+          data-scenery="night"
+          data-active={theme === 'dark' ? 'true' : 'false'}
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/housing/scenery-night-poster.webp"
+          preload="auto"
+          className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700"
+          style={{ opacity: theme === 'dark' ? 1 : 0, willChange: 'opacity' }}
+        >
+          <source src="/housing/scenery-night.webm" type="video/webm" />
+          <source src="/housing/scenery-night.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div className="housing-scenery-veil" aria-hidden="true" />
+    </>
   );
 };

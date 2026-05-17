@@ -1956,12 +1956,30 @@
         "workspace": {
             "topbar": {
                 "logo_alt": "LoPo",
+                "subtitle": "ハウジングツアー",
+                "breadcrumb_label": "パンくず",
+                "browse_placeholder": "ブラウズモード",
+                "theme_toggle_label": "テーマ切替",
+                "theme_light": "Light",
+                "theme_dark": "Dark",
                 "search_placeholder": "お家を探す...",
                 "register": "+ 登録する",
                 "favorites": "お気に入り",
                 "profile": "プロフィール"
             },
+            "panels": {
+                "left_title": "Filter",
+                "center_title": "Map",
+                "right_title": "Tour Script · auto"
+            },
             "statusbar": {
+                "build_label": "Build",
+                "lat_label": "Lat",
+                "lon_label": "Lon",
+                "theme_readout_label": "Theme",
+                "stops_label": "Stops",
+                "eta_label": "ETA",
+                "fps_label": "FPS",
                 "theme_label": "テーマ",
                 "theme_light": "Light",
                 "theme_dark": "Dark",

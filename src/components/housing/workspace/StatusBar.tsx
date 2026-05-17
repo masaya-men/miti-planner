@@ -1,60 +1,71 @@
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../../../store/useThemeStore';
 
-const LANGS = ['JA', 'EN', 'KO', 'ZH'] as const;
+const LANGS = ['ja', 'en', 'ko', 'zh'] as const;
+const BUILD_VERSION = import.meta.env.VITE_HOUSING_BUILD ?? 'v0.3-α';
 
+/**
+ * StatusBar — mockup-faithful telemetry strip.
+ * Left group: ● Build version · Lat/Lon · Theme readout
+ * Right group: Stops · ETA · FPS · Lang switcher
+ *
+ * Plan A scope: numeric fields are placeholders until selection / tour state lands
+ * in Plan C/D. Theme readout reflects useThemeStore (live). Lang switcher kept
+ * accessible here since /housing is a standalone route without global nav.
+ */
 export const StatusBar: React.FC = () => {
   const { t, i18n } = useTranslation();
   const theme = useThemeStore((s) => s.theme);
-  const setTheme = useThemeStore((s) => s.setTheme);
+
+  const themeLabel = theme === 'light'
+    ? t('housing.workspace.topbar.theme_light')
+    : t('housing.workspace.topbar.theme_dark');
 
   return (
-    <footer
-      className="relative z-20 flex items-center justify-between gap-6 px-6 h-8 text-xs"
-      style={{
-        background: 'rgba(255, 255, 255, 0.04)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.22)',
-        color: '#ffffff',
-        textShadow: '0 1px 2px rgba(0,0,0,0.55), 0 0 10px rgba(0,0,0,0.32)',
-      }}
-    >
-      <div className="flex items-center gap-2">
-        <span className="opacity-55 uppercase tracking-wider">{t('housing.workspace.statusbar.theme_label')}</span>
-        <button
-          type="button"
-          onClick={() => setTheme('light')}
-          className={`px-2 py-0.5 rounded ${theme === 'light' ? 'bg-white/20' : ''}`}
-          style={{ color: theme === 'light' ? '#ffc987' : 'inherit' }}
-        >
-          {t('housing.workspace.statusbar.theme_light')}
-        </button>
-        <button
-          type="button"
-          onClick={() => setTheme('dark')}
-          className={`px-2 py-0.5 rounded ${theme === 'dark' ? 'bg-white/20' : ''}`}
-          style={{ color: theme === 'dark' ? '#ffc987' : 'inherit' }}
-        >
-          {t('housing.workspace.statusbar.theme_dark')}
-        </button>
+    <footer className="housing-status">
+      <div className="housing-status-group">
+        <span>
+          <span className="housing-status-dot" aria-hidden="true" />
+          {t('housing.workspace.statusbar.build_label')}&nbsp;
+          <span className="housing-accent">{BUILD_VERSION}</span>
+        </span>
+        <span>
+          {t('housing.workspace.statusbar.lat_label')} 31.41 · {t('housing.workspace.statusbar.lon_label')} 22.07
+        </span>
+        <span>
+          {t('housing.workspace.statusbar.theme_readout_label')}&nbsp;
+          <span className="housing-accent">{themeLabel}</span>
+        </span>
       </div>
 
-      <div className="flex items-center gap-2">
-        <span className="opacity-55 uppercase tracking-wider">{t('housing.workspace.statusbar.lang_label')}</span>
-        {LANGS.map((lang) => {
-          const code = lang.toLowerCase();
-          const isActive = i18n.language === code;
-          return (
-            <button
-              key={lang}
-              type="button"
-              onClick={() => i18n.changeLanguage(code)}
-              className={`px-2 py-0.5 rounded ${isActive ? 'bg-white/20' : ''}`}
-              style={{ color: isActive ? '#ffc987' : 'inherit' }}
-            >
-              {lang}
-            </button>
-          );
-        })}
+      <div className="housing-status-group">
+        <span>
+          {t('housing.workspace.statusbar.stops_label')}&nbsp;
+          <span className="housing-accent">0</span>&nbsp;/&nbsp;7
+        </span>
+        <span>
+          {t('housing.workspace.statusbar.eta_label')} 00:00
+        </span>
+        <span>
+          {t('housing.workspace.statusbar.fps_label')}&nbsp;
+          <span className="housing-accent">60</span>
+        </span>
+        <span className="housing-status-lang">
+          {LANGS.map((lang) => {
+            const isActive = i18n.language === lang || i18n.language.startsWith(`${lang}-`);
+            return (
+              <button
+                key={lang}
+                type="button"
+                aria-pressed={isActive}
+                className={isActive ? 'is-on' : ''}
+                onClick={() => i18n.changeLanguage(lang)}
+              >
+                {lang}
+              </button>
+            );
+          })}
+        </span>
       </div>
     </footer>
   );
