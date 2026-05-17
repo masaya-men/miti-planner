@@ -64,6 +64,25 @@ export default async function handler(req: any, res: any) {
         if (req.method === 'POST') {
             if (!(await verifyAppCheck(req, res))) return;
 
+            // === link mode 判定: Authorization Bearer の Firebase ID Token から primaryUid を確定 ===
+            const isLinkMode = req.query?.mode === 'link';
+            let primaryUid: string | null = null;
+
+            if (isLinkMode) {
+                const authHeader = req.headers.authorization;
+                if (!authHeader?.startsWith('Bearer ')) {
+                    return res.status(401).json({ error: 'Missing Firebase ID token for link mode' });
+                }
+                initAdmin();
+                try {
+                    const { getAuth } = await import('firebase-admin/auth');
+                    const decoded = await getAuth().verifyIdToken(authHeader.slice(7));
+                    primaryUid = decoded.uid;
+                } catch {
+                    return res.status(401).json({ error: 'Invalid Firebase ID token' });
+                }
+            }
+
             const clientId = process.env.DISCORD_CLIENT_ID;
             if (!clientId) {
                 return res.status(500).json({ error: 'Server configuration error' });
@@ -72,9 +91,12 @@ export default async function handler(req: any, res: any) {
             const redirectUri = `${req.headers['x-forwarded-proto'] || 'https'}://${req.headers.host}/api/auth?provider=discord`;
             const stateParam = crypto.randomBytes(16).toString('hex');
 
+            // link mode の場合は cookie 値に primaryUid を埋め込む (callback で取り出す)
+            const cookieValue = isLinkMode ? `link:${primaryUid}:${stateParam}` : stateParam;
+
             // stateをHttpOnly cookieに保存（5分有効）— パスは統合後の /api/auth
             res.setHeader('Set-Cookie',
-                `discord_oauth_state=${stateParam}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`
+                `discord_oauth_state=${cookieValue}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=300`
             );
 
             const params = new URLSearchParams({
@@ -96,7 +118,19 @@ export default async function handler(req: any, res: any) {
         const cookies = parseCookies(req.headers.cookie || '');
         const savedState = cookies['discord_oauth_state'];
 
-        if (!savedState || state !== savedState) {
+        // link mode 判定 (cookie 値が link:<primaryUid>:<stateParam> 形式)
+        let linkPrimaryUid: string | null = null;
+        let expectedState: string;
+        if (savedState?.startsWith('link:')) {
+            // primaryUid 自体に ':' を含む (例: discord:D1) ため、 最後の要素を stateParam として扱う
+            const parts = savedState.split(':');
+            expectedState = parts[parts.length - 1];
+            linkPrimaryUid = parts.slice(1, -1).join(':');
+        } else {
+            expectedState = savedState || '';
+        }
+
+        if (!savedState || state !== expectedState) {
             return res.status(400).json({ error: 'State mismatch. Please try again.' });
         }
 
@@ -144,9 +178,40 @@ export default async function handler(req: any, res: any) {
         // idのみ取り出し、他の個人情報は即破棄
         const { id: discordUserId } = await userRes.json();
 
+        const candidateUid = `discord:${discordUserId}`;
+
+        // === link mode の callback ===
+        if (linkPrimaryUid) {
+            // 自分自身に紐づけようとした (同一 provider 同一 ID) → 拒否
+            if (candidateUid === linkPrimaryUid) {
+                return sendLinkErrorPage(res, 'cannot_link_self');
+            }
+
+            // 既に他人に紐づけられているかチェック (乗っ取り防止)
+            const { getFirestore, FieldValue } = await import('firebase-admin/firestore');
+            const linkRef = getFirestore().doc(`account_links/${candidateUid}`);
+            const existing = await linkRef.get();
+            if (existing.exists && existing.data()!.primaryUid !== linkPrimaryUid) {
+                return sendLinkErrorPage(res, 'already_linked_to_another');
+            }
+
+            // primaryUid に紐付け書き込み
+            await linkRef.set({
+                primaryUid: linkPrimaryUid,
+                linkedAt: FieldValue.serverTimestamp(),
+            });
+
+            // 完了画面 → return_url にリダイレクト
+            return sendLinkCompletePage(res, 'discord');
+        }
+
+        // === 通常ログイン: account_links に紐付けがあれば primaryUid を使う ===
+        const { getFirestore: getFs } = await import('firebase-admin/firestore');
+        const linkDoc = await getFs().doc(`account_links/${candidateUid}`).get();
+        const finalUid = linkDoc.exists ? linkDoc.data()!.primaryUid : candidateUid;
+
         // ステップ5: Firebase カスタムトークン生成
-        const firebaseUid = `discord:${discordUserId}`;
-        const customToken = await getAuth().createCustomToken(firebaseUid, {
+        const customToken = await getAuth().createCustomToken(finalUid, {
             provider: 'discord',
         });
         // ↑ discordId, avatar を Custom Claims から削除
@@ -179,4 +244,52 @@ export default async function handler(req: any, res: any) {
         console.error('Discord auth error:', err);
         return res.status(500).json({ error: 'Internal server error' });
     }
+}
+
+/** 連携完了画面 → return_url にリダイレクト + localStorage に完了通知を書く */
+function sendLinkCompletePage(res: any, provider: 'discord' | 'twitter'): any {
+    res.setHeader('Content-Type', 'text/html');
+    return res.send(`
+<!DOCTYPE html>
+<html>
+<head><title>LoPo - 連携完了</title></head>
+<body>
+    <script>
+        localStorage.setItem('lopo_link_completed', JSON.stringify({ provider: ${JSON.stringify(provider)} }));
+        var returnUrl = localStorage.getItem('lopo_auth_return_url') || '/';
+        localStorage.removeItem('lopo_auth_return_url');
+        try {
+            var u = new URL(returnUrl, window.location.origin);
+            if (u.origin !== window.location.origin) returnUrl = '/';
+        } catch(e) { returnUrl = '/'; }
+        window.location.href = returnUrl;
+    </script>
+    <p>連携完了... リダイレクトしています</p>
+</body>
+</html>
+    `);
+}
+
+/** 連携エラー画面 → return_url にリダイレクト + localStorage にエラーコードを書く */
+function sendLinkErrorPage(res: any, errorCode: string): any {
+    res.setHeader('Content-Type', 'text/html');
+    return res.send(`
+<!DOCTYPE html>
+<html>
+<head><title>LoPo - 連携エラー</title></head>
+<body>
+    <script>
+        localStorage.setItem('lopo_link_error', ${JSON.stringify(errorCode)});
+        var returnUrl = localStorage.getItem('lopo_auth_return_url') || '/';
+        localStorage.removeItem('lopo_auth_return_url');
+        try {
+            var u = new URL(returnUrl, window.location.origin);
+            if (u.origin !== window.location.origin) returnUrl = '/';
+        } catch(e) { returnUrl = '/'; }
+        window.location.href = returnUrl;
+    </script>
+    <p>連携エラー... リダイレクトしています</p>
+</body>
+</html>
+    `);
 }
