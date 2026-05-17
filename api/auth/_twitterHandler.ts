@@ -128,9 +128,7 @@ export default async function handler(req: any, res: any) {
                 response_type: 'code',
                 client_id: clientId,
                 redirect_uri: redirectUri,
-                // Twitter API v2 の /users/me は users.read 単体だと 403 Forbidden になる実例あり。
-                // tweet.read を併記すると通る (本アプリは tweet 自体は読まない、 ID 解決のためだけ)。
-                scope: 'users.read tweet.read',
+                scope: 'users.read',
                 state: stateParam, // Twitter には stateParam のみ渡す
                 code_challenge: codeChallenge,
                 code_challenge_method: 'S256',
