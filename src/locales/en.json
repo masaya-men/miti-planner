@@ -1931,5 +1931,24 @@
             "casino": "Casino",
             "theater": "Theater"
         }
+    },
+    "account_link": {
+        "linked_section": "Linked",
+        "unlinked_section": "Link another account",
+        "current_login_badge": "Signed in",
+        "benefit_text": "Sign in with either, see the same data",
+        "link_button": "Link",
+        "unlink_button": "Unlink",
+        "confirm_link_title": "Link {{provider}}?",
+        "confirm_link_body": "Once linked, signing in with {{provider}} will show the same data as your current account.",
+        "confirm_link_warning": "Any data previously stored under a separate {{provider}} account will become inaccessible.",
+        "confirm_link_cta": "Link account",
+        "confirm_link_cancel": "Cancel",
+        "confirm_unlink_title": "Unlink {{provider}}?",
+        "confirm_unlink_body": "After unlinking, signing in with {{provider}} again will create a fresh, separate account.",
+        "toast_link_success": "Linked {{provider}}",
+        "toast_unlink_success": "Unlinked {{provider}}",
+        "toast_link_error": "Failed to link account",
+        "toast_unlink_error": "Failed to unlink account"
     }
 }

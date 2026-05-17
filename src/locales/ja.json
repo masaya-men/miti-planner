@@ -1952,5 +1952,24 @@
             "casino": "カジノ",
             "theater": "劇場"
         }
+    },
+    "account_link": {
+        "linked_section": "連携済み",
+        "unlinked_section": "他のSNSと連携",
+        "current_login_badge": "ログイン中",
+        "benefit_text": "どちらで入っても同じデータが見られます",
+        "link_button": "連携する",
+        "unlink_button": "解除",
+        "confirm_link_title": "{{provider}} と連携しますか?",
+        "confirm_link_body": "{{provider}} でアカウントを連携すると、次回から {{provider}} でログインしても同じデータが見られるようになります。",
+        "confirm_link_warning": "過去に {{provider}} 単独でログインして別のデータを作っていた場合、それは見えなくなります。",
+        "confirm_link_cta": "連携する",
+        "confirm_link_cancel": "キャンセル",
+        "confirm_unlink_title": "{{provider}} との連携を解除しますか?",
+        "confirm_unlink_body": "解除すると、{{provider}} で次にログインした時は別のアカウント扱いになります。",
+        "toast_link_success": "{{provider}} と連携しました",
+        "toast_unlink_success": "{{provider}} との連携を解除しました",
+        "toast_link_error": "連携に失敗しました",
+        "toast_unlink_error": "解除に失敗しました"
     }
 }
