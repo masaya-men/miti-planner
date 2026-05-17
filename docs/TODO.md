@@ -14,18 +14,31 @@
 - **ブランチ**: main 直接
 - **最新本番デプロイ**: セッション 26 (X ログイン全撤去 + B-2 連携機能撤去 + アナウンス表示)
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12** (X 撤去で 2 枠解放、 残 2 枠)、 月 100 ビルド制限
-- **軽減アプリ: 完成・公開済み** (2026-04-13 完成ツイート済み)
-- **既知の未解決**: 学者列の点線が下まで伸びる本番限定バグ (点線描画削除で疑似解決済)
-- **B-2 結末**: X API 仕様変更 (2026-02 pay-per-use 化、 users.read 単独で 403、 sha256 fallback バグでデータ消失実績) により X 撤去、 B-2 連携機能ごと撤去。 過去 X ログインユーザーのデータは `docs/.private/backups/` に保全済。 LoginModal に廃止アナウンス表示
+- **セッション 27 (2026-05-17〜18) 成果**: Sub-spec 2B 設計書 + Plan A-F (6 ファイル、 計 8,000 行、 61 task) を作成 + commit。 **コード実装はまだゼロ**。 モックアップは `docs/.private/housing-tour-mockup/` で確定済 (動画背景 xfade ループ + Lucky Graphics 流リキッドグラス)
+- **重要方針**: ハウジングは 1 ページ完結 Adaptive Workspace に大転換 (親仕様 §7-§8/§10/§11.2 オーバーライド)。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像。 iterate-first (詳細パラメータは実装中に調整)
 
 ---
 
-## 次セッション最優先
+## 次セッション最優先 (Sub-spec 2B Plan A 実装着手)
 
-1. **X 撤去後の動作確認** — Discord 単独ログイン正常動作、 アナウンス表示、 既存 Discord ユーザー無影響
-2. **ハウジング Sub-spec 2B** (Gallery & Search) — lopoly.app/housing 統合本実装。 ツイート貼付・閲覧は X API 不要 (syndication CDN 使用、 memory `reference_tweet_extraction_syndication.md`)
-3. (要詰め) **個室・アパート問題** — `docs/.private/2026-05-17-housing-room-types-design.md` 参照、 登録モーダル実装前に確定必須
-4. (将来検討) **XIVAuth (キャラクター連携ログイン)** 追加可能性 — ハウジング登録の本人確認に有用、 ただし XIVAuth 自体の安定性を 3-6 ヶ月様子見
+**手順**:
+1. `docs/superpowers/specs/2026-05-17-housing-sub-spec-2b-gallery-tour-design.md` を一読 (設計書、 649 行、 Sub-spec 2B 全体の意図確認)
+2. `docs/superpowers/plans/2026-05-17-housing-sub-spec-2b-plan-a-foundation.md` を開く (Plan A、 13 task、 約 1 日)
+3. `superpowers:subagent-driven-development` skill を invoke して **Plan A から実装開始**
+4. Plan A 完了後、 Plan B (Filter Panel) と Plan C (Center Area) は並列で subagent dispatch 可能
+5. 全 Plan A-F 完了で Sub-spec 2B 完成、 2 週間目標
+
+**Plan ファイル**:
+- A: Foundation (5 stores + 動画 + リキッドグラス + 骨格)
+- B: Filter Panel (Faceted Search)
+- C: Center Area (Map/Pinterest 切替 + inline expansion)
+- D: Right Panel (auto-scroll + ツアー進行)
+- E: Favorites Modal (DnD + 矩形選択 + ツアー組立)
+- F: Finishing (登録接続 + ルート + a11y + E2E + 親仕様改訂)
+
+**(将来検討) XIVAuth (FF14 キャラ連携)** — ハウジング登録の本人確認に有用、 ただし XIVAuth 自体の安定性を 3-6 ヶ月様子見
+
+**(Phase 2 で着手)** マップ Figma 書き起こし + 30 軒位置データ + マップクリック登録 + 個室・アパート問題 (`docs/.private/2026-05-17-housing-room-types-design.md`)
 
 ---
 
