@@ -33,7 +33,7 @@ service cloud.firestore {
                     && isValidString(request.resource.data.displayName, 30)
                     && request.resource.data.keys().hasAll(['displayName', 'provider', 'createdAt', 'updatedAt', 'settings'])
                     && !('email' in request.resource.data)
-                    && request.resource.data.provider in ['discord', 'twitter'];
+                    && request.resource.data.provider in ['discord'];
 
       allow update: if isOwner(uid)
                     && isValidString(request.resource.data.displayName, 30)
@@ -335,17 +335,6 @@ service cloud.firestore {
                             && tool in ['miti', 'housing']
                             && request.resource.data.activated is bool;
       allow delete: if isOwner(uid);
-    }
-
-    // ========================================
-    // account_links コレクション
-    // クライアント SDK から直接アクセス不可
-    // 全てサーバー (api/auth/*.ts) の Admin SDK 経由で操作される
-    // (provider 連携時に書き込み / 連携状態取得・解除時に読み書き)
-    // ========================================
-    match /account_links/{key} {
-      allow read: if false;
-      allow write: if false;
     }
 
     // ========================================

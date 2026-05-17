@@ -1,9 +1,10 @@
 /**
  * 認証状態管理ストア
  * Firebase Authのログイン状態をZustandで管理
- * 対応プロバイダー: Discord, Twitter(X)
+ * 対応プロバイダー: Discord
  *
- * Discord/Twitter: ページ遷移（リダイレクト）方式（ポップアップブロック回避）
+ * Discord: ページ遷移（リダイレクト）方式（ポップアップブロック回避）
+ * Twitter(X) ログインは 2026-05-17 に廃止 (X API 仕様変更による pay-per-use 化のため)
  */
 import { create } from 'zustand';
 import {
@@ -22,7 +23,7 @@ import { deleteTeamLogo } from '../utils/logoUpload';
 import { deleteAvatar } from '../utils/avatarUpload';
 import { apiFetch } from '../lib/apiClient';
 
-type AuthProvider = 'discord' | 'twitter';
+type AuthProvider = 'discord';
 
 /** リダイレクト前に現在のURLを保存（Discord/Twitter用） */
 function saveReturnUrl() {
@@ -79,24 +80,6 @@ export const useAuthStore = create<AuthState>((set) => ({
                     })
                     .catch(err => {
                         console.error('Discord login error:', err);
-                        localStorage.removeItem('lopo_auth_redirecting');
-                    });
-                break;
-            case 'twitter':
-                saveReturnUrl();
-                localStorage.setItem('lopo_auth_redirecting', 'true');
-                apiFetch('/api/auth?provider=twitter', { method: 'POST' })
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.url) {
-                            window.location.href = data.url;
-                        } else {
-                            console.error('Twitter OAuth: URL not received');
-                            localStorage.removeItem('lopo_auth_redirecting');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Twitter login error:', err);
                         localStorage.removeItem('lopo_auth_redirecting');
                     });
                 break;

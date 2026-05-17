@@ -109,7 +109,8 @@
     "login": {
         "title": "ログイン",
         "benefit_message": "ログインなしでも軽減表の作成・編集・共有ができます。ログインすると、軽減表の保存やチームロゴの設定ができるようになります。",
-        "privacy_message": "ログインにはDiscordまたはXアカウントを使用します。メールアドレスなどの個人情報はサーバーに保存されません。",
+        "privacy_message": "ログインにはDiscordアカウントを使用します。メールアドレスなどの個人情報はサーバーに保存されません。",
+        "twitter_retired_notice": "X (Twitter) ログインは X API の仕様変更により安定して提供できなくなったため、2026年5月に廃止しました。過去 X でログインされていた方のデータは管理人が保管しています。お困りの方は Discord までご連絡ください。",
         "success_toast": "ログインしました",
         "success_title": "ログイン成功！",
         "welcome": "ようこそ、{{name}}さん！",
@@ -1952,24 +1953,5 @@
             "casino": "カジノ",
             "theater": "劇場"
         }
-    },
-    "account_link": {
-        "linked_section": "連携済み",
-        "unlinked_section": "他のSNSと連携",
-        "current_login_badge": "ログイン中",
-        "benefit_text": "どちらで入っても同じデータが見られます",
-        "link_button": "連携する",
-        "unlink_button": "解除",
-        "confirm_link_title": "{{provider}} と連携しますか?",
-        "confirm_link_body": "{{provider}} でアカウントを連携すると、次回から {{provider}} でログインしても同じデータが見られるようになります。",
-        "confirm_link_warning": "過去に {{provider}} 単独でログインして別のデータを作っていた場合、それは見えなくなります。",
-        "confirm_link_cta": "連携する",
-        "confirm_link_cancel": "キャンセル",
-        "confirm_unlink_title": "{{provider}} との連携を解除しますか?",
-        "confirm_unlink_body": "解除すると、{{provider}} で次にログインした時は別のアカウント扱いになります。",
-        "toast_link_success": "{{provider}} と連携しました",
-        "toast_unlink_success": "{{provider}} との連携を解除しました",
-        "toast_link_error": "連携に失敗しました",
-        "toast_unlink_error": "解除に失敗しました"
     }
 }

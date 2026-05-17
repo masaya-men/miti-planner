@@ -110,6 +110,7 @@
         "title": "登录",
         "benefit_message": "无需登录即可创建、编辑和分享减伤表。登录后可保存数据并设置团队标志。",
         "privacy_message": "不会收集电子邮件等个人信息。仅使用您的显示名称和头像。",
+        "twitter_retired_notice": "X (Twitter) 登录因 X API 规范变更导致无法稳定运营，已于 2026 年 5 月停止。曾使用 X 登录的用户数据由运营者妥善保管。如有困扰，请通过 Discord 联系运营者。",
         "success_toast": "登录成功",
         "success_title": "登录成功！",
         "welcome": "欢迎，{{name}}！",
@@ -1895,24 +1896,5 @@
             "casino": "赌场",
             "theater": "剧场"
         }
-    },
-    "account_link": {
-        "linked_section": "已关联",
-        "unlinked_section": "关联其他 SNS",
-        "current_login_badge": "登录中",
-        "benefit_text": "无论使用哪个登录，都能看到相同的数据",
-        "link_button": "关联",
-        "unlink_button": "解除",
-        "confirm_link_title": "要关联 {{provider}} 吗？",
-        "confirm_link_body": "关联后，下次使用 {{provider}} 登录也能看到相同的数据。",
-        "confirm_link_warning": "如果过去单独使用 {{provider}} 登录创建过其他数据，将无法再访问。",
-        "confirm_link_cta": "关联",
-        "confirm_link_cancel": "取消",
-        "confirm_unlink_title": "要解除与 {{provider}} 的关联吗？",
-        "confirm_unlink_body": "解除后，下次使用 {{provider}} 登录将作为单独的账号处理。",
-        "toast_link_success": "已关联 {{provider}}",
-        "toast_unlink_success": "已解除与 {{provider}} 的关联",
-        "toast_link_error": "关联失败",
-        "toast_unlink_error": "解除失败"
     }
 }
