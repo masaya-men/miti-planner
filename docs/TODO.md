@@ -12,19 +12,20 @@
 ## 現在の状態 (次セッションはここから読む)
 
 - **ブランチ**: main 直接
-- **最新本番デプロイ**: セッション 26 (ハウジング B-2 アカウントリンク 全タスク完了・デプロイ済、 実機検証待ち)
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12** (B-2 T3 で `/api/auth/links` 追加、 残 1 枠)、 月 100 ビルド制限
+- **最新本番デプロイ**: セッション 26 (X ログイン全撤去 + B-2 連携機能撤去 + アナウンス表示)
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12** (X 撤去で 2 枠解放、 残 2 枠)、 月 100 ビルド制限
 - **軽減アプリ: 完成・公開済み** (2026-04-13 完成ツイート済み)
-- **既知の未解決**: 学者列の点線が下まで伸びる本番限定バグ (= 真因不明、 点線描画削除で疑似解決済、 必要なら別セッションで再調査)
-- **直近の検証必要**: **B-2 (アカウントリンク) 実機検証** — Discord↔X 連携 / 解除 / lookup の 3 経路、 既存ログイン回帰なし。 plan T9 step 5 チェックリスト参照
+- **既知の未解決**: 学者列の点線が下まで伸びる本番限定バグ (点線描画削除で疑似解決済)
+- **B-2 結末**: X API 仕様変更 (2026-02 pay-per-use 化、 users.read 単独で 403、 sha256 fallback バグでデータ消失実績) により X 撤去、 B-2 連携機能ごと撤去。 過去 X ログインユーザーのデータは `docs/.private/backups/` に保全済。 LoginModal に廃止アナウンス表示
 
 ---
 
 ## 次セッション最優先
 
-1. **B-2 実機検証** — Discord ログイン → X 連携 → ログアウト → X ログインで同データ / 解除 / 既存ログイン回帰なし。 plan `docs/superpowers/plans/2026-05-17-housing-phase-b2-account-link.md` T9 step 5
-2. (検証 OK 後) **ハウジング Sub-spec 2B** (Gallery & Search) — lopoly.app/housing 統合本実装
+1. **X 撤去後の動作確認** — Discord 単独ログイン正常動作、 アナウンス表示、 既存 Discord ユーザー無影響
+2. **ハウジング Sub-spec 2B** (Gallery & Search) — lopoly.app/housing 統合本実装。 ツイート貼付・閲覧は X API 不要 (syndication CDN 使用、 memory `reference_tweet_extraction_syndication.md`)
 3. (要詰め) **個室・アパート問題** — `docs/.private/2026-05-17-housing-room-types-design.md` 参照、 登録モーダル実装前に確定必須
+4. (将来検討) **XIVAuth (キャラクター連携ログイン)** 追加可能性 — ハウジング登録の本人確認に有用、 ただし XIVAuth 自体の安定性を 3-6 ヶ月様子見
 
 ---
 
