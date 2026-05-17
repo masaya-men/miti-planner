@@ -1,0 +1,6 @@
+/* Liquid Glass panels — pick up the SVG filter via CSS custom property.
+   Safari falls back gracefully (no backdrop-filter url support) since we
+   intentionally do not include a -webkit-backdrop-filter blur fallback. */
+.liquid-glass-panel {
+  backdrop-filter: var(--liquid-filter, none);
+}
