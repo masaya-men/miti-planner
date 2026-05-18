@@ -9,7 +9,6 @@ import {
   isValidHousingSize,
   isValidBuildingType,
   isValidOwnerType,
-  isValidRoomKind,
   isValidSubdivision,
   type HousingArea,
   type HousingSize,
