@@ -48,4 +48,9 @@
 CSS・UIデザイン・i18nのルールは `.claude/rules/` に定義済み。
 該当ファイルを編集すると自動的にロードされる。
 
+**ハウジング (`/housing`) は独自トンマナルール対象**:
+- `src/components/housing/workspace/**` および `src/styles/housing.css` 編集時は `.claude/rules/housing-design.md` が適用される
+- 既存 UI ルール (`ui-design.md` / `DESIGN.md` の白黒のみ / Inter 禁止 / honey 色禁止) は **適用されない** (両ファイルの `exclude:` で除外)
+- 正典は `docs/.private/housing-tour-mockup/index.html`
+
 When compacting, always preserve: 現在のタスク、変更中のファイルパス、docs/TODO.mdの「現在の状態」内容。

@@ -2,9 +2,22 @@
 paths:
   - "src/components/**"
   - "src/index.css"
+exclude:
+  - "src/components/housing/workspace/**"
+  - "src/styles/housing.css"
 ---
 
 # UIデザインルール
+
+> ## ⚠ スコープ免除: ハウジング画面 (`/housing` 配下)
+>
+> 以下のすべてのルールは **LoPo 既存 UI 向け** であって、 ハウジングツアー画面 (`src/components/housing/workspace/**` と `src/styles/housing.css`) には **適用されない**。
+> ハウジングは独立世界観 (動画背景 + ガラス + ハニーゴールド) として設計されており、 モックアップ (`docs/.private/housing-tour-mockup/index.html`) が正典。
+> 詳細は memory `feedback_housing_design_independent.md` を参照。
+>
+> **判定**: 編集対象ファイルが上記パス配下なら本ルールは無視、 モックアップ準拠で進める。
+
+---
 
 ## 色のルール
 全UI要素に白と黒のみ使用。既存テーマ変数（app-text, app-bg等）の白黒はOK。
