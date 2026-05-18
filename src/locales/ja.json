@@ -1970,7 +1970,8 @@
             "panels": {
                 "left_title": "Filter",
                 "center_title": "Map",
-                "right_title": "Tour Script · auto"
+                "right_title": "Tour Script · auto",
+                "right_title_tour": "Tour · 進行中"
             },
             "statusbar": {
                 "build_label": "Build",
@@ -2010,6 +2011,16 @@
                 "close_right": "右パネルを閉じる",
                 "open_left": "左パネルを開く",
                 "open_right": "右パネルを開く"
+            },
+            "tour": {
+                "share": "このツアーを共有する",
+                "copied": "コピーしました",
+                "start": "はじめる",
+                "exit": "ツアーを終わる",
+                "manner_notice": "マナーを守って訪問してください",
+                "progress": "進行中",
+                "share_aria": "ツアー共有URLをコピーする",
+                "exit_aria": "ツアーを終了する"
             },
             "center": {
                 "toggle": {

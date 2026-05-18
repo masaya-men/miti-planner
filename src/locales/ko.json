@@ -1913,7 +1913,8 @@
             "panels": {
                 "left_title": "Filter",
                 "center_title": "Map",
-                "right_title": "Tour Script · auto"
+                "right_title": "Tour Script · auto",
+                "right_title_tour": "Tour · 진행 중"
             },
             "statusbar": {
                 "build_label": "Build",
@@ -1953,6 +1954,16 @@
                 "close_right": "오른쪽 패널 닫기",
                 "open_left": "왼쪽 패널 열기",
                 "open_right": "오른쪽 패널 열기"
+            },
+            "tour": {
+                "share": "이 투어 공유하기",
+                "copied": "복사됨",
+                "start": "시작",
+                "exit": "투어 종료",
+                "manner_notice": "방문 시 매너를 지켜 주세요",
+                "progress": "진행 중",
+                "share_aria": "투어 공유 URL 복사",
+                "exit_aria": "투어 종료하기"
             },
             "center": {
                 "toggle": {

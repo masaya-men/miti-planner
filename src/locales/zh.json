@@ -1913,7 +1913,8 @@
             "panels": {
                 "left_title": "Filter",
                 "center_title": "Map",
-                "right_title": "Tour Script · auto"
+                "right_title": "Tour Script · auto",
+                "right_title_tour": "Tour · 进行中"
             },
             "statusbar": {
                 "build_label": "Build",
@@ -1953,6 +1954,16 @@
                 "close_right": "关闭右面板",
                 "open_left": "打开左面板",
                 "open_right": "打开右面板"
+            },
+            "tour": {
+                "share": "分享此巡游",
+                "copied": "已复制",
+                "start": "开始",
+                "exit": "退出巡游",
+                "manner_notice": "请文明参观",
+                "progress": "进行中",
+                "share_aria": "复制巡游分享链接",
+                "exit_aria": "退出巡游"
             },
             "center": {
                 "toggle": {

@@ -1949,7 +1949,8 @@
             "panels": {
                 "left_title": "Filter",
                 "center_title": "Map",
-                "right_title": "Tour Script · auto"
+                "right_title": "Tour Script · auto",
+                "right_title_tour": "Tour · in progress"
             },
             "statusbar": {
                 "build_label": "Build",
@@ -1989,6 +1990,16 @@
                 "close_right": "Close right panel",
                 "open_left": "Open left panel",
                 "open_right": "Open right panel"
+            },
+            "tour": {
+                "share": "Share this tour",
+                "copied": "Copied!",
+                "start": "Start",
+                "exit": "Exit tour",
+                "manner_notice": "Please respect house owners during your visit",
+                "progress": "In progress",
+                "share_aria": "Copy tour share URL",
+                "exit_aria": "Exit the tour"
             },
             "center": {
                 "toggle": {

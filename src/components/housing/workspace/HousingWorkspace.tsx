@@ -1,5 +1,4 @@
 import { useCallback, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { SceneryVideo } from './SceneryVideo';
@@ -8,6 +7,7 @@ import { StatusBar } from './StatusBar';
 import { LiquidGlassPanel } from './LiquidGlassPanel';
 import { FilterPanel } from './FilterPanel';
 import { CenterArea } from './CenterArea';
+import { RightPanel } from './RightPanel';
 import '../../../styles/housing.css';
 
 /**
@@ -18,11 +18,11 @@ import '../../../styles/housing.css';
  * - Scenery video + theme-conditional overlay + darkening veil behind everything
  */
 export const HousingWorkspace: React.FC = () => {
-  const { t } = useTranslation();
   const theme = useThemeStore((s) => s.theme);
   const leftPanelOpen = useHousingViewStore((s) => s.leftPanelOpen);
   const rightPanelOpen = useHousingViewStore((s) => s.rightPanelOpen);
   const setLeftPanelOpen = useHousingViewStore((s) => s.setLeftPanelOpen);
+  const setRightPanelOpen = useHousingViewStore((s) => s.setRightPanelOpen);
 
   // Lock body scroll while workspace is mounted (mockup is a fixed-viewport experience).
   useEffect(() => {
@@ -34,6 +34,7 @@ export const HousingWorkspace: React.FC = () => {
   }, []);
 
   const handleCloseLeft = useCallback(() => setLeftPanelOpen(false), [setLeftPanelOpen]);
+  const handleCloseRight = useCallback(() => setRightPanelOpen(false), [setRightPanelOpen]);
   // Routes to the legacy register hash for now; Plan F will replace this with
   // the dedicated register modal wired into the new workspace flow.
   const handleRegisterClick = useCallback(() => {
@@ -66,13 +67,7 @@ export const HousingWorkspace: React.FC = () => {
 
           {rightPanelOpen ? (
             <LiquidGlassPanel edge={160} radius={18} scale={49} data-region="right">
-              <div className="housing-panel-head">
-                <div className="housing-panel-title">{t('housing.workspace.panels.right_title')}</div>
-                <div className="housing-panel-meta">— / —</div>
-              </div>
-              <div className="housing-panel-body">
-                <p className="text-sm opacity-60">[Tour script — Plan D]</p>
-              </div>
+              <RightPanel onClose={handleCloseRight} />
             </LiquidGlassPanel>
           ) : (
             <div data-region="right" aria-hidden="true" />
