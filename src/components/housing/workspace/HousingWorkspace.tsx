@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { SceneryVideo } from './SceneryVideo';
@@ -20,6 +21,7 @@ import '../../../styles/housing.css';
  * - Scenery video + theme-conditional overlay + darkening veil behind everything
  */
 export const HousingWorkspace: React.FC = () => {
+  const { listingId } = useParams<{ listingId?: string; tourId?: string }>();
   const theme = useThemeStore((s) => s.theme);
   const leftPanelOpen = useHousingViewStore((s) => s.leftPanelOpen);
   const rightPanelOpen = useHousingViewStore((s) => s.rightPanelOpen);
@@ -60,7 +62,7 @@ export const HousingWorkspace: React.FC = () => {
           )}
 
           <LiquidGlassPanel edge={160} radius={18} scale={49} data-region="center">
-            <CenterArea />
+            <CenterArea focusListingId={listingId} />
           </LiquidGlassPanel>
 
           {rightPanelOpen ? (

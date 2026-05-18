@@ -15,11 +15,14 @@ import { EmptyResult } from './EmptyResult';
 export interface CenterAreaProps {
     /** Optional click handler when a card is activated from map / grid. */
     onCardActivate?: (listing: MockListing) => void;
+    /** When set, force pinterest view and pre-expand this listing id. */
+    focusListingId?: string;
 }
 
-export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate }) => {
+export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusListingId }) => {
     const { t } = useTranslation();
     const viewMode = useHousingViewStore((s) => s.viewMode);
+    const setViewMode = useHousingViewStore((s) => s.setViewMode);
     const dc = useHousingFilterStore((s) => s.dc);
     const regions = useHousingFilterStore((s) => s.regions);
     const servers = useHousingFilterStore((s) => s.servers);
@@ -29,6 +32,11 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate }) => {
     const searchText = useHousingFilterStore((s) => s.searchText);
     const selectedWardId = useHousingRandomStore((s) => s.selectedWardId);
     const selectWard = useHousingRandomStore((s) => s.selectWard);
+
+    // When the URL focuses a specific listing, force pinterest view for card expansion.
+    useEffect(() => {
+        if (focusListingId) setViewMode('pinterest');
+    }, [focusListingId, setViewMode]);
 
     // Pick a random ward once per session (mock data falls back to SAMPLE_WARD_KEY)
     useEffect(() => {
@@ -81,7 +89,7 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate }) => {
                     <EmptyResult />
                 ) : (
                     <div className="housing-center-area-scroll">
-                        <PinterestView listings={pinterestListings} />
+                        <PinterestView listings={pinterestListings} initialExpandedId={focusListingId} />
                     </div>
                 )}
             </div>

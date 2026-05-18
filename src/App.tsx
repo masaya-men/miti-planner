@@ -8,8 +8,6 @@ import { SupportPage } from './components/SupportPage';
 import {
   HousingPage,
   HousingWorkspace,
-  HousingDetailPagePlaceholder,
-  HousingTourPagePlaceholder,
 } from './components/housing';
 
 import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
@@ -123,8 +121,8 @@ function App() {
 
             <Route path="/housing" element={<HousingWorkspace />} />
             <Route path="/housing/legacy" element={<HousingPage />} />
-            <Route path="/housing/p/:id" element={<HousingDetailPagePlaceholder />} />
-            <Route path="/housing/tour/:id" element={<HousingTourPagePlaceholder />} />
+            <Route path="/housing/p/:listingId" element={<HousingWorkspace />} />
+            <Route path="/housing/tour/:tourId" element={<HousingWorkspace />} />
 
             <Route path="/privacy" element={<PrivacyPolicyPage />} />
             <Route path="/terms" element={<TermsPage />} />
