@@ -11,7 +11,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main 直接、 **17 commits ahead of origin/main (未 push)**
+- **ブランチ**: main 直接、 **~18 commits ahead of origin/main (未 push、 実数は `git rev-list --count origin/main..HEAD`)**
 - **最新本番デプロイ**: セッション 26 (X ログイン全撤去)。 Plan A は production に出ていない
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド制限
 - **セッション 29 (2026-05-18) 成果**: **モックアップ視覚再構築完了** (commit 34a680b)。 styles/housing.css 全面拡張 (独自デザイントークン / panel chrome / scenery overlay + starfield)。 LiquidGlassPanel に chrome 追加 (ring border + corner highlights + sheen + box-shadow)。 HousingWorkspace を CSS grid (60/1fr/40 行 × 280/1fr/360 列)。 TopBar = ブランド + パンくず + 丸薬テーマトグル (honey gradient)。 StatusBar = テレメトリ (Build/Lat-Lon/Theme + Stops/ETA/FPS + 言語切替小型 pill)。 検索/登録/❤/アバターは一旦撤去 (Plan E で再配置検討)。 **738 tests pass**。 両テーマ目視確認済み
