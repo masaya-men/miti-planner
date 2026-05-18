@@ -11,22 +11,14 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 origin と同期済み (HEAD = 4ef8389)。 Vercel prod デプロイ **● Ready** 着地確認済 (lopoly.app alias 反映)
-- **直近セッション**: セッション 32 (2026-05-18) で **Plan F 完了** (subagent-driven 12 task + final gap fix) → push + デプロイ着地済
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド。 当日デプロイ多数 (詳細は Vercel ダッシュボード参照)
-- **セッション 32 成果 (2026-05-18) — Plan F 完了**:
-  - **新規 component**: HousingRegisterModal (Sub-spec 2A wrap + ログイン gate)、SkeletonCard (pinterest/right-panel)、HousingToast (info/error)
-  - **新規 hook/lib**: useReducedMotion + AutoScrollList 統合、housingListingsMockService (Phase 2 で Firestore 移行予定の抽象層)
-  - **TopBar 拡張**: 検索 input + register CTA (favorites と theme の間)、両方とも i18n 完備
-  - **ルート整備**: `/housing/p/:listingId` で該当カード pre-expanded、`/housing/tour/:tourId` で local listings あれば auto-enter (Phase 2 で Firestore 復元)
-  - **a11y**: 全 button accessible name 必須 + 全 img alt 必須 のスモークテスト追加
-  - **Playwright E2E**: 4 シナリオ (browse / filter / listing-url / tour-url) 全 pass
-  - **親仕様改訂**: 2026-05-07 Phase1 設計書の §7/§8/§10.1/§11.2/§18 を Sub-spec 2B 参照に書き換え
-  - **i18n**: housing.workspace.register_modal.{title, close, login_required, login_button} を 4 言語追加
-  - **build/test**: vitest 847 pass (+27 from sess 31)、tsc clean、production build OK
-- **既知の残**: なし (timeline-responsive は期待値同期 + playwright feature 別ディレクトリ化で解消)
-- **playwright 構造**: `playwright/housing/` と `playwright/miti/` に分割済 → `npm run test:e2e:housing` (9 秒) / `npm run test:e2e:miti` (23 秒) で個別実行可能
-- **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装
+- **ブランチ**: main、 origin と 2 commit 差 (前回 eb6124e + 今回の夜動画刷新)。 デプロイは今回 push で着地予定
+- **直近セッション (2026-05-18 #3)**: 夜動画を「**昼動画ベースの Day-for-Night カラーグレーディング**」 に刷新 (`public/housing/scenery-night.*`)
+  - V11 フィルター: 濃紺ムーディ夜景 + 街並みエリアだけ電球色 (#FFA040 系) + bloom 滲み
+  - 昼動画と完全同構図なので **完璧ループ自動保証** (継ぎ目問題ゼロ)
+  - 2.2MB mp4 + 1.2MB webm (旧版より少し重い、 質優先)
+- **並行進行中**: ユーザー側で **「完璧ループの夜景動画」 を毎日試作中** — 良いの来たら差し替え (CDN 化が済めば高画質版でも OK)
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド
+- **既知の残**: なし
 
 ---
 
@@ -85,6 +77,8 @@
 - UI/モバイル: モーダルアニメ / スマホ・タブレット最適化 / SVG アイコンアニメ / 紹介 PV
 - インフラ: shared_plans クリーンアップ / CSP unsafe-inline 除去 / Sentry / 認証プライバシー
 - 新機能: Floating Timeline (Tauri v2) / FFLogs 精度 / SA 法改善 / 詠唱バー注釈 / public/icons/ 削除
+- ハウジング: 背景動画の画面サイズ別出し分け (`<source media>` で大画面に 2K、 帯域節約。 素材は 2560×1440 で既にあり)
+- インフラ: **Cloudflare を Vercel の前段に置く** (無料 / 帯域無制限化) → これ実装すれば動画を高画質 (2K) や無加工美麗版にしても Vercel 帯域は消費されない。 DNS を Cloudflare に切替 + キャッシュルール設定で完了 (30 分作業)
 - デッドコード: Lenis (`useSmoothScroll.ts` + テスト + `data-lenis-prevent` 属性 + 依存) 削除でバンドル減
 
 ---
