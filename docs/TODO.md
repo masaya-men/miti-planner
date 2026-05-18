@@ -11,11 +11,11 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main 直接、 **15 commits ahead of origin/main (未 push)**
+- **ブランチ**: main 直接、 **17 commits ahead of origin/main (未 push)**
 - **最新本番デプロイ**: セッション 26 (X ログイン全撤去)。 Plan A は production に出ていない
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド制限
 - **セッション 29 (2026-05-18) 成果**: **モックアップ視覚再構築完了** (commit 34a680b)。 styles/housing.css 全面拡張 (独自デザイントークン / panel chrome / scenery overlay + starfield)。 LiquidGlassPanel に chrome 追加 (ring border + corner highlights + sheen + box-shadow)。 HousingWorkspace を CSS grid (60/1fr/40 行 × 280/1fr/360 列)。 TopBar = ブランド + パンくず + 丸薬テーマトグル (honey gradient)。 StatusBar = テレメトリ (Build/Lat-Lon/Theme + Stops/ETA/FPS + 言語切替小型 pill)。 検索/登録/❤/アバターは一旦撤去 (Plan E で再配置検討)。 **738 tests pass**。 両テーマ目視確認済み
-- **新ルール**: `/housing` 配下は LoPo 既存 UI デザイン制約 (白黒のみ / Inter 禁止 / honey 色禁止) **対象外**。 memory `feedback_housing_design_independent.md` 参照
+- **新ルール (物理ファイル反映済)**: `/housing` 配下は LoPo 既存 UI デザイン制約 (白黒のみ / Inter 禁止 / honey 色禁止) **対象外**。 `.claude/rules/housing-design.md` がトリガー、 `ui-design.md` / `DESIGN.md` は frontmatter で housing/** を exclude。 memory `feedback_housing_design_independent.md`
 - **重要**: 中身はまだ placeholder。 push すると production /housing が空スケルトンに退化するため、 Plan B/C 完了まで push 保留継続
 - **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像。 iterate-first
 
