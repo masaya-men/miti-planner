@@ -11,40 +11,36 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main 直接、 **~18 commits ahead of origin/main (未 push、 実数は `git rev-list --count origin/main..HEAD`)**
-- **最新本番デプロイ**: セッション 26 (X ログイン全撤去)。 Plan A は production に出ていない
+- **ブランチ**: main。 **push 済 (origin と同期)** ※ コミット数は `git rev-list --count origin/main..HEAD`
+- **最新本番デプロイ**: セッション 30 (2026-05-18) で Plan B + C を含む 22 commits push、 Vercel 自動デプロイ中。 production /housing で Filter / Map / Pinterest が動く想定
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド制限
-- **セッション 29 (2026-05-18) 成果**: **モックアップ視覚再構築完了** (commit 34a680b)。 styles/housing.css 全面拡張 (独自デザイントークン / panel chrome / scenery overlay + starfield)。 LiquidGlassPanel に chrome 追加 (ring border + corner highlights + sheen + box-shadow)。 HousingWorkspace を CSS grid (60/1fr/40 行 × 280/1fr/360 列)。 TopBar = ブランド + パンくず + 丸薬テーマトグル (honey gradient)。 StatusBar = テレメトリ (Build/Lat-Lon/Theme + Stops/ETA/FPS + 言語切替小型 pill)。 検索/登録/❤/アバターは一旦撤去 (Plan E で再配置検討)。 **738 tests pass**。 両テーマ目視確認済み
+- **セッション 30 成果 (2026-05-18)**: Plan B (左 Filter 6 facet + Register CTA) + Plan C (中央 Map/Pinterest 切替 + inline expansion + Favorites) 実装完了。 housing.css に token 18+ / mockup-faithful class 17+ 追加。 **ハードコード 100% 禁止ルール強化** (`.claude/rules/housing-design.md` + memory `feedback_no_hardcoding.md`)、 housing 配下 TSX の literal **0 件** (grep 検証済)。 **771 tests pass、 production build OK**。 実機目視は次セッション最優先
 - **新ルール (物理ファイル反映済)**: `/housing` 配下は LoPo 既存 UI デザイン制約 (白黒のみ / Inter 禁止 / honey 色禁止) **対象外**。 `.claude/rules/housing-design.md` がトリガー、 `ui-design.md` / `DESIGN.md` は frontmatter で housing/** を exclude。 memory `feedback_housing_design_independent.md`
-- **重要**: 中身はまだ placeholder。 push すると production /housing が空スケルトンに退化するため、 Plan B/C 完了まで push 保留継続
-- **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像。 iterate-first
+- **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像 (mockup map.png = sample-ward.png)。 iterate-first
 
 ---
 
-## 次セッション最優先 (Plan B + C 並列実装)
+## 次セッション最優先 (実機目視 → iterate or Plan D)
 
-**起動**:
+**起動 + 確認**:
 ```bash
 npm run dev
-# http://localhost:5173/housing で確認 (Light/Dark 両テーマで chrome OK 確認済)
+# http://localhost:5173/housing で確認
+# - Light/Dark 両テーマで panel chrome 維持されているか (Session 29 の見た目)
+# - 左パネル: 6 facet の chip 押下で active 色 + 件数連動、 server 段は DC 選択時のみ
+# - 中央パネル右上: マップ/一覧 切替トグル、 マップで 5 件 plot 表示
+# - 一覧モードで Masonry 50 件、 カードクリックで inline expansion
 ```
-追加の見た目調整希望があれば iterate-first、 なければ Plan B/C へ。
 
-**手順**:
-1. `docs/superpowers/plans/2026-05-17-housing-sub-spec-2b-plan-b-filter-panel.md` (左パネル Faceted Search) と
-   `docs/superpowers/plans/2026-05-17-housing-sub-spec-2b-plan-c-center-area.md` (中央 Map/Pinterest + inline expansion) を確認
-2. `superpowers:subagent-driven-development` skill 起動
-3. **Plan B と C は別パネル (左 / 中央) を触るので並列 subagent dispatch 可能**
-4. CSS は `src/styles/housing.css` の design tokens (--housing-*) を利用、 ハードコード厳禁
-5. 完了後 Plan D (右パネル) → E (お気に入りモーダル + 検索/登録/❤/アバター再配置) → F (Finishing + E2E + push + deploy)
+production: https://lopoly.app/housing でも確認 (Vercel デプロイ完了後)
 
-**push/deploy タイミング**: Plan B + C 完了 (UI に意味ある中身が入る) で push → Vercel 自動デプロイ。 一度に 1 回で済ませて Vercel ビルド枠節約
+**選択肢**:
+1. **iterate**: 見た目細部の手直しがあれば iterate-first (希望伝えれば即対応)
+2. **Plan D 着手** (右パネル auto-scroll ツアー進行) — Plan B/C と同じ方針: モックアップ準拠 + housing-* token + ハードコード zero。 controller 直接実装が安全
 
 **残 Plan**:
-- B: Filter Panel (Faceted Search) — 並列 OK
-- C: Center Area (Map/Pinterest 切替 + inline expansion) — 並列 OK
-- D: Right Panel (auto-scroll + ツアー進行)
-- E: Favorites Modal (DnD + 矩形選択 + ツアー組立)
+- D: Right Panel (auto-scroll + ツアー進行 + step ナビ)
+- E: Favorites Modal (DnD + 矩形選択 + ツアー組立) + 検索/登録/❤/アバター再配置
 - F: Finishing (登録接続 + ルート + a11y + E2E + 親仕様改訂)
 
 **(将来検討) XIVAuth (FF14 キャラ連携)** — ハウジング登録の本人確認に有用、 ただし XIVAuth 自体の安定性を 3-6 ヶ月様子見
