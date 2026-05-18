@@ -67,7 +67,7 @@ export const FavoritesListPane: React.FC<FavoritesListPaneProps> = ({
     }
 
     return (
-        <div className="housing-favorites-pane">
+        <div ref={containerRef} className="housing-favorites-pane">
             <div className="housing-favorites-pane-head">
                 <h3 className="housing-favorites-pane-title">
                     {t('housing.workspace.favorites.title')} ({favorites.length})
@@ -83,11 +83,7 @@ export const FavoritesListPane: React.FC<FavoritesListPaneProps> = ({
                 )}
             </div>
             <p className="housing-favorites-pane-hint">{t('housing.workspace.favorites.hint')}</p>
-            <div
-                ref={containerRef}
-                data-marquee-bg="true"
-                className="housing-favorites-list"
-            >
+            <div className="housing-favorites-list">
                 {favorites.map((listing) => (
                     <FavoriteCard
                         key={listing.id}
@@ -96,18 +92,18 @@ export const FavoritesListPane: React.FC<FavoritesListPaneProps> = ({
                         onClick={(mod) => handleCardClick(listing.id, mod)}
                     />
                 ))}
-                {marqueeRect && (
-                    <div
-                        className="housing-marquee-rect"
-                        style={{
-                            left: marqueeRect.x,
-                            top: marqueeRect.y,
-                            width: marqueeRect.w,
-                            height: marqueeRect.h,
-                        }}
-                    />
-                )}
             </div>
+            {marqueeRect && (
+                <div
+                    className="housing-marquee-rect"
+                    style={{
+                        left: marqueeRect.x,
+                        top: marqueeRect.y,
+                        width: marqueeRect.w,
+                        height: marqueeRect.h,
+                    }}
+                />
+            )}
         </div>
     );
 };

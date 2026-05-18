@@ -39,6 +39,7 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
     const [selected, setSelected] = useState<Set<string>>(new Set());
     const [tourIds, setTourIds] = useState<string[]>([]);
     const [mannerOpen, setMannerOpen] = useState(false);
+    const [staging, setStaging] = useState(false);
 
     const tourId = useMemo(getOrCreateTourId, []);
 
@@ -48,6 +49,7 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
         if (open) {
             setSelected(new Set());
             setTourIds([]);
+            setStaging(false);
         }
     }, [open]);
 
@@ -60,19 +62,31 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
         return sortByAddress(all).map((l) => l.id);
     };
 
+    // §7.5: "入った瞬間に並び替えが動的にアニメーションで可視化される". Stage the
+    // ids in the tour builder first so the spring/FLIP animation runs, then
+    // either confirm via the manner notice or commit straight through.
+    const STAGE_ANIMATION_MS = 700;
+
     const beginTourStart = () => {
         if (favoriteIds.length === 0) return;
-        if (isMannerNoticeDismissed()) {
-            commitStart();
-        } else {
-            setMannerOpen(true);
-        }
-    };
-
-    const commitStart = () => {
         const ids = tourIds.length > 0 ? tourIds : allFavoritesSorted();
         if (ids.length === 0) return;
-        setTourListings(ids);
+        setTourIds(ids);
+        setStaging(true);
+        window.setTimeout(() => {
+            setStaging(false);
+            if (isMannerNoticeDismissed()) {
+                commitStart(ids);
+            } else {
+                setMannerOpen(true);
+            }
+        }, STAGE_ANIMATION_MS);
+    };
+
+    const commitStart = (ids?: string[]) => {
+        const target = ids ?? (tourIds.length > 0 ? tourIds : allFavoritesSorted());
+        if (target.length === 0) return;
+        setTourListings(target);
         startTour();
         enterTourMode();
         setMannerOpen(false);
@@ -102,7 +116,7 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
                             <button
                                 type="button"
                                 onClick={beginTourStart}
-                                disabled={favoriteIds.length === 0}
+                                disabled={favoriteIds.length === 0 || staging}
                                 className="housing-favorites-run-all-btn"
                             >
                                 <Play size={14} aria-hidden="true" />
@@ -140,7 +154,7 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
             <MannerNoticeDialog
                 open={mannerOpen}
                 onCancel={() => setMannerOpen(false)}
-                onStart={commitStart}
+                onStart={() => commitStart()}
             />
         </>
     );

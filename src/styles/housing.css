@@ -1330,11 +1330,14 @@
   border-right: 1px solid var(--housing-panel-border);
 }
 
-/* Favorites pane (left half) */
+/* Favorites pane (left half) — root acts as the marquee anchor so the
+ * rubber-band rect can extend over header / hint / list whitespace. */
 .housing-favorites-pane {
+  position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;
+  user-select: none;
 }
 .housing-favorites-pane-head {
   display: flex;

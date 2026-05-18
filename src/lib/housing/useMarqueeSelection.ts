@@ -14,27 +14,35 @@ export interface MarqueeModifiers {
 }
 
 export interface UseMarqueeSelectionOptions {
-    /** Container ref. Marquee starts only when mousedown target is the container itself
-     * (or an element explicitly marked with data-marquee-bg="true"). */
+    /** Container ref. Marquee starts anywhere inside the container that isn't a
+     *  selectable item or an ignored element (e.g. surrounding chrome buttons). */
     containerRef: React.RefObject<HTMLElement | null>;
     /** CSS selector for selectable items. Each item must carry data-listing-id="..." */
     itemSelector: string;
+    /** Optional CSS selector for elements that should never start a marquee even
+     *  though they aren't items (interactive controls, links, inputs).
+     *  Defaults to common form/control selectors. */
+    ignoreSelector?: string;
     /** Called when the drag ends. Receives the selected ids plus the modifier
      *  keys held at mousedown (so callers can decide additive vs replace selection). */
     onComplete: (selectedIds: string[], modifiers: MarqueeModifiers) => void;
 }
 
+const DEFAULT_IGNORE_SELECTOR = 'button, a, input, textarea, select, [contenteditable="true"]';
+
 /**
  * Rubber-band selection over a container.
  *
- * Background-only: drag must start on the container itself (or a marked
- * background element). Clicking a child item does NOT trigger marquee — that
- * way per-item clicks (single select / drag) keep their normal semantics, the
- * same convention as Windows Explorer / macOS Finder.
+ * Background-only: drag must start somewhere that is NOT inside a selectable
+ * item. Clicking an item still triggers per-item handlers (single select /
+ * drag). A click on empty area without any drag fires onComplete with an
+ * empty selection — same convention as Windows Explorer / macOS Finder, so
+ * the caller can clear its multi-select state.
  */
 export function useMarqueeSelection({
     containerRef,
     itemSelector,
+    ignoreSelector = DEFAULT_IGNORE_SELECTOR,
     onComplete,
 }: UseMarqueeSelectionOptions) {
     const [rect, setRect] = useState<MarqueeRect | null>(null);
@@ -49,8 +57,13 @@ export function useMarqueeSelection({
             if (e.button !== 0) return;
             const target = e.target as HTMLElement | null;
             if (!target) return;
-            const isBackground = target === container || target.dataset.marqueeBg === 'true';
-            if (!isBackground) return;
+            if (!container.contains(target)) return;
+            // Anything that resolves to a selectable item is NOT background.
+            // Everything else inside the container (padding, gaps, hint text,
+            // empty space) qualifies as background and starts the marquee —
+            // matching the Finder / Explorer convention.
+            if (target.closest(itemSelector)) return;
+            if (ignoreSelector && target.closest(ignoreSelector)) return;
             const cRect = container.getBoundingClientRect();
             startRef.current = { x: e.clientX - cRect.left, y: e.clientY - cRect.top };
             modifiersRef.current = { shift: e.shiftKey, ctrl: e.ctrlKey, meta: e.metaKey };
@@ -110,7 +123,7 @@ export function useMarqueeSelection({
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onUp);
         };
-    }, [containerRef, itemSelector, onComplete]);
+    }, [containerRef, itemSelector, ignoreSelector, onComplete]);
 
     return rect;
 }

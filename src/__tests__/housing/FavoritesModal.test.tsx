@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeEach, beforeAll, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach, beforeAll, afterEach, vi } from 'vitest';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -28,6 +28,7 @@ function wrap(ui: React.ReactElement) {
 
 describe('FavoritesModal', () => {
     beforeEach(() => {
+        vi.useFakeTimers();
         useHousingFavoritesStore.getState().reset();
         useHousingTourStore.getState().reset();
         useHousingViewStore.getState().reset();
@@ -35,6 +36,15 @@ describe('FavoritesModal', () => {
         sessionStorage.clear();
         MOCK_LISTINGS.slice(0, 3).forEach((l) => useHousingFavoritesStore.getState().add(l.id));
     });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    // §7.5 "入った瞬間に並び替えがアニメーションで可視化される" — FavoritesModal
+    // stages tour ids first, then waits this long for the FLIP animation to
+    // play before opening the manner notice or starting the tour.
+    const STAGE_DELAY_MS = 700;
 
     it('renders nothing when closed', () => {
         const { container } = render(wrap(<FavoritesModal open={false} onClose={() => {}} />));
@@ -64,6 +74,8 @@ describe('FavoritesModal', () => {
         render(wrap(<FavoritesModal open={true} onClose={() => {}} />));
         const runAll = screen.getByRole('button', { name: new RegExp(jaTranslations.housing.workspace.favorites.run_all) });
         fireEvent.click(runAll);
+        // Stage animation runs first; manner notice appears only after the delay.
+        act(() => { vi.advanceTimersByTime(STAGE_DELAY_MS); });
         expect(
             screen.getByRole('button', { name: jaTranslations.housing.workspace.manner.start }),
         ).toBeInTheDocument();
@@ -75,6 +87,7 @@ describe('FavoritesModal', () => {
         fireEvent.click(
             screen.getByRole('button', { name: new RegExp(jaTranslations.housing.workspace.favorites.run_all) }),
         );
+        act(() => { vi.advanceTimersByTime(STAGE_DELAY_MS); });
         fireEvent.click(
             screen.getByRole('button', { name: jaTranslations.housing.workspace.manner.start }),
         );
@@ -91,7 +104,8 @@ describe('FavoritesModal', () => {
         fireEvent.click(
             screen.getByRole('button', { name: new RegExp(jaTranslations.housing.workspace.favorites.run_all) }),
         );
-        // No manner button should appear; tour starts immediately.
+        // Even when manner is dismissed, the stage animation delay still applies.
+        act(() => { vi.advanceTimersByTime(STAGE_DELAY_MS); });
         expect(screen.queryByRole('button', { name: jaTranslations.housing.workspace.manner.start })).toBeNull();
         expect(useHousingTourStore.getState().running).toBe(true);
         expect(onClose).toHaveBeenCalledOnce();
