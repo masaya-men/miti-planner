@@ -14,9 +14,7 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings, initialE
 
     // Sync expansion when URL-driven prop changes (e.g. /housing/p/A → /housing/p/B without remount).
     useEffect(() => {
-        if (initialExpandedId !== undefined) {
-            setExpandedId(initialExpandedId);
-        }
+        setExpandedId(initialExpandedId ?? null);
     }, [initialExpandedId]);
 
     return (
