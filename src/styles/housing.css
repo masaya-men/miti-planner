@@ -1981,3 +1981,41 @@
 .housing-register-modal-login-btn:hover {
   filter: brightness(1.05);
 }
+
+/* ===== TopBar search pill (Plan F Task 6) ===== */
+.housing-top-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  min-width: 200px;
+  max-width: 280px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.housing-top-search:focus-within {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-panel-border-strong);
+}
+.housing-top-search-icon {
+  color: var(--housing-text-mute);
+  flex-shrink: 0;
+  display: inline-flex;
+}
+.housing-top-search-input {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: var(--housing-text);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  width: 100%;
+  text-shadow: var(--housing-text-shadow);
+}
+.housing-top-search-input::placeholder {
+  color: var(--housing-text-mute);
+}

@@ -7,6 +7,7 @@ import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../locales/ja.json';
 import { TopBar } from '../../components/housing/workspace/TopBar';
 import { useThemeStore } from '../../store/useThemeStore';
+import { useHousingFilterStore } from '../../store/useHousingFilterStore';
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -59,5 +60,14 @@ describe('TopBar', () => {
     renderTopBar();
     fireEvent.click(screen.getByRole('tab', { name: /light/i }));
     expect(useThemeStore.getState().theme).toBe('light');
+  });
+
+  it('updates filter store searchText when search input changes', () => {
+    useHousingFilterStore.getState().setSearchText('');
+    renderTopBar();
+    const input = screen.getByLabelText(/お家|find|집|搜索|house/i) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'cafe' } });
+    expect(useHousingFilterStore.getState().searchText).toBe('cafe');
+    useHousingFilterStore.getState().setSearchText('');
   });
 });

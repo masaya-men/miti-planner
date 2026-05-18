@@ -1,8 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Heart, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { Heart, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Search } from 'lucide-react';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
+import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 
 export interface TopBarProps {
     onFavoritesClick?: () => void;
@@ -29,6 +30,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick }) => {
   const setRightPanelOpen = useHousingViewStore((s) => s.setRightPanelOpen);
   const mode = useHousingViewStore((s) => s.mode);
   const favoritesCount = useHousingFavoritesStore((s) => s.ids.length);
+  const searchText = useHousingFilterStore((s) => s.searchText);
+  const setSearchText = useHousingFilterStore((s) => s.setSearchText);
 
   const LeftIcon = leftPanelOpen ? PanelLeftClose : PanelLeftOpen;
   const RightIcon = rightPanelOpen ? PanelRightClose : PanelRightOpen;
@@ -63,6 +66,19 @@ export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick }) => {
             LoPo&nbsp;
             <span className="housing-brand-sub">/ {t('housing.workspace.topbar.subtitle')}</span>
           </span>
+        </div>
+        <div className="housing-top-search">
+          <span className="housing-top-search-icon" aria-hidden="true">
+            <Search size={14} />
+          </span>
+          <input
+            type="text"
+            className="housing-top-search-input"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder={t('housing.workspace.topbar.search_placeholder')}
+            aria-label={t('housing.workspace.topbar.search_placeholder')}
+          />
         </div>
       </div>
 
