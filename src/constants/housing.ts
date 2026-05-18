@@ -11,8 +11,9 @@
 // ─────────────────────────────────────────────
 
 export const WARD_RANGE = { min: 1, max: 30 } as const;
-export const PLOT_RANGE = { min: 1, max: 60 } as const;
+export const PLOT_RANGE = { min: 1, max: 30 } as const;                // 30 → 60 から訂正 (subdivision 別)
 export const APARTMENT_ROOM_RANGE = { min: 1, max: 90 } as const;
+export const PRIVATE_CHAMBER_RANGE = { min: 1, max: 512 } as const;    // NEW (FC 個室、 公式上限)
 
 // ─────────────────────────────────────────────
 // ユーザー入力の制限（設計書 §4.2 / §6.1）
