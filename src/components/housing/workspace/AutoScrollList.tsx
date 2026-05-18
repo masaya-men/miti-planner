@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useAutoScroll } from '../../../hooks/useAutoScroll';
+import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import { RightPanelListItem } from './RightPanelListItem';
 
 export interface AutoScrollListProps {
@@ -11,7 +12,8 @@ export interface AutoScrollListProps {
 export const AutoScrollList: React.FC<AutoScrollListProps> = ({ listings, onItemClick }) => {
     const ref = useRef<HTMLDivElement>(null);
     const [paused, setPaused] = useState(false);
-    useAutoScroll(ref, { pxPerSecond: 24, paused, loop: true });
+    const reduced = useReducedMotion();
+    useAutoScroll(ref, { pxPerSecond: 24, paused: paused || reduced, loop: true });
 
     return (
         <div
