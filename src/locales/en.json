@@ -2001,6 +2001,29 @@
                 "share_aria": "Copy tour share URL",
                 "exit_aria": "Exit the tour"
             },
+            "favorites": {
+                "title": "Favorites",
+                "empty": "Heart the homes you love to build your own tour",
+                "hint": "Shift/Ctrl to multi-select, drag to marquee-select",
+                "clear_selection": "Clear",
+                "run_all": "Tour all",
+                "close_modal": "Close"
+            },
+            "tour_builder": {
+                "title": "Tour",
+                "empty": "Pick from your favorites and drag them here",
+                "remove": "Remove from tour",
+                "sort_by_address": "Re-sort by address",
+                "custom_order": "Custom order",
+                "drag_handle": "Drag to reorder"
+            },
+            "manner": {
+                "title": "Please respect house owners",
+                "body": "When visiting a home, be mindful of the owner. Don't overstay, don't touch their items, and don't share their address on social media. Stick to basic etiquette and enjoy your tour.",
+                "dont_show_again": "Don't show again",
+                "cancel": "Cancel",
+                "start": "Start"
+            },
             "center": {
                 "toggle": {
                     "map": "Map",

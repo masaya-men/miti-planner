@@ -1965,6 +1965,29 @@
                 "share_aria": "투어 공유 URL 복사",
                 "exit_aria": "투어 종료하기"
             },
+            "favorites": {
+                "title": "즐겨찾기",
+                "empty": "마음에 든 집을 ♡ 로 모아 나만의 투어를 만들어 보세요",
+                "hint": "Shift/Ctrl 로 다중 선택, 드래그로 범위 선택",
+                "clear_selection": "선택 해제",
+                "run_all": "전부 둘러보기",
+                "close_modal": "닫기"
+            },
+            "tour_builder": {
+                "title": "투어",
+                "empty": "즐겨찾기에서 선택해 이쪽으로 끌어다 놓기",
+                "remove": "투어에서 제거",
+                "sort_by_address": "주소순으로 정렬",
+                "custom_order": "사용자 정렬",
+                "drag_handle": "드래그하여 순서 변경"
+            },
+            "manner": {
+                "title": "매너를 지켜 주세요",
+                "body": "하우징을 방문할 때는 오너에 대한 예의를 잊지 마세요. 오래 머무르지 않기, 아이템에 손대지 않기, SNS 에 주소를 노출하지 않기 등 기본 에티켓을 지키며 즐겨 주세요.",
+                "dont_show_again": "다시 표시 안 함",
+                "cancel": "취소",
+                "start": "시작"
+            },
             "center": {
                 "toggle": {
                     "map": "지도",

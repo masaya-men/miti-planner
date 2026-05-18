@@ -2022,6 +2022,29 @@
                 "share_aria": "ツアー共有URLをコピーする",
                 "exit_aria": "ツアーを終了する"
             },
+            "favorites": {
+                "title": "お気に入り",
+                "empty": "気に入ったお家を ♡ で集めて、 自分だけのツアーを作ろう",
+                "hint": "Shift/Ctrl で複数選択、 範囲ドラッグでまとめて選択",
+                "clear_selection": "選択解除",
+                "run_all": "全部回る",
+                "close_modal": "閉じる"
+            },
+            "tour_builder": {
+                "title": "ツアー",
+                "empty": "お気に入りから選んで、 ここにドラッグ",
+                "remove": "ツアーから除外",
+                "sort_by_address": "住所順に戻す",
+                "custom_order": "カスタム順",
+                "drag_handle": "ドラッグして並び替え"
+            },
+            "manner": {
+                "title": "マナーを守って訪問してください",
+                "body": "ハウジングを訪問するときは、 オーナーへの敬意を忘れずに。 長居しすぎない、 アイテムに触れない、 SNS で住所を晒さないなど、 基本のエチケットを守って楽しみましょう。",
+                "dont_show_again": "次回から表示しない",
+                "cancel": "キャンセル",
+                "start": "はじめる"
+            },
             "center": {
                 "toggle": {
                     "map": "マップ",

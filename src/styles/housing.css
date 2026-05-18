@@ -1105,6 +1105,514 @@
   outline-offset: 2px;
 }
 
+/* ============================================================
+ * Favorites toggle (TopBar ♡ icon) — Plan E
+ * ============================================================ */
+.housing-favorites-toggle {
+  position: relative;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-mute);
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-favorites-toggle:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-candle);
+}
+.housing-favorites-toggle:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-favorites-toggle-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--housing-honey);
+  color: #2a1a08;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  text-shadow: none;
+}
+
+/* ============================================================
+ * Favorites Modal (Plan E §7) — fullscreen sheet + two panes
+ * ============================================================ */
+.housing-favorites-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 20px;
+}
+.housing-favorites-modal {
+  width: 92vw;
+  max-width: 1400px;
+  height: 88vh;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--housing-panel-border);
+  color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow);
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.6);
+}
+.housing-favorites-modal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--housing-panel-border);
+}
+.housing-favorites-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.housing-favorites-share-slot {
+  width: 200px;
+}
+.housing-favorites-run-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
+  color: #2a1a08;
+  border: 0;
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  text-shadow: none;
+  transition: filter 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-favorites-run-all-btn:hover:not(:disabled) {
+  filter: brightness(1.05);
+  box-shadow: 0 0 16px var(--housing-honey-shadow-soft);
+}
+.housing-favorites-run-all-btn:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-favorites-run-all-btn:disabled {
+  cursor: not-allowed;
+  opacity: var(--housing-disabled-opacity);
+}
+.housing-favorites-close-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-mute);
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-favorites-close-btn:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-favorites-close-btn:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-favorites-modal-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+.housing-favorites-modal-pane {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.housing-favorites-modal-pane-left {
+  border-right: 1px solid var(--housing-panel-border);
+}
+
+/* Favorites pane (left half) */
+.housing-favorites-pane {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.housing-favorites-pane-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 12px 16px 6px;
+  flex-shrink: 0;
+}
+.housing-favorites-pane-title {
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--housing-text-dim);
+  margin: 0;
+}
+.housing-favorites-clear-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-mute);
+  font: inherit;
+  font-size: var(--housing-text-xs);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.housing-favorites-clear-btn:hover {
+  color: var(--housing-candle);
+}
+.housing-favorites-pane-hint {
+  padding: 0 16px 8px;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  margin: 0;
+  flex-shrink: 0;
+}
+.housing-favorites-list {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  user-select: none;
+}
+.housing-favorites-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-sm);
+}
+
+/* Favorite card (horizontal low-profile, multi-selectable) */
+.housing-favorite-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  color: var(--housing-text);
+  text-align: left;
+  text-shadow: var(--housing-text-shadow);
+  font: inherit;
+  appearance: none;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.housing-favorite-card:hover {
+  background: var(--housing-chip-bg-hover);
+}
+.housing-favorite-card:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-favorite-card[data-selected="true"] {
+  background: var(--housing-honey-strong);
+  border-color: var(--housing-honey-border);
+  box-shadow: 0 0 0 1px var(--housing-honey-inset) inset;
+}
+.housing-favorite-card-thumb {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--housing-card-thumb-bg);
+}
+.housing-favorite-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.housing-favorite-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.housing-favorite-card-title {
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.housing-favorite-card-size {
+  margin-left: 6px;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-favorite-card-desc {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Marquee selection rectangle (drawn over the favorites list) */
+.housing-marquee-rect {
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid var(--housing-honey);
+  background: var(--housing-honey-soft);
+}
+
+/* Tour builder pane (right half) */
+.housing-tour-builder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.housing-tour-builder-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 12px 16px 6px;
+  flex-shrink: 0;
+}
+.housing-tour-builder-title {
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--housing-text-dim);
+  margin: 0;
+}
+.housing-tour-builder-sort-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-mute);
+  font: inherit;
+  font-size: var(--housing-text-xs);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.housing-tour-builder-sort-btn:hover {
+  color: var(--housing-candle);
+}
+.housing-tour-builder-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.housing-tour-builder-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px;
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-sm);
+}
+
+/* Tour builder item (sortable row) */
+.housing-tour-builder-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--housing-chip-bg);
+  border: 1px solid transparent;
+  color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow);
+}
+.housing-tour-builder-item:hover {
+  border-color: var(--housing-panel-border);
+}
+.housing-tour-builder-grip {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-mute);
+  cursor: grab;
+  padding: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.housing-tour-builder-grip:active {
+  cursor: grabbing;
+  color: var(--housing-text);
+}
+.housing-tour-builder-grip:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-tour-builder-index {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  font-variant-numeric: tabular-nums;
+  width: 24px;
+  text-align: right;
+}
+.housing-tour-builder-label {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--housing-text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.housing-tour-builder-size {
+  margin-left: 6px;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-builder-remove {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-mute);
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-tour-builder-remove:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-warning);
+}
+.housing-tour-builder-remove:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+ * Manner Notice Dialog (Plan E §6.2)
+ * ============================================================ */
+.housing-manner-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+}
+.housing-manner-card {
+  max-width: 480px;
+  width: 100%;
+  padding: 24px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid var(--housing-panel-border);
+  color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+}
+.housing-manner-title {
+  font-size: var(--housing-text-lg);
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.housing-manner-body {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+.housing-manner-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.housing-manner-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.housing-manner-btn {
+  appearance: none;
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 0.15s ease, filter 0.15s ease;
+}
+.housing-manner-btn:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-manner-btn-cancel {
+  background: transparent;
+  border-color: var(--housing-panel-border);
+  color: var(--housing-text-dim);
+}
+.housing-manner-btn-cancel:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-manner-btn-start {
+  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
+  color: #2a1a08;
+  font-weight: 600;
+  text-shadow: none;
+}
+.housing-manner-btn-start:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 0 12px var(--housing-honey-shadow-soft);
+}
+
 /* Empty state */
 .housing-empty-result {
   height: 100%;

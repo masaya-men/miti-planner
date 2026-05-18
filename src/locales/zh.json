@@ -1965,6 +1965,29 @@
                 "share_aria": "复制巡游分享链接",
                 "exit_aria": "退出巡游"
             },
+            "favorites": {
+                "title": "收藏",
+                "empty": "用 ♡ 收藏你喜欢的房子, 打造专属巡游路线",
+                "hint": "Shift/Ctrl 多选, 拖动框选范围",
+                "clear_selection": "取消选择",
+                "run_all": "全部参观",
+                "close_modal": "关闭"
+            },
+            "tour_builder": {
+                "title": "巡游",
+                "empty": "从收藏中选择, 拖到这里",
+                "remove": "从巡游中移除",
+                "sort_by_address": "按地址排序",
+                "custom_order": "自定义排序",
+                "drag_handle": "拖动以调整顺序"
+            },
+            "manner": {
+                "title": "请文明参观",
+                "body": "参观房屋时, 请尊重房主。 不要久留, 不要乱动物品, 不要把住址发布到社交平台。 遵守基本礼节, 愉快地享受巡游吧。",
+                "dont_show_again": "下次不再显示",
+                "cancel": "取消",
+                "start": "开始"
+            },
             "center": {
                 "toggle": {
                     "map": "地图",

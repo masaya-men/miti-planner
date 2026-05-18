@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { SceneryVideo } from './SceneryVideo';
@@ -8,6 +8,7 @@ import { LiquidGlassPanel } from './LiquidGlassPanel';
 import { FilterPanel } from './FilterPanel';
 import { CenterArea } from './CenterArea';
 import { RightPanel } from './RightPanel';
+import { FavoritesModal } from './FavoritesModal';
 import '../../../styles/housing.css';
 
 /**
@@ -23,6 +24,7 @@ export const HousingWorkspace: React.FC = () => {
   const rightPanelOpen = useHousingViewStore((s) => s.rightPanelOpen);
   const setLeftPanelOpen = useHousingViewStore((s) => s.setLeftPanelOpen);
   const setRightPanelOpen = useHousingViewStore((s) => s.setRightPanelOpen);
+  const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
 
   // Lock body scroll while workspace is mounted (mockup is a fixed-viewport experience).
   useEffect(() => {
@@ -47,7 +49,7 @@ export const HousingWorkspace: React.FC = () => {
     <main className="housing-workspace" data-theme={theme}>
       <SceneryVideo theme={theme} />
       <div className="housing-shell">
-        <TopBar />
+        <TopBar onFavoritesClick={() => setFavoritesModalOpen(true)} />
         <div
           className="housing-main"
           data-left-collapsed={leftPanelOpen ? 'false' : 'true'}
@@ -75,6 +77,7 @@ export const HousingWorkspace: React.FC = () => {
         </div>
         <StatusBar />
       </div>
+      <FavoritesModal open={favoritesModalOpen} onClose={() => setFavoritesModalOpen(false)} />
     </main>
   );
 };
