@@ -11,9 +11,9 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 ローカルで 21 commits ahead (Plan F 完了 + gap fix)。 push + Vercel デプロイは次回 push 時にまとめて
-- **直近セッション**: セッション 32 (2026-05-18) で **Plan F 完了** (subagent-driven 12 task + final gap fix)
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド (今日 9 消費 → 残り 91)。 Plan F は 1 push にまとめてビルド消費 1 回
+- **ブランチ**: main、 origin と同期済み (HEAD = 4ef8389)。 Vercel prod デプロイ **● Ready** 着地確認済 (lopoly.app alias 反映)
+- **直近セッション**: セッション 32 (2026-05-18) で **Plan F 完了** (subagent-driven 12 task + final gap fix) → push + デプロイ着地済
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド。 当日デプロイ多数 (詳細は Vercel ダッシュボード参照)
 - **セッション 32 成果 (2026-05-18) — Plan F 完了**:
   - **新規 component**: HousingRegisterModal (Sub-spec 2A wrap + ログイン gate)、SkeletonCard (pinterest/right-panel)、HousingToast (info/error)
   - **新規 hook/lib**: useReducedMotion + AutoScrollList 統合、housingListingsMockService (Phase 2 で Firestore 移行予定の抽象層)
@@ -24,19 +24,18 @@
   - **親仕様改訂**: 2026-05-07 Phase1 設計書の §7/§8/§10.1/§11.2/§18 を Sub-spec 2B 参照に書き換え
   - **i18n**: housing.workspace.register_modal.{title, close, login_required, login_button} を 4 言語追加
   - **build/test**: vitest 847 pass (+27 from sess 31)、tsc clean、production build OK
-- **既知の残**: pre-existing `playwright/timeline-responsive.spec.ts` が 5 件 fail (列幅 126px 想定 → 実測 156.8px、Plan F 起因ではない、別タスクで調査)
+- **既知の残**: なし (timeline-responsive は期待値同期 + playwright feature 別ディレクトリ化で解消)
+- **playwright 構造**: `playwright/housing/` と `playwright/miti/` に分割済 → `npm run test:e2e:housing` (9 秒) / `npm run test:e2e:miti` (23 秒) で個別実行可能
 - **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装
 
 ---
 
-## 次セッション最優先: 実機 iterate + デプロイ確認
+## 次セッション最優先: 実機 iterate
 
-1. **push + デプロイ** (まだ): `git push` → Vercel 自動デプロイ確認 (ビルド消費 +1)
-2. **実機 iterate** — ブラッシュアップ後回しリスト (下) + Plan F で残ったブラッシュアップ候補
+1. **実機 iterate** — ブラッシュアップ後回しリスト (下) + Plan F で残ったブラッシュアップ候補
    - TopBar register CTA の見た目 (honey-soft ベース pill、ユーザー目視で OK か)
    - HousingRegisterModal の logged-out branch ヘッダーに × アイコンなし (UX 整合性が気になれば追加検討)
    - SkeletonCard / HousingToast は実装済みだがビュー未接続 → 実機で使い所が見えたら接続
-3. **timeline-responsive playwright fail** の原因調査 (Plan F とは無関係、別 commit で `[data-member-role="tank"]` の列幅が 126 → 156.8 に変わっている)
 
 ---
 

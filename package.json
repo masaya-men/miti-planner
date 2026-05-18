@@ -13,6 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:housing": "playwright test playwright/housing",
+    "test:e2e:miti": "playwright test playwright/miti",
     "prepare": "husky"
   },
   "dependencies": {

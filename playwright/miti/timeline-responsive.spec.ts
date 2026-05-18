@@ -8,24 +8,24 @@ const VIEWPORTS = [
     { name: '3840-native-4k', width: 3840, height: 2160, dpr: 1 },
 ];
 
-// 期待値: 軽減アイコン列は固定 px (実 DOM 計測で確定した視覚対称値、 viewport 非依存)
-// --col-th-w:  126px (T/H、 N=5)
-// --col-dps-w: 53px  (DPS、 N=2)
-// 真因: 列ヘッダー border-r + inner div border + 絶対配置 subpixel round の累積
+// 期待値: 軽減アイコン列は固定 px (viewport 非依存)。 boundingBox は外側総幅を測定する。
+// 総幅 = var(--col-th-w) + var(--col-member-pad-x) * 2  (= calculator.ts getColumnCssVar)
+// セッション 17 (2026-05-12) で T/H 列 126→151 拡張済 → 総幅 151 + 2.9*2 = 156.8px
+// DPS は 53 維持 → 総幅 53 + 2.9*2 = 58.8px
 const EXPECTED_TH_WIDTH: Record<string, number> = {
-    '1366-laptop': 126,
-    '1489-user-actual': 126,
-    '1920-majority': 126,
-    '2560-27inch-4k-150': 126,
-    '3840-native-4k': 126,
+    '1366-laptop': 156.8,
+    '1489-user-actual': 156.8,
+    '1920-majority': 156.8,
+    '2560-27inch-4k-150': 156.8,
+    '3840-native-4k': 156.8,
 };
 
 const EXPECTED_DPS_WIDTH: Record<string, number> = {
-    '1366-laptop': 53,
-    '1489-user-actual': 53,
-    '1920-majority': 53,
-    '2560-27inch-4k-150': 53,
-    '3840-native-4k': 53,
+    '1366-laptop': 58.8,
+    '1489-user-actual': 58.8,
+    '1920-majority': 58.8,
+    '2560-27inch-4k-150': 58.8,
+    '3840-native-4k': 58.8,
 };
 
 for (const vp of VIEWPORTS) {
@@ -54,10 +54,10 @@ for (const vp of VIEWPORTS) {
         expect(dpsBox).not.toBeNull();
         expect(dpsBox!.width).toBeCloseTo(EXPECTED_DPS_WIDTH[vp.name], 0);
 
-        // 1489 はユーザー本人環境の絶対基準 - サブピクセル誤差は許容するが整数値で 126/53 を要求
+        // 1489 はユーザー本人環境の絶対基準 - サブピクセル誤差は許容するが整数値で 157/59 を要求
         if (vp.name === '1489-user-actual') {
-            expect(Math.round(tankBox!.width)).toBe(126);
-            expect(Math.round(dpsBox!.width)).toBe(53);
+            expect(Math.round(tankBox!.width)).toBe(157);
+            expect(Math.round(dpsBox!.width)).toBe(59);
         }
 
         await ctx.close();
