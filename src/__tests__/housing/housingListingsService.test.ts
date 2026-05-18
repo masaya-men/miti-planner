@@ -14,7 +14,18 @@ vi.mock('firebase/firestore', () => ({
   getDocs: (...a: unknown[]) => mockGetDocs(...a),
 }));
 
-import { findListingsByAddressKey } from '../../lib/housingListingsService';
+import {
+  findListingsByAddressKey,
+  findChambersInPlot,
+  findHouseForChamber,
+  findApartmentRoomsInWard,
+} from '../../lib/housingListingsService';
+
+const baseQuery = {
+  area: 'Shirogane' as const,
+  ward: 3,
+  subdivision: 'main' as const,
+};
 
 beforeEach(() => {
   mockGetDocs.mockReset();
@@ -41,5 +52,50 @@ describe('findListingsByAddressKey', () => {
     mockGetDocs.mockResolvedValueOnce({ docs: [] });
     const results = await findListingsByAddressKey('k');
     expect(results).toEqual([]);
+  });
+});
+
+describe('findChambersInPlot', () => {
+  it('指定 plot の FC 個室を返す', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        { id: 'a', data: () => ({ roomKind: 'private_chamber', plot: 12, roomNumber: 2 }) },
+        { id: 'b', data: () => ({ roomKind: 'private_chamber', plot: 12, roomNumber: 5 }) },
+      ],
+    });
+    const r = await findChambersInPlot({ ...baseQuery, plot: 12 });
+    expect(r.map((x) => x.id)).toEqual(['a', 'b']);
+  });
+});
+
+describe('findHouseForChamber', () => {
+  it('指定 plot の FC ハウス全体を返す (個室除く)', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        { id: 'house', data: () => ({ roomKind: undefined, ownerType: 'fc', plot: 12 }) },
+      ],
+    });
+    const r = await findHouseForChamber({ ...baseQuery, plot: 12 });
+    expect(r?.id).toBe('house');
+  });
+
+  it('親家全体が未登録なら null', async () => {
+    mockGetDocs.mockResolvedValueOnce({ docs: [] });
+    const r = await findHouseForChamber({ ...baseQuery, plot: 12 });
+    expect(r).toBeNull();
+  });
+});
+
+describe('findApartmentRoomsInWard', () => {
+  it('同 ward のアパ部屋を currentRoom 除いて返す', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        { id: 'r7', data: () => ({ buildingType: 'apartment', roomKind: 'apartment_room', roomNumber: 7 }) },
+        { id: 'r50', data: () => ({ buildingType: 'apartment', roomKind: 'apartment_room', roomNumber: 50 }) },
+        { id: 'r42', data: () => ({ buildingType: 'apartment', roomKind: 'apartment_room', roomNumber: 42 }) },
+      ],
+    });
+    const r = await findApartmentRoomsInWard({ ...baseQuery, currentRoomNumber: 42 });
+    expect(r.map((x) => x.roomNumber)).toEqual([7, 50]);
   });
 });
