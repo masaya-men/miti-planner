@@ -1427,6 +1427,9 @@
   border-color: var(--housing-honey-border);
   box-shadow: 0 0 0 1px var(--housing-honey-inset) inset;
 }
+.housing-favorite-card[data-dragging="true"] {
+  opacity: 0.35;
+}
 .housing-favorite-card-thumb {
   width: 56px;
   height: 56px;
@@ -1540,7 +1543,13 @@
   color: var(--housing-text-dim);
   margin: 0;
 }
-.housing-tour-builder-sort-btn {
+.housing-tour-builder-head-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.housing-tour-builder-sort-btn,
+.housing-tour-builder-clear-all-btn {
   appearance: none;
   border: 0;
   background: transparent;
@@ -1553,6 +1562,9 @@
 }
 .housing-tour-builder-sort-btn:hover {
   color: var(--housing-candle);
+}
+.housing-tour-builder-clear-all-btn:hover {
+  color: var(--housing-warning);
 }
 .housing-tour-builder-body {
   flex: 1;

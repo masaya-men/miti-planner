@@ -2036,7 +2036,8 @@
                 "remove": "ツアーから除外",
                 "sort_by_address": "住所順に戻す",
                 "custom_order": "カスタム順",
-                "drag_handle": "ドラッグして並び替え"
+                "drag_handle": "ドラッグして並び替え",
+                "clear_all": "すべて削除"
             },
             "manner": {
                 "title": "マナーを守って訪問してください",

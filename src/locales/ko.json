@@ -1979,7 +1979,8 @@
                 "remove": "투어에서 제거",
                 "sort_by_address": "주소순으로 정렬",
                 "custom_order": "사용자 정렬",
-                "drag_handle": "드래그하여 순서 변경"
+                "drag_handle": "드래그하여 순서 변경",
+                "clear_all": "모두 삭제"
             },
             "manner": {
                 "title": "매너를 지켜 주세요",

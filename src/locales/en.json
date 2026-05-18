@@ -2015,7 +2015,8 @@
                 "remove": "Remove from tour",
                 "sort_by_address": "Re-sort by address",
                 "custom_order": "Custom order",
-                "drag_handle": "Drag to reorder"
+                "drag_handle": "Drag to reorder",
+                "clear_all": "Clear all"
             },
             "manner": {
                 "title": "Please respect house owners",

@@ -1979,7 +1979,8 @@
                 "remove": "从巡游中移除",
                 "sort_by_address": "按地址排序",
                 "custom_order": "自定义排序",
-                "drag_handle": "拖动以调整顺序"
+                "drag_handle": "拖动以调整顺序",
+                "clear_all": "全部清除"
             },
             "manner": {
                 "title": "请文明参观",

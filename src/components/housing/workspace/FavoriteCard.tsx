@@ -1,5 +1,4 @@
 import { useDraggable } from '@dnd-kit/core';
-import { CSS } from '@dnd-kit/utilities';
 import type { MockListing } from '../../../data/housing/mockListings';
 
 export interface FavoriteCardClickModifiers {
@@ -26,14 +25,13 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ listing, selected, o
                 ? listing.ogImageUrl
                 : PLACEHOLDER;
 
-    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    // No transform — we render a DragOverlay so the source element stays
+    // anchored. Just fade the source to communicate "this is the one being
+    // dragged" (Notion / Trello convention).
+    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
         id: dragId(listing.id),
         data: { source: 'favorites', listingId: listing.id },
     });
-    const style: React.CSSProperties = {
-        transform: CSS.Translate.toString(transform),
-        opacity: isDragging ? 0.4 : 1,
-    };
 
     return (
         <button
@@ -42,7 +40,6 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ listing, selected, o
             data-listing-id={listing.id}
             data-selected={selected}
             data-dragging={isDragging}
-            style={style}
             onClick={(e) => onClick({ shift: e.shiftKey, ctrl: e.ctrlKey, meta: e.metaKey })}
             className="housing-favorite-card"
             {...listeners}

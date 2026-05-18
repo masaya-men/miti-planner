@@ -60,15 +60,26 @@ export const TourBuilderPane: React.FC<TourBuilderPaneProps> = ({
                 <h3 className="housing-tour-builder-title">
                     {t('housing.workspace.tour_builder.title')} ({listings.length})
                 </h3>
-                {!autoSort && listings.length > 0 && (
-                    <button
-                        type="button"
-                        onClick={() => setAutoSort(true)}
-                        className="housing-tour-builder-sort-btn"
-                    >
-                        {t('housing.workspace.tour_builder.sort_by_address')}
-                    </button>
-                )}
+                <div className="housing-tour-builder-head-actions">
+                    {!autoSort && listings.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => setAutoSort(true)}
+                            className="housing-tour-builder-sort-btn"
+                        >
+                            {t('housing.workspace.tour_builder.sort_by_address')}
+                        </button>
+                    )}
+                    {listings.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => onChange([])}
+                            className="housing-tour-builder-clear-all-btn"
+                        >
+                            {t('housing.workspace.tour_builder.clear_all')}
+                        </button>
+                    )}
+                </div>
             </div>
             <div ref={setNodeRef} className="housing-tour-builder-body" data-drop-over={isOver}>
                 {listings.length === 0 ? (
@@ -77,15 +88,20 @@ export const TourBuilderPane: React.FC<TourBuilderPaneProps> = ({
                     </div>
                 ) : (
                     <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-                        <AnimatePresence initial={false}>
+                        {/* `layout` is intentionally NOT used on the item wrappers:
+                         * dnd-kit/sortable already drives the transform during a
+                         * reorder, and framer-motion `layout` would fight that
+                         * (cards visibly stop following the cursor). Keep
+                         * enter/exit fades only so the staging animation from
+                         * "全部回る" and × removals still look alive. */}
+                        <AnimatePresence initial={true}>
                             {listings.map((listing, i) => (
                                 <motion.div
                                     key={listing.id}
-                                    layout
-                                    initial={{ opacity: 0, y: -8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: 8 }}
-                                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                                    initial={{ opacity: 0, x: -16 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 16, transition: { duration: 0.12 } }}
+                                    transition={{ type: 'spring', stiffness: 380, damping: 28 }}
                                 >
                                     <TourBuilderItem
                                         listing={listing}

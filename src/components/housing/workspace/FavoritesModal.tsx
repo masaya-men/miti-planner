@@ -158,14 +158,20 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
         ? (selected.has(draggingFavId) ? selected.size : 1)
         : 0;
 
-    // The tour-builder displays whatever the user has staged. If nothing is
-    // staged, mirror the multi-select picks (so picking on the left side starts
-    // populating the right side immediately).
-    const builderIds = tourIds.length > 0 ? tourIds : Array.from(selected);
+    // The tour-builder shows ONLY explicitly-staged ids — driven either by
+    // DnD from the favorites pane or by "全部回る". Click-selecting on the left
+    // is just multi-select state and does NOT bleed into the tour builder,
+    // otherwise a casual click feels like you've already committed to a tour.
+    const builderIds = tourIds;
 
     return (
         <>
-            <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <DndContext
+                sensors={sensors}
+                autoScroll={false}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+            >
                 <div
                     role="dialog"
                     aria-modal="true"
