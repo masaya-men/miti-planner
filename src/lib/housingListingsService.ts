@@ -57,7 +57,10 @@ export async function findChambersInPlot(q: ChamberQuery): Promise<HousingListin
   }));
 }
 
-/** spec §4.2: 指定 plot の FC ハウス全体登録 (個室ページで使う、 親家)。 未登録なら null */
+/**
+ * spec §4.2: 指定 plot の FC ハウス全体登録 (個室ページで使う、 親家)。 未登録なら null
+ * 1 plot に 1 FC ハウス全体登録のみ想定 (FF14 仕様で plot ごとに家主 1 名)。 複数登録は通報で吸収する。
+ */
 export async function findHouseForChamber(q: ChamberQuery): Promise<HousingListing | null> {
   const qref = query(
     collection(db, COLLECTION_NAME),
@@ -67,10 +70,10 @@ export async function findHouseForChamber(q: ChamberQuery): Promise<HousingListi
     where('plot', '==', q.plot),
     where('ownerType', '==', 'fc'),
     where('isHidden', '==', false),
-    limit(5),
+    limit(5),  // 通常 1 件、 重複登録考慮で 5
   );
   const snap = await getDocs(qref);
-  // roomKind=undefined (= 家全体) のみフィルタ
+  // roomKind=undefined (= 家全体) のみフィルタ。 Firestore は undefined where 不可のため client filter
   const houseDocs = snap.docs.filter((d) => d.data().roomKind === undefined);
   if (houseDocs.length === 0) return null;
   const doc = houseDocs[0];
@@ -85,11 +88,12 @@ export async function findApartmentRoomsInWard(q: ApartmentQuery): Promise<Housi
     where('ward', '==', q.ward),
     where('subdivision', '==', q.subdivision),
     where('buildingType', '==', 'apartment'),
+    where('roomKind', '==', 'apartment_room'),  // schema integrity: apartment は必ず apartment_room
     where('isHidden', '==', false),
-    limit(20),
+    limit(20),  // 1 ward あたり最大 20 件表示 (UI 可読性のため切り捨て)
   );
   const snap = await getDocs(qref);
   return snap.docs
     .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<HousingListing, 'id'>) }))
-    .filter((l) => l.roomNumber !== q.currentRoomNumber);
+    .filter((l) => l.roomNumber !== q.currentRoomNumber);  // 現在の部屋を除外 (Firestore != が limit と併用しづらいため client filter)
 }
