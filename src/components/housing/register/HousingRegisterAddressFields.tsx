@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { serverMasterData, housingAreaMasterData, housingSizeMasterData } from '../../../data/masterData';
 import { HOUSING_AREAS, HOUSING_SIZES, type HousingArea, type HousingSize } from '../../../types/housing';
-import { WARD_RANGE, PLOT_RANGE, APARTMENT_ROOM_RANGE } from '../../../constants/housing';
+import { WARD_RANGE, PLOT_RANGE } from '../../../constants/housing';
 import type { AddressInput, ValidationErrors } from '../../../utils/housingValidation';
 
 interface Props {
@@ -122,7 +122,6 @@ export const HousingRegisterAddressFields: React.FC<Props> = ({ value, onChange,
             onChange({
               ...value,
               size: next,
-              apartmentRoom: next === 'Apartment' ? value.apartmentRoom : undefined,
             });
           }}
         >
@@ -134,25 +133,7 @@ export const HousingRegisterAddressFields: React.FC<Props> = ({ value, onChange,
         {errors.size && <p className={errorClass}>{t(`housing.register.errors.size.${errors.size}`)}</p>}
       </div>
 
-      {value.size === 'Apartment' && (
-        <div>
-          <label htmlFor="housing-room" className="block text-app-sm text-app-text-muted mb-1">
-            {t('housing.register.apartment_room')}
-          </label>
-          <input
-            id="housing-room"
-            type="number"
-            min={APARTMENT_ROOM_RANGE.min}
-            max={APARTMENT_ROOM_RANGE.max}
-            className={fieldClass}
-            value={value.apartmentRoom ?? ''}
-            onChange={(e) => update('apartmentRoom', Number(e.target.value))}
-          />
-          {errors.apartmentRoom && (
-            <p className={errorClass}>{t(`housing.register.errors.apartment_room.${errors.apartmentRoom}`)}</p>
-          )}
-        </div>
-      )}
+      {/* アパート個室・FC個室の入力 UI は Sub-spec 2B で実装予定 */}
     </div>
   );
 };

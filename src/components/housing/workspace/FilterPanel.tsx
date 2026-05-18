@@ -21,7 +21,7 @@ import { RegisterCTA } from './RegisterCTA';
 import { PanelCloseButton } from './PanelCloseButton';
 
 const AREAS: HousingArea[] = ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'];
-const SIZES: HousingSize[] = ['S', 'M', 'L', 'Apartment'];
+const SIZES: HousingSize[] = ['S', 'M', 'L'];
 
 function pickLocale(language: string): RegionLocale {
     const head = (language || 'ja').slice(0, 2).toLowerCase();
@@ -123,7 +123,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                     {SIZES.map((sz) => (
                         <FilterChip
                             key={sz}
-                            label={sz === 'Apartment' ? t('housing.workspace.filter.size_apartment_short') : sz}
+                            label={sz}
                             ariaLabel={sz}
                             active={sizes.includes(sz)}
                             onToggle={() => toggleSize(sz)}

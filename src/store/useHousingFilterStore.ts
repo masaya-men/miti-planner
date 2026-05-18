@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 export type HousingArea = 'Mist' | 'LavenderBeds' | 'Goblet' | 'Shirogane' | 'Empyreum';
-export type HousingSize = 'S' | 'M' | 'L' | 'Apartment';
+export type HousingSize = 'S' | 'M' | 'L';
 
 interface HousingFilterState {
     dc: string | null;

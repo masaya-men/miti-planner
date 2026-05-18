@@ -23,7 +23,12 @@ import { HousingLoginPrompt } from '../HousingLoginPrompt';
 
 const EMPTY_DRAFT: RegistrationDraft = {
   dc: '', server: '', area: '' as never,
-  ward: 1, plot: 1, size: 'M',
+  ward: 1,
+  // 暫定: 個人ハウス相当のデフォルト値。個室・アパート UI は Sub-spec 2B で実装
+  subdivision: 'main',
+  buildingType: 'house',
+  ownerType: 'personal',
+  plot: 1, size: 'M',
   tags: [],
   description: '',
 };

@@ -27,7 +27,7 @@ describe('housingConstants', () => {
     expect(WARD_RANGE.min).toBe(1);
     expect(WARD_RANGE.max).toBe(30);
     expect(PLOT_RANGE.min).toBe(1);
-    expect(PLOT_RANGE.max).toBe(60);
+    expect(PLOT_RANGE.max).toBe(30);
     expect(APARTMENT_ROOM_RANGE.min).toBe(1);
     expect(APARTMENT_ROOM_RANGE.max).toBe(90);
   });

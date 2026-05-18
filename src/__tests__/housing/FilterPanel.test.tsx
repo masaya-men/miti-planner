@@ -82,7 +82,8 @@ describe('FilterPanel', () => {
         expect(useHousingFilterStore.getState().resultCount).toBeLessThan(before);
     });
 
-    it('renders apartment chip with localized short label but Apartment aria', () => {
+    // Apartment チップは Sub-spec 2B で再実装予定のためスキップ
+    it.skip('renders apartment chip with localized short label but Apartment aria', () => {
         renderPanel();
         const aptChip = screen.getByRole('button', { name: 'Apartment' });
         expect(aptChip).toBeInTheDocument();

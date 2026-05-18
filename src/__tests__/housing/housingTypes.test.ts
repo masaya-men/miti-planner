@@ -29,14 +29,15 @@ describe('housingTypes', () => {
   });
 
   describe('isValidHousingSize', () => {
-    it('returns true for known sizes', () => {
+    it('returns true for known sizes (S/M/L のみ)', () => {
       expect(isValidHousingSize('S')).toBe(true);
       expect(isValidHousingSize('M')).toBe(true);
       expect(isValidHousingSize('L')).toBe(true);
-      expect(isValidHousingSize('Apartment')).toBe(true);
-      expect(isValidHousingSize('PrivateRoom')).toBe(true);
     });
-    it('returns false for unknown sizes', () => {
+    it('returns false for removed/unknown sizes', () => {
+      // Apartment / PrivateRoom は新 schema で HousingSize から除外済み (Sub-spec 2B 対応予定)
+      expect(isValidHousingSize('Apartment')).toBe(false);
+      expect(isValidHousingSize('PrivateRoom')).toBe(false);
       expect(isValidHousingSize('XL')).toBe(false);
     });
   });
@@ -83,6 +84,9 @@ describe('housingTypes', () => {
       server: 'Pandaemonium',
       area: 'Shirogane',
       ward: 3,
+      subdivision: 'main',
+      buildingType: 'house',
+      ownerType: 'personal',
       plot: 12,
       size: 'M',
       addressKey: 'Mana|Pandaemonium|Shirogane|W3|P12|M',
@@ -101,7 +105,8 @@ describe('housingTypes', () => {
       const listing: HousingListing = {
         id: 'abc', ownerUid: 'u1',
         dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane',
-        ward: 3, plot: 12, size: 'M',
+        ward: 3, subdivision: 'main', buildingType: 'house',
+        ownerType: 'personal', plot: 12, size: 'M',
         addressKey: 'Mana|Pandaemonium|Shirogane|W3|P12|M',
         imageMode: 'none',
         tags: ['modern'],
