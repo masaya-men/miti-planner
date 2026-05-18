@@ -199,7 +199,7 @@ service cloud.firestore {
     }
 
     function isValidHousingSize(size) {
-      return size in ['S', 'M', 'L', 'Apartment', 'PrivateRoom'];
+      return size in ['S', 'M', 'L'];
     }
 
     function isValidImageMode(mode) {
@@ -211,7 +211,7 @@ service cloud.firestore {
     }
 
     function isValidPlot(plot) {
-      return plot is int && plot >= 1 && plot <= 60;
+      return plot is int && plot >= 1 && plot <= 30;
     }
 
     function isValidTags(tags) {
@@ -224,6 +224,26 @@ service cloud.firestore {
 
     function isValidApartmentRoom(room) {
       return room is int && room >= 1 && room <= 90;
+    }
+
+    function isValidSubdivision(sub) {
+      return sub in ['main', 'sub'];
+    }
+
+    function isValidBuildingType(t) {
+      return t in ['house', 'apartment'];
+    }
+
+    function isValidOwnerType(t) {
+      return t in ['personal', 'fc'];
+    }
+
+    function isValidRoomKind(k) {
+      return k in ['private_chamber', 'apartment_room'];
+    }
+
+    function isValidPrivateChamberNumber(n) {
+      return n is int && n >= 1 && n <= 512;
     }
 
     function isValidTourListings(listings) {
@@ -244,31 +264,84 @@ service cloud.firestore {
                     && request.resource.data.server is string
                     && isValidHousingArea(request.resource.data.area)
                     && isValidWard(request.resource.data.ward)
-                    && isValidPlot(request.resource.data.plot)
-                    && isValidHousingSize(request.resource.data.size)
+                    && isValidSubdivision(request.resource.data.subdivision)
+                    && isValidBuildingType(request.resource.data.buildingType)
                     && isValidImageMode(request.resource.data.imageMode)
                     && isValidTags(request.resource.data.tags)
                     && (!('description' in request.resource.data) || isValidDescription(request.resource.data.description))
-                    && (!('apartmentRoom' in request.resource.data) || isValidApartmentRoom(request.resource.data.apartmentRoom))
                     && request.resource.data.addressKey is string
                     && request.resource.data.addressKey.size() <= 200
                     && request.resource.data.reportCount == 0
-                    && request.resource.data.isHidden == false;
+                    && request.resource.data.isHidden == false
+                    // === buildingType 別の制約 ===
+                    && (
+                      // house パターン
+                      (
+                        request.resource.data.buildingType == 'house'
+                        && isValidOwnerType(request.resource.data.ownerType)
+                        && isValidPlot(request.resource.data.plot)
+                        && isValidHousingSize(request.resource.data.size)
+                        && (
+                          // 家全体: roomKind / roomNumber なし
+                          !('roomKind' in request.resource.data)
+                          || (
+                            // FC 個室: ownerType=fc 必須、 roomNumber 1-512
+                            request.resource.data.roomKind == 'private_chamber'
+                            && request.resource.data.ownerType == 'fc'
+                            && isValidPrivateChamberNumber(request.resource.data.roomNumber)
+                          )
+                        )
+                      )
+                      ||
+                      // apartment パターン: plot/size/ownerType なし、 roomKind='apartment_room' 必須、 roomNumber 1-90
+                      (
+                        request.resource.data.buildingType == 'apartment'
+                        && !('plot' in request.resource.data)
+                        && !('size' in request.resource.data)
+                        && !('ownerType' in request.resource.data)
+                        && request.resource.data.roomKind == 'apartment_room'
+                        && isValidApartmentRoom(request.resource.data.roomNumber)
+                      )
+                    );
 
       allow update: if isOwner(resource.data.ownerUid)
                     && request.resource.data.ownerUid == resource.data.ownerUid
-                    && isValidHousingArea(request.resource.data.area)
-                    && isValidWard(request.resource.data.ward)
-                    && isValidPlot(request.resource.data.plot)
-                    && isValidHousingSize(request.resource.data.size)
-                    && isValidImageMode(request.resource.data.imageMode)
-                    && isValidTags(request.resource.data.tags)
-                    && (!('description' in request.resource.data) || isValidDescription(request.resource.data.description))
-                    && (!('apartmentRoom' in request.resource.data) || isValidApartmentRoom(request.resource.data.apartmentRoom))
                     && request.resource.data.addressKey == resource.data.addressKey
                     // reportCount / isHidden はクライアントから直接変更不可（Cloud Function 経由のみ）
                     && request.resource.data.reportCount == resource.data.reportCount
-                    && request.resource.data.isHidden == resource.data.isHidden;
+                    && request.resource.data.isHidden == resource.data.isHidden
+                    && isValidHousingArea(request.resource.data.area)
+                    && isValidWard(request.resource.data.ward)
+                    && isValidSubdivision(request.resource.data.subdivision)
+                    && isValidBuildingType(request.resource.data.buildingType)
+                    && isValidImageMode(request.resource.data.imageMode)
+                    && isValidTags(request.resource.data.tags)
+                    && (!('description' in request.resource.data) || isValidDescription(request.resource.data.description))
+                    && (
+                      (
+                        request.resource.data.buildingType == 'house'
+                        && isValidOwnerType(request.resource.data.ownerType)
+                        && isValidPlot(request.resource.data.plot)
+                        && isValidHousingSize(request.resource.data.size)
+                        && (
+                          !('roomKind' in request.resource.data)
+                          || (
+                            request.resource.data.roomKind == 'private_chamber'
+                            && request.resource.data.ownerType == 'fc'
+                            && isValidPrivateChamberNumber(request.resource.data.roomNumber)
+                          )
+                        )
+                      )
+                      ||
+                      (
+                        request.resource.data.buildingType == 'apartment'
+                        && !('plot' in request.resource.data)
+                        && !('size' in request.resource.data)
+                        && !('ownerType' in request.resource.data)
+                        && request.resource.data.roomKind == 'apartment_room'
+                        && isValidApartmentRoom(request.resource.data.roomNumber)
+                      )
+                    );
 
       allow delete: if isOwner(resource.data.ownerUid);
 
