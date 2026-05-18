@@ -71,7 +71,10 @@ export const HousingWorkspace: React.FC = () => {
     <main className="housing-workspace" data-theme={theme}>
       <SceneryVideo theme={theme} />
       <div className="housing-shell">
-        <TopBar onFavoritesClick={() => setFavoritesModalOpen(true)} />
+        <TopBar
+          onFavoritesClick={() => setFavoritesModalOpen(true)}
+          onRegisterClick={handleRegisterClick}
+        />
         <div
           className="housing-main"
           data-left-collapsed={leftPanelOpen ? 'false' : 'true'}

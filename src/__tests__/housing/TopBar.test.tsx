@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
@@ -69,5 +69,17 @@ describe('TopBar', () => {
     fireEvent.change(input, { target: { value: 'cafe' } });
     expect(useHousingFilterStore.getState().searchText).toBe('cafe');
     useHousingFilterStore.getState().setSearchText('');
+  });
+
+  it('fires onRegisterClick when the register button is clicked', () => {
+    const onRegisterClick = vi.fn();
+    render(
+      <I18nextProvider i18n={i18n}>
+        <TopBar onFavoritesClick={() => {}} onRegisterClick={onRegisterClick} />
+      </I18nextProvider>
+    );
+    const btn = screen.getByRole('button', { name: /登録|register|등록|登记/i });
+    fireEvent.click(btn);
+    expect(onRegisterClick).toHaveBeenCalledOnce();
   });
 });

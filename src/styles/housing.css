@@ -2019,3 +2019,27 @@
 .housing-top-search-input::placeholder {
   color: var(--housing-text-mute);
 }
+
+/* ===== TopBar register CTA (Plan F gap fix) ===== */
+.housing-top-register-btn {
+  appearance: none;
+  border: 1px solid var(--housing-honey-border);
+  background: var(--housing-honey-soft);
+  color: var(--housing-text);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.housing-top-register-btn:hover {
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey);
+  color: var(--housing-candle);
+}
+.housing-top-register-btn:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}

@@ -7,6 +7,7 @@ import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 
 export interface TopBarProps {
     onFavoritesClick?: () => void;
+    onRegisterClick?: () => void;
 }
 
 /**
@@ -20,7 +21,7 @@ export interface TopBarProps {
  * "両方閉じれば中央エリアが全幅" is preserved — once a panel is collapsed it
  * leaves no rail/handle behind, and re-opening goes through the TopBar.
  */
-export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick }) => {
+export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick, onRegisterClick }) => {
   const { t } = useTranslation();
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
@@ -99,6 +100,15 @@ export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick }) => {
             {favoritesCount > 0 && (
               <span className="housing-favorites-toggle-badge">{favoritesCount}</span>
             )}
+          </button>
+        )}
+        {onRegisterClick && (
+          <button
+            type="button"
+            onClick={onRegisterClick}
+            className="housing-top-register-btn"
+          >
+            {t('housing.workspace.topbar.register')}
           </button>
         )}
         <div className="housing-theme-toggle" role="tablist" aria-label={t('housing.workspace.topbar.theme_toggle_label')}>
