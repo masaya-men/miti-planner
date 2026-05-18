@@ -6,7 +6,7 @@
  * within its own z-index stack and own its visual language. Future iterate
  * should consider consolidating these two systems.
  */
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export interface HousingToastProps {
   message: string;
@@ -21,10 +21,17 @@ export const HousingToast: React.FC<HousingToastProps> = ({
   duration = 2500,
   onClose,
 }) => {
+  // Keep onClose in a ref so the auto-dismiss timer is not reset when the
+  // parent passes a fresh inline callback on every render.
+  const onCloseRef = useRef(onClose);
   useEffect(() => {
-    const t = window.setTimeout(onClose, duration);
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => onCloseRef.current(), duration);
     return () => window.clearTimeout(t);
-  }, [duration, onClose]);
+  }, [duration]);
 
   return (
     <div role="status" data-variant={variant} className="housing-toast">

@@ -35,4 +35,21 @@ describe('HousingToast', () => {
     expect(onClose).not.toHaveBeenCalled();
     vi.useRealTimers();
   });
+
+  it('does not reset timer when parent re-renders with a new onClose identity', () => {
+    vi.useFakeTimers();
+    const onClose = vi.fn();
+    function Harness({ tick }: { tick: number }) {
+      // A new arrow each render — identity changes on every `tick` bump
+      return <HousingToast message="x" duration={1000} onClose={() => { onClose(); void tick; }} />;
+    }
+    const { rerender } = render(<Harness tick={0} />);
+    act(() => { vi.advanceTimersByTime(500); });
+    // Parent re-renders mid-flight with a new onClose reference
+    rerender(<Harness tick={1} />);
+    act(() => { vi.advanceTimersByTime(500); });
+    // Timer should fire on the original schedule, not be reset by the new onClose
+    expect(onClose).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+  });
 });
