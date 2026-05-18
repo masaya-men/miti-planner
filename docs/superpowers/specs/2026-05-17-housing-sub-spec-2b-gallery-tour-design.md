@@ -632,6 +632,7 @@ Sub-spec 2B 完成後、 Phase 2 で追加される機能:
 - スケルトンカードのシマー速度
 - トーストの表示時間
 - DnD のホバーエフェクト
+- ツアー共有 URL 受信側のツアー復元: 永続化は Firestore (`housing_tours/{id}`) 必要、 Sub-spec 2B の mock では tour id だけ復元 + listings は LocalStorage 連動
 
 ---
 

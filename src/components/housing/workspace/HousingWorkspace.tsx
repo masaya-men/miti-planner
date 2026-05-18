@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
+import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { SceneryVideo } from './SceneryVideo';
 import { TopBar } from './TopBar';
 import { StatusBar } from './StatusBar';
@@ -21,7 +22,7 @@ import '../../../styles/housing.css';
  * - Scenery video + theme-conditional overlay + darkening veil behind everything
  */
 export const HousingWorkspace: React.FC = () => {
-  const { listingId } = useParams<{ listingId?: string; tourId?: string }>();
+  const { listingId, tourId } = useParams<{ listingId?: string; tourId?: string }>();
   const theme = useThemeStore((s) => s.theme);
   const leftPanelOpen = useHousingViewStore((s) => s.leftPanelOpen);
   const rightPanelOpen = useHousingViewStore((s) => s.rightPanelOpen);
@@ -29,6 +30,29 @@ export const HousingWorkspace: React.FC = () => {
   const setRightPanelOpen = useHousingViewStore((s) => s.setRightPanelOpen);
   const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
+
+  // Tour auto-enter: fires once per tourId mount.
+  // We read listingIds via getState() (not as a subscription) so this effect does NOT
+  // re-fire when the user later adds/removes favorites. The ref guard prevents re-entry
+  // on unrelated re-renders while the same tourId is in the URL.
+  // Phase 2 note: cross-device restore (fetching tour from Firestore by id) is out of
+  // scope here — Phase 1 is local-restore only.
+  const startTour = useHousingTourStore((s) => s.start);
+  const enterTourMode = useHousingViewStore((s) => s.enterTourMode);
+  const handledTourIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!tourId) return;
+    if (handledTourIdRef.current === tourId) return;
+    // Read store on demand — not as a subscription — so this effect never re-fires
+    // due to listings-length changes.
+    const ids = useHousingTourStore.getState().listingIds;
+    if (ids.length === 0) return;
+    sessionStorage.setItem('housing-tour-id', tourId);
+    startTour();
+    enterTourMode();
+    handledTourIdRef.current = tourId;
+  }, [tourId, startTour, enterTourMode]);
 
   // Lock body scroll while workspace is mounted (mockup is a fixed-viewport experience).
   useEffect(() => {
