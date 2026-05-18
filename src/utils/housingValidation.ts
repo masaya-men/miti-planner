@@ -7,8 +7,16 @@
 import {
   isValidHousingArea,
   isValidHousingSize,
+  isValidBuildingType,
+  isValidOwnerType,
+  isValidRoomKind,
+  isValidSubdivision,
   type HousingArea,
   type HousingSize,
+  type BuildingType,
+  type OwnerType,
+  type RoomKind,
+  type Subdivision,
 } from '../types/housing.js';
 import {
   WARD_RANGE,
@@ -23,9 +31,18 @@ export interface AddressInput {
   server: string;
   area: HousingArea | string;
   ward: number;
-  plot: number;
-  size: HousingSize | string;
-  apartmentRoom?: number;
+  subdivision: Subdivision | string;        // NEW
+
+  buildingType: BuildingType | string;       // NEW
+
+  // house の場合
+  ownerType?: OwnerType | string;
+  plot?: number;
+  size?: HousingSize | string;
+
+  // 部屋区分
+  roomKind?: RoomKind | string;
+  roomNumber?: number;
 }
 
 export interface RegistrationDraft extends AddressInput {

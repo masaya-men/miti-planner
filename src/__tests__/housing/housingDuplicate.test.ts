@@ -1,41 +1,104 @@
 import { describe, it, expect } from 'vitest';
 import { buildAddressKey, isSameAddress } from '../../utils/housingDuplicate';
+import type { AddressInput } from '../../utils/housingValidation';
+
+const baseAddr: Pick<AddressInput, 'dc' | 'server' | 'area' | 'ward' | 'subdivision'> = {
+  dc: 'Mana',
+  server: 'Pandaemonium',
+  area: 'Shirogane',
+  ward: 3,
+  subdivision: 'main',
+};
 
 describe('buildAddressKey', () => {
-  it('住所フィールドを連結した文字列を返す', () => {
-    const key = buildAddressKey({
-      dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane',
-      ward: 3, plot: 12, size: 'M',
-    });
-    expect(key).toBe('Mana|Pandaemonium|Shirogane|W3|P12|M');
+  it('個人宅 (家全体) のキーを生成', () => {
+    const addr: AddressInput = {
+      ...baseAddr,
+      buildingType: 'house',
+      ownerType: 'personal',
+      plot: 12,
+      size: 'M',
+    };
+    expect(buildAddressKey(addr)).toBe('Mana|Pandaemonium|Shirogane|W3|Smain|H12');
   });
-  it('Apartment は room 番号を含む', () => {
-    const key = buildAddressKey({
-      dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane',
-      ward: 3, plot: 12, size: 'Apartment', apartmentRoom: 45,
-    });
-    expect(key).toBe('Mana|Pandaemonium|Shirogane|W3|P12|Apartment|R45');
+
+  it('FC ハウス (家全体) のキーを生成', () => {
+    const addr: AddressInput = {
+      ...baseAddr,
+      buildingType: 'house',
+      ownerType: 'fc',
+      plot: 12,
+      size: 'L',
+    };
+    expect(buildAddressKey(addr)).toBe('Mana|Pandaemonium|Shirogane|W3|Smain|H12');
   });
-  it('PrivateRoom は room を含まない', () => {
-    const key = buildAddressKey({
-      dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane',
-      ward: 3, plot: 12, size: 'PrivateRoom',
-    });
-    expect(key).toBe('Mana|Pandaemonium|Shirogane|W3|P12|PrivateRoom');
+
+  it('FC 個室のキーを生成 (親 plot + 個室番号)', () => {
+    const addr: AddressInput = {
+      ...baseAddr,
+      buildingType: 'house',
+      ownerType: 'fc',
+      plot: 12,
+      size: 'L',
+      roomKind: 'private_chamber',
+      roomNumber: 5,
+    };
+    expect(buildAddressKey(addr)).toBe('Mana|Pandaemonium|Shirogane|W3|Smain|H12|C5');
+  });
+
+  it('アパート部屋のキーを生成 (plot なし、 アパ番号)', () => {
+    const addr: AddressInput = {
+      ...baseAddr,
+      buildingType: 'apartment',
+      roomKind: 'apartment_room',
+      roomNumber: 42,
+    };
+    expect(buildAddressKey(addr)).toBe('Mana|Pandaemonium|Shirogane|W3|Smain|A42');
+  });
+
+  it('subdivision の sub は S sub になる', () => {
+    const addr: AddressInput = {
+      ...baseAddr,
+      subdivision: 'sub',
+      buildingType: 'house',
+      ownerType: 'personal',
+      plot: 1,
+      size: 'S',
+    };
+    expect(buildAddressKey(addr)).toBe('Mana|Pandaemonium|Shirogane|W3|Ssub|H1');
+  });
+
+  it('個人宅 と FC ハウス全体は同 plot なら同キー (ownerType は key 不参加)', () => {
+    const personal: AddressInput = { ...baseAddr, buildingType: 'house', ownerType: 'personal', plot: 12, size: 'M' };
+    const fc: AddressInput = { ...baseAddr, buildingType: 'house', ownerType: 'fc', plot: 12, size: 'M' };
+    expect(buildAddressKey(personal)).toBe(buildAddressKey(fc));
   });
 });
 
 describe('isSameAddress', () => {
-  const a = { dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane' as const, ward: 3, plot: 12, size: 'M' as const };
-  it('全フィールド一致なら true', () => {
-    expect(isSameAddress(a, { ...a })).toBe(true);
+  it('完全一致なら true', () => {
+    const a: AddressInput = { ...baseAddr, buildingType: 'house', ownerType: 'fc', plot: 12, size: 'M' };
+    const b: AddressInput = { ...baseAddr, buildingType: 'house', ownerType: 'fc', plot: 12, size: 'M' };
+    expect(isSameAddress(a, b)).toBe(true);
   });
-  it('plot が違うと false', () => {
-    expect(isSameAddress(a, { ...a, plot: 13 })).toBe(false);
+
+  it('plot 違いなら false', () => {
+    const a: AddressInput = { ...baseAddr, buildingType: 'house', ownerType: 'fc', plot: 12, size: 'M' };
+    const b: AddressInput = { ...baseAddr, buildingType: 'house', ownerType: 'fc', plot: 13, size: 'M' };
+    expect(isSameAddress(a, b)).toBe(false);
   });
-  it('Apartment 同士で room が違うと false', () => {
-    const ap1 = { ...a, size: 'Apartment' as const, apartmentRoom: 45 };
-    const ap2 = { ...a, size: 'Apartment' as const, apartmentRoom: 46 };
-    expect(isSameAddress(ap1, ap2)).toBe(false);
+
+  it('家全体 vs 個室は別アドレス (ソフト重複)', () => {
+    const house: AddressInput = { ...baseAddr, buildingType: 'house', ownerType: 'fc', plot: 12, size: 'M' };
+    const chamber: AddressInput = {
+      ...baseAddr,
+      buildingType: 'house',
+      ownerType: 'fc',
+      plot: 12,
+      size: 'M',
+      roomKind: 'private_chamber',
+      roomNumber: 5,
+    };
+    expect(isSameAddress(house, chamber)).toBe(false);
   });
 });
