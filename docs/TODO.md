@@ -11,26 +11,28 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 本セッションで `feat(tutorial): share チュートリアル UX 刷新` を 1 commit (push 込) 予定
-- **直近セッション (2026-05-18 #4)**: 軽減アプリの**共有チュートリアル UX 刷新**
-  - 2 ステップ → 1 ステップに削減 (案内カードのみ)
-  - 共有ボタン初回クリックで自動発火 (TutorialMenu からの初学を廃止)
-  - 完了/スキップ後に TutorialMenu に項目出現 (再学習用)
-  - 背後の `PopularConsentDialog` を操作不可化 (TutorialBlocker active 条件拡張)
-  - チュートリアル終了時に ShareModal を強制クローズしない (そのまま共有操作へ進める)
-  - 仕様: `docs/superpowers/specs/2026-05-18-tutorial-share-improvements-design.md` / 実装: `docs/superpowers/plans/2026-05-18-tutorial-share-improvements.md`
+- **ブランチ**: main、 本セッションで個室・アパ schema 確定の 13 commit を push して Vercel 自動デプロイ
+- **直近セッション (2026-05-18/19 #34)**: ハウジング**個室・アパート対応 schema 確定**
+  - spec/plan 新規作成、 subagent-driven で 7 task + 統合確認を TDD 完走
+  - 新 schema: `HousingListing` に `subdivision` / `buildingType` / `ownerType` / `roomKind` / `roomNumber` 追加、 旧 `apartmentRoom` 廃止、 旧 `'Apartment'`/`'PrivateRoom'` size 削除
+  - 6 層 (型 / validation / buildAddressKey / register handler / Firestore Rules / service クエリ) に整合性制約 4 パターン (個人宅 / FC 全体 / FC 個室 / アパ部屋) を反映
+  - 既存 UI / store / mock / 既存テストを暫定対応 (Apartment UI 一時削除 → Sub-spec 2B で再実装、 it.skip 2 件は意図的)
+  - 検証: build green / vitest 850 PASS / 2 skipped / 0 failed、 final review 指摘 (i18n plot 1〜30 訂正 + ChamberQuery dc/server 追加) も解決済み
+  - 仕様: `docs/superpowers/specs/2026-05-18-housing-room-types-design.md` / 実装: `docs/superpowers/plans/2026-05-18-housing-room-types.md`
 - **並行進行中**: ユーザー側で **「完璧ループの夜景動画」 を毎日試作中** — 良いの来たら差し替え (CDN 化が済めば高画質版でも OK)
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド
 - **既知の残**: なし
 
 ---
 
-## 次セッション最優先: Phase 2B 個室・アパート問題
+## 次セッション最優先: Sub-spec 2B 系 UI 実装 (schema 基盤完成済み)
 
-1. **Phase 2B 個室・アパート問題の設計詰め** — `docs/.private/2026-05-17-housing-room-types-design.md` を読んで未確定箇所を決める
-2. **実機 iterate** (時間あれば) — TopBar register CTA / SkeletonCard / HousingToast 接続箇所
-   - HousingRegisterModal の logged-out branch ヘッダーに × アイコンなし (UX 整合性が気になれば追加検討)
-   - SkeletonCard / HousingToast は実装済みだがビュー未接続 → 実機で使い所が見えたら接続
+1. **登録モーダル 4 タイプ選択 UI 実装** — `HousingRegisterAddressFields.tsx` に住居タイプ選択 (個人宅 / FC ハウス / FC 個室 / アパート) と subdivision / roomNumber 入力 UI を追加、 spec `2026-05-18-housing-room-types-design.md` §4.1 通り
+2. **物件詳細ページ 関連登録表示** — `findChambersInPlot` / `findHouseForChamber` / `findApartmentRoomsInWard` を使った詳細表示 (spec §4.2)
+3. **通報 UI 分離** — 「ちがった」 (1 タップ wrong_info) + 「報告」 (理由選択) の 2 ボタン構成 (spec §5.2)
+4. **家主異議申し立て導線** — 「これは私の家です」 ボタン → 運営連絡先誘導 (spec §5.3、 連絡先 URL も決める)
+5. **Phase 1 設計書改訂** — `2026-05-07-housing-tour-phase1-design.md` の §4.2/§4.3/§6.1/§6.5/§7/§9.3 を本 spec §6.1 リスト通りに更新
+6. **skip テスト 2 件復活** — FilterPanel Apartment チップ / HousingRegisterAddressFields Apartment 選択 (Task 8 で `it.skip` 化したものを新 schema で書き直し)
 
 ---
 

@@ -2,6 +2,46 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-18/19 セッション 34・ハウジング 個室・アパート対応 schema 確定）
+
+**背景**: Phase 2B (Sub-spec 2B 系) 着手前にスキーマ確定が必須 (`docs/.private/2026-05-17-housing-room-types-design.md` で議論メモあり)。 公式仕様を調べ直し (Empyreum wing 概念は誤解、 削除確定。 FC 個室 1-512 / アパ部屋 1-90 / 個人宅は個室不可 等)、 議論メモ §7 の論点 5 件を brainstorming → spec → plan → subagent-driven の標準フローで完走。 UI 本格刷新は **本セッション scope 外** (Sub-spec 2B 系の別 plan で扱う)。
+
+### 完了内容
+
+- **Spec 作成**: `docs/superpowers/specs/2026-05-18-housing-room-types-design.md` (確定論点まとめ)
+- **Plan 作成**: `docs/superpowers/plans/2026-05-18-housing-room-types.md` (7 task + 統合確認)
+- **Task 1** (`4e2eb89`): 定数追加 (`PRIVATE_CHAMBER_RANGE` 1-512) + `PLOT_RANGE` を 1-30 に訂正 (subdivision 別)
+- **Task 2** (`5777c31`): `HousingListing` 型を spec §3.1 で全面置換 — `subdivision: 'main'|'sub'`, `buildingType: 'house'|'apartment'`, `ownerType: 'personal'|'fc'`, `roomKind: 'private_chamber'|'apartment_room'`, `roomNumber` 追加、 旧 `apartmentRoom` 廃止、 `HOUSING_SIZES` から `'Apartment'`/`'PrivateRoom'` 削除
+- **Task 3** (`c493328`): `buildAddressKey` を新キー構造 (`${dc}|${server}|${area}|W${ward}|S${sub}|H${plot}|C${room}` 等) で全面置換 + TDD 9 ケース、 `AddressInput` 型シグネチャ先取り更新。 ownerType は key 非参加 (誤登録での重複検知漏れ防止)
+- **Task 4** (`2e5a173` + follow-up): `validateAddress` を整合性制約 4 パターン (個人宅 / FC 全体 / FC 個室 / アパ部屋) + 不正組合せ 8 reject で全面書き直し + TDD 12 ケース
+- **Task 5** (`0ed4c0c`): `api/housing/_registerListingHandler.ts` の listing 構築を新 schema 対応 (条件付き spread 形式)
+- **Task 6** (`32810f8` + follow-up): `firestore.rules` の `housing_listings` create/update に整合性制約 4 パターンを `||` で表現、 helper 5 個新規追加 (`isValidSubdivision`/`isValidBuildingType`/`isValidOwnerType`/`isValidPrivateChamberNumber` 等)、 既存 `isValidHousingSize`/`isValidPlot` も縮小修正
+- **Task 7** (`8941d11` + follow-up): `src/lib/housingListingsService.ts` に関連登録特定クエリ 3 つ追加 (`findChambersInPlot`/`findHouseForChamber`/`findApartmentRoomsInWard`) + TDD 4 ケース
+- **Task 8** (`db5cafa`): 既存 UI (HousingRegisterAddressFields/HousingRegisterView)、 store (useHousingFilterStore)、 mock (mockListings)、 Filter (FilterPanel) を新 schema 互換に暫定対応、 既存テスト 4 ファイルの fixture 修正、 Apartment 関連テスト 2 件を `it.skip` 化 (Sub-spec 2B で復活前提のコメント明示)
+- **Final review fixes**: i18n 4 言語の plot.out_of_range を 1〜60 → 1〜30 に訂正、 `ChamberQuery`/`ApartmentQuery` に `dc`/`server` フィールド必須追加 (Sub-spec 2B 詳細ページ実装前に異 DC/サーバー混入リスクを潰す)
+
+### 検証
+
+- **build**: green (`tsc -b && vite build` success)
+- **vitest**: 109 ファイル 850 PASS / 2 skipped (Sub-spec 2B 用、 意図的) / 0 failed
+- **TypeScript**: strict mode clean
+- **gitleaks**: pass
+
+### Spec / Plan 未対応の引き継ぎ事項 (Sub-spec 2B)
+
+- 登録モーダル 4 タイプ選択 UI (spec §4.1)
+- 物件詳細ページの関連登録表示 (spec §4.2)
+- 通報 UI 分離 + 家主異議申し立て (spec §5.2/§5.3、 運営連絡先 URL 決定含む)
+- Phase 1 設計書 (`2026-05-07-housing-tour-phase1-design.md`) の §4.2/§4.3/§6.1/§6.5/§7/§9.3 改訂
+- skip テスト 2 件 (FilterPanel Apartment チップ / HousingRegisterAddressFields Apartment 選択) の新 schema 対応
+
+### ファイル変更概要
+
+- 新規: spec / plan / 3 テストファイル (`src/__tests__/housing/{housingDuplicate,housingValidation,housingListingsService}.test.ts` — vitest config に合わせて配置)
+- 修正: 型定義 / validation / addressKey / handler / Rules / service / 既存 UI 5 ファイル / 既存テスト 5 ファイル / i18n 4 言語
+
+---
+
 ## 完了（2026-05-18 セッション 33・軽減アプリ 共有チュートリアル UX 刷新）
 
 **背景**: ユーザー実機検証で `share` チュートリアル (2 ステップ) に 3 つの UX バグが判明。 ① 軽減表を開いていないと共有ボタンが出ず TutorialMenu から起動できない、 ② ステップ 2/2 表示中に背後の「共有について」 モーダル (PopularConsentDialog) が操作可能、 ③ 2/2 終了で ShareModal が強制クローズされ最初からやり直し。 brainstorming → writing-plans → executing-plans の標準フローで完走。
