@@ -7,6 +7,7 @@ import { TopBar } from './TopBar';
 import { StatusBar } from './StatusBar';
 import { LiquidGlassPanel } from './LiquidGlassPanel';
 import { FilterPanel } from './FilterPanel';
+import { CenterArea } from './CenterArea';
 import '../../../styles/housing.css';
 
 /**
@@ -60,13 +61,7 @@ export const HousingWorkspace: React.FC = () => {
           )}
 
           <LiquidGlassPanel edge={160} radius={18} scale={49} data-region="center">
-            <div className="housing-panel-head">
-              <div className="housing-panel-title">{t('housing.workspace.panels.center_title')}</div>
-              <div className="housing-panel-meta">— · —</div>
-            </div>
-            <div className="housing-panel-body">
-              <p className="text-sm opacity-60">[Map / Pinterest — Plan C]</p>
-            </div>
+            <CenterArea />
           </LiquidGlassPanel>
 
           {rightPanelOpen ? (
