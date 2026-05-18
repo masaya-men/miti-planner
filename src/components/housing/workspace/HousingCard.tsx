@@ -1,4 +1,7 @@
+import { useTranslation } from 'react-i18next';
+import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -14,24 +17,49 @@ function resolveImageSource(listing: MockListing): string {
 }
 
 export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) => {
+    const { t } = useTranslation();
+    const isFavorite = useHousingFavoritesStore((s) => s.ids.includes(listing.id));
+    const addFavorite = useHousingFavoritesStore((s) => s.add);
+    const removeFavorite = useHousingFavoritesStore((s) => s.remove);
     const imgSrc = resolveImageSource(listing);
     const alt = `${listing.area} ${listing.ward}-${listing.plot}`;
+
+    const handleFavoriteClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (isFavorite) removeFavorite(listing.id);
+        else addFavorite(listing.id);
+    };
+
     return (
-        <button type="button" className="housing-card" onClick={onClick} aria-label={alt}>
-            <div className="housing-card-thumb">
-                <img src={imgSrc} alt="" loading="lazy" />
-            </div>
-            <div className="housing-card-body">
-                <div className="housing-card-title">
-                    <span>{listing.area} {listing.ward}-{listing.plot}</span>
-                    <span className="housing-card-size">{listing.size}</span>
+        <div className="housing-card-wrap">
+            <button type="button" className="housing-card" onClick={onClick} aria-label={alt}>
+                <div className="housing-card-thumb">
+                    <img src={imgSrc} alt="" loading="lazy" />
                 </div>
-                <div className="housing-card-tags">
-                    {listing.tags.slice(0, 2).map((tag) => (
-                        <span key={tag} className="housing-card-tag">{tag}</span>
-                    ))}
+                <div className="housing-card-body">
+                    <div className="housing-card-title">
+                        <span>{listing.area} {listing.ward}-{listing.plot}</span>
+                        <span className="housing-card-size">{listing.size}</span>
+                    </div>
+                    <div className="housing-card-tags">
+                        {listing.tags.slice(0, 2).map((tag) => (
+                            <span key={tag} className="housing-card-tag">{tag}</span>
+                        ))}
+                    </div>
                 </div>
-            </div>
-        </button>
+            </button>
+            <button
+                type="button"
+                className="housing-card-fav-overlay"
+                data-active={isFavorite}
+                aria-label={isFavorite
+                    ? t('housing.workspace.card.favorite_remove')
+                    : t('housing.workspace.card.favorite')}
+                aria-pressed={isFavorite}
+                onClick={handleFavoriteClick}
+            >
+                <Heart size={14} aria-hidden="true" fill={isFavorite ? 'currentColor' : 'none'} />
+            </button>
+        </div>
     );
 };

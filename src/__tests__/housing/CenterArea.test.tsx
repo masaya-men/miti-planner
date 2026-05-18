@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
@@ -76,7 +76,10 @@ describe('CenterArea', () => {
         fireEvent.click(screen.getByRole('tab', { name: /一覧/ }));
         const firstCard = document.querySelector('.housing-card') as HTMLElement;
         fireEvent.click(firstCard);
-        const favBtn = screen.getByRole('button', { name: 'お気に入り' });
+        // Scope to the expanded card — every cell now has its own overlay ♡ as well,
+        // so an un-scoped getByRole('button', { name: 'お気に入り' }) hits multiple targets.
+        const expanded = document.querySelector('.housing-card-expanded') as HTMLElement;
+        const favBtn = within(expanded).getByRole('button', { name: 'お気に入り' });
         fireEvent.click(favBtn);
         expect(useHousingFavoritesStore.getState().ids.length).toBe(1);
     });

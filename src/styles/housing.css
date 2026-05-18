@@ -701,6 +701,37 @@
   font-size: 10px;
   line-height: 1.2;
 }
+.housing-bubble-card-fav {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 21;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--housing-overlay-strong);
+  border: 1px solid var(--housing-panel-border-strong);
+  color: var(--housing-text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-bubble-card-fav:hover {
+  background: var(--housing-honey-soft);
+  color: var(--housing-candle);
+}
+.housing-bubble-card-fav:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-bubble-card-fav[data-active="true"] {
+  background: var(--housing-honey-strong);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-honey);
+}
+
 .housing-bubble-card-pin {
   position: absolute;
   left: 50%;
@@ -731,6 +762,49 @@
 .housing-pinterest-item {
   break-inside: avoid;
   margin-bottom: 12px;
+}
+
+/* Housing card wrapper (relative anchor for the favorite overlay) */
+.housing-card-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* Favorite overlay button — top-right corner, always visible so users
+ * can stockpile favorites without first expanding the card. */
+.housing-card-fav-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--housing-overlay-strong);
+  border: 1px solid var(--housing-panel-border-strong);
+  color: var(--housing-text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.housing-card-fav-overlay:hover {
+  background: var(--housing-honey-soft);
+  color: var(--housing-candle);
+}
+.housing-card-fav-overlay:active {
+  transform: scale(0.92);
+}
+.housing-card-fav-overlay:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-card-fav-overlay[data-active="true"] {
+  background: var(--housing-honey-strong);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-honey);
 }
 
 /* Housing card (Pinterest cell + shared base) */
