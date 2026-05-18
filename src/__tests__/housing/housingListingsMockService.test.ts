@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { fetchAllListings, fetchListingById } from '../../lib/housing/housingListingsService';
+import { fetchAllListings, fetchListingById } from '../../lib/housing/housingListingsMockService';
 
 describe('housingListingsService (mock)', () => {
   it('fetchAllListings returns the mock 50 listings', async () => {
