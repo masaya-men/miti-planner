@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
+import { DndContext } from '@dnd-kit/core';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../locales/ja.json';
@@ -20,7 +21,11 @@ beforeAll(() => {
 });
 
 function wrap(ui: React.ReactElement) {
-    return <I18nextProvider i18n={i18n}>{ui}</I18nextProvider>;
+    return (
+        <I18nextProvider i18n={i18n}>
+            <DndContext>{ui}</DndContext>
+        </I18nextProvider>
+    );
 }
 
 describe('TourBuilderPane', () => {

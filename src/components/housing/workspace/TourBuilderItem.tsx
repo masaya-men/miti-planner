@@ -13,7 +13,8 @@ export interface TourBuilderItemProps {
 export const TourBuilderItem: React.FC<TourBuilderItemProps> = ({ listing, index, onRemove }) => {
     const { t } = useTranslation();
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-        id: listing.id,
+        id: `tour:${listing.id}`,
+        data: { source: 'tour', listingId: listing.id },
     });
     const style: React.CSSProperties = {
         transform: CSS.Transform.toString(transform),
