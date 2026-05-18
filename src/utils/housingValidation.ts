@@ -22,6 +22,7 @@ import {
   WARD_RANGE,
   PLOT_RANGE,
   APARTMENT_ROOM_RANGE,
+  PRIVATE_CHAMBER_RANGE,
   HOUSING_LIMITS,
 } from '../constants/housing.js';
 import { isValidTagId } from '../data/housingTags.js';
@@ -59,25 +60,66 @@ const fail = (errors: ValidationErrors): ValidationResult => ({ ok: false, error
 export function validateAddress(addr: AddressInput): ValidationResult {
   const errors: ValidationErrors = {};
 
+  // 必須共通
   if (!addr.dc || addr.dc.trim() === '') errors.dc = 'required';
   if (!addr.server || addr.server.trim() === '') errors.server = 'required';
   if (!addr.area || !isValidHousingArea(String(addr.area))) errors.area = 'invalid';
-
   if (!Number.isInteger(addr.ward) || addr.ward < WARD_RANGE.min || addr.ward > WARD_RANGE.max) {
     errors.ward = 'out_of_range';
   }
-  if (!Number.isInteger(addr.plot) || addr.plot < PLOT_RANGE.min || addr.plot > PLOT_RANGE.max) {
-    errors.plot = 'out_of_range';
+  if (!addr.subdivision || !isValidSubdivision(String(addr.subdivision))) {
+    errors.subdivision = 'invalid';
   }
-  if (!addr.size || !isValidHousingSize(String(addr.size))) errors.size = 'invalid';
+  if (!addr.buildingType || !isValidBuildingType(String(addr.buildingType))) {
+    errors.buildingType = 'invalid';
+  }
 
-  if (addr.size === 'Apartment') {
-    const r = addr.apartmentRoom;
-    if (!Number.isInteger(r) || (r as number) < APARTMENT_ROOM_RANGE.min || (r as number) > APARTMENT_ROOM_RANGE.max) {
-      errors.apartmentRoom = 'required_for_apartment';
+  // buildingType 別の制約
+  if (addr.buildingType === 'house') {
+    // ownerType 必須
+    if (!addr.ownerType || !isValidOwnerType(String(addr.ownerType))) {
+      errors.ownerType = 'required_for_house';
     }
-  } else if (addr.apartmentRoom !== undefined) {
-    errors.apartmentRoom = 'not_allowed_for_size';
+    // plot 必須 + 範囲
+    if (!Number.isInteger(addr.plot) || (addr.plot as number) < PLOT_RANGE.min || (addr.plot as number) > PLOT_RANGE.max) {
+      errors.plot = 'out_of_range';
+    }
+    // size 必須
+    if (!addr.size || !isValidHousingSize(String(addr.size))) {
+      errors.size = 'invalid';
+    }
+
+    // 部屋区分
+    if (addr.roomKind === 'private_chamber') {
+      // FC ハウス限定
+      if (addr.ownerType !== 'fc') {
+        errors.roomKind = 'private_chamber_requires_fc';
+      }
+      // roomNumber 必須 + 範囲
+      if (!Number.isInteger(addr.roomNumber)
+          || (addr.roomNumber as number) < PRIVATE_CHAMBER_RANGE.min
+          || (addr.roomNumber as number) > PRIVATE_CHAMBER_RANGE.max) {
+        errors.roomNumber = 'out_of_range';
+      }
+    } else if (addr.roomKind !== undefined) {
+      errors.roomKind = 'invalid_for_house';
+    }
+  } else if (addr.buildingType === 'apartment') {
+    // plot / size / ownerType 不可
+    if (addr.plot !== undefined) errors.plot = 'not_allowed_for_apartment';
+    if (addr.size !== undefined) errors.size = 'not_allowed_for_apartment';
+    if (addr.ownerType !== undefined) errors.ownerType = 'not_allowed_for_apartment';
+
+    // roomKind は 'apartment_room' 必須
+    if (addr.roomKind !== 'apartment_room') {
+      errors.roomKind = 'apartment_room_required';
+    }
+    // roomNumber 必須 + 範囲
+    if (!Number.isInteger(addr.roomNumber)
+        || (addr.roomNumber as number) < APARTMENT_ROOM_RANGE.min
+        || (addr.roomNumber as number) > APARTMENT_ROOM_RANGE.max) {
+      errors.roomNumber = 'out_of_range';
+    }
   }
 
   return Object.keys(errors).length > 0 ? fail(errors) : ok();
