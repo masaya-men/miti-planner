@@ -65,4 +65,20 @@ describe('HousingRegisterModal', () => {
     fireEvent.click(screen.getByLabelText('housing.workspace.register_modal.close'));
     expect(onClose).toHaveBeenCalledOnce();
   });
+
+  it('closes when clicking the backdrop itself (logged-in branch)', () => {
+    const onClose = vi.fn();
+    const { container } = render(<HousingRegisterModal open={true} onClose={onClose} />);
+    const backdrop = container.querySelector('.housing-register-modal-backdrop')!;
+    fireEvent.click(backdrop);
+    expect(onClose).toHaveBeenCalledOnce();
+  });
+
+  it('does NOT close when clicking inside the card (logged-in branch)', () => {
+    const onClose = vi.fn();
+    render(<HousingRegisterModal open={true} onClose={onClose} />);
+    const dialog = screen.getByRole('dialog');
+    fireEvent.click(dialog);
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });
