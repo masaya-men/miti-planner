@@ -25,6 +25,8 @@ export async function findListingsByAddressKey(addressKey: string): Promise<Hous
 }
 
 interface ChamberQuery {
+  dc: string;
+  server: string;
   area: HousingArea;
   ward: number;
   subdivision: Subdivision;
@@ -32,6 +34,8 @@ interface ChamberQuery {
 }
 
 interface ApartmentQuery {
+  dc: string;
+  server: string;
   area: HousingArea;
   ward: number;
   subdivision: Subdivision;
@@ -42,6 +46,8 @@ interface ApartmentQuery {
 export async function findChambersInPlot(q: ChamberQuery): Promise<HousingListing[]> {
   const qref = query(
     collection(db, COLLECTION_NAME),
+    where('dc', '==', q.dc),
+    where('server', '==', q.server),
     where('area', '==', q.area),
     where('ward', '==', q.ward),
     where('subdivision', '==', q.subdivision),
@@ -64,6 +70,8 @@ export async function findChambersInPlot(q: ChamberQuery): Promise<HousingListin
 export async function findHouseForChamber(q: ChamberQuery): Promise<HousingListing | null> {
   const qref = query(
     collection(db, COLLECTION_NAME),
+    where('dc', '==', q.dc),
+    where('server', '==', q.server),
     where('area', '==', q.area),
     where('ward', '==', q.ward),
     where('subdivision', '==', q.subdivision),
@@ -84,6 +92,8 @@ export async function findHouseForChamber(q: ChamberQuery): Promise<HousingListi
 export async function findApartmentRoomsInWard(q: ApartmentQuery): Promise<HousingListing[]> {
   const qref = query(
     collection(db, COLLECTION_NAME),
+    where('dc', '==', q.dc),
+    where('server', '==', q.server),
     where('area', '==', q.area),
     where('ward', '==', q.ward),
     where('subdivision', '==', q.subdivision),

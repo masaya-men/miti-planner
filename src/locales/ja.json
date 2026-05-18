@@ -1743,7 +1743,7 @@
                 "server": { "required": "サーバーを選んでください" },
                 "area": { "invalid": "正しいエリアを選んでください" },
                 "ward": { "out_of_range": "区は 1〜30 で指定してください" },
-                "plot": { "out_of_range": "番地は 1〜60 で指定してください" },
+                "plot": { "out_of_range": "番地は 1〜30 で指定してください" },
                 "size": { "invalid": "サイズを選んでください" },
                 "apartment_room": {
                     "required_for_apartment": "部屋番号 (1〜90) を入力してください",

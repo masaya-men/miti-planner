@@ -1686,7 +1686,7 @@
                 "server": { "required": "请选择服务器" },
                 "area": { "invalid": "请选择正确的区域" },
                 "ward": { "out_of_range": "区请指定在1〜30之间" },
-                "plot": { "out_of_range": "地块请指定在1〜60之间" },
+                "plot": { "out_of_range": "地块请指定在1〜30之间" },
                 "size": { "invalid": "请选择大小" },
                 "apartment_room": {
                     "required_for_apartment": "请输入房间号（1〜90）",

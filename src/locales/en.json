@@ -1722,7 +1722,7 @@
                 "server": { "required": "Please select a server" },
                 "area": { "invalid": "Please select a valid area" },
                 "ward": { "out_of_range": "Ward must be between 1 and 30" },
-                "plot": { "out_of_range": "Plot must be between 1 and 60" },
+                "plot": { "out_of_range": "Plot must be between 1 and 30" },
                 "size": { "invalid": "Please select a size" },
                 "apartment_room": {
                     "required_for_apartment": "Please enter a room number (1–90)",

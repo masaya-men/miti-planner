@@ -22,6 +22,8 @@ import {
 } from '../../lib/housingListingsService';
 
 const baseQuery = {
+  dc: 'Mana',
+  server: 'Pandaemonium',
   area: 'Shirogane' as const,
   ward: 3,
   subdivision: 'main' as const,

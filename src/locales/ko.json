@@ -1686,7 +1686,7 @@
                 "server": { "required": "서버를 선택해 주세요" },
                 "area": { "invalid": "올바른 에리어를 선택해 주세요" },
                 "ward": { "out_of_range": "구역은 1〜30 사이로 지정해 주세요" },
-                "plot": { "out_of_range": "번지는 1〜60 사이로 지정해 주세요" },
+                "plot": { "out_of_range": "번지는 1〜30 사이로 지정해 주세요" },
                 "size": { "invalid": "크기를 선택해 주세요" },
                 "apartment_room": {
                     "required_for_apartment": "방 번호 (1〜90)를 입력해 주세요",
