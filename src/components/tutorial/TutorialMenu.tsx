@@ -65,7 +65,7 @@ export function TutorialMenu({ btnClassName }: TutorialMenuProps) {
           className="fixed min-w-[180px] rounded-lg border border-app-text/15 bg-app-bg shadow-lg py-1 z-[99999]"
           style={{ top: pos.top, right: pos.right }}
         >
-          {TUTORIAL_IDS.map(id => {
+          {TUTORIAL_IDS.filter(id => id !== 'share' || completed['share']).map(id => {
             const tutorial = TUTORIALS[id];
             const isDone = completed[id] ?? false;
             return (

@@ -12,7 +12,6 @@ import { uploadTeamLogo, deleteTeamLogo, validateLogoFile } from '../utils/logoU
 import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
 import type { SavedPlan } from '../types';
-import { useTutorialStore } from '../store/useTutorialStore';
 import { buildOgImageUrl, type OgpLang } from '../lib/ogpHelpers';
 import { PopularConsentDialog } from './PopularConsentDialog';
 import { hasPopularConsent, setPopularConsent } from '../lib/popularConsent';
@@ -81,7 +80,6 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     // モーダルが開いたら共有URLを生成
     useEffect(() => {
         if (!isOpen) return;
-        useTutorialStore.getState().completeEvent('share:modal-opened');
         setShareUrl(null);
         setOgImageUrl(null);
         setImageLoaded(false);

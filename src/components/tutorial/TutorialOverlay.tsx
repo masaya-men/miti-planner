@@ -262,7 +262,7 @@ export function TutorialOverlay() {
       {/* クリックブロック — ターゲットがある通常ステップ（演出なし） */}
       <TutorialBlocker
         targetRect={targetRect}
-        active={!!step.target && !step.animation}
+        active={(!!step.target && !step.animation) || (!step.target && !step.animation && step.pill === 'next')}
       />
       {/* 自動演出中は全面ブロック（スロット操作防止） */}
       {(step.animation === 'party-auto-fill' || step.animation === 'palette-hint' || step.animation === 'typewriter-fill' || step.animation === 'fake-completion-card') && (

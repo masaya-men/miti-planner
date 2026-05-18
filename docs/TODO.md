@@ -11,21 +11,24 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 origin と 2 commit 差 (前回 eb6124e + 今回の夜動画刷新)。 デプロイは今回 push で着地予定
-- **直近セッション (2026-05-18 #3)**: 夜動画を「**昼動画ベースの Day-for-Night カラーグレーディング**」 に刷新 (`public/housing/scenery-night.*`)
-  - V11 フィルター: 濃紺ムーディ夜景 + 街並みエリアだけ電球色 (#FFA040 系) + bloom 滲み
-  - 昼動画と完全同構図なので **完璧ループ自動保証** (継ぎ目問題ゼロ)
-  - 2.2MB mp4 + 1.2MB webm (旧版より少し重い、 質優先)
+- **ブランチ**: main、 本セッションで `feat(tutorial): share チュートリアル UX 刷新` を 1 commit (push 込) 予定
+- **直近セッション (2026-05-18 #4)**: 軽減アプリの**共有チュートリアル UX 刷新**
+  - 2 ステップ → 1 ステップに削減 (案内カードのみ)
+  - 共有ボタン初回クリックで自動発火 (TutorialMenu からの初学を廃止)
+  - 完了/スキップ後に TutorialMenu に項目出現 (再学習用)
+  - 背後の `PopularConsentDialog` を操作不可化 (TutorialBlocker active 条件拡張)
+  - チュートリアル終了時に ShareModal を強制クローズしない (そのまま共有操作へ進める)
+  - 仕様: `docs/superpowers/specs/2026-05-18-tutorial-share-improvements-design.md` / 実装: `docs/superpowers/plans/2026-05-18-tutorial-share-improvements.md`
 - **並行進行中**: ユーザー側で **「完璧ループの夜景動画」 を毎日試作中** — 良いの来たら差し替え (CDN 化が済めば高画質版でも OK)
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド
 - **既知の残**: なし
 
 ---
 
-## 次セッション最優先: 実機 iterate
+## 次セッション最優先: Phase 2B 個室・アパート問題
 
-1. **実機 iterate** — ブラッシュアップ後回しリスト (下) + Plan F で残ったブラッシュアップ候補
-   - TopBar register CTA の見た目 (honey-soft ベース pill、ユーザー目視で OK か)
+1. **Phase 2B 個室・アパート問題の設計詰め** — `docs/.private/2026-05-17-housing-room-types-design.md` を読んで未確定箇所を決める
+2. **実機 iterate** (時間あれば) — TopBar register CTA / SkeletonCard / HousingToast 接続箇所
    - HousingRegisterModal の logged-out branch ヘッダーに × アイコンなし (UX 整合性が気になれば追加検討)
    - SkeletonCard / HousingToast は実装済みだがビュー未接続 → 実機で使い所が見えたら接続
 

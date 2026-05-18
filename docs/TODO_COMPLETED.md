@@ -2,6 +2,39 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-18 セッション 33・軽減アプリ 共有チュートリアル UX 刷新）
+
+**背景**: ユーザー実機検証で `share` チュートリアル (2 ステップ) に 3 つの UX バグが判明。 ① 軽減表を開いていないと共有ボタンが出ず TutorialMenu から起動できない、 ② ステップ 2/2 表示中に背後の「共有について」 モーダル (PopularConsentDialog) が操作可能、 ③ 2/2 終了で ShareModal が強制クローズされ最初からやり直し。 brainstorming → writing-plans → executing-plans の標準フローで完走。
+
+### 完了内容
+
+- **設計判断**: 起動ロジック「案 C」 採用 — TutorialMenu からの初学を廃止し、 共有ボタン初回クリック時に自動発火、 完了/スキップ後にメニューに項目出現する流れに。 z-index 重ね順は既に意図通りだったので変更不要 (下: ShareModal `9999` → 中: PopularConsentDialog `10000` → 上: TutorialBlocker `10001` → TutorialCard `10002`)
+- **Task 1**: `tutorialDefinitions.ts` の `shareTutorial` を 2 ステップ → 1 ステップに削減 (`share-1-done` のみ、 旧 `share-1-open` ステップ削除)
+- **Task 2**: `useTutorialStore.confirmExit` で `activeTutorialId === 'share'` のときスキップでも `completed.share = true` をセット (再学習導線確保)、 vitest 3 件追加
+- **Task 3**: `TutorialOverlay` の TutorialBlocker active 条件を `target=null && pill='next'` でも全面ブロックに拡張 (バグ ② 修正)
+- **Task 4**: `ShareModal` の `completeEvent('share:modal-opened')` 削除 + 未使用 import 整理
+- **Task 5**: `ShareButtons` の onClick で `completed.share === false && !isActive` のとき `startTutorial('share')` 自動発火、 強制クローズ useEffect (27-35 行) 削除 (バグ ③ 修正)
+- **Task 6**: `TutorialMenu` の表示条件に `id !== 'share' || completed['share']` フィルター追加 — share 項目は完了/スキップ後のみ表示
+- **Task 7**: i18n 4 言語 (ja/en/zh/ko) から `tutorial.share.open.message` キー削除
+
+### 検証
+
+- **vitest**: 109 ファイル 851 件 PASS (+3 from session 32 = 848 → 851)
+- **TypeScript**: strict mode clean
+- **build**: 成功、 PWA precache 199 entries (5.95 MB)
+- **実機検証**: デプロイ後にユーザー目視で確認予定 (UX バグ性質上 Playwright での機械検証は不向き)
+
+### ファイル変更
+
+- 変更: `src/data/tutorialDefinitions.ts`, `src/components/ShareButtons.tsx`, `src/components/ShareModal.tsx`, `src/components/tutorial/TutorialOverlay.tsx`, `src/components/tutorial/TutorialMenu.tsx`, `src/store/useTutorialStore.ts`, `src/locales/{ja,en,zh,ko}.json`
+- 新規: `src/__tests__/useTutorialStore.share.test.ts`, `docs/superpowers/specs/2026-05-18-tutorial-share-improvements-design.md`, `docs/superpowers/plans/2026-05-18-tutorial-share-improvements.md`
+
+### 既存ユーザーへの影響 (合意済)
+
+`completed['share']` が `false` の既存ユーザーは、 デプロイ後 1 回だけ案内カードが出る。 「わかった」 で消えて以降は通常動作。 「そんなに使われてないから OK」 でユーザー承諾済。
+
+---
+
 ## 完了（2026-05-18 セッション 32・Housing Sub-spec 2B Plan F (Finishing)）
 
 **背景**: セッション 31 で Plan B/D/E まで完成、ユーザー実機確認で基本動作 OK。残り「リリース可能化」 (登録モーダル接続 / ルート整備 / a11y / E2E / 親仕様改訂) を Plan F として一括対応。subagent-driven-development スキルで 12 task + final gap fix を完走。

@@ -924,9 +924,6 @@
             "typewriter_event_name": "Boss Attack"
         },
         "share": {
-            "open": {
-                "message": "공유 버튼을 눌러보세요"
-            },
             "done": {
                 "message": "이미지를 설정하고 공유하세요!",
                 "description": "썸네일 이미지나 팀 로고를 추가한 뒤 계획을 모두에게 공유하세요."

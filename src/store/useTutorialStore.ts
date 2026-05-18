@@ -266,7 +266,7 @@ export const useTutorialStore = create<TutorialState>()(
           restoreUserState(get());
         }
         clearSnapshotFromSession();
-        set({
+        set(state => ({
           activeTutorialId: null,
           currentStep: 0,
           isActive: false,
@@ -274,7 +274,10 @@ export const useTutorialStore = create<TutorialState>()(
           currentStepIndex: 0,
           _savedSnapshot: null,
           _savedPlanId: null,
-        });
+          completed: activeTutorialId === 'share'
+            ? { ...state.completed, share: true }
+            : state.completed,
+        }));
         // チュートリアル中に開いたモーダルをすべて閉じる
         window.dispatchEvent(new Event('tutorial:close-all-modals'));
         window.dispatchEvent(new Event('tutorial:close-new-plan-modal'));

@@ -317,15 +317,7 @@ const shareTutorial: TutorialDefinition = {
   nameKey: 'tutorial.menu.share',
   steps: [
     {
-      id: 'share-1-open',
-      target: '[data-tutorial="share-copy-btn"]',
-      pill: 'click',
-      pillArrow: 'right',
-      messageKey: 'tutorial.share.open.message',
-      completionEvent: 'share:modal-opened',
-    },
-    {
-      id: 'share-2-done',
+      id: 'share-1-done',
       target: null,
       pill: 'next',
       messageKey: 'tutorial.share.done.message',

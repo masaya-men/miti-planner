@@ -924,9 +924,6 @@
             "typewriter_event_name": "Boss Attack"
         },
         "share": {
-            "open": {
-                "message": "试试分享按钮"
-            },
             "done": {
                 "message": "设置图片并分享！",
                 "description": "添加缩略图或团队标志，然后与大家分享您的方案。"
