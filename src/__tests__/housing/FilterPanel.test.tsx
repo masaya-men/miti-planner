@@ -1,0 +1,112 @@
+// @vitest-environment happy-dom
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { I18nextProvider, initReactI18next } from 'react-i18next';
+import i18n from 'i18next';
+import jaTranslations from '../../locales/ja.json';
+import { FilterPanel } from '../../components/housing/workspace/FilterPanel';
+import { useHousingFilterStore } from '../../store/useHousingFilterStore';
+import { MOCK_LISTINGS } from '../../data/housing/mockListings';
+
+beforeAll(() => {
+    if (!i18n.isInitialized) {
+        i18n.use(initReactI18next).init({
+            lng: 'ja',
+            fallbackLng: 'ja',
+            resources: { ja: { translation: jaTranslations } },
+            interpolation: { escapeValue: false },
+        });
+    }
+});
+
+beforeEach(() => {
+    useHousingFilterStore.getState().clearAll();
+});
+
+function renderPanel(props?: Partial<React.ComponentProps<typeof FilterPanel>>) {
+    const onClose = props?.onClose ?? vi.fn();
+    const onRegisterClick = props?.onRegisterClick ?? vi.fn();
+    return {
+        ...render(
+            <I18nextProvider i18n={i18n}>
+                <FilterPanel onClose={onClose} onRegisterClick={onRegisterClick} />
+            </I18nextProvider>,
+        ),
+        onClose,
+        onRegisterClick,
+    };
+}
+
+describe('FilterPanel', () => {
+    it('renders FILTER title and 5 base sections (DC / Region / Area / Size / Theme)', () => {
+        renderPanel();
+        expect(screen.getByText('FILTER')).toBeInTheDocument();
+        expect(screen.getAllByText('DC').length).toBeGreaterThan(0);
+        expect(screen.getByText('地域')).toBeInTheDocument();
+        expect(screen.getByText('エリア')).toBeInTheDocument();
+        expect(screen.getByText('サイズ')).toBeInTheDocument();
+        // 'テーマ' label exists; 'テーマ' is also a region in REGION_LABELS? no.
+        // chip group title appears once via FilterSection
+        expect(screen.getAllByText('テーマ').length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('shows result / total = 50 / 50 by default', () => {
+        renderPanel();
+        expect(screen.getByText('50')).toBeInTheDocument();
+        expect(screen.getByText(`/ ${MOCK_LISTINGS.length}`)).toBeInTheDocument();
+    });
+
+    it('marks DC chip as active and decreases result count when clicked', () => {
+        renderPanel();
+        const manaChip = screen.getByRole('button', { name: 'Mana' });
+        expect(manaChip.getAttribute('data-active')).toBe('false');
+        fireEvent.click(manaChip);
+        expect(manaChip.getAttribute('data-active')).toBe('true');
+        expect(useHousingFilterStore.getState().dc).toBe('Mana');
+        expect(useHousingFilterStore.getState().resultCount).toBeLessThan(MOCK_LISTINGS.length);
+    });
+
+    it('shows Server section only after DC is selected', () => {
+        renderPanel();
+        expect(screen.queryByText('サーバー')).toBeNull();
+        fireEvent.click(screen.getByRole('button', { name: 'Mana' }));
+        expect(screen.getByText('サーバー')).toBeInTheDocument();
+    });
+
+    it('toggles area chip and updates result count', () => {
+        renderPanel();
+        const before = useHousingFilterStore.getState().resultCount;
+        const shiroChip = screen.getByRole('button', { name: 'Shirogane' });
+        fireEvent.click(shiroChip);
+        expect(useHousingFilterStore.getState().areas).toContain('Shirogane');
+        expect(useHousingFilterStore.getState().resultCount).toBeLessThan(before);
+    });
+
+    it('renders apartment chip with localized short label but Apartment aria', () => {
+        renderPanel();
+        const aptChip = screen.getByRole('button', { name: 'Apartment' });
+        expect(aptChip).toBeInTheDocument();
+        expect(aptChip.textContent).toBe('Apt');
+    });
+
+    it('marks zero result with data-zero=true when no listing matches', () => {
+        renderPanel();
+        // Mana (JP DC) + 欧州 region label = empty (region chips are localized via REGION_LABELS)
+        fireEvent.click(screen.getByRole('button', { name: 'Mana' }));
+        fireEvent.click(screen.getByRole('button', { name: '欧州' }));
+        const badge = document.querySelector('.housing-result-count') as HTMLElement;
+        expect(badge.getAttribute('data-zero')).toBe('true');
+    });
+
+    it('invokes onClose when the close button is clicked', () => {
+        const { onClose } = renderPanel();
+        fireEvent.click(screen.getByRole('button', { name: '左パネルを閉じる' }));
+        expect(onClose).toHaveBeenCalledOnce();
+    });
+
+    it('invokes onRegisterClick when the register CTA is clicked', () => {
+        const { onRegisterClick } = renderPanel();
+        fireEvent.click(screen.getByRole('button', { name: 'ハウジング登録モーダルを開く' }));
+        expect(onRegisterClick).toHaveBeenCalledOnce();
+    });
+});

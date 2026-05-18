@@ -1927,6 +1927,54 @@
                 "theme_light": "Light",
                 "theme_dark": "Dark",
                 "lang_label": "언어"
+            },
+            "filter": {
+                "title": "FILTER",
+                "dc": "DC",
+                "region": "지역",
+                "server": "서버",
+                "area": "구역",
+                "size": "크기",
+                "theme": "테마",
+                "size_apartment_short": "Apt"
+            },
+            "result_count": {
+                "label": "{{result}} / {{total}}",
+                "aria": "{{result}}개 / 전체 {{total}}개",
+                "zero_hint": "조건에 맞는 집이 없습니다"
+            },
+            "register_cta": {
+                "label_long": "내 작품을 등록하기",
+                "label_short": "+ 등록",
+                "aria": "하우징 등록 창 열기"
+            },
+            "panel": {
+                "close_left": "왼쪽 패널 닫기",
+                "close_right": "오른쪽 패널 닫기",
+                "open_left": "왼쪽 패널 열기",
+                "open_right": "오른쪽 패널 열기"
+            },
+            "center": {
+                "toggle": {
+                    "map": "지도",
+                    "pinterest": "그리드",
+                    "label": "보기 모드"
+                },
+                "map_alt": "하우징 지도",
+                "compass_label": "방위"
+            },
+            "card": {
+                "favorite": "즐겨찾기",
+                "favorite_remove": "즐겨찾기 해제",
+                "add_to_tour": "투어에 추가",
+                "copy_url": "공유 URL 복사",
+                "copy_url_done": "URL을 복사했습니다",
+                "open_sns": "SNS 글 열기",
+                "close": "닫기"
+            },
+            "empty": {
+                "title": "조건에 맞는 집이 없습니다",
+                "hint": "필터를 조정해 보세요"
             }
         }
     }

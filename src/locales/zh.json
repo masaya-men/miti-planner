@@ -1927,6 +1927,54 @@
                 "theme_light": "Light",
                 "theme_dark": "Dark",
                 "lang_label": "语言"
+            },
+            "filter": {
+                "title": "FILTER",
+                "dc": "DC",
+                "region": "区域",
+                "server": "服务器",
+                "area": "区域",
+                "size": "大小",
+                "theme": "主题",
+                "size_apartment_short": "Apt"
+            },
+            "result_count": {
+                "label": "{{result}} / {{total}}",
+                "aria": "符合条件 {{result}} 个 / 共 {{total}} 个",
+                "zero_hint": "没有符合条件的房屋"
+            },
+            "register_cta": {
+                "label_long": "登记你的作品",
+                "label_short": "+ 注册",
+                "aria": "打开住宅登记弹窗"
+            },
+            "panel": {
+                "close_left": "关闭左面板",
+                "close_right": "关闭右面板",
+                "open_left": "打开左面板",
+                "open_right": "打开右面板"
+            },
+            "center": {
+                "toggle": {
+                    "map": "地图",
+                    "pinterest": "网格",
+                    "label": "显示模式"
+                },
+                "map_alt": "住宅地图",
+                "compass_label": "方位"
+            },
+            "card": {
+                "favorite": "收藏",
+                "favorite_remove": "取消收藏",
+                "add_to_tour": "添加到路线",
+                "copy_url": "复制分享链接",
+                "copy_url_done": "已复制链接",
+                "open_sns": "打开SNS帖子",
+                "close": "关闭"
+            },
+            "empty": {
+                "title": "没有符合条件的房屋",
+                "hint": "请调整筛选条件"
             }
         }
     }

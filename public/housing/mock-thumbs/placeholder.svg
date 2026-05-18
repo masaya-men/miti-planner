@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" preserveAspectRatio="xMidYMid slice" role="img" aria-label="placeholder">
+  <defs>
+    <radialGradient id="placeholder-g" cx="50%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#ffe2b3"/>
+      <stop offset="55%" stop-color="#7a4c20"/>
+      <stop offset="100%" stop-color="#1a0e08"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="225" fill="url(#placeholder-g)"/>
+  <circle cx="200" cy="92" r="22" fill="#ffc987" opacity="0.78"/>
+  <text x="200" y="160" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" fill="#ffe2b3" opacity="0.78" letter-spacing="0.18em">HOUSING</text>
+</svg>

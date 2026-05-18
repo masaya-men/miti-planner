@@ -1963,6 +1963,54 @@
                 "theme_light": "Light",
                 "theme_dark": "Dark",
                 "lang_label": "Lang"
+            },
+            "filter": {
+                "title": "FILTER",
+                "dc": "DC",
+                "region": "Region",
+                "server": "Server",
+                "area": "Area",
+                "size": "Size",
+                "theme": "Theme",
+                "size_apartment_short": "Apt"
+            },
+            "result_count": {
+                "label": "{{result}} / {{total}}",
+                "aria": "{{result}} matches of {{total}}",
+                "zero_hint": "No homes match your filters"
+            },
+            "register_cta": {
+                "label_long": "Register your home",
+                "label_short": "+ Register",
+                "aria": "Open housing register dialog"
+            },
+            "panel": {
+                "close_left": "Close left panel",
+                "close_right": "Close right panel",
+                "open_left": "Open left panel",
+                "open_right": "Open right panel"
+            },
+            "center": {
+                "toggle": {
+                    "map": "Map",
+                    "pinterest": "Grid",
+                    "label": "View mode"
+                },
+                "map_alt": "Housing map",
+                "compass_label": "Compass"
+            },
+            "card": {
+                "favorite": "Favorite",
+                "favorite_remove": "Unfavorite",
+                "add_to_tour": "Add to tour",
+                "copy_url": "Copy share URL",
+                "copy_url_done": "URL copied",
+                "open_sns": "Open SNS post",
+                "close": "Close"
+            },
+            "empty": {
+                "title": "No homes match your filters",
+                "hint": "Try adjusting your filter selections"
             }
         }
     }

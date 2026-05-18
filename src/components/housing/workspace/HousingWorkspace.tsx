@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
@@ -6,6 +6,7 @@ import { SceneryVideo } from './SceneryVideo';
 import { TopBar } from './TopBar';
 import { StatusBar } from './StatusBar';
 import { LiquidGlassPanel } from './LiquidGlassPanel';
+import { FilterPanel } from './FilterPanel';
 import '../../../styles/housing.css';
 
 /**
@@ -20,6 +21,7 @@ export const HousingWorkspace: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
   const leftPanelOpen = useHousingViewStore((s) => s.leftPanelOpen);
   const rightPanelOpen = useHousingViewStore((s) => s.rightPanelOpen);
+  const setLeftPanelOpen = useHousingViewStore((s) => s.setLeftPanelOpen);
 
   // Lock body scroll while workspace is mounted (mockup is a fixed-viewport experience).
   useEffect(() => {
@@ -28,6 +30,15 @@ export const HousingWorkspace: React.FC = () => {
     return () => {
       document.body.style.overflow = prev;
     };
+  }, []);
+
+  const handleCloseLeft = useCallback(() => setLeftPanelOpen(false), [setLeftPanelOpen]);
+  // Routes to the legacy register hash for now; Plan F will replace this with
+  // the dedicated register modal wired into the new workspace flow.
+  const handleRegisterClick = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.hash = 'register';
+    }
   }, []);
 
   return (
@@ -42,13 +53,7 @@ export const HousingWorkspace: React.FC = () => {
         >
           {leftPanelOpen ? (
             <LiquidGlassPanel edge={160} radius={18} scale={49} data-region="left">
-              <div className="housing-panel-head">
-                <div className="housing-panel-title">{t('housing.workspace.panels.left_title')}</div>
-                <div className="housing-panel-meta">— / —</div>
-              </div>
-              <div className="housing-panel-body">
-                <p className="text-sm opacity-60">[Filter — Plan B]</p>
-              </div>
+              <FilterPanel onClose={handleCloseLeft} onRegisterClick={handleRegisterClick} />
             </LiquidGlassPanel>
           ) : (
             <div data-region="left" aria-hidden="true" />

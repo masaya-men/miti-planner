@@ -1984,6 +1984,54 @@
                 "theme_light": "Light",
                 "theme_dark": "Dark",
                 "lang_label": "言語"
+            },
+            "filter": {
+                "title": "FILTER",
+                "dc": "DC",
+                "region": "地域",
+                "server": "サーバー",
+                "area": "エリア",
+                "size": "サイズ",
+                "theme": "テーマ",
+                "size_apartment_short": "Apt"
+            },
+            "result_count": {
+                "label": "{{result}} / {{total}}",
+                "aria": "該当 {{result}} 件 / 全 {{total}} 件",
+                "zero_hint": "条件に合うお家がありません"
+            },
+            "register_cta": {
+                "label_long": "あなたの作品を登録する",
+                "label_short": "+ 登録",
+                "aria": "ハウジング登録モーダルを開く"
+            },
+            "panel": {
+                "close_left": "左パネルを閉じる",
+                "close_right": "右パネルを閉じる",
+                "open_left": "左パネルを開く",
+                "open_right": "右パネルを開く"
+            },
+            "center": {
+                "toggle": {
+                    "map": "マップ",
+                    "pinterest": "一覧",
+                    "label": "表示モード切替"
+                },
+                "map_alt": "ハウジングマップ",
+                "compass_label": "方位"
+            },
+            "card": {
+                "favorite": "お気に入り",
+                "favorite_remove": "お気に入りを解除",
+                "add_to_tour": "ツアーに追加",
+                "copy_url": "共有URLをコピー",
+                "copy_url_done": "URLをコピーしました",
+                "open_sns": "SNS投稿を開く",
+                "close": "閉じる"
+            },
+            "empty": {
+                "title": "該当ハウジングがありません",
+                "hint": "フィルタ条件を見直してください"
             }
         }
     }

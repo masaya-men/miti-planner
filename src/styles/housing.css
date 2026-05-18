@@ -487,6 +487,13 @@
   outline-offset: 2px;
 }
 
+/* Filter panel footer (close button alignment) */
+.housing-filter-panel-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
 /* Panel close button (reusable for left/right) */
 .housing-panel-close {
   appearance: none;
