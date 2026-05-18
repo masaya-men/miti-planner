@@ -9,6 +9,7 @@ import { FilterPanel } from './FilterPanel';
 import { CenterArea } from './CenterArea';
 import { RightPanel } from './RightPanel';
 import { FavoritesModal } from './FavoritesModal';
+import { HousingRegisterModal } from './HousingRegisterModal';
 import '../../../styles/housing.css';
 
 /**
@@ -25,6 +26,7 @@ export const HousingWorkspace: React.FC = () => {
   const setLeftPanelOpen = useHousingViewStore((s) => s.setLeftPanelOpen);
   const setRightPanelOpen = useHousingViewStore((s) => s.setRightPanelOpen);
   const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
+  const [registerModalOpen, setRegisterModalOpen] = useState(false);
 
   // Lock body scroll while workspace is mounted (mockup is a fixed-viewport experience).
   useEffect(() => {
@@ -37,13 +39,7 @@ export const HousingWorkspace: React.FC = () => {
 
   const handleCloseLeft = useCallback(() => setLeftPanelOpen(false), [setLeftPanelOpen]);
   const handleCloseRight = useCallback(() => setRightPanelOpen(false), [setRightPanelOpen]);
-  // Routes to the legacy register hash for now; Plan F will replace this with
-  // the dedicated register modal wired into the new workspace flow.
-  const handleRegisterClick = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      window.location.hash = 'register';
-    }
-  }, []);
+  const handleRegisterClick = useCallback(() => setRegisterModalOpen(true), []);
 
   return (
     <main className="housing-workspace" data-theme={theme}>
@@ -78,6 +74,7 @@ export const HousingWorkspace: React.FC = () => {
         <StatusBar />
       </div>
       <FavoritesModal open={favoritesModalOpen} onClose={() => setFavoritesModalOpen(false)} />
+      <HousingRegisterModal open={registerModalOpen} onClose={() => setRegisterModalOpen(false)} />
     </main>
   );
 };

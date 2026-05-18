@@ -2046,6 +2046,12 @@
             "empty": {
                 "title": "No homes match your filters",
                 "hint": "Try adjusting your filter selections"
+            },
+            "register_modal": {
+                "title": "Register your home",
+                "close": "Close",
+                "login_required": "Login required",
+                "login_button": "Login"
             }
         }
     }

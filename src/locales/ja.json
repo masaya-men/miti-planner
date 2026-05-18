@@ -2067,6 +2067,12 @@
             "empty": {
                 "title": "該当ハウジングがありません",
                 "hint": "フィルタ条件を見直してください"
+            },
+            "register_modal": {
+                "title": "ハウジングを登録",
+                "close": "閉じる",
+                "login_required": "ログインが必要です",
+                "login_button": "ログイン"
             }
         }
     }

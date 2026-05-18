@@ -2010,6 +2010,12 @@
             "empty": {
                 "title": "조건에 맞는 집이 없습니다",
                 "hint": "필터를 조정해 보세요"
+            },
+            "register_modal": {
+                "title": "집 등록",
+                "close": "닫기",
+                "login_required": "로그인이 필요합니다",
+                "login_button": "로그인"
             }
         }
     }
