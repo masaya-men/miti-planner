@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { fetchAllListings, fetchListingById } from '../../lib/housing/housingListingsMockService';
 
-describe('housingListingsService (mock)', () => {
+describe('housingListingsMockService', () => {
   it('fetchAllListings returns the mock 50 listings', async () => {
     const listings = await fetchAllListings();
+    // Guard: the gallery is designed around 50 demo items. Update both the data and this number together.
     expect(listings.length).toBe(50);
   });
 
