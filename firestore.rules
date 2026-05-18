@@ -238,10 +238,6 @@ service cloud.firestore {
       return t in ['personal', 'fc'];
     }
 
-    function isValidRoomKind(k) {
-      return k in ['private_chamber', 'apartment_room'];
-    }
-
     function isValidPrivateChamberNumber(n) {
       return n is int && n >= 1 && n <= 512;
     }
