@@ -24,8 +24,24 @@
 export const HOUSING_AREAS = ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'] as const;
 export type HousingArea = typeof HOUSING_AREAS[number];
 
-export const HOUSING_SIZES = ['S', 'M', 'L', 'Apartment', 'PrivateRoom'] as const;
+export const HOUSING_SIZES = ['S', 'M', 'L'] as const;
 export type HousingSize = typeof HOUSING_SIZES[number];
+
+// ─────────────────────────────────────────────
+// 個室・アパート対応 (spec 2026-05-18 §3.1)
+// ─────────────────────────────────────────────
+
+export const BUILDING_TYPES = ['house', 'apartment'] as const;
+export type BuildingType = typeof BUILDING_TYPES[number];
+
+export const OWNER_TYPES = ['personal', 'fc'] as const;
+export type OwnerType = typeof OWNER_TYPES[number];
+
+export const ROOM_KINDS = ['private_chamber', 'apartment_room'] as const;
+export type RoomKind = typeof ROOM_KINDS[number];
+
+export const SUBDIVISIONS = ['main', 'sub'] as const;
+export type Subdivision = typeof SUBDIVISIONS[number];
 
 export const IMAGE_MODES = ['sns', 'thumbnail', 'none'] as const;
 export type ImageMode = typeof IMAGE_MODES[number];
@@ -48,6 +64,22 @@ export function isValidHousingSize(value: string): value is HousingSize {
   return (HOUSING_SIZES as readonly string[]).includes(value);
 }
 
+export function isValidBuildingType(value: string): value is BuildingType {
+  return (BUILDING_TYPES as readonly string[]).includes(value);
+}
+
+export function isValidOwnerType(value: string): value is OwnerType {
+  return (OWNER_TYPES as readonly string[]).includes(value);
+}
+
+export function isValidRoomKind(value: string): value is RoomKind {
+  return (ROOM_KINDS as readonly string[]).includes(value);
+}
+
+export function isValidSubdivision(value: string): value is Subdivision {
+  return (SUBDIVISIONS as readonly string[]).includes(value);
+}
+
 export function isValidImageMode(value: string): value is ImageMode {
   return (IMAGE_MODES as readonly string[]).includes(value);
 }
@@ -66,22 +98,34 @@ export function isValidFeatureTool(value: string): value is FeatureTool {
 
 /**
  * housing_listings/{id} - メイン物件
- * 設計書 §4.2 参照
+ * 設計書: docs/superpowers/specs/2026-05-18-housing-room-types-design.md §3.1
  */
 export interface HousingListing {
   id: string;
   ownerUid: string;
 
-  // 住所
+  // 物理ワールド
   dc: string;
   server: string;
-  area: HousingArea;
-  ward: number;        // 1-30 (FF14 spec)
-  plot: number;        // 1-60 (FF14 spec)
-  size: HousingSize;
-  apartmentRoom?: number; // 1-90, only when size='Apartment'
 
-  // 同住所検索用 denormalized key (サーバー側で生成、クライアント書き換え不可)
+  // エリア + ワード
+  area: HousingArea;
+  ward: number;                   // 1-30
+  subdivision: Subdivision;       // 'main' | 'sub'
+
+  // 建物タイプ (NEW)
+  buildingType: BuildingType;     // 'house' | 'apartment'
+
+  // === house の場合 (必須) ===
+  ownerType?: OwnerType;          // 'personal' | 'fc'
+  plot?: number;                  // 1-30
+  size?: HousingSize;             // 'S' | 'M' | 'L'
+
+  // === 部屋区分 (NEW) ===
+  roomKind?: RoomKind;            // undefined / 'private_chamber' / 'apartment_room'
+  roomNumber?: number;            // 1-512 (chamber) / 1-90 (apt)
+
+  // 同住所検索用 denormalized key (server 生成)
   addressKey: string;
 
   // 画像（3 択のいずれか）
@@ -91,8 +135,8 @@ export interface HousingListing {
   thumbnailPath?: string;
 
   // ユーザー入力
-  tags: string[];      // max 5 items, defined values from housingTags master
-  description?: string;// max 200 chars
+  tags: string[];
+  description?: string;
 
   // システム
   createdAt: number;
