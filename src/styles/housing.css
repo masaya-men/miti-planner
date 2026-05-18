@@ -42,6 +42,7 @@
 
   /* ===== Semantic / status ===== */
   --housing-warning: #ff8080;
+  --housing-disabled-opacity: 0.35;
 
   /* ===== Typography sizes (px-based, mockup-aligned) ===== */
   --housing-text-xs: 11px;
@@ -160,6 +161,37 @@
     rgba(255, 255, 255, 0.18) 70%, transparent);
   pointer-events: none;
 }
+.housing-top-left,
+.housing-top-right {
+  display: flex; align-items: center; gap: 12px;
+}
+
+.housing-panel-toggle {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-mute);
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+.housing-panel-toggle:hover:not(:disabled) {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-panel-toggle:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-panel-toggle:disabled {
+  cursor: not-allowed;
+  opacity: var(--housing-disabled-opacity);
+}
+
 .housing-brand {
   display: flex; align-items: center; gap: 12px;
   font-weight: 600; letter-spacing: 0.04em; font-size: 13px;

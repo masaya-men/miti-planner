@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
@@ -79,5 +79,53 @@ describe('HousingWorkspace', () => {
     renderWorkspace();
     const main = document.querySelector('.housing-main') as HTMLElement;
     expect(main.getAttribute('data-left-collapsed')).toBe('true');
+  });
+
+  it('TopBar left toggle opens/closes the left panel and is reachable even when starting closed', () => {
+    // Regression: a previous build only had a close-button inside the panel, so
+    // collapsing it removed the only re-open affordance. The TopBar toggle must
+    // always be present so users can re-open after collapsing.
+    // The TopBar toggle is distinguished from the in-panel close button via aria-pressed.
+    useHousingViewStore.setState({ leftPanelOpen: false });
+    renderWorkspace();
+
+    // Closed state — TopBar exposes "開く" affordance with aria-pressed=false
+    const openBtn = screen.getByRole('button', {
+      name: jaTranslations.housing.workspace.panel.open_left,
+      pressed: false,
+    });
+    expect(openBtn).toBeInTheDocument();
+    fireEvent.click(openBtn);
+    expect(useHousingViewStore.getState().leftPanelOpen).toBe(true);
+
+    // After opening, TopBar button flips to "閉じる" with aria-pressed=true
+    const closeBtn = screen.getByRole('button', {
+      name: jaTranslations.housing.workspace.panel.close_left,
+      pressed: true,
+    });
+    fireEvent.click(closeBtn);
+    expect(useHousingViewStore.getState().leftPanelOpen).toBe(false);
+  });
+
+  it('TopBar right toggle opens/closes the right panel in browse mode', () => {
+    useHousingViewStore.setState({ rightPanelOpen: true, mode: 'browse' });
+    renderWorkspace();
+    const closeBtn = screen.getByRole('button', {
+      name: jaTranslations.housing.workspace.panel.close_right,
+      pressed: true,
+    });
+    fireEvent.click(closeBtn);
+    expect(useHousingViewStore.getState().rightPanelOpen).toBe(false);
+  });
+
+  it('TopBar right toggle is disabled while tour mode is active (spec §3.3)', () => {
+    // §3.3: 右パネルはツアー中は固定 (進行表示のため閉じれない)
+    useHousingViewStore.setState({ rightPanelOpen: true, mode: 'tour' });
+    renderWorkspace();
+    const closeBtn = screen.getByRole('button', {
+      name: jaTranslations.housing.workspace.panel.close_right,
+      pressed: true,
+    });
+    expect(closeBtn).toBeDisabled();
   });
 });
