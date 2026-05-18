@@ -2,6 +2,44 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-18 セッション 32・Housing Sub-spec 2B Plan F (Finishing)）
+
+**背景**: セッション 31 で Plan B/D/E まで完成、ユーザー実機確認で基本動作 OK。残り「リリース可能化」 (登録モーダル接続 / ルート整備 / a11y / E2E / 親仕様改訂) を Plan F として一括対応。subagent-driven-development スキルで 12 task + final gap fix を完走。
+
+### 完了内容
+
+- **Task 1**: `src/lib/housing/housingListingsMockService.ts` 抽象層 (Phase 2 で Firestore に差し替え予定、既存 `housingListingsService.ts` (Firestore 同住所検索) と命名衝突回避のため `Mock` 接尾辞)
+- **Task 2**: `src/lib/housing/useReducedMotion.ts` フック + AutoScrollList 統合 (SceneryVideo は既存のインライン match、refactor は iterate-first で後回し)
+- **Task 3**: `SkeletonCard` (pinterest / right-panel variants、reduced-motion で shimmer 停止)、housing.css に新規 token + class 追加、ビュー未接続だが Phase 2 で接続予定
+- **Task 4**: `HousingToast` (info / error variants、`role="status"`、ref guard で onClose identity の timer reset を回避)、グローバル `showToast()` と二重化を JSDoc で明記
+- **Task 5**: `HousingRegisterModal` で Sub-spec 2A の `HousingRegisterView` をラップ、未ログイン時は LoginModal 連携、`window.location.hash = 'register'` レガシールートを置き換え、4 言語 i18n 完備
+- **Task 6**: TopBar に検索 input 追加、`useHousingFilterStore.setSearchText` に直結 (既存 i18n `topbar.search_placeholder` 再利用)
+- **Task 7**: `/housing/p/:listingId` で該当カード pre-expanded、`useParams` → `focusListingId` → CenterArea → PinterestView (useEffect で URL 変更にも追従)、CenterArea が focus 時に強制 pinterest mode 切替
+- **Task 8**: `/housing/tour/:tourId` で local store に listings あれば auto-enter (ref guard で再発火防止、`useHousingTourStore.getState()` で subscriber 化を避ける)、Phase 2 で Firestore 復元
+- **Task 9**: a11y スモークテスト追加 (全 button accessible name 必須 + 全 img alt 必須)、既存コードは compliant で fix 不要、ガードとして将来回帰検知
+- **Task 10**: Playwright E2E 4 シナリオ追加 (browse / filter / listing-url / tour-url) 全 pass
+- **Task 11**: 親仕様 (`2026-05-07-housing-tour-phase1-design.md`) §7/§8/§10.1/§11.2/§18 を Sub-spec 2B 参照に書き換え (-131 / +22 行)
+- **Task 12**: 最終ビルド検証 (vitest 847 pass、tsc clean、build OK、Plan F の E2E 4 件 pass)
+- **Gap fix**: 「完了の定義」 で TopBar register CTA が必須だったが Task 5 時点で抜けていた → TopBar に register ボタン追加 (favorites と theme の間、honey-soft pill)
+
+### 設計判断
+
+- **housingListingsService 命名衝突**: 既存 `src/lib/housingListingsService.ts` (Firestore 本物) と plan の指定パス `src/lib/housing/housingListingsService.ts` が同名だったため、Mock 側を `housingListingsMockService.ts` にリネームしてヘッダーコメントで境界明示
+- **ハードコード color/px 完全排除**: housing-design.md の strict rule (TSX 内 rgb/rgba/hex 直書き禁止) を全実装で遵守、必要に応じて新規 token をhousing.css に追加 (`--housing-skeleton-block` / `--housing-toast-info-bg` / 等)
+- **defensive infra**: SkeletonCard / HousingToast / housingListingsMockService の 3 つは Phase 2 統合を JSDoc で明示、Plan F 時点ではビュー未接続でも OK
+
+### コード品質・検証
+
+- **commits**: 21 (各 task TDD → spec review → code quality review → fix → 必要に応じて再 review)
+- **vitest**: 847 pass (Session 31 から +27)、新規 8 test files
+- **TypeScript**: strict mode clean (`tsc --noEmit` エラーなし)
+- **build**: 5.92s、PWA precache 199 entries (5.9 MB)
+- **Playwright**: Plan F の 4 件 pass、pre-existing `timeline-responsive` 5 件 fail は別件
+- **subagent-driven-development**: implementer → spec reviewer → code quality reviewer の 3 段階で各 task 検証、scope creep 防止に有効
+- 実機検証は次セッションで対応 (push + Vercel deploy 後)
+
+---
+
 ## 完了（2026-05-16 セッション 24・攻撃ジャンプ UI スマホドリルダウン化）
 
 **背景**: スマホで攻撃ジャンプ UI を開き複数回出現する攻撃名を押すと、 1段目 (検索 + 攻撃名リスト) と 2段目 (出現箇所サブリスト) が縦積みになり、 ポップオーバー全高 (最大 ~750px) が可視高さを超えて 2段目選択肢が画面外にはみ出して押せない問題。

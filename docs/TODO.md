@@ -11,32 +11,32 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 push 済 (origin と同期)
-- **最新本番デプロイ**: セッション 31 (2026-05-18) で Plan B 補強 + D + E + 実機 iterate を含む 9 commits push、 Vercel 自動デプロイ中
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド (今日 9 消費 → 残り 91)
-- **セッション 31 成果 (2026-05-18)**:
-  - **Plan B バグ修正**: TopBar に左右パネルトグル (lucide PanelLeftClose/Open、 ツアー中右トグル disabled、 設計書 §3.3 追記)
-  - **Plan D 完成**: useAutoScroll + RightPanelListItem + AutoScrollList + ShareTourButton + TourKeyboardController (Enter/Space/Arrow) + TourProgressList (scrollIntoView) + RightPanel (mode 切替)
-  - **Plan E 完成**: sortByAddress + useMarqueeSelection + FavoriteCard + FavoritesListPane (Shift/Ctrl/矩形) + TourBuilderPane + MannerNoticeDialog + FavoritesModal (92vw × 88vh) + ♡ overlay を中央カード/マップ bubble に追加 + 左→右 DnD (DndContext を modal level、 prefix id 衝突回避、 DragOverlay + snapCenterToCursor)
-  - **iterate 対応**: marquee 発動エリア拡大 (ignoreSelector) + 「全部回る」 staging アニメ + autoScroll=false + motion.div layout 削除 (sortable 衝突解消) + 「すべて削除」 ボタン + exit duration 短縮
-  - i18n: housing.workspace.{tour, favorites, tour_builder, manner, panels.right_title_tour} を 4 言語追加
-  - housing.css に Plan D/E 用 class 計 50+ 追加 (すべて既存 token 経由、 ハードコード zero)
-  - **820 tests pass** (Session 30 から +49)、 production build OK
-- **新ルール (物理ファイル反映済)**: `/housing` 配下は LoPo 既存 UI デザイン制約 (白黒のみ / Inter 禁止 / honey 色禁止) **対象外**。 `.claude/rules/housing-design.md` がトリガー
-- **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装。 iterate-first
+- **ブランチ**: main、 ローカルで 21 commits ahead (Plan F 完了 + gap fix)。 push + Vercel デプロイは次回 push 時にまとめて
+- **直近セッション**: セッション 32 (2026-05-18) で **Plan F 完了** (subagent-driven 12 task + final gap fix)
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド (今日 9 消費 → 残り 91)。 Plan F は 1 push にまとめてビルド消費 1 回
+- **セッション 32 成果 (2026-05-18) — Plan F 完了**:
+  - **新規 component**: HousingRegisterModal (Sub-spec 2A wrap + ログイン gate)、SkeletonCard (pinterest/right-panel)、HousingToast (info/error)
+  - **新規 hook/lib**: useReducedMotion + AutoScrollList 統合、housingListingsMockService (Phase 2 で Firestore 移行予定の抽象層)
+  - **TopBar 拡張**: 検索 input + register CTA (favorites と theme の間)、両方とも i18n 完備
+  - **ルート整備**: `/housing/p/:listingId` で該当カード pre-expanded、`/housing/tour/:tourId` で local listings あれば auto-enter (Phase 2 で Firestore 復元)
+  - **a11y**: 全 button accessible name 必須 + 全 img alt 必須 のスモークテスト追加
+  - **Playwright E2E**: 4 シナリオ (browse / filter / listing-url / tour-url) 全 pass
+  - **親仕様改訂**: 2026-05-07 Phase1 設計書の §7/§8/§10.1/§11.2/§18 を Sub-spec 2B 参照に書き換え
+  - **i18n**: housing.workspace.register_modal.{title, close, login_required, login_button} を 4 言語追加
+  - **build/test**: vitest 847 pass (+27 from sess 31)、tsc clean、production build OK
+- **既知の残**: pre-existing `playwright/timeline-responsive.spec.ts` が 5 件 fail (列幅 126px 想定 → 実測 156.8px、Plan F 起因ではない、別タスクで調査)
+- **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装
 
 ---
 
-## 次セッション最優先: Plan F (Finishing) 着手
+## 次セッション最優先: 実機 iterate + デプロイ確認
 
-セッション 31 でユーザー実機確認済、 基本動作 OK。 細かいブラッシュアップは Plan F 完了後にまとめて対応する合意。
-
-**Plan F スコープ** (`docs/superpowers/plans/2026-05-18-housing-sub-spec-2b-plan-f-finishing.md`):
-- 登録モーダル接続 (現状は legacy hash route)
-- ルーティング (`/housing/p/{id}` / `/housing/tour/{id}` の着地時挙動)
-- a11y 仕上げ + reduced-motion 対応
-- Playwright E2E (パネル開閉 / フィルタ / マップ↔Pinterest / ツアー実行など §13.3 全網羅)
-- 親仕様 (`2026-05-07-housing-tour-phase1-design.md`) §7-11 改訂
+1. **push + デプロイ** (まだ): `git push` → Vercel 自動デプロイ確認 (ビルド消費 +1)
+2. **実機 iterate** — ブラッシュアップ後回しリスト (下) + Plan F で残ったブラッシュアップ候補
+   - TopBar register CTA の見た目 (honey-soft ベース pill、ユーザー目視で OK か)
+   - HousingRegisterModal の logged-out branch ヘッダーに × アイコンなし (UX 整合性が気になれば追加検討)
+   - SkeletonCard / HousingToast は実装済みだがビュー未接続 → 実機で使い所が見えたら接続
+3. **timeline-responsive playwright fail** の原因調査 (Plan F とは無関係、別 commit で `[data-member-role="tank"]` の列幅が 126 → 156.8 に変わっている)
 
 ---
 
