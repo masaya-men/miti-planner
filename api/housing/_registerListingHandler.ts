@@ -73,15 +73,24 @@ export default async function handler(req: any, res: any) {
       if (can.metaAfterReset) meta = can.metaAfterReset;
 
       const newRef = listingsCol.doc();
+
       const listing = {
         ownerUid: uid,
         dc: draft.dc,
         server: draft.server,
         area: draft.area,
         ward: draft.ward,
-        plot: draft.plot,
-        size: draft.size,
-        ...(draft.size === 'Apartment' ? { apartmentRoom: draft.apartmentRoom } : {}),
+        subdivision: draft.subdivision,
+        buildingType: draft.buildingType,
+        ...(draft.buildingType === 'house' ? {
+          ownerType: draft.ownerType,
+          plot: draft.plot,
+          size: draft.size,
+        } : {}),
+        ...(draft.roomKind ? {
+          roomKind: draft.roomKind,
+          roomNumber: draft.roomNumber,
+        } : {}),
         addressKey,
         imageMode: 'none' as const,
         tags: draft.tags,
