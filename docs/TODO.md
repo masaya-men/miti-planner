@@ -11,36 +11,43 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 **push 済 (origin と同期)** ※ コミット数は `git rev-list --count origin/main..HEAD`
-- **最新本番デプロイ**: セッション 30 (2026-05-18) で Plan B + C を含む 22 commits push、 Vercel 自動デプロイ中。 production /housing で Filter / Map / Pinterest が動く想定
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド制限
-- **セッション 30 成果 (2026-05-18)**: Plan B (左 Filter 6 facet + Register CTA) + Plan C (中央 Map/Pinterest 切替 + inline expansion + Favorites) 実装完了。 housing.css に token 18+ / mockup-faithful class 17+ 追加。 **ハードコード 100% 禁止ルール強化** (`.claude/rules/housing-design.md` + memory `feedback_no_hardcoding.md`)、 housing 配下 TSX の literal **0 件** (grep 検証済)。 **771 tests pass、 production build OK**。 実機目視は次セッション最優先
-- **新ルール (物理ファイル反映済)**: `/housing` 配下は LoPo 既存 UI デザイン制約 (白黒のみ / Inter 禁止 / honey 色禁止) **対象外**。 `.claude/rules/housing-design.md` がトリガー、 `ui-design.md` / `DESIGN.md` は frontmatter で housing/** を exclude。 memory `feedback_housing_design_independent.md`
-- **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像 (mockup map.png = sample-ward.png)。 iterate-first
+- **ブランチ**: main。 **push 済 (origin と同期)**
+- **最新本番デプロイ**: セッション 31 (2026-05-18) で Plan B 補強 + D + E を含む 3 commits push、 Vercel 自動デプロイ中。 production /housing で Filter / Map / Pinterest / RightPanel (auto-scroll) / お気に入りモーダル (DnD + 矩形選択) + ツアー実行 まで動く想定
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド制限 (今日 3 消費)
+- **セッション 31 成果 (2026-05-18)**:
+  - **Plan B バグ修正**: TopBar に左右パネルトグル追加 (lucide PanelLeftClose/Open、 ツアー中は右トグル disabled、 設計書 §3.3 追記)。 ハマり: 「閉じた後に開けない」 片肺バグ
+  - **Plan D 完成**: useAutoScroll hook + RightPanelListItem + AutoScrollList + ShareTourButton + TourKeyboardController (Enter/Space/Arrow) + TourProgressList (active hl + scrollIntoView) + RightPanel (mode 切替)
+  - **Plan E 完成**: sortByAddress + useMarqueeSelection + FavoriteCard + FavoritesListPane (Shift/Ctrl/矩形 multi-select) + TourBuilderPane (@dnd-kit + framer-motion FLIP) + MannerNoticeDialog (localStorage 永続化) + FavoritesModal (92vw × 88vh + 「全部回る」 → manner → tour mode)
+  - i18n: housing.workspace.{tour, favorites, tour_builder, manner, panels.right_title_tour} を 4 言語追加
+  - housing.css に Plan D/E 用 class 計 44 追加、 すべて既存 token 経由 (ハードコード zero)
+  - **820 tests pass** (Session 30 から +49)、 production build OK
+- **新ルール (物理ファイル反映済)**: `/housing` 配下は LoPo 既存 UI デザイン制約 (白黒のみ / Inter 禁止 / honey 色禁止) **対象外**。 `.claude/rules/housing-design.md` がトリガー、 `ui-design.md` / `DESIGN.md` は frontmatter で housing/** を exclude
+- **方針**: 1 ページ完結 Adaptive Workspace。 マップは Phase 2 で本実装、 Sub-spec 2B では仮画像。 iterate-first
 
 ---
 
-## 次セッション最優先 (実機目視 → iterate or Plan D)
+## 次セッション最優先 (実機目視 → iterate or Plan F)
 
-**起動 + 確認**:
-```bash
-npm run dev
-# http://localhost:5173/housing で確認
-# - Light/Dark 両テーマで panel chrome 維持されているか (Session 29 の見た目)
-# - 左パネル: 6 facet の chip 押下で active 色 + 件数連動、 server 段は DC 選択時のみ
-# - 中央パネル右上: マップ/一覧 切替トグル、 マップで 5 件 plot 表示
-# - 一覧モードで Masonry 50 件、 カードクリックで inline expansion
+**確認手順** (Light / Dark 両テーマで一周):
+```
+https://lopoly.app/housing
+# 1. TopBar 左右のパネル開閉トグル (⟨ Filter / Tour ⟩) で開閉できるか
+# 2. 左パネル 6 facet chip、 server 段は DC 選択時のみ
+# 3. 中央のマップ/一覧 切替、 マップで 5 件 bubble、 一覧で Masonry 50
+# 4. 右パネル: 物件リストが auto-scroll で流れる、 ホバーで停止
+# 5. TopBar の ♡ (バッジ付き) → お気に入りモーダル開く
+# 6. (お気に入り適当に何か追加してから) Shift/Ctrl/矩形ドラッグで multi-select
+# 7. ツアービルダー右ペイン: DnD で並び替え、 「住所順に戻す」 トグル
+# 8. 「全部回る」 → マナーポップ → はじめる → モーダル閉 + 右パネルがツアー進行モード
+# 9. Enter / Space / →/← で次へ/前へ
+# 10. 「ツアーを終わる」 で閲覧モードに戻る
 ```
 
-production: https://lopoly.app/housing でも確認 (Vercel デプロイ完了後)
-
 **選択肢**:
-1. **iterate**: 見た目細部の手直しがあれば iterate-first (希望伝えれば即対応)
-2. **Plan D 着手** (右パネル auto-scroll ツアー進行) — Plan B/C と同じ方針: モックアップ準拠 + housing-* token + ハードコード zero。 controller 直接実装が安全
+1. **iterate**: 細部の手直しがあれば iterate-first (希望伝えれば即対応)
+2. **Plan F 着手** (Finishing) — 登録モーダル接続 + ルーティング (`/housing/p/{id}` / `/housing/tour/{id}`) + a11y + E2E (Playwright) + 親仕様改訂
 
 **残 Plan**:
-- D: Right Panel (auto-scroll + ツアー進行 + step ナビ)
-- E: Favorites Modal (DnD + 矩形選択 + ツアー組立) + 検索/登録/❤/アバター再配置
 - F: Finishing (登録接続 + ルート + a11y + E2E + 親仕様改訂)
 
 **(将来検討) XIVAuth (FF14 キャラ連携)** — ハウジング登録の本人確認に有用、 ただし XIVAuth 自体の安定性を 3-6 ヶ月様子見
