@@ -7,10 +7,12 @@ import {
     PointerSensor,
     type DragEndEvent,
     type DragStartEvent,
+    type Modifier,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
+import { getEventCoordinates } from '@dnd-kit/utilities';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
@@ -22,6 +24,25 @@ import { ShareTourButton } from './ShareTourButton';
 import { MannerNoticeDialog, isMannerNoticeDismissed } from './MannerNoticeDialog';
 
 const TOUR_ID_STORAGE_KEY = 'housing-tour-id';
+
+/**
+ * DragOverlay modifier: pin the overlay's center to the cursor instead of
+ * keeping the source's relative offset. Without this the pill UI shows up
+ * far from where the user actually clicked (because the source card is much
+ * bigger than the overlay pill). Mirrors dnd-kit/modifiers' snapCenterToCursor.
+ */
+const snapCenterToCursor: Modifier = ({ activatorEvent, draggingNodeRect, transform }) => {
+    if (!draggingNodeRect || !activatorEvent) return transform;
+    const coords = getEventCoordinates(activatorEvent);
+    if (!coords) return transform;
+    const offsetX = coords.x - draggingNodeRect.left;
+    const offsetY = coords.y - draggingNodeRect.top;
+    return {
+        ...transform,
+        x: transform.x + offsetX - draggingNodeRect.width / 2,
+        y: transform.y + offsetY - draggingNodeRect.height / 2,
+    };
+};
 
 function getOrCreateTourId(): string {
     if (typeof window === 'undefined' || !window.sessionStorage) return 't-fallback';
@@ -227,7 +248,7 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
                         </div>
                     </div>
                 </div>
-                <DragOverlay dropAnimation={null}>
+                <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
                     {draggingListing && (
                         <div className="housing-drag-overlay">
                             <span className="housing-drag-overlay-label">
