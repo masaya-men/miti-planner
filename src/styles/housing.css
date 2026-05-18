@@ -13,6 +13,8 @@
   --housing-panel-border: rgba(255, 255, 255, 0.22);
   --housing-panel-border-strong: rgba(255, 255, 255, 0.36);
   --housing-panel-inner: rgba(255, 255, 255, 0.05);
+  --housing-skeleton-block: rgba(255, 255, 255, 0.10);
+  --housing-skeleton-block-soft: rgba(255, 255, 255, 0.08);
   --housing-text: #ffffff;
   --housing-text-dim: rgba(255, 255, 255, 0.78);
   --housing-text-mute: rgba(255, 255, 255, 0.55);
@@ -1784,4 +1786,69 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
+}
+
+/* ===== Skeleton (loading placeholder) ===== */
+.housing-skeleton-card {
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.housing-skeleton-card-thumb {
+  aspect-ratio: 16 / 9;
+  background: var(--housing-skeleton-block);
+}
+.housing-skeleton-card-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.housing-skeleton-row {
+  background: var(--housing-skeleton-block);
+  height: 12px;
+  border-radius: 4px;
+}
+.housing-skeleton-row-sub {
+  background: var(--housing-skeleton-block-soft);
+  height: 10px;
+  width: 66%;
+  border-radius: 4px;
+}
+
+.housing-skeleton-row-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--housing-panel-bg);
+}
+.housing-skeleton-row-item-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  background: var(--housing-skeleton-block);
+  flex-shrink: 0;
+}
+.housing-skeleton-row-item-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Shimmer behavior, opt-out via data-shimmer="false" (reduced motion) */
+.housing-skeleton-card[data-shimmer="true"] .housing-skeleton-card-thumb,
+.housing-skeleton-card[data-shimmer="true"] .housing-skeleton-row,
+.housing-skeleton-card[data-shimmer="true"] .housing-skeleton-row-sub,
+.housing-skeleton-row-item[data-shimmer="true"] .housing-skeleton-row-item-thumb,
+.housing-skeleton-row-item[data-shimmer="true"] .housing-skeleton-row,
+.housing-skeleton-row-item[data-shimmer="true"] .housing-skeleton-row-sub {
+  animation: housing-skeleton-pulse 1.4s ease-in-out infinite;
+}
+@keyframes housing-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
 }
