@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import {
     DndContext,
     DragOverlay,
@@ -23,6 +23,7 @@ import { FavoritesListPane } from './FavoritesListPane';
 import { TourBuilderPane, TOUR_BUILDER_DROP_ID } from './TourBuilderPane';
 import { ShareTourButton } from './ShareTourButton';
 import { MannerNoticeDialog, isMannerNoticeDismissed } from './MannerNoticeDialog';
+import { HousingPanelModal } from '../HousingPanelModal';
 
 const TOUR_ID_STORAGE_KEY = 'housing-tour-id';
 
@@ -195,61 +196,48 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
             >
-                <div
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label={t('housing.workspace.favorites.title')}
-                    className="housing-favorites-backdrop"
-                    onClick={onClose}
-                >
-                    <div
-                        className="housing-favorites-modal"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="housing-favorites-modal-bar">
-                            <div className="housing-favorites-modal-actions">
-                                <button
-                                    type="button"
-                                    onClick={beginTourStart}
-                                    disabled={favoriteIds.length === 0 || staging}
-                                    className="housing-favorites-run-all-btn"
-                                >
-                                    <Play size={14} aria-hidden="true" />
-                                    <span>
-                                        {t('housing.workspace.favorites.run_all')} ({favoriteIds.length})
-                                    </span>
-                                </button>
-                                <div className="housing-favorites-share-slot">
-                                    <ShareTourButton tourId={tourId} />
-                                </div>
-                            </div>
+                <HousingPanelModal
+                    open={open}
+                    onClose={onClose}
+                    title={t('housing.workspace.favorites.title')}
+                    closeLabel={t('housing.workspace.favorites.close_modal')}
+                    maxWidth={1280}
+                    headerActions={
+                        <>
                             <button
                                 type="button"
-                                onClick={onClose}
-                                aria-label={t('housing.workspace.favorites.close_modal')}
-                                className="housing-favorites-close-btn"
+                                onClick={beginTourStart}
+                                disabled={favoriteIds.length === 0 || staging}
+                                className="housing-favorites-run-all-btn"
                             >
-                                <X size={18} aria-hidden="true" />
+                                <Play size={14} aria-hidden="true" />
+                                <span>
+                                    {t('housing.workspace.favorites.run_all')} ({favoriteIds.length})
+                                </span>
                             </button>
+                            <div className="housing-favorites-share-slot">
+                                <ShareTourButton tourId={tourId} />
+                            </div>
+                        </>
+                    }
+                >
+                    <div className="housing-favorites-modal-body">
+                        <div className="housing-favorites-modal-pane housing-favorites-modal-pane-left">
+                            <FavoritesListPane
+                                selected={selected}
+                                onSelectionChange={setSelected}
+                            />
                         </div>
-                        <div className="housing-favorites-modal-body">
-                            <div className="housing-favorites-modal-pane housing-favorites-modal-pane-left">
-                                <FavoritesListPane
-                                    selected={selected}
-                                    onSelectionChange={setSelected}
-                                />
-                            </div>
-                            <div className="housing-favorites-modal-pane housing-favorites-modal-pane-right">
-                                <TourBuilderPane
-                                    listingIds={builderIds}
-                                    onChange={setTourIds}
-                                    autoSort={autoSort}
-                                    onAutoSortChange={setAutoSort}
-                                />
-                            </div>
+                        <div className="housing-favorites-modal-pane housing-favorites-modal-pane-right">
+                            <TourBuilderPane
+                                listingIds={builderIds}
+                                onChange={setTourIds}
+                                autoSort={autoSort}
+                                onAutoSortChange={setAutoSort}
+                            />
                         </div>
                     </div>
-                </div>
+                </HousingPanelModal>
                 <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
                     {draggingListing && (
                         <div className="housing-drag-overlay">

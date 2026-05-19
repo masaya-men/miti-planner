@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { createPortal } from 'react-dom';
 import { HousingRegisterForm, type HousingRegisterFormValues } from './HousingRegisterForm';
 import { registerListing } from '../../../lib/housingApiClient';
+import { HousingPanelModal } from '../HousingPanelModal';
 
 type Props = {
     open: boolean;
@@ -12,20 +12,6 @@ type Props = {
 export function HousingRegisterFormModal({ open, onClose }: Props) {
     const { t } = useTranslation();
     const [confirmValues, setConfirmValues] = useState<HousingRegisterFormValues | null>(null);
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (!open) return;
-        const prev = document.body.style.overflow;
-        document.body.style.overflow = 'hidden';
-        return () => {
-            document.body.style.overflow = prev;
-        };
-    }, [open]);
 
     const handleSubmit = useCallback((values: HousingRegisterFormValues) => {
         setConfirmValues(values);
@@ -38,51 +24,40 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
         onClose();
     }, [confirmValues, onClose]);
 
-    if (!open || !mounted) return null;
-
-    const content = (
-        <div
-            className="housing-modal-overlay"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="housing-register-title"
-        >
-            <div className="housing-modal-content housing-glass-panel">
-                <header className="housing-modal-header">
-                    <h2 id="housing-register-title">{t('housing.register.title')}</h2>
-                    <button type="button" onClick={onClose} aria-label={t('housing.register.cancel')}>
-                        ×
-                    </button>
-                </header>
+    return (
+        <>
+            <HousingPanelModal
+                open={open}
+                onClose={onClose}
+                title={t('housing.register.title')}
+                closeLabel={t('housing.register.cancel')}
+                maxWidth={720}
+            >
                 <HousingRegisterForm onSubmit={handleSubmit} onCancel={onClose} />
-            </div>
+            </HousingPanelModal>
 
-            {confirmValues && (
-                <div
-                    className="housing-modal-overlay housing-confirm-overlay"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="housing-confirm-title"
-                >
-                    <div className="housing-modal-content housing-glass-panel housing-confirm-content">
-                        <h3 id="housing-confirm-title">{t('housing.register.confirm.title')}</h3>
-                        <p>{t('housing.register.confirm.message')}</p>
-                        <pre className="housing-confirm-summary">
-                            {JSON.stringify(confirmValues, null, 2)}
-                        </pre>
-                        <footer>
-                            <button type="button" onClick={() => setConfirmValues(null)}>
-                                {t('housing.register.confirm.cancel')}
-                            </button>
-                            <button type="button" onClick={handleConfirm}>
-                                {t('housing.register.confirm.submit')}
-                            </button>
-                        </footer>
-                    </div>
+            <HousingPanelModal
+                open={open && confirmValues !== null}
+                onClose={() => setConfirmValues(null)}
+                title={t('housing.register.confirm.title')}
+                closeLabel={t('housing.register.confirm.cancel')}
+                maxWidth={460}
+            >
+                <p className="housing-confirm-message">
+                    {t('housing.register.confirm.message')}
+                </p>
+                <pre className="housing-confirm-summary">
+                    {JSON.stringify(confirmValues, null, 2)}
+                </pre>
+                <div className="housing-confirm-actions">
+                    <button type="button" onClick={() => setConfirmValues(null)}>
+                        {t('housing.register.confirm.cancel')}
+                    </button>
+                    <button type="button" data-variant="primary" onClick={handleConfirm}>
+                        {t('housing.register.confirm.submit')}
+                    </button>
                 </div>
-            )}
-        </div>
+            </HousingPanelModal>
+        </>
     );
-
-    return createPortal(content, document.body);
 }
