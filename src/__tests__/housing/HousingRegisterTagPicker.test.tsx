@@ -23,13 +23,17 @@ describe('HousingRegisterTagPicker', () => {
     expect(onChange).toHaveBeenCalledWith(['modern']);
   });
 
-  it('5 件選択済みなら未選択タグが disabled になる', () => {
+  it('5 件選択済みなら未選択タグが disabled になる (検索経由で可視化)', async () => {
+    const user = userEvent.setup();
     render(
       <HousingRegisterTagPicker
         selected={['modern', 'cafe', 'wafu', 'spring', 'summer']}
         onChange={() => {}}
       />,
     );
+    // 新 UI ではカテゴリタブ式のため、 デフォルトでは season カテゴリ "winter" は隠れる。
+    // 検索ボックスに入れてフィルタすれば全カテゴリ横断で出てくる。
+    await user.type(screen.getByPlaceholderText(/housing\.register\.tag_search_placeholder/i), 'winter');
     const winterBtn = screen.getAllByRole('button', { name: /housing\.tag\.winter/i })[0];
     expect(winterBtn).toBeDisabled();
   });

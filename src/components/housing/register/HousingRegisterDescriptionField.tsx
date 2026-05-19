@@ -11,10 +11,11 @@ interface Props {
 export const HousingRegisterDescriptionField: React.FC<Props> = ({ value, onChange, error }) => {
   const { t } = useTranslation();
   const remaining = HOUSING_LIMITS.MAX_DESCRIPTION_LENGTH - value.length;
+  const overflow = remaining < 0;
 
   return (
-    <div>
-      <label htmlFor="housing-desc" className="block text-app-sm text-app-text-muted mb-1">
+    <div className="housing-field">
+      <label htmlFor="housing-desc" className="housing-label">
         {t('housing.register.description')}
       </label>
       <textarea
@@ -23,14 +24,14 @@ export const HousingRegisterDescriptionField: React.FC<Props> = ({ value, onChan
         onChange={(e) => onChange(e.target.value)}
         rows={4}
         maxLength={HOUSING_LIMITS.MAX_DESCRIPTION_LENGTH + 50}
-        className="w-full bg-app-surface2 border border-app-border rounded-md p-2 text-app-md resize-none"
+        className="housing-textarea"
         placeholder={t('housing.register.description_placeholder')}
       />
-      <p className={`text-app-sm mt-1 ${remaining < 0 ? 'text-app-red' : 'text-app-text-muted'}`}>
+      <p className="housing-address-note" data-overflow={overflow || undefined}>
         {remaining}
       </p>
       {error && (
-        <p className="text-app-red text-app-sm mt-1">
+        <p className="housing-field-error">
           {t(`housing.register.errors.description.${error}`)}
         </p>
       )}

@@ -2243,6 +2243,227 @@
   }
 }
 
+/* ===== Register Form 基礎クラス (Phase 2A) ===== */
+.housing-register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: var(--housing-text);
+}
+.housing-label {
+  display: block;
+  font-size: var(--housing-text-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--housing-text-dim);
+  margin-bottom: 6px;
+}
+.housing-input,
+.housing-textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.42);
+  border: 1px solid var(--housing-panel-border);
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+.housing-input:focus,
+.housing-textarea:focus {
+  border-color: var(--housing-honey);
+  box-shadow: 0 0 0 1px var(--housing-honey-inset) inset;
+  background: rgba(0, 0, 0, 0.55);
+}
+.housing-input:disabled,
+.housing-textarea:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.housing-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+/* select は標準矢印を消してハニーゴールドの▼を描く */
+select.housing-input {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--housing-honey) 50%),
+                    linear-gradient(135deg, var(--housing-honey) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 28px;
+}
+select.housing-input option {
+  background: rgba(0, 0, 0, 0.92);
+  color: var(--housing-text);
+}
+.housing-address-note {
+  margin: 6px 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-dim);
+}
+.housing-address-note[data-overflow="true"] {
+  color: var(--housing-warning);
+}
+.housing-field-error {
+  margin: 4px 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-warning);
+}
+.housing-register-form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--housing-panel-border);
+}
+.housing-register-form-footer button {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.housing-register-form-footer button:not(:disabled):hover {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-honey-border);
+}
+.housing-register-form-footer button[type="button"]:last-child {
+  background: var(--housing-honey-glow);
+  border-color: var(--housing-honey-glow);
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 600;
+}
+.housing-register-form-footer button[type="button"]:last-child:not(:disabled):hover {
+  filter: brightness(1.08);
+}
+.housing-register-form-footer button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===== Tag picker (Phase 2A 改 — タブ + 検索 + 高さ固定) ===== */
+.housing-tag-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.housing-tag-picker-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 28px;
+}
+.housing-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px 3px 12px;
+  border-radius: 999px;
+  background: var(--housing-honey-medium);
+  border: 1px solid var(--housing-honey-border);
+  color: var(--housing-text);
+  font-size: var(--housing-text-xs);
+  text-shadow: var(--housing-text-shadow);
+}
+.housing-tag-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text);
+  cursor: pointer;
+  border-radius: 50%;
+  line-height: 1;
+}
+.housing-tag-chip-remove:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+.housing-tag-picker-counter {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-dim);
+  margin-left: auto;
+  align-self: center;
+}
+.housing-tag-picker-search {
+  width: 100%;
+}
+.housing-tag-picker-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--housing-panel-border);
+  padding-bottom: 6px;
+}
+.housing-tag-picker-tab {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
+}
+.housing-tag-picker-tab:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-tag-picker-tab[aria-selected="true"] {
+  background: var(--housing-honey-soft);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-text);
+}
+.housing-tag-picker-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+.housing-tag-picker-option {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.housing-tag-picker-option:hover:not(:disabled) {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-honey-border);
+}
+.housing-tag-picker-option[aria-pressed="true"] {
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+.housing-tag-picker-option:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.housing-tag-picker-empty {
+  padding: 12px;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-dim);
+  text-align: center;
+}
+
 /* ===== Housing Panel Modal (中央浮遊ガラスモーダル統一基盤) ===== */
 .housing-panel-modal-backdrop {
   position: fixed;
@@ -2251,13 +2472,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.72);
   padding: 32px 16px;
   overflow: hidden;
 }
 .housing-panel-modal-backdrop[data-layer="confirm"] {
   z-index: 60;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.78);
 }
 .housing-panel-modal-shell {
   position: relative;
@@ -2265,14 +2486,14 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  /* LiquidGlassPanel を縦伸びさせるため、 直接の子は flex: 1 で受ける */
 }
 .housing-panel-modal-shell > .housing-panel.is-liquid {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  /* 中央パネル相当の角丸・透明度。 ring border は housing-panel-corner で表現 */
+  background: rgba(8, 12, 20, 0.78);
+  border-radius: 18px;
 }
 .housing-panel-modal-head {
   flex-shrink: 0;
@@ -2322,6 +2543,45 @@
   word-break: break-word;
   max-height: 240px;
   overflow-y: auto;
+}
+.housing-confirm-summary-list {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--housing-panel-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--housing-text-sm);
+}
+.housing-confirm-summary-row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 10px;
+  align-items: baseline;
+}
+.housing-confirm-summary-row > dt {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-dim);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.housing-confirm-summary-row > dd {
+  margin: 0;
+  color: var(--housing-text);
+}
+.housing-confirm-summary-row[data-block="true"] {
+  grid-template-columns: 1fr;
+}
+.housing-confirm-summary-row[data-block="true"] > dt {
+  margin-bottom: 2px;
+}
+.housing-confirm-summary-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 .housing-confirm-actions {
   display: flex;
