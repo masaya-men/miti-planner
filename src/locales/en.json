@@ -1756,6 +1756,7 @@
                     "notFound": "This tweet cannot be fetched. Check the URL or enter manually",
                     "rateLimit": "Too many requests. Please wait 30 seconds and try again",
                     "upstream": "Failed to fetch tweet. Please retry",
+                    "network": "Network connection failed. Please check your connection",
                     "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet"
                 }
             },
