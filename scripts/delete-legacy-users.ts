@@ -299,6 +299,29 @@ async function deleteFirestoreForUid(uid: string): Promise<{ docs: number }> {
   return { docs };
 }
 
+async function deleteCrossRefsForUid(uid: string): Promise<{ copiedBy: number; reports: number }> {
+  let copiedBy = 0;
+  const allShared = await db.collection('shared_plans').get();
+  for (const doc of allShared.docs) {
+    const ref = doc.ref.collection('copiedBy').doc(uid);
+    const snap = await ref.get();
+    if (snap.exists) { await ref.delete(); copiedBy += 1; }
+  }
+
+  let reports = 0;
+  const allListings = await db.collection('housing_listings').get();
+  for (const doc of allListings.docs) {
+    const snap = await doc.ref.collection('reports').where('reporterUid', '==', uid).get();
+    if (snap.empty) continue;
+    const batch = db.batch();
+    for (const r of snap.docs) batch.delete(r.ref);
+    await batch.commit();
+    reports += snap.size;
+  }
+
+  return { copiedBy, reports };
+}
+
 async function main() {
   const flags = parseFlags(process.argv.slice(2));
   const targetUids = loadTargetUids(resolve(ROOT, 'docs/.private/legacy-target-uids.json'));
