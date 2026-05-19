@@ -243,6 +243,62 @@ async function countStorageAndAuth(uid: string): Promise<StorageAuthCounts> {
   return { storageFiles: files.length, authExists, authProvider, isAdmin };
 }
 
+async function deleteDocsByQuery(query: FirebaseFirestore.Query): Promise<number> {
+  const snap = await query.get();
+  if (snap.empty) return 0;
+  const batch = db.batch();
+  for (const doc of snap.docs) batch.delete(doc.ref);
+  await batch.commit();
+  return snap.size;
+}
+
+async function deleteSubcollection(parentRef: FirebaseFirestore.DocumentReference, name: string): Promise<number> {
+  const snap = await parentRef.collection(name).get();
+  if (snap.empty) return 0;
+  const batch = db.batch();
+  for (const doc of snap.docs) batch.delete(doc.ref);
+  await batch.commit();
+  return snap.size;
+}
+
+async function deleteFirestoreForUid(uid: string): Promise<{ docs: number }> {
+  let docs = 0;
+
+  docs += await deleteDocsByQuery(db.collection('plans').where('ownerId', '==', uid));
+  docs += await deleteDocsByQuery(db.collection('sharedPlanMeta').where('ownerId', '==', uid));
+
+  const sharedSnap = await db.collection('shared_plans').where('ownerId', '==', uid).get();
+  for (const doc of sharedSnap.docs) {
+    docs += await deleteSubcollection(doc.ref, 'copiedBy');
+    docs += await deleteSubcollection(doc.ref, 'anonCopiedBy');
+    await doc.ref.delete();
+    docs += 1;
+  }
+
+  const countRef = db.collection('userPlanCounts').doc(uid);
+  if ((await countRef.get()).exists) { await countRef.delete(); docs += 1; }
+
+  const metaRef = db.collection('housing_user_meta').doc(uid);
+  if ((await metaRef.get()).exists) { await metaRef.delete(); docs += 1; }
+
+  const listingsSnap = await db.collection('housing_listings').where('ownerUid', '==', uid).get();
+  for (const doc of listingsSnap.docs) {
+    docs += await deleteSubcollection(doc.ref, 'reports');
+    await doc.ref.delete();
+    docs += 1;
+  }
+
+  const favRef = db.collection('housing_favorites').doc(uid);
+  docs += await deleteSubcollection(favRef, 'items');
+  if ((await favRef.get()).exists) { await favRef.delete(); docs += 1; }
+
+  const userRef = db.collection('users').doc(uid);
+  docs += await deleteSubcollection(userRef, 'featureSessions');
+  if ((await userRef.get()).exists) { await userRef.delete(); docs += 1; }
+
+  return { docs };
+}
+
 async function main() {
   const flags = parseFlags(process.argv.slice(2));
   const targetUids = loadTargetUids(resolve(ROOT, 'docs/.private/legacy-target-uids.json'));
