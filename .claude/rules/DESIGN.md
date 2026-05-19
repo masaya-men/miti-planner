@@ -4,8 +4,9 @@ paths:
   - "src/index.css"
   - "src/pages/**"
 exclude:
-  - "src/components/housing/workspace/**"
+  - "src/components/housing/**"
   - "src/styles/housing.css"
+  - "src/pages/housing/**"
 ---
 
 # LoPo デザイン核心ルール
@@ -16,9 +17,9 @@ UI を作成・修正する際、 以下の核心ルールに従うこと。
 
 ---
 
-> ## ⚠ スコープ免除: ハウジング画面 (`/housing` 配下)
+> ## ⚠ スコープ免除: ハウジング画面 (`/housing` 配下すべて)
 >
-> 本ルールは **LoPo 既存 UI (軽減表 / 管理 / LP)** 向けであって、 ハウジングツアー画面 (`src/components/housing/workspace/**` と `src/styles/housing.css`) には **適用されない**。
+> 本ルールは **LoPo 既存 UI (軽減表 / 管理 / LP)** 向けであって、 ハウジング画面 (`src/components/housing/**` と `src/styles/housing.css` と `src/pages/housing/**`) には **適用されない**。 ハウジング配下なら workspace / register / モーダル / ダイアログ等、 **全コンポーネント**が対象外。
 > ハウジングは独立世界観として独自トンマナルール (ハニーゴールド / Inter フォント / 動画背景 + ガラス) を採用。 モックアップ (`docs/.private/housing-tour-mockup/index.html`) が正典。
 > 詳細は memory `feedback_housing_design_independent.md` を参照。
 >

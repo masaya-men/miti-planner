@@ -11,28 +11,48 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 本セッションで個室・アパ schema 確定の 13 commit を push して Vercel 自動デプロイ
-- **直近セッション (2026-05-18/19 #34)**: ハウジング**個室・アパート対応 schema 確定**
-  - spec/plan 新規作成、 subagent-driven で 7 task + 統合確認を TDD 完走
-  - 新 schema: `HousingListing` に `subdivision` / `buildingType` / `ownerType` / `roomKind` / `roomNumber` 追加、 旧 `apartmentRoom` 廃止、 旧 `'Apartment'`/`'PrivateRoom'` size 削除
-  - 6 層 (型 / validation / buildAddressKey / register handler / Firestore Rules / service クエリ) に整合性制約 4 パターン (個人宅 / FC 全体 / FC 個室 / アパ部屋) を反映
-  - 既存 UI / store / mock / 既存テストを暫定対応 (Apartment UI 一時削除 → Sub-spec 2B で再実装、 it.skip 2 件は意図的)
-  - 検証: build green / vitest 850 PASS / 2 skipped / 0 failed、 final review 指摘 (i18n plot 1〜30 訂正 + ChamberQuery dc/server 追加) も解決済み
-  - 仕様: `docs/superpowers/specs/2026-05-18-housing-room-types-design.md` / 実装: `docs/superpowers/plans/2026-05-18-housing-room-types.md`
-- **並行進行中**: ユーザー側で **「完璧ループの夜景動画」 を毎日試作中** — 良いの来たら差し替え (CDN 化が済めば高画質版でも OK)
+- **ブランチ**: main、 セッション #34 で個室・アパ schema を push 済 (13 commit) だが **schema に重大な仕様誤りが判明** (2026-05-19)
+- **直近セッション (2026-05-19 #35)**: ルール拡大 + spec 訂正 + Phase 1 plan 作成 (完了)、 Phase 1 schema 訂正実装 (次セッション継続予定)
+  - **発覚した誤り**: 公式調査ミスで「subdivision (本街/拡張街) フィールド」 を作ったが、 **実際は plot 1-60 通し番号で判別可能** (31 以上 = 拡張街)。 さらに `ownerType` (個人宅/FC 区別) もユーザー目線で意味なしと判明
+  - **訂正方針**: forward fix (本番データなし、 placeholder 段階) で 2 フィールド削除 + plot 範囲を 1-60 に
+  - **訂正版 spec**: [`docs/superpowers/specs/2026-05-18-housing-room-types-design.md`](./superpowers/specs/2026-05-18-housing-room-types-design.md) (2026-05-19 訂正版に更新済)
+  - **Phase 1 実装 plan**: [`docs/superpowers/plans/2026-05-19-housing-schema-correction.md`](./superpowers/plans/2026-05-19-housing-schema-correction.md) — 9 task の forward fix 手順、 全て code 含めて記載済み、 次セッションは Task 1 から実行
+  - **ルール拡大も完了**: `.claude/rules/housing-design.md` の paths を `src/components/housing/**` 全体に拡大 (workspace のみ → 全 housing 配下、 register / dialog / 新規モーダル も独自トンマナ強制)。 `ui-design.md` / `DESIGN.md` の exclude も同範囲拡大、 memory `feedback_housing_design_independent.md` も補強
+- **並行進行中**: ユーザー側で「完璧ループの夜景動画」 を毎日試作中
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド
-- **既知の残**: なし
+- **既知の残**: schema 訂正 (Phase 1) 実装が次セッションの最優先
 
 ---
 
-## 次セッション最優先: Sub-spec 2B 系 UI 実装 (schema 基盤完成済み)
+## 次セッション最優先: Phase 1 schema 訂正実装
 
-1. **登録モーダル 4 タイプ選択 UI 実装** — `HousingRegisterAddressFields.tsx` に住居タイプ選択 (個人宅 / FC ハウス / FC 個室 / アパート) と subdivision / roomNumber 入力 UI を追加、 spec `2026-05-18-housing-room-types-design.md` §4.1 通り
-2. **物件詳細ページ 関連登録表示** — `findChambersInPlot` / `findHouseForChamber` / `findApartmentRoomsInWard` を使った詳細表示 (spec §4.2)
-3. **フィルタ UI 5 種チップ復活** (2026-05-19 確定) — 左パネル「サイズ」 セクションに `[S] [M] [L] [個室] [アパート]` の 5 チップ (個人宅 vs FC ハウスはフィルタとして区別しない、 spec §4.4)。 `FilterPanel.tsx` + `useHousingFilterStore.ts` を新方針で実装し、 Task 8 で `it.skip` 化した 2 テストを復活
-4. **通報 UI 分離** — 「ちがった」 (1 タップ wrong_info) + 「報告」 (理由選択) の 2 ボタン構成 (spec §5.2)
-5. **家主異議申し立て導線** — 「これは私の家です」 ボタン → 運営連絡先誘導 (spec §5.3、 連絡先 URL も決める)
-6. **Phase 1 設計書改訂** — `2026-05-07-housing-tour-phase1-design.md` の §4.2/§4.3/§6.1/§6.5/§7/§9.3 を本 spec §6.1 リスト通りに更新
+**plan**: [`docs/superpowers/plans/2026-05-19-housing-schema-correction.md`](./superpowers/plans/2026-05-19-housing-schema-correction.md)
+
+実行方法 (推奨): subagent-driven-development スキル経由で task-by-task 実行。 9 task すべて code 含めて plan に記載済み。
+
+1. Task 1: PLOT_RANGE を 1-60 に訂正
+2. Task 2: 型定義から subdivision / ownerType 削除
+3. Task 3: addressKey から S${subdivision} 削除 + テスト書き直し
+4. Task 4: validateAddress を 3 パターン (家全体 / FC 個室 / アパ部屋) に簡素化 + テスト
+5. Task 5: housingListingsService クエリから subdivision 削除
+6. Task 6: register API handler から 2 フィールド保存削除
+7. Task 7: firestore.rules を 3 パターン制約に簡素化
+8. Task 8: HousingRegisterView の EMPTY_DRAFT + 既存テスト fixture 修正
+9. Task 9: 統合確認 (tsc + vitest + build green、 grep で残骸ゼロ)
+
+完了後: commit + push + Vercel デプロイ確認
+
+## 次セッション次優先: Phase 2 登録モーダル UI 実装 (Phase 1 完了後)
+
+spec `2026-05-18-housing-room-types-design.md` §4.1 + ユーザー方針 (2026-05-19 確定):
+- ハウジング独自トンマナでモーダル化 (`docs/.private/housing-tour-mockup/index.html` 準拠)
+- **SNS URL 欄を最上部** (任意、 将来 OG 解析で住所自動推定する準備)
+- **住居タイプ 5 種チップ** (S / M / L / 個室 / アパート) — フィルタ UI と完全統一
+- ファイル分け: HousingRegisterModal / Form / SnsUrlField / TypeSelector / AddressFields / RoomNumberField 等
+- i18n 4 言語 (ja/en/ko/zh) で約 25 キー × 4 = 100 訳追加
+- plan は Phase 1 完了時に新規作成 (`2026-05-19-housing-register-modal.md`)
+
+その後 Phase 3: 物件詳細ページ + 通報 UI 分離 (「ちがった」/「報告」) + 家主異議申し立て (「これは私の家です」)、 Phase 1 設計書 (2026-05-07) §4.2/§4.3/§6.1/§6.5/§7/§9.3 改訂
 
 ---
 

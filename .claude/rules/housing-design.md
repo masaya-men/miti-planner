@@ -1,17 +1,16 @@
 ---
 paths:
-  - "src/components/housing/workspace/**"
+  - "src/components/housing/**"
   - "src/styles/housing.css"
-  - "src/__tests__/housing/HousingWorkspace.test.tsx"
-  - "src/__tests__/housing/TopBar.test.tsx"
-  - "src/__tests__/housing/StatusBar.test.tsx"
-  - "src/__tests__/housing/LiquidGlassPanel.test.tsx"
-  - "src/__tests__/housing/SceneryVideo.test.tsx"
+  - "src/__tests__/housing/**"
+  - "src/pages/housing/**"
 ---
 
-# ハウジング画面 独自デザインルール (`/housing` 配下のみ)
+# ハウジング画面 独自デザインルール (`/housing` 配下すべて)
 
-> 本ルールは **`/housing` ワークスペース専用**。 LoPo 既存 UI ルール ([ui-design.md](./ui-design.md) / [DESIGN.md](./DESIGN.md)) の白黒のみ・Inter 禁止・honey 色禁止・glassmorphism 控えめ等の制約は本画面に**適用されない**。
+> 本ルールは **`/housing` 配下全コンポーネント (workspace / register / モーダル / フォーム等) 専用**。 LoPo 既存 UI ルール ([ui-design.md](./ui-design.md) / [DESIGN.md](./DESIGN.md)) の白黒のみ・Inter 禁止・honey 色禁止・glassmorphism 控えめ等の制約は本画面に**一切適用されない**。
+>
+> **重要**: 以前は `workspace/**` のみ対象だったが、 ユーザーから「ハウジング配下は全部独立トンマナ」 と再三明言されたため、 2026-05-19 に対象範囲を `src/components/housing/**` 全体に拡大。 register/ や HousingDuplicateWarningDialog 等の旧 LoPo ルール準拠だった部分も、 今後はハウジング独自トンマナで作る。
 
 ## 正典 (Source of Truth)
 

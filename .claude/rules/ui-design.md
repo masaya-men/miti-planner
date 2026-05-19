@@ -3,19 +3,20 @@ paths:
   - "src/components/**"
   - "src/index.css"
 exclude:
-  - "src/components/housing/workspace/**"
+  - "src/components/housing/**"
   - "src/styles/housing.css"
+  - "src/pages/housing/**"
 ---
 
 # UIデザインルール
 
-> ## ⚠ スコープ免除: ハウジング画面 (`/housing` 配下)
+> ## ⚠ スコープ免除: ハウジング画面 (`/housing` 配下すべて)
 >
-> 以下のすべてのルールは **LoPo 既存 UI 向け** であって、 ハウジングツアー画面 (`src/components/housing/workspace/**` と `src/styles/housing.css`) には **適用されない**。
+> 以下のすべてのルールは **LoPo 既存 UI 向け** であって、 ハウジング画面 (`src/components/housing/**` と `src/styles/housing.css` と `src/pages/housing/**`) には **適用されない**。 ハウジング配下なら workspace / register / モーダル / ダイアログ等、 **全コンポーネント**が対象外。
 > ハウジングは独立世界観 (動画背景 + ガラス + ハニーゴールド) として設計されており、 モックアップ (`docs/.private/housing-tour-mockup/index.html`) が正典。
 > 詳細は memory `feedback_housing_design_independent.md` を参照。
 >
-> **判定**: 編集対象ファイルが上記パス配下なら本ルールは無視、 モックアップ準拠で進める。
+> **判定**: 編集対象ファイルが上記パス配下なら本ルールは無視、 モックアップ準拠 + housing.css の token (`--housing-*`) 経由で進める。
 
 ---
 
