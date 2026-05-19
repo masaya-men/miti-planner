@@ -11,7 +11,7 @@ import { FilterPanel } from './FilterPanel';
 import { CenterArea } from './CenterArea';
 import { RightPanel } from './RightPanel';
 import { FavoritesModal } from './FavoritesModal';
-import { HousingRegisterModal } from './HousingRegisterModal';
+import { HousingRegisterFormModal } from '../register/HousingRegisterFormModal';
 import '../../../styles/housing.css';
 
 /**
@@ -103,7 +103,7 @@ export const HousingWorkspace: React.FC = () => {
         <StatusBar />
       </div>
       <FavoritesModal open={favoritesModalOpen} onClose={() => setFavoritesModalOpen(false)} />
-      <HousingRegisterModal open={registerModalOpen} onClose={() => setRegisterModalOpen(false)} />
+      <HousingRegisterFormModal open={registerModalOpen} onClose={() => setRegisterModalOpen(false)} />
     </main>
   );
 };

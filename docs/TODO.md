@@ -17,7 +17,8 @@
   - **Vercel 関数**: 10 → **11/12** (`api/tweet-meta.ts` 新規 Edge runtime、 LoPo 初の Edge 関数。 Phase 3 Cloudflare 全面移行のとき他関数より楽に移植可能)
   - **計画から逸脱した点 (記録)**: (1) Plan が Next.js 前提だったため Vite + react-i18next + Vercel Functions 構造に全面読み替え; (2) Task 8/10/11/12/14/15 で `'use client'` + `next-intl` を削除し `useTranslation` + i18n mock 化; (3) masterData に Small/Medium/Large alias 追加 (Plan 欠落); (4) 日本語「6番地6番」 形式の wardPlot fallback 正規表現追加 (Plan 欠落); (5) parseHousingFromText の `dc/server` 変数型注釈追加 (Vercel tsc 厳密モード対応); (6) Task 5 で `@vitest-environment node` 削除 + `vi.spyOn(globalThis, 'fetch')` に切替 (project pattern); (7) Task 16 で `HousingRegisterView.tsx` 削除を見送り (workspace/HousingRegisterModal 等 3 箇所が参照のため Phase 1 互換維持)
   - **build / vitest**: green (`npm run build` 6 秒、 vitest 120 ファイル 910 PASS / 2 skip)
-- **積み残し (Phase 2A polish、 次セッションでも可)**: (a) `HousingRegisterView.tsx` の最終撤去 (現在 dead code 状態); (b) AddressFields の `renderBadge` prop 化 (現状 RegisterForm が dc/server/area/ward/plot を inline 再実装); (c) tweet 取得の rate limiting (現状 unlimited); (d) photo `alt` 属性のアクセシビリティ向上 (現状 `alt=""`)
+- **積み残し (Phase 2A polish、 次セッションでも可)**: (a) `HousingRegisterView.tsx` の最終撤去 (現在 dead code 状態); (b) AddressFields の `renderBadge` prop 化 (現状 RegisterForm が dc/server/area/ward/plot を inline 再実装); (c) tweet 取得の rate limiting (現状 unlimited); (d) photo `alt` 属性のアクセシビリティ向上 (現状 `alt=""`); (e) **旧 `workspace/HousingRegisterModal.tsx` 撤去** (セッション 38 で新モーダルに差し替え済み、 dead code 状態)
+- **次に必要なログイン UX 整備 (Phase 2A 検証後の別タスク)**: ハウジング画面の登録ボタンは現在「未ログインでも新フォームが直接開く」 状態。 理想形 = (1) Workspace TopBar 右上に「いつも通りのログインボタン」 配置、 (2) ハウジングトンマナ (動画背景 + ガラス + ハニーゴールド) の LoginModal を用意 (現 `LoginModal` は LoPo 白黒風)、 (3) 登録ボタン押下 → 登録モーダルが背後に開く (操作不能) + ログインモーダルが手前にスタック表示。 既存 `LoginModal` の流用可否は実装時に判断。
 - **並行進行中**: ユーザー側で「完璧ループの夜景動画」 を毎日試作中
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
 
