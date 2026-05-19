@@ -4,6 +4,49 @@ import { HousingRegisterForm, type HousingRegisterFormValues } from './HousingRe
 import { registerListing, QuotaExhaustedError } from '../../../lib/housingApiClient';
 import { HousingPanelModal } from '../HousingPanelModal';
 import { getTagById } from '../../../data/housingTags';
+import type { RegistrationDraft } from '../../../utils/housingValidation';
+
+/**
+ * フォーム入力値 → API が期待する RegistrationDraft への変換。
+ * フォームでは「サイズ」 が S/M/L/PrivateRoom/Apartment の 5 択で
+ * 建物種別と部屋区分を兼ねているが、 API は buildingType と roomKind を
+ * 分けて受け取る。 ここで対応関係に詰め替える。
+ */
+function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationDraft {
+    const size = v.size;
+    let buildingType: 'house' | 'apartment' = 'house';
+    let apiSize: string | undefined;
+    let roomKind: string | undefined;
+    let plot: number | undefined = v.plot;
+
+    if (size === 'Apartment') {
+        buildingType = 'apartment';
+        apiSize = undefined;
+        plot = undefined;
+        roomKind = 'apartment_room';
+    } else if (size === 'PrivateRoom') {
+        buildingType = 'house';
+        apiSize = v.parentHouseSize;
+        roomKind = 'private_chamber';
+    } else if (size === 'S' || size === 'M' || size === 'L') {
+        buildingType = 'house';
+        apiSize = size;
+    }
+
+    return {
+        dc: v.dc ?? '',
+        server: v.server ?? '',
+        area: v.area ?? '',
+        ward: v.ward ?? 0,
+        buildingType,
+        plot,
+        size: apiSize,
+        roomKind,
+        roomNumber: v.roomNumber,
+        tags: v.tags ?? [],
+        description: v.description,
+    };
+}
 
 type Props = {
     open: boolean;
@@ -40,7 +83,7 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
         setErrorKey(null);
         setSubmitting(true);
         try {
-            await registerListing(confirmValues as never);
+            await registerListing(toRegistrationDraft(confirmValues));
             setConfirmValues(null);
             onClose();
         } catch (e) {
