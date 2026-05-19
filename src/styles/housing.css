@@ -34,6 +34,16 @@
   --housing-honey-shadow-soft: rgba(255, 180, 90, 0.45);
   --housing-honey-shadow-strong: rgba(255, 180, 90, 0.55);
 
+  /* ===== Register modal field tokens ===== */
+  --housing-field-bg-auto: rgba(255, 201, 135, 0.16);
+  --housing-field-bg-confirmed: rgba(120, 200, 130, 0.18);
+  --housing-field-bg-error: rgba(255, 90, 90, 0.16);
+  --housing-field-border-auto: rgba(255, 201, 135, 0.6);
+  --housing-field-border-confirmed: rgba(120, 200, 130, 0.6);
+  --housing-field-border-error: rgba(255, 90, 90, 0.7);
+  --housing-badge-glow: 0 0 12px rgba(255, 201, 135, 0.7);
+  --housing-field-spacing-xs: 6px;
+
   /* ===== Surface variants ===== */
   --housing-chip-bg: rgba(255, 255, 255, 0.05);
   --housing-chip-bg-hover: rgba(255, 255, 255, 0.08);
@@ -2042,4 +2052,193 @@
 .housing-top-register-btn:focus-visible {
   outline: 2px solid var(--housing-honey);
   outline-offset: 2px;
+}
+
+/* ============================================================
+ * Register modal — field badge + check button animation
+ * ============================================================ */
+
+.housing-field-badge {
+  position: absolute;
+  top: var(--housing-field-spacing-xs);
+  right: calc(var(--housing-field-spacing-xs) + 32px);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--housing-honey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.housing-confirm-button {
+  position: absolute;
+  top: var(--housing-field-spacing-xs);
+  right: var(--housing-field-spacing-xs);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--housing-honey-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease-in, transform 120ms ease-in, box-shadow 120ms ease-in;
+}
+
+.housing-confirm-button:hover {
+  background: var(--housing-honey-strong);
+  box-shadow: var(--housing-badge-glow);
+}
+
+.housing-confirm-button:active {
+  transform: scale(0.92);
+}
+
+.housing-confirm-button svg path {
+  stroke: var(--housing-honey);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+/* チェック描画アニメ (bounce + path draw + ripple + glow) */
+@keyframes housing-check-bounce {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.3); }
+  60%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+@keyframes housing-check-draw {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes housing-check-ripple {
+  0%   { transform: scale(0.6); opacity: 0.55; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes housing-check-glow {
+  0%   { box-shadow: 0 0 0 rgba(255, 201, 135, 0); }
+  40%  { box-shadow: 0 0 24px rgba(255, 201, 135, 0.85); }
+  100% { box-shadow: 0 0 0 rgba(255, 201, 135, 0); }
+}
+
+.housing-confirm-button[data-animating="true"] {
+  animation: housing-check-bounce 400ms cubic-bezier(0.34, 1.56, 0.64, 1), housing-check-glow 300ms ease-in-out;
+}
+
+.housing-confirm-button[data-animating="true"] svg path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: housing-check-draw 200ms ease-out 60ms forwards;
+}
+
+.housing-confirm-button[data-animating="true"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--housing-honey);
+  animation: housing-check-ripple 600ms ease-out;
+  pointer-events: none;
+}
+
+/* フィールド state class (背景遷移) */
+.housing-field {
+  position: relative;
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  transition: background 300ms ease-out, border-color 300ms ease-out;
+}
+
+.housing-field[data-state="auto-filled"] {
+  background: var(--housing-field-bg-auto);
+  border-color: var(--housing-field-border-auto);
+}
+
+.housing-field[data-state="confirmed"] {
+  background: var(--housing-field-bg-confirmed);
+  border-color: var(--housing-field-border-confirmed);
+}
+
+.housing-field[data-state="error"] {
+  background: var(--housing-field-bg-error);
+  border-color: var(--housing-field-border-error);
+}
+
+/* タイピングアニメのカーソル */
+@keyframes housing-typing-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.housing-typing-cursor {
+  display: inline-block;
+  width: 1px;
+  background: var(--housing-honey);
+  animation: housing-typing-cursor 530ms steps(2) infinite;
+}
+
+/* ローディングスピナー (リキッドグラス調円形) */
+@keyframes housing-spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+
+.housing-spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--housing-honey-strong);
+  border-top-color: var(--housing-honey);
+  animation: housing-spinner-rotate 1.2s linear infinite;
+}
+
+.housing-fetch-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* 動的フィールド (タイプ別の追加フィールド) のスライドイン/アウト */
+@keyframes housing-field-slide-in {
+  from { opacity: 0; transform: translateY(8px); max-height: 0; }
+  to   { opacity: 1; transform: translateY(0); max-height: 400px; }
+}
+
+@keyframes housing-field-slide-out {
+  from { opacity: 1; transform: translateY(0); max-height: 400px; }
+  to   { opacity: 0; transform: translateY(-8px); max-height: 0; }
+}
+
+.housing-conditional-field {
+  overflow: hidden;
+  animation: housing-field-slide-in 300ms cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+}
+
+.housing-conditional-field[data-exiting="true"] {
+  animation: housing-field-slide-out 200ms ease-in forwards;
+}
+
+/* prefers-reduced-motion 対応 */
+@media (prefers-reduced-motion: reduce) {
+  .housing-confirm-button,
+  .housing-confirm-button[data-animating="true"],
+  .housing-confirm-button[data-animating="true"] svg path,
+  .housing-confirm-button[data-animating="true"]::after,
+  .housing-field,
+  .housing-typing-cursor,
+  .housing-spinner,
+  .housing-conditional-field {
+    animation: none !important;
+    transition: none !important;
+  }
 }
