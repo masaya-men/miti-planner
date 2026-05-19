@@ -5,6 +5,7 @@ import {
     DndContext,
     DragOverlay,
     PointerSensor,
+    pointerWithin,
     type DragEndEvent,
     type DragStartEvent,
     type Modifier,
@@ -189,6 +190,7 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
         <>
             <DndContext
                 sensors={sensors}
+                collisionDetection={pointerWithin}
                 autoScroll={false}
                 onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
