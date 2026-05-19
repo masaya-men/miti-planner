@@ -248,16 +248,65 @@ async function main() {
   await assertNoAdminClaims(targetUids);
   console.log('✅ 安全チェック通過: prefix OK / admin claim なし');
 
-  console.log('\n--- Firestore pre-count ---');
+  console.log('\n=== DRY RUN: Legacy User Cleanup ===');
+  console.log(`Target uids: ${targetUids.length}\n`);
+
+  let totalFirestoreDocs = 0;
+  let totalStorageFiles = 0;
+  let totalAuthAccounts = 0;
+  let totalAdminHits = 0;
+  let totalXrefCopiedBy = 0;
+  let totalXrefReports = 0;
+
   for (let i = 0; i < targetUids.length; i++) {
     const uid = targetUids[i];
     const counts = await countFirestoreDocs(uid);
-    console.log(`[${(i + 1).toString().padStart(2)}/${targetUids.length}] ${uid}`);
-    console.log(`  users:${counts.users} plans:${counts.plans} meta:${counts.sharedPlanMeta} shared:${counts.sharedPlans}(c:${counts.sharedPlansCopiedBy} a:${counts.sharedPlansAnonCopiedBy}) ucnt:${counts.userPlanCounts} hMeta:${counts.housingUserMeta} hList:${counts.housingListings}(r:${counts.housingListingsReports}) hFav:${counts.housingFavoritesItems} sess:${counts.featureSessions}`);
     const xrefs = await countCrossRefs(uid);
-    console.log(`  xref copiedBy:${xrefs.copiedByHits} reports:${xrefs.reportsHits}`);
     const sa = await countStorageAndAuth(uid);
-    console.log(`  storage:${sa.storageFiles} auth:${sa.authExists ? sa.authProvider : 'not-found'}`);
+
+    const isAdmin = sa.isAdmin;
+
+    const firestoreSubtotal =
+      counts.users + counts.plans + counts.sharedPlanMeta +
+      counts.sharedPlans + counts.sharedPlansCopiedBy + counts.sharedPlansAnonCopiedBy +
+      counts.userPlanCounts + counts.housingUserMeta +
+      counts.housingListings + counts.housingListingsReports +
+      counts.housingFavoritesItems + counts.featureSessions;
+    totalFirestoreDocs += firestoreSubtotal;
+    totalStorageFiles += sa.storageFiles;
+    if (sa.authExists) totalAuthAccounts += 1;
+    if (isAdmin) totalAdminHits += 1;
+    totalXrefCopiedBy += xrefs.copiedByHits;
+    totalXrefReports += xrefs.reportsHits;
+
+    console.log(`[${(i + 1).toString().padStart(2)}/${targetUids.length}] ${uid}`);
+    console.log(`  - users doc:                ${counts.users === 1 ? 'exists' : 'not found'}`);
+    console.log(`  - plans (ownerId match):    ${counts.plans}`);
+    console.log(`  - sharedPlanMeta:           ${counts.sharedPlanMeta}`);
+    console.log(`  - shared_plans:             ${counts.sharedPlans} (copiedBy/anonCopiedBy: ${counts.sharedPlansCopiedBy}/${counts.sharedPlansAnonCopiedBy})`);
+    console.log(`  - userPlanCounts:           ${counts.userPlanCounts === 1 ? 'exists' : 'not found'}`);
+    console.log(`  - housing_user_meta:        ${counts.housingUserMeta === 1 ? 'exists' : 'not found'}`);
+    console.log(`  - housing_listings:         ${counts.housingListings} (reports: ${counts.housingListingsReports})`);
+    console.log(`  - housing_favorites items:  ${counts.housingFavoritesItems}`);
+    console.log(`  - featureSessions:          ${counts.featureSessions}`);
+    console.log(`  - cross-ref copiedBy hits:  ${xrefs.copiedByHits}`);
+    console.log(`  - cross-ref reports hits:   ${xrefs.reportsHits}`);
+    console.log(`  - Storage files:            ${sa.storageFiles}`);
+    console.log(`  - Auth account:             ${sa.authExists ? `exists (provider: ${sa.authProvider})` : 'not found'}`);
+    console.log(`  - admin claim:              ${isAdmin ? '*** ADMIN ***' : 'none ✓'}`);
+    console.log('');
+  }
+
+  console.log('=== Summary ===');
+  console.log(`Total Firestore documents to delete: ${totalFirestoreDocs}`);
+  console.log(`Total cross-ref (copiedBy/reports) to delete: ${totalXrefCopiedBy}/${totalXrefReports}`);
+  console.log(`Total Storage files to delete: ${totalStorageFiles}`);
+  console.log(`Total Auth accounts to delete: ${totalAuthAccounts}`);
+  console.log(`Admin claim hits (must be 0): ${totalAdminHits}${totalAdminHits === 0 ? ' ✓' : ' ❌'}`);
+
+  if (!flags.execute) {
+    console.log('\nRe-run with --execute --confirm to perform deletion.');
+    return;
   }
 
   if (flags.execute && !flags.confirm) {
