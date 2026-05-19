@@ -4,8 +4,12 @@
  * Source of truth: docs/.private/housing-tour-mockup/index.html
  * ============================================================ */
 
-.housing-workspace {
-  /* ===== Color tokens ===== */
+.housing-workspace,
+.housing-panel-modal-backdrop {
+  /* ===== Color tokens =====
+     workspace と portal 化されたモーダルの両方で token を解決させる。
+     モーダルは createPortal で body 直下に出るため、 .housing-workspace
+     外でも var(--housing-*) を効かせる必要がある。 */
   --housing-honey: #ffc987;
   --housing-honey-glow: #ffb35a;
   --housing-candle: #ffe2b3;
@@ -2475,6 +2479,10 @@ select.housing-input option {
   background: rgba(0, 0, 0, 0.72);
   padding: 32px 16px;
   overflow: hidden;
+  /* portal 経由で body 直下に出るため、 ハウジング基本トンマナ (font / color)
+     をここで確立しないと LoPo 既存テーマ (Rajdhani / dark text) を継承する */
+  font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+  color: var(--housing-text);
 }
 .housing-panel-modal-backdrop[data-layer="confirm"] {
   z-index: 60;
