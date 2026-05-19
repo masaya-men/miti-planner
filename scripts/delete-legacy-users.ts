@@ -119,6 +119,77 @@ async function assertNoAdminClaims(uids: string[]): Promise<void> {
   }
 }
 
+interface FirestoreCounts {
+  users: number;
+  plans: number;
+  sharedPlanMeta: number;
+  sharedPlans: number;
+  sharedPlansCopiedBy: number;
+  sharedPlansAnonCopiedBy: number;
+  userPlanCounts: number;
+  housingUserMeta: number;
+  housingListings: number;
+  housingListingsReports: number;
+  housingFavoritesItems: number;
+  featureSessions: number;
+}
+
+async function countFirestoreDocs(uid: string): Promise<FirestoreCounts> {
+  const counts: FirestoreCounts = {
+    users: 0,
+    plans: 0,
+    sharedPlanMeta: 0,
+    sharedPlans: 0,
+    sharedPlansCopiedBy: 0,
+    sharedPlansAnonCopiedBy: 0,
+    userPlanCounts: 0,
+    housingUserMeta: 0,
+    housingListings: 0,
+    housingListingsReports: 0,
+    housingFavoritesItems: 0,
+    featureSessions: 0,
+  };
+
+  const userDoc = await db.collection('users').doc(uid).get();
+  counts.users = userDoc.exists ? 1 : 0;
+
+  const plansSnap = await db.collection('plans').where('ownerId', '==', uid).get();
+  counts.plans = plansSnap.size;
+
+  const metaSnap = await db.collection('sharedPlanMeta').where('ownerId', '==', uid).get();
+  counts.sharedPlanMeta = metaSnap.size;
+
+  const sharedSnap = await db.collection('shared_plans').where('ownerId', '==', uid).get();
+  counts.sharedPlans = sharedSnap.size;
+  for (const doc of sharedSnap.docs) {
+    const copiedBySnap = await doc.ref.collection('copiedBy').get();
+    counts.sharedPlansCopiedBy += copiedBySnap.size;
+    const anonSnap = await doc.ref.collection('anonCopiedBy').get();
+    counts.sharedPlansAnonCopiedBy += anonSnap.size;
+  }
+
+  const countDoc = await db.collection('userPlanCounts').doc(uid).get();
+  counts.userPlanCounts = countDoc.exists ? 1 : 0;
+
+  const meta2 = await db.collection('housing_user_meta').doc(uid).get();
+  counts.housingUserMeta = meta2.exists ? 1 : 0;
+
+  const listingsSnap = await db.collection('housing_listings').where('ownerUid', '==', uid).get();
+  counts.housingListings = listingsSnap.size;
+  for (const doc of listingsSnap.docs) {
+    const reportsSnap = await doc.ref.collection('reports').get();
+    counts.housingListingsReports += reportsSnap.size;
+  }
+
+  const favItemsSnap = await db.collection('housing_favorites').doc(uid).collection('items').get();
+  counts.housingFavoritesItems = favItemsSnap.size;
+
+  const sessSnap = await db.collection('users').doc(uid).collection('featureSessions').get();
+  counts.featureSessions = sessSnap.size;
+
+  return counts;
+}
+
 async function main() {
   const flags = parseFlags(process.argv.slice(2));
   const targetUids = loadTargetUids(resolve(ROOT, 'docs/.private/legacy-target-uids.json'));
@@ -129,6 +200,14 @@ async function main() {
   assertPrefixSafe(targetUids);
   await assertNoAdminClaims(targetUids);
   console.log('✅ 安全チェック通過: prefix OK / admin claim なし');
+
+  console.log('\n--- Firestore pre-count ---');
+  for (let i = 0; i < targetUids.length; i++) {
+    const uid = targetUids[i];
+    const counts = await countFirestoreDocs(uid);
+    console.log(`[${(i + 1).toString().padStart(2)}/${targetUids.length}] ${uid}`);
+    console.log(`  users:${counts.users} plans:${counts.plans} meta:${counts.sharedPlanMeta} shared:${counts.sharedPlans}(c:${counts.sharedPlansCopiedBy} a:${counts.sharedPlansAnonCopiedBy}) ucnt:${counts.userPlanCounts} hMeta:${counts.housingUserMeta} hList:${counts.housingListings}(r:${counts.housingListingsReports}) hFav:${counts.housingFavoritesItems} sess:${counts.featureSessions}`);
+  }
 
   if (flags.execute && !flags.confirm) {
     console.error('❌ --execute を指定するときは --confirm も必須です (誤起動防止)');
