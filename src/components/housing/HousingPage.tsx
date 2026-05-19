@@ -5,7 +5,7 @@ import { useCanonicalUrl } from '../../hooks/useCanonicalUrl';
 import { HOUSING_ROUTES } from '../../constants/housing';
 import { HousingTabBar, type HousingTab } from './HousingTabBar';
 import { HousingPlaceholderView } from './HousingPlaceholderView';
-import { HousingRegisterView } from './register/HousingRegisterView';
+import { HousingRegisterFormModal } from './register/HousingRegisterFormModal';
 import {
   HousingOnboardingDialog,
   hasSeenHousingOnboarding,
@@ -95,7 +95,12 @@ export const HousingPage: React.FC = () => {
       <div className="flex-1">
         {tab === 'search' && <HousingPlaceholderView i18nKey="housing.placeholder.search" />}
         {tab === 'tour' && <HousingPlaceholderView i18nKey="housing.placeholder.tour" />}
-        {tab === 'register' && <HousingRegisterView />}
+        {tab === 'register' && (
+          <HousingRegisterFormModal
+            open
+            onClose={() => handleTabChange('search')}
+          />
+        )}
       </div>
       <HousingOnboardingDialog
         open={showDialog}
