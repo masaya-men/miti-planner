@@ -1,0 +1,83 @@
+import { useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { parseTweetUrl } from '../../../lib/housing/tweetUrlParse';
+import { useTweetFetch, type TweetData } from '../../../lib/housing/useTweetFetch';
+
+type Props = {
+    onTweetFetched: (data: TweetData) => void;
+};
+
+export function HousingRegisterSnsUrlField({ onTweetFetched }: Props) {
+    const { t } = useTranslation();
+    const [url, setUrl] = useState('');
+    const [invalidUrl, setInvalidUrl] = useState(false);
+    const { status, data, errorCode, fetchTweet, cancel, reset } = useTweetFetch();
+
+    useEffect(() => {
+        if (status === 'success' && data) {
+            onTweetFetched(data);
+        }
+    }, [status, data, onTweetFetched]);
+
+    const handleChange = useCallback((value: string) => {
+        setUrl(value);
+        if (!value.trim()) {
+            setInvalidUrl(false);
+            reset();
+            return;
+        }
+        const id = parseTweetUrl(value);
+        if (!id) {
+            setInvalidUrl(true);
+            return;
+        }
+        setInvalidUrl(false);
+        fetchTweet(id);
+    }, [fetchTweet, reset]);
+
+    return (
+        <div className="housing-register-sns-url-field">
+            <label htmlFor="housing-sns-url" className="housing-label">
+                {t('housing.register.snsUrl.label')}
+            </label>
+            <input
+                id="housing-sns-url"
+                type="url"
+                className="housing-input"
+                placeholder={t('housing.register.snsUrl.placeholder')}
+                value={url}
+                onChange={(e) => handleChange(e.target.value)}
+            />
+            {invalidUrl && (
+                <p className="housing-error-text">
+                    {t('housing.register.snsUrl.error.invalid')}
+                </p>
+            )}
+            {status === 'loading' && (
+                <div className="housing-fetch-indicator">
+                    <span className="housing-spinner" aria-hidden />
+                    <span>{t('housing.register.snsUrl.fetching')}</span>
+                    <button type="button" onClick={cancel}>
+                        {t('housing.register.snsUrl.cancel')}
+                    </button>
+                </div>
+            )}
+            {status === 'error' && errorCode && (
+                <div className="housing-error-block">
+                    <p className="housing-error-text">
+                        {t(`housing.register.snsUrl.error.${errorCode}`)}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            const id = parseTweetUrl(url);
+                            if (id) fetchTweet(id);
+                        }}
+                    >
+                        {t('housing.register.snsUrl.retry')}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
