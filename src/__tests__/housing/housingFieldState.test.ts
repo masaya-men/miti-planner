@@ -36,10 +36,12 @@ describe('useHousingFieldState', () => {
         expect(result.current.isReadyToSubmit()).toBe(false);
     });
 
-    it('isReadyToSubmit returns true when all required fields are confirmed or edited', () => {
+    it('isReadyToSubmit returns true when all required fields are filled (auto-fill counts)', () => {
         const { result } = renderHook(() => useHousingFieldState(['dc']));
-        act(() => result.current.setAutoFilled('dc', 'Mana'));
         expect(result.current.isReadyToSubmit()).toBe(false);
+        act(() => result.current.setAutoFilled('dc', 'Mana'));
+        // auto-filled でも自動入力は信頼するので submit 可能
+        expect(result.current.isReadyToSubmit()).toBe(true);
         act(() => result.current.confirm('dc'));
         expect(result.current.isReadyToSubmit()).toBe(true);
     });

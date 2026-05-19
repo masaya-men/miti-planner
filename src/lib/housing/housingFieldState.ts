@@ -66,9 +66,12 @@ export function useHousingFieldState(requiredFields: string[] = []) {
     }, []);
 
     const isReadyToSubmit = useCallback(() => {
+        // auto-filled も submit 可能とする (自動入力された値はデフォルトで信頼)。
+        // ユーザーが値を見て違うと気付いたら手動編集 → state='edited' に。
+        // checklist の「そのままで OK」 は UX 上の確認補助に留め、 強制はしない。
         for (const name of requiredFields) {
             const s = fields[name]?.state ?? 'empty';
-            if (s === 'empty' || s === 'auto-filled' || s === 'error') {
+            if (s === 'empty' || s === 'error') {
                 return false;
             }
         }
