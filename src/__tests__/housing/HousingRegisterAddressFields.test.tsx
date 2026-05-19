@@ -44,4 +44,16 @@ describe('HousingRegisterAddressFields', () => {
     expect(options).toContain('Pandaemonium');
     expect(options).not.toContain('Aegis');
   });
+
+  it('番地 31 以上で拡張街の注記が表示される', () => {
+    const value = { ...baseValue, plot: 35 };
+    render(<HousingRegisterAddressFields value={value} onChange={() => {}} errors={{}} />);
+    expect(screen.getByText(/housing\.register\.address\.expansionWardNote/i)).toBeInTheDocument();
+  });
+
+  it('番地 30 以下では拡張街の注記が表示されない', () => {
+    const value = { ...baseValue, plot: 12 };
+    render(<HousingRegisterAddressFields value={value} onChange={() => {}} errors={{}} />);
+    expect(screen.queryByText(/housing\.register\.address\.expansionWardNote/i)).not.toBeInTheDocument();
+  });
 });

@@ -106,6 +106,11 @@ export const HousingRegisterAddressFields: React.FC<Props> = ({ value, onChange,
             onChange={(e) => update('plot', Number(e.target.value))}
           />
           {errors.plot && <p className={errorClass}>{t(`housing.register.errors.plot.${errors.plot}`)}</p>}
+          {value.plot != null && value.plot >= 31 && value.plot <= 60 && (
+            <p className="text-app-sm text-app-text-muted mt-1">
+              {t('housing.register.address.expansionWardNote')}
+            </p>
+          )}
         </div>
       </div>
 
