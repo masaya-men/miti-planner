@@ -60,34 +60,23 @@ export function validateAddress(addr: AddressInput): ValidationResult {
   if (!Number.isInteger(addr.ward) || addr.ward < WARD_RANGE.min || addr.ward > WARD_RANGE.max) {
     errors.ward = 'out_of_range';
   }
-  if (!addr.subdivision || !isValidSubdivision(String(addr.subdivision))) {
-    errors.subdivision = 'invalid';
-  }
   if (!addr.buildingType || !isValidBuildingType(String(addr.buildingType))) {
     errors.buildingType = 'invalid';
   }
 
-  // buildingType 別の制約
+  // buildingType 別の制約 (3 パターン: 家全体 / FC 個室 / アパ部屋)
   if (addr.buildingType === 'house') {
-    // ownerType 必須
-    if (!addr.ownerType || !isValidOwnerType(String(addr.ownerType))) {
-      errors.ownerType = 'required_for_house';
-    }
-    // plot 必須 + 範囲
+    // plot 必須 + 範囲 (1-60 通し番号)
     if (!Number.isInteger(addr.plot) || (addr.plot as number) < PLOT_RANGE.min || (addr.plot as number) > PLOT_RANGE.max) {
       errors.plot = 'out_of_range';
     }
-    // size 必須
+    // size 必須 (個室の場合は親 plot のサイズ)
     if (!addr.size || !isValidHousingSize(String(addr.size))) {
       errors.size = 'invalid';
     }
 
     // 部屋区分
     if (addr.roomKind === 'private_chamber') {
-      // FC ハウス限定
-      if (addr.ownerType !== 'fc') {
-        errors.roomKind = 'private_chamber_requires_fc';
-      }
       // roomNumber 必須 + 範囲
       if (!Number.isInteger(addr.roomNumber)
           || (addr.roomNumber as number) < PRIVATE_CHAMBER_RANGE.min
@@ -98,10 +87,9 @@ export function validateAddress(addr: AddressInput): ValidationResult {
       errors.roomKind = 'invalid_for_house';
     }
   } else if (addr.buildingType === 'apartment') {
-    // plot / size / ownerType 不可
+    // plot / size 不可
     if (addr.plot !== undefined) errors.plot = 'not_allowed_for_apartment';
     if (addr.size !== undefined) errors.size = 'not_allowed_for_apartment';
-    if (addr.ownerType !== undefined) errors.ownerType = 'not_allowed_for_apartment';
 
     // roomKind は 'apartment_room' 必須
     if (addr.roomKind !== 'apartment_room') {
