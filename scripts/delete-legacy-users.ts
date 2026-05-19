@@ -415,6 +415,43 @@ async function main() {
     console.error('❌ --execute を指定するときは --confirm も必須です (誤起動防止)');
     process.exit(1);
   }
+
+  console.log('\n=== EXECUTE: deleting in 3 seconds (Ctrl-C to abort) ===');
+  await new Promise((r) => setTimeout(r, 3000));
+
+  let successCount = 0;
+  for (let i = 0; i < targetUids.length; i++) {
+    const uid = targetUids[i];
+    console.log(`\n[${(i + 1).toString().padStart(2)}/${targetUids.length}] Deleting ${uid}...`);
+
+    // 直前再確認 (実行中に admin claim が付与された可能性は極小だが念のため)
+    try {
+      const user = await auth.getUser(uid);
+      if (user.customClaims?.role === 'admin') {
+        console.error(`❌ ABORT: ${uid} は admin claim を持っています。 削除中止。`);
+        process.exit(1);
+      }
+    } catch (err: any) {
+      if (err?.code !== 'auth/user-not-found') throw err;
+    }
+
+    try {
+      const fs = await deleteFirestoreForUid(uid);
+      const xref = await deleteCrossRefsForUid(uid);
+      const st = await deleteStorageForUid(uid);
+      const au = await deleteAuthForUid(uid);
+      console.log(`  ✅ Firestore docs: ${fs.docs} / xref: ${xref.copiedBy}+${xref.reports} / storage: ${st} / auth: ${au ? 'deleted' : 'already gone'}`);
+      successCount += 1;
+    } catch (err) {
+      console.error(`❌ FAILED on ${uid} (${i + 1}/${targetUids.length}). 残り ${targetUids.length - i - 1} 件未着手。`);
+      console.error(err);
+      process.exit(1);
+    }
+  }
+
+  console.log(`\n=== Execute complete ===`);
+  console.log(`Successfully deleted: ${successCount}/${targetUids.length}`);
+  console.log(`次: npx tsx scripts/check-admin-claims.ts で残骸ゼロを確認してください。`);
 }
 
 main().then(() => process.exit(0)).catch((err) => {
