@@ -186,8 +186,8 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     }
 
     // DC 推論: 明示 DC が無くサーバーから DC が引ければそれを採用
-    let dc = candidates.dc[0];
-    let server = candidates.server[0];
+    let dc: string | undefined = candidates.dc[0];
+    let server: { serverId: string; dcId: string } | undefined = candidates.server[0];
     if (!dc && server) {
         dc = server.dcId;
     }
