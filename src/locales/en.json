@@ -1712,6 +1712,14 @@
             "tags": "Tags",
             "room_number": "Room number",
             "parent_house_size": "Parent house size",
+            "checklist": {
+                "title": "Before you register",
+                "ready": "All set, you can register now",
+                "empty": "Please enter {{field}}",
+                "autoFilled": "Is {{field}} \"{{value}}\" correct?",
+                "error": "Please fix {{field}}",
+                "confirmBtn": "Looks good"
+            },
             "submit": "Register",
             "submitting": "Registering...",
             "success": "Registered successfully (ID: {{id}})",

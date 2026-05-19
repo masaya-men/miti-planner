@@ -8,6 +8,7 @@ import { HousingRegisterParentHouseSizeField } from './HousingRegisterParentHous
 import { HousingRegisterDescriptionField } from './HousingRegisterDescriptionField';
 import { HousingRegisterTagPicker } from './HousingRegisterTagPicker';
 import { HousingRegisterFieldBadge } from './HousingRegisterFieldBadge';
+import { HousingRegisterChecklist, type ChecklistItem } from './HousingRegisterChecklist';
 import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import {
     parseHousingFromText,
@@ -290,6 +291,23 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                 error={undefined}
             />
             <HousingRegisterTagPicker selected={tags} onChange={setTags} />
+
+            <HousingRegisterChecklist
+                items={(
+                    [
+                        { name: 'dc', labelKey: 'housing.register.dc', value: dc },
+                        { name: 'server', labelKey: 'housing.register.server', value: server },
+                        { name: 'area', labelKey: 'housing.register.area', value: area },
+                        { name: 'ward', labelKey: 'housing.register.ward', value: ward },
+                        { name: 'plot', labelKey: 'housing.register.plot', value: plot },
+                        { name: 'size', labelKey: 'housing.register.size', value: size, renderValue: (v) => t(`housing.register.type.${v === 'PrivateRoom' ? 'private' : v === 'Apartment' ? 'apartment' : v}`) },
+                    ] as Array<Omit<ChecklistItem, 'state' | 'onConfirm'>>
+                ).map((spec) => ({
+                    ...spec,
+                    state: fieldState.getState(spec.name),
+                    onConfirm: () => fieldState.confirm(spec.name),
+                }))}
+            />
 
             <footer className="housing-register-form-footer">
                 <button type="button" onClick={onCancel}>

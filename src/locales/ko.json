@@ -1676,6 +1676,14 @@
             "tags": "태그",
             "room_number": "방 번호",
             "parent_house_size": "본가 크기",
+            "checklist": {
+                "title": "등록 전 확인",
+                "ready": "모두 완료, 등록할 수 있습니다",
+                "empty": "{{field}} 을(를) 입력해 주세요",
+                "autoFilled": "{{field}}: 「{{value}}」 맞나요?",
+                "error": "{{field}} 을(를) 수정해 주세요",
+                "confirmBtn": "그대로 OK"
+            },
             "submit": "등록하기",
             "submitting": "등록 중...",
             "success": "등록 완료 (ID: {{id}})",

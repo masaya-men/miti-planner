@@ -1733,6 +1733,14 @@
             "tags": "タグ",
             "room_number": "部屋番号",
             "parent_house_size": "親家サイズ",
+            "checklist": {
+                "title": "登録前に確認",
+                "ready": "全項目 OK、 登録できます",
+                "empty": "{{field}} を入力してください",
+                "autoFilled": "{{field}}: 「{{value}}」 で合っていますか?",
+                "error": "{{field}} を直してください",
+                "confirmBtn": "そのままで OK"
+            },
             "submit": "登録する",
             "submitting": "登録中...",
             "success": "登録しました (ID: {{id}})",

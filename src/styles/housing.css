@@ -2356,6 +2356,87 @@ select.housing-input option {
   cursor: not-allowed;
 }
 
+/* ===== Submit checklist (進捗インジケーター / 業界水準フィードバック) ===== */
+.housing-register-checklist {
+  border: 1px solid var(--housing-honey-border);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.housing-register-checklist[data-ready="true"] {
+  border-color: rgba(120, 200, 130, 0.6);
+  background: rgba(50, 110, 60, 0.18);
+  align-items: center;
+}
+.housing-register-checklist-title {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--housing-honey);
+}
+.housing-register-checklist-ready {
+  font-size: var(--housing-text-sm);
+  color: rgba(160, 230, 170, 0.95);
+  font-weight: 500;
+}
+.housing-register-checklist-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.housing-register-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  font-size: var(--housing-text-sm);
+}
+.housing-register-checklist-item[data-state="auto-filled"] {
+  background: rgba(255, 201, 135, 0.10);
+}
+.housing-register-checklist-item[data-state="error"] {
+  background: rgba(255, 90, 90, 0.12);
+}
+.housing-register-checklist-icon {
+  flex-shrink: 0;
+  width: 16px;
+  text-align: center;
+}
+.housing-register-checklist-text {
+  flex: 1 1 auto;
+  color: var(--housing-text-dim);
+}
+.housing-register-checklist-item[data-state="auto-filled"] .housing-register-checklist-text {
+  color: var(--housing-text);
+}
+.housing-register-checklist-confirm {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--housing-honey-border);
+  background: var(--housing-honey-soft);
+  color: var(--housing-text);
+  font-size: var(--housing-text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+.housing-register-checklist-confirm:hover {
+  background: var(--housing-honey-medium);
+}
+.housing-register-checklist-confirm:active {
+  transform: scale(0.96);
+}
+
 /* ===== Type selector / Parent house size (radio chip group) ===== */
 .housing-type-selector,
 .housing-parent-size-field {

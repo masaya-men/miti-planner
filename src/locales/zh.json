@@ -1676,6 +1676,14 @@
             "tags": "标签",
             "room_number": "房间号",
             "parent_house_size": "主屋大小",
+            "checklist": {
+                "title": "登记前确认",
+                "ready": "全部完成，可以登记",
+                "empty": "请输入 {{field}}",
+                "autoFilled": "{{field}}：「{{value}}」 正确吗？",
+                "error": "请修正 {{field}}",
+                "confirmBtn": "没问题"
+            },
             "submit": "登记",
             "submitting": "登记中...",
             "success": "登记成功（ID: {{id}}）",
