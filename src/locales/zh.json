@@ -1767,7 +1767,12 @@
                 "title": "登记内容最终确认",
                 "message": "确认以下内容并登记吗？",
                 "submit": "确认登记",
-                "cancel": "返回"
+                "cancel": "返回",
+                "errors": {
+                    "not_authenticated": "登记需要登录，请先登录后再试。",
+                    "quota_exhausted": "已达到登记上限，请稍后再试。",
+                    "generic": "登记失败，请检查网络环境后重试。"
+                }
             },
             "cancel": "取消"
         },

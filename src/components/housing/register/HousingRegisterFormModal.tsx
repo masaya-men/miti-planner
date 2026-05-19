@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HousingRegisterForm, type HousingRegisterFormValues } from './HousingRegisterForm';
-import { registerListing } from '../../../lib/housingApiClient';
+import { registerListing, QuotaExhaustedError } from '../../../lib/housingApiClient';
 import { HousingPanelModal } from '../HousingPanelModal';
 import { getTagById } from '../../../data/housingTags';
 
@@ -27,17 +27,34 @@ const SUMMARY_ROWS: Array<{
 export function HousingRegisterFormModal({ open, onClose }: Props) {
     const { t } = useTranslation();
     const [confirmValues, setConfirmValues] = useState<HousingRegisterFormValues | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [errorKey, setErrorKey] = useState<string | null>(null);
 
     const handleSubmit = useCallback((values: HousingRegisterFormValues) => {
+        setErrorKey(null);
         setConfirmValues(values);
     }, []);
 
     const handleConfirm = useCallback(async () => {
-        if (!confirmValues) return;
-        await registerListing(confirmValues as never);
-        setConfirmValues(null);
-        onClose();
-    }, [confirmValues, onClose]);
+        if (!confirmValues || submitting) return;
+        setErrorKey(null);
+        setSubmitting(true);
+        try {
+            await registerListing(confirmValues as never);
+            setConfirmValues(null);
+            onClose();
+        } catch (e) {
+            if (e instanceof QuotaExhaustedError) {
+                setErrorKey('quota_exhausted');
+            } else if (e instanceof Error && e.message === 'not_authenticated') {
+                setErrorKey('not_authenticated');
+            } else {
+                setErrorKey('generic');
+            }
+        } finally {
+            setSubmitting(false);
+        }
+    }, [confirmValues, onClose, submitting]);
 
     return (
         <>
@@ -96,12 +113,28 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
                         )}
                     </dl>
                 )}
+                {errorKey && (
+                    <p className="housing-confirm-error" role="alert">
+                        {t(`housing.register.confirm.errors.${errorKey}`)}
+                    </p>
+                )}
                 <div className="housing-confirm-actions">
-                    <button type="button" onClick={() => setConfirmValues(null)}>
+                    <button
+                        type="button"
+                        onClick={() => setConfirmValues(null)}
+                        disabled={submitting}
+                    >
                         {t('housing.register.confirm.cancel')}
                     </button>
-                    <button type="button" data-variant="primary" onClick={handleConfirm}>
-                        {t('housing.register.confirm.submit')}
+                    <button
+                        type="button"
+                        data-variant="primary"
+                        onClick={handleConfirm}
+                        disabled={submitting}
+                    >
+                        {submitting
+                            ? t('housing.register.submitting')
+                            : t('housing.register.confirm.submit')}
                     </button>
                 </div>
             </HousingPanelModal>

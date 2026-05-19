@@ -2762,6 +2762,16 @@ select.housing-input option {
   flex-wrap: wrap;
   gap: 4px;
 }
+.housing-confirm-error {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 90, 90, 0.16);
+  border: 1px solid rgba(255, 90, 90, 0.6);
+  color: var(--housing-warning);
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+}
 .housing-confirm-actions {
   display: flex;
   justify-content: flex-end;

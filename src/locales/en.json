@@ -1803,7 +1803,12 @@
                 "title": "Final confirmation",
                 "message": "Register with the following values?",
                 "submit": "Register",
-                "cancel": "Back"
+                "cancel": "Back",
+                "errors": {
+                    "not_authenticated": "Login is required. Please sign in and try again.",
+                    "quota_exhausted": "Registration limit reached. Please try again later.",
+                    "generic": "Registration failed. Please check your connection and try again."
+                }
             },
             "cancel": "Cancel"
         },
