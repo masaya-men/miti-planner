@@ -104,6 +104,38 @@ export function parseHousingFromText(text: string): HousingExtractResult {
         }
     }
 
+    // substring search (区切り文字なしの自由文対応)
+    //   - token split で拾えない 「シロガネ6番地6番に来てねManaのAnimaサーバーです」 型
+    //     や 「Mana-Ixionエンピ-4-2M」 (連結トークン) を補完するための部分一致 pass
+    //   - 短すぎる alias (1-2 文字) は誤一致リスクが高いのでスキップ
+    const lowerCleaned = cleaned.toLowerCase();
+    for (const [dcId, dcData] of Object.entries(serverMasterData)) {
+        for (const alias of dcData.aliases) {
+            if (alias.length < 3) continue;
+            if (lowerCleaned.includes(alias.toLowerCase())) {
+                if (!candidates.dc.includes(dcId)) candidates.dc.push(dcId);
+            }
+        }
+        for (const [serverId, aliases] of Object.entries(dcData.servers)) {
+            for (const alias of aliases) {
+                if (alias.length < 3) continue;
+                if (lowerCleaned.includes(alias.toLowerCase())) {
+                    if (!candidates.server.some((s) => s.serverId === serverId)) {
+                        candidates.server.push({ serverId, dcId });
+                    }
+                }
+            }
+        }
+    }
+    for (const [areaId, areaData] of Object.entries(housingAreaMasterData)) {
+        for (const alias of areaData.aliases) {
+            if (alias.length < 2) continue;
+            if (lowerCleaned.includes(alias.toLowerCase())) {
+                if (!candidates.area.includes(areaId)) candidates.area.push(areaId);
+            }
+        }
+    }
+
     // 区-番地パターン: "6-6" "23-6" など
     const wardPlotMatch = cleaned.match(/(\d{1,2})\s*[-－‐ー~〜]\s*(\d{1,2})/);
     let ward: number | undefined;
@@ -114,6 +146,22 @@ export function parseHousingFromText(text: string): HousingExtractResult {
         if (w >= 1 && w <= 30 && p >= 1 && p <= 60) {
             ward = w;
             plot = p;
+        }
+    }
+
+    // 日本語表記: "N番地 M番" / "N区 M番地" 等のフォールバック
+    //   - "シロガネ6番地6番" / "6区 23番" / "6番地6" など、 区切り記号がない自然文で使われる
+    if (ward === undefined || plot === undefined) {
+        const wardPlotJpMatch =
+            text.match(/(\d{1,2})\s*(?:番地|区)\s*(\d{1,2})\s*番?/) ??
+            text.match(/(\d{1,2})\s*番地\s*(\d{1,2})/);
+        if (wardPlotJpMatch) {
+            const w = +wardPlotJpMatch[1];
+            const p = +wardPlotJpMatch[2];
+            if (w >= 1 && w <= 30 && p >= 1 && p <= 60) {
+                ward = w;
+                plot = p;
+            }
         }
     }
 

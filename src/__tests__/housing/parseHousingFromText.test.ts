@@ -35,3 +35,88 @@ Lavender Beds | 23-6 | Large
         expect(result.size).toBe('L');
     });
 });
+
+describe('parseHousingFromText - 略称・俗語', () => {
+    it('sample 3: Mana┆Hades┆⚐Gob 2-23 S (Unicode 縦線 + 飾り + 略称)', () => {
+        const result = parseHousingFromText('Mana┆Hades┆⚐Gob 2-23 S');
+        expect(result.dc).toBe('Mana');
+        expect(result.server).toBe('Hades');
+        expect(result.area).toBe('Goblet');
+        expect(result.ward).toBe(2);
+        expect(result.plot).toBe(23);
+        expect(result.size).toBe('S');
+    });
+
+    it('sample 4: Mana-Ixionエンピ-4-2M (ハイフン連結 + 略称)', () => {
+        const text = `【住所】
+Mana-Ixionエンピ-4-2M
+
+※見学の際はFCハウスのためご迷惑にならないように配慮をお願いいたします。`;
+        const result = parseHousingFromText(text);
+        expect(result.dc).toBe('Mana');
+        expect(result.server).toBe('Ixion');
+        expect(result.area).toBe('Empyreum');
+        expect(result.ward).toBe(4);
+        expect(result.plot).toBe(2);
+        expect(result.size).toBe('M');
+    });
+
+    it('区切り文字なしの自由文', () => {
+        const result = parseHousingFromText('シロガネ6番地6番に来てねManaのAnimaサーバーです');
+        expect(result.area).toBe('Shirogane');
+        expect(result.dc).toBe('Mana');
+        expect(result.server).toBe('Anima');
+        expect(result.ward).toBe(6);
+        expect(result.plot).toBe(6);
+    });
+
+    it('鯖俗語 (Anima鯖)', () => {
+        const result = parseHousingFromText('アニマ鯖のシロガネ6-6');
+        expect(result.server).toBe('Anima');
+        expect(result.dc).toBe('Mana');
+        expect(result.area).toBe('Shirogane');
+        expect(result.ward).toBe(6);
+        expect(result.plot).toBe(6);
+    });
+
+    it('FC個室キーワード検出', () => {
+        const result = parseHousingFromText('Lavender Beds 12-3 FC個室');
+        expect(result.size).toBe('PrivateRoom');
+        expect(result.area).toBe('LavenderBeds');
+        expect(result.ward).toBe(12);
+        expect(result.plot).toBe(3);
+    });
+
+    it('アパート名検出 (トップマスト)', () => {
+        const result = parseHousingFromText('Mana / Anima / トップマスト');
+        expect(result.area).toBe('Mist');
+        expect(result.size).toBe('Apartment');
+    });
+});
+
+describe('parseHousingFromText - 棄却ケース', () => {
+    it('完全自由文 (語句なし) は抽出ゼロ', () => {
+        const result = parseHousingFromText('家完成しました〜！ 来てね');
+        expect(result.dc).toBeUndefined();
+        expect(result.server).toBeUndefined();
+        expect(result.area).toBeUndefined();
+        expect(result.ward).toBeUndefined();
+        expect(result.size).toBeUndefined();
+    });
+
+    it('範囲外番地は棄却 (99-99)', () => {
+        const result = parseHousingFromText('シロガネ 99-99 L');
+        expect(result.ward).toBeUndefined();
+        expect(result.plot).toBeUndefined();
+        expect(result.area).toBe('Shirogane');
+        expect(result.size).toBe('L');
+    });
+
+    it('DC とサーバーの矛盾 (Mana + Bismarck) で棄却', () => {
+        const result = parseHousingFromText('Mana Bismarck シロガネ 6-6 S');
+        expect(result.ambiguity).toContain('dcServerMismatch');
+        expect(result.dc).toBeUndefined();
+        expect(result.server).toBeUndefined();
+        expect(result.area).toBe('Shirogane');
+    });
+});
