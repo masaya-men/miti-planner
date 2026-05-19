@@ -29,10 +29,10 @@
 
 1. **登録モーダル 4 タイプ選択 UI 実装** — `HousingRegisterAddressFields.tsx` に住居タイプ選択 (個人宅 / FC ハウス / FC 個室 / アパート) と subdivision / roomNumber 入力 UI を追加、 spec `2026-05-18-housing-room-types-design.md` §4.1 通り
 2. **物件詳細ページ 関連登録表示** — `findChambersInPlot` / `findHouseForChamber` / `findApartmentRoomsInWard` を使った詳細表示 (spec §4.2)
-3. **通報 UI 分離** — 「ちがった」 (1 タップ wrong_info) + 「報告」 (理由選択) の 2 ボタン構成 (spec §5.2)
-4. **家主異議申し立て導線** — 「これは私の家です」 ボタン → 運営連絡先誘導 (spec §5.3、 連絡先 URL も決める)
-5. **Phase 1 設計書改訂** — `2026-05-07-housing-tour-phase1-design.md` の §4.2/§4.3/§6.1/§6.5/§7/§9.3 を本 spec §6.1 リスト通りに更新
-6. **skip テスト 2 件復活** — FilterPanel Apartment チップ / HousingRegisterAddressFields Apartment 選択 (Task 8 で `it.skip` 化したものを新 schema で書き直し)
+3. **フィルタ UI 5 種チップ復活** (2026-05-19 確定) — 左パネル「サイズ」 セクションに `[S] [M] [L] [個室] [アパート]` の 5 チップ (個人宅 vs FC ハウスはフィルタとして区別しない、 spec §4.4)。 `FilterPanel.tsx` + `useHousingFilterStore.ts` を新方針で実装し、 Task 8 で `it.skip` 化した 2 テストを復活
+4. **通報 UI 分離** — 「ちがった」 (1 タップ wrong_info) + 「報告」 (理由選択) の 2 ボタン構成 (spec §5.2)
+5. **家主異議申し立て導線** — 「これは私の家です」 ボタン → 運営連絡先誘導 (spec §5.3、 連絡先 URL も決める)
+6. **Phase 1 設計書改訂** — `2026-05-07-housing-tour-phase1-design.md` の §4.2/§4.3/§6.1/§6.5/§7/§9.3 を本 spec §6.1 リスト通りに更新
 
 ---
 
