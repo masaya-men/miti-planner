@@ -2356,6 +2356,96 @@ select.housing-input option {
   cursor: not-allowed;
 }
 
+/* ===== Type selector / Parent house size (radio chip group) ===== */
+.housing-type-selector,
+.housing-parent-size-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.housing-type-chip {
+  flex: 1 1 auto;
+  min-width: 72px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.42);
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.housing-type-chip:hover {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-honey-border);
+}
+.housing-type-chip[data-selected="true"],
+.housing-type-chip[aria-checked="true"] {
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-text);
+  box-shadow: 0 0 0 1px var(--housing-honey-inset) inset;
+}
+.housing-type-chip:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+
+/* ===== Room number / SNS URL / fetch indicator ===== */
+.housing-room-number-field,
+.housing-register-sns-url-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.housing-error-text {
+  margin: 4px 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-warning);
+}
+.housing-error-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+.housing-error-block button,
+.housing-fetch-indicator button {
+  align-self: flex-start;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.housing-error-block button:hover,
+.housing-fetch-indicator button:hover {
+  background: var(--housing-chip-bg-hover);
+}
+
+/* ===== housing-field レイアウトの整え (label を input 上、 padding 追加) ===== */
+.housing-field {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px;
+  border-radius: 8px;
+  gap: 4px;
+}
+.housing-field .housing-field-badge,
+.housing-field .housing-confirm-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+.housing-field .housing-confirm-button {
+  right: 36px;
+}
+
 /* ===== Tag picker (Phase 2A 改 — タブ + 検索 + 高さ固定) ===== */
 .housing-tag-picker {
   display: flex;
