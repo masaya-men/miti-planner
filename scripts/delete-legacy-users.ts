@@ -190,6 +190,30 @@ async function countFirestoreDocs(uid: string): Promise<FirestoreCounts> {
   return counts;
 }
 
+interface CrossRefCounts {
+  copiedByHits: number;
+  reportsHits: number;
+}
+
+async function countCrossRefs(uid: string): Promise<CrossRefCounts> {
+  let copiedByHits = 0;
+  const allShared = await db.collection('shared_plans').get();
+  for (const doc of allShared.docs) {
+    const ref = doc.ref.collection('copiedBy').doc(uid);
+    const snap = await ref.get();
+    if (snap.exists) copiedByHits++;
+  }
+
+  let reportsHits = 0;
+  const allListings = await db.collection('housing_listings').get();
+  for (const doc of allListings.docs) {
+    const reportsSnap = await doc.ref.collection('reports').where('reporterUid', '==', uid).get();
+    reportsHits += reportsSnap.size;
+  }
+
+  return { copiedByHits, reportsHits };
+}
+
 async function main() {
   const flags = parseFlags(process.argv.slice(2));
   const targetUids = loadTargetUids(resolve(ROOT, 'docs/.private/legacy-target-uids.json'));
@@ -207,6 +231,8 @@ async function main() {
     const counts = await countFirestoreDocs(uid);
     console.log(`[${(i + 1).toString().padStart(2)}/${targetUids.length}] ${uid}`);
     console.log(`  users:${counts.users} plans:${counts.plans} meta:${counts.sharedPlanMeta} shared:${counts.sharedPlans}(c:${counts.sharedPlansCopiedBy} a:${counts.sharedPlansAnonCopiedBy}) ucnt:${counts.userPlanCounts} hMeta:${counts.housingUserMeta} hList:${counts.housingListings}(r:${counts.housingListingsReports}) hFav:${counts.housingFavoritesItems} sess:${counts.featureSessions}`);
+    const xrefs = await countCrossRefs(uid);
+    console.log(`  xref copiedBy:${xrefs.copiedByHits} reports:${xrefs.reportsHits}`);
   }
 
   if (flags.execute && !flags.confirm) {
