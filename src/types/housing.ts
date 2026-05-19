@@ -34,14 +34,8 @@ export type HousingSize = typeof HOUSING_SIZES[number];
 export const BUILDING_TYPES = ['house', 'apartment'] as const;
 export type BuildingType = typeof BUILDING_TYPES[number];
 
-export const OWNER_TYPES = ['personal', 'fc'] as const;
-export type OwnerType = typeof OWNER_TYPES[number];
-
 export const ROOM_KINDS = ['private_chamber', 'apartment_room'] as const;
 export type RoomKind = typeof ROOM_KINDS[number];
-
-export const SUBDIVISIONS = ['main', 'sub'] as const;
-export type Subdivision = typeof SUBDIVISIONS[number];
 
 export const IMAGE_MODES = ['sns', 'thumbnail', 'none'] as const;
 export type ImageMode = typeof IMAGE_MODES[number];
@@ -68,16 +62,8 @@ export function isValidBuildingType(value: string): value is BuildingType {
   return (BUILDING_TYPES as readonly string[]).includes(value);
 }
 
-export function isValidOwnerType(value: string): value is OwnerType {
-  return (OWNER_TYPES as readonly string[]).includes(value);
-}
-
 export function isValidRoomKind(value: string): value is RoomKind {
   return (ROOM_KINDS as readonly string[]).includes(value);
-}
-
-export function isValidSubdivision(value: string): value is Subdivision {
-  return (SUBDIVISIONS as readonly string[]).includes(value);
 }
 
 export function isValidImageMode(value: string): value is ImageMode {
@@ -111,17 +97,16 @@ export interface HousingListing {
   // エリア + ワード
   area: HousingArea;
   ward: number;                   // 1-30
-  subdivision: Subdivision;       // 'main' | 'sub'
 
-  // 建物タイプ (NEW)
+  // 建物タイプ
   buildingType: BuildingType;     // 'house' | 'apartment'
 
   // === house の場合 (必須) ===
-  ownerType?: OwnerType;          // 'personal' | 'fc'
-  plot?: number;                  // 1-30
-  size?: HousingSize;             // 'S' | 'M' | 'L'
+  // plot 番号で本街/拡張街は判別可能 (1-30 本街、 31-60 拡張街)
+  plot?: number;                  // 1-60 通し番号
+  size?: HousingSize;             // 'S' | 'M' | 'L' (個室の場合は親 plot のサイズ)
 
-  // === 部屋区分 (NEW) ===
+  // === 部屋区分 ===
   roomKind?: RoomKind;            // undefined / 'private_chamber' / 'apartment_room'
   roomNumber?: number;            // 1-512 (chamber) / 1-90 (apt)
 
