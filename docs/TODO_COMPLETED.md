@@ -2,6 +2,47 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-19 セッション 39・hash 化マイグレーション準備調査）
+
+**背景**: ハウジング ログイン UI 整備の brainstorming 中、 認証実装の中身 (`firebaseUid = discord:<生 ID>`) が「個人情報を持たない大原則」 と乖離していることが判明。 hash 化マイグレーションを**ハウジング UI 整備より優先**で実施する方針に転換。
+
+### 完了内容 (調査 + 準備、 実装はまだ)
+
+- **認証フロー全文読了**: `api/auth/_discordHandler.ts` (181 行) / `api/auth/index.ts` (18 行) / `src/store/useAuthStore.ts` (312 行)
+- **hash 化処理の不在を確定**: 全リポジトリ grep (`createHash|sha256|pseudonym|anonymiz|hash.*id|hash.*uid|salt`) でゼロヒット。 `crypto` モジュールは OAuth state パラメーター生成にのみ使用
+- **23 ユーザー把握**: Firebase Console + 新規スクリプト [scripts/check-admin-claims.ts](scripts/check-admin-claims.ts) で確定。 Discord 9 / Google 2 (廃止) / Twitter 12 (廃止)
+- **admin 状況確定**: 本人 Discord 1 件のみ ✅、 他人ゼロ、 旧 Google admin はクリア済み
+- **3 層 admin 防御の堅牢性確認**: フロント (AdminGuard) / API (verifyAdmin) / Firestore Rules すべて role==='admin' チェック、 Custom Claims は秘密鍵署名で偽造不可
+- **設計書 §6.4 / §11 / §16 / §17.2 読了**: quota = 累計 30 + 31〜は 1 日 5、 信用スコア/BAN は Phase 3 で予定 (現時点未実装)、 通報の自動非表示は 3 件で発火 (運営介入なし)
+- **プライバシーポリシー文書 確認**: `docs/superpowers/specs/2026-03-30-privacy-policy-update-design.md` 読了、 Discord ID の扱いが明文化されていないことを確認
+- **新規スクリプト**: `scripts/check-admin-claims.ts`
+- **準備メモ**: `docs/.private/2026-05-19-hash-migration-prep.md` (3 ステップ計画 + brainstorming 8 論点 + 文言素材)
+- **memory 追記**:
+  - `feedback_housing_design_independent.md` (ルール先読み手順 + 新規モーダル要素は事前承認フロー追加)
+  - `feedback_housing_admin_complete.md` (新規 — ハウジング運営作業は全部 /admin で完結)
+  - `project_hash_migration_status.md` (新規 — 計画状況)
+- **ハウジング ログイン UI 文言確定**: 「ユーザー目線・柔らかく・嘘なし」 で 3 bullet 形式 (hash 化完了後に LoginModal に適用)
+- **Phase 3 通報フロー仕様 確定**: 自分の登録は編集・削除可、 「ちがった」 通報で登録者にアプリ内通知、 異議申し立ては LoPo Discord DM 受付 → 管理画面で reportCount リセット、 すべて `/admin` で完結
+
+## 完了（2026-05-19 セッション 38・ハウジング登録モーダル トンマナ統一）
+
+**背景**: Phase 2A 検証中に判明した「中身まったく見えない」「タグが長すぎる」 を根本対応。
+
+### 完了内容 (15 commit、 push + Vercel デプロイ完了)
+
+- 新モーダル本番未反映を修正 (HousingWorkspace の旧 HousingRegisterModal を HousingRegisterFormModal に差し替え)
+- panel chrome 統一 (HousingPanelModal 新規追加、 LiquidGlassPanel ラッパー + housing-panel-head)
+- モーダル中身もハウジングトンマナ化 (.housing-input / .housing-textarea / .housing-label / .housing-register-form の form 基礎 CSS 新規追加 121 行)
+- HousingRegisterTagPicker 再設計 (147 タグ flex-wrap → 選択 chips + 検索 + カテゴリタブ + 高さ固定 200px)
+- 確認モーダル `<pre>{JSON.stringify}</pre>` → `<dl>` 構造化表示に整形
+- i18n 4 言語に `tag_search_placeholder` / `tag_no_results` / `tag_pick_hint` / `tags` / `room_number` / `parent_house_size` 追加
+- 登録 API 400 解消、 実機で登録成功確認済 (X URL 貼って自動入力 → 即「登録する」 押せる動線完成)
+- 触ったファイル: HousingPanelModal (新規) / HousingRegisterFormModal / HousingRegisterForm / HousingRegisterChecklist (新規) / HousingRegisterTagPicker / HousingRegisterDescriptionField / FavoritesModal / HousingWorkspace / styles/housing.css / locales 4 言語 / housingFieldState (test 含む)
+
+### 既知バグ (hash 化完了後に再開)
+
+- `fieldState.confirm()` を呼んでも state="confirmed" に切り替わらない (右上 ✅ バッジ・checklist の「そのままで OK」 両方とも Playwright で click しても state 不変)。 React StrictMode / useCallback closure / createPortal 越しの reconciliation のいずれかが疑い。 isReadyToSubmit を auto-filled 許容にして回避中
+
 ## 完了（2026-05-19 セッション 37・ハウジング Phase 2A 登録モーダル + SNS URL 自動推定 実装）
 
 **背景**: セッション 36 で確定した設計書 (`docs/superpowers/specs/2026-05-19-housing-sns-auto-extraction-design.md`) + 17 task TDD 実装計画 (`docs/superpowers/plans/2026-05-19-housing-sns-auto-extraction.md`) を `superpowers:subagent-driven-development` skill で完走。
