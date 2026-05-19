@@ -214,6 +214,29 @@ async function countCrossRefs(uid: string): Promise<CrossRefCounts> {
   return { copiedByHits, reportsHits };
 }
 
+interface StorageAuthCounts {
+  storageFiles: number;
+  authExists: boolean;
+  authProvider: string | null;
+  isAdmin: boolean;
+}
+
+async function countStorageAndAuth(uid: string): Promise<StorageAuthCounts> {
+  const [files] = await bucket.getFiles({ prefix: `users/${uid}/` });
+  let authExists = false;
+  let authProvider: string | null = null;
+  let isAdmin = false;
+  try {
+    const user = await auth.getUser(uid);
+    authExists = true;
+    authProvider = user.providerData[0]?.providerId ?? (uid.startsWith('twitter:') ? 'twitter' : uid.startsWith('google:') ? 'google' : 'custom');
+    isAdmin = user.customClaims?.role === 'admin';
+  } catch (err: any) {
+    if (err?.code !== 'auth/user-not-found') throw err;
+  }
+  return { storageFiles: files.length, authExists, authProvider, isAdmin };
+}
+
 async function main() {
   const flags = parseFlags(process.argv.slice(2));
   const targetUids = loadTargetUids(resolve(ROOT, 'docs/.private/legacy-target-uids.json'));
@@ -233,6 +256,8 @@ async function main() {
     console.log(`  users:${counts.users} plans:${counts.plans} meta:${counts.sharedPlanMeta} shared:${counts.sharedPlans}(c:${counts.sharedPlansCopiedBy} a:${counts.sharedPlansAnonCopiedBy}) ucnt:${counts.userPlanCounts} hMeta:${counts.housingUserMeta} hList:${counts.housingListings}(r:${counts.housingListingsReports}) hFav:${counts.housingFavoritesItems} sess:${counts.featureSessions}`);
     const xrefs = await countCrossRefs(uid);
     console.log(`  xref copiedBy:${xrefs.copiedByHits} reports:${xrefs.reportsHits}`);
+    const sa = await countStorageAndAuth(uid);
+    console.log(`  storage:${sa.storageFiles} auth:${sa.authExists ? sa.authProvider : 'not-found'}`);
   }
 
   if (flags.execute && !flags.confirm) {
