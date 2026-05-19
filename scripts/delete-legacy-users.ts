@@ -88,6 +88,10 @@ export function loadTargetUids(jsonPath: string): string[] {
   return uids;
 }
 
+// Firebase Auth が built-in provider (Google 等) のサインインで生成する 28 文字 UID。
+// 廃止 Google プロバイダーの残骸はこの形式 (prefix 無し、 大小英数字 28 桁)。
+const FIREBASE_BARE_UID_RE = /^[A-Za-z0-9]{28}$/;
+
 export function assertPrefixSafe(uids: string[]): void {
   if (uids.length === 0) {
     throw new Error('TARGET_UIDS is empty');
@@ -96,8 +100,10 @@ export function assertPrefixSafe(uids: string[]): void {
     if (uid.startsWith('discord:')) {
       throw new Error(`Refusing to delete discord: uid: ${uid}. Step 1 は廃止プロバイダー専用です。`);
     }
-    if (!uid.startsWith('twitter:') && !uid.startsWith('google:')) {
-      throw new Error(`Unexpected prefix in TARGET_UIDS: ${uid}. twitter:/google: 以外は処理しません。`);
+    const hasLegacyPrefix = uid.startsWith('twitter:') || uid.startsWith('google:');
+    const isBareFirebaseUid = FIREBASE_BARE_UID_RE.test(uid);
+    if (!hasLegacyPrefix && !isBareFirebaseUid) {
+      throw new Error(`Unexpected uid format in TARGET_UIDS: ${uid}. 想定: twitter:/google: prefix もしくは 28 文字 Firebase UID。`);
     }
   }
 }
