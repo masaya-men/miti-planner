@@ -11,22 +11,27 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #37 で **Phase 2A 全 17 task 実装完了、 push 待ち** (デプロイ前に動作確認推奨)
-- **直近セッション (2026-05-19 #37)**: subagent-driven-development で Task 1-17 完走
-  - **新規追加**: parseHousingFromText (抽出純関数 12 test) + tweetUrlParse + useTweetFetch + Edge Function `/api/tweet-meta` + useHousingFieldState + HousingRegisterFormModal (新モーダル) + 子コンポ 7 個 + i18n 4 言語 31 キー
-  - **Vercel 関数**: 10 → **11/12** (`api/tweet-meta.ts` 新規 Edge runtime、 LoPo 初の Edge 関数。 Phase 3 Cloudflare 全面移行のとき他関数より楽に移植可能)
-  - **計画から逸脱した点 (記録)**: (1) Plan が Next.js 前提だったため Vite + react-i18next + Vercel Functions 構造に全面読み替え; (2) Task 8/10/11/12/14/15 で `'use client'` + `next-intl` を削除し `useTranslation` + i18n mock 化; (3) masterData に Small/Medium/Large alias 追加 (Plan 欠落); (4) 日本語「6番地6番」 形式の wardPlot fallback 正規表現追加 (Plan 欠落); (5) parseHousingFromText の `dc/server` 変数型注釈追加 (Vercel tsc 厳密モード対応); (6) Task 5 で `@vitest-environment node` 削除 + `vi.spyOn(globalThis, 'fetch')` に切替 (project pattern); (7) Task 16 で `HousingRegisterView.tsx` 削除を見送り (workspace/HousingRegisterModal 等 3 箇所が参照のため Phase 1 互換維持)
-  - **build / vitest**: green (`npm run build` 6 秒、 vitest 120 ファイル 910 PASS / 2 skip)
-- **積み残し (Phase 2A polish、 次セッションでも可)**: (a) `HousingRegisterView.tsx` の最終撤去 (現在 dead code 状態); (b) AddressFields の `renderBadge` prop 化 (現状 RegisterForm が dc/server/area/ward/plot を inline 再実装); (c) tweet 取得の rate limiting (現状 unlimited); (d) photo `alt` 属性のアクセシビリティ向上 (現状 `alt=""`); (e) **旧 `workspace/HousingRegisterModal.tsx` 撤去** (セッション 38 で新モーダルに差し替え済み、 dead code 状態)
-- **次に必要なログイン UX 整備 (Phase 2A 検証後の別タスク)**: ハウジング画面の登録ボタンは現在「未ログインでも新フォームが直接開く」 状態。 理想形 = (1) Workspace TopBar 右上に「いつも通りのログインボタン」 配置、 (2) ハウジングトンマナ (動画背景 + ガラス + ハニーゴールド) の LoginModal を用意 (現 `LoginModal` は LoPo 白黒風)、 (3) 登録ボタン押下 → 登録モーダルが背後に開く (操作不能) + ログインモーダルが手前にスタック表示。 既存 `LoginModal` の流用可否は実装時に判断。
+- **ブランチ**: main、 セッション #38 で新モーダル本番反映 + CSS 不足修正、 **push + Vercel デプロイ完了済み**
+- **セッション #38 (2026-05-19)**: Phase 2A 実機検証中に 2 件のバグを発見・修正
+  - (1) **新モーダル未繋ぎ込み**: `/housing` ルートは `HousingWorkspace` を指していたが、 そこが旧 `HousingRegisterModal` を使っていて、 セッション 37 で作った新モーダル本体が本番に出ていなかった。 import 1 行 + 使用箇所を `HousingRegisterFormModal` に差し替え (commit)
+  - (2) **新モーダル CSS 未定義**: `housing-modal-overlay/content/header` + `housing-glass-panel` + `housing-confirm-overlay/content/summary` のクラス CSS が housing.css に未追加で、 DOM はあるのに視覚的に見えない状態だった。 既存 token (`--housing-panel-border/text-shadow/text-dim/text-base/sm/xs` + `--housing-honey-glow` + `--liquid-filter` + `--housing-chip-bg-hover`) 経由で 121 行追加 (commit)
+  - **Playwright 検証 (1920×1080)**: 4 言語すべてで「登録ボタン検出 → モーダル overlay 可視 → URL 入力欄あり → 個室/アパート選択肢あり」 ○ (ただし 1920 縮小スクショだと細部は潰れる、 実機高 DPI で本人検証推奨)
+- **積み残し (Phase 2A polish、 次セッションでも可)**:
+  - (a) `HousingRegisterView.tsx` の最終撤去 (現在 dead code 状態)
+  - (b) AddressFields の `renderBadge` prop 化 (現状 RegisterForm が dc/server/area/ward/plot を inline 再実装)
+  - (c) tweet 取得の rate limiting (現状 unlimited)
+  - (d) photo `alt` 属性のアクセシビリティ向上 (現状 `alt=""`)
+  - (e) 旧 `workspace/HousingRegisterModal.tsx` 撤去 (新モーダルに差し替え済み、 dead code 状態)
+  - (f) **確認モーダルの内容整形**: 現状 `<pre>{JSON.stringify(confirmValues, null, 2)}</pre>` で開発用 dump がそのまま出る ([HousingRegisterFormModal.tsx:70-72](src/components/housing/register/HousingRegisterFormModal.tsx#L70-L72))。 ハウジングトンマナで人間用の確認サマリに整形必要
+- **次に必要なログイン UX 整備 (別タスク)**: ハウジング画面の登録ボタンは現在「未ログインでも新フォームが直接開く」 状態。 理想形 = (1) Workspace TopBar 右上に「いつも通りのログインボタン」 配置、 (2) ハウジングトンマナ (動画背景 + ガラス + ハニーゴールド) の LoginModal を用意 (現 `LoginModal` は LoPo 白黒風)、 (3) 登録ボタン押下 → 登録モーダルが背後に開く (操作不能) + ログインモーダルが手前にスタック表示。 既存 `LoginModal` の流用可否は実装時に判断。
 - **並行進行中**: ユーザー側で「完璧ループの夜景動画」 を毎日試作中
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: Phase 2A 実機検証 + デプロイ
+## 次セッション最優先: Phase 2A 実機検証 (本人の高 DPI ブラウザで)
 
-push 済みなら Vercel 自動デプロイ完了後に lopoly.app/housing で実機確認: (1) 登録タブクリック → 新モーダル開く; (2) X URL 貼り付け → 自動入力動作 (本人ツイート 2 + 友達 2 で再現); (3) ✅ ボタン → 登録ボタン有効化; (4) 個室/アパート選択で動的フィールド表示; (5) 4 言語で UI 崩れなし。 バグ発見時は 1 件ずつ修正 → 実機検証。
+セッション 38 で「モーダル本体が見える状態」 まで持ち込んだ。 lopoly.app/housing でログインしてから本人実機検証: (1) 登録ボタン → 新モーダル開く + 中身の細部 UI が崩れていないか目視; (2) X URL 貼り付け → 自動入力動作 (本人ツイート 2 + 友達 2 で再現); (3) ✅ ボタン → 登録ボタン有効化; (4) 個室/アパート選択で動的フィールド表示; (5) 4 言語で UI 崩れなし; (6) 「登録」 押下後の確認モーダル中身は現状 JSON dump (積み残し f を着手の合図とする)。 バグ発見時は 1 件ずつ修正 → 実機検証。
 
 ## 次セッション次優先 (Phase 2A 完了後)
 
