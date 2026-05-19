@@ -111,14 +111,20 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     const lowerCleaned = cleaned.toLowerCase();
     for (const [dcId, dcData] of Object.entries(serverMasterData)) {
         for (const alias of dcData.aliases) {
+            // 短すぎる alias は誤一致リスク高 (token loop で exact match を既にやっているので不要)
             if (alias.length < 3) continue;
+            // ASCII の 3 文字 alias (例: "Man"=Mana, "Mat"=Materia) は英文中の単語に誤一致するため除外
+            if (alias.length < 4 && /^[\x00-\x7f]+$/.test(alias)) continue;
             if (lowerCleaned.includes(alias.toLowerCase())) {
                 if (!candidates.dc.includes(dcId)) candidates.dc.push(dcId);
             }
         }
         for (const [serverId, aliases] of Object.entries(dcData.servers)) {
             for (const alias of aliases) {
+                // 短すぎる alias は誤一致リスク高 (token loop で exact match を既にやっているので不要)
                 if (alias.length < 3) continue;
+                // ASCII の 3 文字 alias (例: "Man"=Mana, "Mat"=Materia) は英文中の単語に誤一致するため除外
+                if (alias.length < 4 && /^[\x00-\x7f]+$/.test(alias)) continue;
                 if (lowerCleaned.includes(alias.toLowerCase())) {
                     if (!candidates.server.some((s) => s.serverId === serverId)) {
                         candidates.server.push({ serverId, dcId });
@@ -130,6 +136,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     for (const [areaId, areaData] of Object.entries(housingAreaMasterData)) {
         for (const alias of areaData.aliases) {
             if (alias.length < 2) continue;
+            if (alias.length < 4 && /^[\x00-\x7f]+$/.test(alias)) continue;
             if (lowerCleaned.includes(alias.toLowerCase())) {
                 if (!candidates.area.includes(areaId)) candidates.area.push(areaId);
             }
@@ -152,9 +159,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     // 日本語表記: "N番地 M番" / "N区 M番地" 等のフォールバック
     //   - "シロガネ6番地6番" / "6区 23番" / "6番地6" など、 区切り記号がない自然文で使われる
     if (ward === undefined || plot === undefined) {
-        const wardPlotJpMatch =
-            text.match(/(\d{1,2})\s*(?:番地|区)\s*(\d{1,2})\s*番?/) ??
-            text.match(/(\d{1,2})\s*番地\s*(\d{1,2})/);
+        const wardPlotJpMatch = cleaned.match(/(\d{1,2})\s*(?:番地|区)\s*(\d{1,2})\s*番?/);
         if (wardPlotJpMatch) {
             const w = +wardPlotJpMatch[1];
             const p = +wardPlotJpMatch[2];
