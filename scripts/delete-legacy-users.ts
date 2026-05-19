@@ -88,6 +88,37 @@ export function loadTargetUids(jsonPath: string): string[] {
   return uids;
 }
 
+export function assertPrefixSafe(uids: string[]): void {
+  if (uids.length === 0) {
+    throw new Error('TARGET_UIDS is empty');
+  }
+  for (const uid of uids) {
+    if (uid.startsWith('discord:')) {
+      throw new Error(`Refusing to delete discord: uid: ${uid}. Step 1 は廃止プロバイダー専用です。`);
+    }
+    if (!uid.startsWith('twitter:') && !uid.startsWith('google:')) {
+      throw new Error(`Unexpected prefix in TARGET_UIDS: ${uid}. twitter:/google: 以外は処理しません。`);
+    }
+  }
+}
+
+async function assertNoAdminClaims(uids: string[]): Promise<void> {
+  for (const uid of uids) {
+    try {
+      const user = await auth.getUser(uid);
+      const claims = user.customClaims ?? {};
+      if (claims.role === 'admin') {
+        throw new Error(`Refusing to delete admin user: ${uid}. admin claim をクリアしてから再実行してください。`);
+      }
+    } catch (err: any) {
+      if (err?.code === 'auth/user-not-found') {
+        continue; // 既に消えてる → OK
+      }
+      throw err;
+    }
+  }
+}
+
 async function main() {
   const flags = parseFlags(process.argv.slice(2));
   const targetUids = loadTargetUids(resolve(ROOT, 'docs/.private/legacy-target-uids.json'));
@@ -95,7 +126,10 @@ async function main() {
   console.log(`Mode: ${flags.execute && flags.confirm ? 'EXECUTE' : 'DRY-RUN'}`);
   console.log(`Target uids: ${targetUids.length}`);
 
-  // Task 2 以降で実装
+  assertPrefixSafe(targetUids);
+  await assertNoAdminClaims(targetUids);
+  console.log('✅ 安全チェック通過: prefix OK / admin claim なし');
+
   if (flags.execute && !flags.confirm) {
     console.error('❌ --execute を指定するときは --confirm も必須です (誤起動防止)');
     process.exit(1);
