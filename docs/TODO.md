@@ -31,16 +31,24 @@
 
 ---
 
-## 次セッション最優先: 登録モーダルの **デザイン・体験の大幅見直し**
+## 次セッション最優先: 登録モーダル UX 磨き + confirm バグ究明
 
-セッション 38 で「動作する状態」 までは到達 (文字 UI が見える、 サイズボタンが押せる、 isReadyToSubmit が機能)。 ただし**ユーザー本人レビューで「デザイン・体験含めて大幅に直すべき」** と明言。 具体課題:
-- ✅ バッジ + 確認ボタンの意味 / 配置が不明瞭 ("勝手にチェック入っていた・押しても変わらない")
-- 自動入力 → 手動修正の UX フロー全体の再設計が必要
-- モーダルの情報密度・グルーピング・余白
-- 確認モーダル (`<dl>` 整形済みだが UX 的に最終ではない)
-- 他、 本人が細部を見て指摘した点があれば順次
+セッション 38 で「とりあえず動く」 まで到達 (X URL 貼って自動入力 → 即「登録する」 押せる)。 ただし **本人レビューで「業界水準じゃない」** との指摘あり、 デザイン・体験を磨く必要あり:
 
-並行して: ハウジング画面ログイン UX 整備 (TopBar 右上ログインボタン + ハウジング版 LoginModal + 2 層モーダル) も別タスクで残っている。
+### 既知バグ (次セッションで優先究明)
+- **`fieldState.confirm()` を呼んでも state="confirmed" に切り替わらない**: 右上 ✅ バッジ・checklist の「そのままで OK」 どちらも Playwright で click しても state 不変。 ただし `userEdit` は正常動作。 React StrictMode? useCallback closure? createPortal 越しの reconciliation? いったん isReadyToSubmit を auto-filled 許容にして回避中
+
+### UX 磨き対象
+- ✅ バッジ + checklist で同じ意味のものが 2 箇所にある (右上バッジは「自動入力」 を伝える only、 checklist は確認 action)
+- 自動入力された値の見た目: 「✅」 ではなく「⚠️ 確認推奨」 で警告色
+- checklist の進捗アニメーション (FLIP / fade / 緑「ポン」)
+- 確認モーダル (`<dl>` 整形済みだが磨き余地)
+- モーダル全体の情報密度・グルーピング・余白
+- メモリ `feedback_form_ux_progress.md` 参照
+
+### 別タスクで残っている
+- ハウジング画面ログイン UX 整備 (TopBar 右上ログインボタン + ハウジング版 LoginModal + 2 層モーダル)
+- 旧 `workspace/HousingRegisterModal.tsx` / `HousingRegisterView.tsx` の dead code 撤去
 
 ## 次セッション次優先 (Phase 2A 完了後)
 
