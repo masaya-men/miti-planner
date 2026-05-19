@@ -11,9 +11,9 @@
 // ─────────────────────────────────────────────
 
 export const WARD_RANGE = { min: 1, max: 30 } as const;
-export const PLOT_RANGE = { min: 1, max: 30 } as const;                // 30 → 60 から訂正 (subdivision 別)
+export const PLOT_RANGE = { min: 1, max: 60 } as const;                // 通し番号: 本街 1-30、 拡張街 31-60 (公式仕様、 2026-05-19 訂正)
 export const APARTMENT_ROOM_RANGE = { min: 1, max: 90 } as const;
-export const PRIVATE_CHAMBER_RANGE = { min: 1, max: 512 } as const;    // NEW (FC 個室、 公式上限)
+export const PRIVATE_CHAMBER_RANGE = { min: 1, max: 512 } as const;    // FC 個室 公式上限
 
 // ─────────────────────────────────────────────
 // ユーザー入力の制限（設計書 §4.2 / §6.1）
