@@ -80,10 +80,8 @@ export default async function handler(req: any, res: any) {
         server: draft.server,
         area: draft.area,
         ward: draft.ward,
-        subdivision: draft.subdivision,
         buildingType: draft.buildingType,
         ...(draft.buildingType === 'house' ? {
-          ownerType: draft.ownerType,
           plot: draft.plot,
           size: draft.size,
         } : {}),
