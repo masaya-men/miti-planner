@@ -36,7 +36,7 @@ describe('registerListing', () => {
     );
     const result = await registerListing({
       dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane',
-      ward: 3, subdivision: 'main', buildingType: 'house', ownerType: 'personal',
+      ward: 3, buildingType: 'house',
       plot: 12, size: 'M', tags: ['modern'],
     });
     expect(result.id).toBe('l1');
@@ -48,7 +48,7 @@ describe('registerListing', () => {
     await expect(
       registerListing({
         dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane',
-        ward: 3, subdivision: 'main', buildingType: 'house', ownerType: 'personal',
+        ward: 3, buildingType: 'house',
         plot: 12, size: 'M', tags: ['modern'],
       }),
     ).rejects.toThrow('quota_exhausted');
@@ -62,7 +62,7 @@ describe('checkDuplicate', () => {
     );
     const result = await checkDuplicate({
       dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane',
-      ward: 3, subdivision: 'main', buildingType: 'house', ownerType: 'personal',
+      ward: 3, buildingType: 'house',
       plot: 12, size: 'M',
     });
     expect(result.duplicates).toHaveLength(1);

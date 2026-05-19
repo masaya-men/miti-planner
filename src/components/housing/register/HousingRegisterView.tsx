@@ -24,10 +24,8 @@ import { HousingLoginPrompt } from '../HousingLoginPrompt';
 const EMPTY_DRAFT: RegistrationDraft = {
   dc: '', server: '', area: '' as never,
   ward: 1,
-  // 暫定: 個人ハウス相当のデフォルト値。個室・アパート UI は Sub-spec 2B で実装
-  subdivision: 'main',
+  // 暫定: 家全体相当のデフォルト値。 5 種チップ選択 UI は Phase 2 で実装
   buildingType: 'house',
-  ownerType: 'personal',
   plot: 1, size: 'M',
   tags: [],
   description: '',

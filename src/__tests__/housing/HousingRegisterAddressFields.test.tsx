@@ -6,8 +6,8 @@ import { HousingRegisterAddressFields } from '../../components/housing/register/
 
 const baseValue = {
   dc: '', server: '', area: '' as never,
-  ward: 1, subdivision: 'main' as const, buildingType: 'house' as const,
-  ownerType: 'personal' as const, plot: 1, size: 'M' as const,
+  ward: 1, buildingType: 'house' as const,
+  plot: 1, size: 'M' as const,
 };
 
 describe('HousingRegisterAddressFields', () => {
