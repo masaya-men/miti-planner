@@ -6,7 +6,7 @@
  */
 import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 import { db } from './firebase';
-import type { HousingListing, HousingArea, Subdivision } from '../types/housing';
+import type { HousingListing, HousingArea } from '../types/housing';
 
 const COLLECTION_NAME = 'housing_listings';
 
@@ -29,7 +29,6 @@ interface ChamberQuery {
   server: string;
   area: HousingArea;
   ward: number;
-  subdivision: Subdivision;
   plot: number;
 }
 
@@ -38,7 +37,6 @@ interface ApartmentQuery {
   server: string;
   area: HousingArea;
   ward: number;
-  subdivision: Subdivision;
   currentRoomNumber: number;
 }
 
@@ -50,7 +48,6 @@ export async function findChambersInPlot(q: ChamberQuery): Promise<HousingListin
     where('server', '==', q.server),
     where('area', '==', q.area),
     where('ward', '==', q.ward),
-    where('subdivision', '==', q.subdivision),
     where('plot', '==', q.plot),
     where('roomKind', '==', 'private_chamber'),
     where('isHidden', '==', false),
@@ -64,8 +61,8 @@ export async function findChambersInPlot(q: ChamberQuery): Promise<HousingListin
 }
 
 /**
- * spec §4.2: 指定 plot の FC ハウス全体登録 (個室ページで使う、 親家)。 未登録なら null
- * 1 plot に 1 FC ハウス全体登録のみ想定 (FF14 仕様で plot ごとに家主 1 名)。 複数登録は通報で吸収する。
+ * spec §4.2: 指定 plot の家全体登録 (個室ページで使う、 親家)。 未登録なら null
+ * 1 plot に 1 家全体登録のみ想定 (FF14 仕様で plot ごとに家主 1 名)。 複数登録は通報で吸収する。
  */
 export async function findHouseForChamber(q: ChamberQuery): Promise<HousingListing | null> {
   const qref = query(
@@ -74,9 +71,8 @@ export async function findHouseForChamber(q: ChamberQuery): Promise<HousingListi
     where('server', '==', q.server),
     where('area', '==', q.area),
     where('ward', '==', q.ward),
-    where('subdivision', '==', q.subdivision),
     where('plot', '==', q.plot),
-    where('ownerType', '==', 'fc'),
+    where('buildingType', '==', 'house'),
     where('isHidden', '==', false),
     limit(5),  // 通常 1 件、 重複登録考慮で 5
   );
@@ -96,7 +92,6 @@ export async function findApartmentRoomsInWard(q: ApartmentQuery): Promise<Housi
     where('server', '==', q.server),
     where('area', '==', q.area),
     where('ward', '==', q.ward),
-    where('subdivision', '==', q.subdivision),
     where('buildingType', '==', 'apartment'),
     where('roomKind', '==', 'apartment_room'),  // schema integrity: apartment は必ず apartment_room
     where('isHidden', '==', false),

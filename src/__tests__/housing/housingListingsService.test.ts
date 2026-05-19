@@ -26,7 +26,6 @@ const baseQuery = {
   server: 'Pandaemonium',
   area: 'Shirogane' as const,
   ward: 3,
-  subdivision: 'main' as const,
 };
 
 beforeEach(() => {
@@ -71,10 +70,10 @@ describe('findChambersInPlot', () => {
 });
 
 describe('findHouseForChamber', () => {
-  it('指定 plot の FC ハウス全体を返す (個室除く)', async () => {
+  it('指定 plot の家全体を返す (= roomKind=undefined)', async () => {
     mockGetDocs.mockResolvedValueOnce({
       docs: [
-        { id: 'house', data: () => ({ roomKind: undefined, ownerType: 'fc', plot: 12 }) },
+        { id: 'house', data: () => ({ roomKind: undefined, plot: 12, buildingType: 'house' }) },
       ],
     });
     const r = await findHouseForChamber({ ...baseQuery, plot: 12 });
