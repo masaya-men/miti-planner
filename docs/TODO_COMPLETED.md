@@ -2,6 +2,33 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-20 セッション 40・hash 化マイグレーション Step 1 完了)
+
+**目的**: hash 化マイグレーション (Step 2) のテスト対象を Discord 専用に絞り、 「個人情報を持たない大原則」 の前提条件を整える。 廃止プロバイダー (Twitter / Google) 由来の uid 残骸を関連データごと完全削除。
+
+### 完了内容
+
+- **設計書**: [docs/superpowers/specs/2026-05-20-legacy-user-cleanup-design.md](superpowers/specs/2026-05-20-legacy-user-cleanup-design.md) (Step 1 完全仕様 + §3.4 クロス参照対応)
+- **実装プラン**: [docs/superpowers/plans/2026-05-20-legacy-user-cleanup.md](superpowers/plans/2026-05-20-legacy-user-cleanup.md) (13 タスク、 subagent-driven 実行)
+- **新規スクリプト**: [scripts/delete-legacy-users.ts](../scripts/delete-legacy-users.ts) (Dry-Run + Execute、 idempotent、 prefix/admin 二重防御 + bare Firebase UID 対応、 cross-ref scan 付き)
+- **prod 実削除**:
+  - Firebase Auth: 14 件削除 (Twitter 12 + Google 2)
+  - Firestore documents: 29 件削除 (plans 18 / userPlanCounts 8 / users 2 / housing_user_meta 1)
+  - Cross-references: 0 件 (廃止ユーザーは現役機能未使用 = Task 7 dry-run で予測通り)
+  - Storage files: 0 件
+- **検証**: scripts/check-admin-claims.ts 再実行で「総 10 件 / Discord のみ / admin 1 (本人) / Twitter Google グループ消滅」 確認
+- **既存機能影響**: ゼロ。 Discord 10 件 (本人 admin + 他 9 名) は一切変更なし、 ハウジング・軽減表・LP 正常動作維持
+- **Vercel デプロイ不要** (scripts/ のみの変更で本番動作に影響なし)
+
+### Step 1 中に発見した plan 欠陥
+
+- `assertPrefixSafe` が bare Firebase UID (Google built-in provider が生成する 28 文字英数字 UID) を弾くバグを Task 7 で発見・修正 (commit e5ebd4c)。 spec / plan は `google:` プレフィックス前提で書かれていたが実 uid は prefix 無し
+- 新規 Discord ユーザー 1 件 (`discord:704...`、 2026-05-19 15:28 UTC 登録) が prep memo 後に追加されていた → Step 2 対象は **Discord 10 件** (本人 1 + 他 9) に確定
+
+### 結果
+
+prod は Discord 10 件のみ、 hash 化マイグレーション Step 2 (本体) の前提条件達成。 Step 2 brainstorming に直行可能。
+
 ## 完了（2026-05-19 セッション 39・hash 化マイグレーション準備調査）
 
 **背景**: ハウジング ログイン UI 整備の brainstorming 中、 認証実装の中身 (`firebaseUid = discord:<生 ID>`) が「個人情報を持たない大原則」 と乖離していることが判明。 hash 化マイグレーションを**ハウジング UI 整備より優先**で実施する方針に転換。

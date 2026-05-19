@@ -11,21 +11,20 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #39 (2026-05-19) で **hash 化マイグレーション準備完了**
-- **大方針転換**: ハウジング ログイン UI 整備の前準備で認証実装を精査した結果、 `firebaseUid = discord:<生 ID>` のまま保存されていることが判明 (= 「個人情報を持たない大原則」 と乖離)。 hash 化マイグレーションをハウジング UI より**優先**して実施する方針に確定
-- **23 ユーザー把握済み**: Discord 9 件 (現役、 hash 化対象) / Google 2 件 + Twitter 12 件 (廃止、 削除対象)
-- **admin claim 確認済み**: 本人 Discord 1 件のみ ([scripts/check-admin-claims.ts](scripts/check-admin-claims.ts) で再現可)
-- **詳細準備メモ**: [docs/.private/2026-05-19-hash-migration-prep.md](docs/.private/2026-05-19-hash-migration-prep.md) (個人特定 uid を含むため gitignore)
-- **未コミット**: docs/TODO.md (このファイル) / docs/TODO_COMPLETED.md / scripts/check-admin-claims.ts → 次セッション最初にまとめて commit
+- **ブランチ**: main、 セッション #40 (2026-05-20) で **hash 化マイグレーション Step 1 完了**
+- **完了**: 廃止プロバイダー 14 件 (Twitter 12 + Google 2) を関連データ含めて完全削除済 → prod は **Discord 10 件のみ** (本人 admin 1 + 他 9 名)。 Firestore docs 29 件 + Auth 14 件削除、 Storage / cross-ref はゼロ件
+- **次は Step 2** (hash 化本体): Discord 10 件の uid を `discord:<生 ID>` → `hashed:<sha256(id+secret)>` に migration
+- **詳細準備メモ + Step 2 論点 12 個**: [docs/.private/2026-05-19-hash-migration-prep.md](docs/.private/2026-05-19-hash-migration-prep.md) (個人特定 uid を含むため gitignore)
+- **Step 1 設計書 / プラン**: [docs/superpowers/specs/2026-05-20-legacy-user-cleanup-design.md](superpowers/specs/2026-05-20-legacy-user-cleanup-design.md) / [docs/superpowers/plans/2026-05-20-legacy-user-cleanup.md](superpowers/plans/2026-05-20-legacy-user-cleanup.md)
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: hash 化マイグレーション brainstorming
+## 次セッション最優先: hash 化マイグレーション Step 2 brainstorming
 
-1. **準備メモを読む** ([docs/.private/2026-05-19-hash-migration-prep.md](docs/.private/2026-05-19-hash-migration-prep.md))
-2. **`superpowers:brainstorming` スキル発動** → 実装計画詳細化 (8 論点: sha256 実装 / migration 関数構造 / Storage rename / セッション失効 UX / テスト / デプロイ順 / ポリシー文書 / Phase 3 連携)
-3. **`superpowers:writing-plans` で 1 ファイル作成** → ユーザー承認 → 段階実装
+1. **準備メモ + 監査結果を再確認** ([docs/.private/2026-05-19-hash-migration-prep.md](docs/.private/2026-05-19-hash-migration-prep.md))
+2. **`superpowers:brainstorming` スキル発動** → Step 2 の 12 論点 (sha256 実装 / LOPO_PSEUDONYM_SECRET / migration 関数構造 / Storage rename / セッション失効 UX / テスト / デプロイ順 / プロバイダ判定 3 箇所修正 / admin_logs 旧 uid 扱い / shared_plans copiedBy 移行 / テスト mock 更新 / プライバシーポリシー文書 update)
+3. **`superpowers:writing-plans` で Step 2 plan 作成** → 段階実装
 4. 完了後にハウジング ログイン UI 整備に戻る
 
 ### hash 化完了後に再開するタスク (pause 中)
@@ -86,11 +85,9 @@ Cloudflare 前段化 (DNS 切替 30 分) → Phase 2B (マップ Figma 書き起
 
 - 多言語: ハウジング言語対応 / AA 名統一
 - UI/モバイル: モーダルアニメ / スマホ・タブレット最適化 / SVG アイコンアニメ / 紹介 PV
-- インフラ: shared_plans クリーンアップ / CSP unsafe-inline 除去 / Sentry / 認証プライバシー (← hash 化で大幅前進)
+- インフラ: shared_plans クリーンアップ / CSP unsafe-inline / Sentry / Cloudflare 前段 / 認証プライバシー (← Step 1 完了で大幅前進)
 - 新機能: Floating Timeline (Tauri v2) / FFLogs 精度 / SA 法改善 / 詠唱バー注釈 / public/icons/ 削除
-- ハウジング: 背景動画の画面サイズ別出し分け
-- インフラ: Cloudflare を Vercel の前段に置く (DNS 切替 30 分)
-- デッドコード: Lenis (`useSmoothScroll.ts`) 削除でバンドル減
+- デッドコード: Lenis (`useSmoothScroll.ts`) 削除でバンドル減 / ハウジング背景動画の画面サイズ別出し分け
 
 ---
 
