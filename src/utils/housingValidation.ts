@@ -8,14 +8,10 @@ import {
   isValidHousingArea,
   isValidHousingSize,
   isValidBuildingType,
-  isValidOwnerType,
-  isValidSubdivision,
   type HousingArea,
   type HousingSize,
   type BuildingType,
-  type OwnerType,
   type RoomKind,
-  type Subdivision,
 } from '../types/housing.js';
 import {
   WARD_RANGE,
@@ -31,13 +27,11 @@ export interface AddressInput {
   server: string;
   area: HousingArea | string;
   ward: number;
-  subdivision: Subdivision | string;        // NEW
 
-  buildingType: BuildingType | string;       // NEW
+  buildingType: BuildingType | string;
 
   // house の場合
-  ownerType?: OwnerType | string;
-  plot?: number;
+  plot?: number;        // 1-60 (本街 1-30 / 拡張街 31-60 通し)
   size?: HousingSize | string;
 
   // 部屋区分
