@@ -44,7 +44,9 @@ export default async function handler(req: Request): Promise<Response> {
                     screen_name: json.user?.screen_name ?? '',
                 },
                 photos: Array.isArray(json.photos)
-                    ? json.photos.map((p: { url: string }) => p.url)
+                    ? json.photos
+                        .map((p: unknown) => (p as { url?: unknown })?.url)
+                        .filter((u: unknown): u is string => typeof u === 'string')
                     : [],
                 video: Boolean(json.video),
             },

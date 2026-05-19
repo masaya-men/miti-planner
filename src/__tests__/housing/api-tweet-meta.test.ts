@@ -1,10 +1,7 @@
-// @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-
-const mockFetch = vi.fn();
-vi.stubGlobal('fetch', mockFetch);
-
 import handler from '../../../api/tweet-meta';
+
+const mockFetch = vi.spyOn(globalThis, 'fetch');
 
 function makeReq(id: string | null): Request {
     const u = new URL('http://localhost/api/tweet-meta');
