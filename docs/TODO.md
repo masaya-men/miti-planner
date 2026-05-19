@@ -11,41 +11,26 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #35 で **Phase 1 schema 訂正 (9 task) 完了 + push 予定**
-- **直近セッション (2026-05-19 #35)**: ハウジング schema 訂正版 (subdivision/ownerType 削除 + plot 1-60) を **forward fix で全面置換完了**
-  - 前セッション (#34) の公式仕様調査ミスを訂正: plot は **1-60 通し番号** (本街 1-30 + 拡張街 31-60)、 subdivision フィールド不要
-  - さらに ownerType (個人/FC 区別) も schema から削除 (ユーザー目線で意味なし、 個室は FC 由来なのは公式仕様で自明)
-  - 6 層 (型 / validation / addressKey / API handler / Firestore Rules / service) すべて 3 パターン制約 (家全体 / FC 個室 / アパ部屋) に簡素化
-  - **検証**: tsc clean / vitest 850 PASS / build green / `subdivision\|ownerType` grep 残骸ゼロ
-  - **訂正版 spec**: [`docs/superpowers/specs/2026-05-18-housing-room-types-design.md`](./superpowers/specs/2026-05-18-housing-room-types-design.md)
-  - **Phase 1 plan (完了)**: [`docs/superpowers/plans/2026-05-19-housing-schema-correction.md`](./superpowers/plans/2026-05-19-housing-schema-correction.md)
-  - **ハウジング独自トンマナルール拡大も完了**: `.claude/rules/housing-design.md` の paths を `src/components/housing/**` 全体に (workspace のみ → 全 housing 配下、 今後の Phase 2 モーダルも自動的に独自トンマナ強制)、 memory も補強
-- **並行進行中**: ユーザー側で「完璧ループの夜景動画」 を毎日試作中
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12**、 月 100 ビルド
-- **既知の残**: なし
+- **ブランチ**: main、 セッション #36 で **Phase 2A 設計書 + 17 task TDD 実装計画完成 + push 済み**
+- **直近セッション (2026-05-19 #36)**: ハウジング登録モーダル + SNS URL 自動推定 のブレスト & 計画固め
+  - **設計書**: [`docs/superpowers/specs/2026-05-19-housing-sns-auto-extraction-design.md`](./superpowers/specs/2026-05-19-housing-sns-auto-extraction-design.md) (14 セクション、 751 行)
+  - **実装計画**: [`docs/superpowers/plans/2026-05-19-housing-sns-auto-extraction.md`](./superpowers/plans/2026-05-19-housing-sns-auto-extraction.md) (17 task、 2621 行、 TDD 5 ステップ構成)
+  - 抽出ロジックは masterData の表記ゆれ辞書を活用、 4 実サンプル (本人 2 + 友達 2) で 100% 抽出可能を確認
+  - 鯖/サバ等の俗語対応、 葉脈 → LavenderBeds alias 追加方針確定
+  - UI 工夫: 黄色背景 + 🟡 バッジ + ✅ チェックボタン (全フィールド「編集 or 確認」 で登録ボタン有効化)、 タイピング演出 (150ms ずらし)、 4 種アニメ全部入れ
+  - インフラ: 今回は Vercel Edge Function (10→11/12)、 段階移行で Phase 3 着手前に Cloudflare 全面移行 + Durable Objects ($5/月)
+- **並行進行中**: ユーザー側で「完璧ループの夜景動画」 を毎日試作中、 既知の残バグなし
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12 (Phase 2A 完了で 11/12)**、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: Phase 2 登録モーダル UI 実装
+## 次セッション最優先: Phase 2A Task 1 から subagent-driven で実装着手
 
-spec `2026-05-18-housing-room-types-design.md` §4.1 + ユーザー方針 (2026-05-19 確定):
+[`docs/superpowers/plans/2026-05-19-housing-sns-auto-extraction.md`](./superpowers/plans/2026-05-19-housing-sns-auto-extraction.md) の Task 1 (`tweetUrlParse.ts`) から `superpowers:subagent-driven-development` skill で 1 task ずつ実装 → 確認 → 次へ。 順序: Task 1-4 抽出ロジック → Task 5 Edge Function → Task 6-12 UI 部品 → Task 13-15 Form/Modal → Task 16 統合 → Task 17 TODO+push。
 
-- **ハウジング独自トンマナでモーダル化** (`docs/.private/housing-tour-mockup/index.html` 準拠、 ガラスパネル + ハニーゴールド)
-- **SNS URL 欄を最上部** (任意、 将来 OG 解析で住所自動推定する準備、 今は欄だけ用意)
-- **住居タイプ 5 種チップ** (S / M / L / 個室 / アパート) — フィルタ UI と完全統一
-- 番地 1-60 入力欄の横に「31 以上は拡張街」 注記
-- 個室選択時は親家のサイズ (S/M/L) も別 select で入力
-- ファイル分け案 (`src/components/housing/register/`):
-  - HousingRegisterModal.tsx (モーダル枠、 glass panel)
-  - HousingRegisterForm.tsx (state 管理)
-  - HousingRegisterSnsUrlField.tsx (NEW、 最上部)
-  - HousingRegisterTypeSelector.tsx (NEW、 5 種チップ)
-  - HousingRegisterAddressFields.tsx (既存、 番地 1-60 注記追加)
-  - HousingRegisterRoomNumberField.tsx (NEW、 タイプ依存で 1-512 or 1-90)
-  - HousingRegisterTagPicker.tsx / HousingRegisterDescriptionField.tsx (既存)
-- i18n 4 言語 (ja/en/ko/zh) で約 25 キー × 4 = 100 訳追加
-- 既存テスト `HousingRegisterAddressFields.test.tsx` の `it.skip` 2 件を復活
-- plan は新規作成: `docs/superpowers/plans/2026-05-19-housing-register-modal.md`
+## 次セッション次優先 (Phase 2A 完了後)
+
+Cloudflare 前段化 (DNS 切替 30 分、 動画 2K 化への布石) → Phase 2B (マップ Figma 書き起こし + 30 軒位置データ + マップクリック登録、 モーダル本体は流用) → Phase 3 (物件詳細ページ + 通報 UI 分離 + 家主異議申し立て + マップ確認モーダル + ツアーリアルタイム同期 = Cloudflare 全面移行が前提)
 
 ## 次セッション次優先 (Phase 2 完了後)
 
