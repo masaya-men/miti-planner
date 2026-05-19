@@ -211,9 +211,9 @@ export const housingAreaMasterData: Record<string, HousingAreaData> = {
 
 // 3. ハウジングサイズ・種別のマスターデータ（「アパ」「Apt」等を追加）
 export const housingSizeMasterData: HousingSizeData[] = [
-  {"id": "S", "label": "Sハウス", "aliases": ["S", "Sサイズ"]},
-  {"id": "M", "label": "Mハウス", "aliases": ["M", "Mサイズ"]},
-  {"id": "L", "label": "Lハウス", "aliases": ["L", "Lサイズ"]},
+  {"id": "S", "label": "Sハウス", "aliases": ["S", "Sサイズ", "Small"]},
+  {"id": "M", "label": "Mハウス", "aliases": ["M", "Mサイズ", "Medium"]},
+  {"id": "L", "label": "Lハウス", "aliases": ["L", "Lサイズ", "Large"]},
   {"id": "Apartment", "label": "アパルトメント", "aliases": ["アパルトメント", "アパルト", "アパート", "アパ", "Apartment", "Apart", "Apt"]},
   {"id": "PrivateRoom", "label": "FC個室", "aliases": ["個室", "FC個室", "FC部屋", "Private Room", "FC Chamber"]}
 ];
