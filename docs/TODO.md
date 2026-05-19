@@ -11,11 +11,13 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #38 で新モーダル本番反映 + CSS 不足修正、 **push + Vercel デプロイ完了済み**
-- **セッション #38 (2026-05-19)**: Phase 2A 実機検証中に 2 件のバグを発見・修正
-  - (1) **新モーダル未繋ぎ込み**: `/housing` ルートは `HousingWorkspace` を指していたが、 そこが旧 `HousingRegisterModal` を使っていて、 セッション 37 で作った新モーダル本体が本番に出ていなかった。 import 1 行 + 使用箇所を `HousingRegisterFormModal` に差し替え (commit)
-  - (2) **新モーダル CSS 未定義**: `housing-modal-overlay/content/header` + `housing-glass-panel` + `housing-confirm-overlay/content/summary` のクラス CSS が housing.css に未追加で、 DOM はあるのに視覚的に見えない状態だった。 既存 token (`--housing-panel-border/text-shadow/text-dim/text-base/sm/xs` + `--housing-honey-glow` + `--liquid-filter` + `--housing-chip-bg-hover`) 経由で 121 行追加 (commit)
-  - **Playwright 検証 (1920×1080)**: 4 言語すべてで「登録ボタン検出 → モーダル overlay 可視 → URL 入力欄あり → 個室/アパート選択肢あり」 ○ (ただし 1920 縮小スクショだと細部は潰れる、 実機高 DPI で本人検証推奨)
+- **ブランチ**: main、 セッション #38 で大規模リファクタ 4 commit 連発、 **push + Vercel デプロイ完了済み**
+- **セッション #38 (2026-05-19)**: Phase 2A 検証中に判明した「中身まったく見えない」「タグが長すぎる」 を根本対応
+  - (1) **新モーダル本番未反映**: `/housing` の `HousingWorkspace` が旧 `HousingRegisterModal` を import したままだった → `HousingRegisterFormModal` に差し替え
+  - (2) **新モーダル CSS 未定義** (初版): overlay / content / header 系クラスが housing.css に無く透明状態 → 一次対応で 121 行追加
+  - (3) **panel chrome 統一**: ワークスペース中央パネル (CenterArea を包む `LiquidGlassPanel`) と同じ panel chrome (4 corner highlights + SVG displacement filter + housing-panel-head) を使う共通ラッパー `HousingPanelModal` を新規追加。 `HousingRegisterFormModal` と `FavoritesModal` を全部これでラップ。 backdrop 0.72、 パネル背景 `rgba(8,12,20,0.78)` + border-radius 18px。 確認モーダルは z-index 60 で 2 層重ね
+  - (4) **モーダル中身もハウジングトンマナ化**: `.housing-input` / `.housing-textarea` / `.housing-label` / `.housing-register-form` / `.housing-register-form-footer` の form 基礎 CSS が**そもそも未定義**だったため新規追加 (=「中身が見えない」 の主因はこれ)。 select の▼はハニーゴールドで自前描画。 `HousingRegisterDescriptionField` の `text-app-*` を housing 系に置換。 `HousingRegisterTagPicker` は 147 タグ flex-wrap → 選択 chips + 検索 + カテゴリタブ + 高さ固定 200px に再設計 (モーダル縦伸びを止める)。 確認モーダルは `<pre>{JSON.stringify}</pre>` → `<dl>` 構造化表示に整形。 i18n 4 言語に `tag_search_placeholder` / `tag_no_results` / `tag_pick_hint` / `tags` / `room_number` / `parent_house_size` を追加
+  - **Playwright 検証 (1920×1080)**: panel chrome 出現 + 中身段が縞状に視認できる + タグピッカー高さ固定で全体コンパクト 確認済み。 細部 (タブ文字 / chips / 検索) は縮小で潰れるため**実機高 DPI 目視必須**
 - **積み残し (Phase 2A polish、 次セッションでも可)**:
   - (a) `HousingRegisterView.tsx` の最終撤去 (現在 dead code 状態)
   - (b) AddressFields の `renderBadge` prop 化 (現状 RegisterForm が dc/server/area/ward/plot を inline 再実装)
