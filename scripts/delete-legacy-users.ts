@@ -322,6 +322,23 @@ async function deleteCrossRefsForUid(uid: string): Promise<{ copiedBy: number; r
   return { copiedBy, reports };
 }
 
+async function deleteStorageForUid(uid: string): Promise<number> {
+  const [files] = await bucket.getFiles({ prefix: `users/${uid}/` });
+  if (files.length === 0) return 0;
+  for (const f of files) await f.delete({ ignoreNotFound: true });
+  return files.length;
+}
+
+async function deleteAuthForUid(uid: string): Promise<boolean> {
+  try {
+    await auth.deleteUser(uid);
+    return true;
+  } catch (err: any) {
+    if (err?.code === 'auth/user-not-found') return false;
+    throw err;
+  }
+}
+
 async function main() {
   const flags = parseFlags(process.argv.slice(2));
   const targetUids = loadTargetUids(resolve(ROOT, 'docs/.private/legacy-target-uids.json'));
