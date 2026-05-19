@@ -1744,7 +1744,53 @@
             "quota": {
                 "bonus_phase": "Quota: {{count}} / {{bonus}} (unlimited)",
                 "daily_remaining": "Today's quota: {{remaining}} / {{max}} remaining"
-            }
+            },
+            "snsUrl": {
+                "label": "SNS URL (optional)",
+                "placeholder": "https://x.com/.../status/...",
+                "fetching": "Reading tweet…",
+                "cancel": "Cancel",
+                "retry": "Retry",
+                "error": {
+                    "invalid": "Please paste an X (Twitter) tweet URL",
+                    "notFound": "This tweet cannot be fetched. Check the URL or enter manually",
+                    "rateLimit": "Too many requests. Please wait 30 seconds and try again",
+                    "upstream": "Failed to fetch tweet. Please retry",
+                    "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet"
+                }
+            },
+            "tweetPreview": {
+                "title": "Fetched tweet"
+            },
+            "fieldBadge": {
+                "autoFilled": "Auto-filled",
+                "confirmTooltip": "Click to confirm this value",
+                "confirmAriaLabel": "Confirm this value"
+            },
+            "fieldError": {
+                "required": "Required field",
+                "wardOutOfRange": "Ward must be between 1 and 30",
+                "plotOutOfRange": "Plot must be between 1 and 60 (31+ is the expansion district)",
+                "roomNumberApartmentOutOfRange": "Apartment number must be between 1 and 90",
+                "roomNumberPrivateOutOfRange": "Private room number must be between 1 and 512"
+            },
+            "address": {
+                "expansionWardNote": "31 and above is the expansion district"
+            },
+            "type": {
+                "S": "Small house",
+                "M": "Medium house",
+                "L": "Large house",
+                "private": "FC private room",
+                "apartment": "Apartment"
+            },
+            "confirm": {
+                "title": "Final confirmation",
+                "message": "Register with the following values?",
+                "submit": "Register",
+                "cancel": "Back"
+            },
+            "cancel": "Cancel"
         },
         "duplicate": {
             "title": "A listing already exists at this address",

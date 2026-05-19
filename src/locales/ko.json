@@ -1708,7 +1708,53 @@
             "quota": {
                 "bonus_phase": "등록 한도: {{count}} / {{bonus}}개 (무제한)",
                 "daily_remaining": "오늘의 등록 한도: 남은 {{remaining}} / {{max}}개"
-            }
+            },
+            "snsUrl": {
+                "label": "SNS URL (선택)",
+                "placeholder": "https://x.com/.../status/...",
+                "fetching": "트윗을 읽는 중…",
+                "cancel": "취소",
+                "retry": "다시 가져오기",
+                "error": {
+                    "invalid": "X (구 Twitter) 의 트윗 URL 을 붙여 넣어 주세요",
+                    "notFound": "이 트윗은 가져올 수 없습니다. URL 을 확인하거나 직접 입력해 주세요",
+                    "rateLimit": "요청이 많아 잠시 후 다시 시도해 주세요",
+                    "upstream": "트윗 가져오기에 실패했습니다. 다시 시도해 주세요",
+                    "extractFailed": "자동 입력에 실패했습니다. 트윗 본문을 보면서 직접 입력해 주세요"
+                }
+            },
+            "tweetPreview": {
+                "title": "가져온 트윗"
+            },
+            "fieldBadge": {
+                "autoFilled": "자동 입력됨",
+                "confirmTooltip": "확인했다면 눌러 주세요",
+                "confirmAriaLabel": "이 값을 확인"
+            },
+            "fieldError": {
+                "required": "필수 항목입니다",
+                "wardOutOfRange": "구역은 1-30 사이로 입력해 주세요",
+                "plotOutOfRange": "번지는 1-60 사이로 입력해 주세요 (31 이상은 확장 구역)",
+                "roomNumberApartmentOutOfRange": "방 번호는 1-90 사이로 입력해 주세요",
+                "roomNumberPrivateOutOfRange": "개인실 번호는 1-512 사이로 입력해 주세요"
+            },
+            "address": {
+                "expansionWardNote": "31 이상은 확장 구역입니다"
+            },
+            "type": {
+                "S": "소형 하우스",
+                "M": "중형 하우스",
+                "L": "대형 하우스",
+                "private": "FC 개인실",
+                "apartment": "아파트"
+            },
+            "confirm": {
+                "title": "등록 내용 최종 확인",
+                "message": "다음 내용으로 등록합니다. 괜찮으신가요?",
+                "submit": "확정하여 등록",
+                "cancel": "뒤로"
+            },
+            "cancel": "취소"
         },
         "duplicate": {
             "title": "같은 주소로 이미 등록된 매물이 있습니다",
