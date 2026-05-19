@@ -23,11 +23,11 @@ describe('housingConstants', () => {
     expect(HOUSING_LIMITS.MAX_FAVORITES_PER_USER).toBe(100);
   });
 
-  it('Ward / Plot 範囲', () => {
+  it('Ward / Plot 範囲 (plot は 1-60 通し: 本街 1-30 + 拡張街 31-60)', () => {
     expect(WARD_RANGE.min).toBe(1);
     expect(WARD_RANGE.max).toBe(30);
     expect(PLOT_RANGE.min).toBe(1);
-    expect(PLOT_RANGE.max).toBe(30);
+    expect(PLOT_RANGE.max).toBe(60);
     expect(APARTMENT_ROOM_RANGE.min).toBe(1);
     expect(APARTMENT_ROOM_RANGE.max).toBe(90);
   });
