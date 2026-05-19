@@ -2,6 +2,58 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了（2026-05-19 セッション 37・ハウジング Phase 2A 登録モーダル + SNS URL 自動推定 実装）
+
+**背景**: セッション 36 で確定した設計書 (`docs/superpowers/specs/2026-05-19-housing-sns-auto-extraction-design.md`) + 17 task TDD 実装計画 (`docs/superpowers/plans/2026-05-19-housing-sns-auto-extraction.md`) を `superpowers:subagent-driven-development` skill で完走。
+
+### 完了内容 (17 task + 5 fix commit、 main へ直 commit)
+
+- **Task 1** `9637c74`: `parseTweetUrl` 純関数 (X URL → tweet ID、 7 test PASS)
+- **Task 2** `e8354de`: `parseHousingFromText` 骨格 + masterData に `Small`/`Medium`/`Large` alias 追加 (2 test PASS)
+- **Task 3** `f207090` + `7ecd47c`: 略称・俗語・自由文・棄却ケース対応 (11 test PASS、 substring 探索 + 日本語 ward-plot fallback、 ASCII 短 alias 誤一致防止 fix)
+- **Task 4** `b0412eb`: `LavenderBeds` aliases に「葉脈」 追加
+- **Task 5** `f271191` + `942763a`: Vercel Edge Function `/api/tweet-meta` (syndication CDN プロキシ、 7 test PASS、 LoPo 初の Edge runtime、 photos 型安全性向上 + vitest 環境衝突 fix)
+- **Task 6** `fc6f316`: `useHousingFieldState` hook (5 state 遷移、 7 test PASS)
+- **Task 7** `5bf7cac`: `housing.css` にバッジ + ✅ チェックアニメ (bounce + draw + ripple + glow) + スピナー + slide-in/out class 追加 (199 行)
+- **Task 8** `b77d801`: `HousingRegisterFieldBadge` コンポ (5 test PASS)
+- **Task 9** `2b84291`: i18n 4 言語に 30 キー追加 (`snsUrl` / `tweetPreview` / `fieldBadge` / `fieldError` / `address` / `type` / `confirm` / `cancel`)
+- **Task 10** `e12674d`: `HousingRegisterSnsUrlField` + `useTweetFetch` hook (7 test PASS、 AbortController 経由のキャンセル対応)
+- **Task 11** `318bb58`: `HousingRegisterTweetPreview` (3 test PASS)
+- **Task 12** `aa6e76c`: `HousingRegisterTypeSelector` + `RoomNumberField` + `ParentHouseSizeField` (3 test PASS)
+- **Task 13** `1744237`: `HousingRegisterAddressFields` に番地 31-60 で拡張街注記表示 (2 test 追加)
+- **Task 14** `f89c6a4`: `HousingRegisterForm` 統合 (state + 自動入力配線 + 動的フィールド、 3 test PASS、 150ms ずらしタイピング演出 + `prefers-reduced-motion` 対応)
+- **Task 15** `a627e1f`: `HousingRegisterFormModal` (createPortal + body scroll lock + 最終確認サブモーダル、 4 test PASS、 既存 `workspace/HousingRegisterModal` との名前衝突回避のため別名採用)
+- **Task 16** `e165ddd`: `HousingPage` の `register` タブを新モーダルに置き換え (1 file 変更、 旧 `HousingRegisterView` は workspace shell 等 3 箇所が参照のため未削除)
+- **Task 17** `(本コミット)`: `network` error key を 4 言語に追加、 TODO.md + TODO_COMPLETED.md 更新、 push、 デプロイ確認
+- **Task 6 follow-up** `(別 commit)`: `parseHousingFromText` の `dc`/`server` 変数に明示的型注釈追加 (Vercel tsc 厳密モード対応)
+
+### 検証
+
+- **build**: green (`npm run build` 6.05s success)
+- **vitest**: 120 files / 910 tests PASS / 2 skipped (pre-existing Sub-spec 2B 用) / 0 failed
+- **TypeScript**: strict mode clean (`tsc -b` 0 errors)
+
+### Plan からの逸脱 (記録、 詳細は session 37 ログ参照)
+
+1. **Plan が Next.js App Router 前提だった** → Vite + Vercel Functions 構造に全面読み替え (LoPo は React Router + Vite)
+2. `'use client'` ディレクティブ削除、 `useTranslations from next-intl` → `useTranslation from react-i18next` + 完全キーパス
+3. テストでの `vi.stubGlobal('fetch')` top-level 呼び出しが vitest を破壊 → `vi.spyOn(globalThis, 'fetch')` パターンに統一
+4. `Small`/`Medium`/`Large` alias を masterData に追加 (Plan 欠落)
+5. 日本語「6番地6番」 形式の wardPlot fallback 正規表現追加 (Plan 欠落)
+6. `HousingRegisterForm` で既存 `AddressFields` の renderBadge prop 化を避け、 dc/server/area/ward/plot は inline 再実装 (互換性最大化)
+7. `HousingRegisterFormModal` という別名採用 (Phase 1 `workspace/HousingRegisterModal` との衝突回避)
+8. `HousingRegisterView.tsx` 削除を見送り (3 箇所が参照、 Phase 1 互換維持)
+
+### Phase 2A polish (次セッション以降の優先度低)
+
+- `HousingRegisterView.tsx` の dead-code 撤去 (workspace/HousingRegisterModal も併せて整理)
+- `AddressFields` を新モーダルに統合する `renderBadge` 拡張 (現状 inline 重複)
+- `/api/tweet-meta` の rate limiting (Cloudflare 移行時に Workers KV 利用)
+- tweet photos の `alt` 属性アクセシビリティ向上 (現状 `alt=""`)
+- substring 探索 false positive 監視 (アパート 「アパート」 が無関係テキストに誤一致するリスク)
+
+---
+
 ## 完了（2026-05-18/19 セッション 34・ハウジング 個室・アパート対応 schema 確定）
 
 **背景**: Phase 2B (Sub-spec 2B 系) 着手前にスキーマ確定が必須 (`docs/.private/2026-05-17-housing-room-types-design.md` で議論メモあり)。 公式仕様を調べ直し (Empyreum wing 概念は誤解、 削除確定。 FC 個室 1-512 / アパ部屋 1-90 / 個人宅は個室不可 等)、 議論メモ §7 の論点 5 件を brainstorming → spec → plan → subagent-driven の標準フローで完走。 UI 本格刷新は **本セッション scope 外** (Sub-spec 2B 系の別 plan で扱う)。

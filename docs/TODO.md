@@ -11,22 +11,21 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #36 で **Phase 2A 設計書 + 17 task TDD 実装計画完成 + push 済み**
-- **直近セッション (2026-05-19 #36)**: ハウジング登録モーダル + SNS URL 自動推定 のブレスト & 計画固め
-  - **設計書**: [`docs/superpowers/specs/2026-05-19-housing-sns-auto-extraction-design.md`](./superpowers/specs/2026-05-19-housing-sns-auto-extraction-design.md) (14 セクション、 751 行)
-  - **実装計画**: [`docs/superpowers/plans/2026-05-19-housing-sns-auto-extraction.md`](./superpowers/plans/2026-05-19-housing-sns-auto-extraction.md) (17 task、 2621 行、 TDD 5 ステップ構成)
-  - 抽出ロジックは masterData の表記ゆれ辞書を活用、 4 実サンプル (本人 2 + 友達 2) で 100% 抽出可能を確認
-  - 鯖/サバ等の俗語対応、 葉脈 → LavenderBeds alias 追加方針確定
-  - UI 工夫: 黄色背景 + 🟡 バッジ + ✅ チェックボタン (全フィールド「編集 or 確認」 で登録ボタン有効化)、 タイピング演出 (150ms ずらし)、 4 種アニメ全部入れ
-  - インフラ: 今回は Vercel Edge Function (10→11/12)、 段階移行で Phase 3 着手前に Cloudflare 全面移行 + Durable Objects ($5/月)
-- **並行進行中**: ユーザー側で「完璧ループの夜景動画」 を毎日試作中、 既知の残バグなし
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 10/12 (Phase 2A 完了で 11/12)**、 月 100 ビルド
+- **ブランチ**: main、 セッション #37 で **Phase 2A 全 17 task 実装完了、 push 待ち** (デプロイ前に動作確認推奨)
+- **直近セッション (2026-05-19 #37)**: subagent-driven-development で Task 1-17 完走
+  - **新規追加**: parseHousingFromText (抽出純関数 12 test) + tweetUrlParse + useTweetFetch + Edge Function `/api/tweet-meta` + useHousingFieldState + HousingRegisterFormModal (新モーダル) + 子コンポ 7 個 + i18n 4 言語 31 キー
+  - **Vercel 関数**: 10 → **11/12** (`api/tweet-meta.ts` 新規 Edge runtime、 LoPo 初の Edge 関数。 Phase 3 Cloudflare 全面移行のとき他関数より楽に移植可能)
+  - **計画から逸脱した点 (記録)**: (1) Plan が Next.js 前提だったため Vite + react-i18next + Vercel Functions 構造に全面読み替え; (2) Task 8/10/11/12/14/15 で `'use client'` + `next-intl` を削除し `useTranslation` + i18n mock 化; (3) masterData に Small/Medium/Large alias 追加 (Plan 欠落); (4) 日本語「6番地6番」 形式の wardPlot fallback 正規表現追加 (Plan 欠落); (5) parseHousingFromText の `dc/server` 変数型注釈追加 (Vercel tsc 厳密モード対応); (6) Task 5 で `@vitest-environment node` 削除 + `vi.spyOn(globalThis, 'fetch')` に切替 (project pattern); (7) Task 16 で `HousingRegisterView.tsx` 削除を見送り (workspace/HousingRegisterModal 等 3 箇所が参照のため Phase 1 互換維持)
+  - **build / vitest**: green (`npm run build` 6 秒、 vitest 120 ファイル 910 PASS / 2 skip)
+- **積み残し (Phase 2A polish、 次セッションでも可)**: (a) `HousingRegisterView.tsx` の最終撤去 (現在 dead code 状態); (b) AddressFields の `renderBadge` prop 化 (現状 RegisterForm が dc/server/area/ward/plot を inline 再実装); (c) tweet 取得の rate limiting (現状 unlimited); (d) photo `alt` 属性のアクセシビリティ向上 (現状 `alt=""`)
+- **並行進行中**: ユーザー側で「完璧ループの夜景動画」 を毎日試作中
+- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: Phase 2A Task 1 から subagent-driven で実装着手
+## 次セッション最優先: Phase 2A 実機検証 + デプロイ
 
-[`docs/superpowers/plans/2026-05-19-housing-sns-auto-extraction.md`](./superpowers/plans/2026-05-19-housing-sns-auto-extraction.md) の Task 1 (`tweetUrlParse.ts`) から `superpowers:subagent-driven-development` skill で 1 task ずつ実装 → 確認 → 次へ。 順序: Task 1-4 抽出ロジック → Task 5 Edge Function → Task 6-12 UI 部品 → Task 13-15 Form/Modal → Task 16 統合 → Task 17 TODO+push。
+push 済みなら Vercel 自動デプロイ完了後に lopoly.app/housing で実機確認: (1) 登録タブクリック → 新モーダル開く; (2) X URL 貼り付け → 自動入力動作 (本人ツイート 2 + 友達 2 で再現); (3) ✅ ボタン → 登録ボタン有効化; (4) 個室/アパート選択で動的フィールド表示; (5) 4 言語で UI 崩れなし。 バグ発見時は 1 件ずつ修正 → 実機検証。
 
 ## 次セッション次優先 (Phase 2A 完了後)
 
