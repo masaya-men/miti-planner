@@ -190,7 +190,7 @@ export const housingAreaMasterData: Record<string, HousingAreaData> = {
   "LavenderBeds": {
     "name_jp": "ラベンダーベッド",
     "apartment_name": "リリーヒルズ",
-    "aliases": ["ラベ", "ラベンダー", "森", "Lavender", "Lavender Beds", "Lav", "LB", "Lily Hills", "リリーヒルズ"]
+    "aliases": ["ラベ", "ラベンダー", "森", "葉脈", "Lavender", "Lavender Beds", "Lav", "LB", "Lily Hills", "リリーヒルズ"]
   },
   "Goblet": {
     "name_jp": "ゴブレットビュート",

@@ -120,3 +120,13 @@ describe('parseHousingFromText - 棄却ケース', () => {
         expect(result.area).toBe('Shirogane');
     });
 });
+
+describe('parseHousingFromText - 俗称 alias', () => {
+    it('葉脈 → LavenderBeds', () => {
+        const result = parseHousingFromText('葉脈 12-3 M');
+        expect(result.area).toBe('LavenderBeds');
+        expect(result.ward).toBe(12);
+        expect(result.plot).toBe(3);
+        expect(result.size).toBe('M');
+    });
+});
