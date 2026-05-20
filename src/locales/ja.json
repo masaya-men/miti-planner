@@ -2170,6 +2170,102 @@
         "topbar": {
             "login": "ログイン",
             "account": "アカウント"
+        },
+        "detail": {
+            "title": "物件詳細",
+            "owner_label": "登録者",
+            "share": "シェア",
+            "share_copy_link": "リンクをコピー",
+            "share_copied": "コピーしました",
+            "share_twitter": "X で共有",
+            "report_button": "ちがった",
+            "favorite_aria": "お気に入りに追加",
+            "favorited_aria": "お気に入りから外す",
+            "close_aria": "閉じる",
+            "back_aria": "戻る",
+            "kebab": {
+                "aria_label": "メニュー",
+                "edit": "編集",
+                "delete": "削除"
+            },
+            "login_required": "この操作にはログインが必要です",
+            "cannot_report_own": "自分の物件は通報できません"
+        },
+        "edit": {
+            "modal": { "title": "物件を編集" },
+            "save": "保存",
+            "success": "更新しました",
+            "error": "更新に失敗しました"
+        },
+        "delete": {
+            "title": "この物件を削除しますか?",
+            "body": {
+                "line1": "一覧から非表示になります",
+                "line2": "30 日後に完全削除されます",
+                "line3": "この操作は元に戻せません"
+            },
+            "confirm": "削除する",
+            "cancel": "キャンセル",
+            "success": "削除しました",
+            "error": "削除に失敗しました"
+        },
+        "report": {
+            "modal": {
+                "title": "この物件について報告",
+                "subtitle": "どの点が違いますか?"
+            },
+            "reason": {
+                "wrong_info": "位置や情報が違う",
+                "sold": "売却済み",
+                "griefing": "嫌がらせ・ハラスメント",
+                "nsfw": "不適切なコンテンツ",
+                "other": "その他"
+            },
+            "comment": {
+                "placeholder": "詳細を教えてください (任意)",
+                "placeholder_required": "詳細を教えてください (必須)",
+                "required": "「その他」 を選択した場合は詳細を入力してください"
+            },
+            "submit": "報告する",
+            "cancel": "キャンセル",
+            "success": "報告を受け付けました。 ご協力ありがとうございます",
+            "duplicate": "すでに同じ理由で報告済みです",
+            "error": "報告の送信に失敗しました。 時間をおいて再度お試しください"
+        },
+        "guide": {
+            "title": "あなたの物件に報告がありました",
+            "reason_label": "理由",
+            "body": {
+                "wrong_info": "内容を確認して、 必要に応じて情報を編集してください",
+                "sold": "この物件は売却済みですか? 売却済みなら削除してください",
+                "griefing": "身に覚えがない場合は LoPo Discord で異議申し立てが可能です",
+                "nsfw": "LoPo 運営が直接確認します。 身に覚えがない場合は Discord で異議申し立て",
+                "other": "報告者からのコメント"
+            },
+            "cta": {
+                "edit": "編集する",
+                "delete": "物件を削除する",
+                "dispute": "Discord で異議申し立て"
+            },
+            "later": "あとで"
+        },
+        "notifications": {
+            "title": "通知",
+            "empty": "通知はありません",
+            "mark_all_read": "すべて既読にする",
+            "see_all": "すべて見る",
+            "see_all_coming_soon": "準備中",
+            "bell_aria": "通知",
+            "unread_badge_aria": "{{n}} 件の未読",
+            "item": {
+                "report": "あなたの物件「{{title}}」 について「{{reason}}」 と報告がありました"
+            },
+            "time": {
+                "just_now": "たった今",
+                "minutes_ago": "{{n}} 分前",
+                "hours_ago": "{{n}} 時間前",
+                "days_ago": "{{n}} 日前"
+            }
         }
     }
 }
