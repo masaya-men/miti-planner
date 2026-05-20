@@ -575,14 +575,10 @@ if (isMain) {
         };
 
         try {
-            // Step 0: 「窓」 対策
-            const windowCheck = await handlePreExistingNewUid(newUid);
-            if (windowCheck.existed) {
-                result.counts.windowSweepData = windowCheck.preservedData;
-                console.log(`  Window sweep: pre-existing newUid removed (data preserved in result)`);
-            }
-
-            // Step 1: 旧 uid の Auth 確認 (既に migration 済なら skip)
+            // Step 1 (順序修正): 旧 uid の Auth 確認 (既に migration 済なら skip) ← 「窓」 対策より先
+            // 理由: 既に migration 済の uid を再 execute した場合、 newUid Auth は「正規の migrate 結果」
+            // であり、 「窓で先回りログインした空アカウント」 ではない。 順序を間違えて window sweep を
+            // 先にすると、 正規の newUid アカウントを誤って削除してしまう (2026-05-20 セッション 41 で発生)。
             const oldUser = await auth.getUser(oldUid).catch((err: any) => {
                 if (err?.code === 'auth/user-not-found') return null;
                 throw err;
@@ -597,6 +593,15 @@ if (isMain) {
                     return result;
                 }
                 throw new Error(`oldUid ${oldUid} does not exist in Firebase Auth and newUid also missing`);
+            }
+
+            // Step 2 (順序修正): 「窓」 対策 — oldUid が存在することを確認した後に実施
+            // (oldUid 存在 = まだ migration されてない状態。 newUid 存在ならデプロイ後 migration 前に
+            // 先回りログインした空アカウントの可能性。 安全に削除可能)
+            const windowCheck = await handlePreExistingNewUid(newUid);
+            if (windowCheck.existed) {
+                result.counts.windowSweepData = windowCheck.preservedData;
+                console.log(`  Window sweep: pre-existing newUid removed (data preserved in result)`);
             }
 
             // Step 2: per-user 直前 backup (メモリ内のみ、 disk backup は事前 backup で実施済の前提)
@@ -685,23 +690,43 @@ if (isMain) {
             const storageResult = await copyStorage(oldUid, newUid);
             result.counts.storageCopied = storageResult.copied;
 
-            // Step 7b: users/{newUid} doc 内の avatarUrl / teamLogoUrl の URL パスを oldUid → newUid に書き換える
-            // (Storage copy は token メタデータを保持するので、 URL のパス部分だけ置換すれば良い)
+            // Step 7b: users/{newUid} doc 内の avatarUrl / teamLogoUrl の URL パスを更新
+            // Storage ファイル実在チェック付き (存在しなければ URL をクリア = 壊れた URL を残さない)
             const newUserDocAfterCopy = await db.collection('users').doc(newUid).get();
             if (newUserDocAfterCopy.exists) {
                 const userData = newUserDocAfterCopy.data()!;
                 const urlUpdates: Record<string, string> = {};
                 const oldEncoded = encodeURIComponent(oldUid);
                 const newEncoded = encodeURIComponent(newUid);
+                const clearedFields: string[] = [];
+
                 if (typeof userData.avatarUrl === 'string' && userData.avatarUrl.includes(oldEncoded)) {
-                    urlUpdates.avatarUrl = userData.avatarUrl.replace(oldEncoded, newEncoded);
+                    const [avatarExists] = await bucket.file(`users/${newUid}/avatar.webp`).exists();
+                    if (avatarExists) {
+                        urlUpdates.avatarUrl = userData.avatarUrl.replace(oldEncoded, newEncoded);
+                    } else {
+                        urlUpdates.avatarUrl = '';
+                        clearedFields.push('avatarUrl');
+                    }
                 }
+
                 if (typeof userData.teamLogoUrl === 'string' && userData.teamLogoUrl.includes(oldEncoded)) {
-                    urlUpdates.teamLogoUrl = userData.teamLogoUrl.replace(oldEncoded, newEncoded);
+                    const ext = userData.teamLogoUrl.includes('team-logo.webp') ? 'webp' : 'jpg';
+                    const [logoExists] = await bucket.file(`users/${newUid}/team-logo.${ext}`).exists();
+                    if (logoExists) {
+                        urlUpdates.teamLogoUrl = userData.teamLogoUrl.replace(oldEncoded, newEncoded);
+                    } else {
+                        urlUpdates.teamLogoUrl = '';
+                        clearedFields.push('teamLogoUrl');
+                    }
                 }
+
                 if (Object.keys(urlUpdates).length > 0) {
                     await db.collection('users').doc(newUid).update(urlUpdates);
-                    console.log(`  ✅ Storage URLs updated: ${Object.keys(urlUpdates).join(', ')}`);
+                    const msg = clearedFields.length > 0
+                        ? `cleared ${clearedFields.join('+')} (Storage missing, ユーザーに再アップロード依頼が必要)`
+                        : `updated ${Object.keys(urlUpdates).join('+')}`;
+                    console.log(`  ✅ Storage URLs: ${msg}`);
                     result.counts.firestoreCopied++;
                 }
             }
