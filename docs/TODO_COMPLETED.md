@@ -2,6 +2,31 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-20 セッション 41・hash 化マイグレーション Step 2 完了)
+
+**目的**: Discord 10 件の Firebase uid を `discord:<生 ID>` → `hashed:<HMAC-SHA256(id+secret)>` に移行し、 LoPo 内部からも元 Discord ID を復元不能にする。 GDPR pseudonymization 完全達成。
+
+### 完了内容
+
+- 設計書: [docs/superpowers/specs/2026-05-20-hash-migration-step2-design.md](superpowers/specs/2026-05-20-hash-migration-step2-design.md)
+- 実装プラン: [docs/superpowers/plans/2026-05-20-hash-migration-step2.md](superpowers/plans/2026-05-20-hash-migration-step2.md)
+- 新規ヘルパー: `api/_lib/hashUid.ts` (HMAC-SHA256, server-only)
+- 新規スクリプト: `scripts/hash-migrate-users.ts` (backup/dry-run/execute/rollback) / `scripts/preflight-hash-migration.ts` / `scripts/verify-hash-migration.ts` / `scripts/fix-avatar-urls-for-uid.ts`
+- 環境変数: `LOPO_PSEUDONYM_SECRET` を Vercel sensitive (prod/preview) + .env.local + iPhone メモ の 3 箇所に保管 (rotation 不可)
+- アプリ側変更: `api/auth/_discordHandler.ts` (hashUid 経由) / `src/components/LoginModal.tsx` / `src/components/WelcomeSetup.tsx` / `src/utils/logoUpload.ts` の prefix 判定撤廃 / `scripts/check-admin-claims.ts` の hashed: 対応
+- プライバシーポリシー文書更新 ja/en/ko/zh (`legal.privacy_section1d_*`)
+- prod 実行: 10/10 件 hashed 化、 verify 全 PASS、 check-admin-claims で確認
+
+### 課題 / 教訓
+
+- **migration script の順序バグ**: 初回 execute 後の再 execute で window sweep が正規の hashed: Auth user を誤削除するバグを本番で発見。 即座に rollback + script 修正 + 再 execute で復旧
+- **本人 Storage 消失**: 上記バグの auto-rollback で本人 Storage が消えた (backup は metadata のみで実体復元不可)。 LoPo UI 経由で再アップロードで対応
+- 学び: Step 順序は単独 task テストだけでなく「reentrant scenario (=失敗後の再実行)」 テストも必須
+
+### 結果
+
+LoPo の認証システムが「個人情報を持たない」 大原則を完全達成。 プライバシーポリシーの主張が文字通り真になった。
+
 ## 完了 (2026-05-20 セッション 40・hash 化マイグレーション Step 1 完了)
 
 **目的**: hash 化マイグレーション (Step 2) のテスト対象を Discord 専用に絞り、 「個人情報を持たない大原則」 の前提条件を整える。 廃止プロバイダー (Twitter / Google) 由来の uid 残骸を関連データごと完全削除。
