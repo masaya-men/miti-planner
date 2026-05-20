@@ -2816,6 +2816,9 @@ select.housing-input option {
     --housing-account-danger-text: rgba(255, 130, 130, 0.85);
     --housing-account-danger-bg-hover: rgba(255, 130, 130, 0.12);
     --housing-account-divider: rgba(255, 226, 179, 0.18);
+    --housing-avatar-bg: rgba(0, 0, 0, 0.2);
+    --housing-account-danger-border: rgba(255, 130, 130, 0.25);
+    --housing-account-delete-link-text: rgba(255, 226, 179, 0.5);
 }
 
 /* ===========================================
@@ -2850,7 +2853,7 @@ select.housing-input option {
     border-radius: 999px;
     overflow: hidden;
     border: 1.5px solid var(--housing-avatar-ring);
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--housing-avatar-bg);
     cursor: pointer;
     padding: 0;
     transition: border-color 180ms ease, transform 120ms ease;
@@ -3003,7 +3006,7 @@ select.housing-input option {
 }
 .housing-account-button-danger {
     color: var(--housing-account-danger-text);
-    border-color: rgba(255, 130, 130, 0.25);
+    border-color: var(--housing-account-danger-border);
 }
 .housing-account-button-danger:hover {
     background: var(--housing-account-danger-bg-hover);
@@ -3014,7 +3017,7 @@ select.housing-input option {
     text-align: center;
     background: transparent;
     border: none;
-    color: rgba(255, 226, 179, 0.5);
+    color: var(--housing-account-delete-link-text);
     font-size: var(--housing-text-xs);
     padding: 8px;
     margin-top: 12px;
@@ -3022,5 +3025,5 @@ select.housing-input option {
     transition: color 180ms ease;
 }
 .housing-account-delete-link:hover {
-    color: rgba(255, 130, 130, 0.85);
+    color: var(--housing-account-danger-text);
 }
