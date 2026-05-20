@@ -679,7 +679,7 @@
     },
     "legal": {
         "privacy_title": "Privacy Policy",
-        "privacy_last_updated": "Last updated: May 2, 2026",
+        "privacy_last_updated": "Last updated: May 20, 2026",
         "privacy_intro": "LoPo (\"the Service\") is an unofficial web service that provides fan-made tools for Final Fantasy XIV. It is not affiliated with SQUARE ENIX. This page explains what information the Service handles and how we protect it, in plain language.",
 
         "privacy_section1_title": "1. Information We Collect",
@@ -693,6 +693,9 @@
 
         "privacy_section1b_title": "About information received from external services during login",
         "privacy_section1b_body": "When you log in with Discord or X, the authentication process causes user account information (user ID, display name, icon URL, etc.) to briefly reach our server via the external service's API. However, we only extract the user ID and immediately discard all other information without storing or recording it. The display name and icon shown in the app are only those you set yourself.",
+
+        "privacy_section1d_title": "How We Handle Your Discord User ID",
+        "privacy_section1d_body": "LoPo only stores the HMAC-SHA256 hash of your Discord user ID, combined with a server-side secret key. The original Discord ID is never saved in LoPo's database, and cannot be recovered by anyone—including LoPo operators. As a result, even if LoPo's data were ever leaked, the risk of your Discord account being identified is extremely low.",
 
         "privacy_section1c_title": "Information Received Through Donations (Ko-fi)",
         "privacy_section1c_body": "This Service accepts donations only through PayPal via Ko-fi. When you make a voluntary donation, the following information reaches the operator (LoPo's developer) through Ko-fi's creator dashboard and through the PayPal dashboard the operator uses to receive donations. This is determined by how the Ko-fi and PayPal payment systems work and cannot be blocked from our side.",

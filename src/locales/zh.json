@@ -671,7 +671,7 @@
     },
     "legal": {
         "privacy_title": "隐私政策",
-        "privacy_last_updated": "最后更新日期：2026年5月2日",
+        "privacy_last_updated": "最后更新日期：2026年5月20日",
         "privacy_intro": "LoPo（以下称「本服务」）是为《最终幻想XIV》提供粉丝制作工具的非官方网络服务，与 SQUARE ENIX 无关。本页面以简明易懂的方式说明本服务处理哪些信息以及如何保护这些信息。",
 
         "privacy_section1_title": "1. 我们收集的信息",
@@ -682,6 +682,9 @@
         "privacy_section1_plan_items": "减伤表内容（时间轴、队伍配置、减伤配置等）,减伤表标题和创建日期,团队标志图片（仅在您主动上传时）",
         "privacy_section1_auto_title": "自动收集的信息",
         "privacy_section1_auto_items": "为准确统计共享的减伤表的浏览人数，我们记录经过转换且无法还原为原始地址的 IP 地址版本,为防止滥用，我们临时记录 IP 地址（最多 1 分钟内自动删除）,为了准确统计热门减伤表，我们会接收您浏览器生成的随机匿名ID（不能识别个人的字符串）",
+
+        "privacy_section1d_title": "Discord 用户 ID 的处理方式",
+        "privacy_section1d_body": "LoPo 仅保存 Discord 用户 ID 与服务器端密钥结合后的 HMAC-SHA256 哈希值。原始 Discord ID 不会保存在 LoPo 数据库中，包括 LoPo 运营者在内的任何人都无法从内部恢复。通过这种哈希化，即使 LoPo 数据发生泄露，用户的 Discord 账号被识别的风险也极低。",
 
         "privacy_section1c_title": "通过支持（Ko-fi）接收的信息",
         "privacy_section1c_body": "本服务通过 Ko-fi 仅接受 PayPal 渠道的支持。当您自愿支持时，Ko-fi 的管理界面以及运营者（LoPo 开发者）用于接收支持的 PayPal 管理界面会将以下信息传达给运营者。这是 Ko-fi 和 PayPal 的支付系统决定的，本服务侧无法阻止接收。",

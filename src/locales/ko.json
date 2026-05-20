@@ -671,7 +671,7 @@
     },
     "legal": {
         "privacy_title": "개인정보처리방침",
-        "privacy_last_updated": "최종 업데이트: 2026년 5월 2일",
+        "privacy_last_updated": "최종 업데이트: 2026년 5월 20일",
         "privacy_intro": "LoPo(\"본 서비스\")는 파이널 판타지 XIV를 위한 팬 제작 도구를 제공하는 비공식 웹 서비스입니다. SQUARE ENIX와 제휴 관계가 없습니다. 이 페이지에서는 본 서비스가 어떤 정보를 처리하고 어떻게 보호하는지 알기 쉽게 설명합니다.",
 
         "privacy_section1_title": "1. 수집하는 정보",
@@ -682,6 +682,9 @@
         "privacy_section1_plan_items": "경감표 콘텐츠(타임라인, 파티 구성, 경감 배치 등),경감표 제목 및 생성일,팀 로고 이미지(직접 업로드한 경우에만)",
         "privacy_section1_auto_title": "자동으로 수집되는 정보",
         "privacy_section1_auto_items": "공유된 경감표의 조회수를 정확히 집계하기 위해 원본으로 복원할 수 없는 변환된 IP 주소를 기록합니다,악용 방지를 위해 IP 주소를 일시적으로 기록합니다(최대 1분 이내에 자동 삭제),인기 경감표를 정확하게 집계하기 위해, 브라우저에서 생성된 무작위 익명 ID(개인을 식별할 수 없는 문자열)를 수신합니다",
+
+        "privacy_section1d_title": "Discord 사용자 ID 처리 방법",
+        "privacy_section1d_body": "LoPo는 Discord 사용자 ID를 서버 측에 보관된 비밀 키와 결합해 HMAC-SHA256으로 해시화한 값만 저장합니다. 원본 Discord ID는 LoPo의 데이터베이스에 일절 저장되지 않으며 LoPo 운영자를 포함한 LoPo 내부에서도 복원할 수 없습니다. 이 해시화로 인해 만일 LoPo의 데이터가 유출되더라도 이용자의 Discord 계정이 특정될 위험은 극히 낮습니다.",
 
         "privacy_section1c_title": "후원(Ko-fi)을 통해 받는 정보",
         "privacy_section1c_body": "본 서비스는 Ko-fi를 통해 PayPal로만 후원을 받습니다. 자발적인 후원이 들어오면 Ko-fi 관리 화면 및 운영자(LoPo 개발자)가 후원 수령에 사용하는 PayPal 관리 화면을 통해 다음 정보가 운영자에게 전달됩니다. 이는 Ko-fi와 PayPal의 결제 시스템 사양으로, 본 서비스 측에서 수신을 차단할 수 없습니다.",

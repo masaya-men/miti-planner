@@ -104,6 +104,11 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section1b_body')}</p>
             </Section>
 
+            {/* 1d. Discord ユーザー ID の hash 化について */}
+            <Section title={t('legal.privacy_section1d_title')}>
+                <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section1d_body')}</p>
+            </Section>
+
             {/* 1c. 支援(Ko-fi)を通じて受け取る情報 */}
             <Section title={t('legal.privacy_section1c_title')}>
                 <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.privacy_section1c_body')}</p>
