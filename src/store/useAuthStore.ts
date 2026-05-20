@@ -25,9 +25,18 @@ import { apiFetch } from '../lib/apiClient';
 
 type AuthProvider = 'discord';
 
-/** リダイレクト前に現在のURLを保存（Discord/Twitter用） */
-function saveReturnUrl() {
-    localStorage.setItem('lopo_auth_return_url', window.location.href);
+/** 戻り URL に register=open を付ける必要があるかを判定して URL を組み立てる純粋関数 (testable) */
+export function buildReturnUrl(href: string, withRegisterFlag: boolean): string {
+    if (!withRegisterFlag) return href;
+    const url = new URL(href);
+    url.searchParams.set('register', 'open');
+    return url.toString();
+}
+
+/** リダイレクト前に現在のURLを保存（Discord用） */
+function saveReturnUrl(withRegisterFlag = false) {
+    const url = buildReturnUrl(window.location.href, withRegisterFlag);
+    localStorage.setItem('lopo_auth_return_url', url);
 }
 
 /** ログイン成功時のユーザー情報（オーバーレイ表示用） */
@@ -45,7 +54,7 @@ interface AuthState {
     profileDisplayName: string | null;  // Firestoreの表示名
     profileAvatarUrl: string | null;    // Firestoreのアバター
     isNewUser: boolean;                 // 初回ログイン判定（Firestoreにドキュメントなし）
-    signInWith: (provider: AuthProvider) => void;
+    signInWith: (provider: AuthProvider, opts?: { withRegisterFlag?: boolean }) => void;
     updateDisplayName: (newName: string) => Promise<void>;
     signOut: () => Promise<void>;
     deleteAccount: () => Promise<void>;
@@ -63,10 +72,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     profileAvatarUrl: null,
     isNewUser: false,
 
-    signInWith: (provider: AuthProvider) => {
+    signInWith: (provider: AuthProvider, opts?: { withRegisterFlag?: boolean }) => {
         switch (provider) {
             case 'discord':
-                saveReturnUrl();
+                saveReturnUrl(opts?.withRegisterFlag ?? false);
                 localStorage.setItem('lopo_auth_redirecting', 'true');
                 apiFetch('/api/auth?provider=discord', { method: 'POST' })
                     .then(r => r.json())

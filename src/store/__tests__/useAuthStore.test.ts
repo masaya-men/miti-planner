@@ -80,7 +80,7 @@ vi.mock('../../lib/apiClient', () => ({
     apiFetch: vi.fn(),
 }));
 
-import { useAuthStore } from '../useAuthStore';
+import { useAuthStore, buildReturnUrl } from '../useAuthStore';
 
 describe('useAuthStore.updateDisplayName', () => {
     beforeEach(() => {
@@ -115,5 +115,27 @@ describe('useAuthStore.updateDisplayName', () => {
     it('前後の空白をトリムして保存する', async () => {
         await useAuthStore.getState().updateDisplayName('  Trimmed  ');
         expect(useAuthStore.getState().profileDisplayName).toBe('Trimmed');
+    });
+});
+
+describe('buildReturnUrl', () => {
+    it('returns current URL when withRegisterFlag is false', () => {
+        const result = buildReturnUrl('https://example.com/housing', false);
+        expect(result).toBe('https://example.com/housing');
+    });
+
+    it('appends ?register=open when withRegisterFlag is true', () => {
+        const result = buildReturnUrl('https://example.com/housing', true);
+        expect(result).toBe('https://example.com/housing?register=open');
+    });
+
+    it('preserves existing query and adds register=open', () => {
+        const result = buildReturnUrl('https://example.com/housing?foo=bar', true);
+        expect(result).toBe('https://example.com/housing?foo=bar&register=open');
+    });
+
+    it('does not duplicate register=open if already present', () => {
+        const result = buildReturnUrl('https://example.com/housing?register=open', true);
+        expect(result).toBe('https://example.com/housing?register=open');
     });
 });
