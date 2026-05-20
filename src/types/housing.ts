@@ -128,6 +128,14 @@ export interface HousingListing {
   updatedAt: number;
   isHidden: boolean;
   reportCount: number;
+
+  /**
+   * 家主による削除タイムスタンプ (soft delete)。
+   * - null: 生きてる
+   * - number: 削除済み (30 日後に物理削除予定)
+   * 既存の isHidden は「運営非表示 (自動/手動)」 として用途分離する。
+   */
+  deletedAt: number | null;
 }
 
 /**

@@ -94,6 +94,7 @@ describe('housingTypes', () => {
       updatedAt: Date.now(),
       isHidden: false,
       reportCount: 0,
+      deletedAt: null,
     };
     expect(listing.area).toBe('Shirogane');
   });
@@ -110,6 +111,7 @@ describe('housingTypes', () => {
         tags: ['modern'],
         createdAt: 0, updatedAt: 0,
         isHidden: false, reportCount: 0,
+        deletedAt: null,
       };
       expect(listing.addressKey).toBeDefined();
     });
@@ -163,5 +165,14 @@ describe('housingTypes', () => {
       activatedAt: Date.now(),
     };
     expect(session.activated).toBe(true);
+  });
+
+  describe('HousingListing.deletedAt', () => {
+    it('null と number の両方を許容する', () => {
+      const alive: HousingListing['deletedAt'] = null;
+      const deleted: HousingListing['deletedAt'] = Date.now();
+      expect(alive).toBeNull();
+      expect(typeof deleted).toBe('number');
+    });
   });
 });

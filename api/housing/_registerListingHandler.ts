@@ -97,6 +97,7 @@ export default async function handler(req: any, res: any) {
         updatedAt: now,
         isHidden: false,
         reportCount: 0,
+        deletedAt: null,
       };
       tx.set(newRef, listing);
       createdId = newRef.id;
