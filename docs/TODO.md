@@ -11,26 +11,27 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #44 (2026-05-21) で **Phase 3 設計確定 + spec 完成** (plan / 実装は次セッション)
-- **完了 (#44)**: ハウジング Phase 3 (家主編集削除・物件詳細表示・通報フロー) を業界水準準拠で設計。 spec を `docs/superpowers/specs/2026-05-20-housing-phase3-design.md` に記録。 ローカルコミット 2 本残し (push 未)
-- **方針確定 (#44)**: 動く骨組み優先、 業界水準は必ず守る、 UI 細部磨きは別フェーズ。 詳細モーダルは Intercepting Routes、 通報は reason 5 択 + reason 別ガイド、 通知は TopBar bell + ドロップダウン、 削除は soft delete
-- **注意**: 本人の avatar.webp + team-logo.jpg が前回 migration バグで Storage 消失 → HousingAccountModal の avatar 編集 UI 経由で再アップロード可能
-- **注意**: vitest pool='vmThreads' に再採用 (Node v24 で forks 動作不可、 memory `reference_vitest_pool_firebase.md` 更新済)。 全テスト並列実行はハング懸念、 個別ファイル run で対応
+- **ブランチ**: main、 セッション #45 (2026-05-21) で **Phase 3 plan 作成 + Group A/B 実装まで完了**。 push 未、 **ローカルコミット 9 本残** (前回 3 本 + 今回 6 本)
+- **完了 (#45)**: Phase 3 plan を `docs/superpowers/plans/2026-05-21-housing-phase3-plan.md` に作成 (25 タスク、 6 commit グループ構成)。 Group A (基盤: 型 + Rules + i18n) + Group B (編集削除: API 2 本 + Modal/Confirm/Kebab UI) を実装、 全テスト 47/47 pass、 build OK
+- **方針確定 (#45)**: spec §2.1 の Intercepting Routes は本プロジェクト (Vite SPA) では使えないため **react-router background-location パターン**で代替。 `deletedAt` (家主削除) と `isHidden` (運営非表示) は役割分離。 API テストは見送り (既存パターンなし)、 React 側は TDD で網羅
+- **注意**: Rules の deletedAt 改竄防止 fix を追加済 (commit c7cdf25)。 Firestore Rules はまだデプロイ未 (Group F の Task 23 で実施予定)
+- **注意**: vitest pool='vmThreads' のまま (変更厳禁)
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: Phase 3 plan 作成 + 実装
+## 次セッション最優先: Phase 3 残り (Group C/D/E/F)
 
 **最初のコマンド (コピペ)**:
-> `docs/superpowers/specs/2026-05-20-housing-phase3-design.md` を読んで、 writing-plans skill で plan を `docs/superpowers/plans/2026-05-21-housing-phase3-plan.md` に書いて。 ローカルコミット 2 本残ってるので忘れず push もセットで。
+> `docs/superpowers/plans/2026-05-21-housing-phase3-plan.md` を読んで、 subagent-driven-development で Group C 以降を実装。 ローカルコミット 9 本残ってるので最後に push + Vercel デプロイ + Firestore Rules デプロイまでセット。
 
-実装順序 (spec §10 より):
-1. **基盤**: 型追加 (`HousingListing.deletedAt`, `HousingNotification`) + Firestore Rules + 一覧クエリ `deletedAt == null` フィルタ
-2. **Sub-spec 3-A 編集削除**: update/delete API + HousingEditModal (登録モーダル拡張) + DeleteConfirm + Kebab
-3. **Sub-spec 3-B 詳細表示**: DetailContent / Modal / Layout + Intercepting Routes + ActionBar / PhotoGallery / ShareButton + OGP
-4. **Sub-spec 3-C 通報フロー**: report API + ReportModal + 通知 API 2 本 + NotificationBell / Dropdown + ReportGuideModal
-5. i18n (ja 先行)、 動作確認、 まとめてコミット 5-7 本 + push + デプロイ
+進捗 (plan の Task 番号):
+- ✅ Group A: Task 1-3 + 10 (基盤・型・Rules・i18n)
+- ✅ Group B: Task 4-9 (編集/削除 API + UI)
+- ⏳ Group C: Task 11-14 (詳細表示: DetailContent / Modal / Layout / ActionBar / PhotoGallery / ShareButton + background-location ルート)
+- ⏳ Group D: Task 17-18 (通知 API 2 本 + Bell / Dropdown / Item / useNotifications)
+- ⏳ Group E: Task 15-16 + 19 (通報 API + ReportModal + ReportGuideModal + 通知遷移時の自動オープン)
+- ⏳ Group F: Task 20-25 (動作確認 + tsc/build + Firestore Rules デプロイ + push + Vercel デプロイ)
 
 ### Phase 3 残り (今回スコープ外、 plan 完了後別セッション)
 
