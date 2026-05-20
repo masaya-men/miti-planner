@@ -12,8 +12,8 @@ import { Settings } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
 import { DisplayNameEditor } from './DisplayNameEditor';
 import { AvatarCropModal } from './AvatarCropModal';
-import { uploadAvatar, deleteAvatar } from '../utils/avatarUpload';
 import { showToast } from './Toast';
+import { useAccountActions } from '../hooks/auth/useAccountActions';
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -37,7 +37,7 @@ const providers = [
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
-    const { user, signInWith, signOut, deleteAccount, isAdmin } = useAuthStore();
+    const { user, signInWith, isAdmin } = useAuthStore();
     const profileDisplayName = useAuthStore(s => s.profileDisplayName);
     const profileAvatarUrl = useAuthStore(s => s.profileAvatarUrl);
     const navigate = useNavigate();
@@ -45,7 +45,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const [isDeleting, setIsDeleting] = React.useState(false);
     const [editingName, setEditingName] = React.useState(false);
     const [isSavingName, setIsSavingName] = React.useState(false);
-    const updateDisplayName = useAuthStore(s => s.updateDisplayName);
+    // useAccountActions 経由で 5 操作を取得 (内部で useAuthStore も使う)
+    const accountActions = useAccountActions();
     const localPlanCount = usePlanStore(s =>
         s.plans.filter(p => p.ownerId === 'local').length,
     );
@@ -54,7 +55,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const handleSaveDisplayName = async (newName: string) => {
         setIsSavingName(true);
         try {
-            await updateDisplayName(newName);
+            await accountActions.updateDisplayName(newName);
             setEditingName(false);
             showToast(t('profile.toast_name_updated'));
         } catch (err) {
@@ -91,8 +92,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         setIsAvatarBusy(true);
         setShowAvatarCrop(false);
         try {
-            const url = await uploadAvatar(user.uid, blob);
-            useAuthStore.setState({ profileAvatarUrl: url });
+            await accountActions.uploadAvatar(blob);
             showToast(t('avatar.toast_uploaded'));
         } catch (err) {
             console.error('Avatar upload error:', err);
@@ -107,8 +107,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         setIsAvatarBusy(true);
         setShowDeleteAvatarConfirm(false);
         try {
-            await deleteAvatar(user.uid);
-            useAuthStore.setState({ profileAvatarUrl: null });
+            await accountActions.removeAvatar();
             showToast(t('avatar.toast_deleted'));
         } catch (err) {
             console.error('Avatar delete error:', err);
@@ -121,7 +120,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
         try {
-            await deleteAccount();
+            await accountActions.deleteAccount();
             onClose();
             navigate('/');
         } finally {
@@ -279,7 +278,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                 )}
 
                                 <button
-                                    onClick={() => { signOut(); onClose(); }}
+                                    onClick={async () => { await accountActions.signOut(); onClose(); }}
                                     className={clsx(
                                         "w-full px-4 py-2.5 rounded-xl text-app-lg font-bold uppercase tracking-wider transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer",
                                         "text-app-red border border-app-red-border hover:bg-app-red-dim hover:border-app-red"
