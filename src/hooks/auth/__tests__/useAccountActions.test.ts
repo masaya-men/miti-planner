@@ -22,6 +22,7 @@ vi.mock('../../../utils/avatarUpload', () => ({
 
 import { useAccountActions } from '../useAccountActions';
 import { uploadAvatar, deleteAvatar } from '../../../utils/avatarUpload';
+import { useAuthStore } from '../../../store/useAuthStore';
 
 describe('useAccountActions', () => {
     beforeEach(() => {
@@ -44,6 +45,9 @@ describe('useAccountActions', () => {
             await result.current.uploadAvatar(blob);
         });
         expect(uploadAvatar).toHaveBeenCalledWith('test-uid-123', blob);
+        expect((useAuthStore as any).setState).toHaveBeenCalledWith({
+            profileAvatarUrl: 'https://example.com/avatar.webp',
+        });
     });
 
     it('removeAvatar deletes then clears profile state', async () => {
@@ -52,6 +56,9 @@ describe('useAccountActions', () => {
             await result.current.removeAvatar();
         });
         expect(deleteAvatar).toHaveBeenCalledWith('test-uid-123');
+        expect((useAuthStore as any).setState).toHaveBeenCalledWith({
+            profileAvatarUrl: null,
+        });
     });
 
     it('uploadAvatar without user throws', async () => {
