@@ -7,7 +7,7 @@
  *  2. 各 newUid が Firebase Auth に存在
  *  3. backup の件数と新 uid 側の件数が一致
  *  4. Firestore に discord: prefix のフィールド値が残っていない (admin_logs.actorUid を除く)
- *  5. Storage に users/discord:*/ パスが残っていない
+ *  5. Storage に users/discord: ... パスが残っていない
  *
  * 使い方: npx tsx scripts/verify-hash-migration.ts
  *        npx tsx scripts/verify-hash-migration.ts --uid=discord:<oldUid>  (1 件のみ)
