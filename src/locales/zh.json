@@ -2083,6 +2083,36 @@
                 "login_required": "需要登录",
                 "login_button": "登录"
             }
+        },
+        "login": {
+            "title": "",
+            "notice": {
+                "intro": "",
+                "item1": "",
+                "item2": "",
+                "item3": ""
+            },
+            "discordButton": "",
+            "closeLabel": ""
+        },
+        "account": {
+            "title": "",
+            "avatarChange": "",
+            "avatarDelete": "",
+            "displayNameLabel": "",
+            "displayNameEdit": "",
+            "adminLink": "",
+            "signOut": "",
+            "deleteAccount": "",
+            "deleteConfirmTitle": "",
+            "deleteConfirmBody": "",
+            "deleteConfirmYes": "",
+            "deleteConfirmNo": "",
+            "closeLabel": ""
+        },
+        "topbar": {
+            "login": "",
+            "account": ""
         }
     }
 }

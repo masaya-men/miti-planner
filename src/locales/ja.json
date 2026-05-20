@@ -2140,6 +2140,36 @@
                 "login_required": "ログインが必要です",
                 "login_button": "ログイン"
             }
+        },
+        "login": {
+            "title": "LoPo にログイン",
+            "notice": {
+                "intro": "LoPo を気持ちよく使ってもらうためのお願いです。",
+                "item1": "偽の情報や嫌がらせ目的の登録で家探しが台無しにならないよう、登録時には Discord ログインをお願いしています。",
+                "item2": "LoPo が受け取るのは Discord アカウントの ID (ハッシュ値) だけです。メールアドレス・ユーザー名・アバター画像は受け取りません。元の Discord ID は LoPo 内部でも復元できない形で保存されます。",
+                "item3": "「ちがった」ボタンを気軽に押してもらえるよう、逆に嫌がらせ通報を繰り返すアカウントは裏側で記録しています。度を越した行為があった場合、そのアカウントの利用を制限することがあります。"
+            },
+            "discordButton": "Discord でログイン",
+            "closeLabel": "ログイン画面を閉じる"
+        },
+        "account": {
+            "title": "アカウント",
+            "avatarChange": "アバターを変更",
+            "avatarDelete": "削除",
+            "displayNameLabel": "表示名",
+            "displayNameEdit": "表示名を編集",
+            "adminLink": "管理画面へ",
+            "signOut": "ログアウト",
+            "deleteAccount": "退会する",
+            "deleteConfirmTitle": "本当に退会しますか?",
+            "deleteConfirmBody": "アカウントを削除すると、登録した物件・お気に入り・アバター画像など全てのデータが完全に削除されます。この操作は取り消せません。",
+            "deleteConfirmYes": "退会する",
+            "deleteConfirmNo": "やめる",
+            "closeLabel": "アカウント画面を閉じる"
+        },
+        "topbar": {
+            "login": "ログイン",
+            "account": "アカウント"
         }
     }
 }

@@ -2083,6 +2083,37 @@
                 "login_required": "로그인이 필요합니다",
                 "login_button": "로그인"
             }
+        },
+        "login": {
+            "title": "",
+            "notice": {
+                "intro": "",
+                "item1": "",
+                "item2": "",
+                "item3": ""
+            },
+            "discordButton": "",
+            "closeLabel": ""
+        },
+        "account": {
+            "title": "",
+            "avatarChange": "",
+            "avatarDelete": "",
+            "displayNameLabel": "",
+            "displayNameEdit": "",
+            "adminLink": "",
+            "signOut": "",
+            "deleteAccount": "",
+            "deleteConfirmTitle": "",
+            "deleteConfirmBody": "",
+            "deleteConfirmYes": "",
+            "deleteConfirmNo": "",
+            "closeLabel": ""
+        },
+        "topbar": {
+            "login": "",
+            "account": ""
         }
     }
 }
+

@@ -28,7 +28,8 @@ i18n.use(initReactI18next).init({
         ko: { translation: ko },
     },
     lng: getSavedLanguage(),
-    fallbackLng: 'en',
+    fallbackLng: 'ja',
+    returnEmptyString: false,
     interpolation: {
         escapeValue: false,
     },
