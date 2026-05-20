@@ -40,4 +40,12 @@ describe('hashUid', () => {
         const result = hashUid(TEST_DISCORD_ID, 'a'.repeat(32));
         expect(result).toMatch(/^hashed:[0-9a-f]{64}$/);
     });
+
+    it('produces expected HMAC-SHA256 value (golden value test, locks algorithm)', () => {
+        // 既知の固定期待値で HMAC-SHA256 アルゴリズム自体が変わっていないことを検証する。
+        // 期待値は事前計算済:
+        //   node -e "const c=require('crypto'); console.log('hashed:'+c.createHmac('sha256','a'.repeat(64)).update('000000000000000000').digest('hex'))"
+        const expected = 'hashed:d0c345b7234aff6e58741d6c703d3cb413d665c55ae535fb99c08efaeb4ec5ed';
+        expect(hashUid('000000000000000000', 'a'.repeat(64))).toBe(expected);
+    });
 });
