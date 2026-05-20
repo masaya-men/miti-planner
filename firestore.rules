@@ -323,17 +323,36 @@ service cloud.firestore {
                       )
                     );
 
-      allow delete: if isOwner(resource.data.ownerUid);
+      // 物理削除はクライアントから禁止 (Admin SDK のみ、 soft delete は API 経由で deletedAt をセット、 30 日後 cron で物理削除)
+      allow delete: if false;
 
       // 通報サブコレクション
       match /reports/{reportId} {
-        allow read: if false;  // 管理者のみ Admin SDK 経由で読む
+        // 読み: 管理者のみ
+        allow read: if request.auth != null && request.auth.token.admin == true;
+        // 作成: 認証ユーザー、 reporterUid は自分自身、 reason は有効値のみ
         allow create: if isAuthenticated()
                       && request.auth.uid == request.resource.data.reporterUid
                       && request.resource.data.reason in ['wrong_info', 'griefing', 'nsfw', 'sold', 'other'];
-        allow update: if false;
-        allow delete: if false;
+        allow update, delete: if false;
       }
+    }
+
+    // ========================================
+    // users/{uid}/notifications コレクション
+    // アプリ内通知 (家主への通報通知等)
+    // 作成・削除: Admin SDK 経由のみ
+    // ========================================
+    match /users/{uid}/notifications/{notificationId} {
+      // 読: 本人のみ
+      allow read: if request.auth != null && request.auth.uid == uid;
+      // 更新: 本人のみ、 既読フラグの更新だけ許可
+      allow update: if request.auth != null
+                    && request.auth.uid == uid
+                    && request.resource.data.diff(resource.data).affectedKeys()
+                       .hasOnly(['read', 'readAt']);
+      // 作成・削除: Admin SDK 経由のみ
+      allow create, delete: if false;
     }
 
     // ========================================
