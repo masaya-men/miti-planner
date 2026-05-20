@@ -2,6 +2,41 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-20 セッション 42・ハウジング ログイン UI 整備)
+
+**目的**: ハウジング (`/housing`) に Discord ログイン UI 一式を導入。 hash 化完了で「LoPo は連絡できません」 が事実として真になった状態で文言適用。
+
+### 完了内容
+
+- 設計書: [docs/superpowers/specs/2026-05-20-housing-login-ui-design.md](superpowers/specs/2026-05-20-housing-login-ui-design.md)
+- 実装プラン: [docs/superpowers/plans/2026-05-20-housing-login-ui.md](superpowers/plans/2026-05-20-housing-login-ui.md)
+- **戦略 B 採用**: ハウジング専用 UI を新規作成、 認証データ操作ロジックは hook `useAccountActions` で LoPo と共通化
+- **新規 hook**: `src/hooks/auth/useAccountActions.ts` (avatar / displayName / signOut / delete 5 操作)
+- **新規 store**: `src/store/useHousingModalStore.ts` (login / account / register モーダル状態 + URL クエリ駆動)
+- **新規 UI**: `HousingLoginModal.tsx` / `HousingAccountModal.tsx` (ハニーゴールドトンマナ、 HousingPanelModal ラッパー流用)
+- **TopBar 右端**: 未ログイン → pill ログインボタン、 ログイン済 → アバター丸 (LoPo の感覚と統一)
+- **URL クエリ駆動**: `?register=open` で登録モーダルを開閉、 ブラウザバックで閉じる業界水準 UX
+- **モーダルスタッキング**: 登録 (z-50) + ログイン/アカウント (z-60) の 2 層、 data-modal-role 属性で CSS から切替
+- **× で閉じる挙動**: 経路 B (登録モーダル経由) では両方一緒に閉じる + URL クリア (`closeLogin` の fromRegister 分岐)
+- **i18n**: `housing.login.*` / `housing.account.*` / `housing.topbar.*` の 22 キーを ja 値で追加、 en/ko/zh は空キーで先行 (fallbackLng='ja' + returnEmptyString=false で ja にフォールバック)
+- **CSS**: housing.css に 22 クラス + 15 token 追加、 ハードコード 0 件 (housing-design.md 準拠)
+- **既存 LoPo の refactor**: `LoginModal.tsx` も同じ `useAccountActions` を使うよう変更 (動作変更ゼロ)
+
+### 6 項目達成状況
+
+| # | 項目 | 状態 |
+|---|---|---|
+| 1 | ハウジング版 LoginModal | ✅ |
+| 2 | ハウジング版 AccountModal (5 機能、 ローカル取込は除外) | ✅ |
+| 3 | TopBar 右端 ログイン/アバターボタン | ✅ |
+| 4 | モーダルスタッキング (z-50/60、 data-modal-role) | ✅ |
+| 5 | ログイン後の登録モーダル復元 (saveReturnUrl 拡張 + ?register=open) | ✅ |
+| 6 | × で閉じた時の挙動 (経路 A/B 分岐) | ✅ |
+
+### 結果
+
+ハウジング画面で完全に独立したログイン UI が動作。 LoPo 軽減表側の認証データ操作ロジックは hook 共有でメンテナンス 1 箇所に集約。 hash 化と組み合わせて「LoPo は連絡できない / 個人情報を持たない」 主張が UI 文言で真として伝わる状態に。
+
 ## 完了 (2026-05-20 セッション 41・hash 化マイグレーション Step 2 完了)
 
 **目的**: Discord 10 件の Firebase uid を `discord:<生 ID>` → `hashed:<HMAC-SHA256(id+secret)>` に移行し、 LoPo 内部からも元 Discord ID を復元不能にする。 GDPR pseudonymization 完全達成。

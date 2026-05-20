@@ -11,33 +11,28 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #41 (2026-05-20) で **hash 化マイグレーション Step 2 完了**
-- **完了**: Discord 10 件全部の uid を `hashed:` 形式に移行。 10/10 verify PASS、 全データ無事
-- **secret 保管**: `LOPO_PSEUDONYM_SECRET` を Vercel sensitive (prod/preview) + .env.local + iPhone メモ の 3 箇所バックアップ済 (rotation 不可)
-- **設計書 / プラン**: [docs/superpowers/specs/2026-05-20-hash-migration-step2-design.md](superpowers/specs/2026-05-20-hash-migration-step2-design.md) / [docs/superpowers/plans/2026-05-20-hash-migration-step2.md](superpowers/plans/2026-05-20-hash-migration-step2.md)
-- **注意**: 本人の avatar.webp + team-logo.jpg が migration バグで Storage 消失 → LoPo UI 経由で再アップロード要
-- **教訓**: Step 1 already-migrated check を Step 0 window sweep より先に置く順序バグを発見・修正済
+- **ブランチ**: main、 セッション #42 (2026-05-20) で **ハウジング ログイン UI 整備完了** (6 項目達成、 PR 1-3 全 commit + push 待ち)
+- **完了**: 戦略 B (housing 専用 UI + hook 共通化) で実装。 useAccountActions / useHousingModalStore / HousingLoginModal / HousingAccountModal / TopBar ボタン / URL クエリ駆動 / モーダルスタッキング (z-50/60) を一式導入
+- **設計書 / プラン**: [docs/superpowers/specs/2026-05-20-housing-login-ui-design.md](superpowers/specs/2026-05-20-housing-login-ui-design.md) / [docs/superpowers/plans/2026-05-20-housing-login-ui.md](superpowers/plans/2026-05-20-housing-login-ui.md)
+- **注意**: 本人の avatar.webp + team-logo.jpg が前回 migration バグで Storage 消失 → 新規実装した HousingAccountModal の avatar 編集 UI 経由で再アップロード可能
+- **注意**: vitest pool='vmThreads' に再採用 (Node v24 で forks 動作不可、 memory `reference_vitest_pool_firebase.md` 更新済)。 全テスト並列実行はハング懸念、 個別ファイル run で対応
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: ハウジング ログイン UI 整備の再開
+## 次セッション最優先: Cloudflare 前段化 → Phase 2B
 
-1. **準備メモを再確認** ([docs/.private/2026-05-19-hash-migration-prep.md](docs/.private/2026-05-19-hash-migration-prep.md) の §「ハウジング ログイン UI 整備の 6 項目」)
-2. hash 化完了で「LoPo は連絡できません」 が事実として真になった状態でログイン文言を適用
-3. 6 項目を順に実装
+1. Cloudflare 前段化 (DNS 切替 30 分)
+2. Phase 2B (マップ Figma 書き起こし + 30 軒位置データ + マップクリック登録)
+3. Phase 3 (物件詳細ページ + 通報 UI 分離 + 家主異議申し立て + ツアー同期)
 
-### pause 中のハウジング UI タスク (6 項目)
+### 残課題 (Phase 2B 前後で対応)
 
-- ハウジング 右上 TopBar ログインボタン + ハウジング版 LoginModal (ハニーゴールドトンマナ) + 登録モーダル 2 層スタッキング
 - `fieldState.confirm()` バグ究明 (state="confirmed" に切り替わらない、 isReadyToSubmit auto-filled 許容で回避中)
 - 登録モーダル UX 磨き (✅ バッジ警告色化 / checklist アニメ / 確認モーダル整形)
-- 旧 `workspace/HousingRegisterModal.tsx` と `HousingRegisterView.tsx` の dead code 撤去
+- 旧 `workspace/HousingRegisterModal.tsx` の dead code 撤去 (test file からのみ参照)
 - AddressFields の `renderBadge` prop 化、 tweet 取得の rate limiting、 photo `alt` 属性
-
-## 次セッション次優先 (hash 化 + ハウジング UI 完了後)
-
-Cloudflare 前段化 (DNS 切替 30 分) → Phase 2B (マップ Figma 書き起こし + 30 軒位置データ + マップクリック登録) → Phase 3 (物件詳細ページ + 通報 UI 分離 + 家主異議申し立て + ツアー同期)
+- ハウジング全体 i18n の en/ko/zh 翻訳追加 (今回 ja のみ先行で 22 キー追加済、 値を埋めるだけ)
 
 **Phase 3 通報フロー仕様 (2026-05-19 確定)**:
 - 自分の登録は編集・削除を必ず可能に
