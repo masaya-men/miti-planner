@@ -756,7 +756,7 @@
         "terms_section1_title": "1. 关于本服务",
         "terms_section1_body": "本服务是为《最终幻想XIV》提供多种粉丝工具的非官方网络服务，包括减伤规划器和房屋巡览规划器。与 SQUARE ENIX CO., LTD. 无关。",
         "terms_section2_title": "2. 账户",
-        "terms_section2_body": "登录需要 Discord 或 X（Twitter）账户。您有责任管理您的账户凭据。无需登录即可使用基本功能，但数据将仅保存在浏览器中。",
+        "terms_section2_body": "登录需要 Discord 账户。您有责任管理您的账户凭据。无需登录即可使用基本功能，但数据将仅保存在浏览器中。",
         "terms_section3_title": "3. 减伤表数据",
         "terms_section3_items": "您保留所创建减伤表的版权,通过分享功能共享的减伤表可被其他用户查看和复制,本服务不保证数据持久性。请自行备份重要数据",
         "terms_section4_title": "4. 禁止行为",
@@ -1801,7 +1801,7 @@
         "login_prompt": {
             "register": {
                 "title": "登记房屋需要登录",
-                "lead": "请使用 Discord 或 X (Twitter) 登录"
+                "lead": ""
             },
             "tour": {
                 "title": "创建导览需要登录",

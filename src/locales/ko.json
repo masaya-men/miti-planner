@@ -756,7 +756,7 @@
         "terms_section1_title": "1. 서비스에 대해",
         "terms_section1_body": "본 서비스는 경감 플래너 및 하우징 투어 플래너를 포함한 파이널 판타지 XIV의 다양한 팬 도구를 제공하는 비공식 웹 서비스입니다. SQUARE ENIX CO., LTD.와 제휴 관계가 없습니다.",
         "terms_section2_title": "2. 계정",
-        "terms_section2_body": "로그인에는 Discord 또는 X(Twitter) 계정이 필요합니다. 계정 자격 증명 관리는 사용자 본인의 책임입니다. 로그인 없이도 기본 기능을 사용할 수 있지만 데이터는 브라우저에만 저장됩니다.",
+        "terms_section2_body": "로그인에는 Discord 계정이 필요합니다. 계정 자격 증명 관리는 사용자 본인의 책임입니다. 로그인 없이도 기본 기능을 사용할 수 있지만 데이터는 브라우저에만 저장됩니다.",
         "terms_section3_title": "3. 경감표 데이터",
         "terms_section3_items": "생성한 경감표의 저작권은 사용자에게 있습니다,공유 기능을 통해 공유된 경감표는 다른 사용자가 조회 및 복사할 수 있습니다,본 서비스는 데이터의 영구 보존을 보장하지 않습니다. 중요한 데이터는 직접 백업해 주세요",
         "terms_section4_title": "4. 금지 행위",
@@ -1801,7 +1801,7 @@
         "login_prompt": {
             "register": {
                 "title": "매물 등록에는 로그인이 필요합니다",
-                "lead": "Discord 또는 X (Twitter)로 로그인해 주세요"
+                "lead": ""
             },
             "tour": {
                 "title": "투어 작성에는 로그인이 필요합니다",
