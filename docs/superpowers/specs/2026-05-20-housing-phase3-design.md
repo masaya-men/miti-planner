@@ -113,7 +113,7 @@ interface HousingNotification {
 }
 ```
 
-### 2.3 API エンドポイント (`src/api/housing/index.ts` 拡張)
+### 2.3 API エンドポイント (`api/housing/index.ts` 拡張)
 
 既存パターン (`?action=register-listing` 等) に追加:
 
@@ -125,7 +125,7 @@ interface HousingNotification {
 | `list-notifications` | GET | 本人 | 通知一覧取得 (paginated) |
 | `mark-notification-read` | POST | 本人 | 通知既読化 |
 
-各ハンドラは `src/api/housing/_<actionName>Handler.ts` に分離 (既存 `_registerListingHandler.ts` パターン踏襲)。
+各ハンドラは `api/housing/_<actionName>Handler.ts` に分離 (既存 `_registerListingHandler.ts` パターン踏襲)。
 
 ### 2.4 Firestore Security Rules
 
@@ -272,7 +272,7 @@ interface HousingNotification {
 | `@modal/(.)listing/[id]/page.tsx` | intercepting route (モーダル表示) |
 | `listing/[id]/page.tsx` | フルページ版 (既存 `HousingDetailPagePlaceholder` の本実装) |
 
-**`src/api/housing/_<action>Handler.ts` (新規 5 本)**
+**`api/housing/_<action>Handler.ts` (新規 5 本)**
 | ファイル | 役割 |
 |---|---|
 | `_updateListingHandler.ts` | 編集 API |
@@ -289,7 +289,7 @@ interface HousingNotification {
 | `src/components/housing/workspace/TopBar.tsx` | `<NotificationBell>` 配置 (Heart の隣) |
 | `src/components/housing/workspace/HousingRegisterModal.tsx` | `mode: 'create' \| 'edit'` props 追加、 `initialValues` props 追加。 mode='edit' のときタイトル変更・API endpoint 変更 |
 | `src/components/housing/HousingDetailPagePlaceholder.tsx` | 削除 (本実装で置き換え) |
-| `src/api/housing/index.ts` | 新規 action 5 つの分岐追加 |
+| `api/housing/index.ts` | 新規 action 5 つの分岐追加 |
 | `src/lib/firebase/firestore-rules` (or equivalent) | セキュリティルール更新 |
 | ハウジング一覧画面 (`HousingWorkspace.tsx` 等) | カードクリック → `<Link href="/housing/listing/{id}">` に変更 |
 
@@ -608,7 +608,7 @@ match /users/{uid}/notifications/{nid} {
 
 ### 9.1 Vitest (単体)
 
-- **API ハンドラ** (`src/api/housing/_*Handler.test.ts`):
+- **API ハンドラ** (`api/housing/_*Handler.test.ts`):
   - バリデーション (zod) で不正リクエストを 400 拒否
   - 認可: 未ログイン → 401、 他人 → 403、 自分 → 200
   - 通報重複: 同一条件 2 回目で 409
