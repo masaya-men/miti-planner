@@ -11,43 +11,48 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #42 (2026-05-20) で **ハウジング ログイン UI 整備完了** (6 項目達成、 PR 1-3 全 commit + push 待ち)
-- **完了**: 戦略 B (housing 専用 UI + hook 共通化) で実装。 useAccountActions / useHousingModalStore / HousingLoginModal / HousingAccountModal / TopBar ボタン / URL クエリ駆動 / モーダルスタッキング (z-50/60) を一式導入
-- **設計書 / プラン**: [docs/superpowers/specs/2026-05-20-housing-login-ui-design.md](superpowers/specs/2026-05-20-housing-login-ui-design.md) / [docs/superpowers/plans/2026-05-20-housing-login-ui.md](superpowers/plans/2026-05-20-housing-login-ui.md)
-- **注意**: 本人の avatar.webp + team-logo.jpg が前回 migration バグで Storage 消失 → 新規実装した HousingAccountModal の avatar 編集 UI 経由で再アップロード可能
+- **ブランチ**: main、 セッション #43 (2026-05-20) で **ハウジング ログイン UI 整備の修正完了** (経路 B フロー修正 + 文言改善)
+- **完了 (#42)**: ハウジング ログイン UI 6 項目 (戦略 B: housing 専用 UI + hook 共通化)
+- **完了 (#43)**: 経路 B (登録モーダル → ログイン誘導) 動作修正、 hash 化説明文言改善、 X (Twitter) 削除 (4 言語の利用規約等)
+- **方針確定 (#43)**: 次セッションは「マップ書き起こし以外」 のハウジングツアー機能を一気に進める。 マップ (Phase 2B) は後回し
+- **注意**: 本人の avatar.webp + team-logo.jpg が前回 migration バグで Storage 消失 → HousingAccountModal の avatar 編集 UI 経由で再アップロード可能
 - **注意**: vitest pool='vmThreads' に再採用 (Node v24 で forks 動作不可、 memory `reference_vitest_pool_firebase.md` 更新済)。 全テスト並列実行はハング懸念、 個別ファイル run で対応
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: Cloudflare 前段化 → Phase 2B
+## 次セッション最優先: マップ以外を全部終わらせる
 
-1. Cloudflare 前段化 (DNS 切替 30 分)
-2. Phase 2B (マップ Figma 書き起こし + 30 軒位置データ + マップクリック登録)
-3. Phase 3 (物件詳細ページ + 通報 UI 分離 + 家主異議申し立て + ツアー同期)
+**最初に設計議論 (15-30 分)** で下記 1-6 の優先順位とスコープ確認、 その後実装に入る。
 
-### 残課題 (Phase 2B 前後で対応)
+1. **Phase 3 通報フロー**: 「ちがった」 ボタン → 登録者にアプリ内通知 (通報者匿名)、 虚偽通報の異議申し立ては Discord 経由
+2. **Phase 3 物件詳細ページ**: `/housing/listing/:id` の個別ページ
+3. **Phase 3 家主編集・削除 UI**: 自分の登録は必ず編集・削除可能に
+4. **ツアー同期 Firestore 化**: 現状 localStorage のみ → Firestore 同期 (UI 表示はマップ完成で揃う)
+5. **Cloudflare 前段化** (DNS 切替 30 分、 Discord OAuth 影響なし要検証)
+6. **細かい修正**: `fieldState.confirm()` バグ、 旧 workspace/HousingRegisterModal.tsx の dead code 撤去、 AddressFields の renderBadge prop 化、 tweet 取得の rate limiting、 photo `alt` 属性、 SNS rate limiting
 
-- `fieldState.confirm()` バグ究明 (state="confirmed" に切り替わらない、 isReadyToSubmit auto-filled 許容で回避中)
+### 後回し (Phase 2B、 マップ着手時)
+
+- マップ Figma 書き起こし (道中央線 + 交差点ノード = 既存設計通り、 ジャンプは特殊エッジ cost 割引)
+- 30 軒位置データ
+- マップクリック登録 + ノード/エッジオーサリングツール
+- 5 時間程度の地道作業 (10 マップ × ~130 件のクリック) を覚悟
+
+### UI 整え時にまとめて対応 (旧ブラッシュアップ後回しリスト統合)
+
+- TopBar ログイン/アバター サイズ違い (問題 6)、 未ログイン登録モーダルの背低違和感
 - 登録モーダル UX 磨き (✅ バッジ警告色化 / checklist アニメ / 確認モーダル整形)
-- 旧 `workspace/HousingRegisterModal.tsx` の dead code 撤去 (test file からのみ参照)
-- AddressFields の `renderBadge` prop 化、 tweet 取得の rate limiting、 photo `alt` 属性
-- ハウジング全体 i18n の en/ko/zh 翻訳追加 (今回 ja のみ先行で 22 キー追加済、 値を埋めるだけ)
+- お気に入りモーダル ツアービルダー アニメ、 「全部回る」 staging 視認性、 マップ bubble ♡ ホバー時表示、 TopBar トグル配置
+- ハウジング全体 i18n の en/ko/zh 翻訳追加 (今回 ja のみ先行追加済、 値を埋めるだけ)
+- スマホ最適化
+- **(将来検討)** XIVAuth (FF14 キャラ連携) — 安定性を 3-6 ヶ月様子見
 
 **Phase 3 通報フロー仕様 (2026-05-19 確定)**:
 - 自分の登録は編集・削除を必ず可能に
 - 「ちがった」 押下 → 登録者にアプリ内通知 (通報者 ID は渡さない)
 - 虚偽通報の異議申し立ては LoPo Discord サーバーで運営 DM 受付 → 管理画面で `reportCount` を 0 リセット
 - 上記すべて + ハウジング関連の運営作業全般 (BAN / 強制削除 / quota リセット 等含む) は `/admin` で完結 (memory `feedback_housing_admin_complete.md` 参照)
-
----
-
-## ブラッシュアップ後回しリスト (Plan F 完了後に着手)
-
-- お気に入りモーダル ツアービルダー: スプリング / バウンス / カード押しのけアニメ
-- 「全部回る」 staging アニメ視認性 / × ボタン反応速度 / 「すべて削除」 ボタン位置
-- マップ bubble の ♡ ホバー時表示 / TopBar トグル配置
-- **(将来検討)** XIVAuth (FF14 キャラ連携) — 安定性を 3-6 ヶ月様子見
 
 ---
 

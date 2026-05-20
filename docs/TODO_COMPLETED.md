@@ -2,6 +2,33 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-20 セッション 43・ハウジング ログイン UI 整備の修正)
+
+**目的**: セッション #42 で実装したハウジング ログイン UI のユーザー検証で見つかった 2 件の修正。
+
+### 完了内容
+
+1. **経路 B (登録モーダル → ログイン誘導) フロー修正**: HousingRegisterFormModal が未ログインユーザーにも form を直接表示していたため「ログインしてください」 が表示されない不具合。 user (useAuthStore) で分岐し、 未ログイン時は `HousingLoginPrompt context="register"` を表示するよう修正 (commit `ada0140`)。 これで経路 B + 経路 B × b (× で両方閉じる) が動作確認済
+
+2. **hash 化説明文言の改善**:
+   - `housing.login.notice.item2` (ja のみ更新、 en/ko/zh は空文字フォールバック):
+     旧: 「受け取るのは ID (ハッシュ値) だけ ... 受け取りません」 (誤解されやすい)
+     新: 「LoPo が保存するのは Discord ID のハッシュ値だけです。 ハッシュ値は元の ID に戻せない形なので、 運営者を含めて誰も Discord ID を復元できません。」
+   - `housing.login_prompt.register.lead`: 「Discord ログインで物件を登録できます。 Discord ID は復元できない形 (ハッシュ値) で保存されます。」 (ja 更新、 他は空文字)
+   - `legal.terms.terms_section2_body` (4 言語): 「Discord または X (Twitter)」 → 「Discord」 (Twitter 廃止済の事実反映)
+
+### 教訓
+
+- 「受け取る」 と「保存する」 の区別: Discord OAuth scope=`identify` で username/avatar は技術的に届くが、 サーバーコードで destructure で破棄 (`api/auth/_discordHandler.ts:146`)、 保存はしない。 「受け取らない」 は誤り、 「保存しない」 が正確
+- 業界水準 (Twitter / GitHub / Slack 等の OAuth 利用サービス) は受け取る/保存する の細かい区別を説明しない。 シンプルに「保存しない」 で十分、 詳しすぎると不安を煽る
+
+### 残課題 (UI 整え時にまとめて対応予定)
+
+- TopBar ログインボタンとアバター丸のサイズ違いでガタつく問題 (問題 6)
+- 未ログイン時の登録モーダルが背低くなる見た目違和感 (HousingLoginPrompt のコンパクトサイズに引きずられる)
+
+---
+
 ## 完了 (2026-05-20 セッション 42・ハウジング ログイン UI 整備)
 
 **目的**: ハウジング (`/housing`) に Discord ログイン UI 一式を導入。 hash 化完了で「LoPo は連絡できません」 が事実として真になった状態で文言適用。
