@@ -107,6 +107,7 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
                 title={t('housing.register.title')}
                 closeLabel={t('housing.register.cancel')}
                 maxWidth={720}
+                modalRole="register"
             >
                 <HousingRegisterForm onSubmit={handleSubmit} onCancel={onClose} />
             </HousingPanelModal>

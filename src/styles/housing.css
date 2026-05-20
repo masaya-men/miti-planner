@@ -70,6 +70,10 @@
   --housing-text-lg: 16px;
   --housing-text-xl: 18px;
 
+  /* ===== Z-index tokens ===== */
+  --housing-z-modal-base: 50;
+  --housing-z-modal-stack: 60;
+
   /* ===== Layout tokens ===== */
   --housing-header-h: 60px;
   --housing-status-h: 40px;
@@ -2643,7 +2647,7 @@ select.housing-input option {
 .housing-panel-modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: var(--housing-z-modal-base);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2656,8 +2660,17 @@ select.housing-input option {
   color: var(--housing-text);
 }
 .housing-panel-modal-backdrop[data-layer="confirm"] {
-  z-index: 60;
+  z-index: var(--housing-z-modal-stack);
   background: rgba(0, 0, 0, 0.78);
+}
+.housing-panel-modal-backdrop[data-modal-role="register"] {
+  z-index: var(--housing-z-modal-base);
+}
+.housing-panel-modal-backdrop[data-modal-role="login"] {
+  z-index: var(--housing-z-modal-stack);
+}
+.housing-panel-modal-backdrop[data-modal-role="account"] {
+  z-index: var(--housing-z-modal-stack);
 }
 .housing-panel-modal-shell {
   position: relative;

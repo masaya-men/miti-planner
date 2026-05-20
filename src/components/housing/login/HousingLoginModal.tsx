@@ -32,6 +32,7 @@ export const HousingLoginModal: React.FC = () => {
             closeLabel={t('housing.login.closeLabel')}
             maxWidth={480}
             maxHeightRatio={0.86}
+            modalRole="login"
         >
             <div className="housing-login-notice">
                 <p className="housing-login-notice-intro">

@@ -17,6 +17,8 @@ export interface HousingPanelModalProps {
   maxWidth?: number;
   /** Max height of the panel as viewport ratio (0-1). Default 0.86. */
   maxHeightRatio?: number;
+  /** モーダルの役割。 backdrop の data-modal-role 属性に反映され CSS で z-index を切り替える。 */
+  modalRole?: 'register' | 'login' | 'account';
   children: React.ReactNode;
 }
 
@@ -35,6 +37,7 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
   closeLabel,
   maxWidth = 720,
   maxHeightRatio = 0.86,
+  modalRole,
   children,
 }) => {
   const [mounted, setMounted] = useState(false);
@@ -70,6 +73,7 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
   const content = (
     <div
       className="housing-panel-modal-backdrop"
+      data-modal-role={modalRole}
       role="dialog"
       aria-modal="true"
       aria-label={title}

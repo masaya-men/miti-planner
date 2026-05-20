@@ -103,6 +103,7 @@ export const HousingAccountModal: React.FC = () => {
                 closeLabel={t('housing.account.closeLabel')}
                 maxWidth={480}
                 maxHeightRatio={0.86}
+                modalRole="account"
             >
                 <div className="housing-account-profile">
                     <button
