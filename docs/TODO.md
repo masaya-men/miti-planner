@@ -11,48 +11,41 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #43 (2026-05-20) で **ハウジング ログイン UI 整備の修正完了** (経路 B フロー修正 + 文言改善)
-- **完了 (#42)**: ハウジング ログイン UI 6 項目 (戦略 B: housing 専用 UI + hook 共通化)
-- **完了 (#43)**: 経路 B (登録モーダル → ログイン誘導) 動作修正、 hash 化説明文言改善、 X (Twitter) 削除 (4 言語の利用規約等)
-- **方針確定 (#43)**: 次セッションは「マップ書き起こし以外」 のハウジングツアー機能を一気に進める。 マップ (Phase 2B) は後回し
+- **ブランチ**: main、 セッション #44 (2026-05-21) で **Phase 3 設計確定 + spec 完成** (plan / 実装は次セッション)
+- **完了 (#44)**: ハウジング Phase 3 (家主編集削除・物件詳細表示・通報フロー) を業界水準準拠で設計。 spec を `docs/superpowers/specs/2026-05-20-housing-phase3-design.md` に記録。 ローカルコミット 2 本残し (push 未)
+- **方針確定 (#44)**: 動く骨組み優先、 業界水準は必ず守る、 UI 細部磨きは別フェーズ。 詳細モーダルは Intercepting Routes、 通報は reason 5 択 + reason 別ガイド、 通知は TopBar bell + ドロップダウン、 削除は soft delete
 - **注意**: 本人の avatar.webp + team-logo.jpg が前回 migration バグで Storage 消失 → HousingAccountModal の avatar 編集 UI 経由で再アップロード可能
 - **注意**: vitest pool='vmThreads' に再採用 (Node v24 で forks 動作不可、 memory `reference_vitest_pool_firebase.md` 更新済)。 全テスト並列実行はハング懸念、 個別ファイル run で対応
 - **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: マップ以外を全部終わらせる
+## 次セッション最優先: Phase 3 plan 作成 + 実装
 
-**最初に設計議論 (15-30 分)** で下記 1-6 の優先順位とスコープ確認、 その後実装に入る。
+**最初のコマンド (コピペ)**:
+> `docs/superpowers/specs/2026-05-20-housing-phase3-design.md` を読んで、 writing-plans skill で plan を `docs/superpowers/plans/2026-05-21-housing-phase3-plan.md` に書いて。 ローカルコミット 2 本残ってるので忘れず push もセットで。
 
-1. **Phase 3 通報フロー**: 「ちがった」 ボタン → 登録者にアプリ内通知 (通報者匿名)、 虚偽通報の異議申し立ては Discord 経由
-2. **Phase 3 物件詳細ページ**: `/housing/listing/:id` の個別ページ
-3. **Phase 3 家主編集・削除 UI**: 自分の登録は必ず編集・削除可能に
-4. **ツアー同期 Firestore 化**: 現状 localStorage のみ → Firestore 同期 (UI 表示はマップ完成で揃う)
-5. **Cloudflare 前段化** (DNS 切替 30 分、 Discord OAuth 影響なし要検証)
-6. **細かい修正**: `fieldState.confirm()` バグ、 旧 workspace/HousingRegisterModal.tsx の dead code 撤去、 AddressFields の renderBadge prop 化、 tweet 取得の rate limiting、 photo `alt` 属性、 SNS rate limiting
+実装順序 (spec §10 より):
+1. **基盤**: 型追加 (`HousingListing.deletedAt`, `HousingNotification`) + Firestore Rules + 一覧クエリ `deletedAt == null` フィルタ
+2. **Sub-spec 3-A 編集削除**: update/delete API + HousingEditModal (登録モーダル拡張) + DeleteConfirm + Kebab
+3. **Sub-spec 3-B 詳細表示**: DetailContent / Modal / Layout + Intercepting Routes + ActionBar / PhotoGallery / ShareButton + OGP
+4. **Sub-spec 3-C 通報フロー**: report API + ReportModal + 通知 API 2 本 + NotificationBell / Dropdown + ReportGuideModal
+5. i18n (ja 先行)、 動作確認、 まとめてコミット 5-7 本 + push + デプロイ
+
+### Phase 3 残り (今回スコープ外、 plan 完了後別セッション)
+
+- ツアー同期 Firestore 化 (TODO 旧 4)
+- Cloudflare 前段化 (TODO 旧 5)
+- 細かい修正: `fieldState.confirm()` バグ、 旧 dead code 撤去、 AddressFields renderBadge prop 化、 tweet 取得 rate limiting、 photo `alt` 属性、 SNS rate limiting (TODO 旧 6)
+- 30 日後物理削除 cron、 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知
 
 ### 後回し (Phase 2B、 マップ着手時)
 
-- マップ Figma 書き起こし (道中央線 + 交差点ノード = 既存設計通り、 ジャンプは特殊エッジ cost 割引)
-- 30 軒位置データ
-- マップクリック登録 + ノード/エッジオーサリングツール
-- 5 時間程度の地道作業 (10 マップ × ~130 件のクリック) を覚悟
+- マップ Figma 書き起こし (道中央線 + 交差点ノード)、 30 軒位置データ、 マップクリック登録、 ノード/エッジオーサリングツール (5 時間程度の地道作業)
 
-### UI 整え時にまとめて対応 (旧ブラッシュアップ後回しリスト統合)
+### UI 整え時にまとめて対応
 
-- TopBar ログイン/アバター サイズ違い (問題 6)、 未ログイン登録モーダルの背低違和感
-- 登録モーダル UX 磨き (✅ バッジ警告色化 / checklist アニメ / 確認モーダル整形)
-- お気に入りモーダル ツアービルダー アニメ、 「全部回る」 staging 視認性、 マップ bubble ♡ ホバー時表示、 TopBar トグル配置
-- ハウジング全体 i18n の en/ko/zh 翻訳追加 (今回 ja のみ先行追加済、 値を埋めるだけ)
-- スマホ最適化
-- **(将来検討)** XIVAuth (FF14 キャラ連携) — 安定性を 3-6 ヶ月様子見
-
-**Phase 3 通報フロー仕様 (2026-05-19 確定)**:
-- 自分の登録は編集・削除を必ず可能に
-- 「ちがった」 押下 → 登録者にアプリ内通知 (通報者 ID は渡さない)
-- 虚偽通報の異議申し立ては LoPo Discord サーバーで運営 DM 受付 → 管理画面で `reportCount` を 0 リセット
-- 上記すべて + ハウジング関連の運営作業全般 (BAN / 強制削除 / quota リセット 等含む) は `/admin` で完結 (memory `feedback_housing_admin_complete.md` 参照)
+- TopBar ログイン/アバター サイズ違い、 未ログイン登録モーダル背低違和感、 登録モーダル UX 磨き、 ✅ バッジ警告色化、 お気に入りモーダル ツアービルダー アニメ、 ハウジング i18n の en/ko/zh 翻訳追加 (ja のみ先行)、 スマホ最適化、 **(将来検討)** XIVAuth
 
 ---
 
