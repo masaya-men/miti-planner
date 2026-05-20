@@ -4,6 +4,8 @@ import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { useHousingModalStore } from '../../../store/useHousingModalStore';
 
 export interface TopBarProps {
     onFavoritesClick?: () => void;
@@ -33,6 +35,10 @@ export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick, onRegisterClic
   const favoritesCount = useHousingFavoritesStore((s) => s.ids.length);
   const searchText = useHousingFilterStore((s) => s.searchText);
   const setSearchText = useHousingFilterStore((s) => s.setSearchText);
+  const user = useAuthStore((s) => s.user);
+  const profileAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
+  const openLogin = useHousingModalStore((s) => s.openLogin);
+  const openAccount = useHousingModalStore((s) => s.openAccount);
 
   const LeftIcon = leftPanelOpen ? PanelLeftClose : PanelLeftOpen;
   const RightIcon = rightPanelOpen ? PanelRightClose : PanelRightOpen;
@@ -143,6 +149,29 @@ export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick, onRegisterClic
         >
           <RightIcon size={18} aria-hidden="true" />
         </button>
+        {user ? (
+          <button
+            type="button"
+            className="housing-top-avatar-btn"
+            onClick={() => openAccount()}
+            aria-label={t('housing.topbar.account')}
+            title={t('housing.topbar.account')}
+          >
+            {profileAvatarUrl ? (
+              <img src={profileAvatarUrl} alt="" />
+            ) : (
+              <span className="housing-avatar-fallback">👤</span>
+            )}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="housing-top-login-btn"
+            onClick={() => openLogin()}
+          >
+            {t('housing.topbar.login')}
+          </button>
+        )}
       </div>
     </header>
   );

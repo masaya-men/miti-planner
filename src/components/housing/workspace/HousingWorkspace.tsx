@@ -13,6 +13,8 @@ import { CenterArea } from './CenterArea';
 import { RightPanel } from './RightPanel';
 import { FavoritesModal } from './FavoritesModal';
 import { HousingRegisterFormModal } from '../register/HousingRegisterFormModal';
+import { HousingLoginModal } from '../login/HousingLoginModal';
+import { HousingAccountModal } from '../login/HousingAccountModal';
 import '../../../styles/housing.css';
 
 /**
@@ -129,6 +131,8 @@ export const HousingWorkspace: React.FC = () => {
       </div>
       <FavoritesModal open={favoritesModalOpen} onClose={() => setFavoritesModalOpen(false)} />
       <HousingRegisterFormModal open={registerOpen} onClose={handleCloseRegister} />
+      <HousingLoginModal />
+      <HousingAccountModal />
     </main>
   );
 };
