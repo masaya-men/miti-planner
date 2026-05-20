@@ -84,7 +84,29 @@ async function verifySingle(oldUid: string): Promise<{ pass: boolean; errors: st
             housingListings: backup.firestore.housingListings.length,
             housingFavoritesItems: backup.firestore.housingFavoritesItems.length,
             housingTours: backup.firestore.housingTours.length,
+            featureSessions: backup.firestore.featureSessions.length,
+            crossRefCopiedBy: backup.firestore.crossRefCopiedBy.length,
+            crossRefReports: backup.firestore.crossRefReports.reduce((sum: number, lr: any) => sum + lr.reports.length, 0),
         };
+
+        // featureSessions の新 uid 側
+        const featureSessionsActual = (await db.collection('users').doc(newUid).collection('featureSessions').get()).size;
+
+        // crossRefCopiedBy: 全 shared_plans を走査して新 uid copiedBy を数える
+        let crossRefCopiedByActual = 0;
+        const allSharedForVerify = await db.collection('shared_plans').get();
+        for (const doc of allSharedForVerify.docs) {
+            const cb = await doc.ref.collection('copiedBy').doc(newUid).get();
+            if (cb.exists) crossRefCopiedByActual++;
+        }
+
+        // crossRefReports: 全 housing_listings の reports.reporterUid == newUid を数える
+        let crossRefReportsActual = 0;
+        const allListingsForVerify = await db.collection('housing_listings').get();
+        for (const doc of allListingsForVerify.docs) {
+            crossRefReportsActual += (await doc.ref.collection('reports').where('reporterUid', '==', newUid).get()).size;
+        }
+
         const actual = {
             plans: (await db.collection('plans').where('ownerId', '==', newUid).get()).size,
             sharedPlanMeta: (await db.collection('sharedPlanMeta').where('ownerId', '==', newUid).get()).size,
@@ -92,6 +114,9 @@ async function verifySingle(oldUid: string): Promise<{ pass: boolean; errors: st
             housingListings: (await db.collection('housing_listings').where('ownerUid', '==', newUid).get()).size,
             housingFavoritesItems: (await db.collection('housing_favorites').doc(newUid).collection('items').get()).size,
             housingTours: (await db.collection('housing_tours').where('ownerUid', '==', newUid).get()).size,
+            featureSessions: featureSessionsActual,
+            crossRefCopiedBy: crossRefCopiedByActual,
+            crossRefReports: crossRefReportsActual,
         };
         for (const k of Object.keys(expected) as (keyof typeof expected)[]) {
             if (expected[k] !== actual[k]) {

@@ -434,13 +434,17 @@ if (isMain) {
         fieldToUpdate: string,
         newUid: string
     ): Promise<number> {
+        const BATCH_LIMIT = 499;
         const snap = await sourceQuery.get();
         if (snap.empty) return 0;
-        const batch = db.batch();
-        for (const doc of snap.docs) {
-            batch.update(doc.ref, { [fieldToUpdate]: newUid });
+        for (let i = 0; i < snap.docs.length; i += BATCH_LIMIT) {
+            const chunk = snap.docs.slice(i, i + BATCH_LIMIT);
+            const batch = db.batch();
+            for (const doc of chunk) {
+                batch.update(doc.ref, { [fieldToUpdate]: newUid });
+            }
+            await batch.commit();
         }
-        await batch.commit();
         return snap.size;
     }
 
@@ -456,31 +460,43 @@ if (isMain) {
         dstParent: DocumentReference,
         subName: string
     ): Promise<number> {
+        const BATCH_LIMIT = 499;
         const snap = await srcParent.collection(subName).get();
         if (snap.empty) return 0;
-        const batch = db.batch();
-        for (const doc of snap.docs) {
-            batch.set(dstParent.collection(subName).doc(doc.id), doc.data());
+        for (let i = 0; i < snap.docs.length; i += BATCH_LIMIT) {
+            const chunk = snap.docs.slice(i, i + BATCH_LIMIT);
+            const batch = db.batch();
+            for (const doc of chunk) {
+                batch.set(dstParent.collection(subName).doc(doc.id), doc.data());
+            }
+            await batch.commit();
         }
-        await batch.commit();
         return snap.size;
     }
 
     async function deleteSubcollection(parentRef: DocumentReference, name: string): Promise<number> {
+        const BATCH_LIMIT = 499;
         const snap = await parentRef.collection(name).get();
         if (snap.empty) return 0;
-        const batch = db.batch();
-        for (const doc of snap.docs) batch.delete(doc.ref);
-        await batch.commit();
+        for (let i = 0; i < snap.docs.length; i += BATCH_LIMIT) {
+            const chunk = snap.docs.slice(i, i + BATCH_LIMIT);
+            const batch = db.batch();
+            for (const doc of chunk) batch.delete(doc.ref);
+            await batch.commit();
+        }
         return snap.size;
     }
 
     async function deleteDocsByQuery(query: Query): Promise<number> {
+        const BATCH_LIMIT = 499;
         const snap = await query.get();
         if (snap.empty) return 0;
-        const batch = db.batch();
-        for (const doc of snap.docs) batch.delete(doc.ref);
-        await batch.commit();
+        for (let i = 0; i < snap.docs.length; i += BATCH_LIMIT) {
+            const chunk = snap.docs.slice(i, i + BATCH_LIMIT);
+            const batch = db.batch();
+            for (const doc of chunk) batch.delete(doc.ref);
+            await batch.commit();
+        }
         return snap.size;
     }
 
@@ -653,17 +669,6 @@ if (isMain) {
                 );
             }
 
-            // shared_plans の copiedBy/{oldUid} → copiedBy/{newUid} (自分が作った shared_plans の中、 既に newUid に更新されている)
-            const ownSharedSnap = await db.collection('shared_plans').where('ownerId', '==', newUid).get();
-            for (const doc of ownSharedSnap.docs) {
-                const oldCb = await doc.ref.collection('copiedBy').doc(oldUid).get();
-                if (oldCb.exists) {
-                    await doc.ref.collection('copiedBy').doc(newUid).set(oldCb.data()!);
-                    await oldCb.ref.delete();
-                    result.counts.firestoreCopied++;
-                }
-            }
-
             // Cross-references: 他人の shared_plans/*/copiedBy/{oldUid} → /{newUid}
             const allShared = await db.collection('shared_plans').get();
             for (const doc of allShared.docs) {
@@ -680,10 +685,19 @@ if (isMain) {
             const storageResult = await copyStorage(oldUid, newUid);
             result.counts.storageCopied = storageResult.copied;
 
-            // Step 8: Verify (件数一致)
-            const oldPlansAfter = (await db.collection('plans').where('ownerId', '==', oldUid).get()).size;
-            if (oldPlansAfter !== 0) {
-                throw new Error(`Verify failed: oldUid plans 残存 ${oldPlansAfter} 件 (should be 0)`);
+            // Step 8: Verify (各 collection の oldUid 残存ゼロを確認)
+            const verifyChecks = [
+                { coll: 'plans', field: 'ownerId' },
+                { coll: 'sharedPlanMeta', field: 'ownerId' },
+                { coll: 'shared_plans', field: 'ownerId' },
+                { coll: 'housing_listings', field: 'ownerUid' },
+                { coll: 'housing_tours', field: 'ownerUid' },
+            ];
+            for (const v of verifyChecks) {
+                const oldRemaining = (await db.collection(v.coll).where(v.field, '==', oldUid).get()).size;
+                if (oldRemaining !== 0) {
+                    throw new Error(`Verify failed: ${v.coll}.${v.field} に oldUid 残存 ${oldRemaining} 件 (should be 0)`);
+                }
             }
 
             // Step 9: 旧 uid 全削除
