@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { HousingRegisterForm, type HousingRegisterFormValues } from './HousingRegisterForm';
 import { registerListing, QuotaExhaustedError } from '../../../lib/housingApiClient';
 import { HousingPanelModal } from '../HousingPanelModal';
+import { HousingLoginPrompt } from '../HousingLoginPrompt';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { getTagById } from '../../../data/housingTags';
 import type { RegistrationDraft } from '../../../utils/housingValidation';
 
@@ -69,6 +71,7 @@ const SUMMARY_ROWS: Array<{
 
 export function HousingRegisterFormModal({ open, onClose }: Props) {
     const { t } = useTranslation();
+    const user = useAuthStore((s) => s.user);
     const [confirmValues, setConfirmValues] = useState<HousingRegisterFormValues | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -109,7 +112,11 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
                 maxWidth={720}
                 modalRole="register"
             >
-                <HousingRegisterForm onSubmit={handleSubmit} onCancel={onClose} />
+                {user ? (
+                    <HousingRegisterForm onSubmit={handleSubmit} onCancel={onClose} />
+                ) : (
+                    <HousingLoginPrompt context="register" />
+                )}
             </HousingPanelModal>
 
             <HousingPanelModal
