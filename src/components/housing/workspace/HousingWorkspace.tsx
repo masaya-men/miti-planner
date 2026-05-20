@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
+import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { SceneryVideo } from './SceneryVideo';
 import { TopBar } from './TopBar';
 import { StatusBar } from './StatusBar';
@@ -29,7 +30,17 @@ export const HousingWorkspace: React.FC = () => {
   const setLeftPanelOpen = useHousingViewStore((s) => s.setLeftPanelOpen);
   const setRightPanelOpen = useHousingViewStore((s) => s.setRightPanelOpen);
   const [favoritesModalOpen, setFavoritesModalOpen] = useState(false);
-  const [registerModalOpen, setRegisterModalOpen] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const registerOpen = useHousingModalStore((s) => s.register.open);
+  const openRegisterAction = useHousingModalStore((s) => s.openRegister);
+  const closeRegisterAction = useHousingModalStore((s) => s.closeRegister);
+  const syncFromUrl = useHousingModalStore((s) => s.syncFromUrl);
+
+  // URL → store: マウント時 / ブラウザバック時に URL クエリを読んで store に反映
+  useEffect(() => {
+    syncFromUrl(searchParams);
+  }, [searchParams, syncFromUrl]);
 
   // Tour auto-enter: fires once per tourId mount.
   // We read listingIds via getState() (not as a subscription) so this effect does NOT
@@ -65,7 +76,21 @@ export const HousingWorkspace: React.FC = () => {
 
   const handleCloseLeft = useCallback(() => setLeftPanelOpen(false), [setLeftPanelOpen]);
   const handleCloseRight = useCallback(() => setRightPanelOpen(false), [setRightPanelOpen]);
-  const handleRegisterClick = useCallback(() => setRegisterModalOpen(true), []);
+
+  // store → URL: register.open が変わったら URL も同期
+  const handleRegisterClick = useCallback(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set('register', 'open');
+    setSearchParams(params);
+    openRegisterAction();
+  }, [searchParams, setSearchParams, openRegisterAction]);
+
+  const handleCloseRegister = useCallback(() => {
+    const params = new URLSearchParams(searchParams);
+    params.delete('register');
+    setSearchParams(params);
+    closeRegisterAction();
+  }, [searchParams, setSearchParams, closeRegisterAction]);
 
   return (
     <main className="housing-workspace" data-theme={theme}>
@@ -103,7 +128,7 @@ export const HousingWorkspace: React.FC = () => {
         <StatusBar />
       </div>
       <FavoritesModal open={favoritesModalOpen} onClose={() => setFavoritesModalOpen(false)} />
-      <HousingRegisterFormModal open={registerModalOpen} onClose={() => setRegisterModalOpen(false)} />
+      <HousingRegisterFormModal open={registerOpen} onClose={handleCloseRegister} />
     </main>
   );
 };
