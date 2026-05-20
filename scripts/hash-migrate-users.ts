@@ -715,6 +715,24 @@ if (isMain) {
             await copyDocByQuery(db.collection('shared_plans').where('ownerId', '==', newUid), 'ownerId', oldUid);
             await copyDocByQuery(db.collection('housing_listings').where('ownerUid', '==', newUid), 'ownerUid', oldUid);
             await copyDocByQuery(db.collection('housing_tours').where('ownerUid', '==', newUid), 'ownerUid', oldUid);
+            // Cross-references: housing_listings/*/reports.reporterUid (newUid → oldUid) を全戻し
+            const allListingsForRollback = await db.collection('housing_listings').get();
+            for (const doc of allListingsForRollback.docs) {
+                await copyDocByQuery(
+                    doc.ref.collection('reports').where('reporterUid', '==', newUid),
+                    'reporterUid', oldUid
+                );
+            }
+            // Cross-references: shared_plans/*/copiedBy/{newUid} → copiedBy/{oldUid} を全戻し
+            const allSharedForRollback = await db.collection('shared_plans').get();
+            for (const doc of allSharedForRollback.docs) {
+                const newCbRef = doc.ref.collection('copiedBy').doc(newUid);
+                const snap = await newCbRef.get();
+                if (snap.exists) {
+                    await doc.ref.collection('copiedBy').doc(oldUid).set(snap.data()!);
+                    await newCbRef.delete();
+                }
+            }
             await deleteStorage(newUid);
             console.error(`  ✅ Auto-rollback complete for ${oldUid}`);
         } catch (rollbackErr: any) {
