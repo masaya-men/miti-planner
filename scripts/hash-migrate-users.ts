@@ -685,6 +685,27 @@ if (isMain) {
             const storageResult = await copyStorage(oldUid, newUid);
             result.counts.storageCopied = storageResult.copied;
 
+            // Step 7b: users/{newUid} doc 内の avatarUrl / teamLogoUrl の URL パスを oldUid → newUid に書き換える
+            // (Storage copy は token メタデータを保持するので、 URL のパス部分だけ置換すれば良い)
+            const newUserDocAfterCopy = await db.collection('users').doc(newUid).get();
+            if (newUserDocAfterCopy.exists) {
+                const userData = newUserDocAfterCopy.data()!;
+                const urlUpdates: Record<string, string> = {};
+                const oldEncoded = encodeURIComponent(oldUid);
+                const newEncoded = encodeURIComponent(newUid);
+                if (typeof userData.avatarUrl === 'string' && userData.avatarUrl.includes(oldEncoded)) {
+                    urlUpdates.avatarUrl = userData.avatarUrl.replace(oldEncoded, newEncoded);
+                }
+                if (typeof userData.teamLogoUrl === 'string' && userData.teamLogoUrl.includes(oldEncoded)) {
+                    urlUpdates.teamLogoUrl = userData.teamLogoUrl.replace(oldEncoded, newEncoded);
+                }
+                if (Object.keys(urlUpdates).length > 0) {
+                    await db.collection('users').doc(newUid).update(urlUpdates);
+                    console.log(`  ✅ Storage URLs updated: ${Object.keys(urlUpdates).join(', ')}`);
+                    result.counts.firestoreCopied++;
+                }
+            }
+
             // Step 8: Verify (各 collection の oldUid 残存ゼロを確認)
             const verifyChecks = [
                 { coll: 'plans', field: 'ownerId' },
