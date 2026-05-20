@@ -10,6 +10,7 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as crypto from 'crypto';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
+import { hashUid } from '../_lib/hashUid.js';
 
 const DISCORD_API = 'https://discord.com/api/v10';
 
@@ -144,8 +145,13 @@ export default async function handler(req: any, res: any) {
         // idのみ取り出し、他の個人情報は即破棄
         const { id: discordUserId } = await userRes.json();
 
-        // ステップ5: Firebase カスタムトークン生成
-        const firebaseUid = `discord:${discordUserId}`;
+        // ステップ5: Firebase カスタムトークン生成 (hash 化済、 元 Discord ID は LoPo 内部からも復元不能)
+        const secret = process.env.LOPO_PSEUDONYM_SECRET;
+        if (!secret) {
+            console.error('LOPO_PSEUDONYM_SECRET 未設定');
+            return res.status(500).json({ error: 'Server configuration error' });
+        }
+        const firebaseUid = hashUid(discordUserId, secret);
         const customToken = await getAuth().createCustomToken(firebaseUid, {
             provider: 'discord',
         });
