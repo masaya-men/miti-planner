@@ -20,6 +20,8 @@ import { HousingRegisterDescriptionField } from './HousingRegisterDescriptionFie
 import { HousingQuotaIndicator } from './HousingQuotaIndicator';
 import { HousingDuplicateWarningDialog } from '../HousingDuplicateWarningDialog';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
+import { useHousingUpdate } from '../edit/useHousingUpdate';
+import type { HousingListing } from '../../../types/housing';
 
 const EMPTY_DRAFT: RegistrationDraft = {
   dc: '', server: '', area: '' as never,
@@ -31,22 +33,56 @@ const EMPTY_DRAFT: RegistrationDraft = {
   description: '',
 };
 
-export const HousingRegisterView: React.FC = () => {
+function listingToDraft(listing: Partial<HousingListing>): RegistrationDraft {
+  return {
+    dc: listing.dc ?? '',
+    server: listing.server ?? '',
+    area: (listing.area ?? '') as RegistrationDraft['area'],
+    ward: listing.ward ?? 1,
+    buildingType: listing.buildingType ?? 'house',
+    plot: listing.plot,
+    size: listing.size,
+    roomKind: listing.roomKind,
+    roomNumber: listing.roomNumber,
+    tags: listing.tags ?? [],
+    description: listing.description ?? '',
+  };
+}
+
+export interface HousingRegisterViewProps {
+  /** 'create' (デフォルト) で新規登録、 'edit' で既存物件編集 */
+  mode?: 'create' | 'edit';
+  /** mode='edit' の場合に必須。 編集対象の物件 */
+  initialValues?: Partial<HousingListing> & { id: string };
+  /** 編集成功時に親モーダルを閉じる callback (mode='edit' で利用) */
+  onClose?: () => void;
+}
+
+export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
+  mode = 'create',
+  initialValues,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const loading = useAuthStore((s) => s.loading);
-  const [draft, setDraft] = useState<RegistrationDraft>(EMPTY_DRAFT);
+  const isEditMode = mode === 'edit' && initialValues != null;
+  const [draft, setDraft] = useState<RegistrationDraft>(
+    isEditMode ? listingToDraft(initialValues!) : EMPTY_DRAFT,
+  );
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [quotaStatus, setQuotaStatus] = useState<CanRegisterResponse | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [duplicates, setDuplicates] = useState<DuplicateEntry[] | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { update: updateListing } = useHousingUpdate();
 
   useEffect(() => {
     if (!user) return;
+    if (isEditMode) return; // 編集時は quota チェック不要
     canRegister().then(setQuotaStatus).catch(() => setQuotaStatus(null));
-  }, [user]);
+  }, [user, isEditMode]);
 
   if (loading) {
     return (
@@ -56,7 +92,9 @@ export const HousingRegisterView: React.FC = () => {
 
   if (!user) return <HousingLoginPrompt context="register" />;
 
-  const canSubmit = quotaStatus?.allowed === true && !submitting;
+  const canSubmit = isEditMode
+    ? !submitting
+    : quotaStatus?.allowed === true && !submitting;
 
   const performRegister = async (currentDraft: RegistrationDraft) => {
     setSubmitting(true);
@@ -78,11 +116,35 @@ export const HousingRegisterView: React.FC = () => {
     }
   };
 
+  const performUpdate = async (currentDraft: RegistrationDraft) => {
+    if (!initialValues?.id) return;
+    setSubmitting(true);
+    setServerError(null);
+    try {
+      const result = await updateListing(initialValues.id, currentDraft);
+      if (result.ok) {
+        setSuccessMessage(t('housing.edit.success'));
+        // 編集成功時はモーダルを閉じる (親側で listing を refetch する想定)
+        onClose?.();
+      } else {
+        setServerError(t('housing.edit.error'));
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const result = validateRegistrationDraft(draft);
     setErrors(result.errors);
     if (!result.ok) return;
+
+    if (isEditMode) {
+      await performUpdate(draft);
+      return;
+    }
+
     if (!quotaStatus?.allowed) return;
 
     setSubmitting(true);
@@ -100,11 +162,22 @@ export const HousingRegisterView: React.FC = () => {
     }
   };
 
+  const titleText = isEditMode
+    ? t('housing.edit.modal.title')
+    : t('housing.register.title');
+  const submitText = isEditMode
+    ? submitting
+      ? t('housing.register.submitting')
+      : t('housing.edit.save')
+    : submitting
+      ? t('housing.register.submitting')
+      : t('housing.register.submit');
+
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-6">
-      <h2 className="text-app-3xl font-bold">{t('housing.register.title')}</h2>
+      <h2 className="text-app-3xl font-bold">{titleText}</h2>
 
-      <HousingQuotaIndicator status={quotaStatus} />
+      {!isEditMode && <HousingQuotaIndicator status={quotaStatus} />}
 
       {successMessage && (
         <div className="bg-app-blue-dim border border-app-blue-border rounded-md p-3 text-app-md">
@@ -149,7 +222,7 @@ export const HousingRegisterView: React.FC = () => {
         disabled={!canSubmit}
         className="w-full bg-app-blue text-white rounded-md py-3 font-semibold disabled:opacity-50"
       >
-        {submitting ? t('housing.register.submitting') : t('housing.register.submit')}
+        {submitText}
       </button>
 
       {duplicates && (

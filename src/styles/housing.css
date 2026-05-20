@@ -60,7 +60,19 @@
 
   /* ===== Semantic / status ===== */
   --housing-warning: #ff8080;
+  --housing-danger: #ff8a6c;          /* 警告系赤 (削除タイトル / kebab 削除項目) */
+  --housing-danger-soft: rgba(255, 138, 108, 0.16);
+  --housing-danger-btn: #c44a3a;      /* 削除ボタン */
+  --housing-danger-btn-hover: #d85b4a;
   --housing-disabled-opacity: 0.35;
+
+  /* ===== Modal / popover surfaces ===== */
+  --housing-modal-overlay: rgba(0, 0, 0, 0.55);
+  --housing-popover-bg: rgba(20, 14, 8, 0.96);
+  --housing-popover-bg-strong: rgba(20, 14, 8, 0.98);
+  --housing-popover-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --housing-popover-z: 80;
+  --housing-popover-z-stack: 90;
 
   /* ===== Typography sizes (px-based, mockup-aligned) ===== */
   --housing-text-xs: 11px;
@@ -3039,4 +3051,131 @@ select.housing-input option {
 }
 .housing-account-delete-link:hover {
     color: var(--housing-account-danger-text);
+}
+
+/* ============================================================
+ * Phase 3: 編集 / 削除 / kebab メニュー (家主専用 UI)
+ * ============================================================ */
+
+/* 共通モーダルバックドロップ (削除確認等で利用) */
+.housing-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: var(--housing-popover-z);
+    background: var(--housing-modal-overlay);
+    display: grid;
+    place-items: center;
+}
+
+/* 削除確認カード */
+.housing-delete-confirm-card {
+    background: var(--housing-popover-bg);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: var(--housing-panel-radius);
+    padding: 24px 28px;
+    max-width: 420px;
+    width: calc(100% - 32px);
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-delete-confirm-title {
+    font-size: var(--housing-text-xl);
+    font-weight: 600;
+    margin: 0 0 12px;
+    color: var(--housing-danger);
+}
+.housing-delete-confirm-target {
+    margin: 0 0 16px;
+    color: var(--housing-text-dim);
+}
+.housing-delete-confirm-body {
+    list-style: disc inside;
+    margin: 0 0 24px;
+    padding: 0;
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+}
+.housing-delete-confirm-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.housing-delete-confirm-actions button {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-delete-confirm-actions button:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-delete-confirm-actions button:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+}
+.housing-btn-danger {
+    background: var(--housing-danger-btn) !important;
+    border-color: var(--housing-danger-btn) !important;
+    color: #fff !important;
+}
+.housing-btn-danger:hover:not(:disabled) {
+    background: var(--housing-danger-btn-hover) !important;
+}
+
+/* Kebab (︙) メニュー */
+.housing-kebab {
+    position: relative;
+    display: inline-block;
+}
+.housing-kebab-trigger {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+.housing-kebab-trigger:hover {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-kebab-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    min-width: 160px;
+    background: var(--housing-popover-bg-strong);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: 12px;
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: var(--housing-popover-z-stack);
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-kebab-menu button {
+    background: transparent;
+    border: none;
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    text-align: left;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+.housing-kebab-menu button:hover {
+    background: var(--housing-honey-medium);
+}
+.housing-kebab-item-danger {
+    color: var(--housing-danger) !important;
+}
+.housing-kebab-item-danger:hover {
+    background: var(--housing-danger-soft) !important;
 }

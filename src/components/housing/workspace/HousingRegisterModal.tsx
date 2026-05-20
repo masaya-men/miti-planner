@@ -4,10 +4,17 @@ import { X } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { HousingRegisterView } from '../register/HousingRegisterView';
 import { LoginModal } from '../../LoginModal';
+import type { HousingListing } from '../../../types/housing';
+
+export type HousingRegisterModalMode = 'create' | 'edit';
 
 export interface HousingRegisterModalProps {
   open: boolean;
   onClose: () => void;
+  /** デフォルト 'create'。 'edit' で編集モード */
+  mode?: HousingRegisterModalMode;
+  /** mode='edit' の場合に必須。 編集対象の物件 */
+  initialValues?: Partial<HousingListing> & { id: string };
 }
 
 /**
@@ -15,13 +22,27 @@ export interface HousingRegisterModalProps {
  * - Logged-in users see the registration form directly.
  * - Logged-out users see a login-required prompt that opens LoginModal.
  * - Replaces the legacy `#register` hash route from HousingWorkspace.
+ *
+ * Phase 3 (2026-05-21): `mode` + `initialValues` を追加し、 編集モーダルの薄ラッパー
+ * (HousingEditModal) からも再利用できるようにした。 既定 mode='create' なので
+ * 既存の呼び出し元は無変更で動作する。
  */
-export const HousingRegisterModal: React.FC<HousingRegisterModalProps> = ({ open, onClose }) => {
+export const HousingRegisterModal: React.FC<HousingRegisterModalProps> = ({
+  open,
+  onClose,
+  mode = 'create',
+  initialValues,
+}) => {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const [loginOpen, setLoginOpen] = useState(false);
 
   if (!open) return null;
+
+  const titleKey =
+    mode === 'edit'
+      ? 'housing.edit.modal.title'
+      : 'housing.workspace.register_modal.title';
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
@@ -40,12 +61,10 @@ export const HousingRegisterModal: React.FC<HousingRegisterModalProps> = ({ open
             data-variant="login-required"
             role="dialog"
             aria-modal="true"
-            aria-label={t('housing.workspace.register_modal.title')}
+            aria-label={t(titleKey)}
           >
             <div className="housing-register-modal-login-body">
-              <div className="housing-register-modal-title">
-                {t('housing.workspace.register_modal.title')}
-              </div>
+              <div className="housing-register-modal-title">{t(titleKey)}</div>
               <div className="housing-register-modal-login-text">
                 {t('housing.workspace.register_modal.login_required')}
               </div>
@@ -79,12 +98,10 @@ export const HousingRegisterModal: React.FC<HousingRegisterModalProps> = ({ open
         className="housing-register-modal-card"
         role="dialog"
         aria-modal="true"
-        aria-label={t('housing.workspace.register_modal.title')}
+        aria-label={t(titleKey)}
       >
         <div className="housing-register-modal-head">
-          <h2 className="housing-register-modal-title">
-            {t('housing.workspace.register_modal.title')}
-          </h2>
+          <h2 className="housing-register-modal-title">{t(titleKey)}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -95,7 +112,7 @@ export const HousingRegisterModal: React.FC<HousingRegisterModalProps> = ({ open
           </button>
         </div>
         <div className="housing-register-modal-body">
-          <HousingRegisterView />
+          <HousingRegisterView mode={mode} initialValues={initialValues} onClose={onClose} />
         </div>
       </div>
     </div>

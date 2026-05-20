@@ -81,4 +81,44 @@ describe('HousingRegisterModal', () => {
     fireEvent.click(dialog);
     expect(onClose).not.toHaveBeenCalled();
   });
+
+  describe('mode prop', () => {
+    it("default (mode='create') では register_modal.title が表示される", () => {
+      render(<HousingRegisterModal open={true} onClose={() => {}} />);
+      expect(
+        screen.getByText('housing.workspace.register_modal.title'),
+      ).toBeInTheDocument();
+    });
+
+    it("mode='edit' では housing.edit.modal.title が表示される", () => {
+      const initial = {
+        id: 'lid1',
+        dc: 'Mana',
+        server: 'Anima',
+        area: 'Mist' as const,
+        ward: 5,
+        buildingType: 'house' as const,
+        plot: 12,
+        size: 'M' as const,
+        addressKey: 'mana-anima-mist-5-house-12',
+        imageMode: 'none' as const,
+        tags: ['和風'],
+        ownerUid: 'test-uid',
+        createdAt: 0,
+        updatedAt: 0,
+        isHidden: false,
+        reportCount: 0,
+        deletedAt: null,
+      };
+      render(
+        <HousingRegisterModal
+          open={true}
+          onClose={() => {}}
+          mode="edit"
+          initialValues={initial}
+        />,
+      );
+      expect(screen.getByText('housing.edit.modal.title')).toBeInTheDocument();
+    });
+  });
 });
