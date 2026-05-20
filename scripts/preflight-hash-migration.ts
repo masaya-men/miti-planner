@@ -106,7 +106,9 @@ async function main() {
     const prodUrl = env.LOPO_PROD_URL || 'https://lopoly.app';
     try {
         const res = await fetch(`${prodUrl}/api/auth?provider=discord`, { method: 'POST' });
-        check(`${prodUrl}/api/auth POST responds`, res.status === 401 || res.status === 400, `status ${res.status}`);
+        // 400/401/403 = endpoint live + App Check 拒否 (期待挙動)。 200/500/404 は異常。
+        const liveStatuses = [400, 401, 403];
+        check(`${prodUrl}/api/auth POST responds`, liveStatuses.includes(res.status), `status ${res.status}`);
     } catch (err: any) {
         check(`${prodUrl}/api/auth POST responds`, false, err?.message || 'network error');
     }
