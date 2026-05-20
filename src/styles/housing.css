@@ -2797,3 +2797,230 @@ select.housing-input option {
   color: rgba(0, 0, 0, 0.85);
   font-weight: 500;
 }
+
+/* ===========================================
+ * Login / Account / TopBar ボタン用 token
+ * =========================================== */
+.housing-workspace,
+.housing-panel-modal-backdrop {
+    --housing-login-modal-width: 480px;
+    --housing-login-pill-bg: var(--housing-honey);
+    --housing-login-pill-bg-hover: var(--housing-honey-glow);
+    --housing-login-pill-text: rgba(20, 12, 4, 0.92);
+    --housing-login-pill-shadow: 0 4px 12px rgba(255, 178, 90, 0.35);
+    --housing-avatar-ring: rgba(255, 226, 179, 0.55);
+    --housing-avatar-ring-hover: rgba(255, 226, 179, 0.85);
+    --housing-account-button-bg: rgba(255, 226, 179, 0.08);
+    --housing-account-button-bg-hover: rgba(255, 226, 179, 0.16);
+    --housing-account-button-border: rgba(255, 226, 179, 0.22);
+    --housing-account-danger-text: rgba(255, 130, 130, 0.85);
+    --housing-account-danger-bg-hover: rgba(255, 130, 130, 0.12);
+    --housing-account-divider: rgba(255, 226, 179, 0.18);
+}
+
+/* ===========================================
+ * TopBar 右端 ログイン / アバターボタン
+ * =========================================== */
+.housing-top-login-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--housing-login-pill-bg);
+    color: var(--housing-login-pill-text);
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 180ms ease, transform 120ms ease;
+    box-shadow: var(--housing-login-pill-shadow);
+}
+.housing-top-login-btn:hover {
+    background: var(--housing-login-pill-bg-hover);
+    transform: translateY(-1px);
+}
+.housing-top-login-btn:active {
+    transform: scale(0.96);
+}
+
+.housing-top-avatar-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1.5px solid var(--housing-avatar-ring);
+    background: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    padding: 0;
+    transition: border-color 180ms ease, transform 120ms ease;
+}
+.housing-top-avatar-btn:hover {
+    border-color: var(--housing-avatar-ring-hover);
+}
+.housing-top-avatar-btn:active {
+    transform: scale(0.94);
+}
+.housing-top-avatar-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.housing-top-avatar-btn .housing-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: var(--housing-text-base);
+}
+
+/* ===========================================
+ * Login Modal
+ * =========================================== */
+.housing-login-notice {
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-sm);
+    line-height: 1.7;
+    margin-bottom: 24px;
+}
+.housing-login-notice-intro {
+    margin-bottom: 12px;
+}
+.housing-login-notice-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.housing-login-notice-list li {
+    padding-left: 16px;
+    position: relative;
+}
+.housing-login-notice-list li::before {
+    content: '・';
+    position: absolute;
+    left: 0;
+    color: var(--housing-honey);
+}
+.housing-login-discord-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--housing-login-pill-bg);
+    color: var(--housing-login-pill-text);
+    font-size: var(--housing-text-base);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 180ms ease, transform 120ms ease;
+    box-shadow: var(--housing-login-pill-shadow);
+}
+.housing-login-discord-btn:hover {
+    background: var(--housing-login-pill-bg-hover);
+}
+.housing-login-discord-btn:active {
+    transform: scale(0.98);
+}
+
+/* ===========================================
+ * Account Modal
+ * =========================================== */
+.housing-account-profile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 12px;
+    background: var(--housing-account-button-bg);
+    border: 1px solid var(--housing-account-button-border);
+    margin-bottom: 20px;
+}
+.housing-account-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 2px solid var(--housing-avatar-ring);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.housing-account-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.housing-account-info {
+    flex: 1;
+    min-width: 0;
+}
+.housing-account-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.housing-account-name-edit-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--housing-text-mute);
+}
+.housing-account-name-edit-btn:hover {
+    color: var(--housing-honey);
+}
+.housing-account-divider {
+    height: 1px;
+    background: var(--housing-account-divider);
+    margin: 20px 0;
+}
+.housing-account-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: var(--housing-account-button-bg);
+    color: var(--housing-text);
+    font-size: var(--housing-text-sm);
+    font-weight: 500;
+    border: 1px solid var(--housing-account-button-border);
+    cursor: pointer;
+    transition: background 180ms ease;
+    margin-bottom: 8px;
+}
+.housing-account-button:hover {
+    background: var(--housing-account-button-bg-hover);
+}
+.housing-account-button-danger {
+    color: var(--housing-account-danger-text);
+    border-color: rgba(255, 130, 130, 0.25);
+}
+.housing-account-button-danger:hover {
+    background: var(--housing-account-danger-bg-hover);
+}
+.housing-account-delete-link {
+    display: block;
+    width: 100%;
+    text-align: center;
+    background: transparent;
+    border: none;
+    color: rgba(255, 226, 179, 0.5);
+    font-size: var(--housing-text-xs);
+    padding: 8px;
+    margin-top: 12px;
+    cursor: pointer;
+    transition: color 180ms ease;
+}
+.housing-account-delete-link:hover {
+    color: rgba(255, 130, 130, 0.85);
+}
