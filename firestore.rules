@@ -291,9 +291,14 @@ service cloud.firestore {
       allow update: if isOwner(resource.data.ownerUid)
                     && request.resource.data.ownerUid == resource.data.ownerUid
                     && request.resource.data.addressKey == resource.data.addressKey
-                    // reportCount / isHidden はクライアントから直接変更不可（Cloud Function 経由のみ）
+                    // reportCount / isHidden / deletedAt はクライアントから直接変更不可（API ハンドラ経由のみ）
                     && request.resource.data.reportCount == resource.data.reportCount
                     && request.resource.data.isHidden == resource.data.isHidden
+                    && (
+                      // deletedAt: 既存 doc が field を持たない場合は新規追加禁止、 持つ場合は同一値のみ
+                      (!('deletedAt' in resource.data) && !('deletedAt' in request.resource.data))
+                      || (('deletedAt' in resource.data) && request.resource.data.deletedAt == resource.data.deletedAt)
+                    )
                     && isValidHousingArea(request.resource.data.area)
                     && isValidWard(request.resource.data.ward)
                     && isValidBuildingType(request.resource.data.buildingType)
