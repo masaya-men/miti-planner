@@ -50,7 +50,8 @@ if (!projectId || !clientEmail || !privateKey) {
 initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
 
 function detectProvider(uid: string, providerData: any[]): string {
-  if (uid.startsWith('discord:')) return 'discord';
+  if (uid.startsWith('hashed:')) return 'discord (hashed)';
+  if (uid.startsWith('discord:')) return 'discord (legacy)';
   if (uid.startsWith('twitter:')) return 'twitter';
   const first = providerData[0]?.providerId;
   if (first) return first;

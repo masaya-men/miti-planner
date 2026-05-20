@@ -237,7 +237,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                                                     </button>
                                                 </div>
                                                 <div className="text-app-md text-app-text-muted truncate flex items-center gap-1">
-                                                    {user.uid.startsWith('discord:') ? 'Discord' : ''}
+                                                    {'Discord'}
                                                     {t('app.sign_in_via')}
                                                 </div>
                                             </>

@@ -4,7 +4,7 @@
  */
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { auth, storage, db } from '../lib/firebase';
+import { storage, db } from '../lib/firebase';
 import { COLLECTIONS } from '../types/firebase';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -74,8 +74,7 @@ async function saveLogoUrlToFirestore(userId: string, url: string | null): Promi
         await updateDoc(userRef, { teamLogoUrl: url });
     } else {
         // ドキュメントが存在しない場合は必須フィールド付きで作成
-        const user = auth.currentUser;
-        const provider = user?.uid.startsWith('discord:') ? 'discord' : 'twitter';
+        const provider = 'discord' as const;
         await setDoc(userRef, {
             displayName: useAuthStore.getState().profileDisplayName || 'User',
             provider,

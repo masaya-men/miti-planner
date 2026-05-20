@@ -54,7 +54,7 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
             }
 
             // プロバイダー判定
-            const provider = user.uid.startsWith('discord:') ? 'discord' : 'twitter';
+            const provider = 'discord' as const;
 
             // Firestore users/{uid} ドキュメント作成
             const now = new Date().toISOString();
