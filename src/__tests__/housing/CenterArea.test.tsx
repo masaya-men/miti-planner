@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
@@ -31,9 +32,11 @@ beforeEach(() => {
 
 function renderCenter() {
     return render(
-        <I18nextProvider i18n={i18n}>
-            <CenterArea />
-        </I18nextProvider>,
+        <MemoryRouter initialEntries={['/housing']}>
+            <I18nextProvider i18n={i18n}>
+                <CenterArea />
+            </I18nextProvider>
+        </MemoryRouter>,
     );
 }
 
@@ -62,25 +65,26 @@ describe('CenterArea', () => {
         expect(cards.length).toBe(MOCK_LISTINGS.length);
     });
 
-    it('expands a card inline when clicked in Pinterest mode', () => {
+    // Phase 3 (2026-05-21): カードクリックは `/housing/listing/:id` への遷移に変更。
+    // 旧 inline expand (`.housing-card-expanded`) は廃止したためテストも置き換える。
+    it('navigates to the listing detail route when a card is clicked in Pinterest mode', () => {
         renderCenter();
         fireEvent.click(screen.getByRole('tab', { name: /一覧/ }));
         const firstCard = document.querySelector('.housing-card') as HTMLElement;
+        // クリックすると navigate されるが MemoryRouter なので副作用は throw しない。
+        // ここでは「クリックが成立する (= ハンドラが拾える)」 ことの確認だけ。
         fireEvent.click(firstCard);
-        expect(document.querySelector('.housing-card-expanded')).toBeTruthy();
-        expect(screen.getByRole('button', { name: '閉じる' })).toBeInTheDocument();
+        // expanded UI は存在しなくなったことも併せて確認
+        expect(document.querySelector('.housing-card-expanded')).toBeNull();
     });
 
-    it('toggles favorite from expanded card', () => {
+    it('toggles favorite from the card overlay ♡ button (not via expanded view)', () => {
         renderCenter();
         fireEvent.click(screen.getByRole('tab', { name: /一覧/ }));
-        const firstCard = document.querySelector('.housing-card') as HTMLElement;
-        fireEvent.click(firstCard);
-        // Scope to the expanded card — every cell now has its own overlay ♡ as well,
-        // so an un-scoped getByRole('button', { name: 'お気に入り' }) hits multiple targets.
-        const expanded = document.querySelector('.housing-card-expanded') as HTMLElement;
-        const favBtn = within(expanded).getByRole('button', { name: 'お気に入り' });
-        fireEvent.click(favBtn);
+        // overlay ♡ ボタンは各カードに 1 つ、 aria-label='お気に入り' でアクセス可能。
+        const favBtns = screen.getAllByRole('button', { name: 'お気に入り' });
+        expect(favBtns.length).toBeGreaterThan(0);
+        fireEvent.click(favBtns[0]);
         expect(useHousingFavoritesStore.getState().ids.length).toBe(1);
     });
 

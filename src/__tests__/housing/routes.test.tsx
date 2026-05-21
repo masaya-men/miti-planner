@@ -31,22 +31,22 @@ const sample: MockListing[] = [
     },
 ];
 
-describe('PinterestView initialExpandedId', () => {
-    it('renders all listing items regardless of expansion state', () => {
-        render(<PinterestView listings={sample} initialExpandedId="mock-001" />);
+// Phase 3 (2026-05-21): 詳細表示は `/housing/listing/:id` への遷移に移行したため、
+// 旧 `initialExpandedId` プロパティは未使用 (互換のため残置)。 ここでは Router 内で
+// PinterestView が問題なく描画されることだけを確認する。
+describe('PinterestView rendering', () => {
+    function renderInRouter(node: React.ReactNode) {
+        return render(<MemoryRouter initialEntries={['/housing']}>{node}</MemoryRouter>);
+    }
+
+    it('renders all listing items', () => {
+        renderInRouter(<PinterestView listings={sample} />);
         const items = document.querySelectorAll('.housing-pinterest-item');
         expect(items.length).toBe(2);
     });
 
-    it('updates expanded card when initialExpandedId changes (URL navigation)', () => {
-        const { rerender } = render(<PinterestView listings={sample} initialExpandedId="mock-001" />);
-        rerender(<PinterestView listings={sample} initialExpandedId="mock-002" />);
-        // After prop change the effect syncs expanded to mock-002; items still all present.
-        expect(document.querySelectorAll('.housing-pinterest-item').length).toBe(2);
-    });
-
-    it('renders without crash when no initialExpandedId is provided', () => {
-        render(<PinterestView listings={sample} />);
+    it('renders without crash when initialExpandedId is provided (legacy prop, unused)', () => {
+        renderInRouter(<PinterestView listings={sample} initialExpandedId="mock-001" />);
         expect(document.querySelectorAll('.housing-pinterest-item').length).toBe(2);
     });
 });
