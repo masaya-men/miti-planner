@@ -12,7 +12,7 @@ import { NotificationDropdown } from './NotificationDropdown';
 
 export const NotificationBell: React.FC = () => {
   const { t } = useTranslation();
-  const { items, unreadCount, markRead, markAllRead } = useNotifications();
+  const { items, unreadCount } = useNotifications();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -55,9 +55,6 @@ export const NotificationBell: React.FC = () => {
       {open && (
         <NotificationDropdown
           items={items}
-          unreadCount={unreadCount}
-          onMarkRead={markRead}
-          onMarkAllRead={markAllRead}
           onClose={() => setOpen(false)}
         />
       )}

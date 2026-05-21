@@ -1,7 +1,10 @@
 /**
  * Phase 3: 通知ドロップダウン (ベル押下で開く)
  *
- * - 最新 5 件 + ヘッダー (タイトル + 「すべて既読にする」) + フッター (「すべて見る」)
+ * - 最新 5 件 + ヘッダー (タイトル) + フッター (「すべて見る」)
+ * - 通報通知は「読んだだけ / 一括既読」 では消さない方針のため、 一括既読ボタンは置かない。
+ *   既読 (=解決) は物件詳細の案内バナーのアクションで行う。
+ * - 項目クリックで詳細モーダル (案内バナー付き) へ遷移し、 ドロップダウンを閉じる。
  * - フッターはまだ実装無し、 i18n キーに `coming_soon` を併記して disabled 表示
  */
 import { useTranslation } from 'react-i18next';
@@ -10,17 +13,11 @@ import type { HousingNotification } from '../../../types/notification';
 
 export interface NotificationDropdownProps {
   items: HousingNotification[];
-  unreadCount: number;
-  onMarkRead: (id: string) => void;
-  onMarkAllRead: () => void;
   onClose: () => void;
 }
 
 export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   items,
-  unreadCount,
-  onMarkRead,
-  onMarkAllRead,
   onClose,
 }) => {
   const { t } = useTranslation();
@@ -29,11 +26,6 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     <div role="menu" className="housing-notif-dropdown">
       <header className="housing-notif-dropdown-header">
         <h3>{t('housing.notifications.title')}</h3>
-        {unreadCount > 0 && (
-          <button type="button" onClick={onMarkAllRead}>
-            {t('housing.notifications.mark_all_read')}
-          </button>
-        )}
       </header>
       {top5.length === 0 ? (
         <p className="housing-notif-empty">{t('housing.notifications.empty')}</p>
@@ -41,13 +33,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         <ul className="housing-notif-list">
           {top5.map((n) => (
             <li key={n.id}>
-              <NotificationItem
-                notification={n}
-                onClick={(nn) => {
-                  onMarkRead(nn.id);
-                  onClose();
-                }}
-              />
+              <NotificationItem notification={n} onClick={() => onClose()} />
             </li>
           ))}
         </ul>

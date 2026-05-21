@@ -3,9 +3,10 @@
  *
  * - background-location パターンで「上に被せる」 側として App.tsx から描画される
  * - URL の `:listingId` を取って Firestore から listing を読み、 モーダルを開く
- * - URL クエリ `?notification=<id>` がある場合は対応する通知を読み込み、
- *   ガイドモーダル (HousingReportGuideModal) を上に重ねて家主にアクションを促す
- * - ガイドモーダル CTA に応じて編集 / 削除モーダルへ切り替え、 削除完了で背景ルートに戻る
+ * - URL クエリ `?notification=<id>` がある場合は通知 doc を id で直接読み込み、
+ *   詳細モーダル内に「通報の案内バナー」を出して家主にアクションを促す
+ *   (別モーダルを重ねるとスタッキングが破綻するため、 詳細の中に出す)
+ * - 開いただけ / 読んだだけでは解決しない。 解決アクション (誤りとして却下 / 異議 / 削除) で read=解決にする
  * - 閉じるとき (ESC / 背景クリック / × / 削除完了): `navigate(-1)` で背景ルートに戻る
  * - listing 取得中・失敗時はモーダルを描画しない (null)
  */
@@ -17,7 +18,7 @@ import { auth, db } from '../../../lib/firebase';
 import type { HousingListing } from '../../../types/housing';
 import type { HousingNotification } from '../../../types/notification';
 import { HousingDetailModal } from './HousingDetailModal';
-import { HousingReportGuideModal } from '../report/HousingReportGuideModal';
+import type { ReportNotice } from './HousingDetailContent';
 import { HousingEditModal } from '../edit/HousingEditModal';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDelete } from '../delete/useHousingDelete';
@@ -32,7 +33,6 @@ export const HousingDetailModalRoute: React.FC = () => {
   const [listing, setListing] = useState<HousingListing | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [notification, setNotification] = useState<HousingNotification | null>(null);
-  const [guideOpen, setGuideOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const viewerUid = auth.currentUser?.uid ?? null;
@@ -68,10 +68,11 @@ export const HousingDetailModalRoute: React.FC = () => {
     };
   }, [listingId]);
 
-  // notification クエリがあれば、 通知 doc を id で直接取得してガイドを開く。
-  // (ベルの購読 items 待ちだと遷移直後に未到達でヒットせず、 ガイドが出ないことがあった)
+  // notification クエリがあれば、 通知 doc を id で直接取得して案内バナー用にセット。
+  // (購読 items 待ちだと遷移直後に未到達でヒットしないため getDoc で確実に取る)
+  // 開いた時点では read にしない (= 読んだだけでは解決扱いにしない)。
   useEffect(() => {
-    if (!notificationId || guideOpen) return;
+    if (!notificationId || notification) return;
     const uid = auth.currentUser?.uid;
     if (!uid) return;
     let cancelled = false;
@@ -80,18 +81,14 @@ export const HousingDetailModalRoute: React.FC = () => {
         const snap = await getDoc(doc(db, 'users', uid, 'notifications', notificationId));
         if (cancelled || !snap.exists()) return;
         setNotification({ id: snap.id, ...snap.data() } as HousingNotification);
-        setGuideOpen(true);
-        // 現状維持: 開いた時点で read。 解決アクション連動は次イテレーションで変更。
-        void markRead(notificationId);
       } catch {
-        /* 通知取得失敗時はガイドを出さない (詳細モーダルは表示済み) */
+        /* 通知取得失敗時はバナーを出さない (詳細モーダルは表示済み) */
       }
     })();
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [notificationId, guideOpen]);
+  }, [notificationId, notification]);
 
   const close = () => navigate(-1);
 
@@ -103,29 +100,30 @@ export const HousingDetailModalRoute: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notFound]);
 
-  const onLater = () => setGuideOpen(false);
+  // 通報を「確認のうえ解決済み」 にする (read=解決)。 バナーを閉じる。
+  const resolveNotification = () => {
+    if (notification) void markRead(notification.id);
+    setNotification(null);
+  };
 
   const onDispute = () => {
     const url =
       (import.meta as any).env?.VITE_DISCORD_INVITE_URL ?? 'https://discord.gg/';
     window.open(url, '_blank', 'noopener,noreferrer');
-    setGuideOpen(false);
+    resolveNotification();
   };
 
-  const onEdit = () => {
-    setGuideOpen(false);
-    setEditOpen(true);
-  };
+  const onDismiss = () => resolveNotification();
 
-  const onDeleteClick = () => {
-    setGuideOpen(false);
-    setDeleteOpen(true);
-  };
+  const onEdit = () => setEditOpen(true);
+  const onDeleteClick = () => setDeleteOpen(true);
 
   const onConfirmDelete = async () => {
     if (!listing) return;
     const res = await deleteListing(listing.id);
     if (res.ok) {
+      // 物件が無くなるので関連通報も解決済みにする
+      if (notification) void markRead(notification.id);
       showToast(t('housing.delete.success'), 'success');
       setDeleteOpen(false);
       close();
@@ -135,24 +133,26 @@ export const HousingDetailModalRoute: React.FC = () => {
   };
 
   if (!listing) return null;
+
+  const reportNotice: ReportNotice | undefined = notification
+    ? {
+        reason: notification.reason,
+        comment: notification.comment,
+        onEdit,
+        onDelete: onDeleteClick,
+        onDispute,
+        onDismiss,
+      }
+    : undefined;
+
   return (
     <>
       <HousingDetailModal
         listing={listing}
         viewerUid={viewerUid}
         onClose={close}
+        reportNotice={reportNotice}
       />
-      {notification && (
-        <HousingReportGuideModal
-          open={guideOpen}
-          reason={notification.reason}
-          comment={notification.comment}
-          onEdit={onEdit}
-          onDelete={onDeleteClick}
-          onDispute={onDispute}
-          onLater={onLater}
-        />
-      )}
       {editOpen && (
         <HousingEditModal
           open={editOpen}

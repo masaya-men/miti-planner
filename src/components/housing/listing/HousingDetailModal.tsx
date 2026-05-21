@@ -8,18 +8,20 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
-import { HousingDetailContent } from './HousingDetailContent';
+import { HousingDetailContent, type ReportNotice } from './HousingDetailContent';
 
 export interface HousingDetailModalProps {
   listing: HousingListing;
   viewerUid: string | null;
   onClose: () => void;
+  reportNotice?: ReportNotice;
 }
 
 export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
   listing,
   viewerUid,
   onClose,
+  reportNotice,
 }) => {
   const { t } = useTranslation();
 
@@ -56,6 +58,7 @@ export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
           listing={listing}
           viewerUid={viewerUid}
           onClose={onClose}
+          reportNotice={reportNotice}
         />
       </div>
     </div>

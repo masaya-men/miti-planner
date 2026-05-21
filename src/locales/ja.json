@@ -2249,7 +2249,8 @@
             "cta": {
                 "edit": "編集する",
                 "delete": "物件を削除する",
-                "dispute": "Discord で異議申し立て"
+                "dispute": "Discord で異議申し立て",
+                "dismiss": "これは誤り（却下）"
             },
             "later": "あとで"
         },

@@ -3316,6 +3316,53 @@ select.housing-input option {
         grid-template-columns: 1fr;
     }
 }
+/* 通報通知の案内バナー (家主が通報通知から開いた時に詳細内へ表示) */
+.housing-detail-report-banner {
+    grid-column: 1 / -1;
+    background: var(--housing-guide-comment-bg);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-left: 3px solid var(--housing-honey-medium);
+    border-radius: var(--housing-input-radius-sm);
+    padding: 14px 16px;
+    color: var(--housing-text);
+}
+.housing-detail-report-title { font-weight: 600; margin: 0 0 6px; }
+.housing-detail-report-reason {
+    font-size: var(--housing-text-sm);
+    color: var(--housing-text-dim);
+    margin: 0 0 8px;
+}
+.housing-detail-report-body {
+    font-size: var(--housing-text-base);
+    line-height: 1.6;
+    margin: 0 0 10px;
+}
+.housing-detail-report-comment {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    background: var(--housing-overlay-strong);
+    border-left: 3px solid var(--housing-panel-border);
+    border-radius: 6px;
+    color: var(--housing-text-dim);
+    font-style: italic;
+}
+.housing-detail-report-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.housing-detail-report-actions button {
+    padding: 8px 14px;
+    border-radius: var(--housing-input-radius-sm);
+    background: var(--housing-input-bg-strong);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-detail-report-actions button:hover {
+    background: var(--housing-input-bg-hover);
+}
 .housing-detail-gallery {
     min-height: var(--housing-detail-empty-h);
 }

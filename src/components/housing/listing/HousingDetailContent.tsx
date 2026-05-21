@@ -3,28 +3,90 @@
  *
  * - 左: 写真ギャラリー
  * - 右: タイトル / 住所行 / タグ / 説明 / アクションバー
+ * - 家主が通報通知から開いた場合は、 詳細内に「通報の案内バナー」を表示
+ *   (別モーダルを重ねるとスタッキングが破綻するため、 詳細の中に出す方針)
  * - レイアウトは housing.css のグリッドで制御
  */
-import type { HousingListing } from '../../../types/housing';
+import { useTranslation } from 'react-i18next';
+import type { HousingListing, ReportReason } from '../../../types/housing';
 import { HousingPhotoGallery } from './HousingPhotoGallery';
 import { HousingActionBar } from './HousingActionBar';
+
+/** 家主が通報通知から開いた時に詳細内へ出す案内 (任意) */
+export interface ReportNotice {
+  reason: ReportReason;
+  comment?: string;
+  onEdit: () => void;
+  onDelete: () => void;
+  onDispute: () => void;
+  /** 「これは誤り」 = 通報を確認のうえ解決済みにする */
+  onDismiss: () => void;
+}
 
 export interface HousingDetailContentProps {
   listing: HousingListing;
   viewerUid: string | null;
   onClose?: () => void;
+  reportNotice?: ReportNotice;
 }
 
 export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   listing,
   viewerUid,
   onClose,
+  reportNotice,
 }) => {
+  const { t } = useTranslation();
   const title = listing.description?.trim()
     ? listing.description
     : `${listing.area} Ward ${listing.ward}`;
+
   return (
     <div className="housing-detail-content">
+      {reportNotice && (
+        <div className="housing-detail-report-banner" role="alert">
+          <p className="housing-detail-report-title">{t('housing.guide.title')}</p>
+          <p className="housing-detail-report-reason">
+            {t('housing.guide.reason_label')}:{' '}
+            <strong>{t(`housing.report.reason.${reportNotice.reason}`)}</strong>
+          </p>
+          <p className="housing-detail-report-body">
+            {t(`housing.guide.body.${reportNotice.reason}`)}
+          </p>
+          {reportNotice.reason === 'other' && reportNotice.comment && (
+            <blockquote className="housing-detail-report-comment">
+              {reportNotice.comment}
+            </blockquote>
+          )}
+          <div className="housing-detail-report-actions">
+            {(reportNotice.reason === 'wrong_info' || reportNotice.reason === 'other') && (
+              <button type="button" onClick={reportNotice.onEdit}>
+                {t('housing.guide.cta.edit')}
+              </button>
+            )}
+            {(reportNotice.reason === 'sold' || reportNotice.reason === 'other') && (
+              <button
+                type="button"
+                onClick={reportNotice.onDelete}
+                className="housing-btn-danger"
+              >
+                {t('housing.guide.cta.delete')}
+              </button>
+            )}
+            {(reportNotice.reason === 'griefing' ||
+              reportNotice.reason === 'nsfw' ||
+              reportNotice.reason === 'other') && (
+              <button type="button" onClick={reportNotice.onDispute}>
+                {t('housing.guide.cta.dispute')}
+              </button>
+            )}
+            <button type="button" onClick={reportNotice.onDismiss}>
+              {t('housing.guide.cta.dismiss')}
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="housing-detail-gallery">
         <HousingPhotoGallery listing={listing} />
       </div>
