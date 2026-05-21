@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { LogOut } from 'lucide-react';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
-import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import type { MockListing } from '../../../data/housing/mockListings';
 import { RightPanelListItem } from './RightPanelListItem';
 import { ShareTourButton } from './ShareTourButton';
 
@@ -17,13 +18,14 @@ export const TourProgressList: React.FC<TourProgressListProps> = ({ tourId }) =>
     const currentIndex = useHousingTourStore((s) => s.currentIndex);
     const stopTour = useHousingTourStore((s) => s.stop);
     const exitTourMode = useHousingViewStore((s) => s.exitTourMode);
+    const allListings = useHousingListingsStore((s) => s.listings);
     const listRef = useRef<HTMLDivElement>(null);
 
     const listings = useMemo(
         () => listingIds
-            .map((id) => MOCK_LISTINGS.find((l) => l.id === id))
-            .filter((l): l is typeof MOCK_LISTINGS[number] => Boolean(l)),
-        [listingIds],
+            .map((id) => allListings.find((l) => l.id === id))
+            .filter((l): l is MockListing => Boolean(l)),
+        [listingIds, allListings],
     );
 
     // Scroll the active item into view on every step change.

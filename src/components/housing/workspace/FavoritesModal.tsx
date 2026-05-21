@@ -17,7 +17,8 @@ import { getEventCoordinates } from '@dnd-kit/utilities';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
-import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import { type MockListing } from '../../../data/housing/mockListings';
 import { sortByAddress } from '../../../lib/housing/sortByAddress';
 import { FavoritesListPane } from './FavoritesListPane';
 import { TourBuilderPane, TOUR_BUILDER_DROP_ID } from './TourBuilderPane';
@@ -65,6 +66,7 @@ export interface FavoritesModalProps {
 export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose }) => {
     const { t } = useTranslation();
     const favoriteIds = useHousingFavoritesStore((s) => s.ids);
+    const listings = useHousingListingsStore((s) => s.listings);
     const enterTourMode = useHousingViewStore((s) => s.enterTourMode);
     const setTourListings = useHousingTourStore((s) => s.setListings);
     const startTour = useHousingTourStore((s) => s.start);
@@ -97,8 +99,8 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
 
     const allFavoritesSorted = (): string[] => {
         const all = favoriteIds
-            .map((id) => MOCK_LISTINGS.find((l) => l.id === id))
-            .filter((l): l is typeof MOCK_LISTINGS[number] => Boolean(l));
+            .map((id) => listings.find((l) => l.id === id))
+            .filter((l): l is MockListing => Boolean(l));
         return sortByAddress(all).map((l) => l.id);
     };
 
@@ -175,7 +177,7 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
     };
 
     const draggingListing = draggingFavId
-        ? MOCK_LISTINGS.find((l) => l.id === draggingFavId)
+        ? listings.find((l) => l.id === draggingFavId)
         : null;
     const draggingCount = draggingFavId
         ? (selected.has(draggingFavId) ? selected.size : 1)

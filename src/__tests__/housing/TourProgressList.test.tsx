@@ -8,6 +8,7 @@ import jaTranslations from '../../locales/ja.json';
 import { TourProgressList } from '../../components/housing/workspace/TourProgressList';
 import { useHousingTourStore } from '../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
+import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 import { MOCK_LISTINGS } from '../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -32,6 +33,8 @@ describe('TourProgressList', () => {
     beforeEach(() => {
         useHousingTourStore.getState().reset();
         useHousingViewStore.getState().reset();
+        useHousingListingsStore.getState().reset();
+        useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
         useHousingTourStore.getState().setListings(MOCK_LISTINGS.slice(0, 3).map((l) => l.id));
         useHousingTourStore.getState().start();
     });

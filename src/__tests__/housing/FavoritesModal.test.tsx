@@ -9,6 +9,7 @@ import { FavoritesModal } from '../../components/housing/workspace/FavoritesModa
 import { useHousingFavoritesStore } from '../../store/useHousingFavoritesStore';
 import { useHousingTourStore } from '../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
+import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 import { MOCK_LISTINGS } from '../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -32,6 +33,8 @@ describe('FavoritesModal', () => {
         useHousingFavoritesStore.getState().reset();
         useHousingTourStore.getState().reset();
         useHousingViewStore.getState().reset();
+        useHousingListingsStore.getState().reset();
+        useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
         localStorage.clear();
         sessionStorage.clear();
         MOCK_LISTINGS.slice(0, 3).forEach((l) => useHousingFavoritesStore.getState().add(l.id));

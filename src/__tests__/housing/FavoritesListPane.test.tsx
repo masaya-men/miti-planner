@@ -8,6 +8,7 @@ import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../locales/ja.json';
 import { FavoritesListPane } from '../../components/housing/workspace/FavoritesListPane';
 import { useHousingFavoritesStore } from '../../store/useHousingFavoritesStore';
+import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 import { MOCK_LISTINGS } from '../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -32,6 +33,9 @@ function wrap(ui: React.ReactElement) {
 describe('FavoritesListPane', () => {
     beforeEach(() => {
         useHousingFavoritesStore.getState().reset();
+        useHousingListingsStore.getState().reset();
+        // お気に入りは ID を共有ストアの listings で解決する。テストは mock を注入。
+        useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
         MOCK_LISTINGS.slice(0, 5).forEach((l) => useHousingFavoritesStore.getState().add(l.id));
     });
 

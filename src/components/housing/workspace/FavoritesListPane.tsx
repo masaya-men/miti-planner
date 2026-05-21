@@ -1,7 +1,8 @@
 import { useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
-import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import type { MockListing } from '../../../data/housing/mockListings';
 import { useMarqueeSelection } from '../../../lib/housing/useMarqueeSelection';
 import { FavoriteCard, type FavoriteCardClickModifiers } from './FavoriteCard';
 
@@ -16,9 +17,10 @@ export const FavoritesListPane: React.FC<FavoritesListPaneProps> = ({
 }) => {
     const { t } = useTranslation();
     const favoriteIds = useHousingFavoritesStore((s) => s.ids);
+    const listings = useHousingListingsStore((s) => s.listings);
     const favorites = favoriteIds
-        .map((id) => MOCK_LISTINGS.find((l) => l.id === id))
-        .filter((l): l is typeof MOCK_LISTINGS[number] => Boolean(l));
+        .map((id) => listings.find((l) => l.id === id))
+        .filter((l): l is MockListing => Boolean(l));
     const containerRef = useRef<HTMLDivElement>(null);
     const lastClickedRef = useRef<string | null>(null);
 
