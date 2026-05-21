@@ -19,6 +19,13 @@ export default defineConfig({
         // - 'vmThreads' (再採用): Node v24 対応。 pollution 再発リスクあり要監視。
         //
         // 唯一の代償はプロセス起動コスト。 全 ~70 ファイルでも実用範囲内。
+        //
+        // ⚠ vmThreads の落とし穴 (2026-05-21 特定): VM コンテキストは「実タイマー等の
+        // ハンドルを残すテスト」を終了できず「RUN」表示のまま無限ハング→node ゾンビ化する。
+        // teardownTimeout はスレッドを確実に kill できない。forks 時代は OS がプロセスごと
+        // 殺すので起きなかった。フォーム全体を submit まで駆動する happy-dom テストが特に危険
+        // (自動入力スタッガー setTimeout 等)。重い UI 駆動テストは置かず純関数ユニット＋実機で
+        // カバーする。詳細は memory reference_vitest_vmthreads_hang。
         pool: 'vmThreads',
         // テスト無限待ち防止: Firebase App Check の async 初期化や、 Windows + npx wrapper 経由の
         // exit code 伝達失敗により vitest が無限ハングするケースを teardown で強制終了。
