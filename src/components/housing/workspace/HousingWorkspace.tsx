@@ -4,6 +4,7 @@ import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { SceneryVideo } from './SceneryVideo';
 import { TopBar } from './TopBar';
 import { StatusBar } from './StatusBar';
@@ -66,6 +67,11 @@ export const HousingWorkspace: React.FC = () => {
     enterTourMode();
     handledTourIdRef.current = tourId;
   }, [tourId, startTour, enterTourMode]);
+
+  // 物件一覧データを 1 回だけロード (冪等)。一覧系パネルが共有ストアから読む。
+  useEffect(() => {
+    void useHousingListingsStore.getState().load();
+  }, []);
 
   // Lock body scroll while workspace is mounted (mockup is a fixed-viewport experience).
   useEffect(() => {

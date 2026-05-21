@@ -11,10 +11,7 @@ import { ViewModeToggle } from './ViewModeToggle';
 import { MapView } from './MapView';
 import { PinterestView } from './PinterestView';
 import { EmptyResult } from './EmptyResult';
-import { useGalleryListings } from './useGalleryListings';
-
-// 安定参照の空配列 (loading/error 中に applyFilters の deps が毎回変わるのを防ぐ)
-const EMPTY_LISTINGS: MockListing[] = [];
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 
 export interface CenterAreaProps {
     /** Optional click handler when a card is activated from map / grid. */
@@ -37,10 +34,10 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
     const selectedWardId = useHousingRandomStore((s) => s.selectedWardId);
     const selectWard = useHousingRandomStore((s) => s.selectWard);
 
-    // Pinterest (一覧) ビューは実 Firestore データを使う。
+    // Pinterest (一覧) ビューは共有ストアの実 Firestore データを使う (load は HousingWorkspace 側)。
     // マップビューは sampleWardLayout (mock 位置) のまま現状維持 (実マップ配置は Phase 2B 別タスク)。
-    const gallery = useGalleryListings();
-    const galleryListings = gallery.kind === 'ready' ? gallery.listings : EMPTY_LISTINGS;
+    const galleryStatus = useHousingListingsStore((s) => s.status);
+    const galleryListings = useHousingListingsStore((s) => s.listings);
 
     // When the URL focuses a specific listing, force pinterest view for card expansion.
     useEffect(() => {
@@ -96,9 +93,9 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
                     ) : (
                         <MapView onCardClick={handleMapClick} />
                     )
-                ) : gallery.kind === 'loading' ? (
+                ) : galleryStatus === 'loading' || galleryStatus === 'idle' ? (
                     <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
-                ) : gallery.kind === 'error' ? (
+                ) : galleryStatus === 'error' ? (
                     <div className="housing-center-error">{t('housing.gallery.error')}</div>
                 ) : pinterestListings.length === 0 ? (
                     <EmptyResult />

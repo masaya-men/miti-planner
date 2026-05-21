@@ -8,8 +8,9 @@
  */
 import { create } from 'zustand';
 import type { MockListing } from '../data/housing/mockListings';
-import { getGalleryListings } from '../lib/housingListingsService';
-import { firestoreToGalleryListing } from '../lib/housing/galleryAdapter';
+// 注意: service / adapter は load() 内で動的 import する。
+// 静的 import すると firebase.ts がこのストアを import する全コンポーネント経由でロードされ、
+// テストの appcheck teardown ハングを誘発するため (memory: reference_vitest_pool_firebase)。
 
 export type HousingListingsStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -35,6 +36,10 @@ export const useHousingListingsStore = create<HousingListingsState>((set, get) =
     if (cur === 'loading' || cur === 'ready') return;
     set({ status: 'loading', error: null });
     try {
+      const [{ getGalleryListings }, { firestoreToGalleryListing }] = await Promise.all([
+        import('../lib/housingListingsService'),
+        import('../lib/housing/galleryAdapter'),
+      ]);
       const docs = await getGalleryListings();
       const listings = docs
         .map(firestoreToGalleryListing)

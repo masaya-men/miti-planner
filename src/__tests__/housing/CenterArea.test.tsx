@@ -1,28 +1,24 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
-import type { HousingListing } from '../../types/housing';
-
-const getGalleryListingsMock = vi.fn();
-vi.mock('../../lib/housingListingsService', () => ({
-  getGalleryListings: (...a: unknown[]) => getGalleryListingsMock(...a),
-}));
+import type { MockListing } from '../../data/housing/mockListings';
 
 import { CenterArea } from '../../components/housing/workspace/CenterArea';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
 import { useHousingFilterStore } from '../../store/useHousingFilterStore';
 import { useHousingRandomStore } from '../../store/useHousingRandomStore';
 import { useHousingFavoritesStore } from '../../store/useHousingFavoritesStore';
+import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 
-const fsDoc = (over: Partial<HousingListing>): HousingListing => ({
-  id: 'x', ownerUid: 'u', dc: 'Mana', server: 'Anima',
-  area: 'Shirogane', ward: 3, buildingType: 'house', plot: 12, size: 'M',
-  addressKey: 'k', imageMode: 'none', tags: ['wafu'], createdAt: 1, updatedAt: 1,
-  isHidden: false, reportCount: 0, deletedAt: null, ...over,
+// 共有ストアに入れる view-model 3 件 (Mana/JP, Shirogane)。
+const galleryListing = (over: Partial<MockListing>): MockListing => ({
+  id: 'x', ownerUid: 'u', dc: 'Mana', server: 'Anima', region: 'JP',
+  area: 'Shirogane', ward: 3, plot: 12, size: 'M',
+  imageMode: 'none', tags: ['wafu'], createdAt: 1, ...over,
 });
 
 beforeAll(() => {
@@ -41,12 +37,16 @@ beforeEach(() => {
     useHousingFilterStore.getState().clearAll();
     useHousingRandomStore.getState().reset();
     useHousingFavoritesStore.getState().reset();
-    getGalleryListingsMock.mockReset();
-    getGalleryListingsMock.mockResolvedValue([
-        fsDoc({ id: 'g1', plot: 12 }),
-        fsDoc({ id: 'g2', plot: 15 }),
-        fsDoc({ id: 'g3', plot: 18 }),
-    ]);
+    useHousingListingsStore.getState().reset();
+    useHousingListingsStore.setState({
+        status: 'ready',
+        listings: [
+            galleryListing({ id: 'g1', plot: 12 }),
+            galleryListing({ id: 'g2', plot: 15 }),
+            galleryListing({ id: 'g3', plot: 18 }),
+        ],
+        error: null,
+    });
 });
 
 function renderCenter() {
