@@ -17,7 +17,6 @@ import { useHousingViewStore } from '../../store/useHousingViewStore';
 import { useHousingFilterStore } from '../../store/useHousingFilterStore';
 import { useHousingRandomStore } from '../../store/useHousingRandomStore';
 import { useHousingFavoritesStore } from '../../store/useHousingFavoritesStore';
-import { MOCK_LISTINGS } from '../../data/housing/mockListings';
 
 const fsDoc = (over: Partial<HousingListing>): HousingListing => ({
   id: 'x', ownerUid: 'u', dc: 'Mana', server: 'Anima',
