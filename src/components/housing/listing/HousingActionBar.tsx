@@ -6,9 +6,6 @@
  * - シェアボタン (常時)
  * - 「ちがった」 (= 通報) ボタン (家主以外に表示)
  * - kebab メニュー (家主のみ、 編集 / 削除)
- *
- * 通報モーダル本体 (HousingReportModal) は Group E (Phase 4) で実装予定。
- * 現状は「ちがった」 押下で toast を出すスタブ動作とし、 Group E で接続する。
  */
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +17,7 @@ import { HousingShareButton } from './HousingShareButton';
 import { HousingEditModal } from '../edit/HousingEditModal';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDelete } from '../delete/useHousingDelete';
+import { HousingReportModal } from '../report/HousingReportModal';
 
 export interface HousingActionBarProps {
   listing: HousingListing;
@@ -42,6 +40,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   const removeFav = useHousingFavoritesStore((s) => s.remove);
   const isFav = favIds.includes(listing.id);
 
+  const [reportOpen, setReportOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteListing, loading: deleting } = useHousingDelete();
@@ -58,8 +57,6 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   };
 
   const onReportClick = () => {
-    // Group E (Task 19) で HousingReportModal に接続する。
-    // 現状は条件チェックのみ実施し、 toast でユーザーへフィードバック。
     if (!viewerUid) {
       showToast(t('housing.detail.login_required'), 'info');
       return;
@@ -68,8 +65,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
       showToast(t('housing.detail.cannot_report_own'), 'info');
       return;
     }
-    // TODO(Phase 4 Group E): HousingReportModal を開く
-    showToast(t('housing.detail.report_button'), 'info');
+    setReportOpen(true);
   };
 
   const onConfirmDelete = async () => {
@@ -117,6 +113,13 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
         />
       )}
 
+      {reportOpen && (
+        <HousingReportModal
+          open={reportOpen}
+          listingId={listing.id}
+          onClose={() => setReportOpen(false)}
+        />
+      )}
       {editOpen && (
         <HousingEditModal
           open={editOpen}
