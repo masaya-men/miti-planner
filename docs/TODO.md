@@ -11,29 +11,27 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #48 (2026-05-21) で **Phase 3 実機 E2E を実施 → 不具合を順次修正** (通報→通知→案内→解決まで動作確認済)
-- **完了 (#48)**: (1) Phase 3 の API ミューテーション(通報/編集/削除/通知既読)が **App Check ヘッダ未送信で本番 403** → 共有ヘルパー `src/lib/housingAuthHeaders.ts` (`buildHousingHeaders`) に App Check+認証を一元化し全経路修正。 (2) 通報の reason 別案内を **別モーダル重ね→詳細モーダル内バナー** に作り替え (スタッキング崩れ根絶、 `HousingReportGuideModal` 削除、 `HousingDetailContent` に `reportNotice` バナー)。 (3) 通知は「読んだだけ/一括既読」では消さず、 **解決アクション(誤りとして却下/異議/削除)で read=解決**。 「すべて既読」とクリック既読化を撤去
-- **実機検証済**: 通報送信成功 → 家主に通知到達 → 通知クリックで詳細内バナー表示 → 「これは誤り(却下)」で解決(バッジ消える)
-- **次セッション最優先 (Phase 3 仕上げ・要ログイン)**: ① 編集→保存で**自動解決＋詳細に即反映** (今は編集しても通知残る/閉じ開きしないと反映されない)、 ② **削除後に一覧から即消す＋フィードバック** (今はリロードまで残る・クリックしても無反応)、 ③ **画像が出ない**: 登録が `imageMode:'none'` 固定でツイート画像を保存していない (`api/housing/_registerListingHandler.ts:93`)。 draft→保存→表示を繋ぐ (やや大きめ)
-- **方針確定**: /api/housing クライアントは必ず `buildHousingHeaders` 経由 (memory `reference_housing_appcheck_headers`)。 通報案内は詳細内バナー(重ねない)。 読んだだけでは解決しない
-- **注意**: vitest 全 suite は firebase appcheck teardown ハング (テストは pass)。 pool='vmThreads' 厳守。 ENFORCE_APP_CHECK=true。 housing 系テストは housingAuthHeaders/firebase をモックして実 firebase ロード回避
-- **本番データ**: housing_listings は実物件 1 件のみ (偽データ投入しない方針)。 リリース準備は `docs/housing-release-checklist.md`、 マップ作業は `docs/housing-map-todo.md` (SVG前提・行き方シート反映、 masaya 本人作業)
+- **ブランチ**: main、 セッション #49 (2026-05-21) で **Phase 3 仕上げ実機 E2E** → ① 完了 + 実機で発見した複数バグ修正 + 通報モデレーションを実用化。 全て実機確認済・本番反映済
+- **完了 (#49)**: ① **編集→詳細即反映＋通報自動解決** (onSaved/onListingUpdated を詳細チェーンに配線)。 **Fix A** 家主は自分の**非表示(通報3件 isHidden)物件を通知から開ける** (操作不能を解消、 `canViewListing` 純粋関数)。 **Fix B** 編集で**中央一覧カード即反映** (`useHousingListingsStore` に upsert/remove)。 **Fix C** 解決した通報通知を**削除** (リスト/バッジから消える、 `delete-notification`)。 通知ベルに**個別削除 ✕**。 **通報自己復帰フロー** (却下/編集で非表示解除、 自己復帰は `MAX_SELF_RESTORE=1` 回まで→超過は Discord 異議=管理者対応で占有対策、 `resolve-report` ハンドラ)。 **削除ダイアログが出ないバグ修正** (root 直下の housing モーダルが `--housing-*` トークン未解決→ z-index/背景無効で透明化、 `.housing-modal-backdrop` をトークン定義セレクタに追加)
+- **実機検証済**: 非表示物件を通知から開ける / 編集で詳細&一覧カード即反映 / 却下で通知消える / ✕ で通知消える / 削除ダイアログ表示→削除→一覧から即消える
+- **次セッション最優先**: **②残り** (ActionBar=kebab 削除も `store.remove` 連携 / 削除済みカードをクリックした時の toast 案内)。 → **③ SNS 画像表示＋ツイート連動ライフサイクル**: 設計書済 (`docs/superpowers/specs/2026-05-21-housing-sns-image-lifecycle-design.md`) を `writing-plans`→実装。 画像は CDN 直リンク(保存しない)、 ツイート削除で物件 soft delete (開いた時チェック+ローリングバッチ cron、 10万件対応)
+- **注意**: en/ko/zh i18n の新キーは ja 値コピー (en 翻訳は従来どおり後追い)。 `.env.local` の `FIREBASE_PRIVATE_KEY` が**改行潰れで壊れ→ローカル admin SDK 不可** (本番は正常、 `vercel env pull` で修復可)。 デプロイは **git push 後に `vercel alias set <newest-ready> lopoly.app`** で本番ドメイン張替 (memory `reference_vercel_git_autodeploy`)。 vitest 全 suite は firebase teardown ハング (test は pass)、 pool='vmThreads' 厳守
+- **本番データ**: housing_listings は実物件のみ (偽データ投入しない方針)。 通報モデレーションの **/admin 復帰 UI は未実装** (現状 reset 手段が無い→自己復帰フローで代替)。 リリース準備は `docs/housing-release-checklist.md`
 
 ---
 
-## 次セッション最優先: Phase 3 仕上げ (3 件)
+## 次セッション最優先: Phase 3 仕上げ (② 残り → ③)
 
 **最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 Phase 3 の通報→通知→詳細内バナー→解決は #48 で実機 OK。 次は ① 編集→保存で自動解決＋詳細に即反映、 ② 削除後に一覧から即消す＋フィードバック、 ③ 登録時にツイート画像を保存(今 imageMode:'none' 固定で No image)。 1 件ずつ実機確認で。
+> `docs/TODO.md` を読んで。 Phase 3 は #49 で ① + 通報モデレーション一式まで実機 OK。 次は ② の残り (kebab 削除も一覧から即消す + 削除済みカードクリック時の toast)、 そのあと ③ SNS 画像表示+ツイート連動ライフサイクル (設計書済→ writing-plans→実装)。 1 件ずつ実機確認で。
 
 ### Phase 3 残り
 
-- ① **編集の即反映＋解決**: `HousingEditModal` に onSaved を足し、 保存成功で詳細 listing を再 fetch (即反映) + 関連通報を markRead (解決)
-- ② **削除後の一覧更新**: 削除成功で `useHousingListingsStore` から該当物件を除去 (remove メソッド追加) + 削除済みカードクリック時に toast。 今はリロードまで残る
-- ③ **画像保存**: 登録が `imageMode:'none'` 固定 (`_registerListingHandler.ts:93`)。 SNS 抽出した画像 (postUrl/ogImageUrl, imageMode='sns') を draft→保存→表示まで繋ぐ
+- ② **残り**: 詳細バナー経由の削除は一覧反映済 (route の `onConfirmDelete` で `store.remove`)。 **kebab (`HousingActionBar`) 経由の削除も `store.remove` 連携** + **削除済み/存在しないカードをクリックした時の toast 案内** (今は静かに閉じるだけ)
+- ③ **SNS 画像表示+ツイート連動**: 設計書 `docs/superpowers/specs/2026-05-21-housing-sns-image-lifecycle-design.md` を `writing-plans`→実装。 (A) フォームが取得済みのツイート画像 URL を登録 API へ通す+ `imageMode:'none'` 決め打ち廃止 (`_registerListingHandler.ts:93`)、 (B) CDN 直リンク表示、 (C) 開いた時のツイート生存チェック、 (D) サーバ検証つき削除、 (E) ローリングバッチ cron (10万件対応)
+- **通報モデレーションの穴**: /admin の復帰(reset)/BAN UI が未実装。 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知、 30 日後物理削除 cron も未
 - **HousingCardExpanded 撤去判断** / ツアー同期 Firestore 化 / Cloudflare 前段化
-- 細かい修正: `fieldState.confirm()` バグ、 dead code 撤去、 AddressFields renderBadge prop 化、 photo `alt`、 SNS rate limiting
-- 30 日後物理削除 cron、 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知
+- 細かい修正: `fieldState.confirm()` バグ、 dead code 撤去、 AddressFields renderBadge prop 化、 photo `alt`、 SNS rate limiting、 通知 ✕ の見た目磨き
 - ハウジング i18n の en 翻訳 (公開言語=日英、 現状 ja 値コピー。 中韓は DC 分離で後追い)
 
 ### 後回し (Phase 2B、 マップ着手時) — マップだけ実データ化が未了
