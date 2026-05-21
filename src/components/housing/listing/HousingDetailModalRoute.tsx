@@ -10,7 +10,7 @@
  * - 閉じるとき (ESC / 背景クリック / × / 削除完了): `navigate(-1)` で背景ルートに戻る
  * - listing 取得中・失敗時はモーダルを描画しない (null)
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { doc, getDoc } from 'firebase/firestore';
@@ -41,6 +41,9 @@ export const HousingDetailModalRoute: React.FC = () => {
   const { deleteListing, loading: deleting } = useHousingDelete();
 
   const notificationId = searchParams.get('notification');
+  // 通知 doc は notificationId ごとに 1 回だけ取得する。
+  // (dismiss で notification=null にした後、 URL の ?notification= が残っていても再取得しないため)
+  const fetchedNotifRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!listingId) return;
@@ -72,9 +75,11 @@ export const HousingDetailModalRoute: React.FC = () => {
   // (購読 items 待ちだと遷移直後に未到達でヒットしないため getDoc で確実に取る)
   // 開いた時点では read にしない (= 読んだだけでは解決扱いにしない)。
   useEffect(() => {
-    if (!notificationId || notification) return;
+    if (!notificationId) return;
+    if (fetchedNotifRef.current === notificationId) return; // 取得済みなら再取得しない
     const uid = auth.currentUser?.uid;
     if (!uid) return;
+    fetchedNotifRef.current = notificationId;
     let cancelled = false;
     (async () => {
       try {
@@ -88,7 +93,7 @@ export const HousingDetailModalRoute: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [notificationId, notification]);
+  }, [notificationId]);
 
   const close = () => navigate(-1);
 
