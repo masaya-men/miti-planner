@@ -6,11 +6,13 @@ const mockQuery = vi.fn();
 const mockCollection = vi.fn();
 const mockWhere = vi.fn();
 const mockLimit = vi.fn();
+const mockOrderBy = vi.fn();
 vi.mock('firebase/firestore', () => ({
   collection: (...a: unknown[]) => mockCollection(...a),
   query: (...a: unknown[]) => mockQuery(...a),
   where: (...a: unknown[]) => mockWhere(...a),
   limit: (...a: unknown[]) => mockLimit(...a),
+  orderBy: (...a: unknown[]) => mockOrderBy(...a),
   getDocs: (...a: unknown[]) => mockGetDocs(...a),
 }));
 
@@ -19,6 +21,7 @@ import {
   findChambersInPlot,
   findHouseForChamber,
   findApartmentRoomsInWard,
+  getGalleryListings,
 } from '../../lib/housingListingsService';
 
 const baseQuery = {
@@ -34,6 +37,7 @@ beforeEach(() => {
   mockCollection.mockReset();
   mockWhere.mockReset();
   mockLimit.mockReset();
+  mockOrderBy.mockReset();
 });
 
 describe('findListingsByAddressKey', () => {
@@ -98,5 +102,27 @@ describe('findApartmentRoomsInWard', () => {
     });
     const r = await findApartmentRoomsInWard({ ...baseQuery, currentRoomNumber: 42 });
     expect(r.map((x) => x.roomNumber)).toEqual([7, 50]);
+  });
+});
+
+describe('getGalleryListings', () => {
+  it('isHidden==false で createdAt 降順クエリし、deletedAt 済みをクライアント除外する', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        { id: 'a', data: () => ({ dc: 'Mana', server: 'Anima', area: 'Shirogane', ward: 3, buildingType: 'house', plot: 12, size: 'M', addressKey: 'k1', imageMode: 'none', tags: [], createdAt: 200, updatedAt: 200, isHidden: false, reportCount: 0, deletedAt: null }) },
+        { id: 'b', data: () => ({ dc: 'Mana', server: 'Anima', area: 'Shirogane', ward: 3, buildingType: 'house', plot: 15, size: 'S', addressKey: 'k2', imageMode: 'none', tags: [], createdAt: 100, updatedAt: 100, isHidden: false, reportCount: 0, deletedAt: 1717000000000 }) },
+      ],
+    });
+    const r = await getGalleryListings();
+    expect(r.map((x) => x.id)).toEqual(['a']); // b は deletedAt があるので除外
+    expect(mockWhere).toHaveBeenCalledWith('isHidden', '==', false);
+    expect(mockOrderBy).toHaveBeenCalledWith('createdAt', 'desc');
+    expect(mockLimit).toHaveBeenCalledWith(200);
+  });
+
+  it('0 件なら空配列', async () => {
+    mockGetDocs.mockResolvedValueOnce({ docs: [] });
+    const r = await getGalleryListings();
+    expect(r).toEqual([]);
   });
 });
