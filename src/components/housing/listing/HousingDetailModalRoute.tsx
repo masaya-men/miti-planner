@@ -17,6 +17,9 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../../lib/firebase';
 import type { HousingListing } from '../../../types/housing';
 import type { HousingNotification } from '../../../types/notification';
+import { canViewListing } from '../../../lib/housing/listingVisibility';
+import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { HousingDetailModal } from './HousingDetailModal';
 import type { ReportNotice } from './HousingDetailContent';
 import { HousingEditModal } from '../edit/HousingEditModal';
@@ -37,7 +40,7 @@ export const HousingDetailModalRoute: React.FC = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const viewerUid = auth.currentUser?.uid ?? null;
 
-  const { markRead } = useNotifications();
+  const { deleteForListing } = useNotifications();
   const { deleteListing, loading: deleting } = useHousingDelete();
 
   const notificationId = searchParams.get('notification');
@@ -46,22 +49,28 @@ export const HousingDetailModalRoute: React.FC = () => {
   const fetchedNotifRef = useRef<string | null>(null);
 
   // listing 取得は初回マウントと編集保存後 (即反映) の両方から呼べるよう関数化。
-  const loadListing = useCallback(async () => {
-    if (!listingId) return;
+  // 戻り値: 取得できた listing (家主は自分の非表示物件も取得可)、 取得不可なら null。
+  const loadListing = useCallback(async (): Promise<HousingListing | null> => {
+    if (!listingId) return null;
     try {
       const snap = await getDoc(doc(db, 'housing_listings', listingId));
       if (!snap.exists()) {
         setNotFound(true);
-        return;
+        return null;
       }
       const data = snap.data();
-      if (data.deletedAt || data.isHidden) {
+      // 家主は自分の物件なら非表示でも開ける (通知から編集/異議/削除で対処するため)。
+      const uid = auth.currentUser?.uid ?? null;
+      if (!canViewListing(data as HousingListing, uid)) {
         setNotFound(true);
-        return;
+        return null;
       }
-      setListing({ id: snap.id, ...data } as HousingListing);
+      const next = { id: snap.id, ...data } as HousingListing;
+      setListing(next);
+      return next;
     } catch {
       setNotFound(true);
+      return null;
     }
   }, [listingId]);
 
@@ -103,9 +112,9 @@ export const HousingDetailModalRoute: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notFound]);
 
-  // 通報を「確認のうえ解決済み」 にする (read=解決)。 バナーを閉じる。
+  // 通報を解決する。 解決済みの通知はリストから消す方針なので、 その物件の通知を削除。
   const resolveNotification = () => {
-    if (notification) void markRead(notification.id);
+    if (notification) void deleteForListing(notification.listingId);
     setNotification(null);
   };
 
@@ -118,9 +127,16 @@ export const HousingDetailModalRoute: React.FC = () => {
 
   const onDismiss = () => resolveNotification();
 
-  // 編集保存成功時: 詳細を再 fetch して即反映 + 関連通報を解決済みにする (自動解決)。
+  // 編集保存成功時: 詳細を再 fetch して即反映 + 中央パネルの一覧カードも更新 + 関連通報を解決。
   const handleListingSaved = async () => {
-    await loadListing();
+    const updated = await loadListing();
+    if (updated) {
+      // 一覧 (ギャラリー) は非表示 / 削除を含まない。 公開対象なら upsert、 そうでなければ除去。
+      const inGallery = !updated.isHidden && !updated.deletedAt;
+      const vm = inGallery ? firestoreToGalleryListing(updated) : null;
+      if (vm) useHousingListingsStore.getState().upsert(vm);
+      else useHousingListingsStore.getState().remove(updated.id);
+    }
     resolveNotification();
   };
 
@@ -131,8 +147,10 @@ export const HousingDetailModalRoute: React.FC = () => {
     if (!listing) return;
     const res = await deleteListing(listing.id);
     if (res.ok) {
-      // 物件が無くなるので関連通報も解決済みにする
-      if (notification) void markRead(notification.id);
+      // 物件が無くなるので、 その物件に紐づく通知も一掃する
+      void deleteForListing(listing.id);
+      // 一覧 (ギャラリー) からも即除去
+      useHousingListingsStore.getState().remove(listing.id);
       showToast(t('housing.delete.success'), 'success');
       setDeleteOpen(false);
       close();

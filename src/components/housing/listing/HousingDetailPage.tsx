@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../../lib/firebase';
 import type { HousingListing } from '../../../types/housing';
+import { canViewListing } from '../../../lib/housing/listingVisibility';
 import { HousingDetailLayout } from './HousingDetailLayout';
 import '../../../styles/housing.css';
 
@@ -43,7 +44,9 @@ export const HousingDetailPage: React.FC = () => {
           return;
         }
         const data = snap.data();
-        if (data.deletedAt || data.isHidden) {
+        // 家主は自分の物件なら非表示でも閲覧可 (削除済みは誰でも不可)。
+        const uid = auth.currentUser?.uid ?? null;
+        if (!canViewListing(data as HousingListing, uid)) {
           setState({ kind: 'not_found' });
           return;
         }
