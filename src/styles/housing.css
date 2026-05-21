@@ -6,7 +6,8 @@
 
 .housing-workspace,
 .housing-panel-modal-backdrop,
-.housing-detail-backdrop {
+.housing-detail-backdrop,
+.housing-modal-backdrop {
   /* ===== Color tokens =====
      workspace と portal 化されたモーダルの両方で token を解決させる。
      モーダルは createPortal で body 直下に出るため、 .housing-workspace
