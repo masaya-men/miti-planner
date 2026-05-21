@@ -3,10 +3,12 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useHousingUpdate } from '../useHousingUpdate';
 
-vi.mock('firebase/auth', () => ({
-  getAuth: () => ({
-    currentUser: { getIdToken: async () => 'mock-token' },
-  }),
+vi.mock('../../../../lib/housingAuthHeaders', () => ({
+  buildHousingHeaders: vi.fn(async () => ({
+    'Content-Type': 'application/json',
+    'X-Firebase-AppCheck': 'app-check-token',
+    Authorization: 'Bearer mock-token',
+  })),
 }));
 
 describe('useHousingUpdate', () => {
@@ -42,7 +44,7 @@ describe('useHousingUpdate', () => {
     expect(res).toEqual({ ok: false, error: 'forbidden' });
   });
 
-  it('リクエストヘッダに Bearer token と JSON body を載せる', async () => {
+  it('App Check + Bearer ヘッダと JSON body を載せる', async () => {
     (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       status: 200,
@@ -58,6 +60,7 @@ describe('useHousingUpdate', () => {
         method: 'POST',
         headers: expect.objectContaining({
           'Content-Type': 'application/json',
+          'X-Firebase-AppCheck': 'app-check-token',
           Authorization: 'Bearer mock-token',
         }),
         body: JSON.stringify({ listingId: 'lid1', description: 'foo' }),

@@ -6,7 +6,7 @@
  *  - 失敗時は { ok: false, error } を返し、 親側で toast 表示する想定
  */
 import { useState } from 'react';
-import { getAuth } from 'firebase/auth';
+import { buildHousingHeaders } from '../../../lib/housingAuthHeaders';
 
 export interface UseHousingUpdateResult {
   ok: boolean;
@@ -22,15 +22,10 @@ export function useHousingUpdate() {
   ): Promise<UseHousingUpdateResult> {
     setLoading(true);
     try {
-      const user = getAuth().currentUser;
-      if (!user) return { ok: false, error: 'unauthenticated' };
-      const token = await user.getIdToken();
+      const headers = await buildHousingHeaders(true);
       const res = await fetch('/api/housing?action=update-listing', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({ listingId, ...updates }),
       });
       if (!res.ok) {

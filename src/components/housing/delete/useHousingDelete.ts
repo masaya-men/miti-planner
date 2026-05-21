@@ -6,7 +6,7 @@
  *  - soft delete (`deletedAt = Date.now()`)、 idempotent
  */
 import { useState } from 'react';
-import { getAuth } from 'firebase/auth';
+import { buildHousingHeaders } from '../../../lib/housingAuthHeaders';
 
 export interface UseHousingDeleteResult {
   ok: boolean;
@@ -19,15 +19,10 @@ export function useHousingDelete() {
   async function deleteListing(listingId: string): Promise<UseHousingDeleteResult> {
     setLoading(true);
     try {
-      const user = getAuth().currentUser;
-      if (!user) return { ok: false, error: 'unauthenticated' };
-      const token = await user.getIdToken();
+      const headers = await buildHousingHeaders(true);
       const res = await fetch('/api/housing?action=delete-listing', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({ listingId }),
       });
       if (!res.ok) {

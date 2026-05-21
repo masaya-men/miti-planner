@@ -3,10 +3,12 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useHousingDelete } from '../useHousingDelete';
 
-vi.mock('firebase/auth', () => ({
-  getAuth: () => ({
-    currentUser: { getIdToken: async () => 'mock-token' },
-  }),
+vi.mock('../../../../lib/housingAuthHeaders', () => ({
+  buildHousingHeaders: vi.fn(async () => ({
+    'Content-Type': 'application/json',
+    'X-Firebase-AppCheck': 'app-check-token',
+    Authorization: 'Bearer mock-token',
+  })),
 }));
 
 describe('useHousingDelete', () => {
@@ -42,7 +44,7 @@ describe('useHousingDelete', () => {
     expect(res).toEqual({ ok: false, error: 'not_found' });
   });
 
-  it('POST /api/housing?action=delete-listing を Bearer 付きで呼ぶ', async () => {
+  it('POST /api/housing?action=delete-listing を App Check + Bearer 付きで呼ぶ', async () => {
     (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       status: 200,
@@ -58,6 +60,7 @@ describe('useHousingDelete', () => {
         method: 'POST',
         headers: expect.objectContaining({
           'Content-Type': 'application/json',
+          'X-Firebase-AppCheck': 'app-check-token',
           Authorization: 'Bearer mock-token',
         }),
         body: JSON.stringify({ listingId: 'lid1' }),

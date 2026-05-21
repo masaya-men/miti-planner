@@ -17,6 +17,7 @@ import {
   getFirestore,
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { buildHousingHeaders } from '../../../lib/housingAuthHeaders';
 import type { HousingNotification } from '../../../types/notification';
 
 export interface UseNotificationsResult {
@@ -54,29 +55,21 @@ export function useNotifications(): UseNotificationsResult {
   const unreadCount = items.filter((n) => !n.read).length;
 
   async function markRead(notificationId: string) {
-    const user = getAuth().currentUser;
-    if (!user) return;
-    const token = await user.getIdToken();
+    if (!getAuth().currentUser) return;
+    const headers = await buildHousingHeaders(true);
     await fetch('/api/housing?action=mark-notification-read', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
       body: JSON.stringify({ notificationId }),
     });
   }
 
   async function markAllRead() {
-    const user = getAuth().currentUser;
-    if (!user) return;
-    const token = await user.getIdToken();
+    if (!getAuth().currentUser) return;
+    const headers = await buildHousingHeaders(true);
     await fetch('/api/housing?action=mark-notification-read', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
       body: JSON.stringify({ all: true }),
     });
   }

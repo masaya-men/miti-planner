@@ -18,6 +18,15 @@ vi.mock('firebase/auth', () => ({
   getAuth: () => ({ currentUser: { uid: 'uid-1', getIdToken: async () => 'tok' } }),
 }));
 
+// markRead/markAllRead が経由する共有ヘルパー (実 firebase.ts のロード回避)
+vi.mock('../../../../lib/housingAuthHeaders', () => ({
+  buildHousingHeaders: vi.fn(async () => ({
+    'Content-Type': 'application/json',
+    'X-Firebase-AppCheck': 'app-check-token',
+    Authorization: 'Bearer tok',
+  })),
+}));
+
 import { useNotifications } from '../useNotifications';
 
 describe('useNotifications', () => {
