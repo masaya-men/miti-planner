@@ -12,7 +12,7 @@ import { NotificationDropdown } from './NotificationDropdown';
 
 export const NotificationBell: React.FC = () => {
   const { t } = useTranslation();
-  const { items, unreadCount } = useNotifications();
+  const { items, unreadCount, deleteOne } = useNotifications();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -56,6 +56,7 @@ export const NotificationBell: React.FC = () => {
         <NotificationDropdown
           items={items}
           onClose={() => setOpen(false)}
+          onDismiss={(id) => void deleteOne(id)}
         />
       )}
     </div>

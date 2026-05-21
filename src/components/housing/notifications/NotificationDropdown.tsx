@@ -14,11 +14,14 @@ import type { HousingNotification } from '../../../types/notification';
 export interface NotificationDropdownProps {
   items: HousingNotification[];
   onClose: () => void;
+  /** 通知 1 件をリストから消す (✕) */
+  onDismiss?: (notificationId: string) => void;
 }
 
 export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   items,
   onClose,
+  onDismiss,
 }) => {
   const { t } = useTranslation();
   const top5 = items.slice(0, 5);
@@ -33,7 +36,11 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
         <ul className="housing-notif-list">
           {top5.map((n) => (
             <li key={n.id}>
-              <NotificationItem notification={n} onClick={() => onClose()} />
+              <NotificationItem
+                notification={n}
+                onClick={() => onClose()}
+                onDismiss={onDismiss}
+              />
             </li>
           ))}
         </ul>

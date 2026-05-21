@@ -25,11 +25,14 @@ function formatRelativeTime(t: TFunction, ms: number): string {
 export interface NotificationItemProps {
   notification: HousingNotification;
   onClick?: (n: HousingNotification) => void;
+  /** ✕ で 1 件消す (報告の解決とは別の「リストから消す」操作) */
+  onDismiss?: (notificationId: string) => void;
 }
 
 export const NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
   onClick,
+  onDismiss,
 }) => {
   const { t } = useTranslation();
   const location = useLocation();
@@ -50,6 +53,20 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
       <span className="housing-notif-time">
         {formatRelativeTime(t, notification.createdAt)}
       </span>
+      {onDismiss && (
+        <button
+          type="button"
+          className="housing-notif-dismiss"
+          aria-label={t('housing.notifications.dismiss_aria')}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDismiss(notification.id);
+          }}
+        >
+          ×
+        </button>
+      )}
     </Link>
   );
 };

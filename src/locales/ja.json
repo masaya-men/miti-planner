@@ -2264,6 +2264,7 @@
             "see_all_coming_soon": "準備中",
             "bell_aria": "通知",
             "unread_badge_aria": "{{n}} 件の未読",
+            "dismiss_aria": "この通知を消す",
             "item": {
                 "report": "あなたの物件「{{title}}」 について「{{reason}}」 と報告がありました"
             },
