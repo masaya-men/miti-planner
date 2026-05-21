@@ -3697,8 +3697,9 @@ select.housing-input option {
 }
 .housing-notif-dismiss {
     flex: 0 0 auto;
-    width: 22px;
-    height: 22px;
+    width: 34px;
+    height: 34px;
+    margin: -6px -4px -6px 2px; /* 当たり判定を広げつつ行の見た目は崩さない */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -3706,10 +3707,11 @@ select.housing-input option {
     border-radius: 50%;
     background: transparent;
     color: var(--housing-text-mute);
-    font-size: var(--housing-text-base);
+    font-size: 22px;
     line-height: 1;
     cursor: pointer;
-    opacity: 0.6;
+    opacity: 0.75;
+    transition: background 0.15s, opacity 0.15s, color 0.15s;
 }
 .housing-notif-dismiss:hover {
     background: var(--housing-overlay-strong);
