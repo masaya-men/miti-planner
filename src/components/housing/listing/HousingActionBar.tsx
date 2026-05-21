@@ -25,12 +25,15 @@ export interface HousingActionBarProps {
   viewerUid: string | null;
   /** 親で詳細を閉じるコールバック (削除完了時に呼ぶ) */
   onClose?: () => void;
+  /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
+  onListingUpdated?: () => void;
 }
 
 export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   listing,
   viewerUid,
   onClose,
+  onListingUpdated,
 }) => {
   const { t } = useTranslation();
   const isOwner = viewerUid != null && listing.ownerUid === viewerUid;
@@ -125,6 +128,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
           open={editOpen}
           onClose={() => setEditOpen(false)}
           listing={listing}
+          onSaved={onListingUpdated}
         />
       )}
       {deleteOpen && (

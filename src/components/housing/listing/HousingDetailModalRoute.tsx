@@ -10,7 +10,7 @@
  * - 閉じるとき (ESC / 背景クリック / × / 削除完了): `navigate(-1)` で背景ルートに戻る
  * - listing 取得中・失敗時はモーダルを描画しない (null)
  */
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { doc, getDoc } from 'firebase/firestore';
@@ -45,31 +45,29 @@ export const HousingDetailModalRoute: React.FC = () => {
   // (dismiss で notification=null にした後、 URL の ?notification= が残っていても再取得しないため)
   const fetchedNotifRef = useRef<string | null>(null);
 
-  useEffect(() => {
+  // listing 取得は初回マウントと編集保存後 (即反映) の両方から呼べるよう関数化。
+  const loadListing = useCallback(async () => {
     if (!listingId) return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const snap = await getDoc(doc(db, 'housing_listings', listingId));
-        if (cancelled) return;
-        if (!snap.exists()) {
-          setNotFound(true);
-          return;
-        }
-        const data = snap.data();
-        if (data.deletedAt || data.isHidden) {
-          setNotFound(true);
-          return;
-        }
-        setListing({ id: snap.id, ...data } as HousingListing);
-      } catch {
-        if (!cancelled) setNotFound(true);
+    try {
+      const snap = await getDoc(doc(db, 'housing_listings', listingId));
+      if (!snap.exists()) {
+        setNotFound(true);
+        return;
       }
-    })();
-    return () => {
-      cancelled = true;
-    };
+      const data = snap.data();
+      if (data.deletedAt || data.isHidden) {
+        setNotFound(true);
+        return;
+      }
+      setListing({ id: snap.id, ...data } as HousingListing);
+    } catch {
+      setNotFound(true);
+    }
   }, [listingId]);
+
+  useEffect(() => {
+    void loadListing();
+  }, [loadListing]);
 
   // notification クエリがあれば、 通知 doc を id で直接取得して案内バナー用にセット。
   // (購読 items 待ちだと遷移直後に未到達でヒットしないため getDoc で確実に取る)
@@ -120,6 +118,12 @@ export const HousingDetailModalRoute: React.FC = () => {
 
   const onDismiss = () => resolveNotification();
 
+  // 編集保存成功時: 詳細を再 fetch して即反映 + 関連通報を解決済みにする (自動解決)。
+  const handleListingSaved = async () => {
+    await loadListing();
+    resolveNotification();
+  };
+
   const onEdit = () => setEditOpen(true);
   const onDeleteClick = () => setDeleteOpen(true);
 
@@ -157,12 +161,14 @@ export const HousingDetailModalRoute: React.FC = () => {
         viewerUid={viewerUid}
         onClose={close}
         reportNotice={reportNotice}
+        onListingUpdated={handleListingSaved}
       />
       {editOpen && (
         <HousingEditModal
           open={editOpen}
           onClose={() => setEditOpen(false)}
           listing={listing}
+          onSaved={handleListingSaved}
         />
       )}
       {deleteOpen && (

@@ -15,6 +15,8 @@ export interface HousingDetailModalProps {
   viewerUid: string | null;
   onClose: () => void;
   reportNotice?: ReportNotice;
+  /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
+  onListingUpdated?: () => void;
 }
 
 export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
@@ -22,6 +24,7 @@ export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
   viewerUid,
   onClose,
   reportNotice,
+  onListingUpdated,
 }) => {
   const { t } = useTranslation();
 
@@ -59,6 +62,7 @@ export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
           viewerUid={viewerUid}
           onClose={onClose}
           reportNotice={reportNotice}
+          onListingUpdated={onListingUpdated}
         />
       </div>
     </div>

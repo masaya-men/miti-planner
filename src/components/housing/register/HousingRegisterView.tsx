@@ -56,12 +56,15 @@ export interface HousingRegisterViewProps {
   initialValues?: Partial<HousingListing> & { id: string };
   /** 編集成功時に親モーダルを閉じる callback (mode='edit' で利用) */
   onClose?: () => void;
+  /** 編集保存成功時に呼ぶ callback (詳細の再 fetch + 関連通報の解決を親側でやる) */
+  onSaved?: () => void;
 }
 
 export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
   mode = 'create',
   initialValues,
   onClose,
+  onSaved,
 }) => {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
@@ -124,7 +127,9 @@ export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
       const result = await updateListing(initialValues.id, currentDraft);
       if (result.ok) {
         setSuccessMessage(t('housing.edit.success'));
-        // 編集成功時はモーダルを閉じる (親側で listing を refetch する想定)
+        // 編集成功 → 親側で詳細を再 fetch + 関連通報を解決 (即反映 + 自動解決)
+        onSaved?.();
+        // 続けてモーダルを閉じる
         onClose?.();
       } else {
         setServerError(t('housing.edit.error'));

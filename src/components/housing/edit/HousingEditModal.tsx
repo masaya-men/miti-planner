@@ -11,12 +11,15 @@ export interface HousingEditModalProps {
   open: boolean;
   onClose: () => void;
   listing: HousingListing;
+  /** 保存成功時に呼ぶ callback (詳細の再 fetch + 関連通報の解決を親側でやる) */
+  onSaved?: () => void;
 }
 
 export const HousingEditModal: React.FC<HousingEditModalProps> = ({
   open,
   onClose,
   listing,
+  onSaved,
 }) => {
   return (
     <HousingRegisterModal
@@ -24,6 +27,7 @@ export const HousingEditModal: React.FC<HousingEditModalProps> = ({
       onClose={onClose}
       mode="edit"
       initialValues={listing}
+      onSaved={onSaved}
     />
   );
 };

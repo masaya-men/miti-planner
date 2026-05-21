@@ -15,6 +15,8 @@ export interface HousingRegisterModalProps {
   mode?: HousingRegisterModalMode;
   /** mode='edit' の場合に必須。 編集対象の物件 */
   initialValues?: Partial<HousingListing> & { id: string };
+  /** 編集保存成功時に呼ぶ callback (mode='edit' で利用。 詳細の再 fetch + 通報解決) */
+  onSaved?: () => void;
 }
 
 /**
@@ -32,6 +34,7 @@ export const HousingRegisterModal: React.FC<HousingRegisterModalProps> = ({
   onClose,
   mode = 'create',
   initialValues,
+  onSaved,
 }) => {
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
@@ -112,7 +115,12 @@ export const HousingRegisterModal: React.FC<HousingRegisterModalProps> = ({
           </button>
         </div>
         <div className="housing-register-modal-body">
-          <HousingRegisterView mode={mode} initialValues={initialValues} onClose={onClose} />
+          <HousingRegisterView
+            mode={mode}
+            initialValues={initialValues}
+            onClose={onClose}
+            onSaved={onSaved}
+          />
         </div>
       </div>
     </div>
