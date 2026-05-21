@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, type Location } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useThemeStore } from './store/useThemeStore';
 import { LandingPage } from './components/landing/LandingPage';
@@ -9,6 +9,8 @@ import {
   HousingPage,
   HousingWorkspace,
 } from './components/housing';
+import { HousingDetailPage } from './components/housing/listing/HousingDetailPage';
+import { HousingDetailModalRoute } from './components/housing/listing/HousingDetailModalRoute';
 
 import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
 import { AdminGuard } from './components/admin/AdminGuard';
@@ -48,6 +50,73 @@ import { usePlanStore } from './store/usePlanStore';
  *   1. Create the page component in src/components/
  *   2. Add a <Route> entry below
  */
+/**
+ * AppRoutes — background-location 対応ルート定義。
+ *
+ * 「一覧 (背景) の上にモーダルを被せる」 React Router v6/v7 パターン:
+ * - 通常時: `location` をそのまま使う
+ * - `location.state.backgroundLocation` がある場合:
+ *   1. 背景ルート (一覧) を `backgroundLocation` で描画 (アンマウントしない)
+ *   2. 同じ URL のモーダル用ルートを「上に」 重ねて描画
+ * - URL 直アクセス時は `backgroundLocation` がないため、 フルページ表示にフォールバック
+ */
+function AppRoutes() {
+  const location = useLocation();
+  const state = (location.state as { backgroundLocation?: Location } | null) || {};
+  const backgroundLocation = state.backgroundLocation;
+
+  return (
+    <>
+      <Routes location={backgroundLocation || location}>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/miti" element={<MitiPlannerPage />} />
+        <Route path="/share/:shareId" element={<SharePage />} />
+        <Route path="/support" element={<SupportPage />} />
+
+        <Route path="/housing" element={<HousingWorkspace />} />
+        <Route path="/housing/legacy" element={<HousingPage />} />
+        <Route path="/housing/p/:listingId" element={<HousingWorkspace />} />
+        <Route path="/housing/tour/:tourId" element={<HousingWorkspace />} />
+        {/* フルページ詳細 (URL 直アクセス・モーダル経由の両方の受け皿) */}
+        <Route path="/housing/listing/:listingId" element={<HousingDetailPage />} />
+
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/commercial" element={<CommercialDisclosurePage />} />
+        {/* 管理画面 */}
+        <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="contents" element={<AdminContents />} />
+          <Route path="templates" element={<AdminTemplates />} />
+          <Route path="skills" element={<AdminSkills />} />
+          <Route path="translations" element={<AdminTranslations />} />
+          <Route path="stats" element={<AdminStats />} />
+          <Route path="servers" element={<AdminServers />} />
+          <Route path="config" element={<AdminConfig />} />
+          <Route path="content-wizard" element={<ContentWizard />} />
+          <Route path="template-wizard" element={<TemplateWizard />} />
+          <Route path="job-wizard" element={<JobWizard />} />
+          <Route path="stats-wizard" element={<StatsWizard />} />
+          <Route path="backups" element={<AdminBackups />} />
+          <Route path="logs" element={<AdminLogs />} />
+          <Route path="ugc" element={<AdminUgc />} />
+          <Route path="featured" element={<AdminFeatured />} />
+        </Route>
+        {/* Catch-all: redirect unknown paths to portal */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      {backgroundLocation && (
+        <Routes>
+          <Route
+            path="/housing/listing/:listingId"
+            element={<HousingDetailModalRoute />}
+          />
+        </Routes>
+      )}
+    </>
+  );
+}
+
 function App() {
   const theme = useThemeStore((state) => state.theme);
   const { i18n } = useTranslation();
@@ -113,42 +182,7 @@ function App() {
     >
       <TransitionOverlayProvider>
         <div className="relative w-full h-full">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/miti" element={<MitiPlannerPage />} />
-            <Route path="/share/:shareId" element={<SharePage />} />
-            <Route path="/support" element={<SupportPage />} />
-
-            <Route path="/housing" element={<HousingWorkspace />} />
-            <Route path="/housing/legacy" element={<HousingPage />} />
-            <Route path="/housing/p/:listingId" element={<HousingWorkspace />} />
-            <Route path="/housing/tour/:tourId" element={<HousingWorkspace />} />
-
-            <Route path="/privacy" element={<PrivacyPolicyPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/commercial" element={<CommercialDisclosurePage />} />
-            {/* 管理画面 */}
-            <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="contents" element={<AdminContents />} />
-              <Route path="templates" element={<AdminTemplates />} />
-              <Route path="skills" element={<AdminSkills />} />
-              <Route path="translations" element={<AdminTranslations />} />
-              <Route path="stats" element={<AdminStats />} />
-              <Route path="servers" element={<AdminServers />} />
-              <Route path="config" element={<AdminConfig />} />
-              <Route path="content-wizard" element={<ContentWizard />} />
-              <Route path="template-wizard" element={<TemplateWizard />} />
-              <Route path="job-wizard" element={<JobWizard />} />
-              <Route path="stats-wizard" element={<StatsWizard />} />
-              <Route path="backups" element={<AdminBackups />} />
-              <Route path="logs" element={<AdminLogs />} />
-              <Route path="ugc" element={<AdminUgc />} />
-              <Route path="featured" element={<AdminFeatured />} />
-            </Route>
-            {/* Catch-all: redirect unknown paths to portal */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <AppRoutes />
           <TutorialOverlay />
           <ToastContainer />
         </div>
