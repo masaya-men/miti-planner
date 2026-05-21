@@ -121,3 +121,54 @@ describe('validateAddress: 不正組合せ reject', () => {
     expect(r.errors.size).toBeDefined();
   });
 });
+
+import { validateImage, buildListingImageFields } from '../../utils/housingValidation';
+
+describe('validateImage', () => {
+  const base = { imageMode: 'sns' as const, postUrl: 'https://x.com/u/status/123', ogImageUrl: 'https://pbs.twimg.com/media/abc.jpg', tweetId: '123' };
+
+  it('imageMode が sns 以外なら常に ok', () => {
+    expect(validateImage({ imageMode: 'none' } as any).ok).toBe(true);
+    expect(validateImage({} as any).ok).toBe(true);
+  });
+
+  it('正常な sns 入力は ok', () => {
+    expect(validateImage(base as any).ok).toBe(true);
+  });
+
+  it('postUrl が https でないと invalid', () => {
+    expect(validateImage({ ...base, postUrl: 'http://x.com/u/status/123' } as any).ok).toBe(false);
+  });
+
+  it('ogImageUrl が pbs.twimg.com 以外のホストだと invalid', () => {
+    expect(validateImage({ ...base, ogImageUrl: 'https://evil.example.com/a.jpg' } as any).ok).toBe(false);
+  });
+
+  it('tweetId が数字でないと invalid', () => {
+    expect(validateImage({ ...base, tweetId: 'abc' } as any).ok).toBe(false);
+  });
+
+  it('sns なのにフィールド欠落は invalid', () => {
+    expect(validateImage({ imageMode: 'sns' } as any).ok).toBe(false);
+  });
+});
+
+describe('buildListingImageFields', () => {
+  it('sns + 全フィールド揃いで sns モードのフィールドを返す', () => {
+    const out = buildListingImageFields(
+      { imageMode: 'sns', postUrl: 'https://x.com/u/status/123', ogImageUrl: 'https://pbs.twimg.com/media/a.jpg', tweetId: '123' } as any,
+      1000,
+    );
+    expect(out).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://x.com/u/status/123',
+      ogImageUrl: 'https://pbs.twimg.com/media/a.jpg',
+      tweetId: '123',
+      lastTweetCheckAt: 1000,
+    });
+  });
+
+  it('sns 以外は none を返す', () => {
+    expect(buildListingImageFields({} as any, 1000)).toEqual({ imageMode: 'none' });
+  });
+});

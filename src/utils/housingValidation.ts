@@ -42,6 +42,12 @@ export interface AddressInput {
 export interface RegistrationDraft extends AddressInput {
   tags: string[];
   description?: string;
+
+  // SNS 画像 (任意。未指定なら imageMode='none' 扱い)
+  imageMode?: 'sns' | 'none';
+  postUrl?: string;
+  ogImageUrl?: string;
+  tweetId?: string;
 }
 
 export type ValidationErrors = Partial<Record<string, string>>;
@@ -123,10 +129,66 @@ export function validateDescription(desc: string | undefined): ValidationResult 
   return ok();
 }
 
+function isHttpsUrl(value: string | undefined): boolean {
+  if (!value) return false;
+  try {
+    return new URL(value).protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function isPbsTwimgHost(value: string | undefined): boolean {
+  if (!value) return false;
+  try {
+    return new URL(value).hostname === 'pbs.twimg.com';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * SNS 画像フィールドの検証。imageMode!=='sns' のときは常に ok。
+ * sns のときは postUrl/ogImageUrl が https、ogImageUrl は pbs.twimg.com 限定
+ * (任意 URL の注入・画像差し込み防止)、tweetId は数字 1-20 桁。
+ */
+export function validateImage(draft: RegistrationDraft): ValidationResult {
+  if (draft.imageMode !== 'sns') return ok();
+  const errors: ValidationErrors = {};
+  if (!isHttpsUrl(draft.postUrl)) errors.postUrl = 'invalid';
+  if (!isHttpsUrl(draft.ogImageUrl) || !isPbsTwimgHost(draft.ogImageUrl)) errors.ogImageUrl = 'invalid';
+  if (!draft.tweetId || !/^\d{1,20}$/.test(draft.tweetId)) errors.tweetId = 'invalid';
+  return Object.keys(errors).length > 0 ? fail(errors) : ok();
+}
+
+/**
+ * 検証済み draft から listing に保存する画像フィールドを生成する。
+ * sns + 全フィールド揃いのときのみ sns 保存、それ以外は 'none'。
+ * (この関数を呼ぶ前に validateImage が ok であることを前提とする)
+ */
+export function buildListingImageFields(
+  draft: RegistrationDraft,
+  now: number,
+):
+  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; tweetId: string; lastTweetCheckAt: number }
+  | { imageMode: 'none' } {
+  if (draft.imageMode === 'sns' && draft.postUrl && draft.ogImageUrl && draft.tweetId) {
+    return {
+      imageMode: 'sns',
+      postUrl: draft.postUrl,
+      ogImageUrl: draft.ogImageUrl,
+      tweetId: draft.tweetId,
+      lastTweetCheckAt: now,
+    };
+  }
+  return { imageMode: 'none' };
+}
+
 export function validateRegistrationDraft(draft: RegistrationDraft): ValidationResult {
   const errors: ValidationErrors = {};
   Object.assign(errors, validateAddress(draft).errors);
   Object.assign(errors, validateTags(draft.tags).errors);
   Object.assign(errors, validateDescription(draft.description).errors);
+  Object.assign(errors, validateImage(draft).errors);
   return Object.keys(errors).length > 0 ? fail(errors) : ok();
 }
