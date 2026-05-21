@@ -11,29 +11,30 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #47 (2026-05-21) で **一覧を実 Firestore データに連携完了** (Phase 3 E2E ブロッカー解消)
-- **完了 (#47)**: `getGalleryListings` クエリ + `firestoreToGalleryListing` アダプタ (dc→region 導出) + 共有ストア `useHousingListingsStore` (load 冪等/loading/ready/error)。 ワークスペースの **list ビュー系を全て実データに統一** (CenterArea Pinterest / RightPanel browse / FilterPanel 件数 / Favorites / Tour)。 **map ビューは sampleWardLayout (mock) のまま** (実マップ配置 = Phase 2B 別タスク)。 件数は全パネル view 連動 (map=sample / list=real) で一貫。 Firestore 複合インデックス (isHidden+createdAt) デプロイ済。 設計書/計画は `docs/superpowers/{specs,plans}/2026-05-21-housing-gallery-firestore-wiring*`
-- **実機検証済 (匿名)**: list ビューで実物件 1 件 (Materia/Bismarck LavenderBeds 23-6) 表示 → カードクリックで詳細モーダルが**開く (バウンス解消)**。全パネル「1/1」一貫。tsc/build OK、 触れた全テスト green (service/adapter/store/CenterArea/Right/Filter/Favorites/Tour/workspace 計 63)
-- **次セッション最優先 (実機 E2E・要ログイン 2 アカウント)**: アカB で物件詳細→「ちがった(通報)」送信 → アカA(家主) で通知ベル→reason 別ガイド→編集/削除→削除後 Not found。 私(Claude)は Discord OAuth 不可のためユーザー操作が必須
-- **方針確定**: 詳細は Firestore fetch + react-router background-location パターン。 `deletedAt`(家主削除)/`isHidden`(運営非表示) 役割分離。 ストアは service/adapter を **動的 import** (firebase をストア経由でロードせず vitest appcheck teardown ハング回避)
-- **注意**: vitest 全 suite は firebase appcheck teardown でハングする既知問題 (テスト自体は pass)。 pool='vmThreads' 厳守。 ENFORCE_APP_CHECK=true (Vercel 9 関数のまま)
-- **本番データ**: 現状 housing_listings は実物件 1 件のみ。 一覧が疎なのは正常 (偽データ投入しない方針)。 ユーザーが実 UI から登録して populate
+- **ブランチ**: main、 セッション #48 (2026-05-21) で **Phase 3 実機 E2E を実施 → 不具合を順次修正** (通報→通知→案内→解決まで動作確認済)
+- **完了 (#48)**: (1) Phase 3 の API ミューテーション(通報/編集/削除/通知既読)が **App Check ヘッダ未送信で本番 403** → 共有ヘルパー `src/lib/housingAuthHeaders.ts` (`buildHousingHeaders`) に App Check+認証を一元化し全経路修正。 (2) 通報の reason 別案内を **別モーダル重ね→詳細モーダル内バナー** に作り替え (スタッキング崩れ根絶、 `HousingReportGuideModal` 削除、 `HousingDetailContent` に `reportNotice` バナー)。 (3) 通知は「読んだだけ/一括既読」では消さず、 **解決アクション(誤りとして却下/異議/削除)で read=解決**。 「すべて既読」とクリック既読化を撤去
+- **実機検証済**: 通報送信成功 → 家主に通知到達 → 通知クリックで詳細内バナー表示 → 「これは誤り(却下)」で解決(バッジ消える)
+- **次セッション最優先 (Phase 3 仕上げ・要ログイン)**: ① 編集→保存で**自動解決＋詳細に即反映** (今は編集しても通知残る/閉じ開きしないと反映されない)、 ② **削除後に一覧から即消す＋フィードバック** (今はリロードまで残る・クリックしても無反応)、 ③ **画像が出ない**: 登録が `imageMode:'none'` 固定でツイート画像を保存していない (`api/housing/_registerListingHandler.ts:93`)。 draft→保存→表示を繋ぐ (やや大きめ)
+- **方針確定**: /api/housing クライアントは必ず `buildHousingHeaders` 経由 (memory `reference_housing_appcheck_headers`)。 通報案内は詳細内バナー(重ねない)。 読んだだけでは解決しない
+- **注意**: vitest 全 suite は firebase appcheck teardown ハング (テストは pass)。 pool='vmThreads' 厳守。 ENFORCE_APP_CHECK=true。 housing 系テストは housingAuthHeaders/firebase をモックして実 firebase ロード回避
+- **本番データ**: housing_listings は実物件 1 件のみ (偽データ投入しない方針)。 リリース準備は `docs/housing-release-checklist.md`、 マップ作業は `docs/housing-map-todo.md` (SVG前提・行き方シート反映、 masaya 本人作業)
 
 ---
 
-## 次セッション最優先: Phase 3 実機確認 + 実データ連携
+## 次セッション最優先: Phase 3 仕上げ (3 件)
 
 **最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 Phase 3 (詳細表示・編集削除・通報・通知) は実装完了済。 まず Task 21 のブラウザ手動確認 (通報→通知ベル→ガイド→編集/削除 の E2E) を実機でやって、 次に一覧の MockListing → 実 Firestore 連携を検討。
+> `docs/TODO.md` を読んで。 Phase 3 の通報→通知→詳細内バナー→解決は #48 で実機 OK。 次は ① 編集→保存で自動解決＋詳細に即反映、 ② 削除後に一覧から即消す＋フィードバック、 ③ 登録時にツイート画像を保存(今 imageMode:'none' 固定で No image)。 1 件ずつ実機確認で。
 
-### Phase 3 残り (実装完了後の積み残し)
+### Phase 3 残り
 
-- **実機 E2E 確認** (最優先): 通報→通知ベル→reason 別ガイド→編集/削除 フロー。 2 アカウント必要 (家主 + 通報者)。 一覧連携済なので実 UI 登録→一覧→詳細→通報… の本物ループで検証可能
-- **HousingCardExpanded 撤去判断**: inline expand 廃止で未使用化。 完全削除して良いか確認
-- ツアー同期 Firestore 化 / Cloudflare 前段化
-- 細かい修正: `fieldState.confirm()` バグ、 旧 dead code 撤去、 AddressFields renderBadge prop 化、 tweet 取得 rate limiting、 photo `alt` 属性、 SNS rate limiting
+- ① **編集の即反映＋解決**: `HousingEditModal` に onSaved を足し、 保存成功で詳細 listing を再 fetch (即反映) + 関連通報を markRead (解決)
+- ② **削除後の一覧更新**: 削除成功で `useHousingListingsStore` から該当物件を除去 (remove メソッド追加) + 削除済みカードクリック時に toast。 今はリロードまで残る
+- ③ **画像保存**: 登録が `imageMode:'none'` 固定 (`_registerListingHandler.ts:93`)。 SNS 抽出した画像 (postUrl/ogImageUrl, imageMode='sns') を draft→保存→表示まで繋ぐ
+- **HousingCardExpanded 撤去判断** / ツアー同期 Firestore 化 / Cloudflare 前段化
+- 細かい修正: `fieldState.confirm()` バグ、 dead code 撤去、 AddressFields renderBadge prop 化、 photo `alt`、 SNS rate limiting
 - 30 日後物理削除 cron、 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知
-- ハウジング i18n の en/ko/zh 翻訳 (現状 ja 値コピー、 `housing.gallery.loading/error` も含む)
+- ハウジング i18n の en 翻訳 (公開言語=日英、 現状 ja 値コピー。 中韓は DC 分離で後追い)
 
 ### 後回し (Phase 2B、 マップ着手時) — マップだけ実データ化が未了
 
