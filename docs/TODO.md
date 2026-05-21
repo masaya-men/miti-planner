@@ -11,13 +11,13 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #46 (2026-05-21) で **Phase 3 を全実装完了** (Group C/D/E/F)。 Firestore Rules デプロイ済、 push + Vercel デプロイ実施
-- **完了 (#46)**: Group C 詳細表示 (DetailContent/Modal/Layout/Page/ActionBar/PhotoGallery/ShareButton + background-location ルート、 旧 inline expand 廃止) / Group D 通報フロー (report API + ReportModal + GuideModal) + 通知 (list/mark-read API + Bell/Dropdown/Item/useNotifications) / ActionBar→ReportModal 接続 fix / 既存 CenterArea・routes テストを新遷移仕様に追従 / Firestore Rules デプロイ (`firebase deploy --only firestore:rules` 成功)。 housing テスト 325 pass / 0 fail、 build + tsc OK
-- **方針確定**: Intercepting Routes は Vite SPA で不可 → **react-router background-location パターン**で代替。 `deletedAt` (家主削除) と `isHidden` (運営非表示) は役割分離。 API テストは見送り (既存パターンなし)、 React 側は TDD で網羅
-- **動く骨組みの注意**: 詳細表示は **Firestore から id で fetch する設計**。 一覧は MockListing (mock データ) なのでカードから飛ぶと Firestore に該当 doc が無く「Not found」 (= 背景に戻る) になる。 実データ連携は次フェーズ。 編集/削除/通報/通知は実 Firestore doc があれば動作
-- **未確認 (次セッションで実機確認推奨)**: 通報→通知ベル→reason 別ガイド→編集/削除 の E2E フロー (Task 21 のブラウザ手動確認は未実施)
-- **注意**: vitest 全 suite は firebase appcheck の teardown でハングする既知の環境問題あり (テスト自体は pass)。 vitest pool='vmThreads' のまま (変更厳禁)
-- **注意**: ENFORCE_APP_CHECK=true、 新ハンドラ 3 本は `api/housing/index.ts` の action ルーティング経由なので **Vercel 関数本数は増えない** (9 関数のまま)、 月 100 ビルド
+- **ブランチ**: main、 セッション #47 (2026-05-21) で **一覧を実 Firestore データに連携完了** (Phase 3 E2E ブロッカー解消)
+- **完了 (#47)**: `getGalleryListings` クエリ + `firestoreToGalleryListing` アダプタ (dc→region 導出) + 共有ストア `useHousingListingsStore` (load 冪等/loading/ready/error)。 ワークスペースの **list ビュー系を全て実データに統一** (CenterArea Pinterest / RightPanel browse / FilterPanel 件数 / Favorites / Tour)。 **map ビューは sampleWardLayout (mock) のまま** (実マップ配置 = Phase 2B 別タスク)。 件数は全パネル view 連動 (map=sample / list=real) で一貫。 Firestore 複合インデックス (isHidden+createdAt) デプロイ済。 設計書/計画は `docs/superpowers/{specs,plans}/2026-05-21-housing-gallery-firestore-wiring*`
+- **実機検証済 (匿名)**: list ビューで実物件 1 件 (Materia/Bismarck LavenderBeds 23-6) 表示 → カードクリックで詳細モーダルが**開く (バウンス解消)**。全パネル「1/1」一貫。tsc/build OK、 触れた全テスト green (service/adapter/store/CenterArea/Right/Filter/Favorites/Tour/workspace 計 63)
+- **次セッション最優先 (実機 E2E・要ログイン 2 アカウント)**: アカB で物件詳細→「ちがった(通報)」送信 → アカA(家主) で通知ベル→reason 別ガイド→編集/削除→削除後 Not found。 私(Claude)は Discord OAuth 不可のためユーザー操作が必須
+- **方針確定**: 詳細は Firestore fetch + react-router background-location パターン。 `deletedAt`(家主削除)/`isHidden`(運営非表示) 役割分離。 ストアは service/adapter を **動的 import** (firebase をストア経由でロードせず vitest appcheck teardown ハング回避)
+- **注意**: vitest 全 suite は firebase appcheck teardown でハングする既知問題 (テスト自体は pass)。 pool='vmThreads' 厳守。 ENFORCE_APP_CHECK=true (Vercel 9 関数のまま)
+- **本番データ**: 現状 housing_listings は実物件 1 件のみ。 一覧が疎なのは正常 (偽データ投入しない方針)。 ユーザーが実 UI から登録して populate
 
 ---
 
@@ -28,17 +28,16 @@
 
 ### Phase 3 残り (実装完了後の積み残し)
 
-- **実機 E2E 確認** (最優先): 通報→通知ベル→reason 別ガイド→編集/削除 フロー。 2 アカウント必要 (家主 + 通報者)
-- **一覧の実データ連携**: 現状一覧は MockListing。 詳細/編集/削除/通報は実 Firestore doc 前提なので、 一覧を Firestore listing に繋ぐと全フロー実動する
+- **実機 E2E 確認** (最優先): 通報→通知ベル→reason 別ガイド→編集/削除 フロー。 2 アカウント必要 (家主 + 通報者)。 一覧連携済なので実 UI 登録→一覧→詳細→通報… の本物ループで検証可能
 - **HousingCardExpanded 撤去判断**: inline expand 廃止で未使用化。 完全削除して良いか確認
 - ツアー同期 Firestore 化 / Cloudflare 前段化
 - 細かい修正: `fieldState.confirm()` バグ、 旧 dead code 撤去、 AddressFields renderBadge prop 化、 tweet 取得 rate limiting、 photo `alt` 属性、 SNS rate limiting
 - 30 日後物理削除 cron、 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知
-- ハウジング i18n の en/ko/zh 翻訳 (現状 ja 値コピー)
+- ハウジング i18n の en/ko/zh 翻訳 (現状 ja 値コピー、 `housing.gallery.loading/error` も含む)
 
-### 後回し (Phase 2B、 マップ着手時)
+### 後回し (Phase 2B、 マップ着手時) — マップだけ実データ化が未了
 
-- マップ Figma 書き起こし (道中央線 + 交差点ノード)、 30 軒位置データ、 マップクリック登録、 ノード/エッジオーサリングツール (5 時間程度の地道作業)
+- マップビューは現状 **sampleWardLayout の mock 配置のまま** (実物件に地図座標が無いため)。 デフォルトビューが map なので、 ランディングは sample デモが見える。 **要検討**: 実マップ座標オーサリング (道中央線 + 交差点ノード + 軒位置データ + マップクリック登録 + ノード/エッジツール)、 または map 完成までデフォルトビューを list にするか
 
 ### UI 整え時にまとめて対応
 
