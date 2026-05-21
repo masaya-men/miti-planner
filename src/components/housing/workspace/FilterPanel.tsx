@@ -5,7 +5,8 @@ import {
     type HousingArea,
     type HousingSize,
 } from '../../../store/useHousingFilterStore';
-import { SAMPLE_THEME_TAGS } from '../../../data/housing/mockListings';
+import { useHousingViewStore } from '../../../store/useHousingViewStore';
+import { MOCK_LISTINGS, SAMPLE_THEME_TAGS } from '../../../data/housing/mockListings';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import {
     ALL_DCS,
@@ -53,17 +54,20 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const toggleSize = useHousingFilterStore((s) => s.toggleSize);
     const toggleTag = useHousingFilterStore((s) => s.toggleTag);
     const setCounts = useHousingFilterStore((s) => s.setCounts);
-    // 件数は共有ストアの実データ件数を反映 (load は HousingWorkspace 側)。
-    const listings = useHousingListingsStore((s) => s.listings);
+    // 件数の母集団はアクティブビューに揃える (CenterArea / RightPanel と同じ規約):
+    // list ビュー = 共有ストアの実データ、 map ビュー = sampleWardLayout 準拠の MOCK (Phase 2B)。
+    const viewMode = useHousingViewStore((s) => s.viewMode);
+    const realListings = useHousingListingsStore((s) => s.listings);
+    const source = viewMode === 'map' ? MOCK_LISTINGS : realListings;
 
     const result = useMemo(
-        () => applyFilters(listings, { dc, regions, servers, areas, sizes, tags, searchText }),
-        [listings, dc, regions, servers, areas, sizes, tags, searchText],
+        () => applyFilters(source, { dc, regions, servers, areas, sizes, tags, searchText }),
+        [source, dc, regions, servers, areas, sizes, tags, searchText],
     );
 
     useEffect(() => {
-        setCounts(result.length, listings.length);
-    }, [result.length, listings.length, setCounts]);
+        setCounts(result.length, source.length);
+    }, [result.length, source.length, setCounts]);
 
     const availableServers = dc ? DC_SERVER_MAP[dc]?.servers ?? [] : [];
 
@@ -72,7 +76,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
             <div className="housing-panel-head">
                 <div className="housing-panel-title">{t('housing.workspace.filter.title')}</div>
                 <div className="housing-panel-meta">
-                    <ResultCountBadge result={result.length} total={listings.length} />
+                    <ResultCountBadge result={result.length} total={source.length} />
                 </div>
             </div>
             <div className="housing-panel-body">
