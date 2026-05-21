@@ -4,7 +4,10 @@ import { parseTweetUrl } from '../../../lib/housing/tweetUrlParse';
 import { useTweetFetch, type TweetData } from '../../../lib/housing/useTweetFetch';
 
 type Props = {
-    onTweetFetched: (data: TweetData) => void;
+    onTweetFetched: (
+        data: TweetData,
+        source: { postUrl: string; tweetId: string } | null,
+    ) => void;
 };
 
 export function HousingRegisterSnsUrlField({ onTweetFetched }: Props) {
@@ -15,9 +18,13 @@ export function HousingRegisterSnsUrlField({ onTweetFetched }: Props) {
 
     useEffect(() => {
         if (status === 'success' && data) {
-            onTweetFetched(data);
+            const tweetId = parseTweetUrl(url);
+            onTweetFetched(
+                data,
+                tweetId ? { postUrl: url.trim(), tweetId } : null,
+            );
         }
-    }, [status, data, onTweetFetched]);
+    }, [status, data, onTweetFetched, url]);
 
     const handleChange = useCallback((value: string) => {
         setUrl(value);

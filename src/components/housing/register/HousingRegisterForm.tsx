@@ -28,6 +28,9 @@ export type HousingRegisterFormValues = {
     parentHouseSize?: 'S' | 'M' | 'L';
     description?: string;
     tags?: string[];
+    postUrl?: string;
+    ogImageUrl?: string;
+    tweetId?: string;
 };
 
 type Props = {
@@ -44,12 +47,14 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const { t } = useTranslation();
     const fieldState = useHousingFieldState(REQUIRED_FIELDS);
     const [tweetData, setTweetData] = useState<TweetData | null>(null);
+    const [tweetSource, setTweetSource] = useState<{ postUrl: string; tweetId: string } | null>(null);
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState<string[]>([]);
 
     const handleTweetFetched = useCallback(
-        (data: TweetData) => {
+        (data: TweetData, source: { postUrl: string; tweetId: string } | null) => {
             setTweetData(data);
+            setTweetSource(source);
             const result = parseHousingFromText(data.text);
             const fills: Array<[string, unknown]> = [];
             if (result.dc) fills.push(['dc', result.dc]);
@@ -107,6 +112,11 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     }, [showRoomNumber, showParentSize, roomNumber, parentHouseSize, fieldState]);
 
     const handleSubmit = () => {
+        const photo = tweetData?.photos?.[0];
+        const image =
+            tweetSource && photo
+                ? { postUrl: tweetSource.postUrl, ogImageUrl: photo, tweetId: tweetSource.tweetId }
+                : {};
         onSubmit({
             dc,
             server,
@@ -118,6 +128,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             parentHouseSize,
             description,
             tags,
+            ...image,
         });
     };
 

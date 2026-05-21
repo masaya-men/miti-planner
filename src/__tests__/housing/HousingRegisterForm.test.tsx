@@ -26,6 +26,12 @@ describe('HousingRegisterForm', () => {
         expect(submitBtn).toBeDisabled();
     });
 
+    // 注: 「画像つき登録で onSubmit に postUrl/ogImageUrl/tweetId が乗る」検証は、
+    // フォーム全体を駆動するコンポーネントテストだと vmThreads (Node v24 で forks 不可のため
+    // 2026-05-20 採用) がワーカーを終了できず無限ハングするため、ここには置かない。
+    // 同等の検証は toRegistrationDraft の純 node ユニット (HousingRegisterFormModal.test) と
+    // Task 6 の実機確認でカバーする。
+
     it('fills size field when tweet is fetched (auto-filled state)', async () => {
         mockFetch.mockResolvedValueOnce(
             new Response(
