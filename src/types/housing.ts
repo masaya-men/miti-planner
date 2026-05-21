@@ -130,6 +130,13 @@ export interface HousingListing {
   reportCount: number;
 
   /**
+   * 家主が自分で非表示を解除 (自己復帰) した回数。
+   * MAX_SELF_RESTORE を超えると却下/編集での復帰不可 = 管理者対応 (占有対策)。
+   * 未設定 (旧データ) は 0 とみなす。
+   */
+  restoreCount?: number;
+
+  /**
    * 家主による削除タイムスタンプ (soft delete)。
    * - null: 生きてる
    * - number: 削除済み (30 日後に物理削除予定)

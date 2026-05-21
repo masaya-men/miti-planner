@@ -16,10 +16,12 @@ import { HousingActionBar } from './HousingActionBar';
 export interface ReportNotice {
   reason: ReportReason;
   comment?: string;
+  /** 自己復帰の上限を超えて再非表示 = 却下/編集では戻せず管理者対応 (Discord 異議) のみ */
+  escalated?: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onDispute: () => void;
-  /** 「これは誤り」 = 通報を確認のうえ解決済みにする */
+  /** 「これは誤り」 = 通報を却下し非表示を自己解除する */
   onDismiss: () => void;
 }
 
@@ -61,32 +63,52 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
               {reportNotice.comment}
             </blockquote>
           )}
-          <div className="housing-detail-report-actions">
-            {(reportNotice.reason === 'wrong_info' || reportNotice.reason === 'other') && (
-              <button type="button" onClick={reportNotice.onEdit}>
-                {t('housing.guide.cta.edit')}
+          {reportNotice.escalated ? (
+            <>
+              <p className="housing-detail-report-escalated">
+                {t('housing.guide.escalated_note')}
+              </p>
+              <div className="housing-detail-report-actions">
+                <button
+                  type="button"
+                  onClick={reportNotice.onDelete}
+                  className="housing-btn-danger"
+                >
+                  {t('housing.guide.cta.delete')}
+                </button>
+                <button type="button" onClick={reportNotice.onDispute}>
+                  {t('housing.guide.cta.dispute')}
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="housing-detail-report-actions">
+              {(reportNotice.reason === 'wrong_info' || reportNotice.reason === 'other') && (
+                <button type="button" onClick={reportNotice.onEdit}>
+                  {t('housing.guide.cta.edit')}
+                </button>
+              )}
+              {(reportNotice.reason === 'sold' || reportNotice.reason === 'other') && (
+                <button
+                  type="button"
+                  onClick={reportNotice.onDelete}
+                  className="housing-btn-danger"
+                >
+                  {t('housing.guide.cta.delete')}
+                </button>
+              )}
+              {(reportNotice.reason === 'griefing' ||
+                reportNotice.reason === 'nsfw' ||
+                reportNotice.reason === 'other') && (
+                <button type="button" onClick={reportNotice.onDispute}>
+                  {t('housing.guide.cta.dispute')}
+                </button>
+              )}
+              <button type="button" onClick={reportNotice.onDismiss}>
+                {t('housing.guide.cta.dismiss')}
               </button>
-            )}
-            {(reportNotice.reason === 'sold' || reportNotice.reason === 'other') && (
-              <button
-                type="button"
-                onClick={reportNotice.onDelete}
-                className="housing-btn-danger"
-              >
-                {t('housing.guide.cta.delete')}
-              </button>
-            )}
-            {(reportNotice.reason === 'griefing' ||
-              reportNotice.reason === 'nsfw' ||
-              reportNotice.reason === 'other') && (
-              <button type="button" onClick={reportNotice.onDispute}>
-                {t('housing.guide.cta.dispute')}
-              </button>
-            )}
-            <button type="button" onClick={reportNotice.onDismiss}>
-              {t('housing.guide.cta.dismiss')}
-            </button>
-          </div>
+            </div>
+          )}
         </div>
       )}
 

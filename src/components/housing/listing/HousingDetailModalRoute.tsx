@@ -25,7 +25,9 @@ import type { ReportNotice } from './HousingDetailContent';
 import { HousingEditModal } from '../edit/HousingEditModal';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDelete } from '../delete/useHousingDelete';
+import { useResolveReport } from '../report/useResolveReport';
 import { useNotifications } from '../notifications/useNotifications';
+import { MAX_SELF_RESTORE } from '../../../constants/housing';
 import { showToast } from '../../Toast';
 
 export const HousingDetailModalRoute: React.FC = () => {
@@ -42,6 +44,7 @@ export const HousingDetailModalRoute: React.FC = () => {
 
   const { deleteForListing } = useNotifications();
   const { deleteListing, loading: deleting } = useHousingDelete();
+  const { resolve: resolveReport } = useResolveReport();
 
   const notificationId = searchParams.get('notification');
   // 通知 doc は notificationId ごとに 1 回だけ取得する。
@@ -112,23 +115,8 @@ export const HousingDetailModalRoute: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notFound]);
 
-  // 通報を解決する。 解決済みの通知はリストから消す方針なので、 その物件の通知を削除。
-  const resolveNotification = () => {
-    if (notification) void deleteForListing(notification.listingId);
-    setNotification(null);
-  };
-
-  const onDispute = () => {
-    const url =
-      (import.meta as any).env?.VITE_DISCORD_INVITE_URL ?? 'https://discord.gg/';
-    window.open(url, '_blank', 'noopener,noreferrer');
-    resolveNotification();
-  };
-
-  const onDismiss = () => resolveNotification();
-
-  // 編集保存成功時: 詳細を再 fetch して即反映 + 中央パネルの一覧カードも更新 + 関連通報を解決。
-  const handleListingSaved = async () => {
+  // 物件変更後の共通後処理: 詳細を再 fetch (即反映) + 一覧ストア同期 + 関連通知の削除 + バナーを閉じる。
+  const refreshAfterChange = async () => {
     const updated = await loadListing();
     if (updated) {
       // 一覧 (ギャラリー) は非表示 / 削除を含まない。 公開対象なら upsert、 そうでなければ除去。
@@ -137,7 +125,40 @@ export const HousingDetailModalRoute: React.FC = () => {
       if (vm) useHousingListingsStore.getState().upsert(vm);
       else useHousingListingsStore.getState().remove(updated.id);
     }
-    resolveNotification();
+    if (listing) void deleteForListing(listing.id);
+    setNotification(null);
+  };
+
+  const onDispute = () => {
+    const url =
+      (import.meta as any).env?.VITE_DISCORD_INVITE_URL ?? 'https://discord.gg/';
+    window.open(url, '_blank', 'noopener,noreferrer');
+    // 異議は管理者対応に委ねる (非表示は解除しない)。 通知だけ消してバナーを閉じる。
+    if (listing) void deleteForListing(listing.id);
+    setNotification(null);
+  };
+
+  // 「これは誤り (却下)」: 通報を対処済みにして非表示を自己解除し、 即反映。
+  const onDismiss = async () => {
+    if (!listing) {
+      setNotification(null);
+      return;
+    }
+    const res = await resolveReport(listing.id);
+    if (!res.ok) {
+      showToast(
+        t(res.escalation ? 'housing.report.escalation_required' : 'housing.delete.error'),
+        'info',
+      );
+      return; // 復帰できないときはバナーを残す
+    }
+    await refreshAfterChange();
+  };
+
+  // 編集保存成功時: 編集=対処とみなし非表示解除を試み (escalation/失敗時も編集内容は保存済み)、 詳細/一覧へ即反映。
+  const handleListingSaved = async () => {
+    if (listing) await resolveReport(listing.id);
+    await refreshAfterChange();
   };
 
   const onEdit = () => setEditOpen(true);
@@ -161,10 +182,14 @@ export const HousingDetailModalRoute: React.FC = () => {
 
   if (!listing) return null;
 
+  // 自己復帰の上限を超えて再非表示になった = 却下/編集では戻せず管理者対応 (Discord 異議) のみ。
+  const escalated = !!(listing.isHidden && (listing.restoreCount ?? 0) >= MAX_SELF_RESTORE);
+
   const reportNotice: ReportNotice | undefined = notification
     ? {
         reason: notification.reason,
         comment: notification.comment,
+        escalated,
         onEdit,
         onDelete: onDeleteClick,
         onDispute,
