@@ -9,6 +9,14 @@ import type { FirebaseApp } from 'firebase/app';
  * @param firebaseApp — 循環インポート回避のため引数で受け取る
  */
 export function initAppCheck(firebaseApp: FirebaseApp) {
+  // テスト環境 (vitest) では App Check を初期化しない。
+  // reCAPTCHA Enterprise スクリプトのロードと exchangeDebugToken のネットワーク POST が
+  // happy-dom 上で宙ぶらりんの非同期処理になり、 vitest の teardown を無限に待たせて
+  // プロセスがハング → ゾンビ化する原因になるため (App Check はテストで不要)。
+  if (import.meta.env.MODE === 'test') {
+    return null;
+  }
+
   if (import.meta.env.DEV) {
     // @ts-expect-error — Firebase App Checkデバッグトークン用のグローバル変数
     self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.VITE_APPCHECK_DEBUG_TOKEN || true;
