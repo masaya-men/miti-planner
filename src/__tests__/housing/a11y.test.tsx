@@ -1,11 +1,17 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, afterEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../locales/ja.json';
+
+// CenterArea が useGalleryListings 経由で実 Firestore を叩かないようにスタブ
+vi.mock('../../lib/housingListingsService', () => ({
+  getGalleryListings: () => Promise.resolve([]),
+}));
+
 import { HousingWorkspace } from '../../components/housing/workspace/HousingWorkspace';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
 

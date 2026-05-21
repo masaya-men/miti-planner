@@ -6,6 +6,12 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../locales/ja.json';
+
+// CenterArea が useGalleryListings 経由で実 Firestore を叩かないようにスタブ
+vi.mock('../../lib/housingListingsService', () => ({
+  getGalleryListings: () => Promise.resolve([]),
+}));
+
 import { HousingWorkspace } from '../../components/housing/workspace/HousingWorkspace';
 import { useHousingTourStore } from '../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../store/useHousingViewStore';

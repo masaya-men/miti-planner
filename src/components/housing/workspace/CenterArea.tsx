@@ -11,6 +11,10 @@ import { ViewModeToggle } from './ViewModeToggle';
 import { MapView } from './MapView';
 import { PinterestView } from './PinterestView';
 import { EmptyResult } from './EmptyResult';
+import { useGalleryListings } from './useGalleryListings';
+
+// 安定参照の空配列 (loading/error 中に applyFilters の deps が毎回変わるのを防ぐ)
+const EMPTY_LISTINGS: MockListing[] = [];
 
 export interface CenterAreaProps {
     /** Optional click handler when a card is activated from map / grid. */
@@ -33,6 +37,11 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
     const selectedWardId = useHousingRandomStore((s) => s.selectedWardId);
     const selectWard = useHousingRandomStore((s) => s.selectWard);
 
+    // Pinterest (一覧) ビューは実 Firestore データを使う。
+    // マップビューは sampleWardLayout (mock 位置) のまま現状維持 (実マップ配置は Phase 2B 別タスク)。
+    const gallery = useGalleryListings();
+    const galleryListings = gallery.kind === 'ready' ? gallery.listings : EMPTY_LISTINGS;
+
     // When the URL focuses a specific listing, force pinterest view for card expansion.
     useEffect(() => {
         if (focusListingId) setViewMode('pinterest');
@@ -48,8 +57,8 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
     const activeWardKey = selectedWardId ?? SAMPLE_WARD_KEY;
 
     const filtered = useMemo(
-        () => applyFilters(MOCK_LISTINGS, { dc, regions, servers, areas, sizes, tags, searchText }),
-        [dc, regions, servers, areas, sizes, tags, searchText],
+        () => applyFilters(galleryListings, { dc, regions, servers, areas, sizes, tags, searchText }),
+        [galleryListings, dc, regions, servers, areas, sizes, tags, searchText],
     );
 
     const pinterestListings = useMemo(
@@ -74,7 +83,9 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
                         : t('housing.workspace.center.toggle.pinterest')}
                 </div>
                 <div className="housing-panel-meta">
-                    {filtered.length} / {MOCK_LISTINGS.length}
+                    {viewMode === 'map'
+                        ? `${mapWardListings.length} / ${MOCK_LISTINGS.length}`
+                        : `${filtered.length} / ${galleryListings.length}`}
                 </div>
             </div>
             <div className="housing-center-area">
@@ -85,6 +96,10 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
                     ) : (
                         <MapView onCardClick={handleMapClick} />
                     )
+                ) : gallery.kind === 'loading' ? (
+                    <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
+                ) : gallery.kind === 'error' ? (
+                    <div className="housing-center-error">{t('housing.gallery.error')}</div>
                 ) : pinterestListings.length === 0 ? (
                     <EmptyResult />
                 ) : (

@@ -1,16 +1,30 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
+import type { HousingListing } from '../../types/housing';
+
+const getGalleryListingsMock = vi.fn();
+vi.mock('../../lib/housingListingsService', () => ({
+  getGalleryListings: (...a: unknown[]) => getGalleryListingsMock(...a),
+}));
+
 import { CenterArea } from '../../components/housing/workspace/CenterArea';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
 import { useHousingFilterStore } from '../../store/useHousingFilterStore';
 import { useHousingRandomStore } from '../../store/useHousingRandomStore';
 import { useHousingFavoritesStore } from '../../store/useHousingFavoritesStore';
 import { MOCK_LISTINGS } from '../../data/housing/mockListings';
+
+const fsDoc = (over: Partial<HousingListing>): HousingListing => ({
+  id: 'x', ownerUid: 'u', dc: 'Mana', server: 'Anima',
+  area: 'Shirogane', ward: 3, buildingType: 'house', plot: 12, size: 'M',
+  addressKey: 'k', imageMode: 'none', tags: ['wafu'], createdAt: 1, updatedAt: 1,
+  isHidden: false, reportCount: 0, deletedAt: null, ...over,
+});
 
 beforeAll(() => {
     if (!i18n.isInitialized) {
@@ -28,6 +42,12 @@ beforeEach(() => {
     useHousingFilterStore.getState().clearAll();
     useHousingRandomStore.getState().reset();
     useHousingFavoritesStore.getState().reset();
+    getGalleryListingsMock.mockReset();
+    getGalleryListingsMock.mockResolvedValue([
+        fsDoc({ id: 'g1', plot: 12 }),
+        fsDoc({ id: 'g2', plot: 15 }),
+        fsDoc({ id: 'g3', plot: 18 }),
+    ]);
 });
 
 function renderCenter() {
@@ -55,44 +75,47 @@ describe('CenterArea', () => {
         expect(bubbles.length).toBe(5);
     });
 
-    it('switches to Pinterest grid when the Grid tab is clicked', () => {
+    it('switches to Pinterest grid and renders cards from Firestore data', async () => {
         renderCenter();
         fireEvent.click(screen.getByRole('tab', { name: /一覧/ }));
         expect(useHousingViewStore.getState().viewMode).toBe('pinterest');
+        // useGalleryListings の取得完了 (モックで 3 件) を待つ
+        await waitFor(() => {
+            const cards = document.querySelectorAll('.housing-card');
+            expect(cards.length).toBe(3);
+        });
         const grid = document.querySelector('.housing-pinterest-grid');
         expect(grid).toBeTruthy();
-        const cards = document.querySelectorAll('.housing-card');
-        expect(cards.length).toBe(MOCK_LISTINGS.length);
     });
 
     // Phase 3 (2026-05-21): カードクリックは `/housing/listing/:id` への遷移に変更。
     // 旧 inline expand (`.housing-card-expanded`) は廃止したためテストも置き換える。
-    it('navigates to the listing detail route when a card is clicked in Pinterest mode', () => {
+    it('navigates to the listing detail route when a card is clicked in Pinterest mode', async () => {
         renderCenter();
         fireEvent.click(screen.getByRole('tab', { name: /一覧/ }));
-        const firstCard = document.querySelector('.housing-card') as HTMLElement;
+        // 取得完了を待ってからカードをクリック (mock は Shirogane 3-12)
+        const firstCard = await screen.findByRole('button', { name: 'Shirogane 3-12' });
         // クリックすると navigate されるが MemoryRouter なので副作用は throw しない。
-        // ここでは「クリックが成立する (= ハンドラが拾える)」 ことの確認だけ。
         fireEvent.click(firstCard);
         // expanded UI は存在しなくなったことも併せて確認
         expect(document.querySelector('.housing-card-expanded')).toBeNull();
     });
 
-    it('toggles favorite from the card overlay ♡ button (not via expanded view)', () => {
+    it('toggles favorite from the card overlay ♡ button (not via expanded view)', async () => {
         renderCenter();
         fireEvent.click(screen.getByRole('tab', { name: /一覧/ }));
         // overlay ♡ ボタンは各カードに 1 つ、 aria-label='お気に入り' でアクセス可能。
-        const favBtns = screen.getAllByRole('button', { name: 'お気に入り' });
+        const favBtns = await screen.findAllByRole('button', { name: 'お気に入り' });
         expect(favBtns.length).toBeGreaterThan(0);
         fireEvent.click(favBtns[0]);
         expect(useHousingFavoritesStore.getState().ids.length).toBe(1);
     });
 
-    it('shows EmptyResult when filters produce zero matches in Pinterest mode', () => {
-        // Mana DC + 欧州 region → empty (no listing belongs to both)
-        useHousingFilterStore.setState({ dc: 'Mana', regions: ['EU'] });
+    it('shows EmptyResult when filters produce zero matches in Pinterest mode', async () => {
+        // mock は Mana/JP データなので region=EU フィルタで 0 件になる
+        useHousingFilterStore.setState({ regions: ['EU'] });
         useHousingViewStore.setState({ viewMode: 'pinterest' });
         renderCenter();
-        expect(screen.getByText('該当ハウジングがありません')).toBeInTheDocument();
+        expect(await screen.findByText('該当ハウジングがありません')).toBeInTheDocument();
     });
 });

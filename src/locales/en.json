@@ -2150,6 +2150,10 @@
             "login": "",
             "account": ""
         },
+        "gallery": {
+            "loading": "物件を読み込んでいます…",
+            "error": "物件の読み込みに失敗しました"
+        },
         "detail": {
             "title": "物件詳細",
             "owner_label": "登録者",
