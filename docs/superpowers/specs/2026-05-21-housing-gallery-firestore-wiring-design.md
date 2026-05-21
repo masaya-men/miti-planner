@@ -22,6 +22,7 @@
 - loading / 空 / error の各状態を持つ。
 
 **非ゴール**
+- **マップビューの実データ配置**。マップは `sampleWardLayout`（mock 位置）前提で、実マップ配置は TODO 既出の Phase 2B 別タスク。**詳細に遷移するのは Pinterest（一覧）ビューのみ**（MapView は CenterArea で noop）なので、E2E 解消には Pinterest ビューだけ実データ化すれば十分。マップビューは本タスクでは現状維持。
 - 偽データを本番 Firestore に投入しない（公開リポジトリ衛生・ユーザー誤認回避）。実物件が少なく一覧が疎なのは正しい挙動。
 - 無限スクロール / ページネーション（YAGNI、`limit(200)` で当面足りる。将来別タスク）。
 - 個室・アパート（roomKind）の一覧上の特別扱い（既存どおりの表示で可）。
@@ -69,13 +70,13 @@ type GalleryState =
 
 ## 6. CenterArea 改修
 
-- `MOCK_LISTINGS` 直 import を撤去し、`useGalleryListings()` を使用。
-- `applyFilters` / `pickRandomWard` / `listListingsForWard` / `PinterestView` / `MapView` は**取得済み配列に対して**従来どおり動作（インターフェース不変）。
-- 表示状態:
-  - `loading` → 既存トーンに沿ったスケルトン or ローディング表記（housing.css token 経由）
+- **Pinterest（一覧）ビューのみ実データ化**。`useGalleryListings()` を使い、`applyFilters` → `PinterestView` に渡す配列を Firestore 由来に置換。
+- **マップビューは現状維持**（`MOCK_LISTINGS` + `sampleWardLayout` で `pickRandomWard` / `listListingsForWard` → `MapView`）。実マップ配置は Phase 2B 別タスク（非ゴール §2）。`MOCK_LISTINGS` import はマップ用に残す。
+- Pinterest ビューの表示状態（`useGalleryListings` の `kind` で分岐）:
+  - `loading` → ローディング表記（housing.css token 経由 / i18n キー）
   - `error` → エラーメッセージ（i18n キー経由）
-  - 取得 0 件 / フィルタ 0 件 → 既存 `EmptyResult`
-- 件数表示 `{filtered.length} / {total}` の `total` は取得件数に置換。
+  - `ready` かつ取得 0 件 / フィルタ 0 件 → 既存 `EmptyResult`
+- 件数表示 `{filtered.length} / {total}` は**アクティブビューに応じて**切替: pinterest=実データ件数、map=`MOCK_LISTINGS.length`（現状維持）。
 
 ## 7. i18n
 
@@ -85,7 +86,7 @@ type GalleryState =
 
 - **アダプタ** `firestoreToGalleryListing`: region 導出（Materia→OCE 等）、Timestamp→number、plot/size 欠損・region null の除外、フィールド写し。
 - **`useGalleryListings`**: service をモックし loading→ready / loading→error / 空配列 / 除外フィルタ を検証。
-- **`CenterArea`**: フック（または service）をモックし、loading/error/empty/ready の分岐描画を検証。既存テスト（カードクリック遷移）はモックデータ注入に追従。
+- **`CenterArea`**: `useGalleryListings`（または service）をモックし、Pinterest ビューの loading/error/empty/ready の分岐描画を検証。既存テストのうち **Pinterest のカード枚数を `MOCK_LISTINGS.length` で assert している箇所**（`switches to Pinterest grid`）はモックデータ件数に追従して更新。マップビュー系テスト（bubble 5 件等）は現状維持で無改修。
 - 既存 `applyFilters` / `randomWard` / `sortByAddress` テストは `MockListing` フィクスチャのまま有効（無改修）。
 
 ## 9. デプロイ / 検証
