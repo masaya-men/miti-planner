@@ -11,23 +11,22 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #49 (2026-05-21) で **Phase 3 仕上げ実機 E2E** → ① 完了 + 実機で発見した複数バグ修正 + 通報モデレーションを実用化。 全て実機確認済・本番反映済
-- **完了 (#49)**: ① **編集→詳細即反映＋通報自動解決** (onSaved/onListingUpdated を詳細チェーンに配線)。 **Fix A** 家主は自分の**非表示(通報3件 isHidden)物件を通知から開ける** (操作不能を解消、 `canViewListing` 純粋関数)。 **Fix B** 編集で**中央一覧カード即反映** (`useHousingListingsStore` に upsert/remove)。 **Fix C** 解決した通報通知を**削除** (リスト/バッジから消える、 `delete-notification`)。 通知ベルに**個別削除 ✕**。 **通報自己復帰フロー** (却下/編集で非表示解除、 自己復帰は `MAX_SELF_RESTORE=1` 回まで→超過は Discord 異議=管理者対応で占有対策、 `resolve-report` ハンドラ)。 **削除ダイアログが出ないバグ修正** (root 直下の housing モーダルが `--housing-*` トークン未解決→ z-index/背景無効で透明化、 `.housing-modal-backdrop` をトークン定義セレクタに追加)
-- **実機検証済**: 非表示物件を通知から開ける / 編集で詳細&一覧カード即反映 / 却下で通知消える / ✕ で通知消える / 削除ダイアログ表示→削除→一覧から即消える
-- **次セッション最優先**: **②残り** (ActionBar=kebab 削除も `store.remove` 連携 / 削除済みカードをクリックした時の toast 案内)。 → **③ SNS 画像表示＋ツイート連動ライフサイクル**: 設計書済 (`docs/superpowers/specs/2026-05-21-housing-sns-image-lifecycle-design.md`) を `writing-plans`→実装。 画像は CDN 直リンク(保存しない)、 ツイート削除で物件 soft delete (開いた時チェック+ローリングバッチ cron、 10万件対応)
-- **注意**: en/ko/zh i18n の新キーは ja 値コピー (en 翻訳は従来どおり後追い)。 `.env.local` の `FIREBASE_PRIVATE_KEY` が**改行潰れで壊れ→ローカル admin SDK 不可** (本番は正常、 `vercel env pull` で修復可)。 デプロイは **git push 後に `vercel alias set <newest-ready> lopoly.app`** で本番ドメイン張替 (memory `reference_vercel_git_autodeploy`)。 vitest 全 suite は firebase teardown ハング (test は pass)、 pool='vmThreads' 厳守
+- **ブランチ**: main、 セッション #50 (2026-05-21) で **②残り完了 + 新規登録の一覧即反映 + テスト基盤修正**。 全て実機確認済・本番反映済 (lopoly.app)
+- **完了 (#50)**: ② **kebab(…) 削除も一覧へ即反映** (`HousingActionBar` に `onDeleted` 追加→ route で `store.remove`+通知一掃、 バナー経由と挙動統一)。 **削除済み/非公開カードクリックで toast 案内** (`housing.detail.unavailable`、 今まで無言で閉じてた)。 **新規登録した物件を中央一覧へ即反映** (リロード不要、 `store.fetchAndUpsert(id)` + `service.getListingById(id)`、 編集/削除と責務統一)。 **テスト基盤根治**: vitest が App Check の reCAPTCHA 通信で teardown ハング→ゾンビ化していたのを `MODE==='test'` スキップで解消 (memory `reference_vitest_appcheck_teardown`、 これまで全 suite が固まってた主因)
+- **実機検証済 (#50)**: 新規登録→リロードせず中央に出る / kebab 削除→リロードせず中央から消える / 削除済みカード→toast 案内
+- **次セッション最優先**: **③ SNS 画像表示＋ツイート連動ライフサイクル**: 設計書済 (`docs/superpowers/specs/2026-05-21-housing-sns-image-lifecycle-design.md`) を `writing-plans`→実装。 画像は CDN 直リンク(保存しない)、 ツイート削除で物件 soft delete (開いた時チェック+ローリングバッチ cron、 10万件対応)
+- **注意**: en/ko/zh i18n の新キーは ja 値コピー (en 翻訳は従来どおり後追い)。 `.env.local` の `FIREBASE_PRIVATE_KEY` が**改行潰れで壊れ→ローカル admin SDK 不可** (本番は正常、 `vercel env pull` で修復可)。 デプロイは **git push(main) で lopoly.app に自動反映** (手動 alias 不要、 memory `reference_vercel_git_autodeploy`)。 vitest は pool='vmThreads' 厳守
 - **本番データ**: housing_listings は実物件のみ (偽データ投入しない方針)。 通報モデレーションの **/admin 復帰 UI は未実装** (現状 reset 手段が無い→自己復帰フローで代替)。 リリース準備は `docs/housing-release-checklist.md`
 
 ---
 
-## 次セッション最優先: Phase 3 仕上げ (② 残り → ③)
+## 次セッション最優先: Phase 3 ③ (SNS 画像ライフサイクル)
 
 **最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 Phase 3 は #49 で ① + 通報モデレーション一式まで実機 OK。 次は ② の残り (kebab 削除も一覧から即消す + 削除済みカードクリック時の toast)、 そのあと ③ SNS 画像表示+ツイート連動ライフサイクル (設計書済→ writing-plans→実装)。 1 件ずつ実機確認で。
+> `docs/TODO.md` を読んで。 Phase 3 は #50 で ① + ② + 通報モデレーション一式まで実機 OK。 次は ③ SNS 画像表示+ツイート連動ライフサイクル (設計書済→ `writing-plans`→実装)。 1 件ずつ実機確認で。
 
 ### Phase 3 残り
 
-- ② **残り**: 詳細バナー経由の削除は一覧反映済 (route の `onConfirmDelete` で `store.remove`)。 **kebab (`HousingActionBar`) 経由の削除も `store.remove` 連携** + **削除済み/存在しないカードをクリックした時の toast 案内** (今は静かに閉じるだけ)
 - ③ **SNS 画像表示+ツイート連動**: 設計書 `docs/superpowers/specs/2026-05-21-housing-sns-image-lifecycle-design.md` を `writing-plans`→実装。 (A) フォームが取得済みのツイート画像 URL を登録 API へ通す+ `imageMode:'none'` 決め打ち廃止 (`_registerListingHandler.ts:93`)、 (B) CDN 直リンク表示、 (C) 開いた時のツイート生存チェック、 (D) サーバ検証つき削除、 (E) ローリングバッチ cron (10万件対応)
 - **通報モデレーションの穴**: /admin の復帰(reset)/BAN UI が未実装。 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知、 30 日後物理削除 cron も未
 - **HousingCardExpanded 撤去判断** / ツアー同期 Firestore 化 / Cloudflare 前段化
