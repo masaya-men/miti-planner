@@ -6,6 +6,8 @@
 // Phase 3 (Cloudflare 全面移行) で Cloudflare Workers にコピペ移植する想定で、
 // Node.js 固有 API は使わず Web 標準 (Request/Response/fetch/URL/AbortSignal) のみ。
 
+import { syndicationUrl } from '../src/lib/housing/tweetSyndication';
+
 export const config = { runtime: 'edge' };
 
 const TWEET_ID_REGEX = /^\d{1,20}$/;
@@ -18,12 +20,11 @@ export default async function handler(req: Request): Promise<Response> {
         return Response.json({ error: 'Invalid tweet ID' }, { status: 400 });
     }
 
-    // syndication CDN の暗黙トークン (公開リバースエンジニアリングされた既知のアルゴリズム)
-    const token = ((Number(id) / 1e15) * Math.PI).toString(36).replace(/(0+|\.)/g, '');
-    const syndicationUrl = `https://cdn.syndication.twimg.com/tweet-result?id=${id}&token=${token}`;
+    // syndication CDN の URL/token 生成は共有モジュールに集約 (cron/purge と同一ロジック)
+    const syndUrl = syndicationUrl(id);
 
     try {
-        const res = await fetch(syndicationUrl, {
+        const res = await fetch(syndUrl, {
             signal: AbortSignal.timeout(TIMEOUT_MS),
             headers: { 'User-Agent': 'LoPo Housing Tour' },
         });
