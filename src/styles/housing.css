@@ -88,6 +88,34 @@
   --housing-detail-modal-h: 640px;
   --housing-detail-fullpage-max-w: 1200px;
 
+  /* ===== Phase 3 Group D: report / notifications ===== */
+  --housing-report-modal-max-w: 440px;
+  --housing-report-modal-padding: 24px;
+  --housing-report-title-size: 18px;
+  --housing-input-bg: rgba(255, 255, 255, 0.05);
+  --housing-input-bg-strong: rgba(255, 255, 255, 0.08);
+  --housing-input-bg-hover: rgba(255, 255, 255, 0.12);
+  --housing-input-radius-sm: 10px;
+  --housing-notif-bell-size: 40px;
+  --housing-notif-badge-bg: var(--housing-danger-btn);
+  --housing-notif-badge-color: #ffffff;
+  --housing-notif-badge-size: 18px;
+  --housing-notif-badge-offset: -4px;
+  --housing-notif-badge-padding-x: 5px;
+  --housing-notif-badge-radius: 999px;
+  --housing-notif-dropdown-w: 360px;
+  --housing-notif-dropdown-max-vw-pad: 24px;
+  --housing-notif-dropdown-gap: 8px;
+  --housing-notif-dropdown-radius: 14px;
+  --housing-notif-dropdown-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --housing-notif-dropdown-z: 95;
+  --housing-notif-list-max-h: 360px;
+  --housing-notif-item-divider: rgba(255, 255, 255, 0.04);
+  --housing-notif-time-size: 11px;
+  --housing-notif-dot-size: 8px;
+  --housing-guide-comment-bg: rgba(255, 255, 255, 0.05);
+  --housing-guide-comment-border: var(--housing-honey);
+
   /* ===== Typography sizes (px-based, mockup-aligned) ===== */
   --housing-text-xs: 11px;
   --housing-text-sm: 12px;
@@ -3406,4 +3434,275 @@ select.housing-input option {
     max-width: var(--housing-detail-fullpage-max-w);
     width: 100%;
     margin: 0 auto;
+}
+
+/* ============================================================
+ * Phase 3 Group D: 通報モーダル
+ * ============================================================ */
+.housing-report-modal {
+    background: var(--housing-popover-bg);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: var(--housing-panel-radius);
+    padding: var(--housing-report-modal-padding);
+    max-width: var(--housing-report-modal-max-w);
+    width: calc(100% - 32px);
+    color: var(--housing-text);
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-report-title {
+    font-size: var(--housing-report-title-size);
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+.housing-report-subtitle {
+    font-size: var(--housing-text-sm);
+    color: var(--housing-text-dim);
+    margin: 0 0 16px;
+}
+.housing-report-reasons {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.housing-report-reasons label {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-size: var(--housing-text-base);
+    cursor: pointer;
+}
+.housing-report-comment {
+    width: 100%;
+    background: var(--housing-input-bg);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: var(--housing-input-radius-sm);
+    padding: 10px 12px;
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    resize: vertical;
+    margin-bottom: 16px;
+    font-family: inherit;
+}
+.housing-report-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.housing-report-actions button {
+    padding: 8px 16px;
+    border-radius: var(--housing-input-radius-sm);
+    background: var(--housing-input-bg-strong);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-report-actions button:hover:not(:disabled) {
+    background: var(--housing-input-bg-hover);
+}
+.housing-report-actions button:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+}
+
+/* primary CTA (honey accent) — 通報モーダル / ガイドモーダルで共通 */
+.housing-btn-primary {
+    background: var(--housing-honey) !important;
+    border-color: var(--housing-honey) !important;
+    color: #1a1006 !important;
+    font-weight: 600;
+}
+.housing-btn-primary:hover:not(:disabled) {
+    background: var(--housing-honey-glow) !important;
+    border-color: var(--housing-honey-glow) !important;
+}
+.housing-btn-primary:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+}
+
+/* ============================================================
+ * Phase 3 Group D: 通知ベル + ドロップダウン
+ * ============================================================ */
+.housing-notif-bell {
+    position: relative;
+    display: inline-block;
+}
+.housing-notif-bell-trigger {
+    width: var(--housing-notif-bell-size);
+    height: var(--housing-notif-bell-size);
+    border-radius: 50%;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    position: relative;
+}
+.housing-notif-bell-trigger:hover {
+    background: var(--housing-chip-bg-hover);
+}
+.housing-notif-badge {
+    position: absolute;
+    top: var(--housing-notif-badge-offset);
+    right: var(--housing-notif-badge-offset);
+    min-width: var(--housing-notif-badge-size);
+    height: var(--housing-notif-badge-size);
+    padding: 0 var(--housing-notif-badge-padding-x);
+    background: var(--housing-notif-badge-bg);
+    color: var(--housing-notif-badge-color);
+    border-radius: var(--housing-notif-badge-radius);
+    font-size: var(--housing-text-xs);
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    line-height: 1;
+}
+.housing-notif-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + var(--housing-notif-dropdown-gap));
+    width: var(--housing-notif-dropdown-w);
+    max-width: calc(100vw - var(--housing-notif-dropdown-max-vw-pad));
+    background: var(--housing-popover-bg-strong);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: var(--housing-notif-dropdown-radius);
+    z-index: var(--housing-notif-dropdown-z);
+    box-shadow: var(--housing-notif-dropdown-shadow);
+    color: var(--housing-text);
+    overflow: hidden;
+}
+.housing-notif-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--housing-panel-border);
+}
+.housing-notif-dropdown-header h3 {
+    font-size: var(--housing-text-base);
+    font-weight: 600;
+    margin: 0;
+}
+.housing-notif-dropdown-header button {
+    background: transparent;
+    border: none;
+    color: var(--housing-honey);
+    font-size: var(--housing-text-sm);
+    cursor: pointer;
+}
+.housing-notif-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: var(--housing-notif-list-max-h);
+    overflow-y: auto;
+}
+.housing-notif-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    border-bottom: 1px solid var(--housing-notif-item-divider);
+    position: relative;
+}
+.housing-notif-item:hover {
+    background: var(--housing-honey-soft);
+}
+.housing-notif-item.unread .housing-notif-msg {
+    font-weight: 600;
+}
+.housing-notif-dot {
+    width: var(--housing-notif-dot-size);
+    height: var(--housing-notif-dot-size);
+    background: var(--housing-honey);
+    border-radius: 50%;
+    margin-top: 6px;
+    flex: 0 0 auto;
+}
+.housing-notif-msg {
+    flex: 1;
+    line-height: 1.4;
+}
+.housing-notif-time {
+    font-size: var(--housing-notif-time-size);
+    color: var(--housing-text-mute);
+    flex: 0 0 auto;
+}
+.housing-notif-empty {
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-base);
+}
+.housing-notif-dropdown-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--housing-panel-border);
+    text-align: center;
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-sm);
+}
+
+/* ============================================================
+ * Phase 3 Group D: ガイドモーダル (通報通知を受けた家主向け)
+ * ============================================================ */
+.housing-guide-modal {
+    background: var(--housing-popover-bg);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: var(--housing-panel-radius);
+    padding: var(--housing-report-modal-padding);
+    max-width: var(--housing-report-modal-max-w);
+    width: calc(100% - 32px);
+    color: var(--housing-text);
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-guide-title {
+    font-size: var(--housing-report-title-size);
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+.housing-guide-reason {
+    font-size: var(--housing-text-sm);
+    color: var(--housing-text-dim);
+    margin: 0 0 12px;
+}
+.housing-guide-body {
+    font-size: var(--housing-text-base);
+    line-height: 1.6;
+    margin: 0 0 16px;
+}
+.housing-guide-comment {
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    background: var(--housing-guide-comment-bg);
+    border-left: 3px solid var(--housing-guide-comment-border);
+    border-radius: 6px;
+    color: var(--housing-text-dim);
+    font-size: var(--housing-text-base);
+    font-style: italic;
+}
+.housing-guide-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.housing-guide-actions button {
+    padding: 8px 14px;
+    border-radius: var(--housing-input-radius-sm);
+    background: var(--housing-input-bg-strong);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-guide-actions button:hover:not(:disabled) {
+    background: var(--housing-input-bg-hover);
 }

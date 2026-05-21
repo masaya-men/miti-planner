@@ -6,6 +6,7 @@ import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStor
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 export interface TopBarProps {
     onFavoritesClick?: () => void;
@@ -108,6 +109,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick, onRegisterClic
             )}
           </button>
         )}
+        {user && <NotificationBell />}
         {onRegisterClick && (
           <button
             type="button"
