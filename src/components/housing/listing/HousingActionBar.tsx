@@ -27,6 +27,8 @@ export interface HousingActionBarProps {
   onClose?: () => void;
   /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
   onListingUpdated?: () => void;
+  /** 削除成功時に呼ぶ callback (親で一覧ストア除去 + 関連通知の一掃を行う) */
+  onDeleted?: () => void;
 }
 
 export const HousingActionBar: React.FC<HousingActionBarProps> = ({
@@ -34,6 +36,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   viewerUid,
   onClose,
   onListingUpdated,
+  onDeleted,
 }) => {
   const { t } = useTranslation();
   const isOwner = viewerUid != null && listing.ownerUid === viewerUid;
@@ -74,6 +77,8 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   const onConfirmDelete = async () => {
     const res = await deleteListing(listing.id);
     if (res.ok) {
+      // 一覧ストア除去 + 関連通知の一掃 (banner 経由の削除と同じ後処理) を親に委譲。
+      onDeleted?.();
       showToast(t('housing.delete.success'), 'success');
       setDeleteOpen(false);
       onClose?.();

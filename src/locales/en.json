@@ -2172,7 +2172,8 @@
                 "delete": "削除"
             },
             "login_required": "この操作にはログインが必要です",
-            "cannot_report_own": "自分の物件は通報できません"
+            "cannot_report_own": "自分の物件は通報できません",
+            "unavailable": "この物件は削除されたか、 表示できません"
         },
         "edit": {
             "modal": { "title": "物件を編集" },

@@ -32,6 +32,8 @@ export interface HousingDetailContentProps {
   reportNotice?: ReportNotice;
   /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
   onListingUpdated?: () => void;
+  /** 削除成功時に呼ぶ callback (親で一覧ストア除去 + 関連通知の一掃を行う) */
+  onDeleted?: () => void;
 }
 
 export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
@@ -40,6 +42,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   onClose,
   reportNotice,
   onListingUpdated,
+  onDeleted,
 }) => {
   const { t } = useTranslation();
   const title = listing.description?.trim()
@@ -138,6 +141,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
             viewerUid={viewerUid}
             onClose={onClose}
             onListingUpdated={onListingUpdated}
+            onDeleted={onDeleted}
           />
         </div>
       </div>

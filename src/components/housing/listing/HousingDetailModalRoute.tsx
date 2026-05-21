@@ -107,9 +107,10 @@ export const HousingDetailModalRoute: React.FC = () => {
 
   const close = () => navigate(-1);
 
-  // 取得失敗 = 背景に戻る (フルページに飛ばしても良いが UX 上モーダルは閉じる)
+  // 取得失敗 = 削除済み / 非公開 / 存在しない。 静かに閉じず toast で理由を案内してから背景に戻る。
   useEffect(() => {
     if (notFound) {
+      showToast(t('housing.detail.unavailable'), 'info');
       close();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -180,6 +181,14 @@ export const HousingDetailModalRoute: React.FC = () => {
     }
   };
 
+  // kebab (ActionBar) 経由の削除後の後処理: banner 経由の onConfirmDelete と同じく
+  // 関連通知を一掃 + 一覧ストアから即除去 (削除 API 呼び出し / toast / close は ActionBar 側)。
+  const onListingDeleted = () => {
+    if (!listing) return;
+    void deleteForListing(listing.id);
+    useHousingListingsStore.getState().remove(listing.id);
+  };
+
   if (!listing) return null;
 
   // 自己復帰の上限を超えて再非表示になった = 却下/編集では戻せず管理者対応 (Discord 異議) のみ。
@@ -205,6 +214,7 @@ export const HousingDetailModalRoute: React.FC = () => {
         onClose={close}
         reportNotice={reportNotice}
         onListingUpdated={handleListingSaved}
+        onDeleted={onListingDeleted}
       />
       {editOpen && (
         <HousingEditModal
