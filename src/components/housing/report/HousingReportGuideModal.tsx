@@ -9,6 +9,7 @@
  * - 「あとで」 で閉じる (= read だけ立てて何もしない)
  * - スタイルは housing.css の token 経由
  */
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import type { ReportReason } from '../../../types/housing';
 
@@ -51,8 +52,8 @@ export const HousingReportGuideModal: React.FC<HousingReportGuideModalProps> = (
     primaryCta = { label: t('housing.guide.cta.dispute'), onClick: onDispute };
   }
 
-  return (
-    <div className="housing-modal-backdrop" onClick={onLater} role="presentation">
+  return createPortal(
+    <div className="housing-modal-backdrop" data-modal-role="guide" onClick={onLater} role="presentation">
       <div
         role="dialog"
         aria-modal="true"
@@ -103,6 +104,7 @@ export const HousingReportGuideModal: React.FC<HousingReportGuideModalProps> = (
           ) : null}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };
