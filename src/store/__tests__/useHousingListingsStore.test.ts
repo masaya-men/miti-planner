@@ -2,8 +2,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { HousingListing } from '../../types/housing';
 
 const getGalleryListingsMock = vi.fn();
+const getListingByIdMock = vi.fn();
 vi.mock('../../lib/housingListingsService', () => ({
   getGalleryListings: (...a: unknown[]) => getGalleryListingsMock(...a),
+  getListingById: (...a: unknown[]) => getListingByIdMock(...a),
 }));
 
 import { useHousingListingsStore } from '../useHousingListingsStore';
@@ -17,6 +19,7 @@ const doc = (over: Partial<HousingListing>): HousingListing => ({
 
 beforeEach(() => {
   getGalleryListingsMock.mockReset();
+  getListingByIdMock.mockReset();
   useHousingListingsStore.getState().reset();
 });
 
@@ -52,5 +55,27 @@ describe('useHousingListingsStore', () => {
     await useHousingListingsStore.getState().load();
     await useHousingListingsStore.getState().load();
     expect(getGalleryListingsMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('fetchAndUpsert: id で 1 件取得→変換し listings に追加 (登録直後の即反映)', async () => {
+    getListingByIdMock.mockResolvedValueOnce(doc({ id: 'new1', dc: 'Materia', plot: 6, size: 'M' }));
+    await useHousingListingsStore.getState().fetchAndUpsert('new1');
+    const s = useHousingListingsStore.getState();
+    expect(s.listings.map((l) => l.id)).toContain('new1');
+    expect(getListingByIdMock).toHaveBeenCalledWith('new1');
+  });
+
+  it('fetchAndUpsert: 取得できない (null) なら listings は変わらない', async () => {
+    getListingByIdMock.mockResolvedValueOnce(null);
+    await useHousingListingsStore.getState().fetchAndUpsert('missing');
+    expect(useHousingListingsStore.getState().listings).toEqual([]);
+  });
+
+  it('fetchAndUpsert: 取得失敗してもクラッシュせず握りつぶす (登録自体は成功済み)', async () => {
+    getListingByIdMock.mockRejectedValueOnce(new Error('net'));
+    await expect(
+      useHousingListingsStore.getState().fetchAndUpsert('x'),
+    ).resolves.toBeUndefined();
+    expect(useHousingListingsStore.getState().listings).toEqual([]);
   });
 });

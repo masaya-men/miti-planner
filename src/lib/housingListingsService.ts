@@ -4,7 +4,7 @@
  * 書き込みは /api/housing 経由 (housingApiClient.ts 参照)。
  * Sub-spec 2A では同住所検索のみ使用、Sub-spec 2B のギャラリーで getRecentListings も使う。
  */
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { HousingListing, HousingArea } from '../types/housing';
 
@@ -108,6 +108,17 @@ export async function findApartmentRoomsInWard(q: ApartmentQuery): Promise<Housi
  * deletedAt!=null (家主削除済) は client filter で除外 (deletedAt==null の二重等値を避け、
  * 複合インデックスを isHidden+createdAt の 1 本に保つ)。
  */
+/**
+ * id 指定で 1 件取得 (登録 / 編集直後に一覧へ即反映するため)。
+ * 存在しなければ null。 deletedAt / isHidden の判定は呼び出し側に委ねる
+ * (登録直後は isHidden=false / deletedAt=null が前提)。
+ */
+export async function getListingById(id: string): Promise<HousingListing | null> {
+  const snap = await getDoc(doc(db, COLLECTION_NAME, id));
+  if (!snap.exists()) return null;
+  return { id: snap.id, ...(snap.data() as Omit<HousingListing, 'id'>) };
+}
+
 export async function getGalleryListings(max = 200): Promise<HousingListing[]> {
   const qref = query(
     collection(db, COLLECTION_NAME),

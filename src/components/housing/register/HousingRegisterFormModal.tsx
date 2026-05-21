@@ -5,6 +5,7 @@ import { registerListing, QuotaExhaustedError } from '../../../lib/housingApiCli
 import { HousingPanelModal } from '../HousingPanelModal';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { getTagById } from '../../../data/housingTags';
 import type { RegistrationDraft } from '../../../utils/housingValidation';
 
@@ -86,7 +87,9 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
         setErrorKey(null);
         setSubmitting(true);
         try {
-            await registerListing(toRegistrationDraft(confirmValues));
+            const { id } = await registerListing(toRegistrationDraft(confirmValues));
+            // 登録した物件を中央一覧へ即反映 (リロード不要)。 失敗しても登録は成功済み。
+            await useHousingListingsStore.getState().fetchAndUpsert(id);
             setConfirmValues(null);
             onClose();
         } catch (e) {

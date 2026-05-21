@@ -21,6 +21,11 @@ interface HousingListingsState {
   load: () => Promise<void>;
   /** 編集保存後に一覧カードへ即反映する (既存は置換、 無ければ先頭に追加)。 */
   upsert: (listing: MockListing) => void;
+  /**
+   * 登録 / 編集直後に id で 1 件 Firestore から取り直して一覧へ即反映する (リロード不要)。
+   * 取得失敗・変換不可・null は握りつぶす (登録自体は成功済み、 次回 load で出る)。
+   */
+  fetchAndUpsert: (id: string) => Promise<void>;
   /** 削除済み / 非表示になった物件を一覧から即除去する。 */
   remove: (id: string) => void;
   reset: () => void;
@@ -62,6 +67,20 @@ export const useHousingListingsStore = create<HousingListingsState>((set, get) =
       next[idx] = listing;
       return { listings: next };
     }),
+  fetchAndUpsert: async (id) => {
+    try {
+      const [{ getListingById }, { firestoreToGalleryListing }] = await Promise.all([
+        import('../lib/housingListingsService'),
+        import('../lib/housing/galleryAdapter'),
+      ]);
+      const docData = await getListingById(id);
+      if (!docData) return;
+      const vm = firestoreToGalleryListing(docData);
+      if (vm) get().upsert(vm);
+    } catch {
+      // 即反映に失敗しても登録/編集は成功済み。 次回 load で一覧に出る。
+    }
+  },
   remove: (id) => set((s) => ({ listings: s.listings.filter((l) => l.id !== id) })),
   reset: () => set(INITIAL),
 }));
