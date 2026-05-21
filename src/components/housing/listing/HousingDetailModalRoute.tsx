@@ -37,7 +37,7 @@ export const HousingDetailModalRoute: React.FC = () => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const viewerUid = auth.currentUser?.uid ?? null;
 
-  const { items, markRead } = useNotifications();
+  const { markRead } = useNotifications();
   const { deleteListing, loading: deleting } = useHousingDelete();
 
   const notificationId = searchParams.get('notification');
@@ -68,21 +68,30 @@ export const HousingDetailModalRoute: React.FC = () => {
     };
   }, [listingId]);
 
-  // notification クエリがあれば対応する通知を items から探す。
-  // items は購読更新で増減するが、 ガイドは初回 hit したら開いたままで OK。
+  // notification クエリがあれば、 通知 doc を id で直接取得してガイドを開く。
+  // (ベルの購読 items 待ちだと遷移直後に未到達でヒットせず、 ガイドが出ないことがあった)
   useEffect(() => {
-    if (!notificationId) return;
-    if (guideOpen) return;
-    const found = items.find((n) => n.id === notificationId);
-    if (found) {
-      setNotification(found);
-      setGuideOpen(true);
-      if (!found.read) {
-        // markRead は失敗しても致命的でないので fire-and-forget
-        void markRead(found.id);
+    if (!notificationId || guideOpen) return;
+    const uid = auth.currentUser?.uid;
+    if (!uid) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(db, 'users', uid, 'notifications', notificationId));
+        if (cancelled || !snap.exists()) return;
+        setNotification({ id: snap.id, ...snap.data() } as HousingNotification);
+        setGuideOpen(true);
+        // 現状維持: 開いた時点で read。 解決アクション連動は次イテレーションで変更。
+        void markRead(notificationId);
+      } catch {
+        /* 通知取得失敗時はガイドを出さない (詳細モーダルは表示済み) */
       }
-    }
-  }, [notificationId, items, markRead, guideOpen]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notificationId, guideOpen]);
 
   const close = () => navigate(-1);
 
