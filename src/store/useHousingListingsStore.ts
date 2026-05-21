@@ -19,6 +19,10 @@ interface HousingListingsState {
   listings: MockListing[];
   error: string | null;
   load: () => Promise<void>;
+  /** 編集保存後に一覧カードへ即反映する (既存は置換、 無ければ先頭に追加)。 */
+  upsert: (listing: MockListing) => void;
+  /** 削除済み / 非表示になった物件を一覧から即除去する。 */
+  remove: (id: string) => void;
   reset: () => void;
 }
 
@@ -50,5 +54,14 @@ export const useHousingListingsStore = create<HousingListingsState>((set, get) =
       set({ status: 'error', error: message });
     }
   },
+  upsert: (listing) =>
+    set((s) => {
+      const idx = s.listings.findIndex((l) => l.id === listing.id);
+      if (idx === -1) return { listings: [listing, ...s.listings] };
+      const next = s.listings.slice();
+      next[idx] = listing;
+      return { listings: next };
+    }),
+  remove: (id) => set((s) => ({ listings: s.listings.filter((l) => l.id !== id) })),
   reset: () => set(INITIAL),
 }));
