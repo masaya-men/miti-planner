@@ -3,10 +3,12 @@ import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useHousingReport } from '../useHousingReport';
 
-vi.mock('firebase/auth', () => ({
-  getAuth: () => ({
-    currentUser: { getIdToken: async () => 'mock-token' },
-  }),
+vi.mock('../../../../lib/housingAuthHeaders', () => ({
+  buildHousingHeaders: vi.fn(async () => ({
+    'Content-Type': 'application/json',
+    'X-Firebase-AppCheck': 'app-check-token',
+    Authorization: 'Bearer mock-token',
+  })),
 }));
 
 describe('useHousingReport', () => {
@@ -42,7 +44,7 @@ describe('useHousingReport', () => {
     expect(res).toEqual({ ok: false, error: 'duplicate_report' });
   });
 
-  it('comment を含むときは body に乗せる', async () => {
+  it('App Check ヘッダと comment を付けて送る', async () => {
     (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       status: 201,
@@ -58,6 +60,7 @@ describe('useHousingReport', () => {
         method: 'POST',
         headers: expect.objectContaining({
           'Content-Type': 'application/json',
+          'X-Firebase-AppCheck': 'app-check-token',
           Authorization: 'Bearer mock-token',
         }),
         body: JSON.stringify({

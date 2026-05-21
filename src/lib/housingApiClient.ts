@@ -5,8 +5,7 @@
  * - registerListing: 物件登録 (フォーム送信時)
  * - checkDuplicate: 同住所重複チェック (フォーム送信前のプレチェック)
  */
-import { auth, appCheck } from './firebase';
-import { getToken } from 'firebase/app-check';
+import { buildHousingHeaders as buildHeaders } from './housingAuthHeaders';
 import type { AddressInput, RegistrationDraft } from '../utils/housingValidation';
 
 const API_BASE = '/api/housing';
@@ -16,30 +15,6 @@ export class QuotaExhaustedError extends Error {
     super('quota_exhausted');
     this.name = 'QuotaExhaustedError';
   }
-}
-
-async function buildHeaders(requireAuth: boolean): Promise<HeadersInit> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-
-  // App Check トークン付与 (appCheck は null | AppCheck | Promise<AppCheck>)
-  try {
-    const ac = appCheck instanceof Promise ? await appCheck : appCheck;
-    if (ac) {
-      const { token } = await getToken(ac, false);
-      headers['X-Firebase-AppCheck'] = token;
-    }
-  } catch {
-    // App Check 取得失敗時はヘッダなしで送る (サーバー側で 401 を返す)
-  }
-
-  if (requireAuth) {
-    const user = auth.currentUser;
-    if (!user) throw new Error('not_authenticated');
-    const idToken = await user.getIdToken();
-    headers['Authorization'] = `Bearer ${idToken}`;
-  }
-
-  return headers;
 }
 
 export interface CanRegisterResponse {
