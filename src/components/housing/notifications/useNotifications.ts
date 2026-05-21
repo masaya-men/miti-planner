@@ -26,6 +26,8 @@ export interface UseNotificationsResult {
   unreadCount: number;
   markRead: (notificationId: string) => Promise<void>;
   markAllRead: () => Promise<void>;
+  /** 解決時に、 その物件に紐づく通知をまとめて削除 (リスト/バッジから消える)。 */
+  deleteForListing: (listingId: string) => Promise<void>;
 }
 
 export function useNotifications(): UseNotificationsResult {
@@ -74,5 +76,15 @@ export function useNotifications(): UseNotificationsResult {
     });
   }
 
-  return { items, loading, unreadCount, markRead, markAllRead };
+  async function deleteForListing(listingId: string) {
+    if (!getAuth().currentUser) return;
+    const headers = await buildHousingHeaders(true);
+    await fetch('/api/housing?action=delete-notification', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ listingId }),
+    });
+  }
+
+  return { items, loading, unreadCount, markRead, markAllRead, deleteForListing };
 }

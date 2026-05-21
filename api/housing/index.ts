@@ -9,6 +9,7 @@
  * ?action=report-listing            → POST 物件通報 (reports + reportCount + 通知 doc)
  * ?action=list-notifications        → GET 自分の通知一覧
  * ?action=mark-notification-read    → POST 通知既読化 (1 件 or 全件)
+ * ?action=delete-notification       → POST 通知削除 (1 件 or listingId 単位、 解決時に消す)
  */
 import canRegisterHandler from './_canRegisterHandler.js';
 import registerListingHandler from './_registerListingHandler.js';
@@ -18,6 +19,7 @@ import deleteListingHandler from './_deleteListingHandler.js';
 import reportListingHandler from './_reportListingHandler.js';
 import listNotificationsHandler from './_listNotificationsHandler.js';
 import markNotificationReadHandler from './_markNotificationReadHandler.js';
+import deleteNotificationHandler from './_deleteNotificationHandler.js';
 
 export default async function handler(req: any, res: any) {
   const action = req.query?.action;
@@ -39,10 +41,12 @@ export default async function handler(req: any, res: any) {
       return listNotificationsHandler(req, res);
     case 'mark-notification-read':
       return markNotificationReadHandler(req, res);
+    case 'delete-notification':
+      return deleteNotificationHandler(req, res);
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification',
       });
   }
 }
