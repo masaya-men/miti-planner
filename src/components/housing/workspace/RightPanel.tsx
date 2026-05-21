@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useHousingRandomStore } from '../../../store/useHousingRandomStore';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { listListingsForWard } from '../../../lib/housing/randomWard';
@@ -43,6 +44,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ onClose }) => {
     const tags = useHousingFilterStore((s) => s.tags);
     const searchText = useHousingFilterStore((s) => s.searchText);
     const selectedWardId = useHousingRandomStore((s) => s.selectedWardId);
+    // list ビューは共有ストアの実データ。map ビューは sampleWardLayout (mock) のまま (Phase 2B)。
+    const listings = useHousingListingsStore((s) => s.listings);
 
     const tourId = useMemo(getOrCreateTourId, []);
 
@@ -50,10 +53,12 @@ export const RightPanel: React.FC<RightPanelProps> = ({ onClose }) => {
         if (viewMode === 'map' && selectedWardId) {
             return listListingsForWard(MOCK_LISTINGS, selectedWardId);
         }
-        return applyFilters(MOCK_LISTINGS, { dc, regions, servers, areas, sizes, tags, searchText })
+        return applyFilters(listings, { dc, regions, servers, areas, sizes, tags, searchText })
             .slice()
             .sort((a, b) => b.createdAt - a.createdAt);
-    }, [viewMode, selectedWardId, dc, regions, servers, areas, sizes, tags, searchText]);
+    }, [viewMode, selectedWardId, listings, dc, regions, servers, areas, sizes, tags, searchText]);
+
+    const browseTotal = viewMode === 'map' ? MOCK_LISTINGS.length : listings.length;
 
     const isTour = mode === 'tour';
 
@@ -67,7 +72,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({ onClose }) => {
                 </div>
                 <div className="housing-panel-meta">
                     {isTour ? null : (
-                        <ResultCountBadge result={browseListings.length} total={MOCK_LISTINGS.length} />
+                        <ResultCountBadge result={browseListings.length} total={browseTotal} />
                     )}
                 </div>
             </div>

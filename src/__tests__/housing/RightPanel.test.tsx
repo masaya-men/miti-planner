@@ -8,6 +8,7 @@ import jaTranslations from '../../locales/ja.json';
 import { RightPanel } from '../../components/housing/workspace/RightPanel';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
 import { useHousingTourStore } from '../../store/useHousingTourStore';
+import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 import { MOCK_LISTINGS } from '../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -32,6 +33,9 @@ describe('RightPanel', () => {
     beforeEach(() => {
         useHousingViewStore.getState().reset();
         useHousingTourStore.getState().reset();
+        useHousingListingsStore.getState().reset();
+        // 一覧系は共有ストアから読む。テストは mock データを直接注入 (load は呼ばない)。
+        useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
         sessionStorage.clear();
     });
 

@@ -5,7 +5,8 @@ import {
     type HousingArea,
     type HousingSize,
 } from '../../../store/useHousingFilterStore';
-import { MOCK_LISTINGS, SAMPLE_THEME_TAGS } from '../../../data/housing/mockListings';
+import { SAMPLE_THEME_TAGS } from '../../../data/housing/mockListings';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import {
     ALL_DCS,
     ALL_REGIONS,
@@ -52,15 +53,17 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const toggleSize = useHousingFilterStore((s) => s.toggleSize);
     const toggleTag = useHousingFilterStore((s) => s.toggleTag);
     const setCounts = useHousingFilterStore((s) => s.setCounts);
+    // 件数は共有ストアの実データ件数を反映 (load は HousingWorkspace 側)。
+    const listings = useHousingListingsStore((s) => s.listings);
 
     const result = useMemo(
-        () => applyFilters(MOCK_LISTINGS, { dc, regions, servers, areas, sizes, tags, searchText }),
-        [dc, regions, servers, areas, sizes, tags, searchText],
+        () => applyFilters(listings, { dc, regions, servers, areas, sizes, tags, searchText }),
+        [listings, dc, regions, servers, areas, sizes, tags, searchText],
     );
 
     useEffect(() => {
-        setCounts(result.length, MOCK_LISTINGS.length);
-    }, [result.length, setCounts]);
+        setCounts(result.length, listings.length);
+    }, [result.length, listings.length, setCounts]);
 
     const availableServers = dc ? DC_SERVER_MAP[dc]?.servers ?? [] : [];
 
@@ -69,7 +72,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
             <div className="housing-panel-head">
                 <div className="housing-panel-title">{t('housing.workspace.filter.title')}</div>
                 <div className="housing-panel-meta">
-                    <ResultCountBadge result={result.length} total={MOCK_LISTINGS.length} />
+                    <ResultCountBadge result={result.length} total={listings.length} />
                 </div>
             </div>
             <div className="housing-panel-body">

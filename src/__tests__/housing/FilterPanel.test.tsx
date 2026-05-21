@@ -6,6 +6,7 @@ import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
 import { FilterPanel } from '../../components/housing/workspace/FilterPanel';
 import { useHousingFilterStore } from '../../store/useHousingFilterStore';
+import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 import { MOCK_LISTINGS } from '../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -21,6 +22,9 @@ beforeAll(() => {
 
 beforeEach(() => {
     useHousingFilterStore.getState().clearAll();
+    useHousingListingsStore.getState().reset();
+    // 件数は共有ストアの実データから。テストは mock 50 件を注入。
+    useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
 });
 
 function renderPanel(props?: Partial<React.ComponentProps<typeof FilterPanel>>) {
