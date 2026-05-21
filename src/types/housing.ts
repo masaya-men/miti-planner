@@ -119,6 +119,12 @@ export interface HousingListing {
   ogImageUrl?: string;
   thumbnailPath?: string;
 
+  // SNS 連動 (imageMode==='sns' のみ持つ)
+  /** syndication 問い合わせキー。postUrl から再パースでも可だが明示保持で query/index を単純化。 */
+  tweetId?: string;
+  /** 最後にツイート生存を確認した時刻(ms)。cron の「古い順」並びと開いた時チェックに使う。 */
+  lastTweetCheckAt?: number;
+
   // ユーザー入力
   tags: string[];
   description?: string;
