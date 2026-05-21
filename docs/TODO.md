@@ -11,34 +11,30 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main、 セッション #45 (2026-05-21) で **Phase 3 plan 作成 + Group A/B 実装まで完了**。 push 未、 **ローカルコミット 9 本残** (前回 3 本 + 今回 6 本)
-- **完了 (#45)**: Phase 3 plan を `docs/superpowers/plans/2026-05-21-housing-phase3-plan.md` に作成 (25 タスク、 6 commit グループ構成)。 Group A (基盤: 型 + Rules + i18n) + Group B (編集削除: API 2 本 + Modal/Confirm/Kebab UI) を実装、 全テスト 47/47 pass、 build OK
-- **方針確定 (#45)**: spec §2.1 の Intercepting Routes は本プロジェクト (Vite SPA) では使えないため **react-router background-location パターン**で代替。 `deletedAt` (家主削除) と `isHidden` (運営非表示) は役割分離。 API テストは見送り (既存パターンなし)、 React 側は TDD で網羅
-- **注意**: Rules の deletedAt 改竄防止 fix を追加済 (commit c7cdf25)。 Firestore Rules はまだデプロイ未 (Group F の Task 23 で実施予定)
-- **注意**: vitest pool='vmThreads' のまま (変更厳禁)
-- **注意**: ENFORCE_APP_CHECK=true、 **Vercel 関数 11/12**、 月 100 ビルド
+- **ブランチ**: main、 セッション #46 (2026-05-21) で **Phase 3 を全実装完了** (Group C/D/E/F)。 Firestore Rules デプロイ済、 push + Vercel デプロイ実施
+- **完了 (#46)**: Group C 詳細表示 (DetailContent/Modal/Layout/Page/ActionBar/PhotoGallery/ShareButton + background-location ルート、 旧 inline expand 廃止) / Group D 通報フロー (report API + ReportModal + GuideModal) + 通知 (list/mark-read API + Bell/Dropdown/Item/useNotifications) / ActionBar→ReportModal 接続 fix / 既存 CenterArea・routes テストを新遷移仕様に追従 / Firestore Rules デプロイ (`firebase deploy --only firestore:rules` 成功)。 housing テスト 325 pass / 0 fail、 build + tsc OK
+- **方針確定**: Intercepting Routes は Vite SPA で不可 → **react-router background-location パターン**で代替。 `deletedAt` (家主削除) と `isHidden` (運営非表示) は役割分離。 API テストは見送り (既存パターンなし)、 React 側は TDD で網羅
+- **動く骨組みの注意**: 詳細表示は **Firestore から id で fetch する設計**。 一覧は MockListing (mock データ) なのでカードから飛ぶと Firestore に該当 doc が無く「Not found」 (= 背景に戻る) になる。 実データ連携は次フェーズ。 編集/削除/通報/通知は実 Firestore doc があれば動作
+- **未確認 (次セッションで実機確認推奨)**: 通報→通知ベル→reason 別ガイド→編集/削除 の E2E フロー (Task 21 のブラウザ手動確認は未実施)
+- **注意**: vitest 全 suite は firebase appcheck の teardown でハングする既知の環境問題あり (テスト自体は pass)。 vitest pool='vmThreads' のまま (変更厳禁)
+- **注意**: ENFORCE_APP_CHECK=true、 新ハンドラ 3 本は `api/housing/index.ts` の action ルーティング経由なので **Vercel 関数本数は増えない** (9 関数のまま)、 月 100 ビルド
 
 ---
 
-## 次セッション最優先: Phase 3 残り (Group C/D/E/F)
+## 次セッション最優先: Phase 3 実機確認 + 実データ連携
 
 **最初のコマンド (コピペ)**:
-> `docs/superpowers/plans/2026-05-21-housing-phase3-plan.md` を読んで、 subagent-driven-development で Group C 以降を実装。 ローカルコミット 9 本残ってるので最後に push + Vercel デプロイ + Firestore Rules デプロイまでセット。
+> `docs/TODO.md` を読んで。 Phase 3 (詳細表示・編集削除・通報・通知) は実装完了済。 まず Task 21 のブラウザ手動確認 (通報→通知ベル→ガイド→編集/削除 の E2E) を実機でやって、 次に一覧の MockListing → 実 Firestore 連携を検討。
 
-進捗 (plan の Task 番号):
-- ✅ Group A: Task 1-3 + 10 (基盤・型・Rules・i18n)
-- ✅ Group B: Task 4-9 (編集/削除 API + UI)
-- ⏳ Group C: Task 11-14 (詳細表示: DetailContent / Modal / Layout / ActionBar / PhotoGallery / ShareButton + background-location ルート)
-- ⏳ Group D: Task 17-18 (通知 API 2 本 + Bell / Dropdown / Item / useNotifications)
-- ⏳ Group E: Task 15-16 + 19 (通報 API + ReportModal + ReportGuideModal + 通知遷移時の自動オープン)
-- ⏳ Group F: Task 20-25 (動作確認 + tsc/build + Firestore Rules デプロイ + push + Vercel デプロイ)
+### Phase 3 残り (実装完了後の積み残し)
 
-### Phase 3 残り (今回スコープ外、 plan 完了後別セッション)
-
-- ツアー同期 Firestore 化 (TODO 旧 4)
-- Cloudflare 前段化 (TODO 旧 5)
-- 細かい修正: `fieldState.confirm()` バグ、 旧 dead code 撤去、 AddressFields renderBadge prop 化、 tweet 取得 rate limiting、 photo `alt` 属性、 SNS rate limiting (TODO 旧 6)
+- **実機 E2E 確認** (最優先): 通報→通知ベル→reason 別ガイド→編集/削除 フロー。 2 アカウント必要 (家主 + 通報者)
+- **一覧の実データ連携**: 現状一覧は MockListing。 詳細/編集/削除/通報は実 Firestore doc 前提なので、 一覧を Firestore listing に繋ぐと全フロー実動する
+- **HousingCardExpanded 撤去判断**: inline expand 廃止で未使用化。 完全削除して良いか確認
+- ツアー同期 Firestore 化 / Cloudflare 前段化
+- 細かい修正: `fieldState.confirm()` バグ、 旧 dead code 撤去、 AddressFields renderBadge prop 化、 tweet 取得 rate limiting、 photo `alt` 属性、 SNS rate limiting
 - 30 日後物理削除 cron、 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知
+- ハウジング i18n の en/ko/zh 翻訳 (現状 ja 値コピー)
 
 ### 後回し (Phase 2B、 マップ着手時)
 

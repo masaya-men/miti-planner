@@ -2,6 +2,34 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-21 セッション #45-46・ハウジング Phase 3: 家主編集削除 / 詳細表示 / 通報 + 通知)
+
+**目的**: ハウジングツアーに「家主編集・削除 / 物件詳細表示 / 通報フロー + 通知」 を業界水準準拠で追加 (動く骨組み)。
+
+**設計/プラン**: spec `docs/superpowers/specs/2026-05-20-housing-phase3-design.md` / plan `docs/superpowers/plans/2026-05-21-housing-phase3-plan.md` (25 タスク)。
+
+### 完了内容
+
+- **基盤 (Group A)**: `HousingListing.deletedAt` (soft delete) 追加、 `HousingNotification` 型 + 型ガード、 Firestore Rules (housing 編集/通報/通知 + deletedAt 改竄防止)、 i18n キー (detail/edit/delete/report/guide/notifications、 ja/en/ko/zh)
+- **編集削除 (Group B)**: update-listing / delete-listing API ハンドラ、 HousingRegisterModal の edit モード化、 HousingEditModal / HousingDeleteConfirm / HousingDetailKebab、 useHousingUpdate / useHousingDelete
+- **詳細表示 (Group C)**: HousingDetailContent / Modal / Layout / Page / ModalRoute、 ActionBar / PhotoGallery / ShareButton、 **react-router background-location パターン** (`/housing/listing/:id`、 一覧→モーダル / 直アクセス→フルページ)。 旧 inline expand (HousingCardExpanded) 廃止
+- **通報 + 通知 (Group D)**: report-listing API (transaction で reports doc + reportCount +1 + 通知 doc + 自動非表示判定)、 list-notifications / mark-notification-read API、 HousingReportModal (reason 5 択) / HousingReportGuideModal (reason 別 CTA)、 NotificationBell / Dropdown / Item / useNotifications (onSnapshot 購読)、 TopBar にベル配置
+- **仕上げ (Group E/F)**: ActionBar→ReportModal 接続、 既存 CenterArea/routes テストを新遷移仕様に追従、 housing テスト 325 pass / 0 fail、 build + tsc OK、 Firestore Rules デプロイ済
+
+### 確定した設計判断
+
+- Intercepting Routes は Vite SPA で不可 → background-location パターンで代替
+- `deletedAt` (家主削除) と `isHidden` (運営非表示) は役割分離。 一覧は `isHidden==false && deletedAt==null`
+- 通知 doc に **reporterUid を書かない** (家主に渡らない、 プライバシー原則)
+- API ハンドラのユニットテストは見送り (firebase-admin ESM 制約で既存パターンなし)、 React 側は TDD
+- 新ハンドラ 3 本は `api/housing/index.ts` の action ルーティング経由 = Vercel 関数本数は増えない
+
+### 残課題 (次フェーズ)
+
+- 実機 E2E 確認 (通報→通知→ガイド→編集/削除)、 一覧の MockListing → 実 Firestore 連携、 HousingCardExpanded 撤去、 30 日 cron、 異議申し立て UI、 en/ko/zh 翻訳
+
+---
+
 ## 完了 (2026-05-20 セッション 43・ハウジング ログイン UI 整備の修正)
 
 **目的**: セッション #42 で実装したハウジング ログイン UI のユーザー検証で見つかった 2 件の修正。
