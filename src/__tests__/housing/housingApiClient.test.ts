@@ -9,7 +9,7 @@ vi.mock('firebase/app-check', () => ({
   getToken: vi.fn().mockResolvedValue({ token: 'app-check-token' }),
 }));
 
-import { canRegister, registerListing, checkDuplicate } from '../../lib/housingApiClient';
+import { canRegister, registerListing, checkDuplicate, purgeIfTweetGone } from '../../lib/housingApiClient';
 
 beforeEach(() => {
   vi.spyOn(globalThis, 'fetch').mockReset();
@@ -66,5 +66,27 @@ describe('checkDuplicate', () => {
       plot: 12, size: 'M',
     });
     expect(result.duplicates).toHaveLength(1);
+  });
+});
+
+describe('purgeIfTweetGone', () => {
+  it('POST purge-if-tweet-gone で deleted フラグを返す', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ deleted: true }), { status: 200 }),
+    );
+    const res = await purgeIfTweetGone('l1');
+    expect(res.deleted).toBe(true);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/api/housing?action=purge-if-tweet-gone'),
+      expect.objectContaining({ method: 'POST' }),
+    );
+  });
+
+  it('対象外 (400) は deleted=false を返す（投げない）', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'not_sns' }), { status: 400 }),
+    );
+    const res = await purgeIfTweetGone('l1');
+    expect(res.deleted).toBe(false);
   });
 });

@@ -75,3 +75,28 @@ export async function checkDuplicate(addr: AddressInput): Promise<CheckDuplicate
   if (!res.ok) throw new Error(`check-duplicate failed: ${res.status}`);
   return (await res.json()) as CheckDuplicateResponse;
 }
+
+export interface PurgeResponse {
+  deleted: boolean;
+}
+
+/**
+ * ツイートが削除済みなら物件を soft delete するようサーバーに依頼する。
+ * 削除の真偽はサーバーが syndication 404 を再確認してから判定する（家主以外でも安全）。
+ * 失敗・対象外は { deleted: false } を返す（呼び出し側で握りつぶせるよう投げない）。
+ */
+export async function purgeIfTweetGone(listingId: string): Promise<PurgeResponse> {
+  try {
+    const headers = await buildHeaders(true);
+    const res = await fetch(`${API_BASE}?action=purge-if-tweet-gone`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ listingId }),
+    });
+    if (!res.ok) return { deleted: false };
+    const body = (await res.json().catch(() => ({}))) as Partial<PurgeResponse>;
+    return { deleted: body.deleted === true };
+  } catch {
+    return { deleted: false };
+  }
+}
