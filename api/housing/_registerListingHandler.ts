@@ -1,12 +1,12 @@
 /**
  * POST /api/housing?action=register-listing
- * Body: RegistrationDraft (画像なしモード固定)
+ * Body: RegistrationDraft (SNS 画像つき or 画像なし)
  *
  * 原子操作:
  *   1. housing_user_meta.canRegister 再評価
- *   2. validateRegistrationDraft で入力検証
+ *   2. validateRegistrationDraft で入力検証 (SNS 画像フィールド含む)
  *   3. addressKey 生成
- *   4. housing_listings に新規ドキュメント作成 (imageMode='none' 固定)
+ *   4. housing_listings に新規ドキュメント作成 (buildListingImageFields で imageMode 決定)
  *   5. housing_user_meta を applyRegistrationSuccess で更新
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
@@ -14,7 +14,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { evaluateCanRegister, applyRegistrationSuccess, initialUserMeta } from '../../src/utils/housingQuota.js';
-import { validateRegistrationDraft, type RegistrationDraft } from '../../src/utils/housingValidation.js';
+import { validateRegistrationDraft, buildListingImageFields, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import type { HousingUserMeta } from '../../src/types/housing.js';
 
@@ -90,7 +90,7 @@ export default async function handler(req: any, res: any) {
           roomNumber: draft.roomNumber,
         } : {}),
         addressKey,
-        imageMode: 'none' as const,
+        ...buildListingImageFields(draft, now),
         tags: draft.tags,
         ...(draft.description ? { description: draft.description } : {}),
         createdAt: now,
