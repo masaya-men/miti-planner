@@ -11,13 +11,12 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main (push 済・デプロイ済 = f5ddd78)、 セッション #51〜#52 で **③ SNS 画像ライフサイクルの Task 1〜6 を実装 + 🔍実機 (A)+(B) 検証完了**。 ツイート付き登録→**プレビュー/一覧カードサムネ/詳細ギャラリーすべてに画像表示** OK (No image 解消)。 ※「出ない」初回症状の真因は **PWA 旧 JS キャッシュ** (toRegistrationDraft はクライアント側、シークレットウィンドウで解消、コード修正不要)。 一覧カードのサムネは [HousingCard.tsx:15] に既に実装済だった。 全体 vitest 1036 pass・tsc・build green
-- **次セッション最優先**: **③ の残り = Task 7 (D)purge エンドポイント → Task 8 (C)開いた時チェック (toast方式承認済) → Task 9 (E)cron+複合インデックス** (プラン `docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md`)。 各 🔍 は 1 件ずつ実機確認、 Task7 単体確認は Task8 と統合可
+- **ブランチ**: main (push 済・デプロイ済)、 セッション #51〜#52 で **③ SNS 画像ライフサイクルの Task 1〜9 を全実装・デプロイ + 複合インデックス deploy 済 + 🔍実機 (A)(B) 検証完了**。 Task7 (D)purge / Task8 (C)開いた時チェック (toast+自動クローズ+一覧除去) / Task9 (E)毎日4:00UTC cron。 全体 vitest 1038 pass・tsc・build green。 (A)(B)=登録→プレビュー/一覧カードサムネ/詳細すべてに画像表示 OK (初回「出ない」真因は PWA 旧JSキャッシュ、コード修正不要)
+- **次セッション最優先**: **③ の残り 🔍実機 (C)(D)(E) 検証** をユーザーと: (C) テスト用ツイートで登録→X でツイート削除→1〜2分後に物件を開く→toast「元の投稿が削除…」+自動クローズ+一覧除去 / 生存ツイートは誤削除しない。 (E) cron は手動なら Vercel `CRON_SECRET` 要 (sensitive、ユーザー提示) or 毎日自動。 ⚠(C)はツイート確認を最大1h edge キャッシュ→直後だと即削除されない場合あり (バグでない、cron が確実に掃除)。 完了後プランの「完了後」節 (TODO_COMPLETED 移動・残課題整理) を実施
 - **#51 完了**: Task1 共有 `tweetSyndication.ts`(生存確認)+tweet-meta DRY化 / Task2 `HousingListing` に `tweetId`/`lastTweetCheckAt` / Task3 `validateImage`+`buildListingImageFields`(純関数) / Task4 フォーム→onSubmit に画像URL同梱 (`HousingRegisterSnsUrlField`/`HousingRegisterForm`)
 - **#51 重要な学び (テスト基盤)**: 「RUN」のまま固まる/node ゾンビ化の真因は **vmThreads (昨日 Node v24 で forks 不可→採用) が実タイマー残すテストを終了不能**。フォーム全体を submit まで駆動する happy-dom テストは置かない (純関数ユニット+実機でカバー)。安全な実行手順は memory `reference_vitest_vmthreads_hang` 厳守 (パイプ禁止/必ずファイル出力+ハードタイムアウト/再実行しない)。基盤根治(forks復活 or Node v22)は要相談で別途
 - **完了 (#50)**: ② **kebab(…) 削除も一覧へ即反映** (`HousingActionBar` に `onDeleted` 追加→ route で `store.remove`+通知一掃、 バナー経由と挙動統一)。 **削除済み/非公開カードクリックで toast 案内** (`housing.detail.unavailable`、 今まで無言で閉じてた)。 **新規登録した物件を中央一覧へ即反映** (リロード不要、 `store.fetchAndUpsert(id)` + `service.getListingById(id)`、 編集/削除と責務統一)。 **テスト基盤根治**: vitest が App Check の reCAPTCHA 通信で teardown ハング→ゾンビ化していたのを `MODE==='test'` スキップで解消 (memory `reference_vitest_appcheck_teardown`、 これまで全 suite が固まってた主因)
 - **実機検証済 (#50)**: 新規登録→リロードせず中央に出る / kebab 削除→リロードせず中央から消える / 削除済みカード→toast 案内
-- **次セッション最優先**: **③ SNS 画像表示＋ツイート連動ライフサイクル**: 設計書 + **実装プラン済** (`docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md`、 全 9 Task)。 画像は CDN 直リンク(保存しない)、 ツイート削除で物件 soft delete (開いた時チェック+ローリングバッチ cron、 10万件対応)。 **設計判断 (要承認)**: (C) 開いた時チェックの案内は設計書の「モーダル内差し替え」 ではなく **toast + 自動クローズ + 一覧除去** で実装予定 (既存 `unavailable` / #50 削除済みカード案内と一貫)
 - **注意**: en/ko/zh i18n の新キーは ja 値コピー (en 翻訳は従来どおり後追い)。 `.env.local` の `FIREBASE_PRIVATE_KEY` が**改行潰れで壊れ→ローカル admin SDK 不可** (本番は正常、 `vercel env pull` で修復可)。 デプロイは **git push(main) で lopoly.app に自動反映** (手動 alias 不要、 memory `reference_vercel_git_autodeploy`)。 vitest は pool='vmThreads' 厳守
 - **本番データ**: housing_listings は実物件のみ (偽データ投入しない方針)。 通報モデレーションの **/admin 復帰 UI は未実装** (現状 reset 手段が無い→自己復帰フローで代替)。 リリース準備は `docs/housing-release-checklist.md`
 
