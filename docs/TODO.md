@@ -11,7 +11,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main (ローカルに未 push コミットあり)、 セッション #51 (2026-05-21) で **③ SNS 画像ライフサイクルの Task 1〜4 を実装** (プラン `docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md`)。 純 node ユニットは全て green、 ビルド OK。 **未 push・未デプロイ** (機能はまだ user 可視でない=画像表示は Task 6 から)
+- **ブランチ**: main (未 push コミット 2 件 = Task5/6)、 セッション #51〜#52 で **③ SNS 画像ライフサイクルの Task 1〜6 を実装** (プラン `docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md`)。 全体 vitest 1036 pass・tsc・`npm run build` すべて green。 **登録→保存→表示の経路が端から端まで開通** (フォーム→onSubmit→toRegistrationDraft→ハンドラが imageMode=sns/ogImageUrl 保存→HousingPhotoGallery が描画、 CSP も pbs.twimg.com 許可済)。 **次は 🔍 実機 (A)+(B) 確認 = デプロイ後にツイート付き登録→詳細に画像表示 (No image 解消) をユーザーと一緒に**
 - **#51 完了**: Task1 共有 `tweetSyndication.ts`(生存確認)+tweet-meta DRY化 / Task2 `HousingListing` に `tweetId`/`lastTweetCheckAt` / Task3 `validateImage`+`buildListingImageFields`(純関数) / Task4 フォーム→onSubmit に画像URL同梱 (`HousingRegisterSnsUrlField`/`HousingRegisterForm`)
 - **#51 重要な学び (テスト基盤)**: 「RUN」のまま固まる/node ゾンビ化の真因は **vmThreads (昨日 Node v24 で forks 不可→採用) が実タイマー残すテストを終了不能**。フォーム全体を submit まで駆動する happy-dom テストは置かない (純関数ユニット+実機でカバー)。安全な実行手順は memory `reference_vitest_vmthreads_hang` 厳守 (パイプ禁止/必ずファイル出力+ハードタイムアウト/再実行しない)。基盤根治(forks復活 or Node v22)は要相談で別途
 - **完了 (#50)**: ② **kebab(…) 削除も一覧へ即反映** (`HousingActionBar` に `onDeleted` 追加→ route で `store.remove`+通知一掃、 バナー経由と挙動統一)。 **削除済み/非公開カードクリックで toast 案内** (`housing.detail.unavailable`、 今まで無言で閉じてた)。 **新規登録した物件を中央一覧へ即反映** (リロード不要、 `store.fetchAndUpsert(id)` + `service.getListingById(id)`、 編集/削除と責務統一)。 **テスト基盤根治**: vitest が App Check の reCAPTCHA 通信で teardown ハング→ゾンビ化していたのを `MODE==='test'` スキップで解消 (memory `reference_vitest_appcheck_teardown`、 これまで全 suite が固まってた主因)
@@ -29,7 +29,7 @@
 
 ### Phase 3 残り
 
-- ③ **SNS 画像表示+ツイート連動** (プラン: `docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md`): **Task1〜4 完了**。 **次は Task5** `toRegistrationDraft` で画像詰め替え (`HousingRegisterFormModal.tsx`、純 node テスト) → **Task6** `_registerListingHandler` の `imageMode:'none'` 決め打ち廃止+`buildListingImageFields` 保存 → 🔍**実機で「ツイート付き登録→詳細に画像表示」確認 (No image 解消)** → Task7 (D)purge エンドポイント → Task8 (C)開いた時チェック (toast方式承認済) → Task9 (E)cron+複合インデックス。 各 🔍 は 1 件ずつ実機確認
+- ③ **SNS 画像表示+ツイート連動** (プラン: `docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md`): **Task1〜6 完了**。 **次は 🔍 実機 (A)+(B) 確認** = デプロイ後に「ツイート付き登録→詳細に画像表示」(No image 解消) をユーザーと一緒に → Task7 (D)purge エンドポイント → Task8 (C)開いた時チェック (toast方式承認済) → Task9 (E)cron+複合インデックス。 各 🔍 は 1 件ずつ実機確認
 - **通報モデレーションの穴**: /admin の復帰(reset)/BAN UI が未実装。 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知、 30 日後物理削除 cron も未
 - **HousingCardExpanded 撤去判断** / ツアー同期 Firestore 化 / Cloudflare 前段化
 - 細かい修正: `fieldState.confirm()` バグ、 dead code 撤去、 AddressFields renderBadge prop 化、 photo `alt`、 SNS rate limiting、 通知 ✕ の見た目磨き
