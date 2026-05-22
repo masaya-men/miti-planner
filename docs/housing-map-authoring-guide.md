@@ -142,6 +142,11 @@ Figma 上の絶対座標を、 ベースマップ画像の左上(0,0)〜右下(1
 2. Claude: SVG をパース → `src/data/housing/wardLayouts.ts` (Node/Edge/House/Aetheryte) を生成 → MapView を実データ＋経路探索＋光アニメに改修。
 3. 1 エリア (Mist) で動けば、 残りエリアは同じ手順を繰り返す。
 
+### 進捗 (2026-05-22)
+- ✅ ユーザーが Mist を Figma で作成し SVG 書き出し済 (layer 名 `plot_N` / `node_N` / ナビ道路 が ID として残っていて好都合)。 元 SVG は `docs/housing-maps-src/mist.svg` に保全。
+- ✅ パーサ `scripts/parse-ward-svg.mjs` を作成・実行 → **`src/data/housing/mistWard.generated.json`** を生成 (houses 31 / nodes 19 / edges 27、 グラフ連結、 家→最寄りノード自動接続済、 道の生 path 入り、 全座標 0..1 正規化)。 他エリアも同パーサで再利用可。
+- **次**: `MapView.tsx` を mock から `mistWard.generated.json` 駆動へ。 ① ノード/家を配置 ② 家選択→最寄りエーテライト(出発)から BFS 経路探索→道なりの SVG path→光アニメ (GSAP MotionPath / offset-path)。 まず**自動接続の精度を実画面で確認** (ユーザー要望: 精度が良ければツアーの文字行き方情報と合わせて十分かを判断)。 エーテライト座標と plot→最寄りエーテライトの対応はユーザーのスプレッドシート + SVG のエーテライト群 (named: トップマスト / ミストゲート・スクエア 等) から起こす。
+
 ### 未確認 (次セッションで要確認)
 - エーテライト青い炎が**複数**ある → ミストの本アエーテライト1つ＋エーテネットシャード複数? 出発点はどれ? (ナビ起点を1つに決める or シャード経由)
 - ハウスの箱の「接続 Node」 は自動で最寄りに繋ぐか、 明示するか。
