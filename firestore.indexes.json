@@ -15,6 +15,15 @@
         { "fieldPath": "isHidden", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "housing_listings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "imageMode", "order": "ASCENDING" },
+        { "fieldPath": "deletedAt", "order": "ASCENDING" },
+        { "fieldPath": "lastTweetCheckAt", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
