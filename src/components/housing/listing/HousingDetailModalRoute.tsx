@@ -119,9 +119,11 @@ export const HousingDetailModalRoute: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notFound]);
 
-  // SNS 連動物件を開いたら、 その瞬間にツイート生存を確認する (UX = 即フィードバック)。
-  // tweet-meta (cached edge GET) で速く 404 を見て、 404 のときだけ purge を叩く。
-  // 実削除の真偽判定はサーバー (purge-if-tweet-gone) が syndication 404 を再確認してから行う。
+  // SNS 連動物件を開いたら、 その瞬間にサーバーへツイート生存確認を依頼する。
+  // サーバー (purge-if-tweet-gone) が live syndication で判定し、 削除済み (tombstone) なら
+  // soft delete して deleted:true を返す。 tweet-meta は edge キャッシュ (最大 1h) が古い「生存」を
+  // 返し検知を阻むため前段に使わず、 purge を直接呼ぶ (要ログイン。 未ログイン分は cron が掃除)。
+  // purgeIfTweetGone は内部で try/catch 済み (失敗/対象外は deleted:false)。
   useEffect(() => {
     if (!listing) return;
     if (listing.imageMode !== 'sns' || !listing.tweetId) return;
@@ -129,17 +131,11 @@ export const HousingDetailModalRoute: React.FC = () => {
     tweetCheckedRef.current = listing.id;
     let cancelled = false;
     (async () => {
-      try {
-        const res = await fetch(`/api/tweet-meta?id=${encodeURIComponent(listing.tweetId!)}`);
-        if (cancelled || res.status !== 404) return; // 生存 or エラー → fail-safe、 何もしない
-        const result = await purgeIfTweetGone(listing.id); // サーバーが 404 を再確認
-        if (cancelled || !result.deleted) return;
-        useHousingListingsStore.getState().remove(listing.id); // ②で追加した remove を再利用
-        showToast(t('housing.detail.postRemoved'), 'info');
-        close();
-      } catch {
-        /* ネットワーク失敗時は削除しない (fail-safe。 生きている物件を誤って消さない) */
-      }
+      const result = await purgeIfTweetGone(listing.id);
+      if (cancelled || !result.deleted) return;
+      useHousingListingsStore.getState().remove(listing.id);
+      showToast(t('housing.detail.postRemoved'), 'info');
+      close();
     })();
     return () => {
       cancelled = true;

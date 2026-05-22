@@ -14,13 +14,42 @@ describe('syndicationUrl', () => {
 describe('checkTweetStatus', () => {
   beforeEach(() => mockFetch.mockReset());
 
-  it('200 → alive', async () => {
-    mockFetch.mockImplementation(async () => new Response('{}', { status: 200 }));
+  it('200 + user を持つ正常ツイート → alive', async () => {
+    mockFetch.mockImplementation(
+      async () =>
+        new Response(JSON.stringify({ __typename: 'Tweet', user: { screen_name: 'x' }, text: 'hi' }), {
+          status: 200,
+        }),
+    );
     expect(await checkTweetStatus('1234567890')).toBe('alive');
   });
 
   it('404 → gone', async () => {
     mockFetch.mockImplementation(async () => new Response('', { status: 404 }));
+    expect(await checkTweetStatus('1234567890')).toBe('gone');
+  });
+
+  it('200 + TweetTombstone (削除済み) → gone', async () => {
+    // syndication CDN は著者が削除したツイートに 404 ではなく 200 + tombstone を返す
+    mockFetch.mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({ __typename: 'TweetTombstone', tombstone: { text: { text: 'This Post was deleted' } } }),
+          { status: 200 },
+        ),
+    );
+    expect(await checkTweetStatus('1234567890')).toBe('gone');
+  });
+
+  it('200 + TweetUnavailable (非公開/凍結) → gone', async () => {
+    mockFetch.mockImplementation(
+      async () => new Response(JSON.stringify({ __typename: 'TweetUnavailable' }), { status: 200 }),
+    );
+    expect(await checkTweetStatus('1234567890')).toBe('gone');
+  });
+
+  it('200 だが user 欠落 → gone', async () => {
+    mockFetch.mockImplementation(async () => new Response('{}', { status: 200 }));
     expect(await checkTweetStatus('1234567890')).toBe('gone');
   });
 

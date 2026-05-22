@@ -20,8 +20,11 @@ export type TweetStatus = 'alive' | 'gone' | 'error';
 
 /**
  * ツイートの生存を確認する。
- * - 200 → 'alive'、404 → 'gone'（削除/非公開）、それ以外/例外 → 'error'。
- * - 'error' は「消さない・lastTweetCheckAt も更新しない」側に倒すための値（fail-safe）。
+ * - 'gone'  : 404、 または 200 だが削除/閲覧不可 (syndication CDN は削除済みツイートに
+ *             404 ではなく 200 + `{__typename:'TweetTombstone'}` を返す。 非公開/凍結は
+ *             `TweetUnavailable`。 正常ツイートは必ず `user` を持つので欠落も gone 扱い)。
+ * - 'alive' : 200 で `user` を持つ正常な Tweet。
+ * - 'error' : それ以外/例外。「消さない・lastTweetCheckAt も更新しない」 側に倒す fail-safe。
  */
 export async function checkTweetStatus(id: string): Promise<TweetStatus> {
   try {
@@ -31,6 +34,14 @@ export async function checkTweetStatus(id: string): Promise<TweetStatus> {
     });
     if (res.status === 404) return 'gone';
     if (!res.ok) return 'error';
+    const body = (await res.json().catch(() => null)) as
+      | { __typename?: string; user?: unknown }
+      | null;
+    if (!body) return 'error';
+    if (body.__typename === 'TweetTombstone' || body.__typename === 'TweetUnavailable') {
+      return 'gone';
+    }
+    if (!body.user) return 'gone';
     return 'alive';
   } catch {
     return 'error';
