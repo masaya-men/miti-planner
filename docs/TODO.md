@@ -11,9 +11,9 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main (push 済・デプロイ済)、 セッション #51〜#52 で **③ SNS 画像ライフサイクルの Task 1〜9 を全実装・デプロイ + 複合インデックス deploy 済 + 🔍実機 (A)(B) 検証完了**。 Task7 (D)purge / Task8 (C)開いた時チェック (toast+自動クローズ+一覧除去) / Task9 (E)毎日4:00UTC cron。 全体 vitest 1038 pass・tsc・build green。 (A)(B)=登録→プレビュー/一覧カードサムネ/詳細すべてに画像表示 OK (初回「出ない」真因は PWA 旧JSキャッシュ、コード修正不要)
-- **次セッション最優先**: **③ の残り 🔍実機 (C)(D)(E) 検証** をユーザーと: (C) テスト用ツイートで登録→X でツイート削除→1〜2分後に物件を開く→toast「元の投稿が削除…」+自動クローズ+一覧除去 / 生存ツイートは誤削除しない。 (E) cron は手動なら Vercel `CRON_SECRET` 要 (sensitive、ユーザー提示) or 毎日自動。 ⚠(C)はツイート確認を最大1h edge キャッシュ→直後だと即削除されない場合あり (バグでない、cron が確実に掃除)。 完了後プランの「完了後」節 (TODO_COMPLETED 移動・残課題整理) を実施
-- **#51 完了**: Task1 共有 `tweetSyndication.ts`(生存確認)+tweet-meta DRY化 / Task2 `HousingListing` に `tweetId`/`lastTweetCheckAt` / Task3 `validateImage`+`buildListingImageFields`(純関数) / Task4 フォーム→onSubmit に画像URL同梱 (`HousingRegisterSnsUrlField`/`HousingRegisterForm`)
+- **ブランチ**: main (push 済・デプロイ済 = index-DRS5mMnb)。 セッション #51〜#52 で **③ SNS 画像ライフサイクル (Task1〜9) 完成・実機検証完了**: 登録→保存→プレビュー/カード/詳細の画像表示 OK、 ツイート削除→開いた時チェック+cron で物件 soft delete OK (Firestore `deletedAt` 確認済)。 (A)(B)(C)(D) 実機 OK / (E) cron デプロイ済 (毎日4:00UTC・複合インデックス deploy 済・同じ修正済 checkTweetStatus を共有)。 全体 vitest 1042 pass・tsc・build green
+- **#52 重要バグ修正2件**: (1) 自動入力が再適用され区など手動編集が巻き戻る→取得結果(data)ごと1回だけ親へ渡すガード。 (2) **削除済みツイートは syndication が 404 でなく 200+`{__typename:TweetTombstone}` を返す**ため検知できず (C)/cron が無反応だった→`checkTweetStatus` を tombstone/unavailable/user欠落対応、 開いた時チェックは edge キャッシュ(最大1h)回避で purge を直接呼ぶ (memory `reference_tweet_deleted_tombstone`)
+- **次セッション最優先**: 下記 ④ 等から。 ③ で出た **UX 改善 (要対応)**: ⓐ 開いた時チェックの反映が数秒遅い (purge round-trip、 楽観的除去 or ローディング検討) ⓑ **toast は見逃しやすい→より目立つ通知 (バナー/モーダル内案内 等) に**
 - **#51 重要な学び (テスト基盤)**: 「RUN」のまま固まる/node ゾンビ化の真因は **vmThreads (昨日 Node v24 で forks 不可→採用) が実タイマー残すテストを終了不能**。フォーム全体を submit まで駆動する happy-dom テストは置かない (純関数ユニット+実機でカバー)。安全な実行手順は memory `reference_vitest_vmthreads_hang` 厳守 (パイプ禁止/必ずファイル出力+ハードタイムアウト/再実行しない)。基盤根治(forks復活 or Node v22)は要相談で別途
 - **完了 (#50)**: ② **kebab(…) 削除も一覧へ即反映** (`HousingActionBar` に `onDeleted` 追加→ route で `store.remove`+通知一掃、 バナー経由と挙動統一)。 **削除済み/非公開カードクリックで toast 案内** (`housing.detail.unavailable`、 今まで無言で閉じてた)。 **新規登録した物件を中央一覧へ即反映** (リロード不要、 `store.fetchAndUpsert(id)` + `service.getListingById(id)`、 編集/削除と責務統一)。 **テスト基盤根治**: vitest が App Check の reCAPTCHA 通信で teardown ハング→ゾンビ化していたのを `MODE==='test'` スキップで解消 (memory `reference_vitest_appcheck_teardown`、 これまで全 suite が固まってた主因)
 - **実機検証済 (#50)**: 新規登録→リロードせず中央に出る / kebab 削除→リロードせず中央から消える / 削除済みカード→toast 案内
@@ -22,14 +22,14 @@
 
 ---
 
-## 次セッション最優先: Phase 3 ③ (SNS 画像ライフサイクル)
+## 次セッション最優先: Phase 3 ④ + 残タスク
 
 **最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 Phase 3 は #50 で ① + ② + 通報モデレーション一式まで実機 OK。 次は ③ SNS 画像表示+ツイート連動ライフサイクル (設計書済→ `writing-plans`→実装)。 1 件ずつ実機確認で。
+> `docs/TODO.md` を読んで。 Phase 3 ③ (SNS 画像+ツイート連動ライフサイクル) は #52 で完成・実機 OK。 次は ④ アパート/個室対応 か ③ の UX 改善 (上記ⓐⓑ) から。 新機能は `brainstorming`→`writing-plans`。 1 件ずつ実機確認で。
 
 ### Phase 3 残り
 
-- ③ **SNS 画像表示+ツイート連動** (プラン: `docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md`): **Task1〜6 + 実機(A)(B) 完了**。 残り **Task7 (D)purge → Task8 (C)開いた時チェック → Task9 (E)cron**
+- ③ **SNS 画像表示+ツイート連動**: **完了 (Task1〜9・実機 A〜D・cron デプロイ済、 2026-05-22、 詳細は TODO_COMPLETED)**。 残 UX 改善は「現在の状態」のⓐⓑ
 - ④ **ハウジング リッチメディア化** (③ Task7〜9 完了後に着手・要 brainstorming→spec): Allmarks=マイコラージュ の perf 知見を流用 (memory `reference_allmarks_mycollage`)。 ①複数画像をホバー/全切り替えで閲覧 ②詳細で動画埋め込み再生 (**CSP に video.twimg.com 追加必須**) ③ビューポート内カード自動再生=**動画は最大3本スポットライト式 / 画像は性能制約なく全切り替え**。 現状は photos[0] 1枚のみ保存→複数画像+動画URLの保存拡張が前提
 - **通報モデレーションの穴**: /admin の復帰(reset)/BAN UI が未実装。 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知、 30 日後物理削除 cron も未
 - **HousingCardExpanded 撤去判断** / ツアー同期 Firestore 化 / Cloudflare 前段化

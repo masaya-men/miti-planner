@@ -2,6 +2,25 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-21〜22 セッション #51-52・ハウジング Phase 3 ③: SNS 画像表示 + ツイート連動ライフサイクル)
+
+**プラン**: `docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md` (全 9 Task)。 画像バイナリは保存せず `pbs.twimg.com` の CDN URL を参照保持、 ツイート削除で物件を soft delete (開いた時チェック + ローリング cron の二段)。
+
+### 完了内容
+
+- **Task1**: 共有 `tweetSyndication.ts` (`checkTweetStatus`/`syndicationUrl`) + `tweet-meta` DRY 化
+- **Task2**: `HousingListing` に `tweetId` / `lastTweetCheckAt`
+- **Task3**: `validateImage` / `buildListingImageFields` (純関数、 ogImageUrl は pbs.twimg.com 限定)
+- **Task4-5**: 登録フォーム→onSubmit→`toRegistrationDraft` に画像 (postUrl/ogImageUrl/tweetId) を通す
+- **Task6**: 登録ハンドラが `imageMode:'none'` 決め打ちを廃止し `buildListingImageFields` で保存
+- **Task7 (D)**: サーバー検証つき削除 `purge-if-tweet-gone` (家主チェックなし・syndication 再確認、 いたずら削除不可)
+- **Task8 (C)**: 物件を開いた時にツイート生存確認→削除済みなら soft delete + 一覧除去 + toast + 自動クローズ
+- **Task9 (E)**: 毎日 4:00UTC ローリング cron + 複合インデックス (imageMode/deletedAt/lastTweetCheckAt、 deploy 済)
+- **実機検証 (2026-05-22)**: (A)(B) 登録→プレビュー/カード/詳細に画像表示 OK、 (C)(D) ツイート削除→開いた時に soft delete (`deletedAt` 確認済)。 一覧カードのサムネは [HousingCard.tsx] に既存実装で自動表示
+- **重要バグ修正2件**: ⓐ 自動入力再適用で手動編集が巻き戻る→取得結果ごと1回ガード (`HousingRegisterSnsUrlField`)。 ⓑ **削除済みツイートは syndication が 404 でなく 200+`TweetTombstone` を返す**→`checkTweetStatus` を tombstone 対応 + 開いた時チェックは edge キャッシュ回避で purge 直接呼び (memory `reference_tweet_deleted_tombstone`)
+- **学び**: 初回「画像出ない」真因は PWA 旧 JS キャッシュ (toRegistrationDraft はクライアント側)。 テスト基盤 vmThreads ハング対策は memory `reference_vitest_vmthreads_hang` 厳守
+- **残 (次セッション)**: UX 改善ⓐ反映遅延ⓑtoast 見逃し→目立つ通知 / ④ アパート対応 / 削除済みツイートの登録拒否 (tweet-meta tombstone→404)
+
 ## 完了 (2026-05-21 セッション #45-46・ハウジング Phase 3: 家主編集削除 / 詳細表示 / 通報 + 通知)
 
 **目的**: ハウジングツアーに「家主編集・削除 / 物件詳細表示 / 通報フロー + 通知」 を業界水準準拠で追加 (動く骨組み)。
