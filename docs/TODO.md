@@ -65,6 +65,7 @@
 
 ## バグ・不具合 (要修正)
 
+- **中 (登録フォーム・アパート)**: アパルトメント選択時も「番地」が必須表示で入力強制 (捨てる値)、 肝心の「部屋番号」(1-90) が submit 必須化されていない→未入力でも submit 可→サーバー 400。 加えて 400(invalid_draft) が UI で「ネットワーク環境を確認」と誤表示 (`HousingRegisterFormModal` の errorKey='generic')。 REQUIRED_FIELDS を size 別に切替 + invalid_draft 専用メッセージが要る。 ③ 検証後に対応 (2026-05-22 発見、 SNS 作業とは無関係の既存バグ)
 - **中**: ラベル名が管理画面で取得できない (スプシヘッダー問題?)
 - **低 (動作影響なし)**: FFLogs 英語ログ / 無敵反映 / オートプラン同一技 / パルス設定スライダー / ヘッダー縦罫線
 - **Phase 2 follow-up**: api/popular の `viewCount` 削除 / en/ko privacy_section1_auto_items bullet バグ / `MitigationSheet.copyPlan` POST 失敗時 localStorage 残留
