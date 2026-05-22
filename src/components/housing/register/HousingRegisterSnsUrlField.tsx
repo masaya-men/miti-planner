@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseTweetUrl } from '../../../lib/housing/tweetUrlParse';
 import { useTweetFetch, type TweetData } from '../../../lib/housing/useTweetFetch';
@@ -15,15 +15,20 @@ export function HousingRegisterSnsUrlField({ onTweetFetched }: Props) {
     const [url, setUrl] = useState('');
     const [invalidUrl, setInvalidUrl] = useState(false);
     const { status, data, errorCode, fetchTweet, cancel, reset } = useTweetFetch();
+    // 取得結果 (data オブジェクト) ごとに 1 回だけ親へ渡す。
+    // 親の fieldState が毎レンダリングで identity を変えるため onTweetFetched も毎回変わり、
+    // ガードしないとこの effect が再発火して自動入力を再適用→ユーザー編集 (区=17 等) を巻き戻す。
+    const dispatchedDataRef = useRef<TweetData | null>(null);
 
     useEffect(() => {
-        if (status === 'success' && data) {
-            const tweetId = parseTweetUrl(url);
-            onTweetFetched(
-                data,
-                tweetId ? { postUrl: url.trim(), tweetId } : null,
-            );
-        }
+        if (status !== 'success' || !data) return;
+        if (dispatchedDataRef.current === data) return; // 同じ取得結果は二度渡さない
+        dispatchedDataRef.current = data;
+        const tweetId = parseTweetUrl(url);
+        onTweetFetched(
+            data,
+            tweetId ? { postUrl: url.trim(), tweetId } : null,
+        );
     }, [status, data, onTweetFetched, url]);
 
     const handleChange = useCallback((value: string) => {
