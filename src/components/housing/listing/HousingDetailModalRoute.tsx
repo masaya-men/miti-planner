@@ -29,6 +29,7 @@ import { useResolveReport } from '../report/useResolveReport';
 import { useNotifications } from '../notifications/useNotifications';
 import { MAX_SELF_RESTORE } from '../../../constants/housing';
 import { showToast } from '../../Toast';
+import { purgeIfTweetGone } from '../../../lib/housingApiClient';
 
 export const HousingDetailModalRoute: React.FC = () => {
   const { t } = useTranslation();
@@ -50,6 +51,8 @@ export const HousingDetailModalRoute: React.FC = () => {
   // 通知 doc は notificationId ごとに 1 回だけ取得する。
   // (dismiss で notification=null にした後、 URL の ?notification= が残っていても再取得しないため)
   const fetchedNotifRef = useRef<string | null>(null);
+  // SNS 物件のツイート生存チェックは listingId ごとに 1 回だけ走らせる
+  const tweetCheckedRef = useRef<string | null>(null);
 
   // listing 取得は初回マウントと編集保存後 (即反映) の両方から呼べるよう関数化。
   // 戻り値: 取得できた listing (家主は自分の非表示物件も取得可)、 取得不可なら null。
@@ -115,6 +118,34 @@ export const HousingDetailModalRoute: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [notFound]);
+
+  // SNS 連動物件を開いたら、 その瞬間にツイート生存を確認する (UX = 即フィードバック)。
+  // tweet-meta (cached edge GET) で速く 404 を見て、 404 のときだけ purge を叩く。
+  // 実削除の真偽判定はサーバー (purge-if-tweet-gone) が syndication 404 を再確認してから行う。
+  useEffect(() => {
+    if (!listing) return;
+    if (listing.imageMode !== 'sns' || !listing.tweetId) return;
+    if (tweetCheckedRef.current === listing.id) return;
+    tweetCheckedRef.current = listing.id;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/tweet-meta?id=${encodeURIComponent(listing.tweetId!)}`);
+        if (cancelled || res.status !== 404) return; // 生存 or エラー → fail-safe、 何もしない
+        const result = await purgeIfTweetGone(listing.id); // サーバーが 404 を再確認
+        if (cancelled || !result.deleted) return;
+        useHousingListingsStore.getState().remove(listing.id); // ②で追加した remove を再利用
+        showToast(t('housing.detail.postRemoved'), 'info');
+        close();
+      } catch {
+        /* ネットワーク失敗時は削除しない (fail-safe。 生きている物件を誤って消さない) */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listing]);
 
   // 物件変更後の共通後処理: 詳細を再 fetch (即反映) + 一覧ストア同期 + 関連通知の削除 + バナーを閉じる。
   const refreshAfterChange = async () => {

@@ -2137,7 +2137,8 @@
             },
             "login_required": "この操作にはログインが必要です",
             "cannot_report_own": "自分の物件は通報できません",
-            "unavailable": "この物件は削除されたか、 表示できません"
+            "unavailable": "この物件は削除されたか、 表示できません",
+            "postRemoved": "元の投稿が削除されたため、 この物件の掲載も終了しました"
         },
         "edit": {
             "modal": { "title": "物件を編集" },
