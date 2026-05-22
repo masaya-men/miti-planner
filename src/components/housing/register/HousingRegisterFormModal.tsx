@@ -15,7 +15,7 @@ import type { RegistrationDraft } from '../../../utils/housingValidation';
  * 建物種別と部屋区分を兼ねているが、 API は buildingType と roomKind を
  * 分けて受け取る。 ここで対応関係に詰め替える。
  */
-function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationDraft {
+export function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationDraft {
     const size = v.size;
     let buildingType: 'house' | 'apartment' = 'house';
     let apiSize: string | undefined;
@@ -48,6 +48,14 @@ function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationDraft {
         roomNumber: v.roomNumber,
         tags: v.tags ?? [],
         description: v.description,
+        ...(v.postUrl && v.ogImageUrl && v.tweetId
+            ? {
+                  imageMode: 'sns' as const,
+                  postUrl: v.postUrl,
+                  ogImageUrl: v.ogImageUrl,
+                  tweetId: v.tweetId,
+              }
+            : {}),
     };
 }
 

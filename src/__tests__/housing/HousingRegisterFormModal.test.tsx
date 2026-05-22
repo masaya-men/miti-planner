@@ -33,7 +33,44 @@ afterEach(() => {
     document.body.style.overflow = '';
 });
 
-import { HousingRegisterFormModal } from '../../components/housing/register/HousingRegisterFormModal';
+import {
+    HousingRegisterFormModal,
+    toRegistrationDraft,
+} from '../../components/housing/register/HousingRegisterFormModal';
+
+describe('toRegistrationDraft 画像詰め替え', () => {
+    it('画像 3 フィールドが揃うと imageMode=sns で draft に乗る', () => {
+        const draft = toRegistrationDraft({
+            dc: 'Mana',
+            server: 'Anima',
+            area: 'Shirogane',
+            ward: 3,
+            plot: 12,
+            size: 'M',
+            tags: ['wafu'],
+            postUrl: 'https://x.com/u/status/123',
+            ogImageUrl: 'https://pbs.twimg.com/media/a.jpg',
+            tweetId: '123',
+        });
+        expect(draft.imageMode).toBe('sns');
+        expect(draft.postUrl).toBe('https://x.com/u/status/123');
+        expect(draft.ogImageUrl).toBe('https://pbs.twimg.com/media/a.jpg');
+        expect(draft.tweetId).toBe('123');
+    });
+
+    it('画像なしなら imageMode は undefined（=none 扱い）', () => {
+        const draft = toRegistrationDraft({
+            dc: 'Mana',
+            server: 'Anima',
+            area: 'Shirogane',
+            ward: 3,
+            plot: 12,
+            size: 'M',
+            tags: ['wafu'],
+        });
+        expect(draft.imageMode).toBeUndefined();
+    });
+});
 
 describe('HousingRegisterFormModal', () => {
     it('renders dialog with title when open', () => {
