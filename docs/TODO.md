@@ -11,8 +11,9 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 セッション #54 (2026-05-25) で **#53 マップ不具合 3 件すべて解消** (①太い道路非表示 / ②アンビエントテレポート / ③直線ショートカット) + 案 1 (mist.svg を inline 展開、 赤線/Node は CSS 透明化、 経路計算は data 側で実施) で再実装 + 目的地アピール演出 (波紋+矩形脈打ち) 追加。 全体 vitest 1042 pass・tsc・build green
+- **ブランチ**: main。 セッション #54 (2026-05-25) で **#53 マップ不具合 3 件すべて解消** + 案 1 (mist.svg inline) で再実装 + 目的地アピール演出。 さらに **運営通知バッジ機能を実装** (Sidebar 下端のベル+マーキー、 viewport 中央モーダル + X/Discord フッター案内、 /admin/notifications で投稿/編集/公開停止/削除)。 全体 vitest 1062 pass・tsc・build green
 - **#54 マップの残作業 (ユーザー or 後追い)**: (1) **Figma で全 31 家の目の前 Node 追加** (これで plot 26/27/28 = エーテライト直結家も道なりに) (2) **拡張街マップ SVG 作成** (5 エリア×表裏=10 SVG) (3) **エーテライト出発点の動的切替** (現状 `START_NODE='node_1'` 固定、 家→最寄りエーテライト mapping 要、 Claude 作業) (4) plot bbox サイズを JSON に含めてアピール矩形を家サイズ別に。 詳細は `docs/housing-map-authoring-guide.md` §7
+- **#54 通知バッジ残作業**: (1) ko/zh 翻訳 (現状 ja コピー) (2) 通知ジャンル分け (アプデ/メンテ/告知 のラベル) (3) 本文中リンクのクリッカブル化 (4) 既読の端末間同期 (ログイン時 Firestore) (5) Web Push (6) 予約投稿。 詳細は `docs/superpowers/specs/2026-05-25-system-notifications-design.md` §9
 - **#52 重要バグ修正2件 (既存)**: (1) 自動入力が再適用され区など手動編集が巻き戻る→取得結果(data)ごと1回だけ親へ渡すガード。 (2) **削除済みツイートは syndication が 404 でなく 200+`{__typename:TweetTombstone}` を返す**→`checkTweetStatus` を tombstone/unavailable/user欠落対応、 開いた時チェックは edge キャッシュ回避で purge 直接呼び (memory `reference_tweet_deleted_tombstone`)
 - **次セッション最優先**: ハウジング側はユーザーが Figma で家前 Node 追加 + 拡張街マップ作成を並行で実施。 Claude 側は **軽減表アプリのブラッシュアップ** (具体タスクはユーザー指定)
 - **#51 重要な学び (テスト基盤)**: 「RUN」のまま固まる/node ゾンビ化の真因は **vmThreads (昨日 Node v24 で forks 不可→採用) が実タイマー残すテストを終了不能**。フォーム全体を submit まで駆動する happy-dom テストは置かない (純関数ユニット+実機でカバー)。安全な実行手順は memory `reference_vitest_vmthreads_hang` 厳守 (パイプ禁止/必ずファイル出力+ハードタイムアウト/再実行しない)。基盤根治(forks復活 or Node v22)は要相談で別途
