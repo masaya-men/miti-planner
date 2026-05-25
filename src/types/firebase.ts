@@ -172,6 +172,13 @@ export const PLAN_LIMITS = {
   SILENT_COMPRESS_AFTER_DAYS: 7,
 } as const;
 
+export const MEMO_LIMITS = {
+  /** 1 プランに置けるメモ最大数 */
+  MAX_MEMOS_PER_PLAN: 100,
+  /** メモ 1 件の最大文字数 */
+  MAX_TEXT_LENGTH: 100,
+} as const;
+
 /** Firestoreコレクション名 */
 export const COLLECTIONS = {
   USERS: 'users',

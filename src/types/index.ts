@@ -210,6 +210,21 @@ export interface ContentSeries {
 // Plan Management Types (Phase 2 Alignment)
 // ─────────────────────────────────────────────
 
+export interface PlanMemo {
+    /** crypto.randomUUID() */
+    id: string;
+    /** 最大 MEMO_LIMITS.MAX_TEXT_LENGTH 文字 */
+    text: string;
+    /** 縦軸 = 何秒地点 (連続値、 0.0〜sheet 最終秒) */
+    timeSec: number;
+    /** 横軸 = シート横幅 (メンバー並び幅) に対する 0.0〜1.0 比率 */
+    xRatio: number;
+    /** Date.now() */
+    createdAt: number;
+    /** Date.now() */
+    updatedAt: number;
+}
+
 export interface PlanData {
     currentLevel: number;
     timelineEvents: TimelineEvent[];
@@ -224,6 +239,8 @@ export interface PlanData {
     };
     schAetherflowPatterns: Record<string, 1 | 2>;
     myMemberId?: string | null;
+    /** メモ機能 v1 (#57)、 未マイグレ既存プランは undefined */
+    memos?: PlanMemo[];
 }
 
 /** DC/サーバーマスターデータ */
