@@ -963,6 +963,12 @@ const Timeline: React.FC = () => {
         reflectMemosToPlan();
     }, [reflectMemosToPlan]);
 
+    // メモ: 右クリック → 1 件削除 (確認なし、 spec §4.5 誤操作リスク低)
+    const handleMemoDelete = useCallback((id: string) => {
+        useMitigationStore.getState().deleteMemo(id);
+        reflectMemosToPlan();
+    }, [reflectMemosToPlan]);
+
     // メモ: 既存メモクリック → 編集モードで InputBox を開く
     const handleMemoClick = useCallback((memo: PlanMemo) => {
         if (!isMemoMode) return;
@@ -3039,6 +3045,7 @@ const Timeline: React.FC = () => {
                             interactive={isMemoMode}
                             onMemoDragEnd={handleMemoDragEnd}
                             onMemoClick={handleMemoClick}
+                            onMemoDelete={handleMemoDelete}
                         />
                         {/* メモ入力ボックス (新規 / 編集 共用) */}
                         {memoInput && (
