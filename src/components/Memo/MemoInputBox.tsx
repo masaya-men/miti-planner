@@ -22,10 +22,22 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
     const { t } = useTranslation();
     const [text, setText] = useState(initialText);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const boxRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         textareaRef.current?.focus();
     }, []);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (boxRef.current && !boxRef.current.contains(e.target as Node)) {
+                onCancel();
+            }
+        };
+        // mousedown を使う (scroll では発火しないので、 スクロール中に閉じない)
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [onCancel]);
 
     const handleSave = () => {
         onSave(text.trim());
@@ -43,6 +55,7 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
 
     return (
         <div
+            ref={boxRef}
             className="absolute z-[9999] glass-tier3 rounded-xl shadow-sm p-3 flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-200"
             style={{ top: `${topPx}px`, left: `${leftPx}px`, width: 320 }}
             onClick={(e) => e.stopPropagation()}
