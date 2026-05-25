@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef, useContext, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, useContext, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
@@ -630,6 +630,17 @@ const Timeline: React.FC = () => {
         xRatio: number;
     } | null>(null);
     const sheetContainerRef = useRef<HTMLDivElement>(null);
+    // sheetWidth を state 化 + ResizeObserver で動的更新 (初期 0 で left=0 に固まる問題を解決)
+    const [sheetWidth, setSheetWidth] = useState(0);
+    useLayoutEffect(() => {
+        const el = sheetContainerRef.current;
+        if (!el) return;
+        const updateWidth = () => setSheetWidth(el.getBoundingClientRect().width);
+        updateWidth();
+        const observer = new ResizeObserver(updateWidth);
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, []);
 
     /** DOM直接操作でプレビューハイライトを更新（React再レンダリングなし） */
     const updatePreviewHighlight = useCallback((time: number | null) => {
@@ -1421,6 +1432,8 @@ const Timeline: React.FC = () => {
     };
 
     const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
+        // メモモード中は軽減配置選択を起動しない (= シート空白クリックでメモ作成に統一)
+        if (useMitigationStore.getState().toolMode === 'memo') return;
         const member = useMitigationStore.getState().partyMembers.find(m => m.id === memberId);
         const isTutorial = useTutorialStore.getState().isActive;
         if (!member || (!member.jobId && !isTutorial)) return;
@@ -2977,7 +2990,7 @@ const Timeline: React.FC = () => {
                             memos={memos}
                             pixelsPerSecond={pixelsPerSecond}
                             offsetTime={showPreStart ? -10 : 0}
-                            sheetWidth={sheetContainerRef.current?.getBoundingClientRect().width ?? 0}
+                            sheetWidth={sheetWidth}
                             interactive={isMemoMode}
                         />
                         {/* メモ新規入力ボックス */}

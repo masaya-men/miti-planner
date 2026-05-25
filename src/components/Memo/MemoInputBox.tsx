@@ -43,9 +43,10 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
 
     return (
         <div
-            className="absolute z-30 bg-app-surface border border-app-border rounded p-2 shadow-lg flex flex-col gap-1"
-            style={{ top: `${topPx}px`, left: `${leftPx}px`, width: 220 }}
+            className="absolute z-[9999] glass-tier3 rounded-xl shadow-sm p-3 flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-200"
+            style={{ top: `${topPx}px`, left: `${leftPx}px`, width: 320 }}
             onClick={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
         >
             <textarea
                 ref={textareaRef}
@@ -53,25 +54,26 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
                 onChange={(e) => setText(e.target.value.slice(0, MEMO_LIMITS.MAX_TEXT_LENGTH))}
                 onKeyDown={handleKeyDown}
                 placeholder={t('memo.input_placeholder', { max: MEMO_LIMITS.MAX_TEXT_LENGTH })}
-                className="bg-app-bg text-app-text text-app-sm px-2 py-1 rounded border border-app-border resize-none"
+                className="bg-app-bg/60 text-app-text text-app-md px-3 py-2 rounded-lg border border-glass-border resize-none focus:outline-none focus:border-app-text/40"
                 rows={3}
                 maxLength={MEMO_LIMITS.MAX_TEXT_LENGTH}
             />
-            <div className="flex justify-end gap-1 text-app-xs">
-                <span className="text-app-text-muted self-center mr-auto">
+            <div className="flex items-center gap-2 text-app-sm">
+                <span className="text-app-text-muted">
                     {text.length}/{MEMO_LIMITS.MAX_TEXT_LENGTH}
                 </span>
+                <div className="flex-1" />
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="px-2 py-0.5 rounded hover:bg-app-surface2 text-app-text-muted"
+                    className="px-4 py-2 rounded-lg text-app-sm font-black uppercase tracking-wider text-app-text-muted hover:bg-app-surface2 hover:text-app-text transition-colors cursor-pointer"
                 >
                     {t('memo.input_cancel')}
                 </button>
                 <button
                     type="button"
                     onClick={handleSave}
-                    className="px-2 py-0.5 rounded bg-app-blue text-white hover:bg-app-blue/80"
+                    className="px-4 py-2 rounded-lg text-app-sm font-black uppercase tracking-wider bg-app-toggle text-app-toggle-text hover:opacity-90 transition-opacity cursor-pointer"
                 >
                     {t('memo.input_save')}
                 </button>
