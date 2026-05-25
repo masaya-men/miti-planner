@@ -3,7 +3,12 @@
     font-size: var(--font-size-sm, 12px);
     color: var(--color-text, #fff);
     opacity: 1;
-    mix-blend-mode: difference;
+    /* mix-blend-mode: difference を撤去 (= sheet 背景と類似色になり実質透明化していたため)。
+       代わりに text-shadow で背景に対するコントラスト確保。 */
+    text-shadow:
+        0 0 4px rgba(0, 0, 0, 0.9),
+        0 0 2px rgba(0, 0, 0, 0.8),
+        0 1px 2px rgba(0, 0, 0, 0.6);
     pointer-events: auto;
     user-select: none;
     max-width: 200px;
@@ -12,6 +17,7 @@
     line-height: 1.4;
     transform: translate(-50%, 0);
     z-index: 15;
+    font-weight: 600;
 }
 
 .plan-memo--dragging {

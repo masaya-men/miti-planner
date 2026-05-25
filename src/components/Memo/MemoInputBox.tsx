@@ -59,7 +59,7 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
                 maxLength={MEMO_LIMITS.MAX_TEXT_LENGTH}
             />
             <div className="flex items-center gap-2 text-app-sm">
-                <span className="text-app-text-muted">
+                <span className="text-app-text-muted tabular-nums">
                     {text.length}/{MEMO_LIMITS.MAX_TEXT_LENGTH}
                 </span>
                 <div className="flex-1" />
