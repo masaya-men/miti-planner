@@ -11,11 +11,9 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 セッション #57 (2026-05-25) で **軽減表メモ機能 Phase 1 完成 (push 前)**。 spec (`docs/superpowers/specs/2026-05-25-mitigation-memo-design.md`) + plan (`docs/superpowers/plans/2026-05-25-mitigation-memo-plan.md`) + Phase 1 実装 (18 commits, `743ae94`〜`68501e4`) で **メモモード ON/OFF + 新規作成 + シートクリック→入力ボックス + 表示** までユーザー実機 OK。 push は Phase 3 完了後にまとめてやる方針 (= ユーザー「完成してから出します」)
-- **#57 Phase 1 学び (重要 fix 連発)**: ① ツールバー列ズレ (= AA + メモを Area B 内に並列配置・AA ラベル「AA追加モード」→「AA追加」 短縮)、 ② メモボタンのトンマナ不一致 (= AA と同じ `bg-app-toggle` 統一)、 ③ MemoInputBox glassmorphism 化 (`glass-tier3 z-[9999]` + 320px + `text-app-md`)、 ④ シートクリック衝突 (`handleCellClick` 先頭に toolMode === 'memo' ガード追加)、 ⑤ **mix-blend-mode:difference は LoPo glassmorphism 背景で透明化** → 撤去 + text-shadow 3 段、 ⑥ **scrollOffset 二重加算バグ** (sheetContainerRef が scrollContainerRef の子だから getBoundingClientRect().top は既にスクロール反映済)、 ⑦ **LoPo Timeline は行高さが動的** ([Timeline.tsx:2409] の sheet container `height` は gridLines を累積する dynamic 計算) → 線形変換 NG、 `timeToYMapRef` 逆引きで `timeSecToY/yToTimeSec` 再実装、 ⑧ メモゾーン制限 = DOM ベース (`[data-member-id]`) でメンバー列の左端を境界 (CSS 変数 `--col-header-chunk-w` は calc 式で `getComputedStyle` が文字列のまま返し parseFloat 失敗)
-- **次セッション最優先 (#58): #57 Phase 2 + Phase 3 + push**: plan `docs/superpowers/plans/2026-05-25-mitigation-memo-plan.md` の Task 11-17 を続行。 Phase 2 = DnD (Task 11) + メモクリックで編集 + 空文字確定削除 (Task 12) + 右クリックで削除 (Task 13) + **outside click 閉鎖は #57 で先取り実装済 (commit `68501e4`)**。 Phase 3 = ClearMitigationsPopover に「メモを全削除」 メニュー追加 (Task 15) + 上限警告 toast 動作確認 (Task 16) + 最終 Done 条件 + push + デプロイ (Task 17)。 既存壊れテストメモが残っていれば DevTools で `plan-storage` の memos を手動クリア (Task 15 完成で正規手段)
+- **ブランチ**: main。 セッション #57-58 (2026-05-25) で **軽減表メモ機能 v1 完成 → push + Vercel デプロイ済** (詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) #57-58)。 メモモード ON/OFF + 新規/編集/DnD/右クリック削除/ゴミ箱メニュー全削除 (確認ダイアログ) + 上限警告 toast、 4 言語 i18n (ja に値、 en/ko/zh は ja コピーで先行)、 21 新規 tests + 1088 passed
+- **次セッション最優先 (#59): #54 ハウジングマップ残作業**: (1) Figma で全 31 家の目の前 Node 追加 (plot 26/27/28 = エーテライト直結家も道なりに) (2) 拡張街マップ SVG 5 エリア×表裏=10 SVG (3) エーテライト出発点の動的切替 (現状 `START_NODE='node_1'` 固定、 家→最寄りエーテライト mapping 要) (4) plot bbox サイズを JSON 化してアピール矩形を家サイズ別に。 詳細は `docs/housing-map-authoring-guide.md` §7
 - **#55 通知バッジ完成**: 本番 lopoly.app で Bar マーキー + モーダル表示動作確認済 (commit `199e291` で Firestore 複合インデックス追加)。 memory `reference_firestore_composite_index` + `feedback_endpoint_user_verification` に学び整理
-- **#54 マップ残作業 (ユーザー or 後追い)**: (1) Figma で全 31 家の目の前 Node 追加 (plot 26/27/28 = エーテライト直結家も道なりに) (2) 拡張街マップ SVG 5 エリア×表裏=10 SVG (3) エーテライト出発点の動的切替 (現状 `START_NODE='node_1'` 固定、 家→最寄りエーテライト mapping 要) (4) plot bbox サイズを JSON 化してアピール矩形を家サイズ別に。 詳細は `docs/housing-map-authoring-guide.md` §7
 - **#54 通知バッジ将来拡張**: スマホ通知=ボトムナビ上端マーキー (Sidebar 内では埋もれる) / ko/zh 翻訳 / 通知ジャンル分け / 本文中リンク / 既読端末間同期 / Web Push / 予約投稿。 詳細は `docs/superpowers/specs/2026-05-25-system-notifications-design.md` §9
 - **#51 重要な学び (テスト基盤)**: 「RUN」のまま固まる/node ゾンビ化の真因は **vmThreads (昨日 Node v24 で forks 不可→採用) が実タイマー残すテストを終了不能**。フォーム全体を submit まで駆動する happy-dom テストは置かない (純関数ユニット+実機でカバー)。安全な実行手順は memory `reference_vitest_vmthreads_hang` 厳守 (パイプ禁止/必ずファイル出力+ハードタイムアウト/再実行しない)。基盤根治(forks復活 or Node v22)は要相談で別途
 - **完了 (#50)**: ② **kebab(…) 削除も一覧へ即反映** (`HousingActionBar` に `onDeleted` 追加→ route で `store.remove`+通知一掃、 バナー経由と挙動統一)。 **削除済み/非公開カードクリックで toast 案内** (`housing.detail.unavailable`、 今まで無言で閉じてた)。 **新規登録した物件を中央一覧へ即反映** (リロード不要、 `store.fetchAndUpsert(id)` + `service.getListingById(id)`、 編集/削除と責務統一)。 **テスト基盤根治**: vitest が App Check の reCAPTCHA 通信で teardown ハング→ゾンビ化していたのを `MODE==='test'` スキップで解消 (memory `reference_vitest_appcheck_teardown`、 これまで全 suite が固まってた主因)
@@ -25,12 +23,7 @@
 
 ---
 
-## 次セッション最優先 (#57): 軽減表メモ機能 spec → 実装
-
-**最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 セッション #57 では **軽減表メモ機能の spec 書き → writing-plans → 実装** に進む。 brainstorming は #56 で全論点確定済 (TODO.md の「現在の状態」 にサマリ + docs/.private/2026-05-25-mitigation-memo-design.md / 関連調査は scripts/measure-plan-size.ts 実測結果)。 まず `docs/superpowers/specs/2026-05-25-mitigation-memo-design.md` を書いてユーザー review → writing-plans skill → subagent-driven-development。 全部終わったら #54 ハウジングマップ残作業に復帰。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成中。
-
-### Phase 3 残り
+## ハウジング Phase 3 残り
 
 - ③ **SNS 画像表示+ツイート連動**: **完了 (Task1〜9・実機 A〜D・cron デプロイ済、 2026-05-22、 詳細は TODO_COMPLETED)**。 残 UX 改善は「現在の状態」のⓐⓑ
 - ④ **ハウジング リッチメディア化** (③ Task7〜9 完了後に着手・要 brainstorming→spec): Allmarks=マイコラージュ の perf 知見を流用 (memory `reference_allmarks_mycollage`)。 ①複数画像をホバー/全切り替えで閲覧 ②詳細で動画埋め込み再生 (**CSP に video.twimg.com 追加必須**) ③ビューポート内カード自動再生=**動画は最大3本スポットライト式 / 画像は性能制約なく全切り替え**。 現状は photos[0] 1枚のみ保存→複数画像+動画URLの保存拡張が前提

@@ -2,6 +2,28 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-25 セッション #57-58・軽減表メモ機能 v1)
+
+**目的**: 軽減表シート上に任意位置の plain text メモ。 縦=時間軸固定 / 横=フリー、 DnD 可、 100 個 × 100 文字上限、 既存ゴミ箱メニュー統合、 PC のみ。
+
+**spec/plan**: `docs/superpowers/specs/2026-05-25-mitigation-memo-design.md` / `docs/superpowers/plans/2026-05-25-mitigation-memo-plan.md` (17 task)
+
+### 完了内容
+
+- **Phase 1 (#57、 Task 1-10、 18 commits)**: `PlanMemo` 型 + `MEMO_LIMITS` 定数 + 後方互換、 座標変換ヘルパ (`timeSecToY`/`yToTimeSec`/`xRatioToPx`/`pxToXRatio`/`clampXRatio`)、 `useMitigationStore` に `toolMode` + メモ CRUD + AA との排他、 4 言語 i18n (ja に値、 en/ko/zh は ja コピー)、 `MemoOverlay`/`MemoInputBox`/`MemoFloatingBar` 新規、 Timeline 鉛筆アイコン (AA ボタン隣、 PC のみテキスト)、 メモモード切替、 シートクリック → 入力 → 確定で `PlanData.memos[]` に追加 + Firestore 5 分クールダウン同期
+- **Phase 2 (#58、 Task 11-13)**: pointer events 自作 DnD (4px しきい値で click/drag 切替、 `yToTimeSec` 逆引きで動的高さ対応、 ドラッグ中は inline style 直接更新で React 再レンダー最小化、 pointerup でのみ markDirty)、 メモクリック → 編集モード InputBox (空文字確定で削除、 spec §4.5 確認なし)、 右クリック即削除 (誤操作リスク低のため確認なし)
+- **Phase 3 (#58、 Task 15-16)**: `ClearMitigationsPopover` 末尾に「メモを全削除」 メニュー追加 + 確認ダイアログ (variant=danger)、 `ConfirmDialog` の `confirmLabel`/`cancelLabel` をオブジェクトで上書き可能化 (メモ全削除のみ「全削除/やめる」、 既存は OK/キャンセル 維持)、 上限警告 toast は handleSheetClick で実装 (101 件目で `memo.limit_reached`)
+- **テスト**: 21 新規 tests (planMemo.compat 3 + coords 10 + useMitigationStore.memo 8)、 全 151 files / 1088 passed (FAIL 0)
+- **本番デプロイ**: git push main → Vercel 自動デプロイ → lopoly.app
+
+### #57 Phase 1 学び (重要 fix 連発、 将来同種の sheet 上 overlay 機能に流用)
+
+① ツールバー列ズレ (AA + メモを Area B 内に並列配置・AA ラベル「AA追加モード」→「AA追加」 短縮)、 ② メモボタンのトンマナ不一致 (= AA と同じ `bg-app-toggle` 統一)、 ③ MemoInputBox glassmorphism 化 (`glass-tier3 z-[9999]` + 320px + `text-app-md`)、 ④ シートクリック衝突 (`handleCellClick` 先頭に `toolMode === 'memo'` ガード追加)、 ⑤ **`mix-blend-mode: difference` は LoPo glassmorphism 背景で実質透明化** → 撤去 + text-shadow 3 段で代替、 ⑥ **scrollOffset 二重加算バグ** (`sheetContainerRef` が `scrollContainerRef` の子だから `getBoundingClientRect().top` は既にスクロール反映済、 scrollTop 加算しない)、 ⑦ **LoPo Timeline は行高さが動的** (`sheet container height` は gridLines を累積する dynamic 計算) → 線形変換 `y = time × pps` 使えず、 `timeToYMapRef` 逆引き (`timeSecToY`/`yToTimeSec`) で再実装、 ⑧ メモゾーン制限 = DOM ベース (`[data-member-id]`) でメンバー列の左端を境界 (CSS 変数 `--col-header-chunk-w` は calc 式で `getComputedStyle` が文字列のまま返し parseFloat 失敗)
+
+### Phase 4 (後追い、 必要に応じて)
+
+- en/ko/zh の memo 翻訳キー正式翻訳 (現状 ja 値コピー先行)
+
 ## 完了 (2026-05-21〜22 セッション #51-52・ハウジング Phase 3 ③: SNS 画像表示 + ツイート連動ライフサイクル)
 
 **プラン**: `docs/superpowers/plans/2026-05-21-housing-sns-image-lifecycle-plan.md` (全 9 Task)。 画像バイナリは保存せず `pbs.twimg.com` の CDN URL を参照保持、 ツイート削除で物件を soft delete (開いた時チェック + ローリング cron の二段)。
