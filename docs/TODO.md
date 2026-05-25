@@ -11,10 +11,10 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main (push 済・デプロイ済 = index-CCwyAsUR)。 ③ SNS 画像ライフサイクル (Task1〜9) は完成・実機 OK 済 (#51〜#52)。 セッション #53 (2026-05-23) で **Mist マップを Figma SVG から実データ化＋本番デモ稼働中** (パーサ `scripts/parse-ward-svg.mjs`、 データ `src/data/housing/mistWard.generated.json`、 元 SVG `docs/housing-maps-src/mist.svg`)。 全体 vitest 1042 pass・tsc・build green
-- **#53 マップデモ 既知の不具合 3 件 (次セッションで対応・詳細手順あり)**: ①元の「厚い道路」が出ていない (1px ナビ道路だけ描画) ②道全体を巡るアンビエント光が「飛ぶ」 (animateMotion が複数 M でテレポート) ③物件への光ナビが**道を辿らず直線でショートカット** (BFS ノード列を直線で結んでいる)。 **→ 解決手順は [docs/housing-map-authoring-guide.md] の「7. 現状の課題と次セッションへの引き継ぎ」 に A→B→C で記述済 (パーサ更新→MapView 更新→再デプロイ→精度確認)**
+- **ブランチ**: main。 セッション #54 (2026-05-25) で **#53 マップ不具合 3 件すべて解消** (①太い道路非表示 / ②アンビエントテレポート / ③直線ショートカット) + 案 1 (mist.svg を inline 展開、 赤線/Node は CSS 透明化、 経路計算は data 側で実施) で再実装 + 目的地アピール演出 (波紋+矩形脈打ち) 追加。 全体 vitest 1042 pass・tsc・build green
+- **#54 マップの残作業 (ユーザー or 後追い)**: (1) **Figma で全 31 家の目の前 Node 追加** (これで plot 26/27/28 = エーテライト直結家も道なりに) (2) **拡張街マップ SVG 作成** (5 エリア×表裏=10 SVG) (3) **エーテライト出発点の動的切替** (現状 `START_NODE='node_1'` 固定、 家→最寄りエーテライト mapping 要、 Claude 作業) (4) plot bbox サイズを JSON に含めてアピール矩形を家サイズ別に。 詳細は `docs/housing-map-authoring-guide.md` §7
 - **#52 重要バグ修正2件 (既存)**: (1) 自動入力が再適用され区など手動編集が巻き戻る→取得結果(data)ごと1回だけ親へ渡すガード。 (2) **削除済みツイートは syndication が 404 でなく 200+`{__typename:TweetTombstone}` を返す**→`checkTweetStatus` を tombstone/unavailable/user欠落対応、 開いた時チェックは edge キャッシュ回避で purge 直接呼び (memory `reference_tweet_deleted_tombstone`)
-- **次セッション最優先**: **#53 マップ不具合 3 件**を `housing-map-authoring-guide.md` §7 の手順で対応。 その後 ③ UX 改善 (ⓐ 開いた時チェックの反映が数秒遅い ⓑ toast→より目立つ通知) / ④ アパート/個室対応
+- **次セッション最優先**: ハウジング側はユーザーが Figma で家前 Node 追加 + 拡張街マップ作成を並行で実施。 Claude 側は **軽減表アプリのブラッシュアップ** (具体タスクはユーザー指定)
 - **#51 重要な学び (テスト基盤)**: 「RUN」のまま固まる/node ゾンビ化の真因は **vmThreads (昨日 Node v24 で forks 不可→採用) が実タイマー残すテストを終了不能**。フォーム全体を submit まで駆動する happy-dom テストは置かない (純関数ユニット+実機でカバー)。安全な実行手順は memory `reference_vitest_vmthreads_hang` 厳守 (パイプ禁止/必ずファイル出力+ハードタイムアウト/再実行しない)。基盤根治(forks復活 or Node v22)は要相談で別途
 - **完了 (#50)**: ② **kebab(…) 削除も一覧へ即反映** (`HousingActionBar` に `onDeleted` 追加→ route で `store.remove`+通知一掃、 バナー経由と挙動統一)。 **削除済み/非公開カードクリックで toast 案内** (`housing.detail.unavailable`、 今まで無言で閉じてた)。 **新規登録した物件を中央一覧へ即反映** (リロード不要、 `store.fetchAndUpsert(id)` + `service.getListingById(id)`、 編集/削除と責務統一)。 **テスト基盤根治**: vitest が App Check の reCAPTCHA 通信で teardown ハング→ゾンビ化していたのを `MODE==='test'` スキップで解消 (memory `reference_vitest_appcheck_teardown`、 これまで全 suite が固まってた主因)
 - **実機検証済 (#50)**: 新規登録→リロードせず中央に出る / kebab 削除→リロードせず中央から消える / 削除済みカード→toast 案内
@@ -23,10 +23,10 @@
 
 ---
 
-## 次セッション最優先: マップデモ #53 の不具合 3 件 → その後 ④ / ③ UX
+## 次セッション最優先: 軽減表アプリのブラッシュアップ (ハウジングはユーザーが Figma で並行作業)
 
 **最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 そのあと `docs/housing-map-authoring-guide.md` の「7. 現状の課題と次セッションへの引き継ぎ」 を読んで。 マップは本番デモ稼働中だが ①太い道路非表示 ②アンビエント光のテレポート ③物件ナビの直線ショートカット の 3 件を A (パーサ更新)→B (MapView 更新)→C (再デプロイ＋精度確認) の順で対応。 1 件ずつ実機確認。
+> `docs/TODO.md` を読んで。 軽減表アプリのブラッシュアップに取り掛かりたい。 着手前に対象範囲を相談。 ハウジングのマップ #53 (3 件不具合解消) は #54 で完了済、 残作業 (家前 Node / 拡張街マップ / エーテライト出発点切替) は `docs/housing-map-authoring-guide.md` §7 に記載済で、 ユーザーが Figma で並行作業中。
 
 ### Phase 3 残り
 

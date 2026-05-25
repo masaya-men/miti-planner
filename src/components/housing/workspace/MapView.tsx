@@ -3,6 +3,10 @@ import { useTranslation } from 'react-i18next';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { MapBubbleCard } from './MapBubbleCard';
 import mistWard from '../../../data/housing/mistWard.generated.json';
+// Figma で作った Mist マップ (家の模型 / 道路(Stroke) / エーテライト / Node / ナビ赤線 全部入り) を inline 展開。
+// 赤線 (path stroke="#FF0000") = ナビゲーション用道路 + Node 19 個 は housing.css で display:none し
+// 経路計算用 data だけ裏で使う。
+import mistSvgRaw from '../../../data/housing/mist.generated.svg?raw';
 
 export interface MapViewProps {
     onCardClick: (listing: MockListing) => void;
@@ -38,11 +42,13 @@ function demoListing(plot: number): MockListing {
 }
 
 // --- BFS で start ノード → goal ノードの経路を求める ---
+type EdgeData = { a: string; b: string; polyline: [number, number][] };
+const EDGES = mistWard.edges as unknown as EdgeData[];
 const ADJ = (() => {
     const m = new Map<string, string[]>();
-    for (const [a, b] of mistWard.edges as [string, string][]) {
-        (m.get(a) ?? m.set(a, []).get(a)!).push(b);
-        (m.get(b) ?? m.set(b, []).get(b)!).push(a);
+    for (const e of EDGES) {
+        (m.get(e.a) ?? m.set(e.a, []).get(e.a)!).push(e.b);
+        (m.get(e.b) ?? m.set(e.b, []).get(e.b)!).push(e.a);
     }
     return m;
 })();
@@ -64,58 +70,76 @@ function routeNodes(startId: string, goalId: string): string[] {
 // 出発点 (デモ): エーテライト相当として node_1 を仮置き (本番はスプレッドシートの最寄りエーテライト)
 const START_NODE = 'node_1';
 
-// onCardClick は受け取るが、 デモではバブル click は「光ナビの行き先切替」 に使うため未使用。
 export const MapView: React.FC<MapViewProps> = () => {
     const { t } = useTranslation();
     const [targetPlot, setTargetPlot] = useState<number>(27);
 
-    // 選択中のデモ物件への「光ナビ」経路を SVG パス文字列にする
+    // 選択中のデモ物件への光ナビ経路 (BFS の node 列を、 各 edge の polyline で道なりに連結)
     const routePath = useMemo(() => {
         const house = HOUSES.find((h) => h.plot === targetPlot && h.kind === 'plot');
         if (!house || !house.node) return null;
         const ids = routeNodes(START_NODE, house.node);
         if (ids.length === 0) return null;
-        const pts = ids.map((id) => nodeById.get(id)!).filter(Boolean);
-        let d = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${(p.x * W).toFixed(1)} ${(p.y * H).toFixed(1)}`).join(' ');
-        d += ` L${(house.x * W).toFixed(1)} ${(house.y * H).toFixed(1)}`; // 最後に家へ
-        return d;
+        const pts: Array<[number, number]> = [];
+        for (let i = 0; i + 1 < ids.length; i++) {
+            const a = ids[i];
+            const b = ids[i + 1];
+            const e = EDGES.find((x) => (x.a === a && x.b === b) || (x.a === b && x.b === a));
+            if (!e) {
+                // フォールバック (BFS が edge 不在の 2 ノードを返す状況、 通常起きない)
+                if (i === 0) {
+                    const aN = nodeById.get(a)!;
+                    pts.push([aN.x * W, aN.y * H]);
+                }
+                const bN = nodeById.get(b)!;
+                pts.push([bN.x * W, bN.y * H]);
+                continue;
+            }
+            const seg = e.a === a ? e.polyline : e.polyline.slice().reverse();
+            const segPx = seg.map(([px, py]) => [px * W, py * H] as [number, number]);
+            // 前 edge の終端 = この edge の始端 が重複するため slice(1) で除く (初回 i===0 のみ全部 push)
+            if (i === 0) pts.push(...segPx);
+            else pts.push(...segPx.slice(1));
+        }
+        pts.push([house.x * W, house.y * H]); // 最寄りノード → 玄関の最後 1 ホップ
+        return pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
     }, [targetPlot]);
 
     return (
         <div className="housing-map-stage" data-region="map-stage">
             <div className="housing-map-canvas">
-                <div
-                    className="housing-map-wrap"
-                    style={{ position: 'relative', width: '100%', maxWidth: 'min(100%, 78vh)', margin: '0 auto', aspectRatio: `${W} / ${H}` }}
-                >
-                    <svg
-                        viewBox={`0 0 ${W} ${H}`}
-                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', overflow: 'visible' }}
+                <div className="housing-map-wrap">
+                    {/* ① Figma マップを inline 展開 (家 / 道 / エーテライト全部入り) */}
+                    <div
+                        className="housing-map-svg-host"
                         role="img"
                         aria-label={t('housing.workspace.center.map_alt')}
+                        dangerouslySetInnerHTML={{ __html: mistSvgRaw }}
+                    />
+
+                    {/* ② 動的レイヤー: 光ナビ + アンビエント (赤線/Node は ① 内で透明化済、 ここに自前の演出だけ重ねる) */}
+                    <svg
+                        className="housing-map-overlay"
+                        viewBox={`0 0 ${W} ${H}`}
+                        preserveAspectRatio="xMidYMid meet"
+                        aria-hidden="true"
                     >
-                        {/* 道路 */}
-                        <path d={mistWard.roadPath} fill="none" stroke="var(--housing-honey)" strokeOpacity="0.28" strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />
+                        {/* 道全体を巡るアンビエント (dash パターンが流れる = subpath 間のテレポートなし。
+                            ナビ用 1px 赤線 path をオーバーレイで再利用し、 光る dash として描画) */}
+                        <path
+                            d={mistWard.roadPath}
+                            fill="none"
+                            stroke="var(--housing-candle)"
+                            strokeOpacity="0.6"
+                            strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeDasharray="14 28"
+                            style={{ filter: 'drop-shadow(0 0 6px var(--housing-honey))' }}
+                        >
+                            <animate attributeName="stroke-dashoffset" from="0" to="-42" dur="2.4s" repeatCount="indefinite" />
+                        </path>
 
-                        {/* 全 plot の輪郭 (薄く) */}
-                        {HOUSES.map((h) => (
-                            <rect key={`${h.kind}-${h.plot}`} x={h.x * W - 22} y={h.y * H - 16} width="44" height="32" rx="6"
-                                fill="var(--housing-honey)" fillOpacity="0.05" stroke="var(--housing-honey)" strokeOpacity="0.18" strokeWidth="1.5" />
-                        ))}
-
-                        {/* ノード (微かに) */}
-                        {NODES.map((n) => (
-                            <circle key={n.id} cx={n.x * W} cy={n.y * H} r="3" fill="var(--housing-candle)" fillOpacity="0.35" />
-                        ))}
-
-                        {/* 道全体を巡るアンビエントの光 (生きたマップ) */}
-                        {[0, 2, 4].map((delay) => (
-                            <circle key={delay} r="5" fill="var(--housing-candle)" style={{ filter: 'drop-shadow(0 0 6px var(--housing-honey))' }}>
-                                <animateMotion dur="9s" begin={`${delay}s`} repeatCount="indefinite" path={mistWard.roadPath} />
-                            </circle>
-                        ))}
-
-                        {/* 選択物件への光ナビ経路 */}
+                        {/* 選択物件への光ナビ (BFS の node 列を edge polyline 連結で道なりに) */}
                         {routePath && (
                             <>
                                 <path d={routePath} fill="none" stroke="var(--housing-honey)" strokeOpacity="0.85" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round"
@@ -126,16 +150,37 @@ export const MapView: React.FC<MapViewProps> = () => {
                             </>
                         )}
 
-                        {/* 出発点マーカー (エーテライト相当) */}
-                        {nodeById.get(START_NODE) && (
-                            <g transform={`translate(${nodeById.get(START_NODE)!.x * W} ${nodeById.get(START_NODE)!.y * H})`}>
-                                <circle r="11" fill="none" stroke="var(--housing-aether)" strokeOpacity="0.7" strokeWidth="2" />
-                                <circle r="4" fill="var(--housing-aether-soft)" style={{ filter: 'drop-shadow(0 0 8px var(--housing-aether))' }} />
-                            </g>
-                        )}
+                        {/* 目的地アピール (A: 波紋リング 2 重位相 + B: 中心ハイライト矩形の脈打ち) */}
+                        {(() => {
+                            const target = HOUSES.find((h) => h.plot === targetPlot && h.kind === 'plot');
+                            if (!target) return null;
+                            const cx = target.x * W;
+                            const cy = target.y * H;
+                            return (
+                                <g aria-hidden="true">
+                                    {/* A: 波紋 (位相ずらしで 2 つ、 家サイズ 100px ぐらいに合わせて十分大きく) */}
+                                    {[0, 0.9].map((begin) => (
+                                        <circle key={begin} cx={cx} cy={cy} r="60" fill="none" stroke="var(--housing-candle)" strokeWidth="6"
+                                            style={{ filter: 'drop-shadow(0 0 10px var(--housing-honey))' }}>
+                                            <animate attributeName="r" from="60" to="170" dur="1.8s" begin={`${begin}s`} repeatCount="indefinite" />
+                                            <animate attributeName="stroke-opacity" from="0.95" to="0" dur="1.8s" begin={`${begin}s`} repeatCount="indefinite" />
+                                            <animate attributeName="stroke-width" from="8" to="2" dur="1.8s" begin={`${begin}s`} repeatCount="indefinite" />
+                                        </circle>
+                                    ))}
+                                    {/* B: 中心ハイライト矩形 (家全体を覆うサイズ・脈打ち) */}
+                                    <rect x={cx - 75} y={cy - 55} width="150" height="110" rx="10"
+                                        fill="var(--housing-honey)" fillOpacity="0.22"
+                                        stroke="var(--housing-honey)" strokeWidth="6"
+                                        style={{ filter: 'drop-shadow(0 0 16px var(--housing-honey))' }}>
+                                        <animate attributeName="stroke-opacity" values="1;0.45;1" dur="1.4s" repeatCount="indefinite" />
+                                        <animate attributeName="fill-opacity" values="0.34;0.16;0.34" dur="1.4s" repeatCount="indefinite" />
+                                    </rect>
+                                </g>
+                            );
+                        })()}
                     </svg>
 
-                    {/* デモ物件バブル (クリックで光ナビの行き先を切替) */}
+                    {/* ③ デモ物件バブル (クリックで光ナビの行き先を切替) */}
                     {DEMO_PLOTS.map((plot) => {
                         const h = HOUSES.find((x) => x.plot === plot && x.kind === 'plot');
                         if (!h) return null;

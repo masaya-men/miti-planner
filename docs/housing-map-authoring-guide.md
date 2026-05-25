@@ -153,9 +153,46 @@ Figma 上の絶対座標を、 ベースマップ画像の左上(0,0)〜右下(1
 
 ---
 
-## 7. 現状の課題と次セッションへの引き継ぎ (2026-05-23 本番デモ後)
+## 7. 2026-05-23→05-25 セッション: 3 件解消 + 案 1 (Figma SVG をそのまま) 採用
 
-デモを本番(`lopoly.app/housing`) にデプロイ→ユーザー観察 **3 つの不具合**:
+### 結論 (実装済み)
+
+当初の方針 (パーサで「visibleRoadPath」 を別出し → React で再描画) は途中まで進んだが、 ユーザーから「Figma で描いた地図 (家の模型 + 道路 + エーテライト) をそのまま使え、 赤線と Node だけ透明化して経路計算に裏で使えば良い」 と方針変更され、 **案 1 (mist.svg を inline 展開) で再実装**。
+
+### 解決した不具合 (実装済)
+
+1. **太い道路非表示** ✅ — `docs/housing-maps-src/mist.svg` を `src/data/housing/mist.generated.svg` にコピー、 MapView で `?raw` import → `dangerouslySetInnerHTML` で inline 展開。 Figma の `<g id="道路(Stroke)">` shape が直接描画される。
+2. **アンビエント光のテレポート** ✅ — `<animateMotion>` を廃止し、 ナビ用赤線 path (`mistWard.roadPath`) を `.housing-map-overlay` に再利用して `strokeDasharray="14 28"` + `<animate stroke-dashoffset>` で「dash パターンが流れる」 演出に置換。 全 subpath で同時に流れるため瞬間移動なし。
+3. **物件ナビの直線ショートカット** ✅ — パーサで `edges` を `[a, b]` → `{ a, b, polyline: [[nx,ny],...] }` に拡張 (連続ノード間の点列を保存)。 MapView は BFS の node 列を `edge.polyline` を順に連結して道なりの d を生成。
+
+### 追加実装 (このセッション)
+
+- **目的地アピール演出 (A+B)**: 選択中の plot に対し overlay 内で「波紋リング 2 重位相」 + 「中心ハイライト矩形 (脈打ち)」 を表示。
+- **赤線 + Node の透明化**: 両方 `stroke="#FF0000"` なので CSS 1 行 `path[stroke="#FF0000"] { display: none; }` で消える (経路計算は data 側で実施)。
+- **invert filter 撤廃**: Figma の元色 (家=白塗り+黒輪郭、 エーテライト=青) をそのまま見せる方針。 軽減表など他機能には影響なし (selector が housing 配下のみ)。 色変更は CSS の属性セレクタで 1〜2 行で可能。
+- **inline style → CSS 統合**: MapView の wrap inline style を撤去し、 `.housing-map-wrap` の浮遊 3D 効果 (rotateX 20°, translate-55%) を復活。
+
+### 残作業 (このセッションでは未着手 — 次のステップ)
+
+1. **家前 Node の追加 (Figma 作業)**: 全 31 家の目の前の道路上に Node を 1 個ずつ追加 → SVG 再 export → `node scripts/parse-ward-svg.mjs ...` で再実行。 これで plot 26/27/28 (現状エーテライト直結 = 0 hop = 直線) も道なり経路になる。
+2. **拡張街マップの作成 (Figma 作業)**: 5 エリア (Mist/LavenderBeds/Goblet/Shirogane/Empyreum) × 表裏 (本街/拡張街) = **10 SVG**。 拡張街は本街と地形・道路網・エーテライト配置が違うため別 SVG。 物件 doc の plot 番号は 1-30 (本街) / 31-60 (拡張街) で通し → MapView は `area + (plot ≤ 30 ? 'main' : 'sub')` で読み込む SVG を切り替え。
+3. **エーテライト出発点の動的切替 (Claude 作業)**: 現状 `START_NODE = 'node_1'` 固定。 SVG 内のエーテライト座標と名前 (グループ ID 「ミストゲート・スクエア」 等) を別途パース → 家ごとの最寄りエーテライト mapping (ユーザースプレッドシートと付き合わせ) → 家選択時に START_NODE を動的切替。
+4. **plot 矩形 bbox サイズを JSON に含める**: アピール矩形は今 150x110 固定。 plot サイズ (S/M/L) で本来の矩形サイズも違うため、 パーサで bbox サイズも出力して家ごとに合わせる。
+
+### 関連ファイル
+
+- 元 SVG: `docs/housing-maps-src/mist.svg`
+- inline 用 SVG: `src/data/housing/mist.generated.svg` (mist.svg をそのままコピー)
+- パーサ: `scripts/parse-ward-svg.mjs` (visibleRoadPath 抽出 + edges polyline 化)
+- 生成データ: `src/data/housing/mistWard.generated.json` (houses 31 / nodes 19 / edges 27 polyline 付き / roadPath / visibleRoadPath)
+- MapView: `src/components/housing/workspace/MapView.tsx`
+- CSS: `src/styles/housing.css` (`.housing-map-svg-host` / `.housing-map-overlay` 追加)
+
+---
+
+## 8. (旧) 2026-05-23 本番デモ後の課題メモ (履歴)
+
+以下は §7 で解消済みだが、 経緯保存のため残す:
 
 ### 不具合の正体 (確定済み)
 

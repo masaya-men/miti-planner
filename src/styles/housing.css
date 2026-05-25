@@ -688,6 +688,33 @@
   opacity: 0.88;
 }
 
+/* Inline mist.svg ホスト (家の模型 / 道路 / エーテライト 全部入りの Figma 書き出しを生で展開)。
+   invert / mix-blend-mode は使わず、 Figma で描いた色をそのまま見せる方針 (エーテライト青を保つため)。 */
+.housing-map-svg-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 16px 28px rgba(0, 0, 0, 0.55));
+}
+.housing-map-svg-host > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* ナビゲーション用道路 (1 本) と Node 19 個は両方 stroke="#FF0000" → 1 行で透明化 (経路計算は data 側で実施) */
+.housing-map-svg-host svg path[stroke="#FF0000"] { display: none; }
+
+/* 光ナビ / アンビエント 専用オーバーレイ (Figma マップの上に重ねる) */
+.housing-map-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
 /* HUD pills over map */
 .housing-hud {
   position: absolute;

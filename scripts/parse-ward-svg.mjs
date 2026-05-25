@@ -47,6 +47,15 @@ for (const m of (nodeGroup ? nodeGroup[1] : '').matchAll(/<path id="(node_\d+)"[
 const roadM = svg.match(/<path id="[^"]*"\s+d="(M117\.5 573\.5[^"]+)"\s+stroke="#FF0000"/);
 const roadD = roadM ? roadM[1] : null;
 
+// --- visible road path (見た目用の太い道路。 Figma 「道路(Stroke)」 グループ内、
+//     mask="url(...)" を適用された本体 path の d を抜く)。
+//     SVG entity #233 で始まる id = 「道路(Stroke)」 グループ。
+//     ① まずグループ全体を切り出し、 ② その中で mask 属性付き path の d を取る
+//     (1 段で書くと <g> 直下の最初の <mask>内 path に lazy ヒットして失敗するため 2 段)。
+const roadGroup = svg.match(/<g id="&#233;[^"]*Stroke[^"]*">([\s\S]*?)<\/g>/);
+const visRoadM = roadGroup ? roadGroup[1].match(/<path\s+d="([^"]+)"[^>]*\smask="url\(/) : null;
+const visibleRoadD = visRoadM ? visRoadM[1] : null;
+
 // 折れ線化 (M で区切る subpath ごと)
 function parseRoad(d) {
   const segs = [];
@@ -73,21 +82,42 @@ function nearestNode(px, py, maxD = Infinity) {
   return best;
 }
 
-// --- edges: 道の折れ線が通るノードを順に拾い連続ノードを結ぶ ---
-const edgeSet = new Set();
+// --- edges: 道の折れ線が通るノードを順に拾い、 連続ノード間の点列を polyline として保存 ---
+//     (BFS で得た node 列を MapView 側で edge.polyline を順に連結すれば「道なり」 の経路になる)
+const edgeMap = new Map(); // key = "a|b" sorted, value = { a, b, polyline: [[px,py],...] }
 if (roadD) {
   for (const poly of parseRoad(roadD)) {
-    let prev = null;
-    for (const [px, py] of poly) {
+    // 1. この subpath が通過するノード列 (idx, nodeId) を順に拾う
+    const passes = [];
+    for (let i = 0; i < poly.length; i++) {
+      const [px, py] = poly[i];
       const n = nearestNode(px, py, NODE_SNAP);
-      if (n && n.id !== prev) {
-        if (prev) edgeSet.add([prev, n.id].sort().join('|'));
-        prev = n.id;
-      }
+      if (!n) continue;
+      const last = passes[passes.length - 1];
+      if (!last || last.nodeId !== n.id) passes.push({ idx: i, nodeId: n.id });
+    }
+    // 2. 連続する 2 通過点 (a → b) ごとに、 idx 範囲の点列を edge polyline として保存
+    for (let k = 0; k + 1 < passes.length; k++) {
+      const A = passes[k];
+      const B = passes[k + 1];
+      if (A.nodeId === B.nodeId) continue;
+      const key = [A.nodeId, B.nodeId].sort().join('|');
+      if (edgeMap.has(key)) continue; // 同じ edge は最初に見つけた polyline を採用
+      const aN = nodes.find((n) => n.id === A.nodeId);
+      const bN = nodes.find((n) => n.id === B.nodeId);
+      const mid = poly.slice(A.idx, B.idx + 1).map(([x, y]) => [x, y]);
+      // 両端を厳密にノード中心へ置換 (NODE_SNAP 内の点はノード中心とは少しズレているため)
+      mid[0] = [aN._px.x, aN._px.y];
+      mid[mid.length - 1] = [bN._px.x, bN._px.y];
+      edgeMap.set(key, { a: A.nodeId, b: B.nodeId, polyline: mid });
     }
   }
 }
-const edges = [...edgeSet].map((s) => s.split('|'));
+const edges = [...edgeMap.values()].map((e) => ({
+  a: e.a,
+  b: e.b,
+  polyline: e.polyline.map(([x, y]) => [nx(x), ny(y)]),
+}));
 
 // --- 各家を最寄りノードに自動接続 ---
 for (const h of houses) { const n = nearestNode(h._px.x, h._px.y); h.node = n ? n.id : null; }
@@ -99,13 +129,14 @@ const out = {
   edges,
   houses: houses.map(({ kind, plot, x, y, node }) => ({ kind, plot, x, y, node })),
   roadPath: roadD,
+  visibleRoadPath: visibleRoadD,
 };
 writeFileSync(outPath, JSON.stringify(out, null, 2));
 
 // サマリ表示 (精度チェック用)
 console.log(`area=${area} viewBox=${W}x${H}`);
 console.log(`houses=${houses.length} nodes=${nodes.length} edges=${edges.length}`);
-console.log('edges:', edges.map((e) => e.join('-')).join(', '));
+console.log('edges:', edges.map((e) => `${e.a}-${e.b}(pts=${e.polyline.length})`).join(', '));
 console.log('house -> 最寄りnode:');
 for (const h of houses.sort((a, b) => a.plot - b.plot)) {
   console.log(`  ${h.kind}_${h.plot} -> ${h.node}`);
