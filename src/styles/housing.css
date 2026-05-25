@@ -17,6 +17,10 @@
   --housing-honey: #ffc987;
   --housing-honey-glow: #ffb35a;
   --housing-candle: #ffe2b3;
+  /* マップ用 (Mist 等のワード地図 / エーテライト) */
+  --housing-aether: #00BFFF;        /* FF14 エーテライト水晶のシアン */
+  --housing-aether-soft: #9fe9ff;
+  --housing-map-light: #ffffff;     /* 道なぞりの先頭の白い光 */
   --housing-panel-bg: rgba(255, 255, 255, 0.04);
   --housing-panel-border: rgba(255, 255, 255, 0.22);
   --housing-panel-border-strong: rgba(255, 255, 255, 0.36);

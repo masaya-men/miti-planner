@@ -69,9 +69,9 @@ describe('CenterArea', () => {
     it('starts in map mode and renders the housing map image with bubble cards', () => {
         renderCenter();
         expect(screen.getByRole('img', { name: 'ハウジングマップ' })).toBeInTheDocument();
-        // SAMPLE_WARD_LAYOUT has 5 non-null listing slots (plot 1, 12, 15, 22, 27)
+        // MapView の Mist 実データ駆動化 (2026-05-23) で DEMO_PLOTS = 6 件のデモ物件を表示
         const bubbles = document.querySelectorAll('.housing-bubble-card');
-        expect(bubbles.length).toBe(5);
+        expect(bubbles.length).toBe(6);
     });
 
     it('switches to Pinterest grid and renders cards from Firestore data', async () => {
