@@ -2277,5 +2277,13 @@
                 "days_ago": "{{n}} 日前"
             }
         }
+    },
+    "system_notif": {
+        "modal": {
+            "footer_info": "過去の通知や最新情報は",
+            "x": "X (Twitter)",
+            "discord": "Discord",
+            "mark_read": "既読にする"
+        }
     }
 }
