@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { path: '/admin/logs', labelKey: 'admin.logs_title', end: false },
   { path: '/admin/ugc', labelKey: 'admin.ugc_title', end: false },
   { path: '/admin/featured', labelKey: 'admin.featured_title', end: false },
+  { path: '/admin/notifications', labelKey: 'system_notif.admin.tab_label', end: false },
 ] as const;
 
 export function AdminLayout() {

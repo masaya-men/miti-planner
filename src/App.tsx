@@ -28,6 +28,7 @@ import { TemplateWizard } from './components/admin/wizard/TemplateWizard';
 import { JobWizard } from './components/admin/wizard/JobWizard';
 import { StatsWizard } from './components/admin/wizard/StatsWizard';
 import { AdminBackups } from './components/admin/AdminBackups';
+import { AdminSystemNotifications } from './components/admin/AdminSystemNotifications';
 import { AdminLogs } from './components/admin/AdminLogs';
 import { AdminUgc } from './components/admin/AdminUgc';
 import { AdminFeatured } from './components/admin/AdminFeatured';
@@ -101,6 +102,7 @@ function AppRoutes() {
           <Route path="logs" element={<AdminLogs />} />
           <Route path="ugc" element={<AdminUgc />} />
           <Route path="featured" element={<AdminFeatured />} />
+          <Route path="notifications" element={<AdminSystemNotifications />} />
         </Route>
         {/* Catch-all: redirect unknown paths to portal */}
         <Route path="*" element={<Navigate to="/" replace />} />
