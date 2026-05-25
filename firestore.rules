@@ -415,6 +415,16 @@ service cloud.firestore {
     }
 
     // ========================================
+    // system_notifications コレクション
+    // read: public (全ユーザー閲覧可、 認証不要)
+    // write: client から不可 (admin API + Firebase Admin SDK 経由のみ)
+    // ========================================
+    match /system_notifications/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // ========================================
     // その他すべてのパスへのアクセスを拒否
     // ========================================
     match /{document=**} {
