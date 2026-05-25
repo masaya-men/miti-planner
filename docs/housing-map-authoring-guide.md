@@ -150,3 +150,74 @@ Figma 上の絶対座標を、 ベースマップ画像の左上(0,0)〜右下(1
 ### 未確認 (次セッションで要確認)
 - エーテライト青い炎が**複数**ある → ミストの本アエーテライト1つ＋エーテネットシャード複数? 出発点はどれ? (ナビ起点を1つに決める or シャード経由)
 - ハウスの箱の「接続 Node」 は自動で最寄りに繋ぐか、 明示するか。
+
+---
+
+## 7. 現状の課題と次セッションへの引き継ぎ (2026-05-23 本番デモ後)
+
+デモを本番(`lopoly.app/housing`) にデプロイ→ユーザー観察 **3 つの不具合**:
+
+### 不具合の正体 (確定済み)
+
+1. **元の「厚みのある道路」 が表示されていない**: ユーザーは Figma で 「見た目用の太い道路 (`道路(Stroke)` グループ)」 と 「ナビ計算用の 1px 赤線 (`ナビゲーション用道路`、 画面非表示の想定)」 を別レイヤーで作成。 だが現状 `MapView.tsx` は **1px のナビ道路だけを描画している** (`mistWard.roadPath` がそれ)。 太い道路を抽出していない/描画していない。
+
+2. **道全体を巡るアンビエント光が「飛ぶ」**: `<animateMotion path={roadPath}>` の path が複数 `M` (moveto) を含むため、 サブパスをまたぐ瞬間に光球がテレポート。 道路網は分岐があり 1 本の連続 path にはできない (構造的制約)。
+
+3. **物件への光ナビが道を辿らずノード間を直線でショートカット**: BFS で得た **ノード列を直線で結んだ d** を `<animateMotion>` に渡しているため、 ノード間にある道のカーブを無視して斜めに突っ切る。
+
+### 次セッションの具体作業 (順番に)
+
+**A. パーサ更新** (`scripts/parse-ward-svg.mjs`):
+
+A-1. **見た目用の太い道路を抽出** → `visibleRoadPath` を json に追加。
+- SVG の `<g id="道路(Stroke)">` 内、 `<mask>` 内側の `<path d="...">` (または mask 適用側の `<path>`、 同じ d を持つ) の `d` を取得。 SVG の最初の方 (行 2〜6) にある。 fill 付きの太いシェイプとして描画用。
+- 抽出ヒント: `<g id="&#233;[^>]*">` (道路 グループの encoded id) の中の最初の `<path d="...">` を拾えば良い。
+
+A-2. **ナビ道路をエッジ単位の polyline にバラす** → `edges` を `[a,b]` だけでなく `{ a, b, polyline: [[x,y],...] }` に変更。
+- 既存の subpath 走査で、 「点が最寄りノード距離 < NODE_SNAP」 になった瞬間に**ノード通過**とマーク。
+- 連続通過した 2 ノード間にあった点列 (両端ノードの中心を含む) を `edge.polyline` として保存。
+- これがあれば BFS のエッジ列を polyline 連結して **道なりの d** を生成できる。
+
+A-3. パーサ再実行 → `src/data/housing/mistWard.generated.json` 更新:
+```
+node scripts/parse-ward-svg.mjs docs/housing-maps-src/mist.svg Mist
+```
+
+**B. MapView 更新** (`src/components/housing/workspace/MapView.tsx`):
+
+B-1. **道路描画を `visibleRoadPath` に差し替え**。 現在の `mistWard.roadPath` (1px ナビ用) の描画は**消す or 開発時のみ表示** (`data-debug` 属性等)。 `visibleRoadPath` は太め (例: stroke-width 14、 fill あり) で描く。 housing token `--housing-honey` 系を使用。
+
+B-2. **物件への光ナビ経路を道なりにする**。 `routePath` の生成を、 BFS の node 列から「**エッジ polyline を順に連結**」 に変更:
+```ts
+const ids = routeNodes(START_NODE, house.node);
+const polyline = []; // 道なりの点列
+for (let i = 0; i + 1 < ids.length; i++) {
+  const e = edges.find(...両端マッチ);
+  const seg = (e.a === ids[i]) ? e.polyline : e.polyline.slice().reverse();
+  polyline.push(...(i === 0 ? seg : seg.slice(1)));  // 重複ノードを除いて連結
+}
+polyline.push([house.x * W, house.y * H]); // 最後に家へ
+const d = polyline.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0]} ${p[1]}`).join(' ');
+```
+
+B-3. **アンビエント光の「飛び」 解消** (案を選ぶ):
+- **案 1 (推奨)**: `<animateMotion>` を捨て、 道路 path に **`stroke-dasharray` + `<animate>` で流れる dash パターン**を描く (`stroke-dashoffset` を時間で変化)。 分岐や M の境目でもテレポートしない。 「道全体が呼吸する」 演出にしやすい。
+- 案 2: 各サブパス (連続 polyline) ごとに **個別の `<animateMotion>` 光球**を配置 (分岐ごとに 1 個)。 実装は単純だが光球数が多い。
+
+### C. 動作確認 → 再デプロイ → 自動接続の精度確認
+
+A〜B 実装後、 ローカル `npm run dev` で目視 → push → 本番で:
+- 太い道路が出るか
+- 道なりに光が走るか (直線ショートカット消滅)
+- アンビエントが滑らかか (テレポート消滅)
+- 各家への経路が見栄え通りか (自動接続の精度)。 不自然な家があれば、 当該家の `node` を手動 override (json 直編集 or SVG に明示接続 layer を追加)。
+
+### 参照ファイル (場所変わらず)
+- 元 SVG: `docs/housing-maps-src/mist.svg`
+- 生成データ: `src/data/housing/mistWard.generated.json` (A-3 で再生成)
+- パーサ: `scripts/parse-ward-svg.mjs` (A-1/A-2 を実装)
+- MapView: `src/components/housing/workspace/MapView.tsx` (B-1/B-2/B-3 を実装)
+- 設計トークン: `src/styles/housing.css` (`--housing-honey` 系、 `--housing-aether` 追加済)
+
+### 次セッション最初のコマンド (コピペ)
+> `docs/housing-map-authoring-guide.md` の「7. 現状の課題と次セッションへの引き継ぎ」 を読んで。 マップデモは本番 (`lopoly.app/housing`) で動いているが、 ①太い道路が出ていない ②アンビエント光が飛ぶ ③物件ナビが直線ショートカット の 3 つを **A→B→C の順で対応**。 まずパーサ更新から。
