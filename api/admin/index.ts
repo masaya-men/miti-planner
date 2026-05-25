@@ -1,12 +1,13 @@
 /**
  * 管理API統合エンドポイント
- * ?resource=contents  → コンテンツ管理 (GET/POST/PUT/DELETE)
- * ?resource=role      → ロール管理 (GET/POST)
- * ?resource=templates → テンプレート管理 (GET/POST/PUT/DELETE)
- * ?resource=sync      → データ同期 (POST)
- * ?resource=dashboard → ダッシュボード統計 (GET)
- * ?resource=ugc       → UGC管理 (GET/DELETE)
- * ?resource=popular   → 野良主流ランキング (GET)
+ * ?resource=contents             → コンテンツ管理 (GET/POST/PUT/DELETE)
+ * ?resource=role                 → ロール管理 (GET/POST)
+ * ?resource=templates            → テンプレート管理 (GET/POST/PUT/DELETE)
+ * ?resource=sync                 → データ同期 (POST)
+ * ?resource=dashboard            → ダッシュボード統計 (GET)
+ * ?resource=ugc                  → UGC管理 (GET/DELETE)
+ * ?resource=popular              → 野良主流ランキング (GET)
+ * ?resource=system_notifications → 運営通知 (POST/PATCH/DELETE)
  */
 import contentsHandler from './_contentsHandler.js';
 import roleHandler from './_roleHandler.js';
@@ -15,6 +16,7 @@ import syncHandler from './_syncHandler.js';
 import dashboardHandler from './_dashboardHandler.js';
 import ugcHandler from './_ugcHandler.js';
 import popularHandler from './_popularHandler.js';
+import systemNotificationsHandler from './_systemNotificationsHandler.js';
 
 export default async function handler(req: any, res: any) {
   const resource = req.query?.resource;
@@ -34,7 +36,9 @@ export default async function handler(req: any, res: any) {
       return ugcHandler(req, res);
     case 'popular':
       return popularHandler(req, res);
+    case 'system_notifications':
+      return systemNotificationsHandler(req, res);
     default:
-      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|popular' });
+      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|popular|system_notifications' });
   }
 }
