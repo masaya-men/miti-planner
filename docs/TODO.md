@@ -17,7 +17,7 @@
 - **#54 マップ残作業 (ユーザー or 後追い)**: (1) Figma で全 31 家の目の前 Node 追加 (plot 26/27/28 = エーテライト直結家も道なりに) (2) 拡張街マップ SVG 5 エリア×表裏=10 SVG (3) エーテライト出発点の動的切替 (現状 `START_NODE='node_1'` 固定、 家→最寄りエーテライト mapping 要) (4) plot bbox サイズを JSON 化してアピール矩形を家サイズ別に。 詳細は `docs/housing-map-authoring-guide.md` §7
 - **#54 通知バッジ 将来拡張**: ko/zh 翻訳 / 通知ジャンル分け / 本文中リンク / 既読端末間同期 / Web Push / 予約投稿。 詳細は `docs/superpowers/specs/2026-05-25-system-notifications-design.md` §9
 - **#52 重要バグ修正2件 (既存)**: (1) 自動入力が再適用され区など手動編集が巻き戻る→取得結果(data)ごと1回だけ親へ渡すガード。 (2) **削除済みツイートは syndication が 404 でなく 200+`{__typename:TweetTombstone}` を返す**→`checkTweetStatus` を tombstone/unavailable/user欠落対応、 開いた時チェックは edge キャッシュ回避で purge 直接呼び (memory `reference_tweet_deleted_tombstone`)
-- **次セッション最優先**: ハウジング側はユーザーが Figma で家前 Node 追加 + 拡張街マップ作成を並行で実施。 Claude 側は **軽減表アプリのブラッシュアップ** (具体タスクはユーザー指定)
+- **次セッション最優先 (#56)**: **軽減表アプリにメモ追加機能** (詳細未確定、 セッション最初に brainstorming)。 これが終わったらハウジング (#54 マップ残作業) に復帰。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成中
 - **#51 重要な学び (テスト基盤)**: 「RUN」のまま固まる/node ゾンビ化の真因は **vmThreads (昨日 Node v24 で forks 不可→採用) が実タイマー残すテストを終了不能**。フォーム全体を submit まで駆動する happy-dom テストは置かない (純関数ユニット+実機でカバー)。安全な実行手順は memory `reference_vitest_vmthreads_hang` 厳守 (パイプ禁止/必ずファイル出力+ハードタイムアウト/再実行しない)。基盤根治(forks復活 or Node v22)は要相談で別途
 - **完了 (#50)**: ② **kebab(…) 削除も一覧へ即反映** (`HousingActionBar` に `onDeleted` 追加→ route で `store.remove`+通知一掃、 バナー経由と挙動統一)。 **削除済み/非公開カードクリックで toast 案内** (`housing.detail.unavailable`、 今まで無言で閉じてた)。 **新規登録した物件を中央一覧へ即反映** (リロード不要、 `store.fetchAndUpsert(id)` + `service.getListingById(id)`、 編集/削除と責務統一)。 **テスト基盤根治**: vitest が App Check の reCAPTCHA 通信で teardown ハング→ゾンビ化していたのを `MODE==='test'` スキップで解消 (memory `reference_vitest_appcheck_teardown`、 これまで全 suite が固まってた主因)
 - **実機検証済 (#50)**: 新規登録→リロードせず中央に出る / kebab 削除→リロードせず中央から消える / 削除済みカード→toast 案内
@@ -26,10 +26,10 @@
 
 ---
 
-## 次セッション最優先: 運営通知バッジ機能のモーダルサイズ詰め → 完成宣言
+## 次セッション最優先 (#56): 軽減表アプリにメモ追加機能
 
 **最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 セッション #55 で通知モーダルサイズ詰めを mockup HTML で議論し、 「トンマナ現状維持 / width だけ 520→360 / 高さ内容ベース + max-h クランプ」 まで方針確定済み。 ただし実機 (DPR 2.58 + 実ブラウザ) での体感確認はまだ。 まず `docs/.private/system-notif-mockup.html` を実機ブラウザで開いて 360 の体感を一緒に確認 → 必要なら微調整 → `SystemNotificationModal.tsx` に適用 → vitest+build → push → 通知機能完成宣言。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成を進めている。
+> `docs/TODO.md` を読んで。 セッション #56 では **軽減表アプリにメモ機能を追加する brainstorming** から開始。 詳細未確定 (どこに書く / プラン単位か配置単位か / 表示位置 / 永続化先 / Markdown 可否 / モバイル対応 等)。 `docs/.private/2026-05-25-mitigation-memo-design.md` のたたき台を一緒に詰めてから設計→実装。 これが終わったら #54 ハウジングマップ残作業に復帰。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成中。
 
 ### Phase 3 残り
 
