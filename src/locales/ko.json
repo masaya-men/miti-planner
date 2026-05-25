@@ -1125,6 +1125,22 @@
         "guest_hint": "데이터는 이 브라우저에만 저장되며, 쿠키 삭제 또는 시크릿 모드 종료 시 삭제됩니다. <login>로그인</login>하면 안전하게 보관됩니다.",
         "guest_hint_short": "데이터는 이 기기에만 저장됩니다. <login>로그인</login>하면 안전하게 보관됩니다."
     },
+    "memo": {
+        "mode_toggle_label": "メモ",
+        "mode_toggle_tooltip": "シートにメモを書き込む",
+        "floating_bar_count": "メモ {{count}}/{{max}}",
+        "floating_bar_exit": "終了 (Esc)",
+        "input_placeholder": "メモを入力 (最大 {{max}} 文字)",
+        "input_save": "保存",
+        "input_cancel": "キャンセル",
+        "context_delete": "削除",
+        "clear_all_menu_label": "メモを全削除",
+        "confirm_clear_all_title": "メモを全削除しますか",
+        "confirm_clear_all_body": "{{count}} 件のメモが消えます。 元に戻せません。",
+        "confirm_clear_all_ok": "全削除",
+        "confirm_clear_all_cancel": "やめる",
+        "limit_reached": "メモは最大 {{max}} 件までです"
+    },
     "mobile": {
         "tools_title": "도구",
         "fflogs_desc": "FFLogs에서 타임라인 가져오기",

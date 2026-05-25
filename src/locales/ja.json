@@ -1140,6 +1140,22 @@
         "guest_hint": "データはこのブラウザにのみ保存されます。Cookieの削除やシークレットモードの終了で失われます。<login>ログイン</login>すると安全に引き継げます。",
         "guest_hint_short": "データはこの端末にのみ保存されます。<login>ログイン</login>すると安全に引き継げます。"
     },
+    "memo": {
+        "mode_toggle_label": "メモ",
+        "mode_toggle_tooltip": "シートにメモを書き込む",
+        "floating_bar_count": "メモ {{count}}/{{max}}",
+        "floating_bar_exit": "終了 (Esc)",
+        "input_placeholder": "メモを入力 (最大 {{max}} 文字)",
+        "input_save": "保存",
+        "input_cancel": "キャンセル",
+        "context_delete": "削除",
+        "clear_all_menu_label": "メモを全削除",
+        "confirm_clear_all_title": "メモを全削除しますか",
+        "confirm_clear_all_body": "{{count}} 件のメモが消えます。 元に戻せません。",
+        "confirm_clear_all_ok": "全削除",
+        "confirm_clear_all_cancel": "やめる",
+        "limit_reached": "メモは最大 {{max}} 件までです"
+    },
     "mobile": {
         "tools_title": "ツール",
         "fflogs_desc": "FFLogsからタイムラインをインポート",
