@@ -1,7 +1,9 @@
 import React, { useRef, useState, useCallback } from 'react';
 import clsx from 'clsx';
+import { useTranslation } from 'react-i18next';
 import type { PlanMemo } from '../../types';
 import { timeSecToY, xRatioToPx, yToTimeSec, pxToXRatio, clampXRatio } from './coords';
+import { Tooltip } from '../ui/Tooltip';
 import './memo.css';
 
 interface MemoOverlayProps {
@@ -30,6 +32,7 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
     onMemoDragEnd,
     onMemoDelete,
 }) => {
+    const { t } = useTranslation();
     const [draggingId, setDraggingId] = useState<string | null>(null);
     const dragStateRef = useRef<{
         id: string;
@@ -149,7 +152,16 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
                         onPointerCancel={handlePointerCancel}
                         onContextMenu={(e) => handleContextMenu(e, memo)}
                     >
-                        {memo.text}
+                        {interactive ? (
+                            <Tooltip
+                                content={isDragging ? '' : t('memo.help_tooltip')}
+                                wrapperClassName="!w-full"
+                            >
+                                <span className="block">{memo.text}</span>
+                            </Tooltip>
+                        ) : (
+                            memo.text
+                        )}
                     </div>
                 );
             })}

@@ -2178,28 +2178,31 @@ const Timeline: React.FC = () => {
                                     onStartAdding={() => setIsAaModeEnabled(true)}
                                     isAaActive={isAaModeEnabled}
                                 />
+                                {/* AA とメモの間の短い区切り線 (= Area A/B 境界の divider と同パターン) */}
+                                <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
                                 {/* メモモード切替 (Area B の右半分、 AA と同じトンマナ) */}
-                                <div className={clsx(
-                                    "flex-1 flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 min-w-0 hidden md:flex",
-                                    isMemoMode && "bg-app-toggle text-app-toggle-text"
-                                )}>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            useMitigationStore.getState().setToolMode(isMemoMode ? 'idle' : 'memo');
-                                        }}
-                                        title={t('memo.mode_toggle_tooltip')}
-                                        className={clsx(
-                                            "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer min-w-0",
-                                            isMemoMode
-                                                ? "text-app-bg"
-                                                : "text-app-text"
-                                        )}
-                                    >
-                                        <Pencil size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
-                                        <span className="font-black text-app-base uppercase tracking-wider hidden md:block truncate">{t('memo.mode_toggle_label')}</span>
-                                    </button>
-                                </div>
+                                <Tooltip content={t('memo.mode_toggle_tooltip')} wrapperClassName="flex-1 hidden md:flex h-6 min-w-0">
+                                    <div className={clsx(
+                                        "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-full w-full min-w-0",
+                                        isMemoMode && "bg-app-toggle text-app-toggle-text"
+                                    )}>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                useMitigationStore.getState().setToolMode(isMemoMode ? 'idle' : 'memo');
+                                            }}
+                                            className={clsx(
+                                                "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer min-w-0",
+                                                isMemoMode
+                                                    ? "text-app-bg"
+                                                    : "text-app-text"
+                                            )}
+                                        >
+                                            <Pencil size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
+                                            <span className="font-black text-app-base uppercase tracking-wider hidden md:block truncate">{t('memo.mode_toggle_label')}</span>
+                                        </button>
+                                    </div>
+                                </Tooltip>
                             </div>
 
                             {/* 短い区切り線 — テーブルの Event|U.Dmg 境界と揃う */}

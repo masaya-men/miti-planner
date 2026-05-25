@@ -1,6 +1,7 @@
 .plan-memo {
     position: absolute;
-    font-size: var(--font-size-sm, 12px);
+    /* 1 段階上 (sm=9px → base=10px)。 視認性さらに必要なら --font-size-md/lg へ。 */
+    font-size: var(--font-size-base, 10px);
     color: var(--color-text, #fff);
     opacity: 1;
     /* mix-blend-mode: difference を撤去 (= sheet 背景と類似色になり実質透明化していたため)。
@@ -16,7 +17,8 @@
     word-break: break-word;
     line-height: 1.4;
     transform: translate(-50%, 0);
-    z-index: 15;
+    /* 軽減ターゲットアイコン (Timeline.tsx:504 で z-30) より上に確実に乗せる。 */
+    z-index: 35;
     font-weight: 600;
     cursor: grab;
     touch-action: none;
@@ -25,7 +27,7 @@
 .plan-memo--dragging {
     opacity: 0.6;
     cursor: grabbing;
-    z-index: 16;
+    z-index: 36;
 }
 
 .plan-memo--readonly {
