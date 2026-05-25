@@ -872,12 +872,24 @@ const Timeline: React.FC = () => {
         };
     }, [handleAutoPlan]);
 
+    // メモ: PlanData.memos へ反映 (markDirty は updatePlan が自動で行う)
+    const reflectMemosToPlan = useCallback(() => {
+        const planId = usePlanStore.getState().currentPlanId;
+        if (!planId) return;
+        const newMemos = useMitigationStore.getState().memos;
+        const plan = usePlanStore.getState().getPlan(planId);
+        if (!plan) return;
+        usePlanStore.getState().updatePlan(planId, {
+            data: { ...plan.data, memos: newMemos },
+        });
+    }, []);
+
     // メモ: シートクリック → 新規入力ボックス表示
     const handleSheetClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         if (!isMemoMode) return;
-        // 軽減アイコン (cursor-grab) / ボタン / リンク / 入力欄 上のクリックはメモ作成しない
+        // 軽減アイコン (cursor-grab) / ボタン / リンク / 入力欄 / 既存メモ 上のクリックは無視
         const target = e.target as HTMLElement;
-        if (target.closest('button, a, input, textarea, .cursor-grab')) return;
+        if (target.closest('button, a, input, textarea, .cursor-grab, .plan-memo')) return;
         if (memos.length >= MEMO_LIMITS.MAX_MEMOS_PER_PLAN) {
             showToast(t('memo.limit_reached', { max: MEMO_LIMITS.MAX_MEMOS_PER_PLAN }));
             return;
@@ -910,7 +922,7 @@ const Timeline: React.FC = () => {
         });
     }, [isMemoMode, memos.length, t]);
 
-    // メモ: InputBox の保存ハンドラ
+    // メモ: InputBox の保存ハンドラ (新規作成のみ。 編集分岐は Task 12 で追加)
     const handleMemoSave = useCallback((text: string) => {
         if (!memoInput) return;
         if (!text) {
@@ -926,20 +938,16 @@ const Timeline: React.FC = () => {
         if (!ok) {
             showToast(t('memo.limit_reached', { max: MEMO_LIMITS.MAX_MEMOS_PER_PLAN }));
         } else {
-            // PlanData.memos へ反映 (markDirty → 5分クールダウンで Firestore 同期)
-            const planId = usePlanStore.getState().currentPlanId;
-            if (planId) {
-                const newMemos = useMitigationStore.getState().memos;
-                const plan = usePlanStore.getState().getPlan(planId);
-                if (plan) {
-                    usePlanStore.getState().updatePlan(planId, {
-                        data: { ...plan.data, memos: newMemos },
-                    });
-                }
-            }
+            reflectMemosToPlan();
         }
         setMemoInput(null);
-    }, [memoInput, t]);
+    }, [memoInput, t, reflectMemosToPlan]);
+
+    // メモ: DnD 確定 (pointerup) → 座標更新 + Plan へ反映
+    const handleMemoDragEnd = useCallback((id: string, coords: { timeSec: number; xRatio: number }) => {
+        useMitigationStore.getState().updateMemo(id, coords);
+        reflectMemosToPlan();
+    }, [reflectMemosToPlan]);
 
     const handleOpenPip = useCallback(async () => {
         if (!pipSupported) return;
@@ -2999,6 +3007,7 @@ const Timeline: React.FC = () => {
                             timeToYMap={timeToYMapRef.current}
                             sheetWidth={sheetWidth}
                             interactive={isMemoMode}
+                            onMemoDragEnd={handleMemoDragEnd}
                         />
                         {/* メモ新規入力ボックス */}
                         {memoInput && (

@@ -18,11 +18,14 @@
     transform: translate(-50%, 0);
     z-index: 15;
     font-weight: 600;
+    cursor: grab;
+    touch-action: none;
 }
 
 .plan-memo--dragging {
     opacity: 0.6;
     cursor: grabbing;
+    z-index: 16;
 }
 
 .plan-memo--readonly {
