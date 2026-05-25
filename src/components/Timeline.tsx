@@ -864,8 +864,9 @@ const Timeline: React.FC = () => {
     // メモ: シートクリック → 新規入力ボックス表示
     const handleSheetClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         if (!isMemoMode) return;
-        // 既存メモ/ボタン上のクリックは無視 (= 空白領域のみ反応)
-        if (e.target !== e.currentTarget) return;
+        // 軽減アイコン (cursor-grab) / ボタン / リンク / 入力欄 上のクリックはメモ作成しない
+        const target = e.target as HTMLElement;
+        if (target.closest('button, a, input, textarea, .cursor-grab')) return;
         if (memos.length >= MEMO_LIMITS.MAX_MEMOS_PER_PLAN) {
             showToast(t('memo.limit_reached', { max: MEMO_LIMITS.MAX_MEMOS_PER_PLAN }));
             return;
@@ -2076,9 +2077,9 @@ const Timeline: React.FC = () => {
                             {/* 短い区切り線 — テーブルの Time|Event 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
 
-                            {/* Area B: MECHANIC — 敵の攻撃カラムと揃う (var(--col-mechanic-w) - 1px divider)。 AA 追加 + メモを並列配置 */}
+                            {/* Area B: MECHANIC — 敵の攻撃カラムと揃う (var(--col-mechanic-w) - 1px divider)。 AA 追加 + メモを 50/50 で並列配置、 トンマナ統一 */}
                             <div className="flex-1 md:flex-none md:w-[calc(var(--col-mechanic-w)-1px)] md:min-w-[calc(var(--col-mechanic-w)-1px)] flex items-center gap-1 px-1 md:px-2 h-full">
-                                {/* AA 追加ボタン */}
+                                {/* AA 追加ボタン (Area B の左半分) */}
                                 <div className={clsx(
                                     "flex-1 flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 min-w-0",
                                     isAaModeEnabled && "bg-app-toggle text-app-toggle-text"
@@ -2112,23 +2113,28 @@ const Timeline: React.FC = () => {
                                     onStartAdding={() => setIsAaModeEnabled(true)}
                                     isAaActive={isAaModeEnabled}
                                 />
-                                {/* メモモード切替 (Area B 内に AA と並列) */}
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        useMitigationStore.getState().setToolMode(isMemoMode ? 'idle' : 'memo');
-                                    }}
-                                    title={t('memo.mode_toggle_tooltip')}
-                                    className={clsx(
-                                        "group/btn flex-shrink-0 flex items-center gap-1 px-2 h-6 rounded transition-all duration-150 cursor-pointer hidden md:flex",
-                                        isMemoMode
-                                            ? "bg-app-blue/15 text-app-blue"
-                                            : "text-app-text hover:bg-app-surface2"
-                                    )}
-                                >
-                                    <Pencil size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
-                                    <span className="font-black text-app-base uppercase tracking-wider">{t('memo.mode_toggle_label')}</span>
-                                </button>
+                                {/* メモモード切替 (Area B の右半分、 AA と同じトンマナ) */}
+                                <div className={clsx(
+                                    "flex-1 flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 min-w-0 hidden md:flex",
+                                    isMemoMode && "bg-app-toggle text-app-toggle-text"
+                                )}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            useMitigationStore.getState().setToolMode(isMemoMode ? 'idle' : 'memo');
+                                        }}
+                                        title={t('memo.mode_toggle_tooltip')}
+                                        className={clsx(
+                                            "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer min-w-0",
+                                            isMemoMode
+                                                ? "text-app-bg"
+                                                : "text-app-text"
+                                        )}
+                                    >
+                                        <Pencil size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
+                                        <span className="font-black text-app-base uppercase tracking-wider hidden md:block truncate">{t('memo.mode_toggle_label')}</span>
+                                    </button>
+                                </div>
                             </div>
 
                             {/* 短い区切り線 — テーブルの Event|U.Dmg 境界と揃う */}
