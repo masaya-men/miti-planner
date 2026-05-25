@@ -10,7 +10,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
-import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase, Label } from '../types';
+import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase, Label, PlanMemo } from '../types';
 import { getPhaseName } from '../types';
 import { EventModal } from './EventModal';
 import { ClearMitigationsPopover } from './ClearMitigationsPopover';
@@ -51,7 +51,7 @@ import { JobPickerRow } from './JobPickerRow';
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
-import { yToTimeSec, pxToXRatio, clampXRatio } from './Memo/coords';
+import { yToTimeSec, pxToXRatio, clampXRatio, timeSecToY, xRatioToPx } from './Memo/coords';
 import { MEMO_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
 
@@ -622,12 +622,14 @@ const Timeline: React.FC = () => {
     const previewEndTimeRef = useRef<number | null>(null);
     const previewRafRef = useRef<number | null>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
-    // メモ新規入力状態
+    // メモ入力状態 (新規 = editingId 無し / 編集 = editingId + initialText)
     const [memoInput, setMemoInput] = useState<{
         topPx: number;
         leftPx: number;
         timeSec: number;
         xRatio: number;
+        editingId?: string;
+        initialText?: string;
     } | null>(null);
     const sheetContainerRef = useRef<HTMLDivElement>(null);
     // sheetWidth を state 化 + ResizeObserver で動的更新 (初期 0 で left=0 に固まる問題を解決)
@@ -922,23 +924,35 @@ const Timeline: React.FC = () => {
         });
     }, [isMemoMode, memos.length, t]);
 
-    // メモ: InputBox の保存ハンドラ (新規作成のみ。 編集分岐は Task 12 で追加)
+    // メモ: InputBox の保存ハンドラ (新規 = addMemo、 編集 = updateMemo or 空文字で deleteMemo)
     const handleMemoSave = useCallback((text: string) => {
         if (!memoInput) return;
-        if (!text) {
-            // 新規で空文字 → キャンセル扱い
-            setMemoInput(null);
-            return;
-        }
-        const ok = useMitigationStore.getState().addMemo({
-            text,
-            timeSec: memoInput.timeSec,
-            xRatio: memoInput.xRatio,
-        });
-        if (!ok) {
-            showToast(t('memo.limit_reached', { max: MEMO_LIMITS.MAX_MEMOS_PER_PLAN }));
-        } else {
+        const trimmed = text.trim();
+        if (memoInput.editingId) {
+            // 編集モード
+            if (!trimmed) {
+                // 空文字確定 = 削除 (spec §4.5 確認なし)
+                useMitigationStore.getState().deleteMemo(memoInput.editingId);
+            } else {
+                useMitigationStore.getState().updateMemo(memoInput.editingId, { text: trimmed });
+            }
             reflectMemosToPlan();
+        } else {
+            // 新規作成
+            if (!trimmed) {
+                setMemoInput(null);
+                return;
+            }
+            const ok = useMitigationStore.getState().addMemo({
+                text: trimmed,
+                timeSec: memoInput.timeSec,
+                xRatio: memoInput.xRatio,
+            });
+            if (!ok) {
+                showToast(t('memo.limit_reached', { max: MEMO_LIMITS.MAX_MEMOS_PER_PLAN }));
+            } else {
+                reflectMemosToPlan();
+            }
         }
         setMemoInput(null);
     }, [memoInput, t, reflectMemosToPlan]);
@@ -948,6 +962,22 @@ const Timeline: React.FC = () => {
         useMitigationStore.getState().updateMemo(id, coords);
         reflectMemosToPlan();
     }, [reflectMemosToPlan]);
+
+    // メモ: 既存メモクリック → 編集モードで InputBox を開く
+    const handleMemoClick = useCallback((memo: PlanMemo) => {
+        if (!isMemoMode) return;
+        const topPx = timeSecToY(memo.timeSec, timeToYMapRef.current);
+        const leftPx = xRatioToPx(memo.xRatio, sheetWidth);
+        setMemoInput({
+            topPx,
+            leftPx,
+            timeSec: memo.timeSec,
+            xRatio: memo.xRatio,
+            editingId: memo.id,
+            initialText: memo.text,
+        });
+    }, [isMemoMode, sheetWidth]);
+
 
     const handleOpenPip = useCallback(async () => {
         if (!pipSupported) return;
@@ -3008,12 +3038,14 @@ const Timeline: React.FC = () => {
                             sheetWidth={sheetWidth}
                             interactive={isMemoMode}
                             onMemoDragEnd={handleMemoDragEnd}
+                            onMemoClick={handleMemoClick}
                         />
-                        {/* メモ新規入力ボックス */}
+                        {/* メモ入力ボックス (新規 / 編集 共用) */}
                         {memoInput && (
                             <MemoInputBox
                                 topPx={memoInput.topPx}
                                 leftPx={memoInput.leftPx}
+                                initialText={memoInput.initialText}
                                 onSave={handleMemoSave}
                                 onCancel={() => setMemoInput(null)}
                             />
