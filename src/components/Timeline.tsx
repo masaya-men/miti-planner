@@ -48,6 +48,12 @@ import { HeaderTimeInput } from './HeaderTimeInput';
 import { HeaderMechanicSearch } from './HeaderMechanicSearch';
 import { RecastRow, type RecastRowHandle } from './RecastRow';
 import { JobPickerRow } from './JobPickerRow';
+import { MemoOverlay } from './Memo/MemoOverlay';
+import { MemoInputBox } from './Memo/MemoInputBox';
+import { MemoFloatingBar } from './Memo/MemoFloatingBar';
+import { pxToTimeSec, pxToXRatio, clampMemoCoords } from './Memo/coords';
+import { MEMO_LIMITS } from '../types/firebase';
+import { showToast } from './Toast';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -569,6 +575,7 @@ const Timeline: React.FC = () => {
     // メモモード
     const toolMode = useMitigationStore(s => s.toolMode);
     const isMemoMode = toolMode === 'memo';
+    const memos = useMitigationStore(s => s.memos);
     // アクション（参照安定・再レンダー不発火）
     const addEvent = useMitigationStore(s => s.addEvent);
     const updateEvent = useMitigationStore(s => s.updateEvent);
@@ -615,6 +622,14 @@ const Timeline: React.FC = () => {
     const previewEndTimeRef = useRef<number | null>(null);
     const previewRafRef = useRef<number | null>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
+    // メモ新規入力状態
+    const [memoInput, setMemoInput] = useState<{
+        topPx: number;
+        leftPx: number;
+        timeSec: number;
+        xRatio: number;
+    } | null>(null);
+    const sheetContainerRef = useRef<HTMLDivElement>(null);
 
     /** DOM直接操作でプレビューハイライトを更新（React再レンダリングなし） */
     const updatePreviewHighlight = useCallback((time: number | null) => {
@@ -845,6 +860,66 @@ const Timeline: React.FC = () => {
             window.removeEventListener('timeline:import', handleImportEvent);
         };
     }, [handleAutoPlan]);
+
+    // メモ: シートクリック → 新規入力ボックス表示
+    const handleSheetClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        if (!isMemoMode) return;
+        // 既存メモ/ボタン上のクリックは無視 (= 空白領域のみ反応)
+        if (e.target !== e.currentTarget) return;
+        if (memos.length >= MEMO_LIMITS.MAX_MEMOS_PER_PLAN) {
+            showToast(t('memo.limit_reached', { max: MEMO_LIMITS.MAX_MEMOS_PER_PLAN }));
+            return;
+        }
+        const rect = sheetContainerRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const xPx = e.clientX - rect.left;
+        const yPxInContainer = e.clientY - rect.top;
+        // scrollContainerRef がスクロール担当 — scrollTop を加算して絶対 Y 座標を得る
+        const scrollOffset = scrollContainerRef.current?.scrollTop ?? 0;
+        const yPx = yPxInContainer + scrollOffset;
+        const offsetTimeVal = showPreStart ? -10 : 0;
+        const clamped = clampMemoCoords({
+            timeSec: pxToTimeSec(yPx, pixelsPerSecond, offsetTimeVal),
+            xRatio: pxToXRatio(xPx, rect.width),
+        }, maxTime);
+        setMemoInput({
+            topPx: yPx,
+            leftPx: xPx,
+            timeSec: clamped.timeSec,
+            xRatio: clamped.xRatio,
+        });
+    }, [isMemoMode, memos.length, showPreStart, pixelsPerSecond, maxTime, t]);
+
+    // メモ: InputBox の保存ハンドラ
+    const handleMemoSave = useCallback((text: string) => {
+        if (!memoInput) return;
+        if (!text) {
+            // 新規で空文字 → キャンセル扱い
+            setMemoInput(null);
+            return;
+        }
+        const ok = useMitigationStore.getState().addMemo({
+            text,
+            timeSec: memoInput.timeSec,
+            xRatio: memoInput.xRatio,
+        });
+        if (!ok) {
+            showToast(t('memo.limit_reached', { max: MEMO_LIMITS.MAX_MEMOS_PER_PLAN }));
+        } else {
+            // PlanData.memos へ反映 (markDirty → 5分クールダウンで Firestore 同期)
+            const planId = usePlanStore.getState().currentPlanId;
+            if (planId) {
+                const newMemos = useMitigationStore.getState().memos;
+                const plan = usePlanStore.getState().getPlan(planId);
+                if (plan) {
+                    usePlanStore.getState().updatePlan(planId, {
+                        data: { ...plan.data, memos: newMemos },
+                    });
+                }
+            }
+        }
+        setMemoInput(null);
+    }, [memoInput, t]);
 
     const handleOpenPip = useCallback(async () => {
         if (!pipSupported) return;
@@ -2314,7 +2389,7 @@ const Timeline: React.FC = () => {
                         onScroll={handleScrollSync}
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
-                        <div className="relative bg-transparent md:w-max md:min-w-full" style={{
+                        <div ref={sheetContainerRef} onClick={handleSheetClick} className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
                                 let maxPopulatedTime = -11;
@@ -2893,10 +2968,35 @@ const Timeline: React.FC = () => {
                                     </>
                                 );
                             })()}
+                        {/* メモオーバーレイ (= 既存メモをシート上に表示) */}
+                        <MemoOverlay
+                            memos={memos}
+                            pixelsPerSecond={pixelsPerSecond}
+                            offsetTime={showPreStart ? -10 : 0}
+                            sheetWidth={sheetContainerRef.current?.getBoundingClientRect().width ?? 0}
+                            interactive={isMemoMode}
+                        />
+                        {/* メモ新規入力ボックス */}
+                        {memoInput && (
+                            <MemoInputBox
+                                topPx={memoInput.topPx}
+                                leftPx={memoInput.leftPx}
+                                onSave={handleMemoSave}
+                                onCancel={() => setMemoInput(null)}
+                            />
+                        )}
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* メモモード フローティングバー */}
+            {isMemoMode && (
+                <MemoFloatingBar
+                    memoCount={memos.length}
+                    onExit={() => useMitigationStore.getState().setToolMode('idle')}
+                />
+            )}
 
             {clipboardEvent && (
                 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99980] flex items-center gap-3 px-5 py-2.5 bg-app-bg border border-app-text/15 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,.6)] transition-all duration-300 pointer-events-auto">
