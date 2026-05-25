@@ -199,7 +199,7 @@
         "progress_label": "삭제하는 중…"
     },
     "aa_settings": {
-        "title": "AA 추가 모드",
+        "title": "AA 추가",
         "popover_header": "오토어택 설정",
         "target": "대상 탱커",
         "damage": "데미지",

@@ -199,7 +199,7 @@
         "progress_label": "正在删除…"
     },
     "aa_settings": {
-        "title": "添加自动攻击模式",
+        "title": "添加AA",
         "popover_header": "自动攻击设置",
         "target": "目标坦克",
         "damage": "伤害",

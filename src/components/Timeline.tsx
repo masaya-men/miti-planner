@@ -2076,10 +2076,11 @@ const Timeline: React.FC = () => {
                             {/* 短い区切り線 — テーブルの Time|Event 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
 
-                            {/* Area B: MECHANIC — 敵の攻撃カラムと揃う (var(--col-mechanic-w) - 1px divider) */}
-                            <div className="flex-1 md:flex-none md:w-[calc(var(--col-mechanic-w)-1px)] md:min-w-[calc(var(--col-mechanic-w)-1px)] flex items-center px-1 md:px-2 h-full">
+                            {/* Area B: MECHANIC — 敵の攻撃カラムと揃う (var(--col-mechanic-w) - 1px divider)。 AA 追加 + メモを並列配置 */}
+                            <div className="flex-1 md:flex-none md:w-[calc(var(--col-mechanic-w)-1px)] md:min-w-[calc(var(--col-mechanic-w)-1px)] flex items-center gap-1 px-1 md:px-2 h-full">
+                                {/* AA 追加ボタン */}
                                 <div className={clsx(
-                                    "flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 w-full",
+                                    "flex-1 flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 min-w-0",
                                     isAaModeEnabled && "bg-app-toggle text-app-toggle-text"
                                 )}>
                                     <button
@@ -2092,14 +2093,14 @@ const Timeline: React.FC = () => {
                                             }
                                         }}
                                         className={clsx(
-                                            "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer",
+                                            "flex-1 flex items-center justify-center gap-2 px-2 md:px-3 h-full transition-all duration-300 group/btn cursor-pointer min-w-0",
                                             isAaModeEnabled
                                                 ? "text-app-bg"
                                                 : "text-app-text"
                                         )}
                                     >
                                         <Sword size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
-                                        <span className="font-black text-app-base uppercase tracking-wider hidden md:block">{t('aa_settings.title')}</span>
+                                        <span className="font-black text-app-base uppercase tracking-wider hidden md:block truncate">{t('aa_settings.title')}</span>
                                     </button>
                                 </div>
                                 <AASettingsPopover
@@ -2111,10 +2112,7 @@ const Timeline: React.FC = () => {
                                     onStartAdding={() => setIsAaModeEnabled(true)}
                                     isAaActive={isAaModeEnabled}
                                 />
-                            </div>
-
-                            {/* メモモード切替 — AA 追加モードと同じパターン、 PC のみテキスト */}
-                            <div className="relative hidden md:flex items-center">
+                                {/* メモモード切替 (Area B 内に AA と並列) */}
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -2122,14 +2120,14 @@ const Timeline: React.FC = () => {
                                     }}
                                     title={t('memo.mode_toggle_tooltip')}
                                     className={clsx(
-                                        "group/btn flex items-center gap-1 px-2 py-1 rounded transition-all duration-150 cursor-pointer",
+                                        "group/btn flex-shrink-0 flex items-center gap-1 px-2 h-6 rounded transition-all duration-150 cursor-pointer hidden md:flex",
                                         isMemoMode
                                             ? "bg-app-blue/15 text-app-blue"
                                             : "text-app-text hover:bg-app-surface2"
                                     )}
                                 >
                                     <Pencil size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
-                                    <span className="font-black text-app-base uppercase tracking-wider hidden md:block">{t('memo.mode_toggle_label')}</span>
+                                    <span className="font-black text-app-base uppercase tracking-wider">{t('memo.mode_toggle_label')}</span>
                                 </button>
                             </div>
 

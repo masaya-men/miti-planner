@@ -207,7 +207,7 @@
         "progress_label": "Deleting…"
     },
     "aa_settings": {
-        "title": "Add AA Mode",
+        "title": "Add AA",
         "popover_header": "Auto-Attack Settings",
         "target": "Target Tank",
         "damage": "Damage",

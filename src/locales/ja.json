@@ -207,7 +207,7 @@
         "progress_label": "削除中…"
     },
     "aa_settings": {
-        "title": "AA追加モード",
+        "title": "AA追加",
         "popover_header": "オートアタック設定",
         "target": "対象タンク",
         "damage": "ダメージ",
