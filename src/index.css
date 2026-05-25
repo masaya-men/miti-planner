@@ -1464,17 +1464,24 @@ button, [role="button"], .touch-none {
   line-height: 1;
 }
 
-/* 運営通知 Bar の右→左マーキー */
+/* 運営通知 Bar の右→左マーキー
+   padding-left: 100% で「親 container の右端外側」 から start し、
+   transform: translateX(-100%) で「span 自身の幅分」 左に移動 = 親左端外側で消える。
+   親 width に依存せず常に「右端見切れ → 左端見切れ」 のなめらかな流れ。 */
 @keyframes system-notif-marquee {
-  0%   { transform: translateX(100%); }
+  0%   { transform: translateX(0); }
   100% { transform: translateX(-100%); }
 }
 .system-notif-marquee {
-  animation: system-notif-marquee 12s linear infinite;
+  display: inline-block;
+  white-space: nowrap;
+  padding-left: 100%;
+  animation: system-notif-marquee 18s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {
   .system-notif-marquee {
     animation: none;
+    padding-left: 0;
     transform: translateX(0);
   }
 }

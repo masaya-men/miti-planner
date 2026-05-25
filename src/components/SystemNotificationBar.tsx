@@ -28,6 +28,8 @@ export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
   if (!latestUnread) return null;
 
   const title = resolveLocalized(latestUnread.title, lang);
+  const body = resolveLocalized(latestUnread.body, lang).replace(/\s*\n+\s*/g, ' ');
+  const marqueeText = `📢 ${title}：${body}`;
 
   function handleClose() {
     setOpen(false);
@@ -52,8 +54,8 @@ export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
             className="flex-1 min-w-0 overflow-hidden text-left py-1.5 hover:bg-app-text/5 transition-colors"
             aria-label={title}
           >
-            <span className="inline-block whitespace-nowrap text-app-sm text-app-text-muted system-notif-marquee">
-              📢 {title}
+            <span className="text-app-sm text-app-text-muted system-notif-marquee">
+              {marqueeText}
             </span>
           </button>
         )}
