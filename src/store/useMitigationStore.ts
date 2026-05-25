@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString } from '../types';
+import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo } from '../types';
 import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
+import { MEMO_LIMITS } from '../types/firebase';
 
 import { calculateMemberValues } from '../utils/calculator';
 import { buildScholarAutoInserts, buildAetherflowChainFrom, hasAnyAetherflow } from '../utils/scholarAutoInsert';
@@ -65,6 +66,11 @@ interface MitigationState {
     clipboardEvent: TimelineEvent | null;
     timelineSortOrder: 'light_party' | 'role';
     conflictingMitigationId: string | null;
+
+    /** メモ機能 (#57) — シート上のメモ配列。 plan データの一部として永続化される。 */
+    memos: PlanMemo[];
+    /** メモ機能 (#57) — UI 一時状態 (タブ切替・リロードでリセット、 partialize には含めない)。 */
+    toolMode: 'idle' | 'aa-placement' | 'memo';
 
     /** 手動でエーテルフローを置いたあとの「リキャストごとに配置しますか？」ポップアップ制御 */
     aetherflowChainPrompt: { memberId: string; startTime: number } | null;
@@ -143,6 +149,13 @@ interface MitigationState {
     dismissAstrologianDrawChainPrompt: () => void;
     /** プロンプトの startTime から 60s 間隔で最終イベントまで Astral/Umbral を交互配置する */
     confirmAstrologianDrawChain: () => void;
+
+    // メモ機能アクション (#57)
+    setToolMode: (mode: 'idle' | 'aa-placement' | 'memo') => void;
+    addMemo: (input: { text: string; timeSec: number; xRatio: number }) => boolean;
+    updateMemo: (id: string, patch: Partial<Pick<PlanMemo, 'text' | 'timeSec' | 'xRatio'>>) => void;
+    deleteMemo: (id: string) => void;
+    deleteAllMemos: () => void;
 }
 
 // レベルに応じたサブステベース値を取得（遅延評価）
@@ -288,6 +301,9 @@ export const useMitigationStore = create<MitigationState>()(
                 conflictingMitigationId: null,
                 aetherflowChainPrompt: null,
                 astrologianDrawChainPrompt: null,
+                // メモ機能 (#57)
+                memos: [],
+                toolMode: 'idle',
                 _history: [],
                 _future: [],
 
@@ -303,6 +319,7 @@ export const useMitigationStore = create<MitigationState>()(
                         aaSettings: state.aaSettings,
                         schAetherflowPatterns: state.schAetherflowPatterns,
                         myMemberId: state.myMemberId,
+                        memos: state.memos,
                     };
                 },
 
@@ -359,6 +376,8 @@ export const useMitigationStore = create<MitigationState>()(
                         aaSettings: snapshot.aaSettings,
                         schAetherflowPatterns: snapshot.schAetherflowPatterns,
                         myMemberId: snapshot.myMemberId ?? null,
+                        // メモ: 未マイグレ既存プランは undefined → [] にフォールバック
+                        memos: snapshot.memos ?? [],
                         // Reset Undo/Redo on load
                         _history: [],
                         _future: [],
@@ -1127,6 +1146,37 @@ export const useMitigationStore = create<MitigationState>()(
 
                 setAaSettings: (settings) => set({ aaSettings: settings }),
 
+                // メモ機能 アクション (#57)
+                setToolMode: (mode) => set({ toolMode: mode }),
+
+                addMemo: (input) => {
+                    const current = get().memos;
+                    if (current.length >= MEMO_LIMITS.MAX_MEMOS_PER_PLAN) return false;
+                    const now = Date.now();
+                    const memo: PlanMemo = {
+                        id: `memo_${crypto.randomUUID()}`,
+                        text: input.text,
+                        timeSec: input.timeSec,
+                        xRatio: input.xRatio,
+                        createdAt: now,
+                        updatedAt: now,
+                    };
+                    set({ memos: [...current, memo] });
+                    return true;
+                },
+
+                updateMemo: (id, patch) => set((state) => ({
+                    memos: state.memos.map(m =>
+                        m.id === id ? { ...m, ...patch, updatedAt: Date.now() } : m
+                    ),
+                })),
+
+                deleteMemo: (id) => set((state) => ({
+                    memos: state.memos.filter(m => m.id !== id),
+                })),
+
+                deleteAllMemos: () => set({ memos: [] }),
+
                 setSchAetherflowPattern: (memberId, pattern) => {
                     pushHistory();
                     set((state) => {
@@ -1170,10 +1220,14 @@ export const useMitigationStore = create<MitigationState>()(
                         myMemberId: null,
                         myJobHighlight: false,
                         hideEmptyRows: true,
+                        memos: [],
+                        toolMode: 'idle',
                         _history: [],
                         _future: [],
                     });
-                    window.dispatchEvent(new CustomEvent('tutorial:reset-ui'));
+                    if (typeof window !== 'undefined') {
+                        window.dispatchEvent(new CustomEvent('tutorial:reset-ui'));
+                    }
                 },
 
                 restoreFromSnapshot: (snapshot: TutorialSnapshot) => {
@@ -1228,7 +1282,8 @@ export const useMitigationStore = create<MitigationState>()(
                 myJobHighlight: state.myJobHighlight,
                 hideEmptyRows: state.hideEmptyRows,
                 showRowBorders: state.showRowBorders,
-                timelineSortOrder: state.timelineSortOrder
+                timelineSortOrder: state.timelineSortOrder,
+                memos: state.memos,
             }),
             migrate: (persistedState: any, _version: number) => {
                 return persistedState;
