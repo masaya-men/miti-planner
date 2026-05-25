@@ -1,13 +1,12 @@
 import React from 'react';
 import clsx from 'clsx';
 import type { PlanMemo } from '../../types';
-import { timeSecToPx, xRatioToPx } from './coords';
+import { timeSecToY, xRatioToPx } from './coords';
 import './memo.css';
 
 interface MemoOverlayProps {
     memos: PlanMemo[];
-    pixelsPerSecond: number;
-    offsetTime: number;
+    timeToYMap: Map<number, number>;
     sheetWidth: number;
     /** メモモード ON 中は touchable、 OFF 中は readonly */
     interactive: boolean;
@@ -17,8 +16,7 @@ interface MemoOverlayProps {
 
 export const MemoOverlay: React.FC<MemoOverlayProps> = ({
     memos,
-    pixelsPerSecond,
-    offsetTime,
+    timeToYMap,
     sheetWidth,
     interactive,
     onMemoClick,
@@ -26,7 +24,7 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
     return (
         <>
             {memos.map(memo => {
-                const top = timeSecToPx(memo.timeSec, pixelsPerSecond, offsetTime);
+                const top = timeSecToY(memo.timeSec, timeToYMap);
                 const left = xRatioToPx(memo.xRatio, sheetWidth);
                 return (
                     <div

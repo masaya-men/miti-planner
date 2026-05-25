@@ -51,7 +51,7 @@ import { JobPickerRow } from './JobPickerRow';
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
-import { pxToTimeSec, pxToXRatio, clampMemoCoords } from './Memo/coords';
+import { yToTimeSec, pxToXRatio, clampXRatio } from './Memo/coords';
 import { MEMO_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
 
@@ -889,18 +889,17 @@ const Timeline: React.FC = () => {
         // e.clientY - rect.top は既に sheet 内の絶対座標 (= スクロール反映済み)。
         // scrollTop を加算すると二重加算になる。
         const yPx = e.clientY - rect.top;
-        const offsetTimeVal = showPreStart ? -10 : 0;
-        const clamped = clampMemoCoords({
-            timeSec: pxToTimeSec(yPx, pixelsPerSecond, offsetTimeVal),
-            xRatio: pxToXRatio(xPx, rect.width),
-        }, maxTime);
+        // y → timeSec を timeToYMap 逆引き (動的高さ対応)
+        const timeSec = yToTimeSec(yPx, timeToYMapRef.current);
+        if (timeSec === null) return;  // シート範囲外、 メモ作成不可
+        const xRatio = clampXRatio(pxToXRatio(xPx, rect.width));
         setMemoInput({
             topPx: yPx,
             leftPx: xPx,
-            timeSec: clamped.timeSec,
-            xRatio: clamped.xRatio,
+            timeSec,
+            xRatio,
         });
-    }, [isMemoMode, memos.length, showPreStart, pixelsPerSecond, maxTime, t]);
+    }, [isMemoMode, memos.length, t]);
 
     // メモ: InputBox の保存ハンドラ
     const handleMemoSave = useCallback((text: string) => {
@@ -2988,8 +2987,7 @@ const Timeline: React.FC = () => {
                         {/* メモオーバーレイ (= 既存メモをシート上に表示) */}
                         <MemoOverlay
                             memos={memos}
-                            pixelsPerSecond={pixelsPerSecond}
-                            offsetTime={showPreStart ? -10 : 0}
+                            timeToYMap={timeToYMapRef.current}
                             sheetWidth={sheetWidth}
                             interactive={isMemoMode}
                         />
