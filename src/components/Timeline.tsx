@@ -885,6 +885,16 @@ const Timeline: React.FC = () => {
         const rect = sheetContainerRef.current?.getBoundingClientRect();
         if (!rect) return;
         const xPx = e.clientX - rect.left;
+        // xPx がメモゾーン (元のダメージ列から右) より左ならメモ作成不可
+        const cssRoot = sheetContainerRef.current;
+        if (cssRoot) {
+            const styles = getComputedStyle(cssRoot);
+            const headerChunkW = parseFloat(styles.getPropertyValue('--col-header-chunk-w'));
+            const mechanicW = parseFloat(styles.getPropertyValue('--col-mechanic-w'));
+            const memoZoneLeftPx = (isFinite(headerChunkW) ? headerChunkW : 0)
+                                 + (isFinite(mechanicW) ? mechanicW : 0);
+            if (xPx < memoZoneLeftPx) return;
+        }
         // sheetContainerRef は scrollContainerRef の内部 relative div なので、
         // e.clientY - rect.top は既に sheet 内の絶対座標 (= スクロール反映済み)。
         // scrollTop を加算すると二重加算になる。
