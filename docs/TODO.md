@@ -11,8 +11,8 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 セッション #54 (2026-05-25) で **#53 マップ不具合 3 件解消** + 案 1 (mist.svg inline) + 目的地アピール。 さらに **運営通知バッジ機能 v1 実装** (Sidebar 下端のベル+マーキー、 viewport 中央モーダル + X/Discord フッター、 /admin/notifications で投稿/編集/公開停止/削除、 firestore.rules deploy 済、 Bar クリック統合 + cursor 明示 + 絵文字撤廃済)。 全体 vitest 1062 pass・tsc・build green
-- **#54 通知バッジ 未完了 (次セッション最優先)**: **モーダルサイズが大きいユーザー指摘** → 次セッションで一緒にデザイン詰める (現状 520x520 正方形+font 拡大版は本番に出ているが「もっと小さく」)。 詰めて適用 → 通知機能完成宣言
+- **ブランチ**: main。 セッション #55 (2026-05-25) で **通知バッジ v1 モーダル UI 確定+本実装まで完了** (push 待ち)。 確定仕様: **360 × 420 完全固定 / ヘッダー (タイトル+×) 外側固定 / 内側スクロールボックス (本文+日付、 薄枠+薄背景で「箱の中の箱」 視覚化) / ラベル「過去の通知や最新情報は」 をボタン上 / 1 行フッター X (Twitter) | Discord | spacer | [既読にする]**。 `src/components/SystemNotificationModal.tsx` 反映済、 vitest 3/3 pass、 npm run build EXIT=0 (i18next dynamic-vs-static 警告は既存)。 mockup HTML `docs/.private/system-notif-mockup.html` も同レイアウト (CASE 1=現状 / CASE 2=確定案 / CASE 3=スクロール検証、 gitignore 領域 残置)
+- **#55 通知バッジ 残り作業**: commit → push (lopoly.app 自動デプロイ) → 本番で通知バー押下 → モーダル開き実機確認 (DPR 2.58 / CSS 1489) → 違和感なければ通知機能完成宣言
 - **#54 マップ残作業 (ユーザー or 後追い)**: (1) Figma で全 31 家の目の前 Node 追加 (plot 26/27/28 = エーテライト直結家も道なりに) (2) 拡張街マップ SVG 5 エリア×表裏=10 SVG (3) エーテライト出発点の動的切替 (現状 `START_NODE='node_1'` 固定、 家→最寄りエーテライト mapping 要) (4) plot bbox サイズを JSON 化してアピール矩形を家サイズ別に。 詳細は `docs/housing-map-authoring-guide.md` §7
 - **#54 通知バッジ 将来拡張**: ko/zh 翻訳 / 通知ジャンル分け / 本文中リンク / 既読端末間同期 / Web Push / 予約投稿。 詳細は `docs/superpowers/specs/2026-05-25-system-notifications-design.md` §9
 - **#52 重要バグ修正2件 (既存)**: (1) 自動入力が再適用され区など手動編集が巻き戻る→取得結果(data)ごと1回だけ親へ渡すガード。 (2) **削除済みツイートは syndication が 404 でなく 200+`{__typename:TweetTombstone}` を返す**→`checkTweetStatus` を tombstone/unavailable/user欠落対応、 開いた時チェックは edge キャッシュ回避で purge 直接呼び (memory `reference_tweet_deleted_tombstone`)
@@ -25,10 +25,10 @@
 
 ---
 
-## 次セッション最優先: 運営通知バッジ機能のモーダルデザイン詰め → 通知機能完成宣言
+## 次セッション最優先: 運営通知バッジ機能のモーダルサイズ詰め → 完成宣言
 
 **最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 セッション #54 で運営通知バッジ機能 v1 を実装したが、 モーダルサイズ (520x520 正方形) がユーザー曰く「もっと小さく」 で未完了。 本番に出ている現状を一緒に見ながらデザイン詰めて、 適用したら通知機能完成宣言にしたい。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成を進めている。
+> `docs/TODO.md` を読んで。 セッション #55 で通知モーダルサイズ詰めを mockup HTML で議論し、 「トンマナ現状維持 / width だけ 520→360 / 高さ内容ベース + max-h クランプ」 まで方針確定済み。 ただし実機 (DPR 2.58 + 実ブラウザ) での体感確認はまだ。 まず `docs/.private/system-notif-mockup.html` を実機ブラウザで開いて 360 の体感を一緒に確認 → 必要なら微調整 → `SystemNotificationModal.tsx` に適用 → vitest+build → push → 通知機能完成宣言。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成を進めている。
 
 ### Phase 3 残り
 
