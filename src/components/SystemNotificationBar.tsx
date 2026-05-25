@@ -29,7 +29,7 @@ export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
 
   const title = resolveLocalized(latestUnread.title, lang);
   const body = resolveLocalized(latestUnread.body, lang).replace(/\s*\n+\s*/g, ' ');
-  const marqueeText = `📢 ${title}：${body}`;
+  const marqueeText = `${title}：${body}`;
 
   function handleClose() {
     setOpen(false);
@@ -38,28 +38,23 @@ export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
 
   return (
     <>
-      <div className="border-t border-b border-app-text/10 flex items-stretch min-h-9 select-none">
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label={t('system_notif.bar.aria_bell')}
-          className="flex-shrink-0 px-3 py-1.5 flex items-center text-app-text hover:bg-app-text/5 transition-colors"
-        >
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={t('system_notif.bar.aria_bell')}
+        className="w-full border-t border-b border-app-text/10 flex items-stretch min-h-9 select-none cursor-pointer hover:bg-app-text/5 transition-colors text-left"
+      >
+        <span className="shrink-0 px-3 py-1.5 flex items-center text-app-text">
           <Bell size={16} aria-hidden="true" />
-        </button>
+        </span>
         {!isCollapsed && (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="flex-1 min-w-0 overflow-hidden text-left py-1.5 hover:bg-app-text/5 transition-colors"
-            aria-label={title}
-          >
+          <span className="flex-1 min-w-0 overflow-hidden py-1.5">
             <span className="text-app-sm text-app-text-muted system-notif-marquee">
               {marqueeText}
             </span>
-          </button>
+          </span>
         )}
-      </div>
+      </button>
       <SystemNotificationModal isOpen={open} notif={latestUnread} onClose={handleClose} />
     </>
   );

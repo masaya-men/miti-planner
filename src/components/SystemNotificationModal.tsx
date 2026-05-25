@@ -79,7 +79,7 @@ export const SystemNotificationModal: React.FC<Props> = ({ isOpen, notif, onClos
           <div className="flex-1 min-h-0 overflow-auto p-6">
             {/* タイトル */}
             <h2 id="system-notif-title" className="text-app-2xl font-bold pr-8">
-              📢 {title}
+              {title}
             </h2>
 
             {/* 本文 (改行保持) */}
