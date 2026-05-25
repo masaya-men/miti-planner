@@ -566,6 +566,9 @@ const Timeline: React.FC = () => {
     // Undo/Redo可否（リアクティブに監視して disabled 状態を正しく反映する）
     const canUndo = useMitigationStore(s => s._history.length > 0);
     const canRedo = useMitigationStore(s => s._future.length > 0);
+    // メモモード
+    const toolMode = useMitigationStore(s => s.toolMode);
+    const isMemoMode = toolMode === 'memo';
     // アクション（参照安定・再レンダー不発火）
     const addEvent = useMitigationStore(s => s.addEvent);
     const updateEvent = useMitigationStore(s => s.updateEvent);
@@ -2033,6 +2036,26 @@ const Timeline: React.FC = () => {
                                     onStartAdding={() => setIsAaModeEnabled(true)}
                                     isAaActive={isAaModeEnabled}
                                 />
+                            </div>
+
+                            {/* メモモード切替 — AA 追加モードと同じパターン、 PC のみテキスト */}
+                            <div className="relative hidden md:flex items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        useMitigationStore.getState().setToolMode(isMemoMode ? 'idle' : 'memo');
+                                    }}
+                                    title={t('memo.mode_toggle_tooltip')}
+                                    className={clsx(
+                                        "group/btn flex items-center gap-1 px-2 py-1 rounded transition-all duration-150 cursor-pointer",
+                                        isMemoMode
+                                            ? "bg-app-blue/15 text-app-blue"
+                                            : "text-app-text hover:bg-app-surface2"
+                                    )}
+                                >
+                                    <Pencil size={14} className="transition-transform duration-300 group-hover/btn:scale-110 shrink-0" />
+                                    <span className="font-black text-app-base uppercase tracking-wider hidden md:block">{t('memo.mode_toggle_label')}</span>
+                                </button>
                             </div>
 
                             {/* 短い区切り線 — テーブルの Event|U.Dmg 境界と揃う */}
