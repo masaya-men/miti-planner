@@ -1,0 +1,31 @@
+.plan-memo {
+    position: absolute;
+    font-size: var(--font-size-sm, 12px);
+    color: var(--color-text, #fff);
+    opacity: 1;
+    mix-blend-mode: difference;
+    pointer-events: auto;
+    user-select: none;
+    max-width: 200px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.4;
+    transform: translate(-50%, 0);
+    z-index: 15;
+}
+
+.plan-memo--dragging {
+    opacity: 0.6;
+    cursor: grabbing;
+}
+
+.plan-memo--readonly {
+    pointer-events: none;
+}
+
+@media (max-width: 767px) {
+    /* スマホ: メモは表示するが、 編集操作は無効 (pointer-events: none) */
+    .plan-memo {
+        pointer-events: none;
+    }
+}
