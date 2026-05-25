@@ -54,6 +54,7 @@ import clsx from 'clsx';
 import { showToast } from './Toast';
 import { BackupExportModal } from './BackupExportModal';
 import { BackupRestoreModal } from './BackupRestoreModal';
+import { SystemNotificationBar } from './SystemNotificationBar';
 import { ContextMenu } from './ui/ContextMenu';
 import { decompressPlanData } from '../utils/compression';
 import { setLastOpened } from '../utils/lastOpenedStore';
@@ -1522,6 +1523,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             )}
                         </div>,
                         document.body
+                    )}
+
+                    {/* 運営からの通知 Bar (未読 0 で枠ごと消える) */}
+                    {!multiSelect.isEnabled && (
+                        <div className="shrink-0">
+                            <SystemNotificationBar isCollapsed={!isOpen} />
+                        </div>
                     )}
 
                     {/* バックアップ/復元ボタン */}
