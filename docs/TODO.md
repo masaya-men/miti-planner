@@ -11,13 +11,14 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 セッション #55 (2026-05-25) で **通知バッジ v1 機能完成** (本番 lopoly.app で Bar マーキー + モーダル表示動作確認済)。 確定 UI: 360×420 固定 / ヘッダー外側固定 / 内側スクロールボックス (薄枠+薄背景で「箱の中の箱」 視覚化) / ラベル + 1 行フッター (X (Twitter) | Discord | spacer | 既読にする)。
+- **ブランチ**: main。 セッション #56 (2026-05-25) で **軽減表メモ機能 brainstorming 完了**。 v1 全論点確定 → 次は spec 書き + writing-plans + 実装。 §1〜§8 全て docs/.private/2026-05-25-mitigation-memo-design.md ベースで詰めた。
+- **#55 (前回セッション)**: 通知バッジ v1 完成 (本番 lopoly.app で Bar マーキー + モーダル表示動作確認済)。 確定 UI: 360×420 固定 / ヘッダー外側固定 / 内側スクロールボックス / ラベル + 1 行フッター。
 - **#55 セッション後半の重要な学び**: **Firestore 複合インデックス漏れで実は #54 で「実装完了」 宣言した時点で通知バーは動いていなかった** ([useSystemNotifications.ts:38](src/store/useSystemNotifications.ts#L38) の `where('published','==',true) + orderBy('createdAt','desc')` のインデックスを `firestore.indexes.json` に未登録)。 admin 一覧 (where 無し) のみ動作 → write 経路だけで完了宣言した致命傷。 memory `reference_firestore_composite_index` + `feedback_endpoint_user_verification` に整理。 修復: 本番 Console + git で `firestore.indexes.json` 双方反映済 (commit `199e291`)
 - **副産物**: `scripts/check-system-notifications.ts` (admin SDK で Firestore コレクション中身を診断する簡易 script、 .env.local の FIREBASE_PRIVATE_KEY 経由で接続。 今回 published の boolean/string 型判別等に使用。 commit するかは未決)
 - **#54 マップ残作業 (ユーザー or 後追い)**: (1) Figma で全 31 家の目の前 Node 追加 (plot 26/27/28 = エーテライト直結家も道なりに) (2) 拡張街マップ SVG 5 エリア×表裏=10 SVG (3) エーテライト出発点の動的切替 (現状 `START_NODE='node_1'` 固定、 家→最寄りエーテライト mapping 要) (4) plot bbox サイズを JSON 化してアピール矩形を家サイズ別に。 詳細は `docs/housing-map-authoring-guide.md` §7
-- **#54 通知バッジ 将来拡張**: ko/zh 翻訳 / 通知ジャンル分け / 本文中リンク / 既読端末間同期 / Web Push / 予約投稿。 詳細は `docs/superpowers/specs/2026-05-25-system-notifications-design.md` §9
+- **#54 通知バッジ 将来拡張**: **スマホ通知=ボトムナビ上端マーキー (#56 完了後に着手)**: 現状 Bar が Sidebar 内 ([Sidebar.tsx:1531]) のためスマホで埋もれて気付けない。 ボトムナビは開閉に関係なく常時固定なので、 そこの上端に sticky で流せば絶対視認可能。 + ko/zh 翻訳 / 通知ジャンル分け / 本文中リンク / 既読端末間同期 / Web Push / 予約投稿。 詳細は `docs/superpowers/specs/2026-05-25-system-notifications-design.md` §9
 - **#52 重要バグ修正2件 (既存)**: (1) 自動入力が再適用され区など手動編集が巻き戻る→取得結果(data)ごと1回だけ親へ渡すガード。 (2) **削除済みツイートは syndication が 404 でなく 200+`{__typename:TweetTombstone}` を返す**→`checkTweetStatus` を tombstone/unavailable/user欠落対応、 開いた時チェックは edge キャッシュ回避で purge 直接呼び (memory `reference_tweet_deleted_tombstone`)
-- **次セッション最優先 (#56)**: **軽減表アプリにメモ追加機能** (詳細未確定、 セッション最初に brainstorming)。 これが終わったらハウジング (#54 マップ残作業) に復帰。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成中
+- **次セッション最優先 (#57)**: **軽減表メモ機能 spec 書き → 実装**。 brainstorming は #56 で完了 (全論点確定)、 次は `docs/superpowers/specs/2026-05-25-mitigation-memo-design.md` を作成 → ユーザー review → writing-plans skill → subagent-driven-development。 v1 確定仕様サマリ: PlanData.memos[] (100個×100文字、 定数化で拡張可)、 横/縦フリーDnD配置 (透明度0.6)、 Plain text + mix-blend-mode:difference、 「メモモード」 鉛筆アイコン (AA追加モードと並べる)、 右クリック削除+空文字確定削除+ゴミ箱一括 (確認)、 共有 snapshot 型なので副作用なし、 スマホ非対応、 確定時のみ Firestore 同期。 容量実測済 (絶エデン野良主流=113.2KB / 1MB上限の11%、 メモ余裕)。 これが終わったらハウジング (#54 マップ残作業) に復帰
 - **#51 重要な学び (テスト基盤)**: 「RUN」のまま固まる/node ゾンビ化の真因は **vmThreads (昨日 Node v24 で forks 不可→採用) が実タイマー残すテストを終了不能**。フォーム全体を submit まで駆動する happy-dom テストは置かない (純関数ユニット+実機でカバー)。安全な実行手順は memory `reference_vitest_vmthreads_hang` 厳守 (パイプ禁止/必ずファイル出力+ハードタイムアウト/再実行しない)。基盤根治(forks復活 or Node v22)は要相談で別途
 - **完了 (#50)**: ② **kebab(…) 削除も一覧へ即反映** (`HousingActionBar` に `onDeleted` 追加→ route で `store.remove`+通知一掃、 バナー経由と挙動統一)。 **削除済み/非公開カードクリックで toast 案内** (`housing.detail.unavailable`、 今まで無言で閉じてた)。 **新規登録した物件を中央一覧へ即反映** (リロード不要、 `store.fetchAndUpsert(id)` + `service.getListingById(id)`、 編集/削除と責務統一)。 **テスト基盤根治**: vitest が App Check の reCAPTCHA 通信で teardown ハング→ゾンビ化していたのを `MODE==='test'` スキップで解消 (memory `reference_vitest_appcheck_teardown`、 これまで全 suite が固まってた主因)
 - **実機検証済 (#50)**: 新規登録→リロードせず中央に出る / kebab 削除→リロードせず中央から消える / 削除済みカード→toast 案内
@@ -26,10 +27,10 @@
 
 ---
 
-## 次セッション最優先 (#56): 軽減表アプリにメモ追加機能
+## 次セッション最優先 (#57): 軽減表メモ機能 spec → 実装
 
 **最初のコマンド (コピペ)**:
-> `docs/TODO.md` を読んで。 セッション #56 では **軽減表アプリにメモ機能を追加する brainstorming** から開始。 詳細未確定 (どこに書く / プラン単位か配置単位か / 表示位置 / 永続化先 / Markdown 可否 / モバイル対応 等)。 `docs/.private/2026-05-25-mitigation-memo-design.md` のたたき台を一緒に詰めてから設計→実装。 これが終わったら #54 ハウジングマップ残作業に復帰。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成中。
+> `docs/TODO.md` を読んで。 セッション #57 では **軽減表メモ機能の spec 書き → writing-plans → 実装** に進む。 brainstorming は #56 で全論点確定済 (TODO.md の「現在の状態」 にサマリ + docs/.private/2026-05-25-mitigation-memo-design.md / 関連調査は scripts/measure-plan-size.ts 実測結果)。 まず `docs/superpowers/specs/2026-05-25-mitigation-memo-design.md` を書いてユーザー review → writing-plans skill → subagent-driven-development。 全部終わったら #54 ハウジングマップ残作業に復帰。 並行でユーザーは Figma で家前 Node 追加 + 拡張街マップ作成中。
 
 ### Phase 3 残り
 
