@@ -885,10 +885,10 @@ const Timeline: React.FC = () => {
         const rect = sheetContainerRef.current?.getBoundingClientRect();
         if (!rect) return;
         const xPx = e.clientX - rect.left;
-        const yPxInContainer = e.clientY - rect.top;
-        // scrollContainerRef がスクロール担当 — scrollTop を加算して絶対 Y 座標を得る
-        const scrollOffset = scrollContainerRef.current?.scrollTop ?? 0;
-        const yPx = yPxInContainer + scrollOffset;
+        // sheetContainerRef は scrollContainerRef の内部 relative div なので、
+        // e.clientY - rect.top は既に sheet 内の絶対座標 (= スクロール反映済み)。
+        // scrollTop を加算すると二重加算になる。
+        const yPx = e.clientY - rect.top;
         const offsetTimeVal = showPreStart ? -10 : 0;
         const clamped = clampMemoCoords({
             timeSec: pxToTimeSec(yPx, pixelsPerSecond, offsetTimeVal),
