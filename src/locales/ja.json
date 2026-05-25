@@ -2284,6 +2284,9 @@
             "x": "X (Twitter)",
             "discord": "Discord",
             "mark_read": "既読にする"
+        },
+        "bar": {
+            "aria_bell": "運営からの通知"
         }
     }
 }

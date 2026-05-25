@@ -1463,3 +1463,18 @@ button, [role="button"], .touch-none {
   z-index: 2;
   line-height: 1;
 }
+
+/* 運営通知 Bar の右→左マーキー */
+@keyframes system-notif-marquee {
+  0%   { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+.system-notif-marquee {
+  animation: system-notif-marquee 12s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .system-notif-marquee {
+    animation: none;
+    transform: translateX(0);
+  }
+}
