@@ -1225,7 +1225,7 @@ const Timeline: React.FC = () => {
     }, [isAaModeEnabled]);
 
     const [importModalOpen, setImportModalOpen] = useState(false);
-    const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning' } | null>(null);
+    const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null>(null);
 
 
 
@@ -3403,8 +3403,8 @@ const Timeline: React.FC = () => {
                 variant={confirmDialog?.variant ?? 'danger'}
                 onConfirm={() => confirmDialog?.onConfirm?.()}
                 onCancel={() => setConfirmDialog(null)}
-                confirmLabel={t('ui.ok', 'OK')}
-                cancelLabel={t('common.cancel', 'キャンセル')}
+                confirmLabel={confirmDialog?.confirmLabel ?? t('ui.ok', 'OK')}
+                cancelLabel={confirmDialog?.cancelLabel ?? t('common.cancel', 'キャンセル')}
             />
             <MobileBottomSheet
                 isOpen={mobileToolsSheetOpen}

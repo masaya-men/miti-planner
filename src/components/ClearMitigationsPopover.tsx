@@ -1,10 +1,11 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X, Pencil } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { usePlanStore } from '../store/usePlanStore';
 import { useJobs } from '../hooks/useSkillsData';
 import { Tooltip } from './ui/Tooltip';
 import { getPhaseName } from '../types';
@@ -34,6 +35,32 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
     useEscapeClose(isOpen, onClose);
     const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
     const [isPositioned, setIsPositioned] = useState(false);
+    const memoCount = useMitigationStore(s => s.memos.length);
+
+    // メモを全削除 (= 確認ダイアログ → deleteAllMemos + Plan へ反映)
+    const handleClearAllMemos = () => {
+        onClose();
+        setConfirmDialog({
+            title: t('memo.confirm_clear_all_title'),
+            message: t('memo.confirm_clear_all_body', { count: memoCount }),
+            variant: 'danger',
+            confirmLabel: t('memo.confirm_clear_all_ok'),
+            cancelLabel: t('memo.confirm_clear_all_cancel'),
+            onConfirm: () => {
+                useMitigationStore.getState().deleteAllMemos();
+                const planId = usePlanStore.getState().currentPlanId;
+                if (planId) {
+                    const plan = usePlanStore.getState().getPlan(planId);
+                    if (plan) {
+                        usePlanStore.getState().updatePlan(planId, {
+                            data: { ...plan.data, memos: [] },
+                        });
+                    }
+                }
+                setConfirmDialog(null);
+            },
+        });
+    };
 
     // Close on click outside
     useEffect(() => {
@@ -187,6 +214,24 @@ export const ClearMitigationsPopover: React.FC<ClearMitigationsPopoverProps> = (
                     );
                 })}
             </div>
+
+            {/* メモを全削除 (= 100 件一気に消えるので確認ダイアログあり、 spec §4.5) */}
+            <div className="h-[1px] bg-glass-border mx-2 my-1" />
+            <button
+                type="button"
+                onClick={handleClearAllMemos}
+                disabled={memoCount === 0}
+                className={clsx(
+                    "w-full flex items-center gap-3 px-4 py-2.5 text-app-md font-black rounded-xl transition-colors group/btn",
+                    memoCount > 0
+                        ? "text-app-red hover:bg-app-red-dim cursor-pointer"
+                        : "text-app-text-muted cursor-not-allowed opacity-50"
+                )}
+            >
+                <Pencil size={14} className={clsx(memoCount > 0 && "group-hover/btn:scale-110 transition-transform")} />
+                <span className="uppercase tracking-wider">{t('memo.clear_all_menu_label')}</span>
+                <span className="ml-auto text-app-text-muted text-app-sm tabular-nums font-medium">{memoCount}</span>
+            </button>
         </div>,
         document.body
     );
