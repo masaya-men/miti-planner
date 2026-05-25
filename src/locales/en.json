@@ -2256,5 +2256,40 @@
                 "days_ago": "{{n}} 日前"
             }
         }
+    },
+    "system_notif": {
+        "modal": {
+            "footer_info": "For past notifications and latest news:",
+            "x": "X (Twitter)",
+            "discord": "Discord",
+            "mark_read": "Mark as read"
+        },
+        "bar": {
+            "aria_bell": "Notifications from team"
+        },
+        "admin": {
+            "tab_label": "Notifications",
+            "page_title": "System Notifications",
+            "list_empty": "No notifications",
+            "new_button": "New",
+            "field_title_ja": "Title (ja)",
+            "field_title_en": "Title (en)",
+            "field_title_ko": "Title (ko) — optional",
+            "field_title_zh": "Title (zh) — optional",
+            "field_body_ja": "Body (ja)",
+            "field_body_en": "Body (en)",
+            "field_body_ko": "Body (ko) — optional",
+            "field_body_zh": "Body (zh) — optional",
+            "field_published": "Published",
+            "save": "Save",
+            "cancel": "Cancel",
+            "edit": "Edit",
+            "delete": "Delete",
+            "delete_confirm": "Delete this notification? This cannot be undone.",
+            "publish_on": "Published",
+            "publish_off": "Hidden",
+            "toggle_publish": "Toggle publish",
+            "save_error": "Failed to save"
+        }
     }
 }

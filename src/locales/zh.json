@@ -2220,5 +2220,40 @@
                 "days_ago": "{{n}} 日前"
             }
         }
+    },
+    "system_notif": {
+        "modal": {
+            "footer_info": "過去の通知や最新情報は",
+            "x": "X (Twitter)",
+            "discord": "Discord",
+            "mark_read": "既読にする"
+        },
+        "bar": {
+            "aria_bell": "運営からの通知"
+        },
+        "admin": {
+            "tab_label": "通知",
+            "page_title": "運営通知",
+            "list_empty": "通知がありません",
+            "new_button": "新規投稿",
+            "field_title_ja": "タイトル (ja)",
+            "field_title_en": "タイトル (en)",
+            "field_title_ko": "タイトル (ko) — optional",
+            "field_title_zh": "タイトル (zh) — optional",
+            "field_body_ja": "本文 (ja)",
+            "field_body_en": "本文 (en)",
+            "field_body_ko": "本文 (ko) — optional",
+            "field_body_zh": "本文 (zh) — optional",
+            "field_published": "公開する",
+            "save": "保存",
+            "cancel": "キャンセル",
+            "edit": "編集",
+            "delete": "削除",
+            "delete_confirm": "この通知を削除します。 元に戻せません。 よろしいですか?",
+            "publish_on": "公開中",
+            "publish_off": "停止中",
+            "toggle_publish": "公開停止 / 公開",
+            "save_error": "保存に失敗しました"
+        }
     }
 }
