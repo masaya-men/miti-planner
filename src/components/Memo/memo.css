@@ -1,7 +1,7 @@
 .plan-memo {
     position: absolute;
-    /* 1 段階上 (sm=9px → base=10px)。 視認性さらに必要なら --font-size-md/lg へ。 */
-    font-size: var(--font-size-base, 10px);
+    /* もう 1 段階上 (base=10px → md=11px)。 メモは長文ではないので md 妥当。 */
+    font-size: var(--font-size-md, 11px);
     color: var(--color-text, #fff);
     opacity: 1;
     /* mix-blend-mode: difference を撤去 (= sheet 背景と類似色になり実質透明化していたため)。
