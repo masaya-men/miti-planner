@@ -99,21 +99,12 @@ export default async function handler(req: Request): Promise<Response> {
             'Access-Control-Expose-Headers',
             'Content-Length, Content-Range, Accept-Ranges',
         );
-        responseHeaders.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
-
-        // hotfix20 デバッグ: Range が upstream に届いていない疑惑を切り分ける用。
-        // 原因特定後に削除する (TODO: hotfix21 以降)。
-        responseHeaders.set('X-Debug-Hotfix', 'hotfix20');
-        responseHeaders.set('X-Debug-Range-Received', range ?? '(none)');
-        responseHeaders.set(
-            'X-Debug-Range-Sent',
-            upstreamHeaders.get('Range') ?? '(none)',
-        );
-        responseHeaders.set('X-Debug-Upstream-Status', String(upstream.status));
-        responseHeaders.set(
-            'X-Debug-Upstream-CR',
-            upstream.headers.get('content-range') ?? '(none)',
-        );
+        // 2026-05-27 hotfix21: edge cache を完全オフ。
+        //   Vercel edge cache は Range を Vary キーに入れないため、 最初に
+        //   no-range で叩かれたレスポンスが Range 付き後続リクエストにも
+        //   返ってしまい、 mp4 の冒頭 (moov box) が届かず video.error。
+        //   帯域節約のための cache は Cloudflare 前段化 (公開直前 TODO) で改めて対応。
+        responseHeaders.set('Cache-Control', 'private, max-age=0, must-revalidate');
 
         return new Response(upstream.body, {
             status: upstream.status,
