@@ -71,6 +71,15 @@ export default async function handler(req: Request): Promise<Response> {
             const v = upstream.headers.get(h);
             if (v) responseHeaders.set(h, v);
         }
+        // CORS ヘッダーは extractVideoFrames が video.crossOrigin='anonymous' を
+        // 設定する都合で必須 (= 同一 origin でも anonymous モードは CORS check 発動)。
+        // Access-Control-Allow-Origin が欠けると video.error → 抽出失敗で poster fallback。
+        // (2026-05-26 hotfix17: hotfix16 移植時の漏れ。 Allmarks 元コードには元から有り)
+        responseHeaders.set('Access-Control-Allow-Origin', '*');
+        responseHeaders.set(
+            'Access-Control-Expose-Headers',
+            'Content-Length, Content-Range, Accept-Ranges',
+        );
         responseHeaders.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
 
         return new Response(upstream.body, {

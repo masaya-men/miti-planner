@@ -2,6 +2,10 @@ import { useDraggable } from '@dnd-kit/core';
 import { useTranslation } from 'react-i18next';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import {
+    handleYoutubeThumbnailError,
+    handleYoutubeThumbnailLoad,
+} from '../../../lib/housing/youtubeImgFallback';
 
 export interface FavoriteCardClickModifiers {
     shift: boolean;
@@ -51,7 +55,13 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ listing, selected, o
             {...attributes}
         >
             <div className="housing-favorite-card-thumb">
-                <img src={imgSrc} alt="" loading="lazy" />
+                <img
+                    src={imgSrc}
+                    alt=""
+                    loading="lazy"
+                    onError={handleYoutubeThumbnailError}
+                    onLoad={handleYoutubeThumbnailLoad}
+                />
             </div>
             <div className="housing-favorite-card-body">
                 <div className="housing-favorite-card-title">

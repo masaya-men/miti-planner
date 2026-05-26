@@ -1,6 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import {
+    handleYoutubeThumbnailError,
+    handleYoutubeThumbnailLoad,
+} from '../../../lib/housing/youtubeImgFallback';
 
 export interface RightPanelListItemProps {
     listing: MockListing;
@@ -29,7 +33,13 @@ export const RightPanelListItem: React.FC<RightPanelListItemProps> = ({ listing,
             className="housing-right-list-item"
         >
             <div className="housing-right-list-item-thumb">
-                <img src={imgSrc} alt="" loading="lazy" />
+                <img
+                    src={imgSrc}
+                    alt=""
+                    loading="lazy"
+                    onError={handleYoutubeThumbnailError}
+                    onLoad={handleYoutubeThumbnailLoad}
+                />
             </div>
             <div className="housing-right-list-item-body">
                 <div className="housing-right-list-item-title">

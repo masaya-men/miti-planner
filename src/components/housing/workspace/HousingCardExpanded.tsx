@@ -4,6 +4,10 @@ import { Heart, Plus, Link as LinkIcon, ExternalLink, X } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import {
+    handleYoutubeThumbnailError,
+    handleYoutubeThumbnailLoad,
+} from '../../../lib/housing/youtubeImgFallback';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -50,7 +54,13 @@ export const HousingCardExpanded: React.FC<HousingCardExpandedProps> = ({ listin
     return (
         <div className="housing-card-expanded">
             <div className="housing-card-expanded-thumb">
-                <img src={imgSrc} alt="" loading="lazy" />
+                <img
+                    src={imgSrc}
+                    alt=""
+                    loading="lazy"
+                    onError={handleYoutubeThumbnailError}
+                    onLoad={handleYoutubeThumbnailLoad}
+                />
             </div>
             <div className="housing-card-expanded-body">
                 <div className="housing-card-expanded-head">

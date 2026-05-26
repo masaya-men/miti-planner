@@ -3,6 +3,10 @@ import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { formatHousingAddress, formatHousingAddressAria } from '../../../lib/housing/formatHousingAddress';
+import {
+    handleYoutubeThumbnailError,
+    handleYoutubeThumbnailLoad,
+} from '../../../lib/housing/youtubeImgFallback';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -37,7 +41,13 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
         <div className="housing-card-wrap">
             <button type="button" className="housing-card" onClick={onClick} aria-label={alt}>
                 <div className="housing-card-thumb">
-                    <img src={imgSrc} alt="" loading="lazy" />
+                    <img
+                        src={imgSrc}
+                        alt=""
+                        loading="lazy"
+                        onError={handleYoutubeThumbnailError}
+                        onLoad={handleYoutubeThumbnailLoad}
+                    />
                 </div>
                 <div className="housing-card-body">
                     <div className="housing-card-title">

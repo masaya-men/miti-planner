@@ -3,6 +3,10 @@ import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { formatHousingAddressAria } from '../../../lib/housing/formatHousingAddress';
+import {
+    handleYoutubeThumbnailError,
+    handleYoutubeThumbnailLoad,
+} from '../../../lib/housing/youtubeImgFallback';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -46,7 +50,13 @@ export const MapBubbleCard: React.FC<MapBubbleCardProps> = ({ listing, x, y, onC
         >
             <div className="housing-bubble-card-body">
                 <div className="housing-bubble-card-thumb">
-                    <img src={imgSrc} alt="" loading="lazy" />
+                    <img
+                        src={imgSrc}
+                        alt=""
+                        loading="lazy"
+                        onError={handleYoutubeThumbnailError}
+                        onLoad={handleYoutubeThumbnailLoad}
+                    />
                 </div>
             </div>
             <span
