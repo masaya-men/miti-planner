@@ -11,20 +11,26 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { Tooltip } from './ui/Tooltip';
 import { AnimatedDamage } from './AnimatedDamage';
 
-/** 攻撃名スパン — 省略時にスタイル付きツールチップ表示 */
+/** 攻撃名スパン — 省略時にスタイル付きツールチップ表示
+ *  perf #59 C: onMouseEnter 毎の scrollWidth 比較は forced reflow を引き起こすため、
+ *  ResizeObserver で要素サイズ変化時にだけ判定するよう変更。 hover 時はステート参照のみ。 */
 const EventNameSpan: React.FC<{ name: string; className?: string }> = ({ name, className }) => {
     const ref = React.useRef<HTMLSpanElement>(null);
     const [truncated, setTruncated] = React.useState(false);
-    const checkTruncation = React.useCallback(() => {
+    React.useEffect(() => {
         const el = ref.current;
-        if (el) setTruncated(el.scrollWidth > el.clientWidth);
-    }, []);
+        if (!el) return;
+        const check = () => setTruncated(el.scrollWidth > el.clientWidth);
+        check();
+        const ro = new ResizeObserver(check);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [name]);
     return (
         <Tooltip content={truncated ? name : ''} wrapperClassName="!w-auto min-w-0">
             <span
                 ref={ref}
                 className={clsx(className, "font-black text-app-text truncate leading-none pt-0.5 min-w-0 block")}
-                onMouseEnter={checkTruncation}
             >
                 {name}
             </span>
