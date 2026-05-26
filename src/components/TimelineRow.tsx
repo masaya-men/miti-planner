@@ -331,19 +331,6 @@ export const TimelineRow = memo(({
                             {/* 攻撃名（省略時にネイティブツールチップ表示） */}
                             <EventNameSpan name={getEventName(events[0])} className="text-app-md md:text-app-lg" />
 
-                            {/* PC専用: コピーボタン */}
-                            <Tooltip content={t('timeline.copy_event_hint')} position="top">
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setClipboardEvent(events[0]);
-                                    }}
-                                    className="ml-1 text-app-text-sec hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0 hidden md:block"
-                                >
-                                    <Copy size={14} />
-                                </button>
-                            </Tooltip>
-
                             {/* スマホ専用: 対象バッジ */}
                             <div className="md:hidden flex-shrink-0">
                                 <MobileTargetBadge event={events[0]} partyMembers={partyMembers} />
@@ -381,6 +368,21 @@ export const TimelineRow = memo(({
                             </div>
                         </div>
 
+                        {/* PC専用: コピーボタン (absolute で flex 列から外し、 非ホバー時は文字が枠いっぱい使える) */}
+                        <div className="hidden md:block absolute right-1.5 top-1/2 -translate-y-1/2 z-10 opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity">
+                            <Tooltip content={t('timeline.copy_event_hint')} position="top">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setClipboardEvent(events[0]);
+                                    }}
+                                    className="flex items-center justify-center w-6 h-6 rounded bg-app-bg ring-1 ring-app-border text-app-text-sec hover:text-app-accent cursor-pointer"
+                                >
+                                    <Copy size={14} />
+                                </button>
+                            </Tooltip>
+                        </div>
+
                         {/* PC専用: イベント追加ボタン */}
                         <div
                             className="absolute bottom-0 inset-x-0 h-[12px] items-center justify-center cursor-pointer hover:bg-app-surface2 transition-all opacity-0 group-hover/slot:opacity-100 z-10 hidden md:flex"
@@ -414,19 +416,6 @@ export const TimelineRow = memo(({
 
                                     {/* 攻撃名（省略時にネイティブツールチップ表示） */}
                                     <EventNameSpan name={getEventName(events[idx])} className="text-app-base md:text-app-lg" />
-
-                                    {/* PC専用: コピーボタン */}
-                                    <Tooltip content={t('timeline.copy_event_hint')} position="top">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setClipboardEvent(events[idx]);
-                                            }}
-                                            className="ml-1 text-app-text-sec hover:text-app-accent opacity-0 group-hover/slot:opacity-100 transition-all cursor-pointer flex-shrink-0 hidden md:block"
-                                        >
-                                            <Copy size={14} />
-                                        </button>
-                                    </Tooltip>
 
                                     {/* スマホ専用: 対象バッジ */}
                                     <div className="md:hidden flex-shrink-0">
@@ -464,6 +453,21 @@ export const TimelineRow = memo(({
                                             </>
                                         )}
                                     </div>
+                                </div>
+
+                                {/* PC専用: コピーボタン (absolute で flex 列から外し、 非ホバー時は文字が枠いっぱい使える) */}
+                                <div className="hidden md:block absolute right-1.5 top-1/2 -translate-y-1/2 z-10 opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity">
+                                    <Tooltip content={t('timeline.copy_event_hint')} position="top">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setClipboardEvent(events[idx]);
+                                            }}
+                                            className="flex items-center justify-center w-6 h-6 rounded bg-app-bg ring-1 ring-app-border text-app-text-sec hover:text-app-accent cursor-pointer"
+                                        >
+                                            <Copy size={14} />
+                                        </button>
+                                    </Tooltip>
                                 </div>
                             </div>
                         ))}
