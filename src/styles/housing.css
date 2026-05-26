@@ -2492,6 +2492,13 @@ select.housing-input option {
   border-radius: 10px;
   background: var(--housing-chip-bg);
   overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
+.housing-register-image-tile[data-dragging="true"] {
+  border-color: var(--housing-honey-glow);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 2;
 }
 .housing-register-image-tile-img {
   width: 100%;

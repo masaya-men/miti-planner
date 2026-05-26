@@ -1,11 +1,13 @@
 /**
- * 物件登録フォームの画像アップロードフィールド (2026-05-26 新設、 2026-05-26 multi 対応)。
+ * 物件登録フォームの画像アップロードフィールド
+ * (2026-05-26 新設、 2026-05-26 multi 対応、 2026-05-26 drag-and-drop 並び替え対応)。
  *
- * - file input + ドラッグ&ドロップ
- * - 選択直後にクライアント側で AVIF 圧縮 + 長辺 1920px リサイズ + EXIF 削除
+ * - file input + ファイル ドラッグ&ドロップ (アップロード用)
+ * - 選択直後にクライアント側で WebP 圧縮 + 長辺 1920px リサイズ + EXIF 削除
+ *   (AVIF はブラウザの canvas.toBlob 非対応のため WebP 固定、 詳細は imageCompression.ts)
  * - **最大 4 枚**まで追加可能 (Instagram / Pinterest と同様の業界標準)
+ * - **drag-and-drop で並び替え可能**。 1 枚目 (左端) が「カバー画像」 = 一覧の代表
  * - 各画像のプレビュー + サイズ表示 + 個別削除
- * - 1 枚目が一覧の代表画像になる (順序は追加順、 並び替えは β 以降)
  * - エラー: 非画像ファイル / 圧縮失敗 / 上限超過は赤メッセージ
  *
  * 親 (HousingRegisterForm) には CompressedImage[] を onChange で渡す。
@@ -13,6 +15,23 @@
  */
 import { useCallback, useState, useRef, useEffect, type ChangeEvent, type DragEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  DndContext,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  rectSortingStrategy,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { compressHousingImage, type CompressedImage } from '../../../lib/housing/imageCompression';
 
 export interface HousingRegisterImageFieldProps {
@@ -24,6 +43,11 @@ export interface HousingRegisterImageFieldProps {
   maxImages?: number;
 }
 
+interface SortableItem {
+  id: string;
+  img: CompressedImage;
+}
+
 const ACCEPT_MIME = 'image/*';
 const DEFAULT_MAX_IMAGES = 4;
 
@@ -31,6 +55,79 @@ function formatBytes(b: number) {
   if (b < 1024) return `${b}B`;
   if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)}KB`;
   return `${(b / (1024 * 1024)).toFixed(2)}MB`;
+}
+
+function makeId(): string {
+  return `img-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+/** 1 枚分のサムネタイル (sortable wrapper)。 */
+function SortableImageTile({
+  item,
+  index,
+  previewUrl,
+  isCover,
+  onRemove,
+  coverBadgeLabel,
+  removeLabel,
+}: {
+  item: SortableItem;
+  index: number;
+  previewUrl: string;
+  isCover: boolean;
+  onRemove: (index: number) => void;
+  coverBadgeLabel: string;
+  removeLabel: string;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+  });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    cursor: isDragging ? 'grabbing' : 'grab',
+  };
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className="housing-register-image-tile"
+      data-dragging={isDragging}
+      {...attributes}
+      {...listeners}
+    >
+      {previewUrl && (
+        <img
+          src={previewUrl}
+          alt=""
+          className="housing-register-image-tile-img"
+          draggable={false}
+        />
+      )}
+      {isCover && (
+        <span className="housing-register-image-tile-badge">{coverBadgeLabel}</span>
+      )}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onRemove(index);
+        }}
+        // PointerSensor が button の click を奪わないように pointerDown も止める
+        onPointerDown={(e) => e.stopPropagation()}
+        className="housing-register-image-tile-remove"
+        aria-label={removeLabel}
+      >
+        ✕
+      </button>
+      <span className="housing-register-image-tile-meta">
+        {formatBytes(item.img.compressedBytes)} (
+        {item.img.mimeType.replace('image/', '').toUpperCase()})
+      </span>
+    </li>
+  );
 }
 
 export function HousingRegisterImageField({
@@ -44,35 +141,68 @@ export function HousingRegisterImageField({
   const [compressing, setCompressing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  // 各 CompressedImage に紐づく object URL。 unmount / 入れ替え時に revoke する。
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
-  // value (CompressedImage[]) が変わったら previewUrls を再生成。
-  // 既存 URL は revoke してメモリリークを防ぐ。
+  // 内部の sortable state。 親 value 由来で初期化し、 並び替え/追加/削除で内部更新 → onChange 通知。
+  // 親から外部的に value をクリア (=[]) されたケースに追従するため effect で同期する。
+  const [items, setItems] = useState<SortableItem[]>(() =>
+    value.map((img) => ({ id: makeId(), img })),
+  );
+  const [previewUrls, setPreviewUrls] = useState<Map<string, string>>(new Map());
+
+  // 親 value が外部から変わった (例: フォームリセット) ときに items を再構築。
+  // ただし「items の img reference と value の img reference が一致」 する間は触らない
+  // (= drag/add/remove による内部更新は items 側が真実)。
   useEffect(() => {
-    const next = value.map((v) => URL.createObjectURL(v.file));
-    setPreviewUrls((prev) => {
-      prev.forEach((url) => URL.revokeObjectURL(url));
-      return next;
-    });
-    return () => {
-      next.forEach((url) => URL.revokeObjectURL(url));
-    };
-    // value identity に依存。 onChange で配列再生成しているので OK。
-  }, [value]);
+    const sameLen = items.length === value.length;
+    const allMatch =
+      sameLen && items.every((it, i) => it.img === value[i]);
+    if (allMatch) return;
+    // 外部リセット (value=[]) or 大きな差異: items を value から再生成
+    setItems(value.map((img) => ({ id: makeId(), img })));
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const canAddMore = value.length < maxImages;
+  // 各 item に object URL を割り当て + ライフサイクル管理
+  useEffect(() => {
+    const nextMap = new Map<string, string>();
+    items.forEach((it) => {
+      const existing = previewUrls.get(it.id);
+      if (existing) {
+        nextMap.set(it.id, existing);
+      } else {
+        nextMap.set(it.id, URL.createObjectURL(it.img.file));
+      }
+    });
+    // 古い URL を revoke
+    previewUrls.forEach((url, id) => {
+      if (!nextMap.has(id)) URL.revokeObjectURL(url);
+    });
+    setPreviewUrls(nextMap);
+    return () => {
+      // cleanup at unmount: 全て revoke
+      // (この effect 内の return は cleanup なので nextMap の参照ではなく現在 state を read)
+    };
+    // items の identity 変化で再評価
+  }, [items]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const canAddMore = items.length < maxImages;
+
+  const updateItems = useCallback(
+    (next: SortableItem[]) => {
+      setItems(next);
+      onChange(next.map((it) => it.img));
+    },
+    [onChange],
+  );
 
   const handleFiles = useCallback(
     async (files: FileList | File[]) => {
       setError(null);
-      const remaining = maxImages - value.length;
+      const remaining = maxImages - items.length;
       if (remaining <= 0) {
         setError(t('housing.register.image.error.too_many', { max: maxImages }));
         return;
       }
       const list = Array.from(files).slice(0, remaining);
-      // 非画像が混ざっていたらエラー (バッチ全体を弾く)
       for (const f of list) {
         if (!f.type.startsWith('image/')) {
           setError(t('housing.register.image.error.not_image'));
@@ -82,7 +212,8 @@ export function HousingRegisterImageField({
       setCompressing(true);
       try {
         const compressed = await Promise.all(list.map((f) => compressHousingImage(f)));
-        onChange([...value, ...compressed]);
+        const newItems = compressed.map((img) => ({ id: makeId(), img }));
+        updateItems([...items, ...newItems]);
       } catch (e) {
         console.error('[HousingRegisterImageField] compress failed', e);
         setError(t('housing.register.image.error.compress_failed'));
@@ -90,7 +221,7 @@ export function HousingRegisterImageField({
         setCompressing(false);
       }
     },
-    [maxImages, onChange, t, value],
+    [items, maxImages, t, updateItems],
   );
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -113,10 +244,29 @@ export function HousingRegisterImageField({
 
   const handleDragLeave = () => setDragOver(false);
 
-  const handleRemove = (index: number) => {
-    const next = value.filter((_, i) => i !== index);
-    onChange(next);
-    setError(null);
+  const handleRemove = useCallback(
+    (index: number) => {
+      const next = items.filter((_, i) => i !== index);
+      updateItems(next);
+      setError(null);
+    },
+    [items, updateItems],
+  );
+
+  // @dnd-kit setup
+  const sensors = useSensors(
+    // PointerSensor は 5px 動いてからドラッグ開始 (誤発動防止)
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex((it) => it.id === active.id);
+    const newIndex = items.findIndex((it) => it.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    updateItems(arrayMove(items, oldIndex, newIndex));
   };
 
   return (
@@ -125,36 +275,29 @@ export function HousingRegisterImageField({
         {t('housing.register.image.label', { max: maxImages })}
       </label>
 
-      {value.length > 0 && (
-        <ul className="housing-register-image-grid">
-          {value.map((img, i) => (
-            <li key={i} className="housing-register-image-tile">
-              {previewUrls[i] && (
-                <img
-                  src={previewUrls[i]}
-                  alt=""
-                  className="housing-register-image-tile-img"
+      {items.length > 0 && (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={items.map((it) => it.id)} strategy={rectSortingStrategy}>
+            <ul className="housing-register-image-grid">
+              {items.map((it, i) => (
+                <SortableImageTile
+                  key={it.id}
+                  item={it}
+                  index={i}
+                  previewUrl={previewUrls.get(it.id) ?? ''}
+                  isCover={i === 0}
+                  onRemove={handleRemove}
+                  coverBadgeLabel={t('housing.register.image.cover_badge')}
+                  removeLabel={t('housing.register.image.remove')}
                 />
-              )}
-              {i === 0 && (
-                <span className="housing-register-image-tile-badge">
-                  {t('housing.register.image.cover_badge')}
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => handleRemove(i)}
-                className="housing-register-image-tile-remove"
-                aria-label={t('housing.register.image.remove')}
-              >
-                ✕
-              </button>
-              <span className="housing-register-image-tile-meta">
-                {formatBytes(img.compressedBytes)} ({img.mimeType.replace('image/', '').toUpperCase()})
-              </span>
-            </li>
-          ))}
-        </ul>
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
       )}
 
       {canAddMore && (
@@ -187,13 +330,13 @@ export function HousingRegisterImageField({
           ) : (
             <>
               <span className="housing-register-image-cta">
-                {value.length === 0
+                {items.length === 0
                   ? t('housing.register.image.cta')
                   : t('housing.register.image.cta_add')}
               </span>
               <span className="housing-register-image-hint">
                 {t('housing.register.image.hint', {
-                  current: value.length,
+                  current: items.length,
                   max: maxImages,
                 })}
               </span>
@@ -202,13 +345,19 @@ export function HousingRegisterImageField({
         </div>
       )}
 
+      {items.length > 1 && (
+        <p className="housing-register-image-note">
+          {t('housing.register.image.reorder_hint')}
+        </p>
+      )}
+
       {error && (
         <p className="housing-register-image-error" role="alert">
           {error}
         </p>
       )}
 
-      {hasSnsUrl && value.length > 0 && (
+      {hasSnsUrl && items.length > 0 && (
         <p className="housing-register-image-note">
           {t('housing.register.image.sns_override_note')}
         </p>
