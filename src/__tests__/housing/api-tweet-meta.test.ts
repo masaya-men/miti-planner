@@ -29,14 +29,13 @@ describe('GET /api/tweet-meta', () => {
         expect(res.status).toBe(400);
     });
 
-    it('returns syndication data on success', async () => {
+    it('returns syndication data with photos (no video) on success', async () => {
         mockFetch.mockResolvedValueOnce(
             new Response(
                 JSON.stringify({
                     text: 'Mana\nAnima\nShirogane | 6-6 | Small',
                     user: { name: 'Test User', screen_name: 'testuser' },
                     photos: [{ url: 'https://pbs.twimg.com/a.jpg' }],
-                    video: { id: 'v1' },
                 }),
                 { status: 200 },
             ),
@@ -48,7 +47,54 @@ describe('GET /api/tweet-meta', () => {
         expect(body.author.name).toBe('Test User');
         expect(body.author.screen_name).toBe('testuser');
         expect(body.photos).toEqual(['https://pbs.twimg.com/a.jpg']);
-        expect(body.video).toBe(true);
+        expect(body.video).toBeNull();
+    });
+
+    it('returns mp4 URL + poster + aspectRatio when mediaDetails has video', async () => {
+        mockFetch.mockResolvedValueOnce(
+            new Response(
+                JSON.stringify({
+                    text: 'house tour',
+                    user: { name: 'Test User', screen_name: 'testuser' },
+                    mediaDetails: [
+                        {
+                            type: 'video',
+                            media_url_https: 'https://pbs.twimg.com/amplify_video_thumb/v1/img.jpg',
+                            original_info: { width: 1280, height: 720 },
+                            video_info: {
+                                aspect_ratio: [16, 9],
+                                variants: [
+                                    {
+                                        bitrate: 832000,
+                                        content_type: 'video/mp4',
+                                        url: 'https://video.twimg.com/amplify_video/v1/vid/480x270.mp4',
+                                    },
+                                    {
+                                        bitrate: 2176000,
+                                        content_type: 'video/mp4',
+                                        url: 'https://video.twimg.com/amplify_video/v1/vid/1280x720.mp4',
+                                    },
+                                    {
+                                        content_type: 'application/x-mpegURL',
+                                        url: 'https://video.twimg.com/amplify_video/v1/pl/720.m3u8',
+                                    },
+                                ],
+                            },
+                        },
+                    ],
+                }),
+                { status: 200 },
+            ),
+        );
+        const res = await handler(makeReq('1842217368673759498'));
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        expect(body.video).toEqual({
+            url: 'https://video.twimg.com/amplify_video/v1/vid/1280x720.mp4',
+            posterUrl: 'https://pbs.twimg.com/amplify_video_thumb/v1/img.jpg',
+            aspectRatio: 1280 / 720,
+        });
+        expect(body.photos).toEqual([]);
     });
 
     it('returns 404 when syndication returns 404', async () => {

@@ -11,8 +11,8 @@ import { HousingRegisterTweetPreview } from '../../components/housing/register/H
 const sample = {
     text: 'Mana\nAnima\nShirogane | 6-6 | Small',
     author: { name: 'Test User', screen_name: 'testuser' },
-    photos: [],
-    video: false,
+    photos: [] as string[],
+    video: null,
 };
 
 describe('HousingRegisterTweetPreview', () => {

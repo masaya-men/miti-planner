@@ -3,10 +3,18 @@
 // 問い合わせて本文・著者・メディア有無を返す。 LoPo の housing 登録モーダルで
 // SNS URL → 自動入力 機能が使う。
 //
+// 2026-05-26 拡張: 動画ツイートの mp4 URL + poster + aspectRatio も返す。
+// クライアント側の useTweetVideoFrames が /api/tweet-video 経由でフレーム抽出するため、
+// ここで mediaDetails.video_info.variants から最高 bitrate mp4 を選別する。
+//
 // Phase 3 (Cloudflare 全面移行) で Cloudflare Workers にコピペ移植する想定で、
 // Node.js 固有 API は使わず Web 標準 (Request/Response/fetch/URL/AbortSignal) のみ。
 
 import { syndicationUrl } from '../src/lib/housing/tweetSyndication.js';
+import {
+    extractTweetMediaPayload,
+    type SyndicationRaw,
+} from '../src/lib/housing/tweetMetaExtract.js';
 
 export const config = { runtime: 'edge' };
 
@@ -36,7 +44,9 @@ export default async function handler(req: Request): Promise<Response> {
             return Response.json({ error: 'Upstream error' }, { status: 502 });
         }
 
-        const json = await res.json();
+        const json = (await res.json()) as SyndicationRaw;
+        const media = extractTweetMediaPayload(json);
+
         return Response.json(
             {
                 text: json.text ?? '',
@@ -44,12 +54,8 @@ export default async function handler(req: Request): Promise<Response> {
                     name: json.user?.name ?? '',
                     screen_name: json.user?.screen_name ?? '',
                 },
-                photos: Array.isArray(json.photos)
-                    ? json.photos
-                        .map((p: unknown) => (p as { url?: unknown })?.url)
-                        .filter((u: unknown): u is string => typeof u === 'string')
-                    : [],
-                video: Boolean(json.video),
+                photos: media.photos,
+                video: media.video,
             },
             {
                 headers: {

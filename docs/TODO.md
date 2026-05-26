@@ -11,15 +11,14 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 2026-05-26 セッションで hotfix5-15 まで **11 連続 push (Vercel 1 件失敗で `.js` 拡張子 + 未使用変数で発覚 → hotfix13/14 で復旧、 hotfix15 で YouTube サムネ 4 段 fallback)**。 本番デプロイ済: 通報モデ個別却下 + 通知連動削除 + 詳細表示アパート号棟 + 画像アップロード (1-4 枚 / WebP 0.75 / EXIF 削除) + ドラッグ並び替え (1 枚目 = カバー) + YouTube URL 連動 (サムネ取得、 maxresdefault 不在動画は hqdefault→mqdefault→default に自動 fallback)
-- **次セッション最優先 (5/28 23:59 α 公開強行・最終日、 残り 1 日 4 時間)**:
-  1. **D: Twitter 動画フレーム抽出** (Allmarks コードを移植、 1-1.5 日 — 詳細プラン下記)
-  2. **B: OGP 汎用拡張** (housingsnap.com 等の allowlist、 2-3 時間)
-  3. **LICENSE ファイル追加** (AGPLv3 推奨、 ユーザー判断後 10 分)
-  4. **ユーザー実機確認**: アパート登録 / 家登録 / 言語切替住所 / /admin 通報モデ / 画像アップロード / YouTube URL (含む maxresdefault 不在動画 e.g. Ypg8w7Dmq9o)
-  5. **既存テスト物件を一掃** + コールドスタート用 5-10 件登録 (ユーザー作業)
-  6. **Cloudflare 前段化** (公開直前): Storage 帯域料金対策、 必須
-  7. **アプデ告知** (#59 軽減表 + ハウジング α 公開)
+- **ブランチ**: main。 2026-05-26 セッションで hotfix5-16 まで **12 連続 push (hotfix15 = YouTube サムネ 4 段 fallback、 hotfix16 = D: Twitter 動画フレーム抽出)**。 本番デプロイ済: 通報モデ個別却下 + 通知連動削除 + 詳細表示アパート号棟 + 画像アップロード (1-4 枚 / WebP 0.75 / EXIF 削除) + ドラッグ並び替え + YouTube URL 連動 (4 段 fallback) + **Twitter 動画ツイートから 3 フレーム自動抽出** (hotfix16)
+- **次セッション最優先 (5/28 23:59 α 公開強行・最終日)**:
+  1. **B: OGP 汎用拡張** (housingsnap.com 等の allowlist、 2-3 時間)
+  2. **LICENSE ファイル追加** (AGPLv3 推奨、 ユーザー判断後 10 分)
+  3. **ユーザー実機確認**: アパート登録 / 家登録 / 言語切替住所 / /admin 通報モデ / 画像アップロード / YouTube URL (maxresdefault 不在動画含む) / **Twitter 動画ツイート** (例: 自動 3 フレーム抽出が走る、 失敗時 poster fallback)
+  4. **既存テスト物件を一掃** + コールドスタート用 5-10 件登録 (ユーザー作業)
+  5. **Cloudflare 前段化** (公開直前): Storage 帯域料金対策、 必須
+  6. **アプデ告知** (#59 軽減表 + ハウジング α 公開)
 - **重要な反省 (memory に追記済 `feedback_vercel_tsc_strict.md`)**: push 前は **`npx tsc -b --force`** 必須。 ローカル `npm run build` の tsbuildinfo キャッシュが Vercel と乖離して、 連続 push でビルド失敗を見落とした (hotfix13/14 で復旧、 ビルド枠を消費)
 - **push 戦略**: 残り Vercel ビルド枠を節約するため、 次セッションでは push を **3 回程度にまとめる** (YouTube fallback+D / B+細部修正 / Cloudflare+最終)
 

@@ -1,10 +1,16 @@
 import { useState, useCallback, useRef } from 'react';
+import type { TweetVideoPayload } from './tweetMetaExtract';
 
 export type TweetData = {
     text: string;
     author: { name: string; screen_name: string };
     photos: string[];
-    video: boolean;
+    /**
+     * 動画ありなら mp4 URL + poster URL + aspectRatio。 静止画 or なしなら null。
+     * 2026-05-26 拡張: 旧仕様は boolean のみ。 useTweetVideoFrames から
+     * `/api/tweet-video?url=<url>` を叩いて 3 フレーム抽出する。
+     */
+    video: TweetVideoPayload | null;
 };
 
 export type TweetFetchStatus = 'idle' | 'loading' | 'success' | 'error';
