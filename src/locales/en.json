@@ -1847,6 +1847,8 @@
                 "compressing": "Compressing image…",
                 "compressed_label": "Compressed",
                 "cover_badge": "Cover",
+                "used_badge": "Used",
+                "discarded_badge": "Discarded",
                 "remove": "Remove",
                 "reorder_hint": "Drag to reorder (the leftmost \"Cover\" becomes the listing thumbnail)",
                 "sns_override_note": "An uploaded image is used; the SNS URL image is ignored.",

@@ -152,6 +152,31 @@ describe('extractStudioXivImages - hotfix24 studio-xiv.com 複数画像対応', 
         expect(extractStudioXivImages(html)).toHaveLength(1);
     });
 
+    it('hotfix26: WordPress リサイズ suffix (-WxH) を取り除いてベース名で dedup', () => {
+        const html = `
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x-150x150.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x-768x512.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_y-300x200.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_y.png">
+        `;
+        // ffxiv_x と ffxiv_y の 2 つだけ、 全部 full size URL に正規化
+        expect(extractStudioXivImages(html)).toEqual([
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x.png',
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_y.png',
+        ]);
+    });
+
+    it('hotfix26: webp / jpg の suffix も dedup 対象', () => {
+        const html = `
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_a-150x150.webp">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_a.webp">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_b-300x200.jpg">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_b.jpg">
+        `;
+        expect(extractStudioXivImages(html)).toHaveLength(2);
+    });
+
     it('html 不在/異常入力なら空配列', () => {
         expect(extractStudioXivImages('')).toEqual([]);
         expect(extractStudioXivImages(null as unknown as string)).toEqual([]);

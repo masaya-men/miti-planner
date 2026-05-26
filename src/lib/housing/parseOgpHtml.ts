@@ -44,7 +44,7 @@ export function extractHousingSnapImages(html: string): string[] {
 }
 
 /**
- * studio-xiv.com 専用の追加画像抽出 (2026-05-27 hotfix24)。
+ * studio-xiv.com 専用の追加画像抽出 (2026-05-27 hotfix24、 hotfix26 で dedup 改善)。
  *
  * Studio-XIV は WordPress (= `/wp-content/uploads/<year>/<month>/<filename>`) で配信。
  * 物件画像は `ffxiv_<timestamp>` というファイル名パターン (= ゲーム内スクリーンショットの
@@ -53,13 +53,27 @@ export function extractHousingSnapImages(html: string): string[] {
  * 抽出パターン:
  *   `https://studio-xiv.com/wp-content/uploads/YYYY/MM/ffxiv_*.{png,jpg,jpeg,webp}`
  *
- * 順序は HTML 出現順 (= サイトのギャラリー表示順)。 重複排除済。
+ * hotfix26 で dedup 改善: WordPress は同じ画像を `-WxH` suffix で複数解像度生成する
+ * (例: `ffxiv_x-150x150.png` `ffxiv_x-768x512.png` `ffxiv_x.png`)。 URL 完全一致 dedup
+ * だと別物として残ってしまい同じ画像が重複表示される。 suffix を取り除いたベース名で
+ * dedup し、 full size URL を返す。
  */
 export function extractStudioXivImages(html: string): string[] {
     if (typeof html !== 'string' || html.length === 0) return [];
     const re =
         /https:\/\/studio-xiv\.com\/wp-content\/uploads\/\d{4}\/\d{2}\/ffxiv_[\w.-]+?\.(?:png|jpe?g|webp)/gi;
-    return dedupOrdered(html.match(re) ?? []);
+    const matches = html.match(re) ?? [];
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const url of matches) {
+        // WordPress のリサイズ suffix `-WxH` を取り除いた full size URL に正規化
+        const fullSizeUrl = url.replace(/-\d+x\d+(\.(?:png|jpe?g|webp))$/i, '$1');
+        if (!seen.has(fullSizeUrl)) {
+            seen.add(fullSizeUrl);
+            out.push(fullSizeUrl);
+        }
+    }
+    return out;
 }
 
 /** URL 配列を出現順を保ちつつ重複排除する純関数。 */
