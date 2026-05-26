@@ -54,11 +54,15 @@ export default async function handler(req: Request): Promise<Response> {
         return Response.json({ error: 'upstream host not allowed' }, { status: 403 });
     }
 
-    const upstreamHeaders: Record<string, string> = {
-        'User-Agent': 'LoPo Housing Tour',
-    };
+    // Headers オブジェクト経由で渡す (Record<string, string> + Range キー大小文字混在で
+    // fetch() に正しく渡らない事象を回避)。
+    // 2026-05-26 hotfix19: User-Agent も Mozilla 偽装に変更。 独自 UA だと
+    // video.twimg.com が Range を無視して preview chunk (~18KB) しか返さない挙動を確認した。
+    // Allmarks 元コードと揃える。
+    const upstreamHeaders = new Headers();
+    upstreamHeaders.set('User-Agent', 'Mozilla/5.0 (compatible; LoPo/1.0)');
     const range = req.headers.get('range');
-    if (range) upstreamHeaders.Range = range;
+    if (range) upstreamHeaders.set('Range', range);
 
     try {
         const upstream = await fetch(parsed.toString(), {
