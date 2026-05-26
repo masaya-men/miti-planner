@@ -1,9 +1,12 @@
 /**
- * ハウジング通報管理画面 (2026-05-27 アパート対応と同時にα公開最小範囲で新設)
+ * ハウジング通報管理画面
  *
  * - 通報数の多い順に最大 50 件まで一覧表示
- * - 各物件で「物件を見る」 (別タブ) + 「非表示にする」 が実行可能
- * - 復帰 / BAN / 異議申し立て管理は公開後対応
+ * - 2026-05-26: 各通報レコード (reason/comment/createdAt) を物件カード内にリスト表示し、
+ *              個別「却下」 ボタンで 1 件ずつ却下可能に改修。 旧「通報を 1 件却下」 (count-1 のみ)
+ *              は「どの通報を却下したか」 不明で UX バグだったため廃止。
+ * - 各物件で「物件を見る」 (別タブ) + 「非表示にする」 (isHidden=false 時のみ) も実行可能
+ * - 物理削除 cron / BAN / 異議申し立てアプリ内 UI は公開後対応 (Phase 3 残)
  */
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +15,14 @@ import { apiFetch } from '../../lib/apiClient';
 import { showToast } from '../Toast';
 import { formatHousingAddress } from '../../lib/housing/formatHousingAddress';
 import { buildListingDetailPath } from '../../constants/housing';
-import type { HousingArea, HousingSize } from '../../types/housing';
+import type { HousingArea, HousingSize, ReportReason } from '../../types/housing';
+
+interface ReportRecord {
+  id: string;
+  reason: ReportReason;
+  comment?: string;
+  createdAt: number;
+}
 
 interface ReportedListing {
   id: string;
@@ -34,6 +44,7 @@ interface ReportedListing {
   createdAt: number;
   isHidden: boolean;
   reportCount: number;
+  reports: ReportRecord[];
 }
 
 function resolveImageSource(l: ReportedListing): string | null {
@@ -48,7 +59,7 @@ export function AdminHousingReports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [hidingId, setHidingId] = useState<string | null>(null);
-  const [dismissingId, setDismissingId] = useState<string | null>(null);
+  const [dismissingReportId, setDismissingReportId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -88,24 +99,36 @@ export function AdminHousingReports() {
   };
 
   /**
-   * 通報を 1 件却下。 reportCount-1、 閾値割れたら自動で isHidden=false。
-   * 全部誤通報の場合は本ボタンを連打 (or 通報数分連打) すれば 0 件まで戻せる。
+   * 個別通報レコードを 1 件却下。 該当 report doc 削除 + reportCount-1。
+   * 閾値割れたら自動で isHidden=false (transaction で server 側)。
    */
-  const handleDismiss = async (id: string) => {
-    if (!confirm(t('admin.housing_reports.dismiss_confirm'))) return;
-    setDismissingId(id);
+  const handleDismissOne = async (listingId: string, reportId: string) => {
+    if (!confirm(t('admin.housing_reports.dismiss_one_confirm'))) return;
+    setDismissingReportId(reportId);
     try {
       const res = await apiFetch(
-        `/api/admin?resource=housing_reports&action=restore&listingId=${encodeURIComponent(id)}`,
+        `/api/admin?resource=housing_reports&action=dismiss-one&listingId=${encodeURIComponent(listingId)}&reportId=${encodeURIComponent(reportId)}`,
         { method: 'PATCH' },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      showToast(t('admin.housing_reports.dismiss_success'));
+      showToast(t('admin.housing_reports.dismiss_one_success'));
       await fetchData();
     } catch (e: unknown) {
       showToast(e instanceof Error ? e.message : 'failed', 'error');
     } finally {
-      setDismissingId(null);
+      setDismissingReportId(null);
+    }
+  };
+
+  const formatReportTime = (ts: number): string => {
+    if (!ts) return '';
+    try {
+      return new Date(ts).toLocaleString(i18n.language || 'ja', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+      });
+    } catch {
+      return new Date(ts).toISOString();
     }
   };
 
@@ -168,6 +191,44 @@ export function AdminHousingReports() {
                   {l.description && (
                     <p className="text-app-base mt-1 line-clamp-2">{l.description}</p>
                   )}
+                  {/* 通報レコード一覧 (理由 / コメント / 日時 + 個別却下) */}
+                  {l.reports.length > 0 && (
+                    <ul className="mt-3 flex flex-col gap-2">
+                      {l.reports.map((r) => (
+                        <li
+                          key={r.id}
+                          className="border-l-2 border-app-red/40 pl-3 py-1 flex items-start gap-3"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="text-app-sm">
+                              <span className="font-bold">
+                                {t(`housing.report.reason.${r.reason}`)}
+                              </span>
+                              <span className="text-app-text-muted">
+                                {' · '}
+                                {formatReportTime(r.createdAt)}
+                              </span>
+                            </div>
+                            {r.comment && (
+                              <blockquote className="text-app-sm text-app-text-muted mt-1 pl-2 border-l border-app-text/20 italic break-words">
+                                {r.comment}
+                              </blockquote>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDismissOne(l.id, r.id)}
+                            disabled={dismissingReportId === r.id}
+                            className="px-2 py-1 text-app-sm border border-app-text/30 rounded hover:bg-app-text/10 disabled:opacity-50 shrink-0"
+                          >
+                            {dismissingReportId === r.id
+                              ? t('admin.housing_reports.dismissing_one')
+                              : t('admin.housing_reports.dismiss_one')}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 <div className="flex flex-col gap-2 shrink-0">
                   <Link
@@ -178,17 +239,6 @@ export function AdminHousingReports() {
                   >
                     {t('admin.housing_reports.view')}
                   </Link>
-                  {/* 通報 1 件却下。 reportCount > 0 のときのみ意味があるが、 一覧自体が reportCount>0 で絞られてるので常時表示 */}
-                  <button
-                    type="button"
-                    onClick={() => handleDismiss(l.id)}
-                    disabled={dismissingId === l.id || l.reportCount === 0}
-                    className="px-3 py-1 text-app-base bg-app-blue text-white rounded disabled:opacity-50"
-                  >
-                    {dismissingId === l.id
-                      ? t('admin.housing_reports.dismissing')
-                      : t('admin.housing_reports.dismiss')}
-                  </button>
                   {/* 非表示は isHidden=false 時のみ (既に非表示なら不要) */}
                   {!l.isHidden && (
                     <button
