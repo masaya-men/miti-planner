@@ -2,6 +2,45 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-26 セッション #59・軽減表 perf 改善 A+C + 通知マーキー長文時爆速バグ修正)
+
+ユーザー報告「スクロール若干カクつく / メモリ 600MB-1.3GB」 を root cause investigation。 実機計測 (ブラウザ Claude + ユーザー手動 Console) で「行 1,200+ × 14 セル絶対配置 × 仮想化なし × hover 連鎖 × forced reflow」 を特定。 A+C の最小変更で push、 ユーザー実機体感「滅茶苦茶軽くなった」 確認済。 B/D はスキップ判定 (理想値達成、 ROI 低)。
+
+### 完了内容
+
+- **A (content-visibility)**: [src/components/TimelineRow.tsx:172-178] の行 className に `[content-visibility:auto] [contain-intrinsic-size:auto_50px]` 追加。 ビューポート外 1,200 行を style/layout/paint からスキップ。 1 行変更
+- **C (ResizeObserver 化)**: [src/components/TimelineRow.tsx:14-37] の `EventNameSpan` の truncation 判定を、 `onMouseEnter` での `scrollWidth > clientWidth` 比較 (forced sync layout の典型) から、 `useEffect` + `ResizeObserver` で onMount + 親幅変化時にのみ計算するように変更。 hover 時はステート参照のみ → forced reflow 撲滅
+- **通知マーキー修正**: [src/components/SystemNotificationBar.tsx] バーが title + body 連結を 18s 固定で流す → **長文時に速度爆発バグ**。 業界標準 (タイトルのみ・本文はモーダル展開) + 速度可変式 (60 px/sec、 最小 8s、 ResizeObserver で親幅追従) に変更。 ユーザー報告から発覚→約 30 分で hotfix まで完了
+- **ハーフバグ**: 初回 push 後 Rules of Hooks 違反 (`useLayoutEffect` を early return の後に置いた) で React error #310 → 本番真っ白。 すぐ hotfix push (effect を hooks 全部の後 / early return の前に移動)
+
+### 計測実証 (修正前 → 修正後)
+
+| 指標 | 修正前 (配置なし基準) | A 単独 (配置あり) | **A+C (配置あり)** |
+|---|---|---|---|
+| fps.avgFrameMs | 16.85 | 17.72 (悪化に見える) | **16.60** |
+| framesOver16ms% | 23.6% | 45.7% | **21.6%** |
+| framesOver33ms | 3 | 12 | **0** ← 1 フレーム落ち完全解消 |
+| worstFrameMs | 33.4 | 33.50 | **16.80** ← 半減 |
+| p95FrameMs | (未取得) | 33.30 | **16.80** ← 理想値 |
+| slowEvents pointer 384ms | 5 件 | 0 件 | 0 件 |
+
+DMU 1 本目 (A 単独計測) は heap 高 (135.7MB) でノイズあり、 FRU_LoPo (配置 200 倍) で A の効果を正しく確認。 C 追加で全環境で理想値達成。
+
+### 学び
+
+- **content-visibility は CPU 削減には効くが DOM ノード数は減らない** (= タブメモリ 850MB は別軸。 DOM 73,060 個由来、 将来仮想化 react-window で対処可能だが大改修)
+- **`onMouseEnter` で scrollWidth 比較は forced reflow の典型**。 ResizeObserver で onMount+リサイズ時のみが業界水準 (memory `reference_perf_forced_reflow_resizeobserver`)
+- **Rules of Hooks 違反は build (tsc) で catch できない**、 動的に出る → ESLint `react-hooks/rules-of-hooks` 有効化必要 (残課題)
+- **マーキー長文時爆速バグは duration 固定 + span 幅可変の構造的問題**。 速度可変式 (px/sec) で本質解決
+- **計測手段**: ブラウザ拡張 Claude は background tab で `document.visibilityState='hidden'` 扱いで RAF 0 frames → 実機ユーザー手動 Console が最も確実。 5 秒スクロール + `sc.scrollTop += 40` で 60fps 計測可能
+
+### 残課題 (公開後)
+
+- SystemNotificationBar.test.tsx を title のみ仕様に追従更新
+- ESLint `react-hooks/rules-of-hooks` 有効化
+- 「表を展開する」 click handler 394ms (#59 計測で別ボトルネック判明)
+- メモリ振れ本質改善 (仮想化、 大改修)
+
 ## 完了 (2026-05-26 セッション #58 follow-up・実機 feedback 反映 5 件)
 
 軽減アプリ全般のフィードバック反映。 メモ機能 v1 後の細かな見た目バグを 5 件、 1 件ずつ実機確認しながら修正。
