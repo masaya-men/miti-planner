@@ -2,6 +2,34 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-26 セッション #58 follow-up・実機 feedback 反映 5 件)
+
+軽減アプリ全般のフィードバック反映。 メモ機能 v1 後の細かな見た目バグを 5 件、 1 件ずつ実機確認しながら修正。
+
+### 完了内容
+
+1. **メモ文字色をアプリ標準トークンへ** ([commit](fix(memo)#色)、 `src/components/Memo/memo.css`): `color: var(--color-text, #fff)` の fallback `#fff` が両モード適用されていたバグ。 `--color-text` 自体が未定義トークンだった。 `var(--color-text-primary)` に変更し、 ライトモード用 `.theme-light .plan-memo` で text-shadow を白縁取りに反転。 → ダーク=#F0F0F0 白文字+黒縁取り / ライト=#171717 黒文字+白縁取り
+2. **メモボタン白い箱の高さを AA と一致** (`src/components/Timeline.tsx`): `Tooltip wrapperClassName` の `!h-auto` が `h-6` を打ち消していて、 メモボタンの白い箱が中身に張り付くほど低かった。 構造を AA と完全同形 (外側 div > Tooltip > button) にリファクタ。 wrapperClassName を `!w-full !h-full` に最小化、 `!important` 数 3→2 に削減、 `!justify-start` 撤去
+3. **致死ダメージセルの「箱」 撤去** (`src/components/TimelineRow.tsx`): `bg-red-500/10` (ピンク背景、 initial commit 由来) と `shadow-sm` (アニメ統合 2eb3637 由来) の二重装飾が「数字の周りの四角」 として見えていた。 IIFE まるごと撤去で 4 行 add / 27 行 delete。 致死は赤文字+太字+アニメで MobileTimelineRow と挙動統一
+4. **コピーボタンを absolute へ移動** (`src/components/TimelineRow.tsx`): Copy ボタンが flex 列で常時 20px の枠を予約していて、 攻撃名がホバー前から短く省略されていた。 slot 親 (relative) の absolute 子要素に移し、 非ホバー時のレイアウト負担ゼロに。 `pointer-events-none` で非インタラクティブ化、 `bg-app-bg + ring` でホバー時のみ右端に浮き上がる。 1 イベント版 / 2 イベント版両方で同じパターン
+5. **AnimatedDamage 縦位置補正** (`src/components/AnimatedDamage.css`): `.dmg-layer-enter` に `align-items: center` が無く文字グリフが上端寄りに座っていた (`.dmg-layer-exit` には元から center あり = 対称性崩れ)。 1 行追加で 22px slot 内中央配置、 左の平文ダメージとベースライン揃う
+
+### 学び (将来同種の問題に流用)
+
+- **`!important` 過剰使用は危険**: メモボタンの `!h-auto` が `h-6` を打ち消したのは典型。 `wrapperClassName` で Tooltip default 打ち消すときは「最小限の上書き」 を意識
+- **「視覚的ノイズの箱」 は背景 + 影の合わせ技で発生**: 単一の `bg-*` だけでなく `shadow-sm` も「輪郭」 として見える。 撤去するなら両方
+- **絶対配置 + ホバー出現パターン**: Copy ボタン pattern は他にも応用可能 (=「常時 layout 予約はゼロ、 ホバー時のみ出現」)
+- **flex layer の align-items 抜け**: アニメーション系で「上端寄りに見える」 ときは flex container の align-items を確認
+- **DevTools の問題パネル**: ページエラー 0 が最重要。 「互換性を破る変更」 23 件はほぼサードパーティ起因で対処不能
+
+### 次セッションで対応 (申し送り)
+
+- **スクロール perf 検査** (ユーザー報告: メモリ 600MB-1.3GB / スクロール若干カクつく)
+- Performance タブ録画 → ボトルネック特定 → 仮想化等の根治
+- 見た目維持 (現状デザインを変えない方針) で進める
+
+---
+
 ## 完了 (2026-05-25 セッション #57-58・軽減表メモ機能 v1)
 
 **目的**: 軽減表シート上に任意位置の plain text メモ。 縦=時間軸固定 / 横=フリー、 DnD 可、 100 個 × 100 文字上限、 既存ゴミ箱メニュー統合、 PC のみ。
