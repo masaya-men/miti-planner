@@ -101,6 +101,20 @@ export default async function handler(req: Request): Promise<Response> {
         );
         responseHeaders.set('Cache-Control', 'public, max-age=86400, s-maxage=86400');
 
+        // hotfix20 デバッグ: Range が upstream に届いていない疑惑を切り分ける用。
+        // 原因特定後に削除する (TODO: hotfix21 以降)。
+        responseHeaders.set('X-Debug-Hotfix', 'hotfix20');
+        responseHeaders.set('X-Debug-Range-Received', range ?? '(none)');
+        responseHeaders.set(
+            'X-Debug-Range-Sent',
+            upstreamHeaders.get('Range') ?? '(none)',
+        );
+        responseHeaders.set('X-Debug-Upstream-Status', String(upstream.status));
+        responseHeaders.set(
+            'X-Debug-Upstream-CR',
+            upstream.headers.get('content-range') ?? '(none)',
+        );
+
         return new Response(upstream.body, {
             status: upstream.status,
             headers: responseHeaders,
