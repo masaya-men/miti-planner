@@ -18,18 +18,38 @@ function normalizeLang(lang: string): SupportedLang {
   return 'ja';
 }
 
+// マーキー速度: 60 px/sec = 日本語 ~4 文字/sec、 業界標準的なニュースティッカー速度
+const MARQUEE_SPEED_PX_PER_SEC = 60;
+// 短文での「速すぎ」 防止用の下限
+const MARQUEE_MIN_DURATION_S = 8;
+
 export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
   const { t, i18n } = useTranslation();
   const lang = normalizeLang(i18n.language);
   const { latestUnread, markRead } = useSystemNotifications();
   const [open, setOpen] = useState(false);
+  const spanRef = React.useRef<HTMLSpanElement>(null);
+  const [duration, setDuration] = useState<number | null>(null);
 
   // 未読 0 → バー枠ごと描画しない (Sidebar が縮む)
   if (!latestUnread) return null;
 
-  const title = resolveLocalized(latestUnread.title, lang);
-  const body = resolveLocalized(latestUnread.body, lang).replace(/\s*\n+\s*/g, ' ');
-  const marqueeText = `${title}：${body}`;
+  // バーはタイトルのみ流す (本文はクリックでモーダル展開、 長文時に速度爆発する問題を構造的に解消)
+  const marqueeText = resolveLocalized(latestUnread.title, lang);
+
+  // span の実幅から速度可変で duration を算出 (元: 18s 固定で本文長に応じ爆速化していた)
+  React.useLayoutEffect(() => {
+    const el = spanRef.current;
+    const parent = el?.parentElement;
+    if (!el || !parent) return;
+    const compute = () => {
+      setDuration(Math.max(el.scrollWidth / MARQUEE_SPEED_PX_PER_SEC, MARQUEE_MIN_DURATION_S));
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(parent);
+    return () => ro.disconnect();
+  }, [marqueeText]);
 
   function handleClose() {
     setOpen(false);
@@ -49,7 +69,11 @@ export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
         </span>
         {!isCollapsed && (
           <span className="flex-1 min-w-0 overflow-hidden py-1.5">
-            <span className="text-app-sm text-app-text-muted system-notif-marquee">
+            <span
+              ref={spanRef}
+              className="text-app-sm text-app-text-muted system-notif-marquee"
+              style={duration ? { animationDuration: `${duration}s` } : undefined}
+            >
               {marqueeText}
             </span>
           </span>
