@@ -11,9 +11,12 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* enter-layer: 通常 flow、slot サイズの根拠 */
+/* enter-layer: 通常 flow、slot サイズの根拠。
+   exit-layer と同じく align-items: center で 22px slot の縦中央にグリフを揃える
+   (これが無いと flex デフォルトで上端寄りに座り、 左の平文ダメージとベースラインがズレる)。 */
 .dmg-layer-enter {
     display: flex;
+    align-items: center;
 }
 
 /* exit-layer: absolute で enter-layer に重なる（overlap） */
