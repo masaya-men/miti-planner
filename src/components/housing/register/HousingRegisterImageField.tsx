@@ -73,7 +73,6 @@ function SortableImageTile({
   onRemove,
   coverBadgeLabel,
   usedBadgeLabel,
-  discardedBadgeLabel,
   removeLabel,
 }: {
   item: SortableItem;
@@ -85,7 +84,6 @@ function SortableImageTile({
   onRemove: (index: number) => void;
   coverBadgeLabel: string;
   usedBadgeLabel: string;
-  discardedBadgeLabel: string;
   removeLabel: string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -122,11 +120,7 @@ function SortableImageTile({
         <span className="housing-register-image-tile-badge" data-variant="used">
           {usedBadgeLabel}
         </span>
-      ) : (
-        <span className="housing-register-image-tile-badge" data-variant="discarded">
-          {discardedBadgeLabel}
-        </span>
-      )}
+      ) : null}
       <button
         type="button"
         onClick={(e) => {
@@ -312,7 +306,6 @@ export function HousingRegisterImageField({
                   onRemove={handleRemove}
                   coverBadgeLabel={t('housing.register.image.cover_badge')}
                   usedBadgeLabel={t('housing.register.image.used_badge')}
-                  discardedBadgeLabel={t('housing.register.image.discarded_badge')}
                   removeLabel={t('housing.register.image.remove')}
                 />
               ))}

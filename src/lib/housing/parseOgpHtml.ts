@@ -60,20 +60,40 @@ export function extractHousingSnapImages(html: string): string[] {
  */
 export function extractStudioXivImages(html: string): string[] {
     if (typeof html !== 'string' || html.length === 0) return [];
+    // クエリ可、 拡張子の後ろの ?... も拾うため `(?:\?[^"'\s>]*)?` で末尾を許容
     const re =
-        /https:\/\/studio-xiv\.com\/wp-content\/uploads\/\d{4}\/\d{2}\/ffxiv_[\w.-]+?\.(?:png|jpe?g|webp)/gi;
+        /https:\/\/studio-xiv\.com\/wp-content\/uploads\/\d{4}\/\d{2}\/ffxiv_[\w.-]+?\.(?:png|jpe?g|webp)(?:\?[^"'\s>]*)?/gi;
     const matches = html.match(re) ?? [];
     const seen = new Set<string>();
     const out: string[] = [];
     for (const url of matches) {
-        // WordPress のリサイズ suffix `-WxH` を取り除いた full size URL に正規化
-        const fullSizeUrl = url.replace(/-\d+x\d+(\.(?:png|jpe?g|webp))$/i, '$1');
-        if (!seen.has(fullSizeUrl)) {
-            seen.add(fullSizeUrl);
-            out.push(fullSizeUrl);
+        const normalized = normalizeStudioXivUrl(url);
+        if (!seen.has(normalized)) {
+            seen.add(normalized);
+            // 正規化後の URL (= full size の URL) を実際に返す
+            out.push(normalized);
         }
     }
     return out;
+}
+
+/**
+ * studio-xiv 画像 URL を正規化する純関数 (hotfix26 で導入、 hotfix27 で強化)。
+ *
+ * 入力例 → 出力 (全部同じ baseName に正規化される):
+ *   ffxiv_x-1280x720-1.png?1779813917 → ffxiv_x-1.png
+ *   ffxiv_x-1280x720-1.png            → ffxiv_x-1.png
+ *   ffxiv_x-1.png                      → ffxiv_x-1.png
+ *   ffxiv_x-320x320-1.png             → ffxiv_x-1.png
+ *
+ * 処理:
+ *   1. クエリ (?以降) を削除 (= cache buster 等を無視)
+ *   2. URL 中のどこにあっても `-WxH` を削除 (= リサイズ suffix を無視、 末尾固定ではない)
+ */
+function normalizeStudioXivUrl(url: string): string {
+    let u = url.split('?')[0];
+    u = u.replace(/-\d+x\d+/g, '');
+    return u;
 }
 
 /** URL 配列を出現順を保ちつつ重複排除する純関数。 */

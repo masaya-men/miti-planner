@@ -177,6 +177,37 @@ describe('extractStudioXivImages - hotfix24 studio-xiv.com 複数画像対応', 
         expect(extractStudioXivImages(html)).toHaveLength(2);
     });
 
+    it('hotfix27: 実 URL パターン (-WxH-1.png + ?cache 付き) を全て同じ baseName に dedup', () => {
+        // 実機の studio-xiv で出た 11 枚の URL パターン (= 4 ベースに正規化されるべき)
+        const html = `
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220559_382-1280x720-1.png?1779813917">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220559_382-1280x720-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220559_382-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220559_382-320x320-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220725_441-320x320-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220725_441-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220829_005-320x320-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220829_005-1.png">
+        `;
+        const result = extractStudioXivImages(html);
+        expect(result).toEqual([
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220559_382-1.png',
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220725_441-1.png',
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220829_005-1.png',
+        ]);
+    });
+
+    it('hotfix27: クエリ (cache buster) 単独でも dedup される', () => {
+        const html = `
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x-1.png?123">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x-1.png?456">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x-1.png">
+        `;
+        expect(extractStudioXivImages(html)).toEqual([
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x-1.png',
+        ]);
+    });
+
     it('html 不在/異常入力なら空配列', () => {
         expect(extractStudioXivImages('')).toEqual([]);
         expect(extractStudioXivImages(null as unknown as string)).toEqual([]);

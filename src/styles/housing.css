@@ -2553,10 +2553,6 @@ select.housing-input option {
 .housing-register-image-tile-badge[data-variant="used"] {
   background: var(--housing-candle, #ffe2b3);
 }
-.housing-register-image-tile-badge[data-variant="discarded"] {
-  background: var(--housing-text-muted);
-  color: rgba(255, 255, 255, 0.92);
-}
 .housing-register-image-tile-remove {
   position: absolute;
   top: 10px;

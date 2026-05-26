@@ -1869,7 +1869,6 @@
                 "compressed_label": "圧縮済",
                 "cover_badge": "カバー",
                 "used_badge": "使用",
-                "discarded_badge": "破棄予定",
                 "remove": "削除",
                 "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像になります)",
                 "sns_override_note": "画像を直接アップロードしたので、 SNS URL の画像は使われません",
