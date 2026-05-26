@@ -171,6 +171,8 @@ export const TimelineRow = memo(({
             className={clsx(
                 "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
                 "hover:bg-app-surface2",
+                // perf #59: ビューポート外行を style/layout/paint からスキップ。 行 height は h-[50px] と一致
+                "[content-visibility:auto] [contain-intrinsic-size:auto_50px]",
                 showRowBorders && "border-b border-app-border",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
