@@ -1,6 +1,10 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { HousingRegisterSnsUrlField, type YoutubeFetchedData } from './HousingRegisterSnsUrlField';
+import {
+    HousingRegisterSnsUrlField,
+    type YoutubeFetchedData,
+    type OgpFetchedData,
+} from './HousingRegisterSnsUrlField';
 import { HousingRegisterTweetPreview } from './HousingRegisterTweetPreview';
 import { HousingRegisterTypeSelector } from './HousingRegisterTypeSelector';
 import { HousingRegisterRoomNumberField } from './HousingRegisterRoomNumberField';
@@ -83,6 +87,8 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const [tweetData, setTweetData] = useState<TweetData | null>(null);
     const [tweetSource, setTweetSource] = useState<{ postUrl: string; tweetId: string } | null>(null);
     const [youtubeData, setYoutubeData] = useState<YoutubeFetchedData | null>(null);
+    // 2026-05-27 (B): OGP 取得結果。 imageBase64 があれば localImages に push 済み (useEffect 経由)。
+    const [ogpResult, setOgpResult] = useState<OgpFetchedData | null>(null);
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState<string[]>([]);
     const [localImages, setLocalImages] = useState<CompressedImage[]>([]);
@@ -91,6 +97,8 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const [videoExtractFailed, setVideoExtractFailed] = useState(false);
     // 同じ video URL に対して useEffect 再発火しても抽出を重複起動しないためのガード
     const extractedVideoUrlRef = useRef<string | null>(null);
+    // OGP imageBase64 を localImages へ push したかのガード (= 同じ URL で重複 push しない)
+    const ogpAppliedUrlRef = useRef<string | null>(null);
 
     const handleTweetFetched = useCallback(
         (data: TweetData, source: { postUrl: string; tweetId: string } | null) => {
@@ -151,6 +159,36 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const dcKeys = Object.keys(serverMasterData);
     const serverKeys = dc ? Object.keys(serverMasterData[dc]?.servers ?? {}) : [];
     const areaKeys = Object.keys(housingAreaMasterData);
+
+    // 2026-05-27 (B): OGP 取得成功時に imageBase64 を CompressedImage 化して localImages へ push。
+    // 同じ URL で複数回 push しないよう ref ガード。
+    useEffect(() => {
+        if (!ogpResult) {
+            ogpAppliedUrlRef.current = null;
+            return;
+        }
+        const key = ogpResult.postUrl;
+        if (ogpAppliedUrlRef.current === key) return;
+        if (!ogpResult.data.imageBase64 || !ogpResult.data.imageMimeType) {
+            // 画像取得失敗時でも postUrl + ogImageUrl 経路で fallback (handleSubmit が拾う)。
+            ogpAppliedUrlRef.current = key;
+            return;
+        }
+        ogpAppliedUrlRef.current = key;
+        const ext =
+            ogpResult.data.imageMimeType === 'image/png'
+                ? 'png'
+                : ogpResult.data.imageMimeType === 'image/webp'
+                ? 'webp'
+                : 'jpg';
+        const dataUrl = `data:${ogpResult.data.imageMimeType};base64,${ogpResult.data.imageBase64}`;
+        try {
+            const compressed = dataUrlToCompressedImage(dataUrl, `ogp-image.${ext}`);
+            setLocalImages((prev) => [...prev, compressed].slice(0, 4));
+        } catch {
+            // 失敗時は postUrl 経路だけで保存される (= imageMode='sns' + ogImageUrl)
+        }
+    }, [ogpResult]);
 
     // Twitter 動画ツイートが取れたら 3 フレームを自動抽出して localImages へ push
     // (失敗時は posterUrl を photo fallback として handleSubmit で利用)。
@@ -243,6 +281,12 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                     ogImageUrl: photo,
                     tweetId: tweetSource.tweetId,
                 };
+            } else if (ogpResult && ogpResult.data.image) {
+                // 2026-05-27 (B): OGP の画像 fetch 失敗時に postUrl 経路で fallback
+                snsImage = {
+                    postUrl: ogpResult.postUrl,
+                    ogImageUrl: ogpResult.data.image,
+                };
             }
         }
 
@@ -275,6 +319,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             <HousingRegisterSnsUrlField
                 onTweetFetched={handleTweetFetched}
                 onYoutubeFetched={setYoutubeData}
+                onOgpFetched={setOgpResult}
             />
             {tweetData && <HousingRegisterTweetPreview data={tweetData} />}
             {videoExtracting && (
@@ -303,12 +348,24 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                     </span>
                 </div>
             )}
+            {ogpResult && (
+                <div className="housing-register-ogp-preview">
+                    <span className="housing-register-ogp-site">
+                        {ogpResult.data.siteName ?? new URL(ogpResult.postUrl).hostname}
+                    </span>
+                    {ogpResult.data.title && (
+                        <span className="housing-register-ogp-title">
+                            {ogpResult.data.title}
+                        </span>
+                    )}
+                </div>
+            )}
 
             {/* 2026-05-26: 画像アップロード経路。 SNS URL と並ぶ第 2 の画像入力手段。 両方ある場合は画像優先。 最大 4 枚。 */}
             <HousingRegisterImageField
                 value={localImages}
                 onChange={setLocalImages}
-                hasSnsUrl={!!tweetSource || !!youtubeData}
+                hasSnsUrl={!!tweetSource || !!youtubeData || !!ogpResult}
             />
 
             {/* DC */}

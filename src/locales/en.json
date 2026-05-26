@@ -1819,15 +1819,23 @@
                 "youtube_detected": "Detected as a YouTube video (thumbnail will be used as the listing image)",
                 "video_extracting": "Extracting 3 frames from video…",
                 "video_extract_failed": "Could not extract video frames. Using the poster image as a fallback",
+                "ogp_fetching": "Fetching page info…",
                 "cancel": "Cancel",
                 "retry": "Retry",
                 "error": {
-                    "invalid": "Please paste an X (Twitter) tweet URL",
+                    "invalid": "Please paste a supported URL (Twitter / YouTube / housingsnap.com / housing-collection-ff14.com / studio-xiv.com / thonhart.com)",
                     "notFound": "This tweet cannot be fetched. Check the URL or enter manually",
                     "rateLimit": "Too many requests. Please wait 30 seconds and try again",
                     "upstream": "Failed to fetch tweet. Please retry",
                     "network": "Network connection failed. Please check your connection",
                     "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet"
+                },
+                "ogp_error": {
+                    "invalid": "The URL is invalid",
+                    "forbidden": "This site is not supported yet",
+                    "notFound": "Page not found",
+                    "upstream": "Failed to fetch the page. Please retry",
+                    "network": "Network connection failed"
                 }
             },
             "image": {

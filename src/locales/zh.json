@@ -1783,15 +1783,23 @@
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "video_extracting": "動画から 3 フレーム取り込み中…",
                 "video_extract_failed": "動画フレームの取り込みに失敗しました。 ポスター画像で代用します",
+                "ogp_fetching": "ページ情報を取得中…",
                 "cancel": "取消",
                 "retry": "重新获取",
                 "error": {
-                    "invalid": "请粘贴 X (原 Twitter) 的推文链接",
+                    "invalid": "请粘贴受支持的链接 (Twitter / YouTube / housingsnap.com / housing-collection-ff14.com / studio-xiv.com / thonhart.com)",
                     "notFound": "无法获取此推文，请检查链接或手动输入",
                     "rateLimit": "请求过多，请 30 秒后再试",
                     "upstream": "获取推文失败，请重试",
                     "network": "无法连接到网络，请检查网络状态",
                     "extractFailed": "无法自动填入，请参照推文内容手动输入"
+                },
+                "ogp_error": {
+                    "invalid": "链接无效",
+                    "forbidden": "该站点暂不支持",
+                    "notFound": "未找到页面",
+                    "upstream": "获取页面失败，请重试",
+                    "network": "无法连接到网络"
                 }
             },
             "image": {

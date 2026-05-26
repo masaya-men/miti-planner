@@ -41,19 +41,19 @@ describe('HousingRegisterSnsUrlField', () => {
     });
 
     it('renders input field with label', () => {
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} />);
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} onOgpFetched={() => {}} />);
         expect(screen.getByLabelText('housing.register.snsUrl.label')).toBeInTheDocument();
     });
 
     it('triggers fetchTweet on valid X URL paste', () => {
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} />);
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} onOgpFetched={() => {}} />);
         const input = screen.getByLabelText('housing.register.snsUrl.label');
         fireEvent.change(input, { target: { value: 'https://x.com/user/status/1842217368673759498' } });
         expect(mockFetchTweet).toHaveBeenCalledWith('1842217368673759498');
     });
 
     it('shows error key for invalid URL', () => {
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} />);
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} onOgpFetched={() => {}} />);
         const input = screen.getByLabelText('housing.register.snsUrl.label');
         fireEvent.change(input, { target: { value: 'https://example.com/foo' } });
         expect(screen.getByText('housing.register.snsUrl.error.invalid')).toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('HousingRegisterSnsUrlField', () => {
 
     it('detects YouTube URL (youtu.be 形式) and calls onYoutubeFetched', () => {
         const ytSpy = vi.fn();
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} />);
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} onOgpFetched={() => {}} />);
         const input = screen.getByLabelText('housing.register.snsUrl.label');
         fireEvent.change(input, { target: { value: 'https://youtu.be/Ypg8w7Dmq9o?si=6-QZYvd0_Qqrk0pJ' } });
         expect(ytSpy).toHaveBeenCalledWith({
@@ -76,7 +76,7 @@ describe('HousingRegisterSnsUrlField', () => {
 
     it('detects YouTube URL (watch?v= 形式) and calls onYoutubeFetched', () => {
         const ytSpy = vi.fn();
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} />);
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} onOgpFetched={() => {}} />);
         const input = screen.getByLabelText('housing.register.snsUrl.label');
         fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
         expect(ytSpy).toHaveBeenCalledWith(
@@ -88,7 +88,7 @@ describe('HousingRegisterSnsUrlField', () => {
     // fieldState 不安定が原因)、 同じ取得結果は親へ一度しか渡さない。
     // これが壊れると自動入力が再適用され、 ユーザーの編集 (区=17 等) が巻き戻る。
     it('同じ取得結果は再レンダリングしても親へ一度だけ渡す', () => {
-        const data = { text: 'x', author: { name: 'a', screen_name: 'b' }, photos: [], video: false };
+        const data = { text: 'x', author: { name: 'a', screen_name: 'b' }, photos: [], video: null };
         tweetState = {
             status: 'success',
             data,
@@ -107,6 +107,7 @@ describe('HousingRegisterSnsUrlField', () => {
                     <HousingRegisterSnsUrlField
                         onTweetFetched={(d, s) => spy(d, s)}
                         onYoutubeFetched={() => {}}
+                        onOgpFetched={() => {}}
                     />
                 </>
             );

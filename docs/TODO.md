@@ -11,14 +11,13 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 2026-05-26 セッションで hotfix5-16 まで **12 連続 push (hotfix15 = YouTube サムネ 4 段 fallback、 hotfix16 = D: Twitter 動画フレーム抽出)**。 本番デプロイ済: 通報モデ個別却下 + 通知連動削除 + 詳細表示アパート号棟 + 画像アップロード (1-4 枚 / WebP 0.75 / EXIF 削除) + ドラッグ並び替え + YouTube URL 連動 (4 段 fallback) + **Twitter 動画ツイートから 3 フレーム自動抽出** (hotfix16)
-- **次セッション最優先 (5/28 23:59 α 公開強行・最終日)**:
-  1. **B: OGP 汎用拡張** (housingsnap.com 等の allowlist、 2-3 時間)
-  2. **LICENSE ファイル追加** (AGPLv3 推奨、 ユーザー判断後 10 分)
-  3. **ユーザー実機確認**: アパート登録 / 家登録 / 言語切替住所 / /admin 通報モデ / 画像アップロード / YouTube URL (maxresdefault 不在動画含む) / **Twitter 動画ツイート** (例: 自動 3 フレーム抽出が走る、 失敗時 poster fallback)
-  4. **既存テスト物件を一掃** + コールドスタート用 5-10 件登録 (ユーザー作業)
-  5. **Cloudflare 前段化** (公開直前): Storage 帯域料金対策、 必須
-  6. **アプデ告知** (#59 軽減表 + ハウジング α 公開)
+- **ブランチ**: main。 2026-05-26〜27 セッションで hotfix5-21 まで **17 連続 push**。 本番デプロイ済 + 実機確認完了: 通報モデ個別却下 + 通知連動削除 + 詳細表示アパート号棟 + 画像アップロード (1-4 枚 / WebP 0.75 / EXIF 削除) + ドラッグ並び替え + YouTube URL 連動 (4 段 fallback 全カード適用) + **Twitter 動画ツイートから 3 フレーム自動抽出 (動作確認済)**。 D デバッグ知見は memory `reference_vercel_edge_range_cache.md` に集約 (edge cache off / crossOrigin / Mozilla UA の 3 罠)
+- **次セッション最優先 (5/28 23:59 α 公開強行・残り 1.5 日)**:
+  1. **B: OGP 汎用拡張** (housingsnap.com 等の allowlist + SSRF 防御、 2-3 時間)
+  2. **既存テスト物件を一掃** + コールドスタート用 5-10 件登録 (ユーザー作業)
+  3. **Cloudflare 前段化** (公開直前): Storage 帯域料金対策 + 動画 Range Vary cache 対応、 必須
+  4. **アプデ告知** (#59 軽減表 + ハウジング α 公開)
+- **LICENSE は追加しない方針** (2026-05-27 確定、 memory `feedback_lopo_license_stance` 参照)
 - **重要な反省 (memory に追記済 `feedback_vercel_tsc_strict.md`)**: push 前は **`npx tsc -b --force`** 必須。 ローカル `npm run build` の tsbuildinfo キャッシュが Vercel と乖離して、 連続 push でビルド失敗を見落とした (hotfix13/14 で復旧、 ビルド枠を消費)
 - **push 戦略**: 残り Vercel ビルド枠を節約するため、 次セッションでは push を **3 回程度にまとめる** (YouTube fallback+D / B+細部修正 / Cloudflare+最終)
 
@@ -63,13 +62,9 @@
 
 ---
 
-## セキュリティ / 知財防御 (2026-05-26 ユーザー懸念から TODO 化)
+## 知財防御 (2026-05-27 方針確定)
 
-- **LICENSE ファイル追加** (短期、 10 分): public repo だが LICENSE 無し = 法的には default copyright だが防御弱い。 AGPLv3 (改変公開必須 + 商用 NG) を推奨、 但しユーザー判断。 次セッションで先に確認
-- **計算ロジックの server-side 移植** (中期、 1-2 日): `src/utils/calculator.ts` / `mitigationResolver.ts` を Vercel Function 化、 frontend は API 経由のみ。 β リリース後検討
-- **重要ロジックの別 private repo 分離** (長期、 1 週間): mit 計算エンジンを別リポジトリに切り出し。 OSS 本体は UI/コミュニティ機能のみ公開。 v2.0 等の節目で検討
-
-業界視点: OSS 公開でも真の価値は data + コミュニティ + 継続運用なので、 ロジック単体パクられても LoPo にはなれない。 過度心配不要。
+LICENSE 追加は**しない** (memory `feedback_lopo_license_stance`)。 真の防御 = data + コミュニティ + 継続運用。 もし将来「読まれにくくする」 投資をするなら **計算ロジックの WebAssembly 化 (Rust → wasm)** がコスパ最良 (= UX 犠牲ゼロ、 minify JS よりリバース困難、 工数 1-数週間)。 β 以降の余裕で検討。 server 化は 70-200ms 体感劣化で見送り。
 
 ---
 

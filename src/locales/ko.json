@@ -1783,15 +1783,23 @@
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "video_extracting": "動画から 3 フレーム取り込み中…",
                 "video_extract_failed": "動画フレームの取り込みに失敗しました。 ポスター画像で代用します",
+                "ogp_fetching": "ページ情報を取得中…",
                 "cancel": "취소",
                 "retry": "다시 가져오기",
                 "error": {
-                    "invalid": "X (구 Twitter) 의 트윗 URL 을 붙여 넣어 주세요",
+                    "invalid": "지원되는 URL 을 붙여 넣어 주세요 (Twitter / YouTube / housingsnap.com / housing-collection-ff14.com / studio-xiv.com / thonhart.com)",
                     "notFound": "이 트윗은 가져올 수 없습니다. URL 을 확인하거나 직접 입력해 주세요",
                     "rateLimit": "요청이 많아 잠시 후 다시 시도해 주세요",
                     "upstream": "트윗 가져오기에 실패했습니다. 다시 시도해 주세요",
                     "network": "네트워크에 연결할 수 없습니다. 연결 상태를 확인해 주세요",
                     "extractFailed": "자동 입력에 실패했습니다. 트윗 본문을 보면서 직접 입력해 주세요"
+                },
+                "ogp_error": {
+                    "invalid": "URL 이 올바르지 않습니다",
+                    "forbidden": "이 사이트는 아직 지원되지 않습니다",
+                    "notFound": "페이지를 찾을 수 없습니다",
+                    "upstream": "페이지 가져오기에 실패했습니다. 다시 시도해 주세요",
+                    "network": "네트워크에 연결할 수 없습니다"
                 }
             },
             "image": {

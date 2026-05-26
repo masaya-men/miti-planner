@@ -1840,15 +1840,23 @@
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "video_extracting": "動画から 3 フレーム取り込み中…",
                 "video_extract_failed": "動画フレームの取り込みに失敗しました。 ポスター画像で代用します",
+                "ogp_fetching": "ページ情報を取得中…",
                 "cancel": "取消",
                 "retry": "再取得",
                 "error": {
-                    "invalid": "X (旧 Twitter) のツイート URL を貼ってください",
+                    "invalid": "対応する URL を貼ってください (Twitter / YouTube / housingsnap.com / housing-collection-ff14.com / studio-xiv.com / thonhart.com)",
                     "notFound": "このツイートは取得できません。 URL を確認するか、 手入力してください",
                     "rateLimit": "アクセスが集中しています。 30 秒ほど待って再試行してください",
                     "upstream": "ツイートの取得に失敗しました。 再試行してください",
                     "network": "ネットワークに接続できませんでした。 通信状況を確認してください",
                     "extractFailed": "自動取り込みできませんでした。 ツイート本文を見ながら手入力してください"
+                },
+                "ogp_error": {
+                    "invalid": "URL が正しくありません",
+                    "forbidden": "このサイトはまだ対応していません",
+                    "notFound": "ページが見つかりませんでした",
+                    "upstream": "ページの取得に失敗しました。 再試行してください",
+                    "network": "ネットワークに接続できませんでした"
                 }
             },
             "image": {
