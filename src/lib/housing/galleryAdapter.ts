@@ -16,12 +16,11 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
   const region = regionForDC(h.dc);
   if (region === null) return null;
 
-  if (h.buildingType === 'house') {
-    if (h.plot === undefined || h.size === undefined) return null;
-  } else if (h.buildingType === 'apartment') {
+  // 2026-05-27: buildingType 未定義の旧データは house 扱いで後方互換 (Phase 1 〜 Phase 3 初期の listing)
+  if (h.buildingType === 'apartment') {
     if (h.apartmentBuilding === undefined || h.roomNumber === undefined) return null;
   } else {
-    return null;
+    if (h.plot === undefined || h.size === undefined) return null;
   }
 
   const raw = h.createdAt as unknown;

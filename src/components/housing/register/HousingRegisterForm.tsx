@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HousingRegisterSnsUrlField } from './HousingRegisterSnsUrlField';
 import { HousingRegisterTweetPreview } from './HousingRegisterTweetPreview';
@@ -24,6 +24,8 @@ export type HousingRegisterFormValues = {
     ward?: number;
     plot?: number;
     size?: HousingExtractSize;
+    /** 2026-05-27: アパート号棟 (1=本街 / 2=拡張街)。 size==='Apartment' 時に必須 */
+    apartmentBuilding?: 1 | 2;
     roomNumber?: number;
     parentHouseSize?: 'S' | 'M' | 'L';
     description?: string;
@@ -38,14 +40,26 @@ type Props = {
     onCancel: () => void;
 };
 
-// 必須フィールド: 提出ボタン解除条件 (auto-filled / empty / error は不可、 confirmed / edited のみ可)
-const REQUIRED_FIELDS = ['dc', 'server', 'area', 'ward', 'plot', 'size'];
+// size に応じて必須フィールドを変える。
+// - S/M/L (家全体)        : dc/server/area/ward/plot/size
+// - PrivateRoom (FC 個室) : 上記 + roomNumber + parentHouseSize
+// - Apartment             : dc/server/area/ward/size + apartmentBuilding + roomNumber (plot は不要)
+function requiredFieldsForSize(size: HousingExtractSize | undefined): string[] {
+    const base = ['dc', 'server', 'area', 'ward', 'size'];
+    if (size === 'Apartment') return [...base, 'apartmentBuilding', 'roomNumber'];
+    if (size === 'PrivateRoom') return [...base, 'plot', 'parentHouseSize', 'roomNumber'];
+    return [...base, 'plot'];
+}
+
 // 自動入力の段階的タイピング表現 (1 フィールドごとに 150ms ずらす)
 const TYPING_STAGGER_MS = 150;
 
 export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const { t } = useTranslation();
-    const fieldState = useHousingFieldState(REQUIRED_FIELDS);
+    // size を初期取得用に state で持つと循環参照になるので、 fieldState の getValue を信頼する
+    const [sizeForRequired, setSizeForRequired] = useState<HousingExtractSize | undefined>(undefined);
+    const requiredFields = useMemo(() => requiredFieldsForSize(sizeForRequired), [sizeForRequired]);
+    const fieldState = useHousingFieldState(requiredFields);
     const [tweetData, setTweetData] = useState<TweetData | null>(null);
     const [tweetSource, setTweetSource] = useState<{ postUrl: string; tweetId: string } | null>(null);
     const [description, setDescription] = useState('');
@@ -87,6 +101,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const ward = fieldState.getValue('ward') as number | undefined;
     const plot = fieldState.getValue('plot') as number | undefined;
     const size = fieldState.getValue('size') as HousingExtractSize | undefined;
+    const apartmentBuilding = fieldState.getValue('apartmentBuilding') as 1 | 2 | undefined;
     const roomNumber = fieldState.getValue('roomNumber') as number | undefined;
     const parentHouseSize = fieldState.getValue('parentHouseSize') as
         | 'S'
@@ -94,8 +109,17 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
         | 'L'
         | undefined;
 
-    const showRoomNumber = size === 'Apartment' || size === 'PrivateRoom';
-    const showParentSize = size === 'PrivateRoom';
+    // size 変化を requiredFields に反映 (fieldState の getValue を信頼源にする)
+    useEffect(() => {
+        setSizeForRequired(size);
+    }, [size]);
+
+    const isApartment = size === 'Apartment';
+    const isPrivateRoom = size === 'PrivateRoom';
+    const showPlot = !isApartment; // アパートでは番地 (plot) は無い
+    const showApartmentBuilding = isApartment;
+    const showRoomNumber = isApartment || isPrivateRoom;
+    const showParentSize = isPrivateRoom;
 
     const dcKeys = Object.keys(serverMasterData);
     const serverKeys = dc ? Object.keys(serverMasterData[dc]?.servers ?? {}) : [];
@@ -103,13 +127,29 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
 
     // size が変わった結果、 不要になった条件付きフィールドはクリア
     useEffect(() => {
+        if (!showPlot && plot !== undefined) {
+            fieldState.clearField('plot');
+        }
+        if (!showApartmentBuilding && apartmentBuilding !== undefined) {
+            fieldState.clearField('apartmentBuilding');
+        }
         if (!showRoomNumber && roomNumber !== undefined) {
             fieldState.clearField('roomNumber');
         }
         if (!showParentSize && parentHouseSize !== undefined) {
             fieldState.clearField('parentHouseSize');
         }
-    }, [showRoomNumber, showParentSize, roomNumber, parentHouseSize, fieldState]);
+    }, [
+        showPlot,
+        showApartmentBuilding,
+        showRoomNumber,
+        showParentSize,
+        plot,
+        apartmentBuilding,
+        roomNumber,
+        parentHouseSize,
+        fieldState,
+    ]);
 
     const handleSubmit = () => {
         const photo = tweetData?.photos?.[0];
@@ -124,6 +164,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             ward,
             plot,
             size,
+            apartmentBuilding,
             roomNumber,
             parentHouseSize,
             description,
@@ -230,34 +271,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                 {renderFieldBadge('ward')}
             </div>
 
-            {/* Plot */}
-            <div className="housing-field" data-state={fieldState.getState('plot')}>
-                <label htmlFor="housing-register-plot" className="housing-label">
-                    {t('housing.register.plot')}
-                </label>
-                <input
-                    id="housing-register-plot"
-                    type="number"
-                    min={1}
-                    max={60}
-                    className="housing-input"
-                    value={plot ?? ''}
-                    onChange={(e) =>
-                        fieldState.userEdit(
-                            'plot',
-                            e.target.value ? Number(e.target.value) : undefined,
-                        )
-                    }
-                />
-                {plot != null && plot >= 31 && plot <= 60 && (
-                    <p className="housing-address-note">
-                        {t('housing.register.address.expansionWardNote')}
-                    </p>
-                )}
-                {renderFieldBadge('plot')}
-            </div>
-
-            {/* Size (type selector) */}
+            {/* Size (type selector) — buildingType と部屋区分の 5 択。 順序的に番地より上に置いて、 アパート選択時に番地を隠すフローに */}
             <div className="housing-field" data-state={fieldState.getState('size')}>
                 <HousingRegisterTypeSelector
                     value={size ?? null}
@@ -265,6 +279,70 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                 />
                 {renderFieldBadge('size')}
             </div>
+
+            {/* Plot — アパート以外 (S/M/L/PrivateRoom) のみ表示 */}
+            {showPlot && (
+                <div className="housing-field" data-state={fieldState.getState('plot')}>
+                    <label htmlFor="housing-register-plot" className="housing-label">
+                        {t('housing.register.plot')}
+                    </label>
+                    <input
+                        id="housing-register-plot"
+                        type="number"
+                        min={1}
+                        max={60}
+                        className="housing-input"
+                        value={plot ?? ''}
+                        onChange={(e) =>
+                            fieldState.userEdit(
+                                'plot',
+                                e.target.value ? Number(e.target.value) : undefined,
+                            )
+                        }
+                    />
+                    {plot != null && plot >= 31 && plot <= 60 && (
+                        <p className="housing-address-note">
+                            {t('housing.register.address.expansionWardNote')}
+                        </p>
+                    )}
+                    {renderFieldBadge('plot')}
+                </div>
+            )}
+
+            {/* Apartment building (1=本街 / 2=拡張街) — アパート時のみ */}
+            {showApartmentBuilding && (
+                <div
+                    className="housing-conditional-field housing-field"
+                    data-state={fieldState.getState('apartmentBuilding')}
+                >
+                    <label className="housing-label">
+                        {t('housing.register.apartment_building.label')}
+                    </label>
+                    <div className="flex flex-col gap-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="housing-register-apartment-building"
+                                value="1"
+                                checked={apartmentBuilding === 1}
+                                onChange={() => fieldState.userEdit('apartmentBuilding', 1)}
+                            />
+                            {t('housing.register.apartment_building.main')}
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="radio"
+                                name="housing-register-apartment-building"
+                                value="2"
+                                checked={apartmentBuilding === 2}
+                                onChange={() => fieldState.userEdit('apartmentBuilding', 2)}
+                            />
+                            {t('housing.register.apartment_building.sub')}
+                        </label>
+                    </div>
+                    {renderFieldBadge('apartmentBuilding')}
+                </div>
+            )}
 
             {/* Room number (Apartment or PrivateRoom) */}
             {showRoomNumber && (
@@ -310,8 +388,19 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                         { name: 'server', labelKey: 'housing.register.server', value: server },
                         { name: 'area', labelKey: 'housing.register.area', value: area },
                         { name: 'ward', labelKey: 'housing.register.ward', value: ward },
-                        { name: 'plot', labelKey: 'housing.register.plot', value: plot },
                         { name: 'size', labelKey: 'housing.register.size', value: size, renderValue: (v) => t(`housing.register.type.${v === 'PrivateRoom' ? 'private' : v === 'Apartment' ? 'apartment' : v}`) },
+                        ...(showPlot
+                            ? [{ name: 'plot', labelKey: 'housing.register.plot', value: plot }]
+                            : []),
+                        ...(showApartmentBuilding
+                            ? [{ name: 'apartmentBuilding', labelKey: 'housing.register.apartment_building.label', value: apartmentBuilding }]
+                            : []),
+                        ...(showRoomNumber
+                            ? [{ name: 'roomNumber', labelKey: 'housing.register.room_number', value: roomNumber }]
+                            : []),
+                        ...(showParentSize
+                            ? [{ name: 'parentHouseSize', labelKey: 'housing.register.parent_house_size', value: parentHouseSize }]
+                            : []),
                     ] as Array<Omit<ChecklistItem, 'state' | 'onConfirm'>>
                 ).map((spec) => ({
                     ...spec,

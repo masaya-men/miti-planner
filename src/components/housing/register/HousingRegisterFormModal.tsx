@@ -44,6 +44,10 @@ export function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationD
         buildingType,
         plot,
         size: apiSize,
+        // 2026-05-27: apartment 時に号棟を渡す。 buildingType !== apartment では undefined 維持
+        ...(buildingType === 'apartment' && v.apartmentBuilding
+            ? { apartmentBuilding: v.apartmentBuilding }
+            : {}),
         roomKind,
         roomNumber: v.roomNumber,
         tags: v.tags ?? [],
@@ -74,6 +78,7 @@ const SUMMARY_ROWS: Array<{
     { key: 'ward', labelKey: 'housing.register.ward' },
     { key: 'plot', labelKey: 'housing.register.plot' },
     { key: 'size', labelKey: 'housing.register.size' },
+    { key: 'apartmentBuilding', labelKey: 'housing.register.apartment_building.label' },
     { key: 'roomNumber', labelKey: 'housing.register.room_number' },
     { key: 'parentHouseSize', labelKey: 'housing.register.parent_house_size' },
 ];
