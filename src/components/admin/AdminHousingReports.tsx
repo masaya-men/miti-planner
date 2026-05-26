@@ -48,6 +48,7 @@ export function AdminHousingReports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [hidingId, setHidingId] = useState<string | null>(null);
+  const [restoringId, setRestoringId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -83,6 +84,24 @@ export function AdminHousingReports() {
       showToast(e instanceof Error ? e.message : 'failed', 'error');
     } finally {
       setHidingId(null);
+    }
+  };
+
+  const handleRestore = async (id: string) => {
+    if (!confirm(t('admin.housing_reports.restore_confirm'))) return;
+    setRestoringId(id);
+    try {
+      const res = await apiFetch(
+        `/api/admin?resource=housing_reports&action=restore&listingId=${encodeURIComponent(id)}`,
+        { method: 'PATCH' },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      showToast(t('admin.housing_reports.restore_success'));
+      await fetchData();
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : 'failed', 'error');
+    } finally {
+      setRestoringId(null);
     }
   };
 
@@ -155,16 +174,29 @@ export function AdminHousingReports() {
                   >
                     {t('admin.housing_reports.view')}
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => handleHide(l.id)}
-                    disabled={hidingId === l.id || l.isHidden}
-                    className="px-3 py-1 text-app-base bg-app-red text-white rounded disabled:opacity-50"
-                  >
-                    {hidingId === l.id
-                      ? t('admin.housing_reports.hiding')
-                      : t('admin.housing_reports.hide')}
-                  </button>
+                  {l.isHidden ? (
+                    <button
+                      type="button"
+                      onClick={() => handleRestore(l.id)}
+                      disabled={restoringId === l.id}
+                      className="px-3 py-1 text-app-base bg-app-blue text-white rounded disabled:opacity-50"
+                    >
+                      {restoringId === l.id
+                        ? t('admin.housing_reports.restoring')
+                        : t('admin.housing_reports.restore')}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleHide(l.id)}
+                      disabled={hidingId === l.id}
+                      className="px-3 py-1 text-app-base bg-app-red text-white rounded disabled:opacity-50"
+                    >
+                      {hidingId === l.id
+                        ? t('admin.housing_reports.hiding')
+                        : t('admin.housing_reports.hide')}
+                    </button>
+                  )}
                 </div>
               </div>
             );

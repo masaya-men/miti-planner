@@ -86,16 +86,20 @@ export default async function handler(req: any, res: any) {
       if (!listingId || typeof listingId !== 'string') {
         return res.status(400).json({ error: 'listingId required' });
       }
-      if (action !== 'hide') {
-        return res.status(400).json({ error: 'invalid_action' });
-      }
-
       const ref = db.collection(COLLECTION).doc(listingId);
       const snap = await ref.get();
       if (!snap.exists) return res.status(404).json({ error: 'not_found' });
 
-      await ref.update({ isHidden: true, updatedAt: Date.now() });
-      return res.status(200).json({ success: true });
+      if (action === 'hide') {
+        await ref.update({ isHidden: true, updatedAt: Date.now() });
+        return res.status(200).json({ success: true });
+      }
+      if (action === 'restore') {
+        // 非表示解除 + 通報カウントもリセット (誤通報 / 解決済として運営判定)
+        await ref.update({ isHidden: false, reportCount: 0, updatedAt: Date.now() });
+        return res.status(200).json({ success: true });
+      }
+      return res.status(400).json({ error: 'invalid_action' });
     }
 
     return res.status(405).json({ error: 'Method not allowed' });

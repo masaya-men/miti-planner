@@ -1627,6 +1627,10 @@
             "hiding": "...",
             "hide_confirm": "Hide this listing?",
             "hide_success": "Hidden",
+            "restore": "Restore",
+            "restoring": "...",
+            "restore_confirm": "Restore this listing? The report count will be reset.",
+            "restore_success": "Restored",
             "report_count": "{{count}} report(s)",
             "hidden_badge": "Hidden"
         },

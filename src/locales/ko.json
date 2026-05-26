@@ -1591,6 +1591,10 @@
             "hiding": "...",
             "hide_confirm": "この物件を非表示にしますか?",
             "hide_success": "非表示にしました",
+            "restore": "復帰させる",
+            "restoring": "...",
+            "restore_confirm": "この物件を表示状態に戻しますか? 通報カウントもリセットされます。",
+            "restore_success": "復帰させました",
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
