@@ -60,6 +60,30 @@ describe('HousingRegisterSnsUrlField', () => {
         expect(mockFetchTweet).not.toHaveBeenCalled();
     });
 
+    it('detects YouTube URL (youtu.be 形式) and calls onYoutubeFetched', () => {
+        const ytSpy = vi.fn();
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} />);
+        const input = screen.getByLabelText('housing.register.snsUrl.label');
+        fireEvent.change(input, { target: { value: 'https://youtu.be/Ypg8w7Dmq9o?si=6-QZYvd0_Qqrk0pJ' } });
+        expect(ytSpy).toHaveBeenCalledWith({
+            postUrl: 'https://youtu.be/Ypg8w7Dmq9o?si=6-QZYvd0_Qqrk0pJ',
+            ogImageUrl: 'https://img.youtube.com/vi/Ypg8w7Dmq9o/maxresdefault.jpg',
+            videoId: 'Ypg8w7Dmq9o',
+        });
+        // Twitter fetch は呼ばれない (YouTube に切替たため)
+        expect(mockFetchTweet).not.toHaveBeenCalled();
+    });
+
+    it('detects YouTube URL (watch?v= 形式) and calls onYoutubeFetched', () => {
+        const ytSpy = vi.fn();
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} />);
+        const input = screen.getByLabelText('housing.register.snsUrl.label');
+        fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
+        expect(ytSpy).toHaveBeenCalledWith(
+            expect.objectContaining({ videoId: 'Ypg8w7Dmq9o' }),
+        );
+    });
+
     // リグレッション: onTweetFetched の identity が毎レンダリングで変わっても (親の
     // fieldState 不安定が原因)、 同じ取得結果は親へ一度しか渡さない。
     // これが壊れると自動入力が再適用され、 ユーザーの編集 (区=17 等) が巻き戻る。
@@ -80,7 +104,10 @@ describe('HousingRegisterSnsUrlField', () => {
                 <>
                     <button onClick={() => setN((n) => n + 1)}>rerender</button>
                     {/* 毎レンダリングで新しい関数 identity を渡す (不安定な onTweetFetched を再現) */}
-                    <HousingRegisterSnsUrlField onTweetFetched={(d, s) => spy(d, s)} />
+                    <HousingRegisterSnsUrlField
+                        onTweetFetched={(d, s) => spy(d, s)}
+                        onYoutubeFetched={() => {}}
+                    />
                 </>
             );
         }

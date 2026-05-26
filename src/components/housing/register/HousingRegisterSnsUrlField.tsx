@@ -27,7 +27,8 @@ export function HousingRegisterSnsUrlField({ onTweetFetched, onYoutubeFetched }:
     const { t } = useTranslation();
     const [url, setUrl] = useState('');
     const [invalidUrl, setInvalidUrl] = useState(false);
-    const [youtubeData, setYoutubeData] = useState<YoutubeFetchedData | null>(null);
+    // 内部の YouTube 取得状態は親が握る (onYoutubeFetched で通知)、 子側では setter のみ使う。
+    const [, setYoutubeData] = useState<YoutubeFetchedData | null>(null);
     const { status, data, errorCode, fetchTweet, cancel, reset } = useTweetFetch();
     // 取得結果 (data オブジェクト) ごとに 1 回だけ親へ渡す。
     // 親の fieldState が毎レンダリングで identity を変えるため onTweetFetched も毎回変わり、
