@@ -8,6 +8,10 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
+import {
+  handleYoutubeThumbnailError,
+  handleYoutubeThumbnailLoad,
+} from '../../../lib/housing/youtubeImgFallback';
 
 export interface HousingPhotoGalleryProps {
   listing: HousingListing;
@@ -49,7 +53,14 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
 
   return (
     <div className="housing-gallery">
-      <img src={mainSrc} alt="" loading="lazy" className="housing-gallery-main" />
+      <img
+        src={mainSrc}
+        alt=""
+        loading="lazy"
+        className="housing-gallery-main"
+        onError={handleYoutubeThumbnailError}
+        onLoad={handleYoutubeThumbnailLoad}
+      />
       {sources.length > 1 && (
         <ul className="housing-gallery-thumbs" role="tablist">
           {sources.map((src, i) => (

@@ -18,6 +18,10 @@ import {
 import { serverMasterData, housingAreaMasterData } from '../../../data/masterData';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
+import {
+    handleYoutubeThumbnailError,
+    handleYoutubeThumbnailLoad,
+} from '../../../lib/housing/youtubeImgFallback';
 
 export type HousingRegisterFormValues = {
     dc?: string;
@@ -231,6 +235,8 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                         alt=""
                         className="housing-register-youtube-thumb"
                         loading="lazy"
+                        onError={handleYoutubeThumbnailError}
+                        onLoad={handleYoutubeThumbnailLoad}
                     />
                     <span className="housing-register-youtube-label">
                         {t('housing.register.snsUrl.youtube_detected')}

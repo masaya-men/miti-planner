@@ -11,14 +11,17 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 2026-05-27 セッション #60 + hotfix1-4 まで **5 連続 push 完了 → Vercel 本番デプロイ済** (e3ad964 / 22fa6fa / ca41979 / 3ad5a7f / 5700d22)。 アパート対応 + 多言語化 + マップ→list + /admin 通報モデ + register/update バグ + list 空 + アパート登録不可 + 通報リスト復帰 + タグ必須 UX + 通報モデ「1 件却下」 セマンティクス まで全部入り
-- **次セッション最優先 (5/28 23:59 α 公開強行・最終日)**:
-  1. **ユーザー実機確認** (本番、 Discord OAuth 必須 → Claude は不可): アパート登録 / 家登録 / 言語切替で住所表記 / /admin/housing-reports
-  2. **実機 E2E** (2 アカ通報フロー全通し: 通報→ベル→reason 別ガイド→編集/削除→Not found→復帰)
-  3. 不具合発覚 → 修正 → push (Vercel 自動デプロイ)
-  4. **公開直前に既存テスト物件を一掃** (本人テスト用残骸、 ユーザーが詳細から削除)
-  5. **コールドスタート用物件登録** (ユーザーが本番で 5-10 件、 4 で一掃した後)
-  6. **アプデ告知** (#59 軽減表 + ハウジング α 公開、 まとめ or 分割)
+- **ブランチ**: main。 2026-05-26 セッションで hotfix5-15 まで **11 連続 push (Vercel 1 件失敗で `.js` 拡張子 + 未使用変数で発覚 → hotfix13/14 で復旧、 hotfix15 で YouTube サムネ 4 段 fallback)**。 本番デプロイ済: 通報モデ個別却下 + 通知連動削除 + 詳細表示アパート号棟 + 画像アップロード (1-4 枚 / WebP 0.75 / EXIF 削除) + ドラッグ並び替え (1 枚目 = カバー) + YouTube URL 連動 (サムネ取得、 maxresdefault 不在動画は hqdefault→mqdefault→default に自動 fallback)
+- **次セッション最優先 (5/28 23:59 α 公開強行・最終日、 残り 1 日 4 時間)**:
+  1. **D: Twitter 動画フレーム抽出** (Allmarks コードを移植、 1-1.5 日 — 詳細プラン下記)
+  2. **B: OGP 汎用拡張** (housingsnap.com 等の allowlist、 2-3 時間)
+  3. **LICENSE ファイル追加** (AGPLv3 推奨、 ユーザー判断後 10 分)
+  4. **ユーザー実機確認**: アパート登録 / 家登録 / 言語切替住所 / /admin 通報モデ / 画像アップロード / YouTube URL (含む maxresdefault 不在動画 e.g. Ypg8w7Dmq9o)
+  5. **既存テスト物件を一掃** + コールドスタート用 5-10 件登録 (ユーザー作業)
+  6. **Cloudflare 前段化** (公開直前): Storage 帯域料金対策、 必須
+  7. **アプデ告知** (#59 軽減表 + ハウジング α 公開)
+- **重要な反省 (memory に追記済 `feedback_vercel_tsc_strict.md`)**: push 前は **`npx tsc -b --force`** 必須。 ローカル `npm run build` の tsbuildinfo キャッシュが Vercel と乖離して、 連続 push でビルド失敗を見落とした (hotfix13/14 で復旧、 ビルド枠を消費)
+- **push 戦略**: 残り Vercel ビルド枠を節約するため、 次セッションでは push を **3 回程度にまとめる** (YouTube fallback+D / B+細部修正 / Cloudflare+最終)
 
 ---
 
@@ -58,6 +61,16 @@
   6. **Reporter scoring** (信頼性低い reporter の通報を weight 下げる、 嫌がらせ通報の自動希釈、 3-6 ヶ月以内)
 - **HousingCardExpanded 撤去判断** / ツアー同期 Firestore 化 / Cloudflare 前段化
 - 細かい修正: `fieldState.confirm()` バグ、 dead code 撤去、 AddressFields renderBadge prop 化、 photo `alt`、 SNS rate limiting、 通知 ✕ の見た目磨き
+
+---
+
+## セキュリティ / 知財防御 (2026-05-26 ユーザー懸念から TODO 化)
+
+- **LICENSE ファイル追加** (短期、 10 分): public repo だが LICENSE 無し = 法的には default copyright だが防御弱い。 AGPLv3 (改変公開必須 + 商用 NG) を推奨、 但しユーザー判断。 次セッションで先に確認
+- **計算ロジックの server-side 移植** (中期、 1-2 日): `src/utils/calculator.ts` / `mitigationResolver.ts` を Vercel Function 化、 frontend は API 経由のみ。 β リリース後検討
+- **重要ロジックの別 private repo 分離** (長期、 1 週間): mit 計算エンジンを別リポジトリに切り出し。 OSS 本体は UI/コミュニティ機能のみ公開。 v2.0 等の節目で検討
+
+業界視点: OSS 公開でも真の価値は data + コミュニティ + 継続運用なので、 ロジック単体パクられても LoPo にはなれない。 過度心配不要。
 
 ---
 
