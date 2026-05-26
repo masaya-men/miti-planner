@@ -10,6 +10,7 @@
 import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
+import { REPORT_AUTO_HIDE_THRESHOLD } from '../../src/constants/housing.js';
 
 const COLLECTION = 'housing_listings';
 const LIST_LIMIT = 50;
@@ -95,9 +96,20 @@ export default async function handler(req: any, res: any) {
         return res.status(200).json({ success: true });
       }
       if (action === 'restore') {
-        // 非表示解除 + 通報カウントもリセット (誤通報 / 解決済として運営判定)
-        await ref.update({ isHidden: false, reportCount: 0, updatedAt: Date.now() });
-        return res.status(200).json({ success: true });
+        // 通報 1 件を却下 (= -1)。 reportCount が閾値未満に下がれば自動で isHidden=false。
+        // 2026-05-27 改修: 旧 restore (全リセット) は「混合通報 (一部誤通報・一部正当)」 を
+        // 区別できなかったため、 1 件単位の却下に変更。 全部誤通報なら同じボタンを連打すれば OK。
+        const data = snap.data() ?? {};
+        const newCount = Math.max(0, (data.reportCount ?? 0) - 1);
+        const update: Record<string, unknown> = {
+          reportCount: newCount,
+          updatedAt: Date.now(),
+        };
+        if (newCount < REPORT_AUTO_HIDE_THRESHOLD) {
+          update.isHidden = false;
+        }
+        await ref.update(update);
+        return res.status(200).json({ success: true, reportCount: newCount });
       }
       return res.status(400).json({ error: 'invalid_action' });
     }

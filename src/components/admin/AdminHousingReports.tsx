@@ -48,7 +48,7 @@ export function AdminHousingReports() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [hidingId, setHidingId] = useState<string | null>(null);
-  const [restoringId, setRestoringId] = useState<string | null>(null);
+  const [dismissingId, setDismissingId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -87,21 +87,25 @@ export function AdminHousingReports() {
     }
   };
 
-  const handleRestore = async (id: string) => {
-    if (!confirm(t('admin.housing_reports.restore_confirm'))) return;
-    setRestoringId(id);
+  /**
+   * 通報を 1 件却下。 reportCount-1、 閾値割れたら自動で isHidden=false。
+   * 全部誤通報の場合は本ボタンを連打 (or 通報数分連打) すれば 0 件まで戻せる。
+   */
+  const handleDismiss = async (id: string) => {
+    if (!confirm(t('admin.housing_reports.dismiss_confirm'))) return;
+    setDismissingId(id);
     try {
       const res = await apiFetch(
         `/api/admin?resource=housing_reports&action=restore&listingId=${encodeURIComponent(id)}`,
         { method: 'PATCH' },
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      showToast(t('admin.housing_reports.restore_success'));
+      showToast(t('admin.housing_reports.dismiss_success'));
       await fetchData();
     } catch (e: unknown) {
       showToast(e instanceof Error ? e.message : 'failed', 'error');
     } finally {
-      setRestoringId(null);
+      setDismissingId(null);
     }
   };
 
@@ -174,18 +178,19 @@ export function AdminHousingReports() {
                   >
                     {t('admin.housing_reports.view')}
                   </Link>
-                  {l.isHidden ? (
-                    <button
-                      type="button"
-                      onClick={() => handleRestore(l.id)}
-                      disabled={restoringId === l.id}
-                      className="px-3 py-1 text-app-base bg-app-blue text-white rounded disabled:opacity-50"
-                    >
-                      {restoringId === l.id
-                        ? t('admin.housing_reports.restoring')
-                        : t('admin.housing_reports.restore')}
-                    </button>
-                  ) : (
+                  {/* 通報 1 件却下。 reportCount > 0 のときのみ意味があるが、 一覧自体が reportCount>0 で絞られてるので常時表示 */}
+                  <button
+                    type="button"
+                    onClick={() => handleDismiss(l.id)}
+                    disabled={dismissingId === l.id || l.reportCount === 0}
+                    className="px-3 py-1 text-app-base bg-app-blue text-white rounded disabled:opacity-50"
+                  >
+                    {dismissingId === l.id
+                      ? t('admin.housing_reports.dismissing')
+                      : t('admin.housing_reports.dismiss')}
+                  </button>
+                  {/* 非表示は isHidden=false 時のみ (既に非表示なら不要) */}
+                  {!l.isHidden && (
                     <button
                       type="button"
                       onClick={() => handleHide(l.id)}
