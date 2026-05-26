@@ -18,7 +18,9 @@ interface HousingViewState {
 }
 
 const DEFAULTS = {
-    viewMode: 'map' as const,
+    // 2026-05-27: マップは sampleWardLayout (偽配置データ) を使うため、 リリース時は list (pinterest)
+    // を既定にして偽配置を隠す。 マップ実データ整備後に 'map' へ戻す。
+    viewMode: 'pinterest' as const,
     leftPanelOpen: true,
     rightPanelOpen: true,
     mode: 'browse' as const,

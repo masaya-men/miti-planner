@@ -1,18 +1,33 @@
 import type { MockListing } from '../../data/housing/mockListings';
 
+/** house を先、 apartment を後にする (同 ward 内で建物タイプを揃える) */
+function buildingOrder(buildingType: string | undefined): number {
+    return buildingType === 'apartment' ? 1 : 0;
+}
+
+type SortableListing = Pick<
+    MockListing,
+    'dc' | 'server' | 'area' | 'ward' | 'plot' | 'buildingType' | 'apartmentBuilding' | 'roomNumber'
+>;
+
 /**
- * Sort housing listings by physical address: DC → server → area → ward → plot.
- * Always returns a new array (does not mutate input) so callers can pass store
- * state directly without violating immutability.
+ * Sort housing listings by physical address: DC → server → area → ward → buildingType → 内訳。
+ *
+ * house: plot 番号で昇順
+ * apartment: apartmentBuilding (1 → 2) → roomNumber で昇順
+ *
+ * 同 ward 内では house を先に並べてから apartment を並べる (アパートは末尾に集約)。
+ * Always returns a new array (does not mutate input).
  */
-export function sortByAddress<T extends Pick<MockListing, 'dc' | 'server' | 'area' | 'ward' | 'plot'>>(
-    items: T[],
-): T[] {
+export function sortByAddress<T extends SortableListing>(items: T[]): T[] {
     return [...items].sort((a, b) =>
         a.dc.localeCompare(b.dc)
         || a.server.localeCompare(b.server)
         || a.area.localeCompare(b.area)
         || (a.ward - b.ward)
-        || (a.plot - b.plot),
+        || (buildingOrder(a.buildingType) - buildingOrder(b.buildingType))
+        || ((a.plot ?? 0) - (b.plot ?? 0))
+        || ((a.apartmentBuilding ?? 0) - (b.apartmentBuilding ?? 0))
+        || ((a.roomNumber ?? 0) - (b.roomNumber ?? 0)),
     );
 }

@@ -42,6 +42,7 @@ function listingToDraft(listing: Partial<HousingListing>): RegistrationDraft {
     buildingType: listing.buildingType ?? 'house',
     plot: listing.plot,
     size: listing.size,
+    apartmentBuilding: listing.apartmentBuilding,
     roomKind: listing.roomKind,
     roomNumber: listing.roomNumber,
     tags: listing.tags ?? [],

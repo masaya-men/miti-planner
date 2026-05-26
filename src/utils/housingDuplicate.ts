@@ -5,9 +5,10 @@
  *
  * - 家全体:       `${dc}|${server}|${area}|W${ward}|H${plot}`
  * - FC 個室:      `...|H${plot}|C${roomNumber}`
- * - アパート部屋: `...|W${ward}|A${roomNumber}`
+ * - アパート部屋: `...|W${ward}|B${apartmentBuilding}|A${roomNumber}`
  *
- * subdivision (本街/拡張街) は plot 番号 (1-30 vs 31-60 通し) で判別可能なため key 不参加。
+ * subdivision (本街/拡張街) は plot 番号 (1-30 vs 31-60 通し) で判別可能なため house key には不参加。
+ * apartment は各 ward に 2 棟存在するため、 `B${apartmentBuilding}` で号棟を区別する (2026-05-27 追加)。
  * ownerType (個人/FC) は schema 削除済み。
  */
 import type { AddressInput } from './housingValidation.js';
@@ -23,7 +24,7 @@ export function buildAddressKey(addr: AddressInput): string {
   }
 
   if (addr.buildingType === 'apartment') {
-    return `${base}|A${addr.roomNumber}`;
+    return `${base}|B${addr.apartmentBuilding}|A${addr.roomNumber}`;
   }
 
   throw new Error(`Invalid buildingType: ${String(addr.buildingType)}`);

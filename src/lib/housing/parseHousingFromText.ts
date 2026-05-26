@@ -91,7 +91,8 @@ export function parseHousingFromText(text: string): HousingExtractResult {
                 if (!candidates.area.includes(areaId)) candidates.area.push(areaId);
             }
             // アパート名検出 → エリア + サイズ=Apartment
-            if (token === areaData.apartment_name) {
+            // 全言語の apartment_name と照合 (ja/en/ko/zh いずれかに一致すれば採用)
+            if (Object.values(areaData.apartment_name).some((name) => token === name)) {
                 if (!candidates.area.includes(areaId)) candidates.area.push(areaId);
                 if (!candidates.size.includes('Apartment')) candidates.size.push('Apartment');
             }

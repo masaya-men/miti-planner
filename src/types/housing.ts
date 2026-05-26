@@ -106,6 +106,14 @@ export interface HousingListing {
   plot?: number;                  // 1-60 通し番号
   size?: HousingSize;             // 'S' | 'M' | 'L' (個室の場合は親 plot のサイズ)
 
+  // === apartment の場合 (必須、 2026-05-27 追加) ===
+  /**
+   * アパート号棟。 1=本街アパート、 2=拡張街アパート。
+   * 各 ward にアパート棟が 2 つ存在し、 同 ward 同部屋番号でも号棟違いで別物件 (公式仕様)。
+   * buildingType==='house' の場合は持たない。
+   */
+  apartmentBuilding?: 1 | 2;
+
   // === 部屋区分 ===
   roomKind?: RoomKind;            // undefined / 'private_chamber' / 'apartment_room'
   roomNumber?: number;            // 1-512 (chamber) / 1-90 (apt)

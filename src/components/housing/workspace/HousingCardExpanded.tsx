@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Heart, Plus, Link as LinkIcon, ExternalLink, X } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
+import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -18,14 +19,15 @@ function resolveImageSource(listing: MockListing): string {
 }
 
 export const HousingCardExpanded: React.FC<HousingCardExpandedProps> = ({ listing, onClose }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const isFavorite = useHousingFavoritesStore((s) => s.ids.includes(listing.id));
     const addFavorite = useHousingFavoritesStore((s) => s.add);
     const removeFavorite = useHousingFavoritesStore((s) => s.remove);
     const [copyState, setCopyState] = useState<'idle' | 'done'>('idle');
 
     const imgSrc = resolveImageSource(listing);
-    const addr = `${listing.dc} / ${listing.server} / ${listing.area} ${listing.ward}-${listing.plot}`;
+    const addr = `${listing.dc} / ${listing.server} / ${formatHousingAddress(listing, i18n.language)}`;
+    const isApartment = listing.buildingType === 'apartment';
 
     const toggleFavorite = () => {
         if (isFavorite) removeFavorite(listing.id);
@@ -54,7 +56,9 @@ export const HousingCardExpanded: React.FC<HousingCardExpandedProps> = ({ listin
                 <div className="housing-card-expanded-head">
                     <div className="housing-card-expanded-title">
                         {addr}
-                        <span className="housing-card-size"> {listing.size}</span>
+                        {!isApartment && listing.size && (
+                            <span className="housing-card-size"> {listing.size}</span>
+                        )}
                     </div>
                     <button
                         type="button"

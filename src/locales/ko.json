@@ -1582,6 +1582,18 @@
         "cancel": "취소",
         "tpl_promote_fetching": "가져오는 중...",
         "ugc_title": "UGC 관리",
+        "housing_reports": {
+            "title": "ハウジング通報",
+            "description": "通報があった物件を確認し、 必要なら非表示にします。 復帰や BAN は別途対応します。",
+            "empty": "通報あり物件はありません",
+            "view": "物件を見る",
+            "hide": "非表示にする",
+            "hiding": "...",
+            "hide_confirm": "この物件を非表示にしますか?",
+            "hide_success": "非表示にしました",
+            "report_count": "通報 {{count}} 件",
+            "hidden_badge": "非表示"
+        },
         "ugc_description": "공유 URL을 붙여넣어 업로드된 로고 이미지를 확인하고 관리할 수 있습니다.",
         "ugc_placeholder": "공유 URL 또는 shareId를 붙여넣기",
         "ugc_search": "검색",
@@ -1685,6 +1697,16 @@
             "plot": "번지",
             "size": "크기",
             "apartment_room": "방 번호",
+            "building_type": {
+                "label": "建物タイプ",
+                "house": "家 (S/M/L)",
+                "apartment": "アパート"
+            },
+            "apartment_building": {
+                "label": "号棟",
+                "main": "1号棟 (本街)",
+                "sub": "2号棟 (拡張街)"
+            },
             "description": "소개글 (선택 사항・200자 이내)",
             "description_placeholder": "소개글을 입력하세요",
             "tags_label": "태그 (1〜5개)",
@@ -1737,7 +1759,14 @@
                     "invalid_type": "텍스트 형식으로 입력해 주세요"
                 },
                 "quota_exhausted": "오늘의 등록 한도를 모두 사용했습니다 (내일 5개 복구)",
-                "generic": "등록에 실패했습니다. 잠시 후 다시 시도해 주세요"
+                "generic": "등록에 실패했습니다. 잠시 후 다시 시도해 주세요",
+                "buildingType": { "invalid": "建物タイプを選んでください" },
+                "apartmentBuilding": { "out_of_range": "号棟は 1 か 2 を選んでください" },
+                "roomNumber": { "out_of_range": "部屋番号は 1〜90 で入力してください" },
+                "roomKind": {
+                    "apartment_room_required": "アパートには部屋番号が必要です",
+                    "invalid_for_house": "この建物タイプでは部屋番号は不要です"
+                }
             },
             "quota": {
                 "bonus_phase": "등록 한도: {{count}} / {{bonus}}개 (무제한)",

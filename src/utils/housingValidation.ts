@@ -34,6 +34,10 @@ export interface AddressInput {
   plot?: number;        // 1-60 (本街 1-30 / 拡張街 31-60 通し)
   size?: HousingSize | string;
 
+  // apartment の場合
+  /** 号棟: 1=本街アパート、 2=拡張街アパート。 buildingType='apartment' のとき必須 */
+  apartmentBuilding?: 1 | 2;
+
   // 部屋区分
   roomKind?: RoomKind | string;
   roomNumber?: number;
@@ -96,6 +100,11 @@ export function validateAddress(addr: AddressInput): ValidationResult {
     // plot / size 不可
     if (addr.plot !== undefined) errors.plot = 'not_allowed_for_apartment';
     if (addr.size !== undefined) errors.size = 'not_allowed_for_apartment';
+
+    // apartmentBuilding 必須 (1=本街 / 2=拡張街)
+    if (addr.apartmentBuilding !== 1 && addr.apartmentBuilding !== 2) {
+      errors.apartmentBuilding = 'out_of_range';
+    }
 
     // roomKind は 'apartment_room' 必須
     if (addr.roomKind !== 'apartment_room') {

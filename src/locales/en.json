@@ -1618,6 +1618,18 @@
         "cancel": "Cancel",
         "tpl_promote_fetching": "Fetching...",
         "ugc_title": "UGC Management",
+        "housing_reports": {
+            "title": "Housing reports",
+            "description": "Review reported listings and hide them if necessary. Restore and bans are handled separately.",
+            "empty": "No reported listings",
+            "view": "View listing",
+            "hide": "Hide",
+            "hiding": "...",
+            "hide_confirm": "Hide this listing?",
+            "hide_success": "Hidden",
+            "report_count": "{{count}} report(s)",
+            "hidden_badge": "Hidden"
+        },
         "ugc_description": "Paste a share URL to view and manage uploaded logo images.",
         "ugc_placeholder": "Paste share URL or shareId",
         "ugc_search": "Search",
@@ -1721,6 +1733,16 @@
             "plot": "Plot",
             "size": "Size",
             "apartment_room": "Room Number",
+            "building_type": {
+                "label": "Building type",
+                "house": "House (S/M/L)",
+                "apartment": "Apartment"
+            },
+            "apartment_building": {
+                "label": "Building",
+                "main": "Bldg.1 (Main district)",
+                "sub": "Bldg.2 (Subdivision)"
+            },
             "description": "Description (optional, up to 200 characters)",
             "description_placeholder": "Enter description here",
             "tags_label": "Tags (1–5)",
@@ -1773,7 +1795,14 @@
                     "invalid_type": "Please enter in text format"
                 },
                 "quota_exhausted": "You have used all registrations for today (5 will be restored tomorrow)",
-                "generic": "Registration failed. Please try again later"
+                "generic": "Registration failed. Please try again later",
+                "buildingType": { "invalid": "Please select a building type" },
+                "apartmentBuilding": { "out_of_range": "Building must be 1 or 2" },
+                "roomNumber": { "out_of_range": "Room number must be between 1 and 90" },
+                "roomKind": {
+                    "apartment_room_required": "Apartment requires a room number",
+                    "invalid_for_house": "Room number is not allowed for this building type"
+                }
             },
             "quota": {
                 "bonus_phase": "Quota: {{count}} / {{bonus}} (unlimited)",

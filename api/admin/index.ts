@@ -17,6 +17,7 @@ import dashboardHandler from './_dashboardHandler.js';
 import ugcHandler from './_ugcHandler.js';
 import popularHandler from './_popularHandler.js';
 import systemNotificationsHandler from './_systemNotificationsHandler.js';
+import housingReportsHandler from './_housingReportsHandler.js';
 
 export default async function handler(req: any, res: any) {
   const resource = req.query?.resource;
@@ -38,7 +39,9 @@ export default async function handler(req: any, res: any) {
       return popularHandler(req, res);
     case 'system_notifications':
       return systemNotificationsHandler(req, res);
+    case 'housing_reports':
+      return housingReportsHandler(req, res);
     default:
-      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|popular|system_notifications' });
+      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|popular|system_notifications|housing_reports' });
   }
 }

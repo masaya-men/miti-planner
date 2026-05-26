@@ -85,6 +85,10 @@ export default async function handler(req: any, res: any) {
           plot: draft.plot,
           size: draft.size,
         } : {}),
+        // apartment の場合は号棟 (apartmentBuilding) を保存。 2026-05-27 追加。
+        ...(draft.buildingType === 'apartment' && draft.apartmentBuilding ? {
+          apartmentBuilding: draft.apartmentBuilding,
+        } : {}),
         ...(draft.roomKind ? {
           roomKind: draft.roomKind,
           roomNumber: draft.roomNumber,

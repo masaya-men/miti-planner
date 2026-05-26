@@ -138,12 +138,8 @@ export function AdminServers() {
     setDirty(true);
   };
 
-  /** ハウジングエリアのフィールドを更新 */
-  const updateHousingArea = (
-    areaKey: string,
-    field: 'name_jp' | 'apartment_name' | 'aliases',
-    value: string | string[],
-  ) => {
+  /** ハウジングエリアの aliases を更新 */
+  const updateHousingAreaAliases = (areaKey: string, aliases: string[]) => {
     if (!data) return;
     setData({
       ...data,
@@ -151,7 +147,36 @@ export function AdminServers() {
         ...data.housingAreas,
         [areaKey]: {
           ...data.housingAreas[areaKey],
-          [field]: value,
+          aliases,
+        },
+      },
+    });
+    setDirty(true);
+  };
+
+  /**
+   * ハウジングエリアの多言語フィールド (name / apartment_name) の特定言語値を更新。
+   * 2026-05-27 多言語化対応。
+   */
+  const updateHousingAreaLocalized = (
+    areaKey: string,
+    field: 'name' | 'apartment_name',
+    lang: 'ja' | 'en' | 'ko' | 'zh',
+    value: string,
+  ) => {
+    if (!data) return;
+    const current = data.housingAreas[areaKey];
+    if (!current) return;
+    setData({
+      ...data,
+      housingAreas: {
+        ...data.housingAreas,
+        [areaKey]: {
+          ...current,
+          [field]: {
+            ...current[field],
+            [lang]: value,
+          },
         },
       },
     });
@@ -356,42 +381,44 @@ export function AdminServers() {
                     className="px-3 py-3 border-b border-app-text/5"
                   >
                     <div className="text-app-lg font-bold mb-2">{areaKey}</div>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-                      <div>
-                        <label className={labelClass}>name_jp</label>
-                        <input
-                          className={inputClass}
-                          value={area.name_jp}
-                          onChange={(e) =>
-                            updateHousingArea(areaKey, 'name_jp', e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className={labelClass}>apartment_name</label>
-                        <input
-                          className={inputClass}
-                          value={area.apartment_name}
-                          onChange={(e) =>
-                            updateHousingArea(areaKey, 'apartment_name', e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className={labelClass}>{t('admin.servers_aliases')}</label>
-                        <input
-                          className={inputClass}
-                          value={toCommaSeparated(area.aliases)}
-                          onChange={(e) =>
-                            updateHousingArea(
-                              areaKey,
-                              'aliases',
-                              fromCommaSeparated(e.target.value),
-                            )
-                          }
-                          placeholder="alias1, alias2"
-                        />
-                      </div>
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
+                      {(['ja', 'en', 'ko', 'zh'] as const).map((lang) => (
+                        <div key={`name-${lang}`}>
+                          <label className={labelClass}>name ({lang})</label>
+                          <input
+                            className={inputClass}
+                            value={area.name[lang]}
+                            onChange={(e) =>
+                              updateHousingAreaLocalized(areaKey, 'name', lang, e.target.value)
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
+                      {(['ja', 'en', 'ko', 'zh'] as const).map((lang) => (
+                        <div key={`apt-${lang}`}>
+                          <label className={labelClass}>apartment_name ({lang})</label>
+                          <input
+                            className={inputClass}
+                            value={area.apartment_name[lang]}
+                            onChange={(e) =>
+                              updateHousingAreaLocalized(areaKey, 'apartment_name', lang, e.target.value)
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <label className={labelClass}>{t('admin.servers_aliases')}</label>
+                      <input
+                        className={inputClass}
+                        value={toCommaSeparated(area.aliases)}
+                        onChange={(e) =>
+                          updateHousingAreaAliases(areaKey, fromCommaSeparated(e.target.value))
+                        }
+                        placeholder="alias1, alias2"
+                      />
                     </div>
                   </div>
                 ))}

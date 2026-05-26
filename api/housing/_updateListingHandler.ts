@@ -62,6 +62,10 @@ export default async function handler(req: any, res: any) {
       ...(updates.buildingType === 'house'
         ? { plot: updates.plot, size: updates.size }
         : {}),
+      // apartment: 号棟を validate 側に渡す。 抜けると validateAddress が apartmentBuilding=out_of_range で失敗
+      ...(updates.buildingType === 'apartment'
+        ? { apartmentBuilding: updates.apartmentBuilding }
+        : {}),
       ...(updates.roomKind
         ? { roomKind: updates.roomKind, roomNumber: updates.roomNumber }
         : {}),
@@ -101,6 +105,9 @@ export default async function handler(req: any, res: any) {
       if (draftForValidation.buildingType === 'house') {
         updatePayload.plot = draftForValidation.plot;
         updatePayload.size = draftForValidation.size;
+      }
+      if (draftForValidation.buildingType === 'apartment' && draftForValidation.apartmentBuilding) {
+        updatePayload.apartmentBuilding = draftForValidation.apartmentBuilding;
       }
       if (draftForValidation.roomKind) {
         updatePayload.roomKind = draftForValidation.roomKind;

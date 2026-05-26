@@ -26,6 +26,14 @@
       ]
     },
     {
+      "collectionGroup": "housing_listings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "deletedAt", "order": "ASCENDING" },
+        { "fieldPath": "reportCount", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "system_notifications",
       "queryScope": "COLLECTION",
       "fields": [

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
+import { formatHousingAddressAria } from '../../../lib/housing/formatHousingAddress';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -25,7 +26,9 @@ export const MapBubbleCard: React.FC<MapBubbleCardProps> = ({ listing, x, y, onC
     const addFavorite = useHousingFavoritesStore((s) => s.add);
     const removeFavorite = useHousingFavoritesStore((s) => s.remove);
     const imgSrc = resolveImageSource(listing);
-    const alt = `${listing.area} ${listing.ward}-${listing.plot}`;
+    // 住所はマップ上のピン位置から自明なので、 画面表示は撤去 (2026-05-27 ユーザー方針)。
+    // aria-label のみ残してスクリーンリーダー向けに住所を提供。
+    const alt = formatHousingAddressAria(listing);
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -44,9 +47,6 @@ export const MapBubbleCard: React.FC<MapBubbleCardProps> = ({ listing, x, y, onC
             <div className="housing-bubble-card-body">
                 <div className="housing-bubble-card-thumb">
                     <img src={imgSrc} alt="" loading="lazy" />
-                </div>
-                <div className="housing-bubble-card-label">
-                    {listing.area.slice(0, 3)} {listing.ward}-{listing.plot}
                 </div>
             </div>
             <span

@@ -31,14 +31,39 @@ describe('validateAddress: 3 パターン正常系', () => {
     expect(r.ok).toBe(true);
   });
 
-  it('アパート部屋 (部屋 42)', () => {
+  it('アパート部屋 (号棟 1 + 部屋 42)', () => {
+    const r = validateAddress({
+      ...baseAddr,
+      buildingType: 'apartment',
+      apartmentBuilding: 1,
+      roomKind: 'apartment_room',
+      roomNumber: 42,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it('アパート 号棟 1/2 以外は out_of_range', () => {
+    const r = validateAddress({
+      ...baseAddr,
+      buildingType: 'apartment',
+      // @ts-expect-error 検証目的で意図的に範囲外の値を渡す
+      apartmentBuilding: 3,
+      roomKind: 'apartment_room',
+      roomNumber: 42,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.errors.apartmentBuilding).toBe('out_of_range');
+  });
+
+  it('アパート 号棟未指定は out_of_range', () => {
     const r = validateAddress({
       ...baseAddr,
       buildingType: 'apartment',
       roomKind: 'apartment_room',
       roomNumber: 42,
     });
-    expect(r.ok).toBe(true);
+    expect(r.ok).toBe(false);
+    expect(r.errors.apartmentBuilding).toBe('out_of_range');
   });
 });
 

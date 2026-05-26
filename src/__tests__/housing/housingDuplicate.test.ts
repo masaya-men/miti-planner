@@ -42,14 +42,27 @@ describe('buildAddressKey', () => {
     expect(buildAddressKey(addr)).toBe('Mana|Pandaemonium|Shirogane|W3|H12|C5');
   });
 
-  it('アパート部屋のキーを生成 (plot なし、 アパ番号)', () => {
+  it('アパート部屋のキーを生成 (号棟 + 部屋番号)', () => {
     const addr: AddressInput = {
       ...baseAddr,
       buildingType: 'apartment',
+      apartmentBuilding: 1,
       roomKind: 'apartment_room',
       roomNumber: 42,
     };
-    expect(buildAddressKey(addr)).toBe('Mana|Pandaemonium|Shirogane|W3|A42');
+    expect(buildAddressKey(addr)).toBe('Mana|Pandaemonium|Shirogane|W3|B1|A42');
+  });
+
+  it('アパート 号棟違い (1/2) は別キー扱い', () => {
+    const b1: AddressInput = {
+      ...baseAddr,
+      buildingType: 'apartment',
+      apartmentBuilding: 1,
+      roomKind: 'apartment_room',
+      roomNumber: 42,
+    };
+    const b2: AddressInput = { ...b1, apartmentBuilding: 2 };
+    expect(buildAddressKey(b1)).not.toBe(buildAddressKey(b2));
   });
 
   it('plot 31 (拡張街最初) と plot 30 (本街最後) は別キー', () => {

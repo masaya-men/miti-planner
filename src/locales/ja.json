@@ -1622,6 +1622,18 @@
         "cancel": "キャンセル",
         "tpl_promote_fetching": "取得中...",
         "ugc_title": "UGC管理",
+        "housing_reports": {
+            "title": "ハウジング通報",
+            "description": "通報があった物件を確認し、 必要なら非表示にします。 復帰や BAN は別途対応します。",
+            "empty": "通報あり物件はありません",
+            "view": "物件を見る",
+            "hide": "非表示にする",
+            "hiding": "...",
+            "hide_confirm": "この物件を非表示にしますか?",
+            "hide_success": "非表示にしました",
+            "report_count": "通報 {{count}} 件",
+            "hidden_badge": "非表示"
+        },
         "ugc_description": "共有URLを貼り付けて、アップロードされたロゴ画像を確認・削除できます。",
         "ugc_placeholder": "共有URLまたはshareIDを貼り付け",
         "ugc_search": "検索",
@@ -1742,6 +1754,16 @@
             "plot": "番地",
             "size": "サイズ",
             "apartment_room": "部屋番号",
+            "building_type": {
+                "label": "建物タイプ",
+                "house": "家 (S/M/L)",
+                "apartment": "アパート"
+            },
+            "apartment_building": {
+                "label": "号棟",
+                "main": "1号棟 (本街)",
+                "sub": "2号棟 (拡張街)"
+            },
             "description": "紹介文 (任意・200文字まで)",
             "description_placeholder": "ここに紹介文を入力",
             "tags_label": "タグ (1〜5 件)",
@@ -1794,7 +1816,14 @@
                     "invalid_type": "テキスト形式で入力してください"
                 },
                 "quota_exhausted": "本日の登録枠を使い切りました (明日 5 件回復)",
-                "generic": "登録に失敗しました。しばらくしてから再試行してください"
+                "generic": "登録に失敗しました。しばらくしてから再試行してください",
+                "buildingType": { "invalid": "建物タイプを選んでください" },
+                "apartmentBuilding": { "out_of_range": "号棟は 1 か 2 を選んでください" },
+                "roomNumber": { "out_of_range": "部屋番号は 1〜90 で入力してください" },
+                "roomKind": {
+                    "apartment_room_required": "アパートには部屋番号が必要です",
+                    "invalid_for_house": "この建物タイプでは部屋番号は不要です"
+                }
             },
             "quota": {
                 "bonus_phase": "登録枠: {{count}} / {{bonus}} 件 (上限なし)",

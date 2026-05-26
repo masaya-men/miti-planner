@@ -250,8 +250,10 @@ export interface MasterServers {
     servers: Record<string, string[]>;
   }>;
   housingAreas: Record<string, {
-    name_jp: string;
-    apartment_name: string;
+    /** エリア正式名称 (全言語必須、 2026-05-27 多言語化) */
+    name: { ja: string; en: string; ko: string; zh: string };
+    /** アパルトメント正式名称 (全言語必須、 2026-05-27 多言語化) */
+    apartment_name: { ja: string; en: string; ko: string; zh: string };
     aliases: string[];
   }>;
   housingSizes: Array<{

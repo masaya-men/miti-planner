@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
+import { formatHousingAddress, formatHousingAddressAria } from '../../../lib/housing/formatHousingAddress';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -17,12 +18,14 @@ function resolveImageSource(listing: MockListing): string {
 }
 
 export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const isFavorite = useHousingFavoritesStore((s) => s.ids.includes(listing.id));
     const addFavorite = useHousingFavoritesStore((s) => s.add);
     const removeFavorite = useHousingFavoritesStore((s) => s.remove);
     const imgSrc = resolveImageSource(listing);
-    const alt = `${listing.area} ${listing.ward}-${listing.plot}`;
+    const alt = formatHousingAddressAria(listing);
+    const title = formatHousingAddress(listing, i18n.language);
+    const isApartment = listing.buildingType === 'apartment';
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -38,8 +41,10 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
                 </div>
                 <div className="housing-card-body">
                     <div className="housing-card-title">
-                        <span>{listing.area} {listing.ward}-{listing.plot}</span>
-                        <span className="housing-card-size">{listing.size}</span>
+                        <span>{title}</span>
+                        {!isApartment && listing.size && (
+                            <span className="housing-card-size">{listing.size}</span>
+                        )}
                     </div>
                     <div className="housing-card-tags">
                         {listing.tags.slice(0, 2).map((tag) => (

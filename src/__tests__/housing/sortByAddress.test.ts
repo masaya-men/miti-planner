@@ -14,7 +14,7 @@ describe('sortByAddress', () => {
                 || a.server.localeCompare(b.server)
                 || a.area.localeCompare(b.area)
                 || (a.ward - b.ward)
-                || (a.plot - b.plot);
+                || ((a.plot ?? 0) - (b.plot ?? 0));
             expect(cmp).toBeLessThanOrEqual(0);
         }
     });

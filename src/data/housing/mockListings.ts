@@ -1,6 +1,15 @@
 import type { HousingArea, HousingSize } from '../../store/useHousingFilterStore';
 import type { Region } from './dcServerMap';
 
+/**
+ * ギャラリー表示用 view-model。 Firestore `HousingListing` → galleryAdapter 経由でこの形に整形される。
+ *
+ * - house: plot + size を持つ。 apartmentBuilding / roomNumber は undefined
+ * - apartment: apartmentBuilding (1=本街 / 2=拡張街) + roomNumber を持つ。 plot/size は undefined
+ *
+ * `buildingType` は 2026-05-27 アパート対応で追加。 旧 mock データ (MOCK_LISTINGS) は plot/size を持つため
+ * `buildingType` 未定義 = house として表示側で扱う (後方互換)。
+ */
 export interface MockListing {
     id: string;
     ownerUid: string;
@@ -9,8 +18,16 @@ export interface MockListing {
     region: Region;
     area: HousingArea;
     ward: number;
-    plot: number;
-    size: HousingSize;
+    /** 'house' | 'apartment'。 旧データは未定義 (= house 扱い) */
+    buildingType?: 'house' | 'apartment';
+    /** house 専用: 区画番号 1-60 (本街 1-30 / 拡張街 31-60) */
+    plot?: number;
+    /** house 専用: S/M/L */
+    size?: HousingSize;
+    /** apartment 専用: 号棟 1=本街 / 2=拡張街 */
+    apartmentBuilding?: 1 | 2;
+    /** apartment 専用: 部屋番号 1-90 */
+    roomNumber?: number;
     imageMode: 'sns' | 'thumbnail' | 'none';
     postUrl?: string;
     ogImageUrl?: string;

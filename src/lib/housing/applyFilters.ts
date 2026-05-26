@@ -25,7 +25,8 @@ export function applyFilters(listings: MockListing[], filters: FilterCondition):
         if (filters.regions.length > 0 && !filters.regions.includes(listing.region)) return false;
         if (filters.servers.length > 0 && !filters.servers.includes(listing.server)) return false;
         if (filters.areas.length > 0 && !filters.areas.includes(listing.area)) return false;
-        if (filters.sizes.length > 0 && !filters.sizes.includes(listing.size)) return false;
+        // サイズフィルタが指定されている時、 apartment (size 未定義) は概念的に該当しないので除外。
+        if (filters.sizes.length > 0 && (listing.size === undefined || !filters.sizes.includes(listing.size))) return false;
         if (filters.tags.length > 0 && !filters.tags.some((t) => listing.tags.includes(t))) return false;
         if (!matchesSearchText(listing, filters.searchText)) return false;
         return true;

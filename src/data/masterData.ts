@@ -1,15 +1,21 @@
 // ファイル名: masterData.ts
 
+// 対応言語コード (i18n キーと整合)
+export const MASTER_LANGS = ['ja', 'en', 'ko', 'zh'] as const;
+export type MasterLang = typeof MASTER_LANGS[number];
+export type LocalizedString = Record<MasterLang, string>;
+
 // サーバーマスターデータの型
 interface ServerData {
   aliases: string[];
   servers: Record<string, string[]>;
 }
 
-// ハウジングエリアの型
-interface HousingAreaData {
-  name_jp: string;
-  apartment_name: string;
+// ハウジングエリアの型 (多言語対応: 2026-05-27)
+// name / apartment_name は全言語必須。 新言語追加時は MASTER_LANGS に追加 + 各エリアに値を埋める。
+export interface HousingAreaData {
+  name: LocalizedString;
+  apartment_name: LocalizedString;
   aliases: string[];
 }
 
@@ -180,31 +186,35 @@ export const serverMasterData: Record<string, ServerData> = {
   }
 };
 
-// 2. ハウジングエリアのマスターデータ（英略称網羅）
+// 2. ハウジングエリアのマスターデータ
+//   - name / apartment_name は全言語値 (ja/en/ko/zh) を持つ
+//   - en は FFXIV Wiki (Apartments) 由来の公式表記 (2026-05-27 確認)
+//   - ko/zh はリリース時点では ja コピー (日英先行公開、 翻訳実値はリリース後対応)
+//   - aliases はテキスト解析 (parseHousingFromText) 用、 言語横断の表記揺れを集約
 export const housingAreaMasterData: Record<string, HousingAreaData> = {
   "Mist": {
-    "name_jp": "ミスト・ヴィレッジ",
-    "apartment_name": "トップマスト",
+    "name": { ja: "ミスト・ヴィレッジ", en: "Mist", ko: "ミスト・ヴィレッジ", zh: "ミスト・ヴィレッジ" },
+    "apartment_name": { ja: "トップマスト", en: "The Topmast", ko: "トップマスト", zh: "トップマスト" },
     "aliases": ["ミスト", "ミスビレ", "Mist", "Mis", "Topmast", "トップマスト"]
   },
   "LavenderBeds": {
-    "name_jp": "ラベンダーベッド",
-    "apartment_name": "リリーヒルズ",
+    "name": { ja: "ラベンダーベッド", en: "The Lavender Beds", ko: "ラベンダーベッド", zh: "ラベンダーベッド" },
+    "apartment_name": { ja: "リリーヒルズ", en: "Lily Hills", ko: "リリーヒルズ", zh: "リリーヒルズ" },
     "aliases": ["ラベ", "ラベンダー", "森", "葉脈", "Lavender", "Lavender Beds", "Lav", "LB", "Lily Hills", "リリーヒルズ"]
   },
   "Goblet": {
-    "name_jp": "ゴブレットビュート",
-    "apartment_name": "ナナモ大風車",
+    "name": { ja: "ゴブレットビュート", en: "The Goblet", ko: "ゴブレットビュート", zh: "ゴブレットビュート" },
+    "apartment_name": { ja: "ナナモ大風車", en: "The Sultana's Breath", ko: "ナナモ大風車", zh: "ナナモ大風車" },
     "aliases": ["ゴブ", "ゴブレット", "Goblet", "Gob", "Sultana's Breath", "ナナモ大風車"]
   },
   "Shirogane": {
-    "name_jp": "シロガネ",
-    "apartment_name": "紅梅御殿",
+    "name": { ja: "シロガネ", en: "Shirogane", ko: "シロガネ", zh: "シロガネ" },
+    "apartment_name": { ja: "紅梅御殿", en: "Kobai Goten", ko: "紅梅御殿", zh: "紅梅御殿" },
     "aliases": ["シロガネ", "しろがね", "Shirogane", "Shiro", "Kobai Goten", "紅梅御殿"]
   },
   "Empyreum": {
-    "name_jp": "エンピレアム",
-    "apartment_name": "イングルサイド",
+    "name": { ja: "エンピレアム", en: "Empyreum", ko: "エンピレアム", zh: "エンピレアム" },
+    "apartment_name": { ja: "イングルサイド", en: "Ingleside", ko: "イングルサイド", zh: "イングルサイド" },
     "aliases": ["エンピ", "エンピレアム", "Empyreum", "Emp", "Empy", "Ingleside", "イングルサイド"]
   }
 };

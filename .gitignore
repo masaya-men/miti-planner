@@ -92,3 +92,6 @@ tmp/
 /playwright-report/
 /test-results/
 /playwright/.cache/
+
+# vitest 出力 (memory reference_vitest_vmthreads_hang の安全手順用)
+/.vt.txt

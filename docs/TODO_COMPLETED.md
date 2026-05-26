@@ -2,6 +2,31 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-27 セッション #60・ハウジング α 公開向け 5/27 開発デー一括)
+
+ハウジング 5/28 23:59 α 公開に向け、 アパート対応 + 多言語化 (masterData 案 B ネスト) + マップ→list デフォルト + /admin 通報モデ案 B を 1 日で完了。 typecheck + 純関数 vitest (40/40 pass、 ゾンビ 0) + build 6.67s 成功。
+
+### 主な変更
+
+- **アパート対応 (全層)**: `apartmentBuilding: 1 | 2` (本街/拡張街) を schema/validate/addressKey/フォーム/6 カード/galleryAdapter/sortByAddress に追加。 **register/update API の致命的バグ修正** (旧実装は apartmentBuilding を保存/更新フィールドに含めず = アパート登録/編集で号棟情報が落ちる)
+- **フォーム改修**: [HousingRegisterAddressFields.tsx] を全面リライト。 建物タイプラジオ + apartment 時の号棟 1/2 + 部屋番号 1-90 入力に切替
+- **6 カード apartment 対応**: 新 util `formatHousingAddress.ts` (house/apartment 分岐 + 多言語住所組み立て) を経由に統一。 例「ミスト・ヴィレッジ 23区 トップマスト1号棟 #15」/「Mist W23 The Topmast Bldg.1 #15」
+- **MapBubbleCard 住所文字撤去**: ユーザー方針「マップ時は地図で見えるから不要」、 aria-label のみ維持
+- **多言語化 (案 B ネスト)**: masterData の `name`/`apartment_name` を `{ja,en,ko,zh}` ネストに刷新 (公式英語名は FFXIV Wiki 由来確認済)。 新 util `areaName.ts`、 admin 4 言語編集 UI、 parseHousingFromText 全言語マッチ。 ko/zh は ja コピー (日英先行公開方針)
+- **マップ→list デフォルト**: `useHousingViewStore` default を `'pinterest'` に (sampleWardLayout 偽配置隠し)
+- **/admin 通報モデ 案 B**: 新規 API `_housingReportsHandler.ts` (GET + PATCH hide) + Firestore composite index + `AdminHousingReports.tsx` (画像+住所+通報数+「物件を見る」/「非表示にする」) + サイドナビ + ルート + i18n
+- **i18n 4 言語**: housing.register.building_type / apartment_building / errors.apartmentBuilding/roomNumber/roomKind + admin.housing_reports.*
+
+### α 公開時の妥協 (公開後対応)
+
+- UI コンポーネント test の追従更新 (フォーム大改修で既存 test が確実に落ちる、 本セッションでは実行せず)
+- 通報モデの復帰 (isHidden→false) / BAN / 異議申し立てアプリ内 UI / 30 日後物理削除 cron
+- マップ実データ化 + アパート位置定義 (`APARTMENT_SPOT[area]`)
+- ko/zh の翻訳実値 (現在 ja コピー)
+- カードデザイン本格刷新 (Allmarks 風、 リッチメディア化と合わせて)
+
+---
+
 ## 完了 (2026-05-26 セッション #59・軽減表 perf 改善 A+C + 通知マーキー長文時爆速バグ修正)
 
 ユーザー報告「スクロール若干カクつく / メモリ 600MB-1.3GB」 を root cause investigation。 実機計測 (ブラウザ Claude + ユーザー手動 Console) で「行 1,200+ × 14 セル絶対配置 × 仮想化なし × hover 連鎖 × forced reflow」 を特定。 A+C の最小変更で push、 ユーザー実機体感「滅茶苦茶軽くなった」 確認済。 B/D はスキップ判定 (理想値達成、 ROI 低)。

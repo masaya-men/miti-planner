@@ -11,26 +11,25 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 2026-05-26 セッション #59 で **軽減表 perf 改善 A+C (content-visibility + ResizeObserver) + 通知マーキー長文時爆速バグ修正 → push + Vercel デプロイ済** (詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) #59)。 実機計測で framesOver33ms 12 → 0 件 / p95FrameMs 33.30 → 16.80ms、 体感「滅茶苦茶軽くなった」 ユーザー確認済
-- **次セッション最優先 (ハウジング 5/28 23:59 リリース強行)**: 下記「ハウジング 28 日リリーススケジュール」 セクション参照。 妥協項目=スマホ最適化・en 翻訳・通報モデの復帰/異議申し立て/cron は公開後。 アパート対応・実機 E2E・/admin 最低限通報モデは必須
-- **アプデ告知保留**: 軽減表メモ機能 + perf + 磨きをまとめた告知文ドラフトは前セッションで提示済 (Discord ja のみ + システム通知 ja/en、 ko/zh は ja コピー)。 マーキー修正済みでいつ出しても OK。 ハウジング α 公開と同時タイミングか別か要判断
+- **ブランチ**: main。 2026-05-27 セッション #60 で **ハウジング α 公開向け 5/27 開発デー一括完了 → デプロイ予定** (詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md) #60)。 アパート対応 (apartmentBuilding 1/2) + 多言語化 (masterData 案 B ネスト) + マップ→list デフォルト + /admin 通報モデ案 B + register/update API バグ修正。 typecheck + 純関数 vitest 40/40 pass + build 6.67s 成功済
+- **次セッション最優先 (ハウジング 5/28 23:59 α 公開強行)**: 本番デプロイ後、 ユーザーが本番で実機確認 (アパート登録 / 家登録 / /admin 通報モデ)。 不具合あれば修正 → 最終 push → アプデ告知
 
 ---
 
-## ハウジング 28 日 23:59 リリーススケジュール
+## ハウジング 5/28 検証+追い込みデー
 
-### 5/27 (開発デー、 ユーザー終日集中)
-1. **アパート対応** (TODO.md 決定モデル: 区+号棟 1/2): フォーム切替 + validateAddress (1/2) + galleryAdapter にアパート含める + カード表示 + 区固定位置で list 表示 (マップ無効でも見える)
-2. **マップ→list デフォルト切替** (`sampleWardLayout` の偽配置を見せないため)
-3. **/admin 通報モデ最低限** (非表示ボタン追加のみ、 復帰/BAN は公開後)
-4. 夜: 本番デプロイ + ユーザーがアパート 1-2 件 + 他物件登録 (コールドスタート回避)
-
-### 5/28 (検証+追い込みデー)
-5. **実機 E2E** (2 アカ通報フロー: 通報→ベル→reason 別ガイド→編集/削除→Not found): ユーザー操作必須、 Claude は Discord OAuth 不可
-6. 検証で発覚バグ修正、 残コールドスタート登録
-7. 最終 push + **アプデ告知**: #59 軽減表分 + ハウジング α 公開 (まとめて 1 投稿 or 分割)
+1. **本番実機確認** (Claude が dev では Discord OAuth 不可なので本番でユーザー操作): アパート登録 (号棟 1/2 + 部屋番号) / 家登録 / 言語切替で住所表記確認 / /admin/housing-reports の動作確認
+2. **実機 E2E** (2 アカ通報フロー: 通報→ベル→reason 別ガイド→編集/削除→Not found)
+3. 検証で発覚バグ修正、 ユーザーがコールドスタート用に物件登録
+4. 最終 push + **アプデ告知**: #59 軽減表分 + ハウジング α 公開 (まとめて 1 投稿 or 分割)
 
 **リスク**: バッファゼロ。 1 件想定外バグ出たら 29 日朝にスライド許容。 マイコラージュは 28 日まで凍結
+
+---
+
+## アプデ告知保留
+
+軽減表メモ機能 + perf + 磨きをまとめた告知文ドラフトは前セッションで提示済 (Discord ja のみ + システム通知 ja/en、 ko/zh は ja コピー)。 ハウジング α 公開と同時タイミングか別か要判断
 
 ---
 
@@ -43,12 +42,12 @@
 
 ---
 
-## ハウジング Phase 3 残り (リリース後対応)
+## ハウジング Phase 3 残り (α 公開後対応)
 
+- **#60 残課題**: UI コンポーネント test 追従 (HousingRegisterAddressFields / HousingRegisterView / HousingRegisterModal — フォーム改修で確実に落ちる) / カードデザイン本格刷新 (Allmarks 風) / マップ実データ化 + `APARTMENT_SPOT[area]` 定義 / ko/zh の翻訳実値
 - ④ **リッチメディア化** (複数画像 + 動画埋め込み + ビューポート内自動再生): Allmarks 知見流用 (memory `reference_allmarks_mycollage`)。 ①複数画像をホバー/全切り替えで閲覧 ②詳細で動画埋め込み (**CSP に video.twimg.com 追加必須**) ③ビューポート内自動再生=動画最大3本/画像は性能制約なく全切り替え
-- **通報モデの穴**: /admin の復帰/BAN UI、 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知、 30 日後物理削除 cron
+- **通報モデの穴**: /admin の復帰 (isHidden→false) / BAN UI、 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知、 30 日後物理削除 cron
 - **HousingCardExpanded 撤去判断** / ツアー同期 Firestore 化 / Cloudflare 前段化
-- **en/ko/zh の翻訳実値** / **マップ実データ化** (`docs/housing-map-authoring-guide.md` §7) / TopBar サイズ違い等
 - 細かい修正: `fieldState.confirm()` バグ、 dead code 撤去、 AddressFields renderBadge prop 化、 photo `alt`、 SNS rate limiting、 通知 ✕ の見た目磨き
 
 ---

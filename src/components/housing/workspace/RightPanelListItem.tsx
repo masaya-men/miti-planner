@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 
 export interface RightPanelListItemProps {
     listing: MockListing;
@@ -9,12 +11,15 @@ export interface RightPanelListItemProps {
 const PLACEHOLDER = '/housing/mock-thumbs/1.svg';
 
 export const RightPanelListItem: React.FC<RightPanelListItemProps> = ({ listing, active, onClick }) => {
+    const { i18n } = useTranslation();
     const imgSrc =
         listing.imageMode === 'thumbnail' && listing.thumbnailPath
             ? listing.thumbnailPath
             : listing.imageMode === 'sns' && listing.ogImageUrl
                 ? listing.ogImageUrl
                 : PLACEHOLDER;
+    const title = formatHousingAddress(listing, i18n.language);
+    const isApartment = listing.buildingType === 'apartment';
 
     return (
         <button
@@ -28,8 +33,10 @@ export const RightPanelListItem: React.FC<RightPanelListItemProps> = ({ listing,
             </div>
             <div className="housing-right-list-item-body">
                 <div className="housing-right-list-item-title">
-                    {listing.area} {listing.ward}-{listing.plot}
-                    <span className="housing-right-list-item-size">{listing.size}</span>
+                    {title}
+                    {!isApartment && listing.size && (
+                        <span className="housing-right-list-item-size">{listing.size}</span>
+                    )}
                 </div>
                 {listing.description && (
                     <div className="housing-right-list-item-desc">{listing.description}</div>
