@@ -1834,9 +1834,10 @@
                 "daily_remaining": "本日の登録枠: 残り {{remaining}} / {{max}} 件"
             },
             "snsUrl": {
-                "label": "SNS URL（任意）",
-                "placeholder": "https://x.com/.../status/...",
+                "label": "SNS URL（任意・Twitter / YouTube）",
+                "placeholder": "https://x.com/.../status/... または https://youtu.be/...",
                 "fetching": "ツイートを読み取り中…",
+                "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "cancel": "取消",
                 "retry": "再取得",
                 "error": {

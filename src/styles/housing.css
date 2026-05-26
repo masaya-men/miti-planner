@@ -2473,6 +2473,29 @@ select.housing-input option {
   font-size: var(--housing-text-sm);
   color: var(--housing-text);
 }
+/* 2026-05-26 YouTube プレビュー: SNS URL 入力欄が YouTube URL を受け取ったときのサムネ表示 */
+.housing-register-youtube-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  background: var(--housing-chip-bg);
+}
+.housing-register-youtube-thumb {
+  width: 128px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+.housing-register-youtube-label {
+  flex: 1;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-muted);
+}
+
 /* 2026-05-26 multi-image 対応: 画像はタイルグリッドで並べる (最大 4 枚) */
 .housing-register-image-grid {
   list-style: none;

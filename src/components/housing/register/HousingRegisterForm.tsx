@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { HousingRegisterSnsUrlField } from './HousingRegisterSnsUrlField';
+import { HousingRegisterSnsUrlField, type YoutubeFetchedData } from './HousingRegisterSnsUrlField';
 import { HousingRegisterTweetPreview } from './HousingRegisterTweetPreview';
 import { HousingRegisterTypeSelector } from './HousingRegisterTypeSelector';
 import { HousingRegisterRoomNumberField } from './HousingRegisterRoomNumberField';
@@ -36,6 +36,12 @@ export type HousingRegisterFormValues = {
     ogImageUrl?: string;
     tweetId?: string;
     /**
+     * 2026-05-26: YouTube 動画 ID (11 文字)。 tweetId とは排他、 SNS URL フィールドに
+     * YouTube URL が入力されたら自動セット。 backend は imageMode='sns' + youtubeVideoId
+     * として保存する。
+     */
+    youtubeVideoId?: string;
+    /**
      * 2026-05-26: クライアント圧縮済の直接アップロード画像 (1-4 枚)。
      * register 後に upload-thumbnail API で index=0..N-1 と順次送る。
      * 空配列は画像なし扱い。
@@ -70,6 +76,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const fieldState = useHousingFieldState(requiredFields);
     const [tweetData, setTweetData] = useState<TweetData | null>(null);
     const [tweetSource, setTweetSource] = useState<{ postUrl: string; tweetId: string } | null>(null);
+    const [youtubeData, setYoutubeData] = useState<YoutubeFetchedData | null>(null);
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState<string[]>([]);
     const [localImages, setLocalImages] = useState<CompressedImage[]>([]);
@@ -161,15 +168,31 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     ]);
 
     const handleSubmit = () => {
-        // 画像アップロード (1 枚以上) があれば最優先 (imageMode='thumbnail')。 SNS image は無視。
-        // 画像アップロード無し かつ SNS Tweet が取得できていれば imageMode='sns'。
-        // どちらも無ければ imageMode='none'。
+        // 画像源の優先順位 (2026-05-26 更新):
+        //   ① ローカルアップロード (1 枚以上) → imageMode='thumbnail'。 SNS 系は無視
+        //   ② YouTube URL → imageMode='sns' + youtubeVideoId
+        //   ③ Twitter URL (本文取得済 + 画像 1 枚目あり) → imageMode='sns' + tweetId
+        //   ④ どれも無し → imageMode='none'
         const hasLocalImages = localImages.length > 0;
         const photo = tweetData?.photos?.[0];
-        const snsImage =
-            !hasLocalImages && tweetSource && photo
-                ? { postUrl: tweetSource.postUrl, ogImageUrl: photo, tweetId: tweetSource.tweetId }
-                : {};
+
+        let snsImage: Partial<HousingRegisterFormValues> = {};
+        if (!hasLocalImages) {
+            if (youtubeData) {
+                snsImage = {
+                    postUrl: youtubeData.postUrl,
+                    ogImageUrl: youtubeData.ogImageUrl,
+                    youtubeVideoId: youtubeData.videoId,
+                };
+            } else if (tweetSource && photo) {
+                snsImage = {
+                    postUrl: tweetSource.postUrl,
+                    ogImageUrl: photo,
+                    tweetId: tweetSource.tweetId,
+                };
+            }
+        }
+
         onSubmit({
             dc,
             server,
@@ -196,14 +219,30 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
 
     return (
         <div className="housing-register-form">
-            <HousingRegisterSnsUrlField onTweetFetched={handleTweetFetched} />
+            <HousingRegisterSnsUrlField
+                onTweetFetched={handleTweetFetched}
+                onYoutubeFetched={setYoutubeData}
+            />
             {tweetData && <HousingRegisterTweetPreview data={tweetData} />}
+            {youtubeData && (
+                <div className="housing-register-youtube-preview">
+                    <img
+                        src={youtubeData.ogImageUrl}
+                        alt=""
+                        className="housing-register-youtube-thumb"
+                        loading="lazy"
+                    />
+                    <span className="housing-register-youtube-label">
+                        {t('housing.register.snsUrl.youtube_detected')}
+                    </span>
+                </div>
+            )}
 
             {/* 2026-05-26: 画像アップロード経路。 SNS URL と並ぶ第 2 の画像入力手段。 両方ある場合は画像優先。 最大 4 枚。 */}
             <HousingRegisterImageField
                 value={localImages}
                 onChange={setLocalImages}
-                hasSnsUrl={!!tweetSource}
+                hasSnsUrl={!!tweetSource || !!youtubeData}
             />
 
             {/* DC */}

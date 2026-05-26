@@ -41,19 +41,19 @@ describe('HousingRegisterSnsUrlField', () => {
     });
 
     it('renders input field with label', () => {
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} />);
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} />);
         expect(screen.getByLabelText('housing.register.snsUrl.label')).toBeInTheDocument();
     });
 
     it('triggers fetchTweet on valid X URL paste', () => {
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} />);
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} />);
         const input = screen.getByLabelText('housing.register.snsUrl.label');
         fireEvent.change(input, { target: { value: 'https://x.com/user/status/1842217368673759498' } });
         expect(mockFetchTweet).toHaveBeenCalledWith('1842217368673759498');
     });
 
     it('shows error key for invalid URL', () => {
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} />);
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} />);
         const input = screen.getByLabelText('housing.register.snsUrl.label');
         fireEvent.change(input, { target: { value: 'https://example.com/foo' } });
         expect(screen.getByText('housing.register.snsUrl.error.invalid')).toBeInTheDocument();

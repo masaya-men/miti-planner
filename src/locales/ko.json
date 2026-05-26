@@ -1777,9 +1777,10 @@
                 "daily_remaining": "오늘의 등록 한도: 남은 {{remaining}} / {{max}}개"
             },
             "snsUrl": {
-                "label": "SNS URL (선택)",
-                "placeholder": "https://x.com/.../status/...",
+                "label": "SNS URL（任意・Twitter / YouTube）",
+                "placeholder": "https://x.com/.../status/... または https://youtu.be/...",
                 "fetching": "트윗을 읽는 중…",
+                "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "cancel": "취소",
                 "retry": "다시 가져오기",
                 "error": {

@@ -52,12 +52,20 @@ export function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationD
         roomNumber: v.roomNumber,
         tags: v.tags ?? [],
         description: v.description,
+        // 画像源: Twitter / YouTube どちらか排他 (どちらも postUrl + ogImageUrl は共通)。
         ...(v.postUrl && v.ogImageUrl && v.tweetId
             ? {
                   imageMode: 'sns' as const,
                   postUrl: v.postUrl,
                   ogImageUrl: v.ogImageUrl,
                   tweetId: v.tweetId,
+              }
+            : v.postUrl && v.ogImageUrl && v.youtubeVideoId
+            ? {
+                  imageMode: 'sns' as const,
+                  postUrl: v.postUrl,
+                  ogImageUrl: v.ogImageUrl,
+                  youtubeVideoId: v.youtubeVideoId,
               }
             : {}),
     };

@@ -1813,9 +1813,10 @@
                 "daily_remaining": "Today's quota: {{remaining}} / {{max}} remaining"
             },
             "snsUrl": {
-                "label": "SNS URL (optional)",
-                "placeholder": "https://x.com/.../status/...",
+                "label": "SNS URL (optional, Twitter / YouTube)",
+                "placeholder": "https://x.com/.../status/... or https://youtu.be/...",
                 "fetching": "Reading tweet…",
+                "youtube_detected": "Detected as a YouTube video (thumbnail will be used as the listing image)",
                 "cancel": "Cancel",
                 "retry": "Retry",
                 "error": {
