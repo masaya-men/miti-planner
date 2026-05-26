@@ -1828,17 +1828,20 @@
                 }
             },
             "image": {
-                "label": "Image (optional, upload directly instead of SNS URL)",
+                "label": "Images (optional, up to {{max}})",
                 "cta": "Click or drag to select an image",
-                "hint": "Auto-resized to max 1920px / 1MB (AVIF format)",
+                "cta_add": "+ Add image",
+                "hint": "{{current}} / {{max}} · auto-resized to max 1920px / 1MB per image (AVIF/WebP)",
                 "select_aria": "Select an image file",
                 "compressing": "Compressing image…",
                 "compressed_label": "Compressed",
+                "cover_badge": "Cover",
                 "remove": "Remove",
                 "sns_override_note": "An uploaded image is used; the SNS URL image is ignored.",
                 "error": {
                     "not_image": "Please select an image file (JPEG / PNG / WebP / AVIF / HEIC)",
-                    "compress_failed": "Failed to compress image. Please try a different file."
+                    "compress_failed": "Failed to compress image. Please try a different file.",
+                    "too_many": "Maximum {{max}} images allowed"
                 }
             },
             "tweetPreview": {

@@ -125,13 +125,31 @@ export interface HousingListing {
   imageMode: ImageMode;
   postUrl?: string;
   ogImageUrl?: string;
+  /**
+   * 1 枚目のサムネ URL (後方互換 + 一覧用代表画像)。
+   * 複数画像対応 (2026-05-26) 前の物件はこのフィールドのみ持つ。
+   * 新規物件は thumbnailPaths[0] と同値を保存して後方互換維持。
+   */
   thumbnailPath?: string;
+  /**
+   * 複数画像対応 (2026-05-26 追加)。 thumbnail mode の物件で 1-4 枚保存。
+   * 表示側は thumbnailPaths があれば優先、 なければ thumbnailPath を 1 枚として扱う。
+   */
+  thumbnailPaths?: string[];
 
   // SNS 連動 (imageMode==='sns' のみ持つ)
   /** syndication 問い合わせキー。postUrl から再パースでも可だが明示保持で query/index を単純化。 */
   tweetId?: string;
   /** 最後にツイート生存を確認した時刻(ms)。cron の「古い順」並びと開いた時チェックに使う。 */
   lastTweetCheckAt?: number;
+
+  /**
+   * YouTube 動画 ID (11 文字 [A-Za-z0-9_-])。 2026-05-26 追加。
+   * imageMode==='sns' で source が YouTube の場合のみ持つ。
+   * postUrl = YouTube watch URL、 ogImageUrl = サムネ URL (img.youtube.com)。
+   * tweetId とは排他 (どちらか一方のみ)。
+   */
+  youtubeVideoId?: string;
 
   // ユーザー入力
   tags: string[];

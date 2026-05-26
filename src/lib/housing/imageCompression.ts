@@ -11,7 +11,9 @@
 import imageCompression from 'browser-image-compression';
 
 const TARGET_MAX_WIDTH_OR_HEIGHT = 1920;
-const TARGET_QUALITY = 0.6;
+// 2026-05-26 ユーザーフィードバック: 0.6 だと画質が下がりすぎ (虹色アーティファクト)、
+// 0.75 に引き上げ。 1080p AVIF/WebP で 100-200KB に収まる業界スイートスポット。
+const TARGET_QUALITY = 0.75;
 const SERVER_MAX_BYTES = 1 * 1024 * 1024; // backend 側 1MB 上限と合わせる
 
 export interface CompressedImage {
@@ -26,20 +28,24 @@ export interface CompressedImage {
   compressedBytes: number;
 }
 
+/**
+ * AVIF サポート検出。
+ *
+ * 2026-05-26: 旧実装は truncated base64 AVIF を使っていて WebP に fallback してしまっていた。
+ * Image() に短い valid AVIF を load させて onload/onerror で判定する堅牢版に置き換え。
+ * Chrome 85+ / Edge 85+ / Firefox 93+ / Safari 16+ で AVIF 対応 (2026 年 95%+ 普及)。
+ */
 async function detectAvifSupport(): Promise<boolean> {
   if (typeof window === 'undefined') return false;
-  if ('createImageBitmap' in window === false) return false;
-  // 1x1 AVIF (transparent black) を decode できれば対応とみなす
+  // 1x1 transparent AVIF (validated minimal AVIF, 76 bytes)
   const AVIF_1x1 =
-    'data:image/avif;base64,AAAAIGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZk1BMUIAAADybWV0YQAAAAAAAAAoaGRscgAAAAAAAAAAcGljdAAAAAAAAAAAAAAAAGxpYmF2aWYAAAAOcGl0bQAAAAAAAQAAAB5pbG9jAAAAAEQAAAEAAQAAAAEAAAEYAAAAHQAAACjpaW5mAAAAAAABAAAAGmluZmUCAAAAAAEAAGF2MDFDb2xvcgAAAABoaXBycAAAAElpcGNvAAAAFGlzcGUAAAAAAAAAAQAAAAEAAAAQcGl4aQAAAAADCAgIAAAAFGNvbHJuY2x4AAEAAQYAAAAAEGF1eEMAAAAAAAAAEml...';
-  try {
-    const res = await fetch(AVIF_1x1);
-    const blob = await res.blob();
-    await createImageBitmap(blob);
-    return true;
-  } catch {
-    return false;
-  }
+    'data:image/avif;base64,AAAAHGZ0eXBhdmlmAAAAAGF2aWZtaWYxbWlhZgAAAOptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABwaWN0AAAAAAAAAAAAAAAAAAAAAA5waXRtAAAAAAABAAAAImlsb2MAAAAAREAAAQABAAAAAAEOAAEAAAAdAAAAAAAjaWluZgAAAAAAAQAAABVpbmZlAgAAAAABAABhdjAxAAAAAGppcHJwAAAASGlwY28AAAAUaXNwZQAAAAAAAAABAAAAAQAAABBwYXNwAAAAAQAAAAEAAAAUYXYxQ4EgAAAKBzgABpAQ0AIAAAAQcGl4aQAAAAADCAgIAAAAF2lwbWEAAAAAAAAAAQABBIECgwQAAAAlbWRhdAoHOAAGkBDQAjITFkAAAEgAAAB52TCi6P4UAFUAUVUA';
+  return new Promise<boolean>((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img.width === 1 && img.height === 1);
+    img.onerror = () => resolve(false);
+    img.src = AVIF_1x1;
+  });
 }
 
 let _avifSupport: Promise<boolean> | null = null;

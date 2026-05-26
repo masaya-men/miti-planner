@@ -102,21 +102,26 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
         try {
             const { id } = await registerListing(toRegistrationDraft(confirmValues));
 
-            // 2026-05-26: 画像アップロードがあれば register 直後に upload-thumbnail を呼ぶ。
-            // upload 失敗時は listing 自体は登録済みなので、 ユーザーには登録成功として扱い
-            // エラーは toast/console に流す (再アップロードは編集 UI で対応する想定)。
-            if (confirmValues.localImage) {
-                try {
-                    await uploadListingThumbnail({
-                        listingId: id,
-                        base64: confirmValues.localImage.base64,
-                        mimeType: confirmValues.localImage.mimeType,
-                    });
-                } catch (uploadErr) {
-                    console.warn('[HousingRegisterFormModal] thumbnail upload failed', uploadErr);
-                    setErrorKey('upload_failed');
-                    // upload 失敗時も listing 自体は登録済み。 list 反映 + close は実行。
+            // 2026-05-26: 画像アップロード (1-4 枚) があれば register 直後に upload-thumbnail を順次呼ぶ。
+            // index=0..N-1 を明示的に渡す (backend が thumbnailPaths[index] にセット)。
+            // 1 件でも失敗したら upload_failed を立てる (ただし listing 自体は登録済み)。
+            if (confirmValues.localImages && confirmValues.localImages.length > 0) {
+                let uploadFailedOnce = false;
+                for (let i = 0; i < confirmValues.localImages.length; i++) {
+                    const img = confirmValues.localImages[i];
+                    try {
+                        await uploadListingThumbnail({
+                            listingId: id,
+                            base64: img.base64,
+                            mimeType: img.mimeType,
+                            index: i,
+                        });
+                    } catch (uploadErr) {
+                        console.warn(`[HousingRegisterFormModal] thumbnail upload failed (index=${i})`, uploadErr);
+                        uploadFailedOnce = true;
+                    }
                 }
+                if (uploadFailedOnce) setErrorKey('upload_failed');
             }
 
             // 登録した物件を中央一覧へ即反映 (リロード不要)。 失敗しても登録は成功済み。
