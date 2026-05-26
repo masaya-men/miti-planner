@@ -6,7 +6,7 @@
 // Phase 3 (Cloudflare 全面移行) で Cloudflare Workers にコピペ移植する想定で、
 // Node.js 固有 API は使わず Web 標準 (Request/Response/fetch/URL/AbortSignal) のみ。
 
-import { syndicationUrl } from '../src/lib/housing/tweetSyndication';
+import { syndicationUrl } from '../src/lib/housing/tweetSyndication.js';
 
 export const config = { runtime: 'edge' };
 
