@@ -66,7 +66,10 @@ describe('CenterArea', () => {
         expect(screen.getByRole('tab', { name: /一覧/ })).toBeInTheDocument();
     });
 
-    it('starts in map mode and renders the housing map image with bubble cards', () => {
+    it('renders the housing map image with bubble cards when in map mode', () => {
+        // 2026-05-27: デフォルト viewMode は 'pinterest' (sampleWardLayout を隠すため)。
+        // マップ表示の不変条件 (map image + bubble cards) を検証するには明示的に 'map' に切り替える。
+        useHousingViewStore.setState({ viewMode: 'map' });
         renderCenter();
         expect(screen.getByRole('img', { name: 'ハウジングマップ' })).toBeInTheDocument();
         // MapView の Mist 実データ駆動化 (2026-05-23) で DEMO_PLOTS = 6 件のデモ物件を表示

@@ -24,17 +24,17 @@ describe('useHousingViewStore', () => {
         useHousingViewStore.getState().reset();
     });
 
-    it('defaults to map view, both panels open, browse mode', () => {
+    it('defaults to pinterest (list) view, both panels open, browse mode', () => {
         const s = useHousingViewStore.getState();
-        expect(s.viewMode).toBe('map');
+        expect(s.viewMode).toBe('pinterest');
         expect(s.leftPanelOpen).toBe(true);
         expect(s.rightPanelOpen).toBe(true);
         expect(s.mode).toBe('browse');
     });
 
     it('toggles view mode', () => {
-        useHousingViewStore.getState().setViewMode('pinterest');
-        expect(useHousingViewStore.getState().viewMode).toBe('pinterest');
+        useHousingViewStore.getState().setViewMode('map');
+        expect(useHousingViewStore.getState().viewMode).toBe('map');
     });
 
     it('toggles left panel', () => {
@@ -50,10 +50,10 @@ describe('useHousingViewStore', () => {
     });
 
     it('reset returns to defaults', () => {
-        useHousingViewStore.getState().setViewMode('pinterest');
+        useHousingViewStore.getState().setViewMode('map');
         useHousingViewStore.getState().enterTourMode();
         useHousingViewStore.getState().reset();
-        expect(useHousingViewStore.getState().viewMode).toBe('map');
+        expect(useHousingViewStore.getState().viewMode).toBe('pinterest');
         expect(useHousingViewStore.getState().mode).toBe('browse');
     });
 });

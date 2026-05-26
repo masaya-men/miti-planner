@@ -16,8 +16,9 @@ describe('RightPanelListItem', () => {
         const img = container.querySelector('img');
         expect(img).toBeTruthy();
         expect(img?.getAttribute('src')).toContain('mock-thumbs');
-        // mock-001 = Shirogane 3-12 (M) 和風カフェ
-        expect(screen.getByText(/Shirogane/)).toBeInTheDocument();
+        // 2026-05-27 多言語化: formatHousingAddress が i18n.language に応じて area 名を訳す。
+        // test 環境では i18n 未初期化 → ja フォールバックで「シロガネ 3-12」 表示。
+        expect(screen.getByText(/シロガネ/)).toBeInTheDocument();
         expect(screen.getByText('M')).toBeInTheDocument();
     });
 

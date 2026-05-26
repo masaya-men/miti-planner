@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import type { HousingListing, ReportReason } from '../../../types/housing';
 import { HousingPhotoGallery } from './HousingPhotoGallery';
 import { HousingActionBar } from './HousingActionBar';
+import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 
 /** 家主が通報通知から開いた時に詳細内へ出す案内 (任意) */
 export interface ReportNotice {
@@ -44,10 +45,10 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   onListingUpdated,
   onDeleted,
 }) => {
-  const { t } = useTranslation();
-  const title = listing.description?.trim()
-    ? listing.description
-    : `${listing.area} Ward ${listing.ward}`;
+  const { t, i18n } = useTranslation();
+  // 2026-05-26 アパート号棟欠落バグ修正 + 多言語化: 住所組み立ては必ず formatHousingAddress 経由。
+  const fullAddress = formatHousingAddress(listing, i18n.language);
+  const title = listing.description?.trim() ? listing.description : fullAddress;
 
   return (
     <div className="housing-detail-content">
@@ -121,9 +122,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
       <div className="housing-detail-info">
         <h2 className="housing-detail-title">{title}</h2>
         <p className="housing-detail-address">
-          {listing.dc} / {listing.server} / {listing.area} / Ward {listing.ward}
-          {listing.plot != null && ` / Plot ${listing.plot}`}
-          {listing.roomNumber != null && ` / Room ${listing.roomNumber}`}
+          {listing.dc} / {listing.server} / {fullAddress}
         </p>
         {listing.tags.length > 0 && (
           <ul className="housing-detail-tags">

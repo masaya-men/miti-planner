@@ -14,8 +14,9 @@ describe('FavoriteCard', () => {
 
     it('renders area / ward / plot label and description', () => {
         render(withDnd(<FavoriteCard listing={listing} selected={false} onClick={() => {}} />));
-        // mock-001 = Mana / Anima Shirogane 3-12 (M) 和風カフェ
-        expect(screen.getByText(/Shirogane/)).toBeInTheDocument();
+        // 2026-05-27 多言語化: formatHousingAddress が i18n.language に応じて訳す。
+        // test 環境では ja フォールバックで「シロガネ 3-12」 表示 (mock-001 = Mana / Anima)。
+        expect(screen.getByText(/シロガネ/)).toBeInTheDocument();
         expect(screen.getByText(listing.description!)).toBeInTheDocument();
     });
 
