@@ -12,7 +12,11 @@
 // Node.js 固有 API は使わず Web 標準 (Request/Response/fetch/URL/AbortSignal) のみ。
 
 import { isOgpUrlAllowed } from '../src/lib/housing/ogpHostAllowlist.js';
-import { parseOgpHtml, extractHousingSnapImages } from '../src/lib/housing/parseOgpHtml.js';
+import {
+    parseOgpHtml,
+    extractHousingSnapImages,
+    extractStudioXivImages,
+} from '../src/lib/housing/parseOgpHtml.js';
 
 export const config = { runtime: 'edge' };
 
@@ -85,13 +89,17 @@ export default async function handler(req: Request): Promise<Response> {
         };
         tryAdd(meta.image);
 
-        // housingsnap.com 専用: 1 物件あたり複数画像を抽出
+        // hostname 別の専用抽出器で追加画像を拾う (1 物件あたり複数画像対応)。
         const parsedUrl = new URL(url);
-        if (parsedUrl.hostname === 'housingsnap.com') {
-            for (const u of extractHousingSnapImages(html)) {
-                tryAdd(u);
-                if (candidateUrls.length >= MAX_IMAGES_PER_RESPONSE) break;
-            }
+        const extras =
+            parsedUrl.hostname === 'housingsnap.com'
+                ? extractHousingSnapImages(html)
+                : parsedUrl.hostname === 'studio-xiv.com'
+                ? extractStudioXivImages(html)
+                : [];
+        for (const u of extras) {
+            tryAdd(u);
+            if (candidateUrls.length >= MAX_IMAGES_PER_RESPONSE) break;
         }
 
         // 各画像を base64 化 (最大 MAX_IMAGES_PER_RESPONSE で打ち切り)

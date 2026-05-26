@@ -102,6 +102,31 @@ describe('GET /api/og', () => {
         expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
+    it('studio-xiv.com でも複数画像 (ffxiv_ パターン) を最大 4 枚まで取得 (hotfix24)', async () => {
+        const html = `
+            <meta property="og:image" content="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_main.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_b.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_c.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_d.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/site-logo.png">
+        `;
+        const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]); // PNG magic
+        mockFetch
+            .mockResolvedValueOnce(htmlResponse(html))
+            .mockResolvedValueOnce(imageResponse(bytes, 'image/png'))
+            .mockResolvedValueOnce(imageResponse(bytes, 'image/png'))
+            .mockResolvedValueOnce(imageResponse(bytes, 'image/png'))
+            .mockResolvedValueOnce(imageResponse(bytes, 'image/png'));
+
+        const res = await handler(makeReq('https://studio-xiv.com/studio/100189/'));
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        expect(body.images).toHaveLength(4);
+        // ロゴは ffxiv_ プレフィックスが無いので除外され、 max 4 で打ち切り
+        expect(body.images[0].sourceUrl).toContain('ffxiv_main');
+        expect(body.images[3].sourceUrl).toContain('ffxiv_d');
+    });
+
     it('housingsnap.com では追加画像も最大 4 枚まで取得', async () => {
         const html = `
             <meta property="og:image" content="https://assets.housingsnap.com/uploads/paragraph/image/1/aaa111_watermark.jpg">

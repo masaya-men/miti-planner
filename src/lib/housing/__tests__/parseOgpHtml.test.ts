@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { parseOgpHtml, extractHousingSnapImages } from '../parseOgpHtml';
+import {
+    parseOgpHtml,
+    extractHousingSnapImages,
+    extractStudioXivImages,
+} from '../parseOgpHtml';
 
 const BASE = 'https://housingsnap.com/listing/123';
 
@@ -106,6 +110,51 @@ describe('extractHousingSnapImages - hotfix23 housingsnap 複数画像対応', (
     it('html 不在/異常入力なら空配列', () => {
         expect(extractHousingSnapImages('')).toEqual([]);
         expect(extractHousingSnapImages(null as unknown as string)).toEqual([]);
+    });
+});
+
+describe('extractStudioXivImages - hotfix24 studio-xiv.com 複数画像対応', () => {
+    it('ffxiv_<timestamp> パターンの画像を出現順に抽出する', () => {
+        const html = `
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220559_382-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220725_441-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260512_201654_418-1.png">
+        `;
+        expect(extractStudioXivImages(html)).toEqual([
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220559_382-1.png',
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260526_220725_441-1.png',
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_20260512_201654_418-1.png',
+        ]);
+    });
+
+    it('ロゴ等の ffxiv_ で始まらない画像は無視', () => {
+        const html = `
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/site-logo.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/banner.jpg">
+        `;
+        expect(extractStudioXivImages(html)).toEqual([]);
+    });
+
+    it('webp / jpg / jpeg 拡張子も対応', () => {
+        const html = `
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_a.webp">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_b.jpg">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_c.jpeg">
+        `;
+        expect(extractStudioXivImages(html)).toHaveLength(3);
+    });
+
+    it('重複は排除', () => {
+        const html = `
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x.png">
+            <a href="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_x.png">link</a>
+        `;
+        expect(extractStudioXivImages(html)).toHaveLength(1);
+    });
+
+    it('html 不在/異常入力なら空配列', () => {
+        expect(extractStudioXivImages('')).toEqual([]);
+        expect(extractStudioXivImages(null as unknown as string)).toEqual([]);
     });
 });
 

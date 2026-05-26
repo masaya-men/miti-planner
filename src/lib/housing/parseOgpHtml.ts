@@ -40,10 +40,33 @@ export function extractHousingSnapImages(html: string): string[] {
     if (typeof html !== 'string' || html.length === 0) return [];
     const re =
         /https:\/\/assets\.housingsnap\.com\/uploads\/paragraph\/image\/\d+\/[a-f0-9]+_watermark\.jpg/gi;
-    const matches = html.match(re) ?? [];
+    return dedupOrdered(html.match(re) ?? []);
+}
+
+/**
+ * studio-xiv.com 専用の追加画像抽出 (2026-05-27 hotfix24)。
+ *
+ * Studio-XIV は WordPress (= `/wp-content/uploads/<year>/<month>/<filename>`) で配信。
+ * 物件画像は `ffxiv_<timestamp>` というファイル名パターン (= ゲーム内スクリーンショットの
+ * デフォルト名) なので、 サイトロゴ等の余計な画像を拾わず物件画像だけ抽出できる。
+ *
+ * 抽出パターン:
+ *   `https://studio-xiv.com/wp-content/uploads/YYYY/MM/ffxiv_*.{png,jpg,jpeg,webp}`
+ *
+ * 順序は HTML 出現順 (= サイトのギャラリー表示順)。 重複排除済。
+ */
+export function extractStudioXivImages(html: string): string[] {
+    if (typeof html !== 'string' || html.length === 0) return [];
+    const re =
+        /https:\/\/studio-xiv\.com\/wp-content\/uploads\/\d{4}\/\d{2}\/ffxiv_[\w.-]+?\.(?:png|jpe?g|webp)/gi;
+    return dedupOrdered(html.match(re) ?? []);
+}
+
+/** URL 配列を出現順を保ちつつ重複排除する純関数。 */
+function dedupOrdered(urls: readonly string[]): string[] {
     const seen = new Set<string>();
     const out: string[] = [];
-    for (const url of matches) {
+    for (const url of urls) {
         if (!seen.has(url)) {
             seen.add(url);
             out.push(url);
