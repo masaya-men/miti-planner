@@ -1791,6 +1791,20 @@
                     "extractFailed": "无法自动填入，请参照推文内容手动输入"
                 }
             },
+            "image": {
+                "label": "画像 (任意・SNS URL の代わりに直接アップロード)",
+                "cta": "クリックまたはドラッグして画像を選択",
+                "hint": "長辺 1920px・最大 1MB に自動圧縮 (AVIF 形式)",
+                "select_aria": "画像ファイルを選択",
+                "compressing": "画像を圧縮中…",
+                "compressed_label": "圧縮済",
+                "remove": "削除",
+                "sns_override_note": "画像を直接アップロードしたので、 SNS URL の画像は使われません",
+                "error": {
+                    "not_image": "画像ファイル (JPEG / PNG / WebP / AVIF / HEIC) を選んでください",
+                    "compress_failed": "画像の圧縮に失敗しました。 別の画像を試してください"
+                }
+            },
             "tweetPreview": {
                 "title": "已获取的推文"
             },
@@ -1824,7 +1838,8 @@
                 "errors": {
                     "not_authenticated": "登记需要登录，请先登录后再试。",
                     "quota_exhausted": "已达到登记上限，请稍后再试。",
-                    "generic": "登记失败，请检查网络环境后重试。"
+                    "generic": "登记失败，请检查网络环境后重试。",
+                    "upload_failed": "物件は登録できましたが、 画像のアップロードに失敗しました。 編集画面から再度アップロードしてください。"
                 }
             },
             "cancel": "取消"

@@ -1827,6 +1827,20 @@
                     "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet"
                 }
             },
+            "image": {
+                "label": "Image (optional, upload directly instead of SNS URL)",
+                "cta": "Click or drag to select an image",
+                "hint": "Auto-resized to max 1920px / 1MB (AVIF format)",
+                "select_aria": "Select an image file",
+                "compressing": "Compressing image…",
+                "compressed_label": "Compressed",
+                "remove": "Remove",
+                "sns_override_note": "An uploaded image is used; the SNS URL image is ignored.",
+                "error": {
+                    "not_image": "Please select an image file (JPEG / PNG / WebP / AVIF / HEIC)",
+                    "compress_failed": "Failed to compress image. Please try a different file."
+                }
+            },
             "tweetPreview": {
                 "title": "Fetched tweet"
             },
@@ -1860,7 +1874,8 @@
                 "errors": {
                     "not_authenticated": "Login is required. Please sign in and try again.",
                     "quota_exhausted": "Registration limit reached. Please try again later.",
-                    "generic": "Registration failed. Please check your connection and try again."
+                    "generic": "Registration failed. Please check your connection and try again.",
+                    "upload_failed": "Listing was registered, but the image upload failed. Please re-upload from the edit screen."
                 }
             },
             "cancel": "Cancel"

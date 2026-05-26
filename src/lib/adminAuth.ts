@@ -18,6 +18,9 @@ export function initAdmin() {
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
         privateKey: pk,
       }),
+      // 2026-05-26: ハウジング画像アップロード (Storage) 対応で追加。
+      // 環境変数 FIREBASE_STORAGE_BUCKET 優先、 fallback はクライアント側 firebase.ts と同値。
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'lopo-7793e.firebasestorage.app',
     });
   }
 }

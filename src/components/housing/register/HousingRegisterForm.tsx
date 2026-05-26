@@ -9,6 +9,7 @@ import { HousingRegisterDescriptionField } from './HousingRegisterDescriptionFie
 import { HousingRegisterTagPicker } from './HousingRegisterTagPicker';
 import { HousingRegisterFieldBadge } from './HousingRegisterFieldBadge';
 import { HousingRegisterChecklist, type ChecklistItem } from './HousingRegisterChecklist';
+import { HousingRegisterImageField } from './HousingRegisterImageField';
 import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import {
     parseHousingFromText,
@@ -16,6 +17,7 @@ import {
 } from '../../../lib/housing/parseHousingFromText';
 import { serverMasterData, housingAreaMasterData } from '../../../data/masterData';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
+import type { CompressedImage } from '../../../lib/housing/imageCompression';
 
 export type HousingRegisterFormValues = {
     dc?: string;
@@ -33,6 +35,8 @@ export type HousingRegisterFormValues = {
     postUrl?: string;
     ogImageUrl?: string;
     tweetId?: string;
+    /** 2026-05-26: クライアント圧縮済の直接アップロード画像。 register 後に upload-thumbnail API で送る。 */
+    localImage?: CompressedImage;
 };
 
 type Props = {
@@ -64,6 +68,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const [tweetSource, setTweetSource] = useState<{ postUrl: string; tweetId: string } | null>(null);
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState<string[]>([]);
+    const [localImage, setLocalImage] = useState<CompressedImage | null>(null);
 
     const handleTweetFetched = useCallback(
         (data: TweetData, source: { postUrl: string; tweetId: string } | null) => {
@@ -152,9 +157,12 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     ]);
 
     const handleSubmit = () => {
+        // 画像アップロードがあれば最優先 (imageMode='thumbnail')。 SNS image は無視。
+        // 画像アップロード無し かつ SNS Tweet が取得できていれば imageMode='sns'。
+        // どちらも無ければ imageMode='none'。
         const photo = tweetData?.photos?.[0];
-        const image =
-            tweetSource && photo
+        const snsImage =
+            !localImage && tweetSource && photo
                 ? { postUrl: tweetSource.postUrl, ogImageUrl: photo, tweetId: tweetSource.tweetId }
                 : {};
         onSubmit({
@@ -169,7 +177,8 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             parentHouseSize,
             description,
             tags,
-            ...image,
+            ...snsImage,
+            ...(localImage ? { localImage } : {}),
         });
     };
 
@@ -184,6 +193,13 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
         <div className="housing-register-form">
             <HousingRegisterSnsUrlField onTweetFetched={handleTweetFetched} />
             {tweetData && <HousingRegisterTweetPreview data={tweetData} />}
+
+            {/* 2026-05-26: 画像アップロード経路。 SNS URL と並ぶ第 2 の画像入力手段。 両方ある場合は画像優先。 */}
+            <HousingRegisterImageField
+                value={localImage}
+                onChange={setLocalImage}
+                hasSnsUrl={!!tweetSource}
+            />
 
             {/* DC */}
             <div className="housing-field" data-state={fieldState.getState('dc')}>

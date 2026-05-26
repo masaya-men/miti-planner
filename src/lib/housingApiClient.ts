@@ -100,3 +100,32 @@ export async function purgeIfTweetGone(listingId: string): Promise<PurgeResponse
     return { deleted: false };
   }
 }
+
+export interface UploadThumbnailResponse {
+  success: boolean;
+  thumbnailPath: string;
+}
+
+/**
+ * 物件サムネ画像を Firebase Storage にアップロード (2026-05-26 新設)。
+ * クライアント側でリサイズ + AVIF 圧縮 + EXIF 削除済の base64 を送る前提。
+ *
+ * Throws: error.message に backend のエラーコード ('too_large', 'forbidden' 等) を含む。
+ */
+export async function uploadListingThumbnail(params: {
+  listingId: string;
+  base64: string;
+  mimeType: string;
+}): Promise<UploadThumbnailResponse> {
+  const headers = await buildHeaders(true);
+  const res = await fetch(`${API_BASE}?action=upload-thumbnail`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `upload-thumbnail failed: ${res.status}`);
+  }
+  return (await res.json()) as UploadThumbnailResponse;
+}

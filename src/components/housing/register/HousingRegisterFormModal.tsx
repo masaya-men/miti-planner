@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HousingRegisterForm, type HousingRegisterFormValues } from './HousingRegisterForm';
-import { registerListing, QuotaExhaustedError } from '../../../lib/housingApiClient';
+import { registerListing, uploadListingThumbnail, QuotaExhaustedError } from '../../../lib/housingApiClient';
 import { HousingPanelModal } from '../HousingPanelModal';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -101,7 +101,26 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
         setSubmitting(true);
         try {
             const { id } = await registerListing(toRegistrationDraft(confirmValues));
+
+            // 2026-05-26: 画像アップロードがあれば register 直後に upload-thumbnail を呼ぶ。
+            // upload 失敗時は listing 自体は登録済みなので、 ユーザーには登録成功として扱い
+            // エラーは toast/console に流す (再アップロードは編集 UI で対応する想定)。
+            if (confirmValues.localImage) {
+                try {
+                    await uploadListingThumbnail({
+                        listingId: id,
+                        base64: confirmValues.localImage.base64,
+                        mimeType: confirmValues.localImage.mimeType,
+                    });
+                } catch (uploadErr) {
+                    console.warn('[HousingRegisterFormModal] thumbnail upload failed', uploadErr);
+                    setErrorKey('upload_failed');
+                    // upload 失敗時も listing 自体は登録済み。 list 反映 + close は実行。
+                }
+            }
+
             // 登録した物件を中央一覧へ即反映 (リロード不要)。 失敗しても登録は成功済み。
+            // upload が成功していれば thumbnailPath も含めて fetch される。
             await useHousingListingsStore.getState().fetchAndUpsert(id);
             setConfirmValues(null);
             onClose();

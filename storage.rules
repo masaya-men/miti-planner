@@ -23,5 +23,14 @@ service firebase.storage {
                       && request.resource.size < 2 * 1024 * 1024
                       && request.resource.contentType.matches('image/.*');
     }
+
+    // ハウジング物件の画像 (2026-05-26 追加): 誰でも読み取り可能、
+    // 書き込みは backend (admin SDK) 経由のみ。 admin SDK は rule をバイパスするため、
+    // クライアントからの直接書き込みは全て拒否する。
+    // backend 側で listing.ownerUid とリクエスト UID の一致を検証する。
+    match /housing/listings/{listingId}/{file} {
+      allow read: if true;
+      allow write: if false;
+    }
   }
 }

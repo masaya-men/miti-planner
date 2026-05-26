@@ -16,8 +16,9 @@
   1. **ユーザー実機確認** (本番、 Discord OAuth 必須 → Claude は不可): アパート登録 / 家登録 / 言語切替で住所表記 / /admin/housing-reports
   2. **実機 E2E** (2 アカ通報フロー全通し: 通報→ベル→reason 別ガイド→編集/削除→Not found→復帰)
   3. 不具合発覚 → 修正 → push (Vercel 自動デプロイ)
-  4. **コールドスタート用物件登録** (ユーザーが本番で 5-10 件)
-  5. **アプデ告知** (#59 軽減表 + ハウジング α 公開、 まとめ or 分割)
+  4. **公開直前に既存テスト物件を一掃** (本人テスト用残骸、 ユーザーが詳細から削除)
+  5. **コールドスタート用物件登録** (ユーザーが本番で 5-10 件、 4 で一掃した後)
+  6. **アプデ告知** (#59 軽減表 + ハウジング α 公開、 まとめ or 分割)
 
 ---
 
@@ -48,7 +49,13 @@
 - **#60 残課題**: UI コンポーネント test 追従 (HousingRegisterAddressFields / HousingRegisterView / HousingRegisterModal — フォーム改修で確実に落ちる) / カードデザイン本格刷新 (Allmarks 風) / マップ実データ化 + `APARTMENT_SPOT[area]` 定義 / ko/zh の翻訳実値
 - **タグ仕様全面刷新** (2026-05-27 ユーザー発案、 詳細は [docs/.private/2026-05-27-tag-system-redesign.md](./.private/2026-05-27-tag-system-redesign.md)): ①公式 FF14 タグ + ②シーズン/主要イベント + ③個人タグ (1 ユーザー 1 タグ制約) の 3 カテゴリ構成。 「好きなハウジンガーの家だけのツアー」 が組める文化的価値が中核。 軽量モデレーション (通報→削除依頼→無対応で自動非表示)
 - ④ **リッチメディア化** (複数画像 + 動画埋め込み + ビューポート内自動再生): Allmarks 知見流用 (memory `reference_allmarks_mycollage`)。 ①複数画像をホバー/全切り替えで閲覧 ②詳細で動画埋め込み (**CSP に video.twimg.com 追加必須**) ③ビューポート内自動再生=動画最大3本/画像は性能制約なく全切り替え
-- **通報モデの穴**: /admin の復帰 (isHidden→false) / BAN UI、 異議申し立てアプリ内 UI、 nsfw/griefing 管理者通知、 30 日後物理削除 cron
+- **通報モデ業界水準ロードマップ** (2026-05-26 確定、 詳細 [docs/.private/2026-05-26-housing-moderation-roadmap.md](./.private/2026-05-26-housing-moderation-roadmap.md)。 6 月以降開発空き対策で詳細別ファイル化):
+  1. **Audit log** (誰がいつ誰の通報をどう処理したか記録、 法的トラブル + サポート問い合わせ予防、 1 ヶ月以内推奨)
+  2. **30 日物理削除 cron** (Phase 3 既載、 法的「削除依頼から 30 日以内に削除」 約束するなら必須、 1 ヶ月以内推奨)
+  3. **異議申し立てアプリ内 UI** (現状 Discord 連絡限定 → Discord 持ってない人を排除、 2-3 ヶ月以内)
+  4. **BAN ポリシー自動化** (累積 N 回通報されて却下されない物件は強制 BAN 等、 2-3 ヶ月以内)
+  5. **NSFW/griefing 高優先度キュー** (`severity: 'high'` は既に通報側で付与済 ([_reportListingHandler.ts:77](../api/housing/_reportListingHandler.ts)) だが /admin の並び順に反映されてない、 1-2 ヶ月以内)
+  6. **Reporter scoring** (信頼性低い reporter の通報を weight 下げる、 嫌がらせ通報の自動希釈、 3-6 ヶ月以内)
 - **HousingCardExpanded 撤去判断** / ツアー同期 Firestore 化 / Cloudflare 前段化
 - 細かい修正: `fieldState.confirm()` バグ、 dead code 撤去、 AddressFields renderBadge prop 化、 photo `alt`、 SNS rate limiting、 通知 ✕ の見た目磨き
 
