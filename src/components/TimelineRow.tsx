@@ -517,18 +517,7 @@ export const TimelineRow = memo(({
                 }}
             >
                 {events.length === 1 ? (
-                    <div className={clsx("w-full h-full flex flex-col items-center justify-center gap-0.5 leading-none", (() => {
-                        const evt = events[0];
-                        const dmg = damages[0];
-                        if (!evt || !dmg) return "";
-                        if (dmg.unmitigated <= 0) return "";
-                        let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                        if (evt.target === 'MT' || evt.target === 'ST') {
-                            maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
-                        }
-                        const isLethal = dmg.mitigated >= maxHp;
-                        return isLethal ? "bg-red-500/10" : "";
-                    })())}>
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-0.5 leading-none">
                         {damages[0] && (damages[0].unmitigated > 0 || damages[0].isInvincible) ? (
                             <>
                                 {(() => {
@@ -540,7 +529,7 @@ export const TimelineRow = memo(({
                                     }
                                     const isLethal = dmg.mitigated >= maxHp;
                                     const colorClass = isLethal
-                                        ? "text-red-600 dark:text-red-400 shadow-sm"
+                                        ? "text-red-600 dark:text-red-400"
                                         : "text-green-600 dark:text-green-400";
                                     return <AnimatedDamage value={dmg.mitigated} isLethal={isLethal} className={colorClass} />;
                                 })()}
@@ -566,19 +555,7 @@ export const TimelineRow = memo(({
                     <>
                         {[0, 1].map((idx) => (
                             <div key={idx} className={clsx("flex-1 w-full flex flex-col items-center justify-center gap-0.5 leading-none",
-                                idx === 0 && showRowBorders && "border-b border-app-border",
-                                (() => {
-                                    const evt = events[idx];
-                                    const dmg = damages[idx];
-                                    if (!evt || !dmg) return "";
-                                    if (dmg.unmitigated <= 0) return "";
-                                    let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                    if (evt.target === 'MT' || evt.target === 'ST') {
-                                        maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
-                                    }
-                                    const isLethal = dmg.mitigated >= maxHp;
-                                    return isLethal ? "bg-red-500/10" : "";
-                                })()
+                                idx === 0 && showRowBorders && "border-b border-app-border"
                             )}>
                                 {damages[idx] && (damages[idx].unmitigated > 0 || damages[idx].isInvincible) ? (
                                     <>
@@ -591,7 +568,7 @@ export const TimelineRow = memo(({
                                             }
                                             const isLethal = dmg.mitigated >= maxHp;
                                             const colorClass = isLethal
-                                                ? "text-red-600 dark:text-red-400 shadow-sm"
+                                                ? "text-red-600 dark:text-red-400"
                                                 : "text-green-600 dark:text-green-400";
                                             return <AnimatedDamage value={dmg.mitigated} isLethal={isLethal} className={colorClass} />;
                                         })()}
