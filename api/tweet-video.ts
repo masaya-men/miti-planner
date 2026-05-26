@@ -21,6 +21,21 @@ const ALLOWED_HOSTS = new Set<string>(['video.twimg.com']);
 const TIMEOUT_MS = 30_000;
 
 export default async function handler(req: Request): Promise<Response> {
+    // CORS preflight 応答 (2026-05-26 hotfix18):
+    //   将来 cross-origin 経由で叩かれる場合や、 Range ヘッダー付き fetch が
+    //   preflight を要求するブラウザ実装 (Chrome の一部) に対応。
+    if (req.method === 'OPTIONS') {
+        return new Response(null, {
+            status: 204,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+                'Access-Control-Allow-Headers': 'Range, Content-Type',
+                'Access-Control-Max-Age': '86400',
+            },
+        });
+    }
+
     const url = new URL(req.url).searchParams.get('url');
     if (!url) {
         return Response.json({ error: 'url query param is required' }, { status: 400 });

@@ -70,7 +70,11 @@ export async function extractVideoFrames(
     } = opts;
 
     const video = document.createElement('video');
-    video.crossOrigin = 'anonymous';
+    // crossOrigin は意図的に設定しない (2026-05-26 hotfix18):
+    //   src が同一 origin (/api/tweet-video?url=...) なので CORS は無関係、
+    //   crossOrigin='anonymous' を付けると逆に CORS preflight が走り、
+    //   Range ヘッダーが CORS-safelisted でないため preflight 失敗で video.error 発火。
+    //   同一 origin 経由なら canvas.toDataURL は tainted にならない。
     video.preload = 'auto';
     video.muted = true;
     video.playsInline = true;
