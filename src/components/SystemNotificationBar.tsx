@@ -31,17 +31,16 @@ export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
   const spanRef = React.useRef<HTMLSpanElement>(null);
   const [duration, setDuration] = useState<number | null>(null);
 
-  // 未読 0 → バー枠ごと描画しない (Sidebar が縮む)
-  if (!latestUnread) return null;
-
   // バーはタイトルのみ流す (本文はクリックでモーダル展開、 長文時に速度爆発する問題を構造的に解消)
-  const marqueeText = resolveLocalized(latestUnread.title, lang);
+  // latestUnread null 時も hooks 順序を保つため空文字で受ける
+  const marqueeText = latestUnread ? resolveLocalized(latestUnread.title, lang) : '';
 
   // span の実幅から速度可変で duration を算出 (元: 18s 固定で本文長に応じ爆速化していた)
+  // early return より前に置く: latestUnread の有無で hook 数が変わると Rules of Hooks 違反 (React #310)
   React.useLayoutEffect(() => {
     const el = spanRef.current;
     const parent = el?.parentElement;
-    if (!el || !parent) return;
+    if (!el || !parent || !marqueeText) return;
     const compute = () => {
       setDuration(Math.max(el.scrollWidth / MARQUEE_SPEED_PX_PER_SEC, MARQUEE_MIN_DURATION_S));
     };
@@ -50,6 +49,9 @@ export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
     ro.observe(parent);
     return () => ro.disconnect();
   }, [marqueeText]);
+
+  // 未読 0 → バー枠ごと描画しない (Sidebar が縮む)。 hooks 全部の後で early return
+  if (!latestUnread) return null;
 
   function handleClose() {
     setOpen(false);
