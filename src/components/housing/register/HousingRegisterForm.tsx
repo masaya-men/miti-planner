@@ -382,44 +382,31 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             <HousingRegisterTagPicker selected={tags} onChange={setTags} />
 
             <HousingRegisterChecklist
-                items={[
-                    ...(
-                        [
-                            { name: 'dc', labelKey: 'housing.register.dc', value: dc },
-                            { name: 'server', labelKey: 'housing.register.server', value: server },
-                            { name: 'area', labelKey: 'housing.register.area', value: area },
-                            { name: 'ward', labelKey: 'housing.register.ward', value: ward },
-                            { name: 'size', labelKey: 'housing.register.size', value: size, renderValue: (v) => t(`housing.register.type.${v === 'PrivateRoom' ? 'private' : v === 'Apartment' ? 'apartment' : v}`) },
-                            ...(showPlot
-                                ? [{ name: 'plot', labelKey: 'housing.register.plot', value: plot }]
-                                : []),
-                            ...(showApartmentBuilding
-                                ? [{ name: 'apartmentBuilding', labelKey: 'housing.register.apartment_building.label', value: apartmentBuilding }]
-                                : []),
-                            ...(showRoomNumber
-                                ? [{ name: 'roomNumber', labelKey: 'housing.register.room_number', value: roomNumber }]
-                                : []),
-                            ...(showParentSize
-                                ? [{ name: 'parentHouseSize', labelKey: 'housing.register.parent_house_size', value: parentHouseSize }]
-                                : []),
-                        ] as Array<Omit<ChecklistItem, 'state' | 'onConfirm'>>
-                    ).map((spec): ChecklistItem => ({
-                        ...spec,
-                        state: fieldState.getState(spec.name),
-                        onConfirm: () => fieldState.confirm(spec.name),
-                    })),
-                    // タグはサーバー側で 1 つ以上必須 (validateTags) なので、 未選択時は checklist に出して
-                    // ボタンも disable する。 fieldState 管理外なので state='empty' 固定で表示
-                    ...(tags.length === 0
-                        ? [{
-                            name: 'tags',
-                            labelKey: 'housing.register.tags_label',
-                            value: tags,
-                            state: 'empty' as const,
-                            onConfirm: () => { /* タグは別 UI (TagPicker) で選択するので no-op */ },
-                        }]
-                        : []),
-                ]}
+                items={(
+                    [
+                        { name: 'dc', labelKey: 'housing.register.dc', value: dc },
+                        { name: 'server', labelKey: 'housing.register.server', value: server },
+                        { name: 'area', labelKey: 'housing.register.area', value: area },
+                        { name: 'ward', labelKey: 'housing.register.ward', value: ward },
+                        { name: 'size', labelKey: 'housing.register.size', value: size, renderValue: (v) => t(`housing.register.type.${v === 'PrivateRoom' ? 'private' : v === 'Apartment' ? 'apartment' : v}`) },
+                        ...(showPlot
+                            ? [{ name: 'plot', labelKey: 'housing.register.plot', value: plot }]
+                            : []),
+                        ...(showApartmentBuilding
+                            ? [{ name: 'apartmentBuilding', labelKey: 'housing.register.apartment_building.label', value: apartmentBuilding }]
+                            : []),
+                        ...(showRoomNumber
+                            ? [{ name: 'roomNumber', labelKey: 'housing.register.room_number', value: roomNumber }]
+                            : []),
+                        ...(showParentSize
+                            ? [{ name: 'parentHouseSize', labelKey: 'housing.register.parent_house_size', value: parentHouseSize }]
+                            : []),
+                    ] as Array<Omit<ChecklistItem, 'state' | 'onConfirm'>>
+                ).map((spec): ChecklistItem => ({
+                    ...spec,
+                    state: fieldState.getState(spec.name),
+                    onConfirm: () => fieldState.confirm(spec.name),
+                }))}
             />
 
             <footer className="housing-register-form-footer">
@@ -428,7 +415,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                 </button>
                 <button
                     type="button"
-                    disabled={!fieldState.isReadyToSubmit() || tags.length === 0}
+                    disabled={!fieldState.isReadyToSubmit()}
                     onClick={handleSubmit}
                 >
                     {t('housing.register.submit')}

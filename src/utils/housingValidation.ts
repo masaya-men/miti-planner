@@ -121,8 +121,12 @@ export function validateAddress(addr: AddressInput): ValidationResult {
   return Object.keys(errors).length > 0 ? fail(errors) : ok();
 }
 
+/**
+ * タグ検証。 2026-05-27 にタグ optional 化 (0 件 OK)。 上限 5 件は維持。
+ * 個人タグ機能 (1 ユーザー 1 タグ) と公式タグ刷新は別セッションで設計予定 (docs/.private/2026-05-27-tag-system-redesign.md)。
+ */
 export function validateTags(tags: string[]): ValidationResult {
-  if (!Array.isArray(tags) || tags.length === 0) return fail({ tags: 'min_one_required' });
+  if (!Array.isArray(tags)) return fail({ tags: 'invalid_type' });
   if (tags.length > HOUSING_LIMITS.MAX_TAGS_PER_LISTING) return fail({ tags: 'max_exceeded' });
   if (new Set(tags).size !== tags.length) return fail({ tags: 'duplicate' });
   for (const id of tags) {
