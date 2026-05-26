@@ -191,7 +191,8 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             })
             .filter((c): c is NonNullable<typeof c> => c !== null);
         if (compressedList.length > 0) {
-            setLocalImages((prev) => [...prev, ...compressedList].slice(0, 4));
+            // hotfix25: 12 枚まで保持。 登録時に先頭 4 枚に絞る (handleSubmit 内)。
+            setLocalImages((prev) => [...prev, ...compressedList].slice(0, 12));
         }
     }, [ogpResult]);
 
@@ -222,7 +223,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                 const compressed = frames.map((dataUrl, i) =>
                     dataUrlToCompressedImage(dataUrl, `tweet-frame-${i}.webp`),
                 );
-                setLocalImages((prev) => [...prev, ...compressed].slice(0, 4));
+                setLocalImages((prev) => [...prev, ...compressed].slice(0, 12));
             } catch {
                 if (cancelled) return;
                 setVideoExtractFailed(true);
@@ -295,6 +296,10 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             }
         }
 
+        // hotfix25: 12 枚まで取り込み可だが、 登録時は先頭 4 枚に絞る (= LoPo 物件画像 max 4)。
+        // ドラッグ並び替えで好きな順に並べてから登録すると、 1 枚目 = カバーになる。
+        const localImagesToSubmit = localImages.slice(0, 4);
+
         onSubmit({
             dc,
             server,
@@ -308,7 +313,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             description,
             tags,
             ...snsImage,
-            ...(hasLocalImages ? { localImages } : {}),
+            ...(hasLocalImages ? { localImages: localImagesToSubmit } : {}),
         });
     };
 
@@ -371,6 +376,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                 value={localImages}
                 onChange={setLocalImages}
                 hasSnsUrl={!!tweetSource || !!youtubeData || !!ogpResult}
+                maxImages={12}
             />
 
             {/* DC */}

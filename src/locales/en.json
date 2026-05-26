@@ -1842,7 +1842,7 @@
                 "label": "Images (optional, up to {{max}})",
                 "cta": "Click or drag to select an image",
                 "cta_add": "+ Add image",
-                "hint": "{{current}} / {{max}} · auto-resized to max 1920px / 1MB per image (AVIF/WebP)",
+                "hint": "{{current}} / {{max}} · auto-resized to max 1920px / 1MB per image (AVIF/WebP). The first 4 images will be saved as listing photos (drag to reorder)",
                 "select_aria": "Select an image file",
                 "compressing": "Compressing image…",
                 "compressed_label": "Compressed",

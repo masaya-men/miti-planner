@@ -102,7 +102,7 @@ describe('GET /api/og', () => {
         expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
-    it('studio-xiv.com でも複数画像 (ffxiv_ パターン) を最大 4 枚まで取得 (hotfix24)', async () => {
+    it('studio-xiv.com は ffxiv_ パターンを全部取得、 ロゴ等は除外 (hotfix24/25)', async () => {
         const html = `
             <meta property="og:image" content="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_main.png">
             <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_b.png">
@@ -121,13 +121,13 @@ describe('GET /api/og', () => {
         const res = await handler(makeReq('https://studio-xiv.com/studio/100189/'));
         expect(res.status).toBe(200);
         const body = await res.json();
+        // 4 件全部 (ffxiv_main / b / c / d) が取れる、 site-logo は ffxiv_ プレフィックス無しで除外
         expect(body.images).toHaveLength(4);
-        // ロゴは ffxiv_ プレフィックスが無いので除外され、 max 4 で打ち切り
         expect(body.images[0].sourceUrl).toContain('ffxiv_main');
         expect(body.images[3].sourceUrl).toContain('ffxiv_d');
     });
 
-    it('housingsnap.com では追加画像も最大 4 枚まで取得', async () => {
+    it('housingsnap.com で 5 枚あれば 5 枚返る (hotfix25: max 12 まで)', async () => {
         const html = `
             <meta property="og:image" content="https://assets.housingsnap.com/uploads/paragraph/image/1/aaa111_watermark.jpg">
             <img src="https://assets.housingsnap.com/uploads/paragraph/image/2/bbb222_watermark.jpg">
@@ -141,17 +141,35 @@ describe('GET /api/og', () => {
             .mockResolvedValueOnce(imageResponse(bytes))
             .mockResolvedValueOnce(imageResponse(bytes))
             .mockResolvedValueOnce(imageResponse(bytes))
+            .mockResolvedValueOnce(imageResponse(bytes))
             .mockResolvedValueOnce(imageResponse(bytes));
 
         const res = await handler(makeReq('https://housingsnap.com/46775'));
         expect(res.status).toBe(200);
         const body = await res.json();
-        // og:image + 追加 3 枚 = 計 4 枚 (max)。 5 枚目は捨てる
-        expect(body.images).toHaveLength(4);
+        // hotfix25 で max を 12 に上げたので 5 枚全部返る
+        expect(body.images).toHaveLength(5);
         expect(body.images[0].sourceUrl).toContain('/1/aaa111_');
-        expect(body.images[1].sourceUrl).toContain('/2/bbb222_');
-        expect(body.images[2].sourceUrl).toContain('/3/ccc333_');
-        expect(body.images[3].sourceUrl).toContain('/4/ddd444_');
+        expect(body.images[4].sourceUrl).toContain('/5/eee555_');
+    });
+
+    it('housingsnap.com で 13 枚あっても 12 枚で打ち切り (hotfix25)', async () => {
+        const imgs = Array.from({ length: 13 }, (_, i) => {
+            const id = i + 1;
+            const hash = `aa${id.toString(16).padStart(4, '0')}bb`;
+            return `<img src="https://assets.housingsnap.com/uploads/paragraph/image/${id}/${hash}_watermark.jpg">`;
+        }).join('\n');
+        const html = `<meta property="og:image" content="https://assets.housingsnap.com/uploads/paragraph/image/100/zzz999_watermark.jpg">${imgs}`;
+        const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
+        mockFetch.mockResolvedValueOnce(htmlResponse(html));
+        for (let i = 0; i < 13; i++) mockFetch.mockResolvedValueOnce(imageResponse(bytes));
+
+        const res = await handler(makeReq('https://housingsnap.com/x'));
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        // og:image (zzz999) + 追加 11 枚 = 計 12 枚で打ち切り
+        expect(body.images).toHaveLength(12);
+        expect(body.images[0].sourceUrl).toContain('zzz999');
     });
 
     it('upstream HTML fetch 失敗で 502', async () => {

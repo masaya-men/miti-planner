@@ -24,7 +24,7 @@ const HTML_TIMEOUT_MS = 8_000;
 const IMAGE_TIMEOUT_MS = 8_000;
 const MAX_HTML_BYTES = 2 * 1024 * 1024; // 2 MB (= og:meta 行は header 付近にあるので十分)
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024; // 3 MB
-const MAX_IMAGES_PER_RESPONSE = 4; // LoPo 物件画像の最大枚数と揃える
+const MAX_IMAGES_PER_RESPONSE = 12; // 取得は 12 枚まで、 登録時に先頭 4 枚に絞る (hotfix25)
 
 export interface OgImagePayload {
     sourceUrl: string;

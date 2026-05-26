@@ -1863,7 +1863,7 @@
                 "label": "画像 (任意・最大 {{max}} 枚)",
                 "cta": "クリックまたはドラッグして画像を選択",
                 "cta_add": "+ 画像を追加",
-                "hint": "{{current}} / {{max}} 枚・長辺 1920px・1 枚あたり最大 1MB に自動圧縮 (AVIF/WebP)",
+                "hint": "{{current}} / {{max}} 枚・長辺 1920px・1 枚あたり最大 1MB に自動圧縮 (AVIF/WebP)。 登録時は先頭 4 枚が物件画像として保存されます (ドラッグで並び替え可)",
                 "select_aria": "画像ファイルを選択",
                 "compressing": "画像を圧縮中…",
                 "compressed_label": "圧縮済",
