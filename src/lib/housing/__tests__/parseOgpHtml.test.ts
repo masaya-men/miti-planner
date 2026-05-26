@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseOgpHtml } from '../parseOgpHtml';
+import { parseOgpHtml, extractHousingSnapImages } from '../parseOgpHtml';
 
 const BASE = 'https://housingsnap.com/listing/123';
 
@@ -69,6 +69,43 @@ describe('parseOgpHtml - HTML entity decode', () => {
     it('&amp; / &quot; / &#039; などを decode', () => {
         const html = `<meta property="og:title" content="A &amp; B &quot;C&quot; &#039;D&#039;">`;
         expect(parseOgpHtml(html, BASE).title).toBe(`A & B "C" 'D'`);
+    });
+});
+
+describe('extractHousingSnapImages - hotfix23 housingsnap 複数画像対応', () => {
+    it('_watermark.jpg の URL を出現順に抽出する', () => {
+        const html = `
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/100/aaa111_watermark.jpg">
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/200/bbb222_watermark.jpg">
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/300/ccc333_watermark.jpg">
+        `;
+        expect(extractHousingSnapImages(html)).toEqual([
+            'https://assets.housingsnap.com/uploads/paragraph/image/100/aaa111_watermark.jpg',
+            'https://assets.housingsnap.com/uploads/paragraph/image/200/bbb222_watermark.jpg',
+            'https://assets.housingsnap.com/uploads/paragraph/image/300/ccc333_watermark.jpg',
+        ]);
+    });
+
+    it('重複は排除する (同じ URL が複数 <img> に出ても 1 回のみ)', () => {
+        const html = `
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/1/abc123_watermark.jpg">
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/1/abc123_watermark.jpg">
+        `;
+        expect(extractHousingSnapImages(html)).toHaveLength(1);
+    });
+
+    it('_thumb.jpg や別パターンの URL は無視', () => {
+        const html = `
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/1/abc123_thumb.jpg">
+            <img src="https://assets.housingsnap.com/uploads/avatar/2/abc123_watermark.jpg">
+            <img src="https://other.com/abc123_watermark.jpg">
+        `;
+        expect(extractHousingSnapImages(html)).toEqual([]);
+    });
+
+    it('html 不在/異常入力なら空配列', () => {
+        expect(extractHousingSnapImages('')).toEqual([]);
+        expect(extractHousingSnapImages(null as unknown as string)).toEqual([]);
     });
 });
 

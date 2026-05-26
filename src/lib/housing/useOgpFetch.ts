@@ -7,12 +7,20 @@ import { useState, useCallback, useRef } from 'react';
  * useTweetFetch / useYoutubeFetch と並ぶ「URL → 物件画像」 経路の 3 つ目。
  */
 
+export interface OgpImagePayload {
+    sourceUrl: string;
+    base64: string;
+    mimeType: string;
+}
+
 export interface OgpData {
-    /** og:image URL (= 取得失敗時は null、 ただし imageBase64 が server で取れていれば優先) */
+    /** og:image URL (= 1 枚目の出典 URL、 後方互換用)。 取得不可なら null。 */
     image: string | null;
-    /** server 側で fetch した og:image の base64 (= dataUrlToCompressedImage 経路に流す用) */
-    imageBase64: string | null;
-    imageMimeType: string | null;
+    /**
+     * 全画像 (og:image + サイト別追加抽出) を base64 で同梱。 最大 4 枚。
+     * housingsnap.com なら 1 物件 1-4 枚、 他のサイトは og:image の 1 枚のみ。
+     */
+    images: OgpImagePayload[];
     title: string | null;
     description: string | null;
     siteName: string | null;

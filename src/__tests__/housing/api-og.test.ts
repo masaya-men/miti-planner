@@ -63,17 +63,22 @@ describe('GET /api/og', () => {
             .mockResolvedValueOnce(htmlResponse(html))
             .mockResolvedValueOnce(imageResponse(imageBytes, 'image/jpeg'));
 
-        const res = await handler(makeReq('https://housingsnap.com/listing/1'));
+        const res = await handler(makeReq('https://thonhart.com/p/1'));
         expect(res.status).toBe(200);
         const body = await res.json();
         expect(body.image).toBe('https://cdn.x/a.jpg');
         expect(body.title).toBe('家');
         expect(body.siteName).toBe('Housing Snap');
-        expect(body.imageBase64).toBe('/9j/4A=='); // 0xff 0xd8 0xff 0xe0 を base64
-        expect(body.imageMimeType).toBe('image/jpeg');
+        expect(body.images).toEqual([
+            {
+                sourceUrl: 'https://cdn.x/a.jpg',
+                base64: '/9j/4A==',
+                mimeType: 'image/jpeg',
+            },
+        ]);
     });
 
-    it('og:image が無いと imageBase64 も null', async () => {
+    it('og:image が無いと images も空配列', async () => {
         const html = `<meta property="og:title" content="No Image Page">`;
         mockFetch.mockResolvedValueOnce(htmlResponse(html));
 
@@ -81,20 +86,47 @@ describe('GET /api/og', () => {
         expect(res.status).toBe(200);
         const body = await res.json();
         expect(body.image).toBeNull();
-        expect(body.imageBase64).toBeNull();
+        expect(body.images).toEqual([]);
         expect(body.title).toBe('No Image Page');
     });
 
-    it('og:image が private IP の場合は base64 取得スキップ', async () => {
+    it('og:image が private IP の場合は画像取得スキップ', async () => {
         const html = `<meta property="og:image" content="https://10.0.0.5/img.jpg">`;
         mockFetch.mockResolvedValueOnce(htmlResponse(html));
 
-        const res = await handler(makeReq('https://housingsnap.com/listing/2'));
+        const res = await handler(makeReq('https://thonhart.com/p/1'));
         expect(res.status).toBe(200);
         const body = await res.json();
         expect(body.image).toBe('https://10.0.0.5/img.jpg');
-        expect(body.imageBase64).toBeNull(); // SSRF guard で 2 回目 fetch しない
+        expect(body.images).toEqual([]); // SSRF guard で 2 回目 fetch しない
         expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('housingsnap.com では追加画像も最大 4 枚まで取得', async () => {
+        const html = `
+            <meta property="og:image" content="https://assets.housingsnap.com/uploads/paragraph/image/1/aaa111_watermark.jpg">
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/2/bbb222_watermark.jpg">
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/3/ccc333_watermark.jpg">
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/4/ddd444_watermark.jpg">
+            <img src="https://assets.housingsnap.com/uploads/paragraph/image/5/eee555_watermark.jpg">
+        `;
+        const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
+        mockFetch
+            .mockResolvedValueOnce(htmlResponse(html))
+            .mockResolvedValueOnce(imageResponse(bytes))
+            .mockResolvedValueOnce(imageResponse(bytes))
+            .mockResolvedValueOnce(imageResponse(bytes))
+            .mockResolvedValueOnce(imageResponse(bytes));
+
+        const res = await handler(makeReq('https://housingsnap.com/46775'));
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        // og:image + 追加 3 枚 = 計 4 枚 (max)。 5 枚目は捨てる
+        expect(body.images).toHaveLength(4);
+        expect(body.images[0].sourceUrl).toContain('/1/aaa111_');
+        expect(body.images[1].sourceUrl).toContain('/2/bbb222_');
+        expect(body.images[2].sourceUrl).toContain('/3/ccc333_');
+        expect(body.images[3].sourceUrl).toContain('/4/ddd444_');
     });
 
     it('upstream HTML fetch 失敗で 502', async () => {

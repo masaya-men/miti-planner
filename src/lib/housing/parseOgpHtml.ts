@@ -25,6 +25,34 @@ export interface OgpMetadata {
 }
 
 /**
+ * housingsnap.com 専用の追加画像抽出 (2026-05-27 hotfix23)。
+ *
+ * ハウジングスナップは 1 物件で 1F / 地下 / 庭 別の複数画像を持つ。 og:image は
+ * 1 枚しか出ないが、 HTML 内 `<img src="...assets.housingsnap.com/.../_watermark.jpg">`
+ * を全部抽出すれば 1-8 枚取得可能 (= LoPo の max 4 枚制約に乗る)。
+ *
+ * 抽出パターン (URL 固定):
+ *   `https://assets.housingsnap.com/uploads/paragraph/image/<id>/<hash>_watermark.jpg`
+ *
+ * 順序は HTML 出現順 (= 1F → 地下 → 庭の表示順)。 重複排除済。
+ */
+export function extractHousingSnapImages(html: string): string[] {
+    if (typeof html !== 'string' || html.length === 0) return [];
+    const re =
+        /https:\/\/assets\.housingsnap\.com\/uploads\/paragraph\/image\/\d+\/[a-f0-9]+_watermark\.jpg/gi;
+    const matches = html.match(re) ?? [];
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const url of matches) {
+        if (!seen.has(url)) {
+            seen.add(url);
+            out.push(url);
+        }
+    }
+    return out;
+}
+
+/**
  * meta tag の content 属性を property/name で検索する。
  * 属性順序 (property → content / content → property) の両方に対応。
  */

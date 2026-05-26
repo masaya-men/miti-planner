@@ -12,7 +12,7 @@
 // Node.js 固有 API は使わず Web 標準 (Request/Response/fetch/URL/AbortSignal) のみ。
 
 import { isOgpUrlAllowed } from '../src/lib/housing/ogpHostAllowlist.js';
-import { parseOgpHtml } from '../src/lib/housing/parseOgpHtml.js';
+import { parseOgpHtml, extractHousingSnapImages } from '../src/lib/housing/parseOgpHtml.js';
 
 export const config = { runtime: 'edge' };
 
@@ -20,11 +20,19 @@ const HTML_TIMEOUT_MS = 8_000;
 const IMAGE_TIMEOUT_MS = 8_000;
 const MAX_HTML_BYTES = 2 * 1024 * 1024; // 2 MB (= og:meta 行は header 付近にあるので十分)
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024; // 3 MB
+const MAX_IMAGES_PER_RESPONSE = 4; // LoPo 物件画像の最大枚数と揃える
+
+export interface OgImagePayload {
+    sourceUrl: string;
+    base64: string;
+    mimeType: string;
+}
 
 interface OgResponse {
+    /** og:image の URL (= 1 枚目)、 取得不可なら null。 後方互換目的で残す。 */
     image: string | null;
-    imageBase64: string | null;
-    imageMimeType: string | null;
+    /** 全画像 (og:image + サイト別追加抽出) を base64 で同梱。 最大 MAX_IMAGES_PER_RESPONSE。 */
+    images: OgImagePayload[];
     title: string | null;
     description: string | null;
     siteName: string | null;
@@ -64,23 +72,44 @@ export default async function handler(req: Request): Promise<Response> {
 
         const meta = parseOgpHtml(html, url);
 
-        // og:image を server 側で fetch して base64 化 (CSP 拡張不要にする目的)。
+        // 候補 URL リスト構築: og:image (= 1 枚目) + サイト別追加抽出。
         // og:image 自身は allowlist 外の CDN ホストでも構わない (== 静的画像なので SSRF リスク低)。
-        // ただし protocol = https のみ、 redirect 追跡しない、 サイズ制限の 3 点で hardening。
-        let imageBase64: string | null = null;
-        let imageMimeType: string | null = null;
-        if (meta.image && isImageUrlSafe(meta.image)) {
-            const fetched = await fetchImageAsBase64(meta.image);
+        // ただし protocol = https のみ、 redirect 追跡しない、 サイズ制限で hardening。
+        const candidateUrls: string[] = [];
+        const seen = new Set<string>();
+        const tryAdd = (u: string | null) => {
+            if (!u || seen.has(u)) return;
+            if (!isImageUrlSafe(u)) return;
+            seen.add(u);
+            candidateUrls.push(u);
+        };
+        tryAdd(meta.image);
+
+        // housingsnap.com 専用: 1 物件あたり複数画像を抽出
+        const parsedUrl = new URL(url);
+        if (parsedUrl.hostname === 'housingsnap.com') {
+            for (const u of extractHousingSnapImages(html)) {
+                tryAdd(u);
+                if (candidateUrls.length >= MAX_IMAGES_PER_RESPONSE) break;
+            }
+        }
+
+        // 各画像を base64 化 (最大 MAX_IMAGES_PER_RESPONSE で打ち切り)
+        const images: OgImagePayload[] = [];
+        for (const sourceUrl of candidateUrls.slice(0, MAX_IMAGES_PER_RESPONSE)) {
+            const fetched = await fetchImageAsBase64(sourceUrl);
             if (fetched) {
-                imageBase64 = fetched.base64;
-                imageMimeType = fetched.mimeType;
+                images.push({
+                    sourceUrl,
+                    base64: fetched.base64,
+                    mimeType: fetched.mimeType,
+                });
             }
         }
 
         const body: OgResponse = {
             image: meta.image,
-            imageBase64,
-            imageMimeType,
+            images,
             title: meta.title,
             description: meta.description,
             siteName: meta.siteName,

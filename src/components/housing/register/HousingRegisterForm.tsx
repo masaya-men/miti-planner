@@ -160,8 +160,8 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const serverKeys = dc ? Object.keys(serverMasterData[dc]?.servers ?? {}) : [];
     const areaKeys = Object.keys(housingAreaMasterData);
 
-    // 2026-05-27 (B): OGP 取得成功時に imageBase64 を CompressedImage 化して localImages へ push。
-    // 同じ URL で複数回 push しないよう ref ガード。
+    // 2026-05-27 (B / hotfix23): OGP 取得成功時に images[] (最大 4 枚) を CompressedImage 化
+    // して localImages へ push。 同じ URL で複数回 push しないよう ref ガード。
     useEffect(() => {
         if (!ogpResult) {
             ogpAppliedUrlRef.current = null;
@@ -169,24 +169,29 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
         }
         const key = ogpResult.postUrl;
         if (ogpAppliedUrlRef.current === key) return;
-        if (!ogpResult.data.imageBase64 || !ogpResult.data.imageMimeType) {
-            // 画像取得失敗時でも postUrl + ogImageUrl 経路で fallback (handleSubmit が拾う)。
-            ogpAppliedUrlRef.current = key;
+        ogpAppliedUrlRef.current = key;
+        if (!ogpResult.data.images || ogpResult.data.images.length === 0) {
+            // 画像取得 0 枚時は postUrl + og:image URL の ogImageUrl 経路で fallback
             return;
         }
-        ogpAppliedUrlRef.current = key;
-        const ext =
-            ogpResult.data.imageMimeType === 'image/png'
-                ? 'png'
-                : ogpResult.data.imageMimeType === 'image/webp'
-                ? 'webp'
-                : 'jpg';
-        const dataUrl = `data:${ogpResult.data.imageMimeType};base64,${ogpResult.data.imageBase64}`;
-        try {
-            const compressed = dataUrlToCompressedImage(dataUrl, `ogp-image.${ext}`);
-            setLocalImages((prev) => [...prev, compressed].slice(0, 4));
-        } catch {
-            // 失敗時は postUrl 経路だけで保存される (= imageMode='sns' + ogImageUrl)
+        const compressedList = ogpResult.data.images
+            .map((img, i) => {
+                const ext =
+                    img.mimeType === 'image/png'
+                        ? 'png'
+                        : img.mimeType === 'image/webp'
+                        ? 'webp'
+                        : 'jpg';
+                const dataUrl = `data:${img.mimeType};base64,${img.base64}`;
+                try {
+                    return dataUrlToCompressedImage(dataUrl, `ogp-image-${i}.${ext}`);
+                } catch {
+                    return null;
+                }
+            })
+            .filter((c): c is NonNullable<typeof c> => c !== null);
+        if (compressedList.length > 0) {
+            setLocalImages((prev) => [...prev, ...compressedList].slice(0, 4));
         }
     }, [ogpResult]);
 
