@@ -76,6 +76,9 @@ export default async function handler(req: any, res: any) {
 
     const severity = reason === 'griefing' || reason === 'nsfw' ? 'high' : 'normal';
 
+    // 通報 doc の ID を transaction 前に確定 (notification doc から逆参照するため)
+    const reportRef = listingRef.collection('reports').doc();
+
     await adminDb.runTransaction(async (tx) => {
       const snap = await tx.get(listingRef);
       if (!snap.exists) throw new Error('not_found');
@@ -87,7 +90,6 @@ export default async function handler(req: any, res: any) {
       const shouldHide = newCount >= REPORT_AUTO_HIDE_THRESHOLD && !data.isHidden;
 
       // 通報 doc 作成
-      const reportRef = listingRef.collection('reports').doc();
       tx.set(reportRef, {
         reporterUid,
         reason,
@@ -102,6 +104,7 @@ export default async function handler(req: any, res: any) {
       });
 
       // 通知 doc 作成 (家主向け、 reporterUid は書かない)
+      // 2026-05-26: 管理者が通報を却下した時に連動削除できるよう reportId を保持する。
       const notifRef = adminDb
         .collection('users')
         .doc(data.ownerUid)
@@ -110,6 +113,7 @@ export default async function handler(req: any, res: any) {
       tx.set(notifRef, {
         type: 'housing_report',
         listingId,
+        reportId: reportRef.id,
         reason,
         severity,
         ...(comment ? { comment: String(comment).slice(0, 500) } : {}),

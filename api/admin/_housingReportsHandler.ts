@@ -124,6 +124,7 @@ export default async function handler(req: any, res: any) {
         // 個別通報レコードを 1 件却下: report doc 削除 + reportCount-1 + 閾値割れで isHidden=false。
         // 2026-05-26 改修: 旧 'restore' (= 単に count-1) は「どの通報を却下したか」 が
         // 不明な UX バグだった。 reason/comment を見て個別に却下できるように変更。
+        // さらに却下時は家主の対応する通知も連動削除する (reportId 紐付けで検索)。
         const reportId = req.query?.reportId;
         if (!reportId || typeof reportId !== 'string') {
           return res.status(400).json({ error: 'reportId required' });
@@ -147,8 +148,29 @@ export default async function handler(req: any, res: any) {
           }
           tx.delete(reportRef);
           tx.update(ref, update);
-          return { reportCount: newCount };
+          return { reportCount: newCount, ownerUid: data.ownerUid as string | undefined };
         });
+
+        // 家主通知を連動削除 (best-effort)。
+        // 旧データ (reportId 紐付け無し) は query にヒットせず副作用ゼロ。
+        // 通信エラー時は report 自体は削除済みなので 200 を返す方針 (整合性 > 完全性)。
+        if (result.ownerUid) {
+          try {
+            const notifSnap = await db
+              .collection('users')
+              .doc(result.ownerUid)
+              .collection('notifications')
+              .where('reportId', '==', reportId)
+              .limit(1)
+              .get();
+            if (!notifSnap.empty) {
+              await notifSnap.docs[0].ref.delete();
+            }
+          } catch (e) {
+            console.warn('[admin/housing-reports] notif cleanup failed', e);
+          }
+        }
+
         return res.status(200).json({ success: true, reportCount: result.reportCount });
       }
       return res.status(400).json({ error: 'invalid_action' });
