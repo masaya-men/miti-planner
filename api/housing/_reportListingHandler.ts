@@ -86,8 +86,27 @@ export default async function handler(req: any, res: any) {
       if (data.ownerUid === reporterUid) throw new Error('cannot_report_own');
       if (data.deletedAt) throw new Error('not_found');
 
+      // 2026-05-27 §3.8: reason=wrong_info かつ同 addressKey に他生存 listing あり
+      // のときは閾値 1 (= 1 撃 hide)。 他 reason / 単独 listing は既存 3 維持。
+      // Firestore composite index を避けるため addressKey 単一 equality + client filter。
+      let threshold = REPORT_AUTO_HIDE_THRESHOLD;
+      if (reason === 'wrong_info' && data.addressKey) {
+        const duplicateSnap = await tx.get(
+          adminDb
+            .collection('housing_listings')
+            .where('addressKey', '==', data.addressKey)
+            .limit(10)
+        );
+        const hasDuplicates = duplicateSnap.docs.some((d) => {
+          if (d.id === listingId) return false;
+          const peer = d.data();
+          return !peer.isHidden && !peer.deletedAt;
+        });
+        if (hasDuplicates) threshold = 1;
+      }
+
       const newCount = (data.reportCount || 0) + 1;
-      const shouldHide = newCount >= REPORT_AUTO_HIDE_THRESHOLD && !data.isHidden;
+      const shouldHide = newCount >= threshold && !data.isHidden;
 
       // 通報 doc 作成
       tx.set(reportRef, {
