@@ -11,25 +11,21 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 hotfix5-27 まで 23 連続 push 済。
-- **🚨 方針転換 (2026-05-27)**: **5/28 α 公開期限を撤回**、 日付気にせず 1 セッション 1 タスクで丁寧に進める方針。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一する大規模リファクタへ。 詳細: memory `project_housing_phase_status`
-- **進行中タスク**: 画像系 URL 直接表示 8 ステップ (本セッションで着手)
-  - Step 1: [api/og.ts](../api/og.ts) から base64 削除 (URL リスト + metadata だけ返す)
-  - Step 2: `useOgpFetch` / `OgpData` 型を URL 配列に
-  - Step 3: `HousingRegisterForm`: OG 画像を localImages 経路から外し `sourceImageUrls` state に
-  - Step 4: [src/types/housing.ts](../src/types/housing.ts) `HousingListing` に `sourceImageUrls?: string[]` 追加
-  - Step 5: 登録/更新 API で `sourceImageUrls` を Firestore 保存 (host allowlist 含む)
-  - Step 6: `HousingPhotoGallery`: imageMode='sns' で `sourceImageUrls` 配列を切替表示
-  - Step 7: `<img onError>` で元 URL 消失時の自動非表示 fallback
-  - Step 8: テスト追従 + build + commit + push
-- **次セッション (画像完了後)**: 動画系 (Twitter / YouTube) を画面内自動再生方式に移行 (Allmarks 知見流用、 CSP に video.twimg.com 追加)
+- **ブランチ**: main。 hotfix5-29 まで 26 連続 push 済。
+- **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 日付気にせず 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一する大規模リファクタ進行中。 詳細: memory `project_housing_phase_status`
+- **画像系 URL 直接表示** (本セッション完了 ✅): housingsnap / studio-xiv / thonhart / housing-collection-ff14 の OGP 経路を外部 URL 直接表示化。 base64 撤去、 `sourceImageUrls` 型追加、 ドラッグ並び替え UI 新設、 onError fallback、 CSP img-src 追加 (hotfix28)、 studio-xiv の og:image と extras dedup 修正 (hotfix29)。 全 13 + 61 テスト pass、 実機 housingsnap / studio-xiv で動作確認済
+- **次セッション最優先**: **動画系 (Twitter / YouTube) を画面内自動再生方式に移行**
+  - 現状: Twitter 動画 = 3 フレーム抽出 → Storage 保存、 YouTube = サムネ 1 枚 → 動画再生なし
+  - 移行先: 動画 URL を Firestore 保存 → IntersectionObserver で画面内に入ったら `<video>` 自動再生、 スクロール中は読み込まない (Allmarks 知見流用、 memory `reference_allmarks_mycollage`)
+  - CSP `media-src` に video.twimg.com / blob: 追加必須
+  - フレーム抽出経路は撤去 (Storage 保存撤去)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
-- **保留**: studio-xiv dedup 残課題は Step 1 で自然解消、 Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
+- **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
+- **重要な反省 (今セッション追加)**:
+  - **OGP allowlist 追加時は CSP img-src 同期必須** (hotfix28 で痛い目)。 `ogpHostAllowlist.ts` のコメントに警告済み
+  - **dedup 正規表現は実機 URL を curl で 1 度確認してから組む** (memory `feedback_evidence_based_work`)
+  - **設計書を最初に読む** (hotfix22-27 で §6.2 を読まず逸脱した反省)
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
-- **重要な反省 3 件**:
-  - push 前 `npm run build` 必須 (memory `feedback_vercel_tsc_strict`)
-  - dedup 正規表現は実機 URL を curl で 1 度確認してから組む
-  - **設計書を最初に読む** (memory `feedback_evidence_based_work`)。 hotfix22-27 で §6.2 を読まず無自覚に逸脱した
 
 ---
 
