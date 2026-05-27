@@ -30,7 +30,12 @@ export const RightPanelListItem: React.FC<RightPanelListItemProps> = ({ listing,
     const title = formatHousingAddress(listing, i18n.language);
     const isApartment = listing.buildingType === 'apartment';
 
-    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id);
+    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
+        ? 'twitter'
+        : listing.youtubeVideoId
+            ? 'youtube'
+            : null;
+    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         register(thumbRef.current);
@@ -38,11 +43,6 @@ export const RightPanelListItem: React.FC<RightPanelListItemProps> = ({ listing,
     }, [register]);
 
     const frames = useHousingCardFrames(listing, ambientOn);
-    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
-        ? 'twitter'
-        : listing.youtubeVideoId
-            ? 'youtube'
-            : null;
 
     return (
         <button

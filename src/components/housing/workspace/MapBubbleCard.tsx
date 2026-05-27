@@ -37,7 +37,12 @@ export const MapBubbleCard: React.FC<MapBubbleCardProps> = ({ listing, x, y, onC
     const imgSrc = resolveImageSource(listing);
     const alt = formatHousingAddressAria(listing);
 
-    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id);
+    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
+        ? 'twitter'
+        : listing.youtubeVideoId
+            ? 'youtube'
+            : null;
+    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         register(thumbRef.current);
@@ -45,11 +50,6 @@ export const MapBubbleCard: React.FC<MapBubbleCardProps> = ({ listing, x, y, onC
     }, [register]);
 
     const frames = useHousingCardFrames(listing, ambientOn);
-    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
-        ? 'twitter'
-        : listing.youtubeVideoId
-            ? 'youtube'
-            : null;
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();

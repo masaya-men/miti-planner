@@ -47,7 +47,12 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ listing, selected, o
         data: { source: 'favorites', listingId: listing.id },
     });
 
-    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id);
+    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
+        ? 'twitter'
+        : listing.youtubeVideoId
+            ? 'youtube'
+            : null;
+    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         register(thumbRef.current);
@@ -55,11 +60,6 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ listing, selected, o
     }, [register]);
 
     const frames = useHousingCardFrames(listing, ambientOn);
-    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
-        ? 'twitter'
-        : listing.youtubeVideoId
-            ? 'youtube'
-            : null;
 
     return (
         <button

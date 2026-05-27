@@ -70,6 +70,22 @@ describe('resolveSlideshowFrames', () => {
     expect(resolveSlideshowFrames(baseListing())).toEqual([]);
   });
 
+  it('appends videoPosterUrl to sourceImageUrls for video+image tweets (no extraction needed)', () => {
+    const frames = resolveSlideshowFrames({
+      ...baseListing(),
+      sourceImageUrls: [
+        'https://pbs.twimg.com/media/A.jpg',
+        'https://pbs.twimg.com/media/B.jpg',
+      ],
+      videoPosterUrl: 'https://pbs.twimg.com/media/POSTER.jpg',
+    } as HousingListing);
+    expect(frames.map((f) => f.src)).toEqual([
+      'https://pbs.twimg.com/media/A.jpg',
+      'https://pbs.twimg.com/media/B.jpg',
+      'https://pbs.twimg.com/media/POSTER.jpg',
+    ]);
+  });
+
   it('prioritizes sourceImageUrls over youtubeVideoId', () => {
     const frames = resolveSlideshowFrames({
       ...baseListing(),

@@ -50,8 +50,16 @@ export function useHousingPlayback(): HousingPlaybackContextValue {
 
 export interface HousingPlaybackProviderProps {
     children: ReactNode;
-    /** 画面内同時再生数の上限。 default 1 (Allmarks 流 hero=1)。 */
-    cap?: number;
+    /**
+     * 画面内 spotlight (= 同時動画再生) の上限。 default 1 (Allmarks 流 hero=1)。
+     * pool 候補とは別。 候補は viewport ratio>=minRatio を満たすカード全部を入れる
+     * (Allmarks コメント参照: pool cap=999 で全 in-view を浮上させ、 spotlight
+     * cap=1 で実際に再生する数を絞る)。 同一にすると rotation キューが空になり
+     * 「最初に visible だった 1 件」 で固定する。
+     */
+    spotlightCap?: number;
+    /** pool 候補の上限 (= candidate に入れる最大カード数)。 default 999 (= 実質無制限)。 */
+    poolCap?: number;
     /** rotation 間隔 ms。 default 15000 (15s、 Allmarks 流)。 */
     intervalMs?: number;
     /** spotlight 入り判定の visibility ratio 下限。 default 0.25。 */
@@ -65,7 +73,8 @@ export interface HousingPlaybackProviderProps {
 
 export function HousingPlaybackProvider({
     children,
-    cap = 1,
+    spotlightCap = 1,
+    poolCap = 999,
     intervalMs = 15000,
     minRatio = 0.25,
     lightboxOpen = false,
@@ -76,11 +85,11 @@ export function HousingPlaybackProvider({
     const ambientOn = !reduced && !isScrolling && !lightboxOpen;
 
     const candidates = useMemo(
-        () => new Set(selectActivePlayers(visibility, cap, minRatio)),
-        [visibility, cap, minRatio],
+        () => new Set(selectActivePlayers(visibility, poolCap, minRatio)),
+        [visibility, poolCap, minRatio],
     );
-    const spotlightCap = ambientOn ? cap : 0;
-    const playing = useSpotlightRotation(candidates, spotlightCap, intervalMs);
+    const effectiveSpotlightCap = ambientOn ? spotlightCap : 0;
+    const playing = useSpotlightRotation(candidates, effectiveSpotlightCap, intervalMs);
 
     const value = useMemo<HousingPlaybackContextValue>(
         () => ({ playing, ambientOn, register, unregister }),
@@ -98,7 +107,12 @@ export function HousingPlaybackProvider({
  * Card 専用の便宜 hook。 listing.id を渡すと register/unregister の useEffect 用 callback と、
  * 再生フラグを一括で返す。 各カード variant の重複コードを削減する。
  *
- * 2026-05-27 hotfix: 旧実装は `ctx` 全体を useCallback deps に入れていたため、 ctx の
+ * `isVideo`: 動画 listing (= videoUrl or youtubeVideoId) のみ candidate に入れたい。
+ * 2026-05-27 hotfix: 画像 only カードまで register していたため、 candidates に画像 only
+ * カードが混入して spotlight slot を奪っていた (= 動画カードが永遠に再生されない)。
+ * 動画じゃないカードは register=no-op で pool に乗らない。
+ *
+ * 旧 hotfix: 旧実装は `ctx` 全体を useCallback deps に入れていたため、 ctx の
  * playing/ambientOn が変わるたびに register 関数が新しくなり、 HousingCard の useEffect が
  * 毎回 cleanup + re-run で「unregister → register」 を繰り返し、 visibility map から id が
  * 消える瞬間に spotlight rotation が候補空と判定して video overlay を unmount してしまう
@@ -106,7 +120,7 @@ export function HousingPlaybackProvider({
  * 関数参照に依存させ、 register callback 自体を mount から unmount まで stable にする
  * (= ctxRegister / ctxUnregister は useViewportPlaybackPool で useCallback([]) 済み)。
  */
-export function useHousingCardPlayback(listingId: string): {
+export function useHousingCardPlayback(listingId: string, isVideo: boolean): {
     isPlaying: boolean;
     ambientOn: boolean;
     register: (el: Element | null) => void;
@@ -115,13 +129,14 @@ export function useHousingCardPlayback(listingId: string): {
         useHousingPlayback();
     const register = useCallback(
         (el: Element | null) => {
+            if (!isVideo) return;
             if (!el) {
                 ctxUnregister(listingId);
                 return;
             }
             ctxRegister(listingId, el);
         },
-        [listingId, ctxRegister, ctxUnregister],
+        [listingId, ctxRegister, ctxUnregister, isVideo],
     );
     return {
         isPlaying: playing.has(listingId),

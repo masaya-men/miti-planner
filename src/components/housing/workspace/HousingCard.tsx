@@ -36,7 +36,12 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
     const title = formatHousingAddress(listing, i18n.language);
     const isApartment = listing.buildingType === 'apartment';
 
-    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id);
+    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
+        ? 'twitter'
+        : listing.youtubeVideoId
+            ? 'youtube'
+            : null;
+    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         register(thumbRef.current);
@@ -44,11 +49,6 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
     }, [register]);
 
     const frames = useHousingCardFrames(listing, ambientOn);
-    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
-        ? 'twitter'
-        : listing.youtubeVideoId
-            ? 'youtube'
-            : null;
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();

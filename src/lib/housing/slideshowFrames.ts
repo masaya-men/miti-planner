@@ -19,9 +19,9 @@ export interface SlideshowFramesInput {
 /**
  * カード ambient slideshow に使う静止画フレーム配列を listing から構築する。
  * 優先順位:
- *   1. sourceImageUrls (OGP / Twitter 静止画ツイート、 複数枚)
+ *   1. sourceImageUrls (+ videoPosterUrl があれば末尾 append、 動画 + 画像ツイで抽出を省略するため)
  *   2. youtubeVideoId (storyboard hqdefault + hq1 + hq2 の 3 枚、 fallback `1.jpg` / `2.jpg`)
- *   3. videoPosterUrl (Twitter 動画 only ツイート、 1 枚)
+ *   3. videoPosterUrl (Twitter 動画 only ツイート、 1 枚 — 抽出 hook が 3 枚抽出して上書きする想定)
  *   4. thumbnailPaths (旧データ、 Storage 保存済)
  *   5. thumbnailPath (= 1 枚旧データ)
  *   6. ogImageUrl (テキストツイート等の最終 fallback、 1 枚)
@@ -31,7 +31,13 @@ export function resolveSlideshowFrames(
   listing: SlideshowFramesInput,
 ): readonly SlideshowFrame[] {
   if (Array.isArray(listing.sourceImageUrls) && listing.sourceImageUrls.length > 0) {
-    return listing.sourceImageUrls.map((src) => ({ src }));
+    const frames: SlideshowFrame[] = listing.sourceImageUrls.map((src) => ({ src }));
+    // 動画 + 画像ツイ (= ② パターン): 画像複数 + 動画 poster を ambient で順送りすれば
+    // 抽出 hook 不要で「生きたカード」 が成立する。 spotlight 時は別途動画再生される。
+    if (listing.videoPosterUrl) {
+      frames.push({ src: listing.videoPosterUrl });
+    }
+    return frames;
   }
   if (listing.youtubeVideoId) {
     const base = `https://i.ytimg.com/vi/${listing.youtubeVideoId}`;
