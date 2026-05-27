@@ -2235,7 +2235,10 @@
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",
-            "error": "物件の読み込みに失敗しました"
+            "error": "物件の読み込みに失敗しました",
+            "no_image": "No image",
+            "thumb_aria": "Image {{index}} of {{total}}",
+            "video_iframe_title": "Listing video"
         },
         "detail": {
             "title": "物件詳細",

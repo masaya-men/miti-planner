@@ -3556,6 +3556,22 @@ select.housing-input option {
     object-fit: contain;
     border-radius: 12px;
 }
+/* 2026-05-27: 詳細モーダル動画再生領域 (Twitter <video> / YouTube iframe、 controls 付き) */
+.housing-gallery-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: var(--housing-card-thumb-bg);
+    overflow: hidden;
+    border-radius: 12px;
+}
+.housing-gallery-video > video,
+.housing-gallery-video > iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border: none;
+}
 .housing-gallery-empty {
     width: 100%;
     height: var(--housing-detail-empty-h);

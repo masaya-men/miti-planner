@@ -2199,7 +2199,10 @@
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",
-            "error": "物件の読み込みに失敗しました"
+            "error": "物件の読み込みに失敗しました",
+            "no_image": "이미지 없음",
+            "thumb_aria": "이미지 {{index}}/{{total}}",
+            "video_iframe_title": "주택 동영상"
         },
         "detail": {
             "title": "物件詳細",

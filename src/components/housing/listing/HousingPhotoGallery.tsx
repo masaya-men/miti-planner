@@ -84,7 +84,13 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
     [sources, failedSources],
   );
 
-  if (visibleSources.length === 0) {
+  // 2026-05-27: 動画あり listing は ギャラリー最上段に再生領域 (controls あり)。
+  const hasVideo = !!(listing.videoUrl || listing.youtubeVideoId);
+  const videoAspectStyle = listing.videoAspectRatio
+    ? { aspectRatio: String(listing.videoAspectRatio) }
+    : undefined;
+
+  if (visibleSources.length === 0 && !hasVideo) {
     return (
       <div className="housing-gallery-empty" aria-hidden="true">
         <span>{t('housing.gallery.no_image', { defaultValue: 'No image' })}</span>
@@ -92,11 +98,40 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
     );
   }
 
-  const safeIndex = Math.min(activeIndex, visibleSources.length - 1);
+  const safeIndex = Math.min(activeIndex, Math.max(0, visibleSources.length - 1));
   const mainSrc = visibleSources[safeIndex];
 
   return (
     <div className="housing-gallery">
+      {hasVideo && (
+        <div className="housing-gallery-video" style={videoAspectStyle}>
+          {listing.videoUrl ? (
+            <video
+              src={`/api/tweet-video?url=${encodeURIComponent(listing.videoUrl)}`}
+              poster={listing.videoPosterUrl}
+              controls
+              muted
+              autoPlay
+              loop
+              playsInline
+              preload="metadata"
+              aria-label={t('housing.gallery.video_iframe_title', {
+                defaultValue: 'Listing video',
+              })}
+            />
+          ) : listing.youtubeVideoId ? (
+            <iframe
+              src={`https://www.youtube-nocookie.com/embed/${listing.youtubeVideoId}?autoplay=1&mute=1&playsinline=1&rel=0`}
+              title={t('housing.gallery.video_iframe_title', {
+                defaultValue: 'Listing video',
+              })}
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+            />
+          ) : null}
+        </div>
+      )}
+      {mainSrc && (
       <img
         src={mainSrc}
         alt=""
@@ -105,6 +140,7 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
         onError={handleImgError(mainSrc)}
         onLoad={handleYoutubeThumbnailLoad}
       />
+      )}
       {visibleSources.length > 1 && (
         <ul className="housing-gallery-thumbs" role="tablist">
           {visibleSources.map((src, i) => (
