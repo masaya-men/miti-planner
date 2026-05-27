@@ -29,9 +29,6 @@ export const HousingDuplicatePeersSection: React.FC<HousingDuplicatePeersSection
       <h3 className="housing-detail-peers-title">
         {t('housing.detail.duplicates.title', { count: peers.length })}
       </h3>
-      <p className="housing-detail-peers-note">
-        {t('housing.detail.duplicates.collaboration_note')}
-      </p>
       <ul className="housing-detail-peers-list">
         {peers.map((peer) => {
           const addr = formatHousingAddress(peer, i18n.language);
@@ -51,11 +48,15 @@ export const HousingDuplicatePeersSection: React.FC<HousingDuplicatePeersSection
                 <p className="housing-detail-peers-card-title">{title}</p>
                 <p className="housing-detail-peers-card-address">{addr}</p>
               </div>
-              <HousingLongPressButton
-                label={t('housing.detail.duplicates.action_wrong')}
-                hint={t('housing.detail.duplicates.long_press_hint')}
-                onConfirm={() => onReportPeer(peer.id)}
-              />
+              <div className="housing-detail-peers-action">
+                <p className="housing-detail-peers-note">
+                  {t('housing.detail.duplicates.collaboration_note')}
+                </p>
+                <HousingLongPressButton
+                  label={t('housing.detail.duplicates.action_wrong')}
+                  onConfirm={() => onReportPeer(peer.id)}
+                />
+              </div>
             </li>
           );
         })}

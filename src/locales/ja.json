@@ -2291,10 +2291,8 @@
             "last_confirmed_at": "{{date}} 確認済",
             "duplicates": {
                 "title": "この住所の他の登録 ({{count}})",
-                "collaboration_note": "情報が古い場合はご協力をお願いします",
+                "collaboration_note": "古い情報ならご協力を",
                 "action_wrong": "ちがった",
-                "long_press_hint": "2 秒長押しで非表示",
-                "long_press_remaining": "あと {{seconds}} 秒で非表示",
                 "toast_hidden": "「ちがった」 として処理しました。 該当登録は非表示になりました",
                 "toast_error": "通報に失敗しました、 もう一度お試しください"
             }

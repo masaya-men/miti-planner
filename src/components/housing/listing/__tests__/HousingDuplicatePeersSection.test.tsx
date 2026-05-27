@@ -20,8 +20,8 @@ beforeEach(() => {
               detail: {
                 duplicates: {
                   title: 'この住所の他の登録 ({{count}})',
+                  collaboration_note: '古い情報ならご協力を',
                   action_wrong: 'ちがった',
-                  long_press_hint: '2 秒長押しで非表示',
                 },
               },
             },

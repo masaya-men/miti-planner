@@ -2270,10 +2270,8 @@
             "last_confirmed_at": "{{date}} 確認済",
             "duplicates": {
                 "title": "Other listings at this address ({{count}})",
-                "collaboration_note": "Please help out if information is outdated.",
+                "collaboration_note": "Please help if outdated",
                 "action_wrong": "Wrong",
-                "long_press_hint": "Hold 2 sec to hide",
-                "long_press_remaining": "Hides in {{seconds}}s",
                 "toast_hidden": "Marked as wrong. The listing has been hidden.",
                 "toast_error": "Report failed, please try again"
             }
