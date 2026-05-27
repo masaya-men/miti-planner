@@ -2,6 +2,23 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-28 一覧住所順化 + 自分物件バッジ)
+
+「左上=自分、 2 番目=後から登録」 違和感の解消。 順序を変えるか識別を入れるかでユーザーと議論し、 「両方やる」 結論。
+
+### 主な変更
+
+- **sortListingsForGallery を住所順に変更** ([src/lib/housing/sortListingsForGallery.ts](../src/lib/housing/sortListingsForGallery.ts)): 旧仕様 (グループ代表 createdAt desc) → area (HOUSING_AREAS 順) → DC → server → ward → buildingType (house 先 / apartment 後) → plot or (apartmentBuilding → roomNumber) の昇順。 同住所内は従来どおり lastConfirmedAt desc → createdAt desc で安定化
+- **「あなたの登録」 ピル追加** ([src/components/housing/workspace/HousingCard.tsx](../src/components/housing/workspace/HousingCard.tsx)): listing.ownerUid === viewerUid のときカード左上に honey-gold グラデのピル表示。 pointer-events: none で押下を妨げない
+- **i18n 4 言語追加**: housing.workspace.card.mine_badge (ja/en/ko/zh)
+- **テスト追従**: sortListingsForGallery 8 件 + useHousingListingsStore 2 件更新、 全 445 件緑
+
+### 設計判断
+
+- 「自分の物件を先頭に持ってくる」 案は他人物件の発見性を下げるため不採用 (ハウジングの本質 = 他人の家を回る楽しみ)
+- 地図ビューと整合させるため住所階層昇順 → 「ミストの家を順に見る」 が自然
+- 識別は順序ではなくバッジで分離 = 順序問題と識別問題を独立に解決
+
 ## 完了 (2026-05-28 §3.8 完全クローズ・進捗 UI 再設計 + UX 全面改善)
 
 §3.8 「ちがった」 1 撃 hide の進捗バー視認性 + UX 課題を 1 セッションで全部解消。 教訓は memory に恒久化。

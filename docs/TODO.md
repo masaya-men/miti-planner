@@ -11,18 +11,18 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 本セッション §3.8 UI 再設計 + UX 完全クローズ計 4 commits push 済 (Vercel デプロイ済)。
-- **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
-- **§3.8 完全クローズ ✅** (詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md) 末尾): 進捗 UI ピル塗りつぶし化 + 凍結バグ修正 + button 文言「ちがった」 1 単語 + caption「古い情報ならご協力を」 button 直上配置 + 自分物件 button 除外 + Optimistic UI + 親 store 即反映 + toast ソフト化。 教訓は memory `feedback_ui_reflects_server_state_immediately` 恒久化。
+- **ブランチ**: main。 本セッション 一覧住所順化 + 自分物件バッジ 1 commit push 済 (Vercel デプロイ済)。 §3.8 完全クローズ計 5 commits は前セッションで完了。
+- **方針 (2026-05-27 確定)**: **α 公開期限撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
+- **本セッション完了 ✅** (詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md) 末尾): 一覧並びを **住所順** (area→DC→server→ward→plot/apt→room) に変更 + 自分の物件カード左上に **「あなたの登録」 ピル** (honey-gold)。 順序問題と識別問題を独立に解決。
 - **次セッション最優先**:
-  1. **peer の自分/他人の視覚識別 + 並び順検証** (= ユーザー指摘: 「左上 = 自分、 2 番目 = 後から登録の違和感」、 §3.8 自分除外で button 出ない問題は解消済だが識別ヒント不在)
-  2. **「通報」 文言全体見直し** (= duplicate peer 経路 toast は終了、 他箇所はまとめて。 自発的通報モーダルは文脈上 OK)
-  3. **§3.8 残りの実機検証** (重複 drop でツアー自動追加 + トースト / 単独 listing で section 非表示)
-  4. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ** (= §3.7 カード版バッジ + カード「ちがった」、 本セッション hook 再利用)
+  1. **「通報」 文言全体見直し** (= duplicate peer 経路 toast は前セッションで終了、 他箇所はまとめて。 自発的通報モーダルは文脈上 OK)
+  2. **§3.8 残りの実機検証** (重複 drop でツアー自動追加 + トースト / 単独 listing で section 非表示)
+  3. **本セッション分の実機確認** (住所順並び / 自分バッジ表示 / バッジの色合い・位置・文言調整)
+  4. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ** (= §3.7 カード版バッジ + カード「ちがった」、 前セッション hook 再利用)
   5. **通知 UI/UX 磨き**: listingTitleSnapshot が addressKey raw で出る → `formatHousingAddress` 経由スナップショットへ。 ドロップダウン全般も後で刷新
   6. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 ユーザーと論点詰めてから)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
-- **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
+- **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討。 マップビュー実装は止まっている (ユーザー認識済、 リストビューで完結する設計なのでリリースブロッカーではない)
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
 
 ---
