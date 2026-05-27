@@ -20,6 +20,8 @@ import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { type MockListing } from '../../../data/housing/mockListings';
 import { sortByAddress } from '../../../lib/housing/sortByAddress';
+import { expandTourWithDuplicates } from '../../../lib/housing/expandTourWithDuplicates';
+import { showToast } from '../../Toast';
 import { FavoritesListPane } from './FavoritesListPane';
 import { TourBuilderPane, TOUR_BUILDER_DROP_ID } from './TourBuilderPane';
 import { ShareTourButton } from './ShareTourButton';
@@ -157,9 +159,24 @@ export const FavoritesModal: React.FC<FavoritesModalProps> = ({ open, onClose })
             // Multi-select drag: if the dragged card is in the current selection,
             // bring the whole selection along; otherwise just the single card.
             const idsToAdd = selected.has(dragged) ? Array.from(selected) : [dragged];
-            const merged = Array.from(new Set([...tourIds, ...idsToAdd]));
-            if (merged.length === tourIds.length) return; // nothing new
-            setTourIds(merged); // TourBuilderPane's autoSort effect will re-sort if active
+            // §3.8 (2026-05-27): 同 addressKey の他生存 listing を自動追加 (= 冪等)。
+            // drop 順に expandTourWithDuplicates を適用、 自動追加合計を 1 トーストで通知。
+            let nextIds = tourIds;
+            let totalAutoAdded = 0;
+            for (const addId of idsToAdd) {
+                const r = expandTourWithDuplicates(nextIds, addId, listings);
+                if (r.nextIds.length === nextIds.length) continue;
+                nextIds = r.nextIds;
+                totalAutoAdded += r.autoAddedCount;
+            }
+            if (nextIds.length === tourIds.length) return; // nothing new
+            setTourIds(nextIds); // TourBuilderPane's autoSort effect will re-sort if active
+            if (totalAutoAdded > 0) {
+                showToast(
+                    t('housing.workspace.tour.auto_added_toast', { count: totalAutoAdded }),
+                    'info',
+                );
+            }
             // Clear multi-select after a successful drop (parity with Finder DnD).
             setSelected(new Set());
         } else if (activeId.startsWith('tour:') && overId.startsWith('tour:')) {
