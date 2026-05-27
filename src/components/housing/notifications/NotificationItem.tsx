@@ -36,11 +36,16 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
 }) => {
   const { t } = useTranslation();
   const location = useLocation();
-  const reasonLabel = t(`housing.report.reason.${notification.reason}`);
-  const msg = t('housing.notifications.item.report', {
-    title: notification.listingTitleSnapshot ?? '',
-    reason: reasonLabel,
-  });
+  // 2026-05-27 (Phase 2-4): type 分岐。 duplicate_alert は重複登録通知 (= reason 無し)、
+  // housing_report は通報通知 (= reason 必須)。
+  const title = notification.listingTitleSnapshot ?? '';
+  const msg =
+    notification.type === 'duplicate_alert'
+      ? t('housing.notifications.item.duplicate_alert', { title })
+      : t('housing.notifications.item.report', {
+          title,
+          reason: notification.reason ? t(`housing.report.reason.${notification.reason}`) : '',
+        });
   return (
     <Link
       to={`/housing/listing/${notification.listingId}?notification=${notification.id}`}

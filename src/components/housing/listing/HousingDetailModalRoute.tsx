@@ -250,17 +250,21 @@ export const HousingDetailModalRoute: React.FC = () => {
   // 自己復帰の上限を超えて再非表示になった = 却下/編集では戻せず管理者対応 (Discord 異議) のみ。
   const escalated = !!(listing.isHidden && (listing.restoreCount ?? 0) >= MAX_SELF_RESTORE);
 
-  const reportNotice: ReportNotice | undefined = notification
-    ? {
-        reason: notification.reason,
-        comment: notification.comment,
-        escalated,
-        onEdit,
-        onDelete: onDeleteClick,
-        onDispute,
-        onDismiss,
-      }
-    : undefined;
+  // 2026-05-27 (Phase 2-4): 通報通知 (housing_report) のときだけ案内バナーを出す。
+  // duplicate_alert は spec §3.4 で「シンプル A 派 (タップ = listing 詳細に飛ぶ、
+  // ボタン直埋め込みナシ)」 と決めたので、 ここでは何もしない。
+  const reportNotice: ReportNotice | undefined =
+    notification && notification.type === 'housing_report' && notification.reason
+      ? {
+          reason: notification.reason,
+          comment: notification.comment,
+          escalated,
+          onEdit,
+          onDelete: onDeleteClick,
+          onDispute,
+          onDismiss,
+        }
+      : undefined;
 
   return (
     <>

@@ -2339,7 +2339,8 @@
             "unread_badge_aria": "{{n}} 件の未読",
             "dismiss_aria": "この通知を消す",
             "item": {
-                "report": "あなたの物件「{{title}}」 について「{{reason}}」 と報告がありました"
+                "report": "あなたの物件「{{title}}」 について「{{reason}}」 と報告がありました",
+                "duplicate_alert": "A new housing has been registered at the same address as your housing \"{{title}}\""
             },
             "time": {
                 "just_now": "たった今",

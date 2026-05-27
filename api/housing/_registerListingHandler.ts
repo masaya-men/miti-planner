@@ -62,6 +62,7 @@ export default async function handler(req: any, res: any) {
     const addressKey = buildAddressKey(draft);
 
     let createdId: string | null = null;
+    let newRefId: string | null = null;
     await adminDb.runTransaction(async (tx) => {
       const metaSnap = await tx.get(metaRef);
       let meta: HousingUserMeta = metaSnap.exists
@@ -73,6 +74,7 @@ export default async function handler(req: any, res: any) {
       if (can.metaAfterReset) meta = can.metaAfterReset;
 
       const newRef = listingsCol.doc();
+      newRefId = newRef.id;
 
       const listing = {
         ownerUid: uid,
@@ -113,6 +115,48 @@ export default async function handler(req: any, res: any) {
       const updatedMeta = applyRegistrationSuccess(meta);
       tx.set(metaRef, updatedMeta);
     });
+
+    // 2026-05-27 (Phase 2-4): 重複登録時のベル通知。
+    // 同 addressKey に他の生きてる listing があれば、 そのオーナー全員に
+    // 「同住所に新しいハウジングが登録された」 通知を作成 (= 「今もあります」
+    // 確認を促す、 設計書 §3.4)。 登録 transaction 後の best-effort で実行し、
+    // 失敗しても登録自体は success のまま返す (= 通知は副作用、 必須ではない)。
+    try {
+      const sameAddrSnap = await listingsCol
+        .where('addressKey', '==', addressKey)
+        .where('isHidden', '==', false)
+        .limit(50)
+        .get();
+      const targets = sameAddrSnap.docs.filter((doc) => {
+        if (doc.id === newRefId) return false;
+        const d = doc.data();
+        if (d.deletedAt) return false;
+        if (d.ownerUid === uid) return false;
+        return true;
+      });
+      if (targets.length > 0) {
+        const batch = adminDb.batch();
+        for (const doc of targets) {
+          const d = doc.data();
+          const notifRef = adminDb
+            .collection('users')
+            .doc(d.ownerUid)
+            .collection('notifications')
+            .doc();
+          batch.set(notifRef, {
+            type: 'duplicate_alert',
+            listingId: doc.id,
+            severity: 'normal',
+            listingTitleSnapshot: d.description?.slice(0, 60) || d.addressKey,
+            createdAt: now,
+            read: false,
+          });
+        }
+        await batch.commit();
+      }
+    } catch (notifErr) {
+      console.error('[housing/register-listing] duplicate_alert notify failed:', notifErr);
+    }
 
     return res.status(200).json({ id: createdId, addressKey });
   } catch (error: any) {

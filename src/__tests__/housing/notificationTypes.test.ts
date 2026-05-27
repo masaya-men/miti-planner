@@ -10,6 +10,9 @@ describe('notification types', () => {
     it("'housing_report' を許容する", () => {
       expect(isValidNotificationType('housing_report')).toBe(true);
     });
+    it("'duplicate_alert' を許容する", () => {
+      expect(isValidNotificationType('duplicate_alert')).toBe(true);
+    });
     it('未知の値を拒否する', () => {
       expect(isValidNotificationType('unknown')).toBe(false);
     });
@@ -37,6 +40,19 @@ describe('notification types', () => {
         read: false,
       };
       expect(n.type).toBe('housing_report');
+    });
+    it("'duplicate_alert' は reason 無しで構築できる", () => {
+      const n: HousingNotification = {
+        id: 'nid2',
+        type: 'duplicate_alert',
+        listingId: 'lid2',
+        severity: 'normal',
+        listingTitleSnapshot: 'マイホーム',
+        createdAt: Date.now(),
+        read: false,
+      };
+      expect(n.type).toBe('duplicate_alert');
+      expect(n.reason).toBeUndefined();
     });
   });
 });
