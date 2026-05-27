@@ -2272,8 +2272,8 @@
                 "title": "Other listings at this address ({{count}})",
                 "collaboration_note": "Please help if outdated",
                 "action_wrong": "Wrong",
-                "toast_hidden": "Marked as wrong. The listing has been hidden.",
-                "toast_error": "Report failed, please try again"
+                "toast_hidden": "Thanks for helping out!",
+                "toast_error": "Something went wrong, please try again"
             }
         },
         "edit": {

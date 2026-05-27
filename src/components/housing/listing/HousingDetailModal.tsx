@@ -23,6 +23,8 @@ export interface HousingDetailModalProps {
   onListingUpdated?: () => void;
   /** 削除成功時に呼ぶ callback (親で一覧ストア除去 + 関連通知の一掃を行う) */
   onDeleted?: () => void;
+  /** §3.8: 「ちがった」 で 1 撃 hide 成功時、 親側の一覧ストアからも除去するための callback。 */
+  onPeerHidden?: (peerId: string) => void;
 }
 
 export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
@@ -34,6 +36,7 @@ export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
   reportNotice,
   onListingUpdated,
   onDeleted,
+  onPeerHidden,
 }) => {
   const { t } = useTranslation();
 
@@ -75,6 +78,7 @@ export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
           reportNotice={reportNotice}
           onListingUpdated={onListingUpdated}
           onDeleted={onDeleted}
+          onPeerHidden={onPeerHidden}
         />
       </div>
     </div>

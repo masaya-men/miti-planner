@@ -105,7 +105,12 @@ export const HousingDetailModalRoute: React.FC = () => {
       try {
         const fetched = await findListingsByAddressKey(listing.addressKey);
         if (cancelled) return;
-        const others = fetched.filter((l) => l.id !== listing.id && !l.deletedAt);
+        // §3.8: 自分が登録した物件は peer から除外する。 サーバ側で
+        // `cannot_report_own` 403 になり「ちがった」 が必ず失敗するため、
+        // そもそも button を出さないのが UX 上正しい。
+        const others = fetched.filter(
+          (l) => l.id !== listing.id && !l.deletedAt && l.ownerUid !== viewerUid,
+        );
         setHasDuplicates(others.length > 0);
         setPeers(others);
       } catch {
@@ -285,6 +290,12 @@ export const HousingDetailModalRoute: React.FC = () => {
         reportNotice={reportNotice}
         onListingUpdated={handleListingSaved}
         onDeleted={onListingDeleted}
+        onPeerHidden={(peerId) => {
+          // §3.8: 「ちがった」 で 1 撃 hide 成功 → 詳細モーダル内では Optimistic で
+          // 即消えているが、 親の一覧ストアからも除去しないとモーダルを閉じた後の
+          // 一覧画面でリロード必須になってしまうため、 ここで明示的に remove する。
+          useHousingListingsStore.getState().remove(peerId);
+        }}
       />
       {editOpen && (
         <HousingEditModal

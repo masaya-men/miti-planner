@@ -2236,8 +2236,8 @@
                 "title": "この住所の他の登録 ({{count}})",
                 "collaboration_note": "古い情報ならご協力を",
                 "action_wrong": "ちがった",
-                "toast_hidden": "「ちがった」 として処理しました。 該当登録は非表示になりました",
-                "toast_error": "通報に失敗しました、 もう一度お試しください"
+                "toast_hidden": "ご協力ありがとうございます！",
+                "toast_error": "うまくいきませんでした、 もう一度お試しください"
             }
         },
         "edit": {

@@ -43,6 +43,8 @@ export interface HousingDetailContentProps {
   onListingUpdated?: () => void;
   /** 削除成功時に呼ぶ callback (親で一覧ストア除去 + 関連通知の一掃を行う) */
   onDeleted?: () => void;
+  /** §3.8: 「ちがった」 で 1 撃 hide 成功時、 親側の一覧ストアからも除去するための callback。 */
+  onPeerHidden?: (peerId: string) => void;
 }
 
 export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
@@ -54,6 +56,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   reportNotice,
   onListingUpdated,
   onDeleted,
+  onPeerHidden,
 }) => {
   const { t, i18n } = useTranslation();
   // 2026-05-26 アパート号棟欠落バグ修正 + 多言語化: 住所組み立ては必ず formatHousingAddress 経由。
@@ -68,16 +71,26 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
     [peers, hiddenPeerIds],
   );
   const { report: reportPeer } = useHousingReport();
+  // §3.8: 押し切った瞬間に UI から消える (Optimistic UI)。 サーバ応答を待つと
+  // 1〜2 秒のタイムラグで「気持ち悪い」 体感になる。 失敗時のみロールバックする。
+  // 成功時は親の一覧ストアにも伝搬し、 モーダルを閉じた後の一覧画面にも即反映する
+  // (= 親が onPeerHidden で useHousingListingsStore.remove を呼ぶ前提)。
   const handleReportPeer = async (peerId: string) => {
+    setHiddenPeerIds((prev) => {
+      const next = new Set(prev);
+      next.add(peerId);
+      return next;
+    });
     const result = await reportPeer(peerId, 'wrong_info');
     if (result.ok) {
+      showToast(t('housing.detail.duplicates.toast_hidden'), 'success');
+      onPeerHidden?.(peerId);
+    } else {
       setHiddenPeerIds((prev) => {
         const next = new Set(prev);
-        next.add(peerId);
+        next.delete(peerId);
         return next;
       });
-      showToast(t('housing.detail.duplicates.toast_hidden'), 'success');
-    } else {
       showToast(t('housing.detail.duplicates.toast_error'), 'error');
     }
   };
