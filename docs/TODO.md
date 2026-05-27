@@ -11,15 +11,21 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 TG1-6 + Phase 1 (push 済) に加え、 **動画 3 フレーム抽出 (Allmarks 正規仕様)** を本セッションで実装、 commit 予定。
-- **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細: memory `project_housing_phase_status`
-- **動画系移行完了 ✅** (前セッション、 TG1-6): 旧 Twitter 動画 Storage 保存撤廃 / videoUrl 直接表示 / Allmarks 流 hook 移植 / 4 カード variant に ambient + 動画オーバーレイ統合 / CSP 追加。 全 1264 tests + build clean。
-- **重複登録対応 Phase 1 完了 ✅** + 3 hotfixes (deletedAt フィルタ / dialog z-index / register callback stable 化)
-- **TG1-6 + Phase 1 実機検証 (B1-D) 完了 ✅** — C 動画 spotlight 再生も hotfix 後 OK
-- **3 フレーム抽出 実装 ✅ (本セッション)**: Allmarks (マイコラージュ) から移植。 cap=1 FIFO queue + process cache + in-flight dedup、 fractions=[0, 0.25, 0.5] / maxWidth=640 / JPEG q=0.7。 新規 `extractVideoFrames.ts` / `useTweetVideoFrames.ts` / `useHousingCardFrames.ts` + 4 variant 置換。 build clean / vitest 13/13 pass。 **次: 実機検証**
-- **次タスク (詳細設計 → [.private 設計書](./.private/2026-05-27-housing-video-3frame-and-phase2.md))**:
-  1. ✅ 3 フレーム抽出 実装 (実機検証待ち)
-  2. **重複登録対応 Phase 2**: lastConfirmedAt + 「今もあります」 ボタン + ベル通知 + 重複時 1 撃 hide + 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン。 設計確定済 (用語・文言含む) → 設計書通り 1 タスクずつ実機検証しながら実装
+- **ブランチ**: main。 本セッション 6 commit push 済 (動画再生 + Phase 2-1〜2-3)。
+- **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
+- **本セッション完了 ✅** (詳細設計 → [.private 設計書](./.private/2026-05-27-housing-video-3frame-and-phase2.md)):
+  - 動画 3 フレーム抽出 実装 (Allmarks 移植、 cap=1 FIFO queue + process cache + in-flight dedup) — commit 093740c
+  - spotlight rotation バグ修正 (pool cap 999 / spotlight cap 1 分離、 動画 listing のみ register) + ② 抽出 skip — commit 731771a
+  - 動画+画像同居ツイの videoUrl drop バグ修正 (排他想定撤廃、 validateImage + buildListingImageFields + RegisterForm 改修) — commit 976055a
+  - Phase 2-1 lastConfirmedAt フィールド追加 (必須、 type/adapter/handler/mock/fixture 全反映) — commit 133a178
+  - Phase 2-2/2-3 confirmListing API + 「今もあります」 ボタン UI (i18n 6 keys × 4 lang) — commit 38073cc
+  - 「今もあります」 ボタン + 確認済表示を重複時のみに絞る (= ユーザー指摘で設計仮定訂正) — commit 134184e
+- **次セッション最優先** (= 設計書通り順次):
+  1. **Phase 2-4 重複登録時のベル通知**: _registerListingHandler で同 addressKey の他 listing 所有者へ duplicate_alert 通知 (既存 housing_notifications + NotificationBell UI 流用)
+  2. **Phase 2-5 sort**: 同 addressKey 内では lastConfirmedAt desc で並ぶ (view 層対応案 vs ストア対応案、 着手前に方針決め)
+  3. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン**: 重複時のみ表示、 4 カード variant に追加
+  4. **Phase 2-7 重複時 1 撃 hide**: _reportListingHandler に同 addressKey 他 listing 存在判定 + 閾値 1
+  5. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 ユーザーと論点詰めてから)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
