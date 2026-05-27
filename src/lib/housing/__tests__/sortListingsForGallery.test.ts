@@ -6,8 +6,7 @@ const listing = (over: Partial<MockListing>): MockListing => ({
     id: 'x', ownerUid: 'u', dc: 'Materia', server: 'Bismarck',
     region: 'OCE', area: 'LavenderBeds', ward: 23, buildingType: 'house',
     plot: 6, size: 'M', addressKey: 'k', imageMode: 'none', tags: [],
-    createdAt: 1, updatedAt: 1, lastConfirmedAt: 1,
-    isHidden: false, reportCount: 0, deletedAt: null,
+    createdAt: 1, lastConfirmedAt: 1,
     ...over,
 });
 

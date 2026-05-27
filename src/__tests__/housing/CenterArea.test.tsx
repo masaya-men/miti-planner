@@ -17,7 +17,7 @@ import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 // 共有ストアに入れる view-model 3 件 (Mana/JP, Shirogane)。
 const galleryListing = (over: Partial<MockListing>): MockListing => ({
   id: 'x', ownerUid: 'u', dc: 'Mana', server: 'Anima', region: 'JP',
-  area: 'Shirogane', ward: 3, plot: 12, size: 'M',
+  area: 'Shirogane', ward: 3, plot: 12, size: 'M', addressKey: 'Mana|Anima|Shirogane|W3|H12',
   imageMode: 'none', tags: ['wafu'], createdAt: 1, lastConfirmedAt: 1, ...over,
 });
 

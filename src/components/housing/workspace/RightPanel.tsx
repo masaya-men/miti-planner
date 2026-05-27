@@ -53,9 +53,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ onClose }) => {
         if (viewMode === 'map' && selectedWardId) {
             return listListingsForWard(MOCK_LISTINGS, selectedWardId);
         }
-        return applyFilters(listings, { dc, regions, servers, areas, sizes, tags, searchText })
-            .slice()
-            .sort((a, b) => b.createdAt - a.createdAt);
+        // store が sortListingsForGallery で並び替え済み + applyFilters は順序保持
+        return applyFilters(listings, { dc, regions, servers, areas, sizes, tags, searchText });
     }, [viewMode, selectedWardId, listings, dc, regions, servers, areas, sizes, tags, searchText]);
 
     const browseTotal = viewMode === 'map' ? MOCK_LISTINGS.length : listings.length;
