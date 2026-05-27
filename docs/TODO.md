@@ -21,10 +21,11 @@
   - 詳細モーダル動画 controls 再生 + 全画像表示 (TG5)
   - CSP に media-src 'self' blob: + frame-src youtube-nocookie 追加 (TG6)
   - 全 1264 tests + build clean
-- **重複登録対応 Phase 1 完了 ✅** (本セッション追加): モーダル経路で checkDuplicate 発火 + 警告ダイアログ、 i18n 4 言語「ハウジング」 表記に更新
-- **次セッション最優先**:
-  1. **実機 E2E 検証** (ユーザー作業、 後で一緒に): TG1-6 シナリオ + Phase 1 重複ダイアログ確認
-  2. **重複登録対応 Phase 2** (本実装): `lastConfirmedAt` 追加 + 「今もあります」 ボタン + ベル通知 + 重複時 1 撃 hide (`REPORT_AUTO_HIDE_THRESHOLD` 動的化) + 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン (重複時 listing にのみ表示)。 設計はユーザーと合意済、 詳細は本セッションの会話履歴参照
+- **重複登録対応 Phase 1 完了 ✅** + 3 hotfixes (deletedAt フィルタ / dialog z-index / register callback stable 化)
+- **TG1-6 + Phase 1 実機検証 (B1-D) 完了 ✅** — C 動画 spotlight 再生も hotfix 後 OK
+- **次セッション最優先 (詳細設計 + 引継ぎ → [.private 設計書](./.private/2026-05-27-housing-video-3frame-and-phase2.md))**:
+  1. **動画 3 フレーム抽出 実装** (Allmarks 正規仕様、 client 表示時抽出 = 保存しない): TG1-6 で僕が「videoPosterUrl 1 枚静止」 で実装した部分を「3 フレーム抽出 + desync ambient slideshow」 に拡張
+  2. **重複登録対応 Phase 2**: lastConfirmedAt + 「今もあります」 ボタン + ベル通知 + 重複時 1 撃 hide + 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン。 設計確定済 (用語・文言含む) → 設計書通り 1 タスクずつ実機検証しながら実装
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
