@@ -94,7 +94,7 @@ LICENSE 追加は**しない** (memory `feedback_lopo_license_stance`)。 真の
 - 多言語: ハウジング言語対応 / AA 名統一
 - UI/モバイル: モーダルアニメ / スマホ・タブレット最適化 / SVG アイコンアニメ / 紹介 PV
 - インフラ: shared_plans クリーンアップ / CSP unsafe-inline / Sentry / Cloudflare 前段
-- 新機能: Floating Timeline (Tauri v2) / FFLogs 精度 / SA 法改善 / 詠唱バー注釈 / public/icons/ 削除
+- 新機能: Floating Timeline (Tauri v2) / FFLogs 精度 / SA 法改善 / 詠唱バー注釈 / public/icons/ 削除 / **ハウジング split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8)
 - デッドコード: Lenis 削除 / ハウジング背景動画の画面サイズ別出し分け
 
 ---
