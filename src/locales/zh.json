@@ -2112,7 +2112,8 @@
                 "manner_notice": "请文明参观",
                 "progress": "进行中",
                 "share_aria": "复制巡游分享链接",
-                "exit_aria": "退出巡游"
+                "exit_aria": "退出巡游",
+                "auto_added_toast": "同住所の他 {{count}} 件もツアーに追加しました"
             },
             "favorites": {
                 "title": "收藏",
@@ -2230,7 +2231,14 @@
             "confirm_success": "「今もあります」 として確認しました",
             "confirm_error": "確認できませんでした、 もう一度お試しください",
             "confirm_error_forbidden_hidden": "通報により非表示中のハウジングは確認できません",
-            "last_confirmed_at": "{{date}} 確認済"
+            "last_confirmed_at": "{{date}} 確認済",
+            "duplicates": {
+                "title": "この住所の他の登録 ({{count}})",
+                "action_wrong": "ちがった",
+                "long_press_hint": "2 秒長押しで非表示",
+                "toast_hidden": "「ちがった」 として処理しました。 該当登録は非表示になりました",
+                "toast_error": "通報に失敗しました、 もう一度お試しください"
+            }
         },
         "edit": {
             "modal": { "title": "物件を編集" },

@@ -2148,7 +2148,8 @@
                 "manner_notice": "Please respect house owners during your visit",
                 "progress": "In progress",
                 "share_aria": "Copy tour share URL",
-                "exit_aria": "Exit the tour"
+                "exit_aria": "Exit the tour",
+                "auto_added_toast": "Added {{count}} other listing(s) at the same address"
             },
             "favorites": {
                 "title": "Favorites",
@@ -2266,7 +2267,14 @@
             "confirm_success": "「今もあります」 として確認しました",
             "confirm_error": "確認できませんでした、 もう一度お試しください",
             "confirm_error_forbidden_hidden": "通報により非表示中のハウジングは確認できません",
-            "last_confirmed_at": "{{date}} 確認済"
+            "last_confirmed_at": "{{date}} 確認済",
+            "duplicates": {
+                "title": "Other listings at this address ({{count}})",
+                "action_wrong": "Wrong",
+                "long_press_hint": "Hold 2 sec to hide",
+                "toast_hidden": "Marked as wrong. The listing has been hidden.",
+                "toast_error": "Report failed, please try again"
+            }
         },
         "edit": {
             "modal": { "title": "物件を編集" },
