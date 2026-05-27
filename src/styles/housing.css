@@ -4122,3 +4122,62 @@ select.housing-input option {
 .housing-guide-actions button:hover:not(:disabled) {
     background: var(--housing-input-bg-hover);
 }
+
+/* ===== §3.8 長押し「ちがった」 ボタン (HousingLongPressButton) ===== */
+.housing-longpress-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--housing-honey-border);
+    background: var(--housing-honey-soft);
+    color: var(--housing-text);
+    font-size: var(--housing-text-md);
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    overflow: hidden;
+    transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.housing-longpress-btn:hover:not(:disabled) {
+    background: var(--housing-honey-medium);
+}
+
+.housing-longpress-btn:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+}
+
+.housing-longpress-btn-ring {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: calc(var(--housing-longpress-progress, 0) * 100%);
+    background: var(--housing-danger-soft);
+    pointer-events: none;
+    transition: width 32ms linear;
+    z-index: 0;
+}
+
+.housing-longpress-btn-label,
+.housing-longpress-btn-hint {
+    position: relative;
+    z-index: 1;
+}
+
+.housing-longpress-btn-hint {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .housing-longpress-btn-ring {
+        transition: width 200ms steps(8);
+    }
+}
+
