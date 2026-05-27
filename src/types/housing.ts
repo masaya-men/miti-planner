@@ -138,12 +138,15 @@ export interface HousingListing {
   thumbnailPaths?: string[];
 
   /**
-   * 2026-05-27 追加: SNS 投稿元 (housingsnap / studio-xiv 等の OGP) から取得した
-   * 外部画像 URL リスト (1-4 件)。 imageMode==='sns' で OGP 経由のときのみ持つ。
+   * 2026-05-27 追加: SNS 投稿元から取得した外部画像 URL リスト (1-10 件)。
+   * imageMode==='sns' のときのみ持つ。
    *
    * - **画像本体は LoPo の倉庫にコピーせず**、 表示時に `<img src>` で元サイトを直接読む
    *   (投稿削除で自動消失、 LoPo 帯域消費ゼロ、 設計書 §6.2 sns モード)
-   * - Twitter / YouTube は ogImageUrl 1 枚維持 (sourceImageUrls は持たない)
+   * - 2 経路で使われる (2026-05-27 排他緩和):
+   *   - OGP 経路 (housingsnap / studio-xiv 等): 各 URL は OGP 取得元サイト由来
+   *   - Twitter 静止画ツイート (tweetId 併用): 各 URL は pbs.twimg.com 限定
+   * - YouTube リスティング (youtubeVideoId) とは排他 (storyboard 都度生成)
    * - 表示側は sourceImageUrls があれば配列で切替、 なければ ogImageUrl 1 枚を fallback
    */
   sourceImageUrls?: string[];

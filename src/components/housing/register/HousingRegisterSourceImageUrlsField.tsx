@@ -5,7 +5,7 @@
  * ドラッグで並び替え + 個別削除できるようにする。 画像本体は LoPo に取り込まず、
  * 元サイトの URL を `<img src>` で直接読む (= 投稿削除で自動消失、 LoPo 帯域消費ゼロ)。
  *
- * - 最大 maxImages 枚 (デフォルト 4)
+ * - 最大 maxImages 枚 (デフォルト 10、 2026-05-27 4→10 拡大)
  * - 1 枚目 (左端) が「カバー画像」 = 一覧の代表
  * - dnd-kit でドラッグ並び替え
  * - `<img onError>` で読めない画像は自動で枠だけ残して非表示
@@ -35,11 +35,11 @@ import { CSS } from '@dnd-kit/utilities';
 export interface HousingRegisterSourceImageUrlsFieldProps {
   value: string[];
   onChange: (next: string[]) => void;
-  /** 最大保存枚数 (デフォルト 4)。 これを超えた分は灰色表示で「使用されない」 と知らせる */
+  /** 最大保存枚数 (デフォルト 10)。 これを超えた分は灰色表示で「使用されない」 と知らせる */
   maxImages?: number;
 }
 
-const DEFAULT_MAX_IMAGES = 4;
+const DEFAULT_MAX_IMAGES = 10;
 
 interface SortableItem {
   /** dnd-kit が要求する安定 ID。 url が重複しないので url 自体を ID にする */

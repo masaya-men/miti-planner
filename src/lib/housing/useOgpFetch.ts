@@ -15,7 +15,7 @@ export interface OgpData {
     /**
      * 全画像 URL (og:image + サイト別追加抽出)。 最大 12 件。
      * housingsnap.com / studio-xiv.com なら 1 物件 1-12 枚、 他のサイトは og:image の 1 枚のみ。
-     * 登録時に先頭 4 件に絞る (HousingRegisterForm 側)。
+     * 登録時に先頭 10 件に絞る (HousingRegisterForm 側、 2026-05-27 4→10 拡大)。
      */
     images: string[];
     title: string | null;

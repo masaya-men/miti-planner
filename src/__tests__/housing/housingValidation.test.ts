@@ -216,15 +216,26 @@ describe('validateImage', () => {
       ).toBe(false);
     });
 
-    it('sourceImageUrls が 4 件超だと invalid', () => {
-      const urls = Array.from({ length: 5 }, (_, i) => `https://cdn.example.com/${i}.jpg`);
+    it('sourceImageUrls 10 件 (上限) は ok (2026-05-27 4→10 拡大)', () => {
+      const urls = Array.from({ length: 10 }, (_, i) => `https://cdn.example.com/${i}.jpg`);
       expect(
         validateImage({
           ...ogpBase,
           ogImageUrl: urls[0],
           sourceImageUrls: urls,
         } as any).ok,
-      ).toBe(false);
+      ).toBe(true);
+    });
+
+    it('sourceImageUrls 11 件は too_many (2026-05-27 4→10 拡大、 サニティ上限維持)', () => {
+      const urls = Array.from({ length: 11 }, (_, i) => `https://cdn.example.com/${i}.jpg`);
+      const result = validateImage({
+        ...ogpBase,
+        ogImageUrl: urls[0],
+        sourceImageUrls: urls,
+      } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.sourceImageUrls).toBe('too_many');
     });
 
     it('sourceImageUrls に重複があると invalid', () => {
@@ -245,16 +256,74 @@ describe('validateImage', () => {
       ).toBe(false);
     });
 
-    it('tweetId と sourceImageUrls の同居は conflict', () => {
-      expect(
-        validateImage({ ...ogpBase, tweetId: '123' } as any).ok,
-      ).toBe(false);
-    });
-
-    it('youtubeVideoId と sourceImageUrls の同居は conflict', () => {
+    it('youtubeVideoId と sourceImageUrls の同居は conflict (2026-05-27 引き続き禁止)', () => {
       expect(
         validateImage({ ...ogpBase, youtubeVideoId: 'abcdefghijk' } as any).ok,
       ).toBe(false);
+    });
+  });
+
+  // 2026-05-27: tweetId + sourceImageUrls 排他緩和 (Twitter 静止画ツイート 1-4 枚)
+  describe('Twitter 静止画ツイート (tweetId + sourceImageUrls 同居)', () => {
+    it('tweetId と pbs.twimg.com の sourceImageUrls 4 枚は ok', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        sourceImageUrls: [
+          'https://pbs.twimg.com/media/A.jpg',
+          'https://pbs.twimg.com/media/B.jpg',
+          'https://pbs.twimg.com/media/C.jpg',
+          'https://pbs.twimg.com/media/D.jpg',
+        ],
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(true);
+    });
+
+    it('tweetId + sourceImageUrls で pbs.twimg.com 以外のホストは reject', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        sourceImageUrls: ['https://evil.example.com/A.jpg'],
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.sourceImageUrls).toBeDefined();
+    });
+
+    it('tweetId + sourceImageUrls で ogImageUrl が sourceImageUrls[0] と一致しないと invalid', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/X.jpg',
+        sourceImageUrls: [
+          'https://pbs.twimg.com/media/A.jpg',
+          'https://pbs.twimg.com/media/B.jpg',
+        ],
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(false);
+    });
+
+    it('tweetId + sourceImageUrls で重複は invalid', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        sourceImageUrls: [
+          'https://pbs.twimg.com/media/A.jpg',
+          'https://pbs.twimg.com/media/A.jpg',
+        ],
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.sourceImageUrls).toBe('duplicate');
     });
   });
 });
@@ -293,8 +362,8 @@ describe('buildListingImageFields', () => {
     });
   });
 
-  it('OGP 経路で sourceImageUrls が 5 件来ても先頭 4 件で保存', () => {
-    const urls = Array.from({ length: 5 }, (_, i) => `https://cdn.example.com/${i}.jpg`);
+  it('OGP 経路で sourceImageUrls が 11 件来ても先頭 10 件で保存 (2026-05-27 4→10 拡大)', () => {
+    const urls = Array.from({ length: 11 }, (_, i) => `https://cdn.example.com/${i}.jpg`);
     const out = buildListingImageFields(
       {
         imageMode: 'sns',
@@ -305,8 +374,8 @@ describe('buildListingImageFields', () => {
       1000,
     );
     if (out.imageMode !== 'sns' || !('sourceImageUrls' in out)) throw new Error('expected OGP sns');
-    expect(out.sourceImageUrls).toHaveLength(4);
-    expect(out.sourceImageUrls).toEqual(urls.slice(0, 4));
+    expect(out.sourceImageUrls).toHaveLength(10);
+    expect(out.sourceImageUrls).toEqual(urls.slice(0, 10));
   });
 
   it('sns 以外は none を返す', () => {

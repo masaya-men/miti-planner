@@ -56,9 +56,14 @@ export interface RegistrationDraft extends AddressInput {
   tweetId?: string;
   youtubeVideoId?: string;
   /**
-   * 2026-05-27 追加: OGP 経由で取得した外部画像 URL リスト (1-4 件)。
+   * 2026-05-27 追加: 外部画像 URL リスト (1-10 件、 MAX_SOURCE_IMAGE_URLS 同期)。
    * **LoPo の倉庫にコピーせず**、 表示時に `<img src>` で元サイトを直接読む。
-   * tweetId / youtubeVideoId とは排他 (OGP 専用)。
+   *
+   * 2 経路で使われる (2026-05-27 排他緩和):
+   * - OGP 経路 (housingsnap / studio-xiv 等): postUrl が allowlist 内、 各 URL は非 private IP
+   * - Twitter 静止画ツイート (tweetId 併用): 各 URL は pbs.twimg.com 限定
+   *
+   * youtubeVideoId とは排他 (YouTube は storyboard を都度生成、 静止画 URL を保存しない)。
    */
   sourceImageUrls?: string[];
 }
@@ -202,8 +207,12 @@ function isExternalImageUrlSafe(value: string): boolean {
   }
 }
 
-/** Firestore に保存する sourceImageUrls の最大件数 (一覧と詳細での性能配慮)。 */
-const MAX_SOURCE_IMAGE_URLS = 4;
+/**
+ * Firestore に保存する sourceImageUrls の最大件数 (サニティ防御兼ねる)。
+ * 2026-05-27: 4 → 10 に拡大 (画像は外部 URL 直接表示で LoPo 帯域消費ゼロ、 Firestore doc 1MB
+ * からも十二分、 housingsnap で 12 枚撮れる物件の取りこぼし防止)。
+ */
+const MAX_SOURCE_IMAGE_URLS = 10;
 
 // 2026-05-26: YouTube サムネ用 host allowlist (任意 URL 注入を防ぐ)。
 const YOUTUBE_THUMB_HOSTS = new Set(['img.youtube.com', 'i.ytimg.com']);
@@ -234,30 +243,44 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
   const hasYoutube = !!draft.youtubeVideoId;
   const hasSourceUrls = Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0;
 
-  const sourceCount = (hasTweet ? 1 : 0) + (hasYoutube ? 1 : 0) + (hasSourceUrls ? 1 : 0);
-  if (sourceCount > 1) {
+  // 2026-05-27 排他緩和: tweetId + sourceImageUrls の同居許可 (Twitter 静止画ツイート 1-10 枚)。
+  // youtubeVideoId と sourceImageUrls は引き続き排他 (YouTube は storyboard 都度生成、 静止画 URL を保存しない)。
+  if (hasYoutube && (hasTweet || hasSourceUrls)) {
     errors.imageMode = 'conflict_sources';
     return fail(errors);
   }
-  if (sourceCount === 0) {
+  if (!hasTweet && !hasYoutube && !hasSourceUrls) {
     errors.imageMode = 'source_required_for_sns';
     return fail(errors);
   }
 
-  if (hasTweet) {
-    if (!isHttpsUrl(draft.ogImageUrl) || !isPbsTwimgHost(draft.ogImageUrl)) {
-      errors.ogImageUrl = 'invalid';
-    }
-    if (!/^\d{1,20}$/.test(draft.tweetId!)) errors.tweetId = 'invalid';
-  } else if (hasYoutube) {
+  if (hasYoutube) {
     if (!isHttpsUrl(draft.ogImageUrl) || !isYoutubeThumbHost(draft.ogImageUrl)) {
       errors.ogImageUrl = 'invalid';
     }
     if (!/^[A-Za-z0-9_-]{11}$/.test(draft.youtubeVideoId!)) {
       errors.youtubeVideoId = 'invalid';
     }
+  } else if (hasTweet) {
+    if (!isHttpsUrl(draft.ogImageUrl) || !isPbsTwimgHost(draft.ogImageUrl)) {
+      errors.ogImageUrl = 'invalid';
+    }
+    if (!/^\d{1,20}$/.test(draft.tweetId!)) errors.tweetId = 'invalid';
+    // 2026-05-27: tweetId + sourceImageUrls 併用時、 全 URL が pbs.twimg.com 限定 + ogImageUrl と先頭一致。
+    if (hasSourceUrls) {
+      const urls = draft.sourceImageUrls!;
+      if (urls.length > MAX_SOURCE_IMAGE_URLS) {
+        errors.sourceImageUrls = 'too_many';
+      } else if (urls.some((u) => typeof u !== 'string' || !isPbsTwimgHost(u))) {
+        errors.sourceImageUrls = 'invalid_url';
+      } else if (new Set(urls).size !== urls.length) {
+        errors.sourceImageUrls = 'duplicate';
+      } else if (draft.ogImageUrl !== urls[0]) {
+        errors.ogImageUrl = 'must_match_first_source';
+      }
+    }
   } else {
-    // OGP 経路
+    // OGP 経路 (= hasSourceUrls のみ)
     if (!isOgpUrlAllowed(draft.postUrl ?? '')) {
       errors.postUrl = 'not_in_ogp_allowlist';
     }

@@ -57,9 +57,9 @@ export type HousingRegisterFormValues = {
      */
     localImages?: CompressedImage[];
     /**
-     * 2026-05-27: OGP (housingsnap / studio-xiv 等) 経由で取得した外部画像 URL リスト。
+     * 2026-05-27: 外部画像 URL リスト (OGP 経由 or Twitter 静止画ツイート)。
      * **LoPo の倉庫にコピーせず、 元サイトの URL を `<img src>` で直接表示する**。
-     * 投稿削除で自動消失、 LoPo 帯域消費ゼロ。 最大 4 件保存 (handleSubmit で slice)。
+     * 投稿削除で自動消失、 LoPo 帯域消費ゼロ。 最大 10 件保存 (handleSubmit で slice)。
      */
     sourceImageUrls?: string[];
 };
@@ -98,9 +98,9 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const [tags, setTags] = useState<string[]>([]);
     const [localImages, setLocalImages] = useState<CompressedImage[]>([]);
     /**
-     * 2026-05-27: OGP 経由で取得した外部画像 URL リスト (housingsnap / studio-xiv 等)。
-     * ドラッグで並び替え可、 先頭 4 件が物件画像として保存される。
-     * Twitter / YouTube は ogImageUrl 1 枚維持 (次セッションで sourceImageUrls 統合予定)。
+     * 2026-05-27: 外部画像 URL リスト (OGP or Twitter 静止画ツイート)。
+     * ドラッグで並び替え可、 先頭 10 件が物件画像として保存される (2026-05-27 4→10 拡大)。
+     * 動画ツイートは videoUrl 系を別途扱う (sourceImageUrls とは排他)。
      */
     const [sourceImageUrls, setSourceImageUrls] = useState<string[]>([]);
 
@@ -230,7 +230,8 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             } else if (ogpResult && sourceImageUrls.length > 0) {
                 // 2026-05-27: OGP 経由は sourceImageUrls (並び替え後) を保存。
                 // 1 枚目を ogImageUrl 代表に置いて HousingCard 後方互換を維持。
-                const trimmed = sourceImageUrls.slice(0, 4);
+                // 2026-05-27 (Task 2.3): 4→10 拡大
+                const trimmed = sourceImageUrls.slice(0, 10);
                 snsImage = {
                     postUrl: ogpResult.postUrl,
                     ogImageUrl: trimmed[0],
@@ -245,8 +246,9 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             }
         }
 
-        // hotfix25: アップロード経路は 12 枚まで取り込み可、 登録時は先頭 4 枚保存。
-        const localImagesToSubmit = localImages.slice(0, 4);
+        // hotfix25: アップロード経路は 12 枚まで取り込み可、 登録時は先頭 10 枚保存
+        // (2026-05-27 Task 2.3: sourceImageUrls と上限揃え)。
+        const localImagesToSubmit = localImages.slice(0, 10);
 
         onSubmit({
             dc,
@@ -313,7 +315,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             <HousingRegisterSourceImageUrlsField
                 value={sourceImageUrls}
                 onChange={setSourceImageUrls}
-                maxImages={4}
+                maxImages={10}
             />
 
             {/* 2026-05-26: 画像アップロード経路。 SNS URL と並ぶ第 2 の画像入力手段。 両方ある場合は画像優先。 最大 4 枚。 */}
