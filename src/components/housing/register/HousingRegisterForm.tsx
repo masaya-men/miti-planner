@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     HousingRegisterSnsUrlField,
@@ -27,8 +27,6 @@ import {
     handleYoutubeThumbnailError,
     handleYoutubeThumbnailLoad,
 } from '../../../lib/housing/youtubeImgFallback';
-import { extractVideoFrames } from '../../../lib/housing/extractVideoFrames';
-import { dataUrlToCompressedImage } from '../../../lib/housing/dataUrlToCompressedImage';
 
 export type HousingRegisterFormValues = {
     dc?: string;
@@ -105,11 +103,6 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
      * Twitter / YouTube は ogImageUrl 1 枚維持 (次セッションで sourceImageUrls 統合予定)。
      */
     const [sourceImageUrls, setSourceImageUrls] = useState<string[]>([]);
-    // Twitter 動画フレーム抽出の進捗 (2026-05-26 D: 自動 3 フレーム取り込み)
-    const [videoExtracting, setVideoExtracting] = useState(false);
-    const [videoExtractFailed, setVideoExtractFailed] = useState(false);
-    // 同じ video URL に対して useEffect 再発火しても抽出を重複起動しないためのガード
-    const extractedVideoUrlRef = useRef<string | null>(null);
 
     const handleTweetFetched = useCallback(
         (data: TweetData, source: { postUrl: string; tweetId: string } | null) => {
@@ -182,47 +175,6 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
         setSourceImageUrls(ogpResult.data.images ?? []);
     }, [ogpResult]);
 
-    // Twitter 動画ツイートが取れたら 3 フレームを自動抽出して localImages へ push
-    // (失敗時は posterUrl を photo fallback として handleSubmit で利用)。
-    useEffect(() => {
-        const videoUrl = tweetData?.video?.url;
-        if (!videoUrl) {
-            extractedVideoUrlRef.current = null;
-            setVideoExtracting(false);
-            setVideoExtractFailed(false);
-            return;
-        }
-        if (extractedVideoUrlRef.current === videoUrl) return;
-        extractedVideoUrlRef.current = videoUrl;
-
-        setVideoExtracting(true);
-        setVideoExtractFailed(false);
-        let cancelled = false;
-
-        (async () => {
-            try {
-                const frames = await extractVideoFrames({
-                    src: `/api/tweet-video?url=${encodeURIComponent(videoUrl)}`,
-                    fractions: [0, 0.25, 0.5],
-                });
-                if (cancelled) return;
-                const compressed = frames.map((dataUrl, i) =>
-                    dataUrlToCompressedImage(dataUrl, `tweet-frame-${i}.webp`),
-                );
-                setLocalImages((prev) => [...prev, ...compressed].slice(0, 12));
-            } catch {
-                if (cancelled) return;
-                setVideoExtractFailed(true);
-            } finally {
-                if (!cancelled) setVideoExtracting(false);
-            }
-        })();
-
-        return () => {
-            cancelled = true;
-        };
-    }, [tweetData?.video?.url]);
-
     // size が変わった結果、 不要になった条件付きフィールドはクリア
     useEffect(() => {
         if (!showPlot && plot !== undefined) {
@@ -258,8 +210,8 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
         //      + sourceImageUrls (取得した全 URL、 ドラッグ並び替え後の先頭 4 件)
         //   ⑤ どれも無し → imageMode='none'
         const hasLocalImages = localImages.length > 0;
-        // 動画ツイート + 抽出失敗のときは posterUrl を photo として救済 (2026-05-26 D)
-        const photo = tweetData?.photos?.[0] ?? tweetData?.video?.posterUrl;
+        // 静止画ツイートは photos[0]、 動画ツイートは Task Group 2 で videoUrl 系を別経路で保存する
+        const photo = tweetData?.photos?.[0];
 
         let snsImage: Partial<HousingRegisterFormValues> = {};
         if (!hasLocalImages) {
@@ -328,17 +280,6 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                 onOgpFetched={setOgpResult}
             />
             {tweetData && <HousingRegisterTweetPreview data={tweetData} />}
-            {videoExtracting && (
-                <div className="housing-fetch-indicator">
-                    <span className="housing-spinner" aria-hidden />
-                    <span>{t('housing.register.snsUrl.video_extracting')}</span>
-                </div>
-            )}
-            {videoExtractFailed && (
-                <p className="housing-error-text">
-                    {t('housing.register.snsUrl.video_extract_failed')}
-                </p>
-            )}
             {youtubeData && (
                 <div className="housing-register-youtube-preview">
                     <img
