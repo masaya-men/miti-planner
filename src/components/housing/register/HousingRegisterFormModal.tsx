@@ -52,7 +52,7 @@ export function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationD
         roomNumber: v.roomNumber,
         tags: v.tags ?? [],
         description: v.description,
-        // 画像源: Twitter / YouTube どちらか排他 (どちらも postUrl + ogImageUrl は共通)。
+        // 画像源: Twitter / YouTube / OGP の 3 種排他 (どれも postUrl + ogImageUrl は共通)。
         ...(v.postUrl && v.ogImageUrl && v.tweetId
             ? {
                   imageMode: 'sns' as const,
@@ -66,6 +66,13 @@ export function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationD
                   postUrl: v.postUrl,
                   ogImageUrl: v.ogImageUrl,
                   youtubeVideoId: v.youtubeVideoId,
+              }
+            : v.postUrl && v.ogImageUrl && v.sourceImageUrls && v.sourceImageUrls.length > 0
+            ? {
+                  imageMode: 'sns' as const,
+                  postUrl: v.postUrl,
+                  ogImageUrl: v.ogImageUrl,
+                  sourceImageUrls: v.sourceImageUrls,
               }
             : {}),
     };

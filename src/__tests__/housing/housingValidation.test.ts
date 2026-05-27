@@ -176,6 +176,87 @@ describe('validateImage', () => {
   it('sns なのにフィールド欠落は invalid', () => {
     expect(validateImage({ imageMode: 'sns' } as any).ok).toBe(false);
   });
+
+  // 2026-05-27: OGP 経路 (sourceImageUrls) の検証
+  describe('OGP 経路 (sourceImageUrls)', () => {
+    const ogpBase = {
+      imageMode: 'sns' as const,
+      postUrl: 'https://housingsnap.com/12345',
+      ogImageUrl: 'https://cdn.example.com/a.jpg',
+      sourceImageUrls: ['https://cdn.example.com/a.jpg', 'https://cdn.example.com/b.jpg'],
+    };
+
+    it('正常な OGP 入力は ok', () => {
+      expect(validateImage(ogpBase as any).ok).toBe(true);
+    });
+
+    it('postUrl が OGP allowlist 外だと invalid', () => {
+      expect(
+        validateImage({ ...ogpBase, postUrl: 'https://evil.example.com/x' } as any).ok,
+      ).toBe(false);
+    });
+
+    it('sourceImageUrls の URL が https でないと invalid', () => {
+      expect(
+        validateImage({
+          ...ogpBase,
+          ogImageUrl: 'http://cdn.example.com/a.jpg',
+          sourceImageUrls: ['http://cdn.example.com/a.jpg'],
+        } as any).ok,
+      ).toBe(false);
+    });
+
+    it('sourceImageUrls が private IP だと invalid (SSRF guard)', () => {
+      expect(
+        validateImage({
+          ...ogpBase,
+          ogImageUrl: 'https://10.0.0.5/a.jpg',
+          sourceImageUrls: ['https://10.0.0.5/a.jpg'],
+        } as any).ok,
+      ).toBe(false);
+    });
+
+    it('sourceImageUrls が 4 件超だと invalid', () => {
+      const urls = Array.from({ length: 5 }, (_, i) => `https://cdn.example.com/${i}.jpg`);
+      expect(
+        validateImage({
+          ...ogpBase,
+          ogImageUrl: urls[0],
+          sourceImageUrls: urls,
+        } as any).ok,
+      ).toBe(false);
+    });
+
+    it('sourceImageUrls に重複があると invalid', () => {
+      expect(
+        validateImage({
+          ...ogpBase,
+          sourceImageUrls: ['https://cdn.example.com/a.jpg', 'https://cdn.example.com/a.jpg'],
+        } as any).ok,
+      ).toBe(false);
+    });
+
+    it('ogImageUrl が sourceImageUrls[0] と一致しないと invalid', () => {
+      expect(
+        validateImage({
+          ...ogpBase,
+          ogImageUrl: 'https://cdn.example.com/other.jpg',
+        } as any).ok,
+      ).toBe(false);
+    });
+
+    it('tweetId と sourceImageUrls の同居は conflict', () => {
+      expect(
+        validateImage({ ...ogpBase, tweetId: '123' } as any).ok,
+      ).toBe(false);
+    });
+
+    it('youtubeVideoId と sourceImageUrls の同居は conflict', () => {
+      expect(
+        validateImage({ ...ogpBase, youtubeVideoId: 'abcdefghijk' } as any).ok,
+      ).toBe(false);
+    });
+  });
 });
 
 describe('buildListingImageFields', () => {
@@ -191,6 +272,41 @@ describe('buildListingImageFields', () => {
       tweetId: '123',
       lastTweetCheckAt: 1000,
     });
+  });
+
+  // 2026-05-27: OGP 経路 (sourceImageUrls) の buildListingImageFields
+  it('OGP 経路 (sourceImageUrls あり) で sourceImageUrls を含めて返す', () => {
+    const out = buildListingImageFields(
+      {
+        imageMode: 'sns',
+        postUrl: 'https://housingsnap.com/12345',
+        ogImageUrl: 'https://cdn.example.com/a.jpg',
+        sourceImageUrls: ['https://cdn.example.com/a.jpg', 'https://cdn.example.com/b.jpg'],
+      } as any,
+      1000,
+    );
+    expect(out).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://housingsnap.com/12345',
+      ogImageUrl: 'https://cdn.example.com/a.jpg',
+      sourceImageUrls: ['https://cdn.example.com/a.jpg', 'https://cdn.example.com/b.jpg'],
+    });
+  });
+
+  it('OGP 経路で sourceImageUrls が 5 件来ても先頭 4 件で保存', () => {
+    const urls = Array.from({ length: 5 }, (_, i) => `https://cdn.example.com/${i}.jpg`);
+    const out = buildListingImageFields(
+      {
+        imageMode: 'sns',
+        postUrl: 'https://housingsnap.com/12345',
+        ogImageUrl: urls[0],
+        sourceImageUrls: urls,
+      } as any,
+      1000,
+    );
+    if (out.imageMode !== 'sns' || !('sourceImageUrls' in out)) throw new Error('expected OGP sns');
+    expect(out.sourceImageUrls).toHaveLength(4);
+    expect(out.sourceImageUrls).toEqual(urls.slice(0, 4));
   });
 
   it('sns 以外は none を返す', () => {

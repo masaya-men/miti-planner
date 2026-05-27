@@ -1,26 +1,23 @@
 import { useState, useCallback, useRef } from 'react';
 
 /**
- * 汎用 OGP 取得 hook (2026-05-27 新設、 B: housingsnap 等 4 サイト対応)。
+ * 汎用 OGP 取得 hook (2026-05-27 リライト、 URL 直接表示版)。
  *
- * /api/og?url=<allowlist 内 URL> を叩いて、 OGP メタデータ + og:image base64 を取得。
+ * /api/og?url=<allowlist 内 URL> を叩いて、 OGP メタデータ + 画像 URL リストを取得。
+ * **画像本体は LoPo の倉庫にコピーせず、 元サイトの URL をそのまま `<img src>` で読む**
+ * (= 投稿削除で自動消失、 LoPo 帯域消費ゼロ)。
  * useTweetFetch / useYoutubeFetch と並ぶ「URL → 物件画像」 経路の 3 つ目。
  */
 
-export interface OgpImagePayload {
-    sourceUrl: string;
-    base64: string;
-    mimeType: string;
-}
-
 export interface OgpData {
-    /** og:image URL (= 1 枚目の出典 URL、 後方互換用)。 取得不可なら null。 */
+    /** og:image URL (= 1 枚目代表、 後方互換用)。 取得不可なら null。 */
     image: string | null;
     /**
-     * 全画像 (og:image + サイト別追加抽出) を base64 で同梱。 最大 4 枚。
-     * housingsnap.com なら 1 物件 1-4 枚、 他のサイトは og:image の 1 枚のみ。
+     * 全画像 URL (og:image + サイト別追加抽出)。 最大 12 件。
+     * housingsnap.com / studio-xiv.com なら 1 物件 1-12 枚、 他のサイトは og:image の 1 枚のみ。
+     * 登録時に先頭 4 件に絞る (HousingRegisterForm 側)。
      */
-    images: OgpImagePayload[];
+    images: string[];
     title: string | null;
     description: string | null;
     siteName: string | null;

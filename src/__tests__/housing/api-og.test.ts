@@ -16,17 +16,7 @@ function htmlResponse(html: string): Response {
     });
 }
 
-function imageResponse(bytes: Uint8Array, mimeType = 'image/jpeg'): Response {
-    // Node 20+ の TS lib では Uint8Array<ArrayBufferLike> が BlobPart に直接適合しないため
-    // ArrayBuffer に slice してから渡す (= 元の SharedArrayBuffer の可能性を排除)。
-    const buf = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
-    return new Response(new Blob([buf as ArrayBuffer], { type: mimeType }), {
-        status: 200,
-        headers: { 'content-type': mimeType },
-    });
-}
-
-describe('GET /api/og', () => {
+describe('GET /api/og (URL リスト返却版、 2026-05-27)', () => {
     beforeEach(() => {
         mockFetch.mockReset();
     });
@@ -52,16 +42,13 @@ describe('GET /api/og', () => {
         expect(res.status).toBe(403);
     });
 
-    it('allowlist 通過 + HTML + 画像取得が動く', async () => {
+    it('allowlist 通過 + HTML パース → URL リスト返却 (画像 fetch しない)', async () => {
         const html = `
             <meta property="og:image" content="https://cdn.x/a.jpg">
             <meta property="og:title" content="家">
             <meta property="og:site_name" content="Housing Snap">
         `;
-        const imageBytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]); // JPEG magic
-        mockFetch
-            .mockResolvedValueOnce(htmlResponse(html))
-            .mockResolvedValueOnce(imageResponse(imageBytes, 'image/jpeg'));
+        mockFetch.mockResolvedValueOnce(htmlResponse(html));
 
         const res = await handler(makeReq('https://thonhart.com/p/1'));
         expect(res.status).toBe(200);
@@ -69,16 +56,12 @@ describe('GET /api/og', () => {
         expect(body.image).toBe('https://cdn.x/a.jpg');
         expect(body.title).toBe('家');
         expect(body.siteName).toBe('Housing Snap');
-        expect(body.images).toEqual([
-            {
-                sourceUrl: 'https://cdn.x/a.jpg',
-                base64: '/9j/4A==',
-                mimeType: 'image/jpeg',
-            },
-        ]);
+        expect(body.images).toEqual(['https://cdn.x/a.jpg']);
+        // 画像本体は fetch しない (= HTML fetch の 1 回のみ)
+        expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
-    it('og:image が無いと images も空配列', async () => {
+    it('og:image が無いと images は空配列', async () => {
         const html = `<meta property="og:title" content="No Image Page">`;
         mockFetch.mockResolvedValueOnce(htmlResponse(html));
 
@@ -90,19 +73,20 @@ describe('GET /api/og', () => {
         expect(body.title).toBe('No Image Page');
     });
 
-    it('og:image が private IP の場合は画像取得スキップ', async () => {
+    it('og:image が private IP の場合は images から除外 (SSRF guard)', async () => {
         const html = `<meta property="og:image" content="https://10.0.0.5/img.jpg">`;
         mockFetch.mockResolvedValueOnce(htmlResponse(html));
 
         const res = await handler(makeReq('https://thonhart.com/p/1'));
         expect(res.status).toBe(200);
         const body = await res.json();
+        // og:image meta は残るが、 isImageUrlSafe で弾かれて images には入らない
         expect(body.image).toBe('https://10.0.0.5/img.jpg');
-        expect(body.images).toEqual([]); // SSRF guard で 2 回目 fetch しない
+        expect(body.images).toEqual([]);
         expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
-    it('studio-xiv.com は ffxiv_ パターンを全部取得、 ロゴ等は除外 (hotfix24/25)', async () => {
+    it('studio-xiv.com は ffxiv_ パターンを全部取得、 ロゴ等は除外', async () => {
         const html = `
             <meta property="og:image" content="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_main.png">
             <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_b.png">
@@ -110,24 +94,18 @@ describe('GET /api/og', () => {
             <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_d.png">
             <img src="https://studio-xiv.com/wp-content/uploads/2026/05/site-logo.png">
         `;
-        const bytes = new Uint8Array([0x89, 0x50, 0x4e, 0x47]); // PNG magic
-        mockFetch
-            .mockResolvedValueOnce(htmlResponse(html))
-            .mockResolvedValueOnce(imageResponse(bytes, 'image/png'))
-            .mockResolvedValueOnce(imageResponse(bytes, 'image/png'))
-            .mockResolvedValueOnce(imageResponse(bytes, 'image/png'))
-            .mockResolvedValueOnce(imageResponse(bytes, 'image/png'));
+        mockFetch.mockResolvedValueOnce(htmlResponse(html));
 
         const res = await handler(makeReq('https://studio-xiv.com/studio/100189/'));
         expect(res.status).toBe(200);
         const body = await res.json();
-        // 4 件全部 (ffxiv_main / b / c / d) が取れる、 site-logo は ffxiv_ プレフィックス無しで除外
         expect(body.images).toHaveLength(4);
-        expect(body.images[0].sourceUrl).toContain('ffxiv_main');
-        expect(body.images[3].sourceUrl).toContain('ffxiv_d');
+        expect(body.images[0]).toContain('ffxiv_main');
+        expect(body.images[3]).toContain('ffxiv_d');
+        expect(body.images.some((u: string) => u.includes('site-logo'))).toBe(false);
     });
 
-    it('housingsnap.com で 5 枚あれば 5 枚返る (hotfix25: max 12 まで)', async () => {
+    it('housingsnap.com で 5 枚あれば 5 件返る', async () => {
         const html = `
             <meta property="og:image" content="https://assets.housingsnap.com/uploads/paragraph/image/1/aaa111_watermark.jpg">
             <img src="https://assets.housingsnap.com/uploads/paragraph/image/2/bbb222_watermark.jpg">
@@ -135,41 +113,31 @@ describe('GET /api/og', () => {
             <img src="https://assets.housingsnap.com/uploads/paragraph/image/4/ddd444_watermark.jpg">
             <img src="https://assets.housingsnap.com/uploads/paragraph/image/5/eee555_watermark.jpg">
         `;
-        const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
-        mockFetch
-            .mockResolvedValueOnce(htmlResponse(html))
-            .mockResolvedValueOnce(imageResponse(bytes))
-            .mockResolvedValueOnce(imageResponse(bytes))
-            .mockResolvedValueOnce(imageResponse(bytes))
-            .mockResolvedValueOnce(imageResponse(bytes))
-            .mockResolvedValueOnce(imageResponse(bytes));
+        mockFetch.mockResolvedValueOnce(htmlResponse(html));
 
         const res = await handler(makeReq('https://housingsnap.com/46775'));
         expect(res.status).toBe(200);
         const body = await res.json();
-        // hotfix25 で max を 12 に上げたので 5 枚全部返る
         expect(body.images).toHaveLength(5);
-        expect(body.images[0].sourceUrl).toContain('/1/aaa111_');
-        expect(body.images[4].sourceUrl).toContain('/5/eee555_');
+        expect(body.images[0]).toContain('/1/aaa111_');
+        expect(body.images[4]).toContain('/5/eee555_');
     });
 
-    it('housingsnap.com で 13 枚あっても 12 枚で打ち切り (hotfix25)', async () => {
+    it('housingsnap.com で 13 枚あっても 12 件で打ち切り', async () => {
         const imgs = Array.from({ length: 13 }, (_, i) => {
             const id = i + 1;
             const hash = `aa${id.toString(16).padStart(4, '0')}bb`;
             return `<img src="https://assets.housingsnap.com/uploads/paragraph/image/${id}/${hash}_watermark.jpg">`;
         }).join('\n');
         const html = `<meta property="og:image" content="https://assets.housingsnap.com/uploads/paragraph/image/100/zzz999_watermark.jpg">${imgs}`;
-        const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
         mockFetch.mockResolvedValueOnce(htmlResponse(html));
-        for (let i = 0; i < 13; i++) mockFetch.mockResolvedValueOnce(imageResponse(bytes));
 
         const res = await handler(makeReq('https://housingsnap.com/x'));
         expect(res.status).toBe(200);
         const body = await res.json();
-        // og:image (zzz999) + 追加 11 枚 = 計 12 枚で打ち切り
+        // og:image (zzz999) + 追加 11 枚 = 計 12 件で打ち切り
         expect(body.images).toHaveLength(12);
-        expect(body.images[0].sourceUrl).toContain('zzz999');
+        expect(body.images[0]).toContain('zzz999');
     });
 
     it('upstream HTML fetch 失敗で 502', async () => {

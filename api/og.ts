@@ -1,11 +1,11 @@
-// Vercel Edge Function — OGP 汎用取得 (2026-05-27 新設、 B: housingsnap 等 4 サイト対応)
+// Vercel Edge Function — OGP 汎用取得 (URL リスト返却版、 2026-05-27 リライト)
 //
 // 目的:
 // - ハウジング系参考サイト (housingsnap.com 等) の物件ページ URL を受け取り、
-//   og:image / og:title / og:description / og:site_name を JSON で返す。
-// - og:image は同時に server 側で fetch して base64 化して同梱
-//   (= クライアントは別途リモートに繋がず、 dataUrlToCompressedImage 経路で
-//    localImages に push 可能 → Storage 経由で thumbnailPaths に乗る)。
+//   og:image / og:title / og:description / og:site_name と、 サイト別追加抽出した
+//   画像 URL リストを JSON で返す。
+// - **画像本体は fetch しない** (= LoPo の倉庫にコピーせず、 元サイトの CDN URL を
+//   そのままクライアントに渡す)。 表示時は `<img src={外部URL}>` で直接読む方式。
 // - SSRF 防御は allowlist 完全一致 + private IP 拒否 + redirect: 'manual' で多重。
 //
 // Phase 3 (Cloudflare 全面移行) で Cloudflare Workers にコピペ移植する想定で、
@@ -21,22 +21,14 @@ import {
 export const config = { runtime: 'edge' };
 
 const HTML_TIMEOUT_MS = 8_000;
-const IMAGE_TIMEOUT_MS = 8_000;
-const MAX_HTML_BYTES = 2 * 1024 * 1024; // 2 MB (= og:meta 行は header 付近にあるので十分)
-const MAX_IMAGE_BYTES = 3 * 1024 * 1024; // 3 MB
-const MAX_IMAGES_PER_RESPONSE = 12; // 取得は 12 枚まで、 登録時に先頭 4 枚に絞る (hotfix25)
-
-export interface OgImagePayload {
-    sourceUrl: string;
-    base64: string;
-    mimeType: string;
-}
+const MAX_HTML_BYTES = 2 * 1024 * 1024; // 2 MB (og:meta 行は header 付近にあるので十分)
+const MAX_IMAGES_PER_RESPONSE = 12; // og:image + サイト別抽出を合わせて 12 URL まで
 
 interface OgResponse {
-    /** og:image の URL (= 1 枚目)、 取得不可なら null。 後方互換目的で残す。 */
+    /** og:image の URL (= 1 枚目代表、 後方互換用)。 取得不可なら null。 */
     image: string | null;
-    /** 全画像 (og:image + サイト別追加抽出) を base64 で同梱。 最大 MAX_IMAGES_PER_RESPONSE。 */
-    images: OgImagePayload[];
+    /** 全画像 URL (og:image + サイト別追加抽出)。 最大 MAX_IMAGES_PER_RESPONSE。 */
+    images: string[];
     title: string | null;
     description: string | null;
     siteName: string | null;
@@ -78,14 +70,14 @@ export default async function handler(req: Request): Promise<Response> {
 
         // 候補 URL リスト構築: og:image (= 1 枚目) + サイト別追加抽出。
         // og:image 自身は allowlist 外の CDN ホストでも構わない (== 静的画像なので SSRF リスク低)。
-        // ただし protocol = https のみ、 redirect 追跡しない、 サイズ制限で hardening。
-        const candidateUrls: string[] = [];
+        // ただし protocol = https のみで hardening、 画像本体は fetch しない。
+        const images: string[] = [];
         const seen = new Set<string>();
         const tryAdd = (u: string | null) => {
             if (!u || seen.has(u)) return;
             if (!isImageUrlSafe(u)) return;
             seen.add(u);
-            candidateUrls.push(u);
+            images.push(u);
         };
         tryAdd(meta.image);
 
@@ -99,25 +91,12 @@ export default async function handler(req: Request): Promise<Response> {
                 : [];
         for (const u of extras) {
             tryAdd(u);
-            if (candidateUrls.length >= MAX_IMAGES_PER_RESPONSE) break;
-        }
-
-        // 各画像を base64 化 (最大 MAX_IMAGES_PER_RESPONSE で打ち切り)
-        const images: OgImagePayload[] = [];
-        for (const sourceUrl of candidateUrls.slice(0, MAX_IMAGES_PER_RESPONSE)) {
-            const fetched = await fetchImageAsBase64(sourceUrl);
-            if (fetched) {
-                images.push({
-                    sourceUrl,
-                    base64: fetched.base64,
-                    mimeType: fetched.mimeType,
-                });
-            }
+            if (images.length >= MAX_IMAGES_PER_RESPONSE) break;
         }
 
         const body: OgResponse = {
             image: meta.image,
-            images,
+            images: images.slice(0, MAX_IMAGES_PER_RESPONSE),
             title: meta.title,
             description: meta.description,
             siteName: meta.siteName,
@@ -126,9 +105,8 @@ export default async function handler(req: Request): Promise<Response> {
         return Response.json(body, {
             headers: {
                 'Access-Control-Allow-Origin': '*',
-                // 動画 proxy と同じく edge cache off で出す
-                // (= ハウジング物件ページは更新頻度低いが、 Range Vary 等の罠を避け、
-                //  Cloudflare 前段化のときに帯域 cache を再導入する方針)
+                // 画像本体は fetch しないが、 ハウジング物件ページの og:meta は更新頻度低い。
+                // Cloudflare 前段化のときに帯域 cache を再導入する方針で、 今は edge cache off。
                 'Cache-Control': 'private, max-age=0, must-revalidate',
             },
         });
@@ -178,7 +156,7 @@ async function fetchHtml(url: string): Promise<string | null> {
     return html;
 }
 
-/** og:image URL が「画像 fetch するのに安全」 か判定。 https + 非 private IP のみ。 */
+/** og:image URL が「クライアントに返すのに安全」 か判定。 https + 非 private IP のみ。 */
 function isImageUrlSafe(url: string): boolean {
     try {
         const u = new URL(url);
@@ -202,56 +180,5 @@ function isImageUrlSafe(url: string): boolean {
         return true;
     } catch {
         return false;
-    }
-}
-
-/** og:image URL を fetch して base64 + mimeType を返す。 サイズ超過は null。 */
-async function fetchImageAsBase64(
-    url: string,
-): Promise<{ base64: string; mimeType: string } | null> {
-    try {
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LoPo/1.0)' },
-            redirect: 'manual',
-            signal: AbortSignal.timeout(IMAGE_TIMEOUT_MS),
-        });
-        if (!res.ok) return null;
-        const mimeType = res.headers.get('content-type')?.split(';')[0].trim() ?? 'image/jpeg';
-        if (!mimeType.startsWith('image/')) return null;
-
-        const reader = res.body?.getReader();
-        if (!reader) return null;
-        const chunks: Uint8Array[] = [];
-        let total = 0;
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            total += value.byteLength;
-            if (total > MAX_IMAGE_BYTES) {
-                try {
-                    await reader.cancel();
-                } catch {
-                    /* noop */
-                }
-                return null;
-            }
-            chunks.push(value);
-        }
-        const concatenated = new Uint8Array(total);
-        let offset = 0;
-        for (const c of chunks) {
-            concatenated.set(c, offset);
-            offset += c.byteLength;
-        }
-        // Uint8Array → base64 (Web 標準 btoa は ASCII 文字列のみなので String.fromCharCode 経由)
-        let binary = '';
-        for (let i = 0; i < concatenated.byteLength; i++) {
-            binary += String.fromCharCode(concatenated[i]);
-        }
-        const base64 = btoa(binary);
-        return { base64, mimeType };
-    } catch {
-        return null;
     }
 }

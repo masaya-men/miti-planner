@@ -14,6 +14,7 @@ import { HousingRegisterTagPicker } from './HousingRegisterTagPicker';
 import { HousingRegisterFieldBadge } from './HousingRegisterFieldBadge';
 import { HousingRegisterChecklist, type ChecklistItem } from './HousingRegisterChecklist';
 import { HousingRegisterImageField } from './HousingRegisterImageField';
+import { HousingRegisterSourceImageUrlsField } from './HousingRegisterSourceImageUrlsField';
 import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import {
     parseHousingFromText,
@@ -57,6 +58,12 @@ export type HousingRegisterFormValues = {
      * 空配列は画像なし扱い。
      */
     localImages?: CompressedImage[];
+    /**
+     * 2026-05-27: OGP (housingsnap / studio-xiv 等) 経由で取得した外部画像 URL リスト。
+     * **LoPo の倉庫にコピーせず、 元サイトの URL を `<img src>` で直接表示する**。
+     * 投稿削除で自動消失、 LoPo 帯域消費ゼロ。 最大 4 件保存 (handleSubmit で slice)。
+     */
+    sourceImageUrls?: string[];
 };
 
 type Props = {
@@ -92,13 +99,17 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const [description, setDescription] = useState('');
     const [tags, setTags] = useState<string[]>([]);
     const [localImages, setLocalImages] = useState<CompressedImage[]>([]);
+    /**
+     * 2026-05-27: OGP 経由で取得した外部画像 URL リスト (housingsnap / studio-xiv 等)。
+     * ドラッグで並び替え可、 先頭 4 件が物件画像として保存される。
+     * Twitter / YouTube は ogImageUrl 1 枚維持 (次セッションで sourceImageUrls 統合予定)。
+     */
+    const [sourceImageUrls, setSourceImageUrls] = useState<string[]>([]);
     // Twitter 動画フレーム抽出の進捗 (2026-05-26 D: 自動 3 フレーム取り込み)
     const [videoExtracting, setVideoExtracting] = useState(false);
     const [videoExtractFailed, setVideoExtractFailed] = useState(false);
     // 同じ video URL に対して useEffect 再発火しても抽出を重複起動しないためのガード
     const extractedVideoUrlRef = useRef<string | null>(null);
-    // OGP imageBase64 を localImages へ push したかのガード (= 同じ URL で重複 push しない)
-    const ogpAppliedUrlRef = useRef<string | null>(null);
 
     const handleTweetFetched = useCallback(
         (data: TweetData, source: { postUrl: string; tweetId: string } | null) => {
@@ -160,40 +171,15 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     const serverKeys = dc ? Object.keys(serverMasterData[dc]?.servers ?? {}) : [];
     const areaKeys = Object.keys(housingAreaMasterData);
 
-    // 2026-05-27 (B / hotfix23): OGP 取得成功時に images[] (最大 4 枚) を CompressedImage 化
-    // して localImages へ push。 同じ URL で複数回 push しないよう ref ガード。
+    // 2026-05-27: OGP 取得成功時に画像 URL リストを sourceImageUrls state に反映。
+    // 画像本体は LoPo 倉庫にコピーせず、 元サイトの URL を `<img src>` 直接表示する方針
+    // (= 投稿削除で自動消失、 LoPo 帯域消費ゼロ、 設計書 §6.2 sns モード)。
     useEffect(() => {
         if (!ogpResult) {
-            ogpAppliedUrlRef.current = null;
+            setSourceImageUrls([]);
             return;
         }
-        const key = ogpResult.postUrl;
-        if (ogpAppliedUrlRef.current === key) return;
-        ogpAppliedUrlRef.current = key;
-        if (!ogpResult.data.images || ogpResult.data.images.length === 0) {
-            // 画像取得 0 枚時は postUrl + og:image URL の ogImageUrl 経路で fallback
-            return;
-        }
-        const compressedList = ogpResult.data.images
-            .map((img, i) => {
-                const ext =
-                    img.mimeType === 'image/png'
-                        ? 'png'
-                        : img.mimeType === 'image/webp'
-                        ? 'webp'
-                        : 'jpg';
-                const dataUrl = `data:${img.mimeType};base64,${img.base64}`;
-                try {
-                    return dataUrlToCompressedImage(dataUrl, `ogp-image-${i}.${ext}`);
-                } catch {
-                    return null;
-                }
-            })
-            .filter((c): c is NonNullable<typeof c> => c !== null);
-        if (compressedList.length > 0) {
-            // hotfix25: 12 枚まで保持。 登録時に先頭 4 枚に絞る (handleSubmit 内)。
-            setLocalImages((prev) => [...prev, ...compressedList].slice(0, 12));
-        }
+        setSourceImageUrls(ogpResult.data.images ?? []);
     }, [ogpResult]);
 
     // Twitter 動画ツイートが取れたら 3 フレームを自動抽出して localImages へ push
@@ -264,11 +250,13 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     ]);
 
     const handleSubmit = () => {
-        // 画像源の優先順位 (2026-05-26 更新):
+        // 画像源の優先順位 (2026-05-27 更新):
         //   ① ローカルアップロード (1 枚以上) → imageMode='thumbnail'。 SNS 系は無視
-        //   ② YouTube URL → imageMode='sns' + youtubeVideoId
-        //   ③ Twitter URL (本文取得済 + 画像 1 枚目あり) → imageMode='sns' + tweetId
-        //   ④ どれも無し → imageMode='none'
+        //   ② YouTube URL → imageMode='sns' + youtubeVideoId + ogImageUrl 1 枚
+        //   ③ Twitter URL (本文取得済 + 画像 1 枚目あり) → imageMode='sns' + tweetId + ogImageUrl 1 枚
+        //   ④ OGP (housingsnap / studio-xiv 等) → imageMode='sns' + ogImageUrl (代表)
+        //      + sourceImageUrls (取得した全 URL、 ドラッグ並び替え後の先頭 4 件)
+        //   ⑤ どれも無し → imageMode='none'
         const hasLocalImages = localImages.length > 0;
         // 動画ツイート + 抽出失敗のときは posterUrl を photo として救済 (2026-05-26 D)
         const photo = tweetData?.photos?.[0] ?? tweetData?.video?.posterUrl;
@@ -287,8 +275,17 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                     ogImageUrl: photo,
                     tweetId: tweetSource.tweetId,
                 };
+            } else if (ogpResult && sourceImageUrls.length > 0) {
+                // 2026-05-27: OGP 経由は sourceImageUrls (並び替え後) を保存。
+                // 1 枚目を ogImageUrl 代表に置いて HousingCard 後方互換を維持。
+                const trimmed = sourceImageUrls.slice(0, 4);
+                snsImage = {
+                    postUrl: ogpResult.postUrl,
+                    ogImageUrl: trimmed[0],
+                    sourceImageUrls: trimmed,
+                };
             } else if (ogpResult && ogpResult.data.image) {
-                // 2026-05-27 (B): OGP の画像 fetch 失敗時に postUrl 経路で fallback
+                // sourceImageUrls 空 (画像抽出ゼロ) のとき og:image だけで fallback
                 snsImage = {
                     postUrl: ogpResult.postUrl,
                     ogImageUrl: ogpResult.data.image,
@@ -296,8 +293,7 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
             }
         }
 
-        // hotfix25: 12 枚まで取り込み可だが、 登録時は先頭 4 枚に絞る (= LoPo 物件画像 max 4)。
-        // ドラッグ並び替えで好きな順に並べてから登録すると、 1 枚目 = カバーになる。
+        // hotfix25: アップロード経路は 12 枚まで取り込み可、 登録時は先頭 4 枚保存。
         const localImagesToSubmit = localImages.slice(0, 4);
 
         onSubmit({
@@ -370,6 +366,14 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                     )}
                 </div>
             )}
+
+            {/* 2026-05-27: OGP 経由で取れた外部画像 URL リスト。 ドラッグで並び替え + 個別削除。
+                画像本体は LoPo に取り込まず、 元サイトの URL を <img src> 直接表示する。 */}
+            <HousingRegisterSourceImageUrlsField
+                value={sourceImageUrls}
+                onChange={setSourceImageUrls}
+                maxImages={4}
+            />
 
             {/* 2026-05-26: 画像アップロード経路。 SNS URL と並ぶ第 2 の画像入力手段。 両方ある場合は画像優先。 最大 4 枚。 */}
             <HousingRegisterImageField

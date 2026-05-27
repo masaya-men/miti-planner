@@ -1857,6 +1857,10 @@
                     "too_many": "Maximum {{max}} images allowed"
                 }
             },
+            "sourceImages": {
+                "label": "Fetched images (drag to reorder; first {{max}} will be saved)",
+                "reorder_hint": "Drag to reorder (the leftmost \"Cover\" becomes the listing thumbnail; first {{max}} are saved)"
+            },
             "tweetPreview": {
                 "title": "Fetched tweet"
             },

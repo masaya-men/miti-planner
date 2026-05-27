@@ -11,29 +11,32 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 2026-05-26〜27 セッションで hotfix5-27 まで **23 連続 push**。 本番デプロイ済 + 実機確認完了: 通報モデ個別却下 + 通知連動削除 + 詳細表示アパート号棟 + 画像アップロード (max 4 枚 / WebP 0.75 / EXIF 削除) + ドラッグ並び替え + YouTube URL 連動 (4 段 fallback 全カード適用) + **Twitter 動画ツイートから 3 フレーム自動抽出 (動作確認済)** + **B: OGP 汎用拡張 (housingsnap / studio-xiv / housing-collection-ff14 / thonhart の 4 サイト allowlist + SSRF 防御 + 複数画像取得)** + **画像取り込み max 12 枚 → 登録時に先頭 4 枚** + **1-4 枚目は honey 枠 + 「使用」 バッジで強調、 5 枚目以降は半透明のみ (バッジ無し)**
-- **次セッション最優先 (5/28 23:59 α 公開強行・残り 1 日)**:
-  1. **🔴 studio-xiv dedup 残課題** (hotfix27 後も実機で「8 枚あるはずが 5 枚しかない + 同じ画像が残る」 報告)。 調査手順: `curl -s "https://lopoly.app/api/og?url=https%3A%2F%2Fstudio-xiv.com%2Fstudio%2F100189%2F" -o ./og-debug.json && node -e "..."` で実 sourceUrl 一覧を取って、 hotfix27 の正規化漏れパターンを特定する。 hotfix27 で対応した URL は `-WxH-1.png?cache` 形式だが、 別の suffix パターン (例: 番号違いの `-2` `-3` や別ホスト) が残っている可能性
-  2. **🟡 Cloudflare 議論** (前セッションで私が方針を 3 回変えて信頼損ねた)。 次セッションでは私が事前に Cloudflare のキャッシュ機構を実機検証してから腰を据えて提案する。 「今 lopoly.app は既に Cloudflare 管理下 (Free plan)、 Cache Rule 未設定」 が事実。 ユーザー要望は「公開前に安全な状態にしておきたい (= 一人では対応できないので AI と一緒の今のうち)」。 私が誤解していた点: **Firebase Storage 画像は Cloudflare 経由しない**ので Cache Rule では帯域削減できない (= Workers reverse proxy or R2 migration が必要、 工数 4-8h)
-  3. **既存テスト物件を一掃** + コールドスタート用 5-10 件登録 (ユーザー作業)
-  4. **アプデ告知** (#59 軽減表 + ハウジング α 公開)
-- **LICENSE は追加しない方針** (2026-05-27 確定、 memory `feedback_lopo_license_stance` 参照)
-- **重要な反省 2 件**:
-  - **push 前 tsc -b --force 必須** (memory `feedback_vercel_tsc_strict.md`)
-  - **dedup 正規表現は実機 URL を curl で 1 度確認してから組む** (= hotfix26 で推測ベースで作ったら hotfix27 で再修正、 まだ穴ありで次セッション持ち越し)
-
----
-
-## ハウジング 5/28 最終日 (リスク: バッファゼロ、 1 件想定外バグで 29 日朝スライド許容、 マイコラージュ凍結継続)
-
-「現在の状態」 のチェックリスト参照。 Claude が並行で進める安全タスクは下記 「Claude 並行作業」 ブロックへ。
+- **ブランチ**: main。 hotfix5-27 まで 23 連続 push 済。
+- **🚨 方針転換 (2026-05-27)**: **5/28 α 公開期限を撤回**、 日付気にせず 1 セッション 1 タスクで丁寧に進める方針。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一する大規模リファクタへ。 詳細: memory `project_housing_phase_status`
+- **進行中タスク**: 画像系 URL 直接表示 8 ステップ (本セッションで着手)
+  - Step 1: [api/og.ts](../api/og.ts) から base64 削除 (URL リスト + metadata だけ返す)
+  - Step 2: `useOgpFetch` / `OgpData` 型を URL 配列に
+  - Step 3: `HousingRegisterForm`: OG 画像を localImages 経路から外し `sourceImageUrls` state に
+  - Step 4: [src/types/housing.ts](../src/types/housing.ts) `HousingListing` に `sourceImageUrls?: string[]` 追加
+  - Step 5: 登録/更新 API で `sourceImageUrls` を Firestore 保存 (host allowlist 含む)
+  - Step 6: `HousingPhotoGallery`: imageMode='sns' で `sourceImageUrls` 配列を切替表示
+  - Step 7: `<img onError>` で元 URL 消失時の自動非表示 fallback
+  - Step 8: テスト追従 + build + commit + push
+- **次セッション (画像完了後)**: 動画系 (Twitter / YouTube) を画面内自動再生方式に移行 (Allmarks 知見流用、 CSP に video.twimg.com 追加)
+- **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
+- **保留**: studio-xiv dedup 残課題は Step 1 で自然解消、 Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
+- **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
+- **重要な反省 3 件**:
+  - push 前 `npm run build` 必須 (memory `feedback_vercel_tsc_strict`)
+  - dedup 正規表現は実機 URL を curl で 1 度確認してから組む
+  - **設計書を最初に読む** (memory `feedback_evidence_based_work`)。 hotfix22-27 で §6.2 を読まず無自覚に逸脱した
 
 ---
 
 ## Claude 並行作業 (ユーザー実機確認中に進める安全タスク)
 
 - **テスト追従** (フォーム改修で確実に落ちるもの): `HousingRegisterAddressFields` / `HousingRegisterView` / `HousingRegisterModal` / `SystemNotificationBar` (#59 title 仕様)
-- **アプデ告知文 最終化**: 前セッションでドラフト提示済 (Discord ja のみ + システム通知 ja/en、 ko/zh は ja コピー)、 公開タイミング (#59 + ハウジング α まとめ or 分割) はユーザー判断待ち
+- **アプデ告知文 最終化**: 前セッションでドラフト提示済 (Discord ja のみ + システム通知 ja/en、 ko/zh は ja コピー)、 公開タイミングはユーザー判断待ち
 - いずれもユーザー操作不要、 Claude が prod を壊さず進められる
 
 ---
