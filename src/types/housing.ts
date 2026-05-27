@@ -162,6 +162,24 @@ export interface HousingListing {
    */
   youtubeVideoId?: string;
 
+  /**
+   * 2026-05-27 追加: Twitter 動画ツイートの mp4 URL。
+   * 元: `https://video.twimg.com/ext_tw_video/.../mp4`。
+   * 表示時は `/api/tweet-video?url=<encoded>` で proxy 経由で `<video>` 再生。
+   * imageMode==='sns' && tweetId 時に存在 (静止画ツイート sourceImageUrls とは排他)。
+   */
+  videoUrl?: string;
+  /**
+   * 2026-05-27 追加: Twitter 動画ツイートの poster 画像 URL (`pbs.twimg.com`)。
+   * `<video poster>` 属性 + Lightbox 表示前のフォールバック。
+   */
+  videoPosterUrl?: string;
+  /**
+   * 2026-05-27 追加: 動画アスペクト比 (width/height、 例 1.78=16:9)。
+   * 一覧カードの aspect-ratio 確保に使用。
+   */
+  videoAspectRatio?: number;
+
   // ユーザー入力
   tags: string[];
   description?: string;
