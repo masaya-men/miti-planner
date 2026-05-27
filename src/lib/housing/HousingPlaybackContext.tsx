@@ -97,26 +97,35 @@ export function HousingPlaybackProvider({
 /**
  * Card 専用の便宜 hook。 listing.id を渡すと register/unregister の useEffect 用 callback と、
  * 再生フラグを一括で返す。 各カード variant の重複コードを削減する。
+ *
+ * 2026-05-27 hotfix: 旧実装は `ctx` 全体を useCallback deps に入れていたため、 ctx の
+ * playing/ambientOn が変わるたびに register 関数が新しくなり、 HousingCard の useEffect が
+ * 毎回 cleanup + re-run で「unregister → register」 を繰り返し、 visibility map から id が
+ * 消える瞬間に spotlight rotation が候補空と判定して video overlay を unmount してしまう
+ * 振動バグがあった。 ctx から register / unregister を destructure することで stable な
+ * 関数参照に依存させ、 register callback 自体を mount から unmount まで stable にする
+ * (= ctxRegister / ctxUnregister は useViewportPlaybackPool で useCallback([]) 済み)。
  */
 export function useHousingCardPlayback(listingId: string): {
     isPlaying: boolean;
     ambientOn: boolean;
     register: (el: Element | null) => void;
 } {
-    const ctx = useHousingPlayback();
+    const { playing, ambientOn, register: ctxRegister, unregister: ctxUnregister } =
+        useHousingPlayback();
     const register = useCallback(
         (el: Element | null) => {
             if (!el) {
-                ctx.unregister(listingId);
+                ctxUnregister(listingId);
                 return;
             }
-            ctx.register(listingId, el);
+            ctxRegister(listingId, el);
         },
-        [ctx, listingId],
+        [listingId, ctxRegister, ctxUnregister],
     );
     return {
-        isPlaying: ctx.playing.has(listingId),
-        ambientOn: ctx.ambientOn,
+        isPlaying: playing.has(listingId),
+        ambientOn,
         register,
     };
 }
