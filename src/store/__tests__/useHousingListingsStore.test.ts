@@ -92,4 +92,45 @@ describe('useHousingListingsStore', () => {
     // addr-Y (createdAt=500) → addr-X (createdAt=300 で x1, x2 順)
     expect(ids).toEqual(['y1', 'x1', 'x2']);
   });
+
+  it('upsert: 別住所に古い listing を追加すると sort 後は後ろに来る (= 先頭追加では失敗するケース)', async () => {
+    getGalleryListingsMock.mockResolvedValueOnce([
+      doc({ id: 'newer', addressKey: 'addr-A', createdAt: 500, lastConfirmedAt: 500, plot: 6, size: 'M' }),
+    ]);
+    await useHousingListingsStore.getState().load();
+
+    const older = {
+      ...useHousingListingsStore.getState().listings[0],
+      id: 'older',
+      addressKey: 'addr-B',
+      createdAt: 100,
+      lastConfirmedAt: 100,
+    };
+    useHousingListingsStore.getState().upsert(older);
+
+    // 現状の「先頭追加」 では [older, newer] になるが、 sort 適用後は createdAt desc で [newer, older]
+    const ids = useHousingListingsStore.getState().listings.map((l) => l.id);
+    expect(ids).toEqual(['newer', 'older']);
+  });
+
+  it('upsert: 同住所への新規追加で lastConfirmedAt が既存より低いと後ろに挿入される', async () => {
+    getGalleryListingsMock.mockResolvedValueOnce([
+      doc({ id: 'recent_confirm', addressKey: 'same', createdAt: 100, lastConfirmedAt: 900, plot: 6, size: 'M' }),
+    ]);
+    await useHousingListingsStore.getState().load();
+
+    const olderConfirm = {
+      ...useHousingListingsStore.getState().listings[0],
+      id: 'older_confirm',
+      addressKey: 'same',
+      createdAt: 200, // createdAt は新しいが
+      lastConfirmedAt: 100, // lastConfirmedAt が低い
+    };
+    useHousingListingsStore.getState().upsert(olderConfirm);
+
+    // 同住所内では lastConfirmedAt desc → recent_confirm (900) が先、 older_confirm (100) が後
+    // 現状の「先頭追加」 では [older_confirm, recent_confirm] になるが、 sort 適用後は逆転
+    const ids = useHousingListingsStore.getState().listings.map((l) => l.id);
+    expect(ids).toEqual(['recent_confirm', 'older_confirm']);
+  });
 });

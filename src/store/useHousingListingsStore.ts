@@ -65,11 +65,10 @@ export const useHousingListingsStore = create<HousingListingsState>((set, get) =
   },
   upsert: (listing) =>
     set((s) => {
-      const idx = s.listings.findIndex((l) => l.id === listing.id);
-      if (idx === -1) return { listings: [listing, ...s.listings] };
-      const next = s.listings.slice();
-      next[idx] = listing;
-      return { listings: next };
+      // 既存と同 id を除外 + 新 listing を加え、 helper で並び直す。
+      // helper は pure sync なので upsert (同期関数) からも直接呼べる。
+      const others = s.listings.filter((l) => l.id !== listing.id);
+      return { listings: sortListingsForGallery([...others, listing]) };
     }),
   fetchAndUpsert: async (id) => {
     try {
