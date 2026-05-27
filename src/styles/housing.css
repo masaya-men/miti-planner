@@ -77,7 +77,6 @@
   --housing-warning: #ff8080;
   --housing-danger: #ff8a6c;          /* 警告系赤 (削除タイトル / kebab 削除項目) */
   --housing-danger-soft: rgba(255, 138, 108, 0.16);
-  --housing-longpress-fill: rgba(255, 138, 108, 0.45); /* §3.8 長押し進捗バー (動画背景上で視認できる濃度) */
   --housing-danger-btn: #c44a3a;      /* 削除ボタン */
   --housing-danger-btn-hover: #d85b4a;
   --housing-disabled-opacity: 0.35;
@@ -4157,17 +4156,21 @@ select.housing-input option {
     cursor: not-allowed;
 }
 
+/* ピル全体を左→右に塗りつぶす進捗 fill。 動画背景 + DPR 2.58 環境で
+   4px 底辺バーが視認困難だったため、 button 全面を transform: scaleX で
+   塗る方式に変更。 width 駆動の transition を残すと 16ms 更新と干渉して
+   Chromium 合成スレッドが幅を確定できず凍結するため、 transition は外す。 */
 .housing-longpress-btn-ring {
     position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 4px;
-    width: calc(var(--housing-longpress-progress, 0) * 100%);
+    inset: 0;
+    border-radius: inherit;
     background: var(--housing-danger);
-    box-shadow: 0 0 8px var(--housing-longpress-fill);
+    transform: scaleX(var(--housing-longpress-progress, 0));
+    transform-origin: left center;
+    transition: none;
+    will-change: transform;
     pointer-events: none;
-    transition: width 32ms linear;
-    z-index: 1;
+    z-index: 0;
 }
 
 .housing-longpress-btn-label,
@@ -4183,7 +4186,7 @@ select.housing-input option {
 
 @media (prefers-reduced-motion: reduce) {
     .housing-longpress-btn-ring {
-        transition: width 200ms steps(8);
+        transition: transform 200ms steps(8);
     }
 }
 
