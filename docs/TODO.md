@@ -11,20 +11,16 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 本セッション §3.8 + 進捗バー UX 修正計 11 commits push 済 (Vercel デプロイ済)。
+- **ブランチ**: main。 本セッション §3.8 UI 再設計 + UX 完全クローズ計 4 commits push 済 (Vercel デプロイ済)。
 - **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
-- **直近完了 ✅** (設計書 → [docs/superpowers/specs/2026-05-27-housing-duplicate-cleanup-design.md](./superpowers/specs/2026-05-27-housing-duplicate-cleanup-design.md)、 実装計画 → [docs/superpowers/plans/2026-05-27-housing-duplicate-cleanup.md](./superpowers/plans/2026-05-27-housing-duplicate-cleanup.md)):
-  - §3.8 A 詳細モーダル下部「この住所の他の登録」 セクション + 「ちがった」 長押し 2 秒 (1 撃 hide)
-  - §3.8 B `useLongPressConfirm` hook + `HousingLongPressButton` (底辺バー 4px + 「あと X.X 秒」 text、 pointerLeave で cancel しない + window pointerup)
-  - §3.8 C ツアー drop で同 addressKey 自動追加 + トースト (スナップショット型)
-  - Phase 2-7 重複時閾値 1: reason=wrong_info AND 同 addressKey 他生存 listing あり時のみ 1 撃 hide
-- **未完了 ⚠️ (次セッション最優先で続行)**: §3.8「ちがった」 ボタン**進捗バー視認性がユーザー実環境でまだ不十分**。 残時間 text は秒数が変わる挙動を確認できたが、 底辺 4px solid 赤バー + box-shadow でも「だめ」 (ユーザー判定、 詳細未聴取)。 Playwright 検証 (DPR 2、 viewport 1489) では明確に見えたので、 DPR 2.58 + 動画背景 + 27" 4K 表示の問題と推定。
+- **§3.8 完全クローズ ✅** (詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md) 末尾): 進捗 UI ピル塗りつぶし化 + 凍結バグ修正 + button 文言「ちがった」 1 単語 + caption「古い情報ならご協力を」 button 直上配置 + 自分物件 button 除外 + Optimistic UI + 親 store 即反映 + toast ソフト化。 教訓は memory `feedback_ui_reflects_server_state_immediately` 恒久化。
 - **次セッション最優先**:
-  1. **§3.8 進捗 UI 再設計** (まずユーザーに「どう見えなかったか」 を聞く → 候補案を一緒に決める。 候補: ①バー太さ 8-10px ②色明るく (#ffae9c) ③conic-gradient で button 左端に円形 progress ④button 内側を上→下塗りつぶし型 ⑤「あと X 秒」 text を巨大化)
-  2. **§3.8 残りの実機検証** (重複 drop でツアー自動追加 + トースト / 単独 listing で section 非表示 / ピア除外 / 通報後の 1 撃 hide)
-  3. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ** (= §3.7 カード版バッジ + カード「ちがった」、 本作業の hook を再利用)
-  4. **通知 UI/UX 磨き**: listingTitleSnapshot が addressKey raw で出る → `formatHousingAddress` 経由スナップショットへ。 ドロップダウン全般も後で刷新
-  5. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 ユーザーと論点詰めてから)
+  1. **peer の自分/他人の視覚識別 + 並び順検証** (= ユーザー指摘: 「左上 = 自分、 2 番目 = 後から登録の違和感」、 §3.8 自分除外で button 出ない問題は解消済だが識別ヒント不在)
+  2. **「通報」 文言全体見直し** (= duplicate peer 経路 toast は終了、 他箇所はまとめて。 自発的通報モーダルは文脈上 OK)
+  3. **§3.8 残りの実機検証** (重複 drop でツアー自動追加 + トースト / 単独 listing で section 非表示)
+  4. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ** (= §3.7 カード版バッジ + カード「ちがった」、 本セッション hook 再利用)
+  5. **通知 UI/UX 磨き**: listingTitleSnapshot が addressKey raw で出る → `formatHousingAddress` 経由スナップショットへ。 ドロップダウン全般も後で刷新
+  6. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 ユーザーと論点詰めてから)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)

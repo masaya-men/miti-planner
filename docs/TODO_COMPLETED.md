@@ -2,6 +2,34 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-28 §3.8 完全クローズ・進捗 UI 再設計 + UX 全面改善)
+
+§3.8 「ちがった」 1 撃 hide の進捗バー視認性 + UX 課題を 1 セッションで全部解消。 教訓は memory に恒久化。
+
+### 主な変更
+
+- **進捗 UI 再設計**: 底辺 4px solid バー → **ピル全体を `transform: scaleX()` で左→右に塗りつぶし**。 動画背景 + DPR 2.58 環境で 4px バーが視認不能だった根本対策 ([src/styles/housing.css])
+- **凍結バグ修正**: `transition: width 32ms × 16ms setInterval` の干渉で Chromium 合成スレッドが幅を確定できず凍結 → `transition: none` + transform 化で完全解消
+- **塗り形状の歪み修正**: `border-radius: inherit` を fill 要素から削除。 親 button の `overflow:hidden + 999px` で pill 形状に外側クリップさせる構造に変更 (= scaleX で fill 自身の角丸が縦長楕円化する問題を排除)
+- **button 文言を「ちがった」 1 単語に圧縮**: hint / 押下中の残時間 text 全廃。 「2 秒長押し」 「あと X.X 秒で非表示」 という強い語感を排除。 進捗はピル塗りで完結 ([src/components/housing/listing/HousingLongPressButton.tsx])。 数字幅変動による button 揺れも text 廃止で本質解決
+- **caption 配置移動**: 「古い情報ならご協力を」 を section title 直下 → 各 peer 行内 button 直上の縦並び action wrapper へ。 button と説明文を物理的に近接させて意味の紐付けを保証
+- **自分の物件は peer から除外**: `ownerUid === viewerUid` フィルタを追加 ([src/components/housing/listing/HousingDetailModalRoute.tsx])。 サーバが `cannot_report_own` 403 を返す仕様に UI 側で対処、 ユーザーが失敗トーストで困らされる前に button を出さない
+- **Optimistic UI 化**: `setHiddenPeerIds` を fetch 開始と同時に実行。 失敗時のみロールバック。 サーバ応答待ち 1-2 秒のタイムラグを解消
+- **親 store 即反映**: `HousingDetailContent` に `onPeerHidden` callback を追加 → `HousingDetailModalRoute` で `useHousingListingsStore.remove(peerId)` を呼ぶ。 詳細モーダル閉じた後の一覧画面でリロード必須だった症状を完全解消
+- **toast 文言ソフト化**: 成功 → 「ご協力ありがとうございます！」 / 失敗 → 「うまくいきませんでした、 もう一度お試しください」。 「通報」 「処理」 「非表示」 という重い語感から逃げる。 i18n 4 言語更新 (ko/zh は ja コピー)
+- **不要 i18n キー削除**: `long_press_hint` / `long_press_remaining` 全言語から削除、 `--housing-longpress-fill` token も dead code 化したので削除
+- **教訓の恒久化**: 「操作後の UI 反映 = Optimistic UI + 親リスト store に伝搬。 リロード必須/タイムラグはバグ扱い」 を memory `feedback_ui_reflects_server_state_immediately` に保存。 過去複数回起こしている同類症状 (ユーザー「これ系毎回起きてます」) を恒久ルール化
+
+### 残課題 (次セッション以降)
+
+- **peer の自分/他人の視覚識別 + 並び順検証**: ユーザー指摘 (左上 = 自分、 2 番目 = 後から登録 の違和感)。 自分除外で button 自体は解消したが、 識別ヒント自体は不在
+- **「通報」 文言全体見直し**: 自発的通報モーダル等の他箇所はまとめて見直し予定
+- **§3.8 残りの実機検証**: 重複 drop でツアー自動追加 + トースト / 単独 listing で section 非表示
+
+設計書: [docs/superpowers/specs/2026-05-27-housing-duplicate-cleanup-design.md §2.2 / §3.8]
+
+---
+
 ## 完了 (2026-05-27 セッション #60 後半・Phase 2-4 重複登録時のベル通知)
 
 α 公開期限撤回後の 1 セッション 1 タスク方針で、 重複対応 Phase 2-4 を実装 + 実機検証 OK。
