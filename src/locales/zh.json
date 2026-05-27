@@ -1781,8 +1781,6 @@
                 "placeholder": "https://x.com/.../status/... または https://youtu.be/...",
                 "fetching": "正在读取推文…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
-                "video_extracting": "動画から 3 フレーム取り込み中…",
-                "video_extract_failed": "動画フレームの取り込みに失敗しました。 ポスター画像で代用します",
                 "ogp_fetching": "ページ情報を取得中…",
                 "cancel": "取消",
                 "retry": "重新获取",

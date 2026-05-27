@@ -1817,8 +1817,6 @@
                 "placeholder": "https://x.com/.../status/... or https://youtu.be/...",
                 "fetching": "Reading tweet…",
                 "youtube_detected": "Detected as a YouTube video (thumbnail will be used as the listing image)",
-                "video_extracting": "Extracting 3 frames from video…",
-                "video_extract_failed": "Could not extract video frames. Using the poster image as a fallback",
                 "ogp_fetching": "Fetching page info…",
                 "cancel": "Cancel",
                 "retry": "Retry",
