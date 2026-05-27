@@ -3,11 +3,13 @@
  *
  * - 2 秒長押しで onConfirm 発火
  * - 横向き bar fill の進捗 UI (= 左から右へ赤透過で塗りつぶし)
- * - mobile: touch-action: manipulation + user-select: none + onPointerDown preventDefault
- * - PC: pointerdown/up/leave で start/cancel + keyboard (Space/Enter 長押し)
+ * - pointerleave では cancel しない (= マウスが微細に動いて button 外に出ても継続)
+ * - pointerup/pointercancel は window level で listen (= button 外で離しても確実に止める)
+ * - PC: pointerdown で start + keyboard (Space/Enter 長押し)
  *
  * 設計書: docs/superpowers/specs/2026-05-27-housing-duplicate-cleanup-design.md §2.2
  */
+import { useEffect } from 'react';
 import { useLongPressConfirm } from '../../../lib/housing/useLongPressConfirm';
 
 export interface HousingLongPressButtonProps {
@@ -34,14 +36,24 @@ export const HousingLongPressButton: React.FC<HousingLongPressButtonProps> = ({
     onConfirm,
   });
 
+  // 押下中の間だけ window level で pointerup/pointercancel を listen。
+  // button 外で離しても確実に cancel される。 pointerleave に頼らないので、
+  // マウスが微細に動いて button 外に出ても進捗は止まらない。
+  useEffect(() => {
+    if (!isPressing) return;
+    const handleEnd = () => cancel();
+    window.addEventListener('pointerup', handleEnd);
+    window.addEventListener('pointercancel', handleEnd);
+    return () => {
+      window.removeEventListener('pointerup', handleEnd);
+      window.removeEventListener('pointercancel', handleEnd);
+    };
+  }, [isPressing, cancel]);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     if (disabled) return;
     e.preventDefault();
     start();
-  };
-  const handlePointerEnd = () => {
-    if (!isPressing) return;
-    cancel();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -66,9 +78,6 @@ export const HousingLongPressButton: React.FC<HousingLongPressButtonProps> = ({
       aria-valuemin={0}
       aria-valuemax={100}
       onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerEnd}
-      onPointerLeave={handlePointerEnd}
-      onPointerCancel={handlePointerEnd}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
       style={{ ['--housing-longpress-progress' as string]: `${progress}` }}
