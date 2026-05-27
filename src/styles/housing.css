@@ -4181,3 +4181,66 @@ select.housing-input option {
     }
 }
 
+/* ===== §3.8 詳細モーダル「この住所の他の登録」 セクション ===== */
+.housing-detail-peers {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--housing-divider);
+}
+
+.housing-detail-peers-title {
+    font-size: var(--housing-text-md);
+    margin: 0 0 12px;
+    color: var(--housing-text-dim);
+}
+
+.housing-detail-peers-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.housing-detail-peers-item {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 8px;
+    border-radius: 10px;
+    background: var(--housing-panel-bg);
+    border: 1px solid var(--housing-panel-border);
+}
+
+.housing-detail-peers-thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--housing-card-thumb-bg);
+}
+
+.housing-detail-peers-info {
+    min-width: 0;
+}
+
+.housing-detail-peers-card-title {
+    font-size: var(--housing-text-sm);
+    margin: 0 0 2px;
+    color: var(--housing-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.housing-detail-peers-card-address {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
