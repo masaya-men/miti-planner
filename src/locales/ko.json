@@ -2155,7 +2155,8 @@
                 "copy_url": "공유 URL 복사",
                 "copy_url_done": "URL을 복사했습니다",
                 "open_sns": "SNS 글 열기",
-                "close": "닫기"
+                "close": "닫기",
+                "mine_badge": "내 등록"
             },
             "empty": {
                 "title": "조건에 맞는 집이 없습니다",

@@ -17,56 +17,91 @@ describe('sortListingsForGallery', () => {
 
     it('元配列を mutate しない (immutable)', () => {
         const input = [
-            listing({ id: 'a', createdAt: 1, addressKey: 'addr-a' }),
-            listing({ id: 'b', createdAt: 2, addressKey: 'addr-b' }),
+            listing({ id: 'a', area: 'Mist', addressKey: 'addr-a' }),
+            listing({ id: 'b', area: 'LavenderBeds', addressKey: 'addr-b' }),
         ];
         const snapshot = input.map((l) => l.id);
         sortListingsForGallery(input);
         expect(input.map((l) => l.id)).toEqual(snapshot);
     });
 
-    it('全 listing が別住所のとき createdAt desc で並ぶ', () => {
+    it('area が違うときは HOUSING_AREAS の順 (Mist→LavenderBeds→Goblet→Shirogane→Empyreum)', () => {
         const input = [
-            listing({ id: 'old', createdAt: 100, addressKey: 'a' }),
-            listing({ id: 'new', createdAt: 300, addressKey: 'b' }),
-            listing({ id: 'mid', createdAt: 200, addressKey: 'c' }),
+            listing({ id: 'shi', area: 'Shirogane', addressKey: 'k-shi' }),
+            listing({ id: 'mist', area: 'Mist', addressKey: 'k-mist' }),
+            listing({ id: 'emp', area: 'Empyreum', addressKey: 'k-emp' }),
+            listing({ id: 'lav', area: 'LavenderBeds', addressKey: 'k-lav' }),
+            listing({ id: 'gob', area: 'Goblet', addressKey: 'k-gob' }),
         ];
         const out = sortListingsForGallery(input);
-        expect(out.map((l) => l.id)).toEqual(['new', 'mid', 'old']);
+        expect(out.map((l) => l.id)).toEqual(['mist', 'lav', 'gob', 'shi', 'emp']);
     });
 
-    it('同住所内では lastConfirmedAt desc で並ぶ', () => {
+    it('同 area 内では DC → server → ward → plot の昇順', () => {
         const input = [
-            listing({ id: 'a1', createdAt: 100, addressKey: 'addr', lastConfirmedAt: 500 }),
-            listing({ id: 'a2', createdAt: 100, addressKey: 'addr', lastConfirmedAt: 900 }),
-            listing({ id: 'a3', createdAt: 100, addressKey: 'addr', lastConfirmedAt: 200 }),
+            listing({ id: 'p10', area: 'Mist', dc: 'Mana', server: 'Anima', ward: 1, plot: 10, addressKey: 'k1' }),
+            listing({ id: 'p3', area: 'Mist', dc: 'Mana', server: 'Anima', ward: 1, plot: 3, addressKey: 'k2' }),
+            listing({ id: 'w2', area: 'Mist', dc: 'Mana', server: 'Anima', ward: 2, plot: 1, addressKey: 'k3' }),
+            listing({ id: 'srv', area: 'Mist', dc: 'Mana', server: 'Belias', ward: 1, plot: 1, addressKey: 'k4' }),
+            listing({ id: 'dc', area: 'Mist', dc: 'Gaia', server: 'Alpha', ward: 1, plot: 1, addressKey: 'k5' }),
+        ];
+        const out = sortListingsForGallery(input);
+        // Gaia 先 (alphabetical) → Mana。 Mana 内では Anima 先 → Belias。
+        // Anima 内では ward1 → ward2。 ward1 内では plot3 → plot10。
+        expect(out.map((l) => l.id)).toEqual(['dc', 'p3', 'p10', 'w2', 'srv']);
+    });
+
+    it('同住所 (同 addressKey) 内では lastConfirmedAt desc で並ぶ', () => {
+        const input = [
+            listing({ id: 'a1', addressKey: 'addr', lastConfirmedAt: 500 }),
+            listing({ id: 'a2', addressKey: 'addr', lastConfirmedAt: 900 }),
+            listing({ id: 'a3', addressKey: 'addr', lastConfirmedAt: 200 }),
         ];
         const out = sortListingsForGallery(input);
         expect(out.map((l) => l.id)).toEqual(['a2', 'a1', 'a3']);
     });
 
-    it('複数住所混在: 各住所の代表 (= 同住所内で lastConfirmedAt 最大の listing) の createdAt desc で並ぶ', () => {
-        const input = [
-            // addr-X (代表 createdAt=300, 最新確認=800)
-            listing({ id: 'x1', createdAt: 300, addressKey: 'addr-X', lastConfirmedAt: 800 }),
-            listing({ id: 'x2', createdAt: 250, addressKey: 'addr-X', lastConfirmedAt: 400 }),
-            // addr-Y (代表 createdAt=500, 最新確認=600)
-            listing({ id: 'y1', createdAt: 500, addressKey: 'addr-Y', lastConfirmedAt: 600 }),
-            // addr-Z (単独 createdAt=400)
-            listing({ id: 'z1', createdAt: 400, addressKey: 'addr-Z', lastConfirmedAt: 100 }),
-        ];
-        const out = sortListingsForGallery(input);
-        // 各住所内: x1, x2 / y1 / z1
-        // 各住所の代表 createdAt: addr-Y=500 > addr-Z=400 > addr-X=300
-        expect(out.map((l) => l.id)).toEqual(['y1', 'z1', 'x1', 'x2']);
-    });
-
-    it('lastConfirmedAt が同値のときは createdAt desc を保つ (= 安定 sort)', () => {
+    it('同住所内で lastConfirmedAt が同値のとき createdAt desc で安定化', () => {
         const input = [
             listing({ id: 'older', createdAt: 100, addressKey: 'k', lastConfirmedAt: 500 }),
             listing({ id: 'newer', createdAt: 200, addressKey: 'k', lastConfirmedAt: 500 }),
         ];
         const out = sortListingsForGallery(input);
         expect(out.map((l) => l.id)).toEqual(['newer', 'older']);
+    });
+
+    it('同 ward 内では house が apartment より先', () => {
+        const input = [
+            listing({
+                id: 'apt', area: 'Mist', dc: 'Mana', server: 'Anima', ward: 1,
+                buildingType: 'apartment', plot: undefined, size: undefined,
+                apartmentBuilding: 1, roomNumber: 1, addressKey: 'apt-k',
+            }),
+            listing({
+                id: 'house', area: 'Mist', dc: 'Mana', server: 'Anima', ward: 1,
+                buildingType: 'house', plot: 60, addressKey: 'house-k',
+            }),
+        ];
+        const out = sortListingsForGallery(input);
+        expect(out.map((l) => l.id)).toEqual(['house', 'apt']);
+    });
+
+    it('apartment 同士は apartmentBuilding 昇順 → roomNumber 昇順', () => {
+        const input = [
+            listing({
+                id: 'b2-r1', buildingType: 'apartment', plot: undefined, size: undefined,
+                apartmentBuilding: 2, roomNumber: 1, addressKey: 'b2-r1',
+            }),
+            listing({
+                id: 'b1-r50', buildingType: 'apartment', plot: undefined, size: undefined,
+                apartmentBuilding: 1, roomNumber: 50, addressKey: 'b1-r50',
+            }),
+            listing({
+                id: 'b1-r5', buildingType: 'apartment', plot: undefined, size: undefined,
+                apartmentBuilding: 1, roomNumber: 5, addressKey: 'b1-r5',
+            }),
+        ];
+        const out = sortListingsForGallery(input);
+        expect(out.map((l) => l.id)).toEqual(['b1-r5', 'b1-r50', 'b2-r1']);
     });
 });

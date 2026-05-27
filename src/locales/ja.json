@@ -2212,7 +2212,8 @@
                 "copy_url": "共有URLをコピー",
                 "copy_url_done": "URLをコピーしました",
                 "open_sns": "SNS投稿を開く",
-                "close": "閉じる"
+                "close": "閉じる",
+                "mine_badge": "あなたの登録"
             },
             "empty": {
                 "title": "該当ハウジングがありません",

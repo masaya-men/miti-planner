@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { formatHousingAddress, formatHousingAddressAria } from '../../../lib/housing/formatHousingAddress';
 import {
     handleYoutubeThumbnailError,
@@ -31,6 +32,8 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
     const isFavorite = useHousingFavoritesStore((s) => s.ids.includes(listing.id));
     const addFavorite = useHousingFavoritesStore((s) => s.add);
     const removeFavorite = useHousingFavoritesStore((s) => s.remove);
+    const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
+    const isMine = viewerUid !== null && listing.ownerUid === viewerUid;
     const imgSrc = resolveImageSource(listing);
     const alt = formatHousingAddressAria(listing);
     const title = formatHousingAddress(listing, i18n.language);
@@ -96,6 +99,11 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
                     </div>
                 </div>
             </button>
+            {isMine && (
+                <span className="housing-card-mine-badge" aria-hidden="true">
+                    {t('housing.workspace.card.mine_badge')}
+                </span>
+            )}
             <button
                 type="button"
                 className="housing-card-fav-overlay"

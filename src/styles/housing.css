@@ -926,6 +926,26 @@
   color: var(--housing-honey);
 }
 
+/* 「あなたの登録」 バッジ — 左上、 一覧で自分の物件を即識別する。
+ * 並び順は住所順 (area→DC→server→ward→plot) なので、 自分の物件は
+ * 順序ではなくこのバッジで見分ける設計。 */
+.housing-card-mine-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
+  color: #2a1a08;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 0 8px rgba(255, 180, 90, 0.45);
+  pointer-events: none;
+  user-select: none;
+}
+
 /* Housing card (Pinterest cell + shared base) */
 .housing-card {
   display: block;

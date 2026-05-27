@@ -79,38 +79,39 @@ describe('useHousingListingsStore', () => {
     expect(useHousingListingsStore.getState().listings).toEqual([]);
   });
 
-  it('load: 同住所複数 listing は lastConfirmedAt desc、 別住所は createdAt desc で並ぶ', async () => {
+  it('load: 同住所複数 listing は lastConfirmedAt desc、 別住所は住所順 (plot 昇順) で並ぶ', async () => {
     getGalleryListingsMock.mockResolvedValueOnce([
-      // addr-X (代表 createdAt=300, lastConfirmedAt=800)
+      // plot 6 グループ (2 件、 lastConfirmedAt desc で x1, x2)
       doc({ id: 'x1', addressKey: 'addr-X', createdAt: 300, lastConfirmedAt: 800, plot: 6, size: 'M' }),
       doc({ id: 'x2', addressKey: 'addr-X', createdAt: 250, lastConfirmedAt: 400, plot: 6, size: 'M' }),
-      // addr-Y (代表 createdAt=500)
+      // plot 7 グループ (1 件)
       doc({ id: 'y1', addressKey: 'addr-Y', createdAt: 500, lastConfirmedAt: 600, plot: 7, size: 'M' }),
     ]);
     await useHousingListingsStore.getState().load();
     const ids = useHousingListingsStore.getState().listings.map((l) => l.id);
-    // addr-Y (createdAt=500) → addr-X (createdAt=300 で x1, x2 順)
-    expect(ids).toEqual(['y1', 'x1', 'x2']);
+    // 2026-05-28: グループ並びは住所順 (plot 6 → plot 7)、 同グループ内は lastConfirmedAt desc
+    expect(ids).toEqual(['x1', 'x2', 'y1']);
   });
 
-  it('upsert: 別住所に古い listing を追加すると sort 後は後ろに来る (= 先頭追加では失敗するケース)', async () => {
+  it('upsert: 別住所 (plot 昇順) で住所順に並び替えられる', async () => {
     getGalleryListingsMock.mockResolvedValueOnce([
-      doc({ id: 'newer', addressKey: 'addr-A', createdAt: 500, lastConfirmedAt: 500, plot: 6, size: 'M' }),
+      doc({ id: 'plot10', addressKey: 'addr-A', createdAt: 500, lastConfirmedAt: 500, plot: 10, size: 'M' }),
     ]);
     await useHousingListingsStore.getState().load();
 
-    const older = {
+    const lowerPlot = {
       ...useHousingListingsStore.getState().listings[0],
-      id: 'older',
+      id: 'plot3',
       addressKey: 'addr-B',
+      plot: 3,
       createdAt: 100,
       lastConfirmedAt: 100,
     };
-    useHousingListingsStore.getState().upsert(older);
+    useHousingListingsStore.getState().upsert(lowerPlot);
 
-    // 現状の「先頭追加」 では [older, newer] になるが、 sort 適用後は createdAt desc で [newer, older]
+    // 2026-05-28: 住所順に変更 → plot 昇順なので plot3 が先、 plot10 が後
     const ids = useHousingListingsStore.getState().listings.map((l) => l.id);
-    expect(ids).toEqual(['newer', 'older']);
+    expect(ids).toEqual(['plot3', 'plot10']);
   });
 
   it('upsert: 同住所への新規追加で lastConfirmedAt が既存より低いと後ろに挿入される', async () => {
