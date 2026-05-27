@@ -16,6 +16,7 @@ import {
     parseOgpHtml,
     extractHousingSnapImages,
     extractStudioXivImages,
+    normalizeStudioXivUrl,
 } from '../src/lib/housing/parseOgpHtml.js';
 
 export const config = { runtime: 'edge' };
@@ -67,26 +68,38 @@ export default async function handler(req: Request): Promise<Response> {
         }
 
         const meta = parseOgpHtml(html, url);
+        const parsedUrl = new URL(url);
 
         // 候補 URL リスト構築: og:image (= 1 枚目) + サイト別追加抽出。
         // og:image 自身は allowlist 外の CDN ホストでも構わない (== 静的画像なので SSRF リスク低)。
         // ただし protocol = https のみで hardening、 画像本体は fetch しない。
+        //
+        // dedup key は hostname 別 normalize 関数で生成 (hotfix29):
+        // - studio-xiv: 同一画像のリサイズ違い (`-1280x720-1.png` / `-320x320-1.png` / `-1.png`) と
+        //   cache buster (`?1779846852`) を一本化。 og:image が中サイズで extras が full size の
+        //   ケースでも重複を排除し、 push 時は normalized URL (= full size) を採用して原寸表示。
+        // - その他: URL 完全一致のみで dedup。
+        const isStudioXiv = parsedUrl.hostname === 'studio-xiv.com';
+        const normalizeForDedup = isStudioXiv ? normalizeStudioXivUrl : (u: string) => u;
+
         const images: string[] = [];
         const seen = new Set<string>();
         const tryAdd = (u: string | null) => {
-            if (!u || seen.has(u)) return;
-            if (!isImageUrlSafe(u)) return;
-            seen.add(u);
-            images.push(u);
+            if (!u || !isImageUrlSafe(u)) return;
+            const key = normalizeForDedup(u);
+            if (seen.has(key)) return;
+            seen.add(key);
+            // studio-xiv は normalize 後の URL (= 原寸 + cache buster 無し) を採用、
+            // それ以外は元 URL をそのまま push。
+            images.push(isStudioXiv ? key : u);
         };
         tryAdd(meta.image);
 
         // hostname 別の専用抽出器で追加画像を拾う (1 物件あたり複数画像対応)。
-        const parsedUrl = new URL(url);
         const extras =
             parsedUrl.hostname === 'housingsnap.com'
                 ? extractHousingSnapImages(html)
-                : parsedUrl.hostname === 'studio-xiv.com'
+                : isStudioXiv
                 ? extractStudioXivImages(html)
                 : [];
         for (const u of extras) {

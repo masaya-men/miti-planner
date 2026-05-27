@@ -78,7 +78,7 @@ export function extractStudioXivImages(html: string): string[] {
 }
 
 /**
- * studio-xiv 画像 URL を正規化する純関数 (hotfix26 で導入、 hotfix27 で強化)。
+ * studio-xiv 画像 URL を正規化する純関数 (hotfix26 で導入、 hotfix27 で強化、 hotfix29 で export 化)。
  *
  * 入力例 → 出力 (全部同じ baseName に正規化される):
  *   ffxiv_x-1280x720-1.png?1779813917 → ffxiv_x-1.png
@@ -90,7 +90,7 @@ export function extractStudioXivImages(html: string): string[] {
  *   1. クエリ (?以降) を削除 (= cache buster 等を無視)
  *   2. URL 中のどこにあっても `-WxH` を削除 (= リサイズ suffix を無視、 末尾固定ではない)
  */
-function normalizeStudioXivUrl(url: string): string {
+export function normalizeStudioXivUrl(url: string): string {
     let u = url.split('?')[0];
     u = u.replace(/-\d+x\d+/g, '');
     return u;

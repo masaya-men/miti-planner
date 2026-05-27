@@ -86,6 +86,29 @@ describe('GET /api/og (URL リスト返却版、 2026-05-27)', () => {
         expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
+    it('studio-xiv.com で og:image と extras がリサイズ違いの同一画像なら 1 件に dedup (hotfix29)', async () => {
+        const html = `
+            <meta property="og:image" content="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_a-1280x720-1.png?1779846852">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_a-320x320-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_a-1.png">
+            <img src="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_b-1.png">
+        `;
+        mockFetch.mockResolvedValueOnce(htmlResponse(html));
+
+        const res = await handler(makeReq('https://studio-xiv.com/studio/100/'));
+        expect(res.status).toBe(200);
+        const body = await res.json();
+        // ffxiv_a の 3 つのリサイズ違い + cache buster は 1 件に dedup、 ffxiv_b は別 = 計 2 件
+        expect(body.images).toHaveLength(2);
+        // 採用される URL は normalize 後 (= 原寸 + cache buster 無し)
+        expect(body.images[0]).toBe(
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_a-1.png',
+        );
+        expect(body.images[1]).toBe(
+            'https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_b-1.png',
+        );
+    });
+
     it('studio-xiv.com は ffxiv_ パターンを全部取得、 ロゴ等は除外', async () => {
         const html = `
             <meta property="og:image" content="https://studio-xiv.com/wp-content/uploads/2026/05/ffxiv_main.png">
