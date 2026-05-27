@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -8,7 +8,7 @@ import {
     handleYoutubeThumbnailError,
     handleYoutubeThumbnailLoad,
 } from '../../../lib/housing/youtubeImgFallback';
-import { resolveSlideshowFrames } from '../../../lib/housing/slideshowFrames';
+import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { HousingCardAmbientSlideshow } from './HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from './HousingCardVideoOverlay';
@@ -43,7 +43,7 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
         return (): void => register(null);
     }, [register]);
 
-    const frames = useMemo(() => resolveSlideshowFrames(listing), [listing]);
+    const frames = useHousingCardFrames(listing, ambientOn);
     const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
         ? 'twitter'
         : listing.youtubeVideoId

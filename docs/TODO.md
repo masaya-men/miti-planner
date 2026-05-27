@@ -11,20 +11,14 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 動画再生 + 外部 URL 直接表示拡張 (#60 Task Group 1-6) 全実装完了、 7 commit push 済。
+- **ブランチ**: main。 TG1-6 + Phase 1 (push 済) に加え、 **動画 3 フレーム抽出 (Allmarks 正規仕様)** を本セッションで実装、 commit 予定。
 - **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細: memory `project_housing_phase_status`
-- **動画系移行完了 ✅** (本セッション、 Task Group 1-6 連続実装):
-  - 旧 Twitter 動画フレーム抽出 + Storage 保存経路 完全撤廃 (TG1)
-  - HousingListing に videoUrl / videoPosterUrl / videoAspectRatio 追加、 MAX_SOURCE_IMAGE_URLS 4→10、 tweetId+sourceImageUrls 排他緩和 (TG2)
-  - Allmarks 流純関数 + hook 8 ファイル移植 (spotlightRotation / viewportPlaybackPool / slideshowCycle / slideshowFrames + 各 hook) (TG3)
-  - HousingPlaybackContext で workspace 全体 orchestration、 4 つのカード variant に ambient slideshow + 動画オーバーレイ統合 (TG4)
-  - 詳細モーダル動画 controls 再生 + 全画像表示 (TG5)
-  - CSP に media-src 'self' blob: + frame-src youtube-nocookie 追加 (TG6)
-  - 全 1264 tests + build clean
+- **動画系移行完了 ✅** (前セッション、 TG1-6): 旧 Twitter 動画 Storage 保存撤廃 / videoUrl 直接表示 / Allmarks 流 hook 移植 / 4 カード variant に ambient + 動画オーバーレイ統合 / CSP 追加。 全 1264 tests + build clean。
 - **重複登録対応 Phase 1 完了 ✅** + 3 hotfixes (deletedAt フィルタ / dialog z-index / register callback stable 化)
 - **TG1-6 + Phase 1 実機検証 (B1-D) 完了 ✅** — C 動画 spotlight 再生も hotfix 後 OK
-- **次セッション最優先 (詳細設計 + 引継ぎ → [.private 設計書](./.private/2026-05-27-housing-video-3frame-and-phase2.md))**:
-  1. **動画 3 フレーム抽出 実装** (Allmarks 正規仕様、 client 表示時抽出 = 保存しない): TG1-6 で僕が「videoPosterUrl 1 枚静止」 で実装した部分を「3 フレーム抽出 + desync ambient slideshow」 に拡張
+- **3 フレーム抽出 実装 ✅ (本セッション)**: Allmarks (マイコラージュ) から移植。 cap=1 FIFO queue + process cache + in-flight dedup、 fractions=[0, 0.25, 0.5] / maxWidth=640 / JPEG q=0.7。 新規 `extractVideoFrames.ts` / `useTweetVideoFrames.ts` / `useHousingCardFrames.ts` + 4 variant 置換。 build clean / vitest 13/13 pass。 **次: 実機検証**
+- **次タスク (詳細設計 → [.private 設計書](./.private/2026-05-27-housing-video-3frame-and-phase2.md))**:
+  1. ✅ 3 フレーム抽出 実装 (実機検証待ち)
   2. **重複登録対応 Phase 2**: lastConfirmedAt + 「今もあります」 ボタン + ベル通知 + 重複時 1 撃 hide + 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン。 設計確定済 (用語・文言含む) → 設計書通り 1 タスクずつ実機検証しながら実装
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
