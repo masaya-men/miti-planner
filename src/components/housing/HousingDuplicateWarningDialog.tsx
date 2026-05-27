@@ -20,7 +20,7 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="bg-app-surface border border-app-border rounded-lg max-w-md w-full p-6">

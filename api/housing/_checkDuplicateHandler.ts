@@ -44,19 +44,25 @@ export default async function handler(req: any, res: any) {
 
     const addressKey = buildAddressKey(addr);
     const adminDb = getAdminFirestore();
+    // 2026-05-27 hotfix: soft-deleted (deletedAt 立ってる) listing が重複扱いされていたバグ修正。
+    // Firestore の where('deletedAt', '==', null) はフィールド未定義 doc にマッチしないので、
+    // 広めに取って handler 側で filter する (null / undefined / 0 全てを「生きてる」 扱い)。
     const snap = await adminDb
       .collection('housing_listings')
       .where('addressKey', '==', addressKey)
       .where('isHidden', '==', false)
-      .limit(5)
+      .limit(20)
       .get();
 
-    const duplicates = snap.docs.map((doc) => ({
-      id: doc.id,
-      ownerUid: doc.data().ownerUid,
-      createdAt: doc.data().createdAt,
-      tags: doc.data().tags ?? [],
-    }));
+    const duplicates = snap.docs
+      .filter((doc) => !doc.data().deletedAt)
+      .slice(0, 5)
+      .map((doc) => ({
+        id: doc.id,
+        ownerUid: doc.data().ownerUid,
+        createdAt: doc.data().createdAt,
+        tags: doc.data().tags ?? [],
+      }));
 
     return res.status(200).json({ duplicates });
   } catch (error: any) {
