@@ -45,6 +45,9 @@ export const HousingDetailModalRoute: React.FC = () => {
   // 2026-05-27 Phase 2-3 hotfix: 同 addressKey に自分以外の生きてる listing が居るかどうか。
   // 「今もあります」 ボタン + 「○月○日 確認済」 表示は重複時のみ意味があるので、 これで gate する。
   const [hasDuplicates, setHasDuplicates] = useState(false);
+  // §3.8 (2026-05-27): 同 addressKey の他生存 listing 群そのもの。 詳細モーダル下部の
+  // 「この住所の他の登録」 セクションで mini カード + 「ちがった」 ボタンに使う。
+  const [peers, setPeers] = useState<HousingListing[]>([]);
   const viewerUid = auth.currentUser?.uid ?? null;
 
   const { deleteForListing } = useNotifications();
@@ -94,18 +97,23 @@ export const HousingDetailModalRoute: React.FC = () => {
   useEffect(() => {
     if (!listing) {
       setHasDuplicates(false);
+      setPeers([]);
       return;
     }
     let cancelled = false;
     (async () => {
       try {
-        const peers = await findListingsByAddressKey(listing.addressKey);
+        const fetched = await findListingsByAddressKey(listing.addressKey);
         if (cancelled) return;
-        const others = peers.filter((l) => l.id !== listing.id && !l.deletedAt);
+        const others = fetched.filter((l) => l.id !== listing.id && !l.deletedAt);
         setHasDuplicates(others.length > 0);
+        setPeers(others);
       } catch {
         // 失敗時は false (= 「今もあります」 ボタンを安全側で隠す)
-        if (!cancelled) setHasDuplicates(false);
+        if (!cancelled) {
+          setHasDuplicates(false);
+          setPeers([]);
+        }
       }
     })();
     return () => {
@@ -272,6 +280,7 @@ export const HousingDetailModalRoute: React.FC = () => {
         listing={listing}
         viewerUid={viewerUid}
         hasDuplicates={hasDuplicates}
+        peers={peers}
         onClose={close}
         reportNotice={reportNotice}
         onListingUpdated={handleListingSaved}

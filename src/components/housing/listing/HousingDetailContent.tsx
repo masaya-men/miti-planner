@@ -7,11 +7,15 @@
  *   (別モーダルを重ねるとスタッキングが破綻するため、 詳細の中に出す方針)
  * - レイアウトは housing.css のグリッドで制御
  */
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing, ReportReason } from '../../../types/housing';
 import { HousingPhotoGallery } from './HousingPhotoGallery';
 import { HousingActionBar } from './HousingActionBar';
+import { HousingDuplicatePeersSection } from './HousingDuplicatePeersSection';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { useHousingReport } from '../report/useHousingReport';
+import { showToast } from '../../Toast';
 
 /** 家主が通報通知から開いた時に詳細内へ出す案内 (任意) */
 export interface ReportNotice {
@@ -31,6 +35,8 @@ export interface HousingDetailContentProps {
   viewerUid: string | null;
   /** 同 addressKey に自分以外の生きてる listing が居るとき true (= 「今もあります」 ボタン表示条件)。 */
   hasDuplicates?: boolean;
+  /** §3.8: 同 addressKey の他生存 listing 群 (= 下部「この住所の他の登録」 セクション用)。 */
+  peers?: HousingListing[];
   onClose?: () => void;
   reportNotice?: ReportNotice;
   /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
@@ -43,6 +49,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   listing,
   viewerUid,
   hasDuplicates = false,
+  peers = [],
   onClose,
   reportNotice,
   onListingUpdated,
@@ -52,6 +59,28 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   // 2026-05-26 アパート号棟欠落バグ修正 + 多言語化: 住所組み立ては必ず formatHousingAddress 経由。
   const fullAddress = formatHousingAddress(listing, i18n.language);
   const title = listing.description?.trim() ? listing.description : fullAddress;
+
+  // §3.8 (2026-05-27): 重複一覧の「ちがった」 で 1 撃 hide した peer は即時 UI から消す。
+  // 親の peers は同じ参照のまま、 ここで filter する (= 親に再 fetch 走らせない軽量実装)。
+  const [hiddenPeerIds, setHiddenPeerIds] = useState<Set<string>>(new Set());
+  const visiblePeers = useMemo(
+    () => peers.filter((p) => !hiddenPeerIds.has(p.id)),
+    [peers, hiddenPeerIds],
+  );
+  const { report: reportPeer } = useHousingReport();
+  const handleReportPeer = async (peerId: string) => {
+    const result = await reportPeer(peerId, 'wrong_info');
+    if (result.ok) {
+      setHiddenPeerIds((prev) => {
+        const next = new Set(prev);
+        next.add(peerId);
+        return next;
+      });
+      showToast(t('housing.detail.duplicates.toast_hidden'), 'success');
+    } else {
+      showToast(t('housing.detail.duplicates.toast_error'), 'error');
+    }
+  };
 
   return (
     <div className="housing-detail-content">
@@ -148,6 +177,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
           />
         </div>
       </div>
+      <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
     </div>
   );
 };

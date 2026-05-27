@@ -15,6 +15,8 @@ export interface HousingDetailModalProps {
   viewerUid: string | null;
   /** 同 addressKey に自分以外の生きてる listing が居るとき true (= 「今もあります」 ボタン表示条件)。 */
   hasDuplicates?: boolean;
+  /** §3.8: 同 addressKey の他生存 listing 群 (= 詳細モーダル下部「この住所の他の登録」 一覧用)。 */
+  peers?: HousingListing[];
   onClose: () => void;
   reportNotice?: ReportNotice;
   /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
@@ -27,6 +29,7 @@ export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
   listing,
   viewerUid,
   hasDuplicates = false,
+  peers = [],
   onClose,
   reportNotice,
   onListingUpdated,
@@ -67,6 +70,7 @@ export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
           listing={listing}
           viewerUid={viewerUid}
           hasDuplicates={hasDuplicates}
+          peers={peers}
           onClose={onClose}
           reportNotice={reportNotice}
           onListingUpdated={onListingUpdated}

@@ -4183,6 +4183,7 @@ select.housing-input option {
 
 /* ===== §3.8 詳細モーダル「この住所の他の登録」 セクション ===== */
 .housing-detail-peers {
+    grid-column: 1 / -1;
     margin-top: 24px;
     padding-top: 20px;
     border-top: 1px solid var(--housing-divider);
