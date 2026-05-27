@@ -1,0 +1,122 @@
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useMemo,
+    type ReactElement,
+    type ReactNode,
+} from 'react';
+import { useViewportPlaybackPool } from './useViewportPlaybackPool';
+import { useSpotlightRotation } from './useSpotlightRotation';
+import { useReducedMotion } from './useReducedMotion';
+import { useIsScrolling } from './useIsScrolling';
+import { selectActivePlayers } from './viewportPlaybackPool';
+
+/**
+ * 2026-05-27 ハウジング動画再生 orchestration (Allmarks 流)。
+ *
+ * - useViewportPlaybackPool: IntersectionObserver で各カードの visibility ratio 集計
+ * - useSpotlightRotation: candidates Set + cap で「画面内 N 本だけ再生」 を 15s ごとに promote
+ * - useReducedMotion / useIsScrolling: 動かない条件を集約
+ *
+ * 結果を context として配り、 HousingCard 系 (HousingCard / RightPanelListItem /
+ * MapBubbleCard / FavoriteCard) が register / playing.has(id) / ambientOn を購読する。
+ *
+ * Provider が無いとき (= テスト等) は no-op default で動く (= 再生なし、 register/unregister は no-op)。
+ */
+export interface HousingPlaybackContextValue {
+    /** spotlight rotation の live メンバー (cap=1 動画 hero)。 */
+    playing: ReadonlySet<string>;
+    /** ambient slideshow / 動画再生を ON にするか (= !reduced && !isScrolling && !lightboxOpen)。 */
+    ambientOn: boolean;
+    /** IntersectionObserver 監視対象に追加。 */
+    register: (id: string, el: Element) => void;
+    /** IntersectionObserver 監視から外し、 visibility map からも消す。 */
+    unregister: (id: string) => void;
+}
+
+const NOOP_CONTEXT: HousingPlaybackContextValue = {
+    playing: new Set(),
+    ambientOn: false,
+    register: () => {},
+    unregister: () => {},
+};
+
+const HousingPlaybackContext = createContext<HousingPlaybackContextValue>(NOOP_CONTEXT);
+
+export function useHousingPlayback(): HousingPlaybackContextValue {
+    return useContext(HousingPlaybackContext);
+}
+
+export interface HousingPlaybackProviderProps {
+    children: ReactNode;
+    /** 画面内同時再生数の上限。 default 1 (Allmarks 流 hero=1)。 */
+    cap?: number;
+    /** rotation 間隔 ms。 default 15000 (15s、 Allmarks 流)。 */
+    intervalMs?: number;
+    /** spotlight 入り判定の visibility ratio 下限。 default 0.25。 */
+    minRatio?: number;
+    /**
+     * 詳細モーダル等で一覧再生を一時停止したいときの外部入力。
+     * default false。 Task 5 で Zustand store と接続予定。
+     */
+    lightboxOpen?: boolean;
+}
+
+export function HousingPlaybackProvider({
+    children,
+    cap = 1,
+    intervalMs = 15000,
+    minRatio = 0.25,
+    lightboxOpen = false,
+}: HousingPlaybackProviderProps): ReactElement {
+    const { visibility, register, unregister } = useViewportPlaybackPool();
+    const reduced = useReducedMotion();
+    const isScrolling = useIsScrolling(150);
+    const ambientOn = !reduced && !isScrolling && !lightboxOpen;
+
+    const candidates = useMemo(
+        () => new Set(selectActivePlayers(visibility, cap, minRatio)),
+        [visibility, cap, minRatio],
+    );
+    const spotlightCap = ambientOn ? cap : 0;
+    const playing = useSpotlightRotation(candidates, spotlightCap, intervalMs);
+
+    const value = useMemo<HousingPlaybackContextValue>(
+        () => ({ playing, ambientOn, register, unregister }),
+        [playing, ambientOn, register, unregister],
+    );
+
+    return (
+        <HousingPlaybackContext.Provider value={value}>
+            {children}
+        </HousingPlaybackContext.Provider>
+    );
+}
+
+/**
+ * Card 専用の便宜 hook。 listing.id を渡すと register/unregister の useEffect 用 callback と、
+ * 再生フラグを一括で返す。 各カード variant の重複コードを削減する。
+ */
+export function useHousingCardPlayback(listingId: string): {
+    isPlaying: boolean;
+    ambientOn: boolean;
+    register: (el: Element | null) => void;
+} {
+    const ctx = useHousingPlayback();
+    const register = useCallback(
+        (el: Element | null) => {
+            if (!el) {
+                ctx.unregister(listingId);
+                return;
+            }
+            ctx.register(listingId, el);
+        },
+        [ctx, listingId],
+    );
+    return {
+        isPlaying: ctx.playing.has(listingId),
+        ambientOn: ctx.ambientOn,
+        register,
+    };
+}

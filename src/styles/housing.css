@@ -66,6 +66,13 @@
   --housing-card-thumb-bg: rgba(0, 0, 0, 0.3);
   --housing-card-tag-bg: rgba(255, 255, 255, 0.08);
 
+  /* ===== 2026-05-27 動画 / ambient slideshow オーバーレイ ===== */
+  --housing-slideshow-fade-ms: 600ms;
+  --housing-slideshow-img-fit: cover;
+  --housing-card-overlay-z-ambient: 1;
+  --housing-card-overlay-z-video: 2;
+  --housing-card-overlay-z-content: 3;
+
   /* ===== Semantic / status ===== */
   --housing-warning: #ff8080;
   --housing-danger: #ff8a6c;          /* 警告系赤 (削除タイトル / kebab 削除項目) */
@@ -798,6 +805,7 @@
   text-shadow: var(--housing-text-shadow);
 }
 .housing-bubble-card-thumb {
+  position: relative;
   aspect-ratio: 1 / 1;
   background: var(--housing-card-thumb-bg);
 }
@@ -943,6 +951,7 @@
   outline-offset: 2px;
 }
 .housing-card-thumb {
+  position: relative;
   aspect-ratio: 16 / 9;
   background: var(--housing-card-thumb-bg);
 }
@@ -950,6 +959,45 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+/* 2026-05-27 ambient slideshow オーバーレイ (各カード独立、 desync クロスフェード) */
+.housing-card-ambient-slideshow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--housing-card-overlay-z-ambient);
+  overflow: hidden;
+}
+.housing-card-ambient-slideshow img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: var(--housing-slideshow-img-fit);
+  opacity: 0;
+  transition: opacity var(--housing-slideshow-fade-ms) ease-in-out;
+}
+.housing-card-ambient-slideshow img[data-active='true'] {
+  opacity: 1;
+}
+
+/* 2026-05-27 動画オーバーレイ (spotlight rotation の live メンバーのみ mount) */
+.housing-card-video-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--housing-card-overlay-z-video);
+  overflow: hidden;
+  border-radius: inherit;
+}
+.housing-card-video-overlay > video,
+.housing-card-video-overlay > iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
   display: block;
 }
 .housing-card-body {
@@ -1150,6 +1198,7 @@
   border-color: var(--housing-honey-border);
 }
 .housing-right-list-item-thumb {
+  position: relative;
   width: 48px;
   height: 48px;
   flex-shrink: 0;
@@ -1542,6 +1591,7 @@
   opacity: 0.35;
 }
 .housing-favorite-card-thumb {
+  position: relative;
   width: 56px;
   height: 56px;
   flex-shrink: 0;

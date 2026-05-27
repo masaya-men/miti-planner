@@ -32,6 +32,21 @@ export interface MockListing {
     postUrl?: string;
     ogImageUrl?: string;
     thumbnailPath?: string;
+    /** 旧 thumbnail mode の複数画像。 2026-05-27 追加 (slideshow 用)。 */
+    thumbnailPaths?: string[];
+    /**
+     * 2026-05-27 追加: 外部画像 URL リスト (OGP / Twitter 静止画ツイート)。
+     * card 一覧の ambient slideshow 用に galleryAdapter で pass-through。
+     */
+    sourceImageUrls?: string[];
+    /** 2026-05-27 追加: YouTube 動画 ID (storyboard 3 枚 slideshow + iframe 再生用)。 */
+    youtubeVideoId?: string;
+    /** 2026-05-27 追加: Twitter 動画 mp4 URL (proxy 経由で <video> 再生用)。 */
+    videoUrl?: string;
+    /** 2026-05-27 追加: Twitter 動画 poster URL (slideshow 1 枚 + video poster 属性)。 */
+    videoPosterUrl?: string;
+    /** 2026-05-27 追加: 動画 aspect ratio (詳細モーダルでの aspect 確保用)。 */
+    videoAspectRatio?: number;
     tags: string[];
     description?: string;
     createdAt: number;

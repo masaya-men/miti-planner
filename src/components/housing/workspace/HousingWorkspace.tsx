@@ -16,6 +16,7 @@ import { FavoritesModal } from './FavoritesModal';
 import { HousingRegisterFormModal } from '../register/HousingRegisterFormModal';
 import { HousingLoginModal } from '../login/HousingLoginModal';
 import { HousingAccountModal } from '../login/HousingAccountModal';
+import { HousingPlaybackProvider } from '../../../lib/housing/HousingPlaybackContext';
 import '../../../styles/housing.css';
 
 /**
@@ -100,9 +101,13 @@ export const HousingWorkspace: React.FC = () => {
     closeRegisterAction();
   }, [searchParams, setSearchParams, closeRegisterAction]);
 
+  // 2026-05-27: 詳細モーダル open 時は一覧の動画 hero を停止 (Task 5.2 で store 接続予定)
+  const lightboxOpen = !!listingId;
+
   return (
     <main className="housing-workspace" data-theme={theme}>
       <SceneryVideo theme={theme} />
+      <HousingPlaybackProvider lightboxOpen={lightboxOpen}>
       <div className="housing-shell">
         <TopBar
           onFavoritesClick={() => setFavoritesModalOpen(true)}
@@ -136,6 +141,7 @@ export const HousingWorkspace: React.FC = () => {
         <StatusBar />
       </div>
       <FavoritesModal open={favoritesModalOpen} onClose={() => setFavoritesModalOpen(false)} />
+      </HousingPlaybackProvider>
       <HousingRegisterFormModal open={registerOpen} onClose={handleCloseRegister} />
       <HousingLoginModal />
       <HousingAccountModal />

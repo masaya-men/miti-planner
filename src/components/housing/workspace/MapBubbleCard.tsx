@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -7,6 +8,10 @@ import {
     handleYoutubeThumbnailError,
     handleYoutubeThumbnailLoad,
 } from '../../../lib/housing/youtubeImgFallback';
+import { resolveSlideshowFrames } from '../../../lib/housing/slideshowFrames';
+import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
+import { HousingCardAmbientSlideshow } from './HousingCardAmbientSlideshow';
+import { HousingCardVideoOverlay } from './HousingCardVideoOverlay';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -30,9 +35,21 @@ export const MapBubbleCard: React.FC<MapBubbleCardProps> = ({ listing, x, y, onC
     const addFavorite = useHousingFavoritesStore((s) => s.add);
     const removeFavorite = useHousingFavoritesStore((s) => s.remove);
     const imgSrc = resolveImageSource(listing);
-    // 住所はマップ上のピン位置から自明なので、 画面表示は撤去 (2026-05-27 ユーザー方針)。
-    // aria-label のみ残してスクリーンリーダー向けに住所を提供。
     const alt = formatHousingAddressAria(listing);
+
+    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id);
+    const thumbRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        register(thumbRef.current);
+        return (): void => register(null);
+    }, [register]);
+
+    const frames = useMemo(() => resolveSlideshowFrames(listing), [listing]);
+    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
+        ? 'twitter'
+        : listing.youtubeVideoId
+            ? 'youtube'
+            : null;
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -49,7 +66,7 @@ export const MapBubbleCard: React.FC<MapBubbleCardProps> = ({ listing, x, y, onC
             aria-label={alt}
         >
             <div className="housing-bubble-card-body">
-                <div className="housing-bubble-card-thumb">
+                <div className="housing-bubble-card-thumb" ref={thumbRef}>
                     <img
                         src={imgSrc}
                         alt=""
@@ -57,6 +74,20 @@ export const MapBubbleCard: React.FC<MapBubbleCardProps> = ({ listing, x, y, onC
                         onError={handleYoutubeThumbnailError}
                         onLoad={handleYoutubeThumbnailLoad}
                     />
+                    <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
+                    {isPlaying && videoKind === 'twitter' && listing.videoUrl && (
+                        <HousingCardVideoOverlay
+                            kind="twitter"
+                            videoUrl={listing.videoUrl}
+                            posterUrl={listing.videoPosterUrl}
+                        />
+                    )}
+                    {isPlaying && videoKind === 'youtube' && listing.youtubeVideoId && (
+                        <HousingCardVideoOverlay
+                            kind="youtube"
+                            youtubeVideoId={listing.youtubeVideoId}
+                        />
+                    )}
                 </div>
             </div>
             <span

@@ -1,9 +1,20 @@
-import type { HousingListing } from '../../types/housing';
-
 export type SlideshowFrame = {
   readonly src: string;
   readonly fallback?: string;
 };
+
+/**
+ * slideshow フレーム構築に必要な最小限のフィールド (structural typing で
+ * HousingListing と MockListing の両方を受けるため interface 定義)。
+ */
+export interface SlideshowFramesInput {
+  sourceImageUrls?: string[];
+  youtubeVideoId?: string;
+  videoPosterUrl?: string;
+  thumbnailPaths?: string[];
+  thumbnailPath?: string;
+  ogImageUrl?: string;
+}
 
 /**
  * カード ambient slideshow に使う静止画フレーム配列を listing から構築する。
@@ -17,7 +28,7 @@ export type SlideshowFrame = {
  *   7. なし (= 空配列、 カードは "No image" 状態)
  */
 export function resolveSlideshowFrames(
-  listing: HousingListing,
+  listing: SlideshowFramesInput,
 ): readonly SlideshowFrame[] {
   if (Array.isArray(listing.sourceImageUrls) && listing.sourceImageUrls.length > 0) {
     return listing.sourceImageUrls.map((src) => ({ src }));

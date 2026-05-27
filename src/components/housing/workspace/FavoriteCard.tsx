@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useTranslation } from 'react-i18next';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -6,6 +7,10 @@ import {
     handleYoutubeThumbnailError,
     handleYoutubeThumbnailLoad,
 } from '../../../lib/housing/youtubeImgFallback';
+import { resolveSlideshowFrames } from '../../../lib/housing/slideshowFrames';
+import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
+import { HousingCardAmbientSlideshow } from './HousingCardAmbientSlideshow';
+import { HousingCardVideoOverlay } from './HousingCardVideoOverlay';
 
 export interface FavoriteCardClickModifiers {
     shift: boolean;
@@ -42,6 +47,20 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ listing, selected, o
         data: { source: 'favorites', listingId: listing.id },
     });
 
+    const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id);
+    const thumbRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        register(thumbRef.current);
+        return (): void => register(null);
+    }, [register]);
+
+    const frames = useMemo(() => resolveSlideshowFrames(listing), [listing]);
+    const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
+        ? 'twitter'
+        : listing.youtubeVideoId
+            ? 'youtube'
+            : null;
+
     return (
         <button
             ref={setNodeRef}
@@ -54,7 +73,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ listing, selected, o
             {...listeners}
             {...attributes}
         >
-            <div className="housing-favorite-card-thumb">
+            <div className="housing-favorite-card-thumb" ref={thumbRef}>
                 <img
                     src={imgSrc}
                     alt=""
@@ -62,6 +81,20 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({ listing, selected, o
                     onError={handleYoutubeThumbnailError}
                     onLoad={handleYoutubeThumbnailLoad}
                 />
+                <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
+                {isPlaying && videoKind === 'twitter' && listing.videoUrl && (
+                    <HousingCardVideoOverlay
+                        kind="twitter"
+                        videoUrl={listing.videoUrl}
+                        posterUrl={listing.videoPosterUrl}
+                    />
+                )}
+                {isPlaying && videoKind === 'youtube' && listing.youtubeVideoId && (
+                    <HousingCardVideoOverlay
+                        kind="youtube"
+                        youtubeVideoId={listing.youtubeVideoId}
+                    />
+                )}
             </div>
             <div className="housing-favorite-card-body">
                 <div className="housing-favorite-card-title">
