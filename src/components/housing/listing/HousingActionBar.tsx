@@ -24,6 +24,13 @@ export interface HousingActionBarProps {
   listing: HousingListing;
   /** ログインしてれば UID、 未ログインは null */
   viewerUid: string | null;
+  /**
+   * 同 addressKey に自分以外の生きてる listing が居るとき true。
+   * 「今もあります」 ボタン + 「○月○日 確認済」 表示は重複時のみ意味があるため、
+   * これが true のときだけ描画する (= 単独 listing では UI ノイズになるので隠す、
+   * 設計書 §3.5 訂正 2026-05-27)。
+   */
+  hasDuplicates?: boolean;
   /** 親で詳細を閉じるコールバック (削除完了時に呼ぶ) */
   onClose?: () => void;
   /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
@@ -35,6 +42,7 @@ export interface HousingActionBarProps {
 export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   listing,
   viewerUid,
+  hasDuplicates = false,
   onClose,
   onListingUpdated,
   onDeleted,
@@ -141,7 +149,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
         </button>
       )}
 
-      {isOwner && (
+      {isOwner && hasDuplicates && (
         <button
           type="button"
           className="housing-action-btn housing-action-btn--still-here"
@@ -160,7 +168,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
         />
       )}
 
-      {effectiveLastConfirmedAt && (
+      {hasDuplicates && effectiveLastConfirmedAt && (
         <span className="housing-action-bar-confirmed-at" aria-live="polite">
           {t('housing.detail.last_confirmed_at', {
             date: new Date(effectiveLastConfirmedAt).toLocaleDateString(i18n.language, {

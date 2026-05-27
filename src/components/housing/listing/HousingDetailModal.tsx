@@ -13,6 +13,8 @@ import { HousingDetailContent, type ReportNotice } from './HousingDetailContent'
 export interface HousingDetailModalProps {
   listing: HousingListing;
   viewerUid: string | null;
+  /** 同 addressKey に自分以外の生きてる listing が居るとき true (= 「今もあります」 ボタン表示条件)。 */
+  hasDuplicates?: boolean;
   onClose: () => void;
   reportNotice?: ReportNotice;
   /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
@@ -24,6 +26,7 @@ export interface HousingDetailModalProps {
 export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
   listing,
   viewerUid,
+  hasDuplicates = false,
   onClose,
   reportNotice,
   onListingUpdated,
@@ -63,6 +66,7 @@ export const HousingDetailModal: React.FC<HousingDetailModalProps> = ({
         <HousingDetailContent
           listing={listing}
           viewerUid={viewerUid}
+          hasDuplicates={hasDuplicates}
           onClose={onClose}
           reportNotice={reportNotice}
           onListingUpdated={onListingUpdated}

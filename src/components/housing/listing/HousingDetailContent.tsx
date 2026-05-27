@@ -29,6 +29,8 @@ export interface ReportNotice {
 export interface HousingDetailContentProps {
   listing: HousingListing;
   viewerUid: string | null;
+  /** 同 addressKey に自分以外の生きてる listing が居るとき true (= 「今もあります」 ボタン表示条件)。 */
+  hasDuplicates?: boolean;
   onClose?: () => void;
   reportNotice?: ReportNotice;
   /** 編集保存成功時に呼ぶ callback (親で詳細を再 fetch して即反映する) */
@@ -40,6 +42,7 @@ export interface HousingDetailContentProps {
 export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   listing,
   viewerUid,
+  hasDuplicates = false,
   onClose,
   reportNotice,
   onListingUpdated,
@@ -138,6 +141,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
           <HousingActionBar
             listing={listing}
             viewerUid={viewerUid}
+            hasDuplicates={hasDuplicates}
             onClose={onClose}
             onListingUpdated={onListingUpdated}
             onDeleted={onDeleted}

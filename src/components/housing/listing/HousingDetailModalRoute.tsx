@@ -19,6 +19,7 @@ import type { HousingListing } from '../../../types/housing';
 import type { HousingNotification } from '../../../types/notification';
 import { canViewListing } from '../../../lib/housing/listingVisibility';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
+import { findListingsByAddressKey } from '../../../lib/housingListingsService';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { HousingDetailModal } from './HousingDetailModal';
 import type { ReportNotice } from './HousingDetailContent';
@@ -41,6 +42,9 @@ export const HousingDetailModalRoute: React.FC = () => {
   const [notification, setNotification] = useState<HousingNotification | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  // 2026-05-27 Phase 2-3 hotfix: 同 addressKey に自分以外の生きてる listing が居るかどうか。
+  // 「今もあります」 ボタン + 「○月○日 確認済」 表示は重複時のみ意味があるので、 これで gate する。
+  const [hasDuplicates, setHasDuplicates] = useState(false);
   const viewerUid = auth.currentUser?.uid ?? null;
 
   const { deleteForListing } = useNotifications();
@@ -83,6 +87,31 @@ export const HousingDetailModalRoute: React.FC = () => {
   useEffect(() => {
     void loadListing();
   }, [loadListing]);
+
+  // 2026-05-27 Phase 2-3 hotfix: listing 取得後に同 addressKey の他 listing を確認。
+  // findListingsByAddressKey は isHidden=false で limit(10) を fetch。 client filter で
+  // 「自分以外 + deletedAt 無し」 を絞る。 1 fetch / 詳細モーダル open 1 回。
+  useEffect(() => {
+    if (!listing) {
+      setHasDuplicates(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const peers = await findListingsByAddressKey(listing.addressKey);
+        if (cancelled) return;
+        const others = peers.filter((l) => l.id !== listing.id && !l.deletedAt);
+        setHasDuplicates(others.length > 0);
+      } catch {
+        // 失敗時は false (= 「今もあります」 ボタンを安全側で隠す)
+        if (!cancelled) setHasDuplicates(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [listing]);
 
   // notification クエリがあれば、 通知 doc を id で直接取得して案内バナー用にセット。
   // (購読 items 待ちだと遷移直後に未到達でヒットしないため getDoc で確実に取る)
@@ -238,6 +267,7 @@ export const HousingDetailModalRoute: React.FC = () => {
       <HousingDetailModal
         listing={listing}
         viewerUid={viewerUid}
+        hasDuplicates={hasDuplicates}
         onClose={close}
         reportNotice={reportNotice}
         onListingUpdated={handleListingSaved}
