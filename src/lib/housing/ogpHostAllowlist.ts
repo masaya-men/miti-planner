@@ -8,6 +8,11 @@
  *   「主要参考」 リストから、 物件単体ページが OGP を返すサイトのみ。
  * Housing Eden (ff14eden.work) は物件単体ページが無く除外。
  * 個人ページのみのため、 物件 1 件単位の og:image が出ない。
+ *
+ * ⚠ **同期メンテ必須**: ここに host を追加/削除したら、 必ず `vercel.json` の
+ * `Content-Security-Policy` ヘッダーの `img-src` も同じ host を追加/削除する。
+ * 外部 URL を `<img src>` 直接表示する設計 (設計書 §6.2 sns モード) のため、
+ * CSP allowlist と OGP allowlist がズレると画像が表示されず詰む。
  */
 
 const ALLOWED_OGP_HOSTS: readonly string[] = [
