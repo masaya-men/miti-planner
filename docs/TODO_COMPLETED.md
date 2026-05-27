@@ -2,6 +2,27 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-05-27 セッション #60 後半・Phase 2-4 重複登録時のベル通知)
+
+α 公開期限撤回後の 1 セッション 1 タスク方針で、 重複対応 Phase 2-4 を実装 + 実機検証 OK。
+
+### 主な変更
+
+- **notification 型拡張**: `'duplicate_alert'` 追加、 `reason` を type='housing_report' 専用に optional 化 ([src/types/notification.ts])
+- **`_registerListingHandler` 拡張**: 登録 transaction 後 best-effort で、 同 addressKey の生きてる他オーナー全員に `type='duplicate_alert'` 通知を batch 作成 ([api/housing/_registerListingHandler.ts])
+- **`NotificationItem` type 分岐**: housing_report と duplicate_alert を i18n キー別に render ([src/components/housing/notifications/NotificationItem.tsx])
+- **`HousingDetailModalRoute` ガード**: `reportNotice` (= 通報案内バナー) は type='housing_report' のときだけ生成。 duplicate_alert は spec §3.4 「シンプル A 派 (タップ = listing 詳細遷移、 ボタン直埋め込みナシ)」 に従いバナー無し
+- **i18n 4 言語**: `housing.notifications.item.duplicate_alert` 追加 (ko/zh は ja コピー)
+
+実機検証 (別アカ → メインで同住所登録 → 別アカのベルに通知): 通知届く + タップで listing 詳細に飛ぶまで動作 OK。 設計書: [docs/.private/2026-05-27-housing-video-3frame-and-phase2.md §3.4]
+
+### 残課題 (公開後 / 次セッション以降)
+
+- 通知メッセージの listingTitleSnapshot が `description` 空時に **addressKey raw** (例「Mana|Pandaemonium|Mist|W1|B1|A25」) で出る → `formatHousingAddress` 経由の表示用住所をスナップショットすべき
+- 通知ドロップダウン全般の UI/UX 刷新 (ユーザー「今 UI/UX ひどい」 指摘)
+
+---
+
 ## 完了 (2026-05-27 セッション #60・ハウジング α 公開向け 5/27 開発デー一括)
 
 ハウジング 5/28 23:59 α 公開に向け、 アパート対応 + 多言語化 (masterData 案 B ネスト) + マップ→list デフォルト + /admin 通報モデ案 B を 1 日で完了。 typecheck + 純関数 vitest (40/40 pass、 ゾンビ 0) + build 6.67s 成功。

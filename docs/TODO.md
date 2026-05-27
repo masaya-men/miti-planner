@@ -11,20 +11,16 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 本セッション 6 commit push 済 (動画再生 + Phase 2-1〜2-3)。
+- **ブランチ**: main。 本セッション 7 commit push 済 (動画再生 + Phase 2-1〜2-4)。
 - **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
-- **本セッション完了 ✅** (詳細設計 → [.private 設計書](./.private/2026-05-27-housing-video-3frame-and-phase2.md)):
-  - 動画 3 フレーム抽出 実装 (Allmarks 移植、 cap=1 FIFO queue + process cache + in-flight dedup) — commit 093740c
-  - spotlight rotation バグ修正 (pool cap 999 / spotlight cap 1 分離、 動画 listing のみ register) + ② 抽出 skip — commit 731771a
-  - 動画+画像同居ツイの videoUrl drop バグ修正 (排他想定撤廃、 validateImage + buildListingImageFields + RegisterForm 改修) — commit 976055a
-  - Phase 2-1 lastConfirmedAt フィールド追加 (必須、 type/adapter/handler/mock/fixture 全反映) — commit 133a178
-  - Phase 2-2/2-3 confirmListing API + 「今もあります」 ボタン UI (i18n 6 keys × 4 lang) — commit 38073cc
-  - 「今もあります」 ボタン + 確認済表示を重複時のみに絞る (= ユーザー指摘で設計仮定訂正) — commit 134184e
+- **直近完了 ✅** (詳細設計 → [.private 設計書](./.private/2026-05-27-housing-video-3frame-and-phase2.md)):
+  - Phase 2-4 重複登録時のベル通知 (duplicate_alert) — 実機検証 OK、 本セッション最後にコミット済
+  - Phase 2-1/2-2/2-3 + 動画 3 フレーム + バグ修正群 (詳細は TODO_COMPLETED.md)
 - **次セッション最優先** (= 設計書通り順次):
-  1. **Phase 2-4 重複登録時のベル通知**: _registerListingHandler で同 addressKey の他 listing 所有者へ duplicate_alert 通知 (既存 housing_notifications + NotificationBell UI 流用)
-  2. **Phase 2-5 sort**: 同 addressKey 内では lastConfirmedAt desc で並ぶ (view 層対応案 vs ストア対応案、 着手前に方針決め)
-  3. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン**: 重複時のみ表示、 4 カード variant に追加
-  4. **Phase 2-7 重複時 1 撃 hide**: _reportListingHandler に同 addressKey 他 listing 存在判定 + 閾値 1
+  1. **Phase 2-5 sort**: 同 addressKey 内では lastConfirmedAt desc で並ぶ (view 層対応案 vs ストア対応案、 着手前に方針決め)
+  2. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン**: 重複時のみ表示、 4 カード variant に追加
+  3. **Phase 2-7 重複時 1 撃 hide**: _reportListingHandler に同 addressKey 他 listing 存在判定 + 閾値 1
+  4. **通知 UI/UX 磨き** (Phase 2-4 後の課題、 ユーザー指摘 2026-05-27): listingTitleSnapshot が addressKey raw (例「Mana|Pandaemonium|Mist|W1|B1|A25」) で出てしまう → `formatHousingAddress` 経由の表示用住所をスナップショットすべき。 通知ドロップダウンのレイアウト全般も後で刷新
   5. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 ユーザーと論点詰めてから)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
