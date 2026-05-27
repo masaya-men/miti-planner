@@ -1,9 +1,16 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HousingRegisterForm, type HousingRegisterFormValues } from './HousingRegisterForm';
-import { registerListing, uploadListingThumbnail, QuotaExhaustedError } from '../../../lib/housingApiClient';
+import {
+    registerListing,
+    uploadListingThumbnail,
+    checkDuplicate,
+    QuotaExhaustedError,
+    type DuplicateEntry,
+} from '../../../lib/housingApiClient';
 import { HousingPanelModal } from '../HousingPanelModal';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
+import { HousingDuplicateWarningDialog } from '../HousingDuplicateWarningDialog';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { getTagById } from '../../../data/housingTags';
@@ -114,26 +121,35 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
     const [confirmValues, setConfirmValues] = useState<HousingRegisterFormValues | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [errorKey, setErrorKey] = useState<string | null>(null);
+    /**
+     * 2026-05-27: 同住所重複検出時のダイアログ表示 state。
+     * null = ダイアログ非表示、 配列 = 既存ハウジング一覧を表示中。
+     * ユーザーが「戻って住所を修正」 で null、 「それでも登録」 で実 register に進む。
+     */
+    const [duplicates, setDuplicates] = useState<DuplicateEntry[] | null>(null);
 
     const handleSubmit = useCallback((values: HousingRegisterFormValues) => {
         setErrorKey(null);
         setConfirmValues(values);
     }, []);
 
-    const handleConfirm = useCallback(async () => {
-        if (!confirmValues || submitting) return;
-        setErrorKey(null);
+    /**
+     * 実際の registerListing + 後続処理。 重複チェック OK のときと「それでも登録」 のとき
+     * 両方から呼ばれる。 ダイアログ表示時に handleConfirm 全体を再実行すると重複再 fetch
+     * になるので、 ここに切り出す。
+     */
+    const performRegister = useCallback(async (values: HousingRegisterFormValues) => {
         setSubmitting(true);
         try {
-            const { id } = await registerListing(toRegistrationDraft(confirmValues));
+            const { id } = await registerListing(toRegistrationDraft(values));
 
             // 2026-05-26: 画像アップロード (1-4 枚) があれば register 直後に upload-thumbnail を順次呼ぶ。
             // index=0..N-1 を明示的に渡す (backend が thumbnailPaths[index] にセット)。
             // 1 件でも失敗したら upload_failed を立てる (ただし listing 自体は登録済み)。
-            if (confirmValues.localImages && confirmValues.localImages.length > 0) {
+            if (values.localImages && values.localImages.length > 0) {
                 let uploadFailedOnce = false;
-                for (let i = 0; i < confirmValues.localImages.length; i++) {
-                    const img = confirmValues.localImages[i];
+                for (let i = 0; i < values.localImages.length; i++) {
+                    const img = values.localImages[i];
                     try {
                         await uploadListingThumbnail({
                             listingId: id,
@@ -149,7 +165,7 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
                 if (uploadFailedOnce) setErrorKey('upload_failed');
             }
 
-            // 登録した物件を中央一覧へ即反映 (リロード不要)。 失敗しても登録は成功済み。
+            // 登録したハウジングを中央一覧へ即反映 (リロード不要)。 失敗しても登録は成功済み。
             // upload が成功していれば thumbnailPath も含めて fetch される。
             await useHousingListingsStore.getState().fetchAndUpsert(id);
             setConfirmValues(null);
@@ -165,7 +181,33 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
         } finally {
             setSubmitting(false);
         }
-    }, [confirmValues, onClose, submitting]);
+    }, [onClose]);
+
+    /**
+     * 2026-05-27: 確認ダイアログの「登録する」 押下時。 まず checkDuplicate で同住所
+     * 既存登録を探し、 あれば HousingDuplicateWarningDialog を出す。 ユーザーが
+     * 「それでも登録」 を選んだら performRegister へ進む。 重複ゼロなら直接 performRegister。
+     */
+    const handleConfirm = useCallback(async () => {
+        if (!confirmValues || submitting) return;
+        setErrorKey(null);
+        setSubmitting(true);
+        try {
+            const draft = toRegistrationDraft(confirmValues);
+            const dup = await checkDuplicate(draft);
+            setSubmitting(false);
+            if (dup.duplicates.length > 0) {
+                setDuplicates(dup.duplicates);
+                return;
+            }
+            await performRegister(confirmValues);
+        } catch (e) {
+            setSubmitting(false);
+            console.warn('[HousingRegisterFormModal] checkDuplicate failed, proceeding anyway', e);
+            // checkDuplicate が失敗しても登録は止めない (= 安全側、 ネットワーク問題で塞がない)
+            await performRegister(confirmValues);
+        }
+    }, [confirmValues, submitting, performRegister]);
 
     return (
         <>
@@ -254,6 +296,20 @@ export function HousingRegisterFormModal({ open, onClose }: Props) {
                     </button>
                 </div>
             </HousingPanelModal>
+
+            {/* 2026-05-27: 同住所重複検出時の警告ダイアログ。 「戻って住所修正」 or
+                「それでも登録」 の二択。 後者で performRegister に進む。 */}
+            {duplicates && confirmValues && (
+                <HousingDuplicateWarningDialog
+                    duplicates={duplicates}
+                    onClose={() => setDuplicates(null)}
+                    onCorrect={() => setDuplicates(null)}
+                    onProceed={async () => {
+                        setDuplicates(null);
+                        await performRegister(confirmValues);
+                    }}
+                />
+            )}
         </>
     );
 }

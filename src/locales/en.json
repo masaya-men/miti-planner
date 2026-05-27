@@ -1899,11 +1899,11 @@
             "cancel": "Cancel"
         },
         "duplicate": {
-            "title": "A listing already exists at this address",
-            "lead": "{{count}} existing listing(s) found",
-            "hint": "Please double-check that the address is correct",
-            "correct": "Correct address",
-            "proceed": "Register mine too",
+            "title": "A housing entry already exists at this address",
+            "lead": "{{count}} existing entry/entries found",
+            "hint": "Please double-check that the address you entered is correct. If it's a different address, please correct the form. If you're registering because the owner changed, you can proceed.",
+            "correct": "Go back and correct address",
+            "proceed": "Register anyway",
             "created_at": "Registered: {{date}}"
         },
         "onboarding": {
