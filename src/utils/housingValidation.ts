@@ -66,6 +66,17 @@ export interface RegistrationDraft extends AddressInput {
    * youtubeVideoId とは排他 (YouTube は storyboard を都度生成、 静止画 URL を保存しない)。
    */
   sourceImageUrls?: string[];
+
+  /**
+   * 2026-05-27 追加: Twitter 動画ツイートの mp4 URL。 tweetId 必須、
+   * sourceImageUrls とは排他 (動画ツイートは 1 video のみ)。
+   * host は video.twimg.com 限定 (validateImage で検証)。
+   */
+  videoUrl?: string;
+  /** 2026-05-27 追加: Twitter 動画の poster URL (pbs.twimg.com 限定)。 */
+  videoPosterUrl?: string;
+  /** 2026-05-27 追加: 動画 aspect ratio (width/height、 正の数)。 */
+  videoAspectRatio?: number;
 }
 
 export type ValidationErrors = Partial<Record<string, string>>;
@@ -175,6 +186,21 @@ function isPbsTwimgHost(value: string | undefined): boolean {
 }
 
 /**
+ * 2026-05-27: Twitter 動画 mp4 URL のホスト検証 (video.twimg.com 限定)。
+ * 表示時は /api/tweet-video?url= proxy 経由で <video> 再生するが、 保存時点で
+ * host を絞ることで任意 URL 注入を防ぐ。
+ */
+function isVideoTwimgHost(value: string | undefined): boolean {
+  if (!value) return false;
+  try {
+    const u = new URL(value);
+    return u.protocol === 'https:' && u.hostname === 'video.twimg.com';
+  } catch {
+    return false;
+  }
+}
+
+/**
  * sourceImageUrls の各 URL が「Firestore に保存して `<img src>` 直接表示するのに安全」 か判定。
  * - https 必須
  * - private IP (10.x / 127.x / 169.254.x / 172.16-31.x / 192.168.x / 0.x) 拒否
@@ -266,7 +292,32 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
       errors.ogImageUrl = 'invalid';
     }
     if (!/^\d{1,20}$/.test(draft.tweetId!)) errors.tweetId = 'invalid';
-    // 2026-05-27: tweetId + sourceImageUrls 併用時、 全 URL が pbs.twimg.com 限定 + ogImageUrl と先頭一致。
+
+    // 2026-05-27: 動画ツイートと静止画ツイートは排他 (Twitter 仕様上、 photos と video は同居しない)
+    const hasVideoUrl = draft.videoUrl !== undefined;
+    if (hasVideoUrl && hasSourceUrls) {
+      errors.imageMode = 'conflict_sources';
+      return fail(errors);
+    }
+
+    // 動画ツイート: videoUrl の host (video.twimg.com)、 videoPosterUrl の host (pbs.twimg.com)、
+    // videoAspectRatio は正の有限数
+    if (hasVideoUrl) {
+      if (!isVideoTwimgHost(draft.videoUrl)) errors.videoUrl = 'invalid_host';
+      if (draft.videoPosterUrl !== undefined && !isPbsTwimgHost(draft.videoPosterUrl)) {
+        errors.videoPosterUrl = 'invalid_host';
+      }
+      if (
+        draft.videoAspectRatio !== undefined &&
+        (typeof draft.videoAspectRatio !== 'number' ||
+          !Number.isFinite(draft.videoAspectRatio) ||
+          draft.videoAspectRatio <= 0)
+      ) {
+        errors.videoAspectRatio = 'invalid';
+      }
+    }
+
+    // 静止画ツイート: tweetId + sourceImageUrls 併用時、 全 URL が pbs.twimg.com 限定 + ogImageUrl と先頭一致。
     if (hasSourceUrls) {
       const urls = draft.sourceImageUrls!;
       if (urls.length > MAX_SOURCE_IMAGE_URLS) {
@@ -303,7 +354,10 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
  * sns + 全フィールド揃いのときのみ sns 保存、それ以外は 'none'。
  * (この関数を呼ぶ前に validateImage が ok であることを前提とする)
  *
- * - Twitter source: tweetId + lastTweetCheckAt を保存
+ * - Twitter source の 3 分岐 (2026-05-27 拡張):
+ *   - 静止画ツイート: tweetId + sourceImageUrls + lastTweetCheckAt
+ *   - 動画ツイート: tweetId + videoUrl/Poster/AspectRatio + lastTweetCheckAt
+ *   - テキストツイート: tweetId + lastTweetCheckAt のみ
  * - YouTube source: youtubeVideoId を保存
  * - OGP source: sourceImageUrls を保存 (= 外部 URL 直接表示、 Storage コピーなし)
  */
@@ -311,19 +365,47 @@ export function buildListingImageFields(
   draft: RegistrationDraft,
   now: number,
 ):
-  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; tweetId: string; lastTweetCheckAt: number }
+  | {
+      imageMode: 'sns';
+      postUrl: string;
+      ogImageUrl: string;
+      tweetId: string;
+      lastTweetCheckAt: number;
+      sourceImageUrls?: string[];
+      videoUrl?: string;
+      videoPosterUrl?: string;
+      videoAspectRatio?: number;
+    }
   | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; youtubeVideoId: string }
   | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; sourceImageUrls: string[] }
   | { imageMode: 'none' } {
   if (draft.imageMode === 'sns' && draft.postUrl && draft.ogImageUrl) {
     if (draft.tweetId) {
-      return {
-        imageMode: 'sns',
+      // Twitter: 静止画 (sourceImageUrls) と 動画 (videoUrl) は排他 (validateImage で確認済)
+      const base = {
+        imageMode: 'sns' as const,
         postUrl: draft.postUrl,
         ogImageUrl: draft.ogImageUrl,
         tweetId: draft.tweetId,
         lastTweetCheckAt: now,
       };
+      if (draft.videoUrl) {
+        return {
+          ...base,
+          videoUrl: draft.videoUrl,
+          ...(draft.videoPosterUrl ? { videoPosterUrl: draft.videoPosterUrl } : {}),
+          ...(draft.videoAspectRatio !== undefined
+            ? { videoAspectRatio: draft.videoAspectRatio }
+            : {}),
+        };
+      }
+      if (Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0) {
+        return {
+          ...base,
+          sourceImageUrls: draft.sourceImageUrls.slice(0, MAX_SOURCE_IMAGE_URLS),
+        };
+      }
+      return base;
     }
     if (draft.youtubeVideoId) {
       return {

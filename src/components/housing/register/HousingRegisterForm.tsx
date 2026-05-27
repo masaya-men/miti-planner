@@ -62,6 +62,16 @@ export type HousingRegisterFormValues = {
      * 投稿削除で自動消失、 LoPo 帯域消費ゼロ。 最大 10 件保存 (handleSubmit で slice)。
      */
     sourceImageUrls?: string[];
+    /**
+     * 2026-05-27: Twitter 動画ツイートの mp4 URL (元 video.twimg.com)。
+     * 表示時に /api/tweet-video?url= proxy 経由で <video> 再生。
+     * tweetId 併用必須、 sourceImageUrls とは排他 (動画ツイートは 1 video のみ)。
+     */
+    videoUrl?: string;
+    /** 2026-05-27: Twitter 動画の poster URL (pbs.twimg.com)。 */
+    videoPosterUrl?: string;
+    /** 2026-05-27: 動画 aspect ratio (width/height、 例 1.78 = 16:9)。 */
+    videoAspectRatio?: number;
 };
 
 type Props = {
@@ -202,16 +212,17 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
     ]);
 
     const handleSubmit = () => {
-        // 画像源の優先順位 (2026-05-27 更新):
+        // 画像源の優先順位 (2026-05-27 Task 2.4 更新):
         //   ① ローカルアップロード (1 枚以上) → imageMode='thumbnail'。 SNS 系は無視
         //   ② YouTube URL → imageMode='sns' + youtubeVideoId + ogImageUrl 1 枚
-        //   ③ Twitter URL (本文取得済 + 画像 1 枚目あり) → imageMode='sns' + tweetId + ogImageUrl 1 枚
-        //   ④ OGP (housingsnap / studio-xiv 等) → imageMode='sns' + ogImageUrl (代表)
-        //      + sourceImageUrls (取得した全 URL、 ドラッグ並び替え後の先頭 4 件)
+        //   ③ Twitter URL の 3 分岐 (本文取得済):
+        //      ③a 静止画ツイート (photos>0) → tweetId + ogImageUrl + sourceImageUrls (1-4 枚、 排他緩和)
+        //      ③b 動画ツイート (video.url) → tweetId + ogImageUrl=poster + videoUrl/Poster/AspectRatio
+        //      ③c テキストツイート → ogImageUrl 無し (= imageMode='none' フォールバック)
+        //   ④ OGP (housingsnap / studio-xiv 等) → imageMode='sns' + ogImageUrl 代表
+        //      + sourceImageUrls (ドラッグ並び替え後の先頭 10 件、 2026-05-27 4→10 拡大)
         //   ⑤ どれも無し → imageMode='none'
         const hasLocalImages = localImages.length > 0;
-        // 静止画ツイートは photos[0]、 動画ツイートは Task Group 2 で videoUrl 系を別経路で保存する
-        const photo = tweetData?.photos?.[0];
 
         let snsImage: Partial<HousingRegisterFormValues> = {};
         if (!hasLocalImages) {
@@ -221,14 +232,34 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                     ogImageUrl: youtubeData.ogImageUrl,
                     youtubeVideoId: youtubeData.videoId,
                 };
-            } else if (tweetSource && photo) {
-                snsImage = {
-                    postUrl: tweetSource.postUrl,
-                    ogImageUrl: photo,
-                    tweetId: tweetSource.tweetId,
-                };
+            } else if (tweetSource && tweetData) {
+                const photos = tweetData.photos ?? [];
+                const video = tweetData.video;
+                if (photos.length > 0) {
+                    // ③a 静止画ツイート: photos 全部を sourceImageUrls に
+                    // (Twitter は最大 4 枚仕様だが、 上限 10 に余裕、 slice で防御)
+                    const trimmed = photos.slice(0, 10);
+                    snsImage = {
+                        postUrl: tweetSource.postUrl,
+                        ogImageUrl: trimmed[0],
+                        tweetId: tweetSource.tweetId,
+                        sourceImageUrls: trimmed,
+                    };
+                } else if (video?.url) {
+                    // ③b 動画ツイート: videoUrl/Poster/AspectRatio + poster を ogImageUrl 代表に
+                    snsImage = {
+                        postUrl: tweetSource.postUrl,
+                        ogImageUrl: video.posterUrl,
+                        tweetId: tweetSource.tweetId,
+                        videoUrl: video.url,
+                        videoPosterUrl: video.posterUrl,
+                        ...(video.aspectRatio != null
+                            ? { videoAspectRatio: video.aspectRatio }
+                            : {}),
+                    };
+                }
+                // ③c テキストツイート (photos も video も無し): 何もしない (imageMode='none')
             } else if (ogpResult && sourceImageUrls.length > 0) {
-                // 2026-05-27: OGP 経由は sourceImageUrls (並び替え後) を保存。
                 // 1 枚目を ogImageUrl 代表に置いて HousingCard 後方互換を維持。
                 // 2026-05-27 (Task 2.3): 4→10 拡大
                 const trimmed = sourceImageUrls.slice(0, 10);

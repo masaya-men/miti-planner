@@ -326,6 +326,81 @@ describe('validateImage', () => {
       expect(result.errors.sourceImageUrls).toBe('duplicate');
     });
   });
+
+  // 2026-05-27: Twitter 動画ツイート (tweetId + videoUrl/Poster/AspectRatio)
+  describe('Twitter 動画ツイート (videoUrl)', () => {
+    it('videoUrl + videoPosterUrl + videoAspectRatio が正常なら ok', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoUrl: 'https://video.twimg.com/ext_tw_video/123/pu/vid/avc1/1280x720/xxx.mp4',
+        videoPosterUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoAspectRatio: 1.78,
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(true);
+    });
+
+    it('videoUrl の host が video.twimg.com 以外なら reject', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoUrl: 'https://evil.example.com/video.mp4',
+        videoPosterUrl: 'https://pbs.twimg.com/media/A.jpg',
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.videoUrl).toBe('invalid_host');
+    });
+
+    it('videoPosterUrl の host が pbs.twimg.com 以外なら reject', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoUrl: 'https://video.twimg.com/x.mp4',
+        videoPosterUrl: 'https://evil.example.com/poster.jpg',
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.videoPosterUrl).toBe('invalid_host');
+    });
+
+    it('videoAspectRatio が負数なら reject', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoUrl: 'https://video.twimg.com/x.mp4',
+        videoPosterUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoAspectRatio: -1,
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.videoAspectRatio).toBe('invalid');
+    });
+
+    it('videoUrl と sourceImageUrls の同居は conflict (Twitter 仕様: photos と video 排他)', () => {
+      const result = validateImage({
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoUrl: 'https://video.twimg.com/x.mp4',
+        videoPosterUrl: 'https://pbs.twimg.com/media/A.jpg',
+        sourceImageUrls: ['https://pbs.twimg.com/media/A.jpg'],
+        tags: [],
+      } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.imageMode).toBe('conflict_sources');
+    });
+  });
 });
 
 describe('buildListingImageFields', () => {
@@ -380,5 +455,98 @@ describe('buildListingImageFields', () => {
 
   it('sns 以外は none を返す', () => {
     expect(buildListingImageFields({} as any, 1000)).toEqual({ imageMode: 'none' });
+  });
+
+  // 2026-05-27: Twitter 静止画ツイート (tweetId + sourceImageUrls)
+  it('Twitter 静止画ツイートは tweetId + sourceImageUrls + lastTweetCheckAt を返す', () => {
+    const result = buildListingImageFields(
+      {
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        sourceImageUrls: [
+          'https://pbs.twimg.com/media/A.jpg',
+          'https://pbs.twimg.com/media/B.jpg',
+        ],
+        tags: [],
+      } as any,
+      1700000000000,
+    );
+    expect(result).toMatchObject({
+      imageMode: 'sns',
+      tweetId: '123',
+      lastTweetCheckAt: 1700000000000,
+      sourceImageUrls: [
+        'https://pbs.twimg.com/media/A.jpg',
+        'https://pbs.twimg.com/media/B.jpg',
+      ],
+    });
+    expect('videoUrl' in result).toBe(false);
+  });
+
+  // 2026-05-27: Twitter 動画ツイート (tweetId + videoUrl/Poster/AspectRatio)
+  it('Twitter 動画ツイートは tweetId + video 3 フィールド + lastTweetCheckAt を返す', () => {
+    const result = buildListingImageFields(
+      {
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoUrl: 'https://video.twimg.com/x.mp4',
+        videoPosterUrl: 'https://pbs.twimg.com/media/A.jpg',
+        videoAspectRatio: 1.78,
+        tags: [],
+      } as any,
+      1700000000000,
+    );
+    expect(result).toMatchObject({
+      imageMode: 'sns',
+      tweetId: '123',
+      lastTweetCheckAt: 1700000000000,
+      videoUrl: 'https://video.twimg.com/x.mp4',
+      videoPosterUrl: 'https://pbs.twimg.com/media/A.jpg',
+      videoAspectRatio: 1.78,
+    });
+    expect('sourceImageUrls' in result).toBe(false);
+  });
+
+  it('Twitter テキストツイート (画像も動画も無し) は tweetId のみ返す', () => {
+    const result = buildListingImageFields(
+      {
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+        tags: [],
+      } as any,
+      1700000000000,
+    );
+    expect(result).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://twitter.com/foo/status/123',
+      ogImageUrl: 'https://pbs.twimg.com/media/A.jpg',
+      tweetId: '123',
+      lastTweetCheckAt: 1700000000000,
+    });
+  });
+
+  it('Twitter 静止画ツイートで sourceImageUrls 11 件は先頭 10 件で保存', () => {
+    const urls = Array.from({ length: 11 }, (_, i) => `https://pbs.twimg.com/media/${i}.jpg`);
+    const result = buildListingImageFields(
+      {
+        imageMode: 'sns',
+        postUrl: 'https://twitter.com/foo/status/123',
+        tweetId: '123',
+        ogImageUrl: urls[0],
+        sourceImageUrls: urls,
+        tags: [],
+      } as any,
+      1700000000000,
+    );
+    if (result.imageMode !== 'sns' || !('sourceImageUrls' in result)) {
+      throw new Error('expected sns + sourceImageUrls');
+    }
+    expect(result.sourceImageUrls).toHaveLength(10);
   });
 });

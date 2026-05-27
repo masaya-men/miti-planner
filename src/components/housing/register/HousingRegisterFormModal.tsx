@@ -52,13 +52,23 @@ export function toRegistrationDraft(v: HousingRegisterFormValues): RegistrationD
         roomNumber: v.roomNumber,
         tags: v.tags ?? [],
         description: v.description,
-        // 画像源: Twitter / YouTube / OGP の 3 種排他 (どれも postUrl + ogImageUrl は共通)。
+        // 画像源: Twitter / YouTube / OGP の 3 種 (Twitter は静止画 / 動画 / テキスト の 3 サブ分岐)。
+        // 2026-05-27 (Task 2.4) 拡張: Twitter に sourceImageUrls (静止画ツイート) と
+        // videoUrl/Poster/AspectRatio (動画ツイート) を通す。 排他は validateImage で再確認される。
         ...(v.postUrl && v.ogImageUrl && v.tweetId
             ? {
                   imageMode: 'sns' as const,
                   postUrl: v.postUrl,
                   ogImageUrl: v.ogImageUrl,
                   tweetId: v.tweetId,
+                  ...(v.sourceImageUrls && v.sourceImageUrls.length > 0
+                      ? { sourceImageUrls: v.sourceImageUrls }
+                      : {}),
+                  ...(v.videoUrl ? { videoUrl: v.videoUrl } : {}),
+                  ...(v.videoPosterUrl ? { videoPosterUrl: v.videoPosterUrl } : {}),
+                  ...(v.videoAspectRatio !== undefined
+                      ? { videoAspectRatio: v.videoAspectRatio }
+                      : {}),
               }
             : v.postUrl && v.ogImageUrl && v.youtubeVideoId
             ? {
