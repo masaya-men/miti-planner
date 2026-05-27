@@ -101,6 +101,33 @@ export async function purgeIfTweetGone(listingId: string): Promise<PurgeResponse
   }
 }
 
+export interface ConfirmListingResponse {
+  success: boolean;
+  lastConfirmedAt: number;
+}
+
+/**
+ * 家主が「今もあります」 ボタンで listing を現役確認する (2026-05-27 Phase 2-2)。
+ * サーバが lastConfirmedAt を Date.now() で更新する。
+ * 認可: 家主 (= ownerUid 一致) のみ。 失敗時は body.error にコードを乗せて throw。
+ * - not_found: listing が無い or 既に削除済み
+ * - forbidden: 自分の listing じゃない
+ * - forbidden_hidden: 通報で非表示中 (= resolve-report 経由で復帰する設計、 confirm 不可)
+ */
+export async function confirmListing(listingId: string): Promise<ConfirmListingResponse> {
+  const headers = await buildHeaders(true);
+  const res = await fetch(`${API_BASE}?action=confirm-listing`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ listingId }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `confirm-listing failed: ${res.status}`);
+  }
+  return (await res.json()) as ConfirmListingResponse;
+}
+
 export interface UploadThumbnailResponse {
   success: boolean;
   thumbnailPath: string;

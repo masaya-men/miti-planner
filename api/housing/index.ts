@@ -13,6 +13,7 @@
  * ?action=resolve-report            → POST 通報対処+自己復帰 (非表示解除、 ownerUid 認可)
  * ?action=purge-if-tweet-gone       → POST SNS 物件のツイート削除を再確認し 404 なら soft delete
  * ?action=upload-thumbnail          → POST 物件のサムネ画像を base64 で受領 → Firebase Storage に保存
+ * ?action=confirm-listing           → POST 家主が「今もあります」 で lastConfirmedAt を更新 (Phase 2-2)
  */
 import canRegisterHandler from './_canRegisterHandler.js';
 import registerListingHandler from './_registerListingHandler.js';
@@ -26,6 +27,7 @@ import deleteNotificationHandler from './_deleteNotificationHandler.js';
 import resolveReportHandler from './_resolveReportHandler.js';
 import purgeIfTweetGoneHandler from './_purgeIfTweetGoneHandler.js';
 import uploadThumbnailHandler from './_uploadThumbnailHandler.js';
+import confirmListingHandler from './_confirmListingHandler.js';
 
 export default async function handler(req: any, res: any) {
   const action = req.query?.action;
@@ -55,10 +57,12 @@ export default async function handler(req: any, res: any) {
       return purgeIfTweetGoneHandler(req, res);
     case 'upload-thumbnail':
       return uploadThumbnailHandler(req, res);
+    case 'confirm-listing':
+      return confirmListingHandler(req, res);
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|confirm-listing',
       });
   }
 }

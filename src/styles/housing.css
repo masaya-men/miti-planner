@@ -3507,6 +3507,25 @@ select.housing-input option {
 .housing-action-bar .housing-action-btn:hover {
     background: var(--housing-honey-medium);
 }
+/* 2026-05-27 Phase 2-3: 「今もあります」 ボタン (家主の現役確認) */
+.housing-action-bar .housing-action-btn--still-here {
+    background: var(--housing-honey-soft);
+    border-color: var(--housing-honey-border);
+    color: var(--housing-candle);
+}
+.housing-action-bar .housing-action-btn--still-here:hover {
+    background: var(--housing-honey);
+    color: var(--housing-bg);
+}
+.housing-action-bar .housing-action-btn--still-here:disabled {
+    opacity: 0.5;
+    cursor: progress;
+}
+.housing-action-bar-confirmed-at {
+    color: var(--housing-text-muted);
+    font-size: var(--housing-text-small);
+    align-self: center;
+}
 .housing-share {
     position: relative;
 }

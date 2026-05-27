@@ -2224,7 +2224,13 @@
             "login_required": "この操作にはログインが必要です",
             "cannot_report_own": "自分の物件は通報できません",
             "unavailable": "この物件は削除されたか、 表示できません",
-            "postRemoved": "元の投稿が削除されたため、 この物件の掲載も終了しました"
+            "postRemoved": "元の投稿が削除されたため、 この物件の掲載も終了しました",
+            "still_here_button": "今もあります",
+            "still_here_aria": "このハウジングが今もあることを確認する",
+            "confirm_success": "「今もあります」 として確認しました",
+            "confirm_error": "確認できませんでした、 もう一度お試しください",
+            "confirm_error_forbidden_hidden": "通報により非表示中のハウジングは確認できません",
+            "last_confirmed_at": "{{date}} 確認済"
         },
         "edit": {
             "modal": { "title": "物件を編集" },

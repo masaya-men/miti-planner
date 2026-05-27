@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
+import { confirmListing } from '../../../lib/housingApiClient';
 import { showToast } from '../../Toast';
 import { HousingDetailKebab } from './HousingDetailKebab';
 import { HousingShareButton } from './HousingShareButton';
@@ -38,7 +39,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   onListingUpdated,
   onDeleted,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const isOwner = viewerUid != null && listing.ownerUid === viewerUid;
 
   const favIds = useHousingFavoritesStore((s) => s.ids);
@@ -50,6 +51,12 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteListing, loading: deleting } = useHousingDelete();
+  // 2026-05-27 Phase 2-3: 「今もあります」 ボタン。 押下成功で local state を
+  // 上書きすることで、 モーダルを閉じずに「○月○日 確認済」 表示を即更新する。
+  // 親 (HousingDetailModalRoute) で再 fetch すれば永続反映、 ここは表示のみ即更新。
+  const [confirmedAtOverride, setConfirmedAtOverride] = useState<number | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const effectiveLastConfirmedAt = confirmedAtOverride ?? listing.lastConfirmedAt;
 
   const url =
     typeof window !== 'undefined'
@@ -72,6 +79,26 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
       return;
     }
     setReportOpen(true);
+  };
+
+  const onConfirmStillHere = async () => {
+    if (confirming) return;
+    setConfirming(true);
+    try {
+      const result = await confirmListing(listing.id);
+      setConfirmedAtOverride(result.lastConfirmedAt);
+      showToast(t('housing.detail.confirm_success'), 'success');
+      onListingUpdated?.();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'unknown_error';
+      if (message === 'forbidden_hidden') {
+        showToast(t('housing.detail.confirm_error_forbidden_hidden'), 'error');
+      } else {
+        showToast(t('housing.detail.confirm_error'), 'error');
+      }
+    } finally {
+      setConfirming(false);
+    }
   };
 
   const onConfirmDelete = async () => {
@@ -115,10 +142,33 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
       )}
 
       {isOwner && (
+        <button
+          type="button"
+          className="housing-action-btn housing-action-btn--still-here"
+          onClick={onConfirmStillHere}
+          disabled={confirming}
+          aria-label={t('housing.detail.still_here_aria')}
+        >
+          {t('housing.detail.still_here_button')}
+        </button>
+      )}
+
+      {isOwner && (
         <HousingDetailKebab
           onEdit={() => setEditOpen(true)}
           onDelete={() => setDeleteOpen(true)}
         />
+      )}
+
+      {effectiveLastConfirmedAt && (
+        <span className="housing-action-bar-confirmed-at" aria-live="polite">
+          {t('housing.detail.last_confirmed_at', {
+            date: new Date(effectiveLastConfirmedAt).toLocaleDateString(i18n.language, {
+              month: 'long',
+              day: 'numeric',
+            }),
+          })}
+        </span>
       )}
 
       {reportOpen && (
