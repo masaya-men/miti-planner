@@ -78,4 +78,18 @@ describe('useHousingListingsStore', () => {
     ).resolves.toBeUndefined();
     expect(useHousingListingsStore.getState().listings).toEqual([]);
   });
+
+  it('load: 同住所複数 listing は lastConfirmedAt desc、 別住所は createdAt desc で並ぶ', async () => {
+    getGalleryListingsMock.mockResolvedValueOnce([
+      // addr-X (代表 createdAt=300, lastConfirmedAt=800)
+      doc({ id: 'x1', addressKey: 'addr-X', createdAt: 300, lastConfirmedAt: 800, plot: 6, size: 'M' }),
+      doc({ id: 'x2', addressKey: 'addr-X', createdAt: 250, lastConfirmedAt: 400, plot: 6, size: 'M' }),
+      // addr-Y (代表 createdAt=500)
+      doc({ id: 'y1', addressKey: 'addr-Y', createdAt: 500, lastConfirmedAt: 600, plot: 7, size: 'M' }),
+    ]);
+    await useHousingListingsStore.getState().load();
+    const ids = useHousingListingsStore.getState().listings.map((l) => l.id);
+    // addr-Y (createdAt=500) → addr-X (createdAt=300 で x1, x2 順)
+    expect(ids).toEqual(['y1', 'x1', 'x2']);
+  });
 });

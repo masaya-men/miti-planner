@@ -8,9 +8,11 @@
  */
 import { create } from 'zustand';
 import type { MockListing } from '../data/housing/mockListings';
+import { sortListingsForGallery } from '../lib/housing/sortListingsForGallery';
 // 注意: service / adapter は load() 内で動的 import する。
 // 静的 import すると firebase.ts がこのストアを import する全コンポーネント経由でロードされ、
 // テストの appcheck teardown ハングを誘発するため (memory: reference_vitest_pool_firebase)。
+// sortListingsForGallery は firebase に依存しない pure helper なので静的 import OK。
 
 export type HousingListingsStatus = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -50,9 +52,11 @@ export const useHousingListingsStore = create<HousingListingsState>((set, get) =
         import('../lib/housing/galleryAdapter'),
       ]);
       const docs = await getGalleryListings();
-      const listings = docs
-        .map(firestoreToGalleryListing)
-        .filter((l): l is MockListing => l !== null);
+      const listings = sortListingsForGallery(
+        docs
+          .map(firestoreToGalleryListing)
+          .filter((l): l is MockListing => l !== null),
+      );
       set({ status: 'ready', listings, error: null });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'unknown_error';
