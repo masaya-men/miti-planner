@@ -11,18 +11,19 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 本セッション 6 commit push 予定 (Phase 2-5 sort)。
+- **ブランチ**: main。 本セッション 9 commit push 予定 (§3.8 重複の自動掃除 + Phase 2-7 統合)。
 - **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
-- **直近完了 ✅** (詳細設計 → [.private 設計書](./.private/2026-05-27-housing-video-3frame-and-phase2.md)):
-  - Phase 2-5 同 addressKey 内 lastConfirmedAt desc 2 段 sort (= 案 A ストア層対応) — vitest 1287 + tsc + build pass、 実機未検証 (ユーザー判断でスキップ)
-  - 派生: Phase 2-1 配線漏れ修正 (galleryAdapter が addressKey を pass-through していなかった)
-  - Phase 2-1〜2-4 + 動画 3 フレーム + バグ修正群 (詳細は TODO_COMPLETED.md)
-- **次セッション最優先** (= 設計書通り順次):
-  1. **新要望 3 点を Phase 2-6/2-7 に統合** (= 重複の自動掃除シナリオ、 設計書 §3.8): 詳細モーダル内の重複一覧表示 / 長押し報告 (誤爆対策、 1.5-2 秒) / ツアー自動追加 (個別削除可否要詰め)
-  2. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン**: 重複時のみ表示、 4 カード variant に追加
-  3. **Phase 2-7 重複時 1 撃 hide**: _reportListingHandler に同 addressKey 他 listing 存在判定 + 閾値 1
-  4. **通知 UI/UX 磨き** (Phase 2-4 後の課題、 ユーザー指摘 2026-05-27): listingTitleSnapshot が addressKey raw (例「Mana|Pandaemonium|Mist|W1|B1|A25」) で出てしまう → `formatHousingAddress` 経由の表示用住所をスナップショットすべき。 通知ドロップダウンのレイアウト全般も後で刷新
-  5. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 ユーザーと論点詰めてから)
+- **直近完了 ✅** (設計書 → [docs/superpowers/specs/2026-05-27-housing-duplicate-cleanup-design.md](./superpowers/specs/2026-05-27-housing-duplicate-cleanup-design.md)、 実装計画 → [docs/superpowers/plans/2026-05-27-housing-duplicate-cleanup.md](./superpowers/plans/2026-05-27-housing-duplicate-cleanup.md)):
+  - §3.8 A 詳細モーダル下部「この住所の他の登録」 セクション + 「ちがった」 長押し 2 秒 (1 撃 hide)
+  - §3.8 B `useLongPressConfirm` hook + `HousingLongPressButton` 再利用部品 (Phase 2-6 でも使う)
+  - §3.8 C ツアー drop で同 addressKey 自動追加 + トースト (スナップショット型)
+  - Phase 2-7 重複時閾値 1: reason=wrong_info AND 同 addressKey 他生存 listing あり時のみ 1 撃 hide
+  - vitest 1302 + tsc -b + build pass、 実機未検証 (= 次セッションで Vercel prod 確認)
+- **次セッション最優先**:
+  1. **§3.8 実機検証** (重複 2 件登録 → 詳細モーダル下部 section → 「ちがった」 長押し → 1 撃 hide → トースト + 単独 listing で section 非表示確認 + ツアー drop で自動追加 + トースト確認)
+  2. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ** (= §3.7 カード版バッジ + カード「ちがった」、 本作業の hook を再利用)
+  3. **通知 UI/UX 磨き**: listingTitleSnapshot が addressKey raw で出る → `formatHousingAddress` 経由スナップショットへ。 ドロップダウン全般も後で刷新
+  4. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 ユーザーと論点詰めてから)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
