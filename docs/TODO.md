@@ -21,9 +21,10 @@
   - 詳細モーダル動画 controls 再生 + 全画像表示 (TG5)
   - CSP に media-src 'self' blob: + frame-src youtube-nocookie 追加 (TG6)
   - 全 1264 tests + build clean
-- **次セッション最優先**: **実機 E2E 検証 (ユーザー作業)** — 7 シナリオを 1 件ずつ確認 (Plan §Task 6.2 参照)
-  1. 一覧で動画 1 本だけ再生 / 2. 15 秒で別カードに移動 / 3. スクロール中停止 / 4. 詳細モーダル開閉連動 / 5. モーダル内 controls (unmute/シーク) / 6. 5 枚以上ギャラリー / 7. prefers-reduced-motion
-  - 動画ツイートを登録して Firestore に videoUrl 系が入るかも併せて確認 (Task Group 2 の積み残し)
+- **重複登録対応 Phase 1 完了 ✅** (本セッション追加): モーダル経路で checkDuplicate 発火 + 警告ダイアログ、 i18n 4 言語「ハウジング」 表記に更新
+- **次セッション最優先**:
+  1. **実機 E2E 検証** (ユーザー作業、 後で一緒に): TG1-6 シナリオ + Phase 1 重複ダイアログ確認
+  2. **重複登録対応 Phase 2** (本実装): `lastConfirmedAt` 追加 + 「今もあります」 ボタン + ベル通知 + 重複時 1 撃 hide (`REPORT_AUTO_HIDE_THRESHOLD` 動的化) + 「📅 1 ヶ月以上更新なし」 バッジ + 「ちがった」 ボタン (重複時 listing にのみ表示)。 設計はユーザーと合意済、 詳細は本セッションの会話履歴参照
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
