@@ -11,20 +11,21 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 hotfix5-29 まで 26 連続 push 済。
-- **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 日付気にせず 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一する大規模リファクタ進行中。 詳細: memory `project_housing_phase_status`
-- **画像系 URL 直接表示** (本セッション完了 ✅): housingsnap / studio-xiv / thonhart / housing-collection-ff14 の OGP 経路を外部 URL 直接表示化。 base64 撤去、 `sourceImageUrls` 型追加、 ドラッグ並び替え UI 新設、 onError fallback、 CSP img-src 追加 (hotfix28)、 studio-xiv の og:image と extras dedup 修正 (hotfix29)。 全 13 + 61 テスト pass、 実機 housingsnap / studio-xiv で動作確認済
-- **次セッション最優先**: **動画系 (Twitter / YouTube) を画面内自動再生方式に移行**
-  - 現状: Twitter 動画 = 3 フレーム抽出 → Storage 保存、 YouTube = サムネ 1 枚 → 動画再生なし
-  - 移行先: 動画 URL を Firestore 保存 → IntersectionObserver で画面内に入ったら `<video>` 自動再生、 スクロール中は読み込まない (Allmarks 知見流用、 memory `reference_allmarks_mycollage`)
-  - CSP `media-src` に video.twimg.com / blob: 追加必須
-  - フレーム抽出経路は撤去 (Storage 保存撤去)
+- **ブランチ**: main。 動画再生 + 外部 URL 直接表示拡張 (#60 Task Group 1-6) 全実装完了、 7 commit push 済。
+- **方針 (2026-05-27 確定)**: **5/28 α 公開期限を撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細: memory `project_housing_phase_status`
+- **動画系移行完了 ✅** (本セッション、 Task Group 1-6 連続実装):
+  - 旧 Twitter 動画フレーム抽出 + Storage 保存経路 完全撤廃 (TG1)
+  - HousingListing に videoUrl / videoPosterUrl / videoAspectRatio 追加、 MAX_SOURCE_IMAGE_URLS 4→10、 tweetId+sourceImageUrls 排他緩和 (TG2)
+  - Allmarks 流純関数 + hook 8 ファイル移植 (spotlightRotation / viewportPlaybackPool / slideshowCycle / slideshowFrames + 各 hook) (TG3)
+  - HousingPlaybackContext で workspace 全体 orchestration、 4 つのカード variant に ambient slideshow + 動画オーバーレイ統合 (TG4)
+  - 詳細モーダル動画 controls 再生 + 全画像表示 (TG5)
+  - CSP に media-src 'self' blob: + frame-src youtube-nocookie 追加 (TG6)
+  - 全 1264 tests + build clean
+- **次セッション最優先**: **実機 E2E 検証 (ユーザー作業)** — 7 シナリオを 1 件ずつ確認 (Plan §Task 6.2 参照)
+  1. 一覧で動画 1 本だけ再生 / 2. 15 秒で別カードに移動 / 3. スクロール中停止 / 4. 詳細モーダル開閉連動 / 5. モーダル内 controls (unmute/シーク) / 6. 5 枚以上ギャラリー / 7. prefers-reduced-motion
+  - 動画ツイートを登録して Firestore に videoUrl 系が入るかも併せて確認 (Task Group 2 の積み残し)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討
-- **重要な反省 (今セッション追加)**:
-  - **OGP allowlist 追加時は CSP img-src 同期必須** (hotfix28 で痛い目)。 `ogpHostAllowlist.ts` のコメントに警告済み
-  - **dedup 正規表現は実機 URL を curl で 1 度確認してから組む** (memory `feedback_evidence_based_work`)
-  - **設計書を最初に読む** (hotfix22-27 で §6.2 を読まず逸脱した反省)
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
 
 ---
