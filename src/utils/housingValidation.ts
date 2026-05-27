@@ -293,12 +293,12 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
     }
     if (!/^\d{1,20}$/.test(draft.tweetId!)) errors.tweetId = 'invalid';
 
-    // 2026-05-27: 動画ツイートと静止画ツイートは排他 (Twitter 仕様上、 photos と video は同居しない)
+    // 2026-05-27 (hotfix): 動画ツイートと静止画ツイートの「排他」 想定は誤りだった。
+    // 実際の syndication JSON では mediaDetails:[video, photo, photo] のように同居する
+    // (= 動画 + 画像 N 枚の混在ツイート、 ハウジング SS 投稿では典型)。 排他制約を撤廃して
+    // 「videoUrl と sourceImageUrls の同居許可」 に変更、 ambient slideshow は画像 + poster
+    // を merge して動画 spotlight 時のみ <video> 再生する。
     const hasVideoUrl = draft.videoUrl !== undefined;
-    if (hasVideoUrl && hasSourceUrls) {
-      errors.imageMode = 'conflict_sources';
-      return fail(errors);
-    }
 
     // 動画ツイート: videoUrl の host (video.twimg.com)、 videoPosterUrl の host (pbs.twimg.com)、
     // videoAspectRatio は正の有限数
@@ -354,9 +354,10 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
  * sns + 全フィールド揃いのときのみ sns 保存、それ以外は 'none'。
  * (この関数を呼ぶ前に validateImage が ok であることを前提とする)
  *
- * - Twitter source の 3 分岐 (2026-05-27 拡張):
- *   - 静止画ツイート: tweetId + sourceImageUrls + lastTweetCheckAt
- *   - 動画ツイート: tweetId + videoUrl/Poster/AspectRatio + lastTweetCheckAt
+ * - Twitter source (2026-05-27 hotfix: 動画 + 画像同居許可):
+ *   - 静止画 only ツイート: tweetId + sourceImageUrls + lastTweetCheckAt
+ *   - 動画 only ツイート: tweetId + videoUrl/Poster/AspectRatio + lastTweetCheckAt
+ *   - 動画 + 画像ツイート (= ② パターン): tweetId + sourceImageUrls + video* 両方
  *   - テキストツイート: tweetId + lastTweetCheckAt のみ
  * - YouTube source: youtubeVideoId を保存
  * - OGP source: sourceImageUrls を保存 (= 外部 URL 直接表示、 Storage コピーなし)
@@ -381,7 +382,7 @@ export function buildListingImageFields(
   | { imageMode: 'none' } {
   if (draft.imageMode === 'sns' && draft.postUrl && draft.ogImageUrl) {
     if (draft.tweetId) {
-      // Twitter: 静止画 (sourceImageUrls) と 動画 (videoUrl) は排他 (validateImage で確認済)
+      // Twitter: 動画 + 画像 + テキスト の混在ツイートを受け止める (2026-05-27 hotfix で排他撤廃)。
       const base = {
         imageMode: 'sns' as const,
         postUrl: draft.postUrl,
@@ -389,23 +390,23 @@ export function buildListingImageFields(
         tweetId: draft.tweetId,
         lastTweetCheckAt: now,
       };
-      if (draft.videoUrl) {
-        return {
-          ...base,
-          videoUrl: draft.videoUrl,
-          ...(draft.videoPosterUrl ? { videoPosterUrl: draft.videoPosterUrl } : {}),
-          ...(draft.videoAspectRatio !== undefined
-            ? { videoAspectRatio: draft.videoAspectRatio }
-            : {}),
-        };
-      }
-      if (Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0) {
-        return {
-          ...base,
-          sourceImageUrls: draft.sourceImageUrls.slice(0, MAX_SOURCE_IMAGE_URLS),
-        };
-      }
-      return base;
+      const hasImages =
+        Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0;
+      return {
+        ...base,
+        ...(draft.videoUrl
+          ? {
+              videoUrl: draft.videoUrl,
+              ...(draft.videoPosterUrl ? { videoPosterUrl: draft.videoPosterUrl } : {}),
+              ...(draft.videoAspectRatio !== undefined
+                ? { videoAspectRatio: draft.videoAspectRatio }
+                : {}),
+            }
+          : {}),
+        ...(hasImages
+          ? { sourceImageUrls: draft.sourceImageUrls!.slice(0, MAX_SOURCE_IMAGE_URLS) }
+          : {}),
+      };
     }
     if (draft.youtubeVideoId) {
       return {

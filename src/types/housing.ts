@@ -169,7 +169,8 @@ export interface HousingListing {
    * 2026-05-27 追加: Twitter 動画ツイートの mp4 URL。
    * 元: `https://video.twimg.com/ext_tw_video/.../mp4`。
    * 表示時は `/api/tweet-video?url=<encoded>` で proxy 経由で `<video>` 再生。
-   * imageMode==='sns' && tweetId 時に存在 (静止画ツイート sourceImageUrls とは排他)。
+   * imageMode==='sns' && tweetId 時に存在。 sourceImageUrls との同居 OK
+   * (mediaDetails:[video, photo, photo] のような動画 + 画像混在ツイ対応、 2026-05-27 hotfix)。
    */
   videoUrl?: string;
   /**

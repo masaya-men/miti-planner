@@ -386,7 +386,10 @@ describe('validateImage', () => {
       expect(result.errors.videoAspectRatio).toBe('invalid');
     });
 
-    it('videoUrl と sourceImageUrls の同居は conflict (Twitter 仕様: photos と video 排他)', () => {
+    it('videoUrl と sourceImageUrls の同居は OK (Twitter は実は photos + video が同居する mediaDetails 構造)', () => {
+      // 2026-05-27 hotfix: 当初「Twitter 仕様上 photos と video は排他」 と仮定したが、
+      // 実際の syndication JSON では mediaDetails:[video, photo, photo] のように同居する。
+      // 同居許可で 「画像 + 動画ツイート」 (= ② パターン) が正しく保存されるようになる。
       const result = validateImage({
         imageMode: 'sns',
         postUrl: 'https://twitter.com/foo/status/123',
@@ -397,8 +400,7 @@ describe('validateImage', () => {
         sourceImageUrls: ['https://pbs.twimg.com/media/A.jpg'],
         tags: [],
       } as any);
-      expect(result.ok).toBe(false);
-      expect(result.errors.imageMode).toBe('conflict_sources');
+      expect(result.ok).toBe(true);
     });
   });
 });

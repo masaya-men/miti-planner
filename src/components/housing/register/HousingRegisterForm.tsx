@@ -233,32 +233,34 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                     youtubeVideoId: youtubeData.videoId,
                 };
             } else if (tweetSource && tweetData) {
+                // 2026-05-27 hotfix: 動画 + 画像同居ツイ (= ② パターン) も受け止める。
+                // syndication JSON 実物では mediaDetails:[video, photo, photo] のように
+                // photos と video が同居する。 photos>0 で video を捨てる旧分岐を、
+                // photos / video / 両方の OR 統合分岐に変更。
                 const photos = tweetData.photos ?? [];
                 const video = tweetData.video;
-                if (photos.length > 0) {
-                    // ③a 静止画ツイート: photos 全部を sourceImageUrls に
-                    // (Twitter は最大 4 枚仕様だが、 上限 10 に余裕、 slice で防御)
+                const hasPhotos = photos.length > 0;
+                const hasVideo = !!video?.url;
+                if (hasPhotos || hasVideo) {
                     const trimmed = photos.slice(0, 10);
                     snsImage = {
                         postUrl: tweetSource.postUrl,
-                        ogImageUrl: trimmed[0],
+                        // 画像があれば 1 枚目をカード代表に、 動画 only なら video poster
+                        ogImageUrl: hasPhotos ? trimmed[0] : video!.posterUrl,
                         tweetId: tweetSource.tweetId,
-                        sourceImageUrls: trimmed,
-                    };
-                } else if (video?.url) {
-                    // ③b 動画ツイート: videoUrl/Poster/AspectRatio + poster を ogImageUrl 代表に
-                    snsImage = {
-                        postUrl: tweetSource.postUrl,
-                        ogImageUrl: video.posterUrl,
-                        tweetId: tweetSource.tweetId,
-                        videoUrl: video.url,
-                        videoPosterUrl: video.posterUrl,
-                        ...(video.aspectRatio != null
-                            ? { videoAspectRatio: video.aspectRatio }
+                        ...(hasPhotos ? { sourceImageUrls: trimmed } : {}),
+                        ...(hasVideo
+                            ? {
+                                  videoUrl: video!.url,
+                                  videoPosterUrl: video!.posterUrl,
+                                  ...(video!.aspectRatio != null
+                                      ? { videoAspectRatio: video!.aspectRatio }
+                                      : {}),
+                              }
                             : {}),
                     };
                 }
-                // ③c テキストツイート (photos も video も無し): 何もしない (imageMode='none')
+                // テキストツイート (photos も video も無し): 何もしない (imageMode='none')
             } else if (ogpResult && sourceImageUrls.length > 0) {
                 // 1 枚目を ogImageUrl 代表に置いて HousingCard 後方互換を維持。
                 // 2026-05-27 (Task 2.3): 4→10 拡大
