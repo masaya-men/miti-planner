@@ -29,6 +29,9 @@ export const HousingDuplicatePeersSection: React.FC<HousingDuplicatePeersSection
       <h3 className="housing-detail-peers-title">
         {t('housing.detail.duplicates.title', { count: peers.length })}
       </h3>
+      <p className="housing-detail-peers-note">
+        {t('housing.detail.duplicates.collaboration_note')}
+      </p>
       <ul className="housing-detail-peers-list">
         {peers.map((peer) => {
           const addr = formatHousingAddress(peer, i18n.language);

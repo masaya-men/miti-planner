@@ -4159,11 +4159,13 @@ select.housing-input option {
 /* ピル全体を左→右に塗りつぶす進捗 fill。 動画背景 + DPR 2.58 環境で
    4px 底辺バーが視認困難だったため、 button 全面を transform: scaleX で
    塗る方式に変更。 width 駆動の transition を残すと 16ms 更新と干渉して
-   Chromium 合成スレッドが幅を確定できず凍結するため、 transition は外す。 */
+   Chromium 合成スレッドが幅を確定できず凍結するため、 transition は外す。
+   border-radius は持たせない (= 親 button の overflow:hidden + 999px が
+   pill 形状でクリップする) — fill 要素自身に inherit させると scaleX で
+   横方向にも border-radius が潰れ、 縦長楕円が左端に浮いて見えてしまう。 */
 .housing-longpress-btn-ring {
     position: absolute;
     inset: 0;
-    border-radius: inherit;
     background: var(--housing-danger);
     transform: scaleX(var(--housing-longpress-progress, 0));
     transform-origin: left center;
@@ -4182,6 +4184,8 @@ select.housing-input option {
 .housing-longpress-btn-hint {
     font-size: var(--housing-text-xs);
     color: var(--housing-text-dim);
+    /* 「あと X.X 秒」 の数字幅変動で button が伸縮するのを防ぐ */
+    font-variant-numeric: tabular-nums;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4200,8 +4204,14 @@ select.housing-input option {
 
 .housing-detail-peers-title {
     font-size: var(--housing-text-md);
-    margin: 0 0 12px;
+    margin: 0 0 4px;
     color: var(--housing-text-dim);
+}
+
+.housing-detail-peers-note {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-dim);
+    margin: 0 0 12px;
 }
 
 .housing-detail-peers-list {
