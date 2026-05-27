@@ -18,6 +18,7 @@ const base: HousingListing = {
   description: 'desc',
   createdAt: 100,
   updatedAt: 100,
+  lastConfirmedAt: 100,
   isHidden: false,
   reportCount: 0,
   deletedAt: null,

@@ -18,7 +18,7 @@ import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 const galleryListing = (over: Partial<MockListing>): MockListing => ({
   id: 'x', ownerUid: 'u', dc: 'Mana', server: 'Anima', region: 'JP',
   area: 'Shirogane', ward: 3, plot: 12, size: 'M',
-  imageMode: 'none', tags: ['wafu'], createdAt: 1, ...over,
+  imageMode: 'none', tags: ['wafu'], createdAt: 1, lastConfirmedAt: 1, ...over,
 });
 
 beforeAll(() => {

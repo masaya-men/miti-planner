@@ -31,6 +31,17 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
         ? (raw as { toMillis: () => number }).toMillis()
         : 0;
 
+  // 2026-05-27 (Phase 2-1): 既存 listing は lastConfirmedAt を持たないので createdAt で
+  // fallback (= 「登録した瞬間に確認済」 と意味づけ)。 α 公開前のコールドスタートで全件
+  // 消えるので、 この fallback はコールドスタート後は実質使われない。
+  const lastConfirmedAtRaw = (h as { lastConfirmedAt?: unknown }).lastConfirmedAt;
+  const lastConfirmedAt =
+    typeof lastConfirmedAtRaw === 'number'
+      ? lastConfirmedAtRaw
+      : typeof (lastConfirmedAtRaw as { toMillis?: () => number })?.toMillis === 'function'
+        ? (lastConfirmedAtRaw as { toMillis: () => number }).toMillis()
+        : createdAt;
+
   return {
     id: h.id,
     ownerUid: h.ownerUid,
@@ -58,5 +69,6 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
     tags: h.tags ?? [],
     description: h.description,
     createdAt,
+    lastConfirmedAt,
   };
 }

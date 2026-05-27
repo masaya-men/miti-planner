@@ -22,12 +22,12 @@ const sample: MockListing[] = [
     {
         id: 'mock-001', ownerUid: 'u1', dc: 'Mana', server: 'Anima', region: 'JP',
         area: 'Shirogane', ward: 3, plot: 12, size: 'M', imageMode: 'thumbnail',
-        thumbnailPath: '/x.svg', tags: [], createdAt: 0,
+        thumbnailPath: '/x.svg', tags: [], createdAt: 0, lastConfirmedAt: 0,
     },
     {
         id: 'mock-002', ownerUid: 'u2', dc: 'Mana', server: 'Anima', region: 'JP',
         area: 'Shirogane', ward: 3, plot: 15, size: 'S', imageMode: 'thumbnail',
-        thumbnailPath: '/y.svg', tags: [], createdAt: 0,
+        thumbnailPath: '/y.svg', tags: [], createdAt: 0, lastConfirmedAt: 0,
     },
 ];
 

@@ -191,6 +191,14 @@ export interface HousingListing {
   // システム
   createdAt: number;
   updatedAt: number;
+  /**
+   * 2026-05-27 追加: 家主が最後に「今もあります」 ボタンで現役確認した時刻 (ms epoch)。
+   * 登録時 = createdAt と同値で初期化 (= 「登録した瞬間に確認済」 と意味づけ)。
+   * 重複表示時の sort key (新しい順が「正」 とみなされる)、 1 ヶ月以上更新なしの
+   * バッジ判定にも使う。 ユーザー入力 UI は無し、 サーバが自動で書き込む。
+   * 設計書 docs/.private/2026-05-27-housing-video-3frame-and-phase2.md §3.1。
+   */
+  lastConfirmedAt: number;
   isHidden: boolean;
   reportCount: number;
 

@@ -50,6 +50,11 @@ export interface MockListing {
     tags: string[];
     description?: string;
     createdAt: number;
+    /**
+     * 2026-05-27 (Phase 2-1) 追加: 家主が最後に「今もあります」 ボタンで現役確認した時刻 (ms epoch)。
+     * mock では createdAt と同値で生成。 重複表示時の sort key、 1 ヶ月以上更新なしバッジに使用。
+     */
+    lastConfirmedAt: number;
 }
 
 const EPOCH_BASE = 1715000000000;
@@ -67,6 +72,7 @@ function gen(
     desc: string,
 ): MockListing {
     const thumbIndex = (i % 10) + 1;
+    const createdAt = EPOCH_BASE - i * 86400_000;
     return {
         id: `mock-${i.toString().padStart(3, '0')}`,
         ownerUid: `mock-user-${(i % 8) + 1}`,
@@ -81,7 +87,8 @@ function gen(
         thumbnailPath: `/housing/mock-thumbs/${thumbIndex}.svg`,
         tags,
         description: desc,
-        createdAt: EPOCH_BASE - i * 86400_000,
+        createdAt,
+        lastConfirmedAt: createdAt,
     };
 }
 

@@ -14,7 +14,7 @@ const doc = (over: Partial<HousingListing>): HousingListing => ({
   id: 'x', ownerUid: 'u', dc: 'Materia', server: 'Bismarck',
   area: 'LavenderBeds', ward: 23, buildingType: 'house', plot: 6, size: 'M',
   addressKey: 'k', imageMode: 'none', tags: [], createdAt: 1, updatedAt: 1,
-  isHidden: false, reportCount: 0, deletedAt: null, ...over,
+  lastConfirmedAt: 1, isHidden: false, reportCount: 0, deletedAt: null, ...over,
 });
 
 beforeEach(() => {

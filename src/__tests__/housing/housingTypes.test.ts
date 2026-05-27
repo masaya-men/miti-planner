@@ -92,6 +92,7 @@ describe('housingTypes', () => {
       tags: [],
       createdAt: Date.now(),
       updatedAt: Date.now(),
+      lastConfirmedAt: Date.now(),
       isHidden: false,
       reportCount: 0,
       deletedAt: null,
@@ -109,7 +110,7 @@ describe('housingTypes', () => {
         addressKey: 'Mana|Pandaemonium|Shirogane|W3|H12',
         imageMode: 'none',
         tags: ['modern'],
-        createdAt: 0, updatedAt: 0,
+        createdAt: 0, updatedAt: 0, lastConfirmedAt: 0,
         isHidden: false, reportCount: 0,
         deletedAt: null,
       };

@@ -99,6 +99,10 @@ export default async function handler(req: any, res: any) {
         ...(draft.description ? { description: draft.description } : {}),
         createdAt: now,
         updatedAt: now,
+        // 2026-05-27 (Phase 2-1): 家主が「今もあります」 ボタンで現役確認した時刻。
+        // 登録時 = createdAt と同値で初期化 (= 「登録した瞬間に確認済」 と意味づけ、
+        // 設計書 §3.1)。 以後は confirmListing API で更新される。
+        lastConfirmedAt: now,
         isHidden: false,
         reportCount: 0,
         deletedAt: null,
