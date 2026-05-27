@@ -4160,13 +4160,14 @@ select.housing-input option {
 .housing-longpress-btn-ring {
     position: absolute;
     left: 0;
-    top: 0;
     bottom: 0;
+    height: 4px;
     width: calc(var(--housing-longpress-progress, 0) * 100%);
-    background: var(--housing-longpress-fill);
+    background: var(--housing-danger);
+    box-shadow: 0 0 8px var(--housing-longpress-fill);
     pointer-events: none;
     transition: width 32ms linear;
-    z-index: 0;
+    z-index: 1;
 }
 
 .housing-longpress-btn-label,

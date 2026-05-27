@@ -2,7 +2,8 @@
  * 長押し確定ボタン (= 「ちがった」 用、 再利用前提)。
  *
  * - 2 秒長押しで onConfirm 発火
- * - 横向き bar fill の進捗 UI (= 左から右へ赤透過で塗りつぶし)
+ * - 底辺の細いバー (4px) が左→右に伸びる進捗 UI (= プログレスバー標準形状)
+ * - 押下中はヒントを「あと X 秒で非表示」 に切替 (= 誤削除回避のため残時間が明確に)
  * - pointerleave では cancel しない (= マウスが微細に動いて button 外に出ても継続)
  * - pointerup/pointercancel は window level で listen (= button 外で離しても確実に止める)
  * - PC: pointerdown で start + keyboard (Space/Enter 長押し)
@@ -10,6 +11,7 @@
  * 設計書: docs/superpowers/specs/2026-05-27-housing-duplicate-cleanup-design.md §2.2
  */
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLongPressConfirm } from '../../../lib/housing/useLongPressConfirm';
 
 export interface HousingLongPressButtonProps {
@@ -31,6 +33,7 @@ export const HousingLongPressButton: React.FC<HousingLongPressButtonProps> = ({
   durationMs = 2000,
   className,
 }) => {
+  const { t } = useTranslation();
   const { start, cancel, isPressing, progress } = useLongPressConfirm({
     duration: durationMs,
     onConfirm,
@@ -67,6 +70,14 @@ export const HousingLongPressButton: React.FC<HousingLongPressButtonProps> = ({
     if (e.key === ' ' || e.key === 'Enter') cancel();
   };
 
+  // 押下中は「あと X 秒」 表示、 通常時は hint 表示
+  const remainingSeconds = Math.max(0, (durationMs * (1 - progress)) / 1000);
+  const displayHint = isPressing
+    ? t('housing.detail.duplicates.long_press_remaining', {
+        seconds: remainingSeconds.toFixed(1),
+      })
+    : hint;
+
   return (
     <button
       type="button"
@@ -83,7 +94,7 @@ export const HousingLongPressButton: React.FC<HousingLongPressButtonProps> = ({
       style={{ ['--housing-longpress-progress' as string]: `${progress}` }}
     >
       <span className="housing-longpress-btn-label">{label}</span>
-      {hint && <span className="housing-longpress-btn-hint">{hint}</span>}
+      {displayHint && <span className="housing-longpress-btn-hint">{displayHint}</span>}
       <span className="housing-longpress-btn-ring" aria-hidden="true" />
     </button>
   );
