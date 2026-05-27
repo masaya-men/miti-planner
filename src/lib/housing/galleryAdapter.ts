@@ -70,5 +70,8 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
     description: h.description,
     createdAt,
     lastConfirmedAt,
+    // 2026-05-27 (Phase 2-5 配線漏れ修正): 同住所判定用キーを pass-through。
+    // sortListingsForGallery / 重複バッジ判定で使う。
+    addressKey: h.addressKey,
   };
 }

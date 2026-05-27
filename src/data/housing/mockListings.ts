@@ -55,6 +55,11 @@ export interface MockListing {
      * mock では createdAt と同値で生成。 重複表示時の sort key、 1 ヶ月以上更新なしバッジに使用。
      */
     lastConfirmedAt: number;
+    /**
+     * 2026-05-27 (Phase 2-5 配線漏れ修正) 追加: 同住所判定用キー。 buildAddressKey で生成済の値が
+     * Firestore に保存されており、 sortListingsForGallery / 重複判定で使う。 adapter で pass-through。
+     */
+    addressKey: string;
 }
 
 const EPOCH_BASE = 1715000000000;
@@ -89,6 +94,7 @@ function gen(
         description: desc,
         createdAt,
         lastConfirmedAt: createdAt,
+        addressKey: `${dc}|${server}|${area}|W${ward}|H${plot}`,
     };
 }
 

@@ -34,6 +34,11 @@ describe('firestoreToGalleryListing', () => {
     expect(r!.createdAt).toBe(100);
   });
 
+  it('addressKey を pass-through する (Phase 2-5 同住所判定用)', () => {
+    const r = firestoreToGalleryListing({ ...base, addressKey: 'Materia|Bismarck|LavenderBeds|W23|H6' });
+    expect(r!.addressKey).toBe('Materia|Bismarck|LavenderBeds|W23|H6');
+  });
+
   it('未知の dc（region 導出不可）は null', () => {
     const r = firestoreToGalleryListing({ ...base, dc: 'UnknownDC' });
     expect(r).toBeNull();
