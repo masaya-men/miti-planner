@@ -58,11 +58,6 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
         [galleryListings, dc, regions, servers, areas, sizes, tags, searchText],
     );
 
-    const pinterestListings = useMemo(
-        () => [...filtered].sort((a, b) => b.createdAt - a.createdAt),
-        [filtered],
-    );
-
     const mapWardListings = useMemo(
         () => listListingsForWard(MOCK_LISTINGS, activeWardKey),
         [activeWardKey],
@@ -97,11 +92,11 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
                     <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
                 ) : galleryStatus === 'error' ? (
                     <div className="housing-center-error">{t('housing.gallery.error')}</div>
-                ) : pinterestListings.length === 0 ? (
+                ) : filtered.length === 0 ? (
                     <EmptyResult />
                 ) : (
                     <div className="housing-center-area-scroll">
-                        <PinterestView listings={pinterestListings} initialExpandedId={focusListingId} />
+                        <PinterestView listings={filtered} initialExpandedId={focusListingId} />
                     </div>
                 )}
             </div>
