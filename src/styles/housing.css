@@ -1983,7 +1983,9 @@
 .housing-center-area-scroll {
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  /* 縦スクロールのみ許可。masonry は幅内に収まる計算だが、横スクロールを構造的に禁止して中に収める。 */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* ===== Skeleton (loading placeholder) ===== */
