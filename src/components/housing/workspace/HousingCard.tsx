@@ -13,6 +13,7 @@ import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames'
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { HousingCardAmbientSlideshow } from './HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from './HousingCardVideoOverlay';
+import { resolveCoverAspectRatio } from '../../../lib/housing/resolveCoverAspectRatio';
 
 const PLACEHOLDER = '/housing/mock-thumbs/placeholder.svg';
 
@@ -42,15 +43,9 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
         : listing.youtubeVideoId
             ? 'youtube'
             : null;
-    // カバー = 詳細ギャラリーの 1 枚目と一致: 動画があれば動画、 無ければ静止画 1 枚目。
-    // どちらも syndication 由来の aspectRatio で事前確定でき CLS ゼロ。 0 = 寸法不明 → 自然比に委ねる。
-    const firstPhotoAspect = listing.sourceImageAspectRatios?.[0];
-    const coverAspectRatio =
-        videoKind !== null && listing.videoAspectRatio
-            ? listing.videoAspectRatio
-            : typeof firstPhotoAspect === 'number' && firstPhotoAspect > 0
-                ? firstPhotoAspect
-                : undefined;
+    // カバー縦横比は resolveCoverAspectRatio で常に確定 (不明時は既定比)。
+    // masonry の item 高さと一致させ、全カードで CLS ゼロにするため undefined にしない。
+    const coverAspectRatio = resolveCoverAspectRatio(listing);
     const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
@@ -72,8 +67,8 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
                 <div
                     className="housing-card-thumb"
                     ref={thumbRef}
-                    data-fixed-aspect={coverAspectRatio ? 'true' : undefined}
-                    style={coverAspectRatio ? { aspectRatio: String(coverAspectRatio) } : undefined}
+                    data-fixed-aspect="true"
+                    style={{ aspectRatio: String(coverAspectRatio) }}
                 >
                     <img
                         src={imgSrc}
