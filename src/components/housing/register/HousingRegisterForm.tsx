@@ -63,6 +63,12 @@ export type HousingRegisterFormValues = {
      */
     sourceImageUrls?: string[];
     /**
+     * 2026-05-28: sourceImageUrls と index 対応した画像アスペクト比 (width/height)。
+     * sourceImageUrls[i] のアスペクト比が sourceImageAspectRatios[i] に入る。
+     * 不明な場合は 0 (downstream の buildListingImageFields が 0 を無効値として処理)。
+     */
+    sourceImageAspectRatios?: number[];
+    /**
      * 2026-05-27: Twitter 動画ツイートの mp4 URL (元 video.twimg.com)。
      * 表示時に /api/tweet-video?url= proxy 経由で <video> 再生。
      * tweetId 併用必須、 sourceImageUrls とは排他 (動画ツイートは 1 video のみ)。
@@ -243,12 +249,27 @@ export function HousingRegisterForm({ onSubmit, onCancel }: Props) {
                 const hasVideo = !!video?.url;
                 if (hasPhotos || hasVideo) {
                     const trimmed = photos.slice(0, 10);
+                    // sourceImageAspectRatios は photos と同じ slice を適用し index 整合を保つ。
+                    // null (寸法不明) → 0 に変換して number[] 型に合わせる。
+                    const trimmedAspectRatios: number[] | undefined =
+                        tweetData.photoAspectRatios != null
+                            ? (tweetData.photoAspectRatios.slice(0, 10) as (number | null)[]).map(
+                                  (r) => (r != null ? r : 0),
+                              )
+                            : undefined;
                     snsImage = {
                         postUrl: tweetSource.postUrl,
                         // 画像があれば 1 枚目をカード代表に、 動画 only なら video poster
                         ogImageUrl: hasPhotos ? trimmed[0] : video!.posterUrl,
                         tweetId: tweetSource.tweetId,
-                        ...(hasPhotos ? { sourceImageUrls: trimmed } : {}),
+                        ...(hasPhotos
+                            ? {
+                                  sourceImageUrls: trimmed,
+                                  ...(trimmedAspectRatios != null
+                                      ? { sourceImageAspectRatios: trimmedAspectRatios }
+                                      : {}),
+                              }
+                            : {}),
                         ...(hasVideo
                             ? {
                                   videoUrl: video!.url,
