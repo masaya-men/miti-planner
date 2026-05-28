@@ -150,6 +150,8 @@ export interface HousingListing {
    * - 表示側は sourceImageUrls があれば配列で切替、 なければ ogImageUrl 1 枚を fallback
    */
   sourceImageUrls?: string[];
+  /** 2026-05-28: sourceImageUrls と 1:1 対応の aspectRatio (w/h)。 カード/詳細の CLS 防止用。 0 = 寸法不明。 */
+  sourceImageAspectRatios?: number[];
 
   // SNS 連動 (imageMode==='sns' のみ持つ)
   /** syndication 問い合わせキー。postUrl から再パースでも可だが明示保持で query/index を単純化。 */

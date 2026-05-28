@@ -66,6 +66,7 @@ export interface RegistrationDraft extends AddressInput {
    * youtubeVideoId とは排他 (YouTube は storyboard を都度生成、 静止画 URL を保存しない)。
    */
   sourceImageUrls?: string[];
+  sourceImageAspectRatios?: number[];
 
   /**
    * 2026-05-27 追加: Twitter 動画ツイートの mp4 URL。 tweetId 必須、
@@ -373,12 +374,13 @@ export function buildListingImageFields(
       tweetId: string;
       lastTweetCheckAt: number;
       sourceImageUrls?: string[];
+      sourceImageAspectRatios?: number[];
       videoUrl?: string;
       videoPosterUrl?: string;
       videoAspectRatio?: number;
     }
   | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; youtubeVideoId: string }
-  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; sourceImageUrls: string[] }
+  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; sourceImageUrls: string[]; sourceImageAspectRatios?: number[] }
   | { imageMode: 'none' } {
   if (draft.imageMode === 'sns' && draft.postUrl && draft.ogImageUrl) {
     if (draft.tweetId) {
@@ -406,6 +408,13 @@ export function buildListingImageFields(
         ...(hasImages
           ? { sourceImageUrls: draft.sourceImageUrls!.slice(0, MAX_SOURCE_IMAGE_URLS) }
           : {}),
+        ...(hasImages && Array.isArray(draft.sourceImageAspectRatios)
+            ? {
+                  sourceImageAspectRatios: draft.sourceImageAspectRatios
+                      .slice(0, MAX_SOURCE_IMAGE_URLS)
+                      .map((r) => (typeof r === 'number' && isFinite(r) && r > 0 ? r : 0)),
+              }
+            : {}),
       };
     }
     if (draft.youtubeVideoId) {
@@ -422,6 +431,13 @@ export function buildListingImageFields(
         postUrl: draft.postUrl,
         ogImageUrl: draft.ogImageUrl,
         sourceImageUrls: draft.sourceImageUrls.slice(0, MAX_SOURCE_IMAGE_URLS),
+        ...(Array.isArray(draft.sourceImageAspectRatios)
+            ? {
+                  sourceImageAspectRatios: draft.sourceImageAspectRatios
+                      .slice(0, MAX_SOURCE_IMAGE_URLS)
+                      .map((r) => (typeof r === 'number' && isFinite(r) && r > 0 ? r : 0)),
+              }
+            : {}),
       };
     }
   }
