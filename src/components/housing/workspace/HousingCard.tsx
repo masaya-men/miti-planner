@@ -4,7 +4,7 @@ import { Heart } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { formatHousingAddress, formatHousingAddressAria } from '../../../lib/housing/formatHousingAddress';
+import { formatHousingAddressAria } from '../../../lib/housing/formatHousingAddress';
 import {
     handleYoutubeThumbnailError,
     handleYoutubeThumbnailLoad,
@@ -28,7 +28,7 @@ function resolveImageSource(listing: MockListing): string {
 }
 
 export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) => {
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const isFavorite = useHousingFavoritesStore((s) => s.ids.includes(listing.id));
     const addFavorite = useHousingFavoritesStore((s) => s.add);
     const removeFavorite = useHousingFavoritesStore((s) => s.remove);
@@ -36,14 +36,17 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
     const isMine = viewerUid !== null && listing.ownerUid === viewerUid;
     const imgSrc = resolveImageSource(listing);
     const alt = formatHousingAddressAria(listing);
-    const title = formatHousingAddress(listing, i18n.language);
-    const isApartment = listing.buildingType === 'apartment';
 
     const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
         ? 'twitter'
         : listing.youtubeVideoId
             ? 'youtube'
             : null;
+    // カードの縦横比 = カバーメディアの縦横比。 動画 listing は詳細モーダルと同じく
+    // videoAspectRatio で事前確定 (CLS なし)。 静止画 listing は画像の自然比 (load 後確定)。
+    const coverAspectRatio = videoKind !== null && listing.videoAspectRatio
+        ? listing.videoAspectRatio
+        : undefined;
     const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
@@ -62,7 +65,12 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
     return (
         <div className="housing-card-wrap">
             <button type="button" className="housing-card" onClick={onClick} aria-label={alt}>
-                <div className="housing-card-thumb" ref={thumbRef}>
+                <div
+                    className="housing-card-thumb"
+                    ref={thumbRef}
+                    data-fixed-aspect={coverAspectRatio ? 'true' : undefined}
+                    style={coverAspectRatio ? { aspectRatio: String(coverAspectRatio) } : undefined}
+                >
                     <img
                         src={imgSrc}
                         alt=""
@@ -84,19 +92,6 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
                             youtubeVideoId={listing.youtubeVideoId}
                         />
                     )}
-                </div>
-                <div className="housing-card-body">
-                    <div className="housing-card-title">
-                        <span>{title}</span>
-                        {!isApartment && listing.size && (
-                            <span className="housing-card-size">{listing.size}</span>
-                        )}
-                    </div>
-                    <div className="housing-card-tags">
-                        {listing.tags.slice(0, 2).map((tag) => (
-                            <span key={tag} className="housing-card-tag">{tag}</span>
-                        ))}
-                    </div>
                 </div>
             </button>
             {isMine && (

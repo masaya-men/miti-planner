@@ -970,14 +970,17 @@
 }
 .housing-card-thumb {
   position: relative;
-  aspect-ratio: 16 / 9;
   background: var(--housing-card-thumb-bg);
 }
 .housing-card-thumb img {
   width: 100%;
+  height: auto;
+  display: block;
+}
+/* 動画 listing: videoAspectRatio でカード比率を確定し、 静止画 img はその枠に cover */
+.housing-card-thumb[data-fixed-aspect="true"] img {
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
 /* 2026-05-27 ambient slideshow オーバーレイ (各カード独立、 desync クロスフェード) */
