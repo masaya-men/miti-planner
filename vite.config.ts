@@ -4,6 +4,18 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  // ローカル開発専用: Vercel Edge Function (api/*) は vite dev では実行されず
+  // vite:esbuild が .ts を変換しようとして失敗する。 /api を本番へプロキシして
+  // Twitter 動画 proxy (api/tweet-video) 等をローカルでも利用可能にする。
+  // この server 設定は dev サーバ専用で、 vite build (本番) には一切含まれない。
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://lopoly.app',
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
