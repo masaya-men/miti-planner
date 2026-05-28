@@ -37,7 +37,7 @@ describe('computeHousingMasonry', () => {
         { id: 'b', aspectRatio: 2 },
         { id: 'c', aspectRatio: 2 },
       ],
-      containerWidth: 412, gap: 12, targetColumnUnit: 220,
+      containerWidth: 480, gap: 12, targetColumnUnit: 220,
     });
     expect(r.columnCount).toBe(2);
     expect(r.positions.a.x).toBe(0);
