@@ -62,6 +62,7 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
     // 2026-05-27 追加: card 一覧の ambient slideshow + 動画オーバーレイ用に pass-through
     thumbnailPaths: h.thumbnailPaths,
     sourceImageUrls: h.sourceImageUrls,
+    sourceImageAspectRatios: h.sourceImageAspectRatios,
     youtubeVideoId: h.youtubeVideoId,
     videoUrl: h.videoUrl,
     videoPosterUrl: h.videoPosterUrl,

@@ -39,6 +39,8 @@ export interface MockListing {
      * card 一覧の ambient slideshow 用に galleryAdapter で pass-through。
      */
     sourceImageUrls?: string[];
+    /** 2026-05-28: sourceImageUrls と 1:1 対応の aspectRatio。 カード CLS 防止用。 0 = 寸法不明。 */
+    sourceImageAspectRatios?: number[];
     /** 2026-05-27 追加: YouTube 動画 ID (storyboard 3 枚 slideshow + iframe 再生用)。 */
     youtubeVideoId?: string;
     /** 2026-05-27 追加: Twitter 動画 mp4 URL (proxy 経由で <video> 再生用)。 */
