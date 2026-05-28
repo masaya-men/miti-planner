@@ -409,12 +409,12 @@ export function buildListingImageFields(
           ? { sourceImageUrls: draft.sourceImageUrls!.slice(0, MAX_SOURCE_IMAGE_URLS) }
           : {}),
         ...(hasImages && Array.isArray(draft.sourceImageAspectRatios)
-            ? {
-                  sourceImageAspectRatios: draft.sourceImageAspectRatios
-                      .slice(0, MAX_SOURCE_IMAGE_URLS)
-                      .map((r) => (typeof r === 'number' && isFinite(r) && r > 0 ? r : 0)),
-              }
-            : {}),
+          ? {
+              sourceImageAspectRatios: draft.sourceImageAspectRatios
+                .slice(0, MAX_SOURCE_IMAGE_URLS)
+                .map((r) => (typeof r === 'number' && isFinite(r) && r > 0 ? r : 0)),
+            }
+          : {}),
       };
     }
     if (draft.youtubeVideoId) {
@@ -432,12 +432,12 @@ export function buildListingImageFields(
         ogImageUrl: draft.ogImageUrl,
         sourceImageUrls: draft.sourceImageUrls.slice(0, MAX_SOURCE_IMAGE_URLS),
         ...(Array.isArray(draft.sourceImageAspectRatios)
-            ? {
-                  sourceImageAspectRatios: draft.sourceImageAspectRatios
-                      .slice(0, MAX_SOURCE_IMAGE_URLS)
-                      .map((r) => (typeof r === 'number' && isFinite(r) && r > 0 ? r : 0)),
-              }
-            : {}),
+          ? {
+              sourceImageAspectRatios: draft.sourceImageAspectRatios
+                .slice(0, MAX_SOURCE_IMAGE_URLS)
+                .map((r) => (typeof r === 'number' && isFinite(r) && r > 0 ? r : 0)),
+            }
+          : {}),
       };
     }
   }
