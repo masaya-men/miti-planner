@@ -11,6 +11,7 @@ import {
 } from './components/housing';
 import { HousingDetailPage } from './components/housing/listing/HousingDetailPage';
 import { HousingDetailModalRoute } from './components/housing/listing/HousingDetailModalRoute';
+import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
 
 import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
 import { AdminGuard } from './components/admin/AdminGuard';
@@ -66,6 +67,13 @@ function AppRoutes() {
   const location = useLocation();
   const state = (location.state as { backgroundLocation?: Location } | null) || {};
   const backgroundLocation = state.backgroundLocation;
+
+  // 管理画面の「アプリに戻る」 用に、 アプリ画面 (軽減表 / ハウジング) にいる間は経路を記録する。
+  useEffect(() => {
+    if (isAppRoute(location.pathname)) {
+      rememberAppRoute(location.pathname + location.search);
+    }
+  }, [location.pathname, location.search]);
 
   return (
     <>

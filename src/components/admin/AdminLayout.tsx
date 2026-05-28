@@ -3,10 +3,11 @@
  * サイドナビゲーション + メインコンテンツエリア
  * Phase 0では骨組みのみ。Phase 1以降でセクションを追加
  */
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/useAuthStore';
+import { getLastAppRoute } from '../../lib/lastAppRoute';
 
 const NAV_ITEMS = [
   { path: '/admin', labelKey: 'admin.dashboard', end: true },
@@ -28,6 +29,8 @@ const NAV_ITEMS = [
 export function AdminLayout() {
   const { t } = useTranslation();
   const profileDisplayName = useAuthStore((s) => s.profileDisplayName);
+  // 管理画面に入る直前のアプリ画面 (軽減表 / ハウジング)。 マウント時に一度だけ確定。
+  const [backRoute] = useState(getLastAppRoute);
 
   // タブタイトルを「管理者│LoPo」に設定
   useEffect(() => {
@@ -66,7 +69,7 @@ export function AdminLayout() {
         </div>
         <div className="p-2 border-t border-app-text/10">
           <NavLink
-            to="/miti"
+            to={backRoute}
             className="block px-3 py-2 rounded text-app-lg text-app-text-muted hover:bg-app-text/5 transition-colors"
           >
             ← {t('admin.back_to_app')}
