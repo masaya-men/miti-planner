@@ -9,14 +9,6 @@ export interface FilterCondition {
     areas: HousingArea[];
     sizes: HousingSize[];
     tags: string[];
-    searchText: string;
-}
-
-function matchesSearchText(listing: MockListing, query: string): boolean {
-    const needle = query.trim().toLowerCase();
-    if (!needle) return true;
-    const haystack = `${listing.description ?? ''} ${listing.tags.join(' ')} ${listing.dc} ${listing.server} ${listing.area}`.toLowerCase();
-    return haystack.includes(needle);
 }
 
 export function applyFilters(listings: MockListing[], filters: FilterCondition): MockListing[] {
@@ -28,7 +20,6 @@ export function applyFilters(listings: MockListing[], filters: FilterCondition):
         // サイズフィルタが指定されている時、 apartment (size 未定義) は概念的に該当しないので除外。
         if (filters.sizes.length > 0 && (listing.size === undefined || !filters.sizes.includes(listing.size))) return false;
         if (filters.tags.length > 0 && !filters.tags.some((t) => listing.tags.includes(t))) return false;
-        if (!matchesSearchText(listing, filters.searchText)) return false;
         return true;
     });
 }

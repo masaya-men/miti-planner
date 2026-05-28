@@ -286,6 +286,20 @@
 .housing-brand {
   display: flex; align-items: center; gap: 12px;
   font-weight: 600; letter-spacing: 0.04em; font-size: 13px;
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.housing-brand:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 .housing-brand-mark {
   width: 22px; height: 22px; border-radius: 4px;
@@ -2157,44 +2171,6 @@
 }
 .housing-register-modal-login-btn:hover {
   filter: brightness(1.05);
-}
-
-/* ===== TopBar search pill (Plan F Task 6) ===== */
-.housing-top-search {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: var(--housing-chip-bg);
-  border: 1px solid var(--housing-panel-border);
-  min-width: 200px;
-  max-width: 280px;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-.housing-top-search:focus-within {
-  background: var(--housing-chip-bg-hover);
-  border-color: var(--housing-panel-border-strong);
-}
-.housing-top-search-icon {
-  color: var(--housing-text-mute);
-  flex-shrink: 0;
-  display: inline-flex;
-}
-.housing-top-search-input {
-  appearance: none;
-  background: transparent;
-  border: 0;
-  outline: 0;
-  color: var(--housing-text);
-  font: inherit;
-  font-size: var(--housing-text-sm);
-  width: 100%;
-  text-shadow: var(--housing-text-shadow);
-}
-.housing-top-search-input::placeholder {
-  color: var(--housing-text-mute);
 }
 
 /* ===== TopBar register CTA (Plan F gap fix) ===== */

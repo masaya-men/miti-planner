@@ -9,7 +9,6 @@ const EMPTY: FilterCondition = {
     areas: [],
     sizes: [],
     tags: [],
-    searchText: '',
 };
 
 describe('applyFilters', () => {
@@ -56,18 +55,6 @@ describe('applyFilters', () => {
             tags: ['wafu'],
         });
         expect(result.every((l) => l.dc === 'Mana' && l.area === 'Shirogane' && l.tags.includes('wafu'))).toBe(true);
-    });
-
-    it('searches by free text against description', () => {
-        const result = applyFilters(MOCK_LISTINGS, { ...EMPTY, searchText: 'カフェ' });
-        expect(result.length).toBeGreaterThan(0);
-        expect(result.every((l) => /カフェ/.test(`${l.description ?? ''} ${l.tags.join(' ')}`))).toBe(true);
-    });
-
-    it('searches by free text case-insensitively against tag/server', () => {
-        const result = applyFilters(MOCK_LISTINGS, { ...EMPTY, searchText: 'WAFU' });
-        expect(result.length).toBeGreaterThan(0);
-        expect(result.every((l) => l.tags.includes('wafu'))).toBe(true);
     });
 
     it('returns empty when no listing matches', () => {

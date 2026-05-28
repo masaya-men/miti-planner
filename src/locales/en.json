@@ -2083,14 +2083,13 @@
         },
         "workspace": {
             "topbar": {
-                "logo_alt": "LoPo",
+                "home_aria": "Back to LoPo home",
                 "subtitle": "Housing Tour",
                 "breadcrumb_label": "Breadcrumb",
                 "browse_placeholder": "Browse mode",
                 "theme_toggle_label": "Theme toggle",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "search_placeholder": "Find a home...",
                 "register": "+ Add yours",
                 "favorites": "Favorites",
                 "profile": "Profile"

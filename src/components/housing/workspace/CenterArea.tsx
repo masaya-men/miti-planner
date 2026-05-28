@@ -30,7 +30,6 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
     const areas = useHousingFilterStore((s) => s.areas);
     const sizes = useHousingFilterStore((s) => s.sizes);
     const tags = useHousingFilterStore((s) => s.tags);
-    const searchText = useHousingFilterStore((s) => s.searchText);
     const selectedWardId = useHousingRandomStore((s) => s.selectedWardId);
     const selectWard = useHousingRandomStore((s) => s.selectWard);
 
@@ -54,8 +53,8 @@ export const CenterArea: React.FC<CenterAreaProps> = ({ onCardActivate, focusLis
     const activeWardKey = selectedWardId ?? SAMPLE_WARD_KEY;
 
     const filtered = useMemo(
-        () => applyFilters(galleryListings, { dc, regions, servers, areas, sizes, tags, searchText }),
-        [galleryListings, dc, regions, servers, areas, sizes, tags, searchText],
+        () => applyFilters(galleryListings, { dc, regions, servers, areas, sizes, tags }),
+        [galleryListings, dc, regions, servers, areas, sizes, tags],
     );
 
     const mapWardListings = useMemo(

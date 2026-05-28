@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
-import { Heart, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
-import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { NotificationBell } from '../notifications/NotificationBell';
@@ -26,6 +26,7 @@ export interface TopBarProps {
  */
 export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick, onRegisterClick }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const leftPanelOpen = useHousingViewStore((s) => s.leftPanelOpen);
@@ -34,8 +35,6 @@ export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick, onRegisterClic
   const setRightPanelOpen = useHousingViewStore((s) => s.setRightPanelOpen);
   const mode = useHousingViewStore((s) => s.mode);
   const favoritesCount = useHousingFavoritesStore((s) => s.ids.length);
-  const searchText = useHousingFilterStore((s) => s.searchText);
-  const setSearchText = useHousingFilterStore((s) => s.setSearchText);
   const user = useAuthStore((s) => s.user);
   const profileAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
   const openLogin = useHousingModalStore((s) => s.openLogin);
@@ -64,30 +63,19 @@ export const TopBar: React.FC<TopBarProps> = ({ onFavoritesClick, onRegisterClic
         >
           <LeftIcon size={18} aria-hidden="true" />
         </button>
-        <div
+        <button
+          type="button"
           className="housing-brand"
-          role="img"
-          aria-label={t('housing.workspace.topbar.logo_alt')}
+          onClick={() => navigate('/')}
+          aria-label={t('housing.workspace.topbar.home_aria')}
+          title={t('housing.workspace.topbar.home_aria')}
         >
           <span className="housing-brand-mark" aria-hidden="true" />
           <span>
             LoPo&nbsp;
             <span className="housing-brand-sub">/ {t('housing.workspace.topbar.subtitle')}</span>
           </span>
-        </div>
-        <div className="housing-top-search">
-          <span className="housing-top-search-icon" aria-hidden="true">
-            <Search size={14} />
-          </span>
-          <input
-            type="text"
-            className="housing-top-search-input"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder={t('housing.workspace.topbar.search_placeholder')}
-            aria-label={t('housing.workspace.topbar.search_placeholder')}
-          />
-        </div>
+        </button>
       </div>
 
       <nav className="housing-crumbs" aria-label={t('housing.workspace.topbar.breadcrumb_label')}>

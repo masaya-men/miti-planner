@@ -2047,14 +2047,13 @@
         },
         "workspace": {
             "topbar": {
-                "logo_alt": "LoPo",
+                "home_aria": "返回 LoPo 首页",
                 "subtitle": "豪宅游览",
                 "breadcrumb_label": "面包屑",
                 "browse_placeholder": "浏览模式",
                 "theme_toggle_label": "主题切换",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "search_placeholder": "搜索房屋...",
                 "register": "+ 注册",
                 "favorites": "收藏",
                 "profile": "资料"

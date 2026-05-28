@@ -2104,14 +2104,13 @@
         },
         "workspace": {
             "topbar": {
-                "logo_alt": "LoPo",
+                "home_aria": "LoPo トップへ戻る",
                 "subtitle": "ハウジングツアー",
                 "breadcrumb_label": "パンくず",
                 "browse_placeholder": "ブラウズモード",
                 "theme_toggle_label": "テーマ切替",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "search_placeholder": "お家を探す...",
                 "register": "+ 登録する",
                 "favorites": "お気に入り",
                 "profile": "プロフィール"

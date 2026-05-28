@@ -2047,14 +2047,13 @@
         },
         "workspace": {
             "topbar": {
-                "logo_alt": "LoPo",
+                "home_aria": "LoPo 홈으로 돌아가기",
                 "subtitle": "하우징 투어",
                 "breadcrumb_label": "경로",
                 "browse_placeholder": "브라우즈 모드",
                 "theme_toggle_label": "테마 전환",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "search_placeholder": "집 찾기...",
                 "register": "+ 등록하기",
                 "favorites": "즐겨찾기",
                 "profile": "프로필"

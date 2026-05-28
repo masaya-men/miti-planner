@@ -10,7 +10,6 @@ interface HousingFilterState {
     areas: HousingArea[];
     sizes: HousingSize[];
     tags: string[];
-    searchText: string;
     resultCount: number;
     totalCount: number;
     setDC: (dc: string | null) => void;
@@ -19,7 +18,6 @@ interface HousingFilterState {
     toggleArea: (area: HousingArea) => void;
     toggleSize: (size: HousingSize) => void;
     toggleTag: (tag: string) => void;
-    setSearchText: (text: string) => void;
     setCounts: (result: number, total: number) => void;
     clearAll: () => void;
 }
@@ -34,7 +32,6 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     areas: [],
     sizes: [],
     tags: [],
-    searchText: '',
     resultCount: 0,
     totalCount: 0,
     setDC: (dc) => set({ dc }),
@@ -43,9 +40,8 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     toggleArea: (area) => set((s) => ({ areas: toggleInArray(s.areas, area) })),
     toggleSize: (size) => set((s) => ({ sizes: toggleInArray(s.sizes, size) })),
     toggleTag: (tag) => set((s) => ({ tags: toggleInArray(s.tags, tag) })),
-    setSearchText: (searchText) => set({ searchText }),
     setCounts: (resultCount, totalCount) => set({ resultCount, totalCount }),
     clearAll: () => set({
-        dc: null, regions: [], servers: [], areas: [], sizes: [], tags: [], searchText: '',
+        dc: null, regions: [], servers: [], areas: [], sizes: [], tags: [],
     }),
 }));

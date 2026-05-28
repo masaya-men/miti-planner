@@ -46,7 +46,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const areas = useHousingFilterStore((s) => s.areas);
     const sizes = useHousingFilterStore((s) => s.sizes);
     const tags = useHousingFilterStore((s) => s.tags);
-    const searchText = useHousingFilterStore((s) => s.searchText);
     const setDC = useHousingFilterStore((s) => s.setDC);
     const toggleRegion = useHousingFilterStore((s) => s.toggleRegion);
     const toggleServer = useHousingFilterStore((s) => s.toggleServer);
@@ -61,8 +60,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const source = viewMode === 'map' ? MOCK_LISTINGS : realListings;
 
     const result = useMemo(
-        () => applyFilters(source, { dc, regions, servers, areas, sizes, tags, searchText }),
-        [source, dc, regions, servers, areas, sizes, tags, searchText],
+        () => applyFilters(source, { dc, regions, servers, areas, sizes, tags }),
+        [source, dc, regions, servers, areas, sizes, tags],
     );
 
     useEffect(() => {

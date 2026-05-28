@@ -12,7 +12,6 @@ describe('useHousingFilterStore', () => {
         expect(s.areas).toEqual([]);
         expect(s.sizes).toEqual([]);
         expect(s.tags).toEqual([]);
-        expect(s.searchText).toBe('');
         expect(s.resultCount).toBe(0);
         expect(s.totalCount).toBe(0);
     });

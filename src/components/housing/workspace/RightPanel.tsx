@@ -42,7 +42,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({ onClose }) => {
     const areas = useHousingFilterStore((s) => s.areas);
     const sizes = useHousingFilterStore((s) => s.sizes);
     const tags = useHousingFilterStore((s) => s.tags);
-    const searchText = useHousingFilterStore((s) => s.searchText);
     const selectedWardId = useHousingRandomStore((s) => s.selectedWardId);
     // list ビューは共有ストアの実データ。map ビューは sampleWardLayout (mock) のまま (Phase 2B)。
     const listings = useHousingListingsStore((s) => s.listings);
@@ -54,8 +53,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({ onClose }) => {
             return listListingsForWard(MOCK_LISTINGS, selectedWardId);
         }
         // store が sortListingsForGallery で並び替え済み + applyFilters は順序保持
-        return applyFilters(listings, { dc, regions, servers, areas, sizes, tags, searchText });
-    }, [viewMode, selectedWardId, listings, dc, regions, servers, areas, sizes, tags, searchText]);
+        return applyFilters(listings, { dc, regions, servers, areas, sizes, tags });
+    }, [viewMode, selectedWardId, listings, dc, regions, servers, areas, sizes, tags]);
 
     const browseTotal = viewMode === 'map' ? MOCK_LISTINGS.length : listings.length;
 
