@@ -13,11 +13,7 @@
 
 - **ブランチ**: main。 本セッション 10 commit push 済 (Vercel デプロイ自動起動)。 前セッション 一覧住所順 + 自分バッジ + §3.8 完全クローズ済。
 - **方針 (2026-05-27 確定)**: **α 公開期限撤回**、 1 セッション 1 タスクで丁寧に進める。 **デザインは 1 つずつ実機を見ながら一緒に** (大規模一括はしない、 2026-05-28 ユーザー再確認)。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
-- **本セッション完了 ✅** (詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md) 末尾):
-  1. ハウジング配下リデザイン (housing.css 7 箇所 gradient/999px ピル → 単色/角丸、 4 .tsx の LoPo Tailwind 排除)。 memory `feedback_housing_no_ai_pills`
-  2. 一覧カードを AllMarks 風に (メタ情報削除 + masonry + カバー比率)
-  3. **画像 aspectRatio を syndication から取得・保存・カード事前確定で CLS ゼロ化** (8 タスク、 計画 [docs/.private/2026-05-28-housing-image-aspect-ratio-plan.md](./.private/2026-05-28-housing-image-aspect-ratio-plan.md))。 動画 `videoAspectRatio` 経路を画像 `sourceImageAspectRatios` で踏襲
-  4. dev 専用 vite proxy 追加 (`/api` を本番転送、 dev で Twitter 動画確認可能に。 memory `reference_vite_dev_api_proxy`)
+- **直近完了 ✅** (2026-05-28、 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md) 末尾): ハウジングリデザイン + カード AllMarks 風 (masonry) + **画像 aspectRatio で CLS ゼロ化** (8 タスク push 済、 計画 [docs/.private/2026-05-28-housing-image-aspect-ratio-plan.md](./.private/2026-05-28-housing-image-aspect-ratio-plan.md)) + dev vite proxy。 memory `feedback_housing_no_ai_pills` / `reference_vite_dev_api_proxy`
 - **次セッション最優先**:
   1. **本セッション分の実機確認** ← デプロイ後。 (a) 画像 aspectRatio: localhost or 本番で Twitter 写真ツイ登録 → カードが写真の縦横比で表示・スクロールでガタつかないか (縦長→縦長カード)。 既存 listing は寸法なしで自然比フォールバック、 **新規登録のみ CLS ゼロ**。 (b) リデザイン全体 / フィルター chip rectangle 化 / 各モーダルの新ガラス感
   2. **「通報」 文言全体見直し** (他箇所まとめて。 自発的通報モーダルは文脈上 OK)

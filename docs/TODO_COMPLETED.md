@@ -1414,3 +1414,9 @@ build PASS、 vitest 636/636 PASS、 tsc clean、 Playwright 6/6 PASS (5 viewpor
 - [x] Firestoreプラン保存（2026-03-25）
 - [x] プライバシーポリシー・利用規約ページ（2026-03-25）
 - [x] プラン件数制限（2026-03-25）
+
+## 2026-05-28 ハウジングデザイン刷新セッション
+- [x] ハウジング配下リデザイン: housing.css 7 箇所 (gradient/999px ピル → 単色/角丸 6-10px) + 4 .tsx (Onboarding/DuplicateWarning/RegisterAddressFields/RegisterView) の LoPo Tailwind 排除 → housing class。 「あなたの登録」 ピルも透過+枠線にモダン化
+- [x] 一覧カード AllMarks 風化: メタ情報 (title/size/tags) 削除 + column masonry + カバー比率カード
+- [x] 画像 aspectRatio で CLS ゼロ化 (8 タスク, subagent-driven): syndication から photo 寸法取得 (photoAspectRatios) → draft → Firestore (sourceImageAspectRatios) → galleryAdapter → カード事前確定。 動画 videoAspectRatio 経路を踏襲。 build + 573 テスト + final review OK。 **※実機確認 (登録→反映) は次セッション持ち越し** (新規登録の手間でユーザー未確認)
+- [x] dev 専用 vite proxy (/api を本番転送)。 Twitter 動画 dev 再生バグの root cause = vite が Vercel Edge Function 非実行 (環境制約)、 proxy で解決。 memory `reference_vite_dev_api_proxy`
