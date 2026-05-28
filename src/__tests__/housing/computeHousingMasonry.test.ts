@@ -50,4 +50,19 @@ describe('computeHousingMasonry', () => {
     const r = computeHousingMasonry({ cards: [{ id: 'a', aspectRatio: 1 }], containerWidth: 224, gap: 12, targetColumnUnit: 220 });
     expect(r.totalHeight).toBeCloseTo(224, 5);
   });
+
+  it('maxColumnCount で列数を頭打ちにする', () => {
+    // targetColumnUnit 170 なら本来 5〜6 列になる広い幅でも、maxColumnCount=4 で 4 列に制限。
+    const wide = computeHousingMasonry({
+      cards: [{ id: 'a', aspectRatio: 1 }],
+      containerWidth: 1457, gap: 12, targetColumnUnit: 170, maxColumnCount: 4,
+    });
+    expect(wide.columnCount).toBe(4);
+    // 上限未指定なら従来どおり頭打ちなし (同じ幅なら 4 より多い)。
+    const uncapped = computeHousingMasonry({
+      cards: [{ id: 'a', aspectRatio: 1 }],
+      containerWidth: 1457, gap: 12, targetColumnUnit: 170,
+    });
+    expect(uncapped.columnCount).toBeGreaterThan(4);
+  });
 });

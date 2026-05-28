@@ -14,6 +14,8 @@ export interface MasonryInput {
   readonly gap: number;
   /** 1 列の目安幅 (px)。列数算出の基準値 */
   readonly targetColumnUnit: number;
+  /** 列数の上限。指定時、コンテナ幅から算出した列数をこの値で頭打ちにする (旧仕様の最大4列を踏襲)。 */
+  readonly maxColumnCount?: number;
 }
 
 /** 各カードの絶対座標と寸法 */
@@ -40,10 +42,13 @@ export interface MasonryResult {
  * @returns 各カードの絶対座標マップ、全体高さ、列数、列幅
  */
 export function computeHousingMasonry(input: MasonryInput): MasonryResult {
-  const { cards, containerWidth, gap, targetColumnUnit } = input;
+  const { cards, containerWidth, gap, targetColumnUnit, maxColumnCount } = input;
 
   // 列数: (コンテナ幅 + gap) ÷ (目安列幅 + gap) を floor、最低 1
-  const columnCount = Math.max(1, Math.floor((containerWidth + gap) / (targetColumnUnit + gap)));
+  const fitColumns = Math.max(1, Math.floor((containerWidth + gap) / (targetColumnUnit + gap)));
+  const columnCount = maxColumnCount && maxColumnCount > 0
+    ? Math.min(fitColumns, maxColumnCount)
+    : fitColumns;
   // 列幅: gap を差し引いて均等配分
   const columnWidth = (containerWidth - (columnCount - 1) * gap) / columnCount;
 

@@ -17,7 +17,8 @@ import { resolveCoverAspectRatio } from '../../../lib/housing/resolveCoverAspect
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 
 const GAP = 12;
-const TARGET_COLUMN_UNIT = 220; // 列数の目安幅 (2〜4 列、実機で微調整可)
+const TARGET_COLUMN_UNIT = 170; // 列数の目安幅 (中央パネル ~750px で 4 列。実機で微調整可)
+const MAX_COLUMNS = 4; // 旧仕様踏襲: 窓を広げても最大 4 列 (カードが小さくなりすぎない)
 const PAD_X = 16; // グリッド左右の内側余白 (絶対配置のため JS で付与)
 const PAD_Y = 14; // グリッド上下の内側余白
 const REFLOW_MS = 300;
@@ -103,7 +104,7 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
 
     const masonry = useMemo(() => {
         const cards = listings.map((l) => ({ id: l.id, aspectRatio: resolveCoverAspectRatio(l) }));
-        return computeHousingMasonry({ cards, containerWidth, gap: GAP, targetColumnUnit: TARGET_COLUMN_UNIT });
+        return computeHousingMasonry({ cards, containerWidth, gap: GAP, targetColumnUnit: TARGET_COLUMN_UNIT, maxColumnCount: MAX_COLUMNS });
     }, [listings, containerWidth]);
 
     // windowing: 可視 Y 範囲 + 上下 1 画面分バッファに交差するカードだけ描画。
