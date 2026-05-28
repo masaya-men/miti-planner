@@ -20,6 +20,7 @@ const GAP = 12;
 const TARGET_COLUMN_UNIT = 220; // 列数の目安幅 (2〜4 列、実機で微調整可)
 const REFLOW_MS = 300;
 const ENTER_MS = 300;
+const EXIT_MS = 200; // .housing-pinterest-item--exiting の CSS animation と一致させること
 const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
 export interface PinterestViewProps {
@@ -45,11 +46,12 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
     );
 
     const gridRef = useRef<HTMLDivElement | null>(null);
-    const scrollElRef = useRef<HTMLElement | null>(null);
     const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
     const prevPosRef = useRef<Record<string, MasonryPosition>>({});
     const prevIdsRef = useRef<Set<string>>(new Set());
+    const prevVisibleIdsRef = useRef<Set<string>>(new Set());
     const lastListingByIdRef = useRef<Record<string, MockListing>>({});
+    const exitTimersRef = useRef<number[]>([]);
 
     const [containerWidth, setContainerWidth] = useState(0);
     const [scrollTop, setScrollTop] = useState(0);
@@ -61,7 +63,6 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
         const grid = gridRef.current;
         if (!grid) return;
         const scrollEl = grid.closest('.housing-center-area-scroll') as HTMLElement | null;
-        scrollElRef.current = scrollEl;
         if (!scrollEl) return;
 
         const measure = () => {
@@ -92,6 +93,12 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
             scrollEl.removeEventListener('scroll', onScroll);
             if (raf) cancelAnimationFrame(raf);
         };
+    }, []);
+
+    // アンマウント時に未処理の削除フェードタイマーを全クリア。
+    useEffect(() => () => {
+        for (const t of exitTimersRef.current) clearTimeout(t);
+        exitTimersRef.current = [];
     }, []);
 
     const masonry = useMemo(() => {
@@ -129,9 +136,10 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
             if (removed.length > 0) {
                 setExiting((cur) => [...cur, ...removed]);
                 const ids = new Set(removed.map((r) => r.listing.id));
-                window.setTimeout(() => {
+                const timer = window.setTimeout(() => {
                     setExiting((cur) => cur.filter((c) => !ids.has(c.listing.id)));
-                }, 200);
+                }, EXIT_MS);
+                exitTimersRef.current.push(timer);
             }
         }
 
@@ -142,9 +150,12 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
             if (!el || !p) continue;
             const prev = prevPosRef.current[l.id];
 
+            const wasVisible = prevVisibleIdsRef.current.has(l.id);
             if (prev && (prev.x !== p.x || prev.y !== p.y)) {
-                // FLIP: 既に新 left/top にある要素を、差分だけ逆方向から 0 へ。
-                if (!reduceMotion) {
+                // 前サイクルで実際に見えていたカードだけ FLIP スライド。
+                // 画面外にいた間に並びが変わったカードは、再描画時に古い座標から
+                // 滑ってくる誤演出になるので、その場合はアニメなしで即配置。
+                if (!reduceMotion && wasVisible) {
                     el.animate(
                         [
                             { transform: `translate(${prev.x - p.x}px, ${prev.y - p.y}px)` },
@@ -180,6 +191,7 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
         for (const id of Object.keys(prevPosRef.current)) {
             if (!currentIds.has(id)) delete prevPosRef.current[id];
         }
+        prevVisibleIdsRef.current = new Set(visibleListings.map((l) => l.id));
     }, [visibleListings, masonry, listings, reduceMotion]);
 
     return (
