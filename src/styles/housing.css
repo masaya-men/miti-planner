@@ -881,8 +881,7 @@
  * ============================================================ */
 .housing-pinterest-grid {
   position: relative;
-  padding: 14px 16px;
-  /* 高さ・列数は JS (computeHousingMasonry) が決める。コンテナ幅は padding 内側を使う。 */
+  /* 高さ・列数・内側余白は JS が決める (絶対配置の子は padding を無視するため JS で inset)。 */
 }
 .housing-pinterest-item {
   position: absolute;

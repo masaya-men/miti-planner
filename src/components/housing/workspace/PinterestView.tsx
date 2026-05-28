@@ -18,6 +18,8 @@ import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 
 const GAP = 12;
 const TARGET_COLUMN_UNIT = 220; // 列数の目安幅 (2〜4 列、実機で微調整可)
+const PAD_X = 16; // グリッド左右の内側余白 (絶対配置のため JS で付与)
+const PAD_Y = 14; // グリッド上下の内側余白
 const REFLOW_MS = 300;
 const ENTER_MS = 300;
 const EXIT_MS = 200; // .housing-pinterest-item--exiting の CSS animation と一致させること
@@ -66,9 +68,7 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
         if (!scrollEl) return;
 
         const measure = () => {
-            const cs = window.getComputedStyle(grid);
-            const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
-            setContainerWidth(Math.max(0, grid.clientWidth - padX));
+            setContainerWidth(Math.max(0, grid.clientWidth - PAD_X * 2));
             setViewportH(scrollEl.clientHeight);
         };
         measure();
@@ -115,7 +115,8 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
         return listings.filter((l) => {
             const p = masonry.positions[l.id];
             if (!p) return false;
-            return !(p.y + p.h < minY || p.y > maxY);
+            const top = p.y + PAD_Y;
+            return !(top + p.h < minY || top > maxY);
         });
     }, [listings, masonry, scrollTop, viewportH, containerWidth]);
 
@@ -195,7 +196,7 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
     }, [visibleListings, masonry, listings, reduceMotion]);
 
     return (
-        <div ref={gridRef} className="housing-pinterest-grid" style={{ height: `${masonry.totalHeight}px` }}>
+        <div ref={gridRef} className="housing-pinterest-grid" style={{ height: `${masonry.totalHeight + PAD_Y * 2}px` }}>
             {visibleListings.map((l) => {
                 const p = masonry.positions[l.id];
                 if (!p) return null;
@@ -204,7 +205,7 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
                         key={l.id}
                         ref={(el) => { cardRefs.current[l.id] = el; }}
                         className="housing-pinterest-item"
-                        style={{ left: `${p.x}px`, top: `${p.y}px`, width: `${p.w}px`, height: `${p.h}px` }}
+                        style={{ left: `${p.x + PAD_X}px`, top: `${p.y + PAD_Y}px`, width: `${p.w}px`, height: `${p.h}px` }}
                     >
                         <HousingCard listing={l} onClick={() => openDetail(l.id)} />
                     </div>
@@ -214,7 +215,7 @@ export const PinterestView: React.FC<PinterestViewProps> = ({ listings }) => {
                 <div
                     key={`exit-${c.listing.id}`}
                     className="housing-pinterest-item housing-pinterest-item--exiting"
-                    style={{ left: `${c.x}px`, top: `${c.y}px`, width: `${c.w}px`, height: `${c.h}px` }}
+                    style={{ left: `${c.x + PAD_X}px`, top: `${c.y + PAD_Y}px`, width: `${c.w}px`, height: `${c.h}px` }}
                 >
                     <HousingCard listing={c.listing} onClick={() => {}} />
                 </div>
