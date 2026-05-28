@@ -11,16 +11,20 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 本セッション ハウジング配下リデザイン 1 commit push 済 (Vercel デプロイ自動起動)。 前セッション 一覧住所順 + 自分バッジ + §3.8 完全クローズ済。
-- **方針 (2026-05-27 確定)**: **α 公開期限撤回**、 1 セッション 1 タスクで丁寧に進める。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
-- **本セッション完了 ✅** (詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md) 末尾): ハウジング配下リデザイン — housing.css 7 箇所 (gradient/999px ピル → 単色/角丸 6-10px) + 4 .tsx (Onboarding/DuplicateWarning/RegisterAddressFields/RegisterView) を LoPo Tailwind 排除 → housing class (`.housing-input` / `.housing-btn-primary` / `.housing-action-btn`) に。 「あなたの登録」 ピルも AI 風 gradient → 透過 + 枠線にモダン化。 詳細 memory `feedback_housing_no_ai_pills` (新規)。
+- **ブランチ**: main。 本セッション 10 commit push 済 (Vercel デプロイ自動起動)。 前セッション 一覧住所順 + 自分バッジ + §3.8 完全クローズ済。
+- **方針 (2026-05-27 確定)**: **α 公開期限撤回**、 1 セッション 1 タスクで丁寧に進める。 **デザインは 1 つずつ実機を見ながら一緒に** (大規模一括はしない、 2026-05-28 ユーザー再確認)。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
+- **本セッション完了 ✅** (詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md) 末尾):
+  1. ハウジング配下リデザイン (housing.css 7 箇所 gradient/999px ピル → 単色/角丸、 4 .tsx の LoPo Tailwind 排除)。 memory `feedback_housing_no_ai_pills`
+  2. 一覧カードを AllMarks 風に (メタ情報削除 + masonry + カバー比率)
+  3. **画像 aspectRatio を syndication から取得・保存・カード事前確定で CLS ゼロ化** (8 タスク、 計画 [docs/.private/2026-05-28-housing-image-aspect-ratio-plan.md](./.private/2026-05-28-housing-image-aspect-ratio-plan.md))。 動画 `videoAspectRatio` 経路を画像 `sourceImageAspectRatios` で踏襲
+  4. dev 専用 vite proxy 追加 (`/api` を本番転送、 dev で Twitter 動画確認可能に。 memory `reference_vite_dev_api_proxy`)
 - **次セッション最優先**:
-  1. **本セッション分の実機確認** (リデザイン全体: 「あなたの登録」 バッジ / フィルター chip / オンボード・重複・登録モーダルの新ガラス感 / 詳細ページの「ピル形状の chip」 が rectangle 化されているか)
-  2. **「通報」 文言全体見直し** (= duplicate peer 経路 toast は前々セッションで終了、 他箇所はまとめて。 自発的通報モーダルは文脈上 OK)
+  1. **本セッション分の実機確認** ← デプロイ後。 (a) 画像 aspectRatio: localhost or 本番で Twitter 写真ツイ登録 → カードが写真の縦横比で表示・スクロールでガタつかないか (縦長→縦長カード)。 既存 listing は寸法なしで自然比フォールバック、 **新規登録のみ CLS ゼロ**。 (b) リデザイン全体 / フィルター chip rectangle 化 / 各モーダルの新ガラス感
+  2. **「通報」 文言全体見直し** (他箇所まとめて。 自発的通報モーダルは文脈上 OK)
   3. **§3.8 残りの実機検証** (重複 drop でツアー自動追加 + トースト / 単独 listing で section 非表示)
-  4. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ** (= §3.7 カード版バッジ + カード「ちがった」、 前々セッション hook 再利用)
-  5. **通知 UI/UX 磨き**: listingTitleSnapshot が addressKey raw で出る → `formatHousingAddress` 経由スナップショットへ。 ドロップダウン全般も後で刷新
-  6. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 ユーザーと論点詰めてから)
+  4. **Phase 2-6 「📅 1 ヶ月以上更新なし」 バッジ** (前々セッション hook 再利用)
+  5. **通知 UI/UX 磨き**: listingTitleSnapshot が addressKey raw → `formatHousingAddress` 経由へ
+  6. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 論点詰めてから)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
 - **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討。 マップビュー実装は止まっている (ユーザー認識済、 リストビューで完結する設計なのでリリースブロッカーではない)
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
