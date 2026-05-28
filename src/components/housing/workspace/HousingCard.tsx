@@ -42,11 +42,15 @@ export const HousingCard: React.FC<HousingCardProps> = ({ listing, onClick }) =>
         : listing.youtubeVideoId
             ? 'youtube'
             : null;
-    // カードの縦横比 = カバーメディアの縦横比。 動画 listing は詳細モーダルと同じく
-    // videoAspectRatio で事前確定 (CLS なし)。 静止画 listing は画像の自然比 (load 後確定)。
-    const coverAspectRatio = videoKind !== null && listing.videoAspectRatio
-        ? listing.videoAspectRatio
-        : undefined;
+    // カバー = 詳細ギャラリーの 1 枚目と一致: 動画があれば動画、 無ければ静止画 1 枚目。
+    // どちらも syndication 由来の aspectRatio で事前確定でき CLS ゼロ。 0 = 寸法不明 → 自然比に委ねる。
+    const firstPhotoAspect = listing.sourceImageAspectRatios?.[0];
+    const coverAspectRatio =
+        videoKind !== null && listing.videoAspectRatio
+            ? listing.videoAspectRatio
+            : typeof firstPhotoAspect === 'number' && firstPhotoAspect > 0
+                ? firstPhotoAspect
+                : undefined;
     const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
     const thumbRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
