@@ -55,6 +55,7 @@ export default async function handler(req: Request): Promise<Response> {
                     screen_name: json.user?.screen_name ?? '',
                 },
                 photos: media.photos,
+                photoAspectRatios: media.photoAspectRatios,
                 video: media.video,
             },
             {
