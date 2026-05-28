@@ -35,7 +35,7 @@ describe('pickBestMp4', () => {
 
 describe('extractTweetMediaPayload', () => {
     it('raw が null/非object なら空ペイロード', () => {
-        expect(extractTweetMediaPayload(null)).toEqual({ photos: [], video: null });
+        expect(extractTweetMediaPayload(null)).toEqual({ photos: [], photoAspectRatios: [], video: null });
     });
 
     it('mediaDetails の photo 群を photos に抽出', () => {
@@ -194,5 +194,53 @@ describe('extractTweetMediaPayload', () => {
             },
         });
         expect(payload.video).toBeNull();
+    });
+
+    describe('photo aspectRatio extraction', () => {
+        it('mediaDetails の photo から original_info で aspectRatio を計算する', () => {
+            const raw = {
+                text: 't',
+                mediaDetails: [
+                    {
+                        type: 'photo',
+                        media_url_https: 'https://pbs.twimg.com/media/a.jpg',
+                        original_info: { width: 1200, height: 900 },
+                    },
+                    {
+                        type: 'photo',
+                        media_url_https: 'https://pbs.twimg.com/media/b.jpg',
+                        original_info: { width: 900, height: 1600 },
+                    },
+                ],
+            };
+            const out = extractTweetMediaPayload(raw);
+            expect(out.photos).toEqual([
+                'https://pbs.twimg.com/media/a.jpg',
+                'https://pbs.twimg.com/media/b.jpg',
+            ]);
+            expect(out.photoAspectRatios).toEqual([1200 / 900, 900 / 1600]);
+        });
+
+        it('寸法が無い photo は null になる (photos と長さ一致)', () => {
+            const raw = {
+                text: 't',
+                mediaDetails: [
+                    { type: 'photo', media_url_https: 'https://pbs.twimg.com/media/c.jpg' },
+                ],
+            };
+            const out = extractTweetMediaPayload(raw);
+            expect(out.photos).toEqual(['https://pbs.twimg.com/media/c.jpg']);
+            expect(out.photoAspectRatios).toEqual([null]);
+        });
+
+        it('raw.photos 直下経路でも width/height から aspectRatio を計算する', () => {
+            const raw = {
+                text: 't',
+                photos: [{ url: 'https://pbs.twimg.com/media/d.jpg', width: 800, height: 400 }],
+            };
+            const out = extractTweetMediaPayload(raw);
+            expect(out.photos).toEqual(['https://pbs.twimg.com/media/d.jpg']);
+            expect(out.photoAspectRatios).toEqual([800 / 400]);
+        });
     });
 });

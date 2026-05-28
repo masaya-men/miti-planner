@@ -60,8 +60,15 @@ export type TweetVideoPayload = {
 
 export type TweetMediaPayload = {
     photos: string[];
+    /** photos と同じ順序・同じ長さ。 寸法不明な photo は null。 */
+    photoAspectRatios: (number | null)[];
     video: TweetVideoPayload | null;
 };
+
+/** width/height から aspectRatio を計算。 どちらか欠けるか h<=0 なら null。 */
+function ratioFromDims(w: number | undefined, h: number | undefined): number | null {
+    return typeof w === 'number' && typeof h === 'number' && h > 0 ? w / h : null;
+}
 
 /** mp4 variants から最高 bitrate のものを 1 つ選ぶ。 mp4 が無ければ undefined。 */
 export function pickBestMp4(variants: VideoVariant[] | undefined): string | undefined {
@@ -106,15 +113,17 @@ function decodeUnifiedCardMediaEntities(
  * 3 経路 (mediaDetails / photos 直下 / unified_card) を順に試す。
  */
 export function extractTweetMediaPayload(raw: SyndicationRaw | null): TweetMediaPayload {
-    if (!raw || typeof raw !== 'object') return { photos: [], video: null };
+    if (!raw || typeof raw !== 'object') return { photos: [], photoAspectRatios: [], video: null };
 
     const photos: string[] = [];
+    const photoAspectRatios: (number | null)[] = [];
     let video: TweetVideoPayload | null = null;
 
     if (Array.isArray(raw.mediaDetails) && raw.mediaDetails.length > 0) {
         for (const m of raw.mediaDetails) {
             if (m.type === 'photo' && typeof m.media_url_https === 'string') {
                 photos.push(m.media_url_https);
+                photoAspectRatios.push(ratioFromDims(m.original_info?.width, m.original_info?.height));
             } else if (!video) {
                 video = detailToVideoPayload(m);
             }
@@ -123,7 +132,10 @@ export function extractTweetMediaPayload(raw: SyndicationRaw | null): TweetMedia
 
     if (photos.length === 0 && Array.isArray(raw.photos)) {
         for (const p of raw.photos) {
-            if (typeof p?.url === 'string') photos.push(p.url);
+            if (typeof p?.url === 'string') {
+                photos.push(p.url);
+                photoAspectRatios.push(ratioFromDims(p.width, p.height));
+            }
         }
     }
 
@@ -134,5 +146,5 @@ export function extractTweetMediaPayload(raw: SyndicationRaw | null): TweetMedia
         }
     }
 
-    return { photos, video };
+    return { photos, photoAspectRatios, video };
 }
