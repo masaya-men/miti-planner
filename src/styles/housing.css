@@ -289,8 +289,7 @@
 }
 .housing-brand-mark {
   width: 22px; height: 22px; border-radius: 4px;
-  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
-  box-shadow: 0 0 12px rgba(255, 180, 90, 0.55);
+  background: var(--housing-honey);
 }
 .housing-brand-sub {
   color: var(--housing-text-mute);
@@ -325,9 +324,8 @@
   color: var(--housing-text);
 }
 .housing-theme-toggle button.is-on {
-  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
-  color: #2a1a08; font-weight: 600;
-  box-shadow: 0 0 12px rgba(255, 180, 90, 0.45);
+  background: var(--housing-honey);
+  color: #1a1006; font-weight: 600;
   text-shadow: none;
 }
 
@@ -521,7 +519,7 @@
 }
 .housing-chip {
   padding: 5px 11px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--housing-chip-bg);
   border: 1px solid var(--housing-panel-border);
   color: var(--housing-text-dim);
@@ -934,14 +932,14 @@
   top: 8px;
   left: 8px;
   z-index: 2;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
-  color: #2a1a08;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--housing-honey-border);
+  color: var(--housing-candle);
   font-size: var(--housing-text-xs);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.02em;
-  box-shadow: 0 0 8px rgba(255, 180, 90, 0.45);
   pointer-events: none;
   user-select: none;
 }
@@ -1043,7 +1041,7 @@
 .housing-card-tag {
   font-size: var(--housing-text-xs);
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: 6px;
   background: var(--housing-card-tag-bg);
   color: var(--housing-text-dim);
 }
@@ -1452,8 +1450,8 @@
   gap: 8px;
   padding: 10px 16px;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
-  color: #2a1a08;
+  background: var(--housing-honey);
+  color: #1a1006;
   border: 0;
   font: inherit;
   font-size: var(--housing-text-sm);
@@ -1461,11 +1459,10 @@
   cursor: pointer;
   appearance: none;
   text-shadow: none;
-  transition: filter 0.15s ease, box-shadow 0.15s ease;
+  transition: background 0.15s ease;
 }
 .housing-favorites-run-all-btn:hover:not(:disabled) {
-  filter: brightness(1.05);
-  box-shadow: 0 0 16px var(--housing-honey-shadow-soft);
+  background: var(--housing-honey-glow);
 }
 .housing-favorites-run-all-btn:focus-visible {
   outline: 2px solid var(--housing-honey);
@@ -1681,7 +1678,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: 10px;
   background: var(--housing-honey-strong);
   border: 1px solid var(--housing-honey-border);
   color: var(--housing-candle);

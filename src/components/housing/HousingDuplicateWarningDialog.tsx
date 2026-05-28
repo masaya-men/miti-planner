@@ -20,41 +20,89 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+      style={{ background: 'var(--housing-detail-backdrop-bg)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-app-surface border border-app-border rounded-lg max-w-md w-full p-6">
-        <h2 className="text-app-2xl font-bold mb-4">{t('housing.duplicate.title')}</h2>
-        <p className="text-app-md text-app-text-muted mb-4">
+      <div
+        className="max-w-md w-full"
+        style={{
+          background: 'var(--housing-panel-bg)',
+          border: '1px solid var(--housing-panel-border)',
+          borderRadius: 'var(--housing-panel-radius)',
+          color: 'var(--housing-text)',
+          padding: 24,
+        }}
+      >
+        <h2 style={{
+          fontSize: 'var(--housing-text-lg)',
+          fontWeight: 600,
+          marginBottom: 12,
+        }}>
+          {t('housing.duplicate.title')}
+        </h2>
+        <p style={{
+          fontSize: 'var(--housing-text-base)',
+          color: 'var(--housing-text-dim)',
+          marginBottom: 14,
+        }}>
           {t('housing.duplicate.lead', { count: duplicates.length })}
         </p>
-        <div className="space-y-2 mb-4 max-h-48 overflow-y-auto">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            marginBottom: 14,
+            maxHeight: 192,
+            overflowY: 'auto',
+          }}
+        >
           {duplicates.map((d) => (
-            <div key={d.id} className="bg-app-surface2 border border-app-border rounded p-3">
-              <p className="text-app-sm">
+            <div
+              key={d.id}
+              style={{
+                background: 'var(--housing-chip-bg)',
+                border: '1px solid var(--housing-panel-border)',
+                borderRadius: 8,
+                padding: 12,
+              }}
+            >
+              <p style={{ fontSize: 'var(--housing-text-sm)' }}>
                 {t('housing.duplicate.created_at', {
                   date: new Date(d.createdAt).toLocaleDateString(),
                 })}
               </p>
-              <p className="text-app-sm text-app-text-muted">
+              <p style={{
+                fontSize: 'var(--housing-text-sm)',
+                color: 'var(--housing-text-dim)',
+              }}>
                 {d.tags.slice(0, 3).map((tag) => t(`housing.tag.${tag}`)).join(' / ')}
               </p>
             </div>
           ))}
         </div>
-        <p className="text-app-sm text-app-text-muted mb-4">{t('housing.duplicate.hint')}</p>
-        <div className="flex gap-2 justify-end">
+        <p style={{
+          fontSize: 'var(--housing-text-sm)',
+          color: 'var(--housing-text-dim)',
+          marginBottom: 14,
+        }}>
+          {t('housing.duplicate.hint')}
+        </p>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button
             type="button"
             onClick={onCorrect}
-            className="px-4 py-2 rounded-md bg-app-blue text-white hover:bg-app-blue-hover text-app-md"
+            className="housing-action-btn housing-btn-primary"
+            style={{ padding: '8px 16px' }}
           >
             {t('housing.duplicate.correct')}
           </button>
           <button
             type="button"
             onClick={onProceed}
-            className="px-4 py-2 rounded-md border border-app-border text-app-text hover:bg-app-surface2 text-app-md"
+            className="housing-action-btn"
+            style={{ padding: '8px 16px' }}
           >
             {t('housing.duplicate.proceed')}
           </button>

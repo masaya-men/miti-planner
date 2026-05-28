@@ -47,34 +47,64 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: 'var(--housing-detail-backdrop-bg)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="bg-app-surface border border-app-border rounded-lg max-w-md w-full p-6">
-        <h2 className="text-app-3xl font-bold mb-4">{t('housing.onboarding.title')}</h2>
-        <p className="text-app-md mb-3">{t('housing.onboarding.lead')}</p>
-        <ul className="text-app-md space-y-2 mb-4 list-disc list-inside text-app-text-muted">
-          <li>{t('housing.onboarding.bullet1')}</li>
-          <li>{t('housing.onboarding.bullet2')}</li>
+      <div
+        className="max-w-md w-full"
+        style={{
+          background: 'var(--housing-panel-bg)',
+          border: '1px solid var(--housing-panel-border)',
+          borderRadius: 'var(--housing-panel-radius)',
+          color: 'var(--housing-text)',
+          padding: 24,
+        }}
+      >
+        <h2 style={{
+          fontSize: 'var(--housing-text-xl)',
+          fontWeight: 600,
+          marginBottom: 14,
+        }}>
+          {t('housing.onboarding.title')}
+        </h2>
+        <p style={{ fontSize: 'var(--housing-text-base)', marginBottom: 12 }}>
+          {t('housing.onboarding.lead')}
+        </p>
+        <ul style={{
+          fontSize: 'var(--housing-text-base)',
+          marginBottom: 14,
+          paddingLeft: 20,
+          listStyle: 'disc',
+          color: 'var(--housing-text-dim)',
+        }}>
+          <li style={{ marginBottom: 6 }}>{t('housing.onboarding.bullet1')}</li>
+          <li style={{ marginBottom: 6 }}>{t('housing.onboarding.bullet2')}</li>
           <li>{t('housing.onboarding.bullet3')}</li>
         </ul>
-        <p className="text-app-sm text-app-text-muted mb-4">
+        <p style={{
+          fontSize: 'var(--housing-text-sm)',
+          color: 'var(--housing-text-dim)',
+          marginBottom: 16,
+        }}>
           {t('housing.onboarding.image_modes_note')}
         </p>
 
         {mode === 'authenticated' ? (
-          <div className="space-y-2">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button
               type="button"
               onClick={onAcceptCurrentAccount}
-              className="w-full bg-app-blue text-white rounded-md py-2 font-semibold hover:bg-app-blue-hover text-app-md"
+              className="housing-action-btn housing-btn-primary"
+              style={{ width: '100%', justifyContent: 'center', padding: '10px 14px' }}
             >
               {t('housing.onboarding.accept_current_account')}
             </button>
             <button
               type="button"
               onClick={onSwitchAccount}
-              className="w-full border border-app-border text-app-text rounded-md py-2 font-semibold hover:bg-app-surface2 text-app-md"
+              className="housing-action-btn"
+              style={{ width: '100%', justifyContent: 'center', padding: '10px 14px' }}
             >
               {t('housing.onboarding.switch_account')}
             </button>
@@ -83,7 +113,8 @@ export const HousingOnboardingDialog: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => { markHousingOnboardingSeen(); onClose(); }}
-            className="w-full bg-app-blue text-white rounded-md py-2 font-semibold hover:bg-app-blue-hover text-app-md"
+            className="housing-action-btn housing-btn-primary"
+            style={{ width: '100%', justifyContent: 'center', padding: '10px 14px' }}
           >
             {t('housing.onboarding.start')}
           </button>

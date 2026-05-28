@@ -90,7 +90,16 @@ export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
 
   if (loading) {
     return (
-      <div className="text-app-text-muted text-app-md p-6 text-center">...</div>
+      <div
+        style={{
+          color: 'var(--housing-text-dim)',
+          fontSize: 'var(--housing-text-base)',
+          padding: 24,
+          textAlign: 'center',
+        }}
+      >
+        ...
+      </div>
     );
   }
 
@@ -180,18 +189,46 @@ export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
       : t('housing.register.submit');
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto p-6 space-y-6">
-      <h2 className="text-app-3xl font-bold">{titleText}</h2>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        maxWidth: 672,
+        margin: '0 auto',
+        padding: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 24,
+      }}
+    >
+      <h2 style={{ fontSize: 'var(--housing-text-xl)', fontWeight: 600 }}>{titleText}</h2>
 
       {!isEditMode && <HousingQuotaIndicator status={quotaStatus} />}
 
       {successMessage && (
-        <div className="bg-app-blue-dim border border-app-blue-border rounded-md p-3 text-app-md">
+        <div
+          style={{
+            background: 'var(--housing-honey-soft)',
+            border: '1px solid var(--housing-honey-border)',
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 'var(--housing-text-base)',
+            color: 'var(--housing-candle)',
+          }}
+        >
           {successMessage}
         </div>
       )}
       {serverError && (
-        <div className="bg-app-red-dim border border-app-red-border rounded-md p-3 text-app-md text-app-red">
+        <div
+          style={{
+            background: 'var(--housing-danger-soft)',
+            border: '1px solid var(--housing-warning)',
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 'var(--housing-text-base)',
+            color: 'var(--housing-warning)',
+          }}
+        >
           {serverError}
         </div>
       )}
@@ -203,7 +240,11 @@ export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
       />
 
       <div>
-        <p className="text-app-md font-medium mb-2">
+        <p style={{
+          fontSize: 'var(--housing-text-base)',
+          fontWeight: 500,
+          marginBottom: 8,
+        }}>
           {t('housing.register.tags_label')}
         </p>
         <HousingRegisterTagPicker
@@ -211,7 +252,11 @@ export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
           onChange={(tags) => setDraft({ ...draft, tags })}
         />
         {errors.tags && (
-          <p className="text-app-red text-app-sm mt-1">
+          <p style={{
+            color: 'var(--housing-warning)',
+            fontSize: 'var(--housing-text-sm)',
+            marginTop: 4,
+          }}>
             {t(`housing.register.errors.tags.${errors.tags}`)}
           </p>
         )}
@@ -226,7 +271,13 @@ export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
       <button
         type="submit"
         disabled={!canSubmit}
-        className="w-full bg-app-blue text-white rounded-md py-3 font-semibold disabled:opacity-50"
+        className="housing-action-btn housing-btn-primary"
+        style={{
+          width: '100%',
+          justifyContent: 'center',
+          padding: '12px 16px',
+          fontSize: 'var(--housing-text-base)',
+        }}
       >
         {submitText}
       </button>
