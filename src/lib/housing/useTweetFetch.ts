@@ -5,6 +5,7 @@ export type TweetData = {
     text: string;
     author: { name: string; screen_name: string };
     photos: string[];
+    photoAspectRatios?: (number | null)[];
     /**
      * 動画ありなら mp4 URL + poster URL + aspectRatio。 静止画 or なしなら null。
      * 2026-05-26 拡張: 旧仕様は boolean のみ。 useTweetVideoFrames から
