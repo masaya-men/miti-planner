@@ -1,0 +1,10 @@
+name = "lopo-media-proxy"
+main = "src/index.ts"
+compatibility_date = "2026-05-29"
+
+# media.lopoly.app を Worker のカスタムドメインとして割り当てる。
+# lopoly.app zone が同一 Cloudflare アカウントにある前提 (DNS only で載っていれば OK)。
+# apex lopoly.app には影響しない (別 hostname の proxied レコードが作られるだけ)。
+[[routes]]
+pattern = "media.lopoly.app"
+custom_domain = true
