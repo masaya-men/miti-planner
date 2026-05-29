@@ -11,7 +11,8 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 本セッション 10 commit push 済 (Vercel デプロイ自動起動)。 前セッション 一覧住所順 + 自分バッジ + §3.8 完全クローズ済。
+- **ブランチ**: main。 2026-05-29 本セッション push 済 (Vercel 自動デプロイ): 検索撤去+ロゴ→トップ / 管理→直前画面 / **カード masonry+windowing+FLIP 刷新 (4列上限・隙間なし・横スクロール禁止)** / **ギャラリー動画 ambient 一時 OFF (転送止血)**。 計画 [docs/.private/2026-05-28-housing-masonry-reflow-plan.md](./.private/2026-05-28-housing-masonry-reflow-plan.md)。
+- **🚨 公開前 最重要 (2026-05-29)**: **Twitter 動画プロキシを Cloudflare Worker (`media.lopoly.app` 仮) に移設** = Vercel egress ゼロ化。brainstorming 完了・**採用=専用 Worker (案①)**、本体 lopoly.app は Vercel 据置・**案②前段キャッシュは不採用**。YouTube は iframe で既にゼロ・対象外。設計書 [specs/2026-05-29-housing-video-cf-worker-design.md](./superpowers/specs/2026-05-29-housing-video-cf-worker-design.md)。次=writing-plans→実装。memory `project_cloudflare_caching_priority`
 - **方針 (2026-05-27 確定)**: **α 公開期限撤回**、 1 セッション 1 タスクで丁寧に進める。 **デザインは 1 つずつ実機を見ながら一緒に** (大規模一括はしない、 2026-05-28 ユーザー再確認)。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
 - **直近完了 ✅** (2026-05-28、 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md) 末尾): ハウジングリデザイン + カード AllMarks 風 (masonry) + **画像 aspectRatio で CLS ゼロ化** (8 タスク push 済、 計画 [docs/.private/2026-05-28-housing-image-aspect-ratio-plan.md](./.private/2026-05-28-housing-image-aspect-ratio-plan.md)) + dev vite proxy。 memory `feedback_housing_no_ai_pills` / `reference_vite_dev_api_proxy`
 - **次セッション最優先**:
@@ -22,7 +23,7 @@
   5. **通知 UI/UX 磨き**: listingTitleSnapshot が addressKey raw → `formatHousingAddress` 経由へ
   6. **split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8、 論点詰めてから)
 - **その後**: 既存テスト物件一掃 + コールドスタート (ユーザー作業) → アプデ告知 (#59 + ハウジング α)
-- **保留**: Cloudflare 議論は外部 URL 化で意味変わる→将来再検討。 マップビュー実装は止まっている (ユーザー認識済、 リストビューで完結する設計なのでリリースブロッカーではない)
+- **保留**: マップビュー実装は止まっている (ユーザー認識済、 リストビューで完結する設計なのでリリースブロッカーではない)。 ※Cloudflare は「保留」から **公開前最重要** に格上げ (上記参照)
 - **LICENSE は追加しない方針** (memory `feedback_lopo_license_stance`)
 
 ---
