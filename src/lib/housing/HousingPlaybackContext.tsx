@@ -71,6 +71,15 @@ export interface HousingPlaybackProviderProps {
     lightboxOpen?: boolean;
 }
 
+/**
+ * 一時的な転送量止血スイッチ (2026-05-29):
+ * Twitter 動画はプロキシ (/api/tweet-video) 経由で Vercel を通るため、ギャラリーの
+ * 自動再生 + フレーム抽出が Vercel の Fast Origin Transfer を消費する。Cloudflare で
+ * 動画プロキシをキャッシュする恒久対策が入るまで、ギャラリーの ambient (スポットライト
+ * 再生 + フレーム抽出) を OFF にして自動停止を回避する。Cloudflare 前段化完了で true に戻す。
+ */
+const GALLERY_AMBIENT_ENABLED = false;
+
 export function HousingPlaybackProvider({
     children,
     spotlightCap = 1,
@@ -82,7 +91,7 @@ export function HousingPlaybackProvider({
     const { visibility, register, unregister } = useViewportPlaybackPool();
     const reduced = useReducedMotion();
     const isScrolling = useIsScrolling(150);
-    const ambientOn = !reduced && !isScrolling && !lightboxOpen;
+    const ambientOn = GALLERY_AMBIENT_ENABLED && !reduced && !isScrolling && !lightboxOpen;
 
     const candidates = useMemo(
         () => new Set(selectActivePlayers(visibility, poolCap, minRatio)),
