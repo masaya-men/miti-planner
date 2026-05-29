@@ -72,13 +72,12 @@ export interface HousingPlaybackProviderProps {
 }
 
 /**
- * 一時的な転送量止血スイッチ (2026-05-29):
- * Twitter 動画はプロキシ (/api/tweet-video) 経由で Vercel を通るため、ギャラリーの
- * 自動再生 + フレーム抽出が Vercel の Fast Origin Transfer を消費する。Cloudflare で
- * 動画プロキシをキャッシュする恒久対策が入るまで、ギャラリーの ambient (スポットライト
- * 再生 + フレーム抽出) を OFF にして自動停止を回避する。Cloudflare 前段化完了で true に戻す。
+ * ギャラリー ambient (スポットライト再生 + フレーム抽出) の ON/OFF スイッチ。
+ * 2026-05-29: Twitter 動画プロキシを Cloudflare Worker (media.lopoly.app) に移設し、
+ * 動画バイトが Vercel の Fast Origin Transfer を消費しなくなったため、止血で OFF に
+ * していた ambient を ON に復帰。動画は buildTweetVideoProxyUrl 経由で CF を通る。
  */
-const GALLERY_AMBIENT_ENABLED = false;
+const GALLERY_AMBIENT_ENABLED = true;
 
 export function HousingPlaybackProvider({
     children,
