@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { extractVideoFrames } from './extractVideoFrames';
+import { buildTweetVideoProxyUrl } from './tweetVideoProxy';
 
 /**
  * 2026-05-27 Allmarks (マイコラージュ) からハウジングへ移植。
@@ -73,7 +74,7 @@ export function useTweetVideoFrames(
     }
 
     let cancelled = false;
-    const proxied = `/api/tweet-video?url=${encodeURIComponent(videoUrl)}`;
+    const proxied = buildTweetVideoProxyUrl(videoUrl);
 
     const existing = inFlight.get(listingId);
     const promise =

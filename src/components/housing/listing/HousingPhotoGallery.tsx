@@ -14,6 +14,7 @@ import {
   handleYoutubeThumbnailError,
   handleYoutubeThumbnailLoad,
 } from '../../../lib/housing/youtubeImgFallback';
+import { buildTweetVideoProxyUrl } from '../../../lib/housing/tweetVideoProxy';
 
 export interface HousingPhotoGalleryProps {
   listing: HousingListing;
@@ -107,7 +108,7 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
         <div className="housing-gallery-video" style={videoAspectStyle}>
           {listing.videoUrl ? (
             <video
-              src={`/api/tweet-video?url=${encodeURIComponent(listing.videoUrl)}`}
+              src={buildTweetVideoProxyUrl(listing.videoUrl)}
               poster={listing.videoPosterUrl}
               controls
               muted

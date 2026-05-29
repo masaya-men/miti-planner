@@ -1,3 +1,5 @@
+import { buildTweetVideoProxyUrl } from '../../../lib/housing/tweetVideoProxy';
+
 export type HousingCardVideoOverlayProps =
   | {
       kind: 'twitter';
@@ -19,7 +21,7 @@ export function HousingCardVideoOverlay(
   props: HousingCardVideoOverlayProps,
 ): React.ReactElement {
   if (props.kind === 'twitter') {
-    const proxied = `/api/tweet-video?url=${encodeURIComponent(props.videoUrl)}`;
+    const proxied = buildTweetVideoProxyUrl(props.videoUrl);
     return (
       <div className="housing-card-video-overlay" aria-hidden="true">
         <video
