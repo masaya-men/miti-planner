@@ -12,6 +12,26 @@ if (typeof (globalThis as any).self === 'undefined') {
     (globalThis as any).self = globalThis;
 }
 
+// happy-dom は Web Animations API (Element.animate) を未実装。
+// PinterestView のカード FLIP/フェード演出や tutorial の PartyAutoFill が
+// el.animate() を呼ぶと throw するため、テスト環境用の最小スタブを当てる
+// (本番ブラウザは実装済みなので影響なし)。戻り値の Animation はほぼ未使用だが、
+// 念のため finished/onfinish 等を持つダミーを返す。
+{
+    const ElementCtor = (globalThis as any).Element;
+    if (ElementCtor && typeof ElementCtor.prototype.animate !== 'function') {
+        ElementCtor.prototype.animate = function () {
+            return {
+                cancel() {}, finish() {}, play() {}, pause() {}, reverse() {},
+                onfinish: null, oncancel: null,
+                finished: Promise.resolve(),
+                currentTime: 0, playState: 'finished',
+                addEventListener() {}, removeEventListener() {},
+            };
+        };
+    }
+}
+
 // zustand persist が localStorage を呼ぶのでインメモリ版をポリフィル。
 if (typeof (globalThis as any).localStorage === 'undefined') {
     const store = new Map<string, string>();
