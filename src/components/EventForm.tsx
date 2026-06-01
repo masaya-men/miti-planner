@@ -56,6 +56,12 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     const [damageAmount, setDamageAmount] = useState<number>(0);
     const [target, setTarget] = useState<TimelineEvent['target']>('AoE');
 
+    // Calculator State
+    const [inputMode, setInputMode] = useState<'direct' | 'reverse'>('reverse');
+    const [calcActualDamage, setCalcActualDamage] = useState<number>(0);
+    const [selectedMitigations, setSelectedMitigations] = useState<string[]>([]);
+    const [mitigationTargets, setMitigationTargets] = useState<Record<string, 'MT' | 'ST'>>({});
+
     // Visible mitigations state for Tutorial Step 20
     const [visibleMitigations, setVisibleMitigations] = useState<Set<string>>(new Set());
 
@@ -108,8 +114,6 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
         };
     }, []);
 
-    // ... (rest of logic same until return)
-
     useEffect(() => {
         if (initialData) {
             setName(initialData.name);
@@ -142,12 +146,6 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
         mitiPresetDoneRef.current = false;
     }, [initialData, initialTime, reverseOnly]);
 
-    // Calculator State
-    const [inputMode, setInputMode] = useState<'direct' | 'reverse'>('reverse');
-    const [calcActualDamage, setCalcActualDamage] = useState<number>(0);
-    const [selectedMitigations, setSelectedMitigations] = useState<string[]>([]);
-    const [mitigationTargets, setMitigationTargets] = useState<Record<string, 'MT' | 'ST'>>({});
-
     const { partyMembers, currentLevel } = useMitigationStore();
     const MITIGATIONS = useMitigations();
     const JOBS = useJobs();
@@ -160,13 +158,6 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     useSmoothWheelScroll(formRef, { enabled: true });
     const mitigationGridRef = useRef<HTMLDivElement>(null);
     useSmoothWheelScroll(mitigationGridRef, { stiffness: 25, wheelMultiplier: 0.4, stopPropagation: true, enabled: true });
-
-    // reverseOnly のときは direct モードに切り替わらないよう強制
-    useEffect(() => {
-        if (reverseOnly && inputMode !== 'reverse') {
-            setInputMode('reverse');
-        }
-    }, [reverseOnly, inputMode]);
 
     // Toggle mitigation selection
     const toggleMitigation = (id: string) => {
@@ -794,42 +785,42 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                                                 ? [{ id: mit.id, burst: false }, { id: `${mit.id}:burst`, burst: true }]
                                                 : [{ id: mit.id, burst: false }];
 
-                                    return variants.map(variant => {
-                                        const isTutorialTarget = isTutorialActive && !variant.burst && (
+                                    return variants.map(mitVariant => {
+                                        const isTutorialTarget = isTutorialActive && !mitVariant.burst && (
                                             (currentStep?.id === 'add-3-miti' && ['Reprisal', 'Addle', 'Sacred Soil'].includes(mit.name.en) && !selectedMitigations.includes(mit.id)) ||
                                             (currentStep?.id === 'create-8-miti' && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id))
                                         );
                                         const shouldHighlight = isTutorialTarget && (tutorialState.isActive || visibleMitigations.has(mit.id));
 
                                         return (
-                                            <div key={variant.id} className="flex flex-col items-center gap-0.5">
+                                            <div key={mitVariant.id} className="flex flex-col items-center gap-0.5">
                                                 <button
-                                                    data-mitigation-id={variant.id}
+                                                    data-mitigation-id={mitVariant.id}
                                                     data-tutorial={
-                                                        !variant.burst && isTutorialActive && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id)
+                                                        !mitVariant.burst && isTutorialActive && mit.name.en === 'Reprisal' && !selectedMitigations.includes(mit.id)
                                                             ? 'tutorial-skill-reprisal'
                                                             : shouldHighlight ? 'tutorial-skill-target' : undefined
                                                     }
                                                     type="button"
-                                                    onClick={() => toggleMitigation(variant.id)}
+                                                    onClick={() => toggleMitigation(mitVariant.id)}
                                                     className={clsx(
                                                         "relative group p-1.5 rounded-lg border transition-all flex items-center justify-center transform active:scale-95 cursor-pointer w-full",
-                                                        selectedMitigations.includes(variant.id)
+                                                        selectedMitigations.includes(mitVariant.id)
                                                             ? "bg-app-text/15 border-app-text ring-1 ring-app-text/30"
                                                             : "bg-app-surface border-app-border hover:bg-app-surface2 hover:border-app-border opacity-80 hover:opacity-100"
                                                     )}
                                                 >
                                                     <Tooltip content={
-                                                        variant.deployVariant === 'plain' ? t('mechanic_modal.deployment_variants.plain') :
-                                                        variant.deployVariant === 'crit' ? t('mechanic_modal.deployment_variants.crit') :
-                                                        variant.deployVariant === 'crit_protraction' ? t('mechanic_modal.deployment_variants.crit_protraction') :
-                                                        getTooltipText(mit) + (variant.burst ? ` (${mit.burstDuration}s)` : '')
+                                                        mitVariant.deployVariant === 'plain' ? t('mechanic_modal.deployment_variants.plain') :
+                                                        mitVariant.deployVariant === 'crit' ? t('mechanic_modal.deployment_variants.crit') :
+                                                        mitVariant.deployVariant === 'crit_protraction' ? t('mechanic_modal.deployment_variants.crit_protraction') :
+                                                        getTooltipText(mit) + (mitVariant.burst ? ` (${mit.burstDuration}s)` : '')
                                                     }>
                                                         <div className="relative">
-                                                            {variant.deployVariant === 'plain' || variant.deployVariant === undefined ? (
+                                                            {mitVariant.deployVariant === 'plain' || mitVariant.deployVariant === undefined ? (
                                                                 <>
                                                                     <img src={mit.icon} alt={getPhaseName(mit.name, contentLanguage)} className="w-7 h-7 object-contain drop-shadow" />
-                                                                    {variant.burst && (
+                                                                    {mitVariant.burst && (
                                                                         <img
                                                                             src={mit.icon}
                                                                             alt=""
@@ -852,7 +843,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                                                                         className="absolute -top-1 -right-1 w-3.5 h-3.5 object-contain rounded-sm ring-1 ring-app-bg drop-shadow"
                                                                     />
                                                                     {/* 右下: 生命回生法（crit_protraction のみ） */}
-                                                                    {variant.deployVariant === 'crit_protraction' && (
+                                                                    {mitVariant.deployVariant === 'crit_protraction' && (
                                                                         <img
                                                                             src={protractionIcon}
                                                                             alt=""
@@ -865,15 +856,15 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                                                     </Tooltip>
                                                 </button>
                                                 {/* MT/ST トグル: 単体バフ選択時のみ表示 */}
-                                                {mit.scope === 'target' && selectedMitigations.includes(variant.id) && (
+                                                {mit.scope === 'target' && selectedMitigations.includes(mitVariant.id) && (
                                                     <div className="flex gap-px text-[9px] font-bold rounded overflow-hidden border border-app-border" onClick={(e) => e.stopPropagation()}>
                                                         {(['MT', 'ST'] as const).map(tgt => {
-                                                            const isActive = (mitigationTargets[variant.id] ?? 'MT') === tgt;
+                                                            const isActive = (mitigationTargets[mitVariant.id] ?? 'MT') === tgt;
                                                             return (
                                                                 <button
                                                                     key={tgt}
                                                                     type="button"
-                                                                    onClick={() => setMitigationTarget(variant.id, tgt)}
+                                                                    onClick={() => setMitigationTarget(mitVariant.id, tgt)}
                                                                     className={clsx(
                                                                         "px-1.5 py-0.5 transition-colors cursor-pointer",
                                                                         isActive ? "bg-app-text text-app-bg" : "bg-app-surface text-app-text-muted hover:bg-app-surface2"
