@@ -26,6 +26,7 @@ import {
     Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Rows3, Settings, Crosshair, PictureInPicture2, Clock
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
+const PipRecorder = React.lazy(() => import('./PipRecorder'));
 import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkillsData';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import clsx from 'clsx';
@@ -602,6 +603,9 @@ const Timeline: React.FC = () => {
     // PiP カンペビュー
     const [pipWindow, setPipWindow] = useState<Window | null>(null);
     const [pipContainer, setPipContainer] = useState<HTMLDivElement | null>(null);
+    const [pipMode, setPipMode] = useState<'cue' | 'recorder' | null>(null);
+    const [pipMenuOpen, setPipMenuOpen] = useState(false);
+    const pipMenuRef = useRef<HTMLDivElement>(null);
     const pipSupported = typeof window !== 'undefined' && 'documentPictureInPicture' in window;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -985,16 +989,14 @@ const Timeline: React.FC = () => {
     }, [isMemoMode, sheetWidth]);
 
 
-    const handleOpenPip = useCallback(async () => {
+    const handleOpenPip = useCallback(async (mode: 'cue' | 'recorder') => {
         if (!pipSupported) return;
         try {
             const dpip = (window as any).documentPictureInPicture;
-            // 初回サイズ: 横は Chrome の Document PiP 最小値にブラウザ補正させる（width: 1 を指定）。
-            // 高さはツールバー (~28px) + 8.5 行 (~170px) ≈ 200px。
-            const win: Window = await dpip.requestWindow({
-                width: 1,
-                height: 200,
-            });
+            // 初回サイズ: カンペは横を Chrome の最小値にブラウザ補正させる（width: 1）+ 高さ 200px。
+            // レコーダーはフォームが収まるよう少し大きめ。
+            const size = mode === 'recorder' ? { width: 360, height: 480 } : { width: 1, height: 200 };
+            const win: Window = await dpip.requestWindow(size);
 
             // スタイルをPiPウィンドウにコピー
             const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
@@ -1017,6 +1019,7 @@ const Timeline: React.FC = () => {
             container.style.position = 'relative';
             win.document.body.appendChild(container);
 
+            setPipMode(mode);
             setPipWindow(win);
             setPipContainer(container);
 
@@ -1024,6 +1027,7 @@ const Timeline: React.FC = () => {
             win.addEventListener('pagehide', () => {
                 setPipWindow(null);
                 setPipContainer(null);
+                setPipMode(null);
             });
         } catch (e) {
             console.warn('PiP open failed:', e);
@@ -1034,7 +1038,20 @@ const Timeline: React.FC = () => {
         pipWindow?.close();
         setPipWindow(null);
         setPipContainer(null);
+        setPipMode(null);
     }, [pipWindow]);
+
+    // PiP メニュー: 外側クリックで閉じる
+    useEffect(() => {
+        if (!pipMenuOpen) return;
+        const onDown = (e: MouseEvent) => {
+            if (pipMenuRef.current && !pipMenuRef.current.contains(e.target as Node)) {
+                setPipMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', onDown);
+        return () => document.removeEventListener('mousedown', onDown);
+    }, [pipMenuOpen]);
 
     // パーティ設定: PC用のローカルstate + モバイル用のContext
     const [partySettingsOpenLocal, setPartySettingsOpenLocal] = useState(false);
@@ -2226,21 +2243,39 @@ const Timeline: React.FC = () => {
                                         <Rows3 size={12} />
                                     </button>
                                 </Tooltip>
-                                {/* PiP カンペビュー */}
+                                {/* PiP（カンペ / 動画でタイムライン作成）— ポップアップ選択 */}
                                 {pipSupported && (
-                                    <Tooltip content={t('timeline.pip_open')}>
-                                        <button
-                                            onClick={pipWindow ? handleClosePip : handleOpenPip}
-                                            className={clsx(
-                                                "p-1 rounded transition-all duration-150 cursor-pointer",
-                                                pipWindow
-                                                    ? "text-app-blue hover:bg-app-blue/10"
-                                                    : "text-app-text-muted hover:bg-app-surface2 hover:text-app-text"
-                                            )}
-                                        >
-                                            <PictureInPicture2 size={12} />
-                                        </button>
-                                    </Tooltip>
+                                    <div className="relative" ref={pipMenuRef}>
+                                        <Tooltip content={t('timeline.pip_open')}>
+                                            <button
+                                                onClick={() => pipWindow ? handleClosePip() : setPipMenuOpen(o => !o)}
+                                                className={clsx(
+                                                    "p-1 rounded transition-all duration-150 cursor-pointer",
+                                                    pipWindow
+                                                        ? "text-app-blue hover:bg-app-blue/10"
+                                                        : "text-app-text-muted hover:bg-app-surface2 hover:text-app-text"
+                                                )}
+                                            >
+                                                <PictureInPicture2 size={12} />
+                                            </button>
+                                        </Tooltip>
+                                        {pipMenuOpen && !pipWindow && (
+                                            <div className="absolute right-0 top-full z-50 mt-1 w-56 overflow-hidden rounded-xl glass-tier3 border border-glass-border/40 shadow-lg">
+                                                <button
+                                                    onClick={() => { setPipMenuOpen(false); handleOpenPip('cue'); }}
+                                                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-app-md text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                >
+                                                    {t('timeline.recorder.menu_cue')}
+                                                </button>
+                                                <button
+                                                    onClick={() => { setPipMenuOpen(false); handleOpenPip('recorder'); }}
+                                                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-app-md text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                                                >
+                                                    {t('timeline.recorder.menu_record')}
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 )}
                                 {/* リキャスト行 ON/OFF (セッション 18 案 C1) */}
                                 <Tooltip content={recastRowVisible ? t('timeline.recast_row.hide', 'リキャスト非表示') : t('timeline.recast_row.show', 'リキャスト表示')}>
@@ -3775,10 +3810,12 @@ const Timeline: React.FC = () => {
                 document.body
             )}
 
-            {/* PiP カンペビュー — 別窓にReactPortalでレンダリング */}
+            {/* PiP — 別窓にReactPortalでレンダリング（モードで出し分け） */}
             {pipContainer && createPortal(
                 <React.Suspense fallback={null}>
-                    <PipView mode="pip" onClose={handleClosePip} />
+                    {pipMode === 'recorder'
+                        ? <PipRecorder />
+                        : <PipView mode="pip" onClose={handleClosePip} />}
                 </React.Suspense>,
                 pipContainer
             )}
