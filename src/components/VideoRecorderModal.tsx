@@ -71,12 +71,13 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
     }, []);
 
     const handleStart = useCallback(() => { setCombatStartSec(getCurrentTime()); }, [getCurrentTime]);
-    const handleReset = useCallback(() => { setCombatStartSec(null); }, []);
+    const handleReset = useCallback(() => { setCombatStartSec(null); setFormTime(null); }, []);
     const handleTogglePlay = useCallback(() => { if (isPlaying) pause(); else play(); }, [isPlaying, play, pause]);
     const handleAddEvent = useCallback(() => {
+        const capturedSec = getCurrentTime();
         pause();
-        const base = combatStartSec ?? getCurrentTime();
-        setFormTime(snapToSecond(Math.max(0, getCurrentTime() - base)));
+        const base = combatStartSec ?? capturedSec;
+        setFormTime(snapToSecond(Math.max(0, capturedSec - base)));
     }, [pause, combatStartSec, getCurrentTime]);
 
     const writeToSheet = useCallback((ev: Omit<TimelineEvent, 'id'>) => {
@@ -117,8 +118,9 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                         <div className="md:flex-[2] min-w-0">
                             {!videoId ? (
                                 <div className="flex flex-col gap-3 h-full justify-center">
-                                    <label className="text-app-md font-bold text-app-text/80">{t('timeline.recorder.video_url_placeholder')}</label>
+                                    <label htmlFor="video-url-input" className="text-app-md font-bold text-app-text/80">{t('timeline.recorder.video_url_placeholder')}</label>
                                     <input
+                                        id="video-url-input"
                                         type="text"
                                         value={urlInput}
                                         onChange={(e) => { setUrlInput(e.target.value); setUrlError(false); }}
