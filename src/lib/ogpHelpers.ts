@@ -3,33 +3,23 @@
  *
  * api/og/index.ts から切り出した純粋ロジック。
  * Edge Functionに依存しないため、単体テスト可能。
+ *
+ * **重要**: JSON import (`import ... from '../data/contents.json'`) は
+ * Vercel Edge Functions では動くが Node Functions (api/share 等) では
+ * バンドラーがパス解決に失敗し FUNCTION_INVOCATION_FAILED を起こす。
+ * そのため OGP 用データは TypeScript 定数 (contentsOgpData.ts) として保持する。
+ * 新コンテンツ追加時は `node scripts/generate-ogp-data.mjs` で再生成。
  */
 
-import contentsJson from '../data/contents.json';
-
-interface RawContent {
-    id: string;
-    ja?: string;
-    en?: string;
-    category?: string;
-    level?: number;
-}
+import { CONTENTS_OGP_DATA } from './contentsOgpData.js';
 
 /**
  * コンテンツID→メタデータ（ja/en/category/level）。
  *
- * **単一の正本 `src/data/contents.json` から自動生成する**（旧来のハードコード二重管理を廃止）。
- * これにより、新コンテンツを contents.json に追加するだけで OGP のコンテンツ名・カテゴリタグが
- * 自動的に表示される（OG 側への転記漏れで名前が消える事故を防ぐ）。
- *
- * ja / en / category / level が全て揃ったエントリのみ採用（OGP 表示に必要な情報が欠けるものは除外）。
+ * 正本は `src/data/contents.json`。OGP 用の抜粋を `contentsOgpData.ts` に
+ * TypeScript 定数として保持し、Node/Edge 両方のバンドラーで確実に解決できるようにする。
  */
-export const CONTENT_META: Record<string, { ja: string; en: string; category: string; level: number }> =
-    Object.fromEntries(
-        (contentsJson as unknown as RawContent[])
-            .filter((c) => c && c.id && c.ja && c.en && c.category && typeof c.level === 'number')
-            .map((c) => [c.id, { ja: c.ja!, en: c.en!, category: c.category!, level: c.level! }]),
-    );
+export const CONTENT_META = CONTENTS_OGP_DATA;
 
 export const CATEGORY_LABELS: Record<string, string> = {
     savage: 'Savage',
