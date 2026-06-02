@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Play, Pause, RotateCcw, Plus, Undo2 } from 'lucide-react';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
+import { getContentById } from '../data/contentRegistry';
 import EventForm from './EventForm';
 import { computeElapsed, formatStopwatch, snapToSecond } from '../utils/stopwatch';
 import type { TimelineEvent } from '../types';
@@ -11,11 +12,21 @@ const genId = () =>
     (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : 'evt_' + Math.random().toString(36).slice(2, 9);
 
 const PipRecorder: React.FC = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const currentPlanId = usePlanStore(s => s.currentPlanId);
+    const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
     const addEvent = useMitigationStore(s => s.addEvent);
     const undo = useMitigationStore(s => s.undo);
     const eventCount = useMitigationStore(s => s.timelineEvents.length);
+
+    // 見出し用: コンテンツ名 + プラン名
+    const lang = (i18n.language || 'ja') as 'ja' | 'en' | 'zh' | 'ko';
+    const planTitle = currentPlan?.title ?? '';
+    const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : undefined;
+    // 零式/絶はレジストリ名、custom 等は contentId(ユーザー入力名)をそのまま
+    const contentName = contentDef
+        ? (contentDef.name[lang] || contentDef.name.ja || contentDef.name.en || '')
+        : (currentPlan?.contentId ?? '');
 
     const accumulatedRef = useRef(0);
     const startedAtRef = useRef<number | null>(null);
@@ -100,7 +111,17 @@ const PipRecorder: React.FC = () => {
     }
 
     return (
-        <div className="flex h-full flex-col items-center justify-between gap-3 bg-app-bg p-3 text-app-text">
+        <div className="flex h-full flex-col items-center justify-between gap-2 bg-app-bg p-3 text-app-text">
+            {/* 見出し: コンテンツ名 + プラン名 */}
+            <div className="w-full text-center leading-tight">
+                {contentName && (
+                    <div className="text-app-base text-app-text/50 truncate">{contentName}</div>
+                )}
+                {planTitle && (
+                    <div className="text-app-md font-bold text-app-text/80 truncate">{planTitle}</div>
+                )}
+            </div>
+
             <div
                 className="w-full text-center font-mono font-bold tracking-tight"
                 style={{ fontVariantNumeric: 'tabular-nums', fontSize: '40px', fontFeatureSettings: '"tnum" 1' }}
