@@ -457,7 +457,12 @@
             "undo": "撤销",
             "recorded_count": "已记录 {{count}} 条",
             "cancel": "取消",
-            "write": "写入表"
+            "write": "写入表",
+            "video_url_placeholder": "在此粘贴 YouTube 链接",
+            "video_load": "加载",
+            "video_change": "更换视频",
+            "video_url_error": "请检查 YouTube 链接",
+            "video_hint": "播放视频，战斗开始时按「开始」"
         },
         "undo": "撤销 (Ctrl+Z)",
         "redo": "重做 (Ctrl+Shift+Z)",
@@ -687,7 +692,6 @@
         "privacy_title": "隐私政策",
         "privacy_last_updated": "最后更新日期：2026年5月20日",
         "privacy_intro": "LoPo（以下称「本服务」）是为《最终幻想XIV》提供粉丝制作工具的非官方网络服务，与 SQUARE ENIX 无关。本页面以简明易懂的方式说明本服务处理哪些信息以及如何保护这些信息。",
-
         "privacy_section1_title": "1. 我们收集的信息",
         "privacy_section1_body": "本服务处理三类信息：",
         "privacy_section1_auth_title": "登录时获取的信息",
@@ -696,10 +700,8 @@
         "privacy_section1_plan_items": "减伤表内容（时间轴、队伍配置、减伤配置等）,减伤表标题和创建日期,团队标志图片（仅在您主动上传时）",
         "privacy_section1_auto_title": "自动收集的信息",
         "privacy_section1_auto_items": "为准确统计共享的减伤表的浏览人数，我们记录经过转换且无法还原为原始地址的 IP 地址版本,为防止滥用，我们临时记录 IP 地址（最多 1 分钟内自动删除）,为了准确统计热门减伤表，我们会接收您浏览器生成的随机匿名ID（不能识别个人的字符串）",
-
         "privacy_section1d_title": "Discord 用户 ID 的处理方式",
         "privacy_section1d_body": "LoPo 仅保存 Discord 用户 ID 与服务器端密钥结合后的 HMAC-SHA256 哈希值。原始 Discord ID 不会保存在 LoPo 数据库中，包括 LoPo 运营者在内的任何人都无法从内部恢复。通过这种哈希化，即使 LoPo 数据发生泄露，用户的 Discord 账号被识别的风险也极低。",
-
         "privacy_section1c_title": "通过支持（Ko-fi）接收的信息",
         "privacy_section1c_body": "本服务通过 Ko-fi 仅接受 PayPal 渠道的支持。当您自愿支持时，Ko-fi 的管理界面以及运营者（LoPo 开发者）用于接收支持的 PayPal 管理界面会将以下信息传达给运营者。这是 Ko-fi 和 PayPal 的支付系统决定的，本服务侧无法阻止接收。",
         "privacy_section1c_kofi_title": "Ko-fi 管理界面可见的信息",
@@ -710,14 +712,11 @@
         "privacy_section1c_promise_items": "运营者不会主动使用您的电子邮件地址联系您。我们不会发送广告邮件，也不会与第三方共享,仅在处理与支持相关的问题时参考；不会用于其他用途,运营者不会另行保存或记录所收到的信息。仅在需要时查看 Ko-fi 或 PayPal 管理界面",
         "privacy_section1c_tips_title": "希望更注重匿名性的朋友",
         "privacy_section1c_tips_items": "显示名：在 Ko-fi 支持表单中将 Display Name 留空，公开页面会显示为 \"Somebody\"（也可填写昵称）。但 PayPal 注册名仍会传到运营者的 PayPal 管理界面，无法回避,PayPal 账户：使用商业（Business）账户即可在支付时显示自由设置的名称。但 PayPal 设计上仍会将姓名传到运营者的 PayPal 管理界面，无法完全隐藏,电子邮件地址：建议使用与日常邮箱不同的（专为支持新建的）地址",
-
         "privacy_section2_title": "2. 我们不收集的信息",
         "privacy_section2_body": "本服务不收集以下任何信息：",
         "privacy_section2_items": "电子邮件地址（Discord 或 X 登录时不会到达我们的服务器。Ko-fi 渠道的情况请参见上方\"通过支持（Ko-fi）接收的信息\"）,真实姓名、家庭住址、电话号码或其他个人信息,支付信息（卡号等支付信息。即便经由 Ko-fi，本服务也不会接触支付信息）,游戏内角色名称或游玩数据",
-
         "privacy_section3_title": "3. 信息的使用方式",
         "privacy_section3_items": "登录和账户管理,保存、跨设备同步和分享减伤表,统计热门减伤表（了解哪些减伤表被频繁参考）,防止未经授权的访问和滥用,了解服务的使用情况以便改进,处理收到的支持相关问题",
-
         "privacy_section4_title": "4. 我们使用的外部服务",
         "privacy_section4_body": "本服务依赖多个外部服务来运作。以下是各服务的用途：",
         "privacy_section4_col_service": "服务",
@@ -729,14 +728,12 @@
         "privacy_section4_analytics_note": "关于 Google Analytics：我们仅收集匿名统计数据，如「页面被浏览了多少次」和「访问者使用的是手机还是电脑」。不会收集任何可识别个人身份的信息。详情请参阅 Google 的隐私政策。",
         "privacy_section4_recaptcha_note": "关于 reCAPTCHA Enterprise：用于判断访问来自真人还是自动程序。在此过程中，鼠标移动等交互模式可能会发送至 Google。",
         "privacy_section4_kofi_note": "关于 Ko-fi：当您自愿支持时，Ko-fi 管理界面与运营者的 PayPal 管理界面会将支持者的姓名、电子邮件地址、支持留言、支持时间和支持金额传达给运营者。详情请参见上方\"通过支持（Ko-fi）接收的信息\"。",
-
         "privacy_section5_title": "5. Cookie 和浏览器存储",
         "privacy_section5_cookie_title": "关于 Cookie",
         "privacy_section5_cookie_items": "通过 Discord 或 X 登录时，会使用临时安全 Cookie（5 分钟内自动删除）,我们不使用任何广告 Cookie",
         "privacy_section5_storage_title": "关于浏览器存储",
         "privacy_section5_storage_items": "缓存的减伤表数据（加快加载速度）,主题偏好（深色/浅色模式）,临时登录状态,用于热门减伤表统计的匿名ID（随机字符串）",
         "privacy_section5_storage_note": "这些数据基本上只保存在您的浏览器中。但是「用于热门减伤表统计的匿名ID」会在您复制共享的减伤表时发送到服务器（这是一个不能识别个人的字符串，仅用于防止统计重复计数）。",
-
         "privacy_section6_title": "6. 数据存储位置和保留期限",
         "privacy_section6_body": "存储位置和保留期限因数据类型而异：",
         "privacy_section6_col_data": "数据类型",
@@ -746,24 +743,18 @@
         "privacy_section6_data_locations": "Google Firebase（东京）,Google Firebase Storage（美国）,Google Firebase（东京）,Google Firebase Storage（美国）,Google Firebase（东京）,您的浏览器,Google Firebase（东京）,Upstash（美国东部）,您的浏览器,您的浏览器,Ko-fi / PayPal 管理界面（运营者不另行保存）",
         "privacy_section6_data_periods": "直到您删除账户,直到您删除,永久保留,30天无访问后自动删除,永久保留（原始 IP 地址无法恢复）,直到您从浏览器中删除,每日汇总数据8天以上自动删除,1 分钟内自动删除,5 分钟内自动删除,直到您删除,遵循各服务自身的隐私政策",
         "privacy_section6_note": "未登录时，本服务不会保存您的减伤表。但是，仅当您复制共享的减伤表时，为了防止统计的重复计数，会向服务器发送匿名ID（不能识别个人的字符串）。",
-
         "privacy_section7_title": "7. 向第三方共享信息",
         "privacy_section7_body": "我们不会向任何人提供或出售您的信息。唯一的例外是运营第 4 节所列外部服务所需的技术数据交换，以及法律要求的信息披露。",
-
         "privacy_section8_title": "8. 您的权利",
         "privacy_section8_body": "您可以随时执行以下任何操作：",
         "privacy_section8_items": "查看、编辑或删除您的减伤表,删除账户（服务器上的所有相关数据也将被删除）,退出登录（停止向服务器传输数据）,清除浏览器中存储的数据",
-
         "privacy_section9_title": "9. 儿童",
         "privacy_section9_body": "本服务不面向 16 岁以下人员。",
-
         "privacy_section10_title": "10. 政策变更",
         "privacy_section10_body": "本政策可能随服务发展而更新。如有重大变更，我们将在服务内通知您。",
-
         "privacy_section11_title": "11. 联系我们",
         "privacy_section11_body": "如对本政策有任何疑问，请随时联系我们：",
         "privacy_section11_items": "Discord：https://discord.gg/z7uypbJSnN,邮箱：lopoly.contact@gmail.com",
-
         "terms_title": "服务条款",
         "terms_last_updated": "最后更新：2026年4月16日",
         "terms_intro": "本条款管辖您对 LoPo（以下称「本服务」）的使用。使用本服务即表示您同意这些条款。",
@@ -786,7 +777,6 @@
         "terms_section8_items": "您上传图片的版权归您所有。不会向本服务转让任何权利,本服务将在服务提供所需的范围内（如共享页面和OGP图片显示）非独占性地使用您的图片,请仅上传您拥有版权或已获得使用许可的图片,禁止上传侵犯版权、肖像权的内容或不当图片,对于因上传图片引起的损害，除故意或重大过失外，运营方不承担责任,经确认违反条款的内容，可能会在不事先通知的情况下予以删除",
         "terms_section8_contact": "如需举报版权侵权或内容问题，请通过以下方式联系我们：",
         "terms_section8_contact_items": "Discord: https://discord.gg/z7uypbJSnN,邮箱: lopoly.contact@gmail.com",
-
         "commercial_title": "特定商业交易法标示",
         "commercial_last_updated": "最后更新：2026年5月2日",
         "commercial_seller": "销售者",
@@ -1339,7 +1329,6 @@
         "servers_tags": "标签",
         "servers_aliases": "别名",
         "servers_server_count": "服务器",
-
         "wizard_step": "步骤 {{current}}/{{total}}",
         "wizard_confirmation": "确认您的输入",
         "wizard_next": "下一步",
@@ -1357,7 +1346,6 @@
         "wizard_optional": "选填",
         "wizard_id_available": "此 ID 可用",
         "wizard_id_taken": "已被使用",
-
         "dash_what_to_do": "您想做什么？",
         "dash_add_content": "添加新副本",
         "dash_add_content_desc": "注册新的零式、绝本等",
@@ -1380,7 +1368,6 @@
         "dash_no_recent": "无最近变更",
         "dash_restore_backup": "从备份恢复",
         "dash_ago": "前",
-
         "content_wiz_title": "添加副本",
         "content_wiz_category": "选择分类",
         "content_wiz_level": "选择等级",
@@ -1392,7 +1379,6 @@
         "content_wiz_new_series": "创建新系列",
         "content_wiz_patch": "输入版本号",
         "content_wiz_fflogs": "是否有 FFLogs ID？",
-
         "template_wiz_title": "注册模板",
         "template_wiz_method": "您想如何创建？",
         "template_wiz_fflogs": "从 FFLogs 导入",
@@ -1409,7 +1395,6 @@
         "template_wiz_events_found": "找到 {{count}} 个 Boss 技能",
         "template_wiz_phases_found": "阶段：{{count}}",
         "template_wiz_plan_note": "减伤配置将被移除。仅保留 Boss 技能。",
-
         "skill_wiz_title": "技能管理",
         "skill_wiz_mode": "您想做什么？",
         "skill_wiz_add": "添加新技能",
@@ -1449,14 +1434,12 @@
         "skill_wiz_select_skill": "哪个技能？",
         "skill_wiz_edit_fields": "编辑要更改的字段",
         "skill_wiz_changes_highlight": "变更",
-
         "job_wiz_title": "添加职业",
         "job_wiz_id": "输入职业 ID",
         "job_wiz_name_ja": "输入职业名称（日文）",
         "job_wiz_name_en": "输入职业名称（英文）",
         "job_wiz_role": "选择职能",
         "job_wiz_icon": "选择图标图片",
-
         "stats_wiz_title": "更新属性",
         "stats_wiz_mode": "您想做什么？",
         "stats_wiz_add": "添加新版本的属性",
@@ -1472,7 +1455,6 @@
         "stats_wiz_other_det": "其他职能信念",
         "stats_wiz_other_wd": "其他职能武器伤害",
         "stats_wiz_select_patch": "哪个版本？",
-
         "backups_title": "从备份恢复",
         "backups_filter": "按类型筛选",
         "backups_filter_all": "全部",
@@ -1485,7 +1467,6 @@
         "backups_type_contents": "副本",
         "backups_type_servers": "服务器",
         "backups_type_template": "模板",
-
         "logs_title": "变更历史",
         "logs_filter": "按类型筛选",
         "logs_filter_all": "全部",
@@ -1494,7 +1475,6 @@
         "logs_action_update": "更新",
         "logs_action_delete": "删除",
         "logs_action_restore": "恢复",
-
         "tpl_editor_time": "时间",
         "tpl_editor_phase": "阶段",
         "tpl_editor_name_ja": "名称（日文）",
@@ -1756,12 +1736,24 @@
                 "other": "其他"
             },
             "errors": {
-                "dc": { "required": "请选择数据中心" },
-                "server": { "required": "请选择服务器" },
-                "area": { "invalid": "请选择正确的区域" },
-                "ward": { "out_of_range": "区请指定在1〜30之间" },
-                "plot": { "out_of_range": "地块请指定在1〜30之间" },
-                "size": { "invalid": "请选择大小" },
+                "dc": {
+                    "required": "请选择数据中心"
+                },
+                "server": {
+                    "required": "请选择服务器"
+                },
+                "area": {
+                    "invalid": "请选择正确的区域"
+                },
+                "ward": {
+                    "out_of_range": "区请指定在1〜30之间"
+                },
+                "plot": {
+                    "out_of_range": "地块请指定在1〜30之间"
+                },
+                "size": {
+                    "invalid": "请选择大小"
+                },
                 "apartment_room": {
                     "required_for_apartment": "请输入房间号（1〜90）",
                     "not_allowed_for_size": "此大小无需填写房间号"
@@ -1778,9 +1770,15 @@
                 },
                 "quota_exhausted": "今日登记配额已用完（明日恢复5个）",
                 "generic": "登记失败，请稍后重试",
-                "buildingType": { "invalid": "建物タイプを選んでください" },
-                "apartmentBuilding": { "out_of_range": "号棟は 1 か 2 を選んでください" },
-                "roomNumber": { "out_of_range": "部屋番号は 1〜90 で入力してください" },
+                "buildingType": {
+                    "invalid": "建物タイプを選んでください"
+                },
+                "apartmentBuilding": {
+                    "out_of_range": "号棟は 1 か 2 を選んでください"
+                },
+                "roomNumber": {
+                    "out_of_range": "部屋番号は 1〜90 で入力してください"
+                },
                 "roomKind": {
                     "apartment_room_required": "アパートには部屋番号が必要です",
                     "invalid_for_house": "この建物タイプでは部屋番号は不要です"
@@ -2255,7 +2253,9 @@
             }
         },
         "edit": {
-            "modal": { "title": "物件を編集" },
+            "modal": {
+                "title": "物件を編集"
+            },
             "save": "保存",
             "success": "更新しました",
             "error": "更新に失敗しました"

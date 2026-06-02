@@ -457,7 +457,12 @@
             "undo": "취소",
             "recorded_count": "{{count}}건 기록됨",
             "cancel": "취소",
-            "write": "표에 기록"
+            "write": "표에 기록",
+            "video_url_placeholder": "여기에 YouTube URL을 붙여넣기",
+            "video_load": "불러오기",
+            "video_change": "다른 영상",
+            "video_url_error": "YouTube URL을 확인해 주세요",
+            "video_hint": "영상을 재생하고 전투가 시작되면 \"시작\"을 누르세요"
         },
         "undo": "되돌리기 (Ctrl+Z)",
         "redo": "다시 실행 (Ctrl+Shift+Z)",
@@ -687,7 +692,6 @@
         "privacy_title": "개인정보처리방침",
         "privacy_last_updated": "최종 업데이트: 2026년 5월 20일",
         "privacy_intro": "LoPo(\"본 서비스\")는 파이널 판타지 XIV를 위한 팬 제작 도구를 제공하는 비공식 웹 서비스입니다. SQUARE ENIX와 제휴 관계가 없습니다. 이 페이지에서는 본 서비스가 어떤 정보를 처리하고 어떻게 보호하는지 알기 쉽게 설명합니다.",
-
         "privacy_section1_title": "1. 수집하는 정보",
         "privacy_section1_body": "본 서비스는 세 가지 유형의 정보를 처리합니다:",
         "privacy_section1_auth_title": "로그인 시 수신하는 정보",
@@ -696,10 +700,8 @@
         "privacy_section1_plan_items": "경감표 콘텐츠(타임라인, 파티 구성, 경감 배치 등),경감표 제목 및 생성일,팀 로고 이미지(직접 업로드한 경우에만)",
         "privacy_section1_auto_title": "자동으로 수집되는 정보",
         "privacy_section1_auto_items": "공유된 경감표의 조회수를 정확히 집계하기 위해 원본으로 복원할 수 없는 변환된 IP 주소를 기록합니다,악용 방지를 위해 IP 주소를 일시적으로 기록합니다(최대 1분 이내에 자동 삭제),인기 경감표를 정확하게 집계하기 위해, 브라우저에서 생성된 무작위 익명 ID(개인을 식별할 수 없는 문자열)를 수신합니다",
-
         "privacy_section1d_title": "Discord 사용자 ID 처리 방법",
         "privacy_section1d_body": "LoPo는 Discord 사용자 ID를 서버 측에 보관된 비밀 키와 결합해 HMAC-SHA256으로 해시화한 값만 저장합니다. 원본 Discord ID는 LoPo의 데이터베이스에 일절 저장되지 않으며 LoPo 운영자를 포함한 LoPo 내부에서도 복원할 수 없습니다. 이 해시화로 인해 만일 LoPo의 데이터가 유출되더라도 이용자의 Discord 계정이 특정될 위험은 극히 낮습니다.",
-
         "privacy_section1c_title": "후원(Ko-fi)을 통해 받는 정보",
         "privacy_section1c_body": "본 서비스는 Ko-fi를 통해 PayPal로만 후원을 받습니다. 자발적인 후원이 들어오면 Ko-fi 관리 화면 및 운영자(LoPo 개발자)가 후원 수령에 사용하는 PayPal 관리 화면을 통해 다음 정보가 운영자에게 전달됩니다. 이는 Ko-fi와 PayPal의 결제 시스템 사양으로, 본 서비스 측에서 수신을 차단할 수 없습니다.",
         "privacy_section1c_kofi_title": "Ko-fi 관리 화면에 표시되는 정보",
@@ -710,14 +712,11 @@
         "privacy_section1c_promise_items": "받은 이메일 주소로 운영자가 먼저 연락하지 않습니다. 광고 메일을 보내거나 제3자와 공유하지도 않습니다,문제 대응에 필요한 범위에서만 참조하며 그 외의 용도로는 사용하지 않습니다,받은 정보는 운영자가 별도로 보관·기록하지 않습니다. 필요할 때만 Ko-fi 또는 PayPal 관리 화면에서 확인합니다",
         "privacy_section1c_tips_title": "더 익명성을 높이고 후원하고 싶은 분께",
         "privacy_section1c_tips_items": "표시 이름: Ko-fi 후원 폼에서 Display Name 칸을 비우면 공개 페이지에는 \"Somebody\"로 표시됩니다(닉네임 입력도 가능). 다만 PayPal에 등록한 이름이 운영자의 PayPal 관리 화면에 전달되는 점은 피할 수 없습니다,PayPal 계정: 비즈니스(Business) 계정을 사용하면 결제 시 임의의 이름을 표시하도록 설정할 수 있습니다,이메일 주소: 평소 사용하시는 것과 다른(후원용으로 새로 만든) 주소 사용을 권장합니다",
-
         "privacy_section2_title": "2. 수집하지 않는 정보",
         "privacy_section2_body": "본 서비스는 다음 정보를 수집하지 않습니다:",
         "privacy_section2_items": "이메일 주소(Discord나 X 로그인 시에는 서버에 도달하지 않습니다. Ko-fi를 통한 경우는 위 \"후원(Ko-fi)을 통해 받는 정보\"를 참조해 주세요),실명· 주소· 전화번호 등 개인 정보,결제 정보(카드 번호 등의 결제 정보. Ko-fi를 거쳐도 본 서비스가 결제 정보를 다루지는 않습니다),게임 내 캐릭터 이름 또는 플레이 데이터",
-
         "privacy_section3_title": "3. 정보의 이용 목적",
         "privacy_section3_items": "로그인 및 계정 관리,경감표의 저장· 기기 간 동기화· 공유,인기 경감표의 집계(어떤 경감표가 자주 참조되는지 파악),무단 접근 및 악용 방지,서비스 이용 현황 파악 및 개선,받은 후원에 대한 문제 대응",
-
         "privacy_section4_title": "4. 이용하는 외부 서비스",
         "privacy_section4_body": "본 서비스는 운영을 위해 여러 외부 서비스를 이용합니다. 각 서비스의 역할은 다음과 같습니다:",
         "privacy_section4_col_service": "서비스",
@@ -729,14 +728,12 @@
         "privacy_section4_analytics_note": "Google Analytics에 대해: \"페이지가 몇 번 조회되었는지\", \"방문자가 모바일인지 데스크톱인지\" 같은 익명 통계만 수집합니다. 개인 식별 정보는 수집하지 않습니다. 자세한 내용은 Google 개인정보처리방침을 참조하세요.",
         "privacy_section4_recaptcha_note": "reCAPTCHA Enterprise에 대해: 접근이 실제 사람인지 자동화된 프로그램인지 판별하기 위해 사용됩니다. 이 과정에서 마우스 움직임 등의 상호작용 패턴이 Google에 전송될 수 있습니다.",
         "privacy_section4_kofi_note": "Ko-fi에 대해: 자발적 후원이 들어오면 Ko-fi 관리 화면과 운영자의 PayPal 관리 화면을 통해 후원자의 이름·이메일 주소·후원 메시지·후원 일시·후원 금액이 운영자에게 전달됩니다. 자세한 내용은 위의 \"후원(Ko-fi)을 통해 받는 정보\"를 참조해 주세요.",
-
         "privacy_section5_title": "5. 쿠키 및 브라우저 저장소",
         "privacy_section5_cookie_title": "쿠키에 대해",
         "privacy_section5_cookie_items": "Discord 또는 X로 로그인 시 임시 보안 쿠키가 사용됩니다(5분 이내에 자동 삭제),광고 쿠키는 사용하지 않습니다",
         "privacy_section5_storage_title": "브라우저 저장소에 대해",
         "privacy_section5_storage_items": "캐시된 경감표 데이터(빠른 로딩용),테마 설정(다크/라이트 모드),임시 로그인 상태,인기 경감표 집계용 익명 ID(무작위 문자열)",
         "privacy_section5_storage_note": "이 데이터는 기본적으로 브라우저 내부에만 저장됩니다. 다만 「인기 경감표 집계용 익명 ID」만은, 공유된 경감표를 복사할 때 서버로 전송됩니다(개인을 식별할 수 없는 문자열이며, 집계의 중복 카운트를 방지하기 위해서만 사용됩니다).",
-
         "privacy_section6_title": "6. 데이터 저장 위치 및 보관 기간",
         "privacy_section6_body": "데이터 유형에 따라 저장 위치와 보관 기간이 다릅니다:",
         "privacy_section6_col_data": "데이터 유형",
@@ -746,24 +743,18 @@
         "privacy_section6_data_locations": "Google Firebase(도쿄),Google Firebase Storage(미국),Google Firebase(도쿄),Google Firebase Storage(미국),Google Firebase(도쿄),브라우저,Google Firebase(도쿄),Upstash(미국 동부),브라우저,브라우저,Ko-fi / PayPal 관리 화면(운영자는 별도로 보관하지 않음)",
         "privacy_section6_data_periods": "계정 삭제 시까지,삭제할 때까지,무기한,30일간 접근이 없으면 자동 삭제,무기한(원본 IP 주소 복원 불가),브라우저에서 직접 삭제할 때까지,일별 집계는 8일 이상 지난 것은 자동 삭제,최대 1분 이내 자동 삭제,5분 이내 자동 삭제,삭제할 때까지,각 서비스의 개인정보 처리방침에 준함",
         "privacy_section6_note": "로그인하지 않은 경우, 본 서비스에 경감표가 저장되지 않습니다. 다만, 공유된 경감표를 복사할 때에 한해, 집계의 중복 카운트를 방지하기 위한 익명 ID(개인을 식별할 수 없는 문자열)가 서버로 전송됩니다.",
-
         "privacy_section7_title": "7. 제3자에게의 정보 제공",
         "privacy_section7_body": "당사는 귀하의 정보를 누구에게도 제공하거나 판매하지 않습니다. 유일한 예외는 제4항에 나열된 외부 서비스 운영에 필요한 기술적 데이터 교환과 법적으로 요구되는 공개입니다.",
-
         "privacy_section8_title": "8. 귀하의 권리",
         "privacy_section8_body": "귀하는 언제든지 다음을 수행할 수 있습니다:",
         "privacy_section8_items": "경감표 조회, 편집 또는 삭제,계정 삭제(서버상의 모든 관련 데이터도 삭제됨),로그아웃(서버로의 데이터 전송 중단),브라우저에 저장된 데이터 삭제",
-
         "privacy_section9_title": "9. 아동",
         "privacy_section9_body": "본 서비스는 16세 미만을 대상으로 하지 않습니다.",
-
         "privacy_section10_title": "10. 방침 변경",
         "privacy_section10_body": "본 방침은 서비스 발전에 따라 업데이트될 수 있습니다. 중요한 변경 사항이 있을 경우 서비스 내에서 안내드리겠습니다.",
-
         "privacy_section11_title": "11. 문의",
         "privacy_section11_body": "본 방침에 대해 궁금한 점이 있으시면 언제든 연락해 주세요:",
         "privacy_section11_items": "Discord: https://discord.gg/z7uypbJSnN,Email: lopoly.contact@gmail.com",
-
         "terms_title": "이용약관",
         "terms_last_updated": "최종 수정일: 2026년 4월 16일",
         "terms_intro": "본 약관은 LoPo(\"본 서비스\")의 이용에 적용됩니다. 본 서비스를 이용함으로써 본 약관에 동의하는 것으로 간주됩니다.",
@@ -786,7 +777,6 @@
         "terms_section8_items": "업로드한 이미지의 저작권은 귀하에게 있습니다. 본 서비스로의 권리 양도는 발생하지 않습니다,본 서비스는 공유 페이지 및 OGP 이미지 표시 등 서비스 제공에 필요한 범위 내에서 이미지를 비독점적으로 이용합니다,저작권을 보유하고 있거나 사용 허가를 받은 이미지만 업로드해 주세요,저작권·초상권을 침해하는 콘텐츠나 부적절한 이미지의 업로드는 금지됩니다,업로드 이미지로 인한 손해에 대해 운영자는 고의 또는 중대한 과실이 있는 경우를 제외하고 책임을 지지 않습니다,약관을 위반하는 콘텐츠가 확인된 경우 사전 통지 없이 삭제할 수 있습니다",
         "terms_section8_contact": "저작권 침해 또는 콘텐츠 관련 신고는 아래 방법으로 연락해 주세요.",
         "terms_section8_contact_items": "Discord: https://discord.gg/z7uypbJSnN,이메일: lopoly.contact@gmail.com",
-
         "commercial_title": "특정상거래법에 기반한 표시",
         "commercial_last_updated": "최종 수정일: 2026년 5월 2일",
         "commercial_seller": "판매자",
@@ -1339,7 +1329,6 @@
         "servers_tags": "태그",
         "servers_aliases": "별칭",
         "servers_server_count": "서버",
-
         "wizard_step": "단계 {{current}}/{{total}}",
         "wizard_confirmation": "입력 내용 확인",
         "wizard_next": "다음",
@@ -1357,7 +1346,6 @@
         "wizard_optional": "선택",
         "wizard_id_available": "사용 가능한 ID입니다",
         "wizard_id_taken": "이미 사용 중입니다",
-
         "dash_what_to_do": "무엇을 하시겠습니까?",
         "dash_add_content": "새 콘텐츠 추가",
         "dash_add_content_desc": "새 영식, 절 등 등록",
@@ -1380,7 +1368,6 @@
         "dash_no_recent": "최근 변경 없음",
         "dash_restore_backup": "백업에서 복원",
         "dash_ago": "전",
-
         "content_wiz_title": "콘텐츠 추가",
         "content_wiz_category": "카테고리를 선택하세요",
         "content_wiz_level": "레벨을 선택하세요",
@@ -1392,7 +1379,6 @@
         "content_wiz_new_series": "새 시리즈 만들기",
         "content_wiz_patch": "패치 번호를 입력하세요",
         "content_wiz_fflogs": "FFLogs ID가 있습니까?",
-
         "template_wiz_title": "템플릿 등록",
         "template_wiz_method": "어떤 방법으로 만드시겠습니까?",
         "template_wiz_fflogs": "FFLogs에서 가져오기",
@@ -1409,7 +1395,6 @@
         "template_wiz_events_found": "보스 액션 {{count}}개 발견",
         "template_wiz_phases_found": "페이즈: {{count}}",
         "template_wiz_plan_note": "경감 배치는 제거됩니다. 보스 액션만 유지됩니다.",
-
         "skill_wiz_title": "스킬 관리",
         "skill_wiz_mode": "무엇을 하시겠습니까?",
         "skill_wiz_add": "새 스킬 추가",
@@ -1449,14 +1434,12 @@
         "skill_wiz_select_skill": "어떤 스킬입니까?",
         "skill_wiz_edit_fields": "변경할 필드를 편집하세요",
         "skill_wiz_changes_highlight": "변경 사항",
-
         "job_wiz_title": "잡 추가",
         "job_wiz_id": "잡 ID를 입력하세요",
         "job_wiz_name_ja": "잡 이름을 입력하세요 (일본어)",
         "job_wiz_name_en": "잡 이름을 입력하세요 (영어)",
         "job_wiz_role": "역할을 선택하세요",
         "job_wiz_icon": "아이콘 이미지를 선택하세요",
-
         "stats_wiz_title": "스탯 업데이트",
         "stats_wiz_mode": "무엇을 하시겠습니까?",
         "stats_wiz_add": "새 패치 스탯 추가",
@@ -1472,7 +1455,6 @@
         "stats_wiz_other_det": "기타 역할 의지",
         "stats_wiz_other_wd": "기타 역할 무기 데미지",
         "stats_wiz_select_patch": "어떤 패치입니까?",
-
         "backups_title": "백업에서 복원",
         "backups_filter": "유형별 필터",
         "backups_filter_all": "전체",
@@ -1485,7 +1467,6 @@
         "backups_type_contents": "콘텐츠",
         "backups_type_servers": "서버",
         "backups_type_template": "템플릿",
-
         "logs_title": "변경 이력",
         "logs_filter": "유형별 필터",
         "logs_filter_all": "전체",
@@ -1494,7 +1475,6 @@
         "logs_action_update": "수정",
         "logs_action_delete": "삭제",
         "logs_action_restore": "복원",
-
         "tpl_editor_time": "시간",
         "tpl_editor_phase": "페이즈",
         "tpl_editor_name_ja": "이름 (일본어)",
@@ -1756,12 +1736,24 @@
                 "other": "기타"
             },
             "errors": {
-                "dc": { "required": "데이터 센터를 선택해 주세요" },
-                "server": { "required": "서버를 선택해 주세요" },
-                "area": { "invalid": "올바른 에리어를 선택해 주세요" },
-                "ward": { "out_of_range": "구역은 1〜30 사이로 지정해 주세요" },
-                "plot": { "out_of_range": "번지는 1〜30 사이로 지정해 주세요" },
-                "size": { "invalid": "크기를 선택해 주세요" },
+                "dc": {
+                    "required": "데이터 센터를 선택해 주세요"
+                },
+                "server": {
+                    "required": "서버를 선택해 주세요"
+                },
+                "area": {
+                    "invalid": "올바른 에리어를 선택해 주세요"
+                },
+                "ward": {
+                    "out_of_range": "구역은 1〜30 사이로 지정해 주세요"
+                },
+                "plot": {
+                    "out_of_range": "번지는 1〜30 사이로 지정해 주세요"
+                },
+                "size": {
+                    "invalid": "크기를 선택해 주세요"
+                },
                 "apartment_room": {
                     "required_for_apartment": "방 번호 (1〜90)를 입력해 주세요",
                     "not_allowed_for_size": "이 크기에서는 방 번호가 필요하지 않습니다"
@@ -1778,9 +1770,15 @@
                 },
                 "quota_exhausted": "오늘의 등록 한도를 모두 사용했습니다 (내일 5개 복구)",
                 "generic": "등록에 실패했습니다. 잠시 후 다시 시도해 주세요",
-                "buildingType": { "invalid": "建物タイプを選んでください" },
-                "apartmentBuilding": { "out_of_range": "号棟は 1 か 2 を選んでください" },
-                "roomNumber": { "out_of_range": "部屋番号は 1〜90 で入力してください" },
+                "buildingType": {
+                    "invalid": "建物タイプを選んでください"
+                },
+                "apartmentBuilding": {
+                    "out_of_range": "号棟は 1 か 2 を選んでください"
+                },
+                "roomNumber": {
+                    "out_of_range": "部屋番号は 1〜90 で入力してください"
+                },
                 "roomKind": {
                     "apartment_room_required": "アパートには部屋番号が必要です",
                     "invalid_for_house": "この建物タイプでは部屋番号は不要です"
@@ -2255,7 +2253,9 @@
             }
         },
         "edit": {
-            "modal": { "title": "物件を編集" },
+            "modal": {
+                "title": "物件を編集"
+            },
             "save": "保存",
             "success": "更新しました",
             "error": "更新に失敗しました"
@@ -2372,4 +2372,3 @@
         }
     }
 }
-
