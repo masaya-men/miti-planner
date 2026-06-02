@@ -5,8 +5,9 @@ import { render, fireEvent, screen } from '@testing-library/react';
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (k: string, opt?: any) => (opt?.count !== undefined ? `${k}:${opt.count}` : k), i18n: { language: 'ja' } }),
 }));
+// 再生中 (isPlaying: true) を模擬 → 大ボタンは「戦闘開始！」になる。getCurrentTime は 15 固定。
 vi.mock('../../hooks/useYouTubePlayer', () => ({
-    useYouTubePlayer: () => ({ ready: true, isPlaying: false, play: () => {}, pause: () => {}, getCurrentTime: () => 15 }),
+    useYouTubePlayer: () => ({ ready: true, isPlaying: true, play: () => {}, pause: () => {}, getCurrentTime: () => 15 }),
 }));
 
 import { useMitigationStore } from '../../store/useMitigationStore';
@@ -25,12 +26,13 @@ describe('VideoRecorderModal', () => {
         expect(screen.getByText('timeline.recorder.no_plan')).toBeTruthy();
     });
 
-    it('URL読込→スタート→イベント追加→表に書き込む で addEvent される', () => {
+    it('URL読込→戦闘開始→イベント追加→表に書き込む で addEvent される', () => {
         render(<VideoRecorderModal isOpen onClose={() => {}} />);
         const input = screen.getByPlaceholderText('timeline.recorder.video_url_placeholder') as HTMLInputElement;
         fireEvent.change(input, { target: { value: 'https://youtu.be/dQw4w9WgXcQ' } });
         fireEvent.click(screen.getByText('timeline.recorder.video_load'));
-        fireEvent.click(screen.getByText('timeline.recorder.start'));
+        // 再生中なので大ボタンは「戦闘開始！」→ 押下で戦闘開始マーク
+        fireEvent.click(screen.getByText('timeline.recorder.combat_start_button'));
         fireEvent.click(screen.getByText('timeline.recorder.add_event'));
         const nameInput = document.querySelector('[data-tutorial="event-name-input"]') as HTMLInputElement;
         fireEvent.change(nameInput, { target: { value: 'テスト攻撃' } });

@@ -142,6 +142,10 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                                         onChange={(e) => { setUrlInput(e.target.value); setUrlError(false); }}
                                         onKeyDown={(e) => { if (e.key === 'Enter') handleLoadUrl(); }}
                                         placeholder={t('timeline.recorder.video_url_placeholder')}
+                                        autoComplete="off"
+                                        autoCorrect="off"
+                                        autoCapitalize="off"
+                                        spellCheck={false}
                                         className="w-full rounded-lg p-3 bg-app-surface2 border border-app-border text-app-text focus:outline-none focus:border-app-text"
                                     />
                                     {urlError && <span className="text-app-base text-app-red">{t('timeline.recorder.video_url_error')}</span>}
@@ -198,12 +202,13 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
                                     {!combatStarted ? (
                                         <>
-                                            <p className="text-app-base text-app-text/50 text-center">{t('timeline.recorder.video_hint')}</p>
+                                            <p className="text-app-lg font-bold text-app-red text-center leading-snug">{t('timeline.recorder.video_hint')}</p>
+                                            {/* 未再生→「動画を再生する」, 再生中→「戦闘開始！」(押下で戦闘開始マーク=ストップウォッチ開始) */}
                                             <button
-                                                onClick={handleStart}
+                                                onClick={isPlaying ? handleStart : play}
                                                 className="w-full rounded-xl bg-app-blue py-4 text-app-2xl font-bold text-white hover:bg-app-blue-hover active:scale-95 cursor-pointer"
                                             >
-                                                {t('timeline.recorder.start')}
+                                                {isPlaying ? t('timeline.recorder.combat_start_button') : t('timeline.recorder.video_play_button')}
                                             </button>
                                         </>
                                     ) : (

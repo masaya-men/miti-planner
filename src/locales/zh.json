@@ -462,7 +462,9 @@
             "video_load": "加载",
             "video_change": "更换视频",
             "video_url_error": "请检查 YouTube 链接",
-            "video_hint": "播放视频，战斗开始时按「开始」"
+            "video_hint": "战斗开始的瞬间请按「战斗开始！」",
+            "video_play_button": "播放视频",
+            "combat_start_button": "战斗开始！"
         },
         "undo": "撤销 (Ctrl+Z)",
         "redo": "重做 (Ctrl+Shift+Z)",

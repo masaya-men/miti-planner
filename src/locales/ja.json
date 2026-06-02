@@ -474,7 +474,9 @@
             "video_load": "読み込む",
             "video_change": "別の動画",
             "video_url_error": "YouTube の URL を確認してください",
-            "video_hint": "動画を再生し、戦闘が始まったら「スタート」を押してください"
+            "video_hint": "戦闘が始まった瞬間に「戦闘開始！」を押してください",
+            "video_play_button": "動画を再生する",
+            "combat_start_button": "戦闘開始！"
         },
         "undo": "元に戻す (Ctrl+Z)",
         "redo": "やり直し (Ctrl+Shift+Z)",

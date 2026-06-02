@@ -462,7 +462,9 @@
             "video_load": "불러오기",
             "video_change": "다른 영상",
             "video_url_error": "YouTube URL을 확인해 주세요",
-            "video_hint": "영상을 재생하고 전투가 시작되면 \"시작\"을 누르세요"
+            "video_hint": "전투가 시작되는 순간 '전투 시작!'을 누르세요",
+            "video_play_button": "영상 재생",
+            "combat_start_button": "전투 시작!"
         },
         "undo": "되돌리기 (Ctrl+Z)",
         "redo": "다시 실행 (Ctrl+Shift+Z)",

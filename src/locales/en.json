@@ -470,7 +470,9 @@
             "video_load": "Load",
             "video_change": "Change video",
             "video_url_error": "Please check the YouTube URL",
-            "video_hint": "Play the video and press Start when the fight begins"
+            "video_hint": "Press 'Combat start!' the instant the fight begins",
+            "video_play_button": "Play video",
+            "combat_start_button": "Combat start!"
         },
         "undo": "Undo (Ctrl+Z)",
         "redo": "Redo (Ctrl+Shift+Z)",
