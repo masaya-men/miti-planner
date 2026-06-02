@@ -3,7 +3,8 @@ import { useState, useCallback, useRef } from 'react';
 /**
  * 汎用 OGP 取得 hook (2026-05-27 リライト、 URL 直接表示版)。
  *
- * /api/og?url=<allowlist 内 URL> を叩いて、 OGP メタデータ + 画像 URL リストを取得。
+ * /api/og-fetch?url=<allowlist 内 URL> を叩いて、 OGP メタデータ + 画像 URL リストを取得。
+ * (注: /api/og は共有プランの OGP 画像生成器が使うため、 ハウジング取得器は /api/og-fetch に分離。)
  * **画像本体は LoPo の倉庫にコピーせず、 元サイトの URL をそのまま `<img src>` で読む**
  * (= 投稿削除で自動消失、 LoPo 帯域消費ゼロ)。
  * useTweetFetch / useYoutubeFetch と並ぶ「URL → 物件画像」 経路の 3 つ目。
@@ -46,7 +47,7 @@ export function useOgpFetch() {
         setData(null);
         setErrorCode(null);
         try {
-            const res = await fetch(`/api/og?url=${encodeURIComponent(url)}`, {
+            const res = await fetch(`/api/og-fetch?url=${encodeURIComponent(url)}`, {
                 signal: ctrl.signal,
             });
             if (ctrl.signal.aborted) return;

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import handler from '../../../api/og';
+import handler from '../../../api/og-fetch';
 
 const mockFetch = vi.spyOn(globalThis, 'fetch');
 
 function makeReq(url: string | null): Request {
-    const u = new URL('http://localhost/api/og');
+    const u = new URL('http://localhost/api/og-fetch');
     if (url !== null) u.searchParams.set('url', url);
     return new Request(u);
 }
@@ -16,7 +16,7 @@ function htmlResponse(html: string): Response {
     });
 }
 
-describe('GET /api/og (URL リスト返却版、 2026-05-27)', () => {
+describe('GET /api/og-fetch (ハウジングOGP URL リスト返却版、 2026-05-27)', () => {
     beforeEach(() => {
         mockFetch.mockReset();
     });
@@ -170,7 +170,7 @@ describe('GET /api/og (URL リスト返却版、 2026-05-27)', () => {
     });
 
     it('OPTIONS preflight は 204 + CORS ヘッダー', async () => {
-        const u = new URL('http://localhost/api/og');
+        const u = new URL('http://localhost/api/og-fetch');
         u.searchParams.set('url', 'https://housingsnap.com/x');
         const req = new Request(u, { method: 'OPTIONS' });
         const res = await handler(req);
