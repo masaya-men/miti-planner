@@ -11,8 +11,8 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **ブランチ**: main。 2026-05-29 本セッション: 下記 **Cloudflare Worker 移設**を push 済 (Vercel 自動デプロイ、ambient 復帰込み)。 それ以前の masonry/windowing/CLS 等の完了詳細は [TODO_COMPLETED.md](./TODO_COMPLETED.md)。
-- **📌 次セッション最優先 (絶リリース絡み・2026-06-02 共有)**: **PiP 攻撃記録機能**の brainstorming → 設計 → 実装。YouTube 動画上に LoPo 製 PiP を出し、戦闘開始タイマー + 攻撃記録ボタン + ワンボタンで軽減表取込。拡張機能不要 (Document PiP API)。アイデア詳細 = [docs/.private/2026-06-02-pip-attack-recording-idea.md](./.private/2026-06-02-pip-attack-recording-idea.md)。次セッション最初の動き: 既存 PiP コード把握 → API サポート状況確認 → brainstorming。
+- **ブランチ**: `feat/pip-timeline-recorder` (未 push)。 2026-06-02 本セッション: **動画でタイムライン作成 PiP** を実装完了 (Task1-5)。 build green / 新規テスト pass (stopwatch7・PipRecorder3)。 既存 housing テスト 5 失敗は pre-existing (Router context・無関係)。
+- **📌 次セッション最優先 = PiP の実機 E2E (Chrome) + チュートリアル回帰**: `npm run dev` → 新規プラン作成 → 軽減表ヘッダの PiP ボタン押下 → ポップアップ「動画でタイムライン作成」→ 別窓動画の上で スタート/＋イベント追加(タイマー停止+時刻自動入力)/逆算入力/「表に書き込む」/取消。 + チュートリアルのイベント追加系 (add-1〜4 / create-8-miti) が従来どおり進むか。 問題なければ main へ merge → push (Vercel 本番デプロイ)。 設計=specs `2026-06-02-pip-timeline-recorder-design.md` / 計画=plans `2026-06-02-pip-timeline-recorder.md`。
 - **✅ Cloudflare Worker 移設 完了 (2026-05-29)**: Twitter 動画 → `media.lopoly.app` (Worker `lopo-media-proxy`) 経由で **Vercel egress ゼロ化**。env `VITE_MEDIA_PROXY_BASE_URL`=`https://media.lopoly.app` で制御 (Vercel 本番に設定済、外せば即ロールバック)、ambient 復帰済。worker コード=`workers/media-proxy/`。設計/計画=specs|plans の `2026-05-29-housing-video-cf-worker`。memory `project_cloudflare_caching_priority`
 - **中優先フォローアップ=動画 CF エッジキャッシュ**: 実測でコスト緊急性は否定 (2026-05-29 Playwright 計測: フル再生3req/再再生1req(browser cache)/フレーム抽出5req、frameCache でセッション内再抽出ゼロ。月13万訪問でも約¥2,200)。よって**コスト目的ではなく レイテンシ/堅牢性/Twitter 取得回数削減**のため。実装=Worker で full mp4 取得→Cache API→Range slice で 206 (アプリ側変更ゼロ・worker 1ファイル)。**Range×cache は hotfix21 地雷=seek 検証必須**、検証は `C:\Users\masay\AppData\Local\Temp\playwright-media-cost.js` 流用可 ([[reference_vercel_edge_range_cache]])。
 - **方針 (2026-05-27 確定)**: **α 公開期限撤回**、 1 セッション 1 タスクで丁寧に進める。 **デザインは 1 つずつ実機を見ながら一緒に** (大規模一括はしない、 2026-05-28 ユーザー再確認)。 画像も動画も全部「外部 URL 直接 + 画面内自動再生」 に統一。 詳細 memory `project_housing_phase_status`
