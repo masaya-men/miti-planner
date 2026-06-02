@@ -765,8 +765,9 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                                 ref={mitigationGridRef}
                                 id="mitigation-grid-container"
                                 className={clsx(
-                                    "grid grid-cols-6 sm:grid-cols-8 gap-2 overflow-y-auto p-2 rounded-xl border custom-scrollbar shadow-inner transition-colors relative",
-                                    variant === 'pip' ? "max-h-[120px]" : "max-h-[160px]",
+                                    "grid gap-2 overflow-y-auto p-2 rounded-xl border custom-scrollbar shadow-inner transition-colors relative",
+                                    // pip (動画モーダル) は右パネルが狭いため 6 列固定 + 高さ広めでアイコンを窮屈にしない
+                                    variant === 'pip' ? "grid-cols-6 max-h-[300px]" : "grid-cols-6 sm:grid-cols-8 max-h-[160px]",
                                     "bg-app-surface2 border-app-border"
                                 )}
                             >

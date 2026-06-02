@@ -48,13 +48,30 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const [elapsedSec, setElapsedSec] = useState(0);
     const [formTime, setFormTime] = useState<number | null>(null);
 
+    // ストップウォッチ表示は requestAnimationFrame で滑らかに更新する。
+    // 時刻の真値は「動画位置 (getCurrentTime) − 戦闘開始位置」なので、native シーク/巻き戻ししてもズレない。
+    // 再生中は「最後に同期した動画位置 + 実時間経過」で内挿し (500ms ごとに再同期)、停止中は動画位置を直接読む。
+    const anchorRef = useRef<{ videoSec: number; wallMs: number } | null>(null);
     useEffect(() => {
-        if (combatStartSec == null) { setElapsedSec(0); return; }
-        const id = setInterval(() => {
-            setElapsedSec(Math.max(0, getCurrentTime() - combatStartSec));
-        }, 200);
-        return () => clearInterval(id);
-    }, [combatStartSec, getCurrentTime]);
+        if (combatStartSec == null) { setElapsedSec(0); anchorRef.current = null; return; }
+        let raf = 0;
+        const loop = (nowMs: number) => {
+            let projected: number;
+            const a = anchorRef.current;
+            if (isPlaying && a) {
+                if (nowMs - a.wallMs > 500) anchorRef.current = { videoSec: getCurrentTime(), wallMs: nowMs };
+                const aa = anchorRef.current!;
+                projected = aa.videoSec + (nowMs - aa.wallMs) / 1000;
+            } else {
+                projected = getCurrentTime();
+                anchorRef.current = { videoSec: projected, wallMs: nowMs };
+            }
+            setElapsedSec(Math.max(0, projected - combatStartSec));
+            raf = requestAnimationFrame(loop);
+        };
+        raf = requestAnimationFrame(loop);
+        return () => cancelAnimationFrame(raf);
+    }, [combatStartSec, getCurrentTime, isPlaying]);
 
     const handleLoadUrl = useCallback(() => {
         const id = parseYouTubeId(urlInput);
@@ -99,23 +116,22 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 />
                 <motion.div
                     initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0 }}
-                    className="relative glass-tier3 rounded-2xl shadow-2xl w-full max-w-[1200px] max-h-[90vh] overflow-hidden flex flex-col"
+                    className="relative glass-tier3 rounded-2xl shadow-2xl w-full max-w-[1400px] max-h-[92vh] overflow-hidden flex flex-col"
+                    style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
                 >
-                    {/* ヘッダー */}
-                    <div className="flex items-center justify-between px-5 py-3 border-b border-glass-border/30 shrink-0">
-                        <h2 className="text-app-lg font-black text-app-text tracking-wider">{t('timeline.recorder.menu_record')}</h2>
-                        <button
-                            onClick={onClose}
-                            className="p-2 rounded-full text-app-text/60 hover:text-app-text hover:bg-app-text/10 transition-colors cursor-pointer active:scale-90"
-                        >
-                            <X size={18} />
-                        </button>
-                    </div>
+                    {/* 閉じる: 動画を最大化するためヘッダー行は置かず、右上角に小さくフロート (Esc / 外側クリックでも閉じる) */}
+                    <button
+                        onClick={onClose}
+                        aria-label={t('common.close', '閉じる')}
+                        className="absolute top-2.5 right-2.5 z-20 p-1.5 rounded-full bg-app-bg/50 text-app-text/50 hover:text-app-text hover:bg-app-text/10 transition-colors cursor-pointer active:scale-90"
+                    >
+                        <X size={16} />
+                    </button>
 
                     {/* 本体: 左=動画, 右=記録UI */}
                     <div className="flex flex-col md:flex-row gap-4 p-4 overflow-y-auto">
                         {/* 左ペイン: 動画 */}
-                        <div className="md:flex-[2] min-w-0">
+                        <div className="md:flex-[3] min-w-0">
                             {!videoId ? (
                                 <div className="flex flex-col gap-3 h-full justify-center">
                                     <label htmlFor="video-url-input" className="text-app-md font-bold text-app-text/80">{t('timeline.recorder.video_url_placeholder')}</label>
@@ -149,8 +165,8 @@ const VideoRecorderModal: React.FC<Props> = ({ isOpen, onClose }) => {
                             )}
                         </div>
 
-                        {/* 右ペイン: 記録UI */}
-                        <div className="md:flex-1 min-w-0 md:max-w-[340px] flex flex-col">
+                        {/* 右ペイン: 記録UI (フォーム表示中は軽減アイコンが窮屈にならないよう拡幅) */}
+                        <div className={`md:flex-1 min-w-0 flex flex-col ${formTime !== null ? 'md:max-w-[460px]' : 'md:max-w-[340px]'}`}>
                             {!currentPlanId ? (
                                 <div className="flex flex-1 items-center justify-center p-4 text-center text-app-text/70 text-app-md">
                                     {t('timeline.recorder.no_plan')}
