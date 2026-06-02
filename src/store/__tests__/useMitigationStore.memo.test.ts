@@ -69,4 +69,34 @@ describe('useMitigationStore memo actions', () => {
     useMitigationStore.getState().deleteAllMemos();
     expect(useMitigationStore.getState().memos).toHaveLength(0);
   });
+
+  // ── メモ leak 回帰 (#57): 新規プラン作成で前プランのメモを引き継がない ──
+  // 背景: NewPlanModal / Sidebar の「新規プラン」リセットは
+  //   loadSnapshot({ ...getSnapshot(), timelineEvents:[], timelineMitigations:[], phases:[] })
+  // の形で、events/軽減/phases は消すのに memos を消し忘れて前プランのメモを
+  // 新プランへ引き継ぐ leak があった。修正で各箇所に memos:[] を追加済み。
+  // 下の 2 テストはその契約 (getSnapshot は memos を運ぶ → 新規リセットは memos:[] 必須) をロックする。
+
+  it('getSnapshot は memos を含む (= spread するとメモが引き継がれるため、新規リセットで明示クリアが必要)', () => {
+    useMitigationStore.getState().addMemo({ text: 'x', timeSec: 1, xRatio: 0.1 });
+    expect(useMitigationStore.getState().getSnapshot().memos).toHaveLength(1);
+  });
+
+  it('新規プランのリセットパターン (...getSnapshot() + memos:[]) は前プランのメモを引き継がない', () => {
+    useMitigationStore.getState().addMemo({ text: '前プランのメモ', timeSec: 5, xRatio: 0.5 });
+    expect(useMitigationStore.getState().memos).toHaveLength(1);
+
+    const base = useMitigationStore.getState().getSnapshot();
+    useMitigationStore.getState().loadSnapshot({
+      ...base,
+      timelineEvents: [],
+      timelineMitigations: [],
+      phases: [],
+      memos: [], // ← この行が無いと leak する (修正対象)
+    });
+
+    expect(useMitigationStore.getState().memos).toHaveLength(0);
+    // addPlan に渡る data (= getSnapshot) にもメモが残らない
+    expect(useMitigationStore.getState().getSnapshot().memos).toEqual([]);
+  });
 });

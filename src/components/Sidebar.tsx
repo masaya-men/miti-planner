@@ -999,6 +999,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     timelineMitigations: [],
                     timelineEvents: createTutorialEvents(otherHp, tankHp),
                     phases: [],
+                    memos: [], // 新規プランは前プランのメモを引き継がない
                 });
             } else {
                 // テンプレートを裏で読み込み → 自動でプランとして保存
@@ -1019,6 +1020,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         : undefined;
                     store.loadSnapshot({
                         ...snap,
+                        memos: [], // 新規プランは前プランのメモを引き継がない
                         timelineMitigations: [],
                         timelineEvents: tpl.timelineEvents,
                         phases: tpl.phases ? ensurePhaseEndTimes(tpl.phases
@@ -1044,7 +1046,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         ...store.getSnapshot(),
                         timelineEvents: [],
                         timelineMitigations: [],
-                        phases: []
+                        phases: [],
+                        memos: [], // 新規プランは前プランのメモを引き継がない
                     });
                 }
             }

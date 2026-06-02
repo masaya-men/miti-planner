@@ -152,6 +152,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
             timelineEvents: [],
             timelineMitigations: [],
             phases: [],
+            memos: [], // 新規プランは前プランのメモを引き継がない
         });
         store.setHideEmptyRows(false);
 
