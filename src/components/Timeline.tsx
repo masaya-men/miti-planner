@@ -605,7 +605,9 @@ const Timeline: React.FC = () => {
     const [pipContainer, setPipContainer] = useState<HTMLDivElement | null>(null);
     const [pipMode, setPipMode] = useState<'cue' | 'recorder' | null>(null);
     const [pipMenuOpen, setPipMenuOpen] = useState(false);
+    const [pipMenuPos, setPipMenuPos] = useState<{ top: number; right: number } | null>(null);
     const pipMenuRef = useRef<HTMLDivElement>(null);
+    const pipMenuPanelRef = useRef<HTMLDivElement>(null);
     const pipSupported = typeof window !== 'undefined' && 'documentPictureInPicture' in window;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -1041,13 +1043,28 @@ const Timeline: React.FC = () => {
         setPipMode(null);
     }, [pipWindow]);
 
-    // PiP メニュー: 外側クリックで閉じる
+    // PiP メニューの開閉（トリガーボタンの位置から固定配置を算出）。
+    // メニューはツールバー(overflow-hidden)の外＝document.body に portal するため、ここで座標を確定する。
+    const togglePipMenu = useCallback(() => {
+        if (pipWindow) { handleClosePip(); return; }
+        setPipMenuOpen(prev => {
+            if (prev) return false;
+            const el = pipMenuRef.current;
+            if (el) {
+                const r = el.getBoundingClientRect();
+                setPipMenuPos({ top: r.bottom + 4, right: Math.max(8, window.innerWidth - r.right) });
+            }
+            return true;
+        });
+    }, [pipWindow, handleClosePip]);
+
+    // PiP メニュー: 外側クリックで閉じる（トリガー・パネルの両方を除外）
     useEffect(() => {
         if (!pipMenuOpen) return;
         const onDown = (e: MouseEvent) => {
-            if (pipMenuRef.current && !pipMenuRef.current.contains(e.target as Node)) {
-                setPipMenuOpen(false);
-            }
+            const target = e.target as Node;
+            if (pipMenuRef.current?.contains(target) || pipMenuPanelRef.current?.contains(target)) return;
+            setPipMenuOpen(false);
         };
         document.addEventListener('mousedown', onDown);
         return () => document.removeEventListener('mousedown', onDown);
@@ -2243,15 +2260,15 @@ const Timeline: React.FC = () => {
                                         <Rows3 size={12} />
                                     </button>
                                 </Tooltip>
-                                {/* PiP（カンペ / 動画でタイムライン作成）— ポップアップ選択 */}
+                                {/* PiP（カンペ / 動画でタイムライン作成）— ポップアップ選択。メニュー本体は body へ portal（ツールバーが overflow-hidden のため） */}
                                 {pipSupported && (
                                     <div className="relative" ref={pipMenuRef}>
                                         <Tooltip content={t('timeline.pip_open')}>
                                             <button
-                                                onClick={() => pipWindow ? handleClosePip() : setPipMenuOpen(o => !o)}
+                                                onClick={togglePipMenu}
                                                 className={clsx(
                                                     "p-1 rounded transition-all duration-150 cursor-pointer",
-                                                    pipWindow
+                                                    (pipWindow || pipMenuOpen)
                                                         ? "text-app-blue hover:bg-app-blue/10"
                                                         : "text-app-text-muted hover:bg-app-surface2 hover:text-app-text"
                                                 )}
@@ -2259,22 +2276,6 @@ const Timeline: React.FC = () => {
                                                 <PictureInPicture2 size={12} />
                                             </button>
                                         </Tooltip>
-                                        {pipMenuOpen && !pipWindow && (
-                                            <div className="absolute right-0 top-full z-50 mt-1 w-56 overflow-hidden rounded-xl glass-tier3 border border-glass-border/40 shadow-lg">
-                                                <button
-                                                    onClick={() => { setPipMenuOpen(false); handleOpenPip('cue'); }}
-                                                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-app-md text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-                                                >
-                                                    {t('timeline.recorder.menu_cue')}
-                                                </button>
-                                                <button
-                                                    onClick={() => { setPipMenuOpen(false); handleOpenPip('recorder'); }}
-                                                    className="flex w-full items-center gap-2 px-4 py-3 text-left text-app-md text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
-                                                >
-                                                    {t('timeline.recorder.menu_record')}
-                                                </button>
-                                            </div>
-                                        )}
                                     </div>
                                 )}
                                 {/* リキャスト行 ON/OFF (セッション 18 案 C1) */}
@@ -3805,6 +3806,29 @@ const Timeline: React.FC = () => {
                     >
                         <X size={12} className="inline mr-1 -mt-0.5" />
                         {t('modal.cancel')}
+                    </button>
+                </div>,
+                document.body
+            )}
+
+            {/* PiP 選択メニュー — ツールバーの overflow-hidden を避けて body へ固定配置 */}
+            {pipMenuOpen && !pipWindow && pipMenuPos && createPortal(
+                <div
+                    ref={pipMenuPanelRef}
+                    style={{ position: 'fixed', top: pipMenuPos.top, right: pipMenuPos.right, zIndex: 9999 }}
+                    className="w-56 overflow-hidden rounded-xl glass-tier3 border border-glass-border/40 shadow-lg"
+                >
+                    <button
+                        onClick={() => { setPipMenuOpen(false); handleOpenPip('cue'); }}
+                        className="flex w-full items-center gap-2 px-4 py-3 text-left text-app-md text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                    >
+                        {t('timeline.recorder.menu_cue')}
+                    </button>
+                    <button
+                        onClick={() => { setPipMenuOpen(false); handleOpenPip('recorder'); }}
+                        className="flex w-full items-center gap-2 px-4 py-3 text-left text-app-md text-app-text hover:bg-glass-hover transition-colors cursor-pointer"
+                    >
+                        {t('timeline.recorder.menu_record')}
                     </button>
                 </div>,
                 document.body
