@@ -605,7 +605,7 @@ const Timeline: React.FC = () => {
     const [pipContainer, setPipContainer] = useState<HTMLDivElement | null>(null);
     const [pipMode, setPipMode] = useState<'cue' | 'recorder' | null>(null);
     const [pipMenuOpen, setPipMenuOpen] = useState(false);
-    const [pipMenuPos, setPipMenuPos] = useState<{ top: number; right: number } | null>(null);
+    const [pipMenuPos, setPipMenuPos] = useState<{ top: number; left: number } | null>(null);
     const pipMenuRef = useRef<HTMLDivElement>(null);
     const pipMenuPanelRef = useRef<HTMLDivElement>(null);
     const pipSupported = typeof window !== 'undefined' && 'documentPictureInPicture' in window;
@@ -1055,7 +1055,8 @@ const Timeline: React.FC = () => {
         const el = pipMenuRef.current;
         if (el) {
             const r = el.getBoundingClientRect();
-            setPipMenuPos({ top: r.bottom, right: Math.max(8, window.innerWidth - r.right) });
+            // 他メニューと同様、トリガーの左端そろえで右へ展開（真下）
+            setPipMenuPos({ top: r.bottom, left: r.left });
         }
         setPipMenuOpen(true);
     }, [pipWindow]);
@@ -3819,7 +3820,7 @@ const Timeline: React.FC = () => {
                     ref={pipMenuPanelRef}
                     onMouseEnter={cancelClosePipMenu}
                     onMouseLeave={scheduleClosePipMenu}
-                    style={{ position: 'fixed', top: pipMenuPos.top, right: pipMenuPos.right, zIndex: 9999 }}
+                    style={{ position: 'fixed', top: pipMenuPos.top, left: pipMenuPos.left, zIndex: 9999 }}
                     className="w-max overflow-hidden rounded-xl glass-tier3 border border-glass-border/40 shadow-lg"
                 >
                     <button

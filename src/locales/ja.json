@@ -459,7 +459,7 @@
         "pip_switch_event": "別のイベントに切り替え",
         "recorder": {
             "menu_cue": "カンペを表示",
-            "menu_record": "動画でタイムライン作成",
+            "menu_record": "動画を見ながらイベント追加",
             "unsupported": "このブラウザは非対応です (Chrome / Edge / Firefox 推奨)",
             "no_plan": "先に軽減表(プラン)を開いてください",
             "start": "スタート",

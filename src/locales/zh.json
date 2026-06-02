@@ -447,7 +447,7 @@
         "pip_switch_event": "切换到其他事件",
         "recorder": {
             "menu_cue": "显示提示表",
-            "menu_record": "看视频构建时间轴",
+            "menu_record": "看视频添加事件",
             "unsupported": "此浏览器不支持 (建议使用 Chrome / Edge / Firefox)",
             "no_plan": "请先打开一个减伤表 (方案)",
             "start": "开始",

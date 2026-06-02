@@ -447,7 +447,7 @@
         "pip_switch_event": "다른 이벤트로 전환",
         "recorder": {
             "menu_cue": "컨닝표 표시",
-            "menu_record": "영상 보며 타임라인 작성",
+            "menu_record": "영상 보며 이벤트 추가",
             "unsupported": "이 브라우저는 지원되지 않습니다 (Chrome / Edge / Firefox 권장)",
             "no_plan": "먼저 경감표(플랜)를 열어 주세요",
             "start": "시작",

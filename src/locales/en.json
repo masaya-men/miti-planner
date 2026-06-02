@@ -455,7 +455,7 @@
         "pip_switch_event": "Switch to another event",
         "recorder": {
             "menu_cue": "Show cue sheet",
-            "menu_record": "Build timeline from video",
+            "menu_record": "Add events while watching video",
             "unsupported": "Not supported in this browser (use Chrome / Edge / Firefox)",
             "no_plan": "Open a sheet (plan) first",
             "start": "Start",
