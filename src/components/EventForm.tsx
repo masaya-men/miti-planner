@@ -595,7 +595,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     };
 
     return (
-        <form ref={formRef} id="event-modal-form" onSubmit={handleSubmit} className={clsx("overflow-y-auto custom-scrollbar", compact ? "p-4 space-y-4 max-h-[75vh]" : "p-6 space-y-6 max-h-[75vh]")}>
+        <form ref={formRef} id="event-modal-form" onSubmit={handleSubmit} className={clsx("overflow-y-auto custom-scrollbar", compact ? "p-4 space-y-4" : "p-6 space-y-6", variant === 'pip' ? "h-full" : "max-h-[75vh]")}>
             {/* Input Mode Toggle */}
             {!reverseOnly && (
                 <SegmentButton
@@ -934,7 +934,8 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
 
                 <button
                     data-tutorial="event-save-btn"
-                    type="submit"
+                    type={variant === 'pip' ? 'button' : 'submit'}
+                    onClick={variant === 'pip' ? handleSubmit : undefined}
                     className={clsx(
                         "flex items-center justify-center gap-2 bg-app-blue text-white hover:bg-app-blue-hover font-bold transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-wider cursor-pointer",
                         compact

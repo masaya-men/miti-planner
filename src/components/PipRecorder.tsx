@@ -84,7 +84,7 @@ const PipRecorder: React.FC = () => {
 
     if (formTime !== null) {
         return (
-            <div className="h-full overflow-y-auto bg-app-bg text-app-text">
+            <div className="h-full bg-app-bg text-app-text">
                 <EventForm
                     variant="pip"
                     reverseOnly
@@ -100,7 +100,7 @@ const PipRecorder: React.FC = () => {
     return (
         <div className="flex h-full flex-col items-center justify-between gap-3 bg-app-bg p-3 text-app-text">
             <div
-                className="w-full text-center font-barlow font-bold tracking-tight"
+                className="w-full text-center font-mono font-bold tracking-tight"
                 style={{ fontVariantNumeric: 'tabular-nums', fontSize: '40px', fontFeatureSettings: '"tnum" 1' }}
             >
                 {display}
