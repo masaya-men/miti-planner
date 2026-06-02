@@ -10,6 +10,13 @@ const makeEvent = (time: number): TimelineEvent => ({
 });
 
 describe('buildScholarAutoInserts', () => {
+    it('イベントが無いとき、 20分 (1200秒) までエーテルフローが配置される', () => {
+        const inserts = buildScholarAutoInserts('H1', [], []);
+        const aetherflows = inserts.filter(i => i.mitigationId === 'aetherflow');
+        expect(aetherflows.length).toBeGreaterThan(0);
+        expect(Math.max(...aetherflows.map(a => a.time))).toBeLessThanOrEqual(1200);
+    });
+
     it('空のタイムラインでも転化 t=1 は挿入される', () => {
         const inserts = buildScholarAutoInserts('H1', [], []);
         expect(inserts.filter(m => m.mitigationId === 'dissipation')).toHaveLength(1);
@@ -109,5 +116,11 @@ describe('buildAetherflowChainFrom', () => {
     it('最終イベントを超える位置は配置しない', () => {
         const inserts = buildAetherflowChainFrom('H1', 30, [], [makeEvent(100)]);
         expect(inserts.map(m => m.time)).toEqual([90]);
+    });
+
+    it('イベントが無い (maxTime=0) ときは 1200秒 まで配置する', () => {
+        const inserts = buildAetherflowChainFrom('H1', 60, [], []);
+        expect(inserts.length).toBeGreaterThan(0);
+        expect(Math.max(...inserts.map(a => a.time))).toBeLessThanOrEqual(1200);
     });
 });

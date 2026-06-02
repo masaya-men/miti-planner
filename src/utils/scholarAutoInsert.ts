@@ -64,9 +64,10 @@ export function buildScholarAutoInserts(
     }
 
     // 2. エーテルフロー: t=13, 73, 133... 最終イベント時刻まで
+    // 白紙プラン (timelineEvents が空) の場合は 20分 (1200秒) まで配置する
     const maxTime = timelineEvents.length > 0
         ? timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
-        : 0;
+        : 1200;
 
     for (let t = AETHERFLOW_INITIAL_TIME; t <= maxTime; t += AETHERFLOW_INTERVAL) {
         const existingAtTime = memberMits.some(
@@ -99,7 +100,7 @@ export function buildAetherflowChainFrom(
     const inserts: AppliedMitigation[] = [];
     const maxTime = timelineEvents.length > 0
         ? timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
-        : 0;
+        : 1200;
 
     for (let t = startTime + AETHERFLOW_INTERVAL; t <= maxTime; t += AETHERFLOW_INTERVAL) {
         const dup = memberMits.some(

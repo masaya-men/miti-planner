@@ -96,13 +96,15 @@ describe('buildAstrologianAutoInserts', () => {
         expect(inserts.length).toBeGreaterThan(0);
     });
 
-    it('イベントが無いとき、 戦闘前 Astral のみ配置 (もしくは空)', () => {
+    it('イベントが無いとき、 20分 (1200秒) まで配置される', () => {
         const inserts = buildAstrologianAutoInserts(member, [], []);
-        // 戦闘前 Astral だけは置く (= maxTime 0 でも -3 < 0 で挿入)、 t=9 以降は maxTime=0 だと挿入されない
-        const prepull = inserts.find(i => i.time === -3 && i.mitigationId === 'astral_draw');
+        const prepull = inserts.find(i => i.time === -3);
         expect(prepull).toBeDefined();
-        // t=9 以降 (maxTime > 9) のときだけ挿入されるはずなので、 イベント無しでは無い
-        expect(inserts.filter(i => i.time >= 9)).toEqual([]);
+        // 1200秒までのドローが配置される
+        const draws = inserts.filter(i => i.time >= 9);
+        expect(draws.length).toBeGreaterThan(0);
+        // 最後のドローが1200秒以内であることを確認
+        expect(Math.max(...draws.map(d => d.time))).toBeLessThanOrEqual(1200);
     });
 
     it('全インサートに ownerId と genId 由来の id が入る', () => {
@@ -214,9 +216,10 @@ describe('buildAstrologianDrawChainFrom', () => {
         expect(inserts[0].time).toBe(120);
     });
 
-    it('イベントが無い (maxTime=0) ときは何も配置しない', () => {
+    it('イベントが無い (maxTime=0) ときは 1200秒 まで配置する', () => {
         const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', [], []);
-        expect(inserts).toEqual([]);
+        expect(inserts.length).toBeGreaterThan(0);
+        expect(Math.max(...inserts.map(i => i.time))).toBeLessThanOrEqual(1200);
     });
 
     it('全インサートに ownerId と genId 由来の id が入る', () => {

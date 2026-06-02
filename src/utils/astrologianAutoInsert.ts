@@ -62,9 +62,10 @@ export function buildAstrologianAutoInserts(
     });
 
     // 最大時刻 (戦闘終了想定)
+    // 白紙プラン (timelineEvents が空) の場合は 20分 (1200秒) まで配置する
     const maxTime = timelineEvents.length > 0
         ? timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
-        : 0;
+        : 1200;
 
     // 2. t=9 Umbral Draw
     if (FIRST_UMBRAL_TIME <= maxTime) {
@@ -110,7 +111,7 @@ export function buildAstrologianDrawChainFrom(
     const inserts: AppliedMitigation[] = [];
     const maxTime = timelineEvents.length > 0
         ? timelineEvents.reduce((max, e) => Math.max(max, e.time), 0)
-        : 0;
+        : 1200;
 
     let isAstral = startKind === 'umbral_draw'; // 次は startKind と逆
     for (let t = startTime + DRAW_INTERVAL; t <= maxTime; t += DRAW_INTERVAL, isAstral = !isAstral) {
