@@ -43,7 +43,7 @@ interface EventFormProps {
 }
 
 /**
- * EventModal / PipRecorder 共通のイベント入力フォーム本体。
+ * EventModal / VideoRecorderModal 共通のイベント入力フォーム本体。
  * `<form id="event-modal-form">` を直接返す (Portal / backdrop は持たない)。
  * チュートリアルは DOM id / data-tutorial-* / data-mitigation-id を参照するため、それらは厳守する。
  */
