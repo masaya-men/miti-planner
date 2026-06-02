@@ -17,7 +17,7 @@ export function parseYouTubeId(url: string): string | null {
                 const v = u.searchParams.get('v');
                 return v && ID_RE.test(v) ? v : null;
             }
-            const m = u.pathname.match(/^\/(embed|shorts|v)\/([a-zA-Z0-9_-]{11})/);
+            const m = u.pathname.match(/^\/(embed|shorts|v|live)\/([a-zA-Z0-9_-]{11})/);
             if (m) return m[2];
         }
         return null;

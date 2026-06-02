@@ -92,3 +92,13 @@ YouTube 動画を LoPo 内に埋め込み、動画を見ながら攻撃を記録
 - 自前の 10 秒戻し等カスタムコントロール(native で代替)。
 - 動画位置とイベントの双方向同期(行クリックで動画ジャンプ等)。将来検討。
 - モバイル最適化(縦積みフォールバックのみ。作り込みは将来)。
+
+## 11. 追記: ライブ配信URL対応 (2026-06-02)
+
+参考 `https://www.youtube.com/live/<id>` 形式に対応。
+
+- **変更は `parseYouTubeId` の path 正規表現に `live` を1語追加するのみ**(`embed|shorts|v` → `embed|shorts|v|live`)。alternation への純粋追加で既存判定に影響なし。
+- **時刻ロジック・UI・`useYouTubePlayer` は無改変**。時刻は「動画位置 − 戦闘開始位置」の相対方式なので、真のライブ(`getCurrentTime` = 配信開始からの経過秒)でもアーカイブ(VOD)でも同じ経路で正しく機能する。
+- **CSP 追加不要**(プレイヤー生成経路は既存の `live`/VOD 共通、`script-src www.youtube.com` / `frame-src youtube-nocookie.com` は既存)。
+- DVR 窓内 seek は YouTube native コントロールが担当(こちらは未介入)。
+- テスト: `youtube.test.ts` に `live` 形式 / クエリ付き `live` の2ケース追加。

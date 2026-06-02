@@ -20,6 +20,12 @@ describe('parseYouTubeId', () => {
     it('shorts 形式', () => {
         expect(parseYouTubeId('https://www.youtube.com/shorts/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
     });
+    it('live 形式 (ライブ配信URL)', () => {
+        expect(parseYouTubeId('https://www.youtube.com/live/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+    });
+    it('live 形式 にクエリ(si,feature)が付いても抽出', () => {
+        expect(parseYouTubeId('https://www.youtube.com/live/dQw4w9WgXcQ?si=abc&feature=share')).toBe('dQw4w9WgXcQ');
+    });
     it('m.youtube.com', () => {
         expect(parseYouTubeId('https://m.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
     });
