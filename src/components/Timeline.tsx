@@ -26,7 +26,7 @@ import {
     Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Rows3, Settings, Crosshair, PictureInPicture2, Clock
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
-const PipRecorder = React.lazy(() => import('./PipRecorder'));
+import VideoRecorderModal from './VideoRecorderModal';
 import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkillsData';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import clsx from 'clsx';
@@ -605,6 +605,7 @@ const Timeline: React.FC = () => {
     const [pipContainer, setPipContainer] = useState<HTMLDivElement | null>(null);
     const [pipMode, setPipMode] = useState<'cue' | 'recorder' | null>(null);
     const [pipMenuOpen, setPipMenuOpen] = useState(false);
+    const [videoModalOpen, setVideoModalOpen] = useState(false);
     const [pipMenuPos, setPipMenuPos] = useState<{ top: number; left: number } | null>(null);
     const pipMenuRef = useRef<HTMLDivElement>(null);
     const pipMenuPanelRef = useRef<HTMLDivElement>(null);
@@ -3830,7 +3831,7 @@ const Timeline: React.FC = () => {
                         {t('timeline.recorder.menu_cue')}
                     </button>
                     <button
-                        onClick={() => { setPipMenuOpen(false); handleOpenPip('recorder'); }}
+                        onClick={() => { setPipMenuOpen(false); setVideoModalOpen(true); }}
                         className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-app-md text-app-text whitespace-nowrap hover:bg-glass-hover transition-colors cursor-pointer"
                     >
                         {t('timeline.recorder.menu_record')}
@@ -3839,15 +3840,16 @@ const Timeline: React.FC = () => {
                 document.body
             )}
 
-            {/* PiP — 別窓にReactPortalでレンダリング（モードで出し分け） */}
+            {/* PiP — 別窓にReactPortalでレンダリング（cue のみ） */}
             {pipContainer && createPortal(
                 <React.Suspense fallback={null}>
-                    {pipMode === 'recorder'
-                        ? <PipRecorder />
-                        : <PipView mode="pip" onClose={handleClosePip} />}
+                    <PipView mode="pip" onClose={handleClosePip} />
                 </React.Suspense>,
                 pipContainer
             )}
+
+            {/* 動画埋め込み式タイムライン作成モーダル */}
+            <VideoRecorderModal isOpen={videoModalOpen} onClose={() => setVideoModalOpen(false)} />
         </>
     );
 };
