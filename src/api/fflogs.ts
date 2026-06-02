@@ -171,7 +171,7 @@ const FIGHTS_QUERY = /* graphql */`
   query GetFights($reportCode: String!) {
     reportData {
       report(code: $reportCode) {
-        fights(killType: Kills) {
+        fights(killType: Encounters) {
           id
           startTime
           endTime
@@ -207,7 +207,8 @@ interface FightsQueryResult {
 
 /**
  * Fetch the list of fights (boss encounters) for a given report.
- * Returns fights filtered to kills only (killType: Kills in the query).
+ * Returns all boss pulls (killType: Encounters) — both kills and wipes.
+ * Trash fights are excluded by the Encounters filter.
  */
 export async function fetchFights(reportCode: string): Promise<FFLogsFight[]> {
     const token = await getAccessToken();
@@ -504,22 +505,26 @@ export async function fetchPlayerDetails(
 // ─────────────────────────────────────────────────────────────
 
 /**
- * Resolve a fightId string (may be "last", "1", "2", etc.) to a concrete FFLogsFight.
- * Returns the last kill if fightId is null / "last".
+ * Pure selection logic: pick a concrete fight from a list given a fightId string.
+ *
+ * - fightId が数値文字列 → 該当 fight (撃破・全滅どちらでも)。無ければエラー。
+ * - fightId が null / "last" → 最後の撃破があればそれ、無ければ最後の pull。
+ *   (撃破ログ従来挙動を維持しつつ、全滅のみのログにも対応)
+ *
+ * ネットワークに触れない純粋関数なのでユニットテスト可能。
  */
-export async function resolveFight(
-    reportCode: string,
+export function selectFight(
+    fights: FFLogsFight[],
     fightId: string | null
-): Promise<FFLogsFight> {
-    const fights = await fetchFights(reportCode);
-
+): FFLogsFight {
     if (!fights.length) {
-        throw new Error('No kill fights found in this report. Make sure the fight is a completed kill.');
+        throw new Error('No boss fights found in this report.');
     }
 
     if (!fightId || fightId === 'last') {
-        // Return the last kill
-        return fights[fights.length - 1];
+        // 最後の撃破を優先。無ければ最後の pull (全滅のみのログ)。
+        const lastKill = [...fights].reverse().find(f => f.kill);
+        return lastKill ?? fights[fights.length - 1];
     }
 
     const id = parseInt(fightId, 10);
@@ -531,4 +536,16 @@ export async function resolveFight(
         );
     }
     return found;
+}
+
+/**
+ * Resolve a fightId string (may be "last", "1", "2", etc.) to a concrete FFLogsFight.
+ * Fetches the report's fights, then delegates selection to selectFight.
+ */
+export async function resolveFight(
+    reportCode: string,
+    fightId: string | null
+): Promise<FFLogsFight> {
+    const fights = await fetchFights(reportCode);
+    return selectFight(fights, fightId);
 }

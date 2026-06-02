@@ -242,3 +242,31 @@ interface MapperResult {
   - DSR: フェーズが正しく分割されること
   - TB: タンク対象技が正しくMT/ST判定されること
   - 英語ログ: 警告が表示されること
+
+---
+
+## 追記: 全滅(ワイプ)ログ対応 (2026-06-03)
+
+### 背景
+従来は撃破(キル)ログ専用だった。fight 取得クエリが `killType: Kills` 固定で、全滅ログを渡すと撃破戦闘 0 件 → `resolveFight` がエラーで停止していた。全滅ログでもタイムライン生成できるようにする。
+
+### 方針 (A 案 = URL の #fight に任せる最小実装)
+1 レポートに pull が多数あるため、どの pull を取るかは **URL の `#fight=N` に委ねる** (FFLogs で特定 pull を開くと URL に付く)。新 UI (pull 選択リスト) は作らない。
+
+### 変更 (`src/api/fflogs.ts` のみ)
+1. `FIGHTS_QUERY`: `killType: Kills` -> `killType: Encounters` (撃破+全滅の全ボス pull。トラッシュ除外)。
+2. fight 選択ロジックを純粋関数 `selectFight(fights, fightId)` に抽出 (テスト可能化)。`resolveFight` は `fetchFights` + `selectFight` の薄いラッパに。
+   - 空配列 -> エラー (中立文言)。
+   - 数値 id -> 該当 fight。無ければエラー (利用可能 ID 列挙)。全滅 pull もこの経路で取得 = A 案の主経路。
+   - null / "last" -> **最後の撃破があればそれ、無ければ最後の pull** (既存キルログ挙動を維持しつつ全滅のみのログにも対応)。
+
+### 触らないもの
+- `fflogsMapper` / イベント取得 (区間で取るだけで戦闘種別非依存)。
+- テンプレ自動登録 (`api/template/_autoRegisterHandler.ts` が `!kill` を既に弾く)。
+- モーダル UI / i18n / レート制限 / ログインガード。
+- 撃破/全滅バッジは **今回不要** (ユーザー判断、2026-06-03)。
+
+### テスト / 検証
+- `selectFight` の純粋ユニットテストを TDD (空 / 数値 id / 該当なし / 最後の撃破 / 全滅のみ→最後の pull / 複数撃破→最後)。
+- `npm run build` + `vitest run`。
+- 実機: 全滅 pull URL (`#fight=N`) で生成成功 + 既存キルログ回帰 (last=撃破)。
