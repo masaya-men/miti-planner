@@ -7,6 +7,13 @@ export function computeElapsed(accumulatedMs: number, startedAt: number | null, 
     return totalMs / 1000;
 }
 
+/** 捕捉した小数秒を最も近い整数秒へ丸める。
+ *  タイムラインは整数秒グリッド (gridLines) で行を生成し eventsByTime.get(整数) で
+ *  完全一致照合するため、小数秒のままだと行に乗らず描画されない。 .5 は繰り上げ。 */
+export function snapToSecond(seconds: number): number {
+    return Math.round(seconds);
+}
+
 /** 秒(小数可)を MM:SS.CC 形式へ。端数は切り捨て(伸ばさない)。 */
 export function formatStopwatch(seconds: number): string {
     const safe = Math.max(0, seconds);

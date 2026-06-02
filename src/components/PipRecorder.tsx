@@ -4,7 +4,7 @@ import { Play, Pause, RotateCcw, Plus, Undo2 } from 'lucide-react';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
 import EventForm from './EventForm';
-import { computeElapsed, formatStopwatch } from '../utils/stopwatch';
+import { computeElapsed, formatStopwatch, snapToSecond } from '../utils/stopwatch';
 import type { TimelineEvent } from '../types';
 
 const genId = () =>
@@ -66,7 +66,9 @@ const PipRecorder: React.FC = () => {
         startedAtRef.current = null;
         setRunning(false);
         setDisplay(formatStopwatch(elapsed));
-        setFormTime(Math.round(elapsed * 100) / 100);
+        // タイムラインは整数秒グリッドなので、捕捉時刻は最も近い整数秒へ丸める
+        // (小数秒のままだと行に乗らず描画されない)
+        setFormTime(snapToSecond(elapsed));
     }, [readElapsed]);
 
     const writeToSheet = useCallback((ev: Omit<TimelineEvent, 'id'>) => {
