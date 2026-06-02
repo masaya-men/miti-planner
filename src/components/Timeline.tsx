@@ -603,7 +603,7 @@ const Timeline: React.FC = () => {
     // PiP カンペビュー
     const [pipWindow, setPipWindow] = useState<Window | null>(null);
     const [pipContainer, setPipContainer] = useState<HTMLDivElement | null>(null);
-    const [pipMode, setPipMode] = useState<'cue' | 'recorder' | null>(null);
+    const [, setPipMode] = useState<'cue' | 'recorder' | null>(null);
     const [pipMenuOpen, setPipMenuOpen] = useState(false);
     const [videoModalOpen, setVideoModalOpen] = useState(false);
     const [pipMenuPos, setPipMenuPos] = useState<{ top: number; left: number } | null>(null);
