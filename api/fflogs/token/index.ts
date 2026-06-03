@@ -12,6 +12,7 @@
  */
 
 import { verifyAppCheck } from '../../../src/lib/appCheckVerify.js';
+import { fetchTokenWithFailover } from '../../../src/lib/fflogsTokenFailover.js';
 
 // 利用可能なAPIキーペアを環境変数から収集
 function getCredentialPairs(): { clientId: string; clientSecret: string }[] {
@@ -68,36 +69,26 @@ export default async function handler(req: any, res: any) {
         return res.status(500).json({ error: 'FFLogs API credentials are not configured on the server.' });
     }
 
-    // ラウンドロビンで次のキーを選択
-    const selected = pairs[roundRobinIndex % pairs.length];
-    roundRobinIndex = (roundRobinIndex + 1) % pairs.length;
+    // ラウンドロビンの開始位置から順に試し、最初に成功したキーのトークンを返す。
+    // 1 本が失効/レート制限/一時障害でも残りの正常なキーで取得できる (冗長化を実機能させる)。
+    const result = await fetchTokenWithFailover(
+        pairs,
+        roundRobinIndex,
+        fetch,
+        (index, status, body) =>
+            console.error(`FFLogs token request failed (key #${index}):`, status, body),
+    );
 
-    try {
-        const tokenResponse = await fetch('https://www.fflogs.com/oauth/token', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({
-                grant_type: 'client_credentials',
-                client_id: selected.clientId,
-                client_secret: selected.clientSecret,
-            }),
-        });
+    // 次回は「成功したキーの次」から開始 (死んだキーを毎回先頭で引かない + 負荷分散)。
+    roundRobinIndex = result
+        ? (result.usedIndex + 1) % pairs.length
+        : (roundRobinIndex + 1) % pairs.length;
 
-        if (!tokenResponse.ok) {
-            console.error('FFLogs token request failed:', tokenResponse.status, await tokenResponse.text());
-            return res.status(502).json({ error: 'FFLogs token request failed' });
-        }
-
-        const data = await tokenResponse.json();
-
-        // 必要なフィールドのみ返す
-        res.setHeader('Cache-Control', 'no-store');
-        return res.status(200).json({
-            access_token: data.access_token,
-            expires_in: data.expires_in,
-        });
-    } catch (err) {
-        console.error('FFLogs token error:', err);
-        return res.status(500).json({ error: 'Internal server error' });
+    if (!result) {
+        // 全キーが失敗した場合のみ 502。
+        return res.status(502).json({ error: 'FFLogs token request failed (all keys failed)' });
     }
+
+    res.setHeader('Cache-Control', 'no-store');
+    return res.status(200).json(result.token);
 }
