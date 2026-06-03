@@ -9,5 +9,7 @@
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src"]
+  // テストファイルは test/tsconfig.json で管理する (cloudflare:test 型解決のため分離)。
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"]
 }

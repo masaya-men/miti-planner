@@ -1,0 +1,9 @@
+{
+  // テスト専用 tsconfig。cloudflare:test モジュール (SELF, env 等) の型を解決するために必要。
+  // 本体の workers/collab/tsconfig.json とは分離して管理する。
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["@cloudflare/vitest-pool-workers"]
+  },
+  "include": ["../**/*.test.ts", "../**/*.spec.ts"]
+}
