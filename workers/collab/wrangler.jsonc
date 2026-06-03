@@ -1,0 +1,13 @@
+{
+  // ライブ部屋 Worker。1部屋 = 1 Durable Object。
+  // 無料プラン要件: DO は SQLite-backed (new_sqlite_classes) で定義する。
+  "name": "lopo-collab",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-29",
+  "durable_objects": {
+    "bindings": [{ "name": "Room", "class_name": "Room" }]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["Room"] }
+  ]
+}
