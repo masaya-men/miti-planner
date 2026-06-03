@@ -107,4 +107,6 @@ LICENSE 追加は**しない** (memory `feedback_lopo_license_stance`)。 真の
 - 方針: コンテンツ追加 = `add-content` → `seed-contents.ts`、 スキル正本 = Firestore、 SNS ハッシュタグ `#LoPo #FF14 #BuildInPublic #AISelection`
 - 並行: マイコラージュ (収益化、 28 日まで凍結 / リリース後再開) / ハウジングは MUL 対象外で広告 OK
 - バックログ: npm audit / a11y / SE 利用規約 / GDPR / SEO / FFLogs アイコン / MTST 分け / みんなの軽減表
+- **リアルタイム共同編集 (将来宿題・着手条件付き)**: 1軽減表を複数人編集。FF14 は全世界同時実装でピーク同時接続≈全アクティブ → 無料枠超過必至・費用が読めない。**寄付が費用を上回る/費用有界化設計ができてから着手**。技術詳細・方式比較 (Firebase RTDB / CF Durable Objects)・presence 設計は [docs/.private/2026-06-03-realtime-collab-and-sync-notes.md](./.private/2026-06-03-realtime-collab-and-sync-notes.md)
+- **次の最優先候補=同期安定化の原因特定**: 既知症状(別端末で消失/削除復活)の犯人特定。手がかり4点 (時計ズレ判定/まるごと上書き/削除復活/カウンター desync) は上記 .private に記載。共同編集の前提でもある
 <!-- When compacting, always preserve: 現在のタスク、変更中のファイルパス、本ファイルの「現在の状態」セクション -->
