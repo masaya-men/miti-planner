@@ -62,4 +62,43 @@ describe("Room", () => {
       b.close();
     }
   });
+
+  it("WebSocket 接続中は、在室数を HTTP GET で取得できる", async () => {
+    const wsUrl = "https://collab.test/parties/room/count-room";
+    const countUrl = "https://collab.test/parties/room/count-room/count";
+
+    const a = (await SELF.fetch(wsUrl, { headers: { Upgrade: "websocket" } })).webSocket!;
+    a.accept();
+
+    try {
+      const res = await SELF.fetch(countUrl);
+      expect(res.status).toBe(200);
+      const body = (await res.json()) as { count: number };
+      expect(body.count).toBe(1);
+    } finally {
+      a.close();
+    }
+  });
+
+  it("接続を閉じると在室数が減る", async () => {
+    const wsUrl = "https://collab.test/parties/room/leave-room";
+    const countUrl = "https://collab.test/parties/room/leave-room/count";
+
+    const a = (await SELF.fetch(wsUrl, { headers: { Upgrade: "websocket" } })).webSocket!;
+    a.accept();
+    expect(((await (await SELF.fetch(countUrl)).json()) as { count: number }).count).toBe(1);
+
+    // close() を呼んだ後、miniflare が onClose を処理するまでのマイクロタスクを待つ。
+    // close イベントのリスナーが発火しない環境に備え、close() 後に
+    // HTTP 往復を挟んでサーバー側の onClose 反映を確認するポーリング方式を採用。
+    a.close();
+    // サーバー側の onClose ハンドラが実行されるまで少し待機する。
+    // 1回の await で非同期タスクをフラッシュし、それでも反映されなければ
+    // 次の HTTP GET で結果が 0 になっているはず。
+    await new Promise((r) => setTimeout(r, 50));
+
+    // close 反映を待ってから再取得
+    const after = (await (await SELF.fetch(countUrl)).json()) as { count: number };
+    expect(after.count).toBe(0);
+  });
 });
