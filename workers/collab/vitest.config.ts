@@ -11,6 +11,9 @@ export default defineWorkersConfig({
         // テスト後もロックされ isolated storage のポップが EBUSY で失敗する。
         // isolatedStorage: false にすることで SQLite スナップショットを取らず回避。
         // 段取り①の WebSocket upgrade 検証テストは状態分離を必要としないため許容。
+        // ⚠ テスト間で DO 状態が共有される。各テストは必ず異なる部屋名 (URL path) を
+        //   使い、同名部屋の DO を複数テストで共有しないこと。WebSocket は各 it の
+        //   末尾で close() して接続を残さないこと (在室数テスト等の汚染防止)。
         isolatedStorage: false,
       },
     },

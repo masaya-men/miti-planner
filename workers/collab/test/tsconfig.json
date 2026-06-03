@@ -5,5 +5,8 @@
   "compilerOptions": {
     "types": ["@cloudflare/vitest-pool-workers"]
   },
-  "include": ["../**/*.test.ts", "../**/*.spec.ts"]
+  "include": ["../src/**/*.test.ts", "../src/**/*.spec.ts"],
+  // 親 tsconfig はテストファイルを exclude するが、本ファイルは逆にテストを
+  // include して型解決する目的なので、継承された exclude を空で打ち消す。
+  "exclude": []
 }
