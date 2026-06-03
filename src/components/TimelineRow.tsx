@@ -566,7 +566,7 @@ export const TimelineRow = memo(({
                 ) : (
                     <>
                         {[0, 1].map((idx) => (
-                            <div key={idx} className={clsx("flex-1 w-full flex flex-col items-center justify-center gap-0.5 leading-none",
+                            <div key={idx} className={clsx("flex-1 w-full flex flex-col items-center justify-center gap-0 leading-none",
                                 idx === 0 && showRowBorders && "border-b border-app-border"
                             )}>
                                 {damages[idx] && (damages[idx].unmitigated > 0 || damages[idx].isInvincible) ? (
@@ -582,7 +582,7 @@ export const TimelineRow = memo(({
                                             const colorClass = isLethal
                                                 ? "text-red-600 dark:text-red-400"
                                                 : "text-green-600 dark:text-green-400";
-                                            return <AnimatedDamage value={dmg.mitigated} isLethal={isLethal} className={colorClass} />;
+                                            return <AnimatedDamage value={dmg.mitigated} isLethal={isLethal} className={`${colorClass} !h-[16px]`} />;
                                         })()}
                                         {damages[idx].isInvincible ? (
                                             <div className="text-app-sm text-app-text-muted font-normal tracking-tighter scale-90 whitespace-nowrap">
