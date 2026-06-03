@@ -79,6 +79,15 @@ describe('mergePlans', () => {
         expect(changed).toBe(true);
     });
 
+    it('除外集合にあるIDはリモートに live で存在しても追加しない (ちらつき根治)', () => {
+        // サーバ墓標がまだ伝播せず remotePlans に live で混じっている瞬間でも、
+        // 除外集合 (= サーバ墓標 ∪ ローカル既知削除) にあれば復活させない。
+        const remote = [makePlan('p9', UID)];
+        const { merged, changed } = mergePlans([], remote, new Set(['p9']));
+        expect(merged.map(p => p.id)).not.toContain('p9');
+        expect(changed).toBe(false);
+    });
+
     it('updatedAt 降順でソートされる', () => {
         const local = [makePlan('a', UID, 1000), makePlan('b', UID, 3000)];
         const remote = [makePlan('c', UID, 2000)];

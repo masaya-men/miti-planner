@@ -15,6 +15,7 @@ import { generateUniqueTitle } from '../utils/planTitle';
 import { getToken } from 'firebase/app-check';
 import { appCheck, auth } from '../lib/firebase';
 import { setLastOpened } from '../utils/lastOpenedStore';
+import { partializePlanState, mergePersistedPlanState } from './planPersist';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -260,6 +261,8 @@ export const usePlanStore = create<PlanState>()(
                     const { merged, changed } = await planService.fetchAndMerge(
                         state.plans,
                         uid,
+                        // 端末側で削除済みと分かっている ID は復活させない (墓標伝播前のちらつき防止)
+                        state._deletedPlanIds,
                     );
                     if (changed) {
                         set({ plans: merged });
@@ -588,6 +591,10 @@ export const usePlanStore = create<PlanState>()(
              * ローカルが新しいプランはFirestoreに書き戻す（端末間同期の要）
              */
             migrateOnLogin: async (uid, _displayName) => {
+                // 未同期の削除意図を捕捉。migrate に渡して復活を防ぎ、クリアせず保持する
+                // (= リロードを跨いだ削除が migrate で復活する旧バグの根治)。
+                // 残した削除は後続の sync / 離脱時 forceSync が墓標として書き込む。
+                const pendingDeleted = new Set<string>(get()._deletedPlanIds);
                 // 並行する syncDirtyPlans 経路を抑制 (二重書き込み + 競合コピー生成防止)
                 // - _isSyncing=true で syncToFirestore を即 return させる
                 // - _dirtyPlanIds をクリアして、ログアウト中の dirty キューが
@@ -597,12 +604,14 @@ export const usePlanStore = create<PlanState>()(
                     const { merged, dirtyIds } = await planService.migrateLocalPlansToFirestore(
                         get().plans,
                         uid,
+                        pendingDeleted,
                     );
                     set({
                         plans: merged,
                         // Firestoreに書き戻せなかったプランはdirtyとして残す（次回syncで再試行）
                         _dirtyPlanIds: new Set<string>(dirtyIds),
-                        _deletedPlanIds: new Set<string>(),
+                        // 未同期の削除は保持 (墓標未書き込みの削除が復活しないように)。次回 sync で墓標化される。
+                        _deletedPlanIds: pendingDeleted,
                         _lastSyncAt: Date.now(),
                     });
                 } catch (err) {
@@ -807,6 +816,8 @@ export const usePlanStore = create<PlanState>()(
                     const { merged, changed } = await planService.fetchAndMerge(
                         currentPlans,
                         uid,
+                        // PUSH 前に削除済みだった ID も復活させない (墓標が読めるまでの保険)
+                        pushState._deletedPlanIds,
                     );
                     if (changed) {
                         set({ plans: merged });
@@ -930,12 +941,11 @@ export const usePlanStore = create<PlanState>()(
         {
             name: 'plan-storage',
             version: 2,
-            // Firestore同期用の内部状態はlocalStorageに保存しない
-            partialize: (state) => ({
-                plans: state.plans,
-                currentPlanId: state.currentPlanId,
-                lastActivePlanId: state.lastActivePlanId,
-            }),
+            // plans + 同期インテント (_dirtyPlanIds/_deletedPlanIds) を永続化。
+            // Set は配列化して保存し、rehydrate(merge) で Set に戻す。
+            // _isSyncing 等の一時状態は保存しない。
+            partialize: (state) => partializePlanState(state),
+            merge: (persisted, current) => mergePersistedPlanState(persisted, current),
             migrate: (persisted: any, version: number) => {
                 if (version < 2) {
                     // v1→v2: levelフィールドをバックフィル

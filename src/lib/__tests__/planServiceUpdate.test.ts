@@ -80,6 +80,25 @@ describe('updatePlan 墓標対応', () => {
     });
 });
 
+describe('migrateLocalPlansToFirestore 墓標/ローカル削除対応', () => {
+    it('ローカル既知削除ID はリモートに live で存在しても復活させない', async () => {
+        // サーバには live で残っている (削除が未同期) プラン
+        vi.mocked(fs.getDocsFromServer).mockResolvedValue({
+            docs: [{ id: 'p10', data: () => ({
+                ownerId: UID, ownerDisplayName: '', title: 'p10', contentId: 'm1s',
+                isPublic: false, shareId: null, copyCount: 0, useCount: 0,
+                data: {}, version: 1, createdAt: undefined, updatedAt: undefined,
+            }) }],
+        } as any);
+
+        const { merged } = await planService.migrateLocalPlansToFirestore(
+            [], UID, new Set(['p10']),
+        );
+
+        expect(merged.map(p => p.id)).not.toContain('p10');
+    });
+});
+
 describe('syncDirtyPlans 墓標対応', () => {
     it('未同期 (リモート未存在) の dirty プランは createPlan で upload し、deletedRemotely に入れない', async () => {
         // updatePlan は NOT_EXISTS で throw → createPlan フォールバック (setDoc される)

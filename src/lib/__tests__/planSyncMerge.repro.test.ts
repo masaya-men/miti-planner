@@ -114,4 +114,15 @@ describe('同期マージ 回帰テスト (墓標ベース)', () => {
 
         expect(merged.map(p => p.id)).toContain('p5');
     });
+
+    it('【ちらつき根治】ローカル既知削除ID (サーバ墓標がまだ伝わってなくても) は復活させない', async () => {
+        // サーバ側はまだ live のまま (墓標の伝播前/キャッシュ越し) を想定
+        const stillLiveOnRemote = makePlan('p6', UID);
+        setRemote([stillLiveOnRemote]);
+
+        // 端末側は「自分が削除した」ことを覚えている (_deletedPlanIds 相当)
+        const { merged } = await planService.fetchAndMerge([], UID, new Set(['p6']));
+
+        expect(merged.map(p => p.id)).not.toContain('p6');
+    });
 });

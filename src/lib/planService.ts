@@ -363,13 +363,21 @@ async function deletePlan(
  * - リモートのみ live: ローカルに追加（他端末で作成されたプラン）
  * - ローカルのみ + 墓標無し: 未同期 → 残す (drop しない / 次回キューで再送)
  * - 墓標あり: 削除確定 → ローカルからも除去・復活させない
+ *
+ * @param localDeletedIds 端末側で削除済みと分かっている ID (_deletedPlanIds)。
+ *   サーバ墓標がまだ伝播していない/キャッシュ越しで live に見える瞬間でも復活させないため、
+ *   サーバ墓標と合流させて除外する (= 「一瞬復活」ちらつきの根治)。
  */
 async function fetchAndMerge(
   localPlans: SavedPlan[],
   uid: string,
+  localDeletedIds?: Set<string>,
 ): Promise<{ merged: SavedPlan[]; changed: boolean }> {
   const { live, tombstoneIds } = await fetchPlansAndTombstones(uid);
-  return mergePlans(localPlans, live, tombstoneIds);
+  const excludeIds = localDeletedIds && localDeletedIds.size > 0
+    ? new Set<string>([...tombstoneIds, ...localDeletedIds])
+    : tombstoneIds;
+  return mergePlans(localPlans, live, excludeIds);
 }
 
 /**
@@ -386,11 +394,14 @@ async function fetchAndMerge(
  * - ローカルのみ + 墓標無し + `ownerId=uid` → 未同期 → 残す + dirty に積んで再 upload (旧実装はここで消していた=消失バグ)
  * - リモートのみ live → 追加（他端末で作成されたプラン）
  *
+ * @param localDeletedIds 端末側で削除済みと分かっている ID (_deletedPlanIds)。
+ *   サーバ墓標がまだ無い (削除が未同期) 場合でも復活させないために除外する。
  * @returns { merged, dirtyIds } — マージ済みプラン + 次回 sync で (再)upload すべきプランID
  */
 async function migrateLocalPlansToFirestore(
   localPlans: SavedPlan[],
   uid: string,
+  localDeletedIds?: Set<string>,
 ): Promise<{ merged: SavedPlan[]; dirtyIds: string[] }> {
   // カウンターを実データから修復（過去の同期失敗で壊れている可能性があるため）
   try {
@@ -400,7 +411,11 @@ async function migrateLocalPlansToFirestore(
   }
 
   // Firestoreから既存プランを取得 (live + 墓標)
-  const { live: remotePlans, tombstoneIds } = await fetchPlansAndTombstones(uid);
+  const { live: remotePlans, tombstoneIds: serverTombstoneIds } = await fetchPlansAndTombstones(uid);
+  // サーバ墓標 ∪ ローカル既知削除 = 復活させない ID 集合
+  const tombstoneIds = localDeletedIds && localDeletedIds.size > 0
+    ? new Set<string>([...serverTombstoneIds, ...localDeletedIds])
+    : serverTombstoneIds;
   const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
 
   // マージ + ローカルが新しいプランをFirestoreに書き戻し
@@ -442,9 +457,9 @@ async function migrateLocalPlansToFirestore(
     }
   }
 
-  // リモートにのみ存在する live プランを追加
+  // リモートにのみ存在する live プランを追加 (除外集合にあるものは復活させない)
   const localIds = new Set(localPlans.map((p) => p.id));
-  const remoteOnly = remotePlans.filter((p) => !localIds.has(p.id));
+  const remoteOnly = remotePlans.filter((p) => !localIds.has(p.id) && !tombstoneIds.has(p.id));
   merged.push(...remoteOnly);
 
   // updatedAt降順でソート

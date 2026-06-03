@@ -58,9 +58,11 @@ export function mergePlans(
         }
     }
 
-    // リモートのみの live プラン (他端末で作成) → 追加
+    // リモートのみの live プラン (他端末で作成) → 追加。
+    // ただし除外集合 (= サーバ墓標 ∪ ローカル既知削除) にあるものは追加しない。
+    // (墓標伝播前やキャッシュ越しで live に見える瞬間でも復活させない)
     for (const remote of remotePlans) {
-        if (!localMap.has(remote.id)) {
+        if (!localMap.has(remote.id) && !remoteTombstoneIds.has(remote.id)) {
             merged.push(remote);
             changed = true;
         }
