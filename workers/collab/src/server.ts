@@ -8,9 +8,13 @@ import { Server, type Connection, type ConnectionContext, type WSMessage } from 
 export class Room extends Server {
   /**
    * 現在の在室接続数。
-   * getConnections() は close 後の反映タイミングが不安定なため、
-   * onConnect/onClose で明示的にカウントする。
+   * partyserver デフォルト (hibernate: false) では InMemoryConnectionManager を使うため、
+   * getConnections() でのカウントと等価。onConnect/onClose で明示管理するのは、
+   * Miniflare テストでクライアント close → サーバ onClose 反映のタイミングが
+   * イベント待ちでは安定しなかったため (getConnections() 自体の不安定ではない)。
    * 後続段取り③ (最後の1人が抜けたら保存) でも活用できる設計。
+   * 注: 将来 hibernate: true を有効化する場合、インメモリフィールドは evict で失われるため
+   *     getConnections() (= ctx.getWebSockets() ベース) への切り替えが必要。
    */
   private _connectionCount = 0;
 
@@ -20,6 +24,8 @@ export class Room extends Server {
   }
 
   // 接続が閉じたとき。在室カウントをデクリメント。
+  // TODO(段取り③): 強制切断は onClose でなく onError だけ来るケースがある。
+  //   「最後の1人が抜けたら保存」を実装する際は onError でも同様に減算/整合させる。
   onClose(
     _connection: Connection,
     _code: number,

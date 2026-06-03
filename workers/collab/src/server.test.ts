@@ -88,17 +88,15 @@ describe("Room", () => {
     a.accept();
     expect(((await (await SELF.fetch(countUrl)).json()) as { count: number }).count).toBe(1);
 
-    // close() を呼んだ後、miniflare が onClose を処理するまでのマイクロタスクを待つ。
-    // close イベントのリスナーが発火しない環境に備え、close() 後に
-    // HTTP 往復を挟んでサーバー側の onClose 反映を確認するポーリング方式を採用。
+    // close() を呼んだ後、サーバー側 onClose が反映されるまで HTTP GET でポーリング
+    // する (固定 setTimeout 1回だと CI 負荷で偽陰性になりうるため、最大 ~500ms リトライ)。
     a.close();
-    // サーバー側の onClose ハンドラが実行されるまで少し待機する。
-    // 1回の await で非同期タスクをフラッシュし、それでも反映されなければ
-    // 次の HTTP GET で結果が 0 になっているはず。
-    await new Promise((r) => setTimeout(r, 50));
-
-    // close 反映を待ってから再取得
-    const after = (await (await SELF.fetch(countUrl)).json()) as { count: number };
+    let after = { count: 1 };
+    for (let i = 0; i < 10; i++) {
+      after = (await (await SELF.fetch(countUrl)).json()) as { count: number };
+      if (after.count === 0) break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
     expect(after.count).toBe(0);
   });
 });
