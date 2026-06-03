@@ -2,6 +2,13 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-06-02〜03 動画モーダル / OGP・memo修正 / YouTubeライブ / Cloudflare Worker)
+
+- **動画埋め込み式モーダル `VideoRecorderModal` (本番投入・実機検証済)**: subagent-driven-development で全7タスク (CSP `www.youtube.com` / i18n 4言語 / `parseYouTubeId` 10テスト / `useYouTubePlayer` / モーダル本体 / Timeline 連携 + `PipRecorder` 撤去)。公開後 UI 改善 (`36c356c`): 白基調復活(`--share-modal-bg`)/モーダル拡大(1400px・左flex-3)/ヘッダ撤去(×フロート)/軽減グリッド pip 6列/ストップウォッチ rAF 滑らか化(動画位置基準・500ms 再同期)。既存編集フロー(EventForm variant='modal')無改変。残フォロー(低優先・任意): 埋め込み不可/年齢制限の誘導UI / モバイル対応 / 閉じても state 保持で前動画残る。設計=specs `2026-06-02-video-recorder-modal*`。
+- **OGP/memo 修正 (デプロイ済)**: ① OGP 障害2件 — `/api/og` ルート衝突 (取得器を `/api/og-fetch` 分離) / `CONTENT_META` 二重管理→`contents.json` 自動生成 (Vercel Node Function は JSON import 不可で 500 → `contentsOgpData.ts` TS定数化、`node scripts/generate-ogp-data.mjs` で再生成) ② メモ leak = 新規プランが前プランの `memos` 引継ぎ→ `memos:[]` 追加 + 回帰テスト ③ `/assets/*` immutable 1年キャッシュ。
+- **YouTube ライブ配信対応 (実機確認済)**: `parseYouTubeId` の path 正規表現に `live` 追加 (`embed|shorts|v|live`)、`youtube.test.ts` 2ケース。時刻ロジック/UI/`useYouTubePlayer` 無改変。CSP 追加不要。設計=specs `2026-06-02-video-recorder-modal-design.md` §11。
+- **Cloudflare Worker 移設 (2026-05-29)**: Twitter 動画 → `media.lopoly.app` (Worker `lopo-media-proxy`) で Vercel egress ゼロ化。env `VITE_MEDIA_PROXY_BASE_URL` で制御 (外せば即ロールバック)。worker=`workers/media-proxy/`。設計=specs|plans `2026-05-29-housing-video-cf-worker`。memory `project_cloudflare_caching_priority`
+
 ## 完了 (2026-05-28 一覧住所順化 + 自分物件バッジ)
 
 「左上=自分、 2 番目=後から登録」 違和感の解消。 順序を変えるか識別を入れるかでユーザーと議論し、 「両方やる」 結論。
