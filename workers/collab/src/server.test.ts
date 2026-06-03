@@ -20,16 +20,18 @@ describe("Room", () => {
     a.accept();
     b.accept();
 
-    const receivedByB = new Promise<string>((resolve) => {
-      b.addEventListener("message", (e) => resolve(e.data as string));
-    });
+    try {
+      const receivedByB = new Promise<string>((resolve) => {
+        b.addEventListener("message", (e: MessageEvent) => resolve(e.data as string));
+      });
 
-    a.send("hello-from-a");
-    expect(await receivedByB).toBe("hello-from-a");
-
-    // 状態汚染防止: 開いた WebSocket を閉じる
-    a.close();
-    b.close();
+      a.send("hello-from-a");
+      expect(await receivedByB).toBe("hello-from-a");
+    } finally {
+      // 状態汚染防止: 失敗時も含め必ず開いた WebSocket を閉じる
+      a.close();
+      b.close();
+    }
   });
 
   it("中継は送信者自身には返らない", async () => {
@@ -40,18 +42,24 @@ describe("Room", () => {
     a.accept();
     b.accept();
 
-    let aGotEcho = false;
-    a.addEventListener("message", () => { aGotEcho = true; });
-    const receivedByB = new Promise<string>((resolve) => {
-      b.addEventListener("message", (e) => resolve(e.data as string));
-    });
+    try {
+      let aGotEcho = false;
+      a.addEventListener("message", () => { aGotEcho = true; });
+      const receivedByB = new Promise<string>((resolve) => {
+        b.addEventListener("message", (e: MessageEvent) => resolve(e.data as string));
+      });
 
-    a.send("ping");
-    await receivedByB; // B が受け取るまで待つ
-    expect(aGotEcho).toBe(false);
-
-    // 状態汚染防止: 開いた WebSocket を閉じる
-    a.close();
-    b.close();
+      a.send("ping");
+      await receivedByB; // B が受け取るまで待つ
+      // A へのエコー(あれば)がマイクロタスク/タスクキューに残っている可能性を
+      // 排出してから判定する。「B 受信 = A 受信済み」という暗黙の仮定に頼らず、
+      // 送信者除外の漏れを確実に検出するため。
+      await new Promise((r) => setTimeout(r, 0));
+      expect(aGotEcho).toBe(false);
+    } finally {
+      // 状態汚染防止: 失敗時も含め必ず開いた WebSocket を閉じる
+      a.close();
+      b.close();
+    }
   });
 });
