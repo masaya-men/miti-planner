@@ -26,6 +26,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { mergePlans } from './mergePlans';
 import { COLLECTIONS, PLAN_LIMITS } from '../types/firebase';
 import type { FirestorePlan, FirestoreUserPlanCounts } from '../types/firebase';
 import type { SavedPlan } from '../types';
@@ -98,6 +99,8 @@ function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
     updatedAt: data.updatedAt instanceof Timestamp
       ? data.updatedAt.toMillis()
       : Date.now(),
+    // 墓標フラグ (true のときのみ持たせる。live プランには付けない)
+    ...(data.deleted === true ? { deleted: true as const } : {}),
   };
 }
 
@@ -184,8 +187,18 @@ async function checkPlanLimits(
 // CRUD 操作
 // ========================================
 
-/** ユーザーの全プランを取得（サーバー優先、オフライン時のみキャッシュ） */
-async function fetchUserPlans(uid: string): Promise<SavedPlan[]> {
+/**
+ * ユーザーの全プラン doc を取得 (live + 墓標)。マージ用の低レベル取得。
+ * - live: deleted でないプラン (表示・カウント対象)
+ * - tombstoneIds: deleted:true のプラン ID (= 削除済みの明示シグナル)
+ *
+ * 注意: クエリ自体は ownerId==uid の単一 where + updatedAt orderBy のまま
+ * (= 既存の複合インデックスで動く)。墓標の除外はクライアント側で行うので
+ * 新しい複合インデックスは不要。
+ */
+async function fetchPlansAndTombstones(
+  uid: string,
+): Promise<{ live: SavedPlan[]; tombstoneIds: Set<string> }> {
   const q = query(
     collection(db, COLLECTIONS.PLANS),
     where('ownerId', '==', uid),
@@ -198,7 +211,20 @@ async function fetchUserPlans(uid: string): Promise<SavedPlan[]> {
     // オフライン時はキャッシュにフォールバック
     snap = await getDocs(q);
   }
-  return snap.docs.map((d) => fromFirestore(d.id, d.data() as FirestorePlan));
+  const all = snap.docs.map((d) => fromFirestore(d.id, d.data() as FirestorePlan));
+  const live: SavedPlan[] = [];
+  const tombstoneIds = new Set<string>();
+  for (const p of all) {
+    if (p.deleted) tombstoneIds.add(p.id);
+    else live.push(p);
+  }
+  return { live, tombstoneIds };
+}
+
+/** ユーザーの live プランを取得（墓標は除外。サーバー優先、オフライン時のみキャッシュ） */
+async function fetchUserPlans(uid: string): Promise<SavedPlan[]> {
+  const { live } = await fetchPlansAndTombstones(uid);
+  return live;
 }
 
 /**
@@ -248,7 +274,7 @@ async function createPlan(
 async function updatePlan(
   plan: SavedPlan,
   uid: string,
-): Promise<'updated' | 'skipped_newer_remote'> {
+): Promise<'updated' | 'skipped_newer_remote' | 'deleted_remotely'> {
   const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
   // サーバーから直接読み取り（キャッシュの古いデータで削除済みドキュメントを誤検出しないため）
   try {
@@ -267,6 +293,10 @@ async function updatePlan(
     if (current.ownerId !== uid) {
       throw new Error('NOT_OWNER');
     }
+    // 墓標 (他端末で削除済み) を上書きしない。復活させず「削除された」と呼び出し側に伝える。
+    if (current.deleted === true) {
+      return 'deleted_remotely';
+    }
     // タイムスタンプ比較: リモートがローカルより新しければスキップ
     const remoteUpdatedAt = current.updatedAt instanceof Timestamp
       ? current.updatedAt.toMillis()
@@ -282,7 +312,15 @@ async function updatePlan(
   }
 }
 
-/** プランを Firestore から削除（バッチ: プラン + カウンター） */
+/**
+ * プランを Firestore から削除（ソフトデリート = 墓標化）
+ *
+ * 物理削除はしない。`deleted:true + deletedAt` を立てて doc を残すことで、
+ * 「未同期」と「他端末で削除」をマージ時に区別できるようにする (= 復活/消失の根治)。
+ * 古い墓標は安全期間後に GC cron で物理削除する (後続タスク)。
+ *
+ * バッチ: プラン墓標化 + カウンター減算。
+ */
 async function deletePlan(
   planId: string,
   uid: string,
@@ -290,9 +328,14 @@ async function deletePlan(
 ): Promise<void> {
   const batch = writeBatch(db);
 
-  // プラン削除
+  // プランを墓標化 (物理削除しない)。version をインクリメントして楽観ロックを満たす。
   const planRef = doc(db, COLLECTIONS.PLANS, planId);
-  batch.delete(planRef);
+  batch.update(planRef, {
+    deleted: true,
+    deletedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+    version: increment(1),
+  });
 
   // カウンター減算
   const countRef = doc(db, COLLECTIONS.USER_PLAN_COUNTS, uid);
@@ -315,51 +358,18 @@ async function deletePlan(
 /**
  * Firestoreから最新データを取得し、ローカルデータとマージする（PULL操作）
  *
- * マージ戦略（Last Writer Wins）:
+ * マージ戦略は純粋関数 `mergePlans` に委譲 (墓標ベース):
  * - 両方に存在: updatedAt が新しい方を採用
- * - リモートのみ: ローカルに追加（他端末で作成されたプラン）
- * - ローカルのみ + ownerId='local': 未アップロード → 残す
- * - ローカルのみ + ownerId=uid: リモートで削除された → ローカルからも除去
+ * - リモートのみ live: ローカルに追加（他端末で作成されたプラン）
+ * - ローカルのみ + 墓標無し: 未同期 → 残す (drop しない / 次回キューで再送)
+ * - 墓標あり: 削除確定 → ローカルからも除去・復活させない
  */
 async function fetchAndMerge(
   localPlans: SavedPlan[],
   uid: string,
 ): Promise<{ merged: SavedPlan[]; changed: boolean }> {
-  const remotePlans = await fetchUserPlans(uid);
-  const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
-  const localMap = new Map(localPlans.map((p) => [p.id, p]));
-
-  const merged: SavedPlan[] = [];
-  let changed = false;
-
-  // ローカルプランを処理
-  for (const local of localPlans) {
-    const remote = remoteMap.get(local.id);
-    if (remote) {
-      if (remote.updatedAt > local.updatedAt) {
-        merged.push(remote);
-        changed = true;
-      } else {
-        merged.push(local);
-      }
-    } else if (local.ownerId === 'local') {
-      merged.push(local);
-    } else {
-      // リモートで削除された → ローカルからも除去
-      changed = true;
-    }
-  }
-
-  // リモートのみのプラン（他端末で作成）
-  for (const remote of remotePlans) {
-    if (!localMap.has(remote.id)) {
-      merged.push(remote);
-      changed = true;
-    }
-  }
-
-  merged.sort((a, b) => b.updatedAt - a.updatedAt);
-  return { merged, changed };
+  const { live, tombstoneIds } = await fetchPlansAndTombstones(uid);
+  return mergePlans(localPlans, live, tombstoneIds);
 }
 
 /**
@@ -371,11 +381,12 @@ async function fetchAndMerge(
  *
  * - 両方に存在 + ローカルが新しい → Firestore に書き戻し（端末間同期の要）
  * - 両方に存在 + リモートが新しい → リモート採用
- * - ローカルのみ + `ownerId='local'` → ローカルに残す（取り込み候補）
- * - ローカルのみ + `ownerId=uid` → 別端末で削除されたとみなし除外
- * - リモートのみ → 追加（他端末で作成されたプラン）
+ * - 墓標あり → 削除確定: ローカルからも除去・復活させない
+ * - ローカルのみ + 墓標無し + `ownerId='local'` → ローカルに残す（取り込み候補・自動 upload しない）
+ * - ローカルのみ + 墓標無し + `ownerId=uid` → 未同期 → 残す + dirty に積んで再 upload (旧実装はここで消していた=消失バグ)
+ * - リモートのみ live → 追加（他端末で作成されたプラン）
  *
- * @returns { merged, dirtyIds } — マージ済みプラン + Firestoreに書き戻せなかったプランID
+ * @returns { merged, dirtyIds } — マージ済みプラン + 次回 sync で (再)upload すべきプランID
  */
 async function migrateLocalPlansToFirestore(
   localPlans: SavedPlan[],
@@ -388,15 +399,19 @@ async function migrateLocalPlansToFirestore(
     console.error('カウンター修復エラー（続行）:', err);
   }
 
-  // Firestoreから既存プランを取得
-  const remotePlans = await fetchUserPlans(uid);
+  // Firestoreから既存プランを取得 (live + 墓標)
+  const { live: remotePlans, tombstoneIds } = await fetchPlansAndTombstones(uid);
   const remoteMap = new Map(remotePlans.map((p) => [p.id, p]));
 
   // マージ + ローカルが新しいプランをFirestoreに書き戻し
   const merged: SavedPlan[] = [];
-  const dirtyIds: string[] = []; // Firestoreに書き戻せなかったプランID
+  const dirtyIds: string[] = []; // 次回 sync で (再)upload すべきプランID
 
   for (const local of localPlans) {
+    // 墓標が最優先: 他端末で削除された → ローカルからも除去
+    if (tombstoneIds.has(local.id)) {
+      continue;
+    }
     const remote = remoteMap.get(local.id);
     if (remote) {
       if (remote.updatedAt > local.updatedAt) {
@@ -416,13 +431,18 @@ async function migrateLocalPlansToFirestore(
         merged.push(remote);
       }
     } else if (local.ownerId === 'local') {
-      // ローカルのみ & 未ログイン作成 → ownerId='local' のまま残す (取り込み候補としてローカルに維持)
+      // ローカルのみ & 未ログイン作成 → ownerId='local' のまま残す (取り込み候補・自動 upload しない)
       merged.push(local);
+    } else {
+      // ローカルのみ & ownerId=uid & 墓標無し = 未同期 (ログイン中作成→未 upload で閉じた)。
+      // 旧実装は「別端末で削除」と推測して drop していた (= 消失バグ)。
+      // 墓標が無い以上それは未同期なので、残して dirty に積み、次回 sync で再 upload する。
+      merged.push(local);
+      dirtyIds.push(local.id);
     }
-    // ローカルのみ & ownerId !== 'local' → 別端末で削除されたとみなし除外
   }
 
-  // リモートにのみ存在するプランを追加
+  // リモートにのみ存在する live プランを追加
   const localIds = new Set(localPlans.map((p) => p.id));
   const remoteOnly = remotePlans.filter((p) => !localIds.has(p.id));
   merged.push(...remoteOnly);
@@ -473,16 +493,16 @@ async function syncDirtyPlans(
             conflicted.push(plan);
             return;
           }
-        } catch {
-          // ownerId=uid のプランがFirestoreに存在しない → 別端末で削除された
-          // ownerId='local' のプランはまだ未アップロードなので削除判定しない
-          if (plan.ownerId === uid) {
-            const exists = await checkPlanExists(plan.id);
-            if (!exists) {
-              deletedRemotely.push(plan.id);
-              return;
-            }
+          if (result === 'deleted_remotely') {
+            // 他端末で削除済み (墓標) → 復活させずローカルからも除去
+            deletedRemotely.push(plan.id);
+            return;
           }
+        } catch {
+          // updatePlan が NOT_EXISTS (リモートに doc が無い)。
+          // ソフトデリート導入後、削除は必ず墓標として doc が残るので
+          // 「doc が無い = まだ一度も upload していない (未同期)」を意味する。
+          // → 消さずに createPlan で upload する (旧実装の「無い=削除」消失バグの根治)。
           await createPlan(plan, uid, displayName);
         }
       }

@@ -66,6 +66,10 @@ export interface FirestorePlan {
   updatedAt: Timestamp;
   /** アーカイブ済みの場合のタイムスタンプ */
   archivedAt: Timestamp | null;
+  /** ソフトデリート (墓標) フラグ。true = 削除済み。物理削除は GC cron で後日。 */
+  deleted?: boolean;
+  /** 墓標化された日時 (GC の安全期間判定用) */
+  deletedAt?: Timestamp | null;
 }
 
 /** sharedPlanMeta/{shareId} ドキュメント */

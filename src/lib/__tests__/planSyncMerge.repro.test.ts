@@ -1,23 +1,21 @@
 /**
- * 同期マージ 再現テスト (2026-06-03)
+ * 同期マージ 回帰テスト (2026-06-03)
  *
- * 目的: 「別端末で消失」「削除→復活」の根本原因を、本番コードを変えずに
- *       実際のマージ関数 (planService.fetchAndMerge) の挙動で実証する。
+ * もともと「別端末で消失」「削除→復活」を再現するための characterization テストだったが、
+ * ソフトデリート (墓標) 導入で根治したため、回帰ガードに昇格した。
  *
- * 仮説: マージは「リモートに存在するか」だけで判断し、
- *       - 「未同期(まだ上げてない)」と「他端末で削除された」を区別できない
- *       → 未同期ローカルを drop (消失) / 削除済みリモートを re-add (復活)
- *
- * 本テストは現状の挙動を実証するためのもの。
- * - 【消失】は「望ましい安全挙動」をアサート → 現状 FAIL (=バグ再現)
- * - 【復活】は「現状の挙動」を固定 (characterization) → 現状 PASS (=復活の温床を確認)
+ * 検証する正しい挙動 (墓標ベース):
+ * - 未同期ローカル (リモート live 無し + 墓標無し) → 残す (消失の根治)
+ * - 墓標があるローカル / 墓標のみリモート → 除去・復活させない (復活の根治)
+ * - リモートのみ live → 追加 (他端末作成)
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // firebase/firestore を最小モック (planService が import する named export を全て用意)
 vi.mock('firebase/firestore', () => {
     class Timestamp {
-        constructor(public ms: number) {}
+        ms: number;
+        constructor(ms: number) { this.ms = ms; }
         toMillis() { return this.ms; }
     }
     return {
@@ -55,8 +53,11 @@ function makePlan(id: string, ownerId: string, updatedAt = 2000): SavedPlan {
     };
 }
 
-/** getDocsFromServer (= fetchUserPlans の取得元) が返すリモートを差し替える。 */
-function setRemote(plans: SavedPlan[]) {
+/**
+ * getDocsFromServer (= fetchUserPlans の取得元) が返すリモートを差し替える。
+ * deleted:true を渡すと墓標として扱われる。
+ */
+function setRemote(plans: Array<SavedPlan & { deleted?: boolean }>) {
     const docs = plans.map(p => ({ id: p.id, data: () => ({ ...p }) }));
     vi.mocked(fs.getDocsFromServer).mockResolvedValue({ docs } as any);
 }
@@ -65,38 +66,52 @@ beforeEach(() => {
     setRemote([]);
 });
 
-describe('同期マージ 再現テスト', () => {
-    // it.fails: 現状は「消失バグ」で必ず失敗する。これを既知失敗として固定し、スイートは緑のまま。
-    // 修正が入ってアサートが通るようになると it.fails が逆に失敗 → 「直った」合図になる。
-    it.fails('【消失・既知バグ】未同期のログイン作成プラン (ownerId=uid・リモート未存在) が fetchAndMerge で残らない', async () => {
+describe('同期マージ 回帰テスト (墓標ベース)', () => {
+    it('【消失の根治】未同期のログイン作成プラン (ownerId=uid・リモート未存在・墓標無し) は残る', async () => {
         const local = [makePlan('p1', UID)];
         setRemote([]); // まだ一度も同期されていない
 
         const { merged } = await planService.fetchAndMerge(local, UID);
 
-        // 望ましい安全挙動: 未同期なら消さず残す (=次回アップロード対象)。
-        // 現状はリモートに無い=削除と推測して drop するため、このアサートは FAIL する (=消失の再現)。
+        // 墓標が無い = 未同期。drop せず残す (= 次回アップロード対象)。
         expect(merged.map(p => p.id)).toContain('p1');
     });
 
-    it('【参考: ローカル作成 ownerId=local は残る】', async () => {
+    it('【参考: ローカル作成 ownerId=local も残る】', async () => {
         const local = [makePlan('p2', 'local')];
         setRemote([]);
 
         const { merged } = await planService.fetchAndMerge(local, UID);
 
-        // ownerId='local' は「未ログイン作成」扱いで残る。ownerId=uid との差が消失の分かれ目。
         expect(merged.map(p => p.id)).toContain('p2');
     });
 
-    it('【復活の温床】リモートにのみ存在するプランは無条件で re-add される (削除認識なし)', async () => {
-        const deletedButStillRemote = makePlan('p3', UID);
-        setRemote([deletedButStillRemote]); // 削除をリモート反映できないまま残っている想定
+    it('【復活の根治】墓標 (deleted:true) のみリモートに残っていても復活しない', async () => {
+        const tombstone = { ...makePlan('p3', UID), deleted: true };
+        setRemote([tombstone]); // 削除済みだが GC 前で doc が残っている
 
         const { merged } = await planService.fetchAndMerge([], UID);
 
-        // fetchAndMerge は「これは削除済み」を知る手段(墓標)を持たないため、必ず復活する。
-        // 現状の挙動を固定 (characterization)。
-        expect(merged.map(p => p.id)).toContain('p3');
+        // 墓標は live ではないので追加しない。
+        expect(merged.map(p => p.id)).not.toContain('p3');
+    });
+
+    it('【復活の根治2】ローカルに残っていても墓標があれば除去される', async () => {
+        const local = [makePlan('p4', UID)];
+        const tombstone = { ...makePlan('p4', UID), deleted: true };
+        setRemote([tombstone]);
+
+        const { merged } = await planService.fetchAndMerge(local, UID);
+
+        expect(merged.map(p => p.id)).not.toContain('p4');
+    });
+
+    it('【正常: 他端末作成】リモートのみの live プランは追加される', async () => {
+        const remoteLive = makePlan('p5', UID);
+        setRemote([remoteLive]);
+
+        const { merged } = await planService.fetchAndMerge([], UID);
+
+        expect(merged.map(p => p.id)).toContain('p5');
     });
 });

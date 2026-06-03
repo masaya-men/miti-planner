@@ -285,6 +285,12 @@ export interface SavedPlan {
     /** 圧縮済みデータ（archived時にdataの代わりに使用） */
     compressedData?: string;
     /**
+     * ソフトデリート (墓標) フラグ。true = 削除済み。
+     * 同期マージで「未同期」と「他端末で削除」を区別するためのシグナル。
+     * live プラン (表示・カウント対象) には付かない。
+     */
+    deleted?: boolean;
+    /**
      * プラン作成時にユーザーがログイン済みだったか。
      * - true: ログイン中に作成 → Firestore に自動同期される / LocalImportDialog 対象外
      * - false: ログアウト中に作成 → 明示的な「取り込み」 が必要 / ダイアログに表示

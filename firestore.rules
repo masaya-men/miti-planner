@@ -67,17 +67,27 @@ service cloud.firestore {
       allow update: if isOwner(resource.data.ownerId)
                     // オーナーIDの変更禁止
                     && request.resource.data.ownerId == resource.data.ownerId
-                    && isValidString(request.resource.data.title, 100)
-                    // フィールド型の検証
-                    && request.resource.data.data is map
-                    && request.resource.data.isPublic is bool
-                    && request.resource.data.contentId is string
-                    // バージョン: 現在値より大きい（楽観的ロック）
-                    && request.resource.data.version > resource.data.version
-                    // copyCount/useCountの改ざん防止（クライアントからは変更不可）
+                    // copyCount/useCountの改ざん防止（クライアントからは変更不可・両分岐共通）
                     && request.resource.data.copyCount == resource.data.copyCount
-                    && request.resource.data.useCount == resource.data.useCount;
+                    && request.resource.data.useCount == resource.data.useCount
+                    && (
+                      // (A) ソフトデリート (墓標化): deleted=true をセットする更新。
+                      //     内容フィールドの妥当性は不問 (削除済み doc は表示・カウント対象外)。
+                      request.resource.data.deleted == true
+                      ||
+                      // (B) 通常更新: 内容フィールドの型検証 + 楽観的ロック
+                      (
+                        isValidString(request.resource.data.title, 100)
+                        && request.resource.data.data is map
+                        && request.resource.data.isPublic is bool
+                        && request.resource.data.contentId is string
+                        && request.resource.data.version > resource.data.version
+                      )
+                    );
 
+      // 物理削除: 通常のプラン削除はソフトデリート (update で deleted=true) を使うが、
+      // アカウント全削除 (useAuthStore) は本人のプランをまとめて物理削除するため許可を維持。
+      // 古い墓標の定期物理削除は GC cron が Admin SDK で実施 (rules バイパス)。
       allow delete: if isOwner(resource.data.ownerId);
     }
 
