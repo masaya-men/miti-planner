@@ -13,6 +13,7 @@ import { MobileBottomSheet } from './MobileBottomSheet';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { PulseSettings } from './PulseSettings';
+import { CollabToggle } from './CollabToggle';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { Loader2, Sun, Moon, Star } from 'lucide-react';
 import { LoginModal } from './LoginModal';
@@ -655,6 +656,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                         <a href="https://x.com/lopoly_app" target="_blank" rel="noopener noreferrer" className="underline hover:text-app-text transition-colors">{t('footer.x_official')}</a>
                         {' · '}
                         <PulseSettings />
+                        {' · '}
+                        {/* 段取り②-a 検証用の最小トグル(最終的な入口/配置は段取り⑤で確定) */}
+                        <CollabToggle />
                     </p>
                 </footer>
                 </MobileTriggersContext.Provider>
