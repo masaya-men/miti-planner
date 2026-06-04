@@ -77,14 +77,16 @@ rtk git commit -m "chore(collab): add yjs/y-partyserver deps for stage2a (+worke
 
 **Files:**
 - Modify: `workers/collab/src/server.ts`(全面差し替え)
+- Modify: `workers/collab/src/index.ts`(`x-partykit-room` ヘッダ付与)
 
 現状([workers/collab/src/server.ts](../../../workers/collab/src/server.ts))は `Room extends Server` + 手動 `_connectionCount` + `onMessage` 素ブロードキャスト。これを YServer ベースへ。`onMessage` の素リレーは **削除**(YServer が内部で sync protocol を処理)。
+
+> **⚠ Task 1 で判明した必須対応(ルーティング)**: `y-partyserver@2.2.0` の peer 要求で `partyserver` が 0.5.x になり、DO はルーム名を `ctx.id.name` から解決する。だが `routePartykitRequest` は `x-partykit-room` ヘッダを設定せず、**Miniflare/workerd 테스트環境では `idFromName(name).name` が露出しないため `Cannot determine the name for Room` で 500 になる**(`node_modules/partyserver/dist/index.js` の DO `fetch` 実装で確認: `ctx.id.name` → 内部 `#_name` → `x-partykit-room` ヘッダ、の3段フォールバック)。**対策**: `index.ts` で URL からルーム名を取り出し `x-partykit-room` ヘッダを自分でセットする。DO 側は `ctx.id.name` を優先し無いときだけヘッダを使うので、**本番(ctx.id.name 有)もテスト(ヘッダ有)も両方動く**。これにより「本番で動くか未検証」を解消する。
 
 - [ ] **Step 1: server.ts を YServer ベースへ書き換え**
 
 ```ts
 import { YServer } from "y-partyserver";
-import type { Connection, ConnectionContext } from "partyserver";
 
 /**
  * ライブ部屋 = 1 Durable Object。段取り②-a で YServer 化。
@@ -92,6 +94,9 @@ import type { Connection, ConnectionContext } from "partyserver";
  * - hibernation ON: idle 時 duration 非課金($0 前提)。起床時は生存接続から再同期。
  * - 在室数は getConnections() ベース(hibernation でインスタンス変数は揮発するため)。
  * - onLoad/onSave は未実装 = 全員退室で Y.Doc 揮発(設計書 §5 の許容範囲)。恒久保存は段取り③。
+ * - ⚠ onConnect は override しない: YServer の onConnect が接続時に sync step1 を送り
+ *   既存 Y.Doc 状態を新規接続者へ渡す必須処理。空 override すると後入室者に既存状態が届かない。
+ * - onClose も override しない(在室数は getConnections() で代替。段取り③の onError TODO はコミットメッセージに残す)。
  */
 export class Room extends YServer {
   // hibernation を明示 ON(デフォルト OFF)。これが無いと WebSocket 接続中ずっと duration 課金。
@@ -104,29 +109,49 @@ export class Room extends YServer {
     if (url.pathname.endsWith("/count")) {
       let count = 0;
       for (const _ of this.getConnections()) count++;
-      return new Response(JSON.stringify({ count }), {
-        headers: { "content-type": "application/json" },
-      });
+      return Response.json({ count });
     }
-    return super.onRequest(request);
-  }
-
-  override onConnect(_connection: Connection, _ctx: ConnectionContext): void {
-    // 段取り①の _connectionCount++ は撤去(getConnections() で代替)。
-    // 接続ライフサイクルのフックは hibernation 起床後も呼ばれる(partyserver 仕様)。
-  }
-
-  override onClose(): void {
-    // TODO(段取り③): 強制切断は onClose でなく onError だけ来るケースがある。
-    //   「最後の1人が抜けたら Firestore 保存」を実装する際は onError でも整合させる。
+    return new Response("Not Found", { status: 404 });
   }
 }
 ```
 
-- [ ] **Step 2: index.ts が `Room` を export していることを確認(変更不要のはず)**
+注: `onConnect` / `onClose` は **override しない**。`onConnect` は YServer の初期同期(sync step1 送出)を継承するため、`onClose` は在室数を getConnections() で代替するため。`onRequest` の non-/count は `super.onRequest` を呼ばず 404 を返す(YServer の onRequest 既定挙動に依存しないため)。
 
-Read: [workers/collab/src/index.ts](../../../workers/collab/src/index.ts)
-Expected: `export { Room } from "./server";` と `routePartykitRequest` が既にある。`Env.Room` の DO binding 名 `Room` は wrangler.jsonc と一致(変更不要)。
+- [ ] **Step 2: index.ts に `x-partykit-room` ヘッダ付与を追加**
+
+Miniflare/本番 両対応のため、`routePartykitRequest` 呼び出し前に URL からルーム名を取り出してヘッダをセットする。現状の index.ts([workers/collab/src/index.ts](../../../workers/collab/src/index.ts))の `fetch` を以下へ:
+
+```ts
+import { routePartykitRequest } from "partyserver";
+
+export { Room } from "./server";
+
+export interface Env {
+  Room: DurableObjectNamespace;
+}
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    // partyserver 0.5.x は DO 内で ctx.id.name からルーム名を解決するが、
+    // Miniflare/古い workerd では ctx.id.name が露出しない。partyserver の
+    // フォールバック (x-partykit-room ヘッダ) を我々が補ってテスト/本番両対応にする。
+    // 本番では ctx.id.name が優先されるため、このヘッダは無害(フォールバックのみ)。
+    const url = new URL(request.url);
+    const parts = url.pathname.split("/").filter(Boolean); // ["parties","room","<id>"]
+    if (parts[0] === "parties" && parts.length >= 3) {
+      const room = parts[2];
+      const req = new Request(request);
+      req.headers.set("x-partykit-room", room);
+      request = req;
+    }
+    return (
+      (await routePartykitRequest(request, env as unknown as Record<string, unknown>)) ||
+      new Response("Not Found", { status: 404 })
+    );
+  },
+} satisfies ExportedHandler<Env>;
+```
 
 - [ ] **Step 3: 型チェック**
 
@@ -311,6 +336,38 @@ cd ../..
 rtk git add workers/collab/scripts/verify-yjs-sync.mjs
 rtk git commit -m "test(collab): 本番 YServer の Yjs 同期を node 2クライアントで実証"
 ```
+
+---
+
+## Phase 2 共通: 遅延ロード設計(2026-06-04 改訂・以下の全タスクに優先適用)
+
+> ユーザー承認済み: `yjs`/`y-partyserver` を本体 `package.json` に追加するが、**ソロ利用者の初期 bundle に乗せない**。業界標準の「動的 import によるコード分割 + ハンドラ注入」で実現する。
+> **以降の Task 6/7/8/10 のコード例で `import * as Y from "yjs"` を store やコンポーネントに静的 import している箇所は、本節の設計で上書きする**(計画はこの決定の前に書かれた)。
+
+**bundle 境界の原則**: 本体に常駐するファイル(`useMitigationStore.ts` / `Layout.tsx` / `CollabToggle.tsx`)は **yjs を実行時 import しない**(static import 禁止)。yjs/y-partyserver を実際に読むのは `collabProvider.ts` だけで、これは `CollabToggle` の「一緒に編集」クリック時に **`await import("../lib/collab/collabProvider")`** で初めて読まれる。これで Yjs 系は共同編集を始めた人だけがダウンロードする。
+
+**ハンドラ注入(store を yjs 非依存にする要)**:
+- store は yjs を知らない。共同編集の操作は **`CollabHandlers` という関数の束**を介して遅延チャンクに委譲する。
+- 型(`src/lib/collab/collabTypes.ts` に置く・yjs を import しない純粋な型定義):
+  ```ts
+  import type { AppliedMitigation } from "../../types";
+  export interface CollabHandlers {
+    add: (m: AppliedMitigation) => void;
+    remove: (id: string) => void;
+    updateTime: (id: string, newTime: number) => void;
+  }
+  ```
+- store 側(Task 6)が持つ状態: `_collabActive: boolean` / `_collabHandlers: CollabHandlers | null`。yjs 由来の `_ydoc`/`_yarr` は **store に持たせない**(遅延チャンク = `collabProvider` 側が閉じ込めて保持する)。store は `import type { CollabHandlers }` のみ(型は erase されbundle に出ない)。
+- store の3 action 分岐(Task 7)は最小化: `if (get()._collabActive && get()._collabHandlers) { get()._collabHandlers.add(m); return; }`(remove/updateTime も同様)。**セラフィム/requires 等の cascade を含む Yjs 操作の実体は遅延チャンク(`collabProvider.ts`)側の handlers 実装に置く**(Task 8 に移設)。
+- store → UI 反映用に store action `_applyMitigationsFromCollab(mitigations: AppliedMitigation[])` を持つ: `set({ timelineMitigations: resolveShieldLinks(mitigations, getMitigationsFromStore()) })`。遅延チャンクの `observeDeep` がこれを呼ぶ。引数は素の `AppliedMitigation[]`(yjs 型を露出しない)。
+- 入退室: store `enterCollabMode(handlers: CollabHandlers)` / `exitCollabMode()`。Y.Doc の生成・seed・observeDeep 配線は遅延チャンク側で行い、結果を handlers と `_applyMitigationsFromCollab` 経由で store に渡す。
+
+**まとめ(責務)**:
+- `yjsMitigations.ts`(遅延チャンク): 低レベル変換 `appliedToYMap`/`yMapToApplied`/`readMitigations`/`indexOfMitigation`(yjs を import するのはここと collabProvider のみ)。← Task 5(下記、ほぼ変更なし)
+- `collabTypes.ts`(yjs 非依存・どこから import されても安全): `CollabHandlers` 型。← Task 6 で作成
+- `useMitigationStore.ts`(本体常駐・yjs 非 import): `_collabActive`/`_collabHandlers`/`enterCollabMode`/`exitCollabMode`/`_applyMitigationsFromCollab` + 3 action の委譲分岐。← Task 6/7
+- `collabProvider.ts`(遅延チャンク): Y.Doc 生成・YProvider 接続・seed・**cascade 込みの handlers 実装**・observeDeep→`_applyMitigationsFromCollab`。← Task 8(Task 7 の cascade コードはここへ)
+- `CollabToggle.tsx`(本体常駐): クリック時 `await import("../lib/collab/collabProvider")`。← Task 10
 
 ---
 
