@@ -1,53 +1,32 @@
-import { Server, type Connection, type ConnectionContext, type WSMessage } from "partyserver";
+import { YServer } from "y-partyserver";
+import type { Connection, ConnectionContext } from "partyserver";
 
 /**
- * ライブ部屋。1部屋 = 1 Durable Object。
- * 段取り①では「接続を受け、メッセージを他の在室者へ中継し、在室数を答える」骨組み。
- * Yjs / Firestore / 認証 / presence は後続段取りで上に乗せる。
+ * ライブ部屋 = 1 Durable Object。段取り②-a で YServer 化。
+ * - YServer が Y.Doc を握り Yjs sync protocol を話す(素のリレーは廃止)。
+ * - hibernation ON: idle 時 duration 非課金($0 前提)。起床時は生存接続から再同期。
+ * - 在室数は getConnections() ベース(hibernation でインスタンス変数は揮発するため)。
+ * - onLoad/onSave は未実装 = 全員退室で Y.Doc 揮発(設計書 §5 の許容範囲)。恒久保存は段取り③。
+ * - TODO(段取り③): 「最後の1人が抜けたら Firestore 保存」実装時は onError でも在室整合させる。
  */
-export class Room extends Server {
-  /**
-   * 現在の在室接続数。
-   * partyserver デフォルト (hibernate: false) では InMemoryConnectionManager を使うため、
-   * getConnections() でのカウントと等価。onConnect/onClose で明示管理するのは、
-   * Miniflare テストでクライアント close → サーバ onClose 反映のタイミングが
-   * イベント待ちでは安定しなかったため (getConnections() 自体の不安定ではない)。
-   * 後続段取り③ (最後の1人が抜けたら保存) でも活用できる設計。
-   * 注: 将来 hibernate: true を有効化する場合、インメモリフィールドは evict で失われるため
-   *     getConnections() (= ctx.getWebSockets() ベース) への切り替えが必要。
-   */
-  private _connectionCount = 0;
+export class Room extends YServer {
+  // hibernation を明示 ON(デフォルト OFF)。これが無いと WebSocket 接続中ずっと duration 課金。
+  static options = { hibernate: true };
 
-  // 接続が確立したとき。在室カウントをインクリメント。
-  onConnect(_connection: Connection, _ctx: ConnectionContext): void {
-    this._connectionCount++;
-  }
-
-  // 接続が閉じたとき。在室カウントをデクリメント。
-  // TODO(段取り③): 強制切断は onClose でなく onError だけ来るケースがある。
-  //   「最後の1人が抜けたら保存」を実装する際は onError でも同様に減算/整合させる。
-  onClose(
-    _connection: Connection,
-    _code: number,
-    _reason: string,
-    _wasClean: boolean
-  ): void {
-    if (this._connectionCount > 0) {
-      this._connectionCount--;
-    }
-  }
-
-  // 在室者からメッセージが来たら、送信者以外の全員へ中継する。
-  onMessage(connection: Connection, message: WSMessage): void {
-    this.broadcast(message, [connection.id]);
-  }
-
-  // 通常HTTP。段取り①では在室数の確認だけ (デバッグ/疎通用)。
-  onRequest(_request: Request): Response {
-    const url = new URL(_request.url);
+  // 在室数 HTTP。WebSocket 接続中に GET /count で現在の接続数を返す。
+  // getConnections() は ctx.getWebSockets() ベースで hibernation 安全。
+  override onRequest(request: Request): Response | Promise<Response> {
+    const url = new URL(request.url);
     if (url.pathname.endsWith("/count")) {
-      return Response.json({ count: this._connectionCount });
+      let count = 0;
+      for (const _ of this.getConnections()) count++;
+      return Response.json({ count });
     }
     return new Response("Not Found", { status: 404 });
+  }
+
+  override onConnect(_connection: Connection, _ctx: ConnectionContext): void {
+    // 段取り①の _connectionCount++ は撤去(getConnections() で代替)。
+    // 接続ライフサイクルのフックは hibernation 起床後も呼ばれる(partyserver 仕様)。
   }
 }
