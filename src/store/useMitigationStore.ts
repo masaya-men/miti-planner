@@ -843,6 +843,22 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 addMitigation: (mitigation) => {
+                    // 共同編集中: Yjs へ委譲(セラフィム cascade 等は handlers 実装側で Y 操作)。
+                    // timelineMitigations は handler→observeDeep→_applyMitigationsFromCollab 経由で更新。
+                    // プロンプト等の UI 一時状態はローカルに反映(yjs 非依存)。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        if (mitigation.mitigationId === 'aetherflow') {
+                            set({ aetherflowChainPrompt: { memberId: mitigation.ownerId, startTime: mitigation.time } });
+                        }
+                        const isManualDraw = !mitigation.autoHidden &&
+                            (mitigation.mitigationId === 'astral_draw' || mitigation.mitigationId === 'umbral_draw');
+                        if (isManualDraw) {
+                            set({ astrologianDrawChainPrompt: { memberId: mitigation.ownerId, startTime: mitigation.time, startKind: mitigation.mitigationId as 'astral_draw' | 'umbral_draw' } });
+                        }
+                        get()._collabHandlers!.add(mitigation);
+                        useTutorialStore.getState().completeEvent('mitigation:added');
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         let currentMitigations = [...state.timelineMitigations];
@@ -896,6 +912,12 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 removeMitigation: (id) => {
+                    // 共同編集中: Yjs へ委譲(requires 依存削除等は handlers 実装側で Y 操作)。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        if (get().conflictingMitigationId) set({ conflictingMitigationId: null });
+                        get()._collabHandlers!.remove(id);
+                        return;
+                    }
                     pushHistory();
                     // 被り先のアニメーション、または被り元の軽減が削除された場合もクリア
                     const currentConflict = get().conflictingMitigationId;
@@ -930,6 +952,11 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateMitigationTime: (id, newTime) => {
+                    // 共同編集中: Yjs へ委譲(セラフィム cascade 等は handlers 実装側で Y 操作)。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.updateTime(id, newTime);
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         let currentMitigations = state.timelineMitigations.map(m =>
