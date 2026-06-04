@@ -1,8 +1,8 @@
 // 共同編集③ 書き戻し: DO の onSave がここを叩き、軽減配置を Firestore に保存する。
 // 墓標ガード: deleted なら書かない(削除が勝つ)。data.timelineMitigations だけ部分更新し
 // version をインクリメント(既存の楽観ロックと整合)。読んでから書くためトランザクション。
-import { authorizeCollab, getDb } from './_handlerShared';
-import { decideSave, type MitigationRecord, type PlanDocSnapshot } from './_logic';
+import { authorizeCollab, getDb } from './_handlerShared.js';
+import { decideSave, type MitigationRecord, type PlanDocSnapshot } from './_logic.js';
 import { FieldValue, type Transaction } from 'firebase-admin/firestore';
 
 export default async function handler(req: any, res: any) {

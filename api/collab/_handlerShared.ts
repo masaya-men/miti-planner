@@ -5,7 +5,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { timingSafeEqual } from 'node:crypto';
-import { COLLAB_SECRET_HEADER, isCollabAuthorized } from './_logic';
+import { COLLAB_SECRET_HEADER, isCollabAuthorized } from './_logic.js';
 
 /** firebase-admin を一度だけ初期化して Firestore を返す。 */
 export function getDb(): Firestore {
