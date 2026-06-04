@@ -41,6 +41,12 @@ curl -X POST "https://lopoly.app/api/admin?resource=role" \
 
 ---
 
+## 共同編集 緊急停止スイッチ (段取り⑤-1)
+- リアルタイム共同編集を**全停止**したいとき、Vercel 環境変数 `COLLAB_DISABLED` を **`1`** に設定する(全 Environments → 再デプロイ)。
+- 効果: `/api/collab/load` が seed しなくなり(`{deleted:true}`)、`/api/collab/save` が書き戻さなくなる(`{skipped:'disabled'}`)。既存プランの保存データは無傷。
+- 解除: `COLLAB_DISABLED` を削除 or `1` 以外にする(`0`/`true` 等は無効=停止しない。**厳密に文字列 `1` のみ**有効)。
+- ※ Cloudflare DO 自体は止めない。受付係(Vercel)で止めるため、起きている部屋も以後 seed/保存されなくなる。
+
 ## 技術メモ
 - Vercel無料プラン: 月10万関数実行 / Firebase無料: 月5万アクティブユーザーまでOK
 - Twitter OAuth 2.0 + Vercel API方式

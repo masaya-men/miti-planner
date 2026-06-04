@@ -17,6 +17,9 @@ describe('resolveRoom', () => {
   it('失効 → revoked', () => {
     expect(resolveRoom({ planId: 'p1', revoked: true })).toEqual({ ok: false, reason: 'revoked' });
   });
+  it('失効は planId 欠落より優先(revoked のみ → revoked)', () => {
+    expect(resolveRoom({ revoked: true })).toEqual({ ok: false, reason: 'revoked' });
+  });
   it('有効 → ok + planId + 丸めた maxParticipants', () => {
     expect(resolveRoom({ planId: 'p1', maxParticipants: 8 }))
       .toEqual({ ok: true, planId: 'p1', maxParticipants: 8 });

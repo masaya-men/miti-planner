@@ -25,10 +25,15 @@ export function clampMaxParticipants(n: number | undefined): number {
   return Math.max(1, Math.min(SYSTEM_MAX_PARTICIPANTS, Math.floor(n)));
 }
 
-/** collabRooms doc(または null=不存在)から解決結果を決める。失効/planId 欠落は入室不可。 */
+/**
+ * collabRooms doc(または null=不存在)から解決結果を決める。失効/planId 欠落は入室不可。
+ * 失効判定を planId 欠落より優先する: 一度 revoked にした部屋は(planId が消えても)
+ * 「失効」として扱い、管理者の失効意図を取りこぼさない。
+ */
 export function resolveRoom(room: CollabRoomDoc | null): RoomResolution {
-  if (!room || !room.planId) return { ok: false, reason: 'not-found' };
+  if (!room) return { ok: false, reason: 'not-found' };
   if (room.revoked === true) return { ok: false, reason: 'revoked' };
+  if (!room.planId) return { ok: false, reason: 'not-found' };
   return { ok: true, planId: room.planId, maxParticipants: clampMaxParticipants(room.maxParticipants) };
 }
 
