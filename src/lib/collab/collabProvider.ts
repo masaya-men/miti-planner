@@ -124,18 +124,14 @@ export function startCollabSession(planId: string): CollabSession {
     },
   };
 
-  // 初期同期完了後に入室処理(seed の最初の参加者判定を sync 後に確定させる)。
+  // 初期同期完了後に入室処理。
+  // 段取り③: seed はサーバー(DO の onLoad が Firestore から)が担うため、クライアントは
+  // 「部屋の状態を store に反映」するだけ(自分のローカル軽減で seed しない)。これにより
+  // 「部屋の状態 = Firestore の保存済み内容」が唯一の真実になり、オーナー不在でも矛盾しない。
   let entered = false;
   const onSynced = (isSynced: boolean) => {
     if (!isSynced || entered) return;
     entered = true;
-    // 最初の参加者(部屋が空)なら現在のローカル軽減を seed。2人目以降は部屋の状態が正。
-    if (yarr.length === 0) {
-      const current = useMitigationStore.getState().timelineMitigations;
-      doc.transact(() => {
-        current.forEach((m) => yarr.push([appliedToYMap(m)]));
-      }, 'seed');
-    }
     useMitigationStore.getState().enterCollabMode(handlers);
     useMitigationStore.getState()._applyMitigationsFromCollab(readMitigations(doc));
   };
