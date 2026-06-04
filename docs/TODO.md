@@ -12,6 +12,7 @@
 ## 現在の状態 (次セッションはここから読む)
 
 - **ブランチ**: main (origin と同期済)。直近の完了は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照 (動画モーダル / OGP・memo / YouTubeライブ / Cloudflare Worker)。
+- **✅ 共同編集⑤-1=ルーム解決層 main マージ・push 済 (2026-06-05 本セッション)**: ⑤ をブレスト→設計書化→3分割し、⑤-1(`collabRooms` token→planId 解決 + load/save の roomToken 対応・③非破壊 + 緊急停止 `COLLAB_DISABLED=1`)を TDD 実装・最終レビューAPPROVED・本番デプロイ(非破壊で休眠)。**次=⑤-2**(管理API+ワーカー結線+満員拒否)。詳細は下記バックログ⑤の項。**UI は完成まで非露出継続**。
 - **✅ 同期安定化 Step1+2+① デプロイ済 (2026-06-03 本セッション)**: 業界水準ソフトデリート(墓標)+墓標ベースマージ+同期インテント永続化を TDD で実装・本番投入。「別端末で消失/削除→復活/リロードで一瞬復活」を根治。**実機検証=Step1+2 OK (消失/復活なし) / ①は"一瞬復活ちらつき消滅"を要確認**。Firestoreルールはデプロイ済。新規 `src/lib/mergePlans.ts`・`src/store/planPersist.ts`、`planService.ts`/`usePlanStore.ts` 改修。詳細・残タスクは **[docs/.private/2026-06-03-realtime-collab-and-sync-notes.md](./.private/2026-06-03-realtime-collab-and-sync-notes.md) Phase5+6**。残=**Step3 unload確実化**(updatePlanの読んでから書く廃止・トレードオフ要設計) / 墓標GC cron。**Step4=共同編集はブレスト完了→設計書化済**(下記バックログ参照。onSnapshot単独でなくYjs+Durable Objectsの本格Cに格上げ)。共同編集本体はコスト有界化ゲート後。
 - **🔍 デプロイ済・要実機検証 (残)**: ① **FFLogs 全滅(ワイプ)ログ** = 全滅ログの pull URL (`#fight=N` 付き) で実機検証 + 既存キルログ回帰 (`src/api/fflogs.ts` `selectFight`、設計 specs `2026-04-05-fflogs-import-v2.md`) ② **FFLogs トークン 502** = どのキーがなぜ落ちてるか特定 (vercel logs tail で 401/429/5xx 判別→必要なら本番メインキー差し替え、`src/lib/fflogsTokenFailover.ts`)。
 - **中優先フォローアップ=動画 CF エッジキャッシュ**: コスト緊急性は否定済 (月13万訪問でも約¥2,200)。目的は レイテンシ/堅牢性/Twitter 取得回数削減。実装=Worker で full mp4 取得→Cache API→Range slice で 206 (アプリ変更ゼロ)。**Range×cache は hotfix21 地雷=seek 検証必須** ([[reference_vercel_edge_range_cache]])。
