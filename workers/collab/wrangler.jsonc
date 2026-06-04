@@ -9,5 +9,8 @@
   },
   "migrations": [
     { "tag": "v1", "new_sqlite_classes": ["Room"] }
-  ]
+  ],
+  // 受付係(Vercel)オリジン。COLLAB_SHARED_SECRET は機密のためここに書かず
+  // `wrangler secret put COLLAB_SHARED_SECRET` で投入する(段取り③ Task10)。
+  "vars": { "APP_API_BASE": "https://lopoly.app" }
 }

@@ -4,6 +4,10 @@ export { Room } from "./server";
 
 export interface Env {
   Room: DurableObjectNamespace;
+  /** 受付係(Vercel)アプリのオリジン。例: https://lopoly.app */
+  APP_API_BASE: string;
+  /** DO↔Vercel のサーバー間共有シークレット(wrangler secret で投入)。 */
+  COLLAB_SHARED_SECRET: string;
 }
 
 export default {
