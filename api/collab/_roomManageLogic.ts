@@ -8,12 +8,11 @@ export type RoomAction = 'create' | 'revoke' | 'reissue' | 'set-max';
 /** 受理可能なアクション一覧(検証と一覧表示の単一の真実)。 */
 export const ROOM_ACTIONS: RoomAction[] = ['create', 'revoke', 'reissue', 'set-max'];
 
-export interface RoomManageRequest {
-  action: RoomAction;
-  planId: string;
-  /** create では任意・set-max では必須。範囲の丸めは clampMaxParticipants(ハンドラ)で行う。 */
-  maxParticipants?: number;
-}
+export type RoomManageRequest =
+  | { action: 'create'; planId: string; maxParticipants?: number }
+  | { action: 'revoke'; planId: string }
+  | { action: 'reissue'; planId: string }
+  | { action: 'set-max'; planId: string; maxParticipants: number };
 
 export type ParseResult =
   | { ok: true; req: RoomManageRequest }
@@ -33,20 +32,20 @@ export function parseRoomManageRequest(body: unknown): ParseResult {
     return { ok: false, error: 'invalid_planId' };
   }
 
-  const req: RoomManageRequest = { action: action as RoomAction, planId };
-
   if (action === 'set-max') {
     // set-max は新しい上限が必須。
     if (typeof b.maxParticipants !== 'number') return { ok: false, error: 'invalid_maxParticipants' };
-    req.maxParticipants = b.maxParticipants;
-  } else if (action === 'create') {
+    return { ok: true, req: { action: 'set-max', planId, maxParticipants: b.maxParticipants } };
+  }
+  if (action === 'create') {
     // create は省略可(省略時はハンドラが既定 8)。指定するなら数値であること。
-    if (b.maxParticipants !== undefined) {
-      if (typeof b.maxParticipants !== 'number') return { ok: false, error: 'invalid_maxParticipants' };
-      req.maxParticipants = b.maxParticipants;
+    if (b.maxParticipants !== undefined && typeof b.maxParticipants !== 'number') {
+      return { ok: false, error: 'invalid_maxParticipants' };
     }
+    const req: { action: 'create'; planId: string; maxParticipants?: number } = { action: 'create', planId };
+    if (typeof b.maxParticipants === 'number') req.maxParticipants = b.maxParticipants;
+    return { ok: true, req };
   }
   // revoke / reissue は maxParticipants を取らない(あっても無視)。
-
-  return { ok: true, req };
+  return { ok: true, req: { action: action as 'revoke' | 'reissue', planId } };
 }
