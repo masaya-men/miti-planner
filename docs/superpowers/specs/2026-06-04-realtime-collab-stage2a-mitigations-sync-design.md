@@ -110,6 +110,35 @@
 
 ---
 
+## 9. 改訂 (2026-06-04 実機検証後) — サーバを YServer 化する
+
+> writing-plans 着手前の事前調査で、**§2/§42 の前提「サーバ側 Worker は変更しない・素の Yjs リレーで足りる」は実機で否定された**。本節がその訂正であり、以後の正典。ユーザー承認済み (2026-06-04)。
+
+### 9.1 何が否定されたか (証拠)
+- 段取り①の素のブロードキャスト Worker に、`y-partyserver` の `YProvider` を node 2クライアントで本番接続した実機スパイク結果: **`provider.synced` が永久に false、軽減が1件も相手に伝わらない、後入室クライアントも空**。同時 add も互いにクロスしない。
+- 一次ソース確認: `YProvider` は y-websocket フォークで、接続時に sync step1 を送り**サーバからの sync step2 応答を前提**にする。素のリレーは応答しないため同期が成立しない。
+- 出典: [y-partyserver provider source](https://github.com/cloudflare/partykit/blob/main/packages/y-partyserver/src/provider/index.ts)、[README](https://github.com/cloudflare/partykit/blob/main/packages/y-partyserver/README.md)。
+
+### 9.2 訂正後のアーキテクチャ
+- **サーバ (`workers/collab/src/server.ts`)**: `Room extends Server`(partyserver)→ **`Room extends YServer`(y-partyserver)** に基底クラスを変更。素のリレー (`onMessage` ブロードキャスト) は廃止し、YServer が Y.Doc を握って sync protocol を話す。
+- **段取り①資産の温存**: 在室数 `/count` HTTP は `onRequest` override で温存。ただし在室数の数え方は **`_connectionCount` インスタンス変数 → `getConnections()` ベース**へ変更(下記 9.3)。
+- **クライアント**: `y-partyserver/provider` の `YProvider`(または `y-partyserver/react` の `useYProvider`)で接続。サーバ routing `/parties/room/<id>` に合わせ **`party: "room"` を必ず指定**。
+- wrangler 構成(DO binding / `new_sqlite_classes` / compatibility_date 2026-05-29)は流用。
+
+### 9.3 Hibernation (コスト $0 のため必須) — ソース確定事項
+- `YServer` は hibernation 対応だが**デフォルト OFF**。サブクラスに **`static options = { hibernate: true }`** を明示して有効化(出典: [partyserver README](https://github.com/cloudflare/partykit/blob/main/packages/partyserver/README.md))。
+- hibernation 中の idle は **duration 非課金**(出典: [Cloudflare DO Pricing](https://developers.cloudflare.com/durable-objects/platform/pricing/))。OFF だと WebSocket 接続中ずっと課金 → $0 前提が崩れる。
+- 起床時、メモリ上の Y.Doc は空だが**生存接続から sync step1 で再同期して復元**(編集中データは消えない)。
+- **Y.Doc の自動永続化はされない**。`onLoad`/`onSave` 未実装なら**全員退室で揮発** = 設計書 §5 の許容範囲。→ **②-a では `onLoad`/`onSave` を実装しない**(恒久保存は §③)。`onLoad`/`onSave` の保存先は外部(Firestore)で、③で実装する。
+- ⚠️ hibernation で**インスタンス変数 `_connectionCount` は消える**ため、在室数は `getConnections()`(= `ctx.getWebSockets()` ベース、hibernation 安全)で数える。
+
+### 9.4 §8 未確定事項の解決状況
+- y-partyserver クライアント API: `import YProvider from "y-partyserver/provider"`、`new YProvider(host, room, doc, { party: "room", WebSocketPolyfill })`、cleanup は `provider.destroy()`、再接続は自動(exponential backoff)。**解決**。
+- Y.Map 内フィールド変更(`updateMitigationTime`)の監視は **`observeDeep` が必要**(`observe` では配列の add/delete しか拾えない)。**解決**。
+- ルームID=plan ID の接続/切断タイミング、3 action の Yjs 分岐の具体形、seed の最初の参加者判定、Firestore 抑制フラグ → **実装計画 [../plans/2026-06-04-realtime-collab-stage2a-mitigations-sync.md](../plans/2026-06-04-realtime-collab-stage2a-mitigations-sync.md) で確定**。
+
+---
+
 ## 8. 要検証 / 未確定 (writing-plans で詰める)
 - **y-partyserver のクライアント側 API**(YProvider / partysocket)の正確な使い方・接続/切断・再接続挙動(要調査)。②-a 着手前に workers/collab の workerd を本番 compatibility_date へ追随(`npm update wrangler`)させてから着手([[project-realtime-collab-status]] の注意①)。
 - 3 action(add/remove/updateMitigationTime)の Yjs 分岐の**具体的な実装箇所と形**(store 内分岐 vs ラッパ層)。盾連鎖解決・依存チェック等の既存ロジックを observe 側でどう再適用するか。
