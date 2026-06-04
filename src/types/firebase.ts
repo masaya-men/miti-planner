@@ -70,6 +70,8 @@ export interface FirestorePlan {
   deleted?: boolean;
   /** 墓標化された日時 (GC の安全期間判定用) */
   deletedAt?: Timestamp | null;
+  /** 共同編集⑤: 現在有効な共同編集ルームトークン(逆引き用)。失効/未発行なら未設定。 */
+  activeCollabRoomToken?: string;
 }
 
 /** sharedPlanMeta/{shareId} ドキュメント */
@@ -189,4 +191,6 @@ export const COLLECTIONS = {
   PLANS: 'plans',
   SHARED_PLAN_META: 'sharedPlanMeta',
   USER_PLAN_COUNTS: 'userPlanCounts',
+  /** 共同編集⑤: roomToken → plan の対応表。発行/失効は /api/collab/room(admin)経由のみ。 */
+  COLLAB_ROOMS: 'collabRooms',
 } as const;

@@ -91,6 +91,13 @@ service cloud.firestore {
       allow delete: if isOwner(resource.data.ownerId);
     }
 
+    // 共同編集⑤: roomToken → plan 対応表。発行・取得・失効はすべて
+    // /api/collab/room と /api/collab/{load,save}(admin SDK・rules バイパス)経由。
+    // クライアントからの直接アクセスは一切許可しない(public repo の明示防御)。
+    match /collabRooms/{roomToken} {
+      allow read, write: if false;
+    }
+
     // ========================================
     // sharedPlanMeta コレクション
     // 読み取り: 誰でも（共有URLの解決に必要）
