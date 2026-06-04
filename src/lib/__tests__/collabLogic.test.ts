@@ -21,6 +21,13 @@ describe('isCollabAuthorized', () => {
     expect(isCollabAuthorized(new Request('https://x'), 's3cr3t')).toBe(false);
     expect(isCollabAuthorized(new Request('https://x', { headers: { [COLLAB_SECRET_HEADER]: 'x' } }), '')).toBe(false);
   });
+  it('注入した compare が使われる(タイミング安全比較の差し込み口)', () => {
+    const calls: Array<[string, string]> = [];
+    const compare = (a: string, b: string) => { calls.push([a, b]); return true; };
+    const req = new Request('https://x', { headers: { [COLLAB_SECRET_HEADER]: 'provided' } });
+    expect(isCollabAuthorized(req, 'expected', compare)).toBe(true);
+    expect(calls).toEqual([['provided', 'expected']]);
+  });
 });
 
 describe('decideLoad', () => {
