@@ -19,11 +19,16 @@ const sample = (over: Partial<AppliedMitigation> = {}): AppliedMitigation => ({
 describe("yjsMitigations 変換", () => {
   it("appliedToYMap → yMapToApplied で往復一致(任意フィールド含む)", () => {
     const orig = sample({ targetId: "ST", linkedMitigationId: "x", autoHidden: true });
-    const back = yMapToApplied(appliedToYMap(orig));
-    expect(back).toEqual(orig);
+    const doc = new Y.Doc();
+    const arr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
+    arr.push([appliedToYMap(orig)]);
+    expect(yMapToApplied(arr.get(0))).toEqual(orig);
   });
   it("未指定の任意フィールドは undefined のまま(空文字や false に化けない)", () => {
-    const back = yMapToApplied(appliedToYMap(sample()));
+    const doc = new Y.Doc();
+    const arr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
+    arr.push([appliedToYMap(sample())]);
+    const back = yMapToApplied(arr.get(0));
     expect(back.targetId).toBeUndefined();
     expect(back.autoHidden).toBeUndefined();
   });
