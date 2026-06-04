@@ -990,7 +990,12 @@ Expected: `[1] [2] [3]` すべて true。
 
 ## 進捗メモ(実装者が追記)
 
-- (Task 1) vitest-pool-workers 更新の可否と判断:
+- (Task 1) vitest-pool-workers 更新の可否と判断: **更新は据え置き(0.9.14 のまま)。テストは現状赤(4 failed | 1 passed)で許容**。
+  - 依存追加結果: `yjs@^13.6.31` / `y-partyserver@^2.2.0` 追加。`y-partyserver@^2` の peer 要求 `partyserver >=0.2.0 <1.0.0` のため、`partyserver` を `^0.0.71` → `^0.5.6` へ更新(同時に `y-protocols@1.0.7` / `lib0` が入る)。
+  - 真因(workerd 追随では解決しない): `partyserver@0.5.x` の `routePartykitRequest` は `idFromName(name)` でスタブを作り、もはや `x-partykit-room` ヘッダを設定せず、DO 名解決を `this.ctx.id.name` に依存する(`node_modules/partyserver/dist/index.js` L442・L508-519 で確認)。テスト経路の miniflare/workerd では `idFromName` 経由でも `ctx.id.name` が undefined のままで、`Error: Cannot determine the name for Room: this.ctx.id.name is undefined ...` が出て fetch が 500/throw する。
+  - vitest-pool-workers を上げても解消せず: `@latest`=0.16.12 は `vitest@^4.1.0` を peer 要求(本プロジェクトは vitest@^3.2.0)。vitest 3 互換で最も新しいのは `0.12.21`(miniflare 4.20260310.0 / workerd 2026-03-10)で、これを入れると警告は `2025-10-11`→`2026-03-10` に進むが、それでも miniflare が `ctx.id.name` を露出せず同じエラーで 4 failed のまま。`0.13.0` 以降は vitest 4 メジャー更新が必須で本 Task 範囲外。
+  - 据え置き判断: 計画 Step3 の指示どおり `@cloudflare/vitest-pool-workers` を `^0.9.0` に戻した(`npm install` で lock 再整合、0.9.14 解決)。Yjs 同期検証は後続 Task の本番 node 結線(本番 wrangler 4.97 / workerd 2026-06-01 = `ctx.id.name` 露出あり)を正典とする。
+  - 残課題(後続 Task で対処）: テスト経路は partyserver 0.5.x の name 解決と非互換なため、既存5テストのうち4本(中継/在室数系)が赤のまま。本番 workerd か vitest 4 移行のいずれかで解消する。1本目(101 を返す upgrade テスト)のみ green。
 - (Task 4) 本番 Yjs 同期検証の結果:
 - (Task 9) Firestore 抑制の検証方法(テスト or 実機):
 - (Task 11) 2ブラウザ実機結果:
