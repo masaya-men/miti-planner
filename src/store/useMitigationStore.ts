@@ -17,6 +17,7 @@ import {
 } from '../hooks/useSkillsData';
 import { useTutorialStore } from './useTutorialStore';
 import { DEFAULT_NEW_MODE } from '../utils/mitigationResolver';
+import type { CollabHandlers } from '../lib/collab/collabTypes';
 
 export interface AASettings {
     damage: number;
@@ -81,6 +82,12 @@ interface MitigationState {
     // Undo/Redo History (not persisted)
     _history: HistorySnapshot[]; // 👈 軽減だけでなく、すべてのデータを履歴に持つように変更
     _future: HistorySnapshot[];
+
+    // --- 共同編集 (段取り②-a・遅延ロード境界) ---
+    // store は yjs を実行時 import しない。共同編集操作は遅延チャンク(collabProvider)が
+    // 注入する CollabHandlers に委譲する。_ydoc 等 yjs 型の state は store に持たない。
+    _collabActive: boolean;
+    _collabHandlers: CollabHandlers | null;
 
     // Actions
     setCurrentLevel: (level: number) => void;
@@ -149,6 +156,14 @@ interface MitigationState {
     dismissAstrologianDrawChainPrompt: () => void;
     /** プロンプトの startTime から 60s 間隔で最終イベントまで Astral/Umbral を交互配置する */
     confirmAstrologianDrawChain: () => void;
+
+    // --- 共同編集 (段取り②-a) ---
+    /** 共同編集を開始(遅延チャンクが handlers を注入)。 */
+    enterCollabMode: (handlers: CollabHandlers) => void;
+    /** 共同編集を終了し通常モードへ戻す。 */
+    exitCollabMode: () => void;
+    /** 遅延チャンクの observeDeep から呼ぶ: Yjs 側の最新軽減配列を store に反映(盾連鎖を再計算)。 */
+    _applyMitigationsFromCollab: (mitigations: AppliedMitigation[]) => void;
 
     // メモ機能アクション (#57)
     setToolMode: (mode: 'idle' | 'aa-placement' | 'memo') => void;
@@ -306,6 +321,18 @@ export const useMitigationStore = create<MitigationState>()(
                 toolMode: 'idle',
                 _history: [],
                 _future: [],
+                _collabActive: false,
+                _collabHandlers: null,
+
+                enterCollabMode: (handlers) => set({ _collabActive: true, _collabHandlers: handlers }),
+
+                exitCollabMode: () => set({ _collabActive: false, _collabHandlers: null }),
+
+                // 遅延チャンク(collabProvider)の observeDeep から呼ばれる。Yjs 側の最新軽減配列を
+                // store に反映。盾連鎖(linkedMitigationId/duration)は派生再計算する。
+                // pushHistory は呼ばない(共同編集の反映は undo 履歴に積まない。Undo の CRDT 化は②-c)。
+                _applyMitigationsFromCollab: (mitigations) =>
+                    set({ timelineMitigations: resolveShieldLinks(mitigations, getMitigationsFromStore()) }),
 
                 getSnapshot: () => {
                     const state = get();
