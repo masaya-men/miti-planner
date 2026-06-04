@@ -223,6 +223,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
          * @param force trueならクールダウン無視（タブ切替・ページ離脱時）
          */
         const syncToCloud = (force = false) => {
+            // 共同編集中は Firestore への確定保存を抑制(2クライアントの後勝ち上書き合戦を防ぐ)。
+            // localStorage の saveSilently は継続。恒久保存は段取り③で DO が代表実施(設計書 §2-2)。
+            if (useMitigationStore.getState()._collabActive) return;
             const authState = useAuthStore.getState();
             const planStore = usePlanStore.getState();
             if (authState.user && planStore.hasDirtyPlans()) {
