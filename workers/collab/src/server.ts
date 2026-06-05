@@ -35,7 +35,7 @@ export class Room extends YServer {
     return this.env as unknown as CollabEnv;
   }
 
-  /** 受付係から seed 用の軽減配置を読む。live なら Y.Doc を組んで返し保存を解禁、それ以外は seed しない。 */
+  /** 受付係から seed 用の軽減配置を読む(this.name = roomToken)。live なら Y.Doc を組んで返し保存を解禁、それ以外は seed しない。 */
   override async onLoad(): Promise<Y.Doc | void> {
     const { APP_API_BASE, COLLAB_SHARED_SECRET } = this.collabEnv;
     // 永続化が未設定なら何もしない(②-a 相当の揮発モードにフォールバック)。

@@ -1,6 +1,7 @@
-// 共同編集③ 永続化の HTTP 層(受付係 Vercel API への入出力)。
+// 共同編集③/⑤ 永続化の HTTP 層(受付係 Vercel API への入出力)。
 // DO に依存しない純粋関数として切り出し、fetchMock で決定的にテストする。
-// Room(server.ts)はこれを this.collabEnv / this.name と #saveEnabled ガードで包む。
+// Room(server.ts)はこれを this.collabEnv / this.name(=roomToken) と #saveEnabled ガードで包む。
+// ⑤-2a: 受付係は roomToken → planId を解決する(load/save は ⑤-1 で対応済)。
 import type { MitigationRecord } from "./yjsMitigations";
 
 export type { MitigationRecord };
@@ -14,11 +15,11 @@ const SECRET_HEADER = "x-collab-secret";
 export async function fetchMitigations(
   base: string,
   secret: string,
-  planId: string,
+  roomToken: string,
 ): Promise<MitigationRecord[] | null> {
   try {
     const res = await fetch(
-      `${base}/api/collab/load?planId=${encodeURIComponent(planId)}`,
+      `${base}/api/collab/load?roomToken=${encodeURIComponent(roomToken)}`,
       { headers: { [SECRET_HEADER]: secret } },
     );
     if (!res.ok) return null;
@@ -37,14 +38,14 @@ export async function fetchMitigations(
 export async function postMitigations(
   base: string,
   secret: string,
-  planId: string,
+  roomToken: string,
   mitigations: MitigationRecord[],
 ): Promise<"ok" | "skipped" | "error"> {
   try {
     const res = await fetch(`${base}/api/collab/save`, {
       method: "POST",
       headers: { "content-type": "application/json", [SECRET_HEADER]: secret },
-      body: JSON.stringify({ planId, mitigations }),
+      body: JSON.stringify({ roomToken, mitigations }),
     });
     if (!res.ok) return "error";
     const body = (await res.json()) as { skipped?: string };
