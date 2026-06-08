@@ -7,7 +7,10 @@ const applied = (over: Partial<AppliedMitigation> = {}): AppliedMitigation => ({
   id: 'x1', mitigationId: 'rampart_pld', time: 30, duration: 20, ownerId: 'MT', ...over,
 });
 
-const mockHandlers = (): CollabHandlers => ({ add: vi.fn(), remove: vi.fn(), updateTime: vi.fn() });
+const mockHandlers = (): CollabHandlers => ({
+  add: vi.fn(), remove: vi.fn(), updateTime: vi.fn(),
+  upsertItems: vi.fn(), removeItems: vi.fn(), setMeta: vi.fn(), importBulk: vi.fn(),
+});
 
 describe('useMitigationStore 共同編集分岐 (段取り②-a)', () => {
   beforeEach(() => {
@@ -46,5 +49,31 @@ describe('useMitigationStore 共同編集分岐 (段取り②-a)', () => {
     useMitigationStore.getState().addMitigation(applied({ id: 'solo1' }));
     expect(handlers.add).not.toHaveBeenCalled();
     expect(useMitigationStore.getState().timelineMitigations.map((m) => m.id)).toContain('solo1');
+  });
+});
+
+describe('②-b-1 apply(Y→store 反映)', () => {
+  beforeEach(() => {
+    useMitigationStore.setState({ timelineEvents: [], phases: [], labels: [], memos: [], _collabActive: false, _collabHandlers: null });
+  });
+  it('_applyEventsFromCollab は time 昇順で反映', () => {
+    useMitigationStore.getState()._applyEventsFromCollab([
+      { id: 'b', time: 50, name: { ja: 'b' }, damageType: 'magical' },
+      { id: 'a', time: 10, name: { ja: 'a' }, damageType: 'magical' },
+    ] as any);
+    expect(useMitigationStore.getState().timelineEvents.map((e) => e.id)).toEqual(['a', 'b']);
+  });
+  it('_applyPhasesFromCollab は startTime 昇順で反映', () => {
+    useMitigationStore.getState()._applyPhasesFromCollab([
+      { id: 'p2', name: { ja: 'p2' }, startTime: 60, endTime: 100 },
+      { id: 'p1', name: { ja: 'p1' }, startTime: 0, endTime: 59 },
+    ] as any);
+    expect(useMitigationStore.getState().phases.map((p) => p.id)).toEqual(['p1', 'p2']);
+  });
+  it('_applyMetaFromCollab は currentLevel/aaSettings/schAetherflowPatterns を反映', () => {
+    useMitigationStore.getState()._applyMetaFromCollab({ currentLevel: 80, aaSettings: { damage: 5, type: 'physical', target: 'ST' }, schAetherflowPatterns: { H2: 2 } });
+    expect(useMitigationStore.getState().currentLevel).toBe(80);
+    expect(useMitigationStore.getState().aaSettings).toEqual({ damage: 5, type: 'physical', target: 'ST' });
+    expect(useMitigationStore.getState().schAetherflowPatterns).toEqual({ H2: 2 });
   });
 });

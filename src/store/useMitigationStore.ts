@@ -164,6 +164,12 @@ interface MitigationState {
     exitCollabMode: () => void;
     /** 遅延チャンクの observeDeep から呼ぶ: Yjs 側の最新軽減配列を store に反映(盾連鎖を再計算)。 */
     _applyMitigationsFromCollab: (mitigations: AppliedMitigation[]) => void;
+    // ②-b-1: Yjs 側の最新要素を store に反映(pushHistory は積まない＝②-a と同じ)。
+    _applyEventsFromCollab: (events: TimelineEvent[]) => void;
+    _applyPhasesFromCollab: (phases: Phase[]) => void;
+    _applyLabelsFromCollab: (labels: Label[]) => void;
+    _applyMemosFromCollab: (memos: PlanMemo[]) => void;
+    _applyMetaFromCollab: (meta: { currentLevel?: number; aaSettings?: AASettings; schAetherflowPatterns?: Record<string, 1 | 2> }) => void;
 
     // メモ機能アクション (#57)
     setToolMode: (mode: 'idle' | 'aa-placement' | 'memo') => void;
@@ -333,6 +339,30 @@ export const useMitigationStore = create<MitigationState>()(
                 // pushHistory は呼ばない(共同編集の反映は undo 履歴に積まない。Undo の CRDT 化は②-c)。
                 _applyMitigationsFromCollab: (mitigations) =>
                     set({ timelineMitigations: resolveShieldLinks(mitigations, getMitigationsFromStore()) }),
+
+                // ②-b-1: 各要素の Yjs → store 反映(pushHistory なし)。配列は表示順にソートして反映。
+                _applyEventsFromCollab: (events) =>
+                    set({ timelineEvents: [...events].sort((a, b) => a.time - b.time) }),
+                _applyPhasesFromCollab: (phases) =>
+                    set({ phases: [...phases].sort((a, b) => a.startTime - b.startTime) }),
+                _applyLabelsFromCollab: (labels) =>
+                    set({ labels: [...labels].sort((a, b) => a.startTime - b.startTime) }),
+                _applyMemosFromCollab: (memos) => set({ memos }),
+                _applyMetaFromCollab: (meta) =>
+                    set((state) => {
+                        const patch: Partial<MitigationState> = {};
+                        if (meta.aaSettings !== undefined) patch.aaSettings = meta.aaSettings;
+                        if (meta.schAetherflowPatterns !== undefined) patch.schAetherflowPatterns = meta.schAetherflowPatterns;
+                        if (meta.currentLevel !== undefined) {
+                            patch.currentLevel = meta.currentLevel;
+                            // computedValues は派生 → ローカル再計算(partyMembers 自体は b-1 で同期しない)。
+                            patch.partyMembers = state.partyMembers.map((mem) => ({
+                                ...mem,
+                                computedValues: calculateMemberValues(mem, meta.currentLevel!),
+                            }));
+                        }
+                        return patch;
+                    }),
 
                 getSnapshot: () => {
                     const state = get();
