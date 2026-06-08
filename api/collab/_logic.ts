@@ -54,3 +54,50 @@ export function decideSave(plan: PlanDocSnapshot | null): SaveDecision {
   if (plan.deleted === true) return { skip: 'deleted' };
   return { ok: true, nextVersion: (plan.version ?? 0) + 1 };
 }
+
+// ───────────── ②-b-1: 全 PlanData seed ─────────────
+
+/** 全 b-1 data.* を表す snapshot(decideLoadFull 用)。 */
+export interface PlanDocSnapshotFull {
+  deleted?: boolean;
+  version?: number;
+  data?: {
+    timelineMitigations?: MitigationRecord[];
+    timelineEvents?: unknown[];
+    phases?: unknown[];
+    labels?: unknown[];
+    memos?: unknown[];
+    currentLevel?: number;
+    aaSettings?: unknown;
+    schAetherflowPatterns?: unknown;
+  };
+}
+
+export type LoadResultFull =
+  | { deleted: true }
+  | {
+      mitigations: MitigationRecord[];
+      timelineEvents: unknown[];
+      phases: unknown[];
+      labels: unknown[];
+      memos: unknown[];
+      currentLevel?: number;
+      aaSettings?: unknown;
+      schAetherflowPatterns?: unknown;
+    };
+
+/** 全 b-1 要素の seed を決める。墓標/不存在は deleted(削除が勝つ)。配列欠落は []、スカラー欠落は undefined。 */
+export function decideLoadFull(plan: PlanDocSnapshotFull | null): LoadResultFull {
+  if (!plan || plan.deleted === true) return { deleted: true };
+  const d = plan.data ?? {};
+  return {
+    mitigations: d.timelineMitigations ?? [],
+    timelineEvents: d.timelineEvents ?? [],
+    phases: d.phases ?? [],
+    labels: d.labels ?? [],
+    memos: d.memos ?? [],
+    currentLevel: d.currentLevel,
+    aaSettings: d.aaSettings,
+    schAetherflowPatterns: d.schAetherflowPatterns,
+  };
+}
