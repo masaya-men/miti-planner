@@ -58,12 +58,12 @@ function dissipationIdsOverlapping(
 }
 
 /**
- * plan ID を部屋として共同編集セッションを開始する。
- * サーバ routing /parties/room/<id> に合わせ party:"room" を指定。
+ * roomToken を部屋として共同編集セッションを開始する(⑤-3a でルーム鍵を plan ID → roomToken に分離)。
+ * サーバ routing /parties/room/<roomToken> に合わせ party:"room" を指定。
  */
-export function startCollabSession(planId: string): CollabSession {
+export function startCollabSession(roomToken: string): CollabSession {
   const doc = new Y.Doc();
-  const provider = new YProvider(COLLAB_HOST, planId, doc, { party: 'room', connect: true });
+  const provider = new YProvider(COLLAB_HOST, roomToken, doc, { party: 'room', connect: true });
   const yarr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
 
   // Yjs → store。自分の操作も相手の操作も同じ observeDeep 経路で store に入る(単一の真実 = Y.Doc)。

@@ -17,10 +17,15 @@ export interface RoomRevoked {
 }
 
 /** サーバが返したエラーコードを保持する例外。UI はこれで文言を出し分けできる。 */
+// erasableSyntaxOnly 有効のためパラメータプロパティ(public code 等)は使えない。フィールドを明示して代入する。
 export class CollabRoomError extends Error {
-  constructor(public code: string, public status: number) {
+  code: string;
+  status: number;
+  constructor(code: string, status: number) {
     super(`collab room error: ${code} (${status})`);
     this.name = 'CollabRoomError';
+    this.code = code;
+    this.status = status;
   }
 }
 
