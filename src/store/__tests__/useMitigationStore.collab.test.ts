@@ -153,3 +153,54 @@ describe('②-b-1 labels 委譲', () => {
     expect(h.removeItems).toHaveBeenCalledWith('labels', ['l1']);
   });
 });
+
+describe('②-b-1 memos/planMeta 委譲', () => {
+  beforeEach(() => useMitigationStore.setState({
+    memos: [{ id: 'mo1', text: 'a', timeSec: 1, xRatio: 0.1, createdAt: 1, updatedAt: 1 }],
+    schAetherflowPatterns: { H1: 1 },
+    timelineMitigations: [],
+    currentLevel: 100,
+    _collabActive: false, _collabHandlers: null,
+  }));
+  it('updateMemo は id+patch を upsert', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().updateMemo('mo1', { text: 'b' });
+    expect(h.upsertItems).toHaveBeenCalledWith('memos', [{ id: 'mo1', text: 'b' }]);
+  });
+  it('deleteMemo は removeItems', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().deleteMemo('mo1');
+    expect(h.removeItems).toHaveBeenCalledWith('memos', ['mo1']);
+  });
+  it('deleteAllMemos は現存 id を全 removeItems', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().deleteAllMemos();
+    expect(h.removeItems).toHaveBeenCalledWith('memos', ['mo1']);
+  });
+  it('addMemo は memos に upsert し true を返す(store 直変更なし)', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    const ret = useMitigationStore.getState().addMemo({ text: 'new', timeSec: 5, xRatio: 0.2 });
+    expect(ret).toBe(true);
+    expect((h.upsertItems as any).mock.calls[0][0]).toBe('memos');
+    expect((h.upsertItems as any).mock.calls[0][1][0]).toMatchObject({ text: 'new', timeSec: 5, xRatio: 0.2 });
+    expect(useMitigationStore.getState().memos).toHaveLength(1); // 直変更なし
+  });
+  it('setAaSettings は setMeta(aaSettings) に委譲', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    const aa = { damage: 9, type: 'magical', target: 'MT' } as const;
+    useMitigationStore.getState().setAaSettings(aa);
+    expect(h.setMeta).toHaveBeenCalledWith('aaSettings', aa);
+  });
+  it('setCurrentLevel は setMeta(currentLevel) に委譲', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().setCurrentLevel(80);
+    expect(h.setMeta).toHaveBeenCalledWith('currentLevel', 80);
+  });
+  it('setSchAetherflowPattern は値を setMeta + 転化を ②-a handler 経由で配置', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().setSchAetherflowPattern('H2', 2);
+    expect(h.setMeta).toHaveBeenCalledWith('schAetherflowPatterns', { H1: 1, H2: 2 });
+    // pattern 2 → 転化を time 14 で add(mitigations は ②-a 経路)
+    expect((h.add as any).mock.calls[0][0]).toMatchObject({ mitigationId: 'dissipation', ownerId: 'H2', time: 14, duration: 30 });
+  });
+});

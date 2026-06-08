@@ -540,6 +540,12 @@ export const useMitigationStore = create<MitigationState>()(
                     // レベルが変わる場合のみ処理
                     if (prevState.currentLevel === level) return;
 
+                    if (get()._collabActive && get()._collabHandlers) {
+                        // level のみ Y へ。computedValues は _applyMetaFromCollab がローカル再計算する
+                        // (partyMembers 配列自体は b-1 で同期しない)。
+                        get()._collabHandlers!.setMeta('currentLevel', level);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         currentLevel: level,
@@ -1365,7 +1371,13 @@ export const useMitigationStore = create<MitigationState>()(
                     }));
                 },
 
-                setAaSettings: (settings) => set({ aaSettings: settings }),
+                setAaSettings: (settings) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.setMeta('aaSettings', settings);
+                        return;
+                    }
+                    set({ aaSettings: settings });
+                },
 
                 // メモ機能 アクション (#57)
                 setToolMode: (mode) => set({ toolMode: mode }),
@@ -1382,23 +1394,62 @@ export const useMitigationStore = create<MitigationState>()(
                         createdAt: now,
                         updatedAt: now,
                     };
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.upsertItems('memos', [memo]);
+                        return true;
+                    }
                     set({ memos: [...current, memo] });
                     return true;
                 },
 
-                updateMemo: (id, patch) => set((state) => ({
-                    memos: state.memos.map(m =>
-                        m.id === id ? { ...m, ...patch, updatedAt: Date.now() } : m
-                    ),
-                })),
+                updateMemo: (id, patch) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.upsertItems('memos', [{ id, ...patch }]);
+                        return;
+                    }
+                    set((state) => ({
+                        memos: state.memos.map(m =>
+                            m.id === id ? { ...m, ...patch, updatedAt: Date.now() } : m
+                        ),
+                    }));
+                },
 
-                deleteMemo: (id) => set((state) => ({
-                    memos: state.memos.filter(m => m.id !== id),
-                })),
+                deleteMemo: (id) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.removeItems('memos', [id]);
+                        return;
+                    }
+                    set((state) => ({
+                        memos: state.memos.filter(m => m.id !== id),
+                    }));
+                },
 
-                deleteAllMemos: () => set({ memos: [] }),
+                deleteAllMemos: () => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.removeItems('memos', get().memos.map(m => m.id));
+                        return;
+                    }
+                    set({ memos: [] });
+                },
 
                 setSchAetherflowPattern: (memberId, pattern) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const h = get()._collabHandlers!;
+                        // 1. パターン値を planMeta に反映
+                        h.setMeta('schAetherflowPatterns', { ...get().schAetherflowPatterns, [memberId]: pattern });
+                        // 2. 既存の自動転化(time<=15)を削除し、新パターンの転化を配置(②-a mitigation 経路)
+                        get().timelineMitigations
+                            .filter(m => m.mitigationId === 'dissipation' && m.ownerId === memberId && m.time <= 15)
+                            .forEach(m => h.remove(m.id));
+                        h.add({
+                            id: crypto.randomUUID(),
+                            mitigationId: 'dissipation',
+                            ownerId: memberId,
+                            time: pattern === 1 ? 1 : 14,
+                            duration: 30,
+                        });
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         // Remove any existing dissipation for this member that might have been the previous auto-inserted one
