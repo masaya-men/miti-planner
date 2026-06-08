@@ -7,7 +7,7 @@ import {
   TIMELINE_EVENTS_KEY, PHASES_KEY, LABELS_KEY, MEMOS_KEY, PLAN_META_KEY,
   META_LEVEL, META_AA, META_SCH,
   applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta,
-  recordToYMap, type PlanArrayKey,
+  recordToYMap, buildArrByKey,
 } from './yjsPlanData';
 import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo } from '../../types';
 import type { CollabHandlers } from './collabTypes';
@@ -78,9 +78,8 @@ export function startCollabSession(planId: string): CollabSession {
   const yLabels = doc.getArray<Y.Map<unknown>>(LABELS_KEY);
   const yMemos = doc.getArray<Y.Map<unknown>>(MEMOS_KEY);
   const yMeta = doc.getMap(PLAN_META_KEY);
-  const arrByKey: Record<PlanArrayKey, Y.Array<Y.Map<unknown>>> = {
-    [TIMELINE_EVENTS_KEY]: yEvents, [PHASES_KEY]: yPhases, [LABELS_KEY]: yLabels, [MEMOS_KEY]: yMemos,
-  };
+  // ②-b-2: 全 PlanArrayKey(partyMembers/timelineMitigations 含む)の対応表を共有ヘルパで生成。
+  const arrByKey = buildArrByKey(doc);
 
   // Yjs → store。自分の操作も相手の操作も同じ observeDeep 経路で store に入る(単一の真実 = Y.Doc)。
   // Y.Map 内フィールド変更(time の set 等)も拾うため observe ではなく observeDeep。
