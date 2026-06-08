@@ -1,4 +1,25 @@
 {
+    "collab": {
+        "choice_title": "想怎么共享？",
+        "choice_copy_title": "分发副本",
+        "choice_copy_desc": "对方会创建自己的副本(传统)",
+        "choice_collab_title": "一起编辑",
+        "choice_collab_desc": "进入同一张表同时编辑",
+        "chip_active": "正在共同编辑",
+        "panel_title": "共同编辑",
+        "participants_solo": "1人(只有你)",
+        "warning": "知道此链接的任何人都能直接改写你的表(无法撤销)。请仅在固定成员内使用，不要公开或转载到社交媒体等外部。",
+        "info": "最多可有{{max}}人一起加入(登录的人可编辑 / 未登录的人只能查看)。此表会保留在你的账号中(共同编辑只是直接一起编辑你的表)。可随时用下方的\"使链接失效\"关闭共同编辑。",
+        "link_label": "共同编辑链接",
+        "copy": "复制",
+        "copied": "已复制",
+        "people_label": "可加入人数",
+        "people_unit": "人以内",
+        "people_hint": "默认 8 人(一个满编小队)。可设置 1~{{max}}人。",
+        "reissue": "重新生成链接",
+        "revoke": "使链接失效",
+        "error_generic": "操作失败，请稍后再试。"
+    },
     "common": {
         "cancel": "取消",
         "close": "关闭",
