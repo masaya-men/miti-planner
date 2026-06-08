@@ -3,7 +3,7 @@
 //     planId 直接指定は ②-a/③ レガシー経路として残す(非破壊)。緊急停止中は seed させない。
 // 墓標/不存在は decideLoad が {deleted:true} を返し、DO は seed しない(破壊保存ガード)。
 import { authorizeCollab, getDb } from './_handlerShared.js';
-import { decideLoad, type PlanDocSnapshot } from './_logic.js';
+import { decideLoadFull, type PlanDocSnapshotFull } from './_logic.js';
 import { resolveRoom, isCollabDisabled, type CollabRoomDoc } from './_roomLogic.js';
 
 export default async function handler(req: any, res: any) {
@@ -31,9 +31,10 @@ export default async function handler(req: any, res: any) {
   }
 
   const snap = await db.collection('plans').doc(planId).get();
-  const plan = snap.exists ? (snap.data() as PlanDocSnapshot) : null;
-  const result = decideLoad(plan);
+  const plan = snap.exists ? (snap.data() as PlanDocSnapshotFull) : null;
+  const result = decideLoadFull(plan);
   if ('deleted' in result) return res.status(200).json(result);
+  // result は mitigations/timelineEvents/phases/labels/memos/currentLevel/aaSettings/schAetherflowPatterns を含む。
   // maxParticipants は roomToken 経路のみ付与(レガシーは undefined → JSON で省略・DO は無視可)。
-  return res.status(200).json({ mitigations: result.mitigations, maxParticipants });
+  return res.status(200).json({ ...result, maxParticipants });
 }
