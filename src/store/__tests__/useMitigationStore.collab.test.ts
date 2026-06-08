@@ -77,3 +77,24 @@ describe('②-b-1 apply(Y→store 反映)', () => {
     expect(useMitigationStore.getState().schAetherflowPatterns).toEqual({ H2: 2 });
   });
 });
+
+describe('②-b-1 events 委譲', () => {
+  beforeEach(() => useMitigationStore.setState({ timelineEvents: [], _collabActive: false, _collabHandlers: null }));
+  const e = { id: 'e1', time: 30, name: { ja: '技' }, damageType: 'magical' } as any;
+  it('addEvent は upsertItems に委譲し store 直変更しない', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().addEvent(e);
+    expect(h.upsertItems).toHaveBeenCalledWith('timelineEvents', [e]);
+    expect(useMitigationStore.getState().timelineEvents).toEqual([]);
+  });
+  it('updateEvent は id+patch を upsert', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().updateEvent('e1', { time: 45 });
+    expect(h.upsertItems).toHaveBeenCalledWith('timelineEvents', [{ id: 'e1', time: 45 }]);
+  });
+  it('removeEvent は removeItems に委譲', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().removeEvent('e1');
+    expect(h.removeItems).toHaveBeenCalledWith('timelineEvents', ['e1']);
+  });
+});

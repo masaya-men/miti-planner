@@ -623,6 +623,11 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 addEvent: (event) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.upsertItems('timelineEvents', [event]);
+                        useTutorialStore.getState().completeEvent('event:saved');
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         timelineEvents: [...state.timelineEvents, event].sort((a, b) => a.time - b.time)
@@ -659,6 +664,10 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateEvent: (id, updatedEvent) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.upsertItems('timelineEvents', [{ id, ...updatedEvent }]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         timelineEvents: state.timelineEvents.map(e => e.id === id ? { ...e, ...updatedEvent } : e).sort((a, b) => a.time - b.time)
@@ -666,6 +675,10 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 removeEvent: (id) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.removeItems('timelineEvents', [id]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         timelineEvents: state.timelineEvents.filter(e => e.id !== id)
