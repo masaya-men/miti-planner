@@ -2,7 +2,8 @@ import { YServer } from "y-partyserver";
 import type { Connection } from "partyserver";
 import * as Y from "yjs";
 import { buildSeedDoc, readMitigations } from "./yjsMitigations";
-import { fetchMitigations, postMitigations } from "./collabPersistence";
+import { fetchSeed, postMitigations } from "./collabPersistence";
+import { resolveMaxParticipants, MAX_PARTICIPANTS_KEY } from "./collabCapacity";
 
 /**
  * ライブ部屋 = 1 Durable Object。段取り②-a で YServer 化、段取り③で恒久保存。
@@ -35,18 +36,23 @@ export class Room extends YServer {
     return this.env as unknown as CollabEnv;
   }
 
-  /** 受付係から seed 用の軽減配置を読む(this.name = roomToken)。live なら Y.Doc を組んで返し保存を解禁、それ以外は seed しない。 */
+  /** 受付係から seed(軽減配置 + 最大人数)を読む(this.name = roomToken)。live なら Y.Doc を組んで返し、
+   *  max を storage に保存(onBeforeConnect の満員判定が /count 経由で参照する)。それ以外は seed しない。 */
   override async onLoad(): Promise<Y.Doc | void> {
     const { APP_API_BASE, COLLAB_SHARED_SECRET } = this.collabEnv;
     // 永続化が未設定なら何もしない(②-a 相当の揮発モードにフォールバック)。
     // 本番では secret 設定漏れ時の暴発防止、テストでは外部 fetch を起こさない密閉性を担保。
     if (!APP_API_BASE || !COLLAB_SHARED_SECRET) return;
-    const mitigations = await fetchMitigations(APP_API_BASE, COLLAB_SHARED_SECRET, this.name);
-    if (mitigations) {
+    const seed = await fetchSeed(APP_API_BASE, COLLAB_SHARED_SECRET, this.name);
+    if (seed) {
       this.#saveEnabled = true; // 正常 seed できた部屋だけ保存解禁
-      return buildSeedDoc(mitigations);
+      // 上限値は hibernation で揮発するインスタンス変数でなく永続ストレージに置く
+      // (接続が存在する間ずっと /count で参照されるため wake 後も復元が要る)。
+      await this.ctx.storage.put(MAX_PARTICIPANTS_KEY, resolveMaxParticipants(seed.maxParticipants));
+      return buildSeedDoc(seed.mitigations);
     }
     // null(墓標/不存在/障害): seed しない(空 Y.Doc のまま)。#saveEnabled は false で破壊保存を防ぐ。
+    // max も書かない(/count は既定 8 を返す)。
   }
 
   /** 破壊保存ガード付きの書き戻し。skipped(墓標)を受けたら以後保存しない(削除が勝つ)。 */
@@ -75,14 +81,16 @@ export class Room extends YServer {
     if (remaining === 0) await this.flushSave();
   }
 
-  // 在室数 HTTP。WebSocket 接続中に GET /count で現在の接続数を返す。
-  // getConnections() は ctx.getWebSockets() ベースで hibernation 安全。
-  override onRequest(request: Request): Response | Promise<Response> {
+  // 在室数 + 上限 HTTP。onBeforeConnect(index.ts)が接続前に GET /count で満員判定する。
+  // count: getConnections()(ctx.getWebSockets() ベース・hibernation 安全)。
+  // max: onLoad が storage に書いた値(未保存なら既定 8)。
+  override async onRequest(request: Request): Promise<Response> {
     const url = new URL(request.url);
     if (url.pathname.endsWith("/count")) {
       let count = 0;
       for (const _ of this.getConnections()) count++;
-      return Response.json({ count });
+      const stored = await this.ctx.storage.get<number>(MAX_PARTICIPANTS_KEY);
+      return Response.json({ count, max: resolveMaxParticipants(stored) });
     }
     return new Response("Not Found", { status: 404 });
   }

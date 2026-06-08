@@ -6,6 +6,12 @@ export default defineWorkersConfig({
       workers: {
         // wrangler.jsonc の DO binding / migration をそのままテスト環境へ読み込む。
         wrangler: { configPath: "./wrangler.jsonc" },
+        // ⑤-2b: onLoad の seed fetch(と max 保存)を統合テストするため、
+        // テスト env に COLLAB_SHARED_SECRET を与える(値はダミー)。実 fetch は
+        // 各テストの fetchMock で intercept し、未 intercept は disableNetConnect で遮断する。
+        miniflare: {
+          bindings: { COLLAB_SHARED_SECRET: "test-secret" },
+        },
         singleWorker: true,
         // new_sqlite_classes を使う DO では Windows 環境で SQLite ファイルが
         // テスト後もロックされ isolated storage のポップが EBUSY で失敗する。
