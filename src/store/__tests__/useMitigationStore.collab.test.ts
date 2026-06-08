@@ -204,3 +204,19 @@ describe('②-b-1 memos/planMeta 委譲', () => {
     expect((h.add as any).mock.calls[0][0]).toMatchObject({ mitigationId: 'dissipation', ownerId: 'H2', time: 14, duration: 30 });
   });
 });
+
+describe('②-b-1 importTimelineEvents バルク委譲', () => {
+  beforeEach(() => useMitigationStore.setState({ timelineEvents: [], phases: [], labels: [], _collabActive: false, _collabHandlers: null }));
+  it('importBulk に events と(変換後)phases/labels を渡す', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    const events = [{ id: 'e1', time: 30, name: { ja: 'x' }, damageType: 'magical' }] as any;
+    const importPhases = [{ id: 1, startTimeSec: 0, name: { ja: 'P1' } }];
+    useMitigationStore.getState().importTimelineEvents(events, importPhases as any, undefined);
+    expect(h.importBulk).toHaveBeenCalledTimes(1);
+    const [evArg, phArg, lbArg] = (h.importBulk as any).mock.calls[0];
+    expect(evArg.map((e: any) => e.id)).toEqual(['e1']);
+    expect(phArg[0].id).toBe('phase_1'); // ソロ版と同じ変換(phase_<id>)
+    expect(lbArg).toBeUndefined();
+    expect(useMitigationStore.getState().timelineEvents).toEqual([]); // store 直変更なし
+  });
+});

@@ -642,6 +642,20 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 importTimelineEvents: (events, importPhases, importLabels) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const maxEventTime = events.length > 0
+                            ? events.reduce((max, e) => Math.max(max, e.time), 0) : undefined;
+                        const finalEvents = [...events].sort((a, b) => a.time - b.time);
+                        const finalPhases = importPhases
+                            ? ensurePhaseEndTimes(importPhases
+                                .filter(p => p.startTimeSec >= 0)
+                                .map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec })), maxEventTime)
+                            : undefined;
+                        // importBulk が events/phases/labels 全置換 + mitigations クリアを 1 transaction で行う。
+                        get()._collabHandlers!.importBulk(finalEvents, finalPhases, importLabels);
+                        if (events.length > 0) useTutorialStore.getState().completeEvent('content:selected');
+                        return;
+                    }
                     pushHistory();
                     const maxEventTime = events.length > 0
                         ? events.reduce((max, e) => Math.max(max, e.time), 0)
