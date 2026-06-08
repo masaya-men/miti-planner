@@ -128,3 +128,28 @@ describe('②-b-1 phases 委譲', () => {
     expect(h.removeItems).toHaveBeenCalledWith('phases', ['p1']);
   });
 });
+
+describe('②-b-1 labels 委譲', () => {
+  beforeEach(() => useMitigationStore.setState({
+    labels: [{ id: 'l1', name: { ja: 'L1' }, startTime: 0, endTime: 100 }] as any,
+    timelineEvents: [{ id: 'e1', time: 120, name: { ja: 'x' }, damageType: 'magical' }] as any,
+    _collabActive: false, _collabHandlers: null,
+  }));
+  it('addLabel は新ラベル+クリップを upsert', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().addLabel(50, { ja: 'L2' } as any);
+    const [key, items] = (h.upsertItems as any).mock.calls[0];
+    expect(key).toBe('labels');
+    expect(items.find((i: any) => i.id === 'l1').endTime).toBe(49);
+  });
+  it('updateLabel(rename) は id+name を upsert', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().updateLabel('l1', { ja: 'NEW' } as any);
+    expect(h.upsertItems).toHaveBeenCalledWith('labels', [{ id: 'l1', name: { ja: 'NEW' } }]);
+  });
+  it('removeLabel は removeItems', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().removeLabel('l1');
+    expect(h.removeItems).toHaveBeenCalledWith('labels', ['l1']);
+  });
+});

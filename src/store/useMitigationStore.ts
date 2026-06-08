@@ -852,6 +852,25 @@ export const useMitigationStore = create<MitigationState>()(
                 addLabel: (startTime, name) => {
                     const exists = get().labels.some(l => l.startTime === startTime);
                     if (exists) return;
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const state = get();
+                        const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
+                        const nextLabel = sorted.find(l => l.startTime > startTime);
+                        const containingLabel = sorted.find(l => l.startTime <= startTime && l.endTime >= startTime);
+                        let endTime: number;
+                        if (nextLabel) endTime = nextLabel.startTime - 1;
+                        else if (containingLabel) endTime = containingLabel.endTime;
+                        else {
+                            const maxEventTime = state.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0);
+                            endTime = Math.max(maxEventTime, startTime + 1);
+                        }
+                        const newLabel: Label = { id: crypto.randomUUID(), name, startTime, endTime };
+                        const clipped = state.labels
+                            .filter(l => l.endTime >= startTime && l.startTime < startTime)
+                            .map(l => ({ id: l.id, endTime: startTime - 1 }));
+                        get()._collabHandlers!.upsertItems('labels', [newLabel, ...clipped]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
@@ -883,6 +902,10 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateLabel: (id, name) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.upsertItems('labels', [{ id, name }]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         labels: state.labels.map(l => l.id === id ? { ...l, name } : l)
@@ -890,6 +913,10 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 removeLabel: (id) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.removeItems('labels', [id]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         labels: state.labels.filter(l => l.id !== id)
@@ -897,6 +924,23 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateLabelEndTime: (id, newEndTime) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const sorted = [...get().labels].sort((a, b) => a.startTime - b.startTime);
+                        const idx = sorted.findIndex(l => l.id === id);
+                        if (idx < 0) return;
+                        const self = sorted[idx];
+                        const next = sorted[idx + 1];
+                        let final = Math.max(newEndTime, self.startTime + 1);
+                        if (next && final >= next.startTime) {
+                            final = Math.min(final, next.endTime - 2);
+                            get()._collabHandlers!.upsertItems('labels', [
+                                { id, endTime: final }, { id: next.id, startTime: final + 1 },
+                            ]);
+                        } else {
+                            get()._collabHandlers!.upsertItems('labels', [{ id, endTime: final }]);
+                        }
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
@@ -922,6 +966,24 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateLabelStartTime: (id, newStartTime) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const sorted = [...get().labels].sort((a, b) => a.startTime - b.startTime);
+                        const idx = sorted.findIndex(l => l.id === id);
+                        if (idx < 0) return;
+                        const self = sorted[idx];
+                        const prev = idx > 0 ? sorted[idx - 1] : null;
+                        let final = Math.max(newStartTime, 0);
+                        final = Math.min(final, self.endTime - 1);
+                        if (prev && final <= prev.endTime) {
+                            final = Math.max(final, prev.startTime + 2);
+                            get()._collabHandlers!.upsertItems('labels', [
+                                { id, startTime: final }, { id: prev.id, endTime: final - 1 },
+                            ]);
+                        } else {
+                            get()._collabHandlers!.upsertItems('labels', [{ id, startTime: final }]);
+                        }
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
