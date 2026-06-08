@@ -1,6 +1,6 @@
 import { fetchMock } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
-import { fetchMitigations, postMitigations, type MitigationRecord } from "./collabPersistence";
+import { fetchSeed, postMitigations, type MitigationRecord } from "./collabPersistence";
 
 const BASE = "https://lopoly.app";
 const m = (id: string): MitigationRecord => ({ id, mitigationId: "rampart", time: 10, duration: 20, ownerId: "MT" });
@@ -11,33 +11,40 @@ beforeAll(() => {
 });
 afterEach(() => fetchMock.assertNoPendingInterceptors());
 
-describe("fetchMitigations (seed 取得)", () => {
-  it("live → mitigations 配列を返す", async () => {
+describe("fetchSeed (seed 取得)", () => {
+  it("live → mitigations と maxParticipants を返す", async () => {
     fetchMock.get(BASE)
       .intercept({ path: "/api/collab/load?roomToken=room-a", method: "GET" })
+      .reply(200, { mitigations: [m("a")], maxParticipants: 4 });
+    expect(await fetchSeed(BASE, "sec", "room-a")).toEqual({ mitigations: [m("a")], maxParticipants: 4 });
+  });
+
+  it("maxParticipants 欠落 → mitigations のみ(max は undefined)", async () => {
+    fetchMock.get(BASE)
+      .intercept({ path: "/api/collab/load?roomToken=room-a2", method: "GET" })
       .reply(200, { mitigations: [m("a")] });
-    expect(await fetchMitigations(BASE, "sec", "room-a")).toEqual([m("a")]);
+    expect(await fetchSeed(BASE, "sec", "room-a2")).toEqual({ mitigations: [m("a")], maxParticipants: undefined });
   });
 
   it("墓標(deleted) → null(破壊保存ガードのため seed しない)", async () => {
     fetchMock.get(BASE)
       .intercept({ path: "/api/collab/load?roomToken=room-b", method: "GET" })
       .reply(200, { deleted: true });
-    expect(await fetchMitigations(BASE, "sec", "room-b")).toBeNull();
+    expect(await fetchSeed(BASE, "sec", "room-b")).toBeNull();
   });
 
   it("5xx(障害) → null", async () => {
     fetchMock.get(BASE)
       .intercept({ path: "/api/collab/load?roomToken=room-c", method: "GET" })
       .reply(500, "boom");
-    expect(await fetchMitigations(BASE, "sec", "room-c")).toBeNull();
+    expect(await fetchSeed(BASE, "sec", "room-c")).toBeNull();
   });
 
   it("roomToken を URL エンコードする", async () => {
     fetchMock.get(BASE)
       .intercept({ path: "/api/collab/load?roomToken=a%20b", method: "GET" })
-      .reply(200, { mitigations: [] });
-    expect(await fetchMitigations(BASE, "sec", "a b")).toEqual([]);
+      .reply(200, { mitigations: [], maxParticipants: 8 });
+    expect(await fetchSeed(BASE, "sec", "a b")).toEqual({ mitigations: [], maxParticipants: 8 });
   });
 });
 
