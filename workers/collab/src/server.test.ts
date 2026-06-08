@@ -79,6 +79,29 @@ describe("Room (YServer) ", () => {
     }
   });
 
+  it("②-b-1: 全要素入り seed 応答でも部屋が立ち上がり /count が max を返す(fetchSeedFull 配線)", async () => {
+    fetchMock.get(BASE)
+      .intercept({ path: "/api/collab/load?roomToken=full-seed-room", method: "GET" })
+      .reply(200, {
+        mitigations: [{ id: "m1", mitigationId: "rampart", time: 10, duration: 20, ownerId: "MT" }],
+        timelineEvents: [{ id: "e1", time: 30, name: { ja: "技" }, damageType: "magical" }],
+        phases: [{ id: "p1", name: { ja: "P1" }, startTime: 0, endTime: 60 }],
+        currentLevel: 90,
+        maxParticipants: 3,
+      });
+    const ws = (await SELF.fetch("https://collab.test/parties/room/full-seed-room", {
+      headers: { Upgrade: "websocket" },
+    })).webSocket!;
+    ws.accept();
+    try {
+      const { count, max } = await pollCount("full-seed-room");
+      expect(count).toBe(1);
+      expect(max).toBe(3);
+    } finally {
+      ws.close();
+    }
+  });
+
   it("満員(上限1)の部屋は 2 人目の upgrade を 403 で拒否する", async () => {
     fetchMock.get(BASE)
       .intercept({ path: "/api/collab/load?roomToken=full-room", method: "GET" })
