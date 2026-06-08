@@ -10,8 +10,9 @@
 export const DEFAULT_MAX_PARTICIPANTS = 8;
 /**
  * システム上限。root の api/collab/_roomLogic.ts:8 と同値(別ランタイムで複製)。
+ * v1 は編集/閲覧を分けず総参加数の単一上限(設計書 ⑤-3a §2)。
  */
-export const SYSTEM_MAX_PARTICIPANTS = 28;
+export const SYSTEM_MAX_PARTICIPANTS = 20;
 
 /** DO 永続ストレージに max を保存するキー。y-partyserver の内部キーと衝突しないよう名前空間を付ける。 */
 export const MAX_PARTICIPANTS_KEY = "collab:maxParticipants";

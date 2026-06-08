@@ -40,7 +40,7 @@ describe("resolveMaxParticipants", () => {
     expect(resolveMaxParticipants(0)).toBe(1);
     expect(resolveMaxParticipants(-5)).toBe(1);
     expect(resolveMaxParticipants(999)).toBe(SYSTEM_MAX_PARTICIPANTS);
-    expect(SYSTEM_MAX_PARTICIPANTS).toBe(28);
+    expect(SYSTEM_MAX_PARTICIPANTS).toBe(20);
   });
 });
 

@@ -4,8 +4,8 @@
 
 /** 既定の最大人数 = 零式/絶のフルパーティ1組。オーナー未設定時に適用。 */
 export const DEFAULT_MAX_PARTICIPANTS = 8;
-/** システム上限。設計書 §3 の「編集8席 + 閲覧20席」= 28 を v1 は総参加数の単一上限として扱う。 */
-export const SYSTEM_MAX_PARTICIPANTS = 28;
+/** システム上限。v1 は編集/閲覧を分けず総参加数の単一上限(設計書 ⑤-3a §2)。worker collabCapacity.ts と同値。 */
+export const SYSTEM_MAX_PARTICIPANTS = 20;
 
 /** collabRooms/{roomToken} ドキュメントの必要フィールドだけを表す型。 */
 export interface CollabRoomDoc {
