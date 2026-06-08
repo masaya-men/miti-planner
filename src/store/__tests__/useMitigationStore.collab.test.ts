@@ -220,3 +220,25 @@ describe('②-b-1 importTimelineEvents バルク委譲', () => {
     expect(useMitigationStore.getState().timelineEvents).toEqual([]); // store 直変更なし
   });
 });
+
+describe('②-b-1 collab 中のバルク/履歴経路ガード', () => {
+  beforeEach(() => useMitigationStore.setState({
+    timelineEvents: [{ id: 'e1', time: 10, name: { ja: 'x' }, damageType: 'magical' }] as any,
+    _history: [{ timelineMitigations: [], timelineEvents: [], phases: [], labels: [], partyMembers: [] }] as any,
+    _future: [],
+    _collabActive: false, _collabHandlers: null,
+  }));
+  it('collab 中の undo は状態を変えない(no-op)', () => {
+    useMitigationStore.getState().enterCollabMode(mockHandlers());
+    const before = useMitigationStore.getState().timelineEvents;
+    useMitigationStore.getState().undo();
+    expect(useMitigationStore.getState().timelineEvents).toBe(before);
+  });
+  it('collab 中の redo は状態を変えない(no-op)', () => {
+    useMitigationStore.setState({ _future: [{ timelineMitigations: [], timelineEvents: [], phases: [], labels: [], partyMembers: [] }] as any });
+    useMitigationStore.getState().enterCollabMode(mockHandlers());
+    const before = useMitigationStore.getState().timelineEvents;
+    useMitigationStore.getState().redo();
+    expect(useMitigationStore.getState().timelineEvents).toBe(before);
+  });
+});

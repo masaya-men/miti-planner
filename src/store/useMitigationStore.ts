@@ -381,6 +381,8 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 loadSnapshot: (snapshot) => {
+                    // 共同編集中は部屋の状態(seed)が唯一の正。別プランの読込で無言 desync させない。
+                    if (get()._collabActive) return;
                     const membersWithComputed = snapshot.partyMembers.map((m: PartyMember) => ({
                         ...m,
                         computedValues: calculateMemberValues(m, snapshot.currentLevel)
@@ -446,6 +448,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 // Undo: restore the last snapshot from history
                 undo: () => set((state) => {
+                    if (state._collabActive) return state; // 共同編集中は no-op(CRDT undo は②-c)
                     if (state._history.length === 0) return state;
                     const previous = state._history[state._history.length - 1];
                     const newHistory = state._history.slice(0, -1);
@@ -469,6 +472,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 // Redo: restore the next snapshot from future
                 redo: () => set((state) => {
+                    if (state._collabActive) return state; // 共同編集中は no-op(②-c)
                     if (state._future.length === 0) return state;
                     const next = state._future[0];
                     const newFuture = state._future.slice(1);
@@ -1491,6 +1495,8 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 resetForTutorial: () => {
+                    // 共同編集中は全消しさせない(チュートリアルは collab ルームでは到達しないが安全側で防ぐ)。
+                    if (get()._collabActive) return;
                     const maxLevel = 100;
                     const freshMembers = INITIAL_PARTY.map(m => ({
                         ...m,
