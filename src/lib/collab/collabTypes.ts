@@ -11,7 +11,8 @@ export interface CollabHandlers {
   remove: (id: string) => void;
   updateTime: (id: string, newTime: number) => void;
   // ②-b-1 汎用(events/phases/labels/memos の id 単位 delta)
-  upsertItems: (key: PlanArrayKey, items: Array<{ id: string }>) => void;
+  // generic: 完全な型付きオブジェクト(TimelineEvent 等)も部分フィールドのリテラル({id,endTime})も受ける。
+  upsertItems: <T extends { id: string }>(key: PlanArrayKey, items: T[]) => void;
   removeItems: (key: PlanArrayKey, ids: string[]) => void;
   // planMeta スカラー
   setMeta: (
