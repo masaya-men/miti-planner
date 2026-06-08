@@ -688,6 +688,25 @@ export const useMitigationStore = create<MitigationState>()(
                 addPhase: (startTime, name) => {
                     const exists = get().phases.some(p => p.startTime === startTime);
                     if (exists) return;
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const state = get();
+                        const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
+                        const nextPhase = sorted.find(p => p.startTime > startTime);
+                        const containingPhase = sorted.find(p => p.startTime <= startTime && p.endTime >= startTime);
+                        let endTime: number;
+                        if (nextPhase) endTime = nextPhase.startTime - 1;
+                        else if (containingPhase) endTime = containingPhase.endTime;
+                        else {
+                            const maxEventTime = state.timelineEvents.reduce((max, e) => Math.max(max, e.time), 0);
+                            endTime = Math.max(maxEventTime, startTime + 1);
+                        }
+                        const newPhase: Phase = { id: crypto.randomUUID(), name, startTime, endTime };
+                        const clipped = state.phases
+                            .filter(p => p.endTime >= startTime && p.startTime < startTime)
+                            .map(p => ({ id: p.id, endTime: startTime - 1 }));
+                        get()._collabHandlers!.upsertItems('phases', [newPhase, ...clipped]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
@@ -721,6 +740,10 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updatePhase: (id, name) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.upsertItems('phases', [{ id, name }]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         phases: state.phases.map(p => p.id === id ? { ...p, name } : p)
@@ -728,6 +751,10 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 removePhase: (id) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.removeItems('phases', [id]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         phases: state.phases.filter(p => p.id !== id)
@@ -735,6 +762,23 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updatePhaseEndTime: (id, newEndTime) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const sorted = [...get().phases].sort((a, b) => a.startTime - b.startTime);
+                        const idx = sorted.findIndex(p => p.id === id);
+                        if (idx < 0) return;
+                        const self = sorted[idx];
+                        const nextPhase = sorted[idx + 1];
+                        let final = Math.max(newEndTime, self.startTime + 1);
+                        if (nextPhase && final >= nextPhase.startTime) {
+                            final = Math.min(final, nextPhase.endTime - 2);
+                            get()._collabHandlers!.upsertItems('phases', [
+                                { id, endTime: final }, { id: nextPhase.id, startTime: final + 1 },
+                            ]);
+                        } else {
+                            get()._collabHandlers!.upsertItems('phases', [{ id, endTime: final }]);
+                        }
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
@@ -761,6 +805,24 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updatePhaseStartTime: (id, newStartTime) => {
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const sorted = [...get().phases].sort((a, b) => a.startTime - b.startTime);
+                        const idx = sorted.findIndex(p => p.id === id);
+                        if (idx < 0) return;
+                        const self = sorted[idx];
+                        const prevPhase = idx > 0 ? sorted[idx - 1] : null;
+                        let final = Math.max(newStartTime, 0);
+                        final = Math.min(final, self.endTime - 1);
+                        if (prevPhase && final <= prevPhase.endTime) {
+                            final = Math.max(final, prevPhase.startTime + 2);
+                            get()._collabHandlers!.upsertItems('phases', [
+                                { id, startTime: final }, { id: prevPhase.id, endTime: final - 1 },
+                            ]);
+                        } else {
+                            get()._collabHandlers!.upsertItems('phases', [{ id, startTime: final }]);
+                        }
+                        return;
+                    }
                     pushHistory();
                     set((state) => {
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);

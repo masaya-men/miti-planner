@@ -98,3 +98,33 @@ describe('②-b-1 events 委譲', () => {
     expect(h.removeItems).toHaveBeenCalledWith('timelineEvents', ['e1']);
   });
 });
+
+describe('②-b-1 phases 委譲', () => {
+  beforeEach(() => useMitigationStore.setState({
+    phases: [{ id: 'p1', name: { ja: 'P1' }, startTime: 0, endTime: 100 }] as any,
+    timelineEvents: [{ id: 'e1', time: 120, name: { ja: 'x' }, damageType: 'magical' }] as any,
+    _collabActive: false, _collabHandlers: null,
+  }));
+  it('addPhase は新フェーズ + クリップ対象を upsert', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().addPhase(50, { ja: 'P2' } as any);
+    expect(h.upsertItems).toHaveBeenCalledTimes(1);
+    const [key, items] = (h.upsertItems as any).mock.calls[0];
+    expect(key).toBe('phases');
+    const p1 = items.find((i: any) => i.id === 'p1');
+    expect(p1.endTime).toBe(49); // 含有 p1 を startTime-1 でクリップ
+    const np = items.find((i: any) => i.id !== 'p1');
+    expect(np.startTime).toBe(50);
+    expect(useMitigationStore.getState().phases.find((p) => p.id === 'p1')!.endTime).toBe(100); // store 直変更なし
+  });
+  it('updatePhase(rename) は id+name を upsert', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().updatePhase('p1', { ja: 'NEW' } as any);
+    expect(h.upsertItems).toHaveBeenCalledWith('phases', [{ id: 'p1', name: { ja: 'NEW' } }]);
+  });
+  it('removePhase は removeItems', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().removePhase('p1');
+    expect(h.removeItems).toHaveBeenCalledWith('phases', ['p1']);
+  });
+});
