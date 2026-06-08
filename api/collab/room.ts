@@ -63,7 +63,9 @@ export default async function handler(req: any, res: any) {
   }
 
   const parsed = parseRoomManageRequest(req.body);
-  if (!parsed.ok) return res.status(400).json({ error: parsed.error });
+  // 'error' in parsed で失敗バリアントへ narrow する(`!parsed.ok` の boolean discriminant narrow は
+  // @vercel/node の strictNullChecks-off ビルドでは効かないため。`in` 演算子の narrow は strict 非依存)。
+  if ('error' in parsed) return res.status(400).json({ error: parsed.error });
   const reqData = parsed.req;
   const planId = reqData.planId;
 

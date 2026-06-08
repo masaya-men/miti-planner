@@ -127,7 +127,7 @@ export default async function handler(req: any, res: any) {
     )}?alt=media`;
 
     // thumbnailPaths 配列の index 位置を更新 (transaction で race condition 回避)。
-    const newPaths = await db.runTransaction(async (tx) => {
+    const newPaths = await adminDb.runTransaction(async (tx) => {
       const snap = await tx.get(listingRef);
       const data = snap.data() ?? {};
       const existing: string[] = Array.isArray(data.thumbnailPaths)

@@ -26,7 +26,8 @@ export default async function handler(req: any, res: any) {
   if (roomToken) {
     const roomSnap = await db.collection('collabRooms').doc(roomToken).get();
     const room = resolveRoom(roomSnap.exists ? (roomSnap.data() as CollabRoomDoc) : null);
-    if (!room.ok) return res.status(200).json({ skipped: room.reason }); // 失効/不存在 → 書かない
+    // 'reason' in room で失敗バリアントへ narrow(strict-off でも効く `in` 演算子。`!room.ok` は不可)。
+    if ('reason' in room) return res.status(200).json({ skipped: room.reason }); // 失効/不存在 → 書かない
     planId = room.planId;
   } else {
     planId = bodyPlanId ?? ''; // ②-a/③ レガシー経路

@@ -37,7 +37,11 @@ export function resolveRoom(room: CollabRoomDoc | null): RoomResolution {
   return { ok: true, planId: room.planId, maxParticipants: clampMaxParticipants(room.maxParticipants) };
 }
 
-/** 緊急停止スイッチ: 環境変数 COLLAB_DISABLED==='1' で共同編集を全停止する。 */
-export function isCollabDisabled(env: { COLLAB_DISABLED?: string }): boolean {
+/**
+ * 緊急停止スイッチ: 環境変数 COLLAB_DISABLED==='1' で共同編集を全停止する。
+ * 引数は index signature 型(Record)で受ける: `process.env`(NodeJS.ProcessEnv)を直接渡せるようにし、
+ * かつ「全 optional プロパティのみの弱い型」と判定される weak type エラー(TS2559)を避ける。
+ */
+export function isCollabDisabled(env: Record<string, string | undefined>): boolean {
   return env.COLLAB_DISABLED === '1';
 }
