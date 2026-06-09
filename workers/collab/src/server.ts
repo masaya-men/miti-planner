@@ -1,9 +1,10 @@
 import { YServer } from "y-partyserver";
-import type { Connection } from "partyserver";
+import type { Connection, ConnectionContext } from "partyserver";
 import * as Y from "yjs";
 import { buildSeedDocFull, readPlanDataFull } from "./yjsPlanData";
 import { fetchSeedFull, postPlanData } from "./collabPersistence";
 import { resolveMaxParticipants, MAX_PARTICIPANTS_KEY } from "./collabCapacity";
+import { EDITOR_UID_HEADER, isEditorState } from "./collabAuth";
 
 /**
  * ライブ部屋 = 1 Durable Object。段取り②-a で YServer 化、段取り③で恒久保存。
@@ -72,6 +73,30 @@ export class Room extends YServer {
   /** 編集 debounce(callbackOptions)で発火。受付係へ書き戻す。 */
   override async onSave(): Promise<void> {
     await this.flushSave();
+  }
+
+  /**
+   * ④-a: 接続確立時に編集権を記録する。super を必ず呼び YServer の sync step1 送出を維持
+   * (新規接続者へ既存状態を渡す)。信頼ヘッダ(x-collab-uid)は fetch ハンドラが検証済みで
+   * クライアントは詐称できない。state は merge(awareness 用 state を壊さない)。
+   */
+  override onConnect(conn: Connection, ctx: ConnectionContext): void | Promise<void> {
+    const ret = super.onConnect(conn, ctx);
+    const uid = ctx.request.headers.get(EDITOR_UID_HEADER);
+    if (uid) {
+      // onConnect 時点では awareness 用 state は未設定(awareness メッセージは接続後)。
+      // 既存 state を merge して collabEditor を足す(将来 state が入っても壊さない)。
+      conn.setState({ ...(conn.state as Record<string, unknown> | null), collabEditor: uid });
+    }
+    return ret;
+  }
+
+  /**
+   * ④-a: 編集者(認証済み)でない接続は読み取り専用。
+   * y-partyserver はこれが true の接続の sync step2/update を破棄する(書込をサーバが拒否)。
+   */
+  override isReadOnly(connection: Connection): boolean {
+    return !isEditorState(connection.state);
   }
 
   /** 接続クローズ。最後の1人が抜けたら明示 flush(onSave は退室では発火しないため最終保存を補う)。 */
