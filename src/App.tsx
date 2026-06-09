@@ -1,9 +1,12 @@
 import { Routes, Route, Navigate, useLocation, type Location } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useThemeStore } from './store/useThemeStore';
 import { LandingPage } from './components/landing/LandingPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { SharePage } from './components/SharePage';
+// ⑤-3b: ジョイナーページは collabProvider(yjs/y-partyserver)を静的 import するため、
+// 遅延ロードしてソロ利用者の初期 bundle に yjs を載せない(設計の遅延ロード方針維持)。
+const CollabJoinerPage = lazy(() => import('./components/CollabJoinerPage'));
 import { SupportPage } from './components/SupportPage';
 import {
   HousingPage,
@@ -81,6 +84,8 @@ function AppRoutes() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/miti" element={<MitiPlannerPage />} />
         <Route path="/share/:shareId" element={<SharePage />} />
+        {/* ⑤-3b: ジョイナー読み取り専用ライブビュー(招待リンク専用・内部導線なし)。lazy chunk。 */}
+        <Route path="/collab/:roomToken" element={<Suspense fallback={null}><CollabJoinerPage /></Suspense>} />
         <Route path="/support" element={<SupportPage />} />
 
         <Route path="/housing" element={<HousingWorkspace />} />

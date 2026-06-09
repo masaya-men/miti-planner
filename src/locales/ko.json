@@ -18,7 +18,10 @@
         "people_hint": "기본 8명(풀파티 1조). 1~{{max}}명으로 설정 가능.",
         "reissue": "링크 다시 만들기",
         "revoke": "링크 해지",
-        "error_generic": "작업에 실패했습니다. 잠시 후 다시 시도해 주세요."
+        "error_generic": "작업에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+        "joiner_connecting": "연결 중…",
+        "joiner_invalid": "이 공동 편집 링크는 유효하지 않습니다.",
+        "joiner_full": "이 방은 정원이 찼습니다."
     },
     "common": {
         "cancel": "취소",

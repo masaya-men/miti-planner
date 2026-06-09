@@ -18,7 +18,10 @@
         "people_hint": "Default 8 (one full party). Set between 1 and {{max}}.",
         "reissue": "Regenerate link",
         "revoke": "Revoke link",
-        "error_generic": "Something went wrong. Please try again later."
+        "error_generic": "Something went wrong. Please try again later.",
+        "joiner_connecting": "Connecting…",
+        "joiner_invalid": "This collaboration link is no longer valid.",
+        "joiner_full": "This room is full."
     },
     "common": {
         "cancel": "Cancel",

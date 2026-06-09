@@ -18,7 +18,10 @@
         "people_hint": "默认 8 人(一个满编小队)。可设置 1~{{max}}人。",
         "reissue": "重新生成链接",
         "revoke": "使链接失效",
-        "error_generic": "操作失败，请稍后再试。"
+        "error_generic": "操作失败，请稍后再试。",
+        "joiner_connecting": "连接中…",
+        "joiner_invalid": "此协作链接已失效。",
+        "joiner_full": "此房间已满员。"
     },
     "common": {
         "cancel": "取消",
