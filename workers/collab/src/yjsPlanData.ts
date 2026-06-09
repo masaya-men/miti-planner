@@ -12,6 +12,8 @@ export const PLAN_META_KEY = "planMeta";
 export const META_LEVEL = "currentLevel";
 export const META_AA = "aaSettings";
 export const META_SCH = "schAetherflowPatterns";
+// ⑤-3b: ボス/コンテンツ識別子。seed のみ(save 経路では読まない=オーナー属性を書き戻さない)。
+export const META_CONTENT_ID = "contentId";
 
 // worker は要素の中身を見ない。最小制約 = id を持つ + 任意フィールド(index signature)。
 // mitigations だけは ②-a 由来の固定型 MitigationRecord(index signature 無し)を使う。
@@ -28,6 +30,8 @@ export interface PlanDataSeed {
   currentLevel?: number;
   aaSettings?: Record<string, unknown>;
   schAetherflowPatterns?: Record<string, number>;
+  /** ⑤-3b: ボス/コンテンツ識別子。planMeta に seed のみ(readPlanDataFull=save は返さない)。 */
+  contentId?: string;
 }
 
 function recordToYMap(rec: { id: string }): Y.Map<unknown> {
@@ -58,6 +62,7 @@ export function buildSeedDocFull(seed: PlanDataSeed): Y.Doc {
     if (seed.currentLevel !== undefined) meta.set(META_LEVEL, seed.currentLevel);
     if (seed.aaSettings !== undefined) meta.set(META_AA, seed.aaSettings);
     if (seed.schAetherflowPatterns !== undefined) meta.set(META_SCH, seed.schAetherflowPatterns);
+    if (seed.contentId !== undefined) meta.set(META_CONTENT_ID, seed.contentId);
   });
   return doc;
 }
@@ -76,4 +81,9 @@ export function readPlanDataFull(doc: Y.Doc): PlanDataSeed {
     aaSettings: meta.get(META_AA) as Record<string, unknown> | undefined,
     schAetherflowPatterns: meta.get(META_SCH) as Record<string, number> | undefined,
   };
+}
+
+/** seed された contentId(不変属性)を読む。save 経路では使わない。 */
+export function readContentId(doc: Y.Doc): string | undefined {
+  return doc.getMap(PLAN_META_KEY).get(META_CONTENT_ID) as string | undefined;
 }
