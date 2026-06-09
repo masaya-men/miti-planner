@@ -345,3 +345,28 @@ describe('②-b-2 changeMemberJobWithMitigations 委譲', () => {
     expect(useMitigationStore.getState().partyMembers[0].jobId).toBe('pld');
   });
 });
+
+describe('②-b-2 updatePartyBulk 委譲', () => {
+  const member = (over: Partial<import('../../types').PartyMember> = {}): import('../../types').PartyMember => ({
+    id: 'MT', jobId: 'pld', role: 'tank',
+    stats: { hp: 100000, mainStat: 4000, det: 2000, crt: 3000, ten: 1000, ss: 400, wd: 140 },
+    computedValues: {}, ...over,
+  });
+  beforeEach(() => useMitigationStore.setState({
+    partyMembers: [member({ id: 'MT', jobId: 'pld' }), member({ id: 'ST', jobId: 'war' })],
+    timelineMitigations: [], timelineEvents: [], currentLevel: 100,
+    _collabActive: false, _collabHandlers: null,
+  }));
+
+  it('batch に委譲し、更新メンバーを partyMembers upsert・mitigations を replace する', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().updatePartyBulk([{ memberId: 'MT', jobId: 'drk' }]);
+    expect(h.batch).toHaveBeenCalledTimes(1);
+    const ops = (h.batch as any).mock.calls[0][0] as Array<any>;
+    const pm = ops.find((o) => o.kind === 'upsert' && o.key === 'partyMembers');
+    expect(pm.items.map((m: any) => m.id)).toEqual(['MT']);
+    expect(pm.items[0].jobId).toBe('drk');
+    expect(ops.some((o) => o.kind === 'replace' && o.key === 'timelineMitigations')).toBe(true);
+    expect(useMitigationStore.getState().partyMembers.find((m) => m.id === 'MT')!.jobId).toBe('pld');
+  });
+});

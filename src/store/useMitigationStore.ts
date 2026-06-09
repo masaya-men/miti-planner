@@ -348,6 +348,63 @@ function computeChangeMemberJobWithMitigations(
     return { partyMembers: newMembers, timelineMitigations: [...otherMitigations, ...finalMitis] };
 }
 
+/** updatePartyBulk のソロ計算。複数メンバーのジョブ/mitigations を一括反映(履歴 1 回相当)。 */
+function computeUpdatePartyBulk(
+    state: PartyComputeSlice,
+    updates: { memberId: string; jobId: string | null; mitigations?: AppliedMitigation[] }[],
+): { partyMembers: PartyMember[]; timelineMitigations: AppliedMitigation[] } {
+    let currentMembers = [...state.partyMembers];
+    let currentMitigations = [...state.timelineMitigations];
+
+    updates.forEach(({ memberId, jobId, mitigations }) => {
+        currentMembers = currentMembers.map(m => {
+            if (m.id === memberId) {
+                const job = getJobsFromStore().find(j => j.id === jobId);
+                const newRole = job ? job.role : m.role;
+                let newStats = { ...m.stats };
+                if (job && job.role !== m.role) {
+                    if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
+                    else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
+                    else newStats = { ...DEFAULT_HEALER_STATS };
+                }
+                const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
+                return { ...updatedMember, computedValues: calculateMemberValues(updatedMember, state.currentLevel) };
+            }
+            return m;
+        });
+
+        if (mitigations) {
+            currentMitigations = currentMitigations.filter(mit => mit.ownerId !== memberId);
+            currentMitigations = [...currentMitigations, ...mitigations];
+        } else {
+            const originalMember = state.partyMembers.find(m => m.id === memberId);
+            if (originalMember && originalMember.jobId !== jobId) {
+                currentMitigations = currentMitigations.reduce<AppliedMitigation[]>((acc, mit) => {
+                    if (mit.ownerId !== memberId) { acc.push(mit); return acc; }
+                    const def = getMitigationsFromStore().find(m => m.id === mit.mitigationId);
+                    if (def?.jobId === jobId) { acc.push(mit); return acc; }
+                    if (def && def.jobId !== jobId) {
+                        const baseId = def.id.replace(`_${def.jobId}`, '');
+                        const newId = `${baseId}_${jobId}`;
+                        const newDef = getMitigationsFromStore().find(m => m.id === newId);
+                        if (newDef && newDef.jobId === jobId) { acc.push({ ...mit, mitigationId: newId }); return acc; }
+                    }
+                    return acc;
+                }, []);
+            }
+        }
+
+        if (jobId === 'sch' && !hasAnyAetherflow(memberId, currentMitigations)) {
+            currentMitigations.push(...buildScholarAutoInserts(memberId, currentMitigations, state.timelineEvents));
+        }
+        if (jobId === 'ast' && !hasAnyAstrologianDraw(memberId, currentMitigations)) {
+            currentMitigations.push(...buildAstrologianAutoInserts(memberId, currentMitigations, state.timelineEvents));
+        }
+    });
+
+    return { partyMembers: currentMembers, timelineMitigations: currentMitigations };
+}
+
 /**
  * copiesShieldスキル（展開戦術等）の自動リンクを解決する。
  * - リンク先が有効ならそのまま
@@ -1314,81 +1371,19 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updatePartyBulk: (updates) => {
+                    // ②-b-2: 複数メンバーのジョブ/mitigations 一括変更を 1 batch で(members upsert + mitigations 全置換)。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const next = computeUpdatePartyBulk(get(), updates);
+                        const updatedIds = new Set(updates.map(u => u.memberId));
+                        const changedMembers = next.partyMembers.filter(m => updatedIds.has(m.id));
+                        get()._collabHandlers!.batch([
+                            { kind: 'upsert', key: 'partyMembers', items: changedMembers },
+                            { kind: 'replace', key: 'timelineMitigations', items: next.timelineMitigations },
+                        ]);
+                        return;
+                    }
                     pushHistory();
-                    set((state) => {
-                        let currentMembers = [...state.partyMembers];
-                        let currentMitigations = [...state.timelineMitigations];
-
-                        updates.forEach(({ memberId, jobId, mitigations }) => {
-                            // 1. メンバー情報の更新
-                            currentMembers = currentMembers.map(m => {
-                                if (m.id === memberId) {
-                                    const job = getJobsFromStore().find(j => j.id === jobId);
-                                    const newRole = job ? job.role : m.role;
-                                    let newStats = { ...m.stats };
-                                    if (job && job.role !== m.role) {
-                                        if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
-                                        else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
-                                        else newStats = { ...DEFAULT_HEALER_STATS };
-                                    }
-                                    const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
-                                    return { ...updatedMember, computedValues: calculateMemberValues(updatedMember, state.currentLevel) };
-                                }
-                                return m;
-                            });
-
-                            // 2. 軽減スキルの更新
-                            if (mitigations) {
-                                // 指定されたスキルリストで上書き
-                                currentMitigations = currentMitigations.filter(mit => mit.ownerId !== memberId);
-                                currentMitigations = [...currentMitigations, ...mitigations];
-                            } else {
-                                // jobIdが変更された場合のみ、簡易フィルタリング（setMemberJobと同じロジック）を実行
-                                const originalMember = state.partyMembers.find(m => m.id === memberId);
-                                if (originalMember && originalMember.jobId !== jobId) {
-                                    currentMitigations = currentMitigations.reduce<AppliedMitigation[]>((acc, mit) => {
-                                        if (mit.ownerId !== memberId) {
-                                            acc.push(mit);
-                                            return acc;
-                                        }
-                                        // job 移行は jobId / id の比較のみで、Mitigation の値を読まないためモード解決不要。
-                                        const def = getMitigationsFromStore().find(m => m.id === mit.mitigationId);
-                                        if (def?.jobId === jobId) {
-                                            acc.push(mit);
-                                            return acc;
-                                        }
-                                        if (def && def.jobId !== jobId) {
-                                            const baseId = def.id.replace(`_${def.jobId}`, '');
-                                            const newId = `${baseId}_${jobId}`;
-                                            const newDef = getMitigationsFromStore().find(m => m.id === newId);
-                                            if (newDef && newDef.jobId === jobId) {
-                                                acc.push({ ...mit, mitigationId: newId });
-                                                return acc;
-                                            }
-                                        }
-                                        return acc;
-                                    }, []);
-                                }
-                            }
-
-                            // 3. 学者の場合の転化+エーテルフロー自動挿入
-                            // 既に aetherflow を持っていればユーザー編集尊重でスキップ
-                            if (jobId === 'sch' && !hasAnyAetherflow(memberId, currentMitigations)) {
-                                const inserts = buildScholarAutoInserts(memberId, currentMitigations, state.timelineEvents);
-                                currentMitigations.push(...inserts);
-                            }
-                            if (jobId === 'ast' && !hasAnyAstrologianDraw(memberId, currentMitigations)) {
-                                const inserts = buildAstrologianAutoInserts(memberId, currentMitigations, state.timelineEvents);
-                                currentMitigations.push(...inserts);
-                            }
-                        });
-
-                        return {
-                            partyMembers: currentMembers,
-                            timelineMitigations: currentMitigations
-                        };
-                    });
-
+                    set((state) => computeUpdatePartyBulk(state, updates));
                     // (チュートリアルイベント削除済み: party:eight-set / party:four-set)
                 },
 
