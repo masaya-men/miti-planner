@@ -370,3 +370,46 @@ describe('②-b-2 updatePartyBulk 委譲', () => {
     expect(useMitigationStore.getState().partyMembers.find((m) => m.id === 'MT')!.jobId).toBe('pld');
   });
 });
+
+describe('②-b-2 bulk mitigation 操作の委譲', () => {
+  const member = (over: Partial<import('../../types').PartyMember> = {}): import('../../types').PartyMember => ({
+    id: 'MT', jobId: 'pld', role: 'tank',
+    stats: { hp: 100000, mainStat: 4000, det: 2000, crt: 3000, ten: 1000, ss: 400, wd: 140 },
+    computedValues: {}, ...over,
+  });
+  beforeEach(() => useMitigationStore.setState({
+    partyMembers: [member({ id: 'MT', jobId: 'pld' }), member({ id: 'H1', jobId: 'whm', role: 'healer' })],
+    timelineMitigations: [applied({ id: 'a1', ownerId: 'MT' }), applied({ id: 'a2', ownerId: 'H1' })],
+    timelineEvents: [{ id: 'e1', time: 30, name: { ja: 'x' }, damageType: 'magical' }] as any,
+    currentLevel: 100, _collabActive: false, _collabHandlers: null,
+  }));
+
+  it('clearMitigationsByMember は当該メンバーの mit id を removeItems', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().clearMitigationsByMember('MT');
+    expect(h.removeItems).toHaveBeenCalledWith('timelineMitigations', ['a1']);
+    expect(useMitigationStore.getState().timelineMitigations).toHaveLength(2);
+  });
+
+  it('clearAllMitigations は timelineMitigations を replace [] する', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().clearAllMitigations();
+    expect(h.batch).toHaveBeenCalledTimes(1);
+    const ops = (h.batch as any).mock.calls[0][0] as Array<any>;
+    expect(ops).toEqual([{ kind: 'replace', key: 'timelineMitigations', items: [] }]);
+    expect(useMitigationStore.getState().timelineMitigations).toHaveLength(2);
+  });
+
+  it('applyAutoPlan は mitigations replace + events の warning を upsert', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    const newMits = [applied({ id: 'auto1', ownerId: 'MT' })];
+    useMitigationStore.getState().applyAutoPlan({ mitigations: newMits, warnings: ['e1'] });
+    expect(h.batch).toHaveBeenCalledTimes(1);
+    const ops = (h.batch as any).mock.calls[0][0] as Array<any>;
+    const rep = ops.find((o) => o.kind === 'replace' && o.key === 'timelineMitigations');
+    expect(rep.items.some((m: any) => m.id === 'auto1')).toBe(true);
+    const evUp = ops.find((o) => o.kind === 'upsert' && o.key === 'timelineEvents');
+    expect(evUp.items.find((e: any) => e.id === 'e1').warning).toBe(true);
+    expect(useMitigationStore.getState().timelineMitigations.map((m) => m.id)).toEqual(['a1', 'a2']);
+  });
+});

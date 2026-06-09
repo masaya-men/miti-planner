@@ -405,6 +405,27 @@ function computeUpdatePartyBulk(
     return { partyMembers: currentMembers, timelineMitigations: currentMitigations };
 }
 
+/** applyAutoPlan のソロ計算。最終 mitigations(学者/占星補完込み)と warning 更新後 events を返す。 */
+function computeApplyAutoPlan(
+    state: Pick<MitigationState, 'partyMembers' | 'timelineEvents'>,
+    mitigations: AppliedMitigation[],
+    warnings: string[],
+): { timelineMitigations: AppliedMitigation[]; timelineEvents: TimelineEvent[] } {
+    const finalMitigations = [...mitigations];
+    for (const member of state.partyMembers) {
+        if (member.jobId === 'sch' && !hasAnyAetherflow(member.id, finalMitigations)) {
+            finalMitigations.push(...buildScholarAutoInserts(member.id, finalMitigations, state.timelineEvents));
+        }
+        if (member.jobId === 'ast' && !hasAnyAstrologianDraw(member.id, finalMitigations)) {
+            finalMitigations.push(...buildAstrologianAutoInserts(member.id, finalMitigations, state.timelineEvents));
+        }
+    }
+    return {
+        timelineMitigations: finalMitigations,
+        timelineEvents: state.timelineEvents.map(e => ({ ...e, warning: warnings.includes(e.id) })),
+    };
+}
+
 /**
  * copiesShieldスキル（展開戦術等）の自動リンクを解決する。
  * - リンク先が有効ならそのまま
@@ -689,6 +710,12 @@ export const useMitigationStore = create<MitigationState>()(
 
                 // Bulk delete: clear mitigations for a specific member
                 clearMitigationsByMember: (memberId) => {
+                    // ②-b-2: 当該メンバーの mitigations を removeItems で除去。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const ids = get().timelineMitigations.filter(m => m.ownerId === memberId).map(m => m.id);
+                        get()._collabHandlers!.removeItems('timelineMitigations', ids);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         timelineMitigations: state.timelineMitigations.filter(m => m.ownerId !== memberId)
@@ -697,35 +724,28 @@ export const useMitigationStore = create<MitigationState>()(
 
                 // Bulk delete: clear ALL mitigations
                 clearAllMitigations: () => {
+                    // ②-b-2: timelineMitigations を全置換([])で原子的にクリア。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.batch([{ kind: 'replace', key: 'timelineMitigations', items: [] }]);
+                        return;
+                    }
                     pushHistory();
                     set({ timelineMitigations: [] });
                 },
 
                 // 👇追加：オートプラン用の一括上書き処理（履歴はここで「1回」だけ保存される）
                 applyAutoPlan: ({ mitigations, warnings }) => {
+                    // ②-b-2: 最終 mitigations 全置換 + warning 更新後 events を 1 batch で原子的に。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const next = computeApplyAutoPlan(get(), mitigations, warnings);
+                        get()._collabHandlers!.batch([
+                            { kind: 'replace', key: 'timelineMitigations', items: next.timelineMitigations },
+                            { kind: 'upsert', key: 'timelineEvents', items: next.timelineEvents.map(e => ({ id: e.id, warning: e.warning })) },
+                        ]);
+                        return;
+                    }
                     pushHistory();
-                    set(state => {
-                        // オートプランは dissipation のみ置くので、SCH メンバーに aetherflow を自動補完。
-                        // ただし aetherflow が既に含まれていればユーザー編集尊重で触らない。
-                        let finalMitigations = [...mitigations];
-                        for (const member of state.partyMembers) {
-                            if (member.jobId === 'sch' && !hasAnyAetherflow(member.id, finalMitigations)) {
-                                const inserts = buildScholarAutoInserts(member.id, finalMitigations, state.timelineEvents);
-                                finalMitigations.push(...inserts);
-                            }
-                            if (member.jobId === 'ast' && !hasAnyAstrologianDraw(member.id, finalMitigations)) {
-                                const inserts = buildAstrologianAutoInserts(member.id, finalMitigations, state.timelineEvents);
-                                finalMitigations.push(...inserts);
-                            }
-                        }
-                        return {
-                            timelineMitigations: finalMitigations,
-                            timelineEvents: state.timelineEvents.map(e => ({
-                                ...e,
-                                warning: warnings.includes(e.id)
-                            }))
-                        };
-                    });
+                    set(state => computeApplyAutoPlan(state, mitigations, warnings));
                 },
 
                 setMyMemberId: (memberId) => {
