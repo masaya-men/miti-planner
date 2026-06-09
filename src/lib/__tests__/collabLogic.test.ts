@@ -73,8 +73,8 @@ describe('decideLoadFull (全PlanData seed)', () => {
     expect(decideLoadFull(null)).toEqual({ deleted: true });
     expect(decideLoadFull({ deleted: true, data })).toEqual({ deleted: true });
   });
-  it('live → 全要素を返す(欠落配列は[]・スカラーはundefined)', () => {
-    expect(decideLoadFull({ data })).toEqual({
+  it('live → 全要素 + contentId(top-level)を返す(欠落配列は[]・スカラーはundefined)', () => {
+    expect(decideLoadFull({ contentId: 'm4s', data })).toEqual({
       mitigations: data.timelineMitigations,
       timelineEvents: data.timelineEvents,
       phases: data.phases,
@@ -84,10 +84,12 @@ describe('decideLoadFull (全PlanData seed)', () => {
       aaSettings: data.aaSettings,
       schAetherflowPatterns: data.schAetherflowPatterns,
       partyMembers: data.partyMembers,
+      contentId: 'm4s',
     });
     expect(decideLoadFull({ data: {} })).toEqual({
       mitigations: [], timelineEvents: [], phases: [], labels: [], memos: [],
       currentLevel: undefined, aaSettings: undefined, schAetherflowPatterns: undefined, partyMembers: [],
+      contentId: undefined,
     });
   });
 });

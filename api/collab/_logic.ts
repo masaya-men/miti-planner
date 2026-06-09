@@ -61,6 +61,8 @@ export function decideSave(plan: PlanDocSnapshot | null): SaveDecision {
 export interface PlanDocSnapshotFull {
   deleted?: boolean;
   version?: number;
+  /** ⑤-3b: ボス/コンテンツ識別子。doc top-level(data.* ではない)。ジョイナーへ seed で配送。 */
+  contentId?: string;
   data?: {
     timelineMitigations?: MitigationRecord[];
     timelineEvents?: unknown[];
@@ -86,6 +88,7 @@ export type LoadResultFull =
       aaSettings?: unknown;
       schAetherflowPatterns?: unknown;
       partyMembers: unknown[];
+      contentId?: string;
     };
 
 /** 全 b-1 要素の seed を決める。墓標/不存在は deleted(削除が勝つ)。配列欠落は []、スカラー欠落は undefined。 */
@@ -102,5 +105,6 @@ export function decideLoadFull(plan: PlanDocSnapshotFull | null): LoadResultFull
     aaSettings: d.aaSettings,
     schAetherflowPatterns: d.schAetherflowPatterns,
     partyMembers: d.partyMembers ?? [],
+    contentId: plan.contentId,
   };
 }
