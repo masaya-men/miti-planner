@@ -1,5 +1,5 @@
 import type { AppliedMitigation, TimelineEvent, Phase, Label } from "../../types";
-import type { PlanArrayKey, AASettings } from "./yjsPlanData";
+import type { PlanArrayKey, AASettings, BatchOp } from "./yjsPlanData";
 
 /**
  * 共同編集の操作を遅延チャンク(collabProvider)へ委譲する関数束。
@@ -21,4 +21,7 @@ export interface CollabHandlers {
   ) => void;
   // バルク(FFLogs 取込: events/phases/labels 全置換 + mitigations クリア・1 transaction)
   importBulk: (events: TimelineEvent[], phases?: Phase[], labels?: Label[]) => void;
+  // ②-b-2: 複数キー(partyMembers + timelineMitigations 等)を 1 transaction で原子的に反映。
+  // ジョブ変更カスケード(メンバー更新 + その mitigations 入替)が途中状態で相手画面を壊さないため。
+  batch: (ops: BatchOp[]) => void;
 }

@@ -169,6 +169,8 @@ interface MitigationState {
     _applyPhasesFromCollab: (phases: Phase[]) => void;
     _applyLabelsFromCollab: (labels: Label[]) => void;
     _applyMemosFromCollab: (memos: PlanMemo[]) => void;
+    /** ②-b-2: Yjs 側の最新 partyMembers を store に反映(computedValues は currentLevel からローカル再計算)。 */
+    _applyPartyMembersFromCollab: (members: PartyMember[]) => void;
     _applyMetaFromCollab: (meta: { currentLevel?: number; aaSettings?: AASettings; schAetherflowPatterns?: Record<string, 1 | 2> }) => void;
 
     // メモ機能アクション (#57)
@@ -348,6 +350,13 @@ export const useMitigationStore = create<MitigationState>()(
                 _applyLabelsFromCollab: (labels) =>
                     set({ labels: [...labels].sort((a, b) => a.startTime - b.startTime) }),
                 _applyMemosFromCollab: (memos) => set({ memos }),
+                _applyPartyMembersFromCollab: (members) =>
+                    set((state) => ({
+                        partyMembers: members.map((m) => ({
+                            ...m,
+                            computedValues: calculateMemberValues(m, state.currentLevel),
+                        })),
+                    })),
                 _applyMetaFromCollab: (meta) =>
                     set((state) => {
                         const patch: Partial<MitigationState> = {};
@@ -355,7 +364,7 @@ export const useMitigationStore = create<MitigationState>()(
                         if (meta.schAetherflowPatterns !== undefined) patch.schAetherflowPatterns = meta.schAetherflowPatterns;
                         if (meta.currentLevel !== undefined) {
                             patch.currentLevel = meta.currentLevel;
-                            // computedValues は派生 → ローカル再計算(partyMembers 自体は b-1 で同期しない)。
+                            // computedValues は派生 → ローカル再計算(partyMembers は ②-b-2 で Y 同期済み、ここでは state を読む)。
                             patch.partyMembers = state.partyMembers.map((mem) => ({
                                 ...mem,
                                 computedValues: calculateMemberValues(mem, meta.currentLevel!),

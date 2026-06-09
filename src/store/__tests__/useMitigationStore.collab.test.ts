@@ -9,7 +9,7 @@ const applied = (over: Partial<AppliedMitigation> = {}): AppliedMitigation => ({
 
 const mockHandlers = (): CollabHandlers => ({
   add: vi.fn(), remove: vi.fn(), updateTime: vi.fn(),
-  upsertItems: vi.fn(), removeItems: vi.fn(), setMeta: vi.fn(), importBulk: vi.fn(),
+  upsertItems: vi.fn(), removeItems: vi.fn(), setMeta: vi.fn(), importBulk: vi.fn(), batch: vi.fn(),
 });
 
 describe('useMitigationStore 共同編集分岐 (段取り②-a)', () => {
@@ -75,6 +75,24 @@ describe('②-b-1 apply(Y→store 反映)', () => {
     expect(useMitigationStore.getState().currentLevel).toBe(80);
     expect(useMitigationStore.getState().aaSettings).toEqual({ damage: 5, type: 'physical', target: 'ST' });
     expect(useMitigationStore.getState().schAetherflowPatterns).toEqual({ H2: 2 });
+  });
+});
+
+describe('②-b-2 partyMembers apply（Y→store 反映）', () => {
+  const member = (over: Partial<import('../../types').PartyMember> = {}): import('../../types').PartyMember => ({
+    id: 'MT', jobId: 'pld', role: 'tank',
+    stats: { hp: 100000, mainStat: 4000, det: 2000, crt: 3000, ten: 1000, ss: 400, wd: 140 },
+    computedValues: {}, ...over,
+  });
+  beforeEach(() => useMitigationStore.setState({ partyMembers: [], currentLevel: 100, _collabActive: false, _collabHandlers: null }));
+
+  it('_applyPartyMembersFromCollab は partyMembers を反映し computedValues をローカル再計算する', () => {
+    useMitigationStore.getState()._applyPartyMembersFromCollab([member({ computedValues: { stale: 1 } })]);
+    const m0 = useMitigationStore.getState().partyMembers[0];
+    expect(m0.id).toBe('MT');
+    expect(m0.jobId).toBe('pld');
+    expect(m0.computedValues).not.toEqual({ stale: 1 });
+    expect(typeof m0.computedValues).toBe('object');
   });
 });
 
