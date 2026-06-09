@@ -22,4 +22,16 @@ describe("useCollabJoinerSession", () => {
     expect(useCollabJoinerSession.getState().roomToken).toBeNull();
     expect(useCollabJoinerSession.getState().contentId).toBeNull();
   });
+  it("canEdit / ownerLabel を set でき clear で戻る", () => {
+    useCollabJoinerSession.getState().enter("tok");
+    expect(useCollabJoinerSession.getState().canEdit).toBe(false);
+    expect(useCollabJoinerSession.getState().ownerLabel).toBeNull();
+    useCollabJoinerSession.getState().setCanEdit(true);
+    useCollabJoinerSession.getState().setOwnerLabel("土曜固定P");
+    expect(useCollabJoinerSession.getState().canEdit).toBe(true);
+    expect(useCollabJoinerSession.getState().ownerLabel).toBe("土曜固定P");
+    useCollabJoinerSession.getState().clear();
+    expect(useCollabJoinerSession.getState().canEdit).toBe(false);
+    expect(useCollabJoinerSession.getState().ownerLabel).toBeNull();
+  });
 });
