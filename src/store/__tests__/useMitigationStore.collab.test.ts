@@ -260,3 +260,37 @@ describe('②-b-1 collab 中のバルク/履歴経路ガード', () => {
     expect(useMitigationStore.getState().timelineEvents).toBe(before);
   });
 });
+
+describe('②-b-2 partyMembers 単純変更の委譲', () => {
+  const member = (over: Partial<import('../../types').PartyMember> = {}): import('../../types').PartyMember => ({
+    id: 'MT', jobId: 'pld', role: 'tank',
+    stats: { hp: 100000, mainStat: 4000, det: 2000, crt: 3000, ten: 1000, ss: 400, wd: 140 },
+    computedValues: {}, ...over,
+  });
+  beforeEach(() => useMitigationStore.setState({
+    partyMembers: [member({ id: 'MT' }), member({ id: 'H1', jobId: 'whm', role: 'healer' })],
+    currentLevel: 100, _collabActive: false, _collabHandlers: null,
+  }));
+
+  it('updateMemberStats は当該メンバーを partyMembers に upsert し store 直変更しない', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().updateMemberStats('MT', { hp: 999999 });
+    expect(h.upsertItems).toHaveBeenCalledTimes(1);
+    const [key, items] = (h.upsertItems as any).mock.calls[0];
+    expect(key).toBe('partyMembers');
+    expect(items).toHaveLength(1);
+    expect(items[0].id).toBe('MT');
+    expect(items[0].stats.hp).toBe(999999);
+    expect(useMitigationStore.getState().partyMembers.find((m) => m.id === 'MT')!.stats.hp).toBe(100000);
+  });
+
+  it('applyDefaultStats は全メンバーを partyMembers に upsert し store 直変更しない', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().applyDefaultStats(90);
+    expect(h.upsertItems).toHaveBeenCalledTimes(1);
+    const [key, items] = (h.upsertItems as any).mock.calls[0];
+    expect(key).toBe('partyMembers');
+    expect(items.map((m: any) => m.id).sort()).toEqual(['H1', 'MT']);
+    expect(useMitigationStore.getState().partyMembers.every((m) => m.computedValues && Object.keys(m.computedValues).length === 0)).toBe(true);
+  });
+});

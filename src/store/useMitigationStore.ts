@@ -221,6 +221,28 @@ const INITIAL_PARTY: PartyMember[] = [
     { id: 'D4', jobId: null, role: 'dps',    stats: { ...getDefaultHealerStats() }, computedValues: {}, mode: DEFAULT_NEW_MODE },
 ];
 
+// ────────────────────────────────────────────────────────────────────
+// ②-b-2: partyMembers 変更 mutation のソロ計算を純関数に抽出(collab/ソロ両経路で共有=DRY)。
+// collab 分岐は同じ関数で結果を計算し、差分をハンドラ経由で Y に反映する(二重実装回避)。
+// ────────────────────────────────────────────────────────────────────
+
+/** applyDefaultStats のソロ計算。level/patch から全メンバーの stats を既定値で更新する。 */
+function computeDefaultStatsMembers(
+    members: PartyMember[],
+    level: number,
+    patch?: string,
+): PartyMember[] {
+    const patchData = patch ? getPatchStatsFromStore()[patch] : null;
+    const template = patchData || getDefaultStatsByLevelFromStore()[level] || getDefaultStatsByLevelFromStore()[100];
+    const subBase = getLevelModifiersFromStore()[level]?.sub || 420;
+    const fillStats = (partial: any): PlayerStats => ({ ...partial, crt: subBase, ten: subBase, ss: subBase });
+    const newDefaults = { tank: fillStats(template.tank), other: fillStats(template.other) };
+    return members.map((m) => {
+        const stats = m.role === 'tank' ? newDefaults.tank : newDefaults.other;
+        return { ...m, stats: { ...stats }, computedValues: calculateMemberValues({ ...m, stats }, level) };
+    });
+}
+
 /**
  * copiesShieldスキル（展開戦術等）の自動リンクを解決する。
  * - リンク先が有効ならそのまま
@@ -569,38 +591,13 @@ export const useMitigationStore = create<MitigationState>()(
                     }));
                 },
                 applyDefaultStats: (level, patch) => {
+                    // ②-b-2: 全メンバーの stats 一括更新を partyMembers に upsert(mitigations 波及なし)。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.upsertItems('partyMembers', computeDefaultStatsMembers(get().partyMembers, level, patch));
+                        return;
+                    }
                     pushHistory();
-                    set((state) => {
-                        // 1. パッチ情報があれば優先的に検索
-                        // 2. なければレベルごとのデフォルトを使用
-                        const patchData = patch ? getPatchStatsFromStore()[patch] : null;
-                        const template = patchData || getDefaultStatsByLevelFromStore()[level] || getDefaultStatsByLevelFromStore()[100];
-                        
-                        // 不足項目(crt, ten, ss)をベース値で補完
-                        const subBase = getLevelModifiersFromStore()[level]?.sub || 420;
-                        const fillStats = (partial: any): PlayerStats => ({
-                            ...partial,
-                            crt: subBase,
-                            ten: subBase,
-                            ss: subBase
-                        });
-
-                        const newDefaults = {
-                            tank: fillStats(template.tank),
-                            other: fillStats(template.other)
-                        };
-
-                        return {
-                            partyMembers: state.partyMembers.map(m => {
-                                const stats = m.role === 'tank' ? newDefaults.tank : newDefaults.other;
-                                return {
-                                    ...m,
-                                    stats: { ...stats },
-                                    computedValues: calculateMemberValues({ ...m, stats }, level)
-                                };
-                            })
-                        };
-                    });
+                    set((state) => ({ partyMembers: computeDefaultStatsMembers(state.partyMembers, level, patch) }));
                 },
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
@@ -1385,6 +1382,15 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateMemberStats: (memberId, stats) => {
+                    // ②-b-2: 1 メンバーの stats 更新を partyMembers に upsert(mitigations 波及なし)。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const m = get().partyMembers.find((x) => x.id === memberId);
+                        if (!m) return;
+                        const newStats = { ...m.stats, ...stats };
+                        const updated = { ...m, stats: newStats, computedValues: calculateMemberValues({ ...m, stats: newStats }, get().currentLevel) };
+                        get()._collabHandlers!.upsertItems('partyMembers', [updated]);
+                        return;
+                    }
                     pushHistory();
                     set((state) => ({
                         partyMembers: state.partyMembers.map(m => {
