@@ -6,7 +6,7 @@ import { appliedToYMap, readMitigations, indexOfMitigation, YJS_MITIGATIONS_KEY 
 import {
   TIMELINE_EVENTS_KEY, PHASES_KEY, LABELS_KEY, MEMOS_KEY, PLAN_META_KEY,
   META_LEVEL, META_AA, META_SCH, PARTY_MEMBERS_KEY,
-  applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta,
+  applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta, readContentId,
   recordToYMap, buildArrByKey, applyBatch,
 } from './yjsPlanData';
 import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember } from '../../types';
@@ -64,10 +64,38 @@ function dissipationIdsOverlapping(
 }
 
 /**
+ * sync 完了時に部屋の現在状態を store に初期反映する(オーナー入室・ジョイナー購読の共通処理)。
+ * readOnly のときは編集委譲(enterCollabMode)をしない＝ジョイナーの操作は Y に一切流れない(購読のみ)。
+ * partyMembers は meta より前に反映(meta の currentLevel 再計算が同期済みメンバーを読むため)。
+ * ⑤-3b: sync 後に planMeta の contentId(不変・seed のみ)を onContentId で渡す。
+ */
+export function applyRoomToStore(
+  doc: Y.Doc,
+  opts: { readOnly: boolean; handlers: CollabHandlers; onContentId?: (id: string | undefined) => void },
+): void {
+  if (!opts.readOnly) {
+    useMitigationStore.getState().enterCollabMode(opts.handlers);
+  }
+  const s = useMitigationStore.getState();
+  s._applyMitigationsFromCollab(readMitigations(doc));
+  s._applyEventsFromCollab(readArray<TimelineEvent>(doc, TIMELINE_EVENTS_KEY));
+  s._applyPhasesFromCollab(readArray<Phase>(doc, PHASES_KEY));
+  s._applyLabelsFromCollab(readArray<Label>(doc, LABELS_KEY));
+  s._applyMemosFromCollab(readArray<PlanMemo>(doc, MEMOS_KEY));
+  s._applyPartyMembersFromCollab(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY));
+  s._applyMetaFromCollab(readPlanMeta(doc));
+  opts.onContentId?.(readContentId(doc));
+}
+
+/**
  * roomToken を部屋として共同編集セッションを開始する(⑤-3a でルーム鍵を plan ID → roomToken に分離)。
  * サーバ routing /parties/room/<roomToken> に合わせ party:"room" を指定。
+ * ⑤-3b: opts.readOnly でジョイナー購読モード(enterCollabMode を呼ばず観測のみ)。
  */
-export function startCollabSession(roomToken: string): CollabSession {
+export function startCollabSession(
+  roomToken: string,
+  opts: { readOnly?: boolean; onContentId?: (id: string | undefined) => void } = {},
+): CollabSession {
   const doc = new Y.Doc();
   const provider = new YProvider(COLLAB_HOST, roomToken, doc, { party: 'room', connect: true });
   const yarr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
@@ -182,14 +210,13 @@ export function startCollabSession(roomToken: string): CollabSession {
   // 段取り③: seed はサーバー(DO の onLoad が Firestore から)が担うため、クライアントは
   // 「部屋の状態を store に反映」するだけ(自分のローカル軽減で seed しない)。これにより
   // 「部屋の状態 = Firestore の保存済み内容」が唯一の真実になり、オーナー不在でも矛盾しない。
+  const readOnly = opts.readOnly ?? false;
   let entered = false;
   const onSynced = (isSynced: boolean) => {
     if (!isSynced || entered) return;
     entered = true;
-    useMitigationStore.getState().enterCollabMode(handlers);
-    useMitigationStore.getState()._applyMitigationsFromCollab(readMitigations(doc));
-    // ②-b-1/②-b-2: 残り全要素も初期反映(partyMembers は meta より前＝meta の currentLevel 再計算が同期済みメンバーを読むため)。
-    applyEvents(); applyPhases(); applyLabels(); applyMemos(); applyPartyMembers(); applyMeta();
+    // ②-b-1/②-b-2 の全要素初期反映 + ⑤-3b の readOnly 分岐 + contentId seed 取得を 1 箇所に集約。
+    applyRoomToStore(doc, { readOnly, handlers, onContentId: opts.onContentId });
   };
   provider.on('sync', onSynced);
 
@@ -202,7 +229,8 @@ export function startCollabSession(roomToken: string): CollabSession {
     yMemos.unobserveDeep(applyMemos);
     yMeta.unobserveDeep(applyMeta);
     yPartyMembers.unobserveDeep(applyPartyMembers);
-    useMitigationStore.getState().exitCollabMode();
+    // readOnly(ジョイナー購読)は enterCollabMode していないので exit も不要(購読解除＝unobserve で十分)。
+    if (!readOnly) useMitigationStore.getState().exitCollabMode();
     provider.destroy();
     doc.destroy();
   };
