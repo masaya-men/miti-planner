@@ -29,6 +29,22 @@ import type { CollabHandlers } from './collabTypes';
 const COLLAB_HOST =
   (import.meta.env.VITE_COLLAB_HOST as string | undefined) || 'lopo-collab.masaya-maeno0106.workers.dev';
 
+/**
+ * ④-a: provider params。ログイン中なら現在の Firebase ID トークンを載せ、未ログインは空(viewer)。
+ * 関数なので再接続のたびに最新トークンを取り直す(約1時間の期限を自然に解決)。
+ * getToken を注入式にして純粋にテストする(firebase を静的 import せず、呼び出し側で動的に渡す)。
+ */
+export async function buildCollabParams(
+  getToken: () => Promise<string | null>,
+): Promise<Record<string, string>> {
+  try {
+    const token = await getToken();
+    return token ? { token } : {};
+  } catch {
+    return {}; // 取得失敗 → viewer(編集権はサーバが拒否するだけ・閲覧は維持)
+  }
+}
+
 const SERAPH_DURATION = 22;
 
 export interface CollabSession {
@@ -101,7 +117,18 @@ export function startCollabSession(
   opts: { readOnly?: boolean; onContentId?: (id: string | undefined) => void; onOwnerLabel?: (label: string | undefined) => void } = {},
 ): CollabSession {
   const doc = new Y.Doc();
-  const provider = new YProvider(COLLAB_HOST, roomToken, doc, { party: 'room', connect: true });
+  const provider = new YProvider(COLLAB_HOST, roomToken, doc, {
+    party: 'room',
+    connect: true,
+    // ④-a: 接続時に Firebase ID トークンをクエリ送付(viewer は空)。firebase は動的 import で
+    // collabProvider の静的グラフを汚さない(遅延境界・テスト容易性を保つ)。
+    params: () =>
+      buildCollabParams(async () => {
+        const { auth } = await import('../firebase');
+        const user = auth.currentUser;
+        return user ? await user.getIdToken() : null;
+      }),
+  });
   const yarr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
 
   // ②-b-1: 残りの PlanData 要素の Y 型(②-a の timelineMitigations と並ぶトップレベルキー)。
