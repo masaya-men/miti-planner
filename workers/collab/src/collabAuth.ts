@@ -32,3 +32,29 @@ export async function verifyToken(
     return null;
   }
 }
+
+/** verify 関数の型(本番=verifyToken の部分適用 / テスト=モック)。 */
+export type VerifyFn = (token: string) => Promise<string | null>;
+
+/**
+ * 接続要求を認可し、DO へ転送する Request を返す。
+ * - クライアント由来の信頼ヘッダは必ず除去(詐称防止)。
+ * - クエリの token を verifyFn で検証し、正規本人なら EDITOR_UID_HEADER を付与。
+ * - 検証失敗/トークン無し → ヘッダ無し(viewer・fail-closed)。接続自体は常に許可(閲覧は誰でも可)。
+ */
+export async function authorizeConnection(req: Request, verifyFn: VerifyFn): Promise<Request> {
+  // WS upgrade を落とさないよう、既存 index.ts と同じ「コピー後に header を in-place 操作」方式。
+  const out = new Request(req);
+  out.headers.delete(EDITOR_UID_HEADER); // 詐称防止: クライアントの偽ヘッダを落とす
+  const token = new URL(req.url).searchParams.get(TOKEN_PARAM) ?? "";
+  if (token) {
+    const uid = await verifyFn(token);
+    if (uid) out.headers.set(EDITOR_UID_HEADER, uid);
+  }
+  return out;
+}
+
+/** DO 接続 state が編集者か。`isReadOnly` の反転に使う。 */
+export function isEditorState(state: unknown): boolean {
+  return typeof (state as { collabEditor?: unknown } | undefined)?.collabEditor === "string";
+}
