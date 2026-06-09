@@ -7,6 +7,7 @@ export const TIMELINE_EVENTS_KEY = "timelineEvents";
 export const PHASES_KEY = "phases";
 export const LABELS_KEY = "labels";
 export const MEMOS_KEY = "memos";
+export const PARTY_MEMBERS_KEY = "partyMembers";
 export const PLAN_META_KEY = "planMeta";
 export const META_LEVEL = "currentLevel";
 export const META_AA = "aaSettings";
@@ -23,6 +24,7 @@ export interface PlanDataSeed {
   phases?: PlanRecord[];
   labels?: PlanRecord[];
   memos?: PlanRecord[];
+  partyMembers?: PlanRecord[];
   currentLevel?: number;
   aaSettings?: Record<string, unknown>;
   schAetherflowPatterns?: Record<string, number>;
@@ -51,6 +53,7 @@ export function buildSeedDocFull(seed: PlanDataSeed): Y.Doc {
     pushAll(doc, PHASES_KEY, seed.phases);
     pushAll(doc, LABELS_KEY, seed.labels);
     pushAll(doc, MEMOS_KEY, seed.memos);
+    pushAll(doc, PARTY_MEMBERS_KEY, seed.partyMembers);
     const meta = doc.getMap(PLAN_META_KEY);
     if (seed.currentLevel !== undefined) meta.set(META_LEVEL, seed.currentLevel);
     if (seed.aaSettings !== undefined) meta.set(META_AA, seed.aaSettings);
@@ -68,6 +71,7 @@ export function readPlanDataFull(doc: Y.Doc): PlanDataSeed {
     phases: readAll<PlanRecord>(doc, PHASES_KEY),
     labels: readAll<PlanRecord>(doc, LABELS_KEY),
     memos: readAll<PlanRecord>(doc, MEMOS_KEY),
+    partyMembers: readAll<PlanRecord>(doc, PARTY_MEMBERS_KEY),
     currentLevel: meta.get(META_LEVEL) as number | undefined,
     aaSettings: meta.get(META_AA) as Record<string, unknown> | undefined,
     schAetherflowPatterns: meta.get(META_SCH) as Record<string, number> | undefined,

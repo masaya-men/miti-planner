@@ -12,6 +12,7 @@ const seed: PlanDataSeed = {
   currentLevel: 90,
   aaSettings: { damage: 100, type: "magical", target: "MT" },
   schAetherflowPatterns: { H2: 2 },
+  partyMembers: [{ id: "MT", jobId: "pld", role: "tank", stats: { hp: 100, mainStat: 1, det: 1, crt: 1, ten: 1, ss: 1, wd: 1 }, computedValues: { Rampart: 20 } }],
 };
 
 describe("worker yjsPlanData seed/read 往復", () => {
@@ -27,6 +28,7 @@ describe("worker yjsPlanData seed/read 往復", () => {
     expect(out.phases).toEqual([]);
     expect(out.labels).toEqual([]);
     expect(out.memos).toEqual([]);
+    expect(out.partyMembers).toEqual([]);
     expect(out.currentLevel).toBeUndefined();
     expect(out.aaSettings).toBeUndefined();
     expect(out.schAetherflowPatterns).toBeUndefined();
