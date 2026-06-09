@@ -430,3 +430,13 @@ describe('②-b-2 restoreFromSnapshot ガード', () => {
     expect(useMitigationStore.getState().timelineEvents).toBe(before);
   });
 });
+
+describe('⑤-3b collab readonly persist ガード', () => {
+  beforeEach(() => useMitigationStore.setState({ _collabReadonly: false }));
+  it('setCollabReadonly が _collabReadonly を切り替える', () => {
+    useMitigationStore.getState().setCollabReadonly(true);
+    expect(useMitigationStore.getState()._collabReadonly).toBe(true);
+    useMitigationStore.getState().setCollabReadonly(false);
+    expect(useMitigationStore.getState()._collabReadonly).toBe(false);
+  });
+});

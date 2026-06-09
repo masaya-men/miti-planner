@@ -89,6 +89,9 @@ interface MitigationState {
     // 注入する CollabHandlers に委譲する。_ydoc 等 yjs 型の state は store に持たない。
     _collabActive: boolean;
     _collabHandlers: CollabHandlers | null;
+    /** ⑤-3b: ジョイナー読み取り専用中は localStorage persist を skip し、自分の保存データを汚さない。 */
+    _collabReadonly: boolean;
+    setCollabReadonly: (v: boolean) => void;
 
     // Actions
     setCurrentLevel: (level: number) => void;
@@ -536,6 +539,8 @@ export const useMitigationStore = create<MitigationState>()(
                 _future: [],
                 _collabActive: false,
                 _collabHandlers: null,
+                _collabReadonly: false,
+                setCollabReadonly: (v) => set({ _collabReadonly: v }),
 
                 enterCollabMode: (handlers) => set({ _collabActive: true, _collabHandlers: handlers }),
 
@@ -1596,8 +1601,9 @@ export const useMitigationStore = create<MitigationState>()(
                     return str ? JSON.parse(str) : null;
                 },
                 setItem: (name: string, value: unknown) => {
-                    // チュートリアル中は書き込みスキップ
-                    if (useTutorialStore.getState().isActive) return;
+                    // チュートリアル中 or ⑤-3b ジョイナー読み取り専用中は書き込みスキップ
+                    // (壊れたデータ／他人の部屋データを自分の localStorage に永続化しない)。
+                    if (useTutorialStore.getState().isActive || useMitigationStore.getState()._collabReadonly) return;
                     localStorage.setItem(name, JSON.stringify(value));
                 },
                 removeItem: (name: string) => {
