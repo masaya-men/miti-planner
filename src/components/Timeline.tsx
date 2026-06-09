@@ -8,6 +8,7 @@ import { MobileContextMenu } from './MobileContextMenu';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
+import { useCollabJoinerSession } from '../store/useCollabJoinerSession';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useThemeStore } from '../store/useThemeStore';
 import type { TimelineEvent, Mitigation, AppliedMitigation, LocalizedString, Phase, Label, PlanMemo } from '../types';
@@ -59,6 +60,11 @@ import { showToast } from './Toast';
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
     return 'id_' + Math.random().toString(36).substring(2, 9);
+}
+
+/** ⑤-3b: contentId 解決。SavedPlan 優先、無ければジョイナー一時セッションの値。 */
+export function resolveContentId(planContentId: string | null, joinerContentId: string | null): string | null {
+    return planContentId ?? joinerContentId ?? null;
 }
 
 
@@ -1163,7 +1169,9 @@ const Timeline: React.FC = () => {
     }, [currentPlanId]);
 
     const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
-    const currentContentId = currentPlan?.contentId ?? null;
+    // ⑤-3b: ジョイナー(SavedPlan 無し)は一時セッションの contentId にフォールバック。
+    const joinerContentId = useCollabJoinerSession(s => s.contentId);
+    const currentContentId = resolveContentId(currentPlan?.contentId ?? null, joinerContentId);
     const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
 
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
