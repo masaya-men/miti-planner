@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { joinerView } from "../CollabJoinerPage";
+import { joinerView, computeCanEdit } from "../CollabJoinerPage";
 
 describe("joinerView(状態 → 表示種別)", () => {
   it("未同期は connecting", () => {
@@ -16,5 +16,16 @@ describe("joinerView(状態 → 表示種別)", () => {
   });
   it("full は invalid/connecting より優先", () => {
     expect(joinerView({ synced: true, invalid: true, full: true })).toBe("full");
+  });
+});
+
+describe("computeCanEdit", () => {
+  it("ログイン && 同意 で true", () => {
+    expect(computeCanEdit(true, true)).toBe(true);
+  });
+  it("未ログイン or 未同意 は false", () => {
+    expect(computeCanEdit(false, true)).toBe(false);
+    expect(computeCanEdit(true, false)).toBe(false);
+    expect(computeCanEdit(false, false)).toBe(false);
   });
 });
