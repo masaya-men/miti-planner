@@ -23,7 +23,18 @@
         "error_generic": "操作に失敗しました。時間をおいて再度お試しください。",
         "joiner_connecting": "接続中…",
         "joiner_invalid": "この共同編集リンクは無効です。",
-        "joiner_full": "この部屋は満員です。"
+        "joiner_full": "この部屋は満員です。",
+        "consent_title": "一緒に編集する前に",
+        "consent_body_1": "これはあなたの表ではなく、共有された本物の表です。あなたの編集は参加者全員にリアルタイムで反映されます。",
+        "consent_body_2": "元に戻す機能はまだありません。固定メンバー内でだけ使い、内容をよく確認してから編集してください。",
+        "consent_accept": "同意して編集する",
+        "consent_cancel": "閲覧のみにする",
+        "banner_edit": "これは {{label}} の本物の表です。編集は全員に反映され、元に戻せません。",
+        "banner_edit_nolabel": "これは共有された本物の表です。編集は全員に反映され、元に戻せません。",
+        "banner_consent": "編集するには注意事項への同意が必要です。",
+        "banner_consent_cta": "同意して編集",
+        "banner_login": "閲覧のみです。編集するにはログインしてください。",
+        "banner_login_cta": "ログインして編集"
     },
     "common": {
         "cancel": "キャンセル",

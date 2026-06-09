@@ -23,7 +23,18 @@
         "error_generic": "작업에 실패했습니다. 잠시 후 다시 시도해 주세요.",
         "joiner_connecting": "연결 중…",
         "joiner_invalid": "이 공동 편집 링크는 유효하지 않습니다.",
-        "joiner_full": "이 방은 정원이 찼습니다."
+        "joiner_full": "이 방은 정원이 찼습니다.",
+        "consent_title": "함께 편집하기 전에",
+        "consent_body_1": "이것은 당신의 표가 아니라 공유된 실제 표입니다. 편집은 모든 참가자에게 실시간 반영됩니다.",
+        "consent_body_2": "아직 되돌리기 기능이 없습니다. 고정 멤버 안에서만 사용하고 내용을 확인한 뒤 편집하세요.",
+        "consent_accept": "동의하고 편집",
+        "consent_cancel": "보기 전용",
+        "banner_edit": "이것은 {{label}}의 실제 표입니다. 편집은 모두에게 반영되며 되돌릴 수 없습니다.",
+        "banner_edit_nolabel": "이것은 공유된 실제 표입니다. 편집은 모두에게 반영되며 되돌릴 수 없습니다.",
+        "banner_consent": "편집하려면 주의사항에 동의해야 합니다.",
+        "banner_consent_cta": "동의하고 편집",
+        "banner_login": "보기 전용입니다. 편집하려면 로그인하세요.",
+        "banner_login_cta": "로그인하고 편집"
     },
     "common": {
         "cancel": "취소",

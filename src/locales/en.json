@@ -23,7 +23,18 @@
         "error_generic": "Something went wrong. Please try again later.",
         "joiner_connecting": "Connecting…",
         "joiner_invalid": "This collaboration link is no longer valid.",
-        "joiner_full": "This room is full."
+        "joiner_full": "This room is full.",
+        "consent_title": "Before you edit together",
+        "consent_body_1": "This is not your plan — it's someone's real shared plan. Your edits apply to everyone in real time.",
+        "consent_body_2": "There is no undo yet. Use this only within your static group, and check carefully before editing.",
+        "consent_accept": "Agree and edit",
+        "consent_cancel": "View only",
+        "banner_edit": "This is {{label}}'s real plan. Edits apply to everyone and cannot be undone.",
+        "banner_edit_nolabel": "This is a real shared plan. Edits apply to everyone and cannot be undone.",
+        "banner_consent": "You must agree to the notice before editing.",
+        "banner_consent_cta": "Agree to edit",
+        "banner_login": "View only. Log in to edit.",
+        "banner_login_cta": "Log in to edit"
     },
     "common": {
         "cancel": "Cancel",

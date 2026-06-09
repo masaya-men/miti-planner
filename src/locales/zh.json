@@ -23,7 +23,18 @@
         "error_generic": "操作失败，请稍后再试。",
         "joiner_connecting": "连接中…",
         "joiner_invalid": "此协作链接已失效。",
-        "joiner_full": "此房间已满员。"
+        "joiner_full": "此房间已满员。",
+        "consent_title": "一起编辑之前",
+        "consent_body_1": "这不是你的表，而是共享的真实表。你的编辑会实时反映给所有参与者。",
+        "consent_body_2": "目前还没有撤销功能。请仅在固定队内使用，确认内容后再编辑。",
+        "consent_accept": "同意并编辑",
+        "consent_cancel": "仅查看",
+        "banner_edit": "这是 {{label}} 的真实表。编辑会反映给所有人，且无法撤销。",
+        "banner_edit_nolabel": "这是共享的真实表。编辑会反映给所有人，且无法撤销。",
+        "banner_consent": "编辑前需要同意注意事项。",
+        "banner_consent_cta": "同意并编辑",
+        "banner_login": "仅查看。登录后可编辑。",
+        "banner_login_cta": "登录并编辑"
     },
     "common": {
         "cancel": "取消",
