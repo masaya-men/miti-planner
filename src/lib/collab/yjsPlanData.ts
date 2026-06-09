@@ -93,8 +93,8 @@ export function applyReplace(arr: Y.Array<Y.Map<unknown>>, items: Array<{ id: st
 export interface BatchOp {
   kind: "upsert" | "remove" | "replace";
   key: PlanArrayKey;
-  /** id 必須・他フィールドは任意（各レコード型を横断するため open record で受ける）。 */
-  items?: Array<{ id: string } & Record<string, unknown>>;
+  /** id 必須・他フィールドは任意(PartyMember/AppliedMitigation/TimelineEvent 等を横断するため id だけ要求)。 */
+  items?: Array<{ id: string }>;
   ids?: string[];
 }
 

@@ -18,6 +18,7 @@ import {
 import { useTutorialStore } from './useTutorialStore';
 import { DEFAULT_NEW_MODE } from '../utils/mitigationResolver';
 import type { CollabHandlers } from '../lib/collab/collabTypes';
+import type { BatchOp } from '../lib/collab/yjsPlanData';
 
 export interface AASettings {
     damage: number;
@@ -241,6 +242,70 @@ function computeDefaultStatsMembers(
         const stats = m.role === 'tank' ? newDefaults.tank : newDefaults.other;
         return { ...m, stats: { ...stats }, computedValues: calculateMemberValues({ ...m, stats }, level) };
     });
+}
+
+/** ジョブ変更計算で参照する store の最小スライス。 */
+type PartyComputeSlice = Pick<MitigationState, 'partyMembers' | 'timelineMitigations' | 'timelineEvents' | 'currentLevel'>;
+
+/** setMemberJob のソロ計算。ジョブ変更 + 当該メンバーの mitigations フィルタ/移行/学者・占星の自動挿入。 */
+function computeSetMemberJob(
+    state: PartyComputeSlice,
+    memberId: string,
+    jobId: string | null,
+): { partyMembers: PartyMember[]; timelineMitigations: AppliedMitigation[] } {
+    const newMembers = state.partyMembers.map(m => {
+        if (m.id === memberId) {
+            const job = getJobsFromStore().find(j => j.id === jobId);
+            const newRole = job ? job.role : m.role;
+            let newStats = { ...m.stats };
+            if (job && job.role !== m.role) {
+                if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
+                else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
+                else newStats = { ...DEFAULT_HEALER_STATS };
+            }
+            const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
+            const computedValues = calculateMemberValues(updatedMember, state.currentLevel);
+            return { ...updatedMember, computedValues };
+        }
+        return m;
+    });
+
+    const filteredMitigations = state.timelineMitigations.reduce<AppliedMitigation[]>((acc, mit) => {
+        if (mit.ownerId !== memberId) { acc.push(mit); return acc; }
+        const def = getMitigationsFromStore().find(m => m.id === mit.mitigationId);
+        if (def?.jobId === jobId) { acc.push(mit); return acc; }
+        if (def && def.jobId !== jobId) {
+            const baseId = def.id.replace(`_${def.jobId}`, '');
+            const newId = `${baseId}_${jobId}`;
+            const newDef = getMitigationsFromStore().find(m => m.id === newId);
+            if (newDef && newDef.jobId === jobId) { acc.push({ ...mit, mitigationId: newId }); return acc; }
+        }
+        return acc;
+    }, []);
+
+    if (jobId === 'sch' && !hasAnyAetherflow(memberId, filteredMitigations)) {
+        filteredMitigations.push(...buildScholarAutoInserts(memberId, filteredMitigations, state.timelineEvents));
+    }
+    if (jobId === 'ast' && !hasAnyAstrologianDraw(memberId, filteredMitigations)) {
+        filteredMitigations.push(...buildAstrologianAutoInserts(memberId, filteredMitigations, state.timelineEvents));
+    }
+    return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
+}
+
+/** 1 メンバーのジョブ変更結果から batch ops を作る(partyMembers upsert + そのメンバーの mitigations 入替)。 */
+function memberJobBatchOps(
+    prevMitigations: AppliedMitigation[],
+    memberId: string,
+    next: { partyMembers: PartyMember[]; timelineMitigations: AppliedMitigation[] },
+): BatchOp[] {
+    const changedMember = next.partyMembers.find(m => m.id === memberId);
+    const oldIds = prevMitigations.filter(m => m.ownerId === memberId).map(m => m.id);
+    const newMits = next.timelineMitigations.filter(m => m.ownerId === memberId);
+    return [
+        { kind: 'upsert', key: 'partyMembers', items: changedMember ? [changedMember] : [] },
+        { kind: 'remove', key: 'timelineMitigations', ids: oldIds },
+        { kind: 'upsert', key: 'timelineMitigations', items: newMits },
+    ];
 }
 
 /**
@@ -1185,74 +1250,14 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 setMemberJob: (memberId, jobId) => {
+                    // ②-b-2: ジョブ変更カスケード(メンバー + その mitigations)を 1 batch で原子的に委譲。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const next = computeSetMemberJob(get(), memberId, jobId);
+                        get()._collabHandlers!.batch(memberJobBatchOps(get().timelineMitigations, memberId, next));
+                        return;
+                    }
                     pushHistory();
-                    set((state) => {
-                        const newMembers = state.partyMembers.map(m => {
-                            if (m.id === memberId) {
-                                const job = getJobsFromStore().find(j => j.id === jobId);
-                                const newRole = job ? job.role : m.role;
-                                let newStats = { ...m.stats };
-
-                                // If role changed, reset stats to default of new role
-                                if (job && job.role !== m.role) {
-                                    if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
-                                    else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
-                                    else newStats = { ...DEFAULT_HEALER_STATS };
-                                }
-
-                                const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
-                                const computedValues = calculateMemberValues(updatedMember, state.currentLevel);
-                                return { ...updatedMember, computedValues };
-                            }
-                            return m;
-                        });
-
-                        // Filter or Migrate Mitigations
-                        const filteredMitigations = state.timelineMitigations.reduce<AppliedMitigation[]>((acc, mit) => {
-                            // Keep mitigations owned by others
-                            if (mit.ownerId !== memberId) {
-                                acc.push(mit);
-                                return acc;
-                            }
-
-                            const def = getMitigationsFromStore().find(m => m.id === mit.mitigationId);
-
-                            // If exact match (job specific or shared if any), keep it
-                            if (def?.jobId === jobId) {
-                                acc.push(mit);
-                                return acc;
-                            }
-
-                            // Try to migrate Role Actions (e.g. rampart_gnb -> rampart_drk)
-                            if (def && def.jobId !== jobId) {
-                                const baseId = def.id.replace(`_${def.jobId}`, '');
-                                const newId = `${baseId}_${jobId}`;
-                                const newDef = getMitigationsFromStore().find(m => m.id === newId);
-
-                                if (newDef && newDef.jobId === jobId) {
-                                    // Migration successful
-                                    acc.push({ ...mit, mitigationId: newId });
-                                    return acc;
-                                }
-                            }
-
-                            // Otherwise filter out
-                            return acc;
-                        }, []);
-
-                        // Auto-insert Dissipation + Aetherflow for Scholar
-                        // 既に aetherflow を持っていればユーザー編集尊重でスキップ
-                        if (jobId === 'sch' && !hasAnyAetherflow(memberId, filteredMitigations)) {
-                            const inserts = buildScholarAutoInserts(memberId, filteredMitigations, state.timelineEvents);
-                            filteredMitigations.push(...inserts);
-                        }
-                        if (jobId === 'ast' && !hasAnyAstrologianDraw(memberId, filteredMitigations)) {
-                            const inserts = buildAstrologianAutoInserts(memberId, filteredMitigations, state.timelineEvents);
-                            filteredMitigations.push(...inserts);
-                        }
-
-                        return { partyMembers: newMembers, timelineMitigations: filteredMitigations };
-                    });
+                    set((state) => computeSetMemberJob(state, memberId, jobId));
                     // Tutorial: detect if 4 or 8 members are set
                     // (チュートリアルイベント削除済み: party:eight-set / party:four-set)
                 },

@@ -93,6 +93,9 @@ const member = (over: Record<string, unknown> = {}) => ({
   stats: { hp: 100, mainStat: 1, det: 1, crt: 1, ten: 1, ss: 1, wd: 1 },
   computedValues: { Rampart: 20 }, ...over,
 });
+const mit = (over: Record<string, unknown> = {}) => ({
+  id: "m1", mitigationId: "x", time: 1, duration: 2, ownerId: "MT", ...over,
+});
 
 describe("yjsPlanData applyReplace（全置換）", () => {
   it("既存を全消ししてから新配列を push する", () => {
@@ -110,7 +113,7 @@ describe("yjsPlanData applyBatch（複数キーを1 transaction）", () => {
     b.on("update", () => { updates++; });
     applyBatch(a, buildArrByKey(a), [
       { kind: "upsert", key: PARTY_MEMBERS_KEY, items: [member()] },
-      { kind: "replace", key: MITIGATIONS_KEY, items: [{ id: "m1", mitigationId: "x", time: 1, duration: 2, ownerId: "MT" }] },
+      { kind: "replace", key: MITIGATIONS_KEY, items: [mit()] },
     ]);
     expect(readArray(b, PARTY_MEMBERS_KEY)).toEqual([member()]);
     expect(readArray<{ id: string }>(b, MITIGATIONS_KEY).map((m) => m.id)).toEqual(["m1"]);
