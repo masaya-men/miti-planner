@@ -16,11 +16,11 @@ export default async function handler(req: any, res: any) {
   if (isCollabDisabled(process.env)) return res.status(200).json({ skipped: 'disabled' });
 
   const { planId: bodyPlanId, roomToken, mitigations,
-    timelineEvents, phases, labels, memos, currentLevel, aaSettings, schAetherflowPatterns } =
+    timelineEvents, phases, labels, memos, currentLevel, aaSettings, schAetherflowPatterns, partyMembers } =
     (req.body ?? {}) as {
       planId?: string; roomToken?: string; mitigations?: MitigationRecord[];
       timelineEvents?: unknown[]; phases?: unknown[]; labels?: unknown[]; memos?: unknown[];
-      currentLevel?: number; aaSettings?: unknown; schAetherflowPatterns?: unknown;
+      currentLevel?: number; aaSettings?: unknown; schAetherflowPatterns?: unknown; partyMembers?: unknown[];
     };
   if (!Array.isArray(mitigations)) {
     return res.status(400).json({ error: 'mitigations[] required' });
@@ -58,6 +58,7 @@ export default async function handler(req: any, res: any) {
     if (typeof currentLevel === 'number') update['data.currentLevel'] = currentLevel;
     if (aaSettings !== undefined) update['data.aaSettings'] = aaSettings;
     if (schAetherflowPatterns !== undefined) update['data.schAetherflowPatterns'] = schAetherflowPatterns;
+    if (Array.isArray(partyMembers)) update['data.partyMembers'] = partyMembers;
     tx.update(ref, update);
     return decision;
   });
