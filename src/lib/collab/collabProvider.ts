@@ -24,7 +24,10 @@ import type { CollabHandlers } from './collabTypes';
  */
 
 // 本番 collab Worker(段取り①でデプロイ済)。dev でもここに直接 WebSocket する(/api/* と同様)。
-const COLLAB_HOST = 'lopo-collab.masaya-maeno0106.workers.dev';
+// ローカル完全スタック検証(⑤-3d)用に VITE_COLLAB_HOST で上書き可能。
+// 本番は env 未設定 → ハードコード値にフォールバック(挙動無変更)。
+const COLLAB_HOST =
+  (import.meta.env.VITE_COLLAB_HOST as string | undefined) || 'lopo-collab.masaya-maeno0106.workers.dev';
 
 const SERAPH_DURATION = 22;
 
