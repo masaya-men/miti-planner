@@ -1564,6 +1564,8 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 restoreFromSnapshot: (snapshot: TutorialSnapshot) => {
+                    // ②-b-2: 共同編集中は部屋の seed が唯一の正。チュートリアル復元で無言 desync させない。
+                    if (get()._collabActive) return;
                     const currentLevel = get().currentLevel;
                     const membersWithComputed = snapshot.partyMembers.map((m: PartyMember) => ({
                         ...m,

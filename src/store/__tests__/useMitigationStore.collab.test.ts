@@ -413,3 +413,20 @@ describe('②-b-2 bulk mitigation 操作の委譲', () => {
     expect(useMitigationStore.getState().timelineMitigations.map((m) => m.id)).toEqual(['a1', 'a2']);
   });
 });
+
+describe('②-b-2 restoreFromSnapshot ガード', () => {
+  it('collab 中は restoreFromSnapshot が状態を変えない（no-op）', () => {
+    useMitigationStore.setState({
+      partyMembers: [{ id: 'MT', jobId: 'pld', role: 'tank', stats: { hp: 1, mainStat: 1, det: 1, crt: 1, ten: 1, ss: 1, wd: 1 }, computedValues: {} }] as any,
+      timelineEvents: [{ id: 'keep', time: 1, name: { ja: 'k' }, damageType: 'magical' }] as any,
+      _collabActive: false, _collabHandlers: null,
+    });
+    useMitigationStore.getState().enterCollabMode(mockHandlers());
+    const before = useMitigationStore.getState().timelineEvents;
+    useMitigationStore.getState().restoreFromSnapshot({
+      currentLevel: 100, timelineEvents: [], timelineMitigations: [], phases: [], labels: [],
+      partyMembers: [], myMemberId: null, myJobHighlight: false, hideEmptyRows: true,
+    } as any);
+    expect(useMitigationStore.getState().timelineEvents).toBe(before);
+  });
+});
