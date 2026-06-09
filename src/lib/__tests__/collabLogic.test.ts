@@ -3,6 +3,7 @@ import {
   isCollabAuthorized,
   decideLoad,
   decideSave,
+  decideLoadFull,
   COLLAB_SECRET_HEADER,
   type MitigationRecord,
 } from '../../../api/collab/_logic';
@@ -53,5 +54,40 @@ describe('decideSave', () => {
   it('live → ok + 次 version', () => {
     expect(decideSave({ version: 3 })).toEqual({ ok: true, nextVersion: 4 });
     expect(decideSave({})).toEqual({ ok: true, nextVersion: 1 }); // version 欠落は 0 扱い
+  });
+});
+
+describe('decideLoadFull (全PlanData seed)', () => {
+  const data = {
+    timelineMitigations: [m('a')],
+    timelineEvents: [{ id: 'e1', time: 30, name: { ja: '技' }, damageType: 'magical' }],
+    phases: [{ id: 'p1', name: { ja: 'P1' }, startTime: 0, endTime: 60 }],
+    labels: [],
+    memos: [],
+    currentLevel: 90,
+    aaSettings: { damage: 0, type: 'magical', target: 'MT' },
+    schAetherflowPatterns: { H2: 2 },
+    partyMembers: [{ id: 'MT', jobId: 'pld', role: 'tank', stats: { hp: 1, mainStat: 1, det: 1, crt: 1, ten: 1, ss: 1, wd: 1 }, computedValues: {} }],
+  };
+  it('存在しない/墓標 → deleted', () => {
+    expect(decideLoadFull(null)).toEqual({ deleted: true });
+    expect(decideLoadFull({ deleted: true, data })).toEqual({ deleted: true });
+  });
+  it('live → 全要素を返す(欠落配列は[]・スカラーはundefined)', () => {
+    expect(decideLoadFull({ data })).toEqual({
+      mitigations: data.timelineMitigations,
+      timelineEvents: data.timelineEvents,
+      phases: data.phases,
+      labels: [],
+      memos: [],
+      currentLevel: 90,
+      aaSettings: data.aaSettings,
+      schAetherflowPatterns: data.schAetherflowPatterns,
+      partyMembers: data.partyMembers,
+    });
+    expect(decideLoadFull({ data: {} })).toEqual({
+      mitigations: [], timelineEvents: [], phases: [], labels: [], memos: [],
+      currentLevel: undefined, aaSettings: undefined, schAetherflowPatterns: undefined, partyMembers: [],
+    });
   });
 });

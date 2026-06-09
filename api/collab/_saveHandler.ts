@@ -15,8 +15,13 @@ export default async function handler(req: any, res: any) {
   // 緊急停止: 止血中は書かない(skipped で DO の #saveEnabled を落とす)。
   if (isCollabDisabled(process.env)) return res.status(200).json({ skipped: 'disabled' });
 
-  const { planId: bodyPlanId, roomToken, mitigations } =
-    (req.body ?? {}) as { planId?: string; roomToken?: string; mitigations?: MitigationRecord[] };
+  const { planId: bodyPlanId, roomToken, mitigations,
+    timelineEvents, phases, labels, memos, currentLevel, aaSettings, schAetherflowPatterns, partyMembers } =
+    (req.body ?? {}) as {
+      planId?: string; roomToken?: string; mitigations?: MitigationRecord[];
+      timelineEvents?: unknown[]; phases?: unknown[]; labels?: unknown[]; memos?: unknown[];
+      currentLevel?: number; aaSettings?: unknown; schAetherflowPatterns?: unknown; partyMembers?: unknown[];
+    };
   if (!Array.isArray(mitigations)) {
     return res.status(400).json({ error: 'mitigations[] required' });
   }
@@ -39,11 +44,22 @@ export default async function handler(req: any, res: any) {
     const snap = await tx.get(ref);
     const decision = decideSave(snap.exists ? (snap.data() as PlanDocSnapshot) : null);
     if ('skip' in decision) return decision;
-    tx.update(ref, {
+    // mitigations/version/updatedAt は現行どおり。②-b-1: 送られた data.* だけ部分更新
+    // (Array.isArray/typeof ガードで「未送信フィールドは触らない」を保証。レガシー planId 経路でも安全)。
+    const update: Record<string, unknown> = {
       'data.timelineMitigations': mitigations,
       version: decision.nextVersion,
       updatedAt: FieldValue.serverTimestamp(),
-    });
+    };
+    if (Array.isArray(timelineEvents)) update['data.timelineEvents'] = timelineEvents;
+    if (Array.isArray(phases)) update['data.phases'] = phases;
+    if (Array.isArray(labels)) update['data.labels'] = labels;
+    if (Array.isArray(memos)) update['data.memos'] = memos;
+    if (typeof currentLevel === 'number') update['data.currentLevel'] = currentLevel;
+    if (aaSettings !== undefined) update['data.aaSettings'] = aaSettings;
+    if (schAetherflowPatterns !== undefined) update['data.schAetherflowPatterns'] = schAetherflowPatterns;
+    if (Array.isArray(partyMembers)) update['data.partyMembers'] = partyMembers;
+    tx.update(ref, update);
     return decision;
   });
 

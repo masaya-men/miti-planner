@@ -1,8 +1,8 @@
 import { YServer } from "y-partyserver";
 import type { Connection } from "partyserver";
 import * as Y from "yjs";
-import { buildSeedDoc, readMitigations } from "./yjsMitigations";
-import { fetchSeed, postMitigations } from "./collabPersistence";
+import { buildSeedDocFull, readPlanDataFull } from "./yjsPlanData";
+import { fetchSeedFull, postPlanData } from "./collabPersistence";
 import { resolveMaxParticipants, MAX_PARTICIPANTS_KEY } from "./collabCapacity";
 
 /**
@@ -43,13 +43,13 @@ export class Room extends YServer {
     // 永続化が未設定なら何もしない(②-a 相当の揮発モードにフォールバック)。
     // 本番では secret 設定漏れ時の暴発防止、テストでは外部 fetch を起こさない密閉性を担保。
     if (!APP_API_BASE || !COLLAB_SHARED_SECRET) return;
-    const seed = await fetchSeed(APP_API_BASE, COLLAB_SHARED_SECRET, this.name);
+    const seed = await fetchSeedFull(APP_API_BASE, COLLAB_SHARED_SECRET, this.name);
     if (seed) {
       this.#saveEnabled = true; // 正常 seed できた部屋だけ保存解禁
       // 上限値は hibernation で揮発するインスタンス変数でなく永続ストレージに置く
       // (接続が存在する間ずっと /count で参照されるため wake 後も復元が要る)。
       await this.ctx.storage.put(MAX_PARTICIPANTS_KEY, resolveMaxParticipants(seed.maxParticipants));
-      return buildSeedDoc(seed.mitigations);
+      return buildSeedDocFull(seed);
     }
     // null(墓標/不存在/障害): seed しない(空 Y.Doc のまま)。#saveEnabled は false で破壊保存を防ぐ。
     // max も書かない(/count は既定 8 を返す)。
@@ -59,11 +59,11 @@ export class Room extends YServer {
   async flushSave(): Promise<void> {
     if (!this.#saveEnabled) return;
     const { APP_API_BASE, COLLAB_SHARED_SECRET } = this.collabEnv;
-    const result = await postMitigations(
+    const result = await postPlanData(
       APP_API_BASE,
       COLLAB_SHARED_SECRET,
       this.name,
-      readMitigations(this.document),
+      readPlanDataFull(this.document),
     );
     if (result === "skipped") this.#saveEnabled = false;
     // 'error' は次の debounce / onClose flush で再試行(ベストエフォート)。
