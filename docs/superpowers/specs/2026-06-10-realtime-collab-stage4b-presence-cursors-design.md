@@ -151,14 +151,15 @@ room は最大 8 編集（フルパーティ）想定でフルメッシュ peer 
 ## 10. 実装の段取り（2 分割 — 既存 ②-b / ⑤-3 と同じ刻み）
 
 ### ④-b-1: roster（WS awareness）
-- `provider.awareness` に `PresenceState` を載せ、observe して store/ビューへ。
-- ツールバー常設チップ（⑤-3a で「● 共同編集中 · N人」+ **アバター置き場**を用意済み）を**本物の参加者アバター**にする。ホバー/クリックで参加者リスト（ジョブ・色・editor/viewer バッジ）。
-- ジョブ選択 UI（自己表現アイコン）+ 自動配色 + カーソル ON/OFF トグル。
-- **新トランスポートなし・全員に効く・低リスク**。これ単体でも「誰が一緒にいるか分かる」価値が立つ。
+- `provider.awareness` に `PresenceState` を載せ、observe して store/ビューへ。`PresenceState` は `jobId` / `cursorEnabled` フィールドも**最初から持つ**（b-2 で awareness を作り直さないため）が、b-1 では `jobId=null` / `cursorEnabled=true` 固定。
+- ツールバー常設チップ（⑤-3a で「● 共同編集中」+ **アバター置き場**を用意済み）を**実参加人数**にする。クリックでオーナーパネル→参加者リスト（色ドット + editor/viewer バッジ）。
+- **自動配色**（`colorForClient`・決定的）。
+- **新トランスポートなし・サーバ改修ゼロ・全員に効く・低リスク**。これ単体でも「誰が一緒にいるか分かる」価値が立つ。
 
-### ④-b-2: live カーソル（P2P）
+### ④-b-2: live カーソル（P2P）＋ 自己表現
 - §6 の spike → signaling 設置 + ライブラリ確定。
 - カーソル送受信（§8）+ 座標変換（§5）+ overlay 描画 + ease 補間。
+- **ジョブ自己選択 UI**（roster/カーソルのアイコン）+ **カーソル ON/OFF トグル**（カーソルが出て初めて意味を持つため b-2 に同梱。b-1 で定義済みの `jobId` / `cursorEnabled` フィールドを駆動する）。
 - TURN なしフォールバック（§6.3）。
 - **新依存追加**（y-webrtc 等 / または自前）。依存追加はユーザー確認の上で（[[feedback_fill_gaps]]）。
 
