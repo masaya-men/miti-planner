@@ -28,6 +28,13 @@ describe('resolveRoom', () => {
     expect(resolveRoom({ planId: 'p1' }))
       .toEqual({ ok: true, planId: 'p1', maxParticipants: DEFAULT_MAX_PARTICIPANTS });
   });
+  it('label がある部屋は解決結果に label を含める', () => {
+    expect(resolveRoom({ planId: 'p1', label: '土曜固定P' })).toMatchObject({ ok: true, planId: 'p1', label: '土曜固定P' });
+  });
+  it('label 未設定は label を持たない（undefined）', () => {
+    const r = resolveRoom({ planId: 'p1' });
+    expect(r.ok && r.label).toBeUndefined();
+  });
 });
 
 describe('clampMaxParticipants', () => {

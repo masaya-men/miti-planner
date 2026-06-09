@@ -13,10 +13,11 @@ export interface CollabRoomDoc {
   ownerId?: string;
   maxParticipants?: number;
   revoked?: boolean;
+  label?: string;
 }
 
 export type RoomResolution =
-  | { ok: true; planId: string; maxParticipants: number }
+  | { ok: true; planId: string; maxParticipants: number; label?: string }
   | { ok: false; reason: 'not-found' | 'revoked' };
 
 /** オーナー設定の最大人数を [1, SYSTEM_MAX] に丸める。未指定/非数は既定 8。小数は切り捨て。 */
@@ -34,7 +35,7 @@ export function resolveRoom(room: CollabRoomDoc | null): RoomResolution {
   if (!room) return { ok: false, reason: 'not-found' };
   if (room.revoked === true) return { ok: false, reason: 'revoked' };
   if (!room.planId) return { ok: false, reason: 'not-found' };
-  return { ok: true, planId: room.planId, maxParticipants: clampMaxParticipants(room.maxParticipants) };
+  return { ok: true, planId: room.planId, maxParticipants: clampMaxParticipants(room.maxParticipants), label: room.label };
 }
 
 /**

@@ -18,6 +18,7 @@ export default async function handler(req: any, res: any) {
   const roomToken = (req.query?.roomToken as string) ?? '';
   let planId: string;
   let maxParticipants: number | undefined;
+  let ownerLabel: string | undefined;
 
   if (roomToken) {
     const roomSnap = await db.collection('collabRooms').doc(roomToken).get();
@@ -25,6 +26,7 @@ export default async function handler(req: any, res: any) {
     if (!room.ok) return res.status(200).json({ deleted: true }); // 失効/不存在 → seed しない
     planId = room.planId;
     maxParticipants = room.maxParticipants;
+    ownerLabel = room.label;
   } else {
     planId = (req.query?.planId as string) ?? ''; // ②-a/③ レガシー経路
     if (!planId) return res.status(400).json({ error: 'roomToken or planId required' });
@@ -36,5 +38,5 @@ export default async function handler(req: any, res: any) {
   if ('deleted' in result) return res.status(200).json(result);
   // result は mitigations/timelineEvents/phases/labels/memos/currentLevel/aaSettings/schAetherflowPatterns を含む。
   // maxParticipants は roomToken 経路のみ付与(レガシーは undefined → JSON で省略・DO は無視可)。
-  return res.status(200).json({ ...result, maxParticipants });
+  return res.status(200).json({ ...result, maxParticipants, ownerLabel });
 }
