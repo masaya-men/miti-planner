@@ -67,6 +67,11 @@ export function resolveContentId(planContentId: string | null, joinerContentId: 
     return planContentId ?? joinerContentId ?? null;
 }
 
+/** ⑤-3b: ジョイナー読み取り専用か(部屋に参加中=編集不可)。roomToken があれば true。 */
+export function isJoinerReadonly(roomToken: string | null): boolean {
+    return roomToken !== null;
+}
+
 
 interface MitigationItemProps {
     mitigation: AppliedMitigation;
@@ -559,6 +564,13 @@ const Timeline: React.FC = () => {
         setMobileMenuOpen,
     } = useContext(MobileTriggersContext);
 
+    // ⑤-3b: ジョイナー読み取り専用。roomToken があれば全編集アフォーダンスを無効化/非表示。
+    // ref も保持し、宣言より前(ファイル上方)に定義された編集ハンドラからも deps なしで現在値を読む。
+    const joinerRoomToken = useCollabJoinerSession(s => s.roomToken);
+    const readOnly = isJoinerReadonly(joinerRoomToken);
+    const readOnlyRef = useRef(readOnly);
+    readOnlyRef.current = readOnly;
+
     // データ（useShallowで浅い比較 → 値が変わったときだけ再レンダー）
     const {
         aaSettings, partyMembers,
@@ -847,6 +859,7 @@ const Timeline: React.FC = () => {
     }, [timelineEvents, timelineMitigations]);
 
     const handleAutoPlan = useCallback(() => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         const executePlan = () => {
             const { timelineEvents, partyMembers, currentLevel } = useMitigationStore.getState();
             const result = generateAutoPlan(timelineEvents, partyMembers, currentLevel);
@@ -939,6 +952,7 @@ const Timeline: React.FC = () => {
 
     // メモ: InputBox の保存ハンドラ (新規 = addMemo、 編集 = updateMemo or 空文字で deleteMemo)
     const handleMemoSave = useCallback((text: string) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (!memoInput) return;
         const trimmed = text.trim();
         if (memoInput.editingId) {
@@ -972,18 +986,21 @@ const Timeline: React.FC = () => {
 
     // メモ: DnD 確定 (pointerup) → 座標更新 + Plan へ反映
     const handleMemoDragEnd = useCallback((id: string, coords: { timeSec: number; xRatio: number }) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         useMitigationStore.getState().updateMemo(id, coords);
         reflectMemosToPlan();
     }, [reflectMemosToPlan]);
 
     // メモ: 右クリック → 1 件削除 (確認なし、 spec §4.5 誤操作リスク低)
     const handleMemoDelete = useCallback((id: string) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         useMitigationStore.getState().deleteMemo(id);
         reflectMemosToPlan();
     }, [reflectMemosToPlan]);
 
     // メモ: 既存メモクリック → 編集モードで InputBox を開く
     const handleMemoClick = useCallback((memo: PlanMemo) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (!isMemoMode) return;
         const topPx = timeSecToY(memo.timeSec, timeToYMapRef.current);
         const leftPx = xRatioToPx(memo.xRatio, sheetWidth);
@@ -1303,6 +1320,7 @@ const Timeline: React.FC = () => {
     }, [timelineEvents]);
 
     const handleAddClick = useCallback((time: number, e: React.MouseEvent) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         e.stopPropagation();
 
         const currentClipboard = useMitigationStore.getState().clipboardEvent;
@@ -1343,6 +1361,7 @@ const Timeline: React.FC = () => {
     }, [isAaModeEnabled, eventsByTime]);
 
     const handlePhaseAdd = useCallback((time: number, e: React.MouseEvent) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         e.stopPropagation();
         // このtimeがどのフェーズに属するか判定
         const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
@@ -1360,6 +1379,7 @@ const Timeline: React.FC = () => {
     }, [phases]);
 
     const handlePhaseEdit = (phase: Phase, e: React.MouseEvent) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         e.stopPropagation();
         setPhaseModalPosition({ x: e.clientX, y: e.clientY });
         setSelectedPhase({ id: phase.id, name: phase.name, startTime: phase.startTime, endTime: phase.endTime });
@@ -1367,6 +1387,7 @@ const Timeline: React.FC = () => {
     };
 
     const handlePhaseSave = (name: LocalizedString, startTime?: number, endTime?: number) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (selectedPhase) {
             updatePhase(selectedPhase.id, name);
             if (startTime !== undefined) {
@@ -1383,6 +1404,7 @@ const Timeline: React.FC = () => {
     };
 
     const handlePhaseDelete = () => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (selectedPhase) {
             removePhase(selectedPhase.id);
             setIsPhaseModalOpen(false);
@@ -1391,6 +1413,7 @@ const Timeline: React.FC = () => {
 
     // ラベル追加・編集・削除
     const handleLabelAdd = useCallback((time: number, e: React.MouseEvent) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         e.stopPropagation();
         const sorted = [...labels].sort((a, b) => a.startTime - b.startTime);
         const ownerLabel = sorted.slice().reverse().find(l => l.startTime <= time);
@@ -1405,6 +1428,7 @@ const Timeline: React.FC = () => {
     }, [labels]);
 
     const handleLabelEdit = (label: Label, e: React.MouseEvent) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         e.stopPropagation();
         setLabelModalPosition({ x: e.clientX, y: e.clientY });
         setSelectedLabel({ id: label.id, name: label.name, startTime: label.startTime, endTime: label.endTime });
@@ -1412,6 +1436,7 @@ const Timeline: React.FC = () => {
     };
 
     const handleLabelSave = (name: LocalizedString, startTime?: number, endTime?: number) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (selectedLabel) {
             updateLabel(selectedLabel.id, name);
             if (startTime !== undefined) {
@@ -1428,6 +1453,7 @@ const Timeline: React.FC = () => {
     };
 
     const handleLabelDelete = () => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (selectedLabel) {
             removeLabel(selectedLabel.id);
             setIsLabelModalOpen(false);
@@ -1479,6 +1505,7 @@ const Timeline: React.FC = () => {
     };
 
     const handleSave = (eventData: Omit<TimelineEvent, 'id'>) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         const generateId = () => {
             if (typeof crypto !== 'undefined' && crypto.randomUUID) {
                 return crypto.randomUUID();
@@ -1512,6 +1539,7 @@ const Timeline: React.FC = () => {
     };
 
     const handleDelete = () => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (selectedEvent) {
             setConfirmDialog({
                 title: t('timeline.event_delete'),
@@ -1527,6 +1555,7 @@ const Timeline: React.FC = () => {
     };
 
     const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         // メモモード中は軽減配置選択を起動しない (= シート空白クリックでメモ作成に統一)
         if (useMitigationStore.getState().toolMode === 'memo') return;
         const member = useMitigationStore.getState().partyMembers.find(m => m.id === memberId);
@@ -1602,6 +1631,7 @@ const Timeline: React.FC = () => {
     }, []);
 
     const handleMitigationSelect = (mitigation: Mitigation & { _targetId?: string; _linkedMitigationId?: string }) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (!selectedMemberId) return;
 
         addMitigation({
@@ -1618,6 +1648,7 @@ const Timeline: React.FC = () => {
     };
 
     const handleJobIconClick = (memberId: string, e: React.MouseEvent) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         e.stopPropagation();
         setJobPickerPosition({ x: e.clientX, y: e.clientY });
         setJobPickerMemberId(memberId);
@@ -1626,6 +1657,7 @@ const Timeline: React.FC = () => {
 
     type MigrationMode = 'inherit' | 'common_only' | 'reset';
     const handleJobSelect = (jobId: string) => {
+        if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (jobPickerMemberId) {
             const targetMember = partyMembers.find(m => m.id === jobPickerMemberId);
             if (targetMember) {
@@ -1955,6 +1987,7 @@ const Timeline: React.FC = () => {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用は undo/redo ショートカット無効
             const tag = (e.target as HTMLElement)?.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
@@ -2314,10 +2347,10 @@ const Timeline: React.FC = () => {
                                 <Tooltip content={t('timeline.undo')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().undo()}
-                                        disabled={!canUndo}
+                                        disabled={!canUndo || readOnly}
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
-                                            canUndo
+                                            (canUndo && !readOnly)
                                                 ? "text-app-text hover:bg-app-surface2"
                                                 : "text-app-text-muted cursor-default"
                                         )}
@@ -2328,10 +2361,10 @@ const Timeline: React.FC = () => {
                                 <Tooltip content={t('timeline.redo')}>
                                     <button
                                         onClick={() => useMitigationStore.getState().redo()}
-                                        disabled={!canRedo}
+                                        disabled={!canRedo || readOnly}
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
-                                            canRedo
+                                            (canRedo && !readOnly)
                                                 ? "text-app-text hover:bg-app-surface2"
                                                 : "text-app-text-muted cursor-default"
                                         )}
@@ -2343,7 +2376,7 @@ const Timeline: React.FC = () => {
                                     <Tooltip content={t('timeline.clear_mitigations')}>
                                         <button
                                             ref={clearMenuButtonRef}
-                                            onClick={() => setClearMenuOpen(!clearMenuOpen)}
+                                            onClick={() => { if (readOnly) return; setClearMenuOpen(!clearMenuOpen); }}
                                             className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-app-text hover:bg-red-500/10 hover:text-red-400"
                                         >
                                             <Trash2 size={12} />
@@ -3065,8 +3098,8 @@ const Timeline: React.FC = () => {
                                                             key={mitigation.id}
                                                             mitigation={mitigation}
                                                             pixelsPerSecond={pixelsPerSecond}
-                                                            onRemove={mitigation.isVirtual ? () => { } : removeMitigation}
-                                                            onUpdateTime={mitigation.isVirtual ? () => { } : updateMitigationTime}
+                                                            onRemove={(mitigation.isVirtual || readOnly) ? () => { } : removeMitigation}
+                                                            onUpdateTime={(mitigation.isVirtual || readOnly) ? () => { } : updateMitigationTime}
                                                             top={top}
                                                             height={height}
                                                             recastHeight={mitigation.isVirtual ? 0 : calculatedRecastHeight}
@@ -3470,7 +3503,7 @@ const Timeline: React.FC = () => {
                     <div className="flex gap-2">
                         <button
                             onClick={() => useMitigationStore.getState().undo()}
-                            disabled={!canUndo}
+                            disabled={!canUndo || readOnly}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 "bg-app-surface2 border-app-border text-app-text"
@@ -3480,7 +3513,7 @@ const Timeline: React.FC = () => {
                         </button>
                         <button
                             onClick={() => useMitigationStore.getState().redo()}
-                            disabled={!canRedo}
+                            disabled={!canRedo || readOnly}
                             className={clsx(
                                 "px-3 py-2.5 rounded-xl border  cursor-pointer",
                                 "bg-app-surface2 border-app-border text-app-text"
