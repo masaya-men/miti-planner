@@ -308,6 +308,46 @@ function memberJobBatchOps(
     ];
 }
 
+/** changeMemberJobWithMitigations のソロ計算。ジョブ変更 + 引数 mitigations で上書き + 学者/占星補完。 */
+function computeChangeMemberJobWithMitigations(
+    state: PartyComputeSlice,
+    memberId: string,
+    jobId: string,
+    mitis: AppliedMitigation[],
+): { partyMembers: PartyMember[]; timelineMitigations: AppliedMitigation[] } {
+    const newMembers = state.partyMembers.map(m => {
+        if (m.id === memberId) {
+            const job = getJobsFromStore().find(j => j.id === jobId);
+            const newRole = job ? job.role : m.role;
+            let newStats = { ...m.stats };
+            if (job && job.role !== m.role) {
+                if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
+                else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
+                else newStats = { ...DEFAULT_HEALER_STATS };
+            }
+            const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
+            return { ...updatedMember, computedValues: calculateMemberValues(updatedMember, state.currentLevel) };
+        }
+        return m;
+    });
+
+    const otherMitigations = state.timelineMitigations.filter(m => m.ownerId !== memberId);
+    const finalMitis = [...mitis];
+    if (jobId === 'sch') {
+        const ownedMitis = finalMitis.map(m => ({ ...m, ownerId: memberId }));
+        if (!hasAnyAetherflow(memberId, ownedMitis)) {
+            finalMitis.push(...buildScholarAutoInserts(memberId, ownedMitis, state.timelineEvents));
+        }
+    }
+    if (jobId === 'ast') {
+        const ownedMitis = finalMitis.map(m => ({ ...m, ownerId: memberId }));
+        if (!hasAnyAstrologianDraw(memberId, ownedMitis)) {
+            finalMitis.push(...buildAstrologianAutoInserts(memberId, ownedMitis, state.timelineEvents));
+        }
+    }
+    return { partyMembers: newMembers, timelineMitigations: [...otherMitigations, ...finalMitis] };
+}
+
 /**
  * copiesShieldスキル（展開戦術等）の自動リンクを解決する。
  * - リンク先が有効ならそのまま
@@ -1263,48 +1303,14 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 changeMemberJobWithMitigations: (memberId, jobId, mitis) => {
+                    // ②-b-2: ジョブ変更 + その mitigations 上書きを 1 batch で原子的に委譲。
+                    if (get()._collabActive && get()._collabHandlers) {
+                        const next = computeChangeMemberJobWithMitigations(get(), memberId, jobId, mitis);
+                        get()._collabHandlers!.batch(memberJobBatchOps(get().timelineMitigations, memberId, next));
+                        return;
+                    }
                     pushHistory();
-                    set((state) => {
-                        // Update member job
-                        const newMembers = state.partyMembers.map(m => {
-                            if (m.id === memberId) {
-                                const job = getJobsFromStore().find(j => j.id === jobId);
-                                const newRole = job ? job.role : m.role;
-                                let newStats = { ...m.stats };
-                                if (job && job.role !== m.role) {
-                                    if (job.role === 'tank') newStats = { ...DEFAULT_TANK_STATS };
-                                    else if (job.role === 'healer') newStats = { ...DEFAULT_HEALER_STATS };
-                                    else newStats = { ...DEFAULT_HEALER_STATS };
-                                }
-                                const updatedMember = { ...m, jobId, role: newRole, stats: newStats };
-                                return { ...updatedMember, computedValues: calculateMemberValues(updatedMember, state.currentLevel) };
-                            }
-                            return m;
-                        });
-
-                        // Remove old mitigations for this member, and append the newly migrated ones
-                        const otherMitigations = state.timelineMitigations.filter(m => m.ownerId !== memberId);
-
-                        // Auto-insert Dissipation + Aetherflow for Scholar
-                        // 既に aetherflow を持っていればユーザー編集尊重でスキップ
-                        const finalMitis = [...mitis];
-                        if (jobId === 'sch') {
-                            const ownedMitis = finalMitis.map(m => ({ ...m, ownerId: memberId }));
-                            if (!hasAnyAetherflow(memberId, ownedMitis)) {
-                                const inserts = buildScholarAutoInserts(memberId, ownedMitis, state.timelineEvents);
-                                finalMitis.push(...inserts);
-                            }
-                        }
-                        if (jobId === 'ast') {
-                            const ownedMitis = finalMitis.map(m => ({ ...m, ownerId: memberId }));
-                            if (!hasAnyAstrologianDraw(memberId, ownedMitis)) {
-                                const inserts = buildAstrologianAutoInserts(memberId, ownedMitis, state.timelineEvents);
-                                finalMitis.push(...inserts);
-                            }
-                        }
-
-                        return { partyMembers: newMembers, timelineMitigations: [...otherMitigations, ...finalMitis] };
-                    });
+                    set((state) => computeChangeMemberJobWithMitigations(state, memberId, jobId, mitis));
                 },
 
                 updatePartyBulk: (updates) => {
