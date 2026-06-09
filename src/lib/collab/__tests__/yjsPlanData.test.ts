@@ -4,8 +4,8 @@ import type { TimelineEvent, Phase } from "../../../types";
 import {
   recordToYMap, yMapToRecord, indexOfById, readArray, applyUpsert, applyRemove,
   applyReplace, applyBatch, buildArrByKey,
-  readPlanMeta, setMetaField,
-  TIMELINE_EVENTS_KEY, PHASES_KEY, PLAN_META_KEY, META_LEVEL, META_AA, META_SCH,
+  readPlanMeta, setMetaField, readContentId,
+  TIMELINE_EVENTS_KEY, PHASES_KEY, PLAN_META_KEY, META_LEVEL, META_AA, META_SCH, META_CONTENT_ID,
   PARTY_MEMBERS_KEY, MITIGATIONS_KEY,
 } from "../yjsPlanData";
 
@@ -85,6 +85,12 @@ describe("yjsPlanData planMeta(スカラー・フィールド単位後勝ち)", 
     const doc = new Y.Doc();
     doc.getMap(PLAN_META_KEY); // ensure exists
     expect(readPlanMeta(doc)).toEqual({ currentLevel: undefined, aaSettings: undefined, schAetherflowPatterns: undefined });
+  });
+  it("readContentId は planMeta の contentId を読む(未設定は undefined)", () => {
+    const a = new Y.Doc(), b = new Y.Doc(); bridge(a, b);
+    setMetaField(a, META_CONTENT_ID, "m4s");
+    expect(readContentId(b)).toBe("m4s");
+    expect(readContentId(new Y.Doc())).toBeUndefined();
   });
 });
 

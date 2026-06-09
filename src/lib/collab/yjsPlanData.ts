@@ -16,6 +16,8 @@ export const PLAN_META_KEY = "planMeta";
 export const META_LEVEL = "currentLevel";
 export const META_AA = "aaSettings";
 export const META_SCH = "schAetherflowPatterns";
+// ⑤-3b: ボス/コンテンツ識別子。seed のみ(save には載らない＝オーナーの不変属性を書き戻さない)。
+export const META_CONTENT_ID = "contentId";
 
 /** 配列同期キーの型（events/phases/labels/memos + ②-b-2 で partyMembers/timelineMitigations）。 */
 export type PlanArrayKey =
@@ -139,6 +141,11 @@ export function readPlanMeta(doc: Y.Doc): PlanMetaSlice {
     aaSettings: meta.get(META_AA) as AASettings | undefined,
     schAetherflowPatterns: meta.get(META_SCH) as Record<string, 1 | 2> | undefined,
   };
+}
+
+/** seed された contentId(不変・ジョイナーが描画に使う)。save には載らない。 */
+export function readContentId(doc: Y.Doc): string | undefined {
+  return doc.getMap(PLAN_META_KEY).get(META_CONTENT_ID) as string | undefined;
 }
 
 /** 型エクスポート(consumer の参照用)。 */
