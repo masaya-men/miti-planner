@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as Y from "yjs";
 import { useMitigationStore } from "../../../store/useMitigationStore";
 import { applyRoomToStore } from "../collabProvider";
-import { setMetaField, META_CONTENT_ID } from "../yjsPlanData";
+import { setMetaField, META_CONTENT_ID, META_OWNER_LABEL } from "../yjsPlanData";
 
 describe("applyRoomToStore(読み取り専用 sync 反映)", () => {
   beforeEach(() => useMitigationStore.setState({ _collabActive: false, _collabHandlers: null, timelineMitigations: [] }));
@@ -30,5 +30,13 @@ describe("applyRoomToStore(読み取り専用 sync 反映)", () => {
     const onContentId = vi.fn();
     applyRoomToStore(doc, { readOnly: true, handlers: {} as any, onContentId });
     expect(onContentId).toHaveBeenCalledWith("m4s");
+  });
+
+  it("ownerLabel を planMeta から読みコールバックに渡す", () => {
+    const doc = new Y.Doc();
+    setMetaField(doc, META_OWNER_LABEL, "土曜固定P");
+    const onOwnerLabel = vi.fn();
+    applyRoomToStore(doc, { readOnly: true, handlers: {} as any, onOwnerLabel });
+    expect(onOwnerLabel).toHaveBeenCalledWith("土曜固定P");
   });
 });

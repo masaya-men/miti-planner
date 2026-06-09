@@ -4,8 +4,8 @@ import type { TimelineEvent, Phase } from "../../../types";
 import {
   recordToYMap, yMapToRecord, indexOfById, readArray, applyUpsert, applyRemove,
   applyReplace, applyBatch, buildArrByKey,
-  readPlanMeta, setMetaField, readContentId,
-  TIMELINE_EVENTS_KEY, PHASES_KEY, PLAN_META_KEY, META_LEVEL, META_AA, META_SCH, META_CONTENT_ID,
+  readPlanMeta, setMetaField, readContentId, readOwnerLabel,
+  TIMELINE_EVENTS_KEY, PHASES_KEY, PLAN_META_KEY, META_LEVEL, META_AA, META_SCH, META_CONTENT_ID, META_OWNER_LABEL,
   PARTY_MEMBERS_KEY, MITIGATIONS_KEY,
 } from "../yjsPlanData";
 
@@ -91,6 +91,12 @@ describe("yjsPlanData planMeta(スカラー・フィールド単位後勝ち)", 
     setMetaField(a, META_CONTENT_ID, "m4s");
     expect(readContentId(b)).toBe("m4s");
     expect(readContentId(new Y.Doc())).toBeUndefined();
+  });
+  it("readOwnerLabel は planMeta の ownerLabel を読む（未設定は undefined）", () => {
+    const a = new Y.Doc(), b = new Y.Doc(); bridge(a, b);
+    setMetaField(a, META_OWNER_LABEL, "土曜固定P");
+    expect(readOwnerLabel(b)).toBe("土曜固定P");
+    expect(readOwnerLabel(new Y.Doc())).toBeUndefined();
   });
 });
 

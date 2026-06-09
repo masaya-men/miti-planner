@@ -18,6 +18,8 @@ export const META_AA = "aaSettings";
 export const META_SCH = "schAetherflowPatterns";
 // ⑤-3b: ボス/コンテンツ識別子。seed のみ(save には載らない＝オーナーの不変属性を書き戻さない)。
 export const META_CONTENT_ID = "contentId";
+// ⑤-3c: オーナー設定の部屋ラベル。seed のみ(save には載らない)。
+export const META_OWNER_LABEL = "ownerLabel";
 
 /** 配列同期キーの型（events/phases/labels/memos + ②-b-2 で partyMembers/timelineMitigations）。 */
 export type PlanArrayKey =
@@ -146,6 +148,11 @@ export function readPlanMeta(doc: Y.Doc): PlanMetaSlice {
 /** seed された contentId(不変・ジョイナーが描画に使う)。save には載らない。 */
 export function readContentId(doc: Y.Doc): string | undefined {
   return doc.getMap(PLAN_META_KEY).get(META_CONTENT_ID) as string | undefined;
+}
+
+/** seed された ownerLabel(オーナー設定の部屋ラベル・バナー表示用)。save には載らない。 */
+export function readOwnerLabel(doc: Y.Doc): string | undefined {
+  return doc.getMap(PLAN_META_KEY).get(META_OWNER_LABEL) as string | undefined;
 }
 
 /** 型エクスポート(consumer の参照用)。 */

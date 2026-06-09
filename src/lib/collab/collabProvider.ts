@@ -6,7 +6,7 @@ import { appliedToYMap, readMitigations, indexOfMitigation, YJS_MITIGATIONS_KEY 
 import {
   TIMELINE_EVENTS_KEY, PHASES_KEY, LABELS_KEY, MEMOS_KEY, PLAN_META_KEY,
   META_LEVEL, META_AA, META_SCH, PARTY_MEMBERS_KEY,
-  applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta, readContentId,
+  applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta, readContentId, readOwnerLabel,
   recordToYMap, buildArrByKey, applyBatch,
 } from './yjsPlanData';
 import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember } from '../../types';
@@ -71,7 +71,7 @@ function dissipationIdsOverlapping(
  */
 export function applyRoomToStore(
   doc: Y.Doc,
-  opts: { readOnly: boolean; handlers: CollabHandlers; onContentId?: (id: string | undefined) => void },
+  opts: { readOnly: boolean; handlers: CollabHandlers; onContentId?: (id: string | undefined) => void; onOwnerLabel?: (label: string | undefined) => void },
 ): void {
   if (!opts.readOnly) {
     useMitigationStore.getState().enterCollabMode(opts.handlers);
@@ -85,6 +85,7 @@ export function applyRoomToStore(
   s._applyPartyMembersFromCollab(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY));
   s._applyMetaFromCollab(readPlanMeta(doc));
   opts.onContentId?.(readContentId(doc));
+  opts.onOwnerLabel?.(readOwnerLabel(doc));
 }
 
 /**
@@ -94,7 +95,7 @@ export function applyRoomToStore(
  */
 export function startCollabSession(
   roomToken: string,
-  opts: { readOnly?: boolean; onContentId?: (id: string | undefined) => void } = {},
+  opts: { readOnly?: boolean; onContentId?: (id: string | undefined) => void; onOwnerLabel?: (label: string | undefined) => void } = {},
 ): CollabSession {
   const doc = new Y.Doc();
   const provider = new YProvider(COLLAB_HOST, roomToken, doc, { party: 'room', connect: true });
@@ -216,7 +217,7 @@ export function startCollabSession(
     if (!isSynced || entered) return;
     entered = true;
     // ②-b-1/②-b-2 の全要素初期反映 + ⑤-3b の readOnly 分岐 + contentId seed 取得を 1 箇所に集約。
-    applyRoomToStore(doc, { readOnly, handlers, onContentId: opts.onContentId });
+    applyRoomToStore(doc, { readOnly, handlers, onContentId: opts.onContentId, onOwnerLabel: opts.onOwnerLabel });
   };
   provider.on('sync', onSynced);
 
