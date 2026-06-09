@@ -3,6 +3,7 @@
     { "source": "/api/collab/load", "destination": "/api/collab?action=load" },
     { "source": "/api/collab/save", "destination": "/api/collab?action=save" },
     { "source": "/api/collab/room", "destination": "/api/collab?action=room" },
+    { "source": "/api/collab/verify", "destination": "/api/collab?action=verify" },
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/share/:id", "destination": "/api/share?type=page&id=:id" },
     { "source": "/og/:hash.png", "destination": "/api/og-cache?h=:hash" },
