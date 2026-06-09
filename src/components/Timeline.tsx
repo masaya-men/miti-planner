@@ -67,9 +67,9 @@ export function resolveContentId(planContentId: string | null, joinerContentId: 
     return planContentId ?? joinerContentId ?? null;
 }
 
-/** ⑤-3b: ジョイナー読み取り専用か(部屋に参加中=編集不可)。roomToken があれば true。 */
-export function isJoinerReadonly(roomToken: string | null): boolean {
-    return roomToken !== null;
+/** ⑤-3b/⑤-3c: ジョイナー読み取り専用か(部屋参加中 && 編集不可)。canEdit なら編集可＝false。 */
+export function isJoinerReadonly(roomToken: string | null, canEdit: boolean): boolean {
+    return roomToken !== null && !canEdit;
 }
 
 
@@ -567,7 +567,8 @@ const Timeline: React.FC = () => {
     // ⑤-3b: ジョイナー読み取り専用。roomToken があれば全編集アフォーダンスを無効化/非表示。
     // ref も保持し、宣言より前(ファイル上方)に定義された編集ハンドラからも deps なしで現在値を読む。
     const joinerRoomToken = useCollabJoinerSession(s => s.roomToken);
-    const readOnly = isJoinerReadonly(joinerRoomToken);
+    const joinerCanEdit = useCollabJoinerSession(s => s.canEdit);
+    const readOnly = isJoinerReadonly(joinerRoomToken, joinerCanEdit);
     const readOnlyRef = useRef(readOnly);
     readOnlyRef.current = readOnly;
 
