@@ -47,6 +47,7 @@ describe('OwnerCollabPanel', () => {
     useCollabSessionStore.setState({ reissue } as any);
     render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
     fireEvent.click(screen.getByText('collab.reissue'));
-    expect(reissue).toHaveBeenCalledWith('plan1');
+    // ⑤-3c: ラベル入力欄が空のときは空文字を渡す(store/API 側で空は未設定に正規化)。
+    expect(reissue).toHaveBeenCalledWith('plan1', '');
   });
 });

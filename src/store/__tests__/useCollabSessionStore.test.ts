@@ -38,7 +38,8 @@ describe('useCollabSessionStore', () => {
 
     await useCollabSessionStore.getState().start('plan1');
 
-    expect(createRoom).toHaveBeenCalledWith('plan1');
+    // ⑤-3c: start は label を任意で受け、createRoom(planId, max?, label?) に渡す(未指定は undefined)。
+    expect(createRoom).toHaveBeenCalledWith('plan1', undefined, undefined);
     expect(startCollabSession).toHaveBeenCalledWith('tok');
     const s = useCollabSessionStore.getState();
     expect(s.active).toBe(true);
@@ -82,7 +83,8 @@ describe('useCollabSessionStore', () => {
     await useCollabSessionStore.getState().reissue('plan1');
 
     expect(oldSess.disconnect).toHaveBeenCalled();
-    expect(reissueRoom).toHaveBeenCalledWith('plan1');
+    // ⑤-3c: reissue は label を任意で受け、reissueRoom(planId, label?) に渡す(未指定は undefined)。
+    expect(reissueRoom).toHaveBeenCalledWith('plan1', undefined);
     expect(startCollabSession).toHaveBeenCalledWith('new');
     const s = useCollabSessionStore.getState();
     expect(s.roomToken).toBe('new');
