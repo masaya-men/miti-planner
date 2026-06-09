@@ -1,6 +1,9 @@
 # 管理者リファレンス（秘密鍵情報を含むため非公開）
 ADMIN_REFERENCE.md
 
+# TypeScript incremental build cache（ビルド成果物）
+*.tsbuildinfo
+
 # Private docs (monetization strategy etc. — local only)
 docs/.private/
 

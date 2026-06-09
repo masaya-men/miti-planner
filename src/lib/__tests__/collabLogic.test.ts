@@ -67,6 +67,7 @@ describe('decideLoadFull (全PlanData seed)', () => {
     currentLevel: 90,
     aaSettings: { damage: 0, type: 'magical', target: 'MT' },
     schAetherflowPatterns: { H2: 2 },
+    partyMembers: [{ id: 'MT', jobId: 'pld', role: 'tank', stats: { hp: 1, mainStat: 1, det: 1, crt: 1, ten: 1, ss: 1, wd: 1 }, computedValues: {} }],
   };
   it('存在しない/墓標 → deleted', () => {
     expect(decideLoadFull(null)).toEqual({ deleted: true });
@@ -82,10 +83,11 @@ describe('decideLoadFull (全PlanData seed)', () => {
       currentLevel: 90,
       aaSettings: data.aaSettings,
       schAetherflowPatterns: data.schAetherflowPatterns,
+      partyMembers: data.partyMembers,
     });
     expect(decideLoadFull({ data: {} })).toEqual({
       mitigations: [], timelineEvents: [], phases: [], labels: [], memos: [],
-      currentLevel: undefined, aaSettings: undefined, schAetherflowPatterns: undefined,
+      currentLevel: undefined, aaSettings: undefined, schAetherflowPatterns: undefined, partyMembers: [],
     });
   });
 });

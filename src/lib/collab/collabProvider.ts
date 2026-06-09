@@ -5,11 +5,11 @@ import { getMitigationsFromStore } from '../../hooks/useSkillsData';
 import { appliedToYMap, readMitigations, indexOfMitigation, YJS_MITIGATIONS_KEY } from './yjsMitigations';
 import {
   TIMELINE_EVENTS_KEY, PHASES_KEY, LABELS_KEY, MEMOS_KEY, PLAN_META_KEY,
-  META_LEVEL, META_AA, META_SCH,
+  META_LEVEL, META_AA, META_SCH, PARTY_MEMBERS_KEY,
   applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta,
-  recordToYMap, type PlanArrayKey,
+  recordToYMap, buildArrByKey, applyBatch,
 } from './yjsPlanData';
-import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo } from '../../types';
+import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember } from '../../types';
 import type { CollabHandlers } from './collabTypes';
 
 /**
@@ -77,10 +77,10 @@ export function startCollabSession(planId: string): CollabSession {
   const yPhases = doc.getArray<Y.Map<unknown>>(PHASES_KEY);
   const yLabels = doc.getArray<Y.Map<unknown>>(LABELS_KEY);
   const yMemos = doc.getArray<Y.Map<unknown>>(MEMOS_KEY);
+  const yPartyMembers = doc.getArray<Y.Map<unknown>>(PARTY_MEMBERS_KEY);
   const yMeta = doc.getMap(PLAN_META_KEY);
-  const arrByKey: Record<PlanArrayKey, Y.Array<Y.Map<unknown>>> = {
-    [TIMELINE_EVENTS_KEY]: yEvents, [PHASES_KEY]: yPhases, [LABELS_KEY]: yLabels, [MEMOS_KEY]: yMemos,
-  };
+  // ②-b-2: 全 PlanArrayKey(partyMembers/timelineMitigations 含む)の対応表を共有ヘルパで生成。
+  const arrByKey = buildArrByKey(doc);
 
   // Yjs → store。自分の操作も相手の操作も同じ observeDeep 経路で store に入る(単一の真実 = Y.Doc)。
   // Y.Map 内フィールド変更(time の set 等)も拾うため observe ではなく observeDeep。
@@ -95,11 +95,13 @@ export function startCollabSession(planId: string): CollabSession {
   const applyLabels = () => store()._applyLabelsFromCollab(readArray<Label>(doc, LABELS_KEY));
   const applyMemos = () => store()._applyMemosFromCollab(readArray<PlanMemo>(doc, MEMOS_KEY));
   const applyMeta = () => store()._applyMetaFromCollab(readPlanMeta(doc));
+  const applyPartyMembers = () => store()._applyPartyMembersFromCollab(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY));
   yEvents.observeDeep(applyEvents);
   yPhases.observeDeep(applyPhases);
   yLabels.observeDeep(applyLabels);
   yMemos.observeDeep(applyMemos);
   yMeta.observeDeep(applyMeta);
+  yPartyMembers.observeDeep(applyPartyMembers);
 
   // store → Yjs(共同編集中の add/remove/updateTime はここへ委譲される)。
   const handlers: CollabHandlers = {
@@ -172,6 +174,8 @@ export function startCollabSession(planId: string): CollabSession {
         yarr.delete(0, yarr.length); // ②-a 領域だが破壊的全置換で衝突しない(設計書 §8)
       }, 'local');
     },
+    // ②-b-2: 複数キーを 1 transaction で原子的に反映(ジョブ変更カスケード等)。
+    batch: (ops) => applyBatch(doc, arrByKey, ops),
   };
 
   // 初期同期完了後に入室処理。
@@ -184,8 +188,8 @@ export function startCollabSession(planId: string): CollabSession {
     entered = true;
     useMitigationStore.getState().enterCollabMode(handlers);
     useMitigationStore.getState()._applyMitigationsFromCollab(readMitigations(doc));
-    // ②-b-1: 残り全要素も初期反映。
-    applyEvents(); applyPhases(); applyLabels(); applyMemos(); applyMeta();
+    // ②-b-1/②-b-2: 残り全要素も初期反映(partyMembers は meta より前＝meta の currentLevel 再計算が同期済みメンバーを読むため)。
+    applyEvents(); applyPhases(); applyLabels(); applyMemos(); applyPartyMembers(); applyMeta();
   };
   provider.on('sync', onSynced);
 
@@ -197,6 +201,7 @@ export function startCollabSession(planId: string): CollabSession {
     yLabels.unobserveDeep(applyLabels);
     yMemos.unobserveDeep(applyMemos);
     yMeta.unobserveDeep(applyMeta);
+    yPartyMembers.unobserveDeep(applyPartyMembers);
     useMitigationStore.getState().exitCollabMode();
     provider.destroy();
     doc.destroy();

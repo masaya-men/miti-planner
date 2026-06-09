@@ -6,6 +6,10 @@ export const TIMELINE_EVENTS_KEY = "timelineEvents";
 export const PHASES_KEY = "phases";
 export const LABELS_KEY = "labels";
 export const MEMOS_KEY = "memos";
+/** ②-b-2: パーティ編成の Y.Array キー（events 等と並ぶトップレベル）。 */
+export const PARTY_MEMBERS_KEY = "partyMembers";
+/** ②-b-2: mitigations Y.Array キー（②-a の YJS_MITIGATIONS_KEY と同値。汎用 batch 経路で使う）。 */
+export const MITIGATIONS_KEY = "timelineMitigations";
 export const PLAN_META_KEY = "planMeta";
 
 /** planMeta(Y.Map)内のスカラーキー。 */
@@ -13,9 +17,10 @@ export const META_LEVEL = "currentLevel";
 export const META_AA = "aaSettings";
 export const META_SCH = "schAetherflowPatterns";
 
-/** 配列同期キーの型(events/phases/labels/memos)。 */
+/** 配列同期キーの型（events/phases/labels/memos + ②-b-2 で partyMembers/timelineMitigations）。 */
 export type PlanArrayKey =
-  | typeof TIMELINE_EVENTS_KEY | typeof PHASES_KEY | typeof LABELS_KEY | typeof MEMOS_KEY;
+  | typeof TIMELINE_EVENTS_KEY | typeof PHASES_KEY | typeof LABELS_KEY | typeof MEMOS_KEY
+  | typeof PARTY_MEMBERS_KEY | typeof MITIGATIONS_KEY;
 
 /** AASettings 型(PlanData.aaSettings 相当・store の setAaSettings と同一)。 */
 export interface AASettings {
@@ -76,6 +81,49 @@ export function applyRemove(arr: Y.Array<Y.Map<unknown>>, ids: string[]): void {
     const idx = indexOfById(arr, id);
     if (idx >= 0) arr.delete(idx, 1);
   }
+}
+
+/** 全置換: 既存要素を全消去してから items を push（bulk 操作・原子性は呼び出し側の transact が担保）。 */
+export function applyReplace(arr: Y.Array<Y.Map<unknown>>, items: Array<{ id: string }>): void {
+  if (arr.length > 0) arr.delete(0, arr.length);
+  for (const item of items) arr.push([recordToYMap(item)]);
+}
+
+/** batch ハンドラの 1 操作。upsert/remove/replace を任意キーへ。 */
+export interface BatchOp {
+  kind: "upsert" | "remove" | "replace";
+  key: PlanArrayKey;
+  /** id 必須・他フィールドは任意(PartyMember/AppliedMitigation/TimelineEvent 等を横断するため id だけ要求)。 */
+  items?: Array<{ id: string }>;
+  ids?: string[];
+}
+
+/** Y.Doc の全 PlanArrayKey → Y.Array の対応表（collabProvider と test で共有）。 */
+export function buildArrByKey(doc: Y.Doc): Record<PlanArrayKey, Y.Array<Y.Map<unknown>>> {
+  return {
+    [TIMELINE_EVENTS_KEY]: doc.getArray<Y.Map<unknown>>(TIMELINE_EVENTS_KEY),
+    [PHASES_KEY]: doc.getArray<Y.Map<unknown>>(PHASES_KEY),
+    [LABELS_KEY]: doc.getArray<Y.Map<unknown>>(LABELS_KEY),
+    [MEMOS_KEY]: doc.getArray<Y.Map<unknown>>(MEMOS_KEY),
+    [PARTY_MEMBERS_KEY]: doc.getArray<Y.Map<unknown>>(PARTY_MEMBERS_KEY),
+    [MITIGATIONS_KEY]: doc.getArray<Y.Map<unknown>>(MITIGATIONS_KEY),
+  };
+}
+
+/** 複数キーの操作を 1 つの doc.transact（origin='local'）で原子的に適用する。 */
+export function applyBatch(
+  doc: Y.Doc,
+  arrByKey: Record<PlanArrayKey, Y.Array<Y.Map<unknown>>>,
+  ops: BatchOp[],
+): void {
+  doc.transact(() => {
+    for (const op of ops) {
+      const arr = arrByKey[op.key];
+      if (op.kind === "upsert") applyUpsert(arr, op.items ?? []);
+      else if (op.kind === "remove") applyRemove(arr, op.ids ?? []);
+      else applyReplace(arr, op.items ?? []);
+    }
+  }, "local");
 }
 
 /** planMeta の 1 フィールドを set。 */

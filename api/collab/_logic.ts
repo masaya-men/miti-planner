@@ -70,6 +70,7 @@ export interface PlanDocSnapshotFull {
     currentLevel?: number;
     aaSettings?: unknown;
     schAetherflowPatterns?: unknown;
+    partyMembers?: unknown[];
   };
 }
 
@@ -84,6 +85,7 @@ export type LoadResultFull =
       currentLevel?: number;
       aaSettings?: unknown;
       schAetherflowPatterns?: unknown;
+      partyMembers: unknown[];
     };
 
 /** 全 b-1 要素の seed を決める。墓標/不存在は deleted(削除が勝つ)。配列欠落は []、スカラー欠落は undefined。 */
@@ -99,5 +101,6 @@ export function decideLoadFull(plan: PlanDocSnapshotFull | null): LoadResultFull
     currentLevel: d.currentLevel,
     aaSettings: d.aaSettings,
     schAetherflowPatterns: d.schAetherflowPatterns,
+    partyMembers: d.partyMembers ?? [],
   };
 }

@@ -3,8 +3,10 @@ import * as Y from "yjs";
 import type { TimelineEvent, Phase } from "../../../types";
 import {
   recordToYMap, yMapToRecord, indexOfById, readArray, applyUpsert, applyRemove,
+  applyReplace, applyBatch, buildArrByKey,
   readPlanMeta, setMetaField,
   TIMELINE_EVENTS_KEY, PHASES_KEY, PLAN_META_KEY, META_LEVEL, META_AA, META_SCH,
+  PARTY_MEMBERS_KEY, MITIGATIONS_KEY,
 } from "../yjsPlanData";
 
 function bridge(a: Y.Doc, b: Y.Doc) {
@@ -83,5 +85,51 @@ describe("yjsPlanData planMeta(スカラー・フィールド単位後勝ち)", 
     const doc = new Y.Doc();
     doc.getMap(PLAN_META_KEY); // ensure exists
     expect(readPlanMeta(doc)).toEqual({ currentLevel: undefined, aaSettings: undefined, schAetherflowPatterns: undefined });
+  });
+});
+
+const member = (over: Record<string, unknown> = {}) => ({
+  id: "MT", jobId: "pld", role: "tank",
+  stats: { hp: 100, mainStat: 1, det: 1, crt: 1, ten: 1, ss: 1, wd: 1 },
+  computedValues: { Rampart: 20 }, ...over,
+});
+const mit = (over: Record<string, unknown> = {}) => ({
+  id: "m1", mitigationId: "x", time: 1, duration: 2, ownerId: "MT", ...over,
+});
+
+describe("yjsPlanData applyReplace（全置換）", () => {
+  it("既存を全消ししてから新配列を push する", () => {
+    const a = new Y.Doc(), b = new Y.Doc(); bridge(a, b);
+    applyUpsert(a.getArray(PHASES_KEY), [ph({ id: "old" })]);
+    applyReplace(a.getArray(PHASES_KEY), [ph({ id: "n1" }), ph({ id: "n2" })]);
+    expect(readArray<Phase>(b, PHASES_KEY).map((p) => p.id)).toEqual(["n1", "n2"]);
+  });
+});
+
+describe("yjsPlanData applyBatch（複数キーを1 transaction）", () => {
+  it("partyMembers upsert と timelineMitigations replace を1更新で適用", () => {
+    const a = new Y.Doc(), b = new Y.Doc(); bridge(a, b);
+    let updates = 0;
+    b.on("update", () => { updates++; });
+    applyBatch(a, buildArrByKey(a), [
+      { kind: "upsert", key: PARTY_MEMBERS_KEY, items: [member()] },
+      { kind: "replace", key: MITIGATIONS_KEY, items: [mit()] },
+    ]);
+    expect(readArray(b, PARTY_MEMBERS_KEY)).toEqual([member()]);
+    expect(readArray<{ id: string }>(b, MITIGATIONS_KEY).map((m) => m.id)).toEqual(["m1"]);
+    expect(updates).toBe(1); // 1 transaction → 受信側 update は 1 回
+  });
+  it("remove op は id を削除する", () => {
+    const a = new Y.Doc(), b = new Y.Doc(); bridge(a, b);
+    applyUpsert(a.getArray(PARTY_MEMBERS_KEY), [member({ id: "MT" }), member({ id: "ST" })]);
+    applyBatch(a, buildArrByKey(a), [{ kind: "remove", key: PARTY_MEMBERS_KEY, ids: ["MT"] }]);
+    expect(readArray<{ id: string }>(b, PARTY_MEMBERS_KEY).map((m) => m.id)).toEqual(["ST"]);
+  });
+});
+
+describe("buildArrByKey", () => {
+  it("同一キーは Yjs 共有インスタンスを返す（doc.getArray と一致）", () => {
+    const doc = new Y.Doc();
+    expect(buildArrByKey(doc)[PARTY_MEMBERS_KEY]).toBe(doc.getArray(PARTY_MEMBERS_KEY));
   });
 });
