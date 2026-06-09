@@ -1,5 +1,6 @@
 import { routePartykitRequest } from "partyserver";
 import { isRoomFull } from "./collabCapacity";
+import { verifyToken, authorizeConnection } from "./collabAuth";
 
 export { Room } from "./server";
 
@@ -44,6 +45,17 @@ export default {
       const room = parts[2];
       const req = new Request(request);
       req.headers.set("x-partykit-room", room);
+      // ④-a: WS upgrade(実接続)のみ認可する。token を verify し、編集者なら信頼ヘッダ
+      //   (x-collab-uid)を付与・クライアント由来の同名ヘッダは除去(詐称防止・fail-closed)。
+      //   ここで request を仕立てておくことで onBeforeConnect は満員判定のみ(void 返し)に保て、
+      //   partyserver の DO 名前バインド(__ps_name)を壊さない(Request を返すと壊れるため)。
+      //   /count 等(Upgrade 無し)は対象外。
+      if (req.headers.get("Upgrade")?.toLowerCase() === "websocket") {
+        // req(可変ヘッダのコピー)を in-place 認可。二重コピーしないので名前バインドは無傷。
+        await authorizeConnection(req, (t) =>
+          verifyToken(env.APP_API_BASE, env.COLLAB_SHARED_SECRET, t),
+        );
+      }
       request = req;
     }
     // routePartykitRequest は env: Record<string, unknown> を要求する。
@@ -51,7 +63,8 @@ export default {
     // 呼び出し側でキャストして Env 本体の型安全を保つ。
     return (
       (await routePartykitRequest(request, env as unknown as Record<string, unknown>, {
-        // 接続前の満員判定。lobby.name = URL から抽出した部屋名(= roomToken)。
+        // 接続前の満員判定のみ(認可は fetch ハンドラ冒頭で request に仕立て済み)。
+        // ここで Request を返すと DO 名前バインドが壊れるため void/Response のみ返す。
         onBeforeConnect: (_req: Request, lobby: { name: string }) => rejectIfRoomFull(env, lobby.name),
       })) || new Response("Not Found", { status: 404 })
     );

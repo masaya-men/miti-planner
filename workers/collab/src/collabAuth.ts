@@ -37,21 +37,20 @@ export async function verifyToken(
 export type VerifyFn = (token: string) => Promise<string | null>;
 
 /**
- * 接続要求を認可し、DO へ転送する Request を返す。
+ * 接続要求(可変ヘッダを持つコピー)の headers を**その場で**書き換えて認可する。
  * - クライアント由来の信頼ヘッダは必ず除去(詐称防止)。
  * - クエリの token を verifyFn で検証し、正規本人なら EDITOR_UID_HEADER を付与。
  * - 検証失敗/トークン無し → ヘッダ無し(viewer・fail-closed)。接続自体は常に許可(閲覧は誰でも可)。
+ * 戻り値を返さない(void)のは、WS upgrade 要求を二重コピーすると partyserver の DO 名前
+ * バインドが壊れるため。呼び出し側で既に作った可変コピーを渡し、ここで in-place 改変する。
  */
-export async function authorizeConnection(req: Request, verifyFn: VerifyFn): Promise<Request> {
-  // WS upgrade を落とさないよう、既存 index.ts と同じ「コピー後に header を in-place 操作」方式。
-  const out = new Request(req);
-  out.headers.delete(EDITOR_UID_HEADER); // 詐称防止: クライアントの偽ヘッダを落とす
+export async function authorizeConnection(req: Request, verifyFn: VerifyFn): Promise<void> {
+  req.headers.delete(EDITOR_UID_HEADER); // 詐称防止: クライアントの偽ヘッダを落とす
   const token = new URL(req.url).searchParams.get(TOKEN_PARAM) ?? "";
   if (token) {
     const uid = await verifyFn(token);
-    if (uid) out.headers.set(EDITOR_UID_HEADER, uid);
+    if (uid) req.headers.set(EDITOR_UID_HEADER, uid);
   }
-  return out;
 }
 
 /** DO 接続 state が編集者か。`isReadOnly` の反転に使う。 */

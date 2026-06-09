@@ -47,27 +47,28 @@ describe("authorizeConnection (接続認可・信頼ヘッダ)", () => {
   };
 
   it("正トークン → 信頼ヘッダに uid を付ける", async () => {
-    const out = await authorizeConnection(reqWith("good"), async () => "user-9");
-    expect(out.headers.get(EDITOR_UID_HEADER)).toBe("user-9");
+    const req = reqWith("good");
+    await authorizeConnection(req, async () => "user-9");
+    expect(req.headers.get(EDITOR_UID_HEADER)).toBe("user-9");
   });
 
   it("トークン無し(viewer) → 信頼ヘッダ無し", async () => {
-    const out = await authorizeConnection(reqWith(null), async () => "should-not-call");
-    expect(out.headers.get(EDITOR_UID_HEADER)).toBeNull();
+    const req = reqWith(null);
+    await authorizeConnection(req, async () => "should-not-call");
+    expect(req.headers.get(EDITOR_UID_HEADER)).toBeNull();
   });
 
   it("検証失敗(null) → fail-closed で信頼ヘッダ無し", async () => {
-    const out = await authorizeConnection(reqWith("bad"), async () => null);
-    expect(out.headers.get(EDITOR_UID_HEADER)).toBeNull();
+    const req = reqWith("bad");
+    await authorizeConnection(req, async () => null);
+    expect(req.headers.get(EDITOR_UID_HEADER)).toBeNull();
   });
 
   it("クライアント由来の x-collab-uid を必ず除去(詐称防止)", async () => {
     // 偽ヘッダを付けて未トークンで接続 → 除去されて viewer のまま。
-    const out = await authorizeConnection(
-      reqWith(null, { [EDITOR_UID_HEADER]: "spoofed" }),
-      async () => null,
-    );
-    expect(out.headers.get(EDITOR_UID_HEADER)).toBeNull();
+    const req = reqWith(null, { [EDITOR_UID_HEADER]: "spoofed" });
+    await authorizeConnection(req, async () => null);
+    expect(req.headers.get(EDITOR_UID_HEADER)).toBeNull();
   });
 });
 
