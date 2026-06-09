@@ -14,6 +14,8 @@ export const META_AA = "aaSettings";
 export const META_SCH = "schAetherflowPatterns";
 // ⑤-3b: ボス/コンテンツ識別子。seed のみ(save 経路では読まない=オーナー属性を書き戻さない)。
 export const META_CONTENT_ID = "contentId";
+// ⑤-3c: オーナーが発行時に付けた部屋ラベル。seed のみ(save 経路では読まない)。
+export const META_OWNER_LABEL = "ownerLabel";
 
 // worker は要素の中身を見ない。最小制約 = id を持つ + 任意フィールド(index signature)。
 // mitigations だけは ②-a 由来の固定型 MitigationRecord(index signature 無し)を使う。
@@ -32,6 +34,8 @@ export interface PlanDataSeed {
   schAetherflowPatterns?: Record<string, number>;
   /** ⑤-3b: ボス/コンテンツ識別子。planMeta に seed のみ(readPlanDataFull=save は返さない)。 */
   contentId?: string;
+  /** ⑤-3c: オーナー設定の部屋ラベル。planMeta に seed のみ(save は返さない)。 */
+  ownerLabel?: string;
 }
 
 function recordToYMap(rec: { id: string }): Y.Map<unknown> {
@@ -63,6 +67,7 @@ export function buildSeedDocFull(seed: PlanDataSeed): Y.Doc {
     if (seed.aaSettings !== undefined) meta.set(META_AA, seed.aaSettings);
     if (seed.schAetherflowPatterns !== undefined) meta.set(META_SCH, seed.schAetherflowPatterns);
     if (seed.contentId !== undefined) meta.set(META_CONTENT_ID, seed.contentId);
+    if (seed.ownerLabel !== undefined) meta.set(META_OWNER_LABEL, seed.ownerLabel);
   });
   return doc;
 }
@@ -86,4 +91,9 @@ export function readPlanDataFull(doc: Y.Doc): PlanDataSeed {
 /** seed された contentId(不変属性)を読む。save 経路では使わない。 */
 export function readContentId(doc: Y.Doc): string | undefined {
   return doc.getMap(PLAN_META_KEY).get(META_CONTENT_ID) as string | undefined;
+}
+
+/** seed された ownerLabel(オーナー設定の部屋ラベル)を読む。save 経路では使わない。 */
+export function readOwnerLabel(doc: Y.Doc): string | undefined {
+  return doc.getMap(PLAN_META_KEY).get(META_OWNER_LABEL) as string | undefined;
 }

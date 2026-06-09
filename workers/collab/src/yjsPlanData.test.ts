@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  buildSeedDocFull, readPlanDataFull, readContentId, type PlanDataSeed,
+  buildSeedDocFull, readPlanDataFull, readContentId, readOwnerLabel, type PlanDataSeed,
 } from "./yjsPlanData";
 
 const seed: PlanDataSeed = {
@@ -14,17 +14,22 @@ const seed: PlanDataSeed = {
   schAetherflowPatterns: { H2: 2 },
   partyMembers: [{ id: "MT", jobId: "pld", role: "tank", stats: { hp: 100, mainStat: 1, det: 1, crt: 1, ten: 1, ss: 1, wd: 1 }, computedValues: { Rampart: 20 } }],
   contentId: "m4s",
+  ownerLabel: "土曜固定P",
 };
 
 describe("worker yjsPlanData seed/read 往復", () => {
-  it("buildSeedDocFull で組んだ Y.Doc を readPlanDataFull で読むと元に一致(contentId は save 非対象で除外)", () => {
+  it("buildSeedDocFull で組んだ Y.Doc を readPlanDataFull で読むと元に一致(contentId/ownerLabel は save 非対象で除外)", () => {
     const doc = buildSeedDocFull(seed);
-    const { contentId, ...rest } = seed;
+    const { contentId, ownerLabel, ...rest } = seed;
     expect(readPlanDataFull(doc)).toEqual(rest);
   });
   it("contentId は planMeta に seed され readContentId で読める", () => {
     const doc = buildSeedDocFull(seed);
     expect(readContentId(doc)).toBe("m4s");
+  });
+  it("ownerLabel は planMeta に seed され readOwnerLabel で読める", () => {
+    const doc = buildSeedDocFull(seed);
+    expect(readOwnerLabel(doc)).toBe("土曜固定P");
   });
   it("欠落フィールドは空配列/undefined にフォールバック", () => {
     const doc = buildSeedDocFull({ mitigations: [] });
