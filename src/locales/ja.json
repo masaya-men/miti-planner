@@ -16,6 +16,8 @@
         "people_label": "入れる人数",
         "people_unit": "人まで",
         "people_hint": "既定 8 人(フルパーティ1組)。1〜{{max}}人で設定可。",
+        "label_field": "部屋名(任意)",
+        "label_placeholder": "例: 土曜固定P（任意）",
         "reissue": "リンクを作り直す",
         "revoke": "リンクを失効",
         "error_generic": "操作に失敗しました。時間をおいて再度お試しください。",

@@ -16,6 +16,8 @@
         "people_label": "People allowed",
         "people_unit": "max",
         "people_hint": "Default 8 (one full party). Set between 1 and {{max}}.",
+        "label_field": "Room name (optional)",
+        "label_placeholder": "e.g. Sat static (optional)",
         "reissue": "Regenerate link",
         "revoke": "Revoke link",
         "error_generic": "Something went wrong. Please try again later.",

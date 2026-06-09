@@ -42,10 +42,11 @@ async function post(body: Record<string, unknown>): Promise<any> {
   return data;
 }
 
-/** リンク発行(冪等: 既存があれば同 roomToken を再利用)。maxParticipants 省略時はサーバ既定(8)。 */
-export function createRoom(planId: string, maxParticipants?: number): Promise<RoomInfo> {
+/** リンク発行(冪等: 既存があれば同 roomToken を再利用)。maxParticipants 省略時はサーバ既定(8)。label は任意の部屋名。 */
+export function createRoom(planId: string, maxParticipants?: number, label?: string): Promise<RoomInfo> {
   const body: Record<string, unknown> = { action: 'create' as Action, planId };
   if (maxParticipants !== undefined) body.maxParticipants = maxParticipants;
+  if (label !== undefined && label.trim().length > 0) body.label = label;
   return post(body);
 }
 
@@ -59,7 +60,9 @@ export function revokeRoom(planId: string): Promise<RoomRevoked> {
   return post({ action: 'revoke' as Action, planId });
 }
 
-/** 旧リンクを失効し新しい roomToken を発行。 */
-export function reissueRoom(planId: string): Promise<RoomInfo> {
-  return post({ action: 'reissue' as Action, planId });
+/** 旧リンクを失効し新しい roomToken を発行。label は任意の部屋名。 */
+export function reissueRoom(planId: string, label?: string): Promise<RoomInfo> {
+  const body: Record<string, unknown> = { action: 'reissue' as Action, planId };
+  if (label !== undefined && label.trim().length > 0) body.label = label;
+  return post(body);
 }

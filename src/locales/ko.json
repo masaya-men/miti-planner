@@ -16,6 +16,8 @@
         "people_label": "들어올 수 있는 인원",
         "people_unit": "명까지",
         "people_hint": "기본 8명(풀파티 1조). 1~{{max}}명으로 설정 가능.",
+        "label_field": "방 이름 (선택)",
+        "label_placeholder": "예: 토요 고정팟 (선택)",
         "reissue": "링크 다시 만들기",
         "revoke": "링크 해지",
         "error_generic": "작업에 실패했습니다. 잠시 후 다시 시도해 주세요.",

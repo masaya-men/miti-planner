@@ -45,4 +45,22 @@ describe('parseRoomManageRequest', () => {
   it('ROOM_ACTIONS は 4 アクション', () => {
     expect(ROOM_ACTIONS).toEqual(['create', 'revoke', 'reissue', 'set-max']);
   });
+  it('create は任意の label を trim して受理する', () => {
+    const r = parseRoomManageRequest({ action: 'create', planId: 'p1', label: '  土曜固定P  ' });
+    expect(r).toEqual({ ok: true, req: { action: 'create', planId: 'p1', label: '土曜固定P' } });
+  });
+  it('reissue も label を受理する', () => {
+    const r = parseRoomManageRequest({ action: 'reissue', planId: 'p1', label: '固定' });
+    expect(r.ok && (r.req as any).label).toBe('固定');
+  });
+  it('label が文字列でなければ invalid_label', () => {
+    expect(parseRoomManageRequest({ action: 'create', planId: 'p1', label: 123 })).toEqual({ ok: false, error: 'invalid_label' });
+  });
+  it('label が 40 文字超なら invalid_label', () => {
+    expect(parseRoomManageRequest({ action: 'create', planId: 'p1', label: 'x'.repeat(41) })).toEqual({ ok: false, error: 'invalid_label' });
+  });
+  it('label 空文字/空白のみは未設定として受理（label を含めない）', () => {
+    const r = parseRoomManageRequest({ action: 'create', planId: 'p1', label: '   ' });
+    expect(r).toEqual({ ok: true, req: { action: 'create', planId: 'p1' } });
+  });
 });

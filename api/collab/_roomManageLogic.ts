@@ -9,14 +9,14 @@ export type RoomAction = 'create' | 'revoke' | 'reissue' | 'set-max';
 export const ROOM_ACTIONS: RoomAction[] = ['create', 'revoke', 'reissue', 'set-max'];
 
 export type RoomManageRequest =
-  | { action: 'create'; planId: string; maxParticipants?: number }
+  | { action: 'create'; planId: string; maxParticipants?: number; label?: string }
   | { action: 'revoke'; planId: string }
-  | { action: 'reissue'; planId: string }
+  | { action: 'reissue'; planId: string; label?: string }
   | { action: 'set-max'; planId: string; maxParticipants: number };
 
 export type ParseResult =
   | { ok: true; req: RoomManageRequest }
-  | { ok: false; error: 'invalid_body' | 'invalid_action' | 'invalid_planId' | 'invalid_maxParticipants' };
+  | { ok: false; error: 'invalid_body' | 'invalid_action' | 'invalid_planId' | 'invalid_maxParticipants' | 'invalid_label' };
 
 /** リクエスト body を RoomManageRequest に検証する。不正は理由付きで弾く。 */
 export function parseRoomManageRequest(body: unknown): ParseResult {
@@ -32,6 +32,14 @@ export function parseRoomManageRequest(body: unknown): ParseResult {
     return { ok: false, error: 'invalid_planId' };
   }
 
+  // label は create/reissue のみ任意。文字列・trim・40 文字以内。空白のみは未設定。
+  let label: string | undefined;
+  if (b.label !== undefined) {
+    if (typeof b.label !== 'string' || b.label.length > 40) return { ok: false, error: 'invalid_label' };
+    const trimmed = b.label.trim();
+    label = trimmed.length === 0 ? undefined : trimmed;
+  }
+
   if (action === 'set-max') {
     // set-max は新しい上限が必須。
     if (typeof b.maxParticipants !== 'number') return { ok: false, error: 'invalid_maxParticipants' };
@@ -42,10 +50,16 @@ export function parseRoomManageRequest(body: unknown): ParseResult {
     if (b.maxParticipants !== undefined && typeof b.maxParticipants !== 'number') {
       return { ok: false, error: 'invalid_maxParticipants' };
     }
-    const req: { action: 'create'; planId: string; maxParticipants?: number } = { action: 'create', planId };
+    const req: { action: 'create'; planId: string; maxParticipants?: number; label?: string } = { action: 'create', planId };
     if (typeof b.maxParticipants === 'number') req.maxParticipants = b.maxParticipants;
+    if (label !== undefined) req.label = label;
     return { ok: true, req };
   }
-  // revoke / reissue は maxParticipants を取らない(あっても無視)。
-  return { ok: true, req: { action: action as 'revoke' | 'reissue', planId } };
+  // revoke / reissue は maxParticipants を取らない(あっても無視)。reissue だけ label を載せる。
+  if (action === 'reissue') {
+    const req: { action: 'reissue'; planId: string; label?: string } = { action: 'reissue', planId };
+    if (label !== undefined) req.label = label;
+    return { ok: true, req };
+  }
+  return { ok: true, req: { action: 'revoke', planId } };
 }

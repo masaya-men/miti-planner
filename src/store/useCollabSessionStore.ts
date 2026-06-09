@@ -17,14 +17,14 @@ interface CollabSessionState {
   /** 生きている Yjs セッション(切断用)。UI には出さない。 */
   session: CollabSession | null;
 
-  /** リンク発行(冪等)→自分の表をライブ接続。 */
-  start: (planId: string) => Promise<void>;
+  /** リンク発行(冪等)→自分の表をライブ接続。label は任意の部屋名(⑤-3c)。 */
+  start: (planId: string, label?: string) => Promise<void>;
   /** 入れる人数を変更。 */
   setMax: (planId: string, n: number) => Promise<void>;
   /** リンク失効→切断→クリア。 */
   revoke: (planId: string) => Promise<void>;
-  /** 旧を切断・失効し新リンクで張り直し。 */
-  reissue: (planId: string) => Promise<void>;
+  /** 旧を切断・失効し新リンクで張り直し。label は任意の部屋名(⑤-3c)。 */
+  reissue: (planId: string, label?: string) => Promise<void>;
 }
 
 export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
@@ -33,8 +33,8 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
   maxParticipants: 8,
   session: null,
 
-  start: async (planId) => {
-    const info = await createRoom(planId);
+  start: async (planId, label) => {
+    const info = await createRoom(planId, undefined, label);
     const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session });
   },
@@ -50,9 +50,9 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     set({ active: false, roomToken: null, session: null });
   },
 
-  reissue: async (planId) => {
+  reissue: async (planId, label) => {
     get().session?.disconnect();
-    const info = await reissueRoom(planId);
+    const info = await reissueRoom(planId, label);
     const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session });
   },

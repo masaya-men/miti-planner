@@ -115,14 +115,18 @@ export default async function handler(req: any, res: any) {
       // create は maxParticipants 任意(未指定は clamp が既定 8 にする)。reissue は持たない。
       const requestedMax = reqData.action === 'create' ? reqData.maxParticipants : undefined;
       const clamped = clampMaxParticipants(requestedMax);
-      tx.set(db.collection('collabRooms').doc(freshToken), {
+      // ⑤-3c: label は create/reissue のときだけオーナーが任意で付ける(検証済・trim 済)。
+      const label = (reqData.action === 'create' || reqData.action === 'reissue') ? reqData.label : undefined;
+      const roomDoc: Record<string, unknown> = {
         roomToken: freshToken,
         planId,
         ownerId: uid,
         maxParticipants: clamped,
         revoked: false,
         createdAt: Date.now(),
-      });
+      };
+      if (label !== undefined) roomDoc.label = label;
+      tx.set(db.collection('collabRooms').doc(freshToken), roomDoc);
       tx.update(planRef, { activeCollabRoomToken: freshToken });
       return { roomToken: freshToken, maxParticipants: clamped, revoked: false };
     });

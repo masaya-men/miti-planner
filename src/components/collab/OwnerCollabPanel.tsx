@@ -18,6 +18,8 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
   const { roomToken, maxParticipants, setMax, revoke, reissue } = useCollabSessionStore();
   const [copied, setCopied] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
+  // ⑤-3c: 任意の部屋名(ジョイナーのバナーに「○○ の本物の表」と表示)。空欄なら汎用文言。
+  const [label, setLabel] = React.useState('');
 
   const url = roomToken ? `${window.location.origin}/collab/${roomToken}` : '';
 
@@ -41,7 +43,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
 
   const handleReissue = async () => {
     setBusy(true);
-    try { await reissue(planId); } finally { setBusy(false); }
+    try { await reissue(planId, label); } finally { setBusy(false); }
   };
 
   return createPortal(
@@ -87,6 +89,18 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
                 {copied ? t('collab.copied') : t('collab.copy')}
               </button>
             </div>
+          </div>
+
+          {/* 部屋名(任意・⑤-3c) */}
+          <div>
+            <div className="text-app-xs uppercase tracking-wide text-app-text-muted mb-1.5">{t('collab.label_field')}</div>
+            <input
+              value={label}
+              onChange={e => setLabel(e.target.value)}
+              maxLength={40}
+              placeholder={t('collab.label_placeholder')}
+              className="w-full h-9 px-2.5 rounded-lg border border-app-border bg-app-surface2/60 text-app-text text-app-sm outline-none placeholder:text-app-text-muted"
+            />
           </div>
 
           {/* 人数 */}
