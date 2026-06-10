@@ -13,6 +13,10 @@ import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMem
 import type { CollabHandlers } from './collabTypes';
 import { colorForClient, wirePresence, type AwarenessLike, type PresenceState } from './presence';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
+import { createCursorMesh } from './cursorMesh';
+import { createRealPeer } from './cursorPeer';
+import { wireSignal } from './cursorSignal';
+import { useRemoteCursorsStore } from '../../store/useRemoteCursorsStore';
 
 /**
  * 共同編集の遅延チャンク。yjs / y-partyserver を実行時 import するのはこのファイルと
@@ -259,6 +263,26 @@ export function startCollabSession(
     (roster) => useCollabPresenceStore.getState().setRoster(roster),
   );
 
+  // ④-b-2: live カーソル(P2P)。mesh + signaling(awareness 相乗り)。
+  // WebRTC は遅延チャンク内なので main bundle 非混入。
+  // signal の callback は mesh を、mesh の sendSignal は signal を参照する循環だが、
+  // どちらも構築時には発火しない(awareness 変化 / signal 受信時のみ)ため初期化順は安全。
+  const awarenessLike = provider.awareness as unknown as AwarenessLike;
+  const signal = wireSignal(awarenessLike, (msg) => void mesh.handleSignal(msg));
+  const mesh = createCursorMesh({
+    localClientId: provider.awareness.clientID,
+    makePeer: createRealPeer,
+    sendSignal: (m) => signal.send(m),
+    onPacket: (p) => useRemoteCursorsStore.getState().apply(p),
+  });
+
+  // roster や自分の cursorEnabled が変わるたびに mesh を reconcile。
+  const reconcile = () => {
+    const st = useCollabPresenceStore.getState();
+    void mesh.reconcile(st.roster, st.cursorEnabled);
+  };
+  const unsubReconcile = useCollabPresenceStore.subscribe(reconcile);
+
   let entered = false;
   const onSynced = (isSynced: boolean) => {
     if (!isSynced || entered) return;
@@ -280,6 +304,11 @@ export function startCollabSession(
     // readOnly(ジョイナー購読)は enterCollabMode していないので exit も不要(購読解除＝unobserve で十分)。
     if (!readOnly) useMitigationStore.getState().exitCollabMode();
     presenceHandle.stop();
+    unsubReconcile();
+    signal.stop();
+    signal.clear();        // awareness の signal フィールドを空に(SDP=IP を残さない)
+    mesh.destroy();
+    useRemoteCursorsStore.getState().clear();
     useCollabPresenceStore.getState().clear();
     provider.destroy();
     doc.destroy();
