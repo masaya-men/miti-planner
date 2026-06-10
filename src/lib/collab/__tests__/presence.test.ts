@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PALETTE, colorForClient, buildRoster, type PresenceState } from '../presence';
+import { wirePresence, type AwarenessLike } from '../presence';
 
 const p = (over: Partial<PresenceState> = {}): PresenceState => ({
   color: '#fff', jobId: null, isEditor: true, cursorEnabled: true, ...over,
@@ -35,5 +36,38 @@ describe('buildRoster', () => {
     ]);
     const r = buildRoster(states, 99);
     expect(r.map(e => e.clientId)).toEqual([2]);
+  });
+});
+
+class FakeAwareness implements AwarenessLike {
+  clientID = 7;
+  private local: Record<string, unknown> = {};
+  private states = new Map<number, Record<string, unknown>>();
+  private cbs: Array<() => void> = [];
+  setLocalStateField(field: string, value: unknown) {
+    this.local[field] = value;
+    this.states.set(this.clientID, { ...this.local });
+    this.fire();
+  }
+  getStates() { return this.states; }
+  on(_e: 'change', cb: () => void) { this.cbs.push(cb); }
+  off(_e: 'change', cb: () => void) { this.cbs = this.cbs.filter(c => c !== cb); }
+  /** テスト用: 他者の参加をシミュレート。 */
+  addPeer(id: number, state: Record<string, unknown>) { this.states.set(id, state); this.fire(); }
+  private fire() { this.cbs.forEach(c => c()); }
+}
+
+describe('wirePresence', () => {
+  it('local presence を載せ、変化のたびに roster を通知し、cleanup で購読解除', () => {
+    const aw = new FakeAwareness();
+    const seen: number[] = [];
+    const stop = wirePresence(aw, p({ color: '#111' }), (r) => seen.push(r.length));
+    // setLocalStateField(初期) で自分1人の roster が出る
+    expect(seen.at(-1)).toBe(1);
+    aw.addPeer(2, { presence: p({ color: '#222' }) });
+    expect(seen.at(-1)).toBe(2);
+    stop();
+    aw.addPeer(3, { presence: p({ color: '#333' }) });
+    expect(seen.at(-1)).toBe(2); // 解除後は通知されない
   });
 });

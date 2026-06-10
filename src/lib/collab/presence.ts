@@ -57,3 +57,34 @@ export function buildRoster(
   out.sort((a, b) => (a.isLocal === b.isLocal ? a.clientId - b.clientId : a.isLocal ? -1 : 1));
   return out;
 }
+
+/** provider.awareness(y-protocols Awareness)の必要最小インタフェース。テストで fake 可能にする。 */
+export interface AwarenessLike {
+  clientID: number;
+  setLocalStateField(field: string, value: unknown): void;
+  getStates(): Map<number, Record<string, unknown>>;
+  on(event: 'change', cb: () => void): void;
+  off(event: 'change', cb: () => void): void;
+}
+
+/**
+ * local presence を awareness に載せ、変化を購読して roster を通知する。戻り値は購読解除関数。
+ * setLocalStateField は内部で change を発火するため初期 roster も流れるが、念のため明示 emit する。
+ */
+export function wirePresence(
+  awareness: AwarenessLike,
+  local: PresenceState,
+  onRoster: (roster: RosterEntry[]) => void,
+): () => void {
+  const emit = () =>
+    onRoster(
+      buildRoster(
+        awareness.getStates() as Map<number, { presence?: PresenceState }>,
+        awareness.clientID,
+      ),
+    );
+  awareness.on('change', emit);
+  awareness.setLocalStateField('presence', local);
+  emit();
+  return () => awareness.off('change', emit);
+}
