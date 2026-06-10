@@ -6,6 +6,7 @@
         "choice_collab_title": "一緒に編集する",
         "choice_collab_desc": "同じ表に入って同時に編集します",
         "chip_active": "共同編集中",
+        "chip_active_count": "共同編集中 · {{count}}人",
         "panel_title": "共同編集",
         "participants_solo": "1人(あなただけ)",
         "warning": "このリンクを知っている人は誰でもあなたの表を直接書き換えられます(元に戻せません)。固定メンバー内だけで使い、SNS など外部に公開・転載しないでください。",
