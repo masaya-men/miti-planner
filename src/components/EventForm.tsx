@@ -13,6 +13,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
 import { SegmentButton } from './ui/SegmentButton';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
+import { computeInitialDamageState } from '../lib/eventFormDamageState';
 
 /** 全角数字→半角変換し、数字と小数点以外を除去 */
 function toHalfWidthNumber(str: string): string {
@@ -53,11 +54,11 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     const [name, setName] = useState<import('../types').LocalizedString>({ ja: '', en: '' });
     const [time, setTime] = useState(0);
     const [damageType, setDamageType] = useState<TimelineEvent['damageType']>('magical');
-    const [damageAmount, setDamageAmount] = useState<number>(0);
+    const [damageAmount, setDamageAmount] = useState<number>(() => computeInitialDamageState(initialData, reverseOnly).damageAmount);
     const [target, setTarget] = useState<TimelineEvent['target']>('AoE');
 
     // Calculator State
-    const [inputMode, setInputMode] = useState<'direct' | 'reverse'>('reverse');
+    const [inputMode, setInputMode] = useState<'direct' | 'reverse'>(() => computeInitialDamageState(initialData, reverseOnly).inputMode);
     const [calcActualDamage, setCalcActualDamage] = useState<number>(0);
     const [selectedMitigations, setSelectedMitigations] = useState<string[]>([]);
     const [mitigationTargets, setMitigationTargets] = useState<Record<string, 'MT' | 'ST'>>({});
@@ -119,15 +120,13 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             setName(initialData.name);
             setTime(initialData.time);
             setDamageType(initialData.damageType);
-            setDamageAmount(initialData.damageAmount || 0);
             setTarget(initialData.target || 'AoE');
 
-            // 👇 修正：すでにダメージが入っている場合は、電卓が上書きしないように「直接入力(Direct)」モードで開く
-            if (!reverseOnly && initialData.damageAmount && initialData.damageAmount > 0) {
-                setInputMode('direct');
-            } else {
-                setInputMode('reverse');
-            }
+            // すでにダメージが入っている場合は、電卓 (逆算) が上書きしないように「直接入力 (Direct)」モードで開く。
+            // 初期 useState の lazy initializer と同じ純関数を使い、初期化と再初期化で挙動を一致させる。
+            const initDamage = computeInitialDamageState(initialData, reverseOnly);
+            setDamageAmount(initDamage.damageAmount);
+            setInputMode(initDamage.inputMode);
             setCalcActualDamage(0);
             setSelectedMitigations([]);
             setMitigationTargets({});
