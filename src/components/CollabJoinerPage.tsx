@@ -8,6 +8,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { hasCollabEditConsent, setCollabEditConsent } from "../lib/collabEditConsent";
 import { CollabEditConsentModal } from "./CollabEditConsentModal";
 import { CollabJoinerBanner } from "./CollabJoinerBanner";
+import { PresenceControls } from "./collab/PresenceControls";
 import { ErrorBoundary } from "./ErrorBoundary";
 import Timeline from "./Timeline";
 
@@ -163,6 +164,10 @@ export default function CollabJoinerPage() {
         onOpenConsent={() => setConsentOpen(true)}
       />
       <div className="flex-1 overflow-auto relative flex">
+        {/* ④-b-2: ジョイナーも自分のカーソル/ジョブを共有できる(既定 OFF オプトイン)。 */}
+        <div className="absolute top-2 right-2 z-30 glass-tier2 rounded-xl p-2.5 w-[190px] shadow-lg">
+          <PresenceControls />
+        </div>
         <ErrorBoundary>
           <Timeline />
         </ErrorBoundary>
