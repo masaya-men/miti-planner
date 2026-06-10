@@ -30,13 +30,17 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
     const [showLogin, setShowLogin] = React.useState(false);
     const { active, start } = useCollabSessionStore();
     const rosterCount = useCollabPresenceStore(s => s.roster.length);
-    const { user } = useAuthStore();
+    const { user, isAdmin } = useAuthStore();
 
     const openShareUI = () => {
-        // 共同編集中はチップ=パネル直行。通常時は2択。
-        setView(active ? 'panel' : 'choice');
         const { completed, isActive } = useTutorialStore.getState();
         if (!completed['share'] && !isActive) useTutorialStore.getState().startTutorial('share');
+        // 共同編集 UI は本番検証中のため管理者のみに開放するゲート。
+        // 一般ユーザーは従来どおりコピー共有へ直行 (2択を見せない)。
+        // 正式公開時はこの分岐を外すだけで全ユーザーに開放できる。
+        if (!isAdmin) { setView('copy'); return; }
+        // 共同編集中はチップ=パネル直行。通常時は2択。
+        setView(active ? 'panel' : 'choice');
     };
 
     const handleCollab = async () => {
