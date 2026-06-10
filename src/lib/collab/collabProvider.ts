@@ -253,7 +253,7 @@ export function startCollabSession(
     isEditor: !readOnly,
     cursorEnabled: true, // ④-b-2 でトグル
   };
-  const stopPresence = wirePresence(
+  const presenceHandle = wirePresence(
     provider.awareness as unknown as AwarenessLike,
     localPresence,
     (roster) => useCollabPresenceStore.getState().setRoster(roster),
@@ -279,7 +279,7 @@ export function startCollabSession(
     yPartyMembers.unobserveDeep(applyPartyMembers);
     // readOnly(ジョイナー購読)は enterCollabMode していないので exit も不要(購読解除＝unobserve で十分)。
     if (!readOnly) useMitigationStore.getState().exitCollabMode();
-    stopPresence();
+    presenceHandle.stop();
     useCollabPresenceStore.getState().clear();
     provider.destroy();
     doc.destroy();

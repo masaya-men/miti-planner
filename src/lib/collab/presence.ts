@@ -67,15 +67,22 @@ export interface AwarenessLike {
   off(event: 'change', cb: () => void): void;
 }
 
+/** wirePresence の戻り値: 実行時更新(update)と購読解除(stop)。 */
+export interface PresenceHandle {
+  update(patch: Partial<PresenceState>): void;
+  stop(): void;
+}
+
 /**
- * local presence を awareness に載せ、変化を購読して roster を通知する。戻り値は購読解除関数。
- * setLocalStateField は内部で change を発火するため初期 roster も流れるが、念のため明示 emit する。
+ * local presence を awareness に載せ、変化を購読して roster を通知する。
+ * update でトグル(cursorEnabled/jobId)を実行時に反映、stop で購読解除。
  */
 export function wirePresence(
   awareness: AwarenessLike,
   local: PresenceState,
   onRoster: (roster: RosterEntry[]) => void,
-): () => void {
+): PresenceHandle {
+  let current: PresenceState = { ...local };
   const emit = () =>
     onRoster(
       buildRoster(
@@ -84,7 +91,15 @@ export function wirePresence(
       ),
     );
   awareness.on('change', emit);
-  awareness.setLocalStateField('presence', local);
+  awareness.setLocalStateField('presence', current);
   emit();
-  return () => awareness.off('change', emit);
+  return {
+    update(patch) {
+      current = { ...current, ...patch };
+      awareness.setLocalStateField('presence', current);
+    },
+    stop() {
+      awareness.off('change', emit);
+    },
+  };
 }

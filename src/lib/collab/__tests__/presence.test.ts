@@ -61,13 +61,31 @@ describe('wirePresence', () => {
   it('local presence を載せ、変化のたびに roster を通知し、cleanup で購読解除', () => {
     const aw = new FakeAwareness();
     const seen: number[] = [];
-    const stop = wirePresence(aw, p({ color: '#111' }), (r) => seen.push(r.length));
+    const handle = wirePresence(aw, p({ color: '#111' }), (r) => seen.push(r.length));
     // setLocalStateField(初期) で自分1人の roster が出る
     expect(seen.at(-1)).toBe(1);
     aw.addPeer(2, { presence: p({ color: '#222' }) });
     expect(seen.at(-1)).toBe(2);
-    stop();
+    handle.stop();
     aw.addPeer(3, { presence: p({ color: '#333' }) });
     expect(seen.at(-1)).toBe(2); // 解除後は通知されない
+  });
+});
+
+describe('wirePresence の実行時更新', () => {
+  it('update で cursorEnabled を変えると awareness に再反映され roster に出る', () => {
+    const aw = new FakeAwareness();
+    let last: import('../presence').RosterEntry[] = [];
+    const handle = wirePresence(aw, p({ cursorEnabled: false }), (r) => { last = r; });
+    expect(last[0].cursorEnabled).toBe(false);
+    handle.update({ cursorEnabled: true });
+    expect(last[0].cursorEnabled).toBe(true);
+    handle.stop();
+  });
+  it('stop で購読解除(後方互換: 戻り値は stop を持つ)', () => {
+    const aw = new FakeAwareness();
+    const handle = wirePresence(aw, p(), () => {});
+    expect(typeof handle.stop).toBe('function');
+    handle.stop();
   });
 });
