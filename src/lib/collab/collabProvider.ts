@@ -17,6 +17,7 @@ import { createCursorMesh } from './cursorMesh';
 import { createRealPeer } from './cursorPeer';
 import { wireSignal } from './cursorSignal';
 import { useRemoteCursorsStore } from '../../store/useRemoteCursorsStore';
+import { useCursorSendStore } from '../../store/useCursorSendStore';
 
 /**
  * 共同編集の遅延チャンク。yjs / y-partyserver を実行時 import するのはこのファイルと
@@ -283,6 +284,9 @@ export function startCollabSession(
   };
   const unsubReconcile = useCollabPresenceStore.subscribe(reconcile);
 
+  // ④-b-2: Timeline からの送信を mesh.broadcast にブリッジ(Timeline は yjs 非依存のまま)。
+  useCursorSendStore.getState().setBroadcaster((p) => mesh.broadcast(p), provider.awareness.clientID);
+
   let entered = false;
   const onSynced = (isSynced: boolean) => {
     if (!isSynced || entered) return;
@@ -308,6 +312,7 @@ export function startCollabSession(
     signal.stop();
     signal.clear();        // awareness の signal フィールドを空に(SDP=IP を残さない)
     mesh.destroy();
+    useCursorSendStore.getState().setBroadcaster(null, null);
     useRemoteCursorsStore.getState().clear();
     useCollabPresenceStore.getState().clear();
     provider.destroy();

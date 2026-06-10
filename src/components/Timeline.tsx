@@ -54,6 +54,10 @@ import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
 import { yToTimeSec, pxToXRatio, clampXRatio, timeSecToY, xRatioToPx } from './Memo/coords';
+import { CursorOverlay, type RemoteCursor } from './collab/CursorOverlay';
+import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
+import { useRemoteCursorsStore } from '../store/useRemoteCursorsStore';
+import { useCursorSendStore } from '../store/useCursorSendStore';
 import { MEMO_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
 
@@ -1202,6 +1206,66 @@ const Timeline: React.FC = () => {
     const controlBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());
     const recastRowRef = useRef<RecastRowHandle>(null);
+
+    // ④-b-2: 他者カーソル。roster(色)× 受信位置(byClient)を突き合わせて RemoteCursor[] に。
+    // 自分(isLocal)と cursorEnabled=false の参加者は除外。位置未受信は pos:null(非表示)。
+    const remoteCursorByClient = useRemoteCursorsStore(s => s.byClient);
+    const collabRoster = useCollabPresenceStore(s => s.roster);
+    const myCursorEnabled = useCollabPresenceStore(s => s.cursorEnabled);
+    const remoteCursors: RemoteCursor[] = useMemo(
+        () => collabRoster
+            .filter(r => !r.isLocal && r.cursorEnabled)
+            .map(r => ({
+                clientId: r.clientId,
+                color: r.color,
+                jobId: r.jobId,
+                pos: remoteCursorByClient[r.clientId]?.pos ?? null,
+            })),
+        [collabRoster, remoteCursorByClient],
+    );
+
+    // ④-b-2: 自分のカーソル送信。pointermove は ref に書くだけ(setState しない)。
+    // ~15Hz の rAF 間引きで (timeSec,xRatio) に変換し、前回から動いた時だけ P2P broadcast。
+    // cursorEnabled が ON のときだけリスナと送信ループを張る(OFF=送信ゼロ=IP 露出ゼロ)。
+    const lastCursorPointer = useRef<{ x: number; y: number } | null>(null);
+    const lastCursorSent = useRef<{ timeSec: number; xRatio: number } | null>(null);
+    useEffect(() => {
+        if (!myCursorEnabled) return;
+        const container = sheetContainerRef.current;
+        if (!container) return;
+        const onMove = (e: PointerEvent) => {
+            const rect = container.getBoundingClientRect();
+            lastCursorPointer.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        };
+        container.addEventListener('pointermove', onMove);
+        const SEND_MS = 66; // ~15Hz
+        let raf = 0;
+        let lastT = 0;
+        const loop = (now: number) => {
+            raf = requestAnimationFrame(loop);
+            if (now - lastT < SEND_MS) return;
+            lastT = now;
+            const { broadcast, localClientId } = useCursorSendStore.getState();
+            if (localClientId == null) return;
+            const lp = lastCursorPointer.current;
+            let pos: { timeSec: number; xRatio: number } | null = null;
+            if (lp) {
+                const timeSec = yToTimeSec(lp.y, timeToYMapRef.current);
+                pos = timeSec === null ? null : { timeSec, xRatio: clampXRatio(pxToXRatio(lp.x, sheetWidth)) };
+            }
+            const prev = lastCursorSent.current;
+            const changed = !prev || !pos || prev.timeSec !== pos.timeSec || prev.xRatio !== pos.xRatio;
+            if (changed) {
+                lastCursorSent.current = pos;
+                broadcast({ clientId: localClientId, pos, t: now });
+            }
+        };
+        raf = requestAnimationFrame(loop);
+        return () => {
+            container.removeEventListener('pointermove', onMove);
+            cancelAnimationFrame(raf);
+        };
+    }, [myCursorEnabled, sheetWidth]);
 
     const handleScrollSync = () => {
         if (!scrollContainerRef.current) return;
@@ -3134,6 +3198,12 @@ const Timeline: React.FC = () => {
                             onMemoDragEnd={handleMemoDragEnd}
                             onMemoClick={handleMemoClick}
                             onMemoDelete={handleMemoDelete}
+                        />
+                        {/* ④-b-2: 他者カーソル(P2P 受信) */}
+                        <CursorOverlay
+                            cursors={remoteCursors}
+                            timeToYMap={timeToYMapRef.current}
+                            sheetWidth={sheetWidth}
                         />
                         {/* メモ入力ボックス (新規 / 編集 共用) */}
                         {memoInput && (
