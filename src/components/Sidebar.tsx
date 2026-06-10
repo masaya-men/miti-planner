@@ -57,6 +57,7 @@ import { BackupRestoreModal } from './BackupRestoreModal';
 import { SystemNotificationBar } from './SystemNotificationBar';
 import { ContextMenu } from './ui/ContextMenu';
 import { decompressPlanData } from '../utils/compression';
+import { loadPlanDataIntoStore } from '../lib/planLoad';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
@@ -355,18 +356,16 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                                         store.archivePlan(store.currentPlanId);
                                                     }
                                                 }
-                                                // サイレント圧縮されている場合は解凍
-                                                let planData = plan.data;
-                                                if ((!planData || Object.keys(planData).length === 0) && plan.compressedData) {
-                                                    try {
-                                                        planData = await decompressPlanData(plan.compressedData);
-                                                        store.updatePlan(plan.id, { data: planData, compressedData: undefined });
-                                                    } catch {
-                                                        showToast(t('app.decompress_error') || 'データの読み込みに失敗しました。ページを更新してください。ログインしていない場合、データが復元できないことがあります。', 'error');
-                                                        return;
+                                                // 共有ヘルパで読込(圧縮なら解凍)。解凍時は書き戻して再キャッシュ。
+                                                try {
+                                                    const loaded = await loadPlanDataIntoStore(plan);
+                                                    if (loaded && plan.compressedData) {
+                                                        store.updatePlan(plan.id, { data: loaded, compressedData: undefined });
                                                     }
+                                                } catch {
+                                                    showToast(t('app.decompress_error') || 'データの読み込みに失敗しました。ページを更新してください。ログインしていない場合、データが復元できないことがあります。', 'error');
+                                                    return;
                                                 }
-                                                useMitigationStore.getState().loadSnapshot(planData);
                                                 store.setCurrentPlanId(plan.id);
                                                 // lastOpenedAt を更新
                                                 setLastOpened(plan.id, Date.now());
