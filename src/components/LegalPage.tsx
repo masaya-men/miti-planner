@@ -167,6 +167,13 @@ export const PrivacyPolicyPage: React.FC = () => {
                 <p className="text-app-2xl text-app-text-muted">{t('legal.privacy_section7_body')}</p>
             </Section>
 
+            {/* リアルタイム共同編集でのカーソル共有について (番号なしサブセクション) */}
+            <Section title={t('legal.privacy_collab_title')}>
+                <p className="text-app-2xl text-app-text-muted mb-3">{t('legal.privacy_collab_body')}</p>
+                <BulletList items={splitItems(t('legal.privacy_collab_items'))} />
+                <Note text={t('legal.privacy_collab_note')} />
+            </Section>
+
             {/* 8. あなたの権利 */}
             <Section title={t('legal.privacy_section8_title')}>
                 <p className="text-app-2xl text-app-text-muted mb-2">{t('legal.privacy_section8_body')}</p>
