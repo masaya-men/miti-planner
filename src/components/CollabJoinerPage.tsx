@@ -27,6 +27,21 @@ export function computeCanEdit(isLoggedIn: boolean, hasConsent: boolean): boolea
   return isLoggedIn && hasConsent;
 }
 
+/**
+ * 退室 cleanup: rehydrate(readonly 中=書込 skip で自分のソロ state を store へ戻す)→ 完了後に readonly 解除。
+ * zustand persist は **同期 storage のとき `.finally` を持たない最小 thenable** を返す
+ * (useMitigationStore は同期 storage)。素朴な `rehydrate()?.finally(...)` は `?.` が短絡せず
+ * crash する(本番のページ離脱 / dev StrictMode 二重 unmount で顕在化)。Promise.resolve でラップし、
+ * 戻り値が Promise でも最小 thenable でも undefined でも `.finally` を安全に使えるようにする。
+ * 順序(rehydrate → readonly off)は維持される(rehydrate の同期処理は呼び出し時に完了済み)。
+ */
+export function rehydrateThenClearReadonly(
+  rehydrate: () => unknown,
+  clearReadonly: () => void,
+): Promise<unknown> {
+  return Promise.resolve(rehydrate()).finally(clearReadonly);
+}
+
 /** sync が来ない場合に invalid 扱いへ倒すまでの猶予(リンク無効/サーバ停止の最終フォールバック)。 */
 const SYNC_TIMEOUT_MS = 15000;
 
@@ -75,9 +90,11 @@ export default function CollabJoinerPage() {
       // ⚠ 順序が重要: 先に rehydrate(readonly 中=書込 skip)で自分のソロ状態を store へ戻し、
       //    その後 readonly を解除する。逆順だと readonly 解除直後の state 変化で
       //    「部屋データ」を自分の localStorage に書き戻してしまう(partialize は全 PlanData)。
-      void useMitigationStore.persist
-        .rehydrate()
-        ?.finally(() => useMitigationStore.getState().setCollabReadonly(false));
+      //    rehydrate() の戻り値は同期 storage で .finally 無しの最小 thenable のため helper でラップ。
+      void rehydrateThenClearReadonly(
+        () => useMitigationStore.persist.rehydrate(),
+        () => useMitigationStore.getState().setCollabReadonly(false),
+      );
     };
   }, [roomToken]);
 
