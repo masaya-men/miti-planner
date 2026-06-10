@@ -254,9 +254,9 @@ export function startCollabSession(
   // isEditor は表示用バッジ(真実の権限は④-a のサーバゲート)= 編集接続(!readOnly)か。
   const localPresence: PresenceState = {
     color: colorForClient(provider.awareness.clientID),
-    jobId: null,         // ④-b-2 で自己選択 UI
+    jobId: null,         // ④-b-2 で自己選択 UI(store の jobId で駆動)
     isEditor: !readOnly,
-    cursorEnabled: true, // ④-b-2 でトグル
+    cursorEnabled: false, // ④-b-2: 既定 OFF オプトイン(IP 露出は本人が ON にした時のみ)
   };
   const presenceHandle = wirePresence(
     provider.awareness as unknown as AwarenessLike,
@@ -277,12 +277,20 @@ export function startCollabSession(
     onPacket: (p) => useRemoteCursorsStore.getState().apply(p),
   });
 
-  // roster や自分の cursorEnabled が変わるたびに mesh を reconcile。
-  const reconcile = () => {
+  // ④-b-2: store の cursorEnabled/jobId 変化を awareness presence に反映し、mesh を reconcile。
+  // これで「ON にした人だけが mesh に入る」(= IP を共有する)が成立。update は差分時のみ(無限ループ防止)。
+  let lastEnabled = false;
+  let lastJobId: string | null = null;
+  const syncLocalPresence = () => {
     const st = useCollabPresenceStore.getState();
+    if (st.cursorEnabled !== lastEnabled || st.jobId !== lastJobId) {
+      lastEnabled = st.cursorEnabled;
+      lastJobId = st.jobId;
+      presenceHandle.update({ cursorEnabled: st.cursorEnabled, jobId: st.jobId });
+    }
     void mesh.reconcile(st.roster, st.cursorEnabled);
   };
-  const unsubReconcile = useCollabPresenceStore.subscribe(reconcile);
+  const unsubReconcile = useCollabPresenceStore.subscribe(syncLocalPresence);
 
   // ④-b-2: Timeline からの送信を mesh.broadcast にブリッジ(Timeline は yjs 非依存のまま)。
   useCursorSendStore.getState().setBroadcaster((p) => mesh.broadcast(p), provider.awareness.clientID);
