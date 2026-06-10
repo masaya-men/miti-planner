@@ -10,7 +10,11 @@ export const CursorOptInModal: React.FC<Props> = ({ onConfirm, onCancel }) => {
   const { t } = useTranslation();
   return createPortal(
     <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50 backdrop-blur-[2px]" onClick={onCancel}>
-      <div className="relative glass-tier3 rounded-2xl shadow-2xl w-[360px] max-w-[90vw] p-5 space-y-3" onClick={e => e.stopPropagation()}>
+      <div
+        className="relative glass-tier3 rounded-2xl shadow-2xl w-[360px] max-w-[90vw] p-5 space-y-3"
+        style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
+        onClick={e => e.stopPropagation()}
+      >
         <h3 className="text-app-xl font-bold text-app-text">{t('collab.cursor_optin_title')}</h3>
         <p className="text-app-sm leading-relaxed text-app-text-muted">{t('collab.cursor_optin_body')}</p>
         <p className="text-app-sm leading-relaxed rounded-lg p-3 border border-app-border bg-app-surface2/40 text-app-text-muted">
