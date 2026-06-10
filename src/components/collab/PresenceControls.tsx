@@ -2,6 +2,7 @@
 // OFF→ON はオプトイン説明モーダルを挟む(IP 露出の同意)。ON→OFF は即時。
 // ジョブは「自分を表すアイコン」(実名なし・パーティ編成枠とは無関係)。roster/カーソルに反映。
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { User } from 'lucide-react';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
@@ -64,14 +65,17 @@ export const PresenceControls: React.FC = () => {
         <p className="text-app-xs text-app-text-muted">{t('collab.cursor_fallback')}</p>
       )}
 
-      {pickerPos && (
+      {/* JobPicker は fixed 全画面オーバーレイ。glass-tier(backdrop-filter)の中だと
+          fixed の基準がガラス枠になり画面外に出るため、body へ portal して回避する。 */}
+      {pickerPos && createPortal(
         <JobPicker
           isOpen
           position={pickerPos}
           currentJobId={jobId}
           onSelect={(id) => { setJobId(id); setPickerPos(null); }}
           onClose={() => setPickerPos(null)}
-        />
+        />,
+        document.body,
       )}
       {optInOpen && (
         <CursorOptInModal

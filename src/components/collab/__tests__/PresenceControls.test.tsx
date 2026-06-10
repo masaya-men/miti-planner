@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { PresenceControls } from '../PresenceControls';
 import { useCollabPresenceStore } from '../../../store/useCollabPresenceStore';
 
@@ -28,5 +28,15 @@ describe('PresenceControls', () => {
     render(<PresenceControls />);
     fireEvent.click(screen.getByLabelText('cursor-toggle'));
     expect(useCollabPresenceStore.getState().cursorEnabled).toBe(false);
+  });
+
+  // glass-tier(backdrop-filter)の中だと fixed の JobPicker が枠内に閉じ込められ画面外に出る。
+  // document.body へ portal して containing block を回避する(回帰防止)。
+  it('ジョブ選択ボタンで JobPicker が body へ portal される(glass 枠の外)', () => {
+    const { container } = render(<PresenceControls />);
+    fireEvent.click(screen.getByLabelText('job-select'));
+    // ピッカーのヘッダ(jobs.select_job)はコンポーネント subtree の外＝body に出る。
+    expect(within(container).queryByText('jobs.select_job')).toBeNull();
+    expect(screen.getByText('jobs.select_job')).toBeInTheDocument();
   });
 });
