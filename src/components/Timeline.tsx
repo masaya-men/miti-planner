@@ -3199,12 +3199,15 @@ const Timeline: React.FC = () => {
                             onMemoClick={handleMemoClick}
                             onMemoDelete={handleMemoDelete}
                         />
-                        {/* ④-b-2: 他者カーソル(P2P 受信) */}
-                        <CursorOverlay
-                            cursors={remoteCursors}
-                            timeToYMap={timeToYMapRef.current}
-                            sheetWidth={sheetWidth}
-                        />
+                        {/* ④-b-2: 他者カーソル(P2P 受信)。ソロ/閲覧者は remoteCursors 空 →
+                            マウントしない(rAF ループの空回りを避ける・perf)。 */}
+                        {remoteCursors.length > 0 && (
+                            <CursorOverlay
+                                cursors={remoteCursors}
+                                timeToYMap={timeToYMapRef.current}
+                                sheetWidth={sheetWidth}
+                            />
+                        )}
                         {/* メモ入力ボックス (新規 / 編集 共用) */}
                         {memoInput && (
                             <MemoInputBox
