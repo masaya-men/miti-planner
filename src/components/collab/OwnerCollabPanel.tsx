@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X, Minus, Plus, Link2 } from 'lucide-react';
 import { useCollabSessionStore } from '../../store/useCollabSessionStore';
+import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
 import { SYSTEM_MAX_PARTICIPANTS } from '../../../api/collab/_roomLogic';
 
 interface OwnerCollabPanelProps {
@@ -22,6 +23,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
   const [label, setLabel] = React.useState('');
 
   const url = roomToken ? `${window.location.origin}/collab/${roomToken}` : '';
+  const roster = useCollabPresenceStore(s => s.roster);
 
   const handleCopy = async () => {
     try {
@@ -114,6 +116,24 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
             </div>
             <div className="text-app-xs text-app-text-muted mt-1">{t('collab.people_hint', { max: SYSTEM_MAX_PARTICIPANTS })}</div>
           </div>
+
+          {/* 参加者(④-b-1) */}
+          {roster.length > 0 && (
+            <div>
+              <div className="text-app-xs uppercase tracking-wide text-app-text-muted mb-1.5">{t('collab.roster_title')}</div>
+              <ul className="space-y-1.5">
+                {roster.map((m) => (
+                  <li key={m.clientId} className="flex items-center gap-2 text-app-sm text-app-text">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: m.color }} />
+                    <span className="flex-1 truncate">{m.isLocal ? t('collab.roster_you') : `#${m.clientId}`}</span>
+                    <span className={`text-app-xs px-1.5 py-0.5 rounded ${m.isEditor ? 'text-app-text border border-app-border' : 'text-app-text-muted'}`}>
+                      {m.isEditor ? t('collab.roster_editor') : t('collab.roster_viewer')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* アクション */}
           <div className="flex gap-2 pt-3 border-t border-app-border">

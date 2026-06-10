@@ -4,9 +4,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { OwnerCollabPanel } from '../OwnerCollabPanel';
 import { useCollabSessionStore } from '../../../store/useCollabSessionStore';
+import { useCollabPresenceStore } from '../../../store/useCollabPresenceStore';
+import type { RosterEntry } from '../../../lib/collab/presence';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (k: string, o?: any) => (o?.max ? `${k}:${o.max}` : k) }),
+  useTranslation: () => ({ t: (k: string, o?: any) => (o?.max ? `${k}:${o.max}` : o?.count != null ? `${k}:${o.count}` : k) }),
 }));
 
 beforeEach(() => {
@@ -14,6 +16,12 @@ beforeEach(() => {
     active: true, roomToken: 'tok7Qk2', maxParticipants: 8, session: null,
     start: vi.fn(), setMax: vi.fn(), revoke: vi.fn(), reissue: vi.fn(),
   } as any);
+  useCollabPresenceStore.setState({
+    roster: [
+      { clientId: 7, color: '#34d399', jobId: null, isEditor: true, cursorEnabled: true, isLocal: true } as RosterEntry,
+      { clientId: 2, color: '#a78bfa', jobId: null, isEditor: false, cursorEnabled: true, isLocal: false } as RosterEntry,
+    ],
+  });
 });
 
 describe('OwnerCollabPanel', () => {
@@ -49,5 +57,13 @@ describe('OwnerCollabPanel', () => {
     fireEvent.click(screen.getByText('collab.reissue'));
     // ⑤-3c: ラベル入力欄が空のときは空文字を渡す(store/API 側で空は未設定に正規化)。
     expect(reissue).toHaveBeenCalledWith('plan1', '');
+  });
+
+  it('参加者リストを色ドット + 編集/閲覧バッジで表示する', () => {
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    expect(screen.getByText('collab.roster_title')).toBeInTheDocument();
+    expect(screen.getByText('collab.roster_you')).toBeInTheDocument();   // 自分の行
+    expect(screen.getByText('collab.roster_editor')).toBeInTheDocument(); // 編集バッジ
+    expect(screen.getByText('collab.roster_viewer')).toBeInTheDocument(); // 閲覧バッジ
   });
 });
