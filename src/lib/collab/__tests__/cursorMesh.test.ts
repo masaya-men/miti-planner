@@ -71,4 +71,14 @@ describe('createCursorMesh', () => {
     expect(created[0].sent).toContainEqual(pkt);
     mesh.destroy();
   });
+
+  it('peer が onclosed(失敗)を発火したら onFallback が呼ばれる', async () => {
+    const { factory, created } = fakePCFactory();
+    const onFallback = vi.fn();
+    const mesh = createCursorMesh({ localClientId: 2, makePeer: factory, sendSignal: vi.fn(), onFallback });
+    await mesh.reconcile([entry(2, true, true), entry(9, true)], true);
+    created[0].onclosed?.();
+    expect(onFallback).toHaveBeenCalledWith(9);
+    mesh.destroy();
+  });
 });

@@ -275,6 +275,8 @@ export function startCollabSession(
     makePeer: createRealPeer,
     sendSignal: (m) => signal.send(m),
     onPacket: (p) => useRemoteCursorsStore.getState().apply(p),
+    // P2P 不成立(厳しい NAT 等)は静かにフォールバック表示(エラー扱いしない)。
+    onFallback: () => useCollabPresenceStore.getState().setCursorFallback(true),
   });
 
   // ④-b-2: store の cursorEnabled/jobId 変化を awareness presence に反映し、mesh を reconcile。

@@ -26,6 +26,8 @@ export interface CursorMeshOptions {
   makePeer: () => PeerConnectionLike;
   sendSignal: (msg: SignalMsg) => void;
   onPacket?: (p: CursorPacket) => void;
+  /** peer 接続が失敗/切断したとき(P2P 不成立)。UI で静かにフォールバック通知する。 */
+  onFallback?: (remoteId: number) => void;
 }
 
 export interface CursorMesh {
@@ -49,7 +51,7 @@ export function createCursorMesh(opts: CursorMeshOptions): CursorMesh {
     if (pc) return pc;
     pc = opts.makePeer();
     pc.ondata = (p) => opts.onPacket?.(p);
-    pc.onclosed = () => peers.delete(remoteId);
+    pc.onclosed = () => { peers.delete(remoteId); opts.onFallback?.(remoteId); };
     peers.set(remoteId, pc);
     return pc;
   };
