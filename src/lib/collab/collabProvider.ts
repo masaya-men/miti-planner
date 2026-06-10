@@ -11,6 +11,8 @@ import {
 } from './yjsPlanData';
 import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember } from '../../types';
 import type { CollabHandlers } from './collabTypes';
+import { colorForClient, wirePresence, type AwarenessLike, type PresenceState } from './presence';
+import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
 
 /**
  * 共同編集の遅延チャンク。yjs / y-partyserver を実行時 import するのはこのファイルと
@@ -242,6 +244,21 @@ export function startCollabSession(
   // 「部屋の状態を store に反映」するだけ(自分のローカル軽減で seed しない)。これにより
   // 「部屋の状態 = Firestore の保存済み内容」が唯一の真実になり、オーナー不在でも矛盾しない。
   const readOnly = opts.readOnly ?? false;
+
+  // ④-b-1: roster(誰がいる・色・編集/閲覧)を WS awareness で全員に配信。
+  // isEditor は表示用バッジ(真実の権限は④-a のサーバゲート)= 編集接続(!readOnly)か。
+  const localPresence: PresenceState = {
+    color: colorForClient(provider.awareness.clientID),
+    jobId: null,         // ④-b-2 で自己選択 UI
+    isEditor: !readOnly,
+    cursorEnabled: true, // ④-b-2 でトグル
+  };
+  const stopPresence = wirePresence(
+    provider.awareness as unknown as AwarenessLike,
+    localPresence,
+    (roster) => useCollabPresenceStore.getState().setRoster(roster),
+  );
+
   let entered = false;
   const onSynced = (isSynced: boolean) => {
     if (!isSynced || entered) return;
@@ -262,6 +279,8 @@ export function startCollabSession(
     yPartyMembers.unobserveDeep(applyPartyMembers);
     // readOnly(ジョイナー購読)は enterCollabMode していないので exit も不要(購読解除＝unobserve で十分)。
     if (!readOnly) useMitigationStore.getState().exitCollabMode();
+    stopPresence();
+    useCollabPresenceStore.getState().clear();
     provider.destroy();
     doc.destroy();
   };
