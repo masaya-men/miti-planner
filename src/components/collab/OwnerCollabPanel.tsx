@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { X, Minus, Plus, Link2 } from 'lucide-react';
 import { useCollabSessionStore } from '../../store/useCollabSessionStore';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
+import { PresenceControls } from './PresenceControls';
 import { SYSTEM_MAX_PARTICIPANTS } from '../../../api/collab/_roomLogic';
 
 interface OwnerCollabPanelProps {
@@ -133,6 +134,11 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
                 ))}
               </ul>
             </div>
+          )}
+
+          {/* カーソル共有(④-b-2・既定 OFF オプトイン) */}
+          {roster.length > 0 && (
+            <div className="pt-1"><PresenceControls /></div>
           )}
 
           {/* アクション */}
