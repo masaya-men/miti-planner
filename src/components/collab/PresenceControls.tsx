@@ -41,7 +41,7 @@ export const PresenceControls: React.FC = () => {
         <button
           aria-label="job-select"
           onClick={openPicker}
-          className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center overflow-hidden active:scale-95 transition-transform"
+          className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center overflow-hidden cursor-pointer active:scale-95 transition-transform"
         >
           {myJobIcon
             ? <img src={myJobIcon} alt="" className="w-6 h-6 object-contain" />
@@ -55,7 +55,7 @@ export const PresenceControls: React.FC = () => {
         <button
           aria-label="cursor-toggle"
           onClick={toggle}
-          className={`relative w-11 h-6 rounded-full transition-colors ${cursorEnabled ? 'bg-app-text' : 'bg-app-surface2 border border-app-border'}`}
+          className={`relative w-11 h-6 rounded-full cursor-pointer transition-colors ${cursorEnabled ? 'bg-app-text' : 'bg-app-surface2 border border-app-border'}`}
         >
           <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-app-bg transition-transform ${cursorEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
         </button>

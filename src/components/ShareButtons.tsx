@@ -28,6 +28,7 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
     const { t } = useTranslation();
     const [view, setView] = React.useState<View>('none');
     const [showLogin, setShowLogin] = React.useState(false);
+    const [collabBusy, setCollabBusy] = React.useState(false);
     const { active, start } = useCollabSessionStore();
     const rosterCount = useCollabPresenceStore(s => s.roster.length);
     const { user, isAdmin } = useAuthStore();
@@ -44,10 +45,16 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
     };
 
     const handleCollab = async () => {
+        if (collabBusy) return;                           // 二重押し防止(発行が遅いと連打→多重発行=満員誤判定の原因)
         if (!user) { setShowLogin(true); return; }      // 未ログインはログイン導線
         if (!currentPlan) return;                         // 保存済プランが無ければ不可
-        await start(currentPlan.id);
-        setView('panel');
+        setCollabBusy(true);
+        try {
+            await start(currentPlan.id);
+            setView('panel');
+        } finally {
+            setCollabBusy(false);
+        }
     };
 
     return (
@@ -76,6 +83,7 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
                     onCopy={() => setView('copy')}
                     onCollab={handleCollab}
                     onClose={() => setView('none')}
+                    collabBusy={collabBusy}
                 />
             )}
 

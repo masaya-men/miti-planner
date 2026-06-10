@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { PALETTE, colorForClient, buildRoster, type PresenceState } from '../presence';
+import { PALETTE, colorForClient, nameForClient, buildRoster, type PresenceState } from '../presence';
 import { wirePresence, type AwarenessLike } from '../presence';
 
 const p = (over: Partial<PresenceState> = {}): PresenceState => ({
@@ -14,6 +14,33 @@ describe('colorForClient', () => {
   });
   it('負の clientId でも範囲内', () => {
     expect(PALETTE).toContain(colorForClient(-3));
+  });
+});
+
+describe('nameForClient', () => {
+  const ADJ = ['しずかな', 'ゆうかんな', 'きまぐれな'];
+  const NOUN = ['モーグリ', 'チョコボ', 'トンベリ'];
+
+  it('形容詞+名詞を区切りで連結(決定的)', () => {
+    // clientId=0: adj[0]=しずかな, noun[floor(0/3)%3=0]=モーグリ
+    expect(nameForClient(0, ADJ, NOUN, '')).toBe('しずかなモーグリ');
+    expect(nameForClient(0, ADJ, NOUN, ' ')).toBe('しずかな モーグリ');
+    // 同じ clientId は毎回同じ
+    expect(nameForClient(5, ADJ, NOUN, '')).toBe(nameForClient(5, ADJ, NOUN, ''));
+  });
+
+  it('形容詞と名詞は独立に動く(組合せの多様性)', () => {
+    expect(nameForClient(1, ADJ, NOUN, '')).toBe('ゆうかんなモーグリ'); // adj[1], noun[0]
+    expect(nameForClient(3, ADJ, NOUN, '')).toBe('しずかなチョコボ');   // adj[0], noun[1]
+  });
+
+  it('負の clientId でも undefined を含まない', () => {
+    expect(nameForClient(-1, ADJ, NOUN, '')).not.toContain('undefined');
+  });
+
+  it('空リストは #clientId フォールバック', () => {
+    expect(nameForClient(42, [], NOUN)).toBe('#42');
+    expect(nameForClient(42, ADJ, [])).toBe('#42');
   });
 });
 

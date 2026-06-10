@@ -8,7 +8,10 @@ import { useCollabPresenceStore } from '../../../store/useCollabPresenceStore';
 import type { RosterEntry } from '../../../lib/collab/presence';
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (k: string, o?: any) => (o?.max ? `${k}:${o.max}` : o?.count != null ? `${k}:${o.count}` : k) }),
+  useTranslation: () => ({
+    t: (k: string, o?: any) => (o?.max ? `${k}:${o.max}` : o?.count != null ? `${k}:${o.count}` : k),
+    i18n: { language: 'ja' },
+  }),
 }));
 
 beforeEach(() => {

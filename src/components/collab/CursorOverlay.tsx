@@ -50,7 +50,9 @@ export const CursorOverlay: React.FC<CursorOverlayProps> = ({ cursors, timeToYMa
         const tx = xRatioToPx(target.xRatio, widthRef.current);
         const ty = timeSecToY(target.timeSec, mapRef.current);
         const cur = positions.current.get(id) ?? { x: tx, y: ty };
-        const next = { x: lerp(cur.x, tx, 0.25), y: lerp(cur.y, ty, 0.25) };
+        // 補間係数を下げるほど滑らか(遅延は微増・送信量は不変=コスト不変)。
+        // 15Hz(≒66ms/4フレーム)で速く到達しすぎて減速→カクつくのを防ぐため 0.25→0.15。
+        const next = { x: lerp(cur.x, tx, 0.15), y: lerp(cur.y, ty, 0.15) };
         positions.current.set(id, next);
         el.style.transform = `translate3d(${next.x}px, ${next.y}px, 0)`;
       }

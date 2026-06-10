@@ -36,6 +36,26 @@ export function colorForClient(clientId: number): string {
   return PALETTE[((clientId % n) + n) % n];
 }
 
+/**
+ * clientId → 決定的な表示名(形容詞+名詞)。同じ人は毎回同じ名前になり、
+ * awareness の生 clientID(数字)を隠して識別しやすくする。
+ * 単語リスト(adjectives/nouns)と区切り(separator)は i18n から渡す(多言語対応)。
+ * 形容詞と名詞は独立したインデックスで選び、組合せの多様性を確保する。
+ */
+export function nameForClient(
+  clientId: number,
+  adjectives: readonly string[],
+  nouns: readonly string[],
+  separator = ' ',
+): string {
+  const a = adjectives.length;
+  const n = nouns.length;
+  if (a === 0 || n === 0) return `#${clientId}`;
+  const adjIdx = ((clientId % a) + a) % a;
+  const nounIdx = ((Math.floor(clientId / a) % n) + n) % n;
+  return `${adjectives[adjIdx]}${separator}${nouns[nounIdx]}`;
+}
+
 /** awareness の states マップを roster 配列へ。presence 未設定は除外。自分先頭→clientId 昇順。 */
 export function buildRoster(
   states: Map<number, { presence?: PresenceState } | null | undefined>,
