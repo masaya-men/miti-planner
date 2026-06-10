@@ -6,7 +6,7 @@
         "choice_collab_title": "一起编辑",
         "choice_collab_desc": "进入同一张表同时编辑",
         "chip_active": "正在共同编辑",
-        "chip_active_count": "协作编辑中 · {{count}}人",
+        "chip_active_count": "正在共同编辑 · {{count}}人",
         "panel_title": "共同编辑",
         "participants_solo": "1人(只有你)",
         "roster_title": "参加者",
