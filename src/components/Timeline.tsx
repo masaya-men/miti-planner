@@ -53,7 +53,7 @@ import { JobPickerRow } from './JobPickerRow';
 import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
-import { yToTimeSec, pxToXRatio, clampXRatio, timeSecToY, xRatioToPx } from './Memo/coords';
+import { yToTimeSec, pxToXRatio, clampXRatio, timeSecToY, xRatioToPx, reanchorScrollTop } from './Memo/coords';
 import { CursorOverlay, type RemoteCursor } from './collab/CursorOverlay';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
 import { useRemoteCursorsStore } from '../store/useRemoteCursorsStore';
@@ -1205,6 +1205,8 @@ const Timeline: React.FC = () => {
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());
+    // 表の展開/折りたたみ前後でスクロールアンカーを維持するため、直近のビューポート中央の時刻を保持
+    const lastCenterTimeRef = useRef<number | null>(null);
     const recastRowRef = useRef<RecastRowHandle>(null);
 
     // ④-b-2: 他者カーソル。roster(色)× 受信位置(byClient)を突き合わせて RemoteCursor[] に。
@@ -1271,6 +1273,11 @@ const Timeline: React.FC = () => {
         if (!scrollContainerRef.current) return;
         const scrollLeft = scrollContainerRef.current.scrollLeft;
 
+        // 縦: 表の展開/折りたたみでアンカーを維持するため、ビューポート中央の時刻を記録
+        const sc = scrollContainerRef.current;
+        const centerT = yToTimeSec(sc.scrollTop + sc.clientHeight / 2, timeToYMapRef.current);
+        if (centerT !== null) lastCenterTimeRef.current = centerT;
+
         // Use transform for more reliable sync across different content widths
         const containers = [
             { ref: headerRef, id: 'timeline-header-inner' },
@@ -1288,6 +1295,18 @@ const Timeline: React.FC = () => {
             }
         });
     };
+
+    // 表の展開/折りたたみ (hideEmptyRows) で全行の高さ・Y が変わると、scrollTop 数値は
+    // 保持されても指す時刻がズレて画面が飛ぶ。直前に見ていた中央の時刻を新しい配置で
+    // 計算し直してスクロールを合わせ、アンカーを維持する (desktop/mobile 両トグル経路に有効)。
+    const reanchorMountedRef = useRef(false);
+    useLayoutEffect(() => {
+        if (!reanchorMountedRef.current) { reanchorMountedRef.current = true; return; }
+        const c = scrollContainerRef.current;
+        const anchor = lastCenterTimeRef.current;
+        if (!c || anchor === null) return;
+        c.scrollTop = reanchorScrollTop(anchor, timeToYMapRef.current, c.clientHeight);
+    }, [hideEmptyRows]);
 
 
     useEffect(() => {

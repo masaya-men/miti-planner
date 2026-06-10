@@ -63,6 +63,21 @@ export function yToTimeSec(yPx: number, timeToYMap: Map<number, number>): number
     return entries[entries.length - 1][0];
 }
 
+/**
+ * 表の展開/折りたたみ (動的高さの変化) の前後でスクロールのアンカーを維持するための
+ * 新しい scrollTop を求める。anchorTimeSec を新しい timeToYMap で y に変換し、
+ * その時刻がビューポート中央に来るよう clientHeight の半分を引く (0 未満は 0 にクランプ)。
+ * 高さが変わっても「見ていた時刻」が画面中央付近に留まる。
+ */
+export function reanchorScrollTop(
+    anchorTimeSec: number,
+    timeToYMap: Map<number, number>,
+    clientHeight: number,
+): number {
+    const centerY = timeSecToY(anchorTimeSec, timeToYMap);
+    return Math.max(0, centerY - clientHeight / 2);
+}
+
 /** x 座標 (px) → xRatio (0〜1) */
 export function pxToXRatio(xPx: number, widthPx: number): number {
     if (widthPx <= 0) return 0;

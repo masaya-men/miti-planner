@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { timeSecToY, yToTimeSec, pxToXRatio, xRatioToPx, clampXRatio } from '../coords';
+import { timeSecToY, yToTimeSec, pxToXRatio, xRatioToPx, clampXRatio, reanchorScrollTop } from '../coords';
 
 describe('Memo coords (動的高さ対応)', () => {
     // 想定 timeToYMap: { 0: 0, 10: 100, 11: 130, 12: 200, 20: 300 }
@@ -64,5 +64,20 @@ describe('Memo coords (動的高さ対応)', () => {
         it('範囲内はそのまま', () => expect(clampXRatio(0.5)).toBe(0.5));
         it('負はクランプ 0', () => expect(clampXRatio(-0.2)).toBe(0));
         it('1 超はクランプ 1', () => expect(clampXRatio(1.5)).toBe(1));
+    });
+
+    describe('reanchorScrollTop (展開/折りたたみのアンカー維持)', () => {
+        it('同じ時刻が高さ変化後もビューポート中央に来る scrollTop を返す', () => {
+            // 折りたたみ時は時刻20が y300、展開時は y600 (高さ倍) になる想定
+            const folded = new Map<number, number>([[0, 0], [20, 300]]);
+            const expanded = new Map<number, number>([[0, 0], [20, 600]]);
+            // 時刻10をビューポート中央 (clientHeight=200) に置く scrollTop
+            expect(reanchorScrollTop(10, folded, 200)).toBe(50);    // 150 - 100
+            expect(reanchorScrollTop(10, expanded, 200)).toBe(200); // 300 - 100
+        });
+        it('上端付近は 0 にクランプ', () => {
+            const map = new Map<number, number>([[0, 0], [20, 600]]);
+            expect(reanchorScrollTop(0, map, 200)).toBe(0); // -100 → 0
+        });
     });
 });
