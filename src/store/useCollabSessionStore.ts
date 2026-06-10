@@ -42,6 +42,9 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     const info = await createRoom(planId, undefined, label);
     const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
+    // ローカル plan にも ON を反映(バッジ・自動接続の即時性。Firestore は room API が真実)。
+    const { usePlanStore } = await import('./usePlanStore');
+    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken });
   },
 
   setMax: async (planId, n) => {
@@ -53,6 +56,9 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     await revokeRoom(planId);
     get().session?.disconnect();
     set({ active: false, roomToken: null, session: null, collabPlanId: null });
+    // ローカル plan の ON を解除(バッジ・自動接続の即時性)。
+    const { usePlanStore } = await import('./usePlanStore');
+    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: undefined });
   },
 
   reissue: async (planId, label) => {

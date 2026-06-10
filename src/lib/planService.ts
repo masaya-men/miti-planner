@@ -80,8 +80,8 @@ function toFirestoreUpdate(
   return cleaned;
 }
 
-/** Firestoreドキュメント → SavedPlan */
-function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
+/** Firestoreドキュメント → SavedPlan (マッピングをテストするため export) */
+export function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
   return {
     id: docId,
     ownerId: data.ownerId,
@@ -101,6 +101,8 @@ function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
       : Date.now(),
     // 墓標フラグ (true のときのみ持たせる。live プランには付けない)
     ...(data.deleted === true ? { deleted: true as const } : {}),
+    // 共同編集 ON のルームトークン (ある時のみ。ON/OFF バッジ・自動接続の判定に使う)
+    ...(data.activeCollabRoomToken ? { activeCollabRoomToken: data.activeCollabRoomToken } : {}),
   };
 }
 

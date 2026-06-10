@@ -301,4 +301,9 @@ export interface SavedPlan {
      * UX 判定も乗っていたため誤発火していた。 このフィールドで UX 判定を独立させる。
      */
     _createdLoggedIn?: boolean;
+    /**
+     * 共同編集 ON のとき有効なルームトークン。OFF/未発行は未設定。
+     * Firestore plan doc の同名フィールドから降ろす (ON/OFF バッジ・自動接続の判定に使う)。
+     */
+    activeCollabRoomToken?: string;
 }
