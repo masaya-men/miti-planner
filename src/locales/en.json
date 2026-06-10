@@ -14,6 +14,7 @@
         "roster_viewer": "Viewing",
         "roster_you": "You",
         "cursor_share_label": "Share cursor",
+        "cursor_job_label": "Your job",
         "cursor_optin_title": "Turn on cursor sharing",
         "cursor_optin_body": "Your mouse movements will become visible to people in this room.",
         "cursor_optin_ip": "As a technical side effect, people in this room can see your IP address (enough to estimate your rough region; not your name or home address). Only people you shared the link with can join.",

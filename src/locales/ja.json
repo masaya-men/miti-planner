@@ -14,6 +14,7 @@
         "roster_viewer": "閲覧",
         "roster_you": "あなた",
         "cursor_share_label": "カーソル共有",
+        "cursor_job_label": "自分のジョブ",
         "cursor_optin_title": "カーソル共有をオンにします",
         "cursor_optin_body": "あなたのマウスの動きが、この部屋の参加者に見えるようになります。",
         "cursor_optin_ip": "技術的な副作用として、部屋の参加者にあなたの IP アドレス(おおよその地域が分かる程度。名前・住所は分かりません)が見えます。部屋に入れるのは、リンクを渡した相手だけです。",

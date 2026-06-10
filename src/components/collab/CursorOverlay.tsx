@@ -1,8 +1,10 @@
 // ④-b-2: 他者カーソルをタイムライン上に描く。位置は rAF lerp で transform 直書き(高頻度 setState 禁止)。
-// React 再レンダーは「描く peer 集合の増減」時のみ。色は roster 由来(props)。jobId は将来用(現状非表示)。
-import React, { useEffect, useRef } from 'react';
+// React 再レンダーは「描く peer 集合の増減」時のみ。色/ジョブは roster 由来(props)。
+// jobId → アイコン URL は useJobs() で解決(本人が選んだ自己表現ジョブ・実名なし)。
+import React, { useEffect, useMemo, useRef } from 'react';
 import { timeSecToY, xRatioToPx } from '../Memo/coords';
 import { lerp } from '../../lib/collab/cursorInterp';
+import { useJobs } from '../../hooks/useSkillsData';
 import './cursor.css';
 
 export interface RemoteCursor {
@@ -19,6 +21,14 @@ interface CursorOverlayProps {
 }
 
 export const CursorOverlay: React.FC<CursorOverlayProps> = ({ cursors, timeToYMap, sheetWidth }) => {
+  // jobId → アイコン URL(本人選択ジョブ。未選択は表示なし)。
+  const jobs = useJobs();
+  const jobIconById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const j of jobs) m.set(j.id, j.icon);
+    return m;
+  }, [jobs]);
+
   // 目標座標を ref で保持(描画ループが毎フレーム読む。setState しない)。
   const targets = useRef<Map<number, { timeSec: number; xRatio: number }>>(new Map());
   const elRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -64,6 +74,9 @@ export const CursorOverlay: React.FC<CursorOverlayProps> = ({ cursors, timeToYMa
           <svg className="collab-cursor__arrow" width="14" height="20" viewBox="0 0 14 20" aria-hidden>
             <path d="M1 1 L1 16 L5 12 L8 18 L10 17 L7 11 L13 11 Z" fill="currentColor" stroke="#000" strokeWidth="1" />
           </svg>
+          {c.jobId && jobIconById.has(c.jobId) && (
+            <img className="collab-cursor__job" src={jobIconById.get(c.jobId)} alt="" />
+          )}
         </div>
       ))}
     </>

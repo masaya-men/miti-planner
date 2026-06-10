@@ -14,6 +14,7 @@
         "roster_viewer": "查看",
         "roster_you": "你",
         "cursor_share_label": "光标共享",
+        "cursor_job_label": "你的职业",
         "cursor_optin_title": "开启光标共享",
         "cursor_optin_body": "你的鼠标移动将对此房间的参与者可见。",
         "cursor_optin_ip": "作为技术副作用，房间内的参与者可以看到你的 IP 地址（大致能推测所在地区，但无法得知姓名和住址）。只有收到链接的人才能加入房间。",

@@ -8,3 +8,14 @@
   will-change: transform;
 }
 .collab-cursor__arrow { display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5)); }
+/* 矢印の右上に小さくジョブアイコン(自己表現・実名なし)。色枠で誰かを補助識別。 */
+.collab-cursor__job {
+  position: absolute;
+  top: -4px;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  object-fit: contain;
+  box-shadow: 0 0 0 1.5px currentColor;
+}
