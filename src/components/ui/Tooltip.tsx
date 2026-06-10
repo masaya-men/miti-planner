@@ -115,6 +115,27 @@ export const Tooltip: React.FC<TooltipProps> = ({
         };
     }, []);
 
+    // ドラッグ等で要素を掴むと setPointerCapture により mouseleave が発火せず、
+    // ツールチップが閉じられないまま残留する (連続ドラッグで複数残る)。
+    // 掴んだ瞬間 (pointerdown) を全体で監視して、表示中・表示予約中を確実に閉じる。
+    // capture phase で拾うため、子要素が stopPropagation しても先に検知できる。
+    useEffect(() => {
+        const forceHide = () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+                timeoutRef.current = null;
+            }
+            if (leaveTimeoutRef.current) {
+                clearTimeout(leaveTimeoutRef.current);
+                leaveTimeoutRef.current = null;
+            }
+            cancelAnimationFrame(rafRef.current);
+            setIsVisible(false);
+        };
+        document.addEventListener('pointerdown', forceHide, true);
+        return () => document.removeEventListener('pointerdown', forceHide, true);
+    }, []);
+
     // モバイルではツールチップを表示しない（タッチ時に残る問題を防止）
     if (isMobile) {
         return <div className={clsx("relative flex items-center justify-center w-fit h-fit", wrapperClassName)}>{children}</div>;
