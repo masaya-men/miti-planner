@@ -6,6 +6,9 @@ import { useThemeStore } from '../store/useThemeStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCollabSessionStore } from '../store/useCollabSessionStore';
+import { decideCollabAction } from '../lib/collab/collabReconcile';
+import { loadPlanDataIntoStore } from '../lib/planLoad';
 import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
@@ -205,6 +208,38 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // リモートデータ読み込み中フラグ（PULL/マイグレーション時のdirty marking防止）
     const isRemoteLoadingRef = React.useRef(false);
+
+    // collab ライフサイクル管制: 「見ているプラン = 接続先」を常に一致させる。
+    // collab 中に別プランへ移ったら必ず disconnect (exitCollabMode + unobserve) し、
+    // 切替先プランをローカル再ロードする (collab 中 loadSnapshot は no-op だったので張り直す)。
+    // ⚠ 配置順が重要: この subscribe は下の自動保存 subscribe より先に登録する。
+    //   さもないと自動保存の saveSilently が新プランへ旧(collab)データを書き戻してしまう。
+    //   先に disconnect+再ロードで mitistore を新プランに直してから自動保存が走る。
+    React.useEffect(() => {
+        let prev = usePlanStore.getState().currentPlanId;
+        const unsub = usePlanStore.subscribe((state) => {
+            const newId = state.currentPlanId;
+            if (newId === prev) return;
+            prev = newId;
+            const sess = useCollabSessionStore.getState();
+            const action = decideCollabAction({
+                sessionActive: sess.active,
+                collabPlanId: sess.collabPlanId,
+                newPlanId: newId,
+            });
+            if (action.type === 'disconnect-and-reload') {
+                sess.session?.disconnect(); // exitCollabMode + observer 解除
+                useCollabSessionStore.setState({ active: false, roomToken: null, session: null, collabPlanId: null, maxParticipants: 8 });
+                // disconnect 後 (_collabActive=false) に現在プランを再ロード。
+                const p = usePlanStore.getState().plans.find((x) => x.id === newId);
+                if (p) void loadPlanDataIntoStore(p);
+            }
+        });
+        // ページ離脱時もセッションを切断 (端末メモリ汚染を残さない)。
+        const onUnload = () => useCollabSessionStore.getState().session?.disconnect();
+        window.addEventListener('beforeunload', onUnload);
+        return () => { unsub(); window.removeEventListener('beforeunload', onUnload); };
+    }, []);
 
     // 自動保存（2層構造）
     // localStorage: 変更検知→500msデバウンス→即時保存（コストゼロ）
