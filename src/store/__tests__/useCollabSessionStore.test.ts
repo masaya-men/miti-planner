@@ -27,7 +27,7 @@ beforeEach(() => {
   mk(revokeRoom).mockReset();
   mk(reissueRoom).mockReset();
   mk(startCollabSession).mockReset();
-  useCollabSessionStore.setState({ active: false, roomToken: null, maxParticipants: 8, session: null });
+  useCollabSessionStore.setState({ active: false, roomToken: null, maxParticipants: 8, session: null, collabPlanId: null });
 });
 
 describe('useCollabSessionStore', () => {
@@ -71,6 +71,30 @@ describe('useCollabSessionStore', () => {
     expect(s.active).toBe(false);
     expect(s.roomToken).toBeNull();
     expect(s.session).toBeNull();
+  });
+
+  it('start: collabPlanId に planId を記録する', async () => {
+    mk(createRoom).mockResolvedValue({ roomToken: 'tok', maxParticipants: 8, revoked: false });
+    mk(startCollabSession).mockReturnValue(fakeSession());
+    await useCollabSessionStore.getState().start('planA');
+    expect(useCollabSessionStore.getState().collabPlanId).toBe('planA');
+  });
+
+  it('start: 既存セッションがあれば先に disconnect してから張り直す', async () => {
+    const oldSess = fakeSession();
+    useCollabSessionStore.setState({ active: true, roomToken: 'old', session: oldSess, collabPlanId: 'planA', maxParticipants: 8 });
+    mk(createRoom).mockResolvedValue({ roomToken: 'new', maxParticipants: 8, revoked: false });
+    mk(startCollabSession).mockReturnValue(fakeSession());
+    await useCollabSessionStore.getState().start('planB');
+    expect(oldSess.disconnect).toHaveBeenCalled();
+    expect(useCollabSessionStore.getState().collabPlanId).toBe('planB');
+  });
+
+  it('revoke: collabPlanId も null に戻す', async () => {
+    useCollabSessionStore.setState({ active: true, roomToken: 'tok', session: fakeSession(), collabPlanId: 'planA', maxParticipants: 8 });
+    mk(revokeRoom).mockResolvedValue({ revoked: true });
+    await useCollabSessionStore.getState().revoke('planA');
+    expect(useCollabSessionStore.getState().collabPlanId).toBeNull();
   });
 
   it('reissue: 旧 disconnect→reissueRoom→新 startCollabSession', async () => {

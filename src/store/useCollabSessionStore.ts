@@ -16,6 +16,8 @@ interface CollabSessionState {
   maxParticipants: number;
   /** 生きている Yjs セッション(切断用)。UI には出さない。 */
   session: CollabSession | null;
+  /** 現在のセッションが属するプラン ID。未接続は null。管制 (Layout) が現在プランと突き合わせる。 */
+  collabPlanId: string | null;
 
   /** リンク発行(冪等)→自分の表をライブ接続。label は任意の部屋名(⑤-3c)。 */
   start: (planId: string, label?: string) => Promise<void>;
@@ -32,11 +34,14 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
   roomToken: null,
   maxParticipants: 8,
   session: null,
+  collabPlanId: null,
 
   start: async (planId, label) => {
+    // 二重開始リーク防止: 既存セッションがあれば先に切断してから張り直す。
+    get().session?.disconnect();
     const info = await createRoom(planId, undefined, label);
     const session = startCollabSession(info.roomToken);
-    set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session });
+    set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
   },
 
   setMax: async (planId, n) => {
@@ -47,13 +52,13 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
   revoke: async (planId) => {
     await revokeRoom(planId);
     get().session?.disconnect();
-    set({ active: false, roomToken: null, session: null });
+    set({ active: false, roomToken: null, session: null, collabPlanId: null });
   },
 
   reissue: async (planId, label) => {
     get().session?.disconnect();
     const info = await reissueRoom(planId, label);
     const session = startCollabSession(info.roomToken);
-    set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session });
+    set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
   },
 }));
