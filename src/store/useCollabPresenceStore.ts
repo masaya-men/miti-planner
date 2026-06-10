@@ -22,7 +22,8 @@ export const useCollabPresenceStore = create<CollabPresenceState>((set) => ({
   cursorEnabled: false,
   jobId: null,
   cursorFallback: false,
-  setCursorEnabled: (v) => set({ cursorEnabled: v }),
+  // トグル時に fallback 通知をリセット(前回の失敗表示が次の ON 直後に残らないように)。
+  setCursorEnabled: (v) => set({ cursorEnabled: v, cursorFallback: false }),
   setJobId: (id) => set({ jobId: id }),
   setCursorFallback: (v) => set({ cursorFallback: v }),
   clear: () => set({ roster: [], cursorEnabled: false, jobId: null, cursorFallback: false }),

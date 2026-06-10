@@ -37,13 +37,19 @@ export interface CursorMesh {
   destroy(): void;
 }
 
+/** P2P が張れない相手へのリトライ上限(これを超えたら諦める=設計§6.3。TURN 中継は使わない)。 */
+const MAX_ATTEMPTS = 3;
+
 export function createCursorMesh(opts: CursorMeshOptions): CursorMesh {
   const peers = new Map<number, PeerConnectionLike>();
+  const attempts = new Map<number, number>(); // remoteId → 接続試行回数(諦め判定用)
   let nonce = 1;
 
+  /** 意図的に接続を閉じる(相手の OFF/退室・自分の OFF)。onclosed を外してから閉じ、
+   *  予期しない切断(fallback)と区別する(意図的 close を fallback 誤発火させない)。 */
   const drop = (id: number) => {
     const pc = peers.get(id);
-    if (pc) { pc.close(); peers.delete(id); }
+    if (pc) { pc.onclosed = null; pc.close(); peers.delete(id); }
   };
 
   const ensurePeer = (remoteId: number): PeerConnectionLike => {
@@ -51,19 +57,24 @@ export function createCursorMesh(opts: CursorMeshOptions): CursorMesh {
     if (pc) return pc;
     pc = opts.makePeer();
     pc.ondata = (p) => opts.onPacket?.(p);
+    // 予期しない切断/接続失敗のみここに来る(意図的 drop は onclosed を外している)。
     pc.onclosed = () => { peers.delete(remoteId); opts.onFallback?.(remoteId); };
     peers.set(remoteId, pc);
+    attempts.set(remoteId, (attempts.get(remoteId) ?? 0) + 1);
     return pc;
   };
 
   return {
     async reconcile(roster, localEnabled) {
       const targets = new Set(meshTargets(roster, opts.localClientId, localEnabled));
-      // 不要になった接続を閉じる
+      // 不要になった接続を閉じる + 試行回数を忘れる(同じ相手が再入室したら再試行できるように)。
       for (const id of [...peers.keys()]) if (!targets.has(id)) drop(id);
+      for (const id of [...attempts.keys()]) if (!targets.has(id)) attempts.delete(id);
       // 新規 target を張る。initiator(小さい clientID)だけが offer を送る。answerer は offer を待つ。
+      // MAX_ATTEMPTS 回失敗した相手は諦める(再接続しない=設計§6.3。roster には見えたまま)。
       for (const remoteId of targets) {
         if (peers.has(remoteId)) continue;
+        if ((attempts.get(remoteId) ?? 0) >= MAX_ATTEMPTS) continue;
         const pc = ensurePeer(remoteId);
         if (isInitiator(opts.localClientId, remoteId)) {
           const sdp = await pc.createOfferSDP();

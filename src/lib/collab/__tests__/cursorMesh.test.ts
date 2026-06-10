@@ -81,4 +81,27 @@ describe('createCursorMesh', () => {
     expect(onFallback).toHaveBeenCalledWith(9);
     mesh.destroy();
   });
+
+  it('意図的に閉じた peer(相手の OFF/退室)は onFallback を発火しない', async () => {
+    const { factory, created } = fakePCFactory();
+    const onFallback = vi.fn();
+    const mesh = createCursorMesh({ localClientId: 2, makePeer: factory, sendSignal: vi.fn(), onFallback });
+    await mesh.reconcile([entry(2, true, true), entry(9, true)], true);
+    await mesh.reconcile([entry(2, true, true)], true); // 9 が退室 → 意図的 drop
+    created[0].onclosed?.(); // drop で onclosed が外されているので呼んでも無反応
+    expect(onFallback).not.toHaveBeenCalled();
+    mesh.destroy();
+  });
+
+  it('MAX_ATTEMPTS(3)回失敗したら諦めて再接続しない(設計§6.3)', async () => {
+    const { factory, created } = fakePCFactory();
+    const mesh = createCursorMesh({ localClientId: 2, makePeer: factory, sendSignal: vi.fn() });
+    const roster = [entry(2, true, true), entry(9, true)];
+    for (let i = 0; i < 5; i++) {
+      await mesh.reconcile(roster, true);
+      created[created.length - 1]?.onclosed?.(); // 接続失敗をシミュレート
+    }
+    expect(created.length).toBe(3); // 3 回試行 → 以後は諦めて peer を作らない
+    mesh.destroy();
+  });
 });
