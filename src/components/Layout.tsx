@@ -223,13 +223,23 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             // 管制本体は collabLifecycle に切り出し済 (回帰テスト collabLifecycle.test.ts)。
             reconcileCollabForPlan(newId);
         });
+        // auth 確定でオーナー判定が変わる。ログインが解決した瞬間に現在プランを再評価し、
+        // collab-ON の自分のプランならライブ接続を復帰させる (リロード時 auth 未確定対策)。
+        // 既に正しく接続済みなら decideCollabAction は 'none' を返すので冪等 (二重接続しない)。
+        let prevUid = useAuthStore.getState().user?.uid ?? null;
+        const unsubAuth = useAuthStore.subscribe((state) => {
+            const uid = state.user?.uid ?? null;
+            if (uid === prevUid) return;
+            prevUid = uid;
+            if (uid) reconcileCollabForPlan(usePlanStore.getState().currentPlanId);
+        });
         // ページ離脱時もセッションを切断 (端末メモリ汚染を残さない)。
         const onUnload = () => useCollabSessionStore.getState().session?.disconnect();
         window.addEventListener('beforeunload', onUnload);
-        // 初回マウント: 既に collab-ON のプランが開かれていればオーナーは自動接続 (リロード復帰・Task 6)。
-        // 注: ログイン解決前は isOwner=false で connect しない。auth 確定後の復帰は今後の課題。
+        // 初回マウント: 既に collab-ON のプランが開かれていればオーナーは自動接続 (リロード復帰)。
+        // この時点で auth 未確定なら上の unsubAuth が確定後に拾う。
         reconcileCollabForPlan(usePlanStore.getState().currentPlanId);
-        return () => { unsub(); window.removeEventListener('beforeunload', onUnload); };
+        return () => { unsub(); unsubAuth(); window.removeEventListener('beforeunload', onUnload); };
     }, []);
 
     // 自動保存（2層構造）

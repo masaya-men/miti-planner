@@ -100,4 +100,23 @@ describe('reconcileCollabForPlan (collab ライフサイクル管制の本体)',
 
     expect(useCollabSessionStore.getState().active).toBe(false);
   });
+
+  // ON→ON 切替: 別の collab-ON 自分プランへ移ったら、旧部屋を切断後にその部屋へライブ接続し直す(業界標準)。
+  it('接続中に別の collab-ON 自分プランへ移動 → 切断後にその部屋へ接続(ON→ONもライブ)', async () => {
+    useAuthStore.setState({ user: { uid: 'owner1' } } as any);
+    const oldSess = fakeSession();
+    useCollabSessionStore.setState({ active: true, roomToken: 'tokA', session: oldSess, collabPlanId: 'A', maxParticipants: 8 });
+    usePlanStore.setState({ plans: [{ id: 'B', data: { marker: 'B' }, ownerId: 'owner1', activeCollabRoomToken: 'tokB' } as any], currentPlanId: 'B' as any });
+
+    reconcileCollabForPlan('B');
+
+    expect(oldSess.disconnect).toHaveBeenCalledTimes(1);   // 旧部屋 A を切断
+    expect(loadPlanDataIntoStore).toHaveBeenCalled();      // B をローカル再ロード(即時表示)
+    await vi.waitFor(() => {                                // 切断後に B の部屋へライブ接続
+      const s = useCollabSessionStore.getState();
+      expect(s.active).toBe(true);
+      expect(s.collabPlanId).toBe('B');
+    });
+    expect(useCollabSessionStore.getState().roomToken).toBe('tokB');
+  });
 });

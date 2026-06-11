@@ -34,10 +34,13 @@ export function reconcileCollabForPlan(newPlanId: string | null): void {
     useCollabSessionStore.setState({ active: false, roomToken: null, session: null, collabPlanId: null, maxParticipants: 8 });
     // disconnect 後 (_collabActive=false) に現在プランを再ロード。
     if (p) void loadPlanDataIntoStore(p);
+    // 切替先も collab-ON + オーナーならライブ接続し直す (ON→ON 切替もちゃんと共同編集に=業界標準)。
+    // いま active=false なので再評価は 'connect' か 'none' を返すだけ (無限再帰しない)。
+    reconcileCollabForPlan(newPlanId);
     return;
   }
   if (action.type === 'connect') {
-    // 未接続で collab-ON の自分のプランを開いた → 既存リンクへ自動接続 (部屋が真実なので再ロードしない)。
-    useCollabSessionStore.getState().connectExisting(action.roomToken, action.planId);
+    // collab-ON の自分のプランを開いた → 既存リンクへ自動接続 (部屋が真実なので再ロードしない)。
+    void useCollabSessionStore.getState().connectExisting(action.roomToken, action.planId);
   }
 }
