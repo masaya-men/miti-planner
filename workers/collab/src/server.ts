@@ -140,6 +140,16 @@ export class Room extends YServer {
       const stored = await this.ctx.storage.get<number>(MAX_PARTICIPANTS_KEY);
       return Response.json({ count, max: resolveMaxParticipants(stored) });
     }
+    if (url.pathname.endsWith("/destroy")) {
+      // 失効/再発行で受付係(Vercel)が叩く。共有シークレットで認証（クライアントは到達不可）。
+      const secret = request.headers.get("x-collab-secret");
+      if (!this.collabEnv.COLLAB_SHARED_SECRET || secret !== this.collabEnv.COLLAB_SHARED_SECRET) {
+        return new Response("unauthorized", { status: 401 });
+      }
+      this.#saveEnabled = false;          // 以後の debounce save を止める
+      await this.ctx.storage.deleteAll(); // バイナリ・max・チャンクを丸ごと破棄
+      return Response.json({ destroyed: true });
+    }
     return new Response("Not Found", { status: 404 });
   }
 }

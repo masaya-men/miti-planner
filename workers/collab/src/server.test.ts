@@ -142,6 +142,24 @@ describe("Room (YServer) ", () => {
     expect(true).toBe(true);
   });
 
+  it("/destroy は共有シークレット付きで storage を全消去し 200 を返す", async () => {
+    const res = await SELF.fetch("https://collab.test/parties/room/destroy-room/destroy", {
+      method: "POST",
+      headers: { "x-collab-secret": "test-secret" },
+    });
+    expect(res.status).toBe(200);
+    const body = await res.json<{ destroyed?: boolean }>();
+    expect(body.destroyed).toBe(true);
+  });
+
+  it("/destroy はシークレット無し/誤りを 401 で拒否", async () => {
+    const res = await SELF.fetch("https://collab.test/parties/room/destroy-room/destroy", {
+      method: "POST",
+      headers: { "x-collab-secret": "wrong" },
+    });
+    expect(res.status).toBe(401);
+  });
+
   it("2 回目のロードは Firestore を再 fetch せずバイナリから復元する（再 seed 合流の封じ込め）", async () => {
     // 1 回目の onLoad だけ load を 1 回 intercept。2 回目に再 fetch したら
     // afterEach の assertNoPendingInterceptors が pending を検出して失敗する。
