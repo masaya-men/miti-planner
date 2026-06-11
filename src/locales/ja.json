@@ -1,6 +1,11 @@
 {
     "collab": {
         "badge_on": "共同編集 ON",
+        "turn_off": "共同編集を OFF にする",
+        "off_confirm_title": "共同編集を OFF にしますか？",
+        "off_confirm_body": "OFF にすると今いる全員が編集できなくなり、リンクは無効になります。再度 ON にすると新しいリンクが発行されます。",
+        "off_confirm_ok": "OFF にする",
+        "connecting": "接続中…",
         "choice_title": "どう共有しますか？",
         "choice_copy_title": "コピーを配る",
         "choice_copy_desc": "相手が自分用のコピーを作ります(従来)",

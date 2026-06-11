@@ -1,6 +1,11 @@
 {
     "collab": {
         "badge_on": "공동 편집 켜짐",
+        "turn_off": "공동 편집 끄기",
+        "off_confirm_title": "공동 편집을 끌까요?",
+        "off_confirm_body": "끄면 현재 참여 중인 모두가 편집할 수 없게 되고 링크가 무효화됩니다. 다시 켜면 새 링크가 발급됩니다.",
+        "off_confirm_ok": "끄기",
+        "connecting": "연결 중…",
         "choice_title": "어떻게 공유할까요?",
         "choice_copy_title": "사본 나눠주기",
         "choice_copy_desc": "상대가 자신의 사본을 만듭니다 (기존)",

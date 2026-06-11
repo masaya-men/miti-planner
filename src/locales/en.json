@@ -1,6 +1,11 @@
 {
     "collab": {
         "badge_on": "Live collaboration on",
+        "turn_off": "Turn off collaboration",
+        "off_confirm_title": "Turn off collaboration?",
+        "off_confirm_body": "Turning it off stops everyone here from editing and invalidates the link. Turning it on again issues a new link.",
+        "off_confirm_ok": "Turn off",
+        "connecting": "Connecting…",
         "choice_title": "How do you want to share?",
         "choice_copy_title": "Hand out a copy",
         "choice_copy_desc": "The other person gets their own copy (classic)",

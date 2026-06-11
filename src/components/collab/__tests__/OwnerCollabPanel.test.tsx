@@ -44,12 +44,16 @@ describe('OwnerCollabPanel', () => {
     expect(setMax).toHaveBeenCalledWith('plan1', 9);
   });
 
-  it('失効ボタンで revoke→onClose', () => {
+  it('OFFボタンは即 revoke せず確認モーダルを挟む→確認で revoke', () => {
     const revoke = vi.fn().mockResolvedValue(undefined);
     const onClose = vi.fn();
     useCollabSessionStore.setState({ revoke } as any);
     render(<OwnerCollabPanel planId="plan1" onClose={onClose} />);
-    fireEvent.click(screen.getByText('collab.revoke'));
+    // OFF ボタンを押しただけでは切断しない (誤操作防止の確認 1 枚)
+    fireEvent.click(screen.getByText('collab.turn_off'));
+    expect(revoke).not.toHaveBeenCalled();
+    // 確認モーダルの「OFF にする」で実行
+    fireEvent.click(screen.getByText('collab.off_confirm_ok'));
     expect(revoke).toHaveBeenCalledWith('plan1');
   });
 

@@ -33,6 +33,10 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
     const rosterCount = useCollabPresenceStore(s => s.roster.length);
     const { user, isAdmin } = useAuthStore();
 
+    // ON 判定は「プランが collab-ON か」(プラン属性・サイドバーバッジと同基準) に寄せる。
+    // active(ライブ接続) は ON の部分集合。Task6 自動接続でほぼ即一致するが、接続前でも ON を見せる(A案)。
+    const isOn = active || !!currentPlan?.activeCollabRoomToken;
+
     const openShareUI = () => {
         const { completed, isActive } = useTutorialStore.getState();
         if (!completed['share'] && !isActive) useTutorialStore.getState().startTutorial('share');
@@ -40,8 +44,8 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
         // 一般ユーザーは従来どおりコピー共有へ直行 (2択を見せない)。
         // 正式公開時はこの分岐を外すだけで全ユーザーに開放できる。
         if (!isAdmin) { setView('copy'); return; }
-        // 共同編集中はチップ=パネル直行。通常時は2択。
-        setView(active ? 'panel' : 'choice');
+        // ON のプラン=パネル直行。OFF=2択。
+        setView(isOn ? 'panel' : 'choice');
     };
 
     const handleCollab = async () => {
@@ -59,8 +63,8 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
 
     return (
         <>
-            <Tooltip content={active ? t('collab.chip_active') : t('app.share')}>
-                {active ? (
+            <Tooltip content={isOn ? t('collab.chip_active') : t('app.share')}>
+                {isOn ? (
                     <button
                         onClick={openShareUI}
                         className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-app-text/40 bg-app-text/10 text-app-text font-bold text-app-sm cursor-pointer active:scale-95 transition-all"

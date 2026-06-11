@@ -8,8 +8,10 @@ import { useTranslation } from 'react-i18next';
 import { X, Minus, Plus, Link2 } from 'lucide-react';
 import { useCollabSessionStore } from '../../store/useCollabSessionStore';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
+import { usePlanStore } from '../../store/usePlanStore';
 import { nameForClient } from '../../lib/collab/presence';
 import { PresenceControls } from './PresenceControls';
+import { ConfirmDialog } from '../ConfirmDialog';
 import { SYSTEM_MAX_PARTICIPANTS } from '../../../api/collab/_roomLogic';
 
 interface OwnerCollabPanelProps {
@@ -19,13 +21,17 @@ interface OwnerCollabPanelProps {
 
 export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onClose }) => {
   const { t, i18n } = useTranslation();
-  const { roomToken, maxParticipants, setMax, revoke, reissue } = useCollabSessionStore();
+  const { active, roomToken, maxParticipants, setMax, revoke, reissue } = useCollabSessionStore();
   const [copied, setCopied] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
+  const [confirmOff, setConfirmOff] = React.useState(false);
   // ⑤-3c: 任意の部屋名(ジョイナーのバナーに「○○ の本物の表」と表示)。空欄なら汎用文言。
   const [label, setLabel] = React.useState('');
 
-  const url = roomToken ? `${window.location.origin}/collab/${roomToken}` : '';
+  // リンクはプラン保存トークン(Task4)へフォールバック=接続前でも即生成・空欄にしない(A案・業界水準)。
+  const planToken = usePlanStore(s => s.plans.find(p => p.id === planId)?.activeCollabRoomToken);
+  const effectiveToken = roomToken || planToken;
+  const url = effectiveToken ? `${window.location.origin}/collab/${effectiveToken}` : '';
   const roster = useCollabPresenceStore(s => s.roster);
 
   // 表示名の材料(i18n)。ja/zh は区切りなし、en/ko は半角スペース。
@@ -133,7 +139,8 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
                   ))}
                 </ul>
               ) : (
-                <p className="text-app-sm text-app-text-muted">{t('collab.participants_solo')}</p>
+                // 接続が確立するまでは「接続中…」(業界水準のローディング)。確立後に一人なら solo 文言。
+                <p className="text-app-sm text-app-text-muted">{active ? t('collab.participants_solo') : t('collab.connecting')}</p>
               )}
             </div>
           </div>
@@ -158,11 +165,22 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
           <button disabled={busy} onClick={handleReissue} className="flex-1 h-9 rounded-lg border border-app-border bg-app-surface2/60 text-app-text text-app-sm cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
             {t('collab.reissue')}
           </button>
-          <button disabled={busy} onClick={handleRevoke} className="flex-1 h-9 rounded-lg border border-app-red/40 bg-app-red-dim text-app-red font-bold text-app-sm cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-            {t('collab.revoke')}
+          <button disabled={busy} onClick={() => setConfirmOff(true)} className="flex-1 h-9 rounded-lg border border-app-red/40 bg-app-red-dim text-app-red font-bold text-app-sm cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+            {t('collab.turn_off')}
           </button>
         </div>
       </div>
+
+      {/* OFF(失効)は確認 1 枚を挟む(誤操作で全員を締め出さない)。 */}
+      <ConfirmDialog
+        isOpen={confirmOff}
+        title={t('collab.off_confirm_title')}
+        message={t('collab.off_confirm_body')}
+        confirmLabel={t('collab.off_confirm_ok')}
+        variant="danger"
+        onCancel={() => setConfirmOff(false)}
+        onConfirm={() => { setConfirmOff(false); void handleRevoke(); }}
+      />
     </div>,
     document.body,
   );

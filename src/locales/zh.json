@@ -1,6 +1,11 @@
 {
     "collab": {
         "badge_on": "协同编辑已开启",
+        "turn_off": "关闭协同编辑",
+        "off_confirm_title": "要关闭协同编辑吗？",
+        "off_confirm_body": "关闭后当前所有人将无法编辑，链接将失效。再次开启会生成新链接。",
+        "off_confirm_ok": "关闭",
+        "connecting": "连接中…",
         "choice_title": "想怎么共享？",
         "choice_copy_title": "分发副本",
         "choice_copy_desc": "对方会创建自己的副本(传统)",
