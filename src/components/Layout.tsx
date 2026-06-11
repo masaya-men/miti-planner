@@ -7,8 +7,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCollabSessionStore } from '../store/useCollabSessionStore';
-import { decideCollabAction } from '../lib/collab/collabReconcile';
-import { loadPlanDataIntoStore } from '../lib/planLoad';
+import { reconcileCollabForPlan } from '../lib/collab/collabLifecycle';
 import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
@@ -221,19 +220,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             const newId = state.currentPlanId;
             if (newId === prev) return;
             prev = newId;
-            const sess = useCollabSessionStore.getState();
-            const action = decideCollabAction({
-                sessionActive: sess.active,
-                collabPlanId: sess.collabPlanId,
-                newPlanId: newId,
-            });
-            if (action.type === 'disconnect-and-reload') {
-                sess.session?.disconnect(); // exitCollabMode + observer 解除
-                useCollabSessionStore.setState({ active: false, roomToken: null, session: null, collabPlanId: null, maxParticipants: 8 });
-                // disconnect 後 (_collabActive=false) に現在プランを再ロード。
-                const p = usePlanStore.getState().plans.find((x) => x.id === newId);
-                if (p) void loadPlanDataIntoStore(p);
-            }
+            // 管制本体は collabLifecycle に切り出し済 (回帰テスト collabLifecycle.test.ts)。
+            reconcileCollabForPlan(newId);
         });
         // ページ離脱時もセッションを切断 (端末メモリ汚染を残さない)。
         const onUnload = () => useCollabSessionStore.getState().session?.disconnect();
@@ -366,6 +354,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             const oldId = prevPlanId;
             prevPlanId = newId; // 再入防止: saveSilently→updatePlan→subscribe再発火時にスキップさせる
             if (oldId && oldId !== newId) {
+                // collab 中のプラン切替は管制(reconcileCollabForPlan)が disconnect+再ロードを担う。
+                // ここで saveSilently すると mitistore の collab 部屋データを新プランへ誤保存し、
+                // 管制の再ロードが汚染データを読む競合になる。collab 中は保存をスキップ
+                // (collab の恒久保存は DO→Firestore が真実。順序非依存の防御層 = defense-in-depth)。
+                if (useMitigationStore.getState()._collabActive) return;
                 saveSilently();
                 syncToCloud(true);  // プラン切替 = 意図的操作 → クールダウン無視
             }
