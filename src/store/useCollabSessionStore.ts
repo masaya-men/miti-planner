@@ -48,18 +48,25 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     // 二重開始リーク防止: 既存セッションがあれば先に切断してから張り直す。
     get().session?.disconnect();
     const info = await createRoom(planId, undefined, label);
+    // ルーム発行済 = プランは collab-ON。先にローカル plan へ反映(バッジ・自動接続)。
+    const { usePlanStore } = await import('./usePlanStore');
+    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken });
+    // 非同期(createRoom/import)の間に別プランへ移っていたらライブ接続は張らない。
+    // 「見ているプラン = 接続先」の不変条件 (本番ロールバックの根治)。戻れば Task6 自動接続が拾う。
+    if (usePlanStore.getState().currentPlanId !== planId) return;
     const { startCollabSession } = await loadProvider();
     const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
-    // ローカル plan にも ON を反映(バッジ・自動接続の即時性。Firestore は room API が真実)。
-    const { usePlanStore } = await import('./usePlanStore');
-    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken });
   },
 
   connectExisting: async (roomToken, planId) => {
     // 二重接続リーク防止: 既存セッションがあれば先に切断してから張り直す。
     get().session?.disconnect();
     const { startCollabSession } = await loadProvider();
+    // 非同期 import の間に別プランへ移っていたら、この接続はもう古い。
+    // 「見ているプラン = 接続先」の不変条件を守り、表示プランと違う部屋に束縛させない。
+    const { usePlanStore } = await import('./usePlanStore');
+    if (usePlanStore.getState().currentPlanId !== planId) return;
     const session = startCollabSession(roomToken);
     // room API を叩かず既存リンクへ繋ぐだけ。maxParticipants はオーナーパネルで取得すれば足りる(既定維持)。
     set({ active: true, roomToken, session, collabPlanId: planId });
@@ -83,6 +90,9 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     get().session?.disconnect();
     const info = await reissueRoom(planId, label);
     const { startCollabSession } = await loadProvider();
+    // 非同期の間に別プランへ移っていたら張り直さない(現在表示プラン束縛)。
+    const { usePlanStore } = await import('./usePlanStore');
+    if (usePlanStore.getState().currentPlanId !== planId) return;
     const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
   },

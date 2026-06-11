@@ -63,6 +63,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
   };
 
   return createPortal(
+    <>
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-[2px] p-4" onClick={onClose}>
       <div
         className="relative glass-tier3 rounded-2xl shadow-2xl w-[600px] max-w-[94vw] max-h-[90vh] flex flex-col overflow-hidden"
@@ -170,8 +171,12 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
           </button>
         </div>
       </div>
+    </div>
 
-      {/* OFF(失効)は確認 1 枚を挟む(誤操作で全員を締め出さない)。 */}
+      {/* OFF(失効)は確認 1 枚を挟む(誤操作で全員を締め出さない)。
+          パネル本体の onClick(onClose) に伝播しないよう fragment 直下(パネルの外)に置く。
+          React portal はReactツリーで伝播するため、パネル内に置くとダイアログのクリックで
+          パネルごと閉じてしまう。 */}
       <ConfirmDialog
         isOpen={confirmOff}
         title={t('collab.off_confirm_title')}
@@ -181,7 +186,7 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
         onCancel={() => setConfirmOff(false)}
         onConfirm={() => { setConfirmOff(false); void handleRevoke(); }}
       />
-    </div>,
+    </>,
     document.body,
   );
 };

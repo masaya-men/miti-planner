@@ -78,7 +78,8 @@ describe('reconcileCollabForPlan (collab ライフサイクル管制の本体)',
   // connectExisting は collabProvider を動的 import するため非同期(vi.waitFor で確立を待つ)。
   it('未接続で collab-ON の自分のプランを開いた → connectExisting で自動接続(オーナー)', async () => {
     useAuthStore.setState({ user: { uid: 'owner1' } } as any);
-    usePlanStore.setState({ plans: [{ id: 'B', data: { marker: 'B' }, ownerId: 'owner1', activeCollabRoomToken: 'tokB' } as any], currentPlanId: 'A' as any });
+    // reconcile('B') は currentPlanId が 'B' になった瞬間に発火する=束縛ガードと整合。
+    usePlanStore.setState({ plans: [{ id: 'B', data: { marker: 'B' }, ownerId: 'owner1', activeCollabRoomToken: 'tokB' } as any], currentPlanId: 'B' as any });
 
     reconcileCollabForPlan('B');
 

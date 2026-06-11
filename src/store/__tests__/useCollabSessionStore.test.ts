@@ -14,6 +14,7 @@ vi.mock('../../lib/collab/collabProvider', () => ({
 import { createRoom, setMaxParticipants, revokeRoom, reissueRoom } from '../../lib/collab/collabRoomApi';
 import { startCollabSession } from '../../lib/collab/collabProvider';
 import { useCollabSessionStore } from '../useCollabSessionStore';
+import { usePlanStore } from '../usePlanStore';
 
 const mk = (fn: unknown) => fn as unknown as ReturnType<typeof vi.fn>;
 
@@ -35,6 +36,7 @@ describe('useCollabSessionStore', () => {
     mk(createRoom).mockResolvedValue({ roomToken: 'tok', maxParticipants: 8, revoked: false });
     const sess = fakeSession();
     mk(startCollabSession).mockReturnValue(sess);
+    usePlanStore.setState({ currentPlanId: 'plan1' } as any); // 束縛ガード: 現在表示プランと一致
 
     await useCollabSessionStore.getState().start('plan1');
 
@@ -76,6 +78,7 @@ describe('useCollabSessionStore', () => {
   it('start: collabPlanId に planId を記録する', async () => {
     mk(createRoom).mockResolvedValue({ roomToken: 'tok', maxParticipants: 8, revoked: false });
     mk(startCollabSession).mockReturnValue(fakeSession());
+    usePlanStore.setState({ currentPlanId: 'planA' } as any);
     await useCollabSessionStore.getState().start('planA');
     expect(useCollabSessionStore.getState().collabPlanId).toBe('planA');
   });
@@ -85,6 +88,7 @@ describe('useCollabSessionStore', () => {
     useCollabSessionStore.setState({ active: true, roomToken: 'old', session: oldSess, collabPlanId: 'planA', maxParticipants: 8 });
     mk(createRoom).mockResolvedValue({ roomToken: 'new', maxParticipants: 8, revoked: false });
     mk(startCollabSession).mockReturnValue(fakeSession());
+    usePlanStore.setState({ currentPlanId: 'planB' } as any);
     await useCollabSessionStore.getState().start('planB');
     expect(oldSess.disconnect).toHaveBeenCalled();
     expect(useCollabSessionStore.getState().collabPlanId).toBe('planB');
@@ -93,6 +97,7 @@ describe('useCollabSessionStore', () => {
   it('connectExisting: room 新規作成なしで既存 token に接続し collabPlanId を記録', async () => {
     const newSess = fakeSession();
     mk(startCollabSession).mockReturnValue(newSess);
+    usePlanStore.setState({ currentPlanId: 'planB' } as any); // 束縛ガード: 現在表示プランと一致
     await useCollabSessionStore.getState().connectExisting('tokB', 'planB');
     expect(createRoom).not.toHaveBeenCalled();         // room は発行しない (既存リンクへ接続)
     expect(startCollabSession).toHaveBeenCalledWith('tokB');
@@ -107,9 +112,18 @@ describe('useCollabSessionStore', () => {
     const oldSess = fakeSession();
     useCollabSessionStore.setState({ active: true, roomToken: 'old', session: oldSess, collabPlanId: 'A', maxParticipants: 8 });
     mk(startCollabSession).mockReturnValue(fakeSession());
+    usePlanStore.setState({ currentPlanId: 'planB' } as any);
     await useCollabSessionStore.getState().connectExisting('tokB', 'planB');
     expect(oldSess.disconnect).toHaveBeenCalled();
     expect(useCollabSessionStore.getState().collabPlanId).toBe('planB');
+  });
+
+  it('connectExisting: 非同期 import 中に別プランへ移っていたら接続しない(束縛ガード=増殖バグ再発防止)', async () => {
+    mk(startCollabSession).mockReturnValue(fakeSession());
+    usePlanStore.setState({ currentPlanId: 'planC' } as any); // 既に別プランを見ている
+    await useCollabSessionStore.getState().connectExisting('tokB', 'planB');
+    expect(startCollabSession).not.toHaveBeenCalled();         // 古い接続は張らない
+    expect(useCollabSessionStore.getState().active).toBe(false);
   });
 
   it('revoke: collabPlanId も null に戻す', async () => {
@@ -125,6 +139,7 @@ describe('useCollabSessionStore', () => {
     mk(reissueRoom).mockResolvedValue({ roomToken: 'new', maxParticipants: 8, revoked: false });
     const newSess = fakeSession();
     mk(startCollabSession).mockReturnValue(newSess);
+    usePlanStore.setState({ currentPlanId: 'plan1' } as any);
 
     await useCollabSessionStore.getState().reissue('plan1');
 
