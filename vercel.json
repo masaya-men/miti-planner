@@ -15,7 +15,8 @@
   ],
   "crons": [
     { "path": "/api/cron/cleanup-og-images", "schedule": "0 3 * * 0" },
-    { "path": "/api/cron/check-sns-tweets", "schedule": "0 4 * * *" }
+    { "path": "/api/cron/check-sns-tweets", "schedule": "0 4 * * *" },
+    { "path": "/api/collab?action=gc", "schedule": "0 18 * * *" }
   ],
   "headers": [
     {

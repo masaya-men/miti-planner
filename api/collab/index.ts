@@ -19,6 +19,7 @@ import loadHandler from './_loadHandler.js';
 import saveHandler from './_saveHandler.js';
 import roomHandler from './_roomHandler.js';
 import verifyHandler from './_verifyHandler.js';
+import gcHandler from './_collabGcHandler.js';
 
 export default async function handler(req: any, res: any) {
   const action = req.query?.action;
@@ -32,6 +33,8 @@ export default async function handler(req: any, res: any) {
       return roomHandler(req, res);
     case 'verify':
       return verifyHandler(req, res);
+    case 'gc':
+      return gcHandler(req, res);
     default:
       return res.status(400).json({
         error: 'Missing or invalid action parameter. Use ?action=load|save|room',
