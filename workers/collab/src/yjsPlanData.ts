@@ -38,6 +38,14 @@ export interface PlanDataSeed {
   ownerLabel?: string;
 }
 
+/** id 一意化（最初の出現を残す）。汚染 JSON からの seed / 射影を防ぐ多層防御。 */
+function dedupeById<T extends { id: string }>(items: T[]): T[] {
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const it of items) { if (seen.has(it.id)) continue; seen.add(it.id); out.push(it); }
+  return out;
+}
+
 function recordToYMap(rec: { id: string }): Y.Map<unknown> {
   const y = new Y.Map<unknown>();
   for (const [k, v] of Object.entries(rec)) if (v !== undefined) y.set(k, v);
@@ -56,12 +64,12 @@ function readAll<T>(doc: Y.Doc, key: string): T[] {
 export function buildSeedDocFull(seed: PlanDataSeed): Y.Doc {
   const doc = new Y.Doc();
   doc.transact(() => {
-    pushAll(doc, MITIGATIONS_KEY, seed.mitigations);
-    pushAll(doc, TIMELINE_EVENTS_KEY, seed.timelineEvents);
-    pushAll(doc, PHASES_KEY, seed.phases);
-    pushAll(doc, LABELS_KEY, seed.labels);
-    pushAll(doc, MEMOS_KEY, seed.memos);
-    pushAll(doc, PARTY_MEMBERS_KEY, seed.partyMembers);
+    pushAll(doc, MITIGATIONS_KEY, dedupeById(seed.mitigations));
+    pushAll(doc, TIMELINE_EVENTS_KEY, seed.timelineEvents ? dedupeById(seed.timelineEvents) : undefined);
+    pushAll(doc, PHASES_KEY, seed.phases ? dedupeById(seed.phases) : undefined);
+    pushAll(doc, LABELS_KEY, seed.labels ? dedupeById(seed.labels) : undefined);
+    pushAll(doc, MEMOS_KEY, seed.memos ? dedupeById(seed.memos) : undefined);
+    pushAll(doc, PARTY_MEMBERS_KEY, seed.partyMembers ? dedupeById(seed.partyMembers) : undefined);
     const meta = doc.getMap(PLAN_META_KEY);
     if (seed.currentLevel !== undefined) meta.set(META_LEVEL, seed.currentLevel);
     if (seed.aaSettings !== undefined) meta.set(META_AA, seed.aaSettings);
@@ -76,12 +84,12 @@ export function buildSeedDocFull(seed: PlanDataSeed): Y.Doc {
 export function readPlanDataFull(doc: Y.Doc): PlanDataSeed {
   const meta = doc.getMap(PLAN_META_KEY);
   return {
-    mitigations: readAll<MitigationRecord>(doc, MITIGATIONS_KEY),
-    timelineEvents: readAll<PlanRecord>(doc, TIMELINE_EVENTS_KEY),
-    phases: readAll<PlanRecord>(doc, PHASES_KEY),
-    labels: readAll<PlanRecord>(doc, LABELS_KEY),
-    memos: readAll<PlanRecord>(doc, MEMOS_KEY),
-    partyMembers: readAll<PlanRecord>(doc, PARTY_MEMBERS_KEY),
+    mitigations: dedupeById(readAll<MitigationRecord>(doc, MITIGATIONS_KEY)),
+    timelineEvents: dedupeById(readAll<PlanRecord>(doc, TIMELINE_EVENTS_KEY)),
+    phases: dedupeById(readAll<PlanRecord>(doc, PHASES_KEY)),
+    labels: dedupeById(readAll<PlanRecord>(doc, LABELS_KEY)),
+    memos: dedupeById(readAll<PlanRecord>(doc, MEMOS_KEY)),
+    partyMembers: dedupeById(readAll<PlanRecord>(doc, PARTY_MEMBERS_KEY)),
     currentLevel: meta.get(META_LEVEL) as number | undefined,
     aaSettings: meta.get(META_AA) as Record<string, unknown> | undefined,
     schAetherflowPatterns: meta.get(META_SCH) as Record<string, number> | undefined,

@@ -9,6 +9,7 @@ import {
   applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta, readContentId, readOwnerLabel,
   recordToYMap, buildArrByKey, applyBatch,
 } from './yjsPlanData';
+import { dedupeById } from './dedupeById';
 import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember } from '../../types';
 import type { CollabHandlers } from './collabTypes';
 import { colorForClient, wirePresence, type AwarenessLike, type PresenceState } from './presence';
@@ -104,11 +105,11 @@ export function applyRoomToStore(
   }
   const s = useMitigationStore.getState();
   s._applyMitigationsFromCollab(readMitigations(doc));
-  s._applyEventsFromCollab(readArray<TimelineEvent>(doc, TIMELINE_EVENTS_KEY));
-  s._applyPhasesFromCollab(readArray<Phase>(doc, PHASES_KEY));
-  s._applyLabelsFromCollab(readArray<Label>(doc, LABELS_KEY));
-  s._applyMemosFromCollab(readArray<PlanMemo>(doc, MEMOS_KEY));
-  s._applyPartyMembersFromCollab(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY));
+  s._applyEventsFromCollab(dedupeById(readArray<TimelineEvent>(doc, TIMELINE_EVENTS_KEY)));
+  s._applyPhasesFromCollab(dedupeById(readArray<Phase>(doc, PHASES_KEY)));
+  s._applyLabelsFromCollab(dedupeById(readArray<Label>(doc, LABELS_KEY)));
+  s._applyMemosFromCollab(dedupeById(readArray<PlanMemo>(doc, MEMOS_KEY)));
+  s._applyPartyMembersFromCollab(dedupeById(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY)));
   s._applyMetaFromCollab(readPlanMeta(doc));
   opts.onContentId?.(readContentId(doc));
   opts.onOwnerLabel?.(readOwnerLabel(doc));
@@ -156,12 +157,12 @@ export function startCollabSession(
 
   // ②-b-1: 各要素の Yjs → store 反映(pushHistory は積まない＝②-a と同じ)。
   const store = () => useMitigationStore.getState();
-  const applyEvents = () => store()._applyEventsFromCollab(readArray<TimelineEvent>(doc, TIMELINE_EVENTS_KEY));
-  const applyPhases = () => store()._applyPhasesFromCollab(readArray<Phase>(doc, PHASES_KEY));
-  const applyLabels = () => store()._applyLabelsFromCollab(readArray<Label>(doc, LABELS_KEY));
-  const applyMemos = () => store()._applyMemosFromCollab(readArray<PlanMemo>(doc, MEMOS_KEY));
+  const applyEvents = () => store()._applyEventsFromCollab(dedupeById(readArray<TimelineEvent>(doc, TIMELINE_EVENTS_KEY)));
+  const applyPhases = () => store()._applyPhasesFromCollab(dedupeById(readArray<Phase>(doc, PHASES_KEY)));
+  const applyLabels = () => store()._applyLabelsFromCollab(dedupeById(readArray<Label>(doc, LABELS_KEY)));
+  const applyMemos = () => store()._applyMemosFromCollab(dedupeById(readArray<PlanMemo>(doc, MEMOS_KEY)));
   const applyMeta = () => store()._applyMetaFromCollab(readPlanMeta(doc));
-  const applyPartyMembers = () => store()._applyPartyMembersFromCollab(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY));
+  const applyPartyMembers = () => store()._applyPartyMembersFromCollab(dedupeById(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY)));
   yEvents.observeDeep(applyEvents);
   yPhases.observeDeep(applyPhases);
   yLabels.observeDeep(applyLabels);
