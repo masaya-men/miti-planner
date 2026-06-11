@@ -5,7 +5,11 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         setupFiles: ['./vitest.setup.ts'],
-        include: ['src/**/__tests__/**/*.test.ts', 'src/**/__tests__/**/*.test.tsx'],
+        include: [
+          'src/**/__tests__/**/*.test.ts',
+          'src/**/__tests__/**/*.test.tsx',
+          'api/**/__tests__/**/*.test.ts',
+        ],
         // pool: 'vmThreads' (VM context で isolation)。
         //
         // 過去の試行:
