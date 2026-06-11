@@ -5,7 +5,12 @@
 // 実際の Yjs 接続は startCollabSession(collabProvider)、サーバ操作は collabRoomApi に委譲。
 import { create } from 'zustand';
 import { createRoom, setMaxParticipants, revokeRoom, reissueRoom } from '../lib/collab/collabRoomApi';
-import { startCollabSession, type CollabSession } from '../lib/collab/collabProvider';
+import type { CollabSession } from '../lib/collab/collabProvider';
+
+// collabProvider は yjs/y-partyserver を抱える遅延チャンク。ソロ利用者の初期 bundle に
+// 載せないため値としては動的 import する(この store は ShareButtons 経由で main に入るので
+// 静的 import すると yjs が main に混入する)。型は import type なので erase され影響なし。
+const loadProvider = () => import('../lib/collab/collabProvider');
 
 interface CollabSessionState {
   /** 共同編集モードに入っているか(常設チップ/パネルの表示判定)。 */
@@ -21,8 +26,9 @@ interface CollabSessionState {
 
   /** リンク発行(冪等)→自分の表をライブ接続。label は任意の部屋名(⑤-3c)。 */
   start: (planId: string, label?: string) => Promise<void>;
-  /** 既存トークンへ接続(room 新規作成なし)。collab-ON プランを開いた時の自動接続(Task 6)。 */
-  connectExisting: (roomToken: string, planId: string) => void;
+  /** 既存トークンへ接続(room 新規作成なし)。collab-ON プランを開いた時の自動接続(Task 6)。
+   *  collabProvider を動的 import するため async(呼び出し側は fire-and-forget で良い)。 */
+  connectExisting: (roomToken: string, planId: string) => Promise<void>;
   /** 入れる人数を変更。 */
   setMax: (planId: string, n: number) => Promise<void>;
   /** リンク失効→切断→クリア。 */
@@ -42,6 +48,7 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     // 二重開始リーク防止: 既存セッションがあれば先に切断してから張り直す。
     get().session?.disconnect();
     const info = await createRoom(planId, undefined, label);
+    const { startCollabSession } = await loadProvider();
     const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
     // ローカル plan にも ON を反映(バッジ・自動接続の即時性。Firestore は room API が真実)。
@@ -49,9 +56,10 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken });
   },
 
-  connectExisting: (roomToken, planId) => {
+  connectExisting: async (roomToken, planId) => {
     // 二重接続リーク防止: 既存セッションがあれば先に切断してから張り直す。
     get().session?.disconnect();
+    const { startCollabSession } = await loadProvider();
     const session = startCollabSession(roomToken);
     // room API を叩かず既存リンクへ繋ぐだけ。maxParticipants はオーナーパネルで取得すれば足りる(既定維持)。
     set({ active: true, roomToken, session, collabPlanId: planId });
@@ -74,6 +82,7 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
   reissue: async (planId, label) => {
     get().session?.disconnect();
     const info = await reissueRoom(planId, label);
+    const { startCollabSession } = await loadProvider();
     const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
   },

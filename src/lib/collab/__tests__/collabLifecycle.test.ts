@@ -75,14 +75,17 @@ describe('reconcileCollabForPlan (collab ライフサイクル管制の本体)',
   });
 
   // Task 6: collab-ON プランを開いたらオーナーは自動接続
-  it('未接続で collab-ON の自分のプランを開いた → connectExisting で自動接続(オーナー)', () => {
+  // connectExisting は collabProvider を動的 import するため非同期(vi.waitFor で確立を待つ)。
+  it('未接続で collab-ON の自分のプランを開いた → connectExisting で自動接続(オーナー)', async () => {
     useAuthStore.setState({ user: { uid: 'owner1' } } as any);
     usePlanStore.setState({ plans: [{ id: 'B', data: { marker: 'B' }, ownerId: 'owner1', activeCollabRoomToken: 'tokB' } as any], currentPlanId: 'A' as any });
 
     reconcileCollabForPlan('B');
 
+    await vi.waitFor(() => {
+      expect(useCollabSessionStore.getState().active).toBe(true);
+    });
     const s = useCollabSessionStore.getState();
-    expect(s.active).toBe(true);
     expect(s.roomToken).toBe('tokB');
     expect(s.collabPlanId).toBe('B');
     expect(loadPlanDataIntoStore).not.toHaveBeenCalled(); // connect は再ロードしない (部屋が真実)

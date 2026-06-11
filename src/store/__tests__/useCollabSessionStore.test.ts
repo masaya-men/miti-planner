@@ -90,10 +90,10 @@ describe('useCollabSessionStore', () => {
     expect(useCollabSessionStore.getState().collabPlanId).toBe('planB');
   });
 
-  it('connectExisting: room 新規作成なしで既存 token に接続し collabPlanId を記録', () => {
+  it('connectExisting: room 新規作成なしで既存 token に接続し collabPlanId を記録', async () => {
     const newSess = fakeSession();
     mk(startCollabSession).mockReturnValue(newSess);
-    useCollabSessionStore.getState().connectExisting('tokB', 'planB');
+    await useCollabSessionStore.getState().connectExisting('tokB', 'planB');
     expect(createRoom).not.toHaveBeenCalled();         // room は発行しない (既存リンクへ接続)
     expect(startCollabSession).toHaveBeenCalledWith('tokB');
     const s = useCollabSessionStore.getState();
@@ -103,11 +103,11 @@ describe('useCollabSessionStore', () => {
     expect(s.session).toBe(newSess);
   });
 
-  it('connectExisting: 既存セッションがあれば先に disconnect してから張り直す', () => {
+  it('connectExisting: 既存セッションがあれば先に disconnect してから張り直す', async () => {
     const oldSess = fakeSession();
     useCollabSessionStore.setState({ active: true, roomToken: 'old', session: oldSess, collabPlanId: 'A', maxParticipants: 8 });
     mk(startCollabSession).mockReturnValue(fakeSession());
-    useCollabSessionStore.getState().connectExisting('tokB', 'planB');
+    await useCollabSessionStore.getState().connectExisting('tokB', 'planB');
     expect(oldSess.disconnect).toHaveBeenCalled();
     expect(useCollabSessionStore.getState().collabPlanId).toBe('planB');
   });
