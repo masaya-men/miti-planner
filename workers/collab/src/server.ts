@@ -5,6 +5,7 @@ import { buildSeedDocFull, readPlanDataFull } from "./yjsPlanData";
 import { fetchSeedFull, postPlanData } from "./collabPersistence";
 import { resolveMaxParticipants, MAX_PARTICIPANTS_KEY } from "./collabCapacity";
 import { EDITOR_UID_HEADER, isEditorState } from "./collabAuth";
+import { saveDocBinary, loadDocBinary, type KVLike } from "./docPersistence";
 
 /**
  * ライブ部屋 = 1 Durable Object。段取り②-a で YServer 化、段取り③で恒久保存。
@@ -37,9 +38,19 @@ export class Room extends YServer {
     return this.env as unknown as CollabEnv;
   }
 
-  /** 受付係から seed(軽減配置 + 最大人数)を読む(this.name = roomToken)。live なら Y.Doc を組んで返し、
-   *  max を storage に保存(onBeforeConnect の満員判定が /count 経由で参照する)。それ以外は seed しない。 */
+  /** 部屋の Yjs バイナリが DO ストレージにあれば identity を保って復元（再 seed 合流＝列増殖を起こさない）。
+   *  無ければ初回ロード扱いで Firestore JSON から seed し、直後にバイナリを確定する。 */
   override async onLoad(): Promise<Y.Doc | void> {
+    const storage = this.ctx.storage as unknown as KVLike;
+    // 1) バイナリ復元（2 回目以降のロード・ハイバネ復帰）。
+    const persisted = await loadDocBinary(storage);
+    if (persisted) {
+      const doc = new Y.Doc();
+      Y.applyUpdate(doc, persisted);
+      this.#saveEnabled = true; // 復元できた = 正常な部屋
+      return doc;
+    }
+    // 2) 初回ロード: Firestore JSON から seed。
     const { APP_API_BASE, COLLAB_SHARED_SECRET } = this.collabEnv;
     // 永続化が未設定なら何もしない(②-a 相当の揮発モードにフォールバック)。
     // 本番では secret 設定漏れ時の暴発防止、テストでは外部 fetch を起こさない密閉性を担保。
@@ -50,7 +61,10 @@ export class Room extends YServer {
       // 上限値は hibernation で揮発するインスタンス変数でなく永続ストレージに置く
       // (接続が存在する間ずっと /count で参照されるため wake 後も復元が要る)。
       await this.ctx.storage.put(MAX_PARTICIPANTS_KEY, resolveMaxParticipants(seed.maxParticipants));
-      return buildSeedDocFull(seed);
+      const doc = buildSeedDocFull(seed);
+      // 初回バイナリを確定（次回ロードはこのバイナリから復元＝再 seed しない）。
+      await saveDocBinary(storage, Y.encodeStateAsUpdate(doc));
+      return doc;
     }
     // null(墓標/不存在/障害): seed しない(空 Y.Doc のまま)。#saveEnabled は false で破壊保存を防ぐ。
     // max も書かない(/count は既定 8 を返す)。

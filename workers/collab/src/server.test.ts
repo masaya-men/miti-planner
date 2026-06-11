@@ -124,4 +124,29 @@ describe("Room (YServer) ", () => {
       ws.close();
     }
   });
+
+  it("2 回目のロードは Firestore を再 fetch せずバイナリから復元する（再 seed 合流の封じ込め）", async () => {
+    // 1 回目の onLoad だけ load を 1 回 intercept。2 回目に再 fetch したら
+    // afterEach の assertNoPendingInterceptors が pending を検出して失敗する。
+    fetchMock.get(BASE)
+      .intercept({ path: "/api/collab/load?roomToken=persist-room", method: "GET" })
+      .reply(200, {
+        mitigations: [],
+        partyMembers: ["MT", "ST", "H1", "H2", "D1", "D2", "D3", "D4"].map((id) => ({ id, jobId: "pld", role: "tank" })),
+        maxParticipants: 8,
+      });
+    // save は debounce で飛び得るので任意回数許可。
+    fetchMock.get(BASE).intercept({ path: "/api/collab/save", method: "POST" }).reply(200, { ok: true }).persist();
+
+    const ws1 = (await SELF.fetch("https://collab.test/parties/room/persist-room", { headers: { Upgrade: "websocket" } })).webSocket!;
+    ws1.accept();
+    await pollCount("persist-room");
+    ws1.close();
+    await new Promise((r) => setTimeout(r, 50));
+    const ws2 = (await SELF.fetch("https://collab.test/parties/room/persist-room", { headers: { Upgrade: "websocket" } })).webSocket!;
+    ws2.accept();
+    await pollCount("persist-room");
+    ws2.close();
+    // afterEach の assertNoPendingInterceptors が load の 2 回目要求が無いことを保証する。
+  });
 });
