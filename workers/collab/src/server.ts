@@ -5,7 +5,7 @@ import { buildSeedDocFull, readPlanDataFull } from "./yjsPlanData";
 import { fetchSeedFull, postPlanData } from "./collabPersistence";
 import { resolveMaxParticipants, MAX_PARTICIPANTS_KEY } from "./collabCapacity";
 import { EDITOR_UID_HEADER, isEditorState } from "./collabAuth";
-import { saveDocBinary, loadDocBinary, type KVLike } from "./docPersistence";
+import { saveDocBinary, loadDocBinary, clearDocBinary, type KVLike } from "./docPersistence";
 
 /**
  * ライブ部屋 = 1 Durable Object。段取り②-a で YServer 化、段取り③で恒久保存。
@@ -70,18 +70,21 @@ export class Room extends YServer {
     // max も書かない(/count は既定 8 を返す)。
   }
 
-  /** 破壊保存ガード付きの書き戻し。skipped(墓標)を受けたら以後保存しない(削除が勝つ)。 */
+  /** バイナリ(DO ストレージ=CRDT の真実) + JSON 射影(Firestore=ソロ機能/初回 seed 用)の二層保存。
+   *  skipped(墓標)を受けたら以後保存せず、バイナリも破棄する（削除が勝つ）。 */
   async flushSave(): Promise<void> {
     if (!this.#saveEnabled) return;
+    const storage = this.ctx.storage as unknown as KVLike;
+    // 1) バイナリを DO ストレージへ（identity 保持の真実）。
+    await saveDocBinary(storage, Y.encodeStateAsUpdate(this.document));
+    // 2) JSON 射影を Firestore へ（ソロ機能が読む / 別部屋の初回 seed 元）。
     const { APP_API_BASE, COLLAB_SHARED_SECRET } = this.collabEnv;
-    const result = await postPlanData(
-      APP_API_BASE,
-      COLLAB_SHARED_SECRET,
-      this.name,
-      readPlanDataFull(this.document),
-    );
-    if (result === "skipped") this.#saveEnabled = false;
-    // 'error' は次の debounce / onClose flush で再試行(ベストエフォート)。
+    const result = await postPlanData(APP_API_BASE, COLLAB_SHARED_SECRET, this.name, readPlanDataFull(this.document));
+    if (result === "skipped") {
+      this.#saveEnabled = false;
+      await clearDocBinary(storage); // 墓標 = この部屋は死んだ。バイナリも残さない。
+    }
+    // 'error' は次の debounce / onClose flush で再試行（ベストエフォート）。
   }
 
   /** 編集 debounce(callbackOptions)で発火。受付係へ書き戻す。 */

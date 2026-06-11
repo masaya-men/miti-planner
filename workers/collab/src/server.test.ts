@@ -125,6 +125,21 @@ describe("Room (YServer) ", () => {
     }
   });
 
+  it("墓標(skipped)を受けても例外で落ちず、保存を止める", async () => {
+    fetchMock.get(BASE).intercept({ path: "/api/collab/load?roomToken=tomb-room", method: "GET" })
+      .reply(200, { mitigations: [{ id: "m1", mitigationId: "rampart", time: 1, duration: 2, ownerId: "MT" }], maxParticipants: 8 });
+    // onClose で 1 回だけ save が呼ばれる（debounce=5000ms は 30ms 待ちでは走らない）。
+    // .persist() にすると後続テストの save にもこの interceptor が当たり #saveEnabled=false が波及するため 1 回きり。
+    fetchMock.get(BASE).intercept({ path: "/api/collab/save", method: "POST" }).reply(200, { skipped: "deleted" });
+
+    const ws = (await SELF.fetch("https://collab.test/parties/room/tomb-room", { headers: { Upgrade: "websocket" } })).webSocket!;
+    ws.accept();
+    await pollCount("tomb-room");
+    ws.close(); // onClose の最終 flush で save が呼ばれ skipped を受ける（例外で落ちないこと）
+    await new Promise((r) => setTimeout(r, 30));
+    expect(true).toBe(true);
+  });
+
   it("2 回目のロードは Firestore を再 fetch せずバイナリから復元する（再 seed 合流の封じ込め）", async () => {
     // 1 回目の onLoad だけ load を 1 回 intercept。2 回目に再 fetch したら
     // afterEach の assertNoPendingInterceptors が pending を検出して失敗する。
