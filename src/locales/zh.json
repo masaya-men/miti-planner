@@ -1,5 +1,6 @@
 {
     "collab": {
+        "badge_on": "协同编辑已开启",
         "choice_title": "想怎么共享？",
         "choice_copy_title": "分发副本",
         "choice_copy_desc": "对方会创建自己的副本(传统)",

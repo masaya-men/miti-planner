@@ -1,5 +1,6 @@
 {
     "collab": {
+        "badge_on": "Live collaboration on",
         "choice_title": "How do you want to share?",
         "choice_copy_title": "Hand out a copy",
         "choice_copy_desc": "The other person gets their own copy (classic)",

@@ -48,6 +48,7 @@ import {
     Copy,
     HardDrive,
     Download,
+    Users,
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -391,6 +392,18 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                                         <Tooltip content={plan.title} position="top" wrapperClassName="flex-1 min-w-0 !w-auto !justify-start">
                                             <span className="block truncate text-left">{plan.title}</span>
                                         </Tooltip>
+                                        {/* 共同編集 ON バッジ (常時表示・白黒トーン・Google Drive 人型標準) */}
+                                        {plan.activeCollabRoomToken && (
+                                            <Tooltip content={t('collab.badge_on')} position="top">
+                                                <Users
+                                                    size={13}
+                                                    className={clsx(
+                                                        "shrink-0",
+                                                        currentPlanId === plan.id ? "text-app-text" : "text-app-text-muted"
+                                                    )}
+                                                />
+                                            </Tooltip>
+                                        )}
                                         <div className={clsx(
                                             "flex items-center shrink-0 transition-opacity duration-150",
                                             currentPlanId === plan.id

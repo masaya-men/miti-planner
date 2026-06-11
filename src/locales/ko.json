@@ -1,5 +1,6 @@
 {
     "collab": {
+        "badge_on": "공동 편집 켜짐",
         "choice_title": "어떻게 공유할까요?",
         "choice_copy_title": "사본 나눠주기",
         "choice_copy_desc": "상대가 자신의 사본을 만듭니다 (기존)",

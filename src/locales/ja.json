@@ -1,5 +1,6 @@
 {
     "collab": {
+        "badge_on": "共同編集 ON",
         "choice_title": "どう共有しますか？",
         "choice_copy_title": "コピーを配る",
         "choice_copy_desc": "相手が自分用のコピーを作ります(従来)",
