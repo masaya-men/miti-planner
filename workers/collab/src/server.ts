@@ -76,7 +76,13 @@ export class Room extends YServer {
     if (!this.#saveEnabled) return;
     const storage = this.ctx.storage as unknown as KVLike;
     // 1) バイナリを DO ストレージへ（identity 保持の真実）。
-    await saveDocBinary(storage, Y.encodeStateAsUpdate(this.document));
+    //    DO KV 障害で投げても Worker をクラッシュさせず、次の debounce/onClose で再試行（JSON 側と対称のベストエフォート）。
+    //    saveDocBinary は meta を最後に書くため、途中失敗しても loadDocBinary は meta 欠如で null を返し JSON seed に安全フォールバックする。
+    try {
+      await saveDocBinary(storage, Y.encodeStateAsUpdate(this.document));
+    } catch (e) {
+      console.error("collab: saveDocBinary failed (best-effort, will retry):", e);
+    }
     // 2) JSON 射影を Firestore へ（ソロ機能が読む / 別部屋の初回 seed 元）。
     const { APP_API_BASE, COLLAB_SHARED_SECRET } = this.collabEnv;
     const result = await postPlanData(APP_API_BASE, COLLAB_SHARED_SECRET, this.name, readPlanDataFull(this.document));

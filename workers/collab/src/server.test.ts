@@ -1,5 +1,7 @@
-import { SELF, fetchMock } from "cloudflare:test";
+import { SELF, fetchMock, env, runInDurableObject } from "cloudflare:test";
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
+import * as Y from "yjs";
+import { saveDocBinary, loadDocBinary } from "./docPersistence";
 
 const BASE = "https://lopoly.app";
 
@@ -163,5 +165,31 @@ describe("Room (YServer) ", () => {
     await pollCount("persist-room");
     ws2.close();
     // afterEach の assertNoPendingInterceptors が load の 2 回目要求が無いことを保証する。
+  });
+});
+
+describe("docPersistence on real DO storage", () => {
+  it("実 DO ストレージで Yjs バイナリ(Uint8Array チャンク)が round-trip する", async () => {
+    const id = (env as any).Room.idFromName("ydoc-roundtrip-room");
+    const stub = (env as any).Room.get(id);
+    await runInDurableObject(stub, async (_instance: unknown, state: DurableObjectState) => {
+      const doc = new Y.Doc();
+      const arr = doc.getArray<Y.Map<unknown>>("partyMembers");
+      for (const mid of ["MT", "ST", "H1", "H2"]) {
+        const m = new Y.Map<unknown>();
+        m.set("id", mid);
+        arr.push([m]);
+      }
+      const bin = Y.encodeStateAsUpdate(doc);
+      const storage = state.storage as any;
+      await saveDocBinary(storage, bin);
+      const back = await loadDocBinary(storage);
+      expect(back).not.toBeNull();
+      expect([...back!]).toEqual([...bin]);
+      // 復元バイナリから doc を再構成して内容一致を確認（identity 往復）。
+      const restored = new Y.Doc();
+      Y.applyUpdate(restored, back!);
+      expect(restored.getArray("partyMembers").length).toBe(4);
+    });
   });
 });
