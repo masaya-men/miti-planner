@@ -21,6 +21,8 @@ interface CollabSessionState {
 
   /** リンク発行(冪等)→自分の表をライブ接続。label は任意の部屋名(⑤-3c)。 */
   start: (planId: string, label?: string) => Promise<void>;
+  /** 既存トークンへ接続(room 新規作成なし)。collab-ON プランを開いた時の自動接続(Task 6)。 */
+  connectExisting: (roomToken: string, planId: string) => void;
   /** 入れる人数を変更。 */
   setMax: (planId: string, n: number) => Promise<void>;
   /** リンク失効→切断→クリア。 */
@@ -45,6 +47,14 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     // ローカル plan にも ON を反映(バッジ・自動接続の即時性。Firestore は room API が真実)。
     const { usePlanStore } = await import('./usePlanStore');
     usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken });
+  },
+
+  connectExisting: (roomToken, planId) => {
+    // 二重接続リーク防止: 既存セッションがあれば先に切断してから張り直す。
+    get().session?.disconnect();
+    const session = startCollabSession(roomToken);
+    // room API を叩かず既存リンクへ繋ぐだけ。maxParticipants はオーナーパネルで取得すれば足りる(既定維持)。
+    set({ active: true, roomToken, session, collabPlanId: planId });
   },
 
   setMax: async (planId, n) => {

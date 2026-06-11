@@ -226,6 +226,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         // ページ離脱時もセッションを切断 (端末メモリ汚染を残さない)。
         const onUnload = () => useCollabSessionStore.getState().session?.disconnect();
         window.addEventListener('beforeunload', onUnload);
+        // 初回マウント: 既に collab-ON のプランが開かれていればオーナーは自動接続 (リロード復帰・Task 6)。
+        // 注: ログイン解決前は isOwner=false で connect しない。auth 確定後の復帰は今後の課題。
+        reconcileCollabForPlan(usePlanStore.getState().currentPlanId);
         return () => { unsub(); window.removeEventListener('beforeunload', onUnload); };
     }, []);
 

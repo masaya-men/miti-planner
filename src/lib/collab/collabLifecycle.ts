@@ -1,5 +1,6 @@
 import { useCollabSessionStore } from '../../store/useCollabSessionStore';
 import { usePlanStore } from '../../store/usePlanStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { loadPlanDataIntoStore } from '../planLoad';
 import { decideCollabAction } from './collabReconcile';
 
@@ -19,16 +20,24 @@ import { decideCollabAction } from './collabReconcile';
  */
 export function reconcileCollabForPlan(newPlanId: string | null): void {
   const sess = useCollabSessionStore.getState();
+  const p = usePlanStore.getState().plans.find((x) => x.id === newPlanId);
   const action = decideCollabAction({
     sessionActive: sess.active,
     collabPlanId: sess.collabPlanId,
     newPlanId,
+    newPlanRoomToken: p?.activeCollabRoomToken,
+    isOwner: !!p && p.ownerId === useAuthStore.getState().user?.uid,
   });
-  if (action.type !== 'disconnect-and-reload') return;
 
-  sess.session?.disconnect(); // exitCollabMode + observer 解除 (collabProvider.disconnect)
-  useCollabSessionStore.setState({ active: false, roomToken: null, session: null, collabPlanId: null, maxParticipants: 8 });
-  // disconnect 後 (_collabActive=false) に現在プランを再ロード。
-  const p = usePlanStore.getState().plans.find((x) => x.id === newPlanId);
-  if (p) void loadPlanDataIntoStore(p);
+  if (action.type === 'disconnect-and-reload') {
+    sess.session?.disconnect(); // exitCollabMode + observer 解除 (collabProvider.disconnect)
+    useCollabSessionStore.setState({ active: false, roomToken: null, session: null, collabPlanId: null, maxParticipants: 8 });
+    // disconnect 後 (_collabActive=false) に現在プランを再ロード。
+    if (p) void loadPlanDataIntoStore(p);
+    return;
+  }
+  if (action.type === 'connect') {
+    // 未接続で collab-ON の自分のプランを開いた → 既存リンクへ自動接続 (部屋が真実なので再ロードしない)。
+    useCollabSessionStore.getState().connectExisting(action.roomToken, action.planId);
+  }
 }

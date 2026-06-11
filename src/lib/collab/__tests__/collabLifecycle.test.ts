@@ -6,11 +6,16 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('../../planLoad', () => ({
   loadPlanDataIntoStore: vi.fn(async () => undefined),
 }));
+// connectExisting が呼ぶ startCollabSession を WebSocket なしの fake に (collabProvider=遅延チャンク)。
+vi.mock('../collabProvider', () => ({
+  startCollabSession: vi.fn(() => ({ provider: {}, doc: {}, disconnect: vi.fn() })),
+}));
 
 import { reconcileCollabForPlan } from '../collabLifecycle';
 import { loadPlanDataIntoStore } from '../../planLoad';
 import { useCollabSessionStore } from '../../../store/useCollabSessionStore';
 import { usePlanStore } from '../../../store/usePlanStore';
+import { useAuthStore } from '../../../store/useAuthStore';
 
 const mk = (fn: unknown) => fn as unknown as ReturnType<typeof vi.fn>;
 
@@ -22,6 +27,7 @@ beforeEach(() => {
   mk(loadPlanDataIntoStore).mockClear();
   useCollabSessionStore.setState({ active: false, roomToken: null, maxParticipants: 8, session: null, collabPlanId: null });
   usePlanStore.setState({ plans: [{ id: 'B', data: { marker: 'B' } } as any], currentPlanId: 'A' as any });
+  useAuthStore.setState({ user: null } as any);
 });
 
 describe('reconcileCollabForPlan (collab ライフサイクル管制の本体)', () => {
@@ -66,5 +72,28 @@ describe('reconcileCollabForPlan (collab ライフサイクル管制の本体)',
     expect(sess.disconnect).toHaveBeenCalledTimes(1);
     expect(useCollabSessionStore.getState().active).toBe(false);
     expect(loadPlanDataIntoStore).not.toHaveBeenCalled();
+  });
+
+  // Task 6: collab-ON プランを開いたらオーナーは自動接続
+  it('未接続で collab-ON の自分のプランを開いた → connectExisting で自動接続(オーナー)', () => {
+    useAuthStore.setState({ user: { uid: 'owner1' } } as any);
+    usePlanStore.setState({ plans: [{ id: 'B', data: { marker: 'B' }, ownerId: 'owner1', activeCollabRoomToken: 'tokB' } as any], currentPlanId: 'A' as any });
+
+    reconcileCollabForPlan('B');
+
+    const s = useCollabSessionStore.getState();
+    expect(s.active).toBe(true);
+    expect(s.roomToken).toBe('tokB');
+    expect(s.collabPlanId).toBe('B');
+    expect(loadPlanDataIntoStore).not.toHaveBeenCalled(); // connect は再ロードしない (部屋が真実)
+  });
+
+  it('collab-ON でも自分がオーナーでなければ自動接続しない', () => {
+    useAuthStore.setState({ user: { uid: 'someoneElse' } } as any);
+    usePlanStore.setState({ plans: [{ id: 'B', data: {}, ownerId: 'owner1', activeCollabRoomToken: 'tokB' } as any], currentPlanId: 'A' as any });
+
+    reconcileCollabForPlan('B');
+
+    expect(useCollabSessionStore.getState().active).toBe(false);
   });
 });

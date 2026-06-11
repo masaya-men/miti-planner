@@ -90,6 +90,28 @@ describe('useCollabSessionStore', () => {
     expect(useCollabSessionStore.getState().collabPlanId).toBe('planB');
   });
 
+  it('connectExisting: room 新規作成なしで既存 token に接続し collabPlanId を記録', () => {
+    const newSess = fakeSession();
+    mk(startCollabSession).mockReturnValue(newSess);
+    useCollabSessionStore.getState().connectExisting('tokB', 'planB');
+    expect(createRoom).not.toHaveBeenCalled();         // room は発行しない (既存リンクへ接続)
+    expect(startCollabSession).toHaveBeenCalledWith('tokB');
+    const s = useCollabSessionStore.getState();
+    expect(s.active).toBe(true);
+    expect(s.roomToken).toBe('tokB');
+    expect(s.collabPlanId).toBe('planB');
+    expect(s.session).toBe(newSess);
+  });
+
+  it('connectExisting: 既存セッションがあれば先に disconnect してから張り直す', () => {
+    const oldSess = fakeSession();
+    useCollabSessionStore.setState({ active: true, roomToken: 'old', session: oldSess, collabPlanId: 'A', maxParticipants: 8 });
+    mk(startCollabSession).mockReturnValue(fakeSession());
+    useCollabSessionStore.getState().connectExisting('tokB', 'planB');
+    expect(oldSess.disconnect).toHaveBeenCalled();
+    expect(useCollabSessionStore.getState().collabPlanId).toBe('planB');
+  });
+
   it('revoke: collabPlanId も null に戻す', async () => {
     useCollabSessionStore.setState({ active: true, roomToken: 'tok', session: fakeSession(), collabPlanId: 'planA', maxParticipants: 8 });
     mk(revokeRoom).mockResolvedValue({ revoked: true });
