@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { startCollabSession, type CollabSession } from "../lib/collab/collabProvider";
 import { useCollabJoinerSession } from "../store/useCollabJoinerSession";
@@ -9,7 +9,7 @@ import { hasCollabEditConsent, setCollabEditConsent } from "../lib/collabEditCon
 import { CollabEditConsentModal } from "./CollabEditConsentModal";
 import { CollabJoinerBanner } from "./CollabJoinerBanner";
 import { CollabJoinerHeader } from "./CollabJoinerHeader";
-import { PresenceControls } from "./collab/PresenceControls";
+import { LoginModal } from "./LoginModal";
 import { ErrorBoundary } from "./ErrorBoundary";
 import Timeline from "./Timeline";
 
@@ -167,19 +167,19 @@ export default function CollabJoinerPage() {
     setConsentOpen(false);
   };
 
+  const [loginOpen, setLoginOpen] = useState(false);
+
   const kind = joinerView({ synced, invalid, full });
   if (kind === "connecting") return <JoinerNotice text={t("collab.joiner_connecting")} />;
   if (kind === "invalid") return <JoinerNotice text={t("collab.joiner_invalid")} />;
   if (kind === "full") return <JoinerNotice text={t("collab.joiner_full")} />;
   // sheet: Layout を通さず Timeline サブツリーのみ(自動保存・サイドバー・プラン管理なし)。
   return (
-    <div className="collab-joiner-shell w-full h-screen overflow-hidden bg-app-bg flex flex-col">
-      <CollabJoinerHeader />
+    <div className="collab-joiner-shell font-sans text-app-text w-full h-screen overflow-hidden bg-app-bg flex flex-col">
+      {/* ヘッダー: コンテンツ名・プレゼンス・ログイン・テーマ・言語 */}
+      <CollabJoinerHeader onOpenLogin={() => setLoginOpen(true)} />
+      {/* タイムライン本体 */}
       <div className="flex-1 overflow-auto relative flex">
-        {/* ④-b-2: ジョイナーも自分のカーソル/ジョブを共有できる(既定 OFF オプトイン)。 */}
-        <div className="absolute top-2 right-2 z-30 glass-tier2 rounded-xl p-2.5 w-[190px] shadow-lg">
-          <PresenceControls />
-        </div>
         <ErrorBoundary>
           <Timeline />
         </ErrorBoundary>
@@ -189,10 +189,24 @@ export default function CollabJoinerPage() {
         isLoggedIn={isLoggedIn}
         canEdit={canEdit}
         ownerLabel={ownerLabel}
-        onLogin={() => useAuthStore.getState().signInWith("discord")}
+        onLogin={() => setLoginOpen(true)}
         onOpenConsent={() => setConsentOpen(true)}
       />
+      {/* フッター */}
+      <footer className="shrink-0 border-t border-app-border px-4 py-2 flex items-center justify-between gap-4 text-app-xs text-app-text-muted">
+        <span>© SQUARE ENIX CO., LTD. All Rights Reserved.</span>
+        <div className="flex items-center gap-3">
+          <Link to="/privacy" className="hover:text-app-text transition-colors">
+            {t("app.privacy_policy")}
+          </Link>
+          <Link to="/terms" className="hover:text-app-text transition-colors">
+            {t("app.terms")}
+          </Link>
+        </div>
+      </footer>
+      {/* モーダル群 */}
       <CollabEditConsentModal isOpen={consentOpen} onAccept={acceptConsent} onCancel={() => setConsentOpen(false)} />
+      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
     </div>
   );
 }
