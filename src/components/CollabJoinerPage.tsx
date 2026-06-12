@@ -8,6 +8,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { hasCollabEditConsent, setCollabEditConsent } from "../lib/collabEditConsent";
 import { CollabEditConsentModal } from "./CollabEditConsentModal";
 import { CollabJoinerBanner } from "./CollabJoinerBanner";
+import { CollabJoinerHeader } from "./CollabJoinerHeader";
 import { PresenceControls } from "./collab/PresenceControls";
 import { ErrorBoundary } from "./ErrorBoundary";
 import Timeline from "./Timeline";
@@ -173,13 +174,7 @@ export default function CollabJoinerPage() {
   // sheet: Layout を通さず Timeline サブツリーのみ(自動保存・サイドバー・プラン管理なし)。
   return (
     <div className="collab-joiner-shell w-full h-screen overflow-hidden bg-app-bg flex flex-col">
-      <CollabJoinerBanner
-        isLoggedIn={isLoggedIn}
-        canEdit={canEdit}
-        ownerLabel={ownerLabel}
-        onLogin={() => useAuthStore.getState().signInWith("discord")}
-        onOpenConsent={() => setConsentOpen(true)}
-      />
+      <CollabJoinerHeader />
       <div className="flex-1 overflow-auto relative flex">
         {/* ④-b-2: ジョイナーも自分のカーソル/ジョブを共有できる(既定 OFF オプトイン)。 */}
         <div className="absolute top-2 right-2 z-30 glass-tier2 rounded-xl p-2.5 w-[190px] shadow-lg">
@@ -189,6 +184,14 @@ export default function CollabJoinerPage() {
           <Timeline />
         </ErrorBoundary>
       </div>
+      {/* ④ 赤い注意バナーは画面下へ(状態別 CTA: login/consent/edit)。 */}
+      <CollabJoinerBanner
+        isLoggedIn={isLoggedIn}
+        canEdit={canEdit}
+        ownerLabel={ownerLabel}
+        onLogin={() => useAuthStore.getState().signInWith("discord")}
+        onOpenConsent={() => setConsentOpen(true)}
+      />
       <CollabEditConsentModal isOpen={consentOpen} onAccept={acceptConsent} onCancel={() => setConsentOpen(false)} />
     </div>
   );
