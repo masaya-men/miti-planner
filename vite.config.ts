@@ -13,6 +13,15 @@ export default defineConfig({
       '/api': {
         target: 'https://lopoly.app',
         changeOrigin: true,
+        // クライアントが api/ 配下の純ロジック (.ts) を import するケース
+        // (例: OwnerCollabPanel → api/collab/_roomLogic の SYSTEM_MAX_PARTICIPANTS) は
+        // dev では URL が /api/collab/_roomLogic.ts になり、この proxy が本番へ転送して
+        // HTML を返す → MIME エラーで白画面になる。実 API 呼び出し (/api/collab/room 等・
+        // 拡張子なし) のみ本番へ転送し、ソースモジュール (.ts/.tsx) は vite に解決させる。
+        bypass: (req) => {
+          const url = req.url || '';
+          if (/\.(ts|tsx)(\?|$)/.test(url)) return url; // proxy せず vite に処理させる
+        },
       },
     },
   },
