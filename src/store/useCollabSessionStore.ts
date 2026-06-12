@@ -12,6 +12,10 @@ import type { CollabSession } from '../lib/collab/collabProvider';
 // 静的 import すると yjs が main に混入する)。型は import type なので erase され影響なし。
 const loadProvider = () => import('../lib/collab/collabProvider');
 
+// 人数変更のデバウンス: 連打しても最後の値だけサーバへ送る(往復待ちで表示が遅れるのを防ぐ)。
+let maxSyncTimer: ReturnType<typeof setTimeout> | null = null;
+const MAX_SYNC_DEBOUNCE_MS = 400;
+
 interface CollabSessionState {
   /** 共同編集モードに入っているか(常設チップ/パネルの表示判定)。 */
   active: boolean;
@@ -29,8 +33,8 @@ interface CollabSessionState {
   /** 既存トークンへ接続(room 新規作成なし)。collab-ON プランを開いた時の自動接続(Task 6)。
    *  collabProvider を動的 import するため async(呼び出し側は fire-and-forget で良い)。 */
   connectExisting: (roomToken: string, planId: string) => Promise<void>;
-  /** 入れる人数を変更。 */
-  setMax: (planId: string, n: number) => Promise<void>;
+  /** 入れる人数を変更(楽観的更新で即時反映・API はデバウンスで最終値のみ送信)。 */
+  setMax: (planId: string, n: number) => void;
   /** リンク失効→切断→クリア。 */
   revoke: (planId: string) => Promise<void>;
   /** 旧を切断・失効し新リンクで張り直し。label は任意の部屋名(⑤-3c)。 */
@@ -72,9 +76,17 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     set({ active: true, roomToken, session, collabPlanId: planId });
   },
 
-  setMax: async (planId, n) => {
-    const info = await setMaxParticipants(planId, n);
-    set({ maxParticipants: info.maxParticipants });
+  setMax: (planId, n) => {
+    // 楽観的更新: クリックで即時に表示へ反映(サーバ往復を待たない)。
+    set({ maxParticipants: n });
+    // デバウンス: 連打中は送らず、止まってから最終値だけ送る。
+    if (maxSyncTimer) clearTimeout(maxSyncTimer);
+    maxSyncTimer = setTimeout(() => {
+      maxSyncTimer = null;
+      void setMaxParticipants(planId, n)
+        .then((info) => set({ maxParticipants: info.maxParticipants })) // サーバ確定値で reconcile
+        .catch(() => { /* 反映失敗時は楽観値のまま(次の操作で再送される) */ });
+    }, MAX_SYNC_DEBOUNCE_MS);
   },
 
   revoke: async (planId) => {
