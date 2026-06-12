@@ -49,16 +49,21 @@ export const PresenceControls: React.FC = () => {
         </button>
       </div>
 
-      {/* カーソル ON/OFF */}
-      <div className="flex items-center gap-2">
-        <span className="text-app-sm text-app-text flex-1">{t('collab.cursor_share_label')}</span>
-        <button
-          aria-label="cursor-toggle"
-          onClick={toggle}
-          className={`relative w-11 h-6 rounded-full cursor-pointer transition-colors ${cursorEnabled ? 'bg-app-text' : 'bg-app-surface2 border border-app-border'}`}
-        >
-          <span className={`absolute top-0.5 w-5 h-5 rounded-full bg-app-bg transition-transform ${cursorEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-        </button>
+      {/* カーソル ON/OFF: ボタン + 状態テキスト常時表示(枠 w-[190px] に収める) */}
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <span className="text-app-sm text-app-text flex-1">{t('collab.cursor_share_label')}</span>
+          <button
+            aria-label="cursor-toggle"
+            onClick={toggle}
+            className={`shrink-0 px-2.5 h-7 rounded-lg text-app-xs font-bold cursor-pointer active:scale-95 transition-all ${cursorEnabled ? 'bg-app-surface2 border border-app-border text-app-text' : 'bg-app-text text-app-bg'}`}
+          >
+            {cursorEnabled ? t('collab.cursor_turn_off') : t('collab.cursor_turn_on')}
+          </button>
+        </div>
+        <p className="text-app-xs text-app-text-muted">
+          {cursorEnabled ? t('collab.cursor_status_on') : t('collab.cursor_status_off')}
+        </p>
       </div>
 
       {cursorEnabled && cursorFallback && (

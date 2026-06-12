@@ -39,4 +39,17 @@ describe('PresenceControls', () => {
     expect(within(container).queryByText('jobs.select_job')).toBeNull();
     expect(screen.getByText('jobs.select_job')).toBeInTheDocument();
   });
+
+  it('状態テキストを常時表示する(OFF→ON で文言が切り替わる)', () => {
+    render(<PresenceControls />);
+    expect(screen.getByText('collab.cursor_status_off')).toBeInTheDocument();
+    expect(screen.getByLabelText('cursor-toggle')).toHaveTextContent('collab.cursor_turn_on');
+  });
+
+  it('ON のとき状態テキストとボタン文言が ON 用になる', () => {
+    useCollabPresenceStore.getState().setCursorEnabled(true);
+    render(<PresenceControls />);
+    expect(screen.getByText('collab.cursor_status_on')).toBeInTheDocument();
+    expect(screen.getByLabelText('cursor-toggle')).toHaveTextContent('collab.cursor_turn_off');
+  });
 });
