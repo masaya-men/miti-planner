@@ -81,10 +81,15 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     set({ maxParticipants: n });
     // デバウンス: 連打中は送らず、止まってから最終値だけ送る。
     if (maxSyncTimer) clearTimeout(maxSyncTimer);
+    const requested = n;
     maxSyncTimer = setTimeout(() => {
       maxSyncTimer = null;
-      void setMaxParticipants(planId, n)
-        .then((info) => set({ maxParticipants: info.maxParticipants })) // サーバ確定値で reconcile
+      void setMaxParticipants(planId, requested)
+        .then((info) => {
+          // stale なレスポンス破棄: 送った値が今も表示されている時だけ reconcile する。
+          // (例: 12→9 と動かした時、先に飛んだ 12 の応答が遅れて来ても 9 を 12 に戻さない)
+          if (get().maxParticipants === requested) set({ maxParticipants: info.maxParticipants });
+        })
         .catch(() => { /* 反映失敗時は楽観値のまま(次の操作で再送される) */ });
     }, MAX_SYNC_DEBOUNCE_MS);
   },
