@@ -667,6 +667,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 // Undo: restore the last snapshot from history
                 undo: () => set((state) => {
+                    if (state._collabReadonly) return state; // 閲覧者は no-op(多層防御)
                     if (state._collabActive) return state; // 共同編集中は no-op(CRDT undo は②-c)
                     if (state._history.length === 0) return state;
                     const previous = state._history[state._history.length - 1];
@@ -691,6 +692,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 // Redo: restore the next snapshot from future
                 redo: () => set((state) => {
+                    if (state._collabReadonly) return state; // 閲覧者は no-op(多層防御)
                     if (state._collabActive) return state; // 共同編集中は no-op(②-c)
                     if (state._future.length === 0) return state;
                     const next = state._future[0];
@@ -716,6 +718,7 @@ export const useMitigationStore = create<MitigationState>()(
                 // Bulk delete: clear mitigations for a specific member
                 clearMitigationsByMember: (memberId) => {
                     // ②-b-2: 当該メンバーの mitigations を removeItems で除去。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const ids = get().timelineMitigations.filter(m => m.ownerId === memberId).map(m => m.id);
                         get()._collabHandlers!.removeItems('timelineMitigations', ids);
@@ -730,6 +733,7 @@ export const useMitigationStore = create<MitigationState>()(
                 // Bulk delete: clear ALL mitigations
                 clearAllMitigations: () => {
                     // ②-b-2: timelineMitigations を全置換([])で原子的にクリア。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.batch([{ kind: 'replace', key: 'timelineMitigations', items: [] }]);
                         return;
@@ -741,6 +745,7 @@ export const useMitigationStore = create<MitigationState>()(
                 // 👇追加：オートプラン用の一括上書き処理（履歴はここで「1回」だけ保存される）
                 applyAutoPlan: ({ mitigations, warnings }) => {
                     // ②-b-2: 最終 mitigations 全置換 + warning 更新後 events を 1 batch で原子的に。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const next = computeApplyAutoPlan(get(), mitigations, warnings);
                         get()._collabHandlers!.batch([
@@ -762,6 +767,7 @@ export const useMitigationStore = create<MitigationState>()(
                     // レベルが変わる場合のみ処理
                     if (prevState.currentLevel === level) return;
 
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         // level のみ Y へ。computedValues は _applyMetaFromCollab がローカル再計算する
                         // (partyMembers 配列自体は b-1 で同期しない)。
@@ -779,6 +785,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
                 applyDefaultStats: (level, patch) => {
                     // ②-b-2: 全メンバーの stats 一括更新を partyMembers に upsert(mitigations 波及なし)。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.upsertItems('partyMembers', computeDefaultStatsMembers(get().partyMembers, level, patch));
                         return;
@@ -796,6 +803,7 @@ export const useMitigationStore = create<MitigationState>()(
                 dismissAetherflowChainPrompt: () => set({ aetherflowChainPrompt: null }),
 
                 confirmAetherflowChain: () => {
+                    if (get()._collabReadonly) return;
                     const state = get();
                     if (!state.aetherflowChainPrompt) return;
                     const { memberId, startTime } = state.aetherflowChainPrompt;
@@ -812,6 +820,7 @@ export const useMitigationStore = create<MitigationState>()(
                 dismissAstrologianDrawChainPrompt: () => set({ astrologianDrawChainPrompt: null }),
 
                 confirmAstrologianDrawChain: () => {
+                    if (get()._collabReadonly) return;
                     const state = get();
                     if (!state.astrologianDrawChainPrompt) return;
                     const { memberId, startTime, startKind } = state.astrologianDrawChainPrompt;
@@ -826,6 +835,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 addEvent: (event) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.upsertItems('timelineEvents', [event]);
                         useTutorialStore.getState().completeEvent('event:saved');
@@ -839,6 +849,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 importTimelineEvents: (events, importPhases, importLabels) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const maxEventTime = events.length > 0
                             ? events.reduce((max, e) => Math.max(max, e.time), 0) : undefined;
@@ -881,6 +892,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateEvent: (id, updatedEvent) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.upsertItems('timelineEvents', [{ id, ...updatedEvent }]);
                         return;
@@ -892,6 +904,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 removeEvent: (id) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.removeItems('timelineEvents', [id]);
                         return;
@@ -905,6 +918,7 @@ export const useMitigationStore = create<MitigationState>()(
                 addPhase: (startTime, name) => {
                     const exists = get().phases.some(p => p.startTime === startTime);
                     if (exists) return;
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const state = get();
                         const sorted = [...state.phases].sort((a, b) => a.startTime - b.startTime);
@@ -957,6 +971,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updatePhase: (id, name) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.upsertItems('phases', [{ id, name }]);
                         return;
@@ -968,6 +983,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 removePhase: (id) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.removeItems('phases', [id]);
                         return;
@@ -979,6 +995,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updatePhaseEndTime: (id, newEndTime) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const sorted = [...get().phases].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(p => p.id === id);
@@ -1022,6 +1039,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updatePhaseStartTime: (id, newStartTime) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const sorted = [...get().phases].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(p => p.id === id);
@@ -1069,6 +1087,7 @@ export const useMitigationStore = create<MitigationState>()(
                 addLabel: (startTime, name) => {
                     const exists = get().labels.some(l => l.startTime === startTime);
                     if (exists) return;
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const state = get();
                         const sorted = [...state.labels].sort((a, b) => a.startTime - b.startTime);
@@ -1119,6 +1138,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateLabel: (id, name) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.upsertItems('labels', [{ id, name }]);
                         return;
@@ -1130,6 +1150,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 removeLabel: (id) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.removeItems('labels', [id]);
                         return;
@@ -1141,6 +1162,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateLabelEndTime: (id, newEndTime) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const sorted = [...get().labels].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(l => l.id === id);
@@ -1183,6 +1205,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateLabelStartTime: (id, newStartTime) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const sorted = [...get().labels].sort((a, b) => a.startTime - b.startTime);
                         const idx = sorted.findIndex(l => l.id === id);
@@ -1230,6 +1253,7 @@ export const useMitigationStore = create<MitigationState>()(
                     // 共同編集中: Yjs へ委譲(セラフィム cascade 等は handlers 実装側で Y 操作)。
                     // timelineMitigations は handler→observeDeep→_applyMitigationsFromCollab 経由で更新。
                     // プロンプト等の UI 一時状態はローカルに反映(yjs 非依存)。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         if (mitigation.mitigationId === 'aetherflow') {
                             set({ aetherflowChainPrompt: { memberId: mitigation.ownerId, startTime: mitigation.time } });
@@ -1297,6 +1321,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 removeMitigation: (id) => {
                     // 共同編集中: Yjs へ委譲(requires 依存削除等は handlers 実装側で Y 操作)。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         if (get().conflictingMitigationId) set({ conflictingMitigationId: null });
                         get()._collabHandlers!.remove(id);
@@ -1337,6 +1362,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 updateMitigationTime: (id, newTime) => {
                     // 共同編集中: Yjs へ委譲(セラフィム cascade 等は handlers 実装側で Y 操作)。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.updateTime(id, newTime);
                         return;
@@ -1373,6 +1399,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 setMemberJob: (memberId, jobId) => {
                     // ②-b-2: ジョブ変更カスケード(メンバー + その mitigations)を 1 batch で原子的に委譲。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const next = computeSetMemberJob(get(), memberId, jobId);
                         get()._collabHandlers!.batch(memberJobBatchOps(get().timelineMitigations, memberId, next));
@@ -1386,6 +1413,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 changeMemberJobWithMitigations: (memberId, jobId, mitis) => {
                     // ②-b-2: ジョブ変更 + その mitigations 上書きを 1 batch で原子的に委譲。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const next = computeChangeMemberJobWithMitigations(get(), memberId, jobId, mitis);
                         get()._collabHandlers!.batch(memberJobBatchOps(get().timelineMitigations, memberId, next));
@@ -1397,6 +1425,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 updatePartyBulk: (updates) => {
                     // ②-b-2: 複数メンバーのジョブ/mitigations 一括変更を 1 batch で(members upsert + mitigations 全置換)。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const next = computeUpdatePartyBulk(get(), updates);
                         const updatedIds = new Set(updates.map(u => u.memberId));
@@ -1414,6 +1443,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 updateMemberStats: (memberId, stats) => {
                     // ②-b-2: 1 メンバーの stats 更新を partyMembers に upsert(mitigations 波及なし)。
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const m = get().partyMembers.find((x) => x.id === memberId);
                         if (!m) return;
@@ -1436,6 +1466,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 setAaSettings: (settings) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.setMeta('aaSettings', settings);
                         return;
@@ -1447,6 +1478,7 @@ export const useMitigationStore = create<MitigationState>()(
                 setToolMode: (mode) => set({ toolMode: mode }),
 
                 addMemo: (input) => {
+                    if (get()._collabReadonly) return false;
                     const current = get().memos;
                     if (current.length >= MEMO_LIMITS.MAX_MEMOS_PER_PLAN) return false;
                     const now = Date.now();
@@ -1467,6 +1499,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateMemo: (id, patch) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.upsertItems('memos', [{ id, ...patch }]);
                         return;
@@ -1479,6 +1512,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 deleteMemo: (id) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.removeItems('memos', [id]);
                         return;
@@ -1489,6 +1523,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 deleteAllMemos: () => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         get()._collabHandlers!.removeItems('memos', get().memos.map(m => m.id));
                         return;
@@ -1497,6 +1532,7 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 setSchAetherflowPattern: (memberId, pattern) => {
+                    if (get()._collabReadonly) return;
                     if (get()._collabActive && get()._collabHandlers) {
                         const h = get()._collabHandlers!;
                         // 1. パターン値を planMeta に反映

@@ -16,6 +16,7 @@ import { getToken } from 'firebase/app-check';
 import { appCheck, auth } from '../lib/firebase';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { partializePlanState, mergePersistedPlanState } from './planPersist';
+import { isEmptyPlanData } from '../lib/isEmptyPlanData';
 
 interface PlanState {
     plans: SavedPlan[];
@@ -150,10 +151,34 @@ export const usePlanStore = create<PlanState>()(
             },
 
             updatePlan: (id, data) => {
-                set((state) => ({
-                    plans: state.plans.map((p) => (p.id === id ? { ...p, ...data, updatedAt: Date.now() } : p)),
-                    _dirtyPlanIds: new Set([...state._dirtyPlanIds, id]),
-                }));
+                set((state) => {
+                    const existing = state.plans.find((p) => p.id === id);
+                    let patch = data;
+                    // 空上書きガード (業界標準: 非空データを空データで上書きしない / hydration gate)。
+                    // 起動時 desync 等で作業ストアが空になった状態の getSnapshot() が、
+                    // 本物の非空プランを黙って破壊し Firestore へ伝播するのを root で塞ぐ。
+                    if (
+                        existing &&
+                        'data' in data && data.data &&
+                        isEmptyPlanData(data.data) &&
+                        !isEmptyPlanData(existing.data)
+                    ) {
+                        const { data: _dropped, ...rest } = data;
+                        // data 以外に更新が無ければ完全 no-op (version++/dirty を作らない)
+                        if (Object.keys(rest).length === 0) {
+                            if (import.meta.env.DEV) {
+                                console.warn('[LoPo] 空上書きガード: 非空プラン', id, 'への空データ保存をブロック');
+                            }
+                            return state;
+                        }
+                        // data フィールドだけ落とし、他フィールド (title 等) は通常どおり適用
+                        patch = rest;
+                    }
+                    return {
+                        plans: state.plans.map((p) => (p.id === id ? { ...p, ...patch, updatedAt: Date.now() } : p)),
+                        _dirtyPlanIds: new Set([...state._dirtyPlanIds, id]),
+                    };
+                });
             },
 
             deletePlan: (id) => {

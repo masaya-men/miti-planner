@@ -8,6 +8,7 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { reconcileCollabForPlan } from '../lib/collab/collabLifecycle';
+import { shouldRestoreMitigationFromPlan } from '../lib/bootstrapMitigation';
 import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
@@ -207,6 +208,24 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // リモートデータ読み込み中フラグ（PULL/マイグレーション時のdirty marking防止）
     const isRemoteLoadingRef = React.useRef(false);
+
+    // 起動時 desync 復旧 (hydration gate / bootstrapping)。
+    // currentPlanId は非空プランを指すのに作業ストアが空 = キャッシュ全消し等の desync。
+    // 真実 (plan.data) を作業ストアへ復元し、空のまま見える/空上書きの引き金になるのを防ぐ。
+    // localStorage persist は同期復元済みなのでマウント時点で state は揃っている。
+    React.useEffect(() => {
+        const { currentPlanId, plans } = usePlanStore.getState();
+        const plan = plans.find(p => p.id === currentPlanId);
+        if (shouldRestoreMitigationFromPlan({
+            currentPlanId,
+            plan,
+            mitigationSnapshot: useMitigationStore.getState().getSnapshot(),
+        }) && plan?.data) {
+            isRemoteLoadingRef.current = true;
+            useMitigationStore.getState().loadSnapshot(plan.data);
+            isRemoteLoadingRef.current = false;
+        }
+    }, []);
 
     // collab ライフサイクル管制: 「見ているプラン = 接続先」を常に一致させる。
     // collab 中に別プランへ移ったら必ず disconnect (exitCollabMode + unobserve) し、
