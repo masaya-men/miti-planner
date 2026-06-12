@@ -27,11 +27,11 @@ export const ShareChoiceModal: React.FC<ShareChoiceModalProps> = ({ onCopy, onCo
           <button onClick={onClose} className="w-7 h-7 rounded-full flex items-center justify-center text-app-text border border-transparent cursor-pointer hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 active:scale-90"><X size={16} /></button>
         </div>
         <div className="p-4 space-y-2.5">
-          <button onClick={onCopy} disabled={collabBusy} className="w-full flex items-center gap-3 p-3 rounded-xl border border-app-border bg-app-surface2/40 cursor-pointer hover:bg-app-surface2/70 transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed">
+          <button onClick={onCopy} disabled={collabBusy} className="w-full flex items-center gap-3 p-3 rounded-xl border border-app-border bg-app-surface2/40 cursor-pointer hover:bg-app-surface2/70 transition-colors text-left active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
             <span className="w-8 h-8 rounded-lg bg-app-surface2 flex items-center justify-center shrink-0"><Copy size={16} className="text-app-text" /></span>
             <span><span className="block font-bold text-app-text">{t('collab.choice_copy_title')}</span><span className="block text-app-xs text-app-text-muted">{t('collab.choice_copy_desc')}</span></span>
           </button>
-          <button onClick={onCollab} disabled={collabBusy} className="w-full flex items-center gap-3 p-3 rounded-xl border border-app-border bg-app-surface2/40 cursor-pointer hover:bg-app-surface2/70 transition-colors text-left disabled:opacity-70 disabled:cursor-wait">
+          <button onClick={onCollab} disabled={collabBusy} className="w-full flex items-center gap-3 p-3 rounded-xl border border-app-border bg-app-surface2/40 cursor-pointer hover:bg-app-surface2/70 transition-colors text-left active:scale-[0.98] disabled:opacity-70 disabled:cursor-wait">
             <span className="w-8 h-8 rounded-lg bg-app-surface2 flex items-center justify-center shrink-0">
               {collabBusy ? <Loader2 size={16} className="text-app-text animate-spin" /> : <Users size={16} className="text-app-text" />}
             </span>
