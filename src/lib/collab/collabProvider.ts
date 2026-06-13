@@ -344,7 +344,12 @@ export function startCollabSession(
   //   入退室(awareness の add/removed)時にだけ /count を取り直す(カーソル更新では取らない)。
   const refreshCount = () => {
     void fetchRoomCount(roomToken).then((n) => {
-      if (n !== null) useCollabPresenceStore.getState().setConnectionCount(n);
+      if (n === null) return;
+      useCollabPresenceStore.getState().setConnectionCount(n);
+      // ①自己修復: 確実な人数 > 名前付き roster なら presence が揮発している(ハイバネ復帰)。
+      //   自分を再ブロードキャスト → 欠けていた相手に自分の名前が届く。相手側も同様に不足を検知して
+      //   再送し、数百ms で全員の名前が揃う(タイマーなし=入退室時だけ=$0 設計を壊さない)。
+      if (n > useCollabPresenceStore.getState().roster.length) presenceHandle.reannounce();
     });
   };
   const onAwarenessMembership = (changes: { added: number[]; removed: number[] }) => {

@@ -1,6 +1,9 @@
-// ④-b-2: ジョブ自己選択 + カーソル ON/OFF トグル。OwnerCollabPanel/ジョイナー UI に組み込む。
-// OFF→ON はオプトイン説明モーダルを挟む(IP 露出の同意)。ON→OFF は即時。
-// ジョブは「自分を表すアイコン」(実名なし・パーティ編成枠とは無関係)。roster/カーソルに反映。
+// ④-b-2 / ②③ブラッシュアップ: カーソル ON/OFF トグル + 自分のアイコン選択。
+// - トグル自身が状態(英語 ON/OFF)を表示する(②表記ゆれ統一・動作カタカナ/状態注釈の二重表記を廃止)。
+// - アイコン選択ボタンは ON のときだけ表示(③ゲート化)。ON 中はいつでも変更可。
+// - OFF→ON はオプトイン説明モーダル(IP 露出の同意)→ 続けてアイコン選択ピッカーを自動で開く(②導線)。
+//   ピッカーを閉じれば「アイコン無し」(= jobId null = 素の矢印)。ON→OFF は即時。
+// - compact / 非 compact は見た目サイズの違いのみ(オーナーパネルと閲覧者ヘッダーで表示を揃える③)。
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,10 +15,6 @@ import { JobPicker } from '../JobPicker';
 import { CursorOptInModal } from './CursorOptInModal';
 import { Tooltip } from '../ui/Tooltip';
 
-/**
- * compact: ヘッダーの共同編集中クラスタ用の 1 行横並び版(カーソルトグル + ジョブアイコン)。
- *   状態はトグルのラベル(cursor_share_on/off)で明示。縦パネル版はオーナーパネル用(既定)。
- */
 export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
   const { t } = useTranslation();
   const cursorEnabled = useCollabPresenceStore(s => s.cursorEnabled);
@@ -25,6 +24,7 @@ export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = fa
   const setJobId = useCollabPresenceStore(s => s.setJobId);
   const [optInOpen, setOptInOpen] = React.useState(false);
   const [pickerPos, setPickerPos] = React.useState<{ x: number; y: number } | null>(null);
+  const toggleRef = React.useRef<HTMLButtonElement>(null);
 
   const jobs = useJobs();
   const myJobIcon = jobId ? jobs.find(j => j.id === jobId)?.icon ?? null : null;
@@ -32,6 +32,15 @@ export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = fa
   const toggle = () => {
     if (cursorEnabled) setCursorEnabled(false);   // ON→OFF は即時
     else setOptInOpen(true);                        // OFF→ON は説明を挟む
+  };
+
+  // ②導線: OptIn 同意 → ON にして、続けて「自分のアイコン」を選ばせる。
+  // ピッカーはトグル(常に DOM にある)を基準に開く。閉じれば jobId は null のまま=アイコン無し。
+  const confirmOptIn = () => {
+    setCursorEnabled(true);
+    setOptInOpen(false);
+    const r = toggleRef.current?.getBoundingClientRect();
+    setPickerPos(r ? { x: r.left, y: r.bottom } : { x: 0, y: 0 });
   };
 
   const openPicker = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -53,85 +62,69 @@ export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = fa
         document.body,
       )}
       {optInOpen && (
-        <CursorOptInModal
-          onConfirm={() => { setCursorEnabled(true); setOptInOpen(false); }}
-          onCancel={() => setOptInOpen(false)}
-        />
+        <CursorOptInModal onConfirm={confirmOptIn} onCancel={() => setOptInOpen(false)} />
       )}
     </>
   );
 
-  // ヘッダークラスタ用 1 行版: [カーソルトグル(状態ラベル)] [ジョブアイコン]。
+  // 状態トグル: ON=塗りつぶし / OFF=枠線のみ。文言はトグル自身が状態を示す(英語 ON/OFF)。
+  const toggleBtn = (
+    <button
+      ref={toggleRef}
+      aria-label="cursor-toggle"
+      onClick={toggle}
+      className={clsx(
+        'inline-flex items-center gap-1 rounded-full font-bold whitespace-nowrap cursor-pointer active:scale-95 transition-all border',
+        compact ? 'px-2.5 h-7 text-app-xs' : 'px-3 h-8 text-app-sm',
+        cursorEnabled
+          ? 'bg-app-text text-app-bg border-app-text'
+          : 'bg-transparent border-app-border text-app-text-muted',
+      )}
+    >
+      <MousePointer2 size={compact ? 12 : 13} />
+      {cursorEnabled ? t('collab.cursor_share_on') : t('collab.cursor_share_off')}
+    </button>
+  );
+
+  // アイコン選択ボタンは ON のときだけ(③ゲート化)。ON 中はいつでも変更可。
+  const iconBtn = cursorEnabled && (
+    <Tooltip content={t('collab.cursor_job_label')}>
+      <button
+        aria-label="job-select"
+        onClick={openPicker}
+        className={clsx(
+          'rounded-full border border-app-border bg-app-surface2/60 flex items-center justify-center overflow-hidden cursor-pointer active:scale-95 transition-transform',
+          compact ? 'w-7 h-7' : 'w-8 h-8',
+        )}
+      >
+        {myJobIcon
+          ? <img src={myJobIcon} alt="" className={compact ? 'w-5 h-5 object-contain' : 'w-6 h-6 object-contain'} />
+          : <User size={compact ? 13 : 15} className="text-app-text-muted" />}
+      </button>
+    </Tooltip>
+  );
+
+  // ヘッダークラスタ用 1 行版(compact): トグル + アイコン。
   if (compact) {
     return (
       <div className="flex items-center gap-1.5">
-        <button
-          aria-label="cursor-toggle"
-          onClick={toggle}
-          className={clsx(
-            "inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-app-xs font-bold whitespace-nowrap cursor-pointer active:scale-95 transition-all border",
-            cursorEnabled
-              ? "bg-app-text text-app-bg border-app-text"
-              : "bg-transparent border-app-border text-app-text-muted",
-          )}
-        >
-          <MousePointer2 size={12} />
-          {cursorEnabled ? t('collab.cursor_share_on') : t('collab.cursor_share_off')}
-        </button>
-        <Tooltip content={t('collab.cursor_job_label')}>
-          <button
-            aria-label="job-select"
-            onClick={openPicker}
-            className="w-7 h-7 rounded-full border border-app-border bg-app-surface2/60 flex items-center justify-center overflow-hidden cursor-pointer active:scale-95 transition-transform"
-          >
-            {myJobIcon
-              ? <img src={myJobIcon} alt="" className="w-5 h-5 object-contain" />
-              : <User size={13} className="text-app-text-muted" />}
-          </button>
-        </Tooltip>
+        {toggleBtn}
+        {iconBtn}
         {overlays}
       </div>
     );
   }
 
+  // オーナーパネル用: 閲覧者ヘッダーと同じ並び(トグル + アイコン)+ フォールバック注記。
   return (
-    <div className="space-y-2">
-      {/* 自己表現ジョブ */}
+    <div className="space-y-1.5">
       <div className="flex items-center gap-2">
-        <span className="text-app-sm text-app-text flex-1">{t('collab.cursor_job_label')}</span>
-        <button
-          aria-label="job-select"
-          onClick={openPicker}
-          className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center overflow-hidden cursor-pointer active:scale-95 transition-transform"
-        >
-          {myJobIcon
-            ? <img src={myJobIcon} alt="" className="w-6 h-6 object-contain" />
-            : <User size={15} className="text-app-text-muted" />}
-        </button>
+        {toggleBtn}
+        {iconBtn}
       </div>
-
-      {/* カーソル ON/OFF: ボタン + 状態テキストはボタンのすぐ下に赤字で(枠 w-[190px] に収める) */}
-      <div className="flex items-start gap-2">
-        <span className="text-app-sm text-app-text flex-1 pt-1.5">{t('collab.cursor_share_label')}</span>
-        <div className="flex flex-col items-end gap-1 shrink-0">
-          <button
-            aria-label="cursor-toggle"
-            onClick={toggle}
-            className={`px-2.5 h-7 rounded-lg text-app-xs font-bold cursor-pointer active:scale-95 transition-all ${cursorEnabled ? 'bg-app-surface2 border border-app-border text-app-text' : 'bg-app-text text-app-bg'}`}
-          >
-            {cursorEnabled ? t('collab.cursor_turn_off') : t('collab.cursor_turn_on')}
-          </button>
-          <p className="text-app-xs text-app-red text-right">
-            {cursorEnabled ? t('collab.cursor_status_on') : t('collab.cursor_status_off')}
-          </p>
-        </div>
-      </div>
-
       {cursorEnabled && cursorFallback && (
         <p className="text-app-xs text-app-text-muted">{t('collab.cursor_fallback')}</p>
       )}
-
-      {/* JobPicker / OptIn は body へ portal(glass-tier の backdrop-filter 内で fixed が画面外に出るのを回避)。 */}
       {overlays}
     </div>
   );

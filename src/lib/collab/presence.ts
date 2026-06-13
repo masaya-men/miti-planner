@@ -87,9 +87,15 @@ export interface AwarenessLike {
   off(event: 'change', cb: () => void): void;
 }
 
-/** wirePresence の戻り値: 実行時更新(update)と購読解除(stop)。 */
+/** wirePresence の戻り値: 実行時更新(update)・自己修復再送(reannounce)・購読解除(stop)。 */
 export interface PresenceHandle {
   update(patch: Partial<PresenceState>): void;
+  /**
+   * ①自己修復: 値を変えずに自分の presence をもう一度ブロードキャストする。
+   * ハイバネ復帰でサーバ側 awareness が揮発すると自分の presence が他者から消える。
+   * 確実な人数(/count) > 名前付き roster を検知した時にこれを呼ぶと、自分の名前が再び全員に届く。
+   */
+  reannounce(): void;
   stop(): void;
 }
 
@@ -125,6 +131,10 @@ export function wirePresence(
   return {
     update(patch) {
       current = { ...current, ...patch };
+      awareness.setLocalStateField('presence', current);
+    },
+    reannounce() {
+      // 値は据え置きで再送(clock を進め、揮発した自分の presence を全員に届け直す)。
       awareness.setLocalStateField('presence', current);
     },
     stop() {

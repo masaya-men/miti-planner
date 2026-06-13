@@ -116,3 +116,28 @@ describe('wirePresence の実行時更新', () => {
     handle.stop();
   });
 });
+
+describe('wirePresence の自己修復(reannounce)', () => {
+  it('reannounce で自分の presence を再ブロードキャストし roster を再通知する', () => {
+    const aw = new FakeAwareness();
+    let calls = 0;
+    const handle = wirePresence(aw, p({ color: '#abc' }), () => { calls++; });
+    const before = calls;
+    handle.reannounce();
+    // 再ブロードキャスト(setLocalStateField)→ fire → onRoster がもう一度呼ばれる
+    expect(calls).toBeGreaterThan(before);
+    // 自分の presence は awareness に載ったまま(揮発後の穴を埋め直せる)
+    expect(aw.getStates().get(aw.clientID)).toHaveProperty('presence');
+    handle.stop();
+  });
+
+  it('update 後の reannounce は最新の presence を再送する', () => {
+    const aw = new FakeAwareness();
+    let last: import('../presence').RosterEntry[] = [];
+    const handle = wirePresence(aw, p({ cursorEnabled: false }), (r) => { last = r; });
+    handle.update({ cursorEnabled: true });
+    handle.reannounce();
+    expect(last[0].cursorEnabled).toBe(true);
+    handle.stop();
+  });
+});
