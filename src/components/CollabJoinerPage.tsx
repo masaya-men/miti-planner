@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { ChevronLeft } from "lucide-react";
 import { startCollabSession, type CollabSession } from "../lib/collab/collabProvider";
 import { useCollabJoinerSession } from "../store/useCollabJoinerSession";
 import { useMitigationStore } from "../store/useMitigationStore";
@@ -8,7 +9,9 @@ import { useAuthStore } from "../store/useAuthStore";
 import { hasCollabEditConsent, setCollabEditConsent } from "../lib/collabEditConsent";
 import { CollabEditConsentModal } from "./CollabEditConsentModal";
 import { CollabJoinerBanner } from "./CollabJoinerBanner";
-import { CollabJoinerHeader } from "./CollabJoinerHeader";
+import { ConsolidatedHeader } from "./ConsolidatedHeader";
+import { AppFooter } from "./AppFooter";
+import { CollabViewerCluster } from "./collab/CollabViewerCluster";
 import { LoginModal } from "./LoginModal";
 import { ErrorBoundary } from "./ErrorBoundary";
 import Timeline from "./Timeline";
@@ -67,6 +70,7 @@ export default function CollabJoinerPage() {
   const [consentOpen, setConsentOpen] = useState(false);
   const [consentPrompted, setConsentPrompted] = useState(false);
   const ownerLabel = useCollabJoinerSession((s) => s.ownerLabel);
+  const contentId = useCollabJoinerSession((s) => s.contentId);
 
   const canEdit = computeCanEdit(isLoggedIn, hasConsent);
   // 「一度でも sync したか」を session 再接続(canEdit 切替)を跨いで保持。再接続時に
@@ -206,16 +210,60 @@ export default function CollabJoinerPage() {
   if (kind === "invalid") return <JoinerNotice text={t("collab.joiner_invalid")} />;
   if (kind === "full") return <JoinerNotice text={t("collab.joiner_full")} />;
   // sheet: Layout を通さず Timeline サブツリーのみ(自動保存・サイドバー・プラン管理なし)。
+  // ConsolidatedHeader は viewer モードで使用 — usePlanStore は参照しない(viewer 分岐が担保)。
   return (
     <div className="collab-joiner-shell font-sans text-app-text w-full h-screen overflow-hidden bg-app-bg flex flex-col">
-      {/* ヘッダー: コンテンツ名・プレゼンス・ログイン・テーマ・言語 */}
-      <CollabJoinerHeader onOpenLogin={() => setLoginOpen(true)} />
-      {/* タイムライン本体 */}
-      <div className="flex-1 overflow-auto relative flex">
-        <ErrorBoundary>
-          <Timeline />
-        </ErrorBoundary>
+      {/* ── アプリシェル外周クローム: サイドバーハンドル(左) + メインコンテンツ列 + 右端デコ ── */}
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* 左: 折り畳み済みサイドバーハンドル(静的・read-only。本物 Sidebar は mount しない) */}
+        <div className="hidden md:flex h-full w-6 shrink-0 flex-col relative z-40 glass-tier3 glass-frame glass-border-t-0 glass-border-r-0 glass-shadow-none">
+          {/* 右端境界線 */}
+          <div className="absolute inset-y-0 right-0 w-[1px] bg-app-border" />
+          {/* ハンドルボタン(静的・cursor-not-allowed で操作不可を明示) */}
+          <div className="relative w-full h-full cursor-not-allowed flex items-center justify-center overflow-hidden">
+            {/* 左端ライン */}
+            <div className="absolute inset-y-0 left-0 w-[1px] bg-app-border" />
+            <ChevronLeft
+              size={18}
+              className="text-app-text-muted"
+              style={{ transform: 'rotate(180deg)' }}
+            />
+          </div>
+        </div>
+
+        {/* 中央: ヘッダー + タイムライン本体 */}
+        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative z-10">
+          {/* 本物 ConsolidatedHeader — viewer モード。MobileTriggersContext はデフォルト値(noop)を使用 */}
+          <div className="hidden md:block h-0 relative z-[120]">
+            <ConsolidatedHeader
+              viewer={{ contentId, ownerLabel }}
+              viewerCluster={<CollabViewerCluster />}
+              onAutoPlan={() => {}}
+              onImportLogs={() => {}}
+              partySortOrder="role"
+              setPartySortOrder={() => {}}
+              statusOpen={false}
+              setStatusOpen={() => {}}
+            />
+          </div>
+          {/* モバイル向け簡易ヘッダー(PC では ConsolidatedHeader が float するため不要) */}
+          <div className="md:hidden shrink-0 min-h-12 px-4 py-1.5 flex items-center justify-between border-b border-app-border bg-app-bg">
+            <span className="font-bold text-app-text">LoPo</span>
+            <CollabViewerCluster />
+          </div>
+
+          {/* タイムライン本体: ConsolidatedHeader のヘッダー高さ分 padding */}
+          <div className="flex-1 overflow-auto relative" style={{ paddingTop: 124 }}>
+            <ErrorBoundary>
+              <Timeline />
+            </ErrorBoundary>
+          </div>
+        </div>
+
+        {/* 右端デコレーション(静的・フォーカスモードの対称装飾を常時非表示として省略) */}
+        {/* Layout では isHeaderCollapsed && !isSidebarOpen のときのみ表示。joiner は常に幅0 */}
       </div>
+
       {/* ④ 赤い注意バナーは画面下へ(状態別 CTA: login/consent/edit)。 */}
       <CollabJoinerBanner
         isLoggedIn={isLoggedIn}
@@ -224,18 +272,10 @@ export default function CollabJoinerPage() {
         onLogin={() => setLoginOpen(true)}
         onOpenConsent={() => setConsentOpen(true)}
       />
-      {/* フッター */}
-      <footer className="shrink-0 border-t border-app-border px-4 py-2 flex items-center justify-between gap-4 text-app-xs text-app-text-muted">
-        <span>© SQUARE ENIX CO., LTD. All Rights Reserved.</span>
-        <div className="flex items-center gap-3">
-          <Link to="/privacy" className="hover:text-app-text transition-colors">
-            {t("app.privacy_policy")}
-          </Link>
-          <Link to="/terms" className="hover:text-app-text transition-colors">
-            {t("app.terms")}
-          </Link>
-        </div>
-      </footer>
+
+      {/* 本物 AppFooter */}
+      <AppFooter />
+
       {/* モーダル群 */}
       <CollabEditConsentModal isOpen={consentOpen} onAccept={acceptConsent} onCancel={() => setConsentOpen(false)} />
       <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />

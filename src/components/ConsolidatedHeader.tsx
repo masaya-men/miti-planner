@@ -38,6 +38,11 @@ interface ConsolidatedHeaderProps {
     setStatusOpen: (open: boolean) => void;
     /** 閲覧専用モード: 部屋のコンテンツID・オーナーラベルを渡す。省略時は従来動作。 */
     viewer?: { contentId: string | null; ownerLabel: string | null };
+    /**
+     * 閲覧専用モード時のみ有効。ヘッダー右グループ(ShareButtons の代替)に挿入するノード。
+     * 未指定(undefined)のとき従来の ShareButtons を表示。viewer が未指定のときは無視される。
+     */
+    viewerCluster?: React.ReactNode;
 }
 
 // ホバー: 反転（ライト→ソフトダーク / ダーク→ソフトライト）
@@ -62,6 +67,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     statusOpen,
     setStatusOpen,
     viewer,
+    viewerCluster,
 }) => {
     /** 閲覧専用モード: Task 3 でボタン無効化に再利用 */
     const readOnly = viewer != null;
@@ -254,8 +260,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                         {/* ── 右グループ（固定位置・絶対に動かない） ── */}
                         <div className="flex items-center gap-1.5 shrink-0 ml-3">
-                            {/* 共有ボタン */}
-                            {currentPlan && (
+                            {/* viewer モード: 共同編集中クラスタを ShareButtons の代わりに表示 */}
+                            {readOnly && viewerCluster != null && (
+                                <>{viewerCluster}</>
+                            )}
+                            {/* 共有ボタン: 通常モードのみ */}
+                            {!readOnly && currentPlan && (
                                 <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />
                             )}
 
