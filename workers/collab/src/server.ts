@@ -140,6 +140,19 @@ export class Room extends YServer {
       const stored = await this.ctx.storage.get<number>(MAX_PARTICIPANTS_KEY);
       return Response.json({ count, max: resolveMaxParticipants(stored) });
     }
+    if (url.pathname.endsWith("/set-max")) {
+      // オーナーが人数上限を変更したとき Vercel 受付係から叩かれる（クライアントは到達不可）。
+      // 共有シークレットで認証し、DO のストレージを即時更新する。/count はこの値を返すため
+      // 次の接続から新しい上限が有効になる（部屋の再起動不要）。
+      const secret = request.headers.get("x-collab-secret");
+      if (!this.collabEnv.COLLAB_SHARED_SECRET || secret !== this.collabEnv.COLLAB_SHARED_SECRET) {
+        return new Response("unauthorized", { status: 401 });
+      }
+      const n = Number(url.searchParams.get("n"));
+      const clamped = resolveMaxParticipants(n);
+      await this.ctx.storage.put(MAX_PARTICIPANTS_KEY, clamped);
+      return Response.json({ max: clamped });
+    }
     if (url.pathname.endsWith("/destroy")) {
       // 失効/再発行で受付係(Vercel)が叩く。共有シークレットで認証（クライアントは到達不可）。
       const secret = request.headers.get("x-collab-secret");

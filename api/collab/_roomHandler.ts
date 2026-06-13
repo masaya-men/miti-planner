@@ -11,7 +11,7 @@ import { FieldValue, type Transaction } from 'firebase-admin/firestore';
 import { nanoid } from 'nanoid';
 import { parseRoomManageRequest } from './_roomManageLogic.js';
 import { clampMaxParticipants, isCollabDisabled } from './_roomLogic.js';
-import { destroyRoomBinary } from './_roomDestroy.js';
+import { destroyRoomBinary, liveUpdateRoomMax } from './_roomDestroy.js';
 
 /** plans/{planId} のうちこのハンドラが必要とするフィールドだけの型。 */
 interface PlanOwnerDoc {
@@ -135,10 +135,16 @@ export default async function handler(req: any, res: any) {
 
     // 破棄すべき旧部屋があれば worker にバイナリ破棄を通知（best-effort・クライアント応答には載せない）。
     const { destroyToken, ...publicResult } = result as (typeof result) & { destroyToken?: string };
+    const collabBase = process.env.COLLAB_INTERNAL_BASE || 'https://lopo-collab.masaya-maeno0106.workers.dev';
+    const collabSecret = process.env.COLLAB_SHARED_SECRET || '';
     if (destroyToken) {
-      const collabBase = process.env.COLLAB_INTERNAL_BASE || 'https://lopo-collab.masaya-maeno0106.workers.dev';
-      const collabSecret = process.env.COLLAB_SHARED_SECRET || '';
       await destroyRoomBinary(collabBase, collabSecret, destroyToken);
+    }
+    // set-max: 動いている DO の人数上限を即時更新する（best-effort）。
+    // Firestore 更新は成立済みのため、失敗しても次の部屋起動時に反映される。
+    // シークレットはサーバー側でのみ保持し、クライアントには送らない。
+    if (reqData.action === 'set-max' && 'roomToken' in publicResult && 'maxParticipants' in publicResult) {
+      await liveUpdateRoomMax(collabBase, collabSecret, publicResult.roomToken as string, publicResult.maxParticipants as number);
     }
     return res.status(200).json(publicResult);
   } catch (error: any) {

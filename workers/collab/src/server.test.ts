@@ -160,6 +160,67 @@ describe("Room (YServer) ", () => {
     expect(res.status).toBe(401);
   });
 
+  it("/set-max はシークレット付きで上限を即時更新し /count に反映する", async () => {
+    // seed で max=8 の部屋を立ち上げる。
+    fetchMock.get(BASE)
+      .intercept({ path: "/api/collab/load?roomToken=setmax-room", method: "GET" })
+      .reply(200, { mitigations: [], maxParticipants: 8 });
+    const ws = (await SELF.fetch("https://collab.test/parties/room/setmax-room", {
+      headers: { Upgrade: "websocket" },
+    })).webSocket!;
+    ws.accept();
+    try {
+      // 部屋が立ち上がり max=8 が storage に書かれるまで待つ。
+      const before = await pollCount("setmax-room");
+      expect(before.max).toBe(8);
+      // POST /set-max?n=1 でライブ更新する。
+      const setRes = await SELF.fetch("https://collab.test/parties/room/setmax-room/set-max?n=1", {
+        method: "POST",
+        headers: { "x-collab-secret": "test-secret" },
+      });
+      expect(setRes.status).toBe(200);
+      const body = await setRes.json<{ max: number }>();
+      expect(body.max).toBe(1);
+      // /count も即座に新しい max を返す(ストレージ書き換え済み)。
+      const after = await SELF.fetch("https://collab.test/parties/room/setmax-room/count");
+      const { max } = await after.json<{ count: number; max: number }>();
+      expect(max).toBe(1);
+    } finally {
+      ws.close();
+    }
+  });
+
+  it("/set-max はシークレット無し/誤りを 401 で拒否し max を変えない", async () => {
+    // seed で max=8 の部屋を立ち上げる（別ルーム名で独立させる）。
+    fetchMock.get(BASE)
+      .intercept({ path: "/api/collab/load?roomToken=setmax-auth-room", method: "GET" })
+      .reply(200, { mitigations: [], maxParticipants: 8 });
+    const ws = (await SELF.fetch("https://collab.test/parties/room/setmax-auth-room", {
+      headers: { Upgrade: "websocket" },
+    })).webSocket!;
+    ws.accept();
+    try {
+      await pollCount("setmax-auth-room");
+      // シークレット無しは 401。
+      const noSecret = await SELF.fetch("https://collab.test/parties/room/setmax-auth-room/set-max?n=1", {
+        method: "POST",
+      });
+      expect(noSecret.status).toBe(401);
+      // シークレット誤りも 401。
+      const wrongSecret = await SELF.fetch("https://collab.test/parties/room/setmax-auth-room/set-max?n=1", {
+        method: "POST",
+        headers: { "x-collab-secret": "wrong-secret" },
+      });
+      expect(wrongSecret.status).toBe(401);
+      // max は変わっていないこと。
+      const after = await SELF.fetch("https://collab.test/parties/room/setmax-auth-room/count");
+      const { max } = await after.json<{ count: number; max: number }>();
+      expect(max).toBe(8);
+    } finally {
+      ws.close();
+    }
+  });
+
   it("2 回目のロードは Firestore を再 fetch せずバイナリから復元する（再 seed 合流の封じ込め）", async () => {
     // 1 回目の onLoad だけ load を 1 回 intercept。2 回目に再 fetch したら
     // afterEach の assertNoPendingInterceptors が pending を検出して失敗する。
