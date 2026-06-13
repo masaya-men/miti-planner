@@ -61,7 +61,8 @@
         "banner_consent": "You must agree to the notice before editing.",
         "banner_consent_cta": "Agree to edit",
         "banner_login": "View only. Log in to edit.",
-        "banner_login_cta": "Log in to edit"
+        "banner_login_cta": "Log in to edit",
+        "leave": "Leave collab"
     },
     "common": {
         "cancel": "Cancel",

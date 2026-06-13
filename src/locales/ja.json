@@ -61,7 +61,8 @@
         "banner_consent": "編集するには注意事項への同意が必要です。",
         "banner_consent_cta": "同意して編集",
         "banner_login": "閲覧のみです。編集するにはログインしてください。",
-        "banner_login_cta": "ログインして編集"
+        "banner_login_cta": "ログインして編集",
+        "leave": "共同編集を抜ける"
     },
     "common": {
         "cancel": "キャンセル",

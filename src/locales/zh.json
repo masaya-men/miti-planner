@@ -61,7 +61,8 @@
         "banner_consent": "编辑前需要同意注意事项。",
         "banner_consent_cta": "同意并编辑",
         "banner_login": "仅查看。登录后可编辑。",
-        "banner_login_cta": "登录并编辑"
+        "banner_login_cta": "登录并编辑",
+        "leave": "退出协作"
     },
     "common": {
         "cancel": "取消",

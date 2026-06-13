@@ -61,7 +61,8 @@
         "banner_consent": "편집하려면 주의사항에 동의해야 합니다.",
         "banner_consent_cta": "동의하고 편집",
         "banner_login": "보기 전용입니다. 편집하려면 로그인하세요.",
-        "banner_login_cta": "로그인하고 편집"
+        "banner_login_cta": "로그인하고 편집",
+        "leave": "공동 편집 나가기"
     },
     "common": {
         "cancel": "취소",
