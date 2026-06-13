@@ -309,11 +309,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {/* Party Comp */}
                             <button
                                 data-tutorial="party-comp"
+                                disabled={readOnly}
                                 onClick={() => {
                                     window.dispatchEvent(new CustomEvent('timeline:party-settings', { detail: { open: true } }));
                                     useTutorialStore.getState().completeEvent('party:opened');
                                 }}
-                                className={clsx(pillBtnBase, pillBtnDefault)}
+                                className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
                             >
                                 <Users size={14} className="group-hover:scale-110 transition-transform duration-300 shrink-0" />
                                 <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
@@ -321,11 +322,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             {/* Status */}
                             <button
+                                disabled={readOnly}
                                 onClick={() => {
                                     setStatusOpen(!statusOpen);
                                     // (チュートリアルイベント削除済み)
                                 }}
-                                className={clsx(pillBtnBase, statusOpen ? pillBtnActive : pillBtnDefault)}
+                                className={clsx(pillBtnBase, statusOpen ? pillBtnActive : pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
                             >
                                 <Activity size={14} className={clsx("transition-transform duration-300 shrink-0", statusOpen ? "" : "group-hover:scale-110")} />
                                 <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('settings.config_short')}</span>
@@ -333,8 +335,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             {/* Auto Plan */}
                             <button
+                                disabled={readOnly}
                                 onClick={onAutoPlan}
-                                className={clsx(pillBtnBase, pillBtnDefault)}
+                                className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
                             >
                                 <Wand2 size={14} className="group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300 shrink-0" />
                                 <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
@@ -343,12 +346,15 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {/* Import（アイコンのみ） */}
                             <Tooltip content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}>
                                 <button
+                                    disabled={readOnly}
                                     onClick={onImportLogs}
                                     className={clsx(
                                         iconBtnBase,
-                                        needsImport
-                                            ? "bg-app-toggle text-app-toggle-text border-app-toggle animate-pulse"
-                                            : iconBtnDefault
+                                        readOnly
+                                            ? `${iconBtnDefault} opacity-50 cursor-not-allowed`
+                                            : needsImport
+                                                ? "bg-app-toggle text-app-toggle-text border-app-toggle animate-pulse"
+                                                : iconBtnDefault
                                     )}
                                 >
                                     <FileDown size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
@@ -360,8 +366,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
                             <Tooltip content={t('popular.open_popular_tooltip')}>
                                 <button
+                                    disabled={readOnly}
                                     onClick={() => setIsMitiSheetOpen(true)}
-                                    className={clsx(pillBtnBase, pillBtnDefault)}
+                                    className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
                                 >
                                     <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
                                 </button>
@@ -370,11 +377,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {/* My Job Highlight */}
                             <button
                                 data-tutorial="my-job-highlight-btn"
+                                disabled={readOnly}
                                 onClick={() => {
                                     setMyJobHighlight(!myJobHighlight);
                                     // (チュートリアルイベント削除済み)
                                 }}
-                                className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault)}
+                                className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
                             >
                                 <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-current" : "group-hover:rotate-12 group-hover:scale-110")} />
                                 <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
@@ -384,16 +392,18 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             {/* Sort */}
                             <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
-                            <SegmentButton
-                                options={[
-                                    { value: 'light_party', label: t('ui.sort_light_party') },
-                                    { value: 'role', label: t('ui.sort_role') },
-                                ]}
-                                value={partySortOrder}
-                                onChange={setPartySortOrder}
-                                size="sm"
-                                pill
-                            />
+                            <span className={clsx(readOnly && 'pointer-events-none opacity-50 cursor-not-allowed')}>
+                                <SegmentButton
+                                    options={[
+                                        { value: 'light_party', label: t('ui.sort_light_party') },
+                                        { value: 'role', label: t('ui.sort_role') },
+                                    ]}
+                                    value={partySortOrder}
+                                    onChange={setPartySortOrder}
+                                    size="sm"
+                                    pill
+                                />
+                            </span>
                         </div>
                     </div>
                 </div>

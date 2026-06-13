@@ -102,4 +102,28 @@ describe('ConsolidatedHeader viewer mode', () => {
     );
     expect(screen.getByText(/絶アレキサンダー討滅戦/)).toBeInTheDocument();
   });
+
+  it('viewer 時、内容を変える操作ボタンが無効化される', () => {
+    render(
+      <MemoryRouter>
+        <ConsolidatedHeader
+          {...dummyProps}
+          viewer={{ contentId: 'TEA', ownerLabel: null }}
+        />
+      </MemoryRouter>
+    );
+    // パーティ編成ボタン（t('party.comp_short') → 'party.comp_short'）
+    const partyBtn = screen.getByRole('button', { name: /party\.comp_short/i });
+    expect(partyBtn).toBeDisabled();
+  });
+
+  it('非viewer 時、パーティ編成ボタンは有効のまま', () => {
+    render(
+      <MemoryRouter>
+        <ConsolidatedHeader {...dummyProps} />
+      </MemoryRouter>
+    );
+    const partyBtn = screen.getByRole('button', { name: /party\.comp_short/i });
+    expect(partyBtn).not.toBeDisabled();
+  });
 });
