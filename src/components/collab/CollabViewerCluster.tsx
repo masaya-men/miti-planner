@@ -11,7 +11,8 @@ import { PresenceControls } from './PresenceControls';
 export const CollabViewerCluster: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const roster = useCollabPresenceStore((s) => s.roster);
+  // #3d: 「N人」は確実な接続数(connectionCount)優先・未取得は roster.length にフォールバック。
+  const liveCount = useCollabPresenceStore((s) => s.connectionCount ?? s.roster.length);
 
   return (
     // #2c: flex-wrap を外し 1 行固定(折り返しでヘッダーが縦に伸び縦スクロールが出るのを防ぐ)。
@@ -19,8 +20,8 @@ export const CollabViewerCluster: React.FC = () => {
       {/* 共同編集中ラベル + 参加者ドット */}
       <div className="glass-tier2 flex items-center gap-2 px-3 py-1.5 rounded-full border border-app-border">
         <span className="text-app-xs font-bold text-app-text whitespace-nowrap">
-          {roster.length > 0
-            ? t('collab.chip_active_count', { count: roster.length })
+          {liveCount > 0
+            ? t('collab.chip_active_count', { count: liveCount })
             : t('collab.chip_active')}
         </span>
 

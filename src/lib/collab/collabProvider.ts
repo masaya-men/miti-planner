@@ -38,6 +38,22 @@ const COLLAB_HOST =
   (import.meta.env.VITE_COLLAB_HOST as string | undefined) || 'lopo-collab.masaya-maeno0106.workers.dev';
 
 /**
+ * #3d: 確実な人数を取得する。サーバの /count は getConnections() 由来(ハイバネを越えて保持=Cloudflare 公式)。
+ * 入退室(awareness の add/removed)時 + 接続時にだけ呼ぶ(カーソル更新では呼ばない)→ アイドル中は
+ * DO を起こさず $0 を維持。失敗は null(呼び出し側は roster.length にフォールバック)。
+ */
+export async function fetchRoomCount(roomToken: string): Promise<number | null> {
+  try {
+    const res = await fetch(`https://${COLLAB_HOST}/parties/room/${encodeURIComponent(roomToken)}/count`);
+    if (!res.ok) return null;
+    const data = (await res.json()) as { count?: number };
+    return typeof data.count === 'number' ? data.count : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * ④-a: provider params。ログイン中なら現在の Firebase ID トークンを載せ、未ログインは空(viewer)。
  * 関数なので再接続のたびに最新トークンを取り直す(約1時間の期限を自然に解決)。
  * getToken を注入式にして純粋にテストする(firebase を静的 import せず、呼び出し側で動的に渡す)。
@@ -324,6 +340,18 @@ export function startCollabSession(
     (roster) => useCollabPresenceStore.getState().setRoster(roster),
   );
 
+  // #3d: 確実な人数は roster(awareness=ハイバネで揮発)でなくサーバの接続リスト由来。
+  //   入退室(awareness の add/removed)時にだけ /count を取り直す(カーソル更新では取らない)。
+  const refreshCount = () => {
+    void fetchRoomCount(roomToken).then((n) => {
+      if (n !== null) useCollabPresenceStore.getState().setConnectionCount(n);
+    });
+  };
+  const onAwarenessMembership = (changes: { added: number[]; removed: number[] }) => {
+    if (changes.added.length > 0 || changes.removed.length > 0) refreshCount();
+  };
+  provider.awareness.on('change', onAwarenessMembership);
+
   // ④-b-2: live カーソル(P2P)。mesh + signaling(awareness 相乗り)。
   // WebRTC は遅延チャンク内なので main bundle 非混入。
   // signal の callback は mesh を、mesh の sendSignal は signal を参照する循環だが、
@@ -363,11 +391,13 @@ export function startCollabSession(
     entered = true;
     // ②-b-1/②-b-2 の全要素初期反映 + ⑤-3b の readOnly 分岐 + contentId seed 取得を 1 箇所に集約。
     applyRoomToStore(doc, { readOnly, handlers, onContentId: opts.onContentId, onOwnerLabel: opts.onOwnerLabel });
+    refreshCount(); // #3d: 接続確立時に確実な人数を 1 回取得。
   };
   provider.on('sync', onSynced);
 
   const disconnect = () => {
     provider.off('sync', onSynced);
+    provider.awareness.off('change', onAwarenessMembership); // #3d
     yarr.unobserveDeep(applyToStore);
     yEvents.unobserveDeep(applyEvents);
     yPhases.unobserveDeep(applyPhases);

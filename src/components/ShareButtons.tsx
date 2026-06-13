@@ -31,7 +31,8 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
     const [showLogin, setShowLogin] = React.useState(false);
     const [collabBusy, setCollabBusy] = React.useState(false);
     const { active, start } = useCollabSessionStore();
-    const rosterCount = useCollabPresenceStore(s => s.roster.length);
+    // #3d: 「N人」は確実な接続数(connectionCount)を優先・未取得は roster.length にフォールバック。
+    const liveCount = useCollabPresenceStore(s => s.connectionCount ?? s.roster.length);
     const { user, isAdmin } = useAuthStore();
 
     // ON 判定は「プランが collab-ON か」(プラン属性・サイドバーバッジと同基準) に寄せる。
@@ -70,7 +71,7 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
                     onClick={openShareUI}
                     className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-app-text/40 bg-app-text/10 text-app-text font-bold text-app-sm cursor-pointer active:scale-95 transition-all"
                 >
-                    <Users size={13} /> {rosterCount > 0 ? t('collab.chip_active_count', { count: rosterCount }) : t('collab.chip_active')}
+                    <Users size={13} /> {liveCount > 0 ? t('collab.chip_active_count', { count: liveCount }) : t('collab.chip_active')}
                     {/* #3e: オーナーも設定を開かず参加者ドットを一目で見られるように */}
                     <ParticipantDots size={8} />
                 </button>

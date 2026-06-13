@@ -6,6 +6,11 @@ import type { RosterEntry } from '../lib/collab/presence';
 interface CollabPresenceState {
   roster: RosterEntry[];
   setRoster: (roster: RosterEntry[]) => void;
+  // #3d: 確実な人数(サーバの接続リスト getConnections 由来・ハイバネで揮発しない)。
+  //   roster.length(awareness 由来=ハイバネで揮発) でなくこちらを「N人」表示に使う。
+  //   未取得(接続直後など)は null → roster.length にフォールバック。
+  connectionCount: number | null;
+  setConnectionCount: (n: number | null) => void;
   // ④-b-2: 自分のカーソル設定(IP 露出を伴うため既定 OFF)。
   cursorEnabled: boolean;
   jobId: string | null;
@@ -19,6 +24,8 @@ interface CollabPresenceState {
 export const useCollabPresenceStore = create<CollabPresenceState>((set) => ({
   roster: [],
   setRoster: (roster) => set({ roster }),
+  connectionCount: null,
+  setConnectionCount: (n) => set({ connectionCount: n }),
   cursorEnabled: false,
   jobId: null,
   cursorFallback: false,
@@ -26,5 +33,5 @@ export const useCollabPresenceStore = create<CollabPresenceState>((set) => ({
   setCursorEnabled: (v) => set({ cursorEnabled: v, cursorFallback: false }),
   setJobId: (id) => set({ jobId: id }),
   setCursorFallback: (v) => set({ cursorFallback: v }),
-  clear: () => set({ roster: [], cursorEnabled: false, jobId: null, cursorFallback: false }),
+  clear: () => set({ roster: [], connectionCount: null, cursorEnabled: false, jobId: null, cursorFallback: false }),
 }));

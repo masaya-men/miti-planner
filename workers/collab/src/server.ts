@@ -138,7 +138,13 @@ export class Room extends YServer {
       let count = 0;
       for (const _ of this.getConnections()) count++;
       const stored = await this.ctx.storage.get<number>(MAX_PARTICIPANTS_KEY);
-      return Response.json({ count, max: resolveMaxParticipants(stored) });
+      // #3d: 人数はハイバネを越えて保持される接続リスト(getConnections)が真実(Cloudflare 公式)。
+      //   ブラウザが入退室時だけ取得して確実な人数を出すため CORS を許可する(count/max は非機微・
+      //   部屋トークンを知る者は元々接続できるので * で可)。単純 GET = プリフライト不要。
+      return Response.json(
+        { count, max: resolveMaxParticipants(stored) },
+        { headers: { "Access-Control-Allow-Origin": "*" } },
+      );
     }
     if (url.pathname.endsWith("/set-max")) {
       // オーナーが人数上限を変更したとき Vercel 受付係から叩かれる（クライアントは到達不可）。
