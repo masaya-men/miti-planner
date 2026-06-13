@@ -103,13 +103,22 @@ export function wirePresence(
   onRoster: (roster: RosterEntry[]) => void,
 ): PresenceHandle {
   let current: PresenceState = { ...local };
-  const emit = () =>
-    onRoster(
-      buildRoster(
-        awareness.getStates() as Map<number, { presence?: PresenceState }>,
-        awareness.clientID,
-      ),
-    );
+  // #3d: 後から入室した側は、サーバの awareness が揮発(ハイバネ復帰)していると既存参加者の
+  // presence を受け取れず人数が片側だけ少なくなる。新規リモートを検知したら自分の presence を
+  // 再ブロードキャスト(gossip)して相手の roster にも自分を出す。既知 ID には再送しない=ループ無し。
+  const knownRemotes = new Set<number>();
+  const emit = () => {
+    const states = awareness.getStates() as Map<number, { presence?: PresenceState }>;
+    let hasNew = false;
+    for (const id of states.keys()) {
+      if (id !== awareness.clientID && !knownRemotes.has(id)) {
+        knownRemotes.add(id);
+        hasNew = true;
+      }
+    }
+    if (hasNew) awareness.setLocalStateField('presence', current);
+    onRoster(buildRoster(states, awareness.clientID));
+  };
   awareness.on('change', emit);
   awareness.setLocalStateField('presence', current);
   emit();

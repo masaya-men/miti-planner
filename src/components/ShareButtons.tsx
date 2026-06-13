@@ -6,6 +6,7 @@ import { Tooltip } from './ui/Tooltip';
 import { ShareModal } from './ShareModal';
 import { ShareChoiceModal } from './collab/ShareChoiceModal';
 import { OwnerCollabPanel } from './collab/OwnerCollabPanel';
+import { ParticipantDots } from './collab/ParticipantDots';
 import { LoginModal } from './LoginModal';
 import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
@@ -70,6 +71,8 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
                         className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-app-text/40 bg-app-text/10 text-app-text font-bold text-app-sm cursor-pointer active:scale-95 transition-all"
                     >
                         <Users size={13} /> {rosterCount > 0 ? t('collab.chip_active_count', { count: rosterCount }) : t('collab.chip_active')}
+                        {/* #3e: オーナーも設定を開かず参加者ドットを一目で見られるように */}
+                        <ParticipantDots size={8} />
                     </button>
                 ) : (
                     <button

@@ -7,7 +7,7 @@ import { ShareButtons } from '../../ShareButtons';
 import { useCollabSessionStore } from '../../../store/useCollabSessionStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 
-vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k: string) => k }) }));
+vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k: string) => k, i18n: { language: 'ja' } }) }));
 // ShareModal/Tooltip/LoginModal は本テストの対象外。軽量モックで描画を単純化。
 vi.mock('../../ShareModal', () => ({ ShareModal: ({ isOpen }: { isOpen: boolean }) => isOpen ? <div data-testid="share-modal" /> : null }));
 vi.mock('../../ui/Tooltip', () => ({ Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</> }));

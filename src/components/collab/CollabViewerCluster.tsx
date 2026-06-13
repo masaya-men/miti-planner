@@ -5,21 +5,17 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
-import { nameForClient } from '../../lib/collab/presence';
+import { ParticipantDots } from './ParticipantDots';
 import { PresenceControls } from './PresenceControls';
 
 export const CollabViewerCluster: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const roster = useCollabPresenceStore((s) => s.roster);
 
-  // 表示名の材料(i18n)。OwnerCollabPanel と同じパターン。
-  const adjectives = React.useMemo(() => t('collab.name_adjectives').split(','), [t]);
-  const nouns = React.useMemo(() => t('collab.name_nouns').split(','), [t]);
-  const sep = ['ja', 'zh'].includes(i18n.language) ? '' : ' ';
-
   return (
-    <div className="flex items-center gap-2 flex-wrap">
+    // #2c: flex-wrap を外し 1 行固定(折り返しでヘッダーが縦に伸び縦スクロールが出るのを防ぐ)。
+    <div className="flex items-center gap-2">
       {/* 共同編集中ラベル + 参加者ドット */}
       <div className="glass-tier2 flex items-center gap-2 px-3 py-1.5 rounded-full border border-app-border">
         <span className="text-app-xs font-bold text-app-text whitespace-nowrap">
@@ -28,18 +24,8 @@ export const CollabViewerCluster: React.FC = () => {
             : t('collab.chip_active')}
         </span>
 
-        {/* 参加者ドット */}
-        {roster.map((m) => (
-          <span
-            key={m.clientId}
-            className="w-2.5 h-2.5 rounded-full shrink-0 inline-block"
-            style={{
-              backgroundColor: m.color,
-              boxShadow: `0 0 6px ${m.color}`,
-            }}
-            title={m.isLocal ? t('collab.roster_you') : nameForClient(m.clientId, adjectives, nouns, sep)}
-          />
-        ))}
+        {/* 参加者ドット(共有コンポーネント) */}
+        <ParticipantDots size={10} />
       </div>
 
       {/* カーソル + ジョブ操作 */}

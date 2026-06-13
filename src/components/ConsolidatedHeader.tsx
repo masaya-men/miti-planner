@@ -57,6 +57,12 @@ const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full borde
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-app-toggle text-app-toggle-text border-app-toggle ${hoverInvert}`;
 
+// #2b: ネイティブ disabled ボタンはブラウザが cursor 指定を無視するため、禁止カーソルを
+// wrapper(span)側で出す。span を hover ターゲットにし、中のボタンは pointer-events-none で透過。
+const NotAllowed: React.FC<{ on: boolean; children: React.ReactNode }> = ({ on, children }) => (
+    <span className={clsx('inline-flex', on && 'cursor-not-allowed')}>{children}</span>
+);
+
 // SyncButton は ./SyncButton.tsx に共有コンポーネントとして切り出し済み
 
 export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
@@ -271,10 +277,13 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                             <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
-                            {/* チュートリアル */}
-                            <TutorialMenu btnClassName={clsx(pillBtnBase, pillBtnDefault)} />
-
-                            <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
+                            {/* チュートリアル: viewer(ジョイナー)では無関係なので非表示(#2a/#2c) */}
+                            {!readOnly && (
+                                <>
+                                    <TutorialMenu btnClassName={clsx(pillBtnBase, pillBtnDefault)} />
+                                    <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
+                                </>
+                            )}
 
                             {/* テーマ切替（チュートリアル中も常に操作可能） */}
                             <Tooltip content={theme === 'dark' ? t('app.toggle_theme_light') : t('app.toggle_theme_dark')}>
@@ -317,51 +326,60 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     <div className="h-12 flex items-center justify-between px-6 shrink-0">
                         <div className="flex items-center gap-1.5">
                             {/* Party Comp */}
-                            <button
-                                data-tutorial="party-comp"
-                                disabled={readOnly}
-                                onClick={() => {
-                                    window.dispatchEvent(new CustomEvent('timeline:party-settings', { detail: { open: true } }));
-                                    useTutorialStore.getState().completeEvent('party:opened');
-                                }}
-                                className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
-                            >
-                                <Users size={14} className="group-hover:scale-110 transition-transform duration-300 shrink-0" />
-                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
-                            </button>
+                            <NotAllowed on={readOnly}>
+                                <button
+                                    data-tutorial="party-comp"
+                                    disabled={readOnly}
+                                    onClick={() => {
+                                        window.dispatchEvent(new CustomEvent('timeline:party-settings', { detail: { open: true } }));
+                                        useTutorialStore.getState().completeEvent('party:opened');
+                                    }}
+                                    className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
+                                >
+                                    <Users size={14} className="group-hover:scale-110 transition-transform duration-300 shrink-0" />
+                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('party.comp_short')}</span>
+                                </button>
+                            </NotAllowed>
 
                             {/* Status */}
-                            <button
-                                disabled={readOnly}
-                                onClick={() => {
-                                    setStatusOpen(!statusOpen);
-                                    // (チュートリアルイベント削除済み)
-                                }}
-                                className={clsx(pillBtnBase, statusOpen ? pillBtnActive : pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
-                            >
-                                <Activity size={14} className={clsx("transition-transform duration-300 shrink-0", statusOpen ? "" : "group-hover:scale-110")} />
-                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('settings.config_short')}</span>
-                            </button>
+                            <NotAllowed on={readOnly}>
+                                <button
+                                    disabled={readOnly}
+                                    onClick={() => {
+                                        setStatusOpen(!statusOpen);
+                                        // (チュートリアルイベント削除済み)
+                                    }}
+                                    className={clsx(pillBtnBase, statusOpen ? pillBtnActive : pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
+                                >
+                                    <Activity size={14} className={clsx("transition-transform duration-300 shrink-0", statusOpen ? "" : "group-hover:scale-110")} />
+                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('settings.config_short')}</span>
+                                </button>
+                            </NotAllowed>
 
                             {/* Auto Plan */}
-                            <button
-                                disabled={readOnly}
-                                onClick={onAutoPlan}
-                                className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
-                            >
-                                <Wand2 size={14} className="group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300 shrink-0" />
-                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
-                            </button>
+                            <NotAllowed on={readOnly}>
+                                <button
+                                    disabled={readOnly}
+                                    onClick={onAutoPlan}
+                                    className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
+                                >
+                                    <Wand2 size={14} className="group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300 shrink-0" />
+                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
+                                </button>
+                            </NotAllowed>
 
                             {/* Import（アイコンのみ） */}
-                            <Tooltip content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}>
+                            <Tooltip
+                                wrapperClassName={clsx(readOnly && 'cursor-not-allowed')}
+                                content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}
+                            >
                                 <button
                                     disabled={readOnly}
                                     onClick={onImportLogs}
                                     className={clsx(
                                         iconBtnBase,
                                         readOnly
-                                            ? `${iconBtnDefault} opacity-50 cursor-not-allowed`
+                                            ? `${iconBtnDefault} opacity-50 pointer-events-none`
                                             : needsImport
                                                 ? "bg-app-toggle text-app-toggle-text border-app-toggle animate-pulse"
                                                 : iconBtnDefault
@@ -374,35 +392,39 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
                         <div className="flex items-center gap-1.5">
                             {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
-                            <Tooltip content={t('popular.open_popular_tooltip')}>
+                            <Tooltip wrapperClassName={clsx(readOnly && 'cursor-not-allowed')} content={t('popular.open_popular_tooltip')}>
                                 <button
                                     disabled={readOnly}
                                     onClick={() => setIsMitiSheetOpen(true)}
-                                    className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
+                                    className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
                                 >
                                     <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
                                 </button>
                             </Tooltip>
 
                             {/* My Job Highlight */}
-                            <button
-                                data-tutorial="my-job-highlight-btn"
-                                disabled={readOnly}
-                                onClick={() => {
-                                    setMyJobHighlight(!myJobHighlight);
-                                    // (チュートリアルイベント削除済み)
-                                }}
-                                className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault, readOnly && 'opacity-50 cursor-not-allowed')}
-                            >
-                                <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-current" : "group-hover:rotate-12 group-hover:scale-110")} />
-                                <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
-                            </button>
+                            <NotAllowed on={readOnly}>
+                                <button
+                                    data-tutorial="my-job-highlight-btn"
+                                    disabled={readOnly}
+                                    onClick={() => {
+                                        setMyJobHighlight(!myJobHighlight);
+                                        // (チュートリアルイベント削除済み)
+                                    }}
+                                    className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
+                                >
+                                    <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-current" : "group-hover:rotate-12 group-hover:scale-110")} />
+                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
+                                </button>
+                            </NotAllowed>
 
                             <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
                             {/* Sort */}
                             <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
-                            <span className={clsx(readOnly && 'pointer-events-none opacity-50 cursor-not-allowed')}>
+                            {/* #2b: 外 span=禁止カーソル(hover ターゲット) / 内 span=pointer-events-none(透過) */}
+                            <span className={clsx(readOnly && 'cursor-not-allowed')}>
+                            <span className={clsx(readOnly && 'pointer-events-none opacity-50')}>
                                 <SegmentButton
                                     options={[
                                         { value: 'light_party', label: t('ui.sort_light_party') },
@@ -413,6 +435,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     size="sm"
                                     pill
                                 />
+                            </span>
                             </span>
                         </div>
                     </div>

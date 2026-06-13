@@ -76,11 +76,23 @@ describe('useMitigationStore: 閲覧者 read-only ガード (多層防御)', () 
         expect(useMitigationStore.getState().timelineMitigations.map(m => m.id)).toContain('solo1');
     });
 
-    it('閲覧者が誤って編集を試みても collab handlers へ伝播しない', () => {
+    it('編集者ジョイナー (_collabActive=true && _collabReadonly=true) は collab handlers へ委譲できる', () => {
+        // ⑤-3c 編集解禁: ログイン+同意したジョイナーは enterCollabMode で _collabActive=true になるが、
+        // 自分の localStorage を汚さないため _collabReadonly=true のまま (persist skip 用)。
+        // この状態では「閲覧者ブロック」を効かせず、編集を Yjs(部屋) へ委譲しなければならない。
         const handlers = mockHandlers();
-        // _collabActive=true + readonly の保険ケース (将来 readonly でも接続する設計に備える)
         useMitigationStore.setState({ _collabActive: true, _collabHandlers: handlers, _collabReadonly: true });
+        useMitigationStore.getState().addMitigation(applied({ id: 'ed1' }));
+        expect(handlers.add).toHaveBeenCalledTimes(1);
+        // ローカル timelineMitigations は直接書かない (observeDeep 経由でのみ反映)。
+        expect(useMitigationStore.getState().timelineMitigations).toEqual([]);
+    });
+
+    it('純粋な閲覧者 (_collabActive=false && _collabReadonly=true) は委譲もローカル編集もしない', () => {
+        const handlers = mockHandlers();
+        useMitigationStore.setState({ _collabActive: false, _collabHandlers: handlers, _collabReadonly: true });
         useMitigationStore.getState().addMitigation(applied({ id: 'ro2' }));
         expect(handlers.add).not.toHaveBeenCalled();
+        expect(useMitigationStore.getState().timelineMitigations).toEqual([]);
     });
 });
