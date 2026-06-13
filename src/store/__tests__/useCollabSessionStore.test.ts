@@ -50,14 +50,21 @@ describe('useCollabSessionStore', () => {
     expect(s.session).toBe(sess);
   });
 
-  it('setMax: setMaxParticipants→maxParticipants 更新', async () => {
-    useCollabSessionStore.setState({ active: true, roomToken: 'tok', maxParticipants: 8, session: fakeSession() });
-    mk(setMaxParticipants).mockResolvedValue({ roomToken: 'tok', maxParticipants: 12, revoked: false });
+  it('setMax: 楽観的更新は即時・API はデバウンス後に送信', async () => {
+    vi.useFakeTimers();
+    try {
+      useCollabSessionStore.setState({ active: true, roomToken: 'tok', maxParticipants: 8, session: fakeSession() });
+      mk(setMaxParticipants).mockResolvedValue({ roomToken: 'tok', maxParticipants: 12, revoked: false });
 
-    await useCollabSessionStore.getState().setMax('plan1', 12);
-
-    expect(setMaxParticipants).toHaveBeenCalledWith('plan1', 12);
-    expect(useCollabSessionStore.getState().maxParticipants).toBe(12);
+      useCollabSessionStore.getState().setMax('plan1', 12);
+      // 楽観的更新: 表示は即時に 12。
+      expect(useCollabSessionStore.getState().maxParticipants).toBe(12);
+      // デバウンス(400ms)後に API へ最終値を送る。
+      await vi.advanceTimersByTimeAsync(400);
+      expect(setMaxParticipants).toHaveBeenCalledWith('plan1', 12);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('revoke: revokeRoom→session.disconnect→active=false でクリア', async () => {

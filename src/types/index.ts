@@ -306,4 +306,6 @@ export interface SavedPlan {
      * Firestore plan doc の同名フィールドから降ろす (ON/OFF バッジ・自動接続の判定に使う)。
      */
     activeCollabRoomToken?: string;
+    /** #6: 部屋の現在の入れる人数。リロード/再接続後に既定 8 でなく実値を表示するため plan に写す。 */
+    collabMaxParticipants?: number;
 }

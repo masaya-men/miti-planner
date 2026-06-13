@@ -54,7 +54,8 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     const info = await createRoom(planId, undefined, label);
     // ルーム発行済 = プランは collab-ON。先にローカル plan へ反映(バッジ・自動接続)。
     const { usePlanStore } = await import('./usePlanStore');
-    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken });
+    // #6: トークンと一緒に上限もローカル plan へ(リロード/再接続後の実値表示・即時性)。
+    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken, collabMaxParticipants: info.maxParticipants });
     // 非同期(createRoom/import)の間に別プランへ移っていたらライブ接続は張らない。
     // 「見ているプラン = 接続先」の不変条件 (本番ロールバックの根治)。戻れば Task6 自動接続が拾う。
     if (usePlanStore.getState().currentPlanId !== planId) return;
@@ -72,8 +73,9 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     const { usePlanStore } = await import('./usePlanStore');
     if (usePlanStore.getState().currentPlanId !== planId) return;
     const session = startCollabSession(roomToken);
-    // room API を叩かず既存リンクへ繋ぐだけ。maxParticipants はオーナーパネルで取得すれば足りる(既定維持)。
-    set({ active: true, roomToken, session, collabPlanId: planId });
+    // #6: 部屋の上限を plan doc(Firestore 同期済)から復元。既定 8 でなく実値を表示する。
+    const planMax = usePlanStore.getState().plans.find(p => p.id === planId)?.collabMaxParticipants;
+    set({ active: true, roomToken, session, collabPlanId: planId, ...(typeof planMax === 'number' ? { maxParticipants: planMax } : {}) });
   },
 
   setMax: (planId, n) => {
@@ -98,9 +100,9 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     await revokeRoom(planId);
     get().session?.disconnect();
     set({ active: false, roomToken: null, session: null, collabPlanId: null });
-    // ローカル plan の ON を解除(バッジ・自動接続の即時性)。
+    // ローカル plan の ON を解除(バッジ・自動接続の即時性)。上限も一緒にクリア。
     const { usePlanStore } = await import('./usePlanStore');
-    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: undefined });
+    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: undefined, collabMaxParticipants: undefined });
   },
 
   reissue: async (planId, label) => {
@@ -111,6 +113,8 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     const { usePlanStore } = await import('./usePlanStore');
     if (usePlanStore.getState().currentPlanId !== planId) return;
     const session = startCollabSession(info.roomToken);
+    // #6: 新トークン + 引き継いだ上限をローカル plan へ(再発行で 8 に戻さない・次回リロード用)。
+    usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken, collabMaxParticipants: info.maxParticipants });
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
   },
 }));

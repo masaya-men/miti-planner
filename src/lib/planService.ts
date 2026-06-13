@@ -103,6 +103,8 @@ export function fromFirestore(docId: string, data: FirestorePlan): SavedPlan {
     ...(data.deleted === true ? { deleted: true as const } : {}),
     // 共同編集 ON のルームトークン (ある時のみ。ON/OFF バッジ・自動接続の判定に使う)
     ...(data.activeCollabRoomToken ? { activeCollabRoomToken: data.activeCollabRoomToken } : {}),
+    // #6: 部屋の現在の入れる人数 (ある時のみ。リロード/再接続後に既定 8 でなく実値を出す)
+    ...(typeof data.collabMaxParticipants === 'number' ? { collabMaxParticipants: data.collabMaxParticipants } : {}),
   };
 }
 

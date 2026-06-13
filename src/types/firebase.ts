@@ -72,6 +72,8 @@ export interface FirestorePlan {
   deletedAt?: Timestamp | null;
   /** 共同編集⑤: 現在有効な共同編集ルームトークン(逆引き用)。失効/未発行なら未設定。 */
   activeCollabRoomToken?: string;
+  /** #6: 部屋の現在の入れる人数(リロード/再接続後に実値表示)。失効/未発行なら未設定。 */
+  collabMaxParticipants?: number;
 }
 
 /** sharedPlanMeta/{shareId} ドキュメント */

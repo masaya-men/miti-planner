@@ -90,7 +90,7 @@ export default async function handler(req: any, res: any) {
         if (current) {
           tx.update(db.collection('collabRooms').doc(current), { revoked: true });
         }
-        tx.update(planRef, { activeCollabRoomToken: FieldValue.delete() });
+        tx.update(planRef, { activeCollabRoomToken: FieldValue.delete(), collabMaxParticipants: FieldValue.delete() });
         return { revoked: true, destroyToken: current };
       }
 
@@ -98,6 +98,8 @@ export default async function handler(req: any, res: any) {
         if (!current) throw new Error('no_room'); // 発行前の上限変更は不可
         const clamped = clampMaxParticipants(reqData.maxParticipants);
         tx.update(db.collection('collabRooms').doc(current), { maxParticipants: clamped });
+        // #6: plan doc にも現在の上限を写す(リロード/再接続後にクライアントが既定8でなく実値を出せる)。
+        tx.update(planRef, { collabMaxParticipants: clamped });
         return { roomToken: current, maxParticipants: clamped, revoked: false };
       }
 
@@ -109,12 +111,20 @@ export default async function handler(req: any, res: any) {
           return { roomToken: current, maxParticipants: clampMaxParticipants(cur.maxParticipants), revoked: false };
         }
       }
+      // #6: reissue は「人数を変えたら作り直す」運用が普通なので、旧部屋の上限を引き継ぐ
+      //     (既定 8 に戻さない=業界水準: リンク再生成で設定は保持)。読みは write より前に行う。
+      let reissueCarriedMax: number | undefined;
       if (reqData.action === 'reissue' && current) {
+        const oldSnap = await tx.get(db.collection('collabRooms').doc(current));
+        reissueCarriedMax = oldSnap.exists ? (oldSnap.data() as { maxParticipants?: number }).maxParticipants : undefined;
         tx.update(db.collection('collabRooms').doc(current), { revoked: true });
       }
 
-      // create は maxParticipants 任意(未指定は clamp が既定 8 にする)。reissue は持たない。
-      const requestedMax = reqData.action === 'create' ? reqData.maxParticipants : undefined;
+      // create は maxParticipants 任意(未指定は clamp が既定 8)。reissue は旧部屋の上限を引き継ぐ。
+      const requestedMax =
+        reqData.action === 'create' ? reqData.maxParticipants :
+        reqData.action === 'reissue' ? reissueCarriedMax :
+        undefined;
       const clamped = clampMaxParticipants(requestedMax);
       // ⑤-3c: label は create/reissue のときだけオーナーが任意で付ける(検証済・trim 済)。
       const label = (reqData.action === 'create' || reqData.action === 'reissue') ? reqData.label : undefined;
@@ -128,7 +138,8 @@ export default async function handler(req: any, res: any) {
       };
       if (label !== undefined) roomDoc.label = label;
       tx.set(db.collection('collabRooms').doc(freshToken), roomDoc);
-      tx.update(planRef, { activeCollabRoomToken: freshToken });
+      // #6: plan doc にトークンと一緒に現在の上限も写す(リロード/再接続後の実値表示用)。
+      tx.update(planRef, { activeCollabRoomToken: freshToken, collabMaxParticipants: clamped });
       const destroyToken = reqData.action === 'reissue' ? current : undefined;
       return { roomToken: freshToken, maxParticipants: clamped, revoked: false, destroyToken };
     });
