@@ -109,6 +109,8 @@ export default function CollabJoinerPage() {
     let session: CollabSession | null = null;
     let syncedLocal = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    // cleanup 用フラグ: async IIFE がクリーンアップ後に session を立てようとしても disconnect できるよう管理。
+    let cleanedUp = false;
 
     const onSync = (isSynced: boolean) => {
       if (!isSynced) return;
@@ -123,12 +125,8 @@ export default function CollabJoinerPage() {
       if (!syncedLocal && !syncedEverRef.current) setFull(true);
     };
 
-    try {
-      session = startCollabSession(roomToken, {
-        readOnly: !canEdit,
-        onContentId: (id) => useCollabJoinerSession.getState().setContentId(id),
-        onOwnerLabel: (label) => useCollabJoinerSession.getState().setOwnerLabel(label),
-      });
+    const startSession = (s: CollabSession) => {
+      session = s;
       session.provider.on("sync", onSync);
       session.provider.on("connection-close", onClose);
       session.provider.on("connection-error", onClose);
@@ -138,11 +136,45 @@ export default function CollabJoinerPage() {
           if (!syncedLocal && !syncedEverRef.current) setInvalid(true);
         }, SYNC_TIMEOUT_MS);
       }
-    } catch {
-      setInvalid(true);
+    };
+
+    if (canEdit) {
+      // 編集者昇格接続: ログイン直後の ID トークンはエディタークレーム未反映の可能性がある。
+      // WebSocket 確立前に強制更新し、サーバーが最新クレームを受け取れるようにする。
+      void (async () => {
+        try {
+          const { auth } = await import("../lib/firebase");
+          await auth.currentUser?.getIdToken(true);
+        } catch {
+          // 強制更新失敗は無視。params コールバック内の通常取得にフォールバック。
+        }
+        // cleanup 後(StrictMode 二重実行等)には session を立てない。
+        if (cleanedUp) return;
+        try {
+          startSession(startCollabSession(roomToken, {
+            readOnly: false,
+            onContentId: (id) => useCollabJoinerSession.getState().setContentId(id),
+            onOwnerLabel: (label) => useCollabJoinerSession.getState().setOwnerLabel(label),
+          }));
+        } catch {
+          setInvalid(true);
+        }
+      })();
+    } else {
+      // 閲覧者接続: 強制更新不要。
+      try {
+        startSession(startCollabSession(roomToken, {
+          readOnly: true,
+          onContentId: (id) => useCollabJoinerSession.getState().setContentId(id),
+          onOwnerLabel: (label) => useCollabJoinerSession.getState().setOwnerLabel(label),
+        }));
+      } catch {
+        setInvalid(true);
+      }
     }
 
     return () => {
+      cleanedUp = true;
       if (timeoutId) clearTimeout(timeoutId);
       if (session) {
         session.provider.off("sync", onSync);
