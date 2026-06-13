@@ -36,6 +36,8 @@ interface ConsolidatedHeaderProps {
     setPartySortOrder: (order: 'light_party' | 'role') => void;
     statusOpen: boolean;
     setStatusOpen: (open: boolean) => void;
+    /** 閲覧専用モード: 部屋のコンテンツID・オーナーラベルを渡す。省略時は従来動作。 */
+    viewer?: { contentId: string | null; ownerLabel: string | null };
 }
 
 // ホバー: 反転（ライト→ソフトダーク / ダーク→ソフトライト）
@@ -59,7 +61,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     setPartySortOrder,
     statusOpen,
     setStatusOpen,
+    viewer,
 }) => {
+    /** 閲覧専用モード: Task 3 でボタン無効化に再利用 */
+    const readOnly = viewer != null;
     const { t } = useTranslation();
     const { theme, setTheme, contentLanguage } = useThemeStore();
     const myJobHighlight = useMitigationStore(s => s.myJobHighlight);
@@ -106,7 +111,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 
     // 現在開いているプラン・コンテンツ名
     const currentPlan = usePlanStore(state => state.plans.find(p => p.id === state.currentPlanId));
-    const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
+    // viewer モード時: コンテンツ情報を部屋の contentId から取得（usePlanStore 非依存）
+    const contentDef = readOnly
+        ? (viewer!.contentId ? getContentById(viewer!.contentId) : null)
+        : (currentPlan?.contentId ? getContentById(currentPlan.contentId) : null);
     const { i18n } = useTranslation();
     // 和欧間スペース: 漢字/かな↔半角英数字の間にスペースを挿入
     const addWaEiSpace = (text: string): string =>
@@ -121,7 +129,9 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
         : rawContentLabel;
 
     const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
-    const currentContentId = currentPlan?.contentId ?? null;
+    const currentContentId = readOnly
+        ? (viewer!.contentId ?? null)
+        : (currentPlan?.contentId ?? null);
 
     const [isHovered, setIsHovered] = React.useState(false);
 
@@ -154,7 +164,43 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </div>
                             </Tooltip>
 
-                            {currentPlan && (
+                            {/* viewer モード: 部屋の contentId からコンテンツ名を表示（ownerLabel があればタイトルも） */}
+                            {readOnly && (contentLabel || viewer!.ownerLabel) && (
+                                <div className="flex items-baseline gap-2" style={{ minWidth: 0, overflow: 'hidden', flex: '1 1 0%' }}>
+                                    {contentLabel && (
+                                        <span
+                                            className={clsx(
+                                                "text-app-text leading-tight whitespace-nowrap shrink-0",
+                                                i18n.language.startsWith('ja') ? "text-app-4xl" : "text-app-5xl"
+                                            )}
+                                            style={{
+                                                fontFamily: "'Rajdhani', 'M PLUS 1', sans-serif",
+                                                fontWeight: 700,
+                                                letterSpacing: i18n.language.startsWith('ja') ? '-0.02em' : '0.04em',
+                                                ...(i18n.language.startsWith('ja') ? { transform: 'scaleY(1.18)', transformOrigin: 'center' } : {}),
+                                            }}
+                                        >
+                                            {contentLabel}
+                                        </span>
+                                    )}
+                                    {viewer!.ownerLabel && viewer!.ownerLabel !== contentLabel && (
+                                        <div
+                                            className="text-app-xl text-app-text tracking-wider uppercase"
+                                            style={{
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                flex: '1 1 0%',
+                                                minWidth: 0,
+                                            }}
+                                        >
+                                            {viewer!.ownerLabel}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            {/* 通常モード: usePlanStore の currentPlan からコンテンツ名・タイトルを表示 */}
+                            {!readOnly && currentPlan && (
                                 <div className="flex items-baseline gap-2" style={{ minWidth: 0, overflow: 'hidden', flex: '1 1 0%' }}>
                                     {contentLabel && (
                                         <span
