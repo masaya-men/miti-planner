@@ -54,6 +54,7 @@
         "joiner_connecting": "Connecting…",
         "joiner_invalid": "This collaboration link is no longer valid.",
         "joiner_full": "This room is full.",
+        "joiner_revoked": "This collaboration has ended (the owner revoked the link).",
         "consent_title": "Before you edit together",
         "consent_body_1": "This is not your plan — it's someone's real shared plan. Your edits apply to everyone in real time.",
         "consent_body_2": "There is no undo yet. Use this only within your static group, and check carefully before editing.",

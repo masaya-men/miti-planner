@@ -24,6 +24,11 @@ interface CollabEnv {
   COLLAB_SHARED_SECRET: string;
 }
 
+/** 失効済みフラグ(deleteAll の後に立てる=ストレージに残り、ハイバネ/退避を越えて再接続を拒否)。 */
+const DESTROYED_KEY = "__collab_destroyed";
+/** 失効クローズのコード(WebSocket アプリ専用域 4000-4999)。クライアントはこれを見て再接続を止める。 */
+const REVOKED_CLOSE_CODE = 4001;
+
 export class Room extends YServer {
   // hibernation を明示 ON(デフォルト OFF)。これが無いと WebSocket 接続中ずっと duration 課金。
   static options = { hibernate: true };
@@ -103,15 +108,20 @@ export class Room extends YServer {
    * (新規接続者へ既存状態を渡す)。信頼ヘッダ(x-collab-uid)は fetch ハンドラが検証済みで
    * クライアントは詐称できない。state は merge(awareness 用 state を壊さない)。
    */
-  override onConnect(conn: Connection, ctx: ConnectionContext): void | Promise<void> {
-    const ret = super.onConnect(conn, ctx);
+  override async onConnect(conn: Connection, ctx: ConnectionContext): Promise<void> {
+    // 失効済みの部屋は新規接続を即拒否する(暖かい DO への再接続も塞ぐ=リンク失効後は二度と入れない)。
+    // sync(super.onConnect)を呼ぶ前に閉じる=部屋の中身を一切渡さない。
+    if (await this.ctx.storage.get(DESTROYED_KEY)) {
+      conn.close(REVOKED_CLOSE_CODE, "revoked");
+      return;
+    }
+    await super.onConnect(conn, ctx);
     const uid = ctx.request.headers.get(EDITOR_UID_HEADER);
     if (uid) {
       // onConnect 時点では awareness 用 state は未設定(awareness メッセージは接続後)。
       // 既存 state を merge して collabEditor を足す(将来 state が入っても壊さない)。
       conn.setState({ ...(conn.state as Record<string, unknown> | null), collabEditor: uid });
     }
-    return ret;
   }
 
   /**
@@ -165,8 +175,14 @@ export class Room extends YServer {
       if (!this.collabEnv.COLLAB_SHARED_SECRET || secret !== this.collabEnv.COLLAB_SHARED_SECRET) {
         return new Response("unauthorized", { status: 401 });
       }
-      this.#saveEnabled = false;          // 以後の debounce save を止める
+      this.#saveEnabled = false;          // 以後の debounce save を止める(空上書き防止)
       await this.ctx.storage.deleteAll(); // バイナリ・max・チャンクを丸ごと破棄
+      await this.ctx.storage.put(DESTROYED_KEY, true); // deleteAll の後に失効フラグ=再接続拒否が残る
+      // 失効=即・全員退出。既存の接続を全部閉じる(クライアントは再接続せず終了表示)。
+      // onClose の flushSave は #saveEnabled=false で no-op=空保存しない。
+      for (const conn of [...this.getConnections()]) {
+        try { conn.close(REVOKED_CLOSE_CODE, "revoked"); } catch { /* 既に閉じている等は無視 */ }
+      }
       return Response.json({ destroyed: true });
     }
     return new Response("Not Found", { status: 404 });

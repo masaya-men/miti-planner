@@ -16,10 +16,11 @@ import { LoginModal } from "./LoginModal";
 import { ErrorBoundary } from "./ErrorBoundary";
 import Timeline from "./Timeline";
 
-export type JoinerViewKind = "connecting" | "invalid" | "full" | "sheet";
+export type JoinerViewKind = "connecting" | "invalid" | "full" | "revoked" | "sheet";
 
-/** ⑤-3b: 接続状態 → 表示種別(純粋・テスト可能)。full > invalid > connecting > sheet の優先度。 */
-export function joinerView(s: { synced: boolean; invalid: boolean; full: boolean }): JoinerViewKind {
+/** ⑤-3b: 接続状態 → 表示種別(純粋・テスト可能)。revoked > full > invalid > connecting > sheet の優先度。 */
+export function joinerView(s: { synced: boolean; invalid: boolean; full: boolean; revoked?: boolean }): JoinerViewKind {
+  if (s.revoked) return "revoked";   // オーナーがリンクを失効=終了(最優先・以後は入れない)
   if (s.full) return "full";
   if (s.invalid) return "invalid";
   if (!s.synced) return "connecting";
@@ -63,6 +64,7 @@ export default function CollabJoinerPage() {
   const [synced, setSynced] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const [full, setFull] = useState(false);
+  const [revoked, setRevoked] = useState(false); // オーナーがリンクを失効=共同編集終了
 
   const user = useAuthStore((s) => s.user);
   const isLoggedIn = user !== null;
@@ -159,6 +161,7 @@ export default function CollabJoinerPage() {
             readOnly: false,
             onContentId: (id) => useCollabJoinerSession.getState().setContentId(id),
             onOwnerLabel: (label) => useCollabJoinerSession.getState().setOwnerLabel(label),
+            onRevoked: () => setRevoked(true),
           }));
         } catch {
           setInvalid(true);
@@ -171,6 +174,7 @@ export default function CollabJoinerPage() {
           readOnly: true,
           onContentId: (id) => useCollabJoinerSession.getState().setContentId(id),
           onOwnerLabel: (label) => useCollabJoinerSession.getState().setOwnerLabel(label),
+          onRevoked: () => setRevoked(true),
         }));
       } catch {
         setInvalid(true);
@@ -205,7 +209,8 @@ export default function CollabJoinerPage() {
 
   const [loginOpen, setLoginOpen] = useState(false);
 
-  const kind = joinerView({ synced, invalid, full });
+  const kind = joinerView({ synced, invalid, full, revoked });
+  if (kind === "revoked") return <JoinerNotice text={t("collab.joiner_revoked")} />;
   if (kind === "connecting") return <JoinerNotice text={t("collab.joiner_connecting")} />;
   if (kind === "invalid") return <JoinerNotice text={t("collab.joiner_invalid")} />;
   if (kind === "full") return <JoinerNotice text={t("collab.joiner_full")} />;

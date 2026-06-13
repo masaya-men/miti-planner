@@ -195,9 +195,18 @@ export function applyRoomToStore(
  * サーバ routing /parties/room/<roomToken> に合わせ party:"room" を指定。
  * ⑤-3b: opts.readOnly でジョイナー購読モード(enterCollabMode を呼ばず観測のみ)。
  */
+/** worker が失効(revoke)で接続を閉じるときのクローズコード(server.ts と同値・4000-4999 アプリ専用域)。 */
+export const REVOKED_CLOSE_CODE = 4001;
+
 export function startCollabSession(
   roomToken: string,
-  opts: { readOnly?: boolean; onContentId?: (id: string | undefined) => void; onOwnerLabel?: (label: string | undefined) => void } = {},
+  opts: {
+    readOnly?: boolean;
+    onContentId?: (id: string | undefined) => void;
+    onOwnerLabel?: (label: string | undefined) => void;
+    /** オーナーがリンクを失効 → worker が接続を閉じたとき呼ぶ(再接続は止める)。UI 側で「終了」表示に使う。 */
+    onRevoked?: () => void;
+  } = {},
 ): CollabSession {
   const doc = new Y.Doc();
   const provider = new YProvider(COLLAB_HOST, roomToken, doc, {
@@ -212,6 +221,16 @@ export function startCollabSession(
         return user ? await user.getIdToken() : null;
       }),
   });
+
+  // 失効クローズ(4001)を受けたら再接続を止める(reconnect ハンマー回避)+ UI へ通知。
+  // 通常の切断(ネット瞬断=1006 等)は無視して自動再接続に任せる(失効だけを特別扱い)。
+  const onConnClose = (event: { code?: number } | undefined) => {
+    if (event?.code === REVOKED_CLOSE_CODE) {
+      provider.shouldConnect = false;
+      opts.onRevoked?.();
+    }
+  };
+  provider.on('connection-close', onConnClose as (e: unknown) => void);
   const yarr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
 
   // ②-b-1: 残りの PlanData 要素の Y 型(②-a の timelineMitigations と並ぶトップレベルキー)。
@@ -407,6 +426,7 @@ export function startCollabSession(
 
   const disconnect = () => {
     provider.off('sync', onSynced);
+    provider.off('connection-close', onConnClose as (e: unknown) => void); // 失効リスナー解除
     provider.awareness.off('change', onAwarenessMembership); // #3d
     healTimers.forEach(clearTimeout); // ① 遅延再チェックを破棄
     yarr.unobserveDeep(applyToStore);

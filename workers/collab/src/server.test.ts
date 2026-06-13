@@ -160,6 +160,44 @@ describe("Room (YServer) ", () => {
     expect(res.status).toBe(401);
   });
 
+  it("/destroy は既存接続を 4001 で閉じ、以後の新規接続も拒否する(失効=即退出・再入室不可)", async () => {
+    fetchMock.get(BASE)
+      .intercept({ path: "/api/collab/load?roomToken=revoke-room", method: "GET" })
+      .reply(200, { mitigations: [], maxParticipants: 8 });
+    const ws = (await SELF.fetch("https://collab.test/parties/room/revoke-room", {
+      headers: { Upgrade: "websocket" },
+    })).webSocket!;
+    ws.accept();
+    await pollCount("revoke-room"); // count=1 まで待つ
+
+    // 既存接続が失効コードで閉じられることを観測する。
+    const closedCode = new Promise<number>((resolve) => {
+      ws.addEventListener("close", (e: any) => resolve(e.code));
+      setTimeout(() => resolve(-1), 1500);
+    });
+
+    const res = await SELF.fetch("https://collab.test/parties/room/revoke-room/destroy", {
+      method: "POST",
+      headers: { "x-collab-secret": "test-secret" },
+    });
+    expect(res.status).toBe(200);
+    expect(await closedCode).toBe(4001); // 既存接続は即退出
+
+    // 新規接続(再入室)は onConnect が即 close → /count は 1 に戻らない(暖かい DO でも拒否)。
+    const ws2 = (await SELF.fetch("https://collab.test/parties/room/revoke-room", {
+      headers: { Upgrade: "websocket" },
+    })).webSocket!;
+    ws2.accept();
+    let count = -1;
+    for (let i = 0; i < 15; i++) {
+      const r = await SELF.fetch("https://collab.test/parties/room/revoke-room/count");
+      count = (await r.json<{ count: number; max: number }>()).count;
+      await new Promise((res) => setTimeout(res, 20));
+    }
+    expect(count).toBe(0); // 再入室できない
+    ws2.close();
+  });
+
   it("/set-max はシークレット付きで上限を即時更新し /count に反映する", async () => {
     // seed で max=8 の部屋を立ち上げる。
     fetchMock.get(BASE)

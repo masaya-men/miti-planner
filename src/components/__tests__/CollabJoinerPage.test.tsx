@@ -17,6 +17,11 @@ describe("joinerView(状態 → 表示種別)", () => {
   it("full は invalid/connecting より優先", () => {
     expect(joinerView({ synced: true, invalid: true, full: true })).toBe("full");
   });
+  it("revoked は全てに優先(オーナーが失効=終了)", () => {
+    expect(joinerView({ synced: true, invalid: true, full: true, revoked: true })).toBe("revoked");
+    // revoked 未指定(従来呼び出し)は従来どおり
+    expect(joinerView({ synced: true, invalid: false, full: false })).toBe("sheet");
+  });
 });
 
 describe("computeCanEdit", () => {

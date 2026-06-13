@@ -75,7 +75,7 @@ export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = fa
       aria-label="cursor-toggle"
       onClick={toggle}
       className={clsx(
-        'inline-flex items-center gap-1 rounded-full font-bold whitespace-nowrap cursor-pointer active:scale-95 transition-all border',
+        'shrink-0 inline-flex items-center gap-1 rounded-full font-bold whitespace-nowrap cursor-pointer active:scale-95 transition-all border',
         compact ? 'px-2.5 h-7 text-app-xs' : 'px-3 h-8 text-app-sm',
         cursorEnabled
           ? 'bg-app-text text-app-bg border-app-text'
@@ -94,7 +94,8 @@ export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = fa
         aria-label="job-select"
         onClick={openPicker}
         className={clsx(
-          'rounded-full border border-app-border bg-app-surface2/60 flex items-center justify-center overflow-hidden cursor-pointer active:scale-95 transition-transform',
+          // 角丸正方形(rounded-lg)。shrink-0 で横幅が縮んで縦長長方形に見えるのを防ぐ。
+          'shrink-0 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center overflow-hidden cursor-pointer active:scale-95 transition-transform',
           compact ? 'w-7 h-7' : 'w-8 h-8',
         )}
       >

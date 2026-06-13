@@ -54,6 +54,7 @@
         "joiner_connecting": "连接中…",
         "joiner_invalid": "此协作链接已失效。",
         "joiner_full": "此房间已满员。",
+        "joiner_revoked": "此协作已结束（房主已使链接失效）。",
         "consent_title": "一起编辑之前",
         "consent_body_1": "这不是你的表，而是共享的真实表。你的编辑会实时反映给所有参与者。",
         "consent_body_2": "目前还没有撤销功能。请仅在固定队内使用，确认内容后再编辑。",
