@@ -18,8 +18,8 @@ const plan = { id: 'plan1', ownerId: 'uid1' } as any;
 
 beforeEach(() => {
   useCollabSessionStore.setState({ active: false, roomToken: null, maxParticipants: 8, session: null, start: vi.fn().mockResolvedValue(undefined) } as any);
-  // 共同編集 UI は管理者ゲートの内側。2択を見るテストは isAdmin=true 前提。
-  useAuthStore.setState({ user: { uid: 'uid1' }, isAdmin: true } as any);
+  // 公開後: 共同編集は「ログイン必須」ゲート。2択を見るテストはログイン済み前提。
+  useAuthStore.setState({ user: { uid: 'uid1' }, isAdmin: false } as any);
 });
 
 describe('ShareButtons + collab', () => {
@@ -51,8 +51,8 @@ describe('ShareButtons + collab', () => {
     expect(screen.getByText('collab.chip_active')).toBeInTheDocument();
   });
 
-  it('非管理者は2択を出さず ShareModal に直行する (本番検証ゲート)', () => {
-    useAuthStore.setState({ user: { uid: 'uid1' }, isAdmin: false } as any);
+  it('未ログインは2択を出さずコピー共有へ直行する (公開後のログインゲート)', () => {
+    useAuthStore.setState({ user: null, isAdmin: false } as any);
     render(<ShareButtons contentLabel={null} currentPlan={plan} />);
     fireEvent.click(screen.getByRole('button'));
     expect(screen.queryByText('collab.choice_title')).not.toBeInTheDocument();

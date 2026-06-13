@@ -63,8 +63,6 @@ export async function buildCollabParams(
 ): Promise<Record<string, string>> {
   try {
     const token = await getToken();
-    // 一時診断ログ(原因確定後に撤去)
-    console.info('[collab] params token present:', !!token);
     return token ? { token } : {};
   } catch {
     return {}; // 取得失敗 → viewer(編集権はサーバが拒否するだけ・閲覧は維持)

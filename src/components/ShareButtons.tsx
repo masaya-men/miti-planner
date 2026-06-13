@@ -34,7 +34,7 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
     const { active, start } = useCollabSessionStore();
     // #3d: 「N人」は確実な接続数(connectionCount)を優先・未取得は roster.length にフォールバック。
     const liveCount = useCollabPresenceStore(s => s.connectionCount ?? s.roster.length);
-    const { user, isAdmin } = useAuthStore();
+    const { user } = useAuthStore();
 
     // ON 判定は「プランが collab-ON か」(プラン属性・サイドバーバッジと同基準) に寄せる。
     // active(ライブ接続) は ON の部分集合。Task6 自動接続でほぼ即一致するが、接続前でも ON を見せる(A案)。
@@ -43,11 +43,10 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
     const openShareUI = () => {
         const { completed, isActive } = useTutorialStore.getState();
         if (!completed['share'] && !isActive) useTutorialStore.getState().startTutorial('share');
-        // 共同編集 UI は本番検証中のため管理者のみに開放するゲート。
-        // 一般ユーザーは従来どおりコピー共有へ直行 (2択を見せない)。
-        // 正式公開時はこの分岐を外すだけで全ユーザーに開放できる。
-        if (!isAdmin) { setView('copy'); return; }
-        // ON のプラン=パネル直行。OFF=2択。
+        // 共同編集は編集にログインが必須。未ログインは 2 択を見せずコピー共有へ直行する
+        // (collab を選んでもログインを促すだけなので、使えない選択肢を最初から出さない)。
+        if (!user) { setView('copy'); return; }
+        // ログイン済み: ON のプラン=パネル直行 / OFF=コピー・共同編集の 2 択。
         setView(isOn ? 'panel' : 'choice');
     };
 
