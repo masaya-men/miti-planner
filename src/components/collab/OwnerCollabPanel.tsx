@@ -31,6 +31,16 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
   // リンクはプラン保存トークン(Task4)へフォールバック=接続前でも即生成・空欄にしない(A案・業界水準)。
   const planToken = usePlanStore(s => s.plans.find(p => p.id === planId)?.activeCollabRoomToken);
   const effectiveToken = roomToken || planToken;
+
+  // #6: リロード後は store の maxParticipants が既定 8 に戻るが、plan(Firestore 同期済)に実値がある。
+  //     plan の上限が変わった時だけ store に同期する(deps は planMax のみ=+/- 操作中の楽観値と喧嘩しない)。
+  const planMax = usePlanStore(s => s.plans.find(p => p.id === planId)?.collabMaxParticipants);
+  React.useEffect(() => {
+    if (typeof planMax === 'number' && useCollabSessionStore.getState().maxParticipants !== planMax) {
+      useCollabSessionStore.setState({ maxParticipants: planMax });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [planMax]);
   const url = effectiveToken ? `${window.location.origin}/collab/${effectiveToken}` : '';
   const roster = useCollabPresenceStore(s => s.roster);
 
