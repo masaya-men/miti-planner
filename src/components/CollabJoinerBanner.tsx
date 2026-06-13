@@ -24,7 +24,7 @@ export function CollabJoinerBanner({ isLoggedIn, canEdit, ownerLabel, onLogin, o
   return (
     <div
       role="alert"
-      className="collab-joiner-banner w-full bg-app-red text-white text-app-sm px-4 py-2 flex items-center justify-between gap-3"
+      className="collab-joiner-banner w-full bg-app-red text-white text-app-sm px-4 py-2 flex items-center justify-center gap-3 text-center"
     >
       {kind === "edit" && (
         <span>{ownerLabel ? t("collab.banner_edit", { label: ownerLabel }) : t("collab.banner_edit_nolabel")}</span>
@@ -32,7 +32,7 @@ export function CollabJoinerBanner({ isLoggedIn, canEdit, ownerLabel, onLogin, o
       {kind === "consent" && (
         <>
           <span>{t("collab.banner_consent")}</span>
-          <button onClick={onOpenConsent} className="shrink-0 underline font-bold active:scale-95 transition-transform">
+          <button onClick={onOpenConsent} className="shrink-0 underline font-bold cursor-pointer active:scale-95 transition-transform">
             {t("collab.banner_consent_cta")}
           </button>
         </>
@@ -40,7 +40,7 @@ export function CollabJoinerBanner({ isLoggedIn, canEdit, ownerLabel, onLogin, o
       {kind === "login" && (
         <>
           <span>{t("collab.banner_login")}</span>
-          <button onClick={onLogin} className="shrink-0 underline font-bold active:scale-95 transition-transform">
+          <button onClick={onLogin} className="shrink-0 underline font-bold cursor-pointer active:scale-95 transition-transform">
             {t("collab.banner_login_cta")}
           </button>
         </>

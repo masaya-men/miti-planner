@@ -28,8 +28,8 @@ export const CollabViewerCluster: React.FC = () => {
         <ParticipantDots size={10} />
       </div>
 
-      {/* カーソル + ジョブ操作 */}
-      <PresenceControls />
+      {/* カーソル + ジョブ操作(ヘッダー用コンパクト 1 行版) */}
+      <PresenceControls compact />
 
       {/* 共同編集を抜けるボタン */}
       <button

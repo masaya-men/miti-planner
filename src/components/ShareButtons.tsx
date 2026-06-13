@@ -64,17 +64,18 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
 
     return (
         <>
-            <Tooltip content={isOn ? t('collab.chip_active') : t('app.share')}>
-                {isOn ? (
-                    <button
-                        onClick={openShareUI}
-                        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-app-text/40 bg-app-text/10 text-app-text font-bold text-app-sm cursor-pointer active:scale-95 transition-all"
-                    >
-                        <Users size={13} /> {rosterCount > 0 ? t('collab.chip_active_count', { count: rosterCount }) : t('collab.chip_active')}
-                        {/* #3e: オーナーも設定を開かず参加者ドットを一目で見られるように */}
-                        <ParticipantDots size={8} />
-                    </button>
-                ) : (
+            {isOn ? (
+                // チップ自体には tooltip を付けない(ドットのホバー名を妨げないため)。
+                <button
+                    onClick={openShareUI}
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-app-text/40 bg-app-text/10 text-app-text font-bold text-app-sm cursor-pointer active:scale-95 transition-all"
+                >
+                    <Users size={13} /> {rosterCount > 0 ? t('collab.chip_active_count', { count: rosterCount }) : t('collab.chip_active')}
+                    {/* #3e: オーナーも設定を開かず参加者ドットを一目で見られるように */}
+                    <ParticipantDots size={8} />
+                </button>
+            ) : (
+                <Tooltip content={t('app.share')}>
                     <button
                         data-tutorial="share-copy-btn"
                         onClick={openShareUI}
@@ -82,8 +83,8 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
                     >
                         <Share2 size={14} />
                     </button>
-                )}
-            </Tooltip>
+                </Tooltip>
+            )}
 
             {view === 'choice' && (
                 <ShareChoiceModal

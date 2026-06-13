@@ -5,6 +5,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
 import { nameForClient } from '../../lib/collab/presence';
+import { Tooltip } from '../ui/Tooltip';
 
 /** size = ドット直径(px)。チップは小さめ(8)、ヘッダークラスタは標準(10)。 */
 export const ParticipantDots: React.FC<{ size?: number }> = ({ size = 10 }) => {
@@ -19,17 +20,21 @@ export const ParticipantDots: React.FC<{ size?: number }> = ({ size = 10 }) => {
   return (
     <>
       {roster.map((m) => (
-        <span
+        // ドット名は LoPo 標準 Tooltip(アプリフォント)で表示。生 title 属性は使わない。
+        <Tooltip
           key={m.clientId}
-          className="rounded-full shrink-0 inline-block"
-          style={{
-            width: size,
-            height: size,
-            backgroundColor: m.color,
-            boxShadow: `0 0 6px ${m.color}`,
-          }}
-          title={m.isLocal ? t('collab.roster_you') : nameForClient(m.clientId, adjectives, nouns, sep)}
-        />
+          content={m.isLocal ? t('collab.roster_you') : nameForClient(m.clientId, adjectives, nouns, sep)}
+        >
+          <span
+            className="rounded-full shrink-0 inline-block"
+            style={{
+              width: size,
+              height: size,
+              backgroundColor: m.color,
+              boxShadow: `0 0 6px ${m.color}`,
+            }}
+          />
+        </Tooltip>
       ))}
     </>
   );

@@ -458,14 +458,17 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <SyncButton />
                         </div>
                     )}
-                    <Tooltip content={!isHeaderCollapsed ? t('sidebar.collapse_header') : t('sidebar.expand_header')} position="bottom" wrapperClassName="w-full h-full">
+                    <Tooltip content={!isHeaderCollapsed ? t('sidebar.collapse_header') : t('sidebar.expand_header')} position="bottom" wrapperClassName={clsx("w-full h-full", readOnly && "cursor-not-allowed")}>
                     <button
+                        disabled={readOnly}
                         onClick={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                         className={clsx(
-                            "relative w-full h-full cursor-pointer overflow-hidden group/btn outline-none",
-                            "hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
+                            "relative w-full h-full overflow-hidden group/btn outline-none",
+                            readOnly
+                                ? "pointer-events-none"
+                                : "cursor-pointer hover:bg-app-surface2 active:bg-app-surface2 transition-colors duration-200"
                         )}
                     >
                         {/* 上端の固定ライン */}

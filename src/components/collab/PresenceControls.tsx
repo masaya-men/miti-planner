@@ -4,13 +4,19 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { User } from 'lucide-react';
+import clsx from 'clsx';
+import { User, MousePointer2 } from 'lucide-react';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
 import { useJobs } from '../../hooks/useSkillsData';
 import { JobPicker } from '../JobPicker';
 import { CursorOptInModal } from './CursorOptInModal';
+import { Tooltip } from '../ui/Tooltip';
 
-export const PresenceControls: React.FC = () => {
+/**
+ * compact: ヘッダーの共同編集中クラスタ用の 1 行横並び版(カーソルトグル + ジョブアイコン)。
+ *   状態はトグルのラベル(cursor_share_on/off)で明示。縦パネル版はオーナーパネル用(既定)。
+ */
+export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
   const { t } = useTranslation();
   const cursorEnabled = useCollabPresenceStore(s => s.cursorEnabled);
   const cursorFallback = useCollabPresenceStore(s => s.cursorFallback);
@@ -32,6 +38,61 @@ export const PresenceControls: React.FC = () => {
     const r = e.currentTarget.getBoundingClientRect();
     setPickerPos({ x: r.left, y: r.bottom });
   };
+
+  // JobPicker / OptIn モーダルは compact / 通常で共通(body へ portal)。
+  const overlays = (
+    <>
+      {pickerPos && createPortal(
+        <JobPicker
+          isOpen
+          position={pickerPos}
+          currentJobId={jobId}
+          onSelect={(id) => { setJobId(id); setPickerPos(null); }}
+          onClose={() => setPickerPos(null)}
+        />,
+        document.body,
+      )}
+      {optInOpen && (
+        <CursorOptInModal
+          onConfirm={() => { setCursorEnabled(true); setOptInOpen(false); }}
+          onCancel={() => setOptInOpen(false)}
+        />
+      )}
+    </>
+  );
+
+  // ヘッダークラスタ用 1 行版: [カーソルトグル(状態ラベル)] [ジョブアイコン]。
+  if (compact) {
+    return (
+      <div className="flex items-center gap-1.5">
+        <button
+          aria-label="cursor-toggle"
+          onClick={toggle}
+          className={clsx(
+            "inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-app-xs font-bold whitespace-nowrap cursor-pointer active:scale-95 transition-all border",
+            cursorEnabled
+              ? "bg-app-text text-app-bg border-app-text"
+              : "bg-transparent border-app-border text-app-text-muted",
+          )}
+        >
+          <MousePointer2 size={12} />
+          {cursorEnabled ? t('collab.cursor_share_on') : t('collab.cursor_share_off')}
+        </button>
+        <Tooltip content={t('collab.cursor_job_label')}>
+          <button
+            aria-label="job-select"
+            onClick={openPicker}
+            className="w-7 h-7 rounded-full border border-app-border bg-app-surface2/60 flex items-center justify-center overflow-hidden cursor-pointer active:scale-95 transition-transform"
+          >
+            {myJobIcon
+              ? <img src={myJobIcon} alt="" className="w-5 h-5 object-contain" />
+              : <User size={13} className="text-app-text-muted" />}
+          </button>
+        </Tooltip>
+        {overlays}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
@@ -70,24 +131,8 @@ export const PresenceControls: React.FC = () => {
         <p className="text-app-xs text-app-text-muted">{t('collab.cursor_fallback')}</p>
       )}
 
-      {/* JobPicker は fixed 全画面オーバーレイ。glass-tier(backdrop-filter)の中だと
-          fixed の基準がガラス枠になり画面外に出るため、body へ portal して回避する。 */}
-      {pickerPos && createPortal(
-        <JobPicker
-          isOpen
-          position={pickerPos}
-          currentJobId={jobId}
-          onSelect={(id) => { setJobId(id); setPickerPos(null); }}
-          onClose={() => setPickerPos(null)}
-        />,
-        document.body,
-      )}
-      {optInOpen && (
-        <CursorOptInModal
-          onConfirm={() => { setCursorEnabled(true); setOptInOpen(false); }}
-          onCancel={() => setOptInOpen(false)}
-        />
-      )}
+      {/* JobPicker / OptIn は body へ portal(glass-tier の backdrop-filter 内で fixed が画面外に出るのを回避)。 */}
+      {overlays}
     </div>
   );
 };
