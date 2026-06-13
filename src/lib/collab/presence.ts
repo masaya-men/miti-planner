@@ -87,15 +87,20 @@ export interface AwarenessLike {
   off(event: 'change', cb: () => void): void;
 }
 
-/** wirePresence の戻り値: 実行時更新(update)・自己修復再送(reannounce)・購読解除(stop)。 */
+/** wirePresence の戻り値: 実行時更新(update)・自己修復(reannounce/requestResync)・購読解除(stop)。 */
 export interface PresenceHandle {
   update(patch: Partial<PresenceState>): void;
-  /**
-   * ①自己修復: 値を変えずに自分の presence をもう一度ブロードキャストする。
-   * ハイバネ復帰でサーバ側 awareness が揮発すると自分の presence が他者から消える。
-   * 確実な人数(/count) > 名前付き roster を検知した時にこれを呼ぶと、自分の名前が再び全員に届く。
-   */
+  /** 値を変えずに自分の presence をもう一度ブロードキャストする(単発再送)。 */
   reannounce(): void;
+  /**
+   * ①自己修復の要: 「みんな presence を再送して」という要求(resyncReq)をブロードキャストする。
+   * ハイバネ復帰で awareness が揮発すると、A は B を見えていても B は A を取りこぼす「非対称」が起きる。
+   * このとき欠落側(B)は自分を再送しても直らない(A は欠落が無いので再送しない)。
+   * そこで欠落側が requestResync() を呼ぶと、(a) この呼び出し自体が自分の presence を全員へ再送し、
+   * (b) 受信側が「resync 要求」を見て自分の presence を再送で応える → 双方向に穴が埋まり収束する。
+   * 要求は単調増加カウンタで重複応答しない(ループしない)。何もしないで待っていても収束する。
+   */
+  requestResync(): void;
   stop(): void;
 }
 
@@ -109,33 +114,46 @@ export function wirePresence(
   onRoster: (roster: RosterEntry[]) => void,
 ): PresenceHandle {
   let current: PresenceState = { ...local };
-  // #3d: 後から入室した側は、サーバの awareness が揮発(ハイバネ復帰)していると既存参加者の
-  // presence を受け取れず人数が片側だけ少なくなる。新規リモートを検知したら自分の presence を
-  // 再ブロードキャスト(gossip)して相手の roster にも自分を出す。既知 ID には再送しない=ループ無し。
+  // #3d/①: ハイバネ復帰でサーバの awareness が揮発すると、参加者の presence が片側だけ消える。
+  // 対策は2系統:
+  //  (1) gossip: 新規リモートを検知したら自分を再送(相手の roster に自分を出す)。
+  //  (2) resync 要求への応答: 誰かが requestResync() を出したら自分を再送(欠落側からの要求で穴を埋める)。
+  // どちらも単調増加の token / 既知 ID で重複を抑えループしない。
   const knownRemotes = new Set<number>();
+  let respondedResync = 0;   // これまでに応答済みの最大 resync 要求値
+  let myResync = 0;          // 自分が出した resync 要求カウンタ
+  const announce = () => awareness.setLocalStateField('presence', current);
   const emit = () => {
-    const states = awareness.getStates() as Map<number, { presence?: PresenceState }>;
+    const states = awareness.getStates() as Map<number, { presence?: PresenceState; resyncReq?: number }>;
     let hasNew = false;
-    for (const id of states.keys()) {
-      if (id !== awareness.clientID && !knownRemotes.has(id)) {
-        knownRemotes.add(id);
-        hasNew = true;
-      }
+    let maxResync = 0;
+    for (const [id, st] of states) {
+      if (id === awareness.clientID) continue;
+      if (!knownRemotes.has(id)) { knownRemotes.add(id); hasNew = true; }
+      const rq = st?.resyncReq;
+      if (typeof rq === 'number' && rq > maxResync) maxResync = rq;
     }
-    if (hasNew) awareness.setLocalStateField('presence', current);
+    const needRespond = maxResync > respondedResync;
+    if (needRespond) respondedResync = maxResync; // announce より先に更新=再入で二重応答しない
+    if (hasNew || needRespond) announce();
     onRoster(buildRoster(states, awareness.clientID));
   };
   awareness.on('change', emit);
-  awareness.setLocalStateField('presence', current);
+  announce();
   emit();
   return {
     update(patch) {
       current = { ...current, ...patch };
-      awareness.setLocalStateField('presence', current);
+      announce();
     },
     reannounce() {
       // 値は据え置きで再送(clock を進め、揮発した自分の presence を全員に届け直す)。
-      awareness.setLocalStateField('presence', current);
+      announce();
+    },
+    requestResync() {
+      // 自分の presence を再送しつつ「みんな再送して」と要求する(欠落側→全員への双方向修復)。
+      myResync += 1;
+      awareness.setLocalStateField('resyncReq', myResync);
     },
     stop() {
       awareness.off('change', emit);

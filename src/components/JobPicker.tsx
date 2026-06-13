@@ -12,13 +12,15 @@ interface JobPickerProps {
     onSelect: (jobId: string) => void;
     position: { x: number; y: number };
     currentJobId: string | null;
+    /** 見出しの上書き(任意)。未指定はパーティ編成の既定「ジョブを選択」。共同編集のカーソル目印選択で使う。 */
+    title?: string;
 }
 
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import type { ContentLanguage } from '../store/useThemeStore';
 
-export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect, position, currentJobId }) => {
+export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect, position, currentJobId, title }) => {
     const { t } = useTranslation();
     const { contentLanguage, theme } = useThemeStore();
     const jobs = useJobs();
@@ -57,7 +59,7 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
                     }}
                 >
                     <div className="flex justify-between items-center border-b border-app-border pb-1.5 px-1">
-                        <h3 className="font-bold text-app-text-primary text-app-lg tracking-wide">{t('jobs.select_job')}</h3>
+                        <h3 className="font-bold text-app-text-primary text-app-lg tracking-wide">{title ?? t('jobs.select_job')}</h3>
                         <button onClick={onClose} className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
                             <X size={14} />
                         </button>

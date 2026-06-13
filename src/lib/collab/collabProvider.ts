@@ -342,14 +342,15 @@ export function startCollabSession(
 
   // #3d: 確実な人数は roster(awareness=ハイバネで揮発)でなくサーバの接続リスト由来。
   //   入退室(awareness の add/removed)時にだけ /count を取り直す(カーソル更新では取らない)。
+  const healTimers: ReturnType<typeof setTimeout>[] = []; // ①収束用の遅延再チェック(disconnect で破棄)
   const refreshCount = () => {
     void fetchRoomCount(roomToken).then((n) => {
       if (n === null) return;
       useCollabPresenceStore.getState().setConnectionCount(n);
-      // ①自己修復: 確実な人数 > 名前付き roster なら presence が揮発している(ハイバネ復帰)。
-      //   自分を再ブロードキャスト → 欠けていた相手に自分の名前が届く。相手側も同様に不足を検知して
-      //   再送し、数百ms で全員の名前が揃う(タイマーなし=入退室時だけ=$0 設計を壊さない)。
-      if (n > useCollabPresenceStore.getState().roster.length) presenceHandle.reannounce();
+      // ①自己修復: 確実な人数 > 名前付き roster なら presence が揮発している(ハイバネ復帰の非対称欠落)。
+      //   requestResync() で「みんな再送して」を出す=自分の presence も全員へ再送され、受信側も応答で
+      //   再送 → 双方向に穴が埋まり、何もしないで待っていても収束する(入退室時だけ=$0 設計を壊さない)。
+      if (n > useCollabPresenceStore.getState().roster.length) presenceHandle.requestResync();
     });
   };
   const onAwarenessMembership = (changes: { added: number[]; removed: number[] }) => {
@@ -397,12 +398,17 @@ export function startCollabSession(
     // ②-b-1/②-b-2 の全要素初期反映 + ⑤-3b の readOnly 分岐 + contentId seed 取得を 1 箇所に集約。
     applyRoomToStore(doc, { readOnly, handlers, onContentId: opts.onContentId, onOwnerLabel: opts.onOwnerLabel });
     refreshCount(); // #3d: 接続確立時に確実な人数を 1 回取得。
+    // ①: 初回 /count は他者の接続/presence 伝播より早いことがある。少し置いて 2 回だけ再チェックし、
+    //    まだ欠落していれば resync を出す(membership 変化が来ない静止状態でも収束させる保険)。
+    healTimers.push(setTimeout(refreshCount, 2000));
+    healTimers.push(setTimeout(refreshCount, 5000));
   };
   provider.on('sync', onSynced);
 
   const disconnect = () => {
     provider.off('sync', onSynced);
     provider.awareness.off('change', onAwarenessMembership); // #3d
+    healTimers.forEach(clearTimeout); // ① 遅延再チェックを破棄
     yarr.unobserveDeep(applyToStore);
     yEvents.unobserveDeep(applyEvents);
     yPhases.unobserveDeep(applyPhases);

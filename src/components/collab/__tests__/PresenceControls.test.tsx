@@ -36,9 +36,9 @@ describe('PresenceControls', () => {
     useCollabPresenceStore.getState().setCursorEnabled(true); // ③: アイコンボタンは ON のときだけ出る
     const { container } = render(<PresenceControls />);
     fireEvent.click(screen.getByLabelText('job-select'));
-    // ピッカーのヘッダ(jobs.select_job)はコンポーネント subtree の外＝body に出る。
-    expect(within(container).queryByText('jobs.select_job')).toBeNull();
-    expect(screen.getByText('jobs.select_job')).toBeInTheDocument();
+    // ピッカーのヘッダ(collab 用見出し)はコンポーネント subtree の外＝body に出る。
+    expect(within(container).queryByText('collab.cursor_job_pick_title')).toBeNull();
+    expect(screen.getByText('collab.cursor_job_pick_title')).toBeInTheDocument();
   });
 
   // ②表記ゆれ統一: トグル自身が状態(英語 ON/OFF)を表示。別注釈は廃止。
@@ -70,6 +70,6 @@ describe('PresenceControls', () => {
     fireEvent.click(screen.getByLabelText('cursor-toggle'));
     fireEvent.click(screen.getByText('collab.cursor_optin_confirm'));
     expect(useCollabPresenceStore.getState().cursorEnabled).toBe(true);
-    expect(screen.getByText('jobs.select_job')).toBeInTheDocument();
+    expect(screen.getByText('collab.cursor_job_pick_title')).toBeInTheDocument();
   });
 });

@@ -140,4 +140,42 @@ describe('wirePresence の自己修復(reannounce)', () => {
     expect(last[0].cursorEnabled).toBe(true);
     handle.stop();
   });
+
+  it('requestResync で resync 要求フィールドを載せる(相手に再送を促す)', () => {
+    const aw = new FakeAwareness();
+    const handle = wirePresence(aw, p(), () => {});
+    handle.requestResync();
+    // 自分の state に resyncReq(>0)が載り、ブロードキャストされる
+    const me = aw.getStates().get(aw.clientID) as { resyncReq?: number };
+    expect(typeof me.resyncReq).toBe('number');
+    expect(me.resyncReq! > 0).toBe(true);
+    handle.stop();
+  });
+
+  it('他者の resync 要求を受けたら自分の presence を再ブロードキャストする', () => {
+    const aw = new FakeAwareness();
+    let calls = 0;
+    const handle = wirePresence(aw, p({ color: '#zzz' }), () => { calls++; });
+    const before = calls;
+    // 相手が resync を要求している state を受信
+    aw.addPeer(2, { presence: p({ color: '#222' }), resyncReq: 1 });
+    // 応答として自分の presence を再送 → onRoster が追加で呼ばれる
+    expect(calls).toBeGreaterThan(before + 1);
+    expect(aw.getStates().get(aw.clientID)).toHaveProperty('presence');
+    handle.stop();
+  });
+
+  it('同じ resync 要求には一度だけ応答する(ループしない)', () => {
+    const aw = new FakeAwareness();
+    let announceCount = 0;
+    // setLocalStateField のたびに fire→emit。応答回数を間接計測するため presence 設定をフック。
+    const handle = wirePresence(aw, p(), () => { announceCount++; });
+    aw.addPeer(2, { presence: p(), resyncReq: 5 });
+    const after1 = announceCount;
+    // 同じ resyncReq=5 のまま別の無関係な変化が来ても、再応答しない
+    aw.addPeer(3, { presence: p() }); // resyncReq 無し(=新規参加のみ)
+    // 新規参加で gossip 応答が1回入るが、resync 由来の追加応答は無い
+    expect(announceCount).toBeGreaterThan(after1); // gossip で増える
+    handle.stop();
+  });
 });

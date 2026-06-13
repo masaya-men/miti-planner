@@ -7,6 +7,7 @@ import { ShareModal } from './ShareModal';
 import { ShareChoiceModal } from './collab/ShareChoiceModal';
 import { OwnerCollabPanel } from './collab/OwnerCollabPanel';
 import { ParticipantDots } from './collab/ParticipantDots';
+import { PresenceControls } from './collab/PresenceControls';
 import { LoginModal } from './LoginModal';
 import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
@@ -86,6 +87,10 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
                     </button>
                 </Tooltip>
             )}
+
+            {/* ③ オーナーも共同編集中はヘッダーでカーソル ON/OFF と目印アイコンをサクッと操作できる
+                 (閲覧者ヘッダーの CollabViewerCluster と同じ compact 行)。接続確立(active)時のみ。 */}
+            {active && <PresenceControls compact />}
 
             {view === 'choice' && (
                 <ShareChoiceModal

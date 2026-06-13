@@ -56,6 +56,7 @@ export const PresenceControls: React.FC<{ compact?: boolean }> = ({ compact = fa
           isOpen
           position={pickerPos}
           currentJobId={jobId}
+          title={t('collab.cursor_job_pick_title')}
           onSelect={(id) => { setJobId(id); setPickerPos(null); }}
           onClose={() => setPickerPos(null)}
         />,
