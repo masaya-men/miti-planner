@@ -92,6 +92,50 @@ function dissipationIdsOverlapping(
   return ids;
 }
 
+/** 部屋の Y.Doc が「完全に空」(どの PlanData 配列も 0 件)か。seed 失敗 / 保存前再接続の検知に使う。
+ *  通常の部屋は必ず partyMembers を持つため、全配列 0 件 = 正規の状態ではない。 */
+function isCollabDocEmpty(doc: Y.Doc): boolean {
+  return (
+    readMitigations(doc).length === 0 &&
+    readArray(doc, TIMELINE_EVENTS_KEY).length === 0 &&
+    readArray(doc, PHASES_KEY).length === 0 &&
+    readArray(doc, LABELS_KEY).length === 0 &&
+    readArray(doc, MEMOS_KEY).length === 0 &&
+    readArray(doc, PARTY_MEMBERS_KEY).length === 0
+  );
+}
+
+/** ローカル store(オーナーの手元)に PlanData の実体があるか。 */
+function localStoreHasPlanData(s: ReturnType<typeof useMitigationStore.getState>): boolean {
+  return (
+    s.timelineMitigations.length > 0 ||
+    s.timelineEvents.length > 0 ||
+    s.phases.length > 0 ||
+    s.labels.length > 0 ||
+    s.memos.length > 0 ||
+    s.partyMembers.length > 0
+  );
+}
+
+/** 空の部屋へ、手元(オーナー)の PlanData を id 単位 upsert で再シードする(列増殖しない)。
+ *  origin='local' で 1 transaction。観測(observeDeep)経由で store と一致し、onSave で Firestore へ復元保存される。 */
+function reseedDocFromLocalStore(
+  doc: Y.Doc,
+  s: ReturnType<typeof useMitigationStore.getState>,
+): void {
+  doc.transact(() => {
+    applyUpsert(doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY), s.timelineMitigations);
+    applyUpsert(doc.getArray<Y.Map<unknown>>(TIMELINE_EVENTS_KEY), s.timelineEvents);
+    applyUpsert(doc.getArray<Y.Map<unknown>>(PHASES_KEY), s.phases);
+    applyUpsert(doc.getArray<Y.Map<unknown>>(LABELS_KEY), s.labels);
+    applyUpsert(doc.getArray<Y.Map<unknown>>(MEMOS_KEY), s.memos);
+    applyUpsert(doc.getArray<Y.Map<unknown>>(PARTY_MEMBERS_KEY), s.partyMembers);
+    if (s.currentLevel !== undefined) setMetaField(doc, META_LEVEL, s.currentLevel);
+    if (s.aaSettings !== undefined) setMetaField(doc, META_AA, s.aaSettings);
+    if (s.schAetherflowPatterns !== undefined) setMetaField(doc, META_SCH, s.schAetherflowPatterns);
+  }, 'local');
+}
+
 /**
  * sync 完了時に部屋の現在状態を store に初期反映する(オーナー入室・ジョイナー購読の共通処理)。
  * readOnly のときは編集委譲(enterCollabMode)をしない＝ジョイナーの操作は Y に一切流れない(購読のみ)。
@@ -103,7 +147,20 @@ export function applyRoomToStore(
   opts: { readOnly: boolean; handlers: CollabHandlers; onContentId?: (id: string | undefined) => void; onOwnerLabel?: (label: string | undefined) => void },
 ): void {
   if (!opts.readOnly) {
-    useMitigationStore.getState().enterCollabMode(opts.handlers);
+    const store = useMitigationStore.getState();
+    store.enterCollabMode(opts.handlers);
+    // データ安全(#7・絶対に破壊しない): 部屋が「完全に空」(seed 失敗 / 保存間引きの最中に再接続 /
+    // ハイバネ復帰で揃わない 等)なのに、手元に中身がある場合は、空スナップショットで手元を
+    // 潰さない。オーナーは自分の表の真実なので、手元を正として部屋を id 単位で再シードする
+    // (applyUpsert = id 一致は部分更新・新規のみ push = 列増殖しない / バイナリ永続化と整合)。
+    // → これにより「再接続直後に一瞬空になる / 空が保存される」事故が原理的に起きない。
+    if (isCollabDocEmpty(doc) && localStoreHasPlanData(store)) {
+      reseedDocFromLocalStore(doc, store);
+      // 空スナップショットは適用しない。再シードが observeDeep 経由で store と一致させる。
+      opts.onContentId?.(readContentId(doc));
+      opts.onOwnerLabel?.(readOwnerLabel(doc));
+      return;
+    }
   }
   const s = useMitigationStore.getState();
   s._applyMitigationsFromCollab(readMitigations(doc));
