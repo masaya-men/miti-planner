@@ -483,6 +483,7 @@
         "all_mitigations": "모든 경감 제거",
         "member_mitigations": "멤버별 제거",
         "copy_event_hint": "이 이벤트를 스탬프에 복사",
+        "toggle_target_hint": "클릭하여 대상 MT ⇄ ST 전환",
         "invuln": "무적",
         "header_phase": "페이즈",
         "header_phase_short": "Ph",

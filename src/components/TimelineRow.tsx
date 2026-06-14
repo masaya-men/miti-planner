@@ -119,6 +119,43 @@ const MobileMitiIcons: React.FC<{
     </div>
 ); };
 
+// PC用: 対象(MT/ST)表示 — クリックで MT⇄ST をトグル(イベント編集モーダルを開かず即切替)。
+// updateEvent 経由なので collab 同期・Undo・ダメージ再計算はモーダルでの変更と完全に同一経路。
+// 純粋な閲覧者は store 側ガードで no-op。対象が MT/ST 以外(AoE 等)のときは何も出さない。
+const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[]; badgeTextClass?: string }> = ({ event, partyMembers, badgeTextClass = 'text-app-base' }) => {
+    const JOBS = useJobs();
+    const { t } = useTranslation();
+    const updateEvent = useMitigationStore(state => state.updateEvent);
+    if (event.target !== 'MT' && event.target !== 'ST') return null;
+    const member = partyMembers.find(m => m.id === event.target);
+    const job = member ? JOBS.find(j => j.id === member.jobId) : null;
+    return (
+        <Tooltip content={t('timeline.toggle_target_hint')}>
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation(); // 行クリック(編集モーダル)を抑止して即トグル
+                    updateEvent(event.id, { target: event.target === 'MT' ? 'ST' : 'MT' });
+                }}
+                className="flex items-center gap-1.5 cursor-pointer rounded px-1 -mx-1 hover:bg-app-surface2 active:scale-95 transition-all"
+            >
+                <span className="text-app-base text-app-text-muted font-mono">on</span>
+                {job ? (
+                    <img src={job.icon} className="w-6 h-6 rounded-sm" alt={event.target} />
+                ) : (
+                    <span className={clsx(
+                        "font-bold px-1 rounded",
+                        badgeTextClass,
+                        event.target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+                    )}>
+                        {event.target}
+                    </span>
+                )}
+            </button>
+        </Tooltip>
+    );
+};
+
 export const TimelineRow = memo(({
     time,
     top,
@@ -143,7 +180,6 @@ export const TimelineRow = memo(({
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
-    const JOBS = useJobs();
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
     const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
@@ -352,32 +388,14 @@ export const TimelineRow = memo(({
                                 myMemberId={myMemberId}
                             />
 
-                            {/* PC専用: Target */}
-                            <div className="hidden md:flex items-center gap-1.5 flex-shrink-0 ml-auto">
-                                {(events[0].target === 'MT' || events[0].target === 'ST') && (
-                                    <>
-                                        <span className="text-app-base text-app-text-muted font-mono">on</span>
-                                        {(() => {
-                                            const member = partyMembers.find(m => m.id === events[0].target);
-                                            const job = member ? JOBS.find(j => j.id === member.jobId) : null;
-                                            return job ? (
-                                                <img src={job.icon} className="w-6 h-6 rounded-sm" alt={events[0].target} />
-                                            ) : (
-                                                <span className={clsx(
-                                                    "text-app-base font-bold px-1 rounded",
-                                                    events[0].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
-                                                )}>
-                                                    {events[0].target}
-                                                </span>
-                                            );
-                                        })()}
-                                    </>
-                                )}
+                            {/* PC専用: Target(クリックで MT⇄ST トグル) */}
+                            <div className="hidden md:flex items-center flex-shrink-0 ml-auto">
+                                <PcTargetToggle event={events[0]} partyMembers={partyMembers} />
                             </div>
                         </div>
 
                         {/* PC専用: コピーボタン (absolute で flex 列から外し、 非ホバー時は文字が枠いっぱい使える) */}
-                        <div className="hidden md:block absolute right-1.5 top-1/2 -translate-y-1/2 z-10 opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity">
+                        <div className="hidden md:block absolute left-1.5 top-1/2 -translate-y-1/2 z-10 opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity">
                             <Tooltip content={t('timeline.copy_event_hint')} position="top">
                                 <button
                                     onClick={(e) => {
@@ -439,32 +457,14 @@ export const TimelineRow = memo(({
                                         size="w-2.5 h-2.5"
                                     />
 
-                                    {/* PC専用: Target */}
-                                    <div className="hidden md:flex items-center gap-1.5 flex-shrink-0 ml-auto">
-                                        {(events[idx].target === 'MT' || events[idx].target === 'ST') && (
-                                            <>
-                                                <span className="text-app-base text-app-text-muted font-mono">on</span>
-                                                {(() => {
-                                                    const member = partyMembers.find(m => m.id === events[idx].target);
-                                                    const job = member ? JOBS.find(j => j.id === member.jobId) : null;
-                                                    return job ? (
-                                                        <img src={job.icon} className="w-6 h-6 rounded-sm" alt={events[idx].target} />
-                                                    ) : (
-                                                        <span className={clsx(
-                                                            "text-app-sm font-bold px-1 rounded",
-                                                            events[idx].target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
-                                                        )}>
-                                                            {events[idx].target}
-                                                        </span>
-                                                    );
-                                                })()}
-                                            </>
-                                        )}
+                                    {/* PC専用: Target(クリックで MT⇄ST トグル) */}
+                                    <div className="hidden md:flex items-center flex-shrink-0 ml-auto">
+                                        <PcTargetToggle event={events[idx]} partyMembers={partyMembers} badgeTextClass="text-app-sm" />
                                     </div>
                                 </div>
 
                                 {/* PC専用: コピーボタン (absolute で flex 列から外し、 非ホバー時は文字が枠いっぱい使える) */}
-                                <div className="hidden md:block absolute right-1.5 top-1/2 -translate-y-1/2 z-10 opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity">
+                                <div className="hidden md:block absolute left-1.5 top-1/2 -translate-y-1/2 z-10 opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity">
                                     <Tooltip content={t('timeline.copy_event_hint')} position="top">
                                         <button
                                             onClick={(e) => {

@@ -483,6 +483,7 @@
         "all_mitigations": "清除所有减伤",
         "member_mitigations": "按成员清除",
         "copy_event_hint": "复制此事件用于印章",
+        "toggle_target_hint": "点击切换目标 MT ⇄ ST",
         "invuln": "无敌",
         "header_phase": "阶段",
         "header_phase_short": "阶",

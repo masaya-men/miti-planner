@@ -491,6 +491,7 @@
         "all_mitigations": "Clear all mitigations",
         "member_mitigations": "Clear by member",
         "copy_event_hint": "Copy this event to stamp",
+        "toggle_target_hint": "Click to switch target MT ⇄ ST",
         "invuln": "Invuln",
         "header_phase": "PHASE",
         "header_phase_short": "Ph",

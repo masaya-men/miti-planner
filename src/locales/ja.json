@@ -495,6 +495,7 @@
         "all_mitigations": "全ての軽減を削除",
         "member_mitigations": "メンバー別に削除",
         "copy_event_hint": "このイベントをコピーしてスタンプする",
+        "toggle_target_hint": "クリックで対象を MT ⇄ ST 切替",
         "invuln": "無敵",
         "header_phase": "フェーズ",
         "header_phase_short": "Ph",
