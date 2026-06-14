@@ -413,7 +413,10 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                 if (assignedTarget !== target) return;
             }
 
-            // デバフ軽減不可フラグONなら、デバフ系軽減の % は逆算に含めない
+            // デバフ軽減不可フラグONなら、デバフ系軽減の % は逆算に含めない。
+            // 本関数は%とバリアを単一ループで処理するため return はバリア寄与もスキップするが、
+            // デバフ4系は全て isShield:false のため本体計算(Timeline.tsx の%ループのみ)と結果一致。
+            // 将来デバフ系のシールドを追加する場合はここを%スキップのみに分離すること。
             if (isMitigationBlockedByEvent({ ignoresDebuffMitigation }, def)) return;
 
             // Percentage Mitigation (apply for ALL skills with value > 0, including shield+mitigation hybrids)
