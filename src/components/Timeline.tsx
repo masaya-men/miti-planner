@@ -36,6 +36,7 @@ import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
+import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -1854,6 +1855,9 @@ const Timeline: React.FC = () => {
             activeMitigations.forEach(appMit => {
                 const def = MITIGATIONS.find(m => m.id === appMit.mitigationId);
                 if (!def) return;
+
+                // デバフ軽減不可の攻撃には、デバフ系軽減(リプライザル等)の % を適用しない
+                if (isMitigationBlockedByEvent(event, def)) return;
 
                 if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
                 if (appMit.targetId && appMit.targetId !== displayContext) return;
