@@ -121,25 +121,38 @@ const MobileMitiIcons: React.FC<{
     </div>
 ); };
 
-// PC用: 種別アイコン — クリックで physical→magical→unavoidable を循環(モーダルを開かず即切替)。
-// updateEvent 経由なので collab 同期・Undo・ダメージ再計算はモーダル変更と完全に同一経路。
+// PC用: 種別アイコン — 左クリックで physical→magical→unavoidable を循環 / 右クリックでデバフ軽減不可をトグル。
+// いずれも updateEvent 経由なので collab 同期・Undo・ダメージ再計算・赤枠反映はモーダル変更と完全に同一経路。
 // 純粋な閲覧者は store 側ガードで no-op。md: のみ表示(モバイルは別途 DamageTypeIcon を表示)。
-const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
+export const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
     const { t } = useTranslation();
     const updateEvent = useMitigationStore(state => state.updateEvent);
     // enrage(時間切れ)はアイコンを持たない種別なので、空のクリック領域を作らないよう非表示。
     if (!event.damageType || event.damageType === 'enrage') return null;
+    const stateLabel = event.ignoresDebuffMitigation ? 'ON' : 'OFF';
     return (
-        <Tooltip content={t('timeline.toggle_type_hint')}>
+        <Tooltip
+            content={
+                <div className="leading-snug">
+                    <div>{t('timeline.type_action_left')}</div>
+                    <div>{t('timeline.type_action_right', { state: stateLabel })}</div>
+                </div>
+            }
+        >
             <button
                 type="button"
                 onClick={(e) => {
                     e.stopPropagation(); // 行クリック(編集モーダル)を抑止して即トグル
                     updateEvent(event.id, { damageType: nextDamageType(event.damageType) });
                 }}
+                onContextMenu={(e) => {
+                    e.preventDefault();  // ブラウザ標準の右クリックメニューを抑止
+                    e.stopPropagation(); // 行クリック(編集モーダル)を抑止
+                    updateEvent(event.id, { ignoresDebuffMitigation: !event.ignoresDebuffMitigation });
+                }}
                 className="hidden md:inline-flex items-center cursor-pointer rounded-sm hover:bg-app-surface2 active:scale-95 transition-all"
             >
-                <DamageTypeIcon damageType={event.damageType} ignoresDebuffMitigation={event.ignoresDebuffMitigation} size="w-3 h-3" />
+                <DamageTypeIcon damageType={event.damageType} ignoresDebuffMitigation={event.ignoresDebuffMitigation} size="w-3 h-3" withTooltip={false} />
             </button>
         </Tooltip>
     );
