@@ -7,6 +7,8 @@ import clsx from 'clsx';
 import type { TimelineEvent, Mitigation } from '../types';
 import { getPhaseName } from '../types';
 import { MitigationSelector } from './MitigationSelector';
+import { DamageTypeIcon } from './DamageTypeIcon';
+import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
 
@@ -71,6 +73,8 @@ export const CheatSheetView: React.FC = () => {
             activeMitigations.forEach(appMit => {
                 const def = MITIGATIONS.find(m => m.id === appMit.mitigationId);
                 if (!def) return;
+                // デバフ軽減不可の攻撃には、デバフ系軽減(リプライザル等)の % を適用しない(本体計算と同一)
+                if (isMitigationBlockedByEvent(event, def)) return;
                 if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
                 if (appMit.targetId && appMit.targetId !== displayContext) return;
 
@@ -282,9 +286,7 @@ export const CheatSheetView: React.FC = () => {
 
                     {/* 2段目: 攻撃種別アイコン + 攻撃名 + 連続ヒット */}
                     <div className="flex items-center gap-1 w-full justify-center opacity-90 mb-0.5">
-                        {event.damageType === 'magical' && <img src="/icons/type_magic.png" className="w-2.5 h-2.5 shrink-0" alt={t('modal.magical')} />}
-                        {event.damageType === 'physical' && <img src="/icons/type_phys.png" className="w-2.5 h-2.5 shrink-0" alt={t('modal.physical')} />}
-                        {event.damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-2.5 h-2.5 shrink-0" alt={t('modal.unique')} />}
+                        <DamageTypeIcon damageType={event.damageType} ignoresDebuffMitigation={event.ignoresDebuffMitigation} size="w-2.5 h-2.5" />
                         <span
                             className={clsx(
                                 "text-app-base leading-tight truncate font-black drop-shadow-md cursor-help",
