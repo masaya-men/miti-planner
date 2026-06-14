@@ -13,7 +13,7 @@ const ICON_BY_TYPE: Partial<Record<NonNullable<TimelineEvent['damageType']>, { s
 /** 種別アイコン(magical/physical/unavoidable)。ignoresDebuffMitigation=true のとき
  *  淡い赤背景+赤リングの小箱で囲み「デバフ軽減無効」を示す。PC/モバイル共有。 */
 export const DamageTypeIcon: React.FC<{
-  damageType: TimelineEvent['damageType'];
+  damageType: TimelineEvent['damageType'] | undefined; // event 任意の呼び出し元(モバイル)も許容。undefined は null 描画
   ignoresDebuffMitigation?: boolean;
   size?: string;       // 例 "w-3 h-3"(PC) / "w-4 h-4"(モバイル)
   className?: string;
