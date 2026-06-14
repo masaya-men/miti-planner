@@ -28,9 +28,14 @@ export const DamageTypeIcon: React.FC<{
     return <span className={clsx('flex-shrink-0 inline-flex', className)}>{img}</span>;
   }
 
+  // 赤枠は「レイアウト横幅を増やさない」= 攻撃名を右に押さない。
+  // ・className(md:hidden 等)は最外殻=Tooltip ラッパに当てる。
+  //   inner span に付けると、PC で外側ラッパ(空)が flex 要素として残り余分な gap を生む。
+  // ・ring は box-shadow なのでレイアウト幅0(枠線は実寸の外側に描画)
+  // ・p-px(内側余白)は -mx-px で横方向を相殺 → 非フラグ時と横占有が同一
   return (
-    <Tooltip content={t('timeline.debuff_immune_hint')} position="top">
-      <span className={clsx('flex-shrink-0 inline-flex items-center justify-center rounded-sm p-px bg-red-500/10 ring-1 ring-red-500/40', className)}>
+    <Tooltip content={t('timeline.debuff_immune_hint')} wrapperClassName={clsx('flex-shrink-0', className)}>
+      <span className="inline-flex items-center justify-center rounded-sm p-px -mx-px bg-red-500/10 ring-1 ring-red-500/40">
         {img}
       </span>
     </Tooltip>
