@@ -156,6 +156,28 @@ const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember
     );
 };
 
+// PC用: コピーボタン — 対象トグルの右隣に同サイズ(w-6 h-6)で並べる。
+// ホバー時のみ可視だが場所は常に確保(opacity 切替のみ)＝攻撃名のガタつきなし。
+// 対象アイコンが無い(AoE)行では親の ml-auto により右端へ寄る。
+const PcCopyButton: React.FC<{ event: TimelineEvent }> = ({ event }) => {
+    const { t } = useTranslation();
+    const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
+    return (
+        <Tooltip content={t('timeline.copy_event_hint')} position="top">
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setClipboardEvent(event);
+                }}
+                className="flex items-center justify-center w-6 h-6 rounded-sm text-app-text-muted hover:text-app-accent cursor-pointer opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity active:scale-95"
+            >
+                <Copy size={14} />
+            </button>
+        </Tooltip>
+    );
+};
+
 export const TimelineRow = memo(({
     time,
     top,
@@ -180,7 +202,6 @@ export const TimelineRow = memo(({
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
-    const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
     const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
 
@@ -388,25 +409,14 @@ export const TimelineRow = memo(({
                                 myMemberId={myMemberId}
                             />
 
-                            {/* PC専用: Target(クリックで MT⇄ST トグル) */}
+                            {/* PC専用: Target(右端固定・クリックで MT⇄ST トグル)。コピーはホバー時だけ幅を開く
+                                (非ホバー=w-0で攻撃名フル幅 / ホバー=w-8で名前が縮みコピーが重ならず収まる)。対象が無い(AoE)行は右端に出る */}
                             <div className="hidden md:flex items-center flex-shrink-0 ml-auto">
+                                <div className="w-0 overflow-hidden flex justify-start group-hover/slot:w-8 transition-[width] duration-150">
+                                    <PcCopyButton event={events[0]} />
+                                </div>
                                 <PcTargetToggle event={events[0]} partyMembers={partyMembers} />
                             </div>
-                        </div>
-
-                        {/* PC専用: コピーボタン (absolute で flex 列から外し、 非ホバー時は文字が枠いっぱい使える) */}
-                        <div className="hidden md:block absolute left-1.5 top-1/2 -translate-y-1/2 z-10 opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity">
-                            <Tooltip content={t('timeline.copy_event_hint')} position="top">
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setClipboardEvent(events[0]);
-                                    }}
-                                    className="flex items-center justify-center w-6 h-6 rounded bg-app-bg ring-1 ring-app-border text-app-text-sec hover:text-app-accent cursor-pointer"
-                                >
-                                    <Copy size={14} />
-                                </button>
-                            </Tooltip>
                         </div>
 
                         {/* PC専用: イベント追加ボタン */}
@@ -457,25 +467,14 @@ export const TimelineRow = memo(({
                                         size="w-2.5 h-2.5"
                                     />
 
-                                    {/* PC専用: Target(クリックで MT⇄ST トグル) */}
+                                    {/* PC専用: Target(右端固定・クリックで MT⇄ST トグル)。コピーはホバー時だけ幅を開く
+                                        (非ホバー=w-0で攻撃名フル幅 / ホバー=w-8で名前が縮みコピーが重ならず収まる)。対象が無い(AoE)行は右端に出る */}
                                     <div className="hidden md:flex items-center flex-shrink-0 ml-auto">
+                                        <div className="w-0 overflow-hidden flex justify-start group-hover/slot:w-8 transition-[width] duration-150">
+                                            <PcCopyButton event={events[idx]} />
+                                        </div>
                                         <PcTargetToggle event={events[idx]} partyMembers={partyMembers} badgeTextClass="text-app-sm" />
                                     </div>
-                                </div>
-
-                                {/* PC専用: コピーボタン (absolute で flex 列から外し、 非ホバー時は文字が枠いっぱい使える) */}
-                                <div className="hidden md:block absolute left-1.5 top-1/2 -translate-y-1/2 z-10 opacity-0 pointer-events-none group-hover/slot:opacity-100 group-hover/slot:pointer-events-auto transition-opacity">
-                                    <Tooltip content={t('timeline.copy_event_hint')} position="top">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setClipboardEvent(events[idx]);
-                                            }}
-                                            className="flex items-center justify-center w-6 h-6 rounded bg-app-bg ring-1 ring-app-border text-app-text-sec hover:text-app-accent cursor-pointer"
-                                        >
-                                            <Copy size={14} />
-                                        </button>
-                                    </Tooltip>
                                 </div>
                             </div>
                         ))}
