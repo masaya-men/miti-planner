@@ -127,7 +127,8 @@ const MobileMitiIcons: React.FC<{
 const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
     const { t } = useTranslation();
     const updateEvent = useMitigationStore(state => state.updateEvent);
-    if (!event.damageType) return null;
+    // enrage(時間切れ)はアイコンを持たない種別なので、空のクリック領域を作らないよう非表示。
+    if (!event.damageType || event.damageType === 'enrage') return null;
     return (
         <Tooltip content={t('timeline.toggle_type_hint')}>
             <button
