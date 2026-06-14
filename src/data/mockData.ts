@@ -195,7 +195,7 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "heart_of_light", jobId: "gnb", name: { ja: "ハート・オブ・ライト", en: "Heart of Light", zh: "光之心", ko: "빛의 심장" }, icon: "/icons/Heart_of_Light.png",
         recast: 90, duration: 15, type: "all", value: 10, isShield: false,
-        valueMagical: 10, valuePhysical: 5, scope: "party", minLevel: 80, family: "tank_party_miti"
+        valueMagical: 10, valuePhysical: 5, scope: "party", minLevel: 64, family: "tank_party_miti"
     },
     {
         id: "superbolide", jobId: "gnb", name: { ja: "ボーライド", en: "Superbolide", zh: "超火流星", ko: "폭발 유성" }, icon: "/icons/Superbolide.png",
@@ -225,22 +225,22 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "holy_sheltron", jobId: "pld", name: { ja: "ホーリーシェルトロン", en: "Holy Sheltron", zh: "圣盾阵", ko: "신성한 방벽" }, icon: "/icons/Holy_Sheltron.png",
-        recast: 23, duration: 8, type: "all", value: 15, burstValue: 15, burstDuration: 4, isShield: false,
+        recast: 5, duration: 8, type: "all", value: 15, burstValue: 15, burstDuration: 4, isShield: false,
         note: "最初4秒15%*15%, 残り4秒15％", scope: "self", minLevel: 82, family: "tank_short"
     },
     {
-        id: "sheltron", jobId: "pld", name: { ja: "シェルトロン", en: "Sheltron", zh: "盾阵", ko: "방벽" }, icon: "/icons/Holy_Sheltron.png",
-        recast: 23, duration: 6, type: "all", value: 15, isShield: false,
+        id: "sheltron", jobId: "pld", name: { ja: "シェルトロン", en: "Sheltron", zh: "盾阵", ko: "방벽" }, icon: "/icons/sheltron.png",
+        recast: 5, duration: 6, type: "all", value: 15, isShield: false,
         scope: "self", minLevel: 35, maxLevel: 81, family: "tank_short"
     },
     {
         id: "intervention", jobId: "pld", name: { ja: "インターベンション", en: "Intervention", zh: "干预", ko: "중재" }, icon: "/icons/Intervention.png",
-        recast: 23, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: false,
+        recast: 10, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: false,
         note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted", targetCannotBeSelf: true
     },
     {
         id: "intervention_base", jobId: "pld", name: { ja: "インターベンション", en: "Intervention", zh: "干预", ko: "중재" }, icon: "/icons/Intervention.png",
-        recast: 23, duration: 6, type: "all", value: 10, isShield: false,
+        recast: 10, duration: 6, type: "all", value: 10, isShield: false,
         scope: "target", minLevel: 62, maxLevel: 81, family: "tank_sub_targeted", targetCannotBeSelf: true
     },
     {
@@ -299,7 +299,7 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "dark_missionary", jobId: "drk", name: { ja: "ダークミッショナリー", en: "Dark Missionary", zh: "暗黑布道", ko: "어둠의 포교자" }, icon: "/icons/Dark_Missionary.png",
         recast: 90, duration: 15, type: "all", value: 10, isShield: false,
-        valueMagical: 10, valuePhysical: 5, scope: "party", minLevel: 76, family: "tank_party_miti"
+        valueMagical: 10, valuePhysical: 5, scope: "party", minLevel: 66, family: "tank_party_miti"
     },
     {
         id: "oblation", jobId: "drk", name: { ja: "オブレーション", en: "Oblation", zh: "献奉", ko: "헌신" }, icon: "/icons/Oblation.png",
@@ -445,7 +445,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "holos", jobId: "sge", name: { ja: "ホーリズム", en: "Holos", zh: "整体论", ko: "전체론" }, icon: "/icons/Holos.png",
-        recast: 120, duration: 20, type: "all", value: 10, isShield: true, valueType: 'potency', shieldPotency: 300, minLevel: 86, family: "bh_120_b"
+        recast: 120, duration: 20, type: "all", value: 10, isShield: true, valueType: 'potency', shieldPotency: 300, minLevel: 76, family: "bh_120_b"
     },
     {
         id: "kerachole", jobId: "sge", name: { ja: "ケーラコレ", en: "Kerachole", zh: "坚角清汁", ko: "케이라콜레" }, icon: "/icons/Kerachole.png",
