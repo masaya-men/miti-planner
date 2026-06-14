@@ -66,6 +66,9 @@ export interface Mitigation {
     /** ボスにデバフを付与してダメージを下げるタイプの軽減か(リプライザル/フェイント/アドル/ウェポンブレイク)。
      *  true の軽減は、イベントの ignoresDebuffMitigation=true のとき % 軽減計算から除外される。 */
     appliesAsDebuff?: boolean;
+    /** タンクスイッチ用マーカー（挑発）。軽減効果は持たず、これ以降・
+     *  同一フェーズ内のイベントの on対象 MT⇄ST を反転させる。 */
+    isTankSwap?: boolean;
     hidden?: boolean; // If true, the mitigation is not shown in the selector modal
     requiresFairy?: boolean; // If true, the skill requires a fairy to be summoned
     targetCannotBeSelf?: boolean; // If true, the mitigation cannot be cast on the user themselves
