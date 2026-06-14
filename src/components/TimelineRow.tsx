@@ -10,6 +10,8 @@ import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { Tooltip } from './ui/Tooltip';
 import { AnimatedDamage } from './AnimatedDamage';
+import { DamageTypeIcon } from './DamageTypeIcon';
+import { nextDamageType } from '../utils/damageTypeLogic';
 
 /** 攻撃名スパン — 省略時にスタイル付きツールチップ表示
  *  perf #59 C: onMouseEnter 毎の scrollWidth 比較は forced reflow を引き起こすため、
@@ -118,6 +120,29 @@ const MobileMitiIcons: React.FC<{
         })}
     </div>
 ); };
+
+// PC用: 種別アイコン — クリックで physical→magical→unavoidable を循環(モーダルを開かず即切替)。
+// updateEvent 経由なので collab 同期・Undo・ダメージ再計算はモーダル変更と完全に同一経路。
+// 純粋な閲覧者は store 側ガードで no-op。md: のみ表示(モバイルは別途 DamageTypeIcon を表示)。
+const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
+    const { t } = useTranslation();
+    const updateEvent = useMitigationStore(state => state.updateEvent);
+    if (!event.damageType) return null;
+    return (
+        <Tooltip content={t('timeline.toggle_type_hint')}>
+            <button
+                type="button"
+                onClick={(e) => {
+                    e.stopPropagation(); // 行クリック(編集モーダル)を抑止して即トグル
+                    updateEvent(event.id, { damageType: nextDamageType(event.damageType) });
+                }}
+                className="hidden md:inline-flex items-center cursor-pointer rounded-sm hover:bg-app-surface2 active:scale-95 transition-all"
+            >
+                <DamageTypeIcon damageType={event.damageType} ignoresDebuffMitigation={event.ignoresDebuffMitigation} size="w-3 h-3" />
+            </button>
+        </Tooltip>
+    );
+};
 
 // PC用: 対象(MT/ST)表示 — クリックで MT⇄ST をトグル(イベント編集モーダルを開かず即切替)。
 // updateEvent 経由なので collab 同期・Undo・ダメージ再計算はモーダルでの変更と完全に同一経路。
@@ -388,10 +413,9 @@ export const TimelineRow = memo(({
                                 }
                             }}
                         >
-                            {/* 種別アイコン */}
-                            {events[0].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.magical')} />}
-                            {events[0].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.physical')} />}
-                            {events[0].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.unique')} />}
+                            {/* 種別: PC=クリックで循環 / モバイル=表示のみ(両方とも赤箱印あり) */}
+                            <PcTypeToggle event={events[0]} />
+                            <DamageTypeIcon damageType={events[0].damageType} ignoresDebuffMitigation={events[0].ignoresDebuffMitigation} size="w-3 h-3" className="md:hidden" />
 
                             {/* 攻撃名（省略時にネイティブツールチップ表示） */}
                             <EventNameSpan name={getEventName(events[0])} className="text-app-md md:text-app-lg" />
@@ -446,9 +470,9 @@ export const TimelineRow = memo(({
                                     }}
                                 >
                                     {/* 種別アイコン */}
-                                    {events[idx].damageType === 'magical' && <img src="/icons/type_magic.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.magical')} />}
-                                    {events[idx].damageType === 'physical' && <img src="/icons/type_phys.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.physical')} />}
-                                    {events[idx].damageType === 'unavoidable' && <img src="/icons/type_dark.png" className="w-3 h-3 opacity-90 flex-shrink-0" alt={t('modal.unique')} />}
+                                    {/* 種別: PC=クリックで循環 / モバイル=表示のみ(両方とも赤箱印あり) */}
+                                    <PcTypeToggle event={events[idx]} />
+                                    <DamageTypeIcon damageType={events[idx].damageType} ignoresDebuffMitigation={events[idx].ignoresDebuffMitigation} size="w-3 h-3" className="md:hidden" />
 
                                     {/* 攻撃名（省略時にネイティブツールチップ表示） */}
                                     <EventNameSpan name={getEventName(events[idx])} className="text-app-base md:text-app-lg" />
