@@ -593,6 +593,9 @@ const Timeline: React.FC = () => {
         showRowBorders: s.showRowBorders,
     })));
     const partySortOrder = useMitigationStore(s => s.timelineSortOrder);
+    // ジョイナー閲覧/編集中フラグ。モバイルで currentPlanId が無くても表を隠さないために参照する
+    // (本体アプリでは常に false ＝ 影響なし。true になるのは /collab ジョイナーのみ)。
+    const collabReadonly = useMitigationStore(s => s._collabReadonly);
     // Undo/Redo可否（リアクティブに監視して disabled 状態を正しく反映する）
     const canUndo = useMitigationStore(s => s._history.length > 0);
     const canRedo = useMitigationStore(s => s._future.length > 0);
@@ -2624,7 +2627,9 @@ const Timeline: React.FC = () => {
                         ref={scrollContainerRef}
                         className={clsx(
                             "timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-white dark:bg-[var(--color-bg-primary)] duration-200",
-                            !currentPlanId && isMobileTimeline && "hidden"
+                            // 通常アプリ: モバイルでプラン未選択なら空状態のため隠す。
+                            // ジョイナー(_collabReadonly=true)はプラン未選択でも部屋の表を出すので隠さない。
+                            !currentPlanId && isMobileTimeline && !collabReadonly && "hidden"
                         )}
                         onScroll={handleScrollSync}
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}

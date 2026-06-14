@@ -219,7 +219,7 @@ export default function CollabJoinerPage() {
   return (
     // 本体シェル(Layout.tsx:566)と同一の font-sans + コンテナ最大幅(1489 中央寄せ)で
     // フォント・横幅の文脈を一致させる(= 本物ヘッダー/表と同じサイズ・字形)。
-    <div className="collab-joiner-shell font-sans text-app-text w-full h-screen overflow-hidden bg-app-bg flex flex-col md:max-w-[var(--container-max)] md:mx-auto">
+    <div className="collab-joiner-shell font-sans text-app-text w-full overflow-hidden bg-app-bg flex flex-col md:max-w-[var(--container-max)] md:mx-auto">
       {/* ── アプリシェル外周クローム: サイドバーハンドル(左) + メインコンテンツ列 + 右端デコ ── */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* 左: 折り畳み済みサイドバーハンドル(静的・read-only。本物 Sidebar は mount しない) */}
@@ -259,8 +259,9 @@ export default function CollabJoinerPage() {
             <CollabViewerCluster />
           </div>
 
-          {/* タイムライン本体: ConsolidatedHeader のヘッダー高さ分 padding */}
-          <div className="flex-1 overflow-auto relative" style={{ paddingTop: 124 }}>
+          {/* タイムライン本体: PC は浮く ConsolidatedHeader 分の上余白(124px)。
+              スマホはヘッダーが通常フロー(md:hidden 簡易ヘッダー)なので余白ゼロ(本体 Layout と同じ方針)。 */}
+          <div className="flex-1 overflow-auto relative md:pt-[124px]">
             <ErrorBoundary>
               <Timeline />
             </ErrorBoundary>

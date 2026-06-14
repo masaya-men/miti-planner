@@ -29,8 +29,12 @@ export const CollabViewerCluster: React.FC = () => {
         <ParticipantDots size={10} />
       </div>
 
-      {/* カーソル + ジョブ操作(ヘッダー用コンパクト 1 行版) */}
-      <PresenceControls compact />
+      {/* カーソル + ジョブ操作(ヘッダー用コンパクト 1 行版)。
+          スマホはマウスカーソルが無く共有しても無意味なので隠す(md: 以上で表示)。
+          md:contents でラップは透過し PC のレイアウトは現状と完全一致。 */}
+      <div className="hidden md:contents">
+        <PresenceControls compact />
+      </div>
 
       {/* 共同編集を抜けるボタン */}
       <button

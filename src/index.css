@@ -1485,3 +1485,13 @@ button, [role="button"], .touch-none {
     transform: translateX(0);
   }
 }
+
+/* 共同編集ジョイナー(/collab)のシェル高さ。
+   iOS Safari の下ツールバーが 100vh の下端に被って赤い注意バナーを隠すのを防ぐため、
+   実際に見えている領域に追従する 100dvh(動的ビューポート)を使う。
+   dvh 非対応の旧ブラウザは直前の 100vh にフォールバックする(同プロパティ2行=後勝ち)。
+   このクラスはジョイナーページ専用なので PC・他機能には影響しない(PC では dvh==vh)。 */
+.collab-joiner-shell {
+  height: 100vh;
+  height: 100dvh;
+}
