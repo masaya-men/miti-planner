@@ -15,6 +15,10 @@ const AMOUNT_KEYS = [
     'support.amount_3000',
     'support.amount_5000',
     'support.amount_9000',
+    'support.amount_14990',
+    'support.amount_74800',
+    'support.amount_106920',
+    'support.amount_146410',
 ] as const;
 
 export const SupportPage: React.FC = () => {
@@ -115,15 +119,26 @@ export const SupportPage: React.FC = () => {
                 <h2 className="text-app-2xl-plus font-bold mb-3 border-b border-app-border pb-1">
                     {t('support.amounts_heading')}
                 </h2>
-                <ul className="space-y-2 mb-3">
-                    {AMOUNT_KEYS.map((key) => (
-                        <li
-                            key={key}
-                            className="text-app-2xl text-app-text-muted leading-relaxed bg-app-surface2 rounded-lg px-4 py-3 border border-app-border"
-                        >
-                            {t(key)}
-                        </li>
-                    ))}
+                <ul className="space-y-2.5 mb-3">
+                    {AMOUNT_KEYS.map((key) => {
+                        // ティア文字列を「絵文字+金額」(head) と「説明」(body) に最初の " — " で分割。
+                        // 説明側に " — " が含まれても先頭の区切りだけで切るので安全。
+                        const full = t(key);
+                        const sep = full.indexOf(' — ');
+                        const head = sep >= 0 ? full.slice(0, sep) : '';
+                        const body = sep >= 0 ? full.slice(sep + 3) : full;
+                        return (
+                            <li
+                                key={key}
+                                className="flex flex-col gap-0.5 rounded-xl border border-l-[3px] border-app-border bg-app-surface2 px-5 py-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-app-text/40 hover:bg-app-surface"
+                            >
+                                {head && (
+                                    <span className="text-app-2xl-plus font-bold text-app-text">{head}</span>
+                                )}
+                                <span className="text-app-2xl text-app-text-muted leading-relaxed">{body}</span>
+                            </li>
+                        );
+                    })}
                 </ul>
                 <p className="text-app-lg text-app-text-muted leading-relaxed italic">
                     {t('support.amounts_note')}
