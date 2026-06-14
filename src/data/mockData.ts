@@ -1,6 +1,7 @@
 import type { Job, Mitigation } from '../types/index.js';
 
 export const MITIGATION_DISPLAY_ORDER = [
+    'provoke',
     'reprisal_base',
     'reprisal',
     'divine_veil',
@@ -752,6 +753,15 @@ export const MITIGATIONS: Mitigation[] = [
     ...['pld', 'war', 'drk', 'gnb'].map(job => ({
         id: `reprisal_base_${job}`, jobId: job, name: { ja: "リプライザル", en: "Reprisal", zh: "雪仇", ko: "앙갚음" }, icon: "/icons/Reprisal.png",
         recast: 60, duration: 10, type: "all" as const, value: 10, isShield: false, scope: "party" as const, minLevel: 22, maxLevel: 97, appliesAsDebuff: true, family: "role_action"
+    })),
+    // Provoke (Tanks) — タンクスイッチ用マーカー（軽減効果なし・対象を MT⇄ST 反転）
+    ...['pld', 'war', 'drk', 'gnb'].map(job => ({
+        id: `provoke_${job}`, jobId: job,
+        name: { ja: "挑発", en: "Provoke", zh: "挑衅", ko: "도발" },
+        icon: "/icons/Provoke.png",
+        recast: 30, duration: 0, type: "all" as const, value: 0,
+        isShield: false, scope: "self" as const, minLevel: 15,
+        isTankSwap: true, family: "role_action"
     })),
     // Addle (Casters: blm, smn, rdm, pct)
     ...['blm', 'smn', 'rdm', 'pct'].map(job => ({
