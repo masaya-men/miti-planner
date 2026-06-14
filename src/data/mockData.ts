@@ -409,7 +409,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Machinist ---
     {
         id: "dismantle", jobId: "mch", name: { ja: "ウェポンブレイク", en: "Dismantle", zh: "武装解除", ko: "무기 파괴" }, icon: "/icons/Dismantle.png",
-        recast: 120, duration: 10, type: "all", value: 10, isShield: false, minLevel: 62, family: "ranged_target_10"
+        recast: 120, duration: 10, type: "all", value: 10, isShield: false, minLevel: 62, appliesAsDebuff: true, family: "ranged_target_10"
     },
     {
         id: "tactician", jobId: "mch", name: { ja: "タクティシャン", en: "Tactician", zh: "策动", ko: "책략가" }, icon: "/icons/Tactician.png",
@@ -747,32 +747,32 @@ export const MITIGATIONS: Mitigation[] = [
     // Reprisal (Tanks)
     ...['pld', 'war', 'drk', 'gnb'].map(job => ({
         id: `reprisal_${job}`, jobId: job, name: { ja: "リプライザル", en: "Reprisal", zh: "雪仇", ko: "앙갚음" }, icon: "/icons/Reprisal.png",
-        recast: 60, duration: 15, type: "all" as const, value: 10, isShield: false, scope: "party" as const, minLevel: 98, family: "role_action"
+        recast: 60, duration: 15, type: "all" as const, value: 10, isShield: false, scope: "party" as const, minLevel: 98, appliesAsDebuff: true, family: "role_action"
     })),
     ...['pld', 'war', 'drk', 'gnb'].map(job => ({
         id: `reprisal_base_${job}`, jobId: job, name: { ja: "リプライザル", en: "Reprisal", zh: "雪仇", ko: "앙갚음" }, icon: "/icons/Reprisal.png",
-        recast: 60, duration: 10, type: "all" as const, value: 10, isShield: false, scope: "party" as const, minLevel: 22, maxLevel: 97, family: "role_action"
+        recast: 60, duration: 10, type: "all" as const, value: 10, isShield: false, scope: "party" as const, minLevel: 22, maxLevel: 97, appliesAsDebuff: true, family: "role_action"
     })),
     // Addle (Casters: blm, smn, rdm, pct)
     ...['blm', 'smn', 'rdm', 'pct'].map(job => ({
         id: `addle_${job}`, jobId: job, name: { ja: "アドル", en: "Addle", zh: "昏乱", ko: "정신 교란" }, icon: "/icons/Addle.png",
         recast: 90, duration: 15, type: "all" as const, value: 10, isShield: false,
-        valueMagical: 10, valuePhysical: 5, scope: "party" as const, minLevel: 98, family: "role_action"
+        valueMagical: 10, valuePhysical: 5, scope: "party" as const, minLevel: 98, appliesAsDebuff: true, family: "role_action"
     })),
     ...['blm', 'smn', 'rdm', 'pct'].map(job => ({
         id: `addle_base_${job}`, jobId: job, name: { ja: "アドル", en: "Addle", zh: "昏乱", ko: "정신 교란" }, icon: "/icons/Addle.png",
         recast: 90, duration: 10, type: "all" as const, value: 10, isShield: false,
-        valueMagical: 10, valuePhysical: 5, scope: "party" as const, minLevel: 8, maxLevel: 97, family: "role_action"
+        valueMagical: 10, valuePhysical: 5, scope: "party" as const, minLevel: 8, maxLevel: 97, appliesAsDebuff: true, family: "role_action"
     })),
     // Feint (Melee: mnk, drg, nin, sam, rpr, vpr)
     ...['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].map(job => ({
         id: `feint_${job}`, jobId: job, name: { ja: "牽制", en: "Feint", zh: "牵制", ko: "견제" }, icon: "/icons/Feint.png",
         recast: 90, duration: 15, type: "all" as const, value: 10, isShield: false,
-        valueMagical: 5, valuePhysical: 10, scope: "party" as const, minLevel: 98, family: "role_action"
+        valueMagical: 5, valuePhysical: 10, scope: "party" as const, minLevel: 98, appliesAsDebuff: true, family: "role_action"
     })),
     ...['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].map(job => ({
         id: `feint_base_${job}`, jobId: job, name: { ja: "牽制", en: "Feint", zh: "牵制", ko: "견제" }, icon: "/icons/Feint.png",
         recast: 90, duration: 10, type: "all" as const, value: 10, isShield: false,
-        valueMagical: 5, valuePhysical: 10, scope: "party" as const, minLevel: 22, maxLevel: 97, family: "role_action"
+        valueMagical: 5, valuePhysical: 10, scope: "party" as const, minLevel: 22, maxLevel: 97, appliesAsDebuff: true, family: "role_action"
     })),
 ];

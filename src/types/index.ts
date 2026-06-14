@@ -63,6 +63,9 @@ export interface Mitigation {
     burstValue?: number; // Additional mitigation % during initial burst window (e.g., 10 for extra 10%)
     burstDuration?: number; // Duration in seconds for the burst mitigation window (e.g., 4)
     exclusiveWith?: string; // Mutually exclusive mitigation group (e.g. kerachole/taurochole: only latest applied counts)
+    /** ボスにデバフを付与してダメージを下げるタイプの軽減か(リプライザル/フェイント/アドル/ウェポンブレイク)。
+     *  true の軽減は、イベントの ignoresDebuffMitigation=true のとき % 軽減計算から除外される。 */
+    appliesAsDebuff?: boolean;
     hidden?: boolean; // If true, the mitigation is not shown in the selector modal
     requiresFairy?: boolean; // If true, the skill requires a fairy to be summoned
     targetCannotBeSelf?: boolean; // If true, the mitigation cannot be cast on the user themselves
@@ -98,6 +101,8 @@ export interface TimelineEvent {
     damageType: 'magical' | 'physical' | 'unavoidable' | 'enrage';
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';
+    /** true のとき、デバフ系軽減(appliesAsDebuff)の % 軽減を無効化する(外周攻撃など)。 */
+    ignoresDebuffMitigation?: boolean;
     warning?: boolean; // Indicates mitigation is insufficient
     /** @deprecated 旧データ互換用。新データはlabels[]を使用。読み込み時のみ参照される */
     mechanicGroup?: LocalizedString;
