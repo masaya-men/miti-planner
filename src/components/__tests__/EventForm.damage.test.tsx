@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
 vi.mock('react-i18next', () => ({
     useTranslation: () => ({
@@ -47,9 +47,14 @@ describe('EventForm デバフ軽減不可フラグ', () => {
     expect(cb.checked).toBe(true);
   });
 
-  it('保存時に ignoresDebuffMitigation が onSave に渡る', () => {
+  it('OFFで開きチェックを入れて保存すると ignoresDebuffMitigation=true が onSave に渡る', () => {
+    // onChange→state→handleSubmit の実経路を検証(initialData で true 固定だと素通りでも通ってしまう)。
     let saved: any = null;
-    render(<EventForm initialData={{ ...damagedEvent, ignoresDebuffMitigation: true }} onSave={(e) => { saved = e; }} />);
+    render(<EventForm initialData={damagedEvent} onSave={(e) => { saved = e; }} />);
+    const cb = screen.getByTestId('ignores-debuff-mit') as HTMLInputElement;
+    expect(cb.checked).toBe(false); // 既定OFFで開く
+    fireEvent.click(cb);
+    expect(cb.checked).toBe(true);
     const form = document.getElementById('event-modal-form') as HTMLFormElement;
     form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(saved?.ignoresDebuffMitigation).toBe(true);
