@@ -101,7 +101,7 @@ export interface TimelineEvent {
     damageType: 'magical' | 'physical' | 'unavoidable' | 'enrage';
     damageAmount?: number;
     target?: 'AoE' | 'MT' | 'ST';
-    /** true のとき、デバフ系軽減(appliesAsDebuff)の % 軽減を無効化する(外周攻撃など)。 */
+    /** true のとき、デバフ系軽減(appliesAsDebuff)の % 軽減を無効化する(例: 外周攻撃)。 */
     ignoresDebuffMitigation?: boolean;
     warning?: boolean; // Indicates mitigation is insufficient
     /** @deprecated 旧データ互換用。新データはlabels[]を使用。読み込み時のみ参照される */
