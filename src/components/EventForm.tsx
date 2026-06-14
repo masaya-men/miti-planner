@@ -14,6 +14,7 @@ import { Tooltip } from './ui/Tooltip';
 import { SegmentButton } from './ui/SegmentButton';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import { computeInitialDamageState } from '../lib/eventFormDamageState';
+import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 
 /** 全角数字→半角変換し、数字と小数点以外を除去 */
 function toHalfWidthNumber(str: string): string {
@@ -56,6 +57,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     const [damageType, setDamageType] = useState<TimelineEvent['damageType']>('magical');
     const [damageAmount, setDamageAmount] = useState<number>(() => computeInitialDamageState(initialData, reverseOnly).damageAmount);
     const [target, setTarget] = useState<TimelineEvent['target']>('AoE');
+    const [ignoresDebuffMitigation, setIgnoresDebuffMitigation] = useState(false);
 
     // Calculator State
     const [inputMode, setInputMode] = useState<'direct' | 'reverse'>(() => computeInitialDamageState(initialData, reverseOnly).inputMode);
@@ -120,6 +122,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             setName(initialData.name);
             setTime(initialData.time);
             setDamageType(initialData.damageType);
+            setIgnoresDebuffMitigation(!!initialData.ignoresDebuffMitigation);
             setTarget(initialData.target || 'AoE');
 
             // すでにダメージが入っている場合は、電卓 (逆算) が上書きしないように「直接入力 (Direct)」モードで開く。
@@ -134,6 +137,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             setName({ ja: '', en: '' });
             setTime(initialTime || 0);
             setDamageType('magical');
+            setIgnoresDebuffMitigation(false);
             setDamageAmount(0);
             setTarget('AoE');
             // Reset calculator state
@@ -409,6 +413,9 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                 if (assignedTarget !== target) return;
             }
 
+            // デバフ軽減不可フラグONなら、デバフ系軽減の % は逆算に含めない
+            if (isMitigationBlockedByEvent({ ignoresDebuffMitigation }, def)) return;
+
             // Percentage Mitigation (apply for ALL skills with value > 0, including shield+mitigation hybrids)
             if (def.value > 0) {
                 let val = def.value;
@@ -481,7 +488,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             const calculated = handleCalculate();
             setDamageAmount(calculated);
         }
-    }, [calcActualDamage, selectedMitigations, mitigationTargets, damageType, inputMode, target]);
+    }, [calcActualDamage, selectedMitigations, mitigationTargets, damageType, inputMode, target, ignoresDebuffMitigation]);
 
     // --- Tutorial Progression Logic ---
     const [targetActualDamage, setTargetActualDamage] = useState(0);
@@ -588,7 +595,8 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             time,
             damageType,
             damageAmount,
-            target
+            target,
+            ignoresDebuffMitigation,
         });
         useTutorialStore.getState().completeEvent('create:event-saved');
     };
@@ -678,6 +686,19 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                     />
                 </div>
             </div>
+
+            {/* デバフ軽減不可(外周攻撃など) */}
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                    type="checkbox"
+                    data-testid="ignores-debuff-mit"
+                    checked={ignoresDebuffMitigation}
+                    onChange={(e) => setIgnoresDebuffMitigation(e.target.checked)}
+                    className="w-4 h-4 accent-red-500 cursor-pointer"
+                />
+                <span className="text-app-base text-app-text">{t('modal.ignores_debuff_mitigation')}</span>
+                <span className="text-app-sm text-app-text-muted">{t('modal.ignores_debuff_mitigation_desc')}</span>
+            </label>
 
             <div className={clsx(
                 "w-full h-px transition-colors",

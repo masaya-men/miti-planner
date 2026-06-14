@@ -34,3 +34,24 @@ describe('EventForm 編集時のダメージ保持 (回帰)', () => {
         expect(screen.getByDisplayValue('50000')).toBeTruthy();
     });
 });
+
+describe('EventForm デバフ軽減不可フラグ', () => {
+  it('initialData の ignoresDebuffMitigation=true でチェックボックスが ON で開く', () => {
+    render(
+      <EventForm
+        initialData={{ ...damagedEvent, ignoresDebuffMitigation: true }}
+        onSave={() => {}}
+      />
+    );
+    const cb = screen.getByTestId('ignores-debuff-mit') as HTMLInputElement;
+    expect(cb.checked).toBe(true);
+  });
+
+  it('保存時に ignoresDebuffMitigation が onSave に渡る', () => {
+    let saved: any = null;
+    render(<EventForm initialData={{ ...damagedEvent, ignoresDebuffMitigation: true }} onSave={(e) => { saved = e; }} />);
+    const form = document.getElementById('event-modal-form') as HTMLFormElement;
+    form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    expect(saved?.ignoresDebuffMitigation).toBe(true);
+  });
+});
