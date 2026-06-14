@@ -449,6 +449,7 @@ export function TemplateEditor({
           <col className="min-w-[100px]" />  {/* 技名ZH */}
           <col className="min-w-[100px]" />  {/* 技名KO */}
           <col style={{ width: '70px' }} />  {/* 種別 */}
+          <col style={{ width: '64px' }} />  {/* デバフ軽減不可 */}
           <col style={{ width: '60px' }} />  {/* 対象 */}
           <col style={{ width: '80px' }} />  {/* ダメージ */}
           <col style={{ width: '40px' }} />  {/* 削除 */}
@@ -472,6 +473,7 @@ export function TemplateEditor({
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_zh')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_ko')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage_type')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_debuff_immune')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_target')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage')}</th>
             <th className="pb-2 font-normal">{t('admin.tpl_editor_delete')}</th>
@@ -619,6 +621,17 @@ export function TemplateEditor({
                     options={damageTypeOptions}
                     highlight={damageTypeHighlight}
                     onCommit={(val) => onUpdateCell(evId, 'damageType', val)}
+                  />
+                </td>
+
+                {/* デバフ軽減不可 */}
+                <td className="py-1 pr-2 text-center">
+                  <input
+                    type="checkbox"
+                    data-testid="tpl-ignores-debuff-mit"
+                    checked={!!event.ignoresDebuffMitigation}
+                    onChange={(e) => onUpdateCell(evId, 'ignoresDebuffMitigation', e.target.checked)}
+                    className="w-4 h-4 accent-red-500 cursor-pointer"
                   />
                 </td>
 
