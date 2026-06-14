@@ -48,6 +48,14 @@ describe('useTemplateEditor', () => {
     expect(result.current.hasChanges).toBe(true);
   });
 
+  it('updateCell で ignoresDebuffMitigation を更新し modified を記録する', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev1', 'ignoresDebuffMitigation', true));
+    expect(result.current.state.current.find(e => e.id === 'ev1')?.ignoresDebuffMitigation).toBe(true);
+    expect(result.current.hasChanges).toBe(true);
+  });
+
   it('翻訳自動伝播: 同じJA名のイベントにEN翻訳が伝播する', () => {
     const { result } = renderHook(() => useTemplateEditor());
     act(() => result.current.loadEvents(makeEvents(), makePhases()));

@@ -157,6 +157,9 @@ export function useTemplateEditor() {
           case 'target':
             ev.target = value as TimelineEvent['target'];
             break;
+          case 'ignoresDebuffMitigation':
+            ev.ignoresDebuffMitigation = value as boolean;
+            break;
           default:
             return prev;
         }
