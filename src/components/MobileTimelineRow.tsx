@@ -9,6 +9,7 @@ import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { SCALE, SPRING } from '../tokens/motionTokens';
 import { AnimatedDamage } from './AnimatedDamage';
+import { DamageTypeIcon } from './DamageTypeIcon';
 
 interface DamageInfo {
     unmitigated: number;
@@ -253,16 +254,8 @@ export const MobileTimelineRow = memo(({
                         {isSecondEvent ? t('app.mobile_same_time') : formattedTime}
                     </span>
 
-                    {/* 種別アイコン (角丸四角) */}
-                    {event?.damageType === 'magical' && (
-                        <img src="/icons/type_magic.png" className="w-4 h-4 rounded opacity-90 flex-shrink-0" alt={t('modal.magical')} />
-                    )}
-                    {event?.damageType === 'physical' && (
-                        <img src="/icons/type_phys.png" className="w-4 h-4 rounded opacity-90 flex-shrink-0" alt={t('modal.physical')} />
-                    )}
-                    {event?.damageType === 'unavoidable' && (
-                        <img src="/icons/type_dark.png" className="w-4 h-4 rounded opacity-90 flex-shrink-0" alt={t('modal.unique')} />
-                    )}
+                    {/* 種別アイコン (角丸四角)。デバフ軽減不可フラグで赤箱印が付く */}
+                    <DamageTypeIcon damageType={event?.damageType} ignoresDebuffMitigation={event?.ignoresDebuffMitigation} size="w-4 h-4" className="rounded" />
 
                     {/* 攻撃名 */}
                     {event && (
