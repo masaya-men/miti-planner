@@ -17,7 +17,8 @@ export const DamageTypeIcon: React.FC<{
   ignoresDebuffMitigation?: boolean;
   size?: string;       // 例 "w-3 h-3"(PC) / "w-4 h-4"(モバイル)
   className?: string;
-}> = ({ damageType, ignoresDebuffMitigation, size = 'w-3 h-3', className }) => {
+  withTooltip?: boolean; // false のとき内部ツールチップを出さない(呼び出し側が独自ツールチップを持つ場合)
+}> = ({ damageType, ignoresDebuffMitigation, size = 'w-3 h-3', className, withTooltip = true }) => {
   const { t } = useTranslation();
   const def = damageType ? ICON_BY_TYPE[damageType] : undefined;
   if (!def) return null;
@@ -29,15 +30,21 @@ export const DamageTypeIcon: React.FC<{
   }
 
   // 赤枠は「レイアウト横幅を増やさない」= 攻撃名を右に押さない。
-  // ・className(md:hidden 等)は最外殻=Tooltip ラッパに当てる。
-  //   inner span に付けると、PC で外側ラッパ(空)が flex 要素として残り余分な gap を生む。
-  // ・ring は box-shadow なのでレイアウト幅0(枠線は実寸の外側に描画)
-  // ・p-px(内側余白)は -mx-px で横方向を相殺 → 非フラグ時と横占有が同一
+  // ・className(md:hidden 等)は最外殻に当てる(inner span に付けると PC で空ラッパが gap を生む)。
+  // ・ring は box-shadow なのでレイアウト幅0 / p-px は -mx-px で相殺。
+  const box = (
+    <span className="inline-flex items-center justify-center rounded-sm p-px -mx-px bg-red-500/10 ring-1 ring-red-500/40">
+      {img}
+    </span>
+  );
+
+  if (!withTooltip) {
+    return <span className={clsx('flex-shrink-0 inline-flex', className)}>{box}</span>;
+  }
+
   return (
     <Tooltip content={t('timeline.debuff_immune_hint')} wrapperClassName={clsx('flex-shrink-0', className)}>
-      <span className="inline-flex items-center justify-center rounded-sm p-px -mx-px bg-red-500/10 ring-1 ring-red-500/40">
-        {img}
-      </span>
+      {box}
     </Tooltip>
   );
 };

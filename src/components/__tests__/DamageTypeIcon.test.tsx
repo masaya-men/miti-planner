@@ -23,4 +23,21 @@ describe('DamageTypeIcon', () => {
     const { container } = render(<DamageTypeIcon damageType="physical" ignoresDebuffMitigation />);
     expect(container.querySelector('.ring-red-500\\/40')).toBeTruthy();
   });
+
+  it('フラグON + withTooltip=false のとき Tooltip ラッパ(.relative)を出さない', () => {
+    const { container } = render(
+      <DamageTypeIcon damageType="physical" ignoresDebuffMitigation withTooltip={false} />
+    );
+    // 赤リングの印は出る
+    expect(container.querySelector('.ring-red-500\\/40')).toBeTruthy();
+    // Tooltip コンポーネントのラッパ div(.relative)は無い
+    expect(container.querySelector('.relative')).toBeNull();
+  });
+
+  it('フラグON + 既定(withTooltip省略)では Tooltip ラッパ(.relative)を出す', () => {
+    const { container } = render(
+      <DamageTypeIcon damageType="physical" ignoresDebuffMitigation />
+    );
+    expect(container.querySelector('.relative')).toBeTruthy();
+  });
 });
