@@ -37,6 +37,7 @@ export const MITIGATION_DISPLAY_ORDER = [
     'fey_blessing',
     'indomitability',
     'lustrate',
+    'excogitation',
     'aetherpact',
     'succor',
     'concitation',
@@ -406,6 +407,10 @@ export const MITIGATIONS: Mitigation[] = [
         id: "protraction", jobId: "sch", name: { ja: "生命回生法", en: "Protraction", zh: "生命回生法", ko: "생명회생법" }, icon: "/icons/Protraction.png",
         recast: 60, duration: 10, type: "all", value: 0, isShield: false, scope: "target", healingIncrease: 10, note: "最大HP+10% + 被回復+10%", minLevel: 86, family: "healer_ogcd_target_buff"
     },
+    {
+        id: "excogitation", jobId: "sch", name: { ja: "深謀遠慮", en: "Excogitation", zh: "深谋远虑", ko: "심모원려" }, icon: "/icons/Excogitation.png",
+        recast: 45, duration: 45, type: "all", value: 0, isShield: false, scope: "target", resourceCost: { type: 'aetherflow', amount: 1 }, note: "HP50%以下or効果終了で回復(回復力800)", minLevel: 62
+    },
 
     // --- Machinist ---
     {
@@ -557,7 +562,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "celestial_intersection", jobId: "ast", name: { ja: "星天交差", en: "Celestial Intersection", zh: "天星交错", ko: "천궁의 교차" }, icon: "/icons/Celestial_Intersection.png",
-        recast: 30, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, scope: "target", maxCharges: 2, minLevel: 74, family: "ph_target_shield"
+        recast: 30, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, scope: "target", maxCharges: 2, chargeMinLevel: 88, minLevel: 74, family: "ph_target_shield"
     },
     {
         id: "astral_draw", jobId: "ast",
@@ -690,7 +695,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "divine_benison", jobId: "whm", name: { ja: "ディヴァインベニゾン", en: "Divine Benison", zh: "神祝祷", ko: "신성한 축복" }, icon: "/icons/Divine_Benison.png",
-        recast: 30, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 500, scope: "target", maxCharges: 2, minLevel: 66, family: "ph_target_shield"
+        recast: 30, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 500, scope: "target", maxCharges: 2, chargeMinLevel: 88, minLevel: 66, family: "ph_target_shield"
     },
     {
         id: "medica_ii", jobId: "whm", name: { ja: "メディカラ", en: "Medica II", zh: "医济", ko: "메디카라" }, icon: "/icons/Medica_II.png",

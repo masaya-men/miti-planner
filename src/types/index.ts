@@ -56,6 +56,10 @@ export interface Mitigation {
     requiresWindow?: number; // Override window (seconds) for requires check (default: parent's duration)
     resourceCost?: { type: 'aetherflow' | 'addersgall' | 'lily'; amount: number };
     maxCharges?: number; // For charge-based skills (e.g. Oblation=2, Consolation=2, Sun Sign=1)
+    /** maxCharges に到達するコンテンツレベル(特性で2チャージ化する技用)。
+     *  コンテンツ level < chargeMinLevel のときは実効チャージ数 1 として扱う。
+     *  例: ディヴァインベニゾン/星天交差 = 88(Enhanced 特性)。未指定なら常に maxCharges。 */
+    chargeMinLevel?: number;
     family?: string; // Compatibility family for job migration mappings
     stacks?: number; // Max stacks for multi-layer barriers (e.g. Haima=5)
     reapplyOnAbsorption?: boolean; // If true, shield reapplies using a stack when broken

@@ -1,5 +1,21 @@
 import type { AppliedMitigation, Mitigation } from '../types';
 import { getMitigationsFromStore } from '../hooks/useSkillsData';
+import { useMitigationStore } from '../store/useMitigationStore';
+
+/**
+ * コンテンツレベルを加味した実効最大チャージ数。
+ * chargeMinLevel を持つ技は、現在のコンテンツ level がそれ未満なら 1 チャージ扱い
+ * (例: ディヴァインベニゾン/星天交差は Lv88 の特性で初めて 2 チャージになる)。
+ * chargeMinLevel を持たない技は maxCharges をそのまま返す(レベル非依存)。
+ */
+function effectiveMaxCharges(def: Pick<Mitigation, 'maxCharges' | 'chargeMinLevel'>): number {
+    const max = def.maxCharges ?? 0;
+    if (def.chargeMinLevel != null) {
+        const level = useMitigationStore.getState().currentLevel;
+        if (level < def.chargeMinLevel) return 1;
+    }
+    return max;
+}
 
 /**
  * Aetherflow (SCH) - Gain times come from placed skills
@@ -207,6 +223,7 @@ export function getRemainingCharges(
 ): number {
     const def = getMitigationsFromStore().find(d => d.id === mitigationId);
     if (!def || !def.maxCharges) return -1; // -1 = not a charge skill
+    const maxCh = effectiveMaxCharges(def); // レベル連動の実効チャージ数(<chargeMinLevel は 1)
 
     if (def.requires) {
         // Window charges: count uses within the active prerequisite window
@@ -217,7 +234,7 @@ export function getRemainingCharges(
             const window = reqWindow ?? p.duration;
             return selectedTime >= p.time && selectedTime < p.time + window;
         });
-        if (!activeParent) return def.maxCharges; // No active parent = full charges (will be hidden anyway)
+        if (!activeParent) return maxCh; // No active parent = full charges (will be hidden anyway)
 
         // Count how many times this skill is placed within this parent window
         const windowDuration = reqWindow ?? activeParent.duration;
@@ -226,18 +243,18 @@ export function getRemainingCharges(
             return am.time >= activeParent.time && am.time < activeParent.time + windowDuration;
         }).length;
 
-        return Math.max(0, def.maxCharges - usedInWindow);
+        return Math.max(0, maxCh - usedInWindow);
     } else {
         // Recast charges: simulate game charge system
-        // Start at maxCharges, consume on use, regen one per cooldown period
+        // Start at maxCh, consume on use, regen one per cooldown period
         const uses = activeMitigations
             .filter(am => am.mitigationId === mitigationId && am.time <= selectedTime)
             .sort((a, b) => a.time - b.time);
 
-        if (uses.length === 0) return def.maxCharges;
+        if (uses.length === 0) return maxCh;
 
         // Simulate charge state over time
-        let charges = def.maxCharges;
+        let charges = maxCh;
         let rechargeTimer = 0; // time accumulating toward next charge
 
         // Process events chronologically
@@ -245,16 +262,16 @@ export function getRemainingCharges(
         for (const use of uses) {
             // Accumulate recharge time from lastTime to use.time
             const elapsed = use.time - lastTime;
-            if (charges < def.maxCharges) {
+            if (charges < maxCh) {
                 rechargeTimer += elapsed;
                 const recharged = Math.floor(rechargeTimer / def.recast);
-                charges = Math.min(def.maxCharges, charges + recharged);
+                charges = Math.min(maxCh, charges + recharged);
                 rechargeTimer = rechargeTimer % def.recast;
-                if (charges >= def.maxCharges) rechargeTimer = 0;
+                if (charges >= maxCh) rechargeTimer = 0;
             }
             // Consume
             charges = Math.max(0, charges - 1);
-            if (charges < def.maxCharges && rechargeTimer === 0) {
+            if (charges < maxCh && rechargeTimer === 0) {
                 // Start recharge timer from this use
             }
             lastTime = use.time;
@@ -262,10 +279,10 @@ export function getRemainingCharges(
 
         // Accumulate recharge from last use to selectedTime
         const finalElapsed = selectedTime - lastTime;
-        if (charges < def.maxCharges) {
+        if (charges < maxCh) {
             rechargeTimer += finalElapsed;
             const recharged = Math.floor(rechargeTimer / def.recast);
-            charges = Math.min(def.maxCharges, charges + recharged);
+            charges = Math.min(maxCh, charges + recharged);
         }
 
         return charges;
@@ -460,16 +477,18 @@ export function validateMitigationPlacement(
 
     // Charge check (maxCharges) — charge system handles cooldown internally
     if (m.maxCharges) {
+        // レベル連動: chargeMinLevel 未満のコンテンツでは実効 1 チャージ(例: Lv88未満のディヴァインベニゾン/星天交差)。
+        const effMax = effectiveMaxCharges(m);
         const remaining = getRemainingCharges(m.id, selectedTime, relevantMitigations);
-        // 1 回限りスキル (sun_sign / divine_caress 等) はチャージ概念がユーザーにとって不自然なので
-        // バッジ・文言を出さず、 単に配置不可とだけ伝える。
-        if (m.maxCharges === 1) {
+        // 実効 1 チャージ (sun_sign / divine_caress 等、または Lv ゲートで 1 になった技) は
+        // チャージ概念がユーザーにとって不自然なので、 バッジ・文言を出さず単に配置可否だけ伝える。
+        if (effMax === 1) {
             if (remaining <= 0) {
                 return { available: false };
             }
             return { available: true };
         }
-        const badge = `${remaining}/${m.maxCharges}`;
+        const badge = `${remaining}/${effMax}`;
         if (remaining <= 0) {
             const label = t('mitigation.no_charges', 'No charges');
             return { available: false, message: label, badge, badgeColor: 'red' };
