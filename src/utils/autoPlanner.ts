@@ -68,6 +68,7 @@ export function generateAutoPlan(
         const mode = getMode(member);
         const skills = mitigations
             .filter(m => {
+                if (m.isTankSwap) return false; // 挑発は手動専用・自動配置しない
                 if (m.minLevel !== undefined && level < m.minLevel) return false;
                 if (m.maxLevel !== undefined && level > m.maxLevel) return false;
                 return m.jobId === member.jobId || m.jobId === member.role || m.jobId === 'role_action';
