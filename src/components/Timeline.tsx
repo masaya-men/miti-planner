@@ -37,6 +37,7 @@ import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
+import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -1832,13 +1833,20 @@ const Timeline: React.FC = () => {
             stackStates.get(context)!.set(instanceId, newValue);
         };
 
+        // 挑発スイッチ: 実効ターゲットマップを構築
+        const swapMarkers = timelineMitigations.filter(m => {
+            const d = MITIGATIONS.find(def => def.id === m.mitigationId);
+            return d?.isTankSwap === true;
+        });
+        const effTargetMap = buildEffectiveTargetMap(sortedEvents, swapMarkers, phases);
+
         sortedEvents.forEach(event => {
             if (!event.damageAmount) {
                 map.set(event.id, { unmitigated: 0, mitigated: 0, mitigationPercent: 0, shieldTotal: 0, isInvincible: false });
                 return;
             }
 
-            const target = event.target;
+            const target = effTargetMap.get(event.id) ?? event.target;
             const displayContext = (target === 'MT' || target === 'ST') ? target : 'Party';
             const affectedContexts = (target === 'MT' || target === 'ST') ? [target] : ['Party', 'MT', 'ST'];
 
@@ -2071,7 +2079,7 @@ const Timeline: React.FC = () => {
         });
 
         return map;
-    }, [eventsByTime, timelineMitigations, partyMembers]);
+    }, [eventsByTime, timelineMitigations, partyMembers, phases]);
 
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
