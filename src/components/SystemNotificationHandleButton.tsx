@@ -8,7 +8,10 @@ import { SystemNotificationModal } from './SystemNotificationModal';
  * サイドバー折りたたみ時、ハンドル領域の上部に出す未読通知ベル。
  * - 未読が無ければ何も描画しない (= 通常時はハンドルに何も足さない)。
  * - クリックでサイドバーを開かずに通知モーダルを直接開く。
- * - 親 (ハンドル div) が relative なので absolute で上部中央に重ねる。
+ * - 親 (ハンドル div) が relative なので absolute で重ねる。
+ *   縦位置はサイドバー展開時の通知バー (下部・バックアップ/支援リンクの上) と
+ *   同じ高さに合わせるため bottom 基準で配置 (ハンドル列とコンテンツ列は
+ *   同じ高さの兄弟なので bottom オフセットが一致する)。
  *   開閉トグル (z-50) より上に出すため z-[60] + クリックは stopPropagation で
  *   トグル誤作動を防ぐ。
  */
@@ -33,7 +36,7 @@ export const SystemNotificationHandleButton: React.FC = () => {
           setOpen(true);
         }}
         aria-label={t('system_notif.bar.aria_bell')}
-        className="absolute top-1 left-0 right-0 mx-auto z-[60] flex items-center justify-center w-6 h-6 text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
+        className="absolute bottom-[78px] left-0 right-0 mx-auto z-[60] flex items-center justify-center w-6 h-6 text-app-text hover:bg-app-surface2 transition-colors cursor-pointer"
       >
         <span className="relative flex">
           <Bell size={14} aria-hidden="true" />
