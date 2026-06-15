@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, Users, Crosshair, Wrench, GripVertical, Pointer, X } from 'lucide-react';
+import { Menu, Users, Crosshair, CloudDownload, GripVertical, Pointer, X } from 'lucide-react';
 import clsx from 'clsx';
 import { SPRING } from '../tokens/motionTokens';
 
@@ -15,7 +15,7 @@ const STEPS = [
     { titleKey: 'step1_title', descKey: 'step1_desc', Icon: Menu },
     { titleKey: 'step2_title', descKey: 'step2_desc', Icon: Users },
     { titleKey: 'step3_title', descKey: 'step3_desc', Icon: Crosshair },
-    { titleKey: 'step4_title', descKey: 'step4_desc', Icon: Wrench },
+    { titleKey: 'step4_title', descKey: 'step4_desc', Icon: CloudDownload },
     { titleKey: 'step5_title', descKey: 'step5_desc', Icon: GripVertical },
     { titleKey: 'step6_title', descKey: 'step6_desc', Icon: Pointer },
 ] as const;
