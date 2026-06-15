@@ -354,6 +354,7 @@
     },
     "mitigation": {
         "auto_plan": "자동 경감",
+        "auto_plan_short": "자동",
         "select": "경감 선택",
         "no_mitigations": "경감을 찾을 수 없습니다",
         "cd": "재사용",

@@ -363,6 +363,7 @@
     },
     "mitigation": {
         "auto_plan": "軽減自動組み立て",
+        "auto_plan_short": "自動",
         "select": "軽減スキル選択",
         "no_mitigations": "軽減スキルが見つかりません",
         "cd": "リキャスト",

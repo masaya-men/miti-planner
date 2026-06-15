@@ -1306,21 +1306,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             <Trash2 size={12} />
                             {t('sidebar.select_delete').toUpperCase()}
                         </button>
-                        </div>
-                    </div>
-
-                    {/* モバイルメニュー専用: 自動組み立て(パーティ編成はシートのタイトルバー右へ移設) */}
-                    {fullWidth && (
-                        <div className="flex flex-col gap-2 px-3 pt-2">
+                        {/* モバイルメニュー専用: 軽減自動組み立て(ボタンバー右の空きへ・短縮文言) */}
+                        {fullWidth && (
                             <button
                                 onClick={() => onAutoPlan?.()}
-                                className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] transition-all cursor-pointer text-left"
+                                className="flex items-center gap-1 px-2 py-1 rounded-md text-app-base font-black transition-all duration-300 border cursor-pointer bg-glass-card text-app-text border-glass-border hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text active:scale-95 shadow-sm"
                             >
-                                <Sparkles size={18} />
-                                <span className="text-app-base font-semibold">{t('mitigation.auto_plan')}</span>
+                                <Sparkles size={12} />
+                                {t('mitigation.auto_plan_short').toUpperCase()}
                             </button>
+                        )}
                         </div>
-                    )}
+                    </div>
 
                     {/* 零式タブ (savage) */}
                     {activeTab === 'savage' && (

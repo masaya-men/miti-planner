@@ -362,6 +362,7 @@
     },
     "mitigation": {
         "auto_plan": "Auto-Mitigate",
+        "auto_plan_short": "Auto",
         "select": "Select Mitigation",
         "no_mitigations": "No mitigations found",
         "cd": "CD",

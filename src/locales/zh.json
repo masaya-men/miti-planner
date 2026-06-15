@@ -354,6 +354,7 @@
     },
     "mitigation": {
         "auto_plan": "自动减伤",
+        "auto_plan_short": "自动",
         "select": "选择减伤",
         "no_mitigations": "未找到减伤技能",
         "cd": "CD",
