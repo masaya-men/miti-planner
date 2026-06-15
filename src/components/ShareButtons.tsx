@@ -3,17 +3,10 @@ import clsx from 'clsx';
 import { Share2, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
-import { ShareModal } from './ShareModal';
-import { ShareChoiceModal } from './collab/ShareChoiceModal';
-import { OwnerCollabPanel } from './collab/OwnerCollabPanel';
 import { ParticipantDots } from './collab/ParticipantDots';
 import { PresenceControls } from './collab/PresenceControls';
-import { LoginModal } from './LoginModal';
-import { useCollabSessionStore } from '../store/useCollabSessionStore';
-import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
-import { useAuthStore } from '../store/useAuthStore';
+import { useShareFlow } from './collab/useShareFlow';
 import type { SavedPlan } from '../types';
-import { useTutorialStore } from '../store/useTutorialStore';
 
 const iconBtnBase = "group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95";
 const hoverInvert = "hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text";
@@ -24,44 +17,10 @@ interface ShareButtonsProps {
     currentPlan: SavedPlan | undefined;
 }
 
-type View = 'none' | 'choice' | 'copy' | 'panel';
-
 export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, currentPlan }) => {
     const { t } = useTranslation();
-    const [view, setView] = React.useState<View>('none');
-    const [showLogin, setShowLogin] = React.useState(false);
-    const [collabBusy, setCollabBusy] = React.useState(false);
-    const { active, start } = useCollabSessionStore();
-    // #3d: 「N人」は確実な接続数(connectionCount)を優先・未取得は roster.length にフォールバック。
-    const liveCount = useCollabPresenceStore(s => s.connectionCount ?? s.roster.length);
-    const { user } = useAuthStore();
-
-    // ON 判定は「プランが collab-ON か」(プラン属性・サイドバーバッジと同基準) に寄せる。
-    // active(ライブ接続) は ON の部分集合。Task6 自動接続でほぼ即一致するが、接続前でも ON を見せる(A案)。
-    const isOn = active || !!currentPlan?.activeCollabRoomToken;
-
-    const openShareUI = () => {
-        const { completed, isActive } = useTutorialStore.getState();
-        if (!completed['share'] && !isActive) useTutorialStore.getState().startTutorial('share');
-        // 共同編集は編集にログインが必須。未ログインは 2 択を見せずコピー共有へ直行する
-        // (collab を選んでもログインを促すだけなので、使えない選択肢を最初から出さない)。
-        if (!user) { setView('copy'); return; }
-        // ログイン済み: ON のプラン=パネル直行 / OFF=コピー・共同編集の 2 択。
-        setView(isOn ? 'panel' : 'choice');
-    };
-
-    const handleCollab = async () => {
-        if (collabBusy) return;                           // 二重押し防止(発行が遅いと連打→多重発行=満員誤判定の原因)
-        if (!user) { setShowLogin(true); return; }      // 未ログインはログイン導線
-        if (!currentPlan) return;                         // 保存済プランが無ければ不可
-        setCollabBusy(true);
-        try {
-            await start(currentPlan.id);
-            setView('panel');
-        } finally {
-            setCollabBusy(false);
-        }
-    };
+    // 共有フロー本体(状態機械 + モーダル)はフックへ委譲。PC はカーソル維持(hideCursor 渡さない)。
+    const { openShareUI, isOn, liveCount, active, modals } = useShareFlow({ contentLabel, currentPlan });
 
     return (
         <>
@@ -91,27 +50,7 @@ export const ShareButtons: React.FC<ShareButtonsProps> = ({ contentLabel, curren
                  (閲覧者ヘッダーの CollabViewerCluster と同じ compact 行)。接続確立(active)時のみ。 */}
             {active && <PresenceControls compact />}
 
-            {view === 'choice' && (
-                <ShareChoiceModal
-                    onCopy={() => setView('copy')}
-                    onCollab={handleCollab}
-                    onClose={() => setView('none')}
-                    collabBusy={collabBusy}
-                />
-            )}
-
-            <ShareModal
-                isOpen={view === 'copy'}
-                onClose={() => setView('none')}
-                contentLabel={contentLabel}
-                currentPlan={currentPlan}
-            />
-
-            {view === 'panel' && currentPlan && (
-                <OwnerCollabPanel planId={currentPlan.id} onClose={() => setView('none')} />
-            )}
-
-            <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
+            {modals}
         </>
     );
 };

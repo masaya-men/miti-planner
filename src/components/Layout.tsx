@@ -13,6 +13,7 @@ import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
 import { MobileBottomSheet } from './MobileBottomSheet';
+import { MobileShareController } from './collab/MobileShareController';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
@@ -838,18 +839,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <MobileAccountMenu onClose={() => setMobileAccountOpen(false)} />
             </MobileBottomSheet>
 
-            {/* Mobile: 共有シート（枠のみ・中身は B で設計） */}
-            <MobileBottomSheet
+            {/* Mobile: 共有タブ = PC と同じ共有フローを起動(コピー/共同編集2択・オーナーパネル)。
+                 専用シートは作らず既存モーダルを開く。カーソル共有UIはスマホでは隠す。 */}
+            <MobileShareController
                 isOpen={mobileShareOpen}
                 onClose={() => setMobileShareOpen(false)}
-                title={t('nav.share')}
-                height="auto"
-            >
-                <div className="py-10 text-center text-app-text-muted text-app-base">
-                    {/* TODO(B): コピー配布 / 共同編集配布 + 複数選択フロー */}
-                    Coming soon
-                </div>
-            </MobileBottomSheet>
+            />
 
             {/* スマホ用カンペビュー（フルスクリーン） */}
             {mobileCueSheet && (

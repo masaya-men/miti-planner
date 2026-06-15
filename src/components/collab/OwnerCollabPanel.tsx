@@ -17,9 +17,11 @@ import { SYSTEM_MAX_PARTICIPANTS } from '../../../api/collab/_roomLogic';
 interface OwnerCollabPanelProps {
   planId: string;
   onClose: () => void;
+  /** スマホ: カーソル共有UI(マウス前提のP2Pライブカーソル)を隠す。既定 false で PC は従来どおり。 */
+  hideCursor?: boolean;
 }
 
-export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onClose }) => {
+export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onClose, hideCursor = false }) => {
   const { t, i18n } = useTranslation();
   const { active, roomToken, maxParticipants, setMax, revoke, reissue } = useCollabSessionStore();
   const [copied, setCopied] = React.useState(false);
@@ -130,8 +132,8 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
                 <div className="text-app-xs text-app-text-muted mt-1">{t('collab.people_hint', { max: SYSTEM_MAX_PARTICIPANTS })}</div>
               </div>
 
-              {/* ジョブ + カーソル共有(④-b-2) */}
-              {roster.length > 0 && <PresenceControls />}
+              {/* ジョブ + カーソル共有(④-b-2)。スマホ(hideCursor)では非表示。 */}
+              {!hideCursor && roster.length > 0 && <PresenceControls />}
             </div>
 
             {/* 右: 参加者(④-b-1・名前表示・スクロール) */}
