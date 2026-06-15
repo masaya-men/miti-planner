@@ -2,10 +2,12 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
-## 完了 (2026-06-08〜15 共同編集 一般公開 / Cloudflare 前段化 / タイムライン種別・スキル棚卸し / コピーUI)
+## 完了 (2026-06-08〜15 共同編集 一般公開 / Cloudflare 前段化 / タイムライン種別・スキル棚卸し / コピーUI / タンクスイッチ / 通知ベル)
 
 > TODO.md の「現在の状態」肥大化解消のため移動 (2026-06-15)。本番デプロイ済の大項目。pending サニティは TODO.md に 1 行で残置。
 
+- **タンクスイッチ(挑発スキル) 本番デプロイ済・実機OK (2026-06-15)**: 挑発を置くと同一フェーズ内・以降の攻撃の on対象 MT⇄ST を反転(derived/非破壊)。中核=純粋関数 `getEffectiveTarget`(TDD 10緑)+全計算/表示サイト適用(Timeline/CheatSheet/PC行/スマホ行)+recast30s通常スキル(`isTankSwap`・全タンク4ジョブ)+アイコン切替アニメ(framer-motion)+autoPlan除外。最終レビューで1件発見→修正(CheatSheet行表示/致死)。追従修正=duration:0でレーン重なり回避が効かない不具合(`ovDur=Math.max(1,duration)`)+表示順を無敵後・LB前へ。**ずれ防止手順を確立**=mockDataに`provoke_*`追加→デプロイ→seed-icons(差分のみUP)→seed-skills-stats(ADDITIVE・既存164無変更・挑発4のみ追加・dataVersion++で全ユーザー反映)。⚠順序=コードdeploy→seed(逆だと0値スキルが見える)。表示順ソートは静的`getMitigationPriority`経由のため並び替えは再seed不要。設計=specs/2026-06-15-tank-switch-provoke-design.md / 計画=plans/2026-06-15-tank-switch-provoke.md。
+- **システム通知 視認性向上 本番デプロイ済・実機OK (2026-06-15)**: ①通知バーのベルに未読赤ドット(業界標準バッジ)②サイドバー折りたたみ時、ハンドル上に未読時のみベルボタン(`SystemNotificationHandleButton`・クリックでモーダル直接オープン・トグル誤発火防止)。縦位置は展開時バーと同じ高さ(`bottom-[78px]`、ハンドル列とコンテンツ列が同高の兄弟である性質を利用)。
 - **タイムライン 種別クリックループ + デバフ軽減不可属性 (2026-06-15・main `6ef7bf9` push 済→Vercel自動デプロイ)**: ①種別アイコンをPCクリックで物理→魔法→ユニーク3循環(`PcTypeToggle`・対象トグルと同経路=collab/undo安全) ②イベントに `ignoresDebuffMitigation` フラグ=ONでデバフ系軽減(リプライザル/フェイント/アドル/ディスマントル=`Mitigation.appliesAsDebuff`)の**%軽減だけ**無効化(バリア/無敵/プレイヤーバフは効く・C案)。編集=モーダルchk、表示=種別アイコンを赤箱(PC/モバイル/カンペ・`DamageTypeIcon`統一)。計算3箇所(Timeline本体/EventForm逆算/CheatSheet)に`isMitigationBlockedByEvent`スキップ。TDD・全レビューAPPROVED・ローカル実機OK。**`appliesAsDebuff`はFirestore反映済(`add-applies-as-debuff.ts`外科同期29件)=デプロイ直後から本番で機能。** 追従修正: 赤枠が攻撃名を右に押す不具合(モバイル用md:hiddenがTooltip内側のみ→PCで空ラッパがgap)を根治 push済(`a7144f1`)。
 - **スキルデータ棚卸し+seed安全化 (2026-06-15・同push)**: mockData↔Firestore差分を公式ジョブガイドで照合→**mockData6スキルを公式値に修正**(シェルトロン/ホーリーシェルトロンrecast5、インターベンション10、ハート64/ダクミ66/ホーリズム76、sheltronアイコン)。Firestoreは元々正しく書込不要。**`seed-skills-stats.ts`を既定ADDITIVE化**(既存skill上書き禁止・新規idのみ・`--force-overwrite`明示時のみ旧挙動・`--dry-run`有)=管理画面編集がseedで巻き戻る地雷を根治。ズレ確認=`inspect-skill-recast-diff.ts`。memory `feedback_skill_firestore_sync` 更新済。
 - **タイムライン コピーUI ブラッシュアップ (2026-06-15・コミット `235c5ca`)**: コピーボタンを「左端absolute」→「on対象トグルの左」へ移動([TimelineRow.tsx](../src/components/TimelineRow.tsx) `PcCopyButton` 切り出し)。対象アイコン(on)は右端固定・対象なし(AoE)行はコピーが右端。非ホバー=w-0で攻撃名フル幅(省略減)/ホバー時のみw-8に開き重ならず収まる(150ms)。ユーザー実機確認「完璧」。build EXIT=0。
