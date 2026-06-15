@@ -3736,8 +3736,8 @@ const Timeline: React.FC = () => {
                 confirmLabel={confirmDialog?.confirmLabel ?? t('ui.ok', 'OK')}
                 cancelLabel={confirmDialog?.cancelLabel ?? t('common.cancel', 'キャンセル')}
             />
-            {/* スマホ: FAB 左に Undo/Redo 常設（編集系は常設ツールバー・ナビ枠を消費しない） */}
-            <div
+            {/* スマホ: FAB 左に Undo/Redo 常設（編集系は常設ツールバー・ナビ枠を消費しない。チュートリアル中は FAB と同様に隠す） */}
+            {!tutorialActive && <div
                 className="fixed z-[300] md:hidden flex items-center gap-2"
                 style={{
                     bottom: '5rem', // Layout の FAB(bottom-20)と同じ高さ
@@ -3774,7 +3774,7 @@ const Timeline: React.FC = () => {
                 >
                     <Redo2 size={18} />
                 </button>
-            </div>
+            </div>}
 
             <MobileBottomSheet
                 isOpen={mobileToolsSheetOpen}
