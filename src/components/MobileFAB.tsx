@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
     MoreHorizontal, X, List, Tag, Search,
     Globe, Sun, Moon,
-    Rows3, AlignJustify, PictureInPicture2, ChevronDown,
+    Rows3, AlignJustify, ChevronDown,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
@@ -236,13 +236,6 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             label: t('app.fab_search'),
             icon: <Search size={20} />,
             onClick: handleSearch,
-            accent: false,
-        },
-        {
-            key: 'cueSheet',
-            label: t('app.fab_cue_sheet'),
-            icon: <PictureInPicture2 size={20} />,
-            onClick: () => { close(); window.dispatchEvent(new Event('mobile:open-cue-sheet')); },
             accent: false,
         },
     ];
