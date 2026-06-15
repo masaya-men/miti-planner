@@ -89,6 +89,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
     const [mobileLoginModalOpen, setMobileLoginModalOpen] = React.useState(false);
     const [mobileAccountOpen, setMobileAccountOpen] = React.useState(false);
+    const [mobileShareOpen, setMobileShareOpen] = React.useState(false);
     const [mobileCueSheet, setMobileCueSheet] = React.useState(false);
     const { timelineSortOrder, setTimelineSortOrder } = useMitigationStore(
         useShallow(s => ({ timelineSortOrder: s.timelineSortOrder, setTimelineSortOrder: s.setTimelineSortOrder }))
@@ -786,33 +787,35 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onMenuToggle={() => {
                     const next = !mobileMenuOpen;
                     setMobileMenuOpen(next);
-                    if (next) { setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
+                    if (next) { setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileShareOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
                 }}
-                onPartyOpen={() => {
-                    const next = !mobilePartyOpen;
-                    setMobilePartyOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
-                }}
-                onToolsOpen={() => {
+                onImportToggle={() => {
                     const next = !mobileToolsOpen;
                     setMobileToolsOpen(next);
-                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
+                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileShareOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
+                }}
+                onCueToggle={() => {
+                    setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileShareOpen(false); setMobileAccountOpen(false);
+                    window.dispatchEvent(new Event('mobile:open-cue-sheet'));
+                }}
+                onShareToggle={() => {
+                    const next = !mobileShareOpen;
+                    setMobileShareOpen(next);
+                    if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileAccountOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
                 }}
                 onLoginOpen={() => {
                     const authUser = useAuthStore.getState().user;
                     if (authUser) {
                         const next = !mobileAccountOpen;
                         setMobileAccountOpen(next);
-                        if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
+                        if (next) { setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileShareOpen(false); window.dispatchEvent(new Event('mobile:close-miti-flow')); }
                     } else {
-                        setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false);
+                        setMobileMenuOpen(false); setMobilePartyOpen(false); setMobileStatusOpen(false); setMobileToolsOpen(false); setMobileShareOpen(false);
                         window.dispatchEvent(new Event('mobile:close-miti-flow'));
                         setMobileLoginModalOpen(true);
                     }
                 }}
-                myJobHighlight={myJobHighlight}
-                onMyJobHighlightToggle={() => setMyJobHighlight(!myJobHighlight)}
-                activeTab={mobileMenuOpen ? 'menu' : mobilePartyOpen ? 'party' : mobileToolsOpen ? 'tools' : mobileAccountOpen ? 'login' : undefined}
+                activeTab={mobileMenuOpen ? 'menu' : mobileToolsOpen ? 'import' : mobileShareOpen ? 'share' : mobileAccountOpen ? 'login' : undefined}
             />}
 
             {/* Mobile: ログインモーダル（未ログイン時） */}
@@ -826,6 +829,19 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 height="auto"
             >
                 <MobileAccountMenu onClose={() => setMobileAccountOpen(false)} />
+            </MobileBottomSheet>
+
+            {/* Mobile: 共有シート（枠のみ・中身は B で設計） */}
+            <MobileBottomSheet
+                isOpen={mobileShareOpen}
+                onClose={() => setMobileShareOpen(false)}
+                title={t('nav.share')}
+                height="auto"
+            >
+                <div className="py-10 text-center text-app-text-muted text-app-base">
+                    {/* TODO(B): コピー配布 / 共同編集配布 + 複数選択フロー */}
+                    Coming soon
+                </div>
             </MobileBottomSheet>
 
             {/* スマホ用カンペビュー（フルスクリーン） */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Menu, Users, Eye, Wrench, LogIn } from 'lucide-react';
+import { Menu, CloudDownload, PictureInPicture2, Share2, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import { useAuthStore } from '../store/useAuthStore';
@@ -9,17 +9,15 @@ import { SPRING } from '../tokens/motionTokens';
 
 interface MobileBottomNavProps {
     onMenuToggle: () => void;
-    onPartyOpen: () => void;
-    onToolsOpen: () => void;
+    onImportToggle: () => void;
+    onCueToggle: () => void;
+    onShareToggle: () => void;
     onLoginOpen: () => void;
-    myJobHighlight: boolean;
-    onMyJobHighlightToggle: () => void;
     activeTab?: string;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
-    onMenuToggle, onPartyOpen, onToolsOpen, onLoginOpen,
-    myJobHighlight, onMyJobHighlightToggle, activeTab
+    onMenuToggle, onImportToggle, onCueToggle, onShareToggle, onLoginOpen, activeTab
 }) => {
     const { t } = useTranslation();
     const user = useAuthStore((s) => s.user);
@@ -34,25 +32,25 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             active: activeTab === 'menu',
         },
         {
-            id: 'party',
-            icon: <Users size={MOBILE_TOKENS.bottomNav.iconSize} />,
-            label: t('nav.party'),
-            onClick: onPartyOpen,
-            active: activeTab === 'party',
+            id: 'import',
+            icon: <CloudDownload size={MOBILE_TOKENS.bottomNav.iconSize} />,
+            label: t('nav.import'),
+            onClick: onImportToggle,
+            active: activeTab === 'import',
         },
         {
-            id: 'tools',
-            icon: <Wrench size={MOBILE_TOKENS.bottomNav.iconSize} />,
-            label: t('nav.tools'),
-            onClick: onToolsOpen,
-            active: activeTab === 'tools',
+            id: 'cue',
+            icon: <PictureInPicture2 size={MOBILE_TOKENS.bottomNav.iconSize} />,
+            label: t('nav.cue'),
+            onClick: onCueToggle,
+            active: activeTab === 'cue',
         },
         {
-            id: 'myjob',
-            icon: <Eye size={MOBILE_TOKENS.bottomNav.iconSize} />,
-            label: 'MY JOB',
-            onClick: onMyJobHighlightToggle,
-            active: myJobHighlight,
+            id: 'share',
+            icon: <Share2 size={MOBILE_TOKENS.bottomNav.iconSize} />,
+            label: t('nav.share'),
+            onClick: onShareToggle,
+            active: activeTab === 'share',
         },
         {
             id: 'login',
@@ -94,7 +92,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                     className="absolute top-0 h-[2px] rounded-full"
                     style={{
                         width: `${100 / items.length}%`,
-                        backgroundColor: items[activeIndex]?.id === 'myjob' ? '#eab308' : 'var(--color-app-text)',
+                        backgroundColor: 'var(--color-app-text)',
                     }}
                     animate={{ left: `${(100 / items.length) * activeIndex}%` }}
                     transition={SPRING.snappy}
@@ -109,9 +107,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                         "flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5",
                         "transition-all duration-150 cursor-pointer active:scale-90",
                         "relative",
-                        item.active
-                            ? (item.id === 'myjob' ? "text-yellow-500" : "text-app-text")
-                            : "text-app-text/40"
+                        item.active ? "text-app-text" : "text-app-text/40"
                     )}
                 >
                     <div>{item.icon}</div>
