@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
@@ -268,11 +268,14 @@ export const TimelineRow = memo(({
     const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
     const phases = useMitigationStore(state => state.phases);
     const MITIGATIONS = useMitigations();
-    // isTankSwap なスキルのみ抽出（挑発マーカー）
-    const swapMarkers = timelineMitigations.filter(m => {
-        const def = MITIGATIONS.find(def => def.id === m.mitigationId);
-        return def?.isTankSwap === true;
-    });
+    // isTankSwap なスキルのみ抽出（挑発マーカー）。毎レンダーの再計算を避けるためメモ化
+    const swapMarkers = useMemo(
+        () => timelineMitigations.filter(m => {
+            const def = MITIGATIONS.find(def => def.id === m.mitigationId);
+            return def?.isTankSwap === true;
+        }),
+        [timelineMitigations, MITIGATIONS]
+    );
 
     const getEventName = (ev: TimelineEvent) =>
         ev.name ? getPhaseName(ev.name, contentLanguage) : ev.name;

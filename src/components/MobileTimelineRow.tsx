@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
@@ -134,11 +134,14 @@ export const MobileTimelineRow = memo(({
     const phases = useMitigationStore(state => state.phases);
     const MITIGATIONS = useMitigations();
 
-    // 挑発（isTankSwap）マーカーのみ抽出。空なら既存挙動と完全一致
-    const swapMarkers = timelineMitigations.filter(m => {
-        const d = MITIGATIONS.find(def => def.id === m.mitigationId);
-        return d?.isTankSwap === true;
-    });
+    // 挑発（isTankSwap）マーカーのみ抽出。空なら既存挙動と完全一致。毎レンダーの再計算を避けるためメモ化
+    const swapMarkers = useMemo(
+        () => timelineMitigations.filter(m => {
+            const d = MITIGATIONS.find(def => def.id === m.mitigationId);
+            return d?.isTankSwap === true;
+        }),
+        [timelineMitigations, MITIGATIONS]
+    );
 
     // 表示するイベントとダメージを決定
     const idx = eventIndex ?? 0;

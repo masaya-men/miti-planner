@@ -9,7 +9,7 @@ import { getPhaseName } from '../types';
 import { MitigationSelector } from './MitigationSelector';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
-import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
+import { buildEffectiveTargetMap, getEffectiveTarget } from '../utils/effectiveTarget';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
 
@@ -37,6 +37,15 @@ export const CheatSheetView: React.FC = () => {
     const [selectedMitigationTime, setSelectedMitigationTime] = useState<number>(0);
     const [memberSelectOpen, setMemberSelectOpen] = useState(false);
 
+    // 挑発（isTankSwap）スキルだけ事前抽出。damageMapとEventRow両方で再利用する
+    const swapMarkers = useMemo(
+        () => timelineMitigations.filter(m => {
+            const d = MITIGATIONS.find(def => def.id === m.mitigationId);
+            return d?.isTankSwap === true;
+        }),
+        [timelineMitigations, MITIGATIONS]
+    );
+
     // ダメージ計算頭脳
     const damageMap = useMemo(() => {
         const map = new Map<string, { unmitigated: number; mitigated: number, mitigationPercent: number, shieldTotal: number, isInvincible?: boolean }>();
@@ -55,11 +64,7 @@ export const CheatSheetView: React.FC = () => {
             shieldStates.get(context)!.set(instanceId, newValue);
         };
 
-        // 挑発（isTankSwap）スキルだけ抽出して実効ターゲットマップを構築
-        const swapMarkers = timelineMitigations.filter(m => {
-            const d = MITIGATIONS.find(def => def.id === m.mitigationId);
-            return d?.isTankSwap === true;
-        });
+        // メモ化済み swapMarkers を使って実効ターゲットマップを構築
         const effTargetMap = buildEffectiveTargetMap(sortedEvents, swapMarkers, phases);
 
         sortedEvents.forEach(event => {
@@ -191,7 +196,7 @@ export const CheatSheetView: React.FC = () => {
         });
 
         return map;
-    }, [timelineEvents, timelineMitigations, phases, partyMembers]);
+    }, [timelineEvents, timelineMitigations, phases, partyMembers, swapMarkers]);
 
     const formatTime = (time: number) => {
         const min = Math.floor(Math.abs(time) / 60);
@@ -201,6 +206,9 @@ export const CheatSheetView: React.FC = () => {
     };
 
     const EventRow = ({ event }: { event: MergedEvent }) => {
+        // 挑発によるタンクスイッチを反映した実効ターゲット（致死判定・バッジ表示に使用）
+        const effTarget = getEffectiveTarget(event, swapMarkers, phases);
+
         const activeMitigations = timelineMitigations.filter(m => {
             return m.time <= (event.time + event.span) && (m.time + m.duration) >= event.time;
         });
@@ -209,9 +217,10 @@ export const CheatSheetView: React.FC = () => {
         const mtGroupMitigations = activeMitigations.filter(m => mtGroupIds.includes(m.ownerId));
         const stGroupMitigations = activeMitigations.filter(m => !mtGroupIds.includes(m.ownerId));
 
+        // 致死判定は実効ターゲットのHPで行う（挑発後に別タンクが受けるケースを正しく処理）
         let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-        if (event.target === 'MT' || event.target === 'ST') {
-            maxHp = partyMembers.find(m => m.id === event.target)?.stats.hp || 1;
+        if (effTarget === 'MT' || effTarget === 'ST') {
+            maxHp = partyMembers.find(m => m.id === effTarget)?.stats.hp || 1;
         }
 
         const dmgInfo = damageMap.get(event.id);
@@ -338,30 +347,30 @@ export const CheatSheetView: React.FC = () => {
                             </span>
                         )}
 
-                        {/* ターゲット（ジョブアイコンのみ表示） */}
-                        {(event.target === 'MT' || event.target === 'ST') && (() => {
-                            const targetMember = partyMembers.find(m => m.id === event.target);
+                        {/* ターゲット（実効ターゲットのジョブアイコンを表示。挑発後は反転済み） */}
+                        {(effTarget === 'MT' || effTarget === 'ST') && (() => {
+                            const targetMember = partyMembers.find(m => m.id === effTarget);
                             const targetJob = targetMember ? JOBS.find(j => j.id === targetMember.jobId) : null;
 
                             return targetJob ? (
                                 <div
                                     className={clsx(
                                         "flex items-center justify-center rounded p-[1px] shadow-sm border shrink-0",
-                                        event.target === 'MT'
+                                        effTarget === 'MT'
                                             ? "bg-cyan-500/20 border-cyan-500/30"
                                             : "bg-amber-500/20 border-amber-500/30"
                                     )}
                                 >
-                                    <Tooltip content={`${event.target} (${getPhaseName(targetJob.name, contentLanguage)})`}>
+                                    <Tooltip content={`${effTarget} (${getPhaseName(targetJob.name, contentLanguage)})`}>
                                         <img src={targetJob.icon} alt={getPhaseName(targetJob.name, contentLanguage)} className="w-3 h-3 object-contain drop-shadow-md shrink-0" />
                                     </Tooltip>
                                 </div>
                             ) : (
                                 <span className={clsx(
                                     "text-app-2xs font-bold px-1 rounded uppercase tracking-wider whitespace-nowrap scale-90 shrink-0",
-                                    event.target === 'MT' ? "text-cyan-400 bg-cyan-400/20" : "text-amber-400 bg-amber-400/20"
+                                    effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/20" : "text-amber-400 bg-amber-400/20"
                                 )}>
-                                    {event.target}
+                                    {effTarget}
                                 </span>
                             );
                         })()}
