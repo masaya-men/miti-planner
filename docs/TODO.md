@@ -12,7 +12,10 @@
 ## 現在の状態 (次セッションはここから読む)
 
 - **✅ 2026-06-15 セッション分 本番反映・実機OK**: 挑発タンクスイッチ / 通知ベル(赤ドット + 折りたたみ時ハンドルにベル) / タイムライン種別クリックループ・デバフ軽減不可・赤箱 / 支援ページ刷新 / 共同編集 公開後サニティ。全て本番デプロイ済・ユーザー実機確認済。詳細=[TODO_COMPLETED.md](./TODO_COMPLETED.md)。
-- **✅ Cloudflare 前段化 本番稼働中 (2026-06-12)**: apex `lopoly.app` を orange 化・静的のみ Cache Rule・全検証緑(SSL Full strict / CF-RAY出る / /assets・manifest・registerSW は MISS→HIT / /api・/sw.js は DYNAMIC素通し)。原因=急増 × PWA で1訪問十数個の静的リクエスト。**残=数日 Vercel Edge Requests 実測→約33K/日以下を確認したら Pro($20)→Hobby に戻す。** 詳細=[TODO_COMPLETED.md](./TODO_COMPLETED.md) + [docs/.private/2026-06-12-cloudflare-fronting-handoff.md](./.private/2026-06-12-cloudflare-fronting-handoff.md) + memory `project_cloudflare_caching_priority`。
+- **✅ Cloudflare 前段化 本番稼働中 (2026-06-12)**: apex `lopoly.app` を orange 化・静的のみ Cache Rule・全検証緑(SSL Full strict / CF-RAY出る / /assets・manifest・registerSW は MISS→HIT / /api・/sw.js は DYNAMIC素通し)。原因=急増 × PWA で1訪問十数個の静的リクエスト。詳細=[TODO_COMPLETED.md](./TODO_COMPLETED.md) + [docs/.private/2026-06-12-cloudflare-fronting-handoff.md](./.private/2026-06-12-cloudflare-fronting-handoff.md) + memory `project_cloudflare_caching_priority`。
+- **📊 Edge Requests 実測完了 (2026-06-15・Vercel 課金API `/v1/billing/charges` FOCUS 形式で取得・手順 memory `reference_vercel_billing_usage_api`)**: Cloudflare前段化で **555,869/日(06-11)→ 約1万/日**(06-13=9,560 / 06-14=11,289)に激減=約40〜50分の1。**33K/日閾値を大きく下回り(約10K/日・月換算313K=Hobby 1M枠の約31%)、約3倍の余裕**。Function Invocations 約1,800/日・Fast Data Transfer ほぼ0 も無料枠内。Edge Requests cost は$0(Pro枠内・超過課金なし)。**結論=Hobby に戻して安全。** 急増再来時も前段あり3倍まで余裕、超えそうなら Pro 再upは即時。
+  - **🗓 ユーザー判断=今週末(6/20-21)の動向を見てから下げる。【セッション開始時にこの行を見たら最優先で実行】= 上記 memory `reference_vercel_billing_usage_api` の手順で Edge Requests を再実測し、週末トラフィックでも 33K/日以下なら「Pro→Hobby ダウングレードして安全」と提案する。** 操作自体はユーザーが Vercel Dashboard→Settings→Billing→Plan で実施(1クリック可逆)。
+  - **⏰ 課金サイクル=6/11〜約7/12(Pro料金記録が7/11-13で日割り終了=次回更新は7月中旬)。7/11 より前に下げれば次の月額を回避。週末判断で十分間に合う。**
 - **ブランチ(その他作業)**: main (origin と同期済)。直近の完了は [TODO_COMPLETED.md](./TODO_COMPLETED.md) 参照 (動画モーダル / OGP・memo / YouTubeライブ / Cloudflare Worker)。
 - **✅ 同期安定化 Step1+2+① デプロイ済 (2026-06-03 本セッション)**: 業界水準ソフトデリート(墓標)+墓標ベースマージ+同期インテント永続化を TDD で実装・本番投入。「別端末で消失/削除→復活/リロードで一瞬復活」を根治。**実機検証=Step1+2 OK (消失/復活なし) / ①は"一瞬復活ちらつき消滅"を要確認**。Firestoreルールはデプロイ済。新規 `src/lib/mergePlans.ts`・`src/store/planPersist.ts`、`planService.ts`/`usePlanStore.ts` 改修。詳細・残タスクは **[docs/.private/2026-06-03-realtime-collab-and-sync-notes.md](./.private/2026-06-03-realtime-collab-and-sync-notes.md) Phase5+6**。残=**Step3 unload確実化**(updatePlanの読んでから書く廃止・トレードオフ要設計) / 墓標GC cron。**Step4=共同編集はブレスト完了→設計書化済**(下記バックログ参照。onSnapshot単独でなくYjs+Durable Objectsの本格Cに格上げ)。共同編集本体はコスト有界化ゲート後。
 - **🔍 デプロイ済・要実機検証 (残)**: ① **FFLogs 全滅(ワイプ)ログ** = 全滅ログの pull URL (`#fight=N` 付き) で実機検証 + 既存キルログ回帰 (`src/api/fflogs.ts` `selectFight`、設計 specs `2026-04-05-fflogs-import-v2.md`) ② **FFLogs トークン 502** = どのキーがなぜ落ちてるか特定 (vercel logs tail で 401/429/5xx 判別→必要なら本番メインキー差し替え、`src/lib/fflogsTokenFailover.ts`)。
@@ -103,6 +106,7 @@ LICENSE 追加は**しない** (memory `feedback_lopo_license_stance`)。 真の
 ## アイデア / プロジェクト方針 / 並行 / バックログ
 
 - アイデア: YouTube 埋込/導線、 こだわりトップ、 配置アニメ、 OCR、 横型タイムライン、 Gemma AI
+- **🆕 機能ブラッシュアップ案 9 件 (2026-06-15 ユーザー投下、 詳細=[docs/.private/2026-06-15-feature-ideas-batch.md](./.private/2026-06-15-feature-ideas-batch.md))**: ①同時刻3+イベント ②スマホ/タブレット最適化(**✅(a)対象指定スキル/鼓舞コピーの選択UI欠落バグ=修正済・local実機OK・push/deploy保留** / 残=ボトムナビ/FAB) ③軽減競合の逆方向警告アニメ ④MAXHP-10%ギリギリでダメージ黄色 ⑤Logsインポート 上書き/追記選択 ⑥有名スプシ取込(法務論点・大物) ⑦敵攻撃の or(2択)対応 ⑧管理画面 攻撃ID保持で任意言語スタート翻訳 ⑨メモに動画URL→YouTube/Twitch iframe。 **インポート系⑤⑥⑧は入口再設計でまとめる方針。着手順は要相談**
 - 方針: コンテンツ追加 = `add-content` → `seed-contents.ts`、 スキル正本 = Firestore、 SNS ハッシュタグ `#LoPo #FF14 #BuildInPublic #AISelection`
 - 並行: マイコラージュ (収益化、 28 日まで凍結 / リリース後再開) / ハウジングは MUL 対象外で広告 OK
 - バックログ: npm audit / a11y / SE 利用規約 / GDPR / SEO / FFLogs アイコン / MTST 分け / みんなの軽減表
