@@ -67,7 +67,11 @@ export const SystemNotificationBar: React.FC<Props> = ({ isCollapsed }) => {
         className="w-full border-t border-b border-app-text/10 flex items-stretch min-h-9 select-none cursor-pointer hover:bg-app-text/5 transition-colors text-left"
       >
         <span className="shrink-0 px-3 py-1.5 flex items-center text-app-text">
-          <Bell size={16} aria-hidden="true" />
+          <span className="relative flex">
+            <Bell size={16} aria-hidden="true" />
+            {/* 未読バッジ (赤ドット)。 バー自体が未読時のみ描画されるため無条件で表示 */}
+            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500 ring-2 ring-app-bg" aria-hidden="true" />
+          </span>
         </span>
         {!isCollapsed && (
           <span className="flex-1 min-w-0 overflow-hidden py-1.5">
