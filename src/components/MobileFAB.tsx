@@ -298,7 +298,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                     <motion.div
                         key="fab-overlay"
                         className="fixed inset-0 z-[-1]"
-                        style={{ backgroundColor: 'var(--color-overlay)' }}
+                        style={{ backgroundColor: 'var(--color-fab-overlay)' }}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
