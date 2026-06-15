@@ -10,10 +10,16 @@ interface MobileBottomSheetProps {
     children: React.ReactNode;
     /** Max height. Default '65vh' */
     height?: string;
+    /**
+     * 中身が自前で高さ・スクロールを管理する場合 true。
+     * シート高さを確定値(height)にし、内側のスクロール領域 / 下部パディングを外す。
+     * (Sidebar のように内部 flex-1 スクロール + 下端固定フッターを持つ子向け)
+     */
+    fillContent?: boolean;
 }
 
 export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
-    isOpen, onClose, title, children, height = '65vh'
+    isOpen, onClose, title, children, height = '65vh', fillContent = false
 }) => {
     const sheetRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<{ startY: number; isDragging: boolean }>({
@@ -79,7 +85,8 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                         onTouchEnd={handleTouchEnd}
                         className="md:hidden fixed left-0 right-0 z-[301] flex flex-col overflow-hidden shadow-lg"
                         style={{
-                            maxHeight: height,
+                            // fillContent 時は高さを確定値にして、子の h-full / flex チェーンを解決させる
+                            ...(fillContent ? { height } : { maxHeight: height }),
                             bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))',
                             backgroundColor: 'var(--color-sheet-bg)',
                             borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
@@ -114,10 +121,18 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                             </div>
                         )}
 
-                        {/* Content — scrollable */}
-                        <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 pb-20">
-                            {children}
-                        </div>
+                        {/* Content */}
+                        {fillContent ? (
+                            // 子が自前で高さ・スクロールを管理（内側スクロール/下部パディングを付けない）
+                            <div className="flex-1 min-h-0 flex flex-col">
+                                {children}
+                            </div>
+                        ) : (
+                            // 既定: シート側がスクロールを持つ（短いコンテンツ向け）
+                            <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-3 pb-20">
+                                {children}
+                            </div>
+                        )}
                     </motion.div>
                 </>
             )}

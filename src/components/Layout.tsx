@@ -613,9 +613,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 isOpen={mobileMenuOpen}
                 onClose={() => setMobileMenuOpen(false)}
                 title={t('sidebar.menu')}
-                height="70vh"
+                height="calc(100dvh - 3.5rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px) - 8px)"
+                fillContent
             >
-                <div className="-mx-4 -mt-3 h-full">
+                <div className="flex-1 min-h-0 flex flex-col">
                     <Sidebar
                         isOpen={true}
                         fullWidth
