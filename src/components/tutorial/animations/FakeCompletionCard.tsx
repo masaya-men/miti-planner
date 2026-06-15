@@ -32,18 +32,24 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
     setPhase('prompt');
   }, []);
 
-  // prompt フェーズでFキー待ち
+  // Fキー押下 / キーキャップのタップ 共通処理:
+  // チュートリアルを次へ進めつつ、実際にフォーカスモードへ入る (タブレット/スマホはキーが無いためタップ経由)。
+  const activateFocus = useCallback(() => {
+    window.dispatchEvent(new Event('shortcut:enter-focus'));
+    setPhase('pressed');
+  }, []);
+
+  // prompt フェーズでFキー待ち (PC のキーボード)
   useEffect(() => {
     if (phase !== 'prompt') return;
     const handleKey = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === 'f') {
-        setPressed(true);
+        activateFocus();
       }
     };
-    const setPressed = (_: boolean) => setPhase('pressed');
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [phase]);
+  }, [phase, activateFocus]);
 
   // pressed フェーズ: キーボード全ブロック + 2秒後に完了
   useEffect(() => {
@@ -139,16 +145,19 @@ export function FakeCompletionCard({ onComplete }: FakeCompletionCardProps) {
                   : t('tutorial.main.focus_done.description')
                 }
               </p>
-              {/* Fキーアイコン（pressed 以外で常に表示） */}
+              {/* Fキーキャップ（pressed 以外で常に表示）。タブレット/スマホ向けにタップ/クリック可。 */}
               {phase !== 'pressed' && (
                 <div className="flex items-center justify-center mt-3">
-                  <motion.div
-                    className="w-10 h-10 rounded-lg border-2 border-app-text/30 flex items-center justify-center text-app-2xl-plus font-black text-app-text"
+                  <motion.button
+                    type="button"
+                    aria-label={t('tutorial.main.focus_mode.message')}
+                    onClick={() => { if (phase === 'prompt') activateFocus(); }}
+                    className="w-10 h-10 rounded-lg border-2 border-app-text/30 flex items-center justify-center text-app-2xl-plus font-black text-app-text cursor-pointer active:scale-90 hover:border-app-text/60 transition-colors"
                     animate={phase === 'prompt' ? { scale: [1, 1.15, 1] } : {}}
                     transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
                   >
                     F
-                  </motion.div>
+                  </motion.button>
                 </div>
               )}
             </div>

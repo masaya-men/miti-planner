@@ -197,11 +197,25 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 focusModeRef.current = false;
             }
         };
+        // チュートリアル等でキー操作の代わりにフォーカスモードへ入る (Fキー押下と同じ効果)。
+        // タブレット/スマホはキーボードが無いため、タップから本イベントで発火させる。
+        // PC/タブレット (非モバイル) のみ実フォーカスモードに入る。
+        const handleEnterFocus = () => {
+            if (isMobile) return;
+            if (!focusModeRef.current) {
+                setIsSidebarOpen(false);
+                localStorage.setItem('lopo_sidebar_open', 'false');
+                setIsHeaderCollapsed(true);
+                focusModeRef.current = true;
+            }
+        };
         window.addEventListener('keydown', handleShortcut);
         window.addEventListener('shortcut:exit-focus', handleExitFocus);
+        window.addEventListener('shortcut:enter-focus', handleEnterFocus);
         return () => {
             window.removeEventListener('keydown', handleShortcut);
             window.removeEventListener('shortcut:exit-focus', handleExitFocus);
+            window.removeEventListener('shortcut:enter-focus', handleEnterFocus);
         };
     }, [isMobile, isSidebarOpen, isHeaderCollapsed]);
 
