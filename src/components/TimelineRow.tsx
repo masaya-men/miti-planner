@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
 import { getPhaseName } from '../types';
 import { getColumnCssVar } from '../utils/calculator';
+import { getEffectiveTarget } from '../utils/effectiveTarget';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
@@ -73,20 +74,21 @@ interface TimelineRowProps {
 }
 
 // スマホ用: 対象バッジ（AoE以外の場合に表示）
-const MobileTargetBadge: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[] }> = ({ event, partyMembers }) => {
+// effTarget: 挑発によるタンクスイッチを反映した実効ターゲット（表示用）
+const MobileTargetBadge: React.FC<{ partyMembers: PartyMember[]; effTarget: TimelineEvent['target'] }> = ({ partyMembers, effTarget }) => {
     const JOBS = useJobs();
-    if (event.target === 'AoE') return null;
-    const member = partyMembers.find(m => m.id === event.target);
+    if (effTarget === 'AoE') return null;
+    const member = partyMembers.find(m => m.id === effTarget);
     const job = member ? JOBS.find(j => j.id === member.jobId) : null;
     if (job) {
-        return <img src={job.icon} className="w-3.5 h-3.5 rounded-sm flex-shrink-0" alt={event.target} />;
+        return <img src={job.icon} className="w-3.5 h-3.5 rounded-sm flex-shrink-0" alt={effTarget} />;
     }
     return (
         <span className={clsx(
             "text-app-2xs font-black px-0.5 rounded flex-shrink-0",
-            event.target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+            effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
         )}>
-            {event.target}
+            {effTarget}
         </span>
     );
 };
@@ -161,12 +163,14 @@ export const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
 // PC用: 対象(MT/ST)表示 — クリックで MT⇄ST をトグル(イベント編集モーダルを開かず即切替)。
 // updateEvent 経由なので collab 同期・Undo・ダメージ再計算はモーダルでの変更と完全に同一経路。
 // 純粋な閲覧者は store 側ガードで no-op。対象が MT/ST 以外(AoE 等)のときは何も出さない。
-const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[]; badgeTextClass?: string }> = ({ event, partyMembers, badgeTextClass = 'text-app-base' }) => {
+// effTarget: 挑発によるタンクスイッチを反映した実効ターゲット（表示用）。クリックは元 target を編集。
+const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[]; effTarget: TimelineEvent['target']; badgeTextClass?: string }> = ({ event, partyMembers, effTarget, badgeTextClass = 'text-app-base' }) => {
     const JOBS = useJobs();
     const { t } = useTranslation();
     const updateEvent = useMitigationStore(state => state.updateEvent);
-    if (event.target !== 'MT' && event.target !== 'ST') return null;
-    const member = partyMembers.find(m => m.id === event.target);
+    // 実効ターゲットが MT/ST 以外なら表示しない
+    if (effTarget !== 'MT' && effTarget !== 'ST') return null;
+    const member = partyMembers.find(m => m.id === effTarget);
     const job = member ? JOBS.find(j => j.id === member.jobId) : null;
     return (
         <Tooltip content={t('timeline.toggle_target_hint')}>
@@ -174,20 +178,21 @@ const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember
                 type="button"
                 onClick={(e) => {
                     e.stopPropagation(); // 行クリック(編集モーダル)を抑止して即トグル
+                    // クリックは元 target（raw）を編集する。表示 effTarget ではない。
                     updateEvent(event.id, { target: event.target === 'MT' ? 'ST' : 'MT' });
                 }}
                 className="flex items-center gap-1.5 cursor-pointer rounded px-1 -mx-1 hover:bg-app-surface2 active:scale-95 transition-all"
             >
                 <span className="text-app-base text-app-text-muted font-mono">on</span>
                 {job ? (
-                    <img src={job.icon} className="w-6 h-6 rounded-sm" alt={event.target} />
+                    <img src={job.icon} className="w-6 h-6 rounded-sm" alt={effTarget} />
                 ) : (
                     <span className={clsx(
                         "font-bold px-1 rounded",
                         badgeTextClass,
-                        event.target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+                        effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
                     )}>
-                        {event.target}
+                        {effTarget}
                     </span>
                 )}
             </button>
@@ -243,6 +248,15 @@ export const TimelineRow = memo(({
     const { contentLanguage } = useThemeStore();
     const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
+    // 挑発スキル（isTankSwap）による実効ターゲット計算に必要なデータ
+    const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
+    const phases = useMitigationStore(state => state.phases);
+    const MITIGATIONS = useMitigations();
+    // isTankSwap なスキルのみ抽出（挑発マーカー）
+    const swapMarkers = timelineMitigations.filter(m => {
+        const def = MITIGATIONS.find(def => def.id === m.mitigationId);
+        return def?.isTankSwap === true;
+    });
 
     const getEventName = (ev: TimelineEvent) =>
         ev.name ? getPhaseName(ev.name, contentLanguage) : ev.name;
@@ -436,7 +450,7 @@ export const TimelineRow = memo(({
 
                             {/* スマホ専用: 対象バッジ */}
                             <div className="md:hidden flex-shrink-0">
-                                <MobileTargetBadge event={events[0]} partyMembers={partyMembers} />
+                                <MobileTargetBadge partyMembers={partyMembers} effTarget={getEffectiveTarget(events[0], swapMarkers, phases)} />
                             </div>
 
                             {/* スマホ専用: 軽減アイコン */}
@@ -453,7 +467,7 @@ export const TimelineRow = memo(({
                                 <div className="w-0 overflow-hidden flex justify-start group-hover/slot:w-8 transition-[width] duration-150">
                                     <PcCopyButton event={events[0]} />
                                 </div>
-                                <PcTargetToggle event={events[0]} partyMembers={partyMembers} />
+                                <PcTargetToggle event={events[0]} partyMembers={partyMembers} effTarget={getEffectiveTarget(events[0], swapMarkers, phases)} />
                             </div>
                         </div>
 
@@ -493,7 +507,7 @@ export const TimelineRow = memo(({
 
                                     {/* スマホ専用: 対象バッジ */}
                                     <div className="md:hidden flex-shrink-0">
-                                        <MobileTargetBadge event={events[idx]} partyMembers={partyMembers} />
+                                        <MobileTargetBadge partyMembers={partyMembers} effTarget={getEffectiveTarget(events[idx], swapMarkers, phases)} />
                                     </div>
 
                                     {/* スマホ専用: 軽減アイコン（2イベント時は小さめ） */}
@@ -511,7 +525,7 @@ export const TimelineRow = memo(({
                                         <div className="w-0 overflow-hidden flex justify-start group-hover/slot:w-8 transition-[width] duration-150">
                                             <PcCopyButton event={events[idx]} />
                                         </div>
-                                        <PcTargetToggle event={events[idx]} partyMembers={partyMembers} badgeTextClass="text-app-sm" />
+                                        <PcTargetToggle event={events[idx]} partyMembers={partyMembers} effTarget={getEffectiveTarget(events[idx], swapMarkers, phases)} badgeTextClass="text-app-sm" />
                                     </div>
                                 </div>
                             </div>
@@ -572,9 +586,11 @@ export const TimelineRow = memo(({
                                 {(() => {
                                     const evt = events[0];
                                     const dmg = damages[0];
+                                    // 致死判定は挑発によるタンクスイッチ後の実効ターゲットで行う
+                                    const evtEff = getEffectiveTarget(evt, swapMarkers, phases);
                                     let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                    if (evt.target === 'MT' || evt.target === 'ST') {
-                                        maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
+                                    if (evtEff === 'MT' || evtEff === 'ST') {
+                                        maxHp = partyMembers.find(m => m.id === evtEff)?.stats.hp || 1;
                                     }
                                     const isLethal = dmg.mitigated >= maxHp;
                                     const colorClass = isLethal
@@ -611,9 +627,11 @@ export const TimelineRow = memo(({
                                         {(() => {
                                             const evt = events[idx];
                                             const dmg = damages[idx];
+                                            // 致死判定は挑発によるタンクスイッチ後の実効ターゲットで行う
+                                            const evtEff = getEffectiveTarget(evt, swapMarkers, phases);
                                             let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-                                            if (evt.target === 'MT' || evt.target === 'ST') {
-                                                maxHp = partyMembers.find(m => m.id === evt.target)?.stats.hp || 1;
+                                            if (evtEff === 'MT' || evtEff === 'ST') {
+                                                maxHp = partyMembers.find(m => m.id === evtEff)?.stats.hp || 1;
                                             }
                                             const isLethal = dmg.mitigated >= maxHp;
                                             const colorClass = isLethal
