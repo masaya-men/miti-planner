@@ -1,7 +1,6 @@
 import type { Job, Mitigation } from '../types/index.js';
 
 export const MITIGATION_DISPLAY_ORDER = [
-    'provoke',
     'reprisal_base',
     'reprisal',
     'divine_veil',
@@ -121,6 +120,7 @@ export const MITIGATION_DISPLAY_ORDER = [
     'holmgang',
     'living_dead',
     'superbolide',
+    'provoke',
     'tank_lb1',
     'tank_lb2',
     'tank_lb3'

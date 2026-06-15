@@ -3092,9 +3092,12 @@ const Timeline: React.FC = () => {
                                                 const assignedPositions: { m: any, left: number }[] = [];
 
                                                 displayItems.forEach(mitigation => {
+                                                    // duration:0 のマーカー(挑発等)も最低1行分の footprint を持つ扱いにし、
+                                                    // 同時刻の他アイコンとの重なり回避(レーン分け)を効かせる
+                                                    const ovDur = (d: number) => Math.max(1, d);
                                                     const timeOverlaps = assignedPositions.filter(a =>
-                                                        (a.m.time < mitigation.time + mitigation.duration) &&
-                                                        (a.m.time + a.m.duration > mitigation.time)
+                                                        (a.m.time < mitigation.time + ovDur(mitigation.duration)) &&
+                                                        (a.m.time + ovDur(a.m.duration) > mitigation.time)
                                                     );
 
                                                     let candidateLeft = 0;
