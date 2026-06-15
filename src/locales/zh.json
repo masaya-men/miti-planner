@@ -316,6 +316,7 @@
         "my_job": "我的职业",
         "my_job_instruction_new": "点击星标设置为主要职业",
         "set_my_job": "设置我的职业",
+        "highlight_my_job": "高亮我的职业",
         "my_job_tap_slot": "点击你的位置进行选择",
         "drop_to_remove": "拖到此处删除",
         "hp_label": "HP"

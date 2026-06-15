@@ -325,6 +325,7 @@
         "my_job": "自ジョブ",
         "my_job_instruction_new": "星マークをクリックして自分のジョブに設定できます",
         "set_my_job": "自分のジョブを設定",
+        "highlight_my_job": "自分のジョブをハイライト",
         "my_job_tap_slot": "自分のスロットをタップしてください",
         "drop_to_remove": "ここにドロップで削除",
         "hp_label": "HP"

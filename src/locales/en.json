@@ -324,6 +324,7 @@
         "my_job": "My Job",
         "my_job_instruction_new": "Click the star to set as your primary job",
         "set_my_job": "Set My Job",
+        "highlight_my_job": "Highlight My Job",
         "my_job_tap_slot": "Tap your slot to select",
         "drop_to_remove": "Drop here to remove",
         "hp_label": "HP"

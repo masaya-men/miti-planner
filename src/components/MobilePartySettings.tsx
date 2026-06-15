@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useJobs } from '../hooks/useSkillsData';
-import { X, Star, LogOut } from 'lucide-react';
+import { X, Star, LogOut, Eye } from 'lucide-react';
 import clsx from 'clsx';
 import { JobMigrationModal } from './JobMigrationModal';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -293,18 +293,6 @@ const MobilePartySettings: React.FC = () => {
             onTouchEnd={drag.endDrag}
             onMouseUp={drag.endDrag}
         >
-            {/* MY JOB ハイライト（旧ボトムナビの MY JOB タブから移設） */}
-            <button
-                onClick={() => {
-                    const cur = useMitigationStore.getState().myJobHighlight;
-                    useMitigationStore.getState().setMyJobHighlight(!cur);
-                }}
-                className="flex items-center gap-2 w-full px-3 py-2.5 mb-2 rounded-xl border border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] transition-all cursor-pointer"
-            >
-                <Star size={16} className={myJobHighlight ? "fill-current text-app-text" : "text-app-text/50"} />
-                <span className="text-app-base font-semibold">MY JOB</span>
-            </button>
-
             {/* MY JOBモード切替 */}
             <button
                 onClick={() => { setMyJobMode(!myJobMode); setFocusedSlot(null); }}
@@ -322,6 +310,36 @@ const MobilePartySettings: React.FC = () => {
                         {myMemberId}
                     </span>
                 )}
+            </button>
+
+            {/* 自ジョブ行ハイライト トグル（旧ボトムナビ MY JOB の代替・スマホはトグルで提供） */}
+            <button
+                type="button"
+                role="switch"
+                aria-checked={myJobHighlight}
+                onClick={() => useMitigationStore.getState().setMyJobHighlight(!myJobHighlight)}
+                className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] transition-all cursor-pointer"
+            >
+                <Eye size={16} className={myJobHighlight ? "text-app-text" : "text-app-text/50"} />
+                <span className="text-app-base font-semibold">{t('party.highlight_my_job', '自分のジョブをハイライト')}</span>
+                <span
+                    className={clsx(
+                        "ml-auto relative inline-flex shrink-0 rounded-full transition-colors duration-200",
+                        myJobHighlight ? "bg-app-text" : "bg-app-text/25"
+                    )}
+                    style={{ width: 40, height: 24 }}
+                >
+                    <span
+                        className="absolute rounded-full bg-app-bg transition-transform duration-200"
+                        style={{
+                            width: 18,
+                            height: 18,
+                            top: 3,
+                            left: 3,
+                            transform: myJobHighlight ? 'translateX(16px)' : 'translateX(0)',
+                        }}
+                    />
+                </span>
             </button>
 
             {myJobMode && (
