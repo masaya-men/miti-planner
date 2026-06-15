@@ -1248,6 +1248,7 @@
     },
     "mobile": {
         "tools_title": "ツール",
+        "import_title": "インポート",
         "fflogs_desc": "FFLogsからタイムラインをインポート",
         "autoplan_desc": "軽減を自動配置"
     },
@@ -1275,6 +1276,9 @@
         "party": "パーティ",
         "status": "ステータス",
         "tools": "ツール",
+        "import": "インポート",
+        "cue": "カンペ",
+        "share": "共有",
         "login": "ログイン",
         "account": "アカウント",
         "logout": "ログアウト",

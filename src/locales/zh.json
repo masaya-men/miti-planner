@@ -1234,6 +1234,7 @@
     },
     "mobile": {
         "tools_title": "工具",
+        "import_title": "导入",
         "fflogs_desc": "从 FFLogs 导入时间轴",
         "autoplan_desc": "自动放置减伤"
     },
@@ -1261,6 +1262,9 @@
         "party": "队伍",
         "status": "属性",
         "tools": "工具",
+        "import": "导入",
+        "cue": "速查表",
+        "share": "分享",
         "login": "登录",
         "account": "账户",
         "logout": "退出登录",
