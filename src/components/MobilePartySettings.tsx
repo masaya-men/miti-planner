@@ -105,6 +105,7 @@ const MobilePartySettings: React.FC = () => {
     const timelineMitigations = useMitigationStore(s => s.timelineMitigations);
     const myMemberId = useMitigationStore(s => s.myMemberId);
     const setMyMemberId = useMitigationStore(s => s.setMyMemberId);
+    const myJobHighlight = useMitigationStore(s => s.myJobHighlight);
     const [focusedSlot, setFocusedSlot] = React.useState<string | null>(null);
     const [myJobMode, setMyJobMode] = React.useState(false);
 
@@ -292,6 +293,18 @@ const MobilePartySettings: React.FC = () => {
             onTouchEnd={drag.endDrag}
             onMouseUp={drag.endDrag}
         >
+            {/* MY JOB ハイライト（旧ボトムナビの MY JOB タブから移設） */}
+            <button
+                onClick={() => {
+                    const cur = useMitigationStore.getState().myJobHighlight;
+                    useMitigationStore.getState().setMyJobHighlight(!cur);
+                }}
+                className="flex items-center gap-2 w-full px-3 py-2.5 mb-2 rounded-xl border border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] transition-all cursor-pointer"
+            >
+                <Star size={16} className={myJobHighlight ? "fill-current text-app-text" : "text-app-text/50"} />
+                <span className="text-app-base font-semibold">MY JOB</span>
+            </button>
+
             {/* MY JOBモード切替 */}
             <button
                 onClick={() => { setMyJobMode(!myJobMode); setFocusedSlot(null); }}
