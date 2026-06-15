@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { Plus, Copy } from 'lucide-react';
 import clsx from 'clsx';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
 import { getPhaseName } from '../types';
 import { getColumnCssVar } from '../utils/calculator';
@@ -168,6 +169,8 @@ const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember
     const JOBS = useJobs();
     const { t } = useTranslation();
     const updateEvent = useMitigationStore(state => state.updateEvent);
+    // reduced-motion ユーザーはアニメーションを省略する
+    const reduce = useReducedMotion();
     // 実効ターゲットが MT/ST 以外なら表示しない
     if (effTarget !== 'MT' && effTarget !== 'ST') return null;
     const member = partyMembers.find(m => m.id === effTarget);
@@ -183,18 +186,31 @@ const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember
                 }}
                 className="flex items-center gap-1.5 cursor-pointer rounded px-1 -mx-1 hover:bg-app-surface2 active:scale-95 transition-all"
             >
+                {/* "on" ラベルはアニメーション対象外 */}
                 <span className="text-app-base text-app-text-muted font-mono">on</span>
-                {job ? (
-                    <img src={job.icon} className="w-6 h-6 rounded-sm" alt={effTarget} />
-                ) : (
-                    <span className={clsx(
-                        "font-bold px-1 rounded",
-                        badgeTextClass,
-                        effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
-                    )}>
-                        {effTarget}
-                    </span>
-                )}
+                {/* effTarget が切り替わったときにアイコン/バッジをフリップアニメーション */}
+                <AnimatePresence mode="wait" initial={false}>
+                    <motion.span
+                        key={String(effTarget)}
+                        initial={reduce ? false : { opacity: 0, scale: 0.6, rotateY: -90 }}
+                        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                        exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.6, rotateY: 90 }}
+                        transition={{ duration: 0.18 }}
+                        className="inline-flex"
+                    >
+                        {job ? (
+                            <img src={job.icon} className="w-6 h-6 rounded-sm" alt={effTarget} />
+                        ) : (
+                            <span className={clsx(
+                                "font-bold px-1 rounded",
+                                badgeTextClass,
+                                effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+                            )}>
+                                {effTarget}
+                            </span>
+                        )}
+                    </motion.span>
+                </AnimatePresence>
             </button>
         </Tooltip>
     );
