@@ -615,7 +615,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 title={t('sidebar.menu')}
                 height="70vh"
             >
-                <div className="-mx-4 -mt-3">
+                <div className="-mx-4 -mt-3 h-full">
                     <Sidebar
                         isOpen={true}
                         fullWidth
