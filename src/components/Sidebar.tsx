@@ -74,8 +74,6 @@ interface SidebarProps {
     onClose?: () => void;
     /** モバイルのボトムシート内で使う場合trueにすると、幅100%・ハンドル非表示になる */
     fullWidth?: boolean;
-    /** モバイルメニューから「パーティ編成」シートを開く */
-    onOpenParty?: () => void;
     /** モバイルメニューから「自動組み立て」を実行 */
     onAutoPlan?: () => void;
 }
@@ -775,7 +773,7 @@ const ArchivePlanRow: React.FC<ArchivePlanRowProps> = ({ plan, currentPlanId, ru
 // Main: Sidebar
 // ─────────────────────────────────────────────
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, fullWidth, onOpenParty, onAutoPlan }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, fullWidth, onAutoPlan }) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
@@ -1311,16 +1309,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </div>
                     </div>
 
-                    {/* モバイルメニュー専用: パーティ編成 / 自動組み立て */}
+                    {/* モバイルメニュー専用: 自動組み立て(パーティ編成はシートのタイトルバー右へ移設) */}
                     {fullWidth && (
                         <div className="flex flex-col gap-2 px-3 pt-2">
-                            <button
-                                onClick={() => onOpenParty?.()}
-                                className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] transition-all cursor-pointer text-left"
-                            >
-                                <Users size={18} />
-                                <span className="text-app-base font-semibold">{t('nav.party')}</span>
-                            </button>
                             <button
                                 onClick={() => onAutoPlan?.()}
                                 className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] transition-all cursor-pointer text-left"

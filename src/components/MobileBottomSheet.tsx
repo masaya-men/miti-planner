@@ -10,6 +10,8 @@ interface MobileBottomSheetProps {
     children: React.ReactNode;
     /** Max height. Default '65vh' */
     height?: string;
+    /** タイトルバー右側(× の左)に置く任意のアクション(例: メニューの「パーティ編成」)。title 指定時のみ表示。 */
+    headerAction?: React.ReactNode;
     /**
      * 中身が自前で高さ・スクロールを管理する場合 true。
      * シート高さを確定値(height)にし、内側のスクロール領域 / 下部パディングを外す。
@@ -19,7 +21,7 @@ interface MobileBottomSheetProps {
 }
 
 export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
-    isOpen, onClose, title, children, height = '65vh', fillContent = false
+    isOpen, onClose, title, children, height = '65vh', fillContent = false, headerAction
 }) => {
     const sheetRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<{ startY: number; isDragging: boolean }>({
@@ -110,14 +112,17 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
 
                         {/* Title bar */}
                         {title && (
-                            <div className="flex items-center justify-between px-4 pb-2 border-b border-app-border">
-                                <h3 className="text-app-2xl font-black text-app-text tracking-wide">{title}</h3>
-                                <button
-                                    onClick={onClose}
-                                    className="p-1.5 rounded-lg hover:bg-app-surface2 transition-colors cursor-pointer"
-                                >
-                                    <X size={16} className="text-app-text-sec" />
-                                </button>
+                            <div className="flex items-center justify-between gap-2 px-4 pb-2 border-b border-app-border">
+                                <h3 className="text-app-2xl font-black text-app-text tracking-wide shrink-0">{title}</h3>
+                                <div className="flex items-center gap-2 min-w-0">
+                                    {headerAction}
+                                    <button
+                                        onClick={onClose}
+                                        className="p-1.5 rounded-lg hover:bg-app-surface2 transition-colors cursor-pointer shrink-0"
+                                    >
+                                        <X size={16} className="text-app-text-sec" />
+                                    </button>
+                                </div>
                             </div>
                         )}
 

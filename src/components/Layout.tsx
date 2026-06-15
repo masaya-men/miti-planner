@@ -18,7 +18,7 @@ import { useTutorialStore } from '../store/useTutorialStore';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { AppFooter } from './AppFooter';
-import { Loader2, Sun, Moon, Star } from 'lucide-react';
+import { Loader2, Sun, Moon, Star, Users } from 'lucide-react';
 import { LoginModal } from './LoginModal';
 import { SyncButton } from './SyncButton';
 import { showToast } from './Toast';
@@ -616,13 +616,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 title={t('sidebar.menu')}
                 height="calc(100dvh - 3.5rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px) - 8px)"
                 fillContent
+                headerAction={
+                    <button
+                        onClick={() => { setMobileMenuOpen(false); setMobilePartyOpen(true); }}
+                        className="flex items-center gap-1.5 px-3 h-8 rounded-full border border-app-border text-app-text hover:bg-app-text/10 active:scale-95 transition-all cursor-pointer shrink-0"
+                    >
+                        <Users size={15} />
+                        <span className="text-app-sm font-bold whitespace-nowrap">{t('nav.party')}</span>
+                    </button>
+                }
             >
                 <div className="flex-1 min-h-0 flex flex-col">
                     <Sidebar
                         isOpen={true}
                         fullWidth
                         onClose={() => setMobileMenuOpen(false)}
-                        onOpenParty={() => { setMobileMenuOpen(false); setMobilePartyOpen(true); }}
                         onAutoPlan={() => { setMobileMenuOpen(false); window.dispatchEvent(new CustomEvent('timeline:autoplan')); }}
                     />
                 </div>
