@@ -9,6 +9,7 @@ import { getPhaseName } from '../types';
 import { MitigationSelector } from './MitigationSelector';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
+import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
 
@@ -16,10 +17,11 @@ type MergedEvent = TimelineEvent & { hitCount: number; span: number; lastHitTime
 
 export const CheatSheetView: React.FC = () => {
     const { contentLanguage } = useThemeStore();
-    const { timelineEvents, timelineMitigations, partyMembers, addMitigation } = useMitigationStore(
+    const { timelineEvents, timelineMitigations, phases, partyMembers, addMitigation } = useMitigationStore(
         useShallow(s => ({
             timelineEvents: s.timelineEvents,
             timelineMitigations: s.timelineMitigations,
+            phases: s.phases,
             partyMembers: s.partyMembers,
             addMitigation: s.addMitigation,
         }))
@@ -53,13 +55,20 @@ export const CheatSheetView: React.FC = () => {
             shieldStates.get(context)!.set(instanceId, newValue);
         };
 
+        // 挑発（isTankSwap）スキルだけ抽出して実効ターゲットマップを構築
+        const swapMarkers = timelineMitigations.filter(m => {
+            const d = MITIGATIONS.find(def => def.id === m.mitigationId);
+            return d?.isTankSwap === true;
+        });
+        const effTargetMap = buildEffectiveTargetMap(sortedEvents, swapMarkers, phases);
+
         sortedEvents.forEach(event => {
             if (!event.damageAmount) {
                 map.set(event.id, { unmitigated: 0, mitigated: 0, mitigationPercent: 0, shieldTotal: 0, isInvincible: false });
                 return;
             }
 
-            const target = event.target;
+            const target = effTargetMap.get(event.id) ?? event.target;
             const displayContext = (target === 'MT' || target === 'ST') ? target : 'Party';
             const affectedContexts = (target === 'MT' || target === 'ST') ? [target] : ['Party', 'MT', 'ST'];
 
@@ -182,7 +191,7 @@ export const CheatSheetView: React.FC = () => {
         });
 
         return map;
-    }, [timelineEvents, timelineMitigations, partyMembers]);
+    }, [timelineEvents, timelineMitigations, phases, partyMembers]);
 
     const formatTime = (time: number) => {
         const min = Math.floor(Math.abs(time) / 60);
