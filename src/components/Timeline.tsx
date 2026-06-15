@@ -3736,6 +3736,46 @@ const Timeline: React.FC = () => {
                 confirmLabel={confirmDialog?.confirmLabel ?? t('ui.ok', 'OK')}
                 cancelLabel={confirmDialog?.cancelLabel ?? t('common.cancel', 'キャンセル')}
             />
+            {/* スマホ: FAB 左に Undo/Redo 常設（編集系は常設ツールバー・ナビ枠を消費しない） */}
+            <div
+                className="fixed z-[300] md:hidden flex items-center gap-2"
+                style={{
+                    bottom: '5rem', // Layout の FAB(bottom-20)と同じ高さ
+                    right: `calc(1rem + ${MOBILE_TOKENS.fab.size}px + 0.75rem)`, // FAB(right-4) の左 + gap
+                }}
+            >
+                <button
+                    onClick={() => useMitigationStore.getState().undo()}
+                    disabled={!canUndo || readOnly}
+                    aria-label={t('timeline.undo')}
+                    className="flex items-center justify-center border text-app-text shadow-lg active:scale-90 transition-transform duration-100 disabled:opacity-30 disabled:pointer-events-none"
+                    style={{
+                        width: MOBILE_TOKENS.fab.itemSize,
+                        height: MOBILE_TOKENS.fab.itemSize,
+                        borderRadius: MOBILE_TOKENS.fab.radius,
+                        backgroundColor: 'var(--color-fab-bg)',
+                        borderColor: 'var(--color-fab-border)',
+                    }}
+                >
+                    <Undo2 size={18} />
+                </button>
+                <button
+                    onClick={() => useMitigationStore.getState().redo()}
+                    disabled={!canRedo || readOnly}
+                    aria-label={t('timeline.redo')}
+                    className="flex items-center justify-center border text-app-text shadow-lg active:scale-90 transition-transform duration-100 disabled:opacity-30 disabled:pointer-events-none"
+                    style={{
+                        width: MOBILE_TOKENS.fab.itemSize,
+                        height: MOBILE_TOKENS.fab.itemSize,
+                        borderRadius: MOBILE_TOKENS.fab.radius,
+                        backgroundColor: 'var(--color-fab-bg)',
+                        borderColor: 'var(--color-fab-border)',
+                    }}
+                >
+                    <Redo2 size={18} />
+                </button>
+            </div>
+
             <MobileBottomSheet
                 isOpen={mobileToolsSheetOpen}
                 onClose={() => setMobileToolsSheetOpen(false)}
