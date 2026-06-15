@@ -24,7 +24,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, ChevronLeft, Rows3, Settings, Crosshair, PictureInPicture2, Clock
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sword, ChevronDown, ChevronLeft, Rows3, Settings, Crosshair, PictureInPicture2, Clock
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
 import VideoRecorderModal from './VideoRecorderModal';
@@ -3739,38 +3739,11 @@ const Timeline: React.FC = () => {
             <MobileBottomSheet
                 isOpen={mobileToolsSheetOpen}
                 onClose={() => setMobileToolsSheetOpen(false)}
-                title={t('mobile.tools_title')}
+                title={t('mobile.import_title')}
                 height="55vh"
             >
                 <div className="flex flex-col gap-3">
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => useMitigationStore.getState().undo()}
-                            disabled={!canUndo || readOnly}
-                            className={clsx(
-                                "px-3 py-2.5 rounded-xl border  cursor-pointer",
-                                "bg-app-surface2 border-app-border text-app-text"
-                            )}
-                        >
-                            <Undo2 size={16} />
-                        </button>
-                        <button
-                            onClick={() => useMitigationStore.getState().redo()}
-                            disabled={!canRedo || readOnly}
-                            className={clsx(
-                                "px-3 py-2.5 rounded-xl border  cursor-pointer",
-                                "bg-app-surface2 border-app-border text-app-text"
-                            )}
-                        >
-                            <Redo2 size={16} />
-                        </button>
-                    </div>
-
-                    <div className={clsx(
-                        "h-px ",
-                        "bg-app-border"
-                    )} />
-
+                    {/* FFLogs Import */}
                     <button
                         onClick={() => {
                             setMobileToolsSheetOpen(false);
@@ -3780,21 +3753,8 @@ const Timeline: React.FC = () => {
                     >
                         <CloudDownload size={20} />
                         <div className="text-left">
-                            <div className="text-app-2xl font-bold">FFLogs Import</div>
-                            <div className="text-app-base text-app-text-muted">{t('mobile.fflogs_desc')}</div>
-                        </div>
-                    </button>
-                    <button
-                        onClick={() => {
-                            setMobileToolsSheetOpen(false);
-                            handleAutoPlan();
-                        }}
-                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-app-text/5 border border-app-border text-app-text hover:bg-app-text/10 cursor-pointer"
-                    >
-                        <Sparkles size={20} />
-                        <div className="text-left">
-                            <div className="text-app-2xl font-bold">Auto Plan</div>
-                            <div className="text-app-base text-app-text-muted">{t('mobile.autoplan_desc')}</div>
+                            <div className="text-app-2xl font-bold">FF Logs</div>
+                            <div className="text-app-base text-app-text-muted">{t('fflogs.tooltip_generate')}</div>
                         </div>
                     </button>
                     {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
