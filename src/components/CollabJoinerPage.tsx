@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ChevronLeft } from "lucide-react";
 import { startCollabSession, type CollabSession } from "../lib/collab/collabProvider";
@@ -10,6 +10,7 @@ import { hasCollabEditConsent, setCollabEditConsent } from "../lib/collabEditCon
 import { CollabEditConsentModal } from "./CollabEditConsentModal";
 import { CollabJoinerBanner } from "./CollabJoinerBanner";
 import { ConsolidatedHeader } from "./ConsolidatedHeader";
+import { MobileHeader } from "./MobileHeader";
 import { AppFooter } from "./AppFooter";
 import { CollabViewerCluster } from "./collab/CollabViewerCluster";
 import { LoginModal } from "./LoginModal";
@@ -60,6 +61,7 @@ const SYNC_TIMEOUT_MS = 15000;
  */
 export default function CollabJoinerPage() {
   const { roomToken } = useParams<{ roomToken: string }>();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const [synced, setSynced] = useState(false);
   const [invalid, setInvalid] = useState(false);
@@ -253,11 +255,13 @@ export default function CollabJoinerPage() {
               setStatusOpen={() => {}}
             />
           </div>
-          {/* モバイル向け簡易ヘッダー(PC では ConsolidatedHeader が float するため不要) */}
-          <div className="md:hidden shrink-0 min-h-12 px-4 py-1.5 flex items-center justify-between border-b border-app-border bg-app-bg">
-            <span className="font-bold text-app-text">LoPo</span>
-            <CollabViewerCluster />
-          </div>
+          {/* モバイル: 本物の MobileHeader を viewer モードで使用(本体アプリと同一の透けフロートデザイン)。
+              右スロットに共同編集クラスタを置く。fixed のため Timeline の予約余白だけが効き二重余白は出ない。 */}
+          <MobileHeader
+            onHome={() => navigate('/')}
+            viewer={{ contentId, ownerLabel }}
+            rightSlot={<CollabViewerCluster />}
+          />
 
           {/* タイムライン本体: PC は浮く ConsolidatedHeader 分の上余白(124px)。
               スマホはヘッダーが通常フロー(md:hidden 簡易ヘッダー)なので余白ゼロ(本体 Layout と同じ方針)。 */}
