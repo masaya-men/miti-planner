@@ -49,6 +49,7 @@ import {
     HardDrive,
     Download,
     Users,
+    Sparkles,
 } from 'lucide-react';
 // Plus は新規作成ボタンで使用
 import clsx from 'clsx';
@@ -73,6 +74,10 @@ interface SidebarProps {
     onClose?: () => void;
     /** モバイルのボトムシート内で使う場合trueにすると、幅100%・ハンドル非表示になる */
     fullWidth?: boolean;
+    /** モバイルメニューから「パーティ編成」シートを開く */
+    onOpenParty?: () => void;
+    /** モバイルメニューから「自動組み立て」を実行 */
+    onAutoPlan?: () => void;
 }
 
 
@@ -770,7 +775,7 @@ const ArchivePlanRow: React.FC<ArchivePlanRowProps> = ({ plan, currentPlanId, ru
 // Main: Sidebar
 // ─────────────────────────────────────────────
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, fullWidth }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, fullWidth, onOpenParty, onAutoPlan }) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
     const { isActive: tutorialActive, currentStepIndex } = useTutorialStore();
@@ -1306,6 +1311,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </div>
                     </div>
 
+                    {/* モバイルメニュー専用: パーティ編成 / 自動組み立て */}
+                    {fullWidth && (
+                        <div className="flex flex-col gap-2 px-3 pt-2">
+                            <button
+                                onClick={() => onOpenParty?.()}
+                                className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] transition-all cursor-pointer text-left"
+                            >
+                                <Users size={18} />
+                                <span className="text-app-base font-semibold">{t('nav.party')}</span>
+                            </button>
+                            <button
+                                onClick={() => onAutoPlan?.()}
+                                className="flex items-center gap-2 w-full px-3 py-2.5 rounded-xl border border-app-border text-app-text hover:bg-app-text/10 active:scale-[0.98] transition-all cursor-pointer text-left"
+                            >
+                                <Sparkles size={18} />
+                                <span className="text-app-base font-semibold">{t('mitigation.auto_plan')}</span>
+                            </button>
+                        </div>
+                    )}
+
                     {/* 零式タブ (savage) */}
                     {activeTab === 'savage' && (
                         <div ref={savageListRef} className="flex-1 overflow-y-auto px-3 pb-2 space-y-1 custom-scrollbar">
@@ -1573,13 +1598,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* Ko-fi 支援リンク — サイドバー最下部 */}
                     {!multiSelect.isEnabled && (
-                        <div className="shrink-0 flex flex-col items-center py-2">
-                            <div className="border-t border-glass-border w-full mb-2" />
+                        <div className="shrink-0 flex flex-col items-center py-3">
+                            <div className="border-t border-app-border w-full mb-2" />
                             <Link
                                 to="/support"
                                 className="text-app-sm text-app-text-muted hover:text-app-text transition-colors font-scale-exclude"
                             >
-                                {isOpen ? <>☕ {t('footer.support')}</> : '☕'}
+                                {(isOpen || fullWidth) ? <>☕ {t('footer.support')}</> : '☕'}
                             </Link>
                         </div>
                     )}

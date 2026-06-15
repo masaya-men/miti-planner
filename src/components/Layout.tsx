@@ -616,7 +616,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 height="70vh"
             >
                 <div className="-mx-4 -mt-3">
-                    <Sidebar isOpen={true} fullWidth onClose={() => setMobileMenuOpen(false)} />
+                    <Sidebar
+                        isOpen={true}
+                        fullWidth
+                        onClose={() => setMobileMenuOpen(false)}
+                        onOpenParty={() => { setMobileMenuOpen(false); setMobilePartyOpen(true); }}
+                        onAutoPlan={() => { setMobileMenuOpen(false); window.dispatchEvent(new CustomEvent('timeline:autoplan')); }}
+                    />
                 </div>
             </MobileBottomSheet>
 
