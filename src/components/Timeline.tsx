@@ -24,7 +24,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, Rows3, Settings, Crosshair, PictureInPicture2, Clock
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sparkles, Sword, ChevronDown, ChevronLeft, Rows3, Settings, Crosshair, PictureInPicture2, Clock
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
 import VideoRecorderModal from './VideoRecorderModal';
@@ -38,6 +38,7 @@ import { validateMitigationPlacement } from '../utils/resourceTracker';
 import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
+import { resolveMitigationTap } from '../utils/mitigationTapResolver';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -769,7 +770,12 @@ const Timeline: React.FC = () => {
         time: number;
         step: 'job' | 'skill';
         selectedMemberId: string | null;
-    }>({ isOpen: false, time: 0, step: 'job', selectedMemberId: null });
+        // 対象/鼓舞の選択が必要なスキルをタップしたとき、サブ選択ビューに渡す情報。null = 通常のスキル一覧。
+        pending?:
+            | { mode: 'target'; mit: Mitigation; ownerId: string }
+            | { mode: 'shield'; mit: Mitigation; ownerId: string; shields: AppliedMitigation[] }
+            | null;
+    }>({ isOpen: false, time: 0, step: 'job', selectedMemberId: null, pending: null });
 
     const [mobileContextMenu, setMobileContextMenu] = useState<{
         isOpen: boolean;
@@ -1665,7 +1671,7 @@ const Timeline: React.FC = () => {
         setMobilePartyOpen(false);
         setMobileToolsOpen(false);
         setMobileMenuOpen(false);
-        setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
+        setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null, pending: null });
     }, [setMobilePartyOpen, setMobileToolsOpen, setMobileMenuOpen]);
 
     const handleMobileLongPress = useCallback((event: TimelineEvent | null, time: number) => {
@@ -3447,6 +3453,118 @@ const Timeline: React.FC = () => {
                                 </button>
                             </div>
                         </div>
+                        {/* 対象/鼓舞の選択サブビュー (対象指定スキル・展開戦術等)。pending 中はスキル一覧に重ねて表示 */}
+                        {mobileMitiFlow.pending && (() => {
+                            const pending = mobileMitiFlow.pending;
+                            if (!pending) return null;
+                            const place = (extra: { targetId?: string; linkedMitigationId?: string }) => {
+                                addMitigation({
+                                    id: genId(),
+                                    mitigationId: pending.mit.id,
+                                    time: mobileMitiFlow.time,
+                                    duration: pending.mit.duration,
+                                    ownerId: pending.ownerId,
+                                    ...extra,
+                                });
+                                setMobileMitiFlow(prev => ({ ...prev, pending: null }));
+                            };
+                            const skillName = getPhaseName(pending.mit.name, contentLanguage);
+                            return (
+                                <div className="absolute inset-0 z-10 bg-app-bg flex flex-col" onClick={e => e.stopPropagation()}>
+                                    <div className="flex items-center gap-2 px-3 pt-3 pb-2 border-b border-app-border shrink-0">
+                                        <button
+                                            onClick={() => setMobileMitiFlow(prev => ({ ...prev, pending: null }))}
+                                            className="flex items-center gap-1 text-app-base font-black text-app-text-sec uppercase tracking-tighter active:scale-95 cursor-pointer"
+                                        >
+                                            <ChevronLeft size={16} />
+                                            {pending.mode === 'target'
+                                                ? t('mitigation.select_target', '対象を選択')
+                                                : t('mitigation.select_shield', '展開する鼓舞を選択')}
+                                        </button>
+                                        <span className="text-app-sm text-app-text-muted truncate ml-1">{skillName}</span>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto p-3">
+                                        {pending.mode === 'target' ? (
+                                            <div className="grid grid-cols-4 gap-2">
+                                                {sortedPartyMembers.map(member => {
+                                                    const job = JOBS.find(j => j.id === member.jobId);
+                                                    const isSelfRestricted = pending.mit.targetCannotBeSelf && member.id === pending.ownerId;
+                                                    return (
+                                                        <button
+                                                            key={member.id}
+                                                            disabled={isSelfRestricted}
+                                                            onClick={() => { if (!isSelfRestricted) place({ targetId: member.id }); }}
+                                                            className={clsx(
+                                                                "aspect-square rounded-xl border flex items-center justify-center transition-all",
+                                                                isSelfRestricted
+                                                                    ? "opacity-30 grayscale border-app-border cursor-not-allowed"
+                                                                    : "bg-app-surface2 border-app-border active:scale-90 cursor-pointer"
+                                                            )}
+                                                        >
+                                                            {job ? (
+                                                                <img src={job.icon} className="w-9 h-9 object-contain rounded" />
+                                                            ) : (
+                                                                <span className={clsx(
+                                                                    "text-app-lg font-black uppercase tracking-tighter",
+                                                                    member.role === 'tank' ? 'text-blue-500 dark:text-blue-400'
+                                                                        : member.role === 'healer' ? 'text-green-500 dark:text-green-400'
+                                                                            : 'text-red-500 dark:text-red-400'
+                                                                )}>
+                                                                    {t(`modal.${member.id.toLowerCase()}`, member.id)}
+                                                                </span>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col gap-2">
+                                                {pending.shields.length === 0 ? (
+                                                    <button
+                                                        onClick={() => place({})}
+                                                        className="w-full p-3 rounded-xl border border-app-border bg-app-surface2 text-app-base text-app-text-sec active:scale-95 cursor-pointer"
+                                                    >
+                                                        {t('mitigation.no_shield', '有効な鼓舞がありません')}（{t('mitigation.shield_value', { value: 0 })}）
+                                                    </button>
+                                                ) : (
+                                                    pending.shields.map(shield => {
+                                                        const shieldOwner = partyMembers.find(p => p.id === shield.ownerId);
+                                                        const targetMember = shield.targetId
+                                                            ? partyMembers.find(p => p.id === shield.targetId)
+                                                            : shieldOwner;
+                                                        const targetJob = targetMember?.jobId ? JOBS.find(j => j.id === targetMember.jobId) : null;
+                                                        const barrierValue = calculateLinkedShieldValue(shield, timelineMitigations, partyMembers, MITIGATIONS);
+                                                        return (
+                                                            <button
+                                                                key={shield.id}
+                                                                onClick={() => place({ linkedMitigationId: shield.id })}
+                                                                className="flex items-center gap-3 p-3 rounded-xl border border-app-border bg-app-surface2 active:scale-95 cursor-pointer"
+                                                            >
+                                                                {targetJob ? (
+                                                                    <img src={targetJob.icon} className="w-8 h-8 object-contain rounded shrink-0" />
+                                                                ) : (
+                                                                    <span className="w-8 h-8 flex items-center justify-center text-app-lg font-black tracking-tighter uppercase shrink-0">
+                                                                        {t(`modal.${(targetMember?.id || '').toLowerCase()}`, targetMember?.id || '')}
+                                                                    </span>
+                                                                )}
+                                                                <div className="flex flex-col items-start min-w-0">
+                                                                    <span className="text-app-base font-bold text-app-text truncate">
+                                                                        {t(`modal.${(targetMember?.id || '').toLowerCase()}`, targetMember?.id || '')}
+                                                                    </span>
+                                                                    <span className="text-app-sm text-app-text-sec">
+                                                                        {t('mitigation.shield_value', { value: barrierValue.toLocaleString() })}
+                                                                    </span>
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    })
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })()}
                         {/* ジョブごとセクション化 (パーティ編成順 MT→D4)、 各セクション内は PC モーダルと同じ並び順 */}
                         <div className="flex-1 overflow-y-auto px-2 pb-4">
                             <div className="flex flex-col gap-3">
@@ -3496,12 +3614,24 @@ const Timeline: React.FC = () => {
                                                                     return;
                                                                 }
                                                                 if (!status.available) return;
+                                                                // 対象指定スキル(インターベンション等)/鼓舞コピー(展開戦術等)は
+                                                                // 即配置せず、サブ選択ビューへ。それ以外は即配置。
+                                                                const resolution = resolveMitigationTap(mit, mobileMitiFlow.time, timelineMitigations);
+                                                                if (resolution.kind === 'selectTarget') {
+                                                                    setMobileMitiFlow(prev => ({ ...prev, pending: { mode: 'target', mit, ownerId: member.id } }));
+                                                                    return;
+                                                                }
+                                                                if (resolution.kind === 'selectShield') {
+                                                                    setMobileMitiFlow(prev => ({ ...prev, pending: { mode: 'shield', mit, ownerId: member.id, shields: resolution.shields } }));
+                                                                    return;
+                                                                }
                                                                 addMitigation({
                                                                     id: genId(),
                                                                     mitigationId: mit.id,
                                                                     time: mobileMitiFlow.time,
                                                                     duration: mit.duration,
                                                                     ownerId: member.id,
+                                                                    linkedMitigationId: resolution.linkedMitigationId,
                                                                 });
                                                             }}
                                                             className={clsx(
@@ -3862,7 +3992,7 @@ const Timeline: React.FC = () => {
                                     setMobilePartyOpen(false);
                                     setMobileToolsOpen(false);
                                     setMobileMenuOpen(false);
-                                    setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null });
+                                    setMobileMitiFlow({ isOpen: true, time, step: 'job', selectedMemberId: null, pending: null });
                                 }}
                                 className={clsx(
                                     "w-full flex items-center gap-3 px-4 py-2.5 text-app-2xl font-medium transition-colors cursor-pointer",
