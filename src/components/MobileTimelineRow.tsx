@@ -10,6 +10,7 @@ import { useMitigationStore } from '../store/useMitigationStore';
 import { SCALE, SPRING } from '../tokens/motionTokens';
 import { AnimatedDamage } from './AnimatedDamage';
 import { DamageTypeIcon } from './DamageTypeIcon';
+import { getEffectiveTarget } from '../utils/effectiveTarget';
 
 interface DamageInfo {
     unmitigated: number;
@@ -50,25 +51,25 @@ const formatDmg = (val: number): string => {
     return String(val);
 };
 
-/** 対象バッジ（AoE以外） */
-const TargetBadge: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[] }> = ({ event, partyMembers }) => {
+/** 対象バッジ（AoE以外）。effTarget = 挑発考慮済みの実効ターゲット */
+const TargetBadge: React.FC<{ effTarget: TimelineEvent['target']; partyMembers: PartyMember[] }> = ({ effTarget, partyMembers }) => {
     const JOBS = useJobs();
-    if (event.target === 'AoE') return null;
-    const member = partyMembers.find(m => m.id === event.target);
+    if (effTarget === 'AoE') return null;
+    const member = partyMembers.find(m => m.id === effTarget);
     const job = member ? JOBS.find(j => j.id === member.jobId) : null;
     if (job) {
         return (
             <span className="inline-flex items-center gap-0.5 px-1 py-px rounded-md bg-app-text/5 flex-shrink-0">
-                <img src={job.icon} className="w-3.5 h-3.5 rounded flex-shrink-0" alt={event.target ?? ''} />
+                <img src={job.icon} className="w-3.5 h-3.5 rounded flex-shrink-0" alt={effTarget ?? ''} />
             </span>
         );
     }
     return (
         <span className={clsx(
             "text-[9px] font-black px-1 py-px rounded-md flex-shrink-0",
-            event.target === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
+            effTarget === 'MT' ? "text-cyan-400 bg-cyan-400/10" : "text-amber-400 bg-amber-400/10"
         )}>
-            {event.target}
+            {effTarget}
         </span>
     );
 };
@@ -129,6 +130,15 @@ export const MobileTimelineRow = memo(({
     const { contentLanguage } = useThemeStore();
     const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
+    const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
+    const phases = useMitigationStore(state => state.phases);
+    const MITIGATIONS = useMitigations();
+
+    // 挑発（isTankSwap）マーカーのみ抽出。空なら既存挙動と完全一致
+    const swapMarkers = timelineMitigations.filter(m => {
+        const d = MITIGATIONS.find(def => def.id === m.mitigationId);
+        return d?.isTankSwap === true;
+    });
 
     // 表示するイベントとダメージを決定
     const idx = eventIndex ?? 0;
@@ -144,12 +154,13 @@ export const MobileTimelineRow = memo(({
         ? `-0:${(Math.abs(time) % 60).toString().padStart(2, '0')}`
         : time < 0 ? `-${displayTimeStr}` : displayTimeStr;
 
-    // 致死判定
+    // 致死判定（実効ターゲットで判定）
     const isLethal = (() => {
         if (!event || !damage || damage.unmitigated <= 0) return false;
+        const evtEff = getEffectiveTarget(event, swapMarkers, phases);
         let maxHp = partyMembers.find(m => m.id === 'H1')?.stats.hp || 1;
-        if (event.target === 'MT' || event.target === 'ST') {
-            maxHp = partyMembers.find(m => m.id === event.target)?.stats.hp || 1;
+        if (evtEff === 'MT' || evtEff === 'ST') {
+            maxHp = partyMembers.find(m => m.id === evtEff)?.stats.hp || 1;
         }
         return damage.mitigated >= maxHp;
     })();
@@ -264,9 +275,9 @@ export const MobileTimelineRow = memo(({
                         </span>
                     )}
 
-                    {/* 対象バッジ */}
+                    {/* 対象バッジ（実効ターゲットで表示） */}
                     {event && (
-                        <TargetBadge event={event} partyMembers={partyMembers} />
+                        <TargetBadge effTarget={getEffectiveTarget(event, swapMarkers, phases)} partyMembers={partyMembers} />
                     )}
                 </div>
 
