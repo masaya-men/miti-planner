@@ -115,7 +115,7 @@ LICENSE 追加は**しない** (memory `feedback_lopo_license_stance`)。 真の
 ## バグ・不具合 (要修正)
 
 - **✅ 根治実装完了 (2026-06-12・branch `feat/collab-yjs-binary-persistence`・push/deploy 保留)**: 旧🔴データ破壊バグ「キャッシュ全消し desync で空スナップショットが非空プランを上書き→Firestore 伝播」を業界標準パターンで根治。根本原因=plan.data と mitigation-storage の**二重 localStorage が desync** + 書込/読込ガードの**非対称**(書込は currentPlanId 非null のみ条件・空チェック無し / 起動時に currentPlanId の data を空 miti へ読込む経路が無い)。修正=**①空上書きガード**(`updatePlan` 中央経路で「非空データを空データで上書きしない」= `src/lib/isEmptyPlanData.ts`・[usePlanStore.ts:152](../src/store/usePlanStore.ts#L152)) + **②起動時ブートストラップ**(hydration gate・`src/lib/bootstrapMitigation.ts`・Layout マウントで desync 検出時に plan.data を miti へ復元)。両者は Zustand persist の non-empty check / hydration gate (Redux PersistGate 相当) の標準。TDD: isEmptyPlanData 6 + 空上書きガード 6 + bootstrap 5 緑。全1653緑(既知5のみ)/build EXIT=0。**復旧済データ**=墓標 06-10 の 129 軽減を `scripts/restore-fixed-plan.ts` で復元済。残=③PITR 有効化検討(任意)。
-- **中**: ラベル名が管理画面で取得できない (スプシヘッダー問題?)
+- **🐛 チャージ技のリキャスト表示が出ない (星天交差/ディヴァインベニゾン)**: 2チャージ技(`celestial_intersection`/`divine_benison`・recast30・maxCharges2・chargeMinLevel88)。**症状(2026-06-16スクショ確認)=リキャスト行にクロックが全く出ない。チャージ残あり(1/2)でも無し(0/2)でも出ない**。ユーザー要望=「一つでも使用したらリキャスト表示で良い」。⚠**矛盾**: スキル選択で「1/2」=1チャージ消費&回復中=リキャスト進行中のはずなのに、`getActiveRecasts`([src/utils/recastRow.ts](../src/utils/recastRow.ts))はチャージ非考慮で(owner,skill)最新配置から`def.recast`分を返す設計=**本来表示されるべき**。`MITIGATIONS=useMitigations()`(Firestoreライブ)で recast=30 も入る。読むだけでは原因不明 → **systematic-debugging: 要・実機再現+instrument**(getActiveRecasts/selectVisibleByLimit/RecastRow.update の currentTime を計測)。通常スキルの動作を壊さないこと。`recastRow.test.ts`にチャージ技ケース追加(TDD)。
 - **低 (動作影響なし)**: FFLogs 英語ログ / 無敵反映 / オートプラン同一技 / パルス設定スライダー / ヘッダー縦罫線
 - **テスト (既存failure・本番無影響)**: `src/__tests__/housing/TopBar.test.tsx` 4件 + `HousingWorkspace.test.tsx` 1件が落ちる (2026-06-03 確認、FFLogs修正前から存在)。HousingWorkspace は jsdom が youtube-nocookie embed を実 fetch→abort する環境依存。TopBar は要調査。
 - **Phase 2 follow-up**: api/popular の `viewCount` 削除 / en/ko privacy_section1_auto_items bullet バグ / `MitigationSheet.copyPlan` POST 失敗時 localStorage 残留
@@ -136,6 +136,7 @@ LICENSE 追加は**しない** (memory `feedback_lopo_license_stance`)。 真の
 
 - アイデア: YouTube 埋込/導線、 こだわりトップ、 配置アニメ、 OCR、 横型タイムライン、 Gemma AI
 - **🆕 機能ブラッシュアップ案 9 件 (2026-06-15 ユーザー投下、 詳細=[docs/.private/2026-06-15-feature-ideas-batch.md](./.private/2026-06-15-feature-ideas-batch.md))**: ①同時刻3+イベント ②スマホ/タブレット最適化(**✅(a)対象指定スキル/鼓舞コピーの選択UI欠落バグ=修正済・local実機OK・push/deploy保留** / 残=ボトムナビ/FAB) ③軽減競合の逆方向警告アニメ ④MAXHP-10%ギリギリでダメージ黄色 ⑤Logsインポート 上書き/追記選択 ⑥有名スプシ取込(法務論点・大物) ⑦敵攻撃の or(2択)対応 ⑧管理画面 攻撃ID保持で任意言語スタート翻訳 ⑨メモに動画URL→YouTube/Twitch iframe。 **インポート系⑤⑥⑧は入口再設計でまとめる方針。着手順は要相談**
+- **🆕 Wiki型タイムライン共同編集 (2026-06-16 ユーザー投下・大物・詳細=[docs/.private/2026-06-16-wiki-collaborative-timeline.md](./.private/2026-06-16-wiki-collaborative-timeline.md))**: タイムライン作成が大変 + 自動テンプレ蓄積案が機能せず → **ログインユーザー皆で 1 コンテンツのタイムラインを Wiki 的に編集**(オーナーはロック可)。既存 collab(Yjs)資産を活用しつつ「公開編集モデル」は別設計。論点=荒らし対策(履歴/版管理/承認)・発見性・攻撃ID紐づけ(⑧と同基盤)・軽減は個人コピーに分離?。**⑧(攻撃ID保持)を先に効かせると相性良。着手時 brainstorming**
 - 方針: コンテンツ追加 = `add-content` → `seed-contents.ts`、 スキル正本 = Firestore、 SNS ハッシュタグ `#LoPo #FF14 #BuildInPublic #AISelection`
 - 並行: マイコラージュ (収益化、 28 日まで凍結 / リリース後再開) / ハウジングは MUL 対象外で広告 OK
 - バックログ: npm audit / a11y / SE 利用規約 / GDPR / SEO / FFLogs アイコン / MTST 分け / みんなの軽減表
