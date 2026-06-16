@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
+import { AdminPage } from './AdminPage';
 
 export function AdminConfig() {
   const { t } = useTranslation();
@@ -60,20 +61,13 @@ export function AdminConfig() {
   const inputClass =
     'px-2 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text w-32';
 
-  if (loading) {
-    return (
-      <div>
-        <h1 className="text-app-3xl font-bold mb-4">{t('admin.config_title')}</h1>
-        <p className="text-app-lg text-app-text-muted">...</p>
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <h1 className="text-app-3xl font-bold mb-4">{t('admin.config_title')}</h1>
+    <AdminPage title={t('admin.config_title')}>
+      {loading && (
+        <p className="text-app-lg text-app-text-muted">...</p>
+      )}
 
-      <div className="p-4 border border-app-text/10 rounded space-y-4 max-w-md">
+      {!loading && <div className="p-4 border border-app-text/10 rounded space-y-4 max-w-md">
         <div>
           <label className="block text-app-lg text-app-text-muted mb-1">
             {t('admin.promotion_threshold')}
@@ -108,7 +102,7 @@ export function AdminConfig() {
         >
           {saving ? '...' : t('admin.config_save')}
         </button>
-      </div>
-    </div>
+      </div>}
+    </AdminPage>
   );
 }
