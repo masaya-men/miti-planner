@@ -39,6 +39,10 @@ interface CollabSessionState {
   revoke: (planId: string) => Promise<void>;
   /** 旧を切断・失効し新リンクで張り直し。label は任意の部屋名(⑤-3c)。 */
   reissue: (planId: string, label?: string) => Promise<void>;
+  /** 部屋を失効させず、現在のセッションだけ切断する(=共同編集プランから離れる)。
+   *  新規作成時に「初期化処理が今の部屋に流れ込んで別プランを壊す」のを防ぐため、
+   *  作成の最初にこれを呼んで _collabActive=false にしてからローカル初期化する。 */
+  disconnect: () => void;
 }
 
 export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
@@ -116,5 +120,13 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     // #6: 新トークン + 引き継いだ上限をローカル plan へ(再発行で 8 に戻さない・次回リロード用)。
     usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken, collabMaxParticipants: info.maxParticipants });
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
+  },
+
+  disconnect: () => {
+    // session.disconnect() は同期で exitCollabMode()(_collabActive=false)を呼ぶ
+    // (collabProvider.ts)。部屋(DO/Firestore)のデータは無傷のまま残し、ローカルの
+    // 接続だけを畳む。失効(revoke)はしないのでプランは collab-ON のまま。
+    get().session?.disconnect();
+    set({ active: false, roomToken: null, session: null, collabPlanId: null, maxParticipants: 8 });
   },
 }));

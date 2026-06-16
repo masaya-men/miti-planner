@@ -62,6 +62,7 @@ import { ContextMenu } from './ui/ContextMenu';
 import { decompressPlanData } from '../utils/compression';
 import { loadPlanDataIntoStore } from '../lib/planLoad';
 import { commitNewPlan } from '../lib/commitNewPlan';
+import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
@@ -990,6 +991,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const createPlanDirectly = (content: ContentDefinition, planTitle: string, isTutorial?: boolean) => {
         runTransition(async () => {
             const store = useMitigationStore.getState();
+            // 根治(2): 共同編集ON中に新規作成すると、下の clearAllMitigations / updatePartyBulk が
+            // 「今繋がっている部屋(別プラン)」に委譲され、その部屋の軽減・パーティを空にしてしまう。
+            // 作成の最初に必ず切断し、_collabActive=false にしてからローカル初期化する。
+            useCollabSessionStore.getState().disconnect();
 
             store.setCurrentLevel(content.level);
             store.applyDefaultStats(content.level, content.patch);

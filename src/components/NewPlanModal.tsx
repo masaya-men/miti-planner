@@ -12,6 +12,7 @@ import type { ContentLevel, ContentCategory, ContentDefinition } from '../types'
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { commitNewPlan } from '../lib/commitNewPlan';
+import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { PLAN_LIMITS } from '../types/firebase';
@@ -129,6 +130,10 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
     const handleCreate = () => {
         if (!canCreate || isBlocked || !level) return;
+
+        // 根治(2): 共同編集ON中なら先に切断。下の clearAllMitigations / updatePartyBulk が
+        // 「今繋がっている部屋(別プラン)」に委譲されて、その部屋を空にするのを防ぐ。
+        useCollabSessionStore.getState().disconnect();
 
         // 1. 現在のプランを保存
         if (activePlanId) {
