@@ -426,11 +426,17 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                                 <div className="text-app-base text-red-600 dark:text-red-400 font-bold">
                                                     {status.message}
                                                 </div>
-                                            ) : status.warning && (
+                                            ) : status.warning ? (
                                                 <div className="text-app-base text-amber-700 dark:text-amber-400 font-bold">
                                                     ⚠ {status.message}
                                                 </div>
-                                            )}
+                                            ) : status.recastInfo ? (
+                                                // チャージ技で配置可だが回復中: 次チャージまでの秒数を中立色で併記
+                                                // (使用可能なので赤/警告にはしない)
+                                                <div className="text-app-base text-app-text-sec font-bold">
+                                                    {status.recastInfo}
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </button>
                                     

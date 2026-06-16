@@ -290,8 +290,57 @@ export function getRemainingCharges(
 }
 
 /**
+ * recast 方式チャージ技で、selectedTime 時点から「次の 1 チャージが回復するまでの秒数」を返す。
+ * - チャージ技でない / requires(窓)方式 / recast<=0 / すでに満タン → 0 (= 表示しない)
+ * - getRemainingCharges と同じ充電シミュレーションを行い、最後に充電タイマーの残りを秒で返す。
+ * モーダルの「次チャージ ○○秒」表示用 (通常技の「CD ○○秒」に相当)。
+ */
+export function getTimeUntilNextCharge(
+    mitigationId: string,
+    selectedTime: number,
+    activeMitigations: AppliedMitigation[]
+): number {
+    const def = getMitigationsFromStore().find(d => d.id === mitigationId);
+    if (!def || !def.maxCharges) return 0;
+    if (def.requires) return 0; // 窓(prerequisite)方式は recast 概念なし
+    if (!def.recast || def.recast <= 0) return 0;
+
+    const maxCh = effectiveMaxCharges(def);
+    const uses = activeMitigations
+        .filter(am => am.mitigationId === mitigationId && am.time <= selectedTime)
+        .sort((a, b) => a.time - b.time);
+    if (uses.length === 0) return 0;
+
+    // getRemainingCharges と同一のシミュレーション。最後に充電タイマー残量から秒数を算出。
+    let charges = maxCh;
+    let rechargeTimer = 0;
+    let lastTime = 0;
+    for (const use of uses) {
+        const elapsed = use.time - lastTime;
+        if (charges < maxCh) {
+            rechargeTimer += elapsed;
+            const recharged = Math.floor(rechargeTimer / def.recast);
+            charges = Math.min(maxCh, charges + recharged);
+            rechargeTimer = rechargeTimer % def.recast;
+            if (charges >= maxCh) rechargeTimer = 0;
+        }
+        charges = Math.max(0, charges - 1);
+        lastTime = use.time;
+    }
+    const finalElapsed = selectedTime - lastTime;
+    if (charges < maxCh) {
+        rechargeTimer += finalElapsed;
+        const recharged = Math.floor(rechargeTimer / def.recast);
+        charges = Math.min(maxCh, charges + recharged);
+        rechargeTimer = rechargeTimer % def.recast;
+    }
+    if (charges >= maxCh) return 0;
+    return Math.ceil(def.recast - rechargeTimer);
+}
+
+/**
  * Validates if a mitigation can be placed at a specific time.
- * This is the shared logic used by both the MitigationSelector (adding new) 
+ * This is the shared logic used by both the MitigationSelector (adding new)
  * and Timeline (dragging existing).
  */
 export function validateMitigationPlacement(
@@ -301,7 +350,7 @@ export function validateMitigationPlacement(
     t: (key: string, options?: any) => string,
     // Optional parameter to ignore a specific instance ID during overlap checks (useful for drag & drop)
     ignoreInstanceId?: string
-): { available: boolean; warning?: boolean; message?: string; shortMessage?: string; badge?: string; badgeColor?: string; conflictInstanceId?: string } {
+): { available: boolean; warning?: boolean; message?: string; shortMessage?: string; badge?: string; badgeColor?: string; conflictInstanceId?: string; recastInfo?: string } {
 
     // Filter out the instance being moved if dragging
     const relevantMitigations = ignoreInstanceId
@@ -480,20 +529,35 @@ export function validateMitigationPlacement(
         // レベル連動: chargeMinLevel 未満のコンテンツでは実効 1 チャージ(例: Lv88未満のディヴァインベニゾン/星天交差)。
         const effMax = effectiveMaxCharges(m);
         const remaining = getRemainingCharges(m.id, selectedTime, relevantMitigations);
-        // 実効 1 チャージ (sun_sign / divine_caress 等、または Lv ゲートで 1 になった技) は
-        // チャージ概念がユーザーにとって不自然なので、 バッジ・文言を出さず単に配置可否だけ伝える。
+        // recast 方式チャージ技の「次チャージまでの秒数」(窓方式は 0)。
+        const toNextCharge = getTimeUntilNextCharge(m.id, selectedTime, relevantMitigations);
+        // 実効 1 チャージ (Lv ゲートで 1 になった技、 または窓方式の単発技) は
+        // チャージ概念がユーザーにとって不自然なので、 バッジを出さず通常リキャスト技と同じ扱い。
+        // recast 方式ならリキャスト中は通常技と同じ「CD ○○秒」を出す(従来は文言が一切出ず原因不明だった)。
         if (effMax === 1) {
             if (remaining <= 0) {
+                if (toNextCharge > 0) {
+                    const label = t('mitigation.cd_remaining', { seconds: toNextCharge, defaultValue: `CD ${toNextCharge}s` });
+                    return { available: false, message: label };
+                }
                 return { available: false };
             }
             return { available: true };
         }
         const badge = `${remaining}/${effMax}`;
         if (remaining <= 0) {
-            const label = t('mitigation.no_charges', 'No charges');
+            // 全チャージ消費中。 次の 1 チャージまでの秒数を出す(従来は「No charges」のみで秒数が見えなかった)。
+            const label = toNextCharge > 0
+                ? t('mitigation.next_charge_in', { seconds: toNextCharge, defaultValue: `次チャージ ${toNextCharge}秒` })
+                : t('mitigation.no_charges', 'No charges');
             return { available: false, message: label, badge, badgeColor: 'red' };
         }
-        return { available: true, badge, badgeColor: remaining <= 1 ? 'amber' : 'cyan' };
+        // まだ置ける(1 個以上残)。 回復中(toNextCharge>0)なら次チャージまでの秒数を情報として併記。
+        // available は true のまま(=ブロックしない)、 recastInfo は中立色で表示する。
+        const recastInfo = toNextCharge > 0
+            ? t('mitigation.next_charge_in', { seconds: toNextCharge, defaultValue: `次チャージ ${toNextCharge}秒` })
+            : undefined;
+        return { available: true, badge, badgeColor: remaining <= 1 ? 'amber' : 'cyan', recastInfo };
     }
 
     // Cooldown check (non-charge skills only)

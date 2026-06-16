@@ -381,6 +381,7 @@
         "no_addersgall": "No Addersgall",
         "no_lily": "No Lily",
         "no_charges": "No charges",
+        "next_charge_in": "Next charge {{seconds}}s",
         "cd_remaining": "CD {{seconds}}s",
         "combat_only": "Available only during combat",
         "draw_alternate_required": "Next: {{expected}}",

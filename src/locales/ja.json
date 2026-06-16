@@ -388,6 +388,7 @@
         "no_addersgall": "アダーガル不足",
         "no_lily": "リリー不足",
         "no_charges": "チャージ不足",
+        "next_charge_in": "次チャージ {{seconds}}s",
         "cd_remaining": "CD残{{seconds}}s",
         "cd_overlap": "{{seconds}}秒後に同じ軽減が配置済みです。取り除くかずらしてください",
         "next_at": "{{gap}}s後に配置済。ずらすか除去してください。",
