@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
+import { AdminPage } from './AdminPage';
 import type { MasterServers } from '../../types';
 
 type TabKey = 'dc' | 'housing' | 'sizes' | 'tags';
@@ -214,56 +215,57 @@ export function AdminServers() {
       .map((s) => s.trim())
       .filter(Boolean);
 
-  return (
-    <div>
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-app-3xl font-bold">{t('admin.servers')}</h1>
-          <p className="text-app-base text-app-text-muted mt-1">
-            DC: {dcCount} / {t('admin.servers_server_count')}: {serverCount}
-          </p>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={saving || !dirty}
-          className="px-4 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
-        >
-          {saving ? '...' : t('admin.save')}
-        </button>
-      </div>
+  const metaNode = (
+    <span className="text-app-base text-app-text-muted">
+      DC: {dcCount} / {t('admin.servers_server_count')}: {serverCount}
+    </span>
+  );
 
+  const actionsNode = (
+    <div className="flex items-center gap-2 flex-wrap">
+      <button
+        onClick={handleSave}
+        disabled={saving || !dirty}
+        className="px-4 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
+      >
+        {saving ? '...' : t('admin.save')}
+      </button>
+      {tabs.map((tab) => (
+        <button
+          key={tab.key}
+          onClick={() => setActiveTab(tab.key)}
+          className={`px-4 py-2 text-app-lg transition-colors border-b-2 ${
+            activeTab === tab.key
+              ? 'border-app-text font-bold'
+              : 'border-transparent hover:bg-app-text/5 text-app-text-muted'
+          }`}
+        >
+          {t(tab.labelKey)}
+        </button>
+      ))}
+    </div>
+  );
+
+  return (
+    <AdminPage
+      title={t('admin.servers')}
+      meta={metaNode}
+      actions={actionsNode}
+    >
       {error && <p className="text-app-lg text-app-text-muted mb-4">{error}</p>}
       {loading && <p className="text-app-lg text-app-text-muted">...</p>}
 
       {!loading && data && (
-        <>
-          {/* タブナビゲーション */}
-          <div className="flex gap-0 border-b border-app-text/10 mb-4">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2 text-app-lg transition-colors border-b-2 ${
-                  activeTab === tab.key
-                    ? 'border-app-text font-bold'
-                    : 'border-transparent hover:bg-app-text/5 text-app-text-muted'
-                }`}
-              >
-                {t(tab.labelKey)}
-              </button>
-            ))}
-          </div>
-
+        <div className="flex flex-col h-full min-h-0">
           {/* DC タブ */}
           {activeTab === 'dc' && (
-            <div className="flex gap-4">
+            <div className="h-full min-h-0 flex gap-4">
               {/* 左パネル: DC一覧 */}
-              <div className="w-48 shrink-0 border border-app-text/10 rounded">
-                <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
+              <div className="w-48 shrink-0 border border-app-text/10 rounded flex flex-col min-h-0">
+                <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                   {t('admin.servers_dc')}
                 </div>
-                <div className="max-h-[70vh] overflow-y-auto">
+                <div className="flex-1 min-h-0 overflow-y-auto">
                   {Object.entries(data.datacenters).map(([dcKey, dc]) => {
                     const count = Object.keys(dc.servers).length;
                     return (
@@ -288,8 +290,8 @@ export function AdminServers() {
               </div>
 
               {/* 右パネル: 選択DCのサーバー一覧 */}
-              <div className="flex-1 border border-app-text/10 rounded">
-                <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
+              <div className="flex-1 min-h-0 border border-app-text/10 rounded flex flex-col">
+                <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                   {selectedDc
                     ? `${selectedDc} (${Object.keys(data.datacenters[selectedDc]?.servers ?? {}).length})`
                     : 'DCを選択してください'}
@@ -298,7 +300,7 @@ export function AdminServers() {
                 {selectedDc && data.datacenters[selectedDc] && (
                   <>
                     {/* DCエイリアス */}
-                    <div className="px-3 py-2 border-b border-app-text/10">
+                    <div className="shrink-0 px-3 py-2 border-b border-app-text/10">
                       <label className={labelClass}>
                         DC {t('admin.servers_aliases')}
                       </label>
@@ -313,7 +315,7 @@ export function AdminServers() {
                     </div>
 
                     {/* サーバーリスト */}
-                    <div className="max-h-[60vh] overflow-y-auto">
+                    <div className="flex-1 min-h-0 overflow-y-auto">
                       {Object.entries(data.datacenters[selectedDc].servers).length === 0 && (
                         <p className="p-4 text-app-lg text-app-text-muted">
                           {t('admin.no_data')}
@@ -370,11 +372,11 @@ export function AdminServers() {
 
           {/* ハウジングエリア タブ */}
           {activeTab === 'housing' && (
-            <div className="border border-app-text/10 rounded">
-              <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
+            <div className="h-full min-h-0 border border-app-text/10 rounded flex flex-col">
+              <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                 {t('admin.servers_housing')} ({Object.keys(data.housingAreas).length})
               </div>
-              <div className="max-h-[70vh] overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto">
                 {Object.entries(data.housingAreas).map(([areaKey, area]) => (
                   <div
                     key={areaKey}
@@ -428,11 +430,11 @@ export function AdminServers() {
 
           {/* サイズ タブ */}
           {activeTab === 'sizes' && (
-            <div className="border border-app-text/10 rounded">
-              <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
+            <div className="h-full min-h-0 border border-app-text/10 rounded flex flex-col">
+              <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                 {t('admin.servers_sizes')} ({data.housingSizes.length})
               </div>
-              <div className="max-h-[70vh] overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto">
                 {data.housingSizes.map((size, index) => (
                   <div
                     key={size.id}
@@ -476,11 +478,11 @@ export function AdminServers() {
 
           {/* タグ タブ */}
           {activeTab === 'tags' && (
-            <div className="border border-app-text/10 rounded">
-              <div className="p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
+            <div className="h-full min-h-0 border border-app-text/10 rounded flex flex-col">
+              <div className="shrink-0 p-2 border-b border-app-text/10 text-app-base text-app-text-muted font-bold">
                 {t('admin.servers_tags')} ({Object.keys(data.tags).length})
               </div>
-              <div className="max-h-[70vh] overflow-y-auto">
+              <div className="flex-1 min-h-0 overflow-y-auto">
                 {Object.entries(data.tags).map(([category, tagList]) => (
                   <div
                     key={category}
@@ -503,8 +505,8 @@ export function AdminServers() {
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
-    </div>
+    </AdminPage>
   );
 }
