@@ -96,6 +96,14 @@
 
 @layer base {
 
+  /* 管理画面は「見て触る道具」として可読性を最優先する。
+     本体(軽減表)の装飾フォント Rajdhani ではなく、素直な M PLUS 1 を主役にする。
+     [data-admin-page] 配下だけに効くので本体には一切影響しない(A案)。 */
+  [data-admin-page] {
+    font-family: 'M PLUS 1', system-ui, sans-serif;
+    letter-spacing: 0;
+  }
+
   :root,
   .theme-dark {
     font-family: 'Rajdhani', 'M PLUS 1', system-ui, sans-serif;

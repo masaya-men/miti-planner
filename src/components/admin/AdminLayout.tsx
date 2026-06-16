@@ -76,8 +76,9 @@ export function AdminLayout() {
           </NavLink>
         </div>
       </nav>
-      {/* メインコンテンツ */}
-      <main className="flex-1 overflow-auto p-6">
+      {/* メインコンテンツ — AdminPage が固定ヘッダー + 本文スクロールを内部で持つため
+          ここでは高さを与えるだけ(overflow-hidden)。各ページは AdminPage でラップする。 */}
+      <main className="flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col">
         <Outlet />
       </main>
     </div>

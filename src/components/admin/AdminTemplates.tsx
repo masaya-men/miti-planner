@@ -15,6 +15,7 @@ import { PlanToTemplateModal } from './PlanToTemplateModal';
 import { CsvImportModal } from './CsvImportModal';
 import { FflogsTranslationModal } from './FflogsTranslationModal';
 import { BulkEditPopover } from './BulkEditPopover';
+import { AdminPage } from './AdminPage';
 import type { TimelineEvent } from '../../types';
 import type { TemplateData } from '../../data/templateLoader';
 
@@ -302,11 +303,10 @@ export function AdminTemplates() {
     'px-2 py-1.5 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text';
 
   return (
-    <div>
-      <h1 className="text-app-3xl font-bold mb-4">{t('admin.templates_title')}</h1>
-
-      {/* コンテンツ選択ドロップダウン */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
+    <AdminPage
+      title={t('admin.templates_title')}
+      meta={!loading && templates.length > 0 ? templates.length : undefined}
+      actions={
         <select
           className={`${inputClass} bg-app-bg [&>option]:bg-app-bg [&>option]:text-app-text`}
           value={selectedContentId}
@@ -322,16 +322,19 @@ export function AdminTemplates() {
             );
           })}
         </select>
-
-        {selectedContentId && (
+      }
+    >
+      {/* 選択中コンテンツの要約 */}
+      {selectedContentId && (
+        <div className="mb-4">
           <span className="text-app-lg text-app-text-muted">
             {t('admin.tpl_editor_content_summary', {
               events: editor.visibleEvents.length,
               phases: editor.state.currentPhases.length,
             })}
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* ツールバー（コンテンツ選択時のみ） */}
       {selectedContentId && (
@@ -535,6 +538,6 @@ export function AdminTemplates() {
         onMatched={handleFflogsMatched}
         events={editor.visibleEvents}
       />
-    </div>
+    </AdminPage>
   );
 }
