@@ -213,6 +213,10 @@ export const usePlanStore = create<PlanState>()(
             getPlan: (id: string) => get().plans.find((p) => p.id === id),
 
             createPlanFromTemplate: (contentId, templateData, title, initialData) => {
+                // ⚠ 現状この action は未使用(呼び出し元なし)。UI から使うときは、作業ストアを
+                // 新規プランの内容でロードした上で、必ず lib/commitNewPlan の安全順序
+                // (持ち主ID確定 → setCurrentPlanId)を通すこと。ここで setCurrentPlanId を
+                // 先に呼ぶと、Layout の plan-switch 保存が直前プランを破壊する(C-1 と同型)。
                 // 同一 ms 内の連続呼び出しでも衝突しないよう crypto.randomUUID で確実にユニーク化
                 const newPlanId = `plan_${crypto.randomUUID()}`;
                 const maxEventTime = templateData.timelineEvents.length > 0
