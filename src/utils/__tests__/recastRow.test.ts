@@ -81,6 +81,26 @@ describe('getActiveRecasts', () => {
     expect(result).toHaveLength(0);
   });
 
+  it('includes charge skills on CD just like single-recast skills (def.recast drives the clock, maxCharges is irrelevant here)', () => {
+    // 星天交差 / ディヴァインベニゾン 相当: recast 30 / maxCharges 2。
+    // リキャスト行は def.recast だけを見るため、 チャージ技でも通常技と同じく
+    // 配置から recast 秒以内なら必ずアクティブ扱いになる (チャージ残量は無関係)。
+    const chargeDef: Mitigation = {
+      ...makeMitigation('divine_benison', 30),
+      maxCharges: 2,
+      chargeMinLevel: 88,
+    };
+    const placements = [makePlacement('p1', 'divine_benison', 20)];
+    // 1 回使用直後 (currentTime=21): クロックが出るべき
+    const justUsed = getActiveRecasts(placements, [chargeDef], 21);
+    expect(justUsed).toHaveLength(1);
+    expect(justUsed[0].mitigationId).toBe('divine_benison');
+    expect(justUsed[0].recast).toBe(30);
+    expect(justUsed[0].remaining).toBe(29);
+    // recast 経過後 (currentTime=51) は消える
+    expect(getActiveRecasts(placements, [chargeDef], 51)).toHaveLength(0);
+  });
+
   it('excludes high-frequency rotation skills (aetherflow, astral_draw, umbral_draw)', () => {
     const defs = [
       makeMitigation('aetherflow', 60),

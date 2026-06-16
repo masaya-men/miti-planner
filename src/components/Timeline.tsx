@@ -1337,36 +1337,49 @@ const Timeline: React.FC = () => {
     // リキャスト行: スクロールに連動して current time を更新 (GPU 描画、 React 再レンダーなし)
     // セッション 18 案 C1: RecastRow は header (scroll container の外) に物理移動したので、
     // scrollTop はそのまま wrapper 座標系として扱える (recastRowHeight 控除は不要)。
+    // 現在のスクロール位置を currentTime に変換し、 RecastRow.update() へ反映する関数。
+    // スクロールハンドラと「配置変化時の再同期」 effect の両方から呼ぶため useCallback で共有する。
+    const syncRecastRow = useCallback(() => {
+        // OFF 時はアイコンを全部隠す (セルは残るので罫線維持)
+        if (!recastRowVisible) {
+            recastRowRef.current?.hideAll();
+            return;
+        }
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        const scrollTop = container.scrollTop;
+        const offsetTime = showPreStart ? -10 : 0;
+        let currentTime: number;
+        if (hideEmptyRows && timeToYMapRef.current.size > 0) {
+            // hideEmptyRows モード: Y に最も近い可視時刻を逆引き
+            let closest = offsetTime;
+            let minDiff = Infinity;
+            timeToYMapRef.current.forEach((y, t) => {
+                const diff = Math.abs(y - scrollTop);
+                if (diff < minDiff) { minDiff = diff; closest = t; }
+            });
+            currentTime = closest;
+        } else {
+            currentTime = offsetTime + Math.round(scrollTop / pixelsPerSecond);
+        }
+        recastRowRef.current?.update(currentTime);
+    }, [pixelsPerSecond, showPreStart, hideEmptyRows, recastRowVisible]);
+
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container) return;
-        const handler = () => {
-            // OFF 時はアイコンを全部隠す (セルは残るので罫線維持)
-            if (!recastRowVisible) {
-                recastRowRef.current?.hideAll();
-                return;
-            }
-            const scrollTop = container.scrollTop;
-            const offsetTime = showPreStart ? -10 : 0;
-            let currentTime: number;
-            if (hideEmptyRows && timeToYMapRef.current.size > 0) {
-                // hideEmptyRows モード: Y に最も近い可視時刻を逆引き
-                let closest = offsetTime;
-                let minDiff = Infinity;
-                timeToYMapRef.current.forEach((y, t) => {
-                    const diff = Math.abs(y - scrollTop);
-                    if (diff < minDiff) { minDiff = diff; closest = t; }
-                });
-                currentTime = closest;
-            } else {
-                currentTime = offsetTime + Math.round(scrollTop / pixelsPerSecond);
-            }
-            recastRowRef.current?.update(currentTime);
-        };
-        handler(); // 初期化
-        container.addEventListener('scroll', handler, { passive: true });
-        return () => container.removeEventListener('scroll', handler);
-    }, [pixelsPerSecond, showPreStart, hideEmptyRows, recastRowVisible]);
+        syncRecastRow(); // 初期化
+        container.addEventListener('scroll', syncRecastRow, { passive: true });
+        return () => container.removeEventListener('scroll', syncRecastRow);
+    }, [syncRecastRow]);
+
+    // 配置 (timelineMitigations) が変わったら、 スクロールを待たずに即リキャスト行を再同期する。
+    // update() はスクロール時にしか呼ばれないため、 これが無いと「現在のスクロール位置では
+    // 本来クロックが出るべき新規配置」 が、 ユーザーが一度スクロールするまで --cd-display:none の
+    // まま表示されない (特にターゲットシールド系チャージ技は同じ位置で置いて確認するため顕在化)。
+    useEffect(() => {
+        syncRecastRow();
+    }, [syncRecastRow, timelineMitigations]);
 
     // AA モード中に Escape キーで終了
     useEffect(() => {

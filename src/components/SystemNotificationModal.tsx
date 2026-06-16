@@ -47,7 +47,10 @@ export const SystemNotificationModal: React.FC<Props> = ({ isOpen, notif, onClos
     <AnimatePresence>
       <motion.div
         key="backdrop"
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60"
+        // z は他の中央モーダル/シート慣習に合わせて高く取る。
+        // スマホではこのモーダルがメニューのボトムシート (z-301) 内の通知ベルから開くため、
+        // z-100 のままだとシートの裏に隠れて既読操作できない (PC は常設サイドバーから開くので可視)。
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60"
         onClick={onClose}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
