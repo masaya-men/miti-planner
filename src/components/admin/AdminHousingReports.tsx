@@ -16,6 +16,7 @@ import { showToast } from '../Toast';
 import { formatHousingAddress } from '../../lib/housing/formatHousingAddress';
 import { buildListingDetailPath } from '../../constants/housing';
 import type { HousingArea, HousingSize, ReportReason } from '../../types/housing';
+import { AdminPage } from './AdminPage';
 
 interface ReportRecord {
   id: string;
@@ -133,8 +134,7 @@ export function AdminHousingReports() {
   };
 
   return (
-    <div>
-      <h1 className="text-app-3xl font-bold mb-2">{t('admin.housing_reports.title')}</h1>
+    <AdminPage title={t('admin.housing_reports.title')}>
       <p className="text-app-base text-app-text-muted mb-4">
         {t('admin.housing_reports.description')}
       </p>
@@ -258,6 +258,6 @@ export function AdminHousingReports() {
           })}
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }
