@@ -10,6 +10,7 @@ import {
   recordToYMap, buildArrByKey, applyBatch,
 } from './yjsPlanData';
 import { dedupeById } from './dedupeById';
+import { fieldsNeedingReseed, RESEED_FIELDS } from './collabReseed';
 import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember } from '../../types';
 import type { CollabHandlers } from './collabTypes';
 import { colorForClient, wirePresence, type AwarenessLike, type PresenceState } from './presence';
@@ -106,48 +107,48 @@ function dissipationIdsOverlapping(
   return ids;
 }
 
-/** 部屋の Y.Doc が「完全に空」(どの PlanData 配列も 0 件)か。seed 失敗 / 保存前再接続の検知に使う。
- *  通常の部屋は必ず partyMembers を持つため、全配列 0 件 = 正規の状態ではない。 */
-function isCollabDocEmpty(doc: Y.Doc): boolean {
-  return (
-    readMitigations(doc).length === 0 &&
-    readArray(doc, TIMELINE_EVENTS_KEY).length === 0 &&
-    readArray(doc, PHASES_KEY).length === 0 &&
-    readArray(doc, LABELS_KEY).length === 0 &&
-    readArray(doc, MEMOS_KEY).length === 0 &&
-    readArray(doc, PARTY_MEMBERS_KEY).length === 0
-  );
-}
-
-/** ローカル store(オーナーの手元)に PlanData の実体があるか。 */
-function localStoreHasPlanData(s: ReturnType<typeof useMitigationStore.getState>): boolean {
-  return (
-    s.timelineMitigations.length > 0 ||
-    s.timelineEvents.length > 0 ||
-    s.phases.length > 0 ||
-    s.labels.length > 0 ||
-    s.memos.length > 0 ||
-    s.partyMembers.length > 0
-  );
-}
-
-/** 空の部屋へ、手元(オーナー)の PlanData を id 単位 upsert で再シードする(列増殖しない)。
- *  origin='local' で 1 transaction。観測(observeDeep)経由で store と一致し、onSave で Firestore へ復元保存される。 */
-function reseedDocFromLocalStore(
+/**
+ * client 側 空上書き防御: 「doc 側が空・手元(store)が非空」の構造フィールドだけを
+ * 手元から id 単位 upsert で再シードする(列増殖しない)。部分的な空(例: 軽減だけ空・
+ * イベントは残る)でも手元を潰さない＝サーバ _logic.ts emptyOverwriteSkips と対の多重防御。
+ * 全構造フィールドが空(=seed 完全失敗)のときだけ labels/memos/meta も手元から復元する。
+ * origin='local' で 1 transaction。observeDeep 経由で store と一致し、onSave で Firestore へ復元される。
+ * 返り値 = 再シードしたフィールド数(0 = 防御不要だった)。
+ */
+function reseedEmptyDocFields(
   doc: Y.Doc,
   s: ReturnType<typeof useMitigationStore.getState>,
-): void {
+): number {
+  const need = fieldsNeedingReseed(
+    {
+      timelineMitigations: readMitigations(doc).length,
+      timelineEvents: readArray(doc, TIMELINE_EVENTS_KEY).length,
+      phases: readArray(doc, PHASES_KEY).length,
+      partyMembers: readArray(doc, PARTY_MEMBERS_KEY).length,
+    },
+    {
+      timelineMitigations: s.timelineMitigations.length,
+      timelineEvents: s.timelineEvents.length,
+      phases: s.phases.length,
+      partyMembers: s.partyMembers.length,
+    },
+  );
+  if (need.size === 0) return 0;
   doc.transact(() => {
-    applyUpsert(doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY), s.timelineMitigations);
-    applyUpsert(doc.getArray<Y.Map<unknown>>(TIMELINE_EVENTS_KEY), s.timelineEvents);
-    applyUpsert(doc.getArray<Y.Map<unknown>>(PHASES_KEY), s.phases);
-    applyUpsert(doc.getArray<Y.Map<unknown>>(LABELS_KEY), s.labels);
-    applyUpsert(doc.getArray<Y.Map<unknown>>(MEMOS_KEY), s.memos);
-    applyUpsert(doc.getArray<Y.Map<unknown>>(PARTY_MEMBERS_KEY), s.partyMembers);
-    if (s.currentLevel !== undefined) setMetaField(doc, META_LEVEL, s.currentLevel);
-    if (s.aaSettings !== undefined) setMetaField(doc, META_AA, s.aaSettings);
-    if (s.schAetherflowPatterns !== undefined) setMetaField(doc, META_SCH, s.schAetherflowPatterns);
+    if (need.has('timelineMitigations')) applyUpsert(doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY), s.timelineMitigations);
+    if (need.has('timelineEvents')) applyUpsert(doc.getArray<Y.Map<unknown>>(TIMELINE_EVENTS_KEY), s.timelineEvents);
+    if (need.has('phases')) applyUpsert(doc.getArray<Y.Map<unknown>>(PHASES_KEY), s.phases);
+    if (need.has('partyMembers')) applyUpsert(doc.getArray<Y.Map<unknown>>(PARTY_MEMBERS_KEY), s.partyMembers);
+    // 全構造フィールドが空 = seed 完全失敗。labels/memos/meta も手元から復元(従来の丸ごと再シード相当)。
+    if (need.size === RESEED_FIELDS.length) {
+      applyUpsert(doc.getArray<Y.Map<unknown>>(LABELS_KEY), s.labels);
+      applyUpsert(doc.getArray<Y.Map<unknown>>(MEMOS_KEY), s.memos);
+      if (s.currentLevel !== undefined) setMetaField(doc, META_LEVEL, s.currentLevel);
+      if (s.aaSettings !== undefined) setMetaField(doc, META_AA, s.aaSettings);
+      if (s.schAetherflowPatterns !== undefined) setMetaField(doc, META_SCH, s.schAetherflowPatterns);
+    }
   }, 'local');
+  return need.size;
 }
 
 /**
@@ -163,18 +164,13 @@ export function applyRoomToStore(
   if (!opts.readOnly) {
     const store = useMitigationStore.getState();
     store.enterCollabMode(opts.handlers);
-    // データ安全(#7・絶対に破壊しない): 部屋が「完全に空」(seed 失敗 / 保存間引きの最中に再接続 /
-    // ハイバネ復帰で揃わない 等)なのに、手元に中身がある場合は、空スナップショットで手元を
-    // 潰さない。オーナーは自分の表の真実なので、手元を正として部屋を id 単位で再シードする
-    // (applyUpsert = id 一致は部分更新・新規のみ push = 列増殖しない / バイナリ永続化と整合)。
-    // → これにより「再接続直後に一瞬空になる / 空が保存される」事故が原理的に起きない。
-    if (isCollabDocEmpty(doc) && localStoreHasPlanData(store)) {
-      reseedDocFromLocalStore(doc, store);
-      // 空スナップショットは適用しない。再シードが observeDeep 経由で store と一致させる。
-      opts.onContentId?.(readContentId(doc));
-      opts.onOwnerLabel?.(readOwnerLabel(doc));
-      return;
-    }
+    // データ安全(絶対に破壊しない): 部屋が空(seed 失敗 / 保存間引き中の再接続 / ハイバネ復帰で
+    // 揃わない 等)なのに手元に中身がある「構造フィールド」は、空スナップショットで潰さず手元を
+    // 正として再シードする。**部分的な空(例: 軽減だけ空・イベントは残る)も対象**(これが今回の
+    // データ破壊の真因で、旧実装は「丸ごと空」しか守れていなかった)。applyUpsert = id 一致は部分
+    // 更新・新規のみ push = 列増殖しない。再シード後は doc が手元と一致するので、下の apply-all を
+    // 空が潰すことはない(早期 return 不要)。サーバ側 emptyOverwriteSkips と対の多重防御。
+    reseedEmptyDocFields(doc, store);
   }
   const s = useMitigationStore.getState();
   s._applyMitigationsFromCollab(readMitigations(doc));
