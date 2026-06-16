@@ -7,6 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { showToast } from '../Toast';
+import { AdminPage } from './AdminPage';
 
 // バックアップエントリーの型
 interface BackupEntry {
@@ -119,37 +120,34 @@ export function AdminBackups() {
   }
 
   return (
-    <div>
-      {/* ヘッダー */}
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-app-3xl font-bold">{t('admin.backups_title')}</h1>
-        <button
-          onClick={fetchBackups}
-          disabled={loading}
-          className="px-3 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
-        >
-          {loading ? '...' : '↺'}
-        </button>
-      </div>
-
-      {error && <p className="text-app-lg text-app-text-muted mb-4">{error}</p>}
-
-      {/* フィルターボタン */}
-      <div className="flex flex-wrap gap-1 mb-4">
-        {filterItems.map((item) => (
+    <AdminPage
+      title={t('admin.backups_title')}
+      actions={
+        <div className="flex items-center gap-2 flex-wrap">
           <button
-            key={item.key}
-            onClick={() => setFilter(item.key)}
-            className={`px-3 py-1 text-app-lg rounded border transition-colors ${
-              filter === item.key
-                ? 'border-app-text bg-app-toggle text-app-toggle-text'
-                : 'border-app-text/20 hover:bg-app-text/10'
-            }`}
+            onClick={fetchBackups}
+            disabled={loading}
+            className="px-3 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors disabled:opacity-50"
           >
-            {t(item.labelKey)}
+            {loading ? '...' : '↺'}
           </button>
-        ))}
-      </div>
+          {filterItems.map((item) => (
+            <button
+              key={item.key}
+              onClick={() => setFilter(item.key)}
+              className={`px-3 py-1 text-app-lg rounded border transition-colors ${
+                filter === item.key
+                  ? 'border-app-text bg-app-toggle text-app-toggle-text'
+                  : 'border-app-text/20 hover:bg-app-text/10'
+              }`}
+            >
+              {t(item.labelKey)}
+            </button>
+          ))}
+        </div>
+      }
+    >
+      {error && <p className="text-app-lg text-app-text-muted mb-4">{error}</p>}
 
       {/* バックアップ一覧 */}
       {loading && <p className="text-app-lg text-app-text-muted">...</p>}
@@ -221,6 +219,6 @@ export function AdminBackups() {
           })}
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }
