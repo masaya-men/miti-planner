@@ -11,6 +11,7 @@ import {
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { commitNewPlan } from '../lib/commitNewPlan';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { PLAN_LIMITS } from '../types/firebase';
@@ -35,7 +36,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     const { t, i18n } = useTranslation();
     const lang = i18n.language === 'en' ? 'en' : 'ja';
 
-    const { plans, addPlan, setCurrentPlanId, updatePlan, currentPlanId: activePlanId } = usePlanStore();
+    const { plans, updatePlan, currentPlanId: activePlanId } = usePlanStore();
     const { getSnapshot } = useMitigationStore();
     const user = useAuthStore(s => s.user);
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -163,7 +164,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         // 5. プラン保存 (crypto.randomUUID で同一 ms 連続作成時の ID 衝突を防止)
         const newPlanId = `plan_${crypto.randomUUID()}`;
         const finalSnapshot = store.getSnapshot();
-        addPlan({
+        // 根治(C-1): 持ち主確定→currentPlanId切替を安全な順序で行う共有処理(直前プラン破壊を防ぐ)
+        commitNewPlan({
             id: newPlanId,
             ownerId: 'local',
             ownerDisplayName: 'Guest',
@@ -178,9 +180,6 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
             createdAt: Date.now(),
             updatedAt: Date.now()
         });
-        setCurrentPlanId(newPlanId);
-        // 根治: 新規プランを作業ストアの持ち主として記録(保存先を確定)
-        useMitigationStore.getState().setLoadedPlanId(newPlanId);
 
         // チュートリアル通知
         useTutorialStore.getState().completeEvent('content:selected');

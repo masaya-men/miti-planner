@@ -39,4 +39,10 @@ describe('useMitigationStore._loadedPlanId (作業ストアの持ち主追跡)',
     useMitigationStore.getState().setLoadedPlanId('plan-C');
     expect(useMitigationStore.getState()._loadedPlanId).toBe('plan-C');
   });
+
+  it('resetForTutorial は _loadedPlanId を null に戻す(ログアウト/全消し後の stale 持ち主を断つ)', () => {
+    useMitigationStore.setState({ _loadedPlanId: 'plan-A', _collabActive: false });
+    useMitigationStore.getState().resetForTutorial();
+    expect(useMitigationStore.getState()._loadedPlanId).toBeNull();
+  });
 });

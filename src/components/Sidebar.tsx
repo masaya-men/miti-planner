@@ -61,6 +61,7 @@ import { SystemNotificationHandleButton } from './SystemNotificationHandleButton
 import { ContextMenu } from './ui/ContextMenu';
 import { decompressPlanData } from '../utils/compression';
 import { loadPlanDataIntoStore } from '../lib/planLoad';
+import { commitNewPlan } from '../lib/commitNewPlan';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 
@@ -989,7 +990,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     const createPlanDirectly = (content: ContentDefinition, planTitle: string, isTutorial?: boolean) => {
         runTransition(async () => {
             const store = useMitigationStore.getState();
-            const planStore = usePlanStore.getState();
 
             store.setCurrentLevel(content.level);
             store.applyDefaultStats(content.level, content.patch);
@@ -1070,7 +1070,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
             // crypto.randomUUID で同一 ms 連続作成時の ID 衝突を防止
             const newPlanId = `plan_${crypto.randomUUID()}`;
-            planStore.addPlan({
+            // 根治(C-1): addPlan→持ち主確定→currentPlanId切替を安全な順序で行う共有処理。
+            // 持ち主を currentPlanId より先に確定し、切替の同期保存が直前プランを壊さないようにする。
+            commitNewPlan({
                 id: newPlanId,
                 ownerId: 'local',
                 ownerDisplayName: 'Guest',
@@ -1083,9 +1085,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
-            planStore.setCurrentPlanId(newPlanId);
-            // 根治: 新規プランを作業ストアの持ち主として記録(保存先を確定し、前プランへの誤保存を防ぐ)
-            useMitigationStore.getState().setLoadedPlanId(newPlanId);
 
             // チュートリアル: トランジション完了後にステップ進行（ローディング中にカード移動が見えない問題を回避）
             setTimeout(() => {

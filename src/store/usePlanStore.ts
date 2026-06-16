@@ -303,7 +303,8 @@ export const usePlanStore = create<PlanState>()(
                                 const localPlan = state.plans.find(p => p.id === currentPlanId);
                                 // リモートの方が新しい場合のみMitigationStoreを更新
                                 if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
-                                    useMitigationStore.getState().loadSnapshot(updatedPlan.data);
+                                    // 根治(I-2): 現在プランを再ロード → 持ち主IDも明示して不変条件を保つ
+                                    useMitigationStore.getState().loadSnapshot(updatedPlan.data, currentPlanId);
                                 }
                             }
                         }
@@ -857,7 +858,8 @@ export const usePlanStore = create<PlanState>()(
                             } else if (updatedPlan.data) {
                                 const localPlan = currentPlans.find(p => p.id === currentPlanId);
                                 if (localPlan && updatedPlan.updatedAt > localPlan.updatedAt) {
-                                    useMitigationStore.getState().loadSnapshot(updatedPlan.data);
+                                    // 根治(I-2): 現在プランを再ロード → 持ち主IDも明示して不変条件を保つ
+                                    useMitigationStore.getState().loadSnapshot(updatedPlan.data, currentPlanId);
                                 }
                             }
                         }

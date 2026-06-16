@@ -80,7 +80,8 @@ export const BackupRestoreModal: React.FC<Props> = ({ isOpen, onClose }) => {
       if (planStore.currentPlanId) {
         const updatedPlan = merged.find((p) => p.id === planStore.currentPlanId);
         if (updatedPlan?.data) {
-          useMitigationStore.getState().loadSnapshot(updatedPlan.data);
+          // 根治(I-2): 現在プランを再ロード → 持ち主IDも明示
+          useMitigationStore.getState().loadSnapshot(updatedPlan.data, planStore.currentPlanId);
         }
       }
 

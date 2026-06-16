@@ -1605,6 +1605,9 @@ export const useMitigationStore = create<MitigationState>()(
                         toolMode: 'idle',
                         _history: [],
                         _future: [],
+                        // 根治(I-1): どの表も載っていない状態なので持ち主を断つ。
+                        // stale な _loadedPlanId への幽霊保存(ログアウト/全消し後)を防ぐ。
+                        _loadedPlanId: null,
                     });
                     if (typeof window !== 'undefined') {
                         window.dispatchEvent(new CustomEvent('tutorial:reset-ui'));

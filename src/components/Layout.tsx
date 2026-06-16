@@ -519,7 +519,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 const plan = plans.find(p => p.id === currentPlanId);
                 if (plan?.data) {
                     isRemoteLoadingRef.current = true;
-                    useMitigationStore.getState().loadSnapshot(plan.data);
+                    // 根治(I-2): 現在プランを再ロード → 持ち主IDも明示
+                    useMitigationStore.getState().loadSnapshot(plan.data, currentPlanId);
                     isRemoteLoadingRef.current = false;
                 }
             }
