@@ -55,6 +55,48 @@ export function decideSave(plan: PlanDocSnapshot | null): SaveDecision {
   return { ok: true, nextVersion: (plan.version ?? 0) + 1 };
 }
 
+// ───────────── 空上書きガード(defense in depth) ─────────────
+
+/**
+ * 空上書きガードの対象 data.* フィールド(構造データ＝空での置換は事実上 desync しか起きない)。
+ * labels / memos は「空が正常」なケースが多いため除外する(誤ブロック回避)。
+ */
+export const GUARDED_ARRAY_FIELDS = [
+  'timelineMitigations',
+  'timelineEvents',
+  'phases',
+  'partyMembers',
+] as const;
+
+export interface GuardArrays {
+  timelineMitigations?: unknown[];
+  timelineEvents?: unknown[];
+  phases?: unknown[];
+  partyMembers?: unknown[];
+}
+
+/**
+ * collab の desync で「空配列」が伝播し、Firestore の非空データを破壊する事故を防ぐ。
+ * 各構造フィールドについて「incoming が空配列 かつ existing が非空配列」なら、そのフィールドは書かない。
+ * 返り値 = 書き込みをスキップすべき data.* フィールド名の集合。
+ *
+ * 重要: スキップしても save レスポンスは ok を返すこと(DO へ 'skipped' を返すと墓標扱いで
+ * バイナリ破棄＝部屋が壊れるため。`postPlanData` は応答に skipped フィールドがあると skipped と解釈する)。
+ * トレードオフ: collab 中の「全消し(意図的な空化)」は Firestore に残らない(=次回 seed で復活)。
+ * 全消しは稀かつ「データ破壊 > 全消し未反映」なので安全側に倒す。明示意図フラグは将来対応。
+ */
+export function emptyOverwriteSkips(incoming: GuardArrays, existing: GuardArrays): Set<string> {
+  const skip = new Set<string>();
+  for (const key of GUARDED_ARRAY_FIELDS) {
+    const inc = incoming[key];
+    const exi = existing[key];
+    if (Array.isArray(inc) && inc.length === 0 && Array.isArray(exi) && exi.length > 0) {
+      skip.add(key);
+    }
+  }
+  return skip;
+}
+
 // ───────────── ②-b-1: 全 PlanData seed ─────────────
 
 /** 全 b-1 data.* を表す snapshot(decideLoadFull 用)。 */

@@ -4,6 +4,7 @@ import {
   decideLoad,
   decideSave,
   decideLoadFull,
+  emptyOverwriteSkips,
   COLLAB_SECRET_HEADER,
   type MitigationRecord,
 } from '../../../api/collab/_logic';
@@ -54,6 +55,46 @@ describe('decideSave', () => {
   it('live → ok + 次 version', () => {
     expect(decideSave({ version: 3 })).toEqual({ ok: true, nextVersion: 4 });
     expect(decideSave({})).toEqual({ ok: true, nextVersion: 1 }); // version 欠落は 0 扱い
+  });
+});
+
+describe('emptyOverwriteSkips (空上書きガード=データ破壊根治)', () => {
+  it('incoming 空配列 & existing 非空 → そのフィールドを書込スキップ', () => {
+    const skip = emptyOverwriteSkips(
+      { timelineMitigations: [] },
+      { timelineMitigations: [m('a')] },
+    );
+    expect(skip.has('timelineMitigations')).toBe(true);
+  });
+  it('incoming 非空 → スキップしない(正常な上書きは通す)', () => {
+    const skip = emptyOverwriteSkips(
+      { timelineMitigations: [m('b')] },
+      { timelineMitigations: [m('a')] },
+    );
+    expect(skip.has('timelineMitigations')).toBe(false);
+  });
+  it('existing も空 → スキップ不要(置換しても害なし)', () => {
+    const skip = emptyOverwriteSkips({ timelineMitigations: [] }, { timelineMitigations: [] });
+    expect(skip.has('timelineMitigations')).toBe(false);
+  });
+  it('incoming 未送信(undefined) → 対象外(ハンドラが元々書かない)', () => {
+    const skip = emptyOverwriteSkips({}, { timelineMitigations: [m('a')] });
+    expect(skip.has('timelineMitigations')).toBe(false);
+  });
+  it('events / phases / partyMembers も同じガード対象', () => {
+    const skip = emptyOverwriteSkips(
+      { timelineEvents: [], phases: [], partyMembers: [] },
+      { timelineEvents: [{ id: 'e' }], phases: [{ id: 'p' }], partyMembers: [{ id: 'MT' }] },
+    );
+    expect([...skip].sort()).toEqual(['partyMembers', 'phases', 'timelineEvents']);
+  });
+  it('複数フィールド: 一部だけ空ならその一部だけスキップ(他は通す)', () => {
+    const skip = emptyOverwriteSkips(
+      { timelineMitigations: [], timelineEvents: [{ id: 'e' }] },
+      { timelineMitigations: [m('a')], timelineEvents: [{ id: 'e0' }] },
+    );
+    expect(skip.has('timelineMitigations')).toBe(true);
+    expect(skip.has('timelineEvents')).toBe(false);
   });
 });
 

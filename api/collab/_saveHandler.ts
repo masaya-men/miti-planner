@@ -3,7 +3,7 @@
 //     緊急停止中は書かない。墓標ガード: deleted なら書かない(削除が勝つ)。
 //     data.timelineMitigations だけ部分更新し version をインクリメント(既存の楽観ロックと整合)。
 import { authorizeCollab, getDb } from './_handlerShared.js';
-import { decideSave, type MitigationRecord, type PlanDocSnapshot } from './_logic.js';
+import { decideSave, emptyOverwriteSkips, type MitigationRecord, type PlanDocSnapshotFull } from './_logic.js';
 import { resolveRoom, isCollabDisabled, type CollabRoomDoc } from './_roomLogic.js';
 import { FieldValue, type Transaction } from 'firebase-admin/firestore';
 
@@ -42,24 +42,36 @@ export default async function handler(req: any, res: any) {
   const ref = db.collection('plans').doc(planId);
   const result = await db.runTransaction(async (tx: Transaction) => {
     const snap = await tx.get(ref);
-    const decision = decideSave(snap.exists ? (snap.data() as PlanDocSnapshot) : null);
+    const planDoc = snap.exists ? (snap.data() as PlanDocSnapshotFull) : null;
+    const decision = decideSave(planDoc);
     if ('skip' in decision) return decision;
+    // 空上書きガード: collab desync で空配列が非空の既存を破壊するのを防ぐ(構造フィールドのみ)。
+    // スキップしても下で ok を返す(DO へ 'skipped' を返すと墓標扱いでバイナリ破棄＝部屋破壊になるため)。
+    const existing = planDoc?.data ?? {};
+    const skip = emptyOverwriteSkips(
+      { timelineMitigations: mitigations, timelineEvents, phases, partyMembers },
+      existing,
+    );
     // mitigations/version/updatedAt は現行どおり。②-b-1: 送られた data.* だけ部分更新
     // (Array.isArray/typeof ガードで「未送信フィールドは触らない」を保証。レガシー planId 経路でも安全)。
     const update: Record<string, unknown> = {
-      'data.timelineMitigations': mitigations,
       version: decision.nextVersion,
       updatedAt: FieldValue.serverTimestamp(),
     };
-    if (Array.isArray(timelineEvents)) update['data.timelineEvents'] = timelineEvents;
-    if (Array.isArray(phases)) update['data.phases'] = phases;
+    if (!skip.has('timelineMitigations')) update['data.timelineMitigations'] = mitigations;
+    if (Array.isArray(timelineEvents) && !skip.has('timelineEvents')) update['data.timelineEvents'] = timelineEvents;
+    if (Array.isArray(phases) && !skip.has('phases')) update['data.phases'] = phases;
     if (Array.isArray(labels)) update['data.labels'] = labels;
     if (Array.isArray(memos)) update['data.memos'] = memos;
     if (typeof currentLevel === 'number') update['data.currentLevel'] = currentLevel;
     if (aaSettings !== undefined) update['data.aaSettings'] = aaSettings;
     if (schAetherflowPatterns !== undefined) update['data.schAetherflowPatterns'] = schAetherflowPatterns;
-    if (Array.isArray(partyMembers)) update['data.partyMembers'] = partyMembers;
+    if (Array.isArray(partyMembers) && !skip.has('partyMembers')) update['data.partyMembers'] = partyMembers;
     tx.update(ref, update);
+    if (skip.size > 0) {
+      // 観測性: ガード発火を記録(どのフィールドを空上書きから守ったか)。
+      console.warn(`collab save: empty-overwrite guard skipped [${[...skip].join(',')}] plan=${planId}`);
+    }
     return decision;
   });
 
