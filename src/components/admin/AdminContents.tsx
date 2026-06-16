@@ -8,6 +8,7 @@ import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
 import { AdminContentForm, type ContentData, type NewSeriesPayload } from './AdminContentForm';
+import { AdminPage } from './AdminPage';
 
 export function AdminContents() {
   const { t } = useTranslation();
@@ -132,17 +133,17 @@ export function AdminContents() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-app-3xl font-bold">{t('admin.contents_title')}</h1>
+    <AdminPage
+      title={t('admin.contents_title')}
+      actions={
         <button
           onClick={startAdd}
           className="px-3 py-1.5 text-app-lg border border-app-text/30 rounded hover:bg-app-text/10 transition-colors"
         >
           + {t('admin.contents_add')}
         </button>
-      </div>
-
+      }
+    >
       {/* フォーム */}
       {showForm && (
         <div className="mb-6 p-4 border border-app-text/10 rounded">
@@ -214,6 +215,6 @@ export function AdminContents() {
           </table>
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }
