@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
 import { Search, Star, Loader2 } from 'lucide-react';
 import { PopularBrowseView } from './PopularBrowseView';
+import { AdminPage } from './AdminPage';
 
 /** 共有URLまたはshareIdからshareId部分を抽出 */
 function extractShareId(input: string): string {
@@ -261,25 +262,27 @@ export function AdminFeatured() {
   const [view, setView] = useState<'browse' | 'search'>('browse');
 
   return (
-    <div>
-      {/* セグメントコントロール */}
-      <div className="inline-flex p-1 bg-app-surface2 rounded-lg border border-app-border mb-4">
-        {(['browse', 'search'] as const).map(v => (
-          <button
-            key={v}
-            onClick={() => setView(v)}
-            className={`px-4 py-1.5 rounded-md text-app-lg font-semibold transition-colors ${
-              view === v
-                ? 'bg-app-text text-app-bg'
-                : 'text-app-text-muted hover:text-app-text'
-            }`}
-          >
-            {t(v === 'browse' ? 'admin.popular_view_tab' : 'admin.popular_search_tab')}
-          </button>
-        ))}
-      </div>
-
+    <AdminPage
+      title={t('admin.featured_title')}
+      actions={
+        <div className="inline-flex p-1 bg-app-surface2 rounded-lg border border-app-border">
+          {(['browse', 'search'] as const).map(v => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`px-4 py-1.5 rounded-md text-app-lg font-semibold transition-colors ${
+                view === v
+                  ? 'bg-app-text text-app-bg'
+                  : 'text-app-text-muted hover:text-app-text'
+              }`}
+            >
+              {t(v === 'browse' ? 'admin.popular_view_tab' : 'admin.popular_search_tab')}
+            </button>
+          ))}
+        </div>
+      }
+    >
       {view === 'browse' ? <PopularBrowseView /> : <PopularSearchView />}
-    </div>
+    </AdminPage>
   );
 }
