@@ -15,6 +15,7 @@ export async function loadPlanDataIntoStore(plan: SavedPlan): Promise<PlanData |
   if ((!data || Object.keys(data).length === 0) && plan.compressedData) {
     data = await decompressPlanData(plan.compressedData);
   }
-  if (data) useMitigationStore.getState().loadSnapshot(data);
+  // 根治: 読み込んだ表の ID を作業ストアの持ち主として記録(保存先の決定に使う)。
+  if (data) useMitigationStore.getState().loadSnapshot(data, plan.id);
   return data;
 }

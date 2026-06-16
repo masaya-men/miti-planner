@@ -179,6 +179,8 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
             updatedAt: Date.now()
         });
         setCurrentPlanId(newPlanId);
+        // 根治: 新規プランを作業ストアの持ち主として記録(保存先を確定)
+        useMitigationStore.getState().setLoadedPlanId(newPlanId);
 
         // チュートリアル通知
         useTutorialStore.getState().completeEvent('content:selected');

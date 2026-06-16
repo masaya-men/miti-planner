@@ -709,7 +709,7 @@ const ArchivePlanRow: React.FC<ArchivePlanRowProps> = ({ plan, currentPlanId, ru
                             store.updatePlan(store.currentPlanId, { data: snap });
                         }
                         store.updatePlan(plan.id, { data });
-                        useMitigationStore.getState().loadSnapshot(data);
+                        useMitigationStore.getState().loadSnapshot(data, plan.id);
                         store.setCurrentPlanId(plan.id);
                         // lastOpenedAt を更新
                         setLastOpened(plan.id, Date.now());
@@ -1084,6 +1084,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 updatedAt: Date.now()
             });
             planStore.setCurrentPlanId(newPlanId);
+            // 根治: 新規プランを作業ストアの持ち主として記録(保存先を確定し、前プランへの誤保存を防ぐ)
+            useMitigationStore.getState().setLoadedPlanId(newPlanId);
 
             // チュートリアル: トランジション完了後にステップ進行（ローディング中にカード移動が見えない問題を回避）
             setTimeout(() => {
@@ -1135,8 +1137,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                 }
             }
 
-            // Load new plan
-            loadSnapshot(planData);
+            // Load new plan (根治: 持ち主 ID を記録して保存先を確定)
+            loadSnapshot(planData, planId);
             setCurrentPlanId(planId);
             setSelectedContentId(plan.contentId);
             const c = plan.contentId ? getContentById(plan.contentId) : undefined;

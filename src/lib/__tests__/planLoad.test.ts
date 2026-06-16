@@ -12,7 +12,8 @@ describe('loadPlanDataIntoStore', () => {
   it('data があればそのまま loadSnapshot に渡し、その data を返す', async () => {
     const spy = vi.spyOn(useMitigationStore.getState(), 'loadSnapshot').mockImplementation(() => {});
     const ret = await loadPlanDataIntoStore({ id: 'p1', data: { marker: 'plain' } } as any);
-    expect(spy).toHaveBeenCalledWith({ marker: 'plain' });
+    // 根治: 持ち主 ID(plan.id) も渡す
+    expect(spy).toHaveBeenCalledWith({ marker: 'plain' }, 'p1');
     expect(ret).toEqual({ marker: 'plain' });
     spy.mockRestore();
   });
@@ -20,7 +21,8 @@ describe('loadPlanDataIntoStore', () => {
   it('data が空 + compressedData があれば解凍して loadSnapshot に渡し、解凍結果を返す', async () => {
     const spy = vi.spyOn(useMitigationStore.getState(), 'loadSnapshot').mockImplementation(() => {});
     const ret = await loadPlanDataIntoStore({ id: 'p1', data: {}, compressedData: 'xxx' } as any);
-    expect(spy).toHaveBeenCalledWith({ marker: 'decompressed' });
+    // 根治: 持ち主 ID(plan.id) も渡す
+    expect(spy).toHaveBeenCalledWith({ marker: 'decompressed' }, 'p1');
     expect(ret).toEqual({ marker: 'decompressed' });
     spy.mockRestore();
   });

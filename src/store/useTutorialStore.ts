@@ -118,7 +118,7 @@ function restoreUserState(state: TutorialState) {
   if (savedPlanId) {
     const savedPlan = planStore.getPlan(savedPlanId);
     if (savedPlan) {
-      mitiState.loadSnapshot(savedPlan.data);
+      mitiState.loadSnapshot(savedPlan.data, savedPlanId);
       planStore.setCurrentPlanId(savedPlanId);
       restoredContentId = savedPlan.contentId;
     } else if (savedSnapshot) {

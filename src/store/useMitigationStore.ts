@@ -92,6 +92,9 @@ interface MitigationState {
     /** ⑤-3b: ジョイナー読み取り専用中は localStorage persist を skip し、自分の保存データを汚さない。 */
     _collabReadonly: boolean;
     setCollabReadonly: (v: boolean) => void;
+    /** 根治: 作業ストアが今どの表の内容を載せているか(=データの持ち主)。保存先の決定に使う。 */
+    _loadedPlanId: string | null;
+    setLoadedPlanId: (id: string | null) => void;
 
     // Actions
     setCurrentLevel: (level: number) => void;
@@ -140,7 +143,7 @@ interface MitigationState {
 
     // Snapshot Actions
     getSnapshot: () => PlanData;
-    loadSnapshot: (snapshot: PlanData) => void;
+    loadSnapshot: (snapshot: PlanData, planId?: string) => void;
 
     // UI Actions
     setMyMemberId: (memberId: string | null) => void;
@@ -541,6 +544,8 @@ export const useMitigationStore = create<MitigationState>()(
                 _collabHandlers: null,
                 _collabReadonly: false,
                 setCollabReadonly: (v) => set({ _collabReadonly: v }),
+                _loadedPlanId: null,
+                setLoadedPlanId: (id) => set({ _loadedPlanId: id }),
 
                 enterCollabMode: (handlers) => set({ _collabActive: true, _collabHandlers: handlers }),
 
@@ -599,7 +604,7 @@ export const useMitigationStore = create<MitigationState>()(
                     };
                 },
 
-                loadSnapshot: (snapshot) => {
+                loadSnapshot: (snapshot, planId) => {
                     // 共同編集中は部屋の状態(seed)が唯一の正。別プランの読込で無言 desync させない。
                     if (get()._collabActive) return;
                     const membersWithComputed = snapshot.partyMembers.map((m: PartyMember) => ({
@@ -659,6 +664,8 @@ export const useMitigationStore = create<MitigationState>()(
                         // Reset Undo/Redo on load
                         _history: [],
                         _future: [],
+                        // 根治: このスナップショットの持ち主を記録(保存先=loadedPlanId の決定に使う)。
+                        ...(planId !== undefined ? { _loadedPlanId: planId } : {}),
                     });
 
                     // チュートリアル: content:selected はSidebar.tsx側でトランジション完了後に発火する

@@ -9,6 +9,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { reconcileCollabForPlan } from '../lib/collab/collabLifecycle';
 import { shouldRestoreMitigationFromPlan } from '../lib/bootstrapMitigation';
+import { persistWorkingStore } from '../lib/persistWorkingStore';
 import { Sidebar } from './Sidebar';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
@@ -237,8 +238,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             mitigationSnapshot: useMitigationStore.getState().getSnapshot(),
         }) && plan?.data) {
             isRemoteLoadingRef.current = true;
-            useMitigationStore.getState().loadSnapshot(plan.data);
+            useMitigationStore.getState().loadSnapshot(plan.data, currentPlanId!);
             isRemoteLoadingRef.current = false;
+        } else if (currentPlanId) {
+            // 通常起動: 作業ストア(persist 復元済)は currentPlanId を表している → 持ち主を記録。
+            // これが無いと初回保存で _loadedPlanId=null となり保存がスキップされる。
+            useMitigationStore.getState().setLoadedPlanId(currentPlanId);
         }
     }, []);
 
@@ -280,13 +285,17 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     // localStorage: 変更検知→500msデバウンス→即時保存（コストゼロ）
     // Firestore: イベント駆動（ページ離脱 / タブ非表示 / プラン切替時）+ 5分定期バックアップ
     React.useEffect(() => {
-        /** localStorage への保存 */
+        /** localStorage への保存。
+         * 根治: 保存先は「今 UI が見ている表(currentPlanId)」ではなく
+         * 「作業ストアが載せている表の持ち主(_loadedPlanId)」。表を素早く切り替えた
+         * 一瞬に両者がズレても、データは自分の表以外に書き込まれない(切替先を空で潰さない)。 */
         const saveSilently = () => {
-            const planStore = usePlanStore.getState();
             const mitiStore = useMitigationStore.getState();
-            if (planStore.currentPlanId) {
-                planStore.updatePlan(planStore.currentPlanId, { data: mitiStore.getSnapshot() });
-            }
+            persistWorkingStore({
+                loadedPlanId: mitiStore._loadedPlanId,
+                getSnapshot: () => mitiStore.getSnapshot(),
+                updatePlan: (id, patch) => usePlanStore.getState().updatePlan(id, patch),
+            });
         };
 
         /** Firestoreへの同期（ログイン中 + dirtyがある場合のみ）
