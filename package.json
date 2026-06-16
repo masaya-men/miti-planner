@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:admin": "vite --mode admin-sandbox",
     "build": "tsc -b && tsc -p tsconfig.api.json && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

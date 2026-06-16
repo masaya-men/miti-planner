@@ -1,6 +1,7 @@
 // src/lib/apiClient.ts
 import { getToken } from 'firebase/app-check';
 import { appCheck, auth } from './firebase';
+import { isAdminSandbox } from '../dev/sandboxMode';
 
 /**
  * App Checkトークン + Firebase IDトークン付きfetchラッパー
@@ -10,6 +11,14 @@ export async function apiFetch(
   url: string,
   options: RequestInit = {}
 ): Promise<Response> {
+  // 管理画面サンドボックス: dev かつ admin-sandbox モードのときだけダミー応答にすり替える。
+  // 先頭の import.meta.env.DEV は本番ビルドでこのブロック(動的importごと)を dead-code 除去するために必須。
+  if (import.meta.env.DEV && isAdminSandbox()) {
+    const { mockApiFetch } = await import('../dev/adminSandbox/mockApi');
+    const mocked = await mockApiFetch(url, options);
+    if (mocked) return mocked;
+  }
+
   const headers = new Headers(options.headers);
 
   // App Checkトークン付与

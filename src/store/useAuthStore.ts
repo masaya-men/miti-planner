@@ -22,6 +22,7 @@ import { useMitigationStore } from './useMitigationStore';
 import { deleteTeamLogo } from '../utils/logoUpload';
 import { deleteAvatar } from '../utils/avatarUpload';
 import { apiFetch } from '../lib/apiClient';
+import { isAdminSandbox } from '../dev/sandboxMode';
 
 type AuthProvider = 'discord';
 
@@ -276,45 +277,49 @@ async function processPendingAuth() {
     }
 }
 
-// Auth状態の監視（アプリ起動時に1回だけ実行）
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        // Custom Claimsから管理者フラグを取得（認証に必須 → awaitで待つ）
-        const tokenResult = await user.getIdTokenResult();
-        const isAdmin = tokenResult.claims.role === 'admin';
+// サンドボックスでは本物の認証を一切起動しない（偽管理者が bootstrap で注入される）。
+// 先頭の import.meta.env.DEV は本番でこの条件を常に true 側へ静的解決させ通常起動を保証する。
+if (!(import.meta.env.DEV && isAdminSandbox())) {
+    // Auth状態の監視（アプリ起動時に1回だけ実行）
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Custom Claimsから管理者フラグを取得（認証に必須 → awaitで待つ）
+            const tokenResult = await user.getIdTokenResult();
+            const isAdmin = tokenResult.claims.role === 'admin';
 
-        // 認証完了 → loading: false を先に設定（画面表示をブロックしない）
-        useAuthStore.setState({ user, loading: false, isAdmin });
+            // 認証完了 → loading: false を先に設定（画面表示をブロックしない）
+            useAuthStore.setState({ user, loading: false, isAdmin });
 
-        // Firestoreからプロフィール読み込み（バックグラウンド）
-        try {
-            const userDoc = await getDoc(doc(db, COLLECTIONS.USERS, user.uid));
-            if (userDoc.exists()) {
-                const data = userDoc.data();
-                useAuthStore.setState({
-                    profileDisplayName: data.displayName || null,
-                    profileAvatarUrl: data.avatarUrl || null,
-                    teamLogoUrl: data.teamLogoUrl || null,
-                    isNewUser: false,
-                });
-            } else {
-                useAuthStore.setState({ isNewUser: true });
+            // Firestoreからプロフィール読み込み（バックグラウンド）
+            try {
+                const userDoc = await getDoc(doc(db, COLLECTIONS.USERS, user.uid));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    useAuthStore.setState({
+                        profileDisplayName: data.displayName || null,
+                        profileAvatarUrl: data.avatarUrl || null,
+                        teamLogoUrl: data.teamLogoUrl || null,
+                        isNewUser: false,
+                    });
+                } else {
+                    useAuthStore.setState({ isNewUser: true });
+                }
+            } catch {
+                // Firestore読み込み失敗は無視
             }
-        } catch {
-            // Firestore読み込み失敗は無視
+        } else {
+            useAuthStore.setState({
+                user: null,
+                loading: false,
+                isAdmin: false,
+                profileDisplayName: null,
+                profileAvatarUrl: null,
+                teamLogoUrl: null,
+                isNewUser: false,
+            });
         }
-    } else {
-        useAuthStore.setState({
-            user: null,
-            loading: false,
-            isAdmin: false,
-            profileDisplayName: null,
-            profileAvatarUrl: null,
-            teamLogoUrl: null,
-            isNewUser: false,
-        });
-    }
-});
+    });
 
-// リダイレクト認証の結果を処理
-processPendingAuth();
+    // リダイレクト認証の結果を処理
+    processPendingAuth();
+}
