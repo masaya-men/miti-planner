@@ -27,6 +27,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
+- **✅ 2026-06-16 管理画面サンドボックス(開発専用ツール)完成 (branch `feat/mobile-bottom-nav-redesign`・全8タスクTDD・未push)**: 管理画面をデプロイ/ログイン無し・本番非接触でローカル確認する道具。`npm run dev:admin` で起動→`/admin/templates` が60件ダミー入りで表示(ログイン不要)。通常 `npm run dev` はログイン要求(暴発なし)・本番ビルドは dead-code 除去で開発コード0(dist実測確認済)。実装本体=`src/dev/sandboxMode.ts`+`src/dev/adminSandbox/`(fixtures/store/mockApi/bootstrap)、本体改変3箇所(apiClient分岐/useAuthStore認証スキップ/main.tsx起動)は全て `import.meta.env.DEV && isAdminSandbox()` ガード付き。設計=specs/2026-06-16-admin-sandbox-design.md / 計画=plans/2026-06-16-admin-sandbox.md / 詳細 memory `reference_admin_sandbox`。**次=この道具で管理画面ネイティブアプリ風リデザイン(全14ページ共通方針を1回ブレストで決める→横展開)。まずテンプレ管理から。他ページはfixturesを1枚ずつ足す**。
 - **✅ 2026-06-16 バグ修正3件 (branch `feat/mobile-bottom-nav-redesign`)**:
   - **【本命・ユーザー報告】軽減追加モーダルでチャージ技のリキャストが出ない (push済 or 本コミット)**: 表クリックで出る `MitigationSelector` で、通常技は「CD残○○s」が出るのにチャージ技(星天交差/ディヴァインベニゾン等)は秒数が一切出なかった。真因=`validateMitigationPlacement`([resourceTracker.ts](../src/utils/resourceTracker.ts))のチャージ分岐が早期returnし通常CD表示経路を通らない+実効1チャージ(Lv88未満)では文言ゼロで原因不明だった。**A案で修正**: 新設 `getTimeUntilNextCharge` で次チャージ秒数算出→ effMax=1は通常技と同じ「CD残○○s」/ effMax≥2はバッジ維持+回復中は「次チャージ○○s」(1/2=配置可・中立色併記、0/2=配置不可・メッセージ)。`requires`(窓)系は対象外。i18n `next_charge_in` 4言語追加。全recast系チャージ技に一貫適用(タンクのオブレーション等含む)。TDD: chargeLevelGate.test.ts に4ケース追加=11緑。**スクショ確認は初回チュートリアル多重オーバーレイで自動化困難=未取得→実機確認はユーザー**。
   - **リキャスト行(ヘッダー)クロックが配置直後に出ない (push済)**: ※当初これを報告バグと誤認して修正。実在の別バグなので残置。下記バグ欄 ✅ 参照(Timeline.tsx syncRecastRow)。
