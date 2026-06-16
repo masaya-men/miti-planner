@@ -11,6 +11,7 @@ import { apiFetch } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { showToast } from '../Toast';
 import type { LevelModifier, TemplateStats } from '../../types';
+import { AdminPage } from './AdminPage';
 
 interface StatsData {
   levelModifiers: Record<string, LevelModifier>;
@@ -131,9 +132,9 @@ export function AdminStats() {
     : [];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-app-3xl font-bold">ステータス管理</h1>
+    <AdminPage
+      title="ステータス管理"
+      actions={
         <button
           onClick={handleSave}
           disabled={saving || !dirty}
@@ -141,8 +142,8 @@ export function AdminStats() {
         >
           {saving ? '...' : t('admin.save')}
         </button>
-      </div>
-
+      }
+    >
       {error && <p className="text-app-lg text-app-text-muted mb-4">{error}</p>}
       {loading && <p className="text-app-lg text-app-text-muted">...</p>}
 
@@ -335,6 +336,6 @@ export function AdminStats() {
           </section>
         </div>
       )}
-    </div>
+    </AdminPage>
   );
 }
