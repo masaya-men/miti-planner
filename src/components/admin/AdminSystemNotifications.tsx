@@ -15,6 +15,7 @@ import {
 import { Pencil, Trash2, Eye, EyeOff, Plus } from 'lucide-react';
 import { apiFetch } from '../../lib/apiClient';
 import type { SystemNotification, LocalizedText } from '../../types/systemNotification';
+import { AdminPage } from './AdminPage';
 
 function emptyLocalized(): LocalizedText {
   return { ja: '', en: '' };
@@ -93,9 +94,9 @@ export const AdminSystemNotifications: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-app-2xl font-bold">{t('system_notif.admin.page_title')}</h1>
+    <AdminPage
+      title={t('system_notif.admin.page_title')}
+      actions={
         <button
           type="button"
           onClick={openNew}
@@ -103,8 +104,8 @@ export const AdminSystemNotifications: React.FC = () => {
         >
           <Plus size={16} /> {t('system_notif.admin.new_button')}
         </button>
-      </div>
-
+      }
+    >
       {items.length === 0 ? (
         <div className="text-app-text-muted py-8 text-center">{t('system_notif.admin.list_empty')}</div>
       ) : (
@@ -164,7 +165,7 @@ export const AdminSystemNotifications: React.FC = () => {
           errorMsg={errorMsg}
         />
       )}
-    </div>
+    </AdminPage>
   );
 };
 
