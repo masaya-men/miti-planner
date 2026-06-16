@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { apiFetch } from '../../lib/apiClient';
+import { AdminPage } from './AdminPage';
 
 // ---- 型定義 ----
 interface AuditLog {
@@ -153,8 +154,8 @@ export function AdminDashboard() {
   };
 
   return (
-    <div className="space-y-10">
-      <h1 className="text-app-3xl font-bold">{t('admin.dashboard')}</h1>
+    <AdminPage title={t('admin.dashboard')}>
+      <div className="space-y-10">
 
       {/* 統計 */}
       <section>
@@ -276,6 +277,7 @@ export function AdminDashboard() {
           <div className="text-app-2xl font-bold">{t('admin.dash_restore_backup')}</div>
         </button>
       </section>
-    </div>
+      </div>
+    </AdminPage>
   );
 }
