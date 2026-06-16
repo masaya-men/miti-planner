@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TranslationTable } from './TranslationTable';
 import { TranslationCsvTools } from './TranslationCsvTools';
+import { AdminPage } from './AdminPage';
 import type { TranslationCategory, TranslationRow, TranslationDataSet } from '../../lib/translationDataLoaders';
 import {
   loadSkillTranslations, loadContentTranslations,
@@ -163,118 +164,122 @@ export function AdminTranslations() {
   const koPercent = total ? Math.round((koDone / total) * 100) : 0;
 
   return (
-    <div className="max-w-[1200px]">
-      <h1 className="text-app-2xl font-bold mb-4">{t('admin.translations_title')}</h1>
-
-      {/* Category tabs */}
-      <div className="flex gap-1 mb-4 border-b border-app-text/10 pb-2">
-        {CATEGORIES.map(cat => (
+    <AdminPage
+      title={t('admin.translations_title')}
+      actions={
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Progress display */}
+          {total > 0 && (
+            <span className="text-app-sm text-app-text-muted shrink-0">
+              zh: {zhDone}/{total} ({zhPercent}%) / ko: {koDone}/{total} ({koPercent}%)
+            </span>
+          )}
+          {/* Untranslated-only filter */}
+          <label className="flex items-center gap-1.5 text-app-base cursor-pointer shrink-0">
+            <input
+              type="checkbox"
+              checked={untranslatedOnly}
+              onChange={e => setUntranslatedOnly(e.target.checked)}
+            />
+            {t('admin.translations_filter_untranslated')}
+          </label>
+          {/* Save button + message */}
           <button
-            key={cat.key}
-            onClick={() => setCategory(cat.key)}
-            className={`px-4 py-2 rounded-t text-app-base transition-colors ${
-              category === cat.key
-                ? 'bg-app-text/10 font-bold border-b-2 border-app-text'
-                : 'hover:bg-app-text/5'
+            onClick={handleSave}
+            disabled={!hasChanges || saving}
+            className={`px-6 py-2 rounded text-app-base font-bold transition-colors ${
+              hasChanges && !saving
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-app-text/10 text-app-text-muted cursor-not-allowed'
             }`}
           >
-            {t(cat.labelKey)}
+            {saving ? '保存中...' : t('admin.translations_save')}
           </button>
-        ))}
-      </div>
-
-      {/* Content selector for attacks/phases */}
-      {(category === 'attacks' || category === 'phases') && (
-        <div className="mb-4">
-          <select
-            value={selectedContent}
-            onChange={e => setSelectedContent(e.target.value)}
-            className="px-3 py-2 border border-app-text/20 rounded bg-app-bg text-app-base"
-          >
-            <option value="">{t('admin.translations_filter_content')}...</option>
-            {templateList.map(tpl => (
-              <option key={tpl.value} value={tpl.value}>{tpl.label}</option>
-            ))}
-          </select>
+          {message && (
+            <span className={message.includes('エラー') ? 'text-red-500' : 'text-green-600'}>
+              {message}
+            </span>
+          )}
         </div>
-      )}
+      }
+    >
+      <div className="max-w-[1200px]">
+        {/* Body control bar: category tabs, content selector, group filter, CSV tools */}
 
-      {/* Filter bar */}
-      <div className="flex gap-3 items-center mb-3 flex-wrap">
-        {groups.length > 0 && (
-          <select
-            value={selectedGroup}
-            onChange={e => setSelectedGroup(e.target.value)}
-            className="px-3 py-1.5 border border-app-text/20 rounded bg-app-bg text-app-base"
-          >
-            <option value="">{t('admin.translations_filter_all')}</option>
-            {groups.map(g => (
-              <option key={g.value} value={g.value}>{g.label}</option>
-            ))}
-          </select>
-        )}
-        <label className="flex items-center gap-1.5 text-app-base cursor-pointer">
-          <input
-            type="checkbox"
-            checked={untranslatedOnly}
-            onChange={e => setUntranslatedOnly(e.target.checked)}
-          />
-          {t('admin.translations_filter_untranslated')}
-        </label>
-      </div>
-
-      {/* Progress */}
-      {total > 0 && (
-        <div className="flex gap-4 mb-3 text-app-sm text-app-text-muted">
-          <span>zh: {zhDone}/{total} ({zhPercent}%)</span>
-          <span>ko: {koDone}/{total} ({koPercent}%)</span>
+        {/* Category tabs */}
+        <div className="flex gap-1 mb-4 border-b border-app-text/10 pb-2">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat.key}
+              onClick={() => setCategory(cat.key)}
+              className={`px-4 py-2 rounded-t text-app-base transition-colors ${
+                category === cat.key
+                  ? 'bg-app-text/10 font-bold border-b-2 border-app-text'
+                  : 'hover:bg-app-text/5'
+              }`}
+            >
+              {t(cat.labelKey)}
+            </button>
+          ))}
         </div>
-      )}
 
-      {/* CSV tools */}
-      <TranslationCsvTools rows={rows} category={category} onImport={handleImport} />
-
-      {/* Table */}
-      <div className="mt-4">
-        {loading ? (
-          <div className="text-app-text-muted py-8 text-center">読み込み中...</div>
-        ) : filteredRows.length === 0 ? (
-          <div className="text-app-text-muted py-8 text-center">
-            {(category === 'attacks' || category === 'phases') && !selectedContent
-              ? 'コンテンツを選択してください'
-              : 'データがありません'}
+        {/* Content selector for attacks/phases */}
+        {(category === 'attacks' || category === 'phases') && (
+          <div className="mb-4">
+            <select
+              value={selectedContent}
+              onChange={e => setSelectedContent(e.target.value)}
+              className="px-3 py-2 border border-app-text/20 rounded bg-app-bg text-app-base"
+            >
+              <option value="">{t('admin.translations_filter_content')}...</option>
+              {templateList.map(tpl => (
+                <option key={tpl.value} value={tpl.value}>{tpl.label}</option>
+              ))}
+            </select>
           </div>
-        ) : (
-          <TranslationTable
-            rows={filteredRows}
-            originalRows={filteredIndices.map(i => originalRows[i])}
-            onChange={(filteredIdx, field, value) => {
-              const realIdx = filteredIndices[filteredIdx];
-              handleCellChange(realIdx, field, value);
-            }}
-          />
         )}
-      </div>
 
-      {/* Save button + message */}
-      <div className="mt-4 flex items-center gap-3">
-        <button
-          onClick={handleSave}
-          disabled={!hasChanges || saving}
-          className={`px-6 py-2 rounded text-app-base font-bold transition-colors ${
-            hasChanges && !saving
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-app-text/10 text-app-text-muted cursor-not-allowed'
-          }`}
-        >
-          {saving ? '保存中...' : t('admin.translations_save')}
-        </button>
-        {message && (
-          <span className={message.includes('エラー') ? 'text-red-500' : 'text-green-600'}>
-            {message}
-          </span>
+        {/* Group filter */}
+        {groups.length > 0 && (
+          <div className="mb-3">
+            <select
+              value={selectedGroup}
+              onChange={e => setSelectedGroup(e.target.value)}
+              className="px-3 py-1.5 border border-app-text/20 rounded bg-app-bg text-app-base"
+            >
+              <option value="">{t('admin.translations_filter_all')}</option>
+              {groups.map(g => (
+                <option key={g.value} value={g.value}>{g.label}</option>
+              ))}
+            </select>
+          </div>
         )}
+
+        {/* CSV tools */}
+        <TranslationCsvTools rows={rows} category={category} onImport={handleImport} />
+
+        {/* Table */}
+        <div className="mt-4">
+          {loading ? (
+            <div className="text-app-text-muted py-8 text-center">読み込み中...</div>
+          ) : filteredRows.length === 0 ? (
+            <div className="text-app-text-muted py-8 text-center">
+              {(category === 'attacks' || category === 'phases') && !selectedContent
+                ? 'コンテンツを選択してください'
+                : 'データがありません'}
+            </div>
+          ) : (
+            <TranslationTable
+              rows={filteredRows}
+              originalRows={filteredIndices.map(i => originalRows[i])}
+              onChange={(filteredIdx, field, value) => {
+                const realIdx = filteredIndices[filteredIdx];
+                handleCellChange(realIdx, field, value);
+              }}
+            />
+          )}
+        </div>
       </div>
-    </div>
+    </AdminPage>
   );
 }
