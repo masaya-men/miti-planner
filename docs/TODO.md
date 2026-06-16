@@ -9,26 +9,19 @@
 
 ---
 
-## 🔴 データ破壊バグ 緊急対応 (2026-06-16) — 根治2件デプロイ済・残=PITR復旧
+## ✅ データ破壊バグ 緊急対応 (2026-06-16) — 根治2件デプロイ済 + PITR復旧完了・PITRオフ済
 
-**根治2件、本番デプロイ済 (main eb1e49b・lopoly.app 配信中=index-5HvXnGOM.js 確認済)**:
-- **バグ①(非collab)**: プラン切替/新規作成時、保存が「今見てる表(新ID)」に「旧表の中身(部分空=軽減0)」を書き込み他プランを破壊。→ 作業ストアに `_loadedPlanId`(持ち主ID)を持たせ、保存は持ち主にだけ行う `persistWorkingStore`/`commitNewPlan` に統一([src/lib/persistWorkingStore.ts](../src/lib/persistWorkingStore.ts)/[commitNewPlan.ts](../src/lib/commitNewPlan.ts))。TDD+独立レビュー3回(C-1=新規作成順序の罠を発見し修正済)。commits 455cc20/23eb334/5e18a33。
-- **バグ②(collab)**: 共同編集ON中に新規作成すると、初期化の `clearAllMitigations`/`updatePartyBulk` が「今繋がってる部屋(別プラン)」に委譲され軽減もパーティも全消し。→ 両create フロー冒頭で `useCollabSessionStore.disconnect()`(失効せず切断=同期で_collabActive=false)してからローカル初期化([useCollabSessionStore.ts](../src/store/useCollabSessionStore.ts) disconnect)。TDD([collabCreateGuard.test.ts](../src/store/__tests__/collabCreateGuard.test.ts))+独立監査(他に委譲破壊経路なしと確認)。commit eb1e49b。
-- 全1752緑(既知5のみ=TopBar4+HousingWorkspace1)・build EXIT 0。
+**根治2件 本番デプロイ済 (main eb1e49b)**: ①非collab=保存先を持ち主(`_loadedPlanId`)に固定(`persistWorkingStore`/`commitNewPlan`)で他プラン破壊を根治(455cc20/23eb334/5e18a33) ②collab=create冒頭で `useCollabSessionStore.disconnect()` してから初期化(別部屋への委譲全消しを根治・collabCreateGuard.test.ts)。詳細は git log + [TODO_COMPLETED.md] 参照。
 
-**安全網(本日設定済)**: PITR=**ON**(7日・分単位)/ 日次7日+週次14日バックアップ。**復旧が済み数日安定するまで切らない**(切るなら週次/日次は恒久残し・PITRのみ任意で外す・要実費確認)。
+**PITR切り分け＆復旧 完了 (2026-06-16)**:
+- PITR を一時ON(earliestVersionTime=**06-16 04:44 UTC=13:44 JST**)。**復元可は有効化後に空化した被害のみ**と判明。正しい過去読み=**read-only tx + readTime**(getAllは無効。memory `reference_firestore_pitr_disabled`)。新規スクリプト: `probe-pitr-timeline.ts`/`sweep-pitr-losses.ts`/`restore-from-pitr.ts`/`set-pitr.ts`。
+- 切り分け結果(直近3件): **固定 plan_31aee72d=15:32 JST に197軽減を一発全消し→PITR直前版(v459)で完全復旧** ✅(書込前backup=docs/.private/backups/)。UMAD ×2(plan_6b3fe52e/plan_e136a1fb)は**境界前に空化+兄弟コピー無し→復元不能**(本人再構築のみ)。
+- **全件スイープで境界後の新規被害=残0**(取りこぼし無し)。兄弟復元 HIGH=0/REVIEW=5(別戦闘疑いで方針どおりスキップ=本人自己復旧)。
+- 後始末済: **PITRオフ**(コスト停止・日次/週次バックアップは残置) / **recovery-0608 削除済**(課金停止)。
 
-**復旧状況**: 兄弟コピーから15表復旧済(`scripts/restore-mit-loss-batch.ts`・書込前backup=docs/.private/backups/)。6/8週次を `recovery-0608` へ復元済(`scripts/restore-from-backup-sweep.ts`で突合・追加被害は1件のみ確認)。
+**監視項目(低優先)**: collabで稀に単発軽減が同期取り合いで落ちる一過性グリッチ。再現せず。再発したらYjs同期堅牢化。
 
-### 🔴 次セッション最優先: PITRで直近被害を切り分け＆復旧
-- `scripts/diag-mit-loss.ts` で直近(今日付き)の mit=0 を確認: **UMAD plan_6b3fe52e(06-16 08:14・v209)/固定 plan_31aee72d(06-16 06:33・v462)/UMAD plan_e136a1fb(01:31・v6)** 等。全て collab=無。
-- ⚠ **新規被害か「古い被害を持ち主が今日開いて再保存(空のままversion++)」か未切り分け**。**PITR(ON)で各表の mit が >0→0 になった時刻を遡って確定** → 新規被害だけ直前時刻の値で復元。08:14 がもし修正デプロイ後ならSWキャッシュで旧コードを踏んだ客の可能性大(SW更新で自然収束)→要確認。
-- ユーザーのテスト用FRU(野良主流)も戻したければPITRで。
-- 後始末: **recovery-0608 削除**(課金停止)/ Knight・部分被害は本人自己復旧に委ねる。
-
-**監視項目(低優先)**: collabで稀に単発軽減(学者エーテルフロー等)が同期取り合いで落ちる一過性グリッチ。再現せず=深追い不可。再発したらYjs同期堅牢化。
-
-**フォロー最優先(機能)**: **自己対処できる管理画面**=①緊急キルスイッチ(Firestoreフラグ=キャッシュ客にも即効・再デプロイ/ドメイン削除不要で保存停止+メンテ表示) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin内に緊急手順書。ユーザーが私無しで止められる状態に。
+**🔴 フォロー最優先(機能・次セッション)**: **自己対処できる管理画面**=①緊急キルスイッチ(Firestoreフラグ=キャッシュ客にも即効・再デプロイ/ドメイン削除不要で保存停止+メンテ表示) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin内に緊急手順書。ユーザーが私無しで止められる状態に。
 
 ---
 
