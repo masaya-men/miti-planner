@@ -29,7 +29,10 @@ export async function mockApiFetch(
   }
 
   // /api/admin?resource=templates  (id ありは詳細、なしは一覧、POST/PUT/DELETE は更新)
-  if (path === '/api/admin' && params.get('resource') === 'templates') {
+  // 注: type 付き (type=stats / type=logs 等) は別レスポンス形なのでここで横取りしない
+  //     (横取りすると一覧形が返り、stats 等が Object.keys(undefined) でクラッシュする)。
+  //     type 付きは null フォールバック → 各ページは「読み込みエラー」表示になりクラッシュしない。
+  if (path === '/api/admin' && params.get('resource') === 'templates' && !params.get('type')) {
     const id = params.get('id');
     if (method === 'GET' && id) {
       return json(sandboxStore.getTemplateDetail(id));
