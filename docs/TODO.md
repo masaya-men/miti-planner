@@ -9,6 +9,16 @@
 
 ---
 
+## 🔴🔴 最優先: データ破壊バグ 緊急対応中 (2026-06-16)
+
+**事象**: 共同編集ONの表へ「同コンテンツの空表」から切替えると、軽減だけ消える(部分空上書き)。約2週間(6/2〜6/15)断続発生・40人前後の表に影響。ユーザーがドメイン削除で一旦停止中。
+**根因(確定)**: プラン切替時 `saveSilently` が「今見てる表(新ID)」に「中身は旧表のまま(イベントあり・軽減0=部分空)」を保存。collab接続が非同期で後追い。ガード`isEmptyPlanData`は丸ごと空のみ阻止し部分空を素通し([usePlanStore.ts:160](../src/store/usePlanStore.ts#L160)/[isEmptyPlanData.ts:14](../src/lib/isEmptyPlanData.ts#L14)/[Layout.tsx:288](../src/components/Layout.tsx#L288))。
+**復旧(進行中)**: 兄弟(競合)コピーから15表復旧済(軽減1176個・`scripts/restore-mit-loss-batch.ts`・書込前backup=docs/.private/backups/pre-restore_*.json)。次=6/8週次バックアップを`recovery-0608`へ復元→`scripts/restore-from-backup-sweep.ts`でID突合し検知漏れ含め全件復旧。PITRは無効だった→**有効化推奨**(週次のみ→7日穴)。
+**根治(未)**: `_loadedPlanId`不変条件=作業ストアは「持ち主の表」にしか保存しない+bootstrap部分空復元+空ガード維持。TDD(再現:collab+空同コンテンツ表+切替で消えない / clear-all非破壊)。→ deploy+ドメイン復帰+SWキャッシュ更新。
+**フォロー最優先**: **自己対処できる管理画面**=①緊急キルスイッチ(Firestoreフラグ方式=キャッシュ客にも即効・再デプロイ/ドメイン削除不要で保存停止+メンテ表示) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③緊急手順書を/admin内に。ユーザーが私無しで止められる状態にする。
+
+---
+
 ## 現在の状態 (次セッションはここから読む)
 
 - **✅ スマホ最適化 A(ボトムナビ再設計)全9タスク完了 (2026-06-15・ブランチ `feat/mobile-bottom-nav-redesign`・全コミット済・本番反映完了 main `150bf34`・実機総点検待ち)**: 設計メモ=[specs/2026-06-15-mobile-optimization-design.md](./superpowers/specs/2026-06-15-mobile-optimization-design.md) / **実装計画=[plans/2026-06-15-mobile-bottom-nav-redesign.md](./superpowers/plans/2026-06-15-mobile-bottom-nav-redesign.md)**。前段の個別修正①〜④(対象選択バグ/チュートリアルFキー/C参加ヘッダー/D FAB背景)は別コミットで済(③本番確認はデプロイ後)。**次=B 共有配布フロー設計(別ブレスト)→ A+B 完了でまとめて push/デプロイ**(Vercelビルド節約+C本番確認)。
