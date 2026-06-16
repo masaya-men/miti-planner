@@ -44,7 +44,7 @@ export function AdminWizard({
   // 完了画面
   if (isComplete) {
     return (
-      <div className="h-full min-h-0 flex flex-col items-center justify-center gap-6 py-16 text-[var(--app-text)]">
+      <div className="flex flex-col items-center justify-center gap-6 py-16 text-[var(--app-text)]">
         <div className="text-app-6xl font-bold">{t('admin.wizard_success')}</div>
         <div className="flex gap-4">
           <button
@@ -69,9 +69,9 @@ export function AdminWizard({
   // 確認画面
   if (showConfirmation) {
     return (
-      <div className="h-full min-h-0 flex flex-col gap-6 text-[var(--app-text)]">
+      <div className="flex flex-col gap-6 text-[var(--app-text)]">
         {/* タイトル */}
-        <div className="shrink-0 border-b border-[var(--app-text)] pb-3">
+        <div className="border-b border-[var(--app-text)] pb-3">
           <h2 className="text-app-4xl font-bold">{title}</h2>
           <p className="text-app-2xl text-[var(--app-text-muted)] mt-1">
             {t('admin.wizard_confirmation')}
@@ -79,17 +79,17 @@ export function AdminWizard({
         </div>
 
         {/* 確認内容 */}
-        <div className="flex-1 min-h-0 overflow-auto">{renderConfirmation()}</div>
+        <div className="min-h-[200px]">{renderConfirmation()}</div>
 
         {/* エラー表示 */}
         {error && (
-          <div className="shrink-0 border border-[var(--app-text)] p-3 text-app-2xl">
+          <div className="border border-[var(--app-text)] p-3 text-app-2xl">
             {error}
           </div>
         )}
 
         {/* ナビゲーション */}
-        <div className="shrink-0 flex justify-between items-center pt-4 border-t border-[var(--app-text)]">
+        <div className="flex justify-between items-center pt-4 border-t border-[var(--app-text)]">
           <button
             type="button"
             onClick={back}
@@ -120,14 +120,14 @@ export function AdminWizard({
     totalSteps > 1 ? (currentIndex / (totalSteps - 1)) * 100 : 100;
 
   return (
-    <div className="h-full min-h-0 flex flex-col gap-6 text-[var(--app-text)]">
+    <div className="flex flex-col gap-6 text-[var(--app-text)]">
       {/* タイトル */}
-      <div className="shrink-0 border-b border-[var(--app-text)] pb-3">
+      <div className="border-b border-[var(--app-text)] pb-3">
         <h2 className="text-app-4xl font-bold">{title}</h2>
       </div>
 
       {/* プログレスバー */}
-      <div className="shrink-0 flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         <div className="flex justify-between items-center">
           <span className="text-app-lg text-[var(--app-text-muted)]">
             {t('admin.wizard_step', {
@@ -162,17 +162,17 @@ export function AdminWizard({
       </div>
 
       {/* ステップ内容 */}
-      <div className="flex-1 min-h-0 overflow-auto">{renderStep(currentStep.id)}</div>
+      <div className="min-h-[200px]">{renderStep(currentStep.id)}</div>
 
       {/* エラー表示 */}
       {error && (
-        <div className="shrink-0 border border-[var(--app-text)] p-3 text-app-2xl">
+        <div className="border border-[var(--app-text)] p-3 text-app-2xl">
           {error}
         </div>
       )}
 
       {/* ナビゲーション */}
-      <div className="shrink-0 flex justify-between items-center pt-4 border-t border-[var(--app-text)]">
+      <div className="flex justify-between items-center pt-4 border-t border-[var(--app-text)]">
         {/* 戻るボタン（最初のステップでは非表示） */}
         {!isFirstStep ? (
           <button

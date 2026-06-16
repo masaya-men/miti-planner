@@ -286,14 +286,16 @@ export function TemplateWizard() {
   };
 
   return (
-    <div className="max-w-xl mx-auto py-8 px-4">
-      <AdminWizard
-        title={t('admin.template_wiz_title')}
-        wizard={wizard}
-        renderStep={renderStep}
-        renderConfirmation={renderConfirmation}
-        isStepValid={isStepValid}
-      />
+    <div className="h-full min-h-0 overflow-auto">
+      <div className="max-w-xl mx-auto py-8 px-4">
+        <AdminWizard
+          title={t('admin.template_wiz_title')}
+          wizard={wizard}
+          renderStep={renderStep}
+          renderConfirmation={renderConfirmation}
+          isStepValid={isStepValid}
+        />
+      </div>
     </div>
   );
 }
