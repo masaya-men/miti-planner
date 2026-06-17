@@ -108,12 +108,16 @@ import { describe, it, expect } from 'vitest';
 import { applyHorizontalScrollSync } from '../Timeline.layoutHooks';
 
 describe('applyHorizontalScrollSync', () => {
-  it('スキル領域だけ translateX し、情報領域は動かさない', () => {
-    const skill = document.createElement('div');
-    const info = document.createElement('div');
-    applyHorizontalScrollSync({ scrollLeft: 120, skillEls: [skill] });
-    expect(skill.style.transform).toBe('translateX(-120px)');
-    expect(info.style.transform).toBe(''); // 触らない
+  it('skillEls に渡した要素だけ translateX する', () => {
+    const skillA = document.createElement('div');
+    const skillB = document.createElement('div');
+    applyHorizontalScrollSync({ scrollLeft: 120, skillEls: [skillA, skillB] });
+    expect(skillA.style.transform).toBe('translateX(-120px)');
+    expect(skillB.style.transform).toBe('translateX(-120px)');
+  });
+
+  it('null 要素を渡しても落ちない', () => {
+    expect(() => applyHorizontalScrollSync({ scrollLeft: 50, skillEls: [null, undefined] })).not.toThrow();
   });
 
   it('影クラスは scrollLeft>0 で付与、0 で除去', () => {
