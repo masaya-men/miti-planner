@@ -24,4 +24,7 @@ export interface CollabHandlers {
   // ②-b-2: 複数キー(partyMembers + timelineMitigations 等)を 1 transaction で原子的に反映。
   // ジョブ変更カスケード(メンバー更新 + その mitigations 入替)が途中状態で相手画面を壊さないため。
   batch: (ops: BatchOp[]) => void;
+  // ②-c: CRDT undo/redo(per-user・collabProvider の Y.UndoManager に委譲)
+  undo: () => void;
+  redo: () => void;
 }

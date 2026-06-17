@@ -10,6 +10,7 @@ const applied = (over: Partial<AppliedMitigation> = {}): AppliedMitigation => ({
 const mockHandlers = (): CollabHandlers => ({
   add: vi.fn(), remove: vi.fn(), updateTime: vi.fn(),
   upsertItems: vi.fn(), removeItems: vi.fn(), setMeta: vi.fn(), importBulk: vi.fn(), batch: vi.fn(),
+  undo: vi.fn(), redo: vi.fn(),
 });
 
 describe('useMitigationStore 共同編集分岐 (段取り②-a)', () => {
@@ -239,25 +240,63 @@ describe('②-b-1 importTimelineEvents バルク委譲', () => {
   });
 });
 
-describe('②-b-1 collab 中のバルク/履歴経路ガード', () => {
+describe('②-c collab 中の undo/redo は handlers に委譲する', () => {
+  beforeEach(() => useMitigationStore.setState({
+    timelineEvents: [{ id: 'e1', time: 10, name: { ja: 'x' }, damageType: 'magical' }] as any,
+    _collabActive: false, _collabHandlers: null, _collabReadonly: false,
+    _collabCanUndo: false, _collabCanRedo: false,
+  }));
+
+  it('collab 中の undo は handlers.undo に委譲し、ローカル状態を直接変えない', () => {
+    const h = mockHandlers();
+    useMitigationStore.getState().enterCollabMode(h);
+    const before = useMitigationStore.getState().timelineEvents;
+    useMitigationStore.getState().undo();
+    expect(h.undo).toHaveBeenCalledTimes(1);
+    expect(useMitigationStore.getState().timelineEvents).toBe(before); // 反映は observeDeep 経由のみ
+  });
+
+  it('collab 中の redo は handlers.redo に委譲する', () => {
+    const h = mockHandlers();
+    useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().redo();
+    expect(h.redo).toHaveBeenCalledTimes(1);
+  });
+
+  it('閲覧者(_collabReadonly)は collab 中でも undo/redo を委譲しない(多層防御)', () => {
+    const h = mockHandlers();
+    useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.setState({ _collabReadonly: true });
+    useMitigationStore.getState().undo();
+    useMitigationStore.getState().redo();
+    expect(h.undo).not.toHaveBeenCalled();
+    expect(h.redo).not.toHaveBeenCalled();
+  });
+
+  it('_setCollabUndoRedo がフラグを更新する', () => {
+    useMitigationStore.getState()._setCollabUndoRedo(true, false);
+    expect(useMitigationStore.getState()._collabCanUndo).toBe(true);
+    expect(useMitigationStore.getState()._collabCanRedo).toBe(false);
+  });
+
+  it('exitCollabMode で undo/redo 可否フラグが false に戻る', () => {
+    useMitigationStore.getState()._setCollabUndoRedo(true, true);
+    useMitigationStore.getState().exitCollabMode();
+    expect(useMitigationStore.getState()._collabCanUndo).toBe(false);
+    expect(useMitigationStore.getState()._collabCanRedo).toBe(false);
+  });
+});
+
+describe('solo の undo/redo は従来どおりローカル履歴で動く(回帰)', () => {
   beforeEach(() => useMitigationStore.setState({
     timelineEvents: [{ id: 'e1', time: 10, name: { ja: 'x' }, damageType: 'magical' }] as any,
     _history: [{ timelineMitigations: [], timelineEvents: [], phases: [], labels: [], partyMembers: [] }] as any,
     _future: [],
-    _collabActive: false, _collabHandlers: null,
+    _collabActive: false, _collabHandlers: null, _collabReadonly: false,
   }));
-  it('collab 中の undo は状態を変えない(no-op)', () => {
-    useMitigationStore.getState().enterCollabMode(mockHandlers());
-    const before = useMitigationStore.getState().timelineEvents;
+  it('collab でない undo はローカル履歴を復元する', () => {
     useMitigationStore.getState().undo();
-    expect(useMitigationStore.getState().timelineEvents).toBe(before);
-  });
-  it('collab 中の redo は状態を変えない(no-op)', () => {
-    useMitigationStore.setState({ _future: [{ timelineMitigations: [], timelineEvents: [], phases: [], labels: [], partyMembers: [] }] as any });
-    useMitigationStore.getState().enterCollabMode(mockHandlers());
-    const before = useMitigationStore.getState().timelineEvents;
-    useMitigationStore.getState().redo();
-    expect(useMitigationStore.getState().timelineEvents).toBe(before);
+    expect(useMitigationStore.getState().timelineEvents).toEqual([]); // 履歴(空)へ戻る
   });
 });
 

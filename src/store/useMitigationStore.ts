@@ -91,6 +91,10 @@ interface MitigationState {
     // 注入する CollabHandlers に委譲する。_ydoc 等 yjs 型の state は store に持たない。
     _collabActive: boolean;
     _collabHandlers: CollabHandlers | null;
+    /** ②-c: 共同編集中の Undo/Redo 可否(Y.UndoManager の canUndo/canRedo を反映・ボタン活性用)。 */
+    _collabCanUndo: boolean;
+    _collabCanRedo: boolean;
+    _setCollabUndoRedo: (canUndo: boolean, canRedo: boolean) => void;
     /** ⑤-3b: ジョイナー読み取り専用中は localStorage persist を skip し、自分の保存データを汚さない。 */
     _collabReadonly: boolean;
     setCollabReadonly: (v: boolean) => void;
@@ -542,6 +546,9 @@ export const useMitigationStore = create<MitigationState>()(
                 _future: [],
                 _collabActive: false,
                 _collabHandlers: null,
+                _collabCanUndo: false,
+                _collabCanRedo: false,
+                _setCollabUndoRedo: (canUndo, canRedo) => set({ _collabCanUndo: canUndo, _collabCanRedo: canRedo }),
                 _collabReadonly: false,
                 setCollabReadonly: (v) => set({ _collabReadonly: v }),
                 _loadedPlanId: null,
@@ -549,7 +556,7 @@ export const useMitigationStore = create<MitigationState>()(
 
                 enterCollabMode: (handlers) => set({ _collabActive: true, _collabHandlers: handlers }),
 
-                exitCollabMode: () => set({ _collabActive: false, _collabHandlers: null }),
+                exitCollabMode: () => set({ _collabActive: false, _collabHandlers: null, _collabCanUndo: false, _collabCanRedo: false }),
 
                 // 遅延チャンク(collabProvider)の observeDeep から呼ばれる。Yjs 側の最新軽減配列を
                 // store に反映。盾連鎖(linkedMitigationId/duration)は派生再計算する。
@@ -675,7 +682,7 @@ export const useMitigationStore = create<MitigationState>()(
                 // Undo: restore the last snapshot from history
                 undo: () => set((state) => {
                     if (state._collabReadonly) return state; // 閲覧者は no-op(多層防御)
-                    if (state._collabActive) return state; // 共同編集中は no-op(CRDT undo は②-c)
+                    if (state._collabActive) { state._collabHandlers?.undo(); return state; } // ②-c: CRDT undo へ委譲(反映は observeDeep 経由)
                     if (state._history.length === 0) return state;
                     const previous = state._history[state._history.length - 1];
                     const newHistory = state._history.slice(0, -1);
@@ -700,7 +707,7 @@ export const useMitigationStore = create<MitigationState>()(
                 // Redo: restore the next snapshot from future
                 redo: () => set((state) => {
                     if (state._collabReadonly) return state; // 閲覧者は no-op(多層防御)
-                    if (state._collabActive) return state; // 共同編集中は no-op(②-c)
+                    if (state._collabActive) { state._collabHandlers?.redo(); return state; } // ②-c: CRDT redo へ委譲
                     if (state._future.length === 0) return state;
                     const next = state._future[0];
                     const newFuture = state._future.slice(1);
