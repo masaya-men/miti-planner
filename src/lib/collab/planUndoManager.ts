@@ -13,10 +13,13 @@ export interface PlanUndoManager {
   redo(): void;
   canUndo(): boolean;
   canRedo(): boolean;
+  /** 初期同期/reseed 後に呼ぶ。スタックをクリアして「参加前の状態は undo 対象外」にする。 */
+  clear(): void;
   destroy(): void;
 }
 
 export function createPlanUndoManager(
+  // Y.AbstractType<T> は EventHandler 経由で invariant のため Y.Array<Y.Map<unknown>> を <unknown> で受けられない。any[] が Yjs 慣用の回避策。
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   scope: Y.AbstractType<any>[],
   onChange: (canUndo: boolean, canRedo: boolean) => void,
@@ -34,6 +37,7 @@ export function createPlanUndoManager(
     redo: () => { um.redo(); },
     canUndo: () => um.canUndo(),
     canRedo: () => um.canRedo(),
+    clear: () => { um.clear(); },
     destroy: () => {
       um.off("stack-item-added", notify);
       um.off("stack-item-popped", notify);

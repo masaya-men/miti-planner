@@ -97,4 +97,21 @@ describe("planUndoManager", () => {
     expect(onChange).toHaveBeenCalledWith(false, true); // canUndo=false, canRedo=true
     um.destroy();
   });
+
+  it("clear() 後は reseed相当の local 変更を undo できない(復元データを消さない・データ安全)", () => {
+    const doc = new Y.Doc();
+    const arr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
+    const onChange = vi.fn();
+    const um = createPlanUndoManager(scopeOf(doc), onChange);
+    // reseed 相当: 復元データを local origin で投入
+    doc.transact(() => arr.push([appliedToYMap(sample({ id: "restored" }))]), "local");
+    expect(um.canUndo()).toBe(true);
+    onChange.mockClear();
+    um.clear(); // 初期同期後に呼ぶ想定
+    expect(onChange).toHaveBeenCalledWith(false, false); // stack-cleared 経由でフラグ false
+    expect(um.canUndo()).toBe(false);
+    um.undo(); // no-op であるべき
+    expect(readMitigations(doc).map((m) => m.id)).toEqual(["restored"]); // 復元データは生存
+    um.destroy();
+  });
 });

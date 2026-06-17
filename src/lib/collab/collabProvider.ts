@@ -422,6 +422,7 @@ export function startCollabSession(
     entered = true;
     // ②-b-1/②-b-2 の全要素初期反映 + ⑤-3b の readOnly 分岐 + contentId seed 取得を 1 箇所に集約。
     applyRoomToStore(doc, { readOnly, handlers, onContentId: opts.onContentId, onOwnerLabel: opts.onOwnerLabel });
+    planUndo.clear(); // ②-c データ安全: 初期同期/reseed(空上書き防御の復元)は undo 対象外にする(参加前の状態は戻せない=Ctrl+Z で復元データを消さない)
     refreshCount(); // #3d: 接続確立時に確実な人数を 1 回取得。
     // ①: 初回 /count は他者の接続/presence 伝播より早いことがある。少し置いて 2 回だけ再チェックし、
     //    まだ欠落していれば resync を出す(membership 変化が来ない静止状態でも収束させる保険)。
