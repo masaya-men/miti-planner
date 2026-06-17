@@ -41,7 +41,7 @@ import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
 import { resolveMitigationTap } from '../utils/mitigationTapResolver';
-import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
+import { useMeasuredMemberLayout, applyHorizontalScrollSync } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
 import { MobileTriggersContext } from '../contexts/MobileTriggersContext';
@@ -1296,21 +1296,14 @@ const Timeline: React.FC = () => {
         const centerT = yToTimeSec(sc.scrollTop + sc.clientHeight / 2, timeToYMapRef.current);
         if (centerT !== null) lastCenterTimeRef.current = centerT;
 
-        // Use transform for more reliable sync across different content widths
-        const containers = [
-            { ref: headerRef, id: 'timeline-header-inner' },
-            { ref: controlBarRef, id: 'timeline-controls-inner' },
-        ];
-
-        containers.forEach(({ ref, id }) => {
-            if (ref.current) {
-                const inner = ref.current.querySelector(`#${id}`) as HTMLElement;
-                if (inner) {
-                    inner.style.transform = `translateX(-${scrollLeft}px)`;
-                } else if (ref.current.firstElementChild) {
-                    (ref.current.firstElementChild as HTMLElement).style.transform = `translateX(-${scrollLeft}px)`;
-                }
-            }
+        // Task 2: inner 全体ではなくスキル領域要素だけ translateX する（情報列見出しは据え置き）
+        applyHorizontalScrollSync({
+            scrollLeft,
+            skillEls: [
+                headerRef.current?.querySelector('#timeline-header-skill') as HTMLElement | null,
+                controlBarRef.current?.querySelector('#timeline-controls-skill') as HTMLElement | null,
+            ],
+            // shadowEls は Task 5 で情報ペイン ref を追加する
         });
     };
 
@@ -2353,7 +2346,7 @@ const Timeline: React.FC = () => {
                             "hidden md:block"
                         )}
                     >
-                        <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max will-change-transform">
+                        <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max">
                             {/* Area A: PHASE+LABEL+TIME — テーブルカラムと幅を揃える (var(--col-header-chunk-w) - 1px divider) */}
                             <div className="w-[calc(var(--col-header-chunk-w)-1px)] min-w-[calc(var(--col-header-chunk-w)-1px)] flex-none flex items-center px-1 md:px-2 h-full">
                                 <button
@@ -2561,15 +2554,18 @@ const Timeline: React.FC = () => {
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
 
                             {/* セッション 18 案 C1 物理移動: ジョブアイコン行を controlBar の右端に */}
-                            <JobPickerRow
-                                partyMembers={sortedPartyMembers}
-                                partySortOrder={partySortOrder}
-                                getJobIcon={getJobIcon}
-                                jobs={JOBS}
-                                handleJobIconClick={handleJobIconClick}
-                                getMemberRefCallback={getMemberRefCallback}
-                                t={t}
-                            />
+                            {/* Task 2: スキル領域（JobPickerRow）だけ translateX 対象に分割 */}
+                            <div id="timeline-controls-skill" className="flex items-center h-full will-change-transform">
+                                <JobPickerRow
+                                    partyMembers={sortedPartyMembers}
+                                    partySortOrder={partySortOrder}
+                                    getJobIcon={getJobIcon}
+                                    jobs={JOBS}
+                                    handleJobIconClick={handleJobIconClick}
+                                    getMemberRefCallback={getMemberRefCallback}
+                                    t={t}
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -2580,7 +2576,7 @@ const Timeline: React.FC = () => {
                             isMobileTimeline && "hidden"
                         )}
                     >
-                        <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max will-change-transform">
+                        <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max">
                             {/* モバイル: フェーズなし → ラベルをフェーズ位置に表示 */}
                             {(() => {
                                 const hasPhases = phases.length > 0;
@@ -2687,12 +2683,15 @@ const Timeline: React.FC = () => {
                             {/* セッション 18 案 C1: ヘッダーのメンバー列領域はリキャストアイコン専用に。
                                 旧ジョブアイコン行は controlBar に移動 (JobPickerRow)。
                                 OFF 時もセルは render する (= 罫線は維持)。 中のアイコンだけ scroll handler で hideAll。 */}
-                            <RecastRow
-                                ref={recastRowRef}
-                                partyMembers={sortedPartyMembers}
-                                placements={timelineMitigations}
-                                mitigationDefs={MITIGATIONS}
-                            />
+                            {/* Task 2: スキル領域（RecastRow）だけ translateX 対象に分割 */}
+                            <div id="timeline-header-skill" className="flex items-center h-full will-change-transform">
+                                <RecastRow
+                                    ref={recastRowRef}
+                                    partyMembers={sortedPartyMembers}
+                                    placements={timelineMitigations}
+                                    mitigationDefs={MITIGATIONS}
+                                />
+                            </div>
                         </div>
                     </div>
 

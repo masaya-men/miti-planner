@@ -1,5 +1,25 @@
 import { useState, useLayoutEffect } from 'react';
 
+/**
+ * PC 横スクロール同期: スキル領域要素だけ translateX を当てる。
+ * 情報列見出し（フェーズ/ラベル/時間/敵攻撃/ダメージ列）は translate しない。
+ * shadowEls は scrollLeft > 0 で timeline-info-pane--scrolled を付与する（Task 5 で配線）。
+ */
+export function applyHorizontalScrollSync(opts: {
+  scrollLeft: number;
+  skillEls: (HTMLElement | null | undefined)[];
+  shadowEls?: (HTMLElement | null | undefined)[];
+}): void {
+  const { scrollLeft, skillEls, shadowEls = [] } = opts;
+  for (const el of skillEls) {
+    if (el) el.style.transform = `translateX(-${scrollLeft}px)`;
+  }
+  for (const el of shadowEls) {
+    if (!el) continue;
+    el.classList.toggle('timeline-info-pane--scrolled', scrollLeft > 0);
+  }
+}
+
 export interface MemberRefEntry {
   id: string;
   el: HTMLElement | null;
