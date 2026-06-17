@@ -599,8 +599,9 @@ const Timeline: React.FC = () => {
     // (本体アプリでは常に false ＝ 影響なし。true になるのは /collab ジョイナーのみ)。
     const collabReadonly = useMitigationStore(s => s._collabReadonly);
     // Undo/Redo可否（リアクティブに監視して disabled 状態を正しく反映する）
-    const canUndo = useMitigationStore(s => s._history.length > 0);
-    const canRedo = useMitigationStore(s => s._future.length > 0);
+    // 共同編集中は Y.UndoManager の可否(_collabCanUndo/Redo)、それ以外はローカル履歴を見る(②-c)。
+    const canUndo = useMitigationStore(s => s._collabActive ? s._collabCanUndo : s._history.length > 0);
+    const canRedo = useMitigationStore(s => s._collabActive ? s._collabCanRedo : s._future.length > 0);
     // メモモード
     const toolMode = useMitigationStore(s => s.toolMode);
     const isMemoMode = toolMode === 'memo';
