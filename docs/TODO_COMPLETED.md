@@ -6,6 +6,24 @@
 
 > TODO.md の「現在の状態」肥大化解消のため移動 (2026-06-15)。本番デプロイ済の大項目。pending サニティは TODO.md に 1 行で残置。
 
+## 完了 (2026-06-18 共同編集中の Undo/Redo ②-c・per-user CRDT undo・本番デプロイ&実機確認済)
+
+**機能**: 「共同編集中は Undo/Redo が効かない(オーナーも参加者も)」を `Y.UndoManager` の per-user undo で解消。`trackedOrigins:['local']` で自分の編集だけ逆操作(リモートは origin=provider オブジェクトで構造上捕捉不可)。scope=solo 履歴と同じ5型。store の undo/redo は collab 中 handlers 経由で UndoManager へ委譲(set 外で呼ぶ=入れ子 set 回避)、ボタン活性は `_collabCanUndo/Redo` フラグ連動。新規=`src/lib/collab/planUndoManager.ts`+`collabUndoIntegration.test.ts`。コミット 55c1a51〜3bb4151。設計=specs/2026-06-17-collab-undo-redo-design.md。
+
+**🛡 MAX effort/Ultracode で3回の多エージェント敵対監査(計48ag)→データ消失4経路を根治**:
+- ①reseed が undo スタックに乗り復帰直後 Ctrl+Z で復元データ消失 → onSynced の reseed 直後に `planUndo.clear()`(31cce89)
+- ②undo/redo が `set()` 内 handler 呼びで store↔Y.Doc **恒久 desync** → 確立パターン(get()判定→set外でhandler→早期return)へ(71c6797)
+- ③enter/exitCollabMode が `_history` 残留→revoke/disconnect 後 Ctrl+Z で入室前へ巻き戻り **Firestore 恒久上書き** → enter/exit で `_history/_future` クリア(71c6797)
+- ④編集者ジョイナー(active&&readonly)の undo が委譲前に弾かれ no-op → ガードを `_collabReadonly && !_collabActive`(71c6797)
+- ⑤no-op mock テストが desync 検出不能 → 実 Y.Doc+observeDeep 結線の統合回帰テスト(71c6797)
+- ⑥**既存バグ**: confirmAetherflow/AstrologianDrawChain が collab 委譲を持たず次の observeDeep で消える → `upsertItems('timelineMitigations', chain)` 委譲(09efc66)
+- ⑦テスト vmThreads flaky → afterEach(e9fa1ac)
+- 最終検証=dataSafe=TRUE/新規Critical・Importantゼロ/全体1803 pass(既知housing5のみ)/build EXIT0。
+
+**実機2タブ確認OK (2026-06-18 本番・捨てプラン)**: per-user/退出後巻き戻し無し+再読込でデータ生存/全消しUndo/SCH・AST連鎖同期。検証中の「片側だけ旧挙動」は2タブが別バージョン(片方未リロード)が原因と判明(memory `reference_collab_two_client_version_skew`)。
+
+**関連で発見した別件(未修正・先送り)**: 共同編集 再接続時の「一部欠け」データ消失(near-term backlog)→ [.private/2026-06-18-collab-reconnect-partial-loss.md](./.private/2026-06-18-collab-reconnect-partial-loss.md)。編集者ジョイナーで手動ドロー時に連鎖プロンプト非表示(軽微・データ影響なし)。
+
 - **タンクスイッチ(挑発スキル) 本番デプロイ済・実機OK (2026-06-15)**: 挑発を置くと同一フェーズ内・以降の攻撃の on対象 MT⇄ST を反転(derived/非破壊)。中核=純粋関数 `getEffectiveTarget`(TDD 10緑)+全計算/表示サイト適用(Timeline/CheatSheet/PC行/スマホ行)+recast30s通常スキル(`isTankSwap`・全タンク4ジョブ)+アイコン切替アニメ(framer-motion)+autoPlan除外。最終レビューで1件発見→修正(CheatSheet行表示/致死)。追従修正=duration:0でレーン重なり回避が効かない不具合(`ovDur=Math.max(1,duration)`)+表示順を無敵後・LB前へ。**ずれ防止手順を確立**=mockDataに`provoke_*`追加→デプロイ→seed-icons(差分のみUP)→seed-skills-stats(ADDITIVE・既存164無変更・挑発4のみ追加・dataVersion++で全ユーザー反映)。⚠順序=コードdeploy→seed(逆だと0値スキルが見える)。表示順ソートは静的`getMitigationPriority`経由のため並び替えは再seed不要。設計=specs/2026-06-15-tank-switch-provoke-design.md / 計画=plans/2026-06-15-tank-switch-provoke.md。
 - **システム通知 視認性向上 本番デプロイ済・実機OK (2026-06-15)**: ①通知バーのベルに未読赤ドット(業界標準バッジ)②サイドバー折りたたみ時、ハンドル上に未読時のみベルボタン(`SystemNotificationHandleButton`・クリックでモーダル直接オープン・トグル誤発火防止)。縦位置は展開時バーと同じ高さ(`bottom-[78px]`、ハンドル列とコンテンツ列が同高の兄弟である性質を利用)。
 - **タイムライン 種別クリックループ + デバフ軽減不可属性 (2026-06-15・main `6ef7bf9` push 済→Vercel自動デプロイ)**: ①種別アイコンをPCクリックで物理→魔法→ユニーク3循環(`PcTypeToggle`・対象トグルと同経路=collab/undo安全) ②イベントに `ignoresDebuffMitigation` フラグ=ONでデバフ系軽減(リプライザル/フェイント/アドル/ディスマントル=`Mitigation.appliesAsDebuff`)の**%軽減だけ**無効化(バリア/無敵/プレイヤーバフは効く・C案)。編集=モーダルchk、表示=種別アイコンを赤箱(PC/モバイル/カンペ・`DamageTypeIcon`統一)。計算3箇所(Timeline本体/EventForm逆算/CheatSheet)に`isMitigationBlockedByEvent`スキップ。TDD・全レビューAPPROVED・ローカル実機OK。**`appliesAsDebuff`はFirestore反映済(`add-applies-as-debuff.ts`外科同期29件)=デプロイ直後から本番で機能。** 追従修正: 赤枠が攻撃名を右に押す不具合(モバイル用md:hiddenがTooltip内側のみ→PCで空ラッパがgap)を根治 push済(`a7144f1`)。
