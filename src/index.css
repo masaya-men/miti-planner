@@ -1397,6 +1397,24 @@ button, [role="button"], .touch-none {
     }
 }
 
+/* 情報列固定ペイン（PC 横スクロール時に左の情報列を据え置く） */
+.timeline-info-pane {
+    position: sticky;
+    left: 0;
+    z-index: 60; /* 軽減レイヤー(バー z-10/アイコン z-20/バッジ z-30)より上 */
+    width: var(--col-member-start);
+    min-width: var(--col-member-start);
+    /* 背景は本文スクロール領域と同色（不透明）にしてスクロールしてくるバーを隠す */
+    background: white;
+}
+.dark .timeline-info-pane {
+    background: var(--color-bg-primary);
+}
+/* スクロール位置 > 0 のときだけ境界に控えめな影 */
+.timeline-info-pane--scrolled {
+    box-shadow: 6px 0 8px -4px rgba(0, 0, 0, 0.35);
+}
+
 /* === タイムラインの縦スクロールバーのみ非表示 (セッション 17 → セッション 20 修正) ===
    軽減表のタイムラインは縦スクロール可能なのが UX 上明白でかつ視覚的にスッキリさせたい。
    旧実装はグローバル `*` ワイルドカードで全要素の縦バーを消していたため、 モーダル
