@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useMitigationStore } from '../useMitigationStore';
 import type { AppliedMitigation } from '../../types';
 import type { CollabHandlers } from '../../lib/collab/collabTypes';
@@ -516,5 +516,36 @@ describe('⑤-3b collab readonly persist ガード', () => {
     expect(useMitigationStore.getState()._collabReadonly).toBe(true);
     useMitigationStore.getState().setCollabReadonly(false);
     expect(useMitigationStore.getState()._collabReadonly).toBe(false);
+  });
+});
+
+// トップレベル afterEach: enterCollabMode のリークを vmThreads 下でも防ぐ
+afterEach(() => useMitigationStore.getState().exitCollabMode());
+
+describe('②-b collab 中の連鎖確定は upsertItems に委譲する(データ消失根治)', () => {
+  beforeEach(() => useMitigationStore.setState({
+    timelineMitigations: [], timelineEvents: [],
+    aetherflowChainPrompt: null, astrologianDrawChainPrompt: null,
+    _collabActive: false, _collabHandlers: null, _collabReadonly: false,
+  }));
+  it('confirmAetherflowChain は collab 中 upsertItems(timelineMitigations) に委譲し store を直変更しない', () => {
+    const h = mockHandlers();
+    useMitigationStore.setState({ aetherflowChainPrompt: { memberId: 'H1', startTime: 14 } });
+    useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().confirmAetherflowChain();
+    expect(h.upsertItems).toHaveBeenCalledTimes(1);
+    expect((h.upsertItems as any).mock.calls[0][0]).toBe('timelineMitigations');
+    expect(useMitigationStore.getState().timelineMitigations).toEqual([]); // store 直変更なし(反映は observeDeep 経由)
+    expect(useMitigationStore.getState().aetherflowChainPrompt).toBeNull(); // プロンプトは解除
+  });
+  it('confirmAstrologianDrawChain は collab 中 upsertItems(timelineMitigations) に委譲し store を直変更しない', () => {
+    const h = mockHandlers();
+    useMitigationStore.setState({ astrologianDrawChainPrompt: { memberId: 'H1', startTime: 14, startKind: 'astral_draw' } });
+    useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.getState().confirmAstrologianDrawChain();
+    expect(h.upsertItems).toHaveBeenCalledTimes(1);
+    expect((h.upsertItems as any).mock.calls[0][0]).toBe('timelineMitigations');
+    expect(useMitigationStore.getState().timelineMitigations).toEqual([]);
+    expect(useMitigationStore.getState().astrologianDrawChainPrompt).toBeNull();
   });
 });

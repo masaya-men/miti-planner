@@ -823,10 +823,18 @@ export const useMitigationStore = create<MitigationState>()(
                 dismissAetherflowChainPrompt: () => set({ aetherflowChainPrompt: null }),
 
                 confirmAetherflowChain: () => {
-                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋な閲覧者のみブロック(編集者ジョイナーは active=true で委譲へ)
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者のみブロック
                     const state = get();
                     if (!state.aetherflowChainPrompt) return;
                     const { memberId, startTime } = state.aetherflowChainPrompt;
+                    if (state._collabActive && state._collabHandlers) {
+                        // 共同編集中: 連鎖を計算して Yjs へ委譲(observeDeep→_applyMitigationsFromCollab で反映)。
+                        // pushHistory は collab では使わない(CRDT undo が真実)。プロンプト解除はローカル UI 状態。
+                        const chain = buildAetherflowChainFrom(memberId, startTime, state.timelineMitigations, state.timelineEvents);
+                        state._collabHandlers.upsertItems('timelineMitigations', chain);
+                        set({ aetherflowChainPrompt: null });
+                        return;
+                    }
                     pushHistory();
                     set((s) => {
                         const chain = buildAetherflowChainFrom(memberId, startTime, s.timelineMitigations, s.timelineEvents);
@@ -840,10 +848,16 @@ export const useMitigationStore = create<MitigationState>()(
                 dismissAstrologianDrawChainPrompt: () => set({ astrologianDrawChainPrompt: null }),
 
                 confirmAstrologianDrawChain: () => {
-                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋な閲覧者のみブロック(編集者ジョイナーは active=true で委譲へ)
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者のみブロック
                     const state = get();
                     if (!state.astrologianDrawChainPrompt) return;
                     const { memberId, startTime, startKind } = state.astrologianDrawChainPrompt;
+                    if (state._collabActive && state._collabHandlers) {
+                        const chain = buildAstrologianDrawChainFrom(memberId, startTime, startKind, state.timelineMitigations, state.timelineEvents);
+                        state._collabHandlers.upsertItems('timelineMitigations', chain);
+                        set({ astrologianDrawChainPrompt: null });
+                        return;
+                    }
                     pushHistory();
                     set((s) => {
                         const chain = buildAstrologianDrawChainFrom(memberId, startTime, startKind, s.timelineMitigations, s.timelineEvents);
