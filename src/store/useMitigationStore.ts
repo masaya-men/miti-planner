@@ -67,8 +67,6 @@ interface MitigationState {
     showRowBorders: boolean;
     clipboardEvent: TimelineEvent | null;
     timelineSortOrder: 'light_party' | 'role';
-    conflictingMitigationId: string | null;
-
     /** メモ機能 (#57) — シート上のメモ配列。 plan データの一部として永続化される。 */
     memos: PlanMemo[];
     /** メモ機能 (#57) — UI 一時状態 (タブ切替・リロードでリセット、 partialize には含めない)。 */
@@ -152,8 +150,6 @@ interface MitigationState {
     setShowRowBorders: (show: boolean) => void;
     setClipboardEvent: (event: TimelineEvent | null) => void;
     setTimelineSortOrder: (order: 'light_party' | 'role') => void;
-    setConflictingMitigationId: (id: string | null) => void;
-
     /** エーテルフロー連鎖配置プロンプト制御 */
     dismissAetherflowChainPrompt: () => void;
     /** プロンプトの startTime から 60s 間隔で最終イベントまで aetherflow を連続配置する */
@@ -532,7 +528,6 @@ export const useMitigationStore = create<MitigationState>()(
                 showRowBorders: false,
                 clipboardEvent: null,
                 timelineSortOrder: 'light_party',
-                conflictingMitigationId: null,
                 aetherflowChainPrompt: null,
                 astrologianDrawChainPrompt: null,
                 // メモ機能 (#57)
@@ -805,7 +800,6 @@ export const useMitigationStore = create<MitigationState>()(
                 setShowRowBorders: (show) => set({ showRowBorders: show }),
                 setClipboardEvent: (event) => set({ clipboardEvent: event }),
                 setTimelineSortOrder: (order) => set({ timelineSortOrder: order }),
-                setConflictingMitigationId: (id) => set({ conflictingMitigationId: id }),
 
                 dismissAetherflowChainPrompt: () => set({ aetherflowChainPrompt: null }),
 
@@ -1330,14 +1324,10 @@ export const useMitigationStore = create<MitigationState>()(
                     // 共同編集中: Yjs へ委譲(requires 依存削除等は handlers 実装側で Y 操作)。
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋な閲覧者のみブロック(編集者ジョイナーは active=true で委譲へ)
                     if (get()._collabActive && get()._collabHandlers) {
-                        if (get().conflictingMitigationId) set({ conflictingMitigationId: null });
                         get()._collabHandlers!.remove(id);
                         return;
                     }
                     pushHistory();
-                    // 被り先のアニメーション、または被り元の軽減が削除された場合もクリア
-                    const currentConflict = get().conflictingMitigationId;
-                    if (currentConflict) set({ conflictingMitigationId: null });
                     set((state) => {
                         const removed = state.timelineMitigations.find(m => m.id === id);
                         if (!removed) return { timelineMitigations: resolveShieldLinks(state.timelineMitigations.filter(m => m.id !== id), getMitigationsFromStore()) };

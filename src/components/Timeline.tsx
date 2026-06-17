@@ -34,7 +34,7 @@ import clsx from 'clsx';
 import { PARTY_MEMBER_IDS } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
-import { validateMitigationPlacement } from '../utils/resourceTracker';
+import { validateMitigationPlacement, findSameSkillCdConflicts } from '../utils/resourceTracker';
 import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
@@ -102,6 +102,8 @@ interface MitigationItemProps {
     // colStart=0 で左端に描画されて「左から飛んでくる」 のを防ぐ。
     // false の間はアイコンを visibility: hidden で隠す。
     layoutReady?: boolean;
+    /** timelineMitigations から派生した競合フラグ（親が useMemo で算出して渡す） */
+    isConflicting?: boolean;
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
@@ -190,10 +192,11 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const indicatorRef = useRef<HTMLDivElement>(null);
     const timeLabelRef = useRef<HTMLDivElement>(null);
 
-    const { myJobHighlight, myMemberId, hideEmptyRows, conflictingMitigationId } = useMitigationStore(
-        useShallow(s => ({ myJobHighlight: s.myJobHighlight, myMemberId: s.myMemberId, hideEmptyRows: s.hideEmptyRows, conflictingMitigationId: s.conflictingMitigationId }))
+    const { myJobHighlight, myMemberId, hideEmptyRows } = useMitigationStore(
+        useShallow(s => ({ myJobHighlight: s.myJobHighlight, myMemberId: s.myMemberId, hideEmptyRows: s.hideEmptyRows }))
     );
-    const isConflicting = conflictingMitigationId === mitigation.id;
+    // 競合フラグは親（Timeline本体）が timelineMitigations から派生させ prop 経由で渡す
+    const isConflicting = props.isConflicting ?? false;
 
     const def = MITIGATIONS.find(m => m.id === mitigation.mitigationId);
     const colors = getMitigationColorClasses(def?.jobId, mitigation.ownerId, partySortOrder);
@@ -481,14 +484,8 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40 grayscale",
                         isConflicting && "animate-conflict-pulse ring-2 ring-amber-400"
                     )}
-                    onContextMenu={(e) => {
-                        if (isConflicting) useMitigationStore.getState().setConflictingMitigationId(null);
-                        handleContextMenu(e);
-                    }}
-                    onPointerDown={(e) => {
-                        if (isConflicting) useMitigationStore.getState().setConflictingMitigationId(null);
-                        handlePointerDown(e);
-                    }}
+                    onContextMenu={handleContextMenu}
+                    onPointerDown={handlePointerDown}
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onTouchStart={handleTouchStart}
@@ -873,6 +870,10 @@ const Timeline: React.FC = () => {
         timelineMitigations.forEach(m => { if (m.time > max) max = m.time; });
         return max + 1;
     }, [timelineEvents, timelineMitigations]);
+
+    // 競合（同スキル・CDかぶり）している軽減 ID セットを timelineMitigations から常に派生算出する。
+    // store の conflictingMitigationId を廃止し、この値を MitigationItem に prop 渡しする。
+    const conflictingIds = useMemo(() => findSameSkillCdConflicts(timelineMitigations), [timelineMitigations]);
 
     const handleAutoPlan = useCallback(() => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
@@ -3237,6 +3238,7 @@ const Timeline: React.FC = () => {
                                                             isVirtual={mitigation.isVirtual}
                                                             iconOverride={mitigation.iconOverride}
                                                             layoutReady={layout !== undefined}
+                                                            isConflicting={conflictingIds.has(mitigation.id)}
                                                         />
                                                     );
                                                 });
