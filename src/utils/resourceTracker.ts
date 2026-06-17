@@ -398,7 +398,7 @@ export function validateMitigationPlacement(
     t: (key: string, options?: any) => string,
     // Optional parameter to ignore a specific instance ID during overlap checks (useful for drag & drop)
     ignoreInstanceId?: string
-): { available: boolean; warning?: boolean; message?: string; shortMessage?: string; badge?: string; badgeColor?: string; conflictInstanceId?: string; recastInfo?: string } {
+): { available: boolean; warning?: boolean; message?: string; shortMessage?: string; badge?: string; badgeColor?: string; conflictInstanceId?: string; recastInfo?: string; conflictOverride?: boolean } {
 
     // Filter out the instance being moved if dragging
     const relevantMitigations = ignoreInstanceId
@@ -624,7 +624,14 @@ export function validateMitigationPlacement(
             if (selectedTime < cdEnd) {
                 const remaining = Math.ceil(cdEnd - selectedTime);
                 const label = t('mitigation.cd_remaining', { seconds: remaining, defaultValue: `CD ${remaining}s` });
-                return { available: false, message: label };
+                // ドラッグ中はブロック維持(被りに気づくきっかけが薄いため)。
+                if (ignoreInstanceId) {
+                    return { available: false, message: label };
+                }
+                // クリック配置: 赤+禁止カーソルの見た目は available:false で維持しつつ、
+                // conflictOverride でクリックだけ解放して配置できるようにする。
+                // 競合の可視化(脈動/矢印)は timelineMitigations からの派生(findSameSkillCdConflicts)が担う。
+                return { available: false, conflictOverride: true, message: label };
             }
         }
 
