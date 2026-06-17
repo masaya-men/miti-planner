@@ -35,6 +35,8 @@ import { PARTY_MEMBER_IDS } from '../constants/party';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement, findSameSkillCdConflicts } from '../utils/resourceTracker';
+import { ConflictOffscreenArrows } from './timeline/ConflictOffscreenArrows';
+import type { ConflictPoint } from './timeline/conflictArrows';
 import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
@@ -2265,6 +2267,32 @@ const Timeline: React.FC = () => {
     );
     const memberLayout = useMeasuredMemberLayout(memberRefEntries);
 
+    // 画面外ガイド矢印用: 競合中インスタンスの列中央X + コンテンツ内絶対Y を算出。
+    // timeToYMap は render IIFE 内ローカル変数のため ref 経由でアクセスする。
+    // PC 専用(isMobileTimeline が true のときは空配列)。
+    const conflictPoints = useMemo<ConflictPoint[]>(() => {
+        if (isMobileTimeline) return [];
+        const tMap = timeToYMapRef.current;
+        const offsetT = showPreStart ? -10 : 0;
+        return timelineMitigations
+            .filter(m => conflictingIds.has(m.id))
+            .map(m => {
+                const layout = memberLayout.get(m.ownerId);
+                const y = hideEmptyRows
+                    ? (tMap.get(m.time) ?? (m.time - offsetT) * pixelsPerSecond)
+                    : (m.time - offsetT) * pixelsPerSecond;
+                return {
+                    id: m.id,
+                    ownerId: m.ownerId,
+                    y,
+                    columnCenterX: layout ? layout.left + layout.width / 2 : 0,
+                };
+            });
+    // memberLayout は Map で参照同一・中身が変化するため refVersion を直接含められない。
+    // timeToYMapRef は ref なので deps に入れられない → timelineMitigations / conflictingIds 変化で再算出。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [timelineMitigations, conflictingIds, memberLayout, hideEmptyRows, pixelsPerSecond, showPreStart, isMobileTimeline]);
+
     const getJobIcon = (jobId: string | null) => {
         if (!jobId) return null;
         const job = JOBS.find(j => j.id === jobId);
@@ -2666,6 +2694,15 @@ const Timeline: React.FC = () => {
                         onScroll={handleScrollSync}
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
+                        {/* 画面外競合ガイド矢印: sticky + height:0 で viewport 端に固定、コンテンツと一緒に流れない */}
+                        {!isMobileTimeline && conflictPoints.length > 0 && (
+                            <div className="sticky top-0 z-30 h-0 overflow-visible pointer-events-none">
+                                <ConflictOffscreenArrows
+                                    points={conflictPoints}
+                                    scrollContainerRef={scrollContainerRef}
+                                />
+                            </div>
+                        )}
                         <div ref={sheetContainerRef} onClick={handleSheetClick} className="relative bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
