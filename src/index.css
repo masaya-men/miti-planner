@@ -99,6 +99,11 @@
   animation: conflict-arrow-pulse 1.8s ease-in-out infinite;
 }
 
+/* 競合ガイド矢印のシェブロン。dark は暗背景に映えるよう amber グロー、
+   light は白背景で滲まないよう薄い黒シャドウで輪郭だけ締める(色のコントラストで視認)。 */
+.conflict-chevron { filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.7)); }
+.theme-light .conflict-chevron { filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.25)); }
+
 /* 注: 旧 Rev 3 で sheet-breathe CSS animation を入れていたが、 状態遷移時に bottom 値が
    一気に 0 に戻って「下でバウンス」 して見える問題が出たため Rev 4 で削除。
    呼吸アニメは framer-motion 側で transform: translateY 経由で行う (smooth tween で

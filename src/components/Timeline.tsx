@@ -876,6 +876,9 @@ const Timeline: React.FC = () => {
     // 競合（同スキル・CDかぶり）している軽減 ID セットを timelineMitigations から常に派生算出する。
     // store の conflictingMitigationId を廃止し、この値を MitigationItem に prop 渡しする。
     const conflictingIds = useMemo(() => findSameSkillCdConflicts(timelineMitigations), [timelineMitigations]);
+    // 「置いた時は既存の相手だけ光る」: 直前に手動配置したインスタンスは脈動/矢印から除外する。
+    // リロードで null に戻るため、開き直した時は既存競合が両方光る(自己責任)。
+    const lastPlacedMitigationId = useMitigationStore(s => s.lastPlacedMitigationId);
 
     const handleAutoPlan = useCallback(() => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
@@ -2283,7 +2286,7 @@ const Timeline: React.FC = () => {
         const tMap = timeToYMapRef.current;
         const offsetT = showPreStart ? -10 : 0;
         return timelineMitigations
-            .filter(m => conflictingIds.has(m.id))
+            .filter(m => conflictingIds.has(m.id) && m.id !== lastPlacedMitigationId)
             .map(m => {
                 const layout = memberLayout.get(m.ownerId);
                 const y = hideEmptyRows
@@ -2300,7 +2303,7 @@ const Timeline: React.FC = () => {
     // memberLayout は Map で参照同一・中身が変化するため refVersion を直接含められない。
     // timeToYMapRef は ref なので deps に入れられない → timelineMitigations / conflictingIds 変化で再算出。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [timelineMitigations, conflictingIds, memberLayout, hideEmptyRows, pixelsPerSecond, showPreStart, isMobileTimeline]);
+    }, [timelineMitigations, conflictingIds, lastPlacedMitigationId, memberLayout, hideEmptyRows, pixelsPerSecond, showPreStart, isMobileTimeline]);
 
     const getJobIcon = (jobId: string | null) => {
         if (!jobId) return null;
@@ -3286,7 +3289,7 @@ const Timeline: React.FC = () => {
                                                             isVirtual={mitigation.isVirtual}
                                                             iconOverride={mitigation.iconOverride}
                                                             layoutReady={layout !== undefined}
-                                                            isConflicting={conflictingIds.has(mitigation.id)}
+                                                            isConflicting={conflictingIds.has(mitigation.id) && mitigation.id !== lastPlacedMitigationId}
                                                         />
                                                     );
                                                 });

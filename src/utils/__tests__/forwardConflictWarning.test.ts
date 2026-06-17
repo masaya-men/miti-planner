@@ -30,11 +30,12 @@ describe('forward 競合(既存CD中に重ねる)', () => {
         expect(r.conflictOverride).toBe(true);  // クリックは解放
     });
 
-    it('ドラッグ(ignoreInstanceId 指定): ブロック維持(override なし)', () => {
+    it('ドラッグ(ignoreInstanceId 指定): 警告つきで許可(2026-06-17 方針転換・ALLOW_DRAG_INTO_CONFLICT=true)', () => {
+        // 持続する脈動+画面外シェブロンで気づけるため、ドラッグも competing 位置へ置けるように統一。
         useMitigationStore.setState({ currentLevel: 100 });
         const applied = [ap('a', 60), ap('dragging', 90)];
         const r = validateMitigationPlacement(reprisal, 90, applied, tStub, 'dragging');
-        expect(r.available).toBe(false);
-        expect(r.conflictOverride).toBeFalsy();
+        expect(r.available).toBe(true);
+        expect(r.warning).toBe(true);
     });
 });

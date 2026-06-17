@@ -67,6 +67,10 @@ interface MitigationState {
     showRowBorders: boolean;
     clipboardEvent: TimelineEvent | null;
     timelineSortOrder: 'light_party' | 'role';
+    /** 競合表示用: 直前にユーザーが手動配置したインスタンス id (セッションのみ・partialize 非対象)。
+     *  「置いた時は"既存の相手"だけ光らせ、自分が今置いた方は光らせない」を実現するため、
+     *  この id だけ脈動/矢印から除外する。リロードで null に戻る → 既存競合は両方光る。 */
+    lastPlacedMitigationId: string | null;
     /** メモ機能 (#57) — シート上のメモ配列。 plan データの一部として永続化される。 */
     memos: PlanMemo[];
     /** メモ機能 (#57) — UI 一時状態 (タブ切替・リロードでリセット、 partialize には含めない)。 */
@@ -528,6 +532,7 @@ export const useMitigationStore = create<MitigationState>()(
                 showRowBorders: false,
                 clipboardEvent: null,
                 timelineSortOrder: 'light_party',
+                lastPlacedMitigationId: null,
                 aetherflowChainPrompt: null,
                 astrologianDrawChainPrompt: null,
                 // メモ機能 (#57)
@@ -1251,6 +1256,11 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 addMitigation: (mitigation) => {
+                    // 競合表示: ユーザーが今置いたインスタンスを記録(自動配置 autoHidden は除外)。
+                    // この id は脈動/矢印から除外され「既存の相手だけ光る」を実現する。
+                    if (!mitigation.autoHidden) {
+                        set({ lastPlacedMitigationId: mitigation.id });
+                    }
                     // 共同編集中: Yjs へ委譲(セラフィム cascade 等は handlers 実装側で Y 操作)。
                     // timelineMitigations は handler→observeDeep→_applyMitigationsFromCollab 経由で更新。
                     // プロンプト等の UI 一時状態はローカルに反映(yjs 非依存)。
@@ -1358,6 +1368,9 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 updateMitigationTime: (id, newTime) => {
+                    // 競合表示: ドラッグで動かしたインスタンスを「直前に触った1件」として記録。
+                    // これを脈動/矢印から除外することで、移動先で競合した場合も「既存の相手だけ光る」(配置と統一)。
+                    set({ lastPlacedMitigationId: id });
                     // 共同編集中: Yjs へ委譲(セラフィム cascade 等は handlers 実装側で Y 操作)。
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋な閲覧者のみブロック(編集者ジョイナーは active=true で委譲へ)
                     if (get()._collabActive && get()._collabHandlers) {

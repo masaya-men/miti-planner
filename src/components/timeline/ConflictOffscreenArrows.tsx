@@ -88,13 +88,12 @@ export function ConflictOffscreenArrows({ points, scrollContainerRef }: Props) {
                                 type="button"
                                 onClick={() => onClick(a)}
                                 aria-label={label}
-                                className="animate-conflict-arrow-pulse flex items-center justify-center w-6 h-6 text-amber-300 hover:text-amber-200 cursor-pointer"
+                                className="animate-conflict-arrow-pulse flex items-center justify-center w-6 h-6 cursor-pointer text-amber-500 hover:text-amber-600 dark:text-amber-300 dark:hover:text-amber-200"
                             >
-                                {/* 太めのシェブロンのみ (SVG strokeWidth で太さ・drop-shadow で暗背景でも視認) */}
+                                {/* 太めのシェブロンのみ。グローはテーマ別 (.conflict-chevron / index.css) */}
                                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
                                     stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
-                                    aria-hidden="true"
-                                    style={{ filter: 'drop-shadow(0 0 2px rgba(251,191,36,0.7))' }}>
+                                    aria-hidden="true" className="conflict-chevron">
                                     {a.direction === 'up'
                                         ? <polyline points="5 15 12 8 19 15" />
                                         : <polyline points="5 9 12 16 19 9" />}

@@ -3,6 +3,15 @@ import { getMitigationsFromStore } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 
 /**
+ * ドラッグで「同じ軽減のCD被り」位置へドロップした時の挙動トグル。
+ * - true (現行・2026-06-17): 警告つきで許可 (持続する脈動 + 画面外シェブロンで気づけるため)。クリック配置と挙動が揃う。
+ * - false: 従来のブロック挙動 (ドロップを弾いて元位置へ戻す)。
+ * ユーザーから不満が出たら false に戻すだけで旧挙動が完全復活する (ブロックロジックは保持済み)。
+ * 注: 競合(CD被り)以外のブロック(リソース不足/チャージ切れ/前提切れ等)はこのフラグ対象外で常にブロック。
+ */
+const ALLOW_DRAG_INTO_CONFLICT = true;
+
+/**
  * 共有リキャストの技グループを返す(例: bloodwhetting / nascent_flash は同一CD)。
  */
 export function getSharedCooldownIds(id: string): string[] {
@@ -624,9 +633,11 @@ export function validateMitigationPlacement(
             if (selectedTime < cdEnd) {
                 const remaining = Math.ceil(cdEnd - selectedTime);
                 const label = t('mitigation.cd_remaining', { seconds: remaining, defaultValue: `CD ${remaining}s` });
-                // ドラッグ中はブロック維持(被りに気づくきっかけが薄いため)。
+                // ドラッグ: 競合位置へのドロップを「警告つきで許可」(持続する脈動+画面外シェブロンで気づけるため)。
+                // ALLOW_DRAG_INTO_CONFLICT を false に戻すと従来のブロック挙動が復活する(ロジックは保持)。
                 if (ignoreInstanceId) {
-                    return { available: false, message: label };
+                    if (!ALLOW_DRAG_INTO_CONFLICT) return { available: false, message: label };
+                    return { available: true, warning: true, message: label };
                 }
                 // クリック配置: 赤+禁止カーソルの見た目は available:false で維持しつつ、
                 // conflictOverride でクリックだけ解放して配置できるようにする。
@@ -641,10 +652,11 @@ export function validateMitigationPlacement(
             const firstNext = nextUses[0];
             if (selectedTime + m.recast > firstNext.time) {
                 const overlap = Math.ceil((selectedTime + m.recast) - firstNext.time);
-                // When dragging, we want to block if we overlap with a future CD
+                // ドラッグ: 後方競合も「警告つきで許可」。ALLOW_DRAG_INTO_CONFLICT=false で従来のブロックに戻る。
                 if (ignoreInstanceId) {
                     const label = t('mitigation.cd_overlap', { seconds: overlap, defaultValue: `CD overlap (${overlap}s)` });
-                    return { available: false, message: label };
+                    if (!ALLOW_DRAG_INTO_CONFLICT) return { available: false, message: label };
+                    return { available: true, warning: true, message: label };
                 }
 
                 // If just selecting, show warning
