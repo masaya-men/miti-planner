@@ -398,7 +398,7 @@ export function validateMitigationPlacement(
     t: (key: string, options?: any) => string,
     // Optional parameter to ignore a specific instance ID during overlap checks (useful for drag & drop)
     ignoreInstanceId?: string
-): { available: boolean; warning?: boolean; message?: string; shortMessage?: string; badge?: string; badgeColor?: string; conflictInstanceId?: string; recastInfo?: string; conflictOverride?: boolean } {
+): { available: boolean; warning?: boolean; message?: string; shortMessage?: string; badge?: string; badgeColor?: string; recastInfo?: string; conflictOverride?: boolean } {
 
     // Filter out the instance being moved if dragging
     const relevantMitigations = ignoreInstanceId
@@ -659,7 +659,7 @@ export function validateMitigationPlacement(
                     else if (m.resourceCost!.type === 'lily') stacks = getLilyStacks(selectedTime, relevantMitigations);
                     return { badge: `×${stacks}`, badgeColor: stacks <= 1 ? 'amber' as const : 'cyan' as const };
                 })() : {};
-                return { available: true, warning: true, message: label, shortMessage: shortLabel, conflictInstanceId: firstNext.id, ...resourceBadge };
+                return { available: true, warning: true, message: label, shortMessage: shortLabel, ...resourceBadge };
             }
         }
     }
