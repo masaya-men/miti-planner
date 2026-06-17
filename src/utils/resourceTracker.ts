@@ -3,6 +3,54 @@ import { getMitigationsFromStore } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
 
 /**
+ * 共有リキャストの技グループを返す(例: bloodwhetting / nascent_flash は同一CD)。
+ */
+export function getSharedCooldownIds(id: string): string[] {
+    if (id === 'bloodwhetting' || id === 'nascent_flash') {
+        return ['bloodwhetting', 'nascent_flash'];
+    }
+    return [id];
+}
+
+/**
+ * プラン内の「同一オーナー・同一共有CDグループ・非チャージ技」で
+ * リキャストが被る(t2 < t1 + recast)インスタンスの id 集合を返す。
+ * 競合は配置時の1回フラグではなく、この関数でデータから常に導出する。
+ */
+export function findSameSkillCdConflicts(mitigations: AppliedMitigation[]): Set<string> {
+    const defs = getMitigationsFromStore();
+    const defById = new Map<string, Mitigation>(defs.map(d => [d.id, d]));
+
+    // owner + 共有CDグループ で束ねる
+    const groups = new Map<string, AppliedMitigation[]>();
+    for (const am of mitigations) {
+        const def = defById.get(am.mitigationId);
+        if (!def) continue;
+        if (def.maxCharges) continue;                  // チャージ技は対象外
+        if (!def.recast || def.recast <= 0) continue;  // リキャスト概念なしは対象外
+        const groupKey = `${am.ownerId}::${getSharedCooldownIds(am.mitigationId).slice().sort().join('|')}`;
+        let arr = groups.get(groupKey);
+        if (!arr) { arr = []; groups.set(groupKey, arr); }
+        arr.push(am);
+    }
+
+    const conflicts = new Set<string>();
+    for (const list of groups.values()) {
+        list.sort((a, b) => a.time - b.time);
+        for (let i = 0; i < list.length - 1; i++) {
+            const a = list[i];
+            const b = list[i + 1];
+            const recast = defById.get(a.mitigationId)?.recast ?? 0;
+            if (b.time < a.time + recast) { // a のリキャスト中に b が入る = 競合
+                conflicts.add(a.id);
+                conflicts.add(b.id);
+            }
+        }
+    }
+    return conflicts;
+}
+
+/**
  * コンテンツレベルを加味した実効最大チャージ数。
  * chargeMinLevel を持つ技は、現在のコンテンツ level がそれ未満なら 1 チャージ扱い
  * (例: ディヴァインベニゾン/星天交差は Lv88 の特性で初めて 2 チャージになる)。
@@ -561,13 +609,6 @@ export function validateMitigationPlacement(
     }
 
     // Cooldown check (non-charge skills only)
-    const getSharedCooldownIds = (id: string) => {
-        if (id === 'bloodwhetting' || id === 'nascent_flash') {
-            return ['bloodwhetting', 'nascent_flash'];
-        }
-        return [id];
-    };
-
     const sharedIds = getSharedCooldownIds(m.id);
 
     const sameSkillUses = relevantMitigations
