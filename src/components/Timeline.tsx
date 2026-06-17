@@ -2270,6 +2270,14 @@ const Timeline: React.FC = () => {
     // 画面外ガイド矢印用: 競合中インスタンスの列中央X + コンテンツ内絶対Y を算出。
     // timeToYMap は render IIFE 内ローカル変数のため ref 経由でアクセスする。
     // PC 専用(isMobileTimeline が true のときは空配列)。
+    //
+    // [制約] hideEmptyRows=true (compact モード) のとき Y は timeToYMapRef.current を参照するが、
+    //   timeToYMapRef は render 中に書き込まれる ref であり useMemo は render 前に評価されるため、
+    //   「直前レンダーの timeToYMap」を読む構造上 1 レンダー分のラグが避けられない。
+    //   hideEmptyRows / pixelsPerSecond / showPreStart を deps に含めることで、
+    //   compact モード切替・スケール変化直後の次レンダーには正しい Y に追従する。
+    //   初回マウント時の 1 フレームずれは ConflictOffscreenArrows 側で viewportHeight===0 中は
+    //   描画しないことで緩和している。
     const conflictPoints = useMemo<ConflictPoint[]>(() => {
         if (isMobileTimeline) return [];
         const tMap = timeToYMapRef.current;
@@ -2695,7 +2703,9 @@ const Timeline: React.FC = () => {
                         style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
                     >
                         {/* 画面外競合ガイド矢印: sticky + height:0 で viewport 端に固定、コンテンツと一緒に流れない */}
-                        {!isMobileTimeline && conflictPoints.length > 0 && (
+                        {/* 常時マウントにすることで scroll/ResizeObserver の付け外し churn を防ぐ。
+                            points が空のときは ConflictOffscreenArrows が何も描画しない。 */}
+                        {!isMobileTimeline && (
                             <div className="sticky top-0 z-30 h-0 overflow-visible pointer-events-none">
                                 <ConflictOffscreenArrows
                                     points={conflictPoints}

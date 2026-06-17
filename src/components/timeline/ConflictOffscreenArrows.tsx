@@ -59,6 +59,10 @@ export function ConflictOffscreenArrows({ points, scrollContainerRef }: Props) {
         el.scrollTo({ top: Math.max(0, a.targetY - el.clientHeight / 2), behavior: 'smooth' });
     };
 
+    // viewportHeight が 0 の間は描画しない。
+    // 初回レンダー時に clientHeight が未確定のため、下矢印が top:-28px で画面外上端に一瞬出るのを防ぐ。
+    if (viewportHeight === 0) return null;
+
     return (
         <>
             {arrows.map(a => {
