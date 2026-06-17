@@ -554,9 +554,12 @@ export const useMitigationStore = create<MitigationState>()(
                 _loadedPlanId: null,
                 setLoadedPlanId: (id) => set({ _loadedPlanId: id }),
 
-                enterCollabMode: (handlers) => set({ _collabActive: true, _collabHandlers: handlers }),
+                // collab 入室時に solo 履歴を持ち込まない(collab 中は CRDT undo が真実)。
+                enterCollabMode: (handlers) => set({ _collabActive: true, _collabHandlers: handlers, _history: [], _future: [] }),
 
-                exitCollabMode: () => set({ _collabActive: false, _collabHandlers: null, _collabCanUndo: false, _collabCanRedo: false }),
+                // collab 退出時も _history/_future をクリア。revoke/手動 disconnect 後の Ctrl+Z で
+                // 入室前データへ巻き戻り→Firestore 恒久上書きする経路を塞ぐ(canUndo=false 化)。
+                exitCollabMode: () => set({ _collabActive: false, _collabHandlers: null, _collabCanUndo: false, _collabCanRedo: false, _history: [], _future: [] }),
 
                 // 遅延チャンク(collabProvider)の observeDeep から呼ばれる。Yjs 側の最新軽減配列を
                 // store に反映。盾連鎖(linkedMitigationId/duration)は派生再計算する。
@@ -679,55 +682,59 @@ export const useMitigationStore = create<MitigationState>()(
                     // （loadSnapshot内で即座に発火すると、ローディング中にSTEP2に進んでしまう）
                 },
 
-                // Undo: restore the last snapshot from history
-                undo: () => set((state) => {
-                    if (state._collabReadonly) return state; // 閲覧者は no-op(多層防御)
-                    if (state._collabActive) { state._collabHandlers?.undo(); return state; } // ②-c: CRDT undo へ委譲(反映は observeDeep 経由)
-                    if (state._history.length === 0) return state;
-                    const previous = state._history[state._history.length - 1];
-                    const newHistory = state._history.slice(0, -1);
-                    const currentSnapshot: HistorySnapshot = {
-                        timelineMitigations: state.timelineMitigations,
-                        timelineEvents: state.timelineEvents,
-                        phases: state.phases,
-                        labels: state.labels,
-                        partyMembers: state.partyMembers
-                    };
-                    return {
-                        _history: newHistory,
-                        _future: [currentSnapshot, ...state._future],
-                        timelineMitigations: previous.timelineMitigations,
-                        timelineEvents: previous.timelineEvents,
-                        phases: previous.phases,
-                        labels: previous.labels,
-                        partyMembers: previous.partyMembers,
-                    };
-                }),
+                // Undo: collab 中は CRDT undo へ委譲(set 外・反映は observeDeep の単一 set)。solo は従来のローカル履歴。
+                undo: () => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者のみ no-op(編集者ジョイナーは active=true で委譲へ)
+                    if (get()._collabActive) { get()._collabHandlers?.undo(); return; } // ②-c: CRDT undo へ委譲。set() を挟まない=入れ子 set による store↔Y.Doc desync を回避
+                    set((state) => {
+                        if (state._history.length === 0) return state;
+                        const previous = state._history[state._history.length - 1];
+                        const newHistory = state._history.slice(0, -1);
+                        const currentSnapshot: HistorySnapshot = {
+                            timelineMitigations: state.timelineMitigations,
+                            timelineEvents: state.timelineEvents,
+                            phases: state.phases,
+                            labels: state.labels,
+                            partyMembers: state.partyMembers
+                        };
+                        return {
+                            _history: newHistory,
+                            _future: [currentSnapshot, ...state._future],
+                            timelineMitigations: previous.timelineMitigations,
+                            timelineEvents: previous.timelineEvents,
+                            phases: previous.phases,
+                            labels: previous.labels,
+                            partyMembers: previous.partyMembers,
+                        };
+                    });
+                },
 
-                // Redo: restore the next snapshot from future
-                redo: () => set((state) => {
-                    if (state._collabReadonly) return state; // 閲覧者は no-op(多層防御)
-                    if (state._collabActive) { state._collabHandlers?.redo(); return state; } // ②-c: CRDT redo へ委譲
-                    if (state._future.length === 0) return state;
-                    const next = state._future[0];
-                    const newFuture = state._future.slice(1);
-                    const currentSnapshot: HistorySnapshot = {
-                        timelineMitigations: state.timelineMitigations,
-                        timelineEvents: state.timelineEvents,
-                        phases: state.phases,
-                        labels: state.labels,
-                        partyMembers: state.partyMembers
-                    };
-                    return {
-                        _history: [...state._history, currentSnapshot],
-                        _future: newFuture,
-                        timelineMitigations: next.timelineMitigations,
-                        timelineEvents: next.timelineEvents,
-                        phases: next.phases,
-                        labels: next.labels,
-                        partyMembers: next.partyMembers,
-                    };
-                }),
+                // Redo: collab 中は CRDT redo へ委譲(set 外)。solo は従来のローカル履歴。
+                redo: () => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者のみ no-op
+                    if (get()._collabActive) { get()._collabHandlers?.redo(); return; } // ②-c: CRDT redo へ委譲(入れ子 set 回避)
+                    set((state) => {
+                        if (state._future.length === 0) return state;
+                        const next = state._future[0];
+                        const newFuture = state._future.slice(1);
+                        const currentSnapshot: HistorySnapshot = {
+                            timelineMitigations: state.timelineMitigations,
+                            timelineEvents: state.timelineEvents,
+                            phases: state.phases,
+                            labels: state.labels,
+                            partyMembers: state.partyMembers
+                        };
+                        return {
+                            _history: [...state._history, currentSnapshot],
+                            _future: newFuture,
+                            timelineMitigations: next.timelineMitigations,
+                            timelineEvents: next.timelineEvents,
+                            phases: next.phases,
+                            labels: next.labels,
+                            partyMembers: next.partyMembers,
+                        };
+                    });
+                },
 
                 // Bulk delete: clear mitigations for a specific member
                 clearMitigationsByMember: (memberId) => {

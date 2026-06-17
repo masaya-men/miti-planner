@@ -263,14 +263,24 @@ describe('②-c collab 中の undo/redo は handlers に委譲する', () => {
     expect(h.redo).toHaveBeenCalledTimes(1);
   });
 
-  it('閲覧者(_collabReadonly)は collab 中でも undo/redo を委譲しない(多層防御)', () => {
+  it('純粋閲覧者(active=false, readonly=true)は undo/redo を委譲しない(多層防御)', () => {
     const h = mockHandlers();
-    useMitigationStore.getState().enterCollabMode(h);
-    useMitigationStore.setState({ _collabReadonly: true });
+    // enterCollabMode を呼ばない=純粋閲覧者(active=false)。readonly のみ true。
+    useMitigationStore.setState({ _collabActive: false, _collabHandlers: h, _collabReadonly: true });
     useMitigationStore.getState().undo();
     useMitigationStore.getState().redo();
     expect(h.undo).not.toHaveBeenCalled();
     expect(h.redo).not.toHaveBeenCalled();
+  });
+
+  it('編集者ジョイナー(active=true, readonly=true)は undo/redo を委譲する', () => {
+    const h = mockHandlers();
+    useMitigationStore.getState().enterCollabMode(h);
+    useMitigationStore.setState({ _collabReadonly: true }); // 編集者ジョイナーは active=true かつ readonly=true(persist-skip)
+    useMitigationStore.getState().undo();
+    useMitigationStore.getState().redo();
+    expect(h.undo).toHaveBeenCalledTimes(1);
+    expect(h.redo).toHaveBeenCalledTimes(1);
   });
 
   it('_setCollabUndoRedo がフラグを更新する', () => {
@@ -284,6 +294,35 @@ describe('②-c collab 中の undo/redo は handlers に委譲する', () => {
     useMitigationStore.getState().exitCollabMode();
     expect(useMitigationStore.getState()._collabCanUndo).toBe(false);
     expect(useMitigationStore.getState()._collabCanRedo).toBe(false);
+  });
+});
+
+describe('②-c Critical#2: collab 退出で solo 履歴が残らない(revoke/disconnect 後の巻き戻し防止)', () => {
+  it('enterCollabMode は入室前 solo 履歴(_history/_future)をクリアする', () => {
+    useMitigationStore.setState({
+      _collabActive: false, _collabHandlers: null,
+      _history: [{ timelineMitigations: [], timelineEvents: [], phases: [], labels: [], partyMembers: [] }] as any,
+      _future: [{ timelineMitigations: [], timelineEvents: [], phases: [], labels: [], partyMembers: [] }] as any,
+    });
+    useMitigationStore.getState().enterCollabMode(mockHandlers());
+    expect(useMitigationStore.getState()._history).toEqual([]);
+    expect(useMitigationStore.getState()._future).toEqual([]);
+  });
+
+  it('exitCollabMode は _history/_future をクリアし、直後の solo undo を no-op にする(入室前データへ巻き戻さない)', () => {
+    const h = mockHandlers();
+    // 入室前に solo 履歴があった状況を作る
+    useMitigationStore.setState({
+      timelineEvents: [{ id: 'collab-edit', time: 10, name: { ja: 'x' }, damageType: 'magical' }] as any,
+      _history: [{ timelineMitigations: [], timelineEvents: [], phases: [], labels: [], partyMembers: [] }] as any,
+      _future: [], _collabActive: false, _collabHandlers: null, _collabReadonly: false,
+    });
+    useMitigationStore.getState().enterCollabMode(h); // ここで _history はクリアされる
+    useMitigationStore.getState().exitCollabMode();    // 退出でも空のまま
+    expect(useMitigationStore.getState()._history).toEqual([]);
+    const before = useMitigationStore.getState().timelineEvents;
+    useMitigationStore.getState().undo(); // solo no-op(_history 空)
+    expect(useMitigationStore.getState().timelineEvents).toBe(before); // 巻き戻らない
   });
 });
 
