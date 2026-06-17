@@ -10,6 +10,7 @@ const applied = (over: Partial<AppliedMitigation> = {}): AppliedMitigation => ({
 const mockHandlers = (): CollabHandlers => ({
     add: vi.fn(), remove: vi.fn(), updateTime: vi.fn(),
     upsertItems: vi.fn(), removeItems: vi.fn(), setMeta: vi.fn(), importBulk: vi.fn(), batch: vi.fn(),
+    undo: vi.fn(), redo: vi.fn(),
 });
 
 /**

@@ -17,7 +17,8 @@ export interface PlanUndoManager {
 }
 
 export function createPlanUndoManager(
-  scope: Y.AbstractType<unknown>[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  scope: Y.AbstractType<any>[],
   onChange: (canUndo: boolean, canRedo: boolean) => void,
 ): PlanUndoManager {
   const um = new Y.UndoManager(scope, {

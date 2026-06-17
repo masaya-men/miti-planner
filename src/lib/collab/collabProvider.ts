@@ -20,6 +20,7 @@ import { createRealPeer } from './cursorPeer';
 import { wireSignal } from './cursorSignal';
 import { useRemoteCursorsStore } from '../../store/useRemoteCursorsStore';
 import { useCursorSendStore } from '../../store/useCursorSendStore';
+import { createPlanUndoManager, type PlanUndoManager } from './planUndoManager';
 
 /**
  * 共同編集の遅延チャンク。yjs / y-partyserver を実行時 import するのはこのファイルと
@@ -237,6 +238,14 @@ export function startCollabSession(
   // ②-b-2: 全 PlanArrayKey(partyMembers/timelineMitigations 含む)の対応表を共有ヘルパで生成。
   const arrByKey = buildArrByKey(doc);
 
+  // ②-c: CRDT undo/redo。scope は solo 履歴と同じ 5 トップレベル型(memos/meta は対象外)。
+  // trackedOrigins=['local'] で自分の編集だけを積む(planUndoManager 内で設定)。
+  // readOnly(閲覧者)でも生成して可(ローカル編集をしないのでスタックは常に空)。
+  const planUndo: PlanUndoManager = createPlanUndoManager(
+    [yarr, yEvents, yPhases, yLabels, yPartyMembers],
+    (canUndo, canRedo) => useMitigationStore.getState()._setCollabUndoRedo(canUndo, canRedo),
+  );
+
   // Yjs → store。自分の操作も相手の操作も同じ observeDeep 経路で store に入る(単一の真実 = Y.Doc)。
   // Y.Map 内フィールド変更(time の set 等)も拾うため observe ではなく observeDeep。
   const applyToStore = () =>
@@ -331,6 +340,9 @@ export function startCollabSession(
     },
     // ②-b-2: 複数キーを 1 transaction で原子的に反映(ジョブ変更カスケード等)。
     batch: (ops) => applyBatch(doc, arrByKey, ops),
+    // ②-c: CRDT undo/redo。Y.UndoManager が origin='local' の変更だけを逆操作する。
+    undo: () => planUndo.undo(),
+    redo: () => planUndo.redo(),
   };
 
   // 初期同期完了後に入室処理。
@@ -440,6 +452,8 @@ export function startCollabSession(
     useCursorSendStore.getState().setBroadcaster(null, null);
     useRemoteCursorsStore.getState().clear();
     useCollabPresenceStore.getState().clear();
+    planUndo.destroy(); // ②-c: UndoManager のリスナー解除 + doc afterTransaction ハンドラ除去
+    useMitigationStore.getState()._setCollabUndoRedo(false, false); // ボタン活性リセット
     provider.destroy();
     doc.destroy();
   };
