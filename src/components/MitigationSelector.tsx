@@ -365,7 +365,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                             isAlreadyPlaced
                                                 ? ("bg-red-50 border-red-200 hover:bg-red-100 dark:bg-red-500/10 dark:border-red-500/40 dark:hover:bg-red-500/20")
                                                 : !status.available
-                                                    ? ("border-red-100 bg-red-50/50 cursor-not-allowed opacity-50 dark:border-red-500/20 dark:bg-red-500/[0.06] dark:cursor-not-allowed dark:opacity-70")
+                                                    ? ("border-red-100 bg-red-50/50 opacity-50 dark:border-red-500/20 dark:bg-red-500/[0.06] dark:opacity-70")
                                                     : status.warning
                                                         ? ("hover:bg-amber-50 border-amber-200 dark:hover:bg-amber-500/[0.06] dark:border-amber-500/30")
                                                         : ("hover:bg-app-surface2 border-transparent hover:border-app-border"),

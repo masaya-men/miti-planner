@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Tooltip } from '../ui/Tooltip';
 import { computeConflictArrows, type ConflictPoint, type ArrowDescriptor } from './conflictArrows';
 
 interface Props {
@@ -71,25 +72,36 @@ export function ConflictOffscreenArrows({ points, scrollContainerRef }: Props) {
                 const topPx = a.direction === 'up'
                     ? EDGE_MARGIN
                     : viewportHeight - ARROW_SIZE - EDGE_MARGIN;
+                const label = a.direction === 'up'
+                    ? t('mitigation.conflict_above', { defaultValue: '競合あり (上へ)' })
+                    : t('mitigation.conflict_below', { defaultValue: '競合あり (下へ)' });
                 return (
-                    <button
+                    // 外側 div が列中央 (a.x) への中央寄せ (-translate-x-1/2) を担う。
+                    // 脈動 (scale) はボタン側にかけるので中央寄せと干渉しない。
+                    <div
                         key={a.key}
-                        type="button"
-                        onClick={() => onClick(a)}
-                        aria-label={a.direction === 'up'
-                            ? t('mitigation.conflict_above', { defaultValue: '競合あり (上へ)' })
-                            : t('mitigation.conflict_below', { defaultValue: '競合あり (下へ)' })}
-                        title={a.direction === 'up'
-                            ? t('mitigation.conflict_above', { defaultValue: '競合あり (上へ)' })
-                            : t('mitigation.conflict_below', { defaultValue: '競合あり (下へ)' })}
-                        className="animate-conflict-pulse absolute z-30 -translate-x-1/2 flex items-center justify-center w-6 h-6 rounded-full ring-2 ring-amber-400 bg-amber-400/20 text-amber-300 cursor-pointer hover:bg-amber-400/40 transition-colors pointer-events-auto"
-                        style={{
-                            left: a.x,
-                            top: topPx,
-                        }}
+                        className="absolute z-30 -translate-x-1/2"
+                        style={{ left: a.x, top: topPx }}
                     >
-                        {a.direction === 'up' ? '∧' : '∨'}
-                    </button>
+                        <Tooltip content={label} wrapperClassName="pointer-events-auto">
+                            <button
+                                type="button"
+                                onClick={() => onClick(a)}
+                                aria-label={label}
+                                className="animate-conflict-arrow-pulse flex items-center justify-center w-6 h-6 text-amber-300 hover:text-amber-200 cursor-pointer"
+                            >
+                                {/* 太めのシェブロンのみ (SVG strokeWidth で太さ・drop-shadow で暗背景でも視認) */}
+                                <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+                                    aria-hidden="true"
+                                    style={{ filter: 'drop-shadow(0 0 2px rgba(251,191,36,0.7))' }}>
+                                    {a.direction === 'up'
+                                        ? <polyline points="5 15 12 8 19 15" />
+                                        : <polyline points="5 9 12 16 19 9" />}
+                                </svg>
+                            </button>
+                        </Tooltip>
+                    </div>
                 );
             })}
         </>

@@ -10,7 +10,6 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 import { MobileGuide } from './MobileGuide';
-import { ColumnWidthSlider } from './dev/ColumnWidthSlider';
 
 const MOBILE_GUIDE_KEY = 'lopo_mobile_guide_completed';
 
@@ -106,9 +105,6 @@ export const MitiPlannerPage: React.FC = () => {
                     </ErrorBoundary>
                 </div>
             </div>
-
-            {/* 開発時のみ: 列幅動的調整スライダー */}
-            {import.meta.env.DEV && <ColumnWidthSlider />}
         </Layout>
     );
 };

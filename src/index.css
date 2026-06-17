@@ -89,6 +89,16 @@
   animation: conflict-pulse 1s ease-in-out infinite;
 }
 
+/* 画面外ガイド矢印専用のゆったり脈動 (スキルアイコンの conflict-pulse より穏やか・遅い)。
+   中央寄せ(translateX)は外側ラッパが担うため、ここは scale のみ。 */
+@keyframes conflict-arrow-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.72; transform: scale(0.92); }
+}
+.animate-conflict-arrow-pulse {
+  animation: conflict-arrow-pulse 1.8s ease-in-out infinite;
+}
+
 /* 注: 旧 Rev 3 で sheet-breathe CSS animation を入れていたが、 状態遷移時に bottom 値が
    一気に 0 に戻って「下でバウンス」 して見える問題が出たため Rev 4 で削除。
    呼吸アニメは framer-motion 側で transform: translateY 経由で行う (smooth tween で

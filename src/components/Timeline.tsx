@@ -2293,6 +2293,7 @@ const Timeline: React.FC = () => {
                     id: m.id,
                     ownerId: m.ownerId,
                     y,
+                    // 列幅の中央 (ジョブ種別で列幅が変わるので width の中央)。
                     columnCenterX: layout ? layout.left + layout.width / 2 : 0,
                 };
             });
