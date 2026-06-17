@@ -126,6 +126,7 @@ LICENSE 追加は**しない** (memory `feedback_lopo_license_stance`)。 真の
 
 - 多言語: ハウジング言語対応 / AA 名統一
 - UI/モバイル: モーダルアニメ / スマホ・タブレット最適化 / SVG アイコンアニメ / 紹介 PV
+- **🆕 表の横スクロールで左の情報列(フェーズ/ラベル/時間/敵の攻撃/元/軽減後ダメージ)を固定 (Excel ウィンドウ枠固定相当・ユーザー要望 2026-06-18)**: 軽減スキル列だけ横スクロール、情報列は据え置き。**難易度=中規模**(Timeline は独自スクロール系: 列幅CSS変数 + スキル列は`--col-member-start`原点の絶対配置 + ヘッダーJS translateX同期 [Timeline.tsx:1309]。sticky追加はPC/モバイル/表展開/「今」ライン/色付きバーのz-index重なりQAが必須)。**着手は brainstorming から**(スコープ=固定列範囲/モバイル挙動/バー重なり)。疲れたセッション末尾で着手しない。
 - インフラ: shared_plans クリーンアップ / CSP unsafe-inline / Sentry / Cloudflare 前段 / **collab使用量 自動監視→Discord通知 cron**(公開時はA=今のまま[部屋8〜20席+冬眠+緊急停止COLLAB_DISABLED手動+$0自動停止]で行く・コスト青天井リスク無し。Bの監視cron他「素人でも管理できる運用ツール群」は公開後に後追い追加・2026-06-12決定)
 - 新機能: Floating Timeline (Tauri v2) / FFLogs 精度 / SA 法改善 / 詠唱バー注釈 / public/icons/ 削除 / **ハウジング split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8)
 - デッドコード: Lenis 削除 / ハウジング背景動画の画面サイズ別出し分け
