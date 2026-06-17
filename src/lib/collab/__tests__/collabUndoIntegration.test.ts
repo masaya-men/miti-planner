@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as Y from 'yjs';
 import { useMitigationStore } from '../../../store/useMitigationStore';
 import { createPlanUndoManager } from '../planUndoManager';
@@ -28,11 +28,20 @@ const sample = (over: Partial<AppliedMitigation> = {}): AppliedMitigation => ({
   id: 'm1', mitigationId: 'rampart_pld', time: 30, duration: 20, ownerId: 'MT', ...over,
 });
 
+let activeWire: ReturnType<typeof wire> | null = null;
+
 beforeEach(() => useMitigationStore.setState({ timelineMitigations: [], _collabActive: false, _collabHandlers: null, _collabReadonly: false }));
+
+afterEach(() => {
+  activeWire?.disconnect();
+  activeWire = null;
+  useMitigationStore.setState({ _collabActive: false, _collabHandlers: null, _collabReadonly: false, timelineMitigations: [], _history: [], _future: [] });
+});
 
 describe('②-c Critical#1: collab undo/redo で store と Y.Doc が desync しない(実エンジン)', () => {
   it('add→undo 後、store.timelineMitigations が Y.Doc と一致する(両方空)', () => {
-    const w = wire(new Y.Doc());
+    activeWire = wire(new Y.Doc());
+    const w = activeWire;
     useMitigationStore.getState().enterCollabMode(w.handlers as CollabHandlers);
     useMitigationStore.getState().addMitigation(sample({ id: 'a1' }));
     expect(useMitigationStore.getState().timelineMitigations.map(m => m.id)).toEqual(['a1']);
@@ -42,17 +51,16 @@ describe('②-c Critical#1: collab undo/redo で store と Y.Doc が desync し�
     expect(readMitigations(w.doc)).toEqual([]);
     expect(useMitigationStore.getState().timelineMitigations).toEqual([]);
     expect(useMitigationStore.getState().timelineMitigations.map(m => m.id)).toEqual(readMitigations(w.doc).map(m => m.id));
-    w.disconnect();
   });
 
   it('add→undo→redo 後、store と Y.Doc が一致する(両方 a1)', () => {
-    const w = wire(new Y.Doc());
+    activeWire = wire(new Y.Doc());
+    const w = activeWire;
     useMitigationStore.getState().enterCollabMode(w.handlers as CollabHandlers);
     useMitigationStore.getState().addMitigation(sample({ id: 'a1' }));
     useMitigationStore.getState().undo();
     useMitigationStore.getState().redo();
     expect(readMitigations(w.doc).map(m => m.id)).toEqual(['a1']);
     expect(useMitigationStore.getState().timelineMitigations.map(m => m.id)).toEqual(['a1']);
-    w.disconnect();
   });
 });
