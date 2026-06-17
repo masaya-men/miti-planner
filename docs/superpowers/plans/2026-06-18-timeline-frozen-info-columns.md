@@ -42,7 +42,7 @@
 - Modify: `src/index.css`（列幅変数定義の近傍・[index.css:1343-1397](../../../src/index.css#L1343) 付近）
 
 **Interfaces:**
-- Produces: CSS クラス `.timeline-info-pane`（sticky・幅 `--col-member-start`・不透明背景・高 z-index）、`.timeline-info-pane--scrolled`（右端 box-shadow）。CSS 変数 `--timeline-info-pane-z`（軽減レイヤーの最大 z=30 より十分上＝ `60`）。
+- Produces: CSS クラス `.timeline-info-pane`（sticky・幅 `--col-member-start`・不透明背景・`z-index: 60` 直書き＝軽減レイヤー最大 z=30 より上）、`.timeline-info-pane--scrolled`（右端 box-shadow）。z 値は単一用途のため変数化しない（YAGNI）。
 
 - [ ] **Step 1: クラスとトークンを追加**
 
