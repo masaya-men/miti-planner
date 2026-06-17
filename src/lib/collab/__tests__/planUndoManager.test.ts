@@ -72,6 +72,19 @@ describe("planUndoManager", () => {
     um.destroy();
   });
 
+  it("captureTimeout=0: 別 transaction の2操作は別々の undo ステップになる", () => {
+    const doc = new Y.Doc();
+    const arr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
+    const um = createPlanUndoManager(scopeOf(doc), () => {});
+    doc.transact(() => arr.push([appliedToYMap(sample({ id: "first" }))]), "local");
+    doc.transact(() => arr.push([appliedToYMap(sample({ id: "second" }))]), "local");
+    um.undo(); // 2回目(second)だけ戻る
+    expect(readMitigations(doc).map((m) => m.id)).toEqual(["first"]);
+    um.undo(); // 1回目(first)も戻る
+    expect(readMitigations(doc)).toEqual([]);
+    um.destroy();
+  });
+
   it("onChange が undo 可否の変化で呼ばれる", () => {
     const doc = new Y.Doc();
     const arr = doc.getArray<Y.Map<unknown>>(YJS_MITIGATIONS_KEY);
