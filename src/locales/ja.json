@@ -400,7 +400,9 @@
         "fey_illumination_seraph": "セラフィックイルミネーション",
         "select_shield": "展開する鼓舞を選択",
         "no_shield": "有効な鼓舞がありません",
-        "shield_value": "バリア: {{value}}"
+        "shield_value": "バリア: {{value}}",
+        "conflict_above": "競合あり (上へ)",
+        "conflict_below": "競合あり (下へ)"
     },
     "settings": {
         "party_stats": "パーティステータス設定",

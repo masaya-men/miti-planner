@@ -388,7 +388,9 @@
         "fey_illumination_seraph": "세라픽 일루미네이션",
         "select_shield": "전개할 고무를 선택",
         "no_shield": "유효한 고무가 없습니다",
-        "shield_value": "보호막: {{value}}"
+        "shield_value": "보호막: {{value}}",
+        "conflict_above": "위쪽에 충돌",
+        "conflict_below": "아래쪽에 충돌"
     },
     "settings": {
         "party_stats": "파티 스탯 설정",

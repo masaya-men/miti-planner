@@ -388,7 +388,9 @@
         "fey_illumination_seraph": "炽天的幻光",
         "select_shield": "选择要展开的鼓舞",
         "no_shield": "没有有效的鼓舞",
-        "shield_value": "屏障: {{value}}"
+        "shield_value": "屏障: {{value}}",
+        "conflict_above": "上方有冲突",
+        "conflict_below": "下方有冲突"
     },
     "settings": {
         "party_stats": "队伍属性设置",

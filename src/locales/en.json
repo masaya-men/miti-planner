@@ -396,7 +396,9 @@
         "fey_illumination_seraph": "Seraphic Illumination",
         "select_shield": "Select Shield to Deploy",
         "no_shield": "No active shield available",
-        "shield_value": "Barrier: {{value}}"
+        "shield_value": "Barrier: {{value}}",
+        "conflict_above": "Conflict above",
+        "conflict_below": "Conflict below"
     },
     "settings": {
         "party_stats": "Party Stats Settings",
