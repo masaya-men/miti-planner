@@ -199,12 +199,6 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
             return;
         }
 
-        // 配置時にリキャスト被り警告があれば、被り先をハイライト
-        const status = getResourceStatus(mitigation);
-        if (status.conflictInstanceId) {
-            useMitigationStore.getState().setConflictingMitigationId(status.conflictInstanceId);
-        }
-
         // copiesShield: 展開戦術 → 有効な鼓舞を検索してUI分岐
         if (mitigation.copiesShield) {
             const availableShields = timelineMitigations.filter(l =>
@@ -351,7 +345,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                 const status = getResourceStatus(mitigation);
                                 const isAlreadyPlaced = activeMitigations.some(am => am.mitigationId === mitigation.id && am.time === selectedTime);
 
-                                const isClickable = (status.available || isAlreadyPlaced);
+                                const isClickable = (status.available || status.conflictOverride || isAlreadyPlaced);
                                 const isSelectedTargetMit = selectedSingleTargetMit?.id === mitigation.id;
                                 const isSelectedShieldMit = selectedCopyShieldMit?.id === mitigation.id;
                                 const isBlurred = (selectedSingleTargetMit !== null && !isSelectedTargetMit) ||
