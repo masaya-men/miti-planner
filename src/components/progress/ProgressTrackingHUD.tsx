@@ -18,6 +18,7 @@ import { computeProgressPercent, isEmptyProgress } from '../../lib/progressLogic
 import { useProgressRecording } from './useProgressRecording';
 import { ProgressRecordPanel } from './ProgressRecordPanel';
 import { ProgressCelebration } from './ProgressCelebration';
+import { ProgressRecordToast } from './ProgressRecordToast';
 
 /**
  * dismiss 済み planId の記録（モジュールレベル = remount でも保持）。
@@ -217,6 +218,7 @@ function JourneyStrip({
       {/* 中央: 光の玉 + 線状の余韻(尾)。クリア時は全軌跡を点灯し数個のパルスが走る。常時の道は出さない。 */}
       <div className="relative flex-1 h-11 overflow-visible">
         <PulseTrail cornerX={cornerX} cornerY={cornerY} count={cleared ? 3 : 1} fullLine={cleared} />
+        <ProgressRecordToast />
       </div>
 
       {/* 右: ActivityDots は spec スコープ外のためレンダリングしない */}
