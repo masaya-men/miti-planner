@@ -1222,7 +1222,13 @@ const Timeline: React.FC = () => {
     useEffect(() => {
         const handleProgressJump = (e: Event) => {
             const { time } = (e as CustomEvent<{ time: number }>).detail ?? {};
-            if (typeof time === 'number') handleNavJump(time);
+            if (typeof time !== 'number') return;
+            // 道クリックの任意時間 → timeToYMap に存在する最寄りの時間へスナップ（厳密さ不要）
+            const map = timeToYMapRef.current;
+            if (map.has(time)) { handleNavJump(time); return; }
+            let nearest: number | null = null, best = Infinity;
+            map.forEach((_y, tk) => { const d = Math.abs(tk - time); if (d < best) { best = d; nearest = tk; } });
+            if (nearest !== null) handleNavJump(nearest);
         };
         window.addEventListener('progress:jump-to-time', handleProgressJump);
         return () => window.removeEventListener('progress:jump-to-time', handleProgressJump);
