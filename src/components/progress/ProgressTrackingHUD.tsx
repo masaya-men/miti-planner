@@ -8,7 +8,7 @@
  *         ActivityDots は spec スコープ外のためレンダリングしない。
  * E1追加: お祝い演出（ProgressCelebration）+ 発火条件（クリア遷移 / マウント時クリア済み）。
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence } from 'framer-motion';
 import { useMitigationStore } from '../../store/useMitigationStore';
@@ -170,25 +170,28 @@ function JourneyStrip({
   // 縦マッピング: 高低差を強調しつつ、玉の発光が上下で見切れないようヘッドルームを確保する。
   // 点の最小〜最大を padded 範囲 [TOP_Y, BOT_Y] へ自動スケール（= 波が縦いっぱいに振れて高低差が出る・
   // 98% 等でも上端で切れない）。TOP_Y/BOT_Y は見え方の調整ノブ（小さい TOP_Y ほど高く到達）。
-  const TOP_Y = 16; // 上端(% from top)。発光半径ぶんのヘッドルーム（背を高くした分、範囲を広げて高低差UP）
-  const BOT_Y = 84; // 下端
-  const lo = Math.min(...points);
-  const hi = Math.max(...points);
-  const span = hi - lo;
-  const yTop = points.map((p) => {
-    if (span <= 0) return (TOP_Y + BOT_Y) / 2;        // 全点同じ/1点 → 中央
-    const f = (p - lo) / span;                        // 0(最低)〜1(最高)
-    return BOT_Y - f * (BOT_Y - TOP_Y);               // 最低→BOT_Y, 最高→TOP_Y
-  });
-
   // 光が辿る軌跡(線は常時描かない): 左下から登り、各点の到達点を平らに進み、隣へ縦の段＝階段。
   // 始点は地面(BOT_Y)から。100(キャンバス最下端)にすると始点の玉が下で見切れるため padded 値にする。
-  const cornerX: number[] = [0];
-  const cornerY: number[] = [BOT_Y];
-  points.forEach((_, i) => {
-    cornerX.push((i / n) * 100, ((i + 1) / n) * 100);
-    cornerY.push(yTop[i], yTop[i]);
-  });
+  // useMemo で参照を安定化 → PulseTrail の useEffect が親再レンダーで再起動しなくなる。
+  const { cornerX, cornerY } = useMemo(() => {
+    const TOP_Y = 16; // 上端(% from top)。発光半径ぶんのヘッドルーム（背を高くした分、範囲を広げて高低差UP）
+    const BOT_Y = 84; // 下端
+    const lo = Math.min(...points);
+    const hi = Math.max(...points);
+    const span = hi - lo;
+    const yTop = points.map((p) => {
+      if (span <= 0) return (TOP_Y + BOT_Y) / 2;        // 全点同じ/1点 → 中央
+      const f = (p - lo) / span;                        // 0(最低)〜1(最高)
+      return BOT_Y - f * (BOT_Y - TOP_Y);               // 最低→BOT_Y, 最高→TOP_Y
+    });
+    const cx: number[] = [0];
+    const cy: number[] = [BOT_Y];
+    points.forEach((_, i) => {
+      cx.push((i / n) * 100, ((i + 1) / n) * 100);
+      cy.push(yTop[i], yTop[i]);
+    });
+    return { cornerX: cx, cornerY: cy };
+  }, [points, n]);
 
   // n === 0 のとき: 親 ProgressTrackingHUD が isEmptyProgress で誘導表示に分岐済みのため、
   // JourneyStrip はここに到達しない。念のため空 canvas を返してクラッシュを防ぐ。
@@ -241,18 +244,23 @@ export function ProgressTrackingHUD() {
   )];
 
   // タイムライン全長（秒）= timelineEvents の最大 time
-  const total = timelineEvents.length
-    ? Math.max(...timelineEvents.map((e) => e.time))
-    : 0;
+  // useMemo で参照安定化 → JourneyStrip / PulseTrail の再起動を防ぐ。
+  const total = useMemo(
+    () => timelineEvents.length ? Math.max(...timelineEvents.map((e) => e.time)) : 0,
+    [timelineEvents]
+  );
 
   // 各打点の到達点を % に正規化した配列（並び順=クリック順）。
   // 旧形式データが万一すり抜けても HUD(=ヘッダー全体)を巻き込んで落とさないよう ?? [] で防御。
-  const points = (progress.points ?? []).map((p) =>
-    total > 0 ? Math.max(0, Math.min(100, (p.reachedPos / total) * 100)) : 0
+  const points = useMemo(
+    () => (progress.points ?? []).map((p) =>
+      total > 0 ? Math.max(0, Math.min(100, (p.reachedPos / total) * 100)) : 0
+    ),
+    [progress.points, total]
   );
 
   // spec 準拠の進捗 %（最高 reachedPos ÷ 全長）
-  const pct = computeProgressPercent(progress, total);
+  const pct = useMemo(() => computeProgressPercent(progress, total), [progress, total]);
 
   // 記録ゼロ判定: true のときは軌跡の代わりに誘導文言を表示する。
   // 1点でも記録されれば isEmptyProgress=false になり、再レンダリングで軌跡へ自動切替。
