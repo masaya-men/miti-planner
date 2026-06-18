@@ -1,5 +1,5 @@
 // 到達点記録パネル — PC: 中央下から降りるドロワー / スマホ: MobileBottomSheet
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,6 @@ import { MobileBottomSheet } from '../MobileBottomSheet';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { PhaseRoad } from './PhaseRoad';
 import { ActivityScrub } from './ActivityScrub';
-import { useState } from 'react';
 
 // -------------------- クリアボタン（インライン最小版） --------------------
 

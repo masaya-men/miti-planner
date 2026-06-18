@@ -52,8 +52,8 @@ export function ProgressRecordToast() {
     const END = Math.max(decStart + decDur, numStart + numDur, holoDur) + 60;
     const target = toast.pct;
 
-    // ホログラム明滅 + 走査線
-    root.style.opacity = '1';
+    // ホログラム明滅 + 走査線（opacity:0 で開始し animate の fill:forwards が制御する）
+    root.style.opacity = '0';
     root.animate(
       [{ opacity: 0 }, { opacity: .6, offset: .1 }, { opacity: .2, offset: .15 }, { opacity: .9, offset: .24 }, { opacity: .5, offset: .32 }, { opacity: 1 }],
       { duration: holoDur, easing: 'linear', fill: 'forwards' }

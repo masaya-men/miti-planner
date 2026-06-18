@@ -41,6 +41,8 @@ export const useProgressRecording = create<ProgressRecordingState>((set) => ({
     stopRecordMode: () => set({ recordMode: false }),
     commitReachedPos: (sec) => {
         const mit = useMitigationStore.getState();
+        // 純粋閲覧者(collab readonly)は記録もトーストもしない（store側でも記録はブロックされるが、トースト誤発火を防ぐ）
+        if (mit._collabReadonly && !mit._collabActive) return;
         // viewer ブロックは store 側でも効くが、ここでは記録前 progress を読んで種別判定する
         const before = mit.progress;
         const kind = classifyRecord(before, sec);
