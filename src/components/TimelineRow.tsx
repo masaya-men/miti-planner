@@ -41,8 +41,14 @@ export const TimelineRow = memo(({
     // スキル行は情報列ぶんの幅を「透明スペーサー」で確保し、スキルセルを従来と同じ x へ送る。
     // スペーサー幅 = 情報ペイン幅 (= phase + label + time + mechanic + counter×2。 折りたたみ追従)。
     const infoSpacerWidth = `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'} + var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)`;
+    // 情報行(固定ペイン側)を time で引いて行全体ハイライトを同期する(追従なし・enter/leave のみ)
+    const syncInfoHover = (on: boolean) => {
+        const info = document.querySelector(`[data-time-row="${time}"]`);
+        info?.classList.toggle('timeline-row-hover', on);
+    };
     return (
         <div
+            data-skill-row-time={time}
             className={clsx(
                 "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
                 "hover:bg-app-surface2",
@@ -53,10 +59,12 @@ export const TimelineRow = memo(({
             )}
             style={{ top: `${top}px` }}
             onMouseEnter={() => {
+                syncInfoHover(true);
                 if (timelineSelectMode || labelSelectMode) {
                     onTimelineSelectHover?.(time);
                 }
             }}
+            onMouseLeave={() => syncInfoHover(false)}
             onClick={(e) => {
                 if (timelineSelectMode || labelSelectMode) {
                     onTimelineSelect?.(time);

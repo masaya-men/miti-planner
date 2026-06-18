@@ -2997,7 +2997,14 @@ const Timeline: React.FC = () => {
                                                     '--hover-line-left': `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'})`,
                                                     '--hover-line-width': 'calc(var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)',
                                                 } as React.CSSProperties}
-                                                onMouseEnter={() => { if (timelineSelectMode || labelSelectMode) pcTimelineSelectHover(time); }}
+                                                onMouseEnter={() => {
+                                                    // 行全体ハイライト同期: スキル行へ .timeline-row-hover を付与(情報行自身は :hover で点灯。追従なし)
+                                                    document.querySelector(`[data-skill-row-time="${time}"]`)?.classList.add('timeline-row-hover');
+                                                    if (timelineSelectMode || labelSelectMode) pcTimelineSelectHover(time);
+                                                }}
+                                                onMouseLeave={() => {
+                                                    document.querySelector(`[data-skill-row-time="${time}"]`)?.classList.remove('timeline-row-hover');
+                                                }}
                                                 onClick={(e) => { if (timelineSelectMode || labelSelectMode) { pcTimelineSelect(time); e.stopPropagation(); } }}
                                             >
                                                 <TimelineInfoColumns

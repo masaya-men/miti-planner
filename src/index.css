@@ -1328,6 +1328,16 @@ button, [role="button"], .touch-none {
     transform: scaleX(1);
     will-change: transform;
   }
+  /* 固定ペイン分離で行が「スキル行」と「情報行」の2レイヤーになったため、
+     片方を hover したらもう片方へ .timeline-row-hover を JS で付与して
+     行全体ハイライト(背景 + 下線)を従来どおり成立させる(onMouseEnter/Leave のみ・追従なし)。 */
+  .timeline-row-hover {
+    background-color: var(--color-app-surface2);
+  }
+  [data-time-row].timeline-row-hover::after {
+    transform: scaleX(1);
+    will-change: transform;
+  }
 }
 
 /* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */
