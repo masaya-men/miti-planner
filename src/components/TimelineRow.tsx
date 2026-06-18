@@ -1,11 +1,9 @@
 import React, { memo } from 'react';
 import clsx from 'clsx';
-import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
+import type { PartyMember } from '../types';
 import { getColumnCssVar } from '../utils/calculator';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
-import { TimelineInfoColumns } from './TimelineInfoColumns';
-import type { DamageInfo } from './TimelineInfoColumns';
 
 // PcTypeToggle は TimelineInfoColumns.tsx へ移設済み。テスト（PcTypeToggle.test.tsx）が
 // 従来どおり '../TimelineRow' から import できるよう、この 1 つだけ re-export する。
@@ -14,19 +12,10 @@ export { PcTypeToggle } from './TimelineInfoColumns';
 interface TimelineRowProps {
     time: number;
     top: number;
-    damages: (DamageInfo | null)[];
-    events: TimelineEvent[];
     partyMembers: PartyMember[];
-    activeMitigations: AppliedMitigation[];
-    onPhaseAdd: (time: number, e: React.MouseEvent) => void;
-    onAddEventClick: (time: number, e: React.MouseEvent) => void;
-    onEventClick: (event: TimelineEvent, e: React.MouseEvent) => void;
     onCellClick: (memberId: string, time: number, e: React.MouseEvent) => void;
-    onMobileDamageClick?: (time: number, e: React.MouseEvent) => void;
-    onLabelAdd?: (time: number, e: React.MouseEvent) => void;
     phaseColumnCollapsed?: boolean;
     labelColumnVisible?: boolean;
-    hasPhases?: boolean;
     timelineSelectMode?: { phaseId: string; startTime: number } | null;
     labelSelectMode?: { labelId: string; startTime: number } | null;
     onTimelineSelect?: (time: number) => void;
@@ -37,19 +26,10 @@ interface TimelineRowProps {
 export const TimelineRow = memo(({
     time,
     top,
-    damages,
-    events,
     partyMembers,
-    activeMitigations,
-    onPhaseAdd,
-    onAddEventClick,
-    onEventClick,
     onCellClick,
-    onMobileDamageClick,
-    onLabelAdd,
     phaseColumnCollapsed,
     labelColumnVisible,
-    hasPhases = true,
     timelineSelectMode,
     labelSelectMode,
     onTimelineSelect,
@@ -57,9 +37,12 @@ export const TimelineRow = memo(({
     showRowBorders = false,
 }: TimelineRowProps) => {
     const { t } = useTranslation();
+    // 情報列は sticky な情報ペイン (Timeline.tsx) 側で描画されるようになったため、
+    // スキル行は情報列ぶんの幅を「透明スペーサー」で確保し、スキルセルを従来と同じ x へ送る。
+    // スペーサー幅 = 情報ペイン幅 (= phase + label + time + mechanic + counter×2。 折りたたみ追従)。
+    const infoSpacerWidth = `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'} + var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)`;
     return (
         <div
-            data-time-row={time}
             className={clsx(
                 "absolute left-0 w-full md:w-fit flex h-[50px] group  duration-75",
                 "hover:bg-app-surface2",
@@ -68,15 +51,7 @@ export const TimelineRow = memo(({
                 showRowBorders && "border-b border-app-border",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
-            style={{
-                top: `${top}px`,
-                // hover line の left/width は CSS 変数 (viewport 連動 clamp) ベースで計算する。
-                // 旧実装は開発者画面 (1489) の max 値をハードコード (60+200+100+100=460px) して
-                // いたため、 1489 未満の viewport では実セル幅 < 460px となり罫線が右にはみ出していた。
-                // left = phase 列 + label 列 (collapsed/visible で切替)。 width = time + mechanic + counter ×2。
-                '--hover-line-left': `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'})`,
-                '--hover-line-width': 'calc(var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)',
-            } as React.CSSProperties}
+            style={{ top: `${top}px` }}
             onMouseEnter={() => {
                 if (timelineSelectMode || labelSelectMode) {
                     onTimelineSelectHover?.(time);
@@ -89,25 +64,11 @@ export const TimelineRow = memo(({
                 }
             }}
         >
-            <TimelineInfoColumns
-                time={time}
-                events={events}
-                damages={damages}
-                partyMembers={partyMembers}
-                activeMitigations={activeMitigations}
-                phaseColumnCollapsed={phaseColumnCollapsed}
-                labelColumnVisible={labelColumnVisible}
-                hasPhases={hasPhases}
-                showRowBorders={showRowBorders}
-                timelineSelectMode={timelineSelectMode}
-                labelSelectMode={labelSelectMode}
-                onPhaseAdd={onPhaseAdd}
-                onLabelAdd={onLabelAdd}
-                onAddEventClick={onAddEventClick}
-                onEventClick={onEventClick}
-                onMobileDamageClick={onMobileDamageClick}
-                onTimelineSelect={onTimelineSelect}
-                onTimelineSelectHover={onTimelineSelectHover}
+            {/* 情報列ぶんの透明スペーサー (実体は sticky 情報ペインが上に重なって描画する) */}
+            <div
+                aria-hidden
+                className="hidden md:block flex-none h-full"
+                style={{ width: infoSpacerWidth, minWidth: infoSpacerWidth }}
             />
 
             {/* Job Columns Cells — PC専用 */}
@@ -138,16 +99,13 @@ export const TimelineRow = memo(({
 }, (prevProps, nextProps) => {
     if (prevProps.time !== nextProps.time) return false;
     if (prevProps.top !== nextProps.top) return false;
-    if (prevProps.events !== nextProps.events) return false;
-    if (prevProps.damages !== nextProps.damages) return false;
     if (prevProps.partyMembers !== nextProps.partyMembers) return false;
-    if (prevProps.activeMitigations !== nextProps.activeMitigations) {
-        if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
-        for (let i = 0; i < prevProps.activeMitigations.length; i++) {
-            if (prevProps.activeMitigations[i] !== nextProps.activeMitigations[i]) return false;
-        }
-    }
     if (prevProps.phaseColumnCollapsed !== nextProps.phaseColumnCollapsed) return false;
     if (prevProps.labelColumnVisible !== nextProps.labelColumnVisible) return false;
+    if (prevProps.showRowBorders !== nextProps.showRowBorders) return false;
+    // 選択モードの開始/終了でスキルセル側のクリック判定 (cursor-pointer / onClick) を更新する。
+    // (情報ペイン側の情報行は memo 化していないため常に最新だが、スキルセルもクリックで時間選択できるよう揃える)
+    if (prevProps.timelineSelectMode !== nextProps.timelineSelectMode) return false;
+    if (prevProps.labelSelectMode !== nextProps.labelSelectMode) return false;
     return true;
 });

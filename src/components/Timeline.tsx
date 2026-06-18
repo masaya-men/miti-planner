@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect, useLayoutEffect, useRef, useContex
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
+import { TimelineInfoColumns } from './TimelineInfoColumns';
 import { MobileTimelineRow } from './MobileTimelineRow';
 import { MobileContextMenu } from './MobileContextMenu';
 
@@ -668,6 +669,8 @@ const Timeline: React.FC = () => {
         initialText?: string;
     } | null>(null);
     const sheetContainerRef = useRef<HTMLDivElement>(null);
+    // 情報列固定ペイン (PC 横スクロール時に左の情報列を据え置く sticky ブロック)
+    const infoPaneRef = useRef<HTMLDivElement>(null);
     // sheetWidth を state 化 + ResizeObserver で動的更新 (初期 0 で left=0 に固まる問題を解決)
     const [sheetWidth, setSheetWidth] = useState(0);
     useLayoutEffect(() => {
@@ -2747,6 +2750,38 @@ const Timeline: React.FC = () => {
                         }}>
                             {(() => {
                                 const renderItems: React.ReactElement[] = [];
+                                // 情報列 (フェーズ/ラベル/時間/敵攻撃/元/軽減後ダメージ) は sticky な情報ペインへ集約する。
+                                // PC 経路で各行ぶんの情報行をここに貯め、ペイン (sheetContainer 末尾) へまとめて描画する。
+                                const infoRows: React.ReactElement[] = [];
+                                // 情報ペイン / スキル行スペーサーの幅 (折りたたみ追従)。 = phase + label + time + mechanic + counter×2。
+                                const infoPaneWidthCss = `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'} + var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)`;
+                                // PC: TL/ラベル選択モードのクリック/ホバー (情報行・スキル行で共有)
+                                const pcTimelineSelect = (time: number) => {
+                                    if (labelSelectMode) {
+                                        if (labelSelectMode.field === 'startTime') {
+                                            updateLabelStartTime(labelSelectMode.labelId, time);
+                                        } else {
+                                            updateLabelEndTime(labelSelectMode.labelId, time);
+                                        }
+                                        setLabelSelectMode(null);
+                                        throttledUpdatePreview(null);
+                                        return;
+                                    }
+                                    if (timelineSelectMode) {
+                                        if (timelineSelectMode.field === 'startTime') {
+                                            updatePhaseStartTime(timelineSelectMode.phaseId, time);
+                                        } else {
+                                            updatePhaseEndTime(timelineSelectMode.phaseId, time);
+                                        }
+                                        setTimelineSelectMode(null);
+                                        throttledUpdatePreview(null);
+                                    }
+                                };
+                                const pcTimelineSelectHover = (time: number) => {
+                                    if (timelineSelectMode || labelSelectMode) {
+                                        throttledUpdatePreview(time);
+                                    }
+                                };
                                 let currentY = 0;
                                 let maxPopulatedTime = -11;
                                 if (hideEmptyRows) {
@@ -2889,55 +2924,66 @@ const Timeline: React.FC = () => {
                                             );
                                         }
                                     } else {
-                                        // PC: TimelineRow (body 行)
+                                        // PC: スキル行 (TimelineRow) — 情報列を除いたスキルセルのみ
                                         renderItems.push(
                                             <TimelineRow
                                                 key={time}
                                                 time={time}
                                                 top={currentY}
-                                                damages={rowDamages}
-                                                events={rowEvents}
                                                 partyMembers={sortedPartyMembers}
-                                                activeMitigations={activeMitigationsForRow}
-                                                onPhaseAdd={handlePhaseAdd}
-                                                onLabelAdd={handleLabelAdd}
-                                                hasPhases={phases.length > 0}
-                                                onAddEventClick={handleAddClick}
-                                                onEventClick={handleEventClick}
                                                 onCellClick={handleCellClick}
-                                                onMobileDamageClick={handleMobileDamageClick}
                                                 phaseColumnCollapsed={phaseColumnCollapsed}
                                                 labelColumnVisible={labelColumnVisible}
                                                 timelineSelectMode={timelineSelectMode}
                                                 labelSelectMode={labelSelectMode}
-                                                onTimelineSelect={(time) => {
-                                                    if (labelSelectMode) {
-                                                        if (labelSelectMode.field === 'startTime') {
-                                                            updateLabelStartTime(labelSelectMode.labelId, time);
-                                                        } else {
-                                                            updateLabelEndTime(labelSelectMode.labelId, time);
-                                                        }
-                                                        setLabelSelectMode(null);
-                                                        throttledUpdatePreview(null);
-                                                        return;
-                                                    }
-                                                    if (timelineSelectMode) {
-                                                        if (timelineSelectMode.field === 'startTime') {
-                                                            updatePhaseStartTime(timelineSelectMode.phaseId, time);
-                                                        } else {
-                                                            updatePhaseEndTime(timelineSelectMode.phaseId, time);
-                                                        }
-                                                        setTimelineSelectMode(null);
-                                                        throttledUpdatePreview(null);
-                                                    }
-                                                }}
-                                                onTimelineSelectHover={(time) => {
-                                                    if (timelineSelectMode || labelSelectMode) {
-                                                        throttledUpdatePreview(time);
-                                                    }
-                                                }}
+                                                onTimelineSelect={pcTimelineSelect}
+                                                onTimelineSelectHover={pcTimelineSelectHover}
                                                 showRowBorders={showRowBorders}
                                             />
+                                        );
+                                        // PC: 情報行 — sticky 情報ペイン (sheetContainer 末尾) に集約して固定表示
+                                        infoRows.push(
+                                            <div
+                                                key={`info-${time}`}
+                                                data-time-row={time}
+                                                className={clsx(
+                                                    "absolute left-0 flex h-[50px] group duration-75 hover:bg-app-surface2",
+                                                    // perf #59: ビューポート外行を style/layout/paint からスキップ。 height は h-[50px] と一致
+                                                    "[content-visibility:auto] [contain-intrinsic-size:auto_50px]",
+                                                    showRowBorders && "border-b border-app-border",
+                                                    (timelineSelectMode || labelSelectMode) && "cursor-pointer"
+                                                )}
+                                                style={{
+                                                    top: `${currentY}px`,
+                                                    width: infoPaneWidthCss,
+                                                    // hover line の left/width (旧 TimelineRow と同一)。 left = phase+label、 width = time+mechanic+counter×2。
+                                                    '--hover-line-left': `calc(${phaseColumnCollapsed ? 'var(--col-phase-collapsed-w)' : 'var(--col-phase-w)'} + ${labelColumnVisible ? 'var(--col-label-w)' : 'var(--col-label-collapsed-w)'})`,
+                                                    '--hover-line-width': 'calc(var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2)',
+                                                } as React.CSSProperties}
+                                                onMouseEnter={() => { if (timelineSelectMode || labelSelectMode) pcTimelineSelectHover(time); }}
+                                                onClick={(e) => { if (timelineSelectMode || labelSelectMode) { pcTimelineSelect(time); e.stopPropagation(); } }}
+                                            >
+                                                <TimelineInfoColumns
+                                                    time={time}
+                                                    events={rowEvents}
+                                                    damages={rowDamages}
+                                                    partyMembers={sortedPartyMembers}
+                                                    activeMitigations={activeMitigationsForRow}
+                                                    phaseColumnCollapsed={phaseColumnCollapsed}
+                                                    labelColumnVisible={labelColumnVisible}
+                                                    hasPhases={phases.length > 0}
+                                                    showRowBorders={showRowBorders}
+                                                    timelineSelectMode={timelineSelectMode}
+                                                    labelSelectMode={labelSelectMode}
+                                                    onPhaseAdd={handlePhaseAdd}
+                                                    onLabelAdd={handleLabelAdd}
+                                                    onAddEventClick={handleAddClick}
+                                                    onEventClick={handleEventClick}
+                                                    onMobileDamageClick={handleMobileDamageClick}
+                                                    onTimelineSelect={pcTimelineSelect}
+                                                    onTimelineSelectHover={pcTimelineSelectHover}
+                                                />
+                                            </div>
                                         );
                                     }
 
@@ -2946,11 +2992,10 @@ const Timeline: React.FC = () => {
 
                                 timeToYMapRef.current = timeToYMap;
 
-                                return (
+                                // フェーズ/ラベル/TL選択オーバーレイ群。 PC では sticky 情報ペイン内へ、
+                                // モバイルでは従来どおりスクロール層へ直接描画する (= 単一定義を場所だけ変える)。
+                                const infoOverlays = (
                                     <>
-                                        {renderItems}
-
-
                                         {/* フェーズオーバーレイ */}
                                         {!phaseColumnCollapsed && (() => {
                                             const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
@@ -3060,6 +3105,27 @@ const Timeline: React.FC = () => {
                                             )}
                                             style={{ display: 'none' }}
                                         />
+                                    </>
+                                );
+
+                                return (
+                                    <>
+                                        {renderItems}
+
+                                        {/* 情報列固定ペイン: PC のみ。 不透明背景 + z=60 でスクロールしてくる軽減バーを隠す。
+                                            幅は折りたたみ追従 (infoPaneWidthCss)。 高さは本文行の総高 (currentY)。 */}
+                                        {!isMobileTimeline ? (
+                                            <div
+                                                ref={infoPaneRef}
+                                                className="timeline-info-pane"
+                                                style={{ height: `${currentY}px`, width: infoPaneWidthCss, minWidth: infoPaneWidthCss }}
+                                            >
+                                                {infoOverlays}
+                                                {infoRows}
+                                            </div>
+                                        ) : (
+                                            infoOverlays
+                                        )}
 
                                         {/* スマホは MitiIcons (各行内) が軽減表示を担うので PC 用 MitigationItem は呼ばない (呼ぶと colStart=0 で左フェーズ列に見切れ流入) */}
                                         {!isMobileTimeline && (() => {
