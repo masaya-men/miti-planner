@@ -237,6 +237,26 @@ export interface PlanMemo {
     updatedAt: number;
 }
 
+/** 進捗トラッキング: その日の最高到達点 */
+export interface DailyBest {
+    /** カレンダー日付 'YYYY-MM-DD' (JST)。同日の重複は最高到達点に統合 */
+    day: string;
+    /** その日の最高到達点。タイムライン上の秒位置 */
+    reachedPos: number;
+}
+
+/** 進捗トラッキング (表ごと・未マイグレ既存プランは undefined) */
+export interface PlanProgress {
+    /** 日ごとの最高到達点の配列。横軸=日付順、縦軸=reachedPos */
+    dailyBest: DailyBest[];
+    /** クリアボタンで true */
+    cleared: boolean;
+    /** 任意・手入力。デフォルト非表示 */
+    activeDays?: number;
+    /** 任意・手入力。デフォルト非表示 */
+    activeHours?: number;
+}
+
 export interface PlanData {
     currentLevel: number;
     timelineEvents: TimelineEvent[];
@@ -253,6 +273,8 @@ export interface PlanData {
     myMemberId?: string | null;
     /** メモ機能 v1 (#57)、 未マイグレ既存プランは undefined */
     memos?: PlanMemo[];
+    /** 進捗トラッキング v1、 未マイグレ既存プランは undefined */
+    progress?: PlanProgress;
 }
 
 /** DC/サーバーマスターデータ */
