@@ -2523,6 +2523,8 @@
         "congrats": "Congratulations!",
         "delete_day": "Delete",
         "progress_label": "Progress",
-        "record_stop": "Stop recording"
+        "record_stop": "Stop recording",
+        "record_toast_update": "New furthest point! Now at {n}%",
+        "record_toast_nice": "Nice! Keep it up — now at {n}%"
     }
 }

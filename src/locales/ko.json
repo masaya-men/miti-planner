@@ -2488,6 +2488,8 @@
         "congrats": "축하합니다!",
         "delete_day": "삭제",
         "progress_label": "진행도",
-        "record_stop": "기록 종료"
+        "record_stop": "기록 종료",
+        "record_toast_update": "최고 도달 지점 갱신! 현재 {n}%",
+        "record_toast_nice": "좋아요! 이대로 — 현재 {n}%"
     }
 }

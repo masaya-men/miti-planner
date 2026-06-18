@@ -2488,6 +2488,8 @@
         "congrats": "恭喜！",
         "delete_day": "删除",
         "progress_label": "进度",
-        "record_stop": "结束记录"
+        "record_stop": "结束记录",
+        "record_toast_update": "刷新最远到达点！当前 {n}%",
+        "record_toast_nice": "不错！继续保持 — 当前 {n}%"
     }
 }
