@@ -2236,6 +2236,34 @@ const Timeline: React.FC = () => {
         });
     }, [partyMembers, partySortOrder]);
 
+    // 自由スクロール (PC): 表が画面に収まっていても、末尾のメンバー列を固定情報列の真横まで
+    // 引き寄せられるよう、本文の右側に「余白スクロール領域」を確保する。
+    // minWidth = 情報ペイン幅 + スキル列合計幅 + 末尾余白(= 可視スキル幅 - 末尾列幅。
+    // 末尾列の左端が固定列の右端に来た時点で止まる量)。
+    useEffect(() => {
+        const apply = () => {
+            const sc = scrollContainerRef.current;
+            const sheet = sheetContainerRef.current;
+            if (!sc || !sheet) return;
+            if (isMobileTimeline) { sheet.style.minWidth = ''; return; }
+            const paneW = infoPaneRef.current?.offsetWidth ?? 0;
+            const skillEl = headerRef.current?.querySelector('#timeline-header-skill') as HTMLElement | null;
+            const skillW = skillEl?.offsetWidth ?? 0;
+            if (!paneW || !skillW) { sheet.style.minWidth = ''; return; }
+            // 末尾メンバー列の実幅 (role 別 + 左右パディング)
+            const cs = getComputedStyle(document.documentElement);
+            const px = (v: string) => parseFloat(cs.getPropertyValue(v)) || 0;
+            const last = sortedPartyMembers[sortedPartyMembers.length - 1];
+            const innerW = last && (last.role === 'tank' || last.role === 'healer') ? px('--col-th-w') : px('--col-dps-w');
+            const lastColW = innerW + px('--col-member-pad-x') * 2;
+            const trailing = Math.max(0, sc.clientWidth - paneW - lastColW);
+            sheet.style.minWidth = `${paneW + skillW + trailing}px`;
+        };
+        apply();
+        window.addEventListener('resize', apply);
+        return () => window.removeEventListener('resize', apply);
+    }, [isMobileTimeline, sortedPartyMembers, phaseColumnCollapsed, labelColumnVisible]);
+
     // DOM 計測ベースの memberLayout (CSS clamp() に追従)
     const [refVersion, setRefVersion] = useState(0);
     const memberHeaderRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
