@@ -76,6 +76,8 @@ vi.mock('../SyncButton', () => ({ SyncButton: () => null }));
 vi.mock('../ui/TransitionOverlay', () => ({ useTransitionOverlay: () => ({ runTransition: vi.fn() }) }));
 vi.mock('../ui/SegmentButton', () => ({ SegmentButton: () => null }));
 vi.mock('../MitigationSheet', () => ({ MitigationSheet: () => null }));
+// 進捗HUD（下段中央スロット）— 内部ストア依存(partyMembers/progress/useMitigations 等)を遮断
+vi.mock('../progress/ProgressTrackingHUD', () => ({ ProgressTrackingHUD: () => null }));
 
 import React from 'react';
 import { ConsolidatedHeader } from '../ConsolidatedHeader';
