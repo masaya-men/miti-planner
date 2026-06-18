@@ -1,4 +1,4 @@
-import type { ProgressPoint, PlanProgress } from '../types';
+import type { ProgressPoint, PlanProgress, LocalizedString } from '../types';
 
 /** Date → 'YYYY-MM-DD' (JST = UTC+9)。点のツールチップ等の日付ラベル算出に使う */
 export function makeDayKey(date: Date): string {
@@ -68,4 +68,23 @@ export function classifyRecord(progress: PlanProgress, reachedPos: number): 'upd
     const points = progress.points ?? [];
     const prevMax = points.length ? Math.max(...points.map(p => p.reachedPos)) : 0;
     return reachedPos > prevMax ? 'update' : 'nice';
+}
+
+/** 光の道: 各フェーズを開始時間に比例した leftPct(4〜96) に配置。total<=0 は空。 */
+export function phaseRoadPositions(
+    phases: { id: string; name: LocalizedString; startTime: number }[],
+    totalSec: number
+): { id: string; name: LocalizedString; leftPct: number; time: number }[] {
+    if (totalSec <= 0) return [];
+    return phases.map((p) => ({
+        id: p.id,
+        name: p.name,
+        time: p.startTime,
+        leftPct: Math.min(96, Math.max(4, (p.startTime / totalSec) * 100)),
+    }));
+}
+
+/** 道のクリック割合(0〜1) → タイムライン時間(秒・0〜total にクランプ・四捨五入)。 */
+export function roadTimeFromClick(fraction: number, totalSec: number): number {
+    return Math.max(0, Math.min(totalSec, Math.round(fraction * totalSec)));
 }
