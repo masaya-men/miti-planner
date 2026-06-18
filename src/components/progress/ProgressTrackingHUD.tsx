@@ -247,15 +247,24 @@ export function ProgressTrackingHUD() {
   const [showCelebration, setShowCelebration] = useState(false);
   // 前回の cleared 値を保持（false→true への遷移を検知するため）
   const prevCleared = useRef<boolean | undefined>(undefined);
+  // プラン切替を検知するため前回の planId を保持
+  const prevPlanId = useRef<string | null | undefined>(undefined);
 
   useEffect(() => {
     const cleared = progress.cleared;
-    // dismiss 済み planId はスキップ（null planId は記録しない = 常に発火）
     const planKey = currentPlanId ?? null;
+
+    // プラン切替時は prevCleared をリセット → マウント相当の評価に戻す（クリア済みの表を開いたら発火）
+    if (prevPlanId.current !== currentPlanId) {
+      prevCleared.current = undefined;
+      prevPlanId.current = currentPlanId;
+    }
+
+    // dismiss 済み planId はスキップ（null planId は記録しない = 常に発火）
     const isDismissed = planKey !== null && _dismissedPlanIds.has(planKey);
 
     if (!isDismissed) {
-      // ①クリアボタン押下時（false→true 遷移） ②マウント時にクリア済み（prev=undefined かつ cleared=true）
+      // ①クリアボタン押下時（false→true 遷移） ②マウント時またはプラン切替直後にクリア済み（prev=undefined かつ cleared=true）
       if (cleared && (prevCleared.current === false || prevCleared.current === undefined)) {
         setShowCelebration(true);
       }

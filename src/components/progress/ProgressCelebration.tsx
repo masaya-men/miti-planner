@@ -20,7 +20,7 @@ const RAIN = Array.from({ length: 72 });
 /** お祝い演出。クリックで onDismiss。 */
 export function ProgressCelebration({ icons, onDismiss }: { icons: string[]; onDismiss: () => void }) {
   const { t } = useTranslation();
-  const pool = icons.length ? icons : [];
+  const pool = icons; // icons は配列型なので length チェックは不要
   const vh = typeof window !== 'undefined' ? window.innerHeight : 800;
   const src = (i: number) => (pool.length ? pool[i % pool.length] : '');
 
@@ -40,8 +40,8 @@ export function ProgressCelebration({ icons, onDismiss }: { icons: string[]; onD
       confetti({ particleCount: 70, angle: 120, spread: 70, startVelocity: 50, origin: { x: 1, y: 0.65 } });
     };
     fire();
-    const t = setTimeout(fire, 550); // もう一段はじけ（試作値踏襲）
-    return () => clearTimeout(t);
+    const timerId = setTimeout(fire, 550); // もう一段はじけ（試作値踏襲）
+    return () => clearTimeout(timerId);
   }, []);
 
   const overlay = (
