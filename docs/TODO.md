@@ -27,11 +27,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **🔴🔧 2026-06-18 表の情報列固定(PC横スクロール) 本番デプロイ済(cc4674c)だが「自由スクロール」のドリフトバグ残・次セッションで修正(systematic-debugging Phase1完了)**:
-  - **完成済**: 情報列を sticky 不透明ペイン(`.timeline-info-pane` z=60・`TimelineInfoColumns`)へ分離、スキル列だけスクロール(Excel枠固定)。軽減バー非はみ出し。実機QAで派生回帰5件全修正(侵食/アイコン隠れ=memberLayout offsetParent累積補正/行hover相互同期/メモcursor/他者カーソルz70)+徹底監査15挙動OK14。データ層無改変(test66緑)。
-  - **🔴 残バグ(次セッション最優先)= 自由スクロールのドリフト**: 「末尾メンバーを固定列の真横まで引く自由スクロール」が固定の仕組みと喧嘩。**根本原因確定(実測)**: sticky pane の踏ん張りは containing block(sheetContainer box幅=`sheetBoxW`)内のみ。自由スクロールが絶対スペーサーで scrollWidth だけ延ばし box は延ばさないため、`scrollLeft > sheetBoxW - paneW`(実測 1188-570=**618**)で固定列がドリフト(最大803で**-185px**=計算一致)。**サイドバー開閉で範囲が変わる/本番でさらにズレ**も全部この自由スクロールが原因(trailing を clientWidth から計算・開閉で再計算されない)。
-  - **次セッションの方針(ユーザー確認待ち)**: **A(私の推奨)=自由スクロールを撤去し業界標準(端までスクロール→最後の列が画面右端)に戻す**(ドリフト/サイドバー依存/本番ズレ全消・メモ/cursor不触・最後の列は右端に見える)/ B=真横引きを sheetWidth と固定機構を分離して作り直す(難所・リスク高)。**Aで合意できたら**: 自由スクロール effect+trailingSpacer+trailingSpacerRef を撤去 → sheetWidth は元の box 計測に自然復帰 → **最右端スクロール(ドリフト無)とサイドバー開閉(最後の列到達)を Playwright で両方検証** → 再デプロイ。
-  - 関連コミット範囲: 自由スクロール= Timeline.tsx の useEffect(trailingSpacerRef設定)+ JSX の trailingSpacer + ref宣言。撤去すれば pre-free-scroll の動作(=ユーザー言「さっきまでできてた」)に戻る。memory [[feedback_structural_refactor_runtime_audit]]。
+- **✅ 2026-06-18 表の情報列固定(PC横スクロール) 機能をまるごと撤回・起点8fbc78dへ完全復元(push/deploy待ち)**: ユーザー判断=リスク過多で撤回。理由=sticky固定は containing block(=clientWidth)内でしか踏ん張れず、窓を狭めると(clientWidth<約1001px)最大スクロール時にドリフトが残る根本的弱点。完全解消には sheetWidth と固定機構を分離する2パネル化(メモ/カーソル座標系の再構築=高リスク)が必要で、得られる価値(末尾メンバーを固定列の真横まで引く)に見合わない。撤去footprint=Timeline.tsx/TimelineRow.tsx/Timeline.layoutHooks.ts/index.css/collab/cursor.css を 8fbc78d へ復元 + TimelineInfoColumns.tsx/timelineFrozenInfo.test.tsx 削除(全コミットがこの機能専用・無関係変更の巻き込み無し)。検証=src/が8fbc78dと差分0行 / build EXIT=0 / vitest 1803緑(既存housing5件のみ赤) / Playwright実機=固定ペイン消滅・横スクロール正常・JS無エラー。**🔴 残=push→本番デプロイ(次の操作)**。詳細経緯=progress.md。
 - **✅ 2026-06-18 共同編集中の Undo/Redo (CRDT化・②-c) 完成・main マージ&本番デプロイ&実機2タブ確認済**: `Y.UndoManager` の per-user undo(`trackedOrigins:['local']`・自分の編集だけ・scope=solo と同じ5型)。MAX effort/Ultracode で**3回の敵対監査**を回しデータ消失4経路を根治(詳細→[TODO_COMPLETED.md])。本番で全消しUndo/リキャ毎自動配置(連鎖)/per-user/退出後巻き戻し無し を確認OK。新規=`src/lib/collab/planUndoManager.ts`。**残(非ブロッキング)**=FFLogs importBulk 再seed時の Firestore 射影食い違い(Minor・既存・データ消失でない) / 連鎖confirm の実Y.Doc往復テスト未追加(機構は検証済add経路と同一)。テスト時の教訓=memory [[reference_collab_two_client_version_skew]]。
 - **✅ 2026-06-17 軽減競合の双方向警告+画面外ガイド矢印 完成・main マージ&本番デプロイ済**: 機能アイデア③。同じ軽減のCD被りを `findSameSkillCdConflicts`(resourceTracker)で常に派生検出→競合アイコンを黄色脈動(既存 `animate-conflict-pulse`)。前方向(既存CD中に重ねる)も**赤の見た目のままクリック解放**(`conflictOverride`)。**ドラッグも競合位置へ許可**(`ALLOW_DRAG_INTO_CONFLICT=true`・false で旧ブロック復活=保持済み)。競合相手が画面外なら**列中央の上端∧/下端∨にシェブロン矢印**(`ConflictOffscreenArrows`)+クリックで自動スクロール(PCのみ)。「置いた時は既存の相手だけ光る」=`lastPlacedMitigationId`(セッションのみ)で除外、開き直すと両方(自己責任)。dev列幅スライダーも撤去。設計=specs/2026-06-17-mitigation-conflict-bidirectional-warning-design.md / 計画=plans/同名。全48競合テスト+build緑。**🔴 残=本番実機確認(ユーザー)**: 配置/ドラッグ両方で競合脈動+矢印、解消で自動消滅、ライトモードの矢印。
 - **🔵 進捗お祝い試作は `feat/progress-celebration-proto` に温存(未マージ・本番非露出)**: 軌跡=青い発光玉+パルス風の短い尾(一定速度・PERIOD4-8秒クランプ)まで実装。次やるなら記録UX/統計/スケジュール or クリア踏破演出。`npm run dev:progress`→/miti。
@@ -131,7 +127,7 @@ LICENSE 追加は**しない** (memory `feedback_lopo_license_stance`)。 真の
 
 - 多言語: ハウジング言語対応 / AA 名統一
 - UI/モバイル: モーダルアニメ / スマホ・タブレット最適化 / SVG アイコンアニメ / 紹介 PV
-- **🆕 表の横スクロールで左の情報列(フェーズ/ラベル/時間/敵の攻撃/元/軽減後ダメージ)を固定 (Excel ウィンドウ枠固定相当・ユーザー要望 2026-06-18)**: 軽減スキル列だけ横スクロール、情報列は据え置き。**難易度=中規模**(Timeline は独自スクロール系: 列幅CSS変数 + スキル列は`--col-member-start`原点の絶対配置 + ヘッダーJS translateX同期 [Timeline.tsx:1309]。sticky追加はPC/モバイル/表展開/「今」ライン/色付きバーのz-index重なりQAが必須)。**着手は brainstorming から**(スコープ=固定列範囲/モバイル挙動/バー重なり)。疲れたセッション末尾で着手しない。
+- **❌ 表の情報列固定(横スクロール) — 2026-06-18 実装したが撤回済(再着手しない)**: sticky方式は窓を狭めるとドリフトが残る根本的弱点があり、完全解消には2パネル化(メモ/カーソル座標系再構築=高リスク)が必要。価値に見合わずユーザー判断で機能ごと撤回。再挑戦するなら sheetWidth と固定機構の分離(B案)が前提だが、現状リストビュー/横スクロールで完結しているため優先度低。
 - インフラ: shared_plans クリーンアップ / CSP unsafe-inline / Sentry / Cloudflare 前段 / **collab使用量 自動監視→Discord通知 cron**(公開時はA=今のまま[部屋8〜20席+冬眠+緊急停止COLLAB_DISABLED手動+$0自動停止]で行く・コスト青天井リスク無し。Bの監視cron他「素人でも管理できる運用ツール群」は公開後に後追い追加・2026-06-12決定)
 - 新機能: Floating Timeline (Tauri v2) / FFLogs 精度 / SA 法改善 / 詠唱バー注釈 / public/icons/ 削除 / **ハウジング split-tweet 対応** (画像ツイ + 住所リプ別 URL、 設計書 §8)
 - デッドコード: Lenis 削除 / ハウジング背景動画の画面サイズ別出し分け
