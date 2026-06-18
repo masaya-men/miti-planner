@@ -21,7 +21,7 @@ import { nextDamageType } from '../utils/damageTypeLogic';
 /** 攻撃名スパン — 省略時にスタイル付きツールチップ表示
  *  perf #59 C: onMouseEnter 毎の scrollWidth 比較は forced reflow を引き起こすため、
  *  ResizeObserver で要素サイズ変化時にだけ判定するよう変更。 hover 時はステート参照のみ。 */
-export const EventNameSpan: React.FC<{ name: string; className?: string }> = ({ name, className }) => {
+const EventNameSpan: React.FC<{ name: string; className?: string }> = ({ name, className }) => {
     const ref = React.useRef<HTMLSpanElement>(null);
     const [truncated, setTruncated] = React.useState(false);
     React.useEffect(() => {
@@ -47,7 +47,7 @@ export const EventNameSpan: React.FC<{ name: string; className?: string }> = ({ 
 
 // スマホ用: 対象バッジ（AoE以外の場合に表示）
 // effTarget: 挑発によるタンクスイッチを反映した実効ターゲット（表示用）
-export const MobileTargetBadge: React.FC<{ partyMembers: PartyMember[]; effTarget: TimelineEvent['target'] }> = ({ partyMembers, effTarget }) => {
+const MobileTargetBadge: React.FC<{ partyMembers: PartyMember[]; effTarget: TimelineEvent['target'] }> = ({ partyMembers, effTarget }) => {
     const JOBS = useJobs();
     if (effTarget === 'AoE') return null;
     const member = partyMembers.find(m => m.id === effTarget);
@@ -66,7 +66,7 @@ export const MobileTargetBadge: React.FC<{ partyMembers: PartyMember[]; effTarge
 };
 
 // スマホ用: 軽減アイコンリスト
-export const MobileMitiIcons: React.FC<{
+const MobileMitiIcons: React.FC<{
     mitigations: AppliedMitigation[];
     contentLanguage: string;
     myJobHighlight: boolean;
@@ -136,7 +136,7 @@ export const PcTypeToggle: React.FC<{ event: TimelineEvent }> = ({ event }) => {
 // updateEvent 経由なので collab 同期・Undo・ダメージ再計算はモーダルでの変更と完全に同一経路。
 // 純粋な閲覧者は store 側ガードで no-op。対象が MT/ST 以外(AoE 等)のときは何も出さない。
 // effTarget: 挑発によるタンクスイッチを反映した実効ターゲット（表示用）。クリックは元 target を編集。
-export const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[]; effTarget: TimelineEvent['target']; badgeTextClass?: string }> = ({ event, partyMembers, effTarget, badgeTextClass = 'text-app-base' }) => {
+const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: PartyMember[]; effTarget: TimelineEvent['target']; badgeTextClass?: string }> = ({ event, partyMembers, effTarget, badgeTextClass = 'text-app-base' }) => {
     const JOBS = useJobs();
     const { t } = useTranslation();
     const updateEvent = useMitigationStore(state => state.updateEvent);
@@ -190,7 +190,7 @@ export const PcTargetToggle: React.FC<{ event: TimelineEvent; partyMembers: Part
 // PC用: コピーボタン — 対象トグルの右隣に同サイズ(w-6 h-6)で並べる。
 // ホバー時のみ可視だが場所は常に確保(opacity 切替のみ)＝攻撃名のガタつきなし。
 // 対象アイコンが無い(AoE)行では親の ml-auto により右端へ寄る。
-export const PcCopyButton: React.FC<{ event: TimelineEvent }> = ({ event }) => {
+const PcCopyButton: React.FC<{ event: TimelineEvent }> = ({ event }) => {
     const { t } = useTranslation();
     const setClipboardEvent = useMitigationStore(state => state.setClipboardEvent);
     return (
@@ -213,7 +213,7 @@ export const PcCopyButton: React.FC<{ event: TimelineEvent }> = ({ event }) => {
 /* TimelineInfoColumnsProps                                             */
 /* ------------------------------------------------------------------ */
 
-interface DamageInfo {
+export interface DamageInfo {
     unmitigated: number;
     mitigated: number;
     mitigationPercent: number;

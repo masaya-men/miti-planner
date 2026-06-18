@@ -5,18 +5,11 @@ import { getColumnCssVar } from '../utils/calculator';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
 import { TimelineInfoColumns } from './TimelineInfoColumns';
+import type { DamageInfo } from './TimelineInfoColumns';
 
-// サブコンポーネントは TimelineInfoColumns.tsx に移設済み。テスト後方互換のため re-export する。
-export { PcTypeToggle, EventNameSpan, MobileTargetBadge, MobileMitiIcons, PcCopyButton, PcTargetToggle } from './TimelineInfoColumns';
-
-interface DamageInfo {
-    unmitigated: number;
-    mitigated: number;
-    mitigationPercent: number;
-    shieldTotal: number;
-    isInvincible?: boolean;
-    mitigationStates?: Record<string, { stacks?: number }>;
-}
+// PcTypeToggle は TimelineInfoColumns.tsx へ移設済み。テスト（PcTypeToggle.test.tsx）が
+// 従来どおり '../TimelineRow' から import できるよう、この 1 つだけ re-export する。
+export { PcTypeToggle } from './TimelineInfoColumns';
 
 interface TimelineRowProps {
     time: number;
