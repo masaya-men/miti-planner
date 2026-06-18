@@ -8,8 +8,9 @@
  *         ActivityDots は spec スコープ外のためレンダリングしない。
  */
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMitigationStore } from '../../store/useMitigationStore';
-import { computeProgressPercent } from '../../lib/progressLogic';
+import { computeProgressPercent, isEmptyProgress } from '../../lib/progressLogic';
 import { useProgressRecording } from './useProgressRecording';
 import { ProgressRecordPanel } from './ProgressRecordPanel';
 
@@ -164,18 +165,10 @@ function JourneyStrip({
     cornerY.push(yTop[i], yTop[i]);
   });
 
-  // points が空（dailyBest なし）のときは軌跡を描かない（クラッシュしない）
+  // n === 0 のとき: 親 ProgressTrackingHUD が isEmptyProgress で誘導表示に分岐済みのため、
+  // JourneyStrip はここに到達しない。念のため空 canvas を返してクラッシュを防ぐ。
   if (n === 0) {
-    return (
-      <div className="flex items-center gap-4">
-        <div className="shrink-0 leading-tight">
-          <div className="text-app-md font-bold whitespace-nowrap">
-            進捗 0<span className="text-app-2xs text-app-text-muted">%</span>
-          </div>
-        </div>
-        <div className="relative flex-1 h-9 overflow-visible" />
-      </div>
-    );
+    return <div className="relative flex-1 h-9 overflow-visible" />;
   }
 
   return (
@@ -209,6 +202,7 @@ function JourneyStrip({
  * クリックで到達点記録パネルを開く。
  */
 export function ProgressTrackingHUD() {
+  const { t } = useTranslation();
   const progress = useMitigationStore((s) => s.progress);
   const timelineEvents = useMitigationStore((s) => s.timelineEvents);
 
@@ -225,20 +219,31 @@ export function ProgressTrackingHUD() {
   // spec 準拠の進捗 %（最高 reachedPos ÷ 全長）
   const pct = computeProgressPercent(progress, total);
 
+  // 記録ゼロ判定: true のときは軌跡の代わりに誘導文言を表示する。
+  // 1点でも記録されれば isEmptyProgress=false になり、再レンダリングで軌跡へ自動切替。
+  const isEmpty = isEmptyProgress(progress);
+
   return (
     <>
-      {/* HUD 帯クリックで記録パネルを開く */}
+      {/* HUD 帯クリックで記録パネルを開く（空状態・軌跡表示どちらも同じクリック領域） */}
       <div
         className="w-full cursor-pointer"
         onClick={() => useProgressRecording.getState().openPanel()}
       >
-        <JourneyStrip
-          points={points}
-          pct={pct}
-          cleared={progress.cleared}
-          activeDays={progress.activeDays}
-          activeHours={progress.activeHours}
-        />
+        {isEmpty ? (
+          /* 誘導型空状態: 軌跡の代わりに誘導文言を帯に出す */
+          <div className="flex items-center justify-center h-9 text-app-sm text-app-text-muted">
+            {t('progress.empty_cta')}
+          </div>
+        ) : (
+          <JourneyStrip
+            points={points}
+            pct={pct}
+            cleared={progress.cleared}
+            activeDays={progress.activeDays}
+            activeHours={progress.activeHours}
+          />
+        )}
       </div>
       {/* 記録パネル（panelOpen false で自動的に null） */}
       <ProgressRecordPanel />
