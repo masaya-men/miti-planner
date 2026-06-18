@@ -2485,6 +2485,7 @@
         "active_hours": "활동 시간",
         "active_hours_unit": "시간",
         "congrats": "축하합니다!",
-        "delete_day": "삭제"
+        "delete_day": "삭제",
+        "progress_label": "진행도"
     }
 }

@@ -2541,6 +2541,7 @@
         "active_hours": "活動時間",
         "active_hours_unit": "時間",
         "congrats": "おめでとう！",
-        "delete_day": "削除"
+        "delete_day": "削除",
+        "progress_label": "進捗"
     }
 }

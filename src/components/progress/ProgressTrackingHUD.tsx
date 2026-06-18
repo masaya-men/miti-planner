@@ -164,6 +164,7 @@ function JourneyStrip({
   activeDays?: number;
   activeHours?: number;
 }) {
+  const { t } = useTranslation();
   const n = points.length;
 
   const yTop = points.map((p) => 100 - Math.max(3, p)); // 各日の到達点y(%)
@@ -189,12 +190,12 @@ function JourneyStrip({
         {/* activeDays/activeHours は任意。入れた人だけ表示（spec 準拠） */}
         {(activeDays != null || activeHours != null) && (
           <div className="text-app-sm font-bold text-app-text whitespace-nowrap">
-            {activeDays ?? 0}日 {activeHours ?? 0}時間
+            {activeDays ?? 0}{t('progress.active_days_unit')} {activeHours ?? 0}{t('progress.active_hours_unit')}
           </div>
         )}
         {cleared
-          ? <div className="text-app-md font-bold text-app-blue" style={{ textShadow: '0 0 8px var(--app-blue)' }}>踏破 👑</div>
-          : <div className="text-app-md font-bold whitespace-nowrap">進捗 {pct}<span className="text-app-2xs text-app-text-muted">%</span></div>}
+          ? <div className="text-app-md font-bold text-app-blue" style={{ textShadow: '0 0 8px var(--app-blue)' }}>{t('progress.cleared')}</div>
+          : <div className="text-app-md font-bold whitespace-nowrap">{t('progress.progress_label')} {pct}<span className="text-app-2xs text-app-text-muted">%</span></div>}
       </div>
 
       {/* 中央: 光の玉 + 線状の余韻(尾)。クリア時は全軌跡を点灯し数個のパルスが走る。常時の道は出さない。 */}

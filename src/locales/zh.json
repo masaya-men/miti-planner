@@ -2485,6 +2485,7 @@
         "active_hours": "活动时间",
         "active_hours_unit": "小时",
         "congrats": "恭喜！",
-        "delete_day": "删除"
+        "delete_day": "删除",
+        "progress_label": "进度"
     }
 }

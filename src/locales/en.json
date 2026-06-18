@@ -2520,6 +2520,7 @@
         "active_hours": "Active hours",
         "active_hours_unit": "h",
         "congrats": "Congratulations!",
-        "delete_day": "Delete"
+        "delete_day": "Delete",
+        "progress_label": "Progress"
     }
 }
