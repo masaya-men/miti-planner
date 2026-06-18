@@ -6,13 +6,24 @@
  * 見た目: 試作 4c0b94b と 1:1（canvas 定数・クラス・レイアウトは無変更）。
  * 変更点: SEED → store の progress.dailyBest・timelineEvents 駆動に差し替え。
  *         ActivityDots は spec スコープ外のためレンダリングしない。
+ * E1追加: お祝い演出（ProgressCelebration）+ 発火条件（クリア遷移 / マウント時クリア済み）。
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AnimatePresence } from 'framer-motion';
 import { useMitigationStore } from '../../store/useMitigationStore';
+import { usePlanStore } from '../../store/usePlanStore';
+import { useMitigations } from '../../hooks/useSkillsData';
 import { computeProgressPercent, isEmptyProgress } from '../../lib/progressLogic';
 import { useProgressRecording } from './useProgressRecording';
 import { ProgressRecordPanel } from './ProgressRecordPanel';
+import { ProgressCelebration } from './ProgressCelebration';
+
+/**
+ * dismiss 済み planId の記録（モジュールレベル = remount でも保持）。
+ * null planId は '__null__' キーとして扱う（記録しない方針 → 発火し続けるが安全）。
+ */
+const _dismissedPlanIds = new Set<string>();
 
 // 光の玉 + 線状の余韻(尾)を canvas で描く。尾は連続した線でフェード(粒々にしない)。
 // fullLine=true(クリア時): 全軌跡を点灯し、その上を count 個のパルスが走る。
@@ -205,6 +216,15 @@ export function ProgressTrackingHUD() {
   const { t } = useTranslation();
   const progress = useMitigationStore((s) => s.progress);
   const timelineEvents = useMitigationStore((s) => s.timelineEvents);
+  const partyMembers = useMitigationStore((s) => s.partyMembers);
+  const currentPlanId = usePlanStore((s) => s.currentPlanId);
+
+  // 降らせるアイコン = 設定パーティのジョブが持つスキルアイコン全部（重複除去）
+  const mitigations = useMitigations();
+  const jobIds = new Set(partyMembers.map((m) => m.jobId).filter((id): id is string => id !== null));
+  const celebrationIcons = [...new Set(
+    mitigations.filter((m) => jobIds.has(m.jobId)).map((m) => m.icon).filter(Boolean)
+  )];
 
   // タイムライン全長（秒）= timelineEvents の最大 time
   const total = timelineEvents.length
@@ -222,6 +242,34 @@ export function ProgressTrackingHUD() {
   // 記録ゼロ判定: true のときは軌跡の代わりに誘導文言を表示する。
   // 1点でも記録されれば isEmptyProgress=false になり、再レンダリングで軌跡へ自動切替。
   const isEmpty = isEmptyProgress(progress);
+
+  // ─── お祝い演出の発火条件 ───────────────────────────────────────────────
+  const [showCelebration, setShowCelebration] = useState(false);
+  // 前回の cleared 値を保持（false→true への遷移を検知するため）
+  const prevCleared = useRef<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    const cleared = progress.cleared;
+    // dismiss 済み planId はスキップ（null planId は記録しない = 常に発火）
+    const planKey = currentPlanId ?? null;
+    const isDismissed = planKey !== null && _dismissedPlanIds.has(planKey);
+
+    if (!isDismissed) {
+      // ①クリアボタン押下時（false→true 遷移） ②マウント時にクリア済み（prev=undefined かつ cleared=true）
+      if (cleared && (prevCleared.current === false || prevCleared.current === undefined)) {
+        setShowCelebration(true);
+      }
+    }
+    prevCleared.current = cleared;
+  }, [progress.cleared, currentPlanId]);
+
+  /** 演出を閉じ、同じ表では再表示しない（セッション内フラグ） */
+  const handleDismiss = () => {
+    setShowCelebration(false);
+    if (currentPlanId !== null) {
+      _dismissedPlanIds.add(currentPlanId);
+    }
+  };
 
   return (
     <>
@@ -247,6 +295,12 @@ export function ProgressTrackingHUD() {
       </div>
       {/* 記録パネル（panelOpen false で自動的に null） */}
       <ProgressRecordPanel />
+      {/* お祝い演出（framer-motion AnimatePresence でアンマウント時にフェードアウト） */}
+      <AnimatePresence>
+        {showCelebration && (
+          <ProgressCelebration icons={celebrationIcons} onDismiss={handleDismiss} />
+        )}
+      </AnimatePresence>
     </>
   );
 }
