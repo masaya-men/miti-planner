@@ -65,6 +65,7 @@ import { useRemoteCursorsStore } from '../store/useRemoteCursorsStore';
 import { useCursorSendStore } from '../store/useCursorSendStore';
 import { MEMO_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
+import { useProgressRecording } from './progress/useProgressRecording';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -1435,6 +1436,13 @@ const Timeline: React.FC = () => {
     }, [timelineEvents]);
 
     const handleAddClick = useCallback((time: number, e: React.MouseEvent) => {
+        // 進捗記録モード中はクリックを横取りして到達点を記録（既存の配置/追加には入らない）
+        if (useProgressRecording.getState().recordMode) {
+            e.stopPropagation();
+            e.preventDefault();
+            useProgressRecording.getState().commitReachedPos(time);
+            return;
+        }
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         e.stopPropagation();
 
@@ -1670,6 +1678,13 @@ const Timeline: React.FC = () => {
     };
 
     const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
+        // 進捗記録モード中はクリックを横取りして到達点を記録（既存の軽減配置には入らない）
+        if (useProgressRecording.getState().recordMode) {
+            e.stopPropagation();
+            e.preventDefault();
+            useProgressRecording.getState().commitReachedPos(time);
+            return;
+        }
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         // メモモード中は軽減配置選択を起動しない (= シート空白クリックでメモ作成に統一)
         if (useMitigationStore.getState().toolMode === 'memo') return;
