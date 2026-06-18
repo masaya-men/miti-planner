@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo } from '../types';
+import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo, PlanProgress } from '../types';
+import { mergeDailyBest, removeDay, makeDayKey } from '../lib/progressLogic';
 import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
 import { MEMO_LIMITS } from '../types/firebase';
@@ -73,6 +74,8 @@ interface MitigationState {
     lastPlacedMitigationId: string | null;
     /** メモ機能 (#57) — シート上のメモ配列。 plan データの一部として永続化される。 */
     memos: PlanMemo[];
+    /** 進捗トラッキング (#HUD) — 表ごとの進捗データ。 plan データの一部として永続化される。 */
+    progress: PlanProgress;
     /** メモ機能 (#57) — UI 一時状態 (タブ切替・リロードでリセット、 partialize には含めない)。 */
     toolMode: 'idle' | 'aa-placement' | 'memo';
 
@@ -190,6 +193,13 @@ interface MitigationState {
     updateMemo: (id: string, patch: Partial<Pick<PlanMemo, 'text' | 'timeSec' | 'xRatio'>>) => void;
     deleteMemo: (id: string) => void;
     deleteAllMemos: () => void;
+
+    // 進捗トラッキング アクション (#HUD)
+    recordReachedPoint: (reachedPos: number) => void;
+    removeProgressDay: (day: string) => void;
+    setCleared: (cleared: boolean) => void;
+    setActiveDays: (n: number | undefined) => void;
+    setActiveHours: (n: number | undefined) => void;
 }
 
 // レベルに応じたサブステベース値を取得（遅延評価）
@@ -541,6 +551,8 @@ export const useMitigationStore = create<MitigationState>()(
                 astrologianDrawChainPrompt: null,
                 // メモ機能 (#57)
                 memos: [],
+                // 進捗トラッキング (#HUD)
+                progress: { dailyBest: [], cleared: false },
                 toolMode: 'idle',
                 _history: [],
                 _future: [],
@@ -611,6 +623,7 @@ export const useMitigationStore = create<MitigationState>()(
                         schAetherflowPatterns: state.schAetherflowPatterns,
                         myMemberId: state.myMemberId,
                         memos: state.memos,
+                        progress: state.progress,
                     };
                 },
 
@@ -671,6 +684,8 @@ export const useMitigationStore = create<MitigationState>()(
                         myMemberId: snapshot.myMemberId ?? null,
                         // メモ: 未マイグレ既存プランは undefined → [] にフォールバック
                         memos: snapshot.memos ?? [],
+                        // 進捗: 未マイグレ既存プランは undefined → デフォルト値にフォールバック
+                        progress: snapshot.progress ?? { dailyBest: [], cleared: false },
                         // Reset Undo/Redo on load
                         _history: [],
                         _future: [],
@@ -1569,6 +1584,34 @@ export const useMitigationStore = create<MitigationState>()(
                     set({ memos: [] });
                 },
 
+                // 進捗トラッキング アクション (#HUD)
+                // Plan 1 では collab 委譲を使わず常にローカル set() のみ。collab 委譲は Plan 2 で別途。
+                recordReachedPoint: (reachedPos) => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    const day = makeDayKey(new Date());
+                    set((state) => ({
+                        progress: { ...state.progress, dailyBest: mergeDailyBest(state.progress.dailyBest, { day, reachedPos }) },
+                    }));
+                },
+                removeProgressDay: (day) => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    set((state) => ({
+                        progress: { ...state.progress, dailyBest: removeDay(state.progress.dailyBest, day) },
+                    }));
+                },
+                setCleared: (cleared) => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    set((state) => ({ progress: { ...state.progress, cleared } }));
+                },
+                setActiveDays: (n) => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    set((state) => ({ progress: { ...state.progress, activeDays: n } }));
+                },
+                setActiveHours: (n) => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    set((state) => ({ progress: { ...state.progress, activeHours: n } }));
+                },
+
                 setSchAetherflowPattern: (memberId, pattern) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋な閲覧者のみブロック(編集者ジョイナーは active=true で委譲へ)
                     if (get()._collabActive && get()._collabHandlers) {
@@ -1633,6 +1676,8 @@ export const useMitigationStore = create<MitigationState>()(
                         myJobHighlight: false,
                         hideEmptyRows: true,
                         memos: [],
+                        // 進捗トラッキング: リセット時もデフォルト値に戻す
+                        progress: { dailyBest: [], cleared: false },
                         toolMode: 'idle',
                         _history: [],
                         _future: [],
@@ -1702,6 +1747,7 @@ export const useMitigationStore = create<MitigationState>()(
                 showRowBorders: state.showRowBorders,
                 timelineSortOrder: state.timelineSortOrder,
                 memos: state.memos,
+                progress: state.progress,
             }),
             migrate: (persistedState: any, _version: number) => {
                 return persistedState;
