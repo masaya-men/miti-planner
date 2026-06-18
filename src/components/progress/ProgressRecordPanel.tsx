@@ -162,7 +162,7 @@ const ActiveTimeSection: React.FC = () => {
                 className="flex items-center gap-1 text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5 hover:text-app-text transition-colors duration-150 cursor-pointer"
             >
                 {open ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
-                {t('progress.active_days', '活動日数・時間を入力（任意）')}
+                {t('progress.active_input_toggle', '活動日数・時間を入力（任意）')}
             </button>
             {open && (
                 <div className="flex flex-col gap-1.5 pl-1 border-l border-glass-border">
@@ -203,7 +203,7 @@ const DailyBestList: React.FC = () => {
     return (
         <div className="flex flex-col gap-1">
             <p className="text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5">
-                {t('progress.delete_day', '記録一覧')}
+                {t('progress.record_list', '記録一覧')}
             </p>
             <div className="flex flex-col gap-0.5">
                 {sorted.map(entry => (

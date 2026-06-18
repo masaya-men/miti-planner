@@ -2522,5 +2522,25 @@
             "toggle_publish": "公開停止 / 公開",
             "save_error": "保存に失敗しました"
         }
+    },
+    "progress": {
+        "show_bar": "進捗バーを表示",
+        "empty_cta": "クリックして攻略の軌跡を記録",
+        "record_title": "進捗を記録",
+        "record_cta": "到達点を記録",
+        "record_hint": "タイムラインの時間をクリックしてください",
+        "record_list": "記録一覧",
+        "phase_jump": "フェーズへ移動",
+        "clear": "クリア（踏破）",
+        "clear_section": "クリア（踏破）",
+        "clear_undo": "クリア解除",
+        "cleared": "踏破 👑",
+        "active_days": "活動日数",
+        "active_input_toggle": "活動日数・時間を入力（任意）",
+        "active_days_unit": "日",
+        "active_hours": "活動時間",
+        "active_hours_unit": "時間",
+        "congrats": "おめでとう！",
+        "delete_day": "削除"
     }
 }

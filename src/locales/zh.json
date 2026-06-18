@@ -2466,5 +2466,25 @@
             "toggle_publish": "公開停止 / 公開",
             "save_error": "保存に失敗しました"
         }
+    },
+    "progress": {
+        "show_bar": "显示进度条",
+        "empty_cta": "点击记录攻略进度",
+        "record_title": "记录进度",
+        "record_cta": "记录到达位置",
+        "record_hint": "点击时间轴上的时间",
+        "record_list": "记录列表",
+        "phase_jump": "跳转到阶段",
+        "clear": "通关（击破）",
+        "clear_section": "通关（击破）",
+        "clear_undo": "取消通关",
+        "cleared": "已通关 👑",
+        "active_days": "活动天数",
+        "active_input_toggle": "输入活动天数·时间（可选）",
+        "active_days_unit": "天",
+        "active_hours": "活动时间",
+        "active_hours_unit": "小时",
+        "congrats": "恭喜！",
+        "delete_day": "删除"
     }
 }

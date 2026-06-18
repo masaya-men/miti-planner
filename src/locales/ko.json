@@ -2466,5 +2466,25 @@
             "toggle_publish": "公開停止 / 公開",
             "save_error": "保存に失敗しました"
         }
+    },
+    "progress": {
+        "show_bar": "진행도 바 표시",
+        "empty_cta": "클릭하여 공략 기록을 남기세요",
+        "record_title": "진행도 기록",
+        "record_cta": "도달 지점 기록",
+        "record_hint": "타임라인에서 시간을 클릭하세요",
+        "record_list": "기록 목록",
+        "phase_jump": "페이즈로 이동",
+        "clear": "클리어(격파)",
+        "clear_section": "클리어(격파)",
+        "clear_undo": "클리어 취소",
+        "cleared": "격파 👑",
+        "active_days": "활동 일수",
+        "active_input_toggle": "활동 일수·시간 입력 (선택)",
+        "active_days_unit": "일",
+        "active_hours": "활동 시간",
+        "active_hours_unit": "시간",
+        "congrats": "축하합니다!",
+        "delete_day": "삭제"
     }
 }
