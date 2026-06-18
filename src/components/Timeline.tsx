@@ -671,6 +671,9 @@ const Timeline: React.FC = () => {
     const sheetContainerRef = useRef<HTMLDivElement>(null);
     // 情報列固定ペイン (PC 横スクロール時に左の情報列を据え置く sticky ブロック)
     const infoPaneRef = useRef<HTMLDivElement>(null);
+    // 自由スクロール用の末尾余白スペーサー(絶対配置)。 sheetContainer の box 幅は変えずに
+    // scrollWidth だけ伸ばす(= sheetWidth を汚さない。メモ/カーソルの xRatio 位置を守る)。
+    const trailingSpacerRef = useRef<HTMLDivElement>(null);
     // sheetWidth を state 化 + ResizeObserver で動的更新 (初期 0 で left=0 に固まる問題を解決)
     const [sheetWidth, setSheetWidth] = useState(0);
     useLayoutEffect(() => {
@@ -2243,13 +2246,13 @@ const Timeline: React.FC = () => {
     useEffect(() => {
         const apply = () => {
             const sc = scrollContainerRef.current;
-            const sheet = sheetContainerRef.current;
-            if (!sc || !sheet) return;
-            if (isMobileTimeline) { sheet.style.minWidth = ''; return; }
+            const spacer = trailingSpacerRef.current;
+            if (!sc || !spacer) return;
+            if (isMobileTimeline) { spacer.style.width = '0px'; return; }
             const paneW = infoPaneRef.current?.offsetWidth ?? 0;
             const skillEl = headerRef.current?.querySelector('#timeline-header-skill') as HTMLElement | null;
             const skillW = skillEl?.offsetWidth ?? 0;
-            if (!paneW || !skillW) { sheet.style.minWidth = ''; return; }
+            if (!paneW || !skillW) { spacer.style.width = '0px'; return; }
             // 末尾メンバー列の実幅 (role 別 + 左右パディング)
             const cs = getComputedStyle(document.documentElement);
             const px = (v: string) => parseFloat(cs.getPropertyValue(v)) || 0;
@@ -2257,7 +2260,8 @@ const Timeline: React.FC = () => {
             const innerW = last && (last.role === 'tank' || last.role === 'healer') ? px('--col-th-w') : px('--col-dps-w');
             const lastColW = innerW + px('--col-member-pad-x') * 2;
             const trailing = Math.max(0, sc.clientWidth - paneW - lastColW);
-            sheet.style.minWidth = `${paneW + skillW + trailing}px`;
+            // 絶対配置スペーサーの右端 = コンテンツ幅 + 末尾余白。 box 幅(sheetWidth)は不変。
+            spacer.style.width = `${paneW + skillW + trailing}px`;
         };
         apply();
         window.addEventListener('resize', apply);
@@ -3169,6 +3173,12 @@ const Timeline: React.FC = () => {
                                             </div>
                                         ) : (
                                             infoOverlays
+                                        )}
+
+                                        {/* 自由スクロール用 末尾余白スペーサー(絶対・不可視)。 width は effect で設定。
+                                            sheetContainer の box 幅を変えずに scrollWidth だけ伸ばす。 */}
+                                        {!isMobileTimeline && (
+                                            <div ref={trailingSpacerRef} aria-hidden className="absolute top-0 left-0 h-px pointer-events-none" style={{ width: 0 }} />
                                         )}
 
                                         {/* スマホは MitiIcons (各行内) が軽減表示を担うので PC 用 MitigationItem は呼ばない (呼ぶと colStart=0 で左フェーズ列に見切れ流入) */}
