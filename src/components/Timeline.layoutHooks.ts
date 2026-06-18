@@ -1,25 +1,5 @@
 import { useState, useLayoutEffect } from 'react';
 
-/**
- * PC 横スクロール同期: スキル領域要素だけ translateX を当てる。
- * 情報列見出し（フェーズ/ラベル/時間/敵攻撃/ダメージ列）は translate しない。
- * shadowEls は scrollLeft > 0 で timeline-info-pane--scrolled を付与する（Task 5 で配線）。
- */
-export function applyHorizontalScrollSync(opts: {
-  scrollLeft: number;
-  skillEls: (HTMLElement | null | undefined)[];
-  shadowEls?: (HTMLElement | null | undefined)[];
-}): void {
-  const { scrollLeft, skillEls, shadowEls = [] } = opts;
-  for (const el of skillEls) {
-    if (el) el.style.transform = `translateX(-${scrollLeft}px)`;
-  }
-  for (const el of shadowEls) {
-    if (!el) continue;
-    el.classList.toggle('timeline-info-pane--scrolled', scrollLeft > 0);
-  }
-}
-
 export interface MemberRefEntry {
   id: string;
   el: HTMLElement | null;
@@ -54,24 +34,8 @@ export const useMeasuredMemberLayout = (
         const cs = getComputedStyle(el);
         const padL = parseFloat(cs.paddingLeft) || 0;
         const padR = parseFloat(cs.paddingRight) || 0;
-        // ヘッダー/コントロールバーのスキル領域 (#timeline-*-skill) は translateX のため
-        // transform が掛かり offsetParent 化する。その場合 el.offsetLeft はスキル領域内の
-        // 相対値 (情報列ぶん member-start が欠落) になり、本文シート基準の絶対 left とズレる。
-        // → offsetParent を辿ってスキル領域の offsetLeft (= member-start) まで積み上げ、
-        //   バー(=シート)基準の絶対 left に補正する。スキル領域を経由しない場合は従来どおり。
-        let node: HTMLElement | null = el;
-        let acc = 0;
-        let viaSkill = false;
-        while (node) {
-          acc += node.offsetLeft;
-          if (node.id === 'timeline-controls-skill' || node.id === 'timeline-header-skill') {
-            viaSkill = true;
-            break;
-          }
-          node = node.offsetParent as HTMLElement | null;
-        }
         next.set(id, {
-          left: (viaSkill ? acc : el.offsetLeft) + padL,
+          left: el.offsetLeft + padL,
           width: el.offsetWidth - padL - padR,
         });
       }

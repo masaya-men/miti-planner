@@ -241,9 +241,6 @@
     --row-hover-line-duration: 800ms;
     --row-hover-line-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* 情報列固定ペインのスクロール境界影（暗背景では濃いめにして視認性を確保） */
-    --timeline-pane-shadow-color: rgba(0, 0, 0, 0.6);
-
     /* ── duration ── */
     --duration-fast: 150ms;
     --duration-normal: 250ms;
@@ -358,9 +355,6 @@
     --col-header-chunk-w: 30px;  /* モバイル既定値 (PHASE+LABEL+TIME 合計) */
 
     --row-hover-line-color: rgba(0, 0, 0, 0.15);
-
-    /* 情報列固定ペインのスクロール境界影（明背景では控えめ） */
-    --timeline-pane-shadow-color: rgba(0, 0, 0, 0.35);
 
     --color-bg-primary: #FAFAFA;
     --color-bg-secondary: #FAFAFA;
@@ -1328,16 +1322,6 @@ button, [role="button"], .touch-none {
     transform: scaleX(1);
     will-change: transform;
   }
-  /* 固定ペイン分離で行が「スキル行」と「情報行」の2レイヤーになったため、
-     片方を hover したらもう片方へ .timeline-row-hover を JS で付与して
-     行全体ハイライト(背景 + 下線)を従来どおり成立させる(onMouseEnter/Leave のみ・追従なし)。 */
-  .timeline-row-hover {
-    background-color: var(--color-app-surface2);
-  }
-  [data-time-row].timeline-row-hover::after {
-    transform: scaleX(1);
-    will-change: transform;
-  }
 }
 
 /* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */
@@ -1411,25 +1395,6 @@ button, [role="button"], .touch-none {
         --font-size-5xl: clamp(22px, 1.746vw, 26px);
         --font-size-6xl: clamp(30px, 2.418vw, 36px);
     }
-}
-
-/* 情報列固定ペイン（PC 横スクロール時に左の情報列を据え置く） */
-.timeline-info-pane {
-    position: sticky;
-    left: 0;
-    z-index: 60; /* 軽減レイヤー(バー z-10/アイコン z-20/バッジ z-30)より上 */
-    width: var(--col-member-start);
-    min-width: var(--col-member-start);
-    /* 背景は本文スクロール領域と同色（不透明）にしてスクロールしてくるバーを隠す。
-       light の scrollContainer は bg-white(=--color-bg-tertiary #ffffff) と同色。 */
-    background: var(--color-bg-tertiary);
-}
-.theme-dark .timeline-info-pane {
-    background: var(--color-bg-primary);
-}
-/* スクロール位置 > 0 のときだけ境界に控えめな影（色はテーマトークン経由） */
-.timeline-info-pane--scrolled {
-    box-shadow: 6px 0 8px -4px var(--timeline-pane-shadow-color);
 }
 
 /* === タイムラインの縦スクロールバーのみ非表示 (セッション 17 → セッション 20 修正) ===
