@@ -3033,6 +3033,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
+                                                    data-phase-overlay
                                                     className="absolute left-0 w-[24px] md:w-[var(--col-phase-w)] border-r border-b border-app-border bg-app-surface2 pointer-events-none z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                 >
@@ -3083,6 +3084,7 @@ const Timeline: React.FC = () => {
                                                 return (
                                                     <div
                                                         key={`label-${label.id}`}
+                                                        data-label-overlay
                                                         className={clsx(
                                                             "absolute border-r border-b border-app-border/50 bg-app-surface2 pointer-events-none z-10",
                                                             hasPhases

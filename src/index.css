@@ -1353,6 +1353,13 @@ button, [role="button"], .touch-none {
     box-shadow: inset 0 0 0 2px var(--color-app-blue);   /* border-2 border-app-blue 相当 */
     border-radius: 2px;                                  /* rounded-sm 相当 */
 }
+/* 進捗記録モード中はフェーズ/ラベル区間オーバーレイの不透明背景を透かし、
+   行ハイライト(青枠+bg)がフェーズ列/ラベル列でも途切れないようにする。
+   記録モード限定セレクタなので通常表示・select-mode の見た目は不変。 */
+.timeline-scroll-container[data-record-mode="1"] [data-phase-overlay],
+.timeline-scroll-container[data-record-mode="1"] [data-label-overlay] {
+    background-color: transparent;
+}
 
 /* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */
 /* デスクトップ: フェーズ/ラベル列を個別にハイライト */
