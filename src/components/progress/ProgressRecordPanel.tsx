@@ -66,7 +66,7 @@ const ClearSection: React.FC = () => {
     return (
         <div className="flex flex-col gap-1.5">
             <p className="text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5">
-                {t('progress.clear', 'Clear')}
+                {t('progress.clear_section', 'クリア（踏破）')}
             </p>
             {!cleared ? (
                 <button
@@ -78,7 +78,7 @@ const ClearSection: React.FC = () => {
             ) : (
                 <div className="flex flex-col gap-1">
                     <p className="text-app-2xs text-center text-blue-400 px-0.5 font-bold">
-                        ✓ {t('progress.clear', 'Cleared')}
+                        {t('progress.cleared', '踏破 👑')}
                     </p>
                     <button
                         onClick={() => setCleared(false)}
@@ -123,7 +123,7 @@ const Stepper: React.FC<{
             <div className="flex items-center gap-1">
                 <button
                     onClick={handleDecrement}
-                    disabled={value === undefined || value === 0}
+                    disabled={value === undefined}
                     className="p-0.5 rounded border border-glass-border hover:bg-glass-hover active:scale-90 transition-all duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                     <Minus size={10} />
