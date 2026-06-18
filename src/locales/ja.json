@@ -2532,8 +2532,8 @@
         "record_hint": "タイムラインをクリックして打点",
         "record_list": "記録一覧",
         "phase_jump": "フェーズへ移動",
-        "clear": "クリア（踏破）",
-        "clear_section": "クリア（踏破）",
+        "clear": "踏破",
+        "clear_section": "踏破",
         "clear_undo": "クリア解除",
         "cleared": "踏破 👑",
         "active_days": "活動日数",
@@ -2546,6 +2546,9 @@
         "progress_label": "進捗",
         "record_stop": "記録を終了",
         "record_toast_update": "最高到達点を更新！ 現在 {n}%",
-        "record_toast_nice": "ナイス！ この調子 現在 {n}%"
+        "record_toast_nice": "ナイス！ この調子 現在 {n}%",
+        "drawer_prompt_main": "今日はどこまで進みましたか？",
+        "drawer_prompt_sub": "タイムラインをクリックして記録しましょう",
+        "undo_last": "直前の記録を取り消す"
     }
 }

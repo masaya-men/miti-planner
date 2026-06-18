@@ -2476,8 +2476,8 @@
         "record_hint": "点击时间轴打点",
         "record_list": "记录列表",
         "phase_jump": "跳转到阶段",
-        "clear": "通关（击破）",
-        "clear_section": "通关（击破）",
+        "clear": "通关",
+        "clear_section": "通关",
         "clear_undo": "取消通关",
         "cleared": "已通关 👑",
         "active_days": "活动天数",
@@ -2490,6 +2490,9 @@
         "progress_label": "进度",
         "record_stop": "结束记录",
         "record_toast_update": "刷新最远到达点！当前 {n}%",
-        "record_toast_nice": "不错！继续保持 — 当前 {n}%"
+        "record_toast_nice": "不错！继续保持 — 当前 {n}%",
+        "drawer_prompt_main": "今天进行到哪里了？",
+        "drawer_prompt_sub": "点击时间轴进行记录",
+        "undo_last": "撤销刚才的记录"
     }
 }

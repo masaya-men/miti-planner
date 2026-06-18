@@ -1,89 +1,42 @@
-// 到達点記録パネル — PC: ヘッダー下のポップオーバー / スマホ: MobileBottomSheet
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+// 到達点記録パネル — PC: 中央下から降りるドロワー / スマホ: MobileBottomSheet
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Minus, Plus, ChevronDown, ChevronRight } from 'lucide-react';
-import clsx from 'clsx';
+import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useProgressRecording } from './useProgressRecording';
 import { MobileBottomSheet } from '../MobileBottomSheet';
 import { useMitigationStore } from '../../store/useMitigationStore';
-import { useThemeStore } from '../../store/useThemeStore';
-import { getPhaseName } from '../../types';
-import { makeDayKey } from '../../lib/progressLogic';
+import { PhaseRoad } from './PhaseRoad';
+import { ActivityScrub } from './ActivityScrub';
+import { useState } from 'react';
 
-// -------------------- フェーズジャンプボタン群 --------------------
-
-/**
- * フェーズ一覧ボタン — クリックで `progress:jump-to-time` を発火し
- * Timeline.tsx 側の handleNavJump を呼び出す。
- * phases が空の場合はセクションごと非表示にする。
- */
-const PhaseJumpButtons: React.FC = () => {
-    const { t } = useTranslation();
-    const { contentLanguage } = useThemeStore();
-    const phases = useMitigationStore(s => s.phases);
-
-    const handleJump = useCallback((startTime: number) => {
-        window.dispatchEvent(
-            new CustomEvent('progress:jump-to-time', { detail: { time: startTime } })
-        );
-    }, []);
-
-    if (phases.length === 0) return null;
-
-    const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
-
-    return (
-        <div className="flex flex-col gap-1">
-            <p className="text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5">
-                {t('progress.phase_jump', 'Phase')}
-            </p>
-            <div className="flex flex-col gap-1">
-                {sorted.map(phase => (
-                    <button
-                        key={phase.id}
-                        onClick={() => handleJump(phase.startTime)}
-                        className="w-full text-left px-3 py-1.5 rounded-lg text-app-sm text-app-text border border-glass-border hover:bg-glass-hover active:scale-95 transition-all duration-200 cursor-pointer"
-                    >
-                        {getPhaseName(phase.name, contentLanguage)}
-                    </button>
-                ))}
-            </div>
-        </div>
-    );
-};
-
-// -------------------- クリアボタン --------------------
+// -------------------- クリアボタン（インライン最小版） --------------------
 
 /**
- * クリア（踏破）ボタン + クリア解除。
- * setCleared(true) を呼ぶのみ。お祝い演出の発火は E1 で接続する。
+ * 踏破ボタン + クリア解除。インラインで下段に並ぶ最小スタイル。
  */
-const ClearSection: React.FC = () => {
+const ClearSectionInline: React.FC = () => {
     const { t } = useTranslation();
     const cleared = useMitigationStore(s => s.progress.cleared);
     const setCleared = useMitigationStore(s => s.setCleared);
 
     return (
-        <div className="flex flex-col gap-1.5">
-            <p className="text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5">
-                {t('progress.clear_section', 'クリア（踏破）')}
-            </p>
+        <div className="flex items-center gap-2">
             {!cleared ? (
                 <button
                     onClick={() => setCleared(true)}
-                    className="w-full px-3 py-2 rounded-lg text-app-sm font-bold text-app-text border border-blue-500/40 hover:bg-blue-500/10 active:scale-95 transition-all duration-200 cursor-pointer"
+                    className="px-3 py-1.5 rounded-lg text-app-sm font-bold text-app-text border border-blue-500/40 hover:bg-blue-500/10 active:scale-95 transition-all duration-200 cursor-pointer"
                 >
-                    {t('progress.clear', 'クリア（踏破）')}
+                    {t('progress.clear', '踏破')}
                 </button>
             ) : (
-                <div className="flex flex-col gap-1">
-                    <p className="text-app-2xs text-center text-blue-400 px-0.5 font-bold">
+                <div className="flex items-center gap-2">
+                    <span className="text-app-2xs text-blue-400 font-bold">
                         {t('progress.cleared', '踏破 👑')}
-                    </p>
+                    </span>
                     <button
                         onClick={() => setCleared(false)}
-                        className="w-full px-3 py-1.5 rounded-lg text-app-2xs text-app-text-muted border border-glass-border hover:bg-glass-hover active:scale-95 transition-all duration-200 cursor-pointer"
+                        className="px-2 py-1 rounded-lg text-app-2xs text-app-text-muted border border-glass-border hover:bg-glass-hover active:scale-95 transition-all duration-200 cursor-pointer"
                     >
                         {t('progress.clear_undo', 'クリア解除')}
                     </button>
@@ -93,185 +46,46 @@ const ClearSection: React.FC = () => {
     );
 };
 
-// -------------------- ±カウンター（活動日数・時間） --------------------
+// -------------------- パネル本文（PC / スマホ共通） --------------------
 
 /**
- * ステッパーボタン — 値を増減するシンプルな +/- UI。
- * value が undefined（未設定）の場合は「+」で 0 からスタート。
+ * プロンプト・PhaseRoad・活動スクラブ・踏破・直前undo を並べた本文。
+ * 記録開始トグル・record_hint・DailyBestList・PhaseJumpButtons・Stepper・ActiveTimeSection は撤去済み。
  */
-const Stepper: React.FC<{
-    label: string;
-    value: number | undefined;
-    onChange: (n: number | undefined) => void;
-    unit: string;
-}> = ({ label, value, onChange, unit }) => {
-    const handleDecrement = () => {
-        if (value === undefined || value <= 0) {
-            // 0 以下はクリア（未設定に戻す）
-            onChange(undefined);
-        } else {
-            onChange(value - 1);
-        }
-    };
-
-    const handleIncrement = () => {
-        onChange((value ?? 0) + 1);
-    };
-
-    return (
-        <div className="flex items-center justify-between gap-2">
-            <span className="text-app-2xs text-app-text-muted flex-1">{label}</span>
-            <div className="flex items-center gap-1">
-                <button
-                    onClick={handleDecrement}
-                    disabled={value === undefined}
-                    className="p-0.5 rounded border border-glass-border hover:bg-glass-hover active:scale-90 transition-all duration-150 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                    <Minus size={10} />
-                </button>
-                <span className="text-app-xs text-app-text w-10 text-center tabular-nums">
-                    {value !== undefined ? `${value}${unit}` : '-'}
-                </span>
-                <button
-                    onClick={handleIncrement}
-                    className="p-0.5 rounded border border-glass-border hover:bg-glass-hover active:scale-90 transition-all duration-150 cursor-pointer"
-                >
-                    <Plus size={10} />
-                </button>
-            </div>
-        </div>
-    );
-};
-
-/**
- * 活動日数・時間の折りたたみセクション。
- * デフォルト非表示。展開した人だけ入力できる。
- */
-const ActiveTimeSection: React.FC = () => {
+const PanelBody: React.FC = () => {
     const { t } = useTranslation();
     const activeDays = useMitigationStore(s => s.progress.activeDays);
     const activeHours = useMitigationStore(s => s.progress.activeHours);
     const setActiveDays = useMitigationStore(s => s.setActiveDays);
     const setActiveHours = useMitigationStore(s => s.setActiveHours);
-    // 既に値が入っている場合は開いた状態で表示
-    const [open, setOpen] = useState(activeDays !== undefined || activeHours !== undefined);
+    const lastRecordedTs = useProgressRecording(s => s.lastRecordedTs);
+    const undoLastRecord = useProgressRecording(s => s.undoLastRecord);
 
     return (
-        <div className="flex flex-col gap-1">
-            <button
-                onClick={() => setOpen(v => !v)}
-                className="flex items-center gap-1 text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5 hover:text-app-text transition-colors duration-150 cursor-pointer"
-            >
-                {open ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
-                {t('progress.active_input_toggle', '活動日数・時間を入力（任意）')}
-            </button>
-            {open && (
-                <div className="flex flex-col gap-1.5 pl-1 border-l border-glass-border">
-                    <Stepper
-                        label={t('progress.active_days', '活動日数')}
-                        value={activeDays}
-                        onChange={setActiveDays}
-                        unit={t('progress.active_days_unit', '日')}
-                    />
-                    <Stepper
-                        label={t('progress.active_hours', '活動時間')}
-                        value={activeHours}
-                        onChange={setActiveHours}
-                        unit={t('progress.active_hours_unit', 'h')}
-                    />
+        <div className="flex flex-col gap-4">
+            {/* プロンプト */}
+            <div className="text-center">
+                <div className="text-app-lg font-bold text-app-text" style={{ textShadow: '0 0 12px rgba(120,200,255,.4)' }}>
+                    {t('progress.drawer_prompt_main')}
                 </div>
-            )}
-        </div>
-    );
-};
-
-// -------------------- 誤記録修正（打点一覧 + 削除） --------------------
-
-/** 秒 → M:SS（タイムライン上の到達位置表示） */
-function formatReached(sec: number): string {
-    const s = Math.max(0, Math.round(sec));
-    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-}
-
-/**
- * 記録済みの打点を新しい順に一覧し、各点に削除ボタンを表示する。
- * 記録がない場合はセクションごと非表示。
- */
-const DailyBestList: React.FC = () => {
-    const { t } = useTranslation();
-    const points = useMitigationStore(s => s.progress.points) ?? [];
-    const removeProgressPoint = useMitigationStore(s => s.removeProgressPoint);
-
-    if (points.length === 0) return null;
-
-    // 新しい順に表示（削除は元の index で行う）
-    const rows = points.map((p, i) => ({ p, i })).reverse();
-
-    return (
-        <div className="flex flex-col gap-1">
-            <p className="text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5">
-                {t('progress.record_list', '記録一覧')}
-            </p>
-            <div className="flex flex-col gap-0.5 max-h-40 overflow-y-auto">
-                {rows.map(({ p, i }) => (
-                    <div
-                        key={p.ts}
-                        className="flex items-center justify-between px-2 py-1 rounded-lg border border-glass-border text-app-2xs"
-                    >
-                        <span className="text-app-text-muted tabular-nums">{makeDayKey(new Date(p.ts))}</span>
-                        <div className="flex items-center gap-2">
-                            <span className="text-app-text tabular-nums">{formatReached(p.reachedPos)}</span>
-                            <button
-                                onClick={() => removeProgressPoint(i)}
-                                className="text-red-400/70 hover:text-red-400 border border-transparent hover:border-red-400/40 rounded px-1.5 py-0.5 transition-all duration-150 cursor-pointer active:scale-90"
-                            >
-                                {t('progress.delete_day', '削除')}
-                            </button>
-                        </div>
-                    </div>
-                ))}
+                <div className="text-app-2xs text-app-text-muted mt-0.5">{t('progress.drawer_prompt_sub')}</div>
             </div>
-        </div>
-    );
-};
-
-// -------------------- パネル本文（PC / スマホ共通） --------------------
-
-/**
- * 記録ボタン・フェーズジャンプ・クリア・活動日数・記録一覧を並べた本文。
- * PC ポップオーバーとスマホ BottomSheet で共有する。
- */
-const PanelBody: React.FC = () => {
-    const { t } = useTranslation();
-    const { startRecordMode, stopRecordMode, recordMode } = useProgressRecording();
-
-    return (
-        <div className="flex flex-col gap-3">
-            {/* 到達点記録トグル: 記録中は連続で打点でき、もう一度押す/×/Esc で終了 */}
-            <button
-                onClick={recordMode ? stopRecordMode : startRecordMode}
-                className={clsx(
-                    'w-full px-3 py-2 rounded-lg text-app-lg font-bold active:scale-95 transition-all duration-200 cursor-pointer border',
-                    recordMode
-                        ? 'bg-app-toggle text-app-toggle-text border-app-toggle animate-pulse'
-                        : 'text-app-text border-glass-border hover:bg-glass-hover'
-                )}
-            >
-                {recordMode ? t('progress.record_stop', '記録を終了') : t('progress.record_cta')}
-            </button>
-            {recordMode && (
-                <p className="text-app-2xs text-app-text-muted text-center">
-                    {t('progress.record_hint')}
-                </p>
-            )}
-            {/* フェーズジャンプ */}
-            <PhaseJumpButtons />
-            {/* クリア（踏破） */}
-            <ClearSection />
-            {/* 活動日数・時間（折りたたみ） */}
-            <ActiveTimeSection />
-            {/* 誤記録修正 */}
-            <DailyBestList />
+            {/* 光の道（フェーズナビ） */}
+            <PhaseRoad />
+            {/* 下段: 活動スクラブ / 踏破 / 直前undo */}
+            <div className="flex items-end justify-between gap-4 flex-wrap border-t border-glass-border pt-3">
+                <div className="flex items-center gap-6">
+                    <ActivityScrub label={t('progress.active_days', '活動')} value={activeDays} unit={t('progress.active_days_unit', '日')} onChange={setActiveDays} />
+                    <ActivityScrub value={activeHours} unit={t('progress.active_hours_unit', 'h')} onChange={setActiveHours} />
+                </div>
+                <div className="flex items-center gap-4">
+                    <ClearSectionInline />
+                    {lastRecordedTs != null && (
+                        <button onClick={undoLastRecord} title={t('progress.undo_last', '直前の記録を取り消す')}
+                            className="text-app-md text-app-text-sec hover:text-red-400 cursor-pointer active:scale-90">↶</button>
+                    )}
+                </div>
+            </div>
         </div>
     );
 };
@@ -291,21 +105,25 @@ function useIsMobile(): boolean {
     return isMobile;
 }
 
-// -------------------- PC ポップオーバー --------------------
+// -------------------- PC ドロワー --------------------
 
-const PCPopover: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    const { t } = useTranslation();
-    const popoverRef = useRef<HTMLDivElement>(null);
+/**
+ * 中央グラフ下から降りる横長ドロワー。createPortal で body 直下に配置。
+ * マウント時に startRecordMode() を呼び、記録モードを自動 ON にする。
+ * clip 展開 + ホログラム明滅の開演出（WAAPI）。
+ */
+const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+    const drawerRef = useRef<HTMLDivElement>(null);
+    const startRecordMode = useProgressRecording(s => s.startRecordMode);
 
-    // クリック外閉じ。
-    // ただし記録モード中はタイムラインのクリック(=「外側」)で打点するため閉じない。
-    // (閉じると closePanel が recordMode を false にしてしまい、直後の onClick で記録されない)
+    // 開いた瞬間に記録モード ON（PC のみ）
+    useEffect(() => { startRecordMode(); }, [startRecordMode]);
+
+    // 外側クリック閉じ（記録モード中はタイムライン打点に使うため閉じない）
     useEffect(() => {
         const handler = (e: MouseEvent) => {
             if (useProgressRecording.getState().recordMode) return;
-            if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
-                onClose();
-            }
+            if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) onClose();
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
@@ -313,40 +131,32 @@ const PCPopover: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
     // Escape 閉じ
     useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
+        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
     }, [onClose]);
 
+    // 開演出: clip 上→下 + 明滅
+    useEffect(() => {
+        const el = drawerRef.current; if (!el) return;
+        el.animate(
+            [{ clipPath: 'inset(0 0 100% 0)', opacity: 0, transform: 'translateY(-6px)' },
+             { clipPath: 'inset(0 0 0% 0)', opacity: 1, transform: 'translateY(0)' }],
+            { duration: 460, easing: 'cubic-bezier(.16,.8,.3,1)', fill: 'forwards' }
+        );
+    }, []);
+
     return createPortal(
-        <div
-            ref={popoverRef}
-            className={clsx(
-                'fixed z-[9999] w-[260px] glass-tier3 rounded-lg shadow-sm',
-                'animate-in fade-in zoom-in-95 duration-200 overflow-hidden'
-            )}
-            // ヘッダー直下（ヘッダー高さ = 約48px）の右寄せに配置
-            style={{ top: '52px', right: '16px' }}
+        <div ref={drawerRef}
+            className="fixed z-[9999] glass-tier3 rounded-b-lg shadow-sm overflow-hidden"
+            style={{ top: '92px', left: '50%', transform: 'translateX(-50%)', width: 'min(720px, 92vw)' }}
         >
-            {/* ヘッダー */}
-            <div className="flex items-center justify-between px-3 py-2 bg-glass-header border-b border-glass-border">
-                <span className="text-app-lg font-black text-app-text uppercase tracking-wider">
-                    {t('progress.record_title')}
-                </span>
-                <button
-                    onClick={onClose}
-                    className="text-app-text p-1 rounded-lg border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-90"
-                >
+            <div className="flex items-center justify-end px-3 py-1.5 border-b border-glass-border">
+                <button onClick={onClose} className="text-app-text p-1 rounded-lg hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 cursor-pointer active:scale-90">
                     <X size={14} />
                 </button>
             </div>
-
-            {/* 本文 */}
-            <div className="px-3 py-4 overflow-y-auto max-h-[calc(100vh-80px)]">
-                <PanelBody />
-            </div>
+            <div className="px-5 py-4"><PanelBody /></div>
         </div>,
         document.body
     );
@@ -363,6 +173,14 @@ export const ProgressRecordPanel: React.FC = () => {
     const { panelOpen, closePanel } = useProgressRecording();
     const { t } = useTranslation();
     const isMobile = useIsMobile();
+    const startRecordMode = useProgressRecording(s => s.startRecordMode);
+
+    // モバイルでパネルが開いた時に記録モードを ON にする（PCDrawer は自身の useEffect で行う）
+    useEffect(() => {
+        if (panelOpen && isMobile) {
+            startRecordMode();
+        }
+    }, [panelOpen, isMobile, startRecordMode]);
 
     if (!panelOpen) return null;
 
@@ -380,5 +198,5 @@ export const ProgressRecordPanel: React.FC = () => {
         );
     }
 
-    return <PCPopover onClose={closePanel} />;
+    return <PCDrawer onClose={closePanel} />;
 };

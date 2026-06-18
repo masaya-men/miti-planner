@@ -2476,8 +2476,8 @@
         "record_hint": "타임라인을 클릭해 점 찍기",
         "record_list": "기록 목록",
         "phase_jump": "페이즈로 이동",
-        "clear": "클리어(격파)",
-        "clear_section": "클리어(격파)",
+        "clear": "클리어",
+        "clear_section": "클리어",
         "clear_undo": "클리어 취소",
         "cleared": "격파 👑",
         "active_days": "활동 일수",
@@ -2490,6 +2490,9 @@
         "progress_label": "진행도",
         "record_stop": "기록 종료",
         "record_toast_update": "최고 도달 지점 갱신! 현재 {n}%",
-        "record_toast_nice": "좋아요! 이대로 — 현재 {n}%"
+        "record_toast_nice": "좋아요! 이대로 — 현재 {n}%",
+        "drawer_prompt_main": "오늘은 어디까지 갔나요?",
+        "drawer_prompt_sub": "타임라인을 클릭해 기록하세요",
+        "undo_last": "방금 기록 취소"
     }
 }

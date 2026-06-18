@@ -2511,8 +2511,8 @@
         "record_hint": "Click the timeline to add a point",
         "record_list": "Recorded days",
         "phase_jump": "Jump to phase",
-        "clear": "Clear (Complete)",
-        "clear_section": "Clear (Complete)",
+        "clear": "Cleared",
+        "clear_section": "Cleared",
         "clear_undo": "Undo clear",
         "cleared": "Cleared 👑",
         "active_days": "Active days",
@@ -2525,6 +2525,9 @@
         "progress_label": "Progress",
         "record_stop": "Stop recording",
         "record_toast_update": "New furthest point! Now at {n}%",
-        "record_toast_nice": "Nice! Keep it up — now at {n}%"
+        "record_toast_nice": "Nice! Keep it up — now at {n}%",
+        "drawer_prompt_main": "How far did you get today?",
+        "drawer_prompt_sub": "Click the timeline to record",
+        "undo_last": "Undo last record"
     }
 }
