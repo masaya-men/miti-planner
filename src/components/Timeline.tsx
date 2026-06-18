@@ -2351,6 +2351,9 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-controls-inner" className="flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max">
+                            {/* 情報列ぶんのツールバー: 不透明 + z-10 でスキル領域(JobPickerRow・translateX)が
+                                左へ流れ込んでもツールバーの下へ隠す(本文の固定ペインと同じ考え方) */}
+                            <div className="flex items-center h-full relative z-10 bg-app-surface2 flex-none">
                             {/* Area A: PHASE+LABEL+TIME — テーブルカラムと幅を揃える (var(--col-header-chunk-w) - 1px divider) */}
                             <div className="w-[calc(var(--col-header-chunk-w)-1px)] min-w-[calc(var(--col-header-chunk-w)-1px)] flex-none flex items-center px-1 md:px-2 h-full">
                                 <button
@@ -2556,6 +2559,7 @@ const Timeline: React.FC = () => {
 
                             {/* 短い区切り線 — テーブルの Dmg|Job列 境界と揃う */}
                             <div className="w-[1px] h-3 dark:bg-app-text/25 bg-app-text shrink-0 hidden md:block rounded-full" />
+                            </div>{/* /情報列ツールバーカバー */}
 
                             {/* セッション 18 案 C1 物理移動: ジョブアイコン行を controlBar の右端に */}
                             {/* Task 2: スキル領域（JobPickerRow）だけ translateX 対象に分割 */}
@@ -2581,6 +2585,9 @@ const Timeline: React.FC = () => {
                         )}
                     >
                         <div id="timeline-header-inner" className="flex items-center h-full w-full md:w-max md:min-w-max">
+                            {/* 情報列ぶんの見出し: 不透明 + z-10 でスキル領域(RecastRow・translateX)が
+                                左へ流れ込んでも見出しの下へ隠す(本文の固定ペインと同じ考え方) */}
+                            <div className="flex items-center h-full relative z-10 bg-app-surface2 flex-none">
                             {/* モバイル: フェーズなし → ラベルをフェーズ位置に表示 */}
                             {(() => {
                                 const hasPhases = phases.length > 0;
@@ -2683,6 +2690,7 @@ const Timeline: React.FC = () => {
                                 <span className="md:hidden">{t('timeline.header_taken_short')}</span>
                                 <span className="hidden md:inline">{t('timeline.header_taken')}</span>
                             </div>
+                            </div>{/* /情報列見出しカバー */}
 
                             {/* セッション 18 案 C1: ヘッダーのメンバー列領域はリキャストアイコン専用に。
                                 旧ジョブアイコン行は controlBar に移動 (JobPickerRow)。
