@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import {
     Sun, Moon, FileDown,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, LogIn,
+    Users, Activity, Wand2, Star, LogIn, Eye,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
@@ -28,6 +28,8 @@ import { SyncButton } from './SyncButton';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { SegmentButton } from './ui/SegmentButton';
 import { MitigationSheet } from './MitigationSheet';
+import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
+import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -77,6 +79,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 }) => {
     /** 閲覧専用モード: Task 3 でボタン無効化に再利用 */
     const readOnly = viewer != null;
+    // 進捗HUD表示フラグ（B1ストア購読）
+    const progressBarVisible = useProgressBarVisibility(s => s.visible);
     const { t } = useTranslation();
     const { theme, setTheme, contentLanguage } = useThemeStore();
     const myJobHighlight = useMitigationStore(s => s.myJobHighlight);
@@ -390,6 +394,15 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </Tooltip>
                         </div>
 
+                        {/* 中央: 進捗HUD（表示フラグON時のみ） */}
+                        {progressBarVisible && (
+                            <div className="flex-1 flex items-center justify-center min-w-0 px-3 overflow-visible">
+                                <div className="w-full max-w-[640px]">
+                                    <ProgressTrackingHUD />
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex items-center gap-1.5">
                             {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
                             <Tooltip wrapperClassName={clsx(readOnly && 'cursor-not-allowed')} content={t('popular.open_popular_tooltip')}>
@@ -401,6 +414,19 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('popular.open_popular')}</span>
                                 </button>
                             </Tooltip>
+
+                            {/* 進捗HUD復帰ボタン（非表示時のみ表示） */}
+                            {!progressBarVisible && (
+                                <button
+                                    type="button"
+                                    onClick={() => useProgressBarVisibility.getState().show()}
+                                    className={clsx(pillBtnBase, pillBtnDefault)}
+                                    title={t('progress.show_bar')}
+                                >
+                                    <Eye size={14} />
+                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('progress.show_bar')}</span>
+                                </button>
+                            )}
 
                             {/* My Job Highlight */}
                             <NotAllowed on={readOnly}>
