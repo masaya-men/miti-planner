@@ -1,11 +1,54 @@
 // 到達点記録パネル — PC: ヘッダー下のポップオーバー / スマホ: MobileBottomSheet
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useProgressRecording } from './useProgressRecording';
 import { MobileBottomSheet } from '../MobileBottomSheet';
+import { useMitigationStore } from '../../store/useMitigationStore';
+import { getPhaseName } from '../../types';
+
+// -------------------- フェーズジャンプボタン群 --------------------
+
+/**
+ * フェーズ一覧ボタン — クリックで `progress:jump-to-time` を発火し
+ * Timeline.tsx 側の handleNavJump を呼び出す。
+ * phases が空の場合はセクションごと非表示にする。
+ */
+const PhaseJumpButtons: React.FC = () => {
+    const { t, i18n } = useTranslation();
+    const phases = useMitigationStore(s => s.phases);
+
+    const handleJump = useCallback((startTime: number) => {
+        window.dispatchEvent(
+            new CustomEvent('progress:jump-to-time', { detail: { time: startTime } })
+        );
+    }, []);
+
+    if (phases.length === 0) return null;
+
+    const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
+
+    return (
+        <div className="flex flex-col gap-1">
+            <p className="text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5">
+                {t('progress.phase_jump', 'Phase')}
+            </p>
+            <div className="flex flex-col gap-1">
+                {sorted.map(phase => (
+                    <button
+                        key={phase.id}
+                        onClick={() => handleJump(phase.startTime)}
+                        className="w-full text-left px-3 py-1.5 rounded-lg text-app-sm text-app-text border border-glass-border hover:bg-glass-hover active:scale-95 transition-all duration-200 cursor-pointer"
+                    >
+                        {getPhaseName(phase.name, i18n.language)}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 /** モバイル判定 — 既存コードと同パターン (window.innerWidth < 768) */
 function useIsMobile(): boolean {
@@ -83,6 +126,8 @@ const PCPopover: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                         {t('progress.record_hint')}
                     </p>
                 )}
+                {/* フェーズジャンプ */}
+                <PhaseJumpButtons />
             </div>
         </div>,
         document.body
@@ -122,6 +167,8 @@ export const ProgressRecordPanel: React.FC = () => {
                             {t('progress.record_hint')}
                         </p>
                     )}
+                    {/* フェーズジャンプ */}
+                    <PhaseJumpButtons />
                 </div>
             </MobileBottomSheet>
         );

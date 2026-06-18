@@ -852,7 +852,9 @@ const Timeline: React.FC = () => {
     const hasLabels = labels.length > 0;
     const labelColumnVisible = !labelColumnCollapsed && !(phaseColumnCollapsed && !hasLabels);
 
-    const handleNavJump = (time: number) => {
+    // useCallback で包む: progress:jump-to-time リスナが最新版を参照するため。
+    // deps = [showPreStart, pixelsPerSecond]。ref は常に最新なので deps 不要。
+    const handleNavJump = useCallback((time: number) => {
         if (!scrollContainerRef.current) return;
         const targetY = timeToYMapRef.current.get(time);
         if (targetY !== undefined) {
@@ -862,7 +864,7 @@ const Timeline: React.FC = () => {
             const y = Math.max(0, (time - offsetTime)) * pixelsPerSecond;
             scrollContainerRef.current.scrollTo({ top: y, behavior: 'smooth' });
         }
-    };
+    }, [showPreStart, pixelsPerSecond]);
 
     // 「タイムラインの最後の行」 = maxPopulatedTime + 1 (= 行追加用の空白行)。
     // ユーザー仕様: 新規イベント追加用に最終イベント/軽減の 1 秒後の空白行が表示される。
@@ -1188,6 +1190,17 @@ const Timeline: React.FC = () => {
             window.removeEventListener('mobile:mechanic-search', handleMechanicSearch);
         };
     }, []);
+
+    // 記録パネルからのフェーズジャンプ: 独立 useEffect で既存リスナに干渉しない。
+    // handleNavJump が useCallback で安定しているため、deps に含めて stale closure を防ぐ。
+    useEffect(() => {
+        const handleProgressJump = (e: Event) => {
+            const { time } = (e as CustomEvent<{ time: number }>).detail ?? {};
+            if (typeof time === 'number') handleNavJump(time);
+        };
+        window.addEventListener('progress:jump-to-time', handleProgressJump);
+        return () => window.removeEventListener('progress:jump-to-time', handleProgressJump);
+    }, [handleNavJump]);
 
 
     // プラン切替時に縦横スクロールをトップ・左端へ、空行非表示をデフォルト(コンパクト)にリセット
