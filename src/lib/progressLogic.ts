@@ -58,3 +58,14 @@ export function isEmptyProgress(progress: PlanProgress | undefined): boolean {
         progress.activeHours === undefined
     );
 }
+
+/**
+ * 記録する reachedPos が「チームのこれまでの最高到達点」を更新するか判定する。
+ * 記録前の progress を渡すこと。最高を超えたら 'update'、そうでなければ 'nice'。
+ * （0 は更新扱いにしない＝points 空 + reachedPos 0 は 'nice'）
+ */
+export function classifyRecord(progress: PlanProgress, reachedPos: number): 'update' | 'nice' {
+    const points = progress.points ?? [];
+    const prevMax = points.length ? Math.max(...points.map(p => p.reachedPos)) : 0;
+    return reachedPos > prevMax ? 'update' : 'nice';
+}
