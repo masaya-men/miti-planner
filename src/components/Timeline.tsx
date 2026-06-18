@@ -1306,7 +1306,8 @@ const Timeline: React.FC = () => {
                 headerRef.current?.querySelector('#timeline-header-skill') as HTMLElement | null,
                 controlBarRef.current?.querySelector('#timeline-controls-skill') as HTMLElement | null,
             ],
-            // shadowEls は Task 5 で情報ペイン ref を追加する
+            // スクロール位置 > 0 のとき情報ペイン右端に境界影を出す
+            shadowEls: [infoPaneRef.current],
         });
     };
 
