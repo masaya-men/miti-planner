@@ -237,18 +237,18 @@ export interface PlanMemo {
     updatedAt: number;
 }
 
-/** 進捗トラッキング: その日の最高到達点 */
-export interface DailyBest {
-    /** カレンダー日付 'YYYY-MM-DD' (JST)。同日の重複は最高到達点に統合 */
-    day: string;
-    /** その日の最高到達点。タイムライン上の秒位置 */
+/** 進捗トラッキング: 1 回の打点（クリックごとに 1 点ずつ溜まる） */
+export interface ProgressPoint {
+    /** 記録時刻 (epoch ms)。並び順 = クリック順 / 日付ラベルの算出に使う */
+    ts: number;
+    /** その時クリックした到達点。タイムライン上の秒位置 */
     reachedPos: number;
 }
 
 /** 進捗トラッキング (表ごと・未マイグレ既存プランは undefined) */
 export interface PlanProgress {
-    /** 日ごとの最高到達点の配列。横軸=日付順、縦軸=reachedPos */
-    dailyBest: DailyBest[];
+    /** 打点の列。各クリック = 1 点（同日でも溜まる）。横軸=記録順、縦軸=reachedPos */
+    points: ProgressPoint[];
     /** クリアボタンで true */
     cleared: boolean;
     /** 任意・手入力。デフォルト非表示 */

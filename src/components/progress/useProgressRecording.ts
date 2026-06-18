@@ -9,7 +9,7 @@ interface ProgressRecordingState {
     closePanel: () => void;
     startRecordMode: () => void;
     stopRecordMode: () => void;
-    /** タイムライン上の時間をクリックしたとき呼ぶ。recordReachedPoint を実行して記録モードを終了 */
+    /** タイムライン上の時間をクリックしたとき呼ぶ。1点記録してパネルを閉じる */
     commitReachedPos: (sec: number) => void;
 }
 
@@ -21,7 +21,8 @@ export const useProgressRecording = create<ProgressRecordingState>((set) => ({
     startRecordMode: () => set({ recordMode: true }),
     stopRecordMode: () => set({ recordMode: false }),
     commitReachedPos: (sec) => {
+        // 1点記録したらパネルを閉じる（連続クリック用途ではないため・もう1点足すなら開き直す）。
         useMitigationStore.getState().recordReachedPoint(sec);
-        set({ recordMode: false });
+        set({ panelOpen: false, recordMode: false });
     },
 }));

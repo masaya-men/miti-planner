@@ -467,7 +467,8 @@
         "no_damage_events": "ダメージイベントが記録されていません。",
         "total_hits": "合計 {{count}} 回のヒット ({{span}}秒間)",
         "explorer": "エクスプローラー",
-        "all": "すべて"
+        "all": "すべて",
+        "more": "その他"
     },
     "timeline": {
         "invalid_placement": "このタイミングには配置できません",
@@ -2528,7 +2529,7 @@
         "empty_cta": "クリックして攻略の軌跡を記録",
         "record_title": "進捗を記録",
         "record_cta": "到達点を記録",
-        "record_hint": "タイムラインの時間をクリックしてください",
+        "record_hint": "タイムラインをクリックして打点",
         "record_list": "記録一覧",
         "phase_jump": "フェーズへ移動",
         "clear": "クリア（踏破）",
@@ -2542,6 +2543,7 @@
         "active_hours_unit": "時間",
         "congrats": "おめでとう！",
         "delete_day": "削除",
-        "progress_label": "進捗"
+        "progress_label": "進捗",
+        "record_stop": "記録を終了"
     }
 }

@@ -4,7 +4,7 @@
  * データ供給元を PlanData（useMitigationStore 経由）に差し替えたもの。
  *
  * 見た目: 試作 4c0b94b と 1:1（canvas 定数・クラス・レイアウトは無変更）。
- * 変更点: SEED → store の progress.dailyBest・timelineEvents 駆動に差し替え。
+ * 変更点: SEED → store の progress.points・timelineEvents 駆動に差し替え。
  *         ActivityDots は spec スコープ外のためレンダリングしない。
  * E1追加: お祝い演出（ProgressCelebration）+ 発火条件（クリア遷移 / マウント時クリア済み）。
  */
@@ -167,11 +167,24 @@ function JourneyStrip({
   const { t } = useTranslation();
   const n = points.length;
 
-  const yTop = points.map((p) => 100 - Math.max(3, p)); // 各日の到達点y(%)
+  // 縦マッピング: 高低差を強調しつつ、玉の発光が上下で見切れないようヘッドルームを確保する。
+  // 点の最小〜最大を padded 範囲 [TOP_Y, BOT_Y] へ自動スケール（= 波が縦いっぱいに振れて高低差が出る・
+  // 98% 等でも上端で切れない）。TOP_Y/BOT_Y は見え方の調整ノブ（小さい TOP_Y ほど高く到達）。
+  const TOP_Y = 16; // 上端(% from top)。発光半径ぶんのヘッドルーム（背を高くした分、範囲を広げて高低差UP）
+  const BOT_Y = 84; // 下端
+  const lo = Math.min(...points);
+  const hi = Math.max(...points);
+  const span = hi - lo;
+  const yTop = points.map((p) => {
+    if (span <= 0) return (TOP_Y + BOT_Y) / 2;        // 全点同じ/1点 → 中央
+    const f = (p - lo) / span;                        // 0(最低)〜1(最高)
+    return BOT_Y - f * (BOT_Y - TOP_Y);               // 最低→BOT_Y, 最高→TOP_Y
+  });
 
-  // 光が辿る軌跡(線は常時描かない): 左下から登り、各日の到達点を平らに進み、隣へ縦の段＝階段。
+  // 光が辿る軌跡(線は常時描かない): 左下から登り、各点の到達点を平らに進み、隣へ縦の段＝階段。
+  // 始点は地面(BOT_Y)から。100(キャンバス最下端)にすると始点の玉が下で見切れるため padded 値にする。
   const cornerX: number[] = [0];
-  const cornerY: number[] = [100];
+  const cornerY: number[] = [BOT_Y];
   points.forEach((_, i) => {
     cornerX.push((i / n) * 100, ((i + 1) / n) * 100);
     cornerY.push(yTop[i], yTop[i]);
@@ -180,7 +193,7 @@ function JourneyStrip({
   // n === 0 のとき: 親 ProgressTrackingHUD が isEmptyProgress で誘導表示に分岐済みのため、
   // JourneyStrip はここに到達しない。念のため空 canvas を返してクラッシュを防ぐ。
   if (n === 0) {
-    return <div className="relative flex-1 h-9 overflow-visible" />;
+    return <div className="relative flex-1 h-11 overflow-visible" />;
   }
 
   return (
@@ -199,7 +212,7 @@ function JourneyStrip({
       </div>
 
       {/* 中央: 光の玉 + 線状の余韻(尾)。クリア時は全軌跡を点灯し数個のパルスが走る。常時の道は出さない。 */}
-      <div className="relative flex-1 h-9 overflow-visible">
+      <div className="relative flex-1 h-11 overflow-visible">
         <PulseTrail cornerX={cornerX} cornerY={cornerY} count={cleared ? 3 : 1} fullLine={cleared} />
       </div>
 
@@ -232,9 +245,10 @@ export function ProgressTrackingHUD() {
     ? Math.max(...timelineEvents.map((e) => e.time))
     : 0;
 
-  // 各日の到達点を % に正規化した配列（日付昇順は store 側 mergeDailyBest で保証済み）
-  const points = progress.dailyBest.map((d) =>
-    total > 0 ? Math.max(0, Math.min(100, (d.reachedPos / total) * 100)) : 0
+  // 各打点の到達点を % に正規化した配列（並び順=クリック順）。
+  // 旧形式データが万一すり抜けても HUD(=ヘッダー全体)を巻き込んで落とさないよう ?? [] で防御。
+  const points = (progress.points ?? []).map((p) =>
+    total > 0 ? Math.max(0, Math.min(100, (p.reachedPos / total) * 100)) : 0
   );
 
   // spec 準拠の進捗 %（最高 reachedPos ÷ 全長）

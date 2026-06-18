@@ -455,7 +455,8 @@
         "no_damage_events": "无伤害事件记录。",
         "total_hits": "共 {{count}} 次命中（跨 {{span}} 秒）",
         "explorer": "浏览器",
-        "all": "全部"
+        "all": "全部",
+        "more": "其他"
     },
     "timeline": {
         "invalid_placement": "无效放置",
@@ -2472,7 +2473,7 @@
         "empty_cta": "点击记录攻略进度",
         "record_title": "记录进度",
         "record_cta": "记录到达位置",
-        "record_hint": "点击时间轴上的时间",
+        "record_hint": "点击时间轴打点",
         "record_list": "记录列表",
         "phase_jump": "跳转到阶段",
         "clear": "通关（击破）",
@@ -2486,6 +2487,7 @@
         "active_hours_unit": "小时",
         "congrats": "恭喜！",
         "delete_day": "删除",
-        "progress_label": "进度"
+        "progress_label": "进度",
+        "record_stop": "结束记录"
     }
 }

@@ -9,6 +9,7 @@ import { MobileBottomSheet } from '../MobileBottomSheet';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { useThemeStore } from '../../store/useThemeStore';
 import { getPhaseName } from '../../types';
+import { makeDayKey } from '../../lib/progressLogic';
 
 // -------------------- フェーズジャンプボタン群 --------------------
 
@@ -184,40 +185,44 @@ const ActiveTimeSection: React.FC = () => {
     );
 };
 
-// -------------------- 誤記録修正（dailyBest 一覧 + 削除） --------------------
+// -------------------- 誤記録修正（打点一覧 + 削除） --------------------
+
+/** 秒 → M:SS（タイムライン上の到達位置表示） */
+function formatReached(sec: number): string {
+    const s = Math.max(0, Math.round(sec));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
 
 /**
- * 記録済みの日別最高到達点を一覧し、各日に削除ボタンを表示する。
+ * 記録済みの打点を新しい順に一覧し、各点に削除ボタンを表示する。
  * 記録がない場合はセクションごと非表示。
  */
 const DailyBestList: React.FC = () => {
     const { t } = useTranslation();
-    const dailyBest = useMitigationStore(s => s.progress.dailyBest);
-    const removeProgressDay = useMitigationStore(s => s.removeProgressDay);
+    const points = useMitigationStore(s => s.progress.points) ?? [];
+    const removeProgressPoint = useMitigationStore(s => s.removeProgressPoint);
 
-    if (dailyBest.length === 0) return null;
+    if (points.length === 0) return null;
 
-    // 日付の新しい順に並べる
-    const sorted = [...dailyBest].sort((a, b) => b.day.localeCompare(a.day));
+    // 新しい順に表示（削除は元の index で行う）
+    const rows = points.map((p, i) => ({ p, i })).reverse();
 
     return (
         <div className="flex flex-col gap-1">
             <p className="text-app-2xs text-app-text-muted uppercase tracking-wider px-0.5">
                 {t('progress.record_list', '記録一覧')}
             </p>
-            <div className="flex flex-col gap-0.5">
-                {sorted.map(entry => (
+            <div className="flex flex-col gap-0.5 max-h-40 overflow-y-auto">
+                {rows.map(({ p, i }) => (
                     <div
-                        key={entry.day}
+                        key={p.ts}
                         className="flex items-center justify-between px-2 py-1 rounded-lg border border-glass-border text-app-2xs"
                     >
-                        <span className="text-app-text-muted tabular-nums">{entry.day}</span>
+                        <span className="text-app-text-muted tabular-nums">{makeDayKey(new Date(p.ts))}</span>
                         <div className="flex items-center gap-2">
-                            <span className="text-app-text tabular-nums">
-                                {Math.round(entry.reachedPos)}s
-                            </span>
+                            <span className="text-app-text tabular-nums">{formatReached(p.reachedPos)}</span>
                             <button
-                                onClick={() => removeProgressDay(entry.day)}
+                                onClick={() => removeProgressPoint(i)}
                                 className="text-red-400/70 hover:text-red-400 border border-transparent hover:border-red-400/40 rounded px-1.5 py-0.5 transition-all duration-150 cursor-pointer active:scale-90"
                             >
                                 {t('progress.delete_day', '削除')}
@@ -238,16 +243,21 @@ const DailyBestList: React.FC = () => {
  */
 const PanelBody: React.FC = () => {
     const { t } = useTranslation();
-    const { startRecordMode, recordMode } = useProgressRecording();
+    const { startRecordMode, stopRecordMode, recordMode } = useProgressRecording();
 
     return (
         <div className="flex flex-col gap-3">
-            {/* 到達点記録ボタン */}
+            {/* 到達点記録トグル: 記録中は連続で打点でき、もう一度押す/×/Esc で終了 */}
             <button
-                onClick={startRecordMode}
-                className="w-full px-3 py-2 rounded-lg text-app-lg font-bold text-app-text border border-glass-border hover:bg-glass-hover active:scale-95 transition-all duration-200 cursor-pointer"
+                onClick={recordMode ? stopRecordMode : startRecordMode}
+                className={clsx(
+                    'w-full px-3 py-2 rounded-lg text-app-lg font-bold active:scale-95 transition-all duration-200 cursor-pointer border',
+                    recordMode
+                        ? 'bg-app-toggle text-app-toggle-text border-app-toggle animate-pulse'
+                        : 'text-app-text border-glass-border hover:bg-glass-hover'
+                )}
             >
-                {t('progress.record_cta')}
+                {recordMode ? t('progress.record_stop', '記録を終了') : t('progress.record_cta')}
             </button>
             {recordMode && (
                 <p className="text-app-2xs text-app-text-muted text-center">
@@ -287,9 +297,12 @@ const PCPopover: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const { t } = useTranslation();
     const popoverRef = useRef<HTMLDivElement>(null);
 
-    // クリック外閉じ
+    // クリック外閉じ。
+    // ただし記録モード中はタイムラインのクリック(=「外側」)で打点するため閉じない。
+    // (閉じると closePanel が recordMode を false にしてしまい、直後の onClick で記録されない)
     useEffect(() => {
         const handler = (e: MouseEvent) => {
+            if (useProgressRecording.getState().recordMode) return;
             if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
                 onClose();
             }

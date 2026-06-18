@@ -1324,6 +1324,36 @@ button, [role="button"], .touch-none {
   }
 }
 
+/* MYジョブハイライト — CSS 駆動の薄暗く表示。
+   親 .timeline-scroll-container[data-myjob-highlight="1"] を1回切り替えるだけで、
+   「自分以外」(data-myjob-dim) の要素を薄暗くする。各アイコンが myJobHighlight を購読して
+   一斉に React 再描画されるのを防ぐ（トグルが重い問題の根治）。
+   ※ grayscale は大量の画像で塗りが重いので不使用。opacity のみでかなり薄く＝実質モノクロ的に見え、
+     かつ opacity 変更は合成のみで激安（トグルがサクサク）。薄さは下の値で調整可。 */
+.timeline-scroll-container[data-myjob-highlight="1"] [data-myjob-dim] {
+    opacity: 0.2;
+}
+
+/* 進捗記録モード — 行のどこをクリックしても打点できることを示す。
+   親 .timeline-scroll-container[data-record-mode="1"] を1回切り替えるだけ（各行は購読しない）。 */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row] {
+    cursor: crosshair;
+}
+/* セル個別のホバー/クリック反応を行へ集約。これで「フェーズ/イベント/メンバー」など
+   反応のある列の独自ハイライトが competing せず、ハイライトは行で1つに統一される。
+   (クリックも行の onClickCapture に集約され、打点に回る) */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row] > * {
+    pointer-events: none;
+}
+/* ホバー行の強調は「フェーズ/ラベル時間指定」(Timeline.tsx の overlayRef) と同一スタイル＝
+   border-2 border-app-blue + bg-app-blue/10 + rounded-sm。
+   行レイアウトを動かさないよう border は inset box-shadow(2px)で表現。 */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row]:hover {
+    background-color: rgba(59, 130, 246, 0.1);          /* bg-app-blue/10 相当 */
+    box-shadow: inset 0 0 0 2px var(--color-app-blue);   /* border-2 border-app-blue 相当 */
+    border-radius: 2px;                                  /* rounded-sm 相当 */
+}
+
 /* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */
 /* デスクトップ: フェーズ/ラベル列を個別にハイライト */
 .phase-select-preview .preview-highlight [data-phase-col] {

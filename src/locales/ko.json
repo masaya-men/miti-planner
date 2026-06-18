@@ -455,7 +455,8 @@
         "no_damage_events": "데미지 이벤트가 기록되지 않았습니다.",
         "total_hits": "총 {{count}}회 ({{span}}초 동안)",
         "explorer": "탐색기",
-        "all": "전체"
+        "all": "전체",
+        "more": "기타"
     },
     "timeline": {
         "invalid_placement": "잘못된 배치",
@@ -2472,7 +2473,7 @@
         "empty_cta": "클릭하여 공략 기록을 남기세요",
         "record_title": "진행도 기록",
         "record_cta": "도달 지점 기록",
-        "record_hint": "타임라인에서 시간을 클릭하세요",
+        "record_hint": "타임라인을 클릭해 점 찍기",
         "record_list": "기록 목록",
         "phase_jump": "페이즈로 이동",
         "clear": "클리어(격파)",
@@ -2486,6 +2487,7 @@
         "active_hours_unit": "시간",
         "congrats": "축하합니다!",
         "delete_day": "삭제",
-        "progress_label": "진행도"
+        "progress_label": "진행도",
+        "record_stop": "기록 종료"
     }
 }

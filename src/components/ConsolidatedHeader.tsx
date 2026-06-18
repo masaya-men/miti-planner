@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-    Sun, Moon, FileDown,
+    Sun, Moon, Download,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, LogIn, Eye,
+    Users, Activity, LogIn,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
@@ -30,6 +30,7 @@ import { SegmentButton } from './ui/SegmentButton';
 import { MitigationSheet } from './MitigationSheet';
 import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
 import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';
+import { HeaderToolsMenu } from './HeaderToolsMenu';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -83,8 +84,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
     const progressBarVisible = useProgressBarVisibility(s => s.visible);
     const { t } = useTranslation();
     const { theme, setTheme, contentLanguage } = useThemeStore();
-    const myJobHighlight = useMitigationStore(s => s.myJobHighlight);
-    const setMyJobHighlight = useMitigationStore(s => s.setMyJobHighlight);
     const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
     const {
@@ -360,19 +359,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </NotAllowed>
 
-                            {/* Auto Plan */}
-                            <NotAllowed on={readOnly}>
-                                <button
-                                    disabled={readOnly}
-                                    onClick={onAutoPlan}
-                                    className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
-                                >
-                                    <Wand2 size={14} className="group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300 shrink-0" />
-                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
-                                </button>
-                            </NotAllowed>
-
-                            {/* Import（アイコンのみ） */}
+                            {/* Import（アイコンのみ・定番DLアイコンに統一） */}
                             <Tooltip
                                 wrapperClassName={clsx(readOnly && 'cursor-not-allowed')}
                                 content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}
@@ -389,9 +376,16 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                                 : iconBtnDefault
                                     )}
                                 >
-                                    <FileDown size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
+                                    <Download size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
                                 </button>
                             </Tooltip>
+
+                            {/* ⋯ その他: あまり使わない操作 (自動組み立て/MYジョブハイライト/進捗バー表示) を集約 */}
+                            <HeaderToolsMenu
+                                btnClassName={clsx(iconBtnBase, iconBtnDefault)}
+                                onAutoPlan={onAutoPlan}
+                                readOnly={readOnly}
+                            />
                         </div>
 
                         {/* 中央: 進捗HUD（表示フラグON時のみ） */}
@@ -415,34 +409,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </Tooltip>
 
-                            {/* 進捗HUD復帰ボタン（非表示時のみ表示） */}
-                            {!progressBarVisible && (
-                                <button
-                                    type="button"
-                                    onClick={() => useProgressBarVisibility.getState().show()}
-                                    className={clsx(pillBtnBase, pillBtnDefault)}
-                                    title={t('progress.show_bar')}
-                                >
-                                    <Eye size={14} />
-                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('progress.show_bar')}</span>
-                                </button>
-                            )}
-
-                            {/* My Job Highlight */}
-                            <NotAllowed on={readOnly}>
-                                <button
-                                    data-tutorial="my-job-highlight-btn"
-                                    disabled={readOnly}
-                                    onClick={() => {
-                                        setMyJobHighlight(!myJobHighlight);
-                                        // (チュートリアルイベント削除済み)
-                                    }}
-                                    className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
-                                >
-                                    <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-current" : "group-hover:rotate-12 group-hover:scale-110")} />
-                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
-                                </button>
-                            </NotAllowed>
+                            {/* 自動組み立て / MYジョブハイライト / 進捗バー表示 は「⋯ その他」メニューへ集約済み */}
 
                             <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 

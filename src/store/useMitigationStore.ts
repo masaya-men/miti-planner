@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo, PlanProgress } from '../types';
-import { mergeDailyBest, removeDay, makeDayKey } from '../lib/progressLogic';
+import { appendProgressPoint, removeProgressPoint, normalizeProgress } from '../lib/progressLogic';
 import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
 import { MEMO_LIMITS } from '../types/firebase';
@@ -196,7 +196,7 @@ interface MitigationState {
 
     // 進捗トラッキング アクション (#HUD)
     recordReachedPoint: (reachedPos: number) => void;
-    removeProgressDay: (day: string) => void;
+    removeProgressPoint: (index: number) => void;
     setCleared: (cleared: boolean) => void;
     setActiveDays: (n: number | undefined) => void;
     setActiveHours: (n: number | undefined) => void;
@@ -552,7 +552,7 @@ export const useMitigationStore = create<MitigationState>()(
                 // メモ機能 (#57)
                 memos: [],
                 // 進捗トラッキング (#HUD)
-                progress: { dailyBest: [], cleared: false },
+                progress: { points: [], cleared: false },
                 toolMode: 'idle',
                 _history: [],
                 _future: [],
@@ -685,7 +685,7 @@ export const useMitigationStore = create<MitigationState>()(
                         // メモ: 未マイグレ既存プランは undefined → [] にフォールバック
                         memos: snapshot.memos ?? [],
                         // 進捗: 未マイグレ既存プランは undefined → デフォルト値にフォールバック
-                        progress: snapshot.progress ?? { dailyBest: [], cleared: false },
+                        progress: normalizeProgress(snapshot.progress),
                         // Reset Undo/Redo on load
                         _history: [],
                         _future: [],
@@ -1588,15 +1588,14 @@ export const useMitigationStore = create<MitigationState>()(
                 // Plan 1 では collab 委譲を使わず常にローカル set() のみ。collab 委譲は Plan 2 で別途。
                 recordReachedPoint: (reachedPos) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
-                    const day = makeDayKey(new Date());
                     set((state) => ({
-                        progress: { ...state.progress, dailyBest: mergeDailyBest(state.progress.dailyBest, { day, reachedPos }) },
+                        progress: { ...state.progress, points: appendProgressPoint(state.progress.points, { ts: Date.now(), reachedPos }) },
                     }));
                 },
-                removeProgressDay: (day) => {
+                removeProgressPoint: (index) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
                     set((state) => ({
-                        progress: { ...state.progress, dailyBest: removeDay(state.progress.dailyBest, day) },
+                        progress: { ...state.progress, points: removeProgressPoint(state.progress.points, index) },
                     }));
                 },
                 setCleared: (cleared) => {
@@ -1677,7 +1676,7 @@ export const useMitigationStore = create<MitigationState>()(
                         hideEmptyRows: true,
                         memos: [],
                         // 進捗トラッキング: リセット時もデフォルト値に戻す
-                        progress: { dailyBest: [], cleared: false },
+                        progress: { points: [], cleared: false },
                         toolMode: 'idle',
                         _history: [],
                         _future: [],
@@ -1754,9 +1753,11 @@ export const useMitigationStore = create<MitigationState>()(
             },
             merge: (persisted: any, current: MitigationState) => {
                 if (!persisted) return current;
-                return { 
-                    ...current, 
+                return {
+                    ...current,
                     ...persisted,
+                    // 進捗: 旧形式(dailyBest)で永続化された端末を新形式(points)へ正規化（undefined.map クラッシュ防止）
+                    progress: normalizeProgress(persisted.progress),
                     // Re-calculate computed values just in case
                     partyMembers: (persisted.partyMembers || current.partyMembers).map((m: any) => ({
                         ...m,

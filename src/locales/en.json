@@ -463,7 +463,8 @@
         "no_damage_events": "No damage events recorded.",
         "total_hits": "Total {{count}} hits (over {{span}}s)",
         "explorer": "EXPLORER",
-        "all": "ALL"
+        "all": "ALL",
+        "more": "More"
     },
     "timeline": {
         "invalid_placement": "Invalid placement",
@@ -2507,7 +2508,7 @@
         "empty_cta": "Click to record your progress",
         "record_title": "Record progress",
         "record_cta": "Record reached point",
-        "record_hint": "Click a time on the timeline",
+        "record_hint": "Click the timeline to add a point",
         "record_list": "Recorded days",
         "phase_jump": "Jump to phase",
         "clear": "Clear (Complete)",
@@ -2521,6 +2522,7 @@
         "active_hours_unit": "h",
         "congrats": "Congratulations!",
         "delete_day": "Delete",
-        "progress_label": "Progress"
+        "progress_label": "Progress",
+        "record_stop": "Stop recording"
     }
 }
