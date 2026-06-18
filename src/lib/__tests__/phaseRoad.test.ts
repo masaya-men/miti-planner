@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { phaseRoadPositions, roadTimeFromClick } from '../progressLogic';
+import { phaseRoadPositions, roadTimeFromClick, clampActivity } from '../progressLogic';
 
 describe('phaseRoadPositions', () => {
   it('開始時間に比例して leftPct を返す（4〜96 にクランプ）', () => {
@@ -27,5 +27,13 @@ describe('roadTimeFromClick', () => {
   it('0〜total にクランプ', () => {
     expect(roadTimeFromClick(-0.1, 200)).toBe(0);
     expect(roadTimeFromClick(1.5, 200)).toBe(200);
+  });
+});
+
+describe('clampActivity', () => {
+  it('0未満は0・整数化', () => {
+    expect(clampActivity(-3)).toBe(0);
+    expect(clampActivity(2.7)).toBe(3);
+    expect(clampActivity(0)).toBe(0);
   });
 });

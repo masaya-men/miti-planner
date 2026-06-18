@@ -88,3 +88,8 @@ export function phaseRoadPositions(
 export function roadTimeFromClick(fraction: number, totalSec: number): number {
     return Math.max(0, Math.min(totalSec, Math.round(fraction * totalSec)));
 }
+
+/** 活動日数/時間の値を 0 以上の整数にクランプ。 */
+export function clampActivity(n: number): number {
+    return Math.max(0, Math.round(n));
+}
