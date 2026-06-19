@@ -2,6 +2,47 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+## 完了 (2026-06-20 TODO 整頓で移動 — 進捗同期 / データ破壊復旧 / 警告矢印 / 管理画面 / スマホ最適化 / Cloudflare / バグ根治 ほか)
+
+> TODO.md の「現在の状態」肥大化解消のため詳細を移動 (2026-06-20)。本番デプロイ済 or 検証済の大項目。開いている実機確認/pending は TODO.md に 1〜数行で残置。
+
+### ✅ 2026-06-20 共同編集中の進捗同期(Plan2) + 他参加者打点トースト — 本番公開・2タブ実機OK
+進捗の打点を memos と同じ Yjs コレクション同期レーン(`progressPoints`)に載せ、collab 中は**全員ぶんを匿名 union**で同期・永続化(Firestore はネスト `data.progress.*`)。スカラー(cleared/活動日数/時間)は planMeta(LWW)。打点に固定 id 付与で同時記録の事故防止。設計=匿名 union(A案)・「誰の進捗を正に」論点を消した。設計/計画=specs・plans/2026-06-19-collab-progress-sync。
+- **多エージェント敵対監査(3観点並列)が Critical 2件検出→根治**: ①setMeta が進捗 meta キー未マッピングで `schAetherflowPatterns`(表の学者自動配置データ)を破損(`metaKeyForField` 抽出で根治) ②旧形式(id 欠落)進捗点が collab seed の `dedupeById` で消滅(api `decideLoadFull` で id backfill + store 防御)。両方 TDD 修正+再レビュー済。**進捗操作が表データを参照ごと一切変えないことを回帰テストで永久ロック**(`toBe`)。データ安全=各タスクレビュー+opus 最終+敵対監査+修正再レビュー+非collab保存経路の自己検証(Layout.tsx:307 collab 中 Firestore 抑制)。main `17cee31`/worker `lopo-collab` 再デプロイ。
+- **他参加者打点トースト**(main `870cc1a5`・クライアントのみ): 他参加者(Yjs origin≠'local')が初期同期後(entered)に新しい点を追加したときだけ既存トーストを自タブにも表示。純粋関数 `newlyAddedRemotePoint`+`showRemoteToast`(トーストのみ・データ非書込)。レビュー Approved・2タブ実機OK。
+- **defer Minor(データ消失経路なし)**: insertProgressPointAt の collab 非委譲=削除Undoが collab で一過性(設計上対象外) / collab 中の空 note 削除が非対称(飾り) / UndoLastPointButton の null 防御 / 旧 SDD 繰越(pending Undo クリア等)。**スマホ記録対応は別タスク**(TODO に残置)。
+
+### ✅ 2026-06-16 データ破壊バグ 緊急対応 — 根治2件デプロイ済 + PITR復旧完了・PITRオフ済
+**根治2件 (main eb1e49b)**: ①非collab=保存先を持ち主(`_loadedPlanId`)に固定(`persistWorkingStore`/`commitNewPlan`)で他プラン破壊を根治(455cc20/23eb334/5e18a33) ②collab=create 冒頭で `useCollabSessionStore.disconnect()` してから初期化(別部屋への委譲全消しを根治・collabCreateGuard.test.ts)。
+**PITR切り分け＆復旧**: PITR 一時ON(earliestVersionTime=06-16 04:44 UTC)。正しい過去読み=read-only tx+readTime(memory `reference_firestore_pitr_disabled`)。新規スクリプト probe-pitr-timeline/sweep-pitr-losses/restore-from-pitr/set-pitr.ts。固定 plan_31aee72d=197軽減を一発全消し→PITR直前版(v459)で完全復旧✅(backup=docs/.private/backups/)。UMAD×2 は境界前空化+兄弟無し→復元不能(本人再構築)。全件スイープで境界後新規被害=残0。後始末済=PITRオフ/recovery-0608 削除。**フォロー(機能)は TODO に残置=自己対処できる管理画面**。
+
+### ✅ 2026-06-17 軽減競合の双方向警告+画面外ガイド矢印 — main マージ&本番デプロイ済 (残=ユーザー実機確認は TODO 残置)
+機能アイデア③。同じ軽減の CD 被りを `findSameSkillCdConflicts`(resourceTracker)で常に派生検出→競合アイコン黄色脈動(`animate-conflict-pulse`)。前方向も赤の見た目のままクリック解放(`conflictOverride`)。ドラッグも競合位置へ許可(`ALLOW_DRAG_INTO_CONFLICT=true`)。画面外なら列中央上端∧/下端∨にシェブロン矢印(`ConflictOffscreenArrows`)+クリック自動スクロール(PCのみ)。「置いた時は既存の相手だけ光る」=`lastPlacedMitigationId`(セッションのみ)。dev 列幅スライダー撤去。設計=specs/2026-06-17-mitigation-conflict-bidirectional-warning-design.md。全48競合テスト+build緑。
+
+### ✅ 2026-06-17 管理画面リデザイン 全18ルート + 2026-06-16 サンドボックス (branch `feat/mobile-bottom-nav-redesign`・未push・要実機は TODO 残置)
+共通シェル `AdminPage`(固定ヘッダー=ページ名+件数+主要操作 / 本文だけスクロール=A案)へ全14ナビページ移行+ウィザード4本を外側スクロール容器化。管理画面のみフォント M PLUS 1(`[data-admin-page]`スコープ・本体不変)。AdminLayout main を `overflow-hidden flex-col` 化。設計=specs/2026-06-17-admin-redesign-design.md。フォロー(低)=AdminStats/AdminSkills の見出し直書き(i18n 負債)/サンドボックス data 系 fixtures 未整備。
+**サンドボックス**=管理画面をデプロイ/ログイン無し・本番非接触でローカル確認(`npm run dev:admin`→`/admin/templates` 60件ダミー)。本番ビルドは dead-code 除去で開発コード0。実装=`src/dev/sandboxMode.ts`+`src/dev/adminSandbox/`、本体改変3箇所は全て `import.meta.env.DEV && isAdminSandbox()` ガード。memory `reference_admin_sandbox`。
+
+### ✅ 2026-06-16 バグ修正3件 (branch `feat/mobile-bottom-nav-redesign`)
+- **軽減追加モーダルでチャージ技のリキャストが出ない**: 真因=`validateMitigationPlacement`(resourceTracker.ts)のチャージ分岐が早期return+実効1チャージで文言ゼロ。A案=`getTimeUntilNextCharge` で次チャージ秒算出→effMax=1 は通常「CD残○○s」/effMax≥2 はバッジ+回復中「次チャージ○○s」。i18n `next_charge_in` 4言語。chargeLevelGate.test.ts +4=11緑。実機確認はユーザー。
+- **リキャスト行(ヘッダー)クロックが配置直後に出ない**: 真因=`syncRecastRow` の deps に `timelineMitigations` 無し→新規配置が `--cd-display:none` のまま。修正=useCallback 抽出し `timelineMitigations` 変化で即再同期。recastRow.test.ts にチャージ技ケース追加。
+- **スマホ通知モーダルがメニューシート裏に隠れて既読不可**: `SystemNotificationModal` z `z-[100]`→`z-[9999]`。Playwright で前面+既読可動確認。
+
+### ✅ 2026-06-15〜16 スマホ最適化A(ボトムナビ)+共有タブB+追加修正 — 本番反映済 (残=本番スマホ総点検は TODO 残置)
+ナビ5タブ化(メニュー/インポート/カンペ/共有/ログイン)・Undo/Redo常設・パーティ/自動ボタンのメニュー集約・MY JOB ハイライトトグル・☕支援可視化(MobileBottomSheet `fillContent`)・共有タブ(`useShareFlow` 1ソース化・PCミラー)。スキルデータ=チャージのレベルゲート(`chargeMinLevel:88`)+学者「深謀遠慮」追加(seed済)。「共同編集2択が出ない」=バグ無し(未ログインはコピー直行が設計通り)。設計=specs/2026-06-15-mobile-optimization-design.md・2026-06-16-mobile-share-tab-design.md。
+
+### ✅ 2026-06-12 Cloudflare 前段化 本番稼働中
+apex `lopoly.app` を orange 化・静的のみ Cache Rule・全検証緑(SSL Full strict / CF-RAY / /assets・manifest は MISS→HIT / /api・/sw.js は DYNAMIC 素通し)。原因=急増×PWA で1訪問十数個の静的リクエスト。詳細=docs/.private/2026-06-12-cloudflare-fronting-handoff.md + memory `project_cloudflare_caching_priority`。
+
+### ✅ 2026-06-03 同期安定化 Step1+2+① デプロイ済 (残=Step3/GC cron は TODO 残置)
+業界水準ソフトデリート(墓標)+墓標ベースマージ+同期インテント永続化を TDD で実装・本番投入。「別端末で消失/削除→復活/リロードで一瞬復活」を根治。新規 `src/lib/mergePlans.ts`・`src/store/planPersist.ts`、`planService.ts`/`usePlanStore.ts` 改修。詳細=docs/.private/2026-06-03-realtime-collab-and-sync-notes.md Phase5+6。
+
+### ✅ 2026-06-18 表の情報列固定(PC横スクロール) 機能をまるごと撤回・起点8fbc78dへ復元
+ユーザー判断=リスク過多で撤回。理由=sticky 固定は containing block 内でしか踏ん張れず窓を狭めるとドリフト残る根本弱点。完全解消は sheetWidth と固定機構を分離する2パネル化(高リスク)が必要で価値に見合わず。撤去footprint=Timeline.tsx/TimelineRow.tsx/Timeline.layoutHooks.ts/index.css/collab/cursor.css を 8fbc78d へ復元 + TimelineInfoColumns.tsx/timelineFrozenInfo.test.tsx 削除。検証=src/が8fbc78dと差分0/build EXIT=0/vitest 1803緑/Playwright 実機OK。
+
+### ✅ 2026-06-12 データ破壊バグ「キャッシュ全消し desync で空が非空を上書き」根治 (branch `feat/collab-yjs-binary-persistence`)
+根因=plan.data と mitigation-storage の二重 localStorage が desync + 書込/読込ガードの非対称。修正=①空上書きガード(`updatePlan` で非空を空で上書きしない=`src/lib/isEmptyPlanData.ts`) + ②起動時ブートストラップ(`src/lib/bootstrapMitigation.ts`・Layout マウントで desync 検出時に plan.data を miti へ復元)。TDD 17緑/全1653緑。墓標06-10の129軽減を `scripts/restore-fixed-plan.ts` で復元済。
+
 ## 完了 (2026-06-08〜15 共同編集 一般公開 / Cloudflare 前段化 / タイムライン種別・スキル棚卸し / コピーUI / タンクスイッチ / 通知ベル)
 
 > TODO.md の「現在の状態」肥大化解消のため移動 (2026-06-15)。本番デプロイ済の大項目。pending サニティは TODO.md に 1 行で残置。
