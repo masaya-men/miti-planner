@@ -1,6 +1,7 @@
 /**
  * 活動日数/時間のドラッグスクラブ入力。数字を左右ドラッグで増減（感度 16px=1・低感度）。
- * 箱なし・点線下線のみ（脱ピル）。タップ用に小さな −/＋ 併設。
+ * 箱なし・装飾なし（点線下線・±ボタンは撤去）。数字は固定幅（tabular-nums + min-width）で
+ * 桁が変わってもレイアウトがガタつかない。
  * ドラッグ中はローカル state で表示更新し、pointerup で onChange へコミット（毎フレームの親再レンダー回避）。
  */
 import { useRef, useState } from 'react';
@@ -31,19 +32,18 @@ export function ActivityScrub({ label, value, unit, onChange }: {
   };
 
   return (
-    <div className="flex items-baseline gap-2">
+    <div className="flex items-baseline gap-1.5">
       {label && <span className="text-app-2xs text-app-text-muted font-bold">{label}</span>}
-      <span onClick={() => onChange(clampActivity(base - 1))}
-        className="text-app-md text-app-text-sec cursor-pointer select-none px-1 hover:text-app-text active:scale-90">−</span>
       <span
         onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
-        className="font-black tabular-nums text-app-lg text-app-text cursor-ew-resize px-1 pb-0.5 select-none"
-        style={{ textShadow: '0 0 10px rgba(120,200,255,.45)', borderBottom: '1px dashed rgba(120,200,255,.4)' }}
+        className="font-black text-app-lg text-app-text cursor-ew-resize select-none"
+        style={{ textShadow: '0 0 10px rgba(120,200,255,.45)' }}
+        title={unit}
       >
-        {display}<span className="text-app-2xs text-app-text-muted ml-0.5">{unit}</span>
+        {/* 固定幅・右寄せ（桁が増えても左の要素が動かない=ガタつき防止） */}
+        <span className="tabular-nums inline-block text-right" style={{ minWidth: '2ch' }}>{display}</span>
+        <span className="text-app-2xs text-app-text-muted ml-0.5">{unit}</span>
       </span>
-      <span onClick={() => onChange(clampActivity(base + 1))}
-        className="text-app-md text-app-text-sec cursor-pointer select-none px-1 hover:text-app-text active:scale-90">＋</span>
     </div>
   );
 }

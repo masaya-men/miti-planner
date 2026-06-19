@@ -2540,6 +2540,7 @@
         "active_days": "活動日数",
         "active_input_toggle": "活動日数・時間を入力（任意）",
         "active_days_unit": "日",
+        "optional_hint": "（任意）",
         "active_hours": "活動時間",
         "active_hours_unit": "時間",
         "congrats": "おめでとう！",

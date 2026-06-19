@@ -2519,6 +2519,7 @@
         "active_days": "Active days",
         "active_input_toggle": "Enter active days/hours (optional)",
         "active_days_unit": "d",
+        "optional_hint": "(optional)",
         "active_hours": "Active hours",
         "active_hours_unit": "h",
         "congrats": "Congratulations!",

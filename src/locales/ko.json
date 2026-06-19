@@ -2484,6 +2484,7 @@
         "active_days": "활동 일수",
         "active_input_toggle": "활동 일수·시간 입력 (선택)",
         "active_days_unit": "일",
+        "optional_hint": "(선택)",
         "active_hours": "활동 시간",
         "active_hours_unit": "시간",
         "congrats": "축하합니다!",

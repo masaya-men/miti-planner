@@ -59,25 +59,27 @@ const PanelBody: React.FC = () => {
 
     return (
         <div className="flex flex-col gap-2.5">
-            {/* ①上段: プロンプト（左）+ 活動日数/時間（右） */}
+            {/* ①上段: プロンプト（左）+ 活動日数/時間（右・任意） */}
             <div className="flex items-center justify-between gap-4 pr-7">
                 <div className="text-app-md font-bold text-app-text" style={{ textShadow: '0 0 12px rgba(120,200,255,.4)' }}>
                     {t('progress.drawer_prompt_main')}
                 </div>
-                <div className="flex items-center gap-4 shrink-0">
+                <div className="flex items-baseline gap-3 shrink-0">
+                    <span className="text-app-2xs text-app-text-muted">{t('progress.optional_hint', '（任意）')}</span>
                     <ActivityScrub value={activeDays} unit={t('progress.active_days_unit', '日')} onChange={setActiveDays} />
                     <ActivityScrub value={activeHours} unit={t('progress.active_hours_unit', 'h')} onChange={setActiveHours} />
                 </div>
             </div>
             {/* ②記録の促し（読めるサイズに拡大） */}
             <div className="text-app-sm text-app-text-muted">{t('progress.drawer_prompt_sub')}</div>
-            {/* ③光の道 + 直前undo + CLEAR!（右端） */}
-            <div className="flex items-center gap-3">
+            {/* ③光の道。CLEAR! と直前undo はラインの縦レベル(y=10px)に合わせて右端へ（フェーズに重ねない）。
+               右グループは高さ20px・items-center で縦中心を y=10px のライン上に載せる。 */}
+            <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0"><PhaseRoad /></div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0" style={{ height: '20px' }}>
                     {lastRecordedTs != null && (
                         <button onClick={undoLastRecord} title={t('progress.undo_last', '直前の記録を取り消す')}
-                            className="text-app-md text-app-text-sec hover:text-red-400 cursor-pointer active:scale-90">↶</button>
+                            className="text-app-md text-app-text-sec hover:text-red-400 cursor-pointer active:scale-90 leading-none">↶</button>
                     )}
                     <ClearSectionInline />
                 </div>

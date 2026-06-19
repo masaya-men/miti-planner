@@ -2484,6 +2484,7 @@
         "active_days": "活动天数",
         "active_input_toggle": "输入活动天数·时间（可选）",
         "active_days_unit": "天",
+        "optional_hint": "(可选)",
         "active_hours": "活动时间",
         "active_hours_unit": "小时",
         "congrats": "恭喜！",
