@@ -7,7 +7,7 @@ import {
   TIMELINE_EVENTS_KEY, PHASES_KEY, LABELS_KEY, MEMOS_KEY, PLAN_META_KEY,
   META_LEVEL, META_AA, META_SCH, PARTY_MEMBERS_KEY, PROGRESS_POINTS_KEY,
   applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta, readContentId, readOwnerLabel,
-  recordToYMap, buildArrByKey, applyBatch,
+  recordToYMap, buildArrByKey, applyBatch, metaKeyForField,
 } from './yjsPlanData';
 import { dedupeById } from './dedupeById';
 import { fieldsNeedingReseed, RESEED_FIELDS } from './collabReseed';
@@ -329,7 +329,8 @@ export function startCollabSession(
       doc.transact(() => applyRemove(arrByKey[key], ids), 'local');
     },
     setMeta: (field, value) => {
-      const k = field === 'currentLevel' ? META_LEVEL : field === 'aaSettings' ? META_AA : META_SCH;
+      const k = metaKeyForField(field);
+      if (!k) return; // 未知フィールドは無視(誤った別キー上書きを防ぐ)
       doc.transact(() => setMetaField(doc, k, value), 'local');
     },
     // FFLogs 取込: events/phases/labels を全置換 + mitigations を全クリア(別の戦闘へ切替)。1 transaction。

@@ -593,7 +593,14 @@ export const useMitigationStore = create<MitigationState>()(
                     set({ labels: [...labels].sort((a, b) => a.startTime - b.startTime) }),
                 _applyMemosFromCollab: (memos) => set({ memos }),
                 _applyProgressPointsFromCollab: (points) =>
-                    set((state) => ({ progress: { ...state.progress, points } })),
+                    set((state) => ({
+                        progress: {
+                            ...state.progress,
+                            // 旧形式(id 欠落)の点に id を補完する防御(api 側で補完済みが本線だが、
+                            // 既に id なしで Yjs に入っている在室中の部屋への保険)。
+                            points: points.map((p) => (p && p.id ? p : { ...p, id: makeProgressPointId() })),
+                        },
+                    })),
                 _applyPartyMembersFromCollab: (members) =>
                     set((state) => ({
                         partyMembers: members.map((m) => ({

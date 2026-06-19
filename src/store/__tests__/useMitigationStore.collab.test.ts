@@ -348,6 +348,23 @@ describe('Task4: 進捗操作の collab 委譲', () => {
         expect(useMitigationStore.getState().progress.points).toEqual([{ id: 'pt_z', ts: 1, reachedPos: 5 }]);
     });
 
+    it('_applyProgressPointsFromCollab は id なし点に id を補完して保持する(旧形式 Yjs 在室防御)', () => {
+        const store = useMitigationStore.getState();
+        store._applyProgressPointsFromCollab([
+            { ts: 1, reachedPos: 10 } as any,  // id なし(旧形式)
+            { ts: 2, reachedPos: 20 } as any,  // id なし(旧形式)
+        ]);
+        const points = useMitigationStore.getState().progress.points;
+        // 2件とも保持(消えていない)
+        expect(points).toHaveLength(2);
+        // id が補完されている
+        expect(points[0].id).toMatch(/^pt_/);
+        expect(points[1].id).toMatch(/^pt_/);
+        // reachedPos は元のまま
+        expect(points[0].reachedPos).toBe(10);
+        expect(points[1].reachedPos).toBe(20);
+    });
+
     it('_applyMetaFromCollab は進捗スカラーを反映する', () => {
         const store = useMitigationStore.getState();
         store._applyMetaFromCollab({ progressCleared: true, progressActiveDays: 4 });

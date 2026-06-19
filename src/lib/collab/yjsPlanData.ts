@@ -140,6 +140,24 @@ export function applyBatch(
   }, "local");
 }
 
+/**
+ * setMeta の field 名 → planMeta の Y.Map キー。
+ * 未知フィールドは null を返す(誤った別キー上書きを防ぐ)。
+ * Fix: 旧実装の else 節で progressCleared 等が META_SCH("schAetherflowPatterns") に
+ * 落ちて表データを破壊するバグを根治する純粋関数。
+ */
+export function metaKeyForField(field: string): string | null {
+  switch (field) {
+    case "currentLevel": return META_LEVEL;
+    case "aaSettings": return META_AA;
+    case "schAetherflowPatterns": return META_SCH;
+    case "progressCleared": return META_PROGRESS_CLEARED;
+    case "progressActiveDays": return META_PROGRESS_DAYS;
+    case "progressActiveHours": return META_PROGRESS_HOURS;
+    default: return null;
+  }
+}
+
 /** planMeta の 1 フィールドを set。 */
 export function setMetaField(doc: Y.Doc, field: string, value: unknown): void {
   doc.getMap(PLAN_META_KEY).set(field, value);
