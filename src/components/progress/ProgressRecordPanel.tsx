@@ -163,12 +163,17 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // 開演出(下記 useEffect の WAAPI)が transform を fill:forwards で translateY(0) に固定するため、
     // transform で水平センタリングすると上書きされて右へ半幅ぶんズレる（実機で 240px 右ズレの根因）。
     // → 数値 left（中心 − 半幅）で寄せ、transform は開演出専用にする。
+    // light モードで他モーダルと同じ白基調にする（glass-tier3 既定の半透明を上書き）。
+    // --share-modal-bg = light:#ffffff / dark:transparent（reference_modal_light_mode_white_bg）。
     return createPortal(
         <div ref={drawerRef}
             className="fixed z-[9999] glass-tier3 rounded-b-lg shadow-sm overflow-hidden"
-            style={pos
-                ? { top: `${pos.top}px`, left: `${pos.left - pos.width / 2}px`, width: `${pos.width}px` }
-                : { top: '92px', left: 'calc(50% - min(360px, 46vw))', width: 'min(720px, 92vw)' }}
+            style={{
+                '--glass-tier3-bg': 'var(--share-modal-bg)',
+                ...(pos
+                    ? { top: `${pos.top}px`, left: `${pos.left - pos.width / 2}px`, width: `${pos.width}px` }
+                    : { top: '92px', left: 'calc(50% - min(360px, 46vw))', width: 'min(720px, 92vw)' }),
+            } as React.CSSProperties}
         >
             <div className="flex items-center justify-end px-3 py-1.5 border-b border-glass-border">
                 <button onClick={onClose} className="text-app-text p-1 rounded-lg hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 cursor-pointer active:scale-90">
