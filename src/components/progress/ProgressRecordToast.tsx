@@ -82,7 +82,7 @@ export function ProgressRecordToast() {
         const p = Math.min(1, (e - numStart) / numDur);
         const ez = 1 - Math.pow(1 - p, 3);
         numSpan.textContent = String(Math.round(target * ez));
-        numSpan.style.textShadow = p < 1 ? '0 0 14px rgba(160,230,255,.95)' : '0 0 8px rgba(150,230,255,.6)';
+        numSpan.style.textShadow = p < 1 ? 'var(--progress-toast-num-glow)' : 'var(--progress-toast-num-glow-rest)';
       }
       if (e < END) raf = requestAnimationFrame(tick);
     };
