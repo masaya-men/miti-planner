@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-    Sun, Moon, FileDown,
+    Sun, Moon, Download,
     ChevronUp, ChevronDown,
-    Users, Activity, Wand2, Star, LogIn,
+    Users, Activity, LogIn,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { LoPoButton } from './LoPoButton';
@@ -28,6 +28,9 @@ import { SyncButton } from './SyncButton';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { SegmentButton } from './ui/SegmentButton';
 import { MitigationSheet } from './MitigationSheet';
+import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
+import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';
+import { HeaderToolsMenu } from './HeaderToolsMenu';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -77,10 +80,10 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
 }) => {
     /** 閲覧専用モード: Task 3 でボタン無効化に再利用 */
     const readOnly = viewer != null;
+    // 進捗HUD表示フラグ（B1ストア購読）
+    const progressBarVisible = useProgressBarVisibility(s => s.visible);
     const { t } = useTranslation();
     const { theme, setTheme, contentLanguage } = useThemeStore();
-    const myJobHighlight = useMitigationStore(s => s.myJobHighlight);
-    const setMyJobHighlight = useMitigationStore(s => s.setMyJobHighlight);
     const { runTransition } = useTransitionOverlay();
     const navigate = useNavigate();
     const {
@@ -356,19 +359,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </NotAllowed>
 
-                            {/* Auto Plan */}
-                            <NotAllowed on={readOnly}>
-                                <button
-                                    disabled={readOnly}
-                                    onClick={onAutoPlan}
-                                    className={clsx(pillBtnBase, pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
-                                >
-                                    <Wand2 size={14} className="group-hover:rotate-12 group-hover:scale-110 transition-transform duration-300 shrink-0" />
-                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('mitigation.auto_plan')}</span>
-                                </button>
-                            </NotAllowed>
-
-                            {/* Import（アイコンのみ） */}
+                            {/* Import（アイコンのみ・定番DLアイコンに統一） */}
                             <Tooltip
                                 wrapperClassName={clsx(readOnly && 'cursor-not-allowed')}
                                 content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}
@@ -385,10 +376,26 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                                 : iconBtnDefault
                                     )}
                                 >
-                                    <FileDown size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
+                                    <Download size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
                                 </button>
                             </Tooltip>
+
+                            {/* ⋯ その他: あまり使わない操作 (自動組み立て/MYジョブハイライト/進捗バー表示) を集約 */}
+                            <HeaderToolsMenu
+                                btnClassName={clsx(iconBtnBase, iconBtnDefault)}
+                                onAutoPlan={onAutoPlan}
+                                readOnly={readOnly}
+                            />
                         </div>
+
+                        {/* 中央: 進捗HUD（表示フラグON時のみ） */}
+                        {progressBarVisible && (
+                            <div className="flex-1 flex items-center justify-center min-w-0 px-3 overflow-visible">
+                                <div className="w-full max-w-[640px]">
+                                    <ProgressTrackingHUD />
+                                </div>
+                            </div>
+                        )}
 
                         <div className="flex items-center gap-1.5">
                             {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
@@ -402,21 +409,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </Tooltip>
 
-                            {/* My Job Highlight */}
-                            <NotAllowed on={readOnly}>
-                                <button
-                                    data-tutorial="my-job-highlight-btn"
-                                    disabled={readOnly}
-                                    onClick={() => {
-                                        setMyJobHighlight(!myJobHighlight);
-                                        // (チュートリアルイベント削除済み)
-                                    }}
-                                    className={clsx(pillBtnBase, myJobHighlight ? pillBtnActive : pillBtnDefault, readOnly && 'opacity-50 pointer-events-none')}
-                                >
-                                    <Star size={14} className={clsx("transition-transform duration-300 shrink-0", myJobHighlight ? "fill-current" : "group-hover:rotate-12 group-hover:scale-110")} />
-                                    <span className="text-app-base font-black uppercase tracking-[0.1em]">{t('ui.highlight_my_job')}</span>
-                                </button>
-                            </NotAllowed>
+                            {/* 自動組み立て / MYジョブハイライト / 進捗バー表示 は「⋯ その他」メニューへ集約済み */}
 
                             <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
@@ -443,7 +436,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
             </motion.div>
 
             {/* [2] ── 常設ハンドル領域 ── */}
-            <div className="w-full relative shrink-0" style={{ height: '24px' }}>
+            {/* data-progress-drawer-anchor: 記録ドロワーがこの領域の下端1px線を上辺として密着配置するためのアンカー */}
+            <div data-progress-drawer-anchor className="w-full relative shrink-0" style={{ height: '24px' }}>
                 {/* ハンドル本体 */}
                 <div
                     className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"

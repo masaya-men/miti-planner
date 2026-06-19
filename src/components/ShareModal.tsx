@@ -11,6 +11,7 @@ import { LoginModal } from './LoginModal';
 import { uploadTeamLogo, deleteTeamLogo, validateLogoFile } from '../utils/logoUpload';
 import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
+import { stripSharedPersonalData } from '../lib/sharePrivacy';
 import type { SavedPlan } from '../types';
 import { buildOgImageUrl, type OgpLang } from '../lib/ogpHelpers';
 import { PopularConsentDialog } from './PopularConsentDialog';
@@ -98,11 +99,12 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         try {
             let body: any;
             if (isBundle) {
-                body = { plans: bundlePlans };
+                // 個人状態(progress/memos)を端末から送らない（プライバシー: サーバ側strip より手前で除去）
+                body = { plans: bundlePlans!.map(p => ({ ...p, planData: stripSharedPersonalData(p.planData) })) };
             } else {
                 const snapshot = useMitigationStore.getState().getSnapshot();
                 body = {
-                    planData: snapshot,
+                    planData: stripSharedPersonalData(snapshot),
                     title: currentPlan?.title || '',
                     contentId: currentPlan?.contentId || null,
                 };

@@ -78,9 +78,8 @@ const TargetBadge: React.FC<{ effTarget: TimelineEvent['target']; partyMembers: 
 const MitiIcons: React.FC<{
     mitigations: AppliedMitigation[];
     contentLanguage: string;
-    myJobHighlight: boolean;
     myMemberId: string | null;
-}> = ({ mitigations, contentLanguage, myJobHighlight, myMemberId }) => {
+}> = ({ mitigations, contentLanguage, myMemberId }) => {
     const MITIGATIONS = useMitigations();
     if (mitigations.length === 0) return null;
     const isCompact = mitigations.length >= 6;
@@ -90,16 +89,15 @@ const MitiIcons: React.FC<{
             {mitigations.map(mit => {
                 const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
                 if (!def) return null;
-                const isDimmed = myJobHighlight && myMemberId && mit.ownerId !== myMemberId;
+                // 薄暗くは親 .timeline-scroll-container[data-myjob-highlight] + CSS が担当（myJobHighlight 非購読）。
+                const isNotMine = !!myMemberId && mit.ownerId !== myMemberId;
                 return (
                     <img
                         key={mit.id}
                         src={def.icon}
                         alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}
-                        className={clsx(
-                            iconSize, "object-cover rounded-md",
-                            isDimmed ? "opacity-40 grayscale" : "opacity-90"
-                        )}
+                        data-myjob-dim={isNotMine ? 'gray' : undefined}
+                        className={clsx(iconSize, "object-cover rounded-md opacity-90")}
                     />
                 );
             })}
@@ -128,7 +126,6 @@ export const MobileTimelineRow = memo(({
 }: MobileTimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
-    const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
     const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
     const phases = useMitigationStore(state => state.phases);
@@ -329,7 +326,6 @@ export const MobileTimelineRow = memo(({
                     <MitiIcons
                         mitigations={activeMitigations}
                         contentLanguage={contentLanguage}
-                        myJobHighlight={myJobHighlight}
                         myMemberId={myMemberId}
                     />
                 </div>

@@ -65,6 +65,7 @@ import { useRemoteCursorsStore } from '../store/useRemoteCursorsStore';
 import { useCursorSendStore } from '../store/useCursorSendStore';
 import { MEMO_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
+import { useProgressRecording } from './progress/useProgressRecording';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -173,6 +174,29 @@ const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, p
     };
 };
 
+// MYジョブハイライトの ON/OFF を「親コンテナの属性1個」に橋渡しするだけの小コンポーネント。
+// これ自身だけが myJobHighlight を購読して再描画される（null を返すだけ＝軽い）。
+// 各アイコン側は購読しないので、トグルしても一斉再描画されない（薄暗くは CSS が担当）。
+const MyJobHighlightAttrBridge: React.FC<{ targetRef: React.RefObject<HTMLDivElement | null> }> = ({ targetRef }) => {
+    const on = useMitigationStore(s => s.myJobHighlight && s.myMemberId != null);
+    React.useLayoutEffect(() => {
+        const el = targetRef.current;
+        if (el) el.setAttribute('data-myjob-highlight', on ? '1' : '0');
+    }, [on, targetRef]);
+    return null;
+};
+
+// 進捗記録モードの ON/OFF を親コンテナの属性1個に橋渡し（これ自身だけ購読・軽い）。
+// 記録モード中は CSS で「行のどこをクリックしても打点できる」ことを示す（行ハイライト + 専用カーソル）。
+const RecordModeAttrBridge: React.FC<{ targetRef: React.RefObject<HTMLDivElement | null> }> = ({ targetRef }) => {
+    const on = useProgressRecording(s => s.recordMode);
+    React.useLayoutEffect(() => {
+        const el = targetRef.current;
+        if (el) el.setAttribute('data-record-mode', on ? '1' : '0');
+    }, [on, targetRef]);
+    return null;
+};
+
 const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
@@ -194,9 +218,12 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
     const indicatorRef = useRef<HTMLDivElement>(null);
     const timeLabelRef = useRef<HTMLDivElement>(null);
 
-    const { myJobHighlight, myMemberId, hideEmptyRows } = useMitigationStore(
-        useShallow(s => ({ myJobHighlight: s.myJobHighlight, myMemberId: s.myMemberId, hideEmptyRows: s.hideEmptyRows }))
+    const { myMemberId, hideEmptyRows } = useMitigationStore(
+        useShallow(s => ({ myMemberId: s.myMemberId, hideEmptyRows: s.hideEmptyRows }))
     );
+    // 「自分以外」判定。myJobHighlight はここで購読しない（購読すると全アイコンが一斉再描画される）。
+    // 薄暗くの ON/OFF は親 .timeline-scroll-container の data-myjob-highlight + CSS が担当。
+    const isNotMine = !!myMemberId && myMemberId !== mitigation.ownerId;
     // 競合フラグは親（Timeline本体）が timelineMitigations から派生させ prop 経由で渡す
     const isConflicting = props.isConflicting ?? false;
 
@@ -478,12 +505,12 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     style={{ display: 'none', left: '28px', zIndex: 100 }}
                 />
                 <div
+                    data-myjob-dim={isNotMine ? 'gray' : undefined}
                     className={clsx(
                         "rounded shadow-md relative z-20 flex items-center justify-center",
                         "w-6 h-6",
                         !isVirtual && "cursor-grab hover:scale-110 pointer-events-auto",
                         isVirtual && "cursor-default pointer-events-none",
-                        myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40 grayscale",
                         isConflicting && "animate-conflict-pulse ring-2 ring-amber-400"
                     )}
                     onContextMenu={handleContextMenu}
@@ -535,12 +562,12 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                 {/* エフェクト棒: copiesShieldスキル（展開戦術）とduration≤1秒（瞬発スキル）は非表示 */}
                 {mitigation.duration > 1 && !def?.copiesShield && (
                     <div
+                        data-myjob-dim={isNotMine ? 'bar' : undefined}
                         className={clsx(
                             "absolute top-3 w-1.5 z-10 rounded-b-sm border-x pointer-events-none",
                             colors.bg,
                             colors.border,
-                            colors.shadow,
-                            myJobHighlight && myMemberId && myMemberId !== mitigation.ownerId && "opacity-40"
+                            colors.shadow
                         )}
                         style={{
                             height: `${Math.max(0, durationHeight)}px`,
@@ -851,7 +878,9 @@ const Timeline: React.FC = () => {
     const hasLabels = labels.length > 0;
     const labelColumnVisible = !labelColumnCollapsed && !(phaseColumnCollapsed && !hasLabels);
 
-    const handleNavJump = (time: number) => {
+    // useCallback で包む: progress:jump-to-time リスナが最新版を参照するため。
+    // deps = [showPreStart, pixelsPerSecond]。ref は常に最新なので deps 不要。
+    const handleNavJump = useCallback((time: number) => {
         if (!scrollContainerRef.current) return;
         const targetY = timeToYMapRef.current.get(time);
         if (targetY !== undefined) {
@@ -861,7 +890,7 @@ const Timeline: React.FC = () => {
             const y = Math.max(0, (time - offsetTime)) * pixelsPerSecond;
             scrollContainerRef.current.scrollTo({ top: y, behavior: 'smooth' });
         }
-    };
+    }, [showPreStart, pixelsPerSecond]);
 
     // 「タイムラインの最後の行」 = maxPopulatedTime + 1 (= 行追加用の空白行)。
     // ユーザー仕様: 新規イベント追加用に最終イベント/軽減の 1 秒後の空白行が表示される。
@@ -1188,6 +1217,23 @@ const Timeline: React.FC = () => {
         };
     }, []);
 
+    // 記録パネルからのフェーズジャンプ: 独立 useEffect で既存リスナに干渉しない。
+    // handleNavJump が useCallback で安定しているため、deps に含めて stale closure を防ぐ。
+    useEffect(() => {
+        const handleProgressJump = (e: Event) => {
+            const { time } = (e as CustomEvent<{ time: number }>).detail ?? {};
+            if (typeof time !== 'number') return;
+            // 道クリックの任意時間 → timeToYMap に存在する最寄りの時間へスナップ（厳密さ不要）
+            const map = timeToYMapRef.current;
+            if (map.has(time)) { handleNavJump(time); return; }
+            let nearest: number | null = null, best = Infinity;
+            map.forEach((_y, tk) => { const d = Math.abs(tk - time); if (d < best) { best = d; nearest = tk; } });
+            if (nearest !== null) handleNavJump(nearest);
+        };
+        window.addEventListener('progress:jump-to-time', handleProgressJump);
+        return () => window.removeEventListener('progress:jump-to-time', handleProgressJump);
+    }, [handleNavJump]);
+
 
     // プラン切替時に縦横スクロールをトップ・左端へ、空行非表示をデフォルト(コンパクト)にリセット
     const currentPlanId = usePlanStore(s => s.currentPlanId);
@@ -1435,6 +1481,13 @@ const Timeline: React.FC = () => {
     }, [timelineEvents]);
 
     const handleAddClick = useCallback((time: number, e: React.MouseEvent) => {
+        // 進捗記録モード中はクリックを横取りして到達点を記録（既存の配置/追加には入らない）
+        if (useProgressRecording.getState().recordMode) {
+            e.stopPropagation();
+            e.preventDefault();
+            useProgressRecording.getState().commitReachedPos(time);
+            return;
+        }
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         e.stopPropagation();
 
@@ -1670,6 +1723,13 @@ const Timeline: React.FC = () => {
     };
 
     const handleCellClick = useCallback((memberId: string, time: number, e: React.MouseEvent) => {
+        // 進捗記録モード中はクリックを横取りして到達点を記録（既存の軽減配置には入らない）
+        if (useProgressRecording.getState().recordMode) {
+            e.stopPropagation();
+            e.preventDefault();
+            useProgressRecording.getState().commitReachedPos(time);
+            return;
+        }
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         // メモモード中は軽減配置選択を起動しない (= シート空白クリックでメモ作成に統一)
         if (useMitigationStore.getState().toolMode === 'memo') return;
@@ -2696,6 +2756,10 @@ const Timeline: React.FC = () => {
                         </div>
                     </div>
 
+                    {/* MYジョブハイライト: 親コンテナに data-myjob-highlight を立てるだけ(CSS で薄暗く) */}
+                    <MyJobHighlightAttrBridge targetRef={scrollContainerRef} />
+                    {/* 進捗記録モード: 親コンテナに data-record-mode を立てるだけ(CSS で行ハイライト+カーソル) */}
+                    <RecordModeAttrBridge targetRef={scrollContainerRef} />
                     <div
                         ref={scrollContainerRef}
                         className={clsx(
@@ -2975,6 +3039,7 @@ const Timeline: React.FC = () => {
                                             return (
                                                 <div
                                                     key={phase.id}
+                                                    data-phase-overlay
                                                     className="absolute left-0 w-[24px] md:w-[var(--col-phase-w)] border-r border-b border-app-border bg-app-surface2 pointer-events-none z-10"
                                                     style={{ top: `${top}px`, height: `${height}px` }}
                                                 >
@@ -3025,6 +3090,7 @@ const Timeline: React.FC = () => {
                                                 return (
                                                     <div
                                                         key={`label-${label.id}`}
+                                                        data-label-overlay
                                                         className={clsx(
                                                             "absolute border-r border-b border-app-border/50 bg-app-surface2 pointer-events-none z-10",
                                                             hasPhases

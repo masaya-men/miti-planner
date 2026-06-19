@@ -81,6 +81,36 @@
   100% { transform: scale(1.5); opacity: 0; }
 }
 
+/* 進捗詳細パネルの開閉(開く=下へ伸びる / 閉じる=上にしまわれる):
+   ・箱の高さを grid-template-rows 0fr↔1fr の CSS transition で双方向に滑らかに開閉(高さ自動でも滑らか)。
+     decelerate イージングで終盤に「スッと収まる/しまわれる」着地感。
+   ・中身は opacity + ごく僅かな translateY 着地オーバーシュート(y2>1)で「ほんの少し沈んで戻る」プレミアム感。
+   常時マウントし data-open で開閉(閉=0fr=高さ0・不可視)。大きく弾ませない(HUD/戦略ツールのトンマナ)。
+   prefers-reduced-motion では即時。 */
+.progress-detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+.progress-detail[data-open="true"] { grid-template-rows: 1fr; }
+.progress-detail > .progress-detail-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.progress-detail-content {
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 200ms ease, transform 340ms cubic-bezier(0.34, 1.15, 0.64, 1);
+}
+.progress-detail[data-open="true"] .progress-detail-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-detail,
+  .progress-detail-content { transition: none; }
+}
+
 @keyframes conflict-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.9); }
@@ -258,6 +288,14 @@
     --color-blue-dim: rgba(59, 130, 246, 0.10);
     --color-blue-border: rgba(59, 130, 246, 0.25);
 
+    /* 進捗記録トースト（ホログラム）— dark 既定: 濃紺ハロー + 淡シアン文字 */
+    --progress-toast-color: #dff4ff;
+    --progress-toast-num: #bfe9ff;
+    --progress-toast-bg: radial-gradient(ellipse at center, rgba(8,14,28,0.74) 0%, rgba(8,14,28,0.35) 60%, rgba(8,14,28,0) 100%);
+    --progress-toast-shadow: 0 0 10px rgba(150,230,255,.6), 0 1px 2px rgba(0,0,0,.9);
+    --progress-toast-num-glow: 0 0 14px rgba(160,230,255,.95);       /* カウントアップ中 */
+    --progress-toast-num-glow-rest: 0 0 8px rgba(150,230,255,.6);     /* 確定後 */
+
     --color-red: #ef4444;
     --color-red-hover: #dc2626;
     --color-red-dim: rgba(239, 68, 68, 0.10);
@@ -381,6 +419,15 @@
     --color-blue-hover: #1d4ed8;
     --color-blue-dim: rgba(37, 99, 235, 0.08);
     --color-blue-border: rgba(37, 99, 235, 0.20);
+
+    /* 進捗記録トースト（ホログラム）— light 上書き: 控えめな白ハロー + 落ち着いた青みグレー文字
+       （青の主張を抑える。数字だけ淡いブルーで僅かにアクセント。2026-06-19 ユーザー判断）。 */
+    --progress-toast-color: #41506b;
+    --progress-toast-num: #2f6ab0;
+    --progress-toast-bg: radial-gradient(ellipse at center, rgba(255,255,255,0.85) 0%, rgba(244,248,253,0.5) 55%, rgba(255,255,255,0) 100%);
+    --progress-toast-shadow: 0 0 8px rgba(150,175,205,.28), 0 1px 1px rgba(255,255,255,.9);
+    --progress-toast-num-glow: 0 0 9px rgba(120,165,225,.4);
+    --progress-toast-num-glow-rest: 0 0 5px rgba(120,165,225,.2);
 
     --color-red: #dc2626;
     --color-red-hover: #b91c1c;
@@ -1322,6 +1369,43 @@ button, [role="button"], .touch-none {
     transform: scaleX(1);
     will-change: transform;
   }
+}
+
+/* MYジョブハイライト — CSS 駆動の薄暗く表示。
+   親 .timeline-scroll-container[data-myjob-highlight="1"] を1回切り替えるだけで、
+   「自分以外」(data-myjob-dim) の要素を薄暗くする。各アイコンが myJobHighlight を購読して
+   一斉に React 再描画されるのを防ぐ（トグルが重い問題の根治）。
+   ※ grayscale は大量の画像で塗りが重いので不使用。opacity のみでかなり薄く＝実質モノクロ的に見え、
+     かつ opacity 変更は合成のみで激安（トグルがサクサク）。薄さは下の値で調整可。 */
+.timeline-scroll-container[data-myjob-highlight="1"] [data-myjob-dim] {
+    opacity: 0.2;
+}
+
+/* 進捗記録モード — 行のどこをクリックしても打点できることを示す。
+   親 .timeline-scroll-container[data-record-mode="1"] を1回切り替えるだけ（各行は購読しない）。 */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row] {
+    cursor: crosshair;
+}
+/* セル個別のホバー/クリック反応を行へ集約。これで「フェーズ/イベント/メンバー」など
+   反応のある列の独自ハイライトが competing せず、ハイライトは行で1つに統一される。
+   (クリックも行の onClickCapture に集約され、打点に回る) */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row] > * {
+    pointer-events: none;
+}
+/* ホバー行の強調は「フェーズ/ラベル時間指定」(Timeline.tsx の overlayRef) と同一スタイル＝
+   border-2 border-app-blue + bg-app-blue/10 + rounded-sm。
+   行レイアウトを動かさないよう border は inset box-shadow(2px)で表現。 */
+.timeline-scroll-container[data-record-mode="1"] [data-time-row]:hover {
+    background-color: rgba(59, 130, 246, 0.1);          /* bg-app-blue/10 相当 */
+    box-shadow: inset 0 0 0 2px var(--color-app-blue);   /* border-2 border-app-blue 相当 */
+    border-radius: 2px;                                  /* rounded-sm 相当 */
+}
+/* 進捗記録モード中はフェーズ/ラベル区間オーバーレイの不透明背景を透かし、
+   行ハイライト(青枠+bg)がフェーズ列/ラベル列でも途切れないようにする。
+   記録モード限定セレクタなので通常表示・select-mode の見た目は不変。 */
+.timeline-scroll-container[data-record-mode="1"] [data-phase-overlay],
+.timeline-scroll-container[data-record-mode="1"] [data-label-overlay] {
+    background-color: transparent;
 }
 
 /* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */

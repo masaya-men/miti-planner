@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
 import { useJobs, useMitigations } from '../hooks/useSkillsData';
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useProgressRecording } from './progress/useProgressRecording';
 import { Tooltip } from './ui/Tooltip';
 import { AnimatedDamage } from './AnimatedDamage';
 import { DamageTypeIcon } from './DamageTypeIcon';
@@ -98,26 +99,25 @@ const MobileTargetBadge: React.FC<{ partyMembers: PartyMember[]; effTarget: Time
 const MobileMitiIcons: React.FC<{
     mitigations: AppliedMitigation[];
     contentLanguage: string;
-    myJobHighlight: boolean;
     myMemberId: string | null;
     size?: string;
-}> = ({ mitigations, contentLanguage, myJobHighlight, myMemberId, size = 'w-3 h-3' }) => {
+}> = ({ mitigations, contentLanguage, myMemberId, size = 'w-3 h-3' }) => {
     const MITIGATIONS = useMitigations();
     return (
     <div className="flex md:hidden items-center gap-px flex-shrink-0 ml-auto">
         {mitigations.map(mit => {
             const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
             if (!def) return null;
-            const isDimmed = myJobHighlight && myMemberId && mit.ownerId !== myMemberId;
+            // 薄暗くの ON/OFF は親 .timeline-scroll-container[data-myjob-highlight] + CSS が担当。
+            // ここでは「自分以外」の印(data-myjob-dim)だけ付ける（myJobHighlight は購読しない）。
+            const isNotMine = !!myMemberId && mit.ownerId !== myMemberId;
             return (
                 <img
                     key={mit.id}
                     src={def.icon}
                     alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}
-                    className={clsx(
-                        size, "object-cover rounded-sm",
-                        isDimmed ? "opacity-40 grayscale" : "opacity-90"
-                    )}
+                    data-myjob-dim={isNotMine ? 'gray' : undefined}
+                    className={clsx(size, "object-cover rounded-sm opacity-90")}
                 />
             );
         })}
@@ -262,7 +262,6 @@ export const TimelineRow = memo(({
 }: TimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
-    const myJobHighlight = useMitigationStore(state => state.myJobHighlight);
     const myMemberId = useMitigationStore(state => state.myMemberId);
     // 挑発スキル（isTankSwap）による実効ターゲット計算に必要なデータ
     const timelineMitigations = useMitigationStore(state => state.timelineMitigations);
@@ -323,6 +322,16 @@ export const TimelineRow = memo(({
             onMouseEnter={() => {
                 if (timelineSelectMode || labelSelectMode) {
                     onTimelineSelectHover?.(time);
+                }
+            }}
+            onClickCapture={(e) => {
+                // 進捗記録モード中は「キャプチャ段階」で全クリックを横取りし、その行の time を打点。
+                // これで列(イベント/フェーズ/ラベル/メンバー)の個別 onClick が発火する前に止まり、
+                // モーダル等が開かず、行のどこをクリックしても確実に記録される（表全体が時間ピッカー）。
+                if (useProgressRecording.getState().recordMode) {
+                    useProgressRecording.getState().commitReachedPos(time);
+                    e.stopPropagation();
+                    e.preventDefault();
                 }
             }}
             onClick={(e) => {
@@ -476,7 +485,6 @@ export const TimelineRow = memo(({
                             <MobileMitiIcons
                                 mitigations={activeMitigations}
                                 contentLanguage={contentLanguage}
-                                myJobHighlight={myJobHighlight}
                                 myMemberId={myMemberId}
                             />
 
@@ -533,7 +541,6 @@ export const TimelineRow = memo(({
                                     <MobileMitiIcons
                                         mitigations={activeMitigations}
                                         contentLanguage={contentLanguage}
-                                        myJobHighlight={myJobHighlight}
                                         myMemberId={myMemberId}
                                         size="w-2.5 h-2.5"
                                     />

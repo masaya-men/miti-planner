@@ -237,6 +237,28 @@ export interface PlanMemo {
     updatedAt: number;
 }
 
+/** 進捗トラッキング: 1 回の打点（クリックごとに 1 点ずつ溜まる） */
+export interface ProgressPoint {
+    /** 記録時刻 (epoch ms)。並び順 = クリック順 / 日付ラベルの算出に使う */
+    ts: number;
+    /** その時クリックした到達点。タイムライン上の秒位置 */
+    reachedPos: number;
+    /** 任意のひとことメモ。未設定は undefined（共有時は progress ごと除去され他人に渡らない） */
+    note?: string;
+}
+
+/** 進捗トラッキング (表ごと・未マイグレ既存プランは undefined) */
+export interface PlanProgress {
+    /** 打点の列。各クリック = 1 点（同日でも溜まる）。横軸=記録順、縦軸=reachedPos */
+    points: ProgressPoint[];
+    /** クリアボタンで true */
+    cleared: boolean;
+    /** 任意・手入力。デフォルト非表示 */
+    activeDays?: number;
+    /** 任意・手入力。デフォルト非表示 */
+    activeHours?: number;
+}
+
 export interface PlanData {
     currentLevel: number;
     timelineEvents: TimelineEvent[];
@@ -253,6 +275,8 @@ export interface PlanData {
     myMemberId?: string | null;
     /** メモ機能 v1 (#57)、 未マイグレ既存プランは undefined */
     memos?: PlanMemo[];
+    /** 進捗トラッキング v1、 未マイグレ既存プランは undefined */
+    progress?: PlanProgress;
 }
 
 /** DC/サーバーマスターデータ */

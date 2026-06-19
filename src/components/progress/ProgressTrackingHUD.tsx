@@ -1,0 +1,348 @@
+/**
+ * 進捗トラッキングHUD — 攻略の軌跡（その日の最高到達点を打点）。
+ * 試作 feat/progress-celebration-proto の PulseTrail + JourneyStrip を 1:1 移植し、
+ * データ供給元を PlanData（useMitigationStore 経由）に差し替えたもの。
+ *
+ * 見た目: 試作 4c0b94b と 1:1（canvas 定数・クラス・レイアウトは無変更）。
+ * 変更点: SEED → store の progress.points・timelineEvents 駆動に差し替え。
+ *         ActivityDots は spec スコープ外のためレンダリングしない。
+ * E1追加: お祝い演出（ProgressCelebration）+ 発火条件（クリア遷移 / マウント時クリア済み）。
+ */
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AnimatePresence } from 'framer-motion';
+import { useMitigationStore } from '../../store/useMitigationStore';
+import { usePlanStore } from '../../store/usePlanStore';
+import { useMitigations } from '../../hooks/useSkillsData';
+import { computeProgressPercent } from '../../lib/progressLogic';
+import { useProgressRecording } from './useProgressRecording';
+import { ProgressRecordPanel } from './ProgressRecordPanel';
+import { ProgressCelebration } from './ProgressCelebration';
+import { ProgressRecordToast } from './ProgressRecordToast';
+
+/**
+ * dismiss 済み planId の記録（モジュールレベル = remount でも保持）。
+ * null planId は '__null__' キーとして扱う（記録しない方針 → 発火し続けるが安全）。
+ */
+const _dismissedPlanIds = new Set<string>();
+
+// 光の玉 + 線状の余韻(尾)を canvas で描く。尾は連続した線でフェード(粒々にしない)。
+// fullLine=true(クリア時): 全軌跡を点灯し、その上を count 個のパルスが走る。
+function PulseTrail({ cornerX, cornerY, count = 1, fullLine = false }:
+  { cornerX: number[]; cornerY: number[]; count?: number; fullLine?: boolean }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const dpr = window.devicePixelRatio || 1;
+    const resize = () => {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.round(r.width * dpr));
+      canvas.height = Math.max(1, Math.round(r.height * dpr));
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    let raf = 0;
+    let start = 0;
+    const GAP = fullLine ? 0 : 700;                       // 通常は右端で消えて左から再開
+    // 速度=「日数」でなく「軌跡の実長(px)」基準で一定に。一周時間は下限/上限でクランプ
+    // (日数が増えても遅くなりすぎない・少なくても速くなりすぎない)。
+    const SPEED = 0.22;          // device px / ms (大きいほど速い)
+    const PERIOD_MIN = 4000;     // 一周の最短(ms)
+    const PERIOD_MAX = 8000;     // 一周の最長(ms) ← 30日超でもここで頭打ち
+    // 尾(パルス風の細い線)の調整ノブ
+    const TAIL_FRAC = 0.10;  // 尾の長さ(全長比)。小さいほど短い
+    const TAIL_ALPHA = 0.5;  // 尾の濃さ(0〜1)
+    const TAIL_WIDTH = 1;    // 尾の太さ(px CSS)
+
+    const draw = (ts: number) => {
+      if (!start) start = ts;
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      const pts = cornerX.map((x, i) => ({ x: (x / 100) * w, y: (cornerY[i] / 100) * h }));
+      const segLen: number[] = [];
+      let total = 0;
+      for (let i = 1; i < pts.length; i++) {
+        const d = Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y);
+        segLen.push(d); total += d;
+      }
+      if (total > 0) {
+        // 一周の時間 = 軌跡の実長 ÷ 一定速度。下限/上限でクランプ(日数に依らず体感速度を一定に)。
+        const PERIOD = Math.min(PERIOD_MAX, Math.max(PERIOD_MIN, total / SPEED));
+        const at = (d: number) => {
+          if (d <= 0) return pts[0];
+          let acc = 0;
+          for (let i = 0; i < segLen.length; i++) {
+            if (acc + segLen[i] >= d) { const f = (d - acc) / segLen[i]; return { x: pts[i].x + (pts[i + 1].x - pts[i].x) * f, y: pts[i].y + (pts[i + 1].y - pts[i].y) * f }; }
+            acc += segLen[i];
+          }
+          return pts[pts.length - 1];
+        };
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        if (fullLine) {
+          ctx.beginPath();
+          ctx.moveTo(pts[0].x, pts[0].y);
+          for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+          ctx.strokeStyle = 'rgba(59,130,246,0.6)';
+          ctx.lineWidth = 1.6 * dpr;
+          ctx.shadowColor = 'rgba(59,130,246,0.8)';
+          ctx.shadowBlur = 4 * dpr;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+        for (let c = 0; c < count; c++) {
+          const cyc = (ts - start + (c * (PERIOD + GAP)) / count) % (PERIOD + GAP);
+          if (cyc >= PERIOD) continue; // GAP 中は消える
+          const prog = cyc / PERIOD;
+          const headDist = prog * total;
+          const fade = prog < 0.05 ? prog / 0.05 : prog > 0.95 ? (1 - prog) / 0.05 : 1;
+          const head = at(headDist);
+          // 尾(パルス風): 末端→head を「1本の連続した線」として描く。分割しないので粒(玉の並び)に見えない。
+          // フェードはグラデーション、発光(shadowBlur)は線全体に1回だけ。先端のグローは下の玉が担う。
+          const tailStart = Math.max(0, headDist - total * TAIL_FRAC);
+          if (headDist - tailStart > 0.5) {
+            const SAMP = 16;
+            const tp: { x: number; y: number }[] = [];
+            for (let k = 0; k <= SAMP; k++) tp.push(at(tailStart + (headDist - tailStart) * (k / SAMP)));
+            const grad = ctx.createLinearGradient(tp[0].x, tp[0].y, head.x, head.y);
+            grad.addColorStop(0, 'rgba(150,195,255,0)');                                  // 末端=透明
+            grad.addColorStop(0.55, `rgba(150,195,255,${(TAIL_ALPHA * 0.5 * fade).toFixed(3)})`);
+            grad.addColorStop(1, `rgba(180,210,255,${(TAIL_ALPHA * fade).toFixed(3)})`);   // head側=濃い
+            ctx.beginPath();
+            ctx.moveTo(tp[0].x, tp[0].y);
+            for (let k = 1; k < tp.length; k++) ctx.lineTo(tp[k].x, tp[k].y);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = TAIL_WIDTH * dpr;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowColor = 'rgba(80,150,255,0.6)';
+            ctx.shadowBlur = 3 * dpr;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+          }
+          // 先頭の玉。やわらかい青のグロー(放射状) + 白い芯。でかすぎない。
+          const R = 6.5 * dpr; // グローの広がり
+          const g = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, R);
+          g.addColorStop(0, `rgba(255,255,255,${0.9 * fade})`);
+          g.addColorStop(0.30, `rgba(120,170,255,${0.4 * fade})`);
+          g.addColorStop(1, 'rgba(59,130,246,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, R, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = `rgba(255,255,255,${fade})`; // 中心の白い芯(グローは変えず芯だけ小さく)
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, 0.8 * dpr, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      raf = requestAnimationFrame(draw);
+    };
+    raf = requestAnimationFrame(draw);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  }, [cornerX, cornerY, count, fullLine]);
+  return <canvas ref={ref} className="absolute inset-0 w-full h-full pointer-events-none" />;
+}
+
+// コンパクトな軌跡ストリップ(ヘッダー想定)。常時の道は描かず、光の玉 + 線状の余韻(尾)。
+// points: 日ごとの到達点を % に正規化した配列（store 側で算出して渡す）。
+// pct: spec のデータモデルに従い「最高 reachedPos ÷ 全長」で算出した進捗 %（computeProgressPercent の結果）。
+// activeDays/activeHours は任意（未設定なら非表示）。
+function JourneyStrip({
+  points,
+  pct,
+  cleared,
+  activeDays,
+  activeHours,
+}: {
+  points: number[];
+  pct: number;
+  cleared: boolean;
+  activeDays?: number;
+  activeHours?: number;
+}) {
+  const { t } = useTranslation();
+  const n = points.length;
+
+  // 縦マッピング: 高低差を強調しつつ、玉の発光が上下で見切れないようヘッドルームを確保する。
+  // 点の最小〜最大を padded 範囲 [TOP_Y, BOT_Y] へ自動スケール（= 波が縦いっぱいに振れて高低差が出る・
+  // 98% 等でも上端で切れない）。TOP_Y/BOT_Y は見え方の調整ノブ（小さい TOP_Y ほど高く到達）。
+  // 光が辿る軌跡(線は常時描かない): 左下から登り、各点の到達点を平らに進み、隣へ縦の段＝階段。
+  // 始点は地面(BOT_Y)から。100(キャンバス最下端)にすると始点の玉が下で見切れるため padded 値にする。
+  // useMemo で参照を安定化 → PulseTrail の useEffect が親再レンダーで再起動しなくなる。
+  const { cornerX, cornerY } = useMemo(() => {
+    const TOP_Y = 16; // 上端(% from top)。発光半径ぶんのヘッドルーム（背を高くした分、範囲を広げて高低差UP）
+    const BOT_Y = 84; // 下端
+    const lo = Math.min(...points);
+    const hi = Math.max(...points);
+    const span = hi - lo;
+    const yTop = points.map((p) => {
+      if (span <= 0) return (TOP_Y + BOT_Y) / 2;        // 全点同じ/1点 → 中央
+      const f = (p - lo) / span;                        // 0(最低)〜1(最高)
+      return BOT_Y - f * (BOT_Y - TOP_Y);               // 最低→BOT_Y, 最高→TOP_Y
+    });
+    const cx: number[] = [0];
+    const cy: number[] = [BOT_Y];
+    points.forEach((_, i) => {
+      cx.push((i / n) * 100, ((i + 1) / n) * 100);
+      cy.push(yTop[i], yTop[i]);
+    });
+    return { cornerX: cx, cornerY: cy };
+  }, [points, n]);
+
+  // n === 0 のとき（クリア済みで打点0 等）: 念のため空 canvas を返してクラッシュを防ぐ。
+  if (n === 0) {
+    return <div className="relative flex-1 h-11 overflow-visible" />;
+  }
+
+  return (
+    <div className="flex items-center gap-4">
+      {/* 左: 統計（日数・時間 / 進捗%） */}
+      <div className="shrink-0 leading-tight">
+        {/* activeDays/activeHours は任意。入れた人だけ表示（spec 準拠） */}
+        {(activeDays != null || activeHours != null) && (
+          <div className="text-app-sm font-bold text-app-text whitespace-nowrap">
+            {activeDays ?? 0}{t('progress.active_days_unit')} {activeHours ?? 0}{t('progress.active_hours_unit')}
+          </div>
+        )}
+        {cleared
+          ? <div className="text-app-md font-bold text-app-blue" style={{ textShadow: '0 0 8px var(--app-blue)' }}>{t('progress.cleared')}</div>
+          : <div className="text-app-md font-bold whitespace-nowrap">{t('progress.progress_label')} {pct}<span className="text-app-2xs text-app-text-muted">%</span></div>}
+      </div>
+
+      {/* 中央: 光の玉 + 線状の余韻(尾)。クリア時は全軌跡を点灯し数個のパルスが走る。常時の道は出さない。 */}
+      <div className="relative flex-1 h-11 overflow-visible">
+        <PulseTrail cornerX={cornerX} cornerY={cornerY} count={cleared ? 3 : 1} fullLine={cleared} />
+        <ProgressRecordToast />
+      </div>
+
+      {/* 右: ActivityDots は spec スコープ外のためレンダリングしない */}
+    </div>
+  );
+}
+
+/**
+ * 進捗トラッキングHUD（props なし・store から読む）。
+ * ConsolidatedHeader の中央スロットに組み込む。
+ * クリックで到達点記録パネルを開く。
+ */
+export function ProgressTrackingHUD() {
+  const { t } = useTranslation();
+  const progress = useMitigationStore((s) => s.progress);
+  const timelineEvents = useMitigationStore((s) => s.timelineEvents);
+  const partyMembers = useMitigationStore((s) => s.partyMembers);
+  const currentPlanId = usePlanStore((s) => s.currentPlanId);
+
+  // 降らせるアイコン = 設定パーティのジョブが持つスキルアイコン全部（重複除去）
+  const mitigations = useMitigations();
+  const jobIds = new Set(partyMembers.map((m) => m.jobId).filter((id): id is string => id !== null));
+  const celebrationIcons = [...new Set(
+    mitigations.filter((m) => jobIds.has(m.jobId)).map((m) => m.icon).filter(Boolean)
+  )];
+
+  // タイムライン全長（秒）= timelineEvents の最大 time
+  // useMemo で参照安定化 → JourneyStrip / PulseTrail の再起動を防ぐ。
+  const total = useMemo(
+    () => timelineEvents.length ? Math.max(...timelineEvents.map((e) => e.time)) : 0,
+    [timelineEvents]
+  );
+
+  // 各打点の到達点を % に正規化した配列（並び順=クリック順）。
+  // 旧形式データが万一すり抜けても HUD(=ヘッダー全体)を巻き込んで落とさないよう ?? [] で防御。
+  const points = useMemo(
+    () => (progress.points ?? []).map((p) =>
+      total > 0 ? Math.max(0, Math.min(100, (p.reachedPos / total) * 100)) : 0
+    ),
+    [progress.points, total]
+  );
+
+  // spec 準拠の進捗 %（最高 reachedPos ÷ 全長）
+  const pct = useMemo(() => computeProgressPercent(progress, total), [progress, total]);
+
+  // 打点ゼロ(かつ未クリア)なら軌跡の代わりに誘導文言を表示する。
+  // 活動日数/時間を入れていても打点0なら誘導を出す（空の帯にしない）。1点でも記録すれば軌跡へ自動切替。
+  const isEmpty = points.length === 0 && !progress.cleared;
+
+  // ─── お祝い演出の発火条件 ───────────────────────────────────────────────
+  const [showCelebration, setShowCelebration] = useState(false);
+  // 前回の cleared 値を保持（false→true への遷移を検知するため）
+  const prevCleared = useRef<boolean | undefined>(undefined);
+  // プラン切替を検知するため前回の planId を保持
+  const prevPlanId = useRef<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    const cleared = progress.cleared;
+    const planKey = currentPlanId ?? null;
+
+    // プラン切替時は prevCleared をリセット → マウント相当の評価に戻す（クリア済みの表を開いたら発火）
+    if (prevPlanId.current !== currentPlanId) {
+      prevCleared.current = undefined;
+      prevPlanId.current = currentPlanId;
+    }
+
+    // dismiss 済み planId はスキップ（null planId は記録しない = 常に発火）
+    const isDismissed = planKey !== null && _dismissedPlanIds.has(planKey);
+
+    if (!isDismissed) {
+      // ①クリアボタン押下時（false→true 遷移） ②マウント時またはプラン切替直後にクリア済み（prev=undefined かつ cleared=true）
+      if (cleared && (prevCleared.current === false || prevCleared.current === undefined)) {
+        setShowCelebration(true);
+      }
+    }
+    prevCleared.current = cleared;
+  }, [progress.cleared, currentPlanId]);
+
+  /** 演出を閉じ、同じ表では再表示しない（セッション内フラグ） */
+  const handleDismiss = () => {
+    setShowCelebration(false);
+    if (currentPlanId !== null) {
+      _dismissedPlanIds.add(currentPlanId);
+    }
+  };
+
+  return (
+    <>
+      {/* HUD 帯クリックで記録パネルを開く（空状態・軌跡表示どちらも同じクリック領域） */}
+      {/* data-progress-hud-band: 記録ドロワーがこの帯の位置を測り、中央真下から降りるためのアンカー */}
+      <div
+        data-progress-hud-band
+        className="group w-full cursor-pointer"
+        onClick={() => {
+          // 開いている時は開き直さない（再クリックは外側クリック判定=document mousedown が閉じる）。
+          const r = useProgressRecording.getState();
+          if (!r.panelOpen) r.openPanel();
+        }}
+      >
+        {isEmpty ? (
+          /* 誘導型空状態: 軌跡の代わりに誘導文言を帯に出す。
+             LoPo トンマナ=白黒テキストのみ。普段は控えめ、ホバーで文字がはっきり+下線→「押せる」と気付かせる。 */
+          <div className="flex items-center justify-center h-9">
+            <span className="text-app-sm text-app-text-sec group-hover:text-app-text underline-offset-4 group-hover:underline transition-all duration-200">
+              {t('progress.empty_cta')}
+            </span>
+          </div>
+        ) : (
+          <JourneyStrip
+            points={points}
+            pct={pct}
+            cleared={progress.cleared}
+            activeDays={progress.activeDays}
+            activeHours={progress.activeHours}
+          />
+        )}
+      </div>
+      {/* 記録パネル（panelOpen false で自動的に null） */}
+      <ProgressRecordPanel />
+      {/* お祝い演出（framer-motion AnimatePresence でアンマウント時にフェードアウト） */}
+      <AnimatePresence>
+        {showCelebration && (
+          <ProgressCelebration icons={celebrationIcons} onDismiss={handleDismiss} />
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
