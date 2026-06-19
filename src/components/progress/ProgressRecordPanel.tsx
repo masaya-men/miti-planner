@@ -1,5 +1,5 @@
 // 到達点記録パネル — PC: 中央下から降りるドロワー / スマホ: MobileBottomSheet
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -132,22 +132,39 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // 開いた瞬間に記録モード ON（PC のみ）
     useEffect(() => { startRecordMode(); }, [startRecordMode]);
 
+    // 閉じる演出: 開演出のミラー（clip を上へ畳む + 上スライド + フェードアウト）を再生してから実際に閉じる。
+    // easing は開演出 cubic-bezier(.16,.8,.3,1) の時間反転（= ease-in 相当）で対称にする。
+    // closingRef で二重発火を防止。drawerRef 不在時は即閉じ（保険）。
+    const closingRef = useRef(false);
+    const requestClose = useCallback(() => {
+        if (closingRef.current) return;
+        const el = drawerRef.current;
+        if (!el) { onClose(); return; }
+        closingRef.current = true;
+        const a = el.animate(
+            [{ clipPath: 'inset(0 0 0% 0)', opacity: 1, transform: 'translateY(0)' },
+             { clipPath: 'inset(0 0 100% 0)', opacity: 0, transform: 'translateY(-6px)' }],
+            { duration: 460, easing: 'cubic-bezier(.7,0,.84,.2)', fill: 'forwards' }
+        );
+        a.onfinish = () => onClose();
+    }, [onClose]);
+
     // 外側クリック閉じ（記録モード中はタイムライン打点に使うため閉じない）
     useEffect(() => {
         const handler = (e: MouseEvent) => {
             if (useProgressRecording.getState().recordMode) return;
-            if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) onClose();
+            if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) requestClose();
         };
         document.addEventListener('mousedown', handler);
         return () => document.removeEventListener('mousedown', handler);
-    }, [onClose]);
+    }, [requestClose]);
 
     // Escape 閉じ
     useEffect(() => {
-        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+        const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') requestClose(); };
         document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [onClose]);
+    }, [requestClose]);
 
     // 開演出: clip 上→下 + 明滅
     useEffect(() => {
@@ -176,7 +193,7 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             } as React.CSSProperties}
         >
             <div className="flex items-center justify-end px-3 py-1.5 border-b border-glass-border">
-                <button onClick={onClose} className="text-app-text p-1 rounded-lg hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 cursor-pointer active:scale-90">
+                <button onClick={requestClose} className="text-app-text p-1 rounded-lg hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 cursor-pointer active:scale-90">
                     <X size={14} />
                 </button>
             </div>
