@@ -8,12 +8,12 @@ import { pointPercent, formatTimeOfDay, formatMonthDay, dayBucket } from '../../
 
 interface ProgressHistoryRowProps {
     point: ProgressPoint;
-    index: number;        // points 配列内の実 index
+    index: number;        // points 配列内の実 index（削除 Undo 復元用）
     isBest: boolean;
     totalSec: number;
     phaseLabel: string;   // 事前算出済み（フェーズ名 or "m:ss 地点"）
     onDelete: (index: number) => void;
-    onSetNote: (index: number, note: string) => void;
+    onSetNote: (id: string, note: string) => void;
 }
 
 const ProgressHistoryRow: React.FC<ProgressHistoryRowProps> = ({
@@ -38,7 +38,7 @@ const ProgressHistoryRow: React.FC<ProgressHistoryRowProps> = ({
         setEditing(false);
         if (cancelRef.current) { cancelRef.current = false; return; } // Esc キャンセル時は保存しない
         const next = draft.trim();
-        if ((point.note ?? '') !== next) onSetNote(index, next);
+        if ((point.note ?? '') !== next) onSetNote(point.id, next);
     };
 
     return (

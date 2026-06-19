@@ -26,8 +26,8 @@ beforeEach(() => {
     phases: [],
     timelineEvents: [{ id: 'e', time: 300 }],
     progress: { points: [
-      { ts: 1, reachedPos: 60 },
-      { ts: 2, reachedPos: 240 },
+      { id: 'pt_a', ts: 1, reachedPos: 60 },
+      { id: 'pt_b', ts: 2, reachedPos: 240 },
     ], cleared: false },
   };
 });
@@ -56,11 +56,11 @@ describe('ProgressDetailPanel', () => {
     expect(screen.queryByText('progress.clear_all')).toBeNull();
   });
 
-  it('個別削除で removeProgressPoint(実index) を呼ぶ', () => {
+  it('個別削除で removeProgressPoint(id) を呼ぶ', () => {
     render(<ProgressDetailPanel open={true} />);
-    // 先頭行（表示は新しい順なので reachedPos=240=実index1）の削除
+    // 先頭行（表示は新しい順なので reachedPos=240=id pt_b）の削除
     const delButtons = screen.getAllByLabelText('progress.delete_record');
     fireEvent.click(delButtons[0]);
-    expect(actions.removeProgressPoint).toHaveBeenCalledWith(1);
+    expect(actions.removeProgressPoint).toHaveBeenCalledWith('pt_b');
   });
 });

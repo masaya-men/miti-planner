@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo, PlanProgress, ProgressPoint } from '../types';
-import { appendProgressPoint, removeProgressPoint, normalizeProgress, insertProgressPoint, makeProgressPointId } from '../lib/progressLogic';
+import { appendProgressPoint, removeProgressPointById, setProgressPointNoteById, normalizeProgress, insertProgressPoint, makeProgressPointId } from '../lib/progressLogic';
 import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
 import { MEMO_LIMITS } from '../types/firebase';
@@ -196,11 +196,11 @@ interface MitigationState {
 
     // 進捗トラッキング アクション (#HUD)
     recordReachedPoint: (reachedPos: number) => void;
-    removeProgressPoint: (index: number) => void;
+    removeProgressPoint: (id: string) => void;
     setCleared: (cleared: boolean) => void;
     setActiveDays: (n: number | undefined) => void;
     setActiveHours: (n: number | undefined) => void;
-    setProgressPointNote: (index: number, note: string) => void;
+    setProgressPointNote: (id: string, note: string) => void;
     clearAllProgressPoints: () => void;
     insertProgressPointAt: (index: number, point: ProgressPoint) => void;
 }
@@ -1595,10 +1595,10 @@ export const useMitigationStore = create<MitigationState>()(
                         progress: { ...state.progress, points: appendProgressPoint(state.progress.points, { id: makeProgressPointId(), ts: Date.now(), reachedPos }) },
                     }));
                 },
-                removeProgressPoint: (index) => {
+                removeProgressPoint: (id) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
                     set((state) => ({
-                        progress: { ...state.progress, points: removeProgressPoint(state.progress.points, index) },
+                        progress: { ...state.progress, points: removeProgressPointById(state.progress.points, id) },
                     }));
                 },
                 setCleared: (cleared) => {
@@ -1613,18 +1613,11 @@ export const useMitigationStore = create<MitigationState>()(
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
                     set((state) => ({ progress: { ...state.progress, activeHours: n } }));
                 },
-                setProgressPointNote: (index, note) => {
+                setProgressPointNote: (id, note) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
-                    set((state) => {
-                        if (index < 0 || index >= state.progress.points.length) return {} as any;
-                        const trimmed = note.trim();
-                        const points = state.progress.points.map((p, i) => {
-                            if (i !== index) return p;
-                            if (!trimmed) { const { note: _omit, ...rest } = p; return rest; }
-                            return { ...p, note: trimmed };
-                        });
-                        return { progress: { ...state.progress, points } };
-                    });
+                    set((state) => ({
+                        progress: { ...state.progress, points: setProgressPointNoteById(state.progress.points, id, note) },
+                    }));
                 },
                 clearAllProgressPoints: () => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック

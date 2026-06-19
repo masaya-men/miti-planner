@@ -25,7 +25,8 @@ const UndoLastPointButton: React.FC = () => {
     const has = (points?.length ?? 0) > 0;
     const onUndo = () => {
         if (!has) return;
-        removeProgressPoint(points.length - 1); // 末尾=最新を1つ削除
+        const last = points[points.length - 1]; // 末尾=最新を1つ削除
+        removeProgressPoint(last.id);
         useProgressRecording.setState({ lastRecordedTs: null });
     };
     // 配置は呼び出し側のラッパーが担う（Tooltip ラッパーは relative のため absolute を直接当てない）。

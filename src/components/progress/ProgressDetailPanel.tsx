@@ -37,7 +37,7 @@ const ProgressDetailPanel: React.FC<{ open: boolean }> = ({ open }) => {
         const point = points[index];
         if (!point) return;
         if (undoTimer.current) clearTimeout(undoTimer.current);
-        removeProgressPoint(index);
+        removeProgressPoint(point.id);
         setPending({ point, index });
         undoTimer.current = setTimeout(() => setPending(null), 5000);
     };
