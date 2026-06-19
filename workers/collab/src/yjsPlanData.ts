@@ -7,6 +7,10 @@ export const TIMELINE_EVENTS_KEY = "timelineEvents";
 export const PHASES_KEY = "phases";
 export const LABELS_KEY = "labels";
 export const MEMOS_KEY = "memos";
+export const PROGRESS_POINTS_KEY = "progressPoints";
+export const META_PROGRESS_CLEARED = "progressCleared";
+export const META_PROGRESS_DAYS = "progressActiveDays";
+export const META_PROGRESS_HOURS = "progressActiveHours";
 export const PARTY_MEMBERS_KEY = "partyMembers";
 export const PLAN_META_KEY = "planMeta";
 export const META_LEVEL = "currentLevel";
@@ -36,6 +40,11 @@ export interface PlanDataSeed {
   contentId?: string;
   /** ⑤-3c: オーナー設定の部屋ラベル。planMeta に seed のみ(save は返さない)。 */
   ownerLabel?: string;
+  /** 進捗打点(client の PROGRESS_POINTS_KEY と完全一致必須)。 */
+  progressPoints?: PlanRecord[];
+  progressCleared?: boolean;
+  progressActiveDays?: number;
+  progressActiveHours?: number;
 }
 
 /** id 一意化（最初の出現を残す）。汚染 JSON からの seed / 射影を防ぐ多層防御。 */
@@ -69,6 +78,7 @@ export function buildSeedDocFull(seed: PlanDataSeed): Y.Doc {
     pushAll(doc, PHASES_KEY, seed.phases ? dedupeById(seed.phases) : undefined);
     pushAll(doc, LABELS_KEY, seed.labels ? dedupeById(seed.labels) : undefined);
     pushAll(doc, MEMOS_KEY, seed.memos ? dedupeById(seed.memos) : undefined);
+    pushAll(doc, PROGRESS_POINTS_KEY, seed.progressPoints ? dedupeById(seed.progressPoints) : undefined);
     pushAll(doc, PARTY_MEMBERS_KEY, seed.partyMembers ? dedupeById(seed.partyMembers) : undefined);
     const meta = doc.getMap(PLAN_META_KEY);
     if (seed.currentLevel !== undefined) meta.set(META_LEVEL, seed.currentLevel);
@@ -76,6 +86,9 @@ export function buildSeedDocFull(seed: PlanDataSeed): Y.Doc {
     if (seed.schAetherflowPatterns !== undefined) meta.set(META_SCH, seed.schAetherflowPatterns);
     if (seed.contentId !== undefined) meta.set(META_CONTENT_ID, seed.contentId);
     if (seed.ownerLabel !== undefined) meta.set(META_OWNER_LABEL, seed.ownerLabel);
+    if (seed.progressCleared !== undefined) meta.set(META_PROGRESS_CLEARED, seed.progressCleared);
+    if (seed.progressActiveDays !== undefined) meta.set(META_PROGRESS_DAYS, seed.progressActiveDays);
+    if (seed.progressActiveHours !== undefined) meta.set(META_PROGRESS_HOURS, seed.progressActiveHours);
   });
   return doc;
 }
@@ -93,6 +106,10 @@ export function readPlanDataFull(doc: Y.Doc): PlanDataSeed {
     currentLevel: meta.get(META_LEVEL) as number | undefined,
     aaSettings: meta.get(META_AA) as Record<string, unknown> | undefined,
     schAetherflowPatterns: meta.get(META_SCH) as Record<string, number> | undefined,
+    progressPoints: dedupeById(readAll<PlanRecord>(doc, PROGRESS_POINTS_KEY)),
+    progressCleared: meta.get(META_PROGRESS_CLEARED) as boolean | undefined,
+    progressActiveDays: meta.get(META_PROGRESS_DAYS) as number | undefined,
+    progressActiveHours: meta.get(META_PROGRESS_HOURS) as number | undefined,
   };
 }
 

@@ -6,7 +6,7 @@ import ProgressHistoryRow from '../ProgressHistoryRow';
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k: string) => k, i18n: { language: 'ja' } }) }));
 
 const base = {
-  point: { ts: Date.parse('2026-06-19T12:34:00Z'), reachedPos: 150 },
+  point: { id: 'pt_test', ts: Date.parse('2026-06-19T12:34:00Z'), reachedPos: 150 },
   index: 0, isBest: true, totalSec: 300, phaseLabel: 'フェーズ2',
   onDelete: vi.fn(), onSetNote: vi.fn(),
 };
@@ -31,14 +31,15 @@ describe('ProgressHistoryRow', () => {
     expect(onDelete).toHaveBeenCalledWith(2);
   });
 
-  it('メモ click で入力欄、blur で onSetNote(index, 値)', () => {
+  it('メモ click で入力欄、blur で onSetNote(id, 値)', () => {
+    // Task 5 で id ベースに変更済み: onSetNote(point.id, note) を呼ぶ
     const onSetNote = vi.fn();
     render(<ProgressHistoryRow {...base} index={1} onSetNote={onSetNote} />);
     fireEvent.click(screen.getByText('progress.add_memo')); // 空なので追加プレースホルダ
     const input = screen.getByRole('textbox');
     fireEvent.change(input, { target: { value: '初到達' } });
     fireEvent.blur(input);
-    expect(onSetNote).toHaveBeenCalledWith(1, '初到達');
+    expect(onSetNote).toHaveBeenCalledWith('pt_test', '初到達');
   });
 
   it('既存メモを表示する', () => {

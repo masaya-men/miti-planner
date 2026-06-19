@@ -5,13 +5,13 @@ import { getMitigationsFromStore } from '../../hooks/useSkillsData';
 import { appliedToYMap, readMitigations, indexOfMitigation, YJS_MITIGATIONS_KEY } from './yjsMitigations';
 import {
   TIMELINE_EVENTS_KEY, PHASES_KEY, LABELS_KEY, MEMOS_KEY, PLAN_META_KEY,
-  META_LEVEL, META_AA, META_SCH, PARTY_MEMBERS_KEY,
+  META_LEVEL, META_AA, META_SCH, PARTY_MEMBERS_KEY, PROGRESS_POINTS_KEY,
   applyUpsert, applyRemove, setMetaField, readArray, readPlanMeta, readContentId, readOwnerLabel,
-  recordToYMap, buildArrByKey, applyBatch,
+  recordToYMap, buildArrByKey, applyBatch, metaKeyForField,
 } from './yjsPlanData';
 import { dedupeById } from './dedupeById';
 import { fieldsNeedingReseed, RESEED_FIELDS } from './collabReseed';
-import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember } from '../../types';
+import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember, ProgressPoint } from '../../types';
 import type { CollabHandlers } from './collabTypes';
 import { colorForClient, wirePresence, type AwarenessLike, type PresenceState } from './presence';
 import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
@@ -179,6 +179,7 @@ export function applyRoomToStore(
   s._applyPhasesFromCollab(dedupeById(readArray<Phase>(doc, PHASES_KEY)));
   s._applyLabelsFromCollab(dedupeById(readArray<Label>(doc, LABELS_KEY)));
   s._applyMemosFromCollab(dedupeById(readArray<PlanMemo>(doc, MEMOS_KEY)));
+  s._applyProgressPointsFromCollab(dedupeById(readArray<ProgressPoint>(doc, PROGRESS_POINTS_KEY)));
   s._applyPartyMembersFromCollab(dedupeById(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY)));
   s._applyMetaFromCollab(readPlanMeta(doc));
   opts.onContentId?.(readContentId(doc));
@@ -233,6 +234,7 @@ export function startCollabSession(
   const yPhases = doc.getArray<Y.Map<unknown>>(PHASES_KEY);
   const yLabels = doc.getArray<Y.Map<unknown>>(LABELS_KEY);
   const yMemos = doc.getArray<Y.Map<unknown>>(MEMOS_KEY);
+  const yProgressPoints = doc.getArray<Y.Map<unknown>>(PROGRESS_POINTS_KEY);
   const yPartyMembers = doc.getArray<Y.Map<unknown>>(PARTY_MEMBERS_KEY);
   const yMeta = doc.getMap(PLAN_META_KEY);
   // ②-b-2: 全 PlanArrayKey(partyMembers/timelineMitigations 含む)の対応表を共有ヘルパで生成。
@@ -258,12 +260,14 @@ export function startCollabSession(
   const applyPhases = () => store()._applyPhasesFromCollab(dedupeById(readArray<Phase>(doc, PHASES_KEY)));
   const applyLabels = () => store()._applyLabelsFromCollab(dedupeById(readArray<Label>(doc, LABELS_KEY)));
   const applyMemos = () => store()._applyMemosFromCollab(dedupeById(readArray<PlanMemo>(doc, MEMOS_KEY)));
+  const applyProgressPoints = () => store()._applyProgressPointsFromCollab(dedupeById(readArray<ProgressPoint>(doc, PROGRESS_POINTS_KEY)));
   const applyMeta = () => store()._applyMetaFromCollab(readPlanMeta(doc));
   const applyPartyMembers = () => store()._applyPartyMembersFromCollab(dedupeById(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY)));
   yEvents.observeDeep(applyEvents);
   yPhases.observeDeep(applyPhases);
   yLabels.observeDeep(applyLabels);
   yMemos.observeDeep(applyMemos);
+  yProgressPoints.observeDeep(applyProgressPoints);
   yMeta.observeDeep(applyMeta);
   yPartyMembers.observeDeep(applyPartyMembers);
 
@@ -325,7 +329,8 @@ export function startCollabSession(
       doc.transact(() => applyRemove(arrByKey[key], ids), 'local');
     },
     setMeta: (field, value) => {
-      const k = field === 'currentLevel' ? META_LEVEL : field === 'aaSettings' ? META_AA : META_SCH;
+      const k = metaKeyForField(field);
+      if (!k) return; // 未知フィールドは無視(誤った別キー上書きを防ぐ)
       doc.transact(() => setMetaField(doc, k, value), 'local');
     },
     // FFLogs 取込: events/phases/labels を全置換 + mitigations を全クリア(別の戦闘へ切替)。1 transaction。
@@ -441,6 +446,7 @@ export function startCollabSession(
     yPhases.unobserveDeep(applyPhases);
     yLabels.unobserveDeep(applyLabels);
     yMemos.unobserveDeep(applyMemos);
+    yProgressPoints.unobserveDeep(applyProgressPoints);
     yMeta.unobserveDeep(applyMeta);
     yPartyMembers.unobserveDeep(applyPartyMembers);
     // readOnly(ジョイナー購読)は enterCollabMode していないので exit も不要(購読解除＝unobserve で十分)。

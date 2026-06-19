@@ -3,6 +3,7 @@ import {
   makeDayKey, appendProgressPoint, removeProgressPoint, computeProgressPercent, isEmptyProgress,
   insertProgressPoint, phaseAtTime, pointPercent,
   formatClock, formatTimeOfDay, formatMonthDay, dayBucket,
+  makeProgressPointId, removeProgressPointById, setProgressPointNoteById, normalizeProgress,
 } from '../progressLogic';
 import type { PlanProgress, LocalizedString } from '../../types';
 
@@ -15,42 +16,46 @@ describe('makeDayKey', () => {
     });
 });
 
+/** テスト用: id なしリテラルを ProgressPoint として扱うキャストヘルパ。id 導入前の既存テストで使用。 */
+const pp = (ts: number, reachedPos: number, note?: string) =>
+    ({ ts, reachedPos, ...(note !== undefined ? { note } : {}) }) as import('../../types').ProgressPoint;
+
 describe('appendProgressPoint', () => {
     it('末尾に追加しクリック順を保つ', () => {
-        const r = appendProgressPoint([{ ts: 1, reachedPos: 100 }], { ts: 2, reachedPos: 50 });
-        expect(r).toEqual([{ ts: 1, reachedPos: 100 }, { ts: 2, reachedPos: 50 }]);
+        const r = appendProgressPoint([pp(1, 100)], pp(2, 50));
+        expect(r.map(p => ({ ts: p.ts, reachedPos: p.reachedPos }))).toEqual([{ ts: 1, reachedPos: 100 }, { ts: 2, reachedPos: 50 }]);
     });
     it('同じ日でも統合せず別の点として溜まる', () => {
-        const base = [{ ts: 10, reachedPos: 80 }];
-        const r1 = appendProgressPoint(base, { ts: 11, reachedPos: 120 });
-        const r2 = appendProgressPoint(r1, { ts: 12, reachedPos: 40 });
-        expect(r2).toEqual([{ ts: 10, reachedPos: 80 }, { ts: 11, reachedPos: 120 }, { ts: 12, reachedPos: 40 }]);
+        const base = [pp(10, 80)];
+        const r1 = appendProgressPoint(base, pp(11, 120));
+        const r2 = appendProgressPoint(r1, pp(12, 40));
+        expect(r2.map(p => ({ ts: p.ts, reachedPos: p.reachedPos }))).toEqual([{ ts: 10, reachedPos: 80 }, { ts: 11, reachedPos: 120 }, { ts: 12, reachedPos: 40 }]);
     });
     it('元配列を破壊しない', () => {
-        const base = [{ ts: 1, reachedPos: 5 }];
-        appendProgressPoint(base, { ts: 2, reachedPos: 9 });
-        expect(base).toEqual([{ ts: 1, reachedPos: 5 }]);
+        const base = [pp(1, 5)];
+        appendProgressPoint(base, pp(2, 9));
+        expect(base.map(p => ({ ts: p.ts, reachedPos: p.reachedPos }))).toEqual([{ ts: 1, reachedPos: 5 }]);
     });
 });
 
 describe('removeProgressPoint', () => {
     it('指定インデックスの点だけ削除', () => {
-        const r = removeProgressPoint([{ ts: 1, reachedPos: 1 }, { ts: 2, reachedPos: 2 }, { ts: 3, reachedPos: 3 }], 1);
-        expect(r).toEqual([{ ts: 1, reachedPos: 1 }, { ts: 3, reachedPos: 3 }]);
+        const r = removeProgressPoint([pp(1, 1), pp(2, 2), pp(3, 3)], 1);
+        expect(r.map(p => ({ ts: p.ts, reachedPos: p.reachedPos }))).toEqual([{ ts: 1, reachedPos: 1 }, { ts: 3, reachedPos: 3 }]);
     });
     it('範囲外インデックスは何も消さない', () => {
-        const base = [{ ts: 1, reachedPos: 1 }];
+        const base = [pp(1, 1)];
         expect(removeProgressPoint(base, 5)).toEqual(base);
     });
 });
 
 describe('computeProgressPercent', () => {
     it('最高到達点 / 全長 * 100 を丸めて返す（最終点でなく最高値）', () => {
-        const p: PlanProgress = { points: [{ ts: 1, reachedPos: 90 }, { ts: 2, reachedPos: 30 }], cleared: false };
+        const p: PlanProgress = { points: [pp(1, 90), pp(2, 30)], cleared: false };
         expect(computeProgressPercent(p, 300)).toBe(30); // 90/300=0.3（最終点30ではなく最高90を採用）
     });
     it('cleared なら全長に関係なく 100', () => {
-        const p: PlanProgress = { points: [{ ts: 1, reachedPos: 30 }], cleared: true };
+        const p: PlanProgress = { points: [pp(1, 30)], cleared: true };
         expect(computeProgressPercent(p, 300)).toBe(100);
     });
     it('progress 未設定 or 全長0 or 点なしは 0', () => {
@@ -59,7 +64,7 @@ describe('computeProgressPercent', () => {
         expect(computeProgressPercent({ points: [], cleared: false }, 300)).toBe(0);
     });
     it('100 を超えない', () => {
-        const p: PlanProgress = { points: [{ ts: 1, reachedPos: 400 }], cleared: false };
+        const p: PlanProgress = { points: [pp(1, 400)], cleared: false };
         expect(computeProgressPercent(p, 300)).toBe(100);
     });
 });
@@ -70,7 +75,7 @@ describe('isEmptyProgress', () => {
         expect(isEmptyProgress({ points: [], cleared: false })).toBe(true);
     });
     it('1点でもあれば false', () => {
-        expect(isEmptyProgress({ points: [{ ts: 1, reachedPos: 1 }], cleared: false })).toBe(false);
+        expect(isEmptyProgress({ points: [pp(1, 1)], cleared: false })).toBe(false);
         expect(isEmptyProgress({ points: [], cleared: true })).toBe(false);
         expect(isEmptyProgress({ points: [], cleared: false, activeDays: 3 })).toBe(false);
     });
@@ -78,19 +83,20 @@ describe('isEmptyProgress', () => {
 
 describe('insertProgressPoint', () => {
   it('指定 index に挿入し順序を保つ（Undo復元用）', () => {
-    const base = [{ ts: 1, reachedPos: 10 }, { ts: 3, reachedPos: 30 }];
-    expect(insertProgressPoint(base, 1, { ts: 2, reachedPos: 20 }))
-      .toEqual([{ ts: 1, reachedPos: 10 }, { ts: 2, reachedPos: 20 }, { ts: 3, reachedPos: 30 }]);
+    const base = [pp(1, 10), pp(3, 30)];
+    const result = insertProgressPoint(base, 1, pp(2, 20));
+    expect(result.map(p => ({ ts: p.ts, reachedPos: p.reachedPos }))).toEqual([{ ts: 1, reachedPos: 10 }, { ts: 2, reachedPos: 20 }, { ts: 3, reachedPos: 30 }]);
   });
   it('範囲外 index はクランプ（末尾/先頭）', () => {
-    expect(insertProgressPoint([{ ts: 1, reachedPos: 1 }], 99, { ts: 2, reachedPos: 2 }))
-      .toEqual([{ ts: 1, reachedPos: 1 }, { ts: 2, reachedPos: 2 }]);
+    const result = insertProgressPoint([pp(1, 1)], 99, pp(2, 2));
+    expect(result.map(p => ({ ts: p.ts, reachedPos: p.reachedPos }))).toEqual([{ ts: 1, reachedPos: 1 }, { ts: 2, reachedPos: 2 }]);
   });
   it('元配列を破壊しない / undefined 安全', () => {
-    const base = [{ ts: 1, reachedPos: 1 }];
-    insertProgressPoint(base, 0, { ts: 9, reachedPos: 9 });
-    expect(base).toEqual([{ ts: 1, reachedPos: 1 }]);
-    expect(insertProgressPoint(undefined, 0, { ts: 1, reachedPos: 1 })).toEqual([{ ts: 1, reachedPos: 1 }]);
+    const base = [pp(1, 1)];
+    insertProgressPoint(base, 0, pp(9, 9));
+    expect(base.map(p => ({ ts: p.ts, reachedPos: p.reachedPos }))).toEqual([{ ts: 1, reachedPos: 1 }]);
+    const result2 = insertProgressPoint(undefined, 0, pp(1, 1));
+    expect(result2.map(p => ({ ts: p.ts, reachedPos: p.reachedPos }))).toEqual([{ ts: 1, reachedPos: 1 }]);
   });
 });
 
@@ -152,4 +158,41 @@ describe('dayBucket (JST)', () => {
     expect(dayBucket(Date.parse('2026-06-18T10:00:00Z'), now)).toBe('yesterday'); // JST 6/18 19:00
     expect(dayBucket(Date.parse('2026-06-17T10:00:00Z'), now)).toBe('older');
   });
+});
+
+describe('ProgressPoint id 化', () => {
+    it('makeProgressPointId は pt_ 接頭辞の一意 id を返す', () => {
+        const a = makeProgressPointId();
+        const b = makeProgressPointId();
+        expect(a).toMatch(/^pt_/);
+        expect(a).not.toBe(b);
+    });
+
+    it('normalizeProgress は id 欠落の旧 points に id を補完する', () => {
+        const out = normalizeProgress({ points: [{ ts: 1, reachedPos: 10 }, { ts: 2, reachedPos: 20 }] });
+        expect(out.points).toHaveLength(2);
+        expect(out.points[0].id).toMatch(/^pt_/);
+        expect(out.points[1].id).toMatch(/^pt_/);
+        expect(out.points[0].id).not.toBe(out.points[1].id);
+        expect(out.points[0].reachedPos).toBe(10);
+    });
+
+    it('normalizeProgress は既存 id を保持する', () => {
+        const out = normalizeProgress({ points: [{ id: 'pt_keep', ts: 1, reachedPos: 10 }] });
+        expect(out.points[0].id).toBe('pt_keep');
+    });
+
+    it('removeProgressPointById は id 一致を1件だけ消す', () => {
+        const list = [{ id: 'pt_a', ts: 1, reachedPos: 1 }, { id: 'pt_b', ts: 2, reachedPos: 2 }];
+        expect(removeProgressPointById(list, 'pt_a')).toEqual([{ id: 'pt_b', ts: 2, reachedPos: 2 }]);
+        expect(removeProgressPointById(list, 'pt_missing')).toEqual(list);
+        expect(removeProgressPointById(undefined, 'pt_a')).toEqual([]);
+    });
+
+    it('setProgressPointNoteById は id 一致の note を設定/空文字で削除する', () => {
+        const list = [{ id: 'pt_a', ts: 1, reachedPos: 1 }];
+        expect(setProgressPointNoteById(list, 'pt_a', ' hi ')[0].note).toBe('hi');
+        expect('note' in setProgressPointNoteById(list, 'pt_a', '  ')[0]).toBe(false);
+        expect(setProgressPointNoteById(list, 'pt_x', 'z')).toEqual(list);
+    });
 });

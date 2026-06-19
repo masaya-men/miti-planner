@@ -1,5 +1,10 @@
 import type { ProgressPoint, PlanProgress, LocalizedString } from '../types';
 
+/** 打点 id を採番（pt_<uuid>）。crypto.randomUUID は全対象ブラウザで利用可。 */
+export function makeProgressPointId(): string {
+    return `pt_${crypto.randomUUID()}`;
+}
+
 /** Date → 'YYYY-MM-DD' (JST = UTC+9)。点のツールチップ等の日付ラベル算出に使う */
 export function makeDayKey(date: Date): string {
     const jst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
@@ -17,6 +22,23 @@ export function appendProgressPoint(list: ProgressPoint[] | undefined, point: Pr
 /** 指定インデックスの点を削除（誤記録修正） */
 export function removeProgressPoint(list: ProgressPoint[] | undefined, index: number): ProgressPoint[] {
     return (list ?? []).filter((_, i) => i !== index);
+}
+
+/** id 一致の点を削除（共同編集の個別削除に使う・非破壊）。 */
+export function removeProgressPointById(list: ProgressPoint[] | undefined, id: string): ProgressPoint[] {
+    return (list ?? []).filter((p) => p.id !== id);
+}
+
+/** id 一致の点の note を設定（空白のみなら note を削除）。非破壊。 */
+export function setProgressPointNoteById(
+    list: ProgressPoint[] | undefined, id: string, note: string
+): ProgressPoint[] {
+    const trimmed = note.trim();
+    return (list ?? []).map((p) => {
+        if (p.id !== id) return p;
+        if (!trimmed) { const { note: _omit, ...rest } = p; return rest; }
+        return { ...p, note: trimmed };
+    });
 }
 
 /** 最高到達点 / 全長 * 100（cleared は 100）。0〜100 に丸めクランプ */
@@ -41,11 +63,17 @@ export function normalizeProgress(p: unknown): PlanProgress {
     const cleared = !!obj.cleared;
     const activeDays = typeof obj.activeDays === 'number' ? obj.activeDays : undefined;
     const activeHours = typeof obj.activeHours === 'number' ? obj.activeHours : undefined;
+    const withId = (pt: Record<string, unknown>): ProgressPoint => ({
+        id: typeof pt.id === 'string' && pt.id ? pt.id : makeProgressPointId(),
+        ts: Number(pt.ts) || 0,
+        reachedPos: Number(pt.reachedPos) || 0,
+        ...(typeof pt.note === 'string' && pt.note ? { note: pt.note } : {}),
+    });
     if (Array.isArray(obj.points)) {
-        return { points: obj.points as ProgressPoint[], cleared, activeDays, activeHours };
+        return { points: (obj.points as Record<string, unknown>[]).map(withId), cleared, activeDays, activeHours };
     }
     const legacy = Array.isArray(obj.dailyBest) ? obj.dailyBest as Array<{ reachedPos?: number }> : [];
-    const points: ProgressPoint[] = legacy.map((d, i) => ({ ts: i + 1, reachedPos: Number(d?.reachedPos) || 0 }));
+    const points: ProgressPoint[] = legacy.map((d, i) => ({ id: makeProgressPointId(), ts: i + 1, reachedPos: Number(d?.reachedPos) || 0 }));
     return { points, cleared, activeDays, activeHours };
 }
 

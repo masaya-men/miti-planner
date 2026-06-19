@@ -6,6 +6,8 @@ export const TIMELINE_EVENTS_KEY = "timelineEvents";
 export const PHASES_KEY = "phases";
 export const LABELS_KEY = "labels";
 export const MEMOS_KEY = "memos";
+/** 進捗打点の Y.Array キー（events/memos と同じ汎用コレクション同期の対象）。 */
+export const PROGRESS_POINTS_KEY = "progressPoints";
 /** ②-b-2: パーティ編成の Y.Array キー（events 等と並ぶトップレベル）。 */
 export const PARTY_MEMBERS_KEY = "partyMembers";
 /** ②-b-2: mitigations Y.Array キー（②-a の YJS_MITIGATIONS_KEY と同値。汎用 batch 経路で使う）。 */
@@ -16,15 +18,19 @@ export const PLAN_META_KEY = "planMeta";
 export const META_LEVEL = "currentLevel";
 export const META_AA = "aaSettings";
 export const META_SCH = "schAetherflowPatterns";
+/** 進捗スカラー(planMeta に載る・後勝ち)。 */
+export const META_PROGRESS_CLEARED = "progressCleared";
+export const META_PROGRESS_DAYS = "progressActiveDays";
+export const META_PROGRESS_HOURS = "progressActiveHours";
 // ⑤-3b: ボス/コンテンツ識別子。seed のみ(save には載らない＝オーナーの不変属性を書き戻さない)。
 export const META_CONTENT_ID = "contentId";
 // ⑤-3c: オーナー設定の部屋ラベル。seed のみ(save には載らない)。
 export const META_OWNER_LABEL = "ownerLabel";
 
-/** 配列同期キーの型（events/phases/labels/memos + ②-b-2 で partyMembers/timelineMitigations）。 */
+/** 配列同期キーの型（events/phases/labels/memos + ②-b-2 で partyMembers/timelineMitigations + 進捗打点）。 */
 export type PlanArrayKey =
   | typeof TIMELINE_EVENTS_KEY | typeof PHASES_KEY | typeof LABELS_KEY | typeof MEMOS_KEY
-  | typeof PARTY_MEMBERS_KEY | typeof MITIGATIONS_KEY;
+  | typeof PARTY_MEMBERS_KEY | typeof MITIGATIONS_KEY | typeof PROGRESS_POINTS_KEY;
 
 /** AASettings 型(PlanData.aaSettings 相当・store の setAaSettings と同一)。 */
 export interface AASettings {
@@ -37,6 +43,9 @@ export interface PlanMetaSlice {
   currentLevel?: number;
   aaSettings?: AASettings;
   schAetherflowPatterns?: Record<string, 1 | 2>;
+  progressCleared?: boolean;
+  progressActiveDays?: number;
+  progressActiveHours?: number;
 }
 
 /** プレーン record(id 必須)→ Y.Map。undefined は set しない(②-a appliedToYMap と同方針)。 */
@@ -111,6 +120,7 @@ export function buildArrByKey(doc: Y.Doc): Record<PlanArrayKey, Y.Array<Y.Map<un
     [MEMOS_KEY]: doc.getArray<Y.Map<unknown>>(MEMOS_KEY),
     [PARTY_MEMBERS_KEY]: doc.getArray<Y.Map<unknown>>(PARTY_MEMBERS_KEY),
     [MITIGATIONS_KEY]: doc.getArray<Y.Map<unknown>>(MITIGATIONS_KEY),
+    [PROGRESS_POINTS_KEY]: doc.getArray<Y.Map<unknown>>(PROGRESS_POINTS_KEY),
   };
 }
 
@@ -130,6 +140,24 @@ export function applyBatch(
   }, "local");
 }
 
+/**
+ * setMeta の field 名 → planMeta の Y.Map キー。
+ * 未知フィールドは null を返す(誤った別キー上書きを防ぐ)。
+ * Fix: 旧実装の else 節で progressCleared 等が META_SCH("schAetherflowPatterns") に
+ * 落ちて表データを破壊するバグを根治する純粋関数。
+ */
+export function metaKeyForField(field: string): string | null {
+  switch (field) {
+    case "currentLevel": return META_LEVEL;
+    case "aaSettings": return META_AA;
+    case "schAetherflowPatterns": return META_SCH;
+    case "progressCleared": return META_PROGRESS_CLEARED;
+    case "progressActiveDays": return META_PROGRESS_DAYS;
+    case "progressActiveHours": return META_PROGRESS_HOURS;
+    default: return null;
+  }
+}
+
 /** planMeta の 1 フィールドを set。 */
 export function setMetaField(doc: Y.Doc, field: string, value: unknown): void {
   doc.getMap(PLAN_META_KEY).set(field, value);
@@ -142,6 +170,9 @@ export function readPlanMeta(doc: Y.Doc): PlanMetaSlice {
     currentLevel: meta.get(META_LEVEL) as number | undefined,
     aaSettings: meta.get(META_AA) as AASettings | undefined,
     schAetherflowPatterns: meta.get(META_SCH) as Record<string, 1 | 2> | undefined,
+    progressCleared: meta.get(META_PROGRESS_CLEARED) as boolean | undefined,
+    progressActiveDays: meta.get(META_PROGRESS_DAYS) as number | undefined,
+    progressActiveHours: meta.get(META_PROGRESS_HOURS) as number | undefined,
   };
 }
 

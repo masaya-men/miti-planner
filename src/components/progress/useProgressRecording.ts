@@ -69,8 +69,8 @@ export const useProgressRecording = create<ProgressRecordingState>((set) => ({
         const ts = useProgressRecording.getState().lastRecordedTs;
         if (ts == null) return;
         const mit = useMitigationStore.getState();
-        const idx = mit.progress.points.findIndex((p) => p.ts === ts);
-        if (idx >= 0) mit.removeProgressPoint(idx);
+        const pt = mit.progress.points.find((p) => p.ts === ts);
+        if (pt) mit.removeProgressPoint(pt.id);
         set({ lastRecordedTs: null, toast: null });
     },
     clearToast: () => set({ toast: null }),

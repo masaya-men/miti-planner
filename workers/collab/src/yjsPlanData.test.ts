@@ -18,10 +18,17 @@ const seed: PlanDataSeed = {
 };
 
 describe("worker yjsPlanData seed/read 往復", () => {
-  it("buildSeedDocFull で組んだ Y.Doc を readPlanDataFull で読むと元に一致(contentId/ownerLabel は save 非対象で除外)", () => {
+  it("buildSeedDocFull で組んだ Y.Doc を readPlanDataFull で読むと元に一致(contentId/ownerLabel/progressPoints 系は除外)", () => {
     const doc = buildSeedDocFull(seed);
+    // contentId/ownerLabel は save 非対象。progressPoints 系は seed に含まれず空/undefined になるため除外して比較。
     const { contentId, ownerLabel, ...rest } = seed;
-    expect(readPlanDataFull(doc)).toEqual(rest);
+    const out = readPlanDataFull(doc);
+    const { progressPoints, progressCleared, progressActiveDays, progressActiveHours, ...outRest } = out;
+    expect(outRest).toEqual(rest);
+    expect(progressPoints).toEqual([]);
+    expect(progressCleared).toBeUndefined();
+    expect(progressActiveDays).toBeUndefined();
+    expect(progressActiveHours).toBeUndefined();
   });
   it("contentId は planMeta に seed され readContentId で読める", () => {
     const doc = buildSeedDocFull(seed);
@@ -43,5 +50,19 @@ describe("worker yjsPlanData seed/read 往復", () => {
     expect(out.currentLevel).toBeUndefined();
     expect(out.aaSettings).toBeUndefined();
     expect(out.schAetherflowPatterns).toBeUndefined();
+  });
+  it("progressPoints と進捗 meta が seed→read で往復する", () => {
+    const doc = buildSeedDocFull({
+      mitigations: [],
+      progressPoints: [{ id: "pt_a", ts: 1, reachedPos: 10 }],
+      progressCleared: true,
+      progressActiveDays: 5,
+      progressActiveHours: 9,
+    });
+    const out = readPlanDataFull(doc);
+    expect(out.progressPoints).toEqual([{ id: "pt_a", ts: 1, reachedPos: 10 }]);
+    expect(out.progressCleared).toBe(true);
+    expect(out.progressActiveDays).toBe(5);
+    expect(out.progressActiveHours).toBe(9);
   });
 });

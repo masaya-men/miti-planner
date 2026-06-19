@@ -125,11 +125,16 @@ describe('decideLoadFull (全PlanData seed)', () => {
       aaSettings: data.aaSettings,
       schAetherflowPatterns: data.schAetherflowPatterns,
       partyMembers: data.partyMembers,
+      progressPoints: [],
+      progressCleared: undefined,
+      progressActiveDays: undefined,
+      progressActiveHours: undefined,
       contentId: 'm4s',
     });
     expect(decideLoadFull({ data: {} })).toEqual({
       mitigations: [], timelineEvents: [], phases: [], labels: [], memos: [],
       currentLevel: undefined, aaSettings: undefined, schAetherflowPatterns: undefined, partyMembers: [],
+      progressPoints: [], progressCleared: undefined, progressActiveDays: undefined, progressActiveHours: undefined,
       contentId: undefined,
     });
   });

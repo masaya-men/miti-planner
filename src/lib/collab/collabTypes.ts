@@ -16,8 +16,9 @@ export interface CollabHandlers {
   removeItems: (key: PlanArrayKey, ids: string[]) => void;
   // planMeta スカラー
   setMeta: (
-    field: "currentLevel" | "aaSettings" | "schAetherflowPatterns",
-    value: number | AASettings | Record<string, 1 | 2>,
+    field: "currentLevel" | "aaSettings" | "schAetherflowPatterns"
+         | "progressCleared" | "progressActiveDays" | "progressActiveHours",
+    value: number | boolean | AASettings | Record<string, 1 | 2>,
   ) => void;
   // バルク(FFLogs 取込: events/phases/labels 全置換 + mitigations クリア・1 transaction)
   importBulk: (events: TimelineEvent[], phases?: Phase[], labels?: Label[]) => void;

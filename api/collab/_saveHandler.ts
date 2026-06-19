@@ -16,11 +16,13 @@ export default async function handler(req: any, res: any) {
   if (isCollabDisabled(process.env)) return res.status(200).json({ skipped: 'disabled' });
 
   const { planId: bodyPlanId, roomToken, mitigations,
-    timelineEvents, phases, labels, memos, currentLevel, aaSettings, schAetherflowPatterns, partyMembers } =
+    timelineEvents, phases, labels, memos, currentLevel, aaSettings, schAetherflowPatterns, partyMembers,
+    progressPoints, progressCleared, progressActiveDays, progressActiveHours } =
     (req.body ?? {}) as {
       planId?: string; roomToken?: string; mitigations?: MitigationRecord[];
       timelineEvents?: unknown[]; phases?: unknown[]; labels?: unknown[]; memos?: unknown[];
       currentLevel?: number; aaSettings?: unknown; schAetherflowPatterns?: unknown; partyMembers?: unknown[];
+      progressPoints?: unknown[]; progressCleared?: boolean; progressActiveDays?: number; progressActiveHours?: number;
     };
   if (!Array.isArray(mitigations)) {
     return res.status(400).json({ error: 'mitigations[] required' });
@@ -63,6 +65,11 @@ export default async function handler(req: any, res: any) {
     if (Array.isArray(phases) && !skip.has('phases')) update['data.phases'] = phases;
     if (Array.isArray(labels)) update['data.labels'] = labels;
     if (Array.isArray(memos)) update['data.memos'] = memos;
+    // 進捗: ネスト data.progress.* へ部分更新(空上書きガード対象外=memos 同型・確定事項)
+    if (Array.isArray(progressPoints)) update['data.progress.points'] = progressPoints;
+    if (typeof progressCleared === 'boolean') update['data.progress.cleared'] = progressCleared;
+    if (typeof progressActiveDays === 'number') update['data.progress.activeDays'] = progressActiveDays;
+    if (typeof progressActiveHours === 'number') update['data.progress.activeHours'] = progressActiveHours;
     if (typeof currentLevel === 'number') update['data.currentLevel'] = currentLevel;
     if (aaSettings !== undefined) update['data.aaSettings'] = aaSettings;
     if (schAetherflowPatterns !== undefined) update['data.schAetherflowPatterns'] = schAetherflowPatterns;

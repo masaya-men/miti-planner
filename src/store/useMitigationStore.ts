@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo, PlanProgress, ProgressPoint } from '../types';
-import { appendProgressPoint, removeProgressPoint, normalizeProgress, insertProgressPoint } from '../lib/progressLogic';
+import { appendProgressPoint, removeProgressPointById, setProgressPointNoteById, normalizeProgress, insertProgressPoint, makeProgressPointId } from '../lib/progressLogic';
 import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
 import { MEMO_LIMITS } from '../types/firebase';
@@ -183,9 +183,11 @@ interface MitigationState {
     _applyPhasesFromCollab: (phases: Phase[]) => void;
     _applyLabelsFromCollab: (labels: Label[]) => void;
     _applyMemosFromCollab: (memos: PlanMemo[]) => void;
+    /** 遅延チャンクの observeDeep から呼ぶ: Yjs 側の最新進捗打点を store に反映(union 結果)。 */
+    _applyProgressPointsFromCollab: (points: ProgressPoint[]) => void;
     /** ②-b-2: Yjs 側の最新 partyMembers を store に反映(computedValues は currentLevel からローカル再計算)。 */
     _applyPartyMembersFromCollab: (members: PartyMember[]) => void;
-    _applyMetaFromCollab: (meta: { currentLevel?: number; aaSettings?: AASettings; schAetherflowPatterns?: Record<string, 1 | 2> }) => void;
+    _applyMetaFromCollab: (meta: { currentLevel?: number; aaSettings?: AASettings; schAetherflowPatterns?: Record<string, 1 | 2>; progressCleared?: boolean; progressActiveDays?: number; progressActiveHours?: number }) => void;
 
     // メモ機能アクション (#57)
     setToolMode: (mode: 'idle' | 'aa-placement' | 'memo') => void;
@@ -196,11 +198,11 @@ interface MitigationState {
 
     // 進捗トラッキング アクション (#HUD)
     recordReachedPoint: (reachedPos: number) => void;
-    removeProgressPoint: (index: number) => void;
+    removeProgressPoint: (id: string) => void;
     setCleared: (cleared: boolean) => void;
     setActiveDays: (n: number | undefined) => void;
     setActiveHours: (n: number | undefined) => void;
-    setProgressPointNote: (index: number, note: string) => void;
+    setProgressPointNote: (id: string, note: string) => void;
     clearAllProgressPoints: () => void;
     insertProgressPointAt: (index: number, point: ProgressPoint) => void;
 }
@@ -590,6 +592,15 @@ export const useMitigationStore = create<MitigationState>()(
                 _applyLabelsFromCollab: (labels) =>
                     set({ labels: [...labels].sort((a, b) => a.startTime - b.startTime) }),
                 _applyMemosFromCollab: (memos) => set({ memos }),
+                _applyProgressPointsFromCollab: (points) =>
+                    set((state) => ({
+                        progress: {
+                            ...state.progress,
+                            // 旧形式(id 欠落)の点に id を補完する防御(api 側で補完済みが本線だが、
+                            // 既に id なしで Yjs に入っている在室中の部屋への保険)。
+                            points: points.map((p) => (p && p.id ? p : { ...p, id: makeProgressPointId() })),
+                        },
+                    })),
                 _applyPartyMembersFromCollab: (members) =>
                     set((state) => ({
                         partyMembers: members.map((m) => ({
@@ -602,6 +613,15 @@ export const useMitigationStore = create<MitigationState>()(
                         const patch: Partial<MitigationState> = {};
                         if (meta.aaSettings !== undefined) patch.aaSettings = meta.aaSettings;
                         if (meta.schAetherflowPatterns !== undefined) patch.schAetherflowPatterns = meta.schAetherflowPatterns;
+                        // 進捗スカラー(cleared/activeDays/activeHours)を progress に反映。
+                        if (meta.progressCleared !== undefined || meta.progressActiveDays !== undefined || meta.progressActiveHours !== undefined) {
+                            patch.progress = {
+                                ...state.progress,
+                                ...(meta.progressCleared !== undefined ? { cleared: meta.progressCleared } : {}),
+                                ...(meta.progressActiveDays !== undefined ? { activeDays: meta.progressActiveDays } : {}),
+                                ...(meta.progressActiveHours !== undefined ? { activeHours: meta.progressActiveHours } : {}),
+                            };
+                        }
                         if (meta.currentLevel !== undefined) {
                             patch.currentLevel = meta.currentLevel;
                             // computedValues は派生 → ローカル再計算(partyMembers は ②-b-2 で Y 同期済み、ここでは state を読む)。
@@ -1588,46 +1608,73 @@ export const useMitigationStore = create<MitigationState>()(
                 },
 
                 // 進捗トラッキング アクション (#HUD)
-                // Plan 1 では collab 委譲を使わず常にローカル set() のみ。collab 委譲は Plan 2 で別途。
+                // Plan 2: collab active 時は handlers へ委譲。非 collab 時はローカル set() のみ(Plan 1 と同じ)。
                 recordReachedPoint: (reachedPos) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    const point = { id: makeProgressPointId(), ts: Date.now(), reachedPos };
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.upsertItems('progressPoints', [point]);
+                        return;
+                    }
                     set((state) => ({
-                        progress: { ...state.progress, points: appendProgressPoint(state.progress.points, { ts: Date.now(), reachedPos }) },
+                        progress: { ...state.progress, points: appendProgressPoint(state.progress.points, point) },
                     }));
                 },
-                removeProgressPoint: (index) => {
+                removeProgressPoint: (id) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.removeItems('progressPoints', [id]);
+                        return;
+                    }
                     set((state) => ({
-                        progress: { ...state.progress, points: removeProgressPoint(state.progress.points, index) },
+                        progress: { ...state.progress, points: removeProgressPointById(state.progress.points, id) },
                     }));
                 },
                 setCleared: (cleared) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.setMeta('progressCleared', cleared);
+                        return;
+                    }
                     set((state) => ({ progress: { ...state.progress, cleared } }));
                 },
                 setActiveDays: (n) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    // undefined(クリア)は Yjs Map に保存できないためローカルのみ。数値の場合のみ委譲。
+                    if (n !== undefined && get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.setMeta('progressActiveDays', n);
+                        return;
+                    }
                     set((state) => ({ progress: { ...state.progress, activeDays: n } }));
                 },
                 setActiveHours: (n) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    // undefined(クリア)は Yjs Map に保存できないためローカルのみ。数値の場合のみ委譲。
+                    if (n !== undefined && get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.setMeta('progressActiveHours', n);
+                        return;
+                    }
                     set((state) => ({ progress: { ...state.progress, activeHours: n } }));
                 },
-                setProgressPointNote: (index, note) => {
+                setProgressPointNote: (id, note) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
-                    set((state) => {
-                        if (index < 0 || index >= state.progress.points.length) return {} as any;
-                        const trimmed = note.trim();
-                        const points = state.progress.points.map((p, i) => {
-                            if (i !== index) return p;
-                            if (!trimmed) { const { note: _omit, ...rest } = p; return rest; }
-                            return { ...p, note: trimmed };
-                        });
-                        return { progress: { ...state.progress, points } };
-                    });
+                    if (get()._collabActive && get()._collabHandlers) {
+                        // メモは点の部分更新 = upsert で note フィールドだけ送る(applyUpsert が部分更新)。
+                        // 空 note を送っても既存 note を消せない(空文字 set になる)が、
+                        // 表示側で空 note 非表示のため許容(進捗は飾り)。
+                        get()._collabHandlers!.upsertItems('progressPoints', [{ id, note: note.trim() }]);
+                        return;
+                    }
+                    set((state) => ({
+                        progress: { ...state.progress, points: setProgressPointNoteById(state.progress.points, id, note) },
+                    }));
                 },
                 clearAllProgressPoints: () => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    if (get()._collabActive && get()._collabHandlers) {
+                        get()._collabHandlers!.removeItems('progressPoints', get().progress.points.map((p) => p.id));
+                        return;
+                    }
                     set((state) => ({ progress: { ...state.progress, points: [] } }));
                 },
                 insertProgressPointAt: (index, point) => {

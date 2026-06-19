@@ -115,6 +115,7 @@ export interface PlanDocSnapshotFull {
     aaSettings?: unknown;
     schAetherflowPatterns?: unknown;
     partyMembers?: unknown[];
+    progress?: { points?: unknown[]; cleared?: boolean; activeDays?: number; activeHours?: number };
   };
 }
 
@@ -130,8 +131,22 @@ export type LoadResultFull =
       aaSettings?: unknown;
       schAetherflowPatterns?: unknown;
       partyMembers: unknown[];
+      progressPoints: unknown[];
+      progressCleared?: boolean;
+      progressActiveDays?: number;
+      progressActiveHours?: number;
       contentId?: string;
     };
+
+/**
+ * 旧形式(id 欠落)の進捗点に id を補完する。
+ * worker の dedupeById は id===undefined の点を「先頭1件以外すべて削除」してしまうため、
+ * seed に渡す前に id を付与して消滅を防ぐ。
+ */
+function ensureProgressPointId(p: unknown): unknown {
+  if (p && typeof p === 'object' && typeof (p as { id?: unknown }).id === 'string' && (p as { id: string }).id) return p;
+  return { ...(p as object), id: `pt_${crypto.randomUUID()}` };
+}
 
 /** 全 b-1 要素の seed を決める。墓標/不存在は deleted(削除が勝つ)。配列欠落は []、スカラー欠落は undefined。 */
 export function decideLoadFull(plan: PlanDocSnapshotFull | null): LoadResultFull {
@@ -147,6 +162,10 @@ export function decideLoadFull(plan: PlanDocSnapshotFull | null): LoadResultFull
     aaSettings: d.aaSettings,
     schAetherflowPatterns: d.schAetherflowPatterns,
     partyMembers: d.partyMembers ?? [],
+    progressPoints: (d.progress?.points ?? []).map(ensureProgressPointId),
+    progressCleared: d.progress?.cleared,
+    progressActiveDays: d.progress?.activeDays,
+    progressActiveHours: d.progress?.activeHours,
     contentId: plan.contentId,
   };
 }
