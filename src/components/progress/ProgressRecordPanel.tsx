@@ -1,5 +1,5 @@
 // 到達点記録パネル — PC: 中央下から降りるドロワー / スマホ: MobileBottomSheet
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -115,6 +115,18 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
     const startRecordMode = useProgressRecording(s => s.startRecordMode);
 
+    // 進捗エリア（HUD 帯）の実位置を測り、その中央真下に出す。
+    // ヘッダーは左右非対称（左ツール/右ボタン）なので画面中央ではなく帯の中心に紐づける。
+    // 帯が見つからない場合のフォールバックは従来の画面中央 / top:92px。
+    const [pos, setPos] = useState<{ left: number; top: number; width: number } | null>(null);
+    useLayoutEffect(() => {
+        const band = document.querySelector('[data-progress-hud-band]');
+        if (!band) return;
+        const r = band.getBoundingClientRect();
+        const width = Math.min(720, Math.max(r.width, 480), window.innerWidth * 0.92);
+        setPos({ left: r.left + r.width / 2, top: r.bottom + 6, width });
+    }, []);
+
     // 開いた瞬間に記録モード ON（PC のみ）
     useEffect(() => { startRecordMode(); }, [startRecordMode]);
 
@@ -148,7 +160,9 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     return createPortal(
         <div ref={drawerRef}
             className="fixed z-[9999] glass-tier3 rounded-b-lg shadow-sm overflow-hidden"
-            style={{ top: '92px', left: '50%', transform: 'translateX(-50%)', width: 'min(720px, 92vw)' }}
+            style={pos
+                ? { top: `${pos.top}px`, left: `${pos.left}px`, transform: 'translateX(-50%)', width: `${pos.width}px` }
+                : { top: '92px', left: '50%', transform: 'translateX(-50%)', width: 'min(720px, 92vw)' }}
         >
             <div className="flex items-center justify-end px-3 py-1.5 border-b border-glass-border">
                 <button onClick={onClose} className="text-app-text p-1 rounded-lg hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 cursor-pointer active:scale-90">

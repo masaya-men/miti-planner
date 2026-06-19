@@ -308,7 +308,9 @@ export function ProgressTrackingHUD() {
   return (
     <>
       {/* HUD 帯クリックで記録パネルを開く（空状態・軌跡表示どちらも同じクリック領域） */}
+      {/* data-progress-hud-band: 記録ドロワーがこの帯の位置を測り、中央真下から降りるためのアンカー */}
       <div
+        data-progress-hud-band
         className="w-full cursor-pointer"
         onClick={() => useProgressRecording.getState().openPanel()}
       >
