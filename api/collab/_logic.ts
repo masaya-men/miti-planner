@@ -115,6 +115,7 @@ export interface PlanDocSnapshotFull {
     aaSettings?: unknown;
     schAetherflowPatterns?: unknown;
     partyMembers?: unknown[];
+    progress?: { points?: unknown[]; cleared?: boolean; activeDays?: number; activeHours?: number };
   };
 }
 
@@ -130,6 +131,10 @@ export type LoadResultFull =
       aaSettings?: unknown;
       schAetherflowPatterns?: unknown;
       partyMembers: unknown[];
+      progressPoints: unknown[];
+      progressCleared?: boolean;
+      progressActiveDays?: number;
+      progressActiveHours?: number;
       contentId?: string;
     };
 
@@ -147,6 +152,10 @@ export function decideLoadFull(plan: PlanDocSnapshotFull | null): LoadResultFull
     aaSettings: d.aaSettings,
     schAetherflowPatterns: d.schAetherflowPatterns,
     partyMembers: d.partyMembers ?? [],
+    progressPoints: d.progress?.points ?? [],
+    progressCleared: d.progress?.cleared,
+    progressActiveDays: d.progress?.activeDays,
+    progressActiveHours: d.progress?.activeHours,
     contentId: plan.contentId,
   };
 }
