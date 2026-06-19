@@ -42,10 +42,10 @@ export function ProgressRecordToast() {
       textEl.appendChild(s); preSpans.push(s);
     });
     const numSpan = document.createElement('span');
-    numSpan.className = 'font-black'; numSpan.style.color = '#bfe9ff';
+    numSpan.className = 'font-black'; numSpan.style.color = 'var(--progress-toast-num)';
     numSpan.textContent = '0'; textEl.appendChild(numSpan);
     const sufSpan = document.createElement('span');
-    sufSpan.style.color = '#bfe9ff'; sufSpan.textContent = suffix; textEl.appendChild(sufSpan);
+    sufSpan.style.color = 'var(--progress-toast-num)'; sufSpan.textContent = suffix; textEl.appendChild(sufSpan);
 
     // タイミング(seq)
     const holoDur = 780, decStart = 320, decDur = 700, numStart = 880, numDur = 560;
@@ -107,10 +107,10 @@ export function ProgressRecordToast() {
       ref={rootRef}
       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[5] pointer-events-none whitespace-nowrap font-extrabold text-app-base"
       style={{
-        opacity: 0, color: '#dff4ff', letterSpacing: '.03em',
-        textShadow: '0 0 10px rgba(150,230,255,.6), 0 1px 2px rgba(0,0,0,.9)',
+        opacity: 0, color: 'var(--progress-toast-color)', letterSpacing: '.03em',
+        textShadow: 'var(--progress-toast-shadow)',
         padding: '6px 16px', borderRadius: '999px',
-        background: 'radial-gradient(ellipse at center, rgba(8,14,28,0.74) 0%, rgba(8,14,28,0.35) 60%, rgba(8,14,28,0) 100%)',
+        background: 'var(--progress-toast-bg)',
         fontVariantNumeric: 'tabular-nums',
       }}
     >

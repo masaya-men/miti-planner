@@ -258,6 +258,12 @@
     --color-blue-dim: rgba(59, 130, 246, 0.10);
     --color-blue-border: rgba(59, 130, 246, 0.25);
 
+    /* 進捗記録トースト（ホログラム）— dark 既定: 濃紺ハロー + 淡シアン文字 */
+    --progress-toast-color: #dff4ff;
+    --progress-toast-num: #bfe9ff;
+    --progress-toast-bg: radial-gradient(ellipse at center, rgba(8,14,28,0.74) 0%, rgba(8,14,28,0.35) 60%, rgba(8,14,28,0) 100%);
+    --progress-toast-shadow: 0 0 10px rgba(150,230,255,.6), 0 1px 2px rgba(0,0,0,.9);
+
     --color-red: #ef4444;
     --color-red-hover: #dc2626;
     --color-red-dim: rgba(239, 68, 68, 0.10);
@@ -381,6 +387,12 @@
     --color-blue-hover: #1d4ed8;
     --color-blue-dim: rgba(37, 99, 235, 0.08);
     --color-blue-border: rgba(37, 99, 235, 0.20);
+
+    /* 進捗記録トースト（ホログラム）— light 上書き: 白系ハロー + 濃いブルー文字でテーマに馴染ませる */
+    --progress-toast-color: #1565c0;
+    --progress-toast-num: #0d72d6;
+    --progress-toast-bg: radial-gradient(ellipse at center, rgba(255,255,255,0.96) 0%, rgba(219,236,255,0.72) 55%, rgba(255,255,255,0) 100%);
+    --progress-toast-shadow: 0 0 10px rgba(120,185,255,.5), 0 1px 2px rgba(255,255,255,.85);
 
     --color-red: #dc2626;
     --color-red-hover: #b91c1c;
