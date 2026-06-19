@@ -7,6 +7,7 @@ import {
   readPlanMeta, setMetaField, readContentId, readOwnerLabel,
   TIMELINE_EVENTS_KEY, PHASES_KEY, PLAN_META_KEY, META_LEVEL, META_AA, META_SCH, META_CONTENT_ID, META_OWNER_LABEL,
   PARTY_MEMBERS_KEY, MITIGATIONS_KEY,
+  PROGRESS_POINTS_KEY, META_PROGRESS_CLEARED, META_PROGRESS_DAYS,
 } from "../yjsPlanData";
 
 function bridge(a: Y.Doc, b: Y.Doc) {
@@ -84,7 +85,14 @@ describe("yjsPlanData planMeta(スカラー・フィールド単位後勝ち)", 
   it("未設定の planMeta は全フィールド undefined", () => {
     const doc = new Y.Doc();
     doc.getMap(PLAN_META_KEY); // ensure exists
-    expect(readPlanMeta(doc)).toEqual({ currentLevel: undefined, aaSettings: undefined, schAetherflowPatterns: undefined });
+    expect(readPlanMeta(doc)).toEqual({
+      currentLevel: undefined,
+      aaSettings: undefined,
+      schAetherflowPatterns: undefined,
+      progressCleared: undefined,
+      progressActiveDays: undefined,
+      progressActiveHours: undefined,
+    });
   });
   it("readContentId は planMeta の contentId を読む(未設定は undefined)", () => {
     const a = new Y.Doc(), b = new Y.Doc(); bridge(a, b);
@@ -143,5 +151,23 @@ describe("buildArrByKey", () => {
   it("同一キーは Yjs 共有インスタンスを返す（doc.getArray と一致）", () => {
     const doc = new Y.Doc();
     expect(buildArrByKey(doc)[PARTY_MEMBERS_KEY]).toBe(doc.getArray(PARTY_MEMBERS_KEY));
+  });
+});
+
+describe("progressPoints / progress meta 配管", () => {
+  it("buildArrByKey に progressPoints が含まれ upsert/read が往復する", () => {
+    const doc = new Y.Doc();
+    const arr = buildArrByKey(doc)[PROGRESS_POINTS_KEY];
+    applyUpsert(arr, [{ id: "pt_a", ts: 1, reachedPos: 10 } as { id: string }]);
+    expect(readArray(doc, PROGRESS_POINTS_KEY)).toEqual([{ id: "pt_a", ts: 1, reachedPos: 10 }]);
+  });
+
+  it("readPlanMeta が progress スカラーを読む", () => {
+    const doc = new Y.Doc();
+    setMetaField(doc, META_PROGRESS_CLEARED, true);
+    setMetaField(doc, META_PROGRESS_DAYS, 3);
+    const meta = readPlanMeta(doc);
+    expect(meta.progressCleared).toBe(true);
+    expect(meta.progressActiveDays).toBe(3);
   });
 });
