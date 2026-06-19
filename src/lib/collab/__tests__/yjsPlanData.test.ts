@@ -7,7 +7,7 @@ import {
   readPlanMeta, setMetaField, readContentId, readOwnerLabel,
   TIMELINE_EVENTS_KEY, PHASES_KEY, PLAN_META_KEY, META_LEVEL, META_AA, META_SCH, META_CONTENT_ID, META_OWNER_LABEL,
   PARTY_MEMBERS_KEY, MITIGATIONS_KEY,
-  PROGRESS_POINTS_KEY, META_PROGRESS_CLEARED, META_PROGRESS_DAYS,
+  PROGRESS_POINTS_KEY, META_PROGRESS_CLEARED, META_PROGRESS_DAYS, META_PROGRESS_HOURS,
   metaKeyForField,
 } from "../yjsPlanData";
 
@@ -167,9 +167,11 @@ describe("progressPoints / progress meta 配管", () => {
     const doc = new Y.Doc();
     setMetaField(doc, META_PROGRESS_CLEARED, true);
     setMetaField(doc, META_PROGRESS_DAYS, 3);
+    setMetaField(doc, META_PROGRESS_HOURS, 7);
     const meta = readPlanMeta(doc);
     expect(meta.progressCleared).toBe(true);
     expect(meta.progressActiveDays).toBe(3);
+    expect(meta.progressActiveHours).toBe(7);
   });
 });
 

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useMitigationStore } from '../useMitigationStore';
+import type { AppliedMitigation, TimelineEvent, Phase, Label, PartyMember } from '../../types';
 
 const seed = (points: { id?: string; ts: number; reachedPos: number; note?: string }[], extra = {}) =>
   useMitigationStore.setState({
@@ -87,5 +88,172 @@ describe('useMitigationStore progress detail actions', () => {
     const id = useMitigationStore.getState().progress.points[0].id;
     store.setProgressPointNote(id, 'memo');
     expect(useMitigationStore.getState().progress.points[0].note).toBe('memo');
+  });
+});
+
+// ─────────────────────────────────────────────
+// データ安全回帰: 進捗操作は表データを一切変更しない
+// ─────────────────────────────────────────────
+// 「進捗をいじっても表(軽減配置)が消えない」という絶対要件を
+// 参照レベルで永久に固定するためのテスト群。
+// 各 assert は toBe(同一参照) でストアが表フィールドのオブジェクトを
+// 作り直していないことを確認する。
+// ─────────────────────────────────────────────
+
+const tableAm = (): AppliedMitigation => ({
+  id: 'reg_m1', mitigationId: 'rampart', time: 10, duration: 20, ownerId: 'MT',
+});
+const tableEv = (): TimelineEvent => ({
+  id: 'reg_e1', time: 30, name: { ja: '全体攻撃', en: 'AoE' }, damageType: 'magical',
+});
+const tablePh = (): Phase => ({
+  id: 'reg_p1', name: { ja: 'P1', en: 'P1' }, startTime: 0, endTime: 120,
+});
+const tableLb = (): Label => ({
+  id: 'reg_l1', name: { ja: 'バーン', en: 'Burn' }, startTime: 0, endTime: 60,
+});
+const tablePm = (): PartyMember => ({
+  id: 'MT', jobId: 'pld', role: 'tank',
+  stats: { hp: 100000, mainStat: 3000, det: 2000, crt: 2000, ten: 2000, ss: 800, wd: 100 },
+  computedValues: { Rampart: 20 },
+});
+
+/** 表データを仕込み、非 collab モードに設定するヘルパ */
+function seedTableData() {
+  useMitigationStore.setState({
+    timelineMitigations: [tableAm()],
+    timelineEvents: [tableEv()],
+    phases: [tablePh()],
+    labels: [tableLb()],
+    partyMembers: [tablePm()],
+    progress: { points: [], cleared: false },
+    _collabReadonly: false,
+    _collabActive: false,
+    _collabHandlers: null,
+  } as any);
+}
+
+describe('データ安全: 進捗操作は表データを変更しない', () => {
+  beforeEach(() => {
+    useMitigationStore.getState().resetForTutorial();
+    seedTableData();
+  });
+
+  it('recordReachedPoint は表データ5フィールドを変えない', () => {
+    const s = useMitigationStore.getState();
+    const beforeMit = s.timelineMitigations;
+    const beforeEv  = s.timelineEvents;
+    const beforePh  = s.phases;
+    const beforeLb  = s.labels;
+    const beforePm  = s.partyMembers;
+    s.recordReachedPoint(50);
+    const after = useMitigationStore.getState();
+    expect(after.timelineMitigations).toBe(beforeMit);
+    expect(after.timelineEvents).toBe(beforeEv);
+    expect(after.phases).toBe(beforePh);
+    expect(after.labels).toBe(beforeLb);
+    expect(after.partyMembers).toBe(beforePm);
+  });
+
+  it('removeProgressPoint は表データ5フィールドを変えない', () => {
+    // 先に1点記録して id を取得
+    useMitigationStore.getState().recordReachedPoint(30);
+    const ptId = useMitigationStore.getState().progress.points[0].id;
+    const s = useMitigationStore.getState();
+    const beforeMit = s.timelineMitigations;
+    const beforeEv  = s.timelineEvents;
+    const beforePh  = s.phases;
+    const beforeLb  = s.labels;
+    const beforePm  = s.partyMembers;
+    s.removeProgressPoint(ptId);
+    const after = useMitigationStore.getState();
+    expect(after.timelineMitigations).toBe(beforeMit);
+    expect(after.timelineEvents).toBe(beforeEv);
+    expect(after.phases).toBe(beforePh);
+    expect(after.labels).toBe(beforeLb);
+    expect(after.partyMembers).toBe(beforePm);
+  });
+
+  it('clearAllProgressPoints は表データ5フィールドを変えない', () => {
+    useMitigationStore.getState().recordReachedPoint(10);
+    const s = useMitigationStore.getState();
+    const beforeMit = s.timelineMitigations;
+    const beforeEv  = s.timelineEvents;
+    const beforePh  = s.phases;
+    const beforeLb  = s.labels;
+    const beforePm  = s.partyMembers;
+    s.clearAllProgressPoints();
+    const after = useMitigationStore.getState();
+    expect(after.timelineMitigations).toBe(beforeMit);
+    expect(after.timelineEvents).toBe(beforeEv);
+    expect(after.phases).toBe(beforePh);
+    expect(after.labels).toBe(beforeLb);
+    expect(after.partyMembers).toBe(beforePm);
+  });
+
+  it('setCleared(true) は表データ5フィールドを変えない', () => {
+    const s = useMitigationStore.getState();
+    const beforeMit = s.timelineMitigations;
+    const beforeEv  = s.timelineEvents;
+    const beforePh  = s.phases;
+    const beforeLb  = s.labels;
+    const beforePm  = s.partyMembers;
+    s.setCleared(true);
+    const after = useMitigationStore.getState();
+    expect(after.timelineMitigations).toBe(beforeMit);
+    expect(after.timelineEvents).toBe(beforeEv);
+    expect(after.phases).toBe(beforePh);
+    expect(after.labels).toBe(beforeLb);
+    expect(after.partyMembers).toBe(beforePm);
+  });
+
+  it('setActiveDays(3) は表データ5フィールドを変えない', () => {
+    const s = useMitigationStore.getState();
+    const beforeMit = s.timelineMitigations;
+    const beforeEv  = s.timelineEvents;
+    const beforePh  = s.phases;
+    const beforeLb  = s.labels;
+    const beforePm  = s.partyMembers;
+    s.setActiveDays(3);
+    const after = useMitigationStore.getState();
+    expect(after.timelineMitigations).toBe(beforeMit);
+    expect(after.timelineEvents).toBe(beforeEv);
+    expect(after.phases).toBe(beforePh);
+    expect(after.labels).toBe(beforeLb);
+    expect(after.partyMembers).toBe(beforePm);
+  });
+
+  it('setActiveHours(2) は表データ5フィールドを変えない', () => {
+    const s = useMitigationStore.getState();
+    const beforeMit = s.timelineMitigations;
+    const beforeEv  = s.timelineEvents;
+    const beforePh  = s.phases;
+    const beforeLb  = s.labels;
+    const beforePm  = s.partyMembers;
+    s.setActiveHours(2);
+    const after = useMitigationStore.getState();
+    expect(after.timelineMitigations).toBe(beforeMit);
+    expect(after.timelineEvents).toBe(beforeEv);
+    expect(after.phases).toBe(beforePh);
+    expect(after.labels).toBe(beforeLb);
+    expect(after.partyMembers).toBe(beforePm);
+  });
+
+  it('setProgressPointNote は表データ5フィールドを変えない', () => {
+    useMitigationStore.getState().recordReachedPoint(20);
+    const ptId = useMitigationStore.getState().progress.points[0].id;
+    const s = useMitigationStore.getState();
+    const beforeMit = s.timelineMitigations;
+    const beforeEv  = s.timelineEvents;
+    const beforePh  = s.phases;
+    const beforeLb  = s.labels;
+    const beforePm  = s.partyMembers;
+    s.setProgressPointNote(ptId, 'x');
+    const after = useMitigationStore.getState();
+    expect(after.timelineMitigations).toBe(beforeMit);
+    expect(after.timelineEvents).toBe(beforeEv);
+    expect(after.phases).toBe(beforePh);
+    expect(after.labels).toBe(beforeLb);
+    expect(after.partyMembers).toBe(beforePm);
   });
 });

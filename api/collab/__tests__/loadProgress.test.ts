@@ -7,7 +7,7 @@ describe('decideLoadFull progress', () => {
             version: 1,
             data: {
                 timelineMitigations: [],
-                progress: { points: [{ id: 'pt_a', ts: 1, reachedPos: 10 }], cleared: true, activeDays: 2 },
+                progress: { points: [{ id: 'pt_a', ts: 1, reachedPos: 10 }], cleared: true, activeDays: 2, activeHours: 4 },
             } as any,
         });
         expect('deleted' in r).toBe(false);
@@ -15,6 +15,7 @@ describe('decideLoadFull progress', () => {
             expect(r.progressPoints).toEqual([{ id: 'pt_a', ts: 1, reachedPos: 10 }]);
             expect(r.progressCleared).toBe(true);
             expect(r.progressActiveDays).toBe(2);
+            expect(r.progressActiveHours).toBe(4);
         }
     });
 
@@ -23,6 +24,7 @@ describe('decideLoadFull progress', () => {
         if (!('deleted' in r)) {
             expect(r.progressPoints).toEqual([]);
             expect(r.progressCleared).toBeUndefined();
+            expect(r.progressActiveHours).toBeUndefined();
         }
     });
 });

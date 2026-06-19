@@ -57,10 +57,12 @@ describe("worker yjsPlanData seed/read 往復", () => {
       progressPoints: [{ id: "pt_a", ts: 1, reachedPos: 10 }],
       progressCleared: true,
       progressActiveDays: 5,
+      progressActiveHours: 9,
     });
     const out = readPlanDataFull(doc);
     expect(out.progressPoints).toEqual([{ id: "pt_a", ts: 1, reachedPos: 10 }]);
     expect(out.progressCleared).toBe(true);
     expect(out.progressActiveDays).toBe(5);
+    expect(out.progressActiveHours).toBe(9);
   });
 });
