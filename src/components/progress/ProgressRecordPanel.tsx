@@ -115,16 +115,18 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
     const startRecordMode = useProgressRecording(s => s.startRecordMode);
 
-    // 進捗エリア（HUD 帯）の実位置を測り、その中央真下に出す。
-    // ヘッダーは左右非対称（左ツール/右ボタン）なので画面中央ではなく帯の中心に紐づける。
-    // 帯が見つからない場合のフォールバックは従来の画面中央 / top:92px。
+    // 横位置=画面（ビューポート）中央、縦位置=HUD 帯の真下から降ろす。
+    // 帯の中心は左右非対称ヘッダーのぶん右に寄るため、横は画面中央に揃える方が自然
+    // （2026-06-19 ユーザー実機判断）。帯は縦位置（top）を測るためだけに使う。
+    // 帯が見つからない場合のフォールバックは画面中央 / top:92px。
     const [pos, setPos] = useState<{ left: number; top: number; width: number } | null>(null);
     useLayoutEffect(() => {
         const band = document.querySelector('[data-progress-hud-band]');
-        if (!band) return;
+        const left = window.innerWidth / 2;
+        if (!band) { setPos({ left, top: 92, width: Math.min(720, window.innerWidth * 0.92) }); return; }
         const r = band.getBoundingClientRect();
         const width = Math.min(720, Math.max(r.width, 480), window.innerWidth * 0.92);
-        setPos({ left: r.left + r.width / 2, top: r.bottom + 6, width });
+        setPos({ left, top: r.bottom + 6, width });
     }, []);
 
     // 開いた瞬間に記録モード ON（PC のみ）
