@@ -149,6 +149,14 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         a.onfinish = () => onClose();
     }, [onClose]);
 
+    // 記録確定（タイムライン打点）による閉じも同じミラー演出で閉じる。
+    // store の commitReachedPos は panelOpen を保持したまま pendingClose(nonce) を立てる →
+    // ここで requestClose を再生 → 完了後 onClose で実際に閉じる。
+    const pendingClose = useProgressRecording(s => s.pendingClose);
+    useEffect(() => {
+        if (pendingClose) requestClose();
+    }, [pendingClose, requestClose]);
+
     // 外側クリック閉じ（記録モード中はタイムライン打点に使うため閉じない）
     useEffect(() => {
         const handler = (e: MouseEvent) => {
@@ -215,6 +223,7 @@ export const ProgressRecordPanel: React.FC = () => {
     const { t } = useTranslation();
     const isMobile = useIsMobile();
     const startRecordMode = useProgressRecording(s => s.startRecordMode);
+    const pendingClose = useProgressRecording(s => s.pendingClose);
 
     // モバイルでパネルが開いた時に記録モードを ON にする（PCDrawer は自身の useEffect で行う）
     useEffect(() => {
@@ -222,6 +231,12 @@ export const ProgressRecordPanel: React.FC = () => {
             startRecordMode();
         }
     }, [panelOpen, isMobile, startRecordMode]);
+
+    // 記録確定時の閉じ: モバイルは MobileBottomSheet 自前の閉じアニメで閉じる
+    // （PC は PCDrawer が pendingClose を見てミラー演出を再生する）。
+    useEffect(() => {
+        if (pendingClose && isMobile) closePanel();
+    }, [pendingClose, isMobile, closePanel]);
 
     if (!panelOpen) return null;
 

@@ -14,6 +14,8 @@ interface ProgressRecordingState {
     recordMode: boolean;
     toast: ProgressToast | null;
     lastRecordedTs: number | null;
+    /** 閉じ演出トリガ（nonce）。0=なし。記録確定時に立て、ドロワー/シートが閉じ演出を再生してから実際に閉じる。 */
+    pendingClose: number;
     openPanel: () => void;
     closePanel: () => void;
     startRecordMode: () => void;
@@ -35,8 +37,9 @@ export const useProgressRecording = create<ProgressRecordingState>((set) => ({
     recordMode: false,
     toast: null,
     lastRecordedTs: null,
-    openPanel: () => set({ panelOpen: true }),
-    closePanel: () => set({ panelOpen: false, recordMode: false }),
+    pendingClose: 0,
+    openPanel: () => set({ panelOpen: true, pendingClose: 0 }),
+    closePanel: () => set({ panelOpen: false, recordMode: false, pendingClose: 0 }),
     startRecordMode: () => set({ recordMode: true }),
     stopRecordMode: () => set({ recordMode: false }),
     commitReachedPos: (sec) => {
@@ -52,11 +55,14 @@ export const useProgressRecording = create<ProgressRecordingState>((set) => ({
         // 追加された点の ts を拾う（recordReachedPoint が実際に追加したか = 末尾の reachedPos 一致で確認）
         const pts = after.points;
         const lastTs = pts.length && pts[pts.length - 1].reachedPos === sec ? pts[pts.length - 1].ts : null;
+        const now = Date.now();
+        // パネルはここで閉じない（panelOpen は true のまま）。pendingClose を立てて
+        // ドロワー(PC)/シート(モバイル)に閉じ演出を再生させてから実際に閉じる（×/Esc と同じ閉じ方に統一）。
         set({
-            panelOpen: false,
             recordMode: false,
-            toast: { kind, pct, ts: Date.now() },
+            toast: { kind, pct, ts: now },
             lastRecordedTs: lastTs,
+            pendingClose: now,
         });
     },
     undoLastRecord: () => {
