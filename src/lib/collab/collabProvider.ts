@@ -11,6 +11,8 @@ import {
 } from './yjsPlanData';
 import { dedupeById } from './dedupeById';
 import { fieldsNeedingReseed, RESEED_FIELDS } from './collabReseed';
+import { classifyRecord, computeProgressPercent, newlyAddedRemotePoint } from '../progressLogic';
+import { useProgressRecording } from '../../components/progress/useProgressRecording';
 import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember, ProgressPoint } from '../../types';
 import type { CollabHandlers } from './collabTypes';
 import { colorForClient, wirePresence, type AwarenessLike, type PresenceState } from './presence';
@@ -260,7 +262,22 @@ export function startCollabSession(
   const applyPhases = () => store()._applyPhasesFromCollab(dedupeById(readArray<Phase>(doc, PHASES_KEY)));
   const applyLabels = () => store()._applyLabelsFromCollab(dedupeById(readArray<Label>(doc, LABELS_KEY)));
   const applyMemos = () => store()._applyMemosFromCollab(dedupeById(readArray<PlanMemo>(doc, MEMOS_KEY)));
-  const applyProgressPoints = () => store()._applyProgressPointsFromCollab(dedupeById(readArray<ProgressPoint>(doc, PROGRESS_POINTS_KEY)));
+  // 進捗打点の Yjs→store 反映。加えて「他参加者(origin≠'local')が初期同期後(entered)に新しい点を
+  // 追加した」ときだけ、自タブにも既存の記録トーストを出す(固定チーム想定で文言は本人向けと同じ)。
+  // ここはトースト(UI 専用 store)を出すだけで、進捗データ/表データには一切書き込まない。
+  // 削除・メモ編集・初期一括 seed では newlyAddedRemotePoint=null でトーストは出ない。
+  const applyProgressPoints = (_events?: unknown, transaction?: { origin?: unknown }) => {
+    const beforeProgress = store().progress;
+    store()._applyProgressPointsFromCollab(dedupeById(readArray<ProgressPoint>(doc, PROGRESS_POINTS_KEY)));
+    if (!entered || transaction?.origin === 'local') return; // 初期同期中・自分の操作は出さない(二重トースト防止)
+    const after = store().progress;
+    const added = newlyAddedRemotePoint(beforeProgress.points, after.points);
+    if (!added) return;
+    const kind = classifyRecord(beforeProgress, added.reachedPos);
+    const ev = store().timelineEvents;
+    const total = ev.length ? Math.max(...ev.map((e) => e.time)) : 0;
+    useProgressRecording.getState().showRemoteToast(kind, computeProgressPercent(after, total));
+  };
   const applyMeta = () => store()._applyMetaFromCollab(readPlanMeta(doc));
   const applyPartyMembers = () => store()._applyPartyMembersFromCollab(dedupeById(readArray<PartyMember>(doc, PARTY_MEMBERS_KEY)));
   yEvents.observeDeep(applyEvents);

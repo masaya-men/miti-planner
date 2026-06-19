@@ -24,6 +24,8 @@ interface ProgressRecordingState {
     commitReachedPos: (sec: number) => void;
     /** このセッションで最後に記録した1点だけ取り消す */
     undoLastRecord: () => void;
+    /** 共同編集で他参加者が記録したとき、トーストだけ出す（閉じ演出/記録モード/自分のundo対象は触らない・データも変えない）。 */
+    showRemoteToast: (kind: 'update' | 'nice', pct: number) => void;
     clearToast: () => void;
 }
 
@@ -73,5 +75,6 @@ export const useProgressRecording = create<ProgressRecordingState>((set) => ({
         if (pt) mit.removeProgressPoint(pt.id);
         set({ lastRecordedTs: null, toast: null });
     },
+    showRemoteToast: (kind, pct) => set({ toast: { kind, pct, ts: Date.now() } }),
     clearToast: () => set({ toast: null }),
 }));

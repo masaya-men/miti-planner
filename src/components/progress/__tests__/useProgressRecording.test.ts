@@ -48,4 +48,18 @@ describe('useProgressRecording commit/undo/toast', () => {
     useProgressRecording.getState().clearToast();
     expect(useProgressRecording.getState().toast).toBeNull();
   });
+
+  it('showRemoteToast は toast だけ立て、閉じ演出/記録モード/undo対象を触らない', () => {
+    useProgressRecording.setState({ pendingClose: 0, recordMode: true, lastRecordedTs: 42 });
+    useProgressRecording.getState().showRemoteToast('update', 70);
+    const s = useProgressRecording.getState();
+    expect(s.toast?.kind).toBe('update');
+    expect(s.toast?.pct).toBe(70);
+    // 他参加者の記録は自分の閉じ演出・記録モード・undo対象を変えない
+    expect(s.pendingClose).toBe(0);
+    expect(s.recordMode).toBe(true);
+    expect(s.lastRecordedTs).toBe(42); // 自分の undo 対象は維持(他人の点は undo できない)
+    // データは一切変えない
+    expect(useMitigationStore.getState().progress.points.length).toBe(0);
+  });
 });
