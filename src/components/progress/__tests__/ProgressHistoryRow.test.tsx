@@ -45,4 +45,15 @@ describe('ProgressHistoryRow', () => {
     render(<ProgressHistoryRow {...base} point={{ ...base.point, note: 'やった' }} />);
     expect(screen.getByText('やった')).toBeTruthy();
   });
+
+  it('Esc で編集を取消（onSetNote を呼ばず、表示モードに戻る）', () => {
+    const onSetNote = vi.fn();
+    render(<ProgressHistoryRow {...base} index={1} onSetNote={onSetNote} />);
+    fireEvent.click(screen.getByText('progress.add_memo'));
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: 'やめる' } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+    expect(onSetNote).not.toHaveBeenCalled();
+    expect(screen.queryByRole('textbox')).toBeNull();
+  });
 });

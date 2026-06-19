@@ -1,5 +1,5 @@
 // 進捗履歴の1行 — フェーズ名/最高/メモ（1行目）＋ バー/％/日時（2行目）＋ 右ガターのゴミ箱
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
@@ -32,8 +32,14 @@ const ProgressHistoryRow: React.FC<ProgressHistoryRowProps> = ({
         : bucket === 'yesterday' ? `${t('progress.yesterday', '昨日')} ${time}`
         : `${formatMonthDay(point.ts)} ${time}`;
 
+    const cancelRef = useRef(false);
     const startEdit = () => { setDraft(point.note ?? ''); setEditing(true); };
-    const commit = () => { setEditing(false); if ((point.note ?? '') !== draft.trim()) onSetNote(index, draft); };
+    const commit = () => {
+        setEditing(false);
+        if (cancelRef.current) { cancelRef.current = false; return; } // Esc キャンセル時は保存しない
+        const next = draft.trim();
+        if ((point.note ?? '') !== next) onSetNote(index, next);
+    };
 
     return (
         <div className="group flex items-stretch border-b border-app-border/60 last:border-b-0 md:hover:bg-app-blue/5 transition-colors">
@@ -55,7 +61,7 @@ const ProgressHistoryRow: React.FC<ProgressHistoryRowProps> = ({
                             onBlur={commit}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
-                                if (e.key === 'Escape') { setEditing(false); }
+                                if (e.key === 'Escape') { cancelRef.current = true; setEditing(false); }
                             }}
                             placeholder={t('progress.memo_placeholder', 'ひとことメモ')}
                             className="flex-1 min-w-0 text-app-xs text-app-text bg-app-blue/5 border border-app-blue/50 rounded px-1.5 py-0.5 outline-none"
