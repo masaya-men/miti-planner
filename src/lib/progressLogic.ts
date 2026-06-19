@@ -93,3 +93,56 @@ export function roadTimeFromClick(fraction: number, totalSec: number): number {
 export function clampActivity(n: number): number {
     return Math.max(0, Math.round(n));
 }
+
+/** 指定 index に点を挿入（削除のUndo復元用・非破壊・範囲外はクランプ） */
+export function insertProgressPoint(
+    list: ProgressPoint[] | undefined, index: number, point: ProgressPoint
+): ProgressPoint[] {
+    const base = list ?? [];
+    const i = Math.max(0, Math.min(index, base.length));
+    return [...base.slice(0, i), point, ...base.slice(i)];
+}
+
+/** reachedPos を含むフェーズ（startTime<=sec で最大の startTime）を返す。無ければ null。未ソート安全。 */
+export function phaseAtTime(
+    phases: { name: LocalizedString; startTime: number }[], sec: number
+): { name: LocalizedString } | null {
+    let best: { name: LocalizedString } | null = null;
+    let bestStart = -1;
+    for (const p of phases) {
+        if (p.startTime <= sec && p.startTime >= bestStart) { best = { name: p.name }; bestStart = p.startTime; }
+    }
+    return best;
+}
+
+/** 1点の到達割合 (reachedPos/totalSec*100) を 0〜100 に丸めクランプ */
+export function pointPercent(reachedPos: number, totalSec: number): number {
+    if (totalSec <= 0) return 0;
+    return Math.max(0, Math.min(100, Math.round((reachedPos / totalSec) * 100)));
+}
+
+/** 秒 → "m:ss"（フェーズ未定義時の到達点ラベル用） */
+export function formatClock(sec: number): string {
+    const s = Math.max(0, Math.round(sec));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+/** epoch ms → JST "H:MM"（記録時刻表示） */
+export function formatTimeOfDay(ts: number): string {
+    const jst = new Date(ts + 9 * 60 * 60 * 1000);
+    return `${jst.getUTCHours()}:${String(jst.getUTCMinutes()).padStart(2, '0')}`;
+}
+
+/** epoch ms → JST "M/D" */
+export function formatMonthDay(ts: number): string {
+    const jst = new Date(ts + 9 * 60 * 60 * 1000);
+    return `${jst.getUTCMonth() + 1}/${jst.getUTCDate()}`;
+}
+
+/** ts が今日/昨日/それ以前か（JST 基準・makeDayKey で日付比較） */
+export function dayBucket(ts: number, nowTs: number): 'today' | 'yesterday' | 'older' {
+    const day = makeDayKey(new Date(ts));
+    if (day === makeDayKey(new Date(nowTs))) return 'today';
+    if (day === makeDayKey(new Date(nowTs - 24 * 60 * 60 * 1000))) return 'yesterday';
+    return 'older';
+}

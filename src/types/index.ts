@@ -243,6 +243,8 @@ export interface ProgressPoint {
     ts: number;
     /** その時クリックした到達点。タイムライン上の秒位置 */
     reachedPos: number;
+    /** 任意のひとことメモ。未設定は undefined（共有時は progress ごと除去され他人に渡らない） */
+    note?: string;
 }
 
 /** 進捗トラッキング (表ごと・未マイグレ既存プランは undefined) */
