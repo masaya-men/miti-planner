@@ -2,12 +2,48 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
 import { useProgressRecording } from './useProgressRecording';
 import { MobileBottomSheet } from '../MobileBottomSheet';
+import { Tooltip } from '../ui/Tooltip';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { PhaseRoad } from './PhaseRoad';
 import { ActivityScrub } from './ActivityScrub';
+
+// -------------------- 1つ戻る（最新打点を削除） --------------------
+
+/**
+ * 「直前の記録を取り消す」ボタン。常時表示し、打点があるときだけ有効。
+ * 末尾（=最新）の打点を1つ削除する。LoPo Tooltip（カーソル追従）でラベル表示。
+ */
+const UndoLastPointButton: React.FC = () => {
+    const { t } = useTranslation();
+    const points = useMitigationStore(s => s.progress.points);
+    const removeProgressPoint = useMitigationStore(s => s.removeProgressPoint);
+    const has = (points?.length ?? 0) > 0;
+    const onUndo = () => {
+        if (!has) return;
+        removeProgressPoint(points.length - 1); // 末尾=最新を1つ削除
+        useProgressRecording.setState({ lastRecordedTs: null });
+    };
+    // 配置は呼び出し側のラッパーが担う（Tooltip ラッパーは relative のため absolute を直接当てない）。
+    return (
+        <Tooltip content={t('progress.undo_last', '直前の記録を取り消す')}>
+            <button
+                onClick={onUndo}
+                disabled={!has}
+                aria-label={t('progress.undo_last', '直前の記録を取り消す')}
+                className={clsx(
+                    'p-1 rounded-lg text-app-md leading-none transition-all duration-200',
+                    has
+                        ? 'text-app-text-sec hover:text-red-400 hover:bg-app-toggle cursor-pointer active:scale-90'
+                        : 'text-app-text-muted opacity-40 cursor-not-allowed'
+                )}
+            >↶</button>
+        </Tooltip>
+    );
+};
 
 // -------------------- クリアボタン（CLEAR! / 解除） --------------------
 
@@ -54,8 +90,6 @@ const PanelBody: React.FC = () => {
     const activeHours = useMitigationStore(s => s.progress.activeHours);
     const setActiveDays = useMitigationStore(s => s.setActiveDays);
     const setActiveHours = useMitigationStore(s => s.setActiveHours);
-    const lastRecordedTs = useProgressRecording(s => s.lastRecordedTs);
-    const undoLastRecord = useProgressRecording(s => s.undoLastRecord);
 
     return (
         <div className="flex flex-col gap-2.5">
@@ -72,15 +106,11 @@ const PanelBody: React.FC = () => {
             </div>
             {/* ②記録の促し（読めるサイズに拡大） */}
             <div className="text-app-sm text-app-text-muted">{t('progress.drawer_prompt_sub')}</div>
-            {/* ③光の道。CLEAR! と直前undo はラインの縦レベル(y=10px)に合わせて右端へ（フェーズに重ねない）。
-               右グループは高さ20px・items-center で縦中心を y=10px のライン上に載せる。 */}
+            {/* ③光の道。CLEAR! はラインの縦レベル(y=10px)に合わせて右端へ（フェーズに重ねない）。
+               高さ20px・items-center で縦中心を y=10px のライン上に載せる。直前undo は別位置（ドロワー右下）。 */}
             <div className="flex items-start gap-3">
                 <div className="flex-1 min-w-0"><PhaseRoad /></div>
-                <div className="flex items-center gap-2 shrink-0" style={{ height: '20px' }}>
-                    {lastRecordedTs != null && (
-                        <button onClick={undoLastRecord} title={t('progress.undo_last', '直前の記録を取り消す')}
-                            className="text-app-md text-app-text-sec hover:text-red-400 cursor-pointer active:scale-90 leading-none">↶</button>
-                    )}
+                <div className="flex items-center shrink-0" style={{ height: '20px' }}>
                     <ClearSectionInline />
                 </div>
             </div>
@@ -214,6 +244,10 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <X size={14} />
             </button>
             <div className="px-5 py-3.5"><PanelBody /></div>
+            {/* 1つ戻る: ドロワー右下に常時表示（CLEAR! の隣には置かない）。absolute は外側 div が担う。 */}
+            <div className="absolute bottom-2 right-3 z-10">
+                <UndoLastPointButton />
+            </div>
         </div>,
         document.body
     );
@@ -257,6 +291,10 @@ export const ProgressRecordPanel: React.FC = () => {
             >
                 <div className="py-2">
                     <PanelBody />
+                    {/* 1つ戻る: シート下部右に常時表示 */}
+                    <div className="flex justify-end mt-2">
+                        <UndoLastPointButton />
+                    </div>
                 </div>
             </MobileBottomSheet>
         );
