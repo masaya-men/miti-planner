@@ -13,6 +13,7 @@ import {
 import { PLAN_LIMITS } from '../types/firebase';
 import { apiFetch } from '../lib/apiClient';
 import { getAnonCopyId } from '../lib/anonCopyId';
+import { stripSharedPersonalData } from '../lib/sharePrivacy';
 import { generateUniqueTitle } from '../utils/planTitle';
 import { MitigationSheetPreview } from './MitigationSheetPreview';
 import type { PlanData, SavedPlan } from '../types';
@@ -203,7 +204,8 @@ export const MitigationSheet: React.FC<Props> = ({ isOpen, onClose, currentConte
       const res = await apiFetch(`/api/share?id=${encodeURIComponent(entry.shareId)}`);
       if (!res.ok) throw new Error();
       const shared = await res.json();
-      const planData: PlanData = shared.planData ?? shared.data;
+      // コピーに個人状態(progress/memos)を載せない（クライアント側の belt: サーバ GET strip とあわせ二重防御）
+      const planData: PlanData = stripSharedPersonalData(shared.planData ?? shared.data);
 
       const newPlan: SavedPlan = {
         id: crypto.randomUUID?.() ?? `plan_${Date.now()}`,

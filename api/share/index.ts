@@ -19,6 +19,7 @@ import { createHash } from 'crypto';
 import sharePageHandler from './_sharePageHandler.js';
 import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { computeImageHash } from '../../src/lib/ogpImageHash.js';
+import { stripSharedPersonalData } from '../../src/lib/sharePrivacy.js';
 
 const COLLECTION = 'shared_plans';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -170,7 +171,8 @@ export default async function handler(req: any, res: any) {
                     plans: plans.map((p: any) => ({
                         contentId: p.contentId || null,
                         title: p.title || '',
-                        planData: p.planData,
+                        // 共有に個人状態(progress/memos)を載せない（Layer1: 保存時に除去）
+                        planData: stripSharedPersonalData(p.planData),
                     })),
                     imageHash,
                     copyCount: 0,
@@ -214,7 +216,8 @@ export default async function handler(req: any, res: any) {
                 lang: normalizedLang,
                 title: title || '',
                 contentId: contentId || null,
-                planData,
+                // 共有に個人状態(progress/memos)を載せない（Layer1: 保存時に除去）
+                planData: stripSharedPersonalData(planData),
                 imageHash,
                 copyCount: 0,
                 viewCount: 0,
@@ -370,7 +373,14 @@ export default async function handler(req: any, res: any) {
                 }).catch(() => {});
             }
 
-            return res.status(200).json(snap.data());
+            // 個人状態(progress/memos)を返さない（Layer2: 取得/コピー/プレビューを単一箇所で網羅。
+            // 既に進捗/メモ入りで保存済みの古い共有にも効く）。保存データ自体は変更しない。
+            const out: any = { ...snap.data() };
+            if (out.planData) out.planData = stripSharedPersonalData(out.planData);
+            if (Array.isArray(out.plans)) {
+                out.plans = out.plans.map((p: any) => ({ ...p, planData: stripSharedPersonalData(p.planData) }));
+            }
+            return res.status(200).json(out);
 
         } else {
             return res.status(405).json({ error: 'Method not allowed' });

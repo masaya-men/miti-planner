@@ -1,5 +1,6 @@
 import type { SavedPlan } from '../types';
 import type { ShareImportItem } from './shareImportTypes';
+import { stripSharedPersonalData } from './sharePrivacy';
 
 export function parseSharedDataToImportItems(
   sharedData: any,
@@ -41,7 +42,9 @@ export function buildNewPlan(item: ShareImportItem): SavedPlan {
     isPublic: false,
     copyCount: 0,
     useCount: 0,
-    data: item.planData,
+    // コピーに個人状態(progress/memos)を載せない（クライアント側の belt: サーバstripが未デプロイ/
+    // 旧共有でも確実にクリーンにする。サーバ GET strip とあわせ二重防御）。
+    data: stripSharedPersonalData(item.planData),
     createdAt: now,
     updatedAt: now,
   };

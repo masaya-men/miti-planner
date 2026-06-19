@@ -123,9 +123,29 @@ describe('buildNewPlan', () => {
     expect(plan.ownerId).toBe('local');
     expect(plan.contentId).toBe('fru');
     expect(plan.title).toBe('Test');
-    expect(plan.data).toBe(samplePlanData);
+    // strip により新オブジェクトになるが内容は等価（progress/memos 無しの planData）
+    expect(plan.data).toEqual(samplePlanData);
     expect(plan.id).toBeTruthy();
     expect(plan.id.length).toBeGreaterThan(0);
+  });
+
+  it('コピー時に個人状態(progress/memos)を除去する', () => {
+    const item = {
+      sourceShareId: 'abc',
+      contentId: 'fru',
+      title: 'Test',
+      planData: {
+        ...samplePlanData,
+        memos: [{ id: 'm1', text: '個人メモ' }],
+        progress: { points: [{ ts: 1, reachedPos: 50 }], cleared: true },
+      } as unknown as PlanData,
+    };
+    const plan = buildNewPlan(item);
+    const data = plan.data as unknown as Record<string, unknown>;
+    expect(data.memos).toBeUndefined();
+    expect(data.progress).toBeUndefined();
+    // それ以外は保持
+    expect(plan.data.currentLevel).toBe(100);
   });
 
   it('generates unique ids per call', () => {
