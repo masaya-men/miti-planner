@@ -266,6 +266,7 @@ export function startCollabSession(
   // 追加した」ときだけ、自タブにも既存の記録トーストを出す(固定チーム想定で文言は本人向けと同じ)。
   // ここはトースト(UI 専用 store)を出すだけで、進捗データ/表データには一切書き込まない。
   // 削除・メモ編集・初期一括 seed では newlyAddedRemotePoint=null でトーストは出ない。
+  // 注: origin≠'local' は「同一ユーザーが別タブで開いている」場合も含む(固定チーム想定で許容・データ無影響)。
   const applyProgressPoints = (_events?: unknown, transaction?: { origin?: unknown }) => {
     const beforeProgress = store().progress;
     store()._applyProgressPointsFromCollab(dedupeById(readArray<ProgressPoint>(doc, PROGRESS_POINTS_KEY)));
@@ -273,9 +274,10 @@ export function startCollabSession(
     const after = store().progress;
     const added = newlyAddedRemotePoint(beforeProgress.points, after.points);
     if (!added) return;
-    const kind = classifyRecord(beforeProgress, added.reachedPos);
     const ev = store().timelineEvents;
     const total = ev.length ? Math.max(...ev.map((e) => e.time)) : 0;
+    if (total <= 0) return; // タイムライン未設定では割合算出不能(0% トーストを出さない)
+    const kind = classifyRecord(beforeProgress, added.reachedPos);
     useProgressRecording.getState().showRemoteToast(kind, computeProgressPercent(after, total));
   };
   const applyMeta = () => store()._applyMetaFromCollab(readPlanMeta(doc));
