@@ -17,7 +17,6 @@
 - **⚠ ブランチ要確認**: `feat/mobile-bottom-nav-redesign`(管理画面リデザイン/サンドボックス/バグ修正3件)がローカル一覧から消失。コミットは git 内に残存(管理画面=609fab9〜826d1c8)。main マージ済か/別ブランチ退避か/dangling か要特定(`git log --all --oneline --grep=AdminPage`)。ユーザー認識=管理画面/スマホ最適化は未完成。
 - **🔴 デプロイ済 or 完成・要実機確認(ユーザー)**:
   - 管理画面リデザイン全18ルート(branch 未push・**要 push 後**): ヘッダー詰まり/2カラムスクロール/ウィザード4本/フォント。サンドボックス=`npm run dev:admin`。
-  - 双方向競合警告+画面外矢印(2026-06-17 デプロイ済): 配置/ドラッグで脈動+矢印/解消で消滅/ライトモード矢印。
   - スマホ最適化A+共有タブ(2026-06-15~16 本番反映済): 共有2択→部屋発行/パーティ自動ボタン/Lv80 で DB・星天交差1チャージ/深謀遠慮表示。
 - **🔵 進捗お祝い試作** = `feat/progress-celebration-proto` 温存(未マージ・本番非露出)。`npm run dev:progress`→/miti。
 - **🔍 FFLogs 残(デプロイ済要検証)**: ①全滅(ワイプ)ログ=pull URL(`#fight=N`)で検証+キルログ回帰(`selectFight`・specs 2026-04-05-fflogs-import-v2) ②トークン502=どのキーがなぜ落ちるか特定(`fflogsTokenFailover`)。

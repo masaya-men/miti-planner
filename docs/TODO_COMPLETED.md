@@ -16,7 +16,7 @@
 **根治2件 (main eb1e49b)**: ①非collab=保存先を持ち主(`_loadedPlanId`)に固定(`persistWorkingStore`/`commitNewPlan`)で他プラン破壊を根治(455cc20/23eb334/5e18a33) ②collab=create 冒頭で `useCollabSessionStore.disconnect()` してから初期化(別部屋への委譲全消しを根治・collabCreateGuard.test.ts)。
 **PITR切り分け＆復旧**: PITR 一時ON(earliestVersionTime=06-16 04:44 UTC)。正しい過去読み=read-only tx+readTime(memory `reference_firestore_pitr_disabled`)。新規スクリプト probe-pitr-timeline/sweep-pitr-losses/restore-from-pitr/set-pitr.ts。固定 plan_31aee72d=197軽減を一発全消し→PITR直前版(v459)で完全復旧✅(backup=docs/.private/backups/)。UMAD×2 は境界前空化+兄弟無し→復元不能(本人再構築)。全件スイープで境界後新規被害=残0。後始末済=PITRオフ/recovery-0608 削除。**フォロー(機能)は TODO に残置=自己対処できる管理画面**。
 
-### ✅ 2026-06-17 軽減競合の双方向警告+画面外ガイド矢印 — main マージ&本番デプロイ済 (残=ユーザー実機確認は TODO 残置)
+### ✅ 2026-06-17 軽減競合の双方向警告+画面外ガイド矢印 — main マージ&本番デプロイ済・実機確認OK (2026-06-20 ユーザー確認)
 機能アイデア③。同じ軽減の CD 被りを `findSameSkillCdConflicts`(resourceTracker)で常に派生検出→競合アイコン黄色脈動(`animate-conflict-pulse`)。前方向も赤の見た目のままクリック解放(`conflictOverride`)。ドラッグも競合位置へ許可(`ALLOW_DRAG_INTO_CONFLICT=true`)。画面外なら列中央上端∧/下端∨にシェブロン矢印(`ConflictOffscreenArrows`)+クリック自動スクロール(PCのみ)。「置いた時は既存の相手だけ光る」=`lastPlacedMitigationId`(セッションのみ)。dev 列幅スライダー撤去。設計=specs/2026-06-17-mitigation-conflict-bidirectional-warning-design.md。全48競合テスト+build緑。
 
 ### ✅ 2026-06-17 管理画面リデザイン 全18ルート + 2026-06-16 サンドボックス (branch `feat/mobile-bottom-nav-redesign`・未push・要実機は TODO 残置)
