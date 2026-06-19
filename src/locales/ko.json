@@ -2477,6 +2477,7 @@
         "record_list": "기록 목록",
         "phase_jump": "페이즈로 이동",
         "clear": "클리어",
+        "clear_action_short": "CLEAR!",
         "clear_section": "클리어",
         "clear_undo": "클리어 취소",
         "cleared": "격파 👑",

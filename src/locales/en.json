@@ -2512,6 +2512,7 @@
         "record_list": "Recorded days",
         "phase_jump": "Jump to phase",
         "clear": "Cleared",
+        "clear_action_short": "CLEAR!",
         "clear_section": "Cleared",
         "clear_undo": "Undo clear",
         "cleared": "Cleared 👑",

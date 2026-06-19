@@ -9,38 +9,35 @@ import { useMitigationStore } from '../../store/useMitigationStore';
 import { PhaseRoad } from './PhaseRoad';
 import { ActivityScrub } from './ActivityScrub';
 
-// -------------------- クリアボタン（インライン最小版） --------------------
+// -------------------- クリアボタン（CLEAR! / 解除） --------------------
 
 /**
- * 踏破ボタン + クリア解除。インラインで下段に並ぶ最小スタイル。
+ * CLEAR! ボタン（全言語共通の短ラベル）。クリア済みは 👑 + 解除。
+ * 光の道の右端に置く想定の最小スタイル。
  */
 const ClearSectionInline: React.FC = () => {
     const { t } = useTranslation();
     const cleared = useMitigationStore(s => s.progress.cleared);
     const setCleared = useMitigationStore(s => s.setCleared);
 
-    return (
-        <div className="flex items-center gap-2">
-            {!cleared ? (
-                <button
-                    onClick={() => setCleared(true)}
-                    className="px-3 py-1.5 rounded-lg text-app-sm font-bold text-app-text border border-blue-500/40 hover:bg-blue-500/10 active:scale-95 transition-all duration-200 cursor-pointer"
-                >
-                    {t('progress.clear', '踏破')}
-                </button>
-            ) : (
-                <div className="flex items-center gap-2">
-                    <span className="text-app-2xs text-blue-400 font-bold">
-                        {t('progress.cleared', '踏破 👑')}
-                    </span>
-                    <button
-                        onClick={() => setCleared(false)}
-                        className="px-2 py-1 rounded-lg text-app-2xs text-app-text-muted border border-glass-border hover:bg-glass-hover active:scale-95 transition-all duration-200 cursor-pointer"
-                    >
-                        {t('progress.clear_undo', 'クリア解除')}
-                    </button>
-                </div>
-            )}
+    return !cleared ? (
+        <button
+            onClick={() => setCleared(true)}
+            className="px-2.5 py-1 rounded-md text-app-sm font-black tracking-wide text-app-blue border border-app-blue/40 hover:bg-app-blue/10 active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap"
+            style={{ textShadow: '0 0 8px rgba(120,200,255,.4)' }}
+        >
+            {t('progress.clear_action_short', 'CLEAR!')}
+        </button>
+    ) : (
+        <div className="flex items-center gap-1.5">
+            <span className="text-app-md font-black text-app-blue" style={{ textShadow: '0 0 8px var(--app-blue)' }}>👑</span>
+            <button
+                onClick={() => setCleared(false)}
+                title={t('progress.clear_undo', 'クリア解除')}
+                className="text-app-2xs text-app-text-muted border border-glass-border rounded px-1.5 py-0.5 hover:bg-glass-hover active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap"
+            >
+                {t('progress.clear_undo', 'クリア解除')}
+            </button>
         </div>
     );
 };
@@ -48,8 +45,8 @@ const ClearSectionInline: React.FC = () => {
 // -------------------- パネル本文（PC / スマホ共通） --------------------
 
 /**
- * プロンプト・PhaseRoad・活動スクラブ・踏破・直前undo を並べた本文。
- * 記録開始トグル・record_hint・DailyBestList・PhaseJumpButtons・Stepper・ActiveTimeSection は撤去済み。
+ * コンパクト3段: ①プロンプト + 活動スクラブ ②記録の促し（大きめ） ③光の道 + 直前undo + CLEAR!(右端)。
+ * 上段右の余白(pr)は PCDrawer が右上に重ねる ✕ ボタンと被らないため。
  */
 const PanelBody: React.FC = () => {
     const { t } = useTranslation();
@@ -61,28 +58,28 @@ const PanelBody: React.FC = () => {
     const undoLastRecord = useProgressRecording(s => s.undoLastRecord);
 
     return (
-        <div className="flex flex-col gap-4">
-            {/* プロンプト */}
-            <div className="text-center">
-                <div className="text-app-lg font-bold text-app-text" style={{ textShadow: '0 0 12px rgba(120,200,255,.4)' }}>
+        <div className="flex flex-col gap-2.5">
+            {/* ①上段: プロンプト（左）+ 活動日数/時間（右） */}
+            <div className="flex items-center justify-between gap-4 pr-7">
+                <div className="text-app-md font-bold text-app-text" style={{ textShadow: '0 0 12px rgba(120,200,255,.4)' }}>
                     {t('progress.drawer_prompt_main')}
                 </div>
-                <div className="text-app-2xs text-app-text-muted mt-0.5">{t('progress.drawer_prompt_sub')}</div>
-            </div>
-            {/* 光の道（フェーズナビ） */}
-            <PhaseRoad />
-            {/* 下段: 活動スクラブ / 踏破 / 直前undo */}
-            <div className="flex items-end justify-between gap-4 flex-wrap border-t border-glass-border pt-3">
-                <div className="flex items-center gap-6">
-                    <ActivityScrub label={t('progress.active_days', '活動')} value={activeDays} unit={t('progress.active_days_unit', '日')} onChange={setActiveDays} />
+                <div className="flex items-center gap-4 shrink-0">
+                    <ActivityScrub value={activeDays} unit={t('progress.active_days_unit', '日')} onChange={setActiveDays} />
                     <ActivityScrub value={activeHours} unit={t('progress.active_hours_unit', 'h')} onChange={setActiveHours} />
                 </div>
-                <div className="flex items-center gap-4">
-                    <ClearSectionInline />
+            </div>
+            {/* ②記録の促し（読めるサイズに拡大） */}
+            <div className="text-app-sm text-app-text-muted">{t('progress.drawer_prompt_sub')}</div>
+            {/* ③光の道 + 直前undo + CLEAR!（右端） */}
+            <div className="flex items-center gap-3">
+                <div className="flex-1 min-w-0"><PhaseRoad /></div>
+                <div className="flex items-center gap-2 shrink-0">
                     {lastRecordedTs != null && (
                         <button onClick={undoLastRecord} title={t('progress.undo_last', '直前の記録を取り消す')}
                             className="text-app-md text-app-text-sec hover:text-red-400 cursor-pointer active:scale-90">↶</button>
                     )}
+                    <ClearSectionInline />
                 </div>
             </div>
         </div>
@@ -191,9 +188,11 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // → 数値 left（中心 − 半幅）で寄せ、transform は開演出専用にする。
     // light モードで他モーダルと同じ白基調にする（glass-tier3 既定の半透明を上書き）。
     // --share-modal-bg = light:#ffffff / dark:transparent（reference_modal_light_mode_white_bg）。
+    // U 型（下を閉じて上を空ける）: 上辺の枠線を消し（glass-border-t-0）、左右下＋下角丸を残す。
+    // box-shadow の inset 上ハイライト（1px 光線）は残るのでヘッダーと地続きに見える＝「変化して出てきた」感。
     return createPortal(
         <div ref={drawerRef}
-            className="fixed z-[9999] glass-tier3 rounded-b-lg shadow-sm overflow-hidden"
+            className="fixed z-[9999] glass-tier3 glass-border-t-0 rounded-b-lg shadow-sm overflow-hidden"
             style={{
                 '--glass-tier3-bg': 'var(--share-modal-bg)',
                 ...(pos
@@ -201,12 +200,12 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                     : { top: '92px', left: 'calc(50% - min(360px, 46vw))', width: 'min(720px, 92vw)' }),
             } as React.CSSProperties}
         >
-            <div className="flex items-center justify-end px-3 py-1.5 border-b border-glass-border">
-                <button onClick={requestClose} className="text-app-text p-1 rounded-lg hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 cursor-pointer active:scale-90">
-                    <X size={14} />
-                </button>
-            </div>
-            <div className="px-5 py-4"><PanelBody /></div>
+            {/* ✕ は右上に重ねる（ヘッダー帯を廃止してコンパクト化） */}
+            <button onClick={requestClose}
+                className="absolute top-2 right-2 z-10 text-app-text p-1 rounded-lg hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200 cursor-pointer active:scale-90">
+                <X size={14} />
+            </button>
+            <div className="px-5 py-3.5"><PanelBody /></div>
         </div>,
         document.body
     );

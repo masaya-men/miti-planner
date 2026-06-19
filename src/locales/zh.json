@@ -2477,6 +2477,7 @@
         "record_list": "记录列表",
         "phase_jump": "跳转到阶段",
         "clear": "通关",
+        "clear_action_short": "CLEAR!",
         "clear_section": "通关",
         "clear_undo": "取消通关",
         "cleared": "已通关 👑",

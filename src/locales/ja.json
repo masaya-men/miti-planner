@@ -2533,6 +2533,7 @@
         "record_list": "記録一覧",
         "phase_jump": "フェーズへ移動",
         "clear": "踏破",
+        "clear_action_short": "CLEAR!",
         "clear_section": "踏破",
         "clear_undo": "クリア解除",
         "cleared": "踏破 👑",
