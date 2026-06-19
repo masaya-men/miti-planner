@@ -144,7 +144,7 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         const a = el.animate(
             [{ clipPath: 'inset(0 0 0% 0)', opacity: 1, transform: 'translateY(0)' },
              { clipPath: 'inset(0 0 100% 0)', opacity: 0, transform: 'translateY(-6px)' }],
-            { duration: 460, easing: 'cubic-bezier(.7,0,.84,.2)', fill: 'forwards' }
+            { duration: 230, easing: 'cubic-bezier(.7,0,.84,.2)', fill: 'forwards' }
         );
         a.onfinish = () => onClose();
     }, [onClose]);
@@ -180,7 +180,7 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         el.animate(
             [{ clipPath: 'inset(0 0 100% 0)', opacity: 0, transform: 'translateY(-6px)' },
              { clipPath: 'inset(0 0 0% 0)', opacity: 1, transform: 'translateY(0)' }],
-            { duration: 460, easing: 'cubic-bezier(.16,.8,.3,1)', fill: 'forwards' }
+            { duration: 360, easing: 'cubic-bezier(.16,.8,.3,1)', fill: 'forwards' }
         );
     }, []);
 
