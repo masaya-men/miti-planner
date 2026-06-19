@@ -14,7 +14,7 @@ import { AnimatePresence } from 'framer-motion';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useMitigations } from '../../hooks/useSkillsData';
-import { computeProgressPercent, isEmptyProgress } from '../../lib/progressLogic';
+import { computeProgressPercent } from '../../lib/progressLogic';
 import { useProgressRecording } from './useProgressRecording';
 import { ProgressRecordPanel } from './ProgressRecordPanel';
 import { ProgressCelebration } from './ProgressCelebration';
@@ -194,8 +194,7 @@ function JourneyStrip({
     return { cornerX: cx, cornerY: cy };
   }, [points, n]);
 
-  // n === 0 のとき: 親 ProgressTrackingHUD が isEmptyProgress で誘導表示に分岐済みのため、
-  // JourneyStrip はここに到達しない。念のため空 canvas を返してクラッシュを防ぐ。
+  // n === 0 のとき（クリア済みで打点0 等）: 念のため空 canvas を返してクラッシュを防ぐ。
   if (n === 0) {
     return <div className="relative flex-1 h-11 overflow-visible" />;
   }
@@ -264,9 +263,9 @@ export function ProgressTrackingHUD() {
   // spec 準拠の進捗 %（最高 reachedPos ÷ 全長）
   const pct = useMemo(() => computeProgressPercent(progress, total), [progress, total]);
 
-  // 記録ゼロ判定: true のときは軌跡の代わりに誘導文言を表示する。
-  // 1点でも記録されれば isEmptyProgress=false になり、再レンダリングで軌跡へ自動切替。
-  const isEmpty = isEmptyProgress(progress);
+  // 打点ゼロ(かつ未クリア)なら軌跡の代わりに誘導文言を表示する。
+  // 活動日数/時間を入れていても打点0なら誘導を出す（空の帯にしない）。1点でも記録すれば軌跡へ自動切替。
+  const isEmpty = points.length === 0 && !progress.cleared;
 
   // ─── お祝い演出の発火条件 ───────────────────────────────────────────────
   const [showCelebration, setShowCelebration] = useState(false);
@@ -311,7 +310,7 @@ export function ProgressTrackingHUD() {
       {/* data-progress-hud-band: 記録ドロワーがこの帯の位置を測り、中央真下から降りるためのアンカー */}
       <div
         data-progress-hud-band
-        className="w-full cursor-pointer"
+        className="group w-full cursor-pointer"
         onClick={() => {
           // 開いている時は開き直さない（再クリックは外側クリック判定=document mousedown が閉じる）。
           const r = useProgressRecording.getState();
@@ -319,9 +318,12 @@ export function ProgressTrackingHUD() {
         }}
       >
         {isEmpty ? (
-          /* 誘導型空状態: 軌跡の代わりに誘導文言を帯に出す */
-          <div className="flex items-center justify-center h-9 text-app-sm text-app-text-muted">
-            {t('progress.empty_cta')}
+          /* 誘導型空状態: 軌跡の代わりに誘導文言を帯に出す。
+             LoPo トンマナ=白黒テキストのみ。普段は控えめ、ホバーで文字がはっきり+下線→「押せる」と気付かせる。 */
+          <div className="flex items-center justify-center h-9">
+            <span className="text-app-sm text-app-text-sec group-hover:text-app-text underline-offset-4 group-hover:underline transition-all duration-200">
+              {t('progress.empty_cta')}
+            </span>
           </div>
         ) : (
           <JourneyStrip

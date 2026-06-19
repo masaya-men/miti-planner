@@ -18,11 +18,15 @@ describe('ProgressRecordPanel 詳細トグル（モバイル）', () => {
     useProgressRecording.setState({ panelOpen: true, pendingClose: 0 } as any);
   });
 
-  it('シェブロンで詳細パネルを開閉する', () => {
+  it('シェブロンで詳細パネルを開閉する（常時マウント・data-open で双方向トグル）', () => {
     render(<ProgressRecordPanel />);
-    // 開く前は詳細見出しが無い
-    expect(screen.queryByText('progress.detail_title')).toBeNull();
+    // 詳細パネルは常時マウント（開閉アニメを双方向にするため）。状態は data-open で表す。
+    const panel = document.querySelector('.progress-detail');
+    expect(panel).not.toBeNull();
+    expect(panel?.getAttribute('data-open')).toBe('false'); // 開く前は折りたたみ
     fireEvent.click(screen.getByLabelText('progress.toggle_detail'));
-    expect(screen.getByText('progress.detail_title')).toBeTruthy();
+    expect(panel?.getAttribute('data-open')).toBe('true');  // クリックで展開
+    fireEvent.click(screen.getByLabelText('progress.toggle_detail'));
+    expect(panel?.getAttribute('data-open')).toBe('false'); // 再クリックで閉じる
   });
 });

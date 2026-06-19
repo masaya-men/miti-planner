@@ -34,40 +34,45 @@ export function PhaseRoad() {
 
   return (
     <div className="relative h-12 select-none" aria-label="phase road">
-      {/* 発光ライン（クリックで比例時間ジャンプ） */}
+      {/* 発光ライン（クリックで比例時間ジャンプ）。
+          フェーズ名を上下交互に書くため、線は中央(y=24px)まで下げる。
+          上ラベルは線の上の空間、下ラベルは線の下の空間に置く（ドロワー高さは不変）。 */}
       <div
         ref={lineRef}
         onClick={onLineClick}
         className="absolute left-0 right-0 cursor-pointer"
-        style={{ top: '10px', height: '14px' }}
+        style={{ top: '17px', height: '14px' }}
       >
         <div className="absolute left-0 right-0" style={{
-          top: '0px', height: '1px',
+          top: '7px', height: '1px',
           background: 'linear-gradient(90deg, rgba(120,200,255,0) 0%, rgba(120,200,255,.55) 8%, rgba(120,200,255,.55) 92%, rgba(120,200,255,0) 100%)',
           boxShadow: '0 0 6px rgba(120,200,255,.4)',
         }} />
       </div>
-      {/* ノード + フェーズ名 */}
-      {nodes.map((nd) => (
-        <div key={nd.id}>
-          <span
-            onClick={(e) => { e.stopPropagation(); jump(nd.time); }}
-            className="absolute cursor-pointer"
-            style={{
-              left: `${nd.leftPct}%`, top: '10px', transform: 'translate(-50%,-50%)',
-              width: '6px', height: '6px', borderRadius: '50%',
-              background: '#cfeaff', boxShadow: '0 0 8px rgba(150,220,255,.9)',
-            }}
-          />
-          <span
-            onClick={(e) => { e.stopPropagation(); jump(nd.time); }}
-            className="absolute text-app-2xs font-bold text-app-blue hover:text-app-text whitespace-nowrap cursor-pointer"
-            style={{ left: `${nd.leftPct}%`, top: '20px', transform: 'translateX(-50%)' }}
-          >
-            {getPhaseName(nd.name, contentLanguage)}
-          </span>
-        </div>
-      ))}
+      {/* ノード + フェーズ名（index 偶数=線の上 / 奇数=線の下 で交互） */}
+      {nodes.map((nd, i) => {
+        const above = i % 2 === 0; // Phase1(index0)=上、次=下…
+        return (
+          <div key={nd.id}>
+            <span
+              onClick={(e) => { e.stopPropagation(); jump(nd.time); }}
+              className="absolute cursor-pointer"
+              style={{
+                left: `${nd.leftPct}%`, top: '24px', transform: 'translate(-50%,-50%)',
+                width: '6px', height: '6px', borderRadius: '50%',
+                background: '#cfeaff', boxShadow: '0 0 8px rgba(150,220,255,.9)',
+              }}
+            />
+            <span
+              onClick={(e) => { e.stopPropagation(); jump(nd.time); }}
+              className="absolute text-app-2xs font-bold text-app-blue hover:text-app-text whitespace-nowrap cursor-pointer"
+              style={{ left: `${nd.leftPct}%`, top: above ? '2px' : '34px', transform: 'translateX(-50%)' }}
+            >
+              {getPhaseName(nd.name, contentLanguage)}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

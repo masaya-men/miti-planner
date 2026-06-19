@@ -9,7 +9,7 @@ import { phaseAtTime, formatClock } from '../../lib/progressLogic';
 import { ConfirmDialog } from '../ConfirmDialog';
 import ProgressHistoryRow from './ProgressHistoryRow';
 
-const ProgressDetailPanel: React.FC = () => {
+const ProgressDetailPanel: React.FC<{ open: boolean }> = ({ open }) => {
     const { t } = useTranslation();
     const contentLanguage = useThemeStore((s) => s.contentLanguage);
     const points = useMitigationStore((s) => s.progress.points);
@@ -49,7 +49,8 @@ const ProgressDetailPanel: React.FC = () => {
     };
 
     return (
-        <div className="border-t border-app-border">
+        <div className="progress-detail" data-open={open}><div className="progress-detail-inner">
+        <div className="border-t border-app-border progress-detail-content">
             {/* 見出し */}
             <div className="flex items-center justify-between px-3.5 py-2">
                 <span className="text-app-xs font-bold text-app-text">
@@ -110,7 +111,7 @@ const ProgressDetailPanel: React.FC = () => {
                 confirmLabel={t('progress.clear_all_confirm_ok', '全部消す')}
                 variant="danger"
             />
-        </div>
+        </div></div></div>
     );
 };
 

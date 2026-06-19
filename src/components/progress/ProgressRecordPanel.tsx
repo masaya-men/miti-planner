@@ -77,7 +77,7 @@ const ClearSectionInline: React.FC = () => {
     return !cleared ? (
         <button
             onClick={() => setCleared(true)}
-            className="px-2.5 py-1 rounded-md text-app-sm font-black tracking-wide text-app-blue border border-app-blue/40 hover:bg-app-blue/10 active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap"
+            className="text-app-sm font-black tracking-wide text-app-blue hover:text-app-text active:scale-95 transition-all duration-200 cursor-pointer whitespace-nowrap"
             style={{ textShadow: '0 0 8px rgba(120,200,255,.4)' }}
         >
             {t('progress.clear_action_short', 'CLEAR!')}
@@ -124,11 +124,10 @@ const PanelBody: React.FC = () => {
             </div>
             {/* ②記録の促し（読めるサイズに拡大） */}
             <div className="text-app-sm text-app-text-muted">{t('progress.drawer_prompt_sub')}</div>
-            {/* ③光の道。CLEAR! はラインの縦レベル(y=10px)に合わせて右端へ（フェーズに重ねない）。
-               高さ20px・items-center で縦中心を y=10px のライン上に載せる。直前undo は別位置（ドロワー右下）。 */}
-            <div className="flex items-start gap-3">
+            {/* ③光の道。CLEAR! は道の縦中央(=ライン y=24px)に合わせる（items-center で道の中心に載る）。 */}
+            <div className="flex items-center gap-3">
                 <div className="flex-1 min-w-0"><PhaseRoad /></div>
-                <div className="flex items-center shrink-0" style={{ height: '20px' }}>
+                <div className="shrink-0">
                     <ClearSectionInline />
                 </div>
             </div>
@@ -193,10 +192,15 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         const el = drawerRef.current;
         if (!el) { onClose(); return; }
         closingRef.current = true;
+        // 閉じ=「上にしまわれる」: クリップを下→上へ retract しつつ、不透明度は前半保持→後半だけフェード
+        // （途中で薄く消えるのでなく"畳まれて header にしまわれる"感）。
         const a = el.animate(
-            [{ clipPath: 'inset(0 0 0% 0)', opacity: 1, transform: 'translateY(0)' },
-             { clipPath: 'inset(0 0 100% 0)', opacity: 0, transform: 'translateY(-6px)' }],
-            { duration: 153, easing: 'cubic-bezier(.7,0,.84,.2)', fill: 'forwards' }
+            [
+                { clipPath: 'inset(0 0 0% 0)', opacity: 1, transform: 'translateY(0)', offset: 0 },
+                { opacity: 1, offset: 0.5 },
+                { clipPath: 'inset(0 0 100% 0)', opacity: 0, transform: 'translateY(-4px)', offset: 1 },
+            ],
+            { duration: 220, easing: 'cubic-bezier(.4,0,.7,.25)', fill: 'forwards' }
         );
         a.onfinish = () => onClose();
     }, [onClose]);
@@ -230,10 +234,11 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     // 開演出: clip 上→下 + 明滅
     useEffect(() => {
         const el = drawerRef.current; if (!el) return;
+        // 開き=「下へ伸びる」: クリップ上→下 reveal + 末尾にごく僅かな translateY 着地オーバーシュート(y2>1)
         el.animate(
             [{ clipPath: 'inset(0 0 100% 0)', opacity: 0, transform: 'translateY(-6px)' },
              { clipPath: 'inset(0 0 0% 0)', opacity: 1, transform: 'translateY(0)' }],
-            { duration: 360, easing: 'cubic-bezier(.16,.8,.3,1)', fill: 'forwards' }
+            { duration: 340, easing: 'cubic-bezier(.2,.85,.3,1.06)', fill: 'forwards' }
         );
     }, []);
 
@@ -268,7 +273,7 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <ChevronToggle open={detailOpen} onClick={() => setDetailOpen((v) => !v)} />
                 <div className="absolute right-3"><UndoLastPointButton /></div>
             </div>
-            {detailOpen && <ProgressDetailPanel />}
+            <ProgressDetailPanel open={detailOpen} />
         </div>,
         document.body
     );
@@ -318,7 +323,7 @@ export const ProgressRecordPanel: React.FC = () => {
                         <ChevronToggle open={detailOpenMobile} onClick={() => setDetailOpenMobile((v) => !v)} />
                         <div className="absolute right-0"><UndoLastPointButton /></div>
                     </div>
-                    {detailOpenMobile && <ProgressDetailPanel />}
+                    <ProgressDetailPanel open={detailOpenMobile} />
                 </div>
             </MobileBottomSheet>
         );

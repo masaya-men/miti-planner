@@ -34,7 +34,7 @@ beforeEach(() => {
 
 describe('ProgressDetailPanel', () => {
   it('件数見出しと行を表示（新しい順）', () => {
-    render(<ProgressDetailPanel />);
+    render(<ProgressDetailPanel open={true} />);
     expect(screen.getByText('progress.detail_title')).toBeTruthy();
     // 2点ぶんの % が出る（60/300=20, 240/300=80）
     expect(screen.getByText('80%')).toBeTruthy();
@@ -42,7 +42,7 @@ describe('ProgressDetailPanel', () => {
   });
 
   it('全消去 → ConfirmDialog → 確定で clearAllProgressPoints', () => {
-    render(<ProgressDetailPanel />);
+    render(<ProgressDetailPanel open={true} />);
     fireEvent.click(screen.getByText('progress.clear_all'));
     // ConfirmDialog の確定ボタン（confirmLabel=progress.clear_all_confirm_ok）
     fireEvent.click(screen.getByText('progress.clear_all_confirm_ok'));
@@ -51,13 +51,13 @@ describe('ProgressDetailPanel', () => {
 
   it('点が無いと空状態を表示し全消去を出さない', () => {
     state.progress = { points: [], cleared: false };
-    render(<ProgressDetailPanel />);
+    render(<ProgressDetailPanel open={true} />);
     expect(screen.getByText('progress.empty_title')).toBeTruthy();
     expect(screen.queryByText('progress.clear_all')).toBeNull();
   });
 
   it('個別削除で removeProgressPoint(実index) を呼ぶ', () => {
-    render(<ProgressDetailPanel />);
+    render(<ProgressDetailPanel open={true} />);
     // 先頭行（表示は新しい順なので reachedPos=240=実index1）の削除
     const delButtons = screen.getAllByLabelText('progress.delete_record');
     fireEvent.click(delButtons[0]);

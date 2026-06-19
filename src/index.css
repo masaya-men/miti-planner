@@ -81,6 +81,36 @@
   100% { transform: scale(1.5); opacity: 0; }
 }
 
+/* 進捗詳細パネルの開閉(開く=下へ伸びる / 閉じる=上にしまわれる):
+   ・箱の高さを grid-template-rows 0fr↔1fr の CSS transition で双方向に滑らかに開閉(高さ自動でも滑らか)。
+     decelerate イージングで終盤に「スッと収まる/しまわれる」着地感。
+   ・中身は opacity + ごく僅かな translateY 着地オーバーシュート(y2>1)で「ほんの少し沈んで戻る」プレミアム感。
+   常時マウントし data-open で開閉(閉=0fr=高さ0・不可視)。大きく弾ませない(HUD/戦略ツールのトンマナ)。
+   prefers-reduced-motion では即時。 */
+.progress-detail {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+.progress-detail[data-open="true"] { grid-template-rows: 1fr; }
+.progress-detail > .progress-detail-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.progress-detail-content {
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 200ms ease, transform 340ms cubic-bezier(0.34, 1.15, 0.64, 1);
+}
+.progress-detail[data-open="true"] .progress-detail-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-detail,
+  .progress-detail-content { transition: none; }
+}
+
 @keyframes conflict-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.9); }
