@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo, PlanProgress } from '../types';
-import { appendProgressPoint, removeProgressPoint, normalizeProgress } from '../lib/progressLogic';
+import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo, PlanProgress, ProgressPoint } from '../types';
+import { appendProgressPoint, removeProgressPoint, normalizeProgress, insertProgressPoint } from '../lib/progressLogic';
 import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
 import { MEMO_LIMITS } from '../types/firebase';
@@ -200,6 +200,9 @@ interface MitigationState {
     setCleared: (cleared: boolean) => void;
     setActiveDays: (n: number | undefined) => void;
     setActiveHours: (n: number | undefined) => void;
+    setProgressPointNote: (index: number, note: string) => void;
+    clearAllProgressPoints: () => void;
+    insertProgressPointAt: (index: number, point: ProgressPoint) => void;
 }
 
 // レベルに応じたサブステベース値を取得（遅延評価）
@@ -1609,6 +1612,27 @@ export const useMitigationStore = create<MitigationState>()(
                 setActiveHours: (n) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
                     set((state) => ({ progress: { ...state.progress, activeHours: n } }));
+                },
+                setProgressPointNote: (index, note) => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    set((state) => {
+                        if (index < 0 || index >= state.progress.points.length) return {} as any;
+                        const trimmed = note.trim();
+                        const points = state.progress.points.map((p, i) => {
+                            if (i !== index) return p;
+                            if (!trimmed) { const { note: _omit, ...rest } = p; return rest; }
+                            return { ...p, note: trimmed };
+                        });
+                        return { progress: { ...state.progress, points } };
+                    });
+                },
+                clearAllProgressPoints: () => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    set((state) => ({ progress: { ...state.progress, points: [] } }));
+                },
+                insertProgressPointAt: (index, point) => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
+                    set((state) => ({ progress: { ...state.progress, points: insertProgressPoint(state.progress.points, index, point) } }));
                 },
 
                 setSchAetherflowPattern: (memberId, pattern) => {
