@@ -24,6 +24,20 @@ export function removeProgressPoint(list: ProgressPoint[] | undefined, index: nu
     return (list ?? []).filter((_, i) => i !== index);
 }
 
+/**
+ * before→after で「新しく追加された点」を返す（共同編集で他参加者が記録したことの検出用）。
+ * after にあって before に無い id の点のうち reachedPos が最大のものを返す。
+ * 追加が無い（削除・メモ編集・無変化）場合は null。トースト表示は呼び出し側の純粋判定材料。
+ */
+export function newlyAddedRemotePoint(
+    before: ProgressPoint[], after: ProgressPoint[]
+): ProgressPoint | null {
+    const beforeIds = new Set(before.map((p) => p.id));
+    const added = after.filter((p) => !beforeIds.has(p.id));
+    if (added.length === 0) return null;
+    return added.reduce((best, p) => (p.reachedPos > best.reachedPos ? p : best), added[0]);
+}
+
 /** id 一致の点を削除（共同編集の個別削除に使う・非破壊）。 */
 export function removeProgressPointById(list: ProgressPoint[] | undefined, id: string): ProgressPoint[] {
     return (list ?? []).filter((p) => p.id !== id);

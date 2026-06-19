@@ -4,8 +4,38 @@ import {
   insertProgressPoint, phaseAtTime, pointPercent,
   formatClock, formatTimeOfDay, formatMonthDay, dayBucket,
   makeProgressPointId, removeProgressPointById, setProgressPointNoteById, normalizeProgress,
+  newlyAddedRemotePoint,
 } from '../progressLogic';
-import type { PlanProgress, LocalizedString } from '../../types';
+import type { PlanProgress, LocalizedString, ProgressPoint } from '../../types';
+
+describe('newlyAddedRemotePoint', () => {
+    const P = (id: string, reachedPos: number): ProgressPoint => ({ id, ts: 1, reachedPos });
+    it('追加された点(after にあって before に無い id)を返す', () => {
+        const before = [P('pt_a', 10)];
+        const after = [P('pt_a', 10), P('pt_b', 30)];
+        expect(newlyAddedRemotePoint(before, after)?.id).toBe('pt_b');
+    });
+    it('複数追加なら reachedPos 最大の点を返す', () => {
+        const before = [P('pt_a', 10)];
+        const after = [P('pt_a', 10), P('pt_b', 25), P('pt_c', 40)];
+        expect(newlyAddedRemotePoint(before, after)?.id).toBe('pt_c');
+    });
+    it('削除(after が縮む)は null', () => {
+        expect(newlyAddedRemotePoint([P('pt_a', 10), P('pt_b', 20)], [P('pt_a', 10)])).toBeNull();
+    });
+    it('メモ編集等で id 集合が不変なら null', () => {
+        const before = [P('pt_a', 10)];
+        const after = [{ ...P('pt_a', 10), note: 'memo' }];
+        expect(newlyAddedRemotePoint(before, after)).toBeNull();
+    });
+    it('変化なしは null', () => {
+        const same = [P('pt_a', 10)];
+        expect(newlyAddedRemotePoint(same, same)).toBeNull();
+    });
+    it('空→空は null', () => {
+        expect(newlyAddedRemotePoint([], [])).toBeNull();
+    });
+});
 
 describe('makeDayKey', () => {
     it('JST の YYYY-MM-DD を返す', () => {
