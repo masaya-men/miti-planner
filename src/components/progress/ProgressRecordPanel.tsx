@@ -10,6 +10,7 @@ import { Tooltip } from '../ui/Tooltip';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { PhaseRoad } from './PhaseRoad';
 import { ActivityScrub } from './ActivityScrub';
+import ProgressDetailPanel from './ProgressDetailPanel';
 
 // -------------------- 1つ戻る（最新打点を削除） --------------------
 
@@ -42,6 +43,23 @@ const UndoLastPointButton: React.FC = () => {
                 )}
             >↶</button>
         </Tooltip>
+    );
+};
+
+// -------------------- 詳細パネル開閉シェブロン（角度ゆるめ＝chevron B） --------------------
+
+/** ドロワー下端中央の開閉シェブロン。開くと180°回転（上向き）。 */
+const ChevronToggle: React.FC<{ open: boolean; onClick: () => void }> = ({ open, onClick }) => {
+    const { t } = useTranslation();
+    return (
+        <button onClick={onClick} aria-label={t('progress.toggle_detail', '記録の詳細')} aria-expanded={open}
+            className="p-1 rounded-lg text-app-blue hover:bg-app-toggle transition-all duration-200 cursor-pointer active:scale-90">
+            <svg width="26" height="22" viewBox="0 0 28 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+                strokeLinecap="round" strokeLinejoin="round"
+                style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .2s', filter: 'drop-shadow(0 0 5px rgba(120,200,255,.45))' }}>
+                <polyline points="5 10.5 14 14.5 23 10.5" />
+            </svg>
+        </button>
     );
 };
 
@@ -143,6 +161,7 @@ function useIsMobile(): boolean {
 const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
     const startRecordMode = useProgressRecording(s => s.startRecordMode);
+    const [detailOpen, setDetailOpen] = useState(false);
 
     // 横位置=画面（ビューポート）中央。
     // 縦位置=ヘッダー下端の1px線（常設ハンドル領域の下端 = data-progress-drawer-anchor の bottom）に密着。
@@ -244,10 +263,12 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                 <X size={14} />
             </button>
             <div className="px-5 py-3.5"><PanelBody /></div>
-            {/* 1つ戻る: ドロワー右下に常時表示（CLEAR! の隣には置かない）。absolute は外側 div が担う。 */}
-            <div className="absolute bottom-2 right-3 z-10">
-                <UndoLastPointButton />
+            {/* 下部バー: シェブロン中央 + 直前undo右 */}
+            <div className="relative flex items-center justify-center h-7 px-3">
+                <ChevronToggle open={detailOpen} onClick={() => setDetailOpen((v) => !v)} />
+                <div className="absolute right-3"><UndoLastPointButton /></div>
             </div>
+            {detailOpen && <ProgressDetailPanel />}
         </div>,
         document.body
     );
@@ -266,6 +287,7 @@ export const ProgressRecordPanel: React.FC = () => {
     const isMobile = useIsMobile();
     const startRecordMode = useProgressRecording(s => s.startRecordMode);
     const pendingClose = useProgressRecording(s => s.pendingClose);
+    const [detailOpenMobile, setDetailOpenMobile] = useState(false);
 
     // モバイルでパネルが開いた時に記録モードを ON にする（PCDrawer は自身の useEffect で行う）
     useEffect(() => {
@@ -291,10 +313,12 @@ export const ProgressRecordPanel: React.FC = () => {
             >
                 <div className="py-2">
                     <PanelBody />
-                    {/* 1つ戻る: シート下部右に常時表示 */}
-                    <div className="flex justify-end mt-2">
-                        <UndoLastPointButton />
+                    {/* 下部バー: シェブロン中央 + 直前undo右 */}
+                    <div className="relative flex items-center justify-center h-8 mt-1">
+                        <ChevronToggle open={detailOpenMobile} onClick={() => setDetailOpenMobile((v) => !v)} />
+                        <div className="absolute right-0"><UndoLastPointButton /></div>
                     </div>
+                    {detailOpenMobile && <ProgressDetailPanel />}
                 </div>
             </MobileBottomSheet>
         );
