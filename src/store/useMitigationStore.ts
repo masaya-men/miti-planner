@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Mitigation, PartyMember, PlayerStats, TimelineEvent, Phase, Label, AppliedMitigation, PlanData, LocalizedString, PlanMemo, PlanProgress, ProgressPoint } from '../types';
-import { appendProgressPoint, removeProgressPoint, normalizeProgress, insertProgressPoint } from '../lib/progressLogic';
+import { appendProgressPoint, removeProgressPoint, normalizeProgress, insertProgressPoint, makeProgressPointId } from '../lib/progressLogic';
 import { migratePhases, ensurePhaseEndTimes, repairLastPhaseEndTime, repairAdjacentPhaseBoundaries } from '../utils/phaseMigration';
 import { migrateLabels, isLegacyLabelFormat, ensureLabelEndTimes, repairLastLabelEndTime, repairAdjacentLabelBoundaries } from '../utils/labelMigration';
 import { MEMO_LIMITS } from '../types/firebase';
@@ -1592,7 +1592,7 @@ export const useMitigationStore = create<MitigationState>()(
                 recordReachedPoint: (reachedPos) => {
                     if (get()._collabReadonly && !get()._collabActive) return; // 純粋閲覧者ブロック
                     set((state) => ({
-                        progress: { ...state.progress, points: appendProgressPoint(state.progress.points, { ts: Date.now(), reachedPos }) },
+                        progress: { ...state.progress, points: appendProgressPoint(state.progress.points, { id: makeProgressPointId(), ts: Date.now(), reachedPos }) },
                     }));
                 },
                 removeProgressPoint: (index) => {

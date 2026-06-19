@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { classifyRecord } from '../progressLogic';
 import type { PlanProgress } from '../../types';
 
-const P = (reached: number[]): PlanProgress => ({ points: reached.map((r, i) => ({ ts: i + 1, reachedPos: r })), cleared: false });
+const P = (reached: number[]): PlanProgress => ({ points: reached.map((r, i) => ({ id: `pt_${i}`, ts: i + 1, reachedPos: r })), cleared: false });
 
 describe('classifyRecord', () => {
   it('記録ゼロからの初回は update', () => {

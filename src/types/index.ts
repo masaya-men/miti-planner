@@ -239,6 +239,8 @@ export interface PlanMemo {
 
 /** 進捗トラッキング: 1 回の打点（クリックごとに 1 点ずつ溜まる） */
 export interface ProgressPoint {
+    /** 打点の固定 id（pt_<uuid>）。共同編集の union/個別操作で点を一意識別する。 */
+    id: string;
     /** 記録時刻 (epoch ms)。並び順 = クリック順 / 日付ラベルの算出に使う */
     ts: number;
     /** その時クリックした到達点。タイムライン上の秒位置 */

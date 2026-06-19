@@ -45,7 +45,7 @@ describe('useMitigationStore progress detail actions', () => {
 
   it('insertProgressPointAt: 元の位置に復元できる', () => {
     seed([{ ts: 1, reachedPos: 10 }, { ts: 3, reachedPos: 30 }]);
-    useMitigationStore.getState().insertProgressPointAt(1, { ts: 2, reachedPos: 20 });
+    useMitigationStore.getState().insertProgressPointAt(1, { id: 'pt_undo', ts: 2, reachedPos: 20 });
     expect(useMitigationStore.getState().progress.points.map(p => p.ts)).toEqual([1, 2, 3]);
   });
 

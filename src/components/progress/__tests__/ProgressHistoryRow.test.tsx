@@ -6,7 +6,7 @@ import ProgressHistoryRow from '../ProgressHistoryRow';
 vi.mock('react-i18next', () => ({ useTranslation: () => ({ t: (k: string) => k, i18n: { language: 'ja' } }) }));
 
 const base = {
-  point: { ts: Date.parse('2026-06-19T12:34:00Z'), reachedPos: 150 },
+  point: { id: 'pt_test', ts: Date.parse('2026-06-19T12:34:00Z'), reachedPos: 150 },
   index: 0, isBest: true, totalSec: 300, phaseLabel: 'フェーズ2',
   onDelete: vi.fn(), onSetNote: vi.fn(),
 };
