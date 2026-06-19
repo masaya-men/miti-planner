@@ -121,7 +121,9 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         const anchor = document.querySelector('[data-progress-drawer-anchor]');
         const band = document.querySelector('[data-progress-hud-band]');
         const left = window.innerWidth / 2;
-        const top = anchor ? anchor.getBoundingClientRect().bottom : 92;
+        // ハンドル領域の「上端線」に密着させる（下端だと中央シェブロン以外の左右に 24px の空き帯が
+        // 残り隙間に見えるため）。ヘッダー本文の真下＝ハンドル上端1px線をドロワーの上辺にする。
+        const top = anchor ? Math.round(anchor.getBoundingClientRect().top) : 92;
         const width = band
             ? Math.min(720, Math.max(band.getBoundingClientRect().width, 480), window.innerWidth * 0.92)
             : Math.min(720, window.innerWidth * 0.92);
