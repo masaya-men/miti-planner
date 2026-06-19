@@ -2495,6 +2495,23 @@
         "record_toast_nice": "不错！继续保持 — 当前 {n}%",
         "drawer_prompt_main": "今天进行到哪里了？",
         "drawer_prompt_sub": "点击时间轴进行记录",
-        "undo_last": "撤销刚才的记录"
+        "undo_last": "撤销刚才的记录",
+        "detail_title": "进度记录",
+        "best": "最高",
+        "add_memo": "＋备注",
+        "memo_placeholder": "一句备注",
+        "clear_all": "全部清除",
+        "clear_all_confirm_title": "全部清除",
+        "clear_all_confirm_message": "将删除全部 {{count}} 条记录。无法撤销。",
+        "clear_all_confirm_ok": "全部删除",
+        "deleted_one": "已删除 1 条",
+        "undo": "撤销",
+        "empty_title": "还没有记录",
+        "empty_hint": "点击时间轴上的到达点进行记录",
+        "reach_at_suffix": "处",
+        "delete_record": "删除此记录",
+        "toggle_detail": "记录详情",
+        "today": "今天",
+        "yesterday": "昨天"
     }
 }

@@ -2530,6 +2530,23 @@
         "record_toast_nice": "Nice! Keep it up — now at {n}%",
         "drawer_prompt_main": "How far did you get today?",
         "drawer_prompt_sub": "Click the timeline to record",
-        "undo_last": "Undo last record"
+        "undo_last": "Undo last record",
+        "detail_title": "Progress log",
+        "best": "Best",
+        "add_memo": "+ Note",
+        "memo_placeholder": "Add a note",
+        "clear_all": "Clear all",
+        "clear_all_confirm_title": "Clear all",
+        "clear_all_confirm_message": "This will delete all {{count}} records. This can't be undone.",
+        "clear_all_confirm_ok": "Delete all",
+        "deleted_one": "1 record deleted",
+        "undo": "Undo",
+        "empty_title": "No records yet",
+        "empty_hint": "Click a reached point on the timeline to record it",
+        "reach_at_suffix": "",
+        "delete_record": "Delete this record",
+        "toggle_detail": "Record details",
+        "today": "Today",
+        "yesterday": "Yesterday"
     }
 }

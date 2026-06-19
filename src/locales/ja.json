@@ -2551,6 +2551,23 @@
         "record_toast_nice": "ナイス！ この調子 現在 {n}%",
         "drawer_prompt_main": "今日はどこまで進みましたか？",
         "drawer_prompt_sub": "タイムラインをクリックして記録しましょう",
-        "undo_last": "直前の記録を取り消す"
+        "undo_last": "直前の記録を取り消す",
+        "detail_title": "到達の記録",
+        "best": "最高",
+        "add_memo": "＋メモ",
+        "memo_placeholder": "ひとことメモ",
+        "clear_all": "全消去",
+        "clear_all_confirm_title": "全消去",
+        "clear_all_confirm_message": "到達記録 {{count}} 件をすべて消します。元に戻せません。",
+        "clear_all_confirm_ok": "全部消す",
+        "deleted_one": "1件削除しました",
+        "undo": "元に戻す",
+        "empty_title": "まだ記録がありません",
+        "empty_hint": "タイムラインの到達した時間をクリックで記録",
+        "reach_at_suffix": "地点",
+        "delete_record": "この記録を削除",
+        "toggle_detail": "記録の詳細",
+        "today": "今日",
+        "yesterday": "昨日"
     }
 }
