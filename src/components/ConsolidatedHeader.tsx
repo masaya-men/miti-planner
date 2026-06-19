@@ -436,7 +436,8 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
             </motion.div>
 
             {/* [2] ── 常設ハンドル領域 ── */}
-            <div className="w-full relative shrink-0" style={{ height: '24px' }}>
+            {/* data-progress-drawer-anchor: 記録ドロワーがこの領域の下端1px線を上辺として密着配置するためのアンカー */}
+            <div data-progress-drawer-anchor className="w-full relative shrink-0" style={{ height: '24px' }}>
                 {/* ハンドル本体 */}
                 <div
                     className="absolute bottom-0 left-0 right-0 h-[25px] z-50 pointer-events-auto glass-tier3 glass-frame glass-border-t-0 glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"

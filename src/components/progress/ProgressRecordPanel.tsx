@@ -112,18 +112,20 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const drawerRef = useRef<HTMLDivElement>(null);
     const startRecordMode = useProgressRecording(s => s.startRecordMode);
 
-    // 横位置=画面（ビューポート）中央、縦位置=HUD 帯の真下から降ろす。
-    // 帯の中心は左右非対称ヘッダーのぶん右に寄るため、横は画面中央に揃える方が自然
-    // （2026-06-19 ユーザー実機判断）。帯は縦位置（top）を測るためだけに使う。
-    // 帯が見つからない場合のフォールバックは画面中央 / top:92px。
+    // 横位置=画面（ビューポート）中央。
+    // 縦位置=ヘッダー下端の1px線（常設ハンドル領域の下端 = data-progress-drawer-anchor の bottom）に密着。
+    //   → ドロワーの上辺をヘッダーの開閉ハンドル線に一致させ、ヘッダーから引き出された見た目にする（隙間ゼロ）。
+    //   帯（data-progress-hud-band）は幅の算出にだけ使う（帯幅に追従）。
     const [pos, setPos] = useState<{ left: number; top: number; width: number } | null>(null);
     useLayoutEffect(() => {
+        const anchor = document.querySelector('[data-progress-drawer-anchor]');
         const band = document.querySelector('[data-progress-hud-band]');
         const left = window.innerWidth / 2;
-        if (!band) { setPos({ left, top: 92, width: Math.min(720, window.innerWidth * 0.92) }); return; }
-        const r = band.getBoundingClientRect();
-        const width = Math.min(720, Math.max(r.width, 480), window.innerWidth * 0.92);
-        setPos({ left, top: r.bottom + 6, width });
+        const top = anchor ? anchor.getBoundingClientRect().bottom : 92;
+        const width = band
+            ? Math.min(720, Math.max(band.getBoundingClientRect().width, 480), window.innerWidth * 0.92)
+            : Math.min(720, window.innerWidth * 0.92);
+        setPos({ left, top, width });
     }, []);
 
     // 開いた瞬間に記録モード ON（PC のみ）
@@ -195,6 +197,8 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             className="fixed z-[9999] glass-tier3 glass-border-t-0 rounded-b-lg shadow-sm overflow-hidden"
             style={{
                 '--glass-tier3-bg': 'var(--share-modal-bg)',
+                // 上辺の内側ハイライト(inset)を消す → ヘッダー下端線が唯一の上辺になる（ドロワー自身は上辺を描かない）。
+                '--glass-tier3-inset': 'inset 0 0 0 0 transparent',
                 ...(pos
                     ? { top: `${pos.top}px`, left: `${pos.left - pos.width / 2}px`, width: `${pos.width}px` }
                     : { top: '92px', left: 'calc(50% - min(360px, 46vw))', width: 'min(720px, 92vw)' }),
