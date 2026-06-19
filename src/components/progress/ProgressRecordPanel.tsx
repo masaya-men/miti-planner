@@ -157,10 +157,11 @@ const PCDrawer: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         if (pendingClose) requestClose();
     }, [pendingClose, requestClose]);
 
-    // 外側クリック閉じ（記録モード中はタイムライン打点に使うため閉じない）
+    // 外側クリックで閉じる。ドロワー外をクリックしたら閉じる（記録モード中でも閉じる）。
+    // タイムラインのセルは click で commitReachedPos が走り記録＋閉じになる（その場合もここで閉じ演出に入るが
+    // closingRef で二重化しない / 記録自体は click 時点で recordMode=true のため成立する）。
     useEffect(() => {
         const handler = (e: MouseEvent) => {
-            if (useProgressRecording.getState().recordMode) return;
             if (drawerRef.current && !drawerRef.current.contains(e.target as Node)) requestClose();
         };
         document.addEventListener('mousedown', handler);

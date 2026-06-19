@@ -312,7 +312,11 @@ export function ProgressTrackingHUD() {
       <div
         data-progress-hud-band
         className="w-full cursor-pointer"
-        onClick={() => useProgressRecording.getState().openPanel()}
+        onClick={() => {
+          // 開いている時は開き直さない（再クリックは外側クリック判定=document mousedown が閉じる）。
+          const r = useProgressRecording.getState();
+          if (!r.panelOpen) r.openPanel();
+        }}
       >
         {isEmpty ? (
           /* 誘導型空状態: 軌跡の代わりに誘導文言を帯に出す */
