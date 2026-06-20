@@ -3229,13 +3229,16 @@ const Timeline: React.FC = () => {
                                                     if (def && isLivingDeadStyle(def)) {
                                                         const tT = livingDeadTriggers.get(m.id);
                                                         if (tT !== undefined) {
-                                                            // ホロスコープ→ヘリオスと同じ規約: 引き金と同時刻に重ねず 1 行下(+1秒)から表示。
-                                                            // 計算上の生存窓 [tT, tT+walkingDeadDuration) は不変。表示バーの終端を窓終端に合わせるため duration を 1 短くする。
+                                                            // 原則、死亡時刻 tT(=致死被弾でウォーキングデッド発動)ちょうどに白黒アイコンを表示。
+                                                            // 例外: tT がリビデ詠唱時刻(m.time)と同時刻=「使った瞬間に死亡」のときだけ、親リビデアイコンと
+                                                            // 同じセルで重なるため 1 行下げる(ホロスコープ→ヘリオスの +1 と同じ重なり回避)。
+                                                            // 効果窓の終端 tT+walkingDeadDuration は不変(下げた分 duration を縮める)。
+                                                            const wdStart = tT === m.time ? tT + 1 : tT;
                                                             displayItems.push({
                                                                 ...m,
                                                                 id: `virtual-wd-${m.id}`,
-                                                                time: tT + 1,
-                                                                duration: Math.max(1, def.walkingDeadDuration! - 1),
+                                                                time: wdStart,
+                                                                duration: Math.max(1, def.walkingDeadDuration! - (wdStart - tT)),
                                                                 isVirtual: true,
                                                                 iconOverride: def.icon,
                                                                 grayscale: true,
@@ -3386,10 +3389,10 @@ const Timeline: React.FC = () => {
                                                             height = Math.max(0, Math.round(cutY - startY) - 8);
                                                         }
                                                         if (def && isLivingDeadStyle(def)) {
-                                                            const tT = livingDeadTriggers.get(mitigation.id);
-                                                            if (tT !== undefined) {
-                                                                // WD 仮想アイコンは tT+1 から出るので、親リビデバーは tT+1 で切る(引き金の行=tT は親バーがカバー)。
-                                                                const cutY = getMappedY(tT + 1);
+                                                            // WD 仮想アイコンの実際の開始(tT、重なり回避時は tT+1)で親バーを切る(ホロスコープと同じく仮想の time を参照)。
+                                                            const wd = displayItems.find((am: any) => am.isVirtual && am.parentId === mitigation.id);
+                                                            if (wd) {
+                                                                const cutY = getMappedY(wd.time);
                                                                 height = Math.max(0, Math.round(cutY - startY) - 8);
                                                             }
                                                         }
