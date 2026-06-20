@@ -3225,11 +3225,13 @@ const Timeline: React.FC = () => {
                                                     if (def && isLivingDeadStyle(def)) {
                                                         const tT = livingDeadTriggers.get(m.id);
                                                         if (tT !== undefined) {
+                                                            // ホロスコープ→ヘリオスと同じ規約: 引き金と同時刻に重ねず 1 行下(+1秒)から表示。
+                                                            // 計算上の生存窓 [tT, tT+walkingDeadDuration) は不変。表示バーの終端を窓終端に合わせるため duration を 1 短くする。
                                                             displayItems.push({
                                                                 ...m,
                                                                 id: `virtual-wd-${m.id}`,
-                                                                time: tT,
-                                                                duration: def.walkingDeadDuration!,
+                                                                time: tT + 1,
+                                                                duration: Math.max(1, def.walkingDeadDuration! - 1),
                                                                 isVirtual: true,
                                                                 iconOverride: def.icon,
                                                                 grayscale: true,
@@ -3382,7 +3384,8 @@ const Timeline: React.FC = () => {
                                                         if (def && isLivingDeadStyle(def)) {
                                                             const tT = livingDeadTriggers.get(mitigation.id);
                                                             if (tT !== undefined) {
-                                                                const cutY = getMappedY(tT);
+                                                                // WD 仮想アイコンは tT+1 から出るので、親リビデバーは tT+1 で切る(引き金の行=tT は親バーがカバー)。
+                                                                const cutY = getMappedY(tT + 1);
                                                                 height = Math.max(0, Math.round(cutY - startY) - 8);
                                                             }
                                                         }
