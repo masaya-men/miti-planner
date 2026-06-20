@@ -14,6 +14,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import type { ImportMode } from '../utils/importModes';
 import { apiFetch } from '../lib/apiClient';
 import { LoginModal } from './LoginModal';
+import { parseFflogsUrl } from '../lib/fflogs/parseFflogsUrl';
 
 // クライアント側レート制限: 1時間あたり最大15回
 const IMPORT_RATE_LIMIT = 15;
@@ -86,14 +87,9 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
         if (!newUrl.trim()) return;
 
-        const reportMatch = newUrl.match(/reports\/([a-zA-Z0-9]+)/);
-        const fightMatch = newUrl.match(/[#?]fight=([^&]+)/);
-
-        if (reportMatch && reportMatch[1]) {
-            setParsedData({
-                reportId: reportMatch[1],
-                fightId: fightMatch ? fightMatch[1] : null,
-            });
+        const parsed = parseFflogsUrl(newUrl);
+        if (parsed) {
+            setParsedData(parsed);
         } else {
             setUrlError(t('fflogs.invalid_url'));
         }
