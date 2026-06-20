@@ -2012,18 +2012,6 @@ const Timeline: React.FC = () => {
 
             currentDamage = Math.floor(currentDamage);
 
-            // リビングデッド(二段階無敵): 「リビデを除いた軽減後ダメ」が致死なら、窓内最初の被弾を起点に生存
-            if (!isInvincibleForEvent) {
-                const livingDeads = allLivingDeads.filter(ld => ld.ownerId === displayContext || ld.targetId === displayContext);
-                if (livingDeads.length > 0) {
-                    const maxHp = maxHpForEffectiveTarget(target, partyMembers);
-                    if (resolveLivingDeadSurvival(event.time, currentDamage, maxHp, livingDeads, livingDeadTriggers)) {
-                        currentDamage = 0;
-                        isInvincibleForEvent = true;
-                    }
-                }
-            }
-
             const damageForShields = currentDamage;
 
             if (!isInvincibleForEvent) {
@@ -2179,6 +2167,18 @@ const Timeline: React.FC = () => {
                         }
                     });
                 });
+            }
+
+            // リビングデッド(二段階無敵): 「リビデを除いた軽減後ダメ」が致死なら、窓内最初の被弾を起点に生存
+            if (!isInvincibleForEvent) {
+                const livingDeads = allLivingDeads.filter(ld => ld.ownerId === displayContext || ld.targetId === displayContext);
+                if (livingDeads.length > 0) {
+                    const maxHp = maxHpForEffectiveTarget(target, partyMembers);
+                    if (resolveLivingDeadSurvival(event.time, currentDamage, maxHp, livingDeads, livingDeadTriggers)) {
+                        currentDamage = 0;
+                        isInvincibleForEvent = true;
+                    }
+                }
             }
 
             const finalTaken = Math.max(0, currentDamage);
