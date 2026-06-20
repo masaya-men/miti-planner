@@ -11,6 +11,7 @@ interface TemplateEditorToolbarProps {
   onOpenPromote: () => void;
   onOpenCsvImport: () => void;
   onOpenFflogsTranslation: () => void;
+  onOpenFflogsTimelineImport: () => void;
   hasEvents: boolean;
   autoPropagate: boolean;
   onToggleAutoPropagate: () => void;
@@ -31,6 +32,7 @@ export function TemplateEditorToolbar({
   onOpenPromote,
   onOpenCsvImport,
   onOpenFflogsTranslation,
+  onOpenFflogsTimelineImport,
   hasEvents,
   autoPropagate,
   onToggleAutoPropagate,
@@ -67,6 +69,14 @@ export function TemplateEditorToolbar({
         className={`${baseButtonClass} border-purple-500/40 text-purple-400 hover:bg-purple-500/10`}
       >
         {t('admin.tpl_fflogs_btn')}
+      </button>
+
+      <button
+        type="button"
+        onClick={onOpenFflogsTimelineImport}
+        className={`${baseButtonClass} border-sky-500/40 text-sky-400 hover:bg-sky-500/10`}
+      >
+        {t('admin.tpl_fflogs_import_btn')}
       </button>
 
       <button

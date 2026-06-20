@@ -14,7 +14,10 @@ import { TemplateEditorToolbar } from './TemplateEditorToolbar';
 import { PlanToTemplateModal } from './PlanToTemplateModal';
 import { CsvImportModal } from './CsvImportModal';
 import { FflogsTranslationModal } from './FflogsTranslationModal';
+import { FflogsTimelineImportModal } from './FflogsTimelineImportModal';
 import { BulkEditPopover } from './BulkEditPopover';
+import { resolveImportEvents } from '../../utils/importModes';
+import { resolveTemplatePhaseAppend } from '../../utils/templateImportPhases';
 import { AdminPage } from './AdminPage';
 import type { TimelineEvent } from '../../types';
 import type { TemplateData } from '../../data/templateLoader';
@@ -60,6 +63,7 @@ export function AdminTemplates() {
   const [showPromoteModal, setShowPromoteModal] = useState(false);
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [showFflogsModal, setShowFflogsModal] = useState(false);
+  const [showFflogsImportModal, setShowFflogsImportModal] = useState(false);
 
   // 一括編集用ステート
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -290,6 +294,25 @@ export function AdminTemplates() {
   const handleFflogsMatched = (result: TranslationMatchResult) => {
     editor.applyTranslation(result);
   };
+  const handleFflogsTimelineImport = (
+    events: TimelineEvent[],
+    phases: TemplateData['phases'],
+    mode: 'replace_all' | 'append',
+  ) => {
+    if (mode === 'replace_all') {
+      editor.replaceAll(events, phases);
+    } else {
+      const resolution = resolveImportEvents(editor.visibleEvents, events, 'append');
+      const mergedPhases = resolveTemplatePhaseAppend(
+        editor.state.currentPhases,
+        phases,
+        'append',
+        resolution.appendFromTime,
+      );
+      editor.replaceAll(resolution.events, mergedPhases, [...editor.state.currentLabels]);
+    }
+    setDataSource('fflogs_timeline_import');
+  };
 
   const hasExistingTemplate = templates.some((t) => t.contentId === selectedContentId);
   const hasEvents = editor.visibleEvents.length > 0;
@@ -346,6 +369,7 @@ export function AdminTemplates() {
             onOpenPromote={() => setShowPromoteModal(true)}
             onOpenCsvImport={() => setShowCsvModal(true)}
             onOpenFflogsTranslation={() => setShowFflogsModal(true)}
+            onOpenFflogsTimelineImport={() => setShowFflogsImportModal(true)}
             hasEvents={hasEvents}
             autoPropagate={editor.autoPropagate}
             onToggleAutoPropagate={() => editor.setAutoPropagate((v) => !v)}
@@ -537,6 +561,12 @@ export function AdminTemplates() {
         onClose={() => setShowFflogsModal(false)}
         onMatched={handleFflogsMatched}
         events={editor.visibleEvents}
+      />
+      <FflogsTimelineImportModal
+        isOpen={showFflogsImportModal}
+        onClose={() => setShowFflogsImportModal(false)}
+        hasEvents={hasEvents}
+        onImport={handleFflogsTimelineImport}
       />
     </AdminPage>
   );
