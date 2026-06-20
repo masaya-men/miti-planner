@@ -67,6 +67,7 @@
 
 ## バグ・不具合 (要修正)
 
+- **🆕 ユーザー投下 2026-06-20** (詳細=docs/.private/2026-06-20-skill-modeling-notes.md): ①**リビデ(Living Dead/DRK)モデル化**=リビングデッド10秒中の致死被弾→HP1生存+ウォーキングデッド10秒(この間 実質死なない=要 最大HP相当回復)。表示は「Immune」でなく「Living/Walking Dead」ラベル。公式仕様確認済(計算+表示・中規模・着手時brainstorming) ②**🔮8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修が必要・大物・情報出揃い次第) ③**「表を展開する」ボタンをトグル化**(押したら「たたむ」に切替・#59 展開ボタン関連・小UX・確定)
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
 - **テスト(既存failure・本番無影響)**: `TopBar.test.tsx` 4件+`HousingWorkspace.test.tsx` 1件(2026-06-03〜・FFLogs修正前から)。HousingWorkspace は jsdom の youtube-nocookie 実 fetch→abort 環境依存・TopBar は要調査。
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留
