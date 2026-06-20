@@ -536,9 +536,13 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                                 className={clsx(
                                     "object-contain",
                                     isVirtual ? (
-                                        (grayscale || iconUrl.includes('Giant_Dominance.png') || iconUrl.includes('horoscope_helios.png'))
-                                            ? "w-3 h-auto"
-                                            : "w-5 h-5"
+                                        // WD(grayscale)は正方アイコンのため、ペンタゴン形のヘリオス/巨星(w-3 h-auto)より視覚的に小さく見える。
+                                        // 光学的バランスのため WD だけ気持ち大きく(w-3.5)。塩梅調整はここの値で。
+                                        grayscale
+                                            ? "w-3.5 h-3.5"
+                                            : (iconUrl.includes('Giant_Dominance.png') || iconUrl.includes('horoscope_helios.png'))
+                                                ? "w-3 h-auto"
+                                                : "w-5 h-5"
                                     ) : "w-full h-full rounded"
                                 )}
                             />
