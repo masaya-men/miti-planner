@@ -141,7 +141,7 @@
         "fab_language": "언어",
         "fab_theme": "테마",
         "fab_expand": "테이블 펼치기",
-        "fab_collapse": "컴팩트 보기",
+        "fab_collapse": "테이블 접기",
         "fab_cue_sheet": "큐 시트",
         "context_edit_event": "이벤트 편집",
         "context_edit_event_desc": "이름, 데미지, 유형 변경",

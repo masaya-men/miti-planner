@@ -152,7 +152,7 @@
         "fab_language": "言語",
         "fab_theme": "テーマ",
         "fab_expand": "表を展開する",
-        "fab_collapse": "コンパクト表示",
+        "fab_collapse": "表をたたむ",
         "fab_cue_sheet": "カンペ",
         "context_edit_event": "イベントを編集",
         "context_edit_event_desc": "名前・ダメージ・種別を変更",

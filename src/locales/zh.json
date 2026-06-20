@@ -141,7 +141,7 @@
         "fab_language": "语言",
         "fab_theme": "主题",
         "fab_expand": "展开表格",
-        "fab_collapse": "紧凑视图",
+        "fab_collapse": "折叠表格",
         "fab_cue_sheet": "提示表",
         "context_edit_event": "编辑事件",
         "context_edit_event_desc": "更改名称、伤害、类型",

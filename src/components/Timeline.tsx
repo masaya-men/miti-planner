@@ -2430,7 +2430,7 @@ const Timeline: React.FC = () => {
                                         className="transition-all duration-300 group-hover/btn:scale-110 shrink-0"
                                     />
                                     <span className="uppercase tracking-wider hidden md:block">
-                                        {t('ui.compact_view')}
+                                        {hideEmptyRows ? t('app.fab_expand') : t('app.fab_collapse')}
                                     </span>
                                 </button>
                             </div>

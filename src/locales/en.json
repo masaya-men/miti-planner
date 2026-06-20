@@ -141,7 +141,7 @@
         "fab_language": "Language",
         "fab_theme": "Theme",
         "fab_expand": "Expand Table",
-        "fab_collapse": "Compact View",
+        "fab_collapse": "Collapse Table",
         "fab_cue_sheet": "Cue Sheet",
         "context_edit_event": "Edit Event",
         "context_edit_event_desc": "Change name, damage, type",
