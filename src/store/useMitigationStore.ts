@@ -945,7 +945,7 @@ export const useMitigationStore = create<MitigationState>()(
                             ? undefined // append: カットオフ以降に新規フェーズなし → 既存フェーズを触らない
                             : ensurePhaseEndTimes(
                                 mode === 'append'
-                                    ? [...get().phases.map(p => ({ id: p.id, name: p.name, startTime: p.startTime })), ...(incomingPhases ?? [])]
+                                    ? [...get().phases, ...(incomingPhases ?? [])]
                                     : (incomingPhases ?? []),
                                 maxEventTime,
                               );

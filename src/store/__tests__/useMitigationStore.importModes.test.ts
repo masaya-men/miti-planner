@@ -56,4 +56,34 @@ describe('importTimelineEvents モード別(ローカル経路)', () => {
     expect(afterPhases[0].id).toBe('p_existing');
     expect(afterPhases[0].startTime).toBe(0);
   });
+
+  it('append+新規フェーズ: 既存フェーズのendTimeが変更されない(silent mutation修正)', () => {
+    // beforeEach で timelineEvents = [ev('a',10), ev('b',60)]
+    // 既存フェーズ: startTime=0, endTime=55 (意図的な非デフォルト境界)
+    useMitigationStore.setState({
+      timelineEvents: [ev('a', 10), ev('b', 60)],
+      phases: [{ id: 'p1', name: { ja: 'P1' }, startTime: 0, endTime: 55 }] as any,
+      _collabActive: false, _collabHandlers: null, _collabReadonly: false,
+    } as any);
+
+    // カットオフ(60)より後の新規フェーズ(startTimeSec=80)を含む importPhases で append
+    useMitigationStore.getState().importTimelineEvents(
+      [ev('y', 70), ev('z', 90)],
+      [{ id: 1, startTimeSec: 80, name: { ja: 'P2' } }] as any,
+      undefined,
+      'append',
+    );
+
+    const afterPhases = useMitigationStore.getState().phases;
+    // 既存フェーズ p1 が追加された(length >= 2)
+    expect(afterPhases.length).toBeGreaterThanOrEqual(2);
+    // 既存フェーズ p1 の endTime が 55 のまま変わっていないこと
+    const existing = afterPhases.find(p => p.id === 'p1');
+    expect(existing).toBeDefined();
+    expect(existing!.endTime).toBe(55);
+    // 新規フェーズ phase_1 が追加されていること
+    const newPhase = afterPhases.find(p => p.id === 'phase_1');
+    expect(newPhase).toBeDefined();
+    expect(newPhase!.startTime).toBe(80);
+  });
 });
