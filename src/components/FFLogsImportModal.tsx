@@ -5,10 +5,9 @@ import { useEscapeClose } from '../hooks/useEscapeClose';
 import { X, CloudDownload, AlertCircle, Link, Loader2, CheckCircle2, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import { resolveFight, fetchFightEvents, fetchDeathEvents, fetchCastEvents, fetchPlayerDetails } from '../api/fflogs';
 import type { FFLogsRawEvent, FFLogsFight } from '../api/fflogs';
-import { mapFFLogsToTimeline } from '../utils/fflogsMapper';
 import type { MapperResult } from '../utils/fflogsMapper';
+import { fetchAndMapFflogs } from '../lib/fflogs/fetchAndMapFflogs';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
 import type { ImportMode } from '../utils/importModes';
@@ -105,28 +104,24 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
         try {
             recordImport();
+            // 連打ガード: await 前に同期で loading 化（canFetch を即 false に）
             setStatus({ phase: 'loading', message: t('fflogs.resolving') });
-            const fight = await resolveFight(
+            const { fight, events, mapped } = await fetchAndMapFflogs(
                 parsedData.reportId,
-                parsedData.fightId
+                parsedData.fightId,
+                (phase, ctx) => {
+                    if (phase === 'resolving') {
+                        setStatus({ phase: 'loading', message: t('fflogs.resolving') });
+                    } else if (phase === 'fetching_players') {
+                        setStatus({ phase: 'loading', message: t('fflogs.fetching_players') });
+                    } else if (phase === 'fetching') {
+                        setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'JP+EN', name: ctx?.name ?? '' }) });
+                    } else if (phase === 'mapping') {
+                        setStatus({ phase: 'loading', message: t('fflogs.mapping') });
+                    }
+                },
             );
-
-            setStatus({ phase: 'loading', message: t('fflogs.fetching_players') });
-            const players = await fetchPlayerDetails(parsedData.reportId, fight.id);
-
-            setStatus({ phase: 'loading', message: t('fflogs.fetching', { lang: 'JP+EN', name: fight.name }) });
-            const [eventsJp, eventsEn, deaths, castEn, castJp] = await Promise.all([
-                fetchFightEvents(parsedData.reportId, fight, false),
-                fetchFightEvents(parsedData.reportId, fight, true),
-                fetchDeathEvents(parsedData.reportId, fight),
-                fetchCastEvents(parsedData.reportId, fight, true),
-                fetchCastEvents(parsedData.reportId, fight, false),
-            ]);
-
-            setStatus({ phase: 'loading', message: t('fflogs.mapping') });
-            const mapped = mapFFLogsToTimeline(eventsEn, eventsJp, fight, deaths, castEn, castJp, players);
-
-            setStatus({ phase: 'preview', fight, events: eventsEn, mapped });
+            setStatus({ phase: 'preview', fight, events, mapped });
         } catch (err) {
             const message = err instanceof Error ? err.message : String(err);
             setStatus({ phase: 'error', message });
