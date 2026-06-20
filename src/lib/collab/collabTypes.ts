@@ -20,8 +20,8 @@ export interface CollabHandlers {
          | "progressCleared" | "progressActiveDays" | "progressActiveHours",
     value: number | boolean | AASettings | Record<string, 1 | 2>,
   ) => void;
-  // バルク(FFLogs 取込: events/phases/labels 全置換 + mitigations クリア・1 transaction)
-  importBulk: (events: TimelineEvent[], phases?: Phase[], labels?: Label[]) => void;
+  // バルク(FFLogs 取込: events/phases/labels 全置換。clearMitigations 時のみ mitigations も全クリア。1 transaction)
+  importBulk: (events: TimelineEvent[], phases?: Phase[], labels?: Label[], clearMitigations?: boolean) => void;
   // ②-b-2: 複数キー(partyMembers + timelineMitigations 等)を 1 transaction で原子的に反映。
   // ジョブ変更カスケード(メンバー更新 + その mitigations 入替)が途中状態で相手画面を壊さないため。
   batch: (ops: BatchOp[]) => void;

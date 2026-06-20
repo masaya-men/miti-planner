@@ -11,6 +11,7 @@ import { mapFFLogsToTimeline } from '../utils/fflogsMapper';
 import type { MapperResult } from '../utils/fflogsMapper';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
+import type { ImportMode } from '../utils/importModes';
 import { apiFetch } from '../lib/apiClient';
 import { LoginModal } from './LoginModal';
 
@@ -65,6 +66,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     useEscapeClose(isOpen, onClose);
     const { t } = useTranslation();
     const { importTimelineEvents } = useMitigationStore();
+    const existingEventCount = useMitigationStore((s) => s.timelineEvents.length);
     const authUser = useAuthStore((s) => s.user);
     const isLoggedIn = !!authUser;
 
@@ -73,6 +75,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
     const [parsedData, setParsedData] = useState<{ reportId: string; fightId: string | null } | null>(null);
     const [status, setStatus] = useState<ImportStatus>({ phase: 'idle' });
     const [showLoginModal, setShowLoginModal] = useState(false);
+    const [importMode, setImportMode] = useState<ImportMode>('replace_keep');
 
     const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newUrl = e.target.value;
@@ -173,7 +176,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
     const handleImport = () => {
         if (status.phase !== 'preview') return;
-        importTimelineEvents(status.mapped.events, status.mapped.phases, status.mapped.labels);
+        importTimelineEvents(status.mapped.events, status.mapped.phases, status.mapped.labels, importMode);
 
         // バックグラウンドでテンプレート候補登録を試みる
         if (parsedData) {
@@ -188,6 +191,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
         setUrlError(null);
         setParsedData(null);
         setStatus({ phase: 'idle' });
+        setImportMode('replace_keep'); // 次回開いた時に前回モードを引きずらない
         onClose();
     };
 
@@ -314,11 +318,41 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                 </div>
 
 
-                {/* Warning about overwrite */}
-                <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-3 rounded-lg border border-app-amber-border text-app-lg">
-                    <AlertCircle size={13} className="shrink-0 mt-0.5" />
-                    <span>{t('fflogs.warning_overwrite')}</span>
-                </div>
+                {/* 取り込みモード選択（既存タイムラインがある時のみ） */}
+                {existingEventCount > 0 ? (
+                    <div className="flex flex-col gap-2">
+                        <span className="text-app-text-muted text-app-lg uppercase tracking-wider">
+                            {t('fflogs.import_mode.label')}
+                        </span>
+                        {(['replace_all', 'replace_keep', 'append'] as ImportMode[]).map((m) => (
+                            <label
+                                key={m}
+                                className={clsx(
+                                    'flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all duration-200 text-app-lg',
+                                    importMode === m
+                                        ? 'border-app-text bg-app-text/5 text-app-text'
+                                        : 'border-app-border text-app-text-muted hover:border-app-text/40',
+                                )}
+                            >
+                                <input
+                                    type="radio"
+                                    name="fflogs-import-mode"
+                                    value={m}
+                                    checked={importMode === m}
+                                    onChange={() => setImportMode(m)}
+                                    className="accent-app-text"
+                                />
+                                <span className="flex-1">{t(`fflogs.import_mode.${m}`)}</span>
+                                {m === 'replace_all' && (
+                                    <span className="flex items-center gap-1 text-app-amber text-app-md">
+                                        <AlertCircle size={12} className="shrink-0" />
+                                        {t('fflogs.import_mode.replace_all_warning')}
+                                    </span>
+                                )}
+                            </label>
+                        ))}
+                    </div>
+                ) : null}
                 {status.mapped.stats.isEnglishOnly && (
                     <p className="text-app-lg text-amber-400">
                         {t('fflogs.english_only_warning')}

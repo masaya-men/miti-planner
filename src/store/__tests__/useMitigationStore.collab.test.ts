@@ -226,17 +226,41 @@ describe('②-b-1 memos/planMeta 委譲', () => {
 
 describe('②-b-1 importTimelineEvents バルク委譲', () => {
   beforeEach(() => useMitigationStore.setState({ timelineEvents: [], phases: [], labels: [], _collabActive: false, _collabHandlers: null }));
-  it('importBulk に events と(変換後)phases/labels を渡す', () => {
+  it('importBulk に events と(変換後)phases/labels と clearMitigations を渡す(replace_all)', () => {
     const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
     const events = [{ id: 'e1', time: 30, name: { ja: 'x' }, damageType: 'magical' }] as any;
     const importPhases = [{ id: 1, startTimeSec: 0, name: { ja: 'P1' } }];
-    useMitigationStore.getState().importTimelineEvents(events, importPhases as any, undefined);
+    useMitigationStore.getState().importTimelineEvents(events, importPhases as any, undefined, 'replace_all');
     expect(h.importBulk).toHaveBeenCalledTimes(1);
-    const [evArg, phArg, lbArg] = (h.importBulk as any).mock.calls[0];
+    const [evArg, phArg, lbArg, clearArg] = (h.importBulk as any).mock.calls[0];
     expect(evArg.map((e: any) => e.id)).toEqual(['e1']);
-    expect(phArg[0].id).toBe('phase_1'); // ソロ版と同じ変換(phase_<id>)
+    expect(phArg[0].id).toBe('phase_1');
     expect(lbArg).toBeUndefined();
-    expect(useMitigationStore.getState().timelineEvents).toEqual([]); // store 直変更なし
+    expect(clearArg).toBe(true); // replace_all は軽減クリア
+  });
+
+  it('replace_keep は clearMitigations=false で importBulk 委譲', () => {
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    const events = [{ id: 'e1', time: 30, name: { ja: 'x' }, damageType: 'magical' }] as any;
+    useMitigationStore.getState().importTimelineEvents(events, undefined, undefined, 'replace_keep');
+    const [, , , clearArg] = (h.importBulk as any).mock.calls[0];
+    expect(clearArg).toBe(false);
+  });
+
+  it('append モード: 既存イベント+新規後半のフルリストで importBulk を呼び、clearMitigations=false', () => {
+    const existing = [{ id: 'ex1', time: 10, name: { ja: 'x' }, damageType: 'magical' }] as any;
+    useMitigationStore.setState({ timelineEvents: existing, phases: [], labels: [], _collabActive: false, _collabHandlers: null });
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    // カットオフ(10)以降のみ追加されるはず: ev at 5 は除外、ev at 20 は追加
+    const incoming = [
+      { id: 'new1', time: 5, name: { ja: 'n1' }, damageType: 'magical' },
+      { id: 'new2', time: 20, name: { ja: 'n2' }, damageType: 'magical' },
+    ] as any;
+    useMitigationStore.getState().importTimelineEvents(incoming, undefined, undefined, 'append');
+    expect(h.importBulk).toHaveBeenCalledTimes(1);
+    const [evArg, , , clearArg] = (h.importBulk as any).mock.calls[0];
+    expect(evArg.map((e: any) => e.id)).toEqual(['ex1', 'new2']);
+    expect(clearArg).toBe(false);
   });
 });
 
