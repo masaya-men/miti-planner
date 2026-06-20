@@ -2,9 +2,11 @@
 
 - **日付**: 2026-06-20
 - **対象**: 管理画面テンプレートエディターへの FFLogs 直接取り込み（置き換え／追記）の新設
-- **スコープ**: ① 管理画面テンプレ編集に FFLogs 取り込みモーダルを新設 ② FFLogs 取得シーケンスとイベント／フェーズ追記ロジックを共通部品へ抽出
+- **スコープ**: ① 管理画面テンプレ編集に FFLogs 取り込みモーダルを新設 ② FFLogs 取得シーケンスと URL 解析を共通部品へ抽出（ユーザー側と共用） ③ テンプレ専用のフェーズ追記純粋関数を新設
 - **関連既存 spec**: `2026-06-20-fflogs-import-modes-design.md`（ユーザー側の取り込みモード）、`2026-04-05-fflogs-import-v2.md`（取得・mapper の基盤）
 - **元要望**: ユーザー要望（2026-06-20）「logs を途中から追加できるやつを、管理画面に**も**ほしい」
+- **最優先制約**: **既存ユーザー側（軽減表編集）の FFLogs 取り込み挙動を 1 ミリも変えない**
+- **監査**: 2026-06-20 多エージェント監査（Understand 6 領域 ＋ Verify 3 レンズ・9 エージェント）で抽出境界・不変条件・型整合・回帰ゲートを確定。本 spec はその結論を反映した決定版。
 
 ---
 
@@ -14,15 +16,15 @@
 
 管理画面のテンプレートエディター（コンテンツの公式ボス技タイムラインを編集）でタイムラインを入れる手段は 3 つ。
 
-- **プランから昇格**: 共有 URL からプランデータを取得し `convertPlanToTemplate` で変換 → `editor.replaceAll`（全置換）。`src/components/admin/PlanToTemplateModal.tsx:133-137`、入口 `src/components/admin/AdminTemplates.tsx:282-285,523-529`。
-- **スプシ（TSV）取り込み**: 貼り付け → 列対応付け → `convertCsvToEvents` → `editor.replaceAll`（全置換）。`src/components/admin/CsvImportModal.tsx`、入口 `AdminTemplates.tsx:286-289,530-534`。
-- **FFLogs 翻訳**: FFLogs レポート URL から技名を取得し、既存タイムラインのイベントと GUID で突合して**翻訳マップを返すだけ**（タイムラインは取り込まない）。`src/components/admin/FflogsTranslationModal.tsx:4-6`、入口 `AdminTemplates.tsx:290-292,535-540`。
+- **プランから昇格**: 共有 URL からプランを取得し `convertPlanToTemplate` → `editor.replaceAll`（全置換）。`src/components/admin/PlanToTemplateModal.tsx:133-137`、入口 `AdminTemplates.tsx:282-285,523-529`。
+- **スプシ（TSV）取り込み**: 貼り付け → 列対応付け → `editor.replaceAll`（全置換）。`CsvImportModal.tsx`、入口 `AdminTemplates.tsx:286-289,530-534`。
+- **FFLogs 翻訳**: FFLogs URL から技名を取得し既存イベントに GUID 突合で**翻訳マップを返すだけ**（タイムラインは取り込まない）。`FflogsTranslationModal.tsx:4-6`、入口 `AdminTemplates.tsx:290-292,535-540`。
 
-→ **管理画面には「FFLogs ログから直接タイムラインを取り込む」手段が無い**。FFLogs からタイムラインを取り込めるのはユーザー側のみ（`src/components/Timeline.tsx:3910` の `<FFLogsImportModal>`、呼び出しはこの 1 箇所）。
+→ **管理画面には「FFLogs ログから直接タイムラインを取り込む」手段が無い**。FFLogs からタイムラインを取り込めるのはユーザー側のみ（`Timeline.tsx:3910` の `<FFLogsImportModal>`、呼び出しはこの 1 箇所）。
 
 ### ユーザー側は既に「途中から追加」対応済
 
-ユーザー側の取り込みは 2026-06-20 に 3 モード化済み（置き換え＋軽減削除／置き換え＋軽減保持／追記）。モード解決は純粋関数 `resolveImportEvents`（`src/utils/importModes.ts:16-32`）、フェーズの追記を含む適用は `useMitigationStore.importTimelineEvents`（`src/store/useMitigationStore.ts:924-977`）。
+ユーザー側の取り込みは 2026-06-20 に 3 モード化済み（置き換え＋軽減削除／置き換え＋軽減保持／追記）。モード解決は純粋関数 `resolveImportEvents`（`src/utils/importModes.ts:16-32`）、フェーズ追記を含む適用は `useMitigationStore.importTimelineEvents`（`src/store/useMitigationStore.ts:924-977`）。
 
 ### 課題
 
@@ -38,50 +40,94 @@
 
 ## 3. 取り込みモード（2 種）
 
-テンプレートには「軽減（誰がいつ何の軽減を置くか）」が存在しない（テンプレ＝ボス技タイムライン＋フェーズ＋ラベルのみ）ため、ユーザー側の 3 モードのうち軽減に関わる区別は不要。2 モードに集約する。
+テンプレートには「軽減」が存在しない（テンプレ＝ボス技タイムライン＋フェーズ＋ラベルのみ）ため、ユーザー側の 3 モードのうち軽減に関わる区別は不要。2 モードに集約する。
 
-| モード | イベント | フェーズ | 用途 |
-|---|---|---|---|
-| **置き換え** ※既存タイムラインがある時の既定 | 全置換 | 取り込み分で置換 | 別の戦闘を入れる／取り直す |
-| 追記 | 既存の最終時刻より後だけ追加 | 既存最終時刻より後の新規フェーズだけ追加 | ワイプログ→クリアログで後半を足す |
+| モード | イベント | フェーズ | ラベル | editor への反映 |
+|---|---|---|---|---|
+| **置き換え** ※既存ありの既定 | 取り込み分で全置換 | 取り込み分で全置換 | 取り込み分（実質空）で全置換 | `replaceAll(incomingEvents, incomingPhases)` |
+| 追記 | 既存最終時刻より後だけ追加 | 既存最終時刻より後の新規だけ追加 | 既存ラベルを維持 | `replaceAll([...visibleEvents, ...added], mergedPhases, [...currentLabels])` |
 
 - **既存タイムラインが空（`editor.visibleEvents.length === 0`）のときはモード選択を出さない**。どのモードでも結果が同じなため、従来どおり「取り込み」一発（ユーザー側 `FFLogsImportModal.tsx:322` の作法に揃える）。
-- 既定は「置き換え」。テンプレ作成は新規起こしが主で、追記は明示選択時のみ。
-- 文言は淡々とした説明のみ（既存 UI ルール準拠）。i18n キー経由（ja/en/ko/zh）。
+- 既定は「置き換え」。テンプレ作成は新規起こしが主。
+- 文言は淡々とした説明のみ。i18n キー経由（ja/en/ko/zh）。
+
+### 「追記」の editor 反映方針（B 案＝確定）
+
+useTemplateEditor の `replaceAll`（`useTemplateEditor.ts:290-315`）は **全 state リセット**（`modified`/`deleted`/`autoFilled` を `new Set()`、`original` 差し替え）である。追記専用の append アクションは**新設しない**（ユーザー合意 2026-06-20＝B 案）。
+
+- 追記は `replaceAll([...editor.visibleEvents, ...addedEvents], mergedPhases, [...editor.state.currentLabels])` で実現する。
+- これにより**データ（イベント値・フェーズ・既存ラベル・翻訳）は保持**され、失われるのは「編集中マーク（modified/autoFilled の色分け）」と「Undo 基準点」のみ。既存の CSV 取り込み／プラン昇格と同じ割り切り（どちらも `replaceAll` で全リセット）。
+- `visibleEvents` は `state.current` から `deleted` を除外した配列（`useTemplateEditor.ts:77-80`）なので、削除済みイベントは追記で復活しない。
 
 ---
 
-## 4. アーキテクチャ（A 案: 取得コア共通化）
+## 4. アーキテクチャ（A 案: 取得コア共通化・ストア非介入）
 
-FFLogs の取得・変換は既に `api/fflogs` の関数群と `mapFFLogsToTimeline`（`src/utils/fflogsMapper.ts`）に分離済み。`FFLogsImportModal` 本体が抱えているのは「UI ＋ 取得シーケンス ＋ ストアへの適用」のみ。共通化対象は次の 3 点。
+FFLogs の取得・変換は既に `api/fflogs` の関数群と `mapFFLogsToTimeline` に分離済み。`FFLogsImportModal` 本体が抱えているのは「UI ＋ 取得シーケンス ＋ ストアへの適用」のみ。共通化対象は **2 点**（URL 解析・取得シーケンス）に限定し、**ストア（`importTimelineEvents`）には一切手を入れない**。
 
-### 4.1 取得シーケンスの抽出
+> **監査による方針確定（旧 §4.3 を撤回）**: ストアのフェーズ追記ロジック（`useMitigationStore.ts:932-951`）は `get().phases` とストア `Phase` 型（`startTime`＋`endTime` ベース、`types/index.ts:123-128`）に密結合している。テンプレ側フェーズは `TemplateData['phases']`（`{id:number; startTimeSec:number; name?:LocalizedString}`、`endTime` 無し、`templateLoader.ts:19`）で**型が根本的に異なる**ため、ストア関数を共通化するとユーザー側に回帰リスクを生むだけで利得が無い。よって**ストアは非介入**とし、テンプレ側は独立した純粋関数を新設する。共有してよいのは副作用ゼロの `resolveImportEvents`（`importModes.ts:16-32`、ストア非依存を監査で確認）のみ。
 
-現状 `FFLogsImportModal.handleFetch`（`src/components/FFLogsImportModal.tsx:102-138`）に埋め込まれている取得シーケンス（URL 解析 → `resolveFight` → `fetchPlayerDetails` → `Promise.all([fetchFightEvents JP/EN, fetchDeathEvents, fetchCastEvents EN/JP])` → `mapFFLogsToTimeline`）を、引数 `(reportId, fightId)` を取り `{ fight, mapped: MapperResult }` を返す純粋関数（例: `src/lib/fflogs/fetchAndMapFflogs.ts`）へ切り出す。
+### 4.1 URL 解析の抽出（`parseFflogsUrl`）
 
-- URL→`{ reportId, fightId }` 解析（`FFLogsImportModal.tsx:89-90` の正規表現）も同モジュールにヘルパーとして集約。
-- **ユーザー側 `FFLogsImportModal` もこの共通関数を呼ぶよう差し替える**（取得結果・順序・エラー文言は不変）。
-- レート制限（`IMPORT_RATE_LIMIT`、`FFLogsImportModal.tsx:18-45`）はユーザー側固有の関心として**モーダル側に残す**（共通関数には含めない）。
+- 新規 `src/lib/fflogs/parseFflogsUrl.ts`: `parseFflogsUrl(url: string): { reportId: string; fightId: string | null } | null`。
+- **ユーザー側の現行正規表現を正本として厳密再現**: reportId=`/reports\/([a-zA-Z0-9]+)/`、fightId=`/[#?]fight=([^&]+)/`（`FFLogsImportModal.tsx:89-90`）。
+- **管理画面側 `FflogsTranslationModal` の厳しい正規表現（10–20 桁・数値 fight のみ、`:48-50`）に寄せない**（ユーザー側の受理 URL 集合を狭めると既存取り込みが壊れる）。
+- 純粋関数（副作用なし）。`invalid_url` の i18n 表示・state リセットは呼び出し側に残す。空文字 trim 早期 return も呼び出し側の責務。
+- ユーザー側 `handleUrlChange`（`:80-100`）をこの関数利用に差し替える（挙動不変）。
 
-### 4.2 イベント追記解決
+### 4.2 取得シーケンスの抽出（`fetchAndMapFflogs`）
 
-既存 `resolveImportEvents`（`src/utils/importModes.ts:16-32`）をそのまま流用。テンプレ側は軽減を持たないため戻り値 `clearMitigations` は無視する。テンプレ用にはモードを `'replace_all' | 'append'` の 2 値に限定して渡す（`replace_keep` は使わない）。
+- 新規 `src/lib/fflogs/fetchAndMapFflogs.ts`:
+  ```ts
+  export type FflogsFetchPhase = 'resolving' | 'fetching_players' | 'fetching' | 'mapping'
+  export async function fetchAndMapFflogs(
+    reportId: string,
+    fightId: string | null,
+    onProgress?: (phase: FflogsFetchPhase, ctx?: { name?: string }) => void,
+  ): Promise<{ fight: FFLogsFight; events: FFLogsRawEvent[]; mapped: MapperResult }>
+  ```
+- 中身は `FFLogsImportModal.handleFetch:113-131` から **`setStatus` 行だけを除いて逐語移植**:
+  1. `onProgress?('resolving')` → `resolveFight(reportId, fightId)` → `fight`
+  2. `onProgress?('fetching_players')` → `fetchPlayerDetails(reportId, fight.id)` → `players`（第 2 引数は **`fight.id`（number）**、引数 `fightId`（string）ではない）
+  3. `onProgress?('fetching', { name: fight.name })` → `Promise.all([fetchFightEvents(reportId,fight,false), fetchFightEvents(reportId,fight,true), fetchDeathEvents(reportId,fight), fetchCastEvents(reportId,fight,true), fetchCastEvents(reportId,fight,false)])` → `[eventsJp, eventsEn, deaths, castEn, castJp]`
+  4. `onProgress?('mapping')` → `mapFFLogsToTimeline(eventsEn, eventsJp, fight, deaths, castEn, castJp, players)` → `mapped`
+  5. `return { fight, events: eventsEn, mapped }`
+- **不変条件（監査・高リスク）**: Promise.all の 5 要素の順序・各 `translate` フラグ・分解先 `[eventsJp,eventsEn,deaths,castEn,castJp]`・`mapFFLogsToTimeline` の引数順を**一字一句変えない**。en/jp や cast の translate を取り違えると技名が**無言で逆転**する（throw しないため気づけない）。
+- **throw は透過**（内部に try/catch を持たない）。呼び出し側が try/catch して `err instanceof Error ? err.message : String(err)` で error 表示に落とす（現行 `:135` を各呼び出し元に残す）。
+- 戻り値の 3 フィールドは全て**非 optional**（`events` を optional にすると preview 代入で型エラー）。`events` には **`eventsEn`** を入れる（ユーザー側 preview が `events` を必須フィールドで持つ・`:55,133`）。
+- 型は `import type { FFLogsFight, FFLogsRawEvent } from '../../api/fflogs'` / `import type { MapperResult } from '../../utils/fflogsMapper'`（tsc -b 厳密・`erasableSyntaxOnly` 対応）。
+- ユーザー側 `handleFetch` をこの関数利用に差し替える。**モーダル側に残すもの**: レート制限ゲート＋`recordImport`（ゲート→消費→`await` の順を 1 ブロックで維持・`:105-111`）、最初の `loading` 化を `await` 前に同期実行（連打ガード・`:111-112`）、`onProgress` を受けた `setStatus`＋`t()`、catch のエラー文字列化、`importMode`、`handleImport`、`tryAutoRegisterTemplate`、`handleClose`。
 
-### 4.3 フェーズ追記解決
+### 4.3 テンプレ用フェーズ追記（`resolveTemplatePhaseAppend`）
 
-現状 `useMitigationStore.importTimelineEvents:932-951` にフェーズの追記ロジック（`resolved.appendFromTime` を cutoff として「cutoff より後の新規フェーズだけ取り込む」「append かつ新規フェーズなしなら既存フェーズを触らない」「`ensurePhaseEndTimes` で終端補正」）が埋め込まれている。これを純粋関数（例: `resolveImportPhases(currentPhases, incomingPhases, mode, appendFromTime, maxEventTime)`）へ切り出し、ストアとテンプレの双方が使う。
+- 新規 `src/utils/templateImportPhases.ts`:
+  ```ts
+  export function resolveTemplatePhaseAppend(
+    currentPhases: TemplateData['phases'],
+    incomingPhases: TemplateData['phases'],
+    mode: 'replace_all' | 'append',
+    appendFromTime: number | null,
+  ): TemplateData['phases']
+  ```
+- **引数・戻り値とも `TemplateData['phases']`（name 任意）に統一**。`MapperResult['phases']`（name 必須）を戻り値型にすると、`currentPhases`（name 任意）との結合で TS2322。`MapperResult['phases']` は name 必須→任意へ代入可なので入力には渡せる。
+- 仕様: `replace_all` → `incomingPhases` をそのまま返す。`append` → `appendFromTime === null || p.startTimeSec > appendFromTime`（**null ガード必須**・同時刻除外）かつ `p.startTimeSec >= 0`（負値除外）でフィルタ → 0 件なら `currentPhases` をそのまま返す → 1 件以上なら `[...currentPhases, ...filtered]` を `startTimeSec` 昇順 sort。
+- **`ensurePhaseEndTimes` は通さない**（テンプレ型に `endTime` が無く、描画前の `deriveLabelsFromEvents`→`ensurePhaseEndTimes` 経路で補完される・`useTemplateEditor.ts:57-61`）。
+- イベント追記は既存 `resolveImportEvents` を流用（戻り値 `clearMitigations` は無視、`mode` は `'replace_all'|'append'` に限定、`appendFromTime` を上記フェーズ関数へ渡す）。
 
-- **型差異の吸収**: `mapFFLogsToTimeline` が返すフェーズは `startTimeSec` ベース、テンプレ側 `editor.replaceAll` が期待するのは `TemplateData['phases']` 形。ストア側は `startTime` 形（`useMitigationStore.ts:938`）。**共通フェーズ解決はどの型を正本にし、各呼び出し元でどう変換するかを実装計画で確定する**（mapper 出力型・テンプレ phases 型・ストア phases 型の 3 者を突き合わせてから切り出す）。
-- ストア側を共通関数に置き換える際、`ensurePhaseEndTimes` の適用順・collab 経路（`importBulk`、`useMitigationStore.ts:955-958`）の引数が変わらないことを担保する。
+### 4.4 管理画面モーダル新設（`FflogsTimelineImportModal`）
 
-### 4.4 管理画面モーダル新設
+- 新規 `src/components/admin/FflogsTimelineImportModal.tsx`。`PlanToTemplateModal` / `CsvImportModal` と同じ作法（URL 入力 → プレビュー → 確定）。
+- Props: `{ isOpen: boolean; onClose: () => void; hasEvents: boolean; onImport: (events: TimelineEvent[], phases: TemplateData['phases'], mode: 'replace_all' | 'append') => void }`。
+- 内部で `parseFflogsUrl`＋`fetchAndMapFflogs` を呼びプレビュー（ボス名・戦闘長・イベント数）。`hasEvents` が true のときだけ置き換え／追記のラジオを表示。
+- 確定で `onImport(mapped.events, mapped.phases, mode)` を呼ぶ。**`mapped.labels` は渡さない**（`Label[]` と `TemplateLabel[]` は型非互換・`as any` 禁止。FFLogs イベントは `mechanicGroup` を持たず `labels` は実質常に空）。
+- 管理画面なのでレート制限・ログインガード・auto-register は持たない。
 
-`src/components/admin/FflogsTimelineImportModal.tsx`（仮称）を新設。`PlanToTemplateModal` / `CsvImportModal` と同じ作法（URL 入力 → プレビュー → 確定）。
+### 4.5 配線（`AdminTemplates` / `TemplateEditorToolbar`）
 
-- Props: `{ isOpen, onClose, hasEvents, onImport(events, phases, mode) }`（既存モーダルに倣う）。
-- 内部で 4.1 の共通関数を呼んでプレビュー（ボス名・戦闘長・イベント数）を表示。
-- `hasEvents` が true のときだけ置き換え／追記のラジオを表示。
-- 「取り込み」で `onImport` を呼ぶ。`AdminTemplates` 側ハンドラが 4.2/4.3 を使って `editor` に反映。
+- `AdminTemplates`: 新フラグ `showFflogsImportModal`、新ハンドラ `handleFflogsTimelineImport(events, phases, mode)`。
+  - `replace_all` → `editor.replaceAll(events, phases)` ＋ `setDataSource('fflogs_timeline_import')`。
+  - `append` → `resolveImportEvents(editor.visibleEvents, events, 'append')` でイベント解決 → `resolveTemplatePhaseAppend(editor.state.currentPhases, phases, 'append', resolution.appendFromTime)` → `editor.replaceAll(resolution.events, mergedPhases, [...editor.state.currentLabels])` ＋ `setDataSource`。
+- `TemplateEditorToolbar`: prop `onOpenFflogsTimelineImport` を追加し、FFLogs 翻訳ボタン（purple）近くに新ボタン。**新規取り込み（置換）は空テンプレにも使うので `disabled={!hasEvents}` は付けない**。色は DESIGN ルール（白黒＋機能色＝青系）に沿う。
 
 ---
 
@@ -89,69 +135,71 @@ FFLogs の取得・変換は既に `api/fflogs` の関数群と `mapFFLogsToTime
 
 ```
 管理者が URL 貼付
-  → 共通関数 fetchAndMapFflogs(reportId, fightId)
-       → api/fflogs 群で取得 → mapFFLogsToTimeline → { fight, mapped }
-  → プレビュー表示（既存イベントがあれば置き換え/追記ラジオ）
-  → 「取り込み」
-       → resolveImportEvents(現イベント, mapped.events, mode)
-       → resolveImportPhases(現フェーズ, mapped.phases, mode, ...)
-       → editor へ反映（置き換え=replaceAll 相当 / 追記=結合）
-  → 保存は既存の「保存」ボタンで Firestore へ（取り込みは editor メモリ反映まで）
+  → parseFflogsUrl(url) → { reportId, fightId } | null（null は invalid_url 表示）
+  → fetchAndMapFflogs(reportId, fightId, onProgress)
+       → resolveFight → fetchPlayerDetails(fight.id) → Promise.all(5) → mapFFLogsToTimeline
+       → { fight, events:eventsEn, mapped }
+  → プレビュー表示（hasEvents なら 置き換え/追記 ラジオ）
+  → 「取り込み」→ onImport(mapped.events, mapped.phases, mode)
+       → replace_all: editor.replaceAll(events, phases)
+       → append: resolveImportEvents + resolveTemplatePhaseAppend → editor.replaceAll(merged, mergedPhases, currentLabels)
+  → 保存は既存「保存」ボタンで /api/admin templates POST へ（取り込みは editor メモリ反映まで）
 ```
 
 ---
 
-## 6. 翻訳・英語ログ
+## 6. ラベル・翻訳・英語ログ
 
-- 取り込む技名は**日本語ログ前提**。`mapped.stats.isEnglishOnly`（ユーザー側 `FFLogsImportModal.tsx:356`）が真のときはプレビューに注記を出す。
-- 英語ログでも取り込みは可能。取り込み後に既存の「FFLogs 翻訳」ボタン（`FflogsTranslationModal`）で en/zh/ko を付与する現行ワークフローに繋げる。
+- **`mapped.labels` は editor に渡さない**（型非互換・実質空）。取り込み後のラベルは admin が既存のラベル CRUD（`useTemplateEditor` の addLabel 等）で付与する想定。追記時は既存 `currentLabels` を維持。
+- 取り込む技名は**日本語ログ前提**。`mapped.stats.isEnglishOnly`（`fflogsMapper.ts:88`）が真ならプレビューに注記。英語ログでも取り込み可。取り込み後に既存の「FFLogs 翻訳」ボタンで en/zh/ko を付与する現行ワークフローに繋げる。
 
 ---
 
 ## 7. 管理画面なので省くもの（ユーザー側にあるがテンプレに不要）
 
-- **レート制限（15 回/時）** → 省く（管理者は信頼）。
-- **ログイン必須ガード**（`FFLogsImportModal.tsx:238-290`）→ 省く（管理画面が既にアクセス制御済み）。
-- **テンプレ候補の自動登録**（`tryAutoRegisterTemplate`、`FFLogsImportModal.tsx:141-175`）→ 省く（管理画面で直接テンプレを編集しているので二重になる）。
-- **軽減保持モード（`replace_keep`）** → 無し（テンプレに軽減が無い）。
+- レート制限（15 回/時）／ログイン必須ガード／テンプレ候補の自動登録（`tryAutoRegisterTemplate`）／軽減保持モード（`replace_keep`）。
 
 ---
 
-## 8. 既存への影響と回帰
+## 8. 既存への影響と回帰（最優先）
 
-- ユーザー側 `FFLogsImportModal` は**見た目・操作・取り込み挙動を一切変えない**。中の取得処理を 4.1 共通関数の呼び出しに差し替えるのみ。
-- `useMitigationStore.importTimelineEvents` のフェーズ解決を 4.3 共通関数に置き換える際、ユーザー側の置き換え／軽減保持／追記の 3 モードが完全に同じ結果になることを単体テストで担保。
-- 共有 DOM/座標基準は変えないが、ストアの取り込み経路に手を入れるため、**ユーザー側取り込み（3 モード）＋ collab ON 時の取り込み**を実機回帰確認（[[feedback_structural_refactor_runtime_audit]]）。
+- **ストア `importTimelineEvents`（`useMitigationStore.ts:924-977`）には物理的に touch しない。**
+- ユーザー側 `FFLogsImportModal` で変わるのは「URL 解析を `parseFflogsUrl` 呼び出しに」「取得シーケンスを `fetchAndMapFflogs` 呼び出しに」差し替える 2 点のみ。状態遷移・レート制限・進捗表示・エラー処理・preview ペイロード・受理 URL 集合は**完全に現状維持**。
+- **回帰ゲート（無改変で緑のまま＝完了条件）**: `importModes.test.ts`、`useMitigationStore.importModes.test.ts`、`useMitigationStore.collab.test.ts`。
+- 共有モジュール（取得シーケンス）に手を入れるため、ユーザー側取り込みを **collab ON 含め実機回帰**（[[feedback_structural_refactor_runtime_audit]]）。検証ケース: 撃破ログ／全滅のみログ（fightId=null）／fightId 指定／英語のみログ／filtered 空。
 
 ---
 
-## 9. 触るファイル（見込み）
+## 9. 触るファイル（確定）
 
-- **新規** `src/lib/fflogs/fetchAndMapFflogs.ts` — 取得シーケンス＋URL 解析の共通関数。
+- **新規** `src/lib/fflogs/parseFflogsUrl.ts` — URL 解析純粋関数。
+- **新規** `src/lib/fflogs/fetchAndMapFflogs.ts` — 取得シーケンス共通関数（onProgress・throw 透過）。
+- **新規** `src/utils/templateImportPhases.ts` — テンプレ用フェーズ追記純粋関数。
 - **新規** `src/components/admin/FflogsTimelineImportModal.tsx` — 管理画面の取り込みモーダル。
-- `src/utils/importModes.ts` — フェーズ追記解決 `resolveImportPhases` を追加（イベント側 `resolveImportEvents` と対にする）。
-- `src/store/useMitigationStore.ts` — `importTimelineEvents` のフェーズ解決を共通関数へ置換（挙動不変）。
-- `src/components/FFLogsImportModal.tsx` — `handleFetch` を共通関数呼び出しへ差し替え。
-- `src/components/admin/AdminTemplates.tsx` — モーダル配線＋ `handleFflogsTimelineImport`（editor 反映）。
+- `src/components/FFLogsImportModal.tsx` — `handleUrlChange`／`handleFetch` を共通関数呼び出しへ差し替え（挙動不変）。
+- `src/components/admin/AdminTemplates.tsx` — モーダル配線＋ `handleFflogsTimelineImport`。
 - `src/components/admin/TemplateEditorToolbar.tsx` — 「FFLogs 取り込み」ボタン追加。
-- i18n リソース（ja/en/ko/zh）— モーダル文言・モードラベル・英語ログ注記キー。
-- テスト — `resolveImportPhases` 単体、ユーザー側 import 回帰、管理画面モーダル表示条件。
+- i18n（ja/en/ko/zh）— 新 prefix `admin.tpl_fflogs_import_*`（既存 `admin.tpl_fflogs_*` は翻訳専用で意味衝突するため流用しない）。`admin.cancel` は流用。
+- **触らない** `src/store/useMitigationStore.ts`、`src/utils/importModes.ts`（`resolveImportEvents` は読み取り利用のみ・改変なし）。
 
 ---
 
 ## 10. テスト方針
 
-- **回帰（最重要）**: 共通化後もユーザー側 `importTimelineEvents` の 3 モードが従来どおり（`replace_keep` で軽減保持、`replace_all` で軽減削除、`append` で後ろだけ追加・フェーズ追記）であることを store 単体テストで固定。
-- `resolveImportPhases`: append で cutoff 以降の新規フェーズのみ追加・新規なしなら既存不変・置き換えで全置換、を単体テスト。
-- 管理画面取り込み: 置き換えで全置換／追記で既存最終時刻より後のイベント・フェーズのみ追加・同時刻除外・既存イベント/フェーズ/ラベル不変。
-- 空タイムライン時はモード非表示で全件取り込み。
-- i18n: 4 言語キーの存在と en 表示崩れなし。
-- collab ON: 2 タブ実機でユーザー側取り込みが回帰しないこと（自動テスト外の手動検証）。
+- **`parseFflogsUrl` 単体**（`src/lib/fflogs/__tests__/parseFflogsUrl.test.ts`・表駆動）: URL+数値 fight／fight 無し→null fightId／クエリ付き（`?fight=N&type=damage`）→fightId のみ／reports セグメント無し→null／非数値 fight（`fight=last`）をユーザー側現 regex どおり許容。**ユーザー側 `FFLogsImportModal.tsx:89-90` の出力と完全一致**を固定。
+- **`fetchAndMapFflogs` 単体**（`src/lib/fflogs/__tests__/fetchAndMapFflogs.test.ts`）: `vi.mock('../../api/fflogs')` で各 API をスタブ。`resolveFight→fetchPlayerDetails(fight.id)→fetchFightEvents(false/true)→Deaths→Casts(true/false)` の引数・回数、`mapFFLogsToTimeline` へ `(eventsEn,eventsJp,fight,deaths,castEn,castJp,players)` の順で渡すこと、`onProgress` が `resolving→fetching_players→fetching(name付)→mapping` の順で発火、throw 透過を検証。**黄金マスター**: 固定入力での `mapped` をリファクタ前後で一致 assert。
+- **`resolveTemplatePhaseAppend` 単体**（`src/utils/__tests__/templateImportPhases.test.ts`）: replace_all=全置換／append=cutoff 超のみ追加／append 新規 0 件→既存不変／同時刻（`startTimeSec===cutoff`）除外／`startTimeSec<0` 除外／`appendFromTime===null`（空テンプレ）→全件。
+- **回帰（無改変）**: `importModes.test.ts` / `useMitigationStore.importModes.test.ts` / `useMitigationStore.collab.test.ts` を変更せず緑。
+- **管理画面ハンドラ**（任意・`useTemplateEditor` ベース）: 置き換え→`replaceAll` 後 `hasChanges=false`・labels 空／追記→既存維持＋結合・currentLabels 保持。
+- vitest は `pool='vmThreads'` 必須（`vitest.config.ts:33`・削除厳禁）。実行 `npm run test`。push 前に `npm run build`（tsc -b 厳密）必須（[[feedback_vercel_tsc_strict]]）。
+- collab ON は 2 タブ実機（自動テスト外）。
 
 ---
 
 ## 11. スコープ外（明示）
 
-- **① スプシ軽減表のタイムライン読み込み**（軽減割り当て込み）= 別タスク（別 spec）。本 spec は FFLogs 取り込みのみ。
-- **再アンカー（技に合わせて軽減もずらす）** = ユーザー側 Phase 1.5 の課題でテンプレには無関係。
-- **管理画面 FFLogs 取り込みのレート制限・濫用対策** = 管理者専用のため当面不要。将来 admin 権限を広げる場合に再検討。
+- **① スプシ軽減表のタイムライン読み込み**（軽減割り当て込み）= 別タスク（別 spec）。
+- **再アンカー**（技に合わせ軽減もずらす）= ユーザー側 Phase 1.5・テンプレ無関係。
+- **管理画面取り込みのレート制限・濫用対策** = 管理者専用のため当面不要。
+- **`/api/admin` templates POST のサーバ側バリデーション監査**（ラベル空・mechanicGroup 無しイベントの永続化整合）= 実装時に別途確認（本 spec はクライアント側設計）。
+- **追記専用 append アクションの新設** = B 案採用により**不採用**（`replaceAll` 全リセットで割り切る）。
