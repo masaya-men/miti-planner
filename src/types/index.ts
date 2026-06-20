@@ -49,6 +49,11 @@ export interface Mitigation {
     note?: string; // Optional description/details
     scope?: 'self' | 'party' | 'target'; // Scope of the mitigation
     isInvincible?: boolean; // Damages becomes 0
+    /** ウォーキングデッド型(二段階無敵)の効果時間(秒)。
+     *  設定されている無敵スキルは「窓内で最初に致死になる被弾を起点に、
+     *  そこから walkingDeadDuration 秒だけ生存」という二段階モデルで扱う(例: リビングデッド=10)。
+     *  未設定の無敵は従来どおり効果時間中ずっと無条件無敵。 */
+    walkingDeadDuration?: number;
     healingIncrease?: number; // Healing potency increase (e.g. 10 for 10%)
     healingIncreaseDuration?: number; // Duration of healing increase if different from main duration (e.g. Physis II: 10s vs 15s main)
     healingIncreaseSelfOnly?: boolean; // If true, only applies to the caster's own heals (e.g. Dissipation, Neutral Sect)

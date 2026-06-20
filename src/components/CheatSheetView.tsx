@@ -10,6 +10,7 @@ import { MitigationSelector } from './MitigationSelector';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap, getEffectiveTarget } from '../utils/effectiveTarget';
+import { isLivingDeadStyle, maxHpForEffectiveTarget, resolveLivingDeadSurvival, type LivingDeadInstance } from '../utils/livingDead';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
 
@@ -67,6 +68,19 @@ export const CheatSheetView: React.FC = () => {
         // メモ化済み swapMarkers を使って実効ターゲットマップを構築
         const effTargetMap = buildEffectiveTargetMap(sortedEvents, swapMarkers, phases);
 
+        // リビデ(二段階無敵)の引き金状態。sortedEvents を時刻順に評価する間、保持する。
+        const livingDeadTriggers = new Map<string, number>();
+        const allLivingDeads: LivingDeadInstance[] = [];
+        timelineMitigations.forEach(m => {
+            const def = MITIGATIONS.find(d => d.id === m.mitigationId);
+            if (def && isLivingDeadStyle(def)) {
+                allLivingDeads.push({
+                    id: m.id, time: m.time, duration: m.duration,
+                    walkingDeadDuration: def.walkingDeadDuration!, ownerId: m.ownerId, targetId: m.targetId,
+                });
+            }
+        });
+
         sortedEvents.forEach(event => {
             if (!event.damageAmount) {
                 map.set(event.id, { unmitigated: 0, mitigated: 0, mitigationPercent: 0, shieldTotal: 0, isInvincible: false });
@@ -93,6 +107,7 @@ export const CheatSheetView: React.FC = () => {
                 if (appMit.targetId && appMit.targetId !== displayContext) return;
 
                 if (def.isInvincible) {
+                    if (isLivingDeadStyle(def)) return; // 二段階無敵: %ループでは無視し、後段で条件付き判定
                     currentDamage = 0;
                     isInvincibleForEvent = true;
                 }
@@ -117,6 +132,7 @@ export const CheatSheetView: React.FC = () => {
             });
 
             currentDamage = Math.floor(currentDamage);
+
             const damageForShields = currentDamage;
 
             if (!isInvincibleForEvent) {
@@ -181,6 +197,18 @@ export const CheatSheetView: React.FC = () => {
                         }
                     });
                 });
+            }
+
+            // リビングデッド(二段階無敵): 「リビデを除いた軽減後ダメ」が致死なら、窓内最初の被弾を起点に生存
+            if (!isInvincibleForEvent) {
+                const livingDeads = allLivingDeads.filter(ld => ld.ownerId === displayContext || ld.targetId === displayContext);
+                if (livingDeads.length > 0) {
+                    const maxHp = maxHpForEffectiveTarget(target, partyMembers);
+                    if (resolveLivingDeadSurvival(event.time, currentDamage, maxHp, livingDeads, livingDeadTriggers)) {
+                        currentDamage = 0;
+                        isInvincibleForEvent = true;
+                    }
+                }
             }
 
             const finalTaken = Math.max(0, currentDamage);

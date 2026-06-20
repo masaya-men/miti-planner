@@ -40,6 +40,7 @@ import type { ConflictPoint } from './timeline/conflictArrows';
 import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
+import { isLivingDeadStyle, maxHpForEffectiveTarget, resolveLivingDeadSurvival, type LivingDeadInstance } from '../utils/livingDead';
 import { resolveMitigationTap } from '../utils/mitigationTapResolver';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
@@ -101,6 +102,8 @@ interface MitigationItemProps {
     timeToYMap: Map<number, number>;
     isVirtual?: boolean;
     iconOverride?: string;
+    /** 仮想アイテムを白黒表示する(ウォーキングデッド用)。 */
+    grayscale?: boolean;
     // 初回マウントで memberLayout が未計測 (refs 未確定) の 1 フレーム間、
     // colStart=0 で左端に描画されて「左から飛んでくる」 のを防ぐ。
     // false の間はアイコンを visibility: hidden で隠す。
@@ -202,7 +205,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
         scrollContainerRef, activeMitigations, overlapOffset = 0, timeToYMap,
-        isVirtual = false, iconOverride, layoutReady = true
+        isVirtual = false, iconOverride, layoutReady = true, grayscale = false
     } = props;
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -529,6 +532,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                             <img
                                 src={iconUrl}
                                 alt=""
+                                style={grayscale ? { filter: 'grayscale(1)' } : undefined}
                                 className={clsx(
                                     "object-contain",
                                     isVirtual ? (
@@ -1876,7 +1880,7 @@ const Timeline: React.FC = () => {
         setMigrationConfig(null);
     };
 
-    const damageMap = useMemo(() => {
+    const damageMapResult = useMemo(() => {
         const map = new Map<string, { unmitigated: number; mitigated: number, mitigationPercent: number, shieldTotal: number, isInvincible?: boolean, mitigationStates?: Record<string, { stacks?: number }> }>();
         const sortedEvents = [...timelineEvents].sort((a, b) => a.time - b.time);
         const shieldStates = new Map<string, Map<string, number>>();
@@ -1926,6 +1930,18 @@ const Timeline: React.FC = () => {
         });
         const effTargetMap = buildEffectiveTargetMap(sortedEvents, swapMarkers, phases);
 
+        const livingDeadTriggers = new Map<string, number>();
+        const allLivingDeads: LivingDeadInstance[] = [];
+        timelineMitigations.forEach(m => {
+            const def = MITIGATIONS.find(d => d.id === m.mitigationId);
+            if (def && isLivingDeadStyle(def)) {
+                allLivingDeads.push({
+                    id: m.id, time: m.time, duration: m.duration,
+                    walkingDeadDuration: def.walkingDeadDuration!, ownerId: m.ownerId, targetId: m.targetId,
+                });
+            }
+        });
+
         sortedEvents.forEach(event => {
             if (!event.damageAmount) {
                 map.set(event.id, { unmitigated: 0, mitigated: 0, mitigationPercent: 0, shieldTotal: 0, isInvincible: false });
@@ -1957,6 +1973,7 @@ const Timeline: React.FC = () => {
                 if (appMit.targetId && appMit.targetId !== displayContext) return;
 
                 if (def.isInvincible) {
+                    if (isLivingDeadStyle(def)) return; // 二段階無敵: %ループでは無視し、後段で条件付き判定
                     currentDamage = 0;
                     isInvincibleForEvent = true;
                 }
@@ -1994,6 +2011,7 @@ const Timeline: React.FC = () => {
             });
 
             currentDamage = Math.floor(currentDamage);
+
             const damageForShields = currentDamage;
 
             if (!isInvincibleForEvent) {
@@ -2151,6 +2169,18 @@ const Timeline: React.FC = () => {
                 });
             }
 
+            // リビングデッド(二段階無敵): 「リビデを除いた軽減後ダメ」が致死なら、窓内最初の被弾を起点に生存
+            if (!isInvincibleForEvent) {
+                const livingDeads = allLivingDeads.filter(ld => ld.ownerId === displayContext || ld.targetId === displayContext);
+                if (livingDeads.length > 0) {
+                    const maxHp = maxHpForEffectiveTarget(target, partyMembers);
+                    if (resolveLivingDeadSurvival(event.time, currentDamage, maxHp, livingDeads, livingDeadTriggers)) {
+                        currentDamage = 0;
+                        isInvincibleForEvent = true;
+                    }
+                }
+            }
+
             const finalTaken = Math.max(0, currentDamage);
             const percentMod = Math.round((1 - mitigationMultipliers) * 100);
 
@@ -2164,8 +2194,11 @@ const Timeline: React.FC = () => {
             });
         });
 
-        return map;
+        return { map, livingDeadTriggers };
     }, [eventsByTime, timelineMitigations, partyMembers, phases]);
+
+    const damageMap = damageMapResult.map;
+    const livingDeadTriggers = damageMapResult.livingDeadTriggers; // Task 5 で白黒アイコン描画に使用
 
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -3189,6 +3222,21 @@ const Timeline: React.FC = () => {
                                                             });
                                                         }
                                                     }
+                                                    if (def && isLivingDeadStyle(def)) {
+                                                        const tT = livingDeadTriggers.get(m.id);
+                                                        if (tT !== undefined) {
+                                                            displayItems.push({
+                                                                ...m,
+                                                                id: `virtual-wd-${m.id}`,
+                                                                time: tT,
+                                                                duration: def.walkingDeadDuration!,
+                                                                isVirtual: true,
+                                                                iconOverride: def.icon,
+                                                                grayscale: true,
+                                                                parentId: m.id,
+                                                            });
+                                                        }
+                                                    }
                                                 });
 
                                                 // 時刻順を最優先 — 旧実装は recast 順を最優先していたため、 後の時刻に置かれた
@@ -3331,6 +3379,13 @@ const Timeline: React.FC = () => {
                                                             const cutY = getMappedY(mitigation.time + 10);
                                                             height = Math.max(0, Math.round(cutY - startY) - 8);
                                                         }
+                                                        if (def && isLivingDeadStyle(def)) {
+                                                            const tT = livingDeadTriggers.get(mitigation.id);
+                                                            if (tT !== undefined) {
+                                                                const cutY = getMappedY(tT);
+                                                                height = Math.max(0, Math.round(cutY - startY) - 8);
+                                                            }
+                                                        }
                                                     }
 
                                                     const absoluteLeft = colStart + VISUAL_OFFSET + candidateLeft;
@@ -3354,6 +3409,7 @@ const Timeline: React.FC = () => {
                                                             overlapOffset={0}
                                                             timeToYMap={timeToYMap}
                                                             isVirtual={mitigation.isVirtual}
+                                                            grayscale={mitigation.grayscale}
                                                             iconOverride={mitigation.iconOverride}
                                                             layoutReady={layout !== undefined}
                                                             isConflicting={conflictingIds.has(mitigation.id) && mitigation.id !== lastPlacedMitigationId}
