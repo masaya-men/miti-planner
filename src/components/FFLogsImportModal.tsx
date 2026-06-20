@@ -173,7 +173,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
     const handleImport = () => {
         if (status.phase !== 'preview') return;
-        importTimelineEvents(status.mapped.events, status.mapped.phases, status.mapped.labels);
+        importTimelineEvents(status.mapped.events, status.mapped.phases, status.mapped.labels, 'replace_all');
 
         // バックグラウンドでテンプレート候補登録を試みる
         if (parsedData) {

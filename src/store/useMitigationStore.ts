@@ -20,6 +20,7 @@ import { useTutorialStore } from './useTutorialStore';
 import { DEFAULT_NEW_MODE } from '../utils/mitigationResolver';
 import type { CollabHandlers } from '../lib/collab/collabTypes';
 import type { BatchOp } from '../lib/collab/yjsPlanData';
+import { resolveImportEvents, type ImportMode } from '../utils/importModes';
 
 export interface AASettings {
     damage: number;
@@ -129,8 +130,8 @@ interface MitigationState {
     setMemberJob: (memberId: string, jobId: string | null) => void;
     setAaSettings: (settings: AASettings) => void;
     setSchAetherflowPattern: (memberId: string, pattern: 1 | 2) => void;
-    /** Bulk-replace timeline events (e.g. from FFLogs import). Clears existing mitigations. */
-    importTimelineEvents: (events: TimelineEvent[], importPhases?: { id: number; startTimeSec: number; name: LocalizedString }[], importLabels?: Label[]) => void;
+    /** Bulk-replace/append timeline events (e.g. from FFLogs import). Mode controls mitigation handling. */
+    importTimelineEvents: (events: TimelineEvent[], importPhases: { id: number; startTimeSec: number; name: LocalizedString }[] | undefined, importLabels: Label[] | undefined, mode: ImportMode) => void;
     /** Changes a member's job and strictly overwrites their mitigations with the provided array */
     changeMemberJobWithMitigations: (memberId: string, jobId: string, mitis: AppliedMitigation[]) => void;
     /** 👇追加：複数のメンバーのジョブ変更を一括で適用する（履歴は1回だけ保存） */
@@ -920,44 +921,53 @@ export const useMitigationStore = create<MitigationState>()(
                     useTutorialStore.getState().completeEvent('event:saved');
                 },
 
-                importTimelineEvents: (events, importPhases, importLabels) => {
-                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋な閲覧者のみブロック(編集者ジョイナーは active=true で委譲へ)
+                importTimelineEvents: (events, importPhases, importLabels, mode) => {
+                    if (get()._collabReadonly && !get()._collabActive) return; // 純粋な閲覧者のみブロック
+                    const current = get().timelineEvents;
+                    const resolved = resolveImportEvents(current, events, mode);
+                    const maxEventTime = resolved.events.length > 0
+                        ? resolved.events.reduce((max, e) => Math.max(max, e.time), 0)
+                        : undefined;
+
+                    // 取り込むフェーズを Phase 形へ変換（append は既存最終時刻より後だけ）
+                    const cutoff = resolved.appendFromTime;
+                    const incomingPhases = importPhases
+                        ? importPhases
+                            .filter(p => p.startTimeSec >= 0)
+                            .filter(p => cutoff === null || p.startTimeSec > cutoff)
+                            .map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec }))
+                        : undefined;
+                    // append は既存フェーズに連結、replace は取り込み分のみ
+                    const mergedPhases = importPhases
+                        ? ensurePhaseEndTimes(
+                            mode === 'append'
+                                ? [...get().phases.map(p => ({ id: p.id, name: p.name, startTime: p.startTime })), ...(incomingPhases ?? [])]
+                                : (incomingPhases ?? []),
+                            maxEventTime,
+                          )
+                        : undefined;
+                    // labels: append は触らない、replace は取り込み分
+                    const finalLabels = mode === 'append' ? undefined : importLabels;
+
                     if (get()._collabActive && get()._collabHandlers) {
-                        const maxEventTime = events.length > 0
-                            ? events.reduce((max, e) => Math.max(max, e.time), 0) : undefined;
-                        const finalEvents = [...events].sort((a, b) => a.time - b.time);
-                        const finalPhases = importPhases
-                            ? ensurePhaseEndTimes(importPhases
-                                .filter(p => p.startTimeSec >= 0)
-                                .map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec })), maxEventTime)
-                            : undefined;
-                        // importBulk が events/phases/labels 全置換 + mitigations クリアを 1 transaction で行う。
-                        get()._collabHandlers!.importBulk(finalEvents, finalPhases, importLabels);
+                        get()._collabHandlers!.importBulk(resolved.events, mergedPhases, finalLabels, resolved.clearMitigations);
                         if (events.length > 0) useTutorialStore.getState().completeEvent('content:selected');
                         return;
                     }
                     pushHistory();
-                    const maxEventTime = events.length > 0
-                        ? events.reduce((max, e) => Math.max(max, e.time), 0)
-                        : undefined;
                     const update: Partial<ReturnType<typeof get>> = {
-                        timelineEvents: [...events].sort((a, b) => a.time - b.time),
-                        timelineMitigations: [], // Clear old mitigations — they belong to a different fight
+                        timelineEvents: resolved.events,
                     };
-                    if (importPhases) {
-                        update.phases = ensurePhaseEndTimes(importPhases
-                            .filter(p => p.startTimeSec >= 0)
-                            .map(p => ({
-                                id: `phase_${p.id}`,
-                                name: p.name,
-                                startTime: p.startTimeSec,
-                            })), maxEventTime);
+                    if (resolved.clearMitigations) {
+                        update.timelineMitigations = [];
                     }
-                    if (importLabels) {
-                        update.labels = importLabels;
+                    if (mergedPhases) {
+                        update.phases = mergedPhases;
+                    }
+                    if (finalLabels) {
+                        update.labels = finalLabels;
                     }
                     set(update as any);
-                    // Tutorial: notify that timeline content has been loaded
                     if (events.length > 0) {
                         useTutorialStore.getState().completeEvent('content:selected');
                     }

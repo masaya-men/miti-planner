@@ -352,14 +352,14 @@ export function startCollabSession(
       if (!k) return; // 未知フィールドは無視(誤った別キー上書きを防ぐ)
       doc.transact(() => setMetaField(doc, k, value), 'local');
     },
-    // FFLogs 取込: events/phases/labels を全置換 + mitigations を全クリア(別の戦闘へ切替)。1 transaction。
-    importBulk: (events, phases, labels) => {
+    // FFLogs 取込: events/phases/labels を全置換。clearMitigations 時のみ mitigations も全クリア。1 transaction。
+    importBulk: (events, phases, labels, clearMitigations) => {
       doc.transact(() => {
         yEvents.delete(0, yEvents.length);
         events.forEach((e) => yEvents.push([recordToYMap(e)]));
         if (phases) { yPhases.delete(0, yPhases.length); phases.forEach((p) => yPhases.push([recordToYMap(p)])); }
         if (labels) { yLabels.delete(0, yLabels.length); labels.forEach((l) => yLabels.push([recordToYMap(l)])); }
-        yarr.delete(0, yarr.length); // ②-a 領域だが破壊的全置換で衝突しない(設計書 §8)
+        if (clearMitigations) { yarr.delete(0, yarr.length); }
       }, 'local');
     },
     // ②-b-2: 複数キーを 1 transaction で原子的に反映(ジョブ変更カスケード等)。
