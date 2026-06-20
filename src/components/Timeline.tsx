@@ -536,7 +536,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                                 className={clsx(
                                     "object-contain",
                                     isVirtual ? (
-                                        (iconUrl.includes('Giant_Dominance.png') || iconUrl.includes('horoscope_helios.png'))
+                                        (grayscale || iconUrl.includes('Giant_Dominance.png') || iconUrl.includes('horoscope_helios.png'))
                                             ? "w-3 h-auto"
                                             : "w-5 h-5"
                                     ) : "w-full h-full rounded"
