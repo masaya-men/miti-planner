@@ -40,6 +40,7 @@ import type { ConflictPoint } from './timeline/conflictArrows';
 import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
+import { isLivingDeadStyle, maxHpForEffectiveTarget, resolveLivingDeadSurvival, type LivingDeadInstance } from '../utils/livingDead';
 import { resolveMitigationTap } from '../utils/mitigationTapResolver';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
@@ -1876,7 +1877,7 @@ const Timeline: React.FC = () => {
         setMigrationConfig(null);
     };
 
-    const damageMap = useMemo(() => {
+    const damageMapResult = useMemo(() => {
         const map = new Map<string, { unmitigated: number; mitigated: number, mitigationPercent: number, shieldTotal: number, isInvincible?: boolean, mitigationStates?: Record<string, { stacks?: number }> }>();
         const sortedEvents = [...timelineEvents].sort((a, b) => a.time - b.time);
         const shieldStates = new Map<string, Map<string, number>>();
@@ -1926,6 +1927,18 @@ const Timeline: React.FC = () => {
         });
         const effTargetMap = buildEffectiveTargetMap(sortedEvents, swapMarkers, phases);
 
+        const livingDeadTriggers = new Map<string, number>();
+        const allLivingDeads: LivingDeadInstance[] = [];
+        timelineMitigations.forEach(m => {
+            const def = MITIGATIONS.find(d => d.id === m.mitigationId);
+            if (def && isLivingDeadStyle(def)) {
+                allLivingDeads.push({
+                    id: m.id, time: m.time, duration: m.duration,
+                    walkingDeadDuration: def.walkingDeadDuration!, ownerId: m.ownerId, targetId: m.targetId,
+                });
+            }
+        });
+
         sortedEvents.forEach(event => {
             if (!event.damageAmount) {
                 map.set(event.id, { unmitigated: 0, mitigated: 0, mitigationPercent: 0, shieldTotal: 0, isInvincible: false });
@@ -1957,6 +1970,7 @@ const Timeline: React.FC = () => {
                 if (appMit.targetId && appMit.targetId !== displayContext) return;
 
                 if (def.isInvincible) {
+                    if (isLivingDeadStyle(def)) return; // 二段階無敵: %ループでは無視し、後段で条件付き判定
                     currentDamage = 0;
                     isInvincibleForEvent = true;
                 }
@@ -1994,6 +2008,19 @@ const Timeline: React.FC = () => {
             });
 
             currentDamage = Math.floor(currentDamage);
+
+            // リビングデッド(二段階無敵): 「リビデを除いた軽減後ダメ」が致死なら、窓内最初の被弾を起点に生存
+            if (!isInvincibleForEvent) {
+                const livingDeads = allLivingDeads.filter(ld => ld.ownerId === displayContext || ld.targetId === displayContext);
+                if (livingDeads.length > 0) {
+                    const maxHp = maxHpForEffectiveTarget(target, partyMembers);
+                    if (resolveLivingDeadSurvival(event.time, currentDamage, maxHp, livingDeads, livingDeadTriggers)) {
+                        currentDamage = 0;
+                        isInvincibleForEvent = true;
+                    }
+                }
+            }
+
             const damageForShields = currentDamage;
 
             if (!isInvincibleForEvent) {
@@ -2164,8 +2191,12 @@ const Timeline: React.FC = () => {
             });
         });
 
-        return map;
+        return { map, livingDeadTriggers };
     }, [eventsByTime, timelineMitigations, partyMembers, phases]);
+
+    const damageMap = damageMapResult.map;
+    const livingDeadTriggers = damageMapResult.livingDeadTriggers; // Task 5 で白黒アイコン描画に使用
+    void livingDeadTriggers; // TODO(Task 5): 引き金時刻を描画レイヤーへ渡す
 
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
