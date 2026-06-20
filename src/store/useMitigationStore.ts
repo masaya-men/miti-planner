@@ -938,14 +938,17 @@ export const useMitigationStore = create<MitigationState>()(
                             .map(p => ({ id: `phase_${p.id}`, name: p.name, startTime: p.startTimeSec }))
                         : undefined;
                     // append は既存フェーズに連結、replace は取り込み分のみ
-                    const mergedPhases = importPhases
-                        ? ensurePhaseEndTimes(
-                            mode === 'append'
-                                ? [...get().phases.map(p => ({ id: p.id, name: p.name, startTime: p.startTime })), ...(incomingPhases ?? [])]
-                                : (incomingPhases ?? []),
-                            maxEventTime,
-                          )
-                        : undefined;
+                    // append かつカットオフ以降に新規フェーズがない場合は既存フェーズを触らない
+                    const mergedPhases = !importPhases
+                        ? undefined
+                        : (mode === 'append' && (incomingPhases?.length ?? 0) === 0)
+                            ? undefined // append: カットオフ以降に新規フェーズなし → 既存フェーズを触らない
+                            : ensurePhaseEndTimes(
+                                mode === 'append'
+                                    ? [...get().phases.map(p => ({ id: p.id, name: p.name, startTime: p.startTime })), ...(incomingPhases ?? [])]
+                                    : (incomingPhases ?? []),
+                                maxEventTime,
+                              );
                     // labels: append は触らない、replace は取り込み分
                     const finalLabels = mode === 'append' ? undefined : importLabels;
 

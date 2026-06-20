@@ -35,4 +35,25 @@ describe('importTimelineEvents モード別(ローカル経路)', () => {
     expect(useMitigationStore.getState().timelineEvents.map(e => e.id)).toEqual(['a', 'b', 'y']);
     expect(useMitigationStore.getState().timelineMitigations.map(m => m.id)).toEqual(['m1']);
   });
+
+  it('append: カットオフ以降に新規フェーズがない場合、既存フェーズは変更されない', () => {
+    // beforeEach で timelineEvents = [ev('a',10), ev('b',60)]
+    // フェーズを仕込む: startTime=0 の既存フェーズ
+    useMitigationStore.setState({
+      phases: [{ id: 'p_existing', name: { ja: 'P1' }, startTime: 0, endTime: 100 }] as any,
+    });
+    const beforePhases = useMitigationStore.getState().phases;
+    // importPhases に startTimeSec=30 のフェーズ(カットオフ60以前)だけを渡す → incomingPhases は空
+    useMitigationStore.getState().importTimelineEvents(
+      [ev('y', 70)],
+      [{ id: 99, startTimeSec: 30, name: { ja: 'Old' } }] as any,
+      undefined,
+      'append',
+    );
+    const afterPhases = useMitigationStore.getState().phases;
+    // 既存フェーズが変更されていないこと
+    expect(afterPhases).toEqual(beforePhases);
+    expect(afterPhases[0].id).toBe('p_existing');
+    expect(afterPhases[0].startTime).toBe(0);
+  });
 });

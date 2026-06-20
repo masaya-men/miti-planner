@@ -353,6 +353,7 @@ export function startCollabSession(
       doc.transact(() => setMetaField(doc, k, value), 'local');
     },
     // FFLogs 取込: events/phases/labels を全置換。clearMitigations 時のみ mitigations も全クリア。1 transaction。
+    // phases/labels が undefined の場合は「変更なし」を意味する(append モードでラベルを触らない等に使用)。
     importBulk: (events, phases, labels, clearMitigations) => {
       doc.transact(() => {
         yEvents.delete(0, yEvents.length);

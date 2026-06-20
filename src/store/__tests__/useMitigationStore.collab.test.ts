@@ -246,6 +246,22 @@ describe('②-b-1 importTimelineEvents バルク委譲', () => {
     const [, , , clearArg] = (h.importBulk as any).mock.calls[0];
     expect(clearArg).toBe(false);
   });
+
+  it('append モード: 既存イベント+新規後半のフルリストで importBulk を呼び、clearMitigations=false', () => {
+    const existing = [{ id: 'ex1', time: 10, name: { ja: 'x' }, damageType: 'magical' }] as any;
+    useMitigationStore.setState({ timelineEvents: existing, phases: [], labels: [], _collabActive: false, _collabHandlers: null });
+    const h = mockHandlers(); useMitigationStore.getState().enterCollabMode(h);
+    // カットオフ(10)以降のみ追加されるはず: ev at 5 は除外、ev at 20 は追加
+    const incoming = [
+      { id: 'new1', time: 5, name: { ja: 'n1' }, damageType: 'magical' },
+      { id: 'new2', time: 20, name: { ja: 'n2' }, damageType: 'magical' },
+    ] as any;
+    useMitigationStore.getState().importTimelineEvents(incoming, undefined, undefined, 'append');
+    expect(h.importBulk).toHaveBeenCalledTimes(1);
+    const [evArg, , , clearArg] = (h.importBulk as any).mock.calls[0];
+    expect(evArg.map((e: any) => e.id)).toEqual(['ex1', 'new2']);
+    expect(clearArg).toBe(false);
+  });
 });
 
 describe('②-c collab 中の undo/redo は handlers に委譲する', () => {
