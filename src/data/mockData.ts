@@ -691,7 +691,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "aquaveil", jobId: "whm", name: { ja: "アクアヴェール", en: "Aquaveil", zh: "水流幕", ko: "물의 장막" }, icon: "/icons/Aquaveil.png",
-        recast: 90, duration: 8, type: "all", value: 15, isShield: false, scope: "target", minLevel: 82, family: "ph_target_miti"
+        recast: 60, duration: 8, type: "all", value: 15, isShield: false, scope: "target", minLevel: 82, family: "ph_target_miti"
     },
     {
         id: "divine_benison", jobId: "whm", name: { ja: "ディヴァインベニゾン", en: "Divine Benison", zh: "神祝祷", ko: "신성한 축복" }, icon: "/icons/Divine_Benison.png",
