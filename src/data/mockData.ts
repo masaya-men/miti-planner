@@ -313,7 +313,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "living_dead", jobId: "drk", name: { ja: "リビングデッド", en: "Living Dead", zh: "行尸走肉", ko: "산송장" }, icon: "/icons/Living_Dead.png",
-        recast: 300, duration: 10, type: "all", value: 0, isShield: false, scope: "self", isInvincible: true, minLevel: 50, family: "tank_invuln"
+        recast: 300, duration: 10, type: "all", value: 0, isShield: false, scope: "self", isInvincible: true, walkingDeadDuration: 10, minLevel: 50, family: "tank_invuln"
     },
 
     // --- Scholar ---
