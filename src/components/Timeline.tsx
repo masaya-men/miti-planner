@@ -102,6 +102,8 @@ interface MitigationItemProps {
     timeToYMap: Map<number, number>;
     isVirtual?: boolean;
     iconOverride?: string;
+    /** 仮想アイテムを白黒表示する(ウォーキングデッド用)。 */
+    grayscale?: boolean;
     // 初回マウントで memberLayout が未計測 (refs 未確定) の 1 フレーム間、
     // colStart=0 で左端に描画されて「左から飛んでくる」 のを防ぐ。
     // false の間はアイコンを visibility: hidden で隠す。
@@ -203,7 +205,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
         scrollContainerRef, activeMitigations, overlapOffset = 0, timeToYMap,
-        isVirtual = false, iconOverride, layoutReady = true
+        isVirtual = false, iconOverride, layoutReady = true, grayscale = false
     } = props;
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -530,6 +532,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                             <img
                                 src={iconUrl}
                                 alt=""
+                                style={grayscale ? { filter: 'grayscale(1)' } : undefined}
                                 className={clsx(
                                     "object-contain",
                                     isVirtual ? (
@@ -2196,7 +2199,6 @@ const Timeline: React.FC = () => {
 
     const damageMap = damageMapResult.map;
     const livingDeadTriggers = damageMapResult.livingDeadTriggers; // Task 5 で白黒アイコン描画に使用
-    void livingDeadTriggers; // TODO(Task 5): 引き金時刻を描画レイヤーへ渡す
 
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -3220,6 +3222,21 @@ const Timeline: React.FC = () => {
                                                             });
                                                         }
                                                     }
+                                                    if (def && isLivingDeadStyle(def)) {
+                                                        const tT = livingDeadTriggers.get(m.id);
+                                                        if (tT !== undefined) {
+                                                            displayItems.push({
+                                                                ...m,
+                                                                id: `virtual-wd-${m.id}`,
+                                                                time: tT,
+                                                                duration: def.walkingDeadDuration!,
+                                                                isVirtual: true,
+                                                                iconOverride: def.icon,
+                                                                grayscale: true,
+                                                                parentId: m.id,
+                                                            });
+                                                        }
+                                                    }
                                                 });
 
                                                 // 時刻順を最優先 — 旧実装は recast 順を最優先していたため、 後の時刻に置かれた
@@ -3362,6 +3379,13 @@ const Timeline: React.FC = () => {
                                                             const cutY = getMappedY(mitigation.time + 10);
                                                             height = Math.max(0, Math.round(cutY - startY) - 8);
                                                         }
+                                                        if (def && isLivingDeadStyle(def)) {
+                                                            const tT = livingDeadTriggers.get(mitigation.id);
+                                                            if (tT !== undefined) {
+                                                                const cutY = getMappedY(tT);
+                                                                height = Math.max(0, Math.round(cutY - startY) - 8);
+                                                            }
+                                                        }
                                                     }
 
                                                     const absoluteLeft = colStart + VISUAL_OFFSET + candidateLeft;
@@ -3385,6 +3409,7 @@ const Timeline: React.FC = () => {
                                                             overlapOffset={0}
                                                             timeToYMap={timeToYMap}
                                                             isVirtual={mitigation.isVirtual}
+                                                            grayscale={mitigation.grayscale}
                                                             iconOverride={mitigation.iconOverride}
                                                             layoutReady={layout !== undefined}
                                                             isConflicting={conflictingIds.has(mitigation.id) && mitigation.id !== lastPlacedMitigationId}
