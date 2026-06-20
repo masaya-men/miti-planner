@@ -642,7 +642,14 @@
         "login_button": "Login to Import",
         "rate_limit_exceeded": "You've reached the usage limit. Please wait and try again later (up to {{max}} times per hour).",
         "fetching_players": "Fetching player info...",
-        "english_only_warning": "This log was uploaded from an English client. Japanese ability names are not available. You can add translations later in the template editor."
+        "english_only_warning": "This log was uploaded from an English client. Japanese ability names are not available. You can add translations later in the template editor.",
+        "import_mode": {
+            "label": "Import method",
+            "replace_all": "Replace (also clear mitigations)",
+            "replace_keep": "Replace (keep mitigations)",
+            "append": "Append (only events after the current end)",
+            "replace_all_warning": "Placed mitigations will also be deleted"
+        }
     },
     "sidebar": {
         "new_plan": "New",
