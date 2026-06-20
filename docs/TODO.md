@@ -11,11 +11,10 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **✅ 2026-06-20 FFLogsインポート 取り込みモード選択 本番デプロイ済(merge 6fd3939)**: プレビューで3モード選択(置き換え・軽減も削除/置き換え・軽減は残す[既定]/追記=既存最終時刻より後だけ)。軽減は時刻ベースで保持・既存空時はモード非表示。collab `importBulk` は `clearMitigations` フラグで分岐。多エージェント実装+敵対レビューで append の既存phase endTime silent mutation を根治。spec/plan=`docs/superpowers/{specs,plans}/2026-06-20-fflogs-import-modes*`。**✅実機OK(2026-06-20 モード選択UI本番表示確認・ユーザーOK)**。任意の追加確認(低リスク・必須でない)=collab 2タブで replace_keep=軽減消えない/append=前半と軽減無傷/replace_all=軽減消える(両タブ最新版リロード[[reference_collab_two_client_version_skew]])。**defer Minor**: warning_overwrite 死にキー削除(4locale)・FFLogsImportModal english_only_warning の text-amber-400→トークン化。**Phase 1.5**=再アンカー(技に合わせ軽減もずらす)/**Phase 2**=スプシ取込⑥+導線チューザー。
-- **✅ 2026-06-20 共同編集中の進捗同期(Plan2) + 他参加者打点トースト 本番公開・2タブ実機OK**: 進捗打点を memos と同じ Yjs レーン(`progressPoints`)で匿名 union 同期・Firestore はネスト `data.progress.*`。多エージェント敵対監査で Critical 2件(setMeta が表データ破損 / 旧形式 id 欠落点消滅)を根治・回帰テストで表非破壊を永久ロック。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残=スマホからの進捗記録(別タスク)** / defer Minor 群(COMPLETED 記載)。
+- **✅ 2026-06-20 リビデ(Living Dead/DRK)正確モデル化 本番デプロイ済**: 二段階(リビデ窓内で最初に致死=軽減後ダメ≧対象maxHpの被弾を引き金→そこからウォーキングデッド10秒だけ生存)。表示Invuln据え置き+タイムラインに白黒リビデアイコン(死亡時刻tT表示・詠唱と同時刻時のみ+1で親と重なり回避・w-3.5)。データ駆動`walkingDeadDuration`・他無敵3種不変。計算は純粋関数`src/utils/livingDead.ts`に集約しCheatSheetView/Timeline両系統が利用。多エージェント総点検clean+opus最終レビューでI-1(バリア前致死判定)根治。Firestore同期済(`scripts/sync-walking-dead-duration.ts`)。spec/plan=`docs/superpowers/{specs,plans}/2026-06-20-living-dead-modeling*`。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**非対象=回復要否/HP経時追跡/autoPlanner精緻化(別途)**。
+- **✅ 2026-06-20 FFLogsインポート取り込みモード / 共同編集中の進捗同期 本番デプロイ済**(詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))。残=進捗のスマホ記録(別タスク)/FFLogs Phase1.5再アンカー+Phase2スプシ取込⑥。
 - **🟢🗓 Vercel Pro→Hobby: 実測完了→Hobby 安全 (2026-06-20)**: 課金API実測(6/12-19)= Edge Requests ピーク 16,127/日(6/12・閾値33Kの48%)・平均9,178/日(月換算275K=枠の27.5%)・直近土日(6/14-15)も約40%。Function Inv/転送量も全て5-6%。**全指標2倍以上の余裕**で減少傾向。7/11 前に Dashboard→Billing→Plan で Hobby へ(1クリック・可逆)→次月 Pro 課金回避。**ユーザー確認済(6/20)=ハウジング未公開・広告未稼働→今すぐ Hobby OK**。team=pro 確認済(user 表示は northstar で hobby と出るが課金は team)。⚠**将来トリガー**: ハウジングを広告つき公開する時に Hobby 商用禁止へ抵触→その時 Pro 復帰 or ハウジング別デプロイ分離を判断。それまで Hobby は一時節約。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
-- **✅ ブランチ消失=解決済(2026-06-20調査)**: `feat/mobile-bottom-nav-redesign` のコミットは全て main+origin/main にマージ・push 済(tip=609fab97・`git branch -a --contains`で確認)。ブランチ名ラベルがマージ後削除されただけで作業ロスゼロ。→残るは下記の実機確認のみ。
 - **🔴 完成・push済・要実機確認(ユーザー)**:
   - 管理画面リデザイン全18ルート(**push 済**): ヘッダー詰まり/2カラムスクロール/ウィザード4本/フォントを本番で目視。サンドボックス=`npm run dev:admin`。
   - スマホ最適化A+共有タブ(2026-06-15~16 本番反映済): 共有2択→部屋発行/パーティ自動ボタン/Lv80 で DB・星天交差1チャージ/深謀遠慮表示。
@@ -67,7 +66,7 @@
 
 ## バグ・不具合 (要修正)
 
-- **🆕 ユーザー投下 2026-06-20** (詳細=docs/.private/2026-06-20-skill-modeling-notes.md): ①**リビデ(Living Dead/DRK)モデル化**=リビングデッド10秒中の致死被弾→HP1生存+ウォーキングデッド10秒(この間 実質死なない=要 最大HP相当回復)。表示は「Immune」でなく「Living/Walking Dead」ラベル。公式仕様確認済(計算+表示・中規模・着手時brainstorming) ②**🔮8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修が必要・大物・情報出揃い次第) ③✅**「表を展開する」ボタンのトグル化 本番済(2026-06-20)**: PCボタンを hideEmptyRows で展開/たたむ出し分け・fab_collapse 4言語「表をたたむ」系に統一
+- **🔮 8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修・大物・情報出揃い次第。着手時brainstorming。詳細=docs/.private/2026-06-20-skill-modeling-notes.md)。※リビデ正確モデル化①と表展開トグル③は2026-06-20完了(COMPLETED)。
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
 - **テスト(既存failure・本番無影響)**: `TopBar.test.tsx` 4件+`HousingWorkspace.test.tsx` 1件(2026-06-03〜・FFLogs修正前から)。HousingWorkspace は jsdom の youtube-nocookie 実 fetch→abort 環境依存・TopBar は要調査。
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留

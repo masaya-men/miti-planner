@@ -1527,3 +1527,9 @@ build PASS、 vitest 636/636 PASS、 tsc clean、 Playwright 6/6 PASS (5 viewpor
 - [x] 一覧カード AllMarks 風化: メタ情報 (title/size/tags) 削除 + column masonry + カバー比率カード
 - [x] 画像 aspectRatio で CLS ゼロ化 (8 タスク, subagent-driven): syndication から photo 寸法取得 (photoAspectRatios) → draft → Firestore (sourceImageAspectRatios) → galleryAdapter → カード事前確定。 動画 videoAspectRatio 経路を踏襲。 build + 573 テスト + final review OK。 **※実機確認 (登録→反映) は次セッション持ち越し** (新規登録の手間でユーザー未確認)
 - [x] dev 専用 vite proxy (/api を本番転送)。 Twitter 動画 dev 再生バグの root cause = vite が Vercel Edge Function 非実行 (環境制約)、 proxy で解決。 memory `reference_vite_dev_api_proxy`
+
+## 完了 (2026-06-20 リビデ正確モデル化 + 現在の状態から移動)
+
+- **✅ リビデ(Living Dead/DRK)正確モデル化 本番デプロイ済(2026-06-20)**: 二段階モデル=リビデ窓内[t,t+10)で最初に致死(リビデ無敵を除いた軽減後ダメ≧対象maxHp)になる被弾を引き金tT→そこからウォーキングデッド10秒[tT,tT+10)だけ生存(Invuln)。引き金前の非致死は通常ダメ・窓内致死無しなら無効・WD窓はリビデ窓を超えて伸びる。**表示**=ダメージ列はInvuln据え置き(i18n変更なし)+タイムラインに白黒リビデアイコン(死亡時刻tTに表示・詠唱と同時刻=使った瞬間死亡の時だけ+1で親アイコンと重なり回避・サイズw-3.5でペンタゴン系と光学的に揃える)。**データ駆動**=`Mitigation.walkingDeadDuration`(living_dead=10)を持つ無敵だけ二段階・id決め打ち無し・他無敵3種(インビン/ホルムガング/ボーライド)不変。**計算集約**=純粋関数`src/utils/livingDead.ts`(resolveLivingDeadSurvival等・単体テスト11)をCheatSheetView/Timeline両damageMapが利用しズレ防止。**品質**=subagent-driven(Task1-5各review clean)+多エージェント総点検4領域clean+opus最終レビューでImportant 1件=I-1(致死判定がバリア吸収前→spec§3/既存致死表示と乖離)をシールド後へ移動して根治。build緑/vitest1941passed。**Firestore同期**=`scripts/sync-walking-dead-duration.ts`(--force-overwrite回避の外科的更新・dataVersion++)。**非対象**=回復要否(最大HP相当回復が間に合うか)・HP経時追跡・autoPlanner精緻化は別途。spec/plan=`docs/superpowers/{specs,plans}/2026-06-20-living-dead-modeling*`。実機OK(ユーザー確認・置き場所/サイズ含め確定)。
+- **✅ FFLogsインポート 取り込みモード選択 本番デプロイ済(merge 6fd3939)**: 3モード(置き換え・軽減も削除/置き換え・軽減は残す[既定]/追記)。collab `importBulk` は `clearMitigations` で分岐。append の既存phase endTime silent mutation 根治。実機OK。Phase1.5=再アンカー/Phase2=スプシ取込⑥+導線チューザーは継続TODO。
+- **✅ ブランチ消失=解決済(2026-06-20調査)**: `feat/mobile-bottom-nav-redesign` のコミットは全て main にマージ済(tip=609fab97)。ラベル削除だけで作業ロスゼロ。
