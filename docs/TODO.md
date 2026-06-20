@@ -11,8 +11,8 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **✅ 2026-06-20 リビデ(Living Dead/DRK)正確モデル化 本番デプロイ済**: 二段階(リビデ窓内で最初に致死=軽減後ダメ≧対象maxHpの被弾を引き金→そこからウォーキングデッド10秒だけ生存)。表示Invuln据え置き+タイムラインに白黒リビデアイコン(死亡時刻tT表示・詠唱と同時刻時のみ+1で親と重なり回避・w-3.5)。データ駆動`walkingDeadDuration`・他無敵3種不変。計算は純粋関数`src/utils/livingDead.ts`に集約しCheatSheetView/Timeline両系統が利用。多エージェント総点検clean+opus最終レビューでI-1(バリア前致死判定)根治。Firestore同期済(`scripts/sync-walking-dead-duration.ts`)。spec/plan=`docs/superpowers/{specs,plans}/2026-06-20-living-dead-modeling*`。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**非対象=回復要否/HP経時追跡/autoPlanner精緻化(別途)**。
-- **✅ 2026-06-20 FFLogsインポート取り込みモード / 共同編集中の進捗同期 本番デプロイ済**(詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))。残=進捗のスマホ記録(別タスク)/FFLogs Phase1.5再アンカー+Phase2スプシ取込⑥。
+- **🔵🟢 次セッション最優先=管理画面FFLogs取り込み(②) spec+計画完成・未実装**: ブランチ `feat/admin-fflogs-import` に spec+5タスクTDD計画コミット済。既存ユーザー側を1ミリも壊さない方針を多エージェント監査(9体)で確定=ストア`importTimelineEvents`**非介入**・取得シーケンス(`fetchAndMapFflogs`)とURL解析の共通化のみ。実装は `docs/superpowers/plans/2026-06-20-admin-fflogs-import.md` を **subagent-driven** で着手。スプシ軽減表のタイムライン読込(①)は別タスク未着手。
+- **✅ 2026-06-20 完了(詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))**: リビデ正確モデル化 / FFLogsインポート取り込みモード+共同編集進捗同期 / アクアヴェール recast 90→60(main・mockData)。**残**=進捗スマホ記録/FFLogs Phase1.5再アンカー+Phase2スプシ取込⑥/リビデ非対象=回復要否・HP経時追跡。
 - **🟢🗓 Vercel Pro→Hobby: 実測完了→Hobby 安全 (2026-06-20)**: 課金API実測(6/12-19)= Edge Requests ピーク 16,127/日(6/12・閾値33Kの48%)・平均9,178/日(月換算275K=枠の27.5%)・直近土日(6/14-15)も約40%。Function Inv/転送量も全て5-6%。**全指標2倍以上の余裕**で減少傾向。7/11 前に Dashboard→Billing→Plan で Hobby へ(1クリック・可逆)→次月 Pro 課金回避。**ユーザー確認済(6/20)=ハウジング未公開・広告未稼働→今すぐ Hobby OK**。team=pro 確認済(user 表示は northstar で hobby と出るが課金は team)。⚠**将来トリガー**: ハウジングを広告つき公開する時に Hobby 商用禁止へ抵触→その時 Pro 復帰 or ハウジング別デプロイ分離を判断。それまで Hobby は一時節約。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
 - **🔴 完成・push済・要実機確認(ユーザー)**:
