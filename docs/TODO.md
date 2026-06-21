@@ -11,7 +11,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **🔴 スプシ取り込み: 引き継ぎ全文は `.superpowers/sdd/progress.md` 先頭「次セッション最優先 引き継ぎ(2026-06-22)」を必読(2026-06-22)** 機能は feat ブランチに忠実性根治6件込みで温存・**本番は一旦取り下げ済(再投入=`git revert b3ed41be`→push)**。ローカル確認でユーザー要望2件+バグ1件: ①スプシPhase列→**ラベル**化+フェーズ名は貼付ごとに入力(brainstorming合意・未実装) ②パーティ枠を**全部ユーザーに選ばせる**(未選択は赤強調+作成ブロック・未実装) ③🐛**マスターデータ同id版違いバグ=✅完全監査済(2026-06-22 多エージェント+経験的証明+本番Firestore確認)→fix着手中(TDD)**: 同id重複5技で競合判定が旧長recast版を拾う。実害4技(recitation/deployment_tactics/zoe=recast差・tetragrammaton=charge差)・本番Firestore実在(dataVersion143)。fix=低Lv版を`_base`別id化(既存約20技と同型・3経路が自動で直る)→外科的再シード要。詳細=progress.md「✅B監査完了」。dev 5173 稼働中。
+- **🔴 スプシ取り込み: 引き継ぎ全文は `.superpowers/sdd/progress.md` 先頭「次セッション最優先 引き継ぎ(2026-06-22)」を必読(2026-06-22)** 機能は feat ブランチに忠実性根治6件込みで温存・**本番は一旦取り下げ済(再投入=`git revert b3ed41be`→push)**。ローカル確認でユーザー要望2件+バグ1件: ①スプシPhase列→**ラベル**化+フェーズ名は貼付ごとに入力(brainstorming合意・未実装) ②パーティ枠を**全部ユーザーに選ばせる**(未選択は赤強調+作成ブロック・未実装) ③✅**マスターデータ同id版違いバグ=完全修正済(2026-06-22)**: 同id重複5技で競合判定が旧長recast版を拾い誤競合。fix=低Lv版を`_base`別id化(既存約20技と同型・競合/CD行/auto の3経路が自動で直る)→**本番Firestore外科的マイグレ適用済(dataVersion146)+実機検証OK(0:01/1:32で誤競合消失)**。code=feat commit `bb244981` 保存(push/deployはスプシ取り込みと同時)。詳細=progress.md「✅B監査完了」。dev 5173 稼働中。
 - **✅ 2026-06-20 完了(詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))**: リビデ正確モデル化 / FFLogsインポート取り込みモード+共同編集進捗同期 / アクアヴェール recast 90→60(main・mockData)。**残**=進捗スマホ記録/FFLogs Phase1.5再アンカー+Phase2スプシ取込⑥/リビデ非対象=回復要否・HP経時追跡。
 - **🟢🗓 Vercel Pro→Hobby: 実測完了→Hobby 安全 (2026-06-20)**: 課金API実測(6/12-19)= Edge Requests ピーク 16,127/日(6/12・閾値33Kの48%)・平均9,178/日(月換算275K=枠の27.5%)・直近土日(6/14-15)も約40%。Function Inv/転送量も全て5-6%。**全指標2倍以上の余裕**で減少傾向。7/11 前に Dashboard→Billing→Plan で Hobby へ(1クリック・可逆)→次月 Pro 課金回避。**ユーザー確認済(6/20)=ハウジング未公開・広告未稼働→今すぐ Hobby OK**。team=pro 確認済(user 表示は northstar で hobby と出るが課金は team)。⚠**将来トリガー**: ハウジングを広告つき公開する時に Hobby 商用禁止へ抵触→その時 Pro 復帰 or ハウジング別デプロイ分離を判断。それまで Hobby は一時節約。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
@@ -61,8 +61,7 @@
 
 ## バグ・不具合 (要修正)
 
-- **🔮 8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修・大物・情報出揃い次第。着手時brainstorming。詳細=docs/.private/2026-06-20-skill-modeling-notes.md)。※リビデ正確モデル化①と表展開トグル③は2026-06-20完了(COMPLETED)。
-- **🔵 将来=スキル効果解決の窓口統一(中規模・別セッション設計から)**: 「置かれたスキルを level+mode から正効果に解決する関数を1つにし全~30箇所を通す」=同id版違いバグの真の根治(コードのきれい)。2026-06-22の`_base`化(データのきれい)はその第一歩で対立せず。性能は169件で無関係・安定性のため一気にやらず触る経路で1つずつ寄せる(競合resourceTracker/CD recastRow/計算calculator が未配線・autoPlannerは配線済)。
+- **🔮 8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修・大物・情報出揃い次第。着手時brainstorming。詳細=docs/.private/2026-06-20-skill-modeling-notes.md)。**🔵将来=スキル効果解決の窓口統一**=level+mode→正効果に解決する関数1つに集約し全~30箇所を通す(同id版違いバグの真の根治・コードのきれい。2026-06-22`_base`化が第一歩。競合resourceTracker/CD recastRow/計算calculator 未配線・autoPlanner配線済)。※リビデ正確モデル化①と表展開トグル③は2026-06-20完了(COMPLETED)。
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
 - **テスト(既存failure・本番無影響)**: `TopBar.test.tsx` 4件+`HousingWorkspace.test.tsx` 1件(2026-06-03〜・FFLogs修正前から)。HousingWorkspace は jsdom の youtube-nocookie 実 fetch→abort 環境依存・TopBar は要調査。
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留
