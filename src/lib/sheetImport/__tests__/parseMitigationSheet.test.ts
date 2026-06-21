@@ -74,9 +74,41 @@ describe('parseMitigationSheet (real-geometry synthetic fixture)', () => {
     expect(p.rows.filter((r) => r.totalTimeSec === 38).map((r) => r.action)).toEqual(['GimmickA', 'GimmickB']);
   });
 
+  it('全滅技 sentinel(Hit=9,999,999) は enrage 扱い・damageAmount なし(イベントは残す)', () => {
+    // スプシは即死/全滅(時間切れ)を Hit=9,999,999 で表す。実ダメージではないので
+    // damageAmount に入れず damageType='enrage'。イベント(行)自体は残す。
+    const wipeTsv = [
+      T(['Phase','Total Time','Time','Action','Type','Type','Damage','Damage','Damage','Mitigation','Mitigation','Mitigation']),
+      T(['','','','TestBoss','','','','','','ナイト','白魔道士','戦士']),                  // ジョブ行
+      T(['','','','Skill','','','','','','リプライザル','アサイラム','ランパート']),         // Skill行
+      T(['開幕','00:10','00:10','裁きの光','','','9,999,999','','','FALSE','FALSE','FALSE']), // 全滅技
+      T(['','00:13','00:13','AA','Physical','','115,000','','','FALSE','FALSE','FALSE']),      // 通常
+    ].join('\n');
+    const p = parseMitigationSheet(wipeTsv)!;
+    expect(p.rows.find((r) => r.action === '裁きの光')).toMatchObject({ damageType: 'enrage', damageAmount: null });
+    expect(p.rows.find((r) => r.action === 'AA')).toMatchObject({ damageType: 'physical', damageAmount: 115000 });
+  });
+
   it('メタ行/データ表が無ければ null', () => {
     expect(parseMitigationSheet('foo\tbar\nbaz\tqux')).toBeNull();
     expect(parseMitigationSheet('')).toBeNull();
+  });
+
+  it('タイトル/メタ行(Phase列=TRUE/FALSE)は Total Time が入っていてもデータ行にしない', () => {
+    // 実スプシ P2-P5 の先頭タイトル行: Phase列='TRUE', Total Time=遷移時刻(03:17=197), Action='P2_…', Type='hide'。
+    // Total Time がパースできるため現行は誤ってイベント化していた（'TRUE' フェーズ + 'P2_…' ゴミ技名）。
+    const titleRowTsv = [
+      T(['Phase','Total Time','Time','Action','Type','Type','Damage','Damage','Damage','Mitigation','Mitigation','Mitigation']),
+      T(['','','','TestBoss','hide','','','','','ナイト','白魔道士','戦士']),                       // ジョブ行
+      T(['','','','Skill','','','','','','リプライザル','アサイラム','ランパート']),                  // Skill行
+      T(['TRUE','03:17','','P2_ゴッドケフカ','hide','','','','','FALSE','FALSE','FALSE']),            // ★タイトル行→除外
+      T(['開幕','03:17','00:00','RealAction','Magic','','100,000','','','TRUE','FALSE','FALSE']),     // 実データ(同時刻197)
+    ].join('\n');
+    const p = parseMitigationSheet(titleRowTsv)!;
+    // タイトル行は除外され、実データ1行のみ。phaseLabel が 'TRUE' で汚染されない。
+    expect(p.rows.map((r) => [r.totalTimeSec, r.action, r.phaseLabel])).toEqual([
+      [197, 'RealAction', '開幕'],
+    ]);
   });
 
   it('Skill 行が無ければ null', () => {

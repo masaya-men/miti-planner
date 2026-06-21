@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { resolveSheetSkill } from '../resolveSheetSkill';
+import { MITIGATIONS } from '../../../data/mockData';
 import type { Mitigation } from '../../../types';
 
 const M = (id: string, jobId: string, ja: string): Mitigation =>
@@ -32,5 +33,19 @@ describe('resolveSheetSkill', () => {
   });
   it('未知ジョブは null', () => {
     expect(resolveSheetSkill('未知', 'リプライザル', MITS)).toBeNull();
+  });
+
+  // 版違い(レベル別)の同名スキルは MITIGATIONS の配列順依存で先頭一致を拾う。
+  // 現状は Lv100 版(最新 duration)が配列前方にあり正しく解決される。将来の配列並べ替えで
+  // base 版(短い duration)を拾う退行を検出するための回帰固定(実 MITIGATIONS で検証)。
+  it('版違いスキルは Lv100 版(最新 duration)に解決される(実データ配列順の回帰固定)', () => {
+    const durOf = (jobJa: string, skill: string) => {
+      const id = resolveSheetSkill(jobJa, skill, MITIGATIONS);
+      return MITIGATIONS.find((m) => m.id === id)?.duration;
+    };
+    expect(resolveSheetSkill('ナイト', 'リプライザル', MITIGATIONS)).toBe('reprisal_pld');
+    expect(durOf('ナイト', 'リプライザル')).toBe(15); // base版(dur10)でなくLv100版(dur15)
+    expect(durOf('モンク', '牽制')).toBe(15);          // feint base版(dur10)でなくdur15
+    expect(durOf('赤魔道士', 'アドル')).toBe(15);      // addle base版(dur10)でなくdur15
   });
 });

@@ -9,7 +9,7 @@ export interface SheetRow {
   totalTimeSec: number;
   action: string;
   damageAmount: number | null;
-  damageType: 'physical' | 'magical' | null;
+  damageType: 'physical' | 'magical' | 'enrage' | null;
   trueColumnIndexes: number[];
 }
 

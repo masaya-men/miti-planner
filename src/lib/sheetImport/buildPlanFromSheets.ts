@@ -33,21 +33,37 @@ export function buildPlanFromSheets(
     ...(row.damageAmount != null ? { damageAmount: row.damageAmount } : {}),
   }));
 
-  // フェーズ = phaseLabel の連続塊
-  const phases: Phase[] = [];
-  for (const { row } of merged) {
-    const last = phases[phases.length - 1];
-    if (!last || last.name.ja !== row.phaseLabel) {
-      if (last) last.endTime = row.totalTimeSec;
-      phases.push({
-        id: uid('ph'),
-        name: { ja: row.phaseLabel, en: row.phaseLabel },
-        startTime: row.totalTimeSec,
-        endTime: row.totalTimeSec,
-      });
+  // フェーズ = 各シート内で連続する同 phaseLabel 行の塊。
+  // シート（フェーズタブ）の末尾と次タブの先頭は Total Time が数秒重なるため、全行を
+  // 時刻マージしてから塊化すると境界でフェーズが交互化（女神→開幕→女神…のピンポン）する。
+  // → シート単位で塊を作り、startTime 昇順に並べてから endTime を「次フェーズ開始」で確定する。
+  const rawPhases: Phase[] = [];
+  for (const sheet of sheets) {
+    const rows = [...sheet.rows].sort((a, b) => a.totalTimeSec - b.totalTimeSec);
+    let curLabel: string | null = null;
+    for (const row of rows) {
+      if (row.phaseLabel !== curLabel) {
+        curLabel = row.phaseLabel;
+        rawPhases.push({
+          id: uid('ph'),
+          name: { ja: row.phaseLabel, en: row.phaseLabel },
+          startTime: row.totalTimeSec,
+          endTime: row.totalTimeSec,
+        });
+      }
     }
   }
-  if (phases.length) phases[phases.length - 1].endTime = (merged.at(-1)?.row.totalTimeSec ?? 0) + 1;
+  rawPhases.sort((a, b) => a.startTime - b.startTime);
+  // 隣接する同名フェーズは統合（境界で割れた場合の保険。非隣接の同名は別フェーズのまま残す）。
+  const phases: Phase[] = [];
+  for (const ph of rawPhases) {
+    const last = phases[phases.length - 1];
+    if (last && last.name.ja === ph.name.ja) continue;
+    phases.push(ph);
+  }
+  const maxTime = merged.length ? merged[merged.length - 1].row.totalTimeSec : 0;
+  for (let i = 0; i < phases.length - 1; i++) phases[i].endTime = phases[i + 1].startTime;
+  if (phases.length) phases[phases.length - 1].endTime = maxTime + 1;
 
   if (!options.includeMitigations) {
     return { timelineEvents, timelineMitigations: [], phases, party: [], skipped: [] };
@@ -66,7 +82,12 @@ export function buildPlanFromSheets(
   const slotByJobId = new Map(party.map((p) => [p.jobId, p.slot] as const));
 
   // スプシは「効果時間中ずっと TRUE」を入れる仕様。LoPo は 1 回の使用＋duration で表現するため、
-  // 連続する TRUE を 1 回の使用に畳む。判定は duration 基準（time >= 直前使用 + duration なら再使用）。
+  // 連続する TRUE-run（間に FALSE/欠落行が無い塊）を 1 回の使用に畳む。判定は rising-edge：
+  // 直前行が非TRUE で今 TRUE になった所だけ「新しい使用」とし、run 先頭の時刻に 1 配置する。
+  // duration 基準（time >= 直前 + duration）だと、run の span が duration を超える技
+  // （ニュートラルセクト/パッセージ等）で run 終端に幽霊配置が出ていた（実データで確認）。
+  // 別々の使用はシートが必ず TRUE-run の間に FALSE/欠落行を挟むため rising-edge で正しく分離される
+  // （リキャストは全 mit で最大 run span を上回り、1 run に 2 キャストは物理的に入らない＝実データで検証済み）。
   // 列は各シート（フェーズ）固有なので、シート単位・列単位で時刻順に評価する。
   const timelineMitigations: AppliedMitigation[] = [];
   const skippedSet = new Map<string, SkippedSkill>();
@@ -79,22 +100,28 @@ export function buildPlanFromSheets(
       const jobId = JOB_JA_TO_ID[col.job];
       const ownerId = jobId ? slotByJobId.get(jobId) : undefined;
       let hadTrue = false;
-      let lastEmitTime = -Infinity;
+      let inRun = false;
       for (const row of rowsInOrder) {
-        if (!row.trueColumnIndexes.includes(col.index)) continue;
-        hadTrue = true;
-        if (!mitId || !ownerId) continue; // 未対応 or 枠なし → 配置はしない（skipped は下で集約）
-        // 直前の使用が duration で切れていれば新しい使用（連続 TRUE は同一使用＝畳む）
-        if (row.totalTimeSec >= lastEmitTime + duration) {
-          timelineMitigations.push({
-            id: uid('mit'),
-            mitigationId: mitId,
-            time: row.totalTimeSec,
-            duration,
-            ownerId,
-          });
-          lastEmitTime = row.totalTimeSec;
+        const isTrue = row.trueColumnIndexes.includes(col.index);
+        if (!isTrue) {
+          inRun = false; // run が切れた（次の TRUE は新しい使用）
+          continue;
         }
+        hadTrue = true;
+        if (!inRun) {
+          // rising-edge：非TRUE→TRUE の立ち上がり＝新しい使用。run 先頭で 1 回だけ配置。
+          inRun = true;
+          if (mitId && ownerId) {
+            timelineMitigations.push({
+              id: uid('mit'),
+              mitigationId: mitId,
+              time: row.totalTimeSec,
+              duration,
+              ownerId,
+            });
+          }
+        }
+        // run 継続中（連続 TRUE）は同一使用＝追加配置しない
       }
       // 実際に使用（TRUE）があったのに LoPo 未対応な技だけ「入らなかった技」へ
       if (hadTrue && !mitId) {

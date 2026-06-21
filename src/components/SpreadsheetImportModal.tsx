@@ -69,6 +69,23 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     [sheets, includeMitigations],
   );
 
+  // 各フェーズチップの「軽減N件」は実際の配置数（連続TRUEを1回に畳んだ後）を出す。
+  // 生の TRUE セル数だと「効果時間中ずっと TRUE」仕様で実配置数より大きく出て誤解を招くため。
+  const perSheetMits = useMemo<number[]>(
+    () =>
+      includeMitigations
+        ? sheets.map(
+            (s) =>
+              buildPlanFromSheets(
+                [s],
+                { mitigations: getMitigationsFromStore(), jobs: getJobsFromStore() },
+                { includeMitigations: true },
+              ).timelineMitigations.length,
+          )
+        : sheets.map(() => 0),
+    [sheets, includeMitigations],
+  );
+
   const canConfirm = preview !== null && preview.timelineEvents.length > 0;
 
   const handleConfirm = useCallback(() => {
@@ -193,7 +210,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
                   const phaseNames = [...new Set(sheet.rows.map((r) => r.phaseLabel).filter(Boolean))];
                   const phaseName = phaseNames.join(' / ') || `Phase ${i + 1}`;
                   const events = sheet.rows.length;
-                  const mits = sheet.rows.reduce((acc, r) => acc + r.trueColumnIndexes.length, 0);
+                  const mits = perSheetMits[i] ?? 0;
                   return (
                     <div
                       key={i}

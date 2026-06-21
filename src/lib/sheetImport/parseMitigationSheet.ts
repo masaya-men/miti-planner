@@ -1,5 +1,8 @@
 import type { ParsedSheet, SheetColumn, SheetRow } from './types';
 
+/** スプシが即死/全滅(時間切れ)を表す番兵値。実ダメージではなく enrage マーカーとして扱う */
+const WIPE_DAMAGE_SENTINEL = 9999999;
+
 /** MM:SS（負値対応）→ 秒数。パースできなければ null */
 function mmssToSec(v: string | undefined): number | null {
   if (v == null) return null;
@@ -103,8 +106,13 @@ export function parseMitigationSheet(tsv: string): ParsedSheet | null {
     if (t === null) continue; // ヘッダー/メタ/空行
     if (t < 0) continue;     // 戦闘前カウントダウン
 
-    // Phase 引き継ぎ
+    // タイトル/メタ行除外: Phase 列が真偽値（'TRUE'/'FALSE'）の行は、Total Time が
+    // 入っていてもデータ行ではない（各タブ先頭のフェーズ・タイトル行 'P#_…'・チェックボックス由来）。
+    // これを通すと 'TRUE' フェーズや 'P2_ゴッドケフカ' のゴミ技名イベントが混入する。
     const phaseCell = colPhase >= 0 ? (cells[colPhase] ?? '').trim() : '';
+    if (phaseCell === 'TRUE' || phaseCell === 'FALSE') continue;
+
+    // Phase 引き継ぎ
     if (phaseCell !== '') lastPhase = phaseCell;
     const phaseLabel = lastPhase;
 
@@ -112,16 +120,23 @@ export function parseMitigationSheet(tsv: string): ParsedSheet | null {
 
     // damageType
     const typeCell = colType >= 0 ? (cells[colType] ?? '').trim() : '';
-    let damageType: 'physical' | 'magical' | null = null;
+    let damageType: 'physical' | 'magical' | 'enrage' | null = null;
     if (typeCell === 'Physical') damageType = 'physical';
     else if (typeCell === 'Magic') damageType = 'magical';
 
-    // damageAmount（カンマ除去・正の有限数のみ）
+    // damageAmount（カンマ除去・正の有限数のみ）。
+    // スプシは即死/全滅(時間切れ)を Hit=9,999,999 で表す。実ダメージではないので
+    // damageAmount に入れず damageType='enrage'(時間切れマーカー)にする。イベント自体は残す。
     let damageAmount: number | null = null;
     if (colHit >= 0) {
       const raw = (cells[colHit] ?? '').replace(/,/g, '');
       const n = Number(raw);
-      if (isFinite(n) && n > 0) damageAmount = n;
+      if (isFinite(n) && n >= WIPE_DAMAGE_SENTINEL) {
+        damageType = 'enrage';
+        damageAmount = null;
+      } else if (isFinite(n) && n > 0) {
+        damageAmount = n;
+      }
     }
 
     // trueColumnIndexes（"TRUE" セルのみ）
