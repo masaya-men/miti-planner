@@ -80,16 +80,17 @@ export function parseMitigationSheet(tsv: string): ParsedSheet | null {
     }
   }
 
+  // メタ行が揃っていなければ UI にエラーを返せるよう null で終了
+  if (!skillRow || !jobRow) return null;
+
   // --- 軽減列 columns を構築 ---
   const columns: SheetColumn[] = [];
-  if (skillRow && jobRow) {
-    const maxLen = Math.max(skillRow.length, jobRow.length);
-    for (let i = 0; i < maxLen; i++) {
-      const skill = (skillRow[i] ?? '').trim();
-      const job = (jobRow[i] ?? '').trim();
-      if (skill !== '' && JOB_JA_NAMES.has(job)) {
-        columns.push({ index: i, job, skillNameRaw: skill });
-      }
+  const maxLen = Math.max(skillRow.length, jobRow.length);
+  for (let i = 0; i < maxLen; i++) {
+    const skill = (skillRow[i] ?? '').trim();
+    const job = (jobRow[i] ?? '').trim();
+    if (skill !== '' && JOB_JA_NAMES.has(job)) {
+      columns.push({ index: i, job, skillNameRaw: skill });
     }
   }
 

@@ -78,4 +78,14 @@ describe('parseMitigationSheet (real-geometry synthetic fixture)', () => {
     expect(parseMitigationSheet('foo\tbar\nbaz\tqux')).toBeNull();
     expect(parseMitigationSheet('')).toBeNull();
   });
+
+  it('Skill 行が無ければ null', () => {
+    // データ表ヘッダーとデータ行は揃っているが Skill 行・ジョブ行を持たない TSV
+    const noSkillTsv = [
+      T(['Phase', 'Total Time', 'Time', 'Action', 'Type', 'Hit']),
+      T(['', '', '', '', '', '']),          // Hitサブヘッダー相当（空）
+      T(['開幕', '00:05', '00:05', 'SomeAction', 'Physical', '100,000']),
+    ].join('\n');
+    expect(parseMitigationSheet(noSkillTsv)).toBeNull();
+  });
 });
