@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-    Sun, Moon, Download,
+    Sun, Moon, Download, FileSpreadsheet,
     ChevronUp, ChevronDown,
     Users, Activity, LogIn,
 } from 'lucide-react';
@@ -377,6 +377,25 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     )}
                                 >
                                     <Download size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
+                                </button>
+                            </Tooltip>
+
+                            {/* スプシ取り込み */}
+                            <Tooltip
+                                wrapperClassName={clsx(readOnly && 'cursor-not-allowed')}
+                                content={t('sheetImport.btn')}
+                            >
+                                <button
+                                    disabled={readOnly}
+                                    onClick={() => window.dispatchEvent(new CustomEvent('timeline:spreadsheet-import'))}
+                                    className={clsx(
+                                        iconBtnBase,
+                                        readOnly
+                                            ? `${iconBtnDefault} opacity-50 pointer-events-none`
+                                            : iconBtnDefault
+                                    )}
+                                >
+                                    <FileSpreadsheet size={16} className="group-hover:scale-110 transition-transform duration-300" />
                                 </button>
                             </Tooltip>
 
