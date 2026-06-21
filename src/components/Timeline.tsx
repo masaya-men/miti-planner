@@ -1303,6 +1303,17 @@ const Timeline: React.FC = () => {
             schAetherflowPatterns: {},
         };
 
+        // 取り込み内容を作業ストアへ反映してから新規プランを確定する。
+        // commitNewPlan は「作業ストア = 新プランの内容」を前提とする共有処理のため、
+        // 先に loadSnapshot しないとタイムラインに取り込み結果が表示されない（NewPlanModal と同じ作法）。
+        const miti = useMitigationStore.getState();
+        // 1. 直前プランの編集を保存（破壊しない）
+        if (plansState.currentPlanId) {
+            plansState.updatePlan(plansState.currentPlanId, { data: miti.getSnapshot() });
+        }
+        // 2. 取り込みデータを作業ストアへロード（タイムラインに即時反映）
+        miti.loadSnapshot(planData);
+
         const newPlan: SavedPlan = {
             id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `plan_${Date.now()}`,
             ownerId: 'local',
@@ -1312,7 +1323,7 @@ const Timeline: React.FC = () => {
             isPublic: false,
             copyCount: 0,
             useCount: 0,
-            data: planData,
+            data: miti.getSnapshot(),
             createdAt: Date.now(),
             updatedAt: Date.now(),
         };
