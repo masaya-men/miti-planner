@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,14 +55,19 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     setDraft('');
   }, [draft]);
 
-  const preview: SheetImportResult | null =
-    sheets.length > 0
-      ? buildPlanFromSheets(
-          sheets,
-          { mitigations: getMitigationsFromStore(), jobs: getJobsFromStore() },
-          { includeMitigations },
-        )
-      : null;
+  // preview は sheets / includeMitigations のみに依存。draft 入力の再レンダーで
+  // 重い buildPlanFromSheets を再計算しないよう memo 化（大きな貼り付け対策）。
+  const preview = useMemo<SheetImportResult | null>(
+    () =>
+      sheets.length > 0
+        ? buildPlanFromSheets(
+            sheets,
+            { mitigations: getMitigationsFromStore(), jobs: getJobsFromStore() },
+            { includeMitigations },
+          )
+        : null,
+    [sheets, includeMitigations],
+  );
 
   const canConfirm = preview !== null && preview.timelineEvents.length > 0;
 
