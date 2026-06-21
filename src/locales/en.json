@@ -2571,5 +2571,24 @@
         "toggle_detail": "Record details",
         "today": "Today",
         "yesterday": "Yesterday"
+    },
+    "sheetImport": {
+        "btn": "Import sheet",
+        "title": "Import a mitigation sheet from a spreadsheet",
+        "mode_with_mitigations": "Import mitigations too",
+        "mode_timeline_only": "Import timeline only",
+        "paste_label": "Select all (Ctrl+A) in your spreadsheet, copy, and paste here",
+        "add_phase": "Add next phase",
+        "detected_phase": "Phase \"{{name}}\": {{events}} events, {{mits}} mitigations",
+        "parse_failed": "No data table found. Select all in the sheet and copy again.",
+        "party_label": "Party (check slot assignment)",
+        "preview_summary": "{{phases}} phases, {{events}} actions, {{mits}} mitigations, {{party}} party members",
+        "skipped_label": "Skills that couldn't be imported ({{count}})",
+        "confirm": "Create sheet with this",
+        "limit_reached": "This content has reached the sheet limit (5). What now?",
+        "limit_replace_current": "Replace the currently open sheet",
+        "limit_delete_one": "Delete one existing sheet and create",
+        "limit_cancel": "Cancel",
+        "rights_notice": "You are responsible for the rights to the content you import"
     }
 }
