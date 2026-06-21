@@ -2550,6 +2550,7 @@
         "preview_summary": "{{phases}} 阶段・技能 {{events}} 件・减伤 {{mits}} 件・小队 {{party}} 人",
         "skipped_label": "无法导入的技能（{{count}} 件）",
         "confirm": "以此内容创建减伤表",
+        "created": "已导入减伤表",
         "limit_reached": "此副本的减伤表已达上限（5）。请选择操作：",
         "limit_replace_current": "替换当前打开的表",
         "limit_delete_one": "删除一张已有的表后创建",

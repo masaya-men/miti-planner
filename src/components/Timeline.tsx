@@ -1319,7 +1319,7 @@ const Timeline: React.FC = () => {
 
         commitNewPlan(newPlan);
         setShowSheetImport(false);
-        showToast(t('sheetImport.confirm'));
+        showToast(t('sheetImport.created'));
     }, [currentContentId, t]);
 
     const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);

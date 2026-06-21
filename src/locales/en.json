@@ -2585,6 +2585,7 @@
         "preview_summary": "{{phases}} phases, {{events}} actions, {{mits}} mitigations, {{party}} party members",
         "skipped_label": "Skills that couldn't be imported ({{count}})",
         "confirm": "Create sheet with this",
+        "created": "Sheet imported",
         "limit_reached": "This content has reached the sheet limit (5). What now?",
         "limit_replace_current": "Replace the currently open sheet",
         "limit_delete_one": "Delete one existing sheet and create",

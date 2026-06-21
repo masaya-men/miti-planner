@@ -2606,6 +2606,7 @@
         "preview_summary": "{{phases}}フェーズ・技{{events}}件・軽減{{mits}}件・パーティ{{party}}人",
         "skipped_label": "取り込めなかった技（{{count}}件）",
         "confirm": "この内容で軽減表を作成",
+        "created": "軽減表を取り込みました",
         "limit_reached": "このコンテンツの軽減表が上限(5)です。どうしますか？",
         "limit_replace_current": "今開いている表を置き換える",
         "limit_delete_one": "既存の表を1つ削除して作成",
