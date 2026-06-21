@@ -84,4 +84,21 @@ describe('buildPlanFromSheets', () => {
     expect(warMits.every((m) => m.ownerId === 'ST')).toBe(true);
     expect(warMits[0]).toMatchObject({ mitigationId: 'rampart_war', time: 20, duration: 20 });
   });
+
+  it('スプシ仕様(効果時間中ずっとTRUE)→連続TRUEを1回の使用に畳む(duration基準)', () => {
+    // リプライザル(duration 15)を 38 で使用→38/43/50 行は同一使用の継続。60 で再使用(>=38+15=53)。
+    const durSheet: ParsedSheet = {
+      columns: [{ index: 5, job: 'ナイト', skillNameRaw: 'リプライザル' }],
+      rows: [
+        { phaseLabel: 'P', totalTimeSec: 38, action: 'a', damageAmount: null, damageType: null, trueColumnIndexes: [5] },
+        { phaseLabel: 'P', totalTimeSec: 43, action: 'b', damageAmount: null, damageType: null, trueColumnIndexes: [5] },
+        { phaseLabel: 'P', totalTimeSec: 50, action: 'c', damageAmount: null, damageType: null, trueColumnIndexes: [5] },
+        { phaseLabel: 'P', totalTimeSec: 60, action: 'd', damageAmount: null, damageType: null, trueColumnIndexes: [5] },
+        { phaseLabel: 'P', totalTimeSec: 63, action: 'e', damageAmount: null, damageType: null, trueColumnIndexes: [5] },
+      ],
+    };
+    const r = buildPlanFromSheets([durSheet], { mitigations: MITS, jobs: JOBS }, { includeMitigations: true });
+    const rep = r.timelineMitigations.filter((m) => m.mitigationId === 'reprisal_pld');
+    expect(rep.map((m) => m.time)).toEqual([38, 60]); // 5行TRUEだが2回の使用に畳む
+  });
 });

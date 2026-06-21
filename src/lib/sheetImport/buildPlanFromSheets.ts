@@ -1,4 +1,4 @@
-import type { ParsedSheet, SheetColumn, SkippedSkill } from './types';
+import type { ParsedSheet, SkippedSkill } from './types';
 import type { Mitigation, Job, TimelineEvent, AppliedMitigation, Phase } from '../../types';
 import { resolveSheetSkill } from './resolveSheetSkill';
 import { resolveImportParty } from './resolveImportParty';
@@ -65,30 +65,44 @@ export function buildPlanFromSheets(
   const party = resolveImportParty(usedJobIds, deps.jobs);
   const slotByJobId = new Map(party.map((p) => [p.jobId, p.slot] as const));
 
+  // スプシは「効果時間中ずっと TRUE」を入れる仕様。LoPo は 1 回の使用＋duration で表現するため、
+  // 連続する TRUE を 1 回の使用に畳む。判定は duration 基準（time >= 直前使用 + duration なら再使用）。
+  // 列は各シート（フェーズ）固有なので、シート単位・列単位で時刻順に評価する。
   const timelineMitigations: AppliedMitigation[] = [];
   const skippedSet = new Map<string, SkippedSkill>();
-  for (const { row, columns } of merged) {
-    for (const idx of row.trueColumnIndexes) {
-      const col: SheetColumn | undefined = columns.find((c) => c.index === idx);
-      if (!col) continue;
+  for (const sheet of sheets) {
+    const rowsInOrder = [...sheet.rows].sort((a, b) => a.totalTimeSec - b.totalTimeSec);
+    for (const col of sheet.columns) {
       const mitId = resolveSheetSkill(col.job, col.skillNameRaw, deps.mitigations);
-      if (!mitId) {
-        skippedSet.set(`${col.job}/${col.skillNameRaw}`, { job: col.job, skillName: col.skillNameRaw });
-        continue;
-      }
+      const mit = mitId ? deps.mitigations.find((m) => m.id === mitId) : undefined;
+      const duration = mit?.duration ?? 0;
       const jobId = JOB_JA_TO_ID[col.job];
       const ownerId = jobId ? slotByJobId.get(jobId) : undefined;
-      if (!ownerId) continue; // ロール枠超過等で枠が無い → 配置できない
-      const mit = deps.mitigations.find((m) => m.id === mitId);
-      timelineMitigations.push({
-        id: uid('mit'),
-        mitigationId: mitId,
-        time: row.totalTimeSec,
-        duration: mit?.duration ?? 0,
-        ownerId,
-      });
+      let hadTrue = false;
+      let lastEmitTime = -Infinity;
+      for (const row of rowsInOrder) {
+        if (!row.trueColumnIndexes.includes(col.index)) continue;
+        hadTrue = true;
+        if (!mitId || !ownerId) continue; // 未対応 or 枠なし → 配置はしない（skipped は下で集約）
+        // 直前の使用が duration で切れていれば新しい使用（連続 TRUE は同一使用＝畳む）
+        if (row.totalTimeSec >= lastEmitTime + duration) {
+          timelineMitigations.push({
+            id: uid('mit'),
+            mitigationId: mitId,
+            time: row.totalTimeSec,
+            duration,
+            ownerId,
+          });
+          lastEmitTime = row.totalTimeSec;
+        }
+      }
+      // 実際に使用（TRUE）があったのに LoPo 未対応な技だけ「入らなかった技」へ
+      if (hadTrue && !mitId) {
+        skippedSet.set(`${col.job}/${col.skillNameRaw}`, { job: col.job, skillName: col.skillNameRaw });
+      }
     }
   }
+  timelineMitigations.sort((a, b) => a.time - b.time);
 
   return { timelineEvents, timelineMitigations, phases, party, skipped: [...skippedSet.values()] };
 }
