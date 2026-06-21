@@ -2,6 +2,13 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-06-21 人気スプシ軽減表 取り込み機能 — 本番投入(忠実性 徹底チェック+根治済)
+機能アイデア⑥。人気スプレッドシート軽減表(タイムライン+軽減割当+パーティ)を貼り付け→自動マッピング→確認→新規軽減表に反映。SDD全6タスク完了後、**実データ全5タブ(P1ケフカ〜P5混沌ケフカ)の取り込み忠実性を徹底チェック**して根治→merge `c52463ca`(--no-ff)→push→Vercel本番デプロイ success(lopoly.app 200)。
+- **検証手法**: 実スプシ各タブTSVを temp(公開リポ非コミット)に取得→`parseMitigationSheet`→`buildPlanFromSheets` に通し**全列のTRUE-runと配置を1:1突合**するハーネス + **多エージェント敵対監査4体**(配置/イベント・フェーズ/解決・枠/rising-edge破壊役)で独立検証。実機Playwright(dev5173・全5タブ貼付)で **技521/軽減218/パーティ8/入らなかった技1** がオフライン計算と完全一致、junk無し、プラン作成・描画OK。
+- **根治6件**: ①連続TRUEの畳み込みを duration基準→**rising-edge**(run先頭1配置)。効果終端の幽霊配置を根治(ニュートラルセクト/パッセージ/マントラ等で軽減 231→218)。最大run span 29s<全mit recast で under-count 反例ゼロを実証。 ②P2-P5先頭の**タイトル行(Phase列=TRUE/FALSE)を除外**(junkイベント"P2_ゴッドケフカ"等4件+ゼロ幅'TRUE'フェーズ4件を除去)。 ③フェーズを**シート単位で塊化→開始時刻順**(境界Total Time重なりの女神↔開幕ピンポンを解消・35→23)。 ④**全滅技(Hit=9,999,999)を enrage 化**し数値を出さない(イベントは残す・6件:裁きの光×3/メテオ/バウル/ミッシング・ゼロ)。 ⑤モーダルの**フェーズチップを実配置数表示**に(旧=生TRUEセル数で誤解)。 ⑥**版違いスキル(reprisal/feint/addle)のLv100版解決を回帰テストで固定**(配列順依存の退行検出)。
+- **触ったファイル(本セッション)**: `src/lib/sheetImport/{buildPlanFromSheets,parseMitigationSheet,types}.ts`+各test / `resolveSheetSkill.test.ts`(版違い回帰) / `src/components/SpreadsheetImportModal.tsx`(チップ)。**非介入**=FFLogs/`importTimelineEvents`/`importModes`(branch全体でgrep確認済)。build/tsc/35テスト緑・full suite 1995 passed(既存failure5のみ)。
+- **ユーザー判断結果**: モーダル確定ボタン=モノクロのまま承認 / 全滅技=enrage扱い(イベント残す) / **5/5上限の破壊チューザー(置換/削除UI)は後追い**(現状は上限時 安全停止トースト)。spec/plan=`docs/superpowers/{specs,plans}/2026-06-21-spreadsheet-import*`。ロールバック=`git revert c52463ca`。
+
 ### ✅ 2026-06-21 管理画面FFLogsタイムライン取り込み(置き換え/追記) — 本番デプロイ済・ユーザー実機確認OK(ボタン色承認+両取り込み動作)
 機能アイデア⑤の管理画面版。管理者がFFLogsレポートURLからテンプレのボス技タイムラインを直接取り込めるモーダルを新設(これまでは「ユーザー側で取り込み→共有URL→プランから昇格」の手数が必要だった)。**置き換え/追記の2モード**(空テンプレ時は選択肢なしで一発)。ワイプログで前半→クリアログで後半フェーズを足す「途中から追加」を管理画面でも可能に。
 - **設計の核=既存ユーザー側(軽減表編集)の取り込みを1ミリも壊さない**: 共通化したのは「URL解析(`parseFflogsUrl`)」と「取得シーケンス(`fetchAndMapFflogs`)」の2点のみ。ストア`importTimelineEvents`は**物理的に非介入**。取得の不変条件(Promise.all 5本の順序/translateフラグ/`mapFFLogsToTimeline`引数順=日英取り違えが無言で起きる最危険点)を**逐語移植+テストで固定**。テンプレ用フェーズ追記は独立純粋関数`resolveTemplatePhaseAppend`(ストアPhase型と非互換のため共通化せず別実装)。
