@@ -8,8 +8,12 @@ const M = (id: string, jobId: string, ja: string, duration = 10): Mitigation =>
 const J = (id: string, role: 'tank' | 'healer' | 'dps'): Job =>
   ({ id, name: { ja: id, en: id }, role, icon: '' } as Job);
 
-const MITS = [M('reprisal_pld', 'pld', 'リプライザル', 15), M('asylum', 'whm', 'アサイラム', 24)];
-const JOBS = [J('pld', 'tank'), J('whm', 'healer')];
+const MITS = [
+  M('reprisal_pld', 'pld', 'リプライザル', 15),
+  M('asylum', 'whm', 'アサイラム', 24),
+  M('rampart_war', 'war', 'ランパート', 20),
+];
+const JOBS = [J('pld', 'tank'), J('whm', 'healer'), J('war', 'tank')];
 
 const sheet: ParsedSheet = {
   columns: [
@@ -19,6 +23,17 @@ const sheet: ParsedSheet = {
   rows: [
     { phaseLabel: '開幕', totalTimeSec: 7, action: 'AA', damageAmount: 115000, damageType: 'physical', trueColumnIndexes: [8] },
     { phaseLabel: '真偽記憶', totalTimeSec: 40, action: 'なぞなぞ', damageAmount: null, damageType: null, trueColumnIndexes: [9] },
+  ],
+};
+
+// sheet2: 戦士のランパートが t=20 と t=55 に出現（sheet の t=7/40 と交互になる）
+const sheet2: ParsedSheet = {
+  columns: [
+    { index: 3, job: '戦士', skillNameRaw: 'ランパート' },
+  ],
+  rows: [
+    { phaseLabel: '序章', totalTimeSec: 20, action: 'タンクバスター', damageAmount: 80000, damageType: 'physical', trueColumnIndexes: [3] },
+    { phaseLabel: '終章', totalTimeSec: 55, action: '全体攻撃', damageAmount: null, damageType: null, trueColumnIndexes: [3] },
   ],
 };
 
@@ -47,5 +62,26 @@ describe('buildPlanFromSheets', () => {
     expect(r.timelineMitigations).toEqual([]);
     expect(r.party).toEqual([]);
     expect(r.timelineEvents).toHaveLength(2);
+  });
+
+  it('フェーズの endTime（中間=次の開始 / 末尾=最終+1）', () => {
+    const r = buildPlanFromSheets([sheet], { mitigations: MITS, jobs: JOBS }, { includeMitigations: true });
+    expect(r.phases.map((p) => [p.name.ja, p.startTime, p.endTime])).toEqual([
+      ['開幕', 7, 40],
+      ['真偽記憶', 40, 41],
+    ]);
+  });
+
+  it('複数シートのイベントが Total Time 昇順でインターリーブされ、sheet2 軽減が正しい owner で解決される', () => {
+    const r = buildPlanFromSheets([sheet, sheet2], { mitigations: MITS, jobs: JOBS }, { includeMitigations: true });
+    // t=7(sheet), t=20(sheet2), t=40(sheet), t=55(sheet2) の順になっているか
+    expect(r.timelineEvents.map((e) => e.time)).toEqual([7, 20, 40, 55]);
+    // sheet2 の戦士ランパートが両行とも AppliedMitigation として存在し、OT 枠に割り当てられているか
+    const warMits = r.timelineMitigations.filter((m) => m.mitigationId === 'rampart_war');
+    expect(warMits).toHaveLength(2);
+    expect(warMits.map((m) => m.time)).toEqual([20, 55]);
+    // 戦士はタンク2枠目=ST に割り当てられるはず（pld が先に MT を占有）
+    expect(warMits.every((m) => m.ownerId === 'ST')).toBe(true);
+    expect(warMits[0]).toMatchObject({ mitigationId: 'rampart_war', time: 20, duration: 20 });
   });
 });
