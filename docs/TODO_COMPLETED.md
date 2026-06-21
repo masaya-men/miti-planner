@@ -2,6 +2,15 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-06-21 管理画面FFLogsタイムライン取り込み(置き換え/追記) — 本番デプロイ済・ユーザー実機確認OK(ボタン色承認+両取り込み動作)
+機能アイデア⑤の管理画面版。管理者がFFLogsレポートURLからテンプレのボス技タイムラインを直接取り込めるモーダルを新設(これまでは「ユーザー側で取り込み→共有URL→プランから昇格」の手数が必要だった)。**置き換え/追記の2モード**(空テンプレ時は選択肢なしで一発)。ワイプログで前半→クリアログで後半フェーズを足す「途中から追加」を管理画面でも可能に。
+- **設計の核=既存ユーザー側(軽減表編集)の取り込みを1ミリも壊さない**: 共通化したのは「URL解析(`parseFflogsUrl`)」と「取得シーケンス(`fetchAndMapFflogs`)」の2点のみ。ストア`importTimelineEvents`は**物理的に非介入**。取得の不変条件(Promise.all 5本の順序/translateフラグ/`mapFFLogsToTimeline`引数順=日英取り違えが無言で起きる最危険点)を**逐語移植+テストで固定**。テンプレ用フェーズ追記は独立純粋関数`resolveTemplatePhaseAppend`(ストアPhase型と非互換のため共通化せず別実装)。
+- **実装=subagent-driven 5タスクTDD**: ①parseFflogsUrl抽出(7/7) ②fetchAndMapFflogs抽出(6/6) ③resolveTemplatePhaseAppend(6/6) ④管理画面モーダル`FflogsTimelineImportModal`+i18n 4言語(`admin.tpl_fflogs_import_*` 16キー×ja/en/ko/zh) ⑤AdminTemplates配線+ツールバー「FFLogs取り込み」ボタン(紫翻訳ボタンの右・sky色・承認済)。各タスク+全ブランチ最終レビュー(opus)=Ready to merge=Yes・Critical/Important 0。`tsc -b --force`(app/api)/full suite 1960 passed(既存failure5のみ)/回帰ゲート3本(importModes/useMitigationStore.importModes/collab)無改変緑。
+- **触ったファイル**: 新規=`src/lib/fflogs/{parseFflogsUrl,fetchAndMapFflogs}.ts`+test / `src/utils/templateImportPhases.ts`+test / `src/components/admin/FflogsTimelineImportModal.tsx`。改変=`FFLogsImportModal.tsx`(共通関数呼び出しへ差し替え・挙動不変) / `admin/{AdminTemplates,TemplateEditorToolbar}.tsx` / `locales/{ja,en,ko,zh}.json`。**非介入**=`useMitigationStore.ts`/`importModes.ts`(読み取りのみ)。
+- merge `2786a292`(--no-ff)→push `1713a974`。spec/plan=`docs/superpowers/{specs,plans}/2026-06-20-admin-fflogs-import*`。ロールバック=`git revert 2786a292`。**スコープ外(別タスク)**=①スプシ軽減表のタイムライン読込 / Phase1.5再アンカー / 管理画面取り込みのレート制限。
+
+---
+
 ## 完了 (2026-06-20 TODO 整頓で移動 — 進捗同期 / データ破壊復旧 / 警告矢印 / 管理画面 / スマホ最適化 / Cloudflare / バグ根治 ほか)
 
 > TODO.md の「現在の状態」肥大化解消のため詳細を移動 (2026-06-20)。本番デプロイ済 or 検証済の大項目。開いている実機確認/pending は TODO.md に 1〜数行で残置。
