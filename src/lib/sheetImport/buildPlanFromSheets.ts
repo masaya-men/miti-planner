@@ -102,7 +102,18 @@ export function buildPlanFromSheets(
       }
     }
   }
-  timelineMitigations.sort((a, b) => a.time - b.time);
+  // 同一 (mitigationId, ownerId, time) は同一使用＝重複排除。
+  // 同じ技が複数列に現れる/同時刻に複数イベントがある等で二重配置されても 1 個に。
+  // （同じ枠・同じ技を同じ瞬間に2回使うことは不可能なので、この畳み込みは常に安全）
+  const seen = new Set<string>();
+  const dedupedMitigations: AppliedMitigation[] = [];
+  for (const m of timelineMitigations) {
+    const key = `${m.mitigationId}@${m.ownerId}@${m.time}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    dedupedMitigations.push(m);
+  }
+  dedupedMitigations.sort((a, b) => a.time - b.time);
 
-  return { timelineEvents, timelineMitigations, phases, party, skipped: [...skippedSet.values()] };
+  return { timelineEvents, timelineMitigations: dedupedMitigations, phases, party, skipped: [...skippedSet.values()] };
 }

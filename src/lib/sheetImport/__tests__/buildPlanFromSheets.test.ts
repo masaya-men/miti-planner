@@ -101,4 +101,22 @@ describe('buildPlanFromSheets', () => {
     const rep = r.timelineMitigations.filter((m) => m.mitigationId === 'reprisal_pld');
     expect(rep.map((m) => m.time)).toEqual([38, 60]); // 5行TRUEだが2回の使用に畳む
   });
+
+  it('同一(技/時刻/枠)の重複配置を排除する(同一技が複数列・同時刻イベント等の保険)', () => {
+    // 同じ (ナイト, リプライザル) が 2 列に現れ、同時刻に両方 TRUE のケース
+    const dupSheet: ParsedSheet = {
+      columns: [
+        { index: 5, job: 'ナイト', skillNameRaw: 'リプライザル' },
+        { index: 6, job: 'ナイト', skillNameRaw: 'リプライザル' },
+      ],
+      rows: [
+        { phaseLabel: 'P', totalTimeSec: 38, action: 'a', damageAmount: null, damageType: null, trueColumnIndexes: [5, 6] },
+        { phaseLabel: 'P', totalTimeSec: 41, action: 'b', damageAmount: null, damageType: null, trueColumnIndexes: [5, 6] },
+      ],
+    };
+    const r = buildPlanFromSheets([dupSheet], { mitigations: MITS, jobs: JOBS }, { includeMitigations: true });
+    // 重複列×継続TRUE でも、reprisal_pld@MT@38 は 1 個だけ
+    expect(r.timelineMitigations.filter((m) => m.mitigationId === 'reprisal_pld')).toHaveLength(1);
+    expect(r.timelineMitigations[0]).toMatchObject({ mitigationId: 'reprisal_pld', ownerId: 'MT', time: 38 });
+  });
 });
