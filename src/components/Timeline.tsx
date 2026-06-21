@@ -64,9 +64,15 @@ import { CursorOverlay, type RemoteCursor } from './collab/CursorOverlay';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
 import { useRemoteCursorsStore } from '../store/useRemoteCursorsStore';
 import { useCursorSendStore } from '../store/useCursorSendStore';
-import { MEMO_LIMITS } from '../types/firebase';
+import { MEMO_LIMITS, PLAN_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
 import { useProgressRecording } from './progress/useProgressRecording';
+import { SpreadsheetImportModal } from './SpreadsheetImportModal';
+import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
+import type { PlanData, SavedPlan } from '../types';
+import { buildImportedPartyMembers } from '../lib/sheetImport/buildImportedPartyMembers';
+import { commitNewPlan } from '../lib/commitNewPlan';
+import { generateUniqueTitle } from '../utils/planTitle';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -952,11 +958,14 @@ const Timeline: React.FC = () => {
     useEffect(() => {
         const handleAutoPlanEvent = () => handleAutoPlan();
         const handleImportEvent = () => setImportModalOpen(true);
+        const handleSheetImportEvent = () => setShowSheetImport(true);
         window.addEventListener('timeline:autoplan', handleAutoPlanEvent);
         window.addEventListener('timeline:import', handleImportEvent);
+        window.addEventListener('timeline:spreadsheet-import', handleSheetImportEvent);
         return () => {
             window.removeEventListener('timeline:autoplan', handleAutoPlanEvent);
             window.removeEventListener('timeline:import', handleImportEvent);
+            window.removeEventListener('timeline:spreadsheet-import', handleSheetImportEvent);
         };
     }, [handleAutoPlan]);
 
@@ -1266,6 +1275,53 @@ const Timeline: React.FC = () => {
     // ⑤-3b: ジョイナー(SavedPlan 無し)は一時セッションの contentId にフォールバック。
     const joinerContentId = useCollabJoinerSession(s => s.contentId);
     const currentContentId = resolveContentId(currentPlan?.contentId ?? null, joinerContentId);
+
+    // スプシ取り込み: 新規プラン作成ハンドラ
+    const handleSheetImport = useCallback((result: SheetImportResult, _mode: 'new' | 'replace_current') => {
+        const plansState = usePlanStore.getState();
+        const plans = plansState.plans;
+        const contentId = currentContentId ?? null;
+
+        // 上限チェック（v1: 上限時は安全停止・既存プラン破壊なし）
+        const contentPlans = plans.filter((p) => p.contentId === contentId);
+        if (contentPlans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT) {
+            showToast(t('sheetImport.limit_reached'));
+            return;
+        }
+        if (plans.length >= PLAN_LIMITS.MAX_TOTAL_PLANS) {
+            showToast(t('sheetImport.limit_reached'));
+            return;
+        }
+
+        const planData: PlanData = {
+            currentLevel: 100,
+            timelineEvents: result.timelineEvents,
+            timelineMitigations: result.timelineMitigations,
+            phases: result.phases,
+            partyMembers: buildImportedPartyMembers(result.party),
+            aaSettings: { damage: 10000, type: 'physical', target: 'MT' },
+            schAetherflowPatterns: {},
+        };
+
+        const newPlan: SavedPlan = {
+            id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `plan_${Date.now()}`,
+            ownerId: 'local',
+            ownerDisplayName: 'Guest',
+            title: generateUniqueTitle(t('sheetImport.title'), plans, contentId),
+            contentId,
+            isPublic: false,
+            copyCount: 0,
+            useCount: 0,
+            data: planData,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+        };
+
+        commitNewPlan(newPlan);
+        setShowSheetImport(false);
+        showToast(t('sheetImport.confirm'));
+    }, [currentContentId, t]);
+
     const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
 
     const [isAaModeEnabled, setIsAaModeEnabled] = useState(false);
@@ -1454,6 +1510,7 @@ const Timeline: React.FC = () => {
     }, [isAaModeEnabled]);
 
     const [importModalOpen, setImportModalOpen] = useState(false);
+    const [showSheetImport, setShowSheetImport] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null>(null);
 
 
@@ -3910,6 +3967,12 @@ const Timeline: React.FC = () => {
             <FFLogsImportModal
                 isOpen={importModalOpen}
                 onClose={() => setImportModalOpen(false)}
+            />
+
+            <SpreadsheetImportModal
+                isOpen={showSheetImport}
+                onClose={() => setShowSheetImport(false)}
+                onImport={handleSheetImport}
             />
 
             {
