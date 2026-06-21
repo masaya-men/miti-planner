@@ -17,6 +17,11 @@ vi.mock('../../../store/useMitigationStore', () => ({
   DEFAULT_HEALER_STATS: { hp: 2, mainStat: 2, det: 2, wd: 2, crt: 2, ten: 2, ss: 2 },
 }));
 
+// DEFAULT_NEW_MODE の mitigationResolver 依存を排除
+vi.mock('../../../utils/mitigationResolver', () => ({
+  DEFAULT_NEW_MODE: 'reborn',
+}));
+
 beforeEach(() => vi.clearAllMocks());
 
 describe('buildImportedPartyMembers', () => {
@@ -48,5 +53,14 @@ describe('buildImportedPartyMembers', () => {
     const d1 = result.find((m) => m.id === 'D1')!;
     expect(d1.jobId).toBeNull();
     expect(d1.role).toBe('dps');
+  });
+
+  it('全枠に mode: DEFAULT_NEW_MODE が設定される', () => {
+    const result = buildImportedPartyMembers([
+      { slot: 'MT', jobId: 'pld' },
+    ]);
+    for (const member of result) {
+      expect(member.mode).toBe('reborn');
+    }
   });
 });

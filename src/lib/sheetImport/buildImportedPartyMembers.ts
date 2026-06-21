@@ -4,6 +4,7 @@ import {
   DEFAULT_HEALER_STATS,
 } from '../../store/useMitigationStore';
 import { getJobsFromStore } from '../../hooks/useSkillsData';
+import { DEFAULT_NEW_MODE } from '../../utils/mitigationResolver';
 
 type SlotRole = 'tank' | 'healer' | 'dps';
 
@@ -40,6 +41,7 @@ export function buildImportedPartyMembers(
       id,
       jobId,
       role,
+      mode: DEFAULT_NEW_MODE,
       stats: defaultStats(role),
       computedValues: {},
     };

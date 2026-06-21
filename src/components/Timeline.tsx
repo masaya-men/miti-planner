@@ -1307,7 +1307,7 @@ const Timeline: React.FC = () => {
             id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `plan_${Date.now()}`,
             ownerId: 'local',
             ownerDisplayName: 'Guest',
-            title: generateUniqueTitle(t('sheetImport.title'), plans, contentId),
+            title: generateUniqueTitle(t('sheetImport.default_plan_title'), plans, contentId),
             contentId,
             isPublic: false,
             copyCount: 0,

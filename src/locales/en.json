@@ -2589,6 +2589,7 @@
         "limit_replace_current": "Replace the currently open sheet",
         "limit_delete_one": "Delete one existing sheet and create",
         "limit_cancel": "Cancel",
-        "rights_notice": "You are responsible for the rights to the content you import"
+        "rights_notice": "You are responsible for the rights to the content you import",
+        "default_plan_title": "Imported sheet"
     }
 }
