@@ -2536,26 +2536,5 @@
         "toggle_detail": "기록 상세",
         "today": "오늘",
         "yesterday": "어제"
-    },
-    "sheetImport": {
-        "btn": "스프시 가져오기",
-        "title": "스프레드시트에서 경감표 가져오기",
-        "mode_with_mitigations": "경감도 함께 가져오기",
-        "mode_timeline_only": "타임라인만 가져오기",
-        "paste_label": "스프레드시트를 전체 선택(Ctrl+A)하여 복사한 후 여기에 붙여넣기",
-        "add_phase": "다음 페이즈 추가",
-        "detected_phase": "페이즈 「{{name}}」: 이벤트 {{events}}건・경감 {{mits}}건",
-        "parse_failed": "데이터 표를 찾을 수 없습니다. 시트를 전체 선택하여 다시 복사해 주세요",
-        "party_label": "파티（슬롯 배정 확인）",
-        "preview_summary": "{{phases}}페이즈・기술 {{events}}건・경감 {{mits}}건・파티 {{party}}명",
-        "skipped_label": "가져오지 못한 기술（{{count}}건）",
-        "confirm": "이 내용으로 경감표 작성",
-        "created": "경감표를 가져왔습니다",
-        "limit_reached": "이 콘텐츠의 경감표가 상한(5)에 도달했습니다. 어떻게 하시겠습니까？",
-        "limit_replace_current": "현재 열려 있는 표로 교체",
-        "limit_delete_one": "기존 표를 하나 삭제하고 작성",
-        "limit_cancel": "취소",
-        "rights_notice": "가져오는 내용의 권리와 책임은 이용자에게 있습니다",
-        "default_plan_title": "가져온 경감표"
     }
 }
