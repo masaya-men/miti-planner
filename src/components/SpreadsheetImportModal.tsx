@@ -8,7 +8,7 @@ import { useEscapeClose } from '../hooks/useEscapeClose';
 import { parseMitigationSheet } from '../lib/sheetImport/parseMitigationSheet';
 import { buildPlanFromSheets } from '../lib/sheetImport/buildPlanFromSheets';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
-import type { ParsedSheet } from '../lib/sheetImport/types';
+import type { ImportSheet } from '../lib/sheetImport/types';
 import { getMitigationsFromStore, getJobsFromStore } from '../hooks/useSkillsData';
 
 interface Props {
@@ -21,7 +21,8 @@ function resetState() {
   return {
     includeMitigations: true as boolean,
     draft: '' as string,
-    sheets: [] as ParsedSheet[],
+    phaseName: '' as string,
+    entries: [] as ImportSheet[],
     parseError: false as boolean,
   };
 }
@@ -32,14 +33,16 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
 
   const [includeMitigations, setIncludeMitigations] = useState(true);
   const [draft, setDraft] = useState('');
-  const [sheets, setSheets] = useState<ParsedSheet[]>([]);
+  const [phaseName, setPhaseName] = useState('');
+  const [entries, setEntries] = useState<ImportSheet[]>([]);
   const [parseError, setParseError] = useState(false);
 
   const handleClose = useCallback(() => {
     const s = resetState();
     setIncludeMitigations(s.includeMitigations);
     setDraft(s.draft);
-    setSheets(s.sheets);
+    setPhaseName(s.phaseName);
+    setEntries(s.entries);
     setParseError(s.parseError);
     onClose();
   }, [onClose]);
@@ -51,22 +54,23 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
       return;
     }
     setParseError(false);
-    setSheets((prev) => [...prev, result]);
+    setEntries((prev) => [...prev, { parsed: result, phaseName: phaseName.trim() }]);
     setDraft('');
-  }, [draft]);
+    setPhaseName('');
+  }, [draft, phaseName]);
 
-  // preview は sheets / includeMitigations のみに依存。draft 入力の再レンダーで
+  // preview は entries / includeMitigations のみに依存。draft 入力の再レンダーで
   // 重い buildPlanFromSheets を再計算しないよう memo 化（大きな貼り付け対策）。
   const preview = useMemo<SheetImportResult | null>(
     () =>
-      sheets.length > 0
+      entries.length > 0
         ? buildPlanFromSheets(
-            sheets,
+            entries,
             { mitigations: getMitigationsFromStore(), jobs: getJobsFromStore() },
             { includeMitigations },
           )
         : null,
-    [sheets, includeMitigations],
+    [entries, includeMitigations],
   );
 
   // 各フェーズチップの「軽減N件」は実際の配置数（連続TRUEを1回に畳んだ後）を出す。
@@ -74,16 +78,16 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   const perSheetMits = useMemo<number[]>(
     () =>
       includeMitigations
-        ? sheets.map(
-            (s) =>
+        ? entries.map(
+            (e) =>
               buildPlanFromSheets(
-                [s],
+                [e],
                 { mitigations: getMitigationsFromStore(), jobs: getJobsFromStore() },
                 { includeMitigations: true },
               ).timelineMitigations.length,
           )
-        : sheets.map(() => 0),
-    [sheets, includeMitigations],
+        : entries.map(() => 0),
+    [entries, includeMitigations],
   );
 
   const canConfirm = preview !== null && preview.timelineEvents.length > 0;
@@ -167,9 +171,20 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
               })}
             </div>
 
-            {/* Step 2: Paste area */}
+            {/* Step 2: Phase name + Paste area */}
             <div className="space-y-2">
               <label className="text-app-lg text-app-text-muted block">
+                {t('sheetImport.phase_name_label')}
+              </label>
+              <input
+                type="text"
+                value={phaseName}
+                onChange={(e) => setPhaseName(e.target.value)}
+                placeholder={t('sheetImport.phase_name_placeholder')}
+                className="w-full bg-app-surface2 border border-app-border rounded-lg px-3 py-2 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted"
+                spellCheck={false}
+              />
+              <label className="text-app-lg text-app-text-muted block pt-1">
                 {t('sheetImport.paste_label')}
               </label>
               <textarea
@@ -191,10 +206,10 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
 
               <button
                 onClick={handleAddPhase}
-                disabled={!draft.trim()}
+                disabled={!draft.trim() || !phaseName.trim()}
                 className={clsx(
                   'flex items-center gap-2 px-4 py-2 rounded-lg text-app-2xl font-bold transition-all duration-200',
-                  draft.trim()
+                  draft.trim() && phaseName.trim()
                     ? 'bg-app-toggle text-app-toggle-text hover:opacity-80 cursor-pointer active:scale-95'
                     : 'bg-app-surface2 text-app-text-muted cursor-not-allowed',
                 )}
@@ -204,12 +219,11 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
             </div>
 
             {/* Added phases list */}
-            {sheets.length > 0 && (
+            {entries.length > 0 && (
               <div className="space-y-1">
-                {sheets.map((sheet, i) => {
-                  const phaseNames = [...new Set(sheet.rows.map((r) => r.phaseLabel).filter(Boolean))];
-                  const phaseName = phaseNames.join(' / ') || `Phase ${i + 1}`;
-                  const events = sheet.rows.length;
+                {entries.map((entry, i) => {
+                  const phaseNameDisp = entry.phaseName || `Phase ${i + 1}`;
+                  const events = entry.parsed.rows.length;
                   const mits = perSheetMits[i] ?? 0;
                   return (
                     <div
@@ -217,9 +231,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-app-text/5 border border-app-border text-app-2xl text-app-text"
                     >
                       <CheckCircle2 size={14} className="shrink-0 text-app-text-muted" />
-                      <span>
-                        {t('sheetImport.detected_phase', { name: phaseName, events, mits })}
-                      </span>
+                      <span>{t('sheetImport.detected_phase', { name: phaseNameDisp, events, mits })}</span>
                     </div>
                   );
                 })}

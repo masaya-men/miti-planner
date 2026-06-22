@@ -2543,6 +2543,8 @@
         "mode_with_mitigations": "同时导入减伤技能",
         "mode_timeline_only": "仅导入时间轴",
         "paste_label": "在电子表格中全选(Ctrl+A)并复制，然后粘贴到此处",
+        "phase_name_label": "阶段名称（此标签页的名称）",
+        "phase_name_placeholder": "例: P1 神之像",
         "add_phase": "添加下一阶段",
         "detected_phase": "阶段「{{name}}」：事件 {{events}} 件・减伤 {{mits}} 件",
         "parse_failed": "未找到数据表。请在表格中全选后重新复制",

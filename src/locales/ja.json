@@ -2599,6 +2599,8 @@
         "mode_with_mitigations": "軽減も取り込む",
         "mode_timeline_only": "タイムラインだけ取り込む",
         "paste_label": "スプレッドシートを全選択(Ctrl+A)してコピーし、ここに貼り付け",
+        "phase_name_label": "フェーズ名（このタブの呼び名）",
+        "phase_name_placeholder": "例: P1 神々の像",
         "add_phase": "次のフェーズを追加",
         "detected_phase": "フェーズ「{{name}}」: イベント{{events}}件・軽減{{mits}}件",
         "parse_failed": "データ表が見つかりません。シートを全選択してコピーし直してください",

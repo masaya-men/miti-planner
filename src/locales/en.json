@@ -2578,6 +2578,8 @@
         "mode_with_mitigations": "Import mitigations too",
         "mode_timeline_only": "Import timeline only",
         "paste_label": "Select all (Ctrl+A) in your spreadsheet, copy, and paste here",
+        "phase_name_label": "Phase name (label for this tab)",
+        "phase_name_placeholder": "e.g. P1 Statue of the Gods",
         "add_phase": "Add next phase",
         "detected_phase": "Phase \"{{name}}\": {{events}} events, {{mits}} mitigations",
         "parse_failed": "No data table found. Select all in the sheet and copy again.",

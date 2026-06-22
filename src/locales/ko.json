@@ -2543,6 +2543,8 @@
         "mode_with_mitigations": "경감도 함께 가져오기",
         "mode_timeline_only": "타임라인만 가져오기",
         "paste_label": "스프레드시트를 전체 선택(Ctrl+A)하여 복사한 후 여기에 붙여넣기",
+        "phase_name_label": "페이즈 이름 (이 탭의 명칭)",
+        "phase_name_placeholder": "예: P1 신들의 상",
         "add_phase": "다음 페이즈 추가",
         "detected_phase": "페이즈 「{{name}}」: 이벤트 {{events}}건・경감 {{mits}}건",
         "parse_failed": "데이터 표를 찾을 수 없습니다. 시트를 전체 선택하여 다시 복사해 주세요",

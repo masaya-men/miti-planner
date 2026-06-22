@@ -1298,6 +1298,7 @@ const Timeline: React.FC = () => {
             timelineEvents: result.timelineEvents,
             timelineMitigations: result.timelineMitigations,
             phases: result.phases,
+            labels: result.labels,
             partyMembers: buildImportedPartyMembers(result.party),
             aaSettings: { damage: 10000, type: 'physical', target: 'MT' },
             schAetherflowPatterns: {},

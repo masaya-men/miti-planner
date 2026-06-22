@@ -22,3 +22,9 @@ export interface SkippedSkill {
   job: string;
   skillName: string;
 }
+
+/** モーダルが保持する「1タブ分のパース結果＋ユーザー入力フェーズ名」 */
+export interface ImportSheet {
+  parsed: ParsedSheet;
+  phaseName: string;
+}
