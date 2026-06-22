@@ -10,6 +10,7 @@ import { MitigationSelector } from './MitigationSelector';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap, getEffectiveTarget } from '../utils/effectiveTarget';
+import { isHiddenFromCheatSheet } from '../utils/cheatSheetFilters';
 import { isLivingDeadStyle, maxHpForEffectiveTarget, resolveLivingDeadSurvival, type LivingDeadInstance } from '../utils/livingDead';
 import { useTranslation } from 'react-i18next';
 import { Tooltip } from './ui/Tooltip';
@@ -238,7 +239,11 @@ export const CheatSheetView: React.FC = () => {
         const effTarget = getEffectiveTarget(event, swapMarkers, phases);
 
         const activeMitigations = timelineMitigations.filter(m => {
-            return m.time <= (event.time + event.span) && (m.time + m.duration) >= event.time;
+            const inWindow = m.time <= (event.time + event.span) && (m.time + m.duration) >= event.time;
+            if (!inWindow) return false;
+            // 挑発/エーテルフロー/ドロー系は軽減ではないためカンペのアイコン表示から除外(表示専用・計算には不影響)
+            const def = MITIGATIONS.find(d => d.id === m.mitigationId);
+            return def ? !isHiddenFromCheatSheet(def) : true;
         });
 
         const mtGroupIds = ['MT', 'H1', 'D1', 'D3'];
