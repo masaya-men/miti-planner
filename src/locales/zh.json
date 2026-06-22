@@ -1064,8 +1064,8 @@
     },
     "event": {
         "or_connector": "or",
-        "alt_name_label": "or（其他攻击名·可选）",
-        "alt_name_placeholder": "例: 垂直"
+        "alt_name_label": "分摊／分散 之类的攻击时填写（可选）",
+        "alt_name_placeholder": "（选填）"
     },
     "mechanic_modal": {
         "name_label": "机制名称",

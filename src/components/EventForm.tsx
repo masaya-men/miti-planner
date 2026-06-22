@@ -624,44 +624,41 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                 />
             )}
 
-            {/* Common Event Properties */}
-            <div className={clsx("grid grid-cols-2", compact ? "gap-3" : "gap-4")}>
-                <div>
-                    <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('modal.time')}</label>
-                    <input
-                        type="text"
-                        inputMode="decimal"
-                        value={time}
-                        onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setTime(v === '' ? 0 : Number(v)); }}
-                        onFocus={(e) => e.target.select()}
-                        className={clsx(
-                            "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all font-barlow border focus:outline-none focus:ring-1",
-                            "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
-                        )}
-                        required
-                    />
-                </div>
-                <div>
-                    <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('mechanic_modal.name_label')}</label>
-                    <input
-                        data-tutorial="event-name-input"
-                        type="text"
-                        lang={t('app.language') === 'English' ? 'en' : 'ja'}
-                        value={contentLanguage === 'en' ? name.en : name.ja}
-                        onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
-                        className={clsx(
-                            "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all border focus:outline-none focus:ring-1",
-                            "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
-                        )}
-                        required
-                        placeholder={t('mechanic_modal.placeholder')}
-                    />
-                </div>
+            {/* 時間（幅控えめ・全幅にすると間延びするため上限を設ける） */}
+            <div className="max-w-[200px]">
+                <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('modal.time')}</label>
+                <input
+                    type="text"
+                    inputMode="decimal"
+                    value={time}
+                    onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setTime(v === '' ? 0 : Number(v)); }}
+                    onFocus={(e) => e.target.select()}
+                    className={clsx(
+                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all font-barlow border focus:outline-none focus:ring-1",
+                        "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
+                    )}
+                    required
+                />
             </div>
 
-            {/* or（2択攻撃の別名・任意） */}
+            {/* 攻撃名 ＋ 2択攻撃の別名（任意）— 別名を攻撃名の直下に密着させ、続きの欄だと分かるようにする */}
             <div>
-                <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('event.alt_name_label')}</label>
+                <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('mechanic_modal.name_label')}</label>
+                <input
+                    data-tutorial="event-name-input"
+                    type="text"
+                    lang={t('app.language') === 'English' ? 'en' : 'ja'}
+                    value={contentLanguage === 'en' ? name.en : name.ja}
+                    onChange={(e) => setName({ ...name, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
+                    className={clsx(
+                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all border focus:outline-none focus:ring-1",
+                        "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
+                    )}
+                    required
+                    placeholder={t('mechanic_modal.placeholder')}
+                />
+                {/* 淡色サブラベル＋密着配置（mt-2）で「攻撃名の続き＝もう一方の名前」と伝える */}
+                <label className="block text-app-sm text-app-text-muted mt-2 mb-1">{t('event.alt_name_label')}</label>
                 <input
                     data-testid="event-altname-input"
                     type="text"

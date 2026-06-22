@@ -1078,8 +1078,8 @@
     },
     "event": {
         "or_connector": "or",
-        "alt_name_label": "or（別の攻撃名・任意）",
-        "alt_name_placeholder": "例: ヴァーティカル"
+        "alt_name_label": "頭割／散開 のような攻撃のとき入力（任意）",
+        "alt_name_placeholder": "（任意入力）"
     },
     "mechanic_modal": {
         "name_label": "攻撃名",

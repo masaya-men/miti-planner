@@ -1074,8 +1074,8 @@
     },
     "event": {
         "or_connector": "or",
-        "alt_name_label": "or (alternate name, optional)",
-        "alt_name_placeholder": "e.g. Vertical"
+        "alt_name_label": "For attacks like stack/spread (optional)",
+        "alt_name_placeholder": "(optional)"
     },
     "mechanic_modal": {
         "name_label": "Mechanic Name",

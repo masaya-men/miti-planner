@@ -1064,8 +1064,8 @@
     },
     "event": {
         "or_connector": "or",
-        "alt_name_label": "or (다른 공격명·선택)",
-        "alt_name_placeholder": "예: 버티컬"
+        "alt_name_label": "쉐어／산개 같은 공격일 때 입력 (선택)",
+        "alt_name_placeholder": "(선택 입력)"
     },
     "mechanic_modal": {
         "name_label": "기믹 이름",
