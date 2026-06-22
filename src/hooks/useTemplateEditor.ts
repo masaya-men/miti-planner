@@ -148,6 +148,23 @@ export function useTemplateEditor() {
           case 'name.ko':
             ev.name.ko = value as string;
             break;
+          case 'altName.ja':
+          case 'altName.en':
+          case 'altName.zh':
+          case 'altName.ko': {
+            const altLang = field.split('.')[1] as 'ja' | 'en' | 'zh' | 'ko';
+            const next: LocalizedString = ev.altName
+              ? { ...ev.altName }
+              : { ja: '', en: '' };
+            next[altLang] = value as string;
+            const isEmpty = !next.ja.trim() && !next.en.trim() && !(next.zh ?? '').trim() && !(next.ko ?? '').trim();
+            if (isEmpty) {
+              delete ev.altName;
+            } else {
+              ev.altName = next;
+            }
+            break;
+          }
           case 'damageAmount':
             ev.damageAmount = value as number | undefined;
             break;

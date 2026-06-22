@@ -56,6 +56,33 @@ describe('useTemplateEditor', () => {
     expect(result.current.hasChanges).toBe(true);
   });
 
+  it('updateCell で altName.ja を編集すると altName が生成される', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev3', 'altName.ja', 'ヴァーティカル'));
+    const ev3 = result.current.state.current.find(e => e.id === 'ev3');
+    expect(ev3?.altName?.ja).toBe('ヴァーティカル');
+    expect(result.current.hasChanges).toBe(true);
+  });
+
+  it('updateCell で altName.en も独立して編集できる', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev3', 'altName.ja', 'ヴァーティカル'));
+    act(() => result.current.updateCell('ev3', 'altName.en', 'Vertical'));
+    const ev3 = result.current.state.current.find(e => e.id === 'ev3');
+    expect(ev3?.altName).toEqual({ ja: 'ヴァーティカル', en: 'Vertical' });
+  });
+
+  it('updateCell で altName を全言語空にすると altName が外れる', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev3', 'altName.ja', 'ヴァーティカル'));
+    act(() => result.current.updateCell('ev3', 'altName.ja', ''));
+    const ev3 = result.current.state.current.find(e => e.id === 'ev3');
+    expect(ev3?.altName).toBeUndefined();
+  });
+
   it('翻訳自動伝播: 同じJA名のイベントにEN翻訳が伝播する', () => {
     const { result } = renderHook(() => useTemplateEditor());
     act(() => result.current.loadEvents(makeEvents(), makePhases()));

@@ -448,6 +448,10 @@ export function TemplateEditor({
           <col className="min-w-[100px]" />  {/* 技名EN */}
           <col className="min-w-[100px]" />  {/* 技名ZH */}
           <col className="min-w-[100px]" />  {/* 技名KO */}
+          <col className="min-w-[90px]" />   {/* or技名JA */}
+          <col className="min-w-[90px]" />   {/* or技名EN */}
+          <col className="min-w-[90px]" />   {/* or技名ZH */}
+          <col className="min-w-[90px]" />   {/* or技名KO */}
           <col style={{ width: '70px' }} />  {/* 種別 */}
           <col style={{ width: '64px' }} />  {/* デバフ軽減不可 */}
           <col style={{ width: '60px' }} />  {/* 対象 */}
@@ -472,6 +476,10 @@ export function TemplateEditor({
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_en')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_zh')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_ko')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_ja')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_en')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_zh')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_ko')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage_type')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_debuff_immune')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_target')}</th>
@@ -493,6 +501,10 @@ export function TemplateEditor({
             const nameEnHighlight = getCellHighlight(evId, 'name.en', editState);
             const nameZhHighlight = getCellHighlight(evId, 'name.zh', editState);
             const nameKoHighlight = getCellHighlight(evId, 'name.ko', editState);
+            const altNameJaHighlight = getCellHighlight(evId, 'altName.ja', editState);
+            const altNameEnHighlight = getCellHighlight(evId, 'altName.en', editState);
+            const altNameZhHighlight = getCellHighlight(evId, 'altName.zh', editState);
+            const altNameKoHighlight = getCellHighlight(evId, 'altName.ko', editState);
             const damageHighlight = getCellHighlight(evId, 'damageAmount', editState);
             const damageTypeHighlight = getCellHighlight(evId, 'damageType', editState);
             const targetHighlight = getCellHighlight(evId, 'target', editState);
@@ -611,6 +623,42 @@ export function TemplateEditor({
                     showAutoLabel={isKoAutoFilled && !isKoUntranslated}
                     isUntranslatedPlaceholder={isKoUntranslated && !isKoAutoFilled}
                     onCommit={(val) => onUpdateCell(evId, 'name.ko', val)}
+                  />
+                </td>
+
+                {/* or技名(JA) */}
+                <td className={`py-1 pr-2 ${highlightClass(altNameJaHighlight)}`}>
+                  <EditableCell
+                    value={event.altName?.ja ?? ''}
+                    highlight={altNameJaHighlight}
+                    onCommit={(val) => onUpdateCell(evId, 'altName.ja', val)}
+                  />
+                </td>
+
+                {/* or技名(EN) */}
+                <td className={`py-1 pr-2 ${highlightClass(altNameEnHighlight)}`}>
+                  <EditableCell
+                    value={event.altName?.en ?? ''}
+                    highlight={altNameEnHighlight}
+                    onCommit={(val) => onUpdateCell(evId, 'altName.en', val)}
+                  />
+                </td>
+
+                {/* or技名(ZH) */}
+                <td className={`py-1 pr-2 ${highlightClass(altNameZhHighlight)}`}>
+                  <EditableCell
+                    value={event.altName?.zh ?? ''}
+                    highlight={altNameZhHighlight}
+                    onCommit={(val) => onUpdateCell(evId, 'altName.zh', val)}
+                  />
+                </td>
+
+                {/* or技名(KO) */}
+                <td className={`py-1 pr-2 ${highlightClass(altNameKoHighlight)}`}>
+                  <EditableCell
+                    value={event.altName?.ko ?? ''}
+                    highlight={altNameKoHighlight}
+                    onCommit={(val) => onUpdateCell(evId, 'altName.ko', val)}
                   />
                 </td>
 
