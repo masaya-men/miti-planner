@@ -35,7 +35,7 @@ function resetState() {
 
 export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
   useEscapeClose(isOpen, onClose);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const [includeMitigations, setIncludeMitigations] = useState(true);
   const [draft, setDraft] = useState('');
@@ -67,7 +67,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     setPhaseName('');
   }, [draft, phaseName]);
 
-  const jobs = getJobsFromStore();
+  const jobs = useMemo(() => getJobsFromStore(), []);
   const roleOf = useCallback(
     (id: string) => jobs.find((j) => j.id === id)?.role as SlotRole | undefined,
     [jobs],
@@ -78,8 +78,12 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   );
   const detectedByRole = useMemo(() => groupByRole(detectedJobIds, roleOf), [detectedJobIds, roleOf]);
   const jobName = useCallback(
-    (id: string) => jobs.find((j) => j.id === id)?.name.ja ?? id,
-    [jobs],
+    (id: string) => {
+      const name = jobs.find((j) => j.id === id)?.name;
+      if (!name) return id;
+      return (name[i18n.language as keyof typeof name] ?? name.ja) || id;
+    },
+    [jobs, i18n.language],
   );
 
   useEffect(() => {
