@@ -2548,7 +2548,6 @@
         "add_phase": "添加下一阶段",
         "detected_phase": "阶段「{{name}}」：事件 {{events}} 件・减伤 {{mits}} 件",
         "parse_failed": "未找到数据表。请在表格中全选后重新复制",
-        "party_label": "小队（确认槽位分配）",
         "preview_summary": "{{phases}} 阶段・技能 {{events}} 件・减伤 {{mits}} 件・小队 {{party}} 人",
         "skipped_label": "无法导入的技能（{{count}} 件）",
         "confirm": "以此内容创建减伤表",

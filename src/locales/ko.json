@@ -2548,7 +2548,6 @@
         "add_phase": "다음 페이즈 추가",
         "detected_phase": "페이즈 「{{name}}」: 이벤트 {{events}}건・경감 {{mits}}건",
         "parse_failed": "데이터 표를 찾을 수 없습니다. 시트를 전체 선택하여 다시 복사해 주세요",
-        "party_label": "파티（슬롯 배정 확인）",
         "preview_summary": "{{phases}}페이즈・기술 {{events}}건・경감 {{mits}}건・파티 {{party}}명",
         "skipped_label": "가져오지 못한 기술（{{count}}건）",
         "confirm": "이 내용으로 경감표 작성",

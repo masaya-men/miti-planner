@@ -2583,7 +2583,6 @@
         "add_phase": "Add next phase",
         "detected_phase": "Phase \"{{name}}\": {{events}} events, {{mits}} mitigations",
         "parse_failed": "No data table found. Select all in the sheet and copy again.",
-        "party_label": "Party (check slot assignment)",
         "preview_summary": "{{phases}} phases, {{events}} actions, {{mits}} mitigations, {{party}} party members",
         "skipped_label": "Skills that couldn't be imported ({{count}})",
         "confirm": "Create sheet with this",
