@@ -38,6 +38,7 @@ describe('partyAssignment', () => {
     let a = assignSlot(emptyAssignment(), 'MT', 'pld'); // ST が空・war 未割当→ST に war
     a = autoFillSingles(a, byRole);
     expect(a.ST).toBe('war');
+    expect(a.MT).toBe('pld');
   });
 
   it('autoFillSingles は2人以上未割当なら自動補完しない', () => {
@@ -71,9 +72,9 @@ describe('partyAssignment', () => {
     expect(isSlotRequired(a, 'H1', byRole)).toBe(false);  // healer 検出ゼロ→不要
   });
 
-  it('buildPartyOverride は埋まっている枠だけ {slot,jobId}[]', () => {
-    let a = assignSlot(emptyAssignment(), 'MT', 'pld');
-    a = assignSlot(a, 'H1', 'whm');
+  it('buildPartyOverride は埋まっている枠だけ {slot,jobId}[]（PARTY_SLOTS順）', () => {
+    let a = assignSlot(emptyAssignment(), 'H1', 'whm'); // 先に H1
+    a = assignSlot(a, 'MT', 'pld');                     // 後から MT
     expect(buildPartyOverride(a)).toEqual([
       { slot: 'MT', jobId: 'pld' },
       { slot: 'H1', jobId: 'whm' },
