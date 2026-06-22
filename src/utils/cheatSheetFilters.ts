@@ -15,3 +15,22 @@ import { EXCLUDED_FROM_RECAST_ROW } from './recastRow';
 export function isHiddenFromCheatSheet(def: Pick<Mitigation, 'id' | 'isTankSwap'>): boolean {
     return def.isTankSwap === true || EXCLUDED_FROM_RECAST_ROW.has(def.id);
 }
+
+/**
+ * 置かれた軽減リストから、カンペ表示用に非表示スキル(`isHiddenFromCheatSheet`)を除いたものを返す。
+ *
+ * カンペは CheatSheetView と PipView(PC PiP / スマホ全画面) の複数経路で描画されるため、
+ * 各経路がこの共有関数を通すことで除外条件を一箇所に統一する(ビューごとの除外漏れ＝ドリフト防止)。
+ *
+ * @param findDef `mitigationId` から定義(`id`/`isTankSwap`)を引く関数。マスター未解決(undefined)は
+ *   従来どおり残す(アイコン描画側が `def` 無しを null 表示するため、ここでは落とさない)。
+ */
+export function filterCheatSheetMitigations<T extends { mitigationId: string }>(
+    mitigations: T[],
+    findDef: (id: string) => Pick<Mitigation, 'id' | 'isTankSwap'> | undefined,
+): T[] {
+    return mitigations.filter(m => {
+        const def = findDef(m.mitigationId);
+        return def ? !isHiddenFromCheatSheet(def) : true;
+    });
+}

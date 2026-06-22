@@ -16,6 +16,7 @@ import {
     getDefaultBgColor,
     isBgLight,
 } from '../utils/pipViewLogic';
+import { filterCheatSheetMitigations } from '../utils/cheatSheetFilters';
 
 /** 時間(秒)を mm:ss 形式に変換 */
 function formatTime(seconds: number): string {
@@ -129,10 +130,11 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
         }
     }, [allSelected, activeMembers]);
 
-    // ── PiP 非表示の軽減（自動配置の常駐スキル）──
+    // ── カンペ非表示の軽減（挑発/エーテルフロー/ドロー系=軽減でないユーティリティ技）──
+    //    CheatSheetView と同じ filterCheatSheetMitigations で除外条件を一箇所に統一(表示専用)
     const filteredMitigations = useMemo(
-        () => timelineMitigations.filter(m => m.mitigationId !== 'aetherflow'),
-        [timelineMitigations],
+        () => filterCheatSheetMitigations(timelineMitigations, id => MITIGATIONS.find(d => d.id === id)),
+        [timelineMitigations, MITIGATIONS],
     );
 
     // ── cueGroups（純粋関数で多選フィルタ → hydrate） ──
