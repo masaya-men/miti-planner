@@ -6,7 +6,7 @@ export function isLivingDeadStyle(def: Mitigation): boolean {
 }
 
 /** 実効ターゲットの最大HP。MT/ST は当該メンバー、それ以外は H1。見つからなければ 1。
- *  既存の致死判定 (CheatSheetView/TimelineRow/MobileTimelineRow) と同一ロジック。 */
+ *  既存の致死判定 (TimelineRow/MobileTimelineRow) と同一ロジック。 */
 export function maxHpForEffectiveTarget(
     effTarget: TimelineEvent['target'],
     partyMembers: PartyMember[],
