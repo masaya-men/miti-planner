@@ -2,6 +2,16 @@ import type { Mitigation } from '../types';
 import { EXCLUDED_FROM_RECAST_ROW } from './recastRow';
 
 /**
+ * カンペ専用で追加で隠すスキル ID。
+ * `EXCLUDED_FROM_RECAST_ROW`(常時回すリソース技) とは別枠＝リキャスト行には残すが
+ * カンペ(軽減一覧)には出さないもの。
+ * - earthly_star (アーサリースター): AST の設置ヒール。軽減ではないためカンペでは雑音。
+ */
+const CHEATSHEET_ONLY_HIDDEN_IDS: ReadonlySet<string> = new Set([
+    'earthly_star',
+]);
+
+/**
  * カンペ(軽減カンペ)のアイコン表示から除外するスキル判定。
  *
  * 除外対象:
@@ -13,7 +23,9 @@ import { EXCLUDED_FROM_RECAST_ROW } from './recastRow';
  * ダメージ計算(damageMap)や挑発の実効ターゲット計算(swapMarkers)には一切影響しない。
  */
 export function isHiddenFromCheatSheet(def: Pick<Mitigation, 'id' | 'isTankSwap'>): boolean {
-    return def.isTankSwap === true || EXCLUDED_FROM_RECAST_ROW.has(def.id);
+    return def.isTankSwap === true
+        || EXCLUDED_FROM_RECAST_ROW.has(def.id)
+        || CHEATSHEET_ONLY_HIDDEN_IDS.has(def.id);
 }
 
 /**

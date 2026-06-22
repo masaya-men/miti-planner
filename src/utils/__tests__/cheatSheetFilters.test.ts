@@ -13,6 +13,10 @@ describe('isHiddenFromCheatSheet (カンペ除外判定)', () => {
         expect(isHiddenFromCheatSheet({ id: 'umbral_draw' })).toBe(true);
     });
 
+    it('アーサリースター(earthly_star)はカンペ専用除外で隠す', () => {
+        expect(isHiddenFromCheatSheet({ id: 'earthly_star' })).toBe(true);
+    });
+
     it('通常の軽減スキルは除外しない(表示する)', () => {
         expect(isHiddenFromCheatSheet({ id: 'reprisal' })).toBe(false);
         expect(isHiddenFromCheatSheet({ id: 'rampart', isTankSwap: false })).toBe(false);
