@@ -303,7 +303,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
                         <span className="text-app-lg text-app-text-muted pt-2">
                           {t(`sheetImport.party_role_${role}`)}
                         </span>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                           {SLOTS_BY_ROLE[role].map((slot) => {
                             const required = isSlotRequired(assignment, slot, detectedByRole);
                             return (
@@ -326,18 +326,24 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
                                 >
                                   {slot}
                                 </span>
-                                <select
-                                  value={assignment[slot] ?? ''}
-                                  onChange={(e) => handleSlotChange(slot, e.target.value || null)}
-                                  className="bg-app-surface2 border border-app-border rounded-md px-1.5 py-1 text-app-2xl text-app-text focus:outline-none focus:border-app-text cursor-pointer"
-                                >
-                                  <option value="">{t('sheetImport.party_slot_unassigned')}</option>
-                                  {detectedByRole[role].map((jid) => (
-                                    <option key={jid} value={jid}>
-                                      {jobName(jid)}
-                                    </option>
-                                  ))}
-                                </select>
+                                <div className="relative">
+                                  <select
+                                    value={assignment[slot] ?? ''}
+                                    onChange={(e) => handleSlotChange(slot, e.target.value || null)}
+                                    className="w-full appearance-none bg-app-surface2 border border-app-border rounded-md pl-2 pr-6 py-1 text-app-2xl text-app-text focus:outline-none focus:border-app-text cursor-pointer"
+                                  >
+                                    <option value="">{t('sheetImport.party_slot_unassigned')}</option>
+                                    {detectedByRole[role].map((jid) => (
+                                      <option key={jid} value={jid}>
+                                        {jobName(jid)}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  <ChevronDown
+                                    size={14}
+                                    className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-app-text-muted"
+                                  />
+                                </div>
                               </div>
                             );
                           })}
