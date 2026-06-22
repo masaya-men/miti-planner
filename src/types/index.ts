@@ -118,6 +118,8 @@ export interface TimelineEvent {
     warning?: boolean; // Indicates mitigation is insufficient
     /** @deprecated 旧データ互換用。新データはlabels[]を使用。読み込み時のみ参照される */
     mechanicGroup?: LocalizedString;
+    /** 2択攻撃の代替名（"A or B" の B）。無し/空 = 通常イベント。名前だけ変わりダメージ等は共通。 */
+    altName?: LocalizedString;
 }
 
 export interface Phase {
