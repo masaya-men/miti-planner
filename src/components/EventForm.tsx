@@ -53,6 +53,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     const { contentLanguage } = useThemeStore();
     const { t } = useTranslation();
     const [name, setName] = useState<import('../types').LocalizedString>({ ja: '', en: '' });
+    const [altName, setAltName] = useState<import('../types').LocalizedString>({ ja: '', en: '' });
     const [time, setTime] = useState(0);
     const [damageType, setDamageType] = useState<TimelineEvent['damageType']>('magical');
     const [damageAmount, setDamageAmount] = useState<number>(() => computeInitialDamageState(initialData, reverseOnly).damageAmount);
@@ -120,6 +121,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     useEffect(() => {
         if (initialData) {
             setName(initialData.name);
+            setAltName(initialData.altName ?? { ja: '', en: '' });
             setTime(initialData.time);
             setDamageType(initialData.damageType);
             setIgnoresDebuffMitigation(!!initialData.ignoresDebuffMitigation);
@@ -135,6 +137,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             setMitigationTargets({});
         } else {
             setName({ ja: '', en: '' });
+            setAltName({ ja: '', en: '' });
             setTime(initialTime || 0);
             setDamageType('magical');
             setIgnoresDebuffMitigation(false);
@@ -593,6 +596,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const hasAltName = !!(altName.ja?.trim() || altName.en?.trim() || altName.zh?.trim() || altName.ko?.trim());
         onSave({
             name,
             time,
@@ -600,6 +604,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             damageAmount,
             target,
             ignoresDebuffMitigation,
+            ...(hasAltName ? { altName } : {}),
         });
         useTutorialStore.getState().completeEvent('create:event-saved');
     };
@@ -652,6 +657,23 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                         placeholder={t('mechanic_modal.placeholder')}
                     />
                 </div>
+            </div>
+
+            {/* or（2択攻撃の別名・任意） */}
+            <div>
+                <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('event.alt_name_label')}</label>
+                <input
+                    data-testid="event-altname-input"
+                    type="text"
+                    lang={t('app.language') === 'English' ? 'en' : 'ja'}
+                    value={contentLanguage === 'en' ? altName.en : altName.ja}
+                    onChange={(e) => setAltName({ ...altName, [contentLanguage === 'en' ? 'en' : 'ja']: e.target.value })}
+                    className={clsx(
+                        "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all border focus:outline-none focus:ring-1",
+                        "bg-app-surface2 border-app-border text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
+                    )}
+                    placeholder={t('event.alt_name_placeholder')}
+                />
             </div>
 
             {/* Type & Target Row */}
