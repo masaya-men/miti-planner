@@ -2,6 +2,12 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-06-23 ⑦敵攻撃 "or"(2択攻撃) — 本番デプロイ済・ユーザー実機確認OK
+機能アイデア⑦。1つのボス技が状況で2択に分岐するケースを `TimelineEvent.altName: LocalizedString` で「A or B」表示。**名前だけ変わる(ダメージ同じ)確定モデル**。手動編集(EventForm)+管理(TemplateEditor)+描画(TimelineRow)を整備。spec/plan=`docs/superpowers/{specs,plans}/2026-06-22-event-or-attack*`。
+- **実装=6タスクTDD**: ①`altName`型追加+名前整形純関数`formatEventName`(A or B連結・最大2択) ②i18n `event.or_connector`/`alt_name_*`+管理 altname ヘッダ4言語(パリティテスト付き) ③TimelineRow が `formatEventName` 経由描画 ④EventForm の or(別名)入力(全空なら altName 無しで保存) ⑤管理TemplateEditor に or技名4列+`updateCell` が `altName.xx` 処理 ⑥`formatEventName` デッドコード三項除去(レビュー指摘)。
+- **追加UX/整理**: EventForm の or 欄を攻撃名直下に密着配置+説明サブラベル / **カンペ(PipView)除外**=挑発・エーテルフロー・ドロー系・アーサリースター(`cheatSheetFilters.ts` に共有ヘルパー統一) / **未使用 `CheatSheetView.tsx`(546行)を dead code として削除**。
+- **検証**: `npm run build`(tsc -b 型/未使用クリーン)+full suite **2039 passed**(既知failure5=TopBar4/HousingWorkspace1 のみ・⑦と無関係)。main へ fast-forward マージ(02471ca5→6471e816・13コミット)→push→Vercel本番デプロイ。ロールバックは該当コミット revert。**後追い(別タスク)**=スプシ action「A or B」自動分割→altName(§4) / 攻撃名見切れマーキー(§5)。
+
 ### ✅ 2026-06-21 人気スプシ軽減表 取り込み機能 — 本番投入(忠実性 徹底チェック+根治済)
 機能アイデア⑥。人気スプレッドシート軽減表(タイムライン+軽減割当+パーティ)を貼り付け→自動マッピング→確認→新規軽減表に反映。SDD全6タスク完了後、**実データ全5タブ(P1ケフカ〜P5混沌ケフカ)の取り込み忠実性を徹底チェック**して根治→merge `c52463ca`(--no-ff)→push→Vercel本番デプロイ success(lopoly.app 200)。
 - **検証手法**: 実スプシ各タブTSVを temp(公開リポ非コミット)に取得→`parseMitigationSheet`→`buildPlanFromSheets` に通し**全列のTRUE-runと配置を1:1突合**するハーネス + **多エージェント敵対監査4体**(配置/イベント・フェーズ/解決・枠/rising-edge破壊役)で独立検証。実機Playwright(dev5173・全5タブ貼付)で **技521/軽減218/パーティ8/入らなかった技1** がオフライン計算と完全一致、junk無し、プラン作成・描画OK。
