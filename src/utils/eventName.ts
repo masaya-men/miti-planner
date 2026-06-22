@@ -10,7 +10,7 @@ export function formatEventName(
   lang: string | undefined,
   orConnector: string,
 ): string {
-  const main = ev.name ? getPhaseName(ev.name, lang) : '';
+  const main = getPhaseName(ev.name, lang);
   if (!ev.altName) return main;
   const alt = getPhaseName(ev.altName, lang);
   if (!alt) return main;

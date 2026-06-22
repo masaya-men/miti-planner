@@ -28,7 +28,7 @@ describe('formatEventName', () => {
     ).toBe('Horizontal or Vertical');
   });
 
-  it('altName の現言語(zh)が無い → en→ja フォールバック（name と同じ挙動）', () => {
+  it('altName の現言語(zh)が無い → en にフォールバック（name と同じ挙動）', () => {
     expect(
       formatEventName(
         { name: { ja: '主', en: 'Main' }, altName: { ja: '副', en: 'Alt' } },
