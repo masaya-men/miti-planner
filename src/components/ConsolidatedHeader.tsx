@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-    Sun, Moon, Download, FileSpreadsheet,
+    Sun, Moon,
     ChevronUp, ChevronDown,
     Users, Activity, LogIn,
 } from 'lucide-react';
@@ -31,6 +31,7 @@ import { MitigationSheet } from './MitigationSheet';
 import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
 import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';
 import { HeaderToolsMenu } from './HeaderToolsMenu';
+import { ImportMenu } from './ImportMenu';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -359,45 +360,19 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </NotAllowed>
 
-                            {/* Import（アイコンのみ・定番DLアイコンに統一） */}
-                            <Tooltip
-                                wrapperClassName={clsx(readOnly && 'cursor-not-allowed')}
-                                content={<span><span style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 800, fontSize: '1.1em', letterSpacing: '0.02em' }}>FF Logs</span> {t('fflogs.tooltip_generate')}</span>}
-                            >
-                                <button
-                                    disabled={readOnly}
-                                    onClick={onImportLogs}
-                                    className={clsx(
-                                        iconBtnBase,
-                                        readOnly
-                                            ? `${iconBtnDefault} opacity-50 pointer-events-none`
-                                            : needsImport
-                                                ? "bg-app-toggle text-app-toggle-text border-app-toggle animate-pulse"
-                                                : iconBtnDefault
-                                    )}
-                                >
-                                    <Download size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
-                                </button>
-                            </Tooltip>
-
-                            {/* スプシ取り込み */}
-                            <Tooltip
-                                wrapperClassName={clsx(readOnly && 'cursor-not-allowed')}
-                                content={t('sheetImport.btn')}
-                            >
-                                <button
-                                    disabled={readOnly}
-                                    onClick={() => window.dispatchEvent(new CustomEvent('timeline:spreadsheet-import'))}
-                                    className={clsx(
-                                        iconBtnBase,
-                                        readOnly
-                                            ? `${iconBtnDefault} opacity-50 pointer-events-none`
+                            {/* Import（汎用DLアイコン1つ・押すと FF Logs / スプレッドシート を選択） */}
+                            <ImportMenu
+                                btnClassName={clsx(
+                                    iconBtnBase,
+                                    readOnly
+                                        ? `${iconBtnDefault} opacity-50 pointer-events-none`
+                                        : needsImport
+                                            ? "bg-app-toggle text-app-toggle-text border-app-toggle animate-pulse"
                                             : iconBtnDefault
-                                    )}
-                                >
-                                    <FileSpreadsheet size={16} className="group-hover:scale-110 transition-transform duration-300" />
-                                </button>
-                            </Tooltip>
+                                )}
+                                onImportLogs={onImportLogs}
+                                readOnly={readOnly}
+                            />
 
                             {/* ⋯ その他: あまり使わない操作 (自動組み立て/MYジョブハイライト/進捗バー表示) を集約 */}
                             <HeaderToolsMenu

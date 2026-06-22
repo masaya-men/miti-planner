@@ -2572,6 +2572,11 @@
         "today": "Today",
         "yesterday": "Yesterday"
     },
+    "importMenu": {
+        "tooltip": "Import",
+        "fflogs": "Import from FF Logs",
+        "spreadsheet": "Import from spreadsheet"
+    },
     "sheetImport": {
         "btn": "Import sheet",
         "title": "Import a mitigation sheet from a spreadsheet",

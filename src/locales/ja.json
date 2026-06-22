@@ -2593,6 +2593,11 @@
         "today": "今日",
         "yesterday": "昨日"
     },
+    "importMenu": {
+        "tooltip": "取り込み",
+        "fflogs": "FF Logs から取り込み",
+        "spreadsheet": "スプレッドシートから取り込み"
+    },
     "sheetImport": {
         "btn": "スプシ取り込み",
         "title": "スプレッドシートから軽減表を取り込む",

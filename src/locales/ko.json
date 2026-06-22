@@ -2537,6 +2537,11 @@
         "today": "오늘",
         "yesterday": "어제"
     },
+    "importMenu": {
+        "tooltip": "가져오기",
+        "fflogs": "FF Logs에서 가져오기",
+        "spreadsheet": "스프레드시트에서 가져오기"
+    },
     "sheetImport": {
         "btn": "스프시 가져오기",
         "title": "스프레드시트에서 경감표 가져오기",
