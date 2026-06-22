@@ -2593,6 +2593,13 @@
         "limit_delete_one": "Delete one existing sheet and create",
         "limit_cancel": "Cancel",
         "rights_notice": "You are responsible for the rights to the content you import",
-        "default_plan_title": "Imported sheet"
+        "default_plan_title": "Imported sheet",
+        "party_assign_label": "Assign party slots",
+        "party_assign_hint": "Place each detected job into MT–D4",
+        "party_slot_unassigned": "Unassigned",
+        "party_incomplete": "Assign every job to a slot to continue",
+        "party_role_tank": "Tank",
+        "party_role_healer": "Healer",
+        "party_role_dps": "DPS"
     }
 }

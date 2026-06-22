@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -10,6 +10,12 @@ import { buildPlanFromSheets } from '../lib/sheetImport/buildPlanFromSheets';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
 import type { ImportSheet } from '../lib/sheetImport/types';
 import { getMitigationsFromStore, getJobsFromStore } from '../hooks/useSkillsData';
+import {
+  SLOTS_BY_ROLE, emptyAssignment, assignSlot,
+  groupByRole, autoFillSingles, isAssignmentComplete, buildPartyOverride, isSlotRequired,
+  type PartyAssignment, type PartySlot, type SlotRole,
+} from '../lib/sheetImport/partyAssignment';
+import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
 
 interface Props {
   isOpen: boolean;
@@ -36,6 +42,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   const [phaseName, setPhaseName] = useState('');
   const [entries, setEntries] = useState<ImportSheet[]>([]);
   const [parseError, setParseError] = useState(false);
+  const [assignment, setAssignment] = useState<PartyAssignment>(emptyAssignment());
 
   const handleClose = useCallback(() => {
     const s = resetState();
@@ -44,6 +51,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     setPhaseName(s.phaseName);
     setEntries(s.entries);
     setParseError(s.parseError);
+    setAssignment(emptyAssignment());
     onClose();
   }, [onClose]);
 
@@ -58,6 +66,32 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     setDraft('');
     setPhaseName('');
   }, [draft, phaseName]);
+
+  const jobs = getJobsFromStore();
+  const roleOf = useCallback(
+    (id: string) => jobs.find((j) => j.id === id)?.role as SlotRole | undefined,
+    [jobs],
+  );
+  const detectedJobIds = useMemo(
+    () => (includeMitigations ? detectUsedJobIds(entries.map((e) => e.parsed)) : []),
+    [entries, includeMitigations],
+  );
+  const detectedByRole = useMemo(() => groupByRole(detectedJobIds, roleOf), [detectedJobIds, roleOf]);
+  const jobName = useCallback(
+    (id: string) => jobs.find((j) => j.id === id)?.name.ja ?? id,
+    [jobs],
+  );
+
+  useEffect(() => {
+    setAssignment(emptyAssignment());
+  }, [detectedJobIds]);
+
+  const handleSlotChange = useCallback(
+    (slot: PartySlot, jobId: string | null) => {
+      setAssignment((prev) => autoFillSingles(assignSlot(prev, slot, jobId), detectedByRole));
+    },
+    [detectedByRole],
+  );
 
   // preview は entries / includeMitigations のみに依存。draft 入力の再レンダーで
   // 重い buildPlanFromSheets を再計算しないよう memo 化（大きな貼り付け対策）。
@@ -90,13 +124,20 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     [entries, includeMitigations],
   );
 
-  const canConfirm = preview !== null && preview.timelineEvents.length > 0;
+  const partyComplete = !includeMitigations || isAssignmentComplete(assignment, detectedByRole);
+  const canConfirm = preview !== null && preview.timelineEvents.length > 0 && partyComplete;
 
   const handleConfirm = useCallback(() => {
-    if (!preview) return;
-    onImport(preview, 'new');
+    if (entries.length === 0) return;
+    const partyOverride = includeMitigations ? buildPartyOverride(assignment) : undefined;
+    const result = buildPlanFromSheets(
+      entries,
+      { mitigations: getMitigationsFromStore(), jobs: getJobsFromStore() },
+      { includeMitigations, partyOverride },
+    );
+    onImport(result, 'new');
     handleClose();
-  }, [preview, onImport, handleClose]);
+  }, [entries, includeMitigations, assignment, onImport, handleClose]);
 
   if (!isOpen) return null;
 
@@ -238,6 +279,74 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
               </div>
             )}
 
+            {/* Party assignment */}
+            {includeMitigations && detectedJobIds.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-app-lg text-app-text-muted uppercase tracking-wider">
+                  {t('sheetImport.party_assign_label')}
+                </p>
+                <p className="text-app-lg text-app-text-muted/80">
+                  {t('sheetImport.party_assign_hint')}
+                </p>
+                <div className="space-y-2">
+                  {(['tank', 'healer', 'dps'] as SlotRole[])
+                    .filter((role) => detectedByRole[role].length > 0)
+                    .map((role) => (
+                      <div
+                        key={role}
+                        className="grid grid-cols-[4rem_1fr] items-start gap-2"
+                      >
+                        <span className="text-app-lg text-app-text-muted pt-2">
+                          {t(`sheetImport.party_role_${role}`)}
+                        </span>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {SLOTS_BY_ROLE[role].map((slot) => {
+                            const required = isSlotRequired(assignment, slot, detectedByRole);
+                            return (
+                              <div
+                                key={slot}
+                                className={clsx(
+                                  'flex flex-col gap-1 p-2 rounded-lg border transition-all duration-200',
+                                  required
+                                    ? 'border-app-red-border bg-app-red-dim'
+                                    : assignment[slot]
+                                      ? 'border-app-text bg-app-text/5'
+                                      : 'border-app-border',
+                                )}
+                              >
+                                <span
+                                  className={clsx(
+                                    'text-app-lg font-mono',
+                                    required ? 'text-app-red' : 'text-app-text-muted',
+                                  )}
+                                >
+                                  {slot}
+                                </span>
+                                <select
+                                  value={assignment[slot] ?? ''}
+                                  onChange={(e) => handleSlotChange(slot, e.target.value || null)}
+                                  className="bg-app-surface2 border border-app-border rounded-md px-1.5 py-1 text-app-2xl text-app-text focus:outline-none focus:border-app-text cursor-pointer"
+                                >
+                                  <option value="">{t('sheetImport.party_slot_unassigned')}</option>
+                                  {detectedByRole[role].map((jid) => (
+                                    <option key={jid} value={jid}>
+                                      {jobName(jid)}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                {!partyComplete && (
+                  <p className="text-app-lg text-app-red">{t('sheetImport.party_incomplete')}</p>
+                )}
+              </div>
+            )}
+
             {/* Preview */}
             {preview && (
               <div className="space-y-3 pt-1">
@@ -250,25 +359,6 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
                     party: preview.party.length,
                   })}
                 </div>
-
-                {/* Party */}
-                {preview.party.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-app-lg text-app-text-muted uppercase tracking-wider">
-                      {t('sheetImport.party_label')}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {preview.party.map((p) => (
-                        <span
-                          key={p.slot}
-                          className="px-2 py-1 rounded-md bg-app-surface2 border border-app-border text-app-2xl text-app-text font-mono"
-                        >
-                          {p.slot}: {p.jobId}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {/* Skipped */}
                 {preview.skipped.length > 0 && (

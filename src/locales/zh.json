@@ -2558,6 +2558,13 @@
         "limit_delete_one": "删除一张已有的表后创建",
         "limit_cancel": "取消",
         "rights_notice": "导入内容的版权与责任由使用者自行承担",
-        "default_plan_title": "导入的减伤表"
+        "default_plan_title": "导入的减伤表",
+        "party_assign_label": "分配小队槽位",
+        "party_assign_hint": "请将识别到的职业分配到 MT~D4",
+        "party_slot_unassigned": "未选择",
+        "party_incomplete": "为每个职业分配槽位后即可创建",
+        "party_role_tank": "坦克",
+        "party_role_healer": "治疗",
+        "party_role_dps": "DPS"
     }
 }

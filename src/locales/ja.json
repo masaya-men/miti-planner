@@ -2614,6 +2614,13 @@
         "limit_delete_one": "既存の表を1つ削除して作成",
         "limit_cancel": "やめる",
         "rights_notice": "取り込む内容の権利・責任は利用者にあります",
-        "default_plan_title": "取り込んだ軽減表"
+        "default_plan_title": "取り込んだ軽減表",
+        "party_assign_label": "パーティの枠を割り当て",
+        "party_assign_hint": "スプシのジョブを MT〜D4 に割り当ててください",
+        "party_slot_unassigned": "未選択",
+        "party_incomplete": "全員の枠を割り当てると作成できます",
+        "party_role_tank": "タンク",
+        "party_role_healer": "ヒーラー",
+        "party_role_dps": "DPS"
     }
 }

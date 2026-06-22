@@ -2558,6 +2558,13 @@
         "limit_delete_one": "기존 표를 하나 삭제하고 작성",
         "limit_cancel": "취소",
         "rights_notice": "가져오는 내용의 권리와 책임은 이용자에게 있습니다",
-        "default_plan_title": "가져온 경감표"
+        "default_plan_title": "가져온 경감표",
+        "party_assign_label": "파티 슬롯 배정",
+        "party_assign_hint": "감지된 직업을 MT~D4에 배정하세요",
+        "party_slot_unassigned": "미선택",
+        "party_incomplete": "모든 직업을 슬롯에 배정하면 생성할 수 있습니다",
+        "party_role_tank": "탱커",
+        "party_role_healer": "힐러",
+        "party_role_dps": "DPS"
     }
 }
