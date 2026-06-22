@@ -1062,6 +1062,11 @@
         "placeholder_en": "例：Opener",
         "add_button": "添加"
     },
+    "event": {
+        "or_connector": "or",
+        "alt_name_label": "or（其他攻击名·可选）",
+        "alt_name_placeholder": "例: 垂直"
+    },
     "mechanic_modal": {
         "name_label": "机制名称",
         "placeholder": "输入攻击名称...",
@@ -1584,6 +1589,10 @@
         "tpl_editor_name_en": "名称（英文）",
         "tpl_editor_name_zh": "名称（中文）",
         "tpl_editor_name_ko": "名称（韩文）",
+        "tpl_editor_altname_ja": "or名称（日文）",
+        "tpl_editor_altname_en": "or名称（英文）",
+        "tpl_editor_altname_zh": "or名称（中文）",
+        "tpl_editor_altname_ko": "or名称（韩文）",
         "tpl_editor_label": "标签",
         "tpl_editor_damage": "伤害",
         "tpl_editor_damage_type": "类型",

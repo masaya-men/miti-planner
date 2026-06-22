@@ -1062,6 +1062,11 @@
         "placeholder_en": "예: Opener",
         "add_button": "추가"
     },
+    "event": {
+        "or_connector": "or",
+        "alt_name_label": "or (다른 공격명·선택)",
+        "alt_name_placeholder": "예: 버티컬"
+    },
     "mechanic_modal": {
         "name_label": "기믹 이름",
         "placeholder": "공격 이름을 입력하세요...",
@@ -1584,6 +1589,10 @@
         "tpl_editor_name_en": "이름 (영어)",
         "tpl_editor_name_zh": "이름 (중국어)",
         "tpl_editor_name_ko": "이름 (한국어)",
+        "tpl_editor_altname_ja": "or 이름 (JA)",
+        "tpl_editor_altname_en": "or 이름 (EN)",
+        "tpl_editor_altname_zh": "or 이름 (ZH)",
+        "tpl_editor_altname_ko": "or 이름 (KO)",
         "tpl_editor_label": "라벨",
         "tpl_editor_damage": "데미지",
         "tpl_editor_damage_type": "유형",

@@ -1072,6 +1072,11 @@
         "placeholder_en": "e.g. Opener",
         "add_button": "Add"
     },
+    "event": {
+        "or_connector": "or",
+        "alt_name_label": "or (alternate name, optional)",
+        "alt_name_placeholder": "e.g. Vertical"
+    },
     "mechanic_modal": {
         "name_label": "Mechanic Name",
         "placeholder": "Enter attack name...",
@@ -1619,6 +1624,10 @@
         "tpl_editor_name_en": "Name (EN)",
         "tpl_editor_name_zh": "Name (ZH)",
         "tpl_editor_name_ko": "Name (KO)",
+        "tpl_editor_altname_ja": "or Name (JA)",
+        "tpl_editor_altname_en": "or Name (EN)",
+        "tpl_editor_altname_zh": "or Name (ZH)",
+        "tpl_editor_altname_ko": "or Name (KO)",
         "tpl_editor_label": "Label",
         "tpl_editor_damage": "Damage",
         "tpl_editor_damage_type": "Type",

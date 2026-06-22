@@ -1076,6 +1076,11 @@
         "placeholder_en": "例: Opener",
         "add_button": "追加"
     },
+    "event": {
+        "or_connector": "or",
+        "alt_name_label": "or（別の攻撃名・任意）",
+        "alt_name_placeholder": "例: ヴァーティカル"
+    },
     "mechanic_modal": {
         "name_label": "攻撃名",
         "placeholder": "攻撃名を入力",
@@ -1623,6 +1628,10 @@
         "tpl_editor_name_en": "技名(EN)",
         "tpl_editor_name_zh": "技名(ZH)",
         "tpl_editor_name_ko": "技名(KO)",
+        "tpl_editor_altname_ja": "or技名(JA)",
+        "tpl_editor_altname_en": "or技名(EN)",
+        "tpl_editor_altname_zh": "or技名(ZH)",
+        "tpl_editor_altname_ko": "or技名(KO)",
         "tpl_editor_label": "ラベル",
         "tpl_editor_damage": "ダメージ",
         "tpl_editor_damage_type": "種別",
