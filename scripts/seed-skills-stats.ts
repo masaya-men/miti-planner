@@ -73,6 +73,23 @@ const DRY = process.argv.includes('--dry-run');
 console.log('✅ Firebase Admin 初期化完了');
 console.log(`モード: ${FORCE ? '⚠ FORCE-OVERWRITE (既存skillも mockData の値で上書き)' : 'ADDITIVE (既存は保護・新規idのみ追加)'}${DRY ? ' [dry-run: 書き込まない]' : ''}`);
 
+// 🛡 重複idガード(プリフライト・全モード共通): mockData の MITIGATIONS に同id重複があれば
+// 一切書き込まず中止する。レベルで効果が変わる技を「同じ id で2回」定義した古いブランチから
+// seed すると Firestore に重複が入り、競合判定が new Map 後勝ちで旧版を引く「同id版違いバグ」が
+// 復活する(2026-06-22 修正済)。レベル版は distinct id(例 recitation_base)に分けること。
+{
+  const idCounts = new Map<string, number>();
+  for (const m of MITIGATIONS) idCounts.set(m.id, (idCounts.get(m.id) ?? 0) + 1);
+  const dupIds = [...idCounts.entries()].filter(([, c]) => c > 1);
+  if (dupIds.length) {
+    console.error(`❌ 中止: mockData の MITIGATIONS に同id重複があります → ${dupIds.map(([id, c]) => `${id}×${c}`).join(', ')}`);
+    console.error('   このまま seed すると Firestore に重複が入り「同id版違いバグ」が復活します(競合判定が旧版を誤って引く)。');
+    console.error('   レベルで効果が変わる技は同じ id を2回書かず distinct id(例: recitation_base)に分けてください。');
+    process.exit(1);
+  }
+  console.log(`🛡 重複idガード OK: MITIGATIONS ${MITIGATIONS.length}件・同id重複なし`);
+}
+
 const DEFAULT_STATS_BY_LEVEL = { 100: '7.40', 90: '6.40', 80: '5.40', 70: '4.40' };
 const mockPatchStats = { ...DT_PATCH_STATS, ...EW_PATCH_STATS, ...SHB_PATCH_STATS, ...SB_PATCH_STATS };
 

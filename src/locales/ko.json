@@ -2537,16 +2537,22 @@
         "today": "오늘",
         "yesterday": "어제"
     },
+    "importMenu": {
+        "tooltip": "가져오기",
+        "fflogs": "FF Logs에서 가져오기",
+        "spreadsheet": "스프레드시트에서 가져오기"
+    },
     "sheetImport": {
         "btn": "스프시 가져오기",
         "title": "스프레드시트에서 경감표 가져오기",
         "mode_with_mitigations": "경감도 함께 가져오기",
         "mode_timeline_only": "타임라인만 가져오기",
         "paste_label": "스프레드시트를 전체 선택(Ctrl+A)하여 복사한 후 여기에 붙여넣기",
+        "phase_name_label": "페이즈 이름 (이 탭의 명칭)",
+        "phase_name_placeholder": "예: P1 신들의 상",
         "add_phase": "다음 페이즈 추가",
         "detected_phase": "페이즈 「{{name}}」: 이벤트 {{events}}건・경감 {{mits}}건",
         "parse_failed": "데이터 표를 찾을 수 없습니다. 시트를 전체 선택하여 다시 복사해 주세요",
-        "party_label": "파티（슬롯 배정 확인）",
         "preview_summary": "{{phases}}페이즈・기술 {{events}}건・경감 {{mits}}건・파티 {{party}}명",
         "skipped_label": "가져오지 못한 기술（{{count}}건）",
         "confirm": "이 내용으로 경감표 작성",
@@ -2556,6 +2562,13 @@
         "limit_delete_one": "기존 표를 하나 삭제하고 작성",
         "limit_cancel": "취소",
         "rights_notice": "가져오는 내용의 권리와 책임은 이용자에게 있습니다",
-        "default_plan_title": "가져온 경감표"
+        "default_plan_title": "가져온 경감표",
+        "party_assign_label": "파티 슬롯 배정",
+        "party_assign_hint": "감지된 직업을 MT~D4에 배정하세요",
+        "party_slot_unassigned": "미선택",
+        "party_incomplete": "모든 직업을 슬롯에 배정하면 생성할 수 있습니다",
+        "party_role_tank": "탱커",
+        "party_role_healer": "힐러",
+        "party_role_dps": "DPS"
     }
 }

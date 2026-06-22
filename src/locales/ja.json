@@ -2593,16 +2593,22 @@
         "today": "今日",
         "yesterday": "昨日"
     },
+    "importMenu": {
+        "tooltip": "取り込み",
+        "fflogs": "FF Logs から取り込み",
+        "spreadsheet": "スプレッドシートから取り込み"
+    },
     "sheetImport": {
         "btn": "スプシ取り込み",
         "title": "スプレッドシートから軽減表を取り込む",
         "mode_with_mitigations": "軽減も取り込む",
         "mode_timeline_only": "タイムラインだけ取り込む",
         "paste_label": "スプレッドシートを全選択(Ctrl+A)してコピーし、ここに貼り付け",
+        "phase_name_label": "フェーズ名（このタブの呼び名）",
+        "phase_name_placeholder": "例: P1 神々の像",
         "add_phase": "次のフェーズを追加",
         "detected_phase": "フェーズ「{{name}}」: イベント{{events}}件・軽減{{mits}}件",
         "parse_failed": "データ表が見つかりません。シートを全選択してコピーし直してください",
-        "party_label": "パーティ（枠の割り当てを確認）",
         "preview_summary": "{{phases}}フェーズ・技{{events}}件・軽減{{mits}}件・パーティ{{party}}人",
         "skipped_label": "取り込めなかった技（{{count}}件）",
         "confirm": "この内容で軽減表を作成",
@@ -2612,6 +2618,13 @@
         "limit_delete_one": "既存の表を1つ削除して作成",
         "limit_cancel": "やめる",
         "rights_notice": "取り込む内容の権利・責任は利用者にあります",
-        "default_plan_title": "取り込んだ軽減表"
+        "default_plan_title": "取り込んだ軽減表",
+        "party_assign_label": "パーティの枠を割り当て",
+        "party_assign_hint": "スプシのジョブを MT〜D4 に割り当ててください",
+        "party_slot_unassigned": "未選択",
+        "party_incomplete": "全員の枠を割り当てると作成できます",
+        "party_role_tank": "タンク",
+        "party_role_healer": "ヒーラー",
+        "party_role_dps": "DPS"
     }
 }

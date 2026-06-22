@@ -2572,16 +2572,22 @@
         "today": "Today",
         "yesterday": "Yesterday"
     },
+    "importMenu": {
+        "tooltip": "Import",
+        "fflogs": "Import from FF Logs",
+        "spreadsheet": "Import from spreadsheet"
+    },
     "sheetImport": {
         "btn": "Import sheet",
         "title": "Import a mitigation sheet from a spreadsheet",
         "mode_with_mitigations": "Import mitigations too",
         "mode_timeline_only": "Import timeline only",
         "paste_label": "Select all (Ctrl+A) in your spreadsheet, copy, and paste here",
+        "phase_name_label": "Phase name (label for this tab)",
+        "phase_name_placeholder": "e.g. P1 Statue of the Gods",
         "add_phase": "Add next phase",
         "detected_phase": "Phase \"{{name}}\": {{events}} events, {{mits}} mitigations",
         "parse_failed": "No data table found. Select all in the sheet and copy again.",
-        "party_label": "Party (check slot assignment)",
         "preview_summary": "{{phases}} phases, {{events}} actions, {{mits}} mitigations, {{party}} party members",
         "skipped_label": "Skills that couldn't be imported ({{count}})",
         "confirm": "Create sheet with this",
@@ -2591,6 +2597,13 @@
         "limit_delete_one": "Delete one existing sheet and create",
         "limit_cancel": "Cancel",
         "rights_notice": "You are responsible for the rights to the content you import",
-        "default_plan_title": "Imported sheet"
+        "default_plan_title": "Imported sheet",
+        "party_assign_label": "Assign party slots",
+        "party_assign_hint": "Place each detected job into MT–D4",
+        "party_slot_unassigned": "Unassigned",
+        "party_incomplete": "Assign every job to a slot to continue",
+        "party_role_tank": "Tank",
+        "party_role_healer": "Healer",
+        "party_role_dps": "DPS"
     }
 }
