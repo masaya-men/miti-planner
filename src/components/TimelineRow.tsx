@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
 import { getPhaseName } from '../types';
+import { formatEventName } from '../utils/eventName';
 import { getColumnCssVar } from '../utils/calculator';
 import { getEffectiveTarget } from '../utils/effectiveTarget';
 import { useTranslation } from 'react-i18next';
@@ -276,8 +277,8 @@ export const TimelineRow = memo(({
         [timelineMitigations, MITIGATIONS]
     );
 
-    const getEventName = (ev: TimelineEvent) =>
-        ev.name ? getPhaseName(ev.name, contentLanguage) : ev.name;
+    const orConnector = t('event.or_connector');
+    const getEventName = (ev: TimelineEvent) => formatEventName(ev, contentLanguage, orConnector);
 
     const isMobileRow = typeof window !== 'undefined' && window.innerWidth < 768;
     const formatDmg = (val: number) => {
