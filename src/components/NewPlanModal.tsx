@@ -5,9 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
     CATEGORY_LABELS,
-    getSeriesByLevel,
-    getContentBySeries,
 } from '../data/contentRegistry';
+import { hasContentRegistry, getFilteredBosses, deriveContentId } from '../lib/contentSelection';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
@@ -27,10 +26,6 @@ interface NewPlanModalProps {
 
 const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
 const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
-
-// 零式・絶はドロップダウンから選択、それ以外は自由入力
-const hasContentRegistry = (cat: ContentCategory | null): cat is 'savage' | 'ultimate' =>
-    cat === 'savage' || cat === 'ultimate';
 
 export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) => {
     useEscapeClose(isOpen, () => onClose());
@@ -74,17 +69,10 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
     // 零式・絶の場合のみドロップダウン用のコンテンツリストを生成
     // シリーズ単位で patch 降順 (新パッチ上)、 シリーズ内は order 昇順 (P1 → 本体、 1 層 → 4 層)。
-    const filteredBosses = React.useMemo(() => {
-        if (!level || !hasContentRegistry(category)) return [];
-        const series = getSeriesByLevel(level).filter(s => s.category === category);
-        const seriesWithContents = series.map(s => ({ series: s, contents: getContentBySeries(s.id) }));
-        seriesWithContents.sort((a, b) => {
-            const maxPatch = (items: ContentDefinition[]) =>
-                items.reduce((acc, c) => (c.patch.localeCompare(acc, undefined, { numeric: true }) > 0 ? c.patch : acc), '0');
-            return maxPatch(b.contents).localeCompare(maxPatch(a.contents), undefined, { numeric: true });
-        });
-        return seriesWithContents.flatMap(sc => sc.contents);
-    }, [level, category]);
+    const filteredBosses = React.useMemo(
+        () => getFilteredBosses(level, category),
+        [level, category],
+    );
 
     // フィルタ変更時にbossをリセット
     useEffect(() => {
@@ -164,7 +152,7 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
 
         // 4. contentId の決定
         // 零式・絶: 既存のコンテンツID / それ以外: ユーザー入力名をそのまま使う
-        const contentId = boss?.id || (hasContentRegistry(category) ? null : title.trim());
+        const contentId = deriveContentId(boss, category, title);
 
         // 5. プラン保存 (crypto.randomUUID で同一 ms 連続作成時の ID 衝突を防止)
         const newPlanId = `plan_${crypto.randomUUID()}`;
