@@ -16,7 +16,7 @@ import {
   type PartyAssignment, type PartySlot, type SlotRole,
 } from '../lib/sheetImport/partyAssignment';
 import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
-import { canConfirmImport } from '../lib/sheetImport/canConfirmImport';
+import { importBlockReason } from '../lib/sheetImport/importBlockReason';
 
 interface Props {
   isOpen: boolean;
@@ -131,11 +131,12 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
 
   const partyComplete = !includeMitigations || isAssignmentComplete(assignment, detectedByRole);
   const hasPendingDraft = draft.trim() !== '';
-  const canConfirm = canConfirmImport({
+  const blockReason = importBlockReason({
     hasPreviewEvents: preview !== null && preview.timelineEvents.length > 0,
     partyComplete,
     hasPendingDraft,
   });
+  const canConfirm = blockReason === null;
 
   const handleConfirm = useCallback(() => {
     if (entries.length === 0) return;
@@ -404,10 +405,16 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
 
           {/* Footer */}
           <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex flex-col gap-3 shrink-0">
-            {hasPendingDraft && (
+            {blockReason === 'pending_draft' && (
               <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-3 rounded-lg border border-app-amber-border text-app-2xl">
                 <AlertCircle size={16} className="shrink-0 mt-0.5" />
                 <p>{t('sheetImport.pending_draft_warning')}</p>
+              </div>
+            )}
+            {blockReason === 'party_incomplete' && (
+              <div className="flex items-start gap-2 text-app-red bg-app-red-dim p-3 rounded-lg border border-app-red-border text-app-2xl">
+                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                <p>{t('sheetImport.party_required_warning')}</p>
               </div>
             )}
             <div className="flex justify-end gap-3">

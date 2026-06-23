@@ -2618,6 +2618,7 @@
         "add_phase": "このフェーズを追加",
         "added_phases_label": "追加済みフェーズ",
         "pending_draft_warning": "貼り付け欄に未追加の内容があります。「このフェーズを追加」を押してください。",
+        "party_required_warning": "パーティの枠を全員割り当てると取り込めます（上の「パーティの枠を割り当て」）。",
         "detected_phase": "フェーズ「{{name}}」: イベント{{events}}件・軽減{{mits}}件",
         "parse_failed": "データ表が見つかりません。シートを全選択してコピーし直してください",
         "preview_summary": "{{phases}}フェーズ・技{{events}}件・軽減{{mits}}件・パーティ{{party}}人",

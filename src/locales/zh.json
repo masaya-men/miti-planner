@@ -2562,6 +2562,7 @@
         "add_phase": "添加此阶段",
         "added_phases_label": "已添加阶段",
         "pending_draft_warning": "粘贴框中有尚未添加的内容。请点击\"添加此阶段\"。",
+        "party_required_warning": "在上方\"分配队伍位置\"处分配所有位置后即可导入。",
         "detected_phase": "阶段「{{name}}」：事件 {{events}} 件・减伤 {{mits}} 件",
         "parse_failed": "未找到数据表。请在表格中全选后重新复制",
         "preview_summary": "{{phases}} 阶段・技能 {{events}} 件・减伤 {{mits}} 件・小队 {{party}} 人",

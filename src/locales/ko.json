@@ -2562,6 +2562,7 @@
         "add_phase": "이 페이즈 추가",
         "added_phases_label": "추가된 페이즈",
         "pending_draft_warning": "붙여넣기 칸에 추가되지 않은 내용이 있습니다. \"이 페이즈 추가\"를 누르세요.",
+        "party_required_warning": "위의 \"파티 슬롯 배정\"에서 모든 슬롯을 배정하면 가져올 수 있습니다.",
         "detected_phase": "페이즈 「{{name}}」: 이벤트 {{events}}건・경감 {{mits}}건",
         "parse_failed": "데이터 표를 찾을 수 없습니다. 시트를 전체 선택하여 다시 복사해 주세요",
         "preview_summary": "{{phases}}페이즈・기술 {{events}}건・경감 {{mits}}건・파티 {{party}}명",

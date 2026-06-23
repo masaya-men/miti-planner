@@ -2597,6 +2597,7 @@
         "add_phase": "Add this phase",
         "added_phases_label": "Added phases",
         "pending_draft_warning": "You have pasted content that hasn't been added yet. Press \"Add this phase\".",
+        "party_required_warning": "Assign every party slot above (\"Assign party slots\") to enable import.",
         "detected_phase": "Phase \"{{name}}\": {{events}} events, {{mits}} mitigations",
         "parse_failed": "No data table found. Select all in the sheet and copy again.",
         "preview_summary": "{{phases}} phases, {{events}} actions, {{mits}} mitigations, {{party}} party members",
