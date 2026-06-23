@@ -8,6 +8,13 @@
 - **追加UX/整理**: EventForm の or 欄を攻撃名直下に密着配置+説明サブラベル / **カンペ(PipView)除外**=挑発・エーテルフロー・ドロー系・アーサリースター(`cheatSheetFilters.ts` に共有ヘルパー統一) / **未使用 `CheatSheetView.tsx`(546行)を dead code として削除**。
 - **検証**: `npm run build`(tsc -b 型/未使用クリーン)+full suite **2039 passed**(既知failure5=TopBar4/HousingWorkspace1 のみ・⑦と無関係)。main へ fast-forward マージ(02471ca5→6471e816・13コミット)→push→Vercel本番デプロイ。ロールバックは該当コミット revert。**後追い(別タスク)**=スプシ action「A or B」自動分割→altName(§4) / 攻撃名見切れマーキー(§5)。
 
+### ✅ 2026-06-23 スプシ取込バグ修正一式(Bug① collab no-op / Bug② 末尾フェーズ黙殺 / 作成不可理由の明示) — 本番デプロイ済・ユーザー検証OK
+ユーザー報告(1回目だけ壊れ2回目で直る/後半欠け/フェーズ時間ずれ/末尾に空フェーズ要)を systematic-debugging + 多エージェント敵対検証4体で調査し**根本原因2つを特定**。反証=非collabのフェーズ境界/後半落ち/描画clipは repro で犯人でないと実証。
+- **Bug①(collab no-op)**: collab-ON 表のオーナーが**開いた瞬間に自動接続**(`reconcileCollabForPlan` の connect)→`_collabActive=true`。その状態で取込すると `loadSnapshot` が `useMitigationStore.ts:656` のガードで **no-op** → `handleSheetImport` が `getSnapshot()` で「取込データ」でなく**「直前に開いていた表」**を読み、新プランがそれで作られる(取込直後 disconnect で `_collabActive=false`→2回目は効く=「2回目で直る」)。**ソロでは出ない**。修正=取込コミットを `commitImportedPlan.ts` に切出し、NewPlanModal同様「**先に disconnect→保存→loadSnapshot→確定**」。防御=disconnect でフラグが残る異常系でも `exitCollabMode` で確実に解除(データ正確性を session teardown の成否に依存させない/フラグ注入だけでローカル検証可能に)。TDD4観点緑。main `994b9111`・ユーザー本番検証OK。[[reference_commitnewplan_loadsnapshot_contract]]
+- **Bug②(draft黙殺)**: モーダルで最後の貼付を「フェーズ追加」せず確定すると末尾フェーズが黙って捨てられていた(`handleConfirm` が `entries` のみ参照)。A案=**貼り付け欄に未追加の内容が残る間は「作成」不可+警告**で取りこぼしを原理的に防止。文言「次の→このフェーズを追加」「追加済みフェーズ」見出し。
+- **作成不可理由の明示(ユーザー指摘)**: ボタンが灰色の理由がスクロール先でしか分からなかった→押せない理由を1つ返す純関数 `importBlockReason` でフッターに出し分け(未追加draft=黄/**パーティ未割当=赤**(上のパーティ編成へ誘導)/フェーズ無し)。`canConfirmImport` は importBlockReason に統合し削除(DRY)。文言4言語。main `ca98bd32`。
+- **検証**: 各TDD(RED→GREEN)+build(tsc -b)クリーン+フルスイート既知5失敗のみ(回帰0)。実機Playwright(dev)で「貼りっぱなし=作成不可+黄警告/追加=作成可」「パーティ未割当=赤警告+作成不可/全割当=作成可」をスクショ確認(`C:\Users\masay\AppData\Local\Temp\sheetcheck\pw_bug2_*.png`/`pw_party_*.png`)。spec/plan=`docs/superpowers/{specs,plans}/2026-06-23-sheet-import-no-silent-phase-drop*`、調査記録=`docs/.private/2026-06-23-spreadsheet-import-issues.md`。**後追い(v2 brainstorming)**=5/5選択削除取込/途中取込/コンテンツ選択前段。
+
 ### ✅ 2026-06-21 人気スプシ軽減表 取り込み機能 — 本番投入(忠実性 徹底チェック+根治済)
 機能アイデア⑥。人気スプレッドシート軽減表(タイムライン+軽減割当+パーティ)を貼り付け→自動マッピング→確認→新規軽減表に反映。SDD全6タスク完了後、**実データ全5タブ(P1ケフカ〜P5混沌ケフカ)の取り込み忠実性を徹底チェック**して根治→merge `c52463ca`(--no-ff)→push→Vercel本番デプロイ success(lopoly.app 200)。
 - **検証手法**: 実スプシ各タブTSVを temp(公開リポ非コミット)に取得→`parseMitigationSheet`→`buildPlanFromSheets` に通し**全列のTRUE-runと配置を1:1突合**するハーネス + **多エージェント敵対監査4体**(配置/イベント・フェーズ/解決・枠/rising-edge破壊役)で独立検証。実機Playwright(dev5173・全5タブ貼付)で **技521/軽減218/パーティ8/入らなかった技1** がオフライン計算と完全一致、junk無し、プラン作成・描画OK。
