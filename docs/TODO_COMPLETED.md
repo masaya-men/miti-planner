@@ -2,6 +2,14 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-06-24 取込v2③ 攻撃の対象(MT/ST)テンプレ引き継ぎ + 管理ツールバーsticky化 — 本番デプロイ済・ユーザー実機OK
+取込フローv2 本番前ブラッシュアップ③。取込先コンテンツに管理者テンプレが在るとき、スプシ取込の攻撃名→テンプレ技を照合し**対象(AoE/MT/ST)だけ**を引き継ぐ。spec/plan=`docs/superpowers/{specs,plans}/2026-06-23-import-target-carryover*`。main fast-forward(fe12ff6b→`746476ba`・コード6コミット `276ff4f4..746476ba`)→push→Vercel本番自動デプロイ。ロールバック=該当コミット revert。
+- **確定方針=精度優先**: マッチは正規化(括弧除去/NFKC/空白除去)後の完全一致＋管理登録のスプシ別名のみ。**編集距離の曖昧一致はやらない**(対象の誤付け=タンバスMT/ST誤誘導が有害)。引き継ぐのは `target` のみ・既存targetは上書きしない・非破壊。テンプレ無/contentId null/fetch失敗/未マッチ/等距離衝突=何もしない(取込は止めない)。管理と取込は**同一関数**で照合(DRY=管理で見た結果=本番結果)。
+- **実装=SDD 4タスク(各TDD+2段レビュー)**: T1 純粋モジュール`carryOverTargets.ts`(normalize/find/resolve/apply/report)+`TimelineEvent.sheetAliases?: string[]`+`stripParenthetical` export化 / T2 `applyTemplateTargets.ts`(getTemplate→補完)+`SpreadsheetImportModal.handleConfirm`配線 / T3 TemplateEditor「スプシ表記」列(`updateCell` case+i18n4言語) / T4「対象マッチ確認」モーダル(`parseMitigationSheet`→`buildSheetMatchReport`・i18n9キー×4言語)。fix=④ESC閉じで入力/結果リセット(`99b9998d`) / 空攻撃名がテンプレ空名イベントに誤マッチする経路を遮断+回帰テスト(`3bb7bfd1`・精度優先)。
+- **最終レビュー(opus whole-branch)=Ready to merge: Yes**(Critical/Importantゼロ・DRY/非破壊/上書きなし/失敗握り/後方互換 全確認)。`npm run build`(tsc厳密)OK・`npx vitest run`=2125 passed/5既知fail(TopBar4+HousingWorkspace1のみ)。
+- **管理ツールバーsticky化(同梱・`746476ba`)**: テンプレ編集ツールバーを本文スクロール上端にsticky固定+旧フッターの保存/元に戻すをツールバー右端へ一本化(下フッター廃止)。長い表でも保存が常に届く。実機(dev:admin)でsticky維持/行マスク/BulkEditPopover非クリップ確認。設計=brainstormingでA案(全部固定+保存一本化)承認。
+- **実機検証**: ①管理=「スプシ表記」列表示・別名保存OK / ②ユーザー=テンプレ有取込で対象が概ね入る・誤マッチなし(③マッチ確認モーダル・テンプレ無し挙動は本番で最終確認)。**後追い(任意)**=carryOverTargetsのname.jaのみマッチにコメント明記 / matched_no_targetの等距離衝突細分。
+
 ### ✅ 2026-06-23 取込フロー v2前半 + ①取込モーダル誘導型ウィザード化 — 本番デプロイ済・ユーザー実機OK
 取込フローv2前半(満杯時削除取込ゲート/コンテンツ選択前段化/誤紐付け根治の2バグ修正)+本番前ブラッシュアップ①(取込モーダルを誘導型ウィザード化)。main fast-forward(a61f9f7c→`50c64d7d`・27コミット)→push→Vercel本番デプロイ。
 - **v2前半**: `contentSelection.ts`(NewPlanModalと共通化)/`importWithLimitCheck.ts`(満杯ゲート=既存`LimitResolutionSheet`流用)/`LimitResolutionSheet`マウントをLayout一元化/取込モーダルにコンテンツ選択UI+onImport async/Timeline配線(誤紐付け根治)。最終レビューCritical(満杯解消後にshare取込storeのstatus汚染で空ShareImportSheetが幽霊化)→fix `47d1aa54`(shareWasIdleガード+回帰テスト2)。実機2バグ(picker未プリセレクト/再選択巻戻り)→fix(`resolveInitialSelection`でcontentId優先復元/初期化effectを「開いた瞬間のみ」dep[isOpen]+refに限定)→実機OK。spec/plan=`docs/superpowers/{specs,plans}/2026-06-23-import-flow-v2-phase1*`。
