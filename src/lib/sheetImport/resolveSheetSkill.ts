@@ -2,7 +2,7 @@ import type { Mitigation } from '../../types';
 import { JOB_JA_TO_ID, SKILL_ALIASES } from './skillAliases';
 
 /** 末尾の括弧（全角/半角）以降を除去 */
-function stripParenthetical(name: string): string {
+export function stripParenthetical(name: string): string {
   return name.replace(/[（(].*$/, '').trim();
 }
 

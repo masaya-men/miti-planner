@@ -120,6 +120,8 @@ export interface TimelineEvent {
     mechanicGroup?: LocalizedString;
     /** 2択攻撃の代替名（"A or B" の B）。無し/空 = 通常イベント。名前だけ変わりダメージ等は共通。 */
     altName?: LocalizedString;
+    /** スプシ取込の対象引き継ぎ用。この技がスプレッドシートでどう書かれるかの別名集合（管理画面で登録）。テンプレ攻撃のみ使用・ユーザープランでは未使用。 */
+    sheetAliases?: string[];
 }
 
 export interface Phase {
