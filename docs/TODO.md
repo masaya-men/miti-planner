@@ -14,8 +14,8 @@
 - **✅ スプシ取り込み一式=本番デプロイ済(2026-06-22・main `a6af27c0`・Vercel success)**: スプシ取込(忠実性根治6件)+①Phase列→ラベル化&フェーズ名入力 ②パーティ枠ユーザー全選択(未選択赤+作成ブロック) +マスターデータ同id版違いバグ修正(`_base`化・Firestore dataVersion146済) +ドロップダウン▼被り修正 +取り込み導線をImportMenu1つに統一(FF Logs/スプシ選択)。feat ブランチは削除済(マージ済)。詳細=`.superpowers/sdd/progress.md`「🟣改修2件 SDD ledger」。**フォローアップ**: スプシ action の「A or B」自動分割→altName(=⑦の後追い・下記)。マントラ取込直後だけ競合が光らない一過性(リロードで解消・既知軽微)。
 - **✅ ⑦敵攻撃 or(2択攻撃)=本番デプロイ済(2026-06-23・main `6471e816`)**: `altName`で「A or B」表示+EventForm or欄UX+カンペ除外(挑発/エーテルフロー/ドロー系/アーサリースター)+未使用CheatSheetView削除。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**後追い**=スプシ「A or B」自動分割→altName / 攻撃名見切れマーキー。
 - **🐛 スプシ取込バグ=根本原因2つに特定済(systematic-debugging+多エージェント検証)**。詳細=`docs/.private/2026-06-23-spreadsheet-import-issues.md`。
-  - **Bug①(collab no-op)=止血実装済・要本番検証**: collab-ON表のオーナーが開いた状態で取込→`loadSnapshot`がno-opで「前の表」がコピーされる(1回目壊れ2回目直る)。修正=取込コミットを`commitImportedPlan.ts`に切出し、NewPlanModal同様に先にdisconnect+防御フラグ解除(TDD4本緑)。**次=本番デプロイ→使い捨てcollab表で1回検証**。
-  - **Bug②(draft黙殺)=次タスク**: モーダルで最後の貼付を「フェーズ追加」せず確定すると末尾フェーズが黙って捨てられる(末尾空フェーズ要/後半欠け)。修正案B1=確定時に未追加draftを自動flush。
+  - **Bug①(collab no-op)=✅本番デプロイ済・ユーザー検証OK(2026-06-23・main `994b9111`)**: collab-ON表のオーナーが開いた状態で取込→`loadSnapshot`がno-opで「前の表」がコピーされていた。修正=取込コミットを`commitImportedPlan.ts`に切出し、NewPlanModal同様に先にdisconnect+防御フラグ解除(TDD4本緑)。
+  - **Bug②(draft黙殺)=A案実装済・要検証(未デプロイ)**: 貼り付け欄に未追加の内容が残る間は「作成」不可+黄色警告で「このフェーズを追加」を促す(取りこぼし原理的に防止)。`canConfirmImport`純関数(TDD4本)+モーダル配線+文言明確化(4言語)。spec/plan=`docs/superpowers/{specs,plans}/2026-06-23-sheet-import-no-silent-phase-drop*`。**次=ローカル確認→デプロイ**。
   - **後追い(brainstorming)**: 取込フロー再設計(押下時にコンテンツ選択を前段=誤紐付け解消) / 既存表に「続きを追記」取込(FFLogs置換/追記の前例あり)。
 - **❌反証済**: 非collabのフェーズ境界/後半落ち・描画clipは repro で否定(犯人でない)。
 - **✅ 2026-06-20 完了(詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))**: リビデ正確モデル化 / FFLogsインポート取り込みモード+共同編集進捗同期 / アクアヴェール recast 90→60(main・mockData)。**残**=進捗スマホ記録/FFLogs Phase1.5再アンカー+Phase2スプシ取込⑥/リビデ非対象=回復要否・HP経時追跡。
