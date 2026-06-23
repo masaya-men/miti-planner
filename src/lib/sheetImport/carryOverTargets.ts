@@ -17,9 +17,9 @@ export interface SheetMatchRow {
   target: CarryTarget | null;
 }
 
-/** 攻撃名の正規化: 末尾括弧除去 → NFKC(全半角統一) → 空白除去 → trim。 */
+/** 攻撃名の正規化: 末尾括弧除去 → NFKC(全半角統一) → 空白除去。 */
 export function normalizeAttackName(s: string): string {
-  return stripParenthetical(s).normalize('NFKC').replace(/\s+/g, '').trim();
+  return stripParenthetical(s).normalize('NFKC').replace(/\s+/g, '');
 }
 
 /** 「スプシ表記」入力(カンマ/改行区切り)を string[] へ。trim・空除去。 */
@@ -30,6 +30,7 @@ export function parseSheetAliases(input: string): string[] {
 /** action 名がテンプレ技に一致するか(name.ja 正規化一致 or 別名正規化一致)。 */
 function matches(actionName: string, ev: TimelineEvent): boolean {
   const n = normalizeAttackName(actionName);
+  if (n === '') return false; // 空の攻撃名は何にもマッチさせない(誤付け防止・精度優先)
   if (normalizeAttackName(ev.name.ja) === n) return true;
   return (ev.sheetAliases ?? []).some((a) => normalizeAttackName(a) === n);
 }

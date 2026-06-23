@@ -41,6 +41,15 @@ describe('findTemplateAttacks', () => {
   it('一致なし→空', () => {
     expect(findTemplateAttacks('存在しない技', tpl)).toEqual([]);
   });
+  it('空文字の攻撃名はテンプレの空名イベント(target付き)にも一切マッチしない(精度優先)', () => {
+    // テンプレに name.ja:'' かつ target:'MT' のイベントがあっても空の actionName は拾わない
+    const tplWithBlank = [ev({ id: 'blank', name: { ja: '', en: '' }, target: 'MT' })];
+    expect(findTemplateAttacks('', tplWithBlank)).toEqual([]);
+  });
+  it('空白のみの攻撃名も空文字と同様にマッチしない(精度優先)', () => {
+    const tplWithBlank = [ev({ id: 'blank', name: { ja: '', en: '' }, target: 'MT' })];
+    expect(findTemplateAttacks('   ', tplWithBlank)).toEqual([]);
+  });
 });
 
 describe('resolveTargetFromMatches', () => {
@@ -85,6 +94,13 @@ describe('applyTargetsFromTemplate', () => {
   it('未マッチ event はそのまま', () => {
     const events = [ev({ name: { ja: '別技', en: 'x' }, time: 50 })];
     expect(applyTargetsFromTemplate(events, tpl)[0].target).toBeUndefined();
+  });
+  it('name.ja が空のイベントはテンプレの空名イベント(target:MT)に誤マッチせず target 未設定のまま(精度優先)', () => {
+    // parseMitigationSheet が action:'' の行を emit した場合のシミュレーション
+    const blankEvent = ev({ id: 'blank-import', name: { ja: '', en: '' }, time: 10 });
+    const blankTpl = [ev({ id: 'blank-tpl', name: { ja: '', en: '' }, time: 10, target: 'MT' })];
+    const out = applyTargetsFromTemplate([blankEvent], blankTpl);
+    expect(out[0].target).toBeUndefined(); // 誤って 'MT' を引き継いではいけない
   });
 });
 
