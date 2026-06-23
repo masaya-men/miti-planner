@@ -62,7 +62,7 @@ describe('importWithLimitCheck', () => {
     expect(ctx.reason).toBe('max_total');
     expect(ctx.contentId).toBeNull();
     ctx.resolve('resolved');
-    await promise;
+    expect(await promise).toBe(true);
   });
 
   it('cancelled なら commit せず false を返す', async () => {
