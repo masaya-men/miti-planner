@@ -64,12 +64,13 @@ import { CursorOverlay, type RemoteCursor } from './collab/CursorOverlay';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
 import { useRemoteCursorsStore } from '../store/useRemoteCursorsStore';
 import { useCursorSendStore } from '../store/useCursorSendStore';
-import { MEMO_LIMITS, PLAN_LIMITS } from '../types/firebase';
+import { MEMO_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
 import { useProgressRecording } from './progress/useProgressRecording';
 import { SpreadsheetImportModal } from './SpreadsheetImportModal';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
-import { commitImportedPlan } from '../lib/sheetImport/commitImportedPlan';
+import { importWithLimitCheck } from '../lib/sheetImport/importWithLimitCheck';
+import type { ContentSelectionDefault } from '../lib/contentSelection';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -1273,29 +1274,26 @@ const Timeline: React.FC = () => {
     const joinerContentId = useCollabJoinerSession(s => s.contentId);
     const currentContentId = resolveContentId(currentPlan?.contentId ?? null, joinerContentId);
 
-    // スプシ取り込み: 新規プラン作成ハンドラ
-    const handleSheetImport = useCallback((result: SheetImportResult, _mode: 'new' | 'replace_current') => {
-        const plansState = usePlanStore.getState();
-        const plans = plansState.plans;
-        const contentId = currentContentId ?? null;
+    const sheetImportDefault = useMemo<ContentSelectionDefault>(() => ({
+        contentId: currentContentId,
+        level: currentPlan?.level ?? null,
+        category: currentPlan?.category ?? null,
+        title: currentPlan?.title ?? '',
+    }), [currentContentId, currentPlan]);
 
-        // 上限チェック（v1: 上限時は安全停止・既存プラン破壊なし）
-        const contentPlans = plans.filter((p) => p.contentId === contentId);
-        if (contentPlans.length >= PLAN_LIMITS.MAX_PLANS_PER_CONTENT) {
-            showToast(t('sheetImport.limit_reached'));
-            return;
-        }
-        if (plans.length >= PLAN_LIMITS.MAX_TOTAL_PLANS) {
-            showToast(t('sheetImport.limit_reached'));
-            return;
-        }
-
-        // 取り込みのコミット処理（共同編集切断→保存→loadSnapshot→新規確定）は
-        // commitImportedPlan に集約。共同編集ONのまま取り込んでも「前の表」が混入しない。
-        commitImportedPlan(result, { contentId, title: t('sheetImport.default_plan_title') });
-        setShowSheetImport(false);
-        showToast(t('sheetImport.created'));
-    }, [currentContentId, t]);
+    // スプシ取り込み: コンテンツ選択値で確定。満杯時は LimitResolutionSheet で削除を待つ。
+    const handleSheetImport = useCallback(
+        async (result: SheetImportResult, opts: { contentId: string | null }): Promise<boolean> => {
+            const committed = await importWithLimitCheck(
+                result,
+                opts.contentId,
+                t('sheetImport.default_plan_title'),
+            );
+            if (committed) showToast(t('sheetImport.created'));
+            return committed;
+        },
+        [t],
+    );
 
     const [isMitiSheetOpen, setIsMitiSheetOpen] = useState(false);
 
@@ -3948,6 +3946,7 @@ const Timeline: React.FC = () => {
                 isOpen={showSheetImport}
                 onClose={() => setShowSheetImport(false)}
                 onImport={handleSheetImport}
+                defaultSelection={sheetImportDefault}
             />
 
             {
