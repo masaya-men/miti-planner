@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -108,17 +108,22 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     setAssignment(emptyAssignment());
   }, [detectedJobIds]);
 
-  // モーダルが開くたび「今開いているコンテンツ」を初期選択へ復元。
-  // contentId を最優先で getContentById 復元するため、plan に category/level が
-  // 無い（取込/旧来プラン）場合でも登録系コンテンツは確実にプリセレクトされる。
+  // 初期選択の復元は「モーダルを開いた瞬間だけ」行う。
+  // defaultSelection は Timeline の useMemo 由来で、開いている最中でも
+  // 自動保存/同期(saveSilently・pullFromFirestore)が updatePlan→plans 配列を
+  // 再生成すると currentPlan 参照が変わり新しい object になる。これを dep に置くと
+  // ユーザーが選び直したコンテンツが操作中に初期値へ巻き戻る（再選択バグ）。
+  // よって dep は [isOpen] のみとし、最新値は ref 経由で開いた瞬間に読む。
+  const defaultSelectionRef = useRef(defaultSelection);
+  defaultSelectionRef.current = defaultSelection;
   useEffect(() => {
     if (!isOpen) return;
-    const init = resolveInitialSelection(defaultSelection);
+    const init = resolveInitialSelection(defaultSelectionRef.current);
     setSelLevel(init.level);
     setSelCategory(init.category);
     setSelBoss(init.boss);
     setSelTitle(init.title);
-  }, [isOpen, defaultSelection]);
+  }, [isOpen]);
 
   const handleSlotChange = useCallback(
     (slot: PartySlot, jobId: string | null) => {
