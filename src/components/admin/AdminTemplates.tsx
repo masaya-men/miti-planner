@@ -15,6 +15,7 @@ import { PlanToTemplateModal } from './PlanToTemplateModal';
 import { CsvImportModal } from './CsvImportModal';
 import { FflogsTranslationModal } from './FflogsTranslationModal';
 import { FflogsTimelineImportModal } from './FflogsTimelineImportModal';
+import { SheetTargetMatchModal } from './SheetTargetMatchModal';
 import { BulkEditPopover } from './BulkEditPopover';
 import { resolveImportEvents } from '../../utils/importModes';
 import { resolveTemplatePhaseAppend } from '../../utils/templateImportPhases';
@@ -64,6 +65,7 @@ export function AdminTemplates() {
   const [showCsvModal, setShowCsvModal] = useState(false);
   const [showFflogsModal, setShowFflogsModal] = useState(false);
   const [showFflogsImportModal, setShowFflogsImportModal] = useState(false);
+  const [showSheetMatchModal, setShowSheetMatchModal] = useState(false);
 
   // 一括編集用ステート
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -377,6 +379,7 @@ export function AdminTemplates() {
             onToggleAaOnly={() => { setShowAaOnly((v) => !v); setSelectedIds(new Set()); }}
             selectedCount={selectedIds.size}
             onOpenBulkEdit={() => setShowBulkEdit(true)}
+            onOpenSheetMatch={() => setShowSheetMatchModal(true)}
           />
           {showBulkEdit && selectedIds.size > 0 && (
             <BulkEditPopover
@@ -567,6 +570,11 @@ export function AdminTemplates() {
         onClose={() => setShowFflogsImportModal(false)}
         hasEvents={hasEvents}
         onImport={handleFflogsTimelineImport}
+      />
+      <SheetTargetMatchModal
+        isOpen={showSheetMatchModal}
+        onClose={() => setShowSheetMatchModal(false)}
+        templateEvents={editor.visibleEvents}
       />
     </AdminPage>
   );

@@ -20,6 +20,7 @@ interface TemplateEditorToolbarProps {
   onToggleAaOnly: () => void;
   selectedCount: number;
   onOpenBulkEdit: () => void;
+  onOpenSheetMatch: () => void;
 }
 
 const baseButtonClass =
@@ -40,6 +41,7 @@ export function TemplateEditorToolbar({
   onToggleAaOnly,
   selectedCount,
   onOpenBulkEdit,
+  onOpenSheetMatch,
 }: TemplateEditorToolbarProps) {
   const { t } = useTranslation();
 
@@ -77,6 +79,15 @@ export function TemplateEditorToolbar({
         className={`${baseButtonClass} border-sky-500/40 text-sky-400 hover:bg-sky-500/10`}
       >
         {t('admin.tpl_fflogs_import_btn')}
+      </button>
+
+      <button
+        type="button"
+        onClick={onOpenSheetMatch}
+        disabled={!hasEvents}
+        className={`${baseButtonClass} border-teal-500/40 text-teal-400 hover:bg-teal-500/10`}
+      >
+        {t('admin.tpl_sheet_match_btn')}
       </button>
 
       <button
