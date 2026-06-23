@@ -1637,6 +1637,7 @@
         "tpl_editor_damage_type": "種別",
         "tpl_editor_debuff_immune": "デバフ軽減不可",
         "tpl_editor_target": "対象",
+        "tpl_editor_sheet_aliases": "スプシ表記",
         "tpl_editor_delete": "削除",
         "tpl_editor_save": "保存する",
         "tpl_editor_undo": "変更を元に戻す",

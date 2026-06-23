@@ -164,6 +164,20 @@ describe('useTemplateEditor', () => {
     expect(result.current.state.currentLabels[0].name.ja).toBe('更新ラベル');
   });
 
+  it('sheetAliases を編集すると配列で保存データに乗る・空配列で削除', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => {
+      result.current.loadEvents(
+        [{ id: 'e1', time: 10, name: { ja: 'アクモーン', en: 'x' }, damageType: 'magical' }],
+        [],
+      );
+    });
+    act(() => { result.current.updateCell('e1', 'sheetAliases', ['散開', 'まとまる']); });
+    expect(result.current.getSaveData().events[0].sheetAliases).toEqual(['散開', 'まとまる']);
+    act(() => { result.current.updateCell('e1', 'sheetAliases', []); });
+    expect(result.current.getSaveData().events[0].sheetAliases).toBeUndefined();
+  });
+
   it('getSaveData で削除済みイベントを除外したデータを返す', () => {
     const { result } = renderHook(() => useTemplateEditor());
     act(() => result.current.loadEvents(makeEvents(), makePhases()));

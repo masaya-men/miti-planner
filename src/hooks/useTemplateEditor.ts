@@ -174,6 +174,12 @@ export function useTemplateEditor() {
           case 'target':
             ev.target = value as TimelineEvent['target'];
             break;
+          case 'sheetAliases': {
+            const arr = value as string[];
+            if (arr.length === 0) delete ev.sheetAliases;
+            else ev.sheetAliases = arr;
+            break;
+          }
           case 'ignoresDebuffMitigation':
             ev.ignoresDebuffMitigation = value as boolean;
             break;

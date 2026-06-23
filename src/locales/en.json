@@ -1633,6 +1633,7 @@
         "tpl_editor_damage_type": "Type",
         "tpl_editor_debuff_immune": "Ignores debuff mit.",
         "tpl_editor_target": "Target",
+        "tpl_editor_sheet_aliases": "Sheet name",
         "tpl_editor_delete": "Del",
         "tpl_editor_save": "Save",
         "tpl_editor_undo": "Undo changes",

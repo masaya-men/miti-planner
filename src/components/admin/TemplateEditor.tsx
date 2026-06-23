@@ -8,6 +8,7 @@ import type { TimelineEvent, LocalizedString } from '../../types';
 import type { TemplateData } from '../../data/templateLoader';
 import type { EditState, TemplateLabel } from '../../hooks/useTemplateEditor';
 import { formatTime, parseTimeString } from '../../utils/templateConversions';
+import { parseSheetAliases } from '../../lib/sheetImport/carryOverTargets';
 
 // ─────────────────────────────────────────────
 // 型定義
@@ -455,6 +456,7 @@ export function TemplateEditor({
           <col style={{ width: '70px' }} />  {/* 種別 */}
           <col style={{ width: '64px' }} />  {/* デバフ軽減不可 */}
           <col style={{ width: '60px' }} />  {/* 対象 */}
+          <col className="min-w-[110px]" />  {/* スプシ表記 */}
           <col style={{ width: '80px' }} />  {/* ダメージ */}
           <col style={{ width: '40px' }} />  {/* 削除 */}
         </colgroup>
@@ -483,6 +485,7 @@ export function TemplateEditor({
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage_type')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_debuff_immune')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_target')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_sheet_aliases')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage')}</th>
             <th className="pb-2 font-normal">{t('admin.tpl_editor_delete')}</th>
           </tr>
@@ -690,6 +693,15 @@ export function TemplateEditor({
                     options={targetOptions}
                     highlight={targetHighlight}
                     onCommit={(val) => onUpdateCell(evId, 'target', val)}
+                  />
+                </td>
+
+                {/* スプシ表記 */}
+                <td className="py-1 pr-2">
+                  <EditableCell
+                    value={event.sheetAliases?.join(', ') ?? ''}
+                    highlight="none"
+                    onCommit={(val) => onUpdateCell(evId, 'sheetAliases', parseSheetAliases(val))}
                   />
                 </td>
 

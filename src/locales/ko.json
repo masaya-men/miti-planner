@@ -1598,6 +1598,7 @@
         "tpl_editor_damage_type": "유형",
         "tpl_editor_debuff_immune": "디버프 경감 불가",
         "tpl_editor_target": "대상",
+        "tpl_editor_sheet_aliases": "스프시 표기",
         "tpl_editor_delete": "삭제",
         "tpl_editor_save": "저장",
         "tpl_editor_undo": "변경 취소",

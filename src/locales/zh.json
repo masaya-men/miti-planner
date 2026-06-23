@@ -1598,6 +1598,7 @@
         "tpl_editor_damage_type": "类型",
         "tpl_editor_debuff_immune": "无视减益减伤",
         "tpl_editor_target": "目标",
+        "tpl_editor_sheet_aliases": "表格名称",
         "tpl_editor_delete": "删除",
         "tpl_editor_save": "保存",
         "tpl_editor_undo": "撤销更改",
