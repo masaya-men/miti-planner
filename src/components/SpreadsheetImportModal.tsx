@@ -16,6 +16,7 @@ import {
   type PartyAssignment, type PartySlot, type SlotRole,
 } from '../lib/sheetImport/partyAssignment';
 import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
+import { canConfirmImport } from '../lib/sheetImport/canConfirmImport';
 
 interface Props {
   isOpen: boolean;
@@ -129,7 +130,12 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   );
 
   const partyComplete = !includeMitigations || isAssignmentComplete(assignment, detectedByRole);
-  const canConfirm = preview !== null && preview.timelineEvents.length > 0 && partyComplete;
+  const hasPendingDraft = draft.trim() !== '';
+  const canConfirm = canConfirmImport({
+    hasPreviewEvents: preview !== null && preview.timelineEvents.length > 0,
+    partyComplete,
+    hasPendingDraft,
+  });
 
   const handleConfirm = useCallback(() => {
     if (entries.length === 0) return;
@@ -266,6 +272,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
             {/* Added phases list */}
             {entries.length > 0 && (
               <div className="space-y-1">
+                <p className="text-app-lg text-app-text-muted">{t('sheetImport.added_phases_label')}</p>
                 {entries.map((entry, i) => {
                   const phaseNameDisp = entry.phaseName || `Phase ${i + 1}`;
                   const events = entry.parsed.rows.length;
@@ -396,26 +403,34 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
           </div>
 
           {/* Footer */}
-          <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex justify-end gap-3 shrink-0">
-            <button
-              onClick={handleClose}
-              className="px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-95"
-            >
-              {t('common.cancel')}
-            </button>
-            <button
-              onClick={handleConfirm}
-              disabled={!canConfirm}
-              className={clsx(
-                'flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold uppercase transition-all duration-300',
-                canConfirm
-                  ? 'bg-app-toggle text-app-toggle-text hover:opacity-80 cursor-pointer active:scale-95'
-                  : 'bg-app-surface2 text-app-text-muted cursor-not-allowed',
-              )}
-            >
-              <CheckCircle2 size={16} />
-              {t('sheetImport.confirm')}
-            </button>
+          <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex flex-col gap-3 shrink-0">
+            {hasPendingDraft && (
+              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-3 rounded-lg border border-app-amber-border text-app-2xl">
+                <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                <p>{t('sheetImport.pending_draft_warning')}</p>
+              </div>
+            )}
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={handleClose}
+                className="px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text hover:border-app-toggle transition-all duration-200 cursor-pointer active:scale-95"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={!canConfirm}
+                className={clsx(
+                  'flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold uppercase transition-all duration-300',
+                  canConfirm
+                    ? 'bg-app-toggle text-app-toggle-text hover:opacity-80 cursor-pointer active:scale-95'
+                    : 'bg-app-surface2 text-app-text-muted cursor-not-allowed',
+                )}
+              >
+                <CheckCircle2 size={16} />
+                {t('sheetImport.confirm')}
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>
