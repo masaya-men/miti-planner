@@ -17,6 +17,7 @@ import {
 } from '../lib/sheetImport/partyAssignment';
 import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
 import { importBlockReason } from '../lib/sheetImport/importBlockReason';
+import { applyTemplateTargetsToResult } from '../lib/sheetImport/applyTemplateTargets';
 import {
   type WizardStep, wizardHasPartyStep, wizardTotalSteps, wizardStepPosition,
   wizardCanAdvance, wizardNextStep, wizardPrevStep, wizardClampStep, resolvePhaseName,
@@ -284,7 +285,9 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
       { mitigations: getMitigationsFromStore(), jobs: getJobsFromStore() },
       { includeMitigations, partyOverride },
     );
-    const committed = await onImport(result, { contentId: selectedContentId });
+    // 取込先テンプレが在れば攻撃の対象(MT/ST)を補完(無ければ素通り)
+    const finalResult = await applyTemplateTargetsToResult(result, selectedContentId);
+    const committed = await onImport(finalResult, { contentId: selectedContentId });
     if (committed) handleClose();
   }, [entries, includeMitigations, assignment, onImport, handleClose, selectedContentId]);
 
