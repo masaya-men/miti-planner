@@ -22,15 +22,15 @@ export function SheetTargetMatchModal({ isOpen, onClose, templateEvents }: Props
   const [report, setReport] = useState<SheetMatchRow[] | null>(null);
   const [parseError, setParseError] = useState(false);
 
-  useEscapeClose(isOpen, onClose);
-  if (!isOpen) return null;
-
   const handleClose = () => {
     setText('');
     setReport(null);
     setParseError(false);
     onClose();
   };
+
+  useEscapeClose(isOpen, handleClose);
+  if (!isOpen) return null;
 
   const handleCheck = () => {
     const parsed = parseMitigationSheet(text);
