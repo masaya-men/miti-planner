@@ -2573,6 +2573,7 @@
         "limit_replace_current": "현재 열려 있는 표로 교체",
         "limit_delete_one": "기존 표를 하나 삭제하고 작성",
         "limit_cancel": "취소",
+        "target_content_label": "가져올 콘텐츠",
         "rights_notice": "가져오는 내용의 권리와 책임은 이용자에게 있습니다",
         "default_plan_title": "가져온 경감표",
         "party_assign_label": "파티 슬롯 배정",

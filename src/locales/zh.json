@@ -2573,6 +2573,7 @@
         "limit_replace_current": "替换当前打开的表",
         "limit_delete_one": "删除一张已有的表后创建",
         "limit_cancel": "取消",
+        "target_content_label": "导入目标内容",
         "rights_notice": "导入内容的版权与责任由使用者自行承担",
         "default_plan_title": "导入的减伤表",
         "party_assign_label": "分配小队槽位",

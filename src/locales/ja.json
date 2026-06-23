@@ -2629,6 +2629,7 @@
         "limit_replace_current": "今開いている表を置き換える",
         "limit_delete_one": "既存の表を1つ削除して作成",
         "limit_cancel": "やめる",
+        "target_content_label": "取り込み先のコンテンツ",
         "rights_notice": "取り込む内容の権利・責任は利用者にあります",
         "default_plan_title": "取り込んだ軽減表",
         "party_assign_label": "パーティの枠を割り当て",

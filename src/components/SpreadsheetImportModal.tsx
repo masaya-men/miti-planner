@@ -17,12 +17,20 @@ import {
 } from '../lib/sheetImport/partyAssignment';
 import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
 import { importBlockReason } from '../lib/sheetImport/importBlockReason';
+import { hasContentRegistry, getFilteredBosses, deriveContentId } from '../lib/contentSelection';
+import type { ContentSelectionDefault } from '../lib/contentSelection';
+import { CATEGORY_LABELS, getContentById } from '../data/contentRegistry';
+import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onImport: (result: SheetImportResult, mode: 'new' | 'replace_current') => void;
+  onImport: (result: SheetImportResult, opts: { contentId: string | null }) => Promise<boolean>;
+  defaultSelection: ContentSelectionDefault;
 }
+
+const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
+const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
 
 function resetState() {
   return {
@@ -34,7 +42,7 @@ function resetState() {
   };
 }
 
-export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImport }) => {
+export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImport, defaultSelection }) => {
   useEscapeClose(isOpen, onClose);
   const { t, i18n } = useTranslation();
 
@@ -45,6 +53,11 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   const [parseError, setParseError] = useState(false);
   const [assignment, setAssignment] = useState<PartyAssignment>(emptyAssignment());
 
+  const [selLevel, setSelLevel] = useState<ContentLevel | null>(null);
+  const [selCategory, setSelCategory] = useState<ContentCategory | null>(null);
+  const [selBoss, setSelBoss] = useState<ContentDefinition | null>(null);
+  const [selTitle, setSelTitle] = useState('');
+
   const handleClose = useCallback(() => {
     const s = resetState();
     setIncludeMitigations(s.includeMitigations);
@@ -53,6 +66,10 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     setEntries(s.entries);
     setParseError(s.parseError);
     setAssignment(emptyAssignment());
+    setSelLevel(null);
+    setSelCategory(null);
+    setSelBoss(null);
+    setSelTitle('');
     onClose();
   }, [onClose]);
 
@@ -90,6 +107,20 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   useEffect(() => {
     setAssignment(emptyAssignment());
   }, [detectedJobIds]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const d = defaultSelection;
+    setSelLevel(d.level ?? null);
+    setSelCategory(d.category ?? null);
+    if (d.contentId && hasContentRegistry(d.category)) {
+      setSelBoss(getContentById(d.contentId) ?? null);
+      setSelTitle('');
+    } else {
+      setSelBoss(null);
+      setSelTitle(d.category && !hasContentRegistry(d.category) ? d.title : '');
+    }
+  }, [isOpen, defaultSelection]);
 
   const handleSlotChange = useCallback(
     (slot: PartySlot, jobId: string | null) => {
@@ -129,6 +160,10 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     [entries, includeMitigations],
   );
 
+  const lang = i18n.language === 'en' ? 'en' : 'ja';
+  const filteredBosses = useMemo(() => getFilteredBosses(selLevel, selCategory), [selLevel, selCategory]);
+  const selectedContentId = deriveContentId(selBoss, selCategory, selTitle);
+
   const partyComplete = !includeMitigations || isAssignmentComplete(assignment, detectedByRole);
   const hasPendingDraft = draft.trim() !== '';
   const blockReason = importBlockReason({
@@ -138,7 +173,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   });
   const canConfirm = blockReason === null;
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
     if (entries.length === 0) return;
     const partyOverride = includeMitigations ? buildPartyOverride(assignment) : undefined;
     const result = buildPlanFromSheets(
@@ -146,9 +181,9 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
       { mitigations: getMitigationsFromStore(), jobs: getJobsFromStore() },
       { includeMitigations, partyOverride },
     );
-    onImport(result, 'new');
-    handleClose();
-  }, [entries, includeMitigations, assignment, onImport, handleClose]);
+    const committed = await onImport(result, { contentId: selectedContentId });
+    if (committed) handleClose();
+  }, [entries, includeMitigations, assignment, onImport, handleClose, selectedContentId]);
 
   if (!isOpen) return null;
 
@@ -191,6 +226,88 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
 
           {/* Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-5">
+
+            {/* Step 0: 取り込み先コンテンツ選択 */}
+            <div className="space-y-2">
+              <label className="text-app-lg text-app-text-muted block">
+                {t('sheetImport.target_content_label')}
+              </label>
+              {/* Level */}
+              <div className="flex gap-2 flex-wrap">
+                {LEVEL_OPTIONS.map((lv) => (
+                  <button
+                    key={lv}
+                    type="button"
+                    onClick={() => { setSelLevel(lv); setSelBoss(null); }}
+                    className={clsx(
+                      'px-3 py-1.5 rounded-lg text-app-2xl font-bold border transition-all duration-200 cursor-pointer active:scale-95',
+                      selLevel === lv
+                        ? 'border-app-text bg-app-text/5 text-app-text'
+                        : 'border-app-border text-app-text-muted hover:border-app-text/40',
+                    )}
+                  >
+                    Lv{lv}
+                  </button>
+                ))}
+              </div>
+              {/* Category */}
+              <div className="flex gap-2 flex-wrap pt-1">
+                {CATEGORY_OPTIONS.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => { setSelCategory(cat); setSelBoss(null); setSelTitle(''); }}
+                    className={clsx(
+                      'px-3 py-1.5 rounded-lg text-app-2xl font-bold border transition-all duration-200 cursor-pointer active:scale-95',
+                      selCategory === cat
+                        ? 'border-app-text bg-app-text/5 text-app-text'
+                        : 'border-app-border text-app-text-muted hover:border-app-text/40',
+                    )}
+                  >
+                    {(CATEGORY_LABELS[cat][lang] || CATEGORY_LABELS[cat].ja).toUpperCase()}
+                  </button>
+                ))}
+              </div>
+              {/* Boss (零式・絶) */}
+              {hasContentRegistry(selCategory) && (
+                selLevel ? (
+                  filteredBosses.length > 0 ? (
+                    <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto custom-scrollbar pt-1">
+                      {filteredBosses.map((b) => (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => setSelBoss(b)}
+                          className={clsx(
+                            'w-full px-3 py-2 rounded-lg text-app-2xl font-bold border text-left transition-all duration-200 cursor-pointer active:scale-[0.98]',
+                            selBoss?.id === b.id
+                              ? 'border-app-text bg-app-text/5 text-app-text'
+                              : 'border-app-border text-app-text-muted hover:border-app-text/40',
+                          )}
+                        >
+                          {b.name[lang] || b.name.ja}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-app-lg text-app-text-muted py-2">{t('new_plan.no_matches')}</p>
+                  )
+                ) : (
+                  <p className="text-app-lg text-app-text-muted py-2">{t('new_plan.select_level_first')}</p>
+                )
+              )}
+              {/* 自由入力タイトル (ダンジョン/レイド/その他) */}
+              {selCategory !== null && !hasContentRegistry(selCategory) && (
+                <input
+                  type="text"
+                  value={selTitle}
+                  onChange={(e) => setSelTitle(e.target.value)}
+                  placeholder={t('new_plan.plan_name_placeholder')}
+                  className="w-full bg-app-surface2 border border-app-border rounded-lg px-3 py-2 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted mt-1"
+                  spellCheck={false}
+                />
+              )}
+            </div>
 
             {/* Step 1: Mode */}
             <div className="space-y-2">

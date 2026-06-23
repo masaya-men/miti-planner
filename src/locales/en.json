@@ -2608,6 +2608,7 @@
         "limit_replace_current": "Replace the currently open sheet",
         "limit_delete_one": "Delete one existing sheet and create",
         "limit_cancel": "Cancel",
+        "target_content_label": "Target content",
         "rights_notice": "You are responsible for the rights to the content you import",
         "default_plan_title": "Imported sheet",
         "party_assign_label": "Assign party slots",
