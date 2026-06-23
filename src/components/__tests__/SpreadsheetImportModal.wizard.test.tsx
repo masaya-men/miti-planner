@@ -56,4 +56,16 @@ describe('SpreadsheetImportModal ウィザード遷移', () => {
     fireEvent.click(screen.getByRole('button', { name: 'sheetImport.wizard_back' }));
     expect(screen.getByText('sheetImport.target_content_label')).toBeTruthy();
   });
+
+  it('フェーズ名任意: Step2 でフェーズ名空でも貼り付けがあれば「追加」が活性', () => {
+    renderModal();
+    fireEvent.click(screen.getByRole('button', { name: 'sheetImport.next_to_paste' }));
+    const addBtn = screen.getByRole('button', { name: 'sheetImport.add_phase' }) as HTMLButtonElement;
+    // 貼り付け空 → disabled
+    expect(addBtn.disabled).toBe(true);
+    // textarea に何か入力（フェーズ名は空のまま）→ 活性化（= 名前任意）
+    const textarea = document.querySelector('textarea') as HTMLTextAreaElement;
+    fireEvent.change(textarea, { target: { value: 'A1\tB1' } });
+    expect(addBtn.disabled).toBe(false);
+  });
 });

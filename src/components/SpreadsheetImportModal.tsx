@@ -19,7 +19,7 @@ import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
 import { importBlockReason } from '../lib/sheetImport/importBlockReason';
 import {
   type WizardStep, wizardHasPartyStep, wizardTotalSteps, wizardStepPosition,
-  wizardCanAdvance, wizardNextStep, wizardPrevStep, wizardClampStep,
+  wizardCanAdvance, wizardNextStep, wizardPrevStep, wizardClampStep, resolvePhaseName,
 } from '../lib/sheetImport/importWizard';
 import { hasContentRegistry, getFilteredBosses, deriveContentId, resolveInitialSelection } from '../lib/contentSelection';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
@@ -146,7 +146,7 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
       return;
     }
     setParseError(false);
-    setEntries((prev) => [...prev, { parsed: result, phaseName: phaseName.trim() }]);
+    setEntries((prev) => [...prev, { parsed: result, phaseName: resolvePhaseName(phaseName, prev.length) }]);
     setDraft('');
     setPhaseName('');
   }, [draft, phaseName]);
@@ -498,10 +498,10 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
 
                       <button
                         onClick={handleAddPhase}
-                        disabled={!draft.trim() || !phaseName.trim()}
+                        disabled={!draft.trim()}
                         className={clsx(
                           'flex items-center gap-2 px-4 py-2 rounded-lg text-app-2xl font-bold transition-all duration-200',
-                          draft.trim() && phaseName.trim()
+                          draft.trim()
                             ? 'bg-app-toggle text-app-toggle-text hover:opacity-80 cursor-pointer active:scale-95'
                             : 'bg-app-surface2 text-app-text-muted cursor-not-allowed',
                         )}
