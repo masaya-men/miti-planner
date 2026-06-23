@@ -20,6 +20,11 @@ export async function importWithLimitCheck(
   const limit = checkPlanLimit(plans, contentId);
 
   if (limit.exceeded) {
+    // 共有取込ストアを間借りして既存 LimitResolutionSheet を駆動する。
+    // setLimitContext は share status を 'limit_hit'→(解消後)'importing' にするだけで
+    // 'idle' に戻さないため、ゲート前にアイドルだった場合のみ後始末する
+    // (本物の共有取込が進行中なら触らない)。
+    const shareWasIdle = useShareImportFlow.getState().status === 'idle';
     const decision = await new Promise<'resolved' | 'cancelled'>((resolve) => {
       useShareImportFlow.getState().setLimitContext({
         reason: limit.reason!,
@@ -29,6 +34,9 @@ export async function importWithLimitCheck(
         resolve,
       });
     });
+    if (shareWasIdle && useShareImportFlow.getState().status !== 'idle') {
+      useShareImportFlow.getState().close();
+    }
     if (decision === 'cancelled') return false;
     // 'resolved' = LimitResolutionSheet が削除完了済み → 枠が空いた
   }

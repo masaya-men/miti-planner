@@ -23,11 +23,24 @@ const result = {
 const setPlans = (plans: SavedPlan[]) =>
   (usePlanStore.getState as Mock).mockReturnValue({ plans });
 
+// ステートフルなシェアストアモック
+// setLimitContext を呼ぶと shareStatus が変化し、getState() が最新を返す
+let shareStatus: string;
 let setLimitContext: Mock;
+let closeMock: Mock;
+
 beforeEach(() => {
   vi.clearAllMocks();
-  setLimitContext = vi.fn();
-  (useShareImportFlow.getState as Mock).mockReturnValue({ setLimitContext });
+  shareStatus = 'idle';
+  closeMock = vi.fn();
+  setLimitContext = vi.fn((ctx: { resolve: (v: 'resolved' | 'cancelled') => void } | null) => {
+    shareStatus = ctx ? 'limit_hit' : 'importing';
+  });
+  (useShareImportFlow.getState as Mock).mockImplementation(() => ({
+    status: shareStatus,
+    setLimitContext,
+    close: closeMock,
+  }));
   (commitImportedPlan as Mock).mockReturnValue('newPlanId');
 });
 
@@ -73,5 +86,29 @@ describe('importWithLimitCheck', () => {
     ctx.resolve('cancelled');
     expect(await promise).toBe(false);
     expect(commitImportedPlan).not.toHaveBeenCalled();
+  });
+
+  it('share が idle だったとき: ゲート解消後に close() を呼んでストアを idle に戻す', async () => {
+    // shareStatus はデフォルト 'idle'
+    setPlans(Array.from({ length: PLAN_LIMITS.MAX_PLANS_PER_CONTENT }, (_, i) => mkPlan(`p${i}`, 'fru')));
+    const promise = importWithLimitCheck(result, 'fru', 'タイトル');
+    await Promise.resolve();
+    const ctx = setLimitContext.mock.calls[0][0];
+    // setLimitContext の呼び出しで shareStatus が 'limit_hit' に変化している
+    ctx.resolve('resolved');
+    await promise;
+    expect(closeMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('share が idle でなかったとき: ゲート解消後に close() を呼ばない (本物の共有取込を邪魔しない)', async () => {
+    // 本物の共有取込が進行中を模擬
+    shareStatus = 'importing';
+    setPlans(Array.from({ length: PLAN_LIMITS.MAX_PLANS_PER_CONTENT }, (_, i) => mkPlan(`p${i}`, 'fru')));
+    const promise = importWithLimitCheck(result, 'fru', 'タイトル');
+    await Promise.resolve();
+    const ctx = setLimitContext.mock.calls[0][0];
+    ctx.resolve('resolved');
+    await promise;
+    expect(closeMock).not.toHaveBeenCalled();
   });
 });

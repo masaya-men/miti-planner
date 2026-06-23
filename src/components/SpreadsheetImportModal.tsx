@@ -229,9 +229,9 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
 
             {/* Step 0: 取り込み先コンテンツ選択 */}
             <div className="space-y-2">
-              <label className="text-app-lg text-app-text-muted block">
+              <p className="text-app-lg text-app-text-muted block">
                 {t('sheetImport.target_content_label')}
-              </label>
+              </p>
               {/* Level */}
               <div className="flex gap-2 flex-wrap">
                 {LEVEL_OPTIONS.map((lv) => (
