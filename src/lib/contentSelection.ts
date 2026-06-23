@@ -1,11 +1,19 @@
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
-import { getSeriesByLevel, getContentBySeries } from '../data/contentRegistry';
+import { getSeriesByLevel, getContentBySeries, getContentById } from '../data/contentRegistry';
 
 /** 取込モーダル等へ「今開いているコンテンツ」を初期選択として渡すための型 */
 export interface ContentSelectionDefault {
   contentId: string | null;
   level: ContentLevel | null;
   category: ContentCategory | null;
+  title: string;
+}
+
+/** コンテンツ選択 UI の状態（レベル/カテゴリ/ボス/自由入力タイトル）。 */
+export interface ContentSelectionState {
+  level: ContentLevel | null;
+  category: ContentCategory | null;
+  boss: ContentDefinition | null;
   title: string;
 }
 
@@ -50,4 +58,27 @@ export function deriveContentId(
   if (hasContentRegistry(category)) return null;
   const trimmed = title.trim();
   return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
+ * 「今開いているコンテンツ」から取込モーダルの初期選択状態を復元する。
+ *
+ * 重要: 復元は **contentId を最優先**で行う。登録系(零式/絶)は `getContentById` で
+ * ボス定義を引ければ、そのボスの level/category を権威として復元する。これにより、
+ * SavedPlan が `category`/`level` を持たない（取込/旧来プラン等）場合でも、
+ * contentId さえ登録系なら確実にプリセレクトされる。
+ * 登録外(ダンジョン/レイド/その他)は contentId がコンテンツ名そのものなので
+ * 自由入力欄へ流し込む（category は plan 由来にフォールバック）。
+ */
+export function resolveInitialSelection(d: ContentSelectionDefault): ContentSelectionState {
+  const boss = d.contentId ? getContentById(d.contentId) ?? null : null;
+  if (boss) {
+    return { level: boss.level, category: boss.category, boss, title: '' };
+  }
+  return {
+    level: d.level ?? null,
+    category: d.category ?? null,
+    boss: null,
+    title: d.category && !hasContentRegistry(d.category) ? (d.contentId ?? d.title) : '',
+  };
 }

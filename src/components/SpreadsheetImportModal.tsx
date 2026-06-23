@@ -17,9 +17,9 @@ import {
 } from '../lib/sheetImport/partyAssignment';
 import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
 import { importBlockReason } from '../lib/sheetImport/importBlockReason';
-import { hasContentRegistry, getFilteredBosses, deriveContentId } from '../lib/contentSelection';
+import { hasContentRegistry, getFilteredBosses, deriveContentId, resolveInitialSelection } from '../lib/contentSelection';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
-import { CATEGORY_LABELS, getContentById } from '../data/contentRegistry';
+import { CATEGORY_LABELS } from '../data/contentRegistry';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 
 interface Props {
@@ -108,18 +108,16 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
     setAssignment(emptyAssignment());
   }, [detectedJobIds]);
 
+  // モーダルが開くたび「今開いているコンテンツ」を初期選択へ復元。
+  // contentId を最優先で getContentById 復元するため、plan に category/level が
+  // 無い（取込/旧来プラン）場合でも登録系コンテンツは確実にプリセレクトされる。
   useEffect(() => {
     if (!isOpen) return;
-    const d = defaultSelection;
-    setSelLevel(d.level ?? null);
-    setSelCategory(d.category ?? null);
-    if (d.contentId && hasContentRegistry(d.category)) {
-      setSelBoss(getContentById(d.contentId) ?? null);
-      setSelTitle('');
-    } else {
-      setSelBoss(null);
-      setSelTitle(d.category && !hasContentRegistry(d.category) ? d.title : '');
-    }
+    const init = resolveInitialSelection(defaultSelection);
+    setSelLevel(init.level);
+    setSelCategory(init.category);
+    setSelBoss(init.boss);
+    setSelTitle(init.title);
   }, [isOpen, defaultSelection]);
 
   const handleSlotChange = useCallback(
