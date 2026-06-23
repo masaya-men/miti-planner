@@ -361,9 +361,11 @@ export function AdminTemplates() {
         </div>
       )}
 
-      {/* ツールバー（コンテンツ選択時のみ） */}
+      {/* ツールバー（コンテンツ選択時のみ）。本文スクロール領域の上端に sticky 固定し、
+          表を下にスクロールしても操作・保存が常に届くようにする（-mx-6/px-6 で端まで敷き、
+          bg-app-bg で下を流れる行をマスク・border で区切り）。 */}
       {selectedContentId && (
-        <div className="mb-3 relative">
+        <div className="sticky top-0 z-20 -mx-6 px-6 py-2 mb-3 bg-app-bg border-b border-app-text/10 relative">
           <TemplateEditorToolbar
             untranslatedCount={editor.untranslatedCount}
             showUntranslatedOnly={showUntranslatedOnly}
@@ -380,6 +382,10 @@ export function AdminTemplates() {
             selectedCount={selectedIds.size}
             onOpenBulkEdit={() => setShowBulkEdit(true)}
             onOpenSheetMatch={() => setShowSheetMatchModal(true)}
+            hasChanges={editor.hasChanges}
+            saving={saving}
+            onSave={handleSave}
+            onUndo={editor.undo}
           />
           {showBulkEdit && selectedIds.size > 0 && (
             <BulkEditPopover
@@ -414,28 +420,6 @@ export function AdminTemplates() {
       {/* 空状態（コンテンツ選択済みだがイベントなし） */}
       {selectedContentId && !hasEvents && (
         <p className="text-app-lg text-app-text-muted mb-3">{t('admin.tpl_editor_empty')}</p>
-      )}
-
-      {/* フッター: 元に戻す + 保存（イベントあり時のみ） */}
-      {selectedContentId && hasEvents && (
-        <div className="flex items-center gap-2 mb-6">
-          <button
-            type="button"
-            onClick={editor.undo}
-            disabled={!editor.hasChanges}
-            className="text-app-lg px-3 py-1.5 rounded border border-app-text/20 text-app-text-muted hover:bg-app-text/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {t('admin.tpl_editor_undo')}
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="text-app-lg px-3 py-1.5 rounded border border-blue-500/40 text-blue-400 hover:bg-blue-500/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            {saving ? '...' : t('admin.tpl_editor_save')}
-          </button>
-        </div>
       )}
 
       {/* エラー */}

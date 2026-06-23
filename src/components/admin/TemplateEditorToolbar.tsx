@@ -21,6 +21,11 @@ interface TemplateEditorToolbarProps {
   selectedCount: number;
   onOpenBulkEdit: () => void;
   onOpenSheetMatch: () => void;
+  // 保存・元に戻す（旧フッターから移設。hasEvents の時のみ表示）
+  hasChanges: boolean;
+  saving: boolean;
+  onSave: () => void;
+  onUndo: () => void;
 }
 
 const baseButtonClass =
@@ -42,6 +47,10 @@ export function TemplateEditorToolbar({
   selectedCount,
   onOpenBulkEdit,
   onOpenSheetMatch,
+  hasChanges,
+  saving,
+  onSave,
+  onUndo,
 }: TemplateEditorToolbarProps) {
   const { t } = useTranslation();
 
@@ -156,6 +165,29 @@ export function TemplateEditorToolbar({
       >
         {t('admin.tpl_editor_untranslated_only')}
       </button>
+
+      {/* 元に戻す + 保存（旧フッターから移設・イベントあり時のみ。区切り線で分離） */}
+      {hasEvents && (
+        <>
+          <div className="w-px self-stretch bg-app-text/15 mx-1" />
+          <button
+            type="button"
+            onClick={onUndo}
+            disabled={!hasChanges}
+            className={`${baseButtonClass} border-app-text/20 text-app-text-muted hover:bg-app-text/10`}
+          >
+            {t('admin.tpl_editor_undo')}
+          </button>
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saving}
+            className={`${baseButtonClass} border-blue-500/40 text-blue-400 hover:bg-blue-500/10`}
+          >
+            {saving ? '...' : t('admin.tpl_editor_save')}
+          </button>
+        </>
+      )}
     </div>
   );
 }
