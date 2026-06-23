@@ -36,6 +36,7 @@ import { AstrologianDrawChainPromptModal } from './AstrologianDrawChainPromptMod
 import { LocalImportDialog } from './LocalImportDialog';
 import { useLocalImportDialog } from '../store/useLocalImportDialog';
 import { ShareImportSheet } from './ShareImportSheet';
+import { LimitResolutionSheet } from './LimitResolutionSheet';
 import { getToken } from 'firebase/app-check';
 import { appCheck, auth } from '../lib/firebase';
 
@@ -885,6 +886,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 useShareImportFlow.status !== 'idle' のときだけ自前で描画する self-rendering 設計。
                 /share/:shareId 経由で SharePage が start() を叩くと自動的に表示される。 */}
             <ShareImportSheet />
+            {/* 上限解消シートはグローバル単一マウント（共有取込・スプシ取込の両方が setLimitContext で呼ぶ） */}
+            <LimitResolutionSheet />
         </div>
     );
 };

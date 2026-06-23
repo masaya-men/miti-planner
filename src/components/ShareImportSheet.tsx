@@ -19,7 +19,6 @@ import { MitigationSheetPreview } from './MitigationSheetPreview';
 import { SharePlanCard } from './SharePlanCard';
 import { ImportProgressOverlay } from './ImportProgressOverlay';
 import { executeShareImport } from '../lib/executeShareImport';
-import { LimitResolutionSheet } from './LimitResolutionSheet';
 import { getContentById } from '../data/contentRegistry';
 import { getPhaseName } from '../types';
 import type { ProgressEvent } from '../lib/shareImportTypes';
@@ -452,9 +451,6 @@ export function ShareImportSheet() {
                     </motion.div>
                 </Fragment>
             )}
-
-            {/* 上限ヒット時に重ねて開く解消シート。 limitContext が null の間は内部で何も描画しない */}
-            <LimitResolutionSheet />
         </AnimatePresence>,
         document.body,
     );
