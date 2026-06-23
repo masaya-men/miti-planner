@@ -21,13 +21,16 @@ describe('getFilteredBosses', () => {
   it('level が null なら空配列', () => {
     expect(getFilteredBosses(null, 'savage')).toEqual([]);
   });
-  it('非Registry系カテゴリなら空配列', () => {
+  it('非Registry系（dungeon）なら空配列', () => {
     expect(getFilteredBosses(100, 'dungeon')).toEqual([]);
+  });
+  it('非Registry系（null）なら空配列', () => {
     expect(getFilteredBosses(100, null)).toEqual([]);
   });
   it('Registry系 + level 指定で配列を返す（型は ContentDefinition[]）', () => {
     const result = getFilteredBosses(100, 'savage');
     expect(Array.isArray(result)).toBe(true);
+    expect(result.every((c) => typeof c.id === 'string')).toBe(true);
   });
 });
 
