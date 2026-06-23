@@ -69,10 +69,7 @@ import { showToast } from './Toast';
 import { useProgressRecording } from './progress/useProgressRecording';
 import { SpreadsheetImportModal } from './SpreadsheetImportModal';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
-import type { PlanData, SavedPlan } from '../types';
-import { buildImportedPartyMembers } from '../lib/sheetImport/buildImportedPartyMembers';
-import { commitNewPlan } from '../lib/commitNewPlan';
-import { generateUniqueTitle } from '../utils/planTitle';
+import { commitImportedPlan } from '../lib/sheetImport/commitImportedPlan';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -1293,43 +1290,9 @@ const Timeline: React.FC = () => {
             return;
         }
 
-        const planData: PlanData = {
-            currentLevel: 100,
-            timelineEvents: result.timelineEvents,
-            timelineMitigations: result.timelineMitigations,
-            phases: result.phases,
-            labels: result.labels,
-            partyMembers: buildImportedPartyMembers(result.party),
-            aaSettings: { damage: 10000, type: 'physical', target: 'MT' },
-            schAetherflowPatterns: {},
-        };
-
-        // 取り込み内容を作業ストアへ反映してから新規プランを確定する。
-        // commitNewPlan は「作業ストア = 新プランの内容」を前提とする共有処理のため、
-        // 先に loadSnapshot しないとタイムラインに取り込み結果が表示されない（NewPlanModal と同じ作法）。
-        const miti = useMitigationStore.getState();
-        // 1. 直前プランの編集を保存（破壊しない）
-        if (plansState.currentPlanId) {
-            plansState.updatePlan(plansState.currentPlanId, { data: miti.getSnapshot() });
-        }
-        // 2. 取り込みデータを作業ストアへロード（タイムラインに即時反映）
-        miti.loadSnapshot(planData);
-
-        const newPlan: SavedPlan = {
-            id: (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : `plan_${Date.now()}`,
-            ownerId: 'local',
-            ownerDisplayName: 'Guest',
-            title: generateUniqueTitle(t('sheetImport.default_plan_title'), plans, contentId),
-            contentId,
-            isPublic: false,
-            copyCount: 0,
-            useCount: 0,
-            data: miti.getSnapshot(),
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-        };
-
-        commitNewPlan(newPlan);
+        // 取り込みのコミット処理（共同編集切断→保存→loadSnapshot→新規確定）は
+        // commitImportedPlan に集約。共同編集ONのまま取り込んでも「前の表」が混入しない。
+        commitImportedPlan(result, { contentId, title: t('sheetImport.default_plan_title') });
         setShowSheetImport(false);
         showToast(t('sheetImport.created'));
     }, [currentContentId, t]);
