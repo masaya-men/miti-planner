@@ -2,6 +2,11 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-06-23 取込フロー v2前半 + ①取込モーダル誘導型ウィザード化 — 本番デプロイ済・ユーザー実機OK
+取込フローv2前半(満杯時削除取込ゲート/コンテンツ選択前段化/誤紐付け根治の2バグ修正)+本番前ブラッシュアップ①(取込モーダルを誘導型ウィザード化)。main fast-forward(a61f9f7c→`50c64d7d`・27コミット)→push→Vercel本番デプロイ。
+- **v2前半**: `contentSelection.ts`(NewPlanModalと共通化)/`importWithLimitCheck.ts`(満杯ゲート=既存`LimitResolutionSheet`流用)/`LimitResolutionSheet`マウントをLayout一元化/取込モーダルにコンテンツ選択UI+onImport async/Timeline配線(誤紐付け根治)。最終レビューCritical(満杯解消後にshare取込storeのstatus汚染で空ShareImportSheetが幽霊化)→fix `47d1aa54`(shareWasIdleガード+回帰テスト2)。実機2バグ(picker未プリセレクト/再選択巻戻り)→fix(`resolveInitialSelection`でcontentId優先復元/初期化effectを「開いた瞬間のみ」dep[isOpen]+refに限定)→実機OK。spec/plan=`docs/superpowers/{specs,plans}/2026-06-23-import-flow-v2-phase1*`。
+- **①誘導型ウィザード**: 1画面1ステップ化(軽減も&ジョブ検出=4step/他=3step: 設定→貼付ループ→パーティ※条件付き→確認)。貼り方ガイド常時表示(A1クリック→Ctrl+A→Ctrl+C→下枠Ctrl+V)/フェーズ名任意(空→`Phase N`実体化・`buildPlanFromSheets.ts:46`が`s.phaseName`直使用のため必須)/黄(未追加)赤(未割当)ゲート移植/i18n4言語。**核心=機能ロジック不変のpresentation刷新**: 再選択バグ修正の2 useEffect(初期選択復元dep[isOpen]+ref/`[detectedJobIds]`でassignmentリセット)・全useMemo・全ハンドラをbyte-identicalに保持(opusレビューで実ファイル照合)。新規モジュール`importWizard.ts`(純粋遷移+`resolvePhaseName`)。SDD4タスク各TDD+レビュー、最終全体レビュー(opus)=Critical/Importantゼロ。tsc0/build成功/新規32緑(全vitest既知失敗5のみ)。spec/plan=`docs/superpowers/{specs,plans}/2026-06-23-import-guided-wizard*`。ロールバック=該当コミットrevert。**後追い(別タスク)**=③攻撃対象(MT/ST)未着手 / step4で`no_phases`時の理由非表示(旧来同挙動) / skipped表示のamber直値→app-amberトークン化 / 攻撃名見切れマーキー(event-or-attack spec§5)。
+
 ### ✅ 2026-06-23 ⑦敵攻撃 "or"(2択攻撃) — 本番デプロイ済・ユーザー実機確認OK
 機能アイデア⑦。1つのボス技が状況で2択に分岐するケースを `TimelineEvent.altName: LocalizedString` で「A or B」表示。**名前だけ変わる(ダメージ同じ)確定モデル**。手動編集(EventForm)+管理(TemplateEditor)+描画(TimelineRow)を整備。spec/plan=`docs/superpowers/{specs,plans}/2026-06-22-event-or-attack*`。
 - **実装=6タスクTDD**: ①`altName`型追加+名前整形純関数`formatEventName`(A or B連結・最大2択) ②i18n `event.or_connector`/`alt_name_*`+管理 altname ヘッダ4言語(パリティテスト付き) ③TimelineRow が `formatEventName` 経由描画 ④EventForm の or(別名)入力(全空なら altName 無しで保存) ⑤管理TemplateEditor に or技名4列+`updateCell` が `altName.xx` 処理 ⑥`formatEventName` デッドコード三項除去(レビュー指摘)。
