@@ -2670,6 +2670,9 @@
         "add_phase_next": "添加此阶段并继续",
         "flow_hint": "在电子表格中点击 A1 → Ctrl+A → Ctrl+C → 在此处粘贴 (Ctrl+V)",
         "skipped_count": "无法读取的技能 {{count}}件",
-        "unresolved_note": "LoPo 中不存在，不会导入。修改为正式名称后可以导入。"
+        "unresolved_note": "LoPo 中不存在，不会导入。修改为正式名称后可以导入。",
+        "assign_member_job": "成员（选择职业）",
+        "no_time_warning": "需要时间(M:SS)列。请将表头命名为「时间」或通过「这列是？→时间」来指定。",
+        "format_hint": "职业・技能请使用正式名称，并添加时间(M:SS)列。"
     }
 }

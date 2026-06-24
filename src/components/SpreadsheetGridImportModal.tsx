@@ -463,6 +463,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     });
   }, [isGrid, table]);
 
+  // 時間列欠落警告(grid のみ): 貼り付け済みで time 列が無い
+  const hasNoTimeCol = isGrid && !table.columns.some((c) => c.field === 'time');
+
   // グリッド本体に表示中のデータが無い(=空状態)か
   const isGridEmpty = source === 'none' && table.rows.length === 0;
 
@@ -615,6 +618,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                     <ClipboardPaste size={36} className="text-app-text-muted" />
                     <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
                     <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
+                    <p className="text-app-lg text-app-text-muted/70">{t('gridImport.format_hint')}</p>
                   </div>
                 )}
               </div>
@@ -627,6 +631,12 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
               <div className="flex items-center gap-2 text-app-amber text-app-2xl">
                 <AlertCircle size={14} className="shrink-0" />
                 <span>{t('gridImport.slot_unassigned_warning')}</span>
+              </div>
+            )}
+            {step === 2 && hasNoTimeCol && (
+              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
+                <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                <p>{t('gridImport.no_time_warning')}</p>
               </div>
             )}
             {step === 2 && blockReason === 'party_incomplete' && (
@@ -730,12 +740,30 @@ const GridView: React.FC<{
   const { t } = useTranslation();
   const cellsOf = (ci: number) => table.rows.map((r) => r[ci] ?? '');
 
+  /**
+   * 「この列は？→メンバー(ジョブを選ぶ)」の2段選択: どの列インデックスがジョブ選択待ちかを保持。
+   * null = 選択待ち列なし。
+   */
+  const [pendingMemberColIdx, setPendingMemberColIdx] = useState<number | null>(null);
+
   // 列の field を変更
   const setColField = (ci: number, field: GridField) => {
     const cols = table.columns.map((c, i) =>
       i !== ci ? c : field === 'ignore' ? { field: 'ignore' as GridField, header: c.header } : { ...c, field }
     );
     setTable({ ...table, columns: cols });
+  };
+
+  /**
+   * unknown 列をジョブ付き member 列に変換する(2段選択の確定ステップ)。
+   * jobId が必須なため永久デッドエンドにならない。
+   */
+  const setColMember = (ci: number, jobId: string) => {
+    const cols = table.columns.map((c, i) =>
+      i !== ci ? c : { field: 'member' as GridField, header: c.header, jobId, slot: null }
+    );
+    setTable({ ...table, columns: cols });
+    setPendingMemberColIdx(null);
   };
 
   // member 列の枠を変更(自作テーブル)
@@ -802,21 +830,47 @@ const GridView: React.FC<{
                   )}
                   {/* 「この列は？」セレクタ (unknown 列・自作テーブルのみ) */}
                   {c.field === 'unknown' && source !== 'matrix' && (
-                    <select
-                      className="mt-1 w-full appearance-none bg-app-surface2 border border-app-border rounded px-1 py-0.5 text-app-sm text-app-text focus:outline-none"
-                      value=""
-                      onChange={(e) => {
-                        const val = e.target.value as GridField;
-                        if (val) setColField(ci, val);
-                      }}
-                    >
-                      <option value="">{t('gridImport.this_column')}</option>
-                      {ASSIGNABLE_FIELDS.map((f) => (
-                        <option key={f} value={f}>
-                          {f === 'ignore' ? t('gridImport.ignore_column') : t(`gridImport.col_${f}`)}
-                        </option>
-                      ))}
-                    </select>
+                    <>
+                      <select
+                        className="mt-1 w-full appearance-none bg-app-surface2 border border-app-border rounded px-1 py-0.5 text-app-sm text-app-text focus:outline-none"
+                        value=""
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === '__member__') {
+                            // 2段選択: まずジョブ選択待ちにする
+                            setPendingMemberColIdx(ci);
+                          } else if (val) {
+                            setPendingMemberColIdx(null);
+                            setColField(ci, val as GridField);
+                          }
+                        }}
+                      >
+                        <option value="">{t('gridImport.this_column')}</option>
+                        {ASSIGNABLE_FIELDS.map((f) => (
+                          <option key={f} value={f}>
+                            {f === 'ignore' ? t('gridImport.ignore_column') : t(`gridImport.col_${f}`)}
+                          </option>
+                        ))}
+                        <option value="__member__">{t('gridImport.assign_member_job')}</option>
+                      </select>
+                      {/* 2段目: ジョブ選択(pendingMemberColIdx がこの列を指しているとき) */}
+                      {pendingMemberColIdx === ci && (
+                        <select
+                          className="mt-1 w-full appearance-none bg-app-surface2 border border-app-amber-border rounded px-1 py-0.5 text-app-sm text-app-text focus:outline-none"
+                          value=""
+                          aria-label={t('gridImport.assign_member_job')}
+                          onChange={(e) => {
+                            const jobId = e.target.value;
+                            if (jobId) setColMember(ci, jobId);
+                          }}
+                        >
+                          <option value="">{t('gridImport.assign_member_job')}</option>
+                          {deps.jobs.map((j) => (
+                            <option key={j.id} value={j.id}>{j.name.ja}</option>
+                          ))}
+                        </select>
+                      )}
+                    </>
                   )}
                   {/* 枠セレクタ (member 列・grid/matrix 両方)。grid=列ローカル slot を直接編集 / matrix=全フェーズ横断 assignment を更新。 */}
                   {c.field === 'member' && role && (

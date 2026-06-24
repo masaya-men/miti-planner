@@ -2670,6 +2670,9 @@
         "add_phase_next": "이 페이즈 추가 후 다음",
         "flow_hint": "스프레드시트에서 A1 클릭 → Ctrl+A → Ctrl+C → 여기에 붙여넣기 (Ctrl+V)",
         "skipped_count": "읽지 못한 기술 {{count}}건",
-        "unresolved_note": "LoPo에 없어서 가져오지 않습니다. 정식 명칭으로 수정하면 가져올 수 있습니다."
+        "unresolved_note": "LoPo에 없어서 가져오지 않습니다. 정식 명칭으로 수정하면 가져올 수 있습니다.",
+        "assign_member_job": "멤버（직업 선택）",
+        "no_time_warning": "시간(M:SS) 열이 필요합니다. 표시를 「시간」으로 하거나 「이 열은?→시간」으로 지정하세요.",
+        "format_hint": "직업・스킬은 정식 명칭으로, 시간(M:SS) 열을 포함시켜 주세요."
     }
 }

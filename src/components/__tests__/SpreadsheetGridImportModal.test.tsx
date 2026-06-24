@@ -78,6 +78,9 @@ const JA: Record<string, string> = {
   'gridImport.target_none': '—',
   'gridImport.target_from_template': 'テンプレ',
   'gridImport.unresolved_note': 'LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。',
+  'gridImport.assign_member_job': 'メンバー（ジョブを選ぶ）',
+  'gridImport.no_time_warning': '時間(M:SS)の列が必要です。見出しを「時間」にするか「この列は？→時間」で指定してください。',
+  'gridImport.format_hint': 'ジョブ・スキルは正式名称で、時間(M:SS)の列を入れてください。',
   'common.cancel': 'キャンセル',
 };
 
@@ -592,6 +595,88 @@ describe('SpreadsheetGridImportModal', () => {
     // フェーズ追加(このフェーズを追加)を押さずに unresolved_note が表示されていることを確認
     // (grid は表示中テーブルから即座にプレビューを構築するため、フェーズ追加を待たずに skipped が確定)
     expect(screen.getByText('LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。')).toBeInTheDocument();
+  });
+
+  // ── §9.7 E#14/#15/#16: ジョブ列手動救済+時間欠落表示+入口案内文(Task 9) ──
+
+  it('Task9: 空状態(未貼り付け)に format_hint が表示される(E#16)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // 未貼り付け状態 → 空状態プロンプト + format_hint が出る
+    expect(screen.getByText('ジョブ・スキルは正式名称で、時間(M:SS)の列を入れてください。')).toBeInTheDocument();
+  });
+
+  it('Task9: grid で time 列が無いと no_time_warning が amber で出る(E#15)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // 時間列を含まない自作TSV
+    const tsvNoTime = '敵の攻撃\tナイト\nビッグブラスト\tランパート\n';
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => tsvNoTime } });
+    expect(screen.getByText('時間(M:SS)の列が必要です。見出しを「時間」にするか「この列は？→時間」で指定してください。')).toBeInTheDocument();
+  });
+
+  it('Task9: grid で time 列があれば no_time_warning は出ない(E#15 否定)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    const tsvWithTime = '時間\t敵の攻撃\n0:16\tビッグブラスト\n';
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => tsvWithTime } });
+    expect(screen.queryByText('時間(M:SS)の列が必要です。見出しを「時間」にするか「この列は？→時間」で指定してください。')).toBeNull();
+  });
+
+  it('Task9: matrix 貼付では no_time_warning が出ない(matrix は対象外)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    expect(screen.queryByText('時間(M:SS)の列が必要です。見出しを「時間」にするか「この列は？→時間」で指定してください。')).toBeNull();
+  });
+
+  it('Task9: unknown 列セレクタに「メンバー（ジョブを選ぶ）」が含まれる(E#14)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // 不明列を含む自作TSV
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => '不明列A\t時間\n値1\t0:10\n' } });
+    const selector = screen.getByDisplayValue('この列は？') as HTMLSelectElement;
+    const optionTexts = Array.from(selector.options).map((o) => o.text);
+    expect(optionTexts).toContain('メンバー（ジョブを選ぶ）');
+  });
+
+  it('Task9: unknown 列で「メンバー（ジョブを選ぶ）」を選ぶとジョブ select が出る(E#14 第1段)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => '不明列A\t時間\n値1\t0:10\n' } });
+    const selector = screen.getByDisplayValue('この列は？') as HTMLSelectElement;
+    // __member__ を選択
+    fireEvent.change(selector, { target: { value: '__member__' } });
+    // aria-label='メンバー（ジョブを選ぶ）' の select が出る
+    const jobSelects = screen.getAllByRole('combobox') as HTMLSelectElement[];
+    const jobSelect = jobSelects.find((s) => s.getAttribute('aria-label') === 'メンバー（ジョブを選ぶ）');
+    expect(jobSelect).toBeDefined();
+    // ジョブの選択肢が出る(ナイト/白魔道士/忍者)
+    const jobOptions = Array.from(jobSelect!.options).map((o) => o.text);
+    expect(jobOptions).toContain('ナイト');
+  });
+
+  it('Task9: ジョブ select でジョブを選ぶと列が member 化し枠セレクタが出る(E#14 第2段)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => '不明列A\t時間\nランパート\t0:10\n' } });
+    const selector = screen.getByDisplayValue('この列は？') as HTMLSelectElement;
+    // 第1段: メンバー(ジョブを選ぶ)を選択
+    fireEvent.change(selector, { target: { value: '__member__' } });
+    // 第2段: ジョブ select でナイト(pld)を選択
+    const jobSelects = screen.getAllByRole('combobox') as HTMLSelectElement[];
+    const jobSelect = jobSelects.find((s) => s.getAttribute('aria-label') === 'メンバー（ジョブを選ぶ）');
+    expect(jobSelect).toBeDefined();
+    fireEvent.change(jobSelect!, { target: { value: 'pld' } });
+    // 列が member 化 → 枠セレクタ(「枠は？」)が出る
+    const slotSelects = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
+      Array.from(s.options).some((o) => o.text === '枠は？'),
+    );
+    expect(slotSelects.length).toBeGreaterThan(0);
+    // ジョブ select(2段目)は消えている
+    const jobSelectsAfter = screen.queryAllByRole('combobox') as HTMLSelectElement[];
+    const pendingSelect = jobSelectsAfter.find((s) => s.getAttribute('aria-label') === 'メンバー（ジョブを選ぶ）');
+    expect(pendingSelect).toBeUndefined();
   });
 });
 

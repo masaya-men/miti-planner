@@ -2726,6 +2726,9 @@
         "add_phase_next": "このフェーズを追加して次へ",
         "flow_hint": "スプシで A1 をクリック → Ctrl+A → Ctrl+C → ここで Ctrl+V",
         "skipped_count": "読めなかった技 {{count}}件",
-        "unresolved_note": "LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。"
+        "unresolved_note": "LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。",
+        "assign_member_job": "メンバー（ジョブを選ぶ）",
+        "no_time_warning": "時間(M:SS)の列が必要です。見出しを「時間」にするか「この列は？→時間」で指定してください。",
+        "format_hint": "ジョブ・スキルは正式名称で、時間(M:SS)の列を入れてください。"
     }
 }

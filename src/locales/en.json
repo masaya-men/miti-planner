@@ -2705,6 +2705,9 @@
         "add_phase_next": "Add this phase & next",
         "flow_hint": "Click A1 in spreadsheet → Ctrl+A → Ctrl+C → paste here (Ctrl+V)",
         "skipped_count": "{{count}} unrecognized skill(s)",
-        "unresolved_note": "Not in LoPo — won't be imported. Correct to an official name to import."
+        "unresolved_note": "Not in LoPo — won't be imported. Correct to an official name to import.",
+        "assign_member_job": "Member (select job)",
+        "no_time_warning": "A Time (M:SS) column is required. Name the header \"Time\" or use \"What is this column? → Time\".",
+        "format_hint": "Use official names for jobs and skills, and include a Time (M:SS) column."
     }
 }
