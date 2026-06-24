@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileSpreadsheet, CheckCircle2, AlertCircle } from 'lucide-react';
+import { X, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste } from 'lucide-react';
 import clsx from 'clsx';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { getJobsFromStore, getMitigationsFromStore } from '../hooks/useSkillsData';
@@ -36,6 +36,9 @@ interface Props {
 
 /** 貼り付け内容の取込ソース。grid=自作(編集可) / matrix=行列形式(実証パーサ・読み取り表示)。 */
 type ImportSource = 'none' | 'grid' | 'matrix';
+
+/** ウィザードのステップ。1=コンテンツ選択 / 2=スプシ風グリッド。 */
+type WizardStep = 1 | 2;
 
 /** 固定の正典列(member は検出後に動的追加)。 */
 const BASE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType'];
@@ -144,6 +147,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   const jobs = useMemo(() => getJobsFromStore(), []);
   const mitigations = useMemo(() => getMitigationsFromStore(), []);
 
+  // ── ウィザードステップ(1=コンテンツ選択 / 2=グリッド) ──
+  const [step, setStep] = useState<WizardStep>(1);
+
   // 取り込み先コンテンツ選択
   const [selLevel, setSelLevel] = useState<ContentLevel | null>(null);
   const [selCategory, setSelCategory] = useState<ContentCategory | null>(null);
@@ -168,31 +174,32 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   const [matrixParsed, setMatrixParsed] = useState<ParsedSheet | null>(null);
   const [matrixResult, setMatrixResult] = useState<SheetImportResult | null>(null);
 
-  // 貼り付けテキスト(常時表示の textarea の内容)
-  const [draft, setDraft] = useState('');
   // 形式は読めたが内容を解釈できなかった時の汎用エラー(特定スプシ名を出さない中立文言)
   const [parseFailed, setParseFailed] = useState(false);
 
   // 列ごとに貼り付けモード(自作テーブルのみ有効)
   const [byColumnMode, setByColumnMode] = useState(false);
 
-  // モーダルを開くたびに見出しだけの空グリッドへリセット
+  // グリッド貼り付けサーフェス(Ctrl+V を捕捉する focusable コンテナ)
+  const pasteSurfaceRef = useRef<HTMLDivElement>(null);
+
+  // モーダルを開くたびに step1・見出しだけの空グリッドへリセット
   useEffect(() => {
     if (!isOpen) return;
+    setStep(1);
     setTable(emptyHeaderTable(t));
     setSource('none');
     setMatrixParsed(null);
     setMatrixResult(null);
-    setDraft('');
     setParseFailed(false);
     setByColumnMode(false);
     // t はレンダーごとに同一性が変わり得るが、見出し文言は安定。開いた瞬間の値で構築すれば十分。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  // 貼り付けハンドラ: どんな形式も弾かず取り込む(textarea onChange)
-  const handleDraftChange = useCallback((text: string) => {
-    setDraft(text);
+  // 取り込み本処理: 貼り付けテキスト(またはクリップボードテキスト)を形式判定して配置する。
+  // textarea onChange ではなく、グリッド本体への paste で発火する。
+  const ingestText = useCallback((text: string) => {
     setParseFailed(false);
 
     // 空 → 見出しだけの空グリッドへ戻す
@@ -235,6 +242,21 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setMatrixParsed(null);
     setMatrixResult(null);
   }, [t, mitigations, jobs, gridLang]);
+
+  // グリッド本体への貼り付けハンドラ。clipboardData からテキストを読み、規定動作は止める。
+  const handleGridPaste = useCallback((e: React.ClipboardEvent<HTMLDivElement>) => {
+    const text = e.clipboardData.getData('text');
+    if (!text) return;
+    e.preventDefault();
+    ingestText(text);
+  }, [ingestText]);
+
+  // step2 へ入ったら貼り付けサーフェスへフォーカスし Ctrl+V を確実に捕捉する
+  useEffect(() => {
+    if (step !== 2) return;
+    // レイアウト確定後にフォーカス(happy-dom でも focus() は no-op で安全)
+    pasteSurfaceRef.current?.focus?.();
+  }, [step]);
 
   // 列ごと貼り付けハンドラ: 指定列に改行区切りのテキストを流し込む(自作テーブルのみ)
   const onColumnPaste = useCallback((colIndex: number, text: string) => {
@@ -322,6 +344,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   // (初期状態の空グリッドでは表示しない)
   const showNoPhasesWarning = blockReason === 'no_phases' && source !== 'none';
 
+  // グリッド本体に表示中のデータが無い(=空状態)か
+  const isGridEmpty = source === 'none' && table.rows.length === 0;
+
   if (!isOpen) return null;
 
   const node = (
@@ -341,88 +366,150 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
             </h2>
             <button onClick={onClose} className="p-1.5 rounded-lg text-app-text hover:bg-app-toggle hover:text-app-toggle-text"><X size={18} /></button>
           </div>
-          {/* コンテンツ選択 */}
-          <div className="px-5 py-3 border-b border-app-border bg-app-surface2 shrink-0">
-            <ImportContentSelector
-              selLevel={selLevel} setSelLevel={setSelLevel}
-              selCategory={selCategory} setSelCategory={setSelCategory}
-              selBoss={selBoss} setSelBoss={setSelBoss}
-              selTitle={selTitle} setSelTitle={setSelTitle}
-              lang={lang}
-            />
+
+          {/* 進捗(2ステップ) */}
+          <div className="px-5 py-2.5 border-b border-app-border bg-app-surface2 flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-1.5">
+              {[1, 2].map((i) => (
+                <span
+                  key={i}
+                  className={clsx('h-1.5 rounded-full transition-all duration-200',
+                    i === step ? 'w-5 bg-app-text' : i < step ? 'w-1.5 bg-app-text/60' : 'w-1.5 bg-app-border')}
+                />
+              ))}
+            </div>
+            <span className="text-app-lg text-app-text-muted">
+              {step}/2 · {t(step === 1 ? 'gridImport.step_content' : 'gridImport.step_grid')}
+            </span>
           </div>
-          {/* 貼り付けバー(常時表示・onChange で即解析) */}
-          <div className="px-5 py-3 border-b border-app-border bg-app-surface2 flex flex-col gap-2 shrink-0">
-            <div className="flex gap-3 items-start flex-wrap">
-              <textarea
-                className="flex-1 min-w-[240px] h-20 rounded-lg border border-app-border bg-app-surface2 text-app-text text-app-lg px-3 py-2 resize-none focus:outline-none focus:border-app-text"
-                placeholder={t('gridImport.paste_placeholder')}
-                value={draft}
-                onChange={(e) => handleDraftChange(e.target.value)}
+
+          {/* ── Step 1: コンテンツ選択 ── */}
+          {step === 1 && (
+            <div className="flex-1 overflow-y-auto px-5 py-5">
+              <ImportContentSelector
+                selLevel={selLevel} setSelLevel={setSelLevel}
+                selCategory={selCategory} setSelCategory={setSelCategory}
+                selBoss={selBoss} setSelBoss={setSelBoss}
+                selTitle={selTitle} setSelTitle={setSelTitle}
+                lang={lang}
               />
-              <div className="flex flex-col gap-2">
-                {/* 列ごとに貼り付けボタン: クリックでモード切替(自作テーブル向け) */}
+            </div>
+          )}
+
+          {/* ── Step 2: スプシ風グリッド(本体が貼り付けサーフェス) ── */}
+          {step === 2 && (
+            <>
+              {/* 列ごと貼り付け fallback トグル */}
+              <div className="px-5 py-2.5 border-b border-app-border bg-app-surface2 flex items-center justify-between gap-3 shrink-0">
+                <p className="text-app-lg text-app-text-muted">
+                  {source === 'none' ? '' : t('gridImport.help')}
+                </p>
                 <button
-                  className={clsx('px-4 py-2 rounded-lg text-app-2xl font-bold',
+                  className={clsx('px-3 py-1.5 rounded-lg text-app-lg font-bold shrink-0',
                     byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
                   onClick={() => setByColumnMode((v) => !v)}
                 >
                   {t('gridImport.paste_by_column')}
                 </button>
               </div>
-            </div>
-            {parseFailed && (
-              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
-                <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                <p>{t('gridImport.parse_failed')}</p>
+
+              {parseFailed && (
+                <div className="px-5 py-2 shrink-0">
+                  <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
+                    <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                    <p>{t('gridImport.parse_failed')}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* グリッド本体 = 貼り付けサーフェス(tabIndex で focusable・onPaste で Ctrl+V 捕捉) */}
+              <div
+                ref={pasteSurfaceRef}
+                tabIndex={0}
+                onPaste={handleGridPaste}
+                className="flex-1 overflow-auto focus:outline-none focus:ring-2 focus:ring-app-blue/40"
+                aria-label={t('gridImport.paste_prompt')}
+              >
+                <GridView
+                  table={table} setTable={setTable} deps={{ mitigations, jobs }}
+                  source={source}
+                  byColumnMode={byColumnMode && source !== 'matrix'}
+                  onColumnPaste={onColumnPaste}
+                  onMatrixSlotChange={onMatrixSlotChange}
+                />
+                {/* 空状態: グリッド本体エリアに大きく貼り付けプロンプトを出す */}
+                {isGridEmpty && (
+                  <div className="flex flex-col items-center justify-center gap-3 py-16 px-5 text-center select-none">
+                    <ClipboardPaste size={36} className="text-app-text-muted" />
+                    <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
+                    <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
+                  </div>
+                )}
               </div>
-            )}
-            <p className="text-app-lg text-app-text-muted">
-              {source === 'none' ? t('gridImport.paste_prompt') : t('gridImport.help')}
-            </p>
-          </div>
-          {/* グリッド */}
-          <div className="flex-1 overflow-auto">
-            <GridView
-              table={table} setTable={setTable} deps={{ mitigations, jobs }}
-              source={source}
-              byColumnMode={byColumnMode && source !== 'matrix'}
-              onColumnPaste={onColumnPaste}
-              onMatrixSlotChange={onMatrixSlotChange}
-            />
-          </div>
+            </>
+          )}
+
           {/* フッター */}
           <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex flex-col gap-2 shrink-0">
-            {hasUnassignedMemberCols && (
+            {step === 2 && hasUnassignedMemberCols && (
               <div className="flex items-center gap-2 text-app-amber text-app-2xl">
                 <AlertCircle size={14} className="shrink-0" />
                 <span>{t('gridImport.slot_unassigned_warning')}</span>
               </div>
             )}
-            {blockReason === 'party_incomplete' && (
+            {step === 2 && blockReason === 'party_incomplete' && (
               <div className="flex items-start gap-2 text-app-red bg-app-red-dim p-2 rounded-lg border border-app-red-border text-app-2xl">
                 <AlertCircle size={14} className="shrink-0 mt-0.5" />
                 <p>{t('gridImport.party_incomplete_warning')}</p>
               </div>
             )}
-            {showNoPhasesWarning && (
+            {step === 2 && showNoPhasesWarning && (
               <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
                 <AlertCircle size={14} className="shrink-0 mt-0.5" />
                 <p>{t('gridImport.no_phases_warning')}</p>
               </div>
             )}
-            <div className="flex items-center justify-between">
-              <span className="text-app-2xl text-app-text-muted">
-                {preview && t('gridImport.summary', { labels: preview.labels.length, events: preview.timelineEvents.length, mits: preview.timelineMitigations.length })}
-              </span>
-              <button
-                onClick={handleConfirm}
-                disabled={!canConfirm}
-                className={clsx('flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold',
-                  canConfirm ? 'bg-app-toggle text-app-toggle-text' : 'bg-app-surface2 text-app-text-muted cursor-not-allowed')}
-              >
-                <CheckCircle2 size={16} /> {t('gridImport.create')}
-              </button>
+            <div className="flex items-center justify-between gap-3">
+              {/* 左: Step1=キャンセル / Step2=戻る */}
+              {step === 1 ? (
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-transparent hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200"
+                >
+                  {t('common.cancel')}
+                </button>
+              ) : (
+                <button
+                  onClick={() => setStep(1)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-app-2xl font-bold text-app-text border border-app-border hover:bg-app-toggle hover:text-app-toggle-text transition-all duration-200"
+                >
+                  <ArrowLeft size={16} /> {t('gridImport.back')}
+                </button>
+              )}
+
+              {/* 右: Step1=次へ(常に有効) / Step2=summary + 作成 */}
+              {step === 1 ? (
+                <button
+                  onClick={() => setStep(2)}
+                  className="flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-all duration-200"
+                >
+                  {t('gridImport.next')} <ArrowRight size={16} />
+                </button>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="text-app-2xl text-app-text-muted">
+                    {preview && t('gridImport.summary', { labels: preview.labels.length, events: preview.timelineEvents.length, mits: preview.timelineMitigations.length })}
+                  </span>
+                  <button
+                    onClick={handleConfirm}
+                    disabled={!canConfirm}
+                    className={clsx('flex items-center gap-2 px-5 py-2 rounded-lg text-app-2xl font-bold',
+                      canConfirm ? 'bg-app-toggle text-app-toggle-text' : 'bg-app-surface2 text-app-text-muted cursor-not-allowed')}
+                  >
+                    <CheckCircle2 size={16} /> {t('gridImport.create')}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </motion.div>

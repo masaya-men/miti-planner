@@ -10,13 +10,17 @@ const JA: Record<string, string> = {
   'gridImport.paste_by_column': '列ごとに貼り付け',
   'gridImport.help': '',
   'gridImport.create': 'この内容で作成',
+  'gridImport.next': '次へ',
+  'gridImport.back': '戻る',
+  'gridImport.step_content': 'コンテンツ選択',
+  'gridImport.step_grid': 'スプレッドシート風グリッド',
   'gridImport.status_ok': 'OK',
   'gridImport.status_partial': '一部読めない',
   'gridImport.status_empty': '空 / 任意',
   'gridImport.paste_placeholder': 'ここに貼り付け',
-  'gridImport.paste_prompt': 'スプレッドシートをコピーして、上の欄に貼り付けてください。',
+  'gridImport.paste_prompt': 'ここにスプレッドシートを貼り付け (Ctrl+V)',
+  'gridImport.paste_hint': '全選択(Ctrl+A)→コピー(Ctrl+C)→ここで貼り付け(Ctrl+V)',
   'gridImport.parse_failed': '貼り付けた内容をうまく読み取れませんでした。',
-  'gridImport.pending_draft_warning': '貼り付け欄に未取込の内容があります。',
   'gridImport.no_phases_warning': 'イベントがありません。',
   'gridImport.party_incomplete_warning': 'スキルのあるメンバー列に枠を割り当てると作成できます。',
   'gridImport.this_column': 'この列は？',
@@ -35,6 +39,7 @@ const JA: Record<string, string> = {
   'gridImport.slot_unassigned_warning': '枠が未割当のメンバー列があります',
   'gridImport.summary': '{{labels}}ラベル・{{events}}イベント・軽減{{mits}}件',
   'gridImport.col_paste_placeholder': '貼り付け（1行1件）',
+  'common.cancel': 'キャンセル',
 };
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -55,11 +60,25 @@ vi.mock('../../hooks/useSkillsData', async (importOriginal) => {
 
 const DEFAULT_SEL = { level: null, category: null, bossId: null, title: '' } as never;
 
+/** step2 のグリッド貼り付けサーフェス(aria-label = paste_prompt)を返す。 */
+function gridPasteSurface(): HTMLElement {
+  return screen.getByLabelText('ここにスプレッドシートを貼り付け (Ctrl+V)');
+}
+
+/** step1 → 次へ で step2 へ進める。 */
+function goToGridStep() {
+  fireEvent.click(screen.getByText('次へ'));
+}
+
 describe('SpreadsheetGridImportModal', () => {
-  it('開いているとタイトルと列ごと貼り付けボタンを表示', () => {
+  it('開いているとタイトルを表示し、Step1はコンテンツ選択+次へ', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={vi.fn()} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     expect(screen.getByText('スプレッドシートから取り込む')).toBeInTheDocument();
-    expect(screen.getByText('列ごとに貼り付け')).toBeInTheDocument();
+    // Step1 フッターは キャンセル + 次へ
+    expect(screen.getByText('キャンセル')).toBeInTheDocument();
+    expect(screen.getByText('次へ')).toBeInTheDocument();
+    // Step1 ではグリッド本体・列ごと貼り付けは未表示
+    expect(screen.queryByText('列ごとに貼り付け')).toBeNull();
   });
 
   it('閉じていると何も描画しない', () => {
@@ -69,31 +88,32 @@ describe('SpreadsheetGridImportModal', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('貼り付け前から正典の列見出しが表示される(グリッド常時表示)', () => {
+  it('次へでStep2へ進むと、正典の列見出し+貼り付けプロンプトが表示される', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
-    // 何も貼っていなくても見出しが見える
+    goToGridStep();
+    // 列見出し
     expect(screen.getByText('時間')).toBeInTheDocument();
     expect(screen.getByText('敵の攻撃')).toBeInTheDocument();
     expect(screen.getByText('攻撃の対象')).toBeInTheDocument();
     expect(screen.getByText('ダメージ種別')).toBeInTheDocument();
+    // 空状態の貼り付けプロンプト(本文)
+    expect(screen.getByText('ここにスプレッドシートを貼り付け (Ctrl+V)')).toBeInTheDocument();
+    // 列ごと貼り付け fallback ボタンも表示
+    expect(screen.getByText('列ごとに貼り付け')).toBeInTheDocument();
   });
 
-  it('自作スプシ(見出し形式)の貼り付けで列が自動検出されグリッドに反映される', () => {
+  it('Step2: グリッド本体への貼り付け(自作TSV)で列が検出されグリッドに反映される', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
-    const ta = screen.getByPlaceholderText('ここに貼り付け');
-    // onChange で即解析(まるごとボタンは廃止)
-    fireEvent.change(ta, { target: { value: '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
+    goToGridStep();
+    const tsv = '時間\t敵の攻撃\n0:16\tばりばりルインガ\n';
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => tsv } });
     expect(screen.getByText('ばりばりルインガ')).toBeInTheDocument();
   });
 
-  it('行列(TRUE/FALSE)形式を貼っても弾かず、グリッドに内容が出る', () => {
+  it('Step2: 行列(TRUE/FALSE)形式を貼っても弾かず、グリッドに内容が出る(no-bounce)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
-    const ta = screen.getByPlaceholderText('ここに貼り付け');
+    goToGridStep();
     // parseMitigationSheet が読める最小の行列 TSV:
-    // - 見出し: Phase / Total Time / Action / Type / Hit
-    // - ジョブ行: JOB_JA_NAMES を3つ以上
-    // - Skill 行
-    // - データ行(TRUE/FALSE を含む)
     const T = (cells: string[]) => cells.join('\t');
     const matrix = [
       T(['Phase', 'Total Time', 'Action', 'Type', 'Hit', 'Mitigation', 'Mitigation', 'Mitigation']),
@@ -101,9 +121,19 @@ describe('SpreadsheetGridImportModal', () => {
       T(['', '', 'Skill', '', '', 'リプライザル', 'アサイラム', 'ランパート']),  // Skill 行
       T(['開幕', '0:16', 'ビッグブラスト', 'Magic', '100,000', 'TRUE', 'FALSE', 'FALSE']),
     ].join('\n');
-    fireEvent.change(ta, { target: { value: matrix } });
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrix } });
     // 弾き(誘導)が起きず、攻撃名がグリッドに出る
     expect(screen.getByText('ビッグブラスト')).toBeInTheDocument();
+  });
+
+  it('Step2 → 戻る で Step1 (コンテンツ選択) に戻る', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    expect(screen.getByText('列ごとに貼り付け')).toBeInTheDocument(); // Step2 にいる
+    fireEvent.click(screen.getByText('戻る'));
+    // Step1 に戻り、キャンセル + 次へ が見える / グリッド要素は消える
+    expect(screen.getByText('キャンセル')).toBeInTheDocument();
+    expect(screen.queryByText('列ごとに貼り付け')).toBeNull();
   });
 
   it('autoAssignSingleSlots: ロール内1メンバー列→先頭枠を自動割当', () => {
@@ -116,8 +146,9 @@ describe('SpreadsheetGridImportModal', () => {
     expect(result.columns[0].slot).toBe('MT');
   });
 
-  it('列ごとに貼り付けボタンでbyColumnModeに切替→各列にtextareaが現れる', () => {
+  it('Step2: 列ごとに貼り付けボタンでbyColumnModeに切替→各列にtextareaが現れる', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
     // 初期状態ではcolumn-pasteのtextareaは存在しない
     expect(screen.queryByPlaceholderText('貼り付け（1行1件）')).toBeNull();
     // 列ごとボタンをクリック
@@ -127,8 +158,9 @@ describe('SpreadsheetGridImportModal', () => {
     expect(colTextareas.length).toBeGreaterThan(0);
   });
 
-  it('列ごとに貼り付け: 時間列に値を入力するとグリッドに反映される', () => {
+  it('Step2: 列ごとに貼り付けで時間列に値を入力するとグリッドに反映される', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
     fireEvent.click(screen.getByText('列ごとに貼り付け'));
     const colTextareas = screen.getAllByPlaceholderText('貼り付け（1行1件）');
     // 最初の列（フェーズ列=BASE_FIELDS[0]）に貼る
@@ -139,8 +171,8 @@ describe('SpreadsheetGridImportModal', () => {
 
   it('「この列は？」セレクタに「メンバー」は含まれない(Fix1a)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
-    const ta = screen.getByPlaceholderText('ここに貼り付け');
-    fireEvent.change(ta, { target: { value: '不明列A\t時間\n値1\t0:10\n' } });
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => '不明列A\t時間\n値1\t0:10\n' } });
     const selector = screen.getByDisplayValue('この列は？') as HTMLSelectElement;
     const optionValues = Array.from(selector.options).map((o) => o.value);
     expect(optionValues).not.toContain('member');
@@ -150,9 +182,18 @@ describe('SpreadsheetGridImportModal', () => {
 
   it('jobId なし member 列はパーティ不完全ブロックを発生させない(Fix1b)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
-    const ta = screen.getByPlaceholderText('ここに貼り付け');
-    fireEvent.change(ta, { target: { value: '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
     expect(screen.queryByText('スキルのあるメンバー列に枠を割り当てると作成できます。')).toBeNull();
+  });
+
+  it('「有名」/famous 文言はどこにも出ない', () => {
+    const { container } = render(
+      <SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />,
+    );
+    goToGridStep();
+    expect(container.textContent ?? '').not.toContain('有名');
+    expect((container.textContent ?? '').toLowerCase()).not.toContain('famous');
   });
 });
 
