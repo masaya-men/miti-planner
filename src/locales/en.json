@@ -2594,8 +2594,7 @@
     "importMenu": {
         "tooltip": "Import",
         "fflogs": "Import from FF Logs",
-        "spreadsheet": "Import from spreadsheet",
-        "gridImport": "Import from spreadsheet (column grid)"
+        "spreadsheet": "Import from spreadsheet"
     },
     "sheetImport": {
         "btn": "Import sheet",
