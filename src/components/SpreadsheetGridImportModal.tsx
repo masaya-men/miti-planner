@@ -19,12 +19,11 @@ import { parseGridPaste, isMatrixSheetFormat } from '../lib/sheetImport/parseGri
 import { parseMitigationSheet } from '../lib/sheetImport/parseMitigationSheet';
 import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
 import {
-  SLOTS_BY_ROLE, emptyAssignment, assignSlot, buildPartyOverride,
+  SLOTS_BY_ROLE, PARTY_SLOTS, emptyAssignment, assignSlot, buildPartyOverride,
   groupByRole, autoFillSingles, isAssignmentComplete, isSlotRequired,
   type PartyAssignment, type PartySlot, type SlotRole,
 } from '../lib/sheetImport/partyAssignment';
 import { importBlockReason } from '../lib/sheetImport/importBlockReason';
-import { PARTY_SLOTS } from '../lib/sheetImport/partyAssignment';
 import { ImportContentSelector } from './ImportContentSelector';
 import { resolveInitialSelection, deriveContentId } from '../lib/contentSelection';
 import type { ContentSelectionDefault } from '../lib/contentSelection';

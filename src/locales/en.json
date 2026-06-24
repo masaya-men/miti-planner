@@ -2677,7 +2677,6 @@
         "next": "Next",
         "back": "Back",
         "parse_failed": "Couldn't read the pasted content. Check your copy range and paste it again.",
-        "pending_draft_warning": "You have pasted content that hasn't been imported yet. Press \"Paste it all\".",
         "no_phases_warning": "No events yet. Paste your spreadsheet.",
         "party_incomplete_warning": "Assign a slot to every member column that has skills.",
         "col_unknown": "Unknown column",

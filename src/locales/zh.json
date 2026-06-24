@@ -2642,7 +2642,6 @@
         "next": "下一步",
         "back": "返回",
         "parse_failed": "无法正确读取粘贴的内容。请检查复制范围后重新粘贴。",
-        "pending_draft_warning": "粘贴框中有未导入的内容，请点击「整体粘贴」。",
         "no_phases_warning": "暂无事件，请粘贴数据。",
         "party_incomplete_warning": "请为有技能的成员列分配槽位后再创建。",
         "col_unknown": "未知列",
