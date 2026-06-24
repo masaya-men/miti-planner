@@ -1597,6 +1597,41 @@ button, [role="button"], .touch-none {
   }
 }
 
+/* 見切れ攻撃名のホバー・マーキー(TimelineRow / EventNameSpan)
+   - 行(group)ホバーで、見切れている攻撃名だけが1往復スクロール(ループしない)。
+   - 名前そのものにホバー → 停止しツールチップに譲る(排他)。
+   - 距離/時間は EventNameSpan が ResizeObserver 計測で --marquee-distance/-duration に注入。
+   - prefers-reduced-motion では静止。
+   既存の常時ループ型 system-notif-marquee とは別物。 */
+@keyframes lopo-name-marquee {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(0); }                       /* 開始前に一拍 */
+  50%  { transform: translateX(var(--marquee-distance, 0)); } /* 端まで流す */
+  65%  { transform: translateX(var(--marquee-distance, 0)); } /* 端で一拍 */
+  100% { transform: translateX(0); }                       /* 戻る */
+}
+
+/* 行ホバー中=見切れ名を1往復(名前ホバー以外の行領域) */
+.group:hover .lopo-name-clip[data-clipped] .lopo-name-text {
+  overflow: visible;
+  text-overflow: clip;
+  animation: lopo-name-marquee var(--marquee-duration, 4s) ease-in-out 1;
+}
+
+/* 名前そのものにホバー → マーキー停止(ツールチップに譲る)。
+   行ホバー実行ルールより高い詳細度で上書き。 */
+.group:hover .lopo-name-clip[data-clipped]:hover .lopo-name-text {
+  animation: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lopo-name-text {
+    animation: none !important;
+  }
+}
+
 /* 共同編集ジョイナー(/collab)のシェル高さ。
    iOS Safari の下ツールバーが 100vh の下端に被って赤い注意バナーを隠すのを防ぐため、
    実際に見えている領域に追従する 100dvh(動的ビューポート)を使う。
