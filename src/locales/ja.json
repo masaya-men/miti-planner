@@ -2693,6 +2693,7 @@
         "party_incomplete_warning": "スキルのあるメンバー列に枠を割り当てると作成できます。",
         "col_unknown": "不明な列",
         "col_ignore": "無視",
-        "col_member": "メンバー"
+        "col_member": "メンバー",
+        "col_paste_placeholder": "貼り付け（1行1件）"
     }
 }

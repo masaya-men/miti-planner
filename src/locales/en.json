@@ -2672,6 +2672,7 @@
         "party_incomplete_warning": "Assign a slot to every member column that has skills.",
         "col_unknown": "Unknown column",
         "col_ignore": "Ignore",
-        "col_member": "Member"
+        "col_member": "Member",
+        "col_paste_placeholder": "Paste (one value per line)"
     }
 }

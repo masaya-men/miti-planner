@@ -2637,6 +2637,7 @@
         "party_incomplete_warning": "请为有技能的成员列分配槽位后再创建。",
         "col_unknown": "未知列",
         "col_ignore": "忽略",
-        "col_member": "成员"
+        "col_member": "成员",
+        "col_paste_placeholder": "粘贴（每行一个值）"
     }
 }

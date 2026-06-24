@@ -33,6 +33,34 @@ interface Props {
 /** 固定の正典列(member は検出後に動的追加)。 */
 const BASE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType'];
 
+/** GridView で使う全フィールド選択肢。モジュールレベルで定義してレンダーごとの再生成を避ける。 */
+const ALL_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType', 'member', 'ignore'];
+
+/**
+ * 指定列インデックスに values を書き込んだ新しい GridTable を返す純粋関数。
+ * - 既存行より values が多い場合は行を追加し、他列を '' で埋める。
+ * - 既存行の方が多い場合は values の末尾を '' として扱う。
+ * - rows は常に columns 長さに揃える。
+ */
+export function setColumnValues(table: GridTable, colIndex: number, values: string[]): GridTable {
+  const numCols = table.columns.length;
+  const targetRows = Math.max(table.rows.length, values.length);
+  const newRows: string[][] = [];
+  for (let r = 0; r < targetRows; r++) {
+    const existing = table.rows[r] ?? [];
+    const row: string[] = [];
+    for (let c = 0; c < numCols; c++) {
+      if (c === colIndex) {
+        row.push(values[r] ?? '');
+      } else {
+        row.push(existing[c] ?? '');
+      }
+    }
+    newRows.push(row);
+  }
+  return { ...table, rows: newRows };
+}
+
 /**
  * member 列を対象に、ロール内にメンバー列が1本だけかつ空き枠があれば先頭枠を自動割当。
  * autoFillSingles の GridTable 版。
@@ -101,6 +129,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   const [draft, setDraft] = useState('');
   const [famousWarn, setFamousWarn] = useState(false);
 
+  // 列ごとに貼り付けモード
+  const [byColumnMode, setByColumnMode] = useState(false);
+
   // まるごと貼り付けハンドラ
   const onPasteWhole = useCallback(() => {
     if (!draft.trim()) return;
@@ -113,6 +144,16 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setTable(autoAssignSingleSlots(parsed, jobs));
     setDraft('');
   }, [draft, jobs]);
+
+  // 列ごと貼り付けハンドラ: 指定列に改行区切りのテキストを流し込む
+  const onColumnPaste = useCallback((colIndex: number, text: string) => {
+    const rawLines = text.split(/\r?\n/);
+    // 末尾の空行を除去
+    let end = rawLines.length;
+    while (end > 0 && rawLines[end - 1].trim() === '') end--;
+    const values = rawLines.slice(0, end);
+    setTable((prev) => setColumnValues(prev, colIndex, values));
+  }, []);
 
   // プレビュー
   const preview = useMemo<SheetImportResult | null>(
@@ -158,6 +199,10 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     });
   }, [table]);
 
+  // no_phases バナーはデータが貼り付けられているのにイベント行が0の時のみ表示
+  // (初期状態の空グリッドでは表示しない)
+  const showNoPhasesWarning = blockReason === 'no_phases' && table.rows.length > 0;
+
   if (!isOpen) return null;
 
   const node = (
@@ -197,13 +242,21 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 onChange={(e) => { setDraft(e.target.value); setFamousWarn(false); }}
               />
               <div className="flex flex-col gap-2">
+                {/* まるごと貼り付けボタン: クリックで解析・取り込み実行 */}
                 <button
                   className="px-4 py-2 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text"
                   onClick={onPasteWhole}
                 >
                   {t('gridImport.paste_whole')}
                 </button>
-                <button className="px-4 py-2 rounded-lg text-app-2xl font-bold border border-app-border text-app-text">{t('gridImport.paste_by_column')}</button>
+                {/* 列ごとに貼り付けボタン: クリックでモード切替 */}
+                <button
+                  className={clsx('px-4 py-2 rounded-lg text-app-2xl font-bold',
+                    byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
+                  onClick={() => setByColumnMode((v) => !v)}
+                >
+                  {t('gridImport.paste_by_column')}
+                </button>
               </div>
             </div>
             {famousWarn && (
@@ -216,7 +269,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
           </div>
           {/* グリッド */}
           <div className="flex-1 overflow-auto">
-            <GridView table={table} setTable={setTable} deps={{ mitigations, jobs }} />
+            <GridView table={table} setTable={setTable} deps={{ mitigations, jobs }} byColumnMode={byColumnMode} onColumnPaste={onColumnPaste} />
           </div>
           {/* フッター */}
           <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex flex-col gap-2 shrink-0">
@@ -236,6 +289,12 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
               <div className="flex items-start gap-2 text-app-red bg-app-red-dim p-2 rounded-lg border border-app-red-border text-app-2xl">
                 <AlertCircle size={14} className="shrink-0 mt-0.5" />
                 <p>{t('gridImport.party_incomplete_warning')}</p>
+              </div>
+            )}
+            {showNoPhasesWarning && (
+              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
+                <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                <p>{t('gridImport.no_phases_warning')}</p>
               </div>
             )}
             <div className="flex items-center justify-between">
@@ -263,7 +322,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
 const GridView: React.FC<{
   table: GridTable; setTable: (t: GridTable) => void;
   deps: { mitigations: ReturnType<typeof getMitigationsFromStore>; jobs: ReturnType<typeof getJobsFromStore> };
-}> = ({ table, setTable, deps }) => {
+  byColumnMode: boolean;
+  onColumnPaste: (colIndex: number, text: string) => void;
+}> = ({ table, setTable, deps, byColumnMode, onColumnPaste }) => {
   const { t } = useTranslation();
   const cellsOf = (ci: number) => table.rows.map((r) => r[ci] ?? '');
 
@@ -281,8 +342,6 @@ const GridView: React.FC<{
     setTable({ ...table, columns: cols });
   };
 
-  const ALL_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType', 'member', 'ignore'];
-
   return (
     <table className="w-full text-app-lg border-separate" style={{ borderSpacing: 0 }}>
       <thead>
@@ -295,9 +354,17 @@ const GridView: React.FC<{
               <th key={ci} className="sticky top-0 bg-app-surface2 border-b border-r border-app-border px-3 py-2 text-left">
                 <div className="flex flex-col gap-1 min-w-[90px]">
                   <span className="font-bold">
-                    {c.field === 'member' ? c.header : c.field === 'unknown' ? c.header : t(`gridImport.col_${c.field}`)}
+                    {c.field === 'member' ? c.header : c.field === 'unknown' ? (c.header || t('gridImport.col_unknown')) : t(`gridImport.col_${c.field}`)}
                   </span>
                   <StatusChip status={st} />
+                  {/* 列ごと貼り付けモード: 各列に textarea */}
+                  {byColumnMode && (
+                    <textarea
+                      className="mt-1 w-full h-16 rounded border border-app-border bg-app-surface2 text-app-text text-app-sm px-1 py-0.5 resize-none focus:outline-none focus:border-app-text"
+                      placeholder={t('gridImport.col_paste_placeholder')}
+                      onChange={(e) => onColumnPaste(ci, e.target.value)}
+                    />
+                  )}
                   {/* 「この列は？」セレクタ (unknown 列) */}
                   {c.field === 'unknown' && (
                     <select

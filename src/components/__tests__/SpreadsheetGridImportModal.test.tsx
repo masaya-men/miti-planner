@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SpreadsheetGridImportModal, autoAssignSingleSlots } from '../SpreadsheetGridImportModal';
+import { SpreadsheetGridImportModal, autoAssignSingleSlots, setColumnValues } from '../SpreadsheetGridImportModal';
 import type { GridTable } from '../../lib/sheetImport/gridTypes';
 
 // i18n: キー→日本語テキストの最小マップ（テスト対象キーのみ）
@@ -34,6 +34,7 @@ const JA: Record<string, string> = {
   'gridImport.col_damageType': 'ダメージ種別',
   'gridImport.slot_unassigned_warning': '枠が未割当のメンバー列があります',
   'gridImport.summary': '{{labels}}ラベル・{{events}}イベント・軽減{{mits}}件',
+  'gridImport.col_paste_placeholder': '貼り付け（1行1件）',
 };
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -103,5 +104,97 @@ describe('SpreadsheetGridImportModal', () => {
     // まるごとボタンは押さない
     const btn = screen.getByText('この内容で作成').closest('button');
     expect(btn).toBeDisabled();
+  });
+
+  it('列ごとに貼り付けボタンでbyColumnModeに切替→各列にtextareaが現れる', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
+      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
+    // 初期状態ではcolumn-pasteのtextareaは存在しない
+    expect(screen.queryByPlaceholderText('貼り付け（1行1件）')).toBeNull();
+    // 列ごとボタンをクリック
+    fireEvent.click(screen.getByText('列ごとに貼り付け'));
+    // 各列ヘッダーにtextareaが現れる（BASE_FIELDS = 7列）
+    const colTextareas = screen.getAllByPlaceholderText('貼り付け（1行1件）');
+    expect(colTextareas.length).toBeGreaterThan(0);
+  });
+
+  it('列ごとに貼り付け: 時間列に値を入力するとグリッドに反映される', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
+      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
+    // byColumnModeを有効化
+    fireEvent.click(screen.getByText('列ごとに貼り付け'));
+    // 最初の列（フェーズ列=BASE_FIELDS[0]）のtextareaを取得して貼り付け
+    const colTextareas = screen.getAllByPlaceholderText('貼り付け（1行1件）');
+    fireEvent.change(colTextareas[0], { target: { value: 'P1\nP2\n' } });
+    // グリッド行に P1, P2 が出現する
+    expect(screen.getByText('P1')).toBeInTheDocument();
+    expect(screen.getByText('P2')).toBeInTheDocument();
+  });
+});
+
+// ---- setColumnValues 純粋関数のユニットテスト ----
+describe('setColumnValues', () => {
+  it('指定列に値が書き込まれ、他列は保持される', () => {
+    const table: GridTable = {
+      columns: [
+        { field: 'phase', header: 'フェーズ' },
+        { field: 'time', header: '時間' },
+        { field: 'action', header: '敵の攻撃' },
+      ],
+      rows: [
+        ['P1', '0:10', 'Attack1'],
+        ['P2', '0:20', 'Attack2'],
+      ],
+    };
+    // time列(index=1)に新しい値を書き込む
+    const result = setColumnValues(table, 1, ['1:00', '2:00']);
+    expect(result.rows[0][1]).toBe('1:00');
+    expect(result.rows[1][1]).toBe('2:00');
+    // 他列は変わらない
+    expect(result.rows[0][0]).toBe('P1');
+    expect(result.rows[0][2]).toBe('Attack1');
+    expect(result.rows[1][0]).toBe('P2');
+    expect(result.rows[1][2]).toBe('Attack2');
+  });
+
+  it('values が既存行より多い場合、行が追加され他列は空文字で埋まる', () => {
+    const table: GridTable = {
+      columns: [
+        { field: 'phase', header: 'フェーズ' },
+        { field: 'time', header: '時間' },
+      ],
+      rows: [['P1', '0:10']],
+    };
+    const result = setColumnValues(table, 0, ['P1', 'P2', 'P3']);
+    expect(result.rows.length).toBe(3);
+    expect(result.rows[0][0]).toBe('P1');
+    expect(result.rows[1][0]).toBe('P2');
+    expect(result.rows[2][0]).toBe('P3');
+    // 他列は既存 or 空文字
+    expect(result.rows[0][1]).toBe('0:10');
+    expect(result.rows[1][1]).toBe('');
+    expect(result.rows[2][1]).toBe('');
+  });
+
+  it('values が既存行より少ない場合、不足分は空文字になる', () => {
+    const table: GridTable = {
+      columns: [{ field: 'phase', header: 'フェーズ' }],
+      rows: [['P1'], ['P2'], ['P3']],
+    };
+    const result = setColumnValues(table, 0, ['X']);
+    expect(result.rows.length).toBe(3);
+    expect(result.rows[0][0]).toBe('X');
+    expect(result.rows[1][0]).toBe('');
+    expect(result.rows[2][0]).toBe('');
+  });
+
+  it('元の table は変更されない(pure function)', () => {
+    const table: GridTable = {
+      columns: [{ field: 'phase', header: 'フェーズ' }],
+      rows: [['P1']],
+    };
+    const result = setColumnValues(table, 0, ['NEW']);
+    expect(table.rows[0][0]).toBe('P1'); // 元は変わらない
+    expect(result.rows[0][0]).toBe('NEW');
   });
 });

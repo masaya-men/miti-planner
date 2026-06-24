@@ -2637,6 +2637,7 @@
         "party_incomplete_warning": "스킬이 있는 멤버 열에 슬롯을 배정하면 작성할 수 있습니다.",
         "col_unknown": "알 수 없는 열",
         "col_ignore": "무시",
-        "col_member": "멤버"
+        "col_member": "멤버",
+        "col_paste_placeholder": "붙여넣기 (한 줄에 한 항목)"
     }
 }
