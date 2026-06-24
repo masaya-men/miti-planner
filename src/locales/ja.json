@@ -2725,6 +2725,7 @@
         "target_from_template": "テンプレ",
         "add_phase_next": "このフェーズを追加して次へ",
         "flow_hint": "スプシで A1 をクリック → Ctrl+A → Ctrl+C → ここで Ctrl+V",
-        "skipped_count": "読めなかった技 {{count}}件"
+        "skipped_count": "読めなかった技 {{count}}件",
+        "unresolved_note": "LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。"
     }
 }

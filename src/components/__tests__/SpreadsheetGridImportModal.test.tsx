@@ -77,6 +77,7 @@ const JA: Record<string, string> = {
   'gridImport.target_aoe': '全体',
   'gridImport.target_none': '—',
   'gridImport.target_from_template': 'テンプレ',
+  'gridImport.unresolved_note': 'LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。',
   'common.cancel': 'キャンセル',
 };
 
@@ -500,6 +501,83 @@ describe('SpreadsheetGridImportModal', () => {
     expect(targetSelectsAfter.length).toBeGreaterThan(0);
     // 前フェーズで設定した ST が保持されている
     expect(targetSelectsAfter[0].value).toBe('ST');
+  });
+
+  // ── §9.7 C#8/#9/#10: 読めない技セル内黄色+自作在席編集+取り込めません明記(Task 8) ──
+
+  it('Task8: matrix未解決技セル(かげぬい)が text-app-amber クラスを持つ(C#8)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // matrix を貼り付け → 未解決セルが amber で表示されるのはドラフト表示中
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // かげぬい が amber クラスを持つ span として描画されていること(フェーズ追加前のドラフト表示)
+    const amberSpans = document.querySelectorAll('.text-app-amber');
+    const texts = Array.from(amberSpans).map((el) => el.textContent ?? '');
+    expect(texts.some((t) => t.includes('かげぬい'))).toBe(true);
+  });
+
+  it('Task8: matrix同時刻2技(両解決:ランパート/アサイラム)は amber を持たない(C#9)', () => {
+    // 同一行に両方解決の技が並ぶ matrix
+    const T = (cells: string[]) => cells.join('\t');
+    const twoSkilledTSV = [
+      T(['Phase', 'Total Time', 'Action', 'Type', 'Hit', 'Mit', 'Mit']),
+      T(['', '', '', '', '', 'ナイト', '白魔道士']),
+      T(['', '', 'Skill', '', '', 'ランパート', 'アサイラム']),
+      T(['開幕', '0:16', 'ビッグブラスト', 'Magic', '100,000', 'TRUE', 'TRUE']),
+    ].join('\n');
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => twoSkilledTSV } });
+    // セル内にランパート / アサイラム が表示されるが amber は付かない
+    const amberSpans = document.querySelectorAll('.text-app-amber');
+    const texts = Array.from(amberSpans).map((el) => el.textContent ?? '');
+    expect(texts.some((t) => t.includes('ランパート'))).toBe(false);
+    expect(texts.some((t) => t.includes('アサイラム'))).toBe(false);
+  });
+
+  it('Task8: grid未解決 member セルが <input> を持つ(C#10 在席編集)', () => {
+    // 自作 TSV: member 列に「かげぬい」(未解決)
+    // parseGridPaste が "ナイト" 列ヘッダーを member 列として検出するよう列名をジョブ名に合わせる
+    const gridTSV = '時間\t敵の攻撃\tナイト\n0:16\tビッグブラスト\tかげぬい\n';
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => gridTSV } });
+    // member 列の未解決セルが input になっていること
+    const inputs = screen.getAllByRole('textbox') as HTMLInputElement[];
+    const memberInput = inputs.find((el) => el.value === 'かげぬい');
+    expect(memberInput).toBeDefined();
+  });
+
+  it('Task8: grid未解決 input をblurで正式名称に直すとセル更新(白になる)', () => {
+    const gridTSV = '時間\t敵の攻撃\tナイト\n0:16\tビッグブラスト\tかげぬい\n';
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => gridTSV } });
+    // 未解決 input を特定
+    const inputs = screen.getAllByRole('textbox') as HTMLInputElement[];
+    const memberInput = inputs.find((el) => el.value === 'かげぬい');
+    expect(memberInput).toBeDefined();
+    // 正式名称「ランパート」に変更して blur → setTable → 再描画 → input が消えて通常テキストに
+    fireEvent.change(memberInput!, { target: { value: 'ランパート' } });
+    fireEvent.blur(memberInput!);
+    // blur 後: input は消え、ランパートは通常テキスト(text-app-text クラス)で表示される
+    const inputsAfter = (screen.queryAllByRole('textbox') as HTMLInputElement[]).filter(
+      (el) => el.value === 'ランパート',
+    );
+    expect(inputsAfter.length).toBe(0); // input ではなく通常テキストになった
+    // ランパート が amber を持たないこと(解決済み)
+    const amberSpans = document.querySelectorAll('.text-app-amber');
+    const texts = Array.from(amberSpans).map((el) => el.textContent ?? '');
+    expect(texts.some((t) => t.includes('ランパート'))).toBe(false);
+  });
+
+  it('Task8: unresolved_note がフッターに表示される(skipped あり)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // フェーズ追加→ skipped が確定
+    fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
+    expect(screen.getByText('LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。')).toBeInTheDocument();
   });
 });
 

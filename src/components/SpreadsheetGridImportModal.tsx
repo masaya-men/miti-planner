@@ -30,6 +30,7 @@ import type { ContentLevel, ContentCategory, ContentDefinition } from '../types'
 import { getTemplate } from '../data/templateLoader';
 import { resolveEventTarget, applyResolvedTargets } from '../lib/sheetImport/resolveEventTargets';
 import type { CarryTarget } from '../lib/sheetImport/carryOverTargets';
+import { resolveSheetSkill } from '../lib/sheetImport/resolveSheetSkill';
 
 interface Props {
   isOpen: boolean;
@@ -640,6 +641,12 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 <p>{t('gridImport.no_phases_warning')}</p>
               </div>
             )}
+            {step === 2 && skipped.length > 0 && (
+              <div className="flex items-center gap-2 text-app-amber text-app-2xl">
+                <AlertCircle size={14} className="shrink-0" />
+                <span>{t('gridImport.unresolved_note')}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between gap-3">
               {/* 左: Step1=キャンセル / Step2=戻る */}
               {step === 1 ? (
@@ -901,6 +908,59 @@ const GridView: React.FC<{
                     </td>
                   );
                 }
+                // member 列: ` / ` 分割 → 各パートを resolveSheetSkill で判定して描画。
+                if (col.field === 'member') {
+                  const cellText = r[ci] ?? '';
+                  const jobJa = deps.jobs.find((j) => j.id === col.jobId)?.name.ja ?? '';
+                  const parts = cellText.split(' / ');
+
+                  // grid かつ全パートが未解決 → セル全体を編集可能 input にする(在席編集)。
+                  // grid の member セルは 1 セル = 1 スキルのため分割不要、セル全体を input に。
+                  const isUnresolved = (p: string) =>
+                    p.trim() !== '' && resolveSheetSkill(jobJa, p.trim(), deps.mitigations) === null;
+                  const hasAnyUnresolved = parts.some(isUnresolved);
+
+                  if (source === 'grid' && hasAnyUnresolved) {
+                    return (
+                      <td key={ci} className="border-b border-r border-app-border px-2 py-1">
+                        <input
+                          type="text"
+                          defaultValue={cellText}
+                          className="w-full bg-transparent text-app-amber underline decoration-dotted text-app-sm focus:outline-none focus:border-b focus:border-app-amber"
+                          onBlur={(e) => {
+                            const newVal = e.target.value;
+                            const newRows = table.rows.map((row, rowIdx) => {
+                              if (rowIdx !== ri) return row;
+                              const newRow = [...row];
+                              newRow[ci] = newVal;
+                              return newRow;
+                            });
+                            setTable({ ...table, rows: newRows });
+                          }}
+                        />
+                      </td>
+                    );
+                  }
+
+                  // matrix or grid で一部/全部解決済み → パートごとに色分けして表示。
+                  return (
+                    <td key={ci} className="border-b border-r border-app-border px-3 py-1.5">
+                      {parts.map((part, pi) => {
+                        const trimmed = part.trim();
+                        const resolved = trimmed === '' || resolveSheetSkill(jobJa, trimmed, deps.mitigations) !== null;
+                        return (
+                          <span key={pi}>
+                            {pi > 0 && <span className="text-app-text-muted"> / </span>}
+                            <span className={clsx(resolved ? 'text-app-text' : 'text-app-amber underline decoration-dotted')}>
+                              {part}
+                            </span>
+                          </span>
+                        );
+                      })}
+                    </td>
+                  );
+                }
+
                 return (
                   <td key={ci} className="border-b border-r border-app-border px-3 py-1.5 text-app-text">{r[ci] ?? ''}</td>
                 );
