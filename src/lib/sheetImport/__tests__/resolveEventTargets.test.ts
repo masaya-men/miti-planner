@@ -32,9 +32,10 @@ describe('resolveEventTarget', () => {
 
 describe('applyResolvedTargets', () => {
   it('各 event に実効 target を確定(none は target を外す)', () => {
-    const events = [ev('e1', '波動砲', 43), ev('e2', '波動砲', 50)];
+    // e2 は自作対象列で 'AoE' が設定されているが、手動 'none' で削除される
+    const events = [ev('e1', '波動砲', 43), ev('e2', '波動砲', 50, 'AoE')];
     const out = applyResolvedTargets(events, TEMPLATE, { e2: 'none' });
     expect(out[0].target).toBe('AoE');     // テンプレ由来
-    expect(out[1].target).toBeUndefined(); // 手動なし
+    expect(out[1].target).toBeUndefined(); // 手動 'none' が自作対象列を削除
   });
 });
