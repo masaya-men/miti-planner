@@ -611,6 +611,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                   templateEvents={templateEvents}
                   targetOverrides={targetOverrides}
                   onTargetOverride={(key, value) => setTargetOverrides((prev) => ({ ...prev, [key]: value }))}
+                  gridLang={gridLang}
                 />
                 {/* 空状態: グリッド本体エリアに大きく貼り付けプロンプトを出す */}
                 {isGridEmpty && (
@@ -735,8 +736,10 @@ const GridView: React.FC<{
   targetOverrides: Record<string, CarryTarget | 'none'>;
   /** 対象 override を変更したとき。key は安定キー。 */
   onTargetOverride: (key: string, value: CarryTarget | 'none') => void;
+  /** グリッド表示言語 (ja/en/ko/zh)。ジョブ名ローカライズに使用。 */
+  gridLang: Lang4;
 }> = ({ table, setTable, deps, source, byColumnMode, onColumnPaste, assignment, onMatrixSlotChange,
-        previewEvents, templateEvents, targetOverrides, onTargetOverride }) => {
+        previewEvents, templateEvents, targetOverrides, onTargetOverride, gridLang }) => {
   const { t } = useTranslation();
   const cellsOf = (ci: number) => table.rows.map((r) => r[ci] ?? '');
 
@@ -866,7 +869,7 @@ const GridView: React.FC<{
                         >
                           <option value="">{t('gridImport.assign_member_job')}</option>
                           {deps.jobs.map((j) => (
-                            <option key={j.id} value={j.id}>{j.name.ja}</option>
+                            <option key={j.id} value={j.id}>{(j.name[gridLang as keyof typeof j.name] ?? j.name.ja) || j.id}</option>
                           ))}
                         </select>
                       )}
