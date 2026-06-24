@@ -94,7 +94,7 @@ export function buildPlanFromGrid(
   // member セル → 軽減(同一スキルが連続する行は立ち上がりだけ採用)
   const jobJaById = new Map(deps.jobs.map((j) => [j.id, j.name.ja] as const));
   const mits: AppliedMitigation[] = [];
-  const skippedSet = new Map<string, SkippedSkill>();
+  const skippedMap = new Map<string, SkippedSkill>();
   for (const { c, idx } of memberCols) {
     const jobJa = jobJaById.get(c.jobId as string) ?? '';
     let prevSkill: string | null = null;
@@ -104,7 +104,13 @@ export function buildPlanFromGrid(
       if (raw === prevSkill) continue; // 連続同名は立ち上がりのみ
       prevSkill = raw;
       const mitId = resolveSheetSkill(jobJa, raw, deps.mitigations);
-      if (!mitId) { skippedSet.set(`${jobJa}/${raw}`, { job: jobJa, skillName: raw }); continue; }
+      if (!mitId) {
+        const key = `${jobJa}/${raw}`;
+        const ex = skippedMap.get(key);
+        if (ex) ex.times!.push(t);
+        else skippedMap.set(key, { job: jobJa, skillName: raw, slot: (c.slot as string) ?? null, times: [t] });
+        continue;
+      }
       const dur = deps.mitigations.find((m) => m.id === mitId)?.duration ?? 0;
       mits.push({ id: uid('mit'), mitigationId: mitId, time: t, duration: dur, ownerId: c.slot as string });
     }
@@ -118,5 +124,5 @@ export function buildPlanFromGrid(
     return true;
   }).sort((a, b) => a.time - b.time);
 
-  return { timelineEvents, timelineMitigations: deduped, phases, labels, party, skipped: [...skippedSet.values()] };
+  return { timelineEvents, timelineMitigations: deduped, phases, labels, party, skipped: [...skippedMap.values()] };
 }

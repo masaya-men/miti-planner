@@ -51,8 +51,15 @@ describe('buildPlanFromGrid', () => {
   it('解決不能スキルは skipped・includeMitigations=false で軽減ゼロ', () => {
     const t2: GridTable = { ...table, rows: [['', '', '0:20', 'x', '', '', '魔法', '存在しない技']] };
     const r = buildPlanFromGrid(t2, { mitigations: MITS, jobs: JOBS }, { includeMitigations: true });
-    expect(r.skipped).toContainEqual({ job: 'ナイト', skillName: '存在しない技' });
+    expect(r.skipped).toContainEqual(expect.objectContaining({ job: 'ナイト', skillName: '存在しない技' }));
     const r2 = buildPlanFromGrid(table, { mitigations: MITS, jobs: JOBS }, { includeMitigations: false });
     expect(r2.timelineMitigations).toHaveLength(0);
+  });
+  it('skipped に slot と times が付く', () => {
+    const t2: GridTable = { ...table, rows: [['', '', '0:20', 'x', '', '', '魔法', '存在しない技']] };
+    const r = buildPlanFromGrid(t2, { mitigations: MITS, jobs: JOBS }, { includeMitigations: true });
+    const s = r.skipped.find((x) => x.skillName === '存在しない技');
+    expect(s?.slot).toBe('MT');      // table の member 列 slot
+    expect(s?.times).toEqual([20]);  // 0:20
   });
 });
