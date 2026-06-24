@@ -2685,6 +2685,14 @@
         "unresolved_warning": "未解決 {{count}}件は取り込みません",
         "slot_unassigned_warning": "枠が未割当のメンバー列があります",
         "create": "この内容で作成",
-        "rights_notice": "取り込んだ内容はご自身の控えからの変換です。元の作成者の権利を尊重してご利用ください。"
+        "rights_notice": "取り込んだ内容はご自身の控えからの変換です。元の作成者の権利を尊重してご利用ください。",
+        "paste_placeholder": "ここに貼り付け",
+        "famous_sheet_warning": "有名スプシ形式です。「スプシ（有名形式）から取り込む」をお使いください。",
+        "pending_draft_warning": "貼り付け欄に未取込の内容があります。「まるごと貼り付け」を押してください。",
+        "no_phases_warning": "イベントがありません。貼り付けてください。",
+        "party_incomplete_warning": "スキルのあるメンバー列に枠を割り当てると作成できます。",
+        "col_unknown": "不明な列",
+        "col_ignore": "無視",
+        "col_member": "メンバー"
     }
 }

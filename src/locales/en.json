@@ -2664,6 +2664,14 @@
         "unresolved_warning": "{{count}} unresolved item(s) won't be imported",
         "slot_unassigned_warning": "Some member columns have no slot assigned",
         "create": "Create with this",
-        "rights_notice": "Imported data is a conversion of your own copy. Please respect the original author's rights."
+        "rights_notice": "Imported data is a conversion of your own copy. Please respect the original author's rights.",
+        "paste_placeholder": "Paste here",
+        "famous_sheet_warning": "This looks like a known spreadsheet format. Please use the standard importer instead.",
+        "pending_draft_warning": "You have pasted content that hasn't been imported yet. Press \"Paste it all\".",
+        "no_phases_warning": "No events yet. Paste your spreadsheet.",
+        "party_incomplete_warning": "Assign a slot to every member column that has skills.",
+        "col_unknown": "Unknown column",
+        "col_ignore": "Ignore",
+        "col_member": "Member"
     }
 }

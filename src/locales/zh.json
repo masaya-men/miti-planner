@@ -2629,6 +2629,14 @@
         "unresolved_warning": "{{count}} 个未解决项目将不会导入",
         "slot_unassigned_warning": "部分成员列未分配槽位",
         "create": "以此内容创建",
-        "rights_notice": "导入的内容是您自己记录的转换版本。请尊重原作者的权利。"
+        "rights_notice": "导入的内容是您自己记录的转换版本。请尊重原作者的权利。",
+        "paste_placeholder": "在此粘贴",
+        "famous_sheet_warning": "这是已知表格格式，请使用标准导入器。",
+        "pending_draft_warning": "粘贴框中有未导入的内容，请点击「整体粘贴」。",
+        "no_phases_warning": "暂无事件，请粘贴数据。",
+        "party_incomplete_warning": "请为有技能的成员列分配槽位后再创建。",
+        "col_unknown": "未知列",
+        "col_ignore": "忽略",
+        "col_member": "成员"
     }
 }
