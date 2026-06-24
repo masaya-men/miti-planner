@@ -48,4 +48,14 @@ describe('resolveSheetSkill', () => {
     expect(durOf('モンク', '牽制')).toBe(15);          // feint base版(dur10)でなくdur15
     expect(durOf('赤魔道士', 'アドル')).toBe(15);      // addle base版(dur10)でなくdur15
   });
+
+  it('英中韓のスキル名でも解決する(4言語一致)', () => {
+    const MULTI: Mitigation[] = [
+      { id: 'rampart_pld', jobId: 'pld', name: { ja: 'ランパート', en: 'Rampart', ko: '램파트', zh: '铁壁' }, recast: 0, duration: 0, type: 'all', value: 0 } as Mitigation,
+    ];
+    expect(resolveSheetSkill('ナイト', 'Rampart', MULTI)).toBe('rampart_pld');
+    expect(resolveSheetSkill('ナイト', '铁壁', MULTI)).toBe('rampart_pld');
+    expect(resolveSheetSkill('ナイト', '램파트', MULTI)).toBe('rampart_pld');
+    expect(resolveSheetSkill('ナイト', 'ランパート', MULTI)).toBe('rampart_pld');
+  });
 });
