@@ -92,6 +92,16 @@ export function ImportMenu({ btnClassName, onImportLogs, readOnly }: ImportMenuP
                         <FileSpreadsheet size={14} className="shrink-0 text-app-text-muted" />
                         <span className="flex-1">{t('importMenu.spreadsheet')}</span>
                     </button>
+
+                    {/* スプレッドシートから取り込む（列グリッド） */}
+                    <button
+                        type="button"
+                        onClick={() => { setOpen(false); window.dispatchEvent(new CustomEvent('timeline:grid-import')); }}
+                        className={itemClass}
+                    >
+                        <FileSpreadsheet size={14} className="shrink-0 text-app-text-muted" />
+                        <span className="flex-1">{t('importMenu.gridImport')}</span>
+                    </button>
                 </div>,
                 document.body,
             )}

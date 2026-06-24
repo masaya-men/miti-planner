@@ -2559,7 +2559,8 @@
     "importMenu": {
         "tooltip": "가져오기",
         "fflogs": "FF Logs에서 가져오기",
-        "spreadsheet": "스프레드시트에서 가져오기"
+        "spreadsheet": "스프레드시트에서 가져오기",
+        "gridImport": "스프레드시트에서 가져오기（열 그리드）"
     },
     "sheetImport": {
         "btn": "스프시 가져오기",

@@ -2559,7 +2559,8 @@
     "importMenu": {
         "tooltip": "导入",
         "fflogs": "从 FF Logs 导入",
-        "spreadsheet": "从电子表格导入"
+        "spreadsheet": "从电子表格导入",
+        "gridImport": "从电子表格导入（列网格）"
     },
     "sheetImport": {
         "btn": "导入表格",
