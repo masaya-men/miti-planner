@@ -51,6 +51,7 @@
 
 ## 既知の残課題 (中規模・別セッションで設計から)
 
+- **🆕 ローカルデータ安全性の業界水準化**(2026-06-25 ユーザー要望): Safari ITP 等で localStorage が数日で eviction される懸念。着手時=まず現状の保存方式(localStorage/IndexedDB/Storage API)を実コードで確認→`navigator.storage.persist()`・IndexedDB 移行・バックアップ/復旧の要否を判断(推測禁止)。
 - **同期不安定**(2026-04-29): 軽減配置→タブ閉→別端末で消失等の複合症状
 - **ローカル削除→即同期で復活**(2026-04-28): `deletePlan` の `_deletedPlanIds` 漏れ
 - **共同編集 再接続時の「一部欠け」消失**(2026-06-18・先送り合意): 離脱前復帰で自分の直前ドロー等だけ欠けた状態を返し空上書き防御(まるごと空のみ保護)をすり抜け。直しA(離脱側=確定待ち・安価)/B(再接続側=補完・根本)。詳細=docs/.private/2026-06-18-collab-reconnect-partial-loss.md。Undo 機能とは別件。
@@ -65,6 +66,7 @@
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
 - **テスト(既存failure・本番無影響)**: `TopBar.test.tsx` 4件+`HousingWorkspace.test.tsx` 1件(2026-06-03〜・FFLogs修正前から)。HousingWorkspace は jsdom の youtube-nocookie 実 fetch→abort 環境依存・TopBar は要調査。
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留
+- **🆕 削除済み共有リンクの表示**(2026-06-25 ユーザー要望): 削除された共同編集表のリンクを後から開くと空タイムラインが開く(要確認)→「この表は削除されました」を出す。tombstone/墓標の仕組みを読み取り側に効かせる。着手時=共有プラン読込パスと削除時の挙動を実コードで確認。
 
 ---
 
