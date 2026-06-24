@@ -2665,5 +2665,26 @@
         "step_title_paste": "フェーズを貼り付け",
         "step_title_party": "パーティ割当",
         "step_title_confirm": "確認して作成"
+    },
+    "gridImport": {
+        "title": "スプレッドシートから取り込む",
+        "paste_whole": "まるごと貼り付け（Ctrl+A → Ctrl+C → 貼り付け）",
+        "paste_whole_hint": "余計な列ごと貼ってOK。たぶん自動で読み取ります",
+        "paste_by_column": "列ごとに貼り付け",
+        "paste_by_column_hint": "自動で当たらない時はこちら。1列ずつ手で",
+        "help": "見出しが分かる列は位置に関係なく自動で割り当てます。分からない列は「この列は？」で指定、要らない列は「無視」でOK。",
+        "col_phase": "フェーズ", "col_label": "ラベル", "col_time": "時間",
+        "col_action": "敵の攻撃", "col_damage": "ダメージ", "col_target": "攻撃の対象",
+        "col_damageType": "ダメージ種別",
+        "status_ok": "OK", "status_partial": "一部読めない", "status_empty": "空 / 任意",
+        "optional": "任意",
+        "assign_slot": "枠は？",
+        "this_column": "この列は？",
+        "ignore_column": "無視",
+        "summary": "{{labels}}ラベル・{{events}}イベント・軽減{{mits}}件",
+        "unresolved_warning": "未解決 {{count}}件は取り込みません",
+        "slot_unassigned_warning": "枠が未割当のメンバー列があります",
+        "create": "この内容で作成",
+        "rights_notice": "取り込んだ内容はご自身の控えからの変換です。元の作成者の権利を尊重してご利用ください。"
     }
 }

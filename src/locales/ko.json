@@ -2609,5 +2609,26 @@
         "step_title_paste": "페이즈 붙여넣기",
         "step_title_party": "파티 배정",
         "step_title_confirm": "확인 후 작성"
+    },
+    "gridImport": {
+        "title": "스프레드시트에서 가져오기",
+        "paste_whole": "전체 붙여넣기 (Ctrl+A → Ctrl+C → 붙여넣기)",
+        "paste_whole_hint": "불필요한 열이 있어도 OK — 알아서 읽어볼게요",
+        "paste_by_column": "열 단위로 붙여넣기",
+        "paste_by_column_hint": "자동 인식이 안 될 때 사용. 한 열씩 직접",
+        "help": "헤더를 인식할 수 있는 열은 위치와 관계없이 자동으로 배정됩니다. 나머지는 \"이 열은?\"으로 지정하거나 \"무시\"를 선택하세요.",
+        "col_phase": "페이즈", "col_label": "라벨", "col_time": "시간",
+        "col_action": "적 공격", "col_damage": "데미지", "col_target": "공격 대상",
+        "col_damageType": "데미지 유형",
+        "status_ok": "OK", "status_partial": "일부 인식 불가", "status_empty": "비어 있음 / 선택",
+        "optional": "선택",
+        "assign_slot": "슬롯은?",
+        "this_column": "이 열은?",
+        "ignore_column": "무시",
+        "summary": "{{labels}} 라벨・{{events}} 이벤트・경감 {{mits}}건",
+        "unresolved_warning": "미해결 {{count}}건은 가져오지 않습니다",
+        "slot_unassigned_warning": "슬롯이 배정되지 않은 멤버 열이 있습니다",
+        "create": "이 내용으로 작성",
+        "rights_notice": "가져온 내용은 본인 기록의 변환입니다. 원작성자의 권리를 존중하여 이용해 주세요."
     }
 }

@@ -2609,5 +2609,26 @@
         "step_title_paste": "粘贴阶段",
         "step_title_party": "小队分配",
         "step_title_confirm": "确认并创建"
+    },
+    "gridImport": {
+        "title": "从电子表格导入",
+        "paste_whole": "整体粘贴（Ctrl+A → Ctrl+C → 粘贴）",
+        "paste_whole_hint": "多余的列没关系 — 应该能自动识别",
+        "paste_by_column": "按列逐一粘贴",
+        "paste_by_column_hint": "自动识别不准时使用。一列一列手动指定",
+        "help": "能识别表头的列会自动分配，与位置无关。其余列请用「这列是？」指定，不需要的列选「忽略」即可。",
+        "col_phase": "阶段", "col_label": "标签", "col_time": "时间",
+        "col_action": "敌方技能", "col_damage": "伤害", "col_target": "攻击对象",
+        "col_damageType": "伤害类型",
+        "status_ok": "OK", "status_partial": "部分无法读取", "status_empty": "空 / 可选",
+        "optional": "可选",
+        "assign_slot": "槽位？",
+        "this_column": "这列是？",
+        "ignore_column": "忽略",
+        "summary": "{{labels}} 标签・{{events}} 事件・减伤 {{mits}} 件",
+        "unresolved_warning": "{{count}} 个未解决项目将不会导入",
+        "slot_unassigned_warning": "部分成员列未分配槽位",
+        "create": "以此内容创建",
+        "rights_notice": "导入的内容是您自己记录的转换版本。请尊重原作者的权利。"
     }
 }

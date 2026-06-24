@@ -2644,5 +2644,26 @@
         "step_title_paste": "Paste phases",
         "step_title_party": "Party",
         "step_title_confirm": "Review & create"
+    },
+    "gridImport": {
+        "title": "Import from spreadsheet",
+        "paste_whole": "Paste it all (Ctrl+A → Ctrl+C → paste)",
+        "paste_whole_hint": "Extra columns are fine — we'll probably figure it out",
+        "paste_by_column": "Paste column by column",
+        "paste_by_column_hint": "Use this when auto-detect misses. One column at a time",
+        "help": "Columns with a recognizable header are mapped automatically regardless of position. For the rest, set \"What is this column?\" or choose \"Ignore\".",
+        "col_phase": "Phase", "col_label": "Label", "col_time": "Time",
+        "col_action": "Enemy action", "col_damage": "Damage", "col_target": "Target",
+        "col_damageType": "Damage type",
+        "status_ok": "OK", "status_partial": "Some unreadable", "status_empty": "Empty / optional",
+        "optional": "optional",
+        "assign_slot": "Slot?",
+        "this_column": "What is this column?",
+        "ignore_column": "Ignore",
+        "summary": "{{labels}} labels · {{events}} events · {{mits}} mitigations",
+        "unresolved_warning": "{{count}} unresolved item(s) won't be imported",
+        "slot_unassigned_warning": "Some member columns have no slot assigned",
+        "create": "Create with this",
+        "rights_notice": "Imported data is a conversion of your own copy. Please respect the original author's rights."
     }
 }
