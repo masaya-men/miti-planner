@@ -89,7 +89,7 @@ export function buildPlanFromSheets(
 
   // スプシ「効果時間中ずっと TRUE」→ rising-edge（非TRUE→TRUE の立ち上がりだけ新規使用）。
   const timelineMitigations: AppliedMitigation[] = [];
-  const skippedSet = new Map<string, SkippedSkill>();
+  const skippedMap = new Map<string, SkippedSkill>();
   for (const sheet of parsedSheets) {
     const rowsInOrder = [...sheet.rows].sort((a, b) => a.totalTimeSec - b.totalTimeSec);
     for (const col of sheet.columns) {
@@ -98,24 +98,26 @@ export function buildPlanFromSheets(
       const duration = mit?.duration ?? 0;
       const jobId = JOB_JA_TO_ID[col.job];
       const ownerId = jobId ? slotByJobId.get(jobId) : undefined;
-      let hadTrue = false;
       let inRun = false;
+      const riseTimes: number[] = [];
       for (const row of rowsInOrder) {
         const isTrue = row.trueColumnIndexes.includes(col.index);
         if (!isTrue) {
           inRun = false;
           continue;
         }
-        hadTrue = true;
         if (!inRun) {
           inRun = true;
+          riseTimes.push(row.totalTimeSec);
           if (mitId && ownerId) {
             timelineMitigations.push({ id: uid('mit'), mitigationId: mitId, time: row.totalTimeSec, duration, ownerId });
           }
         }
       }
-      if (hadTrue && !mitId) {
-        skippedSet.set(`${col.job}/${col.skillNameRaw}`, { job: col.job, skillName: col.skillNameRaw });
+      if (riseTimes.length && !mitId) {
+        skippedMap.set(`${col.job}/${col.skillNameRaw}`, {
+          job: col.job, skillName: col.skillNameRaw, slot: ownerId ?? null, times: riseTimes,
+        });
       }
     }
   }
@@ -131,5 +133,5 @@ export function buildPlanFromSheets(
   }
   dedupedMitigations.sort((a, b) => a.time - b.time);
 
-  return { timelineEvents, timelineMitigations: dedupedMitigations, phases, labels, party, skipped: [...skippedSet.values()] };
+  return { timelineEvents, timelineMitigations: dedupedMitigations, phases, labels, party, skipped: [...skippedMap.values()] };
 }

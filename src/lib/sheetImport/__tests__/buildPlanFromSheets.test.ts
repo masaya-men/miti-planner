@@ -52,7 +52,14 @@ describe('buildPlanFromSheets', () => {
 
   it('未対応技は skipped に集約', () => {
     const r = buildPlanFromSheets([IS(sheet, 'P1')], { mitigations: MITS, jobs: JOBS }, { includeMitigations: true });
-    expect(r.skipped).toContainEqual({ job: '白魔道士', skillName: 'ベネディクション' });
+    expect(r.skipped).toContainEqual(expect.objectContaining({ job: '白魔道士', skillName: 'ベネディクション' }));
+  });
+
+  it('skipped に slot と times が付く', () => {
+    const r = buildPlanFromSheets([IS(sheet, 'P1')], { mitigations: MITS, jobs: JOBS }, { includeMitigations: true });
+    const s = r.skipped.find((x) => x.skillName === 'ベネディクション');
+    expect(s?.slot).toBe('H1');       // 白魔道士=whm=healer→H1
+    expect(s?.times).toEqual([40]);   // totalTimeSec=40 の行が TRUE
   });
 
   it('phases はユーザー入力フェーズ名（1 シート 1 フェーズ・シート時間範囲）', () => {

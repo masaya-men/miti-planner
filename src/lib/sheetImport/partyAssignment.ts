@@ -26,6 +26,18 @@ export function assignSlot(a: PartyAssignment, slot: PartySlot, jobId: string | 
   return next;
 }
 
+/** 検出から消えたジョブの割当だけ外し、残った割当は保持する。
+ *  フェーズ追加/貼り直しで検出ジョブ集合が変わっても、まだ居るジョブの枠割当を消さないため。 */
+export function pruneAssignment(a: PartyAssignment, byRole: Record<SlotRole, string[]>): PartyAssignment {
+  const next = { ...a };
+  for (const slot of PARTY_SLOTS) {
+    const jobId = next[slot];
+    if (jobId === null) continue;
+    if (!byRole[SLOT_ROLE[slot]].includes(jobId)) next[slot] = null;
+  }
+  return next;
+}
+
 /** 検出ジョブをロール別に分類（roleOf 不明は捨てる・入力順保持）。 */
 export function groupByRole(
   jobIds: string[],

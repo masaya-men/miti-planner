@@ -68,6 +68,7 @@ import { MEMO_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
 import { useProgressRecording } from './progress/useProgressRecording';
 import { SpreadsheetImportModal } from './SpreadsheetImportModal';
+import { SpreadsheetGridImportModal } from './SpreadsheetGridImportModal';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
 import { importWithLimitCheck } from '../lib/sheetImport/importWithLimitCheck';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
@@ -957,13 +958,16 @@ const Timeline: React.FC = () => {
         const handleAutoPlanEvent = () => handleAutoPlan();
         const handleImportEvent = () => setImportModalOpen(true);
         const handleSheetImportEvent = () => setShowSheetImport(true);
+        const handleGridImportEvent = () => setShowGridImport(true);
         window.addEventListener('timeline:autoplan', handleAutoPlanEvent);
         window.addEventListener('timeline:import', handleImportEvent);
         window.addEventListener('timeline:spreadsheet-import', handleSheetImportEvent);
+        window.addEventListener('timeline:grid-import', handleGridImportEvent);
         return () => {
             window.removeEventListener('timeline:autoplan', handleAutoPlanEvent);
             window.removeEventListener('timeline:import', handleImportEvent);
             window.removeEventListener('timeline:spreadsheet-import', handleSheetImportEvent);
+            window.removeEventListener('timeline:grid-import', handleGridImportEvent);
         };
     }, [handleAutoPlan]);
 
@@ -1484,6 +1488,7 @@ const Timeline: React.FC = () => {
 
     const [importModalOpen, setImportModalOpen] = useState(false);
     const [showSheetImport, setShowSheetImport] = useState(false);
+    const [showGridImport, setShowGridImport] = useState(false);
     const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null>(null);
 
 
@@ -3945,6 +3950,14 @@ const Timeline: React.FC = () => {
             <SpreadsheetImportModal
                 isOpen={showSheetImport}
                 onClose={() => setShowSheetImport(false)}
+                onImport={handleSheetImport}
+                defaultSelection={sheetImportDefault}
+            />
+
+            {/* 列グリッド取込モーダル: 既存 handleSheetImport / sheetImportDefault を再利用 */}
+            <SpreadsheetGridImportModal
+                isOpen={showGridImport}
+                onClose={() => setShowGridImport(false)}
                 onImport={handleSheetImport}
                 defaultSelection={sheetImportDefault}
             />

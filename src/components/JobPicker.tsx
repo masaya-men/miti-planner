@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip } from './ui/Tooltip';
 import { getPhaseName } from '../types';
+import { DPS_MELEE, DPS_PHYS_RANGED, DPS_MAGIC_RANGED } from '../data/dpsOrder';
 
 interface JobPickerProps {
     isOpen: boolean;
@@ -31,13 +32,10 @@ export const JobPicker: React.FC<JobPickerProps> = ({ isOpen, onClose, onSelect,
     const tanks = jobs.filter(j => j.role === 'tank');
     const healers = jobs.filter(j => j.role === 'healer');
 
-    // Split DPS
-    // Melee: mnk, drg, nin, sam, rpr, vpr
-    const melee = jobs.filter(j => ['mnk', 'drg', 'nin', 'sam', 'rpr', 'vpr'].includes(j.id));
-    // Phys Ranged: brd, mch, dnc
-    const physRanged = jobs.filter(j => ['brd', 'mch', 'dnc'].includes(j.id));
-    // Magic Ranged: blm, smn, rdm, pct, blu
-    const magicRanged = jobs.filter(j => ['blm', 'smn', 'rdm', 'pct'].includes(j.id));
+    // Split DPS(並び順は共有定数 DPS_* と一致 = resolveImportParty の D1〜D4 採番と同じ真実)
+    const melee = jobs.filter(j => DPS_MELEE.includes(j.id));
+    const physRanged = jobs.filter(j => DPS_PHYS_RANGED.includes(j.id));
+    const magicRanged = jobs.filter(j => DPS_MAGIC_RANGED.includes(j.id));
 
     return (
         <AnimatePresence>
