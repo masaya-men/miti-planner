@@ -62,18 +62,27 @@ export function gridRowsFromResult(
   // ─── 行データ ─────────────────────────────────────────────────────────────
   const sortedEvents = [...result.timelineEvents].sort((a, b) => a.time - b.time);
 
+  // band-start 表示: 「フェーズ」「ラベル」列は帯の先頭行だけ名前を出し、同じ帯が続く行は空にする。
+  // 帯は id 単位で比較する(同名でも別帯=別 id なら先頭行に再掲)。前行の帯 id を保持して判定。
+  let prevPhaseId: string | null = null;
+  let prevLabelId: string | null = null;
+
   const rows: string[][] = sortedEvents.map((event) => {
-    // phase バンド名
+    // phase バンド名(帯先頭行のみ。続く同帯行は空)
     const phase = result.phases.find(
       (p) => p.startTime <= event.time && event.time < p.endTime,
     );
-    const phaseCell = phase ? localize(phase.name, lang) : '';
+    const phaseId = phase ? phase.id : null;
+    const phaseCell = phase && phaseId !== prevPhaseId ? localize(phase.name, lang) : '';
+    prevPhaseId = phaseId;
 
-    // label バンド名
+    // label バンド名(帯先頭行のみ。続く同帯行は空)
     const label = result.labels.find(
       (lb) => lb.startTime <= event.time && event.time < lb.endTime,
     );
-    const labelCell = label ? localize(label.name, lang) : '';
+    const labelId = label ? label.id : null;
+    const labelCell = label && labelId !== prevLabelId ? localize(label.name, lang) : '';
+    prevLabelId = labelId;
 
     // time
     const timeCell = formatTime(event.time);

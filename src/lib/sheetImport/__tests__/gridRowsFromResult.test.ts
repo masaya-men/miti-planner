@@ -197,6 +197,57 @@ describe('gridRowsFromResult', () => {
     expect(table.rows[1][0]).toBe('フェーズ2');
   });
 
+  it('phase セルは帯の先頭行だけ名前を出し、続く同帯行は空(band-start)', () => {
+    const result = makeResult({
+      phases: [
+        { id: 'ph1', name: { ja: 'フェーズ1', en: 'Phase 1' }, startTime: 0, endTime: 60 },
+        { id: 'ph2', name: { ja: 'フェーズ2', en: 'Phase 2' }, startTime: 60, endTime: 200 },
+      ],
+      timelineEvents: [
+        { id: 'e1', time: 10, name: { ja: 'A', en: 'A' }, damageType: 'magical' },
+        { id: 'e2', time: 30, name: { ja: 'B', en: 'B' }, damageType: 'magical' }, // 同じ ph1
+        { id: 'e3', time: 80, name: { ja: 'C', en: 'C' }, damageType: 'magical' }, // ph2 先頭
+        { id: 'e4', time: 100, name: { ja: 'D', en: 'D' }, damageType: 'magical' }, // 同じ ph2
+      ],
+    });
+    const table = gridRowsFromResult(result, { mitigations: MITIGATIONS, jobs: JOBS }, 'ja');
+    expect(table.rows[0][0]).toBe('フェーズ1'); // 帯先頭
+    expect(table.rows[1][0]).toBe('');         // 同帯continuation → 空
+    expect(table.rows[2][0]).toBe('フェーズ2'); // 次の帯先頭
+    expect(table.rows[3][0]).toBe('');         // 同帯continuation → 空
+  });
+
+  it('label セルも帯の先頭行だけ名前を出す(band-start)', () => {
+    const result = makeResult({
+      labels: [
+        { id: 'lb1', name: { ja: '散会', en: 'Spread' }, startTime: 0, endTime: 50 },
+      ],
+      timelineEvents: [
+        { id: 'e1', time: 10, name: { ja: 'A', en: 'A' }, damageType: 'magical' },
+        { id: 'e2', time: 20, name: { ja: 'B', en: 'B' }, damageType: 'magical' }, // 同じラベル帯
+      ],
+    });
+    const table = gridRowsFromResult(result, { mitigations: MITIGATIONS, jobs: JOBS }, 'ja');
+    expect(table.rows[0][1]).toBe('散会'); // 帯先頭
+    expect(table.rows[1][1]).toBe('');     // 同帯continuation → 空
+  });
+
+  it('同名でも帯(id)が違えば先頭行に再表示する(band-start は id 単位)', () => {
+    const result = makeResult({
+      phases: [
+        { id: 'ph1', name: { ja: '神々の像', en: 'Idol' }, startTime: 0, endTime: 60 },
+        { id: 'ph2', name: { ja: '神々の像', en: 'Idol' }, startTime: 60, endTime: 200 }, // 同名・別帯
+      ],
+      timelineEvents: [
+        { id: 'e1', time: 10, name: { ja: 'A', en: 'A' }, damageType: 'magical' },
+        { id: 'e2', time: 80, name: { ja: 'B', en: 'B' }, damageType: 'magical' },
+      ],
+    });
+    const table = gridRowsFromResult(result, { mitigations: MITIGATIONS, jobs: JOBS }, 'ja');
+    expect(table.rows[0][0]).toBe('神々の像'); // ph1 先頭
+    expect(table.rows[1][0]).toBe('神々の像'); // ph2 先頭(別帯なので同名でも再掲)
+  });
+
   it('en lang で phase セルが英語名になる', () => {
     const result = makeResult({
       phases: [
