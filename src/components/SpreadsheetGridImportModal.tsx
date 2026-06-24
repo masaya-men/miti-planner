@@ -485,6 +485,21 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   // グリッド本体に表示中のデータが無い(=空状態)か
   const isGridEmpty = source === 'none' && table.rows.length === 0;
 
+  // 作成ゲートの理由。全幅バナーをやめ、作成ボタンの隣にコンパクト表示する(モック準拠)。
+  // 該当する最初の1件のみ表示し、無ければ summary を出す。
+  const blockMsg: { text: string; tone: 'red' | 'amber' } | null =
+    step !== 2
+      ? null
+      : hasNoTimeCol
+        ? { text: t('gridImport.no_time_warning'), tone: 'amber' }
+        : blockReason === 'party_incomplete'
+          ? hasUnassignedMemberCols
+            ? { text: t('gridImport.slot_unassigned_warning'), tone: 'amber' }
+            : { text: t('gridImport.party_incomplete_warning'), tone: 'red' }
+          : blockReason === 'no_phases' && source !== 'none'
+            ? { text: t('gridImport.no_phases_warning'), tone: 'amber' }
+            : null;
+
   if (!isOpen) return null;
 
   const node = (
@@ -497,28 +512,17 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
           className="relative z-[201] w-[96vw] max-w-[1280px] h-[88vh] glass-tier3 rounded-2xl overflow-hidden flex flex-col"
           style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
           onClick={(e) => e.stopPropagation()}>
-          {/* ヘッダー */}
-          <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between shrink-0">
-            <h2 className="text-app-3xl font-bold text-app-text flex items-center gap-2">
-              <FileSpreadsheet size={18} /> {t('gridImport.title')}
-            </h2>
-            <button onClick={onClose} className="p-1.5 rounded-lg text-app-text hover:bg-app-toggle hover:text-app-toggle-text"><X size={18} /></button>
-          </div>
-
-          {/* 進捗(2ステップ) */}
-          <div className="px-5 py-2.5 border-b border-app-border bg-app-surface2 flex items-center gap-3 shrink-0">
-            <div className="flex items-center gap-1.5">
-              {[1, 2].map((i) => (
-                <span
-                  key={i}
-                  className={clsx('h-1.5 rounded-full transition-all duration-200',
-                    i === step ? 'w-5 bg-app-text' : i < step ? 'w-1.5 bg-app-text/60' : 'w-1.5 bg-app-border')}
-                />
-              ))}
+          {/* ヘッダー(ステップ表示をタイトル行へ集約=モック v2 準拠・独立行を廃止してグリッドを広げる) */}
+          <div className="px-5 py-4 border-b border-app-border bg-app-surface2 flex items-center justify-between gap-3 shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <h2 className="text-app-3xl font-bold text-app-text flex items-center gap-2 shrink-0">
+                <FileSpreadsheet size={18} /> {t('gridImport.title')}
+              </h2>
+              <span className="text-app-lg text-app-text-muted truncate">
+                · {step}/2 · {t(step === 1 ? 'gridImport.step_content' : 'gridImport.step_grid')}
+              </span>
             </div>
-            <span className="text-app-lg text-app-text-muted">
-              {step}/2 · {t(step === 1 ? 'gridImport.step_content' : 'gridImport.step_grid')}
-            </span>
+            <button onClick={onClose} className="p-1.5 rounded-lg text-app-text hover:bg-app-toggle hover:text-app-toggle-text shrink-0"><X size={18} /></button>
           </div>
 
           {/* ── Step 1: コンテンツ選択 ── */}
@@ -641,37 +645,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
           )}
 
           {/* フッター */}
-          <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex flex-col gap-2 shrink-0">
-            {step === 2 && hasUnassignedMemberCols && (
-              <div className="flex items-center gap-2 text-app-amber text-app-2xl">
-                <AlertCircle size={14} className="shrink-0" />
-                <span>{t('gridImport.slot_unassigned_warning')}</span>
-              </div>
-            )}
-            {step === 2 && hasNoTimeCol && (
-              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
-                <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                <p>{t('gridImport.no_time_warning')}</p>
-              </div>
-            )}
-            {step === 2 && blockReason === 'party_incomplete' && (
-              <div className="flex items-start gap-2 text-app-red bg-app-red-dim p-2 rounded-lg border border-app-red-border text-app-2xl">
-                <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                <p>{t('gridImport.party_incomplete_warning')}</p>
-              </div>
-            )}
-            {step === 2 && blockReason === 'no_phases' && source !== 'none' && (
-              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
-                <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                <p>{t('gridImport.no_phases_warning')}</p>
-              </div>
-            )}
-            {step === 2 && skipped.length > 0 && (
-              <div className="flex items-center gap-2 text-app-amber text-app-2xl">
-                <AlertCircle size={14} className="shrink-0" />
-                <span>{t('gridImport.unresolved_note')}</span>
-              </div>
-            )}
+          <div className="px-5 py-3 border-t border-app-border bg-app-surface2 flex flex-col gap-1.5 shrink-0">
             <div className="flex items-center justify-between gap-3">
               {/* 左: Step1=キャンセル / Step2=戻る */}
               {step === 1 ? (
@@ -690,7 +664,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 </button>
               )}
 
-              {/* 右: Step1=次へ(常に有効) / Step2=summary + 作成 */}
+              {/* 右: Step1=次へ / Step2=作成ゲートの理由 or summary + skipped + 作成(全幅バナーをやめ作成ボタン隣に集約) */}
               {step === 1 ? (
                 <button
                   onClick={() => setStep(2)}
@@ -699,10 +673,17 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                   {t('gridImport.next')} <ArrowRight size={16} />
                 </button>
               ) : (
-                <div className="flex items-center gap-3">
-                  <span className="text-app-2xl text-app-text-muted">
-                    {preview && t('gridImport.summary', { labels: preview.labels.length, events: preview.timelineEvents.length, mits: preview.timelineMitigations.length })}
-                  </span>
+                <div className="flex items-center gap-3 flex-wrap justify-end">
+                  {blockMsg ? (
+                    <span className={clsx('flex items-center gap-1.5 text-app-2xl',
+                      blockMsg.tone === 'red' ? 'text-app-red' : 'text-app-amber')}>
+                      <AlertCircle size={14} className="shrink-0" /> {blockMsg.text}
+                    </span>
+                  ) : (
+                    <span className="text-app-2xl text-app-text-muted">
+                      {preview && t('gridImport.summary', { labels: preview.labels.length, events: preview.timelineEvents.length, mits: preview.timelineMitigations.length })}
+                    </span>
+                  )}
                   {skipped.length > 0 && (
                     <span className="text-app-2xl text-app-amber">
                       {t('gridImport.skipped_count', { count: skipped.length })}
@@ -719,9 +700,14 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 </div>
               )}
             </div>
-            {/* ③ 権利表記: モックは非表示だが制約で保持必須 → フッターに muted で控えめに(消さない) */}
+            {/* 補足(読めない技の説明=skipped時)+ 権利表記。全幅バナー廃止で1行に集約。 */}
             {step === 2 && (
-              <p className="text-app-sm text-app-text-muted/60">{t('gridImport.rights_notice')}</p>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-app-sm text-app-amber/80 truncate">
+                  {skipped.length > 0 ? t('gridImport.unresolved_note') : ''}
+                </span>
+                <p className="text-app-sm text-app-text-muted/60 shrink-0">{t('gridImport.rights_notice')}</p>
+              </div>
             )}
           </div>
         </motion.div>
