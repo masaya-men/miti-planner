@@ -26,4 +26,14 @@ describe('parseGridPaste', () => {
   it('空入力は空テーブル', () => {
     expect(parseGridPaste('', JOBS)).toEqual({ columns: [], rows: [] });
   });
+  it('先頭の空行を飛ばして最初の中身ある行を見出しにする', () => {
+    // 先頭にタブだけの空行 → これまでは空行が見出しになり全列 unknown だった
+    const tsv = '\t\t\t\n時間\t敵の攻撃\tナイト\n0:16\tばりばりルインガ\tセンチネル\n';
+    const t = parseGridPaste(tsv, JOBS);
+    expect(t.columns.map((c) => c.field)).toEqual(['time', 'action', 'member']);
+    expect(t.rows).toEqual([['0:16', 'ばりばりルインガ', 'センチネル']]);
+  });
+  it('全体が空白だけなら空テーブル', () => {
+    expect(parseGridPaste('\t\t\n\t\n', JOBS)).toEqual({ columns: [], rows: [] });
+  });
 });

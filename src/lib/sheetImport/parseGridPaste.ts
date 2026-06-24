@@ -17,6 +17,8 @@ export function parseGridPaste(tsv: string, jobs: Job[]): GridTable {
   const lines = tsv.replace(/\r\n/g, '\n').split('\n').map((l) => l.split('\t'));
   // 末尾の完全空行を除去
   while (lines.length && lines[lines.length - 1].every((c) => c.trim() === '')) lines.pop();
+  // 先頭の完全空行を除去(スプシのタイトル行・余白行対策)
+  while (lines.length && lines[0].every((c) => c.trim() === '')) lines.shift();
   if (lines.length === 0) return { columns: [], rows: [] };
   const header = lines[0];
   const columns: GridColumn[] = header.map((h) => {
