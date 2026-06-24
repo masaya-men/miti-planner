@@ -2704,6 +2704,21 @@
         "col_unknown": "不明な列",
         "col_ignore": "無視",
         "col_member": "メンバー",
-        "col_paste_placeholder": "貼り付け（1行1件）"
+        "col_paste_placeholder": "貼り付け（1行1件）",
+        "phase_name_label": "フェーズ名（任意・空なら自動）",
+        "phase_name_placeholder": "例: P1 神々の像",
+        "add_phase": "このフェーズを追加",
+        "added_phases_label": "追加済みフェーズ",
+        "detected_phase": "フェーズ「{{name}}」: イベント{{events}}件・軽減{{mits}}件",
+        "add_more_or_next": "次のフェーズがあれば同じ手順でもう1枚。無ければそのまま作成。",
+        "skipped_label": "読み取れなかった軽減（{{count}}件）",
+        "skipped_note": "LoPo に無い技・表記ゆれが理由です。これらは取り込まれません。",
+        "party_assign_label": "パーティの枠を割り当て",
+        "party_assign_hint": "ジョブを MT〜D4 に割り当ててください",
+        "party_role_tank": "タンク",
+        "party_role_healer": "ヒーラー",
+        "party_role_dps": "DPS",
+        "party_slot_unassigned": "未選択",
+        "pending_phase_warning": "貼り付けた内容が未追加です。「このフェーズを追加」を押してください。"
     }
 }

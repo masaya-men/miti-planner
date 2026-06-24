@@ -1,8 +1,14 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SpreadsheetGridImportModal, autoAssignSingleSlots, setColumnValues } from '../SpreadsheetGridImportModal';
+import {
+  SpreadsheetGridImportModal,
+  autoAssignSingleSlots,
+  setColumnValues,
+  sortResultPartyBySlots,
+} from '../SpreadsheetGridImportModal';
 import type { GridTable } from '../../lib/sheetImport/gridTypes';
+import type { SheetImportResult } from '../../lib/sheetImport/buildPlanFromSheets';
 
 // i18n: キー→日本語テキストの最小マップ（テスト対象キーのみ）
 const JA: Record<string, string> = {
@@ -23,6 +29,7 @@ const JA: Record<string, string> = {
   'gridImport.parse_failed': '貼り付けた内容をうまく読み取れませんでした。',
   'gridImport.no_phases_warning': 'イベントがありません。',
   'gridImport.party_incomplete_warning': 'スキルのあるメンバー列に枠を割り当てると作成できます。',
+  'gridImport.pending_phase_warning': '貼り付けた内容が未追加です。「このフェーズを追加」を押してください。',
   'gridImport.this_column': 'この列は？',
   'gridImport.ignore_column': '無視',
   'gridImport.assign_slot': '枠は？',
@@ -39,22 +46,53 @@ const JA: Record<string, string> = {
   'gridImport.slot_unassigned_warning': '枠が未割当のメンバー列があります',
   'gridImport.summary': '{{labels}}ラベル・{{events}}イベント・軽減{{mits}}件',
   'gridImport.col_paste_placeholder': '貼り付け（1行1件）',
+  'gridImport.phase_name_label': 'フェーズ名（任意・空なら自動）',
+  'gridImport.phase_name_placeholder': '例: P1 神々の像',
+  'gridImport.add_phase': 'このフェーズを追加',
+  'gridImport.added_phases_label': '追加済みフェーズ',
+  'gridImport.detected_phase': 'フェーズ「{{name}}」: イベント{{events}}件・軽減{{mits}}件',
+  'gridImport.add_more_or_next': '次のフェーズがあれば同じ手順でもう1枚。無ければそのまま作成。',
+  'gridImport.skipped_label': '読み取れなかった軽減（{{count}}件）',
+  'gridImport.skipped_note': 'LoPo に無い技・表記ゆれが理由です。これらは取り込まれません。',
+  'gridImport.party_assign_label': 'パーティの枠を割り当て',
+  'gridImport.party_assign_hint': 'ジョブを MT〜D4 に割り当ててください',
+  'gridImport.party_role_tank': 'タンク',
+  'gridImport.party_role_healer': 'ヒーラー',
+  'gridImport.party_role_dps': 'DPS',
+  'gridImport.party_slot_unassigned': '未選択',
+  'gridImport.rights_notice': '取り込んだ内容はご自身の控えからの変換です。',
   'common.cancel': 'キャンセル',
 };
+
+/** {{name}} 等のプレースホルダを置換した文字列を返す簡易 t。 */
+function interpolate(tmpl: string, vars?: Record<string, unknown>): string {
+  if (!vars) return tmpl;
+  return tmpl.replace(/\{\{(\w+)\}\}/g, (_, k) => String(vars[k] ?? ''));
+}
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (k: string) => JA[k] ?? k,
+    t: (k: string, vars?: Record<string, unknown>) => interpolate(JA[k] ?? k, vars),
     i18n: { language: 'ja' },
   }),
   initReactI18next: { type: '3rdParty', init: () => {} },
 }));
 
+// マトリクス/メンバー順テスト用にタンク+ヒーラー+DPS のジョブを用意。
+// パラディン=ナイト(tank)・白魔=ヒーラー・忍者=DPS。
 vi.mock('../../hooks/useSkillsData', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../hooks/useSkillsData')>();
   return {
     ...actual,
-    getJobsFromStore: () => [{ id: 'pld', name: { ja: 'ナイト', en: 'Paladin' }, role: 'tank', icon: '' }],
-    getMitigationsFromStore: () => [{ id: 'rampart_pld', jobId: 'pld', name: { ja: 'ランパート', en: 'Rampart' }, recast: 0, duration: 0, type: 'all', value: 0 }],
+    getJobsFromStore: () => [
+      { id: 'pld', name: { ja: 'ナイト', en: 'Paladin' }, role: 'tank', icon: '' },
+      { id: 'whm', name: { ja: '白魔道士', en: 'White Mage' }, role: 'healer', icon: '' },
+      { id: 'nin', name: { ja: '忍者', en: 'Ninja' }, role: 'dps', icon: '' },
+    ],
+    getMitigationsFromStore: () => [
+      { id: 'rampart_pld', jobId: 'pld', name: { ja: 'ランパート', en: 'Rampart' }, recast: 0, duration: 20, type: 'all', value: 0 },
+      { id: 'asylum_whm', jobId: 'whm', name: { ja: 'アサイラム', en: 'Asylum' }, recast: 0, duration: 24, type: 'all', value: 0 },
+    ],
   };
 });
 
@@ -70,14 +108,27 @@ function goToGridStep() {
   fireEvent.click(screen.getByText('次へ'));
 }
 
+/**
+ * parseMitigationSheet が読める行列(matrix)TSV を組み立てる。
+ * - ジョブ行 3 ジョブ(ナイト/白魔道士/忍者) → tank/healer/dps が混在
+ * - Skill 行(ランパート=解決可 / アサイラム=解決可 / かげぬい=LoPo 未知=skipped)
+ */
+function matrixTSV(): string {
+  const T = (cells: string[]) => cells.join('\t');
+  return [
+    T(['Phase', 'Total Time', 'Action', 'Type', 'Hit', 'Mit', 'Mit', 'Mit']),
+    T(['', '', '', '', '', 'ナイト', '白魔道士', '忍者']),
+    T(['', '', 'Skill', '', '', 'ランパート', 'アサイラム', 'かげぬい']),
+    T(['開幕', '0:16', 'ビッグブラスト', 'Magic', '100,000', 'TRUE', 'TRUE', 'TRUE']),
+  ].join('\n');
+}
+
 describe('SpreadsheetGridImportModal', () => {
   it('開いているとタイトルを表示し、Step1はコンテンツ選択+次へ', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={vi.fn()} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     expect(screen.getByText('スプレッドシートから取り込む')).toBeInTheDocument();
-    // Step1 フッターは キャンセル + 次へ
     expect(screen.getByText('キャンセル')).toBeInTheDocument();
     expect(screen.getByText('次へ')).toBeInTheDocument();
-    // Step1 ではグリッド本体・列ごと貼り付けは未表示
     expect(screen.queryByText('列ごとに貼り付け')).toBeNull();
   });
 
@@ -91,18 +142,15 @@ describe('SpreadsheetGridImportModal', () => {
   it('次へでStep2へ進むと、正典の列見出し+貼り付けプロンプトが表示される', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
-    // 列見出し
     expect(screen.getByText('時間')).toBeInTheDocument();
     expect(screen.getByText('敵の攻撃')).toBeInTheDocument();
     expect(screen.getByText('攻撃の対象')).toBeInTheDocument();
     expect(screen.getByText('ダメージ種別')).toBeInTheDocument();
-    // 空状態の貼り付けプロンプト(本文)
     expect(screen.getByText('ここにスプレッドシートを貼り付け (Ctrl+V)')).toBeInTheDocument();
-    // 列ごと貼り付け fallback ボタンも表示
     expect(screen.getByText('列ごとに貼り付け')).toBeInTheDocument();
   });
 
-  it('Step2: グリッド本体への貼り付け(自作TSV)で列が検出されグリッドに反映される', () => {
+  it('Step2: 自作TSV貼り付けで列が検出されグリッドに反映される', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     const tsv = '時間\t敵の攻撃\n0:16\tばりばりルインガ\n';
@@ -113,25 +161,77 @@ describe('SpreadsheetGridImportModal', () => {
   it('Step2: 行列(TRUE/FALSE)形式を貼っても弾かず、グリッドに内容が出る(no-bounce)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
-    // parseMitigationSheet が読める最小の行列 TSV:
-    const T = (cells: string[]) => cells.join('\t');
-    const matrix = [
-      T(['Phase', 'Total Time', 'Action', 'Type', 'Hit', 'Mitigation', 'Mitigation', 'Mitigation']),
-      T(['', '', 'TestBoss', '', '', 'ナイト', '白魔道士', '戦士']),           // ジョブ行(3ジョブ)
-      T(['', '', 'Skill', '', '', 'リプライザル', 'アサイラム', 'ランパート']),  // Skill 行
-      T(['開幕', '0:16', 'ビッグブラスト', 'Magic', '100,000', 'TRUE', 'FALSE', 'FALSE']),
-    ].join('\n');
-    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrix } });
-    // 弾き(誘導)が起きず、攻撃名がグリッドに出る
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
     expect(screen.getByText('ビッグブラスト')).toBeInTheDocument();
+  });
+
+  it('Step2: matrix貼付→フェーズ名+このフェーズを追加で追加済み一覧に積まれ、グリッドが空に戻る', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // フェーズ名を入力 → 追加
+    fireEvent.change(screen.getByPlaceholderText('例: P1 神々の像'), { target: { value: 'P1 開幕' } });
+    fireEvent.click(screen.getByText('このフェーズを追加'));
+    // 追加済み一覧に出る
+    expect(screen.getByText('追加済みフェーズ')).toBeInTheDocument();
+    expect(screen.getByText(/フェーズ「P1 開幕」/)).toBeInTheDocument();
+    // グリッドは空状態に戻る(次のタブを貼れる)
+    expect(screen.getByText('ここにスプレッドシートを貼り付け (Ctrl+V)')).toBeInTheDocument();
+  });
+
+  it('Step2: 未追加の貼り付けがあると作成は押せずpendingバナーが出る/追加+枠割当で作成可', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // 未追加 → pending バナー、作成は disabled
+    expect(screen.getByText('貼り付けた内容が未追加です。「このフェーズを追加」を押してください。')).toBeInTheDocument();
+    const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
+    expect(createBtn.disabled).toBe(true);
+    // 追加 → パーティ枠割当が出る。各ロール複数枠なので手動割当が必要(party_incomplete)。
+    fireEvent.click(screen.getByText('このフェーズを追加'));
+    expect((screen.getByText('この内容で作成').closest('button') as HTMLButtonElement).disabled).toBe(true);
+    // 枠セレクタ(各 slot に1つ)から、各ジョブ option を持つ最初の select を選んで割当。
+    // pld→MT(先頭の tank 枠) / whm→H1 / nin→D1 になり、3 ロールとも完成する。
+    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[];
+    const firstWith = (jobId: string) =>
+      selects.find((s) => Array.from(s.options).some((o) => o.value === jobId))!;
+    fireEvent.change(firstWith('pld'), { target: { value: 'pld' } });
+    fireEvent.change(firstWith('whm'), { target: { value: 'whm' } });
+    fireEvent.change(firstWith('nin'), { target: { value: 'nin' } });
+    const createBtn2 = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
+    expect(createBtn2.disabled).toBe(false);
+  });
+
+  it('Step2: メンバー列が MT→ST→H1→H2→D1〜D4 順(タンクがヒーラーより前)で表示される', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // 検出順がジョブ行順(ナイト=tank, 白魔=healer, 忍者=dps)になるよう貼る
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    const text = gridPasteSurface().textContent ?? '';
+    const idxTank = text.indexOf('ナイト');
+    const idxHealer = text.indexOf('白魔道士');
+    const idxDps = text.indexOf('忍者');
+    expect(idxTank).toBeGreaterThanOrEqual(0);
+    expect(idxHealer).toBeGreaterThan(idxTank);   // MT(tank) は H1(healer) より前
+    expect(idxDps).toBeGreaterThan(idxHealer);    // H1(healer) は D1(dps) より前
+  });
+
+  it('Step2: 読み取れなかった軽減が一覧表示され、理由ノートも出る', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    fireEvent.click(screen.getByText('このフェーズを追加'));
+    // 「かげぬい」は mitigations に無い → skipped 一覧に出る
+    expect(screen.getByText(/読み取れなかった軽減（1件）/)).toBeInTheDocument();
+    expect(screen.getByText('忍者 / かげぬい')).toBeInTheDocument();
+    expect(screen.getByText('LoPo に無い技・表記ゆれが理由です。これらは取り込まれません。')).toBeInTheDocument();
   });
 
   it('Step2 → 戻る で Step1 (コンテンツ選択) に戻る', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
-    expect(screen.getByText('列ごとに貼り付け')).toBeInTheDocument(); // Step2 にいる
+    expect(screen.getByText('列ごとに貼り付け')).toBeInTheDocument();
     fireEvent.click(screen.getByText('戻る'));
-    // Step1 に戻り、キャンセル + 次へ が見える / グリッド要素は消える
     expect(screen.getByText('キャンセル')).toBeInTheDocument();
     expect(screen.queryByText('列ごとに貼り付け')).toBeNull();
   });
@@ -149,11 +249,8 @@ describe('SpreadsheetGridImportModal', () => {
   it('Step2: 列ごとに貼り付けボタンでbyColumnModeに切替→各列にtextareaが現れる', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
-    // 初期状態ではcolumn-pasteのtextareaは存在しない
     expect(screen.queryByPlaceholderText('貼り付け（1行1件）')).toBeNull();
-    // 列ごとボタンをクリック
     fireEvent.click(screen.getByText('列ごとに貼り付け'));
-    // 各列ヘッダーにtextareaが現れる（BASE_FIELDS = 7列）
     const colTextareas = screen.getAllByPlaceholderText('貼り付け（1行1件）');
     expect(colTextareas.length).toBeGreaterThan(0);
   });
@@ -163,7 +260,6 @@ describe('SpreadsheetGridImportModal', () => {
     goToGridStep();
     fireEvent.click(screen.getByText('列ごとに貼り付け'));
     const colTextareas = screen.getAllByPlaceholderText('貼り付け（1行1件）');
-    // 最初の列（フェーズ列=BASE_FIELDS[0]）に貼る
     fireEvent.change(colTextareas[0], { target: { value: 'P1\nP2\n' } });
     expect(screen.getByText('P1')).toBeInTheDocument();
     expect(screen.getByText('P2')).toBeInTheDocument();
@@ -192,8 +288,35 @@ describe('SpreadsheetGridImportModal', () => {
       <SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />,
     );
     goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
     expect(container.textContent ?? '').not.toContain('有名');
     expect((container.textContent ?? '').toLowerCase()).not.toContain('famous');
+  });
+});
+
+// ---- sortResultPartyBySlots 純粋関数のユニットテスト ----
+describe('sortResultPartyBySlots', () => {
+  it('party を MT,ST,H1,H2,D1..D4 順に整列する(検出順をならべ替え)', () => {
+    const result = {
+      timelineEvents: [], timelineMitigations: [], phases: [], labels: [], skipped: [],
+      party: [
+        { slot: 'D1', jobId: 'nin' },
+        { slot: 'H1', jobId: 'whm' },
+        { slot: 'MT', jobId: 'pld' },
+      ],
+    } as unknown as SheetImportResult;
+    const sorted = sortResultPartyBySlots(result);
+    expect(sorted.party.map((p) => p.slot)).toEqual(['MT', 'H1', 'D1']);
+  });
+
+  it('元の result は変更しない(party 配列は新規)', () => {
+    const result = {
+      timelineEvents: [], timelineMitigations: [], phases: [], labels: [], skipped: [],
+      party: [{ slot: 'D1', jobId: 'nin' }, { slot: 'MT', jobId: 'pld' }],
+    } as unknown as SheetImportResult;
+    const sorted = sortResultPartyBySlots(result);
+    expect(result.party[0].slot).toBe('D1'); // 元は不変
+    expect(sorted.party).not.toBe(result.party);
   });
 });
 
