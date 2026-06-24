@@ -22,10 +22,10 @@ import {
   type WizardStep, wizardHasPartyStep, wizardTotalSteps, wizardStepPosition,
   wizardCanAdvance, wizardNextStep, wizardPrevStep, wizardClampStep, resolvePhaseName,
 } from '../lib/sheetImport/importWizard';
-import { hasContentRegistry, getFilteredBosses, deriveContentId, resolveInitialSelection } from '../lib/contentSelection';
+import { deriveContentId, resolveInitialSelection } from '../lib/contentSelection';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
-import { CATEGORY_LABELS } from '../data/contentRegistry';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
+import { ImportContentSelector } from './ImportContentSelector';
 
 interface Props {
   isOpen: boolean;
@@ -33,9 +33,6 @@ interface Props {
   onImport: (result: SheetImportResult, opts: { contentId: string | null }) => Promise<boolean>;
   defaultSelection: ContentSelectionDefault;
 }
-
-const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
-const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
 
 const STEP_TITLE_KEY: Record<WizardStep, string> = {
   1: 'sheetImport.step_title_setup',
@@ -232,7 +229,6 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   );
 
   const lang = i18n.language === 'en' ? 'en' : 'ja';
-  const filteredBosses = useMemo(() => getFilteredBosses(selLevel, selCategory), [selLevel, selCategory]);
   const selectedContentId = deriveContentId(selBoss, selCategory, selTitle);
 
   const partyComplete = !includeMitigations || isAssignmentComplete(assignment, detectedByRole);
@@ -347,87 +343,18 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
                 {/* ── Step 1: 設定（取込先 + モード） ── */}
                 {step === 1 && (
                   <>
-                    {/* 取り込み先コンテンツ選択 */}
-                    <div className="space-y-2">
-                      <p className="text-app-lg text-app-text-muted block">
-                        {t('sheetImport.target_content_label')}
-                      </p>
-                      {/* Level */}
-                      <div className="flex gap-2 flex-wrap">
-                        {LEVEL_OPTIONS.map((lv) => (
-                          <button
-                            key={lv}
-                            type="button"
-                            onClick={() => { setSelLevel(lv); setSelBoss(null); }}
-                            className={clsx(
-                              'px-3 py-1.5 rounded-lg text-app-2xl font-bold border transition-all duration-200 cursor-pointer active:scale-95',
-                              selLevel === lv
-                                ? 'border-app-text bg-app-text/5 text-app-text'
-                                : 'border-app-border text-app-text-muted hover:border-app-text/40',
-                            )}
-                          >
-                            Lv{lv}
-                          </button>
-                        ))}
-                      </div>
-                      {/* Category */}
-                      <div className="flex gap-2 flex-wrap pt-1">
-                        {CATEGORY_OPTIONS.map((cat) => (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => { setSelCategory(cat); setSelBoss(null); setSelTitle(''); }}
-                            className={clsx(
-                              'px-3 py-1.5 rounded-lg text-app-2xl font-bold border transition-all duration-200 cursor-pointer active:scale-95',
-                              selCategory === cat
-                                ? 'border-app-text bg-app-text/5 text-app-text'
-                                : 'border-app-border text-app-text-muted hover:border-app-text/40',
-                            )}
-                          >
-                            {(CATEGORY_LABELS[cat][lang] || CATEGORY_LABELS[cat].ja).toUpperCase()}
-                          </button>
-                        ))}
-                      </div>
-                      {/* Boss (零式・絶) */}
-                      {hasContentRegistry(selCategory) && (
-                        selLevel ? (
-                          filteredBosses.length > 0 ? (
-                            <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto custom-scrollbar pt-1">
-                              {filteredBosses.map((b) => (
-                                <button
-                                  key={b.id}
-                                  type="button"
-                                  onClick={() => setSelBoss(b)}
-                                  className={clsx(
-                                    'w-full px-3 py-2 rounded-lg text-app-2xl font-bold border text-left transition-all duration-200 cursor-pointer active:scale-[0.98]',
-                                    selBoss?.id === b.id
-                                      ? 'border-app-text bg-app-text/5 text-app-text'
-                                      : 'border-app-border text-app-text-muted hover:border-app-text/40',
-                                  )}
-                                >
-                                  {b.name[lang] || b.name.ja}
-                                </button>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-app-lg text-app-text-muted py-2">{t('new_plan.no_matches')}</p>
-                          )
-                        ) : (
-                          <p className="text-app-lg text-app-text-muted py-2">{t('new_plan.select_level_first')}</p>
-                        )
-                      )}
-                      {/* 自由入力タイトル (ダンジョン/レイド/その他) */}
-                      {selCategory !== null && !hasContentRegistry(selCategory) && (
-                        <input
-                          type="text"
-                          value={selTitle}
-                          onChange={(e) => setSelTitle(e.target.value)}
-                          placeholder={t('new_plan.plan_name_placeholder')}
-                          className="w-full bg-app-surface2 border border-app-border rounded-lg px-3 py-2 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted mt-1"
-                          spellCheck={false}
-                        />
-                      )}
-                    </div>
+                    {/* 取り込み先コンテンツ選択（ImportContentSelector に抽出済み） */}
+                    <ImportContentSelector
+                      selLevel={selLevel}
+                      setSelLevel={setSelLevel}
+                      selCategory={selCategory}
+                      setSelCategory={setSelCategory}
+                      selBoss={selBoss}
+                      setSelBoss={setSelBoss}
+                      selTitle={selTitle}
+                      setSelTitle={setSelTitle}
+                      lang={lang}
+                    />
 
                     {/* Mode */}
                     <div className="space-y-2">
