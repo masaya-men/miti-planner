@@ -2,8 +2,8 @@ import type { Job } from '../../types';
 import type { GridTable, GridColumn } from './gridTypes';
 import { detectField } from './headerAliases';
 
-/** 有名スプシ形式(Skill 行を含む)なら true → 既存 parseMitigationSheet 経路へ回す。 */
-export function isFamousSheetFormat(tsv: string): boolean {
+/** TRUE/FALSE 行列形式(Skill 行を含むスキル列×真偽値の表)なら true。 */
+export function isMatrixSheetFormat(tsv: string): boolean {
   if (!tsv) return false;
   return tsv
     .replace(/\r\n/g, '\n')

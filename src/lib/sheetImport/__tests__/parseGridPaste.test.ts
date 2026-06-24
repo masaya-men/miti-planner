@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { parseGridPaste, isFamousSheetFormat } from '../parseGridPaste';
+import { parseGridPaste, isMatrixSheetFormat } from '../parseGridPaste';
 import type { Job } from '../../../types';
 
 const JOBS: Job[] = [
   { id: 'pld', name: { ja: 'ナイト', en: 'Paladin' }, role: 'tank', icon: '' } as Job,
 ];
 
-describe('isFamousSheetFormat', () => {
-  it('Skill 行があれば有名スプシ形式', () => {
-    expect(isFamousSheetFormat('a\tb\nSkill\tリプライザル\n')).toBe(true);
+describe('isMatrixSheetFormat', () => {
+  it('Skill 行があれば行列形式', () => {
+    expect(isMatrixSheetFormat('a\tb\nSkill\tリプライザル\n')).toBe(true);
   });
   it('無ければ false', () => {
-    expect(isFamousSheetFormat('時間\t敵の攻撃\n0:16\tばりばりルインガ\n')).toBe(false);
+    expect(isMatrixSheetFormat('時間\t敵の攻撃\n0:16\tばりばりルインガ\n')).toBe(false);
   });
 });
 

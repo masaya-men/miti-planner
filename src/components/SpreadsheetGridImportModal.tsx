@@ -12,7 +12,7 @@ import type { GridTable, GridField, GridColumn } from '../lib/sheetImport/gridTy
 import { buildPlanFromGrid } from '../lib/sheetImport/buildPlanFromGrid';
 import { validateGridColumn } from '../lib/sheetImport/validateGridColumn';
 import { applyTemplateTargetsToResult } from '../lib/sheetImport/applyTemplateTargets';
-import { parseGridPaste, isFamousSheetFormat } from '../lib/sheetImport/parseGridPaste';
+import { parseGridPaste, isMatrixSheetFormat } from '../lib/sheetImport/parseGridPaste';
 import {
   SLOTS_BY_ROLE,
   type PartySlot, type SlotRole,
@@ -139,7 +139,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   // まるごと貼り付けハンドラ
   const onPasteWhole = useCallback(() => {
     if (!draft.trim()) return;
-    if (isFamousSheetFormat(draft)) {
+    if (isMatrixSheetFormat(draft)) {
       setFamousWarn(true);
       return;
     }
