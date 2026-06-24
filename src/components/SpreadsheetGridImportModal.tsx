@@ -241,8 +241,6 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   // 取り込み本処理: 貼り付けテキストを形式判定して現在の貼り付けに配置する。
   const ingestText = useCallback((text: string) => {
     setParseFailed(false);
-    setTargetOverrides({});
-
     // 空 → 見出しだけの空グリッドへ戻す
     if (!text.trim()) {
       setTable(emptyHeaderTable(t));
@@ -317,7 +315,6 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setSource('none');
     setMatrixParsed(null);
     setPhaseName('');
-    setTargetOverrides({});
   }, [matrixParsed, phaseName, t]);
 
   // 役割解決(store 由来)
@@ -369,6 +366,25 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     [isGrid, table, mitigations, jobs],
   );
   const preview = isGrid ? gridPreview : matrixPreview;
+
+  /**
+   * GridView の previewEvents: 表示中テーブルに対応する events を返す。
+   * - grid: gridPreview の events (表示テーブルと同一ソース)。
+   * - matrix draft あり: 現在の draft を単体でビルドした events (表示テーブルと time/name.ja が一致)。
+   *   create には使わない。表示用専用。
+   * - それ以外: 空配列。
+   */
+  const displayedPreviewEvents = useMemo<TimelineEvent[]>(() => {
+    if (isGrid) return gridPreview?.timelineEvents ?? [];
+    if (source === 'matrix' && matrixParsed) {
+      return buildPlanFromSheets(
+        [{ parsed: matrixParsed, phaseName }],
+        { mitigations, jobs },
+        { includeMitigations: true },
+      ).timelineEvents;
+    }
+    return [];
+  }, [isGrid, gridPreview, source, matrixParsed, phaseName, mitigations, jobs]);
 
   // 追加済みフェーズの「軽減N件」表示用(各フェーズ単体の実配置数)
   const perPhaseMits = useMemo<number[]>(
@@ -587,7 +603,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                   onColumnPaste={onColumnPaste}
                   assignment={assignment}
                   onMatrixSlotChange={handleSlotChange}
-                  previewEvents={[...(preview?.timelineEvents ?? [])].sort((a, b) => a.time - b.time)}
+                  previewEvents={[...displayedPreviewEvents].sort((a, b) => a.time - b.time)}
                   templateEvents={templateEvents}
                   targetOverrides={targetOverrides}
                   onTargetOverride={(key, value) => setTargetOverrides((prev) => ({ ...prev, [key]: value }))}

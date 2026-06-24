@@ -444,6 +444,63 @@ describe('SpreadsheetGridImportModal', () => {
     // リセット
     vi.mocked(getTemplate).mockResolvedValue(null);
   });
+
+  it('Step2: matrix(実証パーサ)TSV を貼ると対象列に select が出る(Fix 1: displayedPreviewEvents)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // matrixTSV はビッグブラスト@0:16 を持つ
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // 対象列の select (aria-label='攻撃の対象を選択') が最低 1 個出ること
+    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[];
+    const targetSelects = selects.filter((s) =>
+      s.getAttribute('aria-label') === '攻撃の対象を選択',
+    );
+    expect(targetSelects.length).toBeGreaterThan(0);
+  });
+
+  it('Step2: matrix でフェーズ追加後も前フェーズの targetOverrides が消えない(Fix 2: override 保持)', () => {
+    // override state がリセットされないことを select の value で確認する。
+    // 手順: matrix 貼付 → 枠割当 → 対象 select を変更 → フェーズ追加 → 同じ matrix を再貼付 →
+    //       対象 select が先ほど設定した値を反映しているか（キー一致時は保持される）。
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+
+    // 枠セレクタを全割当(作成ゲート解除に必要ではないがついでに)
+    const slotSelects = () =>
+      (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
+        Array.from(s.options).some((o) => o.text === '枠は？'),
+      );
+    const slots = slotSelects();
+    if (slots.length >= 3) {
+      fireEvent.change(slots[0], { target: { value: 'MT' } });
+      fireEvent.change(slots[1], { target: { value: 'H1' } });
+      fireEvent.change(slots[2], { target: { value: 'D1' } });
+    }
+
+    // 対象 select を変更(ST にセット)
+    const targetSelectsBefore = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
+      s.getAttribute('aria-label') === '攻撃の対象を選択',
+    );
+    expect(targetSelectsBefore.length).toBeGreaterThan(0);
+    fireEvent.change(targetSelectsBefore[0], { target: { value: 'ST' } });
+    expect(targetSelectsBefore[0].value).toBe('ST');
+
+    // フェーズ追加
+    fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
+
+    // 同じ matrix を再貼付(2フェーズ目 draft として)
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+
+    // targetOverrides は保持されているはず → 対象 select に ST が出る
+    const targetSelectsAfter = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
+      s.getAttribute('aria-label') === '攻撃の対象を選択',
+    );
+    // select が出ることを確認(Fix 1 が機能している)
+    expect(targetSelectsAfter.length).toBeGreaterThan(0);
+    // 前フェーズで設定した ST が保持されている
+    expect(targetSelectsAfter[0].value).toBe('ST');
+  });
 });
 
 // ---- sortResultPartyBySlots 純粋関数のユニットテスト ----
