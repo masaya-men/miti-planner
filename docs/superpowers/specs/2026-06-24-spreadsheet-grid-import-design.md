@@ -190,6 +190,23 @@
 
 ---
 
+## 9.6 実機フィードバック2: 大モーダルを“完全な取込ウィザード”に統合(2026-06-24・ユーザー確定)
+
+実機2回目で判明: 新グリッドモーダルは**実証済みウィザード(SpreadsheetImportModal)の「タブごと貼付→フェーズ名→フェーズ追加→パーティ割当→作成」フローを捨てて作り直したため**、(1)フェーズ/対象が編集不可 (2)メンバー順が検出順で不可解 (3)「一部読めない」の中身不明 (4)フェーズ1だけで「作成」しか出ない(複数タブ=複数フェーズの前提が消失)、が全部発生。
+
+**確定方針(ユーザー判断)**: **大きいグリッドモーダルを本体**にし、**実証済みウィザードの動くフローをそのまま載せる**(=プレビューしながら編集)。**特定スプシ専用に見せない中立 UI**。実証ロジック(`parseMitigationSheet`/`buildPlanFromSheets`(複数 ImportSheet を1プランに統合)/`parseGridPaste`/`buildPlanFromGrid`/`partyAssignment`/`importBlockReason`/`applyTemplateTargetsToResult`/`commitImportedPlan`)は**全再利用**(作り直さない)。
+
+**目標フロー**:
+- Step1 コンテンツ選択 → [次へ]
+- Step2 グリッド(大): グリッドに直接 Ctrl+V → 読み取り表示。**「フェーズ名(任意)」+「このフェーズを追加」**で `entries: ImportSheet[]` に蓄積(複数タブ=複数フェーズ)。追加済み一覧表示。**読み取れなかった軽減を一覧(ジョブ＋技名＋理由)**。**攻撃の対象を各行で編集可**(MT/ST/全体)。メンバー列は **MT→ST→H1→H2→D1〜D4 順**・枠セレクタ(slot は job 単位で全フェーズ一貫・`autoFillSingles`)。
+- 作成: `buildPlanFromSheets(entries, deps, {includeMitigations, partyOverride})`(matrix) / `buildPlanFromGrid`(自作) → target 編集の上書き適用 → `applyTemplateTargetsToResult` → `onImport`(`commitImportedPlan`)。`importBlockReason` で確定ブロック。
+
+**メンバー順**: `result.party`/検出順そのままでなく `PARTY_SLOTS`(MT,ST,H1,H2,D1..D4)順に並べる。
+**「一部読めない」**: `skipped`(SkippedSkill[])を「ジョブ／技名」で列挙し「LoPo に無い技・表記ゆれが理由(取り込まれません)」と明記。
+**target 編集**: 各イベント行の対象を `<select>`(MT/ST/全体/—)で上書き。matrix は result.events に override 適用後 create。自作は grid セルが既に対象列。
+
+---
+
 ## 10. 段階(実装フェーズ案)
 1. 純関数(`parseGridPaste`/`buildPlanFromGrid`/4言語解決/target/検証)+ unit。
 2. `SpreadsheetGridImportModal` UI(列ごと貼り付け→作成までの最小フロー)+ `commitImportedPlan` 配線 + 実機。
