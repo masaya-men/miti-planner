@@ -104,7 +104,11 @@ export function gridRowsFromResult(
         const mit = deps.mitigations.find((x) => x.id === m.mitigationId);
         return mit ? localize(mit.name, lang) : '';
       });
-      cells.push(names.join(' / '));
+      // 同 (slot,time) で skip された生スキル名も足す(GridView が未解決として黄色表示)
+      const skippedHere = result.skipped
+        .filter((s) => s.slot === slot && (s.times ?? []).includes(event.time))
+        .map((s) => s.skillName);
+      cells.push([...names, ...skippedHere].filter((x) => x !== '').join(' / '));
     }
 
     return cells;
