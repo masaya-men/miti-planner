@@ -79,7 +79,8 @@ describe('SpreadsheetGridImportModal', () => {
   it('まるごと貼り付けで見出しから列が自動検出される', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
       defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
-    const ta = screen.getByPlaceholderText(/貼り付け/);
+    // まるごと貼り付け用 textarea の placeholder は固定文字列「ここに貼り付け」
+    const ta = screen.getByPlaceholderText('ここに貼り付け');
     fireEvent.change(ta, { target: { value: '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
     fireEvent.click(screen.getByText(/まるごと貼り付け/));
     expect(screen.getByText('ばりばりルインガ')).toBeInTheDocument();
@@ -98,7 +99,8 @@ describe('SpreadsheetGridImportModal', () => {
   it('未取込draftがある→作成ボタン無効(pending_draft)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
       defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
-    const ta = screen.getByPlaceholderText(/貼り付け/);
+    // まるごと貼り付け用 textarea の placeholder は固定文字列「ここに貼り付け」
+    const ta = screen.getByPlaceholderText('ここに貼り付け');
     // まるごとを押さずに draft だけある → hasPendingDraft=true → blockReason='pending_draft' → disabled
     fireEvent.change(ta, { target: { value: '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
     // まるごとボタンは押さない
@@ -131,6 +133,38 @@ describe('SpreadsheetGridImportModal', () => {
     expect(screen.getByText('P2')).toBeInTheDocument();
   });
 });
+
+  it('「この列は？」セレクタに「メンバー」は含まれない(Fix1a)', () => {
+    // unknown 列を持つテーブルを貼り付けてセレクタを表示させ、オプション一覧を確認する
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
+      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
+    // タブ区切りで不明な列名を含む TSV を貼り付け
+    const ta = screen.getByPlaceholderText('ここに貼り付け');
+    fireEvent.change(ta, { target: { value: '不明列A\t時間\n値1\t0:10\n' } });
+    fireEvent.click(screen.getByText(/まるごと貼り付け/));
+    // unknown 列に「この列は？」セレクタが表示されるはず
+    const selector = screen.getByDisplayValue('この列は？') as HTMLSelectElement;
+    const optionValues = Array.from(selector.options).map((o) => o.value);
+    // member は選択肢にない
+    expect(optionValues).not.toContain('member');
+    // unknown も選択肢にない
+    expect(optionValues).not.toContain('unknown');
+    // ignore は含まれる
+    expect(optionValues).toContain('ignore');
+  });
+
+  it('jobId なし member 列はパーティ不完全ブロックを発生させない(Fix1b)', () => {
+    // jobId のない member 列があっても作成ボタンが有効になることを確認
+    // (まるごと貼り付けで時間+攻撃列のみ → イベントあり → partyComplete=true のはず)
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
+      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
+    const ta = screen.getByPlaceholderText('ここに貼り付け');
+    // 時間・攻撃のみ（member 列なし）
+    fireEvent.change(ta, { target: { value: '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
+    fireEvent.click(screen.getByText(/まるごと貼り付け/));
+    // party_incomplete バナーが出ていないこと
+    expect(screen.queryByText('スキルのあるメンバー列に枠を割り当てると作成できます。')).toBeNull();
+  });
 
 // ---- setColumnValues 純粋関数のユニットテスト ----
 describe('setColumnValues', () => {

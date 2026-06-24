@@ -33,8 +33,12 @@ interface Props {
 /** 固定の正典列(member は検出後に動的追加)。 */
 const BASE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType'];
 
-/** GridView で使う全フィールド選択肢。モジュールレベルで定義してレンダーごとの再生成を避ける。 */
-const ALL_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType', 'member', 'ignore'];
+/**
+ * 「この列は？」セレクタに表示する割当可能フィールド。モジュールレベルで定義してレンダーごとの再生成を避ける。
+ * member は jobId なしで手動設定すると確定ブロックの永久デッドエンドになるため除外。
+ * unknown も選択肢に含めない（解除先がないため意味なし）。
+ */
+const ASSIGNABLE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType', 'ignore'];
 
 /**
  * 指定列インデックスに values を書き込んだ新しい GridTable を返す純粋関数。
@@ -162,11 +166,14 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   );
 
   // 確定ブロック判定
-  // partyComplete = スキルのあるメンバー列が全て枠割当済み
+  // partyComplete = jobId のあるメンバー列のうちスキルが存在するものが全て枠割当済み
+  // jobId なしの member 列（手動操作等で発生し得る）は判定対象外にしてデッドエンドを防ぐ
   const partyComplete = useMemo(() => {
     const memberCols = table.columns.filter((c) => c.field === 'member');
     if (memberCols.length === 0) return true;
     return memberCols.every((col) => {
+      // jobId がない member 列はスロット選択 UI が出ないため、ブロック対象から除外
+      if (!col.jobId) return true;
       const colIdx = table.columns.indexOf(col);
       const cells = table.rows.map((r) => r[colIdx] ?? '').filter((v) => v.trim() !== '');
       if (cells.length === 0) return true; // スキルなし列は無視
@@ -190,10 +197,11 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     if (ok) onClose();
   }, [canConfirm, preview, onImport, onClose, selectedContentId]);
 
-  // スロット未割当警告チェック
+  // スロット未割当警告チェック: jobId のある member 列のみ対象（jobId なしはスロット UI が出ないため除外）
   const hasUnassignedMemberCols = useMemo(() => {
     return table.columns.some((c, ci) => {
       if (c.field !== 'member') return false;
+      if (!c.jobId) return false; // jobId なし列はスロット割当不可なので警告しない
       const cells = table.rows.map((r) => r[ci] ?? '').filter((v) => v.trim() !== '');
       return cells.length > 0 && !c.slot;
     });
@@ -357,9 +365,12 @@ const GridView: React.FC<{
                     {c.field === 'member' ? c.header : c.field === 'unknown' ? (c.header || t('gridImport.col_unknown')) : t(`gridImport.col_${c.field}`)}
                   </span>
                   <StatusChip status={st} />
-                  {/* 列ごと貼り付けモード: 各列に textarea */}
+                  {/* 列ごと貼り付けモード: 各列に textarea。
+                      key にテーブル形状を含めることで、まるごと貼り付け後やリセット後に
+                      古いテキストが残らないよう React に再マウントさせる。 */}
                   {byColumnMode && (
                     <textarea
+                      key={`col-paste-${ci}-${table.rows.length}-${table.columns.length}`}
                       className="mt-1 w-full h-16 rounded border border-app-border bg-app-surface2 text-app-text text-app-sm px-1 py-0.5 resize-none focus:outline-none focus:border-app-text"
                       placeholder={t('gridImport.col_paste_placeholder')}
                       onChange={(e) => onColumnPaste(ci, e.target.value)}
@@ -376,7 +387,7 @@ const GridView: React.FC<{
                       }}
                     >
                       <option value="">{t('gridImport.this_column')}</option>
-                      {ALL_FIELDS.map((f) => (
+                      {ASSIGNABLE_FIELDS.map((f) => (
                         <option key={f} value={f}>
                           {f === 'ignore' ? t('gridImport.ignore_column') : t(`gridImport.col_${f}`)}
                         </option>

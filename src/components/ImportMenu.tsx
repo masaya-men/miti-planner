@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { Download, FileSpreadsheet } from 'lucide-react';
+import { Download, FileSpreadsheet, LayoutGrid } from 'lucide-react';
 import { Tooltip } from './ui/Tooltip';
 
 interface ImportMenuProps {
@@ -99,7 +99,7 @@ export function ImportMenu({ btnClassName, onImportLogs, readOnly }: ImportMenuP
                         onClick={() => { setOpen(false); window.dispatchEvent(new CustomEvent('timeline:grid-import')); }}
                         className={itemClass}
                     >
-                        <FileSpreadsheet size={14} className="shrink-0 text-app-text-muted" />
+                        <LayoutGrid size={14} className="shrink-0 text-app-text-muted" />
                         <span className="flex-1">{t('importMenu.gridImport')}</span>
                     </button>
                 </div>,

@@ -14,7 +14,7 @@ export function normalizeTarget(v: string): 'AoE' | 'MT' | 'ST' | null {
   return null;
 }
 
-const PHYS = new Set(['物理', 'physical', 'phys', '물리', '物理伤害', '物理']);
+const PHYS = new Set(['物理', 'physical', 'phys', '물리', '物理伤害']);
 const MAG = new Set(['魔法', 'magic', 'magical', 'magic damage', '마법', '魔法伤害']);
 
 /** ダメージ種別を physical/magical に正規化。空/不明は null(=呼び出し側で既定 magical)。 */
