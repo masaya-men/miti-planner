@@ -7,7 +7,6 @@ import type { GridTable } from '../../lib/sheetImport/gridTypes';
 // i18n: キー→日本語テキストの最小マップ（テスト対象キーのみ）
 const JA: Record<string, string> = {
   'gridImport.title': 'スプレッドシートから取り込む',
-  'gridImport.paste_whole': 'まるごと貼り付け（Ctrl+A → Ctrl+C → 貼り付け）',
   'gridImport.paste_by_column': '列ごとに貼り付け',
   'gridImport.help': '',
   'gridImport.create': 'この内容で作成',
@@ -15,7 +14,8 @@ const JA: Record<string, string> = {
   'gridImport.status_partial': '一部読めない',
   'gridImport.status_empty': '空 / 任意',
   'gridImport.paste_placeholder': 'ここに貼り付け',
-  'gridImport.famous_sheet_warning': '有名スプシ形式です。別経路をお使いください。',
+  'gridImport.paste_prompt': 'スプレッドシートをコピーして、上の欄に貼り付けてください。',
+  'gridImport.parse_failed': '貼り付けた内容をうまく読み取れませんでした。',
   'gridImport.pending_draft_warning': '貼り付け欄に未取込の内容があります。',
   'gridImport.no_phases_warning': 'イベントがありません。',
   'gridImport.party_incomplete_warning': 'スキルのあるメンバー列に枠を割り当てると作成できます。',
@@ -53,37 +53,57 @@ vi.mock('../../hooks/useSkillsData', async (importOriginal) => {
   };
 });
 
+const DEFAULT_SEL = { level: null, category: null, bossId: null, title: '' } as never;
+
 describe('SpreadsheetGridImportModal', () => {
-  it('開いているとタイトルと2つの貼り付けボタンを表示', () => {
-    render(
-      <SpreadsheetGridImportModal
-        isOpen
-        onClose={vi.fn()}
-        onImport={async () => true}
-        defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never}
-      />,
-    );
+  it('開いているとタイトルと列ごと貼り付けボタンを表示', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={vi.fn()} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     expect(screen.getByText('スプレッドシートから取り込む')).toBeInTheDocument();
-    expect(screen.getByText(/まるごと貼り付け/)).toBeInTheDocument();
     expect(screen.getByText('列ごとに貼り付け')).toBeInTheDocument();
   });
 
   it('閉じていると何も描画しない', () => {
     const { container } = render(
-      <SpreadsheetGridImportModal isOpen={false} onClose={vi.fn()} onImport={async () => true}
-        defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />,
+      <SpreadsheetGridImportModal isOpen={false} onClose={vi.fn()} onImport={async () => true} defaultSelection={DEFAULT_SEL} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('まるごと貼り付けで見出しから列が自動検出される', () => {
-    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
-      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
-    // まるごと貼り付け用 textarea の placeholder は固定文字列「ここに貼り付け」
+  it('貼り付け前から正典の列見出しが表示される(グリッド常時表示)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    // 何も貼っていなくても見出しが見える
+    expect(screen.getByText('時間')).toBeInTheDocument();
+    expect(screen.getByText('敵の攻撃')).toBeInTheDocument();
+    expect(screen.getByText('攻撃の対象')).toBeInTheDocument();
+    expect(screen.getByText('ダメージ種別')).toBeInTheDocument();
+  });
+
+  it('自作スプシ(見出し形式)の貼り付けで列が自動検出されグリッドに反映される', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     const ta = screen.getByPlaceholderText('ここに貼り付け');
+    // onChange で即解析(まるごとボタンは廃止)
     fireEvent.change(ta, { target: { value: '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
-    fireEvent.click(screen.getByText(/まるごと貼り付け/));
     expect(screen.getByText('ばりばりルインガ')).toBeInTheDocument();
+  });
+
+  it('行列(TRUE/FALSE)形式を貼っても弾かず、グリッドに内容が出る', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    const ta = screen.getByPlaceholderText('ここに貼り付け');
+    // parseMitigationSheet が読める最小の行列 TSV:
+    // - 見出し: Phase / Total Time / Action / Type / Hit
+    // - ジョブ行: JOB_JA_NAMES を3つ以上
+    // - Skill 行
+    // - データ行(TRUE/FALSE を含む)
+    const T = (cells: string[]) => cells.join('\t');
+    const matrix = [
+      T(['Phase', 'Total Time', 'Action', 'Type', 'Hit', 'Mitigation', 'Mitigation', 'Mitigation']),
+      T(['', '', 'TestBoss', '', '', 'ナイト', '白魔道士', '戦士']),           // ジョブ行(3ジョブ)
+      T(['', '', 'Skill', '', '', 'リプライザル', 'アサイラム', 'ランパート']),  // Skill 行
+      T(['開幕', '0:16', 'ビッグブラスト', 'Magic', '100,000', 'TRUE', 'FALSE', 'FALSE']),
+    ].join('\n');
+    fireEvent.change(ta, { target: { value: matrix } });
+    // 弾き(誘導)が起きず、攻撃名がグリッドに出る
+    expect(screen.getByText('ビッグブラスト')).toBeInTheDocument();
   });
 
   it('autoAssignSingleSlots: ロール内1メンバー列→先頭枠を自動割当', () => {
@@ -96,21 +116,8 @@ describe('SpreadsheetGridImportModal', () => {
     expect(result.columns[0].slot).toBe('MT');
   });
 
-  it('未取込draftがある→作成ボタン無効(pending_draft)', () => {
-    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
-      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
-    // まるごと貼り付け用 textarea の placeholder は固定文字列「ここに貼り付け」
-    const ta = screen.getByPlaceholderText('ここに貼り付け');
-    // まるごとを押さずに draft だけある → hasPendingDraft=true → blockReason='pending_draft' → disabled
-    fireEvent.change(ta, { target: { value: '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
-    // まるごとボタンは押さない
-    const btn = screen.getByText('この内容で作成').closest('button');
-    expect(btn).toBeDisabled();
-  });
-
   it('列ごとに貼り付けボタンでbyColumnModeに切替→各列にtextareaが現れる', () => {
-    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
-      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     // 初期状態ではcolumn-pasteのtextareaは存在しない
     expect(screen.queryByPlaceholderText('貼り付け（1行1件）')).toBeNull();
     // 列ごとボタンをクリック
@@ -121,50 +128,33 @@ describe('SpreadsheetGridImportModal', () => {
   });
 
   it('列ごとに貼り付け: 時間列に値を入力するとグリッドに反映される', () => {
-    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
-      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
-    // byColumnModeを有効化
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     fireEvent.click(screen.getByText('列ごとに貼り付け'));
-    // 最初の列（フェーズ列=BASE_FIELDS[0]）のtextareaを取得して貼り付け
     const colTextareas = screen.getAllByPlaceholderText('貼り付け（1行1件）');
+    // 最初の列（フェーズ列=BASE_FIELDS[0]）に貼る
     fireEvent.change(colTextareas[0], { target: { value: 'P1\nP2\n' } });
-    // グリッド行に P1, P2 が出現する
     expect(screen.getByText('P1')).toBeInTheDocument();
     expect(screen.getByText('P2')).toBeInTheDocument();
   });
-});
 
   it('「この列は？」セレクタに「メンバー」は含まれない(Fix1a)', () => {
-    // unknown 列を持つテーブルを貼り付けてセレクタを表示させ、オプション一覧を確認する
-    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
-      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
-    // タブ区切りで不明な列名を含む TSV を貼り付け
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     const ta = screen.getByPlaceholderText('ここに貼り付け');
     fireEvent.change(ta, { target: { value: '不明列A\t時間\n値1\t0:10\n' } });
-    fireEvent.click(screen.getByText(/まるごと貼り付け/));
-    // unknown 列に「この列は？」セレクタが表示されるはず
     const selector = screen.getByDisplayValue('この列は？') as HTMLSelectElement;
     const optionValues = Array.from(selector.options).map((o) => o.value);
-    // member は選択肢にない
     expect(optionValues).not.toContain('member');
-    // unknown も選択肢にない
     expect(optionValues).not.toContain('unknown');
-    // ignore は含まれる
     expect(optionValues).toContain('ignore');
   });
 
   it('jobId なし member 列はパーティ不完全ブロックを発生させない(Fix1b)', () => {
-    // jobId のない member 列があっても作成ボタンが有効になることを確認
-    // (まるごと貼り付けで時間+攻撃列のみ → イベントあり → partyComplete=true のはず)
-    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true}
-      defaultSelection={{ level: null, category: null, bossId: null, title: '' } as never} />);
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     const ta = screen.getByPlaceholderText('ここに貼り付け');
-    // 時間・攻撃のみ（member 列なし）
     fireEvent.change(ta, { target: { value: '時間\t敵の攻撃\n0:16\tばりばりルインガ\n' } });
-    fireEvent.click(screen.getByText(/まるごと貼り付け/));
-    // party_incomplete バナーが出ていないこと
     expect(screen.queryByText('スキルのあるメンバー列に枠を割り当てると作成できます。')).toBeNull();
   });
+});
 
 // ---- setColumnValues 純粋関数のユニットテスト ----
 describe('setColumnValues', () => {
@@ -180,11 +170,9 @@ describe('setColumnValues', () => {
         ['P2', '0:20', 'Attack2'],
       ],
     };
-    // time列(index=1)に新しい値を書き込む
     const result = setColumnValues(table, 1, ['1:00', '2:00']);
     expect(result.rows[0][1]).toBe('1:00');
     expect(result.rows[1][1]).toBe('2:00');
-    // 他列は変わらない
     expect(result.rows[0][0]).toBe('P1');
     expect(result.rows[0][2]).toBe('Attack1');
     expect(result.rows[1][0]).toBe('P2');
@@ -204,7 +192,6 @@ describe('setColumnValues', () => {
     expect(result.rows[0][0]).toBe('P1');
     expect(result.rows[1][0]).toBe('P2');
     expect(result.rows[2][0]).toBe('P3');
-    // 他列は既存 or 空文字
     expect(result.rows[0][1]).toBe('0:10');
     expect(result.rows[1][1]).toBe('');
     expect(result.rows[2][1]).toBe('');
@@ -228,7 +215,7 @@ describe('setColumnValues', () => {
       rows: [['P1']],
     };
     const result = setColumnValues(table, 0, ['NEW']);
-    expect(table.rows[0][0]).toBe('P1'); // 元は変わらない
+    expect(table.rows[0][0]).toBe('P1');
     expect(result.rows[0][0]).toBe('NEW');
   });
 });

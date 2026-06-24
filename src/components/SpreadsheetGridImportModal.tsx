@@ -8,14 +8,18 @@ import { useEscapeClose } from '../hooks/useEscapeClose';
 import { getJobsFromStore, getMitigationsFromStore } from '../hooks/useSkillsData';
 import type { Job } from '../types';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
+import { buildPlanFromSheets } from '../lib/sheetImport/buildPlanFromSheets';
+import type { ParsedSheet } from '../lib/sheetImport/types';
 import type { GridTable, GridField, GridColumn } from '../lib/sheetImport/gridTypes';
 import { buildPlanFromGrid } from '../lib/sheetImport/buildPlanFromGrid';
+import { gridRowsFromResult } from '../lib/sheetImport/gridRowsFromResult';
 import { validateGridColumn } from '../lib/sheetImport/validateGridColumn';
 import { applyTemplateTargetsToResult } from '../lib/sheetImport/applyTemplateTargets';
 import { parseGridPaste, isMatrixSheetFormat } from '../lib/sheetImport/parseGridPaste';
+import { parseMitigationSheet } from '../lib/sheetImport/parseMitigationSheet';
 import {
-  SLOTS_BY_ROLE,
-  type PartySlot, type SlotRole,
+  SLOTS_BY_ROLE, emptyAssignment, assignSlot, buildPartyOverride,
+  type PartyAssignment, type PartySlot, type SlotRole,
 } from '../lib/sheetImport/partyAssignment';
 import { importBlockReason } from '../lib/sheetImport/importBlockReason';
 import { ImportContentSelector } from './ImportContentSelector';
@@ -30,6 +34,9 @@ interface Props {
   defaultSelection: ContentSelectionDefault;
 }
 
+/** 貼り付け内容の取込ソース。grid=自作(編集可) / matrix=行列形式(実証パーサ・読み取り表示)。 */
+type ImportSource = 'none' | 'grid' | 'matrix';
+
 /** 固定の正典列(member は検出後に動的追加)。 */
 const BASE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType'];
 
@@ -39,6 +46,14 @@ const BASE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 
  * unknown も選択肢に含めない（解除先がないため意味なし）。
  */
 const ASSIGNABLE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType', 'ignore'];
+
+/** 見出しだけの空グリッド(コンテンツ選択直後の初期表示用)。t は呼び出し側で渡す。 */
+function emptyHeaderTable(t: (k: string) => string): GridTable {
+  return {
+    columns: BASE_FIELDS.map((f) => ({ field: f, header: t(`gridImport.col_${f}`) })),
+    rows: [],
+  };
+}
 
 /**
  * 指定列インデックスに values を書き込んだ新しい GridTable を返す純粋関数。
@@ -102,6 +117,22 @@ export function autoAssignSingleSlots(table: GridTable, jobs: Job[]): GridTable 
   return { ...table, columns: updatedCols };
 }
 
+/**
+ * result.party を PartyAssignment に変換する。matrix 経路で枠を編集する際の起点。
+ * 不正な slot 名(PartySlot 以外)は無視する。
+ */
+function assignmentFromParty(party: { slot: string; jobId: string }[]): PartyAssignment {
+  let a = emptyAssignment();
+  for (const p of party) {
+    if ((SLOTS_BY_ROLE.tank as string[]).includes(p.slot)
+      || (SLOTS_BY_ROLE.healer as string[]).includes(p.slot)
+      || (SLOTS_BY_ROLE.dps as string[]).includes(p.slot)) {
+      a = assignSlot(a, p.slot as PartySlot, p.jobId);
+    }
+  }
+  return a;
+}
+
 export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, onImport, defaultSelection }) => {
   useEscapeClose(isOpen, onClose);
   const { t, i18n } = useTranslation();
@@ -123,70 +154,145 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   }, [isOpen]);
   const selectedContentId = deriveContentId(selBoss, selCategory, selTitle);
 
-  // グリッドテーブル状態
-  const [table, setTable] = useState<GridTable>({
-    columns: BASE_FIELDS.map((f) => ({ field: f, header: t(`gridImport.col_${f}`) })),
-    rows: [],
-  });
+  // グリッドテーブル状態(自作=編集可テーブル / matrix=result から導いた表示用テーブル)
+  const [table, setTable] = useState<GridTable>(() => emptyHeaderTable(t));
 
-  // 貼り付けdraft
+  // 取込ソース。none=未貼付 / grid=自作編集テーブル / matrix=行列形式 result
+  const [source, setSource] = useState<ImportSource>('none');
+
+  // matrix 経路: 実証パーサの parsed と build 結果を保持し、枠変更で再構築する。
+  const [matrixParsed, setMatrixParsed] = useState<ParsedSheet | null>(null);
+  const [matrixResult, setMatrixResult] = useState<SheetImportResult | null>(null);
+
+  // 貼り付けテキスト(常時表示の textarea の内容)
   const [draft, setDraft] = useState('');
-  const [famousWarn, setFamousWarn] = useState(false);
+  // 形式は読めたが内容を解釈できなかった時の汎用エラー(特定スプシ名を出さない中立文言)
+  const [parseFailed, setParseFailed] = useState(false);
 
-  // 列ごとに貼り付けモード
+  // 列ごとに貼り付けモード(自作テーブルのみ有効)
   const [byColumnMode, setByColumnMode] = useState(false);
 
-  // まるごと貼り付けハンドラ
-  const onPasteWhole = useCallback(() => {
-    if (!draft.trim()) return;
-    if (isMatrixSheetFormat(draft)) {
-      setFamousWarn(true);
+  // モーダルを開くたびに見出しだけの空グリッドへリセット
+  useEffect(() => {
+    if (!isOpen) return;
+    setTable(emptyHeaderTable(t));
+    setSource('none');
+    setMatrixParsed(null);
+    setMatrixResult(null);
+    setDraft('');
+    setParseFailed(false);
+    setByColumnMode(false);
+    // t はレンダーごとに同一性が変わり得るが、見出し文言は安定。開いた瞬間の値で構築すれば十分。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  // 貼り付けハンドラ: どんな形式も弾かず取り込む(textarea onChange)
+  const handleDraftChange = useCallback((text: string) => {
+    setDraft(text);
+    setParseFailed(false);
+
+    // 空 → 見出しだけの空グリッドへ戻す
+    if (!text.trim()) {
+      setTable(emptyHeaderTable(t));
+      setSource('none');
+      setMatrixParsed(null);
+      setMatrixResult(null);
       return;
     }
-    setFamousWarn(false);
-    const parsed = parseGridPaste(draft, jobs);
-    setTable(autoAssignSingleSlots(parsed, jobs));
-    setDraft('');
-  }, [draft, jobs]);
 
-  // 列ごと貼り付けハンドラ: 指定列に改行区切りのテキストを流し込む
+    // TRUE/FALSE 行列形式 → 実証パーサ→実証ビルダーで読み、結果を表示用テーブルへ変換(読み取り専用)
+    if (isMatrixSheetFormat(text)) {
+      const parsed = parseMitigationSheet(text);
+      if (!parsed) {
+        // 行列形式だが内容が解釈不能 → 汎用エラー(別経路への誘導はしない)
+        setParseFailed(true);
+        setSource('none');
+        setMatrixParsed(null);
+        setMatrixResult(null);
+        setTable(emptyHeaderTable(t));
+        return;
+      }
+      const result = buildPlanFromSheets(
+        [{ parsed, phaseName: '' }],
+        { mitigations, jobs },
+        { includeMitigations: true },
+      );
+      setMatrixParsed(parsed);
+      setMatrixResult(result);
+      setSource('matrix');
+      setTable(gridRowsFromResult(result, { mitigations, jobs }, lang));
+      return;
+    }
+
+    // 見出し形式(自作) → 編集可グリッド
+    const grid = parseGridPaste(text, jobs);
+    setTable(autoAssignSingleSlots(grid, jobs));
+    setSource('grid');
+    setMatrixParsed(null);
+    setMatrixResult(null);
+  }, [t, mitigations, jobs, lang]);
+
+  // 列ごと貼り付けハンドラ: 指定列に改行区切りのテキストを流し込む(自作テーブルのみ)
   const onColumnPaste = useCallback((colIndex: number, text: string) => {
     const rawLines = text.split(/\r?\n/);
     // 末尾の空行を除去
     let end = rawLines.length;
     while (end > 0 && rawLines[end - 1].trim() === '') end--;
     const values = rawLines.slice(0, end);
+    setSource('grid');
     setTable((prev) => setColumnValues(prev, colIndex, values));
   }, []);
 
-  // プレビュー
-  const preview = useMemo<SheetImportResult | null>(
-    () => (table.rows.length ? buildPlanFromGrid(table, { mitigations, jobs }, { includeMitigations: true }) : null),
-    [table, mitigations, jobs],
-  );
+  // matrix 経路: メンバー列の枠を変更 → party を再割当 → 同 parsed から result を再構築
+  const onMatrixSlotChange = useCallback((jobId: string, slot: PartySlot | null) => {
+    if (!matrixParsed || !matrixResult) return;
+    let assignment = assignmentFromParty(matrixResult.party);
+    if (slot === null) {
+      // 枠を外す: jobId が現在座っている枠を空にする
+      const cur = matrixResult.party.find((p) => p.jobId === jobId);
+      if (cur) assignment = assignSlot(assignment, cur.slot as PartySlot, null);
+    } else {
+      // 枠を割り当て(assignSlot が同ジョブの旧枠を自動で外す)
+      assignment = assignSlot(assignment, slot, jobId);
+    }
+    const partyOverride = buildPartyOverride(assignment);
+    const rebuilt = buildPlanFromSheets(
+      [{ parsed: matrixParsed, phaseName: '' }],
+      { mitigations, jobs },
+      { includeMitigations: true, partyOverride },
+    );
+    setMatrixResult(rebuilt);
+    setTable(gridRowsFromResult(rebuilt, { mitigations, jobs }, lang));
+  }, [matrixParsed, matrixResult, mitigations, jobs, lang]);
+
+  // プレビュー(create に使う result)。matrix=実証 result をそのまま / grid=テーブルから再構築。
+  const preview = useMemo<SheetImportResult | null>(() => {
+    if (source === 'matrix') return matrixResult;
+    if (source === 'grid') return buildPlanFromGrid(table, { mitigations, jobs }, { includeMitigations: true });
+    return null;
+  }, [source, matrixResult, table, mitigations, jobs]);
 
   // 確定ブロック判定
-  // partyComplete = jobId のあるメンバー列のうちスキルが存在するものが全て枠割当済み
-  // jobId なしの member 列（手動操作等で発生し得る）は判定対象外にしてデッドエンドを防ぐ
+  // grid: jobId のあるメンバー列のうちスキルが存在するものが全て枠割当済みなら true
+  //       jobId なしの member 列はスロット選択 UI が出ないため判定対象外(デッドエンド防止)
+  // matrix: party は常に割当済みなので true
   const partyComplete = useMemo(() => {
+    if (source !== 'grid') return true;
     const memberCols = table.columns.filter((c) => c.field === 'member');
     if (memberCols.length === 0) return true;
     return memberCols.every((col) => {
-      // jobId がない member 列はスロット選択 UI が出ないため、ブロック対象から除外
-      if (!col.jobId) return true;
+      if (!col.jobId) return true; // jobId なし member 列はブロック対象外
       const colIdx = table.columns.indexOf(col);
       const cells = table.rows.map((r) => r[colIdx] ?? '').filter((v) => v.trim() !== '');
       if (cells.length === 0) return true; // スキルなし列は無視
       return col.slot != null;
     });
-  }, [table]);
-
-  const hasPendingDraft = draft.trim() !== '';
+  }, [source, table]);
 
   const blockReason = importBlockReason({
     hasPreviewEvents: preview !== null && preview.timelineEvents.length > 0,
     partyComplete,
-    hasPendingDraft,
+    hasPendingDraft: false,
   });
   const canConfirm = blockReason === null;
 
@@ -197,19 +303,20 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     if (ok) onClose();
   }, [canConfirm, preview, onImport, onClose, selectedContentId]);
 
-  // スロット未割当警告チェック: jobId のある member 列のみ対象（jobId なしはスロット UI が出ないため除外）
+  // スロット未割当警告チェック(grid のみ): jobId のある member 列で、スキルありかつ枠未割当
   const hasUnassignedMemberCols = useMemo(() => {
+    if (source !== 'grid') return false;
     return table.columns.some((c, ci) => {
       if (c.field !== 'member') return false;
       if (!c.jobId) return false; // jobId なし列はスロット割当不可なので警告しない
       const cells = table.rows.map((r) => r[ci] ?? '').filter((v) => v.trim() !== '');
       return cells.length > 0 && !c.slot;
     });
-  }, [table]);
+  }, [source, table]);
 
   // no_phases バナーはデータが貼り付けられているのにイベント行が0の時のみ表示
   // (初期状態の空グリッドでは表示しない)
-  const showNoPhasesWarning = blockReason === 'no_phases' && table.rows.length > 0;
+  const showNoPhasesWarning = blockReason === 'no_phases' && source !== 'none';
 
   if (!isOpen) return null;
 
@@ -240,24 +347,17 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
               lang={lang}
             />
           </div>
-          {/* 貼り付けバー */}
+          {/* 貼り付けバー(常時表示・onChange で即解析) */}
           <div className="px-5 py-3 border-b border-app-border bg-app-surface2 flex flex-col gap-2 shrink-0">
             <div className="flex gap-3 items-start flex-wrap">
               <textarea
                 className="flex-1 min-w-[240px] h-20 rounded-lg border border-app-border bg-app-surface2 text-app-text text-app-lg px-3 py-2 resize-none focus:outline-none focus:border-app-text"
                 placeholder={t('gridImport.paste_placeholder')}
                 value={draft}
-                onChange={(e) => { setDraft(e.target.value); setFamousWarn(false); }}
+                onChange={(e) => handleDraftChange(e.target.value)}
               />
               <div className="flex flex-col gap-2">
-                {/* まるごと貼り付けボタン: クリックで解析・取り込み実行 */}
-                <button
-                  className="px-4 py-2 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text"
-                  onClick={onPasteWhole}
-                >
-                  {t('gridImport.paste_whole')}
-                </button>
-                {/* 列ごとに貼り付けボタン: クリックでモード切替 */}
+                {/* 列ごとに貼り付けボタン: クリックでモード切替(自作テーブル向け) */}
                 <button
                   className={clsx('px-4 py-2 rounded-lg text-app-2xl font-bold',
                     byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
@@ -267,17 +367,25 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 </button>
               </div>
             </div>
-            {famousWarn && (
+            {parseFailed && (
               <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
                 <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                <p>{t('gridImport.famous_sheet_warning')}</p>
+                <p>{t('gridImport.parse_failed')}</p>
               </div>
             )}
-            <p className="text-app-lg text-app-text-muted">{t('gridImport.help')}</p>
+            <p className="text-app-lg text-app-text-muted">
+              {source === 'none' ? t('gridImport.paste_prompt') : t('gridImport.help')}
+            </p>
           </div>
           {/* グリッド */}
           <div className="flex-1 overflow-auto">
-            <GridView table={table} setTable={setTable} deps={{ mitigations, jobs }} byColumnMode={byColumnMode} onColumnPaste={onColumnPaste} />
+            <GridView
+              table={table} setTable={setTable} deps={{ mitigations, jobs }}
+              source={source}
+              byColumnMode={byColumnMode && source !== 'matrix'}
+              onColumnPaste={onColumnPaste}
+              onMatrixSlotChange={onMatrixSlotChange}
+            />
           </div>
           {/* フッター */}
           <div className="px-5 py-4 border-t border-app-border bg-app-surface2 flex flex-col gap-2 shrink-0">
@@ -285,12 +393,6 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
               <div className="flex items-center gap-2 text-app-amber text-app-2xl">
                 <AlertCircle size={14} className="shrink-0" />
                 <span>{t('gridImport.slot_unassigned_warning')}</span>
-              </div>
-            )}
-            {blockReason === 'pending_draft' && (
-              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
-                <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                <p>{t('gridImport.pending_draft_warning')}</p>
               </div>
             )}
             {blockReason === 'party_incomplete' && (
@@ -330,9 +432,11 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
 const GridView: React.FC<{
   table: GridTable; setTable: (t: GridTable) => void;
   deps: { mitigations: ReturnType<typeof getMitigationsFromStore>; jobs: ReturnType<typeof getJobsFromStore> };
+  source: ImportSource;
   byColumnMode: boolean;
   onColumnPaste: (colIndex: number, text: string) => void;
-}> = ({ table, setTable, deps, byColumnMode, onColumnPaste }) => {
+  onMatrixSlotChange: (jobId: string, slot: PartySlot | null) => void;
+}> = ({ table, setTable, deps, source, byColumnMode, onColumnPaste, onMatrixSlotChange }) => {
   const { t } = useTranslation();
   const cellsOf = (ci: number) => table.rows.map((r) => r[ci] ?? '');
 
@@ -344,7 +448,7 @@ const GridView: React.FC<{
     setTable({ ...table, columns: cols });
   };
 
-  // member 列の枠を変更
+  // member 列の枠を変更(自作テーブル)
   const setColSlot = (ci: number, slot: PartySlot | null) => {
     const cols = table.columns.map((c, i) => i !== ci ? c : { ...c, slot });
     setTable({ ...table, columns: cols });
@@ -365,8 +469,8 @@ const GridView: React.FC<{
                     {c.field === 'member' ? c.header : c.field === 'unknown' ? (c.header || t('gridImport.col_unknown')) : t(`gridImport.col_${c.field}`)}
                   </span>
                   <StatusChip status={st} />
-                  {/* 列ごと貼り付けモード: 各列に textarea。
-                      key にテーブル形状を含めることで、まるごと貼り付け後やリセット後に
+                  {/* 列ごと貼り付けモード: 各列に textarea(自作テーブルのみ)。
+                      key にテーブル形状を含めることで、貼り付け後やリセット後に
                       古いテキストが残らないよう React に再マウントさせる。 */}
                   {byColumnMode && (
                     <textarea
@@ -376,8 +480,8 @@ const GridView: React.FC<{
                       onChange={(e) => onColumnPaste(ci, e.target.value)}
                     />
                   )}
-                  {/* 「この列は？」セレクタ (unknown 列) */}
-                  {c.field === 'unknown' && (
+                  {/* 「この列は？」セレクタ (unknown 列・自作テーブルのみ) */}
+                  {c.field === 'unknown' && source !== 'matrix' && (
                     <select
                       className="mt-1 w-full appearance-none bg-app-surface2 border border-app-border rounded px-1 py-0.5 text-app-sm text-app-text focus:outline-none"
                       value=""
@@ -394,14 +498,18 @@ const GridView: React.FC<{
                       ))}
                     </select>
                   )}
-                  {/* 枠セレクタ (member 列) */}
+                  {/* 枠セレクタ (member 列)。自作=テーブル更新 / matrix=result 再構築。 */}
                   {c.field === 'member' && role && (
                     <select
                       className="mt-1 w-full appearance-none bg-app-surface2 border border-app-border rounded px-1 py-0.5 text-app-sm text-app-text focus:outline-none"
                       value={c.slot ?? ''}
                       onChange={(e) => {
                         const val = e.target.value as PartySlot | '';
-                        setColSlot(ci, val || null);
+                        if (source === 'matrix') {
+                          onMatrixSlotChange(c.jobId as string, val || null);
+                        } else {
+                          setColSlot(ci, val || null);
+                        }
                       }}
                     >
                       <option value="">{t('gridImport.assign_slot')}</option>
