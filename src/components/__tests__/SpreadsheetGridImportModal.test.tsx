@@ -569,6 +569,8 @@ describe('SpreadsheetGridImportModal', () => {
     const amberSpans = document.querySelectorAll('.text-app-amber');
     const texts = Array.from(amberSpans).map((el) => el.textContent ?? '');
     expect(texts.some((t) => t.includes('ランパート'))).toBe(false);
+    // Fix I1: 解決名「ランパート」が実際に描画されていることを肯定的に検証
+    expect(screen.getByText('ランパート')).toBeInTheDocument();
   });
 
   it('Task8: unresolved_note がフッターに表示される(skipped あり)', () => {
@@ -577,6 +579,18 @@ describe('SpreadsheetGridImportModal', () => {
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
     // フェーズ追加→ skipped が確定
     fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
+    expect(screen.getByText('LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。')).toBeInTheDocument();
+  });
+
+  it('Task8: grid見出し形式でメンバー列に未解決スキルを貼ると unresolved_note がフェーズ追加なしで表示される(Fix I2)', () => {
+    // grid 形式(見出し形式)で member 列に未解決スキルを含む TSV を貼る
+    // grid は現在のテーブルから buildPlanFromGrid で即座にプレビューを構築→skipped が確定→unresolved_note が表示される
+    const gridTSV = '時間\t敵の攻撃\tナイト\n0:16\tビッグブラスト\tかげぬい\n';
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => gridTSV } });
+    // フェーズ追加(このフェーズを追加)を押さずに unresolved_note が表示されていることを確認
+    // (grid は表示中テーブルから即座にプレビューを構築するため、フェーズ追加を待たずに skipped が確定)
     expect(screen.getByText('LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。')).toBeInTheDocument();
   });
 });
