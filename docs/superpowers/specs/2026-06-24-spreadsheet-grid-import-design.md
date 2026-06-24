@@ -169,6 +169,27 @@
 
 ---
 
+## 9.5 実機フィードバックによる UX 改訂(2026-06-24・ユーザー確認済)
+
+初回実機で判明した問題と是正(設計判断の更新・[[feedback_design_assumption_revalidate]]):
+
+- **問題A**: コンテンツ選択後に大きいグリッドが出ず(貼って成功するまで非表示)、何をすべきか不明・貼った内容も見えない。
+- **問題B**: ユーザーが自分のスプシ(TRUE/FALSE 形式)を貼ると「有名スプシ形式です。別経路を」と**弾かれる**=自分のデータなのに袋小路。
+- **問題C(厳守)**: UI・説明・メッセージに「有名スプシ/famous」表現を**一切出さない**。あくまで「スプレッドシートを取り込む機能」。法的・見え方の観点で必須。
+
+**是正(確定)**:
+1. **グリッド常時表示**: コンテンツ選択直後から、正典見出し付きの大きいグリッドを表示。空でも見出しが見え、「ここに貼り付け」を明示。
+2. **どの形式も弾かず取り込む**: 貼り付け検出で形式を内部判定し、
+   - TRUE/FALSE 行列形式 → 既存 `parseMitigationSheet`→`buildPlanFromSheets`(実証済み・auto party=`resolveImportParty`、枠は調整可)で読み、結果を**同じグリッドにプレビュー表示**(`gridRowsFromResult` で result→表へ変換・読み取り専用)。**create も同 result を使う**(グリッドから再構築しない=ズレ無し)。
+   - 見出し形式(自作) → 従来どおり `parseGridPaste`→編集可グリッド→`buildPlanFromGrid`。
+3. **貼った内容が表に見える**。
+4. **文言消去**: `gridImport.famous_sheet_warning`(4言語)削除。`isFamousSheetFormat`→`isMatrixSheetFormat`(中立名)へリネーム(行列構造の判定であって特定スプシの判定ではない)。UI 文言から「有名」系を全排除。
+5. 取り込み導線は当面 現行モーダルと新グリッドを併存(統合は follow-up)。
+
+**新ヘルパー** `gridRowsFromResult(result, deps, lang): GridTable` — 列=phase/label/time/action/damage/target/damageType + result.party 各メンバー列(jobId+slot)。行=timelineEvents(時刻昇順)。phase/label セル=その時刻を含む帯名。メンバーセル=`ownerId===slot && time===event.time` の mitigation を localized 名で ` / ` 連結。読み取り専用表示用。
+
+---
+
 ## 10. 段階(実装フェーズ案)
 1. 純関数(`parseGridPaste`/`buildPlanFromGrid`/4言語解決/target/検証)+ unit。
 2. `SpreadsheetGridImportModal` UI(列ごと貼り付け→作成までの最小フロー)+ `commitImportedPlan` 配線 + 実機。
