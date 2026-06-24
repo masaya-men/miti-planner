@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import {
   SpreadsheetGridImportModal,
   autoAssignSingleSlots,
@@ -9,6 +9,15 @@ import {
 } from '../SpreadsheetGridImportModal';
 import type { GridTable } from '../../lib/sheetImport/gridTypes';
 import type { SheetImportResult } from '../../lib/sheetImport/buildPlanFromSheets';
+import type { TemplateData } from '../../data/templateLoader';
+import { getTemplate } from '../../data/templateLoader';
+
+// templateLoader をモック: デフォルトは null(テンプレなし)。テスト内で上書き可。
+vi.mock('../../data/templateLoader', () => ({
+  getTemplate: vi.fn().mockResolvedValue(null),
+}));
+
+// resolveEventTargets は実装をそのまま使う(純関数なのでモック不要)。
 
 // i18n: キー→日本語テキストの最小マップ（テスト対象キーのみ）
 const JA: Record<string, string> = {
@@ -64,6 +73,10 @@ const JA: Record<string, string> = {
   'gridImport.party_role_dps': 'DPS',
   'gridImport.party_slot_unassigned': '未選択',
   'gridImport.rights_notice': '取り込んだ内容はご自身の控えからの変換です。',
+  'gridImport.target_select_label': '攻撃の対象を選択',
+  'gridImport.target_aoe': '全体',
+  'gridImport.target_none': '—',
+  'gridImport.target_from_template': 'テンプレ',
   'common.cancel': 'キャンセル',
 };
 
@@ -360,6 +373,76 @@ describe('SpreadsheetGridImportModal', () => {
     // matrix は解決済み表示値の再検証チップを出さない(誤チップ防止)
     expect(screen.queryByText('空 / 任意')).toBeNull();
     expect(screen.queryByText('一部読めない')).toBeNull();
+  });
+
+  // ── §9.7 B: 攻撃の対象=行ごと編集 + テンプレをプレビュー表示(Task 7) ──
+
+  it('Step2: 自作TSV(時間+攻撃列あり)を貼ると対象列に select が出る', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // 時間・攻撃・対象列を含む自作TSV
+    const tsv = '時間\t敵の攻撃\t攻撃の対象\n0:16\tビッグブラスト\tMT\n';
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => tsv } });
+    // 対象列のセルに select (aria-label='攻撃の対象を選択') が出ること
+    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[];
+    const targetSelects = selects.filter((s) =>
+      s.getAttribute('aria-label') === '攻撃の対象を選択',
+    );
+    expect(targetSelects.length).toBeGreaterThan(0);
+  });
+
+  it('Step2: select 変更後に作成すると onImport が手動値の target を受け取る', async () => {
+    const onImport = vi.fn(async () => true);
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={onImport} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // 時間・攻撃・対象列を持つ自作TSV (初期値 MT)
+    const tsv = '時間\t敵の攻撃\t攻撃の対象\n0:16\tビッグブラスト\tMT\n';
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => tsv } });
+    // 対象 select を ST に変更
+    const targetSelects = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
+      s.getAttribute('aria-label') === '攻撃の対象を選択',
+    );
+    expect(targetSelects.length).toBeGreaterThan(0);
+    fireEvent.change(targetSelects[0], { target: { value: 'ST' } });
+    // 作成ボタン押下
+    const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
+    fireEvent.click(createBtn);
+    await waitFor(() => expect(onImport).toHaveBeenCalled());
+    // onImport の第1引数 (result) の timelineEvents に手動値 ST が設定されている
+    const result = (onImport.mock.calls[0] as unknown[])[0] as SheetImportResult;
+    const event = result.timelineEvents.find((ev: { name: { ja: string } }) => ev.name.ja === 'ビッグブラスト');
+    expect(event).toBeDefined();
+    expect(event?.target).toBe('ST');
+  });
+
+  it('Step2: 対象列あり・テンプレに一致する攻撃名行にはテンプレ表記が出る', async () => {
+    // getTemplate を上書き: ビッグブラスト MT のテンプレを返す
+    const mockTemplate: Partial<TemplateData> = {
+      timelineEvents: [{
+        id: 'tmpl_ev1',
+        time: 16,
+        name: { ja: 'ビッグブラスト', en: 'BigBlast' },
+        damageType: 'magical',
+        target: 'MT' as const,
+      }],
+    };
+    vi.mocked(getTemplate).mockResolvedValue(mockTemplate as TemplateData);
+
+    // category='dungeon'(非registry) + contentId → selectedContentId = 'ビッグブラストレイド'
+    const selWithTitle = { contentId: 'ビッグブラストレイド', level: null, category: 'dungeon', title: '' } as never;
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={selWithTitle} />);
+    goToGridStep();
+    // 時間+攻撃+対象列を持つ自作TSV(対象は空=テンプレから解決されるはず)
+    const tsv = '時間\t敵の攻撃\t攻撃の対象\n0:16\tビッグブラスト\t\n';
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => tsv } });
+    // getTemplate は async なので解決を待つ
+    await waitFor(() => {
+      // テンプレ由来の「テンプレ」表記が出ること
+      expect(screen.queryByText('テンプレ')).not.toBeNull();
+    });
+
+    // リセット
+    vi.mocked(getTemplate).mockResolvedValue(null);
   });
 });
 

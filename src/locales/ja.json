@@ -2718,6 +2718,13 @@
         "party_role_healer": "ヒーラー",
         "party_role_dps": "DPS",
         "party_slot_unassigned": "未選択",
-        "pending_phase_warning": "貼り付けた内容が未追加です。「このフェーズを追加」を押してください。"
+        "pending_phase_warning": "貼り付けた内容が未追加です。「このフェーズを追加」を押してください。",
+        "target_select_label": "攻撃の対象を選択",
+        "target_aoe": "全体",
+        "target_none": "—",
+        "target_from_template": "テンプレ",
+        "add_phase_next": "このフェーズを追加して次へ",
+        "flow_hint": "スプシで A1 をクリック → Ctrl+A → Ctrl+C → ここで Ctrl+V",
+        "skipped_count": "読めなかった技 {{count}}件"
     }
 }

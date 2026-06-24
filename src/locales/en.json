@@ -2697,6 +2697,13 @@
         "party_role_healer": "Healer",
         "party_role_dps": "DPS",
         "party_slot_unassigned": "Unassigned",
-        "pending_phase_warning": "You haven't added the pasted content yet. Press \"Add this phase\"."
+        "pending_phase_warning": "You haven't added the pasted content yet. Press \"Add this phase\".",
+        "target_select_label": "Select attack target",
+        "target_aoe": "AoE",
+        "target_none": "—",
+        "target_from_template": "template",
+        "add_phase_next": "Add this phase & next",
+        "flow_hint": "Click A1 in spreadsheet → Ctrl+A → Ctrl+C → paste here (Ctrl+V)",
+        "skipped_count": "{{count}} unrecognized skill(s)"
     }
 }

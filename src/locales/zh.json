@@ -2662,6 +2662,13 @@
         "party_role_healer": "治疗",
         "party_role_dps": "DPS",
         "party_slot_unassigned": "未选择",
-        "pending_phase_warning": "粘贴的内容尚未添加，请点击「添加此阶段」。"
+        "pending_phase_warning": "粘贴的内容尚未添加，请点击「添加此阶段」。",
+        "target_select_label": "选择攻击目标",
+        "target_aoe": "全体",
+        "target_none": "—",
+        "target_from_template": "模板",
+        "add_phase_next": "添加此阶段并继续",
+        "flow_hint": "在电子表格中点击 A1 → Ctrl+A → Ctrl+C → 在此处粘贴 (Ctrl+V)",
+        "skipped_count": "无法读取的技能 {{count}}件"
     }
 }

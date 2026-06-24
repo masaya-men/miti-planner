@@ -6,7 +6,7 @@ import { X, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, C
 import clsx from 'clsx';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { getJobsFromStore, getMitigationsFromStore } from '../hooks/useSkillsData';
-import type { Job } from '../types';
+import type { Job, TimelineEvent } from '../types';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
 import { buildPlanFromSheets } from '../lib/sheetImport/buildPlanFromSheets';
 import type { ParsedSheet, ImportSheet, SkippedSkill } from '../lib/sheetImport/types';
@@ -27,6 +27,9 @@ import { ImportContentSelector } from './ImportContentSelector';
 import { resolveInitialSelection, deriveContentId } from '../lib/contentSelection';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
+import { getTemplate } from '../data/templateLoader';
+import { resolveEventTarget, applyResolvedTargets } from '../lib/sheetImport/resolveEventTargets';
+import type { CarryTarget } from '../lib/sheetImport/carryOverTargets';
 
 interface Props {
   isOpen: boolean;
@@ -165,6 +168,37 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   }, [isOpen]);
   const selectedContentId = deriveContentId(selBoss, selCategory, selTitle);
 
+  // ── テンプレ state(selectedContentId 変化時に getTemplate で読む) ───────────
+  const [templateEvents, setTemplateEvents] = useState<TimelineEvent[]>([]);
+  useEffect(() => {
+    let alive = true;
+    if (!selectedContentId) { setTemplateEvents([]); return; }
+    getTemplate(selectedContentId)
+      .then((tpl) => { if (alive) setTemplateEvents(tpl?.timelineEvents ?? []); })
+      .catch(() => { if (alive) setTemplateEvents([]); });
+    return () => { alive = false; };
+  }, [selectedContentId]);
+
+  // ── 手動 override state(安定キー `${time}|${name.ja}` → CarryTarget|'none') ─
+  const [targetOverrides, setTargetOverrides] = useState<Record<string, CarryTarget | 'none'>>({});
+
+  /** 安定キー: event id はビルド毎に再採番されるため time+name.ja で固定する。 */
+  const targetKey = (ev: TimelineEvent) => `${ev.time}|${ev.name.ja}`;
+
+  /**
+   * targetOverrides(安定キー→target) を overridesById(id→target) に変換して
+   * resolveEventTarget / applyResolvedTargets へ渡す。
+   */
+  const toOverridesById = useCallback(
+    (events: TimelineEvent[]): Record<string, CarryTarget | 'none'> =>
+      Object.fromEntries(
+        events
+          .filter((e) => targetOverrides[targetKey(e)] !== undefined)
+          .map((e) => [e.id, targetOverrides[targetKey(e)]]),
+      ),
+    [targetOverrides],
+  );
+
   // ── 現在の(未追加)貼り付け ──────────────────────────────────────────────
   // グリッドテーブル状態(自作=編集可テーブル / matrix=result から導いた表示用テーブル)
   const [table, setTable] = useState<GridTable>(() => emptyHeaderTable(t));
@@ -199,6 +233,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setPhaseName('');
     setEntries([]);
     setAssignment(emptyAssignment());
+    setTargetOverrides({});
     // t はレンダーごとに同一性が変わり得るが、見出し文言は安定。開いた瞬間の値で構築すれば十分。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
@@ -206,6 +241,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   // 取り込み本処理: 貼り付けテキストを形式判定して現在の貼り付けに配置する。
   const ingestText = useCallback((text: string) => {
     setParseFailed(false);
+    setTargetOverrides({});
 
     // 空 → 見出しだけの空グリッドへ戻す
     if (!text.trim()) {
@@ -281,6 +317,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setSource('none');
     setMatrixParsed(null);
     setPhaseName('');
+    setTargetOverrides({});
   }, [matrixParsed, phaseName, t]);
 
   // 役割解決(store 由来)
@@ -388,10 +425,15 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
           ? buildPlanFromSheets(effectiveEntries, { mitigations, jobs }, { includeMitigations: true, partyOverride })
           : null);
     if (!finalPreview || finalPreview.timelineEvents.length === 0) return;
-    // 対象適用は Task 7(applyResolvedTargets で差し込む)。一時的にテンプレ対象は当たらない。
-    const ok = await onImport(finalPreview, { contentId: selectedContentId });
+    // 対象適用: 手動 > 自作列 > テンプレ > なし の優先順で実効値を確定。
+    const overridesById = toOverridesById(finalPreview.timelineEvents);
+    const withTargets: SheetImportResult = {
+      ...finalPreview,
+      timelineEvents: applyResolvedTargets(finalPreview.timelineEvents, templateEvents, overridesById),
+    };
+    const ok = await onImport(withTargets, { contentId: selectedContentId });
     if (ok) onClose();
-  }, [entries, source, matrixParsed, phaseName, isGrid, gridPreview, mitigations, jobs, partyOverride, onImport, onClose, selectedContentId]);
+  }, [entries, source, matrixParsed, phaseName, isGrid, gridPreview, mitigations, jobs, partyOverride, onImport, onClose, selectedContentId, templateEvents, toOverridesById]);
 
   // スロット未割当警告(grid のみ): jobId のある member 列で、スキルありかつ枠未割当
   const hasUnassignedMemberCols = useMemo(() => {
@@ -545,6 +587,10 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                   onColumnPaste={onColumnPaste}
                   assignment={assignment}
                   onMatrixSlotChange={handleSlotChange}
+                  previewEvents={[...(preview?.timelineEvents ?? [])].sort((a, b) => a.time - b.time)}
+                  templateEvents={templateEvents}
+                  targetOverrides={targetOverrides}
+                  onTargetOverride={(key, value) => setTargetOverrides((prev) => ({ ...prev, [key]: value }))}
                 />
                 {/* 空状態: グリッド本体エリアに大きく貼り付けプロンプトを出す */}
                 {isGridEmpty && (
@@ -644,7 +690,20 @@ const GridView: React.FC<{
   assignment: PartyAssignment;
   /** matrix のメンバー列ヘッダーで枠を変更したとき。seat=(slot, jobId) / unseat=(現slot, null)。handleSlotChange と同型。 */
   onMatrixSlotChange: (slot: PartySlot, jobId: string | null) => void;
-}> = ({ table, setTable, deps, source, byColumnMode, onColumnPaste, assignment, onMatrixSlotChange }) => {
+  /**
+   * 対象列セルのインタラクティブ表示に必要。
+   * preview.timelineEvents を時刻昇順にソートした配列。
+   * grid の行は time が解釈できるものだけ event になるため index 整合が取れないケースがある→
+   * (time, name.ja) でマッチする方式を使う。
+   */
+  previewEvents: TimelineEvent[];
+  templateEvents: TimelineEvent[];
+  /** 安定キー(`${time}|${name.ja}`) → CarryTarget | 'none' */
+  targetOverrides: Record<string, CarryTarget | 'none'>;
+  /** 対象 override を変更したとき。key は安定キー。 */
+  onTargetOverride: (key: string, value: CarryTarget | 'none') => void;
+}> = ({ table, setTable, deps, source, byColumnMode, onColumnPaste, assignment, onMatrixSlotChange,
+        previewEvents, templateEvents, targetOverrides, onTargetOverride }) => {
   const { t } = useTranslation();
   const cellsOf = (ci: number) => table.rows.map((r) => r[ci] ?? '');
 
@@ -660,6 +719,35 @@ const GridView: React.FC<{
   const setColSlot = (ci: number, slot: PartySlot | null) => {
     const cols = table.columns.map((c, i) => i !== ci ? c : { ...c, slot });
     setTable({ ...table, columns: cols });
+  };
+
+  /**
+   * グリッド行に対応する TimelineEvent を (time, name.ja) で検索する。
+   * - matrix の場合: 行は gridRowsFromResult の time/action セルから特定できる。
+   * - grid の場合: 行は時刻が解釈できるものだけ event になるため index 整合 NG → 同様に検索。
+   * 対象列のインデックスを使って行から time/action を抽出し previewEvents でマッチ。
+   */
+  const iTime = table.columns.findIndex((c) => c.field === 'time');
+  const iAction = table.columns.findIndex((c) => c.field === 'action');
+  const iTarget = table.columns.findIndex((c) => c.field === 'target');
+
+  /** 行から対応する event を検索する。previewEvents は安定キーでマッチ。 */
+  const findEventForRow = (row: string[]): TimelineEvent | null => {
+    // time セルは "M:SS" 形式 → 秒数に変換してマッチ
+    const timeCell = iTime >= 0 ? (row[iTime] ?? '').trim() : '';
+    const actionCell = iAction >= 0 ? (row[iAction] ?? '').trim() : '';
+    if (!timeCell && !actionCell) return null;
+    // M:SS → 秒数
+    const parseMSS = (s: string): number | null => {
+      const m = s.match(/^(-?)(\d+):(\d{2})$/);
+      if (!m) return null;
+      const sign = m[1] === '-' ? -1 : 1;
+      return sign * (parseInt(m[2]) * 60 + parseInt(m[3]));
+    };
+    const timeSec = parseMSS(timeCell);
+    if (timeSec === null) return null;
+    // previewEvents から (time, name.ja) で探す
+    return previewEvents.find((ev) => ev.time === timeSec && ev.name.ja === actionCell) ?? null;
   };
 
   return (
@@ -747,13 +835,63 @@ const GridView: React.FC<{
         </tr>
       </thead>
       <tbody>
-        {table.rows.map((r, ri) => (
-          <tr key={ri}>
-            {table.columns.map((_, ci) => (
-              <td key={ci} className="border-b border-r border-app-border px-3 py-1.5 text-app-text">{r[ci] ?? ''}</td>
-            ))}
-          </tr>
-        ))}
+        {table.rows.map((r, ri) => {
+          // 対象列セルの編集: 行に対応する event を特定して resolve する
+          const rowEvent = iTarget >= 0 ? findEventForRow(r) : null;
+          const stableKey = rowEvent ? `${rowEvent.time}|${rowEvent.name.ja}` : null;
+          // overridesById は event.id ベースだが、セル表示は安定キーベース override から直接計算
+          const resolvedForRow = rowEvent
+            ? (() => {
+                const ov = stableKey ? targetOverrides[stableKey] : undefined;
+                // resolveEventTarget と同じ優先順を再現(overrides[id] を安定キーで引く)
+                const dummyOverridesById: Record<string, CarryTarget | 'none'> = ov !== undefined
+                  ? { [rowEvent.id]: ov }
+                  : {};
+                return resolveEventTarget(rowEvent, templateEvents, dummyOverridesById);
+              })()
+            : null;
+
+          return (
+            <tr key={ri}>
+              {table.columns.map((col, ci) => {
+                // 対象列のみ <select> に。それ以外は通常テキスト。
+                if (col.field === 'target' && rowEvent && resolvedForRow) {
+                  const isTemplate = resolvedForRow.source === 'template';
+                  return (
+                    <td key={ci} className="border-b border-r border-app-border px-2 py-1">
+                      <select
+                        aria-label={t('gridImport.target_select_label')}
+                        className={clsx(
+                          'w-full appearance-none rounded border px-1 py-0.5 text-app-sm focus:outline-none focus:border-app-text',
+                          'bg-app-surface2 border-app-border',
+                          isTemplate ? 'text-app-text-muted' : 'text-app-text',
+                        )}
+                        value={resolvedForRow.target ?? 'none'}
+                        onChange={(e) => {
+                          if (!stableKey) return;
+                          onTargetOverride(stableKey, e.target.value as CarryTarget | 'none');
+                        }}
+                      >
+                        <option value="MT">MT</option>
+                        <option value="ST">ST</option>
+                        <option value="AoE">{t('gridImport.target_aoe')}</option>
+                        <option value="none">{t('gridImport.target_none')}</option>
+                      </select>
+                      {isTemplate && (
+                        <span className="block text-app-sm text-app-text-muted mt-0.5">
+                          {t('gridImport.target_from_template')}
+                        </span>
+                      )}
+                    </td>
+                  );
+                }
+                return (
+                  <td key={ci} className="border-b border-r border-app-border px-3 py-1.5 text-app-text">{r[ci] ?? ''}</td>
+                );
+              })}
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
