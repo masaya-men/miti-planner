@@ -236,7 +236,6 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
   const blockReason = importBlockReason({
     hasPreviewEvents: preview !== null && preview.timelineEvents.length > 0,
     partyComplete,
-    hasPendingDraft,
   });
   const canConfirm = blockReason === null;
 
@@ -596,12 +595,6 @@ export const SpreadsheetImportModal: React.FC<Props> = ({ isOpen, onClose, onImp
               <div className="flex items-start gap-2 text-app-red bg-app-red-dim p-3 rounded-lg border border-app-red-border text-app-2xl">
                 <AlertCircle size={16} className="shrink-0 mt-0.5" />
                 <p>{t('sheetImport.party_required_warning')}</p>
-              </div>
-            )}
-            {step === 4 && blockReason === 'pending_draft' && (
-              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-3 rounded-lg border border-app-amber-border text-app-2xl">
-                <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                <p>{t('sheetImport.pending_draft_warning')}</p>
               </div>
             )}
             {step === 4 && blockReason === 'party_incomplete' && (

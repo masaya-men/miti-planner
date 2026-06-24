@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste, ChevronDown, Plus } from 'lucide-react';
+import { X, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste, Plus } from 'lucide-react';
 import clsx from 'clsx';
 import { useEscapeClose } from '../hooks/useEscapeClose';
 import { getJobsFromStore, getMitigationsFromStore } from '../hooks/useSkillsData';
@@ -14,13 +14,12 @@ import type { GridTable, GridField, GridColumn } from '../lib/sheetImport/gridTy
 import { buildPlanFromGrid } from '../lib/sheetImport/buildPlanFromGrid';
 import { gridRowsFromResult } from '../lib/sheetImport/gridRowsFromResult';
 import { validateGridColumn } from '../lib/sheetImport/validateGridColumn';
-import { applyTemplateTargetsToResult } from '../lib/sheetImport/applyTemplateTargets';
 import { parseGridPaste, isMatrixSheetFormat } from '../lib/sheetImport/parseGridPaste';
 import { parseMitigationSheet } from '../lib/sheetImport/parseMitigationSheet';
 import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
 import {
   SLOTS_BY_ROLE, PARTY_SLOTS, emptyAssignment, assignSlot, buildPartyOverride,
-  groupByRole, autoFillSingles, isAssignmentComplete, isSlotRequired,
+  groupByRole, autoFillSingles, isAssignmentComplete,
   type PartyAssignment, type PartySlot, type SlotRole,
 } from '../lib/sheetImport/partyAssignment';
 import { importBlockReason } from '../lib/sheetImport/importBlockReason';
@@ -289,14 +288,6 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     (id: string) => jobs.find((j) => j.id === id)?.role as SlotRole | undefined,
     [jobs],
   );
-  const jobName = useCallback(
-    (id: string) => {
-      const name = jobs.find((j) => j.id === id)?.name;
-      if (!name) return id;
-      return (name[gridLang as keyof typeof name] ?? name.ja) || id;
-    },
-    [jobs, gridLang],
-  );
 
   // 蓄積した全フェーズで使われたジョブ(検出順)。パーティ割当はフェーズ横断。
   const detectedJobIds = useMemo(
@@ -368,22 +359,33 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     return isAssignmentComplete(assignment, detectedByRole);
   }, [isGrid, table, assignment, detectedByRole]);
 
-  // 未追加の貼り付けが残っているか(matrix のみ。先に「このフェーズを追加」させる)
-  const hasPendingDraft = source === 'matrix' && matrixParsed !== null;
+  // 未追加の matrix 貼り付けが残っているか(作成時に自動取込するためブロック理由にはしない=§9.7 D)。
+  const hasPendingMatrixDraft = source === 'matrix' && matrixParsed !== null;
 
-  const blockReason = importBlockReason({
-    hasPreviewEvents: preview !== null && preview.timelineEvents.length > 0,
-    partyComplete,
-    hasPendingDraft,
-  });
+  // 「作成できる」プレビューがあるか: 追加済み entries のイベント or 未追加の matrix draft(自動取込される)。
+  const hasPreviewEvents =
+    (preview?.timelineEvents.length ?? 0) > 0 ||
+    (hasPendingMatrixDraft && (matrixParsed?.rows.length ?? 0) > 0);
+
+  const blockReason = importBlockReason({ hasPreviewEvents, partyComplete });
   const canConfirm = blockReason === null;
 
   const handleConfirm = useCallback(async () => {
-    if (!canConfirm || !preview) return;
-    const finalResult = await applyTemplateTargetsToResult(preview, selectedContentId);
-    const ok = await onImport(finalResult, { contentId: selectedContentId });
+    // 未追加の matrix 貼り付けが残っていれば自動で取り込んでから作成(袋小路撤去=§9.7 D)。
+    let effectiveEntries = entries;
+    if (source === 'matrix' && matrixParsed) {
+      effectiveEntries = [...entries, { parsed: matrixParsed, phaseName }];
+    }
+    const finalPreview = isGrid
+      ? gridPreview
+      : (effectiveEntries.length > 0
+          ? buildPlanFromSheets(effectiveEntries, { mitigations, jobs }, { includeMitigations: true, partyOverride })
+          : null);
+    if (!finalPreview || finalPreview.timelineEvents.length === 0) return;
+    // 対象適用は Task 7(applyResolvedTargets で差し込む)。一時的にテンプレ対象は当たらない。
+    const ok = await onImport(finalPreview, { contentId: selectedContentId });
     if (ok) onClose();
-  }, [canConfirm, preview, onImport, onClose, selectedContentId]);
+  }, [entries, source, matrixParsed, phaseName, isGrid, gridPreview, mitigations, jobs, partyOverride, onImport, onClose, selectedContentId]);
 
   // スロット未割当警告(grid のみ): jobId のある member 列で、スキルありかつ枠未割当
   const hasUnassignedMemberCols = useMemo(() => {
@@ -448,181 +450,104 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
             </div>
           )}
 
-          {/* ── Step 2: スプシ風グリッド(本体が貼り付けサーフェス) + フェーズ追加 + パーティ ── */}
+          {/* ── Step 2: スプシ風グリッド(本体が貼り付けサーフェス)。全操作をこの面に集約(右パネル廃止) ── */}
           {step === 2 && (
-            <div className="flex-1 min-h-0 flex flex-col md:flex-row overflow-hidden">
-              {/* 左: グリッド(貼り付け面 + プレビュー) */}
-              <div className="flex-1 min-w-0 flex flex-col overflow-hidden border-b md:border-b-0 md:border-r border-app-border">
-                {/* 操作バー: ヘルプ + 列ごと貼り付けトグル */}
-                <div className="px-5 py-2.5 border-b border-app-border bg-app-surface2 flex items-center justify-between gap-3 shrink-0">
-                  <p className="text-app-lg text-app-text-muted">
-                    {source === 'none' ? t('gridImport.paste_hint') : t('gridImport.help')}
-                  </p>
-                  <button
-                    className={clsx('px-3 py-1.5 rounded-lg text-app-lg font-bold shrink-0',
-                      byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
-                    onClick={() => setByColumnMode((v) => !v)}
-                  >
-                    {t('gridImport.paste_by_column')}
-                  </button>
-                </div>
-
-                {parseFailed && (
-                  <div className="px-5 py-2 shrink-0">
-                    <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
-                      <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                      <p>{t('gridImport.parse_failed')}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* グリッド本体 = 貼り付けサーフェス(tabIndex で focusable・onPaste で Ctrl+V 捕捉) */}
-                <div
-                  ref={pasteSurfaceRef}
-                  tabIndex={0}
-                  onPaste={handleGridPaste}
-                  className="flex-1 overflow-auto focus:outline-none focus:ring-2 focus:ring-app-blue/40"
-                  aria-label={t('gridImport.paste_prompt')}
+            <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+              {/* 操作バー: ヘルプ + 列ごと貼り付けトグル */}
+              <div className="px-5 py-2.5 border-b border-app-border bg-app-surface2 flex items-center justify-between gap-3 shrink-0">
+                <p className="text-app-lg text-app-text-muted">
+                  {source === 'none' ? t('gridImport.paste_hint') : t('gridImport.help')}
+                </p>
+                <button
+                  className={clsx('px-3 py-1.5 rounded-lg text-app-lg font-bold shrink-0',
+                    byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
+                  onClick={() => setByColumnMode((v) => !v)}
                 >
-                  <GridView
-                    table={table} setTable={setTable} deps={{ mitigations, jobs }}
-                    source={source}
-                    byColumnMode={byColumnMode && source !== 'matrix'}
-                    onColumnPaste={onColumnPaste}
-                  />
-                  {/* 空状態: グリッド本体エリアに大きく貼り付けプロンプトを出す */}
-                  {isGridEmpty && (
-                    <div className="flex flex-col items-center justify-center gap-3 py-16 px-5 text-center select-none">
-                      <ClipboardPaste size={36} className="text-app-text-muted" />
-                      <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
-                      <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
-                    </div>
-                  )}
-                </div>
+                  {t('gridImport.paste_by_column')}
+                </button>
               </div>
 
-              {/* 右: フェーズ追加 / 追加済み一覧 / パーティ枠 / skipped */}
-              <div className="w-full md:w-[340px] shrink-0 overflow-y-auto p-4 space-y-4 bg-app-surface2/40">
-                {/* フェーズ名 + このフェーズを追加(matrix のみ。自作は phase 列で帯を作るため不要) */}
-                {source === 'matrix' && (
-                  <div className="space-y-2">
-                    <label className="text-app-lg text-app-text-muted block">{t('gridImport.phase_name_label')}</label>
-                    <input
-                      type="text"
-                      value={phaseName}
-                      onChange={(e) => setPhaseName(e.target.value)}
-                      placeholder={t('gridImport.phase_name_placeholder')}
-                      className="w-full bg-app-surface2 border border-app-border rounded-lg px-3 py-2 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted"
-                      spellCheck={false}
-                    />
-                    <button
-                      onClick={handleAddPhase}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-all duration-200 active:scale-95"
-                    >
-                      <Plus size={16} /> {t('gridImport.add_phase')}
-                    </button>
-                  </div>
-                )}
-
-                {/* 追加済みフェーズ一覧 */}
-                {entries.length > 0 && (
-                  <div className="space-y-1">
-                    <p className="text-app-lg text-app-text-muted">{t('gridImport.added_phases_label')}</p>
-                    {entries.map((entry, i) => {
-                      const name = entry.phaseName || `Phase ${i + 1}`;
-                      const events = entry.parsed.rows.length;
-                      const mits = perPhaseMits[i] ?? 0;
-                      return (
-                        <div
-                          key={i}
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-app-text/5 border border-app-border text-app-2xl text-app-text"
-                        >
-                          <CheckCircle2 size={14} className="shrink-0 text-app-text-muted" />
-                          <span>{t('gridImport.detected_phase', { name, events, mits })}</span>
-                        </div>
-                      );
-                    })}
-                    <p className="text-app-lg text-app-text-muted/80 pt-1">{t('gridImport.add_more_or_next')}</p>
-                  </div>
-                )}
-
-                {/* パーティ枠割当(matrix・検出ジョブがある時)。MT→ST→H1→H2→D1〜D4 順。 */}
-                {!isGrid && detectedJobIds.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-app-lg text-app-text-muted">{t('gridImport.party_assign_label')}</p>
-                    <p className="text-app-lg text-app-text-muted/80">{t('gridImport.party_assign_hint')}</p>
-                    <div className="space-y-2">
-                      {(['tank', 'healer', 'dps'] as SlotRole[])
-                        .filter((role) => detectedByRole[role].length > 0)
-                        .map((role) => (
-                          <div key={role} className="grid grid-cols-[3.5rem_1fr] items-start gap-2">
-                            <span className="text-app-lg text-app-text-muted pt-2">
-                              {t(`gridImport.party_role_${role}`)}
-                            </span>
-                            <div className="grid grid-cols-2 gap-2">
-                              {SLOTS_BY_ROLE[role].map((slot) => {
-                                const required = isSlotRequired(assignment, slot, detectedByRole);
-                                return (
-                                  <div
-                                    key={slot}
-                                    className={clsx(
-                                      'flex flex-col gap-1 p-2 rounded-lg border transition-all duration-200',
-                                      required
-                                        ? 'border-app-red-border bg-app-red-dim'
-                                        : assignment[slot]
-                                          ? 'border-app-text bg-app-text/5'
-                                          : 'border-app-border',
-                                    )}
-                                  >
-                                    <span
-                                      className={clsx('text-app-sm font-mono',
-                                        required ? 'text-app-red' : 'text-app-text-muted')}
-                                    >
-                                      {slot}
-                                    </span>
-                                    <div className="relative">
-                                      <select
-                                        value={assignment[slot] ?? ''}
-                                        onChange={(e) => handleSlotChange(slot, e.target.value || null)}
-                                        className="w-full appearance-none bg-app-surface2 border border-app-border rounded-md pl-2 pr-6 py-1 text-app-lg text-app-text focus:outline-none focus:border-app-text cursor-pointer"
-                                      >
-                                        <option value="">{t('gridImport.party_slot_unassigned')}</option>
-                                        {detectedByRole[role].map((jid) => (
-                                          <option key={jid} value={jid}>{jobName(jid)}</option>
-                                        ))}
-                                      </select>
-                                      <ChevronDown size={14} className="pointer-events-none absolute right-1.5 top-1/2 -translate-y-1/2 text-app-text-muted" />
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* 読み取れなかった軽減(skipped)の一覧 + 理由 */}
-                {skipped.length > 0 && (
-                  <details className="rounded-lg border border-app-amber-border overflow-hidden">
-                    <summary className="flex items-center gap-2 px-3 py-2 cursor-pointer text-app-2xl text-app-amber bg-app-amber-dim hover:opacity-90 transition-opacity select-none">
-                      <ChevronDown size={14} className="shrink-0" />
-                      {t('gridImport.skipped_label', { count: skipped.length })}
-                    </summary>
-                    <ul className="px-4 py-2 space-y-1">
-                      {skipped.map((s, i) => (
-                        <li key={i} className="text-app-lg text-app-amber/90 font-mono">
-                          {s.job} / {s.skillName}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="px-4 pb-2 text-app-lg text-app-text-muted">{t('gridImport.skipped_note')}</p>
-                  </details>
-                )}
-
-                {/* 権利表記(実証モーダルと同文言で維持) */}
+              {/* Ctrl+A 導線(常時表示) + 権利表記 */}
+              <div className="px-5 py-2 border-b border-app-border bg-app-surface2/60 flex flex-wrap items-center gap-x-4 gap-y-1 shrink-0">
+                <p className="text-app-lg text-app-text-muted">{t('gridImport.flow_hint')}</p>
                 <p className="text-app-lg text-app-text-muted/60">{t('gridImport.rights_notice')}</p>
+              </div>
+
+              {/* フェーズ・バー(matrix 貼付中 or 追加済みあり): フェーズ名+追加して次へ(matrix のみ) + 追加済み✓チップ(常駐)。
+                  自作は phase 列で帯を作るため入力欄は不要。チップは draft を消した後も進捗として残す。 */}
+              {(source === 'matrix' || entries.length > 0) && (
+                <div className="px-5 py-2.5 border-b border-app-border bg-app-surface2/40 flex flex-wrap items-center gap-2 shrink-0">
+                  {source === 'matrix' && (
+                    <>
+                      <input
+                        type="text"
+                        value={phaseName}
+                        onChange={(e) => setPhaseName(e.target.value)}
+                        placeholder={t('gridImport.phase_name_placeholder')}
+                        className="flex-1 min-w-[160px] bg-app-surface2 border border-app-border rounded-lg px-3 py-1.5 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted"
+                        spellCheck={false}
+                        aria-label={t('gridImport.phase_name_label')}
+                      />
+                      <button
+                        onClick={handleAddPhase}
+                        className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-app-2xl font-bold bg-app-blue text-white hover:bg-app-blue-hover transition-all duration-200 active:scale-95 shrink-0"
+                      >
+                        <Plus size={16} /> {t('gridImport.add_phase_next')}
+                      </button>
+                    </>
+                  )}
+                  {/* 追加済みフェーズ✓チップ(横並び・draft を消しても残る) */}
+                  {entries.map((entry, i) => {
+                    const name = entry.phaseName || `Phase ${i + 1}`;
+                    const events = entry.parsed.rows.length;
+                    const mits = perPhaseMits[i] ?? 0;
+                    return (
+                      <span
+                        key={i}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-app-text/5 border border-app-border text-app-lg text-app-text shrink-0"
+                        title={t('gridImport.detected_phase', { name, events, mits })}
+                      >
+                        <CheckCircle2 size={14} className="shrink-0 text-app-text-muted" />
+                        {name}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
+
+              {parseFailed && (
+                <div className="px-5 py-2 shrink-0">
+                  <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
+                    <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                    <p>{t('gridImport.parse_failed')}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* グリッド本体 = 貼り付けサーフェス(tabIndex で focusable・onPaste で Ctrl+V 捕捉) */}
+              <div
+                ref={pasteSurfaceRef}
+                tabIndex={0}
+                onPaste={handleGridPaste}
+                className="flex-1 overflow-auto focus:outline-none focus:ring-2 focus:ring-app-blue/40"
+                aria-label={t('gridImport.paste_prompt')}
+              >
+                <GridView
+                  table={table} setTable={setTable} deps={{ mitigations, jobs }}
+                  source={source}
+                  byColumnMode={byColumnMode && source !== 'matrix'}
+                  onColumnPaste={onColumnPaste}
+                  assignment={assignment}
+                  onMatrixSlotChange={handleSlotChange}
+                />
+                {/* 空状態: グリッド本体エリアに大きく貼り付けプロンプトを出す */}
+                {isGridEmpty && (
+                  <div className="flex flex-col items-center justify-center gap-3 py-16 px-5 text-center select-none">
+                    <ClipboardPaste size={36} className="text-app-text-muted" />
+                    <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
+                    <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -633,12 +558,6 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
               <div className="flex items-center gap-2 text-app-amber text-app-2xl">
                 <AlertCircle size={14} className="shrink-0" />
                 <span>{t('gridImport.slot_unassigned_warning')}</span>
-              </div>
-            )}
-            {step === 2 && blockReason === 'pending_draft' && (
-              <div className="flex items-start gap-2 text-app-amber bg-app-amber-dim p-2 rounded-lg border border-app-amber-border text-app-2xl">
-                <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                <p>{t('gridImport.pending_phase_warning')}</p>
               </div>
             )}
             {step === 2 && blockReason === 'party_incomplete' && (
@@ -684,6 +603,11 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                   <span className="text-app-2xl text-app-text-muted">
                     {preview && t('gridImport.summary', { labels: preview.labels.length, events: preview.timelineEvents.length, mits: preview.timelineMitigations.length })}
                   </span>
+                  {skipped.length > 0 && (
+                    <span className="text-app-2xl text-app-amber">
+                      {t('gridImport.skipped_count', { count: skipped.length })}
+                    </span>
+                  )}
                   <button
                     onClick={handleConfirm}
                     disabled={!canConfirm}
@@ -710,7 +634,11 @@ const GridView: React.FC<{
   source: ImportSource;
   byColumnMode: boolean;
   onColumnPaste: (colIndex: number, text: string) => void;
-}> = ({ table, setTable, deps, source, byColumnMode, onColumnPaste }) => {
+  /** matrix のメンバー列ヘッダー枠セレクタ: 全フェーズ横断の割当(jobId→slot)。 */
+  assignment: PartyAssignment;
+  /** matrix のメンバー列ヘッダーで枠を変更したとき。seat=(slot, jobId) / unseat=(現slot, null)。handleSlotChange と同型。 */
+  onMatrixSlotChange: (slot: PartySlot, jobId: string | null) => void;
+}> = ({ table, setTable, deps, source, byColumnMode, onColumnPaste, assignment, onMatrixSlotChange }) => {
   const { t } = useTranslation();
   const cellsOf = (ci: number) => table.rows.map((r) => r[ci] ?? '');
 
@@ -733,7 +661,8 @@ const GridView: React.FC<{
       <thead>
         <tr>
           {table.columns.map((c, ci) => {
-            const st = validateGridColumn(c, cellsOf(ci), deps);
+            // matrix は解決済み表示値の再検証で誤チップが出るためチップ自体を出さない(計算もスキップ)。
+            const st = source !== 'matrix' ? validateGridColumn(c, cellsOf(ci), deps) : null;
             const job = c.field === 'member' ? deps.jobs.find((j) => j.id === c.jobId) : undefined;
             const role = job ? (job.role as 'tank' | 'healer' | 'dps') : undefined;
             return (
@@ -742,7 +671,7 @@ const GridView: React.FC<{
                   <span className="font-bold">
                     {c.field === 'member' ? c.header : c.field === 'unknown' ? (c.header || t('gridImport.col_unknown')) : t(`gridImport.col_${c.field}`)}
                   </span>
-                  <StatusChip status={st} />
+                  {st && <StatusChip status={st} />}
                   {/* 列ごと貼り付けモード: 各列に textarea(自作テーブルのみ)。
                       key にテーブル形状を含めることで、貼り付け後やリセット後に
                       古いテキストが残らないよう React に再マウントさせる。 */}
@@ -772,14 +701,31 @@ const GridView: React.FC<{
                       ))}
                     </select>
                   )}
-                  {/* 枠セレクタ (member 列・自作テーブルのみ)。matrix はパーティパネルの枠セレクタで変更。 */}
-                  {c.field === 'member' && role && source !== 'matrix' && (
+                  {/* 枠セレクタ (member 列・grid/matrix 両方)。grid=列ローカル slot を直接編集 / matrix=全フェーズ横断 assignment を更新。 */}
+                  {c.field === 'member' && role && (
                     <select
                       className="mt-1 w-full appearance-none bg-app-surface2 border border-app-border rounded px-1 py-0.5 text-app-sm text-app-text focus:outline-none"
-                      value={c.slot ?? ''}
+                      value={
+                        source === 'matrix'
+                          // matrix: 真実は assignment(jobId→slot)。この列の jobId が座っている枠を引き直す。
+                          ? ((PARTY_SLOTS.find((s) => assignment[s] === c.jobId) ?? '') as PartySlot | '')
+                          : (c.slot ?? '')
+                      }
                       onChange={(e) => {
                         const val = e.target.value as PartySlot | '';
-                        setColSlot(ci, val || null);
+                        if (source === 'matrix') {
+                          if (!c.jobId) return;
+                          if (val) {
+                            // この列の jobId を選んだ枠へ(assignSlot が他枠の同ジョブを外す)。
+                            onMatrixSlotChange(val, c.jobId);
+                          } else {
+                            // 空選択 = 解除。この jobId が今座っている枠を null に。
+                            const cur = PARTY_SLOTS.find((s) => assignment[s] === c.jobId);
+                            if (cur) onMatrixSlotChange(cur, null);
+                          }
+                        } else {
+                          setColSlot(ci, val || null);
+                        }
                       }}
                     >
                       <option value="">{t('gridImport.assign_slot')}</option>

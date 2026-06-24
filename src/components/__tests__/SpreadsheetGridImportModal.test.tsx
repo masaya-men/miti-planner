@@ -49,10 +49,13 @@ const JA: Record<string, string> = {
   'gridImport.phase_name_label': 'フェーズ名（任意・空なら自動）',
   'gridImport.phase_name_placeholder': '例: P1 神々の像',
   'gridImport.add_phase': 'このフェーズを追加',
+  'gridImport.add_phase_next': 'このフェーズを追加して次へ',
   'gridImport.added_phases_label': '追加済みフェーズ',
   'gridImport.detected_phase': 'フェーズ「{{name}}」: イベント{{events}}件・軽減{{mits}}件',
   'gridImport.add_more_or_next': '次のフェーズがあれば同じ手順でもう1枚。無ければそのまま作成。',
+  'gridImport.flow_hint': 'スプシで A1 をクリック → Ctrl+A → Ctrl+C → ここで Ctrl+V',
   'gridImport.skipped_label': '読み取れなかった軽減（{{count}}件）',
+  'gridImport.skipped_count': '読めなかった技 {{count}}件',
   'gridImport.skipped_note': 'LoPo に無い技・表記ゆれが理由です。これらは取り込まれません。',
   'gridImport.party_assign_label': 'パーティの枠を割り当て',
   'gridImport.party_assign_hint': 'ジョブを MT〜D4 に割り当ててください',
@@ -165,41 +168,28 @@ describe('SpreadsheetGridImportModal', () => {
     expect(screen.getByText('ビッグブラスト')).toBeInTheDocument();
   });
 
-  it('Step2: matrix貼付→フェーズ名+このフェーズを追加で追加済み一覧に積まれ、グリッドが空に戻る', () => {
+  it('Step2: matrix貼付→フェーズ名+追加して次へで✓チップに積まれ、グリッドが空に戻る', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
-    // フェーズ名を入力 → 追加
+    // フェーズ名を入力 → 追加して次へ
     fireEvent.change(screen.getByPlaceholderText('例: P1 神々の像'), { target: { value: 'P1 開幕' } });
-    fireEvent.click(screen.getByText('このフェーズを追加'));
-    // 追加済み一覧に出る
-    expect(screen.getByText('追加済みフェーズ')).toBeInTheDocument();
-    expect(screen.getByText(/フェーズ「P1 開幕」/)).toBeInTheDocument();
+    fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
+    // フェーズ・バーの✓チップにフェーズ名が出る(旧右パネルの一覧は廃止)
+    expect(screen.getByText('P1 開幕')).toBeInTheDocument();
     // グリッドは空状態に戻る(次のタブを貼れる)
     expect(screen.getByText('ここにスプレッドシートを貼り付け (Ctrl+V)')).toBeInTheDocument();
   });
 
-  it('Step2: 未追加の貼り付けがあると作成は押せずpendingバナーが出る/追加+枠割当で作成可', () => {
+  it('Step2: matrix未追加でも「この内容で作成」は押せる(常時作成・自動取込=§9.7 D)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
-    // 未追加 → pending バナー、作成は disabled
-    expect(screen.getByText('貼り付けた内容が未追加です。「このフェーズを追加」を押してください。')).toBeInTheDocument();
+    // 旧 pending バナー(袋小路)は撤去済 → 出ない
+    expect(screen.queryByText('貼り付けた内容が未追加です。「このフェーズを追加」を押してください。')).toBeNull();
+    // 未追加(entries 空・partyComplete=true)でも create は活性(作成時に自動取込)
     const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
-    expect(createBtn.disabled).toBe(true);
-    // 追加 → パーティ枠割当が出る。各ロール複数枠なので手動割当が必要(party_incomplete)。
-    fireEvent.click(screen.getByText('このフェーズを追加'));
-    expect((screen.getByText('この内容で作成').closest('button') as HTMLButtonElement).disabled).toBe(true);
-    // 枠セレクタ(各 slot に1つ)から、各ジョブ option を持つ最初の select を選んで割当。
-    // pld→MT(先頭の tank 枠) / whm→H1 / nin→D1 になり、3 ロールとも完成する。
-    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[];
-    const firstWith = (jobId: string) =>
-      selects.find((s) => Array.from(s.options).some((o) => o.value === jobId))!;
-    fireEvent.change(firstWith('pld'), { target: { value: 'pld' } });
-    fireEvent.change(firstWith('whm'), { target: { value: 'whm' } });
-    fireEvent.change(firstWith('nin'), { target: { value: 'nin' } });
-    const createBtn2 = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
-    expect(createBtn2.disabled).toBe(false);
+    expect(createBtn.disabled).toBe(false);
   });
 
   it('Step2: メンバー列が MT→ST→H1→H2→D1〜D4 順(タンクがヒーラーより前)で表示される', () => {
@@ -216,15 +206,16 @@ describe('SpreadsheetGridImportModal', () => {
     expect(idxDps).toBeGreaterThan(idxHealer);    // H1(healer) は D1(dps) より前
   });
 
-  it('Step2: 読み取れなかった軽減が一覧表示され、理由ノートも出る', () => {
+  it('Step2: 読み取れなかった軽減はフッターに件数サマリで出る(右パネルの一覧は撤去)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
-    fireEvent.click(screen.getByText('このフェーズを追加'));
-    // 「かげぬい」は mitigations に無い → skipped 一覧に出る
-    expect(screen.getByText(/読み取れなかった軽減（1件）/)).toBeInTheDocument();
-    expect(screen.getByText('忍者 / かげぬい')).toBeInTheDocument();
-    expect(screen.getByText('LoPo に無い技・表記ゆれが理由です。これらは取り込まれません。')).toBeInTheDocument();
+    // フェーズを追加 → preview が構築され skipped が確定(「かげぬい」=LoPo 未知)
+    fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
+    // フッターに件数サマリ(skipped_count)。旧右パネルの一覧/理由ノートは撤去済。
+    expect(screen.getByText('読めなかった技 1件')).toBeInTheDocument();
+    expect(screen.queryByText('忍者 / かげぬい')).toBeNull();
+    expect(screen.queryByText('LoPo に無い技・表記ゆれが理由です。これらは取り込まれません。')).toBeNull();
   });
 
   it('Step2 → 戻る で Step1 (コンテンツ選択) に戻る', () => {
@@ -291,6 +282,35 @@ describe('SpreadsheetGridImportModal', () => {
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
     expect(container.textContent ?? '').not.toContain('有名');
     expect((container.textContent ?? '').toLowerCase()).not.toContain('famous');
+  });
+
+  // ── §9.7 右パネル廃止・スプシ面集約(Task 6) ──
+  it('Step2: 右パネルを廃止(旧右パネルの「追加済みフェーズ」「パーティの枠を割り当て」ラベルが無い)+Ctrl+A導線が出る', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // 旧右パネルの見出し(縦並びリスト/パーティ枠パネル)はもう無い
+    expect(screen.queryByText('追加済みフェーズ')).toBeNull();
+    expect(screen.queryByText('パーティの枠を割り当て')).toBeNull();
+    // 代わりに Ctrl+A 導線がグリッド上部に常時表示
+    expect(screen.getByText('スプシで A1 をクリック → Ctrl+A → Ctrl+C → ここで Ctrl+V')).toBeInTheDocument();
+  });
+
+  it('Step2: 貼付直後(フェーズ名未追加)でも「この内容で作成」が disabled でない(自動取込)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
+    expect(createBtn.disabled).toBe(false);
+  });
+
+  it('Step2: matrix プレビューでは列ヘッダーに status チップ(空/任意・一部読めない)が出ない(C#7)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // matrix は解決済み表示値の再検証チップを出さない(誤チップ防止)
+    expect(screen.queryByText('空 / 任意')).toBeNull();
+    expect(screen.queryByText('一部読めない')).toBeNull();
   });
 });
 
