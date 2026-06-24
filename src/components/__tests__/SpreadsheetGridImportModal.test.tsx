@@ -198,6 +198,18 @@ describe('SpreadsheetGridImportModal', () => {
     expect(screen.getByText('ここにスプレッドシートを貼り付け (Ctrl+V)')).toBeInTheDocument();
   });
 
+  it('Step2: matrixドラフト中にフェーズ名を打つと「フェーズ」列へ即時ミラーされる(①a)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // 入力前: フェーズ名はまだグリッドに出ていない
+    expect(screen.queryByText('P1 神々の像')).toBeNull();
+    // フェーズ名を打つ(まだ「追加」は押さない)
+    fireEvent.change(screen.getByPlaceholderText('例: P1 神々の像'), { target: { value: 'P1 神々の像' } });
+    // フェーズ列(band-start 先頭行)に即時反映される(effect で table 再構築)
+    expect(screen.getByText('P1 神々の像')).toBeInTheDocument();
+  });
+
   it('Step2: matrix未追加でも旧 pending 袋小路バナーは出ない(§9.7 D)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();

@@ -289,6 +289,22 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     ingestText(text);
   }, [ingestText]);
 
+  // ── ①(a) フェーズ名のミラー: matrix ドラフト中に phaseName を打つと「フェーズ」列へ即時反映 ──
+  // matrix の表示テーブルは ingestText(貼付時)でしか作られないため、後から phaseName を打っても
+  // 「フェーズ」列(= result.phases[].name 由来)が古いまま。phaseName 変化で同じビルドを通して作り直す。
+  // 依存は phaseName / matrixParsed / source のみ(table 非依存)なので自分の setTable では再発火せずループしない。
+  // ビルドは ingestText の matrix 分岐と同一(sortResultPartyBySlots + gridRowsFromResult)。これにより
+  // Task7 displayedPreviewEvents / Task8 黄色判定 / インライン枠と time/name.ja が一致し続ける。grid は対象外。
+  useEffect(() => {
+    if (source !== 'matrix' || !matrixParsed) return;
+    const result = buildPlanFromSheets(
+      [{ parsed: matrixParsed, phaseName: phaseName || '' }],
+      { mitigations, jobs },
+      { includeMitigations: true },
+    );
+    setTable(gridRowsFromResult(sortResultPartyBySlots(result), { mitigations, jobs }, gridLang));
+  }, [phaseName, matrixParsed, source, mitigations, jobs, gridLang]);
+
   // step2 へ入ったら貼り付けサーフェスへフォーカスし Ctrl+V を確実に捕捉する
   useEffect(() => {
     if (step !== 2) return;
@@ -521,38 +537,20 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
           {/* ── Step 2: スプシ風グリッド(本体が貼り付けサーフェス)。全操作をこの面に集約(右パネル廃止) ── */}
           {step === 2 && (
             <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-              {/* 操作バー: ヘルプ + 列ごと貼り付けトグル */}
-              <div className="px-5 py-2.5 border-b border-app-border bg-app-surface2 flex items-center justify-between gap-3 shrink-0">
-                <p className="text-app-lg text-app-text-muted">
-                  {source === 'none' ? t('gridImport.paste_hint') : t('gridImport.help')}
-                </p>
-                <button
-                  className={clsx('px-3 py-1.5 rounded-lg text-app-lg font-bold shrink-0',
-                    byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
-                  onClick={() => setByColumnMode((v) => !v)}
-                >
-                  {t('gridImport.paste_by_column')}
-                </button>
-              </div>
-
-              {/* Ctrl+A 導線(常時表示) + 権利表記 */}
-              <div className="px-5 py-2 border-b border-app-border bg-app-surface2/60 flex flex-wrap items-center gap-x-4 gap-y-1 shrink-0">
-                <p className="text-app-lg text-app-text-muted">{t('gridImport.flow_hint')}</p>
-                <p className="text-app-lg text-app-text-muted/60">{t('gridImport.rights_notice')}</p>
-              </div>
-
-              {/* フェーズ・バー(matrix 貼付中 or 追加済みあり): フェーズ名+追加して次へ(matrix のみ) + 追加済み✓チップ(常駐)。
-                  自作は phase 列で帯を作るため入力欄は不要。チップは draft を消した後も進捗として残す。 */}
+              {/* ③ フェーズ・バー(1行・モック準拠): ラベル + フェーズ名入力 + 主ボタン + ✓チップ(右寄せ)。
+                  matrix 貼付中 or 追加済みありのとき表示。自作は phase 列で帯を作るため入力欄は不要。
+                  チップは ml-auto で右へ寄せ、draft を消した後も進捗として残す。 */}
               {(source === 'matrix' || entries.length > 0) && (
-                <div className="px-5 py-2.5 border-b border-app-border bg-app-surface2/40 flex flex-wrap items-center gap-2 shrink-0">
+                <div className="px-5 py-2 border-b border-app-border bg-app-surface2/40 flex flex-wrap items-center gap-2 shrink-0">
                   {source === 'matrix' && (
                     <>
+                      <span className="text-app-lg text-app-text-muted shrink-0">{t('gridImport.phase_name_label')}</span>
                       <input
                         type="text"
                         value={phaseName}
                         onChange={(e) => setPhaseName(e.target.value)}
                         placeholder={t('gridImport.phase_name_placeholder')}
-                        className="flex-1 min-w-[160px] bg-app-surface2 border border-app-border rounded-lg px-3 py-1.5 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted"
+                        className="min-w-[180px] bg-app-surface2 border border-app-border rounded-lg px-3 py-1.5 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted"
                         spellCheck={false}
                         aria-label={t('gridImport.phase_name_label')}
                       />
@@ -564,24 +562,40 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                       </button>
                     </>
                   )}
-                  {/* 追加済みフェーズ✓チップ(横並び・draft を消しても残る) */}
-                  {entries.map((entry, i) => {
-                    const name = entry.phaseName || `Phase ${i + 1}`;
-                    const events = entry.parsed.rows.length;
-                    const mits = perPhaseMits[i] ?? 0;
-                    return (
-                      <span
-                        key={i}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-app-text/5 border border-app-border text-app-lg text-app-text shrink-0"
-                        title={t('gridImport.detected_phase', { name, events, mits })}
-                      >
-                        <CheckCircle2 size={14} className="shrink-0 text-app-text-muted" />
-                        {name}
-                      </span>
-                    );
-                  })}
+                  {/* 追加済みフェーズ✓チップ(右寄せ・横並び・draft を消しても残る) */}
+                  {entries.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 ml-auto">
+                      {entries.map((entry, i) => {
+                        const name = entry.phaseName || `Phase ${i + 1}`;
+                        const events = entry.parsed.rows.length;
+                        const mits = perPhaseMits[i] ?? 0;
+                        return (
+                          <span
+                            key={i}
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-app-text/5 border border-app-border text-app-lg text-app-text shrink-0"
+                            title={t('gridImport.detected_phase', { name, events, mits })}
+                          >
+                            <CheckCircle2 size={14} className="shrink-0 text-app-text-muted" />
+                            {name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
+
+              {/* ③ flow(Ctrl+A 導線・1行) + 列ごと貼り付けトグル。standalone help 行は畳み(この列は? の title へ寄せた)。 */}
+              <div className="px-5 py-1.5 border-b border-app-border bg-app-surface2/60 flex items-center justify-between gap-3 shrink-0">
+                <p className="text-app-lg text-app-text-muted truncate">{t('gridImport.flow_hint')}</p>
+                <button
+                  className={clsx('px-3 py-1 rounded-lg text-app-lg font-bold shrink-0',
+                    byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
+                  onClick={() => setByColumnMode((v) => !v)}
+                >
+                  {t('gridImport.paste_by_column')}
+                </button>
+              </div>
 
               {parseFailed && (
                 <div className="px-5 py-2 shrink-0">
@@ -705,6 +719,10 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 </div>
               )}
             </div>
+            {/* ③ 権利表記: モックは非表示だが制約で保持必須 → フッターに muted で控えめに(消さない) */}
+            {step === 2 && (
+              <p className="text-app-sm text-app-text-muted/60">{t('gridImport.rights_notice')}</p>
+            )}
           </div>
         </motion.div>
       </div>
@@ -831,10 +849,12 @@ const GridView: React.FC<{
                       onChange={(e) => onColumnPaste(ci, e.target.value)}
                     />
                   )}
-                  {/* 「この列は？」セレクタ (unknown 列・自作テーブルのみ) */}
+                  {/* 「この列は？」セレクタ (unknown 列・自作テーブルのみ)。
+                      ③ standalone help 行は畳み、help 文言はこの場の title に寄せた(モックに help 行は無い)。 */}
                   {c.field === 'unknown' && source !== 'matrix' && (
                     <>
                       <select
+                        title={t('gridImport.help')}
                         className="mt-1 w-full appearance-none bg-app-surface2 border border-app-border rounded px-1 py-0.5 text-app-sm text-app-text focus:outline-none"
                         value=""
                         onChange={(e) => {
