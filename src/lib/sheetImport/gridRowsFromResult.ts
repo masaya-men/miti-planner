@@ -4,6 +4,21 @@ import type { Mitigation, Job } from '../../types/index';
 
 type Lang = 'ja' | 'en' | 'ko' | 'zh';
 
+/** ダメージ種別 enum → 表示ラベルの 4 言語マップ。 */
+const DAMAGE_TYPE_LABELS: Record<string, Record<Lang, string>> = {
+  physical:    { ja: '物理',   en: 'Physical',    ko: '물리',       zh: '物理'     },
+  magical:     { ja: '魔法',   en: 'Magic',       ko: '마법',       zh: '魔法'     },
+  enrage:      { ja: '時間切れ', en: 'Enrage',    ko: '시간 초과',  zh: '超时'     },
+  unavoidable: { ja: '回避不可', en: 'Unavoidable', ko: '회피 불가', zh: '无法回避' },
+};
+
+/** damageType enum を lang に対応するラベルに変換。未知の値は ja フォールバック、それもなければ元の値を返す。 */
+function localizeDamageType(damageType: string, lang: Lang): string {
+  const map = DAMAGE_TYPE_LABELS[damageType];
+  if (!map) return damageType;
+  return map[lang] ?? map.ja;
+}
+
 /** LocalizedString から lang に対応する文字列を取得。なければ ja、それもなければ fallback。 */
 function localize(name: { ja: string; en?: string; ko?: string; zh?: string } | undefined, lang: Lang): string {
   if (!name) return '';
@@ -72,8 +87,8 @@ export function gridRowsFromResult(
     // target
     const targetCell = event.target ?? '';
 
-    // damageType
-    const damageTypeCell: string = event.damageType;
+    // damageType: enum → ローカライズ済みラベル
+    const damageTypeCell = localizeDamageType(event.damageType, lang);
 
     // canonical セル
     const cells: string[] = [

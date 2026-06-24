@@ -88,6 +88,35 @@ describe('gridRowsFromResult', () => {
     expect(table.rows[0][2]).toBe('0:43');
   });
 
+  it('damageType セルが ja でローカライズされる', () => {
+    const result = makeResult({
+      timelineEvents: [
+        { id: 'e1', time: 10, name: { ja: '魔法攻撃', en: 'Magic Attack' }, damageType: 'magical' },
+        { id: 'e2', time: 20, name: { ja: '物理攻撃', en: 'Physical Attack' }, damageType: 'physical' },
+        { id: 'e3', time: 30, name: { ja: '時間切れ', en: 'Enrage' }, damageType: 'enrage' },
+        { id: 'e4', time: 40, name: { ja: '回避不可', en: 'Unavoidable' }, damageType: 'unavoidable' },
+      ],
+    });
+    const table = gridRowsFromResult(result, { mitigations: MITIGATIONS, jobs: JOBS }, 'ja');
+    // damageType 列 = index 6
+    expect(table.rows[0][6]).toBe('魔法');
+    expect(table.rows[1][6]).toBe('物理');
+    expect(table.rows[2][6]).toBe('時間切れ');
+    expect(table.rows[3][6]).toBe('回避不可');
+  });
+
+  it('damageType セルが en でローカライズされる', () => {
+    const result = makeResult({
+      timelineEvents: [
+        { id: 'e1', time: 10, name: { ja: '魔法攻撃', en: 'Magic Attack' }, damageType: 'magical' },
+        { id: 'e2', time: 20, name: { ja: '回避不可', en: 'Unavoidable' }, damageType: 'unavoidable' },
+      ],
+    });
+    const table = gridRowsFromResult(result, { mitigations: MITIGATIONS, jobs: JOBS }, 'en');
+    expect(table.rows[0][6]).toBe('Magic');
+    expect(table.rows[1][6]).toBe('Unavoidable');
+  });
+
   it('time セルが M:SS 形式になる(60 秒以上)', () => {
     const result = makeResult({
       timelineEvents: [

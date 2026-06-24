@@ -137,6 +137,10 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   useEscapeClose(isOpen, onClose);
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'en' ? 'en' : 'ja';
+  // gridRowsFromResult には 4 言語を正確に渡す（ImportContentSelector 向けの 2 値 lang とは別）
+  const gridLang = (['ja', 'en', 'ko', 'zh'] as const).includes(i18n.language as 'ja' | 'en' | 'ko' | 'zh')
+    ? (i18n.language as 'ja' | 'en' | 'ko' | 'zh')
+    : 'ja';
   const jobs = useMemo(() => getJobsFromStore(), []);
   const mitigations = useMemo(() => getMitigationsFromStore(), []);
 
@@ -220,7 +224,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
       setMatrixParsed(parsed);
       setMatrixResult(result);
       setSource('matrix');
-      setTable(gridRowsFromResult(result, { mitigations, jobs }, lang));
+      setTable(gridRowsFromResult(result, { mitigations, jobs }, gridLang));
       return;
     }
 
@@ -230,7 +234,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setSource('grid');
     setMatrixParsed(null);
     setMatrixResult(null);
-  }, [t, mitigations, jobs, lang]);
+  }, [t, mitigations, jobs, gridLang]);
 
   // 列ごと貼り付けハンドラ: 指定列に改行区切りのテキストを流し込む(自作テーブルのみ)
   const onColumnPaste = useCallback((colIndex: number, text: string) => {
@@ -262,8 +266,8 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
       { includeMitigations: true, partyOverride },
     );
     setMatrixResult(rebuilt);
-    setTable(gridRowsFromResult(rebuilt, { mitigations, jobs }, lang));
-  }, [matrixParsed, matrixResult, mitigations, jobs, lang]);
+    setTable(gridRowsFromResult(rebuilt, { mitigations, jobs }, gridLang));
+  }, [matrixParsed, matrixResult, mitigations, jobs, gridLang]);
 
   // プレビュー(create に使う result)。matrix=実証 result をそのまま / grid=テーブルから再構築。
   const preview = useMemo<SheetImportResult | null>(() => {
