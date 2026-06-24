@@ -181,15 +181,12 @@ describe('SpreadsheetGridImportModal', () => {
     expect(screen.getByText('ここにスプレッドシートを貼り付け (Ctrl+V)')).toBeInTheDocument();
   });
 
-  it('Step2: matrix未追加でも「この内容で作成」は押せる(常時作成・自動取込=§9.7 D)', () => {
+  it('Step2: matrix未追加でも旧 pending 袋小路バナーは出ない(§9.7 D)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
-    // 旧 pending バナー(袋小路)は撤去済 → 出ない
+    // 旧 pending バナー(袋小路)は撤去済 → 出ない(作成時に自動取込する設計)
     expect(screen.queryByText('貼り付けた内容が未追加です。「このフェーズを追加」を押してください。')).toBeNull();
-    // 未追加(entries 空・partyComplete=true)でも create は活性(作成時に自動取込)
-    const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
-    expect(createBtn.disabled).toBe(false);
   });
 
   it('Step2: メンバー列が MT→ST→H1→H2→D1〜D4 順(タンクがヒーラーより前)で表示される', () => {
@@ -296,10 +293,62 @@ describe('SpreadsheetGridImportModal', () => {
     expect(screen.getByText('スプシで A1 をクリック → Ctrl+A → Ctrl+C → ここで Ctrl+V')).toBeInTheDocument();
   });
 
-  it('Step2: 貼付直後(フェーズ名未追加)でも「この内容で作成」が disabled でない(自動取込)', () => {
+  it('Step2: 未追加matrix draft のジョブも partyComplete を要求する(枠未割当→作成 disabled)', async () => {
+    // 軽減サイレント消失の封鎖: draft のジョブを検出に含めゲートで覆う。
+    // matrixTSV は tank/healer/dps が各1だが各ロール枠が2以上なので autoFillSingles が座らせない
+    // → 枠未割当のまま作成は不可(空 partyOverride で全軽減ドロップする経路を踏ませない)。
+    const onImport = vi.fn(async () => true);
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={onImport} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
+    expect(createBtn.disabled).toBe(true);
+    // party_incomplete の赤バナーが出る
+    expect(screen.getByText('スキルのあるメンバー列に枠を割り当てると作成できます。')).toBeInTheDocument();
+    // disabled ボタン押下では onImport は呼ばれない(サイレント消失なし)
+    fireEvent.click(createBtn);
+    expect(onImport).not.toHaveBeenCalled();
+  });
+
+  it('Step2: 未追加matrix draft の枠を割り当てると作成が活性化する(ゲート解除)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // member 列の枠セレクタ(各ロール1本ずつ)を「枠は？」プレースホルダで特定し、各ロールの先頭枠を割り当て
+    const slotSelects = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
+      Array.from(s.options).some((o) => o.text === '枠は？'),
+    );
+    expect(slotSelects.length).toBe(3); // pld(tank)/whm(healer)/nin(dps)
+    fireEvent.change(slotSelects[0], { target: { value: 'MT' } }); // tank
+    fireEvent.change(slotSelects[1], { target: { value: 'H1' } }); // healer
+    fireEvent.change(slotSelects[2], { target: { value: 'D1' } }); // dps
+    // 全ロール充足 → 作成が活性
+    const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
+    expect(createBtn.disabled).toBe(false);
+    expect(screen.queryByText('スキルのあるメンバー列に枠を割り当てると作成できます。')).toBeNull();
+  });
+
+  it('Step2: 割当済み draft をフェーズ追加しても割当が保持される(pruneで消えない)', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    const pickSlotSelects = () =>
+      (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
+        Array.from(s.options).some((o) => o.text === '枠は？'),
+      );
+    let slotSelects = pickSlotSelects();
+    fireEvent.change(slotSelects[0], { target: { value: 'MT' } });
+    fireEvent.change(slotSelects[1], { target: { value: 'H1' } });
+    fireEvent.change(slotSelects[2], { target: { value: 'D1' } });
+    // フェーズを追加(detectedJobIds は draft→entries へ移るがジョブ集合は不変→pruneで割当保持)
+    fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
+    // 同じ matrix をもう一度 draft として貼り直す → 保持された割当がセレクタに復元される
+    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    slotSelects = pickSlotSelects();
+    expect(slotSelects[0].value).toBe('MT'); // tank の割当が残っている
+    expect(slotSelects[1].value).toBe('H1'); // healer
+    expect(slotSelects[2].value).toBe('D1'); // dps
+    // 割当保持により作成は活性のまま
     const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
     expect(createBtn.disabled).toBe(false);
   });

@@ -19,7 +19,7 @@ import { parseMitigationSheet } from '../lib/sheetImport/parseMitigationSheet';
 import { detectUsedJobIds } from '../lib/sheetImport/detectUsedJobIds';
 import {
   SLOTS_BY_ROLE, PARTY_SLOTS, emptyAssignment, assignSlot, buildPartyOverride,
-  groupByRole, autoFillSingles, isAssignmentComplete,
+  groupByRole, autoFillSingles, isAssignmentComplete, pruneAssignment,
   type PartyAssignment, type PartySlot, type SlotRole,
 } from '../lib/sheetImport/partyAssignment';
 import { importBlockReason } from '../lib/sheetImport/importBlockReason';
@@ -289,16 +289,22 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     [jobs],
   );
 
-  // 蓄積した全フェーズで使われたジョブ(検出順)。パーティ割当はフェーズ横断。
+  // 蓄積した全フェーズ + 未追加の現在の貼り付け(matrix)で使われたジョブ(検出順)。
+  // 未追加 draft も含めることで partyComplete ゲートが draft のジョブを覆い、
+  // 枠未割当のまま作成 → 軽減サイレント消失を防ぐ(空 partyOverride 落とし穴の封鎖)。
   const detectedJobIds = useMemo(
-    () => detectUsedJobIds(entries.map((e) => e.parsed)),
-    [entries],
+    () => detectUsedJobIds([
+      ...entries.map((e) => e.parsed),
+      ...(source === 'matrix' && matrixParsed ? [matrixParsed] : []),
+    ]),
+    [entries, source, matrixParsed],
   );
   const detectedByRole = useMemo(() => groupByRole(detectedJobIds, roleOf), [detectedJobIds, roleOf]);
 
-  // 検出ジョブが変わるたびに枠割当をリセット → 1人ロールは自動割当(autoFillSingles)
+  // 検出ジョブが変わるたびに割当を再評価。消えたジョブの枠だけ外し(pruneAssignment)、
+  // 残ったジョブの割当は保持 → フェーズ追加/貼り直しで既存割当を消さない。1人ロールは自動割当。
   useEffect(() => {
-    setAssignment(autoFillSingles(emptyAssignment(), detectedByRole));
+    setAssignment((prev) => autoFillSingles(pruneAssignment(prev, detectedByRole), detectedByRole));
   }, [detectedJobIds, detectedByRole]);
 
   const handleSlotChange = useCallback(

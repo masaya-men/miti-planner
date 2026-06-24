@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   emptyAssignment, assignSlot, groupByRole, autoFillSingles,
-  isAssignmentComplete, buildPartyOverride, isSlotRequired,
+  isAssignmentComplete, buildPartyOverride, isSlotRequired, pruneAssignment,
 } from '../partyAssignment';
 
 const roleOf = (id: string): 'tank' | 'healer' | 'dps' | undefined =>
@@ -79,5 +79,47 @@ describe('partyAssignment', () => {
       { slot: 'MT', jobId: 'pld' },
       { slot: 'H1', jobId: 'whm' },
     ]);
+  });
+
+  describe('pruneAssignment', () => {
+    it('検出に残っているジョブの割当は保持する', () => {
+      const byRole = { tank: ['pld', 'war'], healer: ['whm'], dps: [] as string[] };
+      let a = assignSlot(emptyAssignment(), 'MT', 'pld');
+      a = assignSlot(a, 'ST', 'war');
+      a = assignSlot(a, 'H1', 'whm');
+      const pruned = pruneAssignment(a, byRole);
+      expect(pruned.MT).toBe('pld');
+      expect(pruned.ST).toBe('war');
+      expect(pruned.H1).toBe('whm');
+    });
+
+    it('検出から消えたジョブの割当は null 化する', () => {
+      // war が検出集合から消えた(フェーズ追加/貼り直しで居なくなった)
+      const byRole = { tank: ['pld'], healer: ['whm'], dps: [] as string[] };
+      let a = assignSlot(emptyAssignment(), 'MT', 'pld');
+      a = assignSlot(a, 'ST', 'war'); // war はもう検出に居ない
+      a = assignSlot(a, 'H1', 'whm');
+      const pruned = pruneAssignment(a, byRole);
+      expect(pruned.MT).toBe('pld'); // 残存
+      expect(pruned.ST).toBeNull();  // war は消えたので外す
+      expect(pruned.H1).toBe('whm'); // 残存
+    });
+
+    it('元から null の枠は null のまま', () => {
+      const byRole = { tank: ['pld'], healer: [] as string[], dps: [] as string[] };
+      const a = assignSlot(emptyAssignment(), 'MT', 'pld');
+      const pruned = pruneAssignment(a, byRole);
+      expect(pruned.ST).toBeNull();
+      expect(pruned.H1).toBeNull();
+      expect(pruned.D1).toBeNull();
+    });
+
+    it('元の assignment は変更しない(pure function)', () => {
+      const byRole = { tank: ['pld'], healer: [] as string[], dps: [] as string[] };
+      const a = assignSlot(emptyAssignment(), 'ST', 'war'); // war は検出に居ない
+      const pruned = pruneAssignment(a, byRole);
+      expect(a.ST).toBe('war');     // 元は不変
+      expect(pruned.ST).toBeNull(); // 戻り値だけ null
+    });
   });
 });
