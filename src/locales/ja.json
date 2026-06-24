@@ -2615,8 +2615,7 @@
     "importMenu": {
         "tooltip": "取り込み",
         "fflogs": "FF Logs から取り込み",
-        "spreadsheet": "スプレッドシートから取り込み",
-        "gridImport": "スプレッドシートから取り込む（列グリッド）"
+        "spreadsheet": "スプレッドシートから取り込み"
     },
     "sheetImport": {
         "btn": "スプシ取り込み",

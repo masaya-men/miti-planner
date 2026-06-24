@@ -5,7 +5,7 @@ import { hasContentRegistry, getFilteredBosses } from '../lib/contentSelection';
 import { CATEGORY_LABELS } from '../data/contentRegistry';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
 
-/** コンテンツ選択 UI に渡す props。SpreadsheetImportModal / GridImportModal 共通。 */
+/** コンテンツ選択 UI に渡す props。GridImportModal 等の取り込みモーダルで共通利用。 */
 export interface ImportContentSelectorProps {
   selLevel: ContentLevel | null;
   setSelLevel: (v: ContentLevel | null) => void;
@@ -24,7 +24,7 @@ const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'r
 
 /**
  * 取り込み先コンテンツ選択 UI（Level / Category / Boss リスト / 自由入力タイトル）。
- * SpreadsheetImportModal の Step1 から抽出した実証済みの挙動をそのまま保持する。
+ * 旧スプシ取込モーダルの Step1 から抽出した実証済みの挙動をそのまま保持する。
  * Task 12 の GridImportModal でも同部品を再利用する。
  */
 export const ImportContentSelector: React.FC<ImportContentSelectorProps> = ({
