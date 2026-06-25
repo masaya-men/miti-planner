@@ -58,6 +58,7 @@ import { BackupExportModal } from './BackupExportModal';
 import { BackupRestoreModal } from './BackupRestoreModal';
 import { SystemNotificationBar } from './SystemNotificationBar';
 import { LocalDataSafetyBar } from './LocalDataSafetyBar';
+import { LocalDataSafetyHandleButton } from './LocalDataSafetyHandleButton';
 import { SystemNotificationHandleButton } from './SystemNotificationHandleButton';
 import { ContextMenu } from './ui/ContextMenu';
 import { decompressPlanData } from '../utils/compression';
@@ -1622,6 +1623,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             >
                 {/* 折りたたみ時のみ: 未読通知ベルをハンドル上部に重ねる (未読が無ければ何も出ない) */}
                 {!isOpen && <SystemNotificationHandleButton />}
+
+                {/* 折りたたみ時のみ: ローカルデータ安全性アイコン (要確認の赤バッジがある時のみ) */}
+                {!isOpen && <LocalDataSafetyHandleButton onOpenBackup={() => setBackupExportOpen(true)} />}
 
                 {/* 固定ライン — チュートリアル中もハンドルが非表示でも常に表示 */}
                 {tutorialActive && currentStepIndex <= 2 && (<>

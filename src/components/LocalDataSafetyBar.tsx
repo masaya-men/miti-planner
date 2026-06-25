@@ -3,8 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { ShieldAlert } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { usePlanStore } from '../store/usePlanStore';
-import { isLocalSafetySeen, markLocalSafetySeen } from '../utils/localSafetySeen';
+import { useLocalSafetySeenStore } from '../store/useLocalSafetySeenStore';
 import { LocalDataSafetyModal } from './LocalDataSafetyModal';
+
+// マーキー速度: SystemNotificationBar と同じニュースティッカー速度 (60 px/sec)
+const MARQUEE_SPEED_PX_PER_SEC = 60;
+const MARQUEE_MIN_DURATION_S = 8;
 
 interface Props {
   /** Sidebar 折りたたみ時 true。 アイコンのみ表示 */
@@ -17,18 +21,35 @@ export const LocalDataSafetyBar: React.FC<Props> = ({ isCollapsed, onOpenBackup 
   const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const planCount = usePlanStore((s) => s.plans.length);
+  const seen = useLocalSafetySeenStore((s) => s.seen);
+  const markSeen = useLocalSafetySeenStore((s) => s.markSeen);
   const [open, setOpen] = useState(false);
-  const [seen, setSeen] = useState(() => isLocalSafetySeen());
+  const spanRef = React.useRef<HTMLSpanElement>(null);
+  const [duration, setDuration] = useState<number | null>(null);
 
-  // 非ログイン且つ表1件以上のときだけ常設
+  const label = t('local_safety.bar.label');
+
+  // span の実幅から速度可変で marquee duration を算出 (SystemNotificationBar と同方式)。
+  // early return より前に置く: hooks 順序を保つ (Rules of Hooks)。
+  React.useLayoutEffect(() => {
+    const el = spanRef.current;
+    const parent = el?.parentElement;
+    if (!el || !parent) return;
+    const compute = () => {
+      setDuration(Math.max(el.scrollWidth / MARQUEE_SPEED_PX_PER_SEC, MARQUEE_MIN_DURATION_S));
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(parent);
+    return () => ro.disconnect();
+  }, [label, isCollapsed]);
+
+  // 非ログイン且つ表1件以上のときだけ常設。 hooks 全部の後で early return。
   if (user || planCount === 0) return null;
 
   const handleOpen = () => {
     setOpen(true);
-    if (!seen) {
-      markLocalSafetySeen();
-      setSeen(true);
-    }
+    if (!seen) markSeen();
   };
 
   const handleBackup = () => {
@@ -57,8 +78,14 @@ export const LocalDataSafetyBar: React.FC<Props> = ({ isCollapsed, onOpenBackup 
           </span>
         </span>
         {!isCollapsed && (
-          <span className="flex-1 min-w-0 overflow-hidden py-1.5 flex items-center">
-            <span className="text-app-sm text-app-text-muted truncate">{t('local_safety.bar.label')}</span>
+          <span className="flex-1 min-w-0 overflow-hidden py-1.5">
+            <span
+              ref={spanRef}
+              className="text-app-sm text-app-text-muted system-notif-marquee"
+              style={duration ? { animationDuration: `${duration}s` } : undefined}
+            >
+              {label}
+            </span>
           </span>
         )}
       </button>

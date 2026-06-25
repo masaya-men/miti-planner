@@ -1804,7 +1804,7 @@
     },
     "local_safety": {
         "bar": {
-            "label": "⚠ Saved on this device only",
+            "label": "⚠ This sheet is currently stored only inside this device. Because you're not logged in, the browser may erase it without warning. Don't forget to export a backup ── please read this once.",
             "aria": "About your local data safety (please read)"
         },
         "modal": {
@@ -1827,6 +1827,9 @@
         "export_description": "Download the file and keep it in a safe place. You can also copy the text and paste it into a notepad.",
         "export_syncing": "Syncing data...",
         "export_plan_count": "{{count}} sheet(s)",
+        "export_select_hint": "Choose which sheets to back up",
+        "select_all": "Select all",
+        "deselect_all": "Deselect all",
         "copy_button": "Copy",
         "copy_success": "Copied to clipboard",
         "download_button": "Download File",

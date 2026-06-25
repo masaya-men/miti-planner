@@ -1769,7 +1769,7 @@
     },
     "local_safety": {
         "bar": {
-            "label": "⚠ 端末内のみ保存",
+            "label": "⚠ この軽減表は今この端末の中だけに保存されています。ログインしていないため、ブラウザの仕様で予告なく消えてしまうことがあります。バックアップの書き出しをお忘れなく ── 必ず一度お読みください。",
             "aria": "ローカルデータの安全性について（必ずお読みください）"
         },
         "modal": {
@@ -1792,6 +1792,9 @@
         "export_description": "请下载文件并保存到安全的地方。也可以复制文本粘贴到记事本中保管。",
         "export_syncing": "正在同步数据...",
         "export_plan_count": "{{count}}个减伤表",
+        "export_select_hint": "请选择要备份的减伤表",
+        "select_all": "全选",
+        "deselect_all": "全不选",
         "copy_button": "复制",
         "copy_success": "已复制到剪贴板",
         "download_button": "下载文件",

@@ -16,10 +16,10 @@ vi.mock('../../store/usePlanStore', () => ({
     sel({ plans: Array.from({ length: planCount }, () => ({})) }),
 }));
 
-import { LocalDataSafetyBar } from '../LocalDataSafetyBar';
+import { LocalDataSafetyHandleButton } from '../LocalDataSafetyHandleButton';
 import { useLocalSafetySeenStore } from '../../store/useLocalSafetySeenStore';
 
-describe('LocalDataSafetyBar', () => {
+describe('LocalDataSafetyHandleButton', () => {
   beforeEach(() => {
     localStorage.clear();
     useLocalSafetySeenStore.setState({ seen: false });
@@ -30,30 +30,30 @@ describe('LocalDataSafetyBar', () => {
   it('ログイン中は表示しない', () => {
     authUser = { uid: 'x' };
     planCount = 3;
-    const { container } = render(<LocalDataSafetyBar isCollapsed={false} onOpenBackup={() => {}} />);
+    const { container } = render(<LocalDataSafetyHandleButton onOpenBackup={() => {}} />);
     expect(container.textContent).toBe('');
   });
 
   it('非ログインでも表0件なら表示しない', () => {
-    authUser = null;
     planCount = 0;
-    const { container } = render(<LocalDataSafetyBar isCollapsed={false} onOpenBackup={() => {}} />);
+    const { container } = render(<LocalDataSafetyHandleButton onOpenBackup={() => {}} />);
     expect(container.textContent).toBe('');
   });
 
-  it('非ログイン且つ表1件以上で表示する', () => {
-    authUser = null;
+  it('既読(seen)なら表示しない（赤バッジがある時のみ出す）', () => {
     planCount = 1;
-    render(<LocalDataSafetyBar isCollapsed={false} onOpenBackup={() => {}} />);
-    expect(screen.getByText('local_safety.bar.label')).toBeTruthy();
+    useLocalSafetySeenStore.setState({ seen: true });
+    const { container } = render(<LocalDataSafetyHandleButton onOpenBackup={() => {}} />);
+    expect(container.textContent).toBe('');
   });
 
-  it('未読なら赤ドット(testid)を出し、クリックで消える', () => {
-    authUser = null;
+  it('非ログイン且つ表あり且つ未読のとき表示し、クリックで既読化して消える', () => {
     planCount = 1;
-    render(<LocalDataSafetyBar isCollapsed={false} onOpenBackup={() => {}} />);
-    expect(screen.getByTestId('local-safety-unread-dot')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /local_safety.bar.aria/i }));
-    expect(screen.queryByTestId('local-safety-unread-dot')).toBeNull();
+    render(<LocalDataSafetyHandleButton onOpenBackup={() => {}} />);
+    const btn = screen.getByRole('button', { name: /local_safety.bar.aria/i });
+    expect(btn).toBeTruthy();
+    fireEvent.click(btn);
+    // 既読化 → 条件を満たさなくなりボタンが消える
+    expect(screen.queryByRole('button', { name: /local_safety.bar.aria/i })).toBeNull();
   });
 });
