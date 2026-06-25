@@ -23,95 +23,77 @@ const miti = (id: string, time: number, ownerId: string, mitigationId: string): 
     duration: 10,
 } as AppliedMitigation);
 
+const aaEvt = (id: string, time: number, target: 'MT' | 'ST' = 'MT'): TimelineEvent => ({
+    id,
+    time,
+    name: { ja: 'AA', en: 'AA', ko: 'AA', zh: 'AA' },
+    damageType: 'physical',
+    target,
+} as TimelineEvent);
+
 describe('computeCueItems', () => {
-    it('returns empty when no member is selected', () => {
-        const events = [evt('e1', 10)];
-        const mitigations = [miti('m1', 10, 'MT', 'rampart')];
-        expect(computeCueItems(events, mitigations, new Set())).toEqual([]);
-    });
-
-    it('returns only times that have mitigations from selected members', () => {
-        const events = [evt('e1', 10), evt('e2', 20), evt('e3', 30)];
-        const mitigations = [
-            miti('m1', 10, 'MT', 'rampart'),
-            miti('m2', 20, 'H1', 'sacred_soil'),
-            miti('m3', 30, 'D1', 'feint'),
-        ];
-        const result = computeCueItems(events, mitigations, new Set(['MT', 'H1']));
-        expect(result.map(r => r.events[0].id)).toEqual(['e1', 'e2']);
-    });
-
-    it('merges mitigations from multiple selected members at the same time', () => {
-        const events = [evt('e1', 10)];
-        const mitigations = [
-            miti('m1', 10, 'MT', 'rampart'),
-            miti('m2', 10, 'H1', 'sacred_soil'),
-            miti('m3', 10, 'D1', 'feint'),
-        ];
-        const result = computeCueItems(events, mitigations, new Set(['MT', 'H1', 'D1']));
-        expect(result).toHaveLength(1);
-        expect(result[0].mitigations.map(m => m.mitigationId)).toEqual(['rampart', 'sacred_soil', 'feint']);
-    });
-
-    it('ignores mitigations from non-selected members', () => {
-        const events = [evt('e1', 10)];
-        const mitigations = [
-            miti('m1', 10, 'MT', 'rampart'),
-            miti('m2', 10, 'H1', 'sacred_soil'),
-        ];
-        const result = computeCueItems(events, mitigations, new Set(['MT']));
-        expect(result[0].mitigations.map(m => m.mitigationId)).toEqual(['rampart']);
-    });
-
-    it('sorts groups by time ascending', () => {
-        const events = [evt('e1', 30), evt('e2', 10), evt('e3', 20)];
-        const mitigations = [
-            miti('m1', 30, 'MT', 'rampart'),
-            miti('m2', 10, 'MT', 'reprisal'),
-            miti('m3', 20, 'MT', 'arms_length'),
-        ];
-        const result = computeCueItems(events, mitigations, new Set(['MT']));
-        expect(result.map(r => r.time)).toEqual([10, 20, 30]);
-    });
-
-    it('handles event with no mitigation owner match (skipped)', () => {
+    it('非AA攻撃を全部行にする（軽減ゼロでも）', () => {
         const events = [evt('e1', 10), evt('e2', 20)];
-        const mitigations = [miti('m1', 10, 'MT', 'rampart')];
-        const result = computeCueItems(events, mitigations, new Set(['H1']));
+        const result = computeCueItems(events, [], new Set(['MT']));
+        expect(result.map(r => r.time)).toEqual([10, 20]);
+        expect(result.every(r => r.mitigations.length === 0)).toBe(true);
+    });
+
+    it('AAだけの時刻は軽減が無ければ行にしない', () => {
+        const events = [aaEvt('a1', 10)];
+        const result = computeCueItems(events, [], new Set(['MT']));
         expect(result).toEqual([]);
     });
 
-    it('groups multiple events at the same time into one group', () => {
-        const events = [
-            evt('e1', 10, 'MT'),
-            evt('e2', 10, 'AoE'),
-        ];
+    it('AAだけの時刻に選択メンバー軽減があれば空欄行(events空)で出す', () => {
+        const events = [aaEvt('a1', 10)];
         const mitigations = [miti('m1', 10, 'MT', 'rampart')];
         const result = computeCueItems(events, mitigations, new Set(['MT']));
         expect(result).toHaveLength(1);
-        expect(result[0].events.map(e => e.id)).toEqual(['e2', 'e1']);
+        expect(result[0].events).toEqual([]);
+        expect(result[0].mitigations.map(m => m.mitigationId)).toEqual(['rampart']);
     });
 
-    it('orders same-time events by priority: AoE > single-target > undefined', () => {
-        const events = [
-            evt('a-undef', 10, undefined),
-            evt('b-st', 10, 'ST'),
-            evt('c-aoe', 10, 'AoE'),
-            evt('d-mt', 10, 'MT'),
-        ];
+    it('イベントの無い時刻に選択メンバー軽減があれば空欄行で出す', () => {
+        const events = [evt('e1', 20)];
+        const mitigations = [miti('m1', 10, 'MT', 'rampart')];
+        const result = computeCueItems(events, mitigations, new Set(['MT']));
+        expect(result.map(r => r.time)).toEqual([10, 20]);
+        const r10 = result.find(r => r.time === 10)!;
+        expect(r10.events).toEqual([]);
+        expect(r10.mitigations.map(m => m.mitigationId)).toEqual(['rampart']);
+    });
+
+    it('実攻撃とAAが同時刻なら events に実攻撃だけ残す', () => {
+        const events = [evt('e1', 10, 'AoE'), aaEvt('a1', 10, 'MT')];
+        const mitigations = [miti('m1', 10, 'MT', 'rampart')];
+        const result = computeCueItems(events, mitigations, new Set(['MT']));
+        expect(result).toHaveLength(1);
+        expect(result[0].events.map(e => e.id)).toEqual(['e1']);
+    });
+
+    it('メンバー選択は攻撃行に影響せずアイコンのみ絞る／空選択で軽減だけの行は消える', () => {
+        const events = [evt('e1', 10), evt('e2', 20)];
+        const mitigations = [miti('m1', 10, 'MT', 'rampart'), miti('m2', 30, 'MT', 'reprisal')];
+        const sel = computeCueItems(events, mitigations, new Set(['MT']));
+        expect(sel.map(r => r.time)).toEqual([10, 20, 30]); // 30 は軽減だけの空欄行
+        const none = computeCueItems(events, mitigations, new Set());
+        expect(none.map(r => r.time)).toEqual([10, 20]); // 攻撃のみ・30は消える
+        expect(none.every(r => r.mitigations.length === 0)).toBe(true);
+    });
+
+    it('時刻昇順 + 同時刻は優先度順(AoE>単体>未設定, 同列id昇順)', () => {
+        const events = [evt('a-undef', 10, undefined), evt('b-st', 10, 'ST'), evt('c-aoe', 10, 'AoE'), evt('d-mt', 10, 'MT')];
         const mitigations = [miti('m1', 10, 'MT', 'rampart')];
         const result = computeCueItems(events, mitigations, new Set(['MT']));
         expect(result[0].events.map(e => e.id)).toEqual(['c-aoe', 'b-st', 'd-mt', 'a-undef']);
     });
 
-    it('orders same-priority events by id ascending', () => {
-        const events = [
-            evt('z-aoe', 10, 'AoE'),
-            evt('a-aoe', 10, 'AoE'),
-        ];
-        const mitigations = [miti('m1', 10, 'MT', 'rampart')];
+    it('非選択メンバーの軽減はアイコンに出さない', () => {
+        const events = [evt('e1', 10)];
+        const mitigations = [miti('m1', 10, 'MT', 'rampart'), miti('m2', 10, 'H1', 'sacred_soil')];
         const result = computeCueItems(events, mitigations, new Set(['MT']));
-        expect(result[0].events.map(e => e.id)).toEqual(['a-aoe', 'z-aoe']);
+        expect(result[0].mitigations.map(m => m.mitigationId)).toEqual(['rampart']);
     });
 });
 

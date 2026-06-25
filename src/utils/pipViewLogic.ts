@@ -16,35 +16,44 @@ function eventPriority(e: TimelineEvent): number {
     return 2;
 }
 
+/** AA(オートアタック)イベント判定。generateAAEvents が name を ja/en とも 'AA' でセットする。 */
+function isAAEvent(e: TimelineEvent): boolean {
+    return e.name?.ja === 'AA' || e.name?.en === 'AA';
+}
+
 /**
- * 選択メンバー集合に紐づく軽減を時刻ごとにマージし、
- * 軽減が配置された時刻だけをグループ化して時刻昇順で返す。
- * 同時刻に複数イベントがある場合、優先度順（AoE > 単体 > 未設定、同列は id 昇順）で events に並べる。
+ * カンペ行を「攻撃ドリブン」で算出する。
+ * 行 = 非AA攻撃のある全時刻 ∪ 選択メンバーの軽減が置かれた時刻。
+ * - events: その時刻の非AAイベントのみ（優先度順: AoE > 単体 > 未設定、同列 id 昇順）。AAだけ/無しの時刻では空配列。
+ * - mitigations: その時刻の選択メンバー分のみ。
+ * 各行は events と mitigations の少なくとも一方が非空。時刻昇順で返す。
+ * メンバー選択は軽減アイコンの絞り込みのみで、攻撃行は選択に依存しない。
  */
 export function computeCueItems(
     events: TimelineEvent[],
     mitigations: AppliedMitigation[],
     selectedMemberIds: Set<string>,
 ): CueGroup[] {
-    if (selectedMemberIds.size === 0) return [];
-
     const filteredMitis = mitigations.filter(m => selectedMemberIds.has(m.ownerId));
-    if (filteredMitis.length === 0) return [];
 
-    const mitiTimes = new Set(filteredMitis.map(m => m.time));
-    const eventsByTime = new Map<number, TimelineEvent[]>();
+    // 非AAイベントを時刻ごとに集約
+    const nonAAByTime = new Map<number, TimelineEvent[]>();
     for (const e of events) {
-        if (!mitiTimes.has(e.time)) continue;
-        const list = eventsByTime.get(e.time) ?? [];
+        if (isAAEvent(e)) continue;
+        const list = nonAAByTime.get(e.time) ?? [];
         list.push(e);
-        eventsByTime.set(e.time, list);
+        nonAAByTime.set(e.time, list);
     }
 
-    return [...eventsByTime.entries()]
-        .sort(([a], [b]) => a - b)
-        .map(([time, evs]) => ({
+    // 行にする時刻 = 非AA攻撃のある時刻 ∪ 選択メンバー軽減のある時刻
+    const times = new Set<number>(nonAAByTime.keys());
+    for (const m of filteredMitis) times.add(m.time);
+
+    return [...times]
+        .sort((a, b) => a - b)
+        .map(time => ({
             time,
-            events: [...evs].sort((a, b) => {
+            events: [...(nonAAByTime.get(time) ?? [])].sort((a, b) => {
                 const pd = eventPriority(a) - eventPriority(b);
                 if (pd !== 0) return pd;
                 return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
