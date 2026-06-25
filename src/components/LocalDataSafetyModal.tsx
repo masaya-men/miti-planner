@@ -2,15 +2,13 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { X, ShieldAlert, Download, Smartphone, LogIn } from 'lucide-react';
+import { isIOS } from '../utils/isIOS';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onOpenBackup: () => void;
 }
-
-const isIOS = (): boolean =>
-  typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 export const LocalDataSafetyModal: React.FC<Props> = ({ isOpen, onClose, onOpenBackup }) => {
   const { t } = useTranslation();
