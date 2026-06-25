@@ -131,6 +131,7 @@ export function useTemplateEditor() {
 
         const oldJa = ev.name.ja;
         const oldEn = ev.name.en;
+        const oldAliases = ev.sheetAliases ? [...ev.sheetAliases] : undefined;
 
         switch (field) {
           case 'time':
@@ -222,6 +223,26 @@ export function useTemplateEditor() {
               if (other.name.ja === oldJa && ((other.name.ko ?? '') === '' || (other.name.ko ?? '') === oldKo)) {
                 other.name.ko = value as string;
                 newAutoFilled.add(`${other.id}:name.ko`);
+              }
+            }
+          }
+        }
+
+        // スプシ表記の自動伝播: 同じ JA 名(非空)の行で、空 or 旧値一致だったものへ伝播。
+        // 安全側: 空入力(クリア)は編集行のみ・同名行へは伝播しない(一括クリア事故防止)。
+        if (autoPropagate && field === 'sheetAliases') {
+          const newAliases = value as string[];
+          const groupJa = ev.name.ja;
+          if (newAliases.length > 0 && groupJa.trim() !== '') {
+            const norm = (a?: string[]) => (a ?? []).join('');
+            const oldKey = norm(oldAliases);
+            for (const other of newCurrent) {
+              if (other.id === eventId || prev.deleted.has(other.id)) continue;
+              if (other.name.ja !== groupJa) continue;
+              const otherKey = norm(other.sheetAliases);
+              if (otherKey === '' || otherKey === oldKey) {
+                other.sheetAliases = [...newAliases];
+                newAutoFilled.add(`${other.id}:sheetAliases`);
               }
             }
           }

@@ -241,3 +241,71 @@ describe('applyTranslation', () => {
     expect(result.current.visibleEvents.find(e => e.id === 'ev1')).toBeUndefined();
   });
 });
+
+describe('sheetAliases 自動伝播', () => {
+  it('同じJA名の空の行に伝播する（別名の行には伝播しない）', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev1', 'sheetAliases', ['散開']));
+    expect(result.current.state.current.find(e => e.id === 'ev1')?.sheetAliases).toEqual(['散開']);
+    expect(result.current.state.current.find(e => e.id === 'ev2')?.sheetAliases).toEqual(['散開']);
+    expect(result.current.state.current.find(e => e.id === 'ev3')?.sheetAliases).toBeUndefined();
+  });
+
+  it('既にカスタム入力済み(事前設定)の同名行は上書きしない', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents([
+      { id: 'ev1', time: 3, name: { ja: 'テスト攻撃', en: 'x' }, damageType: 'magical' },
+      { id: 'ev2', time: 10, name: { ja: 'テスト攻撃', en: 'x' }, damageType: 'magical', sheetAliases: ['まとまる'] },
+    ], makePhases()));
+    act(() => result.current.updateCell('ev1', 'sheetAliases', ['散開']));
+    expect(result.current.state.current.find(e => e.id === 'ev1')?.sheetAliases).toEqual(['散開']);
+    expect(result.current.state.current.find(e => e.id === 'ev2')?.sheetAliases).toEqual(['まとまる']);
+  });
+
+  it('旧値と同じだった同名行は新値に同期される', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev1', 'sheetAliases', ['A']));
+    act(() => result.current.updateCell('ev1', 'sheetAliases', ['B']));
+    expect(result.current.state.current.find(e => e.id === 'ev2')?.sheetAliases).toEqual(['B']);
+  });
+
+  it('クリア（空）は編集行のみ・同名行は残す', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev1', 'sheetAliases', ['A']));
+    act(() => result.current.updateCell('ev1', 'sheetAliases', []));
+    expect(result.current.state.current.find(e => e.id === 'ev1')?.sheetAliases).toBeUndefined();
+    expect(result.current.state.current.find(e => e.id === 'ev2')?.sheetAliases).toEqual(['A']);
+  });
+
+  it('JA名が空の行は同名グループにしない（伝播しない）', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents([
+      { id: 'a', time: 1, name: { ja: '', en: '' }, damageType: 'magical' },
+      { id: 'b', time: 2, name: { ja: '', en: '' }, damageType: 'magical' },
+    ], []));
+    act(() => result.current.updateCell('a', 'sheetAliases', ['x']));
+    expect(result.current.state.current.find(e => e.id === 'a')?.sheetAliases).toEqual(['x']);
+    expect(result.current.state.current.find(e => e.id === 'b')?.sheetAliases).toBeUndefined();
+  });
+
+  it('autoPropagate=false なら伝播しない', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.setAutoPropagate(false));
+    act(() => result.current.updateCell('ev1', 'sheetAliases', ['散開']));
+    expect(result.current.state.current.find(e => e.id === 'ev1')?.sheetAliases).toEqual(['散開']);
+    expect(result.current.state.current.find(e => e.id === 'ev2')?.sheetAliases).toBeUndefined();
+  });
+
+  it('伝播も undo で一括して戻る', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev1', 'sheetAliases', ['散開']));
+    act(() => result.current.undo());
+    expect(result.current.state.current.find(e => e.id === 'ev1')?.sheetAliases).toBeUndefined();
+    expect(result.current.state.current.find(e => e.id === 'ev2')?.sheetAliases).toBeUndefined();
+  });
+});

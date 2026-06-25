@@ -700,7 +700,7 @@ export function TemplateEditor({
                 <td className="py-1 pr-2">
                   <EditableCell
                     value={event.sheetAliases?.join(', ') ?? ''}
-                    highlight="none"
+                    highlight={getCellHighlight(evId, 'sheetAliases', editState)}
                     onCommit={(val) => onUpdateCell(evId, 'sheetAliases', parseSheetAliases(val))}
                   />
                 </td>
