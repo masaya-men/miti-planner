@@ -57,6 +57,7 @@ import { showToast } from './Toast';
 import { BackupExportModal } from './BackupExportModal';
 import { BackupRestoreModal } from './BackupRestoreModal';
 import { SystemNotificationBar } from './SystemNotificationBar';
+import { LocalDataSafetyBar } from './LocalDataSafetyBar';
 import { SystemNotificationHandleButton } from './SystemNotificationHandleButton';
 import { ContextMenu } from './ui/ContextMenu';
 import { decompressPlanData } from '../utils/compression';
@@ -1564,6 +1565,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     {!multiSelect.isEnabled && (
                         <div className="shrink-0">
                             <SystemNotificationBar isCollapsed={!isOpen} />
+                        </div>
+                    )}
+
+                    {/* ローカル保存のみユーザーへの安全性案内 (非ログイン且つ表あり時のみ) */}
+                    {!multiSelect.isEnabled && (
+                        <div className="shrink-0">
+                            <LocalDataSafetyBar
+                                isCollapsed={!isOpen}
+                                onOpenBackup={() => setBackupExportOpen(true)}
+                            />
                         </div>
                     )}
 
