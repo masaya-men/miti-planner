@@ -1800,7 +1800,7 @@
         "copy_success": "已复制到剪贴板",
         "download_button": "下载文件",
         "download_success": "已下载",
-        "share_button": "分享",
+        "ios_save_hint": "iPhone 上会打开分享菜单，请选择“存储到文件”。",
         "share_success": "已分享",
         "export_large_notice": "数据较大，已省略预览。请用下方按钮保存或复制。",
         "restore_title": "从备份恢复",

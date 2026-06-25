@@ -1856,7 +1856,7 @@
         "copy_success": "クリップボードにコピーしました",
         "download_button": "ファイルをダウンロード",
         "download_success": "ダウンロードしました",
-        "share_button": "共有",
+        "ios_save_hint": "iPhoneでは共有メニューが開きます。「ファイルに保存」を選んでください。",
         "share_success": "共有しました",
         "export_large_notice": "データが大きいためプレビューは省略しています。下のボタンで保存・コピーできます。",
         "restore_title": "バックアップから復元",

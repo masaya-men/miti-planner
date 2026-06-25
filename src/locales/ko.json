@@ -1800,7 +1800,7 @@
         "copy_success": "클립보드에 복사되었습니다",
         "download_button": "파일 다운로드",
         "download_success": "다운로드 완료",
-        "share_button": "공유",
+        "ios_save_hint": "아이폰에서는 공유 메뉴가 열립니다. '파일에 저장'을 선택하세요.",
         "share_success": "공유했습니다",
         "export_large_notice": "데이터가 커서 미리보기를 생략했습니다. 아래 버튼으로 저장/복사하세요.",
         "restore_title": "백업에서 복원",

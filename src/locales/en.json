@@ -1835,7 +1835,7 @@
         "copy_success": "Copied to clipboard",
         "download_button": "Download File",
         "download_success": "Downloaded",
-        "share_button": "Share",
+        "ios_save_hint": "On iPhone a share menu opens — choose \"Save to Files\".",
         "share_success": "Shared",
         "export_large_notice": "Preview hidden because the data is large. Use the buttons below to save or copy.",
         "restore_title": "Restore from Backup",

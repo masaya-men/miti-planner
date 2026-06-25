@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Copy, Download, Share2, Loader, CheckSquare, Square } from 'lucide-react';
+import { X, Copy, Download, Loader, CheckSquare, Square } from 'lucide-react';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -220,34 +220,31 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         {/* フッター */}
         {!syncing && ready && (
-          <div className="flex items-center gap-2 px-5 py-4 border-t border-app-border">
-            <button
-              onClick={handleCopy}
-              disabled={selectedCount === 0}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Copy size={14} />
-              {t('backup.copy_button')}
-            </button>
-            {iosShare ? (
+          <div className="flex flex-col gap-2 px-5 py-4 border-t border-app-border">
+            {/* iOS: 共有シートが開くため「ファイルに保存」を選ぶよう注意（黄色＝警告） */}
+            {iosShare && (
+              <p className="text-app-xs text-yellow-500 font-bold text-center">
+                {t('backup.ios_save_hint')}
+              </p>
+            )}
+            <div className="flex items-center gap-2">
               <button
-                onClick={handleShare}
+                onClick={handleCopy}
                 disabled={selectedCount === 0}
-                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Share2 size={14} />
-                {t('backup.share_button')}
+                <Copy size={14} />
+                {t('backup.copy_button')}
               </button>
-            ) : (
               <button
-                onClick={handleDownload}
+                onClick={iosShare ? handleShare : handleDownload}
                 disabled={selectedCount === 0}
                 className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <Download size={14} />
                 {t('backup.download_button')}
               </button>
-            )}
+            </div>
           </div>
         )}
       </div>
