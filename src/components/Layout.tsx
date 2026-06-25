@@ -11,6 +11,7 @@ import { reconcileCollabForPlan } from '../lib/collab/collabLifecycle';
 import { shouldRestoreMitigationFromPlan } from '../lib/bootstrapMitigation';
 import { persistWorkingStore } from '../lib/persistWorkingStore';
 import { Sidebar } from './Sidebar';
+import { LocalDataSafetyAutoPrompt } from './LocalDataSafetyAutoPrompt';
 import { ConsolidatedHeader } from './ConsolidatedHeader';
 import { MobileBottomNav } from './MobileBottomNav';
 import { MobileBottomSheet } from './MobileBottomSheet';
@@ -886,6 +887,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 useShareImportFlow.status !== 'idle' のときだけ自前で描画する self-rendering 設計。
                 /share/:shareId 経由で SharePage が start() を叩くと自動的に表示される。 */}
             <ShareImportSheet />
+            <LocalDataSafetyAutoPrompt />
             {/* 上限解消シートはグローバル単一マウント（共有取込・スプシ取込の両方が setLimitContext で呼ぶ） */}
             <LimitResolutionSheet />
         </div>
