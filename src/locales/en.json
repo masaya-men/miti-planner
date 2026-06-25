@@ -1802,6 +1802,24 @@
         "popular_no_owner": "(unknown)",
         "popular_own_badge": "✓ My plan"
     },
+    "local_safety": {
+        "bar": {
+            "label": "⚠ Saved on this device only",
+            "aria": "About your local data safety (please read)"
+        },
+        "modal": {
+            "title": "This sheet is stored only inside this device",
+            "why_heading": "Why can it disappear?",
+            "why_body": "While you are not logged in, your sheets live only in this browser. Browsers may clear stored data depending on free space and usage — and on iPhone / Safari in particular, data is automatically erased if you don't open the site for about a week. This is browser behavior and cannot be fully prevented.",
+            "protect_heading": "How to keep your sheets safe",
+            "backup_button": "Export a backup",
+            "backup_desc": "Export to a file and keep it — you can restore even if it's erased (most reliable).",
+            "ios_heading": "For iPhone / iPad users",
+            "ios_body": "Tap the Share button in Safari → \"Add to Home Screen\" to use it like an app and avoid the automatic erasure above.",
+            "login_note": "Logging in also saves to the cloud automatically, so your sheets survive across devices.",
+            "close": "Close"
+        }
+    },
     "backup": {
         "backup_button": "Backup",
         "restore_button": "Restore",
