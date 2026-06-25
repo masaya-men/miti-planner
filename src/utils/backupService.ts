@@ -99,7 +99,8 @@ export function mergePlans(
 }
 
 /**
- * JSONファイルをダウンロードする（平文JSON、透明性のため圧縮しない）
+ * JSONファイルをダウンロードする（平文JSON、透明性のため圧縮しない）。
+ * iOS Safari 等で click 直後の即時 revoke が保存を壊すため、DOM 挿入 + 遅延 revoke にする。
  */
 export function downloadBackupFile(json: string, filename: string): void {
   const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
@@ -107,6 +108,30 @@ export function downloadBackupFile(json: string, filename: string): void {
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  a.remove();
+  // click のナビゲーションが非同期に走る環境で URL を奪わないよう遅延して revoke する。
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+/**
+ * バックアップJSONを Web Share でファイルとして共有する（iOS で「ファイルに保存」等が選べる）。
+ * ローカル完結＝URL も作らずサーバーにも送らない。全プラン入りの1ファイルをそのまま渡す。
+ * @returns 'shared'=共有した / 'cancelled'=ユーザーが共有シートを閉じた / 'unsupported'=非対応 / 'failed'=失敗
+ */
+export async function shareBackupFile(
+  json: string,
+  filename: string,
+): Promise<'shared' | 'cancelled' | 'unsupported' | 'failed'> {
+  try {
+    if (typeof navigator === 'undefined' || !navigator.canShare || !navigator.share) return 'unsupported';
+    const file = new File([json], filename, { type: 'application/json' });
+    if (!navigator.canShare({ files: [file] })) return 'unsupported';
+    await navigator.share({ files: [file], title: filename });
+    return 'shared';
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') return 'cancelled';
+    return 'failed';
+  }
 }
