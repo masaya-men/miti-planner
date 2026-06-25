@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Copy, Download, Loader } from 'lucide-react';
+import { X, Copy, Download, Loader, CheckSquare, Square } from 'lucide-react';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { createBackupJson, downloadBackupFile } from '../utils/backupService';
+import type { SavedPlan } from '../types';
 import { showToast } from './Toast';
 
 interface Props {
@@ -15,13 +16,17 @@ interface Props {
 
 export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
-  const [json, setJson] = useState('');
+  const [plans, setPlans] = useState<SavedPlan[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [ready, setReady] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     if (!isOpen) {
-      setJson('');
+      setPlans([]);
+      setSelectedIds(new Set());
+      setReady(false);
       return;
     }
 
@@ -48,19 +53,41 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
         setSyncing(false);
       }
 
-      // 3. JSON生成
-      const plans = usePlanStore.getState().plans;
-      setJson(createBackupJson(plans));
+      // 3. プラン一覧を取得し、既定で全選択
+      const allPlans = usePlanStore.getState().plans;
+      setPlans(allPlans);
+      setSelectedIds(new Set(allPlans.map((p) => p.id)));
+      setReady(true);
     };
 
     run();
   }, [isOpen, user]);
 
+  // 選択されたプランだけをバックアップ JSON 化
+  const json = useMemo(
+    () => createBackupJson(plans.filter((p) => selectedIds.has(p.id))),
+    [plans, selectedIds]
+  );
+  const selectedCount = selectedIds.size;
+  const allSelected = plans.length > 0 && selectedCount === plans.length;
+
   if (!isOpen) return null;
 
-  const planCount = json ? JSON.parse(json).planCount : 0;
+  const toggleOne = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    setSelectedIds(allSelected ? new Set() : new Set(plans.map((p) => p.id)));
+  };
 
   const handleCopy = async () => {
+    if (selectedCount === 0) return;
     try {
       await navigator.clipboard.writeText(json);
       showToast(t('backup.copy_success'));
@@ -76,6 +103,7 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
   const handleDownload = () => {
+    if (selectedCount === 0) return;
     const date = new Date().toISOString().slice(0, 10);
     downloadBackupFile(json, `lopo-backup-${date}.json`);
     showToast(t('backup.download_success'));
@@ -109,39 +137,77 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
             {t('backup.export_description')}
           </p>
 
-          {syncing ? (
+          {syncing || !ready ? (
             <div className="flex items-center gap-2 py-8 justify-center text-app-text-muted">
               <Loader size={16} className="animate-spin" />
               <span className="text-app-sm">{t('backup.export_syncing')}</span>
             </div>
           ) : (
             <>
-              <div className="text-app-sm text-app-text-muted font-medium">
-                {t('backup.export_plan_count', { count: planCount })}
+              {/* 選択ヘッダー: 件数 + 全選択/全解除 */}
+              <div className="flex items-center justify-between">
+                <span className="text-app-sm text-app-text-muted font-medium">
+                  {t('backup.export_plan_count', { count: selectedCount })}
+                </span>
+                {plans.length > 0 && (
+                  <button
+                    onClick={toggleAll}
+                    className="text-app-xs text-app-text-muted hover:text-app-text transition-colors cursor-pointer underline"
+                  >
+                    {allSelected ? t('backup.deselect_all') : t('backup.select_all')}
+                  </button>
+                )}
               </div>
+
+              {/* プラン チェックリスト */}
+              {plans.length > 0 && (
+                <div className="flex flex-col gap-0.5 max-h-44 overflow-y-auto border border-app-border rounded-lg p-2">
+                  {plans.map((plan) => {
+                    const checked = selectedIds.has(plan.id);
+                    return (
+                      <button
+                        key={plan.id}
+                        type="button"
+                        onClick={() => toggleOne(plan.id)}
+                        className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-glass-hover transition-colors cursor-pointer text-left"
+                      >
+                        {checked ? (
+                          <CheckSquare size={16} className="shrink-0 text-app-text" aria-hidden="true" />
+                        ) : (
+                          <Square size={16} className="shrink-0 text-app-text-muted" aria-hidden="true" />
+                        )}
+                        <span className="text-app-sm text-app-text truncate">{plan.title}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
               <textarea
                 data-backup-json
                 readOnly
                 value={json}
-                className="w-full h-40 bg-app-bg border border-app-border rounded-lg p-3 text-[16px] md:text-app-xs text-app-text-muted font-mono resize-none focus:outline-none"
+                className="w-full h-28 bg-app-bg border border-app-border rounded-lg p-3 text-[16px] md:text-app-xs text-app-text-muted font-mono resize-none focus:outline-none"
               />
             </>
           )}
         </div>
 
         {/* フッター */}
-        {!syncing && json && (
+        {!syncing && ready && (
           <div className="flex items-center gap-2 px-5 py-4 border-t border-app-border">
             <button
               onClick={handleCopy}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer"
+              disabled={selectedCount === 0}
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg bg-app-toggle text-app-toggle-text text-app-sm font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Copy size={14} />
               {t('backup.copy_button')}
             </button>
             <button
               onClick={handleDownload}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer"
+              disabled={selectedCount === 0}
+              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Download size={14} />
               {t('backup.download_button')}

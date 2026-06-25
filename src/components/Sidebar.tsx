@@ -57,6 +57,8 @@ import { showToast } from './Toast';
 import { BackupExportModal } from './BackupExportModal';
 import { BackupRestoreModal } from './BackupRestoreModal';
 import { SystemNotificationBar } from './SystemNotificationBar';
+import { LocalDataSafetyBar } from './LocalDataSafetyBar';
+import { LocalDataSafetyHandleButton } from './LocalDataSafetyHandleButton';
 import { SystemNotificationHandleButton } from './SystemNotificationHandleButton';
 import { ContextMenu } from './ui/ContextMenu';
 import { decompressPlanData } from '../utils/compression';
@@ -1567,6 +1569,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                         </div>
                     )}
 
+                    {/* ローカル保存のみユーザーへの安全性案内 (非ログイン且つ表あり時のみ) */}
+                    {!multiSelect.isEnabled && (
+                        <div className="shrink-0">
+                            <LocalDataSafetyBar
+                                isCollapsed={!isOpen}
+                                onOpenBackup={() => setBackupExportOpen(true)}
+                            />
+                        </div>
+                    )}
+
                     {/* バックアップ/復元ボタン */}
                     {!multiSelect.isEnabled && (
                         <div className="shrink-0 px-3 pt-1 pb-0">
@@ -1611,6 +1623,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
             >
                 {/* 折りたたみ時のみ: 未読通知ベルをハンドル上部に重ねる (未読が無ければ何も出ない) */}
                 {!isOpen && <SystemNotificationHandleButton />}
+
+                {/* 折りたたみ時のみ: ローカルデータ安全性アイコン (要確認の赤バッジがある時のみ) */}
+                {!isOpen && <LocalDataSafetyHandleButton onOpenBackup={() => setBackupExportOpen(true)} />}
 
                 {/* 固定ライン — チュートリアル中もハンドルが非表示でも常に表示 */}
                 {tutorialActive && currentStepIndex <= 2 && (<>

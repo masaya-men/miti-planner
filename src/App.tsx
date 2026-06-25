@@ -15,6 +15,7 @@ import {
 import { HousingDetailPage } from './components/housing/listing/HousingDetailPage';
 import { HousingDetailModalRoute } from './components/housing/listing/HousingDetailModalRoute';
 import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
+import { requestPersistentStorage } from './lib/requestPersistentStorage';
 
 import { PrivacyPolicyPage, TermsPage, CommercialDisclosurePage } from './components/LegalPage';
 import { AdminGuard } from './components/admin/AdminGuard';
@@ -144,6 +145,8 @@ function App() {
     const store = usePlanStore.getState();
     store.recompressStaleArchives();
     store.silentCompressStale();
+    // ローカルデータを消去対象外へ昇格要求（best-effort・失敗無害）
+    requestPersistentStorage();
   }, []);
 
   // Sync theme class on <html> so Tailwind dark: variants work
