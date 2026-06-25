@@ -50,8 +50,9 @@ export function parseBackupJson(json: string): BackupData | null {
       return null;
     }
     // 各プランに最低限の必須フィールドがあるか検証
+    // data か compressedData のどちらかあれば有効（圧縮プランも復元可能にする）
     for (const plan of data.plans) {
-      if (!plan.id || !plan.title || !plan.data) {
+      if (!plan.id || !plan.title || (!plan.data && !plan.compressedData)) {
         return null;
       }
     }
