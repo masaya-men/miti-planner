@@ -1,13 +1,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { X, Copy, Download, Loader, CheckSquare, Square } from 'lucide-react';
+import { X, Copy, Download, Share2, Loader, CheckSquare, Square } from 'lucide-react';
 import { usePlanStore } from '../store/usePlanStore';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useAuthStore } from '../store/useAuthStore';
-import { createBackupJson, downloadBackupFile } from '../utils/backupService';
+import { createBackupJson, downloadBackupFile, shareBackupFile } from '../utils/backupService';
+import { isIOS } from '../utils/isIOS';
 import type { SavedPlan } from '../types';
 import { showToast } from './Toast';
+
+/** これを超える JSON はプレビュー textarea に全文描画しない（スマホ固まり防止）。 */
+const LARGE_BACKUP_CHARS = 100_000;
 
 interface Props {
   isOpen: boolean;
@@ -109,6 +113,21 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
     showToast(t('backup.download_success'));
   };
 
+  const handleShare = async () => {
+    if (selectedCount === 0) return;
+    const date = new Date().toISOString().slice(0, 10);
+    const filename = `lopo-backup-${date}.json`;
+    const result = await shareBackupFile(json, filename);
+    if (result === 'shared') { showToast(t('backup.share_success')); return; }
+    if (result === 'cancelled') return;
+    // 非対応 / 失敗 → ダウンロードにフォールバック
+    downloadBackupFile(json, filename);
+    showToast(t('backup.download_success'));
+  };
+
+  const iosShare = isIOS();
+  const isLarge = json.length > LARGE_BACKUP_CHARS;
+
   return createPortal(
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60"
@@ -183,12 +202,18 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              <textarea
-                data-backup-json
-                readOnly
-                value={json}
-                className="w-full h-28 bg-app-bg border border-app-border rounded-lg p-3 text-[16px] md:text-app-xs text-app-text-muted font-mono resize-none focus:outline-none"
-              />
+              {isLarge ? (
+                <p className="text-app-xs text-app-text-muted px-1 py-2">
+                  {t('backup.export_large_notice')}
+                </p>
+              ) : (
+                <textarea
+                  data-backup-json
+                  readOnly
+                  value={json}
+                  className="w-full h-28 bg-app-bg border border-app-border rounded-lg p-3 text-[16px] md:text-app-xs text-app-text-muted font-mono resize-none focus:outline-none"
+                />
+              )}
             </>
           )}
         </div>
@@ -204,14 +229,25 @@ export const BackupExportModal: React.FC<Props> = ({ isOpen, onClose }) => {
               <Copy size={14} />
               {t('backup.copy_button')}
             </button>
-            <button
-              onClick={handleDownload}
-              disabled={selectedCount === 0}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Download size={14} />
-              {t('backup.download_button')}
-            </button>
+            {iosShare ? (
+              <button
+                onClick={handleShare}
+                disabled={selectedCount === 0}
+                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Share2 size={14} />
+                {t('backup.share_button')}
+              </button>
+            ) : (
+              <button
+                onClick={handleDownload}
+                disabled={selectedCount === 0}
+                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-app-border text-app-text text-app-sm font-bold hover:bg-glass-hover transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Download size={14} />
+                {t('backup.download_button')}
+              </button>
+            )}
           </div>
         )}
       </div>
