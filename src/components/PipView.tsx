@@ -309,13 +309,14 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                         "text-current/40 text-center",
                         isFs ? "text-base mt-8" : "text-[10px] mt-4",
                     )}>
-                        {t('timeline.pip_no_mitigations')}
+                        {t('timeline.pip_no_events')}
                     </p>
                 ) : (
                     <div className="flex flex-col">
                         {cueGroups.map(({ time, events, mitigations }, i) => {
-                            const idx = (eventIndexByTime[time] ?? 0) % events.length;
-                            const event = events[idx];
+                            const hasEvent = events.length > 0;
+                            const idx = hasEvent ? (eventIndexByTime[time] ?? 0) % events.length : 0;
+                            const event = hasEvent ? events[idx] : null;
                             const hasExtra = events.length > 1;
                             return (
                                 <div
@@ -339,61 +340,63 @@ const PipView: React.FC<PipViewProps> = ({ mode, onClose }) => {
                                         "flex-1 min-w-0 flex items-center",
                                         isFs ? "gap-1.5" : "gap-1",
                                     )}>
-                                        {!isFs && editingEventId === event.id ? (
-                                            <input
-                                                ref={editInputRef}
-                                                defaultValue={notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
-                                                onBlur={(e) => handleEditConfirm(event.id, e.target.value)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
-                                                    if (e.key === 'Escape') setEditingEventId(null);
-                                                }}
-                                                className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded outline-none text-[10px] px-1 py-0"
-                                                style={{ color: fgColor }}
-                                            />
-                                        ) : (
-                                            <>
-                                                <span
-                                                    onDoubleClick={!isFs ? () => handleDoubleClick(event.id) : undefined}
-                                                    onClick={isFs ? () => setMenuTime(time) : undefined}
-                                                    className={clsx(
-                                                        "min-w-0 truncate leading-tight text-current/80",
-                                                        isFs ? "text-[17px] font-bold cursor-pointer" : "text-[10px] cursor-text",
-                                                    )}
-                                                    title={t('timeline.pip_edit_hint')}
-                                                >
-                                                    {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
-                                                </span>
-                                                {/* メモあり時のリセットボタン（× クリックで元の名前に戻る） */}
-                                                {notes[event.id] && (
-                                                    <button
-                                                        onClick={() => updateNote(event.id, '')}
+                                        {event && (<>
+                                            {!isFs && editingEventId === event.id ? (
+                                                <input
+                                                    ref={editInputRef}
+                                                    defaultValue={notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
+                                                    onBlur={(e) => handleEditConfirm(event.id, e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') handleEditConfirm(event.id, (e.target as HTMLInputElement).value);
+                                                        if (e.key === 'Escape') setEditingEventId(null);
+                                                    }}
+                                                    className="flex-1 min-w-0 bg-current/10 border border-current/30 rounded outline-none text-[10px] px-1 py-0"
+                                                    style={{ color: fgColor }}
+                                                />
+                                            ) : (
+                                                <>
+                                                    <span
+                                                        onDoubleClick={!isFs ? () => handleDoubleClick(event.id) : undefined}
+                                                        onClick={isFs ? () => setMenuTime(time) : undefined}
                                                         className={clsx(
-                                                            "shrink-0 rounded opacity-50 hover:opacity-100 hover:bg-current/10 text-current/70 transition-opacity cursor-pointer",
-                                                            isFs ? "p-1" : "p-0.5",
+                                                            "min-w-0 truncate leading-tight text-current/80",
+                                                            isFs ? "text-[17px] font-bold cursor-pointer" : "text-[10px] cursor-text",
                                                         )}
-                                                        title={t('timeline.pip_reset_note')}
-                                                        aria-label={t('timeline.pip_reset_note')}
+                                                        title={t('timeline.pip_edit_hint')}
                                                     >
-                                                        <X size={isFs ? 14 : 10} />
-                                                    </button>
-                                                )}
-                                            </>
-                                        )}
+                                                        {notes[event.id] || (event.name[lang] || event.name.ja || event.name.en || '')}
+                                                    </span>
+                                                    {/* メモあり時のリセットボタン（× クリックで元の名前に戻る） */}
+                                                    {notes[event.id] && (
+                                                        <button
+                                                            onClick={() => updateNote(event.id, '')}
+                                                            className={clsx(
+                                                                "shrink-0 rounded opacity-50 hover:opacity-100 hover:bg-current/10 text-current/70 transition-opacity cursor-pointer",
+                                                                isFs ? "p-1" : "p-0.5",
+                                                            )}
+                                                            title={t('timeline.pip_reset_note')}
+                                                            aria-label={t('timeline.pip_reset_note')}
+                                                        >
+                                                            <X size={isFs ? 14 : 10} />
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
 
-                                        {/* +N 切替バッジ（イベント名のおしり、同時刻に他のイベントがあるとき） */}
-                                        {hasExtra && (
-                                            <button
-                                                onClick={() => cycleEventAtTime(time, events.length)}
-                                                className={clsx(
-                                                    "shrink-0 rounded bg-current/10 hover:bg-current/25 text-current/60 hover:text-current font-mono cursor-pointer transition-colors",
-                                                    isFs ? "px-1.5 py-0.5 text-xs" : "px-1 text-[8px]",
-                                                )}
-                                                title={t('timeline.pip_switch_event')}
-                                            >
-                                                +{events.length - 1}
-                                            </button>
-                                        )}
+                                            {/* +N 切替バッジ（イベント名のおしり、同時刻に他のイベントがあるとき） */}
+                                            {hasExtra && (
+                                                <button
+                                                    onClick={() => cycleEventAtTime(time, events.length)}
+                                                    className={clsx(
+                                                        "shrink-0 rounded bg-current/10 hover:bg-current/25 text-current/60 hover:text-current font-mono cursor-pointer transition-colors",
+                                                        isFs ? "px-1.5 py-0.5 text-xs" : "px-1 text-[8px]",
+                                                    )}
+                                                    title={t('timeline.pip_switch_event')}
+                                                >
+                                                    +{events.length - 1}
+                                                </button>
+                                            )}
+                                        </>)}
                                     </div>
 
                                     {/* 軽減スキルアイコン */}
