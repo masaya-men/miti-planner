@@ -289,6 +289,20 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     ingestText(text);
   }, [ingestText]);
 
+  // スマホ向け: div の onPaste は iOS で貼り付け UI が出ないため、ボタン経由で
+  // navigator.clipboard.readText() を呼んで取り込む(クリックが user gesture になる)。
+  const [pasteError, setPasteError] = useState(false);
+  const handlePasteFromClipboard = useCallback(async () => {
+    setPasteError(false);
+    try {
+      const text = await navigator.clipboard?.readText?.();
+      if (text) ingestText(text);
+      else setPasteError(true);
+    } catch {
+      setPasteError(true);
+    }
+  }, [ingestText]);
+
   // ── ①(a) フェーズ名のミラー: matrix ドラフト中に phaseName を打つと「フェーズ」列へ即時反映 ──
   // matrix の表示テーブルは ingestText(貼付時)でしか作られないため、後から phaseName を打っても
   // 「フェーズ」列(= result.phases[].name 由来)が古いまま。phaseName 変化で同じビルドを通して作り直す。
@@ -637,6 +651,17 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                     <ClipboardPaste size={36} className="text-app-text-muted" />
                     <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
                     <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
+                    {/* スマホでも確実に貼り付けられるボタン(div の onPaste は iOS で出ないため) */}
+                    <button
+                      type="button"
+                      onClick={handlePasteFromClipboard}
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-all duration-200 cursor-pointer select-none"
+                    >
+                      <ClipboardPaste size={18} /> {t('gridImport.paste_button')}
+                    </button>
+                    {pasteError && (
+                      <p className="text-app-lg text-app-amber">{t('gridImport.paste_error')}</p>
+                    )}
                     <p className="text-app-lg text-app-text-muted/70">{t('gridImport.format_hint')}</p>
                   </div>
                 )}

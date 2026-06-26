@@ -2659,6 +2659,8 @@
         "rights_notice": "导入的内容是您自己记录的转换版本。请尊重原作者的权利。",
         "paste_placeholder": "在此粘贴",
         "paste_prompt": "在此粘贴你的表格 (Ctrl+V)",
+        "paste_button": "从剪贴板粘贴",
+        "paste_error": "无法粘贴。请重新复制，或允许粘贴访问。",
         "paste_hint": "全选(Ctrl+A) → 复制(Ctrl+C) → 在此粘贴(Ctrl+V)",
         "step_content": "选择内容",
         "step_grid": "表格网格",

@@ -2694,6 +2694,8 @@
         "rights_notice": "Imported data is a conversion of your own copy. Please respect the original author's rights.",
         "paste_placeholder": "Paste here",
         "paste_prompt": "Paste your spreadsheet here (Ctrl+V)",
+        "paste_button": "Paste from clipboard",
+        "paste_error": "Couldn't paste. Copy again, or allow paste access.",
         "paste_hint": "Select all (Ctrl+A) → Copy (Ctrl+C) → Paste here (Ctrl+V)",
         "step_content": "Select content",
         "step_grid": "Spreadsheet grid",

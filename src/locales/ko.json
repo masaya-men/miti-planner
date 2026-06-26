@@ -2659,6 +2659,8 @@
         "rights_notice": "가져온 내용은 본인 기록의 변환입니다. 원작성자의 권리를 존중하여 이용해 주세요.",
         "paste_placeholder": "여기에 붙여넣기",
         "paste_prompt": "여기에 스프레드시트를 붙여넣으세요 (Ctrl+V)",
+        "paste_button": "클립보드에서 붙여넣기",
+        "paste_error": "붙여넣지 못했습니다. 다시 복사하거나 붙여넣기를 허용하세요.",
         "paste_hint": "전체 선택(Ctrl+A) → 복사(Ctrl+C) → 여기에 붙여넣기(Ctrl+V)",
         "step_content": "콘텐츠 선택",
         "step_grid": "스프레드시트 그리드",

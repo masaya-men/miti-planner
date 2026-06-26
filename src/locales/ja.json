@@ -2715,6 +2715,8 @@
         "rights_notice": "取り込んだ内容はご自身の控えからの変換です。元の作成者の権利を尊重してご利用ください。",
         "paste_placeholder": "ここに貼り付け",
         "paste_prompt": "ここにスプレッドシートを貼り付け (Ctrl+V)",
+        "paste_button": "クリップボードから貼り付け",
+        "paste_error": "貼り付けできませんでした。コピーし直すか、貼り付けを許可してください。",
         "paste_hint": "全選択(Ctrl+A)→コピー(Ctrl+C)→ここで貼り付け(Ctrl+V)",
         "step_content": "コンテンツ選択",
         "step_grid": "スプレッドシート風グリッド",
