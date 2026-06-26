@@ -1264,6 +1264,7 @@
     "mobile": {
         "tools_title": "Tools",
         "import_title": "Import",
+        "import_spreadsheet_desc": "Copy & paste your sheet",
         "fflogs_desc": "Import timeline from FFLogs",
         "autoplan_desc": "Auto-place mitigations"
     },

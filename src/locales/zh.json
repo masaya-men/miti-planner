@@ -1254,6 +1254,7 @@
     "mobile": {
         "tools_title": "工具",
         "import_title": "导入",
+        "import_spreadsheet_desc": "复制并粘贴表格",
         "fflogs_desc": "从 FFLogs 导入时间轴",
         "autoplan_desc": "自动放置减伤"
     },

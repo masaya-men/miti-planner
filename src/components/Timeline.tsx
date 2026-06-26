@@ -24,7 +24,7 @@ import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
-    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sword, ChevronDown, ChevronLeft, Rows3, Settings, Crosshair, PictureInPicture2, Clock
+    Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, FileSpreadsheet, Sword, ChevronDown, ChevronLeft, Rows3, Settings, Crosshair, PictureInPicture2, Clock
 } from 'lucide-react';
 const PipView = React.lazy(() => import('./PipView'));
 import VideoRecorderModal from './VideoRecorderModal';
@@ -4032,6 +4032,20 @@ const Timeline: React.FC = () => {
                         <div className="text-left">
                             <div className="text-app-2xl font-bold">FF Logs</div>
                             <div className="text-app-base text-app-text-muted">{t('fflogs.tooltip_generate')}</div>
+                        </div>
+                    </button>
+                    {/* スプレッドシート（列グリッド）取込 — PC と同じモーダルを開く */}
+                    <button
+                        onClick={() => {
+                            setMobileToolsSheetOpen(false);
+                            setShowGridImport(true);
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-app-text/5 border border-app-border text-app-text hover:bg-app-text/10 cursor-pointer"
+                    >
+                        <FileSpreadsheet size={20} />
+                        <div className="text-left">
+                            <div className="text-app-2xl font-bold">{t('importMenu.spreadsheet')}</div>
+                            <div className="text-app-base text-app-text-muted">{t('mobile.import_spreadsheet_desc')}</div>
                         </div>
                     </button>
                     {/* Popular Plans — みんなの軽減表ボトムシートを開く */}
