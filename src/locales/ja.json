@@ -1268,7 +1268,8 @@
     "mobile": {
         "tools_title": "ツール",
         "import_title": "インポート",
-        "import_spreadsheet_desc": "表をコピーして貼り付け",
+        "import_spreadsheet_desc": "スマホ版は近日公開（PCで利用できます）",
+        "import_spreadsheet_soon_toast": "スプレッドシート取込のスマホ版は最適化中です。近日公開予定です。今はPCでご利用ください。",
         "fflogs_desc": "FFLogsからタイムラインをインポート",
         "autoplan_desc": "軽減を自動配置"
     },

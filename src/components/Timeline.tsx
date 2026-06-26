@@ -4034,11 +4034,11 @@ const Timeline: React.FC = () => {
                             <div className="text-app-base text-app-text-muted">{t('fflogs.tooltip_generate')}</div>
                         </div>
                     </button>
-                    {/* スプレッドシート（列グリッド）取込 — PC と同じモーダルを開く */}
+                    {/* スプレッドシート取込 — スマホ版は最適化中のため近日公開メッセージのみ(PCは利用可) */}
                     <button
                         onClick={() => {
                             setMobileToolsSheetOpen(false);
-                            setShowGridImport(true);
+                            showToast(t('mobile.import_spreadsheet_soon_toast'));
                         }}
                         className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-app-text/5 border border-app-border text-app-text hover:bg-app-text/10 cursor-pointer"
                     >
