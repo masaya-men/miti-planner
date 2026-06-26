@@ -504,12 +504,12 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
 
   const node = (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[200] flex items-center justify-center p-3" onClick={onClose}>
+      <div className="fixed inset-0 z-[500] flex items-center justify-center p-3" onClick={onClose}>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }}
-          className="relative z-[201] w-[96vw] max-w-[1280px] h-[88vh] glass-tier3 rounded-2xl overflow-hidden flex flex-col"
+          className="relative z-[201] w-[96vw] max-w-[1280px] h-[88dvh] glass-tier3 rounded-2xl overflow-hidden flex flex-col"
           style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}
           onClick={(e) => e.stopPropagation()}>
           {/* ヘッダー(ステップ表示をタイトル行へ集約=モック v2 準拠・独立行を廃止してグリッドを広げる) */}
