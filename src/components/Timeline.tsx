@@ -60,9 +60,8 @@ import { MemoOverlay } from './Memo/MemoOverlay';
 import { MemoInputBox } from './Memo/MemoInputBox';
 import { MemoFloatingBar } from './Memo/MemoFloatingBar';
 import { yToTimeSec, pxToXRatio, clampXRatio, timeSecToY, xRatioToPx, reanchorScrollTop } from './Memo/coords';
-import { CursorOverlay, type RemoteCursor } from './collab/CursorOverlay';
+import { CursorOverlay } from './collab/CursorOverlay';
 import { useCollabPresenceStore } from '../store/useCollabPresenceStore';
-import { useRemoteCursorsStore } from '../store/useRemoteCursorsStore';
 import { useCursorSendStore } from '../store/useCursorSendStore';
 import { MEMO_LIMITS } from '../types/firebase';
 import { showToast } from './Toast';
@@ -718,6 +717,9 @@ const Timeline: React.FC = () => {
         observer.observe(el);
         return () => observer.disconnect();
     }, []);
+    // ④-b-2: CursorOverlay の rAF が再描画なしで最新幅を読めるよう ref ミラーを保持(sheetWidth は低頻度更新)。
+    const sheetWidthRef = useRef(sheetWidth);
+    sheetWidthRef.current = sheetWidth;
 
     /** DOM直接操作でプレビューハイライトを更新（React再レンダリングなし） */
     const updatePreviewHighlight = useCallback((time: number | null) => {
@@ -1310,22 +1312,11 @@ const Timeline: React.FC = () => {
     const lastCenterTimeRef = useRef<number | null>(null);
     const recastRowRef = useRef<RecastRowHandle>(null);
 
-    // ④-b-2: 他者カーソル。roster(色)× 受信位置(byClient)を突き合わせて RemoteCursor[] に。
-    // 自分(isLocal)と cursorEnabled=false の参加者は除外。位置未受信は pos:null(非表示)。
-    const remoteCursorByClient = useRemoteCursorsStore(s => s.byClient);
-    const collabRoster = useCollabPresenceStore(s => s.roster);
+    // ④-b-2: 他者カーソル描画は CursorOverlay に隔離。Timeline は roster も byClient(高頻度)も購読しない。
+    // (ここで byClient を購読すると「カーソル1パケットごとに Timeline 全体が再描画」され激重になる。)
+    // CursorOverlay 自身が roster を購読し、受信座標は rAF で getState() 直読みする。
+    // ここで cursorEnabled を購読するのは自分のカーソル送信判定(下の送信ループ)にだけ使うため。
     const myCursorEnabled = useCollabPresenceStore(s => s.cursorEnabled);
-    const remoteCursors: RemoteCursor[] = useMemo(
-        () => collabRoster
-            .filter(r => !r.isLocal && r.cursorEnabled)
-            .map(r => ({
-                clientId: r.clientId,
-                color: r.color,
-                jobId: r.jobId,
-                pos: remoteCursorByClient[r.clientId]?.pos ?? null,
-            })),
-        [collabRoster, remoteCursorByClient],
-    );
 
     // ④-b-2: 自分のカーソル送信。pointermove は ref に書くだけ(setState しない)。
     // ~15Hz の rAF 間引きで (timeSec,xRatio) に変換し、前回から動いた時だけ P2P broadcast。
@@ -3474,15 +3465,13 @@ const Timeline: React.FC = () => {
                             onMemoClick={handleMemoClick}
                             onMemoDelete={handleMemoDelete}
                         />
-                        {/* ④-b-2: 他者カーソル(P2P 受信)。ソロ/閲覧者は remoteCursors 空 →
-                            マウントしない(rAF ループの空回りを避ける・perf)。 */}
-                        {remoteCursors.length > 0 && (
-                            <CursorOverlay
-                                cursors={remoteCursors}
-                                timeToYMap={timeToYMapRef.current}
-                                sheetWidth={sheetWidth}
-                            />
-                        )}
+                        {/* ④-b-2: 他者カーソル(P2P 受信)。CursorOverlay が自分で roster を購読して
+                            描く相手の有無を判定する(ソロ/閲覧者なら自前で null を返し rAF も回さない)。
+                            map/width は ref で渡し、Timeline 再描画なしでも rAF が最新を読める。 */}
+                        <CursorOverlay
+                            timeToYMapRef={timeToYMapRef}
+                            sheetWidthRef={sheetWidthRef}
+                        />
                         {/* メモ入力ボックス (新規 / 編集 共用) */}
                         {memoInput && (
                             <MemoInputBox

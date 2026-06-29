@@ -1,26 +1,41 @@
 // ④-b-2: 他者カーソルをタイムライン上に描く。位置は rAF lerp で transform 直書き(高頻度 setState 禁止)。
-// React 再レンダーは「描く peer 集合の増減」時のみ。色/ジョブは roster 由来(props)。
-// jobId → アイコン URL は useJobs() で解決(本人が選んだ自己表現ジョブ・実名なし)。
+// 【perf 重要】このコンポーネントは roster(参加者の出入り=低頻度)だけを購読する。受信座標(byClient=高頻度)は
+//   購読せず rAF ループ内で getState() で読む。これにより「カーソル1パケットごとに親 Timeline 全体が再描画」
+//   を断ち切る(描く peer 集合が増減したときだけ React 再レンダー)。
+// 座標変換に要る map/width は「参照箱(ref)」で受ける → 親が再描画しなくても rAF が常に最新を読める。
 import React, { useEffect, useMemo, useRef } from 'react';
 import { timeSecToY, xRatioToPx } from '../Memo/coords';
 import { lerp } from '../../lib/collab/cursorInterp';
 import { useJobs } from '../../hooks/useSkillsData';
+import { useCollabPresenceStore } from '../../store/useCollabPresenceStore';
+import { useRemoteCursorsStore } from '../../store/useRemoteCursorsStore';
 import './cursor.css';
 
-export interface RemoteCursor {
+// roster から描く相手(自分以外 & cursorEnabled)だけを取り出した最小情報。位置は持たない(rAF が store から読む)。
+export interface RemoteCursorPeer {
   clientId: number;
   color: string;
   jobId: string | null;
-  pos: { timeSec: number; xRatio: number } | null;
 }
 
 interface CursorOverlayProps {
-  cursors: RemoteCursor[];
-  timeToYMap: Map<number, number>;
-  sheetWidth: number;
+  // 親(Timeline)が高頻度に再描画しなくても最新の座標材料を読めるよう「参照箱」で受ける。
+  // timeToYMapRef.current は Timeline の render 中に作り直される(Timeline.tsx の timeToYMapRef)ため、
+  //   値ではなく ref を渡して rAF で .current を読む。
+  timeToYMapRef: React.RefObject<Map<number, number>>;
+  sheetWidthRef: React.RefObject<number>;
 }
 
-export const CursorOverlay: React.FC<CursorOverlayProps> = ({ cursors, timeToYMap, sheetWidth }) => {
+export const CursorOverlay: React.FC<CursorOverlayProps> = ({ timeToYMapRef, sheetWidthRef }) => {
+  // 描く相手の集合(色/ジョブ)。roster は低頻度更新 → この購読由来の再描画も低頻度。
+  const roster = useCollabPresenceStore(s => s.roster);
+  const peers = useMemo<RemoteCursorPeer[]>(
+    () => roster
+      .filter(r => !r.isLocal && r.cursorEnabled)
+      .map(r => ({ clientId: r.clientId, color: r.color, jobId: r.jobId })),
+    [roster],
+  );
+
   // jobId → アイコン URL(本人選択ジョブ。未選択は表示なし)。
   const jobs = useJobs();
   const jobIconById = useMemo(() => {
@@ -29,47 +44,52 @@ export const CursorOverlay: React.FC<CursorOverlayProps> = ({ cursors, timeToYMa
     return m;
   }, [jobs]);
 
-  // 目標座標を ref で保持(描画ループが毎フレーム読む。setState しない)。
-  const targets = useRef<Map<number, { timeSec: number; xRatio: number }>>(new Map());
   const elRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const positions = useRef<Map<number, { x: number; y: number }>>(new Map());
+  // rAF ループが参照する「描く相手の clientId」。再描画なしで最新化するため毎 render で ref に同期。
+  const peerIdsRef = useRef<number[]>([]);
+  peerIdsRef.current = peers.map(p => p.clientId);
 
-  // 最新の目標 + 変換材料を ref に同期(props 変化のたび)。
-  targets.current = new Map(
-    cursors.filter((c) => c.pos).map((c) => [c.clientId, c.pos!]),
-  );
-  const mapRef = useRef(timeToYMap); mapRef.current = timeToYMap;
-  const widthRef = useRef(sheetWidth); widthRef.current = sheetWidth;
-
+  const hasPeers = peers.length > 0;
   useEffect(() => {
+    if (!hasPeers) return; // 描く相手がいなければ rAF を回さない(空回し防止・元の挙動を踏襲)。
     let raf = 0;
     const tick = () => {
-      for (const [id, target] of targets.current) {
+      const byClient = useRemoteCursorsStore.getState().byClient; // 高頻度 store は購読せず毎フレーム読む。
+      const tMap = timeToYMapRef.current;
+      const width = sheetWidthRef.current ?? 0;
+      for (const id of peerIdsRef.current) {
         const el = elRefs.current.get(id);
         if (!el) continue;
-        const tx = xRatioToPx(target.xRatio, widthRef.current);
-        const ty = timeSecToY(target.timeSec, mapRef.current);
+        const pos = byClient[id]?.pos ?? null;
+        if (!pos || !tMap) { el.style.opacity = '0'; continue; } // 未受信/タイムライン外は非表示。
+        const tx = xRatioToPx(pos.xRatio, width);
+        const ty = timeSecToY(pos.timeSec, tMap);
         const cur = positions.current.get(id) ?? { x: tx, y: ty };
         // 補間係数を下げるほど滑らか(遅延は微増・送信量は不変=コスト不変)。
         // 15Hz(≒66ms/4フレーム)で速く到達しすぎて減速→カクつくのを防ぐため 0.25→0.15。
         const next = { x: lerp(cur.x, tx, 0.15), y: lerp(cur.y, ty, 0.15) };
         positions.current.set(id, next);
         el.style.transform = `translate3d(${next.x}px, ${next.y}px, 0)`;
+        el.style.opacity = '1';
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [hasPeers, timeToYMapRef, sheetWidthRef]);
 
-  const visible = cursors.filter((c) => c.pos);
+  if (!hasPeers) return null;
   return (
     <>
-      {visible.map((c) => (
+      {peers.map((c) => (
         <div
           key={c.clientId}
           data-cursor-id={c.clientId}
-          ref={(el) => { if (el) elRefs.current.set(c.clientId, el); else elRefs.current.delete(c.clientId); }}
+          ref={(el) => {
+            if (el) elRefs.current.set(c.clientId, el);
+            else { elRefs.current.delete(c.clientId); positions.current.delete(c.clientId); }
+          }}
           className="collab-cursor"
           style={{ color: c.color }}
         >

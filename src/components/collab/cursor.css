@@ -6,6 +6,8 @@
   pointer-events: none;
   z-index: 40;
   will-change: transform;
+  /* 既定は非表示。rAF ループが受信座標を得たら opacity:1 にする(初回 (0,0) 点滅を防ぐ)。 */
+  opacity: 0;
 }
 .collab-cursor__arrow { display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5)); }
 /* 矢印の右上に小さくジョブアイコン(自己表現・実名なし)。色枠で誰かを補助識別。 */

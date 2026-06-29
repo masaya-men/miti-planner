@@ -62,7 +62,7 @@
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
 - **テスト(既存failure・本番無影響)**: `TopBar.test.tsx` 4件+`HousingWorkspace.test.tsx` 1件(2026-06-03〜・FFLogs修正前から)。HousingWorkspace は jsdom の youtube-nocookie 実 fetch→abort 環境依存・TopBar は要調査。
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留
-- **🆕 共同編集の実使用バグ**(2026-06-26 ユーザー観測=`docs/.private/2026-06-26-collab-issues-observed.md`): **A.めちゃ重い**(=カーソル1パケットでTimeline全再描画[useRemoteCursorsStore→Timeline:1315]+全行未仮想化。**次最優先・要2端末実機**) / C.プレゼンスのドット数≠実人数(収束待ちの一時ズレ) / **D.モーダル画面外=✅修正本番済(6/26)**=EventModal/BoundaryEditModalを実測clampToViewportに。B(カーソル暴れ)はAに統合。
+- **🆕 共同編集の実使用バグ**(2026-06-26 ユーザー観測=`docs/.private/2026-06-26-collab-issues-observed.md`): **A.めちゃ重い=🟡コード修正完了・未push/要2端末実機**(カーソル描画を CursorOverlay に隔離し Timeline がカーソルパケットで再描画しないように。CursorOverlay が roster だけ購読+byClient は rAF で getState 直読み+map/width は ref 渡し。build/vitest 緑。**残=全行未仮想化[#59・react-window]は別タスク**) / **C.プレゼンスのドット数≠実人数=🟦見送り(低優先)**(多すぎ方向。原因候補=複数タブ/PC+スマホ・幽霊WS・再接続一瞬2接続。設計穴=count>rosterを常にpresence欠落と仮定し幽霊だと無名ドットが残る。詳細→.private) / **D.モーダル画面外=✅修正本番済(6/26)**=EventModal/BoundaryEditModalを実測clampToViewportに。B(カーソル暴れ)はAに統合。
 - **🆕 削除済み共有リンクの表示**(2026-06-25 後回し・方針確定): 削除した共同編集リンク(`/collab/:token`)を開くと空タイムライン。**狭いプライバシー窓あり**(休眠中に削除→次に開いた人だけ削除前の中身が一度見える)。**方針=A案(deletePlan 成功後に部屋を revoke→中身ごと再接続拒否+「失効」表示)で確定・今後分のみ有効・急ぎ不要**。詳細・実装スケッチ=`docs/.private/2026-06-25-deleted-share-link-notice.md`。
 
 ---
