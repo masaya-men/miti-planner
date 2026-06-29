@@ -2723,6 +2723,11 @@
         "unresolved_note": "Not in LoPo — won't be imported. Correct to an official name to import.",
         "assign_member_job": "Member (select job)",
         "no_time_warning": "A Time (M:SS) column is required. Name the header \"Time\" or use \"What is this column? → Time\".",
-        "format_hint": "Use official names for jobs and skills, and include a Time (M:SS) column."
+        "format_hint": "Use official names for jobs and skills, and include a Time (M:SS) column.",
+        "step_party": "Party assignment",
+        "next_to_party": "To party assignment",
+        "slot_empty": "Unassigned",
+        "no_party_detected": "No party detected. You can still create.",
+        "clear": "Start over"
     }
 }
