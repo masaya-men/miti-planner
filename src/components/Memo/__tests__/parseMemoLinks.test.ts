@@ -41,6 +41,13 @@ describe('parseMemoLinks', () => {
     ]);
   });
 
+  it('末尾の閉じ墨括弧】はリンクに含めない', () => {
+    expect(parseMemoLinks('https://example.com】')).toEqual([
+      { type: 'url', value: 'https://example.com' },
+      { type: 'text', value: '】' },
+    ]);
+  });
+
   it('javascript: はリンクにしない(ただの文字)', () => {
     expect(parseMemoLinks('javascript:alert(1)')).toEqual([
       { type: 'text', value: 'javascript:alert(1)' },

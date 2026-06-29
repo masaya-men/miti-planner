@@ -5,7 +5,7 @@ export type MemoSegment =
   | { type: 'url'; value: string };
 
 // URL 末尾に付きがちな区切り記号(半角/全角の閉じ括弧・句読点など)。リンクには含めない。
-const TRAILING_PUNCT = /[)\]）【」』。、，,.!！?？；;：:＞>]+$/;
+const TRAILING_PUNCT = /[)\]）】」』。、，,.!！?？；;：:＞>]+$/;
 // http(s):// で始まり空白までの連続。空白・全角文字は URL 文字でないので自然にそこで切れる。
 const URL_CANDIDATE = /https?:\/\/[^\s]+/g;
 
