@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { clampToViewport } from '../utils/clampToViewport';
 import { useTranslation } from 'react-i18next';
 import type { TimelineEvent } from '../types';
 import { clsx } from 'clsx';
@@ -34,6 +35,20 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    // PC: モーダルの実寸を測って画面内にクランプ(固定値での概算高さをやめる)。
+    // useLayoutEffect は描画後・ペイント前に走るので、初回中央 → 補正後の位置に切り替わってもちらつかない。
+    const modalRef = useRef<HTMLDivElement>(null);
+    const [clampedPos, setClampedPos] = useState<{ left: number; top: number } | null>(null);
+    useLayoutEffect(() => {
+        if (!isOpen || isMobile || isTutorialActive || !position) { setClampedPos(null); return; }
+        const el = modalRef.current;
+        if (!el) return;
+        const size = { w: el.offsetWidth, h: el.offsetHeight };
+        const vp = { w: window.innerWidth, h: window.innerHeight };
+        const c = clampToViewport({ x: position.x + 20, y: position.y }, size, vp, 8);
+        setClampedPos({ left: c.x, top: c.y });
+    }, [isOpen, isMobile, isTutorialActive, position?.x, position?.y]);
+
     if (!isOpen) return null;
 
     const handleBackdropClick = () => {
@@ -56,21 +71,15 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
           }
         : undefined;
 
-    // Right-side positioning logic (offset by 20px from cursor)
-    const x = position ? Math.min(position.x + 20, window.innerWidth - 520) : '50%';
-    const y = position ? Math.min(position.y, window.innerHeight - 600) : '50%'; // Approx height
-
     // Style logic:
     // 1. Mobile -> Bottom sheet (fixed to bottom, above bottom nav)
     // 2. Tutorial Active -> Force Center
-    // 3. Desktop with position -> Follow cursor
+    // 3. Desktop with position -> clampToViewport(実測)で画面内に。測位前(初回)は中央でペイント前に補正。
     // 4. Desktop without position -> Center
-    const desktopStyle = isTutorialActive
-        ? { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
-        : (position
-            ? { left: x, top: y }
-            : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }
-        );
+    const centerStyle = { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' } as const;
+    const desktopStyle = (isTutorialActive || !position)
+        ? centerStyle
+        : (clampedPos ? { left: clampedPos.left, top: clampedPos.top } : centerStyle);
 
     return createPortal(
         <div className="fixed inset-0 z-[9999] text-left pointer-events-none">
@@ -78,6 +87,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
             <div className={`absolute inset-0 transition-opacity duration-100 pointer-events-auto ${isMobile ? '' : 'bg-transparent'}`} style={{ backgroundColor: isMobile ? 'var(--color-overlay)' : 'transparent' }} onClick={handleBackdropClick} />
 
             <div
+                ref={modalRef}
                 data-tutorial-modal
                 data-lenis-prevent
                 onClick={(e) => e.stopPropagation()}
