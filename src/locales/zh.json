@@ -1279,9 +1279,7 @@
     "mobile": {
         "tools_title": "工具",
         "import_title": "导入",
-        "import_spreadsheet_desc": "手机版即将上线（可在电脑使用）",
-        "import_spreadsheet_soon_title": "手机版即将上线",
-        "import_spreadsheet_soon_toast": "电子表格导入的手机版正在优化中，即将上线。目前请在电脑上使用。",
+        "import_spreadsheet_desc": "复制表格并粘贴",
         "fflogs_desc": "从 FFLogs 导入时间轴",
         "autoplan_desc": "自动放置减伤"
     },
@@ -2718,6 +2716,13 @@
         "next_to_party": "前往队伍分配",
         "slot_empty": "未分配",
         "no_party_detected": "未检测到队伍。仍可直接创建。",
-        "clear": "重新开始"
+        "clear": "重新开始",
+        "mobile_copy_hint_toggle": "如何复制",
+        "mobile_copy_hint": "在 Google 表格中选择要导入的范围并复制，然后长按下方的框并点按“粘贴”。",
+        "mobile_paste_label": "粘贴表格",
+        "mobile_paste_placeholder": "长按这里 →“粘贴”",
+        "mobile_read_ok": "已读取 — 检测到 {{events}} 个事件",
+        "mobile_paste_empty": "尚未粘贴。请粘贴到上方的框中。",
+        "mobile_grid_needs_pc": "此表需要按列分配职责，手机端无法设置。请在电脑上导入。"
     }
 }

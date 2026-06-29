@@ -1289,9 +1289,7 @@
     "mobile": {
         "tools_title": "Tools",
         "import_title": "Import",
-        "import_spreadsheet_desc": "Mobile version coming soon (available on PC)",
-        "import_spreadsheet_soon_title": "Coming soon on mobile",
-        "import_spreadsheet_soon_toast": "Mobile spreadsheet import is being optimized — coming soon. Please use a PC for now.",
+        "import_spreadsheet_desc": "Copy your spreadsheet and paste it",
         "fflogs_desc": "Import timeline from FFLogs",
         "autoplan_desc": "Auto-place mitigations"
     },
@@ -2753,6 +2751,13 @@
         "next_to_party": "To party assignment",
         "slot_empty": "Unassigned",
         "no_party_detected": "No party detected. You can still create.",
-        "clear": "Start over"
+        "clear": "Start over",
+        "mobile_copy_hint_toggle": "How to copy",
+        "mobile_copy_hint": "In Google Sheets, select the range you want and copy it, then long-press the box below and tap Paste.",
+        "mobile_paste_label": "Paste spreadsheet",
+        "mobile_paste_placeholder": "Long-press here → Paste",
+        "mobile_read_ok": "Loaded — {{events}} events detected",
+        "mobile_paste_empty": "Nothing pasted yet. Paste into the box above.",
+        "mobile_grid_needs_pc": "This sheet needs per-column role assignment, which isn't available on mobile. Please import it on a PC."
     }
 }

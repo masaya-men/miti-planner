@@ -2,9 +2,10 @@ import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste, Plus } from 'lucide-react';
+import { X, FileSpreadsheet, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, ClipboardPaste, Plus, ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { getJobsFromStore, getMitigationsFromStore } from '../hooks/useSkillsData';
 import type { Job, TimelineEvent } from '../types';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
@@ -213,6 +214,10 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   const [byColumnMode, setByColumnMode] = useState(false);
   // フェーズ名(任意)。matrix の「このフェーズを追加」で使う。
   const [phaseName, setPhaseName] = useState('');
+  // スマホ貼付ボックスの内容(PC は GridView 直接貼付なので未使用)
+  const [pasteBuffer, setPasteBuffer] = useState('');
+  // スマホ: コピー手順の折りたたみ開閉
+  const [mobileCopyHintOpen, setMobileCopyHintOpen] = useState(false);
 
   // ── 蓄積した複数フェーズ(matrix のみ。自作は単一 grid ブロック) ──────────
   const [entries, setEntries] = useState<ImportSheet[]>([]);
@@ -230,6 +235,8 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setParseFailed(false);
     setByColumnMode(false);
     setPhaseName('');
+    setPasteBuffer('');
+    setMobileCopyHintOpen(false);
     setEntries([]);
     setAssignment(emptyAssignment());
     setTargetOverrides({});
@@ -307,6 +314,19 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     }
   }, [ingestText]);
 
+  const isMobile = useIsMobile();
+  // スマホ貼付: textarea の onChange で全文を受け、そのまま ingestText に渡す。
+  // (iOS は readText() がブロックされ、contentEditable の onPaste も不安定なため、
+  //  本物の textarea + onChange を採用。長押し「ペースト」で確実に値が入る。)
+  const handleMobilePasteChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const text = e.target.value;
+    setPasteBuffer(text);
+    ingestText(text);
+  }, [ingestText]);
+
+  // スマホ確認サマリーの「検出イベント数」。grid=表示テーブル, matrix=現在の貼付ドラフトの events。
+  // (displayedPreviewEvents は後で定義されるため、使用箇所の直前で参照する)
+
   // ── ①(a) フェーズ名のミラー: matrix ドラフト中に phaseName を打つと「フェーズ」列へ即時反映 ──
   // matrix の表示テーブルは ingestText(貼付時)でしか作られないため、後から phaseName を打っても
   // 「フェーズ」列(= result.phases[].name 由来)が古いまま。phaseName 変化で同じビルドを通して作り直す。
@@ -349,6 +369,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setSource('none');
     setMatrixParsed(null);
     setPhaseName('');
+    setPasteBuffer('');
   }, [source, matrixParsed, phaseName, t]);
 
   // ステップ2 → 3(パーティ割当)。未追加ドラフトがあれば取り込んでから遷移。
@@ -424,6 +445,9 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     }
     return [];
   }, [isGrid, gridPreview, source, matrixParsed, phaseName, mitigations, jobs]);
+
+  // スマホ確認サマリーの「検出イベント数」。grid=表示テーブル, matrix=現在の貼付ドラフトの events。
+  const mobileEventCount = source === 'none' ? 0 : displayedPreviewEvents.length;
 
   // 追加済みフェーズの「軽減N件」表示用(各フェーズ単体の実配置数)
   const perPhaseMits = useMemo<number[]>(
@@ -611,17 +635,19 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 </div>
               )}
 
-              {/* ③ flow(Ctrl+A 導線・1行) + 列ごと貼り付けトグル。standalone help 行は畳み(この列は? の title へ寄せた)。 */}
-              <div className="px-5 py-1.5 border-b border-app-border bg-app-surface2/60 flex items-center justify-between gap-3 shrink-0">
-                <p className="text-app-lg text-app-text-muted truncate">{t('gridImport.flow_hint')}</p>
-                <button
-                  className={clsx('px-3 py-1 rounded-lg text-app-lg font-bold shrink-0',
-                    byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
-                  onClick={() => setByColumnMode((v) => !v)}
-                >
-                  {t('gridImport.paste_by_column')}
-                </button>
-              </div>
+              {/* ③ flow(Ctrl+A 導線・1行) + 列ごと貼り付けトグル。スマホでは非表示。standalone help 行は畳み(この列は? の title へ寄せた)。 */}
+              {!isMobile && (
+                <div className="px-5 py-1.5 border-b border-app-border bg-app-surface2/60 flex items-center justify-between gap-3 shrink-0">
+                  <p className="text-app-lg text-app-text-muted truncate">{t('gridImport.flow_hint')}</p>
+                  <button
+                    className={clsx('px-3 py-1 rounded-lg text-app-lg font-bold shrink-0',
+                      byColumnMode ? 'bg-app-toggle text-app-toggle-text' : 'border border-app-border text-app-text')}
+                    onClick={() => setByColumnMode((v) => !v)}
+                  >
+                    {t('gridImport.paste_by_column')}
+                  </button>
+                </div>
+              )}
 
               {parseFailed && (
                 <div className="px-5 py-2 shrink-0">
@@ -632,46 +658,96 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 </div>
               )}
 
-              {/* グリッド本体 = 貼り付けサーフェス(tabIndex で focusable・onPaste で Ctrl+V 捕捉) */}
-              <div
-                ref={pasteSurfaceRef}
-                tabIndex={0}
-                onPaste={handleGridPaste}
-                className="flex-1 overflow-auto focus:outline-none focus:ring-2 focus:ring-app-blue/40"
-                aria-label={t('gridImport.paste_prompt')}
-              >
-                <GridView
-                  table={table} setTable={setTable} deps={{ mitigations, jobs }}
-                  source={source}
-                  byColumnMode={byColumnMode && source !== 'matrix'}
-                  onColumnPaste={onColumnPaste}
-                  previewEvents={[...displayedPreviewEvents].sort((a, b) => a.time - b.time)}
-                  templateEvents={templateEvents}
-                  targetOverrides={targetOverrides}
-                  onTargetOverride={(key, value) => setTargetOverrides((prev) => ({ ...prev, [key]: value }))}
-                  gridLang={gridLang}
-                />
-                {/* 空状態: グリッド本体エリアに大きく貼り付けプロンプトを出す */}
-                {isGridEmpty && (
-                  <div className="flex flex-col items-center justify-center gap-3 py-16 px-5 text-center select-none">
-                    <ClipboardPaste size={36} className="text-app-text-muted" />
-                    <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
-                    <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
-                    {/* スマホでも確実に貼り付けられるボタン(div の onPaste は iOS で出ないため) */}
+              {/* グリッド本体: スマホ=textarea 貼付+確認サマリー / PC=従来の GridView */}
+              {isMobile ? (
+                <div className="flex-1 overflow-auto px-5 py-5 flex flex-col gap-4">
+                  {/* コピー手順(折りたたみ・短文のみ) */}
+                  <div>
                     <button
                       type="button"
-                      onClick={handlePasteFromClipboard}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-all duration-200 cursor-pointer select-none"
+                      onClick={() => setMobileCopyHintOpen((o) => !o)}
+                      className="flex items-center gap-1.5 text-app-lg text-app-text-muted"
                     >
-                      <ClipboardPaste size={18} /> {t('gridImport.paste_button')}
+                      <ChevronRight size={14} className={clsx('transition-transform duration-200', mobileCopyHintOpen && 'rotate-90')} />
+                      {t('gridImport.mobile_copy_hint_toggle')}
                     </button>
-                    {pasteError && (
-                      <p className="text-app-lg text-app-amber">{t('gridImport.paste_error')}</p>
+                    {mobileCopyHintOpen && (
+                      <p className="mt-2 text-app-lg text-app-text-muted leading-relaxed">{t('gridImport.mobile_copy_hint')}</p>
                     )}
-                    <p className="text-app-lg text-app-text-muted/70">{t('gridImport.format_hint')}</p>
                   </div>
-                )}
-              </div>
+
+                  {/* 貼付 textarea(長押し→ペースト) */}
+                  <textarea
+                    value={pasteBuffer}
+                    onChange={handleMobilePasteChange}
+                    placeholder={t('gridImport.mobile_paste_placeholder')}
+                    aria-label={t('gridImport.mobile_paste_label')}
+                    rows={4}
+                    spellCheck={false}
+                    autoCapitalize="off"
+                    autoCorrect="off"
+                    className="w-full rounded-xl border border-app-border bg-app-surface2 px-4 py-3 text-app-2xl text-app-text focus:outline-none focus:border-app-text placeholder:text-app-text-muted"
+                  />
+
+                  {/* 確認サマリー or 未貼付メッセージ */}
+                  {source !== 'none' ? (
+                    <div className="flex items-center gap-2 text-app-2xl text-app-text">
+                      <CheckCircle2 size={16} className="text-app-text-muted shrink-0" />
+                      {t('gridImport.mobile_read_ok', { events: mobileEventCount })}
+                    </div>
+                  ) : (
+                    <p className="text-app-lg text-app-text-muted">{t('gridImport.mobile_paste_empty')}</p>
+                  )}
+
+                  {/* grid 型で列ごとの枠割当が必要な場合: スマホでは設定不可のため PC 案内 */}
+                  {source === 'grid' && hasUnassignedMemberCols && (
+                    <div className="flex items-start gap-2 rounded-xl border border-app-amber-border bg-app-amber-dim p-3 text-app-lg text-app-amber">
+                      <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                      <span>{t('gridImport.mobile_grid_needs_pc')}</span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div
+                  ref={pasteSurfaceRef}
+                  tabIndex={0}
+                  onPaste={handleGridPaste}
+                  className="flex-1 overflow-auto focus:outline-none focus:ring-2 focus:ring-app-blue/40"
+                  aria-label={t('gridImport.paste_prompt')}
+                >
+                  <GridView
+                    table={table} setTable={setTable} deps={{ mitigations, jobs }}
+                    source={source}
+                    byColumnMode={byColumnMode && source !== 'matrix'}
+                    onColumnPaste={onColumnPaste}
+                    previewEvents={[...displayedPreviewEvents].sort((a, b) => a.time - b.time)}
+                    templateEvents={templateEvents}
+                    targetOverrides={targetOverrides}
+                    onTargetOverride={(key, value) => setTargetOverrides((prev) => ({ ...prev, [key]: value }))}
+                    gridLang={gridLang}
+                  />
+                  {/* 空状態: グリッド本体エリアに大きく貼り付けプロンプトを出す */}
+                  {isGridEmpty && (
+                    <div className="flex flex-col items-center justify-center gap-3 py-16 px-5 text-center select-none">
+                      <ClipboardPaste size={36} className="text-app-text-muted" />
+                      <p className="text-app-3xl font-bold text-app-text">{t('gridImport.paste_prompt')}</p>
+                      <p className="text-app-lg text-app-text-muted">{t('gridImport.paste_hint')}</p>
+                      {/* スマホでも確実に貼り付けられるボタン(div の onPaste は iOS で出ないため) */}
+                      <button
+                        type="button"
+                        onClick={handlePasteFromClipboard}
+                        className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-app-2xl font-bold bg-app-toggle text-app-toggle-text hover:opacity-80 transition-all duration-200 cursor-pointer select-none"
+                      >
+                        <ClipboardPaste size={18} /> {t('gridImport.paste_button')}
+                      </button>
+                      {pasteError && (
+                        <p className="text-app-lg text-app-amber">{t('gridImport.paste_error')}</p>
+                      )}
+                      <p className="text-app-lg text-app-text-muted/70">{t('gridImport.format_hint')}</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
 

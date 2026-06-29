@@ -1475,7 +1475,6 @@ const Timeline: React.FC = () => {
 
     const [importModalOpen, setImportModalOpen] = useState(false);
     const [showGridImport, setShowGridImport] = useState(false);
-    const [gridSoonOpen, setGridSoonOpen] = useState(false); // スマホ: スプシ取込「近日公開」中央モーダル
     const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; variant?: 'danger' | 'warning'; confirmLabel?: string; cancelLabel?: string } | null>(null);
 
 
@@ -4024,11 +4023,11 @@ const Timeline: React.FC = () => {
                             <div className="text-app-base text-app-text-muted">{t('fflogs.tooltip_generate')}</div>
                         </div>
                     </button>
-                    {/* スプレッドシート取込 — スマホ版は最適化中のため近日公開メッセージのみ(PCは利用可) */}
+                    {/* スプレッドシート取込 */}
                     <button
                         onClick={() => {
                             setMobileToolsSheetOpen(false);
-                            setGridSoonOpen(true);
+                            setShowGridImport(true);
                         }}
                         className="flex items-center gap-3 w-full px-4 py-3 rounded-xl bg-app-text/5 border border-app-border text-app-text hover:bg-app-text/10 cursor-pointer"
                     >
@@ -4053,29 +4052,6 @@ const Timeline: React.FC = () => {
                     </button>
                 </div>
             </MobileBottomSheet>
-            {/* スマホ: スプシ取込「近日公開」を画面中央にしっかり表示(どの端末でも見える・ナビ/FAB より前面) */}
-            {gridSoonOpen && createPortal(
-                <div
-                    className="fixed inset-0 z-[600] flex items-center justify-center p-6 bg-black/60"
-                    onClick={() => setGridSoonOpen(false)}
-                >
-                    <div
-                        className="w-full max-w-[360px] rounded-2xl bg-app-bg border border-app-border shadow-2xl px-6 py-7 flex flex-col items-center gap-4 text-center"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <FileSpreadsheet size={32} className="text-app-text-muted" />
-                        <p className="text-app-2xl font-bold text-app-text">{t('mobile.import_spreadsheet_soon_title')}</p>
-                        <p className="text-app-lg text-app-text-muted leading-relaxed">{t('mobile.import_spreadsheet_soon_toast')}</p>
-                        <button
-                            onClick={() => setGridSoonOpen(false)}
-                            className="mt-1 px-6 py-2.5 rounded-lg bg-app-toggle text-app-toggle-text text-app-lg font-bold hover:opacity-80 transition-opacity cursor-pointer"
-                        >
-                            {t('common.close')}
-                        </button>
-                    </div>
-                </div>,
-                document.body,
-            )}
             <MitigationSheet
                 isOpen={isMitiSheetOpen}
                 onClose={() => setIsMitiSheetOpen(false)}

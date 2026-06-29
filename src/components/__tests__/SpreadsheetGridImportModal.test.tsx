@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import {
   SpreadsheetGridImportModal,
@@ -11,6 +11,7 @@ import type { GridTable } from '../../lib/sheetImport/gridTypes';
 import type { SheetImportResult } from '../../lib/sheetImport/buildPlanFromSheets';
 import type { TemplateData } from '../../data/templateLoader';
 import { getTemplate } from '../../data/templateLoader';
+import { useIsMobile } from '../../hooks/useIsMobile';
 
 // templateLoader をモック: デフォルトは null(テンプレなし)。テスト内で上書き可。
 vi.mock('../../data/templateLoader', () => ({
@@ -90,6 +91,13 @@ const JA: Record<string, string> = {
   'gridImport.no_time_warning': '時間(M:SS)の列が必要です。見出しを「時間」にするか「この列は？→時間」で指定してください。',
   'gridImport.format_hint': 'ジョブ・スキルは正式名称で、時間(M:SS)の列を入れてください。',
   'common.cancel': 'キャンセル',
+  'gridImport.mobile_copy_hint_toggle': 'コピーのやり方',
+  'gridImport.mobile_copy_hint': 'Googleスプレッドシートで範囲を選んでコピー → 下を長押しして貼り付け',
+  'gridImport.mobile_paste_label': 'スプレッドシートを貼り付け',
+  'gridImport.mobile_paste_placeholder': 'ここを長押し →「ペースト」',
+  'gridImport.mobile_read_ok': '読み取りました — {{events}}件のイベントを検出',
+  'gridImport.mobile_paste_empty': 'まだ貼り付けられていません。',
+  'gridImport.mobile_grid_needs_pc': 'この表は列ごとの担当割り当てが必要です。パソコンで取り込んでください。',
 };
 
 /** {{name}} 等のプレースホルダを置換した文字列を返す簡易 t。 */
@@ -105,6 +113,8 @@ vi.mock('react-i18next', () => ({
   }),
   initReactI18next: { type: '3rdParty', init: () => {} },
 }));
+
+vi.mock('../../hooks/useIsMobile', () => ({ useIsMobile: vi.fn().mockReturnValue(false) }));
 
 // マトリクス/メンバー順テスト用にタンク+ヒーラー+DPS のジョブを用意。
 // パラディン=ナイト(tank)・白魔=ヒーラー・忍者=DPS。
@@ -801,5 +811,49 @@ describe('setColumnValues', () => {
     const result = setColumnValues(table, 0, ['NEW']);
     expect(table.rows[0][0]).toBe('P1');
     expect(result.rows[0][0]).toBe('NEW');
+  });
+});
+
+describe('SpreadsheetGridImportModal（スマホ分岐）', () => {
+  beforeEach(() => {
+    vi.mocked(useIsMobile).mockReturnValue(true);
+  });
+  afterEach(() => {
+    vi.mocked(useIsMobile).mockReturnValue(false);
+  });
+
+  it('スマホでは Step2 に貼付 textarea を出し、編集グリッドを出さない', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // 貼付 textarea がある
+    expect(screen.getByLabelText('スプレッドシートを貼り付け')).toBeInTheDocument();
+    // PC グリッドの貼付サーフェス(Ctrl+V プロンプト)は出ない
+    expect(screen.queryByLabelText('ここにスプレッドシートを貼り付け (Ctrl+V)')).toBeNull();
+    // 列ごと貼り付けトグルも出ない
+    expect(screen.queryByText('列ごとに貼り付け')).toBeNull();
+  });
+
+  it('未貼付では「パーティ割当へ」は無効、貼付後に有効化＋確認サマリー表示', () => {
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    // 未貼付ガード: matrix 判定前は source==='none' で「割当へ」disabled
+    const nextBtn = screen.getByText('パーティ割当へ').closest('button')!;
+    expect(nextBtn).toBeDisabled();
+    // textarea へ matrix TSV を流し込む(onChange 経由)
+    fireEvent.change(screen.getByLabelText('スプレッドシートを貼り付け'), { target: { value: matrixTSV() } });
+    // 確認サマリーが出る(イベント1件検出)
+    expect(screen.getByText('読み取りました — 1件のイベントを検出')).toBeInTheDocument();
+    // ガード解除
+    expect(nextBtn).not.toBeDisabled();
+  });
+
+  it('スマホ: grid型で複数タンク列(未割当)を貼るとPC案内メッセージが出る', () => {
+    // 同じタンクジョブ(ナイト=pld)の列を2本 → autoAssignSingleSlots がロール内複数のため自動割当しない
+    // → hasUnassignedMemberCols=true → PC案内バナーが表示される
+    const gridTSV = '時間\tナイト\tナイト\n0:16\tランパート\tランパート\n';
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.change(screen.getByLabelText('スプレッドシートを貼り付け'), { target: { value: gridTSV } });
+    expect(screen.getByText('この表は列ごとの担当割り当てが必要です。パソコンで取り込んでください。')).toBeInTheDocument();
   });
 });

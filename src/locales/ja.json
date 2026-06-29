@@ -1293,9 +1293,7 @@
     "mobile": {
         "tools_title": "ツール",
         "import_title": "インポート",
-        "import_spreadsheet_desc": "スマホ版は近日公開（PCで利用できます）",
-        "import_spreadsheet_soon_title": "スマホ版は近日公開",
-        "import_spreadsheet_soon_toast": "スプレッドシート取込のスマホ版は最適化中です。近日公開予定です。今はPCでご利用ください。",
+        "import_spreadsheet_desc": "表をコピーして貼り付け",
         "fflogs_desc": "FFLogsからタイムラインをインポート",
         "autoplan_desc": "軽減を自動配置"
     },
@@ -2774,6 +2772,13 @@
         "next_to_party": "パーティ割当へ",
         "slot_empty": "未割当",
         "no_party_detected": "パーティが検出されませんでした。このまま作成できます。",
-        "clear": "やり直す"
+        "clear": "やり直す",
+        "mobile_copy_hint_toggle": "コピーのやり方",
+        "mobile_copy_hint": "Googleスプレッドシートで取り込みたい範囲を選んでコピー → 下のボックスを長押しして「ペースト」してください。",
+        "mobile_paste_label": "スプレッドシートを貼り付け",
+        "mobile_paste_placeholder": "ここを長押し →「ペースト」",
+        "mobile_read_ok": "読み取りました — {{events}}件のイベントを検出",
+        "mobile_paste_empty": "まだ貼り付けられていません。上のボックスに貼り付けてください。",
+        "mobile_grid_needs_pc": "この表は列ごとの担当割り当てが必要です。スマホでは設定できないため、お手数ですがパソコンで取り込んでください。"
     }
 }
