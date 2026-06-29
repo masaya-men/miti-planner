@@ -754,7 +754,10 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                         </span>
                       )}
                       {skipped.length > 0 && (
-                        <span className="text-app-2xl text-app-amber">{t('gridImport.skipped_count', { count: skipped.length })}</span>
+                        <>
+                          <span className="text-app-2xl text-app-amber">{t('gridImport.skipped_count', { count: skipped.length })}</span>
+                          <span className="text-app-sm text-app-amber/80">{t('gridImport.unresolved_note')}</span>
+                        </>
                       )}
                       <p className="text-app-sm text-app-text-muted/60">{t('gridImport.rights_notice')}</p>
                     </div>
