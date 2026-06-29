@@ -384,6 +384,25 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     [jobs],
   );
 
+  // スマホ用: member 列の枠(slot)を更新(PC の GridView 内 setColSlot と同等・PC は不変)
+  const setMobileColumnSlot = useCallback((ci: number, slot: PartySlot | null) => {
+    setTable((prev) => ({
+      ...prev,
+      columns: prev.columns.map((c, i) => (i === ci ? { ...c, slot } : c)),
+    }));
+  }, []);
+
+  // スマホ grid 割当リスト対象: jobId 付き member 列(プレイヤー)
+  const mobileMemberColumns = useMemo(
+    () =>
+      source !== 'grid'
+        ? []
+        : table.columns
+            .map((col, ci) => ({ col, ci, role: col.jobId ? roleOf(col.jobId) : undefined }))
+            .filter((x) => x.col.field === 'member' && !!x.col.jobId),
+    [source, table.columns, roleOf],
+  );
+
   // 蓄積した全フェーズ + 未追加の現在の貼り付け(matrix)で使われたジョブ(検出順)。
   // 未追加 draft も含めることで partyComplete ゲートが draft のジョブを覆い、
   // 枠未割当のまま作成 → 軽減サイレント消失を防ぐ(空 partyOverride 落とし穴の封鎖)。
@@ -699,11 +718,45 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                     <p className="text-app-lg text-app-text-muted">{t('gridImport.mobile_paste_empty')}</p>
                   )}
 
-                  {/* grid 型で列ごとの枠割当が必要な場合: スマホでは設定不可のため PC 案内 */}
-                  {source === 'grid' && hasUnassignedMemberCols && (
-                    <div className="flex items-start gap-2 rounded-xl border border-app-amber-border bg-app-amber-dim p-3 text-app-lg text-app-amber">
-                      <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                      <span>{t('gridImport.mobile_grid_needs_pc')}</span>
+                  {/* スマホ grid: メンバー列ごとに枠(MT/ST/H1…)を割り当てるリスト */}
+                  {source === 'grid' && mobileMemberColumns.length > 0 && (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-app-2xl font-bold text-app-text">{t('gridImport.mobile_assign_party')}</p>
+                      {mobileMemberColumns.map(({ col, ci, role }) => {
+                        const job = jobs.find((j) => j.id === col.jobId);
+                        const jobLabel = job ? (job.name[gridLang as keyof typeof job.name] ?? job.name.ja) : (col.jobId ?? col.header);
+                        return (
+                          <div key={ci} className="flex items-center gap-3">
+                            <span className="flex-1 truncate text-app-2xl text-app-text">{jobLabel}</span>
+                            <select
+                              value={col.slot ?? ''}
+                              aria-label={t('gridImport.assign_slot')}
+                              onChange={(e) => setMobileColumnSlot(ci, (e.target.value as PartySlot) || null)}
+                              className="appearance-none bg-app-surface2 border border-app-border rounded-lg px-3 py-2 text-app-2xl text-app-text focus:outline-none"
+                            >
+                              <option value="">{t('gridImport.slot_empty')}</option>
+                              {role && SLOTS_BY_ROLE[role].map((s) => (
+                                <option key={s} value={s}>{s}</option>
+                              ))}
+                            </select>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* スマホ grid: フッターの冗長ステータスをスクロール本体に移設(フッターを最小高さに保つ) */}
+                  {source === 'grid' && (
+                    <div className="flex flex-col gap-1.5">
+                      {blockMsg && (
+                        <span className={clsx('flex items-start gap-1.5 text-app-2xl', blockMsg.tone === 'red' ? 'text-app-red' : 'text-app-amber')}>
+                          <AlertCircle size={14} className="shrink-0 mt-0.5" /> {blockMsg.text}
+                        </span>
+                      )}
+                      {skipped.length > 0 && (
+                        <span className="text-app-2xl text-app-amber">{t('gridImport.skipped_count', { count: skipped.length })}</span>
+                      )}
+                      <p className="text-app-sm text-app-text-muted/60">{t('gridImport.rights_notice')}</p>
                     </div>
                   )}
                 </div>
@@ -816,7 +869,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
               ) : (
                 // grid(step2) / matrix(step3): 作成ブロック
                 <div className="flex items-center gap-3 flex-wrap justify-end">
-                  {blockMsg ? (
+                  {!isMobile && (blockMsg ? (
                     <span className={clsx('flex items-center gap-1.5 text-app-2xl',
                       blockMsg.tone === 'red' ? 'text-app-red' : 'text-app-amber')}>
                       <AlertCircle size={14} className="shrink-0" /> {blockMsg.text}
@@ -825,8 +878,8 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                     <span className="text-app-2xl text-app-text-muted">
                       {preview && t('gridImport.summary', { labels: preview.labels.length, events: preview.timelineEvents.length, mits: preview.timelineMitigations.length })}
                     </span>
-                  )}
-                  {skipped.length > 0 && (
+                  ))}
+                  {!isMobile && skipped.length > 0 && (
                     <span className="text-app-2xl text-app-amber">
                       {t('gridImport.skipped_count', { count: skipped.length })}
                     </span>
@@ -842,8 +895,8 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                 </div>
               )}
             </div>
-            {/* 補足(読めない技の説明=skipped時)+ 権利表記。作成ブロック表示時のみ。 */}
-            {showCreateBlock && (
+            {/* 補足(読めない技の説明=skipped時)+ 権利表記。作成ブロック表示時のみ。スマホは本体スクロール内に移設済み。 */}
+            {!isMobile && showCreateBlock && (
               <div className="flex items-center justify-between gap-2">
                 <span className="text-app-sm text-app-amber/80 truncate">
                   {skipped.length > 0 ? t('gridImport.unresolved_note') : ''}

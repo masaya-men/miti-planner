@@ -2723,6 +2723,6 @@
         "mobile_paste_placeholder": "여기를 길게 눌러 → 붙여넣기",
         "mobile_read_ok": "불러왔습니다 — 이벤트 {{events}}개 감지",
         "mobile_paste_empty": "아직 붙여넣지 않았습니다. 위 칸에 붙여넣으세요.",
-        "mobile_grid_needs_pc": "이 표는 열별 담당 배정이 필요하지만 모바일에서는 설정할 수 없습니다. PC에서 가져와 주세요."
+        "mobile_assign_party": "파티 슬롯 배정"
     }
 }
