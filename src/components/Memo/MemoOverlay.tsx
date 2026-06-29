@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { PlanMemo } from '../../types';
 import { timeSecToY, xRatioToPx, yToTimeSec, pxToXRatio, clampXRatio } from './coords';
 import { Tooltip } from '../ui/Tooltip';
+import { MemoText } from './MemoText';
 import './memo.css';
 
 interface MemoOverlayProps {
@@ -160,7 +161,7 @@ export const MemoOverlay: React.FC<MemoOverlayProps> = ({
                                 <span className="block">{memo.text}</span>
                             </Tooltip>
                         ) : (
-                            memo.text
+                            <MemoText text={memo.text} />
                         )}
                     </div>
                 );

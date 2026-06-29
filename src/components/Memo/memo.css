@@ -49,3 +49,18 @@
         pointer-events: none;
     }
 }
+
+/* メモ内リンク。.plan-memo--readonly とスマホ(media)は pointer-events:none で
+   クリックを下の表へ透過させるが、リンクだけは押せるよう auto に戻す。
+   非リンク部分は透過のまま=表のクリックを邪魔しない。 */
+.plan-memo__link {
+    color: var(--color-app-blue);
+    text-decoration: underline;
+    pointer-events: auto;
+    cursor: pointer;
+    /* 200px 幅に収まらない長い URL を折り返す。 */
+    word-break: break-all;
+}
+.plan-memo__link:hover {
+    color: var(--color-app-blue-hover);
+}
