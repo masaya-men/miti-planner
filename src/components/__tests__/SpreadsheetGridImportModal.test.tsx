@@ -32,8 +32,8 @@ const JA: Record<string, string> = {
   'gridImport.step_content': 'コンテンツ選択',
   'gridImport.step_grid': 'スプレッドシート風グリッド',
   'gridImport.step_party': 'パーティ割当',
-  'gridImport.slot_empty': '—',
-  'gridImport.no_party_detected': 'ジョブが検出されませんでした。',
+  'gridImport.slot_empty': '未割当',
+  'gridImport.no_party_detected': 'パーティが検出されませんでした。このまま作成できます。',
   'roles.tank': 'タンク',
   'roles.healer': 'ヒーラー',
   'roles.dps': 'DPS',
@@ -366,9 +366,10 @@ describe('SpreadsheetGridImportModal', () => {
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
     // step3 へ進む(draft が自動コミット + seedAssignment が自動割当)
     goToPartyStep();
-    // PartyAssignmentStep の各ロール select が出ていること(slot_empty '—' オプションを持つ)
+    // PartyAssignmentStep の各スロット select が出ていること(aria-label = slot 名 MT/ST/H1/H2/D1..D4)
+    const SLOT_NAMES = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
     const slotSelects = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
-      Array.from(s.options).some((o) => o.text === '—'),
+      SLOT_NAMES.includes(s.getAttribute('aria-label') ?? ''),
     );
     // 3ジョブ(tank/healer/dps)に対応する select がある
     expect(slotSelects.length).toBeGreaterThanOrEqual(3);
@@ -387,9 +388,10 @@ describe('SpreadsheetGridImportModal', () => {
     fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
     // step3 へ進む
     goToPartyStep();
-    // PartyAssignmentStep の select(slot_empty '—' を持つもの)が出ている
+    // PartyAssignmentStep の select(aria-label = slot 名 MT/ST/H1/H2/D1..D4)が出ている
+    const SLOT_NAMES = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'];
     const slotSelects = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
-      Array.from(s.options).some((o) => o.text === '—'),
+      SLOT_NAMES.includes(s.getAttribute('aria-label') ?? ''),
     );
     expect(slotSelects.length).toBeGreaterThanOrEqual(3);
     // seedAssignment で検出された3ジョブ(tank/healer/dps)が割当済み → value !== '' のものが3以上

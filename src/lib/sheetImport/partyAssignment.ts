@@ -108,8 +108,8 @@ export function seedAssignment(
   detectedJobIds: string[],
   jobs: Job[],
 ): PartyAssignment {
-  const roleOf = (id: string): SlotRole =>
-    jobs.find((j) => j.id === id)?.role as SlotRole;
+  const roleOf = (id: string): SlotRole | undefined =>
+    jobs.find((j) => j.id === id)?.role as SlotRole | undefined;
   const byRole = groupByRole(detectedJobIds, roleOf);
   let next = pruneAssignment(prev, byRole); // shallow copy(prev 不変)
   const seated = new Set(
