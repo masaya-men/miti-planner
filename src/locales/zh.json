@@ -2718,6 +2718,12 @@
         "next_to_party": "前往队伍分配",
         "slot_empty": "未分配",
         "no_party_detected": "未检测到队伍。仍可直接创建。",
-        "clear": "重新开始"
+        "clear": "重新开始",
+        "mobile_copy_hint_toggle": "如何复制",
+        "mobile_copy_hint": "在 Google 表格中选择要导入的范围并复制，然后长按下方的框并点按「粘贴」。",
+        "mobile_paste_label": "粘贴表格",
+        "mobile_paste_placeholder": "长按这里 →「粘贴」",
+        "mobile_read_ok": "已读取 — 检测到 {{events}} 个事件",
+        "mobile_paste_empty": "尚未粘贴。请粘贴到上方的框中。"
     }
 }

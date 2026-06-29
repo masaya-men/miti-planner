@@ -2753,6 +2753,12 @@
         "next_to_party": "To party assignment",
         "slot_empty": "Unassigned",
         "no_party_detected": "No party detected. You can still create.",
-        "clear": "Start over"
+        "clear": "Start over",
+        "mobile_copy_hint_toggle": "How to copy",
+        "mobile_copy_hint": "In Google Sheets, select the range you want and copy it, then long-press the box below and tap Paste.",
+        "mobile_paste_label": "Paste spreadsheet",
+        "mobile_paste_placeholder": "Long-press here → Paste",
+        "mobile_read_ok": "Loaded — {{events}} events detected",
+        "mobile_paste_empty": "Nothing pasted yet. Paste into the box above."
     }
 }

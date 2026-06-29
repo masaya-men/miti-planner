@@ -2774,6 +2774,12 @@
         "next_to_party": "パーティ割当へ",
         "slot_empty": "未割当",
         "no_party_detected": "パーティが検出されませんでした。このまま作成できます。",
-        "clear": "やり直す"
+        "clear": "やり直す",
+        "mobile_copy_hint_toggle": "コピーのやり方",
+        "mobile_copy_hint": "Googleスプレッドシートで取り込みたい範囲を選んでコピー → 下のボックスを長押しして「ペースト」してください。",
+        "mobile_paste_label": "スプレッドシートを貼り付け",
+        "mobile_paste_placeholder": "ここを長押し →「ペースト」",
+        "mobile_read_ok": "読み取りました — {{events}}件のイベントを検出",
+        "mobile_paste_empty": "まだ貼り付けられていません。上のボックスに貼り付けてください。"
     }
 }

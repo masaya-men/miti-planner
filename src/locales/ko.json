@@ -2718,6 +2718,12 @@
         "next_to_party": "파티 배치로",
         "slot_empty": "미배치",
         "no_party_detected": "파티가 감지되지 않았습니다. 그대로 생성할 수 있습니다.",
-        "clear": "처음부터"
+        "clear": "처음부터",
+        "mobile_copy_hint_toggle": "복사하는 방법",
+        "mobile_copy_hint": "Google 스프레드시트에서 가져올 범위를 선택해 복사한 뒤, 아래 칸을 길게 눌러 '붙여넣기'하세요.",
+        "mobile_paste_label": "스프레드시트 붙여넣기",
+        "mobile_paste_placeholder": "여기를 길게 눌러 → 붙여넣기",
+        "mobile_read_ok": "불러왔습니다 — 이벤트 {{events}}개 감지",
+        "mobile_paste_empty": "아직 붙여넣지 않았습니다. 위 칸에 붙여넣으세요."
     }
 }
