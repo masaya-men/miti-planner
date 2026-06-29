@@ -20,7 +20,7 @@ describe('resolveImportParty', () => {
       { slot: 'D3', jobId: 'brd' }, { slot: 'D4', jobId: 'blm' },
     ]);
   });
-  it('検出順で枠に詰める（部分編成・タンク/ヒラは検出順のまま）', () => {
+  it('部分編成: 各ロール先頭枠に座る（whm/pld は canonical 先頭なので検出順と一致）', () => {
     const out = resolveImportParty(['whm', 'pld', 'mnk'], JOBS);
     expect(out).toEqual([
       { slot: 'H1', jobId: 'whm' }, { slot: 'MT', jobId: 'pld' }, { slot: 'D1', jobId: 'mnk' },

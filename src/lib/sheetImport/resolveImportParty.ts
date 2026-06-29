@@ -3,7 +3,7 @@ import { dpsRank, tankRank, healerRank } from '../../data/dpsOrder';
 
 type SlotRole = 'tank' | 'healer' | 'dps';
 
-const SLOTS_BY_ROLE: Record<SlotRole, string[]> = {
+const SLOTS_BY_ROLE: Record<SlotRole, readonly string[]> = {
   tank: ['MT', 'ST'],
   healer: ['H1', 'H2'],
   dps: ['D1', 'D2', 'D3', 'D4'],
