@@ -8,6 +8,7 @@ import { SharePage } from './components/SharePage';
 // 遅延ロードしてソロ利用者の初期 bundle に yjs を載せない(設計の遅延ロード方針維持)。
 const CollabJoinerPage = lazy(() => import('./components/CollabJoinerPage'));
 import { SupportPage } from './components/SupportPage';
+import StrategyBoardPastePage from './components/StrategyBoardPastePage';
 import {
   HousingPage,
   HousingWorkspace,
@@ -88,6 +89,7 @@ function AppRoutes() {
         {/* ⑤-3b: ジョイナー読み取り専用ライブビュー(招待リンク専用・内部導線なし)。lazy chunk。 */}
         <Route path="/collab/:roomToken" element={<Suspense fallback={null}><CollabJoinerPage /></Suspense>} />
         <Route path="/support" element={<SupportPage />} />
+        <Route path="/stgy" element={<StrategyBoardPastePage />} />
 
         <Route path="/housing" element={<HousingWorkspace />} />
         <Route path="/housing/legacy" element={<HousingPage />} />

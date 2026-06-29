@@ -921,6 +921,29 @@
             "copy_link_tooltip": "复制链接"
         }
     },
+    "stgy": {
+        "page_title": "PS5 战略板粘贴助手 | LoPo",
+        "heading": "PS5 战略板粘贴助手",
+        "intro": "粘贴战略板分享代码，我们会按 PS5 可粘贴的长度进行分割。请从上到下依次复制，并通过 PS Remote Play 粘贴到游戏中。",
+        "prep_title": "准备（仅首次）",
+        "prep_body": "在 PS Remote Play 应用的设置（右上角⚙）中开启“后台串流”。\n这样切换应用后最多可保持连接 5 分钟，便于在 LoPo 和游戏之间来回复制粘贴。",
+        "prep_ack": "我知道了",
+        "paste_label": "粘贴代码",
+        "paste_placeholder": "[stgy:... 在此粘贴分享代码 ...]",
+        "chunks_heading": "按顺序复制",
+        "copy_nth": "复制第 {{n}} 个",
+        "copied": "已复制",
+        "copied_toast": "已复制",
+        "copy_failed": "复制失败",
+        "progress": "已复制 {{done}} / {{total}}",
+        "done": "完成 🎉 已全部粘贴",
+        "reset": "重新开始",
+        "advanced": "调整字数",
+        "chunk_size_label": "每次复制字数",
+        "menu_label": "PS5 战略板粘贴",
+        "lp_title": "战略板粘贴",
+        "lp_desc": "适用于 PS5。将战略板分享代码分割为便于复制的片段。"
+    },
     "tutorial": {
         "skip": "跳过",
         "exit_confirm": "退出教程？",

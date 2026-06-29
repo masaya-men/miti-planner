@@ -307,6 +307,13 @@ export function LandingPage() {
             onClick={() => setShowComingSoon(true)}
             badge="COMING SOON"
           />
+          <ProjectCard
+            number="03"
+            title={t('stgy.lp_title')}
+            desc={t('stgy.lp_desc')}
+            onClick={() => navigate('/stgy')}
+            badge="UTILITY"
+          />
 
           <div className="border-t" style={{ borderColor: 'var(--color-lp-grid)' }} />
         </motion.div>

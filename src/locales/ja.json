@@ -935,6 +935,29 @@
             "copy_link_tooltip": "リンクをコピー"
         }
     },
+    "stgy": {
+        "page_title": "PS5 ストラテジーボード貼り付けアシスト | LoPo",
+        "heading": "PS5 ストラテジーボード 貼り付けアシスト",
+        "intro": "ストラテジーボードの共有コードを貼ると、PS5で貼りやすい長さに分割します。上から順にコピーし、PS Remote Play でゲームに貼り付けてください。",
+        "prep_title": "準備（初回だけ）",
+        "prep_body": "PS Remote Play アプリの設定（右上の⚙）→「バックグラウンドストリーミング」をオンにしてください。\nこれでアプリを切り替えても最大5分つながったままになり、LoPo とゲームを往復してコピペできます。",
+        "prep_ack": "OK・理解した",
+        "paste_label": "コードを貼る",
+        "paste_placeholder": "[stgy:... ここに共有コードを貼り付け ...]",
+        "chunks_heading": "上から順にコピー",
+        "copy_nth": "{{n}}番目をコピー",
+        "copied": "コピー済み",
+        "copied_toast": "コピーしました",
+        "copy_failed": "コピーに失敗しました",
+        "progress": "{{done}} / {{total}} コピー済",
+        "done": "完了 🎉 すべて貼り付けました",
+        "reset": "やり直す",
+        "advanced": "文字数を調整",
+        "chunk_size_label": "1回の文字数",
+        "menu_label": "PS5 ストラテジーボード貼り付け",
+        "lp_title": "ストラテジーボード貼り付け",
+        "lp_desc": "PS5向け。ストラテジーボードの共有コードを貼りやすい長さに分割してコピー。"
+    },
     "tutorial": {
         "skip": "スキップ",
         "exit_confirm": "チュートリアルを終了しますか？",
