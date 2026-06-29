@@ -14,6 +14,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
+- **✅ 2026-06-29 本番デプロイ済**: ①**共同編集の重さA根治**(カーソル描画を CursorOverlay に隔離し Timeline をカーソルパケットで再描画させない・実機OK) ②**メモURLリンク化#1**(通常表示のみhttp(s)→新タブ・SDD+opus最終Ready=Yes)。**次=PS5リモプ コピペ補助UI(brainstormingから・上の作業順#2)**。
 - **✅ 2026-06-26 本番デプロイ済(main `39f0be6e`・実機OK)**: 有名スプシ取込のパーティ割当を**3ステップ化してデッドエンド解消**(複数フェーズ追加後に割当UIが消えて詰む問題)。自動仮割当=resolveImportParty再利用+タンクcanonical/ヒラPH-BH追加・手動保持・クリアボタン。自作スプシ(grid)は非対象で現状維持。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。
 - **✅ 本番デプロイ済(詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))**: スプシ取込一式(6/22 `a6af27c0`)/⑦敵攻撃or 2択(6/23 `6471e816`)/スプシ取込バグ修正一式(6/23 `ca98bd32`)/**取込フローv2前半+①誘導型ウィザード(6/23 `50c64d7d`)/**③攻撃の対象(MT/ST)テンプレ引き継ぎ+管理ツールバーsticky化(6/24 `276ff4f4..746476ba`・SDD+opus最終レビューReady=Yes・実機OK)/**列グリッド取込=自作スプシ対応§9.7(6/25 `85bb7d8c`・SDD11タスク+実機FB2round+opus最終Ready=Yes・実機OK)+旧スプシ取込廃止で取込メニュー一本化(6/25 `41d3bfe3`)/**見切れ攻撃名ホバー・マーキー§5(6/25 `de8db4c0`・SDD3タスク+opus最終clean・実機OK)/**ローカルデータ安全性(6/25 `13b081c5`・persist要求+控えめ案内バー[長文マーキー]+折りたたみハンドルアイコン+復元バグ修正[圧縮プラン]+バックアップ表選択・SDD8+追加改善2・opus最終マージ可・実機OK)**。**PiPカンペ攻撃ドリブン化(6/25 `f0153d97`)**。**6/26分(本番済・実機OK)**=iOS非ログイン安全性強化(`37fa99ed`・自動ポップ警告/Web Shareバックアップ/iOS DLボタン黄注意)/テンプレ「スプシ表記」同名自動伝播(`50afd461`)/スマホにスプシ取込ボタン追加(`0df1b54b`)→**スマホ版は近日公開中央モーダルに変更(`3dd4f10b`)**+PCグリッドモーダルのz-index/dvh/貼付ボタン改善(`957d4766`)。**後追い候補**=スプシ「A or B」自動分割→altName / マントラ取込直後の一過性非発光(軽微) / ウィザード`no_phases`理由非表示 / skipped表示のamber直値→トークン化 / ②途中取込(spec§7繰越)。
 - **✅ 2026-06-20 完了(詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))**: リビデ正確モデル化 / FFLogsインポート取り込みモード+共同編集進捗同期 / アクアヴェール recast 90→60(main・mockData)。**残**=進捗スマホ記録/FFLogs Phase1.5再アンカー+Phase2スプシ取込⑥/リビデ非対象=回復要否・HP経時追跡。
@@ -65,7 +66,7 @@
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
 - **テスト(既存failure・本番無影響)**: `TopBar.test.tsx` 4件+`HousingWorkspace.test.tsx` 1件(2026-06-03〜・FFLogs修正前から)。HousingWorkspace は jsdom の youtube-nocookie 実 fetch→abort 環境依存・TopBar は要調査。
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留
-- **🆕 共同編集の実使用バグ**(2026-06-26 ユーザー観測=`docs/.private/2026-06-26-collab-issues-observed.md`): **A.めちゃ重い=✅本番デプロイ・実機確認済(2026-06-29)**(カーソル描画を CursorOverlay に隔離し Timeline がカーソルパケットで再描画しないように。CursorOverlay が roster だけ購読+byClient は rAF で getState 直読み+map/width は ref 渡し。**残=全行未仮想化[#59・react-window]は別タスク**) / **C.プレゼンスのドット数≠実人数=🟦見送り(低優先)**(多すぎ方向。原因候補=複数タブ/PC+スマホ・幽霊WS・再接続一瞬2接続。設計穴=count>rosterを常にpresence欠落と仮定し幽霊だと無名ドットが残る。詳細→.private) / **D.モーダル画面外=✅修正本番済(6/26)**=EventModal/BoundaryEditModalを実測clampToViewportに。B(カーソル暴れ)はAに統合。
+- **🆕 共同編集の実使用バグ**(`docs/.private/2026-06-26-collab-issues-observed.md`): A.重い=✅本番実機OK(2026-06-29・カーソル隔離。**残=全行未仮想化#59は別タスク**) / **C.ドット数≠実人数=🟦見送り(低優先)**(多すぎ方向。詳細→.private) / D.モーダル画面外=✅本番済(6/26)。B(カーソル暴れ)はAに統合。
 - **🆕 削除済み共有リンクの表示**(2026-06-25 後回し・方針確定): 削除した共同編集リンク(`/collab/:token`)を開くと空タイムライン。**狭いプライバシー窓あり**(休眠中に削除→次に開いた人だけ削除前の中身が一度見える)。**方針=A案(deletePlan 成功後に部屋を revoke→中身ごと再接続拒否+「失効」表示)で確定・今後分のみ有効・急ぎ不要**。詳細・実装スケッチ=`docs/.private/2026-06-25-deleted-share-link-notice.md`。
 
 ---
