@@ -313,7 +313,7 @@ export function LandingPage() {
           <ProjectCard
             number="03"
             title={t('stgy.lp_title')}
-            desc={t('stgy.lp_desc')}
+            desc="For PS5. Splits Strategy Board share codes into copy-friendly chunks for easy pasting via Remote Play."
             onClick={() => navigate('/stgy')}
           />
 
