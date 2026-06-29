@@ -2,6 +2,15 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-06-26 有名スプシ取込: パーティ割当を独立ステップ化(デッドエンド解消) — 本番デプロイ済・ユーザー実機OK
+有名スプシ(行列形式)で複数フェーズ(P1〜P5)を貼って最後に作成しようとすると、割当UIが「表示中の貼り付け表の列ヘッダー」内にしか無いのに「フェーズを追加」で表示がクリアされるため、**最後に割当する手段が消えて詰む**致命的デッドエンドを解消。spec/plan=`docs/superpowers/{specs,plans}/2026-06-26-spreadsheet-party-assignment-step*`。main fast-forward(65d28ec0→`39f0be6e`・実装7コミット `017f93ed..39f0be6e`)→push→Vercel本番自動デプロイ。
+- **設計=取込モーダルを2→3ステップ化**(1=コンテンツ選択 / 2=表を貼る / 3=パーティ割当)。割当は貼り付け状態と無関係に常に開けるので詰まない。**スコープ=有名スプシ(matrix)経路のみ**。自作スプシ(grid)は単一ブロックで列が常時表示=この詰みは起きないため現状維持(枠セレクタは`source==='grid'`限定)。
+- **自動仮割当=既存`resolveImportParty`を再利用+拡張**(ハードコーディング無し)。Task1で**タンクcanonical順(ナイト→戦士→暗黒→ガンブレでMT/ST)・ヒラPH/BH(白/占→H1・学/賢→H2)**を新規追加(DPSサブロール順は既存)。`seedAssignment`(Task2)が検出ジョブを空き枠に自動充填しつつ**手動編集は保持**(prune→保持→空き埋め)。フル8人でも無操作で「作成」に到達可。
+- **メモ③対応**: 「戻る」はデータ保持・「やり直す(クリア)」ボタン新設(モーダル閉じ直し不要)。
+- **実装=SDD 4タスク(各TDD+2段レビュー)**: T1 resolveImportParty全ロール一般化+`dpsOrder.ts`にTANK_ORDER/HEALER_PURE/HEALER_BARRIER追加 / T2 `seedAssignment`純関数 / T3 i18n5キー×4言語 / T4 モーダル3ステップ化(PartyAssignmentStep新設・footer分岐・自動シード配線・matrix枠セレクタ撤去・クリア)。
+- **最終レビュー(opus whole-branch)=Ready to merge: Yes**(Critical/Importantゼロ・デッドエンド解消/grid非破壊/共有関数の created-data非回帰[partyOverride常時付与]/seedAssignment純粋性 全確認)。`npm run build`(tsc厳密)OK・関連テスト全緑(partyAssignment20/モーダル46/resolveImportParty7/buildPlanFromSheets18/gridRowsFromResult19/i18n parity)・既知5fail(TopBar4+HousingWorkspace1)のみ。
+- **実機検証(ユーザー)**: 有名スプシでP1〜P5追加→ステップ3で8枠自動充足→無操作で作成OK・枠入替/戻る保持/やり直し/grid回帰 確認。
+
 ### ✅ 2026-06-24 取込v2③ 攻撃の対象(MT/ST)テンプレ引き継ぎ + 管理ツールバーsticky化 — 本番デプロイ済・ユーザー実機OK
 取込フローv2 本番前ブラッシュアップ③。取込先コンテンツに管理者テンプレが在るとき、スプシ取込の攻撃名→テンプレ技を照合し**対象(AoE/MT/ST)だけ**を引き継ぐ。spec/plan=`docs/superpowers/{specs,plans}/2026-06-23-import-target-carryover*`。main fast-forward(fe12ff6b→`746476ba`・コード6コミット `276ff4f4..746476ba`)→push→Vercel本番自動デプロイ。ロールバック=該当コミット revert。
 - **確定方針=精度優先**: マッチは正規化(括弧除去/NFKC/空白除去)後の完全一致＋管理登録のスプシ別名のみ。**編集距離の曖昧一致はやらない**(対象の誤付け=タンバスMT/ST誤誘導が有害)。引き継ぐのは `target` のみ・既存targetは上書きしない・非破壊。テンプレ無/contentId null/fetch失敗/未マッチ/等距離衝突=何もしない(取込は止めない)。管理と取込は**同一関数**で照合(DRY=管理で見た結果=本番結果)。
