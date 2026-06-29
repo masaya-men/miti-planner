@@ -236,6 +236,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setByColumnMode(false);
     setPhaseName('');
     setPasteBuffer('');
+    setMobileCopyHintOpen(false);
     setEntries([]);
     setAssignment(emptyAssignment());
     setTargetOverrides({});
