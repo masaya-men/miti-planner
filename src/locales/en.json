@@ -931,6 +931,29 @@
             "copy_link_tooltip": "Copy link"
         }
     },
+    "stgy": {
+        "page_title": "PS5 Strategy Board Paste Helper | LoPo",
+        "heading": "PS5 Strategy Board Paste Helper",
+        "intro": "Paste a Strategy Board share code and we'll split it into chunks that fit PS5's paste limit. Copy them in order and paste into the game via PS Remote Play.",
+        "prep_title": "Setup (first time only)",
+        "prep_body": "In the PS Remote Play app, open Settings (gear, top right) and turn on \"Background Streaming\".\nThis keeps the connection alive for up to 5 minutes when you switch apps, so you can go back and forth between LoPo and the game.",
+        "prep_ack": "OK, got it",
+        "paste_label": "Paste the code",
+        "paste_placeholder": "[stgy:... paste the share code here ...]",
+        "chunks_heading": "Copy in order",
+        "copy_nth": "Copy #{{n}}",
+        "copied": "Copied",
+        "copied_toast": "Copied",
+        "copy_failed": "Failed to copy",
+        "progress": "{{done}} / {{total}} copied",
+        "done": "Done 🎉 All pasted",
+        "reset": "Start over",
+        "advanced": "Adjust length",
+        "chunk_size_label": "Chars per copy",
+        "menu_label": "PS5 Strategy Board paste",
+        "lp_title": "Strategy Board Paste",
+        "lp_desc": "For PS5. Splits Strategy Board share codes into copy-friendly chunks."
+    },
     "tutorial": {
         "skip": "Skip",
         "exit_confirm": "Exit tutorial?",

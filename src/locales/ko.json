@@ -921,6 +921,29 @@
             "copy_link_tooltip": "링크 복사"
         }
     },
+    "stgy": {
+        "page_title": "PS5 스트래티지 보드 붙여넣기 도우미 | LoPo",
+        "heading": "PS5 스트래티지 보드 붙여넣기 도우미",
+        "intro": "스트래티지 보드 공유 코드를 붙여넣으면 PS5에서 붙여넣기 쉬운 길이로 분할합니다. 위에서부터 순서대로 복사해 PS Remote Play로 게임에 붙여넣으세요.",
+        "prep_title": "준비 (처음 한 번만)",
+        "prep_body": "PS Remote Play 앱 설정(오른쪽 위 ⚙)에서 \"백그라운드 스트리밍\"을 켜세요.\n앱을 전환해도 최대 5분간 연결이 유지되어 LoPo와 게임을 오가며 복사·붙여넣기를 할 수 있습니다.",
+        "prep_ack": "확인했습니다",
+        "paste_label": "코드 붙여넣기",
+        "paste_placeholder": "[stgy:... 공유 코드를 여기에 붙여넣기 ...]",
+        "chunks_heading": "순서대로 복사",
+        "copy_nth": "{{n}}번째 복사",
+        "copied": "복사됨",
+        "copied_toast": "복사했습니다",
+        "copy_failed": "복사에 실패했습니다",
+        "progress": "{{done}} / {{total}} 복사됨",
+        "done": "완료 🎉 모두 붙여넣었습니다",
+        "reset": "다시 하기",
+        "advanced": "글자 수 조정",
+        "chunk_size_label": "한 번에 복사할 글자 수",
+        "menu_label": "PS5 스트래티지 보드 붙여넣기",
+        "lp_title": "스트래티지 보드 붙여넣기",
+        "lp_desc": "PS5용. 스트래티지 보드 공유 코드를 복사하기 쉬운 길이로 분할."
+    },
     "tutorial": {
         "skip": "건너뛰기",
         "exit_confirm": "튜토리얼을 종료하시겠습니까?",
