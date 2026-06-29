@@ -10,7 +10,7 @@
 ---
 
 ## 次の作業順 (2026-06-29 ユーザー合意)
-1. ✅**メモのURLをクリックで開けるように=本番デプロイ済(2026-06-29)**(通常表示のみhttp(s)リンク化→新タブ・SDD+最終レビューReady=Yes。spec/plan=`docs/superpowers/{specs,plans}/2026-06-29-memo-url-linkify*`。YouTube埋込/www./PiP/編集中はスコープ外) 2. **【次】PS5リモプ コピペ補助UI**(要brainstorming・`docs/.private/2026-06-26-ps5-remote-play-paste-assist.md`) 3. **スプシ取込スマホ本格対応**(私のスマホ実機クリップボード採取が起点) 4. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
+1. ✅メモURLリンク化=本番済(spec/plan=`2026-06-29-memo-url-linkify*`。YouTube埋込は別ステップ→アイデア欄) 2. **【次】PS5リモプ コピペ補助UI**(要brainstorming・`docs/.private/2026-06-26-ps5-remote-play-paste-assist.md`) 3. **スプシ取込スマホ本格対応**(私のスマホ実機クリップボード採取が起点) 4. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
 
