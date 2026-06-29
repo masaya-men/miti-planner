@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   emptyAssignment, assignSlot, groupByRole, autoFillSingles,
-  isAssignmentComplete, buildPartyOverride, isSlotRequired, pruneAssignment,
+  isAssignmentComplete, buildPartyOverride, isSlotRequired, pruneAssignment, seedAssignment,
 } from '../partyAssignment';
 
 const roleOf = (id: string): 'tank' | 'healer' | 'dps' | undefined =>
@@ -120,6 +120,50 @@ describe('partyAssignment', () => {
       const pruned = pruneAssignment(a, byRole);
       expect(a.ST).toBe('war');     // 元は不変
       expect(pruned.ST).toBeNull(); // 戻り値だけ null
+    });
+  });
+
+  describe('seedAssignment', () => {
+    const J = (id: string, role: 'tank' | 'healer' | 'dps') =>
+      ({ id, name: { ja: id, en: id }, role, icon: '' } as import('../../../types').Job);
+    const JOBS = [
+      J('pld', 'tank'), J('war', 'tank'), J('whm', 'healer'), J('sch', 'healer'),
+      J('ast', 'healer'),
+      J('mnk', 'dps'), J('drg', 'dps'), J('brd', 'dps'), J('blm', 'dps'),
+    ];
+
+    it('フル8人を空 assignment から全枠 resolveImportParty 既定で埋める', () => {
+      const a = seedAssignment(
+        emptyAssignment(),
+        ['pld', 'war', 'whm', 'sch', 'mnk', 'drg', 'brd', 'blm'],
+        JOBS,
+      );
+      expect(a).toEqual({
+        MT: 'pld', ST: 'war', H1: 'whm', H2: 'sch',
+        D1: 'mnk', D2: 'drg', D3: 'brd', D4: 'blm',
+      });
+    });
+
+    it('手動で割り当てた枠は保持し、空き枠だけ埋める', () => {
+      // 手動で war を MT に置いた(既定なら pld=MT)。pld は空きタンク枠 ST へ回る。
+      const prev = assignSlot(emptyAssignment(), 'MT', 'war');
+      const a = seedAssignment(prev, ['pld', 'war'], JOBS);
+      expect(a.MT).toBe('war'); // 手動を保持
+      expect(a.ST).toBe('pld'); // 既定枠(MT)が埋まっていたので空きの ST へ
+    });
+
+    it('検出から消えたジョブの枠は外す', () => {
+      // war を ST に置いていたが、war が検出から消えた → ST は空く。
+      const prev = assignSlot(assignSlot(emptyAssignment(), 'MT', 'pld'), 'ST', 'war');
+      const a = seedAssignment(prev, ['pld'], JOBS);
+      expect(a.MT).toBe('pld');
+      expect(a.ST).toBeNull();
+    });
+
+    it('元の assignment を破壊しない(pure)', () => {
+      const prev = emptyAssignment();
+      seedAssignment(prev, ['pld'], JOBS);
+      expect(prev.MT).toBeNull();
     });
   });
 });

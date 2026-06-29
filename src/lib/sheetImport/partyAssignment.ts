@@ -1,3 +1,6 @@
+import type { Job } from '../../types';
+import { resolveImportParty } from './resolveImportParty';
+
 export const PARTY_SLOTS = ['MT', 'ST', 'H1', 'H2', 'D1', 'D2', 'D3', 'D4'] as const;
 export type PartySlot = (typeof PARTY_SLOTS)[number];
 export type SlotRole = 'tank' | 'healer' | 'dps';
@@ -91,4 +94,42 @@ export function isSlotRequired(a: PartyAssignment, slot: PartySlot, byRole: Reco
   const seated = slots.filter((s) => a[s] !== null).length;
   const need = Math.min(byRole[role].length, slots.length);
   return seated < need;
+}
+
+/**
+ * 検出ジョブを枠へ自動で仮割当しつつ、既存(手動含む)の割当は保持する。
+ * - prev のうち検出に残るジョブの枠は維持、消えたジョブの枠は外す(prune)。
+ * - まだ座っていない検出ジョブを resolveImportParty の既定配置で空き枠に詰める。
+ *   既定の枠が埋まっていれば同ロールの別の空き枠へ。空きが無ければ捨てる。
+ * 純関数(prev は変更しない)。
+ */
+export function seedAssignment(
+  prev: PartyAssignment,
+  detectedJobIds: string[],
+  jobs: Job[],
+): PartyAssignment {
+  const roleOf = (id: string): SlotRole | undefined =>
+    jobs.find((j) => j.id === id)?.role as SlotRole | undefined;
+  const byRole = groupByRole(detectedJobIds, roleOf);
+  const base = pruneAssignment(prev, byRole); // shallow copy(prev 不変)
+  const seated = new Set(
+    PARTY_SLOTS.map((s) => base[s]).filter((v): v is string => v !== null),
+  );
+  for (const { slot, jobId } of resolveImportParty(detectedJobIds, jobs)) {
+    if (seated.has(jobId)) continue;
+    if (base[slot as PartySlot] === null) {
+      base[slot as PartySlot] = jobId;
+      seated.add(jobId);
+      continue;
+    }
+    // 既定枠が埋まっている → 同ロールの空き枠へ
+    const role = roleOf(jobId);
+    if (!role) continue;
+    const empty = SLOTS_BY_ROLE[role].find((s) => base[s] === null);
+    if (empty) {
+      base[empty] = jobId;
+      seated.add(jobId);
+    }
+  }
+  return base;
 }
