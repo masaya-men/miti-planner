@@ -33,18 +33,6 @@ export default function StrategyBoardPastePage() {
 
   const chunks = useMemo(() => splitStrategyCode(raw, chunkSize), [raw, chunkSize]);
 
-  // アプリ既定は body overflow-hidden（index.css）。このページは縦長で画面を超えるため、
-  // 表示中だけ body をスクロール可能にする（LandingPage と同じパターン）。
-  // これをしないと断片リストの末尾が画面外に隠れて押せなくなる。
-  useEffect(() => {
-    document.body.style.overflow = 'auto';
-    document.body.style.overflowX = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-      document.body.style.overflowX = '';
-    };
-  }, []);
-
   // raw / chunkSize が変わったらコピー済みをリセット
   useEffect(() => { setCopied(new Set()); }, [raw, chunkSize]);
 
@@ -73,7 +61,11 @@ export default function StrategyBoardPastePage() {
   const allDone = chunks.length > 0 && copied.size === chunks.length;
 
   return (
-    <div className="min-h-screen bg-app-bg text-app-text">
+    <div
+      data-testid="stgy-scroll"
+      className="stgy-shell overflow-y-auto overscroll-contain bg-app-bg text-app-text"
+      style={{ WebkitOverflowScrolling: 'touch' }}
+    >
       <div className="mx-auto w-full max-w-[480px] px-4 pt-6 pb-[calc(2rem+env(safe-area-inset-bottom))] flex flex-col gap-5">
         {/* 見出し */}
         <header className="flex flex-col gap-1">

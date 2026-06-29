@@ -1641,3 +1641,13 @@ button, [role="button"], .touch-none {
   height: 100vh;
   height: 100dvh;
 }
+
+/* PS5 ストラテジーボード貼り付けページ(/stgy)のスクロールシェル。
+   body 全体をスクロールさせる方式は iOS Safari の動的ツールバーで不安定
+   (一度下へ動かすと最上部に戻りにくい)。専用シェルを実ビューポート(100dvh)
+   の高さにして内部スクロールさせると、どの端末でも確実に上端まで戻れる。
+   collab-joiner-shell と同じく dvh 非対応は 100vh フォールバック。 */
+.stgy-shell {
+  height: 100vh;
+  height: 100dvh;
+}

@@ -75,12 +75,11 @@ describe('StrategyBoardPastePage', () => {
     expect(screen.queryByText('順にコピー')).toBeNull();
   });
 
-  it('マウント中は body をスクロール可能にし、アンマウントで元に戻す', () => {
-    // アプリ既定は body overflow-hidden（index.css）。このページ表示中はスクロール解禁が必須。
-    document.body.style.overflow = 'hidden';
-    const { unmount } = render(<StrategyBoardPastePage />);
-    expect(document.body.style.overflow).toBe('auto');
-    unmount();
-    expect(document.body.style.overflow).toBe('');
+  it('全画面スクロールシェルでレンダリングされる（最上部に戻れる土台）', () => {
+    // body 全体スクロール方式は iOS で不安定なため、専用シェル(100dvh内部スクロール)を使う。
+    render(<StrategyBoardPastePage />);
+    const shell = screen.getByTestId('stgy-scroll');
+    expect(shell.className).toContain('stgy-shell');
+    expect(shell.className).toContain('overflow-y-auto');
   });
 });
