@@ -950,8 +950,10 @@
         "reset": "Start over",
         "advanced": "Adjust length",
         "chunk_size_label": "Chars per copy",
+        "back": "Back",
+        "nav_title": "Strategy Board",
         "menu_label": "PS5 Strategy Board paste",
-        "lp_title": "Strategy Board Paste",
+        "lp_title": "Utility",
         "lp_desc": "For PS5. Splits Strategy Board share codes into copy-friendly chunks."
     },
     "tutorial": {

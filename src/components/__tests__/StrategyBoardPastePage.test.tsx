@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 // i18n モック（補間対応）
 vi.mock('react-i18next', () => ({
@@ -32,15 +33,10 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// Toast モック
-const toastSpy = vi.fn();
-vi.mock('../Toast', () => ({ showToast: (...a: unknown[]) => toastSpy(...a) }));
-
 import StrategyBoardPastePage from '../StrategyBoardPastePage';
 
 describe('StrategyBoardPastePage', () => {
   beforeEach(() => {
-    toastSpy.mockClear();
     // clipboard モック（happy-dom では getter のみなので defineProperty で差し替え）
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
@@ -50,7 +46,7 @@ describe('StrategyBoardPastePage', () => {
   });
 
   it('コードを貼ると断片ボタンが生成される', () => {
-    render(<StrategyBoardPastePage />);
+    render(<StrategyBoardPastePage />, { wrapper: MemoryRouter });
     const textarea = screen.getByPlaceholderText('[stgy:...]');
     fireEvent.change(textarea, { target: { value: 'x'.repeat(360) } }); // 170区切り→3断片
     expect(screen.getByText('1番目をコピー')).toBeTruthy();
@@ -59,27 +55,27 @@ describe('StrategyBoardPastePage', () => {
   });
 
   it('コピーボタン押下で clipboard に書き込み＋✅状態になる', async () => {
-    render(<StrategyBoardPastePage />);
+    render(<StrategyBoardPastePage />, { wrapper: MemoryRouter });
     const textarea = screen.getByPlaceholderText('[stgy:...]');
     fireEvent.change(textarea, { target: { value: 'x'.repeat(360) } });
     const btn = screen.getByText('1番目をコピー');
     fireEvent.click(btn);
     await Promise.resolve();
     expect((navigator.clipboard.writeText as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith('x'.repeat(170));
-    expect(toastSpy).toHaveBeenCalledWith('コピーしました');
+    // iOS 風の自前トーストに「コピーしました」が出る
+    expect(await screen.findByText('コピーしました')).toBeTruthy();
     expect(await screen.findByText('コピー済み')).toBeTruthy();
   });
 
   it('空入力では断片リストが出ない', () => {
-    render(<StrategyBoardPastePage />);
+    render(<StrategyBoardPastePage />, { wrapper: MemoryRouter });
     expect(screen.queryByText('順にコピー')).toBeNull();
   });
 
-  it('全画面スクロールシェルでレンダリングされる（最上部に戻れる土台）', () => {
-    // body 全体スクロール方式は iOS で不安定なため、専用シェル(100dvh内部スクロール)を使う。
-    render(<StrategyBoardPastePage />);
+  it('全画面スクロールシェル(stgy-page)でレンダリングされる（最上部に戻れる土台）', () => {
+    // body 全体スクロール方式は iOS で不安定なため、専用シェル(.stgy-page=100dvh内部スクロール)を使う。
+    render(<StrategyBoardPastePage />, { wrapper: MemoryRouter });
     const shell = screen.getByTestId('stgy-scroll');
-    expect(shell.className).toContain('stgy-shell');
-    expect(shell.className).toContain('overflow-y-auto');
+    expect(shell.className).toContain('stgy-page');
   });
 });

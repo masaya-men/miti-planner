@@ -954,8 +954,10 @@
         "reset": "やり直す",
         "advanced": "文字数を調整",
         "chunk_size_label": "1回の文字数",
+        "back": "戻る",
+        "nav_title": "ストラテジーボード",
         "menu_label": "PS5 ストラテジーボード貼り付け",
-        "lp_title": "ストラテジーボード貼り付け",
+        "lp_title": "ユーティリティ",
         "lp_desc": "PS5向け。ストラテジーボードの共有コードを貼りやすい長さに分割してコピー。"
     },
     "tutorial": {
