@@ -149,24 +149,6 @@ export default function ClipboardInspectorPage() {
     }
   };
 
-  // 長大な貼り付け本文(text/plain=TSV)をサーバに送り、Claude が読み取れるようにする。
-  const sendToClaude = async () => {
-    if (!cap?.plain) { setNote('先に上のボックスに貼り付けてください。'); return; }
-    setNote('送信中…');
-    try {
-      const r = await fetch('/api/diag-clip', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ plain: cap.plain }),
-      });
-      const j = await r.json();
-      if (j.ok) setNote(`送信しました（${j.len}文字）。Claude が読み取れます。`);
-      else setNote('送信失敗: ' + (j.error ?? r.status));
-    } catch (e) {
-      setNote('送信失敗: ' + String(e));
-    }
-  };
-
   const box: React.CSSProperties = {
     background: '#fff',
     border: '1px solid #d1d1d6',
@@ -280,10 +262,7 @@ export default function ClipboardInspectorPage() {
           <div style={label}>text/html（生HTML）</div>
           <div style={box}>{cap.html || '(空)'}</div>
 
-          <button type="button" style={btn} onClick={sendToClaude}>
-            Claudeに送信（長文OK・おすすめ）
-          </button>
-          <button type="button" style={{ ...btn, background: '#8e8e93' }} onClick={copyResult}>
+          <button type="button" style={btn} onClick={copyResult}>
             この結果をまとめてコピー
           </button>
           <div style={label}>コピー内容（手動コピー用）</div>
