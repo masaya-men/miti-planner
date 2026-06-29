@@ -34,11 +34,17 @@ describe('resolveImportParty', () => {
     const slotByJob = Object.fromEntries(out.map((p) => [p.jobId, p.slot]));
     expect(slotByJob).toEqual({ mnk: 'D1', drg: 'D2', brd: 'D3', blm: 'D4' });
   });
-  it('タンク/ヒラの枠順は不変・DPS だけサブロール順に並ぶ（混在編成）', () => {
-    // タンク war→pld の検出順は保持(MT=war, ST=pld)。DPS は smn(キャスター) より nin(近接) が先。
+  it('タンクは canonical 順で MT/ST を決める（検出順は無視）', () => {
+    // 検出順 war→pld でも canonical(pld<war) で MT=pld, ST=war。
     const out = resolveImportParty(['war', 'smn', 'pld', 'nin'], JOBS);
     const slotByJob = Object.fromEntries(out.map((p) => [p.jobId, p.slot]));
-    expect(slotByJob).toEqual({ war: 'MT', pld: 'ST', nin: 'D1', smn: 'D2' });
+    expect(slotByJob).toEqual({ pld: 'MT', war: 'ST', nin: 'D1', smn: 'D2' });
+  });
+  it('ヒラは PH(白/占)→H1・BH(学/賢)→H2 で割り当てる（検出順は無視）', () => {
+    // 検出順 sch(BH)→ast(PH) でも PH 優先で H1=ast, H2=sch。
+    const out = resolveImportParty(['sch', 'ast'], [...JOBS, J('ast', 'healer')]);
+    const slotByJob = Object.fromEntries(out.map((p) => [p.jobId, p.slot]));
+    expect(slotByJob).toEqual({ ast: 'H1', sch: 'H2' });
   });
   it('未知 jobId は無視', () => {
     expect(resolveImportParty(['xyz', 'pld'], JOBS)).toEqual([{ slot: 'MT', jobId: 'pld' }]);

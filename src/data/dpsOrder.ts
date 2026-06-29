@@ -34,3 +34,24 @@ export function dpsRank(jobId: string): number {
   const i = DPS_SUBROLE_ORDER.indexOf(jobId);
   return i === -1 ? Number.MAX_SAFE_INTEGER : i;
 }
+
+/** タンクの並び順(MT→ST の既定)。FF14 公式ジョブガイド順。MT/ST はジョブで一意に決まらないため決定的な既定として使う。 */
+export const TANK_ORDER: readonly string[] = ['pld', 'war', 'drk', 'gnb'];
+
+/** ピュアヒラ(PH = H1 寄り)。 */
+export const HEALER_PURE: readonly string[] = ['whm', 'ast'];
+/** バリアヒラ(BH = H2 寄り)。 */
+export const HEALER_BARRIER: readonly string[] = ['sch', 'sge'];
+/** ヒラの並び順(PH → BH = H1→H2 の既定)。 */
+export const HEALER_ORDER: readonly string[] = [...HEALER_PURE, ...HEALER_BARRIER];
+
+/** jobId のタンク並び順ランク(小さいほど MT 寄り)。未知は末尾。 */
+export function tankRank(jobId: string): number {
+  const i = TANK_ORDER.indexOf(jobId);
+  return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+}
+/** jobId のヒラ並び順ランク(小さいほど H1 寄り=PH 優先)。未知は末尾。 */
+export function healerRank(jobId: string): number {
+  const i = HEALER_ORDER.indexOf(jobId);
+  return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+}
