@@ -1280,8 +1280,6 @@
         "tools_title": "工具",
         "import_title": "导入",
         "import_spreadsheet_desc": "手机版即将上线（可在电脑使用）",
-        "import_spreadsheet_soon_title": "手机版即将上线",
-        "import_spreadsheet_soon_toast": "电子表格导入的手机版正在优化中，即将上线。目前请在电脑上使用。",
         "fflogs_desc": "从 FFLogs 导入时间轴",
         "autoplan_desc": "自动放置减伤"
     },

@@ -1280,8 +1280,6 @@
         "tools_title": "도구",
         "import_title": "가져오기",
         "import_spreadsheet_desc": "모바일 버전은 곧 공개 (PC에서 이용 가능)",
-        "import_spreadsheet_soon_title": "모바일 버전 곧 공개",
-        "import_spreadsheet_soon_toast": "스프레드시트 가져오기 모바일 버전은 최적화 중입니다. 곧 공개됩니다. 지금은 PC를 이용해 주세요.",
         "fflogs_desc": "FFLogs에서 타임라인 가져오기",
         "autoplan_desc": "경감 자동 배치"
     },
