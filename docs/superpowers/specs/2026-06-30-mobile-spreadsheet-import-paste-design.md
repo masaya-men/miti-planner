@@ -76,6 +76,21 @@ PCの体験は一切変えず、**スマホのときだけ Step2 の中身を差
 - **回帰**: 既存テスト（`SpreadsheetGridImportModal.test.tsx` 等）を壊さない。`npm run build`（tsc 厳密）通過。`npx vitest run` で新規 failure ゼロ（既知5件=TopBar4 + HousingWorkspace1 は除く）。
 - **実機**: iPhone/Safari で「インポート → スプレッドシートから取り込み → コンテンツ選択 → 貼り付け → 確認サマリー → パーティ割当 → 取り込む」を1回通す（[feedback_one_fix_one_verify] に従い段階的に）。
 
+## 追補 (2026-06-30 実機検証後・スマホのみ追加対応)
+iPhone 実機検証で判明: ユーザーの有名スプシは **grid(列)形式**だった。grid はパーティ割当ステップ(Step3)を通らず即「作成」になり、パーティ枠は member 列の `slot` で決まる(PC はグリッド列ヘッダの `<select>`=`setColSlot` で割当)。スマホは編集グリッド非表示のため枠割当 UI が無く、役割あたり複数列があると未割当で**作成できず詰む**。`mobile_grid_needs_pc`(PC案内)では「スマホで完結したい」要望を満たせない。[[project_spreadsheet_mobile_grid]]
+
+**制約 (厳守): PC は一切変更しない。すべて `isMobile` 分岐の中だけ。** PC の grid 体験(GridView 列ヘッダ枠割当・フッター文言)は正常動作中につき不変。
+
+### 追加 A — スマホ grid のパーティ枠割当リスト (スマホ分岐内のみ)
+スマホ Step2 本体(貼付 textarea の下・スクロール領域内)に、source==='grid' のとき、検出した各 member 列(`c.field==='member' && c.jobId`)を縦リストで表示:
+- 各行 = ジョブ名(`jobs` から `jobId` で引き・`gridLang` ローカライズ) + 枠 `<select>`(`SLOTS_BY_ROLE[roleOf(jobId)]` の選択肢 + 「未割当」)。
+- 変更時、その列の `slot` を更新(PC の `setColSlot` と同じ: `setTable(prev => ({...prev, columns: prev.columns.map((c,i)=> i===ci ? {...c, slot} : c)}))`。GridView の `setColSlot` は触らずモーダル側に同等ハンドラを追加)。
+- これにより `partyComplete` が満たされ「作成」が押せる。`mobile_grid_needs_pc` バナーはこのリストに**置き換え**(キーは撤去 or 流用)。
+
+### 追加 B — 小画面スクロール/溢れ解消 (スマホ分岐内のみ)
+原因: フッター(`shrink-0`)の grid 作成ブロック(サマリー/警告/skipped/作成ボタン)が小画面で折返し縦に伸び、モーダル `overflow-hidden` で下端が切れる。
+対応(スマホのみ): フッターの**冗長なステータス文(サマリー/blockMsg/skipped/権利表記/未解決注記)をスクロール本体側へ移し**、フッターは「戻る/やり直す + 作成ボタン」の最小1行に保つ。PC はフッターに従来どおり全文表示(不変)。どんな小型 iPhone でも全要素にスクロールで到達できることを実機で確認。
+
 ## 想定リスク・留意点
 - **列検出ミスの非修正**: スマホでは列の再割当ができないため、パーサがジョブ列等を誤検出すると直せない。ただし有名スプシは PC の §9.7 取込で扱えている実績があり、許容範囲（ユーザー合意）。パーティ割当（Step3）で主要な job→slot 補正は可能。
 - **textarea の巨大貼り付け**: `text/html` は 1.6MB に達するが、取込が使うのは `text/plain`（数KB〜）。textarea には plain が入るので重さは問題にならない見込み（実装時に確認）。

@@ -97,7 +97,7 @@ const JA: Record<string, string> = {
   'gridImport.mobile_paste_placeholder': 'ここを長押し →「ペースト」',
   'gridImport.mobile_read_ok': '読み取りました — {{events}}件のイベントを検出',
   'gridImport.mobile_paste_empty': 'まだ貼り付けられていません。',
-  'gridImport.mobile_grid_needs_pc': 'この表は列ごとの担当割り当てが必要です。パソコンで取り込んでください。',
+  'gridImport.mobile_assign_party': 'パーティの枠を割り当て',
 };
 
 /** {{name}} 等のプレースホルダを置換した文字列を返す簡易 t。 */
@@ -847,13 +847,25 @@ describe('SpreadsheetGridImportModal（スマホ分岐）', () => {
     expect(nextBtn).not.toBeDisabled();
   });
 
-  it('スマホ: grid型で複数タンク列(未割当)を貼るとPC案内メッセージが出る', () => {
-    // 同じタンクジョブ(ナイト=pld)の列を2本 → autoAssignSingleSlots がロール内複数のため自動割当しない
-    // → hasUnassignedMemberCols=true → PC案内バナーが表示される
-    const gridTSV = '時間\tナイト\tナイト\n0:16\tランパート\tランパート\n';
+  it('スマホ grid: メンバー列ごとに枠割当リストを出し、割当で作成可能になる', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
-    fireEvent.change(screen.getByLabelText('スプレッドシートを貼り付け'), { target: { value: gridTSV } });
-    expect(screen.getByText('この表は列ごとの担当割り当てが必要です。パソコンで取り込んでください。')).toBeInTheDocument();
+    // 2 タンク列(同ジョブ)= 自動割当されず未割当
+    fireEvent.change(screen.getByLabelText('スプレッドシートを貼り付け'), {
+      target: { value: '時間\tナイト\tナイト\n0:16\tランパート\tランパート\n' },
+    });
+    // 割当リストの見出しが出る
+    expect(screen.getByText('パーティの枠を割り当て')).toBeInTheDocument();
+    // 枠 select が 2 つ(メンバー列 2)
+    const selects = screen.getAllByLabelText('枠は？');
+    expect(selects.length).toBe(2);
+    // 作成ボタンは未割当で無効
+    const createBtn = screen.getByText('この内容で作成').closest('button')!;
+    expect(createBtn).toBeDisabled();
+    // 2 列に MT/ST を割り当て
+    fireEvent.change(selects[0], { target: { value: 'MT' } });
+    fireEvent.change(selects[1], { target: { value: 'ST' } });
+    // 作成可能に
+    expect(createBtn).not.toBeDisabled();
   });
 });
