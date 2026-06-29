@@ -165,5 +165,24 @@ describe('partyAssignment', () => {
       seedAssignment(prev, ['pld'], JOBS);
       expect(prev.MT).toBeNull();
     });
+
+    it('DPS 複数ジョブ: 既定枠が手動で埋まっていても同ロールの空き枠へ詰める', () => {
+      // D1 に手動で blm を置く(既定なら近接 mnk が D1)。残り mnk/drg/brd は空き D2..D4 へ。
+      const prev = assignSlot(emptyAssignment(), 'D1', 'blm');
+      const a = seedAssignment(prev, ['mnk', 'drg', 'brd', 'blm'], JOBS);
+      expect(a.D1).toBe('blm');                 // 手動保持
+      // mnk/drg/brd は D2..D4 のいずれかに座る(捨てられない)
+      const dpsSeated = [a.D2, a.D3, a.D4].filter((v) => v !== null).sort();
+      expect(dpsSeated).toEqual(['brd', 'drg', 'mnk'].sort());
+    });
+
+    it('空き枠が無ければ捨てる(タンク3人目)', () => {
+      const a = seedAssignment(emptyAssignment(), ['pld', 'war', 'drk'], [...JOBS, J('drk', 'tank')]);
+      // pld=MT, war=ST、drk は座れない(枠なし)
+      const seated = Object.values(a).filter((v) => v !== null);
+      expect(seated).toContain('pld');
+      expect(seated).toContain('war');
+      expect(seated).not.toContain('drk');
+    });
   });
 });

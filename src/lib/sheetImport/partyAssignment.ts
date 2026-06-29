@@ -108,28 +108,28 @@ export function seedAssignment(
   detectedJobIds: string[],
   jobs: Job[],
 ): PartyAssignment {
-  const roleOf = (id: string): SlotRole | undefined =>
-    jobs.find((j) => j.id === id)?.role as SlotRole | undefined;
+  const roleOf = (id: string): SlotRole =>
+    jobs.find((j) => j.id === id)?.role as SlotRole;
   const byRole = groupByRole(detectedJobIds, roleOf);
-  const base = pruneAssignment(prev, byRole); // shallow copy(prev 不変)
+  let next = pruneAssignment(prev, byRole); // shallow copy(prev 不変)
   const seated = new Set(
-    PARTY_SLOTS.map((s) => base[s]).filter((v): v is string => v !== null),
+    PARTY_SLOTS.map((s) => next[s]).filter((v): v is string => v !== null),
   );
   for (const { slot, jobId } of resolveImportParty(detectedJobIds, jobs)) {
     if (seated.has(jobId)) continue;
-    if (base[slot as PartySlot] === null) {
-      base[slot as PartySlot] = jobId;
+    if (next[slot as PartySlot] === null) {
+      next = assignSlot(next, slot as PartySlot, jobId);
       seated.add(jobId);
       continue;
     }
     // 既定枠が埋まっている → 同ロールの空き枠へ
     const role = roleOf(jobId);
     if (!role) continue;
-    const empty = SLOTS_BY_ROLE[role].find((s) => base[s] === null);
+    const empty = SLOTS_BY_ROLE[role].find((s) => next[s] === null);
     if (empty) {
-      base[empty] = jobId;
+      next = assignSlot(next, empty, jobId);
       seated.add(jobId);
     }
   }
-  return base;
+  return next;
 }
