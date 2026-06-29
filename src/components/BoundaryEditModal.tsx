@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Trash2, Crosshair } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
+import { clampToViewport } from '../utils/clampToViewport';
 import { useThemeStore } from '../store/useThemeStore';
 import type { LocalizedString } from '../types';
 
@@ -59,6 +60,23 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
     useEffect(() => { setMounted(true); return () => setMounted(false); }, []);
 
+    // PC: モーダル実寸を測って画面内にクランプ(固定値400での概算をやめる)。
+    // useLayoutEffect はペイント前に走るので、初回フレームの中央位置は表示前に確定位置へ補正される。
+    const modalRef = useRef<HTMLDivElement>(null);
+    const [clampedPos, setClampedPos] = useState<{ left: number; top: number } | null>(null);
+    useLayoutEffect(() => {
+        if (!isOpen || isMobile || !position) return;
+        const el = modalRef.current;
+        if (!el) return;
+        const c = clampToViewport(
+            { x: position.x, y: position.y },
+            { w: el.offsetWidth, h: el.offsetHeight },
+            { w: window.innerWidth, h: window.innerHeight },
+            8,
+        );
+        setClampedPos({ left: c.x, top: c.y });
+    }, [isOpen, isMobile, position?.x, position?.y]);
+
     useEffect(() => {
         if (isOpen && initial) {
             setPreservedName(initial.name);
@@ -107,11 +125,14 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
         ? (mode === 'phase' ? 'boundary_modal.edit_phase' : 'boundary_modal.edit_label')
         : (mode === 'phase' ? 'boundary_modal.add_phase' : 'boundary_modal.add_label');
 
-    const x = position ? Math.min(position.x, window.innerWidth - 420) : '50%';
-    const y = position ? Math.min(position.y, window.innerHeight - 400) : '50%';
-    const style = isMobile
+    // 測位前(clampedPos 未確定)は中央でペイント前に補正(ちらつきなし)。framer は transform/opacity を
+    // アニメするだけで left/top は遷移しないため、EventModal のような「滑り」は出ない。
+    const centerStyle = { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' } as const;
+    const style: React.CSSProperties = isMobile
         ? { bottom: 0, left: 0, right: 0, width: '100%', transform: 'none' }
-        : (position ? { left: x, top: y } : { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' });
+        : (!position
+            ? centerStyle
+            : (clampedPos ? { left: clampedPos.left, top: clampedPos.top } : centerStyle));
 
     return createPortal(
         <AnimatePresence>
@@ -122,6 +143,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                         onClick={handleBackdropClick}
                     />
                     <motion.div
+                        ref={modalRef}
                         initial={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}
                         animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
                         exit={isMobile ? { y: '100%' } : { opacity: 0, scale: 0.95, y: 10 }}

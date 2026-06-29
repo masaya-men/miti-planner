@@ -76,10 +76,14 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
     // 2. Tutorial Active -> Force Center
     // 3. Desktop with position -> clampToViewport(実測)で画面内に。測位前(初回)は中央でペイント前に補正。
     // 4. Desktop without position -> Center
+    // 測位前(clampedPos 未確定)は raw 位置で visibility:hidden に描画 → 実測 → 確定位置で表示。
+    // 中央フレームのちらつきと、位置トランジションによる「スッと移動」を防ぐ。
     const centerStyle = { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' } as const;
-    const desktopStyle = (isTutorialActive || !position)
+    const desktopStyle: React.CSSProperties = (isTutorialActive || !position)
         ? centerStyle
-        : (clampedPos ? { left: clampedPos.left, top: clampedPos.top } : centerStyle);
+        : (clampedPos
+            ? { left: clampedPos.left, top: clampedPos.top }
+            : { left: position.x + 20, top: position.y, visibility: 'hidden' });
 
     return createPortal(
         <div className="fixed inset-0 z-[9999] text-left pointer-events-none">
@@ -97,7 +101,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                     "ring-black/[0.02] dark:ring-white/5",
                     isMobile
                         ? "fixed bottom-14 left-0 right-0 z-[9999] w-full max-h-[75vh] border-b-0"
-                        : "absolute w-[500px] rounded-2xl transition-all duration-200"
+                        : "absolute w-[500px] rounded-2xl"
                 )}
                 style={isMobile ? {
                     backgroundColor: 'var(--color-sheet-bg)',
