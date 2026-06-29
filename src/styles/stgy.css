@@ -20,11 +20,10 @@
   --ios-blue-press: #0063cc;
   --ios-green: #34c759;
 
-  height: 100vh;
-  height: 100dvh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  /* 固定高さの内部スクロールはやめ、ページを普通に縦スクロールさせる（普通のアプリ挙動）。
+     min-height で常に最低でも画面を満たし、キーボード開閉でも段差が出ない。 */
+  min-height: 100vh;
+  min-height: 100dvh;
 
   background: var(--ios-bg);
   color: var(--ios-label);

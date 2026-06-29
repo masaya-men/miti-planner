@@ -46,18 +46,30 @@ export default function StrategyBoardPastePage() {
   // ページタイトル
   useEffect(() => { document.title = t('stgy.page_title'); }, [t, i18n.language]);
 
-  // 黒帯対策: 表示中は html/body の背景も iOS ライト色に合わせ、キーボード開閉時に
-  // 背後の LoPo 本体（暗いテーマ）が露出しないようにする。アンマウントで元に戻す。
+  // 表示中だけ、このページを「普通のアプリ」のように振る舞わせる:
+  //  - 本体の body は overflow:hidden 既定なので、ここでは普通の縦スクロールを解禁
+  //    （固定高さ内部スクロールをやめたので、ページ全体が自然にスクロールする）。
+  //  - html/body の背景も iOS ライト色にし、キーボード開閉時に背後の暗い本体が
+  //    黒帯/段差として見えないようにする。
+  // アンマウントで全て元に戻す。
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
-    const prevHtml = html.style.background;
-    const prevBody = body.style.background;
+    const prev = {
+      htmlBg: html.style.background,
+      bodyBg: body.style.background,
+      bodyOverflow: body.style.overflow,
+      bodyOverflowX: body.style.overflowX,
+    };
     html.style.background = '#f2f2f7';
     body.style.background = '#f2f2f7';
+    body.style.overflow = 'auto';
+    body.style.overflowX = 'hidden';
     return () => {
-      html.style.background = prevHtml;
-      body.style.background = prevBody;
+      html.style.background = prev.htmlBg;
+      body.style.background = prev.bodyBg;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.overflowX = prev.bodyOverflowX;
     };
   }, []);
 
