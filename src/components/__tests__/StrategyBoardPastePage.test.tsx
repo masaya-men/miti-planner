@@ -33,15 +33,10 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// Toast モック
-const toastSpy = vi.fn();
-vi.mock('../Toast', () => ({ showToast: (...a: unknown[]) => toastSpy(...a) }));
-
 import StrategyBoardPastePage from '../StrategyBoardPastePage';
 
 describe('StrategyBoardPastePage', () => {
   beforeEach(() => {
-    toastSpy.mockClear();
     // clipboard モック（happy-dom では getter のみなので defineProperty で差し替え）
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
@@ -67,7 +62,8 @@ describe('StrategyBoardPastePage', () => {
     fireEvent.click(btn);
     await Promise.resolve();
     expect((navigator.clipboard.writeText as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith('x'.repeat(170));
-    expect(toastSpy).toHaveBeenCalledWith('コピーしました');
+    // iOS 風の自前トーストに「コピーしました」が出る
+    expect(await screen.findByText('コピーしました')).toBeTruthy();
     expect(await screen.findByText('コピー済み')).toBeTruthy();
   });
 

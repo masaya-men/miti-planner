@@ -2,12 +2,11 @@
 // PS5 ストラテジーボード貼り付けアシスト。
 // デザインは Apple iOS 純正アプリ風の単一ライトテーマ（src/styles/stgy.css）で、
 // LoPo 本体のトークン・ダーク/ライトテーマからは独立させている。
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { Copy, Check, RotateCcw, ChevronRight, ChevronLeft } from 'lucide-react';
-import { showToast } from './Toast';
+import { Copy, Check, X, RotateCcw, ChevronRight, ChevronLeft } from 'lucide-react';
 import {
   splitStrategyCode,
   DEFAULT_CHUNK_SIZE,
@@ -35,6 +34,9 @@ export default function StrategyBoardPastePage() {
   const [prepOpen, setPrepOpen] = useState<boolean>(() => {
     try { return localStorage.getItem(BG_STREAM_ACK_KEY) !== '1'; } catch { return true; }
   });
+  // iOS 風トースト（自前）。{msg, ok, leaving}
+  const [toast, setToast] = useState<{ msg: string; ok: boolean; leaving: boolean } | null>(null);
+  const toastTimers = useRef<number[]>([]);
 
   const chunks = useMemo(() => splitStrategyCode(raw, chunkSize), [raw, chunkSize]);
 
@@ -43,6 +45,32 @@ export default function StrategyBoardPastePage() {
 
   // ページタイトル
   useEffect(() => { document.title = t('stgy.page_title'); }, [t, i18n.language]);
+
+  // 黒帯対策: 表示中は html/body の背景も iOS ライト色に合わせ、キーボード開閉時に
+  // 背後の LoPo 本体（暗いテーマ）が露出しないようにする。アンマウントで元に戻す。
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.background;
+    const prevBody = body.style.background;
+    html.style.background = '#f2f2f7';
+    body.style.background = '#f2f2f7';
+    return () => {
+      html.style.background = prevHtml;
+      body.style.background = prevBody;
+    };
+  }, []);
+
+  // トースト後始末
+  useEffect(() => () => { toastTimers.current.forEach(clearTimeout); }, []);
+
+  const showToastLocal = (msg: string, ok: boolean) => {
+    toastTimers.current.forEach(clearTimeout);
+    toastTimers.current = [];
+    setToast({ msg, ok, leaving: false });
+    toastTimers.current.push(window.setTimeout(() => setToast(p => (p ? { ...p, leaving: true } : p)), 1200));
+    toastTimers.current.push(window.setTimeout(() => setToast(null), 1440));
+  };
 
   const ackPrep = () => {
     setPrepOpen(false);
@@ -57,9 +85,9 @@ export default function StrategyBoardPastePage() {
         next.add(index);
         return next;
       });
-      showToast(t('stgy.copied_toast'));
+      showToastLocal(t('stgy.copied_toast'), true);
     } catch {
-      showToast(t('stgy.copy_failed'), 'error');
+      showToastLocal(t('stgy.copy_failed'), false);
     }
   };
 
@@ -197,6 +225,16 @@ export default function StrategyBoardPastePage() {
           </div>
         )}
       </div>
+
+      {/* iOS 風トースト */}
+      {toast && (
+        <div className={clsx('stgy-toast', toast.leaving && 'is-leaving')} role="status">
+          {toast.ok
+            ? <Check size={15} strokeWidth={3} className="stgy-toast-ok" />
+            : <X size={15} strokeWidth={3} className="stgy-toast-ng" />}
+          {toast.msg}
+        </div>
+      )}
     </div>
   );
 }

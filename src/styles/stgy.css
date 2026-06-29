@@ -373,3 +373,38 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
   cursor: pointer;
 }
+
+/* ── iOS 風トースト（下中央の半透明カプセル・自前実装） ──
+   LoPo 本体の Toast は使わず、このページ専用の Apple 風 HUD にする。 */
+.stgy-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(32px + env(safe-area-inset-bottom));
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 18px;
+  border-radius: 980px;
+  background: rgba(22, 22, 24, 0.86);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+  animation: stgy-toast-in 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+.stgy-toast.is-leaving {
+  animation: stgy-toast-out 0.22s ease forwards;
+}
+.stgy-toast .stgy-toast-ok { color: var(--ios-green); }
+.stgy-toast .stgy-toast-ng { color: #ff453a; }
+@keyframes stgy-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(14px) scale(0.94); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes stgy-toast-out {
+  from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  to { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.97); }
+}
