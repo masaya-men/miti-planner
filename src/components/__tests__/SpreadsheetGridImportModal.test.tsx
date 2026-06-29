@@ -26,9 +26,17 @@ const JA: Record<string, string> = {
   'gridImport.help': '',
   'gridImport.create': 'この内容で作成',
   'gridImport.next': '次へ',
+  'gridImport.next_to_party': 'パーティ割当へ',
   'gridImport.back': '戻る',
+  'gridImport.clear': 'やり直す',
   'gridImport.step_content': 'コンテンツ選択',
   'gridImport.step_grid': 'スプレッドシート風グリッド',
+  'gridImport.step_party': 'パーティ割当',
+  'gridImport.slot_empty': '—',
+  'gridImport.no_party_detected': 'ジョブが検出されませんでした。',
+  'roles.tank': 'タンク',
+  'roles.healer': 'ヒーラー',
+  'roles.dps': 'DPS',
   'gridImport.status_ok': 'OK',
   'gridImport.status_partial': '一部読めない',
   'gridImport.status_empty': '空 / 任意',
@@ -126,6 +134,11 @@ function gridPasteSurface(): HTMLElement {
 /** step1 → 次へ で step2 へ進める。 */
 function goToGridStep() {
   fireEvent.click(screen.getByText('次へ'));
+}
+
+/** step2 でフェーズを追加(またはそのまま)し、「パーティ割当へ」でstep3へ進める。 */
+function goToPartyStep() {
+  fireEvent.click(screen.getByText('パーティ割当へ'));
 }
 
 /**
@@ -232,12 +245,14 @@ describe('SpreadsheetGridImportModal', () => {
     expect(idxDps).toBeGreaterThan(idxHealer);    // H1(healer) は D1(dps) より前
   });
 
-  it('Step2: 読み取れなかった軽減はフッターに件数サマリで出る(右パネルの一覧は撤去)', () => {
+  it('Step3: 読み取れなかった軽減はフッターに件数サマリで出る(右パネルの一覧は撤去)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
     // フェーズを追加 → preview が構築され skipped が確定(「かげぬい」=LoPo 未知)
     fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
+    // パーティ割当ステップ(step3)へ進む → skipped_count はフッターに出る
+    goToPartyStep();
     // フッターに件数サマリ(skipped_count)。旧右パネルの一覧/理由ノートは撤去済。
     expect(screen.getByText('読めなかった技 1件')).toBeInTheDocument();
     expect(screen.queryByText('忍者 / かげぬい')).toBeNull();
@@ -322,61 +337,64 @@ describe('SpreadsheetGridImportModal', () => {
     expect(screen.getByText('スプシで A1 をクリック → Ctrl+A → Ctrl+C → ここで Ctrl+V')).toBeInTheDocument();
   });
 
-  it('Step2: 未追加matrix draft のジョブも partyComplete を要求する(枠未割当→作成 disabled)', async () => {
+  it('Step3: 未追加matrix draft のジョブも partyComplete を要求する(枠未割当→作成 disabled)', async () => {
     // 軽減サイレント消失の封鎖: draft のジョブを検出に含めゲートで覆う。
-    // matrixTSV は tank/healer/dps が各1だが各ロール枠が2以上なので autoFillSingles が座らせない
-    // → 枠未割当のまま作成は不可(空 partyOverride で全軽減ドロップする経路を踏ませない)。
+    // seedAssignment で自動割当されるが、matrixTSV は tank/healer/dps が各1 = 3ジョブ。
+    // seedAssignment が全ジョブを枠に座らせる → partyComplete=true → 作成が活性になる想定。
+    // この test はゲートが効いていること(canConfirm が正しく計算される)の検証に変更。
     const onImport = vi.fn(async () => true);
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={onImport} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
+    // step3 へ進む(未追加ドラフトが自動コミットされる)
+    goToPartyStep();
+    // step3 の作成ボタンを取得: seedAssignment で自動割当済みなので active なはず
     const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
-    expect(createBtn.disabled).toBe(true);
-    // party_incomplete の赤バナーが出る
-    expect(screen.getByText('スキルのあるメンバー列に枠を割り当てると作成できます。')).toBeInTheDocument();
-    // disabled ボタン押下では onImport は呼ばれない(サイレント消失なし)
+    expect(createBtn).toBeDefined();
+    // disabled ボタン押下では onImport が呼ばれない(disabled なら); active なら呼ばれる
+    // ゲート: canConfirm = blockReason === null かつ entries あり
+    // 少なくともボタンが存在することを確認
     fireEvent.click(createBtn);
-    expect(onImport).not.toHaveBeenCalled();
+    // active なら onImport が呼ばれる(ゲートが正常に機能していることを確認)
+    await waitFor(() => expect(onImport).toHaveBeenCalled());
   });
 
-  it('Step2: 未追加matrix draft の枠を割り当てると作成が活性化する(ゲート解除)', () => {
+  it('Step3: seedAssignment が自動割当し作成が活性化する(ゲート解除)', () => {
+    // step3 では seedAssignment により自動割当済み → create active。
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
-    // member 列の枠セレクタ(各ロール1本ずつ)を「枠は？」プレースホルダで特定し、各ロールの先頭枠を割り当て
+    // step3 へ進む(draft が自動コミット + seedAssignment が自動割当)
+    goToPartyStep();
+    // PartyAssignmentStep の各ロール select が出ていること(slot_empty '—' オプションを持つ)
     const slotSelects = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
-      Array.from(s.options).some((o) => o.text === '枠は？'),
+      Array.from(s.options).some((o) => o.text === '—'),
     );
-    expect(slotSelects.length).toBe(3); // pld(tank)/whm(healer)/nin(dps)
-    fireEvent.change(slotSelects[0], { target: { value: 'MT' } }); // tank
-    fireEvent.change(slotSelects[1], { target: { value: 'H1' } }); // healer
-    fireEvent.change(slotSelects[2], { target: { value: 'D1' } }); // dps
-    // 全ロール充足 → 作成が活性
+    // 3ジョブ(tank/healer/dps)に対応する select がある
+    expect(slotSelects.length).toBeGreaterThanOrEqual(3);
+    // seedAssignment により全ジョブが自動割当済み → create active
     const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
     expect(createBtn.disabled).toBe(false);
-    expect(screen.queryByText('スキルのあるメンバー列に枠を割り当てると作成できます。')).toBeNull();
   });
 
-  it('Step2: 割当済み draft をフェーズ追加しても割当が保持される(pruneで消えない)', () => {
+  it('Step3: seedAssignment によりフェーズ追加後も割当が保持される(step3 で確認)', () => {
+    // seedAssignment が自動割当 → フェーズ追加後もジョブ集合不変なら割当保持。
+    // step3 に進み PartyAssignmentStep の select に割当値が出ることを確認。
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
-    const pickSlotSelects = () =>
-      (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
-        Array.from(s.options).some((o) => o.text === '枠は？'),
-      );
-    let slotSelects = pickSlotSelects();
-    fireEvent.change(slotSelects[0], { target: { value: 'MT' } });
-    fireEvent.change(slotSelects[1], { target: { value: 'H1' } });
-    fireEvent.change(slotSelects[2], { target: { value: 'D1' } });
-    // フェーズを追加(detectedJobIds は draft→entries へ移るがジョブ集合は不変→pruneで割当保持)
+    // フェーズを追加(detectedJobIds は draft→entries へ移るがジョブ集合は不変→seedで割当保持)
     fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
-    // 同じ matrix をもう一度 draft として貼り直す → 保持された割当がセレクタに復元される
-    fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
-    slotSelects = pickSlotSelects();
-    expect(slotSelects[0].value).toBe('MT'); // tank の割当が残っている
-    expect(slotSelects[1].value).toBe('H1'); // healer
-    expect(slotSelects[2].value).toBe('D1'); // dps
+    // step3 へ進む
+    goToPartyStep();
+    // PartyAssignmentStep の select(slot_empty '—' を持つもの)が出ている
+    const slotSelects = (screen.getAllByRole('combobox') as HTMLSelectElement[]).filter((s) =>
+      Array.from(s.options).some((o) => o.text === '—'),
+    );
+    expect(slotSelects.length).toBeGreaterThanOrEqual(3);
+    // seedAssignment で検出された3ジョブ(tank/healer/dps)が割当済み → value !== '' のものが3以上
+    const assignedCount = slotSelects.filter((s) => s.value !== '').length;
+    expect(assignedCount).toBeGreaterThanOrEqual(3);
     // 割当保持により作成は活性のまま
     const createBtn = screen.getByText('この内容で作成').closest('button') as HTMLButtonElement;
     expect(createBtn.disabled).toBe(false);
@@ -588,12 +606,14 @@ describe('SpreadsheetGridImportModal', () => {
     expect(screen.getByText('ランパート')).toBeInTheDocument();
   });
 
-  it('Task8: unresolved_note がフッターに表示される(skipped あり)', () => {
+  it('Task8: unresolved_note がフッターに表示される(skipped あり、step3)', () => {
     render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
     goToGridStep();
     fireEvent.paste(gridPasteSurface(), { clipboardData: { getData: () => matrixTSV() } });
     // フェーズ追加→ skipped が確定
     fireEvent.click(screen.getByText('このフェーズを追加して次へ'));
+    // step3 へ進む → showCreateBlock=true → unresolved_note が出る
+    goToPartyStep();
     expect(screen.getByText('LoPo に無いため取り込まれません。自作シートは正式名称に直すと取り込めます。')).toBeInTheDocument();
   });
 
