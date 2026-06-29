@@ -1,0 +1,375 @@
+/* ============================================================
+   /stgy（PS5 ストラテジーボード貼り付け）専用スタイル。
+   Apple iOS 純正アプリ（設定／ショートカット）風の単一ライトテーマ。
+   LoPo 本体のデザイントークン・ダーク/ライトテーマからは完全に独立させる
+   ため、すべて .stgy-page 配下にスコープした固定色で構成する。
+   ============================================================ */
+
+.stgy-page {
+  /* iOS システムカラー（ライト・グループ化背景） */
+  --ios-bg: #f2f2f7;
+  --ios-card: #ffffff;
+  --ios-label: #1c1c1e;
+  --ios-secondary: #3c3c4399; /* rgba(60,60,67,0.6) 相当 */
+  --ios-tertiary: #3c3c434d;  /* rgba(60,60,67,0.3) */
+  --ios-secondary-solid: #6c6c70;
+  --ios-separator: #3c3c4329; /* hairline */
+  --ios-fill: #78788014;      /* secondarySystemFill */
+  --ios-fill-press: #7878801f;
+  --ios-blue: #007aff;
+  --ios-blue-press: #0063cc;
+  --ios-green: #34c759;
+
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  background: var(--ios-bg);
+  color: var(--ios-label);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    system-ui, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
+}
+
+/* ── ナビバー（iOS 風・上部固定・ヘアライン区切り） ── */
+.stgy-nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px max(16px, env(safe-area-inset-left)) 8px max(12px, env(safe-area-inset-left));
+  background: rgba(249, 249, 249, 0.82);
+  --tw-backdrop-blur: blur(20px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) saturate(180%);
+  backdrop-filter: var(--tw-backdrop-blur,) saturate(180%);
+  border-bottom: 0.5px solid var(--ios-separator);
+}
+.stgy-nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  height: 36px;
+  padding: 0 8px 0 4px;
+  border: none;
+  background: none;
+  color: var(--ios-blue);
+  font-size: 17px;
+  font-weight: 400;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: opacity 0.15s ease;
+}
+.stgy-nav-back:active { opacity: 0.4; }
+.stgy-nav-title {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-right: 56px; /* 戻るボタン分のバランス取り（中央寄せ） */
+  color: var(--ios-label);
+}
+
+/* ── 本文コンテナ ── */
+.stgy-container {
+  max-width: 540px;
+  margin: 0 auto;
+  padding: 8px max(16px, env(safe-area-inset-left))
+    calc(40px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-right));
+}
+
+.stgy-title {
+  font-size: 30px;
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 16px 4px 6px;
+  color: var(--ios-label);
+}
+.stgy-intro {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ios-secondary-solid);
+  margin: 0 4px 20px;
+}
+
+/* ── グループ見出し（iOS のセクションラベル） ── */
+.stgy-group-label {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ios-secondary-solid);
+  margin: 0 16px 7px;
+  letter-spacing: -0.01em;
+}
+
+/* ── グループ化カード（inset grouped） ── */
+.stgy-group {
+  background: var(--ios-card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  margin-bottom: 22px;
+}
+
+/* ── 開閉ヘッダ行 ── */
+.stgy-disclosure {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  color: var(--ios-label);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.stgy-disclosure:active { background: var(--ios-fill-press); }
+.stgy-disclosure .stgy-grow { flex: 1; }
+.stgy-chevron {
+  color: var(--ios-tertiary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.stgy-chevron.is-open { transform: rotate(90deg); }
+
+.stgy-disclosure-body {
+  padding: 0 16px 16px;
+  border-top: 0.5px solid var(--ios-separator);
+  padding-top: 14px;
+}
+.stgy-prep-text {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ios-secondary-solid);
+  white-space: pre-line;
+  margin: 0 0 14px;
+}
+
+/* ── ボタン（iOS 塗りつぶし青） ── */
+.stgy-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 12px;
+  background: var(--ios-blue);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.stgy-btn-primary:active { background: var(--ios-blue-press); transform: scale(0.97); }
+
+/* ── ② コード入力 ── */
+.stgy-field-label {
+  font-size: 13px;
+  color: var(--ios-secondary-solid);
+  margin: 0 16px 7px;
+}
+.stgy-textarea {
+  display: block;
+  width: 100%;
+  min-height: 104px;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--ios-card);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  color: var(--ios-label);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: 0;
+  resize: vertical;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.stgy-textarea::placeholder { color: var(--ios-tertiary); }
+.stgy-textarea:focus { outline: 2px solid var(--ios-blue); outline-offset: -1px; }
+
+/* ── ③ コピー行（グループ化リスト） ── */
+.stgy-list-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 16px 7px;
+}
+.stgy-list-header .stgy-section { font-size: 13px; color: var(--ios-secondary-solid); }
+.stgy-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: var(--ios-blue);
+  font-size: 15px;
+  cursor: pointer;
+  padding: 2px 2px;
+}
+.stgy-reset:active { opacity: 0.4; }
+
+.stgy-list { list-style: none; margin: 0; padding: 0; }
+.stgy-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+/* 行間ヘアライン（先頭以外・アイコン幅ぶんインセット） */
+.stgy-copy-row + .stgy-copy-row { box-shadow: inset 0 0.5px 0 var(--ios-separator); }
+.stgy-copy-row:active { background: var(--ios-fill-press); }
+
+.stgy-copy-index {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--ios-fill);
+  color: var(--ios-secondary-solid);
+}
+.stgy-copy-row.is-done .stgy-copy-index {
+  background: var(--ios-green);
+  color: #fff;
+}
+.stgy-copy-preview {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  color: var(--ios-secondary);
+}
+.stgy-copy-action {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ios-blue);
+  letter-spacing: -0.01em;
+}
+.stgy-copy-row.is-done .stgy-copy-action { color: var(--ios-secondary-solid); font-weight: 400; }
+
+/* ── 進捗 ── */
+.stgy-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 16px 0;
+}
+.stgy-progress-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ios-fill-press);
+  overflow: hidden;
+}
+.stgy-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--ios-blue);
+  transition: width 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.stgy-progress-label {
+  flex-shrink: 0;
+  font-size: 14px;
+  color: var(--ios-secondary-solid);
+  font-variant-numeric: tabular-nums;
+}
+.stgy-done {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ios-green);
+}
+
+/* ── 詳細設定（文字数スライダー） ── */
+.stgy-advanced-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 18px 16px 0;
+  border: none;
+  background: none;
+  color: var(--ios-blue);
+  font-size: 15px;
+  cursor: pointer;
+}
+.stgy-advanced-toggle:active { opacity: 0.4; }
+.stgy-slider-card {
+  margin-top: 10px;
+  padding: 14px 16px;
+}
+.stgy-slider-row { display: flex; align-items: center; gap: 14px; }
+.stgy-slider-label { font-size: 15px; color: var(--ios-label); flex-shrink: 0; }
+.stgy-slider-value {
+  margin-left: auto;
+  min-width: 38px;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ios-label);
+  font-variant-numeric: tabular-nums;
+}
+.stgy-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--ios-fill-press);
+  outline: none;
+}
+.stgy-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+}
+.stgy-range::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+}

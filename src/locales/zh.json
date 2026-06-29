@@ -940,8 +940,10 @@
         "reset": "重新开始",
         "advanced": "调整字数",
         "chunk_size_label": "每次复制字数",
+        "back": "返回",
+        "nav_title": "战略板",
         "menu_label": "PS5 战略板粘贴",
-        "lp_title": "战略板粘贴",
+        "lp_title": "实用工具",
         "lp_desc": "适用于 PS5。将战略板分享代码分割为便于复制的片段。"
     },
     "tutorial": {

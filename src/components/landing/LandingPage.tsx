@@ -225,6 +225,9 @@ export function LandingPage() {
           <NavLink onClick={() => setShowComingSoon(true)} badge="soon">
             {t('portal.housing_button')}
           </NavLink>
+          <NavLink onClick={() => navigate('/stgy')}>
+            {t('stgy.lp_title')}
+          </NavLink>
           <ThemeToggle />
           <LangToggle />
         </motion.nav>
@@ -312,7 +315,6 @@ export function LandingPage() {
             title={t('stgy.lp_title')}
             desc={t('stgy.lp_desc')}
             onClick={() => navigate('/stgy')}
-            badge="UTILITY"
           />
 
           <div className="border-t" style={{ borderColor: 'var(--color-lp-grid)' }} />

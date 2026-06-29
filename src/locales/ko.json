@@ -940,8 +940,10 @@
         "reset": "다시 하기",
         "advanced": "글자 수 조정",
         "chunk_size_label": "한 번에 복사할 글자 수",
+        "back": "뒤로",
+        "nav_title": "스트래티지 보드",
         "menu_label": "PS5 스트래티지 보드 붙여넣기",
-        "lp_title": "스트래티지 보드 붙여넣기",
+        "lp_title": "유틸리티",
         "lp_desc": "PS5용. 스트래티지 보드 공유 코드를 복사하기 쉬운 길이로 분할."
     },
     "tutorial": {
