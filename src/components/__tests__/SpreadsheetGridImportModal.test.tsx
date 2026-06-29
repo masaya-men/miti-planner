@@ -97,6 +97,7 @@ const JA: Record<string, string> = {
   'gridImport.mobile_paste_placeholder': 'ここを長押し →「ペースト」',
   'gridImport.mobile_read_ok': '読み取りました — {{events}}件のイベントを検出',
   'gridImport.mobile_paste_empty': 'まだ貼り付けられていません。',
+  'gridImport.mobile_grid_needs_pc': 'この表は列ごとの担当割り当てが必要です。パソコンで取り込んでください。',
 };
 
 /** {{name}} 等のプレースホルダを置換した文字列を返す簡易 t。 */
@@ -844,5 +845,15 @@ describe('SpreadsheetGridImportModal（スマホ分岐）', () => {
     expect(screen.getByText('読み取りました — 1件のイベントを検出')).toBeInTheDocument();
     // ガード解除
     expect(nextBtn).not.toBeDisabled();
+  });
+
+  it('スマホ: grid型で複数タンク列(未割当)を貼るとPC案内メッセージが出る', () => {
+    // 同じタンクジョブ(ナイト=pld)の列を2本 → autoAssignSingleSlots がロール内複数のため自動割当しない
+    // → hasUnassignedMemberCols=true → PC案内バナーが表示される
+    const gridTSV = '時間\tナイト\tナイト\n0:16\tランパート\tランパート\n';
+    render(<SpreadsheetGridImportModal isOpen onClose={() => {}} onImport={async () => true} defaultSelection={DEFAULT_SEL} />);
+    goToGridStep();
+    fireEvent.change(screen.getByLabelText('スプレッドシートを貼り付け'), { target: { value: gridTSV } });
+    expect(screen.getByText('この表は列ごとの担当割り当てが必要です。パソコンで取り込んでください。')).toBeInTheDocument();
   });
 });

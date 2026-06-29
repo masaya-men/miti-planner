@@ -2778,6 +2778,7 @@
         "mobile_paste_label": "スプレッドシートを貼り付け",
         "mobile_paste_placeholder": "ここを長押し →「ペースト」",
         "mobile_read_ok": "読み取りました — {{events}}件のイベントを検出",
-        "mobile_paste_empty": "まだ貼り付けられていません。上のボックスに貼り付けてください。"
+        "mobile_paste_empty": "まだ貼り付けられていません。上のボックスに貼り付けてください。",
+        "mobile_grid_needs_pc": "この表は列ごとの担当割り当てが必要です。スマホでは設定できないため、お手数ですがパソコンで取り込んでください。"
     }
 }

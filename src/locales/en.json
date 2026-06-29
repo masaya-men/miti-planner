@@ -2757,6 +2757,7 @@
         "mobile_paste_label": "Paste spreadsheet",
         "mobile_paste_placeholder": "Long-press here → Paste",
         "mobile_read_ok": "Loaded — {{events}} events detected",
-        "mobile_paste_empty": "Nothing pasted yet. Paste into the box above."
+        "mobile_paste_empty": "Nothing pasted yet. Paste into the box above.",
+        "mobile_grid_needs_pc": "This sheet needs per-column role assignment, which isn't available on mobile. Please import it on a PC."
     }
 }

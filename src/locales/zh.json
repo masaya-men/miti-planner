@@ -2722,6 +2722,7 @@
         "mobile_paste_label": "粘贴表格",
         "mobile_paste_placeholder": "长按这里 →“粘贴”",
         "mobile_read_ok": "已读取 — 检测到 {{events}} 个事件",
-        "mobile_paste_empty": "尚未粘贴。请粘贴到上方的框中。"
+        "mobile_paste_empty": "尚未粘贴。请粘贴到上方的框中。",
+        "mobile_grid_needs_pc": "此表需要按列分配职责，手机端无法设置。请在电脑上导入。"
     }
 }

@@ -369,6 +369,7 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
     setSource('none');
     setMatrixParsed(null);
     setPhaseName('');
+    setPasteBuffer('');
   }, [source, matrixParsed, phaseName, t]);
 
   // ステップ2 → 3(パーティ割当)。未追加ドラフトがあれば取り込んでから遷移。
@@ -696,6 +697,14 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
                     </div>
                   ) : (
                     <p className="text-app-lg text-app-text-muted">{t('gridImport.mobile_paste_empty')}</p>
+                  )}
+
+                  {/* grid 型で列ごとの枠割当が必要な場合: スマホでは設定不可のため PC 案内 */}
+                  {source === 'grid' && hasUnassignedMemberCols && (
+                    <div className="flex items-start gap-2 rounded-xl border border-app-amber-border bg-app-amber-dim p-3 text-app-lg text-app-amber">
+                      <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                      <span>{t('gridImport.mobile_grid_needs_pc')}</span>
+                    </div>
                   )}
                 </div>
               ) : (
