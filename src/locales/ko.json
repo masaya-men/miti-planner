@@ -1279,7 +1279,7 @@
     "mobile": {
         "tools_title": "도구",
         "import_title": "가져오기",
-        "import_spreadsheet_desc": "모바일 버전은 곧 공개 (PC에서 이용 가능)",
+        "import_spreadsheet_desc": "표를 복사해서 붙여넣기",
         "fflogs_desc": "FFLogs에서 타임라인 가져오기",
         "autoplan_desc": "경감 자동 배치"
     },

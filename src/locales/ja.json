@@ -1293,7 +1293,7 @@
     "mobile": {
         "tools_title": "ツール",
         "import_title": "インポート",
-        "import_spreadsheet_desc": "スマホ版は近日公開（PCで利用できます）",
+        "import_spreadsheet_desc": "表をコピーして貼り付け",
         "fflogs_desc": "FFLogsからタイムラインをインポート",
         "autoplan_desc": "軽減を自動配置"
     },

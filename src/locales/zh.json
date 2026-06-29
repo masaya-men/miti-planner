@@ -1279,7 +1279,7 @@
     "mobile": {
         "tools_title": "工具",
         "import_title": "导入",
-        "import_spreadsheet_desc": "手机版即将上线（可在电脑使用）",
+        "import_spreadsheet_desc": "复制表格并粘贴",
         "fflogs_desc": "从 FFLogs 导入时间轴",
         "autoplan_desc": "自动放置减伤"
     },
