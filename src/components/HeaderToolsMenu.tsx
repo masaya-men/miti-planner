@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { MoreHorizontal, Wand2, Star, Eye, Check } from 'lucide-react';
+import { MoreHorizontal, Wand2, Star, Eye, Check, ClipboardPaste } from 'lucide-react';
 import clsx from 'clsx';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
@@ -125,6 +125,16 @@ export function HeaderToolsMenu({ btnClassName, onAutoPlan, readOnly }: HeaderTo
                         <Eye size={14} className="shrink-0 text-app-text-muted" />
                         <span className="flex-1">{t('progress.show_bar')}</span>
                         {progressBarVisible && <Check size={12} className="text-[#22c55e] flex-shrink-0" />}
+                    </button>
+
+                    {/* PS5 ストラテジーボード貼り付けアシスト（別タブで開く＝軽減作業を壊さない） */}
+                    <button
+                        type="button"
+                        onClick={() => { setOpen(false); window.open('/stgy', '_blank', 'noopener,noreferrer'); }}
+                        className={itemClass}
+                    >
+                        <ClipboardPaste size={14} className="shrink-0 text-app-text-muted" />
+                        <span className="flex-1">{t('stgy.menu_label')}</span>
                     </button>
                 </div>,
                 document.body
