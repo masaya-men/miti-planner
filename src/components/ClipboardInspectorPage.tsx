@@ -113,6 +113,33 @@ export default function ClipboardInspectorPage() {
       ].join('\n')
     : '';
 
+  // 【スクショ用】中身全部ではなく「形式」だけが分かる短い要約。
+  // これだけ送ってもらえればパーサ拡張の判断ができる。
+  const summary = (() => {
+    if (!cap) return '';
+    const plainLines = cap.plain.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+    const tabCount = (cap.plain.match(/\t/g) || []).length;
+    const head = plainLines
+      .slice(0, 3)
+      .map((l, i) => `  ${i + 1}行目: ${visualize(l).slice(0, 70)}`)
+      .join('\n');
+    const htmlHasTable = /<table/i.test(cap.html);
+    const trCount = (cap.html.match(/<tr[\s>]/gi) || []).length;
+    const tdCount = (cap.html.match(/<td[\s>]/gi) || []).length;
+    const htmlHead = cap.html.slice(0, 400);
+    return [
+      '【診断サマリー】',
+      'types: ' + (cap.types.join(', ') || '(なし)'),
+      '',
+      `text/plain: ${cap.plain.length}文字 / ${plainLines.length}行 / タブ${tabCount}個`,
+      head || '  (空)',
+      '',
+      `text/html: ${cap.html ? cap.html.length + '文字' : 'なし'}` +
+        (cap.html ? ` / <table>${htmlHasTable ? 'あり' : 'なし'} / <tr>${trCount} / <td>${tdCount}` : ''),
+      cap.html ? '  先頭: ' + htmlHead : '',
+    ].join('\n');
+  })();
+
   const copyResult = async () => {
     try {
       await navigator.clipboard.writeText(resultText);
@@ -206,6 +233,21 @@ export default function ClipboardInspectorPage() {
 
       {cap && (
         <>
+          {/* ★これをスクショして送ってもらう★ */}
+          <div
+            style={{
+              ...box,
+              border: '2px solid #007aff',
+              background: '#eaf3ff',
+              fontWeight: 500,
+            }}
+          >
+            {summary}
+          </div>
+          <p style={{ fontSize: 14, color: '#007aff', fontWeight: 700, margin: '0 0 8px' }}>
+            ↑ この青い枠を画面ごとスクショして送ってください（全部コピーしなくてOK）
+          </p>
+
           <div style={label}>source</div>
           <div style={box}>{cap.source}</div>
 
