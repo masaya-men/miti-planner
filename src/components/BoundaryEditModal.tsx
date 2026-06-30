@@ -7,6 +7,7 @@ import { useEscapeClose } from '../hooks/useEscapeClose';
 import { clampToViewport } from '../utils/clampToViewport';
 import { useThemeStore } from '../store/useThemeStore';
 import type { LocalizedString } from '../types';
+import { TimeInput } from './ui/TimeInput';
 
 interface BoundaryEditModalProps {
     isOpen: boolean;
@@ -21,20 +22,6 @@ interface BoundaryEditModalProps {
     position?: { x: number; y: number };
 }
 
-/** MM:SS形式を秒に変換 */
-function parseTimeInput(value: string): number | null {
-    const match = value.match(/^(\d+):(\d{1,2})$/);
-    if (match) return parseInt(match[1]) * 60 + parseInt(match[2]);
-    const num = parseInt(value);
-    return isNaN(num) ? null : num;
-}
-
-/** 秒をMM:SS形式に変換 */
-function formatTime(seconds: number): string {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-}
 
 export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
     isOpen, onClose, onSave, onDelete, onTimelineSelectStart, onTimelineSelectEnd,
@@ -46,8 +33,8 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
     const [nameInput, setNameInput] = useState('');
     const [preservedName, setPreservedName] = useState<LocalizedString>({ ja: '', en: '' });
-    const [startTimeInput, setStartTimeInput] = useState('');
-    const [endTimeInput, setEndTimeInput] = useState('');
+    const [startTime, setStartTime] = useState<number | null>(null);
+    const [endTime, setEndTime] = useState<number | null>(null);
     const [isMobile, setIsMobile] = useState(false);
     const [mounted, setMounted] = useState(false);
 
@@ -82,13 +69,13 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
             setPreservedName(initial.name);
             const langValue = initial.name[contentLanguage as keyof LocalizedString] || initial.name.ja || initial.name.en || '';
             setNameInput(langValue);
-            setStartTimeInput(initial.startTime !== undefined ? formatTime(initial.startTime) : '');
-            setEndTimeInput(initial.endTime !== undefined ? formatTime(initial.endTime) : '');
+            setStartTime(initial.startTime ?? null);
+            setEndTime(initial.endTime ?? null);
         } else if (isOpen) {
             setPreservedName({ ja: '', en: '' });
             setNameInput('');
-            setStartTimeInput('');
-            setEndTimeInput('');
+            setStartTime(null);
+            setEndTime(null);
         }
     }, [isOpen, initial, contentLanguage]);
 
@@ -106,17 +93,13 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const startTime = startTimeInput ? parseTimeInput(startTimeInput) ?? undefined : undefined;
-        const endTime = endTimeInput ? parseTimeInput(endTimeInput) ?? undefined : undefined;
-        onSave(buildName(), startTime, endTime);
+        onSave(buildName(), startTime ?? undefined, endTime ?? undefined);
         onClose();
     };
 
     const handleBackdropClick = () => {
         if (nameInput.trim()) {
-            const startTime = startTimeInput ? parseTimeInput(startTimeInput) ?? undefined : undefined;
-            const endTime = endTimeInput ? parseTimeInput(endTimeInput) ?? undefined : undefined;
-            onSave(buildName(), startTime, endTime);
+            onSave(buildName(), startTime ?? undefined, endTime ?? undefined);
         }
         onClose();
     };
@@ -173,7 +156,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                                 <div>
                                     <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.start_time')}</label>
                                     <div className="flex gap-2">
-                                        <input type="text" value={startTimeInput} onChange={(e) => setStartTimeInput(e.target.value)}
+                                        <TimeInput value={startTime} onChange={setStartTime}
                                             className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
                                             placeholder="M:SS" />
                                         {onTimelineSelectStart && (
@@ -191,7 +174,7 @@ export const BoundaryEditModal: React.FC<BoundaryEditModalProps> = ({
                                 <div>
                                     <label className="block text-app-sm font-medium text-app-text-muted mb-1">{t('boundary_modal.end_time')}</label>
                                     <div className="flex gap-2">
-                                        <input type="text" value={endTimeInput} onChange={(e) => setEndTimeInput(e.target.value)}
+                                        <TimeInput value={endTime} onChange={setEndTime}
                                             className="flex-1 bg-app-surface2 border border-app-border rounded-lg p-2 text-[16px] md:text-app-lg text-app-text placeholder-app-text-muted focus:border-app-text focus:bg-app-surface focus:outline-none transition-all font-barlow"
                                             placeholder="M:SS" />
                                         {onTimelineSelectEnd && (
