@@ -15,11 +15,23 @@ import { SegmentButton } from './ui/SegmentButton';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import { computeInitialDamageState } from '../lib/eventFormDamageState';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
+import { parseTimeString, formatTime } from '../utils/templateConversions';
 
 /** 全角数字→半角変換し、数字と小数点以外を除去 */
 function toHalfWidthNumber(str: string): string {
     return str.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
               .replace(/[^0-9.]/g, '');
+}
+
+// 時刻入力用: 全角数字→半角・全角コロン→半角・全角マイナス類→半角に正規化し、
+// 数字 / コロン / 小数点 / マイナス以外を除去する。
+// (toHalfWidthNumber はコロンを消すため "M:SS" 入力には使えない。専用に分ける)
+function normalizeTimeInput(str: string): string {
+    return str
+        .replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+        .replace(/：/g, ':')
+        .replace(/[ー－−—]/g, '-')
+        .replace(/[^0-9:.\-]/g, '');
 }
 
 // 軽減 ID から burst / crit / crit_protraction の接尾辞を剥がして base ID を返す
@@ -55,6 +67,8 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
     const [name, setName] = useState<import('../types').LocalizedString>({ ja: '', en: '' });
     const [altName, setAltName] = useState<import('../types').LocalizedString>({ ja: '', en: '' });
     const [time, setTime] = useState(0);
+    // 時刻入力欄の表示文字列(M:SS)。time(秒)とは onChange / 初期化で同期する。
+    const [timeInput, setTimeInput] = useState('0:00');
     const [damageType, setDamageType] = useState<TimelineEvent['damageType']>('magical');
     const [damageAmount, setDamageAmount] = useState<number>(() => computeInitialDamageState(initialData, reverseOnly).damageAmount);
     const [target, setTarget] = useState<TimelineEvent['target']>('AoE');
@@ -123,6 +137,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             setName(initialData.name);
             setAltName(initialData.altName ?? { ja: '', en: '' });
             setTime(initialData.time);
+            setTimeInput(formatTime(initialData.time));
             setDamageType(initialData.damageType);
             setIgnoresDebuffMitigation(!!initialData.ignoresDebuffMitigation);
             setTarget(initialData.target || 'AoE');
@@ -139,6 +154,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
             setName({ ja: '', en: '' });
             setAltName({ ja: '', en: '' });
             setTime(initialTime || 0);
+            setTimeInput(formatTime(initialTime || 0));
             setDamageType('magical');
             setIgnoresDebuffMitigation(false);
             setDamageAmount(0);
@@ -624,21 +640,28 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
                 />
             )}
 
-            {/* 時間（幅控えめ・全幅にすると間延びするため上限を設ける） */}
+            {/* 時間（M:SS でも 裸の秒数でも入力可。幅控えめ・全幅にすると間延びするため上限を設ける） */}
             <div className="max-w-[200px]">
                 <label className="block text-app-lg font-medium text-app-text mb-1.5">{t('modal.time')}</label>
                 <input
                     type="text"
-                    inputMode="decimal"
-                    value={time}
-                    onChange={(e) => { const v = toHalfWidthNumber(e.target.value); setTime(v === '' ? 0 : Number(v)); }}
+                    inputMode="text"
+                    data-testid="event-time-input"
+                    value={timeInput}
+                    onChange={(e) => {
+                        const v = normalizeTimeInput(e.target.value);
+                        setTimeInput(v);
+                        setTime(parseTimeString(v) ?? 0);
+                    }}
                     onFocus={(e) => e.target.select()}
+                    placeholder={t('modal.time_placeholder')}
                     className={clsx(
                         "w-full rounded-lg p-2.5 text-[16px] md:text-app-2xl transition-all font-barlow border focus:outline-none focus:ring-1",
                         "bg-app-surface2 border-app-border text-app-text focus:border-app-text focus:bg-app-surface focus:ring-app-text/10"
                     )}
                     required
                 />
+                <p className="mt-1 text-app-sm text-app-text-muted">{t('modal.time_format_hint')}</p>
             </div>
 
             {/* 攻撃名 ＋ 2択攻撃の別名（任意）— 別名を攻撃名の直下に密着させ、続きの欄だと分かるようにする */}

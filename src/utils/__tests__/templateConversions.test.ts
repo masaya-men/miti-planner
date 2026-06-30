@@ -48,6 +48,11 @@ describe('formatTime', () => {
     expect(formatTime(0)).toBe('0:00');
     expect(formatTime(600)).toBe('10:00');
   });
+
+  it('負の秒数を "-M:SS" 形式に変換する（戦闘前カウントダウン）', () => {
+    expect(formatTime(-10)).toBe('-0:10');
+    expect(formatTime(-90)).toBe('-1:30');
+  });
 });
 
 describe('parseTsv', () => {

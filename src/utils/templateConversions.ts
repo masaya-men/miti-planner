@@ -60,12 +60,14 @@ export function parseTimeString(input: string): number | null {
 
 /**
  * 秒数を "M:SS" 形式の文字列に変換する。
- * 例: 90 → "1:30"、5 → "0:05"
+ * 例: 90 → "1:30"、5 → "0:05"、-90 → "-1:30"（戦闘前カウントダウン）
  */
 export function formatTime(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return `${m}:${s.toString().padStart(2, '0')}`;
+  const sign = seconds < 0 ? '-' : '';
+  const abs = Math.abs(seconds);
+  const m = Math.floor(abs / 60);
+  const s = Math.floor(abs % 60);
+  return `${sign}${m}:${s.toString().padStart(2, '0')}`;
 }
 
 // ─────────────────────────────────────────────
