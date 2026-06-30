@@ -954,7 +954,7 @@
         "nav_title": "Strategy Board",
         "menu_label": "PS5 Strategy Board paste",
         "lp_title": "Utility",
-        "lp_desc": "For PS5. Splits Strategy Board share codes into copy-friendly chunks."
+        "lp_desc": "For PS5 players using Remote Play on a phone or tablet. Splits Strategy Board share codes into game-friendly chunks to copy."
     },
     "tutorial": {
         "skip": "Skip",
