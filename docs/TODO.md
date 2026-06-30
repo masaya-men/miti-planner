@@ -9,10 +9,9 @@
 
 ---
 
-## 次の作業順 (2026-06-30 更新)
-1. **ユーザー報告の対応**(報告者への返信=取り込み直し案準備済・チャット履歴参照。レベル/ステータス未反映バグは修正デプロイ済)。
-2. **ハウジングツアーを進める**(下「ハウジング」セクション参照)。
-3. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
+## 次の作業順 (2026-07-01 更新)
+1. **ハウジングツアーを進める**(下「ハウジング」セクション参照)。
+2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断)
 - 原因確定=有名スプシは**TRUE/FALSEマトリクス**で、ジョブ/スキルは**アイコン画像+隠し行**。スマホ貼付(text/plain)は構造的に不可(実機TSVで実証)。
@@ -22,11 +21,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **🆕 2026-06-30 本番デプロイ済=数値入力の業界水準化 Phase 1**: 共通部品 `src/components/ui/NumericInput.tsx`(文字列保持/空欄OK/桁区切りはblur整形=カーソル飛びなし/全角/NaN防止/min・max・小数オプション/全選択維持) と `TimeInput.tsx`(M:SS・裸秒・全角・空=null・正典parseTimeString利用) を新設。移行=EventForm(ダメージ×2・時刻)/AASettings(AAダメージ)/PartyStatus(HP・WD・MND・DET×5)/BoundaryEditModal(開始終了時刻)。旧FormattedNumberInput と各所の重複時刻ヘルパー撤去。SDD 6タスク+各レビュー+opus最終=Ready to merge・実機OK。**対象外(意図的)**=admin49件(Phase 2保留・マスタ書込でリスク)/housing(空欄既にOK・独自デザイン)/HeaderTimeInput/ActivityScrub。spec/plan=`docs/superpowers/{specs/2026-06-30-numeric-input-standardization-design.md,plans/2026-06-30-numeric-input-standardization.md}`。
-
-- **🆕 2026-06-30 本番デプロイ済=イベント時刻の MM:SS 入力対応**: EventForm の時刻欄を「秒のみ」→ `6:15`/裸秒どちらも入力可・編集時はM:SS表示・全角正規化・常時ヒント+placeholder(4言語)。既存 `parseTimeString`/`formatTime` 再利用(admin と同方式)・データモデル無変更。ついでに共有 `formatTime` の負値バグ修正(`-90`→`-1:30`)。テスト32+build緑。ユーザー判断で即本番。
-
-- **✅ 2026-06-29 本番デプロイ済**: ①**共同編集の重さA根治**(カーソル描画を CursorOverlay に隔離し Timeline をカーソルパケットで再描画させない・実機OK) ②**メモURLリンク化#1**(通常表示のみhttp(s)→新タブ・SDD+opus最終Ready=Yes)。**🆕PS5リモプ貼り付けアシスト(/stgy)=✅本番デプロイ済(2026-06-29)。スマホ専用1画面・コード分割コピー。デザインはApple iOS純正風(専用`src/styles/stgy.css`・LoPo本体トンマナ/ダークライトと独立・SF/ヒラギノ・iOSブルー・グループ化カード・自前iOS風トースト)。スクロールは通常縦スクロール(min-height:100dvh+body背景iOS化。固定100dvh内部スクロールはキーボードで段差が出るため廃止)。入口=軽減⋯メニュー(別タブ)+LP「ユーティリティ」枠(03カード+右上ナビ・当面は直接/stgy)。実機OK。ゲーム内プレビューは符号非公開で不可。次=スプシ取込スマホ本格対応(作業順#3)**。
+- **🆕 2026-06-29〜30 本番反映済(完了詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))**: ①**数値入力の業界水準化 Phase 1**(共通部品 NumericInput/TimeInput 新設→EventForm/AASettings/PartyStatus/BoundaryEditModal 移行・旧FormattedNumberInput撤去) ②**イベント時刻の MM:SS 入力対応**(`6:15`/裸秒・4言語・formatTime負値修正) ③**共同編集の重さA根治**(カーソル隔離)+**メモURLリンク化#1**+**/stgy(PS5リモプ貼付)**。**残=数値入力 Phase 2**(admin49件・マスタ書込リスクで保留)。
 - **✅ スプシ取込一式・取込フローv2・列グリッド取込(自作対応§9.7)・見切れ攻撃名マーキー・ローカルデータ安全性・PiP攻撃ドリブン化・iOS非ログイン安全性 等(6/22〜6/26 本番済・実機OK)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**後追い候補**=スプシ「A or B」自動分割→altName / ウィザード`no_phases`理由非表示 / skipped amber→トークン化 / ②途中取込(spec§7)。**6/20残**=進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡。
 - **🟢🗓 Vercel Pro→Hobby: 実測完了→Hobby 安全 (2026-06-20)**: 課金API実測(6/12-19)= Edge Requests ピーク 16,127/日(6/12・閾値33Kの48%)・平均9,178/日(月換算275K=枠の27.5%)・直近土日(6/14-15)も約40%。Function Inv/転送量も全て5-6%。**全指標2倍以上の余裕**で減少傾向。7/11 前に Dashboard→Billing→Plan で Hobby へ(1クリック・可逆)→次月 Pro 課金回避。**ユーザー確認済(6/20)=ハウジング未公開・広告未稼働→今すぐ Hobby OK**。team=pro 確認済(user 表示は northstar で hobby と出るが課金は team)。⚠**将来トリガー**: ハウジングを広告つき公開する時に Hobby 商用禁止へ抵触→その時 Pro 復帰 or ハウジング別デプロイ分離を判断。それまで Hobby は一時節約。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)

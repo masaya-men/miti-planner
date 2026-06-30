@@ -2,6 +2,18 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-06-30 ユーザー報告対応 — 完了(2026-07-01 確認)
+- レベル/ステータスが軽減表に未反映だったバグを修正デプロイ済。報告者へ取り込み直し案を返信済。
+
+### ✅ 2026-06-30 数値入力の業界水準化 Phase 1 — 本番デプロイ済・実機OK
+- **🆕 2026-06-30 本番デプロイ済=数値入力の業界水準化 Phase 1**: 共通部品 `src/components/ui/NumericInput.tsx`(文字列保持/空欄OK/桁区切りはblur整形=カーソル飛びなし/全角/NaN防止/min・max・小数オプション/全選択維持) と `TimeInput.tsx`(M:SS・裸秒・全角・空=null・正典parseTimeString利用) を新設。移行=EventForm(ダメージ×2・時刻)/AASettings(AAダメージ)/PartyStatus(HP・WD・MND・DET×5)/BoundaryEditModal(開始終了時刻)。旧FormattedNumberInput と各所の重複時刻ヘルパー撤去。SDD 6タスク+各レビュー+opus最終=Ready to merge・実機OK。**対象外(意図的)**=admin49件(Phase 2保留・マスタ書込でリスク)/housing(空欄既にOK・独自デザイン)/HeaderTimeInput/ActivityScrub。spec/plan=`docs/superpowers/{specs/2026-06-30-numeric-input-standardization-design.md,plans/2026-06-30-numeric-input-standardization.md}`。
+
+### ✅ 2026-06-30 イベント時刻の MM:SS 入力対応 — 本番デプロイ済
+- **🆕 2026-06-30 本番デプロイ済=イベント時刻の MM:SS 入力対応**: EventForm の時刻欄を「秒のみ」→ `6:15`/裸秒どちらも入力可・編集時はM:SS表示・全角正規化・常時ヒント+placeholder(4言語)。既存 `parseTimeString`/`formatTime` 再利用(admin と同方式)・データモデル無変更。ついでに共有 `formatTime` の負値バグ修正(`-90`→`-1:30`)。テスト32+build緑。ユーザー判断で即本番。
+
+### ✅ 2026-06-29 共同編集の重さA根治 + メモURLリンク化#1 + /stgy(PS5リモプ貼付) — 本番デプロイ済・実機OK
+- **✅ 2026-06-29 本番デプロイ済**: ①**共同編集の重さA根治**(カーソル描画を CursorOverlay に隔離し Timeline をカーソルパケットで再描画させない・実機OK) ②**メモURLリンク化#1**(通常表示のみhttp(s)→新タブ・SDD+opus最終Ready=Yes)。**🆕PS5リモプ貼り付けアシスト(/stgy)=✅本番デプロイ済(2026-06-29)。スマホ専用1画面・コード分割コピー。デザインはApple iOS純正風(専用`src/styles/stgy.css`・LoPo本体トンマナ/ダークライトと独立・SF/ヒラギノ・iOSブルー・グループ化カード・自前iOS風トースト)。スクロールは通常縦スクロール(min-height:100dvh+body背景iOS化。固定100dvh内部スクロールはキーボードで段差が出るため廃止)。入口=軽減⋯メニュー(別タブ)+LP「ユーティリティ」枠(03カード+右上ナビ・当面は直接/stgy)。実機OK。ゲーム内プレビューは符号非公開で不可。次=スプシ取込スマホ本格対応(作業順#3)**。
+
 ### ✅ 2026-06-26 有名スプシ取込: パーティ割当を独立ステップ化(デッドエンド解消) — 本番デプロイ済・ユーザー実機OK
 有名スプシ(行列形式)で複数フェーズ(P1〜P5)を貼って最後に作成しようとすると、割当UIが「表示中の貼り付け表の列ヘッダー」内にしか無いのに「フェーズを追加」で表示がクリアされるため、**最後に割当する手段が消えて詰む**致命的デッドエンドを解消。spec/plan=`docs/superpowers/{specs,plans}/2026-06-26-spreadsheet-party-assignment-step*`。main fast-forward(65d28ec0→`39f0be6e`・実装7コミット `017f93ed..39f0be6e`)→push→Vercel本番自動デプロイ。
 - **設計=取込モーダルを2→3ステップ化**(1=コンテンツ選択 / 2=表を貼る / 3=パーティ割当)。割当は貼り付け状態と無関係に常に開けるので詰まない。**スコープ=有名スプシ(matrix)経路のみ**。自作スプシ(grid)は単一ブロックで列が常時表示=この詰みは起きないため現状維持(枠セレクタは`source==='grid'`限定)。
