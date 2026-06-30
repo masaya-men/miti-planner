@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Settings, X } from 'lucide-react';
 import clsx from 'clsx';
 import { SegmentButton } from './ui/SegmentButton';
+import { NumericInput } from './ui/NumericInput';
 import type { AASettings } from '../store/useMitigationStore';
 import { useTranslation } from 'react-i18next';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -122,12 +123,11 @@ export const AASettingsPopover: React.FC<AASettingsPopoverProps> = ({
                 <div className="space-y-1.5">
                     <label className="text-app-base font-black text-app-text uppercase tracking-wider block">{t('aa_settings.damage')}</label>
 
-                    <input
-                        type="number"
+                    <NumericInput
                         value={settings.damage}
-                        onChange={(e) => handleChange('damage', Number(e.target.value))}
+                        onChange={(v) => handleChange('damage', v)}
+                        thousandSeparator
                         className="w-full bg-glass-card border border-glass-border rounded-md px-3 py-1.5 text-[16px] md:text-app-2xl font-black font-mono text-app-text focus:outline-none focus:border-app-text transition-colors"
-                        onFocus={(e) => e.target.select()}
                     />
                 </div>
 
