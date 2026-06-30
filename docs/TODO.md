@@ -22,6 +22,8 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
+- **🆕 2026-06-30 本番デプロイ済=数値入力の業界水準化 Phase 1**: 共通部品 `src/components/ui/NumericInput.tsx`(文字列保持/空欄OK/桁区切りはblur整形=カーソル飛びなし/全角/NaN防止/min・max・小数オプション/全選択維持) と `TimeInput.tsx`(M:SS・裸秒・全角・空=null・正典parseTimeString利用) を新設。移行=EventForm(ダメージ×2・時刻)/AASettings(AAダメージ)/PartyStatus(HP・WD・MND・DET×5)/BoundaryEditModal(開始終了時刻)。旧FormattedNumberInput と各所の重複時刻ヘルパー撤去。SDD 6タスク+各レビュー+opus最終=Ready to merge・実機OK。**対象外(意図的)**=admin49件(Phase 2保留・マスタ書込でリスク)/housing(空欄既にOK・独自デザイン)/HeaderTimeInput/ActivityScrub。spec/plan=`docs/superpowers/{specs/2026-06-30-numeric-input-standardization-design.md,plans/2026-06-30-numeric-input-standardization.md}`。
+
 - **🆕 2026-06-30 本番デプロイ済=イベント時刻の MM:SS 入力対応**: EventForm の時刻欄を「秒のみ」→ `6:15`/裸秒どちらも入力可・編集時はM:SS表示・全角正規化・常時ヒント+placeholder(4言語)。既存 `parseTimeString`/`formatTime` 再利用(admin と同方式)・データモデル無変更。ついでに共有 `formatTime` の負値バグ修正(`-90`→`-1:30`)。テスト32+build緑。ユーザー判断で即本番。
 
 - **🆕 2026-06-30 デプロイ済(要ユーザー実機確認)=スプシ取込のレベル/ステータス未反映バグ修正**: ユーザー報告(絶アレキLv80取込でLv100スキル/ステータス全部入り)。原因=`commitImportedPlan` が currentLevel を100固定+既定statsもLv100定数(通常作成は content.level を使うが取込だけ漏れ)。修正=`levelForContent`(content→level単一窓口)新設/`buildImportedPartyMembers` を level必須化(将来の付け忘れをコンパイルで防止)+レベル対応stats/取込時に両方反映。**多エージェント敵対監査2回(計9体)でデータ消失リスク無し確認済**。次=ユーザーが絶アレキ再取込でLv80表示を確認。**後始末待ち**: ①臨時収集サーバーの**ファイアウォール規則(port7878)削除**(要UAC) ②`/clip`診断ページ撤去(本番在・別件)。
