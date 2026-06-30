@@ -12,7 +12,7 @@ import { useEscapeClose } from '../hooks/useEscapeClose';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SPRING } from '../tokens/motionTokens';
-import { FormattedNumberInput } from './ui/FormattedNumberInput';
+import { NumericInput } from './ui/NumericInput';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { Tooltip } from './ui/Tooltip';
 
@@ -241,9 +241,10 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <label className="text-app-base uppercase tracking-wider text-app-text font-bold">HP</label>
-                                    <FormattedNumberInput
+                                    <NumericInput
                                         value={tankRep?.stats.hp || 0}
                                         onChange={(val) => updateTankHP(val)}
+                                        thousandSeparator
                                         className="w-24 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
@@ -259,33 +260,37 @@ export const PartyStatusPopover: React.FC<PartyStatusPopoverProps> = ({ isOpen, 
                             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                                 <div className="flex items-center justify-between">
                                     <label className="text-app-base uppercase tracking-wider text-app-text font-bold">HP</label>
-                                    <FormattedNumberInput
+                                    <NumericInput
                                         value={healerRep?.stats.hp || 0}
                                         onChange={(val) => updateHealerHP(val)}
+                                        thousandSeparator
                                         className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <label className="text-app-base uppercase tracking-wider text-app-text font-bold">WD</label>
-                                    <FormattedNumberInput
+                                    <NumericInput
                                         value={healerRep?.stats.wd || 0}
                                         onChange={(val) => updateHealerStats({ wd: val })}
+                                        thousandSeparator
                                         className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <label className="text-app-base uppercase tracking-wider text-app-text font-bold">MND</label>
-                                    <FormattedNumberInput
+                                    <NumericInput
                                         value={healerRep?.stats.mainStat || 0}
                                         onChange={(val) => updateHealerStats({ mainStat: val })}
+                                        thousandSeparator
                                         className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
                                 <div className="flex items-center justify-between">
                                     <label className="text-app-base uppercase tracking-wider text-app-text font-bold">DET</label>
-                                    <FormattedNumberInput
+                                    <NumericInput
                                         value={healerRep?.stats.det || 0}
                                         onChange={(val) => updateHealerStats({ det: val })}
+                                        thousandSeparator
                                         className="w-20 bg-app-surface2 border border-app-border rounded-lg px-2 py-1 text-right text-app-text font-mono text-app-lg hover:border-app-border focus:border-app-accent focus:bg-app-surface2 focus:ring-1 focus:ring-app-accent/30 transition-all"
                                     />
                                 </div>
