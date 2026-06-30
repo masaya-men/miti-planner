@@ -31,7 +31,7 @@ describe('EventForm 編集時のダメージ保持 (回帰)', () => {
         // バグ時: マウント直後の自動再計算が逆算モードのまま走り damageAmount を 0 上書き → 0 が表示される。
         // 修正後: lazy init で direct モード + 元の値で開くため 50000 が保持される。
         render(<EventForm initialData={damagedEvent} onSave={() => {}} />);
-        expect(screen.getByDisplayValue('50000')).toBeTruthy();
+        expect(screen.getByDisplayValue('50,000')).toBeTruthy();
     });
 });
 
