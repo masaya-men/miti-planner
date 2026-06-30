@@ -48,7 +48,7 @@ describe('StrategyBoardPastePage', () => {
   it('コードを貼ると断片ボタンが生成される', () => {
     render(<StrategyBoardPastePage />, { wrapper: MemoryRouter });
     const textarea = screen.getByPlaceholderText('[stgy:...]');
-    fireEvent.change(textarea, { target: { value: 'x'.repeat(360) } }); // 170区切り→3断片
+    fireEvent.change(textarea, { target: { value: 'x'.repeat(360) } }); // 既定88区切り→5断片
     expect(screen.getByText('1番目をコピー')).toBeTruthy();
     expect(screen.getByText('2番目をコピー')).toBeTruthy();
     expect(screen.getByText('3番目をコピー')).toBeTruthy();
@@ -61,7 +61,7 @@ describe('StrategyBoardPastePage', () => {
     const btn = screen.getByText('1番目をコピー');
     fireEvent.click(btn);
     await Promise.resolve();
-    expect((navigator.clipboard.writeText as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith('x'.repeat(170));
+    expect((navigator.clipboard.writeText as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith('x'.repeat(88));
     // iOS 風の自前トーストに「コピーしました」が出る
     expect(await screen.findByText('コピーしました')).toBeTruthy();
     expect(await screen.findByText('コピー済み')).toBeTruthy();
