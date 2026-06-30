@@ -6,6 +6,7 @@ import { commitNewPlan } from '../commitNewPlan';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useMitigationStore } from '../../store/useMitigationStore';
 import { useCollabSessionStore } from '../../store/useCollabSessionStore';
+import { levelForContent } from '../../data/contentRegistry';
 
 /**
  * スプレッドシート取り込み結果から「新規・非共同編集プラン」を安全に確定する。
@@ -23,13 +24,18 @@ export function commitImportedPlan(
   result: SheetImportResult,
   meta: { contentId: string | null; title: string },
 ): string {
+  // 選択コンテンツの level を currentLevel と既定ステータスに反映する（NewPlanModal / Sidebar と同作法）。
+  // これが無いと 100 固定になり、Lv80 コンテンツ(絶アレキ等)でも Lv100 スキル/ステータスになる。
+  // コンテンツ未選択(custom)や不明 ID は levelForContent が 100 にフォールバック。
+  const currentLevel = levelForContent(meta.contentId);
+
   const planData: PlanData = {
-    currentLevel: 100,
+    currentLevel,
     timelineEvents: result.timelineEvents,
     timelineMitigations: result.timelineMitigations,
     phases: result.phases,
     labels: result.labels,
-    partyMembers: buildImportedPartyMembers(result.party),
+    partyMembers: buildImportedPartyMembers(result.party, currentLevel),
     aaSettings: { damage: 10000, type: 'physical', target: 'MT' },
     schAetherflowPatterns: {},
   };

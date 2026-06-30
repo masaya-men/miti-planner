@@ -202,6 +202,16 @@ export function getContentById(contentId: string): ContentDefinition | undefined
     return getContentDefinitions().find(c => c.id === contentId);
 }
 
+/**
+ * コンテンツ ID → そのコンテンツの想定レベル(レベルシンク)。
+ * プラン作成時の currentLevel と既定ステータスの「正典」。コンテンツ未選択(null)や
+ * 不明 ID は 100 にフォールバック。新しいプラン作成経路は必ずこの関数を通すこと
+ * (各所で content.level を直接読むと、取込のようにレベル反映を忘れるバグが再発する)。
+ */
+export function levelForContent(contentId: string | null | undefined): ContentLevel {
+    return ((contentId ? getContentById(contentId)?.level : undefined) ?? 100) as ContentLevel;
+}
+
 export function getCategoriesByLevel(_level: ContentLevel): ContentCategory[] {
     // Return all standard categories in preferred order, even if empty
     return ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
