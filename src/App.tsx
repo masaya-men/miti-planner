@@ -9,8 +9,6 @@ import { SharePage } from './components/SharePage';
 const CollabJoinerPage = lazy(() => import('./components/CollabJoinerPage'));
 import { SupportPage } from './components/SupportPage';
 import StrategyBoardPastePage from './components/StrategyBoardPastePage';
-// 【診断用・一時】スマホ実機クリップボード採取ページ。形式確定後に削除可。
-const ClipboardInspectorPage = lazy(() => import('./components/ClipboardInspectorPage'));
 import {
   HousingPage,
   HousingWorkspace,
@@ -92,7 +90,6 @@ function AppRoutes() {
         <Route path="/collab/:roomToken" element={<Suspense fallback={null}><CollabJoinerPage /></Suspense>} />
         <Route path="/support" element={<SupportPage />} />
         <Route path="/stgy" element={<StrategyBoardPastePage />} />
-        <Route path="/clip" element={<Suspense fallback={null}><ClipboardInspectorPage /></Suspense>} />
 
         <Route path="/housing" element={<HousingWorkspace />} />
         <Route path="/housing/legacy" element={<HousingPage />} />
