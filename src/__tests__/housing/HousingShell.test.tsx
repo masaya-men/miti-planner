@@ -29,6 +29,14 @@ beforeAll(() => {
       dispatchEvent: () => false,
     } as unknown as MediaQueryList);
   }
+  // LoPoButton が ResizeObserver を使うため happy-dom 環境に shim を用意。
+  if (typeof (globalThis as unknown as { ResizeObserver?: unknown }).ResizeObserver === 'undefined') {
+    (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  }
 });
 
 function renderShell() {

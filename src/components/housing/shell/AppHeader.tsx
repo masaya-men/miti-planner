@@ -4,6 +4,7 @@ import { useThemeStore } from '../../../store/useThemeStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { NotificationBell } from '../notifications/NotificationBell';
+import { LoPoButton } from '../../LoPoButton';
 import { TabBar } from './TabBar';
 
 /**
@@ -23,19 +24,13 @@ export const AppHeader: React.FC = () => {
 
   return (
     <header className="housing-app-header" data-region="header">
-      <button
-        type="button"
-        className="housing-brand"
-        onClick={() => navigate('/')}
-        aria-label={t('housing.workspace.topbar.home_aria')}
-        title={t('housing.workspace.topbar.home_aria')}
-      >
-        <span className="housing-brand-mark" aria-hidden="true" />
-        <span>
-          LoPo&nbsp;
-          <span className="housing-brand-sub">/ {t('housing.workspace.topbar.subtitle')}</span>
+      <div className="housing-brand-wrap">
+        {/* 全アプリ共通の LoPo ロゴ (= miti ConsolidatedHeader と同一)。クリックで LP へ。 */}
+        <LoPoButton size="sm" onClick={() => navigate('/')} />
+        <span className="housing-brand-sub housing-brand-sub-standalone">
+          {t('housing.workspace.topbar.subtitle')}
         </span>
-      </button>
+      </div>
 
       {/* グローバル検索: 第1スパンは見た目のみ (探すのフィルタ store への接続は後続)。 */}
       <div className="housing-app-search">
@@ -83,7 +78,6 @@ export const AppHeader: React.FC = () => {
             className="housing-top-avatar-btn"
             onClick={() => openAccount()}
             aria-label={t('housing.topbar.account')}
-            title={t('housing.topbar.account')}
           >
             {profileAvatarUrl ? (
               <img src={profileAvatarUrl} alt="" />

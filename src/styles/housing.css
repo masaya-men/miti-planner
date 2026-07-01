@@ -314,6 +314,18 @@
   letter-spacing: 0;
 }
 
+/* 再構築ヘッダーのブランド: 全アプリ共通 LoPoButton + サブタイトル */
+.housing-brand-wrap {
+  display: flex; align-items: center; gap: 12px;
+  min-width: 0;
+}
+.housing-brand-sub-standalone {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 .housing-crumbs {
   display: flex; align-items: center; gap: 10px;
   font-size: 12px; color: var(--housing-text-dim);
