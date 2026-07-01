@@ -17,6 +17,7 @@ import { HousingDetailPage } from './components/housing/listing/HousingDetailPag
 import { HousingDetailModalRoute } from './components/housing/listing/HousingDetailModalRoute';
 import { HousingShell } from './components/housing/shell/HousingShell';
 import { BrowsePage } from './components/housing/pages/BrowsePage';
+import { FavoritesPage } from './components/housing/pages/FavoritesPage';
 import { ComingSoonPage } from './components/housing/pages/ComingSoonPage';
 import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
 import { requestPersistentStorage } from './lib/requestPersistentStorage';
@@ -99,7 +100,7 @@ function AppRoutes() {
         <Route path="/housing" element={<HousingShell />}>
           <Route index element={<BrowsePage />} />
           {/* 未実装タブは暫定で「準備中」に着地 (以降のスパンで本実装に差し替え)。 */}
-          <Route path="favorites" element={<ComingSoonPage tab="favorites" />} />
+          <Route path="favorites" element={<FavoritesPage />} />
           <Route path="plan" element={<ComingSoonPage tab="plan" />} />
           <Route path="tour" element={<ComingSoonPage tab="tour" />} />
           <Route path="register" element={<ComingSoonPage tab="register" />} />

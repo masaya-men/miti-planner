@@ -2586,6 +2586,10 @@
             "escalated_note": "一度復帰した後に再び報告されました。 却下や編集では戻せません。 Discord で異議申し立て (運営確認) してください",
             "later": "あとで"
         },
+        "favorites": {
+            "title": "Favorites",
+            "empty": "Housings you've added to favorites will appear here. Tap ♡ on a listing in Browse to save it."
+        },
         "notifications": {
             "title": "通知",
             "empty": "通知はありません",
