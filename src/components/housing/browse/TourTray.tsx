@@ -66,7 +66,7 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
         <span className="housing-tour-tray-estimate-label">
           {t('housing.tray.estimate_label')}
         </span>
-        <span className="housing-tour-tray-estimate-value" title="M2で実ルート計算予定">
+        <span className="housing-tour-tray-estimate-value">
           {t('housing.tray.estimate_pending')}
         </span>
       </div>

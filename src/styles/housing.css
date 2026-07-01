@@ -4813,7 +4813,7 @@ select.housing-input option {
   flex: 0 0 auto;
   padding: 8px 12px;
   background: var(--housing-chip-bg);
-  border: 1px solid var(--housing-border);
+  border: 1px solid var(--housing-panel-border);
   border-radius: 8px;
   gap: 8px;
 }
