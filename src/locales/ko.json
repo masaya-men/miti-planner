@@ -1873,7 +1873,8 @@
         },
         "card": {
             "favorite": "즐겨찾기",
-            "add_to_tour": "투어에 추가"
+            "add_to_tour": "투어에 추가",
+            "select": "선택"
         },
         "tray": {
             "title": "투어 트레이",

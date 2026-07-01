@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { Heart, Plus } from 'lucide-react';
+import { Heart, Plus, Check } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
@@ -7,6 +7,12 @@ import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress'
 export interface ListingCardProps {
   listing: MockListing;
   onAddToTour: (id: string) => void;
+  /** true のときメディア左上に選択チェックを表示する (探すページでは使わない) */
+  selectable?: boolean;
+  /** selectable=true のとき、選択済み状態を渡す */
+  selected?: boolean;
+  /** 選択トグル時のコールバック。selectable=true のとき使用する */
+  onToggleSelect?: (id: string) => void;
 }
 
 // 代表画像が無い/未取得のときのフォールバック (既存カードと共通)。
@@ -23,7 +29,13 @@ function representativeImage(l: MockListing): string {
  * 段階1: 静止代表画像 + ホバー演出。段階2 で HousingPlaybackProvider を
  * シェルに足すと spotlight 動画再生が有効化される (既存 card 再生機構を流用予定)。
  */
-export const ListingCard: React.FC<ListingCardProps> = ({ listing, onAddToTour }) => {
+export const ListingCard: React.FC<ListingCardProps> = ({
+  listing,
+  onAddToTour,
+  selectable,
+  selected,
+  onToggleSelect,
+}) => {
   const { t, i18n } = useTranslation();
   const favIds = useHousingFavoritesStore((s) => s.ids);
   const addFav = useHousingFavoritesStore((s) => s.add);
@@ -42,12 +54,31 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing, onAddToTour }
           alt=""
           loading="lazy"
         />
+        {/* 選択チェック: selectable=true のときだけ左上に表示。♡(右上)とは stopPropagation で独立。 */}
+        {selectable && (
+          <button
+            type="button"
+            className={`housing-card-select${selected ? ' is-selected' : ''}`}
+            aria-label={t('housing.card.select')}
+            aria-pressed={selected ?? false}
+            data-testid="housing-card-select"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleSelect?.(listing.id);
+            }}
+          >
+            {selected && <Check size={14} aria-hidden="true" />}
+          </button>
+        )}
         <button
           type="button"
           className={`housing-card-fav${isFav ? ' is-on' : ''}`}
           aria-label={t('housing.card.favorite')}
           aria-pressed={isFav}
-          onClick={() => (isFav ? removeFav(listing.id) : addFav(listing.id))}
+          onClick={(e) => {
+            e.stopPropagation();
+            isFav ? removeFav(listing.id) : addFav(listing.id);
+          }}
         >
           <Heart size={16} aria-hidden="true" />
         </button>

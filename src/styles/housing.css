@@ -4675,6 +4675,28 @@ select.housing-input option {
 .housing-card-fav:active { transform: scale(0.92); }
 .housing-card-fav.is-on { color: var(--housing-honey); }
 .housing-card-fav.is-on svg { fill: currentColor; }
+
+/* 選択チェック (お気に入りページ専用・探すページには出ない) */
+.housing-card-select {
+  position: absolute; top: 8px; left: 8px;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--housing-bubble-bg);
+  border: 2px solid var(--housing-panel-border-strong);
+  color: var(--housing-text-mute); cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  z-index: 2;
+}
+.housing-card-select:hover {
+  border-color: var(--housing-aether);
+  color: var(--housing-aether);
+}
+.housing-card-select:active { transform: scale(0.92); }
+.housing-card-select.is-selected {
+  background: var(--housing-aether);
+  border-color: var(--housing-aether);
+  color: var(--housing-panel-bg-solid);
+}
 .housing-listing-card-body {
   display: flex; flex-direction: column; gap: 8px;
   padding: 10px 12px 12px;

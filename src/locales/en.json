@@ -1908,7 +1908,8 @@
         },
         "card": {
             "favorite": "Favorite",
-            "add_to_tour": "Add to tour"
+            "add_to_tour": "Add to tour",
+            "select": "Select"
         },
         "tray": {
             "title": "Tour Tray",

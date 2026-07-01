@@ -1873,7 +1873,8 @@
         },
         "card": {
             "favorite": "收藏",
-            "add_to_tour": "加入导览"
+            "add_to_tour": "加入导览",
+            "select": "选择"
         },
         "tray": {
             "title": "导览清单",

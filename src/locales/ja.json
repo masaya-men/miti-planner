@@ -1929,7 +1929,8 @@
         },
         "card": {
             "favorite": "お気に入り",
-            "add_to_tour": "ツアーに追加"
+            "add_to_tour": "ツアーに追加",
+            "select": "選択"
         },
         "tray": {
             "title": "ツアートレイ",
