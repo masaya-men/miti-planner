@@ -65,6 +65,7 @@ export const FilterDropdown: React.FC<FilterDropdownProps> = ({
       <button
         type="button"
         className="housing-filter-select"
+        aria-label={label}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >

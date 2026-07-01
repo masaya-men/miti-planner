@@ -60,28 +60,28 @@ describe('FilterPanel', () => {
         expect(screen.getByText(`/ ${MOCK_LISTINGS.length}`)).toBeInTheDocument();
     });
 
-    it('marks DC chip as active and decreases result count when clicked', () => {
+    it('selects DC via dropdown and decreases result count', () => {
         renderPanel();
-        const manaChip = screen.getByRole('button', { name: 'Mana' });
-        expect(manaChip.getAttribute('data-active')).toBe('false');
-        fireEvent.click(manaChip);
-        expect(manaChip.getAttribute('data-active')).toBe('true');
+        // ドロップダウンを開いて Mana を選ぶ (単一選択)。
+        fireEvent.click(screen.getByRole('button', { name: 'DC' }));
+        fireEvent.click(screen.getByRole('option', { name: 'Mana' }));
         expect(useHousingFilterStore.getState().dc).toBe('Mana');
         expect(useHousingFilterStore.getState().resultCount).toBeLessThan(MOCK_LISTINGS.length);
     });
 
-    it('shows Server section only after DC is selected', () => {
+    it('shows Server dropdown only after DC is selected', () => {
         renderPanel();
         expect(screen.queryByText('サーバー')).toBeNull();
-        fireEvent.click(screen.getByRole('button', { name: 'Mana' }));
+        fireEvent.click(screen.getByRole('button', { name: 'DC' }));
+        fireEvent.click(screen.getByRole('option', { name: 'Mana' }));
         expect(screen.getByText('サーバー')).toBeInTheDocument();
     });
 
-    it('toggles area chip and updates result count', () => {
+    it('toggles area via dropdown and updates result count', () => {
         renderPanel();
         const before = useHousingFilterStore.getState().resultCount;
-        const shiroChip = screen.getByRole('button', { name: 'Shirogane' });
-        fireEvent.click(shiroChip);
+        fireEvent.click(screen.getByRole('button', { name: 'エリア' }));
+        fireEvent.click(screen.getByRole('option', { name: 'Shirogane' }));
         expect(useHousingFilterStore.getState().areas).toContain('Shirogane');
         expect(useHousingFilterStore.getState().resultCount).toBeLessThan(before);
     });
@@ -96,9 +96,11 @@ describe('FilterPanel', () => {
 
     it('marks zero result with data-zero=true when no listing matches', () => {
         renderPanel();
-        // Mana (JP DC) + 欧州 region label = empty (region chips are localized via REGION_LABELS)
-        fireEvent.click(screen.getByRole('button', { name: 'Mana' }));
-        fireEvent.click(screen.getByRole('button', { name: '欧州' }));
+        // Mana (JP DC) + 欧州 (Europe region) = empty。ドロップダウンから選択。
+        fireEvent.click(screen.getByRole('button', { name: 'DC' }));
+        fireEvent.click(screen.getByRole('option', { name: 'Mana' }));
+        fireEvent.click(screen.getByRole('button', { name: '地域' }));
+        fireEvent.click(screen.getByRole('option', { name: '欧州' }));
         const badge = document.querySelector('.housing-result-count') as HTMLElement;
         expect(badge.getAttribute('data-zero')).toBe('true');
     });

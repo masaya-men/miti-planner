@@ -6,7 +6,6 @@ import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
-import { LiquidGlassPanel } from '../workspace/LiquidGlassPanel';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { ListingGrid } from '../browse/ListingGrid';
@@ -63,14 +62,18 @@ export const BrowsePage: React.FC = () => {
 
   return (
     <div className="housing-browse">
-      <LiquidGlassPanel edge={120} radius={18} scale={14} chrome={false} data-region="left">
+      <section className="housing-browse-panel" data-region="left">
         <div className="housing-browse-col housing-browse-col-left">
-          <FilterPanel onClose={() => {}} onRegisterClick={() => navigate('/housing/register')} />
+          <FilterPanel
+            onClose={() => {}}
+            onRegisterClick={() => navigate('/housing/register')}
+            hideClose
+          />
           <AdSlot slot="browse-left" />
         </div>
-      </LiquidGlassPanel>
+      </section>
 
-      <LiquidGlassPanel edge={120} radius={18} scale={14} chrome={false} data-region="center">
+      <section className="housing-browse-panel" data-region="center">
         <div className="housing-browse-col housing-browse-col-center">
           {status === 'loading' || status === 'idle' ? (
             <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
@@ -87,15 +90,15 @@ export const BrowsePage: React.FC = () => {
             />
           )}
         </div>
-      </LiquidGlassPanel>
+      </section>
 
-      <LiquidGlassPanel edge={120} radius={18} scale={14} chrome={false} data-region="right">
+      <section className="housing-browse-panel" data-region="right">
         <div className="housing-browse-col housing-browse-col-right">
           <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} />
           <FavoritesPreviewStrip />
           <AdSlot slot="browse-right" />
         </div>
-      </LiquidGlassPanel>
+      </section>
     </div>
   );
 };

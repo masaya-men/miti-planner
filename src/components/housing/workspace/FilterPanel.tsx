@@ -33,9 +33,11 @@ function pickLocale(language: string): RegionLocale {
 export interface FilterPanelProps {
     onClose: () => void;
     onRegisterClick: () => void;
+    /** 開閉しない固定パネル (探すページ) では閉じるボタンを出さない。既定=表示 (legacy 用)。 */
+    hideClose?: boolean;
 }
 
-export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterClick }) => {
+export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterClick, hideClose }) => {
     const { t, i18n } = useTranslation();
     const locale = pickLocale(i18n.language);
 
@@ -173,9 +175,11 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
 
                 <RegisterCTA onClick={onRegisterClick} />
 
-                <div className="housing-filter-panel-footer">
-                    <PanelCloseButton direction="left" onClick={onClose} />
-                </div>
+                {!hideClose && (
+                    <div className="housing-filter-panel-footer">
+                        <PanelCloseButton direction="left" onClick={onClose} />
+                    </div>
+                )}
             </div>
         </>
     );

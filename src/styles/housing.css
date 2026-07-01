@@ -29,6 +29,7 @@
   --housing-panel-border: rgba(255, 255, 255, 0.16);
   --housing-panel-border-strong: rgba(255, 255, 255, 0.28);
   --housing-panel-inner: rgba(255, 255, 255, 0.05);
+  --housing-panel-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
   --housing-skeleton-block: rgba(255, 255, 255, 0.10);
   --housing-skeleton-block-soft: rgba(255, 255, 255, 0.08);
   --housing-toast-info-bg: rgba(0, 0, 0, 0.85);
@@ -4526,14 +4527,32 @@ select.housing-input option {
   min-height: 0;
   height: 100%;
 }
+/* フラットパネル (液体ガラスの外側湾曲/屈折は不採用=ユーザー確定 2026-07-01)。
+   落ち着いた濃紺の面 + 1px 枠 + 控えめな影のみ。開閉しない固定パネル。 */
+.housing-browse-panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow: var(--housing-panel-shadow);
+  overflow: hidden;
+}
 .housing-browse-col {
   display: flex; flex-direction: column;
   gap: 12px;
   min-height: 0;
   height: 100%;
   overflow: hidden;
+  /* 内側余白 = 文字がガラス枠にぶつかって見切れるのを防ぐ。 */
+  padding: 14px 16px;
 }
 .housing-browse-col-center { overflow: hidden; }
+.housing-browse-col-center .housing-listing-grid-toolbar { padding: 0 0 12px; }
+/* 左フィルタは FilterPanel の head/body が縦余白を持つので、横はカラム余白に一本化 (二重余白回避)。 */
+.housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }
+.housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }
 
 /* 中央グリッド */
 .housing-listing-grid-wrap {
