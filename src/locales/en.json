@@ -1916,7 +1916,9 @@
             "empty": "Add places with “Add to tour” on a card.",
             "remove": "Remove",
             "start": "Start tour with these",
-            "count": "{{count}}/{{max}}"
+            "count": "{{count}}/{{max}}",
+            "estimate_label": "Est. time",
+            "estimate_pending": "—"
         },
         "favStrip": {
             "title": "Favorites",

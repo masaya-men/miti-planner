@@ -11,6 +11,7 @@ import { FavoritesGrid } from '../favorites/FavoritesGrid';
 import { FavoritesTabs } from '../favorites/FavoritesTabs';
 import { FavoritesBulkBar } from '../favorites/FavoritesBulkBar';
 import { TourTray } from '../browse/TourTray';
+import { MannerNoticeDialog, isMannerNoticeDismissed } from '../workspace/MannerNoticeDialog';
 import { orderFavorites } from '../favorites/favoritesOrder';
 import type { FavTab } from '../favorites/favoritesOrder';
 
@@ -44,6 +45,9 @@ export const FavoritesPage: React.FC = () => {
 
   // ツアートレイのドラフト (このページローカル)
   const [trayIds, setTrayIds] = useState<string[]>([]);
+
+  // マナー通知ダイアログ
+  const [mannerOpen, setMannerOpen] = useState(false);
 
   /**
    * 複数 id をトレイへ追加する。expandTourWithDuplicates で同住所の重複を自動追加。
@@ -90,14 +94,24 @@ export const FavoritesPage: React.FC = () => {
     setSelected(new Set());
   }, [selected]);
 
-  // ツアー開始シーケンス (BrowsePage と同一)
-  const handleStart = useCallback(() => {
+  // ツアー開始: マナー通知 dismiss 済みなら直接、未 dismiss ならダイアログを挟む
+  const commitStart = useCallback(() => {
     if (trayIds.length === 0) return;
     useHousingTourStore.getState().setListings(trayIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
+    setMannerOpen(false);
     navigate('/housing/tour');
   }, [trayIds, navigate]);
+
+  const handleStart = useCallback(() => {
+    if (trayIds.length === 0) return;
+    if (isMannerNoticeDismissed()) {
+      commitStart();
+    } else {
+      setMannerOpen(true);
+    }
+  }, [trayIds, commitStart]);
 
   return (
     <div className="housing-browse">
@@ -168,6 +182,12 @@ export const FavoritesPage: React.FC = () => {
           <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={handleStart} />
         </div>
       </section>
+
+      <MannerNoticeDialog
+        open={mannerOpen}
+        onCancel={() => setMannerOpen(false)}
+        onStart={commitStart}
+      />
     </div>
   );
 };
