@@ -25,8 +25,9 @@ export const AppHeader: React.FC = () => {
   return (
     <header className="housing-app-header" data-region="header">
       <div className="housing-brand-wrap">
-        {/* 全アプリ共通の LoPo ロゴ (= miti ConsolidatedHeader と同一)。クリックで LP へ。 */}
-        <LoPoButton size="sm" onClick={() => navigate('/')} />
+        {/* 全アプリ共通の LoPo ロゴ (= miti と同一 LoPoButton)。ハウジングではハニーゴールド単色
+            (ダーク/ライト共通)。色は housing トークンを var() で参照しハードコードを回避。 */}
+        <LoPoButton size="sm" onClick={() => navigate('/')} color="var(--housing-honey)" />
         <span className="housing-brand-sub housing-brand-sub-standalone">
           {t('housing.workspace.topbar.subtitle')}
         </span>

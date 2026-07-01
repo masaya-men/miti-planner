@@ -8,7 +8,11 @@ import { useThemeStore } from '../store/useThemeStore';
 export const LoPoButton: React.FC<{
     size?: 'sm' | 'lg';
     onClick?: () => void;
-}> = ({ size = 'lg', onClick }) => {
+    /** 単色オーバーライド (テーマ非依存)。ハウジング等でブランド色を差し替える用。CSS var() 可。 */
+    color?: string;
+    /** color 指定時、塗り上に出る反転テキストの色 (既定 = 濃色)。 */
+    invertedColor?: string;
+}> = ({ size = 'lg', onClick, color, invertedColor }) => {
     const fontSize = size === 'lg' ? 'text-app-6xl' : 'text-app-4xl-plus';
     const h = size === 'lg' ? 56 : 40;
     const px = size === 'lg' ? 32 : 16;
@@ -16,11 +20,13 @@ export const LoPoButton: React.FC<{
     const { theme } = useThemeStore();
     const isDark = theme === 'dark';
 
-    // ダーク: テキスト白、塗り白、反転テキスト黒
-    // ライト: テキスト黒、塗り黒、反転テキスト白
-    const textColor = isDark ? '#ffffff' : '#000000';
-    const fillColor = isDark ? '#ffffff' : '#000000';
-    const invertedTextColor = isDark ? '#000000' : '#ffffff';
+    // 既定 (color 未指定) — ダーク: テキスト白/塗り白/反転黒、 ライト: 黒/黒/白。
+    // color 指定時は テーマに依らず単色 (ハウジングのハニーゴールド用)。
+    const textColor = color ?? (isDark ? '#ffffff' : '#000000');
+    const fillColor = color ?? (isDark ? '#ffffff' : '#000000');
+    const invertedTextColor = color
+        ? (invertedColor ?? '#241a0a')
+        : (isDark ? '#000000' : '#ffffff');
 
     const containerRef = useRef<HTMLDivElement>(null);
     const [w, setW] = useState(0);
@@ -42,7 +48,7 @@ export const LoPoButton: React.FC<{
         <div
             ref={containerRef}
             className="relative inline-flex items-center justify-center cursor-pointer group"
-            style={{ height: h, paddingLeft: px, paddingRight: px }}
+            style={{ height: h, paddingLeft: px, paddingRight: px, ...(color ? { color } : null) }}
             onClick={onClick}
             role="button"
             tabIndex={0}
