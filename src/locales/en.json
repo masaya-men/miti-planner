@@ -1903,10 +1903,37 @@
             "detail": "Photo galleries, favorite tour playlists, shareable URLs — everything for housing enthusiasts is on the way.",
             "back_to_top": "Back to top"
         },
+        "header": {
+            "search_placeholder": "Search by address, world, or theme…"
+        },
+        "card": {
+            "favorite": "Favorite",
+            "add_to_tour": "Add to tour"
+        },
+        "tray": {
+            "title": "Tour Tray",
+            "empty": "Add places with “Add to tour” on a card.",
+            "remove": "Remove",
+            "start": "Start tour with these"
+        },
+        "ad": {
+            "sponsored": "Sponsored"
+        },
+        "browse": {
+            "view_aria": "View mode",
+            "view_list": "List",
+            "view_map": "Map",
+            "view_route": "Route"
+        },
         "tabs": {
+            "aria": "Housing pages",
             "search": "Search",
-            "tour": "Tour",
-            "register": "Register"
+            "browse": "Browse",
+            "favorites": "Favorites",
+            "plan": "Build a Tour",
+            "tour": "On Tour",
+            "register": "Register",
+            "mypage": "My Page"
         },
         "placeholder": {
             "search": "Gallery will be implemented in Sub-spec 2B",

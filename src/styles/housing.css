@@ -4600,3 +4600,20 @@ select.housing-input option {
   color: var(--housing-text-mute); opacity: 0.7;
 }
 
+/* 未実装タブの「準備中」ページ */
+.housing-coming-soon-page {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; padding: 40px;
+}
+.housing-coming-soon-inner { max-width: 420px; text-align: center; }
+.housing-coming-soon-eyebrow {
+  font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--housing-honey); margin-bottom: 12px;
+}
+.housing-coming-soon-title {
+  font-size: 24px; font-weight: 700; color: var(--housing-text); margin: 0 0 10px;
+}
+.housing-coming-soon-lead {
+  font-size: 13px; line-height: 1.7; color: var(--housing-text-mute); margin: 0;
+}
+

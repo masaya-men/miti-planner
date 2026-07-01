@@ -1868,10 +1868,37 @@
             "detail": "照片画廊、收藏导览、URL 分享等，专为热爱房屋装饰的玩家打造。",
             "back_to_top": "返回顶部"
         },
+        "header": {
+            "search_placeholder": "按地址·世界·主题搜索…"
+        },
+        "card": {
+            "favorite": "收藏",
+            "add_to_tour": "加入导览"
+        },
+        "tray": {
+            "title": "导览清单",
+            "empty": "用卡片上的“加入导览”添加目的地。",
+            "remove": "删除",
+            "start": "以此内容开始导览"
+        },
+        "ad": {
+            "sponsored": "Sponsored"
+        },
+        "browse": {
+            "view_aria": "显示切换",
+            "view_list": "列表",
+            "view_map": "地图",
+            "view_route": "路线"
+        },
         "tabs": {
+            "aria": "housing 页面",
             "search": "搜索",
-            "tour": "导览",
-            "register": "登记"
+            "browse": "浏览",
+            "favorites": "收藏",
+            "plan": "组建导览",
+            "tour": "导览中",
+            "register": "登记",
+            "mypage": "我的页面"
         },
         "placeholder": {
             "search": "图库将在 Sub-spec 2B 中实现",
