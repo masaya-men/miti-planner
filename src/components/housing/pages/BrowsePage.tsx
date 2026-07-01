@@ -12,7 +12,6 @@ import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { TourTray } from '../browse/TourTray';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
-import { AdSlot } from '../shell/AdSlot';
 
 /**
  * 探すページ (3カラム): 左=フィルター / 中央=物件グリッド / 右=ツアートレイ。
@@ -69,7 +68,6 @@ export const BrowsePage: React.FC = () => {
             onRegisterClick={() => navigate('/housing/register')}
             hideClose
           />
-          <AdSlot slot="browse-left" />
         </div>
       </section>
 
@@ -96,7 +94,6 @@ export const BrowsePage: React.FC = () => {
         <div className="housing-browse-col housing-browse-col-right">
           <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} />
           <FavoritesPreviewStrip />
-          <AdSlot slot="browse-right" />
         </div>
       </section>
     </div>
