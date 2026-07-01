@@ -1927,6 +1927,10 @@
         "header": {
             "search_placeholder": "住所・ワールド・テーマで探す…"
         },
+        "card": {
+            "favorite": "お気に入り",
+            "add_to_tour": "ツアーに追加"
+        },
         "tabs": {
             "aria": "ハウジングのページ切替",
             "search": "探す",
