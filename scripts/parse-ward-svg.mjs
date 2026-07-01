@@ -28,24 +28,51 @@ function bboxCenter(d) {
   return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
 }
 
-// --- houses ---
-const houses = [];
-for (const m of svg.matchAll(/<path id="(plot|apart)_(\d+)"[^>]*\sd="([^"]+)"/g)) {
-  const c = bboxCenter(m[3]);
-  houses.push({ kind: m[1], plot: Number(m[2]), x: nx(c.x), y: ny(c.y), _px: c });
+// 要素の中心を種類別に求める (Figma の描き方はエリアで違う: 家=<path> or <rect>、 ノード=<path> or <circle>)。
+const attrNum = (attrs, name) => {
+  const m = attrs.match(new RegExp(`\\s${name}="(-?[\\d.]+)"`));
+  return m ? Number(m[1]) : null;
+};
+function elementCenter(tag, attrs) {
+  if (tag === 'rect') {
+    const x = attrNum(attrs, 'x') ?? 0, y = attrNum(attrs, 'y') ?? 0;
+    const w = attrNum(attrs, 'width') ?? 0, h = attrNum(attrs, 'height') ?? 0;
+    return { x: x + w / 2, y: y + h / 2 };
+  }
+  if (tag === 'circle' || tag === 'ellipse') {
+    return { x: attrNum(attrs, 'cx') ?? 0, y: attrNum(attrs, 'cy') ?? 0 };
+  }
+  const d = attrs.match(/\sd="([^"]+)"/); // path
+  return d ? bboxCenter(d[1]) : { x: 0, y: 0 };
 }
 
-// --- nodes (Node グループ内) ---
+// --- houses (<path|rect|circle> id="plot_N"|"apart_N") ---
+const houses = [];
+for (const m of svg.matchAll(/<(path|rect|circle|ellipse) id="(plot|apart)_(\d+)"([^>]*)>/g)) {
+  const c = elementCenter(m[1], m[4]);
+  houses.push({ kind: m[2], plot: Number(m[3]), x: nx(c.x), y: ny(c.y), _px: c });
+}
+
+// --- nodes (Node グループ内、 <path|circle> id="node_N") ---
 const nodeGroup = svg.match(/<g id="Node">([\s\S]*?)<\/g>/);
 const nodes = [];
-for (const m of (nodeGroup ? nodeGroup[1] : '').matchAll(/<path id="(node_\d+)"[^>]*\sd="([^"]+)"/g)) {
-  const c = bboxCenter(m[2]);
-  nodes.push({ id: m[1], x: nx(c.x), y: ny(c.y), _px: c });
+for (const m of (nodeGroup ? nodeGroup[1] : '').matchAll(/<(path|rect|circle|ellipse) id="(node_\d+)"([^>]*)>/g)) {
+  const c = elementCenter(m[1], m[3]);
+  nodes.push({ id: m[2], x: nx(c.x), y: ny(c.y), _px: c });
 }
 
-// --- nav road path (M117.5 573.5 で始まる長い path) ---
-const roadM = svg.match(/<path id="[^"]*"\s+d="(M117\.5 573\.5[^"]+)"\s+stroke="#FF0000"/);
-const roadD = roadM ? roadM[1] : null;
+// --- nav road path (stroke="#FF0000" の path。 id が要素[plot_/apart_/node_/Node]のものは除外。
+//     ミスト=1 本の長い path / 他エリア=複数本。 複数なら M 始点を保ったまま連結して subpath 化) ---
+const roadSegs = [];
+for (const m of svg.matchAll(/<path\b([^>]*?)\/?>/g)) {
+  const attrs = m[1];
+  if (!/stroke="#(?:FF0000|ff0000)"/.test(attrs)) continue;
+  const idm = attrs.match(/\bid="([^"]*)"/);
+  if (idm && /^(?:plot_|apart_|node_|Node)/.test(idm[1])) continue;
+  const dm = attrs.match(/\sd="([^"]+)"/);
+  if (dm) roadSegs.push(dm[1]);
+}
+const roadD = roadSegs.length ? roadSegs.join(' ') : null;
 
 // --- visible road path (見た目用の太い道路。 Figma 「道路(Stroke)」 グループ内、
 //     mask="url(...)" を適用された本体 path の d を抜く)。
