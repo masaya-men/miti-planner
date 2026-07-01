@@ -30,7 +30,7 @@ export const HousingShell: React.FC = () => {
   }, []);
 
   return (
-    <main className="housing-shell-root" data-theme={theme}>
+    <main className="housing-workspace housing-shell-root" data-theme={theme}>
       <SceneryVideo theme={theme} />
       <div className="housing-shell">
         <AppHeader />

@@ -155,6 +155,9 @@
   --housing-bubble-pin: 6px;
   --housing-panel-corner-size: 72px;
 
+  /* ===== 再構築シェル (Rebuild) tokens ===== */
+  --housing-tab-active: var(--housing-honey);
+
   /* ===== Typography ===== */
   font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
   font-size: 14px;
@@ -4266,5 +4269,105 @@ select.housing-input option {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* ============================================================
+ * 再構築シェル (Rebuild) — ヘッダー / タブ / 本体行
+ * 質感は .housing-workspace 継承 (tokens / scenery / font)。
+ * ここでは上部6タブ構成のヘッダーと本体行だけを定義する。
+ * ============================================================ */
+
+/* 本体行 (Outlet を包む中段) — ページ側で内部スクロールさせるため min-height:0 */
+.housing-shell-body {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ヘッダー: [ブランド] [検索] [タブ] [右群] の 4 カラムグリッド */
+.housing-app-header {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(160px, 1fr) auto auto;
+  align-items: center;
+  gap: 20px;
+  padding: 0 24px;
+  background: var(--housing-panel-bg);
+  border-bottom: 1px solid var(--housing-panel-border);
+  box-shadow:
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.30),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+}
+/* 上端の薄い sheen (旧 .housing-top::after と同じ) */
+.housing-app-header::after {
+  content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+  background: linear-gradient(to right,
+    transparent, rgba(255, 255, 255, 0.18) 30%, rgba(255, 255, 255, 0.30) 50%,
+    rgba(255, 255, 255, 0.18) 70%, transparent);
+  pointer-events: none;
+}
+
+/* グローバル検索 */
+.housing-app-search {
+  display: flex; align-items: center; min-width: 0;
+}
+.housing-app-search-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 14px;
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-app-search-input::placeholder { color: var(--housing-text-mute); }
+.housing-app-search-input:focus {
+  border-color: var(--housing-honey-border);
+  background: var(--housing-honey-soft);
+}
+
+/* タブバー */
+.housing-tabbar {
+  display: flex; align-items: center; gap: 4px;
+  justify-self: center;
+  height: 100%;
+}
+.housing-tab {
+  position: relative;
+  display: inline-flex; align-items: center;
+  height: 100%;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--housing-text-mute);
+  text-decoration: none;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-tab:hover {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg-hover);
+}
+.housing-tab.is-active { color: var(--housing-candle); }
+.housing-tab.is-active::after {
+  content: ''; position: absolute; left: 12px; right: 12px; bottom: 0; height: 2px;
+  background: var(--housing-tab-active);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 8px var(--housing-honey-glow);
+  pointer-events: none;
+}
+.housing-tab:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: -2px;
+}
+
+/* ヘッダー右群 (通知 / テーマ / アバター) */
+.housing-app-header-right {
+  display: flex; align-items: center; gap: 12px;
+  justify-self: end;
 }
 
