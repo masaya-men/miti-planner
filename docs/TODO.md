@@ -11,10 +11,11 @@
 
 ## 次の作業順 (2026-07-01 更新)
 1. **🔴ハウジング全面再構築(参考UIの洗練度で全7ページ+シェル)**。M1〜M6の挙動先行を撤回→**ページ単位再デザイン**へ。合意=土台(URLタブ/共通部品)→1ページずつ「見た目完璧→実挙動配線」。ブランチ=`feat/housing-rebuild-foundation-browse`。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-rebuild-foundation-browse*`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
-   - **✅第1スパン=土台+探すページ 完了(ローカル確認OK・ブランチ上)**: HousingShell+上部6タブ(URLルート)/AppHeader(LoPoButton=ハニー単色統一・標準ツールチップ撤去)/探す3カラム(FilterPanel+ListingGrid+TourTray)/AdSlot/ComingSoonで他5タブ暫定着地。新規10テスト緑・build緑。
-   - ⚠ **merge保留**: /housing は公開導線。今mergeするとお気に入り/登録がモーダル→「準備中」に後退。**お気に入り+登録を作るまでmerge/デプロイしない**(現状ローカルのみ本番影響ゼロ)。
-   - **次スパン候補**: (a)お気に入りページ or (b)ツアー中(ナビ地図=B案+移動案内・M1核)。地図素材=✅全10マップ保全済。
-   - 既知の残: 中央カードは静止(生きたカード段階2=動画spotlightは後日)/legacy TopBar・HousingWorkspaceテスト5件failは撤去予定の旧物(回帰でない)。
+   - **✅第1スパン=土台+探すページ骨組み 完了**: HousingShell+上部6タブ(URLルート)/AppHeader/探す3カラム/ComingSoonで他5タブ暫定着地。
+   - **✅第2スパン=探すページ 参考UI忠実化+粗一掃 完了(ローカルOK・未merge)**: 質感A案(濃紺フラットパネル=液体ガラス湾曲撤去/ハニー主・青選択)/4列グリッド+「一覧 N件」見出し+並び替え/DDフィルタ(複数選択維持)+サイズ同幅セグメント/トレイN/20+お気に入りプレビュー/文字見切れ解消/多エージェント監査74粗→修正/広告撤去(Ko-fi優先=[[project_lopo_mul_constraint]]更新)。ハウジング460テスト緑・build緑。
+   - ⚠ **merge保留**: /housing は公開導線。お気に入り+登録を作るまでmerge/デプロイしない(現状ローカルのみ本番影響ゼロ)。
+   - **次スパン最優先=(a)お気に入りページ本体**(探すを雛形に:左オンボ3ステップ/中央=複数選択グリッド+タブ[すべて/最近追加]/右トレイ)。設計=`docs/superpowers/specs/2026-07-01-housing-favorites-page-design.md`・プラン=`docs/superpowers/plans/2026-07-01-housing-favorites-page.md`(Task2以降)。その後(b)ツアー中ナビ。
+   - 既知の残: 中央カード静止(生きたカード段階2は後日)/ビュー切替[一覧/マップ/ルート]は地図M1配線時に復活/legacy TopBar・HousingWorkspace5件failは撤去予定(回帰でない)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断)
