@@ -2589,7 +2589,9 @@
         },
         "favorites": {
             "title": "Favorites",
-            "empty": "Housings you've added to favorites will appear here. Tap ♡ on a listing in Browse to save it."
+            "empty": "Housings you've added to favorites will appear here. Tap ♡ on a listing in Browse to save it.",
+            "tab_all": "All",
+            "tab_recent": "Recently added"
         },
         "notifications": {
             "title": "通知",
