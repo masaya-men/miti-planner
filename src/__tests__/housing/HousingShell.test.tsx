@@ -51,5 +51,8 @@ describe('HousingShell', () => {
     expect(document.querySelector('[data-region="header"]')).toBeTruthy();
     expect(screen.getByTestId('browse-page')).toBeTruthy();
   });
-  // タブリンク(≥6)の検証は TabBar 導入後 (Task 3) に追加する。
+  it('renders tab links inside header', () => {
+    renderShell();
+    expect(screen.getAllByRole('link').length).toBeGreaterThanOrEqual(6);
+  });
 });
