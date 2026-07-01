@@ -1925,9 +1925,14 @@
             "back_to_top": "トップに戻る"
         },
         "tabs": {
+            "aria": "ハウジングのページ切替",
             "search": "探す",
-            "tour": "回る",
-            "register": "登録"
+            "browse": "探す",
+            "favorites": "お気に入り",
+            "plan": "ツアーを組む",
+            "tour": "ツアー中",
+            "register": "登録する",
+            "mypage": "マイページ"
         },
         "placeholder": {
             "search": "ギャラリーは Sub-spec 2B で実装予定です",
