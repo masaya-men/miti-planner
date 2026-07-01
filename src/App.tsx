@@ -15,6 +15,8 @@ import {
 } from './components/housing';
 import { HousingDetailPage } from './components/housing/listing/HousingDetailPage';
 import { HousingDetailModalRoute } from './components/housing/listing/HousingDetailModalRoute';
+import { HousingShell } from './components/housing/shell/HousingShell';
+import { BrowsePage } from './components/housing/pages/BrowsePage';
 import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
 import { requestPersistentStorage } from './lib/requestPersistentStorage';
 
@@ -91,8 +93,13 @@ function AppRoutes() {
         <Route path="/support" element={<SupportPage />} />
         <Route path="/stgy" element={<StrategyBoardPastePage />} />
 
-        <Route path="/housing" element={<HousingWorkspace />} />
+        {/* 再構築: URL タブで切り替わるシェル。子ルートは第1スパンで探すのみ、
+            以降のスパンで favorites/plan/tour/register/mypage を追加する。 */}
+        <Route path="/housing" element={<HousingShell />}>
+          <Route index element={<BrowsePage />} />
+        </Route>
         <Route path="/housing/legacy" element={<HousingPage />} />
+        {/* 旧ワークスペース (据え置き・再構築完了後に撤去) */}
         <Route path="/housing/p/:listingId" element={<HousingWorkspace />} />
         <Route path="/housing/tour/:tourId" element={<HousingWorkspace />} />
         {/* フルページ詳細 (URL 直アクセス・モーダル経由の両方の受け皿) */}
