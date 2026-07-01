@@ -4383,3 +4383,220 @@ select.housing-input option {
   justify-self: end;
 }
 
+/* ===== 探すページ (3カラム) ===== */
+.housing-browse {
+  display: grid;
+  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  min-height: 0;
+  height: 100%;
+}
+.housing-browse-col {
+  display: flex; flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.housing-browse-col-center { overflow: hidden; }
+
+/* 中央グリッド */
+.housing-listing-grid-wrap {
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+}
+.housing-listing-grid-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 12px;
+  flex: 0 0 auto;
+}
+.housing-view-toggle {
+  display: inline-flex; align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+.housing-view-tab {
+  appearance: none; border: 0; background: transparent;
+  color: var(--housing-text-mute);
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  padding: 5px 12px; border-radius: 7px; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-view-tab.is-active {
+  background: var(--housing-honey-medium);
+  color: var(--housing-candle);
+}
+.housing-view-tab:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-listing-grid-count { color: var(--housing-text-mute); font-size: 12px; }
+
+.housing-listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 4px;
+  align-content: start;
+}
+
+/* 生きたカード */
+.housing-listing-card {
+  display: flex; flex-direction: column;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 14px;
+  overflow: hidden;
+  contain-intrinsic-size: 0 260px;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-listing-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--housing-honey-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--housing-honey-inset);
+}
+.housing-listing-card-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+.housing-listing-card-img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.housing-card-fav {
+  position: absolute; top: 8px; right: 8px;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--housing-panel-border);
+  color: #fff; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.housing-card-fav:hover { background: rgba(0, 0, 0, 0.6); }
+.housing-card-fav:active { transform: scale(0.92); }
+.housing-card-fav.is-on { color: var(--housing-honey); }
+.housing-card-fav.is-on svg { fill: currentColor; }
+.housing-listing-card-body {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 10px 12px 12px;
+}
+.housing-listing-card-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: var(--housing-text);
+}
+.housing-listing-card-size {
+  font-size: 11px; color: var(--housing-text-mute);
+  border: 1px solid var(--housing-panel-border); border-radius: 5px;
+  padding: 1px 5px;
+}
+.housing-listing-card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.housing-pill {
+  font-size: 11px; color: var(--housing-text-mute);
+  background: var(--housing-honey-soft);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 6px; padding: 2px 7px;
+}
+.housing-card-add-btn {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  margin-top: 2px; padding: 7px 10px;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border: 1px solid var(--housing-honey-border);
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.housing-card-add-btn:hover { background: var(--housing-honey-strong); }
+
+/* ローディング / エラー (中央) */
+.housing-center-loading,
+.housing-center-error {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; color: var(--housing-text-mute); font-size: 13px;
+}
+
+/* ツアートレイ */
+.housing-tour-tray {
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  gap: 12px;
+}
+.housing-tour-tray-head {
+  display: flex; align-items: center; justify-content: space-between;
+  flex: 0 0 auto;
+}
+.housing-tour-tray-title { font-size: 13px; font-weight: 700; color: var(--housing-text); }
+.housing-tour-tray-count {
+  font-size: 12px; color: var(--housing-candle);
+  background: var(--housing-honey-medium); border-radius: 999px;
+  min-width: 22px; text-align: center; padding: 1px 8px;
+}
+.housing-tour-tray-empty {
+  color: var(--housing-text-mute); font-size: 12px; line-height: 1.6;
+  padding: 16px 4px;
+}
+.housing-tour-tray-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+  overflow-y: auto; min-height: 0; flex: 1 1 auto;
+}
+.housing-tour-tray-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+}
+.housing-tour-tray-num {
+  flex: 0 0 auto;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  color: var(--housing-candle); background: var(--housing-honey-medium);
+}
+.housing-tour-tray-addr {
+  flex: 1 1 auto; min-width: 0;
+  font-size: 12px; color: var(--housing-text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.housing-tour-tray-remove {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--housing-text-mute); padding: 4px; border-radius: 6px;
+  display: inline-flex;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-tour-tray-remove:hover { color: var(--housing-danger, #ff6b6b); background: var(--housing-chip-bg-hover); }
+.housing-tour-tray-start {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px 14px;
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  color: #241a0a;
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0; border-radius: 10px;
+  box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-tray-start:hover:not(:disabled) { filter: brightness(1.05); }
+.housing-tour-tray-start:active:not(:disabled) { transform: scale(0.98); }
+.housing-tour-tray-start:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+
+/* 最小広告予約枠 */
+.housing-ad-slot {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 64px;
+  border: 1px dashed var(--housing-panel-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.housing-ad-slot-label {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--housing-text-mute); opacity: 0.7;
+}
+

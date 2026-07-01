@@ -12,7 +12,9 @@ vi.mock('../../lib/housingListingsService', () => ({
 }));
 
 import { HousingShell } from '../../components/housing/shell/HousingShell';
-import { BrowsePage } from '../../components/housing/pages/BrowsePage';
+
+// シェルは Outlet に任意の子を描画できることだけ検証する (BrowsePage 本体には依存しない)。
+const DummyPage: React.FC = () => <div data-testid="browse-page" />;
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -45,7 +47,7 @@ function renderShell() {
       <MemoryRouter initialEntries={['/housing']}>
         <Routes>
           <Route path="/housing" element={<HousingShell />}>
-            <Route index element={<BrowsePage />} />
+            <Route index element={<DummyPage />} />
           </Route>
         </Routes>
       </MemoryRouter>

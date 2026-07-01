@@ -1937,6 +1937,15 @@
             "remove": "削除",
             "start": "この内容でツアーを開始"
         },
+        "ad": {
+            "sponsored": "Sponsored"
+        },
+        "browse": {
+            "view_aria": "表示切替",
+            "view_list": "一覧",
+            "view_map": "マップ",
+            "view_route": "ルート"
+        },
         "tabs": {
             "aria": "ハウジングのページ切替",
             "search": "探す",
