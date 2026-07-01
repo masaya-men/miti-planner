@@ -1916,6 +1916,11 @@
             "remove": "Remove",
             "start": "Start tour with these"
         },
+        "favStrip": {
+            "title": "Favorites",
+            "viewAll": "View all",
+            "empty": "Save housing you like with ♡ to see it here."
+        },
         "ad": {
             "sponsored": "Sponsored"
         },
@@ -2351,7 +2356,10 @@
                 "area": "Area",
                 "size": "Size",
                 "theme": "Theme",
-                "size_apartment_short": "Apt"
+                "size_apartment_short": "Apt",
+                "all": "All",
+                "selected_count": "{{count}} selected",
+                "clear_all": "Clear all"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

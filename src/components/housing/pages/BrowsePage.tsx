@@ -11,6 +11,7 @@ import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { ListingGrid } from '../browse/ListingGrid';
 import { TourTray } from '../browse/TourTray';
+import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
 import { AdSlot } from '../shell/AdSlot';
 
 /**
@@ -51,14 +52,14 @@ export const BrowsePage: React.FC = () => {
 
   return (
     <div className="housing-browse">
-      <LiquidGlassPanel edge={160} radius={18} scale={49} data-region="left">
+      <LiquidGlassPanel edge={120} radius={18} scale={14} chrome={false} data-region="left">
         <div className="housing-browse-col housing-browse-col-left">
           <FilterPanel onClose={() => {}} onRegisterClick={() => navigate('/housing/register')} />
           <AdSlot slot="browse-left" />
         </div>
       </LiquidGlassPanel>
 
-      <LiquidGlassPanel edge={160} radius={18} scale={49} data-region="center">
+      <LiquidGlassPanel edge={120} radius={18} scale={14} chrome={false} data-region="center">
         <div className="housing-browse-col housing-browse-col-center">
           {status === 'loading' || status === 'idle' ? (
             <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
@@ -72,9 +73,10 @@ export const BrowsePage: React.FC = () => {
         </div>
       </LiquidGlassPanel>
 
-      <LiquidGlassPanel edge={160} radius={18} scale={49} data-region="right">
+      <LiquidGlassPanel edge={120} radius={18} scale={14} chrome={false} data-region="right">
         <div className="housing-browse-col housing-browse-col-right">
           <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} />
+          <FavoritesPreviewStrip />
           <AdSlot slot="browse-right" />
         </div>
       </LiquidGlassPanel>

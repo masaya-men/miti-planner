@@ -18,6 +18,7 @@ import { REGION_LABELS, type RegionLocale } from '../../../data/housing/regionMa
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { FilterSection } from './FilterSection';
 import { FilterChip } from './FilterChip';
+import { FilterDropdown } from './FilterDropdown';
 import { ResultCountBadge } from './ResultCountBadge';
 import { RegisterCTA } from './RegisterCTA';
 import { PanelCloseButton } from './PanelCloseButton';
@@ -53,6 +54,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const toggleSize = useHousingFilterStore((s) => s.toggleSize);
     const toggleTag = useHousingFilterStore((s) => s.toggleTag);
     const setCounts = useHousingFilterStore((s) => s.setCounts);
+    const clearAll = useHousingFilterStore((s) => s.clearAll);
     // 件数の母集団はアクティブビューに揃える (CenterArea / RightPanel と同じ規約):
     // list ビュー = 共有ストアの実データ、 map ビュー = sampleWardLayout 準拠の MOCK (Phase 2B)。
     const viewMode = useHousingViewStore((s) => s.viewMode);
@@ -70,6 +72,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
 
     const availableServers = dc ? DC_SERVER_MAP[dc]?.servers ?? [] : [];
 
+    const allLabel = t('housing.workspace.filter.all');
+    const countLabel = (n: number) => t('housing.workspace.filter.selected_count', { count: n });
+    const hasActiveFilter =
+        Boolean(dc) || regions.length > 0 || servers.length > 0 ||
+        areas.length > 0 || sizes.length > 0 || tags.length > 0;
+
     return (
         <>
             <div className="housing-panel-head">
@@ -79,51 +87,47 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                 </div>
             </div>
             <div className="housing-panel-body">
-                <FilterSection title={t('housing.workspace.filter.dc')}>
-                    {ALL_DCS.map((d) => (
-                        <FilterChip
-                            key={d}
-                            label={d}
-                            active={dc === d}
-                            onToggle={() => setDC(dc === d ? null : d)}
-                        />
-                    ))}
-                </FilterSection>
+                <FilterDropdown
+                    label={t('housing.workspace.filter.dc')}
+                    mode="single"
+                    options={ALL_DCS.map((d) => ({ value: d, label: d }))}
+                    selected={dc ? [dc] : []}
+                    onSelect={(v) => setDC(dc === v ? null : v)}
+                    allLabel={allLabel}
+                    countLabel={countLabel}
+                />
 
-                <FilterSection title={t('housing.workspace.filter.region')}>
-                    {ALL_REGIONS.map((r: Region) => (
-                        <FilterChip
-                            key={r}
-                            label={REGION_LABELS[r][locale]}
-                            active={regions.includes(r)}
-                            onToggle={() => toggleRegion(r)}
-                        />
-                    ))}
-                </FilterSection>
+                <FilterDropdown
+                    label={t('housing.workspace.filter.region')}
+                    mode="multi"
+                    options={ALL_REGIONS.map((r: Region) => ({ value: r, label: REGION_LABELS[r][locale] }))}
+                    selected={regions}
+                    onSelect={(v) => toggleRegion(v)}
+                    allLabel={allLabel}
+                    countLabel={countLabel}
+                />
 
                 {dc && availableServers.length > 0 && (
-                    <FilterSection title={t('housing.workspace.filter.server')}>
-                        {availableServers.map((s) => (
-                            <FilterChip
-                                key={s}
-                                label={s}
-                                active={servers.includes(s)}
-                                onToggle={() => toggleServer(s)}
-                            />
-                        ))}
-                    </FilterSection>
+                    <FilterDropdown
+                        label={t('housing.workspace.filter.server')}
+                        mode="multi"
+                        options={availableServers.map((s) => ({ value: s, label: s }))}
+                        selected={servers}
+                        onSelect={(v) => toggleServer(v)}
+                        allLabel={allLabel}
+                        countLabel={countLabel}
+                    />
                 )}
 
-                <FilterSection title={t('housing.workspace.filter.area')}>
-                    {AREAS.map((a) => (
-                        <FilterChip
-                            key={a}
-                            label={a}
-                            active={areas.includes(a)}
-                            onToggle={() => toggleArea(a)}
-                        />
-                    ))}
-                </FilterSection>
+                <FilterDropdown
+                    label={t('housing.workspace.filter.area')}
+                    mode="multi"
+                    options={AREAS.map((a) => ({ value: a, label: a }))}
+                    selected={areas}
+                    onSelect={(v) => toggleArea(v as HousingArea)}
+                    allLabel={allLabel}
+                    countLabel={countLabel}
+                />
 
                 <FilterSection title={t('housing.workspace.filter.size')}>
                     {SIZES.map((sz) => (
@@ -137,16 +141,24 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                     ))}
                 </FilterSection>
 
-                <FilterSection title={t('housing.workspace.filter.theme')}>
-                    {SAMPLE_THEME_TAGS.map((tag) => (
-                        <FilterChip
-                            key={tag}
-                            label={t(`housing.tag.${tag}`, { defaultValue: tag })}
-                            active={tags.includes(tag)}
-                            onToggle={() => toggleTag(tag)}
-                        />
-                    ))}
-                </FilterSection>
+                <FilterDropdown
+                    label={t('housing.workspace.filter.theme')}
+                    mode="multi"
+                    options={SAMPLE_THEME_TAGS.map((tag) => ({
+                        value: tag,
+                        label: t(`housing.tag.${tag}`, { defaultValue: tag }),
+                    }))}
+                    selected={tags}
+                    onSelect={(v) => toggleTag(v)}
+                    allLabel={allLabel}
+                    countLabel={countLabel}
+                />
+
+                {hasActiveFilter && (
+                    <button type="button" className="housing-filter-clear-all" onClick={clearAll}>
+                        {t('housing.workspace.filter.clear_all')}
+                    </button>
+                )}
 
                 <RegisterCTA onClick={onRegisterClick} />
 

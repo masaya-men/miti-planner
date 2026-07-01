@@ -1881,6 +1881,11 @@
             "remove": "删除",
             "start": "以此内容开始导览"
         },
+        "favStrip": {
+            "title": "收藏",
+            "viewAll": "查看全部",
+            "empty": "用♡收藏心仪的房屋后会显示在这里。"
+        },
         "ad": {
             "sponsored": "Sponsored"
         },
@@ -2316,7 +2321,10 @@
                 "area": "区域",
                 "size": "大小",
                 "theme": "主题",
-                "size_apartment_short": "Apt"
+                "size_apartment_short": "Apt",
+                "all": "全部",
+                "selected_count": "已选{{count}}项",
+                "clear_all": "清除全部"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

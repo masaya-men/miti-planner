@@ -1881,6 +1881,11 @@
             "remove": "삭제",
             "start": "이 내용으로 투어 시작"
         },
+        "favStrip": {
+            "title": "즐겨찾기",
+            "viewAll": "전체 보기",
+            "empty": "마음에 드는 하우징을 ♡로 저장하면 여기에 표시됩니다."
+        },
         "ad": {
             "sponsored": "Sponsored"
         },
@@ -2316,7 +2321,10 @@
                 "area": "구역",
                 "size": "크기",
                 "theme": "테마",
-                "size_apartment_short": "Apt"
+                "size_apartment_short": "Apt",
+                "all": "전체",
+                "selected_count": "{{count}}개 선택",
+                "clear_all": "모두 지우기"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

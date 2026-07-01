@@ -1937,6 +1937,11 @@
             "remove": "削除",
             "start": "この内容でツアーを開始"
         },
+        "favStrip": {
+            "title": "お気に入り",
+            "viewAll": "すべて見る",
+            "empty": "気になるハウジングを♡で保存すると、ここに表示されます。"
+        },
         "ad": {
             "sponsored": "Sponsored"
         },
@@ -2372,7 +2377,10 @@
                 "area": "エリア",
                 "size": "サイズ",
                 "theme": "テーマ",
-                "size_apartment_short": "Apt"
+                "size_apartment_short": "Apt",
+                "all": "すべて",
+                "selected_count": "{{count}}件選択",
+                "clear_all": "すべてクリア"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

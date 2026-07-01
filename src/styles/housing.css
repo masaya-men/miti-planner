@@ -21,9 +21,13 @@
   --housing-aether: #00BFFF;        /* FF14 エーテライト水晶のシアン */
   --housing-aether-soft: #9fe9ff;
   --housing-map-light: #ffffff;     /* 道なぞりの先頭の白い光 */
-  --housing-panel-bg: rgba(255, 255, 255, 0.04);
-  --housing-panel-border: rgba(255, 255, 255, 0.22);
-  --housing-panel-border-strong: rgba(255, 255, 255, 0.36);
+  /* 質感A案 (2026-07-01): 参考UIへ寄せる。白テキストが読める濃紺の面へ。
+     動画背景は veil で後退させ、パネルは半不透明の濃紺で「落ち着いた面」にする。
+     旧値 rgba(255,255,255,0.04) は透けすぎて暗幕頼みだった。light/dark 共通 (text は常に白)。 */
+  --housing-panel-bg: rgba(17, 23, 37, 0.56);
+  --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  --housing-panel-border: rgba(255, 255, 255, 0.16);
+  --housing-panel-border-strong: rgba(255, 255, 255, 0.28);
   --housing-panel-inner: rgba(255, 255, 255, 0.05);
   --housing-skeleton-block: rgba(255, 255, 255, 0.10);
   --housing-skeleton-block-soft: rgba(255, 255, 255, 0.08);
@@ -226,6 +230,7 @@
 }
 .housing-scenery-veil {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  /* 質感A案: パネルを濃紺不透明化したので動画は暗くしなくて良い (ユーザー指示で元の明るさへ)。 */
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.18) 70%, rgba(0, 0, 0, 0.28));
 }
 
@@ -383,10 +388,10 @@
   border: 1px solid var(--housing-panel-border);
   border-radius: var(--housing-panel-radius);
   box-shadow:
-    0 24px 72px rgba(0, 0, 0, 0.5),
-    inset 0 1.5px 1px rgba(255, 255, 255, 0.32),
-    inset 0 -1.5px 2px rgba(255, 255, 255, 0.06),
-    inset 0 0 22px rgba(255, 255, 255, 0.04);
+    0 20px 56px rgba(0, 0, 0, 0.5),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.14),
+    inset 0 -1.5px 2px rgba(255, 255, 255, 0.05),
+    inset 0 0 22px rgba(255, 255, 255, 0.03);
   overflow: hidden;
   display: flex; flex-direction: column;
   isolation: isolate;
@@ -400,14 +405,15 @@
   position: absolute; inset: 0;
   border-radius: inherit;
   padding: 1.5px;
+  /* 質感A案: 眩しい白リムを抑えて落ち着いた縁に (旧 0.55/0.45 peak → 0.26/0.22)。 */
   background: linear-gradient(180deg,
-    rgba(255, 255, 255, 0.55) 0%,
-    rgba(255, 255, 255, 0.22) 14%,
-    rgba(255, 255, 255, 0.06) 32%,
+    rgba(255, 255, 255, 0.26) 0%,
+    rgba(255, 255, 255, 0.12) 14%,
+    rgba(255, 255, 255, 0.04) 32%,
     rgba(255, 255, 255, 0.02) 50%,
-    rgba(255, 255, 255, 0.06) 70%,
-    rgba(255, 255, 255, 0.22) 88%,
-    rgba(255, 255, 255, 0.45) 100%);
+    rgba(255, 255, 255, 0.04) 70%,
+    rgba(255, 255, 255, 0.12) 88%,
+    rgba(255, 255, 255, 0.22) 100%);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
@@ -638,6 +644,87 @@
 }
 
 /* Filter panel footer (close button alignment) */
+/* ===== フィルタ ドロップダウン (参考UI準拠・インライン展開/複数選択維持) ===== */
+.housing-filter-field {
+  display: flex; flex-direction: column; gap: 5px;
+  margin-bottom: 12px;
+}
+.housing-filter-field-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  color: var(--housing-text-dim);
+}
+.housing-filter-select {
+  appearance: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; height: 34px; padding: 0 10px 0 12px;
+  font-family: inherit; font-size: 12.5px;
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-filter-select:hover { border-color: var(--housing-panel-border-strong); }
+.housing-filter-field[data-open="true"] .housing-filter-select {
+  border-color: var(--housing-honey-border);
+  background: var(--housing-honey-soft);
+}
+.housing-filter-select-value {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.housing-filter-select-value.is-placeholder { color: var(--housing-text-mute); }
+.housing-filter-select-chevron {
+  flex: 0 0 auto; color: var(--housing-text-mute);
+  transition: transform 0.15s ease;
+}
+.housing-filter-field[data-open="true"] .housing-filter-select-chevron {
+  transform: rotate(180deg);
+}
+.housing-filter-options {
+  list-style: none; margin: 4px 0 0; padding: 4px;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  max-height: 240px; overflow-y: auto;
+}
+.housing-filter-option {
+  appearance: none; cursor: pointer; width: 100%;
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px;
+  font-family: inherit; font-size: 12.5px; text-align: left;
+  color: var(--housing-text-dim);
+  background: transparent; border: 0; border-radius: 7px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-filter-option:hover { background: var(--housing-chip-bg-hover); color: var(--housing-text); }
+.housing-filter-option[data-selected="true"] { color: var(--housing-candle); }
+.housing-filter-option-check {
+  flex: 0 0 auto; width: 16px; height: 16px; border-radius: 4px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--housing-panel-border);
+  color: #241a0a;
+}
+.housing-filter-option[data-selected="true"] .housing-filter-option-check {
+  background: var(--housing-honey); border-color: var(--housing-honey-border);
+}
+.housing-filter-option-label { flex: 1 1 auto; min-width: 0; }
+
+.housing-filter-clear-all {
+  appearance: none; cursor: pointer; width: 100%;
+  padding: 8px 10px; margin-bottom: 4px;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.housing-filter-clear-all:hover {
+  color: var(--housing-text); border-color: var(--housing-panel-border-strong);
+  background: var(--housing-chip-bg-hover);
+}
+
 .housing-filter-panel-footer {
   display: flex;
   justify-content: flex-end;
@@ -4435,7 +4522,8 @@ select.housing-input option {
 
 .housing-listing-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  /* 参考UI準拠で密に (中央幅で概ね4列)。画面全体を使う。 */
+  grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
   gap: 14px;
   overflow-y: auto;
   min-height: 0;
@@ -4485,10 +4573,18 @@ select.housing-input option {
   padding: 10px 12px 12px;
 }
 .housing-listing-card-title {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: flex-start; gap: 8px;
   font-size: 13px; font-weight: 600; color: var(--housing-text);
 }
+.housing-listing-card-title > span:first-child {
+  flex: 1 1 auto; min-width: 0;
+  /* 長い住所は2行までで省略 (見切れ防止)。 */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+  line-height: 1.35;
+}
 .housing-listing-card-size {
+  flex: 0 0 auto;
   font-size: 11px; color: var(--housing-text-mute);
   border: 1px solid var(--housing-panel-border); border-radius: 5px;
   padding: 1px 5px;
@@ -4523,7 +4619,7 @@ select.housing-input option {
 /* ツアートレイ */
 .housing-tour-tray {
   display: flex; flex-direction: column;
-  min-height: 0; height: 100%;
+  min-height: 0; flex: 1 1 auto;
   gap: 12px;
 }
 .housing-tour-tray-head {
@@ -4585,6 +4681,53 @@ select.housing-input option {
 .housing-tour-tray-start:hover:not(:disabled) { filter: brightness(1.05); }
 .housing-tour-tray-start:active:not(:disabled) { transform: scale(0.98); }
 .housing-tour-tray-start:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+
+/* 右カラム: お気に入りプレビュー (参考UI準拠) */
+.housing-fav-strip {
+  flex: 0 0 auto;
+  display: flex; flex-direction: column; gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-fav-strip-head {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.housing-fav-strip-title {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 700; color: var(--housing-text);
+}
+.housing-fav-strip-title svg { color: var(--housing-honey); }
+.housing-fav-strip-count {
+  font-size: 11px; color: var(--housing-candle);
+  background: var(--housing-honey-medium); border-radius: 999px;
+  min-width: 20px; text-align: center; padding: 1px 7px;
+}
+.housing-fav-strip-more {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 2px;
+  font-family: inherit; font-size: 12px; color: var(--housing-text-mute);
+  padding: 2px 4px; border-radius: 6px;
+  transition: color 0.15s ease;
+}
+.housing-fav-strip-more:hover { color: var(--housing-candle); }
+.housing-fav-strip-empty {
+  font-size: 12px; color: var(--housing-text-mute); line-height: 1.5;
+  margin: 0;
+}
+.housing-fav-strip-list {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+}
+.housing-fav-strip-thumb {
+  appearance: none; border: 1px solid var(--housing-panel-border); cursor: pointer;
+  display: block; width: 100%; aspect-ratio: 1 / 1;
+  padding: 0; border-radius: 8px; overflow: hidden;
+  background: var(--housing-card-thumb-bg);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+.housing-fav-strip-thumb:hover { border-color: var(--housing-honey-border); }
+.housing-fav-strip-thumb:active { transform: scale(0.96); }
+.housing-fav-strip-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* 最小広告予約枠 */
 .housing-ad-slot {
