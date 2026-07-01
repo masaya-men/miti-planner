@@ -53,7 +53,10 @@ export const FavoritesPreviewStrip: React.FC = () => {
       </div>
 
       {thumbs.length === 0 ? (
-        <p className="housing-fav-strip-empty">{t('housing.favStrip.empty')}</p>
+        <div className="housing-empty-hint">
+          <Heart size={18} aria-hidden="true" />
+          <p>{t('housing.favStrip.empty')}</p>
+        </div>
       ) : (
         <ul className="housing-fav-strip-list">
           {thumbs.map((l) => (

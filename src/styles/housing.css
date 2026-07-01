@@ -49,6 +49,9 @@
   --housing-honey-fill-glow: rgba(255, 180, 90, 0.5);
   --housing-honey-shadow-soft: rgba(255, 180, 90, 0.45);
   --housing-honey-shadow-strong: rgba(255, 180, 90, 0.55);
+  /* ハニー面の上に乗る濃い文字色 (テーマ追加時に取り残さないよう token 化)。 */
+  --housing-honey-text: #241a0a;
+  --housing-honey-text-strong: #1a1006;
 
   /* ===== Register modal field tokens ===== */
   --housing-field-bg-auto: rgba(255, 201, 135, 0.16);
@@ -141,6 +144,8 @@
   --housing-text-md: 13px;
   --housing-text-base: 14px;
   --housing-text-lg: 16px;
+  --housing-text-input: 12.5px;
+  --housing-ad-label-size: 10px;
   --housing-text-xl: 18px;
 
   /* ===== Z-index tokens ===== */
@@ -153,10 +158,14 @@
   --housing-panel-radius: 18px;
   --housing-main-gap: 14px;
   --housing-main-padding: 14px;
-  --housing-left-w: 280px;
-  --housing-right-w: 360px;
+  /* 参考UI準拠: 左右パネルを狭め、中央グリッドを広く(4列の一覧性を確保)。 */
+  --housing-left-w: 240px;
+  --housing-right-w: 300px;
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
+  --housing-listing-card-min-w: 198px;
+  --housing-fav-thumb-min: 64px;
+  --housing-ad-slot-bg: rgba(255, 255, 255, 0.02);
   --housing-panel-corner-size: 72px;
 
   /* ===== 再構築シェル (Rebuild) tokens ===== */
@@ -359,7 +368,7 @@
 }
 .housing-theme-toggle button.is-on {
   background: var(--housing-honey);
-  color: #1a1006; font-weight: 600;
+  color: var(--housing-honey-text-strong); font-weight: 600;
   text-shadow: none;
 }
 
@@ -650,14 +659,14 @@
   margin-bottom: 12px;
 }
 .housing-filter-field-label {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.04em;
+  font-size: var(--housing-text-xs); font-weight: 600; letter-spacing: 0.04em;
   color: var(--housing-text-dim);
 }
 .housing-filter-select {
   appearance: none; cursor: pointer;
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  width: 100%; height: 34px; padding: 0 10px 0 12px;
-  font-family: inherit; font-size: 12.5px;
+  width: 100%; height: 36px; padding: 0 10px 0 12px;
+  font-family: inherit; font-size: var(--housing-text-input);
   color: var(--housing-text);
   background: var(--housing-panel-inner);
   border: 1px solid var(--housing-panel-border);
@@ -681,8 +690,8 @@
   transform: rotate(180deg);
 }
 .housing-filter-options {
-  list-style: none; margin: 4px 0 0; padding: 4px;
-  display: flex; flex-direction: column; gap: 2px;
+  list-style: none; margin: 4px 0 0; padding: 6px;
+  display: flex; flex-direction: column; gap: 4px;
   background: var(--housing-panel-bg-solid);
   border: 1px solid var(--housing-panel-border);
   border-radius: 9px;
@@ -691,8 +700,8 @@
 .housing-filter-option {
   appearance: none; cursor: pointer; width: 100%;
   display: flex; align-items: center; gap: 8px;
-  padding: 7px 8px;
-  font-family: inherit; font-size: 12.5px; text-align: left;
+  padding: 8px 10px;
+  font-family: inherit; font-size: var(--housing-text-input); text-align: left;
   color: var(--housing-text-dim);
   background: transparent; border: 0; border-radius: 7px;
   transition: background 0.12s ease, color 0.12s ease;
@@ -703,7 +712,7 @@
   flex: 0 0 auto; width: 16px; height: 16px; border-radius: 4px;
   display: inline-flex; align-items: center; justify-content: center;
   border: 1px solid var(--housing-panel-border);
-  color: #241a0a;
+  color: var(--housing-honey-text);
 }
 .housing-filter-option[data-selected="true"] .housing-filter-option-check {
   background: var(--housing-honey); border-color: var(--housing-honey-border);
@@ -712,8 +721,8 @@
 
 .housing-filter-clear-all {
   appearance: none; cursor: pointer; width: 100%;
-  padding: 8px 10px; margin-bottom: 4px;
-  font-family: inherit; font-size: 12px; font-weight: 600;
+  padding: 8px 10px; margin: 2px 0 6px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
   color: var(--housing-text-dim);
   background: transparent;
   border: 1px solid var(--housing-panel-border);
@@ -723,6 +732,44 @@
 .housing-filter-clear-all:hover {
   color: var(--housing-text); border-color: var(--housing-panel-border-strong);
   background: var(--housing-chip-bg-hover);
+}
+
+/* サイズ = フルラベル同幅セグメント (参考UI準拠。1文字チップの安っぽさを解消) */
+.housing-size-seg {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+}
+.housing-size-seg-btn {
+  appearance: none; cursor: pointer;
+  height: 34px; padding: 0 6px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  white-space: nowrap; text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.housing-size-seg-btn:hover { border-color: var(--housing-panel-border-strong); color: var(--housing-text); }
+.housing-size-seg-btn[data-active="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+
+/* 探すページ操作要素のキーボードフォーカス表示 (Tab 操作の現在地) */
+.housing-card-fav:focus-visible,
+.housing-card-add-btn:focus-visible,
+.housing-tour-tray-remove:focus-visible,
+.housing-tour-tray-start:focus-visible,
+.housing-fav-strip-thumb:focus-visible,
+.housing-fav-strip-more:focus-visible,
+.housing-size-seg-btn:focus-visible,
+.housing-filter-select:focus-visible,
+.housing-filter-option:focus-visible,
+.housing-sort-trigger:focus-visible,
+.housing-sort-option:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
 }
 
 .housing-filter-panel-footer {
@@ -4495,36 +4542,77 @@ select.housing-input option {
 }
 .housing-listing-grid-toolbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding-bottom: 12px;
+  gap: 12px;
+  padding: 0 4px 12px 0;
   flex: 0 0 auto;
 }
-.housing-view-toggle {
-  display: inline-flex; align-items: center;
-  background: rgba(255, 255, 255, 0.06);
+/* 「ハウジング一覧 N件」見出し */
+.housing-listing-grid-heading {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  margin: 0;
+  font-size: var(--housing-text-md); font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-listing-grid-count {
+  font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 並び替え (参考UI「並び替え: 新着順 ▼」) */
+.housing-sort {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 8px;
+  flex: 0 0 auto;
+}
+.housing-sort-label { font-size: var(--housing-text-sm); color: var(--housing-text-mute); }
+.housing-sort-trigger {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 30px; padding: 0 8px 0 12px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
   border: 1px solid var(--housing-panel-border);
-  border-radius: 10px;
-  padding: 3px;
-  gap: 2px;
+  border-radius: 9px;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
-.housing-view-tab {
-  appearance: none; border: 0; background: transparent;
-  color: var(--housing-text-mute);
-  font-family: inherit; font-size: 12px; font-weight: 600;
-  padding: 5px 12px; border-radius: 7px; cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+.housing-sort-trigger:hover { border-color: var(--housing-panel-border-strong); }
+.housing-sort[data-open="true"] .housing-sort-trigger {
+  border-color: var(--housing-honey-border); background: var(--housing-honey-soft);
 }
-.housing-view-tab.is-active {
-  background: var(--housing-honey-medium);
-  color: var(--housing-candle);
+.housing-sort-chevron { color: var(--housing-text-mute); transition: transform 0.15s ease; }
+.housing-sort[data-open="true"] .housing-sort-chevron { transform: rotate(180deg); }
+.housing-sort-menu {
+  position: absolute; top: calc(100% + 4px); right: 0; z-index: 20;
+  list-style: none; margin: 0; padding: 4px;
+  min-width: 140px;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
-.housing-view-tab:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
-.housing-listing-grid-count { color: var(--housing-text-mute); font-size: 12px; }
+.housing-sort-option {
+  appearance: none; cursor: pointer; width: 100%;
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px;
+  font-family: inherit; font-size: var(--housing-text-sm); text-align: left;
+  color: var(--housing-text-dim);
+  background: transparent; border: 0; border-radius: 7px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-sort-option:hover { background: var(--housing-chip-bg-hover); color: var(--housing-text); }
+.housing-sort-option[data-selected="true"] { color: var(--housing-candle); }
+.housing-sort-option-check {
+  flex: 0 0 auto; width: 14px; display: inline-flex; color: var(--housing-honey);
+}
 
 .housing-listing-grid {
   display: grid;
-  /* 参考UI準拠で密に (中央幅で概ね4列)。画面全体を使う。 */
-  grid-template-columns: repeat(auto-fill, minmax(188px, 1fr));
-  gap: 14px;
+  /* 参考UI準拠で密に (中央幅で4列以上)。左右パネルを狭めた分、一覧性を上げる。 */
+  grid-template-columns: repeat(auto-fill, minmax(var(--housing-listing-card-min-w), 1fr));
+  gap: var(--housing-main-gap);
   overflow-y: auto;
   min-height: 0;
   padding-right: 4px;
@@ -4561,7 +4649,7 @@ select.housing-input option {
   display: inline-flex; align-items: center; justify-content: center;
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid var(--housing-panel-border);
-  color: #fff; cursor: pointer;
+  color: var(--housing-text); cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 .housing-card-fav:hover { background: rgba(0, 0, 0, 0.6); }
@@ -4574,7 +4662,7 @@ select.housing-input option {
 }
 .housing-listing-card-title {
   display: flex; align-items: flex-start; gap: 8px;
-  font-size: 13px; font-weight: 600; color: var(--housing-text);
+  font-size: var(--housing-text-md); font-weight: 600; color: var(--housing-text);
 }
 .housing-listing-card-title > span:first-child {
   flex: 1 1 auto; min-width: 0;
@@ -4585,13 +4673,13 @@ select.housing-input option {
 }
 .housing-listing-card-size {
   flex: 0 0 auto;
-  font-size: 11px; color: var(--housing-text-mute);
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
   border: 1px solid var(--housing-panel-border); border-radius: 5px;
   padding: 1px 5px;
 }
 .housing-listing-card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .housing-pill {
-  font-size: 11px; color: var(--housing-text-mute);
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
   background: var(--housing-honey-soft);
   border: 1px solid var(--housing-panel-border);
   border-radius: 6px; padding: 2px 7px;
@@ -4599,8 +4687,8 @@ select.housing-input option {
 .housing-card-add-btn {
   appearance: none; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  margin-top: 2px; padding: 7px 10px;
-  font-family: inherit; font-size: 12px; font-weight: 600;
+  margin-top: 4px; padding: 7px 10px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
   color: var(--housing-candle);
   background: var(--housing-honey-medium);
   border: 1px solid var(--housing-honey-border);
@@ -4613,8 +4701,21 @@ select.housing-input option {
 .housing-center-loading,
 .housing-center-error {
   display: flex; align-items: center; justify-content: center;
-  height: 100%; color: var(--housing-text-mute); font-size: 13px;
+  height: 100%; color: var(--housing-text-mute); font-size: var(--housing-text-md);
 }
+
+/* 空状態の共通ヒント (トレイ / お気に入りプレビュー 共通トーン) */
+.housing-empty-hint {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 18px 12px;
+  text-align: center;
+  color: var(--housing-text-mute);
+  background: var(--housing-honey-soft);
+  border: 1px dashed var(--housing-panel-border);
+  border-radius: 10px;
+}
+.housing-empty-hint svg { color: var(--housing-honey); opacity: 0.85; }
+.housing-empty-hint p { margin: 0; font-size: var(--housing-text-sm); line-height: 1.5; }
 
 /* ツアートレイ */
 .housing-tour-tray {
@@ -4626,15 +4727,12 @@ select.housing-input option {
   display: flex; align-items: center; justify-content: space-between;
   flex: 0 0 auto;
 }
-.housing-tour-tray-title { font-size: 13px; font-weight: 700; color: var(--housing-text); }
+.housing-tour-tray-title { font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text); }
 .housing-tour-tray-count {
-  font-size: 12px; color: var(--housing-candle);
+  font-size: var(--housing-text-sm); color: var(--housing-candle);
   background: var(--housing-honey-medium); border-radius: 999px;
-  min-width: 22px; text-align: center; padding: 1px 8px;
-}
-.housing-tour-tray-empty {
-  color: var(--housing-text-mute); font-size: 12px; line-height: 1.6;
-  padding: 16px 4px;
+  min-width: 22px; text-align: center; padding: 1px 9px;
+  font-variant-numeric: tabular-nums;
 }
 .housing-tour-tray-list {
   list-style: none; margin: 0; padding: 0;
@@ -4652,12 +4750,12 @@ select.housing-input option {
   flex: 0 0 auto;
   width: 22px; height: 22px; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700;
+  font-size: var(--housing-text-sm); font-weight: 700;
   color: var(--housing-candle); background: var(--housing-honey-medium);
 }
 .housing-tour-tray-addr {
   flex: 1 1 auto; min-width: 0;
-  font-size: 12px; color: var(--housing-text);
+  font-size: var(--housing-text-sm); color: var(--housing-text);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .housing-tour-tray-remove {
@@ -4671,8 +4769,8 @@ select.housing-input option {
   appearance: none; cursor: pointer; flex: 0 0 auto;
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 11px 14px;
-  font-family: inherit; font-size: 13px; font-weight: 700;
-  color: #241a0a;
+  font-family: inherit; font-size: var(--housing-text-md); font-weight: 700;
+  color: var(--housing-honey-text);
   background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
   border: 0; border-radius: 10px;
   box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
@@ -4694,29 +4792,30 @@ select.housing-input option {
 }
 .housing-fav-strip-title {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: 13px; font-weight: 700; color: var(--housing-text);
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
 }
 .housing-fav-strip-title svg { color: var(--housing-honey); }
 .housing-fav-strip-count {
-  font-size: 11px; color: var(--housing-candle);
+  font-size: var(--housing-text-xs); color: var(--housing-candle);
   background: var(--housing-honey-medium); border-radius: 999px;
   min-width: 20px; text-align: center; padding: 1px 7px;
 }
+.housing-fav-strip-title { font-size: var(--housing-text-md); }
+.housing-fav-strip-count { font-size: var(--housing-text-xs); }
 .housing-fav-strip-more {
   appearance: none; border: 0; background: transparent; cursor: pointer;
   display: inline-flex; align-items: center; gap: 2px;
-  font-family: inherit; font-size: 12px; color: var(--housing-text-mute);
+  font-family: inherit; font-size: var(--housing-text-sm); color: var(--housing-text-mute);
   padding: 2px 4px; border-radius: 6px;
   transition: color 0.15s ease;
 }
 .housing-fav-strip-more:hover { color: var(--housing-candle); }
-.housing-fav-strip-empty {
-  font-size: 12px; color: var(--housing-text-mute); line-height: 1.5;
-  margin: 0;
-}
 .housing-fav-strip-list {
   list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  /* 1件でも引き伸ばさず左詰め等幅 (旧: repeat(4,1fr) 固定で1件が横幅いっぱいに孤立)。 */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--housing-fav-thumb-min), 1fr));
+  gap: 6px;
 }
 .housing-fav-strip-thumb {
   appearance: none; border: 1px solid var(--housing-panel-border); cursor: pointer;
@@ -4736,10 +4835,10 @@ select.housing-input option {
   min-height: 64px;
   border: 1px dashed var(--housing-panel-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--housing-ad-slot-bg);
 }
 .housing-ad-slot-label {
-  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-size: var(--housing-ad-label-size); letter-spacing: 0.14em; text-transform: uppercase;
   color: var(--housing-text-mute); opacity: 0.7;
 }
 

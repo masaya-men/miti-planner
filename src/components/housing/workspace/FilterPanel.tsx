@@ -16,8 +16,6 @@ import {
 } from '../../../data/housing/dcServerMap';
 import { REGION_LABELS, type RegionLocale } from '../../../data/housing/regionMap';
 import { applyFilters } from '../../../lib/housing/applyFilters';
-import { FilterSection } from './FilterSection';
-import { FilterChip } from './FilterChip';
 import { FilterDropdown } from './FilterDropdown';
 import { ResultCountBadge } from './ResultCountBadge';
 import { RegisterCTA } from './RegisterCTA';
@@ -129,17 +127,30 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                     countLabel={countLabel}
                 />
 
-                <FilterSection title={t('housing.workspace.filter.size')}>
-                    {SIZES.map((sz) => (
-                        <FilterChip
-                            key={sz}
-                            label={sz}
-                            ariaLabel={sz}
-                            active={sizes.includes(sz)}
-                            onToggle={() => toggleSize(sz)}
-                        />
-                    ))}
-                </FilterSection>
+                <div className="housing-filter-field">
+                    <span className="housing-filter-field-label">
+                        {t('housing.workspace.filter.size')}
+                    </span>
+                    <div
+                        className="housing-size-seg"
+                        role="group"
+                        aria-label={t('housing.workspace.filter.size')}
+                    >
+                        {SIZES.map((sz) => (
+                            <button
+                                key={sz}
+                                type="button"
+                                className="housing-size-seg-btn"
+                                data-active={sizes.includes(sz)}
+                                aria-pressed={sizes.includes(sz)}
+                                aria-label={sz}
+                                onClick={() => toggleSize(sz)}
+                            >
+                                {t(`housing.workspace.filter.size_${sz.toLowerCase()}`)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
 
                 <FilterDropdown
                     label={t('housing.workspace.filter.theme')}

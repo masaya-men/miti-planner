@@ -1914,7 +1914,8 @@
             "title": "Tour Tray",
             "empty": "Add places with “Add to tour” on a card.",
             "remove": "Remove",
-            "start": "Start tour with these"
+            "start": "Start tour with these",
+            "count": "{{count}}/{{max}}"
         },
         "favStrip": {
             "title": "Favorites",
@@ -1928,7 +1929,12 @@
             "view_aria": "View mode",
             "view_list": "List",
             "view_map": "Map",
-            "view_route": "Route"
+            "view_route": "Route",
+            "listings_label": "Listings",
+            "count_unit": "{{count}}",
+            "sort_label": "Sort",
+            "sort_newest": "Newest",
+            "sort_oldest": "Oldest"
         },
         "tabs": {
             "aria": "Housing pages",
@@ -2359,7 +2365,10 @@
                 "size_apartment_short": "Apt",
                 "all": "All",
                 "selected_count": "{{count}} selected",
-                "clear_all": "Clear all"
+                "clear_all": "Clear all",
+                "size_s": "Small",
+                "size_m": "Medium",
+                "size_l": "Large"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

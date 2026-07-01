@@ -1,8 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { Play, X } from 'lucide-react';
+import { Play, Route, X } from 'lucide-react';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+
+/** 1 ツアーに積める上限 (参考UI「N/20件」)。お気に入りページ等でも参照する。 */
+export const MAX_TOUR = 20;
 
 export interface TourTrayProps {
   listingIds: string[];
@@ -29,11 +32,16 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
     <div className="housing-tour-tray">
       <div className="housing-tour-tray-head">
         <span className="housing-tour-tray-title">{t('housing.tray.title')}</span>
-        <span className="housing-tour-tray-count">{listingIds.length}</span>
+        <span className="housing-tour-tray-count">
+          {t('housing.tray.count', { count: listingIds.length, max: MAX_TOUR })}
+        </span>
       </div>
 
       {empty ? (
-        <div className="housing-tour-tray-empty">{t('housing.tray.empty')}</div>
+        <div className="housing-empty-hint housing-tour-tray-empty">
+          <Route size={20} aria-hidden="true" />
+          <p>{t('housing.tray.empty')}</p>
+        </div>
       ) : (
         <ol className="housing-tour-tray-list">
           {items.map((l, i) => (

@@ -10,6 +10,7 @@ import { LiquidGlassPanel } from '../workspace/LiquidGlassPanel';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { ListingGrid } from '../browse/ListingGrid';
+import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { TourTray } from '../browse/TourTray';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
 import { AdSlot } from '../shell/AdSlot';
@@ -35,6 +36,16 @@ export const BrowsePage: React.FC = () => {
   const filtered = useMemo(
     () => applyFilters(listings, { dc, regions, servers, areas, sizes, tags }),
     [listings, dc, regions, servers, areas, sizes, tags],
+  );
+
+  // 並び替え (参考UI「新着順/古い順」)。createdAt を key に client-side sort。
+  const [sort, setSort] = useState<BrowseSortOrder>('newest');
+  const sorted = useMemo(
+    () =>
+      [...filtered].sort((a, b) =>
+        sort === 'newest' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt,
+      ),
+    [filtered, sort],
   );
 
   // ツアートレイのドラフト (このページローカル)。開始時に tour store へ確定する。
@@ -68,7 +79,12 @@ export const BrowsePage: React.FC = () => {
           ) : filtered.length === 0 ? (
             <EmptyResult />
           ) : (
-            <ListingGrid listings={filtered} onAddToTour={addToTray} />
+            <ListingGrid
+              listings={sorted}
+              onAddToTour={addToTray}
+              sort={sort}
+              onSortChange={setSort}
+            />
           )}
         </div>
       </LiquidGlassPanel>

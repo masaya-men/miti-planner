@@ -1935,7 +1935,8 @@
             "title": "ツアートレイ",
             "empty": "カードの「ツアーに追加」で行き先を積みましょう",
             "remove": "削除",
-            "start": "この内容でツアーを開始"
+            "start": "この内容でツアーを開始",
+            "count": "{{count}}/{{max}}"
         },
         "favStrip": {
             "title": "お気に入り",
@@ -1949,7 +1950,12 @@
             "view_aria": "表示切替",
             "view_list": "一覧",
             "view_map": "マップ",
-            "view_route": "ルート"
+            "view_route": "ルート",
+            "listings_label": "ハウジング一覧",
+            "count_unit": "{{count}}件",
+            "sort_label": "並び替え",
+            "sort_newest": "新着順",
+            "sort_oldest": "古い順"
         },
         "tabs": {
             "aria": "ハウジングのページ切替",
@@ -2380,7 +2386,10 @@
                 "size_apartment_short": "Apt",
                 "all": "すべて",
                 "selected_count": "{{count}}件選択",
-                "clear_all": "すべてクリア"
+                "clear_all": "すべてクリア",
+                "size_s": "Sサイズ",
+                "size_m": "Mサイズ",
+                "size_l": "Lサイズ"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

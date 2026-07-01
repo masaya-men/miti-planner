@@ -1879,7 +1879,8 @@
             "title": "导览清单",
             "empty": "用卡片上的“加入导览”添加目的地。",
             "remove": "删除",
-            "start": "以此内容开始导览"
+            "start": "以此内容开始导览",
+            "count": "{{count}}/{{max}}"
         },
         "favStrip": {
             "title": "收藏",
@@ -1893,7 +1894,12 @@
             "view_aria": "显示切换",
             "view_list": "列表",
             "view_map": "地图",
-            "view_route": "路线"
+            "view_route": "路线",
+            "listings_label": "房屋一览",
+            "count_unit": "{{count}}件",
+            "sort_label": "排序",
+            "sort_newest": "最新",
+            "sort_oldest": "最早"
         },
         "tabs": {
             "aria": "housing 页面",
@@ -2324,7 +2330,10 @@
                 "size_apartment_short": "Apt",
                 "all": "全部",
                 "selected_count": "已选{{count}}项",
-                "clear_all": "清除全部"
+                "clear_all": "清除全部",
+                "size_s": "S 尺寸",
+                "size_m": "M 尺寸",
+                "size_l": "L 尺寸"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

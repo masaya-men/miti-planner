@@ -1879,7 +1879,8 @@
             "title": "투어 트레이",
             "empty": "카드의 ‘투어에 추가’로 목적지를 담아보세요.",
             "remove": "삭제",
-            "start": "이 내용으로 투어 시작"
+            "start": "이 내용으로 투어 시작",
+            "count": "{{count}}/{{max}}"
         },
         "favStrip": {
             "title": "즐겨찾기",
@@ -1893,7 +1894,12 @@
             "view_aria": "표시 전환",
             "view_list": "목록",
             "view_map": "지도",
-            "view_route": "경로"
+            "view_route": "경로",
+            "listings_label": "하우징 목록",
+            "count_unit": "{{count}}개",
+            "sort_label": "정렬",
+            "sort_newest": "최신순",
+            "sort_oldest": "오래된순"
         },
         "tabs": {
             "aria": "하우징 페이지",
@@ -2324,7 +2330,10 @@
                 "size_apartment_short": "Apt",
                 "all": "전체",
                 "selected_count": "{{count}}개 선택",
-                "clear_all": "모두 지우기"
+                "clear_all": "모두 지우기",
+                "size_s": "S 크기",
+                "size_m": "M 크기",
+                "size_l": "L 크기"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",
