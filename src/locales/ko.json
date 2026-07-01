@@ -2556,7 +2556,13 @@
             "title": "즐겨찾기",
             "empty": "즐겨찾기에 추가한 하우징이 여기에 표시됩니다. 「탐색」에서 ♡를 누르면 저장됩니다.",
             "tab_all": "전체",
-            "tab_recent": "최근 추가"
+            "tab_recent": "최근 추가",
+            "bulk_select_all": "전체 선택",
+            "bulk_clear": "선택 해제",
+            "bulk_add_all": "모두 투어에 추가",
+            "bulk_add_selected": "선택 항목 추가",
+            "bulk_remove": "즐겨찾기에서 제거",
+            "bulk_selected_count": "{{count}}개 선택"
         },
         "notifications": {
             "title": "通知",

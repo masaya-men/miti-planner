@@ -2591,7 +2591,13 @@
             "title": "Favorites",
             "empty": "Housings you've added to favorites will appear here. Tap ♡ on a listing in Browse to save it.",
             "tab_all": "All",
-            "tab_recent": "Recently added"
+            "tab_recent": "Recently added",
+            "bulk_select_all": "Select all",
+            "bulk_clear": "Clear",
+            "bulk_add_all": "Add all to tour",
+            "bulk_add_selected": "Add selected",
+            "bulk_remove": "Remove from favorites",
+            "bulk_selected_count": "{{count}} selected"
         },
         "notifications": {
             "title": "通知",

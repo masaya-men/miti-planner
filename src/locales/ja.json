@@ -2612,7 +2612,13 @@
             "title": "お気に入り",
             "empty": "お気に入りに追加したハウジングがここに並びます。「探す」で♡を押すと保存できます。",
             "tab_all": "すべて",
-            "tab_recent": "最近追加"
+            "tab_recent": "最近追加",
+            "bulk_select_all": "すべて選択",
+            "bulk_clear": "選択解除",
+            "bulk_add_all": "すべてツアーに追加",
+            "bulk_add_selected": "選択だけ追加",
+            "bulk_remove": "お気に入りから外す",
+            "bulk_selected_count": "{{count}}件選択中"
         },
         "notifications": {
             "title": "通知",

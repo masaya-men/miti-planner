@@ -4949,3 +4949,99 @@ select.housing-input option {
   outline-offset: -2px;
   border-radius: 8px;
 }
+
+/* ===== お気に入り一括操作バー (FavoritesBulkBar) ===== */
+.housing-fav-bulkbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  flex: 0 0 auto;
+}
+.housing-fav-bulkbar-count {
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.housing-fav-bulkbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+.housing-fav-bulkbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+/* 2つのグループを左右に分ける */
+.housing-fav-bulkbar-group:first-child {
+  margin-right: auto;
+}
+.housing-fav-bulkbar-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 10px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 8px;
+  transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+  white-space: nowrap;
+}
+.housing-fav-bulkbar-btn:hover:not(:disabled) {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-fav-bulkbar-btn:disabled {
+  opacity: var(--housing-disabled-opacity);
+  cursor: not-allowed;
+}
+/* すべてツアーに追加 = ハニー主アクション */
+.housing-fav-bulkbar-btn--primary {
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border-color: transparent;
+  box-shadow: 0 2px 8px var(--housing-honey-shadow-soft);
+}
+.housing-fav-bulkbar-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  color: var(--housing-honey-text);
+}
+/* 選択だけ追加 = 青アクセント */
+.housing-fav-bulkbar-btn--accent {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+.housing-fav-bulkbar-btn--accent:hover:not(:disabled) {
+  background: var(--housing-honey-strong);
+  color: var(--housing-candle);
+}
+/* お気に入りから外す = danger */
+.housing-fav-bulkbar-btn--danger:hover:not(:disabled) {
+  color: var(--housing-danger);
+  border-color: var(--housing-danger);
+  background: var(--housing-danger-soft);
+}
+.housing-fav-bulkbar-btn:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 1px;
+}

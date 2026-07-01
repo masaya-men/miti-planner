@@ -22,19 +22,17 @@ export const FavoritesGrid: React.FC<FavoritesGridProps> = ({
   onAddToTour,
 }) => {
   return (
-    <div className="housing-listing-grid-wrap" data-testid="housing-favorites-grid">
-      <div className="housing-listing-grid">
-        {listings.map((l) => (
-          <ListingCard
-            key={l.id}
-            listing={l}
-            selectable
-            selected={selected.has(l.id)}
-            onToggleSelect={onToggleSelect}
-            onAddToTour={onAddToTour}
-          />
-        ))}
-      </div>
+    <div className="housing-listing-grid" data-testid="housing-favorites-grid">
+      {listings.map((l) => (
+        <ListingCard
+          key={l.id}
+          listing={l}
+          selectable
+          selected={selected.has(l.id)}
+          onToggleSelect={onToggleSelect}
+          onAddToTour={onAddToTour}
+        />
+      ))}
     </div>
   );
 };

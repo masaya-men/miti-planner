@@ -2556,7 +2556,13 @@
             "title": "收藏",
             "empty": "您收藏的住宅将显示在这里。在「探索」页面点击♡即可保存。",
             "tab_all": "全部",
-            "tab_recent": "最近添加"
+            "tab_recent": "最近添加",
+            "bulk_select_all": "全选",
+            "bulk_clear": "取消选择",
+            "bulk_add_all": "全部加入导览",
+            "bulk_add_selected": "添加所选",
+            "bulk_remove": "从收藏移除",
+            "bulk_selected_count": "已选 {{count}} 项"
         },
         "notifications": {
             "title": "通知",
