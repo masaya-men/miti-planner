@@ -4,7 +4,6 @@ import type { FavTab } from './favoritesOrder';
 export interface FavoritesTabsProps {
   tab: FavTab;
   onChange: (t: FavTab) => void;
-  counts: { all: number; recent: number };
 }
 
 const TABS: { key: FavTab; i18nKey: string }[] = [
@@ -15,7 +14,6 @@ const TABS: { key: FavTab; i18nKey: string }[] = [
 /**
  * お気に入りページの並び順タブ (すべて / 最近追加)。
  * アクティブタブはハニー下線 (--housing-tab-active) で強調。
- * counts prop は plan 準拠で受けるが、 両タブは同じ全お気に入り集合を出すため
  * 総数は中央見出しに 1 回だけ表示し、 タブ内には出さない (冗長回避)。
  */
 export const FavoritesTabs: React.FC<FavoritesTabsProps> = ({ tab, onChange }) => {

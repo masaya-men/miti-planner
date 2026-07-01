@@ -80,7 +80,6 @@ export const FavoritesPage: React.FC = () => {
               <FavoritesTabs
                 tab={tab}
                 onChange={setTab}
-                counts={{ all: ids.length, recent: ids.length }}
               />
               <FavoritesGrid
                 listings={listings}
