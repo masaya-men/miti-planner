@@ -258,3 +258,34 @@ A〜B 実装後、 ローカル `npm run dev` で目視 → push → 本番で:
 
 ### 次セッション最初のコマンド (コピペ)
 > `docs/housing-map-authoring-guide.md` の「7. 現状の課題と次セッションへの引き継ぎ」 を読んで。 マップデモは本番 (`lopoly.app/housing`) で動いているが、 ①太い道路が出ていない ②アンビエント光が飛ぶ ③物件ナビが直線ショートカット の 3 つを **A→B→C の順で対応**。 まずパーサ更新から。
+
+---
+
+## 9. 2026-07-01 パーサ汎用化 — フラット化が不要に + 全エリア展開の命名ルール
+
+### 変更点
+`scripts/parse-ward-svg.mjs` を **rect / circle / ellipse / path のどれでも拾える**よう汎用化 (従来は path 限定だったため、 家=rect・ノード=circle で描いたエリアが houses=0/nodes=0 になっていた)。
+- 家 (`plot_N` / `apart_N`): `<path>`(d の bbox) / `<rect>`(x,y,w,h の中心) / `<circle>`(cx,cy) いずれも対応
+- ノード (`node_N`): 同上 (`Node` グループ内)
+- 道路: `stroke="#FF0000"` の path を全部集約し、 id が `plot_`/`apart_`/`node_`/`Node` のものは除外。 始点ハードコード (`M117.5 573.5`) 撤廃で全エリア対応。
+- **回帰**: `mist.svg` 再変換 = 既存 `mistWard.generated.json` とビット単位で完全一致 (無破壊)。
+
+→ **以前必要だった「Figma でフラット化 (rect/circle → path)」は不要**。 四角・丸のまま書き出して OK。
+
+### Figma 命名チェックリスト (全エリア共通・ここを守れば必ず変換できる)
+- [ ] 家の箱: `plot_1`〜`plot_30` (本街) / `plot_31`〜`plot_60` (拡張街)
+- [ ] アパート: `apart_1` (号棟が 2 つなら `apart_1` / `apart_2`)
+- [ ] ノード (道の交差点): `Node` という名前のグループを作り、 その中に `node_1`, `node_2`, …
+- [ ] 道: 交差点をつなぐ赤い線 (`#FF0000`)
+- [ ] **書き出し時に「Include "id" attribute」を ON** ← これを忘れると名前が消える (ラベ/ゴブ初回の失敗原因)
+- [ ] 本街と拡張街は別 SVG (地形が違うため)
+
+### 変換コマンド
+```
+node scripts/parse-ward-svg.mjs <input.svg> <Area> [out.json]
+```
+
+### 実績 (2026-07-01)
+- ✅ ミスト表: houses31 / nodes19 / edges27 (既存・無破壊確認済)
+- ✅ ゴブ表: houses31 / nodes16 / edges22・**全戸ノード接続 OK** (rect/circle で描かれていたが汎用パーサで変換成功)
+- 残: ラベ (名前付け中) / エンピ・シロガネ (SVG 書き出し) / 各エリアの拡張街
