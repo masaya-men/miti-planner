@@ -295,7 +295,8 @@ export const RegisterPage: React.FC = () => {
   // ===== 右カラム: 重複照会 (debounce 500ms, Task13) =====
   // 住所が妥当になったら 500ms デバウンスで checkDuplicate を呼ぶ。競合対策として
   // 世代トークン (requestSeqRef) を持たせ、古いタイマー/古い応答が新しい結果を
-  // 上書きしないようにする。失敗時は握りつぶし clear 相当に留める (登録フローをブロックしない)。
+  // 上書きしないようにする。失敗時は握りつぶし idle (中立) に留める (登録フローをブロックしないが、
+  // 重複の有無が不明な状態を「重複なし」と偽って安心させない)。
   const [duplicateState, setDuplicateState] = useState<RegisterDuplicateState>('idle');
   const [duplicates, setDuplicates] = useState<DuplicateEntry[]>([]);
   const [privateMatchCount, setPrivateMatchCount] = useState(0);
@@ -331,10 +332,12 @@ export const RegisterPage: React.FC = () => {
         })
         .catch(() => {
           if (requestSeqRef.current !== mySeq) return;
-          // 失敗時は止めない (安全側)。パネルは clear 相当に留め登録フローをブロックしない。
+          // 失敗時は止めない (安全側)。ただし重複の有無は実際には不明なので、
+          // 「重複なし・安心」を断定表示する clear ではなく中立の idle に留める
+          // (偽の安心表示を出さない)。住所を再編集すれば次のキー入力で再発火する。
           setDuplicates([]);
           setPrivateMatchCount(0);
-          setDuplicateState('clear');
+          setDuplicateState('idle');
         });
     }, 500);
 
