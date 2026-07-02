@@ -17,6 +17,7 @@ import {
 import { HousingRegisterAddressFields } from './HousingRegisterAddressFields';
 import { HousingRegisterTagPicker } from './HousingRegisterTagPicker';
 import { HousingRegisterDescriptionField } from './HousingRegisterDescriptionField';
+import { RegisterSectionVisibility } from './RegisterSectionVisibility';
 import { HousingQuotaIndicator } from './HousingQuotaIndicator';
 import { HousingDuplicateWarningDialog } from '../HousingDuplicateWarningDialog';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
@@ -47,6 +48,11 @@ function listingToDraft(listing: Partial<HousingListing>): RegistrationDraft {
     roomNumber: listing.roomNumber,
     tags: listing.tags ?? [],
     description: listing.description ?? '',
+    // 編集時もタイトルは必須 (spec)。 旧 listing (title 未設定) を編集開始した瞬間から
+    // '' を初期値にすることで validateTitle('') = required がクライアントで発火する。
+    title: listing.title ?? '',
+    visibility: listing.visibility ?? 'public',
+    publishUntil: listing.publishUntil ?? null,
   };
 }
 
@@ -238,6 +244,38 @@ export const HousingRegisterView: React.FC<HousingRegisterViewProps> = ({
         onChange={(addr) => setDraft({ ...draft, ...addr })}
         errors={errors}
       />
+
+      {isEditMode && (
+        <div className="housing-field">
+          <label htmlFor="housing-edit-title" className="housing-label">
+            {t('housing.edit.title_label')}
+          </label>
+          <input
+            id="housing-edit-title"
+            type="text"
+            required
+            value={draft.title ?? ''}
+            onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+            className="housing-input"
+            placeholder={t('housing.edit.title_placeholder')}
+          />
+          {errors.title && (
+            <p className="housing-field-error">
+              {t(`housing.register.errors.title.${errors.title}`)}
+            </p>
+          )}
+        </div>
+      )}
+
+      {isEditMode && (
+        <RegisterSectionVisibility
+          visibility={draft.visibility ?? 'public'}
+          publishUntil={draft.publishUntil ?? null}
+          onChange={({ visibility, publishUntil }) =>
+            setDraft({ ...draft, visibility, publishUntil })
+          }
+        />
+      )}
 
       <div>
         <p style={{

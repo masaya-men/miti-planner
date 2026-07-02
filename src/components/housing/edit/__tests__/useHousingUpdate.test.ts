@@ -67,4 +67,32 @@ describe('useHousingUpdate', () => {
       }),
     );
   });
+
+  it('title/visibility/publishUntil が body にそのまま乗る (Task15: 編集モーダルの新フィールド)', async () => {
+    (global.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ success: true }),
+    });
+    const { result } = renderHook(() => useHousingUpdate());
+    await act(async () => {
+      await result.current.update('lid1', {
+        title: '新しいタイトル',
+        visibility: 'private',
+        publishUntil: 1735689600000,
+      });
+    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/housing?action=update-listing',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          listingId: 'lid1',
+          title: '新しいタイトル',
+          visibility: 'private',
+          publishUntil: 1735689600000,
+        }),
+      }),
+    );
+  });
 });
