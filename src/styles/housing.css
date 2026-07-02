@@ -4765,6 +4765,273 @@ select.housing-input option {
   color: var(--housing-text-mute);
 }
 
+/* ============================================================
+ * 登録ページ左カラム: ライブステッパーナビ (Task12)
+ * 質感A案「青 = 選択・進行・ステップ番号」。done は青チェック、active は青枠+背景、
+ * idle は控えめなグレー。装飾999pxピルにせず角丸8pxの静かな行にする。
+ * ============================================================ */
+.housing-register-stepper {
+  flex: 0 0 auto;
+}
+.housing-register-stepper-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.housing-register-stepper-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.housing-register-stepper-item:hover {
+  background: var(--housing-chip-bg-hover);
+}
+.housing-register-stepper-item.is-active {
+  background: var(--housing-aether-medium);
+  border-color: var(--housing-aether-border);
+  color: var(--housing-text);
+}
+.housing-register-stepper-item.is-done .housing-register-stepper-label {
+  color: var(--housing-text-dim);
+}
+.housing-register-stepper-item:focus-visible {
+  outline: 2px solid var(--housing-aether);
+  outline-offset: 2px;
+}
+.housing-register-stepper-num {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-aether);
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-register-stepper-num-digit {
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.housing-register-stepper-check {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+.housing-register-stepper-item.is-done .housing-register-stepper-num-digit {
+  opacity: 0;
+  transform: scale(0.6);
+}
+.housing-register-stepper-item.is-done .housing-register-stepper-check {
+  opacity: 1;
+  transform: scale(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-stepper-num-digit,
+  .housing-register-stepper-check {
+    transition: none;
+  }
+}
+.housing-register-stepper-label {
+  font-size: var(--housing-text-md);
+  font-weight: 500;
+}
+
+/* ============================================================
+ * 登録ページ左カラム: 登録ガイド (Task12)
+ * FavoritesOnboarding (.housing-fav-onboarding*) と同じ静かなトーンの register 名前空間版。
+ * ============================================================ */
+.housing-register-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.housing-register-guide-title {
+  margin: 0;
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-guide-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.housing-register-guide-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.housing-register-guide-num {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-aether);
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-register-guide-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.housing-register-guide-step-title {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-guide-step-desc {
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-dim);
+}
+.housing-register-guide-remaining {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+
+/* ============================================================
+ * 登録ページ中央カラム: 公開設定セクション (Task12)
+ * 選択系 UI = 青トークン (質感A案「青 = 選択」)。期限切れ自動非公開の注記は
+ * ヘアライン+グレーの静かな注記にする (色付き alert 箱を避ける)。
+ * ============================================================ */
+.housing-register-visibility-chip {
+  flex: 1 1 auto;
+  min-width: 96px;
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.42);
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm);
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.housing-register-visibility-chip:hover {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-aether-border);
+}
+.housing-register-visibility-chip[data-selected="true"] {
+  background: var(--housing-aether-medium);
+  border-color: var(--housing-aether-border);
+  color: var(--housing-text);
+  box-shadow: 0 0 0 1px var(--housing-aether-border) inset;
+}
+.housing-register-visibility-chip:focus-visible {
+  outline: 2px solid var(--housing-aether);
+  outline-offset: 2px;
+}
+.housing-register-visibility-enddate {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.housing-register-visibility-enddate-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--housing-text-md);
+  color: var(--housing-text);
+  cursor: pointer;
+  width: fit-content;
+}
+.housing-register-visibility-enddate-toggle input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.housing-register-visibility-enddate-toggle-track {
+  flex: 0 0 auto;
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.42);
+  border: 1px solid var(--housing-panel-border);
+  transition: background 150ms ease, border-color 150ms ease;
+}
+.housing-register-visibility-enddate-toggle-knob {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--housing-text-dim);
+  transition: transform 150ms ease, background 150ms ease;
+}
+.housing-register-visibility-enddate-toggle input[type="checkbox"]:checked
+  + .housing-register-visibility-enddate-toggle-track {
+  background: var(--housing-aether-medium);
+  border-color: var(--housing-aether-border);
+}
+.housing-register-visibility-enddate-toggle input[type="checkbox"]:checked
+  + .housing-register-visibility-enddate-toggle-track
+  .housing-register-visibility-enddate-toggle-knob {
+  transform: translateX(14px);
+  background: var(--housing-aether);
+}
+.housing-register-visibility-enddate-toggle input[type="checkbox"]:focus-visible
+  + .housing-register-visibility-enddate-toggle-track {
+  outline: 2px solid var(--housing-aether);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-visibility-enddate-toggle-track,
+  .housing-register-visibility-enddate-toggle-knob {
+    transition: none;
+  }
+}
+.housing-register-visibility-note {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
 /* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
    (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
 .housing-listing-grid-wrap {

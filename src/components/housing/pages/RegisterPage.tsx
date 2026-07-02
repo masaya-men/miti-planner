@@ -1,15 +1,40 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import { RegisterSectionAddress, type RegisterAddressValues } from '../register/RegisterSectionAddress';
 import { RegisterSectionIntro, type RegisterSectionIntroValues } from '../register/RegisterSectionIntro';
 import { RegisterSectionMedia } from '../register/RegisterSectionMedia';
+import { RegisterSectionVisibility } from '../register/RegisterSectionVisibility';
+import { RegisterStepperNav, type RegisterStep, type RegisterStepState } from '../register/RegisterStepperNav';
+import { RegisterGuide } from '../register/RegisterGuide';
 import { parseHousingFromText } from '../../../lib/housing/parseHousingFromText';
 import { extractSizeToAddress } from '../../../lib/housing/extractSizeToAddress';
+import { canRegister } from '../../../lib/housingApiClient';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { OgpFetchedData } from '../register/HousingRegisterSnsUrlField';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
+
+/**
+ * ステッパー/scroll-spy が対象とする5セクション (spec 正典順: media → address → intro →
+ * visibility → confirm)。id はステッパーの表示順そのもの。
+ */
+const STEP_IDS = ['media', 'address', 'intro', 'visibility', 'confirm'] as const;
+type StepId = (typeof STEP_IDS)[number];
+const STEP_LABEL_KEYS: Record<StepId, string> = {
+  media: 'housing.register.step.media',
+  address: 'housing.register.step.address',
+  intro: 'housing.register.step.intro',
+  visibility: 'housing.register.step.visibility',
+  confirm: 'housing.register.step.confirm',
+};
+const STEP_INDEX: Record<StepId, number> = {
+  media: 1,
+  address: 2,
+  intro: 3,
+  visibility: 4,
+  confirm: 5,
+};
 
 // 自動入力の段階的タイピング表現 (1 フィールドごとに 150ms ずらす)。
 // 旧 HousingRegisterForm.tsx の TYPING_STAGGER_MS を踏襲。
@@ -35,9 +60,11 @@ function requiredFieldsForAddress(
 /**
  * 登録ページ (3カラム): 探す/お気に入りと同じ骨格。
  * 未ログイン → 中央にログイン案内。ログイン済 → 3カラムのフォーム枠。
- * フォーム状態 (住所 + タイトル/公開設定) は本ページが親として保持し、子セクションに
- * 値とセッタを渡す (Task10)。中央カラムの残りセクション (画像/公開設定/確認) と
- * 左右カラムの中身は Task11-14 で本実装、それまでインライン div のスタブに留める。
+ * フォーム状態 (住所/紹介/画像/公開設定) は本ページが親として保持し、子セクションに
+ * 値とセッタを渡す。中央カラムのセクションは spec 正典順 (media→address→intro→
+ * visibility→confirm) で並び、IntersectionObserver による scroll-spy で左カラムの
+ * ステッパー (RegisterStepperNav) と連動する (Task12)。confirm セクション本体と
+ * 右カラムの中身は Task13-14 で本実装、それまでスタブに留める。
  */
 export const RegisterPage: React.FC = () => {
   const user = useAuthStore((s) => s.user);
@@ -51,12 +78,34 @@ export const RegisterPage: React.FC = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const [publishUntil, setPublishUntil] = useState<number | null>(null);
-  // visibility/publishUntil は Task12 (公開設定セクション) が配線するまで未消費。
-  // tsc noUnusedLocals 対策に加え、状態自体は本タスクの要件 (フォーム状態を親が持つ) を満たす。
-  void visibility;
-  void setVisibility;
-  void publishUntil;
-  void setPublishUntil;
+  // 既定 public を自動で✅にしない (feedback_form_ux_progress) ため、公開設定セクションの
+  // onChange が一度でも呼ばれたかを別フラグで持つ (visibility state 自体は初期値 'public')。
+  const [visibilityTouched, setVisibilityTouched] = useState(false);
+
+  const handleVisibilityChange = (next: { visibility: 'public' | 'private'; publishUntil: number | null }) => {
+    setVisibility(next.visibility);
+    setPublishUntil(next.publishUntil);
+    setVisibilityTouched(true);
+  };
+
+  // 登録枠残数 (canRegister の remaining)。取得失敗時は null にフォールバックし、
+  // ガイドは残数行を出さない (throw させない = reference_housing_appcheck_headers)。
+  const [remaining, setRemaining] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    canRegister()
+      .then((res) => {
+        if (!cancelled) setRemaining(res.remaining);
+      })
+      .catch(() => {
+        if (!cancelled) setRemaining(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const handleAddressChange = (name: string, value: unknown) => {
     setAddress((prev) => ({ ...prev, [name]: value }));
@@ -142,6 +191,75 @@ export const RegisterPage: React.FC = () => {
     [applyExtractedAddress],
   );
 
+  // ===== scroll-spy (ライブステッパー) =====
+  // 中央スクロールコンテナと各セクション wrapper に ref を張り、IntersectionObserver で
+  // 可視セクションを active にする (scroll ハンドラで layout 読みしない方針)。
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const sectionRefs = useRef<Record<StepId, HTMLDivElement | null>>({
+    media: null,
+    address: null,
+    intro: null,
+    visibility: null,
+    confirm: null,
+  });
+  const [activeStepId, setActiveStepId] = useState<StepId>('media');
+
+  useEffect(() => {
+    const root = scrollContainerRef.current;
+    if (!root) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // 交差中セクションのうち画面最上位 (boundingClientRect.top が最小) のものを active に。
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length === 0) return;
+        visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        const topId = (visible[0].target as HTMLElement).dataset.stepId as StepId | undefined;
+        if (topId) setActiveStepId(topId);
+      },
+      { root, threshold: 0.2, rootMargin: '0px 0px -60% 0px' },
+    );
+
+    for (const id of STEP_IDS) {
+      const el = sectionRefs.current[id];
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  const handleJumpToStep = useCallback((id: number) => {
+    const stepId = STEP_IDS[id - 1];
+    const el = stepId ? sectionRefs.current[stepId] : null;
+    if (!el) return;
+    const reduce =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }, []);
+
+  const hasImage = localImages.length > 0 || sourceImageUrls.length > 0;
+  const introDone = title.trim().length > 0;
+  const doneMap = useMemo<Record<StepId, boolean>>(
+    () => ({
+      media: hasImage,
+      address: fieldState.isReadyToSubmit(),
+      intro: introDone,
+      visibility: visibilityTouched,
+      // confirm の done 配線は Task14 (computeRegisterChecklist/isReadyToPublish) が行う。
+      confirm: false,
+    }),
+    [hasImage, fieldState, introDone, visibilityTouched],
+  );
+
+  const steps: RegisterStep[] = useMemo(
+    () =>
+      STEP_IDS.map((id) => {
+        const state: RegisterStepState = id === activeStepId ? 'active' : doneMap[id] ? 'done' : 'idle';
+        return { id: STEP_INDEX[id], labelKey: STEP_LABEL_KEYS[id], state };
+      }),
+    [activeStepId, doneMap],
+  );
+
   if (!user) {
     return (
       <div className="housing-register">
@@ -158,38 +276,55 @@ export const RegisterPage: React.FC = () => {
 
   return (
     <div className="housing-register" data-testid="housing-register-form-root">
-      {/* 左カラム: ステッパーナビ + ガイド (Task11-14 で本実装) */}
+      {/* 左カラム: ステッパーナビ + ガイド */}
       <section className="housing-register-panel" data-region="left">
         <div className="housing-register-col housing-register-col-left">
-          <div data-testid="housing-register-stepper-nav-stub" />
-          <div data-testid="housing-register-guide-stub" />
+          <RegisterStepperNav steps={steps} onJump={handleJumpToStep} />
+          <RegisterGuide remaining={remaining} />
         </div>
       </section>
 
-      {/* 中央カラム: セクション群。住所/紹介は本実装済 (Task10)、残りは Task11-14。 */}
+      {/* 中央カラム: セクション群。spec 正典順 (media→address→intro→visibility→confirm)。 */}
       <section className="housing-register-panel" data-region="center">
-        <div className="housing-register-col housing-register-col-center">
+        <div className="housing-register-col housing-register-col-center" ref={scrollContainerRef}>
           <div className="housing-register-sections">
-            <RegisterSectionAddress
-              fieldState={fieldState}
-              values={address}
-              onChange={handleAddressChange}
+            <div ref={(el) => { sectionRefs.current.media = el; }} data-step-id="media">
+              <RegisterSectionMedia
+                onTweetFetched={handleTweetFetched}
+                onOgpFetched={handleOgpFetched}
+                localImages={localImages}
+                onLocalImagesChange={setLocalImages}
+                sourceImageUrls={sourceImageUrls}
+                onSourceImageUrlsChange={setSourceImageUrls}
+              />
+            </div>
+            <div ref={(el) => { sectionRefs.current.address = el; }} data-step-id="address">
+              <RegisterSectionAddress
+                fieldState={fieldState}
+                values={address}
+                onChange={handleAddressChange}
+              />
+            </div>
+            <div ref={(el) => { sectionRefs.current.intro = el; }} data-step-id="intro">
+              <RegisterSectionIntro
+                title={title}
+                description={description}
+                tags={tags}
+                onChange={handleIntroChange}
+              />
+            </div>
+            <div ref={(el) => { sectionRefs.current.visibility = el; }} data-step-id="visibility">
+              <RegisterSectionVisibility
+                visibility={visibility}
+                publishUntil={publishUntil}
+                onChange={handleVisibilityChange}
+              />
+            </div>
+            <div
+              ref={(el) => { sectionRefs.current.confirm = el; }}
+              data-step-id="confirm"
+              data-testid="housing-register-section-confirm-stub"
             />
-            <RegisterSectionIntro
-              title={title}
-              description={description}
-              tags={tags}
-              onChange={handleIntroChange}
-            />
-            <RegisterSectionMedia
-              onTweetFetched={handleTweetFetched}
-              onOgpFetched={handleOgpFetched}
-              localImages={localImages}
-              onLocalImagesChange={setLocalImages}
-              sourceImageUrls={sourceImageUrls}
-              onSourceImageUrlsChange={setSourceImageUrls}
-            />
-            <div data-testid="housing-register-section-publish-stub" />
           </div>
         </div>
       </section>
