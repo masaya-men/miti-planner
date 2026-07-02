@@ -155,13 +155,11 @@ function buildDraftImageFields(
       sourceImageUrls: trimmed,
     };
   }
-  if (sns.ogp && sns.ogp.data.image) {
-    return {
-      imageMode: 'sns',
-      postUrl: sns.ogp.postUrl,
-      ogImageUrl: sns.ogp.data.image,
-    };
-  }
+  // 注: ユーザーが sourceImageUrls を手動で全消しした OGP は「画像なし」意図として尊重し、
+  // og:image を復活させない。かつて data.image だけで imageMode='sns' を組む fallback があったが、
+  // sourceImageUrls/tweetId/youtubeVideoId 無しの sns draft はサーバ validateImage の
+  // source_required_for_sns で 400 になる二重の誤りだったため削除 (Task14 fix)。ここは {} に落とし
+  // imageMode='none' (画像なし登録) とする (旧 toRegistrationDraft の faithful な挙動)。
 
   // ⑤ どれも無し
   return {};
@@ -224,6 +222,12 @@ export const RegisterPage: React.FC = () => {
   const user = useAuthStore((s) => s.user);
 
   const [address, setAddress] = useState<RegisterAddressValues>({});
+  // 復元起因の SNS 再取得で「空フィールドだけ補完」判定に使う最新 address のミラー (spec:120)。
+  // setTimeout スタッガー内で最新値を同期的に読むため、address 変化ごとに追従させる。
+  const addressRef = useRef<RegisterAddressValues>(address);
+  useEffect(() => {
+    addressRef.current = address;
+  }, [address]);
   const requiredFields = requiredFieldsForAddress(address.buildingType, address.roomKind);
   const fieldState = useHousingFieldState(requiredFields);
 
@@ -262,6 +266,9 @@ export const RegisterPage: React.FC = () => {
   }, [user]);
 
   const handleAddressChange = (name: string, value: unknown) => {
+    // ユーザーが住所を手編集したら、以降の SNS 再取得は復元 guard を外す
+    // (通常の URL 貼付は全フィールド上書きに戻す)。
+    restoreRefetchGuardRef.current = false;
     setAddress((prev) => ({ ...prev, [name]: value }));
     fieldState.userEdit(name, value);
   };
@@ -285,6 +292,26 @@ export const RegisterPage: React.FC = () => {
   const [snsCapture, setSnsCapture] = useState<SnsCapture>(EMPTY_SNS_CAPTURE);
   /** 現在 SNS URL 欄に入っている URL (オートセーブ対象・復元時に再取得する)。 */
   const [postUrl, setPostUrl] = useState<string>('');
+  /**
+   * オートセーブ復元時に SNS URL 欄へ流し込む初期 URL (Task14 fix)。復元時に一度だけ設定し、
+   * RegisterSectionMedia → HousingRegisterSnsUrlField(initialUrl) 経由でマウント時再取得を発火する。
+   */
+  const [restoredSnsUrl, setRestoredSnsUrl] = useState<string | undefined>(undefined);
+  /**
+   * RegisterSectionMedia / HousingRegisterSnsUrlField の内部 state (url 等) を強制リセットするための
+   * 再マウント key の一部。破棄 (handleDiscardRestore) で ++ し、URL 欄の内部 url state を初期化する。
+   * JSX 側では `${mediaKey}:${restoredSnsUrl}` を key にし、復元 URL 到着時 (restoredSnsUrl が
+   * undefined→URL に変化) にも再マウントさせて SnsUrlField の initialUrl マウント再取得を発火させる。
+   */
+  const [mediaKey, setMediaKey] = useState(0);
+
+  /**
+   * オートセーブ復元起因の SNS 再取得が走っている間だけ true にするフラグ (spec:120 guard)。
+   * true の間は applyExtractedAddress が「その時点で空の住所フィールドだけ」を setAutoFilled する
+   * (= 復元済み・手修正済みの住所値をツイート元の値で上書きしない)。通常の (復元でない) SNS 貼付は
+   * false のままで従来どおり全フィールド反映。ref なので再取得トリガーの前後で同期的に切り替えられる。
+   */
+  const restoreRefetchGuardRef = useRef(false);
 
   /**
    * parseHousingFromText の抽出結果を住所フィールドへ自動入力する共通処理。
@@ -293,6 +320,10 @@ export const RegisterPage: React.FC = () => {
    * buildingType/roomKind/size モデルに変換してから展開する (dc/server/area/ward/plot は
    * そのまま渡す)。150ms スタッガーで 1 フィールドずつ自動入力し、
    * prefers-reduced-motion 時は即時反映する。
+   *
+   * spec:120: restoreRefetchGuardRef が true (復元起因の再取得中) のときは、適用時点で
+   * 空のフィールド (address[name] === undefined) だけを埋める。復元済み・手修正済みの値は
+   * 触らない。空判定はスタッガーの各適用時点の最新 address state (setAddress の prev) で行う。
    */
   const applyExtractedAddress = useCallback(
     (text: string) => {
@@ -311,7 +342,15 @@ export const RegisterPage: React.FC = () => {
       }
       if (fills.length === 0) return;
 
+      // このハンドラ呼び出しが復元起因かをスナップショット (以降の setTimeout でも同じ値を使う)。
+      const emptyOnly = restoreRefetchGuardRef.current;
+
       const applyOne = ([name, value]: [string, unknown]) => {
+        // 復元起因の再取得では空フィールドのみ補完 (非空は上書きしない = spec:120)。
+        // 空判定は最新 address を addressRef で読む (スタッガーで直前に埋めた値も反映される)。
+        if (emptyOnly && (addressRef.current as Record<string, unknown>)[name] !== undefined) {
+          return;
+        }
         setAddress((prev) => ({ ...prev, [name]: value }));
         fieldState.setAutoFilled(name, value);
       };
@@ -683,12 +722,26 @@ export const RegisterPage: React.FC = () => {
         i18n.language,
       );
     }
+    // 静止画枚数 (ローカル + SNS 取得画像)。加えて、静止画ゼロでも動画のみツイート/YouTube を
+    // 捕捉していれば「1 件」として数える (sourceImageUrls 空の動画ツイートで 0 と表示されないように)。
+    const stillCount = localImages.length + sourceImageUrls.length;
+    const hasCapturedMedia =
+      stillCount === 0 && (!!snsCapture.tweetData?.video?.url || !!snsCapture.youtube);
     return {
       address: addressText,
       title: title.trim() ? title.trim() : null,
-      imageCount: localImages.length + sourceImageUrls.length,
+      imageCount: stillCount + (hasCapturedMedia ? 1 : 0),
     };
-  }, [addressOk, address, title, localImages.length, sourceImageUrls.length, i18n.language]);
+  }, [
+    addressOk,
+    address,
+    title,
+    localImages.length,
+    sourceImageUrls.length,
+    snsCapture.tweetData,
+    snsCapture.youtube,
+    i18n.language,
+  ]);
 
   // ===== オートセーブ (Task14 / spec:119-120) =====
   // 値変化を debounce (700ms) でテキスト系のみ localStorage 保存。
@@ -737,11 +790,13 @@ export const RegisterPage: React.FC = () => {
 
   /**
    * マウント時 (ログイン済) に localStorage から復元。復元候補があれば:
-   * - 住所/タイトル/コメント/タグ/公開設定を反映。ただし fieldState への setAutoFilled は
-   *   「復元後に空のフィールドだけ」に適用する (= 復元済み・手修正済みの値は上書きしない、spec:120)。
-   *   ここではマウント直後で全フィールドが空なので、復元した住所値をそのまま setAutoFilled する。
-   * - 保存済み SNS URL があれば「SNS 画像は再取得します」注記を出す (取得の再実行は
-   *   ユーザーが URL を貼り直す/そのままにする運用。URL 欄は postUrl として保持)。
+   * - 住所/タイトル/コメント/タグ/公開設定を反映。fieldState への setAutoFilled はこの時点で
+   *   全フィールドが空なので復元値をそのまま適用する。
+   * - 保存済み SNS URL があれば restoredSnsUrl に設定し、RegisterSectionMedia →
+   *   HousingRegisterSnsUrlField(initialUrl) 経由でマウント時に画像を実再取得する (spec:120)。
+   *   この復元起因の再取得は restoreRefetchGuardRef=true とし、applyExtractedAddress が
+   *   「その時点で空の住所フィールドだけ」を補完する (復元済み・手修正済みの住所値を上書きしない)。
+   *   注記「SNS 画像は再取得します」は実際に再取得が走るため正しくなる。
    * 一度だけ実行 (user 確定後)。
    */
   const restoreAppliedRef = useRef(false);
@@ -776,7 +831,13 @@ export const RegisterPage: React.FC = () => {
     if (restored.publishUntil === null || typeof restored.publishUntil === 'number') {
       setPublishUntil(restored.publishUntil);
     }
-    if (typeof restored.postUrl === 'string') setPostUrl(restored.postUrl);
+    // 保存済み SNS URL: postUrl state を復元 + initialUrl として SnsUrlField に渡し実再取得する。
+    // 復元起因の再取得は住所を空フィールドだけ補完する (spec:120 guard を先に true にする)。
+    if (typeof restored.postUrl === 'string' && restored.postUrl.trim()) {
+      setPostUrl(restored.postUrl);
+      restoreRefetchGuardRef.current = true;
+      setRestoredSnsUrl(restored.postUrl);
+    }
 
     // 住所フィールド: 復元後に空のフィールドだけへ適用 (この時点で全フィールドは空なので全て適用)。
     const addressPatch: RegisterAddressValues = {};
@@ -835,7 +896,16 @@ export const RegisterPage: React.FC = () => {
     setSourceImageUrls([]);
     setSnsCapture(EMPTY_SNS_CAPTURE);
     for (const name of Object.keys(autosaveValues)) fieldState.clearField(name);
+    // 復元 guard を解除し、initialUrl も消して SnsUrlField を再マウント (内部 url state もクリア)。
+    restoreRefetchGuardRef.current = false;
+    setRestoredSnsUrl(undefined);
+    setMediaKey((k) => k + 1);
   }, [autosaveValues, fieldState]);
+
+  // ユーザーが URL 欄を手入力したら復元 guard を外す (以降の再取得は全フィールド上書きに戻す)。
+  const handleUrlUserEdit = useCallback(() => {
+    restoreRefetchGuardRef.current = false;
+  }, []);
 
   if (!user) {
     return (
@@ -889,6 +959,7 @@ export const RegisterPage: React.FC = () => {
             )}
             <div ref={(el) => { sectionRefs.current.media = el; }} data-step-id="media">
               <RegisterSectionMedia
+                key={`${mediaKey}:${restoredSnsUrl ?? ''}`}
                 onTweetFetched={handleTweetFetched}
                 onYoutubeFetched={handleYoutubeFetched}
                 onOgpFetched={handleOgpFetched}
@@ -896,6 +967,8 @@ export const RegisterPage: React.FC = () => {
                 onLocalImagesChange={setLocalImages}
                 sourceImageUrls={sourceImageUrls}
                 onSourceImageUrlsChange={setSourceImageUrls}
+                initialSnsUrl={restoredSnsUrl}
+                onUrlUserEdit={handleUrlUserEdit}
               />
             </div>
             <div ref={(el) => { sectionRefs.current.address = el; }} data-step-id="address">

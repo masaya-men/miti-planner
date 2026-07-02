@@ -33,12 +33,28 @@ type Props = {
      * null は「OGP state クリア」 (URL が空・別形式に切替・失敗) を意味する。
      */
     onOgpFetched: (data: OgpFetchedData | null) => void;
+    /**
+     * 2026-07-02 追加 (Task14 fix): オートセーブ復元時に保存済み SNS URL を復元して
+     * 画像を実再取得するための optional prop。マウント時に一度だけ、非空なら内部の
+     * handleChange(initialUrl) を発火し、URL 欄を可視化 + 種別判定 (Twitter/YouTube/OGP)
+     * → fetch → onTweetFetched/onYoutubeFetched/onOgpFetched パイプラインを走らせる。
+     * 未指定 (旧 HousingRegisterForm/HousingRegisterView 等) は従来どおり空 URL 開始で無影響。
+     */
+    initialUrl?: string;
+    /**
+     * 2026-07-02 追加 (Task14 fix): ユーザーが URL 入力欄を実際に手入力/貼り付けた時にだけ発火する。
+     * initialUrl 由来のプログラム的 handleChange (復元再取得) では呼ばれない。親は復元 guard の解除
+     * (以降の再取得は全フィールド上書きに戻す) に使う。未指定なら無影響 (optional)。
+     */
+    onUrlUserEdit?: () => void;
 };
 
 export function HousingRegisterSnsUrlField({
     onTweetFetched,
     onYoutubeFetched,
     onOgpFetched,
+    initialUrl,
+    onUrlUserEdit,
 }: Props) {
     const { t } = useTranslation();
     const [url, setUrl] = useState('');
@@ -134,6 +150,21 @@ export function HousingRegisterSnsUrlField({
         onOgpFetched(null);
     }, [fetchTweet, reset, fetchOgp, resetOgp, onYoutubeFetched, onOgpFetched]);
 
+    // オートセーブ復元時 (initialUrl 非空) にマウント一度だけ handleChange を発火し、URL 欄復元 +
+    // 種別判定→fetch を再実行する (spec:120)。復元起因の再取得であることは親側の ref で判定するため
+    // ここでは通常の URL 貼付と同じパイプラインを流すだけ。initialUrl は初期復元専用で、以降の
+    // ユーザー入力には介入しない (依存を空にして再発火を防ぐ)。
+    const initialUrlAppliedRef = useRef(false);
+    useEffect(() => {
+        if (initialUrlAppliedRef.current) return;
+        initialUrlAppliedRef.current = true;
+        if (initialUrl && initialUrl.trim()) {
+            handleChange(initialUrl);
+        }
+        // マウント時一度だけ。handleChange は安定 (fieldState 由来の不安定さは親側)。
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     return (
         <div className="housing-register-sns-url-field">
             <label htmlFor="housing-sns-url" className="housing-label">
@@ -145,7 +176,10 @@ export function HousingRegisterSnsUrlField({
                 className="housing-input"
                 placeholder={t('housing.register.snsUrl.placeholder')}
                 value={url}
-                onChange={(e) => handleChange(e.target.value)}
+                onChange={(e) => {
+                    onUrlUserEdit?.();
+                    handleChange(e.target.value);
+                }}
             />
             {invalidUrl && (
                 <p className="housing-error-text">

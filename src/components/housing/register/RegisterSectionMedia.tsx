@@ -22,6 +22,13 @@ interface Props {
   onLocalImagesChange: (value: CompressedImage[]) => void;
   sourceImageUrls: string[];
   onSourceImageUrlsChange: (next: string[]) => void;
+  /**
+   * オートセーブ復元時に SNS URL 欄へ流し込む初期 URL (Task14 fix)。非空なら
+   * HousingRegisterSnsUrlField がマウント時に一度だけ再取得を発火する。未指定なら無影響。
+   */
+  initialSnsUrl?: string;
+  /** ユーザーが URL 欄を手入力した時に発火 (復元 guard 解除用、Task14 fix)。 */
+  onUrlUserEdit?: () => void;
 }
 
 /**
@@ -45,6 +52,8 @@ export const RegisterSectionMedia: React.FC<Props> = ({
   onLocalImagesChange,
   sourceImageUrls,
   onSourceImageUrlsChange,
+  initialSnsUrl,
+  onUrlUserEdit,
 }) => {
   const { t } = useTranslation();
   const tweet = useTweetFetch();
@@ -71,6 +80,8 @@ export const RegisterSectionMedia: React.FC<Props> = ({
         onTweetFetched={onTweetFetched}
         onYoutubeFetched={onYoutubeFetched ?? (() => {})}
         onOgpFetched={onOgpFetched}
+        initialUrl={initialSnsUrl}
+        onUrlUserEdit={onUrlUserEdit}
       />
 
       {isLoading && (
