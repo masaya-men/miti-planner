@@ -939,6 +939,107 @@
 .housing-compass .n { fill: var(--housing-candle); }
 .housing-compass .needle { fill: var(--housing-honey); }
 
+/* ============================================================
+ * 登録ページ — 土地ミニマップ (WardMapPreview, spec パートC)
+ * ============================================================ */
+.housing-ward-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 住所未確定/不明時の静かなプレースホルダ (装飾ピル/color-alert箱は使わない = AI 感回避) */
+.housing-ward-preview-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  border: 1px dashed var(--housing-divider);
+  border-radius: 10px;
+  background: var(--housing-panel-bg);
+}
+.housing-ward-preview-placeholder-text {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+/* ロード中スケルトン (既存 housing-skeleton-* のパルスを流用) */
+.housing-ward-preview-skeleton {
+  aspect-ratio: 470 / 350;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-ward-preview-skeleton-block {
+  width: 100%;
+  height: 100%;
+  background: var(--housing-skeleton-block);
+  animation: housing-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+/* 地図本体 (Figma inline SVG + overlay マーカー) */
+.housing-ward-preview-map-host {
+  position: relative;
+  aspect-ratio: 470 / 350;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-bg-solid);
+}
+.housing-ward-preview-svg-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.housing-ward-preview-svg-host > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* ナビ用赤線 (#FF0000) + Node は MapView.tsx と同様に非表示、経路データとしてのみ保持 */
+.housing-ward-preview-svg-host svg path[stroke="#FF0000"] { display: none; }
+
+.housing-ward-preview-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* 発光マーカー: 区画の中心点のみ (形状データが無いため)。DPR 2.58 で埋もれないよう太め+高コントラスト */
+.housing-ward-preview-marker-core {
+  fill: var(--housing-aether);
+  stroke: var(--housing-map-light);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px var(--housing-aether));
+}
+.housing-ward-preview-marker-pulse {
+  fill: none;
+  stroke: var(--housing-aether);
+  stroke-width: 4;
+  opacity: 0.75;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: housing-ward-preview-marker-pulse 1.8s ease-out infinite;
+}
+@keyframes housing-ward-preview-marker-pulse {
+  0% { transform: scale(0.6); opacity: 0.85; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* 住所要約テキスト (エーテライト表記は載せない) */
+.housing-ward-preview-summary {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+
 /* Map bubble cards on plot positions */
 .housing-bubble-card {
   position: absolute;
