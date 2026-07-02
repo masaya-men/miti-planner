@@ -1,9 +1,19 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import { RegisterSectionAddress, type RegisterAddressValues } from '../register/RegisterSectionAddress';
 import { RegisterSectionIntro, type RegisterSectionIntroValues } from '../register/RegisterSectionIntro';
+import { RegisterSectionMedia } from '../register/RegisterSectionMedia';
+import { parseHousingFromText } from '../../../lib/housing/parseHousingFromText';
+import { extractSizeToAddress } from '../../../lib/housing/extractSizeToAddress';
+import type { TweetData } from '../../../lib/housing/useTweetFetch';
+import type { OgpFetchedData } from '../register/HousingRegisterSnsUrlField';
+import type { CompressedImage } from '../../../lib/housing/imageCompression';
+
+// 自動入力の段階的タイピング表現 (1 フィールドごとに 150ms ずらす)。
+// 旧 HousingRegisterForm.tsx の TYPING_STAGGER_MS を踏襲。
+const TYPING_STAGGER_MS = 150;
 
 /**
  * buildingType/roomKind に応じた必須フィールド。
@@ -59,6 +69,79 @@ export const RegisterPage: React.FC = () => {
     setTags(next.tags);
   };
 
+  const [localImages, setLocalImages] = useState<CompressedImage[]>([]);
+  const [sourceImageUrls, setSourceImageUrls] = useState<string[]>([]);
+
+  /**
+   * parseHousingFromText の抽出結果を住所フィールドへ自動入力する共通処理。
+   * 旧 HousingRegisterForm.tsx:123-151 の handleTweetFetched を移植し、ツイート/OGP
+   * 両経路で共用できるよう分離した。size は extractSizeToAddress で
+   * buildingType/roomKind/size モデルに変換してから展開する (dc/server/area/ward/plot は
+   * そのまま渡す)。150ms スタッガーで 1 フィールドずつ自動入力し、
+   * prefers-reduced-motion 時は即時反映する。
+   */
+  const applyExtractedAddress = useCallback(
+    (text: string) => {
+      const result = parseHousingFromText(text);
+      const fills: Array<[string, unknown]> = [];
+      if (result.dc) fills.push(['dc', result.dc]);
+      if (result.server) fills.push(['server', result.server]);
+      if (result.area) fills.push(['area', result.area]);
+      if (result.ward != null) fills.push(['ward', result.ward]);
+      if (result.plot != null) fills.push(['plot', result.plot]);
+      if (result.size) {
+        const converted = extractSizeToAddress(result.size);
+        fills.push(['buildingType', converted.buildingType]);
+        if (converted.roomKind) fills.push(['roomKind', converted.roomKind]);
+        if (converted.size) fills.push(['size', converted.size]);
+      }
+      if (fills.length === 0) return;
+
+      const applyOne = ([name, value]: [string, unknown]) => {
+        setAddress((prev) => ({ ...prev, [name]: value }));
+        fieldState.setAutoFilled(name, value);
+      };
+
+      const reduce =
+        typeof window !== 'undefined' &&
+        window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) {
+        fills.forEach(applyOne);
+      } else {
+        fills.forEach((fill, i) => {
+          window.setTimeout(() => applyOne(fill), i * TYPING_STAGGER_MS);
+        });
+      }
+    },
+    [fieldState],
+  );
+
+  const handleTweetFetched = useCallback(
+    (data: TweetData, _source: { postUrl: string; tweetId: string } | null) => {
+      applyExtractedAddress(data.text);
+      const photos = data.photos ?? [];
+      if (photos.length > 0) setSourceImageUrls(photos.slice(0, 10));
+    },
+    [applyExtractedAddress],
+  );
+
+  const handleOgpFetched = useCallback(
+    (data: OgpFetchedData | null) => {
+      if (!data) return;
+      // OGP サイトの title/description を結合して住所抽出にかける (画像だけ取れて住所が
+      // 読み取れないケースは何もしない = 画像のみ反映)。
+      const text = [data.data.title, data.data.description].filter(Boolean).join('\n');
+      if (text.trim().length > 0) applyExtractedAddress(text);
+      const images = data.data.images ?? [];
+      if (images.length > 0) {
+        setSourceImageUrls(images.slice(0, 10));
+      } else if (data.data.image) {
+        setSourceImageUrls([data.data.image]);
+      }
+    },
+    [applyExtractedAddress],
+  );
+
   if (!user) {
     return (
       <div className="housing-register">
@@ -98,7 +181,14 @@ export const RegisterPage: React.FC = () => {
               tags={tags}
               onChange={handleIntroChange}
             />
-            <div data-testid="housing-register-section-images-stub" />
+            <RegisterSectionMedia
+              onTweetFetched={handleTweetFetched}
+              onOgpFetched={handleOgpFetched}
+              localImages={localImages}
+              onLocalImagesChange={setLocalImages}
+              sourceImageUrls={sourceImageUrls}
+              onSourceImageUrlsChange={setSourceImageUrls}
+            />
             <div data-testid="housing-register-section-publish-stub" />
           </div>
         </div>

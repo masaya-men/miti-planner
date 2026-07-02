@@ -4733,6 +4733,38 @@ select.housing-input option {
   grid-column: 1 / -1;
 }
 
+/* 画像/SNS URL セクション (Task11): 取得中スケルトン / 成功時枚数 / 失敗時の静かな注記。
+   質感A案の「AI 感の払拭」原則により、失敗通知は色付き alert 箱にせず
+   ヘアライン区切り + グレー文字の静かな注記にする (housing-design.md 参照)。 */
+.housing-register-media-skeleton-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.housing-register-media-success-note {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-media-quiet-notice {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--housing-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.housing-register-media-quiet-notice-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-media-quiet-notice-hint {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+
 /* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
    (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
 .housing-listing-grid-wrap {

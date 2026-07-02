@@ -1979,6 +1979,7 @@
             "title": "物件登録",
             "section_intro": "紹介",
             "section_address": "住所",
+            "section_media": "画像・SNS URL",
             "field_title_label": "タイトル",
             "field_title_placeholder": "わが家の名前を入力",
             "field_title_required": "タイトルは必須です",
@@ -2134,6 +2135,10 @@
             "sourceImages": {
                 "label": "取得した画像 (ドラッグで並び替え可・先頭 {{max}} 枚が保存されます)",
                 "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像、 先頭 {{max}} 枚が保存されます)"
+            },
+            "media": {
+                "fetched_count": "画像を{{count}}枚取得しました",
+                "error_hint": "URL を確認するか、 画像を直接アップロードしてください"
             },
             "tweetPreview": {
                 "title": "取得したツイート"
