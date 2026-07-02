@@ -77,8 +77,10 @@ export const WardMapPreview: React.FC<Props> = ({
       )}
 
       {state.status === 'error' && (
-        <div className="housing-ward-preview-skeleton" data-testid="housing-ward-preview-error" aria-hidden="true">
-          <div className="housing-ward-preview-skeleton-block" />
+        <div className="housing-ward-preview-error" data-testid="housing-ward-preview-error">
+          <p className="housing-ward-preview-error-text">
+            {t('housing.register.map_preview.load_error')}
+          </p>
         </div>
       )}
 

@@ -2173,6 +2173,7 @@
             "map_preview": {
                 "placeholder": "输入地址后将显示小地图",
                 "map_alt": "地块小地图",
+                "load_error": "无法加载地图",
                 "summary_ward": "{{ward}} 区",
                 "summary_plot": "{{plot}} 号地",
                 "summary_separator": " / "

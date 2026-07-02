@@ -2173,6 +2173,7 @@
             "map_preview": {
                 "placeholder": "주소를 입력하면 미니맵이 표시됩니다",
                 "map_alt": "구역 미니맵",
+                "load_error": "지도를 불러올 수 없습니다",
                 "summary_ward": "{{ward}} 구",
                 "summary_plot": "{{plot}} 번지",
                 "summary_separator": " / "

@@ -988,6 +988,10 @@ export const RegisterPage: React.FC = () => {
             </div>
             <div ref={(el) => { sectionRefs.current.visibility = el; }} data-step-id="visibility">
               <RegisterSectionVisibility
+                // 破棄 (handleDiscardRestore) で mediaKey が ++ される → 再マウントされ、
+                // publishUntil=null で初期化され直して終了日時トグルが OFF に戻る (復元 ON は
+                // RegisterSectionVisibility 内の useEffect が publishUntil 到着で ON にする)。
+                key={mediaKey}
                 visibility={visibility}
                 publishUntil={publishUntil}
                 onChange={handleVisibilityChange}

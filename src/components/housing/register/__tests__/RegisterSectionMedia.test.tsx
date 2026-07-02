@@ -5,8 +5,11 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../../../locales/ja.json';
 
-// useTweetFetch / useOgpFetch をモックして fetch 状態だけ差し替える
-// (HousingRegisterSnsUrlField.test.tsx のモック方式に合わせる)
+// useTweetFetch / useOgpFetch をモックする。
+// 重要: RegisterSectionMedia は自前で hook を呼ばず、子 HousingRegisterSnsUrlField が握る
+// 実 fetch 状態を onFetchStatusChange 経由で受け取る。ここでモックするのは「子が実際に使う」
+// hook であり、その status を差し替えると子→callback→セクション表示 の実配線が検証される
+// (かつては別インスタンスの hook をセクションが直接購読して常に idle だった dead 表示を廃止)。
 const mockFetchTweet = vi.fn();
 const mockCancelTweet = vi.fn();
 const mockResetTweet = vi.fn();
@@ -89,16 +92,31 @@ describe('RegisterSectionMedia', () => {
     };
   });
 
-  it('取得中 (tweet loading) はスケルトンを表示する', () => {
+  it('子の実 fetch (tweet loading) がセクション level のスケルトンに反映される', () => {
+    // 子が握る tweet hook を loading にすると、子の onFetchStatusChange が loading を通知し
+    // セクションのスケルトンが出る (別インスタンス購読の dead 表示ではなく実配線)。
     tweetState = { ...tweetState, status: 'loading' };
     renderMedia();
     expect(screen.getByTestId('housing-register-media-loading')).toBeInTheDocument();
   });
 
-  it('取得中 (ogp loading) もスケルトンを表示する', () => {
+  it('子の実 fetch (ogp loading) もセクション level のスケルトンに反映される', () => {
     ogpState = { ...ogpState, status: 'loading' };
     renderMedia();
     expect(screen.getByTestId('housing-register-media-loading')).toBeInTheDocument();
+  });
+
+  it('取得中はセクション level だけが loading を出し、子のインライン fetch 表示は二重に出ない', () => {
+    // 二重表示回避 (suppressInlineFetchStatus) の検証。子のインライン loading 行
+    // (housing-fetch-indicator = キャンセルボタン付き) はセクションに表示させないこと。
+    tweetState = { ...tweetState, status: 'loading' };
+    const { container } = renderMedia();
+    expect(screen.getByTestId('housing-register-media-loading')).toBeInTheDocument();
+    // 子のインライン loading indicator (キャンセル文言) は出ない
+    expect(
+      screen.queryByText(jaTranslations.housing.register.snsUrl.cancel),
+    ).not.toBeInTheDocument();
+    expect(container.querySelector('.housing-fetch-indicator')).toBeNull();
   });
 
   it('OGP 取得成功で取得枚数を表示する', () => {
@@ -108,7 +126,7 @@ describe('RegisterSectionMedia', () => {
     expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent('2');
   });
 
-  it('取得失敗時は理由 + 対処を静かな注記として表示する (色付き箱にしない)', () => {
+  it('子の実 fetch 失敗 (tweet error) がセクション level の静かな注記に反映される (色付き箱にしない)', () => {
     tweetState = { ...tweetState, status: 'error', errorCode: 'notFound' };
     renderMedia();
     const notice = screen.getByTestId('housing-register-media-error');
@@ -117,6 +135,25 @@ describe('RegisterSectionMedia', () => {
     expect(
       within(notice).getByText(jaTranslations.housing.register.snsUrl.error.notFound),
     ).toBeInTheDocument();
+    // 子のインライン error block (再試行ボタン) は二重に出ない
+    expect(
+      screen.queryByText(jaTranslations.housing.register.snsUrl.retry),
+    ).not.toBeInTheDocument();
+  });
+
+  it('子の実 fetch 失敗 (ogp error) もセクション level の静かな注記に反映される', () => {
+    ogpState = { ...ogpState, status: 'error', errorCode: 'upstream' };
+    renderMedia();
+    const notice = screen.getByTestId('housing-register-media-error');
+    expect(
+      within(notice).getByText(jaTranslations.housing.register.snsUrl.ogp_error.upstream),
+    ).toBeInTheDocument();
+  });
+
+  it('idle (fetch していない) 時はスケルトンもエラー注記も出ない', () => {
+    renderMedia();
+    expect(screen.queryByTestId('housing-register-media-loading')).toBeNull();
+    expect(screen.queryByTestId('housing-register-media-error')).toBeNull();
   });
 
   it('SNS URL 欄が表示される (既存 HousingRegisterSnsUrlField 流用)', () => {

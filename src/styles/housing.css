@@ -982,6 +982,25 @@
   animation: housing-skeleton-pulse 1.4s ease-in-out infinite;
 }
 
+/* 地図ロード失敗時の静かな注記 (スケルトンと見分けが付かないと「読込中」に見え続けるため専用表示)。
+   色付き alert 箱にはせず、 プレースホルダと同じ質感 (dashed hairline + グレー文字) に留める。 */
+.housing-ward-preview-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  border: 1px dashed var(--housing-divider);
+  border-radius: 10px;
+  background: var(--housing-panel-bg);
+}
+.housing-ward-preview-error-text {
+  margin: 0;
+  padding: 16px;
+  text-align: center;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
 /* 地図本体 (Figma inline SVG + overlay マーカー) */
 .housing-ward-preview-map-host {
   position: relative;

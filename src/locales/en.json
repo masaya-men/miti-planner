@@ -2208,6 +2208,7 @@
             "map_preview": {
                 "placeholder": "Enter an address to see the mini map",
                 "map_alt": "Plot mini map",
+                "load_error": "Couldn't load the map",
                 "summary_ward": "Ward {{ward}}",
                 "summary_plot": "Plot {{plot}}",
                 "summary_separator": " / "

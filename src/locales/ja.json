@@ -2229,6 +2229,7 @@
             "map_preview": {
                 "placeholder": "住所を入力するとミニマップが表示されます",
                 "map_alt": "区画のミニマップ",
+                "load_error": "地図を読み込めませんでした",
                 "summary_ward": "{{ward}} 区",
                 "summary_plot": "{{plot}} 番地",
                 "summary_separator": " / "

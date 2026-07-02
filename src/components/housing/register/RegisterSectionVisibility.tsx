@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export interface RegisterVisibilityValues {
@@ -38,6 +38,16 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
   // トグル自体の ON/OFF は「日時が設定されているか」から導出せず、ユーザーが一度 OFF に
   // 戻したときに入力値を保持したまま非表示にできるよう独立した表示状態として持つ。
   const [endDateEnabled, setEndDateEnabled] = useState(publishUntil != null);
+
+  // オートセーブ復元/編集で publishUntil が mount 後に非同期セットされたら、トグルを ON にして
+  // 日時入力を可視化する (mount 時 useState 1 回きりの初期評価だけだと、復元後も OFF・非表示のまま
+  // = ユーザーが公開終了日時を見られず編集できない dead 状態になる)。
+  // publishUntil が null 化してもここでは強制 OFF しない: 「トグル ON・日時空入力」 (ユーザーが
+  // 日時を入れる前にトグルだけ ON にした状態) を壊さないため。破棄 (親 state 全リセット) 時の
+  // OFF 復帰は RegisterPage 側でこのセクションを再マウントして初期評価し直す。
+  useEffect(() => {
+    if (publishUntil != null) setEndDateEnabled(true);
+  }, [publishUntil]);
 
   const handleVisibilityChange = (next: 'public' | 'private') => {
     onChange({ visibility: next, publishUntil });

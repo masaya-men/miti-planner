@@ -47,6 +47,22 @@ type Props = {
      * (以降の再取得は全フィールド上書きに戻す) に使う。未指定なら無影響 (optional)。
      */
     onUrlUserEdit?: () => void;
+    /**
+     * 2026-07-02 追加 (最終レビュー fix): 実 fetch (tweet/ogp) の取得状態を上位へ通知する optional callback。
+     * この子インスタンスが実際に握っている useTweetFetch/useOgpFetch の status・errorCode から
+     * `{ loading, errorKey }` を導出して渡す。RegisterSectionMedia はこれを購読してセクション level の
+     * スケルトン/失敗注記を実 fetch 連動で出す (かつて別インスタンスの hook を購読して常に idle だった
+     * dead 表示を廃止)。未指定なら無影響 (旧 HousingRegisterForm/View 等)。
+     */
+    onFetchStatusChange?: (status: { loading: boolean; errorKey: string | null }) => void;
+    /**
+     * 2026-07-02 追加 (最終レビュー fix): true のとき、この子の**インライン** fetch loading/error 表示
+     * (tweet/ogp のスピナー行 + エラーブロック) を描画しない。取得状態を上位 (RegisterSectionMedia) が
+     * セクション level で出す構成のときに二重表示を避けるため。既定 false = 従来どおり子側で表示する
+     * (旧 HousingRegisterForm はセクション level 表示を持たないので false のまま)。URL 形式エラー
+     * (invalidUrl) は fetch 状態ではないため常にインライン表示する (このフラグの対象外)。
+     */
+    suppressInlineFetchStatus?: boolean;
 };
 
 export function HousingRegisterSnsUrlField({
@@ -55,6 +71,8 @@ export function HousingRegisterSnsUrlField({
     onOgpFetched,
     initialUrl,
     onUrlUserEdit,
+    onFetchStatusChange,
+    suppressInlineFetchStatus = false,
 }: Props) {
     const { t } = useTranslation();
     const [url, setUrl] = useState('');
@@ -93,6 +111,23 @@ export function HousingRegisterSnsUrlField({
         dispatchedOgpRef.current = ogpData;
         onOgpFetched({ postUrl: url.trim(), data: ogpData });
     }, [ogpStatus, ogpData, onOgpFetched, url]);
+
+    // 実 fetch (tweet/ogp) の取得状態を上位へ通知する (RegisterSectionMedia がセクション level の
+    // スケルトン/失敗注記に使う)。tweet と ogp のどちらかが loading なら loading、どちらかが error なら
+    // その errorKey を渡す (tweet 優先)。onFetchStatusChange の identity 変化で毎回発火しないよう
+    // status/errorCode の実値のみを依存にする。
+    const errorKey =
+        status === 'error' && errorCode
+            ? `housing.register.snsUrl.error.${errorCode}`
+            : ogpStatus === 'error' && ogpErrorCode
+              ? `housing.register.snsUrl.ogp_error.${ogpErrorCode}`
+              : null;
+    const loading = status === 'loading' || ogpStatus === 'loading';
+    useEffect(() => {
+        onFetchStatusChange?.({ loading, errorKey });
+        // onFetchStatusChange の identity は親側で安定 (useCallback) 前提。実値変化でのみ通知する。
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [loading, errorKey]);
 
     const handleChange = useCallback((value: string) => {
         setUrl(value);
@@ -186,7 +221,10 @@ export function HousingRegisterSnsUrlField({
                     {t('housing.register.snsUrl.error.invalid')}
                 </p>
             )}
-            {status === 'loading' && (
+            {/* インライン fetch loading/error 表示。suppressInlineFetchStatus 時は上位 (RegisterSectionMedia)
+                がセクション level で出すため描画しない (二重表示回避)。URL 形式エラー (invalidUrl) は
+                fetch 状態ではないので上のブロックで常に表示済み。 */}
+            {!suppressInlineFetchStatus && status === 'loading' && (
                 <div className="housing-fetch-indicator">
                     <span className="housing-spinner" aria-hidden />
                     <span>{t('housing.register.snsUrl.fetching')}</span>
@@ -195,7 +233,7 @@ export function HousingRegisterSnsUrlField({
                     </button>
                 </div>
             )}
-            {status === 'error' && errorCode && (
+            {!suppressInlineFetchStatus && status === 'error' && errorCode && (
                 <div className="housing-error-block">
                     <p className="housing-error-text">
                         {t(`housing.register.snsUrl.error.${errorCode}`)}
@@ -211,13 +249,13 @@ export function HousingRegisterSnsUrlField({
                     </button>
                 </div>
             )}
-            {ogpStatus === 'loading' && (
+            {!suppressInlineFetchStatus && ogpStatus === 'loading' && (
                 <div className="housing-fetch-indicator">
                     <span className="housing-spinner" aria-hidden />
                     <span>{t('housing.register.snsUrl.ogp_fetching')}</span>
                 </div>
             )}
-            {ogpStatus === 'error' && ogpErrorCode && (
+            {!suppressInlineFetchStatus && ogpStatus === 'error' && ogpErrorCode && (
                 <div className="housing-error-block">
                     <p className="housing-error-text">
                         {t(`housing.register.snsUrl.ogp_error.${ogpErrorCode}`)}
