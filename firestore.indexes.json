@@ -34,6 +34,15 @@
       ]
     },
     {
+      "collectionGroup": "housing_listings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "visibility", "order": "ASCENDING" },
+        { "fieldPath": "isHidden", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "system_notifications",
       "queryScope": "COLLECTION",
       "fields": [
