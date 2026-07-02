@@ -12,8 +12,10 @@
 ## 次の作業順 (2026-07-01 更新)
 1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
    - **✅完了(→[TODO_COMPLETED.md](./TODO_COMPLETED.md))**: 土台+シェル / 探す(質感A案) / お気に入り(Task2〜8・最終レビュー opus=Critical/Important なし)。build緑・ローカルのみ。⚠**merge保留**=公開導線のため登録ページ完成まで(現状本番影響ゼロ)。
-   - **次スパン最優先=(b)登録ページ本体**(新機能=brainstorming→spec→writing-plans→実装)。完成後に全ブランチ最終レビュー→merge解禁→(c)ツアー中ナビ(M2〜)。
-     - 保留の小UX(登録後の仕上げで): お気に入り「外す」で選択物件を消してもトレイに残る(`handleRemoveFromFav` が trayIds 未除去)。台帳 Task5 Minor(c)。
+   - **🔵(b)登録ページ本体=実装中(2026-07-02)**。spec=`docs/superpowers/specs/2026-07-02-housing-register-page-design.md`、plan(16タスク)=`docs/superpowers/plans/2026-07-02-housing-register-page.md`、進捗台帳=`.superpowers/sdd/progress.md`(次セッションはこれを読む)。**Task1〜10完了・全レビュー✅・コミット済(HEAD=1a4b5a80)。次=Task11から再開**(SNS/画像+OGP自動入力)。
+     - 内容: タイトル+公開設定(公開/非公開2択+任意の公開終了日時=遅延評価)+土地ミニマップ(全10マップ組込)+ライブ入力インジケーター+OGP住所自動入力+オートセーブ。非公開はFirestoreルールで実隠蔽(rules未deploy)。
+     - ⚠**本番反映前ゲート**(台帳に詳細): ①rules自動テスト無し→deploy前にemulator/実機で非公開ガード検証必須 ②index deploy(`firebase deploy --only firestore:indexes`)を実機確認前に要実施。visibilityバックフィルは実行済(既存28件)。
+     - 完成後に全ブランチ最終レビュー→merge解禁→(c)ツアー中ナビ(M2〜)。保留の小UX(お気に入り「外す」でトレイ残留=台帳Task5 Minor)。
    - 既知の残: 中央カード静止(生きたカード段階2は後日)/ビュー切替[一覧/マップ/ルート]は地図M1配線時に復活/legacy TopBar・HousingWorkspace5件failは撤去予定(回帰でない)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
