@@ -11,7 +11,8 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../../../lib/firebase';
+import { db } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/useAuthStore';
 import type { HousingListing } from '../../../types/housing';
 import { canViewListing } from '../../../lib/housing/listingVisibility';
 import { HousingDetailLayout } from './HousingDetailLayout';
@@ -27,13 +28,18 @@ export const HousingDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const { listingId } = useParams<{ listingId: string }>();
   const [state, setState] = useState<FetchState>({ kind: 'loading' });
-  const viewerUid = auth.currentUser?.uid ?? null;
+  const user = useAuthStore((s) => s.user);
+  const authLoading = useAuthStore((s) => s.loading);
+  const viewerUid = user?.uid ?? null;
 
   useEffect(() => {
     if (!listingId) {
       setState({ kind: 'not_found' });
       return;
     }
+    // auth 復元前 (loading===true) に fetch すると、本人の非公開物件が
+    // uid=null 扱いで誤って拒否されるため、auth-ready になるまで待つ。
+    if (authLoading) return;
     let cancelled = false;
     (async () => {
       try {
@@ -45,8 +51,7 @@ export const HousingDetailPage: React.FC = () => {
         }
         const data = snap.data();
         // 家主は自分の物件なら非表示でも閲覧可 (削除済みは誰でも不可)。
-        const uid = auth.currentUser?.uid ?? null;
-        if (!canViewListing(data as HousingListing, uid)) {
+        if (!canViewListing(data as HousingListing, viewerUid)) {
           setState({ kind: 'not_found' });
           return;
         }
@@ -56,6 +61,11 @@ export const HousingDetailPage: React.FC = () => {
         });
       } catch (e) {
         if (cancelled) return;
+        const code = (e as { code?: string })?.code;
+        if (code === 'permission-denied') {
+          setState({ kind: 'not_found' });
+          return;
+        }
         const message = e instanceof Error ? e.message : 'unknown_error';
         setState({ kind: 'error', message });
       }
@@ -63,7 +73,7 @@ export const HousingDetailPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [listingId]);
+  }, [listingId, authLoading, viewerUid]);
 
   if (state.kind === 'loading') {
     return (

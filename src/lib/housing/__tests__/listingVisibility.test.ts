@@ -29,3 +29,19 @@ describe('canViewListing', () => {
     ).toBe(false);
   });
 });
+
+const NOW = 1000;
+describe('canViewListing (visibility 拡張)', () => {
+  it('他人の private は不可', () => {
+    expect(canViewListing({ ownerUid: 'o', visibility: 'private' }, 'me', NOW)).toBe(false);
+  });
+  it('本人の private は可', () => {
+    expect(canViewListing({ ownerUid: 'me', visibility: 'private' }, 'me', NOW)).toBe(true);
+  });
+  it('他人の期限切れ public は不可', () => {
+    expect(canViewListing({ ownerUid: 'o', visibility: 'public', publishUntil: NOW - 1 }, 'me', NOW)).toBe(false);
+  });
+  it('deletedAt は従来どおり全員不可', () => {
+    expect(canViewListing({ ownerUid: 'me', deletedAt: 123 }, 'me', NOW)).toBe(false);
+  });
+});
