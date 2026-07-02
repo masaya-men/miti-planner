@@ -15,6 +15,7 @@ export async function findListingsByAddressKey(addressKey: string): Promise<Hous
     collection(db, COLLECTION_NAME),
     where('addressKey', '==', addressKey),
     where('isHidden', '==', false),
+    where('visibility', '==', 'public'),
     limit(10),
   );
   const snap = await getDocs(q);
@@ -51,6 +52,7 @@ export async function findChambersInPlot(q: ChamberQuery): Promise<HousingListin
     where('plot', '==', q.plot),
     where('roomKind', '==', 'private_chamber'),
     where('isHidden', '==', false),
+    where('visibility', '==', 'public'),
     limit(50),
   );
   const snap = await getDocs(qref);
@@ -74,6 +76,7 @@ export async function findHouseForChamber(q: ChamberQuery): Promise<HousingListi
     where('plot', '==', q.plot),
     where('buildingType', '==', 'house'),
     where('isHidden', '==', false),
+    where('visibility', '==', 'public'),
     limit(5),  // 通常 1 件、 重複登録考慮で 5
   );
   const snap = await getDocs(qref);
@@ -95,6 +98,7 @@ export async function findApartmentRoomsInWard(q: ApartmentQuery): Promise<Housi
     where('buildingType', '==', 'apartment'),
     where('roomKind', '==', 'apartment_room'),  // schema integrity: apartment は必ず apartment_room
     where('isHidden', '==', false),
+    where('visibility', '==', 'public'),
     limit(20),  // 1 ward あたり最大 20 件表示 (UI 可読性のため切り捨て)
   );
   const snap = await getDocs(qref);
@@ -123,6 +127,7 @@ export async function getGalleryListings(max = 200): Promise<HousingListing[]> {
   const qref = query(
     collection(db, COLLECTION_NAME),
     where('isHidden', '==', false),
+    where('visibility', '==', 'public'),
     orderBy('createdAt', 'desc'),
     limit(max),
   );
@@ -130,4 +135,18 @@ export async function getGalleryListings(max = 200): Promise<HousingListing[]> {
   return snap.docs
     .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<HousingListing, 'id'>) }))
     .filter((l) => l.deletedAt == null);
+}
+
+/** spec A-3: 自分の登録一覧 (公開/非公開/期限切れ問わず)。client 側で createdAt desc ソート。 */
+export async function getMyListings(uid: string): Promise<HousingListing[]> {
+  const qref = query(
+    collection(db, COLLECTION_NAME),
+    where('ownerUid', '==', uid),
+    limit(200),
+  );
+  const snap = await getDocs(qref);
+  return snap.docs
+    .map((doc) => ({ id: doc.id, ...(doc.data() as Omit<HousingListing, 'id'>) }))
+    .filter((l) => l.deletedAt == null)
+    .sort((a, b) => b.createdAt - a.createdAt);
 }

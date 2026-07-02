@@ -31,12 +31,20 @@ interface HousingListingsState {
   /** 削除済み / 非表示になった物件を一覧から即除去する。 */
   remove: (id: string) => void;
   reset: () => void;
+  /** spec A-3: 自分の登録一覧 (公開/非公開/期限切れ問わず)。uid 確定/変化時に呼ぶ。 */
+  myListings: MockListing[];
+  myStatus: HousingListingsStatus;
+  loadMine: (uid: string) => Promise<void>;
+  /** ログアウト時に自分の登録一覧をクリアする。 */
+  clearMine: () => void;
 }
 
 const INITIAL = {
   status: 'idle' as HousingListingsStatus,
   listings: [] as MockListing[],
   error: null as string | null,
+  myListings: [] as MockListing[],
+  myStatus: 'idle' as HousingListingsStatus,
 };
 
 export const useHousingListingsStore = create<HousingListingsState>((set, get) => ({
@@ -86,4 +94,21 @@ export const useHousingListingsStore = create<HousingListingsState>((set, get) =
   },
   remove: (id) => set((s) => ({ listings: s.listings.filter((l) => l.id !== id) })),
   reset: () => set(INITIAL),
+  loadMine: async (uid) => {
+    set({ myStatus: 'loading' });
+    try {
+      const [{ getMyListings }, { firestoreToGalleryListing }] = await Promise.all([
+        import('../lib/housingListingsService'),
+        import('../lib/housing/galleryAdapter'),
+      ]);
+      const docs = await getMyListings(uid);
+      const myListings = docs
+        .map(firestoreToGalleryListing)
+        .filter((l): l is MockListing => l !== null);
+      set({ myStatus: 'ready', myListings });
+    } catch {
+      set({ myStatus: 'error' });
+    }
+  },
+  clearMine: () => set({ myListings: [], myStatus: 'idle' }),
 }));

@@ -1,11 +1,14 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { expandTourWithDuplicates } from '../../../lib/housing/expandTourWithDuplicates';
+import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
+import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
 import { showToast } from '../../Toast';
 import { FavoritesGrid } from '../favorites/FavoritesGrid';
 import { FavoritesTabs } from '../favorites/FavoritesTabs';
@@ -25,8 +28,16 @@ export const FavoritesPage: React.FC = () => {
   const navigate = useNavigate();
 
   const ids = useHousingFavoritesStore((s) => s.ids);
-  const allListings = useHousingListingsStore((s) => s.listings);
+  const publicListings = useHousingListingsStore((s) => s.listings);
+  const myListings = useHousingListingsStore((s) => s.myListings);
   const status = useHousingListingsStore((s) => s.status);
+  const uid = useAuthStore((s) => s.user?.uid ?? null);
+
+  // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。
+  const allListings = useMemo(
+    () => sortListingsForGallery(mergeListingsForViewer(publicListings, myListings, uid, Date.now())),
+    [publicListings, myListings, uid],
+  );
 
   // タブ状態 (すべて/最近追加)
   const [tab, setTab] = useState<FavTab>('all');

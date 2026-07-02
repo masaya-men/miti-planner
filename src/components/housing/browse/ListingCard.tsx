@@ -2,7 +2,9 @@ import { useTranslation } from 'react-i18next';
 import { Heart, Plus, Check } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { isEffectivelyPublic } from '../../../lib/housing/listingPublish';
 
 export interface ListingCardProps {
   listing: MockListing;
@@ -41,9 +43,15 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const addFav = useHousingFavoritesStore((s) => s.add);
   const removeFav = useHousingFavoritesStore((s) => s.remove);
   const isFav = favIds.includes(listing.id);
+  const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
 
   const title = formatHousingAddress(listing, i18n.language);
   const isApartment = listing.buildingType === 'apartment';
+
+  // spec A-3: 自分の登録だけに非公開/期限切れの静かな注記を出す (他人には出ない)。
+  const isMine = viewerUid !== null && listing.ownerUid === viewerUid;
+  const isPrivate = isMine && listing.visibility === 'private';
+  const isExpired = isMine && !isPrivate && !isEffectivelyPublic(listing, Date.now());
 
   return (
     <article className="housing-listing-card" style={{ contentVisibility: 'auto' } as React.CSSProperties}>
@@ -90,6 +98,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             <span className="housing-listing-card-size">{listing.size}</span>
           )}
         </div>
+        {(isPrivate || isExpired) && (
+          <div className="housing-listing-card-mine-note" data-testid="housing-card-mine-note">
+            {isPrivate ? t('housing.register.badge_private') : t('housing.register.badge_expired')}
+          </div>
+        )}
         {listing.tags.length > 0 && (
           <div className="housing-listing-card-tags">
             {listing.tags.slice(0, 3).map((tag) => (

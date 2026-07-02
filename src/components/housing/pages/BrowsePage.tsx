@@ -5,7 +5,10 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
+import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
+import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { ListingGrid } from '../browse/ListingGrid';
@@ -23,6 +26,8 @@ export const BrowsePage: React.FC = () => {
 
   const status = useHousingListingsStore((s) => s.status);
   const listings = useHousingListingsStore((s) => s.listings);
+  const myListings = useHousingListingsStore((s) => s.myListings);
+  const uid = useAuthStore((s) => s.user?.uid ?? null);
 
   const dc = useHousingFilterStore((s) => s.dc);
   const regions = useHousingFilterStore((s) => s.regions);
@@ -31,9 +36,15 @@ export const BrowsePage: React.FC = () => {
   const sizes = useHousingFilterStore((s) => s.sizes);
   const tags = useHousingFilterStore((s) => s.tags);
 
+  // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。
+  const merged = useMemo(
+    () => sortListingsForGallery(mergeListingsForViewer(listings, myListings, uid, Date.now())),
+    [listings, myListings, uid],
+  );
+
   const filtered = useMemo(
-    () => applyFilters(listings, { dc, regions, servers, areas, sizes, tags }),
-    [listings, dc, regions, servers, areas, sizes, tags],
+    () => applyFilters(merged, { dc, regions, servers, areas, sizes, tags }),
+    [merged, dc, regions, servers, areas, sizes, tags],
   );
 
   // 並び替え (参考UI「新着順/古い順」)。createdAt を key に client-side sort。

@@ -4722,6 +4722,10 @@ select.housing-input option {
   border: 1px solid var(--housing-panel-border); border-radius: 5px;
   padding: 1px 5px;
 }
+/* 自分の登録の非公開/期限切れ注記 (本人にのみ表示・色付き箱にしない静かな注記) */
+.housing-listing-card-mine-note {
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
 .housing-listing-card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .housing-pill {
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);
