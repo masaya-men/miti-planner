@@ -1977,6 +1977,12 @@
         },
         "register": {
             "title": "物件登録",
+            "section_intro": "紹介",
+            "section_address": "住所",
+            "field_title_label": "タイトル",
+            "field_title_placeholder": "わが家の名前を入力",
+            "field_title_required": "タイトルは必須です",
+            "field_title_remaining": "残り {{count}} 文字",
             "dc": "データセンター",
             "server": "サーバー",
             "area": "エリア",
@@ -1984,6 +1990,11 @@
             "plot": "番地",
             "size": "サイズ",
             "apartment_room": "部屋番号",
+            "room_kind": {
+                "label": "部屋区分",
+                "private_chamber": "FC 個室",
+                "apartment_room": "アパート部屋"
+            },
             "building_type": {
                 "label": "建物タイプ",
                 "house": "家 (S/M/L)",

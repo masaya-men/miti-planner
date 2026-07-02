@@ -1,0 +1,309 @@
+import { useTranslation } from 'react-i18next';
+import { serverMasterData, housingSizeMasterData } from '../../../data/masterData';
+import { HOUSING_AREAS, HOUSING_SIZES, type HousingArea, type HousingSize } from '../../../types/housing';
+import { WARD_RANGE, PLOT_RANGE, APARTMENT_ROOM_RANGE, PRIVATE_CHAMBER_RANGE } from '../../../constants/housing';
+import { getAreaName } from '../../../lib/housing/areaName';
+import type { useHousingFieldState } from '../../../lib/housing/housingFieldState';
+
+export interface RegisterAddressValues {
+  dc?: string;
+  server?: string;
+  area?: HousingArea | string;
+  ward?: number;
+  buildingType?: 'house' | 'apartment';
+  plot?: number;
+  size?: HousingSize | string;
+  apartmentBuilding?: 1 | 2;
+  roomKind?: 'private_chamber' | 'apartment_room';
+  roomNumber?: number;
+}
+
+interface Props {
+  fieldState: ReturnType<typeof useHousingFieldState>;
+  values: RegisterAddressValues;
+  /** buildingType 等の切替でフィールドを一括更新するとき用 (排他フィールドの初期化に使う)。 */
+  onChange: (name: string, value: unknown) => void;
+}
+
+/**
+ * 登録フォーム中央カラム: 住所セクション (DC/サーバー/エリア/区・建物タイプ・番地/号棟/部屋)。
+ * データモデルは新シェルの共有バリデーション (RegistrationDraft / AddressInput、
+ * `src/utils/housingValidation.ts`) に合わせ、buildingType('house'|'apartment') +
+ * roomKind ベースを採用する (旧 HousingRegisterForm.tsx の 5 択 HousingExtractSize モデルは
+ * 新バックエンド/WardMapPreview と不整合のため踏襲しない)。
+ */
+export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, onChange }) => {
+  const { t, i18n } = useTranslation();
+  const { dc, server, area, ward, buildingType, plot, size, apartmentBuilding, roomKind, roomNumber } = values;
+
+  const dcKeys = Object.keys(serverMasterData);
+  const serverKeys = dc ? Object.keys(serverMasterData[dc]?.servers ?? {}) : [];
+
+  const isHouse = buildingType !== 'apartment';
+  const isApartment = buildingType === 'apartment';
+  const isPrivateChamber = isHouse && roomKind === 'private_chamber';
+
+  const handleBuildingTypeChange = (next: 'house' | 'apartment') => {
+    if (next === buildingType) return;
+    if (next === 'house') {
+      onChange('buildingType', 'house');
+      onChange('apartmentBuilding', undefined);
+      onChange('roomKind', undefined);
+      onChange('roomNumber', undefined);
+    } else {
+      onChange('buildingType', 'apartment');
+      onChange('plot', undefined);
+      onChange('size', undefined);
+      onChange('apartmentBuilding', 1);
+      onChange('roomKind', 'apartment_room');
+      onChange('roomNumber', 1);
+    }
+  };
+
+  const renderBadge = (name: string) =>
+    fieldState.getState(name) === 'auto-filled' ? (
+      <span className="housing-field-badge" data-testid={`housing-auto-badge-${name}`} aria-hidden="true">
+        🟡
+      </span>
+    ) : null;
+
+  return (
+    <section className="housing-register-section" data-testid="housing-register-section-address">
+      <h2 className="housing-register-section-title">{t('housing.register.section_address')}</h2>
+
+      <div className="housing-register-fields-grid">
+        <div className="housing-field" data-state={fieldState.getState('dc')}>
+          <label htmlFor="housing-register-dc" className="housing-label">
+            {t('housing.register.dc')}
+          </label>
+          <select
+            id="housing-register-dc"
+            className="housing-input"
+            value={dc ?? ''}
+            onChange={(e) => onChange('dc', e.target.value || undefined)}
+          >
+            <option value="">—</option>
+            {dcKeys.map((k) => (
+              <option key={k} value={k}>{k}</option>
+            ))}
+          </select>
+          {renderBadge('dc')}
+        </div>
+
+        <div className="housing-field" data-state={fieldState.getState('server')}>
+          <label htmlFor="housing-register-server" className="housing-label">
+            {t('housing.register.server')}
+          </label>
+          <select
+            id="housing-register-server"
+            className="housing-input"
+            value={server ?? ''}
+            disabled={!dc}
+            onChange={(e) => onChange('server', e.target.value || undefined)}
+          >
+            <option value="">—</option>
+            {serverKeys.map((k) => (
+              <option key={k} value={k}>{k}</option>
+            ))}
+          </select>
+          {renderBadge('server')}
+        </div>
+
+        <div className="housing-field" data-state={fieldState.getState('area')}>
+          <label htmlFor="housing-register-area" className="housing-label">
+            {t('housing.register.area')}
+          </label>
+          <select
+            id="housing-register-area"
+            className="housing-input"
+            value={area ?? ''}
+            onChange={(e) => onChange('area', e.target.value || undefined)}
+          >
+            <option value="">—</option>
+            {HOUSING_AREAS.map((a) => (
+              <option key={a} value={a}>{getAreaName(a, i18n.language)}</option>
+            ))}
+          </select>
+          {renderBadge('area')}
+        </div>
+
+        <div className="housing-field" data-state={fieldState.getState('ward')}>
+          <label htmlFor="housing-register-ward" className="housing-label">
+            {t('housing.register.ward')}
+          </label>
+          <input
+            id="housing-register-ward"
+            type="number"
+            min={WARD_RANGE.min}
+            max={WARD_RANGE.max}
+            className="housing-input"
+            value={ward ?? ''}
+            onChange={(e) => onChange('ward', e.target.value ? Number(e.target.value) : undefined)}
+          />
+          {renderBadge('ward')}
+        </div>
+
+        <div className="housing-field housing-field-full" data-state={fieldState.getState('buildingType')}>
+          <label className="housing-label">{t('housing.register.building_type.label')}</label>
+          <div className="housing-type-selector" role="radiogroup">
+            <button
+              type="button"
+              className="housing-type-chip"
+              data-selected={isHouse ? 'true' : 'false'}
+              role="radio"
+              aria-checked={isHouse}
+              onClick={() => handleBuildingTypeChange('house')}
+            >
+              {t('housing.register.building_type.house')}
+            </button>
+            <button
+              type="button"
+              className="housing-type-chip"
+              data-selected={isApartment ? 'true' : 'false'}
+              role="radio"
+              aria-checked={isApartment}
+              onClick={() => handleBuildingTypeChange('apartment')}
+            >
+              {t('housing.register.building_type.apartment')}
+            </button>
+          </div>
+        </div>
+
+        {isHouse && (
+          <>
+            <div className="housing-field housing-conditional-field" data-state={fieldState.getState('plot')}>
+              <label htmlFor="housing-register-plot" className="housing-label">
+                {t('housing.register.plot')}
+              </label>
+              <input
+                id="housing-register-plot"
+                type="number"
+                min={PLOT_RANGE.min}
+                max={PLOT_RANGE.max}
+                className="housing-input"
+                value={plot ?? ''}
+                onChange={(e) => onChange('plot', e.target.value ? Number(e.target.value) : undefined)}
+              />
+              {plot != null && plot >= 31 && plot <= 60 && (
+                <p className="housing-address-note">{t('housing.register.address.expansionWardNote')}</p>
+              )}
+              {renderBadge('plot')}
+            </div>
+
+            <div className="housing-field housing-conditional-field" data-state={fieldState.getState('size')}>
+              <label htmlFor="housing-register-size" className="housing-label">
+                {t('housing.register.size')}
+              </label>
+              <select
+                id="housing-register-size"
+                className="housing-input"
+                value={size ?? ''}
+                onChange={(e) => onChange('size', e.target.value || undefined)}
+              >
+                <option value="">—</option>
+                {HOUSING_SIZES.map((s) => {
+                  const label = housingSizeMasterData.find((m) => m.id === s)?.label ?? s;
+                  return <option key={s} value={s}>{label}</option>;
+                })}
+              </select>
+              {renderBadge('size')}
+            </div>
+
+            <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('roomKind')}>
+              <label className="housing-label">{t('housing.register.room_kind.label')}</label>
+              <div className="housing-type-selector" role="radiogroup">
+                <button
+                  type="button"
+                  className="housing-type-chip"
+                  data-selected={roomKind == null ? 'true' : 'false'}
+                  role="radio"
+                  aria-checked={roomKind == null}
+                  onClick={() => {
+                    onChange('roomKind', undefined);
+                    onChange('roomNumber', undefined);
+                  }}
+                >
+                  {t('housing.register.building_type.house')}
+                </button>
+                <button
+                  type="button"
+                  className="housing-type-chip"
+                  data-selected={roomKind === 'private_chamber' ? 'true' : 'false'}
+                  role="radio"
+                  aria-checked={roomKind === 'private_chamber'}
+                  onClick={() => onChange('roomKind', 'private_chamber')}
+                >
+                  {t('housing.register.room_kind.private_chamber')}
+                </button>
+              </div>
+            </div>
+
+            {isPrivateChamber && (
+              <div className="housing-field housing-conditional-field" data-state={fieldState.getState('roomNumber')}>
+                <label htmlFor="housing-register-room-number" className="housing-label">
+                  {t('housing.register.room_number')}
+                </label>
+                <input
+                  id="housing-register-room-number"
+                  type="number"
+                  min={PRIVATE_CHAMBER_RANGE.min}
+                  max={PRIVATE_CHAMBER_RANGE.max}
+                  className="housing-input"
+                  value={roomNumber ?? ''}
+                  onChange={(e) => onChange('roomNumber', e.target.value ? Number(e.target.value) : undefined)}
+                />
+                {renderBadge('roomNumber')}
+              </div>
+            )}
+          </>
+        )}
+
+        {isApartment && (
+          <>
+            <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('apartmentBuilding')}>
+              <label className="housing-label">{t('housing.register.apartment_building.label')}</label>
+              <div className="housing-type-selector" role="radiogroup">
+                <button
+                  type="button"
+                  className="housing-type-chip"
+                  data-selected={apartmentBuilding === 1 ? 'true' : 'false'}
+                  role="radio"
+                  aria-checked={apartmentBuilding === 1}
+                  onClick={() => onChange('apartmentBuilding', 1)}
+                >
+                  {t('housing.register.apartment_building.main')}
+                </button>
+                <button
+                  type="button"
+                  className="housing-type-chip"
+                  data-selected={apartmentBuilding === 2 ? 'true' : 'false'}
+                  role="radio"
+                  aria-checked={apartmentBuilding === 2}
+                  onClick={() => onChange('apartmentBuilding', 2)}
+                >
+                  {t('housing.register.apartment_building.sub')}
+                </button>
+              </div>
+            </div>
+
+            <div className="housing-field housing-conditional-field" data-state={fieldState.getState('roomNumber')}>
+              <label htmlFor="housing-register-apartment-room-number" className="housing-label">
+                {t('housing.register.room_number')}
+              </label>
+              <input
+                id="housing-register-apartment-room-number"
+                type="number"
+                min={APARTMENT_ROOM_RANGE.min}
+                max={APARTMENT_ROOM_RANGE.max}
+                className="housing-input"
+                value={roomNumber ?? ''}
+                onChange={(e) => onChange('roomNumber', e.target.value ? Number(e.target.value) : undefined)}
+              />
+              {renderBadge('roomNumber')}
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+};

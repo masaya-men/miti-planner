@@ -4693,6 +4693,46 @@ select.housing-input option {
 }
 .housing-register-col-center { overflow-y: auto; }
 
+/* 登録フォームの中央カラム: セクション単位で縦積み。要素毎の padding-bottom ではなく
+   コンテナ gap で余白リズムを揃える (housing-design.md 質感A案・余白リズム原則)。 */
+.housing-register-sections {
+  display: flex; flex-direction: column;
+  gap: 20px;
+}
+.housing-register-section {
+  display: flex; flex-direction: column;
+  gap: 12px;
+}
+/* セクション見出し = 質感A案「青 = 進行」の縦アクセント。ハニーは主アクション専用に温存する。 */
+.housing-register-section-title {
+  position: relative;
+  margin: 0;
+  padding-left: 10px;
+  font-size: var(--housing-text-base);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-section-title::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 1px; bottom: 1px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--housing-aether);
+}
+.housing-register-required-mark {
+  margin-left: 4px;
+  color: var(--housing-aether);
+}
+.housing-register-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.housing-register-fields-grid > .housing-field-full {
+  grid-column: 1 / -1;
+}
+
 /* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
    (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
 .housing-listing-grid-wrap {
