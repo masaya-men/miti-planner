@@ -14,7 +14,8 @@
    - **✅第1スパン=土台+探すページ骨組み 完了**: HousingShell+上部6タブ(URLルート)/AppHeader/探す3カラム/ComingSoonで他5タブ暫定着地。
    - **✅第2スパン=探すページ 参考UI忠実化+粗一掃 完了(ローカルOK・未merge)**: 質感A案(濃紺フラットパネル=液体ガラス湾曲撤去/ハニー主・青選択)/4列グリッド+「一覧 N件」見出し+並び替え/DDフィルタ(複数選択維持)+サイズ同幅セグメント/トレイN/20+お気に入りプレビュー/文字見切れ解消/多エージェント監査74粗→修正/広告撤去(Ko-fi優先=[[project_lopo_mul_constraint]]更新)。ハウジング460テスト緑・build緑。
    - ⚠ **merge保留**: /housing は公開導線。お気に入り+登録を作るまでmerge/デプロイしない(現状ローカルのみ本番影響ゼロ)。
-   - **次スパン最優先=(a)お気に入りページ本体**(探すを雛形に:左オンボ3ステップ/中央=複数選択グリッド+タブ[すべて/最近追加]/右トレイ)。設計=`docs/superpowers/specs/2026-07-01-housing-favorites-page-design.md`・プラン=`docs/superpowers/plans/2026-07-01-housing-favorites-page.md`(Task2以降)。その後(b)ツアー中ナビ。
+   - **✅(a)お気に入りページ本体=Task2〜7 完了(ローカル・未merge)**: 左オンボ3ステップ(教育のみ)/中央=複数選択グリッド+タブ[すべて/最近追加]+一括バー/右トレイ+ツアー開始(マナー通知)/重複自動追加/i18n 4言語+parityテスト。ハウジングテスト緑・build緑。設計=`docs/superpowers/specs/2026-07-01-housing-favorites-page-design.md`・台帳=`.superpowers/sdd/progress.md`。
+     - **次=実画面ゲート(ユーザー目視)**: /housing/favorites を確認。確認点=全体質感A案/オンボ表示/「選択だけ追加」ボタンの色(ハニー vs 青=要判断)/TourTray 推定枠が探すページにも出る点。→ **Task8**(housing-design.md に質感A案条項追記+全体監査+commit)→ 最終 branch review(opus)→ finishing-a-development-branch。その後(b)ツアー中ナビ。
    - 既知の残: 中央カード静止(生きたカード段階2は後日)/ビュー切替[一覧/マップ/ルート]は地図M1配線時に復活/legacy TopBar・HousingWorkspace5件failは撤去予定(回帰でない)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
