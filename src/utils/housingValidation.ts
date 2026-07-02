@@ -20,6 +20,7 @@ import {
   APARTMENT_ROOM_RANGE,
   PRIVATE_CHAMBER_RANGE,
   HOUSING_LIMITS,
+  MAX_TITLE_LENGTH,
 } from '../constants/housing.js';
 import { isValidTagId } from '../data/housingTags.js';
 
@@ -47,6 +48,9 @@ export interface AddressInput {
 export interface RegistrationDraft extends AddressInput {
   tags: string[];
   description?: string;
+  title?: string;
+  visibility?: 'public' | 'private';
+  publishUntil?: number | null;
 
   // SNS 画像 (任意。未指定なら imageMode='none' 扱い)
   // sns 経路の source は Twitter (tweetId) / YouTube (youtubeVideoId) / OGP (sourceImageUrls) の 3 種、 排他。
@@ -165,6 +169,16 @@ export function validateDescription(desc: string | undefined): ValidationResult 
   if (desc === undefined || desc === '') return ok();
   if (typeof desc !== 'string') return fail({ description: 'invalid_type' });
   if (desc.length > HOUSING_LIMITS.MAX_DESCRIPTION_LENGTH) return fail({ description: 'too_long' });
+  return ok();
+}
+
+export function validateTitle(title: string | undefined): ValidationResult {
+  // undefined = 未送信 (旧登録モーダル経路)。サーバー共有バリデーションは寛容にし、
+  // 必須の強制は新 RegisterPage / 編集モーダルのクライアント側で行う (spec A-1)。
+  if (title === undefined) return ok();
+  const trimmed = title.trim();
+  if (trimmed.length === 0) return fail({ title: 'required' });
+  if (trimmed.length > MAX_TITLE_LENGTH) return fail({ title: 'too_long' });
   return ok();
 }
 
@@ -449,6 +463,7 @@ export function validateRegistrationDraft(draft: RegistrationDraft): ValidationR
   Object.assign(errors, validateAddress(draft).errors);
   Object.assign(errors, validateTags(draft.tags).errors);
   Object.assign(errors, validateDescription(draft.description).errors);
+  Object.assign(errors, validateTitle(draft.title).errors);
   Object.assign(errors, validateImage(draft).errors);
   return Object.keys(errors).length > 0 ? fail(errors) : ok();
 }

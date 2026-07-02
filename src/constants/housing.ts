@@ -19,6 +19,8 @@ export const PRIVATE_CHAMBER_RANGE = { min: 1, max: 512 } as const;    // FC 個
 // ユーザー入力の制限（設計書 §4.2 / §6.1）
 // ─────────────────────────────────────────────
 
+export const MAX_TITLE_LENGTH = 50;
+
 export const HOUSING_LIMITS = {
   MAX_TAGS_PER_LISTING: 5,
   MAX_DESCRIPTION_LENGTH: 200,
