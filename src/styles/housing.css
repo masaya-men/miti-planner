@@ -5034,6 +5034,126 @@ select.housing-input option {
   color: var(--housing-text-mute);
 }
 
+/* ============================================================
+ * 登録ページ右カラム: 入力チェックパネル (Task13)
+ * 質感A案「青 = 進行」。done/todo はアイコン色だけで差をつけ、色付き alert 箱にしない。
+ * ============================================================ */
+.housing-register-check-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.housing-register-check-panel-title {
+  margin: 0;
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-check-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.housing-register-check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-check-icon {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-md);
+  line-height: 1;
+}
+.housing-register-check-row.is-done .housing-register-check-icon {
+  color: var(--housing-aether);
+}
+.housing-register-check-row.is-todo .housing-register-check-icon {
+  color: var(--housing-text-mute);
+}
+.housing-register-check-label {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-check-row.is-done .housing-register-check-label {
+  color: var(--housing-text);
+}
+
+/* ============================================================
+ * 登録ページ右カラム: 重複チェックパネル (Task13)
+ * 非公開一致は件数のみの静かな注記 (色付き alert 箱にしない)。公開重複は
+ * HousingDuplicateWarningDialog と同じ範囲のカード表示 (id/createdAt/tags のみ)。
+ * ============================================================ */
+.housing-register-dup-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.housing-register-dup-panel-title {
+  margin: 0;
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-register-dup-quiet-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-dup-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.housing-register-dup-skeleton-row {
+  height: 36px;
+  border-radius: 8px;
+  background: var(--housing-skeleton-block);
+  animation: housing-skeleton-pulse 1.4s ease-in-out infinite;
+}
+.housing-register-dup-found {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.housing-register-dup-public-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.housing-register-dup-public-card {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-dup-public-date {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+}
+.housing-register-dup-public-tags {
+  margin: 4px 0 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-register-dup-private-note {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
 /* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
    (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
 .housing-listing-grid-wrap {

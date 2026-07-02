@@ -8,12 +8,18 @@ import { RegisterSectionMedia } from '../register/RegisterSectionMedia';
 import { RegisterSectionVisibility } from '../register/RegisterSectionVisibility';
 import { RegisterStepperNav, type RegisterStep, type RegisterStepState } from '../register/RegisterStepperNav';
 import { RegisterGuide } from '../register/RegisterGuide';
+import { RegisterCheckPanel } from '../register/RegisterCheckPanel';
+import { RegisterDuplicatePanel, type RegisterDuplicateState } from '../register/RegisterDuplicatePanel';
+import { WardMapPreview } from '../register/WardMapPreview';
 import { parseHousingFromText } from '../../../lib/housing/parseHousingFromText';
 import { extractSizeToAddress } from '../../../lib/housing/extractSizeToAddress';
-import { canRegister } from '../../../lib/housingApiClient';
+import { canRegister, checkDuplicate, type DuplicateEntry } from '../../../lib/housingApiClient';
+import { validateAddress, validateTitle, type AddressInput } from '../../../utils/housingValidation';
+import { computeRegisterChecklist } from '../../../lib/housing/registerChecklist';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { OgpFetchedData } from '../register/HousingRegisterSnsUrlField';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
+import type { HousingSize } from '../../../types/housing';
 
 /**
  * ステッパー/scroll-spy が対象とする5セクション (spec 正典順: media → address → intro →
@@ -240,6 +246,31 @@ export const RegisterPage: React.FC = () => {
 
   const hasImage = localImages.length > 0 || sourceImageUrls.length > 0;
   const introDone = title.trim().length > 0;
+
+  // ===== 右カラム: 入力チェック (Task13) =====
+  // address を AddressInput 候補に組み立てて validateAddress にかける (重複照会の妥当性判定と共用)。
+  const addressCandidate = useMemo<AddressInput>(
+    () => ({
+      dc: address.dc ?? '',
+      server: address.server ?? '',
+      area: address.area ?? '',
+      ward: address.ward ?? Number.NaN,
+      buildingType: address.buildingType ?? '',
+      plot: address.plot,
+      size: address.size,
+      apartmentBuilding: address.apartmentBuilding,
+      roomKind: address.roomKind,
+      roomNumber: address.roomNumber,
+    }),
+    [address],
+  );
+  const addressOk = useMemo(() => validateAddress(addressCandidate).ok, [addressCandidate]);
+  const titleOk = useMemo(() => validateTitle(title).ok, [title]);
+  const checklistItems = useMemo(
+    () => computeRegisterChecklist({ addressOk, titleOk, hasImage }),
+    [addressOk, titleOk, hasImage],
+  );
+
   const doneMap = useMemo<Record<StepId, boolean>>(
     () => ({
       media: hasImage,
@@ -259,6 +290,71 @@ export const RegisterPage: React.FC = () => {
         return { id: STEP_INDEX[id], labelKey: STEP_LABEL_KEYS[id], state };
       }),
     [activeStepId, doneMap],
+  );
+
+  // ===== 右カラム: 重複照会 (debounce 500ms, Task13) =====
+  // 住所が妥当になったら 500ms デバウンスで checkDuplicate を呼ぶ。競合対策として
+  // 世代トークン (requestSeqRef) を持たせ、古いタイマー/古い応答が新しい結果を
+  // 上書きしないようにする。失敗時は握りつぶし clear 相当に留める (登録フローをブロックしない)。
+  const [duplicateState, setDuplicateState] = useState<RegisterDuplicateState>('idle');
+  const [duplicates, setDuplicates] = useState<DuplicateEntry[]>([]);
+  const [privateMatchCount, setPrivateMatchCount] = useState(0);
+  const debounceTimerRef = useRef<number | null>(null);
+  const requestSeqRef = useRef(0);
+
+  useEffect(() => {
+    if (debounceTimerRef.current != null) {
+      window.clearTimeout(debounceTimerRef.current);
+      debounceTimerRef.current = null;
+    }
+
+    if (!addressOk) {
+      // 世代を進めて in-flight 応答を無効化してから idle に戻す。
+      requestSeqRef.current += 1;
+      setDuplicateState('idle');
+      setDuplicates([]);
+      setPrivateMatchCount(0);
+      return;
+    }
+
+    const mySeq = ++requestSeqRef.current;
+    setDuplicateState('checking');
+    debounceTimerRef.current = window.setTimeout(() => {
+      checkDuplicate(addressCandidate)
+        .then((res) => {
+          if (requestSeqRef.current !== mySeq) return; // 古い世代の応答は破棄
+          const nextDuplicates = res.duplicates ?? [];
+          const nextPrivateCount = res.privateMatchCount ?? 0;
+          setDuplicates(nextDuplicates);
+          setPrivateMatchCount(nextPrivateCount);
+          setDuplicateState(nextDuplicates.length === 0 && nextPrivateCount === 0 ? 'clear' : 'found');
+        })
+        .catch(() => {
+          if (requestSeqRef.current !== mySeq) return;
+          // 失敗時は止めない (安全側)。パネルは clear 相当に留め登録フローをブロックしない。
+          setDuplicates([]);
+          setPrivateMatchCount(0);
+          setDuplicateState('clear');
+        });
+    }, 500);
+
+    return () => {
+      if (debounceTimerRef.current != null) {
+        window.clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+    };
+    // addressCandidate は address から導出される新規オブジェクトなので、実質的な変化検知は
+    // addressOk と中身の JSON 化で行う (JSON.stringify で値の同一性を見る簡便策)。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addressOk, JSON.stringify(addressCandidate)]);
+
+  // unmount 時に debounce タイマーを確実に破棄する。
+  useEffect(
+    () => () => {
+      if (debounceTimerRef.current != null) window.clearTimeout(debounceTimerRef.current);
+    },
+    [],
   );
 
   if (!user) {
@@ -330,12 +426,23 @@ export const RegisterPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 右カラム: チェック/重複パネル + 区画マッププレビュー (Task11-14 で本実装) */}
+      {/* 右カラム: チェック/重複パネル + 区画マッププレビュー (Task13 本実装) */}
       <section className="housing-register-panel" data-region="right">
         <div className="housing-register-col housing-register-col-right">
-          <div data-testid="housing-register-check-panel-stub" />
-          <div data-testid="housing-register-duplicate-panel-stub" />
-          <div data-testid="housing-register-ward-map-preview-stub" />
+          <RegisterCheckPanel items={checklistItems} />
+          <RegisterDuplicatePanel
+            state={duplicateState}
+            duplicates={duplicates}
+            privateMatchCount={privateMatchCount}
+          />
+          <WardMapPreview
+            area={address.area}
+            plot={address.plot}
+            apartmentBuilding={address.apartmentBuilding}
+            buildingType={address.buildingType}
+            ward={address.ward}
+            size={address.size as HousingSize | undefined}
+          />
         </div>
       </section>
     </div>
