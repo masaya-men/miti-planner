@@ -4079,6 +4079,16 @@ select.housing-input option {
     background: var(--housing-honey-medium);
 }
 
+/* 詳細フルページの workspace ラッパー: トークン (--housing-*) は継承しつつ、
+   workspace 既定の固定ビューポート (height:100vh + overflow:hidden) を解除して
+   通常の縦フロー (body スクロール) にする。body 側の解禁は HousingDetailPage の
+   useEffect (StrategyBoardPastePage /stgy と同パターン) が行う。 */
+.housing-workspace.housing-workspace-flow {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+}
+
 .housing-detail-fullpage {
     min-height: 100dvh;
     background: var(--housing-popover-bg);

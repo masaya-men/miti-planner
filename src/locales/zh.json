@@ -1921,6 +1921,8 @@
         },
         "register": {
             "title": "房屋登记",
+            "badge_private": "未公开",
+            "badge_expired": "公开期限已过",
             "section_intro": "介绍",
             "section_address": "地址",
             "section_media": "图片・SNS URL",

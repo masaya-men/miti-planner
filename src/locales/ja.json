@@ -1977,6 +1977,8 @@
         },
         "register": {
             "title": "物件登録",
+            "badge_private": "非公開",
+            "badge_expired": "公開期限切れ",
             "section_intro": "紹介",
             "section_address": "住所",
             "section_media": "画像・SNS URL",

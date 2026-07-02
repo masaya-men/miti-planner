@@ -32,6 +32,20 @@ export const HousingDetailPage: React.FC = () => {
   const authLoading = useAuthStore((s) => s.loading);
   const viewerUid = user?.uid ?? null;
 
+  // 本体の body は overflow:hidden 既定 (index.css) だが、このフルページは
+  // min-height:100dvh + 通常フローで body スクロール前提の作りのため、
+  // マウント中だけ縦スクロールを解禁する (StrategyBoardPastePage /stgy と同パターン)。
+  useEffect(() => {
+    const body = document.body;
+    const prev = { overflow: body.style.overflow, overflowX: body.style.overflowX };
+    body.style.overflow = 'auto';
+    body.style.overflowX = 'hidden';
+    return () => {
+      body.style.overflow = prev.overflow;
+      body.style.overflowX = prev.overflowX;
+    };
+  }, []);
+
   useEffect(() => {
     if (!listingId) {
       setState({ kind: 'not_found' });
@@ -77,27 +91,27 @@ export const HousingDetailPage: React.FC = () => {
 
   if (state.kind === 'loading') {
     return (
-      <div className="housing-detail-fullpage housing-workspace" data-theme="dark">
+      <div className="housing-detail-fullpage housing-workspace housing-workspace-flow" data-theme="dark">
         <div className="housing-detail-fullpage-main">{t('housing.detail.title')}…</div>
       </div>
     );
   }
   if (state.kind === 'not_found') {
     return (
-      <div className="housing-detail-fullpage housing-workspace" data-theme="dark">
+      <div className="housing-detail-fullpage housing-workspace housing-workspace-flow" data-theme="dark">
         <div className="housing-detail-fullpage-main">Not found</div>
       </div>
     );
   }
   if (state.kind === 'error') {
     return (
-      <div className="housing-detail-fullpage housing-workspace" data-theme="dark">
+      <div className="housing-detail-fullpage housing-workspace housing-workspace-flow" data-theme="dark">
         <div className="housing-detail-fullpage-main">Error: {state.message}</div>
       </div>
     );
   }
   return (
-    <div className="housing-workspace" data-theme="dark">
+    <div className="housing-workspace housing-workspace-flow" data-theme="dark">
       <HousingDetailLayout listing={state.listing} viewerUid={viewerUid} />
     </div>
   );

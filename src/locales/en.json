@@ -1956,6 +1956,8 @@
         },
         "register": {
             "title": "Register Property",
+            "badge_private": "Private",
+            "badge_expired": "Publication expired",
             "section_intro": "Introduction",
             "section_address": "Address",
             "section_media": "Images & SNS URL",

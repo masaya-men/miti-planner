@@ -1921,6 +1921,8 @@
         },
         "register": {
             "title": "매물 등록",
+            "badge_private": "비공개",
+            "badge_expired": "공개 기간 만료",
             "section_intro": "소개",
             "section_address": "주소",
             "section_media": "이미지・SNS URL",
