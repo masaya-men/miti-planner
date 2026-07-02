@@ -71,6 +71,9 @@ export default async function handler(req: any, res: any) {
         : {}),
       tags: updates.tags ?? [],
       description: updates.description,
+      title: updates.title,
+      visibility: updates.visibility,
+      publishUntil: updates.publishUntil,
     } as RegistrationDraft;
 
     const result = validateRegistrationDraft(draftForValidation);
@@ -115,6 +118,16 @@ export default async function handler(req: any, res: any) {
       }
       if (typeof draftForValidation.description === 'string') {
         updatePayload.description = draftForValidation.description;
+      }
+      if (draftForValidation.visibility === 'public' || draftForValidation.visibility === 'private') {
+        updatePayload.visibility = draftForValidation.visibility;
+      }
+      if ('publishUntil' in draftForValidation) {
+        const pu = draftForValidation.publishUntil;
+        updatePayload.publishUntil = typeof pu === 'number' && pu > Date.now() ? pu : null;
+      }
+      if (typeof draftForValidation.title === 'string' && draftForValidation.title.trim()) {
+        updatePayload.title = draftForValidation.title.trim();
       }
 
       tx.update(listingRef, updatePayload);

@@ -63,6 +63,8 @@ export interface DuplicateEntry {
 }
 export interface CheckDuplicateResponse {
   duplicates: DuplicateEntry[];
+  /** 同住所の非公開登録の件数 (中身は返さない・匿名の重複告知用)。 */
+  privateMatchCount?: number;
 }
 
 export async function checkDuplicate(addr: AddressInput): Promise<CheckDuplicateResponse> {

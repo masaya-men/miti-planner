@@ -108,6 +108,14 @@ export default async function handler(req: any, res: any) {
         isHidden: false,
         reportCount: 0,
         deletedAt: null,
+        // 公開設定 (spec A-1/A-3): 未送信は 'public' を必ず書き込む (旧クライアント互換 +
+        // 全 doc に visibility が載る保証 = ルール締めの前提)。
+        visibility: draft.visibility === 'private' ? 'private' : 'public',
+        publishUntil:
+          typeof draft.publishUntil === 'number' && draft.publishUntil > now
+            ? draft.publishUntil
+            : null,
+        ...(draft.title && draft.title.trim() ? { title: draft.title.trim() } : {}),
       };
       tx.set(newRef, listing);
       createdId = newRef.id;

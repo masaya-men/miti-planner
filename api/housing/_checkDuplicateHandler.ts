@@ -1,7 +1,7 @@
 /**
  * POST /api/housing?action=check-duplicate
  * Body: AddressInput (DC/サーバー/エリア/区/番地/サイズ + Apartment なら room)
- * Response: { duplicates: Array<{ id, ownerUid, createdAt, tags }> }
+ * Response: { duplicates: Array<{ id, ownerUid, createdAt, tags }>, privateMatchCount? }
  *
  * 認証不要 (登録ボタン押下前のプレチェックなので)。
  */
@@ -10,6 +10,21 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { validateAddress, type AddressInput } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
+
+export function splitDuplicates(
+  docs: Array<{ id: string; data: () => Record<string, unknown> }>,
+): { duplicates: Array<{ id: string; ownerUid: unknown; createdAt: unknown; tags: unknown }>; privateMatchCount: number } {
+  const alive = docs.filter((d) => !d.data().deletedAt);
+  const publicDocs = alive.filter((d) => (d.data().visibility ?? 'public') !== 'private');
+  const privateMatchCount = alive.length - publicDocs.length;
+  const duplicates = publicDocs.slice(0, 5).map((doc) => ({
+    id: doc.id,
+    ownerUid: doc.data().ownerUid,
+    createdAt: doc.data().createdAt,
+    tags: doc.data().tags ?? [],
+  }));
+  return { duplicates, privateMatchCount };
+}
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -54,17 +69,8 @@ export default async function handler(req: any, res: any) {
       .limit(20)
       .get();
 
-    const duplicates = snap.docs
-      .filter((doc) => !doc.data().deletedAt)
-      .slice(0, 5)
-      .map((doc) => ({
-        id: doc.id,
-        ownerUid: doc.data().ownerUid,
-        createdAt: doc.data().createdAt,
-        tags: doc.data().tags ?? [],
-      }));
-
-    return res.status(200).json({ duplicates });
+    const { duplicates, privateMatchCount } = splitDuplicates(snap.docs);
+    return res.status(200).json({ duplicates, privateMatchCount });
   } catch (error: any) {
     console.error('[housing/check-duplicate] error:', error);
     return res.status(500).json({ error: 'Internal error' });
