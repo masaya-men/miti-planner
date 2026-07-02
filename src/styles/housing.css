@@ -5154,6 +5154,127 @@ select.housing-input option {
   color: var(--housing-text-mute);
 }
 
+/* ============================================================
+ * 登録ページ中央カラム: 確認セクション (Task14)
+ * 入力要約 + 不足アクション + 主アクションボタン (ハニー)。
+ * エラー/不足は色付き alert 箱にせず、ヘアライン + グレー文字の静かな表示にする
+ * (housing-design.md「AI 感の払拭」)。主アクションのみ .housing-btn-primary (ハニー)。
+ * ============================================================ */
+.housing-register-confirm-summary {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.housing-register-confirm-summary-row {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+.housing-register-confirm-summary-row dt {
+  flex: 0 0 auto;
+  min-width: 80px;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-confirm-summary-row dd {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  word-break: break-word;
+}
+.housing-register-confirm-summary-empty {
+  color: var(--housing-text-mute);
+}
+/* 不足アクション: ヘアライン区切り + グレー、番号なしの静かなリスト。 */
+.housing-register-confirm-missing {
+  padding-top: 10px;
+  border-top: 1px solid var(--housing-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.housing-register-confirm-missing-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-confirm-missing-list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-confirm-error {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-confirm-submit {
+  width: 100%;
+  margin-top: 4px;
+  padding: 11px 16px;
+  font-size: var(--housing-text-base);
+}
+
+/* ============================================================
+ * 登録ページ: オートセーブ復元通知 (Task14)
+ * 「入力途中を復元しました」+ SNS 再取得注記 + 破棄ボタン。色付き箱にせず、
+ * ヘアライン枠 + グレー文字の静かな帯にする。
+ * ============================================================ */
+.housing-register-autosave-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--housing-divider);
+  border-radius: 8px;
+  background: var(--housing-chip-sunken-bg);
+}
+.housing-register-autosave-notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.housing-register-autosave-notice-text {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-register-autosave-notice-hint {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-register-autosave-discard {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.housing-register-autosave-discard:hover {
+  background: var(--housing-chip-bg-hover);
+  border-color: var(--housing-panel-border-strong);
+  color: var(--housing-text);
+}
+.housing-register-autosave-discard:focus-visible {
+  outline: 2px solid var(--housing-aether);
+  outline-offset: 2px;
+}
+
 /* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
    (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
 .housing-listing-grid-wrap {

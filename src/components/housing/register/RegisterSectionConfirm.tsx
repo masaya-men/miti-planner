@@ -1,0 +1,136 @@
+import { useTranslation } from 'react-i18next';
+import type { RegisterChecklistItem } from '../../../lib/housing/registerChecklist';
+
+/**
+ * 確認セクションに渡す入力要約 (住所/タイトル/画像枚数/公開設定)。
+ * 表示専用の整形済み値だけを持ち、原本 state には依存しない (RegisterPage 側で組み立てる)。
+ */
+export interface RegisterConfirmSummary {
+  /** 整形済み住所テキスト (例「Elemental / Kugane / 森林 6区 12番地 M」)。未確定は null。 */
+  address: string | null;
+  /** タイトル (未入力は null)。 */
+  title: string | null;
+  /** 画像枚数 (localImages + sourceImageUrls の合計)。0 のときは「画像なし」注記。 */
+  imageCount: number;
+}
+
+interface Props {
+  summary: RegisterConfirmSummary;
+  /** 必須項目 (住所/タイトル) が揃っているか。false なら送信ボタン disabled。 */
+  canSubmit: boolean;
+  visibility: 'public' | 'private';
+  /** 送信中フラグ。true の間はボタン disabled + ラベルを「登録中…」にする。 */
+  submitting?: boolean;
+  /** エラーコード (quota_exhausted / not_authenticated / generic / upload_failed)。静かな注記で表示。 */
+  errorKey?: string | null;
+  onSubmit: () => void;
+  /** 入力チェックの導出結果 (未達の required 行を「不足アクション」として列挙する)。 */
+  checklistItems: RegisterChecklistItem[];
+}
+
+/**
+ * 登録フォーム中央カラム: 確認セクション (spec 正典⑤・Task14)。
+ *
+ * - 入力要約 (住所 / タイトル / 画像枚数 / 公開設定) を静かに提示する。
+ * - `canSubmit === false` のときは、右カラム RegisterCheckPanel と同じ checklistItems を
+ *   信頼源として「不足しているアクション」(required かつ未達の行) を列挙する
+ *   (feedback_form_ux_progress: 数でなく具体的アクションで示す)。
+ * - 主アクションボタンは visibility でラベルが変わる (公開=「公開する」/ 非公開=「非公開で保存する」)。
+ *   質感A案の「ハニー = 主アクション」トークン (`.housing-btn-primary`) を使う。
+ * - エラーは色付き alert 箱にせず、ヘアライン + グレー文字の静かな注記にする (housing-design.md)。
+ */
+export const RegisterSectionConfirm: React.FC<Props> = ({
+  summary,
+  canSubmit,
+  visibility,
+  submitting = false,
+  errorKey = null,
+  onSubmit,
+  checklistItems,
+}) => {
+  const { t } = useTranslation();
+
+  // 不足アクション = required かつ未達の行だけ (画像は推奨なので required=false → 出さない)。
+  const missing = checklistItems.filter((i) => i.required && !i.done);
+
+  const submitLabel = submitting
+    ? t('housing.register.submitting')
+    : visibility === 'private'
+      ? t('housing.register.confirm.save_private')
+      : t('housing.register.confirm.publish');
+
+  return (
+    <section className="housing-register-section" data-testid="housing-register-section-confirm">
+      <h2 className="housing-register-section-title">{t('housing.register.confirm.section_title')}</h2>
+
+      {/* 入力要約 */}
+      <dl className="housing-register-confirm-summary">
+        <div className="housing-register-confirm-summary-row">
+          <dt>{t('housing.register.section_address')}</dt>
+          <dd>
+            {summary.address ?? (
+              <span className="housing-register-confirm-summary-empty">
+                {t('housing.register.confirm.summary_missing')}
+              </span>
+            )}
+          </dd>
+        </div>
+        <div className="housing-register-confirm-summary-row">
+          <dt>{t('housing.register.field_title_label')}</dt>
+          <dd>
+            {summary.title ?? (
+              <span className="housing-register-confirm-summary-empty">
+                {t('housing.register.confirm.summary_missing')}
+              </span>
+            )}
+          </dd>
+        </div>
+        <div className="housing-register-confirm-summary-row">
+          <dt>{t('housing.register.section_media')}</dt>
+          <dd>{t('housing.register.confirm.summary_image_count', { count: summary.imageCount })}</dd>
+        </div>
+        <div className="housing-register-confirm-summary-row">
+          <dt>{t('housing.register.confirm.summary_visibility')}</dt>
+          <dd>
+            {visibility === 'private'
+              ? t('housing.register.visibility.private')
+              : t('housing.register.visibility.public')}
+          </dd>
+        </div>
+      </dl>
+
+      {/* 不足アクション (canSubmit=false のとき) */}
+      {missing.length > 0 && (
+        <div className="housing-register-confirm-missing">
+          <p className="housing-register-confirm-missing-lead">
+            {t('housing.register.confirm.missing_lead')}
+          </p>
+          <ul className="housing-register-confirm-missing-list">
+            {missing.map((item) => (
+              <li key={item.key} data-testid={`housing-register-confirm-missing-${item.key}`}>
+                {t(item.labelKey)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* エラー: 静かな注記 (色付き alert 箱にしない) */}
+      {errorKey && (
+        <p className="housing-register-confirm-error" role="alert" data-testid="housing-register-confirm-error">
+          {t(`housing.register.confirm.errors.${errorKey}`)}
+        </p>
+      )}
+
+      <button
+        type="button"
+        className="housing-action-btn housing-btn-primary housing-register-confirm-submit"
+        data-testid="housing-register-confirm-submit"
+        disabled={!canSubmit || submitting}
+        onClick={onSubmit}
+      >
+        {submitLabel}
+      </button>
+    </section>
+  );
+};
