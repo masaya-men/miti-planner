@@ -257,11 +257,28 @@ service cloud.firestore {
 
     // ========================================
     // housing_listings コレクション
-    // 読み取り: 公開（visibility=='public'）または本人のみ（isHidden=true の公開物件は UI 側でフィルタ）
+    // get (1件直接取得): canViewListing (src/lib/housing/listingVisibility.ts) と等価にサーバー強制。
+    //   削除済み(deletedAt)は誰も不可、通報非表示(isHidden)/非公開(private)/公開期限切れ(publishUntil)は
+    //   他人不可・本人のみ可。getListingById の直接 getDoc がルールをすり抜けて漏らすのを防ぐ。
+    // list (一覧クエリ): 公開かつ非表示でない、または本人。deletedAt/publishUntil は query の where +
+    //   client filter で除外する (これらを list ルールに入れると、同条件で絞らないクエリが
+    //   permission-denied で壊れるため、状態ガードは get のみに課す)。
     // 書き込み: 認証済み + 所有者のみ
     // ========================================
     match /housing_listings/{listingId} {
-      allow read: if resource.data.visibility == 'public'
+      allow get: if (!('deletedAt' in resource.data) || resource.data.deletedAt == null)
+                 && (
+                   (isAuthenticated() && resource.data.ownerUid == request.auth.uid)
+                   || (
+                     resource.data.isHidden == false
+                     && resource.data.visibility == 'public'
+                     && (!('publishUntil' in resource.data)
+                         || resource.data.publishUntil == null
+                         || request.time.toMillis() < resource.data.publishUntil)
+                   )
+                 );
+
+      allow list: if (resource.data.visibility == 'public' && resource.data.isHidden == false)
                   || (isAuthenticated() && resource.data.ownerUid == request.auth.uid);
 
       allow create: if isAuthenticated()
