@@ -2564,7 +2564,16 @@
             "bulk_add_all": "모두 투어에 추가",
             "bulk_add_selected": "선택 항목 추가",
             "bulk_remove": "즐겨찾기에서 제거",
-            "bulk_selected_count": "{{count}}개 선택"
+            "bulk_selected_count": "{{count}}개 선택",
+            "bulk_bar_aria": "일괄 작업",
+            "onboarding_title": "처음 오셨나요",
+            "onboarding_step1_title": "저장",
+            "onboarding_step1_desc": "탐색 페이지에서 마음에 드는 하우징의 ♡를 눌러 즐겨찾기에 추가합니다.",
+            "onboarding_step2_title": "선택",
+            "onboarding_step2_desc": "둘러보고 싶은 집을 체크하여 여러 개 선택합니다.",
+            "onboarding_step3_title": "투어 만들기",
+            "onboarding_step3_desc": "선택한 집을 트레이에 담아 투어를 시작합니다.",
+            "onboarding_tip": "같은 주소의 여러 게시물은 하나를 선택하면 자동으로 함께 추가됩니다."
         },
         "notifications": {
             "title": "通知",

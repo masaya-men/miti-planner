@@ -2620,7 +2620,16 @@
             "bulk_add_all": "すべてツアーに追加",
             "bulk_add_selected": "選択だけ追加",
             "bulk_remove": "お気に入りから外す",
-            "bulk_selected_count": "{{count}}件選択中"
+            "bulk_selected_count": "{{count}}件選択中",
+            "bulk_bar_aria": "一括操作",
+            "onboarding_title": "はじめての方へ",
+            "onboarding_step1_title": "保存する",
+            "onboarding_step1_desc": "探すページで気になるハウジングの♡を押してお気に入りに追加します。",
+            "onboarding_step2_title": "選ぶ",
+            "onboarding_step2_desc": "巡りたい家をチェックで複数選びます。",
+            "onboarding_step3_title": "ツアーにする",
+            "onboarding_step3_desc": "選んだ家をトレイに追加して、ツアーを開始します。",
+            "onboarding_tip": "同じ住所の複数投稿は、1軒選ぶと自動でまとめて追加されます。"
         },
         "notifications": {
             "title": "通知",

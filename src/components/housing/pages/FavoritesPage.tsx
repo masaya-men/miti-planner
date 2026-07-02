@@ -10,6 +10,7 @@ import { showToast } from '../../Toast';
 import { FavoritesGrid } from '../favorites/FavoritesGrid';
 import { FavoritesTabs } from '../favorites/FavoritesTabs';
 import { FavoritesBulkBar } from '../favorites/FavoritesBulkBar';
+import { FavoritesOnboarding } from '../favorites/FavoritesOnboarding';
 import { TourTray } from '../browse/TourTray';
 import { MannerNoticeDialog, isMannerNoticeDismissed } from '../workspace/MannerNoticeDialog';
 import { orderFavorites } from '../favorites/favoritesOrder';
@@ -115,9 +116,11 @@ export const FavoritesPage: React.FC = () => {
 
   return (
     <div className="housing-browse">
-      {/* 左カラム: オンボーディング (Task6 で実装) */}
+      {/* 左カラム: オンボーディング (はじめての方へ・教育のみ) */}
       <section className="housing-browse-panel" data-region="left">
-        <div className="housing-browse-col housing-browse-col-left" />
+        <div className="housing-browse-col housing-browse-col-left">
+          <FavoritesOnboarding />
+        </div>
       </section>
 
       {/* 中央カラム: お気に入りグリッド */}

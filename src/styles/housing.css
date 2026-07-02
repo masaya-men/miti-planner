@@ -20,6 +20,8 @@
   /* マップ用 (Mist 等のワード地図 / エーテライト) */
   --housing-aether: #00BFFF;        /* FF14 エーテライト水晶のシアン */
   --housing-aether-soft: #9fe9ff;
+  --housing-aether-medium: rgba(0, 191, 255, 0.14);  /* 青バッジ面 (オンボのステップ番号等) */
+  --housing-aether-border: rgba(0, 191, 255, 0.5);   /* 青バッジ枠 */
   --housing-map-light: #ffffff;     /* 道なぞりの先頭の白い光 */
   /* 質感A案 (2026-07-01): 参考UIへ寄せる。白テキストが読める濃紺の面へ。
      動画背景は veil で後退させ、パネルは半不透明の濃紺で「落ち着いた面」にする。
@@ -5045,7 +5047,7 @@ select.housing-input option {
   background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
   color: var(--housing-honey-text);
 }
-/* 選択だけ追加 = 青アクセント */
+/* 選択だけ追加 = ハニー副アクション (弱め)。青 vs ハニーの最終色は実画面ゲートでユーザー判断待ち。 */
 .housing-fav-bulkbar-btn--accent {
   color: var(--housing-candle);
   background: var(--housing-honey-medium);
@@ -5064,4 +5066,74 @@ select.housing-input option {
 .housing-fav-bulkbar-btn:focus-visible {
   outline: 2px solid var(--housing-honey);
   outline-offset: 1px;
+}
+
+/* ===== お気に入り左カラム: はじめての方へ (オンボ・教育のみ / ✅進捗ではない) ===== */
+.housing-fav-onboarding {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.housing-fav-onboarding-title {
+  margin: 0;
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-fav-onboarding-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.housing-fav-onboarding-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+/* ステップ番号 = 青 (進行アクセント = spec 2アクセント体系の「ステップ番号」) */
+.housing-fav-onboarding-num {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-aether);
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-fav-onboarding-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.housing-fav-onboarding-step-title {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-fav-onboarding-step-desc {
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-dim);
+}
+.housing-fav-onboarding-tip {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-dim);
+  background: var(--housing-honey-soft);
+  border-left: 2px solid var(--housing-honey);
+  border-radius: 8px;
 }

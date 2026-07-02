@@ -2564,7 +2564,16 @@
             "bulk_add_all": "全部加入导览",
             "bulk_add_selected": "添加所选",
             "bulk_remove": "从收藏移除",
-            "bulk_selected_count": "已选 {{count}} 项"
+            "bulk_selected_count": "已选 {{count}} 项",
+            "bulk_bar_aria": "批量操作",
+            "onboarding_title": "新手指南",
+            "onboarding_step1_title": "保存",
+            "onboarding_step1_desc": "在探索页面点击心仪房屋的♡即可加入收藏。",
+            "onboarding_step2_title": "选择",
+            "onboarding_step2_desc": "勾选想要游览的房屋，可多选。",
+            "onboarding_step3_title": "生成导览",
+            "onboarding_step3_desc": "将所选房屋加入清单并开始导览。",
+            "onboarding_tip": "同一地址的多个投稿，选择其中一个时会自动一并添加。"
         },
         "notifications": {
             "title": "通知",

@@ -2599,7 +2599,16 @@
             "bulk_add_all": "Add all to tour",
             "bulk_add_selected": "Add selected",
             "bulk_remove": "Remove from favorites",
-            "bulk_selected_count": "{{count}} selected"
+            "bulk_selected_count": "{{count}} selected",
+            "bulk_bar_aria": "Bulk actions",
+            "onboarding_title": "Getting started",
+            "onboarding_step1_title": "Save",
+            "onboarding_step1_desc": "Tap ♡ on housing you like in Browse to add it to your favorites.",
+            "onboarding_step2_title": "Select",
+            "onboarding_step2_desc": "Check the homes you want to visit to pick several at once.",
+            "onboarding_step3_title": "Make a tour",
+            "onboarding_step3_desc": "Add the selected homes to the tray and start your tour.",
+            "onboarding_tip": "Multiple posts at the same address are added together automatically when you pick one."
         },
         "notifications": {
             "title": "通知",

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
@@ -80,7 +80,7 @@ describe('FavoritesPage', () => {
     useHousingFavoritesStore.setState({ ids: ['fav-1', 'fav-2', 'fav-3'] });
     useHousingListingsStore.setState({ status: 'ready', listings: [listing1, listing2, listing3] });
 
-    renderPage();
+    const { container } = renderPage();
 
     // カードの選択ボタン (housing-card-select) を2件クリック
     const selectBtns = screen.getAllByTestId('housing-card-select');
@@ -91,7 +91,10 @@ describe('FavoritesPage', () => {
     fireEvent.click(screen.getByRole('button', { name: /選択だけ/ }));
 
     // 右トレイに2件のアイテムが表示される
-    const trayItems = screen.getAllByRole('listitem');
+    // (左オンボの <ol> も listitem を持つため、トレイのリストにスコープして数える)
+    const trayList = container.querySelector('.housing-tour-tray-list');
+    expect(trayList).not.toBeNull();
+    const trayItems = within(trayList as HTMLElement).getAllByRole('listitem');
     expect(trayItems).toHaveLength(2);
   });
 
