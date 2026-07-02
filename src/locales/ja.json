@@ -2071,6 +2071,10 @@
                 },
                 "quota_exhausted": "本日の登録枠を使い切りました (明日 5 件回復)",
                 "generic": "登録に失敗しました。しばらくしてから再試行してください",
+                "title": {
+                    "required": "タイトルを入力してください",
+                    "too_long": "タイトルが長すぎます"
+                },
                 "buildingType": {
                     "invalid": "建物タイプを選んでください"
                 },
@@ -2170,6 +2174,13 @@
                 "message": "以下の内容で登録します。 よろしいですか？",
                 "submit": "確定して登録",
                 "cancel": "戻る",
+                "section_title": "確認",
+                "publish": "公開する",
+                "save_private": "非公開で保存する",
+                "summary_missing": "未入力",
+                "summary_image_count": "{{count}} 枚",
+                "summary_visibility": "公開設定",
+                "missing_lead": "登録するには、 以下を入力してください",
                 "errors": {
                     "not_authenticated": "登録にはログインが必要です。 ログインしてからやり直してください。",
                     "quota_exhausted": "登録上限に達しました。 しばらく時間をおいてからお試しください。",
@@ -2177,7 +2188,60 @@
                     "upload_failed": "物件は登録できましたが、 画像のアップロードに失敗しました。 編集画面から再度アップロードしてください。"
                 }
             },
-            "cancel": "キャンセル"
+            "cancel": "キャンセル",
+            "step": {
+                "media": "画像・SNS URL",
+                "address": "住所",
+                "intro": "紹介",
+                "visibility": "公開設定",
+                "confirm": "確認"
+            },
+            "stepper_aria_label": "登録ステップ",
+            "section_visibility": "公開設定",
+            "visibility": {
+                "label": "公開範囲",
+                "public": "すべてのユーザーに公開",
+                "private": "非公開 (自分のみ)",
+                "set_end_datetime": "公開終了日時を設定する",
+                "auto_hide_note": "公開終了日時を過ぎると、 自動的に一覧から非表示になります"
+            },
+            "guide": {
+                "title": "登録の流れ",
+                "remaining": "本日の登録枠: 残り {{count}} 件",
+                "step1_title": "画像・SNS URL を貼る",
+                "step1_desc": "Twitter / YouTube の URL を貼ると、 住所や画像を自動で読み取ります",
+                "step2_title": "住所・紹介を入力する",
+                "step2_desc": "自動入力された内容を確認し、 タイトルやタグを添えます",
+                "step3_title": "公開設定を選んで登録する",
+                "step3_desc": "公開または非公開を選び、 内容を確認して登録します"
+            },
+            "check": {
+                "title": "登録前に確認",
+                "address": "住所を入力してください",
+                "image": "画像を追加すると見つけてもらいやすくなります"
+            },
+            "duplicate": {
+                "title": "重複チェック",
+                "idle": "住所を入力すると、 同じ住所の既存ハウジングを確認します",
+                "clear": "同じ住所のハウジングは見つかりませんでした",
+                "private_note": "非公開のハウジングが {{count}} 件、 同じ住所に見つかりました"
+            },
+            "map_preview": {
+                "placeholder": "住所を入力するとミニマップが表示されます",
+                "map_alt": "区画のミニマップ",
+                "summary_ward": "{{ward}} 区",
+                "summary_plot": "{{plot}} 番地",
+                "summary_separator": " / "
+            },
+            "autosave": {
+                "restored": "入力途中を復元しました",
+                "sns_refetch": "SNS 画像は再取得します",
+                "discard": "破棄する"
+            },
+            "toast": {
+                "published": "公開しました",
+                "saved_private": "非公開で保存しました"
+            }
         },
         "duplicate": {
             "title": "同じ住所に既にハウジングが登録されています",
@@ -2569,7 +2633,9 @@
             },
             "save": "保存",
             "success": "更新しました",
-            "error": "更新に失敗しました"
+            "error": "更新に失敗しました",
+            "title_label": "タイトル",
+            "title_placeholder": "わが家の名前を入力"
         },
         "delete": {
             "title": "この物件を削除しますか?",

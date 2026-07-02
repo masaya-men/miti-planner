@@ -1921,6 +1921,13 @@
         },
         "register": {
             "title": "매물 등록",
+            "section_intro": "소개",
+            "section_address": "주소",
+            "section_media": "이미지・SNS URL",
+            "field_title_label": "제목",
+            "field_title_placeholder": "우리 집 이름을 입력하세요",
+            "field_title_required": "제목은 필수입니다",
+            "field_title_remaining": "남은 글자수 {{count}}자",
             "dc": "데이터 센터",
             "server": "서버",
             "area": "에리어",
@@ -1928,6 +1935,11 @@
             "plot": "번지",
             "size": "크기",
             "apartment_room": "방 번호",
+            "room_kind": {
+                "label": "방 구분",
+                "private_chamber": "FC 개인실",
+                "apartment_room": "아파트 방"
+            },
             "building_type": {
                 "label": "建物タイプ",
                 "house": "家 (S/M/L)",
@@ -2003,6 +2015,10 @@
                 },
                 "quota_exhausted": "오늘의 등록 한도를 모두 사용했습니다 (내일 5개 복구)",
                 "generic": "등록에 실패했습니다. 잠시 후 다시 시도해 주세요",
+                "title": {
+                    "required": "제목을 입력해 주세요",
+                    "too_long": "제목이 너무 깁니다"
+                },
                 "buildingType": {
                     "invalid": "建物タイプを選んでください"
                 },
@@ -2068,6 +2084,10 @@
                 "label": "取得した画像 (ドラッグで並び替え可・先頭 {{max}} 枚が保存されます)",
                 "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像、 先頭 {{max}} 枚が保存されます)"
             },
+            "media": {
+                "fetched_count": "이미지를 {{count}}장 가져왔습니다",
+                "error_hint": "URL을 확인하거나 이미지를 직접 업로드해 주세요"
+            },
             "tweetPreview": {
                 "title": "가져온 트윗"
             },
@@ -2098,6 +2118,13 @@
                 "message": "다음 내용으로 등록합니다. 괜찮으신가요?",
                 "submit": "확정하여 등록",
                 "cancel": "뒤로",
+                "section_title": "확인",
+                "publish": "공개하기",
+                "save_private": "비공개로 저장하기",
+                "summary_missing": "미입력",
+                "summary_image_count": "{{count}}장",
+                "summary_visibility": "공개 설정",
+                "missing_lead": "등록하려면 아래 항목을 입력해 주세요",
                 "errors": {
                     "not_authenticated": "등록에는 로그인이 필요합니다. 로그인 후 다시 시도해 주세요.",
                     "quota_exhausted": "등록 한도에 도달했습니다. 잠시 후 다시 시도해 주세요.",
@@ -2105,7 +2132,60 @@
                     "upload_failed": "物件は登録できましたが、 画像のアップロードに失敗しました。 編集画面から再度アップロードしてください。"
                 }
             },
-            "cancel": "취소"
+            "cancel": "취소",
+            "step": {
+                "media": "이미지・SNS URL",
+                "address": "주소",
+                "intro": "소개",
+                "visibility": "공개 설정",
+                "confirm": "확인"
+            },
+            "stepper_aria_label": "등록 단계",
+            "section_visibility": "공개 설정",
+            "visibility": {
+                "label": "공개 범위",
+                "public": "모든 사용자에게 공개",
+                "private": "비공개 (나만 보기)",
+                "set_end_datetime": "공개 종료 일시 설정",
+                "auto_hide_note": "공개 종료 일시가 지나면 자동으로 목록에서 숨겨집니다"
+            },
+            "guide": {
+                "title": "등록 절차",
+                "remaining": "오늘 남은 등록 한도: {{count}}건",
+                "step1_title": "이미지・SNS URL 붙여넣기",
+                "step1_desc": "Twitter / YouTube URL을 붙여넣으면 주소와 이미지가 자동으로 입력됩니다",
+                "step2_title": "주소・소개 입력하기",
+                "step2_desc": "자동 입력된 내용을 확인하고 제목과 태그를 추가하세요",
+                "step3_title": "공개 설정을 선택하고 등록하기",
+                "step3_desc": "공개 또는 비공개를 선택하고 내용을 확인한 뒤 등록합니다"
+            },
+            "check": {
+                "title": "등록 전 확인",
+                "address": "주소를 입력해 주세요",
+                "image": "이미지를 추가하면 더 쉽게 찾을 수 있습니다"
+            },
+            "duplicate": {
+                "title": "중복 확인",
+                "idle": "주소를 입력하면 같은 주소의 기존 매물을 확인합니다",
+                "clear": "같은 주소의 매물이 발견되지 않았습니다",
+                "private_note": "같은 주소에서 비공개 매물 {{count}}건이 발견되었습니다"
+            },
+            "map_preview": {
+                "placeholder": "주소를 입력하면 미니맵이 표시됩니다",
+                "map_alt": "구역 미니맵",
+                "summary_ward": "{{ward}} 구",
+                "summary_plot": "{{plot}} 번지",
+                "summary_separator": " / "
+            },
+            "autosave": {
+                "restored": "작성하던 내용을 복원했습니다",
+                "sns_refetch": "SNS 이미지는 다시 가져옵니다",
+                "discard": "삭제하기"
+            },
+            "toast": {
+                "published": "공개했습니다",
+                "saved_private": "비공개로 저장했습니다"
+            }
         },
         "duplicate": {
             "title": "같은 주소에 이미 하우징이 등록되어 있습니다",
@@ -2497,7 +2577,9 @@
             },
             "save": "保存",
             "success": "更新しました",
-            "error": "更新に失敗しました"
+            "error": "更新に失敗しました",
+            "title_label": "제목",
+            "title_placeholder": "우리 집 이름을 입력하세요"
         },
         "delete": {
             "title": "この物件を削除しますか?",

@@ -1956,6 +1956,13 @@
         },
         "register": {
             "title": "Register Property",
+            "section_intro": "Introduction",
+            "section_address": "Address",
+            "section_media": "Images & SNS URL",
+            "field_title_label": "Title",
+            "field_title_placeholder": "Enter your housing name",
+            "field_title_required": "Title is required",
+            "field_title_remaining": "{{count}} characters remaining",
             "dc": "Data Center",
             "server": "Server",
             "area": "Area",
@@ -1963,6 +1970,11 @@
             "plot": "Plot",
             "size": "Size",
             "apartment_room": "Room Number",
+            "room_kind": {
+                "label": "Room type",
+                "private_chamber": "FC private room",
+                "apartment_room": "Apartment room"
+            },
             "building_type": {
                 "label": "Building type",
                 "house": "House (S/M/L)",
@@ -2038,6 +2050,10 @@
                 },
                 "quota_exhausted": "You have used all registrations for today (5 will be restored tomorrow)",
                 "generic": "Registration failed. Please try again later",
+                "title": {
+                    "required": "Please enter a title",
+                    "too_long": "Title is too long"
+                },
                 "buildingType": {
                     "invalid": "Please select a building type"
                 },
@@ -2103,6 +2119,10 @@
                 "label": "Fetched images (drag to reorder; first {{max}} will be saved)",
                 "reorder_hint": "Drag to reorder (the leftmost \"Cover\" becomes the listing thumbnail; first {{max}} are saved)"
             },
+            "media": {
+                "fetched_count": "Fetched {{count}} image(s)",
+                "error_hint": "Check the URL, or upload images directly"
+            },
             "tweetPreview": {
                 "title": "Fetched tweet"
             },
@@ -2133,6 +2153,13 @@
                 "message": "Register with the following values?",
                 "submit": "Register",
                 "cancel": "Back",
+                "section_title": "Confirm",
+                "publish": "Publish",
+                "save_private": "Save privately",
+                "summary_missing": "Not entered",
+                "summary_image_count": "{{count}} image(s)",
+                "summary_visibility": "Visibility",
+                "missing_lead": "Please enter the following to register",
                 "errors": {
                     "not_authenticated": "Login is required. Please sign in and try again.",
                     "quota_exhausted": "Registration limit reached. Please try again later.",
@@ -2140,7 +2167,60 @@
                     "upload_failed": "Listing was registered, but the image upload failed. Please re-upload from the edit screen."
                 }
             },
-            "cancel": "Cancel"
+            "cancel": "Cancel",
+            "step": {
+                "media": "Images & SNS URL",
+                "address": "Address",
+                "intro": "Introduction",
+                "visibility": "Visibility",
+                "confirm": "Confirm"
+            },
+            "stepper_aria_label": "Registration steps",
+            "section_visibility": "Visibility",
+            "visibility": {
+                "label": "Visibility",
+                "public": "Public to all users",
+                "private": "Private (only you)",
+                "set_end_datetime": "Set an end date/time",
+                "auto_hide_note": "The listing will automatically be hidden once the end date/time passes"
+            },
+            "guide": {
+                "title": "How registration works",
+                "remaining": "Today's remaining quota: {{count}}",
+                "step1_title": "Paste an image or SNS URL",
+                "step1_desc": "Paste a Twitter / YouTube URL to auto-fill the address and images",
+                "step2_title": "Enter the address and introduction",
+                "step2_desc": "Check the auto-filled values, then add a title and tags",
+                "step3_title": "Choose visibility and register",
+                "step3_desc": "Choose public or private, confirm the details, and register"
+            },
+            "check": {
+                "title": "Before you register",
+                "address": "Please enter the address",
+                "image": "Adding images makes it easier for others to find"
+            },
+            "duplicate": {
+                "title": "Duplicate check",
+                "idle": "Enter an address to check for existing housing at the same location",
+                "clear": "No existing housing found at this address",
+                "private_note": "{{count}} private listing(s) found at this address"
+            },
+            "map_preview": {
+                "placeholder": "Enter an address to see the mini map",
+                "map_alt": "Plot mini map",
+                "summary_ward": "Ward {{ward}}",
+                "summary_plot": "Plot {{plot}}",
+                "summary_separator": " / "
+            },
+            "autosave": {
+                "restored": "Your unfinished entry has been restored",
+                "sns_refetch": "SNS images will be re-fetched",
+                "discard": "Discard"
+            },
+            "toast": {
+                "published": "Published",
+                "saved_private": "Saved privately"
+            }
         },
         "duplicate": {
             "title": "A housing entry already exists at this address",
@@ -2532,7 +2612,9 @@
             },
             "save": "保存",
             "success": "更新しました",
-            "error": "更新に失敗しました"
+            "error": "更新に失敗しました",
+            "title_label": "Title",
+            "title_placeholder": "Enter your housing name"
         },
         "delete": {
             "title": "この物件を削除しますか?",

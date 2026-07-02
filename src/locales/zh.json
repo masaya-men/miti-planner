@@ -1921,6 +1921,13 @@
         },
         "register": {
             "title": "房屋登记",
+            "section_intro": "介绍",
+            "section_address": "地址",
+            "section_media": "图片・SNS URL",
+            "field_title_label": "标题",
+            "field_title_placeholder": "请输入房屋名称",
+            "field_title_required": "标题为必填项",
+            "field_title_remaining": "剩余 {{count}} 字",
             "dc": "数据中心",
             "server": "服务器",
             "area": "区域",
@@ -1928,6 +1935,11 @@
             "plot": "地块",
             "size": "大小",
             "apartment_room": "房间号",
+            "room_kind": {
+                "label": "房间类型",
+                "private_chamber": "FC 个人房",
+                "apartment_room": "公寓房间"
+            },
             "building_type": {
                 "label": "建物タイプ",
                 "house": "家 (S/M/L)",
@@ -2003,6 +2015,10 @@
                 },
                 "quota_exhausted": "今日登记配额已用完（明日恢复5个）",
                 "generic": "登记失败，请稍后重试",
+                "title": {
+                    "required": "请输入标题",
+                    "too_long": "标题过长"
+                },
                 "buildingType": {
                     "invalid": "建物タイプを選んでください"
                 },
@@ -2068,6 +2084,10 @@
                 "label": "取得した画像 (ドラッグで並び替え可・先頭 {{max}} 枚が保存されます)",
                 "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像、 先頭 {{max}} 枚が保存されます)"
             },
+            "media": {
+                "fetched_count": "已获取 {{count}} 张图片",
+                "error_hint": "请检查 URL，或直接上传图片"
+            },
             "tweetPreview": {
                 "title": "已获取的推文"
             },
@@ -2098,6 +2118,13 @@
                 "message": "确认以下内容并登记吗？",
                 "submit": "确认登记",
                 "cancel": "返回",
+                "section_title": "确认",
+                "publish": "公开",
+                "save_private": "以非公开方式保存",
+                "summary_missing": "未填写",
+                "summary_image_count": "{{count}} 张",
+                "summary_visibility": "公开设置",
+                "missing_lead": "请填写以下内容后再登记",
                 "errors": {
                     "not_authenticated": "登记需要登录，请先登录后再试。",
                     "quota_exhausted": "已达到登记上限，请稍后再试。",
@@ -2105,7 +2132,60 @@
                     "upload_failed": "物件は登録できましたが、 画像のアップロードに失敗しました。 編集画面から再度アップロードしてください。"
                 }
             },
-            "cancel": "取消"
+            "cancel": "取消",
+            "step": {
+                "media": "图片・SNS URL",
+                "address": "地址",
+                "intro": "介绍",
+                "visibility": "公开设置",
+                "confirm": "确认"
+            },
+            "stepper_aria_label": "登记步骤",
+            "section_visibility": "公开设置",
+            "visibility": {
+                "label": "公开范围",
+                "public": "对所有用户公开",
+                "private": "非公开（仅自己可见）",
+                "set_end_datetime": "设置公开结束时间",
+                "auto_hide_note": "超过公开结束时间后将自动从列表中隐藏"
+            },
+            "guide": {
+                "title": "登记流程",
+                "remaining": "今日剩余登记配额：{{count}} 个",
+                "step1_title": "粘贴图片或 SNS URL",
+                "step1_desc": "粘贴 Twitter / YouTube 链接即可自动填写地址和图片",
+                "step2_title": "填写地址和介绍",
+                "step2_desc": "确认自动填写的内容，并添加标题和标签",
+                "step3_title": "选择公开设置并登记",
+                "step3_desc": "选择公开或非公开，确认内容后完成登记"
+            },
+            "check": {
+                "title": "登记前确认",
+                "address": "请输入地址",
+                "image": "添加图片可以让其他人更容易找到"
+            },
+            "duplicate": {
+                "title": "重复检查",
+                "idle": "输入地址后将检查同一地址是否已有登记",
+                "clear": "未发现同一地址的房屋",
+                "private_note": "在同一地址发现 {{count}} 个非公开房屋"
+            },
+            "map_preview": {
+                "placeholder": "输入地址后将显示小地图",
+                "map_alt": "地块小地图",
+                "summary_ward": "{{ward}} 区",
+                "summary_plot": "{{plot}} 号地",
+                "summary_separator": " / "
+            },
+            "autosave": {
+                "restored": "已恢复未完成的输入内容",
+                "sns_refetch": "SNS 图片将重新获取",
+                "discard": "放弃"
+            },
+            "toast": {
+                "published": "已公开",
+                "saved_private": "已以非公开方式保存"
+            }
         },
         "duplicate": {
             "title": "该地址已有房屋登记",
@@ -2497,7 +2577,9 @@
             },
             "save": "保存",
             "success": "更新しました",
-            "error": "更新に失敗しました"
+            "error": "更新に失敗しました",
+            "title_label": "标题",
+            "title_placeholder": "请输入房屋名称"
         },
         "delete": {
             "title": "この物件を削除しますか?",
