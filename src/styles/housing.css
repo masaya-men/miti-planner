@@ -5006,6 +5006,13 @@ select.housing-input option {
   color: var(--housing-text);
   cursor: pointer;
   width: fit-content;
+  /* 1px 不可視 checkbox (下記) の containing block を必ずこの label にする。
+     これが無いと checkbox が外側の .housing-register-panel (position:relative) に
+     アンカーされ、中央カラムのスクロールに追従せず置き去りになる。その状態で
+     クリック (=focus) すると Chrome の focus-scroll が置き去り位置を見せようと
+     overflow:hidden のパネル自体を内部スクロールさせ、中央カラム全体が画面外へ
+     吹き飛んで空表示になる (実機ゲート B2・SNS画像でフォームが長い時のみ顕在化)。 */
+  position: relative;
 }
 .housing-register-visibility-enddate-toggle input[type="checkbox"] {
   position: absolute;
