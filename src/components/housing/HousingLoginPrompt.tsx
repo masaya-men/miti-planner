@@ -3,15 +3,23 @@ import { useHousingModalStore } from '../../store/useHousingModalStore';
 
 interface Props {
   context: 'register' | 'tour' | 'favorite';
+  /**
+   * context==='register' の場合に openLogin へ fromRegister を渡すかどうか。
+   * 既定 true (旧挙動維持: HousingRegisterFormModal 等、旧ワークスペース経由のログイン誘導は
+   * 「登録モーダルから開いた」ことを覚えておき、ログインを閉じたら登録モーダルも一緒に閉じる)。
+   * 新シェル (RegisterPage) には syncFromUrl による `?register=open` 復元がなく、
+   * fromRegister:true で開くと戻り URL の死にクエリになるため false を渡す。
+   */
+  registerFlag?: boolean;
 }
 
-export const HousingLoginPrompt: React.FC<Props> = ({ context }) => {
+export const HousingLoginPrompt: React.FC<Props> = ({ context, registerFlag = true }) => {
   const { t } = useTranslation();
   const openLogin = useHousingModalStore((s) => s.openLogin);
 
   const handleOpenLogin = () => {
     if (context === 'register') {
-      openLogin({ fromRegister: true });
+      openLogin({ fromRegister: registerFlag });
     } else {
       openLogin();
     }

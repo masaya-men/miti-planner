@@ -4657,6 +4657,42 @@ select.housing-input option {
 .housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }
 .housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }
 
+/* ===== 登録ページ (3カラム、探すページと同じ骨格) ===== */
+.housing-register {
+  display: grid;
+  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
+  gap: var(--housing-main-gap);
+  padding: var(--housing-main-padding);
+  min-height: 0;
+  height: 100%;
+}
+/* 未ログイン時 (ログイン案内のみ) は3カラムでなく中央1枚に寄せる。 */
+.housing-register-panel-solo {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.housing-register-panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0; height: 100%;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow: var(--housing-panel-shadow);
+  overflow: hidden;
+}
+.housing-register-col {
+  display: flex; flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  padding: 14px 16px;
+}
+.housing-register-col-center { overflow-y: auto; }
+
 /* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
    (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
 .housing-listing-grid-wrap {

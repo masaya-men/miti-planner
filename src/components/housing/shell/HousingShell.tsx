@@ -6,12 +6,19 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { SceneryVideo } from '../workspace/SceneryVideo';
 import { AppHeader } from './AppHeader';
 import { StatusBar } from '../workspace/StatusBar';
+import { HousingLoginModal } from '../login/HousingLoginModal';
+import { HousingAccountModal } from '../login/HousingAccountModal';
 import '../../../styles/housing.css';
 
 /**
  * ハウジング全ページ共通のシェル (Admin の AdminLayout + Outlet パターン踏襲)。
  * 背景動画 + ヘッダー(タブ) + <Outlet/> + ステータスバー。
  * 各ページ (探す/お気に入り/…) は子ルートとして Outlet に描画される。
+ *
+ * HousingLoginModal / HousingAccountModal はここで一度だけマウントする
+ * (props なし・useHousingModalStore を内部購読)。AppHeader の openLogin()/openAccount() が
+ * 機能するための穴埋め (spec B-1)。旧 HousingWorkspace 側のマウントは
+ * /housing/p/:listingId 等の別ルート・別ツリー専用のため二重マウントにはならない。
  */
 export const HousingShell: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
@@ -49,6 +56,8 @@ export const HousingShell: React.FC = () => {
         </div>
         <StatusBar />
       </div>
+      <HousingLoginModal />
+      <HousingAccountModal />
     </main>
   );
 };
