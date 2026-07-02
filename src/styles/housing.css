@@ -4556,15 +4556,17 @@ select.housing-input option {
 .housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }
 .housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }
 
-/* 中央グリッド */
+/* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
+   (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
 .housing-listing-grid-wrap {
   display: flex; flex-direction: column;
+  gap: 12px;
   min-height: 0; height: 100%;
 }
 .housing-listing-grid-toolbar {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px;
-  padding: 0 4px 12px 0;
+  padding: 0 4px 0 0;
   flex: 0 0 auto;
 }
 /* 「ハウジング一覧 N件」見出し */
@@ -4927,7 +4929,6 @@ select.housing-input option {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding-bottom: 2px;
   flex: 0 0 auto;
 }
 .housing-fav-tab {
@@ -5106,6 +5107,7 @@ select.housing-input option {
   border-radius: 999px;
   font-size: var(--housing-text-sm);
   font-weight: 700;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--housing-aether);
   background: var(--housing-aether-medium);
@@ -5127,13 +5129,12 @@ select.housing-input option {
   line-height: 1.5;
   color: var(--housing-text-dim);
 }
+/* AI 風の色付き alert ボックスを避け、静かな注記に (ヘアライン区切り + 装飾なしのグレー文字)。 */
 .housing-fav-onboarding-tip {
   margin: 0;
-  padding: 10px 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--housing-divider);
   font-size: var(--housing-text-sm);
   line-height: 1.5;
-  color: var(--housing-text-dim);
-  background: var(--housing-honey-soft);
-  border-left: 2px solid var(--housing-honey);
-  border-radius: 8px;
+  color: var(--housing-text-mute);
 }
