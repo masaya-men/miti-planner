@@ -34,6 +34,7 @@ import {
   type RegistrationDraft,
 } from '../../../utils/housingValidation';
 import { computeRegisterChecklist, isReadyToPublish } from '../../../lib/housing/registerChecklist';
+import { normalizeAddressForBuildingType } from '../../../lib/housing/normalizeAddressForBuildingType';
 import {
   AUTOSAVE_KEY,
   serializeDraft,
@@ -469,20 +470,22 @@ export const RegisterPage: React.FC = () => {
 
   // ===== 右カラム: 入力チェック (Task13) =====
   // address を AddressInput 候補に組み立てて validateAddress にかける (重複照会の妥当性判定と共用)。
+  // buildingType と矛盾する不可視フィールド (アパート中の plot/size 等) は必ず落とす (B5 根治)。
+  const normalizedAddress = useMemo(() => normalizeAddressForBuildingType(address), [address]);
   const addressCandidate = useMemo<AddressInput>(
     () => ({
-      dc: address.dc ?? '',
-      server: address.server ?? '',
-      area: address.area ?? '',
-      ward: address.ward ?? Number.NaN,
-      buildingType: address.buildingType ?? '',
-      plot: address.plot,
-      size: address.size,
-      apartmentBuilding: address.apartmentBuilding,
-      roomKind: address.roomKind,
-      roomNumber: address.roomNumber,
+      dc: normalizedAddress.dc ?? '',
+      server: normalizedAddress.server ?? '',
+      area: normalizedAddress.area ?? '',
+      ward: normalizedAddress.ward ?? Number.NaN,
+      buildingType: normalizedAddress.buildingType ?? '',
+      plot: normalizedAddress.plot,
+      size: normalizedAddress.size,
+      apartmentBuilding: normalizedAddress.apartmentBuilding,
+      roomKind: normalizedAddress.roomKind,
+      roomNumber: normalizedAddress.roomNumber,
     }),
-    [address],
+    [normalizedAddress],
   );
   const addressOk = useMemo(() => validateAddress(addressCandidate).ok, [addressCandidate]);
   const titleOk = useMemo(() => validateTitle(title).ok, [title]);
@@ -596,17 +599,19 @@ export const RegisterPage: React.FC = () => {
    */
   const buildDraft = useCallback((): RegistrationDraft => {
     const imageFields = buildDraftImageFields(snsCapture, localImages, sourceImageUrls);
+    // 検証 (addressCandidate) と同じ正規化済み住所を使う (不可視フィールド残留を送信しない・B5)。
+    const a = normalizeAddressForBuildingType(address);
     return {
-      dc: address.dc ?? '',
-      server: address.server ?? '',
-      area: address.area ?? '',
-      ward: address.ward ?? 0,
-      buildingType: address.buildingType ?? 'house',
-      plot: address.plot,
-      size: address.size,
-      apartmentBuilding: address.apartmentBuilding,
-      roomKind: address.roomKind,
-      roomNumber: address.roomNumber,
+      dc: a.dc ?? '',
+      server: a.server ?? '',
+      area: a.area ?? '',
+      ward: a.ward ?? 0,
+      buildingType: a.buildingType ?? 'house',
+      plot: a.plot,
+      size: a.size,
+      apartmentBuilding: a.apartmentBuilding,
+      roomKind: a.roomKind,
+      roomNumber: a.roomNumber,
       tags,
       description: description || undefined,
       title,
