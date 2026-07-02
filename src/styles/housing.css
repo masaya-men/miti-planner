@@ -70,6 +70,8 @@
   --housing-chip-bg: rgba(255, 255, 255, 0.05);
   --housing-chip-bg-hover: rgba(255, 255, 255, 0.08);
   --housing-chip-bg-active: var(--housing-honey-medium);
+  /* 暗く沈んだチップ/コントロール基調色 (公開設定チップ・トグルトラック等)。--housing-chip-bg は明るい半透明白で別用途のため流用しない */
+  --housing-chip-sunken-bg: rgba(0, 0, 0, 0.42);
   --housing-overlay-strong: rgba(0, 0, 0, 0.35);
   --housing-bubble-bg: rgba(0, 0, 0, 0.45);
   --housing-bubble-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -4940,7 +4942,7 @@ select.housing-input option {
   padding: 9px 14px;
   border-radius: 8px;
   border: 1px solid var(--housing-panel-border);
-  background: rgba(0, 0, 0, 0.42);
+  background: var(--housing-chip-sunken-bg);
   color: var(--housing-text);
   font-size: var(--housing-text-sm);
   font-family: inherit;
@@ -4988,7 +4990,7 @@ select.housing-input option {
   width: 34px;
   height: 20px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.42);
+  background: var(--housing-chip-sunken-bg);
   border: 1px solid var(--housing-panel-border);
   transition: background 150ms ease, border-color 150ms ease;
 }

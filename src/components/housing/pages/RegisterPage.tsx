@@ -225,7 +225,8 @@ export const RegisterPage: React.FC = () => {
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
-  }, []);
+    // user が null→truthy でフォーム(scrollContainerRef/各セクション)が mount された後に observer を張り直す
+  }, [user]);
 
   const handleJumpToStep = useCallback((id: number) => {
     const stepId = STEP_IDS[id - 1];
