@@ -169,8 +169,11 @@
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
   --housing-listing-card-min-w: 198px;
-  /* カード画像部の縦横比 (2026-07-03 ユーザー選定: 16:9 より縦長の 4:3 = 約1.33倍) */
-  --housing-listing-card-aspect: 4 / 3;
+  /* カード画像部の縦横比 (2026-07-03 ユーザー選定: 4:3 = 約1.33倍)。
+     aspect-ratio ではなく「幅に対する%パディング」で高さを作る (3/4 = 75%)。
+     aspect-ratio はグリッド行の高さ計算で Chrome のバージョンによって取りこぼされ、
+     フッターや画像が切り落とされる (B8 実機再発 2026-07-03)。%パディングは全ブラウザで確実。 */
+  --housing-listing-card-media-pad: 75%;
   /* ループマーキーのコピー間余白 (「あいうえお　　あいうえお」の空白部分) */
   --housing-marquee-gap: 48px;
   --housing-fav-thumb-min: 64px;
@@ -5579,11 +5582,13 @@ select.housing-input option {
   border-color: var(--housing-honey-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--housing-honey-inset);
 }
-/* 画像エリア (比率固定・flex 圧縮禁止 = B8 の画像潰れを構造封じ) */
+/* 画像エリア。高さは %パディング (=幅×3/4) で作る: 中身は全て absolute 配置なので
+   これだけで箱が成立し、aspect-ratio の intrinsic 計算バグ (B8) を完全に迂回する。
+   flex 圧縮禁止も維持。 */
 .housing-listing-card-media {
   position: relative;
   flex: 0 0 auto;
-  aspect-ratio: var(--housing-listing-card-aspect);
+  padding-top: var(--housing-listing-card-media-pad);
   background: var(--housing-card-thumb-bg);
   overflow: hidden;
 }
