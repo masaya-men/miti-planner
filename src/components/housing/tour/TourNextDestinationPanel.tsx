@@ -88,11 +88,15 @@ export const TourNextDestinationPanel: React.FC<TourNextDestinationPanelProps> =
                 {getAreaName(listing.area, i18n.language)}
               </dd>
             </div>
+            <div className="housing-tour-dest-fact">
+              <dt className="housing-tour-dest-fact-label">
+                {t('housing.tour.nav.dest.memo')}
+              </dt>
+              <dd className="housing-tour-dest-fact-value">
+                {listing.description?.trim() ? listing.description : t('housing.tour.nav.dest.no_memo')}
+              </dd>
+            </div>
           </dl>
-
-          <p className="housing-tour-dest-memo">
-            {listing.description?.trim() ? listing.description : t('housing.tour.nav.dest.no_memo')}
-          </p>
         </div>
       )}
 
