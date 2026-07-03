@@ -109,6 +109,32 @@ describe('ListingCard — カードクリックで詳細へ (B9)', () => {
   });
 });
 
+describe('ListingCard — YouTubeサムネ フォールバック配線 (灰色プレースホルダ根治)', () => {
+  const ytListing = {
+    ...mockListing,
+    imageMode: 'sns' as const,
+    ogImageUrl: 'https://img.youtube.com/vi/Ypg8w7Dmq9o/maxresdefault.jpg',
+  };
+
+  it('maxresdefault が 120x90 グレー画像 (HTTP 200) として load されたら hqdefault へ差し替える', () => {
+    const { container } = renderCard({ listing: ytListing });
+    const img = container.querySelector('.housing-listing-card-img') as HTMLImageElement;
+    expect(img.getAttribute('src')).toContain('maxresdefault.jpg');
+    // maxresdefault 不在動画: YouTube は 404 でなく 120x90 のグレーTV画像を 200 で返す
+    Object.defineProperty(img, 'naturalWidth', { value: 120, configurable: true });
+    Object.defineProperty(img, 'naturalHeight', { value: 90, configurable: true });
+    fireEvent.load(img);
+    expect(img.src).toContain('hqdefault.jpg');
+  });
+
+  it('404 (onError) でも次段 quality (hqdefault) へ差し替える', () => {
+    const { container } = renderCard({ listing: ytListing });
+    const img = container.querySelector('.housing-listing-card-img') as HTMLImageElement;
+    fireEvent.error(img);
+    expect(img.src).toContain('hqdefault.jpg');
+  });
+});
+
 describe('ListingCard — 非破壊回帰(selectable未指定)', () => {
   it('♡クリックでfavoritesにIDが追加される', () => {
     useHousingFavoritesStore.setState({ ids: [] });

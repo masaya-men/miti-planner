@@ -7,6 +7,10 @@ import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStor
 import { useAuthStore } from '../../../store/useAuthStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { isEffectivelyPublic } from '../../../lib/housing/listingPublish';
+import {
+  handleYoutubeThumbnailError,
+  handleYoutubeThumbnailLoad,
+} from '../../../lib/housing/youtubeImgFallback';
 
 export interface ListingCardProps {
   listing: MockListing;
@@ -87,6 +91,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           src={representativeImage(listing)}
           alt=""
           loading="lazy"
+          // YouTube maxresdefault 不在動画の 120x90 グレー画像 (200) / 404 を検出し
+          // hqdefault→mqdefault→default へ段階フォールバック (他カードと同一機構)。
+          // 非 YouTube 画像 (Twitter/プレースホルダ) では両ハンドラとも no-op。
+          onError={handleYoutubeThumbnailError}
+          onLoad={handleYoutubeThumbnailLoad}
         />
 
         {/* 常時表示 (左上): 選択チェック (お気に入りページのみ) + 自分の登録の非公開/期限切れ印。
