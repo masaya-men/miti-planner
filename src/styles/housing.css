@@ -179,6 +179,10 @@
   --housing-fav-thumb-min: 64px;
   --housing-ad-slot-bg: rgba(255, 255, 255, 0.02);
   --housing-panel-corner-size: 72px;
+  /* ===== ツアー中(Nav) 左カラム: 進捗パネル (Task4) ===== */
+  --housing-tour-ring-size: 108px;      /* 進捗リングの表示直径 */
+  --housing-tour-ring-stroke: 8px;      /* 進捗リングの線幅 (トラック/進捗弧 共通) */
+  --housing-tour-next-thumb-size: 56px; /* 「次に訪れる場所」カードのサムネ正方形サイズ */
 
   /* ===== 再構築シェル (Rebuild) tokens ===== */
   --housing-tab-active: var(--housing-honey);
@@ -773,6 +777,7 @@
 .housing-card-add-btn:focus-visible,
 .housing-tour-tray-remove:focus-visible,
 .housing-tour-tray-start:focus-visible,
+.housing-tour-progress-finish:focus-visible,
 .housing-fav-strip-thumb:focus-visible,
 .housing-fav-strip-more:focus-visible,
 .housing-size-seg-btn:focus-visible,
@@ -5825,6 +5830,137 @@ select.housing-input option {
 .housing-tour-tray-start:hover:not(:disabled) { filter: brightness(1.05); }
 .housing-tour-tray-start:active:not(:disabled) { transform: scale(0.98); }
 .housing-tour-tray-start:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+
+/* ============================================================
+ * ツアー中(Nav) 左カラム: 進捗パネル (Task4・TourProgressPanel/ProgressRing)
+ * ============================================================ */
+.housing-tour-progress {
+  display: flex; flex-direction: column;
+  min-height: 0; flex: 1 1 auto;
+  gap: 16px;
+}
+.housing-tour-progress-head {
+  display: flex; align-items: center; justify-content: space-between;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-title {
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
+}
+.housing-tour-progress-count {
+  font-size: var(--housing-text-sm); color: var(--housing-candle);
+  background: var(--housing-honey-medium); border-radius: 999px;
+  min-width: 22px; text-align: center; padding: 1px 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 進捗リング (ProgressRing.tsx) */
+.housing-tour-progress-ring {
+  position: relative;
+  width: var(--housing-tour-ring-size); height: var(--housing-tour-ring-size);
+  margin: 0 auto;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-ring-svg { width: 100%; height: 100%; display: block; }
+.housing-tour-progress-ring-track {
+  fill: none;
+  stroke: var(--housing-divider);
+  stroke-width: var(--housing-tour-ring-stroke);
+}
+.housing-tour-progress-ring-fill {
+  fill: none;
+  stroke: var(--housing-aether);
+  stroke-width: var(--housing-tour-ring-stroke);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+.housing-tour-progress-ring-label {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 10px;
+  text-align: center;
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 到着済み / 残り */
+.housing-tour-progress-stats {
+  display: flex; gap: 8px;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-stat {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 8px 10px;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+}
+.housing-tour-progress-stat-value {
+  font-size: var(--housing-text-lg); font-weight: 700; color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+.housing-tour-progress-stat-label {
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
+
+/* 次に訪れる場所 / 最近訪れた場所 (共通セクション見出し) */
+.housing-tour-progress-section {
+  display: flex; flex-direction: column; gap: 8px;
+  flex: 0 0 auto;
+}
+.housing-tour-progress-section-heading {
+  font-size: var(--housing-text-xs); font-weight: 600; letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--housing-text-mute);
+}
+.housing-tour-progress-next-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+}
+.housing-tour-progress-next-thumb {
+  flex: 0 0 auto;
+  width: var(--housing-tour-next-thumb-size); height: var(--housing-tour-next-thumb-size);
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--housing-card-thumb-bg);
+}
+.housing-tour-progress-next-addr {
+  flex: 1 1 auto; min-width: 0;
+  font-size: var(--housing-text-sm); color: var(--housing-text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* 最近訪れた場所 (ヘアライン区切りの静かな一覧) */
+.housing-tour-progress-recent-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column;
+}
+.housing-tour-progress-recent-item {
+  padding: 6px 2px;
+  font-size: var(--housing-text-sm); color: var(--housing-text-dim);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-tour-progress-recent-item:first-child { border-top: 0; }
+
+/* ツアーを終了 (中立アクション・honey は使わない) */
+.housing-tour-progress-finish {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  margin-top: auto;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 14px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-progress-finish:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-progress-finish:active { transform: scale(0.98); }
 
 /* 右カラム: お気に入りプレビュー (参考UI準拠) */
 .housing-fav-strip {
