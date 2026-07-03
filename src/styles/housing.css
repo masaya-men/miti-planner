@@ -882,8 +882,10 @@
   height: 100%;
   display: block;
 }
-/* ナビゲーション用道路 (1 本) と Node 19 個は両方 stroke="#FF0000" → 1 行で透明化 (経路計算は data 側で実施) */
-.housing-map-svg-host svg path[stroke="#FF0000"] { display: none; }
+/* ナビゲーション用道路と Node は stroke="#FF0000" が目印 → 要素種別を問わず透明化 (経路計算は data 側で実施)。
+   Mist は Node を <path>、他エリアは <circle> で書き出すため、要素非依存の [stroke="#FF0000"] で受ける
+   (path 限定だと <circle> の Node 赤丸が可視のまま残る)。 */
+.housing-map-svg-host svg [stroke="#FF0000"] { display: none; }
 
 /* 光ナビ / アンビエント 専用オーバーレイ (Figma マップの上に重ねる) */
 .housing-map-overlay {
@@ -1028,8 +1030,10 @@
   height: 100%;
   display: block;
 }
-/* ナビ用赤線 (#FF0000) + Node は MapView.tsx と同様に非表示、経路データとしてのみ保持 */
-.housing-ward-preview-svg-host svg path[stroke="#FF0000"] { display: none; }
+/* ナビ用赤線 + Node (共に stroke="#FF0000") は MapView.tsx と同様に非表示、経路データとしてのみ保持。
+   Mist は Node を <path>、他エリア (ラベンダー/ゴブレット/エンピレアム/シロガネ + 各拡張) は <circle> で
+   書き出すため、要素非依存の [stroke="#FF0000"] で受ける (path 限定だと他エリアの Node 赤丸が可視のまま残る)。 */
+.housing-ward-preview-svg-host svg [stroke="#FF0000"] { display: none; }
 
 .housing-ward-preview-overlay {
   position: absolute;
