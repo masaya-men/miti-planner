@@ -1,9 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { resolveTourSteps, stepStatus, computeTourProgress, isMistPlaceable } from '../tourNav';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
+import type { HousingArea } from '../../../types/housing';
 
-const L = (id: string, area = 'Mist'): MockListing =>
-  ({ id, ownerUid: 'u', area, ward: 5, plot: 1, size: 'M', imageMode: 'none', tags: [], createdAt: 0 } as MockListing);
+// MockListing は必須フィールドが多い (dc/server/region 等) ため、実データを spread して
+// テストで意味を持つ id / area だけ override する (tsc -b の TS2352 回避・型安全・キャスト不要)。
+const L = (id: string, area: HousingArea = 'Mist'): MockListing =>
+  ({ ...MOCK_LISTINGS[0], id, area });
 
 describe('resolveTourSteps', () => {
   it('listingIds の順序を保ち、欠落は listing=null にする', () => {
