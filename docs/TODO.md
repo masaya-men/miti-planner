@@ -18,16 +18,13 @@
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断)
-- 原因確定=有名スプシは**TRUE/FALSEマトリクス**で、ジョブ/スキルは**アイコン画像+隠し行**。スマホ貼付(text/plain)は構造的に不可(実機TSVで実証)。
-- 検討した「スプシURL直読み」は**入力手段を変えるだけで対応フォーマットは広がらない**(matrix は有名スプシ構造ハードコード/grid は手動マッピング)。表向き「スプレッドシートから取り込む」は実態より広く読める。
-- **方針=「あらゆるスプシ対応」を本命ゴールとして棚上げ**(汎用パーサ/自動マッピングは別プロジェクト級)。当面 URL直読みは作らない。
-- **スマホでは取込UI自体を非表示**にした(2026-06-30・Timeline.tsx の MobileBottomSheet からボタン撤去。PC入口は維持)。[[project_spreadsheet_mobile_grid]]
+- 有名スプシ=TRUE/FALSEマトリクス+アイコン画像でスマホ貼付は構造的に不可(実機実証)。URL直読みも対応フォーマットは広がらない。**「あらゆるスプシ対応」は棚上げ**(汎用パーサは別プロジェクト級)。
+- スマホでは取込UI自体を非表示化済(2026-06-30・PC入口は維持)。詳細=[[project_spreadsheet_mobile_grid]]
 
 ## 現在の状態 (次セッションはここから読む)
 
-- **🆕 2026-06-29〜30 本番反映済(完了詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md))**: ①**数値入力の業界水準化 Phase 1**(共通部品 NumericInput/TimeInput 新設→EventForm/AASettings/PartyStatus/BoundaryEditModal 移行・旧FormattedNumberInput撤去) ②**イベント時刻の MM:SS 入力対応**(`6:15`/裸秒・4言語・formatTime負値修正) ③**共同編集の重さA根治**(カーソル隔離)+**メモURLリンク化#1**+**/stgy(PS5リモプ貼付)**。**残=数値入力 Phase 2**(admin49件・マスタ書込リスクで保留)。
-- **✅ スプシ取込一式・取込フローv2・列グリッド取込(自作対応§9.7)・見切れ攻撃名マーキー・ローカルデータ安全性・PiP攻撃ドリブン化・iOS非ログイン安全性 等(6/22〜6/26 本番済・実機OK)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**後追い候補**=スプシ「A or B」自動分割→altName / ウィザード`no_phases`理由非表示 / skipped amber→トークン化 / ②途中取込(spec§7)。**6/20残**=進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡。
-- **🟢🗓 Vercel Pro→Hobby: 実測完了→Hobby 安全 (2026-06-20)**: 課金API実測(6/12-19)= Edge Requests ピーク 16,127/日(6/12・閾値33Kの48%)・平均9,178/日(月換算275K=枠の27.5%)・直近土日(6/14-15)も約40%。Function Inv/転送量も全て5-6%。**全指標2倍以上の余裕**で減少傾向。7/11 前に Dashboard→Billing→Plan で Hobby へ(1クリック・可逆)→次月 Pro 課金回避。**ユーザー確認済(6/20)=ハウジング未公開・広告未稼働→今すぐ Hobby OK**。team=pro 確認済(user 表示は northstar で hobby と出るが課金は team)。⚠**将来トリガー**: ハウジングを広告つき公開する時に Hobby 商用禁止へ抵触→その時 Pro 復帰 or ハウジング別デプロイ分離を判断。それまで Hobby は一時節約。
+- **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
+- **🟢🗓 Vercel Pro→Hobby: 実測で Hobby 安全確認済(6/20・全指標2倍以上余裕)**。**7/11 前に Dashboard→Billing→Plan で Hobby へ**(1クリック・可逆)。⚠将来ハウジングを広告つき公開する時は Hobby 商用禁止に抵触→Pro 復帰 or 別デプロイ分離を判断。詳細実測値→TODO_COMPLETED。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
 - **🔴 完成・push済・要実機確認(ユーザー)**: 管理画面リデザイン全18ルート(`npm run dev:admin`で目視=ヘッダー/2カラム/ウィザード4本/フォント) / スマホ最適化A+共有タブ(2026-06-15~16本番=共有2択・部屋発行・パーティ自動・Lv80 DB/星天交差1チャージ/深謀遠慮)。
 - **🔵 進捗お祝い試作** = `feat/progress-celebration-proto` 温存(未マージ・本番非露出)。`npm run dev:progress`→/miti。
@@ -50,16 +47,10 @@
 
 ---
 
-## #59 残課題 (公開後OK)
-
-- ESLint `react-hooks/rules-of-hooks` 有効化(hook違反→React #310 本番真っ白・tscは通る) / 「表を展開する」click 394ms(全展開レンダー) / メモリ振れ600-800MB(DOM 73,060個・将来 react-window)
-
----
-
 ## 既知の残課題 (中規模・別セッションで設計から)
 
+- **#59 残(公開後OK)**: ESLint `react-hooks/rules-of-hooks` 有効化(hook違反→React #310 本番真っ白・tscは通る) / 「表を展開する」click 394ms(全展開レンダー) / メモリ振れ600-800MB(DOM 73,060個・将来 react-window)
 - **スプシ取込スマホ=貼付方式は本番済だが実シート取込不可(状態は↑現在の状態/作業順#1)**。残設計課題: ②フェーズ貼付ガイド/未貼付ガード ③全選択コピーの図解(優先低)。[[project_spreadsheet_mobile_grid]]
-
 - **ローカルデータ安全性=✅本番済(6/25 `13b081c5`)→現在の状態。残C(任意)**=localStorage→IndexedDB移行(容量・堅牢性。Safari7日消去はIDBでも起きるのでA併用前提)。spec/plan=`docs/superpowers/{specs,plans}/2026-06-25-local-data-safety*`。
 - **同期不安定**(2026-04-29): 軽減配置→タブ閉→別端末で消失等の複合症状
 - **ローカル削除→即同期で復活**(2026-04-28): `deletePlan` の `_deletedPlanIds` 漏れ
@@ -91,15 +82,9 @@
 
 ---
 
-## 知財防御 (2026-05-27 確定)
-
-LICENSE 追加しない([[feedback_lopo_license_stance]])。真の防御=data+コミュニティ+継続運用。将来「読まれにくく」投資するなら計算ロジックの WebAssembly 化(Rust→wasm)がコスパ最良(UX 犠牲ゼロ・工数1-数週間)。β以降に検討。server 化は 70-200ms 劣化で見送り。
-
----
-
 ## アイデア / 並行 / バックログ
 
-- **✅ PS5リモプ貼り付けUI=/stgy 本番稼働**: スマホ→PS5の共有コード貼り付けは**90字以内が必須**(リモプのキーボード制限。超過で「無効な文字」)。既定170→**88字**・上限90に修正(2026-06-30 実機OK)。コード=`src/lib/strategyCode.ts`。角カッコ`[ ]`はコードの一部として残す。複数`[stgy:...]`は1個ずつ処理(将来まとめ対応の余地)。
+- **知財防御(2026-05-27 確定)**: LICENSE 追加しない([[feedback_lopo_license_stance]])。真の防御=data+コミュニティ+継続運用。読まれにくく投資するなら計算ロジックの wasm 化がコスパ最良(β以降検討)。server 化は 70-200ms 劣化で見送り。
 - アイデア: メモのURL→**YouTube等その場再生(iframe・サムネ方式)**(クリック開きは✅済→上記#1)・こだわりトップ・配置アニメ・OCR・横型タイムライン・Gemma AI
 - **🆕 機能ブラッシュアップ案9件**(詳細=docs/.private/2026-06-15-feature-ideas-batch.md): ①同時刻3+イベント ②スマホ/タブレット最適化(残=ボトムナビ/FAB) ③軽減競合逆方向警告(✅実装済) ④MAXHP-10%でダメージ黄 ⑤Logsインポート上書き/追記(✅本番済2026-06-20) ⑥有名スプシ取込(✅実装完了2026-06-21=上記🟣・要実機確認) ⑦敵攻撃 or(2択) ⑧管理画面 攻撃ID保持で任意言語翻訳(GUID保持済=ほぼ実装済・仕上げのみ) ⑨メモに動画URL→iframe。⑥は実装完了(要実機確認)。取り込み導線チューザー統合は将来。**🆕列グリッド取込(自作スプシ対応)§9.7=✅本番デプロイ済(6/25 `85bb7d8c`)→上記「現在の状態」。spec/plan=`docs/superpowers/{specs/2026-06-24-spreadsheet-grid-import-design.md§9.7,plans/2026-06-24-spreadsheet-grid-import-v97-ux.md}`。**
 - **🆕 Wiki型タイムライン共同編集**(大物・詳細=docs/.private/2026-06-16-wiki-collaborative-timeline.md): ログインユーザー皆で1コンテンツを Wiki 編集(オーナーロック可)。既存 collab 資産活用+公開編集モデルは別設計。⑧を先に効かせると相性良。着手時 brainstorming。
