@@ -4,9 +4,13 @@ import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
-import { ListingCard } from '../../components/housing/browse/ListingCard';
 import { useHousingFavoritesStore } from '../../store/useHousingFavoritesStore';
 import type { MockListing } from '../../data/housing/mockListings';
+
+const navigate = vi.fn();
+vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
+
+import { ListingCard } from '../../components/housing/browse/ListingCard';
 
 const L = {
   id: 'x1', area: 'Mist', ward: 5, plot: 10, buildingType: 'house',
@@ -25,6 +29,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   useHousingFavoritesStore.setState({ ids: [] } as never);
+  navigate.mockReset();
 });
 
 function renderCard(onAdd = () => {}) {

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Heart, Plus, Check } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
@@ -39,6 +40,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   onToggleSelect,
 }) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const favIds = useHousingFavoritesStore((s) => s.ids);
   const addFav = useHousingFavoritesStore((s) => s.add);
   const removeFav = useHousingFavoritesStore((s) => s.remove);
@@ -53,8 +55,22 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const isPrivate = isMine && listing.visibility === 'private';
   const isExpired = isMine && !isPrivate && !isEffectivelyPublic(listing, Date.now());
 
+  // カード全体クリック → 詳細ページ。♡ / 選択 / ツアー追加は stopPropagation で独立動作。
+  const openDetail = () => navigate(`/housing/listing/${listing.id}`);
+
   return (
-    <article className="housing-listing-card" style={{ contentVisibility: 'auto' } as React.CSSProperties}>
+    <article
+      className="housing-listing-card"
+      style={{ contentVisibility: 'auto' } as React.CSSProperties}
+      data-testid="housing-listing-card"
+      role="link"
+      tabIndex={0}
+      aria-label={title}
+      onClick={openDetail}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') openDetail();
+      }}
+    >
       <div className="housing-listing-card-media">
         <img
           className="housing-listing-card-img"
@@ -113,7 +129,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         <button
           type="button"
           className="housing-card-add-btn"
-          onClick={() => onAddToTour(listing.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddToTour(listing.id);
+          }}
         >
           <Plus size={14} aria-hidden="true" />
           {t('housing.card.add_to_tour')}

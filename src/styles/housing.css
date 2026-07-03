@@ -5550,7 +5550,7 @@ select.housing-input option {
   align-content: start;
 }
 
-/* 生きたカード */
+/* 生きたカード (カード全体クリック → 詳細ページ) */
 .housing-listing-card {
   display: flex; flex-direction: column;
   background: var(--housing-panel-inner);
@@ -5558,7 +5558,12 @@ select.housing-input option {
   border-radius: 14px;
   overflow: hidden;
   contain-intrinsic-size: 0 260px;
+  cursor: pointer;
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-listing-card:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
 }
 .housing-listing-card:hover {
   transform: translateY(-2px);

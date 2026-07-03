@@ -1,15 +1,23 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
-import { ListingCard } from '../ListingCard';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesStore';
 
+const navigate = vi.fn();
+vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
+
+import { ListingCard } from '../ListingCard';
+
 const mockListing = MOCK_LISTINGS[0];
+
+beforeEach(() => {
+  navigate.mockReset();
+});
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -60,6 +68,44 @@ describe('ListingCard — ♡と選択の独立性', () => {
     const before = useHousingFavoritesStore.getState().ids.slice();
     fireEvent.click(screen.getByTestId('housing-card-select'));
     expect(useHousingFavoritesStore.getState().ids).toEqual(before);
+  });
+});
+
+describe('ListingCard — カードクリックで詳細へ (B9)', () => {
+  it('カード本体クリックで /housing/listing/{id} へ遷移する', () => {
+    renderCard();
+    fireEvent.click(screen.getByTestId('housing-listing-card'));
+    expect(navigate).toHaveBeenCalledWith(`/housing/listing/${mockListing.id}`);
+  });
+
+  it('Enter キーでも遷移する (キーボード操作)', () => {
+    renderCard();
+    fireEvent.keyDown(screen.getByTestId('housing-listing-card'), { key: 'Enter' });
+    expect(navigate).toHaveBeenCalledWith(`/housing/listing/${mockListing.id}`);
+  });
+
+  it('ツアー追加クリックでは遷移しない', () => {
+    const onAddToTour = vi.fn();
+    renderCard({ onAddToTour });
+    const addBtn = screen.getAllByRole('button').find(
+      (btn) => btn.className.includes('housing-card-add-btn')
+    );
+    fireEvent.click(addBtn!);
+    expect(onAddToTour).toHaveBeenCalledWith(mockListing.id);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('♡クリックでは遷移しない', () => {
+    useHousingFavoritesStore.setState({ ids: [] });
+    renderCard();
+    fireEvent.click(screen.getByRole('button', { name: 'お気に入り' }));
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('選択チェッククリックでは遷移しない', () => {
+    renderCard({ selectable: true, selected: false, onToggleSelect: vi.fn() });
+    fireEvent.click(screen.getByTestId('housing-card-select'));
+    expect(navigate).not.toHaveBeenCalled();
   });
 });
 

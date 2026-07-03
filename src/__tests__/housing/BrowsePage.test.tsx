@@ -57,6 +57,7 @@ describe('BrowsePage', () => {
         </MemoryRouter>
       </I18nextProvider>,
     );
-    expect(screen.getAllByRole('article').length).toBe(2);
+    // カードは role="link" (カード全体クリックで詳細へ・B9) なので testid で数える
+    expect(screen.getAllByTestId('housing-listing-card').length).toBe(2);
   });
 });
