@@ -1,9 +1,30 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { execSync } from 'node:child_process'
+
+// ハウジング StatusBar (画面下) に「実行中コードの版」を短 SHA で表示するための診断計器。
+// 目的: 古い Service Worker / インストール済み PWA が旧バンドルを配信していないかを
+// ユーザー端末で一目判別する (DevTools 不要)。Vercel は VERCEL_GIT_COMMIT_SHA を
+// build 時 env に注入する (shallow checkout でも git 不要)。ローカルは git、取得不可時は 'dev'。
+// この token (__HOUSING_BUILD__) を参照するのは StatusBar のみ = 軽減表本体には一切影響しない。
+function resolveHousingBuild(): string {
+  const vercelSha = process.env.VERCEL_GIT_COMMIT_SHA
+  if (vercelSha) return vercelSha.slice(0, 7)
+  try {
+    return execSync('git rev-parse --short=7 HEAD').toString().trim()
+  } catch {
+    return 'dev'
+  }
+}
+const HOUSING_BUILD = resolveHousingBuild()
 
 // https://vite.dev/config/
 export default defineConfig({
+  // build 時テキスト置換の定数注入 (dev/build/vitest すべてに適用)。
+  define: {
+    __HOUSING_BUILD__: JSON.stringify(HOUSING_BUILD),
+  },
   // ローカル開発専用: Vercel Edge Function (api/*) は vite dev では実行されず
   // vite:esbuild が .ts を変換しようとして失敗する。 /api を本番へプロキシして
   // Twitter 動画 proxy (api/tweet-video) 等をローカルでも利用可能にする。

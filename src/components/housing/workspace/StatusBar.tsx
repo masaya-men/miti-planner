@@ -2,7 +2,12 @@ import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../../../store/useThemeStore';
 
 const LANGS = ['ja', 'en', 'ko', 'zh'] as const;
-const BUILD_VERSION = import.meta.env.VITE_HOUSING_BUILD ?? 'v0.3-α';
+
+// 実行中コードの版 (短 git SHA)。vite.config.ts の define で build 時に注入される。
+// 旧バンドルは define 前なので 'v0.3-α' のまま表示 → SHA が出るか否かで新旧を一目判別できる
+// (古い Service Worker / PWA が旧版を配信していないかの現地診断計器)。
+declare const __HOUSING_BUILD__: string;
+const BUILD_VERSION = typeof __HOUSING_BUILD__ !== 'undefined' ? __HOUSING_BUILD__ : 'v0.3-α';
 
 /**
  * StatusBar — mockup-faithful telemetry strip.
