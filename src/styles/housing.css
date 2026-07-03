@@ -5550,6 +5550,13 @@ select.housing-input option {
   display: grid;
   /* 参考UI準拠で密に (中央幅で4列以上)。左右パネルを狭めた分、一覧性を上げる。 */
   grid-template-columns: repeat(auto-fill, minmax(var(--housing-listing-card-min-w), 1fr));
+  /* 行高は必ずカード実寸 (max-content) で作る。既定の grid-auto-rows:auto は、
+     カードのメディアが padding-top:75% (%パディング) で高さを作る構造だと、
+     ログイン後に自分の登録が後から読み込まれてカードが動的に増える再レイアウト時に
+     %パディングを 0 とみなして行を ~32px に潰し、フッター(ツアー追加ボタン)を
+     overflow:hidden で切り落とす (登録所有者=ログイン時のみ再現の実機バグ)。
+     max-content にすると %パディングが正しく解決され、静的/動的どちらでも実寸になる。 */
+  grid-auto-rows: max-content;
   gap: var(--housing-main-gap);
   overflow-y: auto;
   min-height: 0;
