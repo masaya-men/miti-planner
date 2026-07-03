@@ -50,3 +50,37 @@ export function computeMarqueeMetrics(
     durationSec: Math.round(durationSec * 100) / 100,
   };
 }
+
+export interface MarqueeLoopOptions {
+  /** ゆっくり流す速度(px/秒)。既定 28 (ハウジングカードの静かなティッカー用)。 */
+  speedPxPerSec?: number;
+  /** 1周時間の下限(秒)。既定 6。 */
+  minDurationSec?: number;
+}
+
+/**
+ * 無限ループ型マーキー (「あいうえお　　あいうえお　　…」と左へ流れ続けるティッカー) の計算。
+ * 往復型 computeMarqueeMetrics とは別物。
+ * - contentWidth: テキスト本体の幅 (ギャップを含まない) → 見切れ判定に使う
+ * - loopWidth: 1コピー+ギャップの幅 (= コピー要素の offsetWidth) → 1周の移動距離
+ * どちらも DOM 計測値を ResizeObserver コールバックで渡す前提 (forced reflow 回避)。
+ */
+export function computeMarqueeLoopMetrics(
+  contentWidth: number,
+  loopWidth: number,
+  clipWidth: number,
+  opts: MarqueeLoopOptions = {},
+): MarqueeMetrics {
+  const { speedPxPerSec = 28, minDurationSec = 6 } = opts;
+
+  if (contentWidth <= clipWidth) {
+    return { clipped: false, distancePx: 0, durationSec: 0 };
+  }
+
+  const durationSec = Math.max(minDurationSec, loopWidth / speedPxPerSec);
+  return {
+    clipped: true,
+    distancePx: -Math.round(loopWidth),
+    durationSec: Math.round(durationSec * 100) / 100,
+  };
+}

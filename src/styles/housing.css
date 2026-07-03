@@ -169,6 +169,10 @@
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
   --housing-listing-card-min-w: 198px;
+  /* カード画像部の縦横比 (2026-07-03 ユーザー選定: 16:9 より縦長の 4:3 = 約1.33倍) */
+  --housing-listing-card-aspect: 4 / 3;
+  /* ループマーキーのコピー間余白 (「あいうえお　　あいうえお」の空白部分) */
+  --housing-marquee-gap: 48px;
   --housing-fav-thumb-min: 64px;
   --housing-ad-slot-bg: rgba(255, 255, 255, 0.02);
   --housing-panel-corner-size: 72px;
@@ -5546,18 +5550,23 @@ select.housing-input option {
   gap: var(--housing-main-gap);
   overflow-y: auto;
   min-height: 0;
-  padding-right: 4px;
+  /* ホバーの浮き上がり (translateY(-2px)) がスクロール枠の上端で切れないよう
+     上に余白を確保し、negative margin で見た目の開始位置は変えない。 */
+  padding: 4px 4px 4px 0;
+  margin-top: -4px;
   align-content: start;
 }
 
-/* 生きたカード (カード全体クリック → 詳細ページ) */
+/* 生きたカード = 画像タイル (比率 token) + 画像に被らない常設フッター (ツアーに追加)。
+   情報はホバー時に画像の下端からせり上がるオーバーレイパネル (行高さに影響しない)。
+   全カードが同一構造なので高さが一意に決まり、グリッド行の高さ計算バグ (B8) が構造的に起きない。 */
 .housing-listing-card {
   display: flex; flex-direction: column;
   background: var(--housing-panel-inner);
   border: 1px solid var(--housing-panel-border);
   border-radius: 14px;
   overflow: hidden;
-  contain-intrinsic-size: 0 260px;
+  contain-intrinsic-size: 0 205px;
   cursor: pointer;
   transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
@@ -5570,17 +5579,74 @@ select.housing-input option {
   border-color: var(--housing-honey-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--housing-honey-inset);
 }
+/* 画像エリア (比率固定・flex 圧縮禁止 = B8 の画像潰れを構造封じ) */
 .housing-listing-card-media {
   position: relative;
-  aspect-ratio: 16 / 9;
-  background: rgba(0, 0, 0, 0.35);
+  flex: 0 0 auto;
+  aspect-ratio: var(--housing-listing-card-aspect);
+  background: var(--housing-card-thumb-bg);
   overflow: hidden;
 }
 .housing-listing-card-img {
+  position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover; display: block;
 }
+/* 画像に被らない常設フッター (主アクション) */
+.housing-listing-card-footer {
+  flex: 0 0 auto;
+  padding: 8px 10px 10px;
+}
+.housing-listing-card-footer .housing-card-add-btn {
+  width: 100%;
+  margin-top: 0;
+}
+/* 左上の常時表示列: 選択チェック + 非公開/期限切れ印 */
+.housing-listing-card-topleft {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  display: flex; align-items: center; gap: 6px;
+}
+/* 下端の常時キャプション (タイトル1行・グラデーションで画像を邪魔しない)。
+   タグ・住所・サイズは出さない (2026-07-03 ユーザー合意: 情報は詳細ページ/フィルタが担い、
+   カードは「静かな画像タイル + タイトル」だけにする)。 */
+.housing-listing-card-caption {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+  padding: 20px 12px 8px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm); font-weight: 600;
+  pointer-events: none;
+}
+/* ===== カード内 1行ループマーキー (HousingCardMarqueeLine) =====
+   見切れたタイトルだけ、カードホバー中に「あいうえお　　あいうえお　　…」と
+   ゆっくり左へ流れ続ける (往復型 lopo-name-marquee とは別の静かなティッカー)。
+   距離/時間は ResizeObserver 計測で --marquee-distance / --marquee-duration に注入。 */
+.housing-marquee-clip {
+  display: block; min-width: 0;
+  overflow: hidden; white-space: nowrap;
+}
+.housing-marquee-track {
+  display: inline-flex;
+}
+.housing-marquee-copy {
+  display: inline-flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+  line-height: 1.35;
+  /* コピー間の間隔 (ループの「余白」)。offsetWidth に含めて1周距離の計測を単純化する */
+  padding-right: var(--housing-marquee-gap);
+}
+@keyframes housing-marquee-loop {
+  from { transform: translateX(0); }
+  to   { transform: translateX(var(--marquee-distance, 0)); }
+}
+.housing-listing-card:hover .housing-marquee-clip[data-clipped] .housing-marquee-track,
+.housing-listing-card:focus-within .housing-marquee-clip[data-clipped] .housing-marquee-track {
+  animation: housing-marquee-loop var(--marquee-duration, 10s) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-listing-card .housing-marquee-track { animation: none !important; }
+}
 .housing-card-fav {
-  position: absolute; top: 8px; right: 8px;
+  position: absolute; top: 8px; right: 8px; z-index: 2;
   width: 30px; height: 30px; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
   background: rgba(0, 0, 0, 0.45);
@@ -5593,16 +5659,15 @@ select.housing-input option {
 .housing-card-fav.is-on { color: var(--housing-honey); }
 .housing-card-fav.is-on svg { fill: currentColor; }
 
-/* 選択チェック (お気に入りページ専用・探すページには出ない) */
+/* 選択チェック (お気に入りページ専用・探すページには出ない)。topleft 列の中に置く */
 .housing-card-select {
-  position: absolute; top: 8px; left: 8px;
+  flex: 0 0 auto;
   width: 26px; height: 26px; border-radius: 50%;
   display: inline-flex; align-items: center; justify-content: center;
   background: var(--housing-bubble-bg);
   border: 2px solid var(--housing-panel-border-strong);
   color: var(--housing-text-mute); cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
-  z-index: 2;
 }
 .housing-card-select:hover {
   border-color: var(--housing-aether);
@@ -5614,32 +5679,14 @@ select.housing-input option {
   border-color: var(--housing-aether);
   color: var(--housing-panel-bg-solid);
 }
-.housing-listing-card-body {
-  display: flex; flex-direction: column; gap: 8px;
-  padding: 10px 12px 12px;
-}
-.housing-listing-card-title {
-  display: flex; align-items: flex-start; gap: 8px;
-  font-size: var(--housing-text-md); font-weight: 600; color: var(--housing-text);
-}
-.housing-listing-card-title > span:first-child {
-  flex: 1 1 auto; min-width: 0;
-  /* 長い住所は2行までで省略 (見切れ防止)。 */
-  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-  overflow: hidden;
-  line-height: 1.35;
-}
-.housing-listing-card-size {
-  flex: 0 0 auto;
-  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
-  border: 1px solid var(--housing-panel-border); border-radius: 5px;
-  padding: 1px 5px;
-}
-/* 自分の登録の非公開/期限切れ注記 (本人にのみ表示・色付き箱にしない静かな注記) */
+/* 自分の登録の非公開/期限切れ印 (本人にのみ・画像の上に常時乗るので沈んだ地色のチップ) */
 .housing-listing-card-mine-note {
-  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+  font-size: var(--housing-text-xs); color: var(--housing-text-dim);
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 6px; padding: 2px 7px;
+  white-space: nowrap;
 }
-.housing-listing-card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
 .housing-pill {
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);
   background: var(--housing-honey-soft);
@@ -5658,6 +5705,7 @@ select.housing-input option {
   transition: background 0.15s ease;
 }
 .housing-card-add-btn:hover { background: var(--housing-honey-strong); }
+.housing-card-add-btn:active { transform: scale(0.97); }
 
 /* ローディング / エラー (中央) */
 .housing-center-loading,

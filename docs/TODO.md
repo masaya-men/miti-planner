@@ -12,7 +12,8 @@
 ## 次の作業順 (2026-07-01 更新)
 1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
    - **✅本番反映済(2026-07-03・main=f423fa87)**: 土台+シェル/探す(質感A案)/お気に入り/**登録ページ+非公開機能**を本番公開。index+rules deploy済・backfill済。実機ゲートで**非公開=Not Found(漏洩なし)確認**。実機バグ B1(バッジi18n)/B2(期限トグルで中央消滅)/B4(詳細スクロール)/B5(アパート住所未入力扱い)は修正・本番反映済。詳細=台帳`.superpowers/sdd/progress.md`。
-     - **✅07-03夜: B6(部屋番号)+D5(カレンダー)=実機OK済**。**B7=過去の公開期限が無期限公開に化ける情報漏れを修正・push済(cf423dcd)**: 両APIが過去publishUntilを null に倒していた→normalizePublishUntil で過去もそのまま保存=即期限切れ(fail-closed)。**実機確認待ち=①期限6/30で登録→シークレットで Not Found ②当該テスト物件(publishUntil=null で残存・まだ見える)を編集で期限入れ直す or 削除**。UX候補D7=過去日時選択時の注記(要相談)。
+     - **✅07-03: B6(部屋番号)/D5(カレンダー)実機OK・B7(過去期限→無期限公開の漏れ)修正済(cf423dcd)・B9(カード→詳細導線)済(1b224b78)・カード全面刷新(統一4:3タイル+タイトルのみ+ループマーキー+常設ツアー追加=B8構造根治)ローカル承認→push**。**実機確認待ち=①期限6/30登録→シークレットNot Found(B7) ②旧テスト物件(無期限公開のまま残存)を詳細ページの…メニューから削除 ③カード新デザイン本番確認**。
+     - 残タスク: D7(過去日時選択時の注記・要相談)/D8(housing全ボタン押下フィードバック一括)/YouTubeサムネfallback(hqdefault)/生きたカード段階2(動画・スライドショー=Allmarks流用)/カードのスマホ対応(ホバー無し代替)。
      - 残デザイン(方針相談): NotFound見た目/詳細トンマナ統一/カードAllmarks可変サイズ化/ホバー上縁被り/チェック文言。B3(地図赤Node=PWAキャッシュ疑い・未決/実害薄)。
    - 既知の残: 中央カード静止(生きたカード段階2は後日)/ビュー切替は地図M1配線時に復活/legacy TopBar・HousingWorkspace5件failは撤去予定(回帰でない)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
