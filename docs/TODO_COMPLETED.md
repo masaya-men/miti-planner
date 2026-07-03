@@ -2,6 +2,12 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-03 探すカードの「ツアー追加」ボタン欠落 — 根治・本番反映・実機OK (TODO.mdから移動)
+**症状**: 探すページのカードでツアー追加ボタンが不可視。**メインアカウント(登録所有者)ログイン時のみ**再現(非ログイン/別アカウント/新品ブラウザは正常)。多セッション難航・初回は「旧SW配信」と誤判定(BUILD表示のSHA化計器で新JS配信を確認して反証)。
+**真因**: `.housing-listing-grid` の `grid-auto-rows:auto` が、カードmediaの `padding-top:75%`(%パディング高さ)を、ログイン後 loadMine で自分の登録が**動的追加**される再レイアウト時に 0 とみなし、行を~32pxに潰す→footer(ボタン)を overflow:hidden で切り落とし。ユーザー実機DevToolsで `grid-auto-rows:max-content`→201px復元・`content-visibility:visible`→変化なし(無罪)を直接計測して断定。
+**修正**: `.housing-listing-grid` に `grid-auto-rows: max-content`(commit 41cffd85)。build/vitest緑・本番配信CSS(index-OfMvwhFl.css)に反映確認・ユーザー実機OK。
+**副産物+教訓**: StatusBar の版表示を実git短SHA化(vite define + `__HOUSING_BUILD__`、commit 75ca023・残置=遠隔診断計器)。教訓=遠隔UI障害は実機の computed style を1コマンドで取れ・合成再現の"正常"は無罪証明にならない(memory `reference_css_grid_autorows_padding_collapse` / `feedback_remote_ui_bug_devtools_first`)。
+
 ### ✅ 2026-06-30 PS5リモプ貼り付けUI /stgy 88字修正 — 本番稼働・実機OK (TODO.mdから移動)
 スマホ→PS5の共有コード貼り付けは**90字以内が必須**(リモプのキーボード制限。超過で「無効な文字」)。既定170→**88字**・上限90に修正(2026-06-30 実機OK)。コード=`src/lib/strategyCode.ts`。角カッコ`[ ]`はコードの一部として残す。複数`[stgy:...]`は1個ずつ処理(将来まとめ対応の余地)。
 
