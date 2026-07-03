@@ -467,3 +467,16 @@ export function validateRegistrationDraft(draft: RegistrationDraft): ValidationR
   Object.assign(errors, validateImage(draft).errors);
   return Object.keys(errors).length > 0 ? fail(errors) : ok();
 }
+
+/**
+ * 公開終了日時 (publishUntil) の保存前正規化。register / update 両ハンドラで使用。
+ *
+ * 過去日時を null (=無期限公開) に倒してはいけない: 「6/30 まで」のつもりの登録が
+ * 恒久公開になる情報漏れ (fail-open) になる (2026-07-03 実機バグ)。過去日時は
+ * そのまま保存し、遅延評価 (isEffectivelyPublic / firestore.rules の get 条件) が
+ * 即・期限切れ=他人非表示にする (fail-closed)。null に落とすのは型不正のみ。
+ */
+export function normalizePublishUntil(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) return null;
+  return value;
+}

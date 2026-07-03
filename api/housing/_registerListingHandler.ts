@@ -14,7 +14,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { evaluateCanRegister, applyRegistrationSuccess, initialUserMeta } from '../../src/utils/housingQuota.js';
-import { validateRegistrationDraft, buildListingImageFields, type RegistrationDraft } from '../../src/utils/housingValidation.js';
+import { validateRegistrationDraft, buildListingImageFields, normalizePublishUntil, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import type { HousingUserMeta } from '../../src/types/housing.js';
 
@@ -111,10 +111,9 @@ export default async function handler(req: any, res: any) {
         // 公開設定 (spec A-1/A-3): 未送信は 'public' を必ず書き込む (旧クライアント互換 +
         // 全 doc に visibility が載る保証 = ルール締めの前提)。
         visibility: draft.visibility === 'private' ? 'private' : 'public',
-        publishUntil:
-          typeof draft.publishUntil === 'number' && draft.publishUntil > now
-            ? draft.publishUntil
-            : null,
+        // 過去日時も保存する (null に倒すと「期限付き公開」のつもりが無期限公開になる fail-open)。
+        // 過去なら遅延評価が即・期限切れ=他人非表示にする。
+        publishUntil: normalizePublishUntil(draft.publishUntil),
         ...(draft.title && draft.title.trim() ? { title: draft.title.trim() } : {}),
       };
       tx.set(newRef, listing);

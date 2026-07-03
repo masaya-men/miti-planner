@@ -13,7 +13,7 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
-import { validateRegistrationDraft, type RegistrationDraft } from '../../src/utils/housingValidation.js';
+import { validateRegistrationDraft, normalizePublishUntil, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 
 function setCors(req: any, res: any) {
@@ -123,8 +123,9 @@ export default async function handler(req: any, res: any) {
         updatePayload.visibility = draftForValidation.visibility;
       }
       if ('publishUntil' in draftForValidation) {
-        const pu = draftForValidation.publishUntil;
-        updatePayload.publishUntil = typeof pu === 'number' && pu > Date.now() ? pu : null;
+        // 過去日時も保存する (register 側と同じ fail-closed 方針。過去に編集=即・期限切れで
+        // 他人から隠す、という意図的な操作も成立させる)。
+        updatePayload.publishUntil = normalizePublishUntil(draftForValidation.publishUntil);
       }
       if (typeof draftForValidation.title === 'string' && draftForValidation.title.trim()) {
         updatePayload.title = draftForValidation.title.trim();
