@@ -183,6 +183,9 @@
   --housing-tour-ring-size: 108px;      /* 進捗リングの表示直径 */
   --housing-tour-ring-stroke: 8px;      /* 進捗リングの線幅 (トラック/進捗弧 共通) */
   --housing-tour-next-thumb-size: 56px; /* 「次に訪れる場所」カードのサムネ正方形サイズ */
+  /* ===== ツアー中(Nav) 中央カラム: LIVE地図 (Task5) ===== */
+  --housing-tour-map-node-size: 26px;   /* 番号ノードの直径 */
+  --housing-tour-map-legend-swatch: 10px; /* 凡例の色見本サイズ */
 
   /* ===== 再構築シェル (Rebuild) tokens ===== */
   --housing-tab-active: var(--housing-honey);
@@ -5961,6 +5964,135 @@ select.housing-input option {
 }
 .housing-tour-progress-finish:hover { background: var(--housing-chip-bg-hover); }
 .housing-tour-progress-finish:active { transform: scale(0.98); }
+
+/* ============================================================
+ * 中央カラム: ツアー中LIVE地図 (Task5・TourNavMap)
+ * 赤丸隠蔽ホスト (.housing-map-svg-host) / オーバーレイ (.housing-map-overlay) は
+ * MapView.tsx と同じ class を再利用 (svg [stroke="#FF0000"] 隠蔽 CSS を効かせるため)。
+ * 外側のステージ/ラップだけ中央カラム向けに専用化 (workspace 全画面用の 3D tilt は持ち込まない)。
+ * ============================================================ */
+.housing-tour-map {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+  gap: 12px;
+}
+.housing-tour-map-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-inner);
+}
+.housing-tour-map-wrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 88%;
+  aspect-ratio: 470 / 350;
+  transform: translate(-50%, -50%);
+}
+
+/* LIVE ラベル (地図の情報が実データ駆動で自動更新されることを示す) */
+.housing-tour-map-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.housing-tour-map-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--housing-aether);
+  box-shadow: 0 0 6px var(--housing-aether);
+  animation: housing-tour-map-live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes housing-tour-map-live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* 現在地マーカー (originNodeId のノード座標に青丸) */
+.housing-tour-map-origin {
+  fill: var(--housing-aether);
+  stroke: var(--housing-map-light);
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 8px var(--housing-aether));
+}
+
+/* 番号ノード (到着済み/現在/未到着) */
+.housing-tour-map-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: var(--housing-tour-map-node-size);
+  height: var(--housing-tour-map-node-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--housing-map-light);
+  font-size: var(--housing-text-xs);
+  font-weight: 700;
+  z-index: 9;
+  pointer-events: none;
+}
+.housing-tour-map-node--arrived {
+  background: var(--housing-honey);
+  color: var(--housing-honey-text-strong);
+  box-shadow: 0 0 8px var(--housing-honey-shadow-soft);
+}
+.housing-tour-map-node--current {
+  background: var(--housing-aether);
+  color: var(--housing-map-light);
+  box-shadow: 0 0 10px var(--housing-aether);
+}
+.housing-tour-map-node--upcoming {
+  background: var(--housing-panel-border-strong);
+  color: var(--housing-text-dim);
+}
+
+/* 凡例 */
+.housing-tour-map-legend {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-map-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.housing-tour-map-legend-swatch {
+  width: var(--housing-tour-map-legend-swatch);
+  height: var(--housing-tour-map-legend-swatch);
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.housing-tour-map-legend-swatch--here,
+.housing-tour-map-legend-swatch--next {
+  background: var(--housing-aether);
+}
+.housing-tour-map-legend-swatch--arrived {
+  background: var(--housing-honey);
+}
+.housing-tour-map-legend-swatch--upcoming {
+  background: var(--housing-panel-border-strong);
+}
+.housing-tour-map-legend-swatch--route {
+  border-radius: 2px;
+  background: var(--housing-candle);
+}
 
 /* 右カラム: お気に入りプレビュー (参考UI準拠) */
 .housing-fav-strip {

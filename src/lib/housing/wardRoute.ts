@@ -49,6 +49,13 @@ export function plotToPlacement(plot: number, kind: 'plot' = 'plot'): Placement 
   return { x: h.x * W, y: h.y * H, nodeId: h.node };
 }
 
+/** ノード ID → viewBox px 座標。未知ノードは null。(現在地マーカー等の単点配置向け) */
+export function nodeToPoint(nodeId: string): { x: number; y: number } | null {
+  const n = nodeById.get(nodeId);
+  if (!n) return null;
+  return { x: n.x * W, y: n.y * H };
+}
+
 /** origin ノード → goal ノード の道なり SVG path。未知ノード/到達不能で null。 */
 export function buildRoutePath(originNodeId: string, goalNodeId: string): string | null {
   if (!nodeById.has(originNodeId) || !nodeById.has(goalNodeId)) return null;
