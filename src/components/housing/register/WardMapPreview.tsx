@@ -13,6 +13,7 @@ interface Props {
   buildingType?: 'house' | 'apartment';
   ward?: number;
   size?: HousingSize;
+  roomNumber?: number;
 }
 
 type LoadState =
@@ -32,6 +33,7 @@ export const WardMapPreview: React.FC<Props> = ({
   buildingType,
   ward,
   size,
+  roomNumber,
 }) => {
   const { t, i18n } = useTranslation();
   const ref = resolveWardMapRef(area ?? '', plot ?? null, apartmentBuilding ?? null, buildingType);
@@ -66,7 +68,7 @@ export const WardMapPreview: React.FC<Props> = ({
     );
   }
 
-  const summary = buildSummaryText(t, i18n.language, area, ward, plot, apartmentBuilding, buildingType, size);
+  const summary = buildSummaryText(t, i18n.language, area, ward, plot, apartmentBuilding, buildingType, size, roomNumber);
 
   return (
     <div className="housing-ward-preview" data-testid="housing-ward-preview">
@@ -153,6 +155,7 @@ function buildSummaryText(
   apartmentBuilding: 1 | 2 | undefined,
   buildingType: 'house' | 'apartment' | undefined,
   size: HousingSize | undefined,
+  roomNumber: number | undefined,
 ): string | null {
   if (!area) return null;
   const areaName = getAreaName(area as Parameters<typeof getAreaName>[0], lang) || area;
@@ -165,6 +168,10 @@ function buildSummaryText(
         ? 'housing.register.apartment_building.sub'
         : 'housing.register.apartment_building.main',
     ));
+    // 正典 formatHousingAddress と同じ #番号 表記 (欠けると登録者が部屋番号の保存を確認できない)
+    if (roomNumber != null) {
+      parts.push(t('housing.register.map_preview.summary_room', { room: roomNumber }));
+    }
   } else if (plot != null) {
     parts.push(t('housing.register.map_preview.summary_plot', { plot }));
     if (size) {

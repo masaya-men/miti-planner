@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { HousingDateTimePicker } from './HousingDateTimePicker';
 
 export interface RegisterVisibilityValues {
   visibility: 'public' | 'private';
@@ -10,22 +11,6 @@ interface Props {
   visibility: 'public' | 'private';
   publishUntil: number | null;
   onChange: (next: RegisterVisibilityValues) => void;
-}
-
-/**
- * datetime-local の value 文字列 ("YYYY-MM-DDTHH:mm") ⇔ epoch ms (number) の変換。
- * timestamp は number で持つ方針 (Global Constraint)。
- */
-function epochToLocalInputValue(epochMs: number): string {
-  const d = new Date(epochMs);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function localInputValueToEpoch(value: string): number | null {
-  if (!value) return null;
-  const ms = new Date(value).getTime();
-  return Number.isNaN(ms) ? null : ms;
 }
 
 /**
@@ -61,8 +46,8 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
     }
   };
 
-  const handleDateInputChange = (value: string) => {
-    onChange({ visibility, publishUntil: localInputValueToEpoch(value) });
+  const handleDateChange = (ms: number | null) => {
+    onChange({ visibility, publishUntil: ms });
   };
 
   return (
@@ -111,13 +96,9 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
         </label>
 
         {endDateEnabled && (
-          <input
-            type="datetime-local"
-            className="housing-input"
-            data-testid="housing-register-visibility-enddate-input"
-            value={publishUntil != null ? epochToLocalInputValue(publishUntil) : ''}
-            onChange={(e) => handleDateInputChange(e.target.value)}
-          />
+          <div data-testid="housing-register-visibility-enddate-input">
+            <HousingDateTimePicker valueMs={publishUntil} onChange={handleDateChange} />
+          </div>
         )}
       </div>
 

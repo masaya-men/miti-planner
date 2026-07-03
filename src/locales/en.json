@@ -2184,7 +2184,16 @@
                 "public": "Public to all users",
                 "private": "Private (only you)",
                 "set_end_datetime": "Set an end date/time",
-                "auto_hide_note": "The listing will automatically be hidden once the end date/time passes"
+                "auto_hide_note": "The listing will automatically be hidden once the end date/time passes",
+                "picker": {
+                    "placeholder": "Select date & time",
+                    "time_label": "Time",
+                    "clear": "Clear",
+                    "today": "Today",
+                    "done": "Done",
+                    "prev_month": "Previous month",
+                    "next_month": "Next month"
+                }
             },
             "guide": {
                 "title": "How registration works",
@@ -2213,6 +2222,7 @@
                 "load_error": "Couldn't load the map",
                 "summary_ward": "Ward {{ward}}",
                 "summary_plot": "Plot {{plot}}",
+                "summary_room": "#{{room}}",
                 "summary_separator": " / "
             },
             "autosave": {

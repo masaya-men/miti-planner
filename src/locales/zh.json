@@ -2149,7 +2149,16 @@
                 "public": "对所有用户公开",
                 "private": "非公开（仅自己可见）",
                 "set_end_datetime": "设置公开结束时间",
-                "auto_hide_note": "超过公开结束时间后将自动从列表中隐藏"
+                "auto_hide_note": "超过公开结束时间后将自动从列表中隐藏",
+                "picker": {
+                    "placeholder": "选择日期和时间",
+                    "time_label": "时间",
+                    "clear": "清除",
+                    "today": "今天",
+                    "done": "完成",
+                    "prev_month": "上个月",
+                    "next_month": "下个月"
+                }
             },
             "guide": {
                 "title": "登记流程",
@@ -2178,6 +2187,7 @@
                 "load_error": "无法加载地图",
                 "summary_ward": "{{ward}} 区",
                 "summary_plot": "{{plot}} 号地",
+                "summary_room": "#{{room}}",
                 "summary_separator": " / "
             },
             "autosave": {

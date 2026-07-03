@@ -1036,6 +1036,7 @@ export const RegisterPage: React.FC = () => {
             buildingType={address.buildingType}
             ward={address.ward}
             size={address.size as HousingSize | undefined}
+            roomNumber={address.roomNumber}
           />
         </div>
       </section>

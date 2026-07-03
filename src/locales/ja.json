@@ -2205,7 +2205,16 @@
                 "public": "すべてのユーザーに公開",
                 "private": "非公開 (自分のみ)",
                 "set_end_datetime": "公開終了日時を設定する",
-                "auto_hide_note": "公開終了日時を過ぎると、 自動的に一覧から非表示になります"
+                "auto_hide_note": "公開終了日時を過ぎると、 自動的に一覧から非表示になります",
+                "picker": {
+                    "placeholder": "日時を選択",
+                    "time_label": "時刻",
+                    "clear": "クリア",
+                    "today": "今日",
+                    "done": "完了",
+                    "prev_month": "前の月",
+                    "next_month": "次の月"
+                }
             },
             "guide": {
                 "title": "登録の流れ",
@@ -2234,6 +2243,7 @@
                 "load_error": "地図を読み込めませんでした",
                 "summary_ward": "{{ward}} 区",
                 "summary_plot": "{{plot}} 番地",
+                "summary_room": "#{{room}}",
                 "summary_separator": " / "
             },
             "autosave": {

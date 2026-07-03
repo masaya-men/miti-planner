@@ -47,4 +47,29 @@ describe('WardMapPreview', () => {
     expect(screen.getByTestId('housing-ward-preview-skeleton')).toBeTruthy();
     expect(screen.queryByTestId('housing-ward-preview-placeholder')).toBeNull();
   });
+
+  it('アパートの要約に部屋番号 (#N) を含める (B6 回帰)', () => {
+    const { container } = renderPreview({
+      area: 'Mist',
+      buildingType: 'apartment',
+      apartmentBuilding: 1,
+      ward: 17,
+      roomNumber: 13,
+    });
+    const summary = container.querySelector('.housing-ward-preview-summary');
+    expect(summary?.textContent).toContain('1号棟 (本街)');
+    expect(summary?.textContent).toContain('#13');
+  });
+
+  it('アパートで部屋番号が未入力なら # を出さない', () => {
+    const { container } = renderPreview({
+      area: 'Mist',
+      buildingType: 'apartment',
+      apartmentBuilding: 2,
+      ward: 3,
+    });
+    const summary = container.querySelector('.housing-ward-preview-summary');
+    expect(summary?.textContent).toContain('2号棟 (拡張街)');
+    expect(summary?.textContent).not.toContain('#');
+  });
 });

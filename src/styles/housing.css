@@ -5062,6 +5062,159 @@ select.housing-input option {
     transition: none;
   }
 }
+/* ===== カスタム日時ピッカー (D5) =====
+   ネイティブ datetime-local のポップアップはブラウザ chrome でスタイル不能のため自作。
+   選択=青 (--housing-aether 系)・今日=ハニーの輪郭、質感A案の濃紺ポップオーバー。 */
+.housing-dtp {
+  position: relative;
+  width: 100%;
+}
+.housing-dtp-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+.housing-dtp-trigger-icon {
+  flex: 0 0 auto;
+  color: var(--housing-text-dim);
+}
+.housing-dtp-placeholder {
+  color: var(--housing-text-mute);
+}
+.housing-dtp-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  width: 300px;
+  padding: 12px;
+  border-radius: 10px;
+  /* panel-bg-solid (α0.74) だと後ろのフォーム文字が透ける。他ポップオーバーと同じ不透明面を使う */
+  background: var(--housing-popover-bg);
+  border: 1px solid var(--housing-panel-border-strong);
+  box-shadow: var(--housing-popover-shadow);
+}
+.housing-dtp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.housing-dtp-month {
+  font-size: var(--housing-text-md);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-dtp-nav {
+  display: flex;
+  gap: 4px;
+}
+.housing-dtp-nav-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.housing-dtp-nav-btn:hover {
+  background: var(--housing-chip-sunken-bg);
+  color: var(--housing-text);
+}
+.housing-dtp-weekdays,
+.housing-dtp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.housing-dtp-weekdays {
+  margin-bottom: 4px;
+}
+.housing-dtp-weekday {
+  text-align: center;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  padding: 2px 0;
+}
+/* 日曜/土曜のヘッダーだけ淡く色分け (FF14 らしさより控えめに) */
+.housing-dtp-weekday[data-dow="0"] { color: var(--housing-account-danger-text); }
+.housing-dtp-weekday[data-dow="6"] { color: var(--housing-aether-soft); }
+.housing-dtp-day {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.housing-dtp-day[data-in-month="false"] {
+  color: var(--housing-text-mute);
+}
+.housing-dtp-day:hover {
+  background: var(--housing-chip-sunken-bg);
+}
+.housing-dtp-day[data-today="true"] {
+  border-color: var(--housing-avatar-ring);
+}
+.housing-dtp-day[data-selected="true"] {
+  background: var(--housing-aether-medium);
+  border-color: var(--housing-aether-border);
+  color: var(--housing-aether-soft);
+  font-weight: 600;
+}
+.housing-dtp-time-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-dtp-time-label {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-dtp-time-input {
+  width: 88px;
+  text-align: center;
+}
+.housing-dtp-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 10px;
+}
+.housing-dtp-action {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.housing-dtp-action:hover {
+  background: var(--housing-chip-sunken-bg);
+  color: var(--housing-text);
+}
+.housing-dtp-action-primary {
+  color: var(--housing-aether-soft);
+  border-color: var(--housing-aether-border);
+}
+
 .housing-register-visibility-note {
   margin: 0;
   padding-top: 10px;

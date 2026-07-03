@@ -2149,7 +2149,16 @@
                 "public": "모든 사용자에게 공개",
                 "private": "비공개 (나만 보기)",
                 "set_end_datetime": "공개 종료 일시 설정",
-                "auto_hide_note": "공개 종료 일시가 지나면 자동으로 목록에서 숨겨집니다"
+                "auto_hide_note": "공개 종료 일시가 지나면 자동으로 목록에서 숨겨집니다",
+                "picker": {
+                    "placeholder": "날짜와 시간 선택",
+                    "time_label": "시간",
+                    "clear": "지우기",
+                    "today": "오늘",
+                    "done": "완료",
+                    "prev_month": "이전 달",
+                    "next_month": "다음 달"
+                }
             },
             "guide": {
                 "title": "등록 절차",
@@ -2178,6 +2187,7 @@
                 "load_error": "지도를 불러올 수 없습니다",
                 "summary_ward": "{{ward}} 구",
                 "summary_plot": "{{plot}} 번지",
+                "summary_room": "#{{room}}",
                 "summary_separator": " / "
             },
             "autosave": {
