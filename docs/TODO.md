@@ -9,7 +9,11 @@
 
 ---
 
-## 次の作業順 (2026-07-01 更新)
+## 次の作業順 (2026-07-04 更新)
+
+**🔴最優先: M1「ツアー中(Nav)ページ」実装中 (2026-07-04)**。ブランチ=`feat/housing-tour-nav-m1`(**未push・実機ゲート前**)@6c15dd6e。**Task1〜6完了・全review✅**(tourNav/wardRoute純関数・i18n4言語・進捗パネル左・LIVE地図中央・目的地パネル右)。残=**Task7空状態 / Task8ページ本体+`/housing/tour`ルート配線(=ここで初めて実ページ化) / Task9統合+最終レビュー** →ユーザー実機ゲート→merge/本番。spec/plan=`docs/superpowers/{specs,plans}/2026-07-04-housing-tour-nav-page*`、台帳=`.superpowers/sdd/progress.md`(🌅次セッション再開手順あり)、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
+- **✅本日デプロイ済(main)**: 他エリア地図のNode赤丸隠蔽(circle対応・b85b7410)/YouTubeサムネfallback配線(dda47eaf)。**要ユーザー実機確認**(登録ミニマップの赤丸消滅・探すのミスト1-1サムネ)。
+
 1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
    - **✅本番反映済(2026-07-03・main=f423fa87)**: 土台+シェル/探す(質感A案)/お気に入り/**登録ページ+非公開機能**を本番公開。index+rules deploy済・backfill済。実機ゲートで**非公開=Not Found(漏洩なし)確認**。実機バグ B1(バッジi18n)/B2(期限トグルで中央消滅)/B4(詳細スクロール)/B5(アパート住所未入力扱い)は修正・本番反映済。詳細=台帳`.superpowers/sdd/progress.md`。
      - **✅07-03: B6(部屋番号)/D5(カレンダー)実機OK・B7(過去期限→無期限公開の漏れ)修正済(cf423dcd)・B9(カード→詳細導線)済(1b224b78)・カード全面刷新(統一4:3タイル+タイトルのみ+ループマーキー+常設ツアー追加=B8構造根治)ローカル承認→push**。**実機確認待ち=①期限6/30登録→シークレットNot Found(B7) ②旧テスト物件(無期限公開のまま残存)を詳細ページの…メニューから削除 ③カード新デザイン本番確認**。
