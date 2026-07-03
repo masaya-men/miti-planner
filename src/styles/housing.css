@@ -186,6 +186,9 @@
   /* ===== ツアー中(Nav) 中央カラム: LIVE地図 (Task5) ===== */
   --housing-tour-map-node-size: 26px;   /* 番号ノードの直径 */
   --housing-tour-map-legend-swatch: 10px; /* 凡例の色見本サイズ */
+  /* ===== ツアー中(Nav) 右カラム: 次の目的地パネル + ルートステップ (Task6) ===== */
+  --housing-tour-dest-thumb-h: 132px;    /* 次の目的地カードのサムネ高さ */
+  --housing-tour-steps-index-size: 22px; /* ルートステップの番号バッジサイズ */
 
   /* ===== 再構築シェル (Rebuild) tokens ===== */
   --housing-tab-active: var(--housing-honey);
@@ -6093,6 +6096,245 @@ select.housing-input option {
   border-radius: 2px;
   background: var(--housing-candle);
 }
+
+/* ============================================================
+ * 右カラム: 次の目的地パネル + ルートのステップ
+ * (Task6・TourNextDestinationPanel/TourRouteSteps)
+ * ============================================================ */
+.housing-tour-dest {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1 1 auto;
+  gap: 14px;
+}
+
+/* 次の目的地カード */
+.housing-tour-dest-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.housing-tour-dest-thumb {
+  width: 100%;
+  height: var(--housing-tour-dest-thumb-h);
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--housing-card-thumb-bg);
+  flex: 0 0 auto;
+}
+.housing-tour-dest-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.housing-tour-dest-title {
+  margin: 0;
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-tour-dest-world {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-dest-facts {
+  display: flex;
+  flex-direction: column;
+  margin: 4px 0 0;
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-tour-dest-fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-tour-dest-fact-label {
+  margin: 0;
+  flex: 0 0 auto;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-dest-fact-value {
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-tour-dest-memo {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+  line-height: 1.5;
+}
+
+/* ルートのステップ */
+.housing-tour-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.housing-tour-steps-heading {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--housing-text-mute);
+}
+.housing-tour-steps-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow-y: auto;
+}
+.housing-tour-steps-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-tour-steps-item--current {
+  border-color: var(--housing-aether-border);
+}
+.housing-tour-steps-index {
+  flex: 0 0 auto;
+  width: var(--housing-tour-steps-index-size);
+  height: var(--housing-tour-steps-index-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: var(--housing-text-xs);
+  font-weight: 700;
+  background: var(--housing-panel-border-strong);
+  color: var(--housing-text-dim);
+}
+.housing-tour-steps-item--arrived .housing-tour-steps-index {
+  background: var(--housing-honey);
+  color: var(--housing-honey-text-strong);
+}
+.housing-tour-steps-item--current .housing-tour-steps-index {
+  background: var(--housing-aether);
+  color: var(--housing-map-light);
+  box-shadow: 0 0 6px var(--housing-aether);
+}
+.housing-tour-steps-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.housing-tour-steps-addr {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-tour-steps-note {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-steps-status {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  white-space: nowrap;
+}
+.housing-tour-steps-item--current .housing-tour-steps-status {
+  color: var(--housing-aether-soft);
+}
+.housing-tour-steps-item--arrived .housing-tour-steps-status {
+  color: var(--housing-candle);
+}
+
+/* 操作: 前へ / 主ボタン (到着した→次へ or ツアーを完了) */
+.housing-tour-dest-actions {
+  display: flex;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.housing-tour-dest-prev {
+  appearance: none;
+  cursor: pointer;
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-dest-prev:hover:not(:disabled) { background: var(--housing-chip-bg-hover); }
+.housing-tour-dest-prev:active:not(:disabled) { transform: scale(0.98); }
+.housing-tour-dest-prev:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-tour-dest-prev:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+
+.housing-tour-dest-primary {
+  appearance: none;
+  cursor: pointer;
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 700;
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-dest-primary:hover { filter: brightness(1.05); }
+.housing-tour-dest-primary:active { transform: scale(0.98); }
+.housing-tour-dest-primary:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+
+/* 報告 (情報が違う) — 静かなテキストボタン。色付きalert箱にはしない */
+.housing-tour-dest-report {
+  appearance: none;
+  cursor: pointer;
+  flex: 0 0 auto;
+  align-self: flex-start;
+  padding: 2px 4px;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  text-decoration: underline;
+  transition: color 0.15s ease;
+}
+.housing-tour-dest-report:hover { color: var(--housing-candle); }
+.housing-tour-dest-report:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 
 /* 右カラム: お気に入りプレビュー (参考UI準拠) */
 .housing-fav-strip {

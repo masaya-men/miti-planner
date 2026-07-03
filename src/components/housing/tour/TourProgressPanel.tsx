@@ -2,21 +2,11 @@ import { useTranslation } from 'react-i18next';
 import { ProgressRing } from './ProgressRing';
 import type { TourProgress } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import type { MockListing } from '../../../data/housing/mockListings';
+import { representativeImage } from '../../../lib/housing/representativeImage';
 
 export interface TourProgressPanelProps {
   progress: TourProgress;
   onFinish: () => void;
-}
-
-// 代表画像フォールバック。ListingCard.tsx の representativeImage と同じ考え方の
-// ローカル複製 (YAGNI・ブリーフ指示どおり共通化はしない)。
-const PLACEHOLDER = '/housing/mock-thumbs/1.svg';
-
-function representativeImage(l: MockListing): string {
-  if (l.imageMode === 'thumbnail' && l.thumbnailPath) return l.thumbnailPath;
-  if (l.imageMode === 'sns' && l.ogImageUrl) return l.ogImageUrl;
-  return PLACEHOLDER;
 }
 
 /**
