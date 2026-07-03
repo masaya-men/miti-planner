@@ -2724,6 +2724,64 @@
                 "hours_ago": "{{n}} 時間前",
                 "days_ago": "{{n}} 日前"
             }
+        },
+        "tour": {
+            "nav": {
+                "title": "On Tour (Navigation)",
+                "live": "Updates automatically",
+                "progress": {
+                    "label": "Tour progress",
+                    "done_of_total": "{{done}} / {{total}}",
+                    "percent_done": "{{percent}}% complete",
+                    "arrived": "Visited",
+                    "remaining": "Remaining"
+                },
+                "next_place": "Next stop",
+                "recent": "Recently visited",
+                "finish": "End tour",
+                "complete": {
+                    "title": "You've visited them all",
+                    "lead": "Great work — your tour is complete, so you can head back to the listings.",
+                    "back_browse": "Back to Browse",
+                    "back_favorites": "Back to Favorites"
+                },
+                "steps": {
+                    "heading": "Route steps",
+                    "status": {
+                        "arrived": "Visited",
+                        "current": "Up next",
+                        "upcoming": "Not yet visited"
+                    },
+                    "map_pending": "Map is being prepared (all areas coming soon)",
+                    "missing": "This listing could not be found"
+                },
+                "actions": {
+                    "prev": "Previous",
+                    "arrive_next": "Arrived → Next",
+                    "complete": "Complete tour"
+                },
+                "dest": {
+                    "address": "Address",
+                    "size": "Size",
+                    "world": "World",
+                    "aetheryte": "Nearest Aetheryte",
+                    "memo": "Note",
+                    "no_memo": "No note"
+                },
+                "report_button": "Info wrong? Report it",
+                "empty": {
+                    "title": "Your tour hasn't started yet",
+                    "lead": "Pick housing you'd like to visit from your favorites to start a tour.",
+                    "cta": "Go to Favorites"
+                },
+                "legend": {
+                    "here": "You are here",
+                    "next": "Next destination",
+                    "arrived": "Visited",
+                    "upcoming": "Not yet visited",
+                    "route": "Route (approximate)"
+                }
+            }
         }
     },
     "system_notif": {

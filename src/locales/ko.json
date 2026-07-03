@@ -2689,6 +2689,64 @@
                 "hours_ago": "{{n}} 時間前",
                 "days_ago": "{{n}} 日前"
             }
+        },
+        "tour": {
+            "nav": {
+                "title": "투어 중 (내비게이션)",
+                "live": "정보가 자동으로 갱신됩니다",
+                "progress": {
+                    "label": "투어 진행 상황",
+                    "done_of_total": "{{done}} / {{total}}곳",
+                    "percent_done": "{{percent}}% 완료",
+                    "arrived": "도착 완료",
+                    "remaining": "남음"
+                },
+                "next_place": "다음 방문지",
+                "recent": "최근 방문한 곳",
+                "finish": "투어 종료",
+                "complete": {
+                    "title": "모든 곳을 둘러봤습니다",
+                    "lead": "수고하셨습니다. 투어를 마치고 목록으로 돌아갈 수 있습니다.",
+                    "back_browse": "둘러보기로 돌아가기",
+                    "back_favorites": "즐겨찾기로 돌아가기"
+                },
+                "steps": {
+                    "heading": "경로 단계",
+                    "status": {
+                        "arrived": "도착 완료",
+                        "current": "다음 방문",
+                        "upcoming": "미도착"
+                    },
+                    "map_pending": "지도는 준비 중입니다 (전체 지역은 곧 제공됩니다)",
+                    "missing": "이 매물을 찾을 수 없습니다"
+                },
+                "actions": {
+                    "prev": "이전",
+                    "arrive_next": "도착함 → 다음으로",
+                    "complete": "투어 완료"
+                },
+                "dest": {
+                    "address": "주소",
+                    "size": "크기",
+                    "world": "월드",
+                    "aetheryte": "가장 가까운 에테라이트",
+                    "memo": "한 줄 메모",
+                    "no_memo": "메모가 없습니다"
+                },
+                "report_button": "정보가 다른가요? 신고하기",
+                "empty": {
+                    "title": "아직 투어를 시작하지 않았습니다",
+                    "lead": "즐겨찾기에서 방문하고 싶은 하우징을 선택해 투어를 시작해 보세요.",
+                    "cta": "즐겨찾기로 가기"
+                },
+                "legend": {
+                    "here": "현재 위치",
+                    "next": "다음 목적지",
+                    "arrived": "도착 완료",
+                    "upcoming": "미도착",
+                    "route": "이동 경로 (예상)"
+                }
+            }
         }
     },
     "system_notif": {

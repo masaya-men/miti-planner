@@ -2745,6 +2745,64 @@
                 "hours_ago": "{{n}} 時間前",
                 "days_ago": "{{n}} 日前"
             }
+        },
+        "tour": {
+            "nav": {
+                "title": "ツアー中（ナビゲーション）",
+                "live": "情報は自動で更新されます",
+                "progress": {
+                    "label": "ツアー進行状況",
+                    "done_of_total": "{{done}} / {{total}} 軒",
+                    "percent_done": "{{percent}}% 完了",
+                    "arrived": "到着済み",
+                    "remaining": "残り"
+                },
+                "next_place": "次に訪れる場所",
+                "recent": "最近訪れた場所",
+                "finish": "ツアーを終了",
+                "complete": {
+                    "title": "すべて回りました",
+                    "lead": "お疲れさまでした。ツアーを終えて一覧に戻れます。",
+                    "back_browse": "探すに戻る",
+                    "back_favorites": "お気に入りに戻る"
+                },
+                "steps": {
+                    "heading": "ルートのステップ",
+                    "status": {
+                        "arrived": "到着済み",
+                        "current": "次に訪問",
+                        "upcoming": "未到着"
+                    },
+                    "map_pending": "地図は準備中（全エリアは近日）",
+                    "missing": "この物件は見つかりません"
+                },
+                "actions": {
+                    "prev": "前へ",
+                    "arrive_next": "到着した → 次へ",
+                    "complete": "ツアーを完了"
+                },
+                "dest": {
+                    "address": "住所",
+                    "size": "サイズ",
+                    "world": "ワールド",
+                    "aetheryte": "最寄りエーテライト",
+                    "memo": "ひとことメモ",
+                    "no_memo": "メモはありません"
+                },
+                "report_button": "情報が違う・報告する",
+                "empty": {
+                    "title": "ツアーがまだ始まっていません",
+                    "lead": "お気に入りから行きたいハウジングを選んでツアーを始めましょう。",
+                    "cta": "お気に入りへ"
+                },
+                "legend": {
+                    "here": "現在地",
+                    "next": "次の目的地",
+                    "arrived": "到着済み",
+                    "upcoming": "未到着",
+                    "route": "移動ルート（目安）"
+                }
+            }
         }
     },
     "system_notif": {
