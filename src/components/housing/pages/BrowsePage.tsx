@@ -15,6 +15,7 @@ import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { TourTray } from '../browse/TourTray';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
+import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 
 /**
  * 探すページ (3カラム): 左=フィルター / 中央=物件グリッド / 右=ツアートレイ。
@@ -64,7 +65,8 @@ export const BrowsePage: React.FC = () => {
 
   const onStart = () => {
     if (trayIds.length === 0) return;
-    useHousingTourStore.getState().setListings(trayIds);
+    const orderedIds = orderTourStopIds(trayIds, merged);
+    useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
     navigate('/housing/tour');

@@ -18,6 +18,7 @@ import { TourTray } from '../browse/TourTray';
 import { MannerNoticeDialog, isMannerNoticeDismissed } from '../workspace/MannerNoticeDialog';
 import { orderFavorites } from '../favorites/favoritesOrder';
 import type { FavTab } from '../favorites/favoritesOrder';
+import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 
 /**
  * お気に入りページ (3カラム): 左=オンボ(後続タスク) / 中央=お気に入りグリッド / 右=トレイ。
@@ -110,12 +111,13 @@ export const FavoritesPage: React.FC = () => {
   // ツアー開始: マナー通知 dismiss 済みなら直接、未 dismiss ならダイアログを挟む
   const commitStart = useCallback(() => {
     if (trayIds.length === 0) return;
-    useHousingTourStore.getState().setListings(trayIds);
+    const orderedIds = orderTourStopIds(trayIds, allListings);
+    useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
     setMannerOpen(false);
     navigate('/housing/tour');
-  }, [trayIds, navigate]);
+  }, [trayIds, allListings, navigate]);
 
   const handleStart = useCallback(() => {
     if (trayIds.length === 0) return;
