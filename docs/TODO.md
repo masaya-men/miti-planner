@@ -18,6 +18,7 @@
     - (c)[小] 凡例「現在地」と「次の目的地」が同色青(`--housing-aether`)で凡例上区別不能→色/形/ラベルで分ける。
     - (d)[小] 右カラム「ルートのステップ」一覧が窮屈(詳細カードに押され1件のみ表示・スクロール前提)→高さ/レイアウト調整。
     - (e)[判断待ち] 死にキー `housing.tour.nav.title`(「ツアー中（ナビゲーション）」)=削除推奨(モック準拠・ナビタブが既出)。ユーザー確認待ち。
+  - **▶本物のナビ化 実装中(2026-07-04)**: spec=`docs/superpowers/specs/2026-07-04-housing-tour-real-navigation-design.md`。**P1(言葉ナビ本体)=完了・検証済・コミット済(未merge)**=全5エリア×60の最寄りエーテライト実名＋言葉ナビを右パネルに表示(行き方データ300件を`wardDirections.generated.json`に焼込・`getPlotDirections`・plan=`...p1-verbal-nav.md`)。**Goblet拡張街(31-60)は行き方本文が空**(スプシ未記入・テレポ先のみ表示・masaya記入待ち)。**次=P2(自動並べ替え`orderTourStops`＋TourNavMap全エリア対応=Mistハードコード撤去・`resolveWardMapRef`再利用)→P3(移動ナビ:区/エリア/ワールド/DC)→P4(ゴージャス化＋実エーテライト起点:SVGエーテライト名パース)＋小物b-e**。
 - **✅本日デプロイ済(main)**: 他エリア地図のNode赤丸隠蔽(circle対応・b85b7410)/YouTubeサムネfallback配線(dda47eaf)。**要ユーザー実機確認**(登録ミニマップの赤丸消滅・探すのミスト1-1サムネ)。
 
 1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
