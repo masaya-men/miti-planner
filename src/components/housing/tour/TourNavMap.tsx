@@ -15,7 +15,6 @@ const LEGEND_ITEMS = ['here', 'next', 'arrived', 'upcoming', 'route'] as const;
 export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, model }) => {
   const { t } = useTranslation();
   const hostRef = useRef<HTMLDivElement>(null);
-  const target = model?.target ?? null;
   const route = model?.routePath ?? null;
   const origin = model?.origin ?? null;
   const targetElId = model?.targetElId ?? null;
@@ -67,17 +66,6 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
                       <animate attributeName="opacity" from="0.9" to="0" dur="1.6s" repeatCount="indefinite" />
                     </circle>
                     <circle className="housing-tour-map-origin-core" cx={origin.x} cy={origin.y} r="7" />
-                  </g>
-                )}
-                {/* 目的地の放射リング (箱中心から広がる波紋)。箱本体のハイライトは上の useEffect で実パスに付与。 */}
-                {target && (
-                  <g aria-hidden="true">
-                    {[0, 0.9].map((begin) => (
-                      <circle key={begin} cx={target.x} cy={target.y} r="60" fill="none" stroke="var(--housing-candle)" strokeWidth="6" style={{ filter: 'drop-shadow(0 0 10px var(--housing-honey))' }}>
-                        <animate attributeName="r" from="60" to="170" dur="1.8s" begin={`${begin}s`} repeatCount="indefinite" />
-                        <animate attributeName="stroke-opacity" from="0.95" to="0" dur="1.8s" begin={`${begin}s`} repeatCount="indefinite" />
-                      </circle>
-                    ))}
                   </g>
                 )}
               </svg>
