@@ -11,7 +11,7 @@
 
 ## 次の作業順 (2026-07-04 更新)
 
-**🔴最優先: M1「ツアー中(Nav)ページ」実装中 (2026-07-04)**。ブランチ=`feat/housing-tour-nav-m1`(**未push・実機ゲート前**)@6c15dd6e。**Task1〜6完了・全review✅**(tourNav/wardRoute純関数・i18n4言語・進捗パネル左・LIVE地図中央・目的地パネル右)。残=**Task7空状態 / Task8ページ本体+`/housing/tour`ルート配線(=ここで初めて実ページ化) / Task9統合+最終レビュー** →ユーザー実機ゲート→merge/本番。spec/plan=`docs/superpowers/{specs,plans}/2026-07-04-housing-tour-nav-page*`、台帳=`.superpowers/sdd/progress.md`(🌅次セッション再開手順あり)、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
+**🔴最優先: M1「ツアー中(Nav)ページ」= 実装完了・ユーザー実機ゲート待ち (2026-07-04)**。ブランチ=`feat/housing-tour-nav-m1`(**未push・実機ゲート前**)@`9d7ce03a`。**Task1〜9完了・全review✅・最終ブランチレビュー(opus)完了**(凡例↔ルート色不一致=Important 1件を修正済・triage 5件裁定済)。`npm run build` EXIT0 / 全体`npm test`=既知legacy5failのみ(新規ゼロ・parity緑)。`/housing/tour` が ComingSoon から実ページ化。**次=ユーザー実機ゲート**(`npm run dev`→`/housing/favorites`→開始→`/housing/tour` を DPR2.58/CSS1489目視・確認点は台帳🌅)→OKで main merge→本番。spec/plan=`docs/superpowers/{specs,plans}/2026-07-04-housing-tour-nav-page*`、台帳=`.superpowers/sdd/progress.md`(✅完了状態+ゲート手順)、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
 - **✅本日デプロイ済(main)**: 他エリア地図のNode赤丸隠蔽(circle対応・b85b7410)/YouTubeサムネfallback配線(dda47eaf)。**要ユーザー実機確認**(登録ミニマップの赤丸消滅・探すのミスト1-1サムネ)。
 
 1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
