@@ -77,8 +77,8 @@ export function EntranceAuthoringPage() {
   const exportJson = JSON.stringify(buildFullExport(overrides), null, 2);
 
   return (
-    <div className="housing-workspace housing-shell-root housing-entrance-authoring" data-theme="dark">
-      <div style={{ padding: 16 }}>
+    <div className="housing-workspace housing-workspace-flow housing-entrance-authoring" data-theme="dark">
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', paddingBottom: 12 }}>
         <label>
           マップ:{' '}
           <select value={mapKey} onChange={(e) => setMapKey(e.target.value)}>
@@ -92,47 +92,45 @@ export function EntranceAuthoringPage() {
         <button type="button" onClick={() => navigator.clipboard?.writeText(exportJson)}>
           JSON書き出し(クリップボード)
         </button>
+        <span style={{ opacity: 0.7 }}>マーカーをドラッグで補正(グレー→ハニー)。1マップずつ書き出し。</span>
       </div>
-      <div className="housing-tour-map" style={{ height: '70vh' }}>
-        <div className="housing-tour-map-stage">
-          <div className="housing-tour-map-wrap">
-            {asset.status === 'ready' && (
-              <>
-                <div className="housing-map-svg-host" dangerouslySetInnerHTML={{ __html: asset.svg }} />
-                <svg
-                  ref={svgRef}
-                  className="housing-map-overlay housing-entrance-overlay"
-                  viewBox={`0 0 ${vb.w} ${vb.h}`}
-                  preserveAspectRatio="xMidYMid meet"
-                  onPointerMove={onPointerMove}
-                  onPointerUp={() => setDragKey(null)}
-                  onPointerLeave={() => setDragKey(null)}
-                >
-                  {markers.map((m) => (
-                    <g key={m.key}>
-                      <circle
-                        data-testid="entrance-marker"
-                        className={`housing-entrance-marker${m.corrected ? ' housing-entrance-marker--corrected' : ''}`}
-                        cx={m.px}
-                        cy={m.py}
-                        r={7}
-                        onPointerDown={(e) => {
-                          (e.target as Element).setPointerCapture?.(e.pointerId);
-                          setDragKey(m.key);
-                        }}
-                      />
-                      <text className="housing-entrance-marker-label" x={m.px + 8} y={m.py}>
-                        {m.kind === 'apart' ? 'A' : m.plot}
-                      </text>
-                    </g>
-                  ))}
-                </svg>
-              </>
-            )}
-          </div>
+      {asset.status === 'ready' && (
+        <div
+          className="housing-entrance-stage"
+          style={{ aspectRatio: `${vb.w} / ${vb.h}`, maxWidth: `calc(82vh * ${vb.w} / ${vb.h})` }}
+        >
+          <div className="housing-map-svg-host" dangerouslySetInnerHTML={{ __html: asset.svg }} />
+          <svg
+            ref={svgRef}
+            className="housing-entrance-overlay"
+            viewBox={`0 0 ${vb.w} ${vb.h}`}
+            preserveAspectRatio="xMidYMid meet"
+            onPointerMove={onPointerMove}
+            onPointerUp={() => setDragKey(null)}
+            onPointerLeave={() => setDragKey(null)}
+          >
+            {markers.map((m) => (
+              <g key={m.key}>
+                <circle
+                  data-testid="entrance-marker"
+                  className={`housing-entrance-marker${m.corrected ? ' housing-entrance-marker--corrected' : ''}`}
+                  cx={m.px}
+                  cy={m.py}
+                  r={7}
+                  onPointerDown={(e) => {
+                    (e.target as Element).setPointerCapture?.(e.pointerId);
+                    setDragKey(m.key);
+                  }}
+                />
+                <text className="housing-entrance-marker-label" x={m.px + 8} y={m.py}>
+                  {m.kind === 'apart' ? 'A' : m.plot}
+                </text>
+              </g>
+            ))}
+          </svg>
         </div>
-      </div>
-      <pre style={{ maxHeight: 160, overflow: 'auto', padding: 12 }}>{exportJson}</pre>
+      )}
+      <pre style={{ maxHeight: 160, overflow: 'auto', padding: 12, marginTop: 12 }}>{exportJson}</pre>
     </div>
   );
 }

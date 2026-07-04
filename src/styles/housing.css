@@ -6883,11 +6883,23 @@ select.housing-input option {
  * 入口オーサリングページ (開発専用ツール): 全区画の入口マーカーを
  * ドラッグ補正し JSON 書き出しするための最小UI。本番非露出。
  * ============================================================ */
-.housing-entrance-authoring { position: relative; width: 100%; height: 100%; }
-.housing-entrance-overlay { position: absolute; inset: 0; }
+/* 開発専用オーサリング: ツアーパネル chrome (overflow:hidden/固定aspect/overlay pointer-events:none) は
+ * 流用しない。地図全体を見せる専用ステージ + 操作可能オーバーレイにする。 */
+.housing-entrance-authoring { position: relative; width: 100%; min-height: 100dvh; padding: 16px; }
+/* 地図ステージ: aspect-ratio(=viewBox)と max-width(高さを 82vh に収める)は inline style で付与。 */
+.housing-entrance-stage {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 14px;
+}
+.housing-entrance-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: auto; overflow: visible; }
 .housing-entrance-marker {
   fill: var(--housing-entrance-marker);
   r: calc(var(--housing-entrance-marker-size) / 2); /* CSS r で presentation 属性(フォールバック用 r={7})を上書き */
+  pointer-events: auto;
   cursor: grab;
 }
 .housing-entrance-marker--corrected { fill: var(--housing-entrance-marker-corrected); }
