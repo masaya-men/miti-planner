@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { WARD_CENTER_NODE, plotToPlacement, buildRoutePath, nodeToPoint, MAP_VIEWBOX } from '../wardRoute';
 import mistWard from '../../../data/housing/mistWard.generated.json';
+import { plotToPlacementIn, nodeToPointIn, buildRoutePathIn } from '../wardRoute';
+import type { WardMapJson } from '../../../data/housing/wardMapManifest';
+import gobletWardRaw from '../../../data/housing/gobletWard.generated.json';
+const gobletWard = gobletWardRaw as unknown as WardMapJson;
 
 describe('plotToPlacement', () => {
   it('存在する plot は viewBox 内の座標を返す', () => {
@@ -42,4 +46,12 @@ describe('nodeToPoint', () => {
   it('未知ノードは null', () => {
     expect(nodeToPoint('node_zzz')).toBeNull();
   });
+});
+
+describe('wardRoute *In (ワード JSON 引数・非 Mist で成立)', () => {
+  it('plotToPlacementIn: 既知 plot は px 座標', () => { const p = plotToPlacementIn(gobletWard, 1); expect(p).not.toBeNull(); expect(p!.x).toBeGreaterThan(0); });
+  it('plotToPlacementIn: 存在しない plot は null', () => { expect(plotToPlacementIn(gobletWard, 999)).toBeNull(); });
+  it('nodeToPointIn: 先頭ノードは座標・未知は null', () => { expect(nodeToPointIn(gobletWard, gobletWard.nodes[0].id)).not.toBeNull(); expect(nodeToPointIn(gobletWard, 'node_zzz')).toBeNull(); });
+  it('buildRoutePathIn: 玄関ノードを持つ家まで経路が引ける', () => { const h = gobletWard.houses.find((x) => x.kind === 'plot' && x.node); const path = buildRoutePathIn(gobletWard, gobletWard.nodes[0].id, h!.node!); expect(path).toMatch(/^M/); });
+  it('buildRoutePathIn: 未知ノードは null', () => { expect(buildRoutePathIn(gobletWard, gobletWard.nodes[0].id, 'node_zzz')).toBeNull(); });
 });
