@@ -2785,7 +2785,8 @@
                     "address": "住所",
                     "size": "サイズ",
                     "world": "ワールド",
-                    "aetheryte": "最寄りエーテライト",
+                    "directions": "行き方",
+                    "teleport_to": "{{aetheryte}} へ移動",
                     "memo": "ひとことメモ",
                     "no_memo": "メモはありません"
                 },

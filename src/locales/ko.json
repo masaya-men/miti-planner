@@ -2729,7 +2729,8 @@
                     "address": "주소",
                     "size": "크기",
                     "world": "월드",
-                    "aetheryte": "가장 가까운 에테라이트",
+                    "directions": "가는 길",
+                    "teleport_to": "{{aetheryte}}(으)로 이동",
                     "memo": "한 줄 메모",
                     "no_memo": "메모가 없습니다"
                 },

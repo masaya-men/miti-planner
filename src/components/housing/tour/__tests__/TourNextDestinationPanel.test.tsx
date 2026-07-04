@@ -8,6 +8,7 @@ import jaTranslations from '../../../../locales/ja.json';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import type { TourStep } from '../../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../../lib/housing/formatHousingAddress';
+import { getPlotDirections } from '../../../../lib/housing/wardDirections';
 
 import { TourNextDestinationPanel } from '../TourNextDestinationPanel';
 import { TourRouteSteps } from '../TourRouteSteps';
@@ -84,6 +85,31 @@ describe('TourNextDestinationPanel — 次の目的地の詳細', () => {
       steps: [{ id: noMemoListing.id, listing: noMemoListing }],
     });
     expect(screen.getByText('メモはありません')).toBeInTheDocument();
+  });
+
+  it('行き方ブロック: 最寄りエーテライトへ移動 + 徒歩ナビが出る', () => {
+    const { container } = renderPanel();
+    const route = container.querySelector('.housing-tour-dest-route');
+    expect(route).not.toBeNull();
+    const dir = getPlotDirections(currentListing.area, currentListing.plot)!;
+    expect(dir).not.toBeNull();
+    expect(route!.textContent).toContain(dir.aetheryte);
+    if (dir.directions) expect(route!.textContent).toContain(dir.directions);
+  });
+
+  it('旧「最寄りエーテライト(エリア名)」の dl 行は無い', () => {
+    const { container } = renderPanel();
+    const facts = container.querySelector('.housing-tour-dest-facts')!;
+    expect(facts.textContent).not.toContain('最寄りエーテライト');
+  });
+
+  it('plot 無し(アパート等)では行き方ブロックが出ない', () => {
+    const apt = { ...currentListing, buildingType: 'apartment' as const, plot: undefined };
+    const { container } = renderPanel({
+      currentStep: { id: apt.id, listing: apt },
+      steps: [{ id: apt.id, listing: apt }],
+    });
+    expect(container.querySelector('.housing-tour-dest-route')).toBeNull();
   });
 });
 

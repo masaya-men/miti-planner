@@ -2764,7 +2764,8 @@
                     "address": "Address",
                     "size": "Size",
                     "world": "World",
-                    "aetheryte": "Nearest Aetheryte",
+                    "directions": "Directions",
+                    "teleport_to": "Teleport to {{aetheryte}}",
                     "memo": "Note",
                     "no_memo": "No note"
                 },

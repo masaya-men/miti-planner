@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { representativeImage } from '../../../lib/housing/representativeImage';
-import { getAreaName } from '../../../lib/housing/areaName';
+import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { TourRouteSteps } from './TourRouteSteps';
 
 export interface TourNextDestinationPanelProps {
@@ -37,6 +37,7 @@ export const TourNextDestinationPanel: React.FC<TourNextDestinationPanelProps> =
   const { t, i18n } = useTranslation();
   const listing = currentStep?.listing ?? null;
   const isApartment = listing?.buildingType === 'apartment';
+  const directions = getPlotDirections(listing?.area ?? '', listing?.plot);
 
   return (
     <div className="housing-tour-dest">
@@ -82,14 +83,6 @@ export const TourNextDestinationPanel: React.FC<TourNextDestinationPanelProps> =
             </div>
             <div className="housing-tour-dest-fact">
               <dt className="housing-tour-dest-fact-label">
-                {t('housing.tour.nav.dest.aetheryte')}
-              </dt>
-              <dd className="housing-tour-dest-fact-value">
-                {getAreaName(listing.area, i18n.language)}
-              </dd>
-            </div>
-            <div className="housing-tour-dest-fact">
-              <dt className="housing-tour-dest-fact-label">
                 {t('housing.tour.nav.dest.memo')}
               </dt>
               <dd className="housing-tour-dest-fact-value">
@@ -97,6 +90,20 @@ export const TourNextDestinationPanel: React.FC<TourNextDestinationPanelProps> =
               </dd>
             </div>
           </dl>
+
+          {directions && (
+            <div className="housing-tour-dest-route">
+              <span className="housing-tour-dest-route-label">
+                {t('housing.tour.nav.dest.directions')}
+              </span>
+              <p className="housing-tour-dest-route-teleport">
+                {t('housing.tour.nav.dest.teleport_to', { aetheryte: directions.aetheryte })}
+              </p>
+              {directions.directions && (
+                <p className="housing-tour-dest-route-walk">{directions.directions}</p>
+              )}
+            </div>
+          )}
         </div>
       )}
 

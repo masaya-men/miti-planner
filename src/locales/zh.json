@@ -2729,7 +2729,8 @@
                     "address": "地址",
                     "size": "大小",
                     "world": "世界",
-                    "aetheryte": "最近的以太之光",
+                    "directions": "路线",
+                    "teleport_to": "传送至 {{aetheryte}}",
                     "memo": "一句备注",
                     "no_memo": "没有备注"
                 },

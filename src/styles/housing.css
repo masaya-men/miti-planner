@@ -6173,6 +6173,31 @@ select.housing-input option {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* 行き方 (最寄りエーテライト + 言葉ナビ) = ツアーの本体 */
+.housing-tour-dest-route {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--housing-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.housing-tour-dest-route-label {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-dest-route-teleport {
+  margin: 0;
+  font-size: var(--housing-text-md);
+  color: var(--housing-honey);
+  font-weight: 600;
+}
+.housing-tour-dest-route-walk {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+  line-height: 1.5;
+}
 /* ルートのステップ */
 .housing-tour-steps {
   display: flex;
