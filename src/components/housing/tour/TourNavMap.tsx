@@ -162,7 +162,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ placed, currentPlot, ori
           {/* ③ 番号ノード (状態色: arrived=honey+チェック / current=aether / upcoming=グレー) */}
           {placedNodes.map(({ step, placement }) => (
             <div
-              key={step.plot}
+              key={step.index}
               data-testid="tour-map-node"
               data-status={step.status}
               className={`housing-tour-map-node housing-tour-map-node--${step.status}`}
