@@ -3,7 +3,7 @@ export interface WardMapJson {
   viewBox: { w: number; h: number };
   nodes: Array<{ id: string; x: number; y: number }>;
   edges: Array<{ a: string; b: string; polyline: number[][] }>;
-  houses: Array<{ kind: 'plot' | 'apart'; plot: number; x: number; y: number; node: string | null }>;
+  houses: Array<{ kind: 'plot' | 'apart'; plot: number; x: number; y: number; node: string | null; outline: number[][] | null }>;
   roadPath: string;
   // 一部エリア (Lavender/Shirogane/Empyreum の main/sub) は SVG に赤線ナビ表示要素が無く null。
   visibleRoadPath: string | null;

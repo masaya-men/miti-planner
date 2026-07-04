@@ -69,3 +69,24 @@ export function elementCenterPx(open, tag) {
   const c = dm ? bboxCenterPx(dm[1]) : null;
   return c ? applyTransform(c.x, c.y, open) : null;
 }
+
+/** 要素の輪郭頂点(px)。rect=4隅 / path=on-curve点 / circle=bbox4隅。rotate transform 適用。 */
+export function elementOutlinePx(open, tag) {
+  let pts = [];
+  if (tag === 'rect') {
+    const x = attrNum(open, 'x') ?? 0, y = attrNum(open, 'y') ?? 0;
+    const w = attrNum(open, 'width') ?? 0, h = attrNum(open, 'height') ?? 0;
+    pts = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+  } else if (tag === 'circle' || tag === 'ellipse') {
+    const cx = attrNum(open, 'cx') ?? 0, cy = attrNum(open, 'cy') ?? 0;
+    const rx = attrNum(open, 'rx') ?? attrNum(open, 'r') ?? 0;
+    const ry = attrNum(open, 'ry') ?? attrNum(open, 'r') ?? 0;
+    pts = [[cx - rx, cy - ry], [cx + rx, cy - ry], [cx + rx, cy + ry], [cx - rx, cy + ry]];
+  } else {
+    const dm = open.match(/\sd="([^"]+)"/);
+    if (!dm) return null;
+    pts = pathPoints(dm[1]);
+  }
+  if (pts.length < 3) return null;
+  return pts.map(([x, y]) => { const p = applyTransform(x, y, open); return [p.x, p.y]; });
+}

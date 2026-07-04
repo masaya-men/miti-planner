@@ -109,3 +109,28 @@ describe('ward JSON houses 座標 == 実 SVG の幾何中心 (全10マップ)', 
     }
   });
 });
+
+// Task 3: houses[].outline (輪郭頂点・0..1 正規化) の付与を検証する。
+// 全 10 マップで「outline あり・3 点以上・0..1 範囲・重心≒登録中心」を確認する。
+describe('ward JSON houses[].outline (輪郭頂点) (全10マップ)', () => {
+  for (const [ward] of MAPS) {
+    it(`${ward}: 各 house に outline(3 点以上・0..1 範囲)が付き、重心が中心と概ね一致`, () => {
+      const data = JSON.parse(read(`${ward}.generated.json`)) as unknown as {
+        houses: Array<{ kind: string; plot: number; x: number; y: number; outline: number[][] | null }>;
+      };
+      for (const h of data.houses) {
+        expect(Array.isArray(h.outline), `${ward} ${h.kind}_${h.plot} outline`).toBe(true);
+        expect(h.outline!.length, `${ward} ${h.kind}_${h.plot} outline length`).toBeGreaterThanOrEqual(3);
+        for (const [x, y] of h.outline!) {
+          expect(x).toBeGreaterThanOrEqual(0);
+          expect(x).toBeLessThanOrEqual(1);
+          expect(y).toBeGreaterThanOrEqual(0);
+          expect(y).toBeLessThanOrEqual(1);
+        }
+        const cx = h.outline!.reduce((s, p) => s + p[0], 0) / h.outline!.length;
+        const cy = h.outline!.reduce((s, p) => s + p[1], 0) / h.outline!.length;
+        expect(Math.hypot(cx - h.x, cy - h.y), `${ward} ${h.kind}_${h.plot} 重心 vs 中心`).toBeLessThan(0.05);
+      }
+    });
+  }
+});

@@ -7,7 +7,7 @@
 //   house.node: 各家を最寄りノードへ自動接続
 // 座標は viewBox 基準で 0..1 正規化。
 import { readFileSync, writeFileSync } from 'node:fs';
-import { elementCenterPx } from './svg-path-center.mjs';
+import { elementCenterPx, elementOutlinePx } from './svg-path-center.mjs';
 
 const [, , inPath, area = 'Mist', outPath = `src/data/housing/${area.toLowerCase()}Ward.generated.json`] = process.argv;
 const svg = readFileSync(inPath, 'utf8');
@@ -27,10 +27,15 @@ function elementCenter(tag, attrs) {
 }
 
 // --- houses (<path|rect|circle> id="plot_N"|"apart_N") ---
+// outline: 輪郭頂点(0..1 正規化)。改善2 (箱縁の可視化) 用。rect=4隅/path=on-curve点/circle=bbox4隅。
+// 現行 *.generated.json への反映は scripts/add-house-outline.mjs (外科パッチ) で行っており、
+// この wholesale regen 経路は将来の一貫性のために dormant で維持している(通常は実行しない)。
 const houses = [];
 for (const m of svg.matchAll(/<(path|rect|circle|ellipse) id="(plot|apart)_(\d+)"([^>]*)>/g)) {
   const c = elementCenter(m[1], m[4]);
-  houses.push({ kind: m[2], plot: Number(m[3]), x: nx(c.x), y: ny(c.y), _px: c });
+  const outlinePx = elementOutlinePx(m[4], m[1]);
+  const outline = outlinePx ? outlinePx.map(([x, y]) => [nx(x), ny(y)]) : null;
+  houses.push({ kind: m[2], plot: Number(m[3]), x: nx(c.x), y: ny(c.y), outline, _px: c });
 }
 
 // --- nodes (Node グループ内、 <path|circle> id="node_N") ---
@@ -134,7 +139,7 @@ const out = {
   area, viewBox: { w: W, h: H },
   nodes: nodes.map(({ id, x, y }) => ({ id, x, y })),
   edges,
-  houses: houses.map(({ kind, plot, x, y, node }) => ({ kind, plot, x, y, node })),
+  houses: houses.map(({ kind, plot, x, y, node, outline }) => ({ kind, plot, x, y, node, outline })),
   roadPath: roadD,
   visibleRoadPath: visibleRoadD,
 };
