@@ -12,7 +12,7 @@
 ## 次の作業順 (2026-07-04 更新)
 
 **🔴🆕最優先: 中央地図の完成度を世界一へ。Phase1(改善1・2・3・8)+改善8道バグ根治+入口ツール=コード完成→ユーザー実機ゲート待ち(2026-07-05)**。ブランチ`feat/housing-tour-nav-m1` @`0ba319f7`(**未push・ゲート前**)。台帳=`.superpowers/sdd/progress.md`(**次セッションはここ読む**=Phase1 T1-6+M3、道バグfix、入口ツール T1-6+fix 全✅・実機ゲート手順)。
-  - **①ユーザー作業(入口採取ゲート)**: `npm run dev`→`/housing/dev/entrances`→マップ選択(まずミスト)→全区画マーカー→崩れた家をドラッグ補正(ハニー化)→「JSON書き出し」→そのJSONを私に渡す→`wardEntrances.generated.json`反映→ツアーで経路終点=入口を確認→他マップ横展開。
+  - **①ユーザー作業(入口採取ゲート・明日実施予定)**: `npm run dev`(**config変更したので必ず再起動**)→`/housing/dev/entrances`→マップ選択(まずミスト)→全区画マーカー→崩れた家をドラッグ補正(ハニー化)→**「保存(ファイルへ直接)」ボタン**で`wardEntrances.generated.json`に直書き(コピペ不要)→私に「入口を保存した」と一言→私がcommit+ツアーで経路終点=入口を確認→他マップ横展開。実機バグ2件(overlay操作不能/地図見切れ)は根治済・直保存も実機検証済。
   - Phase1実装済=①投影起点②箱縁で停止(→入口ツールで精度化)③波紋撤去⑧枠線色トークン化。**改善8道が黒残り=全10マップ2系統(path[mask]+id末尾(Stroke))対応で根治済・シロガネ実機OK**。入口ツール=改善2の精度化(getPlotEntrance/computePlotDoor/オーサリングpage・入口空=回帰なし)。build EXIT0/新規テスト全緑/保全マップ退行0/本番非露出確認。最終レビュー(opus)=Critical0・本番リスクなし。
   - **残Phase**:④⑤⑥⑦⑨⑩(番号撤去+ズーム/レイアウト/進行モデル/生きたカードPhase5)。10改善全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。**merge/push は実機ゲートOK後(feedback_deploy)**。
 
