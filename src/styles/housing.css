@@ -6163,7 +6163,12 @@ select.housing-input option {
 .housing-tour-map .housing-map-svg-host [id^="apart_"] {
   stroke: var(--housing-map-stroke);
 }
-.housing-tour-map .housing-map-svg-host path[mask] {
+/* 道路本体: マップにより描き方が2系統ある (全10マップ検証済)。
+ *  ① mist/mistSub/goblet/gobletSub … <g id="…(Stroke)"> 内の mask 付き path (= path[mask])
+ *  ② empyreum/lavender/shirogane ±sub … id 末尾が "(Stroke)" の単独 path (mask 無し)
+ * 両系統を和で受けて全マップの道を再着色する (旧実装は path[mask] のみで6マップの道が黒く残っていた)。 */
+.housing-tour-map .housing-map-svg-host path[mask],
+.housing-tour-map .housing-map-svg-host path[id$="(Stroke)"] {
   stroke: var(--housing-map-stroke-road);
 }
 
