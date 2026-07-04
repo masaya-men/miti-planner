@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TourMapModel } from '../../../lib/housing/buildTourMapPlacements';
 
@@ -9,12 +10,27 @@ export interface TourNavMapProps {
 }
 const LEGEND_ITEMS = ['here', 'next', 'arrived', 'upcoming', 'route'] as const;
 
-/** ツアー中(Nav) 中央: 表示専用の LIVE 地図(全5エリア)。現在の家のワード地図を描き、実エーテライト起点→家の経路をゴージャスにアニメ。host は必ず .housing-map-svg-host。 */
+/** ツアー中(Nav) 中央: 表示専用の LIVE 地図(全5エリア)。現在の家のワード地図を描き、実エーテライト起点→家の経路をゴージャスにアニメ。
+ * 目的地アピールは被せ矩形ではなく、地図SVG内の実際の区画/アパートのパス(#plot_N/#apart_N)自体を光らせる。host は必ず .housing-map-svg-host。 */
 export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, model }) => {
   const { t } = useTranslation();
+  const hostRef = useRef<HTMLDivElement>(null);
   const target = model?.target ?? null;
   const route = model?.routePath ?? null;
   const origin = model?.origin ?? null;
+  const targetElId = model?.targetElId ?? null;
+
+  // 目的地アピール: 埋め込み済みSVGの該当パスに光らせ用クラスを付け外し。
+  // svg 差し替え(マップ切替) / targetElId 変化(ステップ移動) 両方で再適用し stale ハイライトを残さない。
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    host.querySelectorAll('.housing-tour-target-box').forEach((el) => el.classList.remove('housing-tour-target-box'));
+    if (!targetElId) return;
+    const el = host.querySelector(`[id="${targetElId}"]`);
+    if (el) el.classList.add('housing-tour-target-box');
+  }, [status, svg, targetElId]);
+
   return (
     <div className="housing-tour-map" data-region="tour-map">
       <div className="housing-tour-map-stage">
@@ -27,10 +43,9 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
           )}
           {status === 'ready' && svg && viewBox && (
             <>
-              <div className="housing-map-svg-host" role="img" aria-label={t('housing.workspace.center.map_alt')} dangerouslySetInnerHTML={{ __html: svg }} />
+              <div ref={hostRef} className="housing-map-svg-host" role="img" aria-label={t('housing.workspace.center.map_alt')} dangerouslySetInnerHTML={{ __html: svg }} />
               <svg className="housing-map-overlay" viewBox={`0 0 ${viewBox.w} ${viewBox.h}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-                {/* 光らせるのは「ユーザーが実際に歩く経路」だけ (車のナビと同じ)。
-                    以前あった全道路アンビエント (roadPath を無限ダッシュ) はナビ上の意味がなく視線を散らすため削除。 */}
+                {/* 光らせるのは「ユーザーが実際に歩く経路」だけ (車のナビと同じ)。 */}
                 {route && (
                   <>
                     {/* 下地グロー */}
@@ -54,6 +69,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
                     <circle className="housing-tour-map-origin-core" cx={origin.x} cy={origin.y} r="7" />
                   </g>
                 )}
+                {/* 目的地の放射リング (箱中心から広がる波紋)。箱本体のハイライトは上の useEffect で実パスに付与。 */}
                 {target && (
                   <g aria-hidden="true">
                     {[0, 0.9].map((begin) => (
@@ -62,9 +78,6 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
                         <animate attributeName="stroke-opacity" from="0.95" to="0" dur="1.8s" begin={`${begin}s`} repeatCount="indefinite" />
                       </circle>
                     ))}
-                    <rect x={target.x - 75} y={target.y - 55} width="150" height="110" rx="10" fill="var(--housing-honey)" fillOpacity="0.22" stroke="var(--housing-honey)" strokeWidth="6" style={{ filter: 'drop-shadow(0 0 16px var(--housing-honey))' }}>
-                      <animate attributeName="stroke-opacity" values="1;0.45;1" dur="1.4s" repeatCount="indefinite" />
-                    </rect>
                   </g>
                 )}
               </svg>

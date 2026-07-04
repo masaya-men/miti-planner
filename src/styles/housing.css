@@ -6150,6 +6150,20 @@ select.housing-input option {
   background: var(--housing-honey);
 }
 
+/* 目的地アピール: 被せ矩形を廃し、地図SVG内の実際の区画/アパートのパス自体を光らせる。
+ * .housing-map-svg-host 配下の該当パスに JS でクラス付与 (TourNavMap の useEffect)。
+ * CSS はプレゼンテーション属性 (fill="white"/stroke="black") に優先するため上書き可能。 */
+.housing-map-svg-host svg .housing-tour-target-box {
+  fill: var(--housing-honey);
+  stroke: var(--housing-candle);
+  stroke-width: 6;
+  animation: housing-tour-target-breathe 1.8s ease-in-out infinite;
+}
+@keyframes housing-tour-target-breathe {
+  0%, 100% { fill-opacity: 0.28; filter: drop-shadow(0 0 6px var(--housing-honey)); }
+  50%      { fill-opacity: 0.6; filter: drop-shadow(0 0 18px var(--housing-honey)); }
+}
+
 /* ============================================================
  * 右カラム: 次の目的地パネル + ルートのステップ
  * (Task6・TourNextDestinationPanel/TourRouteSteps)
