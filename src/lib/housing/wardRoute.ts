@@ -25,6 +25,11 @@ export function plotToPlacementIn(json: WardMapJson, plot: number, kind: 'plot' 
   const h = json.houses.find((x) => x.plot === plot && x.kind === kind); if (!h) return null;
   return { x: h.x * json.viewBox.w, y: h.y * json.viewBox.h, nodeId: h.node };
 }
+/** 各マップに1つだけ存在する apart エントリ → viewBox px 座標(番号非依存)。無ければ null。 */
+export function apartToPlacementIn(json: WardMapJson): Placement | null {
+  const h = json.houses.find((x) => x.kind === 'apart'); if (!h) return null;
+  return { x: h.x * json.viewBox.w, y: h.y * json.viewBox.h, nodeId: h.node };
+}
 /** ノード ID → viewBox px 座標(json 引数版)。未知ノードは null。 */
 export function nodeToPointIn(json: WardMapJson, nodeId: string): { x: number; y: number } | null {
   const n = json.nodes.find((x) => x.id === nodeId); if (!n) return null;
