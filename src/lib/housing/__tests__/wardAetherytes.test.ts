@@ -25,4 +25,21 @@ describe('wardAetherytes.generated.json', () => {
       }
     }
   });
+
+  const REFS: Array<[string, string, number, number]> = [
+    ['mist', 'ミスト・ヴィレッジ北東', 0.661, 0.216],
+    ['mist', 'ミスト・ヴィレッジ南', 0.303, 0.705],
+    ['lavender', 'ラベンダーベッド北西', 0.172, 0.323],
+    ['goblet', 'ゴブレットビュート西', 0.177, 0.421],
+    ['shirogane', 'シロガネ北西', 0.235, 0.115],
+    ['empyreum', 'エンピレアム北西', 0.222, 0.234],
+  ];
+  it('基準シャードの座標が正しい(方角と象限が一致・パーサ回帰検知)', () => {
+    for (const [mapKey, name, ex, ey] of REFS) {
+      const s = getMapAetherytes(mapKey).find((z) => z.name === name);
+      expect(s, `${mapKey} ${name}`).toBeTruthy();
+      expect(Math.abs(s!.x - ex), `${mapKey} ${name} x`).toBeLessThan(0.02);
+      expect(Math.abs(s!.y - ey), `${mapKey} ${name} y`).toBeLessThan(0.02);
+    }
+  });
 });

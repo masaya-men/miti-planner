@@ -8,7 +8,6 @@ function decode(s) {
   for (const p of parts) { const m = p.match(/^&#(\d+);$/); if (m) b.push(Number(m[1])); else for (const ch of Buffer.from(p, 'utf8')) b.push(ch); }
   return Buffer.from(b).toString('utf8');
 }
-const nums = (s) => (s.match(/-?\d*\.?\d+(?:e-?\d+)?/g) || []).map(Number);
 const norm = (s) => s.replace(/（[^）]*）/g, '').replace(/\([^)]*\)/g, '').trim();
 
 // depth-aware group 抽出: {name, inner}[]
@@ -20,12 +19,30 @@ function groups(svg) {
   }
   return res;
 }
+// SVG path を正しくトークナイズし on-curve 点だけ集める(H/V=1引数, C=6引数の制御点は無視)。
+const ARGC = { M: 2, L: 2, H: 1, V: 1, C: 6, S: 4, Q: 4, T: 2, A: 7, Z: 0 };
+function pathPoints(d) {
+  const pts = []; let cx = 0, cy = 0, sx = 0, sy = 0;
+  const toks = d.match(/[MLHVCSQTAZmlhvcsqtaz]|-?\d*\.?\d+(?:e-?\d+)?/g) || [];
+  let i = 0, cmd = null;
+  while (i < toks.length) {
+    if (/[A-Za-z]/.test(toks[i])) { cmd = toks[i].toUpperCase(); i++; if (cmd === 'Z') { cx = sx; cy = sy; continue; } }
+    const n = ARGC[cmd] ?? 2; const a = []; for (let k = 0; k < n; k++) a.push(Number(toks[i++]));
+    if (cmd === 'M') { cx = a[0]; cy = a[1]; sx = cx; sy = cy; pts.push([cx, cy]); }
+    else if (cmd === 'L' || cmd === 'T') { cx = a[0]; cy = a[1]; pts.push([cx, cy]); }
+    else if (cmd === 'H') { cx = a[0]; pts.push([cx, cy]); }
+    else if (cmd === 'V') { cy = a[0]; pts.push([cx, cy]); }
+    else if (cmd === 'C') { cx = a[4]; cy = a[5]; pts.push([cx, cy]); }
+    else if (cmd === 'S' || cmd === 'Q') { cx = a[2]; cy = a[3]; pts.push([cx, cy]); }
+    else if (cmd === 'A') { cx = a[5]; cy = a[6]; pts.push([cx, cy]); }
+  }
+  return pts;
+}
 function bboxCenter(inner) {
-  const ds = [...inner.matchAll(/\sd="([^"]+)"/g)].map((x) => x[1]).join(' ');
-  const extra = [...inner.matchAll(/\s(?:x|y|cx|cy)="(-?[\d.]+)"/g)].map((x) => x[1]).join(' ');
-  const ns = nums(ds + ' ' + extra); let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity;
-  for (let i = 0; i + 1 < ns.length; i += 2) { const x = ns[i], y = ns[i + 1]; if (x < a) a = x; if (x > c) c = x; if (y < b) b = y; if (y > d) d = y; }
-  if (!isFinite(a)) return null; return { x: (a + c) / 2, y: (b + d) / 2 };
+  const ds = [...inner.matchAll(/\sd="([^"]+)"/g)].map((x) => x[1]);
+  let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity, any = false;
+  for (const dd of ds) for (const [x, y] of pathPoints(dd)) { any = true; if (x < a) a = x; if (x > c) c = x; if (y < b) b = y; if (y > d) d = y; }
+  if (!any) return null; return { x: (a + c) / 2, y: (b + d) / 2 };
 }
 function nearestNode(ward, x, y) { let best = null, bd = Infinity; for (const n of ward.nodes) { const dd = Math.hypot(n.x - x, n.y - y); if (dd < bd) { bd = dd; best = n; } } return best ? best.id : null; }
 
@@ -50,10 +67,10 @@ for (const A of AREAS) {
     for (const g of groups(svg)) { if (!g.name) continue; const key = norm(g.name); if (!targets.has(key) || byNorm.has(key)) continue; const c = bboxCenter(g.inner); if (!c) continue; byNorm.set(key, { name: g.name, x: +(c.x / W).toFixed(5), y: +(c.y / H).toFixed(5) }); }
     const shards = [...byNorm.values()].map((s) => ({ ...s, node: nearestNode(ward, s.x, s.y) }));
     out[mapKey] = shards;
-    // カバレッジ検算
+    // 名前一致率検算(座標の正しさは別途テストで担保)
     for (let p = seg.lo; p <= seg.hi; p++) { total++; const n = wd[A.area][p]?.aetheryte; if (n && byNorm.has(norm(n))) matched++; }
   }
 }
 writeFileSync('src/data/housing/wardAetherytes.generated.json', JSON.stringify(out, null, 2));
-console.log(`wardAetherytes.generated.json 出力。カバレッジ ${matched}/${total}`);
+console.log(`wardAetherytes.generated.json 出力。名前一致率 ${matched}/${total}`);
 for (const k of Object.keys(out)) console.log(`  ${k}: ${out[k].length} shards (node 未 snap = ${out[k].filter((s) => !s.node).length})`);
