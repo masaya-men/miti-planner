@@ -6,15 +6,12 @@ import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
-import {
-  resolveTourSteps,
-  computeTourProgress,
-  stepStatus,
-  isMistPlaceable,
-} from '../../../lib/housing/tourNav';
-import { plotToPlacement, WARD_CENTER_NODE } from '../../../lib/housing/wardRoute';
+import { resolveTourSteps, computeTourProgress } from '../../../lib/housing/tourNav';
+import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
+import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
+import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
-import { TourNavMap, type PlacedStep } from '../tour/TourNavMap';
+import { TourNavMap } from '../tour/TourNavMap';
 import { TourNextDestinationPanel } from '../tour/TourNextDestinationPanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { HousingReportModal } from '../report/HousingReportModal';
@@ -59,33 +56,36 @@ export const TourNavPage: React.FC = () => {
 
   const isLast = currentIndex === listingIds.length - 1;
 
-  // 地図: ミスト配置可能なステップのみ番号ノードとして渡す。
-  const placed: PlacedStep[] = useMemo(
-    () =>
-      steps.flatMap((step, index) => {
-        const listing = step.listing;
-        if (!listing || !isMistPlaceable(listing) || listing.plot === undefined) return [];
-        if (!plotToPlacement(listing.plot)) return [];
-        return [{ index, plot: listing.plot, status: stepStatus(index, currentIndex) }];
-      }),
-    [steps, currentIndex],
-  );
-
+  // 地図 (全5エリア対応): 現在の目的地の住所 → 表示すべきワード地図 mapKey を解決し、
+  // そのマップだけ遅延ロード。ready になったら実エーテライト起点→家のゴージャス経路モデルを組む。
   const currentListing = progress.currentStep?.listing ?? null;
-  const currentPlot =
-    currentListing && isMistPlaceable(currentListing) && currentListing.plot !== undefined
-      ? currentListing.plot
-      : null;
-
-  // 現在地: 直前到着 (steps[currentIndex-1]) がミストならその玄関ノード、なければ区中央。
-  const originNodeId = useMemo(() => {
-    const prevListing = currentIndex > 0 ? (steps[currentIndex - 1]?.listing ?? null) : null;
-    if (prevListing && isMistPlaceable(prevListing) && prevListing.plot !== undefined) {
-      const placement = plotToPlacement(prevListing.plot);
-      if (placement?.nodeId) return placement.nodeId;
-    }
-    return WARD_CENTER_NODE;
-  }, [steps, currentIndex]);
+  const mapRef = useMemo(
+    () =>
+      currentListing
+        ? resolveWardMapRef(
+            currentListing.area,
+            currentListing.plot ?? null,
+            currentListing.apartmentBuilding ?? null,
+            currentListing.buildingType,
+          )
+        : null,
+    [currentListing],
+  );
+  const asset = useWardMapAsset(mapRef?.mapKey ?? null);
+  const mapModel = useMemo(
+    () =>
+      asset.status === 'ready' && mapRef
+        ? buildTourMapPlacements(asset.json, mapRef.mapKey, mapRef, currentListing, steps, currentIndex)
+        : null,
+    [asset, mapRef, currentListing, steps, currentIndex],
+  );
+  const mapStatus: 'none' | 'loading' | 'ready' | 'error' = !mapRef
+    ? 'none'
+    : asset.status === 'ready'
+      ? 'ready'
+      : asset.status === 'error'
+        ? 'error'
+        : 'loading';
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
 
@@ -167,7 +167,13 @@ export const TourNavPage: React.FC = () => {
 
       <section className="housing-tour-page-panel" data-region="center">
         <div className="housing-tour-page-col">
-          <TourNavMap placed={placed} currentPlot={currentPlot} originNodeId={originNodeId} />
+          <TourNavMap
+            status={mapStatus}
+            svg={asset.status === 'ready' ? asset.svg : null}
+            viewBox={asset.status === 'ready' ? asset.json.viewBox : null}
+            roadPath={asset.status === 'ready' ? asset.json.roadPath : null}
+            model={mapModel}
+          />
         </div>
       </section>
 

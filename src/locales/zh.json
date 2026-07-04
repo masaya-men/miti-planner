@@ -2694,6 +2694,8 @@
             "nav": {
                 "title": "导览中（导航）",
                 "live": "信息会自动更新",
+                "map_none": "该目的地暂无地图数据",
+                "map_error": "地图加载失败",
                 "progress": {
                     "label": "导览进度",
                     "done_of_total": "{{done}} / {{total}} 件",

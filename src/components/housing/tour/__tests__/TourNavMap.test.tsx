@@ -1,59 +1,26 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
-import { I18nextProvider } from 'react-i18next';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import jaTranslations from '../../../../locales/ja.json';
-import { WARD_CENTER_NODE } from '../../../../lib/housing/wardRoute';
-import { TourNavMap, type PlacedStep } from '../TourNavMap';
+import '../../../../i18n';
+import type { WardMapJson } from '../../../../data/housing/wardMapManifest';
+import mistWardRaw from '../../../../data/housing/mistWard.generated.json';
+import type { TourMapModel } from '../../../../lib/housing/buildTourMapPlacements';
+import { TourNavMap } from '../TourNavMap';
+const mistWard = mistWardRaw as unknown as WardMapJson;
+const model: TourMapModel = { target: { x: 100, y: 100 }, placed: [ { index: 0, x: 100, y: 100, status: 'current' }, { index: 1, x: 200, y: 150, status: 'upcoming' } ], routePath: 'M10 10 L100 100', origin: { x: 10, y: 10 } };
 
-beforeAll(() => {
-  i18n.use(initReactI18next).init({
-    lng: 'ja',
-    fallbackLng: 'ja',
-    resources: { ja: { translation: jaTranslations } },
-    interpolation: { escapeValue: false },
+describe('TourNavMap', () => {
+  it('ready で host/番号ノード/ゴージャス経路/起点マーカーを描く', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><rect/></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} roadPath={mistWard.roadPath} model={model} />);
+    expect(container.querySelector('.housing-map-svg-host')).toBeTruthy();
+    expect(container.querySelectorAll('[data-testid="tour-map-node"]').length).toBe(2);
+    expect(container.querySelector('[data-testid="tour-map-route"]')).toBeTruthy();
+    expect(container.querySelector('[data-testid="tour-map-origin"]')).toBeTruthy();
   });
-});
-
-// Mist ward の実データに存在する plot (kind='plot') のみ使用。
-const placed: PlacedStep[] = [
-  { index: 0, plot: 1, status: 'arrived' },
-  { index: 1, plot: 6, status: 'current' },
-  { index: 2, plot: 30, status: 'upcoming' },
-];
-
-function renderMap(props: Partial<React.ComponentProps<typeof TourNavMap>> = {}) {
-  return render(
-    <I18nextProvider i18n={i18n}>
-      <TourNavMap placed={placed} currentPlot={6} originNodeId={WARD_CENTER_NODE} {...props} />
-    </I18nextProvider>
-  );
-}
-
-describe('TourNavMap — 番号ノード', () => {
-  it('placed.length 個の番号ノードが描画される', () => {
-    const { container } = renderMap();
-    expect(container.querySelectorAll('[data-testid="tour-map-node"]').length).toBe(placed.length);
-  });
-
-  it('配置不能な plot (存在しないデータ) はスキップされ、ノード数が減る', () => {
-    const { container } = renderMap({
-      placed: [...placed, { index: 3, plot: 999999, status: 'upcoming' }],
-    });
-    expect(container.querySelectorAll('[data-testid="tour-map-node"]').length).toBe(placed.length);
-  });
-});
-
-describe('TourNavMap — 光ナビ経路', () => {
-  it('currentPlot が有効な plot 番号なら経路 path を描画する', () => {
-    const { container } = renderMap({ currentPlot: 6 });
-    expect(container.querySelector('[data-testid="tour-map-route"]')).not.toBeNull();
-  });
-
-  it('currentPlot が null なら経路 path を描画しない', () => {
-    const { container } = renderMap({ currentPlot: null });
-    expect(container.querySelector('[data-testid="tour-map-route"]')).toBeNull();
+  it('none はプレースホルダ・loading はスケルトン', () => {
+    const none = render(<TourNavMap status="none" svg={null} viewBox={null} roadPath={null} model={null} />);
+    expect(none.container.querySelector('[data-testid="tour-map-none"]')).toBeTruthy();
+    const load = render(<TourNavMap status="loading" svg={null} viewBox={null} roadPath={null} model={null} />);
+    expect(load.container.querySelector('[data-testid="tour-map-skeleton"]')).toBeTruthy();
   });
 });

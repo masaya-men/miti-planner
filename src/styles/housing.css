@@ -6027,6 +6027,59 @@ select.housing-input option {
   filter: drop-shadow(0 0 8px var(--housing-aether));
 }
 
+/* ゴージャス経路 (起点エーテライト → 家): 下地グロー + コア光線 + コメット + 起点脈動マーカー。
+ * 色は全て --housing-* token 経由。stroke-width/radius は幾何 (テーマ色ではない) なので数値で可。 */
+.housing-tour-route-glow {
+  stroke: var(--housing-honey);
+  stroke-width: 12;
+  stroke-opacity: 0.28;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 14px var(--housing-honey));
+}
+.housing-tour-route-core {
+  stroke: var(--housing-candle);
+  stroke-width: 4.5;
+  stroke-opacity: 0.95;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 18 20;
+  filter: drop-shadow(0 0 6px var(--housing-honey));
+}
+.housing-tour-route-comet {
+  fill: var(--housing-map-light);
+  filter: drop-shadow(0 0 12px var(--housing-candle));
+}
+.housing-tour-map-origin-pulse {
+  fill: none;
+  stroke: var(--housing-aether);
+  stroke-width: 4;
+}
+.housing-tour-map-origin-core {
+  fill: var(--housing-aether);
+  filter: drop-shadow(0 0 10px var(--housing-aether));
+}
+
+/* ロード中スケルトン / 地図データ無し・エラー時のプレースホルダ */
+.housing-tour-map-skeleton {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--housing-panel-radius);
+  background: var(--housing-panel-bg);
+}
+.housing-tour-map-none {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--housing-main-padding);
+  text-align: center;
+}
+.housing-tour-map-none-text {
+  color: var(--housing-text-mute);
+}
+
 /* 番号ノード (到着済み/現在/未到着) */
 .housing-tour-map-node {
   position: absolute;

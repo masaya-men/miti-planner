@@ -2729,6 +2729,8 @@
             "nav": {
                 "title": "On Tour (Navigation)",
                 "live": "Updates automatically",
+                "map_none": "No map data for this destination",
+                "map_error": "Failed to load the map",
                 "progress": {
                     "label": "Tour progress",
                     "done_of_total": "{{done}} / {{total}}",
