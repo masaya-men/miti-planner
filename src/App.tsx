@@ -20,6 +20,7 @@ import { BrowsePage } from './components/housing/pages/BrowsePage';
 import { FavoritesPage } from './components/housing/pages/FavoritesPage';
 import { RegisterPage } from './components/housing/pages/RegisterPage';
 import { ComingSoonPage } from './components/housing/pages/ComingSoonPage';
+import { TourNavPage } from './components/housing/pages/TourNavPage';
 import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
 import { requestPersistentStorage } from './lib/requestPersistentStorage';
 
@@ -103,7 +104,7 @@ function AppRoutes() {
           {/* 未実装タブは暫定で「準備中」に着地 (以降のスパンで本実装に差し替え)。 */}
           <Route path="favorites" element={<FavoritesPage />} />
           <Route path="plan" element={<ComingSoonPage tab="plan" />} />
-          <Route path="tour" element={<ComingSoonPage tab="tour" />} />
+          <Route path="tour" element={<TourNavPage />} />
           <Route path="register" element={<RegisterPage />} />
           <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
         </Route>
