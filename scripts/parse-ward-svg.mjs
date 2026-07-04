@@ -7,6 +7,7 @@
 //   house.node: 各家を最寄りノードへ自動接続
 // 座標は viewBox 基準で 0..1 正規化。
 import { readFileSync, writeFileSync } from 'node:fs';
+import { elementCenterPx } from './svg-path-center.mjs';
 
 const [, , inPath, area = 'Mist', outPath = `src/data/housing/${area.toLowerCase()}Ward.generated.json`] = process.argv;
 const svg = readFileSync(inPath, 'utf8');
@@ -17,33 +18,12 @@ const nx = (x) => +(x / W).toFixed(5);
 const ny = (y) => +(y / H).toFixed(5);
 
 const nums = (s) => (s.match(/-?\d*\.?\d+(?:e-?\d+)?/g) || []).map(Number);
-function bboxCenter(d) {
-  const ns = nums(d);
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  for (let i = 0; i + 1 < ns.length; i += 2) {
-    const x = ns[i], y = ns[i + 1];
-    if (x < minX) minX = x; if (x > maxX) maxX = x;
-    if (y < minY) minY = y; if (y > maxY) maxY = y;
-  }
-  return { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
-}
 
-// 要素の中心を種類別に求める (Figma の描き方はエリアで違う: 家=<path> or <rect>、 ノード=<path> or <circle>)。
-const attrNum = (attrs, name) => {
-  const m = attrs.match(new RegExp(`\\s${name}="(-?[\\d.]+)"`));
-  return m ? Number(m[1]) : null;
-};
+// 要素の中心 (px) は svg-path-center.mjs に集約: path=SVG コマンドを正しく解釈した bbox 中心、
+// rect=x+w/2 (+rotate 適用)、circle=cx,cy。旧実装は「path 全数値の単純ペアリング(H/V/C 無視)」と
+// 「rect の rotate transform 無視」で中心が破損していた (角丸箱=アパート/回転 rect=goblet)。
 function elementCenter(tag, attrs) {
-  if (tag === 'rect') {
-    const x = attrNum(attrs, 'x') ?? 0, y = attrNum(attrs, 'y') ?? 0;
-    const w = attrNum(attrs, 'width') ?? 0, h = attrNum(attrs, 'height') ?? 0;
-    return { x: x + w / 2, y: y + h / 2 };
-  }
-  if (tag === 'circle' || tag === 'ellipse') {
-    return { x: attrNum(attrs, 'cx') ?? 0, y: attrNum(attrs, 'cy') ?? 0 };
-  }
-  const d = attrs.match(/\sd="([^"]+)"/); // path
-  return d ? bboxCenter(d[1]) : { x: 0, y: 0 };
+  return elementCenterPx(attrs, tag) ?? { x: 0, y: 0 };
 }
 
 // --- houses (<path|rect|circle> id="plot_N"|"apart_N") ---
