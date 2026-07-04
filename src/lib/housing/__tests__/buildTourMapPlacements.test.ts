@@ -1,10 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import type { MockListing } from '../../../data/housing/mockListings';
 import type { WardMapJson } from '../../../data/housing/wardMapManifest';
 import mistWardRaw from '../../../data/housing/mistWard.generated.json';
 import mistSubWardRaw from '../../../data/housing/mistSubWard.generated.json';
 import { resolveWardMapRef } from '../resolveWardMapRef';
 import type { TourStep } from '../tourNav';
+
+// 改善2 用: 入口データ収録済みケースを模擬 (実データは空 {} のため plot 21 のみ収録扱いにする)。
+// 既存テストが使う plot(6/40/12) やアパート棟(apart)は未収録のまま = 実データと同じ挙動(computePlotDoor フォールバック)を維持。
+vi.mock('../../../data/housing/wardEntrances.generated.json', () => ({
+  default: { mist: { '21': [0.2, 0.3] } },
+}));
+
 import { buildTourMapPlacements } from '../buildTourMapPlacements';
 const mistWard = mistWardRaw as unknown as WardMapJson;
 const mistSubWard = mistSubWardRaw as unknown as WardMapJson;
@@ -70,5 +77,13 @@ describe('buildTourMapPlacements', () => {
     const start = m.routePath!.match(/^M(-?[\d.]+) (-?[\d.]+)/)!;
     expect(Number(start[1])).toBeCloseTo(m.origin!.x, 0);
     expect(Number(start[2])).toBeCloseTo(m.origin!.y, 0);
+  });
+  it('入口データが収録済みの区画は経路終点が入口(0..1×viewBox)になる (改善2: 入口優先)', () => {
+    const cur = L({ id: 'a', plot: 21 }); const ref = mistRef(21);
+    const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, cur, [step(cur)], 0);
+    const coords = [...m.routePath!.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
+    const last = coords.at(-1)!;
+    expect(Number(last[1])).toBeCloseTo(0.2 * mistWard.viewBox.w, 1);
+    expect(Number(last[2])).toBeCloseTo(0.3 * mistWard.viewBox.h, 1);
   });
 });

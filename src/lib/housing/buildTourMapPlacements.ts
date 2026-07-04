@@ -1,11 +1,13 @@
 import type { WardMapJson } from '../../data/housing/wardMapManifest';
 import type { MockListing } from '../../data/housing/mockListings';
 import { resolveWardMapRef } from './resolveWardMapRef';
-import { plotToPlacementIn, apartToPlacementIn, buildRoutePathIn, nodeToPointIn } from './wardRoute';
+import { plotToPlacementIn, apartToPlacementIn, buildRoutePathIn } from './wardRoute';
 import { getPlotOriginNode } from './plotOrigin';
 import { getApartmentOrigin } from './apartmentOrigin';
 import { stepStatus, type StepStatus, type TourStep } from './tourNav';
-import { nearestPointOnPolylines, segmentPolygonIntersection } from './mapGeometry';
+import { nearestPointOnPolylines } from './mapGeometry';
+import { getPlotEntrance } from './plotEntrance';
+import { computePlotDoor } from './plotDoor';
 
 export interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
 export interface TourMapModel {
@@ -76,14 +78,16 @@ export function buildTourMapPlacements(
       const lead = proj ? `M${oxPx.toFixed(1)} ${oyPx.toFixed(1)} L${proj.x.toFixed(1)} ${proj.y.toFixed(1)} ` : '';
       const body = proj ? base.replace(/^M/, 'L') : base;
 
-      // 改善2: 箱の中心ではなく輪郭に触れた点で止める。
+      // 改善2: 入口データ優先 → 幾何(箱縁) → 箱中心 の順で終点を決める。
       let doorX = targetPlacement.x, doorY = targetPlacement.y;
-      const lastNode = nodeToPointIn(json, targetPlacement.nodeId);
-      const outlinePx = (targetPlacement.outline ?? []).map(([x, y]) => [x * w, y * h] as [number, number]);
-      if (lastNode && outlinePx.length >= 3) {
-        // lastNode は nodeToPointIn の時点で既に px 座標(0..1正規化ではない)。× w/h の再スケールは不要。
-        const hit = segmentPolygonIntersection(lastNode.x, lastNode.y, targetPlacement.x, targetPlacement.y, outlinePx);
-        if (hit) { doorX = hit.x; doorY = hit.y; }
+      const entrance = currentListing
+        ? getPlotEntrance(currentListing.area, currentListing.plot, currentListing.buildingType, currentListing.apartmentBuilding)
+        : null;
+      if (entrance) {
+        doorX = entrance[0] * w; doorY = entrance[1] * h;
+      } else {
+        const geoDoor = computePlotDoor(json, ref.highlightPlot, ref.highlightKind);
+        if (geoDoor) { doorX = geoDoor.x; doorY = geoDoor.y; }
       }
       routePath = `${lead}${body} L${doorX.toFixed(1)} ${doorY.toFixed(1)}`;
     }
