@@ -10,4 +10,16 @@ describe('useWardMapAsset', () => {
     await waitFor(() => expect(result.current.status).toBe('ready'));
     if (result.current.status === 'ready') { expect(result.current.json.viewBox.w).toBeGreaterThan(0); expect(typeof result.current.svg).toBe('string'); }
   });
+  it('mapKey が別ワードに変わったら旧地図の ready を描画せず即 loading に落ちる', async () => {
+    const { result, rerender } = renderHook(
+      ({ mapKey }: { mapKey: string }) => useWardMapAsset(mapKey),
+      { initialProps: { mapKey: 'mist' } },
+    );
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+    rerender({ mapKey: 'goblet' });
+    // rerender 直後 (次の effect/microtask が走る前) は旧 mist の ready ではなく loading であること
+    expect(result.current.status).toBe('loading');
+    await waitFor(() => expect(result.current.status).toBe('ready'));
+    if (result.current.status === 'ready') { expect(result.current.json.area).toBe('Goblet'); }
+  });
 });
