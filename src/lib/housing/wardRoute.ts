@@ -6,7 +6,7 @@ export const MAP_VIEWBOX = { w: mistWard.viewBox.w, h: mistWard.viewBox.h };
 
 /** 区中央エーテライト相当(仮置き・M1)。実データでの妥当性は実機で確認(spec §9)。 */
 export const WARD_CENTER_NODE = 'node_1';
-export interface Placement { x: number; y: number; nodeId: string | null }
+export interface Placement { x: number; y: number; nodeId: string | null; outline: number[][] | null }
 type EdgeData = { a: string; b: string; polyline: [number, number][] };
 
 function buildAdjacency(json: WardMapJson): Map<string, string[]> {
@@ -23,12 +23,12 @@ function routeNodes(adj: Map<string, string[]>, startId: string, goalId: string)
 /** plot 番号 → viewBox px 座標(json 引数版)。存在しなければ null。 */
 export function plotToPlacementIn(json: WardMapJson, plot: number, kind: 'plot' | 'apart' = 'plot'): Placement | null {
   const h = json.houses.find((x) => x.plot === plot && x.kind === kind); if (!h) return null;
-  return { x: h.x * json.viewBox.w, y: h.y * json.viewBox.h, nodeId: h.node };
+  return { x: h.x * json.viewBox.w, y: h.y * json.viewBox.h, nodeId: h.node, outline: h.outline ?? null };
 }
 /** 各マップに1つだけ存在する apart エントリ → viewBox px 座標(番号非依存)。無ければ null。 */
 export function apartToPlacementIn(json: WardMapJson): Placement | null {
   const h = json.houses.find((x) => x.kind === 'apart'); if (!h) return null;
-  return { x: h.x * json.viewBox.w, y: h.y * json.viewBox.h, nodeId: h.node };
+  return { x: h.x * json.viewBox.w, y: h.y * json.viewBox.h, nodeId: h.node, outline: h.outline ?? null };
 }
 /** ノード ID → viewBox px 座標(json 引数版)。未知ノードは null。 */
 export function nodeToPointIn(json: WardMapJson, nodeId: string): { x: number; y: number } | null {

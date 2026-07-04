@@ -1,10 +1,11 @@
 import type { WardMapJson } from '../../data/housing/wardMapManifest';
 import type { MockListing } from '../../data/housing/mockListings';
 import { resolveWardMapRef } from './resolveWardMapRef';
-import { plotToPlacementIn, apartToPlacementIn, buildRoutePathIn } from './wardRoute';
+import { plotToPlacementIn, apartToPlacementIn, buildRoutePathIn, nodeToPointIn } from './wardRoute';
 import { getPlotOriginNode } from './plotOrigin';
 import { getApartmentOrigin } from './apartmentOrigin';
 import { stepStatus, type StepStatus, type TourStep } from './tourNav';
+import { nearestPointOnPolylines, segmentPolygonIntersection } from './mapGeometry';
 
 export interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
 export interface TourMapModel {
@@ -60,9 +61,32 @@ export function buildTourMapPlacements(
         : getPlotOriginNode(currentListing.area, currentListing.plot))
     : null;
   if (originInfo && targetPlacement && targetPlacement.nodeId) {
+    const w = json.viewBox.w, h = json.viewBox.h;
+    const oxPx = originInfo.x * w, oyPx = originInfo.y * h;
+    origin = { x: oxPx, y: oyPx };
+
     const base = buildRoutePathIn(json, originInfo.node, targetPlacement.nodeId);
-    if (base) routePath = `${base} L${targetPlacement.x.toFixed(1)} ${targetPlacement.y.toFixed(1)}`;
-    origin = { x: originInfo.x * json.viewBox.w, y: originInfo.y * json.viewBox.h };
+    if (base) {
+      // 改善1: エーテライト実座標 → 最寄りの道の投影点 を頭に足す。
+      const edgesPx = json.edges.map((e) => ({
+        a: e.a, b: e.b,
+        polyline: e.polyline.map(([x, y]) => [x * w, y * h] as [number, number]),
+      }));
+      const proj = nearestPointOnPolylines(oxPx, oyPx, edgesPx);
+      const lead = proj ? `M${oxPx.toFixed(1)} ${oyPx.toFixed(1)} L${proj.x.toFixed(1)} ${proj.y.toFixed(1)} ` : '';
+      const body = proj ? base.replace(/^M/, 'L') : base;
+
+      // 改善2: 箱の中心ではなく輪郭に触れた点で止める。
+      let doorX = targetPlacement.x, doorY = targetPlacement.y;
+      const lastNode = nodeToPointIn(json, targetPlacement.nodeId);
+      const outlinePx = (targetPlacement.outline ?? []).map(([x, y]) => [x * w, y * h] as [number, number]);
+      if (lastNode && outlinePx.length >= 3) {
+        // lastNode は nodeToPointIn の時点で既に px 座標(0..1正規化ではない)。× w/h の再スケールは不要。
+        const hit = segmentPolygonIntersection(lastNode.x, lastNode.y, targetPlacement.x, targetPlacement.y, outlinePx);
+        if (hit) { doorX = hit.x; doorY = hit.y; }
+      }
+      routePath = `${lead}${body} L${doorX.toFixed(1)} ${doorY.toFixed(1)}`;
+    }
   }
 
   return { target, placed, routePath, origin, targetElId: target ? ref.elementId : null };
