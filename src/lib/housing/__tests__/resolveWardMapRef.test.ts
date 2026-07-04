@@ -2,21 +2,21 @@ import { describe, it, expect } from 'vitest';
 import { resolveWardMapRef } from '../resolveWardMapRef';
 
 describe('resolveWardMapRef', () => {
-  it('本街の家 (plot 1-30) は main マップ・そのままの plot', () => {
+  it('本街の家 (plot 1-30) は main マップ・そのままの plot・elementId=plot_N', () => {
     expect(resolveWardMapRef('Mist', 15, null, 'house'))
-      .toEqual({ mapKey: 'mist', highlightPlot: 15, highlightKind: 'plot' });
+      .toEqual({ mapKey: 'mist', highlightPlot: 15, highlightKind: 'plot', elementId: 'plot_15' });
   });
-  it('拡張街の家 (plot 31-60) は sub マップ・plot-30 に読み替え', () => {
+  it('拡張街の家 (plot 31-60) は sub マップ・plot-30 読み替え・elementId=plot_(N-30)', () => {
     expect(resolveWardMapRef('Goblet', 45, null, 'house'))
-      .toEqual({ mapKey: 'goblet-sub', highlightPlot: 15, highlightKind: 'plot' });
+      .toEqual({ mapKey: 'goblet-sub', highlightPlot: 15, highlightKind: 'plot', elementId: 'plot_15' });
   });
-  it('アパート本街 (building 1) は main の apart', () => {
+  it('アパート本街 (building 1) は main の apart・elementId=apart_1', () => {
     expect(resolveWardMapRef('Shirogane', null, 1, 'apartment'))
-      .toEqual({ mapKey: 'shirogane', highlightPlot: 1, highlightKind: 'apart' });
+      .toEqual({ mapKey: 'shirogane', highlightPlot: 1, highlightKind: 'apart', elementId: 'apart_1' });
   });
-  it('アパート拡張街 (building 2) は sub の apart', () => {
+  it('アパート拡張街 (building 2) は sub の apart・elementId=apart_2', () => {
     expect(resolveWardMapRef('Empyreum', null, 2, 'apartment'))
-      .toEqual({ mapKey: 'empyreum-sub', highlightPlot: 1, highlightKind: 'apart' });
+      .toEqual({ mapKey: 'empyreum-sub', highlightPlot: 1, highlightKind: 'apart', elementId: 'apart_2' });
   });
   it('エリア不明は null', () => {
     expect(resolveWardMapRef('Unknown', 1, null, 'house')).toBeNull();
