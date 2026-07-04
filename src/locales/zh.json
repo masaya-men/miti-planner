@@ -2719,7 +2719,7 @@
                         "current": "下一站",
                         "upcoming": "尚未到达"
                     },
-                    "map_pending": "地图准备中（全部区域即将上线）",
+                    "map_pending": "无地图（缺少地块信息）",
                     "missing": "找不到这个房屋"
                 },
                 "actions": {

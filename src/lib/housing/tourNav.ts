@@ -45,11 +45,6 @@ export function computeTourProgress(
   return { total, arrivedCount, remainingCount, percent, currentStep, recent };
 }
 
-/** M1: ミストのみ地図配置対象。 */
-export function isMistPlaceable(listing: MockListing | null): boolean {
-  return !!listing && listing.area === 'Mist';
-}
-
 /** P2: 全5エリア対応。ワード地図に解決できる listing(house 1-60 / apartment)が配置対象。 */
 export function isTourPlaceable(listing: MockListing | null): boolean {
   if (!listing) return false;

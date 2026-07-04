@@ -2775,7 +2775,7 @@
                         "current": "次に訪問",
                         "upcoming": "未到着"
                     },
-                    "map_pending": "地図は準備中（全エリアは近日）",
+                    "map_pending": "地図データなし（区画情報なし）",
                     "missing": "このハウジングは見つかりません"
                 },
                 "actions": {

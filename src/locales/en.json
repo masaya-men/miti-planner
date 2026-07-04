@@ -2754,7 +2754,7 @@
                         "current": "Up next",
                         "upcoming": "Not yet visited"
                     },
-                    "map_pending": "Map is being prepared (all areas coming soon)",
+                    "map_pending": "No map (plot info missing)",
                     "missing": "This listing could not be found"
                 },
                 "actions": {

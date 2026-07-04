@@ -169,8 +169,8 @@ describe('TourNextDestinationPanel — 防御 (currentStep===null)', () => {
 
 describe('TourRouteSteps — 状態バッジ / 注記', () => {
   const mixedSteps: TourStep[] = [
-    { id: mistListing.id, listing: mistListing }, // index0: 到着済み (ミスト)
-    { id: currentListing.id, listing: currentListing }, // index1: 次に訪問 (非ミスト)
+    { id: mistListing.id, listing: mistListing }, // index0: 到着済み (ミスト・plotあり→配置可能)
+    { id: currentListing.id, listing: currentListing }, // index1: 次に訪問 (シロガネ・plotあり→配置可能)
     { id: 'missing-1', listing: null }, // index2: 未到着 (欠落)
   ];
 
@@ -195,9 +195,15 @@ describe('TourRouteSteps — 状態バッジ / 注記', () => {
     expect(items[2]).toHaveClass('housing-tour-steps-item--upcoming');
   });
 
-  it('非ミストのステップに map_pending 注記が出る', () => {
-    renderSteps(1);
-    expect(screen.getByText('地図は準備中（全エリアは近日）')).toBeInTheDocument();
+  it('plot無しhouse (地図に解決できない) のステップに map_pending 注記が出る', () => {
+    const noPlotHouse = { ...currentListing, buildingType: 'house' as const, plot: undefined };
+    const noPlotSteps: TourStep[] = [{ id: noPlotHouse.id, listing: noPlotHouse }];
+    render(
+      <I18nextProvider i18n={i18n}>
+        <TourRouteSteps steps={noPlotSteps} currentIndex={0} />
+      </I18nextProvider>
+    );
+    expect(screen.getByText('地図データなし（区画情報なし）')).toBeInTheDocument();
   });
 
   it('listing===null のステップに missing 注記が出る (address の代わりに表示)', () => {
@@ -205,9 +211,10 @@ describe('TourRouteSteps — 状態バッジ / 注記', () => {
     expect(screen.getByText('このハウジングは見つかりません')).toBeInTheDocument();
   });
 
-  it('ミストのステップには map_pending 注記が出ない', () => {
+  it('plotありのステップ (全エリア) には map_pending 注記が出ない', () => {
     const { container } = renderSteps(1);
-    const mistItem = container.querySelectorAll('.housing-tour-steps-item')[0];
-    expect(mistItem.querySelector('.housing-tour-steps-note')).toBeNull();
+    const items = container.querySelectorAll('.housing-tour-steps-item');
+    expect(items[0].querySelector('.housing-tour-steps-note')).toBeNull(); // Mist
+    expect(items[1].querySelector('.housing-tour-steps-note')).toBeNull(); // Shirogane (非ミスト)
   });
 });

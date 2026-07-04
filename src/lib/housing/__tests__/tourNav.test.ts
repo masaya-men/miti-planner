@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveTourSteps, stepStatus, computeTourProgress, isMistPlaceable, isTourPlaceable } from '../tourNav';
+import { resolveTourSteps, stepStatus, computeTourProgress, isTourPlaceable } from '../tourNav';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
 import type { HousingArea } from '../../../types/housing';
@@ -51,14 +51,6 @@ describe('computeTourProgress', () => {
     expect(p.total).toBe(0);
     expect(p.percent).toBe(0);
     expect(p.currentStep).toBeNull();
-  });
-});
-
-describe('isMistPlaceable', () => {
-  it('area==="Mist" のみ true、null/他エリアは false', () => {
-    expect(isMistPlaceable(L('a', 'Mist'))).toBe(true);
-    expect(isMistPlaceable(L('a', 'LavenderBeds'))).toBe(false);
-    expect(isMistPlaceable(null)).toBe(false);
   });
 });
 
