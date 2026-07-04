@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveTourSteps, stepStatus, computeTourProgress, isMistPlaceable } from '../tourNav';
+import { resolveTourSteps, stepStatus, computeTourProgress, isMistPlaceable, isTourPlaceable } from '../tourNav';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
 import type { HousingArea } from '../../../types/housing';
@@ -59,5 +59,22 @@ describe('isMistPlaceable', () => {
     expect(isMistPlaceable(L('a', 'Mist'))).toBe(true);
     expect(isMistPlaceable(L('a', 'LavenderBeds'))).toBe(false);
     expect(isMistPlaceable(null)).toBe(false);
+  });
+});
+
+const placeable = (over: Partial<MockListing>): MockListing => ({ id: 'x', ownerUid: 'u', dc: 'Mana', server: 'Anima', region: 'JP', area: 'LavenderBeds', ward: 1, buildingType: 'house', plot: 6, size: 'M', addressKey: 'k', imageMode: 'none', tags: [], createdAt: 1, lastConfirmedAt: 1, ...over });
+
+describe('isTourPlaceable (全5エリア対応)', () => {
+  it('全5エリアの house(1-60)/apartment は配置可能', () => {
+    for (const area of ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'] as const) {
+      expect(isTourPlaceable(placeable({ area, plot: 6 }))).toBe(true);
+      expect(isTourPlaceable(placeable({ area, plot: 45 }))).toBe(true);
+    }
+    expect(isTourPlaceable(placeable({ buildingType: 'apartment', plot: undefined, apartmentBuilding: 2, roomNumber: 3 }))).toBe(true);
+  });
+  it('plot 無し house / 未知エリア / null は不可', () => {
+    expect(isTourPlaceable(placeable({ buildingType: 'house', plot: undefined }))).toBe(false);
+    expect(isTourPlaceable(placeable({ area: 'Nowhere' as MockListing['area'] }))).toBe(false);
+    expect(isTourPlaceable(null)).toBe(false);
   });
 });
