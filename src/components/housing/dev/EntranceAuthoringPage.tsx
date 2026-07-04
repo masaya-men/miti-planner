@@ -75,6 +75,23 @@ export function EntranceAuthoringPage() {
   }
 
   const exportJson = JSON.stringify(buildFullExport(overrides), null, 2);
+  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+
+  // 開発専用エンドポイントに直保存(vite entranceSaverPlugin)。コピペ不要でファイルに反映。
+  async function saveToFile() {
+    setSaveMsg('保存中…');
+    try {
+      const res = await fetch('/__save-entrances', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: exportJson,
+      });
+      const j = (await res.json()) as { ok: boolean; maps?: number; error?: string };
+      setSaveMsg(j.ok ? `保存しました ✓ (${j.maps} マップ) — Claude に「入口を保存した」と伝えてください` : `保存失敗: ${j.error}`);
+    } catch (e) {
+      setSaveMsg(`保存失敗: ${String(e)}`);
+    }
+  }
 
   return (
     <div className="housing-workspace housing-workspace-flow housing-entrance-authoring" data-theme="dark">
@@ -89,10 +106,14 @@ export function EntranceAuthoringPage() {
             ))}
           </select>
         </label>
-        <button type="button" onClick={() => navigator.clipboard?.writeText(exportJson)}>
-          JSON書き出し(クリップボード)
+        <button type="button" onClick={saveToFile}>
+          保存(ファイルへ直接)
         </button>
-        <span style={{ opacity: 0.7 }}>マーカーをドラッグで補正(グレー→ハニー)。1マップずつ書き出し。</span>
+        <button type="button" onClick={() => navigator.clipboard?.writeText(exportJson)}>
+          コピー(予備)
+        </button>
+        {saveMsg && <span style={{ opacity: 0.85 }}>{saveMsg}</span>}
+        <span style={{ opacity: 0.6 }}>マーカーをドラッグで補正(グレー→ハニー)。</span>
       </div>
       {asset.status === 'ready' && (
         <div

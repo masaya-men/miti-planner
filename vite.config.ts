@@ -1,7 +1,42 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { execSync } from 'node:child_process'
+import { writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
+// 開発専用: 入口オーサリングツール (/housing/dev/entrances) の「保存」ボタンから
+// POST /__save-entrances で送られた入口 JSON を wardEntrances.generated.json に直書きする。
+// これでユーザーはコピペせず、ボタン1つでファイルに反映できる (受け渡し不要)。
+// apply:'serve' + configureServer なので vite dev でのみ有効・本番 build には一切含まれない。
+function entranceSaverPlugin(): Plugin {
+  const TARGET = resolve(process.cwd(), 'src/data/housing/wardEntrances.generated.json')
+  return {
+    name: 'entrance-saver-dev',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/__save-entrances', (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('POST only'); return }
+        let body = ''
+        req.on('data', (c) => { body += c })
+        req.on('end', () => {
+          try {
+            const parsed = JSON.parse(body) // 妥当な JSON object か検証
+            if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error('JSON object が必要です')
+            writeFileSync(TARGET, JSON.stringify(parsed, null, 2) + '\n', 'utf8')
+            res.statusCode = 200
+            res.setHeader('content-type', 'application/json')
+            res.end(JSON.stringify({ ok: true, maps: Object.keys(parsed).length }))
+          } catch (e) {
+            res.statusCode = 400
+            res.setHeader('content-type', 'application/json')
+            res.end(JSON.stringify({ ok: false, error: String(e) }))
+          }
+        })
+      })
+    },
+  }
+}
 
 // ハウジング StatusBar (画面下) に「実行中コードの版」を短 SHA で表示するための診断計器。
 // 目的: 古い Service Worker / インストール済み PWA が旧バンドルを配信していないかを
@@ -47,6 +82,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    entranceSaverPlugin(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
