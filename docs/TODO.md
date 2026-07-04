@@ -11,7 +11,13 @@
 
 ## 次の作業順 (2026-07-04 更新)
 
-**🔴最優先: M1「ツアー中(Nav)ページ」= 実装完了・ユーザー実機ゲート待ち (2026-07-04)**。ブランチ=`feat/housing-tour-nav-m1`(**未push・実機ゲート前**)@`9d7ce03a`。**Task1〜9完了・全review✅・最終ブランチレビュー(opus)完了**(凡例↔ルート色不一致=Important 1件を修正済・triage 5件裁定済)。`npm run build` EXIT0 / 全体`npm test`=既知legacy5failのみ(新規ゼロ・parity緑)。`/housing/tour` が ComingSoon から実ページ化。**次=ユーザー実機ゲート**(`npm run dev`→`/housing/favorites`→開始→`/housing/tour` を DPR2.58/CSS1489目視・確認点は台帳🌅)→OKで main merge→本番。spec/plan=`docs/superpowers/{specs,plans}/2026-07-04-housing-tour-nav-page*`、台帳=`.superpowers/sdd/progress.md`(✅完了状態+ゲート手順)、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
+**🔴最優先: M1「ツアー中(Nav)ページ」= 実機ゲート実施済→要対応あり・merge保留 (2026-07-04)**。ブランチ=`feat/housing-tour-nav-m1`(**未push・実機ゲート前**)@`9d7ce03a`。**Task1〜9完了・全review✅・最終ブランチレビュー(opus)完了**(凡例↔ルート色不一致=Important 1件を修正済・triage 5件裁定済)。`npm run build` EXIT0 / 全体`npm test`=既知legacy5failのみ(新規ゼロ・parity緑)。`/housing/tour` が ComingSoon から実ページ化。**実機ゲート実施済(2026-07-04・Claude・store注入で全状態を1489×2.58目視)**=①地図/②前後連動/③報告モーダル/④完了→戻る/⑤空状態/⑥混在map_pending は全部表示動作OK・凡例↔ルート色一致(honey)も実機確認。**ただし要対応あり=merge保留(下記a〜e)**。spec/plan=`docs/superpowers/{specs,plans}/2026-07-04-housing-tour-nav-page*`、台帳=`.superpowers/sdd/progress.md`(✅完了状態+ゲート手順)、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
+  - **⚠実機ゲート要対応(2026-07-04・要対応リスト)**:
+    - **(a)[大・要brainstorming] ツアー本体=「言葉ナビ」未実装(M1は飾りのみ)**: 設計の核心は『最寄りエーテライトへテレポ→言葉で行き方』(`housing-map-todo.md:17-30`「言葉ナビが本体・線アニメは将来の飾り」)。データは**masaya作成の行き方スプシに全60区画分が既存**(最寄りエーテライト+行き方補足・リンク=`ADMIN_REFERENCE.md:131`・**リポジトリ未取込**)。エーテライト名はSVGグループID(「ミストゲート・スクエア」等)にあるが未パース(`housing-map-authoring-guide.md:179`残作業)。M1は地図+光ルート(飾り)のみで右パネル「最寄りエーテライト」はエリア名の仮表示=本体欠落。やること=①スプシ取込(area/表裏/番地→最寄りエーテライト名+言葉ナビ) ②SVGエーテライト名パース→JSON ③右パネルに最寄りエーテライト名+行き方文を表示 ④地図は該当エーテライトから点灯/経路。次着手時 brainstorming→plan。
+    - (b)[小] 報告モーダルが Esc で閉じない(キャンセル/背景クリックのみ)→ Esc に onClose 配線。
+    - (c)[小] 凡例「現在地」と「次の目的地」が同色青(`--housing-aether`)で凡例上区別不能→色/形/ラベルで分ける。
+    - (d)[小] 右カラム「ルートのステップ」一覧が窮屈(詳細カードに押され1件のみ表示・スクロール前提)→高さ/レイアウト調整。
+    - (e)[判断待ち] 死にキー `housing.tour.nav.title`(「ツアー中（ナビゲーション）」)=削除推奨(モック準拠・ナビタブが既出)。ユーザー確認待ち。
 - **✅本日デプロイ済(main)**: 他エリア地図のNode赤丸隠蔽(circle対応・b85b7410)/YouTubeサムネfallback配線(dda47eaf)。**要ユーザー実機確認**(登録ミニマップの赤丸消滅・探すのミスト1-1サムネ)。
 
 1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
