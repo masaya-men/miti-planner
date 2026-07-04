@@ -24,3 +24,12 @@ export function buildEntranceExport(
   }
   return next;
 }
+
+/** 全マップの上書き table から、空(点ゼロ)のマップを除いた書き出し用 table を返す。 */
+export function buildFullExport(overrides: Record<string, EntranceOverrides>): Record<string, EntranceOverrides> {
+  const out: Record<string, EntranceOverrides> = {};
+  for (const [k, v] of Object.entries(overrides)) {
+    if (v && Object.keys(v).length > 0) out[k] = v;
+  }
+  return out;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normToPx, pxToNorm, buildEntranceExport } from '../entranceAuthoring';
+import { normToPx, pxToNorm, buildEntranceExport, buildFullExport } from '../entranceAuthoring';
 
 describe('entranceAuthoring', () => {
   const vb = { w: 100, h: 200 };
@@ -26,5 +26,25 @@ describe('entranceAuthoring', () => {
     const out = buildEntranceExport(existing, 'mist', {});
     expect(out.mist).toBeUndefined();
     expect(out.goblet).toEqual({ '3': [0.1, 0.2] });
+  });
+
+  it('buildFullExport は複数マップの編集を全て含む', () => {
+    const overrides = {
+      mist: { '6': [0.42, 0.58] as [number, number] },
+      goblet: { '3': [0.1, 0.2] as [number, number] },
+    };
+    const out = buildFullExport(overrides);
+    expect(out.mist).toEqual({ '6': [0.42, 0.58] });
+    expect(out.goblet).toEqual({ '3': [0.1, 0.2] });
+  });
+
+  it('buildFullExport は空(点ゼロ)のマップを落とす', () => {
+    const overrides = {
+      mist: { '6': [0.42, 0.58] as [number, number] },
+      goblet: {},
+    };
+    const out = buildFullExport(overrides);
+    expect(out.mist).toEqual({ '6': [0.42, 0.58] });
+    expect(out.goblet).toBeUndefined();
   });
 });

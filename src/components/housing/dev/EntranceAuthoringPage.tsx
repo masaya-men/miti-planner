@@ -3,7 +3,7 @@ import type { PointerEvent as ReactPointerEvent } from 'react';
 import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { WARD_MAP_LOADERS } from '../../../data/housing/wardMapManifest';
 import { computePlotDoor } from '../../../lib/housing/plotDoor';
-import { pxToNorm, buildEntranceExport, type EntranceOverrides } from '../../../lib/housing/entranceAuthoring';
+import { pxToNorm, buildFullExport, type EntranceOverrides } from '../../../lib/housing/entranceAuthoring';
 import existingData from '../../../data/housing/wardEntrances.generated.json';
 
 const EXISTING = existingData as Record<string, EntranceOverrides>;
@@ -29,7 +29,7 @@ export function EntranceAuthoringPage() {
 
   const json = asset.status === 'ready' ? asset.json : null;
   const vb = json?.viewBox ?? { w: 0, h: 0 };
-  const mapOverrides = overrides[mapKey] ?? {};
+  const mapOverrides = useMemo(() => overrides[mapKey] ?? {}, [overrides, mapKey]);
 
   // 各家の表示座標(px)。上書きあればそれ、なければ幾何、なければ箱中心。
   const markers = useMemo(() => {
@@ -74,7 +74,7 @@ export function EntranceAuthoringPage() {
     setOverrides((prev) => ({ ...prev, [mapKey]: { ...(prev[mapKey] ?? {}), [dragKey]: [nx, ny] } }));
   }
 
-  const exportJson = JSON.stringify(buildEntranceExport(EXISTING, mapKey, mapOverrides), null, 2);
+  const exportJson = JSON.stringify(buildFullExport(overrides), null, 2);
 
   return (
     <div className="housing-workspace housing-shell-root housing-entrance-authoring" data-theme="dark">
