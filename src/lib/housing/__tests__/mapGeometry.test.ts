@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { nearestPointOnPolylines } from '../mapGeometry';
+import { nearestPointOnPolylines, segmentPolygonIntersection } from '../mapGeometry';
 
 describe('nearestPointOnPolylines', () => {
   const edges = [{ a: 'n1', b: 'n2', polyline: [[0, 0], [10, 0]] as [number, number][] }];
@@ -29,5 +29,24 @@ describe('nearestPointOnPolylines', () => {
 
   it('edge が無ければ null', () => {
     expect(nearestPointOnPolylines(0, 0, [])).toBeNull();
+  });
+});
+
+describe('segmentPolygonIntersection', () => {
+  const box: [number, number][] = [[40, 40], [60, 40], [60, 60], [40, 60]]; // 中心(50,50)
+
+  it('外(左)から中心へ向かう線分は左辺 x=40 で交わる', () => {
+    const r = segmentPolygonIntersection(0, 50, 50, 50, box)!;
+    expect(r.x).toBeCloseTo(40, 5);
+    expect(r.y).toBeCloseTo(50, 5);
+  });
+
+  it('a に近い側の交点を返す(貫通しても入口で止める)', () => {
+    const r = segmentPolygonIntersection(0, 50, 100, 50, box)!;
+    expect(r.x).toBeCloseTo(40, 5); // 入口(左辺)。出口 x=60 ではない
+  });
+
+  it('多角形に触れない線分は null', () => {
+    expect(segmentPolygonIntersection(0, 0, 10, 0, box)).toBeNull();
   });
 });
