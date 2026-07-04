@@ -5,13 +5,12 @@ export interface TourNavMapProps {
   status: 'none' | 'loading' | 'ready' | 'error';
   svg: string | null;
   viewBox: { w: number; h: number } | null;
-  roadPath: string | null;
   model: TourMapModel | null;
 }
 const LEGEND_ITEMS = ['here', 'next', 'arrived', 'upcoming', 'route'] as const;
 
 /** ツアー中(Nav) 中央: 表示専用の LIVE 地図(全5エリア)。現在の家のワード地図を描き、実エーテライト起点→家の経路をゴージャスにアニメ。host は必ず .housing-map-svg-host。 */
-export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, roadPath, model }) => {
+export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, model }) => {
   const { t } = useTranslation();
   const target = model?.target ?? null;
   const route = model?.routePath ?? null;
@@ -30,11 +29,8 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, ro
             <>
               <div className="housing-map-svg-host" role="img" aria-label={t('housing.workspace.center.map_alt')} dangerouslySetInnerHTML={{ __html: svg }} />
               <svg className="housing-map-overlay" viewBox={`0 0 ${viewBox.w} ${viewBox.h}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-                {roadPath && (
-                  <path d={roadPath} fill="none" stroke="var(--housing-candle)" strokeOpacity="0.35" strokeWidth="3" strokeLinecap="round" strokeDasharray="14 28">
-                    <animate attributeName="stroke-dashoffset" from="0" to="-42" dur="2.4s" repeatCount="indefinite" />
-                  </path>
-                )}
+                {/* 光らせるのは「ユーザーが実際に歩く経路」だけ (車のナビと同じ)。
+                    以前あった全道路アンビエント (roadPath を無限ダッシュ) はナビ上の意味がなく視線を散らすため削除。 */}
                 {route && (
                   <>
                     {/* 下地グロー */}

@@ -171,7 +171,6 @@ export const TourNavPage: React.FC = () => {
             status={mapStatus}
             svg={asset.status === 'ready' ? asset.svg : null}
             viewBox={asset.status === 'ready' ? asset.json.viewBox : null}
-            roadPath={asset.status === 'ready' ? asset.json.roadPath : null}
             model={mapModel}
           />
         </div>
