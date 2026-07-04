@@ -186,6 +186,10 @@
   /* ===== ツアー中(Nav) 中央カラム: LIVE地図 (Task5) ===== */
   --housing-tour-map-node-size: 26px;   /* 番号ノードの直径 */
   --housing-tour-map-legend-swatch: 10px; /* 凡例の色見本サイズ */
+  /* ===== 入口オーサリングページ (開発専用ツール・Task5 sub) ===== */
+  --housing-entrance-marker: var(--housing-text-mute);       /* 未補正(幾何のまま) */
+  --housing-entrance-marker-corrected: var(--housing-honey); /* 補正済(ドラッグした) */
+  --housing-entrance-marker-size: 14px;
   /* ===== ツアー中(Nav) 右カラム: 次の目的地パネル + ルートステップ (Task6) ===== */
   --housing-tour-dest-thumb-h: 132px;    /* 次の目的地カードのサムネ高さ */
   --housing-tour-steps-index-size: 22px; /* ルートステップの番号バッジサイズ */
@@ -6874,3 +6878,17 @@ select.housing-input option {
   line-height: 1.5;
   color: var(--housing-text-mute);
 }
+
+/* ============================================================
+ * 入口オーサリングページ (開発専用ツール): 全区画の入口マーカーを
+ * ドラッグ補正し JSON 書き出しするための最小UI。本番非露出。
+ * ============================================================ */
+.housing-entrance-authoring { position: relative; width: 100%; height: 100%; }
+.housing-entrance-overlay { position: absolute; inset: 0; }
+.housing-entrance-marker {
+  fill: var(--housing-entrance-marker);
+  r: calc(var(--housing-entrance-marker-size) / 2); /* CSS r で presentation 属性(フォールバック用 r={7})を上書き */
+  cursor: grab;
+}
+.housing-entrance-marker--corrected { fill: var(--housing-entrance-marker-corrected); }
+.housing-entrance-marker-label { fill: var(--housing-map-light); font-size: 10px; pointer-events: none; }
