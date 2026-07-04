@@ -11,7 +11,10 @@
 
 ## 次の作業順 (2026-07-04 更新)
 
-**🔴🆕最優先: 中央地図の完成度を世界一へ。Phase1(改善1・2・3・8)=コード完成・最終レビュー済→ユーザー実機ゲート待ち(2026-07-04)**。ブランチ`feat/housing-tour-nav-m1` @`2c8faeb4`(**未push・実機ゲート前**)。spec=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`、plan=`.../plans/2026-07-04-housing-tour-map-phase1-nav-drawing.md`、台帳=`.superpowers/sdd/progress.md`(**次セッションはここ読む**=T1-6+M3全✅・実機ゲート項目I1/M1/M2・T6色A/B案)。Phase1実装済=①投影起点(道に乗せる)②箱縁で停止③波紋撤去⑧枠線色トークン化(A案デフォ)。build EXIT0/触れたtest44緑/保全マップ310houses退行0。最終レビュー(opus)=Critical0・コード欠陥なし・3逸脱(T3外科/T4単位/T6スコープ)妥当。**実機ゲート項目(視覚・blind修正しない)=I1リード線spur/M1凹区画縁停止/M2 path[mask]過剰/T6色確定(A案キャンドル淡 vs B案白半透明)**。**残Phase**:②④⑤⑥⑦⑨⑩(撤去+ズーム/レイアウト/進行モデル/生きたカードPhase5)。10改善全文=spec参照。408770d1(座標根治・Goblet回転/ｱﾊﾟｰﾄ棟1-2実機未確認)の上に積む。
+**🔴🆕最優先: 中央地図の完成度を世界一へ。Phase1(改善1・2・3・8)+改善8道バグ根治+入口ツール=コード完成→ユーザー実機ゲート待ち(2026-07-05)**。ブランチ`feat/housing-tour-nav-m1` @`0ba319f7`(**未push・ゲート前**)。台帳=`.superpowers/sdd/progress.md`(**次セッションはここ読む**=Phase1 T1-6+M3、道バグfix、入口ツール T1-6+fix 全✅・実機ゲート手順)。
+  - **①ユーザー作業(入口採取ゲート)**: `npm run dev`→`/housing/dev/entrances`→マップ選択(まずミスト)→全区画マーカー→崩れた家をドラッグ補正(ハニー化)→「JSON書き出し」→そのJSONを私に渡す→`wardEntrances.generated.json`反映→ツアーで経路終点=入口を確認→他マップ横展開。
+  - Phase1実装済=①投影起点②箱縁で停止(→入口ツールで精度化)③波紋撤去⑧枠線色トークン化。**改善8道が黒残り=全10マップ2系統(path[mask]+id末尾(Stroke))対応で根治済・シロガネ実機OK**。入口ツール=改善2の精度化(getPlotEntrance/computePlotDoor/オーサリングpage・入口空=回帰なし)。build EXIT0/新規テスト全緑/保全マップ退行0/本番非露出確認。最終レビュー(opus)=Critical0・本番リスクなし。
+  - **残Phase**:④⑤⑥⑦⑨⑩(番号撤去+ズーム/レイアウト/進行モデル/生きたカードPhase5)。10改善全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。**merge/push は実機ゲートOK後(feedback_deploy)**。
 
 **🔴M1「ツアー中(Nav)ページ」= 実機ゲート実施済→要対応あり・merge保留 (2026-07-04)**。ブランチ=`feat/housing-tour-nav-m1`(**未push・実機ゲート前**)@`9d7ce03a`。**Task1〜9完了・全review✅・最終ブランチレビュー(opus)完了**(凡例↔ルート色不一致=Important 1件を修正済・triage 5件裁定済)。`npm run build` EXIT0 / 全体`npm test`=既知legacy5failのみ(新規ゼロ・parity緑)。`/housing/tour` が ComingSoon から実ページ化。**実機ゲート実施済(2026-07-04・Claude・store注入で全状態を1489×2.58目視)**=①地図/②前後連動/③報告モーダル/④完了→戻る/⑤空状態/⑥混在map_pending は全部表示動作OK・凡例↔ルート色一致(honey)も実機確認。**ただし要対応あり=merge保留(下記a〜e)**。spec/plan=`docs/superpowers/{specs,plans}/2026-07-04-housing-tour-nav-page*`、台帳=`.superpowers/sdd/progress.md`(✅完了状態+ゲート手順)、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
   - **⚠実機ゲート要対応(2026-07-04・要対応リスト)**:
