@@ -28,4 +28,9 @@ describe('buildTourMapPlacements', () => {
     const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, steps[0].listing, steps, 0);
     expect(m.placed.map((p) => p.index).sort()).toEqual([0, 2]);
   });
+  it('target が解決できたら targetElId に ref.elementId を載せる (家)', () => {
+    const cur = L({ id: 'a', plot: 6 }); const ref = mistRef(6);
+    const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, cur, [step(cur)], 0);
+    expect(m.targetElId).toBe('plot_6');
+  });
 });

@@ -7,10 +7,11 @@ import { stepStatus, type StepStatus, type TourStep } from './tourNav';
 
 export interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
 export interface TourMapModel {
-  target: { x: number; y: number } | null;   // 現在の目的地(家)ハイライト中心
+  target: { x: number; y: number } | null;   // 現在の目的地(家)ハイライト中心 (リング用)
   placed: TourMapPlacement[];                  // 同一ワード地図の全ステップ番号ノード
   routePath: string | null;                    // 起点(エーテライト)→家 の道なり (毎回)
   origin: { x: number; y: number } | null;     // エーテライトシャード座標マーカー
+  targetElId: string | null;                   // 実箱ハイライト対象の SVG 要素 id (plot_N / apart_1|2)
 }
 
 function refOf(listing: TourStep['listing']) {
@@ -25,7 +26,7 @@ function refOf(listing: TourStep['listing']) {
 export function buildTourMapPlacements(
   json: WardMapJson,
   mapKey: string,
-  ref: { highlightPlot: number; highlightKind: 'plot' | 'apart' },
+  ref: { highlightPlot: number; highlightKind: 'plot' | 'apart'; elementId: string },
   currentListing: MockListing | null,
   steps: TourStep[],
   currentIndex: number,
@@ -52,5 +53,5 @@ export function buildTourMapPlacements(
     origin = { x: originInfo.x * json.viewBox.w, y: originInfo.y * json.viewBox.h };
   }
 
-  return { target, placed, routePath, origin };
+  return { target, placed, routePath, origin, targetElId: target ? ref.elementId : null };
 }
