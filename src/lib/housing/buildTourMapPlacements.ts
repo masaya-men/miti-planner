@@ -1,8 +1,9 @@
 import type { WardMapJson } from '../../data/housing/wardMapManifest';
 import type { MockListing } from '../../data/housing/mockListings';
 import { resolveWardMapRef } from './resolveWardMapRef';
-import { plotToPlacementIn, buildRoutePathIn } from './wardRoute';
+import { plotToPlacementIn, apartToPlacementIn, buildRoutePathIn } from './wardRoute';
 import { getPlotOriginNode } from './plotOrigin';
+import { getApartmentOrigin } from './apartmentOrigin';
 import { stepStatus, type StepStatus, type TourStep } from './tourNav';
 
 export interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
@@ -19,6 +20,13 @@ function refOf(listing: TourStep['listing']) {
   return resolveWardMapRef(listing.area, listing.plot ?? null, listing.apartmentBuilding ?? null, listing.buildingType);
 }
 
+/** ワード地図 ref → 配置。apart は番号非依存で唯一の apart を、plot は plot 番号で解決。 */
+function placementForRef(json: WardMapJson, r: { highlightPlot: number; highlightKind: 'plot' | 'apart' }) {
+  return r.highlightKind === 'apart'
+    ? apartToPlacementIn(json)
+    : plotToPlacementIn(json, r.highlightPlot, 'plot');
+}
+
 /**
  * 「現在の目的地の家」に対する地図配置モデル。起点は必ずその家の最寄りエーテネットシャード(getPlotOriginNode)。
  * 起点ノード → 家の玄関ノード の道なり経路を毎回描く(直前の家に依存しない)。
@@ -31,22 +39,26 @@ export function buildTourMapPlacements(
   steps: TourStep[],
   currentIndex: number,
 ): TourMapModel {
-  const targetPlacement = plotToPlacementIn(json, ref.highlightPlot, ref.highlightKind);
+  const targetPlacement = placementForRef(json, ref);
   const target = targetPlacement ? { x: targetPlacement.x, y: targetPlacement.y } : null;
 
   const placed: TourMapPlacement[] = [];
   for (let i = 0; i < steps.length; i++) {
     const r = refOf(steps[i].listing);
     if (!r || r.mapKey !== mapKey) continue;
-    const p = plotToPlacementIn(json, r.highlightPlot, r.highlightKind);
+    const p = placementForRef(json, r);
     if (!p) continue;
     placed.push({ index: i, x: p.x, y: p.y, status: stepStatus(i, currentIndex) });
   }
 
-  // 起点 = 現在の家の最寄りエーテネットシャード。ノード→玄関ノードの道なり + 玄関座標へ最後の1ホップ。
+  // 起点 = 現在の家の最寄りエーテネットシャード(家)/最寄りシャード幾何解決(アパート)。ノード→玄関ノードの道なり + 玄関座標へ最後の1ホップ。
   let routePath: string | null = null;
   let origin: { x: number; y: number } | null = null;
-  const originInfo = currentListing ? getPlotOriginNode(currentListing.area, currentListing.plot) : null;
+  const originInfo = currentListing
+    ? (currentListing.buildingType === 'apartment'
+        ? getApartmentOrigin(json, mapKey)
+        : getPlotOriginNode(currentListing.area, currentListing.plot))
+    : null;
   if (originInfo && targetPlacement && targetPlacement.nodeId) {
     const base = buildRoutePathIn(json, originInfo.node, targetPlacement.nodeId);
     if (base) routePath = `${base} L${targetPlacement.x.toFixed(1)} ${targetPlacement.y.toFixed(1)}`;
