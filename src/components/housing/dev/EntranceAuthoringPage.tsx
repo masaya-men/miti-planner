@@ -6,7 +6,8 @@ import { computePlotDoor } from '../../../lib/housing/plotDoor';
 import { pxToNorm, buildFullExport, type EntranceOverrides } from '../../../lib/housing/entranceAuthoring';
 import existingData from '../../../data/housing/wardEntrances.generated.json';
 
-const EXISTING = existingData as Record<string, EntranceOverrides>;
+// JSON import は各点を number[] と推論するため unknown 経由でタプル型に確定する。
+const EXISTING = existingData as unknown as Record<string, EntranceOverrides>;
 const MAP_KEYS = Object.keys(WARD_MAP_LOADERS);
 
 /** 家1件のキー(plot番号 or 'apart')。 */

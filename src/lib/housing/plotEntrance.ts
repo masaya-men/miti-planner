@@ -1,7 +1,8 @@
 import { resolveWardMapRef } from './resolveWardMapRef';
 import data from '../../data/housing/wardEntrances.generated.json';
 
-const TABLE = data as Record<string, Record<string, [number, number]>>;
+// JSON import は各点を number[] と推論するため unknown 経由でタプル型に確定する。
+const TABLE = data as unknown as Record<string, Record<string, [number, number]>>;
 
 /**
  * 家(area, plot / apartment)の手動指定入口を引く純関数。収録あり→[x,y](0..1)、なし→null。
