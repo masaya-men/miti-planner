@@ -66,16 +66,14 @@ export function buildTourMapPlacements(
         ? getApartmentOrigin(json, mapKey)
         : getPlotOriginNode(currentListing.area, currentListing.plot))
     : null;
-  if (originInfo && targetPlacement && targetPlacement.nodeId) {
+  if (currentListing && originInfo && targetPlacement && targetPlacement.nodeId) {
     const w = json.viewBox.w, h = json.viewBox.h;
     const oxPx = originInfo.x * w, oyPx = originInfo.y * h;
     origin = { x: oxPx, y: oyPx };
 
     // 玄関(終点): 入口データ優先 → 幾何(箱縁) → 箱中心 の順で決める。
     let doorX = targetPlacement.x, doorY = targetPlacement.y;
-    const entrance = currentListing
-      ? getPlotEntrance(currentListing.area, currentListing.plot, currentListing.buildingType, currentListing.apartmentBuilding)
-      : null;
+    const entrance = getPlotEntrance(currentListing.area, currentListing.plot, currentListing.buildingType, currentListing.apartmentBuilding);
     if (entrance) {
       doorX = entrance[0] * w; doorY = entrance[1] * h;
     } else {
