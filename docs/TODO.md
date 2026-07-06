@@ -13,9 +13,11 @@
 
 **🟢✅本番反映済(2026-07-06)= ハウジングツアー大ブランチ**(`feat/housing-tour-nav-m1` 84コミット→main `beb8d702`→Vercel本番自動デプロイ・ブランチ削除済)。内容=M1ツアー中ページ実化+P2/P4本物のナビ化(自動並替/全5エリア地図/実エーテライト起点300区画/ゴージャス経路)+実箱ハイライト/アパート+座標破損根治+中央地図Phase1(改善1/2/3/8+道の黒残り根治)+入口ツール(DEV専用)+全10マップ入口276採取+地図修正。検証=build EXIT0/vitest新規fail0(既知legacy5のみ)/全7スパンopusレビュー済。詳細=`.superpowers/sdd/progress.md`末尾・[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**要ユーザー本番確認**=ツアー一連(URL非公開で一般未露出)。
 
-**🔴🆕最優先: 中央地図 Phase2以降(残改善)**。10改善全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。着手は brainstorming→writing-plans→subagent-driven-development(CLAUDE.md 準拠)。
-  - **残改善**: ④番号撤去 ⑤パン&ズーム ⑥LIVE凡例撤去 ⑦フィット ⑨レイアウト ⑩進行モデル + 生きたカード。
-  - **繰延小物(P3/掃除で回収)**: M1 (b)報告モーダルEsc閉じ (c)凡例「現在地/次の目的地」同色青→色分け (d)右カラム「ルートのステップ」窮屈 (e)死にキー`housing.tour.nav.title`削除判断。死にコード=wardRoute Mist wrappers(test専用)/`.housing-tour-map-origin`(bare CSS)。
+**🔴🆕最優先(次セッション): 行き方テキストに沿ったナビ**。ブランチ=`feat/housing-dev-tour-preview`(**未push**・main beb8d702の上に9コミット)。台帳=`.superpowers/sdd/progress.md`末尾(**次セッションはここ読む**=設計確定+実測)。
+  - **今セッション成果**: ①全住所ツアープレビュー(DEV専用`/housing/dev/tour-preview`・本番非露出)=全310住所を本番TourNavPageで歩ける ②経路実バグ根治2段(v1始点スパー/終点通り過ぎ→v2**道スナップ**=ノード割当依存で道無視の斜め直線を根治・`buildSnappedRoutePoints`)。build EXIT0/新規fail0。
+  - **次やること(ユーザー指示2026-07-06)**: 経路を**行き方テキストの言葉どおり**に動かす。テキスト先頭の方角(西/北…)+北固定地図で、①方角へ道を進む②一つ目の曲がり角で入口へ直接ジャンプ。8-8(西の階段+ジャンプ=道に無い)例。現状は最短路で東回り→方角バイアス+曲がり角ジャンプに拡張。着手=brainstorming/systematic-debugging。
+  - **その後**: 全310再チェック→finishing-a-development-branch で本番判断(経路修正は本番コード)。**勝手にpush/merge禁止**。
+- **中央地図 Phase2以降(その後)**: ④番号撤去 ⑤パン&ズーム ⑥LIVE凡例撤去 ⑦フィット ⑨レイアウト ⑩進行モデル+生きたカード。全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。繰延小物=M1 (b)報告Esc (c)凡例同色 (d)右カラム窮屈 (e)死にキー title。
 
 1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
    - **✅本番反映済(2026-07-03・main=f423fa87)**: 土台+シェル/探す(質感A案)/お気に入り/**登録ページ+非公開機能**を本番公開。index+rules deploy済・backfill済。実機ゲートで**非公開=Not Found(漏洩なし)確認**。実機バグ B1(バッジi18n)/B2(期限トグルで中央消滅)/B4(詳細スクロール)/B5(アパート住所未入力扱い)は修正・本番反映済。詳細=台帳`.superpowers/sdd/progress.md`。
