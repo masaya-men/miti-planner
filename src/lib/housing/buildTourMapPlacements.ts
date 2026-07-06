@@ -1,18 +1,22 @@
 import type { WardMapJson } from '../../data/housing/wardMapManifest';
 import type { MockListing } from '../../data/housing/mockListings';
 import { resolveWardMapRef } from './resolveWardMapRef';
-import { plotToPlacementIn, apartToPlacementIn, buildSnappedRoutePoints } from './wardRoute';
+import { plotToPlacementIn, apartToPlacementIn } from './wardRoute';
 import { getPlotOriginNode } from './plotOrigin';
 import { getApartmentOrigin } from './apartmentOrigin';
 import { stepStatus, type StepStatus, type TourStep } from './tourNav';
 import { getPlotEntrance } from './plotEntrance';
 import { computePlotDoor } from './plotDoor';
+import { getPlotBearing } from './plotBearing';
+import { buildVerbalRoute } from './verbalRoute';
+import { getRouteOverride } from './wardRouteOverrides';
 
 export interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
 export interface TourMapModel {
   target: { x: number; y: number } | null;   // 現在の目的地(家)ハイライト中心 (リング用)
   placed: TourMapPlacement[];                  // 同一ワード地図の全ステップ番号ノード
-  routePath: string | null;                    // 起点(エーテライト)→家 の道なり (毎回)
+  routePath: string | null;                    // 実線: 起点→(道追従 or 角まで)
+  routeJumpPath: string | null;                // 破線: 角→入口(道に無い区間/階段ジャンプ)。無ければ null
   origin: { x: number; y: number } | null;     // エーテライトシャード座標マーカー
   targetElId: string | null;                   // 実箱ハイライト対象の SVG 要素 id (plot_N / apart_1|2)
 }
@@ -55,6 +59,7 @@ export function buildTourMapPlacements(
 
   // 起点 = 現在の家の最寄りエーテネットシャード(家)/最寄りシャード幾何解決(アパート)。ノード→玄関ノードの道なり + 玄関座標へ最後の1ホップ。
   let routePath: string | null = null;
+  let routeJumpPath: string | null = null;
   let origin: { x: number; y: number } | null = null;
   const originInfo = currentListing
     ? (currentListing.buildingType === 'apartment'
@@ -77,15 +82,27 @@ export function buildTourMapPlacements(
       const geoDoor = computePlotDoor(json, ref.highlightPlot, ref.highlightKind);
       if (geoDoor) { doorX = geoDoor.x; doorY = geoDoor.y; }
     }
-    // カーナビ方式: エーテライトと玄関を「道そのもの」に投影し、投影点間を道なりに辿る
-    // (ノード割当に依存せず必ず道を使う。起点ノード==家ノードの退化でも投影点間を道でつなぐ)。
-    // 最終 = エーテライト実座標 → (道への合流点) → …道なり… → (玄関前で道を離れる点) → 玄関。
-    const snapped = buildSnappedRoutePoints(json, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
-    if (snapped && snapped.length) {
-      const pts: [number, number][] = [[oxPx, oyPx], ...snapped, [doorX, doorY]];
-      routePath = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
+    // 方角ベクトル: 行き方テキスト先頭語を優先、無ければ エーテライト→玄関 の向き。
+    const dirVec = getPlotBearing(currentListing.area, currentListing.plot, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
+    // 手動上書き(plot単位)があれば最優先。無ければ方角ナビ(agree=道追従 / reroute=方角→角→破線ジャンプ)。
+    const plotKey = ref.highlightKind === 'apart' ? 'apart' : String(ref.highlightPlot);
+    const override = getRouteOverride(mapKey, plotKey);
+    let road: [number, number][] | null = null;
+    let jump: [number, number][] | null = null;
+    if (override) {
+      road = override.road.map(([x, y]) => [x * w, y * h] as [number, number]);
+      jump = override.jump ? override.jump.map(([x, y]) => [x * w, y * h] as [number, number]) : null;
+    } else {
+      const verbal = buildVerbalRoute(json, { x: oxPx, y: oyPx }, { x: doorX, y: doorY }, dirVec);
+      if (verbal) { road = verbal.road; jump = verbal.jump; }
+    }
+    if (road && road.length) {
+      routePath = road.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
+    }
+    if (jump && jump.length >= 2) {
+      routeJumpPath = jump.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
     }
   }
 
-  return { target, placed, routePath, origin, targetElId: target ? ref.elementId : null };
+  return { target, placed, routePath, routeJumpPath, origin, targetElId: target ? ref.elementId : null };
 }

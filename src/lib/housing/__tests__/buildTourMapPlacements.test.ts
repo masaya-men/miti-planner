@@ -61,10 +61,11 @@ describe('buildTourMapPlacements', () => {
     expect(m.targetElId).toBe('apart_2');
     expect(m.placed.map((p) => p.index)).toEqual([0]); // アパートステップも placed に載る
   });
-  it('経路の終点は箱の中心ちょうどではない (改善2: 箱の縁で止まる)', () => {
+  it('経路の終点(道 or ジャンプ)は箱の中心ちょうどではない (改善2: 箱の縁で止まる)', () => {
     const cur = L({ id: 'a', plot: 6 }); const ref = mistRef(6);
     const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, cur, [step(cur)], 0);
-    const coords = [...m.routePath!.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
+    const endPath = m.routeJumpPath ?? m.routePath!;
+    const coords = [...endPath.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
     const last = coords.at(-1)!;
     const [lx, ly] = [Number(last[1]), Number(last[2])];
     const house = mistWard.houses.find((h) => h.plot === 6 && h.kind === 'plot')!;
@@ -78,10 +79,11 @@ describe('buildTourMapPlacements', () => {
     expect(Number(start[1])).toBeCloseTo(m.origin!.x, 0);
     expect(Number(start[2])).toBeCloseTo(m.origin!.y, 0);
   });
-  it('入口データが収録済みの区画は経路終点が入口(0..1×viewBox)になる (改善2: 入口優先)', () => {
+  it('入口データが収録済みの区画は経路の終点が入口(0..1×viewBox)になる (改善2: 入口優先)', () => {
     const cur = L({ id: 'a', plot: 21 }); const ref = mistRef(21);
     const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, cur, [step(cur)], 0);
-    const coords = [...m.routePath!.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
+    const endPath = m.routeJumpPath ?? m.routePath!;
+    const coords = [...endPath.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
     const last = coords.at(-1)!;
     expect(Number(last[1])).toBeCloseTo(0.2 * mistWard.viewBox.w, 1);
     expect(Number(last[2])).toBeCloseTo(0.3 * mistWard.viewBox.h, 1);
