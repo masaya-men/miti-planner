@@ -11,10 +11,9 @@
 
 ## 次の作業順 (2026-07-04 更新)
 
-**🔴🆕最優先: 中央地図の完成度を世界一へ。Phase1(改善1・2・3・8)+改善8道バグ根治+入口ツール=コード完成→ユーザー実機ゲート待ち(2026-07-05)**。ブランチ`feat/housing-tour-nav-m1` @`0ba319f7`(**未push・ゲート前**)。台帳=`.superpowers/sdd/progress.md`(**次セッションはここ読む**=Phase1 T1-6+M3、道バグfix、入口ツール T1-6+fix 全✅・実機ゲート手順)。
-  - **①ユーザー作業(入口採取ゲート・明日実施予定)**: `npm run dev`(**config変更したので必ず再起動**)→`/housing/dev/entrances`→マップ選択(まずミスト)→全区画マーカー→崩れた家をドラッグ補正(ハニー化)→**「保存(ファイルへ直接)」ボタン**で`wardEntrances.generated.json`に直書き(コピペ不要)→私に「入口を保存した」と一言→私がcommit+ツアーで経路終点=入口を確認→他マップ横展開。実機バグ2件(overlay操作不能/地図見切れ)は根治済・直保存も実機検証済。
-  - Phase1実装済=①投影起点②箱縁で停止(→入口ツールで精度化)③波紋撤去⑧枠線色トークン化。**改善8道が黒残り=全10マップ2系統(path[mask]+id末尾(Stroke))対応で根治済・シロガネ実機OK**。入口ツール=改善2の精度化(getPlotEntrance/computePlotDoor/オーサリングpage・入口空=回帰なし)。build EXIT0/新規テスト全緑/保全マップ退行0/本番非露出確認。最終レビュー(opus)=Critical0・本番リスクなし。
-  - **残Phase**:④⑤⑥⑦⑨⑩(番号撤去+ズーム/レイアウト/進行モデル/生きたカードPhase5)。10改善全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。**merge/push は実機ゲートOK後(feedback_deploy)**。
+**🔴🆕最優先: 中央地図 世界一へ。Phase1(改善1・2・3・8)+改善8道根治+入口ツール+全10マップ入口採取(276区画)=完成。次=ブランチまとめ判断(2026-07-05)**。ブランチ`feat/housing-tour-nav-m1`(**未push・merge前**)。台帳=`.superpowers/sdd/progress.md`(**次セッションはここ読む**=全経緯・実機検証手順)。
+  - **✅完了**: Phase1(投影起点/箱縁停止/波紋撤去/枠線色)・改善8道の黒残り根治(全10マップ2系統対応)・改善2精度化=入口ツール(`/housing/dev/entrances`・DEV専用・直保存/__save-entrances)・**全10マップ入口276区画採取**(各経路を実機で入口exact一致確認)・地図道漏れをFigma再エクスポートで解消(mist/shirogane・家座標0移動で保全)。build EXIT0/テスト緑/本番非露出。
+  - **次セッション**: ①`finishing-a-development-branch`でこの大ブランチ(M1+Phase1+道根治+入口ツール+入口276+地図修正)を最終レビュー→main統合判断 ②その後 Phase2以降=残改善④⑤⑥⑦⑨⑩(番号撤去/ズーム/凡例撤去/フィット/レイアウト/進行モデル/生きたカード)。10改善全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。**merge/push はユーザー確認後(feedback_deploy)**。ローカルはログイン不可のためツアー経路の実機確認はClaude側Playwrightで代行。
 
 **🔴M1「ツアー中(Nav)ページ」= 実機ゲート実施済→要対応あり・merge保留 (2026-07-04)**。ブランチ=`feat/housing-tour-nav-m1`(**未push・実機ゲート前**)@`9d7ce03a`。**Task1〜9完了・全review✅・最終ブランチレビュー(opus)完了**(凡例↔ルート色不一致=Important 1件を修正済・triage 5件裁定済)。`npm run build` EXIT0 / 全体`npm test`=既知legacy5failのみ(新規ゼロ・parity緑)。`/housing/tour` が ComingSoon から実ページ化。**実機ゲート実施済(2026-07-04・Claude・store注入で全状態を1489×2.58目視)**=①地図/②前後連動/③報告モーダル/④完了→戻る/⑤空状態/⑥混在map_pending は全部表示動作OK・凡例↔ルート色一致(honey)も実機確認。**ただし要対応あり=merge保留(下記a〜e)**。spec/plan=`docs/superpowers/{specs,plans}/2026-07-04-housing-tour-nav-page*`、台帳=`.superpowers/sdd/progress.md`(✅完了状態+ゲート手順)、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
   - **⚠実機ゲート要対応(2026-07-04・要対応リスト)**:
