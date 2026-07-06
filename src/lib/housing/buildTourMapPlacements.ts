@@ -1,11 +1,10 @@
 import type { WardMapJson } from '../../data/housing/wardMapManifest';
 import type { MockListing } from '../../data/housing/mockListings';
 import { resolveWardMapRef } from './resolveWardMapRef';
-import { plotToPlacementIn, apartToPlacementIn, buildRoutePointsIn } from './wardRoute';
+import { plotToPlacementIn, apartToPlacementIn, buildSnappedRoutePoints } from './wardRoute';
 import { getPlotOriginNode } from './plotOrigin';
 import { getApartmentOrigin } from './apartmentOrigin';
 import { stepStatus, type StepStatus, type TourStep } from './tourNav';
-import { trimRouteToEndpoints } from './mapGeometry';
 import { getPlotEntrance } from './plotEntrance';
 import { computePlotDoor } from './plotDoor';
 
@@ -67,28 +66,23 @@ export function buildTourMapPlacements(
     const oxPx = originInfo.x * w, oyPx = originInfo.y * h;
     origin = { x: oxPx, y: oyPx };
 
-    const routePts = buildRoutePointsIn(json, originInfo.node, targetPlacement.nodeId);
-    if (routePts && routePts.length) {
-      // 玄関(終点): 入口データ優先 → 幾何(箱縁) → 箱中心 の順で決める。
-      let doorX = targetPlacement.x, doorY = targetPlacement.y;
-      const entrance = currentListing
-        ? getPlotEntrance(currentListing.area, currentListing.plot, currentListing.buildingType, currentListing.apartmentBuilding)
-        : null;
-      if (entrance) {
-        doorX = entrance[0] * w; doorY = entrance[1] * h;
-      } else {
-        const geoDoor = computePlotDoor(json, ref.highlightPlot, ref.highlightKind);
-        if (geoDoor) { doorX = geoDoor.x; doorY = geoDoor.y; }
-      }
-      // カーナビ方式(改善1+2): 道なり本体を、エーテライトと玄関を「経路上」に投影した点の間だけに
-      // 切り詰め、始点の戻りスパー・終点の行き過ぎオーバーシュートを除去する。
-      // 最終 = エーテライト実座標 → (道への合流点) → …道なり… → (玄関前で道を離れる点) → 玄関。
-      // 退化ケース(起点ノード==家ノード=エーテライト隣接)は道が寄与しない → エーテライト→玄関を直接
-      // (単一ノードへ寄り道するカクつきを避ける)。
-      const trimmed = routePts.length < 2
-        ? []
-        : trimRouteToEndpoints(routePts, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
-      const pts: [number, number][] = [[oxPx, oyPx], ...trimmed, [doorX, doorY]];
+    // 玄関(終点): 入口データ優先 → 幾何(箱縁) → 箱中心 の順で決める。
+    let doorX = targetPlacement.x, doorY = targetPlacement.y;
+    const entrance = currentListing
+      ? getPlotEntrance(currentListing.area, currentListing.plot, currentListing.buildingType, currentListing.apartmentBuilding)
+      : null;
+    if (entrance) {
+      doorX = entrance[0] * w; doorY = entrance[1] * h;
+    } else {
+      const geoDoor = computePlotDoor(json, ref.highlightPlot, ref.highlightKind);
+      if (geoDoor) { doorX = geoDoor.x; doorY = geoDoor.y; }
+    }
+    // カーナビ方式: エーテライトと玄関を「道そのもの」に投影し、投影点間を道なりに辿る
+    // (ノード割当に依存せず必ず道を使う。起点ノード==家ノードの退化でも投影点間を道でつなぐ)。
+    // 最終 = エーテライト実座標 → (道への合流点) → …道なり… → (玄関前で道を離れる点) → 玄関。
+    const snapped = buildSnappedRoutePoints(json, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
+    if (snapped && snapped.length) {
+      const pts: [number, number][] = [[oxPx, oyPx], ...snapped, [doorX, doorY]];
       routePath = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
     }
   }

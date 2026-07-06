@@ -1,5 +1,6 @@
 import mistWardRaw from '../../data/housing/mistWard.generated.json';
 import type { WardMapJson } from '../../data/housing/wardMapManifest';
+import { nearestPointOnPolylines, type PolylineEdge } from './mapGeometry';
 
 const mistWard = mistWardRaw as unknown as WardMapJson;
 export const MAP_VIEWBOX = { w: mistWard.viewBox.w, h: mistWard.viewBox.h };
@@ -59,6 +60,55 @@ export function buildRoutePathIn(json: WardMapJson, originNodeId: string, goalNo
   if (!pts) return null;
   return pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
 }
+/**
+ * エーテライト(startPt) と 玄関(endPt) を道(edges)に投影し、投影点どうしを道なりに結ぶ px 点列。
+ * ノード割当に依存せず必ず道を辿る(退化=起点/家が同ノードでも投影点間を道でつなぐ)。到達不能で null。
+ * 実装: 2投影点を仮想ノードとしてグラフに差し込み(該当 edge を投影位置で分割)、既存 buildRoutePointsIn で BFS。
+ */
+export function buildSnappedRoutePoints(
+  json: WardMapJson,
+  startPt: { x: number; y: number },
+  endPt: { x: number; y: number },
+): [number, number][] | null {
+  const w = json.viewBox.w, h = json.viewBox.h;
+  const edgesPx: PolylineEdge[] = json.edges.map((e) => ({
+    a: e.a, b: e.b, polyline: e.polyline.map(([x, y]) => [x * w, y * h] as [number, number]),
+  }));
+  const ps = nearestPointOnPolylines(startPt.x, startPt.y, edgesPx);
+  const pe = nearestPointOnPolylines(endPt.x, endPt.y, edgesPx);
+  if (!ps || !pe) return null;
+
+  const VS = '__vs__', VE = '__ve__';
+  const vs01: [number, number] = [ps.x / w, ps.y / h];
+  const ve01: [number, number] = [pe.x / w, pe.y / h];
+  const nodes = [...json.nodes, { id: VS, x: vs01[0], y: vs01[1] }, { id: VE, x: ve01[0], y: ve01[1] }];
+
+  const edges: WardMapJson['edges'] = [];
+  json.edges.forEach((e, ei) => {
+    const poly = e.polyline as [number, number][];
+    const onS = ei === ps.edgeIndex, onE = ei === pe.edgeIndex;
+    if (onS && onE) {
+      // 同一 edge に両投影 → 位置(seg+t)順で a—X—Y—b の3分割
+      const sPos = ps.segIndex + ps.t, ePos = pe.segIndex + pe.t;
+      const A = sPos <= ePos ? { id: VS, seg: ps.segIndex, pt: vs01 } : { id: VE, seg: pe.segIndex, pt: ve01 };
+      const B = sPos <= ePos ? { id: VE, seg: pe.segIndex, pt: ve01 } : { id: VS, seg: ps.segIndex, pt: vs01 };
+      edges.push({ a: e.a, b: A.id, polyline: [...poly.slice(0, A.seg + 1), A.pt] });
+      edges.push({ a: A.id, b: B.id, polyline: [A.pt, ...poly.slice(A.seg + 1, B.seg + 1), B.pt] });
+      edges.push({ a: B.id, b: e.b, polyline: [B.pt, ...poly.slice(B.seg + 1)] });
+    } else if (onS) {
+      edges.push({ a: e.a, b: VS, polyline: [...poly.slice(0, ps.segIndex + 1), vs01] });
+      edges.push({ a: VS, b: e.b, polyline: [vs01, ...poly.slice(ps.segIndex + 1)] });
+    } else if (onE) {
+      edges.push({ a: e.a, b: VE, polyline: [...poly.slice(0, pe.segIndex + 1), ve01] });
+      edges.push({ a: VE, b: e.b, polyline: [ve01, ...poly.slice(pe.segIndex + 1)] });
+    } else {
+      edges.push(e);
+    }
+  });
+
+  return buildRoutePointsIn({ ...json, nodes, edges }, VS, VE);
+}
+
 /** plot 番号 → viewBox px 座標(Mist 委譲・後方互換)。存在しなければ null。 */
 export function plotToPlacement(plot: number, kind: 'plot' = 'plot'): Placement | null { return plotToPlacementIn(mistWard, plot, kind); }
 /** ノード ID → viewBox px 座標(Mist 委譲・後方互換)。未知ノードは null。(現在地マーカー等の単点配置向け) */
