@@ -6904,3 +6904,27 @@ select.housing-input option {
 }
 .housing-entrance-marker--corrected { fill: var(--housing-entrance-marker-corrected); }
 .housing-entrance-marker-label { fill: var(--housing-map-light); font-size: 10px; pointer-events: none; }
+
+/* ===== DEV専用: 全住所ツアープレビュー操作バー (本番非露出) ===== */
+.housing-dev-tourpreview { display: flex; flex-direction: column; height: 100vh; }
+.housing-dev-tourpreview .housing-tour-page { flex: 1; min-height: 0; }
+.housing-dev-tourpreview-bar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  padding: 8px var(--housing-main-padding);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text);
+  border-bottom: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+}
+.housing-dev-tourpreview-count { color: var(--housing-text-mute); }
+.housing-dev-tourpreview-label { font-weight: 600; }
+.housing-dev-tourpreview-badge {
+  padding: 2px 8px; border-radius: 6px; border: 1px solid var(--housing-divider);
+}
+.housing-dev-tourpreview-badge--entrance { color: var(--housing-honey); }
+.housing-dev-tourpreview-badge--geo { color: var(--housing-text-mute); }
+.housing-dev-tourpreview-btn {
+  padding: 4px 10px; border: 1px solid var(--housing-divider); border-radius: 6px;
+  background: transparent; color: var(--housing-text); cursor: pointer;
+}
+.housing-dev-tourpreview-jump { margin-left: auto; max-width: 240px; }
