@@ -79,7 +79,13 @@ export function directionalWalk(json: WardMapJson, startPt: Vec, dirVec: Vec, ma
     visited.add(best.to);
     prev = cur; cur = best.to;
   }
-  return walk;
+  // 乗り口がノードに一致する等で先頭が重複する場合に備え、連続同一点を除去。
+  const dedup: Pt[] = [];
+  for (const p of walk) {
+    const last = dedup[dedup.length - 1];
+    if (!last || last[0] !== p[0] || last[1] !== p[1]) dedup.push(p);
+  }
+  return dedup;
 }
 
 /** 歩き点列 pts 上で door に最も近い点(セグメント投影込み)とそのセグメント番号。 */

@@ -35,6 +35,12 @@ describe('directionalWalk', () => {
     expect(w[1][0]).toBeLessThan(w[0][0]);            // 西=左へ
     expect(w.some(([x, y]) => x === 20 && y === 20)).toBe(true); // Cn を通る
   });
+  it('乗り口がノードに一致(東向き)でも先頭に重複点を作らない', () => {
+    const w = directionalWalk(hook, { x: 50, y: 20 }, { x: 1, y: 0 })!;
+    expect(w.length).toBeGreaterThanOrEqual(2);
+    expect(w[0][0] === w[1][0] && w[0][1] === w[1][1]).toBe(false); // 先頭2点が同一でない
+    expect(w[1][0]).toBeGreaterThan(w[0][0]);                       // 東=右へ
+  });
 });
 
 describe('findCornerOnWalk', () => {
