@@ -22,6 +22,7 @@ import { RegisterPage } from './components/housing/pages/RegisterPage';
 import { ComingSoonPage } from './components/housing/pages/ComingSoonPage';
 import { TourNavPage } from './components/housing/pages/TourNavPage';
 import { EntranceAuthoringPage } from './components/housing/dev/EntranceAuthoringPage';
+import { TourPreviewPage } from './components/housing/dev/TourPreviewPage';
 import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
 import { requestPersistentStorage } from './lib/requestPersistentStorage';
 
@@ -113,6 +114,10 @@ function AppRoutes() {
         {/* 開発専用: 入口オーサリングツール(Task5)。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
         {import.meta.env.DEV && (
           <Route path="/housing/dev/entrances" element={<EntranceAuthoringPage />} />
+        )}
+        {/* 開発専用: 全住所ツアープレビュー。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
+        {import.meta.env.DEV && (
+          <Route path="/housing/dev/tour-preview" element={<TourPreviewPage />} />
         )}
         {/* 旧ワークスペース (据え置き・再構築完了後に撤去) */}
         <Route path="/housing/p/:listingId" element={<HousingWorkspace />} />
