@@ -9,21 +9,13 @@
 
 ---
 
-## 次の作業順 (2026-07-04 更新)
+## 次の作業順 (2026-07-06 更新)
 
-**🔴🆕最優先: 中央地図 世界一へ。Phase1(改善1・2・3・8)+改善8道根治+入口ツール+全10マップ入口採取(276区画)=完成。次=ブランチまとめ判断(2026-07-05)**。ブランチ`feat/housing-tour-nav-m1`(**未push・merge前**)。台帳=`.superpowers/sdd/progress.md`(**次セッションはここ読む**=全経緯・実機検証手順)。
-  - **✅完了**: Phase1(投影起点/箱縁停止/波紋撤去/枠線色)・改善8道の黒残り根治(全10マップ2系統対応)・改善2精度化=入口ツール(`/housing/dev/entrances`・DEV専用・直保存/__save-entrances)・**全10マップ入口276区画採取**(各経路を実機で入口exact一致確認)・地図道漏れをFigma再エクスポートで解消(mist/shirogane・家座標0移動で保全)。build EXIT0/テスト緑/本番非露出。
-  - **次セッション**: ①`finishing-a-development-branch`でこの大ブランチ(M1+Phase1+道根治+入口ツール+入口276+地図修正)を最終レビュー→main統合判断 ②その後 Phase2以降=残改善④⑤⑥⑦⑨⑩(番号撤去/ズーム/凡例撤去/フィット/レイアウト/進行モデル/生きたカード)。10改善全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。**merge/push はユーザー確認後(feedback_deploy)**。ローカルはログイン不可のためツアー経路の実機確認はClaude側Playwrightで代行。
+**🟢✅本番反映済(2026-07-06)= ハウジングツアー大ブランチ**(`feat/housing-tour-nav-m1` 84コミット→main `beb8d702`→Vercel本番自動デプロイ・ブランチ削除済)。内容=M1ツアー中ページ実化+P2/P4本物のナビ化(自動並替/全5エリア地図/実エーテライト起点300区画/ゴージャス経路)+実箱ハイライト/アパート+座標破損根治+中央地図Phase1(改善1/2/3/8+道の黒残り根治)+入口ツール(DEV専用)+全10マップ入口276採取+地図修正。検証=build EXIT0/vitest新規fail0(既知legacy5のみ)/全7スパンopusレビュー済。詳細=`.superpowers/sdd/progress.md`末尾・[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**要ユーザー本番確認**=ツアー一連(URL非公開で一般未露出)。
 
-**🔴M1「ツアー中(Nav)ページ」= 実機ゲート実施済→要対応あり・merge保留 (2026-07-04)**。ブランチ=`feat/housing-tour-nav-m1`(**未push・実機ゲート前**)@`9d7ce03a`。**Task1〜9完了・全review✅・最終ブランチレビュー(opus)完了**(凡例↔ルート色不一致=Important 1件を修正済・triage 5件裁定済)。`npm run build` EXIT0 / 全体`npm test`=既知legacy5failのみ(新規ゼロ・parity緑)。`/housing/tour` が ComingSoon から実ページ化。**実機ゲート実施済(2026-07-04・Claude・store注入で全状態を1489×2.58目視)**=①地図/②前後連動/③報告モーダル/④完了→戻る/⑤空状態/⑥混在map_pending は全部表示動作OK・凡例↔ルート色一致(honey)も実機確認。**ただし要対応あり=merge保留(下記a〜e)**。spec/plan=`docs/superpowers/{specs,plans}/2026-07-04-housing-tour-nav-page*`、台帳=`.superpowers/sdd/progress.md`(✅完了状態+ゲート手順)、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
-  - **⚠実機ゲート要対応(2026-07-04・要対応リスト)**:
-    - **(a)✅完了**: ツアー本体「言葉ナビ」+実エーテライト起点ナビ=下記「本物のナビ化」(P1+P2+P4)で全実装済(スプシ取込/SVGエーテライト座標抽出/右パネル言葉ナビ/地図の実起点経路)。
-    - (b)[小] 報告モーダルが Esc で閉じない(キャンセル/背景クリックのみ)→ Esc に onClose 配線。
-    - (c)[小] 凡例「現在地」と「次の目的地」が同色青(`--housing-aether`)で凡例上区別不能→色/形/ラベルで分ける。
-    - (d)[小] 右カラム「ルートのステップ」一覧が窮屈(詳細カードに押され1件のみ表示・スクロール前提)→高さ/レイアウト調整。
-    - (e)[判断待ち] 死にキー `housing.tour.nav.title`(「ツアー中（ナビゲーション）」)=削除推奨(モック準拠・ナビタブが既出)。ユーザー確認待ち。
-  - **▶本物のナビ化: P1+P2+P4 実装完了・全review✅・最終ブランチレビュー=Ready to merge・🟡いま視覚ポリッシュ中(2026-07-04)**。ブランチ`feat/housing-tour-nav-m1` **未push・作業ツリーclean** @`e4edbb61`。plan=`...plans/2026-07-04-housing-tour-nav-p2.md`、台帳=`.superpowers/sdd/progress.md`(P2セクション+視覚フィードバック=**次セッションはここも読む**)。実装=①`orderTourStops`自動並べ替え(region→DC→server→area→ward→plot・探す/お気に入り両入口配線) ②中央地図 全5エリア対応(`resolveWardMapRef`+`WARD_MAP_LOADERS`遅延ロード・Mist撤去) ③**実エーテライト起点データ**(元SVG`docs/housing-maps-src/`→`wardAetherytes.generated.json`・全300区画・**本街/拡張クロス0を自動テスト保証**・`getPlotOriginNode`) ④**どの家でも最寄りエーテライト→家のゴージャス経路アニメ**。`npm run build` EXIT0 / `npx vitest run`=既知legacy5fail(TopBar4+HousingWorkspace1)のみ・新規ゼロ・parity緑。**実機動作OK(Playwright1489×2.58・全エリア地図/経路/赤丸ノード非表示)**。**🟡いま=ユーザーと視覚ポリッシュを1件ずつ→OKで`finishing-a-development-branch`→main merge(勝手にpush/merge禁止=feedback_deploy)**。視覚#1=全道路アンビエント削除(歩く経路1本だけ光=車ナビ方式)✅承認済(e4edbb61)。**次=ユーザーの視覚指摘を1件ずつ**(経路の太さ/明るさ/色・起点マーカー・目的地beacon・番号ノード等)。**Goblet拡張街(31-60)は言葉ナビ本文空**(スプシ未記入・masaya記入待ち)。**視覚OK後の次フェーズ=P3(節目の移動ナビ transitionBetween:区/エリア/ワールド/DC)+小物b-e+死にコード掃除(wardRoute Mist wrappers/.housing-tour-map-origin bare)**。
-- **✅本日デプロイ済(main)**: 他エリア地図のNode赤丸隠蔽(circle対応・b85b7410)/YouTubeサムネfallback配線(dda47eaf)。**要ユーザー実機確認**(登録ミニマップの赤丸消滅・探すのミスト1-1サムネ)。
+**🔴🆕最優先: 中央地図 Phase2以降(残改善)**。10改善全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。着手は brainstorming→writing-plans→subagent-driven-development(CLAUDE.md 準拠)。
+  - **残改善**: ④番号撤去 ⑤パン&ズーム ⑥LIVE凡例撤去 ⑦フィット ⑨レイアウト ⑩進行モデル + 生きたカード。
+  - **繰延小物(P3/掃除で回収)**: M1 (b)報告モーダルEsc閉じ (c)凡例「現在地/次の目的地」同色青→色分け (d)右カラム「ルートのステップ」窮屈 (e)死にキー`housing.tour.nav.title`削除判断。死にコード=wardRoute Mist wrappers(test専用)/`.housing-tour-map-origin`(bare CSS)。
 
 1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
    - **✅本番反映済(2026-07-03・main=f423fa87)**: 土台+シェル/探す(質感A案)/お気に入り/**登録ページ+非公開機能**を本番公開。index+rules deploy済・backfill済。実機ゲートで**非公開=Not Found(漏洩なし)確認**。実機バグ B1(バッジi18n)/B2(期限トグルで中央消滅)/B4(詳細スクロール)/B5(アパート住所未入力扱い)は修正・本番反映済。詳細=台帳`.superpowers/sdd/progress.md`。

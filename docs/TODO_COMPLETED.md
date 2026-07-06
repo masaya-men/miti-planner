@@ -2,6 +2,13 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅✅✅ 2026-07-06 ハウジングツアー大ブランチ — main 統合・本番反映完了 (finishing-a-development-branch)
+ブランチ `feat/housing-tour-nav-m1`(84コミット・複数スパン)を **fast-forward merge → push → Vercel 本番自動デプロイ**。台帳=`.superpowers/sdd/progress.md` 末尾に全経緯。
+- **内容**: ①M1「ツアー中(Nav)ページ」(実ページ化・地図/前後連動/報告モーダル/完了/空状態) ②P2+P4 本物のナビ化(orderTourStops 自動並替・全5エリア地図遅延ロード・**実エーテライト起点データ全300区画**・最寄りエーテライト→家のゴージャス経路) ③実箱ハイライト+アパートナビ ④座標破損バグ根治(parse-ward-svg 中心計算の H/V/C+rotate 対応・全ward JSON house座標を実SVG中心へ外科補正+回帰テスト) ⑤中央地図 Phase1(改善1投影起点/2箱縁停止/3波紋撤去/8枠線色トークン化・**道の黒残り根治**=`path[mask], path[id$="(Stroke)"]`の2系統対応) ⑥家の入口手動補正ツール(DEV専用 `/housing/dev/entrances`・vite dev直保存) ⑦**全10マップ入口採取276区画**+Figma再エクスポートで道漏れ解消(家座標0移動で保全)。
+- **検証**: build EXIT0 / vitest 5既知legacy fail+2636 pass(新規0) / 全7スパン opus 最終レビュー済(各 Ready to merge・fix適用済)。座標補正の他機能波及=登録ミニマップで厳密改善と実証。DEV ツール本番非露出=dist grep 0 で実測。
+- **繰延(Phase2/P3)**: M1小物 b〜e(Esc/凡例同色/右カラム/死にキー title)・死にコード少々。
+- main `beb8d702`。ユーザー確認「本番でいい(URL非公開で未露出)」で go。
+
 ### ✅ 2026-07-03 探すカードの「ツアー追加」ボタン欠落 — 根治・本番反映・実機OK (TODO.mdから移動)
 **症状**: 探すページのカードでツアー追加ボタンが不可視。**メインアカウント(登録所有者)ログイン時のみ**再現(非ログイン/別アカウント/新品ブラウザは正常)。多セッション難航・初回は「旧SW配信」と誤判定(BUILD表示のSHA化計器で新JS配信を確認して反証)。
 **真因**: `.housing-listing-grid` の `grid-auto-rows:auto` が、カードmediaの `padding-top:75%`(%パディング高さ)を、ログイン後 loadMine で自分の登録が**動的追加**される再レイアウト時に 0 とみなし、行を~32pxに潰す→footer(ボタン)を overflow:hidden で切り落とし。ユーザー実機DevToolsで `grid-auto-rows:max-content`→201px復元・`content-visibility:visible`→変化なし(無罪)を直接計測して断定。
