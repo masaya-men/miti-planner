@@ -11,23 +11,14 @@
 
 ## 次の作業順 (2026-07-06 更新)
 
-**🟢✅本番反映済(2026-07-06)= ハウジングツアー大ブランチ**(`feat/housing-tour-nav-m1` 84コミット→main `beb8d702`→Vercel本番自動デプロイ・ブランチ削除済)。内容=M1ツアー中ページ実化+P2/P4本物のナビ化(自動並替/全5エリア地図/実エーテライト起点300区画/ゴージャス経路)+実箱ハイライト/アパート+座標破損根治+中央地図Phase1(改善1/2/3/8+道の黒残り根治)+入口ツール(DEV専用)+全10マップ入口276採取+地図修正。検証=build EXIT0/vitest新規fail0(既知legacy5のみ)/全7スパンopusレビュー済。詳細=`.superpowers/sdd/progress.md`末尾・[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**要ユーザー本番確認**=ツアー一連(URL非公開で一般未露出)。
-
-**🔴🆕最優先(次セッション): 行き方テキストに沿ったナビ**。ブランチ=`feat/housing-dev-tour-preview`(**未push**・main beb8d702の上に9コミット)。台帳=`.superpowers/sdd/progress.md`末尾(**次セッションはここ読む**=設計確定+実測)。
-  - **今セッション成果**: ①全住所ツアープレビュー(DEV専用`/housing/dev/tour-preview`・本番非露出)=全310住所を本番TourNavPageで歩ける ②経路実バグ根治2段(v1始点スパー/終点通り過ぎ→v2**道スナップ**=ノード割当依存で道無視の斜め直線を根治・`buildSnappedRoutePoints`)。build EXIT0/新規fail0。
-  - **次やること(ユーザー指示2026-07-06)**: 経路を**行き方テキストの言葉どおり**に動かす。テキスト先頭の方角(西/北…)+北固定地図で、①方角へ道を進む②一つ目の曲がり角で入口へ直接ジャンプ。8-8(西の階段+ジャンプ=道に無い)例。現状は最短路で東回り→方角バイアス+曲がり角ジャンプに拡張。着手=brainstorming/systematic-debugging。
-  - **その後**: 全310再チェック→finishing-a-development-branch で本番判断(経路修正は本番コード)。**勝手にpush/merge禁止**。
+**🔴🆕最優先(ユーザー): 行き方テキストナビ=実装完了・全310目視待ち**。ブランチ=`feat/housing-dev-tour-preview`(**未push**・作業ツリーclean・main beb8d702 の上)。台帳=`.superpowers/sdd/progress.md`末尾(**次セッションはここ**=全詳細)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-06-housing-tour-verbal-nav*`。
+  - **完了(2026-07-06)**: 方角語パース→agree=道追従(既存とバイト同一=~270区画不変・zero-regression証明)/reroute=方角へ道→曲がり角→入口へ破線ジャンプ。plot単位手動上書き機構`wardRouteOverrides`(escape hatch)付き。build EXIT0/vitest新規fail0/実アプリで8-8=西→破線ジャンプ・plot6=不変 確認。最終opusレビュー Critical/Important 0。
+  - **次(ユーザー)**: `npm run dev`→`/housing/dev/tour-preview`で全310目視。**最優先監視=長スパー由来の誤reroute**(本来agreeが化ける)。違和感区画→Claudeがoverride座標エンコード or 閾値調整→OK後 finishing-a-development-branch。**勝手にpush/merge禁止**。
 - **中央地図 Phase2以降(その後)**: ④番号撤去 ⑤パン&ズーム ⑥LIVE凡例撤去 ⑦フィット ⑨レイアウト ⑩進行モデル+生きたカード。全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。繰延小物=M1 (b)報告Esc (c)凡例同色 (d)右カラム窮屈 (e)死にキー title。
 
-1. **🔴ハウジング全面再構築(全7ページ+シェル・ページ単位再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカルのみ・未merge/未push)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`、台帳=`.superpowers/sdd/progress.md`、議論=`docs/.private/2026-07-01-housing-tour-rebuild.md`。
-   - **✅本番反映済(2026-07-03・main=f423fa87)**: 土台+シェル/探す(質感A案)/お気に入り/**登録ページ+非公開機能**を本番公開。index+rules deploy済・backfill済。実機ゲートで**非公開=Not Found(漏洩なし)確認**。実機バグ B1(バッジi18n)/B2(期限トグルで中央消滅)/B4(詳細スクロール)/B5(アパート住所未入力扱い)は修正・本番反映済。詳細=台帳`.superpowers/sdd/progress.md`。
-     - **✅07-03: B6(部屋番号)/D5(カレンダー)実機OK・B7(過去期限→無期限公開の漏れ)修正済(cf423dcd)・B9(カード→詳細導線)済(1b224b78)・カード全面刷新(統一4:3タイル+タイトルのみ+ループマーキー+常設ツアー追加=B8構造根治)ローカル承認→push**。**実機確認待ち=①期限6/30登録→シークレットNot Found(B7) ②旧テスト物件(無期限公開のまま残存)を詳細ページの…メニューから削除 ③カード新デザイン本番確認**。
-     - **✅ツアー追加ボタン欠落=根治・本番反映・実機OK(2026-07-03)**: grid-auto-rows collapse(%パディング高さ×ログイン後の動的追加)→`grid-auto-rows:max-content`(41cffd85)。BUILD表示のSHA化診断計器も追加(75ca023・残置)。詳細→TODO_COMPLETED / memory [[reference_css_grid_autorows_padding_collapse]]。
-     - **✅YouTubeサムネfallback配線済(2026-07-04)**: browse/ListingCard が maxresdefault 120x90 グレー画像(200)/404 の onError/onLoad fallback を継承漏れ→handleYoutubeThumbnailError/Load 追加。TDD 2件・回帰ゼロ。ミスト1-1 の灰色プレースホルダ根治(要ユーザー実機確認)。
-     - 残タスク: D7(過去日時選択時の注記・要相談)/D8(housing全ボタン押下フィードバック一括)/生きたカード段階2(動画・スライドショー=Allmarks流用)/カードのスマホ対応(ホバー無し代替)。
-     - **⏳軽減表の更新配信(ハウジング完成後・腰を据えて)**: 未保存データがあるため自動リロード禁止→業界標準の「新版あります→更新」うながしトースト(押したらreload)を設計・テストしてから。いきなり本番に出さない=要相談。台帳参照。
-     - 残デザイン(方針相談): NotFound見た目/詳細トンマナ統一/カードAllmarks可変サイズ化/ホバー上縁被り/チェック文言。B3(地図赤Node=PWAキャッシュ疑い・未決/実害薄)。
-   - 既知の残: 中央カード静止(生きたカード段階2は後日)/ビュー切替は地図M1配線時に復活/legacy TopBar・HousingWorkspace5件failは撤去予定(回帰でない)。
+1. **🔴ハウジング全面再構築(全7ページ・再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカル・未push)。spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`、台帳=progress.md。
+   - **✅本番反映済(main f423fa87)**: 土台/探す/お気に入り/登録+非公開(=NotFound確認)・B1/B2/B4/B5/B6/D5/B7/B9/カード刷新 完了(詳細→台帳・COMPLETED)。**実機確認待ち**=①期限6/30→シークレットNotFound ②旧テスト物件を詳細…メニューから削除 ③カード新デザイン本番確認。
+   - 残: D7(過去日時注記・要相談)/D8(全ボタン押下feedback)/生きたカード段階2(Allmarks)/カードのスマホ対応/**軽減表の更新配信トースト**(自動reload禁止・要相談)/残デザイン(NotFound見た目/詳細トンマナ/B3赤Node)。(✅ツアー追加ボタン/YouTube fallback→COMPLETED)
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断)
@@ -77,10 +68,8 @@
 
 - **🔮 8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修・大物・情報出揃い次第。着手時brainstorming。詳細=docs/.private/2026-06-20-skill-modeling-notes.md)。**🔵将来=スキル効果解決の窓口統一**=level+mode→正効果に解決する関数1つに集約し全~30箇所を通す(同id版違いバグの真の根治・コードのきれい。2026-06-22`_base`化が第一歩。競合resourceTracker/CD recastRow/計算calculator 未配線・autoPlanner配線済)。**ここに畳む候補(2026-06-30判断・価値低)**=スプシ取込で技名をコンテンツlevelの版に解決(例 シャドウヴィジル→Lv80はシャドウウォール)。単発実装は非推奨(スキル線リンクがデータに無く窓口統一が前提・発動はユーザーの取り違えのみ)。※リビデ正確モデル化①と表展開トグル③は2026-06-20完了(COMPLETED)。
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
-- **テスト(既存failure・本番無影響)**: `TopBar.test.tsx` 4件+`HousingWorkspace.test.tsx` 1件(2026-06-03〜・FFLogs修正前から)。HousingWorkspace は jsdom の youtube-nocookie 実 fetch→abort 環境依存・TopBar は要調査。
-- **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留
-- **🆕 共同編集の実使用バグ**(`docs/.private/2026-06-26-collab-issues-observed.md`): A.重い=✅本番実機OK(2026-06-29・カーソル隔離。**残=全行未仮想化#59は別タスク**) / **C.ドット数≠実人数=🟦見送り(低優先)**(多すぎ方向。詳細→.private) / D.モーダル画面外=✅本番済(6/26)。B(カーソル暴れ)はAに統合。
-- **🆕 削除済み共有リンクの表示**(2026-06-25 後回し・方針確定): 削除した共同編集リンク(`/collab/:token`)を開くと空タイムライン。**狭いプライバシー窓あり**(休眠中に削除→次に開いた人だけ削除前の中身が一度見える)。**方針=A案(deletePlan 成功後に部屋を revoke→中身ごと再接続拒否+「失効」表示)で確定・今後分のみ有効・急ぎ不要**。詳細・実装スケッチ=`docs/.private/2026-06-25-deleted-share-link-notice.md`。
+- **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留 (既知legacyテスト失敗5件=TopBar4+HousingWorkspace1は撤去予定・非アクション)
+- **🆕 共同編集の残**(詳細→`.private/2026-06-26-collab-issues-observed.md` / `2026-06-25-deleted-share-link-notice.md`): 実使用バグ A重い/Dモーダル=✅本番済・C ドット数≠実人数=🟦見送り(残=全行未仮想化#59は別タスク) / 削除済み共有リンクの空TL(狭いプライバシー窓・方針A案=deletePlan後revoke+「失効」表示で確定・今後分のみ・急ぎ不要)。
 
 ---
 
