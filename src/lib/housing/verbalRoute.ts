@@ -1,6 +1,7 @@
 import type { WardMapJson } from '../../data/housing/wardMapManifest';
 import { nearestPointOnPolylines, type PolylineEdge } from './mapGeometry';
 import type { Vec } from './plotBearing';
+import { buildSnappedRoutePoints } from './wardRoute';
 
 type Pt = [number, number];
 
@@ -93,4 +94,27 @@ export function findCornerOnWalk(pts: Pt[], door: Pt): { point: Pt; segIndex: nu
   const near = nearestPointOnPolylines(door[0], door[1], [{ a: '', b: '', polyline: pts }]);
   if (!near) return { point: pts[pts.length - 1], segIndex: Math.max(0, pts.length - 2) };
   return { point: [near.x, near.y], segIndex: near.segIndex };
+}
+
+export interface VerbalRoute { road: Pt[]; jump: Pt[] | null }
+
+/**
+ * 行き方テキストの方角に沿った経路。
+ * - agree(出だしが方角と同半平面): 既存の道追従(buildSnappedRoutePoints)そのまま。road=[S..snapped..E], jump=null。
+ * - reroute(出だしが逆半平面): 方角へ道を歩き、入口最寄りの曲がり角で入口へ破線ジャンプ。road=[S..角], jump=[角,E]。
+ */
+export function buildVerbalRoute(json: WardMapJson, startPt: Vec, endPt: Vec, dirVec: Vec): VerbalRoute | null {
+  const S: Pt = [startPt.x, startPt.y];
+  const E: Pt = [endPt.x, endPt.y];
+  const snapped = buildSnappedRoutePoints(json, startPt, endPt);
+  if (snapped && snapped.length) {
+    const withStart: Pt[] = [S, ...snapped, E];
+    if (!shouldReroute(withStart, dirVec)) {
+      return { road: [S, ...snapped, E], jump: null };
+    }
+  }
+  const walk = directionalWalk(json, startPt, dirVec);
+  if (!walk || walk.length < 2) return { road: [S], jump: [S, E] };
+  const { point: corner, segIndex } = findCornerOnWalk(walk, E);
+  return { road: [S, ...walk.slice(0, segIndex + 1), corner], jump: [corner, E] };
 }
