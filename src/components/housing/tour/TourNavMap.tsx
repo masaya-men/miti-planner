@@ -16,6 +16,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
   const { t } = useTranslation();
   const hostRef = useRef<HTMLDivElement>(null);
   const route = model?.routePath ?? null;
+  const routeJump = model?.routeJumpPath ?? null;
   const origin = model?.origin ?? null;
   const targetElId = model?.targetElId ?? null;
 
@@ -58,6 +59,9 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
                       <animateMotion dur="2.2s" repeatCount="indefinite" path={route} rotate="auto" />
                     </circle>
                   </>
+                )}
+                {routeJump && (
+                  <path data-testid="tour-map-route-jump" className="housing-tour-route-jump" d={routeJump} fill="none" />
                 )}
                 {origin && (
                   <g data-testid="tour-map-origin" className="housing-tour-map-origin-mark">

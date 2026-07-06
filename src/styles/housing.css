@@ -6060,6 +6060,14 @@ select.housing-input option {
   fill: var(--housing-map-light);
   filter: drop-shadow(0 0 12px var(--housing-candle));
 }
+.housing-tour-route-jump {
+  stroke: var(--housing-candle);
+  stroke-width: 3.5;
+  stroke-opacity: 0.7;
+  stroke-linecap: round;
+  stroke-dasharray: 1.5 12;
+  filter: drop-shadow(0 0 5px var(--housing-honey));
+}
 .housing-tour-map-origin-pulse {
   fill: none;
   stroke: var(--housing-aether);
