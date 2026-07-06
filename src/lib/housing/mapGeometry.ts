@@ -21,6 +21,31 @@ export function nearestPointOnPolylines(px: number, py: number, edges: PolylineE
   return best;
 }
 
+/**
+ * 道なり経路(px 点列)を、start/end 点を「その経路上」に投影した位置の間だけに切り詰める純関数。
+ * 始点側の戻り(スパー: 経路先頭ノードへ戻る尾)・終点側の行き過ぎ(オーバーシュート: 目的ノードまで
+ * 行って玄関へ引き返す)を除去する。返り値 = [start投影点, ...間の頂点..., end投影点]。
+ * 経路が2点未満、または投影が逆転/同一なら安全にフォールバック([start投影, end投影] の2点)。
+ */
+export function trimRouteToEndpoints(
+  route: [number, number][],
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+): [number, number][] {
+  if (route.length < 2) return route.map(([x, y]) => [x, y]);
+  const single: PolylineEdge[] = [{ a: '', b: '', polyline: route }];
+  const ps = nearestPointOnPolylines(start.x, start.y, single);
+  const pe = nearestPointOnPolylines(end.x, end.y, single);
+  if (!ps || !pe) return route.map(([x, y]) => [x, y]);
+  const posS = ps.segIndex + ps.t; // 経路先頭からの単調な位置(segIndex+t)
+  const posE = pe.segIndex + pe.t;
+  if (posS >= posE) return [[ps.x, ps.y], [pe.x, pe.y]];
+  const out: [number, number][] = [[ps.x, ps.y]];
+  for (let i = ps.segIndex + 1; i <= pe.segIndex; i++) out.push([route[i][0], route[i][1]]);
+  out.push([pe.x, pe.y]);
+  return out;
+}
+
 /** 線分 a->b と閉多角形 poly の、a に最も近い側の交点。交差なしは null。poly は px 頂点列。 */
 export function segmentPolygonIntersection(
   ax: number, ay: number, bx: number, by: number, poly: [number, number][],

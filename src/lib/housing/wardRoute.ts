@@ -35,8 +35,8 @@ export function nodeToPointIn(json: WardMapJson, nodeId: string): { x: number; y
   const n = json.nodes.find((x) => x.id === nodeId); if (!n) return null;
   return { x: n.x * json.viewBox.w, y: n.y * json.viewBox.h };
 }
-/** origin ノード → goal ノード の道なり SVG path(json 引数版)。未知ノード/到達不能で null。 */
-export function buildRoutePathIn(json: WardMapJson, originNodeId: string, goalNodeId: string): string | null {
+/** origin ノード → goal ノード の道なり px 点列(json 引数版)。未知ノード/到達不能で null。 */
+export function buildRoutePointsIn(json: WardMapJson, originNodeId: string, goalNodeId: string): [number, number][] | null {
   const nodeById = new Map(json.nodes.map((n) => [n.id, n]));
   if (!nodeById.has(originNodeId) || !nodeById.has(goalNodeId)) return null;
   const w = json.viewBox.w, h = json.viewBox.h; const edges = json.edges as unknown as EdgeData[];
@@ -51,6 +51,12 @@ export function buildRoutePathIn(json: WardMapJson, originNodeId: string, goalNo
     if (i === 0) pts.push(...segPx); else pts.push(...segPx.slice(1));
   }
   if (pts.length === 0) { const n = nodeById.get(goalNodeId)!; pts.push([n.x * w, n.y * h]); }
+  return pts;
+}
+/** origin ノード → goal ノード の道なり SVG path(json 引数版)。未知ノード/到達不能で null。 */
+export function buildRoutePathIn(json: WardMapJson, originNodeId: string, goalNodeId: string): string | null {
+  const pts = buildRoutePointsIn(json, originNodeId, goalNodeId);
+  if (!pts) return null;
   return pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
 }
 /** plot 番号 → viewBox px 座標(Mist 委譲・後方互換)。存在しなければ null。 */

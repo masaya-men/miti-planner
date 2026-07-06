@@ -1,11 +1,11 @@
 import type { WardMapJson } from '../../data/housing/wardMapManifest';
 import type { MockListing } from '../../data/housing/mockListings';
 import { resolveWardMapRef } from './resolveWardMapRef';
-import { plotToPlacementIn, apartToPlacementIn, buildRoutePathIn } from './wardRoute';
+import { plotToPlacementIn, apartToPlacementIn, buildRoutePointsIn } from './wardRoute';
 import { getPlotOriginNode } from './plotOrigin';
 import { getApartmentOrigin } from './apartmentOrigin';
 import { stepStatus, type StepStatus, type TourStep } from './tourNav';
-import { nearestPointOnPolylines } from './mapGeometry';
+import { trimRouteToEndpoints } from './mapGeometry';
 import { getPlotEntrance } from './plotEntrance';
 import { computePlotDoor } from './plotDoor';
 
@@ -67,18 +67,9 @@ export function buildTourMapPlacements(
     const oxPx = originInfo.x * w, oyPx = originInfo.y * h;
     origin = { x: oxPx, y: oyPx };
 
-    const base = buildRoutePathIn(json, originInfo.node, targetPlacement.nodeId);
-    if (base) {
-      // 改善1: エーテライト実座標 → 最寄りの道の投影点 を頭に足す。
-      const edgesPx = json.edges.map((e) => ({
-        a: e.a, b: e.b,
-        polyline: e.polyline.map(([x, y]) => [x * w, y * h] as [number, number]),
-      }));
-      const proj = nearestPointOnPolylines(oxPx, oyPx, edgesPx);
-      const lead = proj ? `M${oxPx.toFixed(1)} ${oyPx.toFixed(1)} L${proj.x.toFixed(1)} ${proj.y.toFixed(1)} ` : '';
-      const body = proj ? base.replace(/^M/, 'L') : base;
-
-      // 改善2: 入口データ優先 → 幾何(箱縁) → 箱中心 の順で終点を決める。
+    const routePts = buildRoutePointsIn(json, originInfo.node, targetPlacement.nodeId);
+    if (routePts && routePts.length) {
+      // 玄関(終点): 入口データ優先 → 幾何(箱縁) → 箱中心 の順で決める。
       let doorX = targetPlacement.x, doorY = targetPlacement.y;
       const entrance = currentListing
         ? getPlotEntrance(currentListing.area, currentListing.plot, currentListing.buildingType, currentListing.apartmentBuilding)
@@ -89,7 +80,12 @@ export function buildTourMapPlacements(
         const geoDoor = computePlotDoor(json, ref.highlightPlot, ref.highlightKind);
         if (geoDoor) { doorX = geoDoor.x; doorY = geoDoor.y; }
       }
-      routePath = `${lead}${body} L${doorX.toFixed(1)} ${doorY.toFixed(1)}`;
+      // カーナビ方式(改善1+2): 道なり本体を、エーテライトと玄関を「経路上」に投影した点の間だけに
+      // 切り詰め、始点の戻りスパー・終点の行き過ぎオーバーシュートを除去する。
+      // 最終 = エーテライト実座標 → (道への合流点) → …道なり… → (玄関前で道を離れる点) → 玄関。
+      const trimmed = trimRouteToEndpoints(routePts, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
+      const pts: [number, number][] = [[oxPx, oyPx], ...trimmed, [doorX, doorY]];
+      routePath = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
     }
   }
 
