@@ -83,7 +83,11 @@ export function buildTourMapPlacements(
       // カーナビ方式(改善1+2): 道なり本体を、エーテライトと玄関を「経路上」に投影した点の間だけに
       // 切り詰め、始点の戻りスパー・終点の行き過ぎオーバーシュートを除去する。
       // 最終 = エーテライト実座標 → (道への合流点) → …道なり… → (玄関前で道を離れる点) → 玄関。
-      const trimmed = trimRouteToEndpoints(routePts, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
+      // 退化ケース(起点ノード==家ノード=エーテライト隣接)は道が寄与しない → エーテライト→玄関を直接
+      // (単一ノードへ寄り道するカクつきを避ける)。
+      const trimmed = routePts.length < 2
+        ? []
+        : trimRouteToEndpoints(routePts, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
       const pts: [number, number][] = [[oxPx, oyPx], ...trimmed, [doorX, doorY]];
       routePath = pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
     }
