@@ -111,7 +111,7 @@ export const RouteAuthoringPage: React.FC = () => {
     };
     wrap.addEventListener('wheel', onWheel, { passive: false });
     return () => wrap.removeEventListener('wheel', onWheel);
-  }, []);
+  }, [listings]); // listings 読込後に wrap が出現するので、その時点でアタッチ(初回マウント時は wrap 未描画)。
 
   // 目的地の箱ハイライト(本番 TourNavMap と同じ付け外し)。
   useEffect(() => {
