@@ -34,14 +34,18 @@ export function routeBbox(paths: (string | null | undefined)[], extra: { x: numb
  * 経路 bbox（viewBox 座標）を wrap（px）いっぱいに収める MapView を返す純関数。
  * overlay は xMidYMid meet なので viewBox→wrap は等倍レターボックス写像。その上へ zoom transform（translate→scale, origin 0,0）を載せる。
  * padPx: 経路が端に貼り付かないための余白。scale は [1,8] にクランプ。
+ * bbox は viewBox 内（0..vb.w × 0..vb.h）を前提（routeBbox が保証）。順序反転（min>max）は内部で正規化して安全側に倒す。
  * 不変条件: bbox の四隅（起点エーテライトと家を含む）は変換後 [0,wrap.w]×[0,wrap.h] に必ず収まる（見切れ厳禁）。
  */
 export function computeDefaultView(bbox: Bbox, vb: { w: number; h: number }, wrap: { w: number; h: number }, padPx: number): MapView {
+  // 呼び出し側が順序反転した bbox を渡しても scale 過大→見切れにならないよう min≤max を強制。
+  const minX = Math.min(bbox.minX, bbox.maxX), maxX = Math.max(bbox.minX, bbox.maxX);
+  const minY = Math.min(bbox.minY, bbox.maxY), maxY = Math.max(bbox.minY, bbox.maxY);
   const m = Math.min(wrap.w / vb.w, wrap.h / vb.h);
   const ox = (wrap.w - vb.w * m) / 2;
   const oy = (wrap.h - vb.h * m) / 2;
-  const X0 = ox + bbox.minX * m, Y0 = oy + bbox.minY * m;
-  const X1 = ox + bbox.maxX * m, Y1 = oy + bbox.maxY * m;
+  const X0 = ox + minX * m, Y0 = oy + minY * m;
+  const X1 = ox + maxX * m, Y1 = oy + maxY * m;
   const bw = Math.max(1, X1 - X0), bh = Math.max(1, Y1 - Y0);
   const availW = Math.max(1, wrap.w - 2 * padPx), availH = Math.max(1, wrap.h - 2 * padPx);
   const s = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.min(availW / bw, availH / bh)));

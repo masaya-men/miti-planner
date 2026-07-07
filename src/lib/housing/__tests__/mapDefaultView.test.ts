@@ -49,4 +49,15 @@ describe('computeDefaultView — 見切れ厳禁', () => {
     const v = computeDefaultView({ minX: 0, minY: 0, maxX: 470, maxY: 350 }, VB, WRAP, 24);
     expect(v.scale).toBe(1);
   });
+  it('順序反転 bbox(min>max) は正規化され、正順と同一結果かつ見切れなし', () => {
+    const ordered = computeDefaultView({ minX: 50, minY: 40, maxX: 300, maxY: 250 }, VB, WRAP, 24);
+    const flipped = computeDefaultView({ minX: 300, minY: 250, maxX: 50, maxY: 40 }, VB, WRAP, 24);
+    expect(flipped).toEqual(ordered);
+    for (const c of [{ x: 50, y: 40 }, { x: 300, y: 250 }]) expect(within(project(c, VB, WRAP, flipped), WRAP)).toBe(true);
+  });
+  it('ゼロ面積 bbox(起点=家) でも四隅が wrap 内・scale 上限', () => {
+    const v = computeDefaultView({ minX: 235, minY: 175, maxX: 235, maxY: 175 }, VB, WRAP, 24);
+    expect(v.scale).toBe(8);
+    expect(within(project({ x: 235, y: 175 }, VB, WRAP, v), WRAP)).toBe(true);
+  });
 });
