@@ -50,3 +50,37 @@ export function migrateLegacyOverride(o: { road?: Pt[]; jump?: Pt[] | null; segm
   if (o.jump && o.jump.length) segs.push({ kind: 'jump', points: o.jump });
   return segs;
 }
+
+export interface RoutePoint { x: number; y: number; kind: 'road' | 'jump' }
+
+/**
+ * お絵かきの点列(kind = その点に至る線の種別)を、連続同 kind でまとめて segments に。
+ * 種別の境界では前セグの最後の点を次セグ先頭へ引き継ぎ、実線↔弧の線が途切れないようにする。
+ */
+export function pointsToSegments(points: RoutePoint[]): RouteSegment[] {
+  const segs: RouteSegment[] = [];
+  for (const p of points) {
+    const pt: Pt = [p.x, p.y];
+    const last = segs[segs.length - 1];
+    if (last && last.kind === p.kind) {
+      last.points.push(pt);
+    } else {
+      const seed: Pt[] = last ? [last.points[last.points.length - 1], pt] : [pt];
+      segs.push({ kind: p.kind, points: seed });
+    }
+  }
+  return segs;
+}
+
+/** segments を、境界共有点を 1 つに畳んだ点列(kind 付き)に展開。pointsToSegments の逆=編集の初期値に使う。 */
+export function segmentsToPoints(segs: RouteSegment[]): RoutePoint[] {
+  const pts: RoutePoint[] = [];
+  for (const s of segs) {
+    for (const [x, y] of s.points) {
+      const last = pts[pts.length - 1];
+      if (last && last.x === x && last.y === y) continue; // 境界共有点は畳む
+      pts.push({ x, y, kind: s.kind });
+    }
+  }
+  return pts;
+}

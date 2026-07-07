@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { routeToPaths, arcJumpPath, migrateLegacyOverride, type Pt } from '../routePaths';
+import { routeToPaths, arcJumpPath, migrateLegacyOverride, pointsToSegments, segmentsToPoints, type Pt } from '../routePaths';
 
 describe('routeToPaths', () => {
   it('road セグは M/L 直線サブパスで px 化', () => {
@@ -51,3 +51,38 @@ describe('migrateLegacyOverride', () => {
     expect(migrateLegacyOverride({ segments: s })).toBe(s);
   });
 });
+
+describe('pointsToSegments', () => {
+  it('連続同 kind をまとめ、境界点を共有して線を繋ぐ', () => {
+    const segs = pointsToSegments([
+      { x: 0, y: 0, kind: 'road' }, { x: 0.1, y: 0, kind: 'road' },
+      { x: 0.2, y: 0, kind: 'jump' }, { x: 0.3, y: 0, kind: 'jump' },
+    ]);
+    expect(segs).toEqual([
+      { kind: 'road', points: [[0, 0], [0.1, 0]] },
+      { kind: 'jump', points: [[0.1, 0], [0.2, 0], [0.3, 0]] }, // 境界 [0.1,0] を共有
+    ]);
+  });
+  it('全て同 kind なら 1 セグ', () => {
+    const segs = pointsToSegments([{ x: 0, y: 0, kind: 'road' }, { x: 1, y: 1, kind: 'road' }]);
+    expect(segs).toEqual([{ kind: 'road', points: [[0, 0], [1, 1]] }]);
+  });
+  it('空は空', () => {
+    expect(pointsToSegments([])).toEqual([]);
+  });
+});
+
+describe('segmentsToPoints', () => {
+  it('境界共有点を畳んで展開し、pointsToSegments と往復一致する', () => {
+    const segs: { kind: 'road' | 'jump'; points: Pt[] }[] = [
+      { kind: 'road', points: [[0, 0], [0.1, 0]] },
+      { kind: 'jump', points: [[0.1, 0], [0.2, 0]] },
+    ];
+    const pts = segmentsToPoints(segs);
+    expect(pts).toEqual([
+      { x: 0, y: 0, kind: 'road' }, { x: 0.1, y: 0, kind: 'road' }, { x: 0.2, y: 0, kind: 'jump' },
+    ]);
+    expect(pointsToSegments(pts)).toEqual(segs);
+  });
+});
+
