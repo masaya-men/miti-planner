@@ -124,6 +124,18 @@ export default async function handler(req: any, res: any) {
                 return res.status(400).json({ error: 'contentIds is empty' });
             }
 
+            // ── Firestore→関数の転送量削減（コスト対策: 東京→関数の越境 egress を最小化）──
+            // shared_plans の doc には planData 本体や logoBase64（チームロゴの base64 data URI）が含まれ大きいが、
+            // この GET が実際に読むのは下記フィールドだけ。.select() で射影して不要データの転送を止める。
+            // ⚠ 重要: mapDoc / isVisible(hidden) / calculateScore7d(copyCountByDay) が新しいフィールドを
+            //   読むようになったら、必ずこの配列にも追加すること。足し忘れるとそのフィールドが undefined になり
+            //   表示やスコアが変わる。返す JSON 自体はこの射影で変化しない（読むフィールドを全て含むため）。
+            const SELECT_FIELDS = [
+                'shareId', 'title', 'contentId', 'copyCount', 'viewCount',
+                'featured', 'createdAt', 'imageHash', 'hidden', 'copyCountByDay',
+                'planData.partyMembers',
+            ];
+
             const mapDoc = (doc: any) => {
                 const data = doc.data();
                 const partyMembers = data.planData?.partyMembers?.map((m: any) => ({
@@ -155,15 +167,18 @@ export default async function handler(req: any, res: any) {
                         .where('contentId', '==', id)
                         .where('featured', '==', true)
                         .limit(2)
+                        .select(...SELECT_FIELDS)
                         .get();
                     const validFeaturedDoc = featuredSnap.docs.find(
                         d => isVisible(d.data() as { hidden?: boolean })
                     );
 
                     // 全プラン取得（orderBy なし、メモリ上で直近7日スコアでソート）
+                    // .select() で読むフィールドだけに射影（planData 本体/logoBase64 の転送を止める）。返す JSON は不変。
                     const allSnap = await db
                         .collection(COLLECTION)
                         .where('contentId', '==', id)
+                        .select(...SELECT_FIELDS)
                         .get();
 
                     const scored = allSnap.docs
