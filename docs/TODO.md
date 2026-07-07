@@ -11,12 +11,12 @@
 
 ## 次の作業順 (2026-07-07 更新)
 
-**🔴🆕最優先: 経路お絵かきツール実装完了→段階2実機ゲート→段階3全310巡回**。ブランチ=`feat/housing-dev-tour-preview`。**詳細引き継ぎ=`docs/.private/2026-07-07-housing-route-authoring-session.md`(次セッション最初に必ず読む)**。
-  - **背景**: ツアー経路が赤線(ユーザーがFigmaに描いた道=roadPath/edges)から外れる=`verbalRoute.ts`の`shouldReroute`が方角判定で道追従を捨てる。→ユーザー自身が道をなぞって経路を描く開発ツール`/housing/dev/routes`を実装。override(最優先でreroute回避)で個別確定(A案アルゴリズム一括は退化12件で撤回済=個別override方針)。
-  - **実装済(commit 9件)**: `routePaths.ts`(routeToPaths/弧arcJumpPath/migrate/点列⇄segments)・override`{road,jump}`→`{segments}`化・JSON13件変換・`buildTourMapPlacements`配線(reroute jumpも弧化)・vite`/__save-routes`・`RouteAuthoringPage`。tsc通過・経路系71件pass。**未実施=npm run build+全vitest(push前必須)**。
-  - **dev=http://localhost:5174**(5173残留で5174化)。ツール=`/housing/dev/routes`(道スナップ/道・ジャンプ切替/クリック追加・ドラッグ・ダブルクリック削除/保存)。
-  - **次(この順)**: ①段階2実機ゲート=mist-sub13(住所「ミスト拡張43番地」)試し描き→保存→Claude確認(使い勝手FBも) ②段階3=全310巡回(**44区画がreroute=道外れ候補**・引き継ぎに全リスト) ③全OK後 build+vitest→finishing-a-development-branch。**push/merge禁止**。
-  - **未commit16ファイル**=前セッションのマップ再生成+parse改良+今日の入口(wardEntrances mist本街27)。巡回完了までcommit保留。**将来UX案**=同一マップ内 家→家徒歩/エーテライト間テレポナビ([[project_housing_tour_intra_map_nav]])。
+**🔴🆕最優先: 経路エディタ v2 完成→全310巡回済(91件override保存済)→次=道なり自動追従+最終ゲート**。ブランチ=`feat/housing-dev-tour-preview`。**詳細引き継ぎ=`docs/.private/2026-07-07-housing-route-authoring-session.md`(次セッション最初に必ず読む)**。
+  - **背景**: ツアー経路が赤線(道=roadPath/edges)から外れる=`verbalRoute.shouldReroute`が方角判定で道追従を捨てる。→ユーザー自身が経路を描く開発ツール`/housing/dev/routes`。override(reroute回避)で個別確定。
+  - **✅済**: エディタ v2=**フル本番ツアー画面(左進捗/中央編集地図/右住所・行き方カード)+クリックで点を置く方式**(ドラッグなぞり廃止)。道=道スナップ配置/ジャンプ=踏切→着地2点で弧(ARC_K 0.4に上げ)/1つ戻す/白紙/番号ノード非表示。表示は本番`buildTourMapPlacements`再利用=1px一致・本番無改変。**ユーザーが全310巡回し91件override保存済(コミット済)**。起点バグ(ラベ14/44の最寄りエーテライト誤り=`directions-src/lavenderbeds.csv`入力ミス)修正・再生成・検証済。
+  - **dev=http://localhost:5173**。
+  - **🔴次(この順)**: ①**道なり自動追従(大物)**=点の間を赤い道の曲がりに沿わせる(`nearestPointOnPolylines`が`edgeIndex/segIndex/t`返す・保存形式不変で91件も遡って滑らか化・詳細=引き継ぎ+spec改訂節) ②**最終ゲート**=`npm run build`+全`vitest run`緑→全310実機確認→`finishing-a-development-branch`→**ユーザー承認でmain**。**push/merge禁止**。
+  - **未commit(前セッション由来)**=parse改良2本+全10ward json再生成+wardAetherytes+wardEntrances(mist27入口)+wardHouseCoords test。最終ゲートでまとめて判断。**将来UX案**=[[project_housing_tour_intra_map_nav]]。
 - **中央地図 Phase2以降(その後)**: ④番号撤去 ⑤パン&ズーム ⑥LIVE凡例撤去 ⑦フィット ⑨レイアウト ⑩進行モデル+生きたカード。全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。繰延小物=M1 (b)報告Esc (c)凡例同色 (d)右カラム窮屈 (e)死にキー title。
 
 1. **🔴ハウジング全面再構築(全7ページ・再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカル・未push)。spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`、台帳=progress.md。
