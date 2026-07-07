@@ -38,6 +38,37 @@ function entranceSaverPlugin(): Plugin {
   }
 }
 
+// 開発専用: 経路お絵かきツール (/housing/dev/routes) の「保存」から POST /__save-routes で
+// 送られた経路 override JSON を wardRouteOverrides.generated.json に直書きする (entranceSaver と同型)。
+function routeSaverPlugin(): Plugin {
+  const TARGET = resolve(process.cwd(), 'src/data/housing/wardRouteOverrides.generated.json')
+  return {
+    name: 'route-saver-dev',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/__save-routes', (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end('POST only'); return }
+        let body = ''
+        req.on('data', (c) => { body += c })
+        req.on('end', () => {
+          try {
+            const parsed = JSON.parse(body) // 妥当な JSON object か検証
+            if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) throw new Error('JSON object が必要です')
+            writeFileSync(TARGET, JSON.stringify(parsed, null, 2) + '\n', 'utf8')
+            res.statusCode = 200
+            res.setHeader('content-type', 'application/json')
+            res.end(JSON.stringify({ ok: true, maps: Object.keys(parsed).length }))
+          } catch (e) {
+            res.statusCode = 400
+            res.setHeader('content-type', 'application/json')
+            res.end(JSON.stringify({ ok: false, error: String(e) }))
+          }
+        })
+      })
+    },
+  }
+}
+
 // ハウジング StatusBar (画面下) に「実行中コードの版」を短 SHA で表示するための診断計器。
 // 目的: 古い Service Worker / インストール済み PWA が旧バンドルを配信していないかを
 // ユーザー端末で一目判別する (DevTools 不要)。Vercel は VERCEL_GIT_COMMIT_SHA を
@@ -83,6 +114,7 @@ export default defineConfig({
   },
   plugins: [
     entranceSaverPlugin(),
+    routeSaverPlugin(),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
