@@ -11,6 +11,7 @@ import { nearestPointOnPolylines, type PolylineEdge } from '../../../lib/housing
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
 import { computeTourProgress, type TourStep } from '../../../lib/housing/tourNav';
 import { routeToPaths, pointsToSegments, segmentsToPoints, migrateLegacyOverride, type RoutePoint, type RouteSegment } from '../../../lib/housing/routePaths';
+import { followRoadSegments } from '../../../lib/housing/followRoad';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNextDestinationPanel } from '../tour/TourNextDestinationPanel';
 import existingRoutesRaw from '../../../data/housing/wardRouteOverrides.generated.json';
@@ -135,7 +136,10 @@ export const RouteAuthoringPage: React.FC = () => {
   const resetHouse = () => { setPointsByKey((prev) => ({ ...prev, [key]: [] })); markDirty(); }; // 真に白紙(空)にする
 
   // 表示: 編集点列があればそれ / 白紙化済み(edited===[])なら何も出さない / 未編集なら本番モデルの現在経路。
-  const editPaths = useMemo(() => routeToPaths(pointsToSegments(points), w, h), [points, w, h]);
+  const editPaths = useMemo(
+    () => routeToPaths(json ? followRoadSegments(pointsToSegments(points), json) : pointsToSegments(points), w, h),
+    [points, w, h, json],
+  );
   const displayRoad = points.length ? editPaths.routePath : (edited !== undefined ? null : mapModel?.routePath ?? null);
   const displayJump = points.length ? editPaths.routeJumpPath : (edited !== undefined ? null : mapModel?.routeJumpPath ?? null);
 
