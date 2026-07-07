@@ -65,7 +65,8 @@ describe('buildTourMapPlacements', () => {
     const cur = L({ id: 'a', plot: 6 }); const ref = mistRef(6);
     const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, cur, [step(cur)], 0);
     const endPath = m.routeJumpPath ?? m.routePath!;
-    const coords = [...endPath.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
+    // 数値ペアを全て拾い最後を終点に(ジャンプは Q 弧 = "M.. Q Cx Cy Ex Ey" なので M/L 縛りだと終点を拾えない)。
+    const coords = [...endPath.matchAll(/(-?[\d.]+) (-?[\d.]+)/g)];
     const last = coords.at(-1)!;
     const [lx, ly] = [Number(last[1]), Number(last[2])];
     const house = mistWard.houses.find((h) => h.plot === 6 && h.kind === 'plot')!;
@@ -83,7 +84,8 @@ describe('buildTourMapPlacements', () => {
     const cur = L({ id: 'a', plot: 21 }); const ref = mistRef(21);
     const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, cur, [step(cur)], 0);
     const endPath = m.routeJumpPath ?? m.routePath!;
-    const coords = [...endPath.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)];
+    // 数値ペアを全て拾い最後を終点に(ジャンプは Q 弧 = "M.. Q Cx Cy Ex Ey" なので M/L 縛りだと終点を拾えない)。
+    const coords = [...endPath.matchAll(/(-?[\d.]+) (-?[\d.]+)/g)];
     const last = coords.at(-1)!;
     expect(Number(last[1])).toBeCloseTo(0.2 * mistWard.viewBox.w, 1);
     expect(Number(last[2])).toBeCloseTo(0.3 * mistWard.viewBox.h, 1);

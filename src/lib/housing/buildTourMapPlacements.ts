@@ -10,6 +10,7 @@ import { computePlotDoor } from './plotDoor';
 import { getPlotBearing } from './plotBearing';
 import { buildVerbalRoute } from './verbalRoute';
 import { getRouteOverride } from './wardRouteOverrides';
+import { routeToPaths, arcJumpPath } from './routePaths';
 
 export interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
 export interface TourMapModel {
@@ -84,21 +85,21 @@ export function buildTourMapPlacements(
     const dirVec = getPlotBearing(currentListing.area, currentListing.plot, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
     // 手動上書き(plot単位)があれば最優先。無ければ方角ナビ(agree=道追従 / reroute=方角→角→破線ジャンプ)。
     const plotKey = ref.highlightKind === 'apart' ? 'apart' : String(ref.highlightPlot);
-    const override = getRouteOverride(mapKey, plotKey);
-    let road: [number, number][] | null = null;
-    let jump: [number, number][] | null = null;
-    if (override) {
-      road = override.road.map(([x, y]) => [x * w, y * h] as [number, number]);
-      jump = override.jump ? override.jump.map(([x, y]) => [x * w, y * h] as [number, number]) : null;
+    const segs = getRouteOverride(mapKey, plotKey);
+    if (segs) {
+      // 手動上書き(segments): 実線=road, 破線=jump(弧)を routeToPaths が生成。
+      const paths = routeToPaths(segs, w, h);
+      routePath = paths.routePath;
+      routeJumpPath = paths.routeJumpPath;
     } else {
+      // 方角ナビ。road は実線、jump(道に無い区間)は弧で飛ばす(reroute 由来も統一)。
       const verbal = buildVerbalRoute(json, { x: oxPx, y: oyPx }, { x: doorX, y: doorY }, dirVec);
-      if (verbal) { road = verbal.road; jump = verbal.jump; }
-    }
-    if (road && road.length) {
-      routePath = road.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
-    }
-    if (jump && jump.length >= 2) {
-      routeJumpPath = jump.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
+      if (verbal) {
+        if (verbal.road.length) {
+          routePath = verbal.road.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`).join(' ');
+        }
+        if (verbal.jump && verbal.jump.length >= 2) routeJumpPath = arcJumpPath(verbal.jump);
+      }
     }
   }
 
