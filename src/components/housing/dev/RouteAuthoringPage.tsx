@@ -254,15 +254,7 @@ export const RouteAuthoringPage: React.FC = () => {
                           />
                         ))}
                       </svg>
-                      {mapModel?.placed.map((node) => (
-                        <div
-                          key={node.index}
-                          className={`housing-tour-map-node housing-tour-map-node--${node.status}`}
-                          style={{ left: `${((node.x / w) * 100).toFixed(3)}%`, top: `${((node.y / h) * 100).toFixed(3)}%`, pointerEvents: 'none' }}
-                        >
-                          {node.status === 'arrived' ? '✓' : node.index + 1}
-                        </div>
-                      ))}
+                      {/* 番号ノード(✓/1,2,3…)は経路に被って邪魔なので非表示(現在地は箱ハイライト+起点+右カードで分かる)。 */}
                     </>
                   ) : (
                     <div className="housing-tour-map-skeleton" aria-hidden="true" />
