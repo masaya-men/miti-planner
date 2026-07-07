@@ -12,6 +12,7 @@ import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlaceme
 import { computeTourProgress, type TourStep } from '../../../lib/housing/tourNav';
 import { routeToPaths, pointsToSegments, segmentsToPoints, migrateLegacyOverride, type RoutePoint, type RouteSegment } from '../../../lib/housing/routePaths';
 import { followRoadSegments } from '../../../lib/housing/followRoad';
+import { applyWheelZoom, type MapView } from '../../../lib/housing/mapZoom';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNextDestinationPanel } from '../tour/TourNextDestinationPanel';
 import existingRoutesRaw from '../../../data/housing/wardRouteOverrides.generated.json';
@@ -37,8 +38,11 @@ export const RouteAuthoringPage: React.FC = () => {
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [view, setView] = useState<MapView>({ scale: 1, tx: 0, ty: 0 });
   const svgRef = useRef<SVGSVGElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const panRef = useRef<{ sx: number; sy: number; tx0: number; ty0: number; moved: boolean } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,6 +100,19 @@ export const RouteAuthoringPage: React.FC = () => {
     markDirty();
   };
 
+  // ホイールズーム(カーソル位置固定)。React onWheel は passive で preventDefault が効かないためネイティブ登録。
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const r = wrap.getBoundingClientRect();
+      setView((v) => applyWheelZoom(v, e.clientX - r.left, e.clientY - r.top, e.deltaY));
+    };
+    wrap.addEventListener('wheel', onWheel, { passive: false });
+    return () => wrap.removeEventListener('wheel', onWheel);
+  }, []);
+
   // 目的地の箱ハイライト(本番 TourNavMap と同じ付け外し)。
   useEffect(() => {
     const host = hostRef.current;
@@ -118,19 +135,35 @@ export const RouteAuthoringPage: React.FC = () => {
     return [nx, ny];
   }
 
-  // クリックで点を置く(道モードのみ道スナップ。ジャンプは踏切/着地を自由に置く)。
+  // pointerdown: パン開始候補として記録(まだ配置しない)。点の circle は stopPropagation でここに来ない。
   function onStageDown(e: ReactPointerEvent<SVGSVGElement>) {
     if (dragIdx !== null) return;
-    const n = clientToNorm(e.clientX, e.clientY, snap && mode === 'road');
-    if (!n) return;
-    setPointsFn((prev) => [...prev, { x: n[0], y: n[1], kind: mode }]);
+    panRef.current = { sx: e.clientX, sy: e.clientY, tx0: view.tx, ty0: view.ty, moved: false };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
   }
   function onStageMove(e: ReactPointerEvent<SVGSVGElement>) {
-    if (dragIdx === null) return;
-    const kind = points[dragIdx]?.kind ?? 'road';
-    const n = clientToNorm(e.clientX, e.clientY, snap && kind === 'road');
-    if (!n) return;
-    setPointsFn((prev) => { const next = prev.slice(); if (!next[dragIdx]) return prev; next[dragIdx] = { ...next[dragIdx], x: n[0], y: n[1] }; return next; });
+    if (dragIdx !== null) {
+      const kind = points[dragIdx]?.kind ?? 'road';
+      const n = clientToNorm(e.clientX, e.clientY, snap && kind === 'road');
+      if (!n) return;
+      setPointsFn((prev) => { const next = prev.slice(); if (!next[dragIdx]) return prev; next[dragIdx] = { ...next[dragIdx], x: n[0], y: n[1] }; return next; });
+      return;
+    }
+    const pan = panRef.current;
+    if (!pan) return;
+    const dx = e.clientX - pan.sx, dy = e.clientY - pan.sy;
+    if (!pan.moved && Math.hypot(dx, dy) > 5) pan.moved = true;
+    if (pan.moved) setView((v) => ({ ...v, tx: pan.tx0 + dx, ty: pan.ty0 + dy }));
+  }
+  // pointerup: 点ドラッグ解除 / パン未発生(=クリック)なら点を配置。
+  function onStageUp(e: ReactPointerEvent<SVGSVGElement>) {
+    if (dragIdx !== null) { setDragIdx(null); return; }
+    const pan = panRef.current;
+    panRef.current = null;
+    if (pan && !pan.moved) {
+      const n = clientToNorm(e.clientX, e.clientY, snap && mode === 'road');
+      if (n) setPointsFn((prev) => [...prev, { x: n[0], y: n[1], kind: mode }]);
+    }
   }
   const undo = () => setPointsFn((prev) => prev.slice(0, -1));
   const resetHouse = () => { setPointsByKey((prev) => ({ ...prev, [key]: [] })); markDirty(); }; // 真に白紙(空)にする
@@ -194,6 +227,7 @@ export const RouteAuthoringPage: React.FC = () => {
         <button type="button" className="housing-dev-tourpreview-btn" onClick={undo} disabled={points.length === 0}>1つ戻す</button>
         <button type="button" className="housing-dev-tourpreview-btn" onClick={resetHouse}>この家を白紙に</button>
         <button type="button" className="housing-dev-tourpreview-btn" onClick={save}>保存(全部まとめて)</button>
+        <button type="button" className="housing-dev-tourpreview-btn" onClick={() => setView({ scale: 1, tx: 0, ty: 0 })}>等倍に戻す</button>
         <span style={{ opacity: 0.85 }}>{dirty.size > 0 ? `${dirty.size}件 未保存` : '保存済み'}</span>
         {saveMsg && <span style={{ opacity: 0.85 }}>{saveMsg}</span>}
       </div>
@@ -209,9 +243,9 @@ export const RouteAuthoringPage: React.FC = () => {
           <div className="housing-tour-page-col">
             <div className="housing-tour-map" data-region="tour-map">
               <div className="housing-tour-map-stage">
-                <div className="housing-tour-map-wrap">
+                <div className="housing-tour-map-wrap" ref={wrapRef}>
                   {asset.status === 'ready' && json ? (
-                    <>
+                    <div className="housing-map-zoom" style={{ transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.scale})` }}>
                       <div ref={hostRef} className="housing-map-svg-host" dangerouslySetInnerHTML={{ __html: asset.svg }} />
                       <svg
                         ref={svgRef}
@@ -221,8 +255,8 @@ export const RouteAuthoringPage: React.FC = () => {
                         style={{ pointerEvents: 'auto', cursor: 'crosshair', touchAction: 'none' }}
                         onPointerDown={onStageDown}
                         onPointerMove={onStageMove}
-                        onPointerUp={() => setDragIdx(null)}
-                        onPointerLeave={() => setDragIdx(null)}
+                        onPointerUp={onStageUp}
+                        onPointerCancel={onStageUp}
                       >
                         {displayRoad && (
                           <>
@@ -259,14 +293,14 @@ export const RouteAuthoringPage: React.FC = () => {
                         ))}
                       </svg>
                       {/* 番号ノード(✓/1,2,3…)は経路に被って邪魔なので非表示(現在地は箱ハイライト+起点+右カードで分かる)。 */}
-                    </>
+                    </div>
                   ) : (
                     <div className="housing-tour-map-skeleton" aria-hidden="true" />
                   )}
                 </div>
               </div>
               <p className="housing-tour-map-legend" style={{ opacity: 0.75, fontSize: 12 }}>
-                道モード=道の上をクリックで点を置く(道に吸着) / ジャンプモード=踏切→着地の2点をクリック(弧が架かる) / 点ドラッグ=微調整 / ダブルクリック=削除 / 1つ戻す・白紙。青丸=起点・赤丸=入口。
+                ホイール=ズーム / 地図ドラッグ=移動 / クリック=点を置く(道に吸着) / 点ドラッグ=微調整 / ダブルクリック=削除 / 等倍に戻す。ジャンプモード=踏切→着地の2点(弧)。細い赤線=ナビ基準(これに沿わせる)・青丸=起点・赤丸=入口。
               </p>
             </div>
           </div>

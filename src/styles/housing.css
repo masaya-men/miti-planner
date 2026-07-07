@@ -6023,6 +6023,11 @@ select.housing-input option {
   transform: translate(-50%, -50%);
 }
 
+/* DEV 経路エディタ: 地図SVG+オーバーレイを一体でパン/ズームするコンテナ。 */
+.housing-map-zoom { position: absolute; inset: 0; transform-origin: 0 0; }
+/* ズーム時に地図がパネル外へはみ出さないよう DEV エディタのみクリップ。 */
+.housing-dev-tourpreview .housing-tour-map-wrap { overflow: hidden; }
+
 /* LIVE ラベル (地図の情報が実データ駆動で自動更新されることを示す) */
 .housing-tour-map-live {
   display: inline-flex;
