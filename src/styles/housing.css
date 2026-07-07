@@ -43,6 +43,10 @@
   --housing-divider: rgba(255, 255, 255, 0.12);
   --housing-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 10px rgba(0, 0, 0, 0.32);
 
+  /* DEV 経路エディタ: ナビ赤線の可視化(本番非表示・DEVのみ)。 */
+  --housing-dev-navline: #ff3b3b;
+  --housing-dev-navline-w: 1.5px;
+
   /* ===== Honey accent transparencies ===== */
   --housing-honey-soft: rgba(255, 201, 135, 0.08);
   --housing-honey-medium: rgba(255, 201, 135, 0.14);
@@ -907,6 +911,15 @@
    Mist は Node を <path>、他エリアは <circle> で書き出すため、要素非依存の [stroke="#FF0000"] で受ける
    (path 限定だと <circle> の Node 赤丸が可視のまま残る)。 */
 .housing-map-svg-host svg [stroke="#FF0000"] { display: none; }
+
+/* DEV 経路エディタでのみナビ赤線を可視化(本番ツアーは .housing-dev-tourpreview を持たないので非表示のまま)。 */
+.housing-dev-tourpreview .housing-map-svg-host svg [stroke="#FF0000"] {
+  display: inline;
+  stroke: var(--housing-dev-navline);
+  stroke-width: var(--housing-dev-navline-w);
+  fill: none;
+  opacity: 0.85;
+}
 
 /* 光ナビ / アンビエント 専用オーバーレイ (Figma マップの上に重ねる) */
 .housing-map-overlay {
