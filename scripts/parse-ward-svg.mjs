@@ -94,11 +94,36 @@ function nearestNode(px, py, maxD = Infinity) {
   return best;
 }
 
+// --- ナビ線 subpath を 1 回だけ折れ線化 (auto ノード補完と edge 生成で共有) ---
+const roadSubpaths = roadD ? parseRoad(roadD) : [];
+
+// --- auto ノード補完: ナビ線 subpath の端点で既存ノード近傍に無いものへ自動ノードを置く ---
+//     運用上、 手動ノードは「分かれ道」 にのみ置かれ、 道の行き止まり/枝先には無い。
+//     その結果、 端に手動ノードが無い枝道は「通過ノード<2」 となり edge 化されず経路から欠落していた。
+//     端点(=枝先 or 別 subpath が接続する分岐点)へノードを補うと、 その枝道が edge 化され、
+//     T 字合流なら既存 edge も分割されて正しく接続する。 既存ノード ID/座標は不変(追加のみ)。
+// auto ノードは id を `node_a*` にして「経路(edge)専用」と明示する。 house 紐付けや
+// エーテライト起点(手動ノード基準)には使わない → door/起点の既存挙動を一切変えない。
+{
+  let autoCount = 0;
+  const AUTO_DEDUP = 12; // px。 近接する端点候補どうしは 1 ノードへ統合(共有分岐点/微小誤差の吸収)
+  for (const poly of roadSubpaths) {
+    for (const p of [poly[0], poly[poly.length - 1]]) {
+      if (!p) continue;
+      if (nearestNode(p[0], p[1], NODE_SNAP)) continue;        // 既存ノード近傍 → 不要
+      let dup = false;
+      for (const n of nodes) { if (dist(p[0], p[1], n._px.x, n._px.y) < AUTO_DEDUP) { dup = true; break; } }
+      if (dup) continue;                                        // 既に追加した auto ノード近傍 → 統合
+      nodes.push({ id: `node_a${++autoCount}`, x: nx(p[0]), y: ny(p[1]), _px: { x: p[0], y: p[1] }, auto: true });
+    }
+  }
+}
+
 // --- edges: 道の折れ線が通るノードを順に拾い、 連続ノード間の点列を polyline として保存 ---
 //     (BFS で得た node 列を MapView 側で edge.polyline を順に連結すれば「道なり」 の経路になる)
 const edgeMap = new Map(); // key = "a|b" sorted, value = { a, b, polyline: [[px,py],...] }
 if (roadD) {
-  for (const poly of parseRoad(roadD)) {
+  for (const poly of roadSubpaths) {
     // 1. この subpath が通過するノード列 (idx, nodeId) を順に拾う
     const passes = [];
     for (let i = 0; i < poly.length; i++) {
@@ -131,8 +156,13 @@ const edges = [...edgeMap.values()].map((e) => ({
   polyline: e.polyline.map(([x, y]) => [nx(x), ny(y)]),
 }));
 
-// --- 各家を最寄りノードに自動接続 ---
-for (const h of houses) { const n = nearestNode(h._px.x, h._px.y); h.node = n ? n.id : null; }
+// --- 各家を最寄り「手動」ノードに接続 (auto ノードは経路専用のため house 紐付けから除外)。
+//     → house.node の値は auto ノード導入前と同一に保たれ、 door 幾何(入口データ無し区画)が不変。
+for (const h of houses) {
+  let best = null, bd = Infinity;
+  for (const n of nodes) { if (n.auto) continue; const d = dist(h._px.x, h._px.y, n._px.x, n._px.y); if (d < bd) { bd = d; best = n; } }
+  h.node = best ? best.id : null;
+}
 
 // 出力 (px は落とす)
 const out = {

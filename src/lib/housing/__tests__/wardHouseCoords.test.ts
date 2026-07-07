@@ -97,9 +97,11 @@ describe('ward JSON houses 座標 == 実 SVG の幾何中心 (全10マップ)', 
     for (const [ward] of MAPS) {
       const data = JSON.parse(read(`${ward}.generated.json`)) as WardJson;
       const byId = new Map(data.nodes.map((n) => [n.id, n]));
+      // house 紐付けは「手動ノード」基準。 auto ノード(node_a*)は経路(edge)専用で house には使わないため除外する。
+      const manual = data.nodes.filter((n) => !/^node_a/.test(n.id));
       for (const h of data.houses) {
         let minD = Infinity;
-        for (const n of data.nodes) { const d = Math.hypot(n.x - h.x, n.y - h.y); if (d < minD) minD = d; }
+        for (const n of manual) { const d = Math.hypot(n.x - h.x, n.y - h.y); if (d < minD) minD = d; }
         const nd = byId.get(h.node as string)!;
         const hd = Math.hypot(nd.x - h.x, nd.y - h.y);
         // 既存パーサの house→node 割当は稀に最寄りから最大 ~0.05 ずれる (座標バグとは別系統・遠隔区画)。

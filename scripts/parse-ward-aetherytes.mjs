@@ -66,6 +66,20 @@ for (const A of AREAS) {
     const byNorm = new Map();
     for (const g of groups(svg)) { if (!g.name) continue; const key = norm(g.name); if (!targets.has(key) || byNorm.has(key)) continue; const c = bboxCenter(g.inner); if (!c) continue; byNorm.set(key, { name: g.name, x: +(c.x / W).toFixed(5), y: +(c.y / H).toFixed(5) }); }
     const shards = [...byNorm.values()].map((s) => ({ ...s, node: nearestNode(ward, s.x, s.y) }));
+    // アパートは per-plot 方角データ(wardDirections は plot 1-60 用)を持たないため、アパート専用の
+    // エーテネットシャード(例: トップマスト/リリーヒルズ/紅梅御殿/イングルサイド)は plot 参照名だけを見る
+    // 上記抽出から漏れ、getApartmentOrigin が遠い別シャードを最寄り誤選する。ここで「アパート最寄りの
+    // 日本語名シャード」を1つだけ補完する。候補 = 日本語名グループから 道路/ハウス/(描画不要)エーテライト
+    // を除外(= plot 用 + アパート用の全シャード)。既に plot 経由で登録済みなら追加しない(重複防止)。
+    const apt = ward.houses.find((h) => h.kind === 'apart');
+    if (apt) {
+      const isShardName = (nm) => /[　-鿿＀-￯]/.test(nm) && !/道路|ハウス/.test(nm) && norm(nm) !== 'エーテライト' && !/描画不要/.test(nm);
+      const cands = new Map();
+      for (const g of groups(svg)) { if (!g.name || !isShardName(g.name)) continue; const key = norm(g.name); if (cands.has(key)) continue; const c = bboxCenter(g.inner); if (!c) continue; cands.set(key, { name: g.name, x: +(c.x / W).toFixed(5), y: +(c.y / H).toFixed(5) }); }
+      let best = null, bd = Infinity;
+      for (const c of cands.values()) { const d = Math.hypot(c.x - apt.x, c.y - apt.y); if (d < bd) { bd = d; best = c; } }
+      if (best && !byNorm.has(norm(best.name))) shards.push({ ...best, node: nearestNode(ward, best.x, best.y) });
+    }
     out[mapKey] = shards;
     // 名前一致率検算(座標の正しさは別途テストで担保)
     for (let p = seg.lo; p <= seg.hi; p++) { total++; const n = wd[A.area][p]?.aetheryte; if (n && byNorm.has(norm(n))) matched++; }
