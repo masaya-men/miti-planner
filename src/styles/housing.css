@@ -6852,6 +6852,8 @@ select.housing-input option {
   font-size: var(--housing-text-sm);
 }
 .housing-dev-tourpreview-count { color: var(--housing-text-mute); }
+/* DEV 経路エディタの操作ヒント。以前は撤去した .housing-tour-map-legend を流用していたため専用化。 */
+.housing-route-editor-hint { margin: 0; color: var(--housing-text-mute); }
 .housing-dev-tourpreview-label { font-weight: 600; }
 .housing-dev-tourpreview-badge {
   padding: 2px 8px; border-radius: 6px; border: 1px solid var(--housing-divider);

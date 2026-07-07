@@ -299,7 +299,7 @@ export const RouteAuthoringPage: React.FC = () => {
                   )}
                 </div>
               </div>
-              <p className="housing-tour-map-legend" style={{ opacity: 0.75, fontSize: 12 }}>
+              <p className="housing-route-editor-hint" style={{ opacity: 0.75, fontSize: 12 }}>
                 ホイール=ズーム / 地図ドラッグ=移動 / クリック=点を置く(道に吸着) / 点ドラッグ=微調整 / ダブルクリック=削除 / 等倍に戻す。ジャンプモード=踏切→着地の2点(弧)。細い赤線=ナビ基準(これに沿わせる)・青丸=起点・赤丸=入口。
               </p>
             </div>
