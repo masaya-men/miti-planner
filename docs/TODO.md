@@ -9,11 +9,14 @@
 
 ---
 
-## 次の作業順 (2026-07-06 更新)
+## 次の作業順 (2026-07-07 更新)
 
-**🔴🆕最優先(ユーザー): 行き方テキストナビ=実装完了・全310目視待ち**。ブランチ=`feat/housing-dev-tour-preview`(**未push**・作業ツリーclean・main beb8d702 の上)。台帳=`.superpowers/sdd/progress.md`末尾(**次セッションはここ**=全詳細)。spec/plan=`docs/superpowers/{specs,plans}/2026-07-06-housing-tour-verbal-nav*`。
-  - **完了(2026-07-06)**: 方角語パース→agree=道追従(既存とバイト同一=~270区画不変・zero-regression証明)/reroute=方角へ道→曲がり角→入口へ破線ジャンプ。plot単位手動上書き機構`wardRouteOverrides`(escape hatch)付き。build EXIT0/vitest新規fail0/実アプリで8-8=西→破線ジャンプ・plot6=不変 確認。最終opusレビュー Critical/Important 0。
-  - **次(ユーザー)**: `npm run dev`→`/housing/dev/tour-preview`で全310目視。**最優先監視=長スパー由来の誤reroute**(本来agreeが化ける)。違和感区画→Claudeがoverride座標エンコード or 閾値調整→OK後 finishing-a-development-branch。**勝手にpush/merge禁止**。
+**🔴🆕最優先: 経路お絵かきツール実装完了→段階2実機ゲート→段階3全310巡回**。ブランチ=`feat/housing-dev-tour-preview`。**詳細引き継ぎ=`docs/.private/2026-07-07-housing-route-authoring-session.md`(次セッション最初に必ず読む)**。
+  - **背景**: ツアー経路が赤線(ユーザーがFigmaに描いた道=roadPath/edges)から外れる=`verbalRoute.ts`の`shouldReroute`が方角判定で道追従を捨てる。→ユーザー自身が道をなぞって経路を描く開発ツール`/housing/dev/routes`を実装。override(最優先でreroute回避)で個別確定(A案アルゴリズム一括は退化12件で撤回済=個別override方針)。
+  - **実装済(commit 9件)**: `routePaths.ts`(routeToPaths/弧arcJumpPath/migrate/点列⇄segments)・override`{road,jump}`→`{segments}`化・JSON13件変換・`buildTourMapPlacements`配線(reroute jumpも弧化)・vite`/__save-routes`・`RouteAuthoringPage`。tsc通過・経路系71件pass。**未実施=npm run build+全vitest(push前必須)**。
+  - **dev=http://localhost:5174**(5173残留で5174化)。ツール=`/housing/dev/routes`(道スナップ/道・ジャンプ切替/クリック追加・ドラッグ・ダブルクリック削除/保存)。
+  - **次(この順)**: ①段階2実機ゲート=mist-sub13(住所「ミスト拡張43番地」)試し描き→保存→Claude確認(使い勝手FBも) ②段階3=全310巡回(**44区画がreroute=道外れ候補**・引き継ぎに全リスト) ③全OK後 build+vitest→finishing-a-development-branch。**push/merge禁止**。
+  - **未commit16ファイル**=前セッションのマップ再生成+parse改良+今日の入口(wardEntrances mist本街27)。巡回完了までcommit保留。**将来UX案**=同一マップ内 家→家徒歩/エーテライト間テレポナビ([[project_housing_tour_intra_map_nav]])。
 - **中央地図 Phase2以降(その後)**: ④番号撤去 ⑤パン&ズーム ⑥LIVE凡例撤去 ⑦フィット ⑨レイアウト ⑩進行モデル+生きたカード。全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。繰延小物=M1 (b)報告Esc (c)凡例同色 (d)右カラム窮屈 (e)死にキー title。
 
 1. **🔴ハウジング全面再構築(全7ページ・再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカル・未push)。spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`、台帳=progress.md。
