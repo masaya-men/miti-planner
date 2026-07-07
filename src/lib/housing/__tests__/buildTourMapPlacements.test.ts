@@ -3,6 +3,7 @@ import type { MockListing } from '../../../data/housing/mockListings';
 import type { WardMapJson } from '../../../data/housing/wardMapManifest';
 import mistWardRaw from '../../../data/housing/mistWard.generated.json';
 import mistSubWardRaw from '../../../data/housing/mistSubWard.generated.json';
+import lavenderWardRaw from '../../../data/housing/lavenderWard.generated.json';
 import { resolveWardMapRef } from '../resolveWardMapRef';
 import type { TourStep } from '../tourNav';
 
@@ -89,5 +90,14 @@ describe('buildTourMapPlacements', () => {
     const last = coords.at(-1)!;
     expect(Number(last[1])).toBeCloseTo(0.2 * mistWard.viewBox.w, 1);
     expect(Number(last[2])).toBeCloseTo(0.3 * mistWard.viewBox.h, 1);
+  });
+  it('override の road 区間は道なりに追従して展開される(生の点数より増える)', () => {
+    // lavender plot 26 は override 済み(road 1区間・9点)で別 edge をまたぐカーブを含む(実データ)。
+    const lavenderWard = lavenderWardRaw as unknown as WardMapJson;
+    const cur = L({ id: 'lv26', area: 'LavenderBeds', plot: 26 });
+    const ref = resolveWardMapRef('LavenderBeds', 26, null, 'house')!;
+    const m = buildTourMapPlacements(lavenderWard, ref.mapKey, ref, cur, [step(cur)], 0);
+    const coords = [...(m.routePath ?? '').matchAll(/(-?[\d.]+) (-?[\d.]+)/g)];
+    expect(coords.length).toBeGreaterThan(9); // 追従で中間のカーブ頂点が増える(生 road 点=9)
   });
 });

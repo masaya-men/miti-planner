@@ -10,6 +10,7 @@ import { computePlotDoor } from './plotDoor';
 import { getPlotBearing } from './plotBearing';
 import { buildVerbalRoute } from './verbalRoute';
 import { getRouteOverride } from './wardRouteOverrides';
+import { followRoadSegments } from './followRoad';
 import { routeToPaths, arcJumpPath } from './routePaths';
 
 export interface TourMapPlacement { index: number; x: number; y: number; status: StepStatus }
@@ -87,8 +88,8 @@ export function buildTourMapPlacements(
     const plotKey = ref.highlightKind === 'apart' ? 'apart' : String(ref.highlightPlot);
     const segs = getRouteOverride(mapKey, plotKey);
     if (segs) {
-      // 手動上書き(segments): 実線=road, 破線=jump(弧)を routeToPaths が生成。
-      const paths = routeToPaths(segs, w, h);
+      // 手動上書き(segments): road 区間を道なりに追従展開してから 実線=road/破線=jump(弧)へ。
+      const paths = routeToPaths(followRoadSegments(segs, json), w, h);
       routePath = paths.routePath;
       routeJumpPath = paths.routeJumpPath;
     } else {
