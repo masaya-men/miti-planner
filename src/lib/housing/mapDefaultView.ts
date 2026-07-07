@@ -1,14 +1,11 @@
-import type { MapView } from './mapZoom';
-
-const MIN_SCALE = 1;
-const MAX_SCALE = 8;
+import { MIN_SCALE, MAX_SCALE, type MapView } from './mapZoom';
 
 export interface Bbox { minX: number; minY: number; maxX: number; maxY: number }
 
 /**
  * 経路パス文字列群（+ 追加点）を走査し viewBox 座標系の bbox を返す純関数。
- * パスは "M x y L x y ..."（弧 Q/C 含む場合も可）を前提に、数値を順に x,y ペアとして拾う。
- * 弧の制御点が混ざっても bbox は安全側に広がるだけで、見切れ厳禁の不変条件は保たれる。
+ * パスは "M x y L x y ..." および Q(二次ベジェ)を前提に、数値を順に x,y ペアとして拾う。
+ * Q の制御点が混ざっても bbox は安全側に広がるだけで、見切れ厳禁の不変条件は保たれる。
  */
 export function routeBbox(paths: (string | null | undefined)[], extra: { x: number; y: number }[] = []): Bbox | null {
   const nums: number[] = [];

@@ -13,7 +13,7 @@ export interface TourNavMapProps {
 
 const FIT_PAD_PX = 28; // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
 
-/** ツアー中(Nav) 中央: 表示専用の LIVE 地図。実エーテライト起点→家の経路をアニメし、目的地の実区画(#plot_N/#apart_N)を光らせる。
+/** ツアー中(Nav) 中央: 実エーテライト起点→家の経路をアニメし、目的地の実区画(#plot_N/#apart_N)を光らせるナビ地図。
  * 地図は指/マウスでパン&ズーム可。既定は起点〜家の経路にフィット（見切れ厳禁）、ステップが変わると自動で既定へ戻る。 */
 export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, model }) => {
   const { t } = useTranslation();
@@ -45,7 +45,9 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
     const bbox = routeBbox([route, routeJump], origin ? [origin] : []);
     if (!bbox) { setView({ scale: 1, tx: 0, ty: 0 }); return; }
     setView(computeDefaultView(bbox, viewBox, wrapSize, FIT_PAD_PX));
-  }, [viewBox, wrapSize, route, routeJump, origin]);
+    // deps は origin オブジェクトでなく座標プリミティブで比較。mapModel 再生成で origin 参照だけ変わる背景更新では
+    // リセットを起こさず、実ステップ変更(route 文字列が必ず変わる)時のみ既定へ戻す=手動パン/ズームを次ステップまで保持。
+  }, [viewBox, wrapSize, route, routeJump, origin?.x, origin?.y]);
 
   useEffect(() => { resetView(); }, [resetView]);
 
