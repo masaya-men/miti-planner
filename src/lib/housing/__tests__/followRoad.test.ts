@@ -50,6 +50,9 @@ const SPLIT: WardMapJson = {
 
 const road = (points: [number, number][]): RouteSegment => ({ kind: 'road', points });
 const minY = (pts: [number, number][]) => Math.min(...pts.map((p) => p[1]));
+// 出力に「完全一致の連続重複点」が無いこと(ペア境界=前ペア末尾と次ペア先頭が畳まれていること)。
+const noConsecutiveDup = (pts: [number, number][]) =>
+  pts.every((p, i) => i === 0 || p[0] !== pts[i - 1][0] || p[1] !== pts[i - 1][1]);
 
 describe('followRoadSegments', () => {
   it('同一 edge 上の2点は そのカーブ頂点を含む点列に展開する', () => {
@@ -87,5 +90,24 @@ describe('followRoadSegments', () => {
     const jump: RouteSegment = { kind: 'jump', points: [[0.1, 0.1], [0.5, 0.5]] };
     const out = followRoadSegments([jump], CURVE);
     expect(out[0]).toEqual(jump);
+  });
+
+  it('3点以上の road 区間(全ペア道追従)を境界重複なく1本に展開する', () => {
+    const out = followRoadSegments([road([[0.15, 0.5], [0.45, 0.5], [0.85, 0.5]])], CURVE);
+    const pts = out[0].points;
+    expect(pts.length).toBeGreaterThan(3);   // 2点×2ペア → 追従で増える
+    expect(minY(pts)).toBeLessThan(0.4);      // e0 の跳ねを通る
+    expect(pts.some((p) => Math.abs(p[0] - 0.5) < 0.02 && Math.abs(p[1] - 0.5) < 0.02)).toBe(true); // 分岐点 n2 を通る
+    expect(noConsecutiveDup(pts)).toBe(true); // 境界(pair0末=pair1頭)が畳まれている
+  });
+
+  it('道追従ペアと直線ペアが混在する3点区間: 道外端を保ちつつ境界重複なく繋ぐ', () => {
+    // p0=道の外(直線ペア), p1・p2=道の上(道追従ペア)。境界 p1 が二重にならないこと。
+    const out = followRoadSegments([road([[0.5, 0.9], [0.15, 0.5], [0.85, 0.5]])], CURVE);
+    const pts = out[0].points;
+    expect(pts[0]).toEqual([0.5, 0.9]);       // 道外の出だしは原位置維持(直線)
+    expect(pts.length).toBeGreaterThan(3);    // 後半ペアが道追従で増える
+    expect(minY(pts)).toBeLessThan(0.4);      // 後半で e0 の跳ねを通る
+    expect(noConsecutiveDup(pts)).toBe(true); // 直線→道追従の境界が畳まれている
   });
 });
