@@ -25,6 +25,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
+- **🆕💰 Firebaseコスト対策(2026-07-08)**: 予算¥500/月アラート到達→調査。最大=reCAPTCHA(App Check・月1万assessment無料枠超過、アクセス比例。攻撃でない)。**①App Check TTL 1h→7日=✅実施(ユーザー・reCAPTCHA更新激減)** / **④/api/popular GET を.select()射影=✅本番反映(commit a451791c・敵対監査2本clean=応答バイト不変/共同編集は別コレクションで独立・read-only破損不可)**。**②reCAPTCHA v3切替=保留→2026-07-12 09:00に自動フォロー(routine trig_0133PEo25sb1H3Eq8cfhTj3s)で効果測定して提案**。Vercel東京化はPro専用で撤回。詳細=memory [[project_firebase_cost_reduction]]。予算アラートは支出を止めない点注意。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
 - **🟢🗓 Vercel Pro→Hobby: 実測で Hobby 安全確認済(6/20・全指標2倍以上余裕)**。**7/11 前に Dashboard→Billing→Plan で Hobby へ**(1クリック・可逆)。⚠将来ハウジングを広告つき公開する時は Hobby 商用禁止に抵触→Pro 復帰 or 別デプロイ分離を判断。詳細実測値→TODO_COMPLETED。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
