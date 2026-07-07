@@ -917,6 +917,8 @@
   fill: none;
   opacity: 0.85;
 }
+/* DEV ツアープレビューの「本番の見た目」トグル: 赤ナビ基準線を隠して本番同等の表示にする(詳細度で reveal に勝つ)。 */
+.housing-dev-tourpreview.is-hide-baseline .housing-map-svg-host svg [stroke="#FF0000"] { display: none; }
 
 /* 光ナビ / アンビエント 専用オーバーレイ (Figma マップの上に重ねる) */
 .housing-map-overlay {

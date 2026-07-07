@@ -13,6 +13,7 @@ import { TourNavPage } from '../pages/TourNavPage';
  */
 export const TourPreviewPage: React.FC = () => {
   const [listings, setListings] = useState<MockListing[] | null>(null);
+  const [hideBaseline, setHideBaseline] = useState(false); // 本番の見た目(赤ナビ基準線オフ)で確認するトグル
   const currentIndex = useHousingTourStore((s) => s.currentIndex);
 
   // 10 マップを既存の遅延ローダで読み、全住所の仮 listing を生成。
@@ -56,7 +57,7 @@ export const TourPreviewPage: React.FC = () => {
     useHousingTourStore.setState({ currentIndex: Math.max(0, Math.min(total - 1, i)) });
 
   return (
-    <div className="housing-dev-tourpreview">
+    <div className={`housing-dev-tourpreview${hideBaseline ? ' is-hide-baseline' : ''}`}>
       <div className="housing-dev-tourpreview-bar">
         <span className="housing-dev-tourpreview-count">{currentIndex + 1} / {total}</span>
         <span className="housing-dev-tourpreview-label">{current?.title ?? '-'}</span>
@@ -77,6 +78,10 @@ export const TourPreviewPage: React.FC = () => {
             <option key={l.id} value={idx}>{l.title}</option>
           ))}
         </select>
+        <label className="housing-dev-tourpreview-count" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          <input type="checkbox" checked={hideBaseline} onChange={(e) => setHideBaseline(e.target.checked)} />
+          赤線を隠す(本番の見た目)
+        </label>
       </div>
       {/* key で住所ごとに新規マウント = 完了画面等のローカル状態残りを防ぐ */}
       <TourNavPage key={currentIndex} />
