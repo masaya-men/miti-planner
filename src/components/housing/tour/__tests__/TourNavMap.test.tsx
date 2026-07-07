@@ -10,12 +10,16 @@ const mistWard = mistWardRaw as unknown as WardMapJson;
 const model: TourMapModel = { target: { x: 100, y: 100 }, placed: [ { index: 0, x: 100, y: 100, status: 'current' }, { index: 1, x: 200, y: 150, status: 'upcoming' } ], routePath: 'M10 10 L100 100', routeJumpPath: null, origin: { x: 10, y: 10 }, targetElId: 'plot_6' };
 
 describe('TourNavMap', () => {
-  it('ready で host/番号ノード/ゴージャス経路/起点マーカーを描く', () => {
+  it('ready で host/ゴージャス経路/起点マーカーを描く（番号ノード・LIVE・凡例は撤去済み）', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} />);
     expect(container.querySelector('.housing-map-svg-host')).toBeTruthy();
-    expect(container.querySelectorAll('[data-testid="tour-map-node"]').length).toBe(2);
     expect(container.querySelector('[data-testid="tour-map-route"]')).toBeTruthy();
     expect(container.querySelector('[data-testid="tour-map-origin"]')).toBeTruthy();
+    // 改善4: 地図上の番号マーカー(①②③/✓)は撤去
+    expect(container.querySelectorAll('[data-testid="tour-map-node"]').length).toBe(0);
+    // 改善6: LIVEピルと凡例は撤去
+    expect(container.querySelector('.housing-tour-map-live')).toBeNull();
+    expect(container.querySelector('.housing-tour-map-legend')).toBeNull();
   });
   it('目的地の放射リング(波紋)は撤去済み: r アニメ from="60" が存在しない', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} />);

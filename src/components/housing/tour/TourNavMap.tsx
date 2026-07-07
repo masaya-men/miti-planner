@@ -8,7 +8,6 @@ export interface TourNavMapProps {
   viewBox: { w: number; h: number } | null;
   model: TourMapModel | null;
 }
-const LEGEND_ITEMS = ['here', 'next', 'arrived', 'upcoming', 'route'] as const;
 
 /** ツアー中(Nav) 中央: 表示専用の LIVE 地図(全5エリア)。現在の家のワード地図を描き、実エーテライト起点→家の経路をゴージャスにアニメ。
  * 目的地アピールは被せ矩形ではなく、地図SVG内の実際の区画/アパートのパス(#plot_N/#apart_N)自体を光らせる。host は必ず .housing-map-svg-host。 */
@@ -73,19 +72,10 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
                   </g>
                 )}
               </svg>
-              {model?.placed.map((node) => (
-                <div key={node.index} data-testid="tour-map-node" data-status={node.status} className={`housing-tour-map-node housing-tour-map-node--${node.status}`} style={{ left: `${((node.x / viewBox.w) * 100).toFixed(3)}%`, top: `${((node.y / viewBox.h) * 100).toFixed(3)}%` }}>
-                  {node.status === 'arrived' ? '✓' : node.index + 1}
-                </div>
-              ))}
             </>
           )}
         </div>
-        <div className="housing-hud is-top"><div className="pill housing-tour-map-live"><span className="housing-tour-map-live-dot" aria-hidden="true" />{t('housing.tour.nav.live')}</div></div>
       </div>
-      <ul className="housing-tour-map-legend">
-        {LEGEND_ITEMS.map((key) => (<li key={key} className="housing-tour-map-legend-item"><span className={`housing-tour-map-legend-swatch housing-tour-map-legend-swatch--${key}`} aria-hidden="true" />{t(`housing.tour.nav.legend.${key}`)}</li>))}
-      </ul>
     </div>
   );
 };

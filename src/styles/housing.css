@@ -188,9 +188,6 @@
   --housing-tour-ring-size: 108px;      /* 進捗リングの表示直径 */
   --housing-tour-ring-stroke: 8px;      /* 進捗リングの線幅 (トラック/進捗弧 共通) */
   --housing-tour-next-thumb-size: 56px; /* 「次に訪れる場所」カードのサムネ正方形サイズ */
-  /* ===== ツアー中(Nav) 中央カラム: LIVE地図 (Task5) ===== */
-  --housing-tour-map-node-size: 26px;   /* 番号ノードの直径 */
-  --housing-tour-map-legend-swatch: 10px; /* 凡例の色見本サイズ */
   /* ===== 入口オーサリングページ (開発専用ツール・Task5 sub) ===== */
   --housing-entrance-marker: var(--housing-text-mute);       /* 未補正(幾何のまま) */
   --housing-entrance-marker-corrected: var(--housing-honey); /* 補正済(ドラッグした) */
@@ -6028,25 +6025,6 @@ select.housing-input option {
 /* ズーム時に地図がパネル外へはみ出さないよう DEV エディタのみクリップ。 */
 .housing-dev-tourpreview .housing-tour-map-wrap { overflow: hidden; }
 
-/* LIVE ラベル (地図の情報が実データ駆動で自動更新されることを示す) */
-.housing-tour-map-live {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.housing-tour-map-live-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--housing-aether);
-  box-shadow: 0 0 6px var(--housing-aether);
-  animation: housing-tour-map-live-pulse 1.6s ease-in-out infinite;
-}
-@keyframes housing-tour-map-live-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.35; }
-}
-
 /* 現在地マーカー (originNodeId のノード座標に青丸) */
 .housing-tour-map-origin {
   fill: var(--housing-aether);
@@ -6114,76 +6092,6 @@ select.housing-input option {
 }
 .housing-tour-map-none-text {
   color: var(--housing-text-mute);
-}
-
-/* 番号ノード (到着済み/現在/未到着) */
-.housing-tour-map-node {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  width: var(--housing-tour-map-node-size);
-  height: var(--housing-tour-map-node-size);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 2px solid var(--housing-map-light);
-  font-size: var(--housing-text-xs);
-  font-weight: 700;
-  z-index: 9;
-  pointer-events: none;
-}
-.housing-tour-map-node--arrived {
-  background: var(--housing-honey);
-  color: var(--housing-honey-text-strong);
-  box-shadow: 0 0 8px var(--housing-honey-shadow-soft);
-}
-.housing-tour-map-node--current {
-  background: var(--housing-aether);
-  color: var(--housing-map-light);
-  box-shadow: 0 0 10px var(--housing-aether);
-}
-.housing-tour-map-node--upcoming {
-  background: var(--housing-panel-border-strong);
-  color: var(--housing-text-dim);
-}
-
-/* 凡例 */
-.housing-tour-map-legend {
-  flex: 0 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 14px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  font-size: var(--housing-text-xs);
-  color: var(--housing-text-mute);
-}
-.housing-tour-map-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.housing-tour-map-legend-swatch {
-  width: var(--housing-tour-map-legend-swatch);
-  height: var(--housing-tour-map-legend-swatch);
-  border-radius: 50%;
-  flex: 0 0 auto;
-}
-.housing-tour-map-legend-swatch--here,
-.housing-tour-map-legend-swatch--next {
-  background: var(--housing-aether);
-}
-.housing-tour-map-legend-swatch--arrived {
-  background: var(--housing-honey);
-}
-.housing-tour-map-legend-swatch--upcoming {
-  background: var(--housing-panel-border-strong);
-}
-.housing-tour-map-legend-swatch--route {
-  border-radius: 2px;
-  background: var(--housing-honey);
 }
 
 /* 地図の枠線色 (改善8): 元SVGの stroke="black" を世界観の淡色トークンへ上書き。輪郭自体は消さない。
