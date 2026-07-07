@@ -2731,6 +2731,7 @@
                 "live": "Updates automatically",
                 "map_none": "No map data for this destination",
                 "map_error": "Failed to load the map",
+                "reset_view": "Reset view",
                 "progress": {
                     "label": "Tour progress",
                     "done_of_total": "{{done}} / {{total}}",

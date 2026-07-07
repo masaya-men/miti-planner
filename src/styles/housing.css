@@ -6020,6 +6020,36 @@ select.housing-input option {
   transform: translate(-50%, -50%);
 }
 
+/* 本番ツアー(Nav)地図: ステージいっぱいに充填し、既定表示(経路フィット)を活かす。DEV(.housing-dev-tourpreview)は基底のまま。 */
+.housing-tour-map-wrap.is-nav {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  transform: none;
+  overflow: hidden;
+  touch-action: none; /* パン/ピンチをブラウザのスクロール/ズームに奪われない */
+  cursor: grab;
+}
+.housing-tour-map-wrap.is-nav:active { cursor: grabbing; }
+
+/* 「全体に戻す」ボタン(HUD 内)。トークン経由・装飾ピルにしない(落ち着いたガラス面)。
+ * 親 .housing-hud は静的ピル表示用に pointer-events:none (継承プロパティ) のため、実クリック可能にするには明示的に auto へ戻す必要がある。 */
+.housing-tour-map-reset {
+  pointer-events: auto;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-chip-bg);
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.housing-tour-map-reset:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-map-reset:active { transform: scale(0.98); }
+
 /* DEV 経路エディタ: 地図SVG+オーバーレイを一体でパン/ズームするコンテナ。 */
 .housing-map-zoom { position: absolute; inset: 0; transform-origin: 0 0; }
 /* ズーム時に地図がパネル外へはみ出さないよう DEV エディタのみクリップ。 */

@@ -60,4 +60,9 @@ describe('TourNavMap', () => {
     const load = render(<TourNavMap status="loading" svg={null} viewBox={null} model={null} />);
     expect(load.container.querySelector('[data-testid="tour-map-skeleton"]')).toBeTruthy();
   });
+  it('ready でパン/ズーム用の .housing-map-zoom と「全体に戻す」ボタンを持つ', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} />);
+    expect(container.querySelector('.housing-map-zoom')).toBeTruthy();
+    expect(container.querySelector('[data-testid="tour-map-reset"]')).toBeTruthy();
+  });
 });
