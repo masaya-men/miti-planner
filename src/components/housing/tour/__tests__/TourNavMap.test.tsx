@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import '../../../../i18n';
 import type { WardMapJson } from '../../../../data/housing/wardMapManifest';
 import mistWardRaw from '../../../../data/housing/mistWard.generated.json';
@@ -64,5 +64,17 @@ describe('TourNavMap', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} />);
     expect(container.querySelector('.housing-map-zoom')).toBeTruthy();
     expect(container.querySelector('[data-testid="tour-map-reset"]')).toBeTruthy();
+  });
+  it('2本指ピンチ後に1本指を離すと、残った指でパンが継続する', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} />);
+    const wrap = container.querySelector('.housing-tour-map-wrap') as HTMLElement;
+    const zoom = container.querySelector('.housing-map-zoom') as HTMLElement;
+    // happy-dom はレイアウト無し=RO 未発火なので既定 view は初期値 translate(0px,0px) scale(1)。
+    fireEvent.pointerDown(wrap, { pointerId: 1, clientX: 100, clientY: 100 });
+    fireEvent.pointerDown(wrap, { pointerId: 2, clientX: 200, clientY: 100 }); // 2本指=ピンチ開始(pan は null 化)
+    fireEvent.pointerUp(wrap, { pointerId: 2, clientX: 200, clientY: 100 });   // 片指を離す→残指で pan 再初期化されるべき
+    fireEvent.pointerMove(wrap, { pointerId: 1, clientX: 150, clientY: 100 }); // 残指を +50px 移動
+    // 修正前は pan が凍結し translate(0px,0px) のまま。修正後は tx が動く。
+    expect(zoom.style.transform).not.toBe('translate(0px, 0px) scale(1)');
   });
 });

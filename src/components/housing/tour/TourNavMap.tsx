@@ -100,6 +100,11 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
   const onPointerUp = (e: React.PointerEvent) => {
     ptrs.current.delete(e.pointerId);
     if (ptrs.current.size < 2) pinch.current = null;
+    if (ptrs.current.size === 1) {
+      // ピンチ→単指: 残った指でパンを継続できるよう、その指の現在位置から pan を再初期化(onPointerDown の単指分岐と同じ)。
+      const [rem] = [...ptrs.current.values()];
+      pan.current = { sx: rem.x, sy: rem.y, tx0: view.tx, ty0: view.ty };
+    }
     if (ptrs.current.size === 0) pan.current = null;
   };
 
