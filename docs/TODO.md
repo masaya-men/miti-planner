@@ -15,7 +15,8 @@
   - **背景**: ツアー経路が赤線(道=roadPath/edges)から外れる=`verbalRoute.shouldReroute`が方角判定で道追従を捨てる。→ユーザー自身が経路を描く開発ツール`/housing/dev/routes`。override(reroute回避)で個別確定。
   - **✅済**: エディタ v2=**フル本番ツアー画面(左進捗/中央編集地図/右住所・行き方カード)+クリックで点を置く方式**(ドラッグなぞり廃止)。道=道スナップ配置/ジャンプ=踏切→着地2点で弧(ARC_K 0.4に上げ)/1つ戻す/白紙/番号ノード非表示。表示は本番`buildTourMapPlacements`再利用=1px一致・本番無改変。**ユーザーが全310巡回し91件override保存済(コミット済)**。起点バグ(ラベ14/44の最寄りエーテライト誤り=`directions-src/lavenderbeds.csv`入力ミス)修正・再生成・検証済。
   - **dev=http://localhost:5173**。
-  - **🔴次(この順)**: ①**道なり自動追従(大物)**=点の間を赤い道の曲がりに沿わせる(`nearestPointOnPolylines`が`edgeIndex/segIndex/t`返す・保存形式不変で91件も遡って滑らか化・詳細=引き継ぎ+spec改訂節) ②**最終ゲート**=`npm run build`+全`vitest run`緑→全310実機確認→`finishing-a-development-branch`→**ユーザー承認でmain**。**push/merge禁止**。
+  - **✅追加済(2026-07-07このセッション)**: ①**道なり自動追従**=override road区間を道グラフに沿って表示展開(`followRoadSegments`・保存不変・91件遡及・本番+エディタ同一)。②**エディタ強化**=赤線常時表示(DEV限定・`.housing-dev-tourpreview`スコープ)+Googleマップ式パン/ズーム(`applyWheelZoom`・クリック配置はpointerup化)。全てbuild+vitest緑・Playwright実機検証済・最終レビューMerge-ready。spec/plan=`docs/superpowers/{specs,plans}/2026-07-07-housing-route-editor-redline-panzoom*`+`…-road-follow*`。
+  - **🔴次(この順)**: ①**ユーザーが赤線を見ながら全家を手動override**(自動ルーティングは限界と判断・赤線=ナビ基準が見えるので手で確実に修正)→保存→Claudeがgit diff確認。②**最終ゲート**=`npm run build`+全`vitest run`緑→全実機確認→`finishing-a-development-branch`→**ユーザー承認でmain**。**push/merge禁止**。未commit(前セッション由来のparse改良/ward json等)も最終ゲートでまとめて判断。
   - **未commit(前セッション由来)**=parse改良2本+全10ward json再生成+wardAetherytes+wardEntrances(mist27入口)+wardHouseCoords test。最終ゲートでまとめて判断。**将来UX案**=[[project_housing_tour_intra_map_nav]]。
 - **中央地図 Phase2以降(その後)**: ④番号撤去 ⑤パン&ズーム ⑥LIVE凡例撤去 ⑦フィット ⑨レイアウト ⑩進行モデル+生きたカード。全文=`docs/superpowers/specs/2026-07-04-housing-tour-map-worldclass-design.md`。繰延小物=M1 (b)報告Esc (c)凡例同色 (d)右カラム窮屈 (e)死にキー title。
 
