@@ -5,23 +5,26 @@ import { WARD_MAP_LOADERS } from '../../../data/housing/wardMapManifest';
 import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { PREVIEW_MAPS, buildAllAddressListings } from '../../../lib/housing/devTourPreview';
 import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
-import { getPlotOriginNode } from '../../../lib/housing/plotOrigin';
-import { getApartmentOrigin } from '../../../lib/housing/apartmentOrigin';
 import { getPlotEntrance } from '../../../lib/housing/plotEntrance';
 import { computePlotDoor } from '../../../lib/housing/plotDoor';
 import { nearestPointOnPolylines, type PolylineEdge } from '../../../lib/housing/mapGeometry';
-import { routeToPaths, pointsToSegments, segmentsToPoints, migrateLegacyOverride, type RoutePoint, type RouteSegment } from '../../../lib/housing/routePaths';
+import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
+import type { TourStep } from '../../../lib/housing/tourNav';
+import { routeToPaths, pointsToSegments, segmentsToPoints, migrateLegacyOverride, simplifyPolyline, type RoutePoint, type RouteSegment } from '../../../lib/housing/routePaths';
 import existingRoutesRaw from '../../../data/housing/wardRouteOverrides.generated.json';
 
 type Pt = [number, number];
 type RawEntry = { road?: Pt[]; jump?: Pt[] | null; segments?: RouteSegment[] };
 const EXISTING = existingRoutesRaw as unknown as Record<string, Record<string, RawEntry>>;
 const SNAP_PX = 22;
+const MIN_SAMPLE_DIST = 0.008; // なぞり中、この距離(正規化)未満の点は捨てる
+const SIMPLIFY_EPS = 0.004;    // ストローク確定時の間引き許容誤差(正規化)
 
 /**
- * DEV専用: 経路お絵かきツール(/housing/dev/routes)。
- * 実マップの道の上を点でなぞって経路(道/ジャンプ)を描き、wardRouteOverrides.generated.json に保存する。
- * 本番 build 非露出(App.tsx 側 import.meta.env.DEV gate)。地図参照データは読み取りのみ。
+ * DEV専用: 本番風・なぞって直す経路エディタ(/housing/dev/routes)。
+ * 表示は本番 buildTourMapPlacements を読み取り再利用(本番と1px一致・本番無改変=安全)。
+ * 道の上をドラッグでなぞって経路(道/ジャンプ)を描き wardRouteOverrides.generated.json に一括保存。
+ * 本番 build 非露出(App.tsx 側 import.meta.env.DEV gate)。
  */
 export const RouteAuthoringPage: React.FC = () => {
   const [listings, setListings] = useState<MockListing[] | null>(null);
@@ -30,8 +33,12 @@ export const RouteAuthoringPage: React.FC = () => {
   const [snap, setSnap] = useState(true);
   const [pointsByKey, setPointsByKey] = useState<Record<string, RoutePoint[]>>({});
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const hostRef = useRef<HTMLDivElement>(null);
+  const strokeStartRef = useRef<number | null>(null);
+  const lastSampleRef = useRef<[number, number] | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,7 +48,10 @@ export const RouteAuthoringPage: React.FC = () => {
   }, []);
 
   const current = listings?.[index] ?? null;
-  const ref = current ? resolveWardMapRef(current.area, current.plot ?? null, current.apartmentBuilding ?? null, current.buildingType) : null;
+  const ref = useMemo(
+    () => (current ? resolveWardMapRef(current.area, current.plot ?? null, current.apartmentBuilding ?? null, current.buildingType) : null),
+    [current],
+  );
   const mapKey = ref?.mapKey ?? PREVIEW_MAPS[0].mapKey;
   const asset = useWardMapAsset(mapKey);
   const json = asset.status === 'ready' ? asset.json : null;
@@ -49,14 +59,16 @@ export const RouteAuthoringPage: React.FC = () => {
   const plotKey = ref ? (ref.highlightKind === 'apart' ? 'apart' : String(ref.highlightPlot)) : '';
   const key = `${mapKey}|${plotKey}`;
 
-  // 起点(0..1): 家=最寄りエーテライトシャード / アパート=幾何解決。
-  const origin = useMemo(() => {
-    if (!current || !json) return null;
-    const oi = current.buildingType === 'apartment' ? getApartmentOrigin(json, mapKey) : getPlotOriginNode(current.area, current.plot);
-    return oi ? { x: oi.x, y: oi.y } : null;
-  }, [current, json, mapKey]);
+  // 全住所を仮ツアー steps に (本番と同じ配置文脈で番号ノードも出す)。
+  const steps = useMemo<TourStep[]>(() => (listings ?? []).map((l) => ({ id: l.id, listing: l })), [listings]);
 
-  // 入口(0..1): 収録入口 → 箱縁幾何 → なし。
+  // 本番と同一の地図モデル(経路/起点/箱ハイライト/番号ノード)。純関数・読むだけ=安全。
+  const mapModel = useMemo(
+    () => (json && ref ? buildTourMapPlacements(json, mapKey, ref, current, steps, index) : null),
+    [json, ref, mapKey, current, steps, index],
+  );
+
+  // 入口(0..1): 収録入口 → 箱縁幾何 → なし。なぞり終点の目印(赤丸)。
   const door = useMemo(() => {
     if (!current || !json || !ref) return null;
     const ent = getPlotEntrance(current.area, current.plot, current.buildingType, current.apartmentBuilding);
@@ -66,44 +78,87 @@ export const RouteAuthoringPage: React.FC = () => {
     return null;
   }, [current, json, ref, w, h]);
 
-  // 初期点列: 既存 override があれば展開、なければ 起点→入口 の 2 点(road)。
+  // 初期点列: override がある家だけ展開。無ければ空(自動経路は表示レイヤーが金線で見せる)。
   const initialPoints = useMemo((): RoutePoint[] => {
     const ex = EXISTING[mapKey]?.[plotKey];
-    if (ex) return segmentsToPoints(migrateLegacyOverride(ex));
-    if (origin && door) return [{ x: origin.x, y: origin.y, kind: 'road' }, { x: door.x, y: door.y, kind: 'road' }];
-    return [];
-  }, [mapKey, plotKey, origin, door]);
+    return ex ? segmentsToPoints(migrateLegacyOverride(ex)) : [];
+  }, [mapKey, plotKey]);
 
   const points = pointsByKey[key] ?? initialPoints;
   const edgesPx = useMemo((): PolylineEdge[] => (json ? json.edges.map((e) => ({ a: e.a, b: e.b, polyline: e.polyline.map(([x, y]) => [x * w, y * h] as Pt) })) : []), [json, w, h]);
 
-  const setPoints = (next: RoutePoint[]) => setPointsByKey((prev) => ({ ...prev, [key]: next }));
+  const markDirty = () => setDirty((prev) => (prev.has(key) ? prev : new Set(prev).add(key)));
+  const setPointsFn = (fn: (prev: RoutePoint[]) => RoutePoint[]) => {
+    setPointsByKey((prevAll) => ({ ...prevAll, [key]: fn(prevAll[key] ?? initialPoints) }));
+    markDirty();
+  };
+
+  // 目的地の箱ハイライト(本番 TourNavMap と同じ付け外し)。
+  useEffect(() => {
+    const host = hostRef.current;
+    if (!host) return;
+    host.querySelectorAll('.housing-tour-target-box').forEach((el) => el.classList.remove('housing-tour-target-box'));
+    const id = mapModel?.targetElId;
+    if (!id) return;
+    const el = host.querySelector(`[id="${id}"]`);
+    if (el) el.classList.add('housing-tour-target-box');
+  }, [asset.status, mapModel?.targetElId, index]);
 
   function clientToNorm(clientX: number, clientY: number): [number, number] | null {
     const svg = svgRef.current;
     const ctm = svg?.getScreenCTM?.();
     if (!svg || !ctm) return null;
     const p = svg.createSVGPoint(); p.x = clientX; p.y = clientY;
-    const t = p.matrixTransform(ctm.inverse());
-    let nx = t.x / w, ny = t.y / h;
-    if (snap) { const near = nearestPointOnPolylines(t.x, t.y, edgesPx); if (near && near.dist < SNAP_PX) { nx = near.x / w; ny = near.y / h; } }
+    const tp = p.matrixTransform(ctm.inverse());
+    let nx = tp.x / w, ny = tp.y / h;
+    if (snap) { const near = nearestPointOnPolylines(tp.x, tp.y, edgesPx); if (near && near.dist < SNAP_PX) { nx = near.x / w; ny = near.y / h; } }
     return [nx, ny];
   }
 
   function onStageDown(e: ReactPointerEvent<SVGSVGElement>) {
     if (dragIdx !== null) return;
     const n = clientToNorm(e.clientX, e.clientY);
-    if (n) setPoints([...points, { x: n[0], y: n[1], kind: mode }]);
+    if (!n) return;
+    (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
+    strokeStartRef.current = points.length;
+    lastSampleRef.current = n;
+    setPointsFn((prev) => [...prev, { x: n[0], y: n[1], kind: mode }]);
   }
-  function onPointerMove(e: ReactPointerEvent<SVGSVGElement>) {
-    if (dragIdx === null) return;
+  function onStageMove(e: ReactPointerEvent<SVGSVGElement>) {
     const n = clientToNorm(e.clientX, e.clientY);
     if (!n) return;
-    const next = points.slice(); next[dragIdx] = { ...next[dragIdx], x: n[0], y: n[1] }; setPoints(next);
+    if (dragIdx !== null) {
+      setPointsFn((prev) => { const next = prev.slice(); next[dragIdx] = { ...next[dragIdx], x: n[0], y: n[1] }; return next; });
+      return;
+    }
+    if (strokeStartRef.current === null) return;
+    const last = lastSampleRef.current;
+    if (last && Math.hypot(n[0] - last[0], n[1] - last[1]) < MIN_SAMPLE_DIST) return;
+    lastSampleRef.current = n;
+    setPointsFn((prev) => [...prev, { x: n[0], y: n[1], kind: mode }]);
+  }
+  function endStroke() {
+    setDragIdx(null);
+    const start = strokeStartRef.current;
+    strokeStartRef.current = null;
+    lastSampleRef.current = null;
+    if (start === null) return;
+    setPointsFn((prev) => {
+      const stroke = prev.slice(start);
+      if (stroke.length <= 2) return prev;
+      const kind = stroke[0].kind;
+      const simplified = simplifyPolyline(stroke.map((p) => [p.x, p.y] as Pt), SIMPLIFY_EPS).map(([x, y]) => ({ x, y, kind }));
+      return [...prev.slice(0, start), ...simplified];
+    });
   }
 
-  const preview = useMemo(() => routeToPaths(pointsToSegments(points), w, h), [points, w, h]);
+  // 編集点列があればそれを、無ければ本番モデルの経路を金線で描く(どちらも同じ見た目)。
+  const editPaths = useMemo(() => routeToPaths(pointsToSegments(points), w, h), [points, w, h]);
+  const displayRoad = points.length ? editPaths.routePath : mapModel?.routePath ?? null;
+  const displayJump = points.length ? editPaths.routeJumpPath : mapModel?.routeJumpPath ?? null;
+
   const goto = (i: number) => setIndex(Math.max(0, Math.min((listings?.length ?? 1) - 1, i)));
+  const resetHouse = () => { setPointsByKey((prev) => { const n = { ...prev }; delete n[key]; return n; }); markDirty(); };
 
   function buildExport(): Record<string, Record<string, { segments: RouteSegment[] }>> {
     const out: Record<string, Record<string, { segments: RouteSegment[] }>> = {};
@@ -121,18 +176,21 @@ export const RouteAuthoringPage: React.FC = () => {
     try {
       const res = await fetch('/__save-routes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(buildExport(), null, 2) });
       const j = (await res.json()) as { ok: boolean; maps?: number; error?: string };
-      setSaveMsg(j.ok ? `保存しました ✓ (${j.maps} マップ) — Claude に「経路を保存した」と伝えてください` : `保存失敗: ${j.error}`);
+      if (j.ok) { setDirty(new Set()); setSaveMsg(`保存しました ✓ (${j.maps} マップ)`); }
+      else setSaveMsg(`保存失敗: ${j.error}`);
     } catch (e) { setSaveMsg(`保存失敗: ${String(e)}`); }
   }
 
   if (!listings) return <div className="housing-workspace" data-theme="dark" style={{ padding: 16 }}>全住所を読み込み中…</div>;
   const total = listings.length;
+  const isOverridden = !!EXISTING[mapKey]?.[plotKey] || (pointsByKey[key]?.length ?? 0) > 0;
 
   return (
     <div className="housing-workspace housing-workspace-flow" data-theme="dark" style={{ padding: 12 }}>
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap', paddingBottom: 10 }}>
         <span>{index + 1} / {total}</span>
         <strong>{current?.title ?? '-'}</strong>
+        <span style={{ opacity: 0.7 }}>{isOverridden ? '上書き済み' : '自動経路'}</span>
         <button type="button" onClick={() => goto(index - 1)} disabled={index === 0}>前へ</button>
         <button type="button" onClick={() => goto(index + 1)} disabled={index >= total - 1}>次へ</button>
         <select value={index} onChange={(e) => goto(Number(e.target.value))} aria-label="住所ジャンプ">
@@ -142,48 +200,73 @@ export const RouteAuthoringPage: React.FC = () => {
         <button type="button" onClick={() => setMode('road')} style={{ fontWeight: mode === 'road' ? 700 : 400 }}>道</button>
         <button type="button" onClick={() => setMode('jump')} style={{ fontWeight: mode === 'jump' ? 700 : 400 }}>ジャンプ</button>
         <label><input type="checkbox" checked={snap} onChange={(e) => setSnap(e.target.checked)} /> 道スナップ</label>
-        <button type="button" onClick={() => setPointsByKey((prev) => { const n = { ...prev }; delete n[key]; return n; })}>この区画をリセット</button>
-        <button type="button" onClick={save}>保存(ファイルへ直接)</button>
+        <button type="button" onClick={resetHouse}>この家を描き直す</button>
+        <button type="button" onClick={save}>保存(全部まとめて)</button>
+        <span style={{ opacity: 0.85 }}>{dirty.size > 0 ? `${dirty.size}件 未保存` : '保存済み'}</span>
         {saveMsg && <span style={{ opacity: 0.85 }}>{saveMsg}</span>}
       </div>
       {asset.status === 'ready' && json && (
         <div style={{ position: 'relative', aspectRatio: `${w} / ${h}`, maxWidth: `calc(80vh * ${w} / ${h})` }}>
-          <div className="housing-map-svg-host" dangerouslySetInnerHTML={{ __html: asset.svg }} />
+          <div ref={hostRef} className="housing-map-svg-host" dangerouslySetInnerHTML={{ __html: asset.svg }} />
           <svg
             ref={svgRef}
             className="housing-map-overlay"
             viewBox={`0 0 ${w} ${h}`}
             preserveAspectRatio="xMidYMid meet"
-            style={{ position: 'absolute', inset: 0, cursor: 'crosshair' }}
+            style={{ position: 'absolute', inset: 0, cursor: 'crosshair', touchAction: 'none' }}
             onPointerDown={onStageDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={() => setDragIdx(null)}
-            onPointerLeave={() => setDragIdx(null)}
+            onPointerMove={onStageMove}
+            onPointerUp={endStroke}
+            onPointerLeave={endStroke}
           >
-            {preview.routePath && <path d={preview.routePath} fill="none" stroke="#00e0ff" strokeWidth={4} strokeLinejoin="round" strokeLinecap="round" />}
-            {preview.routeJumpPath && <path d={preview.routeJumpPath} fill="none" stroke="#ff5df0" strokeWidth={4} strokeDasharray="10 8" strokeLinecap="round" />}
-            {origin && <circle cx={origin.x * w} cy={origin.y * h} r={11} fill="none" stroke="#7fff5a" strokeWidth={3} />}
-            {door && <circle cx={door.x * w} cy={door.y * h} r={11} fill="none" stroke="#ff5a5a" strokeWidth={3} />}
+            {displayRoad && (
+              <>
+                <path className="housing-tour-route-glow" d={displayRoad} fill="none" />
+                <path data-testid="editor-route" className="housing-tour-route-core" d={displayRoad} fill="none">
+                  <animate attributeName="stroke-dashoffset" from="0" to="-64" dur="1.1s" repeatCount="indefinite" />
+                </path>
+              </>
+            )}
+            {displayJump && <path className="housing-tour-route-jump" d={displayJump} fill="none" />}
+            {mapModel?.origin && (
+              <g className="housing-tour-map-origin-mark">
+                <circle className="housing-tour-map-origin-pulse" cx={mapModel.origin.x} cy={mapModel.origin.y} r={14}>
+                  <animate attributeName="r" from="14" to="30" dur="1.6s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" from="0.9" to="0" dur="1.6s" repeatCount="indefinite" />
+                </circle>
+                <circle className="housing-tour-map-origin-core" cx={mapModel.origin.x} cy={mapModel.origin.y} r={7} />
+              </g>
+            )}
+            {door && <circle cx={door.x * w} cy={door.y * h} r={7} fill="none" stroke="#ff5a5a" strokeWidth={2.5} />}
             {points.map((p, i) => (
               <circle
                 key={i}
                 cx={p.x * w}
                 cy={p.y * h}
-                r={8}
+                r={7}
                 fill={p.kind === 'jump' ? '#ff5df0' : '#00e0ff'}
                 stroke="#fff"
                 strokeWidth={1.5}
                 style={{ cursor: 'grab' }}
                 onPointerDown={(e) => { e.stopPropagation(); (e.target as Element).setPointerCapture?.(e.pointerId); setDragIdx(i); }}
-                onDoubleClick={(e) => { e.stopPropagation(); setPoints(points.filter((_, idx) => idx !== i)); }}
+                onDoubleClick={(e) => { e.stopPropagation(); setPointsFn((prev) => prev.filter((_, idx) => idx !== i)); }}
               />
             ))}
           </svg>
+          {mapModel?.placed.map((node) => (
+            <div
+              key={node.index}
+              className={`housing-tour-map-node housing-tour-map-node--${node.status}`}
+              style={{ left: `${((node.x / w) * 100).toFixed(3)}%`, top: `${((node.y / h) * 100).toFixed(3)}%`, pointerEvents: 'none' }}
+            >
+              {node.status === 'arrived' ? '✓' : node.index + 1}
+            </div>
+          ))}
         </div>
       )}
       <p style={{ opacity: 0.7, marginTop: 8, fontSize: 13 }}>
-        クリックで点追加(現モードの色)/点ドラッグで移動/点ダブルクリックで削除。
-        緑リング=起点エーテライト・赤リング=入口。青線=道・桃破線=ジャンプ(弧)。道スナップONで道に吸着。
+        道の上をドラッグでなぞる=経路(現モードの色)。つまみドラッグ=移動 / つまみダブルクリック=削除 / 「この家を描き直す」=白紙。
+        金線=本番の経路。青丸=起点 / 赤丸=入口。道スナップONで道に吸着。ジャンプ区間だけ「ジャンプ」に切替。
       </p>
     </div>
   );
