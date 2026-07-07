@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { routeToPaths, arcJumpPath, migrateLegacyOverride, pointsToSegments, segmentsToPoints, type Pt } from '../routePaths';
+import { routeToPaths, arcJumpPath, migrateLegacyOverride, pointsToSegments, segmentsToPoints, simplifyPolyline, type Pt } from '../routePaths';
 
 describe('routeToPaths', () => {
   it('road セグは M/L 直線サブパスで px 化', () => {
@@ -83,6 +83,34 @@ describe('segmentsToPoints', () => {
       { x: 0, y: 0, kind: 'road' }, { x: 0.1, y: 0, kind: 'road' }, { x: 0.2, y: 0, kind: 'jump' },
     ]);
     expect(pointsToSegments(pts)).toEqual(segs);
+  });
+});
+
+describe('simplifyPolyline', () => {
+  it('2点以下はそのまま返す', () => {
+    expect(simplifyPolyline([[0, 0]], 0.01)).toEqual([[0, 0]]);
+    expect(simplifyPolyline([[0, 0], [1, 1]], 0.01)).toEqual([[0, 0], [1, 1]]);
+  });
+
+  it('ほぼ直線上の点は端点2つに畳む', () => {
+    const line: Pt[] = [[0, 0], [0.25, 0.001], [0.5, 0], [0.75, 0.001], [1, 0]];
+    expect(simplifyPolyline(line, 0.01)).toEqual([[0, 0], [1, 0]]);
+  });
+
+  it('明確な頂点は保持する（L字）', () => {
+    const bend: Pt[] = [[0, 0], [0.5, 0], [0.5, 0.5]];
+    const out = simplifyPolyline(bend, 0.01);
+    expect(out).toContainEqual([0.5, 0]);
+    expect(out[0]).toEqual([0, 0]);
+    expect(out[out.length - 1]).toEqual([0.5, 0.5]);
+  });
+
+  it('端点は常に残る', () => {
+    const many: Pt[] = Array.from({ length: 20 }, (_, i) => [i / 19, Math.sin(i) * 0.0005] as Pt);
+    const out = simplifyPolyline(many, 0.01);
+    expect(out[0]).toEqual(many[0]);
+    expect(out[out.length - 1]).toEqual(many[many.length - 1]);
+    expect(out.length).toBeLessThan(many.length);
   });
 });
 

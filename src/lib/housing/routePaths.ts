@@ -84,3 +84,36 @@ export function segmentsToPoints(segs: RouteSegment[]): RoutePoint[] {
   }
   return pts;
 }
+
+/** 線分 a→b への点 p の垂直距離(線分の端でクランプ)。 */
+function perpDist([px, py]: Pt, ax: number, ay: number, bx: number, by: number): number {
+  const dx = bx - ax, dy = by - ay;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(px - ax, py - ay);
+  const tRaw = ((px - ax) * dx + (py - ay) * dy) / len2;
+  const tt = Math.max(0, Math.min(1, tRaw));
+  const cx = ax + tt * dx, cy = ay + tt * dy;
+  return Math.hypot(px - cx, py - cy);
+}
+
+/**
+ * Ramer–Douglas–Peucker: 折れ線 pts を許容誤差 epsilon(正規化座標)で間引く純関数。
+ * 端点は必ず保持。なぞり(ドラッグ)で増えた過剰な点を少数の折れ線に畳むのに使う。
+ */
+export function simplifyPolyline(pts: Pt[], epsilon: number): Pt[] {
+  if (pts.length <= 2) return pts.slice();
+  let maxDist = 0;
+  let idx = 0;
+  const [ax, ay] = pts[0];
+  const [bx, by] = pts[pts.length - 1];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const d = perpDist(pts[i], ax, ay, bx, by);
+    if (d > maxDist) { maxDist = d; idx = i; }
+  }
+  if (maxDist > epsilon) {
+    const left = simplifyPolyline(pts.slice(0, idx + 1), epsilon);
+    const right = simplifyPolyline(pts.slice(idx), epsilon);
+    return left.slice(0, -1).concat(right);
+  }
+  return [pts[0], pts[pts.length - 1]];
+}
