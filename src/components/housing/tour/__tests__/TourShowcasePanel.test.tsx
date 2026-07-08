@@ -171,7 +171,8 @@ describe('TourShowcasePanel — 生きたカード hero (段階2)', () => {
       </I18nextProvider>,
     );
     const wrap = container.querySelector('.housing-tour-dest-thumb-wrap');
-    expect(wrap?.querySelector('.housing-card-ambient-slideshow')).not.toBeNull();
+    expect(wrap).not.toBeNull();
+    expect(wrap!.querySelector('.housing-card-ambient-slideshow')).not.toBeNull();
     expect(container.querySelector('.housing-tour-dest-thumb')).not.toBeNull(); // ベース img 残存
   });
 });
