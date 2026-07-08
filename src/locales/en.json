@@ -2758,7 +2758,9 @@
                 "actions": {
                     "prev": "Previous",
                     "arrive_next": "Arrived → Next",
-                    "complete": "Complete tour"
+                    "complete": "Complete tour",
+                    "view": "View",
+                    "next": "Next"
                 },
                 "dest": {
                     "address": "Address",
@@ -2766,8 +2768,12 @@
                     "world": "World",
                     "directions": "Directions",
                     "teleport_to": "Teleport to {{aetheryte}}",
-                    "memo": "Note",
-                    "no_memo": "No note"
+                    "memo": "Description",
+                    "no_memo": "No description"
+                },
+                "viewing": {
+                    "started_at": "Viewing since {{time}}",
+                    "elapsed": "{{elapsed}} elapsed"
                 },
                 "report_button": "Info wrong? Report it",
                 "empty": {

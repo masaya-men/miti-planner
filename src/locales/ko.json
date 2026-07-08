@@ -2723,7 +2723,9 @@
                 "actions": {
                     "prev": "이전",
                     "arrive_next": "도착함 → 다음으로",
-                    "complete": "투어 완료"
+                    "complete": "투어 완료",
+                    "view": "견학",
+                    "next": "다음"
                 },
                 "dest": {
                     "address": "주소",
@@ -2731,8 +2733,12 @@
                     "world": "월드",
                     "directions": "가는 길",
                     "teleport_to": "{{aetheryte}}(으)로 이동",
-                    "memo": "한 줄 메모",
-                    "no_memo": "메모가 없습니다"
+                    "memo": "소개글",
+                    "no_memo": "소개글이 없습니다"
+                },
+                "viewing": {
+                    "started_at": "{{time}}부터 견학 중",
+                    "elapsed": "{{elapsed}} 경과"
                 },
                 "report_button": "정보가 다른가요? 신고하기",
                 "empty": {

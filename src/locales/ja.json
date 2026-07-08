@@ -2779,7 +2779,9 @@
                 "actions": {
                     "prev": "前へ",
                     "arrive_next": "到着した → 次へ",
-                    "complete": "ツアーを完了"
+                    "complete": "ツアーを完了",
+                    "view": "見学",
+                    "next": "次へ"
                 },
                 "dest": {
                     "address": "住所",
@@ -2787,8 +2789,12 @@
                     "world": "ワールド",
                     "directions": "行き方",
                     "teleport_to": "{{aetheryte}} へ移動",
-                    "memo": "ひとことメモ",
-                    "no_memo": "メモはありません"
+                    "memo": "紹介文",
+                    "no_memo": "紹介文はありません"
+                },
+                "viewing": {
+                    "started_at": "{{time}} から見学中",
+                    "elapsed": "{{elapsed}} 経過"
                 },
                 "report_button": "情報が違う・報告する",
                 "empty": {
