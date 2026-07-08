@@ -194,6 +194,7 @@
   --housing-tour-steps-fade: 32px;      /* ステップ一覧の上下端フェード(スクロール示唆)の距離 */
   --housing-tour-map-intro-dur: 0.75s;  /* 目的地変更時「全景→ズームイン」演出の尺 */
   --housing-tour-map-intro-ease: cubic-bezier(0.22, 1, 0.36, 1); /* 同・イージング(ease-out系) */
+  --housing-tour-map-fade-dur: 0.4s;    /* 目的地変更時の地図クロスフェード(dip)の尺 */
   --housing-tour-step-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* ステップ連結線の伸び/ドットのポップ(バネ・オーバーシュート) */
   /* ===== 入口オーサリングページ (開発専用ツール・Task5 sub) ===== */
   --housing-entrance-marker: var(--housing-text-mute);       /* 未補正(幾何のまま) */
@@ -6296,8 +6297,11 @@ select.housing-input option {
 /* 目的地変更時の「全景→ズームイン」演出中だけ transform をトランジション。
    通常のパン/ズーム(手動)は即時反応させたいので、このクラスは演出中のみ付与する。 */
 .housing-map-zoom.is-intro {
-  transition: transform var(--housing-tour-map-intro-dur) var(--housing-tour-map-intro-ease);
+  transition: transform var(--housing-tour-map-intro-dur) var(--housing-tour-map-intro-ease),
+              opacity var(--housing-tour-map-fade-dur) ease;
 }
+/* 目的地変更時のフェードアウト/イン(dip)。is-intro と併用で opacity もトランジションされる。 */
+.housing-map-zoom.is-hidden { opacity: 0; }
 
 /* 起点エーテライトの名前ラベル(定サイズ HTML・画面座標へ投影配置)。origin マーカーの上に浮かせ、
    下向きの小三角で起点を指す。ズーム演出中は非表示→着地でふわっと表示。地図ドラッグを邪魔しない。 */

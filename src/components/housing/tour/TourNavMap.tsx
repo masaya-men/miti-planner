@@ -10,7 +10,7 @@ export interface TourNavMapProps {
   svg: string | null;
   viewBox: { w: number; h: number } | null;
   model: TourMapModel | null;
-  /** 目的地(ステップ)の識別子。これが変わったら「全景→ズームイン」を再生する。
+  /** 目的地(ステップ)の識別子。これが変わったら演出(ズームアウト→切替→ズームイン)を再生する。
    *  経路の形(route 文字列)ではなくステップそのもので判定する(アパルトメントは経路が無く
    *  連続すると route が同一になり、目的地変更を取りこぼすため)。 */
   stepKey: string | number;
@@ -18,53 +18,69 @@ export interface TourNavMapProps {
   originName?: string | null;
 }
 
-const FIT_PAD_PX = 28; // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
-const OVERVIEW_HOLD_MS = 350; // 目的地変更時、全景を見せてからズームインを始めるまでの間（実画面ゲートで調整可）
-const ZOOM_SETTLE_MS = 1000;  // ズームイン完了の保険（transitionend 不発時=全景と目標が同一等でも演出状態を確実に解除）
+const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
+const OVERVIEW_HOLD_MS = 350;  // 初回のみ: 全景を見せてからズームインを始めるまでの間
+const OUT_MS = 550;            // ステップ変更: ズームアウト+フェードアウトの尺(この後に地図を差し替える)
+const ZOOM_SETTLE_MS = 1000;   // ズームイン完了の保険(transitionend 不発時=全景と目標が同一等でも演出解除)
 
-/** ツアー中(Nav) 中央: 実エーテライト起点→家の経路をアニメし、目的地の実区画(#plot_N/#apart_N)を光らせるナビ地図。
- * 地図は指/マウスでパン&ズーム可。既定は起点〜家の経路にフィット（見切れ厳禁）、ステップが変わると自動で既定へ戻る。 */
+/** バッファ表示する1枚の地図データ。loading 中も旧地図をこの形で保持し、スケルトンの「パッ」を消す。 */
+type MapData = { svg: string; viewBox: { w: number; h: number }; model: TourMapModel | null };
+
+/** ツアー中(Nav) 中央: 実エーテライト起点→家の経路をアニメし、目的地の実区画を光らせるナビ地図。
+ * 目的地が変わると「ズームアウト→フェードで地図をシームレス切替→ズームイン」で着地。指/マウスでパン&ズーム可。 */
 export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, model, stepKey, originName }) => {
   const { t } = useTranslation();
   const hostRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const route = model?.routePath ?? null;
-  const routeJump = model?.routeJumpPath ?? null;
-  const origin = model?.origin ?? null;
-  const targetOutline = model?.targetOutline ?? null;
 
   const [view, setView] = useState<MapView>({ scale: 1, tx: 0, ty: 0 });
   const [wrapSize, setWrapSize] = useState<{ w: number; h: number } | null>(null);
-  // 目的地変更時の「全景→ズームイン」演出中フラグ(CSS transition ON)。手動操作・リサイズでは false。
-  const [introAnim, setIntroAnim] = useState(false);
-  // 演出(ホールド+ズーム)進行中は origin ラベルを隠す(演出中は view が目標へ飛びラベルがズレるため)。
-  const [introBusy, setIntroBusy] = useState(false);
+  // バッファ表示中の地図(loading でも旧地図を出したままにしてポップを消す)。
+  const [displayed, setDisplayed] = useState<MapData | null>(null);
+  const [mapHidden, setMapHidden] = useState(false); // 演出のフェード(true=不可視)
+  const [introAnim, setIntroAnim] = useState(false); // transform/opacity トランジション ON
+  const [introBusy, setIntroBusy] = useState(false); // 演出中(origin ラベルを隠す)
+
+  const displayedRef = useRef<MapData | null>(null);
+  const wrapSizeRef = useRef<{ w: number; h: number } | null>(null);
+  const latestReadyRef = useRef<(MapData & { key: string }) | null>(null); // 最新 ready の地図(差し替え元)
   const prevStepKey = useRef<string | null>(null);
-  const introActive = useRef(false); // 演出(全景→ズーム)進行中。非ステップ変更(リサイズ等)で演出を殺さないためのガード。
+  const pendingKeyRef = useRef<string | null>(null); // 差し替え待ちの目的地キー
+  const outDoneRef = useRef(false);                   // ズームアウト完了フラグ
+  const introActive = useRef(false);                  // 演出進行中(背景更新で殺さないためのガード)
   const introTimers = useRef<{ hold?: number; raf?: number; settle?: number }>({});
   const reduced = useReducedMotion();
 
-  // wrap の実 px を観測（forced reflow 回避のため ResizeObserver）。
+  // 表示中の地図から overlay 用の派生値(すべて displayed 由来。props 直参照はしない=バッファのため)。
+  const dm = displayed?.model ?? null;
+  const dSvg = displayed?.svg ?? null;
+  const dViewBox = displayed?.viewBox ?? null;
+  const route = dm?.routePath ?? null;
+  const routeJump = dm?.routeJumpPath ?? null;
+  const origin = dm?.origin ?? null;
+  const targetOutline = dm?.targetOutline ?? null;
+  const hasDisplayed = displayed !== null;
+
+  // wrap の実 px を観測(ResizeObserver)。ref も同期(コールバックから読むため)。wrap は常設なので一度だけ観測。
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
     const ro = new ResizeObserver((entries) => {
       const r = entries[0]?.contentRect;
-      if (r) setWrapSize({ w: r.width, h: r.height });
+      if (r) { const ws = { w: r.width, h: r.height }; wrapSizeRef.current = ws; setWrapSize(ws); }
     });
     ro.observe(wrap);
     return () => ro.disconnect();
-  }, [status]);
+  }, []);
 
-  // 目標(既定)ビュー = 起点〜家の経路にフィット。手動リセットとステップ着地の両方で使う純計算。
-  // deps は origin オブジェクトでなく座標プリミティブで比較。mapModel 再生成で origin 参照だけ変わる
-  // 背景更新ではリセットを起こさず、実ステップ変更(route 文字列が必ず変わる)時のみ動く。
-  const computeTarget = useCallback((): MapView | null => {
-    if (!viewBox || !wrapSize) return null;
-    const bbox = routeBbox([route, routeJump], origin ? [origin] : []);
+  // 指定の地図データ+wrap px から既定(フィット)ビューを計算する純関数。
+  const computeTargetFor = useCallback((md: MapData | null, ws: { w: number; h: number } | null): MapView | null => {
+    if (!md?.viewBox || !ws) return null;
+    const m = md.model;
+    const bbox = routeBbox([m?.routePath, m?.routeJumpPath], m?.origin ? [m.origin] : []);
     if (!bbox) return { scale: 1, tx: 0, ty: 0 };
-    return computeDefaultView(bbox, viewBox, wrapSize, FIT_PAD_PX);
-  }, [viewBox, wrapSize, route, routeJump, origin?.x, origin?.y]);
+    return computeDefaultView(bbox, md.viewBox, ws, FIT_PAD_PX);
+  }, []);
 
   const clearIntroTimers = useCallback(() => {
     const tm = introTimers.current;
@@ -73,58 +89,142 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
     if (tm.settle) { clearTimeout(tm.settle); tm.settle = undefined; }
   }, []);
 
-  // 演出の後始末(タイマー破棄 + フラグ/クラス解除)。完了・中断・手動リセットの共通処理。
+  // 演出の後始末(タイマー破棄 + フラグ/クラス解除 + フェード復帰)。完了・中断・手動リセットの共通処理。
   const endIntro = useCallback(() => {
     clearIntroTimers();
     introActive.current = false;
+    pendingKeyRef.current = null;
+    outDoneRef.current = false;
     setIntroAnim(false);
     setIntroBusy(false);
+    setMapHidden(false);
   }, [clearIntroTimers]);
 
-  // 手動「デフォルト表示に戻す」= 即座にフィット(アニメなし)。演出中でも中断してスナップ。
+  const setDisplayedBoth = useCallback((md: MapData | null) => {
+    displayedRef.current = md;
+    setDisplayed(md);
+  }, []);
+
+  // 差し替え条件(ズームアウト完了 && 新地図 ready && キー一致)が揃ったら、
+  // 地図を差し替え→全景で固定(不可視)→次フレームでフェードイン+ズームイン。
+  const tryDoSwap = useCallback(() => {
+    const key = pendingKeyRef.current;
+    if (!key || !outDoneRef.current) return;
+    const ready = latestReadyRef.current;
+    if (!ready || ready.key !== key) return; // 新地図がまだ ready でない
+    pendingKeyRef.current = null;
+    outDoneRef.current = false;
+    const md: MapData = { svg: ready.svg, viewBox: ready.viewBox, model: ready.model };
+    setDisplayedBoth(md);
+    setView({ scale: 1, tx: 0, ty: 0 }); // 新地図を全景で(まだ不可視)
+    const target = computeTargetFor(md, wrapSizeRef.current) ?? { scale: 1, tx: 0, ty: 0 };
+    clearIntroTimers();
+    introTimers.current.raf = requestAnimationFrame(() => {
+      setMapHidden(false); // フェードイン
+      setView(target);     // ズームイン(CSS transition)
+      introTimers.current.settle = window.setTimeout(endIntro, ZOOM_SETTLE_MS);
+    });
+  }, [computeTargetFor, clearIntroTimers, endIntro, setDisplayedBoth]);
+
+  // props(status/svg/model)が変わるたび: latestReady 更新 / 初回バッファ / アイドル背景更新 / 差し替え再開 / none・error 処理。
+  useEffect(() => {
+    if (status === 'ready' && svg && viewBox) {
+      const key = String(stepKey);
+      latestReadyRef.current = { svg, viewBox, model, key };
+      if (!displayedRef.current) {
+        setDisplayedBoth({ svg, viewBox, model }); // 初回表示(演出は下の step-change effect が hasDisplayed で拾う)
+      } else if (!introActive.current && key === prevStepKey.current) {
+        setDisplayedBoth({ svg, viewBox, model }); // アイドル中の背景更新(同一ステップの overlay 差し替え・アニメ無し)
+      }
+      tryDoSwap(); // 差し替え待ちなら実行
+    } else if (status === 'none' || status === 'error') {
+      // 現ステップに地図が無い/失敗: 演出を畳んでバッファをクリア→none/error 表示。
+      endIntro();
+      if (displayedRef.current) setDisplayedBoth(null);
+    }
+    // status === 'loading': 何もしない(旧地図を出したまま=ポップ回避)
+  }, [status, svg, viewBox, model, stepKey, tryDoSwap, endIntro, setDisplayedBoth]);
+
+  // 手動「デフォルト表示に戻す」= 即座に現在の地図へフィット(アニメなし)。演出中でも中断してスナップ。
   const resetView = useCallback(() => {
-    const target = computeTarget();
+    const target = computeTargetFor(displayedRef.current, wrapSizeRef.current);
     if (!target) return;
     endIntro();
     setView(target);
-  }, [computeTarget, endIntro]);
+  }, [computeTargetFor, endIntro]);
 
-  // 目的地が変わった時だけ「全景(1倍)→ホールド→ズームイン」で着地。
-  // 初回表示・リサイズ・reduced-motion は即フィット。演出中(introActive)の非ステップ変更
-  // (別ワード再ロードに伴う wrapSize 更新など)は無視 → 演出を殺さない=どの家に進んでも最後まで再生。
-  // paint 前に全景を確定させてチラつき(直前の家のフィットが1フレーム見える)を防ぐため useLayoutEffect。
+  // 目的地変更/初回で演出を駆動。deps に hasDisplayed を入れ、初回バッファ到着時にも再実行する
+  // (背景更新=displayed の中身だけ変わるケースでは hasDisplayed 不変 → 再実行せず手動パンを保持)。
+  // paint 前に全景を確定してチラつきを防ぐため useLayoutEffect。
   useLayoutEffect(() => {
-    const target = computeTarget();
-    if (!target) return; // 地図がまだ準備できていない(loading等)。prevStepKey は据え置き=準備できたら実行。
+    if (!wrapSize) return; // 計測待ち(揃ったら再実行)
     const key = String(stepKey);
-    // 初回に地図が準備できた瞬間も演出する(=ツアー開始1つ目のズームインを見せる)。
-    // computeTarget が null の間(loading等)は上で return 済み → 地図が実際に見える状態になってから再生。
     const firstReady = prevStepKey.current === null;
     const isStepChange = prevStepKey.current !== null && prevStepKey.current !== key;
+
+    if (!firstReady && !isStepChange) {
+      // 同一ステップの再描画(リサイズ等): 演出中でなければ現在の地図にフィット。
+      if (!introActive.current && displayedRef.current) {
+        const tgt = computeTargetFor(displayedRef.current, wrapSize);
+        if (tgt) setView(tgt);
+      }
+      return;
+    }
+    if (firstReady && !displayedRef.current) return; // 初回は最初の地図が来るまで待つ(hasDisplayed で再実行)
+
     prevStepKey.current = key;
 
-    if ((isStepChange || firstReady) && !reduced) {
+    if (reduced) {
+      // reduced motion: 差し替え+スナップ(演出なし)
+      endIntro();
+      pendingKeyRef.current = key;
+      outDoneRef.current = true;
+      tryDoSwap();
+      if (firstReady) {
+        const tgt = computeTargetFor(displayedRef.current, wrapSize);
+        if (tgt) setView(tgt);
+      }
+      return;
+    }
+
+    if (firstReady) {
+      // 初回: 旧地図が無いのでズームアウト/フェード無し。全景→ホールド→ズームイン。
       clearIntroTimers();
       introActive.current = true;
       setIntroBusy(true);
       setIntroAnim(false);
-      setView({ scale: 1, tx: 0, ty: 0 }); // まず全景を見せる
+      setMapHidden(false);
+      setView({ scale: 1, tx: 0, ty: 0 });
+      const target = computeTargetFor(displayedRef.current, wrapSize);
       introTimers.current.hold = window.setTimeout(() => {
         introTimers.current.raf = requestAnimationFrame(() => {
           setIntroAnim(true);
-          setView(target); // CSS transition でズームイン
+          if (target) setView(target);
         });
         introTimers.current.settle = window.setTimeout(endIntro, ZOOM_SETTLE_MS);
       }, OVERVIEW_HOLD_MS);
-    } else if (!introActive.current) {
-      setView(target); // リサイズ/初回/同一ステップ: 演出中でなければフィットにスナップ
+      return;
     }
-  }, [computeTarget, clearIntroTimers, endIntro, reduced, stepKey]);
 
-  // アンマウント時のみタイマー破棄(再実行では破棄しない=ホールド中の演出を守る)。
+    // isStepChange: dip = ズームアウト+フェードアウト → 新地図 ready で差し替え → ズームイン+フェードイン。
+    clearIntroTimers();
+    introActive.current = true;
+    setIntroBusy(true);
+    setIntroAnim(true);   // transform + opacity トランジション ON
+    setMapHidden(true);   // フェードアウト
+    setView({ scale: 1, tx: 0, ty: 0 }); // ズームアウト(旧地図が全景へ)
+    pendingKeyRef.current = key;
+    outDoneRef.current = false;
+    introTimers.current.hold = window.setTimeout(() => {
+      outDoneRef.current = true;
+      tryDoSwap(); // 新地図が既に ready なら差し替え+ズームイン、まだなら ready effect が後で呼ぶ
+    }, OUT_MS);
+  }, [stepKey, wrapSize, reduced, hasDisplayed, computeTargetFor, clearIntroTimers, endIntro, tryDoSwap]);
+
+  // アンマウント時のみタイマー破棄(再実行では破棄しない=演出中のタイマーを守る)。
   useEffect(() => clearIntroTimers, [clearIntroTimers]);
 
-  // ホイールズーム（カーソル位置固定）。React onWheel は passive で preventDefault が効かないためネイティブ登録。
+  // ホイールズーム(カーソル位置固定)。React onWheel は passive で preventDefault が効かないためネイティブ登録。
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
@@ -136,7 +236,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
     };
     wrap.addEventListener('wheel', onWheel, { passive: false });
     return () => wrap.removeEventListener('wheel', onWheel);
-  }, [status, svg, endIntro]); // ready の DOM 出現時にアタッチ
+  }, [endIntro]);
 
   // パン(1本指/ドラッグ) + ピンチ(2本指)。pointer events で PC/タッチ統一。
   const ptrs = useRef<Map<number, { x: number; y: number }>>(new Map());
@@ -178,7 +278,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
     ptrs.current.delete(e.pointerId);
     if (ptrs.current.size < 2) pinch.current = null;
     if (ptrs.current.size === 1) {
-      // ピンチ→単指: 残った指でパンを継続できるよう、その指の現在位置から pan を再初期化(onPointerDown の単指分岐と同じ)。
+      // ピンチ→単指: 残った指でパンを継続できるよう、その指の現在位置から pan を再初期化。
       const [rem] = [...ptrs.current.values()];
       pan.current = { sx: rem.x, sy: rem.y, tx0: view.tx, ty0: view.ty };
     }
@@ -186,14 +286,13 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
   };
 
   // 起点エーテライトのラベル位置。overlay(viewBox, xMidYMid meet)→wrap px のレターボックス写像に
-  // zoom transform(translate→scale, origin 0,0)を重ねて画面座標へ投影。定サイズの HTML として描く
-  // (SVG 内だとズームで文字が拡縮するため)。演出中(introBusy)は view が目標へ飛ぶので隠す。
+  // zoom transform(translate→scale, origin 0,0)を重ねて画面座標へ投影。定サイズ HTML。演出/フェード中は隠す。
   const aetheryteLabel =
-    !introBusy && status === 'ready' && originName && origin && wrapSize && viewBox
+    !introBusy && !mapHidden && originName && origin && wrapSize && dViewBox
       ? (() => {
-          const m = Math.min(wrapSize.w / viewBox.w, wrapSize.h / viewBox.h);
-          const offX = (wrapSize.w - viewBox.w * m) / 2;
-          const offY = (wrapSize.h - viewBox.h * m) / 2;
+          const m = Math.min(wrapSize.w / dViewBox.w, wrapSize.h / dViewBox.h);
+          const offX = (wrapSize.w - dViewBox.w * m) / 2;
+          const offY = (wrapSize.h - dViewBox.h * m) / 2;
           return {
             x: (offX + origin.x * m) * view.scale + view.tx,
             y: (offY + origin.y * m) * view.scale + view.ty,
@@ -201,38 +300,41 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
         })()
       : null;
 
+  const showSkeleton = status === 'loading' && !displayed;
+  const showMessage = (status === 'none' || status === 'error') && !displayed;
+
   return (
     <div className="housing-tour-map" data-region="tour-map">
       <div className="housing-tour-map-stage">
         <div
           className="housing-tour-map-wrap is-nav"
           ref={wrapRef}
-          onPointerDown={status === 'ready' ? onPointerDown : undefined}
-          onPointerMove={status === 'ready' ? onPointerMove : undefined}
-          onPointerUp={status === 'ready' ? onPointerUp : undefined}
-          onPointerCancel={status === 'ready' ? onPointerUp : undefined}
+          onPointerDown={displayed ? onPointerDown : undefined}
+          onPointerMove={displayed ? onPointerMove : undefined}
+          onPointerUp={displayed ? onPointerUp : undefined}
+          onPointerCancel={displayed ? onPointerUp : undefined}
         >
-          {status === 'loading' && <div className="housing-tour-map-skeleton" data-testid="tour-map-skeleton" aria-hidden="true" />}
-          {(status === 'none' || status === 'error') && (
+          {showSkeleton && <div className="housing-tour-map-skeleton" data-testid="tour-map-skeleton" aria-hidden="true" />}
+          {showMessage && (
             <div className="housing-tour-map-none" data-testid="tour-map-none">
               <p className="housing-tour-map-none-text">{t(status === 'error' ? 'housing.tour.nav.map_error' : 'housing.tour.nav.map_none')}</p>
             </div>
           )}
-          {status === 'ready' && svg && viewBox && (
+          {displayed && dSvg && dViewBox && (
             <div
-              className={`housing-map-zoom${introAnim ? ' is-intro' : ''}`}
+              className={`housing-map-zoom${introAnim ? ' is-intro' : ''}${mapHidden ? ' is-hidden' : ''}`}
               style={{ transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.scale})` }}
               onTransitionEnd={(e) => { if (e.propertyName === 'transform') endIntro(); }}
             >
-              <div ref={hostRef} className="housing-map-svg-host" role="img" aria-label={t('housing.workspace.center.map_alt')} dangerouslySetInnerHTML={{ __html: svg }} />
-              <svg className="housing-map-overlay" viewBox={`0 0 ${viewBox.w} ${viewBox.h}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <div ref={hostRef} className="housing-map-svg-host" role="img" aria-label={t('housing.workspace.center.map_alt')} dangerouslySetInnerHTML={{ __html: dSvg }} />
+              <svg className="housing-map-overlay" viewBox={`0 0 ${dViewBox.w} ${dViewBox.h}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
                 {targetOutline && (
                   <path
                     className="housing-tour-target-glow"
                     data-testid="tour-map-target-glow"
                     d={
                       targetOutline
-                        .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${(x * viewBox.w).toFixed(1)} ${(y * viewBox.h).toFixed(1)}`)
+                        .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${(x * dViewBox.w).toFixed(1)} ${(y * dViewBox.h).toFixed(1)}`)
                         .join(' ') + ' Z'
                     }
                   />
@@ -273,14 +375,14 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
             </div>
           )}
         </div>
-        {status === 'ready' && (
+        {displayed && (
           <div className="housing-hud is-top">
             <button type="button" data-testid="tour-map-reset" className="housing-tour-map-reset" onClick={resetView}>
               {t('housing.tour.nav.reset_view')}
             </button>
           </div>
         )}
-        {status === 'ready' && (
+        {displayed && (
           <div className="housing-tour-map-compass" data-testid="tour-map-compass" aria-hidden="true">
             <svg viewBox="0 0 40 40">
               <circle className="housing-tour-map-compass-ring" cx="20" cy="21" r="16" />
@@ -290,7 +392,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
             </svg>
           </div>
         )}
-        {status === 'ready' && (
+        {displayed && (
           <div className="housing-tour-map-hint" data-testid="tour-map-hint" aria-hidden="true">
             {t('housing.tour.nav.map_hint')}
           </div>
