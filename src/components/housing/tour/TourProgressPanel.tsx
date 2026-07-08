@@ -1,23 +1,29 @@
 import { useTranslation } from 'react-i18next';
 import { ProgressRing } from './ProgressRing';
-import type { TourProgress } from '../../../lib/housing/tourNav';
-import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import { representativeImage } from '../../../lib/housing/representativeImage';
+import { TourRouteSteps } from './TourRouteSteps';
+import type { TourProgress, TourStep } from '../../../lib/housing/tourNav';
 
 export interface TourProgressPanelProps {
   progress: TourProgress;
+  steps: TourStep[];
+  currentIndex: number;
   onFinish: () => void;
 }
 
 /**
- * 左カラム: ツアー進捗パネル (表示専用)。
- * リング + 到着済み/残り軒数 + 次に訪れる場所 + 最近訪れた場所 + 「ツアーを終了」。
- * store 配線・データ解決は TourNavPage (Task8) が担う。ここは progress を渡されるだけ。
+ * 右カラム: ツアー進行状況パネル (表示専用)。
+ * リング + 到着済み/残り軒数 + 全ステップ縦リスト (TourRouteSteps) + 「ツアーを終了」。
+ * Phase 3 で左右役割を入替え、ステップ一覧をここ (旧 NextDestination) から移設した。
+ * store 配線・データ解決は TourNavPage が担う。ここは progress/steps/currentIndex を渡されるだけ。
  */
-export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({ progress, onFinish }) => {
-  const { t, i18n } = useTranslation();
-  const { total, arrivedCount, remainingCount, percent, currentStep, recent } = progress;
-  const nextListing = currentStep?.listing ?? null;
+export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
+  progress,
+  steps,
+  currentIndex,
+  onFinish,
+}) => {
+  const { t } = useTranslation();
+  const { total, arrivedCount, remainingCount, percent } = progress;
 
   return (
     <div className="housing-tour-progress">
@@ -45,41 +51,7 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({ progress, 
         </div>
       </div>
 
-      {nextListing && (
-        <div className="housing-tour-progress-section">
-          <span className="housing-tour-progress-section-heading">
-            {t('housing.tour.nav.next_place')}
-          </span>
-          <div className="housing-tour-progress-next-card">
-            <img
-              className="housing-tour-progress-next-thumb"
-              src={representativeImage(nextListing)}
-              alt=""
-              loading="lazy"
-            />
-            <span className="housing-tour-progress-next-addr">
-              {formatHousingAddress(nextListing, i18n.language)}
-            </span>
-          </div>
-        </div>
-      )}
-
-      {recent.length > 0 && (
-        <div className="housing-tour-progress-section">
-          <span className="housing-tour-progress-section-heading">
-            {t('housing.tour.nav.recent')}
-          </span>
-          <ol className="housing-tour-progress-recent-list">
-            {recent.map((step) =>
-              step.listing ? (
-                <li key={step.id} className="housing-tour-progress-recent-item">
-                  {formatHousingAddress(step.listing, i18n.language)}
-                </li>
-              ) : null
-            )}
-          </ol>
-        </div>
-      )}
+      <TourRouteSteps steps={steps} currentIndex={currentIndex} />
 
       <button type="button" className="housing-tour-progress-finish" onClick={onFinish}>
         {t('housing.tour.nav.finish')}

@@ -161,7 +161,7 @@ export const TourNavPage: React.FC = () => {
     <div className="housing-tour-page">
       <section className="housing-tour-page-panel" data-region="left">
         <div className="housing-tour-page-col">
-          <TourProgressPanel progress={progress} onFinish={onFinish} />
+          <TourProgressPanel progress={progress} steps={steps} currentIndex={currentIndex} onFinish={onFinish} />
         </div>
       </section>
 

@@ -235,7 +235,7 @@ export const RouteAuthoringPage: React.FC = () => {
       <div className="housing-tour-page">
         <section className="housing-tour-page-panel" data-region="left">
           <div className="housing-tour-page-col">
-            <TourProgressPanel progress={progress} onFinish={() => {}} />
+            <TourProgressPanel progress={progress} steps={steps} currentIndex={index} onFinish={() => {}} />
           </div>
         </section>
 

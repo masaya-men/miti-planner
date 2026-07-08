@@ -6,8 +6,7 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
-import type { TourProgress } from '../../../../lib/housing/tourNav';
-import { formatHousingAddress } from '../../../../lib/housing/formatHousingAddress';
+import type { TourProgress, TourStep } from '../../../../lib/housing/tourNav';
 
 import { TourProgressPanel } from '../TourProgressPanel';
 
@@ -23,6 +22,11 @@ const baseProgress: TourProgress = {
   recent: [{ id: recentListing.id, listing: recentListing }],
 };
 
+const steps: TourStep[] = [
+  { id: nextListing.id, listing: nextListing },
+  { id: recentListing.id, listing: recentListing },
+];
+
 beforeAll(() => {
   i18n.use(initReactI18next).init({
     lng: 'ja',
@@ -35,7 +39,13 @@ beforeAll(() => {
 function renderPanel(props: Partial<Parameters<typeof TourProgressPanel>[0]> = {}) {
   return render(
     <I18nextProvider i18n={i18n}>
-      <TourProgressPanel progress={baseProgress} onFinish={() => {}} {...props} />
+      <TourProgressPanel
+        progress={baseProgress}
+        steps={steps}
+        currentIndex={0}
+        onFinish={() => {}}
+        {...props}
+      />
     </I18nextProvider>
   );
 }
@@ -54,9 +64,16 @@ describe('TourProgressPanel — 進捗表示', () => {
     expect(values).toEqual(['2', '3']);
   });
 
-  it('次に訪れる場所の住所が出る', () => {
-    renderPanel();
-    expect(screen.getByText(formatHousingAddress(nextListing, 'ja'))).toBeInTheDocument();
+  it('全ステップ縦リスト（ルートのステップ）が出る', () => {
+    const { container } = renderPanel();
+    expect(screen.getByText('ルートのステップ')).toBeInTheDocument();
+    expect(container.querySelectorAll('.housing-tour-steps-item')).toHaveLength(steps.length);
+  });
+
+  it('旧「次に訪れる場所カード」「最近訪れた場所リスト」は撤去済み', () => {
+    const { container } = renderPanel();
+    expect(container.querySelector('.housing-tour-progress-next-card')).toBeNull();
+    expect(container.querySelector('.housing-tour-progress-recent-list')).toBeNull();
   });
 });
 
