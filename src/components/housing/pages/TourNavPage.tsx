@@ -20,7 +20,7 @@ import { HousingReportModal } from '../report/HousingReportModal';
  * ツアー中(Nav)ページ (Task8): オーケストレーター。
  *
  * store 購読 + データ解決 (resolveTourSteps/computeTourProgress/地図配線) を行い、
- * Task4-7 の表示専用部品 (進捗パネル/LIVE地図/次の目的地パネル/空状態) に渡すだけ。
+ * Task4-7 の表示専用部品 (進行状況パネル/地図/ショーケースパネル/空状態) に渡すだけ。
  * 完了判定はページローカルの `completed` state で表現し、
  * store の `next()` が持つ `currentIndex` の `length-1` クランプ (既存仕様・非破壊) には依存しない。
  */

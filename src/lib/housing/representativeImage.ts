@@ -7,7 +7,7 @@ import type { MockListing } from '../../data/housing/mockListings';
  * 優先し、無ければプレースホルダにフォールバックする。
  *
  * 2026-07-04 (Task6): ListingCard.tsx / TourProgressPanel.tsx に同一ロジックが
- * 複製されていた (rule of three) ため切り出し。TourNextDestinationPanel.tsx と
+ * 複製されていた (rule of three) ため切り出し。TourShowcasePanel.tsx と
  * TourProgressPanel.tsx はこのヘルパを使う。既出荷の ListingCard.tsx /
  * FavoritesPreviewStrip.tsx のローカル実装は回帰リスク回避のためあえて置換しない
  * (将来別途移行)。

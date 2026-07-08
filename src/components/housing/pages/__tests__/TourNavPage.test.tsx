@@ -98,7 +98,7 @@ describe('TourNavPage', () => {
     expect(screen.queryByText('ルートのステップ')).not.toBeInTheDocument();
   });
 
-  it('listingIds + listings 注入で3カラム(進捗/地図/次の目的地)が描画される', () => {
+  it('listingIds + listings 注入で3カラム(進行状況/地図/ショーケース)が描画される', () => {
     useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
     seedListings();
     const { container } = renderPage();

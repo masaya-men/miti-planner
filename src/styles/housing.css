@@ -191,7 +191,6 @@
   /* ===== ツアー中(Nav) 左カラム: 進捗パネル (Task4) ===== */
   --housing-tour-ring-size: 108px;      /* 進捗リングの表示直径 */
   --housing-tour-ring-stroke: 8px;      /* 進捗リングの線幅 (トラック/進捗弧 共通) */
-  --housing-tour-next-thumb-size: 56px; /* 「次に訪れる場所」カードのサムネ正方形サイズ */
   /* ===== 入口オーサリングページ (開発専用ツール・Task5 sub) ===== */
   --housing-entrance-marker: var(--housing-text-mute);       /* 未補正(幾何のまま) */
   --housing-entrance-marker-corrected: var(--housing-honey); /* 補正済(ドラッグした) */
@@ -5935,49 +5934,6 @@ select.housing-input option {
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);
 }
 
-/* 次に訪れる場所 / 最近訪れた場所 (共通セクション見出し) */
-.housing-tour-progress-section {
-  display: flex; flex-direction: column; gap: 8px;
-  flex: 0 0 auto;
-}
-.housing-tour-progress-section-heading {
-  font-size: var(--housing-text-xs); font-weight: 600; letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--housing-text-mute);
-}
-.housing-tour-progress-next-card {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px;
-  background: var(--housing-panel-inner);
-  border: 1px solid var(--housing-panel-border);
-  border-radius: 10px;
-}
-.housing-tour-progress-next-thumb {
-  flex: 0 0 auto;
-  width: var(--housing-tour-next-thumb-size); height: var(--housing-tour-next-thumb-size);
-  border-radius: 8px;
-  object-fit: cover;
-  background: var(--housing-card-thumb-bg);
-}
-.housing-tour-progress-next-addr {
-  flex: 1 1 auto; min-width: 0;
-  font-size: var(--housing-text-sm); color: var(--housing-text);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-/* 最近訪れた場所 (ヘアライン区切りの静かな一覧) */
-.housing-tour-progress-recent-list {
-  list-style: none; margin: 0; padding: 0;
-  display: flex; flex-direction: column;
-}
-.housing-tour-progress-recent-item {
-  padding: 6px 2px;
-  font-size: var(--housing-text-sm); color: var(--housing-text-dim);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  border-top: 1px solid var(--housing-divider);
-}
-.housing-tour-progress-recent-item:first-child { border-top: 0; }
-
 /* ツアーを終了 (中立アクション・honey は使わない) */
 .housing-tour-progress-finish {
   appearance: none; cursor: pointer; flex: 0 0 auto;
@@ -6162,8 +6118,9 @@ select.housing-input option {
 }
 
 /* ============================================================
- * 右カラム: 次の目的地パネル + ルートのステップ
- * (Task6・TourNextDestinationPanel/TourRouteSteps)
+ * 左カラム: 目的地ショーケース
+ * (.housing-tour-dest*・TourShowcasePanel)
+ * ステップ一覧は進行状況パネルへ移設 (Phase3)
  * ============================================================ */
 .housing-tour-dest {
   display: flex;
