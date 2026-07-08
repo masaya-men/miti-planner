@@ -201,8 +201,8 @@
   /* ===== ツアー中地図: 区画/道路の枠線色 (改善8・トークン化) =====
      元SVGの stroke="black" (純黒) を世界観の淡色へ CSS で上書きする。
      初期案A(キャンドル系淡線)。最終色は実画面(CSS1489/DPR2.58)でユーザーが確定する。 */
-  --housing-map-stroke: rgba(255, 226, 179, 0.30);       /* 区画/アパートの輪郭 */
-  --housing-map-stroke-road: rgba(255, 226, 179, 0.42);  /* 道路本体 (区画よりわずかに強く) */
+  --housing-map-stroke: rgba(255, 226, 179, 0.42);       /* 区画/アパートの輪郭 (道と同格=枠線の品質を揃える。旧0.30は道より薄く「品質差」に見えた) */
+  --housing-map-stroke-road: rgba(255, 226, 179, 0.42);  /* 道路本体 */
 
   /* ===== 再構築シェル (Rebuild) tokens ===== */
   --housing-tab-active: var(--housing-honey);
