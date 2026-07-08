@@ -2693,7 +2693,7 @@
                 "live": "信息会自动更新",
                 "map_none": "该目的地暂无地图数据",
                 "map_error": "地图加载失败",
-                "reset_view": "重置视图",
+                "reset_view": "恢复默认视图",
                 "progress": {
                     "label": "导览进度",
                     "done_of_total": "{{done}} / {{total}} 件",

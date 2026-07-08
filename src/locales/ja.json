@@ -2749,7 +2749,7 @@
                 "live": "情報は自動で更新されます",
                 "map_none": "この目的地は地図データがありません",
                 "map_error": "地図の読み込みに失敗しました",
-                "reset_view": "全体に戻す",
+                "reset_view": "デフォルト表示に戻す",
                 "progress": {
                     "label": "ツアー進行状況",
                     "done_of_total": "{{done}} / {{total}} 軒",
