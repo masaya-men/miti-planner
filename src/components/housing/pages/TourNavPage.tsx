@@ -192,7 +192,9 @@ export const TourNavPage: React.FC = () => {
             viewBox={asset.status === 'ready' ? asset.json.viewBox : null}
             model={mapModel}
             stepKey={currentIndex}
-            originName={directions?.aetheryte ?? null}
+            // 名前ラベルの源: 家は正典 directions.aetheryte、アパートは plot が無く directions が引けないため
+            // 起点解決済みの mapModel.originName にフォールバック(マーカーと同じ最寄りエーテライト名)。
+            originName={directions?.aetheryte ?? mapModel?.originName ?? null}
           />
         </div>
       </section>

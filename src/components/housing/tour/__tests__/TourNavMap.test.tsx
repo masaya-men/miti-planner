@@ -7,7 +7,7 @@ import mistWardRaw from '../../../../data/housing/mistWard.generated.json';
 import type { TourMapModel } from '../../../../lib/housing/buildTourMapPlacements';
 import { TourNavMap } from '../TourNavMap';
 const mistWard = mistWardRaw as unknown as WardMapJson;
-const model: TourMapModel = { target: { x: 100, y: 100 }, placed: [ { index: 0, x: 100, y: 100, status: 'current' }, { index: 1, x: 200, y: 150, status: 'upcoming' } ], routePath: 'M10 10 L100 100', routeJumpPath: null, origin: { x: 10, y: 10 }, targetElId: 'plot_6', targetOutline: null };
+const model: TourMapModel = { target: { x: 100, y: 100 }, placed: [ { index: 0, x: 100, y: 100, status: 'current' }, { index: 1, x: 200, y: 150, status: 'upcoming' } ], routePath: 'M10 10 L100 100', routeJumpPath: null, origin: { x: 10, y: 10 }, originName: null, targetElId: 'plot_6', targetOutline: null };
 
 describe('TourNavMap', () => {
   it('ready で host/ゴージャス経路/起点マーカーを描く（番号ノード・LIVE・凡例は撤去済み）', () => {

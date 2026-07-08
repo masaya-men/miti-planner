@@ -20,6 +20,7 @@ export interface TourMapModel {
   routePath: string | null;                    // 実線: 起点→(道追従 or 角まで)
   routeJumpPath: string | null;                // 破線: 角→入口(道に無い区間/階段ジャンプ)。無ければ null
   origin: { x: number; y: number } | null;     // エーテライトシャード座標マーカー
+  originName: string | null;                   // 起点エーテライト名(ラベル用)。家=正典/アパート=幾何解決の最寄り名
   targetElId: string | null;                   // 実箱ハイライト対象の SVG 要素 id (plot_N / apart_1|2)
   targetOutline: number[][] | null;            // 目的の家の輪郭(正規化0-1)。オーバーレイで honey 発光を描く用
 }
@@ -69,6 +70,7 @@ export function buildTourMapPlacements(
   let routePath: string | null = null;
   let routeJumpPath: string | null = null;
   let origin: { x: number; y: number } | null = null;
+  let originName: string | null = null;
   const originInfo = currentListing
     ? (currentListing.buildingType === 'apartment'
         ? getApartmentOrigin(json, mapKey)
@@ -78,6 +80,7 @@ export function buildTourMapPlacements(
     const w = json.viewBox.w, h = json.viewBox.h;
     const oxPx = originInfo.x * w, oyPx = originInfo.y * h;
     origin = { x: oxPx, y: oyPx };
+    originName = originInfo.aetheryte; // 起点マーカーと同じ解決源から名前も載せる(アパートも名前が出る)
 
     // 玄関(終点): 入口データ優先 → 幾何(箱縁) → 箱中心 の順で決める。
     let doorX = targetPlacement.x, doorY = targetPlacement.y;
@@ -110,5 +113,5 @@ export function buildTourMapPlacements(
     }
   }
 
-  return { target, placed, routePath, routeJumpPath, origin, targetElId: target ? ref.elementId : null, targetOutline };
+  return { target, placed, routePath, routeJumpPath, origin, originName, targetElId: target ? ref.elementId : null, targetOutline };
 }

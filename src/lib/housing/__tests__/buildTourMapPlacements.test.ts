@@ -43,6 +43,13 @@ describe('buildTourMapPlacements', () => {
     const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, cur, [step(cur)], 0);
     expect(m.targetElId).toBe('plot_6');
   });
+  it('家: 起点マーカーが出るとき originName (最寄りエーテライト名) も載る', () => {
+    const cur = L({ id: 'a', plot: 6 }); const ref = mistRef(6);
+    const m = buildTourMapPlacements(mistWard, ref.mapKey, ref, cur, [step(cur)], 0);
+    expect(m.origin).not.toBeNull();
+    expect(typeof m.originName).toBe('string');
+    expect(m.originName!.length).toBeGreaterThan(0);
+  });
   it('アパート本街(棟1)は target/経路/起点/targetElId が揃う', () => {
     const cur = L({ id: 'ap1', buildingType: 'apartment', plot: undefined, size: undefined, apartmentBuilding: 1, roomNumber: 5 });
     const ref = resolveWardMapRef('Mist', null, 1, 'apartment')!;
@@ -51,6 +58,10 @@ describe('buildTourMapPlacements', () => {
     expect(m.routePath).toMatch(/^M/);
     expect(m.origin).not.toBeNull();
     expect(m.targetElId).toBe('apart_1');
+    // 回帰: アパートは plot を持たず getPlotDirections が引けないが、
+    // 起点は幾何解決するので最寄りエーテライト名 originName も必ず載る(名前ラベルの源)。
+    expect(typeof m.originName).toBe('string');
+    expect(m.originName!.length).toBeGreaterThan(0);
   });
   it('アパート拡張街(棟2)も target/経路/起点/targetElId が揃う (棟2バグ解消)', () => {
     const cur = L({ id: 'ap2', buildingType: 'apartment', plot: undefined, size: undefined, apartmentBuilding: 2, roomNumber: 5 });
