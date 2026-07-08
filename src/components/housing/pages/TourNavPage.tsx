@@ -191,6 +191,8 @@ export const TourNavPage: React.FC = () => {
             svg={asset.status === 'ready' ? asset.svg : null}
             viewBox={asset.status === 'ready' ? asset.json.viewBox : null}
             model={mapModel}
+            stepKey={currentIndex}
+            originName={directions?.aetheryte ?? null}
           />
         </div>
       </section>

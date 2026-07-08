@@ -32,13 +32,16 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   canView, isLast, onPrev, onViewStart, onNext, onFinish,
 }) => {
   const { t } = useTranslation();
-  const { total, arrivedCount, percent } = progress;
+  const { total, percent } = progress;
+  // ヘッダーの N/M はリング(1つ前倒し)と揃えて「現在いるステップ / 総数」を表す。
+  // 最後のステップで M/M、リングも100% になり整合する(ステップ一覧の現在位置とも一致)。
+  const position = Math.min(currentIndex + 1, total);
 
   return (
     <div className="housing-tour-progress">
       <div className="housing-tour-progress-head">
         <span className="housing-tour-progress-title">{t('housing.tour.nav.progress.label')}</span>
-        <span className="housing-tour-progress-count">{arrivedCount}/{total}</span>
+        <span className="housing-tour-progress-count">{position}/{total}</span>
       </div>
 
       <div className="housing-tour-progress-summary">
@@ -47,38 +50,42 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
 
       <TourRouteSteps steps={steps} currentIndex={currentIndex} />
 
-      <TourPhaseZone phase={phase} directions={directions} viewStartAt={viewStartAt} />
+      {/* 下部フッター: ステップに上のスペースを譲るため、行き方枠〜操作ボタン〜終了を最下部に密集。
+          行き方(フェーズ枠)は常にボタン群の直上に固定。親の gap(16px) から切り離し内部を詰める。 */}
+      <div className="housing-tour-progress-foot">
+        <TourPhaseZone phase={phase} directions={directions} viewStartAt={viewStartAt} />
+        <div className="housing-tour-progress-actions">
+          <button
+            type="button"
+            className="housing-tour-progress-action housing-tour-progress-action--prev"
+            onClick={onPrev}
+            disabled={currentIndex === 0}
+          >
+            {t('housing.tour.nav.actions.prev')}
+          </button>
+          <button
+            type="button"
+            className="housing-tour-progress-action housing-tour-progress-action--view"
+            onClick={onViewStart}
+            disabled={!canView || phase === 'viewing'}
+          >
+            {t('housing.tour.nav.actions.view')}
+          </button>
+          <button
+            type="button"
+            className="housing-tour-progress-action housing-tour-progress-action--next"
+            onClick={onNext}
+          >
+            {t(isLast ? 'housing.tour.nav.actions.complete' : 'housing.tour.nav.actions.next')}
+          </button>
+        </div>
+        <span className="housing-tour-progress-view-note">{t('housing.tour.nav.actions.view_optional')}</span>
 
-      <div className="housing-tour-progress-actions">
-        <button
-          type="button"
-          className="housing-tour-progress-action housing-tour-progress-action--prev"
-          onClick={onPrev}
-          disabled={currentIndex === 0}
-        >
-          {t('housing.tour.nav.actions.prev')}
-        </button>
-        <button
-          type="button"
-          className="housing-tour-progress-action housing-tour-progress-action--view"
-          onClick={onViewStart}
-          disabled={!canView || phase === 'viewing'}
-        >
-          {t('housing.tour.nav.actions.view')}
-        </button>
-        <button
-          type="button"
-          className="housing-tour-progress-action housing-tour-progress-action--next"
-          onClick={onNext}
-        >
-          {t(isLast ? 'housing.tour.nav.actions.complete' : 'housing.tour.nav.actions.next')}
+        <div className="housing-tour-progress-foot-sep" aria-hidden="true" />
+        <button type="button" className="housing-tour-progress-finish" onClick={onFinish}>
+          {t('housing.tour.nav.finish')}
         </button>
       </div>
-      <span className="housing-tour-progress-view-note">{t('housing.tour.nav.actions.view_optional')}</span>
-
-      <button type="button" className="housing-tour-progress-finish" onClick={onFinish}>
-        {t('housing.tour.nav.finish')}
-      </button>
     </div>
   );
 };

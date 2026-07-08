@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stepStatus, isTourPlaceable, type TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
@@ -16,11 +17,44 @@ export interface TourRouteStepsProps {
  */
 export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIndex }) => {
   const { t, i18n } = useTranslation();
+  const listRef = useRef<HTMLOListElement>(null);
+
+  // スクロールバーは隠し、上下端フェード(マスク)でスクロール可能を示唆する(業界標準)。
+  // 端(上/下)に達したらその側のフェードを消す → data 属性を CSS が読む。
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const update = () => {
+      el.dataset.atTop = String(el.scrollTop <= 1);
+      el.dataset.atBottom = String(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
+    };
+    update();
+    el.addEventListener('scroll', update, { passive: true });
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', update);
+      ro.disconnect();
+    };
+  }, [steps.length, currentIndex]);
+
+  // 次へ/前へ で現在ステップが変わったら、その行をリスト中央付近へ自動スクロール(1つずつ追従)。
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    const current = list.querySelector<HTMLElement>('.housing-tour-steps-item--current');
+    if (!current) return;
+    if (typeof list.scrollTo !== 'function') return; // 非レイアウト環境(テスト等)ではスキップ
+    const listRect = list.getBoundingClientRect();
+    const itemRect = current.getBoundingClientRect();
+    const delta = (itemRect.top - listRect.top) - (list.clientHeight - itemRect.height) / 2;
+    list.scrollTo({ top: list.scrollTop + delta, behavior: 'smooth' });
+  }, [currentIndex, steps.length]);
 
   return (
     <div className="housing-tour-steps">
       <span className="housing-tour-steps-heading">{t('housing.tour.nav.steps.heading')}</span>
-      <ol className="housing-tour-steps-list">
+      <ol ref={listRef} className="housing-tour-steps-list" data-at-top="true" data-at-bottom="true">
         {steps.map((step, index) => {
           const status = stepStatus(index, currentIndex);
           const missing = step.listing === null;

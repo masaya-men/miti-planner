@@ -35,7 +35,7 @@ describe('computeTourProgress', () => {
     expect(p.total).toBe(5);
     expect(p.arrivedCount).toBe(2);
     expect(p.remainingCount).toBe(3);
-    expect(p.percent).toBe(40);
+    expect(p.percent).toBe(60); // リングは1つ前倒し: (idx2+1)/5 = 60%（最後のステップで100%に到達）
     expect(p.currentStep?.id).toBe('c');
     expect(p.recent.map((s) => s.id)).toEqual(['b', 'a']); // 直近順
   });

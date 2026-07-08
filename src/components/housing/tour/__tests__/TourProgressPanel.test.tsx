@@ -43,7 +43,8 @@ function renderPanel(props: Partial<Parameters<typeof TourProgressPanel>[0]> = {
 describe('TourProgressPanel — 進捗＋操作', () => {
   it('ヘッダーに N/M・その下にリング(インジケータ)を表示、到着済/残りの箱は撤去', () => {
     const { container } = renderPanel();
-    expect(screen.getByText('2/5')).toBeInTheDocument();
+    // ヘッダーは「現在いるステップ/総数」= position(currentIndex+1)。currentIndex=0 → 1/5。
+    expect(screen.getByText('1/5')).toBeInTheDocument();
     expect(container.querySelector('.housing-tour-progress-ring')).not.toBeNull();
     expect(container.querySelector('.housing-tour-progress-stats')).toBeNull();
   });
@@ -101,7 +102,7 @@ describe('TourProgressPanel — 進捗＋操作', () => {
     expect(screen.getByRole('button', { name: /見学開始/ })).toBeDisabled();
   });
 
-  it('次へ: 通常は「次へ」ラベルで onNext、isLast では「ツアーを完了」', () => {
+  it('次へ: 通常は「次へ」ラベルで onNext、isLast では「完了」', () => {
     const onNext = vi.fn();
     const { rerender } = renderPanel({ onNext, isLast: false });
     screen.getByRole('button', { name: '次へ' }).click();
@@ -116,7 +117,7 @@ describe('TourProgressPanel — 進捗＋操作', () => {
         />
       </I18nextProvider>,
     );
-    expect(screen.getByRole('button', { name: 'ツアーを完了' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '完了' })).toBeInTheDocument();
   });
 
   it('ツアーを終了で onFinish', () => {

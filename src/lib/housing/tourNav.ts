@@ -39,7 +39,9 @@ export function computeTourProgress(
   const idx = Math.max(0, Math.min(currentIndex, total));
   const arrivedCount = idx;
   const remainingCount = Math.max(0, total - arrivedCount);
-  const percent = total === 0 ? 0 : Math.round((arrivedCount / total) * 100);
+  // リング(インジケーター)は「現在地に到達した」を1つ前倒しで表す = (現在ステップ+1)/総数。
+  // 最後のステップで100%に到達する(=完了を押す時点で満タン)。arrivedCount(到着済み件数)は据え置き。
+  const percent = total === 0 ? 0 : Math.min(100, Math.round(((idx + 1) / total) * 100));
   const currentStep = idx < total ? steps[idx] : null;
   const recent = steps.slice(Math.max(0, idx - recentLimit), idx).reverse();
   return { total, arrivedCount, remainingCount, percent, currentStep, recent };

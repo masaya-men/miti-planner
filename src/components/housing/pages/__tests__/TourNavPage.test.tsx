@@ -141,11 +141,11 @@ describe('TourNavPage', () => {
     expect(screen.getByTestId('mock-report-modal')).toHaveTextContent(listing2.id);
   });
 
-  it('最終ステップで主ボタンが「ツアーを完了」になり、押すと完了状態(complete.title)に切替わる', () => {
+  it('最終ステップで主ボタンが「完了」になり、押すと完了状態(complete.title)に切替わる', () => {
     useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: ids.length - 1 });
     seedListings();
     renderPage();
-    fireEvent.click(screen.getByRole('button', { name: 'ツアーを完了' }));
+    fireEvent.click(screen.getByRole('button', { name: '完了' }));
     expect(screen.getByText('すべて回りました')).toBeInTheDocument();
     // store非破壊: currentIndex は完了フラグと無関係にそのまま
     expect(useHousingTourStore.getState().currentIndex).toBe(ids.length - 1);

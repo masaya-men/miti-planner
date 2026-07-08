@@ -2779,7 +2779,7 @@
                 "actions": {
                     "prev": "前へ",
                     "arrive_next": "到着した → 次へ",
-                    "complete": "ツアーを完了",
+                    "complete": "完了",
                     "view": "見学開始",
                     "view_optional": "(任意)",
                     "next": "次へ"

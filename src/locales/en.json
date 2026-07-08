@@ -2758,7 +2758,7 @@
                 "actions": {
                     "prev": "Previous",
                     "arrive_next": "Arrived → Next",
-                    "complete": "Complete tour",
+                    "complete": "Done",
                     "view": "Start viewing",
                     "view_optional": "(optional)",
                     "next": "Next"
