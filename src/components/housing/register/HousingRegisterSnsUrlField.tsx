@@ -209,6 +209,8 @@ export function HousingRegisterSnsUrlField({
                 id="housing-sns-url"
                 type="url"
                 className="housing-input"
+                // 前回貼った URL のブラウザ入力履歴ドロップダウンを出さない (ユーザー要望・毎回別 URL のため邪魔)
+                autoComplete="off"
                 placeholder={t('housing.register.snsUrl.placeholder')}
                 value={url}
                 onChange={(e) => {

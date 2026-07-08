@@ -45,6 +45,11 @@ describe('HousingRegisterSnsUrlField', () => {
         expect(screen.getByLabelText('housing.register.snsUrl.label')).toBeInTheDocument();
     });
 
+    it('URL 入力欄はブラウザの入力履歴を出さない (autoComplete=off)', () => {
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} onOgpFetched={() => {}} />);
+        expect(screen.getByLabelText('housing.register.snsUrl.label')).toHaveAttribute('autocomplete', 'off');
+    });
+
     it('triggers fetchTweet on valid X URL paste', () => {
         render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} onOgpFetched={() => {}} />);
         const input = screen.getByLabelText('housing.register.snsUrl.label');
