@@ -7,6 +7,7 @@ import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesStore';
+import { HousingPlaybackProvider } from '../../../../lib/housing/HousingPlaybackContext';
 
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
@@ -26,6 +27,15 @@ beforeAll(() => {
     resources: { ja: { translation: jaTranslations } },
     interpolation: { escapeValue: false },
   });
+
+  if (!window.matchMedia) {
+    (window as unknown as { matchMedia: (q: string) => MediaQueryList }).matchMedia = (query: string) =>
+      ({
+        matches: false, media: query, onchange: null,
+        addListener: () => {}, removeListener: () => {},
+        addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
+      } as unknown as MediaQueryList);
+  }
 });
 
 function renderCard(props: Partial<Parameters<typeof ListingCard>[0]> = {}) {
@@ -155,5 +165,38 @@ describe('ListingCard — 非破壊回帰(selectable未指定)', () => {
     expect(addBtn).toBeTruthy();
     fireEvent.click(addBtn!);
     expect(onAddToTour).toHaveBeenCalledWith(mockListing.id);
+  });
+});
+
+describe('ListingCard — 生きたカード配線 (段階2)', () => {
+  const multiImage = {
+    ...mockListing,
+    imageMode: 'sns' as const,
+    sourceImageUrls: ['https://example.com/a.jpg', 'https://example.com/b.jpg'],
+  };
+
+  it('Provider 配下では ambient スライドショーが media 内に描画される (複数画像)', () => {
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <HousingPlaybackProvider>
+          <ListingCard listing={multiImage} onAddToTour={() => {}} />
+        </HousingPlaybackProvider>
+      </I18nextProvider>,
+    );
+    const media = container.querySelector('.housing-listing-card-media');
+    expect(media?.querySelector('.housing-card-ambient-slideshow')).not.toBeNull();
+    // フレーム数分の img (sourceImageUrls 2 枚)
+    expect(media?.querySelectorAll('.housing-card-ambient-slideshow img')).toHaveLength(2);
+  });
+
+  it('ベース img (.housing-listing-card-img) は残る (静止フォールバック・非破壊)', () => {
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <HousingPlaybackProvider>
+          <ListingCard listing={multiImage} onAddToTour={() => {}} />
+        </HousingPlaybackProvider>
+      </I18nextProvider>,
+    );
+    expect(container.querySelector('.housing-listing-card-img')).not.toBeNull();
   });
 });

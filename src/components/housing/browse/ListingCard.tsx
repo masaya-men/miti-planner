@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Check } from 'lucide-react';
@@ -11,6 +12,10 @@ import {
   handleYoutubeThumbnailError,
   handleYoutubeThumbnailLoad,
 } from '../../../lib/housing/youtubeImgFallback';
+import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
+import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
+import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
+import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 
 export interface ListingCardProps {
   listing: MockListing;
@@ -55,6 +60,20 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const navigate = useNavigate();
   const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
 
+  // 生きたカード (段階2): 動画種別 → spotlight 候補判定、frames 解決、IO 登録。旧 HousingCard と同型。
+  const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
+    ? 'twitter'
+    : listing.youtubeVideoId
+      ? 'youtube'
+      : null;
+  const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
+  const mediaRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    register(mediaRef.current);
+    return (): void => register(null);
+  }, [register]);
+  const frames = useHousingCardFrames(listing, ambientOn);
+
   // 主ラベルは登録者のタイトル (新シェルでは必須)。旧データ (title なし) は住所で代替。
   // 住所・サイズはカードに出さない (住所=ツアーが住所順に自動で組まれるため一覧では不要、
   // サイズ=左フィルタと詳細ページで足りる・ユーザー合意 2026-07-03)。
@@ -81,7 +100,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         if (e.key === 'Enter') openDetail();
       }}
     >
-      <div className="housing-listing-card-media">
+      <div className="housing-listing-card-media" ref={mediaRef}>
         <img
           className="housing-listing-card-img"
           src={representativeImage(listing)}
@@ -93,6 +112,17 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           onError={handleYoutubeThumbnailError}
           onLoad={handleYoutubeThumbnailLoad}
         />
+        <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
+        {isPlaying && videoKind === 'twitter' && listing.videoUrl && (
+          <HousingCardVideoOverlay
+            kind="twitter"
+            videoUrl={listing.videoUrl}
+            posterUrl={listing.videoPosterUrl}
+          />
+        )}
+        {isPlaying && videoKind === 'youtube' && listing.youtubeVideoId && (
+          <HousingCardVideoOverlay kind="youtube" youtubeVideoId={listing.youtubeVideoId} />
+        )}
 
         {/* 常時表示 (左上): 選択チェック (お気に入りページのみ) + 自分の登録の非公開/期限切れ印。
             印はホバー必須にしない (非公開かどうかが一覧で即分かることが安心につながるため常時)。 */}
