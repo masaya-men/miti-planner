@@ -68,9 +68,9 @@ const frames = useHousingCardFrames(listing, ambientOn);
 - **動画 = cap1 スポットライト（既存のまま）**: 全面 ON でも同時再生は常に1本・15秒順送り。`spotlightCap` は Provider 既定=1 を上書きしない。
 - **画像の「画面内だけ」ゲートは今回入れない**: クロスフェードは opacity 合成で軽量（ユーザー判断）。`<img loading="lazy">` + `content-visibility:auto` で画面外負荷を担保。長グリッドで実機ジャンクが出たら `useViewportPlaybackPool` を土台に後日フォロー（本 spec のスコープ外）。
 
-## Cleanup（重複撤去・rule of three）
+## Cleanup（重複撤去・rule of three）— **follow-up に降格（コア外）**
 
-`ListingCard.tsx:29` と `FavoritesPreviewStrip.tsx:12` に**ローカル定義の `representativeImage`** が重複している。frames 配線に際し `resolveSlideshowFrames`（`slideshowFrames.ts:30`）/ `useHousingCardFrames` に寄せ、ローカル実装を撤去して静止フォールバックも共通ロジックへ一本化する（`lib/housing/representativeImage.ts` の共有ヘルパと役割を整理）。
+`ListingCard.tsx:29` と `FavoritesPreviewStrip.tsx:12` に**ローカル定義の `representativeImage`** が重複している。当初は本 project で共通ヘルパへ寄せる予定だったが、**ベース `<img>` の静止 src と YouTube フォールバック（`handleYoutubeThumbnailError/Load`）は単発 string src を前提**とするため、frames 化と絡めると回帰リスクが高い。生きたカード配線自体はローカル `representativeImage` を残したまま成立する（slideshow は別レイヤー）。→ **dedupe は本 plan のコアから外し、低優先 follow-up とする**（リリース最短のため）。plan（`docs/superpowers/plans/2026-07-08-housing-living-card-rollout.md`）の Self-Review 参照。
 
 ## lightboxOpen の扱い
 
