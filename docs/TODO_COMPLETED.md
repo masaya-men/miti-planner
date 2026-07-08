@@ -2,6 +2,13 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅✅✅ 2026-07-08 ハウジング「生きたカード」全面配線(段階2) — main 統合・本番反映完了 (finishing-a-development-branch)
+ブランチ `feat/housing-living-card-rollout`(spec+plan+4タスク+2fix)を **ff-merge → push → Vercel 自動デプロイ**。main `2c0b95a0`。spec/plan=`docs/superpowers/{specs,plans}/2026-07-08-housing-living-card-rollout*`。
+- **狙い/核心**: 新シェル世代(探す/お気に入り/ツアー)の静止画カードを、旧 workspace の完成済み生きたカード機構(画像クロスフェード + 動画スポットライト cap1・15s順送り)へ配線。詰まりは1箇所=`HousingPlaybackProvider` が旧 `HousingWorkspace` にしか mount されず新世代は NOOP 静止→**`HousingShell` の <Outlet/> に mount** で全新世代ページを対象化。各カードは旧 `HousingCard` 同型 hook を再利用(再発明ゼロ)。
+- **タスク**: T1 `2c869cfb` Provider mount / T2 `13695d48` `ListingCard`(探す/お気に入り共通・画像+動画) / T3 `8d2aa632` お気に入りプレビュー strip(`FavPreviewThumb` 抽出・画像のみ) / T4 `4941d443`+`3aeda634` ツアー hero(画像+動画・vacuous assert 強化) / M1 `2c0b95a0` hero ラッパー角丸回帰修正。
+- **進め方/検証**: 3並列監査(動く機構/ゲーティング/全サーフェス棚卸し)→brainstorming→spec→plan→**subagent-driven**(実装者→task reviewer→fix ×4)→**opus 最終ブランチレビュー=Ready to merge Yes**(Critical/Important ゼロ)。build EXIT0・vitest 新規fail ゼロ(既知legacy5=TopBar4+HousingWorkspace1のみ)。ベース img 残しで既存テスト非破壊。旧 workspace 世代は不触。実機OK(ユーザー)。
+- **残 follow-up(任意)**: 詳細peers配線(シェル外) / `representativeImage` 3重複撤去 / `useIsScrolling`(window前提)が body overflow:hidden で非発火の件。詳細=memory [[project_housing_phase_status]]。
+
 ### ✅✅✅ 2026-07-08 ハウジングツアー中央地図 Phase3(レイアウト再編)+ツアーUX調整①〜⑨ — main 統合・本番反映完了 (finishing-a-development-branch)
 ブランチ `feat/housing-tour-map-phase3-layout-reorg`(12コミット)を **fast-forward merge → push → Vercel 本番自動デプロイ**。main `95ce47e4`。plan=`docs/superpowers/plans/2026-07-08-housing-tour-map-phase3-layout-reorg.md`。
 - **内容(①〜⑨)**: ①Phase3レイアウト再編(左=目的地ショーケース/右=進行状況・ステップ一覧を右へ移設・NextDestination→**TourShowcasePanel**改名・共有grid不変で `.housing-tour-page--reorg` modifierにスコープ=DEV RouteAuthoringPage非回帰) ②マップ既定ズーム**上限scale2**(`MAX_DEFAULT_SCALE`・手動は8維持) ③シロガネ外周の無名黒境界道(id/mask無しpath)を道トーンへ再着色 ④推定時間UI撤去(トレイ推定時間+StatusBar ETA+4言語ロケールキー) ⑤いいねハート押下FB(pop1.35+8粒・`HousingFavHeart`・reduced-motion対応) ⑥トレイ件数のみ表示(`MAX_TOUR`撤去) ⑦お気に入りプレビュー横スクロール(flex nowrap/4件目見切れ/ホイール横送りネイティブ登録) ⑧地図perf(SVGホストの重いdrop-shadow撤去・にじみ対策でwill-change不採用) ⑨家の枠線を道と同じ0.42へ統一。
