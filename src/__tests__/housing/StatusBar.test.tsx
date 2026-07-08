@@ -48,11 +48,12 @@ describe('StatusBar', () => {
     expect(screen.getAllByText(/Dark/).length).toBeGreaterThan(0);
   });
 
-  it('renders Stops / ETA / FPS in the right group', () => {
+  it('renders Stops / FPS in the right group (ETA は撤去済み)', () => {
     renderStatusBar();
     expect(screen.getByText(/Stops/)).toBeInTheDocument();
-    expect(screen.getByText(/ETA/)).toBeInTheDocument();
     expect(screen.getByText(/FPS/)).toBeInTheDocument();
+    // 推定時間UI撤去 (2026-07-08・item④): ETA readout は撤去済み
+    expect(screen.queryByText(/ETA/)).not.toBeInTheDocument();
   });
 
   it('renders language switcher with ja/en/ko/zh and marks active', () => {
