@@ -6,6 +6,9 @@ import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStor
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
+import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
+import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 
 // 代表画像フォールバック (ListingCard と共通の規約)。
 const PLACEHOLDER = '/housing/mock-thumbs/1.svg';
@@ -14,6 +17,22 @@ function representativeImage(l: MockListing): string {
   if (l.imageMode === 'sns' && l.ogImageUrl) return l.ogImageUrl;
   return PLACEHOLDER;
 }
+
+/**
+ * プレビュー strip の 1 サムネ (画像のみの生きたカード)。
+ * isVideo=false で呼ぶ = spotlight 動画候補に入れない (strip は画像クロスフェードのみ)。
+ * ambientOn は Provider 由来 (Provider 外なら NOOP で静止)。
+ */
+const FavPreviewThumb: React.FC<{ listing: MockListing }> = ({ listing }) => {
+  const { ambientOn } = useHousingCardPlayback(listing.id, false);
+  const frames = useHousingCardFrames(listing, ambientOn);
+  return (
+    <>
+      <img src={representativeImage(listing)} alt="" loading="lazy" />
+      <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
+    </>
+  );
+};
 
 // プレビューに並べる最大枚数 (これ以上はお気に入りページ「すべて見る」で)。
 // 3件を超えると横スクロール + 4件目の見切れでスクロール可能を示唆する。
@@ -86,7 +105,7 @@ export const FavoritesPreviewStrip: React.FC = () => {
                 aria-label={formatHousingAddress(l, i18n.language)}
                 onClick={() => navigate(`/housing/listing/${l.id}`)}
               >
-                <img src={representativeImage(l)} alt="" loading="lazy" />
+                <FavPreviewThumb listing={l} />
               </button>
             </li>
           ))}

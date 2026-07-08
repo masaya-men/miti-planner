@@ -6575,7 +6575,7 @@ select.housing-input option {
 }
 .housing-fav-strip-thumb {
   appearance: none; border: 1px solid var(--housing-panel-border); cursor: pointer;
-  display: block; width: 100%; aspect-ratio: 1 / 1;
+  display: block; width: 100%; aspect-ratio: 1 / 1; position: relative;
   padding: 0; border-radius: 8px; overflow: hidden;
   background: var(--housing-card-thumb-bg);
   transition: border-color 0.15s ease, transform 0.1s ease;
