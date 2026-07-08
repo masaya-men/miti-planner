@@ -6056,24 +6056,36 @@ select.housing-input option {
   line-height: 1.5;
 }
 
-/* 操作: 前へ / 見学 / 次へ(orツアーを完了) */
+/* 操作: 前へ / 見学開始(+任意 2段) / 次へ。3ボタンは同じ高さ、中央=大・左右=小。
+   ラベルは1行厳守(nowrap)。見学開始だけ 2段(見学開始 + 任意)だが高さは他と揃える。 */
 .housing-tour-progress-actions {
   display: flex;
   gap: 8px;
   flex: 0 0 auto;
+  align-items: stretch;
 }
 .housing-tour-progress-action {
   appearance: none;
   cursor: pointer;
-  flex: 1 1 auto;
   min-width: 0;
-  padding: 10px 12px;
+  min-height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 8px 10px;
   border-radius: 10px;
   font-family: inherit;
   font-size: var(--housing-text-sm);
   font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
   transition: background 0.15s ease, filter 0.15s ease, transform 0.1s ease;
 }
+.housing-tour-progress-action--prev { flex: 1 1 0; }
+.housing-tour-progress-action--view { flex: 1.7 1 0; }
+.housing-tour-progress-action--next { flex: 1 1 0; font-weight: 700; }
 .housing-tour-progress-action:active:not(:disabled) { transform: scale(0.98); }
 .housing-tour-progress-action:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
 .housing-tour-progress-action:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
@@ -6087,14 +6099,6 @@ select.housing-input option {
 .housing-tour-progress-action--prev:hover:not(:disabled),
 .housing-tour-progress-action--view:hover:not(:disabled) {
   background: var(--housing-chip-bg-hover);
-}
-/* 見学開始 = 2段(見学開始 + 任意ラベル)。任意アクションを明示。 */
-.housing-tour-progress-action--view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1px;
-  line-height: 1.2;
 }
 .housing-tour-progress-action-sub {
   font-size: var(--housing-text-xs);
@@ -6337,11 +6341,6 @@ select.housing-input option {
   gap: 8px;
   flex: 0 0 auto;
 }
-.housing-tour-dest-head {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
 .housing-tour-dest-title {
   margin: 0;
   font-size: var(--housing-text-md);
@@ -6354,10 +6353,6 @@ select.housing-input option {
 .housing-tour-dest-addrsize {
   font-size: var(--housing-text-sm);
   color: var(--housing-text-dim);
-}
-.housing-tour-dest-world {
-  font-size: var(--housing-text-xs);
-  color: var(--housing-text-mute);
 }
 
 /* 紹介文 (固定高スクロール) */
@@ -6380,25 +6375,62 @@ select.housing-input option {
   line-height: 1.55;
 }
 
-/* 次の目的地カード (動く・情報なし) */
-.housing-tour-dest-nextcard {
+/* 次の目的地 (ラベル + タイトル/住所小 + 右寄せ小メディア) */
+.housing-tour-dest-next {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   border-top: 1px solid var(--housing-divider);
-  padding-top: 12px;
+  padding-top: 14px;
 }
-.housing-tour-dest-nextcard .housing-tour-living-media {
-  width: 116px;
+.housing-tour-dest-next-label {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-dest-next-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.housing-tour-dest-next-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.housing-tour-dest-next-title {
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-tour-dest-next-addr {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-tour-dest-next .housing-tour-living-media {
+  flex: 0 0 auto;
+  width: 104px;
   aspect-ratio: 16 / 10;
   border-radius: 8px;
 }
 
-/* 報告 (情報が違う) — 静かなテキストボタン。色付きalert箱にはしない */
+/* 報告 (情報が違う) — 静かなテキストボタン。上に区切り線。色付きalert箱にはしない */
 .housing-tour-dest-report {
   appearance: none;
   cursor: pointer;
   flex: 0 0 auto;
-  align-self: flex-start;
-  padding: 2px 4px;
+  align-self: stretch;
+  text-align: left;
+  padding: 12px 4px 2px;
   border: 0;
+  border-top: 1px solid var(--housing-divider);
   background: transparent;
   font-family: inherit;
   font-size: var(--housing-text-xs);

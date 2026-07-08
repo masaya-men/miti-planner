@@ -46,9 +46,9 @@ describe('TourShowcasePanel — 表示専用ショーケース', () => {
     expect(line.textContent).toContain(cur.size!);
   });
 
-  it('DC/サーバーが1回だけ出る', () => {
+  it('DC/サーバー行は撤去されている', () => {
     const { container } = renderPanel();
-    expect(container.querySelectorAll('.housing-tour-dest-world')).toHaveLength(1);
+    expect(container.querySelector('.housing-tour-dest-world')).toBeNull();
   });
 
   it('紹介文ラベルが「紹介文」で本文が出る', () => {
@@ -57,22 +57,24 @@ describe('TourShowcasePanel — 表示専用ショーケース', () => {
     expect(screen.getByText(cur.description!)).toBeInTheDocument();
   });
 
-  it('紹介文が空なら no_memo（紹介文はありません）', () => {
+  it('紹介文が空なら ── が出る', () => {
     const empty = { ...cur, description: undefined };
     renderPanel({ currentStep: { id: empty.id, listing: empty } });
-    expect(screen.getByText('紹介文はありません')).toBeInTheDocument();
+    expect(screen.getByText('──')).toBeInTheDocument();
   });
 
-  it('次の目的地カード(生きたメディア)が出る', () => {
+  it('次の目的地(ラベル+タイトル+住所+小メディア)が出る', () => {
     const { container } = renderPanel();
-    const nextCard = container.querySelector('.housing-tour-dest-nextcard');
-    expect(nextCard).not.toBeNull();
-    expect(nextCard!.querySelector('.housing-tour-living-media')).not.toBeNull();
+    const nextEl = container.querySelector('.housing-tour-dest-next');
+    expect(nextEl).not.toBeNull();
+    expect(nextEl!.querySelector('.housing-tour-dest-next-title')).not.toBeNull();
+    expect(nextEl!.querySelector('.housing-tour-dest-next-addr')).not.toBeNull();
+    expect(nextEl!.querySelector('.housing-tour-living-media')).not.toBeNull();
   });
 
-  it('nextStep=null（最後の目的地）では次の目的地カードが出ない', () => {
+  it('nextStep=null（最後の目的地）では次の目的地が出ない', () => {
     const { container } = renderPanel({ nextStep: null });
-    expect(container.querySelector('.housing-tour-dest-nextcard')).toBeNull();
+    expect(container.querySelector('.housing-tour-dest-next')).toBeNull();
   });
 
   it('操作ボタン(前へ/次へ)と行き方は左パネルに無い', () => {
