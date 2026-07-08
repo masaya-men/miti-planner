@@ -1937,9 +1937,7 @@
             "empty": "カードの「ツアーに追加」で行き先を積みましょう",
             "remove": "削除",
             "start": "この内容でツアーを開始",
-            "count": "{{count}}/{{max}}",
-            "estimate_label": "推定時間",
-            "estimate_pending": "—"
+            "count": "{{count}}/{{max}}"
         },
         "favStrip": {
             "title": "お気に入り",
@@ -2464,7 +2462,6 @@
                 "lon_label": "Lon",
                 "theme_readout_label": "Theme",
                 "stops_label": "Stops",
-                "eta_label": "ETA",
                 "fps_label": "FPS",
                 "theme_label": "テーマ",
                 "theme_light": "Light",

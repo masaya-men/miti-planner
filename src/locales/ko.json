@@ -1881,9 +1881,7 @@
             "empty": "카드의 ‘투어에 추가’로 목적지를 담아보세요.",
             "remove": "삭제",
             "start": "이 내용으로 투어 시작",
-            "count": "{{count}}/{{max}}",
-            "estimate_label": "예상 시간",
-            "estimate_pending": "—"
+            "count": "{{count}}/{{max}}"
         },
         "favStrip": {
             "title": "즐겨찾기",
@@ -2408,7 +2406,6 @@
                 "lon_label": "Lon",
                 "theme_readout_label": "Theme",
                 "stops_label": "Stops",
-                "eta_label": "ETA",
                 "fps_label": "FPS",
                 "theme_label": "테마",
                 "theme_light": "Light",

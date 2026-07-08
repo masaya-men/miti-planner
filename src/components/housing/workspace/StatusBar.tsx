@@ -12,7 +12,7 @@ const BUILD_VERSION = typeof __HOUSING_BUILD__ !== 'undefined' ? __HOUSING_BUILD
 /**
  * StatusBar — mockup-faithful telemetry strip.
  * Left group: ● Build version · Lat/Lon · Theme readout
- * Right group: Stops · ETA · FPS · Lang switcher
+ * Right group: Stops · FPS · Lang switcher
  *
  * Plan A scope: numeric fields are placeholders until selection / tour state lands
  * in Plan C/D. Theme readout reflects useThemeStore (live). Lang switcher kept
@@ -47,9 +47,6 @@ export const StatusBar: React.FC = () => {
         <span>
           {t('housing.workspace.statusbar.stops_label')}&nbsp;
           <span className="housing-accent">0</span>&nbsp;/&nbsp;7
-        </span>
-        <span>
-          {t('housing.workspace.statusbar.eta_label')} 00:00
         </span>
         <span>
           {t('housing.workspace.statusbar.fps_label')}&nbsp;

@@ -5828,24 +5828,6 @@ select.housing-input option {
 }
 .housing-tour-tray-remove:hover { color: var(--housing-danger, #ff6b6b); background: var(--housing-chip-bg-hover); }
 
-/* ツアートレイ: 暫定推定時間の枠 (実ルート距離は M2 で実装予定) */
-.housing-tour-tray-estimate {
-  display: flex; align-items: center; justify-content: space-between;
-  flex: 0 0 auto;
-  padding: 8px 12px;
-  background: var(--housing-chip-bg);
-  border: 1px solid var(--housing-panel-border);
-  border-radius: 8px;
-  gap: 8px;
-}
-.housing-tour-tray-estimate-label {
-  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
-  font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
-}
-.housing-tour-tray-estimate-value {
-  font-size: var(--housing-text-sm); color: var(--housing-text-mute);
-  font-variant-numeric: tabular-nums;
-}
 
 .housing-tour-tray-start {
   appearance: none; cursor: pointer; flex: 0 0 auto;

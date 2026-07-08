@@ -1881,9 +1881,7 @@
             "empty": "用卡片上的“加入导览”添加目的地。",
             "remove": "删除",
             "start": "以此内容开始导览",
-            "count": "{{count}}/{{max}}",
-            "estimate_label": "预计时间",
-            "estimate_pending": "—"
+            "count": "{{count}}/{{max}}"
         },
         "favStrip": {
             "title": "收藏",
@@ -2408,7 +2406,6 @@
                 "lon_label": "Lon",
                 "theme_readout_label": "Theme",
                 "stops_label": "Stops",
-                "eta_label": "ETA",
                 "fps_label": "FPS",
                 "theme_label": "主题",
                 "theme_light": "Light",

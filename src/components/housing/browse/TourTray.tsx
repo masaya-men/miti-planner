@@ -15,7 +15,7 @@ export interface TourTrayProps {
 
 /**
  * 右カラムのツアートレイ。番号付きの行き先リスト + 削除 + 「開始」。
- * 第1スパンは 追加/削除/開始 まで。DnD 並べ替え・推定時間の精緻化は後続で TourBuilderPane から移植。
+ * 第1スパンは 追加/削除/開始 まで。DnD 並べ替えは後続で TourBuilderPane から移植。
  */
 export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStart }) => {
   const { t, i18n } = useTranslation();
@@ -60,16 +60,6 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
           ))}
         </ol>
       )}
-
-      {/* 暫定推定時間の枠 (実ルート距離は M2 で実装予定) */}
-      <div className="housing-tour-tray-estimate">
-        <span className="housing-tour-tray-estimate-label">
-          {t('housing.tray.estimate_label')}
-        </span>
-        <span className="housing-tour-tray-estimate-value">
-          {t('housing.tray.estimate_pending')}
-        </span>
-      </div>
 
       <button
         type="button"
