@@ -6150,13 +6150,19 @@ select.housing-input option {
 .housing-tour-dest-thumb {
   width: 100%;
   height: var(--housing-tour-dest-thumb-h);
-  border-radius: 10px;
   object-fit: cover;
   background: var(--housing-card-thumb-bg);
   flex: 0 0 auto;
 }
-/* 生きたカード段階2: hero 画像に slideshow/動画を重ねるための基準ボックス。 */
-.housing-tour-dest-thumb-wrap { position: relative; }
+/* 生きたカード段階2: hero 画像に slideshow/動画を重ねるための基準ボックス。
+   角丸+overflow:hidden をここに集約し、 子 (img/slideshow/動画) をまとめてクリップする
+   (旧: img 単体に border-radius があったが、 上に重なる slideshow/video overlay が
+   角丸なしの四角い角でベースを上書きしていた回帰の修正)。 */
+.housing-tour-dest-thumb-wrap {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
 .housing-tour-dest-head {
   display: flex;
   flex-direction: column;
