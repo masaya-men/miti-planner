@@ -235,7 +235,20 @@ export const RouteAuthoringPage: React.FC = () => {
       <div className="housing-tour-page">
         <section className="housing-tour-page-panel" data-region="left">
           <div className="housing-tour-page-col">
-            <TourProgressPanel progress={progress} steps={steps} currentIndex={index} onFinish={() => {}} />
+            <TourProgressPanel
+              progress={progress}
+              steps={steps}
+              currentIndex={index}
+              phase="moving"
+              viewStartAt={null}
+              directions={null}
+              canView={false}
+              isLast={index >= total - 1}
+              onPrev={() => goto(index - 1)}
+              onViewStart={() => {}}
+              onNext={() => goto(index + 1)}
+              onFinish={() => {}}
+            />
           </div>
         </section>
 
@@ -310,10 +323,7 @@ export const RouteAuthoringPage: React.FC = () => {
           <div className="housing-tour-page-col">
             <TourShowcasePanel
               currentStep={currentStep}
-              currentIndex={index}
-              isLast={index >= total - 1}
-              onPrev={() => goto(index - 1)}
-              onPrimary={() => goto(index + 1)}
+              nextStep={index + 1 < steps.length ? steps[index + 1] : null}
               onOpenReport={() => {}}
             />
           </div>
