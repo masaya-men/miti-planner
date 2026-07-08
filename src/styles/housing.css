@@ -6324,6 +6324,19 @@ select.housing-input option {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* マップ操作ヒント(常時): 下部中央に控えめなグレー文字。装飾箱にはしない(リセットボタンと同じ抑制トーン)。 */
+.housing-tour-map-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  letter-spacing: 0.02em;
+}
 /* ズーム時に地図がパネル外へはみ出さないよう DEV エディタのみクリップ。 */
 .housing-dev-tourpreview .housing-tour-map-wrap { overflow: hidden; }
 

@@ -2694,6 +2694,7 @@
                 "map_none": "该目的地暂无地图数据",
                 "map_error": "地图加载失败",
                 "reset_view": "恢复默认视图",
+                "map_hint": "滚轮缩放 · 拖动移动",
                 "progress": {
                     "label": "导览进度",
                     "done_of_total": "{{done}} / {{total}} 件",

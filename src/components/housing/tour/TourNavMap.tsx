@@ -290,6 +290,11 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
             </svg>
           </div>
         )}
+        {status === 'ready' && (
+          <div className="housing-tour-map-hint" data-testid="tour-map-hint" aria-hidden="true">
+            {t('housing.tour.nav.map_hint')}
+          </div>
+        )}
       </div>
     </div>
   );
