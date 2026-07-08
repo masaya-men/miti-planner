@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -8,171 +8,90 @@ import jaTranslations from '../../../../locales/ja.json';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import type { TourStep } from '../../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../../lib/housing/formatHousingAddress';
-import { getPlotDirections } from '../../../../lib/housing/wardDirections';
 import { HousingPlaybackProvider } from '../../../../lib/housing/HousingPlaybackContext';
-
 import { TourShowcasePanel } from '../TourShowcasePanel';
 
-// mock-001: Shirogane (非ミスト) / size M / description あり
-const currentListing = MOCK_LISTINGS[0];
-
-const singleStep: TourStep = { id: currentListing.id, listing: currentListing };
+const cur = MOCK_LISTINGS[0];   // Shirogane / size M / description あり
+const nxt = MOCK_LISTINGS[1];
+const curStep: TourStep = { id: cur.id, listing: cur };
+const nextStep: TourStep = { id: nxt.id, listing: nxt };
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
-    lng: 'ja',
-    fallbackLng: 'ja',
+    lng: 'ja', fallbackLng: 'ja',
     resources: { ja: { translation: jaTranslations } },
     interpolation: { escapeValue: false },
   });
-
   if (!window.matchMedia) {
     (window as unknown as { matchMedia: (q: string) => MediaQueryList }).matchMedia = (query: string) =>
-      ({
-        matches: false, media: query, onchange: null,
-        addListener: () => {}, removeListener: () => {},
-        addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
-      } as unknown as MediaQueryList);
+      ({ matches: false, media: query, onchange: null, addListener: () => {}, removeListener: () => {}, addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false } as unknown as MediaQueryList);
   }
 });
 
 function renderPanel(props: Partial<Parameters<typeof TourShowcasePanel>[0]> = {}) {
   return render(
     <I18nextProvider i18n={i18n}>
-      <TourShowcasePanel
-        currentStep={singleStep}
-        currentIndex={0}
-        isLast={false}
-        onPrev={() => {}}
-        onPrimary={() => {}}
-        onOpenReport={() => {}}
-        {...props}
-      />
-    </I18nextProvider>
+      <HousingPlaybackProvider>
+        <TourShowcasePanel currentStep={curStep} nextStep={nextStep} onOpenReport={() => {}} {...props} />
+      </HousingPlaybackProvider>
+    </I18nextProvider>,
   );
 }
 
-describe('TourShowcasePanel — 次の目的地の詳細', () => {
-  // 住所/サイズ/ワールドは .housing-tour-dest-facts (dest カード) の中だけを見る。
-  it('住所 (formatHousingAddress) が出る', () => {
+describe('TourShowcasePanel — 表示専用ショーケース', () => {
+  it('住所＋サイズが1行に集約されて出る', () => {
     const { container } = renderPanel();
-    const facts = within(container.querySelector('.housing-tour-dest-facts')!);
-    expect(facts.getByText(formatHousingAddress(currentListing, 'ja'))).toBeInTheDocument();
+    const line = container.querySelector('.housing-tour-dest-addrsize')!;
+    expect(line.textContent).toContain(formatHousingAddress(cur, 'ja'));
+    expect(line.textContent).toContain(cur.size!);
   });
 
-  it('サイズが出る', () => {
+  it('DC/サーバーが1回だけ出る', () => {
     const { container } = renderPanel();
-    const facts = within(container.querySelector('.housing-tour-dest-facts')!);
-    expect(facts.getByText(currentListing.size!)).toBeInTheDocument();
+    expect(container.querySelectorAll('.housing-tour-dest-world')).toHaveLength(1);
   });
 
-  it('ワールド (server) が出る', () => {
-    const { container } = renderPanel();
-    const facts = within(container.querySelector('.housing-tour-dest-facts')!);
-    expect(facts.getByText(currentListing.server)).toBeInTheDocument();
-  });
-
-  it('ひとことメモ (description) が出る', () => {
+  it('紹介文ラベルが「紹介文」で本文が出る', () => {
     renderPanel();
-    expect(screen.getByText(currentListing.description!)).toBeInTheDocument();
+    expect(screen.getByText('紹介文')).toBeInTheDocument();
+    expect(screen.getByText(cur.description!)).toBeInTheDocument();
   });
 
-  it('メモが無いときは no_memo が出る', () => {
-    const noMemoListing = { ...currentListing, description: undefined };
-    renderPanel({ currentStep: { id: noMemoListing.id, listing: noMemoListing } });
-    expect(screen.getByText('メモはありません')).toBeInTheDocument();
+  it('紹介文が空なら no_memo（紹介文はありません）', () => {
+    const empty = { ...cur, description: undefined };
+    renderPanel({ currentStep: { id: empty.id, listing: empty } });
+    expect(screen.getByText('紹介文はありません')).toBeInTheDocument();
   });
 
-  it('行き方ブロック: 最寄りエーテライトへ移動 + 徒歩ナビが出る', () => {
+  it('次の目的地カード(生きたメディア)が出る', () => {
     const { container } = renderPanel();
-    const route = container.querySelector('.housing-tour-dest-route');
-    expect(route).not.toBeNull();
-    const dir = getPlotDirections(currentListing.area, currentListing.plot)!;
-    expect(dir).not.toBeNull();
-    expect(route!.textContent).toContain(dir.aetheryte);
-    if (dir.directions) expect(route!.textContent).toContain(dir.directions);
+    const nextCard = container.querySelector('.housing-tour-dest-nextcard');
+    expect(nextCard).not.toBeNull();
+    expect(nextCard!.querySelector('.housing-tour-living-media')).not.toBeNull();
   });
 
-  it('旧「最寄りエーテライト(エリア名)」の dl 行は無い', () => {
+  it('nextStep=null（最後の目的地）では次の目的地カードが出ない', () => {
+    const { container } = renderPanel({ nextStep: null });
+    expect(container.querySelector('.housing-tour-dest-nextcard')).toBeNull();
+  });
+
+  it('操作ボタン(前へ/次へ)と行き方は左パネルに無い', () => {
     const { container } = renderPanel();
-    const facts = container.querySelector('.housing-tour-dest-facts')!;
-    expect(facts.textContent).not.toContain('最寄りエーテライト');
-  });
-
-  it('plot 無し(アパート等)では行き方ブロックが出ない', () => {
-    const apt = { ...currentListing, buildingType: 'apartment' as const, plot: undefined };
-    const { container } = renderPanel({ currentStep: { id: apt.id, listing: apt } });
+    expect(screen.queryByRole('button', { name: '前へ' })).toBeNull();
     expect(container.querySelector('.housing-tour-dest-route')).toBeNull();
-  });
-});
-
-describe('TourShowcasePanel — 操作', () => {
-  it('「前へ」で onPrev が呼ばれる', () => {
-    const onPrev = vi.fn();
-    renderPanel({ onPrev, currentIndex: 1 });
-    fireEvent.click(screen.getByRole('button', { name: '前へ' }));
-    expect(onPrev).toHaveBeenCalledTimes(1);
+    expect(container.querySelector('.housing-tour-dest-actions')).toBeNull();
   });
 
-  it('currentIndex===0 のとき「前へ」が disabled', () => {
-    renderPanel({ currentIndex: 0 });
-    expect(screen.getByRole('button', { name: '前へ' })).toBeDisabled();
-  });
-
-  it('主ボタンで onPrimary が呼ばれ、通常時ラベルは arrive_next', () => {
-    const onPrimary = vi.fn();
-    renderPanel({ onPrimary, isLast: false });
-    const btn = screen.getByRole('button', { name: '到着した → 次へ' });
-    fireEvent.click(btn);
-    expect(onPrimary).toHaveBeenCalledTimes(1);
-  });
-
-  it('isLast===true のとき主ボタンラベルが complete になり onPrimary が呼ばれる', () => {
-    const onPrimary = vi.fn();
-    renderPanel({ onPrimary, isLast: true });
-    const btn = screen.getByRole('button', { name: 'ツアーを完了' });
-    fireEvent.click(btn);
-    expect(onPrimary).toHaveBeenCalledTimes(1);
-  });
-
-  it('report_button クリックで onOpenReport が呼ばれる', () => {
+  it('報告ボタンで onOpenReport が呼ばれる', () => {
     const onOpenReport = vi.fn();
     renderPanel({ onOpenReport });
-    fireEvent.click(screen.getByRole('button', { name: '情報が違う・報告する' }));
+    screen.getByRole('button', { name: '情報が違う・報告する' }).click();
     expect(onOpenReport).toHaveBeenCalledTimes(1);
   });
-});
 
-describe('TourShowcasePanel — 防御 (currentStep===null)', () => {
-  it('currentStep===null でもクラッシュせず操作は描画される', () => {
+  it('currentStep=null でもクラッシュせず報告ボタンは出る', () => {
     const { container } = renderPanel({ currentStep: null });
     expect(screen.getByRole('button', { name: '情報が違う・報告する' })).toBeInTheDocument();
-    // 詳細カード (サムネ/住所/サイズ/ワールド/メモ) は出ない。
     expect(container.querySelector('.housing-tour-dest-card')).toBeNull();
-  });
-});
-
-describe('TourShowcasePanel — 生きたカード hero (段階2)', () => {
-  it('Provider 配下で目的地画像に ambient スライドショーが出る (複数画像)', () => {
-    const multi = { ...currentListing, imageMode: 'sns' as const, sourceImageUrls: ['https://x/a.jpg', 'https://x/b.jpg'] };
-    const step = { id: multi.id, listing: multi };
-    const { container } = render(
-      <I18nextProvider i18n={i18n}>
-        <HousingPlaybackProvider>
-          <TourShowcasePanel
-            currentStep={step}
-            currentIndex={0}
-            isLast={false}
-            onPrev={() => {}}
-            onPrimary={() => {}}
-            onOpenReport={() => {}}
-          />
-        </HousingPlaybackProvider>
-      </I18nextProvider>,
-    );
-    const wrap = container.querySelector('.housing-tour-dest-thumb-wrap');
-    expect(wrap).not.toBeNull();
-    expect(wrap!.querySelector('.housing-card-ambient-slideshow')).not.toBeNull();
-    expect(container.querySelector('.housing-tour-dest-thumb')).not.toBeNull(); // ベース img 残存
   });
 });
