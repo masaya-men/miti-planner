@@ -2741,7 +2741,7 @@
                 "recent": "Recently visited",
                 "finish": "End tour",
                 "complete": {
-                    "title": "You've visited them all",
+                    "title": "What a lovely tour!",
                     "lead": "Great work — your tour is complete, so you can head back to the listings.",
                     "back_browse": "Back to Browse",
                     "back_favorites": "Back to Favorites"

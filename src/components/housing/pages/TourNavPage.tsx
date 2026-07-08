@@ -147,34 +147,13 @@ export const TourNavPage: React.FC = () => {
     );
   }
 
-  if (completed) {
-    return (
-      <div className="housing-tour-page">
-        <section className="housing-tour-page-panel housing-tour-page-panel-solo" data-region="center">
-          <div className="housing-tour-complete">
-            <h1 className="housing-tour-complete-title">{t('housing.tour.nav.complete.title')}</h1>
-            <p className="housing-tour-complete-lead">{t('housing.tour.nav.complete.lead')}</p>
-            <div className="housing-tour-complete-actions">
-              <button
-                type="button"
-                className="housing-tour-complete-btn housing-tour-complete-btn--primary"
-                onClick={backToBrowse}
-              >
-                {t('housing.tour.nav.complete.back_browse')}
-              </button>
-              <button type="button" className="housing-tour-complete-btn" onClick={backToFavorites}>
-                {t('housing.tour.nav.complete.back_favorites')}
-              </button>
-            </div>
-          </div>
-        </section>
-      </div>
-    );
-  }
+  // 完了時: 全画面に切り替えず、下の3パネルは inert(操作不可)のまま残し、上に完了オーバーレイを重ねる。
+  // 見学した世界を背景に残しつつ、誤操作を防いで「探す/お気に入りに戻る」へ安全に導く。
+  const frozen = completed || undefined;
 
   return (
     <div className="housing-tour-page housing-tour-page--reorg">
-      <section className="housing-tour-page-panel" data-region="left">
+      <section className="housing-tour-page-panel" data-region="left" inert={frozen}>
         <div className="housing-tour-page-col">
           <TourShowcasePanel
             currentStep={progress.currentStep}
@@ -184,7 +163,7 @@ export const TourNavPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="housing-tour-page-panel" data-region="center">
+      <section className="housing-tour-page-panel" data-region="center" inert={frozen}>
         <div className="housing-tour-page-col">
           <TourNavMap
             status={mapStatus}
@@ -199,7 +178,7 @@ export const TourNavPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="housing-tour-page-panel" data-region="right">
+      <section className="housing-tour-page-panel" data-region="right" inert={frozen}>
         <div className="housing-tour-page-col">
           <TourProgressPanel
             progress={progress}
@@ -217,6 +196,35 @@ export const TourNavPage: React.FC = () => {
           />
         </div>
       </section>
+
+      {completed && (
+        <div
+          className="housing-tour-complete-overlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="housing-tour-complete-title"
+          data-testid="tour-complete-overlay"
+        >
+          <div className="housing-tour-complete-card">
+            <h1 id="housing-tour-complete-title" className="housing-tour-complete-title">
+              {t('housing.tour.nav.complete.title')}
+            </h1>
+            <p className="housing-tour-complete-lead">{t('housing.tour.nav.complete.lead')}</p>
+            <div className="housing-tour-complete-actions">
+              <button
+                type="button"
+                className="housing-tour-complete-btn housing-tour-complete-btn--primary"
+                onClick={backToBrowse}
+              >
+                {t('housing.tour.nav.complete.back_browse')}
+              </button>
+              <button type="button" className="housing-tour-complete-btn" onClick={backToFavorites}>
+                {t('housing.tour.nav.complete.back_favorites')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <HousingReportModal open={!!reportId} listingId={reportId ?? ''} onClose={() => setReportId(null)} />
     </div>

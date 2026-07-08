@@ -146,8 +146,23 @@ describe('TourNavPage', () => {
     seedListings();
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: '完了' }));
-    expect(screen.getByText('すべて回りました')).toBeInTheDocument();
+    expect(screen.getByText('素敵な時間でしたね！')).toBeInTheDocument();
     // store非破壊: currentIndex は完了フラグと無関係にそのまま
     expect(useHousingTourStore.getState().currentIndex).toBe(ids.length - 1);
+  });
+
+  it('完了はオーバーレイ方式: 下の3パネルは残しつつ inert(操作不可)で重ねる', () => {
+    useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: ids.length - 1 });
+    seedListings();
+    const { container } = renderPage();
+    fireEvent.click(screen.getByRole('button', { name: '完了' }));
+    // オーバーレイが出る
+    expect(screen.getByTestId('tour-complete-overlay')).toBeInTheDocument();
+    // 全画面に切替えず、下のパネル(進行状況見出し)は残っている
+    expect(screen.getByText('ツアー進行状況')).toBeInTheDocument();
+    // 3パネルは inert (安全に戻すため操作不可)
+    expect(container.querySelector('[data-region="left"]')?.hasAttribute('inert')).toBe(true);
+    expect(container.querySelector('[data-region="center"]')?.hasAttribute('inert')).toBe(true);
+    expect(container.querySelector('[data-region="right"]')?.hasAttribute('inert')).toBe(true);
   });
 });

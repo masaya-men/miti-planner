@@ -105,6 +105,8 @@
   --housing-popover-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
   --housing-popover-z: 80;
   --housing-popover-z-stack: 90;
+  --housing-tour-complete-z: 60;      /* ツアー完了オーバーレイ(3パネルの上・detail 70/popover 80 未満) */
+  --housing-tour-complete-veil: rgba(255, 255, 255, 0.1); /* 完了オーバーレイ: ほんの少し白いフロスト(暗幕にしない) */
 
   /* ===== Detail (Phase 3) ===== */
   --housing-detail-backdrop-bg: rgba(0, 0, 0, 0.6);
@@ -6660,6 +6662,7 @@ select.housing-input option {
    DEV RouteAuthoringPage が使う共有 .housing-tour-page には波及させない。 */
 .housing-tour-page--reorg {
   grid-template-columns: var(--housing-tour-showcase-w) 1fr var(--housing-tour-progress-w);
+  position: relative; /* 完了オーバーレイ(.housing-tour-complete-overlay)の絶対配置基準 */
 }
 .housing-tour-page-panel {
   position: relative;
@@ -6702,12 +6705,14 @@ select.housing-input option {
   font-size: var(--housing-text-lg);
   font-weight: 700;
   color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow); /* フロスト上で読めるよう暗いハロー */
 }
 .housing-tour-complete-lead {
   margin: 0;
   font-size: var(--housing-text-sm);
   line-height: 1.6;
-  color: var(--housing-text-mute);
+  color: var(--housing-text);
+  text-shadow: var(--housing-text-shadow);
 }
 .housing-tour-complete-actions {
   display: flex;
@@ -6722,12 +6727,13 @@ select.housing-input option {
   font-size: var(--housing-text-sm);
   font-weight: 600;
   color: var(--housing-text);
-  background: var(--housing-chip-bg);
+  /* 明るいフロスト上でも視認できるよう、副ボタンは沈んだダークチップ。hover は brightness で統一(色ズレを避ける)。 */
+  background: var(--housing-chip-sunken-bg);
   border: 1px solid var(--housing-panel-border);
   border-radius: 10px;
-  transition: background 0.15s ease, filter 0.15s ease, transform 0.1s ease;
+  transition: filter 0.15s ease, transform 0.1s ease;
 }
-.housing-tour-complete-btn:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-complete-btn:hover { filter: brightness(1.35); }
 .housing-tour-complete-btn:active { transform: scale(0.98); }
 .housing-tour-complete-btn:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 .housing-tour-complete-btn--primary {
@@ -6738,6 +6744,46 @@ select.housing-input option {
   box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
 }
 .housing-tour-complete-btn--primary:hover { filter: brightness(1.05); }
+
+/* ツアー完了オーバーレイ: 下の3パネルは inert で残したまま、上に「ほんの少し白いフロスト」を重ねる。
+   暗幕にはしない(ツアー後の明るい気持ちを保つ)。文言+ボタンだけを中央に置く。 */
+.housing-tour-complete-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: var(--housing-tour-complete-z);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--housing-main-padding);
+  background: var(--housing-tour-complete-veil);
+  --tw-backdrop-blur: blur(6px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  animation: housing-tour-complete-overlay-in 240ms ease-out both;
+}
+/* 暗い箱は置かない: 文言とボタンをフロストの上に直接。レイアウトのみ担う。 */
+.housing-tour-complete-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  max-width: 420px;
+  padding: 24px;
+  animation: housing-tour-complete-card-in 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes housing-tour-complete-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes housing-tour-complete-card-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-complete-overlay,
+  .housing-tour-complete-card { animation: none; }
+}
 
 /* 右カラム: お気に入りプレビュー (参考UI準拠) */
 .housing-fav-strip {
