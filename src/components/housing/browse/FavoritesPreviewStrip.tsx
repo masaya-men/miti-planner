@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Heart } from 'lucide-react';
@@ -14,11 +15,14 @@ function representativeImage(l: MockListing): string {
   return PLACEHOLDER;
 }
 
-const MAX_THUMBS = 4;
+// プレビューに並べる最大枚数 (これ以上はお気に入りページ「すべて見る」で)。
+// 3件を超えると横スクロール + 4件目の見切れでスクロール可能を示唆する。
+const MAX_THUMBS = 12;
 
 /**
  * 探すページ右カラムのお気に入りプレビュー (参考UI準拠)。
- * 直近のお気に入りサムネを数枚 + 「すべて見る」でお気に入りページへ。
+ * 直近のお気に入りサムネを横一列で + 「すべて見る」でお気に入りページへ。
+ * 3件超は横スクロール (ホイールでも横送り・4件目が見切れてスクロールを示唆)。
  * お気に入りが無いときは軽い誘導文。
  */
 export const FavoritesPreviewStrip: React.FC = () => {
@@ -26,6 +30,7 @@ export const FavoritesPreviewStrip: React.FC = () => {
   const navigate = useNavigate();
   const favoriteIds = useHousingFavoritesStore((s) => s.ids);
   const listings = useHousingListingsStore((s) => s.listings);
+  const listRef = useRef<HTMLUListElement>(null);
 
   // 新しい順 (add で末尾 push) で数枚。
   const recent = [...favoriteIds]
@@ -33,6 +38,20 @@ export const FavoritesPreviewStrip: React.FC = () => {
     .map((id) => listings.find((l) => l.id === id))
     .filter((l): l is MockListing => Boolean(l));
   const thumbs = recent.slice(0, MAX_THUMBS);
+
+  // ストリップ上のホイールを横スクロールに変換する (横溢れがある時だけ・縦ページ送りは妨げない)。
+  // React onWheel は passive で preventDefault が効かないためネイティブ登録。
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (el.scrollWidth <= el.clientWidth) return;
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [thumbs.length]);
 
   return (
     <section className="housing-fav-strip">
@@ -58,7 +77,7 @@ export const FavoritesPreviewStrip: React.FC = () => {
           <p>{t('housing.favStrip.empty')}</p>
         </div>
       ) : (
-        <ul className="housing-fav-strip-list">
+        <ul className="housing-fav-strip-list" ref={listRef}>
           {thumbs.map((l) => (
             <li key={l.id} className="housing-fav-strip-item">
               <button

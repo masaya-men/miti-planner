@@ -1937,7 +1937,7 @@
             "empty": "カードの「ツアーに追加」で行き先を積みましょう",
             "remove": "削除",
             "start": "この内容でツアーを開始",
-            "count": "{{count}}/{{max}}"
+            "count": "{{count}}"
         },
         "favStrip": {
             "title": "お気に入り",

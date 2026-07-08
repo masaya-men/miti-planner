@@ -1916,7 +1916,7 @@
             "empty": "Add places with “Add to tour” on a card.",
             "remove": "Remove",
             "start": "Start tour with these",
-            "count": "{{count}}/{{max}}"
+            "count": "{{count}}"
         },
         "favStrip": {
             "title": "Favorites",

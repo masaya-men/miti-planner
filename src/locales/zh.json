@@ -1881,7 +1881,7 @@
             "empty": "用卡片上的“加入导览”添加目的地。",
             "remove": "删除",
             "start": "以此内容开始导览",
-            "count": "{{count}}/{{max}}"
+            "count": "{{count}}"
         },
         "favStrip": {
             "title": "收藏",

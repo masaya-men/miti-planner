@@ -1881,7 +1881,7 @@
             "empty": "카드의 ‘투어에 추가’로 목적지를 담아보세요.",
             "remove": "삭제",
             "start": "이 내용으로 투어 시작",
-            "count": "{{count}}/{{max}}"
+            "count": "{{count}}"
         },
         "favStrip": {
             "title": "즐겨찾기",

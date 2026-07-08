@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Plus, Check } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 import { HousingCardMarqueeLine } from './HousingCardMarqueeLine';
+import { HousingFavHeart } from './HousingFavHeart';
 import type { MockListing } from '../../../data/housing/mockListings';
-import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { isEffectivelyPublic } from '../../../lib/housing/listingPublish';
@@ -53,10 +53,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
 }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const favIds = useHousingFavoritesStore((s) => s.ids);
-  const addFav = useHousingFavoritesStore((s) => s.add);
-  const removeFav = useHousingFavoritesStore((s) => s.remove);
-  const isFav = favIds.includes(listing.id);
   const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
 
   // 主ラベルは登録者のタイトル (新シェルでは必須)。旧データ (title なし) は住所で代替。
@@ -123,18 +119,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           )}
         </div>
 
-        <button
-          type="button"
-          className={`housing-card-fav${isFav ? ' is-on' : ''}`}
-          aria-label={t('housing.card.favorite')}
-          aria-pressed={isFav}
-          onClick={(e) => {
-            e.stopPropagation();
-            isFav ? removeFav(listing.id) : addFav(listing.id);
-          }}
-        >
-          <Heart size={16} aria-hidden="true" />
-        </button>
+        <HousingFavHeart listingId={listing.id} />
 
         {/* 常時表示: 下端グラデーションにタイトル1行。見切れ分はカードホバー中に
             その場でゆっくり左へ流れ続ける (ループマーキー)。

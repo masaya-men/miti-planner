@@ -4,9 +4,6 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 
-/** 1 ツアーに積める上限 (参考UI「N/20件」)。お気に入りページ等でも参照する。 */
-export const MAX_TOUR = 20;
-
 export interface TourTrayProps {
   listingIds: string[];
   onChange: (ids: string[]) => void;
@@ -33,7 +30,7 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
       <div className="housing-tour-tray-head">
         <span className="housing-tour-tray-title">{t('housing.tray.title')}</span>
         <span className="housing-tour-tray-count">
-          {t('housing.tray.count', { count: listingIds.length, max: MAX_TOUR })}
+          {t('housing.tray.count', { count: listingIds.length })}
         </span>
       </div>
 
