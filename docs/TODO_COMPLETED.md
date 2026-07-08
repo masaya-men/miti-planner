@@ -2,6 +2,12 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅✅✅ 2026-07-08 ハウジングツアー中央地図 Phase3(レイアウト再編)+ツアーUX調整①〜⑨ — main 統合・本番反映完了 (finishing-a-development-branch)
+ブランチ `feat/housing-tour-map-phase3-layout-reorg`(12コミット)を **fast-forward merge → push → Vercel 本番自動デプロイ**。main `95ce47e4`。plan=`docs/superpowers/plans/2026-07-08-housing-tour-map-phase3-layout-reorg.md`。
+- **内容(①〜⑨)**: ①Phase3レイアウト再編(左=目的地ショーケース/右=進行状況・ステップ一覧を右へ移設・NextDestination→**TourShowcasePanel**改名・共有grid不変で `.housing-tour-page--reorg` modifierにスコープ=DEV RouteAuthoringPage非回帰) ②マップ既定ズーム**上限scale2**(`MAX_DEFAULT_SCALE`・手動は8維持) ③シロガネ外周の無名黒境界道(id/mask無しpath)を道トーンへ再着色 ④推定時間UI撤去(トレイ推定時間+StatusBar ETA+4言語ロケールキー) ⑤いいねハート押下FB(pop1.35+8粒・`HousingFavHeart`・reduced-motion対応) ⑥トレイ件数のみ表示(`MAX_TOUR`撤去) ⑦お気に入りプレビュー横スクロール(flex nowrap/4件目見切れ/ホイール横送りネイティブ登録) ⑧地図perf(SVGホストの重いdrop-shadow撤去・にじみ対策でwill-change不採用) ⑨家の枠線を道と同じ0.42へ統一。
+- **検証**: build EXIT0 / フルvitest=5既知legacy fail(TopBar4+HousingWorkspace1・mainにも存在・無関係)+新規0。マージ検証で④の追従漏れ(StatusBar ETA テスト)を1件修正コミット(`95ce47e4`)。見た目(にじみ/重さ/枠線)はユーザー実画面DPR2.58ゲートでOK。
+- **残(次セッション最優先)**: ⑤ツアー左パネル再構成/⑥右パネル再構成(見学開始フェーズ moving↔viewing)/🐛家と道の枠線がまだ「別物」に見える根治(区画の白fillコントラスト差の疑い)。
+
 ### ✅✅✅ 2026-07-06 ハウジングツアー大ブランチ — main 統合・本番反映完了 (finishing-a-development-branch)
 ブランチ `feat/housing-tour-nav-m1`(84コミット・複数スパン)を **fast-forward merge → push → Vercel 本番自動デプロイ**。台帳=`.superpowers/sdd/progress.md` 末尾に全経緯。
 - **内容**: ①M1「ツアー中(Nav)ページ」(実ページ化・地図/前後連動/報告モーダル/完了/空状態) ②P2+P4 本物のナビ化(orderTourStops 自動並替・全5エリア地図遅延ロード・**実エーテライト起点データ全300区画**・最寄りエーテライト→家のゴージャス経路) ③実箱ハイライト+アパートナビ ④座標破損バグ根治(parse-ward-svg 中心計算の H/V/C+rotate 対応・全ward JSON house座標を実SVG中心へ外科補正+回帰テスト) ⑤中央地図 Phase1(改善1投影起点/2箱縁停止/3波紋撤去/8枠線色トークン化・**道の黒残り根治**=`path[mask], path[id$="(Stroke)"]`の2系統対応) ⑥家の入口手動補正ツール(DEV専用 `/housing/dev/entrances`・vite dev直保存) ⑦**全10マップ入口採取276区画**+Figma再エクスポートで道漏れ解消(家座標0移動で保全)。

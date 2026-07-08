@@ -9,9 +9,9 @@
 
 ---
 
-## 次の作業順 (2026-07-07 更新)
+## 次の作業順 (2026-07-08 更新)
 
-**✅中央地図 Phase2 本番反映済(main f0490eaa)。Phase3(レイアウト再編)+ツアーUX調整多数は 🟡ブランチ `feat/housing-tour-map-phase3-layout-reorg`(未マージ・未デプロイ・要実機OK)**。内容=左=ショーケース/右=進行状況の左右入替+ステップ一覧右移設(NextDestination→ShowcasePanel改名)/マップ既定ズーム上限scale2(寄りすぎ抑制)/シロガネ黒境界道再着色/推定時間・ETA撤去/いいねハート押下FB(pop+粒)/トレイ件数のみ/お気に入り横スクロール/地図perf(重いdrop-shadow撤去)。plan=`docs/superpowers/plans/2026-07-08-housing-tour-map-phase3-layout-reorg.md`。詳細=memory [[project_housing_phase_status]]。DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
+**✅中央地図 Phase2 + Phase3(レイアウト再編)+ツアーUX調整①〜⑨ すべて本番反映済(main `95ce47e4`・2026-07-08 実機OK→ff-merge+push+自動デプロイ・ブランチ削除済)**。内容=左=ショーケース/右=進行状況の左右入替+ステップ一覧右移設(NextDestination→ShowcasePanel改名)/マップ既定ズーム上限scale2(寄りすぎ抑制)/シロガネ黒境界道再着色/推定時間・ETA撤去/いいねハート押下FB(pop+粒)/トレイ件数のみ/お気に入り横スクロール/地図perf(重いdrop-shadow撤去)。plan=`docs/superpowers/plans/2026-07-08-housing-tour-map-phase3-layout-reorg.md`。詳細=memory [[project_housing_phase_status]]。DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
   - **🔴次セッション最優先**: ⑤ツアー左パネル再構成(目的地画像=動く=`HousingCardAmbientSlideshow`流用/住所サイズ重複整理/メモ固定高スクロール/次の目的地小/報告) → ⑥右パネル再構成(進捗リング+済残を右横/縦ステッパー青線が伸びる/前へ・見学を開始する[フェーズ切替 moving↔viewing 最小ロジック]・次へ/終了・操作は左→右へ) → 🐛家と道の枠線がまだ「別物」に見える根治(区画の白fillでコントラスト差の疑い・opacity 0.42統一済でも残差)。参考ステッパーコード=会話ログ。
 
 1. **🔴ハウジング全面再構築(全7ページ・再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカル・未push)。spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`、台帳=progress.md。
