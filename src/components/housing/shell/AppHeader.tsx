@@ -1,6 +1,7 @@
+import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useThemeStore } from '../../../store/useThemeStore';
+import { useThemeStore, type Theme } from '../../../store/useThemeStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { NotificationBell } from '../notifications/NotificationBell';
@@ -21,6 +22,31 @@ export const AppHeader: React.FC = () => {
   const profileAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
   const openLogin = useHousingModalStore((s) => s.openLogin);
   const openAccount = useHousingModalStore((s) => s.openAccount);
+
+  // テーマ切替: 縦の「日没(上→下) / 日の出(下→上)」リビール (housing 限定・View Transitions)。
+  // 参考: Akash Hamirwasia の全画面テーマトグル。data-theme-anim で CSS のワイプ向き +
+  // シーナリー動画の即時差し替え (演出中は 700ms opacity を止める) を制御する。
+  // 非対応ブラウザ / reduce-motion は即時切替。
+  const switchTheme = (next: Theme) => {
+    if (theme === next) return;
+    const root = document.documentElement;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+    };
+    if (typeof doc.startViewTransition !== 'function' || reduce) {
+      setTheme(next);
+      return;
+    }
+    root.dataset.themeAnim = next; // 'dark'=日没(上→下) / 'light'=日の出(下→上)
+    const transition = doc.startViewTransition(() => {
+      // 「新」スナップショットに新テーマを確実に写すため flushSync で同期反映する。
+      flushSync(() => setTheme(next));
+    });
+    transition.finished.finally(() => {
+      delete root.dataset.themeAnim;
+    });
+  };
 
   return (
     <header className="housing-app-header" data-region="header">
@@ -57,7 +83,7 @@ export const AppHeader: React.FC = () => {
             role="tab"
             aria-selected={theme === 'light'}
             className={theme === 'light' ? 'is-on' : ''}
-            onClick={() => setTheme('light')}
+            onClick={() => switchTheme('light')}
           >
             <span aria-hidden="true">☀</span>
             {t('housing.workspace.topbar.theme_light')}
@@ -67,7 +93,7 @@ export const AppHeader: React.FC = () => {
             role="tab"
             aria-selected={theme === 'dark'}
             className={theme === 'dark' ? 'is-on' : ''}
-            onClick={() => setTheme('dark')}
+            onClick={() => switchTheme('dark')}
           >
             <span aria-hidden="true">☾</span>
             {t('housing.workspace.topbar.theme_dark')}

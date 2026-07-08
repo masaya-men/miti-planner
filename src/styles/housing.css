@@ -6785,6 +6785,38 @@ select.housing-input option {
   .housing-tour-complete-card { animation: none; }
 }
 
+/* ===== テーマ切替: 縦の「日没(上→下) / 日の出(下→上)」リビール (housing トグルのみ・View Transitions) =====
+   参考: Akash Hamirwasia の全画面テーマトグル。AppHeader.switchTheme が startViewTransition 中に
+   html[data-theme-anim] を立て、新テーマを縦にクリップして旧テーマの上に被せる。
+   非対応ブラウザ / reduce-motion では JS 側が即時切替に落ちる (これらの規則は発火しない)。
+   duration token は :root 必須 (::view-transition-* 疑似要素は :root に付き、.housing-workspace
+   の token を継承できない。外すと duration 欠落=0秒=一気に切替になる)。 */
+:root { --housing-theme-wipe-ms: 800ms; }
+/* 演出中は背景シーナリー動画の 700ms opacity を止め、新テーマの映像を「新」スナップショットへ即写す。 */
+html[data-theme-anim] [data-scenery] { transition: none !important; }
+/* 旧テーマは下にそのまま残し、新テーマを縦にクリップして被せる (既定のクロスフェードを無効化)。 */
+html[data-theme-anim]::view-transition-old(root) { animation: none; }
+html[data-theme-anim="dark"]::view-transition-new(root) {
+  animation: housing-theme-wipe-down var(--housing-theme-wipe-ms) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+html[data-theme-anim="light"]::view-transition-new(root) {
+  animation: housing-theme-wipe-up var(--housing-theme-wipe-ms) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+/* 日没(→dark): 夜が上から下へまっすぐ降りてくる。 */
+@keyframes housing-theme-wipe-down {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+/* 日の出(→light): 朝が下から上へ昇る (反対)。 */
+@keyframes housing-theme-wipe-up {
+  from { clip-path: inset(100% 0 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme-anim]::view-transition-new(root),
+  html[data-theme-anim]::view-transition-old(root) { animation: none; }
+}
+
 /* 右カラム: お気に入りプレビュー (参考UI準拠) */
 .housing-fav-strip {
   flex: 0 0 auto;
