@@ -9,6 +9,7 @@ import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import type { TourStep } from '../../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../../lib/housing/formatHousingAddress';
 import { getPlotDirections } from '../../../../lib/housing/wardDirections';
+import { HousingPlaybackProvider } from '../../../../lib/housing/HousingPlaybackContext';
 
 import { TourShowcasePanel } from '../TourShowcasePanel';
 
@@ -24,6 +25,15 @@ beforeAll(() => {
     resources: { ja: { translation: jaTranslations } },
     interpolation: { escapeValue: false },
   });
+
+  if (!window.matchMedia) {
+    (window as unknown as { matchMedia: (q: string) => MediaQueryList }).matchMedia = (query: string) =>
+      ({
+        matches: false, media: query, onchange: null,
+        addListener: () => {}, removeListener: () => {},
+        addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
+      } as unknown as MediaQueryList);
+  }
 });
 
 function renderPanel(props: Partial<Parameters<typeof TourShowcasePanel>[0]> = {}) {
@@ -139,5 +149,29 @@ describe('TourShowcasePanel — 防御 (currentStep===null)', () => {
     expect(screen.getByRole('button', { name: '情報が違う・報告する' })).toBeInTheDocument();
     // 詳細カード (サムネ/住所/サイズ/ワールド/メモ) は出ない。
     expect(container.querySelector('.housing-tour-dest-card')).toBeNull();
+  });
+});
+
+describe('TourShowcasePanel — 生きたカード hero (段階2)', () => {
+  it('Provider 配下で目的地画像に ambient スライドショーが出る (複数画像)', () => {
+    const multi = { ...currentListing, imageMode: 'sns' as const, sourceImageUrls: ['https://x/a.jpg', 'https://x/b.jpg'] };
+    const step = { id: multi.id, listing: multi };
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <HousingPlaybackProvider>
+          <TourShowcasePanel
+            currentStep={step}
+            currentIndex={0}
+            isLast={false}
+            onPrev={() => {}}
+            onPrimary={() => {}}
+            onOpenReport={() => {}}
+          />
+        </HousingPlaybackProvider>
+      </I18nextProvider>,
+    );
+    const wrap = container.querySelector('.housing-tour-dest-thumb-wrap');
+    expect(wrap?.querySelector('.housing-card-ambient-slideshow')).not.toBeNull();
+    expect(container.querySelector('.housing-tour-dest-thumb')).not.toBeNull(); // ベース img 残存
   });
 });

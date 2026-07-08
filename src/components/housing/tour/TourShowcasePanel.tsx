@@ -1,8 +1,13 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { representativeImage } from '../../../lib/housing/representativeImage';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
+import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
+import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
+import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
+import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 
 export interface TourShowcasePanelProps {
   currentStep: TourStep | null;
@@ -35,16 +40,48 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
   const isApartment = listing?.buildingType === 'apartment';
   const directions = getPlotDirections(listing?.area ?? '', listing?.plot);
 
+  // 生きたカード (段階2): 動画種別 → spotlight 候補判定、frames 解決、IO 登録。
+  // listing は表示専用 props で null を取り得るが、hook は常に呼ぶ必要があるため
+  // null のときは空 id + 空 frames で無害に回す (resolveSlideshowFrames が [] を返す)。
+  const videoKind: 'twitter' | 'youtube' | null = listing?.videoUrl
+    ? 'twitter'
+    : listing?.youtubeVideoId
+      ? 'youtube'
+      : null;
+  const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing?.id ?? '', videoKind !== null);
+  const mediaRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    register(mediaRef.current);
+    return (): void => register(null);
+  }, [register]);
+  const frames = useHousingCardFrames(
+    listing ?? ({ id: '' } as Parameters<typeof useHousingCardFrames>[0]),
+    ambientOn,
+  );
+
   return (
     <div className="housing-tour-dest">
       {listing && (
         <div className="housing-tour-dest-card">
-          <img
-            className="housing-tour-dest-thumb"
-            src={representativeImage(listing)}
-            alt=""
-            loading="lazy"
-          />
+          <div className="housing-tour-dest-thumb-wrap" ref={mediaRef}>
+            <img
+              className="housing-tour-dest-thumb"
+              src={representativeImage(listing)}
+              alt=""
+              loading="lazy"
+            />
+            <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
+            {isPlaying && videoKind === 'twitter' && listing.videoUrl && (
+              <HousingCardVideoOverlay
+                kind="twitter"
+                videoUrl={listing.videoUrl}
+                posterUrl={listing.videoPosterUrl}
+              />
+            )}
+            {isPlaying && videoKind === 'youtube' && listing.youtubeVideoId && (
+              <HousingCardVideoOverlay kind="youtube" youtubeVideoId={listing.youtubeVideoId} />
+            )}
+          </div>
           <div className="housing-tour-dest-head">
             <h2 className="housing-tour-dest-title">
               {listing.title?.trim() || formatHousingAddress(listing, i18n.language)}

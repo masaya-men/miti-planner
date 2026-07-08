@@ -6155,6 +6155,8 @@ select.housing-input option {
   background: var(--housing-card-thumb-bg);
   flex: 0 0 auto;
 }
+/* 生きたカード段階2: hero 画像に slideshow/動画を重ねるための基準ボックス。 */
+.housing-tour-dest-thumb-wrap { position: relative; }
 .housing-tour-dest-head {
   display: flex;
   flex-direction: column;
