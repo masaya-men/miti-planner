@@ -5911,41 +5911,14 @@ select.housing-input option {
   font-variant-numeric: tabular-nums;
 }
 
-/* 進捗リング + 到着済み/残り (横並び・Phase3) */
+/* 進捗リング (円インジケーターのみ。到着済み/残りの箱は撤去) */
 .housing-tour-progress-summary {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  justify-content: center;
   flex: 0 0 auto;
 }
-/* リングは元々 .housing-tour-progress (縦積み) の中で margin:0 auto による横中央寄せだった。
-   横並び行に移った今は auto マージンが主軸(横)の余白吸収に化けてレイアウトを崩すため無効化する。 */
 .housing-tour-progress-summary .housing-tour-progress-ring {
   margin: 0;
-}
-.housing-tour-progress-summary .housing-tour-progress-stats {
-  flex: 1 1 auto;
-}
-
-/* 到着済み / 残り */
-.housing-tour-progress-stats {
-  display: flex; gap: 8px;
-  flex: 0 0 auto;
-}
-.housing-tour-progress-stat {
-  flex: 1 1 0; min-width: 0;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 8px 10px;
-  background: var(--housing-panel-inner);
-  border: 1px solid var(--housing-panel-border);
-  border-radius: 10px;
-}
-.housing-tour-progress-stat-value {
-  font-size: var(--housing-text-lg); font-weight: 700; color: var(--housing-text);
-  font-variant-numeric: tabular-nums;
-}
-.housing-tour-progress-stat-label {
-  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
 }
 
 /* ルートのステップ = 縦ステッパー (TourRouteSteps.tsx)。
@@ -6115,12 +6088,26 @@ select.housing-input option {
 .housing-tour-progress-action--view:hover:not(:disabled) {
   background: var(--housing-chip-bg-hover);
 }
+/* 見学開始 = 2段(見学開始 + 任意ラベル)。任意アクションを明示。 */
+.housing-tour-progress-action--view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  line-height: 1.2;
+}
+.housing-tour-progress-action-sub {
+  font-size: var(--housing-text-xs);
+  font-weight: 500;
+  color: var(--housing-text-mute);
+}
 
-/* 次へ/完了 = 進行アクション (2アクセント体系の青) */
+/* 次へ/完了 = 主アクション (ツアーはハニーゴールドが正典) */
 .housing-tour-progress-action--next {
-  color: var(--housing-text);
-  background: var(--housing-aether);
-  border: 1px solid var(--housing-aether);
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0;
+  box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
 }
 .housing-tour-progress-action--next:hover:not(:disabled) { filter: brightness(1.05); }
 
@@ -6383,8 +6370,10 @@ select.housing-input option {
   font-size: var(--housing-text-xs);
   color: var(--housing-text-mute);
 }
+/* 高さ固定 = 紹介文の有無・長短にかかわらず下の要素(次の目的地/報告)の位置を一定に保つ。
+   溢れたら枠内スクロール。 */
 .housing-tour-dest-intro-body {
-  max-height: 96px;
+  height: 88px;
   overflow-y: auto;
   font-size: var(--housing-text-sm);
   color: var(--housing-text);
@@ -6397,7 +6386,9 @@ select.housing-input option {
   padding-top: 12px;
 }
 .housing-tour-dest-nextcard .housing-tour-living-media {
-  aspect-ratio: 16 / 7;
+  width: 116px;
+  aspect-ratio: 16 / 10;
+  border-radius: 8px;
 }
 
 /* 報告 (情報が違う) — 静かなテキストボタン。色付きalert箱にはしない */

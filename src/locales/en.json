@@ -2759,7 +2759,8 @@
                     "prev": "Previous",
                     "arrive_next": "Arrived → Next",
                     "complete": "Complete tour",
-                    "view": "View",
+                    "view": "Start viewing",
+                    "view_optional": "(optional)",
                     "next": "Next"
                 },
                 "dest": {

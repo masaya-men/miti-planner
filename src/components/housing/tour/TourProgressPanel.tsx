@@ -31,7 +31,7 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   canView, isLast, onPrev, onViewStart, onNext, onFinish,
 }) => {
   const { t } = useTranslation();
-  const { total, arrivedCount, remainingCount, percent } = progress;
+  const { total, arrivedCount, percent } = progress;
 
   return (
     <div className="housing-tour-progress">
@@ -44,16 +44,6 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
 
       <div className="housing-tour-progress-summary">
         <ProgressRing percent={percent} />
-        <div className="housing-tour-progress-stats">
-          <div className="housing-tour-progress-stat">
-            <span className="housing-tour-progress-stat-value">{arrivedCount}</span>
-            <span className="housing-tour-progress-stat-label">{t('housing.tour.nav.progress.arrived')}</span>
-          </div>
-          <div className="housing-tour-progress-stat">
-            <span className="housing-tour-progress-stat-value">{remainingCount}</span>
-            <span className="housing-tour-progress-stat-label">{t('housing.tour.nav.progress.remaining')}</span>
-          </div>
-        </div>
       </div>
 
       <TourRouteSteps steps={steps} currentIndex={currentIndex} />
@@ -75,7 +65,8 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
           onClick={onViewStart}
           disabled={!canView || phase === 'viewing'}
         >
-          {t('housing.tour.nav.actions.view')}
+          <span className="housing-tour-progress-action-main">{t('housing.tour.nav.actions.view')}</span>
+          <span className="housing-tour-progress-action-sub">{t('housing.tour.nav.actions.view_optional')}</span>
         </button>
         <button
           type="button"

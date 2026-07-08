@@ -2724,7 +2724,8 @@
                     "prev": "上一个",
                     "arrive_next": "已到达 → 下一个",
                     "complete": "完成导览",
-                    "view": "参观",
+                    "view": "开始参观",
+                    "view_optional": "(可选)",
                     "next": "下一处"
                 },
                 "dest": {

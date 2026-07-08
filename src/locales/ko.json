@@ -2724,7 +2724,8 @@
                     "prev": "이전",
                     "arrive_next": "도착함 → 다음으로",
                     "complete": "투어 완료",
-                    "view": "견학",
+                    "view": "견학 시작",
+                    "view_optional": "(선택)",
                     "next": "다음"
                 },
                 "dest": {

@@ -123,7 +123,7 @@ describe('TourNavPage', () => {
     const { container } = renderPage();
     // 移動中: 行き方が出る / タイマーは無い
     expect(container.querySelector('.housing-tour-phasezone-timer')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: '見学' }));
+    fireEvent.click(screen.getByRole('button', { name: /見学開始/ }));
     expect(useHousingTourStore.getState().phase).toBe('viewing');
     expect(container.querySelector('.housing-tour-phasezone-timer')).not.toBeNull();
     // 次へ: moving に戻りタイマーが消える
