@@ -1,4 +1,4 @@
-import { MIN_SCALE, MAX_SCALE, type MapView } from './mapZoom';
+import { MIN_SCALE, MAX_DEFAULT_SCALE, type MapView } from './mapZoom';
 
 export interface Bbox { minX: number; minY: number; maxX: number; maxY: number }
 
@@ -30,7 +30,8 @@ export function routeBbox(paths: (string | null | undefined)[], extra: { x: numb
 /**
  * 経路 bbox（viewBox 座標）を wrap（px）いっぱいに収める MapView を返す純関数。
  * overlay は xMidYMid meet なので viewBox→wrap は等倍レターボックス写像。その上へ zoom transform（translate→scale, origin 0,0）を載せる。
- * padPx: 経路が端に貼り付かないための余白。scale は [1,8] にクランプ。
+ * padPx: 経路が端に貼り付かないための余白。既定表示の scale は [MIN_SCALE, MAX_DEFAULT_SCALE] にクランプ
+ * (手動ズームの上限 MAX_SCALE より控えめ = 短い経路でも寄りすぎない適度なズーム)。
  * bbox は viewBox 内（0..vb.w × 0..vb.h）を前提（routeBbox が保証）。順序反転（min>max）は内部で正規化して安全側に倒す。
  * 不変条件: bbox の四隅（起点エーテライトと家を含む）は変換後 [0,wrap.w]×[0,wrap.h] に必ず収まる（見切れ厳禁）。
  */
@@ -45,7 +46,7 @@ export function computeDefaultView(bbox: Bbox, vb: { w: number; h: number }, wra
   const X1 = ox + maxX * m, Y1 = oy + maxY * m;
   const bw = Math.max(1, X1 - X0), bh = Math.max(1, Y1 - Y0);
   const availW = Math.max(1, wrap.w - 2 * padPx), availH = Math.max(1, wrap.h - 2 * padPx);
-  const s = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.min(availW / bw, availH / bh)));
+  const s = Math.min(MAX_DEFAULT_SCALE, Math.max(MIN_SCALE, Math.min(availW / bw, availH / bh)));
   const cx = (X0 + X1) / 2, cy = (Y0 + Y1) / 2;
   return { scale: s, tx: wrap.w / 2 - cx * s, ty: wrap.h / 2 - cy * s };
 }

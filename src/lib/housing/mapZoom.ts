@@ -3,6 +3,10 @@ export interface MapView { scale: number; tx: number; ty: number }
 
 export const MIN_SCALE = 1;
 export const MAX_SCALE = 8;
+/** 既定表示(経路フィット)の寄りすぎ上限。手動ズームは MAX_SCALE まで可能だが、
+ *  ステップ着地時の既定は「地図1枚全体=1倍」基準で最大 MAX_DEFAULT_SCALE 倍までに抑える
+ *  (短い経路でも寄りすぎない=適度なズーム。2026-07-08 ユーザー選定 scale 2)。 */
+export const MAX_DEFAULT_SCALE = 2;
 const STEP = 1.1;
 
 /** カーソル/ピンチ中心 (mx,my=ラップ内 px) を固定したまま目標倍率へズームした新しい MapView を返す純関数。scale は [1,8] クランプ。変化なしなら同一参照。 */

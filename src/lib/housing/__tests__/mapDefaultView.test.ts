@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { routeBbox, computeDefaultView, type Bbox } from '../mapDefaultView';
+import { MAX_DEFAULT_SCALE } from '../mapZoom';
 
 // viewBox 点 → 変換後の wrap-px 座標（overlay meet 写像 → zoom transform）。テスト内で見切れ判定に使う。
 function project(p: { x: number; y: number }, vb: { w: number; h: number }, wrap: { w: number; h: number }, v: { scale: number; tx: number; ty: number }) {
@@ -41,9 +42,9 @@ describe('computeDefaultView — 見切れ厳禁', () => {
     ];
     for (const c of corners) expect(within(project(c, VB, WRAP, v), WRAP)).toBe(true);
   });
-  it('極小 bbox は scale が上限 8 にクランプ', () => {
+  it('極小 bbox は scale が既定上限 (MAX_DEFAULT_SCALE) にクランプ', () => {
     const v = computeDefaultView({ minX: 200, minY: 170, maxX: 201, maxY: 171 }, VB, WRAP, 24);
-    expect(v.scale).toBe(8);
+    expect(v.scale).toBe(MAX_DEFAULT_SCALE);
   });
   it('マップ全体 bbox は scale が下限 1 にクランプ', () => {
     const v = computeDefaultView({ minX: 0, minY: 0, maxX: 470, maxY: 350 }, VB, WRAP, 24);
@@ -55,9 +56,9 @@ describe('computeDefaultView — 見切れ厳禁', () => {
     expect(flipped).toEqual(ordered);
     for (const c of [{ x: 50, y: 40 }, { x: 300, y: 250 }]) expect(within(project(c, VB, WRAP, flipped), WRAP)).toBe(true);
   });
-  it('ゼロ面積 bbox(起点=家) でも四隅が wrap 内・scale 上限', () => {
+  it('ゼロ面積 bbox(起点=家) でも四隅が wrap 内・scale 既定上限', () => {
     const v = computeDefaultView({ minX: 235, minY: 175, maxX: 235, maxY: 175 }, VB, WRAP, 24);
-    expect(v.scale).toBe(8);
+    expect(v.scale).toBe(MAX_DEFAULT_SCALE);
     expect(within(project({ x: 235, y: 175 }, VB, WRAP, v), WRAP)).toBe(true);
   });
 });

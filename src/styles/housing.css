@@ -6102,6 +6102,12 @@ select.housing-input option {
 .housing-tour-map .housing-map-svg-host path[id$="(Stroke)"] {
   stroke: var(--housing-map-stroke-road);
 }
+/* さらに第3系統: 一部マップ(実機DOM検査で shirogane に1本)には id も mask も持たない
+ * 無名の黒 path(外周の境界道)があり、上の区画/道ルールに一致せず黒のまま残る。
+ * 区画(id^plot_/apart_)と既存の道(path[mask]/id$(Stroke))を除外した黒 path のみ道トーンへ寄せる。 */
+.housing-tour-map .housing-map-svg-host path[stroke="black"]:not([id^="plot_"]):not([id^="apart_"]):not([mask]):not([id$="(Stroke)"]) {
+  stroke: var(--housing-map-stroke-road);
+}
 
 /* 目的地アピール: 被せ矩形を廃し、地図SVG内の実際の区画/アパートのパス自体を光らせる。
  * .housing-map-svg-host 配下の該当パスに JS でクラス付与 (TourNavMap の useEffect)。
