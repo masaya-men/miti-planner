@@ -6014,12 +6014,10 @@ select.housing-input option {
 .housing-tour-map-reset:active { transform: scale(0.98); }
 
 /* DEV 経路エディタ / 本番ツアー(Nav) 共通: 地図SVG+オーバーレイを一体でパン/ズームするコンテナ。 */
-.housing-map-zoom {
-  position: absolute; inset: 0; transform-origin: 0 0;
-  /* perf: パン/ズームの transform をGPUレイヤーで合成し、毎tickの地図全体再描画を避ける。 */
-  will-change: transform;
-  backface-visibility: hidden;
-}
+/* will-change/backface-visibility は付けない: GPUレイヤー昇格すると SVG が base解像度で
+   ラスタライズされ拡大時ににじむ。ベクターのまま各倍率で再描画させ、くっきり保つ。
+   perf は SVGホストの重い drop-shadow 撤去(上)で担保する。 */
+.housing-map-zoom { position: absolute; inset: 0; transform-origin: 0 0; }
 /* ズーム時に地図がパネル外へはみ出さないよう DEV エディタのみクリップ。 */
 .housing-dev-tourpreview .housing-tour-map-wrap { overflow: hidden; }
 
