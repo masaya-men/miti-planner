@@ -171,6 +171,10 @@
   /* 参考UI準拠: 左右パネルを狭め、中央グリッドを広く(4列の一覧性を確保)。 */
   --housing-left-w: 240px;
   --housing-right-w: 300px;
+  /* ツアー中ページ Phase3: 左=目的地ショーケース(広め) / 右=進行状況(狭め)。
+     共有の --housing-left-w/--housing-right-w とは独立 (workspace 等に波及させない)。 */
+  --housing-tour-showcase-w: 300px;
+  --housing-tour-progress-w: 240px;
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
   --housing-listing-card-min-w: 198px;
@@ -6473,6 +6477,11 @@ select.housing-input option {
   padding: var(--housing-main-padding);
   min-height: 0;
   height: 100%;
+}
+/* Phase3: 本番ツアーページ (TourNavPage) のみ 左=ショーケース(広め)/右=進行状況(狭め)。
+   DEV RouteAuthoringPage が使う共有 .housing-tour-page には波及させない。 */
+.housing-tour-page--reorg {
+  grid-template-columns: var(--housing-tour-showcase-w) 1fr var(--housing-tour-progress-w);
 }
 .housing-tour-page-panel {
   position: relative;

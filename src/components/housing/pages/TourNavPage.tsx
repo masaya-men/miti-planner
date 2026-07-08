@@ -158,10 +158,17 @@ export const TourNavPage: React.FC = () => {
   }
 
   return (
-    <div className="housing-tour-page">
+    <div className="housing-tour-page housing-tour-page--reorg">
       <section className="housing-tour-page-panel" data-region="left">
         <div className="housing-tour-page-col">
-          <TourProgressPanel progress={progress} steps={steps} currentIndex={currentIndex} onFinish={onFinish} />
+          <TourShowcasePanel
+            currentStep={progress.currentStep}
+            currentIndex={currentIndex}
+            isLast={isLast}
+            onPrev={prev}
+            onPrimary={onPrimary}
+            onOpenReport={onOpenReport}
+          />
         </div>
       </section>
 
@@ -178,14 +185,7 @@ export const TourNavPage: React.FC = () => {
 
       <section className="housing-tour-page-panel" data-region="right">
         <div className="housing-tour-page-col">
-          <TourShowcasePanel
-            currentStep={progress.currentStep}
-            currentIndex={currentIndex}
-            isLast={isLast}
-            onPrev={prev}
-            onPrimary={onPrimary}
-            onOpenReport={onOpenReport}
-          />
+          <TourProgressPanel progress={progress} steps={steps} currentIndex={currentIndex} onFinish={onFinish} />
         </div>
       </section>
 
