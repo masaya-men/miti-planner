@@ -86,7 +86,7 @@ function seedListings() {
 describe('TourNavPage', () => {
   beforeEach(() => {
     navigate.mockReset();
-    useHousingTourStore.setState({ listingIds: [], running: false, currentIndex: 0 });
+    useHousingTourStore.setState({ listingIds: [], running: false, currentIndex: 0, phase: 'moving', viewStartAt: null });
     useHousingListingsStore.setState({ status: 'ready', listings: [], myListings: [] });
     useHousingViewStore.getState().reset();
   });
@@ -109,12 +109,27 @@ describe('TourNavPage', () => {
     expect(screen.getByText('ルートのステップ')).toBeInTheDocument();
   });
 
-  it('「到着した → 次へ」でtourStore.nextが発火しcurrentIndexが進む', () => {
+  it('「次へ」でtourStore.nextが発火しcurrentIndexが進む', () => {
     useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
     seedListings();
     renderPage();
-    fireEvent.click(screen.getByRole('button', { name: '到着した → 次へ' }));
+    fireEvent.click(screen.getByRole('button', { name: '次へ' }));
     expect(useHousingTourStore.getState().currentIndex).toBe(1);
+  });
+
+  it('「見学」で viewing に切替わりタイマーが出る / 「次へ」で moving に戻る', () => {
+    useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
+    seedListings();
+    const { container } = renderPage();
+    // 移動中: 行き方が出る / タイマーは無い
+    expect(container.querySelector('.housing-tour-phasezone-timer')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: '見学' }));
+    expect(useHousingTourStore.getState().phase).toBe('viewing');
+    expect(container.querySelector('.housing-tour-phasezone-timer')).not.toBeNull();
+    // 次へ: moving に戻りタイマーが消える
+    fireEvent.click(screen.getByRole('button', { name: '次へ' }));
+    expect(useHousingTourStore.getState().phase).toBe('moving');
+    expect(container.querySelector('.housing-tour-phasezone-timer')).toBeNull();
   });
 
   it('報告ボタンでHousingReportModalが現在のlistingIdでopenする', () => {

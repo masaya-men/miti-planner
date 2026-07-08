@@ -8,6 +8,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { resolveTourSteps, computeTourProgress } from '../../../lib/housing/tourNav';
 import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
+import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
@@ -34,6 +35,9 @@ export const TourNavPage: React.FC = () => {
   const prev = useHousingTourStore((s) => s.prev);
   const stop = useHousingTourStore((s) => s.stop);
   const reset = useHousingTourStore((s) => s.reset);
+  const phase = useHousingTourStore((s) => s.phase);
+  const viewStartAt = useHousingTourStore((s) => s.viewStartAt);
+  const startViewing = useHousingTourStore((s) => s.startViewing);
   const exitTourMode = useHousingViewStore((s) => s.exitTourMode);
 
   const listings = useHousingListingsStore((s) => s.listings);
@@ -56,9 +60,20 @@ export const TourNavPage: React.FC = () => {
 
   const isLast = currentIndex === listingIds.length - 1;
 
+  // 次の目的地(左パネルの生きたカード用) / 行き方(右パネル移動中) / 見学可否。
+  const nextStep = useMemo(
+    () => (currentIndex + 1 < steps.length ? steps[currentIndex + 1] : null),
+    [steps, currentIndex],
+  );
+
   // 地図 (全5エリア対応): 現在の目的地の住所 → 表示すべきワード地図 mapKey を解決し、
   // そのマップだけ遅延ロード。ready になったら実エーテライト起点→家のゴージャス経路モデルを組む。
   const currentListing = progress.currentStep?.listing ?? null;
+  const directions = useMemo(
+    () => getPlotDirections(currentListing?.area ?? '', currentListing?.plot),
+    [currentListing],
+  );
+  const canView = currentListing != null;
   const mapRef = useMemo(
     () =>
       currentListing
@@ -163,10 +178,7 @@ export const TourNavPage: React.FC = () => {
         <div className="housing-tour-page-col">
           <TourShowcasePanel
             currentStep={progress.currentStep}
-            currentIndex={currentIndex}
-            isLast={isLast}
-            onPrev={prev}
-            onPrimary={onPrimary}
+            nextStep={nextStep}
             onOpenReport={onOpenReport}
           />
         </div>
@@ -185,7 +197,20 @@ export const TourNavPage: React.FC = () => {
 
       <section className="housing-tour-page-panel" data-region="right">
         <div className="housing-tour-page-col">
-          <TourProgressPanel progress={progress} steps={steps} currentIndex={currentIndex} onFinish={onFinish} />
+          <TourProgressPanel
+            progress={progress}
+            steps={steps}
+            currentIndex={currentIndex}
+            phase={phase}
+            viewStartAt={viewStartAt}
+            directions={directions}
+            canView={canView}
+            isLast={isLast}
+            onPrev={prev}
+            onViewStart={startViewing}
+            onNext={onPrimary}
+            onFinish={onFinish}
+          />
         </div>
       </section>
 
