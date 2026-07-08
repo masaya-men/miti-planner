@@ -33,9 +33,7 @@ export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIn
               data-status={status}
               aria-current={status === 'current' ? 'step' : undefined}
             >
-              <span className="housing-tour-steps-index" aria-hidden="true">
-                {index + 1}
-              </span>
+              <span className="housing-tour-steps-dot" aria-hidden="true" />
               <div className="housing-tour-steps-body">
                 <span className="housing-tour-steps-addr">
                   {step.listing

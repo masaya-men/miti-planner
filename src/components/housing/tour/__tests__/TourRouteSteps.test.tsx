@@ -50,6 +50,12 @@ describe('TourRouteSteps — 状態バッジ / 注記', () => {
     expect(items[2]).toHaveClass('housing-tour-steps-item--upcoming');
   });
 
+  it('各ステップに青丸(dot)が付き、旧 index 数字は撤去されている', () => {
+    const { container } = renderSteps(1);
+    expect(container.querySelectorAll('.housing-tour-steps-dot')).toHaveLength(3);
+    expect(container.querySelector('.housing-tour-steps-index')).toBeNull();
+  });
+
   it('plot無しhouse (地図に解決できない) のステップに map_pending 注記が出る', () => {
     const noPlotHouse = { ...currentListing, buildingType: 'house' as const, plot: undefined };
     const noPlotSteps: TourStep[] = [{ id: noPlotHouse.id, listing: noPlotHouse }];
