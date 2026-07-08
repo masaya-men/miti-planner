@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { ProgressRing } from './ProgressRing';
 import { TourRouteSteps } from './TourRouteSteps';
 import { TourPhaseZone } from './TourPhaseZone';
 import type { TourProgress, TourStep } from '../../../lib/housing/tourNav';
@@ -31,13 +32,17 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   canView, isLast, onPrev, onViewStart, onNext, onFinish,
 }) => {
   const { t } = useTranslation();
-  const { total, arrivedCount } = progress;
+  const { total, arrivedCount, percent } = progress;
 
   return (
     <div className="housing-tour-progress">
       <div className="housing-tour-progress-head">
         <span className="housing-tour-progress-title">{t('housing.tour.nav.progress.label')}</span>
         <span className="housing-tour-progress-count">{arrivedCount}/{total}</span>
+      </div>
+
+      <div className="housing-tour-progress-summary">
+        <ProgressRing percent={percent} />
       </div>
 
       <TourRouteSteps steps={steps} currentIndex={currentIndex} />

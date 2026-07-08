@@ -41,11 +41,10 @@ function renderPanel(props: Partial<Parameters<typeof TourProgressPanel>[0]> = {
 }
 
 describe('TourProgressPanel — 進捗＋操作', () => {
-  it('ヘッダーに N/M インジケーターのみ(リング・到着済/残りの箱は撤去)', () => {
+  it('ヘッダーに N/M・その下にリング(インジケータ)を表示、到着済/残りの箱は撤去', () => {
     const { container } = renderPanel();
     expect(screen.getByText('2/5')).toBeInTheDocument();
-    expect(container.querySelector('.housing-tour-progress-ring')).toBeNull();
-    expect(container.querySelector('.housing-tour-progress-summary')).toBeNull();
+    expect(container.querySelector('.housing-tour-progress-ring')).not.toBeNull();
     expect(container.querySelector('.housing-tour-progress-stats')).toBeNull();
   });
 
