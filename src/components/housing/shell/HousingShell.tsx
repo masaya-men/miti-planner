@@ -8,6 +8,7 @@ import { AppHeader } from './AppHeader';
 import { StatusBar } from '../workspace/StatusBar';
 import { HousingLoginModal } from '../login/HousingLoginModal';
 import { HousingAccountModal } from '../login/HousingAccountModal';
+import { HousingPlaybackProvider } from '../../../lib/housing/HousingPlaybackContext';
 import '../../../styles/housing.css';
 
 /**
@@ -52,7 +53,9 @@ export const HousingShell: React.FC = () => {
       <div className="housing-shell">
         <AppHeader />
         <div className="housing-shell-body">
-          <Outlet />
+          <HousingPlaybackProvider>
+            <Outlet />
+          </HousingPlaybackProvider>
         </div>
         <StatusBar />
       </div>
