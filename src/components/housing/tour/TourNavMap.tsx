@@ -20,7 +20,8 @@ export interface TourNavMapProps {
 
 const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
 const OVERVIEW_HOLD_MS = 350;  // 初回のみ: 全景を見せてからズームインを始めるまでの間
-const OUT_MS = 550;            // ステップ変更: ズームアウト+フェードアウトの尺(この後に地図を差し替える)
+const OUT_MS = 600;            // ステップ変更: 全景へズームアウトが概ね済む頃にクロスフェード開始(ズーム時間 is-intro は不変)。
+const CROSSFADE_MS = 450;      // 旧地図↔新地図を重ねて溶かす(クロスフェード)時間。この後にズームイン。
 const ZOOM_SETTLE_MS = 1000;   // ズームイン完了の保険(transitionend 不発時=全景と目標が同一等でも演出解除)
 
 /** バッファ表示する1枚の地図データ。loading 中も旧地図をこの形で保持し、スケルトンの「パッ」を消す。 */
@@ -37,9 +38,10 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
   const [wrapSize, setWrapSize] = useState<{ w: number; h: number } | null>(null);
   // バッファ表示中の地図(loading でも旧地図を出したままにしてポップを消す)。
   const [displayed, setDisplayed] = useState<MapData | null>(null);
-  const [mapHidden, setMapHidden] = useState(false); // 演出のフェード(true=不可視)
+  const [mapHidden, setMapHidden] = useState(false); // 新地図のフェードイン制御(true=不可視)
   const [introAnim, setIntroAnim] = useState(false); // transform/opacity トランジション ON
   const [introBusy, setIntroBusy] = useState(false); // 演出中(origin ラベルを隠す)
+  const [outgoing, setOutgoing] = useState<MapData | null>(null); // クロスフェードで溶かす旧地図(全景で重ねてモーフアウト)
 
   const displayedRef = useRef<MapData | null>(null);
   const wrapSizeRef = useRef<{ w: number; h: number } | null>(null);
@@ -98,6 +100,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
     setIntroAnim(false);
     setIntroBusy(false);
     setMapHidden(false);
+    setOutgoing(null);
   }, [clearIntroTimers]);
 
   const setDisplayedBoth = useCallback((md: MapData | null) => {
@@ -114,15 +117,21 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
     if (!ready || ready.key !== key) return; // 新地図がまだ ready でない
     pendingKeyRef.current = null;
     outDoneRef.current = false;
+    const prev = displayedRef.current; // 旧地図(ここまでで全景付近まで来ている)
     const md: MapData = { svg: ready.svg, viewBox: ready.viewBox, model: ready.model };
-    setDisplayedBoth(md);
-    setView({ scale: 1, tx: 0, ty: 0 }); // 新地図を全景で(まだ不可視)
+    if (prev) setOutgoing(prev);        // 旧地図を全景で上に重ねる(CSS で溶けて消える=モーフアウト)
+    setDisplayedBoth(md);               // 新地図(下)
+    setMapHidden(true);                 // 新地図は一旦不可視
+    setView({ scale: 1, tx: 0, ty: 0 }); // 新地図を全景で
     const target = computeTargetFor(md, wrapSizeRef.current) ?? { scale: 1, tx: 0, ty: 0 };
     clearIntroTimers();
     introTimers.current.raf = requestAnimationFrame(() => {
-      setMapHidden(false); // フェードイン
-      setView(target);     // ズームイン(CSS transition)
-      introTimers.current.settle = window.setTimeout(endIntro, ZOOM_SETTLE_MS);
+      setMapHidden(false); // 新地図フェードイン(旧地図は CSS で溶けて消える) = クロスフェード
+      introTimers.current.hold = window.setTimeout(() => {
+        setOutgoing(null); // クロスフェード終了 → 旧地図を撤去
+        setView(target);   // ズームイン(is-intro)
+        introTimers.current.settle = window.setTimeout(endIntro, ZOOM_SETTLE_MS);
+      }, CROSSFADE_MS);
     });
   }, [computeTargetFor, clearIntroTimers, endIntro, setDisplayedBoth]);
 
@@ -206,12 +215,12 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
       return;
     }
 
-    // isStepChange: dip = ズームアウト+フェードアウト → 新地図 ready で差し替え → ズームイン+フェードイン。
+    // isStepChange: ズームアウト(全景へ・旧地図は不透明のまま) → 新地図 ready でクロスフェード(重ねて溶かす) → ズームイン。
     clearIntroTimers();
     introActive.current = true;
     setIntroBusy(true);
     setIntroAnim(true);   // transform + opacity トランジション ON
-    setMapHidden(true);   // フェードアウト
+    setMapHidden(false);  // ズームアウト中は旧地図を出したまま(溶かすのは差し替え時)
     setView({ scale: 1, tx: 0, ty: 0 }); // ズームアウト(旧地図が全景へ)
     pendingKeyRef.current = key;
     outDoneRef.current = false;
@@ -363,6 +372,16 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
                   </g>
                 )}
               </svg>
+            </div>
+          )}
+          {outgoing && (
+            <div
+              className="housing-tour-map-morphlayer"
+              data-testid="tour-map-morphlayer"
+              aria-hidden="true"
+              onAnimationEnd={() => setOutgoing(null)}
+            >
+              <div className="housing-map-svg-host" dangerouslySetInnerHTML={{ __html: outgoing.svg }} />
             </div>
           )}
           {aetheryteLabel && (

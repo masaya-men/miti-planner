@@ -194,7 +194,8 @@
   --housing-tour-steps-fade: 32px;      /* ステップ一覧の上下端フェード(スクロール示唆)の距離 */
   --housing-tour-map-intro-dur: 0.75s;  /* 目的地変更時「全景→ズームイン」演出の尺 */
   --housing-tour-map-intro-ease: cubic-bezier(0.22, 1, 0.36, 1); /* 同・イージング(ease-out系) */
-  --housing-tour-map-fade-dur: 0.4s;    /* 目的地変更時の地図クロスフェード(dip)の尺 */
+  --housing-tour-map-fade-dur: 0.4s;    /* 目的地変更時 新地図のフェードインの尺 */
+  --housing-tour-map-morph-dur: 0.5s;   /* 旧地図が溶けて消える(モーフアウト)の尺 */
   --housing-tour-step-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* ステップ連結線の伸び/ドットのポップ(バネ・オーバーシュート) */
   /* ===== 入口オーサリングページ (開発専用ツール・Task5 sub) ===== */
   --housing-entrance-marker: var(--housing-text-mute);       /* 未補正(幾何のまま) */
@@ -6300,8 +6301,23 @@ select.housing-input option {
   transition: transform var(--housing-tour-map-intro-dur) var(--housing-tour-map-intro-ease),
               opacity var(--housing-tour-map-fade-dur) ease;
 }
-/* 目的地変更時のフェードアウト/イン(dip)。is-intro と併用で opacity もトランジションされる。 */
+/* 新地図のフェードイン制御。is-intro と併用で opacity もトランジションされる。 */
 .housing-map-zoom.is-hidden { opacity: 0; }
+
+/* クロスフェードで溶けて消える旧地図。全景(identity)で上に重ね、少しスケールアップ+ブラー+フェードで
+   melt away(＝少しモーフっぽく)。transform は自前アニメで持つので camera とは別レイヤー。 */
+.housing-tour-map-morphlayer {
+  position: absolute;
+  inset: 0;
+  transform-origin: center;
+  z-index: 3;
+  pointer-events: none;
+  animation: housing-map-morph-out var(--housing-tour-map-morph-dur) ease-out forwards;
+}
+@keyframes housing-map-morph-out {
+  from { opacity: 1; transform: scale(1); filter: blur(0px); }
+  to   { opacity: 0; transform: scale(1.06); filter: blur(2.5px); }
+}
 
 /* 起点エーテライトの名前ラベル(定サイズ HTML・画面座標へ投影配置)。origin マーカーの上に浮かせ、
    下向きの小三角で起点を指す。ズーム演出中は非表示→着地でふわっと表示。地図ドラッグを邪魔しない。 */
