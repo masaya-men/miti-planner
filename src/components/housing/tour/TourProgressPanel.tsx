@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { ProgressRing } from './ProgressRing';
 import { TourRouteSteps } from './TourRouteSteps';
 import { TourPhaseZone } from './TourPhaseZone';
 import type { TourProgress, TourStep } from '../../../lib/housing/tourNav';
@@ -23,27 +22,22 @@ export interface TourProgressPanelProps {
 
 /**
  * 右カラム: 進行状況＋操作の司令塔 (表示専用)。
- * リング＋軒数(横並び) → 縦ステッパー → フェーズ枠(移動中=行き方/見学中=タイマー) →
- * 操作3ボタン(前へ/見学/次へ) → ツアーを終了。
+ * ヘッダー(進行状況 + N/M インジケーター) → 縦ステッパー(可能な限り広く・多く) →
+ * フェーズ枠(移動中=行き方/見学中=タイマー) → 操作3ボタン(横長・前へ/見学開始/次へ) →
+ * (任意) 注記 → ツアーを終了(小さな下線テキスト・最下部)。
  */
 export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   progress, steps, currentIndex, phase, viewStartAt, directions,
   canView, isLast, onPrev, onViewStart, onNext, onFinish,
 }) => {
   const { t } = useTranslation();
-  const { total, arrivedCount, percent } = progress;
+  const { total, arrivedCount } = progress;
 
   return (
     <div className="housing-tour-progress">
       <div className="housing-tour-progress-head">
         <span className="housing-tour-progress-title">{t('housing.tour.nav.progress.label')}</span>
-        <span className="housing-tour-progress-count">
-          {t('housing.tour.nav.progress.done_of_total', { done: arrivedCount, total })}
-        </span>
-      </div>
-
-      <div className="housing-tour-progress-summary">
-        <ProgressRing percent={percent} />
+        <span className="housing-tour-progress-count">{arrivedCount}/{total}</span>
       </div>
 
       <TourRouteSteps steps={steps} currentIndex={currentIndex} />
@@ -65,8 +59,7 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
           onClick={onViewStart}
           disabled={!canView || phase === 'viewing'}
         >
-          <span className="housing-tour-progress-action-main">{t('housing.tour.nav.actions.view')}</span>
-          <span className="housing-tour-progress-action-sub">{t('housing.tour.nav.actions.view_optional')}</span>
+          {t('housing.tour.nav.actions.view')}
         </button>
         <button
           type="button"
@@ -76,6 +69,7 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
           {t(isLast ? 'housing.tour.nav.actions.complete' : 'housing.tour.nav.actions.next')}
         </button>
       </div>
+      <span className="housing-tour-progress-view-note">{t('housing.tour.nav.actions.view_optional')}</span>
 
       <button type="button" className="housing-tour-progress-finish" onClick={onFinish}>
         {t('housing.tour.nav.finish')}

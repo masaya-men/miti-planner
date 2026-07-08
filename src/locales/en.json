@@ -2768,7 +2768,7 @@
                     "size": "Size",
                     "world": "World",
                     "directions": "Directions",
-                    "teleport_to": "Teleport to {{aetheryte}}",
+                    "teleport_to": "Aetheryte: {{aetheryte}}",
                     "memo": "Description",
                     "no_memo": "No description"
                 },

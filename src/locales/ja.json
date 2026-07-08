@@ -2789,7 +2789,7 @@
                     "size": "サイズ",
                     "world": "ワールド",
                     "directions": "行き方",
-                    "teleport_to": "{{aetheryte}} へ移動",
+                    "teleport_to": "エーテライト：{{aetheryte}}",
                     "memo": "紹介文",
                     "no_memo": "紹介文はありません"
                 },

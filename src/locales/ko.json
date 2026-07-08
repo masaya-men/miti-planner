@@ -2733,7 +2733,7 @@
                     "size": "크기",
                     "world": "월드",
                     "directions": "가는 길",
-                    "teleport_to": "{{aetheryte}}(으)로 이동",
+                    "teleport_to": "에테라이트: {{aetheryte}}",
                     "memo": "소개글",
                     "no_memo": "소개글이 없습니다"
                 },

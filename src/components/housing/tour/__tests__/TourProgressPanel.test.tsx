@@ -41,11 +41,21 @@ function renderPanel(props: Partial<Parameters<typeof TourProgressPanel>[0]> = {
 }
 
 describe('TourProgressPanel — 進捗＋操作', () => {
-  it('円インジケーターのみ (percent) 表示・到着済/残りの箱は撤去', () => {
+  it('ヘッダーに N/M インジケーターのみ(リング・到着済/残りの箱は撤去)', () => {
     const { container } = renderPanel();
-    expect(screen.getByText('40% 完了')).toBeInTheDocument();
-    expect(container.querySelector('.housing-tour-progress-summary')).not.toBeNull();
+    expect(screen.getByText('2/5')).toBeInTheDocument();
+    expect(container.querySelector('.housing-tour-progress-ring')).toBeNull();
+    expect(container.querySelector('.housing-tour-progress-summary')).toBeNull();
     expect(container.querySelector('.housing-tour-progress-stats')).toBeNull();
+  });
+
+  it('(任意) 注記が見学ボタンとは別に出る', () => {
+    const { container } = renderPanel();
+    const note = container.querySelector('.housing-tour-progress-view-note');
+    expect(note).not.toBeNull();
+    expect(note!.textContent).toBe('(任意)');
+    // 見学開始ボタン自体には (任意) を含めない(1行厳守)
+    expect(screen.getByRole('button', { name: /見学開始/ }).textContent).toBe('見学開始');
   });
 
   it('縦ステッパー(ルートのステップ)が steps 件数分出る', () => {

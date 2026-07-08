@@ -52,27 +52,29 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
         </div>
       )}
 
-      {next && (
-        <div className="housing-tour-dest-next">
-          <span className="housing-tour-dest-next-label">{t('housing.tour.nav.legend.next')}</span>
-          <div className="housing-tour-dest-next-row">
-            <div className="housing-tour-dest-next-info">
-              <span className="housing-tour-dest-next-title">
-                {next.title?.trim() || formatHousingAddress(next, i18n.language)}
-              </span>
-              <span className="housing-tour-dest-next-addr">
-                {formatHousingAddress(next, i18n.language)}
-                {!nextIsApartment && next.size ? ` ・ ${next.size}` : ''}
-              </span>
+      <div className="housing-tour-dest-bottom">
+        {next && (
+          <div className="housing-tour-dest-next">
+            <span className="housing-tour-dest-next-label">{t('housing.tour.nav.legend.next')}</span>
+            <div className="housing-tour-dest-next-row">
+              <div className="housing-tour-dest-next-info">
+                <span className="housing-tour-dest-next-title">
+                  {next.title?.trim() || formatHousingAddress(next, i18n.language)}
+                </span>
+                <span className="housing-tour-dest-next-addr">
+                  {formatHousingAddress(next, i18n.language)}
+                  {!nextIsApartment && next.size ? ` ・ ${next.size}` : ''}
+                </span>
+              </div>
+              <TourLivingMedia listing={next} className="is-next" />
             </div>
-            <TourLivingMedia listing={next} className="is-next" />
           </div>
-        </div>
-      )}
+        )}
 
-      <button type="button" className="housing-tour-dest-report" onClick={onOpenReport}>
-        {t('housing.tour.nav.report_button')}
-      </button>
+        <button type="button" className="housing-tour-dest-report" onClick={onOpenReport}>
+          {t('housing.tour.nav.report_button')}
+        </button>
+      </div>
     </div>
   );
 };

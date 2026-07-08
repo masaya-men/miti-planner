@@ -2733,7 +2733,7 @@
                     "size": "大小",
                     "world": "世界",
                     "directions": "路线",
-                    "teleport_to": "传送至 {{aetheryte}}",
+                    "teleport_to": "以太之光：{{aetheryte}}",
                     "memo": "介绍",
                     "no_memo": "暂无介绍"
                 },

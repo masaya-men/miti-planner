@@ -5875,10 +5875,9 @@ select.housing-input option {
 .housing-tour-progress-title {
   font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
 }
+/* 進捗はヘッダー右端の N/M インジケーターのみ(ピルにしない)。リングは撤去しステップを広く。 */
 .housing-tour-progress-count {
-  font-size: var(--housing-text-sm); color: var(--housing-candle);
-  background: var(--housing-honey-medium); border-radius: 999px;
-  min-width: 22px; text-align: center; padding: 1px 9px;
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-candle);
   font-variant-numeric: tabular-nums;
 }
 
@@ -5942,6 +5941,7 @@ select.housing-input option {
   list-style: none;
   margin: 0;
   padding: 0;
+  flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
 }
@@ -6068,13 +6068,11 @@ select.housing-input option {
   appearance: none;
   cursor: pointer;
   min-width: 0;
-  min-height: 50px;
+  min-height: 40px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1px;
-  padding: 8px 10px;
+  padding: 9px 10px;
   border-radius: 10px;
   font-family: inherit;
   font-size: var(--housing-text-sm);
@@ -6115,20 +6113,28 @@ select.housing-input option {
 }
 .housing-tour-progress-action--next:hover:not(:disabled) { filter: brightness(1.05); }
 
-/* ツアーを終了 (中立アクション・honey は使わない) */
+/* (任意) 注記: 見学開始ボタンの下(中央)。ボタン外に出してボタンの高さを揃える。 */
+.housing-tour-progress-view-note {
+  flex: 0 0 auto;
+  margin-top: -8px;
+  text-align: center;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+
+/* ツアーを終了: ピルにせず小さな下線テキスト。最下部・ホバーでインタラクション。 */
 .housing-tour-progress-finish {
   appearance: none; cursor: pointer; flex: 0 0 auto;
-  margin-top: auto;
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 10px 14px;
-  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
-  color: var(--housing-text);
-  background: var(--housing-chip-bg);
-  border: 1px solid var(--housing-panel-border);
-  border-radius: 10px;
-  transition: background 0.15s ease, transform 0.1s ease;
+  align-self: center;
+  margin-top: 2px;
+  padding: 3px 6px;
+  font-family: inherit; font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 0;
+  transition: color 0.15s ease;
 }
-.housing-tour-progress-finish:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-progress-finish:hover { color: var(--housing-candle); text-decoration: underline; }
 .housing-tour-progress-finish:active { transform: scale(0.98); }
 
 /* ============================================================
@@ -6349,6 +6355,13 @@ select.housing-input option {
   flex: 1 1 auto;
   gap: 14px;
 }
+/* 次の目的地 + 報告 をパネル最下部に寄せる (紹介文の有無に関わらず下端揃え)。 */
+.housing-tour-dest-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
 /* 生きたカードのメディア枠 (現在カード=大 / 次の目的地カード=小 共用・TourLivingMedia.tsx) */
 .housing-tour-living-media {
@@ -6457,7 +6470,7 @@ select.housing-input option {
   cursor: pointer;
   flex: 0 0 auto;
   align-self: stretch;
-  text-align: left;
+  text-align: center;
   padding: 12px 4px 2px;
   border: 0;
   border-top: 1px solid var(--housing-divider);
