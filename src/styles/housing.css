@@ -6179,19 +6179,44 @@ select.housing-input option {
 
 /* 「全体に戻す」ボタン(HUD 内)。トークン経由・装飾ピルにしない(落ち着いたガラス面)。
  * 親 .housing-hud は静的ピル表示用に pointer-events:none (継承プロパティ) のため、実クリック可能にするには明示的に auto へ戻す必要がある。 */
+/* ピルにしない: 文字のみ。ホバーで色+下線が出てボタンと分かる。 */
 .housing-tour-map-reset {
   pointer-events: auto;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--housing-panel-border);
-  background: var(--housing-chip-bg);
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
   color: var(--housing-text-dim);
   font-size: var(--housing-text-xs);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: color 0.15s ease;
 }
-.housing-tour-map-reset:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-map-reset:hover { color: var(--housing-candle); text-decoration: underline; }
 .housing-tour-map-reset:active { transform: scale(0.98); }
+
+/* 北コンパス (マップ右上・静的。FF14 ワード地図は北=上)。 */
+.housing-tour-map-compass {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  z-index: 2;
+}
+.housing-tour-map-compass svg { width: 100%; height: 100%; display: block; }
+.housing-tour-map-compass-ring {
+  fill: var(--housing-panel-bg);
+  stroke: var(--housing-panel-border);
+  stroke-width: 1.5;
+}
+.housing-tour-map-compass-needle-n { fill: var(--housing-honey); }
+.housing-tour-map-compass-needle-s { fill: var(--housing-text-mute); }
+.housing-tour-map-compass-n {
+  fill: var(--housing-candle);
+  font-size: 8px;
+  font-weight: 700;
+  text-anchor: middle;
+}
 
 /* DEV 経路エディタ / 本番ツアー(Nav) 共通: 地図SVG+オーバーレイを一体でパン/ズームするコンテナ。 */
 /* will-change/backface-visibility は付けない: GPUレイヤー昇格すると SVG が base解像度で
@@ -6293,18 +6318,21 @@ select.housing-input option {
   stroke: var(--housing-map-stroke-road);
 }
 
-/* 目的地アピール: 被せ矩形を廃し、地図SVG内の実際の区画/アパートのパス自体を光らせる。
- * .housing-map-svg-host 配下の該当パスに JS でクラス付与 (TourNavMap の useEffect)。
- * CSS はプレゼンテーション属性 (fill="white"/stroke="black") に優先するため上書き可能。 */
-.housing-map-svg-host svg .housing-tour-target-box {
+/* 目的地アピール: 地図SVG内の実際の区画/アパートのパス自体を光らせる (JS でクラス付与)。
+ * 重要: 区画ストローク再着色ルール(.housing-tour-map .housing-map-svg-host [id^="plot_"] = 詳細度 0,3,0)が
+ * この発光の stroke を打ち消していた(旧セレクタは 0,2,1 で負け=candle枠が出ず発光が弱かった)。
+ * .housing-tour-map スコープ + svg を挟んで 0,3,1 に上げて確実に勝たせる。fill/枠/drop-shadow も強化。 */
+.housing-tour-map .housing-map-svg-host svg .housing-tour-target-box {
   fill: var(--housing-honey);
   stroke: var(--housing-candle);
-  stroke-width: 6;
+  stroke-width: 8;
+  stroke-linejoin: round;
+  paint-order: stroke;
   animation: housing-tour-target-breathe 1.8s ease-in-out infinite;
 }
 @keyframes housing-tour-target-breathe {
-  0%, 100% { fill-opacity: 0.28; filter: drop-shadow(0 0 6px var(--housing-honey)); }
-  50%      { fill-opacity: 0.6; filter: drop-shadow(0 0 18px var(--housing-honey)); }
+  0%, 100% { fill-opacity: 0.4; filter: drop-shadow(0 0 8px var(--housing-honey)); }
+  50%      { fill-opacity: 0.72; filter: drop-shadow(0 0 22px var(--housing-honey)); }
 }
 
 /* ============================================================
