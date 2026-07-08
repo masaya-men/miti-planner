@@ -3,11 +3,9 @@ import type { TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { representativeImage } from '../../../lib/housing/representativeImage';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
-import { TourRouteSteps } from './TourRouteSteps';
 
-export interface TourNextDestinationPanelProps {
+export interface TourShowcasePanelProps {
   currentStep: TourStep | null;
-  steps: TourStep[];
   currentIndex: number;
   isLast: boolean;
   onPrev: () => void;
@@ -16,18 +14,16 @@ export interface TourNextDestinationPanelProps {
 }
 
 /**
- * 右カラム: 次の目的地パネル (表示専用)。
+ * 左カラム: 目的地ショーケース (表示専用)。
  *
- * 次に訪れるハウジングの詳細 (サムネ/タイトル/住所/サイズ/ワールド/最寄りエーテライト/
- * ひとことメモ) + ルートのステップ一覧 (TourRouteSteps) + 操作 (前へ/主ボタン/報告)。
- * store 配線・データ解決・onPrev/onPrimary/onOpenReport の中身は TourNavPage (Task8) が担う。
- *
- * 最寄りエーテライト (dest.aetheryte): M1 は徒歩所要時間などの信頼できるデータを
- * 持たないため、作り物の「約N分」は出さずエリア名程度の中立表示に留める。
+ * 今向かうハウジングの魅力を大きく見せる — 写真 + 詳細 (タイトル/住所/サイズ/ワールド/
+ * ひとことメモ/行き方) + 操作 (前へ/主ボタン/報告)。
+ * Phase 3 で右カラム「次の目的地」から左カラム「ショーケース」へ役割変更。ステップ一覧は
+ * 進行状況パネル (右) へ移設した。写真は静止画 (生きたカードは Phase 5)。
+ * store 配線・データ解決・onPrev/onPrimary/onOpenReport の中身は TourNavPage が担う。
  */
-export const TourNextDestinationPanel: React.FC<TourNextDestinationPanelProps> = ({
+export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
   currentStep,
-  steps,
   currentIndex,
   isLast,
   onPrev,
@@ -106,8 +102,6 @@ export const TourNextDestinationPanel: React.FC<TourNextDestinationPanelProps> =
           )}
         </div>
       )}
-
-      <TourRouteSteps steps={steps} currentIndex={currentIndex} />
 
       <div className="housing-tour-dest-actions">
         <button

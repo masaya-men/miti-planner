@@ -10,20 +10,12 @@ import type { TourStep } from '../../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../../lib/housing/formatHousingAddress';
 import { getPlotDirections } from '../../../../lib/housing/wardDirections';
 
-import { TourNextDestinationPanel } from '../TourNextDestinationPanel';
-import { TourRouteSteps } from '../TourRouteSteps';
+import { TourShowcasePanel } from '../TourShowcasePanel';
 
 // mock-001: Shirogane (非ミスト) / size M / description あり
 const currentListing = MOCK_LISTINGS[0];
-// mock-002: 同じく Shirogane
-const otherListing = MOCK_LISTINGS[1];
-// mock-005: Mist (ミスト配置対象)
-const mistListing = MOCK_LISTINGS[4];
 
-const steps: TourStep[] = [
-  { id: currentListing.id, listing: currentListing },
-  { id: otherListing.id, listing: otherListing },
-];
+const singleStep: TourStep = { id: currentListing.id, listing: currentListing };
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -34,12 +26,11 @@ beforeAll(() => {
   });
 });
 
-function renderPanel(props: Partial<Parameters<typeof TourNextDestinationPanel>[0]> = {}) {
+function renderPanel(props: Partial<Parameters<typeof TourShowcasePanel>[0]> = {}) {
   return render(
     <I18nextProvider i18n={i18n}>
-      <TourNextDestinationPanel
-        currentStep={steps[0]}
-        steps={steps}
+      <TourShowcasePanel
+        currentStep={singleStep}
         currentIndex={0}
         isLast={false}
         onPrev={() => {}}
@@ -51,10 +42,8 @@ function renderPanel(props: Partial<Parameters<typeof TourNextDestinationPanel>[
   );
 }
 
-describe('TourNextDestinationPanel — 次の目的地の詳細', () => {
+describe('TourShowcasePanel — 次の目的地の詳細', () => {
   // 住所/サイズ/ワールドは .housing-tour-dest-facts (dest カード) の中だけを見る。
-  // steps[0]=currentListing のため TourRouteSteps 側にも同じ住所文字列が出て
-  // screen.getByText だと複数ヒットしてしまう (下の TourRouteSteps 連携テストで別途検証)。
   it('住所 (formatHousingAddress) が出る', () => {
     const { container } = renderPanel();
     const facts = within(container.querySelector('.housing-tour-dest-facts')!);
@@ -80,10 +69,7 @@ describe('TourNextDestinationPanel — 次の目的地の詳細', () => {
 
   it('メモが無いときは no_memo が出る', () => {
     const noMemoListing = { ...currentListing, description: undefined };
-    renderPanel({
-      currentStep: { id: noMemoListing.id, listing: noMemoListing },
-      steps: [{ id: noMemoListing.id, listing: noMemoListing }],
-    });
+    renderPanel({ currentStep: { id: noMemoListing.id, listing: noMemoListing } });
     expect(screen.getByText('メモはありません')).toBeInTheDocument();
   });
 
@@ -105,15 +91,12 @@ describe('TourNextDestinationPanel — 次の目的地の詳細', () => {
 
   it('plot 無し(アパート等)では行き方ブロックが出ない', () => {
     const apt = { ...currentListing, buildingType: 'apartment' as const, plot: undefined };
-    const { container } = renderPanel({
-      currentStep: { id: apt.id, listing: apt },
-      steps: [{ id: apt.id, listing: apt }],
-    });
+    const { container } = renderPanel({ currentStep: { id: apt.id, listing: apt } });
     expect(container.querySelector('.housing-tour-dest-route')).toBeNull();
   });
 });
 
-describe('TourNextDestinationPanel — 操作', () => {
+describe('TourShowcasePanel — 操作', () => {
   it('「前へ」で onPrev が呼ばれる', () => {
     const onPrev = vi.fn();
     renderPanel({ onPrev, currentIndex: 1 });
@@ -150,71 +133,11 @@ describe('TourNextDestinationPanel — 操作', () => {
   });
 });
 
-describe('TourNextDestinationPanel — TourRouteSteps 連携', () => {
-  it('ルートのステップ見出しが出る', () => {
-    renderPanel();
-    expect(screen.getByText('ルートのステップ')).toBeInTheDocument();
-  });
-});
-
-describe('TourNextDestinationPanel — 防御 (currentStep===null)', () => {
+describe('TourShowcasePanel — 防御 (currentStep===null)', () => {
   it('currentStep===null でもクラッシュせず操作は描画される', () => {
     const { container } = renderPanel({ currentStep: null });
     expect(screen.getByRole('button', { name: '情報が違う・報告する' })).toBeInTheDocument();
     // 詳細カード (サムネ/住所/サイズ/ワールド/メモ) は出ない。
-    // TourRouteSteps 側の住所表示は steps prop に依存するため対象外 (別テストで検証済み)。
     expect(container.querySelector('.housing-tour-dest-card')).toBeNull();
-  });
-});
-
-describe('TourRouteSteps — 状態バッジ / 注記', () => {
-  const mixedSteps: TourStep[] = [
-    { id: mistListing.id, listing: mistListing }, // index0: 到着済み (ミスト・plotあり→配置可能)
-    { id: currentListing.id, listing: currentListing }, // index1: 次に訪問 (シロガネ・plotあり→配置可能)
-    { id: 'missing-1', listing: null }, // index2: 未到着 (欠落)
-  ];
-
-  function renderSteps(currentIndex = 1) {
-    return render(
-      <I18nextProvider i18n={i18n}>
-        <TourRouteSteps steps={mixedSteps} currentIndex={currentIndex} />
-      </I18nextProvider>
-    );
-  }
-
-  it('各ステップの状態が stepStatus 通りに data-status / class へ反映される', () => {
-    const { container } = renderSteps(1);
-    const items = container.querySelectorAll('.housing-tour-steps-item');
-    expect(items).toHaveLength(3);
-    expect(items[0]).toHaveAttribute('data-status', 'arrived');
-    expect(items[0]).toHaveClass('housing-tour-steps-item--arrived');
-    expect(items[1]).toHaveAttribute('data-status', 'current');
-    expect(items[1]).toHaveClass('housing-tour-steps-item--current');
-    expect(items[1]).toHaveAttribute('aria-current', 'step');
-    expect(items[2]).toHaveAttribute('data-status', 'upcoming');
-    expect(items[2]).toHaveClass('housing-tour-steps-item--upcoming');
-  });
-
-  it('plot無しhouse (地図に解決できない) のステップに map_pending 注記が出る', () => {
-    const noPlotHouse = { ...currentListing, buildingType: 'house' as const, plot: undefined };
-    const noPlotSteps: TourStep[] = [{ id: noPlotHouse.id, listing: noPlotHouse }];
-    render(
-      <I18nextProvider i18n={i18n}>
-        <TourRouteSteps steps={noPlotSteps} currentIndex={0} />
-      </I18nextProvider>
-    );
-    expect(screen.getByText('地図データなし（区画情報なし）')).toBeInTheDocument();
-  });
-
-  it('listing===null のステップに missing 注記が出る (address の代わりに表示)', () => {
-    renderSteps(1);
-    expect(screen.getByText('このハウジングは見つかりません')).toBeInTheDocument();
-  });
-
-  it('plotありのステップ (全エリア) には map_pending 注記が出ない', () => {
-    const { container } = renderSteps(1);
-    const items = container.querySelectorAll('.housing-tour-steps-item');
-    expect(items[0].querySelector('.housing-tour-steps-note')).toBeNull(); // Mist
-    expect(items[1].querySelector('.housing-tour-steps-note')).toBeNull(); // Shirogane (非ミスト)
   });
 });

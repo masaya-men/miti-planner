@@ -104,10 +104,9 @@ describe('TourNavPage', () => {
     const { container } = renderPage();
     expect(screen.getByText('ツアー進行状況')).toBeInTheDocument();
     expect(container.querySelector('[data-region="tour-map"]')).not.toBeNull();
-    // Phase3 Task1時点では進行状況パネル(左)と次の目的地パネル(右)の両方が
-    // TourRouteSteps を描画するため「ルートのステップ」見出しは2箇所に出る
-    // (重複は意図済み・Task3で右カラムの重複が撤去される予定)。
-    expect(screen.getAllByText('ルートのステップ')).toHaveLength(2);
+    // Phase3 Task2でショーケースパネル(右)からTourRouteStepsを撤去したため、
+    // 「ルートのステップ」見出しは進行状況パネル(左)のみに出る。
+    expect(screen.getByText('ルートのステップ')).toBeInTheDocument();
   });
 
   it('「到着した → 次へ」でtourStore.nextが発火しcurrentIndexが進む', () => {

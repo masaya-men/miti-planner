@@ -12,7 +12,7 @@ import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
-import { TourNextDestinationPanel } from '../tour/TourNextDestinationPanel';
+import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { HousingReportModal } from '../report/HousingReportModal';
 
@@ -178,9 +178,8 @@ export const TourNavPage: React.FC = () => {
 
       <section className="housing-tour-page-panel" data-region="right">
         <div className="housing-tour-page-col">
-          <TourNextDestinationPanel
+          <TourShowcasePanel
             currentStep={progress.currentStep}
-            steps={steps}
             currentIndex={currentIndex}
             isLast={isLast}
             onPrev={prev}

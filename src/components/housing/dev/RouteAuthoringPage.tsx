@@ -14,7 +14,7 @@ import { routeToPaths, pointsToSegments, segmentsToPoints, migrateLegacyOverride
 import { followRoadSegments } from '../../../lib/housing/followRoad';
 import { applyWheelZoom, type MapView } from '../../../lib/housing/mapZoom';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
-import { TourNextDestinationPanel } from '../tour/TourNextDestinationPanel';
+import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import existingRoutesRaw from '../../../data/housing/wardRouteOverrides.generated.json';
 
 type Pt = [number, number];
@@ -308,9 +308,8 @@ export const RouteAuthoringPage: React.FC = () => {
 
         <section className="housing-tour-page-panel" data-region="right">
           <div className="housing-tour-page-col">
-            <TourNextDestinationPanel
+            <TourShowcasePanel
               currentStep={currentStep}
-              steps={steps}
               currentIndex={index}
               isLast={index >= total - 1}
               onPrev={() => goto(index - 1)}
