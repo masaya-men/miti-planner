@@ -22,7 +22,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
   const route = model?.routePath ?? null;
   const routeJump = model?.routeJumpPath ?? null;
   const origin = model?.origin ?? null;
-  const targetElId = model?.targetElId ?? null;
+  const targetOutline = model?.targetOutline ?? null;
 
   const [view, setView] = useState<MapView>({ scale: 1, tx: 0, ty: 0 });
   const [wrapSize, setWrapSize] = useState<{ w: number; h: number } | null>(null);
@@ -110,16 +110,6 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
     if (ptrs.current.size === 0) pan.current = null;
   };
 
-  // 目的地アピール: 埋め込み済み SVG の該当パスに光らせ用クラスを付け外し。svg 差し替え/targetElId 変化の両方で再適用し stale を残さない。
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    host.querySelectorAll('.housing-tour-target-box').forEach((el) => el.classList.remove('housing-tour-target-box'));
-    if (!targetElId) return;
-    const el = host.querySelector(`[id="${targetElId}"]`);
-    if (el) el.classList.add('housing-tour-target-box');
-  }, [status, svg, targetElId]);
-
   return (
     <div className="housing-tour-map" data-region="tour-map">
       <div className="housing-tour-map-stage">
@@ -141,6 +131,17 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
             <div className="housing-map-zoom" style={{ transform: `translate(${view.tx}px, ${view.ty}px) scale(${view.scale})` }}>
               <div ref={hostRef} className="housing-map-svg-host" role="img" aria-label={t('housing.workspace.center.map_alt')} dangerouslySetInnerHTML={{ __html: svg }} />
               <svg className="housing-map-overlay" viewBox={`0 0 ${viewBox.w} ${viewBox.h}`} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                {targetOutline && (
+                  <path
+                    className="housing-tour-target-glow"
+                    data-testid="tour-map-target-glow"
+                    d={
+                      targetOutline
+                        .map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${(x * viewBox.w).toFixed(1)} ${(y * viewBox.h).toFixed(1)}`)
+                        .join(' ') + ' Z'
+                    }
+                  />
+                )}
                 {route && (
                   <>
                     <path className="housing-tour-route-glow" d={route} fill="none" />

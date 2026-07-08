@@ -6318,21 +6318,23 @@ select.housing-input option {
   stroke: var(--housing-map-stroke-road);
 }
 
-/* 目的地アピール: 地図SVG内の実際の区画/アパートのパス自体を光らせる (JS でクラス付与)。
- * 重要: 区画ストローク再着色ルール(.housing-tour-map .housing-map-svg-host [id^="plot_"] = 詳細度 0,3,0)が
- * この発光の stroke を打ち消していた(旧セレクタは 0,2,1 で負け=candle枠が出ず発光が弱かった)。
- * .housing-tour-map スコープ + svg を挟んで 0,3,1 に上げて確実に勝たせる。fill/枠/drop-shadow も強化。 */
-.housing-tour-map .housing-map-svg-host svg .housing-tour-target-box {
+/* 目的地アピール: オーバーレイに目的の家の実輪郭で honey 発光ボックスを描く(TourNavMap の targetOutline)。
+ * 以前は overlay の被せ矩形で確実に光っていたが、実箱パスへの JS クラス付与方式に変えてから
+ * 区画再着色ルール等に負けて光らなくなっていた。オーバーレイ(=経路と同じ確実に描かれる層)へ戻す。
+ * 値は「光っていた頃の被せ矩形」と同じ(fill 0.22 / honey枠 6 / drop-shadow 16px / stroke-opacity 脈動)を実形状で。 */
+.housing-tour-target-glow {
   fill: var(--housing-honey);
-  stroke: var(--housing-candle);
-  stroke-width: 8;
+  fill-opacity: 0.22;
+  stroke: var(--housing-honey);
+  stroke-width: 6;
   stroke-linejoin: round;
   paint-order: stroke;
-  animation: housing-tour-target-breathe 1.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 16px var(--housing-honey));
+  animation: housing-tour-target-breathe 1.4s ease-in-out infinite;
 }
 @keyframes housing-tour-target-breathe {
-  0%, 100% { fill-opacity: 0.4; filter: drop-shadow(0 0 8px var(--housing-honey)); }
-  50%      { fill-opacity: 0.72; filter: drop-shadow(0 0 22px var(--housing-honey)); }
+  0%, 100% { stroke-opacity: 1; }
+  50%      { stroke-opacity: 0.45; }
 }
 
 /* ============================================================

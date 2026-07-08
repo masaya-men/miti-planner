@@ -7,7 +7,7 @@ import mistWardRaw from '../../../../data/housing/mistWard.generated.json';
 import type { TourMapModel } from '../../../../lib/housing/buildTourMapPlacements';
 import { TourNavMap } from '../TourNavMap';
 const mistWard = mistWardRaw as unknown as WardMapJson;
-const model: TourMapModel = { target: { x: 100, y: 100 }, placed: [ { index: 0, x: 100, y: 100, status: 'current' }, { index: 1, x: 200, y: 150, status: 'upcoming' } ], routePath: 'M10 10 L100 100', routeJumpPath: null, origin: { x: 10, y: 10 }, targetElId: 'plot_6' };
+const model: TourMapModel = { target: { x: 100, y: 100 }, placed: [ { index: 0, x: 100, y: 100, status: 'current' }, { index: 1, x: 200, y: 150, status: 'upcoming' } ], routePath: 'M10 10 L100 100', routeJumpPath: null, origin: { x: 10, y: 10 }, targetElId: 'plot_6', targetOutline: null };
 
 describe('TourNavMap', () => {
   it('ready で host/ゴージャス経路/起点マーカーを描く（番号ノード・LIVE・凡例は撤去済み）', () => {
@@ -38,10 +38,17 @@ describe('TourNavMap', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} />);
     expect(container.querySelectorAll('.housing-map-overlay rect').length).toBe(0);
   });
-  it('targetElId に一致する実箱パスに housing-tour-target-box クラスが付く', () => {
-    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /><path id="plot_7" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} />);
-    expect(container.querySelector('#plot_6')?.classList.contains('housing-tour-target-box')).toBe(true);
-    expect(container.querySelector('#plot_7')?.classList.contains('housing-tour-target-box')).toBe(false);
+  it('targetOutline があれば overlay に honey 発光パス(実輪郭)を描く', () => {
+    const gm: TourMapModel = { ...model, targetOutline: [[0.5, 0.4], [0.6, 0.4], [0.6, 0.5], [0.5, 0.5]] };
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={gm} />);
+    const glow = container.querySelector('[data-testid="tour-map-target-glow"]');
+    expect(glow).toBeTruthy();
+    expect(glow?.getAttribute('d')?.startsWith('M')).toBe(true);
+    expect(glow?.getAttribute('d')?.endsWith('Z')).toBe(true);
+  });
+  it('targetOutline が null なら発光パスは描かない', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} />);
+    expect(container.querySelector('[data-testid="tour-map-target-glow"]')).toBeNull();
   });
   it('routeJumpPath があれば破線ジャンプを描く', () => {
     const jm: TourMapModel = { ...model, routeJumpPath: 'M100 100 L140 160' };

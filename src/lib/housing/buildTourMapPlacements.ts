@@ -21,6 +21,7 @@ export interface TourMapModel {
   routeJumpPath: string | null;                // 破線: 角→入口(道に無い区間/階段ジャンプ)。無ければ null
   origin: { x: number; y: number } | null;     // エーテライトシャード座標マーカー
   targetElId: string | null;                   // 実箱ハイライト対象の SVG 要素 id (plot_N / apart_1|2)
+  targetOutline: number[][] | null;            // 目的の家の輪郭(正規化0-1)。オーバーレイで honey 発光を描く用
 }
 
 function refOf(listing: TourStep['listing']) {
@@ -49,6 +50,11 @@ export function buildTourMapPlacements(
 ): TourMapModel {
   const targetPlacement = placementForRef(json, ref);
   const target = targetPlacement ? { x: targetPlacement.x, y: targetPlacement.y } : null;
+  // 目的の家の輪郭(正規化0-1)。オーバーレイで honey 発光ボックスを実形状で描く用(旧「被せ矩形」の後継)。
+  const targetHouse = json.houses.find((house) =>
+    ref.highlightKind === 'apart' ? house.kind === 'apart' : house.kind === 'plot' && house.plot === ref.highlightPlot,
+  );
+  const targetOutline = target && targetHouse?.outline?.length ? targetHouse.outline : null;
 
   const placed: TourMapPlacement[] = [];
   for (let i = 0; i < steps.length; i++) {
@@ -104,5 +110,5 @@ export function buildTourMapPlacements(
     }
   }
 
-  return { target, placed, routePath, routeJumpPath, origin, targetElId: target ? ref.elementId : null };
+  return { target, placed, routePath, routeJumpPath, origin, targetElId: target ? ref.elementId : null, targetOutline };
 }
