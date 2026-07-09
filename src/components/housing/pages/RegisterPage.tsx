@@ -45,7 +45,7 @@ import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress'
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { YoutubeFetchedData, OgpFetchedData } from '../register/HousingRegisterSnsUrlField';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
-import type { HousingArea, HousingSize } from '../../../types/housing';
+import type { HousingArea, HousingListing, HousingSize } from '../../../types/housing';
 
 /**
  * 捕捉した SNS 取得結果 (画像 draft 構築の材料)。旧 HousingRegisterForm の tweetData/
@@ -209,6 +209,33 @@ function requiredFieldsForAddress(
 }
 
 /**
+ * mode='edit' の初期値展開: listing の住所系フィールドを RegisterSectionAddress の
+ * 独立オブジェクト (RegisterAddressValues) へ写す (Task3.1)。写真系 (sourceImageUrls 等) は
+ * 方式A (編集で写真は変えない) によりここでは扱わない。
+ */
+function addressFromListing(listing: HousingListing): RegisterAddressValues {
+  return {
+    dc: listing.dc,
+    server: listing.server,
+    area: listing.area,
+    ward: listing.ward,
+    buildingType: listing.buildingType,
+    plot: listing.plot,
+    size: listing.size,
+    apartmentBuilding: listing.apartmentBuilding,
+    roomKind: listing.roomKind,
+    roomNumber: listing.roomNumber,
+  };
+}
+
+interface RegisterPageProps {
+  /** 'create' (既定) で新規登録、 'edit' で既存物件の編集プリフィル (Task3.1)。 */
+  mode?: 'create' | 'edit';
+  /** mode='edit' のとき、フォーム初期値の出典にする既存 listing。 */
+  initialValues?: HousingListing;
+}
+
+/**
  * 登録ページ (3カラム): 探す/お気に入りと同じ骨格。
  * 未ログイン → 中央にログイン案内。ログイン済 → 3カラムのフォーム枠。
  * フォーム状態 (住所/紹介/画像/公開設定) は本ページが親として保持し、子セクションに
@@ -216,13 +243,21 @@ function requiredFieldsForAddress(
  * visibility→confirm) で並び、IntersectionObserver による scroll-spy で左カラムの
  * ステッパー (RegisterStepperNav) と連動する (Task12)。confirm セクション本体と
  * 右カラムの中身は Task13-14 で本実装、それまでスタブに留める。
+ *
+ * mode/initialValues (Task3.1): mode='edit' + initialValues 指定時、住所/タイトル/紹介文/
+ * タグ/公開範囲/公開終了日時を listing の値でプリフィルする。写真系 state
+ * (localImages/sourceImageUrls/snsCapture/postUrl) はプリフィルしない (方式A: 編集で
+ * 写真は変えない。サーバーの update ハンドラも画像フィールドを更新しない設計)。
+ * mode/initialValues 未指定時は create 挙動 (現状の初期値) と完全に不変。
  */
-export const RegisterPage: React.FC = () => {
+export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', initialValues }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
 
-  const [address, setAddress] = useState<RegisterAddressValues>({});
+  const [address, setAddress] = useState<RegisterAddressValues>(() =>
+    initialValues ? addressFromListing(initialValues) : {},
+  );
   // 復元起因の SNS 再取得で「空フィールドだけ補完」判定に使う最新 address のミラー (spec:120)。
   // setTimeout スタッガー内で最新値を同期的に読むため、address 変化ごとに追従させる。
   const addressRef = useRef<RegisterAddressValues>(address);
@@ -232,11 +267,15 @@ export const RegisterPage: React.FC = () => {
   const requiredFields = requiredFieldsForAddress(address.buildingType, address.roomKind);
   const fieldState = useHousingFieldState(requiredFields);
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
-  const [visibility, setVisibility] = useState<'public' | 'private'>('public');
-  const [publishUntil, setPublishUntil] = useState<number | null>(null);
+  const [title, setTitle] = useState(() => initialValues?.title ?? '');
+  const [description, setDescription] = useState(() => initialValues?.description ?? '');
+  const [tags, setTags] = useState<string[]>(() => initialValues?.tags ?? []);
+  const [visibility, setVisibility] = useState<'public' | 'private'>(
+    () => initialValues?.visibility ?? 'public',
+  );
+  const [publishUntil, setPublishUntil] = useState<number | null>(
+    () => initialValues?.publishUntil ?? null,
+  );
   // 既定 public を自動で✅にしない (feedback_form_ux_progress) ため、公開設定セクションの
   // onChange が一度でも呼ばれたかを別フラグで持つ (visibility state 自体は初期値 'public')。
   const [visibilityTouched, setVisibilityTouched] = useState(false);
@@ -927,7 +966,7 @@ export const RegisterPage: React.FC = () => {
   }
 
   return (
-    <div className="housing-register" data-testid="housing-register-form-root">
+    <div className="housing-register" data-testid="housing-register-form-root" data-mode={mode}>
       {/* 左カラム: ステッパーナビ + ガイド */}
       <section className="housing-register-panel" data-region="left">
         <div className="housing-register-col housing-register-col-left">
