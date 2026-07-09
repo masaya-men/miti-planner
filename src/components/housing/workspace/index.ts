@@ -11,7 +11,6 @@ export { PanelCloseButton } from './PanelCloseButton';
 export { ResultCountBadge } from './ResultCountBadge';
 export { ViewModeToggle } from './ViewModeToggle';
 export { HousingCard } from './HousingCard';
-export { HousingCardExpanded } from './HousingCardExpanded';
 export { MapBubbleCard } from './MapBubbleCard';
 export { MapView } from './MapView';
 export { PinterestView } from './PinterestView';
