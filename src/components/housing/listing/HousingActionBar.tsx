@@ -61,7 +61,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   const { deleteListing, loading: deleting } = useHousingDelete();
   // 2026-05-27 Phase 2-3: 「今もあります」 ボタン。 押下成功で local state を
   // 上書きすることで、 モーダルを閉じずに「○月○日 確認済」 表示を即更新する。
-  // 親 (HousingDetailModalRoute) で再 fetch すれば永続反映、 ここは表示のみ即更新。
+  // 親 (HousingDetailPage → useHousingDetail) で再 fetch すれば永続反映、 ここは表示のみ即更新。
   const [confirmedAtOverride, setConfirmedAtOverride] = useState<number | null>(null);
   const [confirming, setConfirming] = useState(false);
   const effectiveLastConfirmedAt = confirmedAtOverride ?? listing.lastConfirmedAt;

@@ -3,7 +3,13 @@
  * 削除/編集/異議のハンドラ) を共有 hook へ抽出。
  *
  * 元は `HousingDetailModalRoute.tsx` にインラインで書かれていたロジックの機械移送 (挙動不変)。
- * Task 2.3 で `HousingDetailPage` (詳細大パネル) もこの hook を使う想定。
+ * Task 2.3 で `HousingDetailPage` (シェル内大パネル・全経路の単一着地点) もこの hook を使う形に
+ * 一本化した (旧モーダル/フルページの二本立てを撤去)。
+ *
+ * Task 2.3: 直URL/共有URL 経路 (旧 HousingDetailPage 独自実装) が持っていた
+ * 「auth 復元前 (loading===true) に fetch すると本人の非公開物件が uid=null 扱いで
+ * 誤って拒否される」保護を `loadListing` の auth-ready gate として統合した。
+ * モーダル経由 (一覧→カード) は auth 復元済みで呼ばれるため gate は no-op。
  *
  * hook は navigate を受けない純データ+アクションに寄せる:
  * - `notFound` (取得失敗 = 削除済み / 非公開 / 不存在) の toast + 戻るは呼び出し側 effect で行う。
@@ -17,6 +23,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/useAuthStore';
 import type { HousingListing } from '../../../types/housing';
 import type { HousingNotification } from '../../../types/notification';
 import { canViewListing } from '../../../lib/housing/listingVisibility';
@@ -73,6 +80,10 @@ export function useHousingDetail(listingId: string | undefined): UseHousingDetai
   // 「この住所の他の登録」 セクションで mini カード + 「ちがった」 ボタンに使う。
   const [peers, setPeers] = useState<HousingListing[]>([]);
   const viewerUid = auth.currentUser?.uid ?? null;
+  // Task 2.3: 直URL/共有URL 経路 (旧 HousingDetailPage) が持っていた「auth 復元前に
+  // fetch すると本人の非公開物件が uid=null 扱いで誤って拒否される」保護をここへ移送。
+  // モーダル経路 (一覧→カード) は auth 復元済みで呼ばれるため、この gate は no-op (遅延ゼロ)。
+  const authLoading = useAuthStore((s) => s.loading);
 
   const { deleteForListing } = useNotifications();
   const { deleteListing, loading: deleting } = useHousingDelete();
@@ -88,6 +99,9 @@ export function useHousingDetail(listingId: string | undefined): UseHousingDetai
   // listing 取得は初回マウントと編集保存後 (即反映) の両方から呼べるよう関数化。
   // 戻り値: 取得できた listing (家主は自分の非表示物件も取得可)、 取得不可なら null。
   const loadListing = useCallback(async (): Promise<HousingListing | null> => {
+    // auth 復元前 (loading===true) に fetch すると、本人の非公開物件が uid=null 扱いで
+    // 誤って拒否されるため、auth-ready になるまで待つ (notFound はセットせず次回に委ねる)。
+    if (authLoading) return null;
     if (!listingId) return null;
     try {
       const snap = await getDoc(doc(db, 'housing_listings', listingId));
@@ -109,7 +123,7 @@ export function useHousingDetail(listingId: string | undefined): UseHousingDetai
       setNotFound(true);
       return null;
     }
-  }, [listingId]);
+  }, [listingId, authLoading]);
 
   useEffect(() => {
     void loadListing();

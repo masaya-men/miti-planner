@@ -3064,23 +3064,27 @@ select.housing-input option {
     background: var(--housing-honey-medium);
 }
 
-/* 詳細フルページの workspace ラッパー: トークン (--housing-*) は継承しつつ、
-   workspace 既定の固定ビューポート (height:100vh + overflow:hidden) を解除して
-   通常の縦フロー (body スクロール) にする。body 側の解禁は HousingDetailPage の
-   useEffect (StrategyBoardPastePage /stgy と同パターン) が行う。 */
+/* シェル外の単体 workspace ページ (例: EntranceAuthoringPage 等 dev 専用ツール) 用ラッパー:
+   トークン (--housing-*) は継承しつつ、workspace 既定の固定ビューポート
+   (height:100vh + overflow:hidden) を解除して通常の縦フロー (body スクロール) にする。
+   Task 2.3: 詳細ページ (HousingDetailPage) はシェル子ルート化に伴いこのクラスを使わなくなった
+   (シェル内スクロールに一本化。 .housing-detail-panel 参照)。 body 側の解禁が要る場合は
+   利用側コンポーネントが StrategyBoardPastePage /stgy と同パターンの useEffect で行う。 */
 .housing-workspace.housing-workspace-flow {
     height: auto;
     min-height: 100dvh;
     overflow: visible;
 }
 
-.housing-detail-fullpage {
-    min-height: 100dvh;
-    background: var(--housing-popover-bg);
+/* Task 2.3: シェル子ルート化した詳細大パネル。 .housing-shell-body (overflow:hidden) の
+   中で自前スクロールするための最小機能スタイル (見た目の作り込みは Task 2.4)。 */
+.housing-detail-panel {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
     color: var(--housing-text);
-    display: flex;
-    flex-direction: column;
 }
+
 .housing-detail-fullpage-header {
     padding: 12px 20px;
     border-bottom: 1px solid var(--housing-panel-border);

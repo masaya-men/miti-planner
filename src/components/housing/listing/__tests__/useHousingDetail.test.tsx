@@ -47,6 +47,15 @@ vi.mock('../../../../lib/firebase', () => ({
   auth: { currentUser: null },
 }));
 
+// Task 2.3: hook が auth-ready gate に使う useAuthStore。実モジュールは
+// onAuthStateChanged 等 firebase/auth の他 export に依存し、このテストの
+// firebase/auth モック (getAuth のみ) では読み込み時に落ちるため、
+// 「auth 復元済み (loading:false)」を返す最小スタブに差し替える
+// (= 本テスト群は元々 auth 復元後の挙動のみ検証しており、gate は影響しない)。
+vi.mock('../../../../store/useAuthStore', () => ({
+  useAuthStore: (selector: (s: { loading: boolean }) => unknown) => selector({ loading: false }),
+}));
+
 // useHousingDelete/useResolveReport/useNotifications/purgeIfTweetGone が経由する
 // App Check + Bearer ヘッダビルダー。 このテストでは削除/通報系アクションを実行しないため
 // 呼ばれない想定だが、 import chain (firebase/app-check) を実 firebase に触れさせないため差し替える。

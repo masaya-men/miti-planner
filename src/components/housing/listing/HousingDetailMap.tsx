@@ -15,7 +15,7 @@ import { TourNavMap } from '../tour/TourNavMap';
  *
  * buildTourMapPlacements/TourStep は Firestore `HousingListing` ではなくギャラリー view-model
  * `MockListing`(region 等 denormalized フィールドを持つ)を要求するため、既存の
- * `firestoreToGalleryListing` アダプタ(HousingDetailModalRoute 等でも使用)で変換してから渡す。
+ * `firestoreToGalleryListing` アダプタ(useHousingDetail 等でも使用)で変換してから渡す。
  * 変換できない(dc が region に解決できない等)listing でも、mapRef 自体は住所の生値から
  * 解決できるため、経路無しでも実箱ハイライトだけは描画されうる(buildTourMapPlacements は
  * currentListing=null を許容する設計)。

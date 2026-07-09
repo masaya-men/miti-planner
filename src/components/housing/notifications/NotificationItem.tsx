@@ -1,13 +1,15 @@
 /**
  * Phase 3: 通知 1 件のリスト項目
  *
- * - `<Link>` で listing 詳細モーダルへ遷移 (background-location パターン)
- * - URL クエリ `?notification=<id>` を付与し、 詳細ルート側でガイドモーダルを開く
+ * - `<Link>` で listing 詳細ページ (シェル内大パネル) へ通常遷移 (Task 2.3: 旧
+ *   background-location モーダルパターンを撤去し、詳細は全経路この 1 ページに着地する)
+ * - URL クエリ `?notification=<id>` を付与し、 詳細ページ側 (useHousingDetail) が
+ *   通知 doc を読んでガイドバナーを出す
  * - 未読ドット + 相対時刻表示
  */
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type { HousingNotification } from '../../../types/notification';
 
 function formatRelativeTime(t: TFunction, ms: number): string {
@@ -35,7 +37,6 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onDismiss,
 }) => {
   const { t } = useTranslation();
-  const location = useLocation();
   // 2026-05-27 (Phase 2-4): type 分岐。 duplicate_alert は重複登録通知 (= reason 無し)、
   // housing_report は通報通知 (= reason 必須)。
   const title = notification.listingTitleSnapshot ?? '';
@@ -49,7 +50,6 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   return (
     <Link
       to={`/housing/listing/${notification.listingId}?notification=${notification.id}`}
-      state={{ backgroundLocation: location }}
       className={`housing-notif-item${notification.read ? '' : ' unread'}`}
       onClick={() => onClick?.(notification)}
     >

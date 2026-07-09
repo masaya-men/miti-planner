@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation, type Location } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
 import { useThemeStore } from './store/useThemeStore';
 import { LandingPage } from './components/landing/LandingPage';
@@ -10,7 +10,6 @@ const CollabJoinerPage = lazy(() => import('./components/CollabJoinerPage'));
 import { SupportPage } from './components/SupportPage';
 import StrategyBoardPastePage from './components/StrategyBoardPastePage';
 import { HousingDetailPage } from './components/housing/listing/HousingDetailPage';
-import { HousingDetailModalRoute } from './components/housing/listing/HousingDetailModalRoute';
 import { HousingShell } from './components/housing/shell/HousingShell';
 import { BrowsePage } from './components/housing/pages/BrowsePage';
 import { FavoritesPage } from './components/housing/pages/FavoritesPage';
@@ -64,19 +63,14 @@ import { usePlanStore } from './store/usePlanStore';
  *   2. Add a <Route> entry below
  */
 /**
- * AppRoutes — background-location 対応ルート定義。
+ * AppRoutes — ルート定義。
  *
- * 「一覧 (背景) の上にモーダルを被せる」 React Router v6/v7 パターン:
- * - 通常時: `location` をそのまま使う
- * - `location.state.backgroundLocation` がある場合:
- *   1. 背景ルート (一覧) を `backgroundLocation` で描画 (アンマウントしない)
- *   2. 同じ URL のモーダル用ルートを「上に」 重ねて描画
- * - URL 直アクセス時は `backgroundLocation` がないため、 フルページ表示にフォールバック
+ * Task 2.3: 物件詳細は background-location (「一覧の上にモーダルを被せる」) パターンを撤去し、
+ * シェル子ルート `/housing/listing/:listingId` (HousingDetailPage、大パネル1枚) に一本化した。
+ * 一覧のカードクリック / 直URL / 共有URL / 通知タップ、すべて通常遷移で同じページに着地する。
  */
 function AppRoutes() {
   const location = useLocation();
-  const state = (location.state as { backgroundLocation?: Location } | null) || {};
-  const backgroundLocation = state.backgroundLocation;
 
   // 管理画面の「アプリに戻る」 用に、 アプリ画面 (軽減表 / ハウジング) にいる間は経路を記録する。
   useEffect(() => {
@@ -86,78 +80,67 @@ function AppRoutes() {
   }, [location.pathname, location.search]);
 
   return (
-    <>
-      <Routes location={backgroundLocation || location}>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/miti" element={<MitiPlannerPage />} />
-        <Route path="/share/:shareId" element={<SharePage />} />
-        {/* ⑤-3b: ジョイナー読み取り専用ライブビュー(招待リンク専用・内部導線なし)。lazy chunk。 */}
-        <Route path="/collab/:roomToken" element={<Suspense fallback={null}><CollabJoinerPage /></Suspense>} />
-        <Route path="/support" element={<SupportPage />} />
-        <Route path="/stgy" element={<StrategyBoardPastePage />} />
+    <Routes location={location}>
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/miti" element={<MitiPlannerPage />} />
+      <Route path="/share/:shareId" element={<SharePage />} />
+      {/* ⑤-3b: ジョイナー読み取り専用ライブビュー(招待リンク専用・内部導線なし)。lazy chunk。 */}
+      <Route path="/collab/:roomToken" element={<Suspense fallback={null}><CollabJoinerPage /></Suspense>} />
+      <Route path="/support" element={<SupportPage />} />
+      <Route path="/stgy" element={<StrategyBoardPastePage />} />
 
-        {/* 再構築: URL タブで切り替わるシェル。子ルートは第1スパンで探すのみ、
-            以降のスパンで favorites/plan/tour/register/mypage を追加する。 */}
-        <Route path="/housing" element={<HousingShell />}>
-          <Route index element={<BrowsePage />} />
-          {/* 未実装タブは暫定で「準備中」に着地 (以降のスパンで本実装に差し替え)。 */}
-          <Route path="favorites" element={<FavoritesPage />} />
-          <Route path="plan" element={<ComingSoonPage tab="plan" />} />
-          <Route path="tour" element={<TourNavPage />} />
-          <Route path="register" element={<RegisterPage />} />
-          <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
-        </Route>
-        {/* 開発専用: 入口オーサリングツール(Task5)。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
-        {import.meta.env.DEV && (
-          <Route path="/housing/dev/entrances" element={<EntranceAuthoringPage />} />
-        )}
-        {/* 開発専用: 全住所ツアープレビュー。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
-        {import.meta.env.DEV && (
-          <Route path="/housing/dev/tour-preview" element={<TourPreviewPage />} />
-        )}
-        {/* 開発専用: 経路お絵かきツール。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
-        {import.meta.env.DEV && (
-          <Route path="/housing/dev/routes" element={<RouteAuthoringPage />} />
-        )}
-        {/* フルページ詳細 (URL 直アクセス・モーダル経由の両方の受け皿) */}
-        <Route path="/housing/listing/:listingId" element={<HousingDetailPage />} />
-
-        <Route path="/privacy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="/commercial" element={<CommercialDisclosurePage />} />
-        {/* 管理画面 */}
-        <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="contents" element={<AdminContents />} />
-          <Route path="templates" element={<AdminTemplates />} />
-          <Route path="skills" element={<AdminSkills />} />
-          <Route path="translations" element={<AdminTranslations />} />
-          <Route path="stats" element={<AdminStats />} />
-          <Route path="servers" element={<AdminServers />} />
-          <Route path="config" element={<AdminConfig />} />
-          <Route path="content-wizard" element={<ContentWizard />} />
-          <Route path="template-wizard" element={<TemplateWizard />} />
-          <Route path="job-wizard" element={<JobWizard />} />
-          <Route path="stats-wizard" element={<StatsWizard />} />
-          <Route path="backups" element={<AdminBackups />} />
-          <Route path="logs" element={<AdminLogs />} />
-          <Route path="ugc" element={<AdminUgc />} />
-          <Route path="featured" element={<AdminFeatured />} />
-          <Route path="notifications" element={<AdminSystemNotifications />} />
-          <Route path="housing-reports" element={<AdminHousingReports />} />
-        </Route>
-        {/* Catch-all: redirect unknown paths to portal */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      {backgroundLocation && (
-        <Routes>
-          <Route
-            path="/housing/listing/:listingId"
-            element={<HousingDetailModalRoute />}
-          />
-        </Routes>
+      {/* 再構築: URL タブで切り替わるシェル。子ルートは第1スパンで探すのみ、
+          以降のスパンで favorites/plan/tour/register/mypage を追加する。 */}
+      <Route path="/housing" element={<HousingShell />}>
+        <Route index element={<BrowsePage />} />
+        {/* 未実装タブは暫定で「準備中」に着地 (以降のスパンで本実装に差し替え)。 */}
+        <Route path="favorites" element={<FavoritesPage />} />
+        <Route path="plan" element={<ComingSoonPage tab="plan" />} />
+        <Route path="tour" element={<TourNavPage />} />
+        <Route path="register" element={<RegisterPage />} />
+        <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
+        {/* Task 2.3: 詳細大パネル。一覧カード/直URL/共有URL/通知タップ、全経路の単一着地点。 */}
+        <Route path="listing/:listingId" element={<HousingDetailPage />} />
+      </Route>
+      {/* 開発専用: 入口オーサリングツール(Task5)。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
+      {import.meta.env.DEV && (
+        <Route path="/housing/dev/entrances" element={<EntranceAuthoringPage />} />
       )}
-    </>
+      {/* 開発専用: 全住所ツアープレビュー。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
+      {import.meta.env.DEV && (
+        <Route path="/housing/dev/tour-preview" element={<TourPreviewPage />} />
+      )}
+      {/* 開発専用: 経路お絵かきツール。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
+      {import.meta.env.DEV && (
+        <Route path="/housing/dev/routes" element={<RouteAuthoringPage />} />
+      )}
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/commercial" element={<CommercialDisclosurePage />} />
+      {/* 管理画面 */}
+      <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
+        <Route index element={<AdminDashboard />} />
+        <Route path="contents" element={<AdminContents />} />
+        <Route path="templates" element={<AdminTemplates />} />
+        <Route path="skills" element={<AdminSkills />} />
+        <Route path="translations" element={<AdminTranslations />} />
+        <Route path="stats" element={<AdminStats />} />
+        <Route path="servers" element={<AdminServers />} />
+        <Route path="config" element={<AdminConfig />} />
+        <Route path="content-wizard" element={<ContentWizard />} />
+        <Route path="template-wizard" element={<TemplateWizard />} />
+        <Route path="job-wizard" element={<JobWizard />} />
+        <Route path="stats-wizard" element={<StatsWizard />} />
+        <Route path="backups" element={<AdminBackups />} />
+        <Route path="logs" element={<AdminLogs />} />
+        <Route path="ugc" element={<AdminUgc />} />
+        <Route path="featured" element={<AdminFeatured />} />
+        <Route path="notifications" element={<AdminSystemNotifications />} />
+        <Route path="housing-reports" element={<AdminHousingReports />} />
+      </Route>
+      {/* Catch-all: redirect unknown paths to portal */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
