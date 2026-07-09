@@ -6,17 +6,19 @@
  *   すべて `/housing/listing/:listingId` (シェルの子ルート) → この 1 ページに着地させる。
  * - データ取得 / peers 取得 / 通知バナー組み立て / 削除・編集・異議のハンドラは
  *   `useHousingDetail` (Task 2.2) に集約済み。このコンポーネントは hook の結果を
- *   `HousingDetailContent` + `HousingDetailMap` へ配線するだけの薄いページ。
+ *   `HousingDetailContent` へ配線するだけの薄いページ (地図は Task 2.4 で Content 側の
+ *   左ビジュアル列へ移設済み。ここで二重配線しない)。
  * - ページなので (モーダルと違い) ESC/背景クリックで閉じる概念は無く、
  *   `notFound`/`postRemoved` でも navigate はしない (直URL に戻り先の履歴が無い場合が
  *   あるため)。代わりに「表示できません」パネルを ← 戻る 付きで描画する。
  * - シェル (`HousingShell`) が body overflow:hidden + 内部スクロールを管理するため、
  *   このページ自身は body-overflow を解禁しない (旧フルページ実装からの変更点)。
+ * - Task 2.4: `.housing-detail-panel` (シェル内スクロール) の中に `.housing-detail-shell`
+ *   (探す/ツアーと同じ濃紺フラット面の 1 枚パネル) を挟む二層構造。
  */
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HousingDetailContent } from './HousingDetailContent';
-import { HousingDetailMap } from './HousingDetailMap';
 import { HousingEditModal } from '../edit/HousingEditModal';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDetail } from './useHousingDetail';
@@ -34,15 +36,17 @@ export const HousingDetailPage: React.FC = () => {
   if (d.notFound || d.postRemoved) {
     return (
       <div className="housing-detail-panel">
-        <div className="housing-detail-fullpage-main">
-          <p>{t(d.postRemoved ? 'housing.detail.postRemoved' : 'housing.detail.unavailable')}</p>
-          <Link
-            to="/housing"
-            className="housing-detail-back"
-            aria-label={t('housing.detail.back_aria')}
-          >
-            ← {t('housing.detail.back_aria')}
-          </Link>
+        <div className="housing-detail-shell">
+          <main className="housing-detail-fullpage-main">
+            <p>{t(d.postRemoved ? 'housing.detail.postRemoved' : 'housing.detail.unavailable')}</p>
+            <Link
+              to="/housing"
+              className="housing-detail-back"
+              aria-label={t('housing.detail.back_aria')}
+            >
+              ← {t('housing.detail.back_aria')}
+            </Link>
+          </main>
         </div>
       </div>
     );
@@ -51,36 +55,39 @@ export const HousingDetailPage: React.FC = () => {
   if (!d.listing) {
     return (
       <div className="housing-detail-panel">
-        <div className="housing-detail-fullpage-main">{t('housing.detail.title')}…</div>
+        <div className="housing-detail-shell">
+          <main className="housing-detail-fullpage-main">{t('housing.detail.title')}…</main>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="housing-detail-panel">
-      <header className="housing-detail-fullpage-header">
-        <Link
-          to="/housing"
-          className="housing-detail-back"
-          aria-label={t('housing.detail.back_aria')}
-        >
-          ← {t('housing.detail.back_aria')}
-        </Link>
-      </header>
-      <main className="housing-detail-fullpage-main">
-        <HousingDetailContent
-          listing={d.listing}
-          viewerUid={d.viewerUid}
-          hasDuplicates={d.hasDuplicates}
-          peers={d.peers}
-          reportNotice={d.reportNotice}
-          onListingUpdated={d.handleListingSaved}
-          onDeleted={d.onListingDeleted}
-          onPeerHidden={d.onPeerHidden}
-          onClose={() => navigate('/housing')}
-        />
-        <HousingDetailMap listing={d.listing} />
-      </main>
+      <div className="housing-detail-shell">
+        <header className="housing-detail-fullpage-header">
+          <Link
+            to="/housing"
+            className="housing-detail-back"
+            aria-label={t('housing.detail.back_aria')}
+          >
+            ← {t('housing.detail.back_aria')}
+          </Link>
+        </header>
+        <main className="housing-detail-fullpage-main">
+          <HousingDetailContent
+            listing={d.listing}
+            viewerUid={d.viewerUid}
+            hasDuplicates={d.hasDuplicates}
+            peers={d.peers}
+            reportNotice={d.reportNotice}
+            onListingUpdated={d.handleListingSaved}
+            onDeleted={d.onListingDeleted}
+            onPeerHidden={d.onPeerHidden}
+            onClose={() => navigate('/housing')}
+          />
+        </main>
+      </div>
       {d.editOpen && (
         <HousingEditModal
           open={d.editOpen}

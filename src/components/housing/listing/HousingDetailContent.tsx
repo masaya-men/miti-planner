@@ -1,16 +1,18 @@
 /**
- * Phase 3: 物件詳細の中身 (モーダルとフルページの両方で共有)
+ * Task 2.3/2.4: 物件詳細の中身 (シェル子ルートの大パネルから描画)
  *
- * - 左: 写真ギャラリー
- * - 右: タイトル / 住所行 / タグ / 説明 / アクションバー
- * - 家主が通報通知から開いた場合は、 詳細内に「通報の案内バナー」を表示
+ * - 左 (.housing-detail-visual): 写真ギャラリー + 地図 (HousingDetailMap。 mapRef が
+ *   引けない物件では null を返しギャラリーのみになる=レイアウトは崩れない設計)
+ * - 右 (.housing-detail-side): タイトル / 住所行 / タグ / 説明 / アクションバー + 「この住所の他の登録」
+ * - 家主が通報通知から開いた場合は、 詳細内に「通報の案内バナー」を全幅で表示
  *   (別モーダルを重ねるとスタッキングが破綻するため、 詳細の中に出す方針)
- * - レイアウトは housing.css のグリッドで制御
+ * - レイアウトは housing.css のグリッド (.housing-detail-content) で制御
  */
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing, ReportReason } from '../../../types/housing';
 import { HousingPhotoGallery } from './HousingPhotoGallery';
+import { HousingDetailMap } from './HousingDetailMap';
 import { HousingActionBar } from './HousingActionBar';
 import { HousingDuplicatePeersSection } from './HousingDuplicatePeersSection';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
@@ -161,36 +163,41 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
         </div>
       )}
 
-      <div className="housing-detail-gallery">
-        <HousingPhotoGallery listing={listing} />
-      </div>
-      <div className="housing-detail-info">
-        <h2 className="housing-detail-title">{title}</h2>
-        <p className="housing-detail-address">
-          {listing.dc} / {listing.server} / {fullAddress}
-        </p>
-        {listing.tags.length > 0 && (
-          <ul className="housing-detail-tags">
-            {listing.tags.map((tag) => (
-              <li key={tag}>{tag}</li>
-            ))}
-          </ul>
-        )}
-        {listing.description && (
-          <p className="housing-detail-description">{listing.description}</p>
-        )}
-        <div className="housing-detail-actions">
-          <HousingActionBar
-            listing={listing}
-            viewerUid={viewerUid}
-            hasDuplicates={hasDuplicates}
-            onClose={onClose}
-            onListingUpdated={onListingUpdated}
-            onDeleted={onDeleted}
-          />
+      <div className="housing-detail-visual">
+        <div className="housing-detail-gallery">
+          <HousingPhotoGallery listing={listing} />
         </div>
+        <HousingDetailMap listing={listing} />
       </div>
-      <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+      <div className="housing-detail-side">
+        <div className="housing-detail-info">
+          <h2 className="housing-detail-title">{title}</h2>
+          <p className="housing-detail-address">
+            {listing.dc} / {listing.server} / {fullAddress}
+          </p>
+          {listing.tags.length > 0 && (
+            <ul className="housing-detail-tags">
+              {listing.tags.map((tag) => (
+                <li key={tag}>{tag}</li>
+              ))}
+            </ul>
+          )}
+          {listing.description && (
+            <p className="housing-detail-description">{listing.description}</p>
+          )}
+          <div className="housing-detail-actions">
+            <HousingActionBar
+              listing={listing}
+              viewerUid={viewerUid}
+              hasDuplicates={hasDuplicates}
+              onClose={onClose}
+              onListingUpdated={onListingUpdated}
+              onDeleted={onDeleted}
+            />
+          </div>
+        </div>
+        <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+      </div>
     </div>
   );
 };

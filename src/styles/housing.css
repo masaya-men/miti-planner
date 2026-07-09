@@ -2902,7 +2902,10 @@ select.housing-input option {
     grid-template-columns: minmax(0, 1fr) 320px;
     gap: 20px;
     width: 100%;
-    height: 100%;
+    /* align-items:start (grid既定のstretchを外す): 左(ギャラリー+地図)と右(情報+peers)は
+       中身の高さが噛み合わない (地図が引けない物件は左が短い/peersが無いと右が短い)。
+       stretch のままだと短い方に空白が伸びて間延びする → 各列は自分の中身の高さで止める。 */
+    align-items: start;
 }
 @media (max-width: 768px) {
     .housing-detail-content {
@@ -2965,8 +2968,30 @@ select.housing-input option {
 .housing-detail-report-actions button:hover {
     background: var(--housing-input-bg-hover);
 }
+/* 左列 (Task 2.4): ギャラリー + 地図。 地図が引けない物件は HousingDetailMap が null を
+   返すため子はギャラリーだけになる = gap は自然に効かず、 列はギャラリーの高さで止まる。 */
+.housing-detail-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
 .housing-detail-gallery {
     min-height: var(--housing-detail-empty-h);
+}
+/* TourNavMap (.housing-tour-map) は本来ビューポート固定パネル (探す/ツアー) の中で
+   flex:1 1 auto により親の高さいっぱいに広がる設計。 詳細大パネルはページ全体がスクロール
+   する構造で「親の確定した高さ」が無いため、 ここだけ固定高で明示的に確定させる。 */
+.housing-detail-visual .housing-tour-map {
+    flex: 0 0 320px;
+}
+/* 右列 (Task 2.4): 情報ブロック + 「この住所の他の登録」。 duplicates が無ければ後者は
+   描画されないため、 gap は自然に効かず情報ブロックだけの高さで列が止まる。 */
+.housing-detail-side {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-width: 0;
 }
 .housing-detail-info {
     display: flex;
@@ -3007,9 +3032,6 @@ select.housing-input option {
     white-space: pre-wrap;
     margin: 0;
 }
-.housing-detail-actions {
-    margin-top: auto;
-}
 
 /* シェル外の単体 workspace ページ (例: EntranceAuthoringPage 等 dev 専用ツール) 用ラッパー:
    トークン (--housing-*) は継承しつつ、workspace 既定の固定ビューポート
@@ -3023,13 +3045,29 @@ select.housing-input option {
     overflow: visible;
 }
 
-/* Task 2.3: シェル子ルート化した詳細大パネル。 .housing-shell-body (overflow:hidden) の
-   中で自前スクロールするための最小機能スタイル (見た目の作り込みは Task 2.4)。 */
+/* Task 2.3/2.4: シェル子ルート化した詳細大パネル。 .housing-shell-body (overflow:hidden) の
+   中で自前スクロールする外側コンテナ (= 探す/ツアーの `.housing-browse` 等と同格、 shell 端からの
+   インセット役)。 見た目の面 (背景/枠/角丸/影) は中の .housing-detail-shell が持つ二層構造。 */
 .housing-detail-panel {
     height: 100%;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     color: var(--housing-text);
+    padding: var(--housing-main-padding);
+    box-sizing: border-box;
+}
+/* 大パネル1枚の面 (質感A案): 探す(.housing-browse-panel)/ツアー(.housing-tour-page-panel)と
+   同じ濃紺フラット面パターンをトークン経由で流用。 中身がパネル丈より短い時も min-height:100%
+   で「1枚パネル」に見えるようにし、 長い時は自然に伸びて .housing-detail-panel 側がスクロールする。 */
+.housing-detail-shell {
+    position: relative;
+    min-height: 100%;
+    background: var(--housing-panel-bg);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: var(--housing-panel-radius);
+    box-shadow: var(--housing-panel-shadow);
+    overflow: hidden;
 }
 
 .housing-detail-fullpage-header {
@@ -3045,7 +3083,6 @@ select.housing-input option {
     text-decoration: underline;
 }
 .housing-detail-fullpage-main {
-    flex: 1;
     padding: 24px;
     max-width: var(--housing-detail-fullpage-max-w);
     width: 100%;
@@ -3410,9 +3447,9 @@ select.housing-input option {
 }
 
 /* ===== §3.8 詳細モーダル「この住所の他の登録」 セクション ===== */
+/* Task 2.4: 右列 (.housing-detail-side) 内の子になった (以前は全幅の grid 直下)。
+   ブロック間の間隔は .housing-detail-side の gap が担うので、 ここは区切り線の見た目だけ。 */
 .housing-detail-peers {
-    grid-column: 1 / -1;
-    margin-top: 24px;
     padding-top: 20px;
     border-top: 1px solid var(--housing-divider);
 }

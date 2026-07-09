@@ -11,6 +11,11 @@ vi.mock('react-i18next', () => ({
 vi.mock('../HousingActionBar', () => ({
   HousingActionBar: () => <div data-testid="action-bar-mock" />,
 }));
+// Task 2.4: 地図は自身のテスト (HousingDetailMap.test.tsx) で担保済み。 useWardMapAsset の
+// 非同期アセット読み込みに Content 単体テストを引きずられないよう薄くモックする。
+vi.mock('../HousingDetailMap', () => ({
+  HousingDetailMap: () => null,
+}));
 
 const listing = {
   id: 'lid1',
