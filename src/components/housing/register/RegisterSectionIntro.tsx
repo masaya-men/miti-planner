@@ -19,8 +19,9 @@ interface Props {
 
 /**
  * 登録フォーム中央カラム: 紹介セクション (タイトル/コメント/タグ)。
- * タイトルは新 UI で必須 (spec A-1)。 submit ゲート自体は Task13/14 が担い、
- * ここでは入力欄と残り文字数・必須表示のみを提供する。
+ * タイトルは任意 (2026-07-10 変更)。未入力なら一覧カードは住所を表示するため、
+ * 必須マーク/必須エラーは出さず、未入力時に静かなヒント (住所フォールバック) だけを添える。
+ * submit ゲート自体は Task13/14 が担う。
  */
 export const RegisterSectionIntro: React.FC<Props> = ({ title, description, tags, onChange }) => {
   const { t } = useTranslation();
@@ -34,7 +35,6 @@ export const RegisterSectionIntro: React.FC<Props> = ({ title, description, tags
       <div className="housing-field">
         <label htmlFor="housing-register-title" className="housing-label">
           {t('housing.register.field_title_label')}
-          <span className="housing-register-required-mark" aria-hidden="true">*</span>
         </label>
         <input
           id="housing-register-title"
@@ -54,8 +54,8 @@ export const RegisterSectionIntro: React.FC<Props> = ({ title, description, tags
           {t('housing.register.field_title_remaining', { count: remaining })}
         </p>
         {titleMissing && (
-          <p className="housing-field-error" data-testid="housing-register-title-required">
-            {t('housing.register.field_title_required')}
+          <p className="housing-address-note" data-testid="housing-register-title-optional-hint">
+            {t('housing.register.field_title_optional_hint')}
           </p>
         )}
       </div>

@@ -1921,12 +1921,13 @@
             "title": "房屋登记",
             "badge_private": "未公开",
             "badge_expired": "公开期限已过",
-            "section_intro": "介绍",
+            "section_intro": "留言",
             "section_address": "地址",
+            "address_verify_note": "即使地址是自动填写的，也请在登记前务必核对",
             "section_media": "图片・SNS URL",
             "field_title_label": "标题",
             "field_title_placeholder": "请输入房屋名称",
-            "field_title_required": "标题为必填项",
+            "field_title_optional_hint": "留空时将显示地址",
             "field_title_remaining": "剩余 {{count}} 字",
             "dc": "数据中心",
             "server": "服务器",
@@ -1950,8 +1951,8 @@
                 "main": "1号棟 (本街)",
                 "sub": "2号棟 (拡張街)"
             },
-            "description": "介绍（选填・200字以内）",
-            "description_placeholder": "请在此输入介绍",
+            "description": "留言（选填・200字以内）",
+            "description_placeholder": "请随意填写",
             "tags_label": "标签（1〜5个）",
             "selected_tags": "已选",
             "remove_tag": "删除",
@@ -2136,7 +2137,7 @@
             "step": {
                 "media": "图片・SNS URL",
                 "address": "地址",
-                "intro": "介绍",
+                "intro": "留言",
                 "visibility": "公开设置",
                 "confirm": "确认"
             },
@@ -2163,7 +2164,7 @@
                 "remaining": "今日剩余登记配额：{{count}} 个",
                 "step1_title": "粘贴图片或 SNS URL",
                 "step1_desc": "粘贴 Twitter / YouTube 链接即可自动填写地址和图片",
-                "step2_title": "填写地址和介绍",
+                "step2_title": "填写地址和留言",
                 "step2_desc": "确认自动填写的内容，并添加标题和标签",
                 "step3_title": "选择公开设置并登记",
                 "step3_desc": "选择公开或非公开，确认内容后完成登记"
@@ -2727,8 +2728,8 @@
                     "world": "世界",
                     "directions": "路线",
                     "teleport_to": "以太之光：{{aetheryte}}",
-                    "memo": "介绍",
-                    "no_memo": "暂无介绍"
+                    "memo": "留言",
+                    "no_memo": "暂无留言"
                 },
                 "viewing": {
                     "started_at": "{{time}} 起参观中",

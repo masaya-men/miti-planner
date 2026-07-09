@@ -1921,12 +1921,13 @@
             "title": "매물 등록",
             "badge_private": "비공개",
             "badge_expired": "공개 기간 만료",
-            "section_intro": "소개",
+            "section_intro": "코멘트",
             "section_address": "주소",
+            "address_verify_note": "자동 입력된 주소도 등록 전에 반드시 확인해 주세요",
             "section_media": "이미지・SNS URL",
             "field_title_label": "제목",
             "field_title_placeholder": "우리 집 이름을 입력하세요",
-            "field_title_required": "제목은 필수입니다",
+            "field_title_optional_hint": "입력하지 않으면 주소가 표시됩니다",
             "field_title_remaining": "남은 글자수 {{count}}자",
             "dc": "데이터 센터",
             "server": "서버",
@@ -1950,8 +1951,8 @@
                 "main": "1号棟 (本街)",
                 "sub": "2号棟 (拡張街)"
             },
-            "description": "소개글 (선택 사항・200자 이내)",
-            "description_placeholder": "소개글을 입력하세요",
+            "description": "코멘트 (선택 사항・200자 이내)",
+            "description_placeholder": "자유롭게 작성해 주세요",
             "tags_label": "태그 (1〜5개)",
             "selected_tags": "선택됨",
             "remove_tag": "삭제",
@@ -2136,7 +2137,7 @@
             "step": {
                 "media": "이미지・SNS URL",
                 "address": "주소",
-                "intro": "소개",
+                "intro": "코멘트",
                 "visibility": "공개 설정",
                 "confirm": "확인"
             },
@@ -2163,7 +2164,7 @@
                 "remaining": "오늘 남은 등록 한도: {{count}}건",
                 "step1_title": "이미지・SNS URL 붙여넣기",
                 "step1_desc": "Twitter / YouTube URL을 붙여넣으면 주소와 이미지가 자동으로 입력됩니다",
-                "step2_title": "주소・소개 입력하기",
+                "step2_title": "주소・코멘트 입력하기",
                 "step2_desc": "자동 입력된 내용을 확인하고 제목과 태그를 추가하세요",
                 "step3_title": "공개 설정을 선택하고 등록하기",
                 "step3_desc": "공개 또는 비공개를 선택하고 내용을 확인한 뒤 등록합니다"
@@ -2727,8 +2728,8 @@
                     "world": "월드",
                     "directions": "가는 길",
                     "teleport_to": "에테라이트: {{aetheryte}}",
-                    "memo": "소개글",
-                    "no_memo": "소개글이 없습니다"
+                    "memo": "코멘트",
+                    "no_memo": "코멘트가 없습니다"
                 },
                 "viewing": {
                     "started_at": "{{time}}부터 견학 중",

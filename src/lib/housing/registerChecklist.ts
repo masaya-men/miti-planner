@@ -30,10 +30,12 @@ export function computeRegisterChecklist(input: RegisterChecklistInput): Registe
       required: true,
     },
     {
+      // 2026-07-10: タイトルは任意化 (未入力なら一覧カードは住所を表示)。
+      // 推奨行として残すが required=false で公開をブロックしない (画像と同じ扱い)。
       key: 'title',
       done: input.titleOk,
       labelKey: 'housing.register.check.title',
-      required: true,
+      required: false,
     },
     {
       key: 'image',

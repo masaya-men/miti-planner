@@ -51,13 +51,13 @@ describe('TourShowcasePanel — 表示専用ショーケース', () => {
     expect(container.querySelector('.housing-tour-dest-world')).toBeNull();
   });
 
-  it('紹介文ラベルが「紹介文」で本文が出る', () => {
+  it('コメントラベルが「コメント」で本文が出る', () => {
     renderPanel();
-    expect(screen.getByText('紹介文')).toBeInTheDocument();
+    expect(screen.getByText('コメント')).toBeInTheDocument();
     expect(screen.getByText(cur.description!)).toBeInTheDocument();
   });
 
-  it('紹介文が空なら ── が出る', () => {
+  it('コメントが空なら ── が出る', () => {
     const empty = { ...cur, description: undefined };
     renderPanel({ currentStep: { id: empty.id, listing: empty } });
     expect(screen.getByText('──')).toBeInTheDocument();

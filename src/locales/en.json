@@ -1956,12 +1956,13 @@
             "title": "Register Property",
             "badge_private": "Private",
             "badge_expired": "Publication expired",
-            "section_intro": "Introduction",
+            "section_intro": "Comment",
             "section_address": "Address",
+            "address_verify_note": "Please double-check the address before registering, even if it was auto-filled",
             "section_media": "Images & SNS URL",
             "field_title_label": "Title",
             "field_title_placeholder": "Enter your housing name",
-            "field_title_required": "Title is required",
+            "field_title_optional_hint": "If left blank, the address is shown",
             "field_title_remaining": "{{count}} characters remaining",
             "dc": "Data Center",
             "server": "Server",
@@ -1985,8 +1986,8 @@
                 "main": "Bldg.1 (Main district)",
                 "sub": "Bldg.2 (Subdivision)"
             },
-            "description": "Description (optional, up to 200 characters)",
-            "description_placeholder": "Enter description here",
+            "description": "Comment (optional, up to 200 characters)",
+            "description_placeholder": "Write anything you like",
             "tags_label": "Tags (1–5)",
             "selected_tags": "Selected",
             "remove_tag": "Remove",
@@ -2171,7 +2172,7 @@
             "step": {
                 "media": "Images & SNS URL",
                 "address": "Address",
-                "intro": "Introduction",
+                "intro": "Comment",
                 "visibility": "Visibility",
                 "confirm": "Confirm"
             },
@@ -2198,7 +2199,7 @@
                 "remaining": "Today's remaining quota: {{count}}",
                 "step1_title": "Paste an image or SNS URL",
                 "step1_desc": "Paste a Twitter / YouTube URL to auto-fill the address and images",
-                "step2_title": "Enter the address and introduction",
+                "step2_title": "Enter the address and comment",
                 "step2_desc": "Check the auto-filled values, then add a title and tags",
                 "step3_title": "Choose visibility and register",
                 "step3_desc": "Choose public or private, confirm the details, and register"
@@ -2762,8 +2763,8 @@
                     "world": "World",
                     "directions": "Directions",
                     "teleport_to": "Aetheryte: {{aetheryte}}",
-                    "memo": "Description",
-                    "no_memo": "No description"
+                    "memo": "Comment",
+                    "no_memo": "No comment"
                 },
                 "viewing": {
                     "started_at": "Viewing since {{time}}",

@@ -71,6 +71,11 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
     <section className="housing-register-section" data-testid="housing-register-section-address">
       <h2 className="housing-register-section-title">{t('housing.register.section_address')}</h2>
 
+      {/* 自動入力 (ハウジングスナップ等) を過信させない静かな注記 (#6・色付き箱にしない)。 */}
+      <p className="housing-address-note" data-testid="housing-register-address-verify-note">
+        {t('housing.register.address_verify_note')}
+      </p>
+
       <div className="housing-register-fields-grid">
         <div className="housing-field" data-state={fieldState.getState('dc')}>
           <label htmlFor="housing-register-dc" className="housing-label">

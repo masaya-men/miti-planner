@@ -54,8 +54,9 @@ describe('RegisterSectionIntro', () => {
     expect(screen.getByTestId('housing-register-title-remaining').textContent).toContain('47');
   });
 
-  it('タイトル未入力は必須エラー表示 (空文字を明示的に渡した場合)', () => {
+  it('タイトル未入力は必須エラーでなく住所フォールバックのヒントを出す (任意化)', () => {
     renderIntro({ title: '' });
-    expect(screen.getByTestId('housing-register-title-required')).toBeTruthy();
+    expect(screen.queryByTestId('housing-register-title-required')).toBeNull();
+    expect(screen.getByTestId('housing-register-title-optional-hint')).toBeTruthy();
   });
 });

@@ -14,7 +14,7 @@ import { RegisterStepperNav, type RegisterStep, type RegisterStepState } from '.
 import { RegisterGuide } from '../register/RegisterGuide';
 import { RegisterCheckPanel } from '../register/RegisterCheckPanel';
 import { RegisterDuplicatePanel, type RegisterDuplicateState } from '../register/RegisterDuplicatePanel';
-import { WardMapPreview } from '../register/WardMapPreview';
+import { RegisterAddressMap } from '../register/RegisterAddressMap';
 import { HousingDuplicateWarningDialog } from '../HousingDuplicateWarningDialog';
 import { useHousingUpdate } from '../edit/useHousingUpdate';
 import { showToast } from '../../Toast';
@@ -46,7 +46,7 @@ import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress'
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { YoutubeFetchedData, OgpFetchedData } from '../register/HousingRegisterSnsUrlField';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
-import type { HousingArea, HousingListing, HousingSize } from '../../../types/housing';
+import type { HousingArea, HousingListing } from '../../../types/housing';
 
 /**
  * 捕捉した SNS 取得結果 (画像 draft 構築の材料)。旧 HousingRegisterForm の tweetData/
@@ -490,6 +490,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   });
   // 初期 active は「実際に表示される先頭ステップ」(create=media / edit=address)。
   const [activeStepId, setActiveStepId] = useState<StepId>(() => effectiveStepIds[0]);
+  // 中央スクロールが最下部に達しているか (下の scroll ハンドラが更新)。最下部では最終
+  // セクション (confirm) を強制 active にし、IO が手前のセクションへ戻すのを抑止する (#7)。
+  const atBottomRef = useRef(false);
 
   useEffect(() => {
     const root = scrollContainerRef.current;
@@ -497,6 +500,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
     const observer = new IntersectionObserver(
       (entries) => {
+        // 最下部では scroll ハンドラが confirm を確定させるので IO の判定はスキップ (#7)。
+        if (atBottomRef.current) return;
         // 交差中セクションのうち画面最上位 (boundingClientRect.top が最小) のものを active に。
         const visible = entries.filter((e) => e.isIntersecting);
         if (visible.length === 0) return;
@@ -513,6 +518,26 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     }
     return () => observer.disconnect();
     // user が null→truthy でフォーム(scrollContainerRef/各セクション)が mount された後に observer を張り直す
+  }, [user, effectiveStepIds]);
+
+  // 最下部到達時に最終ステップ (confirm) を active にする (#7)。IO の active 帯 (top 40%) は
+  // 最後のセクションが下端で止まると届かず、確認ステップまで highlight が降りてこないため、
+  // scroll で最下部を検知して補う。スクロール不能な短い内容では発火させない (先頭を保つ)。
+  useEffect(() => {
+    const root = scrollContainerRef.current;
+    if (!root) return;
+    const onScroll = () => {
+      const scrollable = root.scrollHeight - root.clientHeight > 8;
+      const atBottom = scrollable && root.scrollTop + root.clientHeight >= root.scrollHeight - 4;
+      atBottomRef.current = atBottom;
+      if (atBottom) {
+        const last = effectiveStepIds[effectiveStepIds.length - 1];
+        setActiveStepId((prev) => (prev === last ? prev : last));
+      }
+    };
+    onScroll();
+    root.addEventListener('scroll', onScroll, { passive: true });
+    return () => root.removeEventListener('scroll', onScroll);
   }, [user, effectiveStepIds]);
 
   const handleJumpToStep = useCallback((id: number) => {
@@ -684,7 +709,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       roomNumber: a.roomNumber,
       tags,
       description: description || undefined,
-      title,
+      // タイトルは任意 (2026-07-10)。空文字はサーバー validateTitle の required に当たるため
+      // undefined で送る (未指定=OK)。未入力なら一覧カードは住所フォールバックを表示する。
+      title: title.trim() ? title.trim() : undefined,
       visibility,
       publishUntil,
       ...imageFields,
@@ -1152,15 +1179,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
             duplicates={duplicates}
             privateMatchCount={privateMatchCount}
           />
-          <WardMapPreview
-            area={address.area}
-            plot={address.plot}
-            apartmentBuilding={address.apartmentBuilding}
-            buildingType={address.buildingType}
-            ward={address.ward}
-            size={address.size as HousingSize | undefined}
-            roomNumber={address.roomNumber}
-          />
+          {/* #5: 静的ミニマップから、ツアーと同じ「動くマップ」に統一。住所が地図解決
+              できるまで (area+plot / area+apartmentBuilding) は何も出さない。 */}
+          <RegisterAddressMap address={address} />
         </div>
       </section>
 
