@@ -2579,14 +2579,9 @@
             }
         },
         "edit": {
-            "modal": {
-                "title": "하우징 편집"
-            },
             "save": "저장",
             "success": "업데이트되었습니다",
-            "error": "업데이트에 실패했습니다",
-            "title_label": "제목",
-            "title_placeholder": "우리 집 이름을 입력하세요"
+            "error": "업데이트에 실패했습니다"
         },
         "delete": {
             "title": "この物件を削除しますか?",

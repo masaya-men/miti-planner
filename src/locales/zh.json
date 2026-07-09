@@ -2579,14 +2579,9 @@
             }
         },
         "edit": {
-            "modal": {
-                "title": "编辑房屋"
-            },
             "save": "保存",
             "success": "已更新",
-            "error": "更新失败",
-            "title_label": "标题",
-            "title_placeholder": "请输入房屋名称"
+            "error": "更新失败"
         },
         "delete": {
             "title": "この物件を削除しますか?",

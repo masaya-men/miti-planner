@@ -92,10 +92,15 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
             )}
           </dd>
         </div>
-        <div className="housing-register-confirm-summary-row">
-          <dt>{t('housing.register.section_media')}</dt>
-          <dd>{t('housing.register.confirm.summary_image_count', { count: summary.imageCount })}</dd>
-        </div>
+        {/* mode='edit' は写真を扱わない (方式A) ため画像枚数を要約しない。 edit は画像 state を
+            プリフィルしないので imageCount は常に 0 になり、「0 枚」表示が家主に「写真が消えた?」
+            と誤認させるため非表示にする (写真自体はサーバー側で保持されたまま)。 */}
+        {mode !== 'edit' && (
+          <div className="housing-register-confirm-summary-row">
+            <dt>{t('housing.register.section_media')}</dt>
+            <dd>{t('housing.register.confirm.summary_image_count', { count: summary.imageCount })}</dd>
+          </div>
+        )}
         <div className="housing-register-confirm-summary-row">
           <dt>{t('housing.register.confirm.summary_visibility')}</dt>
           <dd>

@@ -5,9 +5,9 @@
  * - RegisterPage 自体は重い依存を持つため mock し、 受け取った props のみ検証する
  *   (RegisterPage 内部の mode=edit 挙動は RegisterPage.test.tsx が既に担保済み)。
  */
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, useNavigate } from 'react-router-dom';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -81,6 +81,29 @@ function buildListingSnap(id: string, dataOverrides: Record<string, unknown> = {
 function renderPage(listingId = 'lid-1') {
   return render(
     <MemoryRouter initialEntries={[`/housing/listing/${listingId}/edit`]}>
+      <Routes>
+        <Route path="/housing/listing/:listingId/edit" element={<HousingEditPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
+// Finding #5 (最終レビュー Minor): listingId が変わって同一インスタンスが再利用されたときに
+// state がリセットされることを検証するための nav ボタン (同じ Route が matchし続けるため
+// HousingEditPage は remount されず、 listingId だけ変わる状況を再現する)。
+function NavButton({ to }: { to: string }) {
+  const navigate = useNavigate();
+  return (
+    <button type="button" onClick={() => navigate(to)}>
+      go-to-next
+    </button>
+  );
+}
+
+function renderWithNavigation(initialId: string, targetId: string) {
+  return render(
+    <MemoryRouter initialEntries={[`/housing/listing/${initialId}/edit`]}>
+      <NavButton to={`/housing/listing/${targetId}/edit`} />
       <Routes>
         <Route path="/housing/listing/:listingId/edit" element={<HousingEditPage />} />
       </Routes>
@@ -186,6 +209,44 @@ describe('HousingEditPage', () => {
     mockGetDoc.mockResolvedValueOnce(buildListingSnap('lid-hidden', { isHidden: true }));
 
     renderPage('lid-hidden');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('register-page-mock')).toBeInTheDocument();
+    });
+  });
+
+  // 最終レビュー Minor#5: listingId が変わって同一インスタンスが再利用されても、
+  // 前回の stale な notFound=true が残らない (取得中はローディング表示になる)。
+  it('listingId が変わると前回の notFound が残らず、取得完了まではローディング表示になる', async () => {
+    // 1件目: 存在しない listing → notFound
+    mockGetDoc.mockResolvedValueOnce({ exists: () => false });
+
+    // 2件目: 家主本人の有効な listing。resolve タイミングを手動制御する (deferred)。
+    let resolveSecond!: (v: unknown) => void;
+    const secondPromise = new Promise((resolve) => {
+      resolveSecond = resolve;
+    });
+    mockGetDoc.mockImplementationOnce(() => secondPromise);
+
+    renderWithNavigation('lid-missing', 'lid-1');
+
+    await waitFor(() => {
+      expect(screen.getByText('housing.detail.unavailable')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'go-to-next' }));
+
+    // 2件目の fetch がまだ解決していない間、stale な not_found パネルが残らず
+    // ローディング表示 (Finding #5 のリセット漏れがあると unavailable が残り続ける)。
+    await waitFor(() => {
+      expect(screen.queryByText('housing.detail.unavailable')).not.toBeInTheDocument();
+    });
+    expect(
+      screen.getByText((content) => content.includes('housing.detail.title')),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('register-page-mock')).not.toBeInTheDocument();
+
+    resolveSecond(buildListingSnap('lid-1'));
 
     await waitFor(() => {
       expect(screen.getByTestId('register-page-mock')).toBeInTheDocument();

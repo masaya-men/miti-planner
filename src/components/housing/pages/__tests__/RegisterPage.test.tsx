@@ -294,6 +294,27 @@ describe('RegisterPage', () => {
     });
   });
 
+  // 最終レビュー Important#1: 確認セクションの画像枚数要約は mode=edit で出さない。
+  // edit は画像 state をプリフィルしないため imageCount が常に 0 になり、「0 枚」表示が
+  // 写真を持つ家主に「写真が消えた?」と誤認させる (方式A: 写真はサーバー側で保持されたまま)。
+  describe('確認セクション: mode=edit は画像枚数の要約行を出さない (最終レビュー Important#1)', () => {
+    it('mode=edit では確認セクションに画像枚数の行が出ない', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+
+      const section = screen.getByTestId('housing-register-section-confirm');
+      expect(within(section).queryByText('画像・SNS URL')).not.toBeInTheDocument();
+    });
+
+    it('mode=create では確認セクションに画像枚数の行が出る (既存挙動不変)', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage();
+
+      const section = screen.getByTestId('housing-register-section-confirm');
+      expect(within(section).getByText('画像・SNS URL')).toBeInTheDocument();
+    });
+  });
+
   // Task3.4-4: onSaved (resolveReport) を fetchAndUpsert より前に呼ぶ (unhide 後の store 再取得を保証)。
   it('mode=edit の保存成功時、 onSaved が fetchAndUpsert より先に呼ばれる (Task3.4-4)', async () => {
     useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });

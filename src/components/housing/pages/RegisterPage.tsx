@@ -1045,7 +1045,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   }
 
   return (
-    <div className="housing-register" data-testid="housing-register-form-root" data-mode={mode}>
+    <div className="housing-register" data-testid="housing-register-form-root">
       {/* 左カラム: ステッパーナビ + ガイド */}
       <section className="housing-register-panel" data-region="left">
         <div className="housing-register-col housing-register-col-left">

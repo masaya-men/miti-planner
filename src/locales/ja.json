@@ -2635,14 +2635,9 @@
             }
         },
         "edit": {
-            "modal": {
-                "title": "物件を編集"
-            },
             "save": "保存",
             "success": "更新しました",
-            "error": "更新に失敗しました",
-            "title_label": "タイトル",
-            "title_placeholder": "わが家の名前を入力"
+            "error": "更新に失敗しました"
         },
         "delete": {
             "title": "この物件を削除しますか?",

@@ -2614,14 +2614,9 @@
             }
         },
         "edit": {
-            "modal": {
-                "title": "Edit Listing"
-            },
             "save": "Save",
             "success": "Updated",
-            "error": "Failed to update",
-            "title_label": "Title",
-            "title_placeholder": "Enter your housing name"
+            "error": "Failed to update"
         },
         "delete": {
             "title": "この物件を削除しますか?",

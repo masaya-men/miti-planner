@@ -263,7 +263,11 @@ export function useHousingDetail(
     await refreshAfterChange();
   };
 
-  // 編集保存成功時: 編集=対処とみなし非表示解除を試み (escalation/失敗時も編集内容は保存済み)、 詳細/一覧へ即反映。
+  // 「今もあります」 確認成功時 (HousingActionBar.onConfirmStillHere → onListingUpdated →
+  // HousingDetailPage の onListingUpdated={d.handleListingSaved}) の唯一の呼び出し元:
+  // 確認=対処とみなし非表示解除を試み (escalation/失敗時も確認自体は成立済み)、 詳細/一覧へ即反映する。
+  // 編集導線は route 化済みで HousingEditPage が resolveReport を直接呼ぶため、
+  // この関数は編集保存からは呼ばれない (関数名は歴史的経緯でそのまま残す)。
   const handleListingSaved = async () => {
     if (listing) await resolveReport(listing.id);
     await refreshAfterChange();

@@ -40,6 +40,11 @@ export const HousingEditPage: React.FC = () => {
     // null 扱い) ため、 useHousingDetail と同じ auth-ready gate で待つ。
     if (authLoading) return;
     if (!listingId) return;
+    // listingId が変わって同一インスタンスが再利用されても、前回の結果 (stale な
+    // notFound=true や別 listing) を残さないよう fetch 開始前にリセットする
+    // (現状の唯一の導線は detail→edit→detail で edit→edit は起きないが堅牢性のため)。
+    setNotFound(false);
+    setListing(null);
     let cancelled = false;
     (async () => {
       try {
