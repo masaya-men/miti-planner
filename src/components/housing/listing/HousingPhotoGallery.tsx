@@ -8,7 +8,7 @@
  * - サムネクリック → activeIndex 更新でメインが入れ替わるだけ（拡大/ライトボックスは無し）。
  * - 404 で読めない外部 URL は onError で markFailed → 表示から除外（元投稿削除の自然消失）。
  */
-import { useState, useMemo, useCallback, useEffect, useRef, type SyntheticEvent } from 'react';
+import { useState, useMemo, useCallback, type SyntheticEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
 import {
@@ -16,6 +16,7 @@ import {
   handleYoutubeThumbnailLoad,
 } from '../../../lib/housing/youtubeImgFallback';
 import { buildTweetVideoProxyUrl } from '../../../lib/housing/tweetVideoProxy';
+import { useScrollFade } from '../../../lib/housing/useScrollFade';
 
 export interface HousingPhotoGalleryProps {
   listing: HousingListing;
@@ -93,20 +94,9 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
   const [activeIndex, setActiveIndex] = useState(0);
   const safeIndex = Math.min(activeIndex, Math.max(0, mediaItems.length - 1));
 
-  // 縦サムネ列のスクロールフェード: 端に達したらその端のフェードを消す。
-  const railRef = useRef<HTMLUListElement>(null);
-  const [atTop, setAtTop] = useState(true);
-  const [atBottom, setAtBottom] = useState(true);
-  const updateFade = useCallback(() => {
-    const el = railRef.current;
-    if (!el) return;
-    setAtTop(el.scrollTop <= 1);
-    setAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
-  }, []);
-  // マウント時・項目数変化時に初期フェード状態を確定（溢れていれば下フェードON）。
-  useEffect(() => {
-    updateFade();
-  }, [mediaItems, updateFade]);
+  // 縦サムネ列のスクロールフェード（共通フック）。 端に達したらその端のフェードを消す。
+  const { ref: railRef, atStart: atTop, atEnd: atBottom, onScroll: updateFade } =
+    useScrollFade<HTMLUListElement>();
 
   if (mediaItems.length === 0) {
     return (
