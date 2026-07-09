@@ -15,13 +15,17 @@ export interface RegisterConfirmSummary {
 }
 
 interface Props {
+  /** 'create' (既定) で新規登録、 'edit' で既存物件編集 (Task3.2)。 主ボタン文言/エラー文言が変わる。 */
+  mode?: 'create' | 'edit';
   summary: RegisterConfirmSummary;
   /** 必須項目 (住所/タイトル) が揃っているか。false なら送信ボタン disabled。 */
   canSubmit: boolean;
   visibility: 'public' | 'private';
   /** 送信中フラグ。true の間はボタン disabled + ラベルを「登録中…」にする。 */
   submitting?: boolean;
-  /** エラーコード (quota_exhausted / not_authenticated / generic / upload_failed)。静かな注記で表示。 */
+  /** エラーコード (quota_exhausted / not_authenticated / generic / upload_failed)。静かな注記で表示。
+   *  mode='edit' のときは値によらず housing.edit.error を表示する (edit の失敗経路は更新 API 呼び出し
+   *  失敗のみで、 create 固有の quota_exhausted 等は起こり得ないため)。 */
   errorKey?: string | null;
   onSubmit: () => void;
   /** 入力チェックの導出結果 (未達の required 行を「不足アクション」として列挙する)。 */
@@ -40,6 +44,7 @@ interface Props {
  * - エラーは色付き alert 箱にせず、ヘアライン + グレー文字の静かな注記にする (housing-design.md)。
  */
 export const RegisterSectionConfirm: React.FC<Props> = ({
+  mode = 'create',
   summary,
   canSubmit,
   visibility,
@@ -55,9 +60,11 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
 
   const submitLabel = submitting
     ? t('housing.register.submitting')
-    : visibility === 'private'
-      ? t('housing.register.confirm.save_private')
-      : t('housing.register.confirm.publish');
+    : mode === 'edit'
+      ? t('housing.edit.save')
+      : visibility === 'private'
+        ? t('housing.register.confirm.save_private')
+        : t('housing.register.confirm.publish');
 
   return (
     <section className="housing-register-section" data-testid="housing-register-section-confirm">
@@ -118,7 +125,7 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
       {/* エラー: 静かな注記 (色付き alert 箱にしない) */}
       {errorKey && (
         <p className="housing-register-confirm-error" role="alert" data-testid="housing-register-confirm-error">
-          {t(`housing.register.confirm.errors.${errorKey}`)}
+          {mode === 'edit' ? t('housing.edit.error') : t(`housing.register.confirm.errors.${errorKey}`)}
         </p>
       )}
 

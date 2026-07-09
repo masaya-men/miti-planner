@@ -16,6 +16,7 @@ import { RegisterCheckPanel } from '../register/RegisterCheckPanel';
 import { RegisterDuplicatePanel, type RegisterDuplicateState } from '../register/RegisterDuplicatePanel';
 import { WardMapPreview } from '../register/WardMapPreview';
 import { HousingDuplicateWarningDialog } from '../HousingDuplicateWarningDialog';
+import { useHousingUpdate } from '../edit/useHousingUpdate';
 import { showToast } from '../../Toast';
 import { parseHousingFromText } from '../../../lib/housing/parseHousingFromText';
 import { extractSizeToAddress } from '../../../lib/housing/extractSizeToAddress';
@@ -254,6 +255,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  // mode='edit' の保存 (Task3.2): HousingRegisterView.performUpdate と同じ更新 hook を使う。
+  const { update: updateListing } = useHousingUpdate();
 
   const [address, setAddress] = useState<RegisterAddressValues>(() =>
     initialValues ? addressFromListing(initialValues) : {},
@@ -278,7 +281,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   );
   // 既定 public を自動で✅にしない (feedback_form_ux_progress) ため、公開設定セクションの
   // onChange が一度でも呼ばれたかを別フラグで持つ (visibility state 自体は初期値 'public')。
-  const [visibilityTouched, setVisibilityTouched] = useState(false);
+  // mode='edit' は visibility が initialValues から確定済みなので、ステッパーの visibility
+  // ステップは最初から done 扱いにする (Task3.1 申し送り事項・Task3.2 で対応)。
+  const [visibilityTouched, setVisibilityTouched] = useState(() => mode === 'edit');
 
   const handleVisibilityChange = (next: { visibility: 'public' | 'private'; publishUntil: number | null }) => {
     setVisibility(next.visibility);
@@ -537,14 +542,16 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
   const doneMap = useMemo<Record<StepId, boolean>>(
     () => ({
-      media: hasImage,
+      // mode='edit' は写真セクション自体を非表示にする (方式A・Task3.2) ので、
+      // 未達の⚠として残らないよう常に done 扱いにする。
+      media: mode === 'edit' ? true : hasImage,
       address: fieldState.isReadyToSubmit(),
       intro: introDone,
       visibility: visibilityTouched,
       // confirm = 必須項目が揃って登録可能になったら done (isReadyToPublish)。
       confirm: canSubmit,
     }),
-    [hasImage, fieldState, introDone, visibilityTouched, canSubmit],
+    [mode, hasImage, fieldState, introDone, visibilityTouched, canSubmit],
   );
 
   const steps: RegisterStep[] = useMemo(
@@ -725,7 +732,39 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   );
 
   /**
-   * 確認セクションの主アクション押下時。まず checkDuplicate で公開重複を照会し、
+   * mode='edit' の保存 (Task3.2)。 useHousingUpdate 経由で更新 API を呼ぶ
+   * (HousingRegisterView.performUpdate を踏襲)。 create パス (performRegister) とは
+   * 完全に独立: checkDuplicate 照会なし・thumbnail upload なし
+   * (画像は方式Aによりこのフォームで変更しない・サーバー updatePayload も画像フィールドを含めない)。
+   * 成功時は一覧 + マイ一覧を即反映してから詳細ページへ戻る。
+   */
+  const performUpdate = useCallback(
+    async (draft: RegistrationDraft) => {
+      if (!initialValues) return;
+      setSubmitting(true);
+      try {
+        const result = await updateListing(initialValues.id, draft);
+        if (result.ok) {
+          await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
+          if (user) await useHousingListingsStore.getState().loadMine(user.uid);
+          showToast(t('housing.edit.success'), 'success');
+          navigate(`/housing/listing/${initialValues.id}`);
+        } else {
+          setSubmitErrorKey('generic');
+        }
+      } catch {
+        setSubmitErrorKey('generic');
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [initialValues, updateListing, user, navigate, t],
+  );
+
+  /**
+   * 確認セクションの主アクション押下時。
+   * mode='edit' は checkDuplicate を照会せず (自分自身が重複扱いになるため) performUpdate へ
+   * 直行する。 mode='create' (既定) の挙動は不変: まず checkDuplicate で公開重複を照会し、
    * あれば HousingDuplicateWarningDialog を出す (onProceed で performRegister へ)。
    * submit 時の checkDuplicate 失敗は登録を止めず register に進む (旧 handleConfirm:204-209
    * と同じ = ゲートをバイパスするだけ。Task13 の debounce プレチェックとは別物)。
@@ -734,6 +773,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     if (submitting || !canSubmit) return;
     setSubmitErrorKey(null);
     const draft = buildDraft();
+
+    if (mode === 'edit') {
+      await performUpdate(draft);
+      return;
+    }
+
     setSubmitting(true);
     try {
       const dup = await checkDuplicate(draft);
@@ -748,7 +793,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       console.warn('[RegisterPage] checkDuplicate failed on submit, proceeding anyway', e);
       await performRegister(draft);
     }
-  }, [submitting, canSubmit, buildDraft, performRegister]);
+  }, [submitting, canSubmit, buildDraft, mode, performUpdate, performRegister]);
 
   // ===== 確認セクション要約 =====
   const confirmSummary = useMemo<RegisterConfirmSummary>(() => {
@@ -1001,20 +1046,24 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                 </button>
               </div>
             )}
-            <div ref={(el) => { sectionRefs.current.media = el; }} data-step-id="media">
-              <RegisterSectionMedia
-                key={`${mediaKey}:${restoredSnsUrl ?? ''}`}
-                onTweetFetched={handleTweetFetched}
-                onYoutubeFetched={handleYoutubeFetched}
-                onOgpFetched={handleOgpFetched}
-                localImages={localImages}
-                onLocalImagesChange={setLocalImages}
-                sourceImageUrls={sourceImageUrls}
-                onSourceImageUrlsChange={setSourceImageUrls}
-                initialSnsUrl={restoredSnsUrl}
-                onUrlUserEdit={handleUrlUserEdit}
-              />
-            </div>
+            {/* mode='edit' は写真を扱わない (方式A) ため、写真セクション自体を出さない (Task3.2)。
+                sectionRefs.current.media は null のままとなり、scroll-spy/ジャンプは自然に無視する。 */}
+            {mode !== 'edit' && (
+              <div ref={(el) => { sectionRefs.current.media = el; }} data-step-id="media">
+                <RegisterSectionMedia
+                  key={`${mediaKey}:${restoredSnsUrl ?? ''}`}
+                  onTweetFetched={handleTweetFetched}
+                  onYoutubeFetched={handleYoutubeFetched}
+                  onOgpFetched={handleOgpFetched}
+                  localImages={localImages}
+                  onLocalImagesChange={setLocalImages}
+                  sourceImageUrls={sourceImageUrls}
+                  onSourceImageUrlsChange={setSourceImageUrls}
+                  initialSnsUrl={restoredSnsUrl}
+                  onUrlUserEdit={handleUrlUserEdit}
+                />
+              </div>
+            )}
             <div ref={(el) => { sectionRefs.current.address = el; }} data-step-id="address">
               <RegisterSectionAddress
                 fieldState={fieldState}
@@ -1046,6 +1095,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
               data-step-id="confirm"
             >
               <RegisterSectionConfirm
+                mode={mode}
                 summary={confirmSummary}
                 canSubmit={canSubmit}
                 visibility={visibility}
