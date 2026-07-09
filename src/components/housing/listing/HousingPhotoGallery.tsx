@@ -1,13 +1,14 @@
 /**
- * Phase 3 + 2026-05-26 multi-image 対応 + 2026-05-27 外部 URL fallback: 物件詳細の写真ギャラリー
+ * 物件詳細のメディアギャラリー（2026-07-09 再設計: 大メイン＋縦サムネイル列）
  *
- * - thumbnailPaths があれば配列を表示 (1 枚目はメイン、 2 枚目以降はサムネ列で切替)
- * - thumbnailPaths がなければ thumbnailPath / ogImageUrl / sourceImageUrls にフォールバック
- * - imageMode='sns' で sourceImageUrls 配列があれば外部 URL を `<img src>` 直接表示
- * - **404 等で読めない外部 URL は onError で自動非表示** (元投稿が削除された場合の自然消失)
- * - 全画像読めなければ「No image」 プレースホルダ
+ * - 動画＋画像を 1 本の配列 (mediaItems) に統合。 activeIndex がメインステージに映る項目。
+ * - 左: メインステージ（選択中を object-fit:contain で「絶対に切り抜かず」全体表示）。
+ * - 右: 縦サムネイル列（全項目）。 内部だけ縦スクロールし、 スクロールバーは出さず、
+ *   端に強めのフェード（scroll 位置で data-at-top/at-bottom をトグル → CSS で opacity）。
+ * - サムネクリック → activeIndex 更新でメインが入れ替わるだけ（拡大/ライトボックスは無し）。
+ * - 404 で読めない外部 URL は onError で markFailed → 表示から除外（元投稿削除の自然消失）。
  */
-import { useState, useMemo, useCallback, type SyntheticEvent } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef, type SyntheticEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
 import {
@@ -21,11 +22,9 @@ export interface HousingPhotoGalleryProps {
 }
 
 /**
- * listing から画像 URL の配列を取り出す。
+ * listing から画像 URL の配列を取り出す（挙動は従来と同一）。
  * - imageMode==='thumbnail': thumbnailPaths を優先、 なければ thumbnailPath を 1 件
- * - imageMode==='sns':
- *   - sourceImageUrls (OGP 経由の外部 URL リスト) があれば配列で切替表示
- *   - なければ ogImageUrl 1 件 (Twitter / YouTube / 旧データ後方互換)
+ * - imageMode==='sns': sourceImageUrls があれば配列、 なければ ogImageUrl 1 件
  * - その他: []
  */
 function resolveSources(listing: HousingListing): string[] {
@@ -46,15 +45,11 @@ function resolveSources(listing: HousingListing): string[] {
   return [];
 }
 
+type MediaItem = { kind: 'video' } | { kind: 'image'; src: string };
+
 export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listing }) => {
   const { t } = useTranslation();
   const sources = useMemo(() => resolveSources(listing), [listing]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  /**
-   * 読み込み失敗した元 URL の集合。 YouTube fallback で src を書き換えても駄目だった
-   * 画像、 OGP 経由の外部 URL が 404 で消えた画像などを記録する。 元 URL 単位で記録するので、
-   * YouTube サムネの maxres→hq→mq→default の途中段階では markFailed しない。
-   */
   const [failedSources, setFailedSources] = useState<Set<string>>(new Set());
 
   const markFailed = useCallback((src: string) => {
@@ -66,17 +61,13 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
     });
   }, []);
 
-  /**
-   * `onError` ハンドラ。 まず YouTube サムネの段階的 fallback を試し、 それでも src が
-   * 書き換わらなければ「最終的に表示不可」 として markFailed → 親 filter で非表示にする。
-   */
+  // onError: まず YouTube サムネ段階 fallback、 それでも src が変わらなければ表示不可として除外。
   const handleImgError = useCallback(
-    (originalSrc: string) =>
-      (e: SyntheticEvent<HTMLImageElement>) => {
-        const before = e.currentTarget.src;
-        handleYoutubeThumbnailError(e);
-        if (e.currentTarget.src === before) markFailed(originalSrc);
-      },
+    (originalSrc: string) => (e: SyntheticEvent<HTMLImageElement>) => {
+      const before = e.currentTarget.src;
+      handleYoutubeThumbnailError(e);
+      if (e.currentTarget.src === before) markFailed(originalSrc);
+    },
     [markFailed],
   );
 
@@ -85,13 +76,39 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
     [sources, failedSources],
   );
 
-  // 2026-05-27: 動画あり listing は ギャラリー最上段に再生領域 (controls あり)。
   const hasVideo = !!(listing.videoUrl || listing.youtubeVideoId);
   const videoAspectStyle = listing.videoAspectRatio
     ? { aspectRatio: String(listing.videoAspectRatio) }
     : undefined;
+  const videoThumb = listing.videoPosterUrl || listing.ogImageUrl || null;
 
-  if (visibleSources.length === 0 && !hasVideo) {
+  // 全メディアを 1 本に統合（動画があれば先頭）。
+  const mediaItems = useMemo<MediaItem[]>(() => {
+    const items: MediaItem[] = [];
+    if (hasVideo) items.push({ kind: 'video' });
+    for (const src of visibleSources) items.push({ kind: 'image', src });
+    return items;
+  }, [hasVideo, visibleSources]);
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const safeIndex = Math.min(activeIndex, Math.max(0, mediaItems.length - 1));
+
+  // 縦サムネ列のスクロールフェード: 端に達したらその端のフェードを消す。
+  const railRef = useRef<HTMLUListElement>(null);
+  const [atTop, setAtTop] = useState(true);
+  const [atBottom, setAtBottom] = useState(true);
+  const updateFade = useCallback(() => {
+    const el = railRef.current;
+    if (!el) return;
+    setAtTop(el.scrollTop <= 1);
+    setAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 1);
+  }, []);
+  // マウント時・項目数変化時に初期フェード状態を確定（溢れていれば下フェードON）。
+  useEffect(() => {
+    updateFade();
+  }, [mediaItems, updateFade]);
+
+  if (mediaItems.length === 0) {
     return (
       <div className="housing-gallery-empty" aria-hidden="true">
         <span>{t('housing.gallery.no_image', { defaultValue: 'No image' })}</span>
@@ -99,77 +116,103 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
     );
   }
 
-  const safeIndex = Math.min(activeIndex, Math.max(0, visibleSources.length - 1));
-  const mainSrc = visibleSources[safeIndex];
+  const active = mediaItems[safeIndex];
+  const showRail = mediaItems.length > 1;
 
   return (
-    <div className="housing-gallery">
-      {hasVideo && (
-        <div className="housing-gallery-video" style={videoAspectStyle}>
-          {listing.videoUrl ? (
-            <video
-              src={buildTweetVideoProxyUrl(listing.videoUrl)}
-              poster={listing.videoPosterUrl}
-              controls
-              muted
-              autoPlay
-              loop
-              playsInline
-              preload="metadata"
-              aria-label={t('housing.gallery.video_iframe_title', {
-                defaultValue: 'Listing video',
-              })}
-            />
-          ) : listing.youtubeVideoId ? (
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${listing.youtubeVideoId}?autoplay=1&mute=1&playsinline=1&rel=0`}
-              title={t('housing.gallery.video_iframe_title', {
-                defaultValue: 'Listing video',
-              })}
-              allow="autoplay; encrypted-media; fullscreen"
-              allowFullScreen
-            />
-          ) : null}
-        </div>
-      )}
-      {mainSrc && (
-      <img
-        src={mainSrc}
-        alt=""
-        loading="lazy"
-        className="housing-gallery-main"
-        onError={handleImgError(mainSrc)}
-        onLoad={handleYoutubeThumbnailLoad}
-      />
-      )}
-      {visibleSources.length > 1 && (
-        <ul className="housing-gallery-thumbs" role="tablist">
-          {visibleSources.map((src, i) => (
-            <li key={`${i}-${src}`} role="presentation">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={i === safeIndex}
-                data-active={i === safeIndex}
-                className="housing-gallery-thumb"
-                onClick={() => setActiveIndex(i)}
-                aria-label={t('housing.gallery.thumb_aria', {
-                  index: i + 1,
-                  total: visibleSources.length,
-                  defaultValue: `Image ${i + 1} of ${visibleSources.length}`,
+    <div className="housing-gallery" data-has-rail={showRail}>
+      <div className="housing-gallery-stage">
+        {active.kind === 'video' ? (
+          <div className="housing-gallery-video" style={videoAspectStyle}>
+            {listing.videoUrl ? (
+              <video
+                src={buildTweetVideoProxyUrl(listing.videoUrl)}
+                poster={listing.videoPosterUrl}
+                controls
+                muted
+                autoPlay
+                loop
+                playsInline
+                preload="metadata"
+                aria-label={t('housing.gallery.video_iframe_title', {
+                  defaultValue: 'Listing video',
                 })}
-              >
-                <img
-                  src={src}
-                  alt=""
-                  loading="lazy"
-                  onError={handleImgError(src)}
-                  onLoad={handleYoutubeThumbnailLoad}
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
+              />
+            ) : listing.youtubeVideoId ? (
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${listing.youtubeVideoId}?autoplay=1&mute=1&playsinline=1&rel=0`}
+                title={t('housing.gallery.video_iframe_title', {
+                  defaultValue: 'Listing video',
+                })}
+                allow="autoplay; encrypted-media; fullscreen"
+                allowFullScreen
+              />
+            ) : null}
+          </div>
+        ) : (
+          <img
+            src={active.src}
+            alt=""
+            loading="lazy"
+            className="housing-gallery-main"
+            onError={handleImgError(active.src)}
+            onLoad={handleYoutubeThumbnailLoad}
+          />
+        )}
+      </div>
+
+      {showRail && (
+        <div
+          className="housing-detail-thumbrail-wrap"
+          data-at-top={atTop}
+          data-at-bottom={atBottom}
+        >
+          <ul
+            className="housing-detail-thumbrail"
+            role="tablist"
+            ref={railRef}
+            onScroll={updateFade}
+          >
+            {mediaItems.map((item, i) => (
+              <li key={item.kind === 'video' ? 'video' : `${i}-${item.src}`} role="presentation">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={i === safeIndex}
+                  data-active={i === safeIndex}
+                  className="housing-detail-thumb"
+                  onClick={() => setActiveIndex(i)}
+                  aria-label={t('housing.gallery.thumb_aria', {
+                    index: i + 1,
+                    total: mediaItems.length,
+                    defaultValue: `Image ${i + 1} of ${mediaItems.length}`,
+                  })}
+                >
+                  {item.kind === 'video' ? (
+                    <>
+                      {videoThumb ? (
+                        <img src={videoThumb} alt="" loading="lazy" />
+                      ) : (
+                        <span className="housing-detail-thumb-videobg" aria-hidden="true" />
+                      )}
+                      <span className="housing-detail-thumb-play" aria-hidden="true">
+                        ▶
+                      </span>
+                    </>
+                  ) : (
+                    <img
+                      src={item.src}
+                      alt=""
+                      loading="lazy"
+                      onError={handleImgError(item.src)}
+                      onLoad={handleYoutubeThumbnailLoad}
+                    />
+                  )}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
