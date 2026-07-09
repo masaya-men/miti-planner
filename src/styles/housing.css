@@ -293,76 +293,6 @@
 }
 
 /* ===== TopBar (header) ===== */
-.housing-top {
-  position: relative;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 24px;
-  background: var(--housing-panel-bg);
-  border-bottom: 1px solid var(--housing-panel-border);
-  box-shadow:
-    inset 0 1.5px 1px rgba(255, 255, 255, 0.30),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
-}
-.housing-top::after {
-  content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
-  background: linear-gradient(to right,
-    transparent, rgba(255, 255, 255, 0.18) 30%, rgba(255, 255, 255, 0.30) 50%,
-    rgba(255, 255, 255, 0.18) 70%, transparent);
-  pointer-events: none;
-}
-.housing-top-left,
-.housing-top-right {
-  display: flex; align-items: center; gap: 12px;
-}
-
-.housing-panel-toggle {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--housing-text-mute);
-  padding: 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
-}
-.housing-panel-toggle:hover:not(:disabled) {
-  background: var(--housing-chip-bg-hover);
-  color: var(--housing-text);
-}
-.housing-panel-toggle:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
-.housing-panel-toggle:disabled {
-  cursor: not-allowed;
-  opacity: var(--housing-disabled-opacity);
-}
-
-.housing-brand {
-  display: flex; align-items: center; gap: 12px;
-  font-weight: 600; letter-spacing: 0.04em; font-size: 13px;
-  appearance: none;
-  background: none;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  color: inherit;
-  font-family: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-.housing-brand:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-.housing-brand-mark {
-  width: 22px; height: 22px; border-radius: 4px;
-  background: var(--housing-honey);
-}
 .housing-brand-sub {
   color: var(--housing-text-mute);
   font-weight: 400;
@@ -380,13 +310,6 @@
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
-
-.housing-crumbs {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 12px; color: var(--housing-text-dim);
-}
-.housing-crumbs .sep { color: var(--housing-text-mute); }
-.housing-crumbs .now { color: var(--housing-text); }
 
 .housing-theme-toggle {
   display: inline-flex; align-items: center;
@@ -411,24 +334,6 @@
   background: var(--housing-honey);
   color: var(--housing-honey-text-strong); font-weight: 600;
   text-shadow: none;
-}
-
-/* ===== Main 3-col ===== */
-.housing-main {
-  display: grid;
-  grid-template-columns: var(--housing-left-w) 1fr var(--housing-right-w);
-  gap: var(--housing-main-gap);
-  padding: var(--housing-main-padding);
-  min-height: 0;
-}
-.housing-main[data-left-collapsed="true"] {
-  grid-template-columns: 0 1fr var(--housing-right-w);
-}
-.housing-main[data-right-collapsed="true"] {
-  grid-template-columns: var(--housing-left-w) 1fr 0;
-}
-.housing-main[data-left-collapsed="true"][data-right-collapsed="true"] {
-  grid-template-columns: 0 1fr 0;
 }
 
 /* ===== Glass Panel ===== */
@@ -846,21 +751,6 @@
 /* ============================================================
  * Center Area — Map view (mockup §CENTER)
  * ============================================================ */
-.housing-map-stage {
-  flex: 1;
-  min-height: 0;
-  perspective: 1600px;
-  perspective-origin: 50% 28%;
-  position: relative;
-  overflow: hidden;
-}
-.housing-map-canvas {
-  position: absolute;
-  inset: 0;
-  transform-style: preserve-3d;
-  transform: rotateX(20deg) translateZ(0);
-  transition: transform 0.6s cubic-bezier(.2, .7, .2, 1);
-}
 .housing-floor-grid {
   position: absolute;
   inset: -10% -10% -20% -10%;
@@ -876,14 +766,6 @@
   background-image:
     linear-gradient(rgba(180, 210, 255, 0.18) 1px, transparent 1px),
     linear-gradient(90deg, rgba(180, 210, 255, 0.12) 1px, transparent 1px);
-}
-.housing-map-wrap {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 78%;
-  aspect-ratio: 470 / 350;
-  transform: translate(-50%, -55%);
 }
 .housing-map-img {
   width: 100%;
@@ -965,32 +847,6 @@
 .housing-hud .accent {
   color: var(--housing-candle);
 }
-
-/* Compass */
-.housing-compass {
-  position: absolute;
-  right: 16px;
-  bottom: 48px;
-  width: 56px;
-  height: 56px;
-  pointer-events: none;
-  z-index: 7;
-}
-.housing-compass circle {
-  fill: var(--housing-overlay-strong);
-  stroke: var(--housing-panel-border-strong);
-  stroke-width: 1;
-}
-.housing-compass text {
-  fill: var(--housing-text-dim);
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-anchor: middle;
-  dominant-baseline: middle;
-}
-.housing-compass .n { fill: var(--housing-candle); }
-.housing-compass .needle { fill: var(--housing-honey); }
 
 /* ============================================================
  * 登録ページ — 土地ミニマップ (WardMapPreview, spec パートC)
@@ -1114,220 +970,6 @@
   color: var(--housing-text-dim);
 }
 
-/* Map bubble cards on plot positions */
-.housing-bubble-card {
-  position: absolute;
-  width: var(--housing-bubble-w);
-  transform: translate(-50%, -100%);
-  transform-origin: bottom center;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  z-index: 8;
-  transition: transform 0.2s ease, z-index 0s;
-}
-.housing-bubble-card:hover,
-.housing-bubble-card:focus-visible {
-  transform: translate(-50%, -100%) scale(1.6);
-  z-index: 20;
-  outline: none;
-}
-.housing-bubble-card-body {
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--housing-bubble-bg);
-  border: 1px solid var(--housing-honey-border);
-  box-shadow: var(--housing-bubble-shadow);
-  color: var(--housing-text);
-  text-align: left;
-  text-shadow: var(--housing-text-shadow);
-}
-.housing-bubble-card-thumb {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  background: var(--housing-card-thumb-bg);
-}
-.housing-bubble-card-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.housing-bubble-card-label {
-  padding: 4px 6px;
-  font-size: 10px;
-  line-height: 1.2;
-}
-.housing-bubble-card-fav {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  z-index: 21;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  background: var(--housing-overlay-strong);
-  border: 1px solid var(--housing-panel-border-strong);
-  color: var(--housing-text-dim);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.housing-bubble-card-fav:hover {
-  background: var(--housing-honey-soft);
-  color: var(--housing-candle);
-}
-.housing-bubble-card-fav:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
-.housing-bubble-card-fav[data-active="true"] {
-  background: var(--housing-honey-strong);
-  border-color: var(--housing-honey-border);
-  color: var(--housing-honey);
-}
-
-.housing-bubble-card-pin {
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  transform: translate(-50%, 0);
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: var(--housing-bubble-pin) solid var(--housing-honey);
-  pointer-events: none;
-}
-
-/* ============================================================
- * Pinterest grid (Plan C extension — not in mockup)
- * ============================================================ */
-.housing-pinterest-grid {
-  position: relative;
-  /* 高さ・列数・内側余白は JS が決める (絶対配置の子は padding を無視するため JS で inset)。 */
-}
-.housing-pinterest-item {
-  position: absolute;
-  /* left / top / width / height は inline (配置)。transform は FLIP アニメ専用。 */
-  will-change: transform;
-}
-.housing-pinterest-item--exiting {
-  pointer-events: none;
-  animation: housing-card-exit 200ms ease forwards;
-}
-@keyframes housing-card-exit {
-  from { opacity: 1; transform: scale(1); }
-  to   { opacity: 0; transform: scale(0.96); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .housing-pinterest-item--exiting { animation-duration: 1ms; }
-}
-
-/* Housing card wrapper (relative anchor for the favorite overlay) */
-.housing-card-wrap {
-  position: relative;
-  width: 100%;
-}
-
-/* Favorite overlay button — top-right corner, always visible so users
- * can stockpile favorites without first expanding the card. */
-.housing-card-fav-overlay {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 2;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: var(--housing-overlay-strong);
-  border: 1px solid var(--housing-panel-border-strong);
-  color: var(--housing-text-dim);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  appearance: none;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
-}
-.housing-card-fav-overlay:hover {
-  background: var(--housing-honey-soft);
-  color: var(--housing-candle);
-}
-.housing-card-fav-overlay:active {
-  transform: scale(0.92);
-}
-.housing-card-fav-overlay:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
-.housing-card-fav-overlay[data-active="true"] {
-  background: var(--housing-honey-strong);
-  border-color: var(--housing-honey-border);
-  color: var(--housing-honey);
-}
-
-/* 「あなたの登録」 バッジ — 左上、 一覧で自分の物件を即識別する。
- * 並び順は住所順 (area→DC→server→ward→plot) なので、 自分の物件は
- * 順序ではなくこのバッジで見分ける設計。 */
-.housing-card-mine-badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 2;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid var(--housing-honey-border);
-  color: var(--housing-candle);
-  font-size: var(--housing-text-xs);
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Housing card (Pinterest cell + shared base) */
-.housing-card {
-  display: block;
-  width: 100%;
-  background: var(--housing-panel-bg);
-  border: 1px solid var(--housing-panel-border);
-  border-radius: 12px;
-  overflow: hidden;
-  text-align: left;
-  appearance: none;
-  cursor: pointer;
-  color: var(--housing-text);
-  text-shadow: var(--housing-text-shadow);
-  font: inherit;
-  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.housing-card:hover {
-  transform: scale(1.02);
-  border-color: var(--housing-panel-border-strong);
-}
-.housing-card:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
-.housing-card-thumb {
-  position: relative;
-  background: var(--housing-card-thumb-bg);
-}
-.housing-card-thumb img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-/* 動画 listing: videoAspectRatio でカード比率を確定し、 静止画 img はその枠に cover */
-.housing-card-thumb[data-fixed-aspect="true"] img {
-  height: 100%;
-  object-fit: cover;
-}
 
 /* 2026-05-27 ambient slideshow オーバーレイ (各カード独立、 desync クロスフェード) */
 .housing-card-ambient-slideshow {
@@ -1428,55 +1070,8 @@
 }
 
 /* ============================================================
- * View mode toggle (Plan C — Map / Pinterest)
- * ============================================================ */
-.housing-view-mode-toggle {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 9;
-  display: inline-flex;
-  background: var(--housing-overlay-strong);
-  border: 1px solid var(--housing-panel-border-strong);
-  border-radius: 8px;
-  padding: 3px;
-  gap: 2px;
-}
-.housing-view-mode-toggle button {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--housing-text-dim);
-  padding: 5px 10px;
-  border-radius: 6px;
-  font: inherit;
-  font-size: var(--housing-text-sm);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.housing-view-mode-toggle button[data-active="true"] {
-  background: var(--housing-honey-strong);
-  color: var(--housing-candle);
-}
-.housing-view-mode-toggle button:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
-
-/* ============================================================
  * Right Panel (Plan D) — browse auto-scroll list + tour progress
  * ============================================================ */
-
-/* Outer body wrapper shared by browse + tour modes (gives the close-button
- * footer a place to anchor below the list). */
-.housing-right-panel-body {
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-}
 
 /* AutoScrollList container (rAF-driven, hover-paused). */
 .housing-auto-scroll-list {
@@ -1661,49 +1256,6 @@
 }
 
 /* ============================================================
- * Favorites toggle (TopBar ♡ icon) — Plan E
- * ============================================================ */
-.housing-favorites-toggle {
-  position: relative;
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--housing-text-mute);
-  padding: 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.housing-favorites-toggle:hover {
-  background: var(--housing-chip-bg-hover);
-  color: var(--housing-candle);
-}
-.housing-favorites-toggle:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
-.housing-favorites-toggle-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: var(--housing-honey);
-  color: #2a1a08;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 16px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-  text-shadow: none;
-}
-
-/* ============================================================
  * Favorites Modal (Plan E §7) — fullscreen sheet + two panes
  * ============================================================ */
 .housing-favorites-backdrop {
@@ -1744,37 +1296,6 @@
   align-items: center;
   gap: 10px;
 }
-.housing-favorites-share-slot {
-  width: 200px;
-}
-.housing-favorites-run-all-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  background: var(--housing-honey);
-  color: #1a1006;
-  border: 0;
-  font: inherit;
-  font-size: var(--housing-text-sm);
-  font-weight: 600;
-  cursor: pointer;
-  appearance: none;
-  text-shadow: none;
-  transition: background 0.15s ease;
-}
-.housing-favorites-run-all-btn:hover:not(:disabled) {
-  background: var(--housing-honey-glow);
-}
-.housing-favorites-run-all-btn:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
-.housing-favorites-run-all-btn:disabled {
-  cursor: not-allowed;
-  opacity: var(--housing-disabled-opacity);
-}
 .housing-favorites-close-btn {
   appearance: none;
   border: 0;
@@ -1795,76 +1316,6 @@
 .housing-favorites-close-btn:focus-visible {
   outline: 2px solid var(--housing-honey);
   outline-offset: 2px;
-}
-.housing-favorites-modal-body {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-}
-.housing-favorites-modal-pane {
-  flex: 1;
-  min-width: 0;
-  min-height: 0;
-}
-.housing-favorites-modal-pane-left {
-  border-right: 1px solid var(--housing-panel-border);
-}
-
-/* Favorites pane (left half) — root acts as the marquee anchor so the
- * rubber-band rect can extend over header / hint / list whitespace. */
-.housing-favorites-pane {
-  position: relative;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  user-select: none;
-}
-.housing-favorites-pane-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 12px 16px 6px;
-  flex-shrink: 0;
-}
-.housing-favorites-pane-title {
-  font-size: var(--housing-text-xs);
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--housing-text-dim);
-  margin: 0;
-}
-.housing-favorites-clear-btn {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--housing-text-mute);
-  font: inherit;
-  font-size: var(--housing-text-xs);
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 2px 4px;
-}
-.housing-favorites-clear-btn:hover {
-  color: var(--housing-candle);
-}
-.housing-favorites-pane-hint {
-  padding: 0 16px 8px;
-  font-size: var(--housing-text-xs);
-  color: var(--housing-text-mute);
-  margin: 0;
-  flex-shrink: 0;
-}
-.housing-favorites-list {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 8px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  user-select: none;
 }
 .housing-favorites-empty {
   height: 100%;
@@ -1952,196 +1403,6 @@
   text-overflow: ellipsis;
 }
 
-/* Marquee selection rectangle (drawn over the favorites list) */
-.housing-marquee-rect {
-  position: absolute;
-  pointer-events: none;
-  border: 1px solid var(--housing-honey);
-  background: var(--housing-honey-soft);
-}
-
-/* Tour builder pane (right half) */
-.housing-tour-builder {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  transition: background 0.15s ease;
-}
-.housing-tour-builder[data-drop-active="true"] {
-  background: var(--housing-honey-soft);
-}
-.housing-tour-builder[data-drop-active="true"] .housing-tour-builder-body {
-  box-shadow: inset 0 0 0 2px var(--housing-honey-border);
-  border-radius: 8px;
-}
-
-/* Floating drag preview that follows the cursor while dragging a favorite */
-.housing-drag-overlay {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: var(--housing-honey-strong);
-  border: 1px solid var(--housing-honey-border);
-  color: var(--housing-candle);
-  font-size: var(--housing-text-sm);
-  font-weight: 500;
-  text-shadow: var(--housing-text-shadow);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-  pointer-events: none;
-  cursor: grabbing;
-}
-.housing-drag-overlay-label {
-  white-space: nowrap;
-}
-.housing-drag-overlay-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--housing-honey);
-  color: #2a1a08;
-  font-size: var(--housing-text-xs);
-  font-weight: 700;
-  text-shadow: none;
-}
-.housing-tour-builder-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 12px 16px 6px;
-  flex-shrink: 0;
-}
-.housing-tour-builder-title {
-  font-size: var(--housing-text-xs);
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--housing-text-dim);
-  margin: 0;
-}
-.housing-tour-builder-head-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-.housing-tour-builder-sort-btn,
-.housing-tour-builder-clear-all-btn {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--housing-text-mute);
-  font: inherit;
-  font-size: var(--housing-text-xs);
-  text-decoration: underline;
-  cursor: pointer;
-  padding: 2px 4px;
-}
-.housing-tour-builder-sort-btn:hover {
-  color: var(--housing-candle);
-}
-.housing-tour-builder-clear-all-btn:hover {
-  color: var(--housing-warning);
-}
-.housing-tour-builder-body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 8px 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.housing-tour-builder-empty {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 32px;
-  color: var(--housing-text-mute);
-  font-size: var(--housing-text-sm);
-}
-
-/* Tour builder item (sortable row) */
-.housing-tour-builder-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: var(--housing-chip-bg);
-  border: 1px solid transparent;
-  color: var(--housing-text);
-  text-shadow: var(--housing-text-shadow);
-}
-.housing-tour-builder-item:hover {
-  border-color: var(--housing-panel-border);
-}
-.housing-tour-builder-grip {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--housing-text-mute);
-  cursor: grab;
-  padding: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.housing-tour-builder-grip:active {
-  cursor: grabbing;
-  color: var(--housing-text);
-}
-.housing-tour-builder-grip:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
-.housing-tour-builder-index {
-  font-size: var(--housing-text-xs);
-  color: var(--housing-text-mute);
-  font-variant-numeric: tabular-nums;
-  width: 24px;
-  text-align: right;
-}
-.housing-tour-builder-label {
-  flex: 1;
-  min-width: 0;
-  font-size: var(--housing-text-sm);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.housing-tour-builder-size {
-  margin-left: 6px;
-  font-size: var(--housing-text-xs);
-  color: var(--housing-text-mute);
-}
-.housing-tour-builder-remove {
-  appearance: none;
-  border: 0;
-  background: transparent;
-  color: var(--housing-text-mute);
-  padding: 4px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.housing-tour-builder-remove:hover {
-  background: var(--housing-chip-bg-hover);
-  color: var(--housing-warning);
-}
-.housing-tour-builder-remove:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
-}
 
 /* ============================================================
  * Manner Notice Dialog (Plan E §6.2)
@@ -2249,24 +1510,6 @@
 .housing-empty-result-hint {
   font-size: var(--housing-text-sm);
   color: var(--housing-text-dim);
-}
-
-/* Center area container (full-bleed inside panel-body) */
-.housing-center-area {
-  position: relative;
-  width: 100%;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.housing-center-area-scroll {
-  flex: 1;
-  min-height: 0;
-  /* 縦スクロールのみ許可。masonry は幅内に収まる計算だが、横スクロールを構造的に禁止して中に収める。 */
-  overflow-x: hidden;
-  overflow-y: auto;
 }
 
 /* ===== Skeleton (loading placeholder) ===== */
@@ -2459,30 +1702,6 @@
 }
 .housing-register-modal-login-btn:hover {
   filter: brightness(1.05);
-}
-
-/* ===== TopBar register CTA (Plan F gap fix) ===== */
-.housing-top-register-btn {
-  appearance: none;
-  border: 1px solid var(--housing-honey-border);
-  background: var(--housing-honey-soft);
-  color: var(--housing-text);
-  font: inherit;
-  font-size: var(--housing-text-sm);
-  font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-.housing-top-register-btn:hover {
-  background: var(--housing-honey-medium);
-  border-color: var(--housing-honey);
-  color: var(--housing-candle);
-}
-.housing-top-register-btn:focus-visible {
-  outline: 2px solid var(--housing-honey);
-  outline-offset: 2px;
 }
 
 /* ============================================================

@@ -9,10 +9,6 @@ import { SharePage } from './components/SharePage';
 const CollabJoinerPage = lazy(() => import('./components/CollabJoinerPage'));
 import { SupportPage } from './components/SupportPage';
 import StrategyBoardPastePage from './components/StrategyBoardPastePage';
-import {
-  HousingPage,
-  HousingWorkspace,
-} from './components/housing';
 import { HousingDetailPage } from './components/housing/listing/HousingDetailPage';
 import { HousingDetailModalRoute } from './components/housing/listing/HousingDetailModalRoute';
 import { HousingShell } from './components/housing/shell/HousingShell';
@@ -111,7 +107,6 @@ function AppRoutes() {
           <Route path="register" element={<RegisterPage />} />
           <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
         </Route>
-        <Route path="/housing/legacy" element={<HousingPage />} />
         {/* 開発専用: 入口オーサリングツール(Task5)。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
         {import.meta.env.DEV && (
           <Route path="/housing/dev/entrances" element={<EntranceAuthoringPage />} />
@@ -124,9 +119,6 @@ function AppRoutes() {
         {import.meta.env.DEV && (
           <Route path="/housing/dev/routes" element={<RouteAuthoringPage />} />
         )}
-        {/* 旧ワークスペース (据え置き・再構築完了後に撤去) */}
-        <Route path="/housing/p/:listingId" element={<HousingWorkspace />} />
-        <Route path="/housing/tour/:tourId" element={<HousingWorkspace />} />
         {/* フルページ詳細 (URL 直アクセス・モーダル経由の両方の受け皿) */}
         <Route path="/housing/listing/:listingId" element={<HousingDetailPage />} />
 
