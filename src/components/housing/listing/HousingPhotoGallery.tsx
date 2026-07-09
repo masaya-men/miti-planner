@@ -110,7 +110,7 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
   const showRail = mediaItems.length > 1;
 
   return (
-    <div className="housing-gallery" data-has-rail={showRail}>
+    <div className="housing-gallery">
       <div className="housing-gallery-stage">
         {active.kind === 'video' ? (
           <div className="housing-gallery-video" style={videoAspectStyle}>

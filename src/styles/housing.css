@@ -6,15 +6,12 @@
 
 .housing-workspace,
 .housing-panel-modal-backdrop,
-.housing-detail-backdrop,
 .housing-modal-backdrop,
 .housing-dev-tourpreview {
   /* ===== Color tokens =====
      workspace と portal 化されたモーダルの両方で token を解決させる。
      モーダルは createPortal で body 直下に出るため、 .housing-workspace
-     外でも var(--housing-*) を効かせる必要がある。
-     詳細モーダル (.housing-detail-backdrop) も App.tsx root で .housing-workspace
-     外に描画されるため同様に token を解決させる (極小 × ボタン / 枠なしバグ修正)。 */
+     外でも var(--housing-*) を効かせる必要がある。 */
   --housing-honey: #ffc987;
   --housing-honey-glow: #ffb35a;
   --housing-candle: #ffe2b3;
@@ -110,7 +107,6 @@
 
   /* ===== Detail (Phase 3) ===== */
   --housing-detail-backdrop-bg: rgba(0, 0, 0, 0.6);
-  --housing-detail-z: 70;
   --housing-detail-title-size: 22px;
   --housing-detail-tag-bg: var(--housing-honey-medium);
   --housing-detail-tag-border: var(--housing-honey-border);
