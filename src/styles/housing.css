@@ -118,6 +118,7 @@
   --housing-detail-side-w: 320px;         /* 右レールの列幅 (md+) */
   --housing-detail-map-h: 180px;          /* 区画マップの帯高 (md+) */
   --housing-detail-map-h-mobile: 320px;   /* 単一カラム時のマップ高 (モバイル) */
+  --housing-detail-thumbrail-w: 84px;     /* 縦サムネイル列の幅 (メインの右) */
   --housing-detail-fullpage-max-w: 1200px;
 
   /* ===== Phase 3 Group D: report / notifications ===== */
@@ -2819,32 +2820,43 @@ select.housing-input option {
     background: var(--housing-honey-medium);
 }
 
+/* 2026-07-09 再設計: 大メイン写真 + 縦サムネイル列。 ギャラリーは横並び (stage | rail)。 */
 .housing-gallery {
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    display: grid;
-    grid-template-rows: 1fr auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: row;
     gap: 10px;
-    place-items: center;
+}
+/* メインステージ: 選択中メディアを「絶対に切り抜かず」全体表示 (object-fit:contain)。
+   単独の箱なので旧グリッドのはみ出しクリップ (下端/角の見切れ) は構造的に起きない。 */
+.housing-gallery-stage {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     background: var(--housing-card-thumb-bg);
     border-radius: 12px;
-    padding: 8px;
 }
 .housing-gallery-main {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    border-radius: 12px;
+    border-radius: 8px;
 }
-/* 2026-05-27: 詳細モーダル動画再生領域 (Twitter <video> / YouTube iframe、 controls 付き) */
 .housing-gallery-video {
     position: relative;
     width: 100%;
+    max-height: 100%;
     aspect-ratio: 16 / 9;
     background: var(--housing-card-thumb-bg);
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: 8px;
 }
 .housing-gallery-video > video,
 .housing-gallery-video > iframe {
@@ -2852,6 +2864,7 @@ select.housing-input option {
     height: 100%;
     display: block;
     border: none;
+    object-fit: contain;
 }
 .housing-gallery-empty {
     width: 100%;
@@ -2863,41 +2876,98 @@ select.housing-input option {
     border-radius: 12px;
     font-size: var(--housing-text-base);
 }
-/* 2026-05-26 multi-image: メイン画像の下に並べるサムネ列。 1 枚しかない時は非表示 */
-.housing-gallery-thumbs {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    flex-wrap: wrap;
-    width: 100%;
-}
-.housing-gallery-thumb {
-    padding: 0;
-    border: 2px solid transparent;
-    background: transparent;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: border-color 150ms ease, opacity 150ms ease;
-    width: 64px;
-    height: 36px;
-    opacity: 0.65;
+/* 縦サムネイル列。 wrap = 非スクロールのフェード枠 / 中の ul が内部縦スクロール。 */
+.housing-detail-thumbrail-wrap {
+    position: relative;
+    flex: 0 0 var(--housing-detail-thumbrail-w);
+    align-self: stretch;
+    min-height: 0;
     overflow: hidden;
 }
-.housing-gallery-thumb:hover {
+.housing-detail-thumbrail {
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 2px;
+    margin: 0;
+    list-style: none;
+    scrollbar-width: none;            /* Firefox: スクロールバー非表示 */
+}
+.housing-detail-thumbrail::-webkit-scrollbar {
+    display: none;                    /* WebKit: スクロールバー非表示 */
+}
+.housing-detail-thumb {
+    position: relative;
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: var(--housing-card-thumb-bg);
+    cursor: pointer;
+    overflow: hidden;
+    opacity: 0.6;
+    transition: opacity 150ms ease, border-color 150ms ease;
+}
+.housing-detail-thumb:hover {
     opacity: 1;
 }
-.housing-gallery-thumb[data-active="true"] {
-    border-color: var(--housing-honey-glow);
+.housing-detail-thumb[data-active="true"] {
     opacity: 1;
+    border-color: var(--housing-aether);   /* 青 = 選択 */
 }
-.housing-gallery-thumb img {
+.housing-detail-thumb img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    border-radius: 4px;
+    object-fit: cover;                /* サムネは cover でよい (小さい一覧・元画像は main で全体表示) */
+    display: block;
+}
+.housing-detail-thumb-videobg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--housing-panel-bg-solid);
+}
+.housing-detail-thumb-play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: var(--housing-overlay-strong);
+    color: var(--housing-candle);
+    font-size: var(--housing-text-sm);
+    pointer-events: none;
+}
+/* スクロールフェード (強め・端で smooth に外れる)。 wrap は非スクロールなので端に留まる。
+   scroll が端に達すると Task1 が data-at-top/at-bottom を true にし、 その端の opacity が 0 へ遷移。 */
+.housing-detail-thumbrail-wrap::before,
+.housing-detail-thumbrail-wrap::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 40px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.22s ease;
+}
+.housing-detail-thumbrail-wrap::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--housing-panel-bg-solid), transparent);
+}
+.housing-detail-thumbrail-wrap::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--housing-panel-bg-solid), transparent);
+}
+.housing-detail-thumbrail-wrap[data-at-top="true"]::before {
+    opacity: 0;
+}
+.housing-detail-thumbrail-wrap[data-at-bottom="true"]::after {
+    opacity: 0;
 }
 
 /* 2026-07-09 再設計「写真ヒーロー+固定レール」。 base はモバイル優先 = 単一カラム自然スクロール
@@ -2980,9 +3050,8 @@ select.housing-input option {
     min-width: 0;
 }
 .housing-detail-gallery {
+    height: min(60vh, 420px);           /* モバイル: 縦フローで確定高さ (stage/rail の height:100% 用) */
     min-height: var(--housing-detail-empty-h);
-    overflow: hidden;
-    border-radius: 12px;
 }
 /* 右レール: 上=情報 (固定) / 中=説明+peers (唯一のスクロール域) / 下=操作 + 区画マップ (固定)。 */
 .housing-detail-side {
@@ -3146,6 +3215,7 @@ select.housing-input option {
     }
     .housing-detail-gallery {
         flex: 1 1 auto;
+        height: auto;
         min-height: 0;
     }
     .housing-detail-side {
