@@ -17,6 +17,12 @@
  *   store.remove(listing.id) だけ行い postRemoved=true をセット、 toast / navigate はしない。
  * - 削除の成功 / 失敗 toast は削除アクションに密着しているため hook 内に残す (現行のまま)。
  * - 異議 / 却下の toast も現行通り hook 内。
+ *
+ * Task 3.3a: 編集は旧 `HousingEditModal` (モーダル) を撤去し、専用ページ
+ * `/housing/listing/:listingId/edit` への route 遷移に変更した。 hook は react-router を
+ * 意識せず、`options.onEdit` (呼び出し側が navigate を包んだコールバック) を受け取って
+ * `reportNotice.onEdit` にそのまま渡すだけにする (editOpen/closeEdit という内部モーダル
+ * 状態はもう不要なので撤去)。
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -52,9 +58,7 @@ export interface UseHousingDetailResult {
   /** useHousingDelete().loading */
   deleting: boolean;
   reportNotice: ReportNotice | undefined;
-  editOpen: boolean;
   deleteOpen: boolean;
-  closeEdit: () => void;
   closeDelete: () => void;
   refreshAfterChange: () => Promise<void>;
   handleListingSaved: () => Promise<void>;
@@ -64,14 +68,21 @@ export interface UseHousingDetailResult {
   onPeerHidden: (peerId: string) => void;
 }
 
-export function useHousingDetail(listingId: string | undefined): UseHousingDetailResult {
+export interface UseHousingDetailOptions {
+  /** 通報バナーの「編集」ボタン押下時に呼ぶ (呼び出し側が navigate を包んで渡す)。 */
+  onEdit?: () => void;
+}
+
+export function useHousingDetail(
+  listingId: string | undefined,
+  options?: UseHousingDetailOptions,
+): UseHousingDetailResult {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [listing, setListing] = useState<HousingListing | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [postRemoved, setPostRemoved] = useState(false);
   const [notification, setNotification] = useState<HousingNotification | null>(null);
-  const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   // 2026-05-27 Phase 2-3 hotfix: 同 addressKey に自分以外の生きてる listing が居るかどうか。
   // 「今もあります」 ボタン + 「○月○日 確認済」 表示は重複時のみ意味があるので、 これで gate する。
@@ -258,10 +269,11 @@ export function useHousingDetail(listingId: string | undefined): UseHousingDetai
     await refreshAfterChange();
   };
 
-  const onEdit = () => setEditOpen(true);
+  // Task 3.3a: 編集は route 遷移になったため、 hook は options.onEdit (呼び出し側が
+  // navigate を包んだコールバック) をそのまま呼ぶだけ (editOpen という内部状態は持たない)。
+  const onEdit = () => options?.onEdit?.();
   const onDeleteClick = () => setDeleteOpen(true);
 
-  const closeEdit = () => setEditOpen(false);
   const closeDelete = () => setDeleteOpen(false);
 
   // Task 2.2: close/navigate は呼び出し側の責務。 hook は成功/失敗 toast + state 更新のみ行い、
@@ -326,9 +338,7 @@ export function useHousingDetail(listingId: string | undefined): UseHousingDetai
     viewerUid,
     deleting,
     reportNotice,
-    editOpen,
     deleteOpen,
-    closeEdit,
     closeDelete,
     refreshAfterChange,
     handleListingSaved,

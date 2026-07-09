@@ -255,6 +255,43 @@ describe('useHousingDetail', () => {
     removeSpy.mockRestore();
   });
 
+  it('Task 3.3a: reportNotice.onEdit は options.onEdit をそのまま呼ぶ (hook 内で editOpen 等のモーダル状態は持たない)', async () => {
+    mockGetDoc.mockResolvedValueOnce(buildListingSnap('lid-report'));
+    const onEdit = vi.fn();
+
+    const wrapperWithNotification = ({ children }: { children: React.ReactNode }) => (
+      <MemoryRouter initialEntries={['/?notification=notif-1']}>{children}</MemoryRouter>
+    );
+
+    // 通知 doc 取得 (getDoc の 2 回目呼び出し) を housing_report で解決する。
+    mockGetDoc.mockResolvedValueOnce({
+      exists: () => true,
+      id: 'notif-1',
+      data: () => ({ type: 'housing_report', reason: 'wrong_info' }),
+    });
+
+    // firebase/auth モックは currentUser: null のままだが、notification 取得は
+    // auth.currentUser?.uid を見る実装 (lib/firebase の auth モック) を使うため、
+    // このテストでは lib/firebase モックの auth.currentUser を差し替える。
+    const firebaseMock = await import('../../../../lib/firebase');
+    // @ts-expect-error テスト用に currentUser を上書きする
+    firebaseMock.auth.currentUser = { uid: 'owner1' };
+
+    const { result } = renderHook(() => useHousingDetail('lid-report', { onEdit }), {
+      wrapper: wrapperWithNotification,
+    });
+
+    await waitFor(() => {
+      expect(result.current.reportNotice).toBeDefined();
+    });
+
+    result.current.reportNotice?.onEdit();
+    expect(onEdit).toHaveBeenCalledTimes(1);
+
+    // @ts-expect-error 後続テストへの汚染防止
+    firebaseMock.auth.currentUser = null;
+  });
+
   it('auth-ready gate: authLoading=true の間は getDoc を呼ばず notFound も立てず、loading=false に切り替わったら fetch が走る', async () => {
     mockAuthLoading = true;
     mockGetDoc.mockResolvedValueOnce(buildListingSnap('lid-gate'));

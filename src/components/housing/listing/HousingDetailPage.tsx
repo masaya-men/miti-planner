@@ -19,7 +19,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HousingDetailContent } from './HousingDetailContent';
-import { HousingEditModal } from '../edit/HousingEditModal';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDetail } from './useHousingDetail';
 import '../../../styles/housing.css';
@@ -28,7 +27,11 @@ export const HousingDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
-  const d = useHousingDetail(listingId);
+  // Task 3.3a: 編集は route 遷移 (/housing/listing/:listingId/edit)。 hook は react-router を
+  // 意識しないため、 navigate を包んだコールバックをここ (呼び出し側) で渡す。
+  const d = useHousingDetail(listingId, {
+    onEdit: () => navigate(`/housing/listing/${listingId}/edit`),
+  });
 
   // 取得失敗 (削除済み/非公開/不存在) と SNS 投稿消滅は、どちらも「もう表示できない」
   // という点で同じ扱い (plan 準拠: error 状態は無く notFound に統合済み)。
@@ -88,14 +91,6 @@ export const HousingDetailPage: React.FC = () => {
           />
         </main>
       </div>
-      {d.editOpen && (
-        <HousingEditModal
-          open={d.editOpen}
-          onClose={d.closeEdit}
-          listing={d.listing}
-          onSaved={d.handleListingSaved}
-        />
-      )}
       {d.deleteOpen && (
         <HousingDeleteConfirm
           open={d.deleteOpen}

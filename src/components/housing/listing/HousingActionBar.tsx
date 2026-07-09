@@ -8,6 +8,7 @@
  * - kebab メニュー (家主のみ、 編集 / 削除)
  */
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
 import { confirmListing } from '../../../lib/housingApiClient';
@@ -15,7 +16,6 @@ import { showToast } from '../../Toast';
 import { HousingDetailKebab } from './HousingDetailKebab';
 import { HousingShareButton } from './HousingShareButton';
 import { HousingFavHeart } from '../browse/HousingFavHeart';
-import { HousingEditModal } from '../edit/HousingEditModal';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDelete } from '../delete/useHousingDelete';
 import { HousingReportModal } from '../report/HousingReportModal';
@@ -48,10 +48,10 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   onDeleted,
 }) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const isOwner = viewerUid != null && listing.ownerUid === viewerUid;
 
   const [reportOpen, setReportOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteListing, loading: deleting } = useHousingDelete();
   // 2026-05-27 Phase 2-3: 「今もあります」 ボタン。 押下成功で local state を
@@ -143,7 +143,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
 
       {isOwner && (
         <HousingDetailKebab
-          onEdit={() => setEditOpen(true)}
+          onEdit={() => navigate(`/housing/listing/${listing.id}/edit`)}
           onDelete={() => setDeleteOpen(true)}
         />
       )}
@@ -164,14 +164,6 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
           open={reportOpen}
           listingId={listing.id}
           onClose={() => setReportOpen(false)}
-        />
-      )}
-      {editOpen && (
-        <HousingEditModal
-          open={editOpen}
-          onClose={() => setEditOpen(false)}
-          listing={listing}
-          onSaved={onListingUpdated}
         />
       )}
       {deleteOpen && (

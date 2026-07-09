@@ -14,6 +14,7 @@ import { HousingShell } from './components/housing/shell/HousingShell';
 import { BrowsePage } from './components/housing/pages/BrowsePage';
 import { FavoritesPage } from './components/housing/pages/FavoritesPage';
 import { RegisterPage } from './components/housing/pages/RegisterPage';
+import { HousingEditPage } from './components/housing/pages/HousingEditPage';
 import { ComingSoonPage } from './components/housing/pages/ComingSoonPage';
 import { TourNavPage } from './components/housing/pages/TourNavPage';
 import { EntranceAuthoringPage } from './components/housing/dev/EntranceAuthoringPage';
@@ -101,6 +102,8 @@ function AppRoutes() {
         <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
         {/* Task 2.3: 詳細大パネル。一覧カード/直URL/共有URL/通知タップ、全経路の単一着地点。 */}
         <Route path="listing/:listingId" element={<HousingDetailPage />} />
+        {/* Task 3.3a: 編集ページ。詳細の編集導線 (kebab/通報バナー) から navigate してくる。 */}
+        <Route path="listing/:listingId/edit" element={<HousingEditPage />} />
       </Route>
       {/* 開発専用: 入口オーサリングツール(Task5)。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
       {import.meta.env.DEV && (
