@@ -112,11 +112,12 @@
   --housing-detail-backdrop-bg: rgba(0, 0, 0, 0.6);
   --housing-detail-z: 70;
   --housing-detail-title-size: 22px;
-  --housing-detail-action-min-w: 80px;
-  --housing-detail-action-padding: 10px 14px;
   --housing-detail-tag-bg: var(--housing-honey-medium);
   --housing-detail-tag-border: var(--housing-honey-border);
   --housing-detail-empty-h: 240px;
+  --housing-detail-side-w: 320px;         /* 右レールの列幅 (md+) */
+  --housing-detail-map-h: 180px;          /* 区画マップの帯高 (md+) */
+  --housing-detail-map-h-mobile: 320px;   /* 単一カラム時のマップ高 (モバイル) */
   --housing-detail-fullpage-max-w: 1200px;
 
   /* ===== Phase 3 Group D: report / notifications ===== */
@@ -2749,17 +2750,18 @@ select.housing-input option {
  * ============================================================ */
 .housing-action-bar {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
 }
 .housing-action-bar .housing-action-btn {
-    min-width: var(--housing-detail-action-min-w);
-    padding: var(--housing-detail-action-padding);
+    padding: 6px 12px;
     background: var(--housing-chip-bg-hover);
     border: 1px solid var(--housing-panel-border);
-    border-radius: 12px;
+    border-radius: 8px;
     color: var(--housing-text);
-    font-size: var(--housing-text-base);
+    font-size: var(--housing-text-sm);
     cursor: pointer;
     text-align: center;
 }
@@ -2818,6 +2820,7 @@ select.housing-input option {
 }
 
 .housing-gallery {
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
     display: grid;
@@ -2897,29 +2900,31 @@ select.housing-input option {
     border-radius: 4px;
 }
 
+/* 2026-07-09 再設計「写真ヒーロー+固定レール」。 base はモバイル優先 = 単一カラム自然スクロール
+   (banner → gallery → info → scroll → actions → map の縦積み)。 md+ は下の @media で
+   2カラム化 + ビューポート内フィット。 .housing-detail-body は banner をグリッド外へ出す flex 親。 */
+.housing-detail-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
 .housing-detail-content {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
+    grid-template-columns: 1fr;
     gap: 20px;
     width: 100%;
-    /* align-items:start (grid既定のstretchを外す): 左(ギャラリー+地図)と右(情報+peers)は
-       中身の高さが噛み合わない (地図が引けない物件は左が短い/peersが無いと右が短い)。
-       stretch のままだと短い方に空白が伸びて間延びする → 各列は自分の中身の高さで止める。 */
-    align-items: start;
-}
-@media (max-width: 768px) {
-    .housing-detail-content {
-        grid-template-columns: 1fr;
-    }
 }
 /* 通報通知の案内バナー (家主が通報通知から開いた時に詳細内へ表示) */
+/* de-AI: 色付き alert 箱 + honey 左縦線をやめ、 静かなヘアライン帯に (バナーは
+   .housing-detail-body 直下の flex 子=グリッド外なので grid-column は不要)。 */
 .housing-detail-report-banner {
-    grid-column: 1 / -1;
-    background: var(--housing-guide-comment-bg);
-    border: 1px solid var(--housing-panel-border-strong);
-    border-left: 3px solid var(--housing-honey-medium);
-    border-radius: var(--housing-input-radius-sm);
-    padding: 14px 16px;
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--housing-divider);
+    border-bottom: 1px solid var(--housing-divider);
+    border-radius: 0;
+    padding: 12px 2px;
     color: var(--housing-text);
 }
 .housing-detail-report-title { font-weight: 600; margin: 0 0 6px; }
@@ -2937,7 +2942,7 @@ select.housing-input option {
     margin: 0 0 10px;
     padding: 8px 10px;
     background: var(--housing-overlay-strong);
-    border-left: 3px solid var(--housing-panel-border);
+    border-top: 1px solid var(--housing-divider);
     border-radius: 6px;
     color: var(--housing-text-dim);
     font-style: italic;
@@ -2968,36 +2973,47 @@ select.housing-input option {
 .housing-detail-report-actions button:hover {
     background: var(--housing-input-bg-hover);
 }
-/* 左列 (Task 2.4): ギャラリー + 地図。 地図が引けない物件は HousingDetailMap が null を
-   返すため子はギャラリーだけになる = gap は自然に効かず、 列はギャラリーの高さで止まる。 */
+/* 左列: 写真ギャラリー (ヒーロー) のみ。 地図は右レール最下部へ移動した。 */
 .housing-detail-visual {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.housing-detail-gallery {
+    min-height: var(--housing-detail-empty-h);
+    overflow: hidden;
+    border-radius: 12px;
+}
+/* 右レール: 上=情報 (固定) / 中=説明+peers (唯一のスクロール域) / 下=操作 + 区画マップ (固定)。 */
+.housing-detail-side {
     display: flex;
     flex-direction: column;
     gap: 16px;
     min-width: 0;
 }
-.housing-detail-gallery {
-    min-height: var(--housing-detail-empty-h);
-}
-/* TourNavMap (.housing-tour-map) は本来ビューポート固定パネル (探す/ツアー) の中で
-   flex:1 1 auto により親の高さいっぱいに広がる設計。 詳細大パネルはページ全体がスクロール
-   する構造で「親の確定した高さ」が無いため、 ここだけ固定高で明示的に確定させる。 */
-.housing-detail-visual .housing-tour-map {
-    flex: 0 0 320px;
-}
-/* 右列 (Task 2.4): 情報ブロック + 「この住所の他の登録」。 duplicates が無ければ後者は
-   描画されないため、 gap は自然に効かず情報ブロックだけの高さで列が止まる。 */
-.housing-detail-side {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    min-width: 0;
-}
 .housing-detail-info {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     color: var(--housing-text);
+}
+.housing-detail-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+/* 区画マップの埋め込み (透け重なりの根治):
+   - 固定 basis → 祖先の確定高さに依存しない (TourNavMap のツリーは自然高さ0)
+   - 不透明背景 (panel-bg-solid) → マップ自身の 5% veil の裏が透けない = 濃紺の面に見える
+   - overflow:hidden → 自己クリップを持たない外側 .housing-tour-map のはみ出しを封じる
+   前回の「ギャラリーに透けて重なる」不具合を構造的に解消。 */
+.housing-detail-side .housing-tour-map {
+    flex: 0 0 var(--housing-detail-map-h-mobile);
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--housing-panel-bg-solid);
 }
 .housing-detail-title {
     font-size: var(--housing-detail-title-size);
@@ -3021,8 +3037,8 @@ select.housing-input option {
     background: var(--housing-detail-tag-bg);
     border: 1px solid var(--housing-detail-tag-border);
     color: var(--housing-honey);
-    border-radius: 999px;
-    padding: 3px 10px;
+    border-radius: 4px;
+    padding: 2px 8px;
     font-size: var(--housing-text-xs);
 }
 .housing-detail-description {
@@ -3087,6 +3103,79 @@ select.housing-input option {
     max-width: var(--housing-detail-fullpage-max-w);
     width: 100%;
     margin: 0 auto;
+}
+
+/* 2026-07-09 再設計「写真ヒーロー+固定レール」: ワイド (md+) は大パネルをビューポート内に
+   フィットさせ、 縦スクロール無しで全情報を一望。 panel→shell→main→body→content を
+   flex/grid で縦に満たす。 レールは情報 (ヘッド) と操作・区画マップを固定し、 説明+peers の
+   .housing-detail-scroll だけが内部スクロール域。 通報バナー表示時 (まれなオーナー画面) のみ
+   :has() で main を自然スクロールに切替え、 列を潰さない。 狭幅 (<=768px) は base の単一カラム。 */
+@media (min-width: 769px) {
+    .housing-detail-panel {
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .housing-detail-shell {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .housing-detail-fullpage-main {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .housing-detail-body {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+    .housing-detail-report-banner {
+        flex: 0 0 auto;
+    }
+    .housing-detail-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr) var(--housing-detail-side-w);
+        align-items: stretch;
+    }
+    .housing-detail-visual {
+        min-height: 0;
+    }
+    .housing-detail-gallery {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+    .housing-detail-side {
+        min-height: 0;
+    }
+    .housing-detail-info {
+        flex: 0 0 auto;
+    }
+    .housing-detail-scroll {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+    }
+    .housing-detail-actions {
+        flex: 0 0 auto;
+    }
+    .housing-detail-side .housing-tour-map {
+        flex: 0 0 var(--housing-detail-map-h);
+    }
+    /* 通報バナー表示時のみ: 列を潰さず main を自然スクロールさせる (バナー高を吸収)。 */
+    .housing-detail-fullpage-main:has(.housing-detail-report-banner) {
+        overflow-y: auto;
+    }
+    .housing-detail-body:has(.housing-detail-report-banner) {
+        flex: 0 0 auto;
+        min-height: min-content;
+    }
+    .housing-detail-body:has(.housing-detail-report-banner) .housing-detail-content {
+        min-height: 480px;
+    }
 }
 
 /* ============================================================

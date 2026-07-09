@@ -1,12 +1,15 @@
 /**
- * Task 2.3/2.4: 物件詳細の中身 (シェル子ルートの大パネルから描画)
+ * Task 2.3/2.4 + 2026-07-09 再設計「写真ヒーロー+固定レール」: 物件詳細の中身 (シェル子ルートの大パネルから描画)
  *
- * - 左 (.housing-detail-visual): 写真ギャラリー + 地図 (HousingDetailMap。 mapRef が
- *   引けない物件では null を返しギャラリーのみになる=レイアウトは崩れない設計)
- * - 右 (.housing-detail-side): タイトル / 住所行 / タグ / 説明 / アクションバー + 「この住所の他の登録」
- * - 家主が通報通知から開いた場合は、 詳細内に「通報の案内バナー」を全幅で表示
+ * - 左 (.housing-detail-visual): 写真ギャラリー (ヒーロー) のみ
+ * - 右レール (.housing-detail-side): 固定ヘッド (タイトル/住所/タグ) → 唯一のスクロール域
+ *   (.housing-detail-scroll = 説明 + 「この住所の他の登録」) → 固定の操作バー → 固定の区画マップ
+ *   (HousingDetailMap。 mapRef が引けない物件は null を返しレールが操作バーで終わる)
+ * - 地図を右レール最下部の別列 + 不透明背景に置くことで、 旧「地図がギャラリーに透けて重なる」
+ *   不具合を構造的に根治
+ * - 家主が通報通知から開いた場合は、 グリッドの上に「通報の案内バナー」を表示
  *   (別モーダルを重ねるとスタッキングが破綻するため、 詳細の中に出す方針)
- * - レイアウトは housing.css のグリッド (.housing-detail-content) で制御
+ * - レイアウトは housing.css (.housing-detail-body / -content / -side) で制御
  */
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -98,7 +101,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   };
 
   return (
-    <div className="housing-detail-content">
+    <div className="housing-detail-body">
       {reportNotice && (
         <div className="housing-detail-report-banner" role="alert">
           <p className="housing-detail-report-title">{t('housing.guide.title')}</p>
@@ -163,28 +166,38 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
         </div>
       )}
 
-      <div className="housing-detail-visual">
-        <div className="housing-detail-gallery">
-          <HousingPhotoGallery listing={listing} />
+      <div className="housing-detail-content">
+        {/* HERO: 写真ギャラリー (地図はここではない=透け重なりの元だった) */}
+        <div className="housing-detail-visual">
+          <div className="housing-detail-gallery">
+            <HousingPhotoGallery listing={listing} />
+          </div>
         </div>
-        <HousingDetailMap listing={listing} />
-      </div>
-      <div className="housing-detail-side">
-        <div className="housing-detail-info">
-          <h2 className="housing-detail-title">{title}</h2>
-          <p className="housing-detail-address">
-            {listing.dc} / {listing.server} / {fullAddress}
-          </p>
-          {listing.tags.length > 0 && (
-            <ul className="housing-detail-tags">
-              {listing.tags.map((tag) => (
-                <li key={tag}>{tag}</li>
-              ))}
-            </ul>
-          )}
-          {listing.description && (
-            <p className="housing-detail-description">{listing.description}</p>
-          )}
+
+        {/* RAIL: 固定ヘッド (タイトル/住所/タグ) → 唯一のスクロール域 (説明+peers)
+            → 固定の操作 → 固定の区画マップ */}
+        <div className="housing-detail-side">
+          <div className="housing-detail-info">
+            <h2 className="housing-detail-title">{title}</h2>
+            <p className="housing-detail-address">
+              {listing.dc} / {listing.server} / {fullAddress}
+            </p>
+            {listing.tags.length > 0 && (
+              <ul className="housing-detail-tags">
+                {listing.tags.map((tag) => (
+                  <li key={tag}>{tag}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="housing-detail-scroll">
+            {listing.description && (
+              <p className="housing-detail-description">{listing.description}</p>
+            )}
+            <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+          </div>
+
           <div className="housing-detail-actions">
             <HousingActionBar
               listing={listing}
@@ -195,8 +208,10 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
               onDeleted={onDeleted}
             />
           </div>
+
+          {/* mapRef が引けない物件では null → レールは操作バーで自然に終わる */}
+          <HousingDetailMap listing={listing} />
         </div>
-        <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
       </div>
     </div>
   );
