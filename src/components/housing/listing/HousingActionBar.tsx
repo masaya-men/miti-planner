@@ -10,11 +10,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
-import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { confirmListing } from '../../../lib/housingApiClient';
 import { showToast } from '../../Toast';
 import { HousingDetailKebab } from './HousingDetailKebab';
 import { HousingShareButton } from './HousingShareButton';
+import { HousingFavHeart } from '../browse/HousingFavHeart';
 import { HousingEditModal } from '../edit/HousingEditModal';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDelete } from '../delete/useHousingDelete';
@@ -50,11 +50,6 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   const { t, i18n } = useTranslation();
   const isOwner = viewerUid != null && listing.ownerUid === viewerUid;
 
-  const favIds = useHousingFavoritesStore((s) => s.ids);
-  const addFav = useHousingFavoritesStore((s) => s.add);
-  const removeFav = useHousingFavoritesStore((s) => s.remove);
-  const isFav = favIds.includes(listing.id);
-
   const [reportOpen, setReportOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -71,11 +66,6 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
       ? `${window.location.origin}/housing/listing/${listing.id}`
       : `/housing/listing/${listing.id}`;
   const titleForShare = listing.description?.slice(0, 60) || listing.addressKey || 'LoPo Housing';
-
-  const onToggleFavorite = () => {
-    if (isFav) removeFav(listing.id);
-    else addFav(listing.id);
-  };
 
   const onReportClick = () => {
     if (!viewerUid) {
@@ -124,17 +114,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
 
   return (
     <div className="housing-action-bar">
-      <button
-        type="button"
-        className="housing-action-btn"
-        aria-pressed={isFav}
-        aria-label={
-          isFav ? t('housing.detail.favorited_aria') : t('housing.detail.favorite_aria')
-        }
-        onClick={onToggleFavorite}
-      >
-        {isFav ? '♥' : '♡'}
-      </button>
+      <HousingFavHeart listingId={listing.id} />
 
       <HousingShareButton url={url} title={titleForShare} />
 

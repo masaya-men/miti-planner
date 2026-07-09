@@ -70,7 +70,7 @@ describe('HousingActionBar', () => {
   it('お気に入りボタンは常に表示される', () => {
     render(<HousingActionBar listing={baseListing} viewerUid={null} />);
     expect(
-      screen.getByRole('button', { name: 'housing.detail.favorite_aria' }),
+      screen.getByRole('button', { name: 'housing.card.favorite' }),
     ).toBeInTheDocument();
   });
 

@@ -2783,6 +2783,12 @@ select.housing-input option {
     opacity: 0.5;
     cursor: progress;
 }
+/* 探すページの HousingFavHeart を詳細の操作バー内で使う: カード角固定(absolute)を行内へ戻す。 */
+.housing-action-bar .housing-card-fav {
+    position: relative;
+    top: auto;
+    right: auto;
+}
 .housing-action-bar-confirmed-at {
     color: var(--housing-text-muted);
     font-size: var(--housing-text-small);
