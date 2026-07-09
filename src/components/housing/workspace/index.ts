@@ -1,8 +1,6 @@
 export { SceneryVideo } from './SceneryVideo';
 export { LiquidGlassPanel } from './LiquidGlassPanel';
 export { StatusBar } from './StatusBar';
-export { FilterChip } from './FilterChip';
-export { FilterSection } from './FilterSection';
 export { FilterPanel } from './FilterPanel';
 export { RegisterCTA } from './RegisterCTA';
 export { PanelCloseButton } from './PanelCloseButton';
