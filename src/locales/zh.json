@@ -2580,11 +2580,11 @@
         },
         "edit": {
             "modal": {
-                "title": "物件を編集"
+                "title": "编辑房屋"
             },
             "save": "保存",
-            "success": "更新しました",
-            "error": "更新に失敗しました",
+            "success": "已更新",
+            "error": "更新失败",
             "title_label": "标题",
             "title_placeholder": "请输入房屋名称"
         },

@@ -180,13 +180,16 @@ const STEP_LABEL_KEYS: Record<StepId, string> = {
   visibility: 'housing.register.step.visibility',
   confirm: 'housing.register.step.confirm',
 };
-const STEP_INDEX: Record<StepId, number> = {
-  media: 1,
-  address: 2,
-  intro: 3,
-  visibility: 4,
-  confirm: 5,
-};
+
+/**
+ * mode に応じてステッパーに出すステップ一覧を返す (Task3.4-1)。
+ * edit は写真セクション自体を表示しない (方式A) ため、media ステップも除外する
+ * (押しても sectionRefs.current.media===null で無反応な「幽霊ステップ」を無くす)。
+ * 番号は返り値配列内の位置 (idx+1) で振り直すため、除外しても 1 から詰まって欠番が出ない。
+ */
+function visibleStepIds(mode: 'create' | 'edit'): StepId[] {
+  return mode === 'edit' ? STEP_IDS.filter((id) => id !== 'media') : [...STEP_IDS];
+}
 
 // 自動入力の段階的タイピング表現 (1 フィールドごとに 150ms ずらす)。
 // 旧 HousingRegisterForm.tsx の TYPING_STAGGER_MS を踏襲。
@@ -471,6 +474,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     [applyExtractedAddress],
   );
 
+  // mode で出すステップを絞る (Task3.4-1)。mode は生存中不変の prop なので依存は [mode] のみ。
+  const effectiveStepIds = useMemo<StepId[]>(() => visibleStepIds(mode), [mode]);
+
   // ===== scroll-spy (ライブステッパー) =====
   // 中央スクロールコンテナと各セクション wrapper に ref を張り、IntersectionObserver で
   // 可視セクションを active にする (scroll ハンドラで layout 読みしない方針)。
@@ -482,7 +488,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     visibility: null,
     confirm: null,
   });
-  const [activeStepId, setActiveStepId] = useState<StepId>('media');
+  // 初期 active は「実際に表示される先頭ステップ」(create=media / edit=address)。
+  const [activeStepId, setActiveStepId] = useState<StepId>(() => effectiveStepIds[0]);
 
   useEffect(() => {
     const root = scrollContainerRef.current;
@@ -500,23 +507,23 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       { root, threshold: 0.2, rootMargin: '0px 0px -60% 0px' },
     );
 
-    for (const id of STEP_IDS) {
+    for (const id of effectiveStepIds) {
       const el = sectionRefs.current[id];
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
     // user が null→truthy でフォーム(scrollContainerRef/各セクション)が mount された後に observer を張り直す
-  }, [user]);
+  }, [user, effectiveStepIds]);
 
   const handleJumpToStep = useCallback((id: number) => {
-    const stepId = STEP_IDS[id - 1];
+    const stepId = effectiveStepIds[id - 1];
     const el = stepId ? sectionRefs.current[stepId] : null;
     if (!el) return;
     const reduce =
       typeof window !== 'undefined' &&
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-  }, []);
+  }, [effectiveStepIds]);
 
   const hasImage = localImages.length > 0 || sourceImageUrls.length > 0;
   const introDone = title.trim().length > 0;
@@ -548,6 +555,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   );
   // 公開可否 = 必須行 (住所/タイトル) が全て done か。画像 (推奨) は見ない。
   const canSubmit = useMemo(() => isReadyToPublish(checklistItems), [checklistItems]);
+  // 右カラム CheckPanel 表示専用 (Task3.4-2): edit は画像を編集しない (方式A) ため画像行を出さない。
+  // canSubmit/確認セクションの不足アクション判定は checklistItems (image を含む) をそのまま使い続ける
+  // (image は required=false なので判定への影響は無い。 表示のみをここで絞る)。
+  const checkPanelItems = useMemo(
+    () => (mode === 'edit' ? checklistItems.filter((item) => item.key !== 'image') : checklistItems),
+    [mode, checklistItems],
+  );
 
   const doneMap = useMemo<Record<StepId, boolean>>(
     () => ({
@@ -565,11 +579,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
   const steps: RegisterStep[] = useMemo(
     () =>
-      STEP_IDS.map((id) => {
+      effectiveStepIds.map((id, idx) => {
         const state: RegisterStepState = id === activeStepId ? 'active' : doneMap[id] ? 'done' : 'idle';
-        return { id: STEP_INDEX[id], labelKey: STEP_LABEL_KEYS[id], state };
+        // 番号は表示位置 (idx+1) で振り直す。 edit で media を除外しても 1 から詰まり欠番が出ない (Task3.4-1)。
+        return { id: idx + 1, labelKey: STEP_LABEL_KEYS[id], state };
       }),
-    [activeStepId, doneMap],
+    [effectiveStepIds, activeStepId, doneMap],
   );
 
   // ===== 右カラム: 重複照会 (debounce 500ms, Task13) =====
@@ -754,15 +769,18 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       try {
         const result = await updateListing(initialValues.id, draft);
         if (result.ok) {
-          await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
-          if (user) await useHousingListingsStore.getState().loadMine(user.uid);
-          // Task3.3a 回帰修復: 編集=通報対処とみなす後処理 (resolveReport 等) を呼ぶ。
-          // 失敗しても編集自体は保存済みなので navigate は止めない。
+          // Task3.3a 回帰修復 / Task3.4-4 順序修正: 編集=通報対処とみなす後処理 (resolveReport 等) を、
+          // store 再取得より先に呼ぶ。 resolveReport はサーバー側の isHidden を解除するため、
+          // 先に呼んでおかないと直後の fetchAndUpsert/loadMine が unhide 前の stale な状態を
+          // 一時的に拾ってしまう (旧 handleListingSaved: resolveReport→refreshAfterChange と同順)。
+          // 失敗しても編集自体は保存済みなので後続 (store 再取得/navigate) は止めない。
           try {
             await onSaved?.(initialValues.id);
           } catch {
             /* onSaved (通報解決等) の失敗は保存フローを止めない */
           }
+          await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
+          if (user) await useHousingListingsStore.getState().loadMine(user.uid);
           showToast(t('housing.edit.success'), 'success');
           navigate(`/housing/listing/${initialValues.id}`);
         } else {
@@ -1128,7 +1146,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       {/* 右カラム: チェック/重複パネル + 区画マッププレビュー (Task13 本実装) */}
       <section className="housing-register-panel" data-region="right">
         <div className="housing-register-col housing-register-col-right">
-          <RegisterCheckPanel items={checklistItems} />
+          <RegisterCheckPanel items={checkPanelItems} />
           <RegisterDuplicatePanel
             state={duplicateState}
             duplicates={duplicates}

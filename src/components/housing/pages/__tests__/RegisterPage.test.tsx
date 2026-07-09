@@ -1,12 +1,13 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
 import { useAuthStore } from '../../../../store/useAuthStore';
+import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 import type { HousingListing } from '../../../../types/housing';
 
 // mode=edit の保存 API (Task3.2)。 現物のシグネチャ (update: (id, updates) => Promise<{ok,error?}>)
@@ -245,5 +246,76 @@ describe('RegisterPage', () => {
     checkDuplicateSpy.mockRestore();
     registerSpy.mockRestore();
     window.localStorage.removeItem(AUTOSAVE_KEY);
+  });
+
+  // Task3.4-1: 幽霊ステップ解消。 edit は写真セクションを出さない (方式A) ので、
+  // ステッパーからも media ステップを除外する (クリックしても無反応な「押せない幽霊ステップ」を無くす)。
+  describe('ステッパー: mode=edit は写真ステップを除外する (Task3.4-1)', () => {
+    it('mode=edit ではステッパーに写真ステップが出ず、4 ステップに詰められる', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+
+      const nav = screen.getByRole('navigation', { name: '登録ステップ' });
+      expect(within(nav).queryByText('画像・SNS URL')).not.toBeInTheDocument();
+      expect(within(nav).getAllByRole('button')).toHaveLength(4);
+      // 番号がずれず 1 から詰められる (先頭は住所ステップ)。
+      expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('住所');
+      expect(within(nav).queryByTestId('housing-register-step-5')).not.toBeInTheDocument();
+    });
+
+    it('mode=create ではステッパーに写真ステップを含む 5 ステップを出す (既存挙動不変)', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage();
+
+      const nav = screen.getByRole('navigation', { name: '登録ステップ' });
+      expect(within(nav).getAllByRole('button')).toHaveLength(5);
+      expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('画像・SNS URL');
+    });
+  });
+
+  // Task3.4-2: 右カラム CheckPanel の画像行を edit で非表示 (写真を編集しない方式Aと整合)。
+  describe('CheckPanel: mode=edit は画像行を出さない (Task3.4-2)', () => {
+    it('mode=edit では CheckPanel に画像行が出ない (必須行は残る)', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+
+      const panel = screen.getByTestId('housing-register-check-panel');
+      expect(within(panel).queryByTestId('housing-register-check-image')).not.toBeInTheDocument();
+      expect(within(panel).getByTestId('housing-register-check-address')).toBeInTheDocument();
+      expect(within(panel).getByTestId('housing-register-check-title')).toBeInTheDocument();
+    });
+
+    it('mode=create では CheckPanel に画像行が出る (既存挙動不変)', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage();
+
+      const panel = screen.getByTestId('housing-register-check-panel');
+      expect(within(panel).getByTestId('housing-register-check-image')).toBeInTheDocument();
+    });
+  });
+
+  // Task3.4-4: onSaved (resolveReport) を fetchAndUpsert より前に呼ぶ (unhide 後の store 再取得を保証)。
+  it('mode=edit の保存成功時、 onSaved が fetchAndUpsert より先に呼ばれる (Task3.4-4)', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    updateMock.mockResolvedValueOnce({ ok: true });
+
+    const callOrder: string[] = [];
+    const fetchAndUpsertSpy = vi
+      .spyOn(useHousingListingsStore.getState(), 'fetchAndUpsert')
+      .mockImplementation(async () => {
+        callOrder.push('fetchAndUpsert');
+      });
+    const onSaved = vi.fn(async () => {
+      callOrder.push('onSaved');
+    });
+
+    renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING, onSaved });
+    fireEvent.click(screen.getByTestId('housing-register-confirm-submit'));
+
+    await waitFor(() => expect(fetchAndUpsertSpy).toHaveBeenCalled());
+    await waitFor(() => expect(onSaved).toHaveBeenCalled());
+    expect(callOrder).toEqual(['onSaved', 'fetchAndUpsert']);
+
+    fetchAndUpsertSpy.mockRestore();
   });
 });

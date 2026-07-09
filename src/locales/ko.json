@@ -2580,11 +2580,11 @@
         },
         "edit": {
             "modal": {
-                "title": "物件を編集"
+                "title": "하우징 편집"
             },
-            "save": "保存",
-            "success": "更新しました",
-            "error": "更新に失敗しました",
+            "save": "저장",
+            "success": "업데이트되었습니다",
+            "error": "업데이트에 실패했습니다",
             "title_label": "제목",
             "title_placeholder": "우리 집 이름을 입력하세요"
         },
