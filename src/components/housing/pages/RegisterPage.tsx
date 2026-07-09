@@ -234,6 +234,15 @@ interface RegisterPageProps {
   mode?: 'create' | 'edit';
   /** mode='edit' のとき、フォーム初期値の出典にする既存 listing。 */
   initialValues?: HousingListing;
+  /**
+   * mode='edit' の保存成功時のみ呼ぶ後処理フック (Task3.3a 回帰修復)。 create パスでは呼ばない。
+   * 旧 HousingEditModal 経由の編集では、 保存成功で useHousingDetail.handleListingSaved が
+   * resolveReport(listing.id) を走らせて「編集=通報対処」 とみなし自己非表示を解除していた。
+   * 別ページ化でこの経路が失われるため、 呼び出し側 (HousingEditPage) が resolveReport を
+   * ここに配線して回帰を塞ぐ。 onSaved 内の失敗は保存フロー (navigate) を止めない
+   * (編集自体は保存済みのため)。
+   */
+  onSaved?: (listingId: string) => void | Promise<unknown>;
 }
 
 /**
@@ -251,7 +260,7 @@ interface RegisterPageProps {
  * 写真は変えない。サーバーの update ハンドラも画像フィールドを更新しない設計)。
  * mode/initialValues 未指定時は create 挙動 (現状の初期値) と完全に不変。
  */
-export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', initialValues }) => {
+export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', initialValues, onSaved }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
@@ -747,6 +756,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         if (result.ok) {
           await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
           if (user) await useHousingListingsStore.getState().loadMine(user.uid);
+          // Task3.3a 回帰修復: 編集=通報対処とみなす後処理 (resolveReport 等) を呼ぶ。
+          // 失敗しても編集自体は保存済みなので navigate は止めない。
+          try {
+            await onSaved?.(initialValues.id);
+          } catch {
+            /* onSaved (通報解決等) の失敗は保存フローを止めない */
+          }
           showToast(t('housing.edit.success'), 'success');
           navigate(`/housing/listing/${initialValues.id}`);
         } else {
@@ -758,7 +774,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         setSubmitting(false);
       }
     },
-    [initialValues, updateListing, user, navigate, t],
+    [initialValues, updateListing, user, navigate, t, onSaved],
   );
 
   /**

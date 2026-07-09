@@ -44,6 +44,12 @@ vi.mock('../RegisterPage', () => ({
   },
 }));
 
+// Task3.3a 回帰修復: onSaved 配線先の resolveReport を差し替えて呼び出しを検証する。
+const resolveMock = vi.fn();
+vi.mock('../../report/useResolveReport', () => ({
+  useResolveReport: () => ({ resolve: resolveMock, loading: false }),
+}));
+
 import { HousingEditPage } from '../HousingEditPage';
 
 function buildListingSnap(id: string, dataOverrides: Record<string, unknown> = {}) {
@@ -86,6 +92,7 @@ describe('HousingEditPage', () => {
   beforeEach(() => {
     mockGetDoc.mockReset();
     registerPageMock.mockReset();
+    resolveMock.mockReset();
     mockAuthState = { user: { uid: 'owner1' }, loading: false };
   });
 
@@ -104,6 +111,27 @@ describe('HousingEditPage', () => {
         initialValues: expect.objectContaining({ id: 'lid-1', ownerUid: 'owner1' }),
       }),
     );
+  });
+
+  // Task3.3a 回帰修復: 保存成功時に RegisterPage の onSaved 経由で resolveReport が呼ばれる
+  // (旧 useHousingDetail.handleListingSaved と同じ「編集=通報対処」経路の代替)。
+  it('RegisterPage.onSaved(listingId) 発火で resolveReport(listingId) が呼ばれる', async () => {
+    mockGetDoc.mockResolvedValueOnce(buildListingSnap('lid-1'));
+
+    renderPage('lid-1');
+
+    await waitFor(() => {
+      expect(registerPageMock).toHaveBeenCalled();
+    });
+
+    // 描画された RegisterPage に onSaved が渡っていることを確認し、保存成功を模して発火する。
+    const props = registerPageMock.mock.calls.at(-1)![0] as {
+      onSaved?: (id: string) => void | Promise<unknown>;
+    };
+    expect(typeof props.onSaved).toBe('function');
+    props.onSaved!('lid-1');
+
+    expect(resolveMock).toHaveBeenCalledWith('lid-1');
   });
 
   it('doc が exists()=false のとき not_found パネルを表示する (RegisterPage は描画しない)', async () => {

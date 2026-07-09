@@ -33,6 +33,10 @@ vi.mock('../../../../lib/housingListingsService', () => ({
 }));
 
 import { RegisterPage } from '../RegisterPage';
+// create パス (performRegister) の API を spy するため実モジュールを名前空間 import する
+// (module 全体 mock は他 export を壊すため spyOn で個別に差し替える)。
+import * as housingApiClient from '../../../../lib/housingApiClient';
+import { AUTOSAVE_KEY } from '../../../../lib/housing/registerAutosave';
 
 const EDITABLE_LISTING = {
   id: 'l1',
@@ -59,11 +63,19 @@ beforeAll(() => {
   });
 });
 
-function renderPage(props?: { mode?: 'create' | 'edit'; initialValues?: HousingListing }) {
+function renderPage(props?: {
+  mode?: 'create' | 'edit';
+  initialValues?: HousingListing;
+  onSaved?: (listingId: string) => void | Promise<unknown>;
+}) {
   return render(
     <I18nextProvider i18n={i18n}>
       <MemoryRouter>
-        <RegisterPage mode={props?.mode} initialValues={props?.initialValues} />
+        <RegisterPage
+          mode={props?.mode}
+          initialValues={props?.initialValues}
+          onSaved={props?.onSaved}
+        />
       </MemoryRouter>
     </I18nextProvider>
   );
@@ -153,5 +165,85 @@ describe('RegisterPage', () => {
     await waitFor(() =>
       expect(navigateMock).toHaveBeenCalledWith(`/housing/listing/${EDITABLE_LISTING.id}`),
     );
+  });
+
+  // Task3.3a 回帰修復: 編集保存成功時のみ onSaved が initialValues.id で呼ばれる。
+  it('mode=edit の保存成功時に onSaved(initialValues.id) が呼ばれる', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    updateMock.mockResolvedValueOnce({ ok: true });
+    const onSaved = vi.fn();
+
+    renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING, onSaved });
+
+    fireEvent.click(screen.getByTestId('housing-register-confirm-submit'));
+
+    await waitFor(() => expect(onSaved).toHaveBeenCalledWith('l1'));
+    // navigate は onSaved の後 (詳細へ戻る) に呼ばれる
+    await waitFor(() =>
+      expect(navigateMock).toHaveBeenCalledWith(`/housing/listing/${EDITABLE_LISTING.id}`),
+    );
+  });
+
+  it('mode=edit の保存が失敗 (ok=false) なら onSaved は呼ばれない', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    updateMock.mockResolvedValueOnce({ ok: false, error: 'generic' });
+    const onSaved = vi.fn();
+
+    renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING, onSaved });
+
+    fireEvent.click(screen.getByTestId('housing-register-confirm-submit'));
+
+    await waitFor(() => expect(updateMock).toHaveBeenCalled());
+    // 失敗パスでは navigate も onSaved も呼ばれない
+    expect(onSaved).not.toHaveBeenCalled();
+    expect(navigateMock).not.toHaveBeenCalledWith(`/housing/listing/${EDITABLE_LISTING.id}`);
+  });
+
+  // Task3.3a 回帰修復: create パス (performRegister) は onSaved を呼ばない (create 挙動不変)。
+  // オートセーブ復元で create フォームを valid 状態にし、実 register を spy して検証する。
+  it('mode=create の登録成功では onSaved は呼ばれない', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    // 復元でフォームを埋めて canSubmit=true にする (EDITABLE_LISTING と同じ有効な住所)。
+    window.localStorage.setItem(
+      AUTOSAVE_KEY,
+      JSON.stringify({
+        title: '新規物件',
+        dc: 'Meteor',
+        server: 'Ramuh',
+        area: 'LavenderBeds',
+        ward: 29,
+        buildingType: 'house',
+        plot: 3,
+        size: 'L',
+        visibility: 'public',
+      }),
+    );
+    const canRegisterSpy = vi
+      .spyOn(housingApiClient, 'canRegister')
+      .mockResolvedValue({ remaining: 5 } as any);
+    const checkDuplicateSpy = vi
+      .spyOn(housingApiClient, 'checkDuplicate')
+      .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+    const registerSpy = vi
+      .spyOn(housingApiClient, 'registerListing')
+      .mockResolvedValue({ id: 'new1' } as any);
+    const onSaved = vi.fn();
+
+    // mode 省略 = create (既定)。
+    renderPage({ onSaved });
+
+    const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+    await waitFor(() => expect(submitBtn).not.toBeDisabled());
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+    await waitFor(() => expect(navigateMock).toHaveBeenCalledWith('/housing/listing/new1'));
+    // create パスは onSaved を配線しない
+    expect(onSaved).not.toHaveBeenCalled();
+
+    canRegisterSpy.mockRestore();
+    checkDuplicateSpy.mockRestore();
+    registerSpy.mockRestore();
+    window.localStorage.removeItem(AUTOSAVE_KEY);
   });
 });

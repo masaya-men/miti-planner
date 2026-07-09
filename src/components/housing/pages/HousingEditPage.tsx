@@ -18,6 +18,7 @@ import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/useAuthStore';
 import type { HousingListing } from '../../../types/housing';
 import { RegisterPage } from './RegisterPage';
+import { useResolveReport } from '../report/useResolveReport';
 import '../../../styles/housing.css';
 
 export const HousingEditPage: React.FC = () => {
@@ -26,6 +27,10 @@ export const HousingEditPage: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const authLoading = useAuthStore((s) => s.loading);
   const viewerUid = user?.uid ?? null;
+  // Task3.3a 回帰修復: 編集保存成功時に「編集=通報対処」 として自己非表示を解除する
+  // (旧 useHousingDetail.handleListingSaved と同じ挙動。 結果 ok/escalation/error は
+  // 気にせず呼ぶだけ = 通報の無い物件でも安全に呼べる旧来仕様)。
+  const { resolve: resolveReport } = useResolveReport();
 
   const [listing, setListing] = useState<HousingListing | null>(null);
   const [notFound, setNotFound] = useState(false);
@@ -90,5 +95,7 @@ export const HousingEditPage: React.FC = () => {
     );
   }
 
-  return <RegisterPage mode="edit" initialValues={listing} />;
+  return (
+    <RegisterPage mode="edit" initialValues={listing} onSaved={(id) => resolveReport(id)} />
+  );
 };
