@@ -3220,8 +3220,8 @@ select.housing-input option {
 
 /* 2026-07-09 再設計「写真ヒーロー+固定レール」: ワイド (md+) は大パネルをビューポート内に
    フィットさせ、 縦スクロール無しで全情報を一望。 panel→shell→main→body→content を
-   flex/grid で縦に満たす。 レールは情報 (ヘッド) と操作・区画マップを固定し、 説明+peers の
-   .housing-detail-scroll だけが内部スクロール域。 通報バナー表示時 (まれなオーナー画面) のみ
+   flex/grid で縦に満たす。 レールは操作バーと区画マップを固定し、 テキスト一式
+   (見出し/住所/タグ/紹介文/peers) の .housing-detail-textscroll だけが内部スクロール域。 通報バナー表示時 (まれなオーナー画面) のみ
    :has() で main を自然スクロールに切替え、 列を潰さない。 狭幅 (<=768px) は base の単一カラム。 */
 @media (min-width: 769px) {
     .housing-detail-panel {
