@@ -1073,11 +1073,22 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
   return (
     <div className="housing-register" data-testid="housing-register-form-root">
-      {/* 左カラム: ステッパーナビ + ガイド */}
+      {/* 左カラム: ステッパーナビ + ガイド (スクロール) + 本日の登録枠 (下端固定・#6)。
+          残数はスクロールに埋もれないよう、スクロール領域の外=左パネル最下部に固定する。 */}
       <section className="housing-register-panel" data-region="left">
         <div className="housing-register-col housing-register-col-left">
-          <RegisterStepperNav steps={steps} onJump={handleJumpToStep} />
-          <RegisterGuide remaining={remaining} />
+          <div className="housing-register-left-scroll">
+            <RegisterStepperNav steps={steps} onJump={handleJumpToStep} />
+            <RegisterGuide />
+          </div>
+          {remaining != null && (
+            <p
+              className="housing-register-left-remaining"
+              data-testid="housing-register-guide-remaining"
+            >
+              {t('housing.register.guide.remaining', { count: remaining })}
+            </p>
+          )}
         </div>
       </section>
 

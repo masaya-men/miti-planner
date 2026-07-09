@@ -130,3 +130,31 @@ describe('parseHousingFromText - 俗称 alias', () => {
         expect(result.size).toBe('M');
     });
 });
+
+describe('parseHousingFromText - 短い ASCII alias 誤爆防止 (2026-07-10 実バグ)', () => {
+    it('英語自由文の "had" をサーバー Hades と誤検出しない (housingsnap og:description)', () => {
+        // 実際の housingsnap.com/47205 の og:description。"had" が Had(=Hades/Mana) と exact 一致し
+        // まったく別物件に "ManaのHades" が入力される誤爆を起こしていた。
+        const result = parseHousingFromText(
+            "rainforest [M]\ni've finally had the energy and motivation to redo my personal shirogane home. i opted for an overgrown build",
+        );
+        expect(result.server).toBeUndefined();
+        expect(result.dc).toBeUndefined();
+        expect(result.area).toBe('Shirogane'); // area だけは正しく拾える
+    });
+
+    it('フル名 "Mana"/"Hades" は従来どおり検出する (退行なし)', () => {
+        const result = parseHousingFromText('Mana Hades シロガネ 6-6 S');
+        expect(result.dc).toBe('Mana');
+        expect(result.server).toBe('Hades');
+    });
+
+    it('NA 英語表記 "crystal | goblin | shirogane | w21 p58" を正しく抽出', () => {
+        const result = parseHousingFromText('crystal | goblin | shirogane | w21 p58');
+        expect(result.dc).toBe('Crystal');
+        expect(result.server).toBe('Goblin');
+        expect(result.area).toBe('Shirogane');
+        expect(result.ward).toBe(21);
+        expect(result.plot).toBe(58);
+    });
+});

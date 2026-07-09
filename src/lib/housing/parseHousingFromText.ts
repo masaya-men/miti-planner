@@ -36,6 +36,19 @@ function preprocess(text: string): string {
         .replace(/[⚐-⚑⌀-⏿]/gu, ' ');
 }
 
+/**
+ * 短い ASCII alias (例: "Had"=Hades / "Man"=Mana / "Gob"=Goblin / "Cry"=Crystal / "Bal"=Balmung) は
+ * 英語の自由文に含まれる一般語 ("had" / "man" 等) と exact 一致して DC/サーバーを誤検出する。
+ * 実バグ (2026-07-10): housingsnap の og:description "i've finally **had** the energy…" が
+ * token "had" → サーバー "Had"(=Hades / Mana DC) と一致し、まったく別の海外物件に
+ * "ManaのHades" が入力された。substring search 側は既に同じ基準 (ASCII かつ 4 文字未満) で
+ * 除外済みだが、token exact 一致側にガードが無く素通ししていた。ここで揃える。
+ * フル名 ("Hades"/"Mana") と日本語 alias ("ハデス"/"マナ") は残るので実データ取りこぼしは無い。
+ */
+function isTooShortAsciiAlias(alias: string): boolean {
+    return alias.length < 4 && /^[\x00-\x7f]+$/.test(alias);
+}
+
 // 単一トークンが housingSizeMasterData のエイリアスに含まれるか判定し、
 // 一致すればその id (S/M/L/Apartment/PrivateRoom) を返す
 function normalizeSizeAlias(token: string): HousingExtractSize | null {
@@ -70,14 +83,14 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     for (const token of tokens) {
         const lower = token.toLowerCase();
 
-        // DC 候補 (兼サーバー候補)
+        // DC 候補 (兼サーバー候補)。短い ASCII alias は英語自由文と誤爆するため exact 一致から除外。
         for (const [dcId, dcData] of Object.entries(serverMasterData)) {
-            if (dcData.aliases.some((a) => a.toLowerCase() === lower)) {
+            if (dcData.aliases.some((a) => !isTooShortAsciiAlias(a) && a.toLowerCase() === lower)) {
                 if (!candidates.dc.includes(dcId)) candidates.dc.push(dcId);
             }
             // サーバー候補 (DC 推論も兼ねる)
             for (const [serverId, aliases] of Object.entries(dcData.servers)) {
-                if (aliases.some((a) => a.toLowerCase() === lower)) {
+                if (aliases.some((a) => !isTooShortAsciiAlias(a) && a.toLowerCase() === lower)) {
                     if (!candidates.server.some((s) => s.serverId === serverId)) {
                         candidates.server.push({ serverId, dcId });
                     }
@@ -164,6 +177,20 @@ export function parseHousingFromText(text: string): HousingExtractResult {
         if (wardPlotJpMatch) {
             const w = +wardPlotJpMatch[1];
             const p = +wardPlotJpMatch[2];
+            if (w >= 1 && w <= 30 && p >= 1 && p <= 60) {
+                ward = w;
+                plot = p;
+            }
+        }
+    }
+
+    // NA/EU 英語表記: "w21 p58" / "W21 P58" (housingsnap 等・w=ward / p=plot 接頭)。
+    //   - ダッシュ無しでスペース区切りのため上の "N-M" 系にはかからない。w/p 接頭で誤爆を抑える。
+    if (ward === undefined || plot === undefined) {
+        const wardPlotEnMatch = cleaned.match(/\bw\s*(\d{1,2})\s*p\s*(\d{1,2})\b/i);
+        if (wardPlotEnMatch) {
+            const w = +wardPlotEnMatch[1];
+            const p = +wardPlotEnMatch[2];
             if (w >= 1 && w <= 30 && p >= 1 && p <= 60) {
                 ward = w;
                 plot = p;

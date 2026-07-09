@@ -3801,13 +3801,30 @@ select.housing-input option {
   overflow: hidden;
   padding: 14px 16px;
 }
-/* 中央だけでなく左右カラムも縦スクロール可に (#6)。左カラムは
-   ステッパー + ガイド (登録の流れ / 本日の登録枠残数) が縦に長く、overflow:hidden の
-   ままだと低い viewport で下端 (残数) が見切れる。右カラムも入力チェック + 重複 +
-   地図で伸びるため同様にスクロール可にする。 */
+/* 中央・右カラムは縦スクロール可に (#6)。右カラムは入力チェック + 重複 + 地図で伸びる。 */
 .housing-register-col-center,
-.housing-register-col-left,
 .housing-register-col-right { overflow-y: auto; }
+
+/* 左カラム (#6 改): ステッパー + ガイドはスクロール領域に入れ、本日の登録枠 (残数) は
+   スクロールの外=左パネル最下部に固定する。低い viewport でも残数が常に見えるようにする。 */
+.housing-register-col-left { overflow: hidden; }
+.housing-register-left-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.housing-register-left-remaining {
+  flex: 0 0 auto;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
 
 /* 登録フォームの中央カラム: セクション単位で縦積み。要素毎の padding-bottom ではなく
    コンテナ gap で余白リズムを揃える (housing-design.md 質感A案・余白リズム原則)。 */
@@ -4036,14 +4053,8 @@ select.housing-input option {
   line-height: 1.5;
   color: var(--housing-text-dim);
 }
-.housing-register-guide-remaining {
-  margin: 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--housing-divider);
-  font-size: var(--housing-text-sm);
-  line-height: 1.5;
-  color: var(--housing-text-mute);
-}
+/* .housing-register-guide-remaining は #6 改で左カラム下端固定 (.housing-register-left-remaining) に
+   置き換えたため撤去。残数表示のスタイルはそちらへ移設済み。 */
 
 /* ============================================================
  * 登録ページ中央カラム: 公開設定セクション (Task12)
@@ -5046,7 +5057,11 @@ select.housing-input option {
   transform-origin: top;
   transition: transform 0.5s var(--housing-tour-step-spring);
 }
-.housing-tour-steps-item--arrived::after {
+/* 到達済み区間の青い塗りを ON。ベースの `:not(:last-child)::after` は `:not()` の分だけ
+   特異度が高い (0-2-1) ため、`--arrived::after` (0-1-1) では負けて scaleY(0) のまま=線が
+   塗られなかった (#1 実バグ)。同じ `:not(:last-child)` を付けて特異度 (0-2-1) を揃え、
+   後出しで勝たせる → 進行に合わせてバネで塗り伸びる。 */
+.housing-tour-steps-item--arrived:not(:last-child)::after {
   transform: scaleY(1);
 }
 /* 到達済み(到着+現在)の dot は青くなり、バネで 1.18 倍にポップ。 */
