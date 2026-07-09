@@ -1,10 +1,22 @@
 // @vitest-environment happy-dom
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
+}));
+
+// useHousingDelete (削除 API クライアント) はテストごとに resolve 値を制御する。
+const mockDeleteListing = vi.fn();
+vi.mock('../../delete/useHousingDelete', () => ({
+  useHousingDelete: () => ({ deleteListing: mockDeleteListing, loading: false }),
+}));
+
+// purgeIfTweetGone (SNS ツイート生存確認) もテストごとに resolve 値を制御する。
+const mockPurgeIfTweetGone = vi.fn();
+vi.mock('../../../../lib/housingApiClient', () => ({
+  purgeIfTweetGone: (...args: unknown[]) => mockPurgeIfTweetGone(...args),
 }));
 
 // getDoc の戻り値をテストごとに制御する (housing_listings/{id} 読み取り)
@@ -43,14 +55,45 @@ vi.mock('../../../../lib/housingAuthHeaders', () => ({
 }));
 
 import { useHousingDetail } from '../useHousingDetail';
+import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <MemoryRouter>{children}</MemoryRouter>
 );
 
+// 既存 2 テストと同じ形の getDoc スナップショットを都度組み立てるヘルパー。
+// canViewListing (未ログイン viewer) を通す最小限のフィールドをデフォルトに持つ。
+function buildListingSnap(id: string, dataOverrides: Record<string, unknown> = {}) {
+  return {
+    exists: () => true,
+    id,
+    data: () => ({
+      ownerUid: 'owner1',
+      dc: 'Mana',
+      server: 'Anima',
+      area: 'Mist',
+      ward: 5,
+      buildingType: 'house',
+      plot: 12,
+      size: 'M',
+      addressKey: 'addr-1',
+      imageMode: 'none',
+      tags: [],
+      createdAt: 1700000000000,
+      updatedAt: 1700000000000,
+      isHidden: false,
+      reportCount: 0,
+      deletedAt: null,
+      ...dataOverrides,
+    }),
+  };
+}
+
 describe('useHousingDetail', () => {
   beforeEach(() => {
     mockGetDoc.mockReset();
+    mockDeleteListing.mockReset();
+    mockPurgeIfTweetGone.mockReset();
   });
 
   it('doc が exists()=false のとき notFound=true / listing=null (loadListing 配線が移送後も生きている証明)', async () => {
@@ -95,5 +138,104 @@ describe('useHousingDetail', () => {
     });
     expect(result.current.notFound).toBe(false);
     expect(result.current.reportNotice).toBeUndefined();
+  });
+
+  it('onConfirmDelete 成功: deleteListing(id) が呼ばれ、 store.remove(id) が呼ばれ、 { ok:true } を返す', async () => {
+    mockGetDoc.mockResolvedValueOnce(buildListingSnap('lid-del-ok'));
+    mockDeleteListing.mockResolvedValueOnce({ ok: true });
+    const removeSpy = vi.spyOn(useHousingListingsStore.getState(), 'remove');
+
+    const { result } = renderHook(() => useHousingDetail('lid-del-ok'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.listing).not.toBeNull();
+    });
+
+    let confirmResult: { ok: boolean } | undefined;
+    await act(async () => {
+      confirmResult = await result.current.onConfirmDelete();
+    });
+
+    expect(mockDeleteListing).toHaveBeenCalledWith('lid-del-ok');
+    expect(removeSpy).toHaveBeenCalledWith('lid-del-ok');
+    expect(confirmResult).toEqual({ ok: true });
+    // deleteOpen は hook 内で success 時に必ず setDeleteOpen(false) される契約
+    // (onDeleteClick は reportNotice.onDelete 経由でしか public に開けないため、
+    //  ここでは「成功パスで false になっている」実挙動のみ確認する)
+    expect(result.current.deleteOpen).toBe(false);
+
+    removeSpy.mockRestore();
+  });
+
+  it('onConfirmDelete 失敗: { ok:false } を返し、 store.remove は呼ばれない (listing 存置)', async () => {
+    mockGetDoc.mockResolvedValueOnce(buildListingSnap('lid-del-fail'));
+    mockDeleteListing.mockResolvedValueOnce({ ok: false, error: 'http_500' });
+    const removeSpy = vi.spyOn(useHousingListingsStore.getState(), 'remove');
+
+    const { result } = renderHook(() => useHousingDetail('lid-del-fail'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.listing).not.toBeNull();
+    });
+
+    let confirmResult: { ok: boolean } | undefined;
+    await act(async () => {
+      confirmResult = await result.current.onConfirmDelete();
+    });
+
+    expect(mockDeleteListing).toHaveBeenCalledWith('lid-del-fail');
+    expect(confirmResult).toEqual({ ok: false });
+    expect(removeSpy).not.toHaveBeenCalled();
+    // エラー経路では listing はそのまま (store から消されない = UI 上も残る)
+    expect(result.current.listing).not.toBeNull();
+
+    removeSpy.mockRestore();
+  });
+
+  it('postRemoved: imageMode=sns の tweet 消滅検知で store.remove(id) が呼ばれ postRemoved=true になる', async () => {
+    mockGetDoc.mockResolvedValueOnce(
+      buildListingSnap('lid-sns-gone', { imageMode: 'sns', tweetId: 'tweet-1' }),
+    );
+    mockPurgeIfTweetGone.mockResolvedValueOnce({ deleted: true });
+    const removeSpy = vi.spyOn(useHousingListingsStore.getState(), 'remove');
+
+    const { result } = renderHook(() => useHousingDetail('lid-sns-gone'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.postRemoved).toBe(true);
+    });
+
+    expect(mockPurgeIfTweetGone).toHaveBeenCalledWith('lid-sns-gone');
+    expect(removeSpy).toHaveBeenCalledTimes(1);
+    expect(removeSpy).toHaveBeenCalledWith('lid-sns-gone');
+
+    removeSpy.mockRestore();
+  });
+
+  it('postRemoved: purgeIfTweetGone が deleted:false のとき postRemoved は false のまま、 store.remove も呼ばれない', async () => {
+    mockGetDoc.mockResolvedValueOnce(
+      buildListingSnap('lid-sns-alive', { imageMode: 'sns', tweetId: 'tweet-2' }),
+    );
+    mockPurgeIfTweetGone.mockResolvedValueOnce({ deleted: false });
+    const removeSpy = vi.spyOn(useHousingListingsStore.getState(), 'remove');
+
+    const { result } = renderHook(() => useHousingDetail('lid-sns-alive'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.listing).not.toBeNull();
+    });
+    await waitFor(() => {
+      expect(mockPurgeIfTweetGone).toHaveBeenCalledWith('lid-sns-alive');
+    });
+    // purgeIfTweetGone の resolve 後続処理 (deleted:false の早期 return) が
+    // 確実に流れきるまでマクロタスクを 1 つ挟んで待つ。
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(result.current.postRemoved).toBe(false);
+    expect(removeSpy).not.toHaveBeenCalled();
+
+    removeSpy.mockRestore();
   });
 });
