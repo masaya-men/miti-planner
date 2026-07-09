@@ -16,7 +16,7 @@
  * - Task 2.4: `.housing-detail-panel` (シェル内スクロール) の中に `.housing-detail-shell`
  *   (探す/ツアーと同じ濃紺フラット面の 1 枚パネル) を挟む二層構造。
  */
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HousingDetailContent } from './HousingDetailContent';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
@@ -26,6 +26,7 @@ import '../../../styles/housing.css';
 export const HousingDetailPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { listingId } = useParams<{ listingId: string }>();
   // Task 3.3a: 編集は route 遷移 (/housing/listing/:listingId/edit)。 hook は react-router を
   // 意識しないため、 navigate を包んだコールバックをここ (呼び出し側) で渡す。
@@ -73,6 +74,14 @@ export const HousingDetailPage: React.FC = () => {
             to="/housing"
             className="housing-detail-back"
             aria-label={t('housing.detail.back_aria')}
+            onClick={(e) => {
+              // 直前のページ (お気に入り/探す/ツアー等・来た場所) へ戻す。
+              // アプリ内履歴が無い直URL/共有/通知の場合のみ Link 既定の /housing へ。
+              if (location.key !== 'default') {
+                e.preventDefault();
+                navigate(-1);
+              }
+            }}
           >
             ← {t('housing.detail.back_aria')}
           </Link>
