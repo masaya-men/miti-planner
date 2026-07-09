@@ -13,7 +13,7 @@
  * - シェル (`HousingShell`) が body overflow:hidden + 内部スクロールを管理するため、
  *   このページ自身は body-overflow を解禁しない (旧フルページ実装からの変更点)。
  */
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HousingDetailContent } from './HousingDetailContent';
 import { HousingDetailMap } from './HousingDetailMap';
@@ -24,6 +24,7 @@ import '../../../styles/housing.css';
 
 export const HousingDetailPage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { listingId } = useParams<{ listingId: string }>();
   const d = useHousingDetail(listingId);
 
@@ -76,6 +77,7 @@ export const HousingDetailPage: React.FC = () => {
           onListingUpdated={d.handleListingSaved}
           onDeleted={d.onListingDeleted}
           onPeerHidden={d.onPeerHidden}
+          onClose={() => navigate('/housing')}
         />
         <HousingDetailMap listing={d.listing} />
       </main>
@@ -93,8 +95,11 @@ export const HousingDetailPage: React.FC = () => {
           listingTitle={d.listing.description ?? d.listing.addressKey}
           onCancel={d.closeDelete}
           onConfirm={async () => {
-            // ページなので close は無い (戻り先は ← 戻る に委ねる)。res.ok は無視でよい。
-            await d.onConfirmDelete();
+            // 削除成功時は一覧へ戻る (旧 HousingDetailModalRoute と同じ挙動)。
+            // navigate(-1) ではなく固定パスにするのは、直URL/共有URL 経由だと
+            // アプリ内履歴が無い場合があるため。
+            const res = await d.onConfirmDelete();
+            if (res.ok) navigate('/housing');
           }}
           loading={d.deleting}
         />

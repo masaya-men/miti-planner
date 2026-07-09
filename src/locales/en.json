@@ -2591,7 +2591,6 @@
             "report_button": "ちがった",
             "favorite_aria": "お気に入りに追加",
             "favorited_aria": "お気に入りから外す",
-            "close_aria": "閉じる",
             "back_aria": "戻る",
             "kebab": {
                 "aria_label": "メニュー",

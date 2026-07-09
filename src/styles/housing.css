@@ -112,14 +112,11 @@
   --housing-detail-backdrop-bg: rgba(0, 0, 0, 0.6);
   --housing-detail-z: 70;
   --housing-detail-title-size: 22px;
-  --housing-detail-close-size: 36px;
   --housing-detail-action-min-w: 80px;
   --housing-detail-action-padding: 10px 14px;
   --housing-detail-tag-bg: var(--housing-honey-medium);
   --housing-detail-tag-border: var(--housing-honey-border);
   --housing-detail-empty-h: 240px;
-  --housing-detail-modal-w: 880px;
-  --housing-detail-modal-h: 640px;
   --housing-detail-fullpage-max-w: 1200px;
 
   /* ===== Phase 3 Group D: report / notifications ===== */
@@ -3012,56 +3009,6 @@ select.housing-input option {
 }
 .housing-detail-actions {
     margin-top: auto;
-}
-
-.housing-detail-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: var(--housing-detail-z);
-    background: var(--housing-detail-backdrop-bg);
-    display: grid;
-    place-items: center;
-    padding: 20px;
-}
-.housing-detail-modal {
-    position: relative;
-    width: min(var(--housing-detail-modal-w), 100%);
-    height: min(var(--housing-detail-modal-h), calc(100dvh - 40px));
-    background: var(--housing-popover-bg);
-    border: 1px solid var(--housing-panel-border-strong);
-    border-radius: var(--housing-panel-radius);
-    padding: 24px;
-    overflow: auto;
-    color: var(--housing-text);
-    box-shadow: var(--housing-popover-shadow);
-}
-@media (max-width: 768px) {
-    .housing-detail-backdrop {
-        padding: 0;
-        align-items: flex-end;
-    }
-    .housing-detail-modal {
-        width: 100%;
-        height: 92dvh;
-        border-radius: var(--housing-panel-radius) var(--housing-panel-radius) 0 0;
-    }
-}
-.housing-detail-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: var(--housing-detail-close-size);
-    height: var(--housing-detail-close-size);
-    border-radius: 50%;
-    background: var(--housing-chip-bg-hover);
-    border: 1px solid var(--housing-panel-border);
-    color: var(--housing-text);
-    font-size: var(--housing-text-xl);
-    cursor: pointer;
-    z-index: 1;
-}
-.housing-detail-close:hover {
-    background: var(--housing-honey-medium);
 }
 
 /* シェル外の単体 workspace ページ (例: EntranceAuthoringPage 等 dev 専用ツール) 用ラッパー:

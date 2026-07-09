@@ -3,6 +3,10 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
+// Task 2.3 (Finding 2): useAuthStore の loading をテストごとに制御するため module 変数化。
+// デフォルトは false (= 既存 6 テストは auth 復元済み前提のまま)。
+let mockAuthLoading = false;
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
@@ -50,10 +54,12 @@ vi.mock('../../../../lib/firebase', () => ({
 // Task 2.3: hook が auth-ready gate に使う useAuthStore。実モジュールは
 // onAuthStateChanged 等 firebase/auth の他 export に依存し、このテストの
 // firebase/auth モック (getAuth のみ) では読み込み時に落ちるため、
-// 「auth 復元済み (loading:false)」を返す最小スタブに差し替える
-// (= 本テスト群は元々 auth 復元後の挙動のみ検証しており、gate は影響しない)。
+// 「auth 復元済み (loading:false)」を返す最小スタブに差し替える。
+// Finding 2: mockAuthLoading (module 変数) を読むことで、gate 自体のテストも
+// 同じスタブで制御できるようにする (デフォルトは false = 既存 6 テストに影響なし)。
 vi.mock('../../../../store/useAuthStore', () => ({
-  useAuthStore: (selector: (s: { loading: boolean }) => unknown) => selector({ loading: false }),
+  useAuthStore: (selector: (s: { loading: boolean }) => unknown) =>
+    selector({ loading: mockAuthLoading }),
 }));
 
 // useHousingDelete/useResolveReport/useNotifications/purgeIfTweetGone が経由する
@@ -103,6 +109,7 @@ describe('useHousingDetail', () => {
     mockGetDoc.mockReset();
     mockDeleteListing.mockReset();
     mockPurgeIfTweetGone.mockReset();
+    mockAuthLoading = false;
   });
 
   it('doc が exists()=false のとき notFound=true / listing=null (loadListing 配線が移送後も生きている証明)', async () => {
@@ -246,5 +253,32 @@ describe('useHousingDetail', () => {
     expect(removeSpy).not.toHaveBeenCalled();
 
     removeSpy.mockRestore();
+  });
+
+  it('auth-ready gate: authLoading=true の間は getDoc を呼ばず notFound も立てず、loading=false に切り替わったら fetch が走る', async () => {
+    mockAuthLoading = true;
+    mockGetDoc.mockResolvedValueOnce(buildListingSnap('lid-gate'));
+
+    const { result, rerender } = renderHook(() => useHousingDetail('lid-gate'), { wrapper });
+
+    // gate が効いている間: fetch は走らず、notFound も立たない (次回に委ねるだけで失敗扱いしない)
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(mockGetDoc).not.toHaveBeenCalled();
+    expect(result.current.notFound).toBe(false);
+    expect(result.current.listing).toBeNull();
+
+    // auth 復元完了 → gate 解除 → 初めて fetch が走る
+    mockAuthLoading = false;
+    rerender();
+
+    await waitFor(() => {
+      expect(mockGetDoc).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(result.current.listing).not.toBeNull();
+    });
+    expect(result.current.notFound).toBe(false);
   });
 });
