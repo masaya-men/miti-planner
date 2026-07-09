@@ -18,6 +18,7 @@ import { HousingPhotoGallery } from './HousingPhotoGallery';
 import { HousingDetailMap } from './HousingDetailMap';
 import { HousingActionBar } from './HousingActionBar';
 import { HousingDuplicatePeersSection } from './HousingDuplicatePeersSection';
+import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { useHousingReport } from '../report/useHousingReport';
 import { showToast } from '../../Toast';
@@ -66,7 +67,9 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   const { t, i18n } = useTranslation();
   // 2026-05-26 アパート号棟欠落バグ修正 + 多言語化: 住所組み立ては必ず formatHousingAddress 経由。
   const fullAddress = formatHousingAddress(listing, i18n.language);
-  const title = listing.description?.trim() ? listing.description : fullAddress;
+  // 見出しは住所に固定 (FF14 の家は識別子が住所。 任意タイトル欄は設けない)。
+  // 紹介文 (description) は任意の本文としてスクロール領域に表示する。
+  const title = fullAddress;
 
   // §3.8 (2026-05-27): 重複一覧の「ちがった」 で 1 撃 hide した peer は即時 UI から消す。
   // 親の peers は同じ参照のまま、 ここで filter する (= 親に再 fetch 走らせない軽量実装)。
@@ -99,6 +102,8 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
       showToast(t('housing.detail.duplicates.toast_error'), 'error');
     }
   };
+
+  const textScroll = useScrollFade<HTMLDivElement>();
 
   return (
     <div className="housing-detail-body">
@@ -174,28 +179,37 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
           </div>
         </div>
 
-        {/* RAIL: 固定ヘッド (タイトル/住所/タグ) → 唯一のスクロール域 (説明+peers)
-            → 固定の操作 → 固定の区画マップ */}
+        {/* RAIL: テキスト一式がスクロール域、操作・地図は固定 */}
         <div className="housing-detail-side">
-          <div className="housing-detail-info">
-            <h2 className="housing-detail-title">{title}</h2>
-            <p className="housing-detail-address">
-              {listing.dc} / {listing.server} / {fullAddress}
-            </p>
-            {listing.tags.length > 0 && (
-              <ul className="housing-detail-tags">
-                {listing.tags.map((tag) => (
-                  <li key={tag}>{tag}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="housing-detail-scroll">
-            {listing.description && (
-              <p className="housing-detail-description">{listing.description}</p>
-            )}
-            <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+          {/* テキスト一式 = 唯一のスクロール域。 長くても固定高さを超えず、 端フェードで示す。 */}
+          <div
+            className="housing-detail-textscroll-wrap"
+            data-at-top={textScroll.atStart}
+            data-at-bottom={textScroll.atEnd}
+          >
+            <div
+              className="housing-detail-textscroll"
+              ref={textScroll.ref}
+              onScroll={textScroll.onScroll}
+            >
+              <div className="housing-detail-info">
+                <h2 className="housing-detail-title">{title}</h2>
+                <p className="housing-detail-address">
+                  {listing.dc} / {listing.server}
+                </p>
+                {listing.tags.length > 0 && (
+                  <ul className="housing-detail-tags">
+                    {listing.tags.map((tag) => (
+                      <li key={tag}>{tag}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {listing.description && (
+                <p className="housing-detail-description">{listing.description}</p>
+              )}
+              <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+            </div>
           </div>
 
           <div className="housing-detail-actions">

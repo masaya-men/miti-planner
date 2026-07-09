@@ -3053,7 +3053,6 @@ select.housing-input option {
     height: min(60vh, 420px);           /* モバイル: 縦フローで確定高さ (stage/rail の height:100% 用) */
     min-height: var(--housing-detail-empty-h);
 }
-/* 右レール: 上=情報 (固定) / 中=説明+peers (唯一のスクロール域) / 下=操作 + 区画マップ (固定)。 */
 .housing-detail-side {
     display: flex;
     flex-direction: column;
@@ -3066,11 +3065,50 @@ select.housing-input option {
     gap: 8px;
     color: var(--housing-text);
 }
-.housing-detail-scroll {
+/* テキスト一式のスクロール枠。 wrap=非スクロールのフェード枠 / 中の textscroll がスクロール。 */
+.housing-detail-textscroll-wrap {
+    position: relative;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+}
+.housing-detail-textscroll {
     display: flex;
     flex-direction: column;
     gap: 12px;
     min-width: 0;
+    color: var(--housing-text);
+    scrollbar-width: none;            /* Firefox: スクロールバー非表示 */
+}
+.housing-detail-textscroll::-webkit-scrollbar {
+    display: none;                    /* WebKit: スクロールバー非表示 */
+}
+/* スクロールフェード (強め・端で smooth に外れる)。 wrap は非スクロールなので端に留まる。 */
+.housing-detail-textscroll-wrap::before,
+.housing-detail-textscroll-wrap::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 32px;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.22s ease;
+}
+.housing-detail-textscroll-wrap::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--housing-panel-bg-solid), transparent);
+}
+.housing-detail-textscroll-wrap::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--housing-panel-bg-solid), transparent);
+}
+.housing-detail-textscroll-wrap[data-at-top="true"]::before {
+    opacity: 0;
+}
+.housing-detail-textscroll-wrap[data-at-bottom="true"]::after {
+    opacity: 0;
 }
 /* 区画マップの埋め込み (透け重なりの根治):
    - 固定 basis → 祖先の確定高さに依存しない (TourNavMap のツリーは自然高さ0)
@@ -3221,12 +3259,12 @@ select.housing-input option {
     .housing-detail-side {
         min-height: 0;
     }
-    .housing-detail-info {
-        flex: 0 0 auto;
-    }
-    .housing-detail-scroll {
+    .housing-detail-textscroll-wrap {
         flex: 1 1 auto;
         min-height: 0;
+    }
+    .housing-detail-textscroll {
+        height: 100%;
         overflow-y: auto;
     }
     .housing-detail-actions {
