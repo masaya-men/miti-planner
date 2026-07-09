@@ -7,7 +7,6 @@ export { FilterPanel } from './FilterPanel';
 export { RegisterCTA } from './RegisterCTA';
 export { PanelCloseButton } from './PanelCloseButton';
 export { ResultCountBadge } from './ResultCountBadge';
-export { ViewModeToggle } from './ViewModeToggle';
 export { EmptyResult } from './EmptyResult';
 export { RightPanelListItem } from './RightPanelListItem';
 export { AutoScrollList } from './AutoScrollList';
