@@ -4470,6 +4470,37 @@ select.housing-input option {
  * エラー/不足は色付き alert 箱にせず、ヘアライン + グレー文字の静かな表示にする
  * (housing-design.md「AI 感の払拭」)。主アクションのみ .housing-btn-primary (ハニー)。
  * ============================================================ */
+/* 住所確認ゲート (C案・2026-07-10): 静かな注記 + 確認ボタン。ヘアライン区切りのみで
+   色付き alert 箱にしない。確認済みは --housing-field-bg-confirmed 系 (緑) を使い、
+   ハニー (主アクション用) とは色を分ける。 */
+.housing-register-confirm-gate {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-register-confirm-gate-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-confirm-gate-address {
+  margin: 0;
+  font-size: var(--housing-text-base);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-register-confirm-gate-btn {
+  align-self: flex-start;
+}
+.housing-register-confirm-gate-btn[data-confirmed="true"] {
+  background: var(--housing-field-bg-confirmed);
+  border-color: var(--housing-field-border-confirmed);
+  color: var(--housing-text);
+  cursor: default;
+}
+
 .housing-register-confirm-summary {
   margin: 0;
   display: flex;

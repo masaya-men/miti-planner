@@ -2121,6 +2121,9 @@
                 "submit": "确认登记",
                 "cancel": "返回",
                 "section_title": "确认",
+                "address_gate_lead": "即将以该地址登记",
+                "address_gate_button": "该地址无误",
+                "address_gate_confirmed": "已确认",
                 "publish": "公开",
                 "save_private": "以非公开方式保存",
                 "summary_missing": "未填写",
@@ -2176,6 +2179,7 @@
                 "row_title": "标题（选填）",
                 "row_image": "图片（建议）",
                 "missing_address": "请输入地址",
+                "missing_address_confirm": "请确认地址",
                 "missing_title": "请输入标题",
                 "missing_image": "请添加图片"
             },

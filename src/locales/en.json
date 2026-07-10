@@ -2156,6 +2156,9 @@
                 "submit": "Register",
                 "cancel": "Back",
                 "section_title": "Confirm",
+                "address_gate_lead": "You're about to register this address",
+                "address_gate_button": "This address is correct",
+                "address_gate_confirmed": "Confirmed",
                 "publish": "Publish",
                 "save_private": "Save privately",
                 "summary_missing": "Not entered",
@@ -2211,6 +2214,7 @@
                 "row_title": "Title (optional)",
                 "row_image": "Images (recommended)",
                 "missing_address": "Please enter the address",
+                "missing_address_confirm": "Please confirm the address",
                 "missing_title": "Please enter a title",
                 "missing_image": "Please add an image"
             },

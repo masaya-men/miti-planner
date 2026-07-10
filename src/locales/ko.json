@@ -2121,6 +2121,9 @@
                 "submit": "확정하여 등록",
                 "cancel": "뒤로",
                 "section_title": "확인",
+                "address_gate_lead": "이 주소로 등록합니다",
+                "address_gate_button": "이 주소가 맞습니다",
+                "address_gate_confirmed": "확인 완료",
                 "publish": "공개하기",
                 "save_private": "비공개로 저장하기",
                 "summary_missing": "미입력",
@@ -2176,6 +2179,7 @@
                 "row_title": "제목 (선택)",
                 "row_image": "이미지 (권장)",
                 "missing_address": "주소를 입력해 주세요",
+                "missing_address_confirm": "주소를 확인해 주세요",
                 "missing_title": "제목을 입력해 주세요",
                 "missing_image": "이미지를 추가해 주세요"
             },

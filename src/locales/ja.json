@@ -2177,6 +2177,9 @@
                 "submit": "確定して登録",
                 "cancel": "戻る",
                 "section_title": "確認",
+                "address_gate_lead": "この住所で登録します",
+                "address_gate_button": "この住所で間違いありません",
+                "address_gate_confirmed": "確認済み",
                 "publish": "公開する",
                 "save_private": "非公開で保存する",
                 "summary_missing": "未入力",
@@ -2232,6 +2235,7 @@
                 "row_title": "タイトル (任意)",
                 "row_image": "画像 (推奨)",
                 "missing_address": "住所を入力してください",
+                "missing_address_confirm": "住所を確認してください",
                 "missing_title": "タイトルを入力してください",
                 "missing_image": "画像を追加してください"
             },

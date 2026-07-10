@@ -30,6 +30,10 @@ interface Props {
   onSubmit: () => void;
   /** 入力チェックの導出結果 (未達の required 行を「不足アクション」として列挙する)。 */
   checklistItems: RegisterChecklistItem[];
+  /** 住所確認ゲート (C案・2026-07-10)。true になるまで送信できない (checklistItems.address に反映済み)。 */
+  addressConfirmed: boolean;
+  /** 確認ボタン押下ハンドラ。 */
+  onConfirmAddress: () => void;
 }
 
 /**
@@ -52,6 +56,8 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
   errorKey = null,
   onSubmit,
   checklistItems,
+  addressConfirmed,
+  onConfirmAddress,
 }) => {
   const { t } = useTranslation();
 
@@ -69,6 +75,33 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
   return (
     <section className="housing-register-section" data-testid="housing-register-section-confirm">
       <h2 className="housing-register-section-title">{t('housing.register.confirm.section_title')}</h2>
+
+      {/* 住所確認ゲート (C案・2026-07-10): 値が妥当でも、この確認ボタンを押すまで送信できない。
+          住所を変えれば自動で未確認に戻る (RegisterPage handleAddressChange / applyExtractedResult 側)。
+          静かな注記トーン (色付き alert 箱にしない)。確認済みはハニーではなく確認済みトークンを使う。 */}
+      <div className="housing-register-confirm-gate" data-testid="housing-register-confirm-address-gate">
+        <p className="housing-register-confirm-gate-lead">{t('housing.register.confirm.address_gate_lead')}</p>
+        {summary.address && (
+          <p className="housing-register-confirm-gate-address">{summary.address}</p>
+        )}
+        <button
+          type="button"
+          className="housing-action-btn housing-register-confirm-gate-btn"
+          data-testid="housing-register-confirm-address-btn"
+          data-confirmed={addressConfirmed ? 'true' : 'false'}
+          disabled={addressConfirmed}
+          onClick={onConfirmAddress}
+        >
+          {addressConfirmed ? (
+            <>
+              <span aria-hidden="true">✓</span>
+              {t('housing.register.confirm.address_gate_confirmed')}
+            </>
+          ) : (
+            t('housing.register.confirm.address_gate_button')
+          )}
+        </button>
+      </div>
 
       {/* 入力要約 */}
       <dl className="housing-register-confirm-summary">
