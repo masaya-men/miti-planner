@@ -19,6 +19,7 @@
  * ?action=search-personal-tags      → GET 個人タグ検索 (探すページのフィルタ用オートコンプリート)
  * ?action=report-personal-tag       → POST 個人タグ通報
  * ?action=upsert-housinger-profile  → POST ハウジンガープロフィール 公開/更新/非公開/同期 (冪等)
+ * ?action=report-housinger          → POST ハウジンガープロフィール通報
  */
 import canRegisterHandler from './_canRegisterHandler.js';
 import registerListingHandler from './_registerListingHandler.js';
@@ -38,6 +39,7 @@ import myPersonalTagHandler from './_myPersonalTagHandler.js';
 import searchPersonalTagsHandler from './_searchPersonalTagsHandler.js';
 import reportPersonalTagHandler from './_reportPersonalTagHandler.js';
 import upsertHousingerProfileHandler from './_upsertHousingerProfileHandler.js';
+import reportHousingerHandler from './_reportHousingerHandler.js';
 
 export default async function handler(req: any, res: any) {
   const action = req.query?.action;
@@ -79,10 +81,12 @@ export default async function handler(req: any, res: any) {
       return reportPersonalTagHandler(req, res);
     case 'upsert-housinger-profile':
       return upsertHousingerProfileHandler(req, res);
+    case 'report-housinger':
+      return reportHousingerHandler(req, res);
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|confirm-listing|create-personal-tag|my-personal-tag|search-personal-tags|report-personal-tag|upsert-housinger-profile',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|confirm-listing|create-personal-tag|my-personal-tag|search-personal-tags|report-personal-tag|upsert-housinger-profile|report-housinger',
       });
   }
 }

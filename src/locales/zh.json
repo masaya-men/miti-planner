@@ -1776,6 +1776,32 @@
             "report_count": "{{count}} 次举报",
             "hidden_badge": "已隐藏"
         },
+        "housinger_reports": {
+            "title": "房主玩家举报",
+            "description": "查看被举报的房主玩家资料，必要时强制隐藏。由于没有自动隐藏阈值，需要人工判断。",
+            "empty": "没有被举报的资料",
+            "hide": "强制隐藏",
+            "hiding": "...",
+            "hide_confirm": "要强制隐藏这位房主玩家吗?",
+            "hide_success": "已强制隐藏",
+            "restore": "恢复",
+            "restoring": "...",
+            "restore_confirm": "要恢复这位房主玩家吗?",
+            "restore_success": "已恢复",
+            "dismiss_one": "驳回此举报",
+            "dismissing_one": "...",
+            "dismiss_one_confirm": "要删除此举报记录并将举报数减少 1 次吗?",
+            "dismiss_one_success": "已驳回举报",
+            "report_count": "{{count}} 次举报",
+            "unpublished_badge": "未公开",
+            "hidden_badge": "强制隐藏",
+            "reason": {
+                "inappropriate_name": "不当名称",
+                "inappropriate_avatar": "不当头像",
+                "impersonation": "冒充他人",
+                "other": "其他"
+            }
+        },
         "ugc_description": "粘贴共享URL，查看和管理上传的标志图片。",
         "ugc_placeholder": "粘贴共享URL或shareId",
         "ugc_search": "搜索",

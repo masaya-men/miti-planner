@@ -45,6 +45,7 @@ import { AdminUgc } from './components/admin/AdminUgc';
 import { AdminFeatured } from './components/admin/AdminFeatured';
 import { AdminHousingReports } from './components/admin/AdminHousingReports';
 import { AdminPersonalTags } from './components/admin/AdminPersonalTags';
+import { AdminHousingerReports } from './components/admin/AdminHousingerReports';
 import { TutorialOverlay } from './components/tutorial/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -142,6 +143,7 @@ function AppRoutes() {
         <Route path="notifications" element={<AdminSystemNotifications />} />
         <Route path="housing-reports" element={<AdminHousingReports />} />
         <Route path="personal-tags" element={<AdminPersonalTags />} />
+        <Route path="housinger-reports" element={<AdminHousingerReports />} />
       </Route>
       {/* Catch-all: redirect unknown paths to portal */}
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1776,6 +1776,32 @@
             "report_count": "신고 {{count}}건",
             "hidden_badge": "숨김"
         },
+        "housinger_reports": {
+            "title": "하우징어 신고",
+            "description": "신고된 하우징어 프로필을 확인하고 필요하면 강제 비공개 처리합니다. 자동 숨김 기준이 없으므로 사람이 직접 판단합니다.",
+            "empty": "신고된 프로필이 없습니다",
+            "hide": "강제 비공개",
+            "hiding": "...",
+            "hide_confirm": "이 하우징어를 강제로 비공개 처리하시겠습니까?",
+            "hide_success": "강제 비공개 처리했습니다",
+            "restore": "복구",
+            "restoring": "...",
+            "restore_confirm": "이 하우징어를 복구하시겠습니까?",
+            "restore_success": "복구했습니다",
+            "dismiss_one": "이 신고 기각",
+            "dismissing_one": "...",
+            "dismiss_one_confirm": "이 신고 기록을 삭제하고 신고 수를 1건 줄이시겠습니까?",
+            "dismiss_one_success": "신고를 기각했습니다",
+            "report_count": "신고 {{count}}건",
+            "unpublished_badge": "비공개",
+            "hidden_badge": "강제 비공개",
+            "reason": {
+                "inappropriate_name": "부적절한 이름",
+                "inappropriate_avatar": "부적절한 아이콘",
+                "impersonation": "사칭",
+                "other": "기타"
+            }
+        },
         "ugc_description": "공유 URL을 붙여넣어 업로드된 로고 이미지를 확인하고 관리할 수 있습니다.",
         "ugc_placeholder": "공유 URL 또는 shareId를 붙여넣기",
         "ugc_search": "검색",

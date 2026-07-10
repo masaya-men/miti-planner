@@ -1815,6 +1815,32 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "housinger_reports": {
+            "title": "ハウジンガー通報",
+            "description": "通報があったハウジンガープロフィールを確認し、 必要なら強制非公開にします。 自動非表示のしきい値は無いため、 人の目で判断します。",
+            "empty": "通報ありプロフィールはありません",
+            "hide": "強制非公開にする",
+            "hiding": "...",
+            "hide_confirm": "このハウジンガーを強制非公開にしますか?",
+            "hide_success": "強制非公開にしました",
+            "restore": "復帰させる",
+            "restoring": "...",
+            "restore_confirm": "このハウジンガーを復帰させますか?",
+            "restore_success": "復帰させました",
+            "dismiss_one": "この通報を却下",
+            "dismissing_one": "...",
+            "dismiss_one_confirm": "この通報レコードを削除して通報数を 1 件減らしますか?",
+            "dismiss_one_success": "通報を却下しました",
+            "report_count": "通報 {{count}} 件",
+            "unpublished_badge": "非公開",
+            "hidden_badge": "強制非公開",
+            "reason": {
+                "inappropriate_name": "不適切な名前",
+                "inappropriate_avatar": "不適切なアイコン",
+                "impersonation": "なりすまし",
+                "other": "その他"
+            }
+        },
         "ugc_description": "共有URLを貼り付けて、アップロードされたロゴ画像を確認・削除できます。",
         "ugc_placeholder": "共有URLまたはshareIDを貼り付け",
         "ugc_search": "検索",

@@ -1811,6 +1811,32 @@
             "report_count": "{{count}} report(s)",
             "hidden_badge": "Hidden"
         },
+        "housinger_reports": {
+            "title": "Housinger reports",
+            "description": "Review reported Housinger profiles and force-hide them if necessary. There is no automatic hide threshold, so this requires human judgment.",
+            "empty": "No reported profiles",
+            "hide": "Force-hide",
+            "hiding": "...",
+            "hide_confirm": "Force-hide this Housinger?",
+            "hide_success": "Force-hidden",
+            "restore": "Restore",
+            "restoring": "...",
+            "restore_confirm": "Restore this Housinger?",
+            "restore_success": "Restored",
+            "dismiss_one": "Dismiss this report",
+            "dismissing_one": "...",
+            "dismiss_one_confirm": "Delete this report record and reduce the report count by 1?",
+            "dismiss_one_success": "Report dismissed",
+            "report_count": "{{count}} report(s)",
+            "unpublished_badge": "Unpublished",
+            "hidden_badge": "Force-hidden",
+            "reason": {
+                "inappropriate_name": "Inappropriate name",
+                "inappropriate_avatar": "Inappropriate avatar",
+                "impersonation": "Impersonation",
+                "other": "Other"
+            }
+        },
         "ugc_description": "Paste a share URL to view and manage uploaded logo images.",
         "ugc_placeholder": "Paste share URL or shareId",
         "ugc_search": "Search",
