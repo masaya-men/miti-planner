@@ -71,7 +71,7 @@ describe('HousingRegisterTagPicker', () => {
   });
 
   describe('個人タブ', () => {
-    it('未作成なら作成フォームを出し、 作成後にタグをトグルできる', async () => {
+    it('未作成なら作成フォームを出し、 作成すると自動でそのハウジングに付与される', async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
       const createdTag = { id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura', ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false };
@@ -90,12 +90,35 @@ describe('HousingRegisterTagPicker', () => {
       await waitFor(() => {
         expect(createPersonalTagMock).toHaveBeenCalledWith('yuura');
       });
+      // 作成の流れ = 「このハウジングに使うタグを作る」文脈のため、 追加クリック無しで自動付与される。
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'yuura' })).toBeInTheDocument();
+        expect(onChange).toHaveBeenCalledWith(['personal_yuura_ab12cd']);
       });
+    });
 
-      await user.click(screen.getByRole('button', { name: 'yuura' }));
-      expect(onChange).toHaveBeenCalledWith(['personal_yuura_ab12cd']);
+    it('作成後、 既に 5 件選択済みなら自動付与しない (上限を超えない)', async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const createdTag = { id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura', ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false };
+      createPersonalTagMock.mockResolvedValue(createdTag);
+
+      render(
+        <HousingRegisterTagPicker
+          selected={['official_emporium', 'official_boutique', 'official_cafe', 'season_spring', 'season_summer']}
+          onChange={onChange}
+        />,
+      );
+      await user.click(screen.getByText(/housing\.register\.tag_kind\.personal/i));
+      await waitFor(() => {
+        expect(screen.getByTestId('housing-personal-tag-name-input')).toBeInTheDocument();
+      });
+      await user.type(screen.getByTestId('housing-personal-tag-name-input'), 'yuura');
+      await user.click(screen.getByTestId('housing-personal-tag-create-button'));
+
+      await waitFor(() => {
+        expect(createPersonalTagMock).toHaveBeenCalledWith('yuura');
+      });
+      expect(onChange).not.toHaveBeenCalled();
     });
 
     it('作成済みなら自分のタグをトグル可能なボタンとして表示する', async () => {

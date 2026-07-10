@@ -58,7 +58,14 @@ export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }
 
   const handleCreatePersonalTag = async () => {
     const created = await createMyPersonalTag(personalNameInput);
-    if (created) setPersonalNameInput('');
+    if (created) {
+      setPersonalNameInput('');
+      // 作成の流れは「このハウジングに使う個人タグを作る」文脈なので、 枠に空きがあれば
+      // 作成直後にそのまま付与する (別途トグルし直す手間を省く)。 いつでも × で外せる。
+      if (!selected.includes(created.id) && !isFull) {
+        onChange([...selected, created.id]);
+      }
+    }
   };
 
   return (
