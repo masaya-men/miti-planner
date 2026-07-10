@@ -31,8 +31,9 @@
 - **🆕📐 plot→size 表と住所抽出v2** (詳細=`docs/.private/2026-07-10-plot-size-table-and-address-v2.md`)
   - **✅ 確定表を `src/data/housing/wardPlotSizes.ts` 化 + `getPlotSize(area, plot)`** (commit `0781d4cf`)。回帰ガード3系統(構造不変条件 / 全10マップの outline 面積 300/300 / 行き方本文260件との一致)をテストで固定。**表の再調査は不要**。
   - **✅ 🐛行き方本文のサイズ誤記を修正**: Mist plot30・plot60 / Shirogane plot8・plot38 の「Ｌハウス」→「Ｍハウス」 (生成元 CSV を直して再生成)。private メモは本街2件だけ挙げていたが、拡張街のミラー2件も同じ誤記だった。
-  - **🔴 残①: size 自動入力の配線** — `buildingType==='house'` は plot 必須・size 必須なので size は常に (area, plot) から一意に決まる。**上書き semantics はユーザー確認待ち**。
-  - **🔴 残②: 住所抽出v2** (前回エージェントがダミー返答で失敗・未着手)。判明した事実=housingsnap の og:description は **120字で truncate** され住所行が落ちる。住所行 (`crystal | goblin | shirogane | w21 p58.`) は**本文 `div.main-text-box` の末尾 `<p>` にだけ**ある。方針=本文をテキスト化→候補分割→住所らしさスコアで最良候補→解析。短縮ASCIIエイリアスは「一律禁止」をやめ「同一候補内に ward/plot がある文脈でのみ許可」へ (今の `isTooShortAsciiAlias` はパーサーを弱くしている)。
+  - **✅ size 自動導出 + 住所抽出v2 完了** (commit `92a7769e`)。A案採用=size 欄は disabled の自動判定 (ハニーの auto-filled 表示は維持)。`validateAddress` に `mismatch_with_plot` を足してサーバー側でも保証。og-fetch が本文テキストを返し、`extractHousingAddressFromPage` が候補を採点して最良の1行を採る。**要本番確認 (ユーザー)**。
+  - **⚠ 短縮 ASCII alias のゲート条件は「ward/plot がある」だけでは弱い**と敵対監査で実証 (`Finally had my dream home! Mist w5 p3 M` が "had"→Hades を捏造)。現行は **ward/plot あり かつ 区切り記号2個以上** の AND。`keepBestQuality` は **area に適用してはいけない** (`Mist`/`Goblet` は英単語)。
+  - **🟡 既知の限界 (低優先)**: `extractHousingAddressFromPage` の候補上限 400 で、本文が **134 行を超える**ページから隣接3行窓が切り捨てられる。通常は本文全体の候補が安全網になるが、長文にDC/サーバー語が散ると安全網も `ambiguity` で沈む。実運用 (housingsnap の数行) では顕在化しない。
   - **🐛 別件(未修正)**: `wardDirections.generated.json` の **Goblet 拡張街 (plot 31-60) は `directions` が全30件とも空文字列**。ユーザーに見える「行き方」が空欄になる。埋めるには実ゲームの知識が要る。
 - **💰 Firebaseコスト対策**: ①App Check TTL 7日 ✅ / ④`/api/popular` `.select()` 射影 ✅ (`a451791c`)。**②reCAPTCHA v3切替=保留 → 2026-07-12 09:00 に自動フォローで効果測定→提案**。詳細=memory [[project_firebase_cost_reduction]]。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
