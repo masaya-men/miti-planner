@@ -24,16 +24,14 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
-### 🔴 進行中: 大物3つ (ハウジンガーPF / 探す地図 / 一時ツアー) を brainstorming→計画書まで完成させる (2026-07-10 ユーザー合意)
-- **✅PF=設計+計画書 完成(2026-07-10)**: spec=`docs/superpowers/specs/2026-07-10-housinger-profile-design.md` / plan=`docs/superpowers/plans/2026-07-10-housinger-profile-plan.md`。**実行は3ブランチ(登録改善/タグ刷新/小物UI)マージ後**(RegisterPage/TagPickerと重なるため)。
-- **✅地図=設計+計画書 完成(2026-07-10)**: spec=`docs/superpowers/specs/2026-07-10-housing-browse-map-design.md` / plan=`docs/superpowers/plans/2026-07-10-housing-browse-map-plan.md`。実行は3ブランチマージ後。
-- **✅一時ツアー=設計+計画書 完成(2026-07-10)**: spec=`docs/superpowers/specs/2026-07-10-housing-ephemeral-tour-design.md` / plan=`docs/superpowers/plans/2026-07-10-housing-ephemeral-tour-plan.md`。実行は3ブランチマージ後。**→大物3つの設計+計画書がすべて完成**。
-- **2026-07-10 全体相談 完了**。小〜中物は設計確定→**計画書化済み・安価モデルで実行可能**: ①登録ページ改善(住所確認ゲートC案+編集は住所変更時のみ再確認+ステッパー強化+細修正+死にコード撤去) ②タグ刷新(公式23+季節12+テーマ12+個人タグ1人1個・拡張可能レジストリ・Phase A/B) ③小物UI束(フッター刷新/リップル/通知トンマナ点検) = `docs/superpowers/plans/2026-07-10-housing-*.md` の3本。相談ログ=`docs/.private/2026-07-10-all-consult-intake.md`
+### ✅ 大物3つ (PF/地図/一時ツアー) 設計+計画書 完成 & 並行実装3本 main 統合済 (2026-07-10・未push)
+- **🔴 次: ユーザーのローカル確認** (3本分チェックリストは引き継ぎ参照) → OK なら push (Vercel 自動デプロイ) → 大物3計画の実行開始 (順序自由・worktree 並行可)。
+- **統合後の残作業**: ①公式タグ23種の**日本語名をゲーム内で目視確認** (一覧は引き継ぎ) ②リリース時に `firebase deploy --only firestore` (personal_tags の rules+indexes) ③旧タグ一掃 `scripts/cleanup-legacy-housing-tags.ts` (dry-run 既定・本番実行は②の後) ④個人タグID方式は PF 計画 Task 8 で uid 由来へ統一予定。
+- **大物3つの spec/plan** (`docs/superpowers/{specs,plans}/2026-07-10-*`): PF=`housinger-profile`(名前=個人タグ一体化/表示は詳細のみ/公開プロフィール中央方式) 地図=`housing-browse-map`(吹き出しミニカード常時+hover拡大=探すカード同一部品/ツアー無傷の新設) 一時ツアー=`housing-ephemeral-tour`(混在ツアー核/pool分離/揮発・ログイン不要)。
+- **統合済の3本**: ①登録ページ改善(住所確認ゲートC案+ステッパー) ②タグ刷新(公式23+季節12+テーマ12+個人タグ・API/admin込) ③小物UI束(フッター/リップル/通知点検)。全テスト2849件緑・build成功。相談ログ=`docs/.private/2026-07-10-all-consult-intake.md`
 - **🔥 軽減表「(競合コピー)」増殖バグ**: 症状+生成箇所(`usePlanStore.ts:520/816`)特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
 - **✅ Vercel 75%通知 解明・対策済 (2026-07-10)**: Edge=6/11スパイクが窓に残存しているだけで無害。本命はオリジン転送6.26/10GB=dev の動画確認が本番 Vercel 関数経由だった→`.env.local` に `VITE_MEDIA_PROXY_BASE_URL` 追記済・**dev サーバー要再起動**。7/12 沈静化確認=`docs/.private/2026-07-10-vercel-origin-transfer-followup.md`
-
-- **🆕🏠 ハウジング登録UI 連続修正 本番反映済 (main `087d81bc`・2026-07-10)**。詳細/引き継ぎ=`docs/.private/2026-07-10-housing-small-fixes.md`。
-  済=こまごま7件(#1-#7)/タイトル任意化/コメント文言/ツアー動くマップ/住所自動入力の誤検出2件/チェックパネルのキー衝突バグ/重複の赤化/ハニー主アクション統一(.housing-btn-primary をグラデ+影の正典へ)/ログイン案内のトンマナ化+中央寄せ/「登録の流れ」を右カラムへ移設/地図の全周ヴィネット。
+- **🆕🏠 ハウジング登録UI 連続修正 本番反映済 (main `087d81bc`・2026-07-10)**: こまごま7件/タイトル任意化/住所自動入力の誤検出2件/ハニー主アクション統一 ほか。詳細=`docs/.private/2026-07-10-housing-small-fixes.md`。
 - **✅📐 plot→size 表 / 住所抽出v2 / 住所誤爆の根治 / 行き方データ整備 — 全て本番反映済 (2026-07-10)**。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md) + `docs/.private/2026-07-10-plot-size-table-and-address-v2.md`。要点=**確定表の再調査は不要** / **辞書 (`masterData.ts`) に短い ASCII 略称を足すな** ([[feedback_no_speculative_alias_data]]) / **行き方の正典は `directions-src/*.csv`、スプシは引退** ([[reference_housing_directions_csv_canonical]])。
   - **🟡 残る限界(低優先)**: ①`extractHousingAddressFromPage` の候補上限400で本文が**134行超**のページは隣接3行窓が切り捨て(通常は本文全体の候補が安全網。長文にDC/鯖語が散ると安全網も `ambiguity` で沈む。housingsnap の数行では顕在化しない) ②**二重系**=住所抽出は静的 `masterData.ts` 直 import・他画面は Firestore(`useServerData`)。`/admin` の alias 編集は住所抽出に反映されない。
 - **💰 Firebaseコスト対策**: ①App Check TTL 7日 ✅ / ④`/api/popular` `.select()` 射影 ✅ (`a451791c`)。**②reCAPTCHA v3切替=保留 → 2026-07-12 09:00 に自動フォローで効果測定→提案**。詳細=memory [[project_firebase_cost_reduction]]。
