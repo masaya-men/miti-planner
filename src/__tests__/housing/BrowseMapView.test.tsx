@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
@@ -88,6 +88,27 @@ describe('BrowseMapView', () => {
       useHousingFilterStore.setState({ dc: 'Mana' });
       renderView();
       expect(screen.getByRole('button', { name: 'Anima' })).toBeTruthy();
+    });
+
+    it('ゲート表示中に外部 (FilterPanel) が dc を変えるとワールド一覧が追従し、選択時に巻き戻らない', () => {
+      useHousingFilterStore.setState({ dc: 'Mana' });
+      renderView();
+      // ゲートは Mana のワールド一覧から開始する
+      expect(screen.getByRole('button', { name: 'Anima' })).toBeTruthy();
+
+      // 地図モード中も常時描画される左カラム FilterPanel が同じ setDC を呼ぶケースを模す
+      act(() => {
+        useHousingFilterStore.setState({ dc: 'Gaia' });
+      });
+
+      // pendingDC がストアの dc 変化に追従し、ワールド一覧が Gaia のものに切り替わる
+      expect(screen.queryByRole('button', { name: 'Anima' })).toBeNull();
+      expect(screen.getByRole('button', { name: 'Alexander' })).toBeTruthy();
+
+      // Gaia のワールドを選択しても dc が Mana に無言で巻き戻らない
+      fireEvent.click(screen.getByRole('button', { name: 'Alexander' }));
+      expect(useHousingFilterStore.getState().dc).toBe('Gaia');
+      expect(useHousingFilterStore.getState().servers).toEqual(['Alexander']);
     });
 
     it('ワールド選択後はゲートが自動的に外れる', () => {

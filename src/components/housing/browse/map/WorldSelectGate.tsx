@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ALL_DCS, DC_SERVER_MAP } from '../../../../data/housing/dcServerMap';
 import { useHousingFilterStore } from '../../../../store/useHousingFilterStore';
@@ -16,6 +16,15 @@ export const WorldSelectGate: React.FC = () => {
   const setServerExclusive = useHousingFilterStore((s) => s.setServerExclusive);
 
   const [pendingDC, setPendingDC] = useState<string | null>(dc);
+
+  // ゲート表示中も左カラムの FilterPanel は常時描画されており、同じ setDC を呼べる。
+  // pendingDC を store の dc 変化に追従させないと、ここで古い DC のワールド一覧のまま
+  // ボタンを押した際に handleSelectWorld が setDC(pendingDC) でユーザーの選択を無言で
+  // 巻き戻してしまう。
+  useEffect(() => {
+    setPendingDC(dc);
+  }, [dc]);
+
   const worlds = pendingDC ? DC_SERVER_MAP[pendingDC]?.servers ?? [] : [];
 
   const handleSelectWorld = (world: string) => {
