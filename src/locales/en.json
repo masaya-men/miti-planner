@@ -2443,16 +2443,12 @@
                 "right_title_tour": "Tour · in progress"
             },
             "statusbar": {
-                "build_label": "Build",
-                "lat_label": "Lat",
-                "lon_label": "Lon",
                 "theme_readout_label": "Theme",
-                "stops_label": "Stops",
-                "fps_label": "FPS",
                 "theme_label": "Theme",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "lang_label": "Lang"
+                "lang_label": "Lang",
+                "copyright": "© {{year}} LoPo"
             },
             "filter": {
                 "title": "FILTER",

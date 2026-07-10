@@ -460,14 +460,22 @@
 .housing-status-group {
   display: flex; gap: 22px; align-items: center;
 }
-.housing-status-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--housing-honey);
-  box-shadow: 0 0 6px var(--housing-honey);
-  margin-right: 6px; display: inline-block; vertical-align: middle;
-}
 .housing-accent { color: var(--housing-candle); }
 .housing-accent-honey { color: var(--housing-honey); }
+
+/* 左グループ: © + 法的リンク + Ko-fi (2026-07-10 フッター刷新) */
+.housing-status-legal a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.housing-status-legal a:hover {
+  color: var(--housing-candle);
+}
+.housing-status-legal a:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
 
 .housing-status-lang {
   display: inline-flex; gap: 2px; align-items: center;

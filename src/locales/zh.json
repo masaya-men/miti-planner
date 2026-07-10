@@ -2408,16 +2408,12 @@
                 "right_title_tour": "Tour · 进行中"
             },
             "statusbar": {
-                "build_label": "Build",
-                "lat_label": "Lat",
-                "lon_label": "Lon",
                 "theme_readout_label": "Theme",
-                "stops_label": "Stops",
-                "fps_label": "FPS",
                 "theme_label": "主题",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "lang_label": "语言"
+                "lang_label": "语言",
+                "copyright": "© {{year}} LoPo"
             },
             "filter": {
                 "title": "FILTER",

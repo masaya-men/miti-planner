@@ -6,8 +6,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCanonicalUrl } from '../hooks/useCanonicalUrl';
 import { LegalPageLayout, splitItems } from './LegalPage';
-
-const KOFI_URL = 'https://ko-fi.com/lopoly';
+import { KOFI_URL } from '../constants/external';
 
 const AMOUNT_KEYS = [
     'support.amount_500',
