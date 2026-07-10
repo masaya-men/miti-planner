@@ -1813,7 +1813,7 @@
         },
         "housinger_reports": {
             "title": "Housinger reports",
-            "description": "Review reported Housinger profiles and force-hide them if necessary. There is no automatic hide threshold, so this requires human judgment.",
+            "description": "Review reported Housinger profiles and force-hide them if necessary. There is no automatic hide threshold, so this requires human judgment. Force-hidden profiles stay listed here even after their report count reaches zero.",
             "empty": "No reported profiles",
             "hide": "Force-hide",
             "hiding": "...",

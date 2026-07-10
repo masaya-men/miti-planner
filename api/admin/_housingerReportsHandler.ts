@@ -2,7 +2,11 @@
  * ハウジンガープロフィール通報管理 API (spec 2026-07-10-housinger-profile-design.md §6.2)
  *
  * GET  ?resource=housinger_reports
- *      — 通報あり (reportCount > 0) プロフィール一覧 (通報数が多い順に最大 50 件)
+ *      — 「通報あり (reportCount > 0)」 と 「強制非公開中 (isModerationHidden === true)」 の
+ *        和集合を uid で重複排除して返す (通報数が多い順に最大 50 件)。
+ *        2クエリ (それぞれ単一フィールド where) をメモリ内でマージするため複合インデックス不要。
+ *        強制非公開後に通報が全部却下され reportCount=0 になっても一覧から消えないようにする
+ *        (消えると /admin の復帰ボタンに二度と到達できず Firestore 直叩きでしか救済できなくなるため)。
  *      — 各プロフィールの reports サブコレクションも 20 件まで同梱 (reason/comment/createdAt)
  *      — reporterUid は管理者にも返さない (_housingReportsHandler.ts と同方針)
  * PATCH ?resource=housinger_reports&action=hide&uid=xxx
@@ -24,6 +28,38 @@ import { personalTagIdForUid } from '../../src/lib/housing/housingerProfile.js';
 
 const COLLECTION = 'housing_profiles';
 const LIST_LIMIT = 50;
+
+export interface ProfileRef {
+  uid: string;
+  reportCount: number;
+}
+
+/**
+ * 「通報あり」 クエリと 「強制非公開中」 クエリの結果 (軽量な { uid, reportCount } の配列) を
+ * uid で重複排除しつつ 1 本のリストにマージする純関数。
+ * ソートは reportCount 降順 (通報0件の強制非公開プロフィールは末尾寄りになるが必ず含まれる)。
+ * Firestore 側では複合インデックスが要る orderBy を使わないため、 ソートはここ (メモリ内) で行う。
+ */
+export function mergeReportedProfileRefs(
+  reportedDocs: ProfileRef[],
+  hiddenDocs: ProfileRef[],
+  limit: number,
+): ProfileRef[] {
+  const seen = new Set<string>();
+  const merged: ProfileRef[] = [];
+  for (const doc of reportedDocs) {
+    if (seen.has(doc.uid)) continue;
+    seen.add(doc.uid);
+    merged.push(doc);
+  }
+  for (const doc of hiddenDocs) {
+    if (seen.has(doc.uid)) continue;
+    seen.add(doc.uid);
+    merged.push(doc);
+  }
+  merged.sort((a, b) => b.reportCount - a.reportCount);
+  return merged.slice(0, limit);
+}
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -54,16 +90,37 @@ export default async function handler(req: any, res: any) {
     const db = getAdminFirestore();
 
     if (req.method === 'GET') {
-      const snap = await db.collection(COLLECTION)
-        .where('reportCount', '>', 0)
-        .orderBy('reportCount', 'desc')
-        .limit(LIST_LIMIT)
-        .get();
+      // 「通報あり」 と 「強制非公開中」 を別クエリで取得し (単一フィールド where のみ = 複合
+      // インデックス不要)、 uid で重複排除してマージする。 強制非公開後に通報が全部却下されて
+      // reportCount=0 になったプロフィールも一覧から消えず、 復帰ボタンに到達できるようにする。
+      const [reportedSnap, hiddenSnap] = await Promise.all([
+        db.collection(COLLECTION)
+          .where('reportCount', '>', 0)
+          .orderBy('reportCount', 'desc')
+          .limit(LIST_LIMIT)
+          .get(),
+        db.collection(COLLECTION)
+          .where('isModerationHidden', '==', true)
+          .limit(LIST_LIMIT)
+          .get(),
+      ]);
+
+      const docsByUid = new Map<string, (typeof reportedSnap.docs)[number]>();
+      for (const d of [...reportedSnap.docs, ...hiddenSnap.docs]) {
+        if (!docsByUid.has(d.id)) docsByUid.set(d.id, d);
+      }
+
+      const mergedRefs = mergeReportedProfileRefs(
+        reportedSnap.docs.map((d) => ({ uid: d.id, reportCount: d.data().reportCount ?? 0 })),
+        hiddenSnap.docs.map((d) => ({ uid: d.id, reportCount: d.data().reportCount ?? 0 })),
+        LIST_LIMIT,
+      );
 
       // 各プロフィールの reports サブコレクションを並列取得 (最新 20 件)。
       // reporterUid は API レスポンスに含めない (管理者 UI に出さない方針)。
       const profiles = await Promise.all(
-        snap.docs.map(async (d) => {
+        mergedRefs.map(async ({ uid }) => {
+          const d = docsByUid.get(uid)!;
           const data = d.data();
           const reportsSnap = await d.ref
             .collection('reports')
