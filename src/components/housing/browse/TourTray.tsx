@@ -5,6 +5,7 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { EphemeralAddPanel } from './EphemeralAddPanel';
 
 export interface TourTrayProps {
@@ -68,6 +69,9 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
             <li key={l.id} className="housing-tour-tray-item">
               <span className="housing-tour-tray-num">{i + 1}</span>
               <span className="housing-tour-tray-addr">{formatHousingAddress(l, i18n.language)}</span>
+              {isEphemeralListingId(l.id) && (
+                <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>
+              )}
               <button
                 type="button"
                 className="housing-tour-tray-remove"

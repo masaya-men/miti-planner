@@ -5102,6 +5102,18 @@ select.housing-input option {
 .housing-tour-tray-start:active:not(:disabled) { transform: scale(0.98); }
 .housing-tour-tray-start:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
 
+/* 一時 listing の「一時」バッジ (計画: 住所登録なし一時ツアー Task4)。
+   トレイ行 (TourTray) とショーケースのタイトル横 (TourShowcasePanel) で共用。
+   badge_private 系 (.housing-listing-card-mine-note) と同じ質感。 */
+.housing-ephemeral-badge {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-xs); color: var(--housing-text-dim);
+  background: var(--housing-chip-sunken-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 6px; padding: 2px 7px;
+  white-space: nowrap;
+}
+
 /* ============================================================
  * 「+ 住所から追加」 一時の家 追加パネル (計画: 住所登録なし一時ツアー Task3)
  * トレイ (TourTray) とツアー空状態 (TourEmptyState) の両方から使う。
@@ -5849,8 +5861,16 @@ select.housing-input option {
   gap: 8px;
   flex: 0 0 auto;
 }
+.housing-tour-dest-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
 .housing-tour-dest-title {
   margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
   font-size: var(--housing-text-md);
   font-weight: 700;
   color: var(--housing-text);

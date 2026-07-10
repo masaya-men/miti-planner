@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { TourLivingMedia } from './TourLivingMedia';
 
 export interface TourShowcasePanelProps {
@@ -32,9 +33,14 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
     <div className="housing-tour-dest">
       {listing && (
         <div className="housing-tour-dest-card">
-          <h2 className="housing-tour-dest-title">
-            {listing.title?.trim() || formatHousingAddress(listing, i18n.language)}
-          </h2>
+          <div className="housing-tour-dest-title-row">
+            <h2 className="housing-tour-dest-title">
+              {listing.title?.trim() || formatHousingAddress(listing, i18n.language)}
+            </h2>
+            {isEphemeralListingId(listing.id) && (
+              <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>
+            )}
+          </div>
 
           <TourLivingMedia listing={listing} />
 
