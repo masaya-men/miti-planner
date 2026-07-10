@@ -25,9 +25,9 @@ describe('getPlotDirections', () => {
     }
   });
 
-  // データ実態(2026-07-04): Goblet 拡張街(31-60)のみ行き方補足が未記入(空)。
-  // それ以外の 270 件は行き方本文あり。UI はエーテライトを常に出し、本文は空なら省く。
-  it('行き方本文は Goblet 拡張街(31-60)のみ空・他は全件あり', () => {
+  // 2026-07-10: Goblet 拡張街(31-60) の 30 件を追記し、全 300 区画に行き方本文が入った。
+  // (それまではここだけ空文字列で、ツアーの「行き方」が空欄になっていた)
+  it('行き方本文は全 300 区画にある', () => {
     const emptyDirections: string[] = [];
     for (const area of ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum']) {
       for (let p = 1; p <= 60; p++) {
@@ -35,8 +35,7 @@ describe('getPlotDirections', () => {
         if (d.directions.length === 0) emptyDirections.push(`${area}:${p}`);
       }
     }
-    const expected = Array.from({ length: 30 }, (_, i) => `Goblet:${i + 31}`);
-    expect(emptyDirections.sort()).toEqual(expected.sort());
+    expect(emptyDirections).toEqual([]);
   });
 
   it('plot 無し/範囲外/未知エリアは null', () => {
