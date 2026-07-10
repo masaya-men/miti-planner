@@ -2543,6 +2543,26 @@
             "deleteConfirmNo": "",
             "closeLabel": ""
         },
+        "housinger": {
+            "account": {
+                "title": "Housinger Profile",
+                "description": "Show your name and icon on your registered housing listings, and publish your page.",
+                "publish": "Publish as a Housinger",
+                "nameRequired": "Set a display name first",
+                "published": "Published",
+                "bioLabel": "Bio",
+                "bioPlaceholder": "e.g. I love S-shaped layouts. Tours welcome!",
+                "snsLabel": "SNS Link",
+                "snsPlaceholder": "https://x.com/... (X / YouTube / Lodestone)",
+                "snsInvalid": "Only https links to X, YouTube, or Lodestone are allowed.",
+                "save": "Save",
+                "unpublish": "Unpublish",
+                "unpublishConfirmTitle": "Unpublish your Housinger profile?",
+                "unpublishConfirmBody": "Your page and registrant display will become private. Your registered housing listings will not be deleted.",
+                "toastSaved": "Housinger profile saved.",
+                "toastError": "Failed to save. Please try again later."
+            }
+        },
         "topbar": {
             "login": "",
             "account": ""

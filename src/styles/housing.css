@@ -2578,6 +2578,43 @@ select.housing-input option {
     color: var(--housing-account-danger-text);
 }
 
+/* ===== ハウジンガー公開セクション (Task 6) ===== */
+.housing-account-housinger {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 16px;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    border-top: 1px solid var(--housing-account-divider);
+}
+.housing-account-housinger-title {
+    margin: 0;
+    font-size: var(--housing-text-base);
+    font-weight: 600;
+    color: var(--housing-text);
+}
+.housing-account-housinger-desc {
+    margin: 0;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+    line-height: 1.5;
+}
+.housing-account-housinger-status {
+    margin: 0;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-honey);
+}
+.housing-account-housinger-published {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.housing-account-housinger .housing-account-button {
+    margin-bottom: 0;
+}
+
 /* ============================================================
  * Phase 3: 編集 / 削除 / kebab メニュー (家主専用 UI)
  * ============================================================ */

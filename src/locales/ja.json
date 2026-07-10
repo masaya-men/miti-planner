@@ -2564,6 +2564,26 @@
             "deleteConfirmNo": "やめる",
             "closeLabel": "アカウント画面を閉じる"
         },
+        "housinger": {
+            "account": {
+                "title": "ハウジンガー公開",
+                "description": "名前とアイコンを登録ハウジングに表示し、あなたのページを公開します",
+                "publish": "ハウジンガーとして公開する",
+                "nameRequired": "先に表示名を設定してください",
+                "published": "公開中",
+                "bioLabel": "ひとこと",
+                "bioPlaceholder": "例: S字改築が好きです。見学歓迎!",
+                "snsLabel": "SNSリンク",
+                "snsPlaceholder": "https://x.com/... (X / YouTube / Lodestone)",
+                "snsInvalid": "X / YouTube / Lodestone の https リンクのみ設定できます",
+                "save": "保存",
+                "unpublish": "公開をやめる",
+                "unpublishConfirmTitle": "ハウジンガー公開をやめますか?",
+                "unpublishConfirmBody": "ページと登録者表示が非公開になります。登録したハウジングは消えません",
+                "toastSaved": "ハウジンガープロフィールを保存しました",
+                "toastError": "保存に失敗しました。時間をおいて再度お試しください"
+            }
+        },
         "topbar": {
             "login": "ログイン",
             "account": "アカウント"

@@ -2508,6 +2508,26 @@
             "deleteConfirmNo": "",
             "closeLabel": ""
         },
+        "housinger": {
+            "account": {
+                "title": "房主玩家公开",
+                "description": "在已登记的房屋上显示你的名字和头像, 公开你的主页",
+                "publish": "以房主玩家身份公开",
+                "nameRequired": "请先设置显示名称",
+                "published": "公开中",
+                "bioLabel": "一句话介绍",
+                "bioPlaceholder": "例: 喜欢S型改建, 欢迎参观!",
+                "snsLabel": "SNS链接",
+                "snsPlaceholder": "https://x.com/... (X / YouTube / Lodestone)",
+                "snsInvalid": "只能设置 X / YouTube / Lodestone 的 https 链接",
+                "save": "保存",
+                "unpublish": "取消公开",
+                "unpublishConfirmTitle": "确定要取消房主玩家公开吗?",
+                "unpublishConfirmBody": "页面和登记者显示将变为不公开。已登记的房屋不会被删除",
+                "toastSaved": "已保存房主玩家资料",
+                "toastError": "保存失败。请稍后重试"
+            }
+        },
         "topbar": {
             "login": "",
             "account": ""
