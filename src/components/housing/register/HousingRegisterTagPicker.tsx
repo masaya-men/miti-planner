@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   HOUSING_TAGS,
-  HOUSING_TAG_CATEGORIES,
-  type HousingTagCategory,
+  STATIC_HOUSING_TAG_KINDS,
+  type StaticHousingTagKind,
 } from '../../../data/housingTags';
 import { HOUSING_LIMITS } from '../../../constants/housing';
 
@@ -13,13 +13,14 @@ interface Props {
 }
 
 /**
- * カテゴリタブ + 検索 + 選択 chips のコンパクトピッカー。
- * 縦の高さを固定して、 147 タグでもモーダルが伸びないようにする。
+ * kind タブ (公式/季節/テーマ) + 検索 + 選択 chips のコンパクトピッカー。
+ * 2026-07-10 タグ体系刷新: 個人タグタブは Phase B (HousingPersonalTagPanel) で追加する。
+ * タブ列は STATIC_HOUSING_TAG_KINDS (レジストリ) から導出、 kind 名の switch 分岐は書かない。
  */
 export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }) => {
   const { t } = useTranslation();
   const isFull = selected.length >= HOUSING_LIMITS.MAX_TAGS_PER_LISTING;
-  const [activeCat, setActiveCat] = useState<HousingTagCategory>(HOUSING_TAG_CATEGORIES[0]);
+  const [activeKind, setActiveKind] = useState<StaticHousingTagKind>(STATIC_HOUSING_TAG_KINDS[0]);
   const [query, setQuery] = useState('');
 
   const toggle = (id: string) => {
@@ -30,7 +31,7 @@ export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }
     }
   };
 
-  // 検索中: 全カテゴリ横断、 マッチを翻訳済み表示名でフィルタ。 空クエリ: 選択カテゴリのみ。
+  // 検索中: 全 kind 横断、 マッチを翻訳済み表示名でフィルタ。 空クエリ: 選択 kind のみ。
   const visibleTags = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (q) {
@@ -39,8 +40,8 @@ export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }
         return tag.id.includes(q) || label.includes(q);
       });
     }
-    return HOUSING_TAGS.filter((tag) => tag.category === activeCat);
-  }, [query, activeCat, t]);
+    return HOUSING_TAGS.filter((tag) => tag.kind === activeKind);
+  }, [query, activeKind, t]);
 
   const selectedTagObjects = useMemo(
     () => selected.map((id) => HOUSING_TAGS.find((tag) => tag.id === id)).filter(Boolean) as typeof HOUSING_TAGS,
@@ -85,16 +86,16 @@ export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }
 
       {!query && (
         <div className="housing-tag-picker-tabs" role="tablist">
-          {HOUSING_TAG_CATEGORIES.map((cat) => (
+          {STATIC_HOUSING_TAG_KINDS.map((kind) => (
             <button
-              key={cat}
+              key={kind}
               role="tab"
               type="button"
-              aria-selected={activeCat === cat}
-              onClick={() => setActiveCat(cat)}
+              aria-selected={activeKind === kind}
+              onClick={() => setActiveKind(kind)}
               className="housing-tag-picker-tab"
             >
-              {t(`housing.register.tag_category.${cat}`)}
+              {t(`housing.register.tag_kind.${kind}`)}
             </button>
           ))}
         </div>

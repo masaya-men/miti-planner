@@ -32,6 +32,21 @@ export const HOUSING_LIMITS = {
 } as const;
 
 // ─────────────────────────────────────────────
+// タグ体系 (2026-07-10 刷新: 公式23 + 季節12 + テーマ12 + 個人タグ)
+// 計画書: docs/superpowers/plans/2026-07-10-housing-tag-overhaul-plan.md
+// ─────────────────────────────────────────────
+
+/** 個人タグ id の prefix。 静的タグ (official_ / season_ / theme_) と衝突しない専用 namespace。 */
+export const PERSONAL_TAG_ID_PREFIX = 'personal_' as const;
+
+/**
+ * 1 ユーザーが作成できる個人タグの上限。
+ * 表記揺れ・なりすまし防止のため 1 人 1 個 (設計判断・変更不可)。
+ * kind 増設に備え、 この制約自体も設定値として分離しておく (ハードコード分岐禁止)。
+ */
+export const PERSONAL_TAG_LIMIT_PER_USER = 1;
+
+// ─────────────────────────────────────────────
 // 通報・自浄作用（設計書 §9.3）
 // ─────────────────────────────────────────────
 
