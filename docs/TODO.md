@@ -26,6 +26,12 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
+### 🔴 次セッション最優先: 住所を「必ず確認させる」ゲート (要 brainstorming)
+ユーザー要望(2026-07-10 本番実機)=**「自動手動どちらにもかかわらず、かならず住所を確認させたい」**。
+調査済みメモ=`docs/.private/2026-07-10-address-confirmation-gate.md` を**先に読む**。
+要点: 送信ゲートは `validateAddress().ok` しか見ておらず「ユーザーが見たか」を問わない。`fieldState.confirm()` は**呼び出し元ゼロで到達不能**(緑の確認済み状態が一度も出ない)。`isReadyToSubmit` のコメントにある「auto-filled は信頼して通す」という当時の判断を、今回ひっくり返すことになる。
+同時に片付けたい: `HousingRegisterAddressFields.tsx` / `HousingRegisterParentHouseSizeField.tsx` は**死にコード**(撤去すれば孤児キー `address.expansionWardNote` も消せる) / 部屋区分の chip が建物タイプと同じキーを使うため「家」が2か所に出る。
+
 - **🆕🏠 ハウジング登録UI 連続修正 本番反映済 (main `087d81bc`・2026-07-10)**。詳細/引き継ぎ=`docs/.private/2026-07-10-housing-small-fixes.md`。
   済=こまごま7件(#1-#7)/タイトル任意化/コメント文言/ツアー動くマップ/住所自動入力の誤検出2件/チェックパネルのキー衝突バグ/重複の赤化/ハニー主アクション統一(.housing-btn-primary をグラデ+影の正典へ)/ログイン案内のトンマナ化+中央寄せ/「登録の流れ」を右カラムへ移設/地図の全周ヴィネット。
 - **🆕📐 plot→size 表と住所抽出v2** (詳細=`docs/.private/2026-07-10-plot-size-table-and-address-v2.md`)
@@ -35,6 +41,7 @@
   - **✅ 住所誤爆を辞書側で根治** (commit `28cb3e94`)。原因は `masterData.ts` の DC/鯖 alias に「4文字未満のASCII略称」が63件 (`Man`/`Had`/`Ex`…、うち31件が英単語と衝突。`Mat` は Mateus鯖 と Materia DC の両方に登録され自己矛盾) 入っていたこと。**パーサは表記ゆれデータしか見ていない。汚れていたのは辞書**。→ 63件削除 + `masterDataAliases.test.ts` で再登録を機械的に禁止 → 文脈ゲート/質フィルタ/`opts` 引数を全撤去 (パーサ 95行減)。エリアの `Gob`→Goblet 等は実在するので残す。
   - **✅ Firestore `/master/servers` を同期済** (2026-07-10・`npx tsx scripts/seed-servers.ts`)。⚠ 発見: **住所抽出は静的 `masterData.ts` を直 import、他画面は Firestore (`useServerData`)** の二重系。`/admin` の alias 編集は住所抽出に**反映されない**。同期前の Firestore は `housingAreas` が旧 `name_jp` 形式で、`AdminServers.tsx` の `area.name[lang]` と噛み合っていなかった (= /admin サーバー画面が壊れていた)。
   - **✅ ゴブレット拡張街 (plot 31-60) の行き方 30件を追加**。これで全300区画に行き方が入った。**📌 Google スプレッドシートは引退。`src/data/housing/directions-src/*.csv` が唯一の正典** (2026-07-10 ユーザー確定。スプシには修正前の誤記が残るので再エクスポート禁止)。直すときは CSV を編集 → `node scripts/parse-ward-directions.mjs`。データの正しさは 2 本のテストが機械的に守る (本文の S/M/L が区画の実サイズと一致 / エーテライト名が実際に地図上に存在)。
+  - **✅ 本番実機OK (ユーザー確認済)**: housingsnap URL → Shirogane 21区58番地 Mハウスが正しく入る。あわせて文言2件を削除 (「家 (S/M/L)」の括弧 / 「31 以上は拡張街です」注記・commit `dd348e01`)。
   - **🟡 既知の限界 (低優先)**: `extractHousingAddressFromPage` の候補上限 400 で、本文が **134 行を超える**ページから隣接3行窓が切り捨てられる。通常は本文全体の候補が安全網になるが、長文にDC/サーバー語が散ると安全網も `ambiguity` で沈む。実運用 (housingsnap の数行) では顕在化しない。
 - **💰 Firebaseコスト対策**: ①App Check TTL 7日 ✅ / ④`/api/popular` `.select()` 射影 ✅ (`a451791c`)。**②reCAPTCHA v3切替=保留 → 2026-07-12 09:00 に自動フォローで効果測定→提案**。詳細=memory [[project_firebase_cost_reduction]]。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
