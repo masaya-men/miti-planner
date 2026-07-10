@@ -606,123 +606,123 @@
     },
     "31": {
       "aetheryte": "[拡張街]ゴブレット市場（居住区担当官）",
-      "directions": ""
+      "directions": "北に階段を上ってすぐのＳハウス"
     },
     "32": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": ""
+      "directions": "南東呼び鈴の方に進んで最後のＳハウス"
     },
     "33": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": ""
+      "directions": "南東呼び鈴の方に進んで最初のＳハウス"
     },
     "34": {
       "aetheryte": "[拡張街]ゴブレット市場（居住区担当官）",
-      "directions": ""
+      "directions": "北に階段を上って2軒目にあるＭハウス"
     },
     "35": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": ""
+      "directions": "東のＬハウス"
     },
     "36": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": ""
+      "directions": "南東呼び鈴の方に進んで飛び降りられそうなとこでジャンプするMハウス"
     },
     "37": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": ""
+      "directions": "南のＳハウス"
     },
     "38": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": ""
+      "directions": "西のＭハウス"
     },
     "39": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": ""
+      "directions": "北のＳハウス"
     },
     "40": {
       "aetheryte": "[拡張街]ナナモ大風車",
-      "directions": ""
+      "directions": "北東の突き当りのＳハウス（突き当たってないけど）"
     },
     "41": {
       "aetheryte": "[拡張街]ナナモ大風車",
-      "directions": ""
+      "directions": "北東の左のＭハウス"
     },
     "42": {
       "aetheryte": "[拡張街]ナナモ大風車",
-      "directions": ""
+      "directions": "北東の右のＭハウス"
     },
     "43": {
       "aetheryte": "[拡張街]ナナモ大風車",
-      "directions": ""
+      "directions": "南東の右のＬハウス"
     },
     "44": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": ""
+      "directions": "東の階段をぐるっと左に行ったＳハウス"
     },
     "45": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": ""
+      "directions": "東の階段を２つ登ったＳハウス"
     },
     "46": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": ""
+      "directions": "南西の道を渡って左へ行き階段を２つ登った左のＳハウス"
     },
     "47": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": ""
+      "directions": "南西の道を渡って左へ行き階段を登った右のＳハウス"
     },
     "48": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": ""
+      "directions": "南西の道を渡って左前に見えるＳハウス"
     },
     "49": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": ""
+      "directions": "南西の道を渡って右前に見えるＭハウス"
     },
     "50": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": ""
+      "directions": "西のＳハウス"
     },
     "51": {
       "aetheryte": "[拡張街]ゴブレットビュート南東",
-      "directions": ""
+      "directions": "北の坂道を登った先のＳハウス（階段じゃない）"
     },
     "52": {
       "aetheryte": "[拡張街]ゴブレットビュート南",
-      "directions": ""
+      "directions": "西の階段を上り右に見える大きい階段を上ったあと左に曲がって階段を上ったＳハウス"
     },
     "53": {
       "aetheryte": "[拡張街]ゴブレットビュート南東",
-      "directions": ""
+      "directions": "北西の細い階段を上った先のＳハウス"
     },
     "54": {
       "aetheryte": "[拡張街]ゴブレットビュート南",
-      "directions": ""
+      "directions": "すぐそこのＳハウス"
     },
     "55": {
       "aetheryte": "[拡張街]ゴブレットビュート南",
-      "directions": ""
+      "directions": "階段を上ってちょっと下ったＭハウス"
     },
     "56": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": ""
+      "directions": "東に階段を上って左にＵターンしたＳハウス"
     },
     "57": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": ""
+      "directions": "北西のＳハウス"
     },
     "58": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": ""
+      "directions": "北に進んだＳハウス"
     },
     "59": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": ""
+      "directions": "階段を下った先のＳハウス"
     },
     "60": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": ""
+      "directions": "階段を下った先のＬハウス"
     }
   },
   "Shirogane": {
