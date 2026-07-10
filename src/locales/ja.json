@@ -1974,6 +1974,27 @@
             "sort_newest": "新着順",
             "sort_oldest": "古い順"
         },
+        "map": {
+            "gate": {
+                "title": "あなたのワールドは?",
+                "description": "地図はワールドごとに表示します",
+                "dc_label": "データセンター",
+                "world_label": "ワールド"
+            },
+            "empty_world": "このワールドにはまだ登録がありません",
+            "back_to_list": "一覧に戻る",
+            "load_error": "地図を読み込めませんでした",
+            "ward_label": "{{ward}}区",
+            "ward_count": "{{ward}}区 ({{count}}件)",
+            "main_tab": "本街",
+            "sub_tab": "拡張街",
+            "tab_count": "{{label}} ({{count}})",
+            "prev_ward": "前の区へ",
+            "next_ward": "次の区へ",
+            "spot_more": "この場所の家 {{index}}/{{total}}",
+            "plot_label": "{{plot}}番地",
+            "apartment_label": "アパート"
+        },
         "tabs": {
             "aria": "ハウジングのページ切替",
             "search": "探す",

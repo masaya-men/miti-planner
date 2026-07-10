@@ -1918,6 +1918,27 @@
             "sort_newest": "最新",
             "sort_oldest": "最早"
         },
+        "map": {
+            "gate": {
+                "title": "你的世界是?",
+                "description": "地图按世界显示",
+                "dc_label": "数据中心",
+                "world_label": "世界"
+            },
+            "empty_world": "这个世界还没有登记的房屋",
+            "back_to_list": "返回列表",
+            "load_error": "无法加载地图",
+            "ward_label": "{{ward}}区",
+            "ward_count": "{{ward}}区 ({{count}}件)",
+            "main_tab": "本区",
+            "sub_tab": "扩展区",
+            "tab_count": "{{label}} ({{count}})",
+            "prev_ward": "上一区",
+            "next_ward": "下一区",
+            "spot_more": "此处房屋 {{index}}/{{total}}",
+            "plot_label": "{{plot}}号地",
+            "apartment_label": "公寓"
+        },
         "tabs": {
             "aria": "housing 页面",
             "search": "搜索",

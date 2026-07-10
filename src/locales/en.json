@@ -1953,6 +1953,27 @@
             "sort_newest": "Newest",
             "sort_oldest": "Oldest"
         },
+        "map": {
+            "gate": {
+                "title": "What's your World?",
+                "description": "The map is shown per World",
+                "dc_label": "Data Center",
+                "world_label": "World"
+            },
+            "empty_world": "No listings on this World yet",
+            "back_to_list": "Back to list",
+            "load_error": "Couldn't load the map",
+            "ward_label": "Ward {{ward}}",
+            "ward_count": "Ward {{ward}} ({{count}})",
+            "main_tab": "Main District",
+            "sub_tab": "Subdivision",
+            "tab_count": "{{label}} ({{count}})",
+            "prev_ward": "Previous ward",
+            "next_ward": "Next ward",
+            "spot_more": "Houses here {{index}}/{{total}}",
+            "plot_label": "Plot {{plot}}",
+            "apartment_label": "Apartment"
+        },
         "tabs": {
             "aria": "Housing pages",
             "search": "Search",
