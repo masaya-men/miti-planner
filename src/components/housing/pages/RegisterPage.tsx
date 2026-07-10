@@ -198,6 +198,23 @@ function visibleStepIds(mode: 'create' | 'edit'): StepId[] {
 const TYPING_STAGGER_MS = 150;
 
 /**
+ * 住所確認ゲート (C案・2026-07-10) の確認ボタン押下時に `fieldState.confirm()` を呼ぶ対象フィールド。
+ * 値が入っているものだけ確認状態にする (未入力フィールドを確認扱いにしない)。
+ */
+const ADDRESS_FIELD_NAMES = [
+  'dc',
+  'server',
+  'area',
+  'ward',
+  'buildingType',
+  'plot',
+  'size',
+  'apartmentBuilding',
+  'roomKind',
+  'roomNumber',
+] as const;
+
+/**
  * buildingType/roomKind に応じた必須フィールド。
  * - house (家全体)              : dc/server/area/ward/buildingType/plot/size
  * - house + private_chamber     : 上記 + roomNumber (FC 個室)
@@ -283,6 +300,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   }, [address]);
   const requiredFields = requiredFieldsForAddress(address.buildingType, address.roomKind);
   const fieldState = useHousingFieldState(requiredFields);
+  /**
+   * 住所確認ゲート (C案・2026-07-10)。フォーム値から組み立てた住所文を確認セクションに提示し、
+   * 「この住所で間違いありません」ボタンを押すまで送信ボタンを無効にする (registerChecklist の
+   * address 行に反映)。mode='edit' は住所欄に触れなければ従来どおり保存できるよう、初期状態を
+   * 確認済み扱いにする (編集モード = (b))。
+   * 解除するのは「住所を実際に変えた」とみなせる箇所のみ (手編集 / SNS 自動入力 / オートセーブ復元)。
+   * size の自動導出 (区画由来・別 effect) では解除しない。
+   */
+  const [addressConfirmed, setAddressConfirmed] = useState(() => mode === 'edit');
 
   const [title, setTitle] = useState(() => initialValues?.title ?? '');
   const [description, setDescription] = useState(() => initialValues?.description ?? '');
@@ -330,7 +356,22 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     restoreRefetchGuardRef.current = false;
     setAddress((prev) => ({ ...prev, [name]: value }));
     fieldState.userEdit(name, value);
+    // 住所確認ゲート: 手編集は「住所が変わった」とみなし確認を解除する。
+    setAddressConfirmed(false);
   };
+
+  /**
+   * 住所確認ゲートの確認ボタン押下ハンドラ (Task1-1)。値が入っている住所系フィールドを
+   * まとめて `fieldState.confirm()` し、初めて 'confirmed' (緑) 表示に到達させる。
+   */
+  const handleConfirmAddress = useCallback(() => {
+    setAddressConfirmed(true);
+    for (const name of ADDRESS_FIELD_NAMES) {
+      if ((address as Record<string, unknown>)[name] !== undefined) {
+        fieldState.confirm(name);
+      }
+    }
+  }, [address, fieldState]);
 
   /**
    * size は (エリア × 区画) から一意に決まるので、**この effect が size の唯一の書き込み口**。
@@ -453,6 +494,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         }
         setAddress((prev) => ({ ...prev, [name]: value }));
         fieldState.setAutoFilled(name, value);
+        // 住所確認ゲート: SNS 自動入力も「住所が変わった」とみなし確認を解除する。
+        setAddressConfirmed(false);
       };
 
       const reduce =
@@ -582,6 +625,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   // 最下部到達時に最終ステップ (confirm) を active にする (#7)。IO の active 帯 (top 40%) は
   // 最後のセクションが下端で止まると届かず、確認ステップまで highlight が降りてこないため、
   // scroll で最下部を検知して補う。スクロール不能な短い内容では発火させない (先頭を保つ)。
+  //
+  // 同じ scroll ハンドラで左パネルの接続線塗り進行度 (0..1・Task2) も更新する。progress の
+  // 読み取り/計算だけ rAF スロットルし (連続 scroll イベントを 1 フレームに間引く)、
+  // atBottom/activeStepId の既存ロジックは同期のまま (挙動不変)。
+  const [stepperProgress, setStepperProgress] = useState(0);
+  const progressRafRef = useRef<number | null>(null);
   useEffect(() => {
     const root = scrollContainerRef.current;
     if (!root) return;
@@ -593,10 +642,25 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         const last = effectiveStepIds[effectiveStepIds.length - 1];
         setActiveStepId((prev) => (prev === last ? prev : last));
       }
+      if (progressRafRef.current != null) return;
+      progressRafRef.current = window.requestAnimationFrame(() => {
+        progressRafRef.current = null;
+        const r = scrollContainerRef.current;
+        if (!r) return;
+        const max = r.scrollHeight - r.clientHeight;
+        const ratio = max > 0 ? r.scrollTop / max : 0;
+        setStepperProgress(Math.min(1, Math.max(0, ratio)));
+      });
     };
     onScroll();
     root.addEventListener('scroll', onScroll, { passive: true });
-    return () => root.removeEventListener('scroll', onScroll);
+    return () => {
+      root.removeEventListener('scroll', onScroll);
+      if (progressRafRef.current != null) {
+        window.cancelAnimationFrame(progressRafRef.current);
+        progressRafRef.current = null;
+      }
+    };
   }, [user, effectiveStepIds]);
 
   const handleJumpToStep = useCallback((id: number) => {
@@ -634,8 +698,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   const addressOk = useMemo(() => validateAddress(addressCandidate).ok, [addressCandidate]);
   const titleOk = useMemo(() => validateTitle(title).ok, [title]);
   const checklistItems = useMemo(
-    () => computeRegisterChecklist({ addressOk, titleOk, hasImage }),
-    [addressOk, titleOk, hasImage],
+    () => computeRegisterChecklist({ addressOk, addressConfirmed, titleOk, hasImage }),
+    [addressOk, addressConfirmed, titleOk, hasImage],
   );
   // 公開可否 = 必須行 (住所/タイトル) が全て done か。画像 (推奨) は見ない。
   const canSubmit = useMemo(() => isReadyToPublish(checklistItems), [checklistItems]);
@@ -1067,6 +1131,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     setIfDefined('roomNumber', restored.roomNumber);
     if (Object.keys(addressPatch).length > 0) {
       setAddress((prev) => ({ ...prev, ...addressPatch }));
+      // 住所確認ゲート: 復元値は未確認として扱う (spec:1-1)。
+      setAddressConfirmed(false);
     }
 
     // 何か 1 つでも復元したら通知 + 破棄ボタンを出す。
@@ -1138,7 +1204,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       <section className="housing-register-panel" data-region="left">
         <div className="housing-register-col housing-register-col-left">
           <div className="housing-register-left-scroll">
-            <RegisterStepperNav steps={steps} onJump={handleJumpToStep} />
+            <RegisterStepperNav steps={steps} onJump={handleJumpToStep} progress={stepperProgress} />
           </div>
           {remaining != null && (
             <p
@@ -1234,6 +1300,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                 errorKey={submitErrorKey}
                 onSubmit={handleSubmit}
                 checklistItems={checklistItems}
+                addressConfirmed={addressConfirmed}
+                onConfirmAddress={handleConfirmAddress}
               />
             </div>
           </div>

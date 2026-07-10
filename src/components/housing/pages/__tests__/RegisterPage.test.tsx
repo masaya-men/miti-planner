@@ -87,6 +87,10 @@ describe('RegisterPage', () => {
     useAuthStore.setState({ user: null, loading: false });
     updateMock.mockReset();
     navigateMock.mockReset();
+    // オートセーブ復元テストが assertion 失敗で早期リターンすると、末尾の
+    // removeItem に届かず後続テストへ localStorage が漏れる (実際に踏んだ事故)。
+    // beforeEach で毎回クリアし、テスト間の独立性を保証する。
+    window.localStorage.removeItem(AUTOSAVE_KEY);
   });
 
   it('未ログインならログイン案内を出す', () => {
@@ -233,6 +237,11 @@ describe('RegisterPage', () => {
     // mode 省略 = create (既定)。
     renderPage({ onSaved });
 
+    // 住所確認ゲート (C案・2026-07-10): オートセーブ復元の住所は未確認扱いのため、
+    // 送信可能になる前に確認ボタンを押す必要がある。
+    const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+    fireEvent.click(addressGateBtn);
+
     const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
     await waitFor(() => expect(submitBtn).not.toBeDisabled());
     fireEvent.click(submitBtn);
@@ -342,24 +351,26 @@ describe('RegisterPage', () => {
 
   /**
    * size は (エリア × 区画) から一意に決まるので手入力させない (2026-07-10)。
-   * RegisterPage の導出 effect が唯一の書き込み口で、UI 側の select は disabled。
+   * RegisterPage の導出 effect が唯一の書き込み口で、UI 側は読み取り専用表示 (Task3-1: 旧
+   * disabled <select> はドロップダウン矢印が見えてしまうため disabled <input> に置換済み)。
+   * 表示は housingSizeMasterData のラベル (例 'L' → 'Lハウス')。
    * 参照表 = src/data/housing/wardPlotSizes.ts (LavenderBeds: plot1=M / plot3=L / plot29=S)。
    */
   describe('size は区画から自動導出され手入力できない', () => {
-    const sizeSelect = (container: HTMLElement) =>
-      container.querySelector('#housing-register-size') as HTMLSelectElement;
+    const sizeField = (container: HTMLElement) =>
+      container.querySelector('#housing-register-size') as HTMLInputElement;
 
-    it('size の select は disabled (手入力を受け付けない)', () => {
+    it('size 欄は disabled (手入力を受け付けない読み取り専用表示)', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
-      expect(sizeSelect(container).disabled).toBe(true);
+      expect(sizeField(container).disabled).toBe(true);
     });
 
     it('mode=edit のプリフィルで区画由来の size が入り、auto-filled バッジが出る', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       // LavenderBeds plot 3 = L (listing の size も L で一致)
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
-      expect(sizeSelect(container).value).toBe('L');
+      expect(sizeField(container).value).toBe('Lハウス');
       // fieldState が 'auto-filled' でないと requiredFields('size') が empty のまま送信できない
       expect(screen.getByTestId('housing-auto-badge-size')).toBeInTheDocument();
     });
@@ -369,7 +380,7 @@ describe('RegisterPage', () => {
       // LavenderBeds plot 29 の実サイズは S。listing には誤った 'L' が入っている。
       const wrong = { ...EDITABLE_LISTING, plot: 29, size: 'L' } as unknown as HousingListing;
       const { container } = renderPage({ mode: 'edit', initialValues: wrong });
-      expect(sizeSelect(container).value).toBe('S');
+      expect(sizeField(container).value).toBe('Sハウス');
     });
 
     it('mode=create で エリアと区画を入れると size が自動で入る', () => {
@@ -378,35 +389,128 @@ describe('RegisterPage', () => {
 
       // 区画だけではエリアが決まらないので size は空のまま
       fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '1' } });
-      expect(sizeSelect(container).value).toBe('');
+      expect(sizeField(container).value).toBe('');
 
       // エリアが入った瞬間に導出される (LavenderBeds plot 1 = M)
       fireEvent.change(container.querySelector('#housing-register-area')!, {
         target: { value: 'LavenderBeds' },
       });
-      expect(sizeSelect(container).value).toBe('M');
+      expect(sizeField(container).value).toBe('Mハウス');
 
       // 区画を変えれば追従する (plot 3 = L)
       fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '3' } });
-      expect(sizeSelect(container).value).toBe('L');
+      expect(sizeField(container).value).toBe('Lハウス');
     });
 
     it('区画が範囲外なら size は空に戻る (古い値が残らない)', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
-      expect(sizeSelect(container).value).toBe('L');
+      expect(sizeField(container).value).toBe('Lハウス');
 
       fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '61' } });
-      expect(sizeSelect(container).value).toBe('');
+      expect(sizeField(container).value).toBe('');
     });
 
     it('アパートに切り替えると size 欄ごと消える (apartment は size を持てない)', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
-      expect(sizeSelect(container)).not.toBeNull();
+      expect(sizeField(container)).not.toBeNull();
 
       fireEvent.click(screen.getByRole('radio', { name: 'アパート' }));
-      expect(sizeSelect(container)).toBeNull();
+      expect(sizeField(container)).toBeNull();
+    });
+  });
+
+  // Task1: 住所確認ゲート (C案・2026-07-10)。フォーム値から組み立てた住所文を確認セクションに
+  // 提示し、「この住所で間違いありません」を押すまで送信できない。
+  describe('住所確認ゲート (C案・2026-07-10)', () => {
+    // buildingType の「家」チップと roomKind (家全体) チップが同じラベルを共有しているため
+    // (Task3 で解消予定)、role=radiogroup の先頭 (buildingType) を明示的に絞って操作する。
+    const clickHouseChip = (container: HTMLElement) => {
+      const radiogroups = container.querySelectorAll('[role="radiogroup"]');
+      fireEvent.click(within(radiogroups[0] as HTMLElement).getByRole('radio', { name: '家' }));
+    };
+
+    const fillValidAddress = (container: HTMLElement) => {
+      clickHouseChip(container);
+      fireEvent.change(container.querySelector('#housing-register-dc')!, { target: { value: 'Meteor' } });
+      fireEvent.change(container.querySelector('#housing-register-server')!, { target: { value: 'Ramuh' } });
+      fireEvent.change(container.querySelector('#housing-register-area')!, {
+        target: { value: 'LavenderBeds' },
+      });
+      fireEvent.change(container.querySelector('#housing-register-ward')!, { target: { value: '29' } });
+      fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '3' } });
+    };
+
+    it('mode=create: 住所が妥当でも確認ボタンを押すまで送信不可・不足アクションに出る', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { container } = renderPage();
+      fillValidAddress(container);
+
+      const submitBtn = screen.getByTestId('housing-register-confirm-submit');
+      expect(submitBtn).toBeDisabled();
+      expect(screen.getByTestId('housing-register-confirm-missing-address')).toHaveTextContent(
+        '住所を確認してください',
+      );
+
+      fireEvent.click(screen.getByTestId('housing-register-confirm-address-btn'));
+
+      expect(submitBtn).not.toBeDisabled();
+      expect(screen.queryByTestId('housing-register-confirm-missing-address')).not.toBeInTheDocument();
+    });
+
+    it('確認後に住所フィールド (どれでも) を変更すると確認が解除される', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { container } = renderPage();
+      fillValidAddress(container);
+      fireEvent.click(screen.getByTestId('housing-register-confirm-address-btn'));
+
+      const submitBtn = screen.getByTestId('housing-register-confirm-submit');
+      expect(submitBtn).not.toBeDisabled();
+
+      fireEvent.change(container.querySelector('#housing-register-ward')!, { target: { value: '5' } });
+
+      expect(submitBtn).toBeDisabled();
+      expect(screen.getByTestId('housing-register-confirm-address-btn')).not.toBeDisabled();
+    });
+
+    it('mode=edit: 住所に触れなければ初期状態から確認済み扱い (送信可)', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+
+      expect(screen.getByTestId('housing-register-confirm-submit')).not.toBeDisabled();
+      const gateBtn = screen.getByTestId('housing-register-confirm-address-btn');
+      expect(gateBtn).toBeDisabled();
+      expect(gateBtn).toHaveAttribute('data-confirmed', 'true');
+    });
+
+    it('mode=edit: 住所を変更すると再確認が必要になり、再確認すれば送信可に戻る', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+
+      const submitBtn = screen.getByTestId('housing-register-confirm-submit');
+      expect(submitBtn).not.toBeDisabled();
+
+      fireEvent.change(container.querySelector('#housing-register-ward')!, { target: { value: '5' } });
+      expect(submitBtn).toBeDisabled();
+
+      fireEvent.click(screen.getByTestId('housing-register-confirm-address-btn'));
+      expect(submitBtn).not.toBeDisabled();
+    });
+
+    it('size の自動導出 (区画由来の食い違い訂正) だけでは確認は解除されない', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      // LavenderBeds plot 29 の実サイズは S。listing には誤った 'L' が入っている
+      // (「size は区画から自動導出され手入力できない」テストと同じフィクスチャ)。
+      // 導出 effect が size を書き換えるが、住所変更とはみなさず確認は解除されない。
+      const wrong = { ...EDITABLE_LISTING, plot: 29, size: 'L' } as unknown as HousingListing;
+      renderPage({ mode: 'edit', initialValues: wrong });
+
+      expect(screen.getByTestId('housing-register-confirm-submit')).not.toBeDisabled();
+      expect(screen.getByTestId('housing-register-confirm-address-btn')).toHaveAttribute(
+        'data-confirmed',
+        'true',
+      );
     });
   });
 });

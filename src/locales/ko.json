@@ -1926,7 +1926,7 @@
             "address_verify_note": "자동 입력된 주소도 등록 전에 반드시 확인해 주세요",
             "section_media": "이미지・SNS URL",
             "field_title_label": "제목",
-            "field_title_placeholder": "우리 집 이름을 입력하세요",
+            "field_title_placeholder": "제목을 입력하세요",
             "field_title_optional_hint": "입력하지 않으면 주소가 표시됩니다",
             "field_title_remaining": "남은 글자수 {{count}}자",
             "dc": "데이터 센터",
@@ -1938,6 +1938,7 @@
             "apartment_room": "방 번호",
             "room_kind": {
                 "label": "방 구분",
+                "whole_house": "집 전체",
                 "private_chamber": "FC 개인실",
                 "apartment_room": "아파트 방"
             },
@@ -2105,9 +2106,6 @@
                 "roomNumberApartmentOutOfRange": "방 번호는 1-90 사이로 입력해 주세요",
                 "roomNumberPrivateOutOfRange": "개인실 번호는 1-512 사이로 입력해 주세요"
             },
-            "address": {
-                "expansionWardNote": "31 이상은 확장 구역입니다"
-            },
             "type": {
                 "S": "소형 하우스",
                 "M": "중형 하우스",
@@ -2121,6 +2119,9 @@
                 "submit": "확정하여 등록",
                 "cancel": "뒤로",
                 "section_title": "확인",
+                "address_gate_lead": "이 주소로 등록합니다",
+                "address_gate_button": "이 주소가 맞습니다",
+                "address_gate_confirmed": "확인 완료",
                 "publish": "공개하기",
                 "save_private": "비공개로 저장하기",
                 "summary_missing": "미입력",
@@ -2141,6 +2142,13 @@
                 "intro": "코멘트",
                 "visibility": "공개 설정",
                 "confirm": "확인"
+            },
+            "step_desc": {
+                "media": "X (Twitter)나 Housing Snap URL을 붙여넣으면 사진과 주소를 자동으로 가져옵니다",
+                "address": "자동 입력이든 직접 입력이든, 등록 전에 반드시 주소를 확인합니다",
+                "intro": "제목은 선택 사항입니다. 입력하지 않으면 목록에는 주소가 표시됩니다",
+                "visibility": "공개・비공개와 공개 기간을 선택할 수 있습니다",
+                "confirm": "입력한 내용을 한눈에 확인하고 등록합니다"
             },
             "stepper_aria_label": "등록 단계",
             "section_visibility": "공개 설정",
@@ -2176,6 +2184,7 @@
                 "row_title": "제목 (선택)",
                 "row_image": "이미지 (권장)",
                 "missing_address": "주소를 입력해 주세요",
+                "missing_address_confirm": "주소를 확인해 주세요",
                 "missing_title": "제목을 입력해 주세요",
                 "missing_image": "이미지를 추가해 주세요"
             },

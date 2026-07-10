@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { serverMasterData, housingSizeMasterData } from '../../../data/masterData';
-import { HOUSING_AREAS, HOUSING_SIZES, type HousingArea, type HousingSize } from '../../../types/housing';
+import { HOUSING_AREAS, type HousingArea, type HousingSize } from '../../../types/housing';
 import { WARD_RANGE, PLOT_RANGE, APARTMENT_ROOM_RANGE, PRIVATE_CHAMBER_RANGE } from '../../../constants/housing';
 import { getAreaName } from '../../../lib/housing/areaName';
 import type { useHousingFieldState } from '../../../lib/housing/housingFieldState';
@@ -196,19 +196,17 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               <label htmlFor="housing-register-size" className="housing-label">
                 {t('housing.register.size')}
               </label>
-              <select
+              {/* 区画から自動導出される読み取り専用値 (Task3-1)。旧 disabled <select> は
+                  「選べそうに見えるが選べない」ドロップダウン矢印が出てしまうため、
+                  導出値をそのまま表示する読み取り専用フィールドに置き換える。 */}
+              <input
                 id="housing-register-size"
                 className="housing-input"
-                value={size ?? ''}
+                type="text"
+                value={size ? (housingSizeMasterData.find((m) => m.id === size)?.label ?? size) : ''}
                 disabled
-                onChange={(e) => onChange('size', e.target.value || undefined)}
-              >
-                <option value="">—</option>
-                {HOUSING_SIZES.map((s) => {
-                  const label = housingSizeMasterData.find((m) => m.id === s)?.label ?? s;
-                  return <option key={s} value={s}>{label}</option>;
-                })}
-              </select>
+                readOnly
+              />
               {renderBadge('size')}
             </div>
 
@@ -226,7 +224,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
                     onChange('roomNumber', undefined);
                   }}
                 >
-                  {t('housing.register.building_type.house')}
+                  {t('housing.register.room_kind.whole_house')}
                 </button>
                 <button
                   type="button"

@@ -1982,8 +1982,8 @@
             "address_verify_note": "自動入力された住所も、登録前に必ず確認してください",
             "section_media": "画像・SNS URL",
             "field_title_label": "タイトル",
-            "field_title_placeholder": "わが家の名前を入力",
-            "field_title_optional_hint": "未入力なら住所が表示されます",
+            "field_title_placeholder": "タイトルを入力",
+            "field_title_optional_hint": "未入力の場合、住所が表示されます",
             "field_title_remaining": "残り {{count}} 文字",
             "dc": "データセンター",
             "server": "サーバー",
@@ -1994,6 +1994,7 @@
             "apartment_room": "部屋番号",
             "room_kind": {
                 "label": "部屋区分",
+                "whole_house": "家全体",
                 "private_chamber": "FC 個室",
                 "apartment_room": "アパート部屋"
             },
@@ -2161,9 +2162,6 @@
                 "roomNumberApartmentOutOfRange": "部屋番号は 1-90 で入力してください",
                 "roomNumberPrivateOutOfRange": "個室番号は 1-512 で入力してください"
             },
-            "address": {
-                "expansionWardNote": "31 以上は拡張街です"
-            },
             "type": {
                 "S": "Sハウス",
                 "M": "Mハウス",
@@ -2177,6 +2175,9 @@
                 "submit": "確定して登録",
                 "cancel": "戻る",
                 "section_title": "確認",
+                "address_gate_lead": "この住所で登録します",
+                "address_gate_button": "この住所で間違いありません",
+                "address_gate_confirmed": "確認済み",
                 "publish": "公開する",
                 "save_private": "非公開で保存する",
                 "summary_missing": "未入力",
@@ -2197,6 +2198,13 @@
                 "intro": "コメント",
                 "visibility": "公開設定",
                 "confirm": "確認"
+            },
+            "step_desc": {
+                "media": "X (Twitter) やハウジングスナップの URL を貼ると、写真と住所を自動で取り込みます",
+                "address": "自動入力でも手入力でも、登録前に必ず住所を確認します",
+                "intro": "タイトルは任意です。未入力の場合、一覧には住所が表示されます",
+                "visibility": "公開・非公開と、公開期限を選べます",
+                "confirm": "入力内容をまとめて確認し、登録します"
             },
             "stepper_aria_label": "登録ステップ",
             "section_visibility": "公開設定",
@@ -2232,6 +2240,7 @@
                 "row_title": "タイトル (任意)",
                 "row_image": "画像 (推奨)",
                 "missing_address": "住所を入力してください",
+                "missing_address_confirm": "住所を確認してください",
                 "missing_title": "タイトルを入力してください",
                 "missing_image": "画像を追加してください"
             },

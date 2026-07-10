@@ -1961,7 +1961,7 @@
             "address_verify_note": "Please double-check the address before registering, even if it was auto-filled",
             "section_media": "Images & SNS URL",
             "field_title_label": "Title",
-            "field_title_placeholder": "Enter your housing name",
+            "field_title_placeholder": "Enter a title",
             "field_title_optional_hint": "If left blank, the address is shown",
             "field_title_remaining": "{{count}} characters remaining",
             "dc": "Data Center",
@@ -1973,6 +1973,7 @@
             "apartment_room": "Room Number",
             "room_kind": {
                 "label": "Room type",
+                "whole_house": "Whole house",
                 "private_chamber": "FC private room",
                 "apartment_room": "Apartment room"
             },
@@ -2140,9 +2141,6 @@
                 "roomNumberApartmentOutOfRange": "Apartment number must be between 1 and 90",
                 "roomNumberPrivateOutOfRange": "Private room number must be between 1 and 512"
             },
-            "address": {
-                "expansionWardNote": "31 and above is the expansion district"
-            },
             "type": {
                 "S": "Small house",
                 "M": "Medium house",
@@ -2156,6 +2154,9 @@
                 "submit": "Register",
                 "cancel": "Back",
                 "section_title": "Confirm",
+                "address_gate_lead": "You're about to register this address",
+                "address_gate_button": "This address is correct",
+                "address_gate_confirmed": "Confirmed",
                 "publish": "Publish",
                 "save_private": "Save privately",
                 "summary_missing": "Not entered",
@@ -2176,6 +2177,13 @@
                 "intro": "Comment",
                 "visibility": "Visibility",
                 "confirm": "Confirm"
+            },
+            "step_desc": {
+                "media": "Paste a X (Twitter) or Housing Snap URL to automatically import photos and the address",
+                "address": "Whether auto-filled or entered by hand, always confirm the address before registering",
+                "intro": "The title is optional. If left blank, the listing shows the address instead",
+                "visibility": "Choose public or private, and optionally set an end date",
+                "confirm": "Review everything together, then register"
             },
             "stepper_aria_label": "Registration steps",
             "section_visibility": "Visibility",
@@ -2211,6 +2219,7 @@
                 "row_title": "Title (optional)",
                 "row_image": "Images (recommended)",
                 "missing_address": "Please enter the address",
+                "missing_address_confirm": "Please confirm the address",
                 "missing_title": "Please enter a title",
                 "missing_image": "Please add an image"
             },

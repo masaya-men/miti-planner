@@ -3935,14 +3935,49 @@ select.housing-input option {
 }
 
 /* ============================================================
- * 登録ページ左カラム: ライブステッパーナビ (Task12)
+ * 登録ページ左カラム: ライブステッパーナビ (Task12 / Task2 強化)
  * 質感A案「青 = 選択・進行・ステップ番号」。done は青チェック、active は青枠+背景、
  * idle は控えめなグレー。装飾999pxピルにせず角丸8pxの静かな行にする。
+ * Task2: 番号を縦の接続線でつなぎスクロール進行度で塗る (ツアーパネルのステップ接続線と
+ * 同じトークン `--housing-aether` / `--housing-divider` / イージング `--housing-tour-step-spring`
+ * を流用)。説明文はアクティブなステップだけ開く。
  * ============================================================ */
 .housing-register-stepper {
   flex: 0 0 auto;
 }
+.housing-register-stepper-body {
+  position: relative;
+}
+/* 接続線 (トラック): 先頭〜末尾バッジの中心を結ぶ。上下端は RegisterStepperNav.tsx の
+   ResizeObserver 測定値 (--connector-top/--connector-bottom) を使い、アクティブ説明文の
+   開閉で末尾ステップの高さが変わっても追従する。バッジ中心 x = item padding-left(10) +
+   バッジ半径(11) = 21px。 */
+.housing-register-stepper-track {
+  position: absolute;
+  left: 21px;
+  top: var(--connector-top, 19px);
+  bottom: var(--connector-bottom, 19px);
+  width: 2px;
+  background: var(--housing-divider);
+  border-radius: 1px;
+  pointer-events: none;
+}
+.housing-register-stepper-track-fill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  background: var(--housing-aether);
+  transform: scaleY(var(--stepper-progress, 0));
+  transform-origin: top;
+  transition: transform 0.4s var(--housing-tour-step-spring);
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-stepper-track-fill {
+    transition: none;
+  }
+}
 .housing-register-stepper-list {
+  position: relative;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -3953,7 +3988,10 @@ select.housing-input option {
 .housing-register-stepper-item {
   width: 100%;
   display: flex;
-  align-items: center;
+  /* flex-start (center から変更・Task2): バッジを常に item 上端から一定距離に固定し、
+     アクティブ説明文の開閉で自身やそれより後ろのステップの高さが変わっても、接続線の
+     計算前提 (バッジ中心の item 内オフセット固定) が崩れないようにする。 */
+  align-items: flex-start;
   gap: 10px;
   padding: 8px 10px;
   border-radius: 8px;
@@ -3982,6 +4020,7 @@ select.housing-input option {
 }
 .housing-register-stepper-num {
   position: relative;
+  z-index: 1;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -4022,9 +4061,41 @@ select.housing-input option {
     transition: none;
   }
 }
+.housing-register-stepper-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
 .housing-register-stepper-label {
+  padding-top: 2px;
   font-size: var(--housing-text-md);
   font-weight: 500;
+}
+/* 説明文 (Task2): アクティブなステップだけ開く。grid-template-rows の 0fr→1fr トランジションで
+   高さ不明のテキストを滑らかに開閉する (max-height の決め打ちを避ける)。 */
+.housing-register-stepper-desc-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 220ms ease;
+}
+.housing-register-stepper-item.is-active .housing-register-stepper-desc-wrap {
+  grid-template-rows: 1fr;
+}
+.housing-register-stepper-desc-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+.housing-register-stepper-desc {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-stepper-desc-wrap {
+    transition: none;
+  }
 }
 
 /* ============================================================
@@ -4481,6 +4552,37 @@ select.housing-input option {
  * エラー/不足は色付き alert 箱にせず、ヘアライン + グレー文字の静かな表示にする
  * (housing-design.md「AI 感の払拭」)。主アクションのみ .housing-btn-primary (ハニー)。
  * ============================================================ */
+/* 住所確認ゲート (C案・2026-07-10): 静かな注記 + 確認ボタン。ヘアライン区切りのみで
+   色付き alert 箱にしない。確認済みは --housing-field-bg-confirmed 系 (緑) を使い、
+   ハニー (主アクション用) とは色を分ける。 */
+.housing-register-confirm-gate {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--housing-divider);
+}
+.housing-register-confirm-gate-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+.housing-register-confirm-gate-address {
+  margin: 0;
+  font-size: var(--housing-text-base);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-register-confirm-gate-btn {
+  align-self: flex-start;
+}
+.housing-register-confirm-gate-btn[data-confirmed="true"] {
+  background: var(--housing-field-bg-confirmed);
+  border-color: var(--housing-field-border-confirmed);
+  color: var(--housing-text);
+  cursor: default;
+}
+
 .housing-register-confirm-summary {
   margin: 0;
   display: flex;

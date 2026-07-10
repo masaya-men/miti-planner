@@ -27,6 +27,12 @@ export interface RegisterChecklistItem {
 
 export interface RegisterChecklistInput {
   addressOk: boolean;
+  /**
+   * 住所確認ゲート (C案・2026-07-10)。値が妥当でも、確認ボタンを押すまでは
+   * done にしない。未確認時の不足アクションは「住所を入力してください」ではなく
+   * 「住所を確認してください」(missing_address_confirm) を出す。
+   */
+  addressConfirmed: boolean;
   titleOk: boolean;
   hasImage: boolean;
 }
@@ -35,9 +41,11 @@ export function computeRegisterChecklist(input: RegisterChecklistInput): Registe
   return [
     {
       key: 'address',
-      done: input.addressOk,
+      done: input.addressOk && input.addressConfirmed,
       labelKey: 'housing.register.check.row_address',
-      missingLabelKey: 'housing.register.check.missing_address',
+      missingLabelKey: input.addressOk
+        ? 'housing.register.check.missing_address_confirm'
+        : 'housing.register.check.missing_address',
       required: true,
     },
     {
