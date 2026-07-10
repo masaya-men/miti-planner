@@ -118,7 +118,7 @@
     },
     "30": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "南の突き当りのＬハウス"
+      "directions": "南の突き当りのＭハウス"
     },
     "31": {
       "aetheryte": "[拡張街]ミストゲート・スクエア",
@@ -238,7 +238,7 @@
     },
     "60": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "西の突き当りのＬハウス"
+      "directions": "西の突き当りのＭハウス"
     }
   },
   "LavenderBeds": {
@@ -756,7 +756,7 @@
     },
     "8": {
       "aetheryte": "シロガネ南東",
-      "directions": "東のＬハウス"
+      "directions": "東のＭハウス"
     },
     "9": {
       "aetheryte": "シロガネ南東",
@@ -876,7 +876,7 @@
     },
     "38": {
       "aetheryte": "[拡張街]シロガネ南西",
-      "directions": "南のＬハウス"
+      "directions": "南のＭハウス"
     },
     "39": {
       "aetheryte": "[拡張街]シロガネ南西",
