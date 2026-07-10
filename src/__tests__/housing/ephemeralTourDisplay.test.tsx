@@ -16,6 +16,10 @@ import { HousingPlaybackProvider } from '../../lib/housing/HousingPlaybackContex
 const registered = MOCK_LISTINGS[0];
 const ephemeralListing = { ...MOCK_LISTINGS[1], id: 'ephemeral-1000-1', ownerUid: '__ephemeral__' };
 
+// TourShowcasePanel が useNavigate() を使うため、ListingCard.test.tsx と同じ最小モックを踏襲する。
+const navigate = vi.fn();
+vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
+
 vi.mock('../../store/useHousingListingsStore', () => ({
   useHousingListingsStore: (sel: (s: unknown) => unknown) => sel({ listings: [registered] }),
 }));
