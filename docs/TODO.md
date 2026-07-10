@@ -20,17 +20,14 @@
    - 理想=共有ツアー同期は別PJ(`docs/.private/2026-07-08-synced-shared-tour-vision.md`)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
-### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断)
-- 有名スプシ=TRUE/FALSEマトリクス+アイコン画像でスマホ貼付は構造的に不可(実機実証)。URL直読みも対応フォーマットは広がらない。**「あらゆるスプシ対応」は棚上げ**(汎用パーサは別プロジェクト級)。
-- スマホでは取込UI自体を非表示化済(2026-06-30・PC入口は維持)。詳細=[[project_spreadsheet_mobile_grid]]
+### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
 
-### 🔴 次セッション最優先: 住所を「必ず確認させる」ゲート (要 brainstorming)
-ユーザー要望(2026-07-10 本番実機)=**「自動手動どちらにもかかわらず、かならず住所を確認させたい」**。
-調査済みメモ=`docs/.private/2026-07-10-address-confirmation-gate.md` を**先に読む**。
-要点: 送信ゲートは `validateAddress().ok` しか見ておらず「ユーザーが見たか」を問わない。`fieldState.confirm()` は**呼び出し元ゼロで到達不能**(緑の確認済み状態が一度も出ない)。`isReadyToSubmit` のコメントにある「auto-filled は信頼して通す」という当時の判断を、今回ひっくり返すことになる。
-同時に片付けたい: `HousingRegisterAddressFields.tsx` / `HousingRegisterParentHouseSizeField.tsx` は**死にコード**(撤去すれば孤児キー `address.expansionWardNote` も消せる) / 部屋区分の chip が建物タイプと同じキーを使うため「家」が2か所に出る。
+### 🔴 次セッション: 大物3つ (ハウジンガーPF / 探す地図 / 一時ツアー) を brainstorming→計画書まで完成させる (2026-07-10 ユーザー合意)
+- **2026-07-10 全体相談 完了**。小〜中物は設計確定→**計画書化済み・安価モデルで実行可能**: ①登録ページ改善(住所確認ゲートC案+編集は住所変更時のみ再確認+ステッパー強化+細修正+死にコード撤去) ②タグ刷新(公式23+季節12+テーマ12+個人タグ1人1個・拡張可能レジストリ・Phase A/B) ③小物UI束(フッター刷新/リップル/通知トンマナ点検) = `docs/superpowers/plans/2026-07-10-housing-*.md` の3本。相談ログ=`docs/.private/2026-07-10-all-consult-intake.md`
+- **🔥 軽減表「(競合コピー)」増殖バグ**: 症状+生成箇所(`usePlanStore.ts:520/816`)特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
+- **✅ Vercel 75%通知 解明・対策済 (2026-07-10)**: Edge=6/11スパイクが窓に残存しているだけで無害。本命はオリジン転送6.26/10GB=dev の動画確認が本番 Vercel 関数経由だった→`.env.local` に `VITE_MEDIA_PROXY_BASE_URL` 追記済・**dev サーバー要再起動**。7/12 沈静化確認=`docs/.private/2026-07-10-vercel-origin-transfer-followup.md`
 
 - **🆕🏠 ハウジング登録UI 連続修正 本番反映済 (main `087d81bc`・2026-07-10)**。詳細/引き継ぎ=`docs/.private/2026-07-10-housing-small-fixes.md`。
   済=こまごま7件(#1-#7)/タイトル任意化/コメント文言/ツアー動くマップ/住所自動入力の誤検出2件/チェックパネルのキー衝突バグ/重複の赤化/ハニー主アクション統一(.housing-btn-primary をグラデ+影の正典へ)/ログイン案内のトンマナ化+中央寄せ/「登録の流れ」を右カラムへ移設/地図の全周ヴィネット。
@@ -55,10 +52,10 @@
 - **次優先**: ①「通報」文言全体見直し ②§3.8 残検証(重複 drop でツアー自動追加+トースト/単独 listing で section 非表示) ③「📅1ヶ月以上更新なし」バッジ ④通知 listingTitleSnapshot を `formatHousingAddress` 経由へ ⑤split-tweet 対応(画像ツイ+住所リプ別 URL・設計書§8)
 - **その後**: 既存テスト物件一掃+コールドスタート(ユーザー作業)→アプデ告知(#59+ハウジングα)。**保留**=マップビュー(リストで完結・非ブロッカー)。
 - **Phase 3 残/#60**: UI コンポーネント test 追従(HousingRegister系)/カードデザイン刷新(Allmarks風)/マップ実データ化+`APARTMENT_SPOT[area]`/ko・zh 翻訳実値。
-- **タグ仕様全面刷新**(詳細=docs/.private/2026-05-27-tag-system-redesign.md): 公式FF14+シーズン+個人タグ(1人1タグ)の3カテゴリ・軽量モデ。
+- **タグ仕様全面刷新**: **計画書化済み**→`docs/superpowers/plans/2026-07-10-housing-tag-overhaul-plan.md` (公式23+季節12+テーマ12+個人1人1個・軽量モデ。設計原本=.private/2026-05-27-tag-system-redesign.md)。
 - **リッチメディア化**: 複数画像+動画埋め込み+ビューポート内自動再生(**CSP に video.twimg.com 必須**・最大3本)・Allmarks 知見流用。
 - **通報モデ業界水準ロードマップ**(詳細=docs/.private/2026-05-26-housing-moderation-roadmap.md): Audit log/30日物理削除cron/異議申し立てUI/BAN自動化/NSFW高優先キュー(severity:'high' 既付与だが /admin 並び未反映)/Reporter scoring。
-- **細かい**: `fieldState.confirm()` バグ/AddressFields renderBadge prop 化/photo `alt`/SNS rate limiting/通知✕磨き/ツアー同期 Firestore 化。
+- **細かい**: photo `alt`/SNS rate limiting/通知✕磨き/ツアー同期 Firestore 化。(fieldState.confirm バグと死にコード撤去は登録ページ改善計画書に吸収済み)
 
 ---
 
