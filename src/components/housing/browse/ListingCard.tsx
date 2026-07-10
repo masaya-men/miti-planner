@@ -15,6 +15,7 @@ import {
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { useRipple } from '../../../lib/housing/useRipple';
+import { representativeImage } from '../../../lib/housing/representativeImage';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingRipple } from '../HousingRipple';
@@ -28,15 +29,6 @@ export interface ListingCardProps {
   selected?: boolean;
   /** 選択トグル時のコールバック。selectable=true のとき使用する */
   onToggleSelect?: (id: string) => void;
-}
-
-// 代表画像が無い/未取得のときのフォールバック (既存カードと共通)。
-const PLACEHOLDER = '/housing/mock-thumbs/1.svg';
-
-function representativeImage(l: MockListing): string {
-  if (l.imageMode === 'thumbnail' && l.thumbnailPath) return l.thumbnailPath;
-  if (l.imageMode === 'sns' && l.ogImageUrl) return l.ogImageUrl;
-  return PLACEHOLDER;
 }
 
 /**
