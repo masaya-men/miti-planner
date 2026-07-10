@@ -1601,6 +1601,15 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+/* size は (area×plot) から自動導出のため常に disabled だが、ハニーゴールドの「確定」感
+   (auto-filled 面 + 🟡 バッジ) を消してはいけない。既定の disabled 減光 (opacity 0.4 / 灰化 /
+   -webkit-text-fill-color の潰れ) を打ち消し、通常フィールドと同じ文字色・矢印を保つ。 */
+#housing-register-size:disabled {
+  opacity: 1;
+  cursor: default;
+  color: var(--housing-text);
+  -webkit-text-fill-color: var(--housing-text);
+}
 .housing-textarea {
   resize: vertical;
   min-height: 80px;

@@ -10,12 +10,14 @@ const baseAddr: Pick<AddressInput, 'dc' | 'server' | 'area' | 'ward'> = {
 
 describe('validateAddress: 3 パターン正常系', () => {
   it('家全体 (本街、 plot 12)', () => {
-    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 12, size: 'M' });
+    // Shirogane plot 12 の区画サイズは S (wardPlotSizes 表で確定)。
+    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 12, size: 'S' });
     expect(r.ok).toBe(true);
   });
 
   it('家全体 (拡張街、 plot 45)', () => {
-    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 45, size: 'L' });
+    // Shirogane plot 45 (=本街 plot 15) の区画サイズは M。
+    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 45, size: 'M' });
     expect(r.ok).toBe(true);
   });
 
@@ -24,7 +26,7 @@ describe('validateAddress: 3 パターン正常系', () => {
       ...baseAddr,
       buildingType: 'house',
       plot: 12,
-      size: 'L',
+      size: 'S', // 親 plot 12 (Shirogane) のサイズ = S
       roomKind: 'private_chamber',
       roomNumber: 5,
     });
@@ -69,7 +71,8 @@ describe('validateAddress: 3 パターン正常系', () => {
 
 describe('validateAddress: 境界値', () => {
   it('plot 31 (拡張街最初) は正常', () => {
-    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 31, size: 'S' });
+    // Shirogane plot 31 (=本街 plot 1) の区画サイズは M。
+    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 31, size: 'M' });
     expect(r.ok).toBe(true);
   });
 
@@ -109,7 +112,7 @@ describe('validateAddress: 不正組合せ reject', () => {
       ...baseAddr,
       buildingType: 'house',
       plot: 12,
-      size: 'L',
+      size: 'S', // 親 plot 12 (Shirogane) のサイズ = S (roomNumber エラーを単独で検証)
       roomKind: 'private_chamber',
       roomNumber: 513,
     });
@@ -144,6 +147,55 @@ describe('validateAddress: 不正組合せ reject', () => {
     } as AddressInput);
     expect(r.ok).toBe(false);
     expect(r.errors.size).toBeDefined();
+  });
+});
+
+describe('validateAddress: size と区画サイズの整合 (mismatch_with_plot)', () => {
+  it('size が区画から決まるサイズと食い違うと mismatch_with_plot', () => {
+    // Shirogane plot 12 の正しいサイズは S。M を渡すと不一致。
+    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 12, size: 'M' });
+    expect(r.ok).toBe(false);
+    expect(r.errors.size).toBe('mismatch_with_plot');
+  });
+
+  it('size が区画から決まるサイズと一致すれば ok', () => {
+    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 12, size: 'S' });
+    expect(r.ok).toBe(true);
+  });
+
+  it('FC個室でも親 plot のサイズと食い違えば mismatch_with_plot', () => {
+    const r = validateAddress({
+      ...baseAddr,
+      buildingType: 'house',
+      plot: 16, // Shirogane plot 16 = L
+      size: 'M',
+      roomKind: 'private_chamber',
+      roomNumber: 5,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.errors.size).toBe('mismatch_with_plot');
+  });
+
+  it('plot が範囲外のときは mismatch を出さず plot エラーのみ (二重エラー回避)', () => {
+    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 61, size: 'M' });
+    expect(r.errors.plot).toBeDefined();
+    expect(r.errors.size).not.toBe('mismatch_with_plot');
+  });
+
+  it('size 未指定のときは invalid のまま (mismatch で上書きしない)', () => {
+    const r = validateAddress({ ...baseAddr, buildingType: 'house', plot: 12 } as AddressInput);
+    expect(r.errors.size).toBe('invalid');
+  });
+
+  it('apartment は size 整合チェック対象外 (従来どおり ok)', () => {
+    const r = validateAddress({
+      ...baseAddr,
+      buildingType: 'apartment',
+      apartmentBuilding: 1,
+      roomKind: 'apartment_room',
+      roomNumber: 42,
+    });
+    expect(r.ok).toBe(true);
   });
 });
 

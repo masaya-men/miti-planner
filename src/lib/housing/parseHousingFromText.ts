@@ -26,6 +26,21 @@ const PRIVATE_ROOM_KEYWORDS = /FC個室|個室|Private\s*Room|FC\s*Chamber|FC部
 //   - 縦棒・カギ括弧・全角句読点・スペース類を含む
 const SEPARATORS = /[\|┆\-/\s\n、。（）「」『』"',，]|鯖|サバ|さば|サーバー|サーバ|Server|server|Serv|Srv/g;
 
+// 区-番地パターン (3 系統)。 抽出本体と「短い ASCII alias を許すかの文脈ゲート」 の両方で共有する。
+//   1. "6-6" "23-6" 等 (N-M / 各種ダッシュ)
+//   2. "6番地6番" "6区 23番" 等 (日本語表記)
+//   3. "w21 p58" "W21 P58" 等 (NA/EU 英語表記、 w=ward / p=plot)
+// いずれも非グローバル (lastIndex 状態を持たない) ので .test() / .match() を使い回せる。
+const WARD_PLOT_DASH_RE = /(\d{1,2})\s*[-－‐ー~〜]\s*(\d{1,2})/;
+const WARD_PLOT_JP_RE = /(\d{1,2})\s*(?:番地|区)\s*(\d{1,2})\s*番?/;
+const WARD_PLOT_EN_RE = /\bw\s*(\d{1,2})\s*p\s*(\d{1,2})\b/i;
+
+// 「構造化された住所行」 の指標となる区切り記号。 実データの定番フォーマットは
+// `Mana┆Hades┆⚐Gob 2-23 S` / `crystal | goblin | shirogane | w21 p58` のように
+// フィールドを区切り記号で並べる。 2 個以上あれば「文章」 ではなく「住所行」 とみなす。
+const STRUCTURED_SEPARATOR_RE = /[|｜┆/／]/g;
+const MIN_STRUCTURED_SEPARATORS = 2;
+
 // 前処理: URL / メンション / ハッシュタグ / 装飾記号を空白へ置換し、
 // 後続のトークン分割でゴミが残らないようにする
 function preprocess(text: string): string {
@@ -41,12 +56,32 @@ function preprocess(text: string): string {
  * 英語の自由文に含まれる一般語 ("had" / "man" 等) と exact 一致して DC/サーバーを誤検出する。
  * 実バグ (2026-07-10): housingsnap の og:description "i've finally **had** the energy…" が
  * token "had" → サーバー "Had"(=Hades / Mana DC) と一致し、まったく別の海外物件に
- * "ManaのHades" が入力された。substring search 側は既に同じ基準 (ASCII かつ 4 文字未満) で
- * 除外済みだが、token exact 一致側にガードが無く素通ししていた。ここで揃える。
- * フル名 ("Hades"/"Mana") と日本語 alias ("ハデス"/"マナ") は残るので実データ取りこぼしは無い。
+ * "ManaのHades" が入力された。
+ *
+ * v2 (2026-07-10): これを「一律禁止」 ではなく**文脈ゲート**に変更した。
+ * ただしゲートの条件は「ward/plot がある」 **だけでは足りない** (敵対的レビューで実証):
+ *   "Finally had my dream home! Mist w5 p3 M"
+ * は ward/plot を含む普通の英文だが、 "had" が Hades と一致して DC/サーバーを丸ごと捏造する。
+ * 住所を書いた文には ほぼ必ず ward/plot が付くので、 これでは**一番危ない場面で正確にゲートが開く**。
+ *
+ * そこで条件を 2 つの AND にした:
+ *   (a) ward/plot パターンが出現する
+ *   (b) 区切り記号 (`|` `┆` `/`) が 2 個以上ある = 「文章」 ではなく「構造化された住所行」
+ * 実データの定番フォーマット (`Mana┆Hades┆⚐Gob 2-23 S`) は (b) を満たし、
+ * 英語の自由文は満たさない。 呼び出し側が `opts.allowShortAscii` で明示上書きもできる。
+ *
+ * さらにゲートが開いた場合でも、 短縮 alias で当たった候補はフル名で当たった候補より
+ * 質を低く扱い、 フル名の候補が 1 つでもあれば短縮由来は捨てる (keepBestQuality)。
  */
 function isTooShortAsciiAlias(alias: string): boolean {
     return alias.length < 4 && /^[\x00-\x7f]+$/.test(alias);
+}
+
+// 一致した alias の「質」。 フル名/長い alias = 1、 短縮 ASCII alias = 0。
+// 同一候補が複数 alias で当たった場合は最大値を採る。
+type MatchQuality = 0 | 1;
+function aliasQuality(alias: string): MatchQuality {
+    return isTooShortAsciiAlias(alias) ? 0 : 1;
 }
 
 // 単一トークンが housingSizeMasterData のエイリアスに含まれるか判定し、
@@ -64,18 +99,63 @@ function normalizeSizeAlias(token: string): HousingExtractSize | null {
 /**
  * ツイート本文等のテキストから住所情報 (DC / サーバー / エリア / 区 / 番地 / サイズ) を抽出する純関数。
  *
- * Phase 2A Task 2 時点では「定番フォーマット」 (区切り文字で並んだ DC/サーバー/エリア + 区-番地 + サイズ)
- * のみ確実に抽出できる骨格を提供する。 Tasks 3-17 で対応パターンを拡充する。
+ * @param text 解析対象テキスト
+ * @param opts.allowShortAscii 短い ASCII alias を DC/サーバーの exact 一致に参加させるか。
+ *   未指定なら「テキスト自身に ward/plot パターンが出現するか」で自動決定する
+ *   (範囲チェックの成否ではなく、 パターンの出現有無で判定)。
+ *   既存の 1 引数呼び出しの挙動を壊さないため optional。
  */
-export function parseHousingFromText(text: string): HousingExtractResult {
+export function parseHousingFromText(
+    text: string,
+    opts?: { allowShortAscii?: boolean },
+): HousingExtractResult {
     const cleaned = preprocess(text);
     const ambiguity: string[] = [];
 
+    // 文脈ゲート (token ループより先に確定させる)。 (a) AND (b) の両方が必要。
+    //   (a) ward/plot パターンが出現する。 範囲チェック (1-30 / 1-60) の成否ではなく
+    //       「パターンが出現したか」 で判定する (例: "シロガネ 99-99 L" は範囲外だが出現している)。
+    //   (b) 区切り記号が 2 個以上 = 構造化された住所行。 これが無いと
+    //       "Finally had my dream home! Mist w5 p3 M" のような英文で "had"→Hades を捏造する。
+    const hasWardPlotPattern =
+        WARD_PLOT_DASH_RE.test(cleaned) ||
+        WARD_PLOT_JP_RE.test(cleaned) ||
+        WARD_PLOT_EN_RE.test(cleaned);
+    const isStructured =
+        (cleaned.match(STRUCTURED_SEPARATOR_RE)?.length ?? 0) >= MIN_STRUCTURED_SEPARATORS;
+    const allowShortAscii = opts?.allowShortAscii ?? (hasWardPlotPattern && isStructured);
+
     const candidates = {
-        dc: [] as string[],
-        server: [] as Array<{ serverId: string; dcId: string }>,
-        area: [] as string[],
+        dc: [] as Array<{ dcId: string; quality: MatchQuality }>,
+        server: [] as Array<{ serverId: string; dcId: string; quality: MatchQuality }>,
+        area: [] as Array<{ areaId: string; quality: MatchQuality }>,
         size: [] as HousingExtractSize[],
+    };
+
+    // 候補追加ヘルパ (重複は質の高い方へアップグレード、 出現順は維持)
+    const pushDc = (dcId: string, quality: MatchQuality) => {
+        const existing = candidates.dc.find((c) => c.dcId === dcId);
+        if (existing) {
+            if (quality > existing.quality) existing.quality = quality;
+        } else {
+            candidates.dc.push({ dcId, quality });
+        }
+    };
+    const pushServer = (serverId: string, dcId: string, quality: MatchQuality) => {
+        const existing = candidates.server.find((c) => c.serverId === serverId);
+        if (existing) {
+            if (quality > existing.quality) existing.quality = quality;
+        } else {
+            candidates.server.push({ serverId, dcId, quality });
+        }
+    };
+    const pushArea = (areaId: string, quality: MatchQuality) => {
+        const existing = candidates.area.find((c) => c.areaId === areaId);
+        if (existing) {
+            if (quality > existing.quality) existing.quality = quality;
+        } else {
+            candidates.area.push({ areaId, quality });
+        }
     };
 
     const tokens = cleaned.split(SEPARATORS).map((t) => t.trim()).filter(Boolean);
@@ -83,30 +163,34 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     for (const token of tokens) {
         const lower = token.toLowerCase();
 
-        // DC 候補 (兼サーバー候補)。短い ASCII alias は英語自由文と誤爆するため exact 一致から除外。
+        // DC 候補 (兼サーバー候補)。 短い ASCII alias は文脈ゲートが開いているときだけ exact 一致に参加。
         for (const [dcId, dcData] of Object.entries(serverMasterData)) {
-            if (dcData.aliases.some((a) => !isTooShortAsciiAlias(a) && a.toLowerCase() === lower)) {
-                if (!candidates.dc.includes(dcId)) candidates.dc.push(dcId);
+            for (const a of dcData.aliases) {
+                if (a.toLowerCase() !== lower) continue;
+                if (isTooShortAsciiAlias(a) && !allowShortAscii) continue;
+                pushDc(dcId, aliasQuality(a));
             }
             // サーバー候補 (DC 推論も兼ねる)
             for (const [serverId, aliases] of Object.entries(dcData.servers)) {
-                if (aliases.some((a) => !isTooShortAsciiAlias(a) && a.toLowerCase() === lower)) {
-                    if (!candidates.server.some((s) => s.serverId === serverId)) {
-                        candidates.server.push({ serverId, dcId });
-                    }
+                for (const a of aliases) {
+                    if (a.toLowerCase() !== lower) continue;
+                    if (isTooShortAsciiAlias(a) && !allowShortAscii) continue;
+                    pushServer(serverId, dcId, aliasQuality(a));
                 }
             }
         }
 
-        // エリア候補
+        // エリア候補 (挙動は従来どおり: 短縮 alias もガードせず exact 一致で採用。 質だけ付与)
         for (const [areaId, areaData] of Object.entries(housingAreaMasterData)) {
-            if (areaData.aliases.some((a) => a.toLowerCase() === lower)) {
-                if (!candidates.area.includes(areaId)) candidates.area.push(areaId);
+            for (const a of areaData.aliases) {
+                if (a.toLowerCase() === lower) {
+                    pushArea(areaId, aliasQuality(a));
+                }
             }
             // アパート名検出 → エリア + サイズ=Apartment
             // 全言語の apartment_name と照合 (ja/en/ko/zh いずれかに一致すれば採用)
             if (Object.values(areaData.apartment_name).some((name) => token === name)) {
-                if (!candidates.area.includes(areaId)) candidates.area.push(areaId);
+                pushArea(areaId, 1);
                 if (!candidates.size.includes('Apartment')) candidates.size.push('Apartment');
             }
         }
@@ -122,6 +206,8 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     //   - token split で拾えない 「シロガネ6番地6番に来てねManaのAnimaサーバーです」 型
     //     や 「Mana-Ixionエンピ-4-2M」 (連結トークン) を補完するための部分一致 pass
     //   - 短すぎる alias (1-2 文字) は誤一致リスクが高いのでスキップ
+    //   - 短い ASCII alias (< 4 文字) は allowShortAscii に関わらずスキップ (部分一致は誤爆が激しいため据え置き)
+    //   - ここで当たるのは常にフル名/長い alias なので質は 1 固定
     const lowerCleaned = cleaned.toLowerCase();
     for (const [dcId, dcData] of Object.entries(serverMasterData)) {
         for (const alias of dcData.aliases) {
@@ -130,7 +216,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
             // ASCII の 3 文字 alias (例: "Man"=Mana, "Mat"=Materia) は英文中の単語に誤一致するため除外
             if (alias.length < 4 && /^[\x00-\x7f]+$/.test(alias)) continue;
             if (lowerCleaned.includes(alias.toLowerCase())) {
-                if (!candidates.dc.includes(dcId)) candidates.dc.push(dcId);
+                pushDc(dcId, 1);
             }
         }
         for (const [serverId, aliases] of Object.entries(dcData.servers)) {
@@ -140,9 +226,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
                 // ASCII の 3 文字 alias (例: "Man"=Mana, "Mat"=Materia) は英文中の単語に誤一致するため除外
                 if (alias.length < 4 && /^[\x00-\x7f]+$/.test(alias)) continue;
                 if (lowerCleaned.includes(alias.toLowerCase())) {
-                    if (!candidates.server.some((s) => s.serverId === serverId)) {
-                        candidates.server.push({ serverId, dcId });
-                    }
+                    pushServer(serverId, dcId, 1);
                 }
             }
         }
@@ -152,13 +236,30 @@ export function parseHousingFromText(text: string): HousingExtractResult {
             if (alias.length < 2) continue;
             if (alias.length < 4 && /^[\x00-\x7f]+$/.test(alias)) continue;
             if (lowerCleaned.includes(alias.toLowerCase())) {
-                if (!candidates.area.includes(areaId)) candidates.area.push(areaId);
+                pushArea(areaId, 1);
             }
         }
     }
 
+    // 候補ランキング: フル名/長い alias (quality 1) が 1 つでもあれば、
+    // 短縮 alias 由来 (quality 0) の候補は**捨てる**。 後ろへ回すだけでは足りない。
+    //
+    // 後ろへ回すだけだと候補が「残る」ので、 下の `candidates.dc.length > 1` (multipleDc) に引っかかり
+    // 正しい DC まで巻き添えで棄却される。 実例 (文脈ゲートを開いた副作用):
+    //   "man this took ages. Crystal Goblin Shirogane 21-58"
+    //   → "man" が Mana(DC・質0)、 "Crystal" が Crystal(DC・質1) に当たり multipleDc で両方消える。
+    // 質が全部同じ (= フル名の一致が無い) 場合は出現順のまま全部残す
+    // (sample3 の "Gob"→Goblet(area) が該当。 唯一の候補なので残さないと area が取れない)。
+    const keepBestQuality = <T extends { quality: MatchQuality }>(list: T[]): T[] =>
+        list.some((c) => c.quality === 1) ? list.filter((c) => c.quality === 1) : list;
+    candidates.dc = keepBestQuality(candidates.dc);
+    candidates.server = keepBestQuality(candidates.server);
+    // ⚠ area には**適用しない**。 エリアのフル名 (`Mist` / `Goblet`) はそのまま英単語なので、
+    // 質でフィルタすると "Emp 5-3 M what a goblet of wine" が Empyreum ではなく Goblet になる
+    // ("goblet" が質 1、 正解の "Emp" が質 0)。 area は従来どおり出現順の先頭を採る。
+
     // 区-番地パターン: "6-6" "23-6" など
-    const wardPlotMatch = cleaned.match(/(\d{1,2})\s*[-－‐ー~〜]\s*(\d{1,2})/);
+    const wardPlotMatch = cleaned.match(WARD_PLOT_DASH_RE);
     let ward: number | undefined;
     let plot: number | undefined;
     if (wardPlotMatch) {
@@ -173,7 +274,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     // 日本語表記: "N番地 M番" / "N区 M番地" 等のフォールバック
     //   - "シロガネ6番地6番" / "6区 23番" / "6番地6" など、 区切り記号がない自然文で使われる
     if (ward === undefined || plot === undefined) {
-        const wardPlotJpMatch = cleaned.match(/(\d{1,2})\s*(?:番地|区)\s*(\d{1,2})\s*番?/);
+        const wardPlotJpMatch = cleaned.match(WARD_PLOT_JP_RE);
         if (wardPlotJpMatch) {
             const w = +wardPlotJpMatch[1];
             const p = +wardPlotJpMatch[2];
@@ -187,7 +288,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     // NA/EU 英語表記: "w21 p58" / "W21 P58" (housingsnap 等・w=ward / p=plot 接頭)。
     //   - ダッシュ無しでスペース区切りのため上の "N-M" 系にはかからない。w/p 接頭で誤爆を抑える。
     if (ward === undefined || plot === undefined) {
-        const wardPlotEnMatch = cleaned.match(/\bw\s*(\d{1,2})\s*p\s*(\d{1,2})\b/i);
+        const wardPlotEnMatch = cleaned.match(WARD_PLOT_EN_RE);
         if (wardPlotEnMatch) {
             const w = +wardPlotEnMatch[1];
             const p = +wardPlotEnMatch[2];
@@ -214,7 +315,7 @@ export function parseHousingFromText(text: string): HousingExtractResult {
     }
 
     // DC 推論: 明示 DC が無くサーバーから DC が引ければそれを採用
-    let dc: string | undefined = candidates.dc[0];
+    let dc: string | undefined = candidates.dc[0]?.dcId;
     let server: { serverId: string; dcId: string } | undefined = candidates.server[0];
     if (!dc && server) {
         dc = server.dcId;
@@ -231,11 +332,20 @@ export function parseHousingFromText(text: string): HousingExtractResult {
         dc = undefined;
         server = undefined;
     }
+    // 別々の DC に属するサーバー候補が複数残った場合も曖昧として棄却する。
+    // 上の multipleDc は「DC 名そのもの」 の複数一致しか見ないので、
+    // "Had | Uni | Mist | 5-3" (Hades=Mana / Unicorn=Meteor) のように
+    // サーバー名だけが競合するケースを取りこぼし、 出現順の先頭が黙って勝っていた。
+    if (new Set(candidates.server.map((s) => s.dcId)).size > 1) {
+        ambiguity.push('multipleServer');
+        dc = undefined;
+        server = undefined;
+    }
 
     return {
         dc,
         server: server?.serverId,
-        area: candidates.area[0],
+        area: candidates.area[0]?.areaId,
         ward,
         plot,
         size: candidates.size[0],

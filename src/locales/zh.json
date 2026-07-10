@@ -1998,7 +1998,8 @@
                     "out_of_range": "地块请指定在1〜30之间"
                 },
                 "size": {
-                    "invalid": "请选择大小"
+                    "invalid": "请选择大小",
+                    "mismatch_with_plot": "与地块决定的大小不一致"
                 },
                 "apartment_room": {
                     "required_for_apartment": "请输入房间号（1〜90）",

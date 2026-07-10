@@ -14,6 +14,7 @@
 import { isOgpUrlAllowed } from '../src/lib/housing/ogpHostAllowlist.js';
 import {
     parseOgpHtml,
+    extractBodyText,
     extractHousingSnapImages,
     extractStudioXivImages,
     normalizeStudioXivUrl,
@@ -24,6 +25,7 @@ export const config = { runtime: 'edge' };
 const HTML_TIMEOUT_MS = 8_000;
 const MAX_HTML_BYTES = 2 * 1024 * 1024; // 2 MB (og:meta 行は header 付近にあるので十分)
 const MAX_IMAGES_PER_RESPONSE = 12; // og:image + サイト別抽出を合わせて 12 URL まで
+const MAX_BODY_TEXT_CHARS = 4000; // 本文テキストの打ち切り文字数 (住所行抽出に十分)
 
 interface OgResponse {
     /** og:image の URL (= 1 枚目代表、 後方互換用)。 取得不可なら null。 */
@@ -33,6 +35,12 @@ interface OgResponse {
     title: string | null;
     description: string | null;
     siteName: string | null;
+    /**
+     * ページ本文のプレーンテキスト (タグ除去、 ブロック境界で改行保持、 最大
+     * MAX_BODY_TEXT_CHARS 字)。 住所行が og:description truncate に載らず本文 `<p>` に
+     * しか無いページ対策。 解析はクライアント側で行う。 取れなければ null。
+     */
+    text: string | null;
 }
 
 export default async function handler(req: Request): Promise<Response> {
@@ -107,12 +115,17 @@ export default async function handler(req: Request): Promise<Response> {
             if (images.length >= MAX_IMAGES_PER_RESPONSE) break;
         }
 
+        // 本文プレーンテキスト (住所行が og:description に載らないページ対策)。
+        // 空文字列なら null に落とす (= 取れなかった扱い)。
+        const bodyText = extractBodyText(html, MAX_BODY_TEXT_CHARS);
+
         const body: OgResponse = {
             image: meta.image,
             images: images.slice(0, MAX_IMAGES_PER_RESPONSE),
             title: meta.title,
             description: meta.description,
             siteName: meta.siteName,
+            text: bodyText.length > 0 ? bodyText : null,
         };
 
         return Response.json(body, {

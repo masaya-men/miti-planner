@@ -2033,7 +2033,8 @@
                     "out_of_range": "Plot must be between 1 and 30"
                 },
                 "size": {
-                    "invalid": "Please select a size"
+                    "invalid": "Please select a size",
+                    "mismatch_with_plot": "This doesn't match the size determined by the plot"
                 },
                 "apartment_room": {
                     "required_for_apartment": "Please enter a room number (1–90)",

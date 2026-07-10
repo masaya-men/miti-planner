@@ -14,6 +14,7 @@ import {
   type RoomKind,
 } from '../types/housing.js';
 import { isOgpUrlAllowed } from '../lib/housing/ogpHostAllowlist.js';
+import { getPlotSize } from '../data/housing/wardPlotSizes.js';
 import {
   WARD_RANGE,
   PLOT_RANGE,
@@ -113,6 +114,17 @@ export function validateAddress(addr: AddressInput): ValidationResult {
     // size 必須 (個室の場合は親 plot のサイズ)
     if (!addr.size || !isValidHousingSize(String(addr.size))) {
       errors.size = 'invalid';
+    }
+
+    // area/plot/size がそれぞれ単体で妥当なときに限り、区画から決まるサイズと一致するか検証。
+    // (手入力を止めて自動導出する設計なので、食い違いは登録データの汚染を意味する)
+    // - いずれかが既にエラーなら二重エラーを避けて飛ばす。
+    // - getPlotSize が null (= 表に無い区画) なら何もしない (将来のパッチで区画が増えても登録を止めない)。
+    if (!errors.area && !errors.plot && !errors.size) {
+      const expected = getPlotSize(String(addr.area), addr.plot as number);
+      if (expected !== null && addr.size !== expected) {
+        errors.size = 'mismatch_with_plot';
+      }
     }
 
     // 部屋区分

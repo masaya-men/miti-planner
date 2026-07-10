@@ -1998,7 +1998,8 @@
                     "out_of_range": "번지는 1〜30 사이로 지정해 주세요"
                 },
                 "size": {
-                    "invalid": "크기를 선택해 주세요"
+                    "invalid": "크기를 선택해 주세요",
+                    "mismatch_with_plot": "구획에 따라 정해진 크기와 일치하지 않습니다"
                 },
                 "apartment_room": {
                     "required_for_apartment": "방 번호 (1〜90)를 입력해 주세요",

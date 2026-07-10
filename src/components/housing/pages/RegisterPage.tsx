@@ -18,8 +18,10 @@ import { RegisterAddressMap } from '../register/RegisterAddressMap';
 import { HousingDuplicateWarningDialog } from '../HousingDuplicateWarningDialog';
 import { useHousingUpdate } from '../edit/useHousingUpdate';
 import { showToast } from '../../Toast';
-import { parseHousingFromText } from '../../../lib/housing/parseHousingFromText';
+import { parseHousingFromText, type HousingExtractResult } from '../../../lib/housing/parseHousingFromText';
+import { extractHousingAddressFromPage } from '../../../lib/housing/extractHousingAddressFromPage';
 import { extractSizeToAddress } from '../../../lib/housing/extractSizeToAddress';
+import { deriveHouseSize } from '../../../lib/housing/deriveHouseSize';
 import {
   canRegister,
   checkDuplicate,
@@ -330,6 +332,46 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     fieldState.userEdit(name, value);
   };
 
+  /**
+   * size は (エリア × 区画) から一意に決まるので、**この effect が size の唯一の書き込み口**。
+   *
+   * `validateAddress` は house に plot 必須 / size 必須、apartment には size 不可を課すので、
+   * 家であれば size は常に導出できる (FC 個室も親 plot のサイズ = 同じ関数で引ける)。
+   * そのため UI 側の size 欄は disabled にしてあり (RegisterSectionAddress)、
+   * 手入力・SNS 本文・オートセーブ復元・編集プリフィルのどれから来た値であっても
+   * ここで区画由来の値に上書きする (区画 = ゲームの一次データが正)。
+   *
+   * fieldState への登録も必ず行う。requiredFieldsForAddress が 'size' を必須に数えるため、
+   * 値だけ入れて fieldState が 'empty' のままだと isReadyToSubmit が永久に false になる。
+   * すでに同じ値が入っている場合は setAutoFilled しない ('confirmed' を 'auto-filled' に
+   * 巻き戻さないため)。
+   */
+  useEffect(() => {
+    const derived = deriveHouseSize({
+      buildingType: address.buildingType,
+      area: address.area,
+      plot: address.plot,
+    });
+
+    if (derived) {
+      if (address.size !== derived) {
+        setAddress((prev) => ({ ...prev, size: derived }));
+      }
+      if (fieldState.getValue('size') !== derived) {
+        fieldState.setAutoFilled('size', derived);
+      }
+      return;
+    }
+
+    // 導出不可 (アパート / エリア未確定 / 区画未確定・範囲外) は size を持たせない。
+    if (address.size !== undefined) {
+      setAddress((prev) => ({ ...prev, size: undefined }));
+    }
+    if (fieldState.getState('size') !== 'empty') {
+      fieldState.clearField('size');
+    }
+  }, [address.buildingType, address.area, address.plot, address.size, fieldState]);
+
   const handleIntroChange = (next: RegisterSectionIntroValues) => {
     setTitle(next.title);
     setDescription(next.description);
@@ -382,9 +424,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
    * 空のフィールド (address[name] === undefined) だけを埋める。復元済み・手修正済みの値は
    * 触らない。空判定はスタッガーの各適用時点の最新 address state (setAddress の prev) で行う。
    */
-  const applyExtractedAddress = useCallback(
-    (text: string) => {
-      const result = parseHousingFromText(text);
+  const applyExtractedResult = useCallback(
+    (result: HousingExtractResult) => {
       const fills: Array<[string, unknown]> = [];
       if (result.dc) fills.push(['dc', result.dc]);
       if (result.server) fills.push(['server', result.server]);
@@ -395,7 +436,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         const converted = extractSizeToAddress(result.size);
         fills.push(['buildingType', converted.buildingType]);
         if (converted.roomKind) fills.push(['roomKind', converted.roomKind]);
-        if (converted.size) fills.push(['size', converted.size]);
+        // converted.size (S/M/L) はここでは**入れない**。house の size は (area, plot) から
+        // 一意に決まるので、下の導出 effect が唯一の書き込み口になる。本文の "L" 表記が
+        // 区画の実サイズと食い違っていても、区画側 (= ゲームの一次データ) を正とする。
       }
       if (fills.length === 0) return;
 
@@ -424,6 +467,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       }
     },
     [fieldState],
+  );
+
+  /**
+   * ツイート本文など「1 本のテキスト」から住所を抽出して適用する (従来経路)。
+   * OGP 経路はページ内に候補が複数あるので extractHousingAddressFromPage を使う (handleOgpFetched)。
+   */
+  const applyExtractedAddress = useCallback(
+    (text: string) => applyExtractedResult(parseHousingFromText(text)),
+    [applyExtractedResult],
   );
 
   const handleTweetFetched = useCallback(
@@ -457,10 +509,17 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         setSnsCapture((prev) => (prev.ogp ? { ...prev, ogp: null } : prev));
         return;
       }
-      // OGP サイトの title/description を結合して住所抽出にかける (画像だけ取れて住所が
-      // 読み取れないケースは何もしない = 画像のみ反映)。
-      const text = [data.data.title, data.data.description].filter(Boolean).join('\n');
-      if (text.trim().length > 0) applyExtractedAddress(text);
+      // OGP サイトは og:title / og:description / 本文 の複数箇所に住所らしい文字列が散る。
+      // og:description は truncate されて住所行が落ちるサイト (housingsnap は 120 字) があるので、
+      // 本文テキストも候補に混ぜて「最も住所らしい 1 か所」を選ぶ。
+      // 住所が読み取れなければ何もしない (= 画像のみ反映)。
+      applyExtractedResult(
+        extractHousingAddressFromPage({
+          title: data.data.title,
+          description: data.data.description,
+          bodyText: data.data.text,
+        }),
+      );
       const images = data.data.images ?? [];
       if (images.length > 0) {
         setSourceImageUrls(images.slice(0, 10));
@@ -471,7 +530,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       setSnsCapture({ tweetData: null, tweetSource: null, youtube: null, ogp: data });
       if (data.postUrl) setPostUrl(data.postUrl);
     },
-    [applyExtractedAddress],
+    [applyExtractedResult],
   );
 
   // mode で出すステップを絞る (Task3.4-1)。mode は生存中不変の prop なので依存は [mode] のみ。

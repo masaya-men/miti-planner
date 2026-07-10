@@ -162,6 +162,104 @@ function decodeHtmlEntities(s: string): string {
         .replace(/&gt;/g, '>');
 }
 
+/** extractBodyText の既定打ち切り文字数 (呼び出し側が maxChars 未指定のとき)。 */
+const DEFAULT_BODY_TEXT_MAX_CHARS = 4000;
+
+/** 中身ごと捨てる (= 本文に出したくない) タグ。 script/style 等のノイズ源。 */
+const BODY_TEXT_DROP_TAGS = [
+    'script',
+    'style',
+    'noscript',
+    'svg',
+    'head',
+    'nav',
+    'header',
+    'footer',
+    'template',
+] as const;
+
+/**
+ * 行の境界になるブロックレベル要素。 **開始タグ・終了タグの両方**を改行にする。
+ * 終了タグだけを改行にすると `…<div>d</div><section>sec</section>` が `d` + `sec` ではなく
+ * `dsec` に潰れる (`<section>` の開始位置に境界が無いため)。
+ * `<br>` は単独で境界 (void 要素なので終了タグが無い)。
+ */
+const BODY_TEXT_BLOCK_BOUNDARY_RE =
+    /<\/?(?:p|div|li|ul|ol|h[1-6]|tr|td|th|table|section|article|main|aside|blockquote|pre|figure|figcaption|form|dl|dt|dd|address)\b[^>]*>|<br\s*\/?>/gi;
+
+/**
+ * HTML からタグを除去して本文テキストにする (2026-07-10 新設、 B: og-fetch 本文返却)。
+ *
+ * 住所行が og:description の truncate (housingsnap は 120 字) に載らず本文 `<p>` に
+ * しか無いページがあるため、 og-fetch が本文プレーンテキストも返せるようにする。
+ * **住所の解析ロジックはここには置かない** — クライアント側 (parseHousingFromText) が
+ * 担当する。 ここは「タグを剥がしてブロック境界の改行だけ保った plain text」を返す。
+ *
+ * 処理順:
+ * 1. HTML コメントを除去 (中に `>` を含んでも安全に一括)。
+ * 2. BODY_TEXT_DROP_TAGS を中身ごと除去 (open/close を同一タグ名で個別に、 非貪欲で
+ *    ネストを食わない。 `<head\b` は語境界で `<header>` を巻き込まない)。
+ * 3. **ソース中の生の改行・タブを空白へ畳む**。 HTML では改行はただの空白であって
+ *    行の境界ではない (`<p>a\nb</p>` は 1 行の「a b」)。 ブロック境界を入れる前にやる。
+ * 4. ブロックレベル要素の開始/終了タグと `<br>` を改行に置換 (= ここだけが行の境界)。
+ * 5. 残りのタグを除去。
+ * 6. `decodeHtmlEntities` で実体参照を戻す。
+ * 7. 各行内の連続空白を 1 個に畳み、 行頭行末をトリム。
+ * 8. 3 連以上の改行を 2 個に畳み、 全体をトリム。
+ * 9. maxChars (既定 4000) で打ち切る。
+ *
+ * @param html   生 HTML
+ * @param maxChars 打ち切り上限 (既定 DEFAULT_BODY_TEXT_MAX_CHARS)。 負値なら無制限。
+ * @returns 本文テキスト。 空なら空文字列。
+ */
+export function extractBodyText(
+    html: string,
+    maxChars: number = DEFAULT_BODY_TEXT_MAX_CHARS,
+): string {
+    if (typeof html !== 'string' || html.length === 0) return '';
+
+    let text = html;
+
+    // 1. HTML コメント除去
+    text = text.replace(/<!--[\s\S]*?-->/g, ' ');
+
+    // 2. 中身ごと捨てるタグ (script/style/...) を除去。 タグ名ごとに open/close を
+    //    閉じ、 非貪欲 (`*?`) で複数ブロックをまたいで貪欲に食わないようにする。
+    for (const tag of BODY_TEXT_DROP_TAGS) {
+        const re = new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?</${tag}>`, 'gi');
+        text = text.replace(re, ' ');
+    }
+
+    // 3. ソースの改行/タブ/復帰は HTML では空白。 ブロック境界を入れる前に潰す。
+    text = text.replace(/[\r\n\t\f\v]+/g, ' ');
+
+    // 4. ブロック境界 (開始/終了タグ両方) と <br> を改行に
+    text = text.replace(BODY_TEXT_BLOCK_BOUNDARY_RE, '\n');
+
+    // 5. 残りのタグを除去
+    text = text.replace(/<[^>]+>/g, '');
+
+    // 6. 実体参照を戻す
+    text = decodeHtmlEntities(text);
+
+    // 7. 各行内の連続空白を 1 個に、 行頭行末トリム
+    text = text
+        .split('\n')
+        .map((line) => line.replace(/[^\S\n]+/g, ' ').trim())
+        .join('\n');
+
+    // 8. 3 連以上の改行を 2 個に、 全体トリム
+    text = text.replace(/\n{3,}/g, '\n\n').trim();
+
+    // 9. maxChars で打ち切り (負値は無制限)
+    if (maxChars < 0 || text.length <= maxChars) return text;
+    const cut = text.slice(0, maxChars);
+    // slice はコードユニット単位なので、 サロゲートペア (絵文字等) の途中で切れることがある。
+    // 末尾に高サロゲートだけが残ると壊れた文字になるので 1 コードユニット戻す。
+    const lastCode = cut.charCodeAt(cut.length - 1);
+    return lastCode >= 0xd800 && lastCode <= 0xdbff ? cut.slice(0, -1) : cut;
+}
+
 /**
  * HTML から OgpMetadata を抽出する。
  * baseUrl は og:image が相対パスのときの解決基準 (= 通常は fetch した URL 自体)。

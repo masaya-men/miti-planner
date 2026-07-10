@@ -203,6 +203,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
                 id="housing-register-size"
                 className="housing-input"
                 value={size ?? ''}
+                disabled
                 onChange={(e) => onChange('size', e.target.value || undefined)}
               >
                 <option value="">—</option>

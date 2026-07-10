@@ -22,6 +22,12 @@ export interface OgpData {
     title: string | null;
     description: string | null;
     siteName: string | null;
+    /**
+     * ページ本文のプレーンテキスト (タグ除去、 ブロック境界で改行保持、 最大 4000 字)。
+     * 住所行が og:description の truncate に載らず本文にしか無いページ対策。 住所解析は
+     * クライアント側 (parseHousingFromText) が担当する。 取れなければ null。
+     */
+    text: string | null;
 }
 
 export type OgpFetchStatus = 'idle' | 'loading' | 'success' | 'error';
@@ -72,7 +78,8 @@ export function useOgpFetch() {
                 return;
             }
             const json = (await res.json()) as OgpData;
-            setData(json);
+            // text が無い旧デプロイのレスポンスでも落ちないよう null に落とす。
+            setData({ ...json, text: json.text ?? null });
             setStatus('success');
         } catch (e: unknown) {
             const err = e as { name?: string };
