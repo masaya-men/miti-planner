@@ -2379,7 +2379,15 @@
                 "clear_all": "Clear all",
                 "size_s": "Small",
                 "size_m": "Medium",
-                "size_l": "Large"
+                "size_l": "Large",
+                "personal_tag": "Personal Tag",
+                "personal_tag_placeholder": "Search by housinger name…",
+                "personal_tag_searching": "Searching…",
+                "personal_tag_no_results": "No matches found",
+                "personal_tag_report": "Report",
+                "personal_tag_report_confirm": "Report this tag?",
+                "personal_tag_report_success": "Reported",
+                "personal_tag_report_error": "Failed to report"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

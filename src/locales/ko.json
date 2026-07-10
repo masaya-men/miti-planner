@@ -2344,7 +2344,15 @@
                 "clear_all": "모두 지우기",
                 "size_s": "S 크기",
                 "size_m": "M 크기",
-                "size_l": "L 크기"
+                "size_l": "L 크기",
+                "personal_tag": "개인 태그",
+                "personal_tag_placeholder": "하우징어 이름으로 검색…",
+                "personal_tag_searching": "검색 중…",
+                "personal_tag_no_results": "검색 결과가 없습니다",
+                "personal_tag_report": "신고",
+                "personal_tag_report_confirm": "이 태그를 신고하시겠습니까?",
+                "personal_tag_report_success": "신고했습니다",
+                "personal_tag_report_error": "신고에 실패했습니다"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

@@ -2344,7 +2344,15 @@
                 "clear_all": "清除全部",
                 "size_s": "S 尺寸",
                 "size_m": "M 尺寸",
-                "size_l": "L 尺寸"
+                "size_l": "L 尺寸",
+                "personal_tag": "个人标签",
+                "personal_tag_placeholder": "按住宅玩家名称搜索…",
+                "personal_tag_searching": "搜索中…",
+                "personal_tag_no_results": "未找到结果",
+                "personal_tag_report": "举报",
+                "personal_tag_report_confirm": "要举报这个标签吗?",
+                "personal_tag_report_success": "已举报",
+                "personal_tag_report_error": "举报失败"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

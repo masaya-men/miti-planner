@@ -2400,7 +2400,15 @@
                 "clear_all": "すべてクリア",
                 "size_s": "Sサイズ",
                 "size_m": "Mサイズ",
-                "size_l": "Lサイズ"
+                "size_l": "Lサイズ",
+                "personal_tag": "個人タグ",
+                "personal_tag_placeholder": "ハウジンガー名で検索…",
+                "personal_tag_searching": "検索中…",
+                "personal_tag_no_results": "見つかりませんでした",
+                "personal_tag_report": "通報",
+                "personal_tag_report_confirm": "このタグを通報しますか?",
+                "personal_tag_report_success": "通報しました",
+                "personal_tag_report_error": "通報に失敗しました"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",
