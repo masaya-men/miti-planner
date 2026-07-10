@@ -26,7 +26,8 @@
 
 ### 🔴 進行中: 大物3つ (ハウジンガーPF / 探す地図 / 一時ツアー) を brainstorming→計画書まで完成させる (2026-07-10 ユーザー合意)
 - **✅PF=設計+計画書 完成(2026-07-10)**: spec=`docs/superpowers/specs/2026-07-10-housinger-profile-design.md` / plan=`docs/superpowers/plans/2026-07-10-housinger-profile-plan.md`。**実行は3ブランチ(登録改善/タグ刷新/小物UI)マージ後**(RegisterPage/TagPickerと重なるため)。
-- **✅地図=設計書 完成(2026-07-10)**: spec=`docs/superpowers/specs/2026-07-10-housing-browse-map-design.md`(吹き出しミニカード常時+hover拡大=探すカード同一部品/ゲートA/集約A/本街拡張街タブ/新設BrowseWardMapでツアー無傷)。計画書化 進行中。
+- **✅地図=設計+計画書 完成(2026-07-10)**: spec=`docs/superpowers/specs/2026-07-10-housing-browse-map-design.md` / plan=`docs/superpowers/plans/2026-07-10-housing-browse-map-plan.md`。実行は3ブランチマージ後。
+- **一時ツアー確定(2026-07-10)**: 本命ペルソナ=**B: 既存ユーザーが未登録の家をツアーに組み込む**(「登録はしたくないがツアーには入れたい」)→**登録済みと一時の混在ツアーが核**。
 - **2026-07-10 全体相談 完了**。小〜中物は設計確定→**計画書化済み・安価モデルで実行可能**: ①登録ページ改善(住所確認ゲートC案+編集は住所変更時のみ再確認+ステッパー強化+細修正+死にコード撤去) ②タグ刷新(公式23+季節12+テーマ12+個人タグ1人1個・拡張可能レジストリ・Phase A/B) ③小物UI束(フッター刷新/リップル/通知トンマナ点検) = `docs/superpowers/plans/2026-07-10-housing-*.md` の3本。相談ログ=`docs/.private/2026-07-10-all-consult-intake.md`
 - **🔥 軽減表「(競合コピー)」増殖バグ**: 症状+生成箇所(`usePlanStore.ts:520/816`)特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
 - **✅ Vercel 75%通知 解明・対策済 (2026-07-10)**: Edge=6/11スパイクが窓に残存しているだけで無害。本命はオリジン転送6.26/10GB=dev の動画確認が本番 Vercel 関数経由だった→`.env.local` に `VITE_MEDIA_PROXY_BASE_URL` 追記済・**dev サーバー要再起動**。7/12 沈静化確認=`docs/.private/2026-07-10-vercel-origin-transfer-followup.md`
