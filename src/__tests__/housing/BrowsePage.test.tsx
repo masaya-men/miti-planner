@@ -13,6 +13,7 @@ vi.mock('../../lib/housingListingsService', () => ({
 
 import { BrowsePage } from '../../components/housing/pages/BrowsePage';
 import { useHousingListingsStore } from '../../store/useHousingListingsStore';
+import { useHousingViewStore } from '../../store/useHousingViewStore';
 
 const mk = (id: string) => ({
   id, area: 'Mist', ward: 1, plot: 1, buildingType: 'house',
@@ -46,18 +47,40 @@ beforeAll(() => {
 
 beforeEach(() => {
   useHousingListingsStore.setState({ status: 'ready', listings: [mk('a'), mk('b')], error: null } as never);
+  useHousingViewStore.getState().reset();
 });
+
+const renderPage = () =>
+  render(
+    <I18nextProvider i18n={i18n}>
+      <MemoryRouter>
+        <BrowsePage />
+      </MemoryRouter>
+    </I18nextProvider>,
+  );
 
 describe('BrowsePage', () => {
   it('renders a card per filtered listing', () => {
-    render(
-      <I18nextProvider i18n={i18n}>
-        <MemoryRouter>
-          <BrowsePage />
-        </MemoryRouter>
-      </I18nextProvider>,
-    );
+    renderPage();
     // カードは role="link" (カード全体クリックで詳細へ・B9) なので testid で数える
     expect(screen.getAllByTestId('housing-listing-card').length).toBe(2);
+  });
+
+  it('shows the list|map view toggle in ready state (default = list)', () => {
+    renderPage();
+    const listTab = screen.getByRole('tab', { name: '一覧' });
+    expect(listTab.getAttribute('data-selected')).toBe('true');
+    // 既定は一覧 = 地図プレースホルダは出ない
+    expect(screen.queryByTestId('housing-browse-map-view')).toBeNull();
+  });
+
+  it('browseView=map swaps only the center (map placeholder shown, tray stays)', () => {
+    useHousingViewStore.getState().setBrowseView('map');
+    renderPage();
+    expect(screen.getByTestId('housing-browse-map-view')).toBeTruthy();
+    // 一覧グリッドは出ない
+    expect(screen.queryByTestId('housing-listing-card')).toBeNull();
+    // トレイ (右カラム) は地図モードでも従来どおり表示 (spec 4.4)
+    expect(screen.getByRole('button', { name: /開始|start/i })).toBeTruthy();
   });
 });
