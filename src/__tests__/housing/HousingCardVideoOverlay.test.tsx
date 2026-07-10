@@ -1,9 +1,13 @@
 // @vitest-environment happy-dom
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { HousingCardVideoOverlay } from '../../components/housing/workspace/HousingCardVideoOverlay';
 
 describe('HousingCardVideoOverlay', () => {
+  beforeEach(() => {
+    // 開発機の .env.local (VITE_MEDIA_PROXY_BASE_URL) に左右されないよう「未設定」を固定
+    vi.stubEnv('VITE_MEDIA_PROXY_BASE_URL', '');
+  });
   it('renders <video> with proxy src for Twitter listing', () => {
     const { container } = render(
       <HousingCardVideoOverlay
