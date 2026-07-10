@@ -46,6 +46,12 @@ export const PERSONAL_TAG_ID_PREFIX = 'personal_' as const;
  */
 export const PERSONAL_TAG_LIMIT_PER_USER = 1;
 
+/** 個人タグの表示名 (例: 「@yuura」相当) の最大文字数。 */
+export const PERSONAL_TAG_DISPLAY_NAME_MAX_LENGTH = 24;
+
+/** 個人タグ検索 (オートコンプリート) の 1 回あたり最大返却件数。 */
+export const PERSONAL_TAG_SEARCH_LIMIT = 20;
+
 // ─────────────────────────────────────────────
 // 通報・自浄作用（設計書 §9.3）
 // ─────────────────────────────────────────────
