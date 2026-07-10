@@ -1926,7 +1926,7 @@
             "address_verify_note": "即使地址是自动填写的，也请在登记前务必核对",
             "section_media": "图片・SNS URL",
             "field_title_label": "标题",
-            "field_title_placeholder": "请输入房屋名称",
+            "field_title_placeholder": "请输入标题",
             "field_title_optional_hint": "留空时将显示地址",
             "field_title_remaining": "剩余 {{count}} 字",
             "dc": "数据中心",
@@ -1938,6 +1938,7 @@
             "apartment_room": "房间号",
             "room_kind": {
                 "label": "房间类型",
+                "whole_house": "整栋房屋",
                 "private_chamber": "FC 个人房",
                 "apartment_room": "公寓房间"
             },

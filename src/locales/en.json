@@ -1961,7 +1961,7 @@
             "address_verify_note": "Please double-check the address before registering, even if it was auto-filled",
             "section_media": "Images & SNS URL",
             "field_title_label": "Title",
-            "field_title_placeholder": "Enter your housing name",
+            "field_title_placeholder": "Enter a title",
             "field_title_optional_hint": "If left blank, the address is shown",
             "field_title_remaining": "{{count}} characters remaining",
             "dc": "Data Center",
@@ -1973,6 +1973,7 @@
             "apartment_room": "Room Number",
             "room_kind": {
                 "label": "Room type",
+                "whole_house": "Whole house",
                 "private_chamber": "FC private room",
                 "apartment_room": "Apartment room"
             },

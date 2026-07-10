@@ -1982,8 +1982,8 @@
             "address_verify_note": "自動入力された住所も、登録前に必ず確認してください",
             "section_media": "画像・SNS URL",
             "field_title_label": "タイトル",
-            "field_title_placeholder": "わが家の名前を入力",
-            "field_title_optional_hint": "未入力なら住所が表示されます",
+            "field_title_placeholder": "タイトルを入力",
+            "field_title_optional_hint": "未入力の場合、住所が表示されます",
             "field_title_remaining": "残り {{count}} 文字",
             "dc": "データセンター",
             "server": "サーバー",
@@ -1994,6 +1994,7 @@
             "apartment_room": "部屋番号",
             "room_kind": {
                 "label": "部屋区分",
+                "whole_house": "家全体",
                 "private_chamber": "FC 個室",
                 "apartment_room": "アパート部屋"
             },

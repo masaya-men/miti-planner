@@ -351,24 +351,26 @@ describe('RegisterPage', () => {
 
   /**
    * size は (エリア × 区画) から一意に決まるので手入力させない (2026-07-10)。
-   * RegisterPage の導出 effect が唯一の書き込み口で、UI 側の select は disabled。
+   * RegisterPage の導出 effect が唯一の書き込み口で、UI 側は読み取り専用表示 (Task3-1: 旧
+   * disabled <select> はドロップダウン矢印が見えてしまうため disabled <input> に置換済み)。
+   * 表示は housingSizeMasterData のラベル (例 'L' → 'Lハウス')。
    * 参照表 = src/data/housing/wardPlotSizes.ts (LavenderBeds: plot1=M / plot3=L / plot29=S)。
    */
   describe('size は区画から自動導出され手入力できない', () => {
-    const sizeSelect = (container: HTMLElement) =>
-      container.querySelector('#housing-register-size') as HTMLSelectElement;
+    const sizeField = (container: HTMLElement) =>
+      container.querySelector('#housing-register-size') as HTMLInputElement;
 
-    it('size の select は disabled (手入力を受け付けない)', () => {
+    it('size 欄は disabled (手入力を受け付けない読み取り専用表示)', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
-      expect(sizeSelect(container).disabled).toBe(true);
+      expect(sizeField(container).disabled).toBe(true);
     });
 
     it('mode=edit のプリフィルで区画由来の size が入り、auto-filled バッジが出る', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       // LavenderBeds plot 3 = L (listing の size も L で一致)
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
-      expect(sizeSelect(container).value).toBe('L');
+      expect(sizeField(container).value).toBe('Lハウス');
       // fieldState が 'auto-filled' でないと requiredFields('size') が empty のまま送信できない
       expect(screen.getByTestId('housing-auto-badge-size')).toBeInTheDocument();
     });
@@ -378,7 +380,7 @@ describe('RegisterPage', () => {
       // LavenderBeds plot 29 の実サイズは S。listing には誤った 'L' が入っている。
       const wrong = { ...EDITABLE_LISTING, plot: 29, size: 'L' } as unknown as HousingListing;
       const { container } = renderPage({ mode: 'edit', initialValues: wrong });
-      expect(sizeSelect(container).value).toBe('S');
+      expect(sizeField(container).value).toBe('Sハウス');
     });
 
     it('mode=create で エリアと区画を入れると size が自動で入る', () => {
@@ -387,35 +389,35 @@ describe('RegisterPage', () => {
 
       // 区画だけではエリアが決まらないので size は空のまま
       fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '1' } });
-      expect(sizeSelect(container).value).toBe('');
+      expect(sizeField(container).value).toBe('');
 
       // エリアが入った瞬間に導出される (LavenderBeds plot 1 = M)
       fireEvent.change(container.querySelector('#housing-register-area')!, {
         target: { value: 'LavenderBeds' },
       });
-      expect(sizeSelect(container).value).toBe('M');
+      expect(sizeField(container).value).toBe('Mハウス');
 
       // 区画を変えれば追従する (plot 3 = L)
       fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '3' } });
-      expect(sizeSelect(container).value).toBe('L');
+      expect(sizeField(container).value).toBe('Lハウス');
     });
 
     it('区画が範囲外なら size は空に戻る (古い値が残らない)', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
-      expect(sizeSelect(container).value).toBe('L');
+      expect(sizeField(container).value).toBe('Lハウス');
 
       fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '61' } });
-      expect(sizeSelect(container).value).toBe('');
+      expect(sizeField(container).value).toBe('');
     });
 
     it('アパートに切り替えると size 欄ごと消える (apartment は size を持てない)', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
-      expect(sizeSelect(container)).not.toBeNull();
+      expect(sizeField(container)).not.toBeNull();
 
       fireEvent.click(screen.getByRole('radio', { name: 'アパート' }));
-      expect(sizeSelect(container)).toBeNull();
+      expect(sizeField(container)).toBeNull();
     });
   });
 
