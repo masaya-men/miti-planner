@@ -26,56 +26,73 @@ interface HousingSizeData {
   aliases: string[];
 }
 
-// 1. データセンターとサーバーのマスターデータ（英略称を徹底網羅）
+/**
+ * 1. データセンターとサーバーのマスターデータ
+ *
+ * ⚠ **DC / サーバーの alias に「4 文字未満の ASCII 略称」を足してはいけない**
+ * (`src/__tests__/housing/masterDataAliases.test.ts` が機械的に禁止している)。
+ *
+ * 経緯 (2026-07-10): かつて「英略称を徹底網羅」 として `Man`(Mana) / `Had`(Hades) /
+ * `Ex`(Excalibur) / `Gil`(Gilgamesh) 等 63 件を登録していた。 しかしこれらは実際の投稿から
+ * 採取した表記ゆれではなく**こちらで作った造語**で、 うち 31 件が英語の一般語と衝突していた。
+ * 結果、 ツイート本文の "i've finally **had** the energy…" がサーバー Hades と一致し、
+ * まったく別人の家の住所が登録される実バグを起こした。 `Mat` に至っては
+ * Mateus(サーバー) と Materia(DC) の**両方**に登録され自己矛盾していた。
+ *
+ * 日本語話者は「ハデス」「マナ」 と書き、 英語話者は `Hades` とフル名か
+ * `Exca` / `Gilg` のような 4 文字以上を使う。 3 文字略称の実使用例が確認できないため全削除した。
+ * エリアの `Gob`→Goblet 等は実在のツイート `⚐Gob 2-23 S` に由来するので **残してある**
+ * (エリアは 5 択しかなく誤爆の影響も小さい)。
+ */
 export const serverMasterData: Record<string, ServerData> = {
   // --- 日本 (JP) ---
   "Elemental": {
-    "aliases": ["エレ", "エレメンタル", "Elemental", "Ele", "Elem"],
+    "aliases": ["エレ", "エレメンタル", "Elemental", "Elem"],
     "servers": {
-      "Aegis": ["イージス", "Aegis", "Aeg"],
-      "Atomos": ["アトモス", "Atomos", "Ato"],
+      "Aegis": ["イージス", "Aegis"],
+      "Atomos": ["アトモス", "Atomos"],
       "Carbuncle": ["鞄", "カーバンクル", "カバン", "Carbuncle", "Carb", "Carbu"],
       "Garuda": ["ガル", "ガルーダ", "Garuda", "Garu"],
       "Gungnir": ["グングニル", "槍", "Gungnir", "Gung"],
       "Kujata": ["クジャタ", "Kujata", "Kuja"],
-      "Tonberry": ["トンベリ", "トンベ", "Tonberry", "Ton", "Tonbe"],
+      "Tonberry": ["トンベリ", "トンベ", "Tonberry", "Tonbe"],
       "Typhon": ["テュポーン", "テュポン", "Typhon", "Typh"]
     }
   },
   "Gaia": {
-    "aliases": ["ガイア", "Gaia", "Gai"],
+    "aliases": ["ガイア", "Gaia"],
     "servers": {
       "Alexander": ["アレキ", "アレキサンダー", "Alexander", "Alex"],
       "Bahamut": ["バハ", "バハムート", "Bahamut", "Baha"],
       "Durandal": ["デュランダル", "デュラ", "Durandal", "Dura"],
-      "Fenrir": ["フェンリル", "狼", "Fenrir", "Fen"],
+      "Fenrir": ["フェンリル", "狼", "Fenrir"],
       "Ifrit": ["イフ", "イフリート", "Ifrit", "Ifri"],
       "Ridill": ["リディル", "Ridill", "Ridi"],
-      "Tiamat": ["ティア", "ティアマト", "Tiamat", "Tia"],
+      "Tiamat": ["ティア", "ティアマト", "Tiamat"],
       "Ultima": ["アルテマ", "Ultima", "Ulti"]
     }
   },
   "Mana": {
-    "aliases": ["マナ", "Mana", "Man"],
+    "aliases": ["マナ", "Mana"],
     "servers": {
-      "Anima": ["アニマ", "Anima", "Ani"],
-      "Asura": ["アスラ", "Asura", "Asu"],
+      "Anima": ["アニマ", "Anima"],
+      "Asura": ["アスラ", "Asura"],
       "Chocobo": ["チョコボ", "Chocobo", "Choco"],
-      "Hades": ["ハデス", "Hades", "Had"],
-      "Ixion": ["イクシオン", "イクシ", "Ixion", "Ixi"],
+      "Hades": ["ハデス", "Hades"],
+      "Ixion": ["イクシオン", "イクシ", "Ixion"],
       "Masamune": ["マサムネ", "Masamune", "Masa"],
-      "Pandaemonium": ["パンデモ", "パンデモニウム", "Pandaemonium", "Panda", "Pan"],
-      "Titan": ["タイタン", "蛸", "Titan", "Tit"]
+      "Pandaemonium": ["パンデモ", "パンデモニウム", "Pandaemonium", "Panda"],
+      "Titan": ["タイタン", "蛸", "Titan"]
     }
   },
   "Meteor": {
-    "aliases": ["メテオ", "Meteor", "Met", "Meteo"],
+    "aliases": ["メテオ", "Meteor", "Meteo"],
     "servers": {
       "Belias": ["ベリアス", "ベリ", "Belias", "Beli"],
       "Mandragora": ["マンドラ", "マンドラゴラ", "Mandragora", "Mandra", "Mando"],
-      "Ramuh": ["ラムウ", "爺", "Ramuh", "Ram"],
+      "Ramuh": ["ラムウ", "爺", "Ramuh"],
       "Shinryu": ["神竜", "シンリュウ", "Shinryu", "Shin"],
-      "Unicorn": ["ユニコーン", "ユニ", "Unicorn", "Uni"],
+      "Unicorn": ["ユニコーン", "ユニ", "Unicorn"],
       "Valefor": ["ヴァルファーレ", "ヴァル", "Valefor", "Vale"],
       "Yojimbo": ["ヨウジンボウ", "用心棒", "Yojimbo", "Yoji"],
       "Zeromus": ["ゼロムス", "Zeromus", "Zero"]
@@ -84,101 +101,101 @@ export const serverMasterData: Record<string, ServerData> = {
 
   // --- 北米 (NA) ---
   "Aether": {
-    "aliases": ["エーテル", "Aether", "Aet"],
+    "aliases": ["エーテル", "Aether"],
     "servers": {
-      "Adamantoise": ["アダマンタイマイ", "Adamantoise", "Adam", "Ada"],
+      "Adamantoise": ["アダマンタイマイ", "Adamantoise", "Adam"],
       "Cactuar": ["サボテンダー", "Cactuar", "Cact"],
-      "Faerie": ["フェアリー", "Faerie", "Fae"],
-      "Gilgamesh": ["ギルガメッシュ", "Gilgamesh", "Gilg", "Gil"],
-      "Jenova": ["ジェノバ", "Jenova", "Jen"],
-      "Midgardsormr": ["ミドガルズオルム", "Midgardsormr", "Mid", "Middy"],
+      "Faerie": ["フェアリー", "Faerie"],
+      "Gilgamesh": ["ギルガメッシュ", "Gilgamesh", "Gilg"],
+      "Jenova": ["ジェノバ", "Jenova"],
+      "Midgardsormr": ["ミドガルズオルム", "Midgardsormr", "Middy"],
       "Sargatanas": ["サルガタナス", "Sargatanas", "Sarg"],
-      "Siren": ["セイレーン", "Siren", "Sir"]
+      "Siren": ["セイレーン", "Siren"]
     }
   },
   "Primal": {
-    "aliases": ["プライマル", "Primal", "Pri"],
+    "aliases": ["プライマル", "Primal"],
     "servers": {
       "Behemoth": ["ベヒーモス", "Behemoth", "Behe"],
-      "Excalibur": ["エクスカリバー", "Excalibur", "Exca", "Ex"],
-      "Exodus": ["エクソダス", "Exodus", "Exo"],
-      "Famfrit": ["ファムフリート", "Famfrit", "Fam"],
-      "Hyperion": ["ハイデリン", "Hyperion", "Hyp"],
-      "Lamia": ["ラミア", "Lamia", "Lam"],
+      "Excalibur": ["エクスカリバー", "Excalibur", "Exca"],
+      "Exodus": ["エクソダス", "Exodus"],
+      "Famfrit": ["ファムフリート", "Famfrit"],
+      "Hyperion": ["ハイデリン", "Hyperion"],
+      "Lamia": ["ラミア", "Lamia"],
       "Leviathan": ["リヴァイアサン", "Leviathan", "Levi"],
-      "Ultros": ["オルトロス", "Ultros", "Ult"]
+      "Ultros": ["オルトロス", "Ultros"]
     }
   },
   "Crystal": {
-    "aliases": ["クリスタル", "Crystal", "Cry", "Crys"],
+    "aliases": ["クリスタル", "Crystal", "Crys"],
     "servers": {
-      "Balmung": ["バルムンク", "Balmung", "Bal"],
+      "Balmung": ["バルムンク", "Balmung"],
       "Brynhildr": ["ブリュンヒルデ", "Brynhildr", "Bryn"],
-      "Coeurl": ["クァール", "Coeurl", "Coe"],
-      "Diabolos": ["ディアボロス", "Diabolos", "Dia"],
-      "Goblin": ["ゴブリン", "Goblin", "Gob"],
-      "Malboro": ["モルボル", "Malboro", "Mal"],
-      "Mateus": ["マティウス", "Mateus", "Mat"],
-      "Zalera": ["ザルエラ", "Zalera", "Zal"]
+      "Coeurl": ["クァール", "Coeurl"],
+      "Diabolos": ["ディアボロス", "Diabolos"],
+      "Goblin": ["ゴブリン", "Goblin"],
+      "Malboro": ["モルボル", "Malboro"],
+      "Mateus": ["マティウス", "Mateus"],
+      "Zalera": ["ザルエラ", "Zalera"]
     }
   },
   "Dynamis": {
-    "aliases": ["デュナミス", "Dynamis", "Dyn", "Dyna"],
+    "aliases": ["デュナミス", "Dynamis", "Dyna"],
     "servers": {
       "Halicarnassus": ["ハリカルナッソス", "Halicarnassus", "Hali"],
-      "Maduin": ["マディーン", "Maduin", "Mad"],
+      "Maduin": ["マディーン", "Maduin"],
       "Marilith": ["マリリス", "Marilith", "Mari"],
-      "Seraph": ["セラフ", "Seraph", "Ser"],
+      "Seraph": ["セラフ", "Seraph"],
       "Cuchulainn": ["クーフーリン", "Cuchulainn", "Cuch"],
-      "Golem": ["ゴーレム", "Golem", "Gol"],
-      "Kraken": ["クラーケン", "Kraken", "Kra"],
-      "Rafflesia": ["ラフレシア", "Rafflesia", "Raf"]
+      "Golem": ["ゴーレム", "Golem"],
+      "Kraken": ["クラーケン", "Kraken"],
+      "Rafflesia": ["ラフレシア", "Rafflesia"]
     }
   },
 
   // --- 欧州 (EU) ---
   "Chaos": {
-    "aliases": ["カオス", "Chaos", "Cha"],
+    "aliases": ["カオス", "Chaos"],
     "servers": {
       "Cerberus": ["ケルベロス", "Cerberus", "Cerb"],
       "Louisoix": ["ルイゾワ", "Louisoix", "Loui"],
-      "Moogle": ["モーグリ", "Moogle", "Moo"],
-      "Omega": ["オメガ", "Omega", "Ome"],
-      "Phantom": ["ファントム", "Phantom", "Pha"],
-      "Ragnarok": ["ラグナロク", "Ragnarok", "Rag"],
-      "Sagittarius": ["サジタリウス", "Sagittarius", "Sag"],
+      "Moogle": ["モーグリ", "Moogle"],
+      "Omega": ["オメガ", "Omega"],
+      "Phantom": ["ファントム", "Phantom"],
+      "Ragnarok": ["ラグナロク", "Ragnarok"],
+      "Sagittarius": ["サジタリウス", "Sagittarius"],
       "Spriggan": ["スプリガン", "Spriggan", "Sprig"]
     }
   },
   "Light": {
-    "aliases": ["ライト", "Light", "Lig"],
+    "aliases": ["ライト", "Light"],
     "servers": {
-      "Alpha": ["アルファ", "Alpha", "Alp"],
-      "Lich": ["リッチ", "Lich", "Lic"],
-      "Odin": ["オーディン", "Odin", "Odi"],
+      "Alpha": ["アルファ", "Alpha"],
+      "Lich": ["リッチ", "Lich"],
+      "Odin": ["オーディン", "Odin"],
       "Phoenix": ["フェニックス", "Phoenix", "Phoe"],
-      "Raiden": ["ライデン", "Raiden", "Rai"],
-      "Shiva": ["シヴァ", "Shiva", "Shi"],
+      "Raiden": ["ライデン", "Raiden"],
+      "Shiva": ["シヴァ", "Shiva"],
       "Twintania": ["ツインタニア", "Twintania", "Twin"],
       "Zodiark": ["ゾディアーク", "Zodiark", "Zodi"]
     }
   },
   "Shadow": {
-    "aliases": ["シャドウ", "Shadow", "Sha"],
+    "aliases": ["シャドウ", "Shadow"],
     "servers": {
       "Innocence": ["イノセンス", "Innocence", "Inno"],
-      "Pixie": ["ピクシー", "Pixie", "Pix"],
+      "Pixie": ["ピクシー", "Pixie"],
       "Titania": ["ティターニア", "Titania", "Tita"],
-      "Tycoon": ["タイクーン", "Tycoon", "Tyc"]
+      "Tycoon": ["タイクーン", "Tycoon"]
     }
   },
 
   // --- オセアニア (OCE) ---
   "Materia": {
-    "aliases": ["マテリア", "Materia", "Mat"],
+    "aliases": ["マテリア", "Materia"],
     "servers": {
-      "Bismarck": ["ビスマルク", "Bismarck", "Bis"],
-      "Ravana": ["ラーヴァナ", "Ravana", "Rav"],
+      "Bismarck": ["ビスマルク", "Bismarck"],
+      "Ravana": ["ラーヴァナ", "Ravana"],
       "Sephirot": ["セフィロト", "Sephirot", "Seph"],
       "Sophia": ["ソフィア", "Sophia", "Soph"],
       "Zurvan": ["ズルワーン", "Zurvan", "Zurv"]
