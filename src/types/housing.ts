@@ -311,3 +311,19 @@ export interface PersonalTagReport {
   comment?: string;
   createdAt: number;
 }
+
+/**
+ * housing_profiles/{uid} - ハウジンガー公開プロフィール (spec 2026-07-10)
+ * read: 公開 (isPublished && !isModerationHidden) or 本人 / write: API (Admin SDK) のみ
+ */
+export interface HousingerProfile {
+  displayName: string;            // users/{uid}.displayName のサーバー転記コピー
+  avatarUrl: string | null;       // users/{uid}.avatarUrl の同上
+  bio: string | null;             // ひとこと (HOUSINGER_BIO_MAX_LENGTH)
+  snsUrl: string | null;          // 許可ホストのみ (validateHousingerSnsUrl)
+  isPublished: boolean;
+  isModerationHidden: boolean;    // 運営強制非公開。true なら公開扱いにしない
+  reportCount: number;
+  createdAt: number;
+  updatedAt: number;
+}
