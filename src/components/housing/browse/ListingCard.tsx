@@ -14,8 +14,10 @@ import {
 } from '../../../lib/housing/youtubeImgFallback';
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
+import { useRipple } from '../../../lib/housing/useRipple';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
+import { HousingRipple } from '../HousingRipple';
 
 export interface ListingCardProps {
   listing: MockListing;
@@ -67,6 +69,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       ? 'youtube'
       : null;
   const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
+  const { ripples, onClick: addRipple } = useRipple();
   const mediaRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     register(mediaRef.current);
@@ -166,11 +169,13 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           className="housing-card-add-btn"
           onClick={(e) => {
             e.stopPropagation();
+            addRipple(e);
             onAddToTour(listing.id);
           }}
         >
           <Plus size={14} aria-hidden="true" />
           {t('housing.card.add_to_tour')}
+          <HousingRipple ripples={ripples} />
         </button>
       </div>
     </article>
