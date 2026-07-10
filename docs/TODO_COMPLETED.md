@@ -2,6 +2,19 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅✅✅ 2026-07-09 ハウジング詳細ページ改修 (P1掃除 / P2大パネル1枚化 / A・B・C) + P3 編集フォーム一本化 — main 統合・本番反映完了
+main `12fa481f` (詳細改修) と `cba9f69f` (P3)。設計/計画=`docs/superpowers/…2026-07-08-housing-detail-*`、台帳=`.superpowers/sdd/progress.md`。安価モデル(haiku)で subagent-driven 実装 → opus 最終レビュー「Ready to merge: Yes」。
+- **P1 掃除**: 死にコード + 旧ワークスペース経路 + 旧作成フォームを撤去 (-5950 行)。
+- **P2 大パネル1枚化**: シェル子ルート統合。モーダル / フルページの二本立てを撤去しツアー地図を流用。
+- **A/B/C**: A=写真ヒーロー + 固定レール(地図の透け重なり修正・脱ピル・脱色箱バナー) / B=ギャラリー(大メイン contain で見切れ無し + 縦サムネ列をバー無しフェード + クリックで差替) / C=テキスト収納スクロール + 見出し=住所(任意タイトル不要) + ハートを「探す」と統一(pop / 粒子 / honey)。
+- **P3 編集フォーム一本化**: `RegisterPage` を `mode='edit'` 対応にして編集も担わせ、編集は詳細 → 新ページ `HousingEditPage` (`/housing/listing/:id/edit`) への route 遷移に一本化。旧編集フォーム 3 枚 (HousingEditModal / HousingRegisterModal / HousingRegisterView) を撤去。方式A=編集で写真は変えない。build✅ / vitest 2696 pass。
+
+### ✅✅ 2026-07-09 ツアー左右パネル刷新 + 見学タイマー (Project B) — main 統合・本番反映完了
+ブランチ `feat/housing-tour-panel-restructure` (tip `4c839aed`) は **main の祖先 = マージ済・push 済**(2026-07-10 に `git merge-base --is-ancestor` で確認)。TODO.md 側に長く残っていた「未マージ・→main ff-merge」 という記述は**誤り**だった。反復詳細=`docs/.private/2026-07-08-tour-panel-iteration-notes.md`。
+- **内容**: store / useElapsed / i18n 4言語 / 左パネル(タイトルを画像上・DC撤去・紹介文空は「──」・次目的地=タイトル+住所・最下部寄せ) / 操作3ボタン(1行・左右小中央大・honey次へ) / 見学タイマー(移動中=行き方 ⇄ 見学中) / 家の発光(オーバーレイ実輪郭) / 北コンパス / 行き方「エーテライト：〜」 / 右パネル収束 + マップ演出(dip遷移・エーテライト名ラベル・操作ヒント・ステップのバネアニメ・自動追従スクロール・リング最終100%・完了ボタン。commit `c451bf29`)。
+- **同ブランチで併せて**: アパートのツアー地図で最寄りエーテライト名が出ない不具合修正(`2493e550`) / ツアー完了のオーバーレイ化(`c6c3beb6`) / 登録URL欄 autoComplete=off(`32c6ef00`) / テーマ切替の日の出・日の入り縦リビール(`133f8d86`)。
+- **⚠ 残 UI 4件はマージ後も未着手のまま** (TODO.md「ハウジング」節に転記済): ①B4「目的の家に行き方」吹き出し(家側) ②経路を家の縁で終端(刺さり解消) ③家と道の枠線根治 ④地図クロスフェード再挑戦(ズームイン破綻で `6404ab74` revert・現行は dip)。
+
 ### ✅✅✅ 2026-07-08 ハウジング「生きたカード」全面配線(段階2) — main 統合・本番反映完了 (finishing-a-development-branch)
 ブランチ `feat/housing-living-card-rollout`(spec+plan+4タスク+2fix)を **ff-merge → push → Vercel 自動デプロイ**。main `2c0b95a0`。spec/plan=`docs/superpowers/{specs,plans}/2026-07-08-housing-living-card-rollout*`。
 - **狙い/核心**: 新シェル世代(探す/お気に入り/ツアー)の静止画カードを、旧 workspace の完成済み生きたカード機構(画像クロスフェード + 動画スポットライト cap1・15s順送り)へ配線。詰まりは1箇所=`HousingPlaybackProvider` が旧 `HousingWorkspace` にしか mount されず新世代は NOOP 静止→**`HousingShell` の <Outlet/> に mount** で全新世代ページを対象化。各カードは旧 `HousingCard` 同型 hook を再利用(再発明ゼロ)。
@@ -34,8 +47,9 @@
 ### ✅ 2026-06-20 Vercel Pro→Hobby 移行判断の実測詳細 (判断=Hobby安全・TODO.mdから移動)
 課金API実測(6/12-19)= Edge Requests ピーク 16,127/日(6/12・閾値33Kの48%)・平均9,178/日(月換算275K=枠の27.5%)・直近土日(6/14-15)も約40%。Function Inv/転送量も全て5-6%。全指標2倍以上の余裕で減少傾向。ユーザー確認済(6/20)=ハウジング未公開・広告未稼働→今すぐ Hobby OK。team=pro 確認済(user 表示は northstar で hobby と出るが課金は team)。残アクション(TODO.md 側に保持)=7/11前に Dashboard で Hobby 切替・将来の広告つき公開時に Pro 復帰判断。
 
-### ✅ 2026-07-01〜07-02 ハウジング再構築 第1〜第3スパン(土台+探す+お気に入り) — 完了・ローカルのみ(未merge/未push)
-ブランチ=`feat/housing-rebuild-foundation-browse`。全面再構築(全7ページ+シェル・ページ単位再デザイン=挙動先行M1〜M6を撤回)。台帳=`.superpowers/sdd/progress.md`、spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`。**merge は登録ページ完成まで保留**(公開導線・揃うまで出さない・現状ローカルで本番影響ゼロ)。次=(b)登録ページ本体→全ブランチ最終レビュー→merge解禁→(c)ツアー中ナビ(M2〜)。
+### ✅ 2026-07-01〜07-02 ハウジング再構築 第1〜第3スパン(土台+探す+お気に入り) — **main 統合・本番反映済**
+ブランチ=`feat/housing-rebuild-foundation-browse` (tip `a90c103a`)。2026-07-10 時点で main の祖先 (= マージ済・origin/main に push 済) であることを `git merge-base --is-ancestor` で確認。当時の「merge は登録ページ完成まで保留・ローカルのみ」 という記述は**過去のもの**。
+全面再構築(全7ページ+シェル・ページ単位再デザイン=挙動先行M1〜M6を撤回)。台帳=`.superpowers/sdd/progress.md`、spec/plan=`docs/superpowers/{specs,plans}/2026-07-01-housing-*`。
 - **第1スパン=土台+探す骨組み**: HousingShell+上部6タブ(URLルート)/AppHeader(ブランド/検索/タブ/テーマ/通知/アバター)/探す3カラム/ComingSoonで他5タブ暫定着地。
 - **第2スパン=探す 参考UI忠実化+粗一掃**: 質感A案(濃紺フラットパネル=液体ガラス湾曲撤去/ハニー主・青選択)/4列グリッド+「一覧N件」見出し+並び替え/DDフィルタ(複数選択維持)+サイズ同幅セグメント/トレイN/20+お気に入りプレビュー/文字見切れ解消/多エージェント監査74粗→修正/広告撤去(Ko-fi優先)。ハウジング460テスト緑・build緑。
 - **第3スパン=お気に入りページ(Task2〜8)**: 左オンボ3ステップ(教育のみ・✅進捗なし)/中央=複数選択グリッド+タブ[すべて/最近追加]+一括バー/右トレイ+ツアー開始(マナー通知)/同住所の重複自動追加(expandTourWithDuplicates)/i18n4言語+parityテスト。仕上げ=AI感払拭(色付きalert箱撤去→ヘアライン注記)+番号センタリング+中央カラム縦余白リズム統一(バー↔カード密着解消)。`.claude/rules/housing-design.md` に質感A案条項追記。commits `08987d13`/`5bcb57e1`/`852f9462`/`32e1480f`。

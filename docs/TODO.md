@@ -9,15 +9,15 @@
 
 ---
 
-## 次の作業順 (2026-07-08 更新)
+## 次の作業順 (2026-07-10 更新)
 
-**✅中央地図 Phase2+Phase3 / ✅生きたカード全面配線(段階2) はいずれも本番反映済** (main `95ce47e4` / `2c0b95a0`・2026-07-08)。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md) + memory [[project_housing_phase_status]]。生きたカードの残 follow-up=詳細peers配線(任意)/representativeImage 3重複撤去/`useIsScrolling` が body overflow:hidden で発火しない件。DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
-- **🟢2026-07-09 セッション(同ブランチ `feat/housing-tour-panel-restructure`・未マージ・全コミット済/全緑)**: アパートのツアー地図で最寄りエーテライト名が出ない不具合修正 / ①ツアー完了オーバーレイ化(下3パネル inert+白フロスト+「素敵な時間でしたね！」) / ⑧登録URL欄 autoComplete=off(**本番ログインで要確認**) / ⑤テーマ切替の日の出(下→上)/日の入り(上→下)縦リビール(View Transitions・⑤ブラッシュアップは後日)。**⑦ハウジングスナップ住所自動入力=既に動作(og:descriptionにあり・既存OGP経路が抽出済。実データ15件検証)→新規実装不要でクローズ**。**✅②詳細ページ改修 本番反映完了(main `12fa481f`・2026-07-09 ff-merge+push+自動デプロイ・ブランチ削除済)**: P1掃除(死にコード+旧ワークスペース経路+旧作成フォーム・-5950行)+P2大パネル1枚化(シェル子ルート統合・モーダル/フルページ二本立て撤去・ツアー地図流用)+A写真ヒーロー/固定レール(地図の透け重なり修正・脱ピル・脱色箱バナー)+Bギャラリー(大メイン contain=見切れ無し+縦サムネ列 バー無しフェード+クリックで差替)+C(テキスト収納スクロール+見出し=住所[任意タイトル不要]+ハートを探すと統一 pop/粒子/honey)。opus最終レビュー=Ready to merge Yes。安価モデル(haiku)で subagent-driven 実装。台帳=`.superpowers/sdd/progress.md`。**✅P3(編集フォーム一本化)完了・本番反映済(main `cba9f69f`・2026-07-09 ff-merge+push+自動デプロイ・ブランチ削除済)**=RegisterPage を mode='edit' 対応にして編集も担わせ、編集は詳細→新ページ HousingEditPage(`/housing/listing/:id/edit`)への route 遷移に一本化、旧編集フォーム3枚(HousingEditModal/HousingRegisterModal/HousingRegisterView)撤去。方式A=編集で写真は変えない。個別+opus全体レビュー+fix+再レビュー全通過(build✅/vitest 2696pass)。**次=ユーザーが本番でログイン→編集を1周最終確認**(ログイン本番専用のためローカル確認不可)。詳細=`docs/.private/2026-07-08-housing-release-feature-braindump.md`。
-  - **🟡進行中(Project B)=ツアー左右パネル刷新+見学タイマー(ローカル)**。ブランチ=`feat/housing-tour-panel-restructure`(未マージ)。**✅済**=store/useElapsed/i18n4言語/左パネル(タイトルを画像上/DC撤去/紹介文空は──/次目的地=タイトル+住所+右寄せ小/最下部寄せ・報告中央)/操作3ボタン(1行/左右小中央大/同高さ/honey次へ/(任意)外出し)/見学タイマー(移動中=行き方⇄見学中)/**家の発光=user OK(オーバーレイ実輪郭)**/北コンパス/リセット文字化/行き方「エーテライト：〜」。build+vitest緑。**✅右パネル収束+マップ演出完了(dip遷移/エーテライト名ラベル/操作ヒント/ステップのバネアニメ/自動追従スクロール/リング最終100%+ヘッダーposition統一/完了ボタン・build+housing576テスト緑・commit `c451bf29`)。🔴残=①B4「目的の家に行き方」吹き出し(家側) ②経路を家の縁で終端(刺さり解消) ③家と道の枠線根治 ④地図クロスフェード再挑戦(ズームイン破綻でrevert・dip現行・code=`c905d8c4`)→ユーザー最終HMR確認→main ff-merge**。**反復詳細=`docs/.private/2026-07-08-tour-panel-iteration-notes.md`**。理想=共有ツアー同期は別PJ(`docs/.private/2026-07-08-synced-shared-tour-vision.md`)。
+**ハウジングのブランチは全部 main にマージ済・origin/main に push 済** (2026-07-10 に `git merge-base --is-ancestor` で検証)。`feat/housing-tour-panel-restructure` / `feat/housing-rebuild-foundation-browse` / `feat/housing-small-fixes` はいずれも**未マージではない**。ローカルのブランチ参照は消して良い。実装内容の詳細 → [TODO_COMPLETED.md](./TODO_COMPLETED.md) + memory [[project_housing_phase_status]]。DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-1. **🔴ハウジング全面再構築(全7ページ・再デザイン)**。ブランチ=`feat/housing-rebuild-foundation-browse`(ローカル・未push)。spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`、台帳=progress.md。
-   - **✅本番反映済(main f423fa87)**: 土台/探す/お気に入り/登録+非公開(=NotFound確認)・B1/B2/B4/B5/B6/D5/B7/B9/カード刷新 完了(詳細→台帳・COMPLETED)。**実機確認待ち**=①期限6/30→シークレットNotFound ②旧テスト物件を詳細…メニューから削除 ③カード新デザイン本番確認。
-   - 残: D7(過去日時注記・要相談)/D8(全ボタン押下feedback)/生きたカード段階2(Allmarks)/カードのスマホ対応/**軽減表の更新配信トースト**(自動reload禁止・要相談)/残デザイン(NotFound見た目/詳細トンマナ/B3赤Node)。(✅ツアー追加ボタン/YouTube fallback→COMPLETED)
+1. **🔴 ハウジング公開前の残タスク** (spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`、台帳=`.superpowers/sdd/progress.md`)
+   - **実機確認待ち(ユーザー)**: ①本番でログイン→**編集を1周**(ログイン本番専用でローカル不可) ②登録URL欄 autoComplete=off ③期限6/30→シークレットNotFound ④旧テスト物件を詳細…メニューから削除 ⑤カード新デザイン本番確認。
+   - **ツアー地図の残 UI 4件** (マージ済だが未着手): ①B4「目的の家に行き方」吹き出し(家側) ②経路を家の縁で終端(刺さり解消) ③家と道の枠線根治 ④地図クロスフェード再挑戦(ズームイン破綻で revert 済・現行 dip・code=`c905d8c4`)。
+   - **その他残**: D7(過去日時注記・要相談)/D8(全ボタン押下feedback)/カードのスマホ対応/**軽減表の更新配信トースト**(自動reload禁止・要相談)/残デザイン(NotFound見た目/詳細トンマナ/B3赤Node)/生きたカード follow-up(詳細peers配線・representativeImage 3重複撤去・`useIsScrolling` が body overflow:hidden で非発火)。
+   - 理想=共有ツアー同期は別PJ(`docs/.private/2026-07-08-synced-shared-tour-vision.md`)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断)
@@ -28,12 +28,13 @@
 
 - **🆕🏠 ハウジング登録UI 連続修正 本番反映済 (main `087d81bc`・2026-07-10)**。詳細/引き継ぎ=`docs/.private/2026-07-10-housing-small-fixes.md`。
   済=こまごま7件(#1-#7)/タイトル任意化/コメント文言/ツアー動くマップ/住所自動入力の誤検出2件/チェックパネルのキー衝突バグ/重複の赤化/ハニー主アクション統一(.housing-btn-primary をグラデ+影の正典へ)/ログイン案内のトンマナ化+中央寄せ/「登録の流れ」を右カラムへ移設/地図の全周ヴィネット。
-  - **🔴次セッション最優先=`docs/.private/2026-07-10-plot-size-table-and-address-v2.md` を読む**。
-    ① **(エリア×区画)→S/M/L 表は確定済 (safe_to_ship)**。一次データ=xivapi `HousingLandSet.csv` と マップ幾何実測 が 300/300 一致・敵対的反証済。**再調査するな**。残=`wardPlotSizes.ts` 化 + size 自動入力の配線 (上書き semantics はユーザー確認)。
-    ② **住所抽出v2 は要やり直し** (担当エージェントがダミー返答で失敗)。方針=ページ本文をテキスト化→候補分割→住所らしさスコアで最良候補を選ぶ→フル表記ゆれで解析。短縮エイリアスは「禁止」でなく「ward/plot が同居する文脈でのみ許可」に変える (今の `isTooShortAsciiAlias` 一律禁止はパーサーを弱くしている)。
-    ③ **🐛自リポのデータバグ**: `wardDirections.generated.json` の Mist plot30 / Shirogane plot8 の行き方本文が「Ｌハウス」だが実際は M。ユーザーに見えるテキストなので要修正。
-
-- **🆕💰 Firebaseコスト対策(2026-07-08)**: 予算¥500/月アラート到達→調査。最大=reCAPTCHA(App Check・月1万assessment無料枠超過、アクセス比例。攻撃でない)。**①App Check TTL 1h→7日=✅実施(ユーザー・reCAPTCHA更新激減)** / **④/api/popular GET を.select()射影=✅本番反映(commit a451791c・敵対監査2本clean=応答バイト不変/共同編集は別コレクションで独立・read-only破損不可)**。**②reCAPTCHA v3切替=保留→2026-07-12 09:00に自動フォロー(routine trig_0133PEo25sb1H3Eq8cfhTj3s)で効果測定して提案**。Vercel東京化はPro専用で撤回。詳細=memory [[project_firebase_cost_reduction]]。予算アラートは支出を止めない点注意。
+- **🆕📐 plot→size 表と住所抽出v2** (詳細=`docs/.private/2026-07-10-plot-size-table-and-address-v2.md`)
+  - **✅ 確定表を `src/data/housing/wardPlotSizes.ts` 化 + `getPlotSize(area, plot)`** (commit `0781d4cf`)。回帰ガード3系統(構造不変条件 / 全10マップの outline 面積 300/300 / 行き方本文260件との一致)をテストで固定。**表の再調査は不要**。
+  - **✅ 🐛行き方本文のサイズ誤記を修正**: Mist plot30・plot60 / Shirogane plot8・plot38 の「Ｌハウス」→「Ｍハウス」 (生成元 CSV を直して再生成)。private メモは本街2件だけ挙げていたが、拡張街のミラー2件も同じ誤記だった。
+  - **🔴 残①: size 自動入力の配線** — `buildingType==='house'` は plot 必須・size 必須なので size は常に (area, plot) から一意に決まる。**上書き semantics はユーザー確認待ち**。
+  - **🔴 残②: 住所抽出v2** (前回エージェントがダミー返答で失敗・未着手)。判明した事実=housingsnap の og:description は **120字で truncate** され住所行が落ちる。住所行 (`crystal | goblin | shirogane | w21 p58.`) は**本文 `div.main-text-box` の末尾 `<p>` にだけ**ある。方針=本文をテキスト化→候補分割→住所らしさスコアで最良候補→解析。短縮ASCIIエイリアスは「一律禁止」をやめ「同一候補内に ward/plot がある文脈でのみ許可」へ (今の `isTooShortAsciiAlias` はパーサーを弱くしている)。
+  - **🐛 別件(未修正)**: `wardDirections.generated.json` の **Goblet 拡張街 (plot 31-60) は `directions` が全30件とも空文字列**。ユーザーに見える「行き方」が空欄になる。埋めるには実ゲームの知識が要る。
+- **💰 Firebaseコスト対策**: ①App Check TTL 7日 ✅ / ④`/api/popular` `.select()` 射影 ✅ (`a451791c`)。**②reCAPTCHA v3切替=保留 → 2026-07-12 09:00 に自動フォローで効果測定→提案**。詳細=memory [[project_firebase_cost_reduction]]。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
 - **🟢🗓 Vercel Pro→Hobby: 実測で Hobby 安全確認済(6/20・全指標2倍以上余裕)**。**7/11 前に Dashboard→Billing→Plan で Hobby へ**(1クリック・可逆)。⚠将来ハウジングを広告つき公開する時は Hobby 商用禁止に抵触→Pro 復帰 or 別デプロイ分離を判断。詳細実測値→TODO_COMPLETED。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
@@ -48,27 +49,24 @@
 
 ## ハウジング (α公開後の主軸)
 
-- **🆕📝「完成→リリース」機能ダンプ(2026-07-08 ユーザー投下・8件)**=詳細/一次メモ=`docs/.private/2026-07-08-housing-release-feature-braindump.md`。軽=⑧URL入力欄autocomplete off/①ツアー終了をオーバーレイ化(現行ブランチ同梱候補)。要調査=⑦住所取得の実装状況。大物(brainstorming)=②詳細パネル一本化/③ハウジンガーPF+専用ページ/④探す地図表示(ワード淡発光+hoverサムネ・保留マップビュー復活)/⑥住所登録なし一時ツアー。演出=⑤テーマ切替の日没/日の出斜めワイプ。
-- **次優先**: ①本セッション分実機確認(新規登録で画像 aspectRatio CLS ゼロ/リデザイン全体/フィルター chip 矩形化/各モーダルのガラス感) ②「通報」文言全体見直し ③§3.8 残検証(重複 drop でツアー自動追加+トースト/単独 listing で section 非表示) ④「📅1ヶ月以上更新なし」バッジ ⑤通知 listingTitleSnapshot を `formatHousingAddress` 経由へ ⑥split-tweet 対応(画像ツイ+住所リプ別 URL・設計書§8)
+- **📝「完成→リリース」機能ダンプ(8件)**=`docs/.private/2026-07-08-housing-release-feature-braindump.md`。✅済=①ツアー終了オーバーレイ / ②詳細パネル一本化 / ⑤テーマ切替演出 / ⑧autocomplete off。⑦住所取得は**「既に動作」判定が誤り**だった (og:description は truncate される→上記「現在の状態」の残②)。**残る大物(要 brainstorming)**=③ハウジンガーPF+専用ページ / ④探す地図表示(ワード淡発光+hoverサムネ・保留マップビュー復活) / ⑥住所登録なし一時ツアー。
+- **次優先**: ①「通報」文言全体見直し ②§3.8 残検証(重複 drop でツアー自動追加+トースト/単独 listing で section 非表示) ③「📅1ヶ月以上更新なし」バッジ ④通知 listingTitleSnapshot を `formatHousingAddress` 経由へ ⑤split-tweet 対応(画像ツイ+住所リプ別 URL・設計書§8)
 - **その後**: 既存テスト物件一掃+コールドスタート(ユーザー作業)→アプデ告知(#59+ハウジングα)。**保留**=マップビュー(リストで完結・非ブロッカー)。
 - **Phase 3 残/#60**: UI コンポーネント test 追従(HousingRegister系)/カードデザイン刷新(Allmarks風)/マップ実データ化+`APARTMENT_SPOT[area]`/ko・zh 翻訳実値。
 - **タグ仕様全面刷新**(詳細=docs/.private/2026-05-27-tag-system-redesign.md): 公式FF14+シーズン+個人タグ(1人1タグ)の3カテゴリ・軽量モデ。
 - **リッチメディア化**: 複数画像+動画埋め込み+ビューポート内自動再生(**CSP に video.twimg.com 必須**・最大3本)・Allmarks 知見流用。
 - **通報モデ業界水準ロードマップ**(詳細=docs/.private/2026-05-26-housing-moderation-roadmap.md): Audit log/30日物理削除cron/異議申し立てUI/BAN自動化/NSFW高優先キュー(severity:'high' 既付与だが /admin 並び未反映)/Reporter scoring。
-- **細かい**: `fieldState.confirm()` バグ/dead code 撤去/AddressFields renderBadge prop 化/photo `alt`/SNS rate limiting/通知✕磨き/HousingCardExpanded 撤去判断/ツアー同期 Firestore 化。
+- **細かい**: `fieldState.confirm()` バグ/AddressFields renderBadge prop 化/photo `alt`/SNS rate limiting/通知✕磨き/ツアー同期 Firestore 化。
 
 ---
 
 ## 既知の残課題 (中規模・別セッションで設計から)
 
 - **#59 残(公開後OK)**: ESLint `react-hooks/rules-of-hooks` 有効化(hook違反→React #310 本番真っ白・tscは通る) / 「表を展開する」click 394ms(全展開レンダー) / メモリ振れ600-800MB(DOM 73,060個・将来 react-window)
-- **スプシ取込スマホ=貼付方式は本番済だが実シート取込不可(状態は↑現在の状態/作業順#1)**。残設計課題: ②フェーズ貼付ガイド/未貼付ガード ③全選択コピーの図解(優先低)。[[project_spreadsheet_mobile_grid]]
-- **ローカルデータ安全性=✅本番済(6/25 `13b081c5`)→現在の状態。残C(任意)**=localStorage→IndexedDB移行(容量・堅牢性。Safari7日消去はIDBでも起きるのでA併用前提)。spec/plan=`docs/superpowers/{specs,plans}/2026-06-25-local-data-safety*`。
-- **同期不安定**(2026-04-29): 軽減配置→タブ閉→別端末で消失等の複合症状
-- **ローカル削除→即同期で復活**(2026-04-28): `deletePlan` の `_deletedPlanIds` 漏れ
+- **スプシ取込スマホ** (棚上げ済↑): 残設計課題=②フェーズ貼付ガイド/未貼付ガード ③全選択コピーの図解(優先低)。[[project_spreadsheet_mobile_grid]]
+- **旧・同期バグ2件**: 同期不安定(2026-04-29 軽減配置→タブ閉→別端末で消失等の複合症状) / ローカル削除→即同期で復活(2026-04-28 `deletePlan` の `_deletedPlanIds` 漏れ)
 - **共同編集 再接続時の「一部欠け」消失**(2026-06-18・先送り合意): 離脱前復帰で自分の直前ドロー等だけ欠けた状態を返し空上書き防御(まるごと空のみ保護)をすり抜け。直しA(離脱側=確定待ち・安価)/B(再接続側=補完・根本)。詳細=docs/.private/2026-06-18-collab-reconnect-partial-loss.md。Undo 機能とは別件。
-- **EventModal 計算肥大**(`handleCalculate`分割+calculator.ts共通化) / **CRIT 倍率ステータス連動**(`getCritMultiplier(level)`+IL切替UI)
-- **Timeline 描画 120FPS**(2026-05-14): 要素多いと 8.33ms 超え
+- **計算/描画**: EventModal 計算肥大(`handleCalculate`分割+calculator.ts共通化) / CRIT 倍率ステータス連動(`getCritMultiplier(level)`+IL切替UI) / Timeline 描画 120FPS(要素多いと 8.33ms 超え)
 
 ---
 
@@ -83,26 +81,21 @@
 
 ## 未着手・将来計画
 
-- 多言語: ハウジング言語対応/AA 名統一
-- UI/モバイル: モーダルアニメ/スマホ・タブレット最適化/SVG アイコンアニメ/紹介 PV
-- **❌ 表の情報列固定(横スクロール)** — 2026-06-18 実装したが撤回済(再着手しない): sticky は窓を狭めるとドリフト・完全解消は2パネル化(高リスク)・価値に見合わず。再挑戦は sheetWidth と固定機構の分離(B案)前提(詳細→COMPLETED)。
+- 多言語/UI: ハウジング言語対応・AA 名統一 / モーダルアニメ・スマホ+タブレット最適化・SVG アイコンアニメ・紹介 PV / 共同編集カーソル ON/OFF トグルが枠外はみ出る(状態テキスト明示・低優先)
 - インフラ: shared_plans クリーンアップ(**2026-06-25 ユーザー近々対応希望**=「表を共有」リンクのサーバー残骸GC・バックアップとは別件)/CSP unsafe-inline/Sentry/**collab使用量 自動監視→Discord通知 cron**(公開時はA=今のまま[部屋8〜20席+冬眠+COLLAB_DISABLED 手動+$0自動停止]・コスト青天井無し。Bの運用ツール群は公開後追加・2026-06-12決定)
-- 新機能: Floating Timeline(Tauri v2)/FFLogs 精度/SA 法改善/詠唱バー注釈/public/icons/削除/ハウジング split-tweet
-- デッドコード: Lenis 削除/ハウジング背景動画の画面サイズ別出し分け
+- 新機能/デッドコード: Floating Timeline(Tauri v2)/FFLogs 精度/SA 法改善/詠唱バー注釈/public/icons/削除/ハウジング split-tweet // Lenis 削除/ハウジング背景動画の画面サイズ別出し分け
+- ⛔ **再着手しない**: 表の情報列固定(横スクロール・2026-06-18 撤回。詳細→COMPLETED) / LICENSE 追加([[feedback_lopo_license_stance]]・真の防御=data+コミュニティ+継続運用、投資するなら計算ロジックの wasm 化)
 
 ---
 
 ## アイデア / 並行 / バックログ
 
-- **知財防御(2026-05-27 確定)**: LICENSE 追加しない([[feedback_lopo_license_stance]])。真の防御=data+コミュニティ+継続運用。読まれにくく投資するなら計算ロジックの wasm 化がコスパ最良(β以降検討)。server 化は 70-200ms 劣化で見送り。
-- アイデア: メモのURL→**YouTube等その場再生(iframe・サムネ方式)**(クリック開きは✅済→上記#1)・こだわりトップ・配置アニメ・OCR・横型タイムライン・Gemma AI
-- **🆕 機能ブラッシュアップ案9件**(詳細=docs/.private/2026-06-15-feature-ideas-batch.md): ①同時刻3+イベント ②スマホ/タブレット最適化(残=ボトムナビ/FAB) ③軽減競合逆方向警告(✅実装済) ④MAXHP-10%でダメージ黄 ⑤Logsインポート上書き/追記(✅本番済2026-06-20) ⑥有名スプシ取込(✅実装完了2026-06-21=上記🟣・要実機確認) ⑦敵攻撃 or(2択) ⑧管理画面 攻撃ID保持で任意言語翻訳(GUID保持済=ほぼ実装済・仕上げのみ) ⑨メモに動画URL→iframe。⑥は実装完了(要実機確認)。取り込み導線チューザー統合は将来。**🆕列グリッド取込(自作スプシ対応)§9.7=✅本番デプロイ済(6/25 `85bb7d8c`)→上記「現在の状態」。spec/plan=`docs/superpowers/{specs/2026-06-24-spreadsheet-grid-import-design.md§9.7,plans/2026-06-24-spreadsheet-grid-import-v97-ux.md}`。**
+- アイデア: メモのURL→**YouTube等その場再生(iframe・サムネ方式)**(クリック開きは✅済)・こだわりトップ・配置アニメ・OCR・横型タイムライン・Gemma AI
+- **機能ブラッシュアップ案9件**(詳細=docs/.private/2026-06-15-feature-ideas-batch.md)。✅済=③軽減競合逆方向警告 / ⑤Logsインポート上書き・追記 / ⑥有名スプシ取込 (+列グリッド取込 §9.7 `85bb7d8c`)。**残**=①同時刻3+イベント ②スマホ/タブレット最適化(ボトムナビ/FAB) ④MAXHP-10%でダメージ黄 ⑦敵攻撃 or(2択) ⑧管理画面 攻撃ID保持で任意言語翻訳(GUID保持済・仕上げのみ) ⑨メモに動画URL→iframe。取り込み導線チューザー統合は将来。
 - **🆕 Wiki型タイムライン共同編集**(大物・詳細=docs/.private/2026-06-16-wiki-collaborative-timeline.md): ログインユーザー皆で1コンテンツを Wiki 編集(オーナーロック可)。既存 collab 資産活用+公開編集モデルは別設計。⑧を先に効かせると相性良。着手時 brainstorming。
 - **🆕 共同編集の部屋に「日程調整」**(ブレスト一部合意済・詳細=docs/.private/2026-06-16-collab-fixed-group-scheduling.md): collab ON 時だけ調整さん方式(候補日×メンバー○×△)。識別=名前自由入力(PII なし)・閲覧者も回答可。Phase2 で攻略進捗バー/作戦ボード温存。次=brainstorming 継続→spec。
-- **🆕 軽減編集タイムラプスのSNS投稿**(大物・要brainstorming。2026-06-30 調査+試作で方向確定): クリアまでの試行錯誤をGIF化→SNS(#BuildInPublic・バイラル狙い「これどこで作った→LoPo」)。**履歴蓄積は容易**=add/remove/updateMitigation が全部 `pushHistory()` 経由→`{時刻,snapshot}`を別バッファ記録するだけ(PlanData/HistorySnapshotは素のJSON・loadSnapshotで復元可)。**❌抽象帯グラフ(自前canvas描画)は却下**=ユーザー「実画面で見せないとLoPoと分からない」→**実画面ベース必須**(html2canvas or getDisplayMedia等・DOM描画なので要検討)。GIFで十分(尺短・超高速→最後にCLEAR)。古い表は「完成形の組み上がり」のみ可(本物の試行錯誤は録画機構導入後)。既存録画ブランチ(pip-timeline-recorder/VideoRecorderModal)は**YouTube入力補助で流用不可**と判明。試作=scratchpad(帯グラフ版・却下)。
 - 方針: コンテンツ追加=`add-content`→`seed-contents.ts`/スキル正本=Firestore/SNS タグ `#LoPo #FF14 #BuildInPublic #AISelection`
 - 並行: マイコラージュ(収益化・28日まで凍結)/ハウジングは MUL 対象外で広告 OK
-- バックログ: npm audit/a11y/SE 利用規約/GDPR/SEO/FFLogs アイコン/MTST 分け/みんなの軽減表
-- **リアルタイム共同編集 ①〜⑤・④ 全完了(2026-06-14 一般公開・本番稼働)** — 正典=memory `project_realtime_collab_status`、実装ログ=COMPLETED。**残=カーソル ON/OFF UI 改修(低優先)**: トグルが枠外はみ出る→状態テキスト明示(PresenceControls/CursorOptInModal)。
+- バックログ: npm audit/a11y/SE 利用規約/GDPR/SEO/FFLogs アイコン/MTST 分け/みんなの軽減表/ローカルデータ IndexedDB 移行(任意・Safari7日消去はIDBでも起きるので A 併用前提)
 
 <!-- When compacting, always preserve: 現在のタスク、変更中のファイルパス、本ファイルの「現在の状態」セクション -->
