@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
@@ -35,9 +35,21 @@ beforeAll(() => {
   }
 });
 
+// コンテナ rect のモック(ズーム/パン変換テスト用)。happy-dom はレイアウトを行わないため
+// getBoundingClientRect は既定で全 0 を返す(既存テストはこれでも成立=フィット計算が早期 return するだけ)。
+// ズーム/パン変換のテストではフィット計算(BrowseWardMap.tsx のコンテナ実寸 contain フィット)を
+// 実際に走らせる必要があるため、全テスト共通で固定サイズの矩形を返すようにする。
+let rectSpy: ReturnType<typeof vi.spyOn> | undefined;
+const WRAP_RECT = { width: 300, height: 200, top: 0, left: 0, right: 300, bottom: 200, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
+
 beforeEach(() => {
   useHousingViewStore.getState().reset();
   vi.mocked(useWardMapAsset).mockReset();
+  rectSpy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue(WRAP_RECT);
+});
+
+afterEach(() => {
+  rectSpy?.mockRestore();
 });
 
 const mockJson: WardMapJson = {
@@ -144,5 +156,124 @@ describe('BrowseWardMap', () => {
     const badSpot = mkSpot({ key: 'plot:99', kind: 'plot', plot: 99 });
     expect(() => renderMap({ spots: [...spots, badSpot] })).not.toThrow();
     expect(screen.queryByTestId('bmap-marker-plot:99')).toBeNull();
+  });
+});
+
+// レビュー指摘(Task4): ズーム/パン/クランプ変換にテストが皆無だったための追加分。
+// コンテナは WRAP_RECT(300x200)固定、mockJson.viewBox は 100x100 のため、
+// contain フィットは scale=min(300/100, 200/100)=2 (=fitScale)、tx=(300-100*2)/2=50、ty=(200-100*2)/2=0 で確定する
+// (BrowseWardMap.tsx のコメント通り、view.scale は「フィット基準の倍率(レベル)」で保持され、
+// 実際の描画倍率は fitScale*view.scale。stage の transform 文字列からこれを読み取って検証する)。
+describe('BrowseWardMap ズーム/パン/クランプ変換', () => {
+  const FIT_SCALE = 2;
+  const FIT_TX = 50;
+  const FIT_TY = 0;
+  // BrowseWardMap.tsx 冒頭の MAX_ZOOM_LEVEL(=6, フィット基準の手動ズーム上限)をテスト側にも固定値として持つ。
+  const MAX_ZOOM_LEVEL = 6;
+
+  const mockReady = () => {
+    vi.mocked(useWardMapAsset).mockReturnValue({ status: 'ready', json: mockJson, svg: '<svg data-mock="1"></svg>' } as WardMapAssetState);
+  };
+
+  const readStageTransform = (): { tx: number; ty: number; scale: number } => {
+    const stage = screen.getByTestId('bmap-stage');
+    const m = stage.style.transform.match(/^translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)$/);
+    if (!m) throw new Error(`想定外の transform 形式: ${stage.style.transform}`);
+    return { tx: Number(m[1]), ty: Number(m[2]), scale: Number(m[3]) };
+  };
+
+  // happy-dom の WheelEvent は UIEvent を直接継承しており(本来の spec は MouseEvent 継承)、
+  // clientX/clientY を実装していない。fireEvent.wheel(el, { clientX, clientY }) は
+  // コンストラクタが読まないプロパティを渡すだけで握りつぶされ、e.clientX が undefined になり
+  // 実装側の mx/my(ひいては tx/ty)が NaN 化することを実機確認済み。ネイティブ WheelEvent を組み立てた後
+  // defineProperty で直接値を差し込んで dispatch する。
+  const fireWheelAt = (el: HTMLElement, clientX: number, clientY: number, deltaY: number) => {
+    const event = new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true });
+    Object.defineProperty(event, 'clientX', { value: clientX, configurable: true });
+    Object.defineProperty(event, 'clientY', { value: clientY, configurable: true });
+    fireEvent(el, event);
+  };
+
+  // mapZoom.zoomAt の式をテスト側で独立に再現する (import して比較すると「実装が実装通り動く」だけの
+  // トートロジーになるため、mapZoom.ts 記載の式をそのまま書き写して期待値を計算する)。
+  // レベル空間(フィット基準倍率)で計算し、呼び出し側で fitScale を掛けて実 px と比較する。
+  const expectedZoomAtLevel = (
+    v: { scale: number; tx: number; ty: number },
+    mx: number,
+    my: number,
+    nextScaleRaw: number,
+  ): { scale: number; tx: number; ty: number } => {
+    const MIN_SCALE = 1;
+    const MAX_SCALE = 8;
+    const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, nextScaleRaw));
+    if (newScale === v.scale) return v;
+    const k = newScale / v.scale;
+    return { scale: newScale, tx: mx - (mx - v.tx) * k, ty: my - (my - v.ty) * k };
+  };
+
+  it('フィット直後の初期表示は contain フィット値と一致する', () => {
+    mockReady();
+    renderMap();
+    const t = readStageTransform();
+    expect(t).toEqual({ tx: FIT_TX, ty: FIT_TY, scale: FIT_SCALE });
+  });
+
+  it('wheel でズームインすると、カーソル位置(アンカー点)を固定した変換になる', () => {
+    mockReady();
+    renderMap();
+    const wrap = screen.getByTestId('bmap-wrap');
+    const before = readStageTransform();
+    expect(before).toEqual({ tx: FIT_TX, ty: FIT_TY, scale: FIT_SCALE });
+
+    const mx = 100;
+    const my = 50;
+    fireWheelAt(wrap, mx, my, -100); // deltaY<0 = ズームイン
+
+    const after = readStageTransform();
+    // レベル空間(scale=1が初期フィット)での期待値。STEP=1.1 は mapZoom.ts のホイール1step分の倍率。
+    const expectedLevel = expectedZoomAtLevel({ scale: 1, tx: FIT_TX, ty: FIT_TY }, mx, my, 1 * 1.1);
+    expect(after.scale).toBeCloseTo(expectedLevel.scale * FIT_SCALE, 9);
+    expect(after.tx).toBeCloseTo(expectedLevel.tx, 9);
+    expect(after.ty).toBeCloseTo(expectedLevel.ty, 9);
+    expect(after).not.toEqual(before); // 変化していること自体も確認
+  });
+
+  it('wheel ズームインを繰り返しても ×6(フィット基準)相当を超えない', () => {
+    mockReady();
+    renderMap();
+    const wrap = screen.getByTestId('bmap-wrap');
+    for (let i = 0; i < 30; i++) {
+      fireWheelAt(wrap, 100, 50, -100);
+    }
+    const { scale } = readStageTransform();
+    expect(scale).toBeCloseTo(MAX_ZOOM_LEVEL * FIT_SCALE, 9);
+  });
+
+  it('wheel ズームアウトを繰り返してもフィット(レベル1)を下回らない', () => {
+    mockReady();
+    renderMap();
+    const wrap = screen.getByTestId('bmap-wrap');
+    const before = readStageTransform();
+    for (let i = 0; i < 10; i++) {
+      fireWheelAt(wrap, 100, 50, 100); // deltaY>0 = ズームアウト
+    }
+    const after = readStageTransform();
+    expect(after).toEqual(before); // フィット(scale=fitScale)のまま変化しない
+  });
+
+  it('pointer ドラッグでパンすると、移動量ぶん tx/ty が変化する(scale は不変)', () => {
+    mockReady();
+    renderMap();
+    const wrap = screen.getByTestId('bmap-wrap');
+    const before = readStageTransform();
+
+    fireEvent.pointerDown(wrap, { pointerId: 1, clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(wrap, { pointerId: 1, clientX: 140, clientY: 130 }); // dx=40, dy=30 (クリック閾値4pxを超える)
+    fireEvent.pointerUp(wrap, { pointerId: 1, clientX: 140, clientY: 130 });
+
+    const after = readStageTransform();
+    expect(after.tx).toBeCloseTo(before.tx + 40, 9);
+    expect(after.ty).toBeCloseTo(before.ty + 30, 9);
+    expect(after.scale).toBeCloseTo(before.scale, 9);
   });
 });

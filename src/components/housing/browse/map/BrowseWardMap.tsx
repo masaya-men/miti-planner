@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { BrowseMapSpot } from '../../../../lib/housing/browseMapSpots';
 import { useWardMapAsset } from '../../../../lib/housing/useWardMapAsset';
@@ -80,7 +80,10 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
 
   // 初期ビュー = コンテナ実寸への contain フィット (spec 4.: scale=min(cw/vw, ch/vh)、中央寄せ)。
   // mapKey ごとに一度だけ計算する(以後のリサイズでは手動パン/ズームを尊重して上書きしない)。
-  useEffect(() => {
+  // レビュー指摘: 通常の useEffect だと assetState が ready になるたび(初回表示・区切替のたび)
+  // 未フィット(scale=1・左上原点)の地図が1フレーム見えてからスナップするフラッシュが起きる。
+  // TourNavMap.tsx の同種フィット計算(useLayoutEffect)に合わせ、paint 前にフィットを確定する。
+  useLayoutEffect(() => {
     if (!readyJson) return;
     if (fittedKey === mapKey) return;
     if (wrapSize.w === 0 || wrapSize.h === 0) return; // 未計測。次の wrapSize 更新で再試行。
