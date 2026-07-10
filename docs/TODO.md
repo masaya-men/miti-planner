@@ -27,6 +27,13 @@
 
 ## 現在の状態 (次セッションはここから読む)
 
+- **🆕🏠 ハウジング登録UI 連続修正 本番反映済 (main `087d81bc`・2026-07-10)**。詳細/引き継ぎ=`docs/.private/2026-07-10-housing-small-fixes.md`。
+  済=こまごま7件(#1-#7)/タイトル任意化/コメント文言/ツアー動くマップ/住所自動入力の誤検出2件/チェックパネルのキー衝突バグ/重複の赤化/ハニー主アクション統一(.housing-btn-primary をグラデ+影の正典へ)/ログイン案内のトンマナ化+中央寄せ/「登録の流れ」を右カラムへ移設/地図の全周ヴィネット。
+  - **🔴次セッション最優先=`docs/.private/2026-07-10-plot-size-table-and-address-v2.md` を読む**。
+    ① **(エリア×区画)→S/M/L 表は確定済 (safe_to_ship)**。一次データ=xivapi `HousingLandSet.csv` と マップ幾何実測 が 300/300 一致・敵対的反証済。**再調査するな**。残=`wardPlotSizes.ts` 化 + size 自動入力の配線 (上書き semantics はユーザー確認)。
+    ② **住所抽出v2 は要やり直し** (担当エージェントがダミー返答で失敗)。方針=ページ本文をテキスト化→候補分割→住所らしさスコアで最良候補を選ぶ→フル表記ゆれで解析。短縮エイリアスは「禁止」でなく「ward/plot が同居する文脈でのみ許可」に変える (今の `isTooShortAsciiAlias` 一律禁止はパーサーを弱くしている)。
+    ③ **🐛自リポのデータバグ**: `wardDirections.generated.json` の Mist plot30 / Shirogane plot8 の行き方本文が「Ｌハウス」だが実際は M。ユーザーに見えるテキストなので要修正。
+
 - **🆕💰 Firebaseコスト対策(2026-07-08)**: 予算¥500/月アラート到達→調査。最大=reCAPTCHA(App Check・月1万assessment無料枠超過、アクセス比例。攻撃でない)。**①App Check TTL 1h→7日=✅実施(ユーザー・reCAPTCHA更新激減)** / **④/api/popular GET を.select()射影=✅本番反映(commit a451791c・敵対監査2本clean=応答バイト不変/共同編集は別コレクションで独立・read-only破損不可)**。**②reCAPTCHA v3切替=保留→2026-07-12 09:00に自動フォロー(routine trig_0133PEo25sb1H3Eq8cfhTj3s)で効果測定して提案**。Vercel東京化はPro専用で撤回。詳細=memory [[project_firebase_cost_reduction]]。予算アラートは支出を止めない点注意。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
 - **🟢🗓 Vercel Pro→Hobby: 実測で Hobby 安全確認済(6/20・全指標2倍以上余裕)**。**7/11 前に Dashboard→Billing→Plan で Hobby へ**(1クリック・可逆)。⚠将来ハウジングを広告つき公開する時は Hobby 商用禁止に抵触→Pro 復帰 or 別デプロイ分離を判断。詳細実測値→TODO_COMPLETED。
