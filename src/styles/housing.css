@@ -54,6 +54,7 @@
   --housing-honey-fill-glow: rgba(255, 180, 90, 0.5);
   --housing-honey-shadow-soft: rgba(255, 180, 90, 0.45);
   --housing-honey-shadow-strong: rgba(255, 180, 90, 0.55);
+  --housing-ripple: rgba(255, 201, 135, 0.4);   /* クリックリップルの拡散色 (ハニー系alpha) */
   /* ハニー面の上に乗る濃い文字色 (テーマ追加時に取り残さないよう token 化)。 */
   --housing-honey-text: #241a0a;
   --housing-honey-text-strong: #1a1006;
@@ -581,6 +582,8 @@
 
 /* Register CTA at bottom of left panel */
 .housing-register-cta {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -4846,6 +4849,8 @@ select.housing-input option {
   border-radius: 6px; padding: 2px 7px;
 }
 .housing-card-add-btn {
+  position: relative;
+  overflow: hidden;
   appearance: none; cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   margin-top: 4px; padding: 7px 10px;
@@ -4858,6 +4863,28 @@ select.housing-input option {
 }
 .housing-card-add-btn:hover { background: var(--housing-honey-strong); }
 .housing-card-add-btn:active { transform: scale(0.97); }
+
+/* ===== クリックリップル (useRipple 共有フック・2026-07-10) =====
+   位置/直径はクリック座標由来のためインライン CSS カスタムプロパティで渡す
+   (--housing-longpress-progress と同じ既存パターン踏襲。色/尺は token 経由)。 */
+.housing-ripple {
+  position: absolute;
+  left: var(--ripple-x);
+  top: var(--ripple-y);
+  width: var(--ripple-size);
+  height: var(--ripple-size);
+  border-radius: 50%;
+  background: var(--housing-ripple);
+  transform: scale(0);
+  animation: housing-ripple-spread 0.6s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes housing-ripple-spread {
+  to {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
 
 /* ローディング / エラー (中央) */
 .housing-center-loading,
