@@ -44,6 +44,7 @@ import {
   restoreDraft,
   type AutosaveDraft,
 } from '../../../lib/housing/registerAutosave';
+import { consumeRegisterPrefill } from '../../../lib/housing/registerPrefill';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { YoutubeFetchedData, OgpFetchedData } from '../register/HousingRegisterSnsUrlField';
@@ -1070,6 +1071,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
    *   この復元起因の再取得は restoreRefetchGuardRef=true とし、applyExtractedAddress が
    *   「その時点で空の住所フィールドだけ」を補完する (復元済み・手修正済みの住所値を上書きしない)。
    *   注記「SNS 画像は再取得します」は実際に再取得が走るため正しくなる。
+   *
+   * 続けて (Task5・spec §4.3): create モードのみ、「住所登録なし一時ツアー」の
+   * 「この家を登録する」から渡された一回限りプリフィル (registerPrefill) を消費する。
+   * 上のオートセーブ復元で埋まったフィールドは上書きしない (addressPatch を共有して判定)。
+   * postUrl も復元と同じ restoredSnsUrl 経路に乗せて SNS を再取得するが、通知行は出さない
+   * (ユーザーが直前に自分で押した遷移のため)。
+   *
    * 一度だけ実行 (user 確定後)。
    */
   const restoreAppliedRef = useRef(false);
@@ -1081,6 +1089,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     }
     restoreAppliedRef.current = true;
 
+    // 住所 patch はオートセーブ復元・一時ツアープリフィルの両方が書き込む共有バッファ。
+    // 最後に 1 回だけ setAddress する (どちらもここまでに決まった値を尊重する)。
+    const addressPatch: RegisterAddressValues = {};
+    let postUrlApplied = false;
+
     let raw: string | null = null;
     try {
       raw = window.localStorage.getItem(AUTOSAVE_KEY);
@@ -1088,64 +1101,93 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       raw = null;
     }
     const restored = restoreDraft(raw);
-    if (!restored) {
-      autosaveReadyRef.current = true;
-      return;
+
+    if (restored) {
+      // テキスト系を state へ反映。
+      if (typeof restored.title === 'string') setTitle(restored.title);
+      if (typeof restored.description === 'string') setDescription(restored.description);
+      if (Array.isArray(restored.tags)) setTags(restored.tags);
+      if (restored.visibility === 'public' || restored.visibility === 'private') {
+        setVisibility(restored.visibility);
+        setVisibilityTouched(true);
+      }
+      if (restored.publishUntil === null || typeof restored.publishUntil === 'number') {
+        setPublishUntil(restored.publishUntil);
+      }
+      // 保存済み SNS URL: postUrl state を復元 + initialUrl として SnsUrlField に渡し実再取得する。
+      // 復元起因の再取得は住所を空フィールドだけ補完する (spec:120 guard を先に true にする)。
+      if (typeof restored.postUrl === 'string' && restored.postUrl.trim()) {
+        setPostUrl(restored.postUrl);
+        restoreRefetchGuardRef.current = true;
+        setRestoredSnsUrl(restored.postUrl);
+        postUrlApplied = true;
+      }
+
+      // 住所フィールド: 復元後に空のフィールドだけへ適用 (この時点で全フィールドは空なので全て適用)。
+      const setIfDefined = (key: keyof RegisterAddressValues, value: unknown) => {
+        if (value === undefined) return;
+        (addressPatch as Record<string, unknown>)[key] = value;
+        fieldState.setAutoFilled(key, value);
+      };
+      setIfDefined('dc', restored.dc);
+      setIfDefined('server', restored.server);
+      setIfDefined('area', restored.area);
+      setIfDefined('ward', restored.ward);
+      setIfDefined('buildingType', restored.buildingType);
+      setIfDefined('plot', restored.plot);
+      setIfDefined('size', restored.size);
+      setIfDefined('apartmentBuilding', restored.apartmentBuilding);
+      setIfDefined('roomKind', restored.roomKind);
+      setIfDefined('roomNumber', restored.roomNumber);
+
+      // 何か 1 つでも復元したら通知 + 破棄ボタンを出す。
+      const hasAny =
+        restored.title != null ||
+        restored.description != null ||
+        (Array.isArray(restored.tags) && restored.tags.length > 0) ||
+        Object.keys(addressPatch).length > 0 ||
+        restored.postUrl != null ||
+        restored.publishUntil != null;
+      if (hasAny) setRestoredNoticeVisible(true);
     }
 
-    // テキスト系を state へ反映。
-    if (typeof restored.title === 'string') setTitle(restored.title);
-    if (typeof restored.description === 'string') setDescription(restored.description);
-    if (Array.isArray(restored.tags)) setTags(restored.tags);
-    if (restored.visibility === 'public' || restored.visibility === 'private') {
-      setVisibility(restored.visibility);
-      setVisibilityTouched(true);
-    }
-    if (restored.publishUntil === null || typeof restored.publishUntil === 'number') {
-      setPublishUntil(restored.publishUntil);
-    }
-    // 保存済み SNS URL: postUrl state を復元 + initialUrl として SnsUrlField に渡し実再取得する。
-    // 復元起因の再取得は住所を空フィールドだけ補完する (spec:120 guard を先に true にする)。
-    if (typeof restored.postUrl === 'string' && restored.postUrl.trim()) {
-      setPostUrl(restored.postUrl);
-      restoreRefetchGuardRef.current = true;
-      setRestoredSnsUrl(restored.postUrl);
+    // Task5 (spec §4.3): 一時ツアーからの一回限りプリフィル。create モードのみ消費し、
+    // まだ空いているフィールドだけを埋める (上の復元・既存の初期値を上書きしない)。
+    // 適用しても通知行は出さない (ユーザーが直前に自分で押した遷移のため)。
+    if (mode === 'create') {
+      const prefill = consumeRegisterPrefill();
+      if (prefill) {
+        const setPrefillIfEmpty = (key: keyof RegisterAddressValues, value: unknown) => {
+          if (value === undefined) return;
+          if ((addressPatch as Record<string, unknown>)[key] !== undefined) return; // 復元済みは上書きしない
+          if ((address as Record<string, unknown>)[key] !== undefined) return; // 既存入力も上書きしない
+          (addressPatch as Record<string, unknown>)[key] = value;
+          fieldState.setAutoFilled(key, value);
+        };
+        setPrefillIfEmpty('area', prefill.area);
+        setPrefillIfEmpty('ward', prefill.ward);
+        setPrefillIfEmpty('buildingType', prefill.buildingType);
+        setPrefillIfEmpty('plot', prefill.plot);
+        setPrefillIfEmpty('size', prefill.size);
+        setPrefillIfEmpty('apartmentBuilding', prefill.apartmentBuilding);
+        setPrefillIfEmpty('roomNumber', prefill.roomNumber);
+
+        // postUrl: 復元側が既に設定済み/既存入力があれば上書きしない。
+        if (prefill.postUrl && !postUrlApplied && !postUrl.trim()) {
+          setPostUrl(prefill.postUrl);
+          restoreRefetchGuardRef.current = true;
+          setRestoredSnsUrl(prefill.postUrl);
+        }
+      }
     }
 
-    // 住所フィールド: 復元後に空のフィールドだけへ適用 (この時点で全フィールドは空なので全て適用)。
-    const addressPatch: RegisterAddressValues = {};
-    const setIfDefined = (key: keyof RegisterAddressValues, value: unknown) => {
-      if (value === undefined) return;
-      (addressPatch as Record<string, unknown>)[key] = value;
-      fieldState.setAutoFilled(key, value);
-    };
-    setIfDefined('dc', restored.dc);
-    setIfDefined('server', restored.server);
-    setIfDefined('area', restored.area);
-    setIfDefined('ward', restored.ward);
-    setIfDefined('buildingType', restored.buildingType);
-    setIfDefined('plot', restored.plot);
-    setIfDefined('size', restored.size);
-    setIfDefined('apartmentBuilding', restored.apartmentBuilding);
-    setIfDefined('roomKind', restored.roomKind);
-    setIfDefined('roomNumber', restored.roomNumber);
     if (Object.keys(addressPatch).length > 0) {
       setAddress((prev) => ({ ...prev, ...addressPatch }));
-      // 住所確認ゲート: 復元値は未確認として扱う (spec:1-1)。
+      // 住所確認ゲート: 復元/プリフィルいずれも「住所が変わった」とみなし未確認にする (spec:1-1)。
       setAddressConfirmed(false);
     }
 
-    // 何か 1 つでも復元したら通知 + 破棄ボタンを出す。
-    const hasAny =
-      restored.title != null ||
-      restored.description != null ||
-      (Array.isArray(restored.tags) && restored.tags.length > 0) ||
-      Object.keys(addressPatch).length > 0 ||
-      restored.postUrl != null ||
-      restored.publishUntil != null;
-    if (hasAny) setRestoredNoticeVisible(true);
-
-    // 復元適用が終わったので以降の値変化から保存を再開する。
+    // 復元/プリフィルの適用が終わったので以降の値変化から保存を再開する。
     autosaveReadyRef.current = true;
     // 依存は user のみ (一度だけ実行)。fieldState は identity が変わるが restoreAppliedRef で二重適用を防ぐ。
     // eslint-disable-next-line react-hooks/exhaustive-deps

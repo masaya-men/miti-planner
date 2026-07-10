@@ -38,6 +38,7 @@ import { RegisterPage } from '../RegisterPage';
 // (module 全体 mock は他 export を壊すため spyOn で個別に差し替える)。
 import * as housingApiClient from '../../../../lib/housingApiClient';
 import { AUTOSAVE_KEY } from '../../../../lib/housing/registerAutosave';
+import { saveRegisterPrefill, consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill';
 
 const EDITABLE_LISTING = {
   id: 'l1',
@@ -257,6 +258,46 @@ describe('RegisterPage', () => {
     checkDuplicateSpy.mockRestore();
     registerSpy.mockRestore();
     window.localStorage.removeItem(AUTOSAVE_KEY);
+  });
+
+  // Task5 (計画: 住所登録なし一時ツアー・spec §4.3): 「この家を登録する」からの一回限りプリフィル。
+  describe('registerPrefill: 一時ツアーからの一回限りプリフィル (Task5)', () => {
+    beforeEach(() => {
+      window.sessionStorage.clear();
+    });
+
+    it('mode=create で prefill があると住所が入っている', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      // postUrl は含めない (RegisterSectionMedia の実 SNS 再取得が走ってしまうため、
+      // ここでは住所プリフィルの検証に絞る — postUrl の配線は registerPrefill.test.ts / 目視で確認済み)。
+      saveRegisterPrefill({
+        area: 'LavenderBeds',
+        ward: 29,
+        buildingType: 'house',
+        plot: 3,
+        size: 'L',
+      });
+
+      const { container } = renderPage();
+
+      expect((container.querySelector('#housing-register-area') as HTMLSelectElement).value).toBe(
+        'LavenderBeds',
+      );
+      expect((container.querySelector('#housing-register-ward') as HTMLInputElement).value).toBe('29');
+      expect((container.querySelector('#housing-register-plot') as HTMLInputElement).value).toBe('3');
+      // 一回限り: マウント時に消費済みで、もう一度読んでも null。
+      expect(consumeRegisterPrefill()).toBeNull();
+    });
+
+    it('mode=edit では prefill を消費しない (create モード限定)', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      saveRegisterPrefill({ area: 'Mist', ward: 1, buildingType: 'house', plot: 1 });
+
+      renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+
+      // edit では消費されないので、まだ sessionStorage に残っている (= 未消費)。
+      expect(consumeRegisterPrefill()).not.toBeNull();
+    });
   });
 
   // Task3.4-1: 幽霊ステップ解消。 edit は写真セクションを出さない (方式A) ので、

@@ -5883,6 +5883,24 @@ select.housing-input option {
   color: var(--housing-text-dim);
 }
 
+/* 「この家を登録する」(計画: 住所登録なし一時ツアー Task5)。一時の家にのみ出す控えめな
+   テキストリンク。 .housing-tour-dest-report と同じ静かな質感 (色付きalert箱にしない)。 */
+.housing-tour-dest-register-link {
+  align-self: flex-start;
+  appearance: none;
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  text-decoration: underline;
+  transition: color 0.15s ease;
+}
+.housing-tour-dest-register-link:hover { color: var(--housing-candle); }
+.housing-tour-dest-register-link:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+
 /* 紹介文 (固定高スクロール) */
 .housing-tour-dest-intro {
   display: flex;
