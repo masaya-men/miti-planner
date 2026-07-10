@@ -2,6 +2,17 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅✅✅ 2026-07-10 plot→size 表 / 住所抽出v2 / 住所誤爆の根治 / 行き方データ整備 — 全て本番反映済
+詳細調査ログ=`docs/.private/2026-07-10-plot-size-table-and-address-v2.md`。
+- **確定表を `src/data/housing/wardPlotSizes.ts` 化 + `getPlotSize(area, plot)`** (`0781d4cf`)。回帰ガード3系統(構造不変条件 / 全10マップの outline 面積 300/300 / 行き方本文との一致)。**表の再調査は不要**。⚠ Goblet の outline だけ 4 点で閉じていない多角形 → 靴紐公式は添字を wrap すること。
+- **🐛行き方本文のサイズ誤記4件を修正**: Mist plot30・plot60 / Shirogane plot8・plot38 の「Ｌハウス」→「Ｍハウス」。private メモは本街2件だけ挙げていたが拡張街のミラー2件も同じ誤記だった。
+- **size 自動導出 + 住所抽出v2** (`92a7769e`)。A案=size 欄は disabled の自動判定 (ハニーの auto-filled 表示は維持)。`validateAddress` に `mismatch_with_plot` を追加しサーバー側でも保証。og-fetch が本文テキスト(最大4000字)を返し、`extractHousingAddressFromPage` が title/description/本文/各行/隣接窓 を採点して最良の1行を採る。housingsnap の og:description は 120字で truncate され住所行が落ちるのが根因だった。
+- **住所誤爆を辞書側で根治** (`28cb3e94`)。`masterData.ts` の DC/鯖 alias に「4文字未満のASCII略称」が63件 (`Man`/`Had`/`Ex`…、31件が英単語と衝突。`Mat` は Mateus鯖 と Materia DC の両方に登録され自己矛盾)。**パーサは表記ゆれデータしか見ていない。汚れていたのは辞書**。→63件削除 + `masterDataAliases.test.ts` で再登録を機械的に禁止 → 文脈ゲート/質フィルタ/`opts` 引数を全撤去 (パーサ95行減)。エリアの `Gob`→Goblet 等は実在するので残す。memory [[feedback_no_speculative_alias_data]]。
+- **Firestore `/master/servers` を同期** (`npx tsx scripts/seed-servers.ts`)。⚠ **住所抽出は静的 `masterData.ts` を直 import、他画面は Firestore (`useServerData`)** の二重系。`/admin` の alias 編集は住所抽出に反映されない。同期前の Firestore は `housingAreas` が旧 `name_jp` 形式で `AdminServers.tsx` の `area.name[lang]` と噛み合わず、/admin サーバー画面が壊れていた。
+- **ゴブレット拡張街 (plot 31-60) の行き方 30件を追加** → 全300区画に行き方が入った。**Google スプレッドシートは引退、`directions-src/*.csv` が唯一の正典**。memory [[reference_housing_directions_csv_canonical]]。
+- **本番実機OK (ユーザー)**: housingsnap URL → Shirogane 21区58番地 Mハウス。文言2件削除 (「家 (S/M/L)」の括弧 / 「31 以上は拡張街です」注記・`dd348e01`)。
+- 検証: build EXIT 0 / vitest 2793 pass。敵対的レビュー4視点で「had→Hades 捏造の復活」「`keepBestQuality` が area の正解を英単語に奪われる退行」を検出→修正済。
+
 ### ✅✅✅ 2026-07-09 ハウジング詳細ページ改修 (P1掃除 / P2大パネル1枚化 / A・B・C) + P3 編集フォーム一本化 — main 統合・本番反映完了
 main `12fa481f` (詳細改修) と `cba9f69f` (P3)。設計/計画=`docs/superpowers/…2026-07-08-housing-detail-*`、台帳=`.superpowers/sdd/progress.md`。安価モデル(haiku)で subagent-driven 実装 → opus 最終レビュー「Ready to merge: Yes」。
 - **P1 掃除**: 死にコード + 旧ワークスペース経路 + 旧作成フォームを撤去 (-5950 行)。

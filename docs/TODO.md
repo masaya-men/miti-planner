@@ -34,18 +34,11 @@
 
 - **🆕🏠 ハウジング登録UI 連続修正 本番反映済 (main `087d81bc`・2026-07-10)**。詳細/引き継ぎ=`docs/.private/2026-07-10-housing-small-fixes.md`。
   済=こまごま7件(#1-#7)/タイトル任意化/コメント文言/ツアー動くマップ/住所自動入力の誤検出2件/チェックパネルのキー衝突バグ/重複の赤化/ハニー主アクション統一(.housing-btn-primary をグラデ+影の正典へ)/ログイン案内のトンマナ化+中央寄せ/「登録の流れ」を右カラムへ移設/地図の全周ヴィネット。
-- **🆕📐 plot→size 表と住所抽出v2** (詳細=`docs/.private/2026-07-10-plot-size-table-and-address-v2.md`)
-  - **✅ 確定表を `src/data/housing/wardPlotSizes.ts` 化 + `getPlotSize(area, plot)`** (commit `0781d4cf`)。回帰ガード3系統(構造不変条件 / 全10マップの outline 面積 300/300 / 行き方本文260件との一致)をテストで固定。**表の再調査は不要**。
-  - **✅ 🐛行き方本文のサイズ誤記を修正**: Mist plot30・plot60 / Shirogane plot8・plot38 の「Ｌハウス」→「Ｍハウス」 (生成元 CSV を直して再生成)。private メモは本街2件だけ挙げていたが、拡張街のミラー2件も同じ誤記だった。
-  - **✅ size 自動導出 + 住所抽出v2 完了** (commit `92a7769e`)。A案採用=size 欄は disabled の自動判定 (ハニーの auto-filled 表示は維持)。`validateAddress` に `mismatch_with_plot` を足してサーバー側でも保証。og-fetch が本文テキストを返し、`extractHousingAddressFromPage` が候補を採点して最良の1行を採る。**要本番確認 (ユーザー)**。
-  - **✅ 住所誤爆を辞書側で根治** (commit `28cb3e94`)。原因は `masterData.ts` の DC/鯖 alias に「4文字未満のASCII略称」が63件 (`Man`/`Had`/`Ex`…、うち31件が英単語と衝突。`Mat` は Mateus鯖 と Materia DC の両方に登録され自己矛盾) 入っていたこと。**パーサは表記ゆれデータしか見ていない。汚れていたのは辞書**。→ 63件削除 + `masterDataAliases.test.ts` で再登録を機械的に禁止 → 文脈ゲート/質フィルタ/`opts` 引数を全撤去 (パーサ 95行減)。エリアの `Gob`→Goblet 等は実在するので残す。
-  - **✅ Firestore `/master/servers` を同期済** (2026-07-10・`npx tsx scripts/seed-servers.ts`)。⚠ 発見: **住所抽出は静的 `masterData.ts` を直 import、他画面は Firestore (`useServerData`)** の二重系。`/admin` の alias 編集は住所抽出に**反映されない**。同期前の Firestore は `housingAreas` が旧 `name_jp` 形式で、`AdminServers.tsx` の `area.name[lang]` と噛み合っていなかった (= /admin サーバー画面が壊れていた)。
-  - **✅ ゴブレット拡張街 (plot 31-60) の行き方 30件を追加**。これで全300区画に行き方が入った。**📌 Google スプレッドシートは引退。`src/data/housing/directions-src/*.csv` が唯一の正典** (2026-07-10 ユーザー確定。スプシには修正前の誤記が残るので再エクスポート禁止)。直すときは CSV を編集 → `node scripts/parse-ward-directions.mjs`。データの正しさは 2 本のテストが機械的に守る (本文の S/M/L が区画の実サイズと一致 / エーテライト名が実際に地図上に存在)。
-  - **✅ 本番実機OK (ユーザー確認済)**: housingsnap URL → Shirogane 21区58番地 Mハウスが正しく入る。あわせて文言2件を削除 (「家 (S/M/L)」の括弧 / 「31 以上は拡張街です」注記・commit `dd348e01`)。
-  - **🟡 既知の限界 (低優先)**: `extractHousingAddressFromPage` の候補上限 400 で、本文が **134 行を超える**ページから隣接3行窓が切り捨てられる。通常は本文全体の候補が安全網になるが、長文にDC/サーバー語が散ると安全網も `ambiguity` で沈む。実運用 (housingsnap の数行) では顕在化しない。
+- **✅📐 plot→size 表 / 住所抽出v2 / 住所誤爆の根治 / 行き方データ整備 — 全て本番反映済 (2026-07-10)**。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md) + `docs/.private/2026-07-10-plot-size-table-and-address-v2.md`。要点=**確定表の再調査は不要** / **辞書 (`masterData.ts`) に短い ASCII 略称を足すな** ([[feedback_no_speculative_alias_data]]) / **行き方の正典は `directions-src/*.csv`、スプシは引退** ([[reference_housing_directions_csv_canonical]])。
+  - **🟡 残る限界(低優先)**: ①`extractHousingAddressFromPage` の候補上限400で本文が**134行超**のページは隣接3行窓が切り捨て(通常は本文全体の候補が安全網。長文にDC/鯖語が散ると安全網も `ambiguity` で沈む。housingsnap の数行では顕在化しない) ②**二重系**=住所抽出は静的 `masterData.ts` 直 import・他画面は Firestore(`useServerData`)。`/admin` の alias 編集は住所抽出に反映されない。
 - **💰 Firebaseコスト対策**: ①App Check TTL 7日 ✅ / ④`/api/popular` `.select()` 射影 ✅ (`a451791c`)。**②reCAPTCHA v3切替=保留 → 2026-07-12 09:00 に自動フォローで効果測定→提案**。詳細=memory [[project_firebase_cost_reduction]]。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
-- **🟢🗓 Vercel Pro→Hobby: 実測で Hobby 安全確認済(6/20・全指標2倍以上余裕)**。**7/11 前に Dashboard→Billing→Plan で Hobby へ**(1クリック・可逆)。⚠将来ハウジングを広告つき公開する時は Hobby 商用禁止に抵触→Pro 復帰 or 別デプロイ分離を判断。詳細実測値→TODO_COMPLETED。
+- **✅ Vercel Pro→Hobby 移行済 (2026-07-10 ユーザー実施)**。⚠将来ハウジングを広告つき公開する時は Hobby 商用禁止に抵触→Pro 復帰 or 別デプロイ分離を判断。実測値→TODO_COMPLETED。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
 - **🔴 完成・push済・要実機確認(ユーザー)**: 管理画面リデザイン全18ルート(`npm run dev:admin`で目視=ヘッダー/2カラム/ウィザード4本/フォント) / スマホ最適化A+共有タブ(2026-06-15~16本番=共有2択・部屋発行・パーティ自動・Lv80 DB/星天交差1チャージ/深謀遠慮)。
 - **🔵 進捗お祝い試作** = `feat/progress-celebration-proto` 温存(未マージ・本番非露出)。`npm run dev:progress`→/miti。
