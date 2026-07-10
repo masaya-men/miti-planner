@@ -5103,6 +5103,116 @@ select.housing-input option {
 .housing-tour-tray-start:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
 
 /* ============================================================
+ * 「+ 住所から追加」 一時の家 追加パネル (計画: 住所登録なし一時ツアー Task3)
+ * トレイ (TourTray) とツアー空状態 (TourEmptyState) の両方から使う。
+ * 質感A案: 装飾ピル/honeyグラデ/色付きalert箱は使わず、静かな面 + ヘアライン注記。
+ * ============================================================ */
+.housing-ephemeral-toggle {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 12px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px dashed var(--housing-panel-border);
+  border-radius: 10px;
+  transition: background 0.15s ease;
+}
+.housing-ephemeral-toggle:hover { background: var(--housing-chip-bg-hover); }
+.housing-ephemeral-toggle:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+.housing-ephemeral-toggle[aria-expanded="true"] { border-style: solid; background: var(--housing-chip-bg-hover); }
+
+.housing-ephemeral-panel {
+  flex: 0 0 auto;
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 12px;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+}
+.housing-ephemeral-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.housing-ephemeral-title {
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
+}
+.housing-ephemeral-close {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--housing-text-mute); padding: 4px; border-radius: 6px;
+  display: inline-flex;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-ephemeral-close:hover { color: var(--housing-text); background: var(--housing-chip-bg-hover); }
+.housing-ephemeral-close:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+.housing-ephemeral-field { display: flex; flex-direction: column; }
+.housing-ephemeral-text { min-height: 0; }
+.housing-ephemeral-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.housing-ephemeral-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px;
+  font-size: var(--housing-text-sm); color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 8px;
+}
+.housing-ephemeral-chip-label {
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
+.housing-ephemeral-manual {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+}
+.housing-ephemeral-type-toggle { grid-column: 1 / -1; display: flex; gap: 6px; }
+.housing-ephemeral-type-btn {
+  appearance: none; cursor: pointer; flex: 1 1 0;
+  padding: 7px 10px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-mute);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 8px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.housing-ephemeral-type-btn:hover { background: var(--housing-chip-bg-hover); }
+.housing-ephemeral-type-btn[aria-pressed="true"] {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg-active);
+  border-color: var(--housing-honey);
+}
+.housing-ephemeral-type-btn:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+.housing-ephemeral-added {
+  margin: 0; font-size: var(--housing-text-sm); color: var(--housing-candle);
+}
+.housing-ephemeral-add {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 9px 12px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 700;
+  color: var(--housing-honey-text);
+  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+  border: 0; border-radius: 10px;
+  box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-ephemeral-add:hover:not(:disabled) { filter: brightness(1.05); }
+.housing-ephemeral-add:active:not(:disabled) { transform: scale(0.98); }
+.housing-ephemeral-add:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
+.housing-ephemeral-note {
+  margin: 0; padding-top: 8px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+}
+
+/* ツアー空状態内の入口 (簡易リスト + 開始ボタン込み)。中央寄せの空状態の中で左寄せに戻す。 */
+.housing-tour-empty-ephemeral {
+  width: 100%; max-width: 380px;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--housing-divider);
+  display: flex; flex-direction: column; gap: 10px;
+  text-align: left;
+}
+.housing-tour-empty-ephemeral-list { overflow-y: visible; }
+
+/* ============================================================
  * ツアー中(Nav) 左カラム: 進捗パネル (Task4・TourProgressPanel/ProgressRing)
  * ============================================================ */
 /* Phase3 の新ツアーナビ右パネル。旧 .housing-tour-progress (workspace/TourProgressList・

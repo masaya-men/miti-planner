@@ -1899,6 +1899,23 @@
             "start": "이 내용으로 투어 시작",
             "count": "{{count}}"
         },
+        "ephemeral": {
+            "add_button": "주소로 추가",
+            "panel_title": "주소로 투어에 추가",
+            "url_label": "SNS URL로",
+            "url_placeholder": "X / housingsnap 등의 URL을 붙여넣기",
+            "text_label": "주소 입력",
+            "text_placeholder": "예: 미스트 3구역 15번지",
+            "parse_error": "주소를 읽지 못했습니다. 아래에서 선택해 주세요",
+            "fetch_error": "URL에서 정보를 가져오지 못했습니다",
+            "add": "투어에 추가",
+            "added": "추가했습니다",
+            "note_volatile": "임시 집은 저장되지 않습니다 (페이지를 벗어나면 사라집니다)",
+            "limit_note": "임시 집은 최대 {{max}}건까지입니다",
+            "badge": "임시",
+            "register_link": "이 집을 등록하기",
+            "empty_start": "이 내용으로 투어 시작"
+        },
         "favStrip": {
             "title": "즐겨찾기",
             "viewAll": "전체 보기",

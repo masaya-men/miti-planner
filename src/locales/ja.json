@@ -1955,6 +1955,23 @@
             "start": "この内容でツアーを開始",
             "count": "{{count}}"
         },
+        "ephemeral": {
+            "add_button": "住所から追加",
+            "panel_title": "住所からツアーに追加",
+            "url_label": "SNSのURLから",
+            "url_placeholder": "X / housingsnap などのURLを貼り付け",
+            "text_label": "住所を入力",
+            "text_placeholder": "例: ミスト 3区 15番地",
+            "parse_error": "住所を読み取れませんでした。下の欄で選択してください",
+            "fetch_error": "URLから情報を取得できませんでした",
+            "add": "ツアーに追加",
+            "added": "追加しました",
+            "note_volatile": "一時の家は保存されません (ページを離れると消えます)",
+            "limit_note": "一時の家は最大 {{max}} 件までです",
+            "badge": "一時",
+            "register_link": "この家を登録する",
+            "empty_start": "この内容でツアーを開始"
+        },
         "favStrip": {
             "title": "お気に入り",
             "viewAll": "すべて見る",

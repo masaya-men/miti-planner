@@ -1899,6 +1899,23 @@
             "start": "以此内容开始导览",
             "count": "{{count}}"
         },
+        "ephemeral": {
+            "add_button": "通过地址添加",
+            "panel_title": "通过地址加入导览",
+            "url_label": "从SNS的URL",
+            "url_placeholder": "粘贴 X / housingsnap 等的URL",
+            "text_label": "输入地址",
+            "text_placeholder": "例: 海雾村 3区 15号",
+            "parse_error": "无法读取地址。请在下方选择",
+            "fetch_error": "无法从URL获取信息",
+            "add": "加入导览",
+            "added": "已添加",
+            "note_volatile": "临时房屋不会被保存 (离开页面后即消失)",
+            "limit_note": "临时房屋最多 {{max}} 件",
+            "badge": "临时",
+            "register_link": "登记这间房屋",
+            "empty_start": "以此内容开始导览"
+        },
         "favStrip": {
             "title": "收藏",
             "viewAll": "查看全部",

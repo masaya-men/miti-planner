@@ -7,6 +7,7 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { buildTourPool } from '../../../lib/housing/buildTourPool';
+import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { resolveTourSteps, computeTourProgress } from '../../../lib/housing/tourNav';
 import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
@@ -106,6 +107,30 @@ export const TourNavPage: React.FC = () => {
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
 
+  // 空状態の「住所から追加」(計画: 住所登録なし一時ツアー Task3)。
+  // パネルで積んだ一時 listing の id はページローカルに保持し、開始時に既存形
+  // (orderTourStopIds → setListings → start) でツアーへ確定する。
+  const [emptyTrayIds, setEmptyTrayIds] = useState<string[]>([]);
+  const onAddEphemeral = useCallback(
+    (id: string) => setEmptyTrayIds((prev) => (prev.includes(id) ? prev : [...prev, id])),
+    [],
+  );
+  const onRemoveEphemeral = useCallback(
+    (id: string) => setEmptyTrayIds((prev) => prev.filter((x) => x !== id)),
+    [],
+  );
+  const onStartEphemeral = useCallback(() => {
+    if (emptyTrayIds.length === 0) return;
+    const orderedIds = orderTourStopIds(
+      emptyTrayIds,
+      useEphemeralListingsStore.getState().ephemeralListings,
+    );
+    useHousingTourStore.getState().setListings(orderedIds);
+    useHousingTourStore.getState().start();
+    useHousingViewStore.getState().enterTourMode();
+    setEmptyTrayIds([]);
+  }, [emptyTrayIds]);
+
   const onFinish = useCallback(() => {
     stop();
     exitTourMode();
@@ -143,7 +168,13 @@ export const TourNavPage: React.FC = () => {
     return (
       <div className="housing-tour-page">
         <section className="housing-tour-page-panel housing-tour-page-panel-solo" data-region="center">
-          <TourEmptyState onGoFavorites={onGoFavorites} />
+          <TourEmptyState
+            onGoFavorites={onGoFavorites}
+            ephemeralIds={emptyTrayIds}
+            onAddEphemeral={onAddEphemeral}
+            onRemoveEphemeral={onRemoveEphemeral}
+            onStartEphemeral={onStartEphemeral}
+          />
         </section>
       </div>
     );

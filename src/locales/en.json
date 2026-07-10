@@ -1934,6 +1934,23 @@
             "start": "Start tour with these",
             "count": "{{count}}"
         },
+        "ephemeral": {
+            "add_button": "Add by address",
+            "panel_title": "Add to tour by address",
+            "url_label": "From an SNS URL",
+            "url_placeholder": "Paste a URL from X, housingsnap, etc.",
+            "text_label": "Enter an address",
+            "text_placeholder": "e.g. Mist W3 P15",
+            "parse_error": "Couldn't read the address. Please pick the fields below",
+            "fetch_error": "Couldn't fetch information from the URL",
+            "add": "Add to tour",
+            "added": "Added",
+            "note_volatile": "Temporary homes are not saved (they disappear when you leave the page)",
+            "limit_note": "Up to {{max}} temporary homes at a time",
+            "badge": "Temporary",
+            "register_link": "Register this home",
+            "empty_start": "Start tour with these"
+        },
         "favStrip": {
             "title": "Favorites",
             "viewAll": "View all",

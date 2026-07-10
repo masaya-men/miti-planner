@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Route, X } from 'lucide-react';
+import { Play, Plus, Route, X } from 'lucide-react';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { EphemeralAddPanel } from './EphemeralAddPanel';
 
 export interface TourTrayProps {
   listingIds: string[];
@@ -19,6 +21,8 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
   const { t, i18n } = useTranslation();
   const listings = useHousingListingsStore((s) => s.listings);
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
+  // 「+ 住所から追加」パネル (計画: 住所登録なし一時ツアー Task3) の開閉。
+  const [addOpen, setAddOpen] = useState(false);
 
   // 行解決: 登録済み listing に無ければ一時 listing (計画: 住所登録なし一時ツアー Task2) を探す。
   // それ以外の既存挙動 (myListings 非考慮など) は変えない。
@@ -37,6 +41,21 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
           {t('housing.tray.count', { count: listingIds.length })}
         </span>
       </div>
+
+      <button
+        type="button"
+        className="housing-ephemeral-toggle"
+        aria-expanded={addOpen}
+        onClick={() => setAddOpen((o) => !o)}
+      >
+        <Plus size={14} aria-hidden="true" />
+        {t('housing.ephemeral.add_button')}
+      </button>
+      <EphemeralAddPanel
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        onAdd={(id) => onChange([...listingIds, id])}
+      />
 
       {empty ? (
         <div className="housing-empty-hint housing-tour-tray-empty">

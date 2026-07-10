@@ -2,9 +2,8 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { parseTweetUrl } from '../../../lib/housing/tweetUrlParse';
 import { useTweetFetch, type TweetData } from '../../../lib/housing/useTweetFetch';
-import { parseYoutubeUrl, buildYoutubeThumbnailUrl } from '../../../lib/housing/youtubeUrl';
 import { useOgpFetch, type OgpData } from '../../../lib/housing/useOgpFetch';
-import { isOgpUrlAllowed } from '../../../lib/housing/ogpHostAllowlist';
+import { classifySnsUrl } from '../../../lib/housing/snsUrlRouting';
 
 export interface YoutubeFetchedData {
     postUrl: string;
@@ -129,60 +128,61 @@ export function HousingRegisterSnsUrlField({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [loading, errorKey]);
 
+    // URL 種別ルーティング (YouTube → Twitter → OGP → invalid) は classifySnsUrl に集約
+    // (一時ツアーの EphemeralAddPanel と共用)。各分岐の副作用は従来と同一。
     const handleChange = useCallback((value: string) => {
         setUrl(value);
-        if (!value.trim()) {
-            setInvalidUrl(false);
-            reset();
-            resetOgp();
-            setYoutubeData(null);
-            onYoutubeFetched(null);
-            onOgpFetched(null);
-            return;
+        const route = classifySnsUrl(value);
+        switch (route.kind) {
+            case 'empty':
+                setInvalidUrl(false);
+                reset();
+                resetOgp();
+                setYoutubeData(null);
+                onYoutubeFetched(null);
+                onOgpFetched(null);
+                return;
+            // 2026-05-26: YouTube を先に判定 (Twitter の syndication API が走る前に確定)。
+            case 'youtube': {
+                setInvalidUrl(false);
+                reset();
+                resetOgp();
+                onOgpFetched(null);
+                const yt: YoutubeFetchedData = {
+                    postUrl: route.postUrl,
+                    ogImageUrl: route.ogImageUrl,
+                    videoId: route.videoId,
+                };
+                setYoutubeData(yt);
+                onYoutubeFetched(yt);
+                return;
+            }
+            // Twitter 判定
+            case 'tweet':
+                setInvalidUrl(false);
+                setYoutubeData(null);
+                onYoutubeFetched(null);
+                resetOgp();
+                onOgpFetched(null);
+                fetchTweet(route.tweetId);
+                return;
+            // 2026-05-27 (B): OGP allowlist 判定 (housingsnap 等)
+            case 'ogp':
+                setInvalidUrl(false);
+                reset();
+                setYoutubeData(null);
+                onYoutubeFetched(null);
+                dispatchedOgpRef.current = null; // 別 URL → 再 dispatch を許す
+                fetchOgp(route.postUrl);
+                return;
+            // どれにも該当しない URL
+            case 'invalid':
+                setInvalidUrl(true);
+                setYoutubeData(null);
+                onYoutubeFetched(null);
+                resetOgp();
+                onOgpFetched(null);
         }
-        // 2026-05-26: YouTube を先に判定 (Twitter の syndication API が走る前に確定)。
-        const ytId = parseYoutubeUrl(value);
-        if (ytId) {
-            setInvalidUrl(false);
-            reset();
-            resetOgp();
-            onOgpFetched(null);
-            const yt: YoutubeFetchedData = {
-                postUrl: value.trim(),
-                ogImageUrl: buildYoutubeThumbnailUrl(ytId),
-                videoId: ytId,
-            };
-            setYoutubeData(yt);
-            onYoutubeFetched(yt);
-            return;
-        }
-        // Twitter 判定
-        const id = parseTweetUrl(value);
-        if (id) {
-            setInvalidUrl(false);
-            setYoutubeData(null);
-            onYoutubeFetched(null);
-            resetOgp();
-            onOgpFetched(null);
-            fetchTweet(id);
-            return;
-        }
-        // 2026-05-27 (B): OGP allowlist 判定 (housingsnap 等)
-        if (isOgpUrlAllowed(value.trim())) {
-            setInvalidUrl(false);
-            reset();
-            setYoutubeData(null);
-            onYoutubeFetched(null);
-            dispatchedOgpRef.current = null; // 別 URL → 再 dispatch を許す
-            fetchOgp(value.trim());
-            return;
-        }
-        // どれにも該当しない URL
-        setInvalidUrl(true);
-        setYoutubeData(null);
-        onYoutubeFetched(null);
-        resetOgp();
-        onOgpFetched(null);
     }, [fetchTweet, reset, fetchOgp, resetOgp, onYoutubeFetched, onOgpFetched]);
 
     // オートセーブ復元時 (initialUrl 非空) にマウント一度だけ handleChange を発火し、URL 欄復元 +
