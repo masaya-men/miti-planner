@@ -1,5 +1,15 @@
 // 使い方: node scripts/parse-ward-directions.mjs
-// masaya の行き方スプシ(src/data/housing/directions-src/*.csv)→ wardDirections.generated.json
+//
+// src/data/housing/directions-src/*.csv → src/data/housing/wardDirections.generated.json
+//
+// **正典は上記 CSV**。 元は Google スプレッドシートから書き出していたが、 2026-07-10 に
+// スプシは引退し、 リポジトリの CSV が唯一の情報源になった (スプシには修正前の誤記が残っており、
+// 再エクスポートすると訂正が巻き戻るため)。 直すときは CSV を直接編集して本スクリプトを回す。
+//
+// CSV は素朴に `,` で split するので、 行き方本文にカンマ・引用符を入れないこと。
+// データの正しさは以下のテストが機械的に守る:
+//   - src/__tests__/housing/wardPlotSizes.test.ts      本文の S/M/L 表記が区画の実サイズと一致するか
+//   - src/lib/housing/__tests__/wardDirections.test.ts 全300区画に本文があるか / エーテライト名が地図に存在するか
 import { readFileSync, writeFileSync } from 'fs';
 
 const SRC = 'src/data/housing/directions-src';
