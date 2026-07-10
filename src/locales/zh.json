@@ -1760,6 +1760,22 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "personal_tags": {
+            "title": "个人标签举报",
+            "description": "查看被举报的个人标签，必要时将其隐藏。恢复显示时会同时清除举报记录。",
+            "empty": "没有被举报的个人标签",
+            "id_label": "标签 ID",
+            "hide": "隐藏",
+            "hiding": "...",
+            "hide_confirm": "要隐藏这个标签吗?",
+            "hide_success": "已隐藏",
+            "unhide": "恢复显示",
+            "unhiding": "...",
+            "unhide_confirm": "要恢复显示这个标签吗? 举报记录将被清除。",
+            "unhide_success": "已恢复显示",
+            "report_count": "{{count}} 次举报",
+            "hidden_badge": "已隐藏"
+        },
         "ugc_description": "粘贴共享URL，查看和管理上传的标志图片。",
         "ugc_placeholder": "粘贴共享URL或shareId",
         "ugc_search": "搜索",

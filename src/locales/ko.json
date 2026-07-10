@@ -1760,6 +1760,22 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "personal_tags": {
+            "title": "개인 태그 신고",
+            "description": "신고된 개인 태그를 확인하고 필요하면 숨김 처리합니다. 표시로 되돌리면 신고 기록도 초기화됩니다.",
+            "empty": "신고된 개인 태그가 없습니다",
+            "id_label": "태그 ID",
+            "hide": "숨기기",
+            "hiding": "...",
+            "hide_confirm": "이 태그를 숨기시겠습니까?",
+            "hide_success": "숨김 처리했습니다",
+            "unhide": "표시로 되돌리기",
+            "unhiding": "...",
+            "unhide_confirm": "이 태그를 다시 표시하시겠습니까? 신고 기록은 초기화됩니다.",
+            "unhide_success": "표시로 되돌렸습니다",
+            "report_count": "신고 {{count}}건",
+            "hidden_badge": "숨김"
+        },
         "ugc_description": "공유 URL을 붙여넣어 업로드된 로고 이미지를 확인하고 관리할 수 있습니다.",
         "ugc_placeholder": "공유 URL 또는 shareId를 붙여넣기",
         "ugc_search": "검색",

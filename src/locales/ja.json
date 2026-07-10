@@ -1799,6 +1799,22 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "personal_tags": {
+            "title": "個人タグ通報",
+            "description": "通報があった個人タグを確認し、 必要なら非表示にします。 表示に戻すと通報記録もクリアされます。",
+            "empty": "通報あり個人タグはありません",
+            "id_label": "タグ ID",
+            "hide": "非表示にする",
+            "hiding": "...",
+            "hide_confirm": "このタグを非表示にしますか?",
+            "hide_success": "非表示にしました",
+            "unhide": "表示に戻す",
+            "unhiding": "...",
+            "unhide_confirm": "このタグを表示に戻しますか? 通報記録はクリアされます。",
+            "unhide_success": "表示に戻しました",
+            "report_count": "通報 {{count}} 件",
+            "hidden_badge": "非表示"
+        },
         "ugc_description": "共有URLを貼り付けて、アップロードされたロゴ画像を確認・削除できます。",
         "ugc_placeholder": "共有URLまたはshareIDを貼り付け",
         "ugc_search": "検索",
