@@ -2106,9 +2106,6 @@
                 "roomNumberApartmentOutOfRange": "公寓房号需在 1-90 之间",
                 "roomNumberPrivateOutOfRange": "FC 个人房号需在 1-512 之间"
             },
-            "address": {
-                "expansionWardNote": "31 以上为扩展区"
-            },
             "type": {
                 "S": "小型房屋",
                 "M": "中型房屋",

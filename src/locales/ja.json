@@ -2162,9 +2162,6 @@
                 "roomNumberApartmentOutOfRange": "部屋番号は 1-90 で入力してください",
                 "roomNumberPrivateOutOfRange": "個室番号は 1-512 で入力してください"
             },
-            "address": {
-                "expansionWardNote": "31 以上は拡張街です"
-            },
             "type": {
                 "S": "Sハウス",
                 "M": "Mハウス",

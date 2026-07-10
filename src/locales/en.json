@@ -2141,9 +2141,6 @@
                 "roomNumberApartmentOutOfRange": "Apartment number must be between 1 and 90",
                 "roomNumberPrivateOutOfRange": "Private room number must be between 1 and 512"
             },
-            "address": {
-                "expansionWardNote": "31 and above is the expansion district"
-            },
             "type": {
                 "S": "Small house",
                 "M": "Medium house",

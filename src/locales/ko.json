@@ -2106,9 +2106,6 @@
                 "roomNumberApartmentOutOfRange": "방 번호는 1-90 사이로 입력해 주세요",
                 "roomNumberPrivateOutOfRange": "개인실 번호는 1-512 사이로 입력해 주세요"
             },
-            "address": {
-                "expansionWardNote": "31 이상은 확장 구역입니다"
-            },
             "type": {
                 "S": "소형 하우스",
                 "M": "중형 하우스",
