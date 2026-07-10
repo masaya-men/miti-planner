@@ -1978,7 +1978,7 @@
             },
             "building_type": {
                 "label": "Building type",
-                "house": "House (S/M/L)",
+                "house": "House",
                 "apartment": "Apartment"
             },
             "apartment_building": {

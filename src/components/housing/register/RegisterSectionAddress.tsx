@@ -189,9 +189,6 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
                 value={plot ?? ''}
                 onChange={(e) => onChange('plot', e.target.value ? Number(e.target.value) : undefined)}
               />
-              {plot != null && plot >= 31 && plot <= 60 && (
-                <p className="housing-address-note">{t('housing.register.address.expansionWardNote')}</p>
-              )}
               {renderBadge('plot')}
             </div>
 

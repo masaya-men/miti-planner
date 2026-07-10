@@ -1999,7 +1999,7 @@
             },
             "building_type": {
                 "label": "建物タイプ",
-                "house": "家 (S/M/L)",
+                "house": "家",
                 "apartment": "アパート"
             },
             "apartment_building": {
