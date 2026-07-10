@@ -285,3 +285,29 @@ export interface FeatureSession {
   activated: boolean;
   activatedAt: number;
 }
+
+/**
+ * personal_tags/{tagId} - 個人タグ (ハウジンガー名タグ)
+ * 計画書: docs/superpowers/plans/2026-07-10-housing-tag-overhaul-plan.md Phase B-1
+ *
+ * - 1 ユーザー 1 個 (PERSONAL_TAG_LIMIT_PER_USER)。 id は `personal_<slug>` 形式。
+ * - 書き込みは API (Admin SDK) 経由のみ (firestore.rules で client 直接書き込み禁止)。
+ */
+export interface PersonalTag {
+  id: string;
+  displayName: string;
+  /** displayName の小文字正規化 (Firestore の大文字小文字非依存 prefix 検索を補うための検索専用フィールド)。 */
+  displayNameLower: string;
+  ownerUid: string;
+  createdAt: number;
+  reportCount: number;
+  isHidden: boolean;
+}
+
+/**
+ * personal_tags/{tagId}/reports/{reporterUid} - 個人タグの通報 (1 ユーザー 1 通報でdedup)
+ */
+export interface PersonalTagReport {
+  comment?: string;
+  createdAt: number;
+}

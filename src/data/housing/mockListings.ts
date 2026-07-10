@@ -158,7 +158,3 @@ export const MOCK_LISTINGS: MockListing[] = [
     gen(49, 'Chaos', 'EU', 'Phantom', 'Mist', 10, 6, 'L', ['ghibli'], 'ジブリ風'),
     gen(50, 'Light', 'EU', 'Alpha', 'Empyreum', 7, 27, 'M', ['cottagecore'], 'コテージ村'),
 ];
-
-export const SAMPLE_THEME_TAGS: string[] = [
-    'wafu', 'modern', 'cafe', 'gothic', 'fantasy', 'scifi', 'minimal', 'boho', 'nordic', 'cottagecore',
-];

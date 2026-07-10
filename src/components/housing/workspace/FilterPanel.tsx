@@ -6,7 +6,9 @@ import {
     type HousingSize,
 } from '../../../store/useHousingFilterStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
-import { MOCK_LISTINGS, SAMPLE_THEME_TAGS } from '../../../data/housing/mockListings';
+import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
+import { getTagsByKind } from '../../../data/housingTags';
+import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import {
     ALL_DCS,
@@ -20,6 +22,9 @@ import { FilterDropdown } from './FilterDropdown';
 import { ResultCountBadge } from './ResultCountBadge';
 import { RegisterCTA } from './RegisterCTA';
 import { PanelCloseButton } from './PanelCloseButton';
+import { PersonalTagFilter } from './PersonalTagFilter';
+
+const THEME_TAG_IDS = new Set(getTagsByKind('theme').map((tag) => tag.id));
 
 const AREAS: HousingArea[] = ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'];
 const SIZES: HousingSize[] = ['S', 'M', 'L'];
@@ -157,14 +162,19 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                 <FilterDropdown
                     label={t('housing.workspace.filter.theme')}
                     mode="multi"
-                    options={SAMPLE_THEME_TAGS.map((tag) => ({
-                        value: tag,
-                        label: t(`housing.tag.${tag}`, { defaultValue: tag }),
+                    options={getTagsByKind('theme').map((tag) => ({
+                        value: tag.id,
+                        label: t(tag.i18nKey, { defaultValue: tag.id }),
                     }))}
-                    selected={tags}
+                    selected={tags.filter((id) => THEME_TAG_IDS.has(id))}
                     onSelect={(v) => toggleTag(v)}
                     allLabel={allLabel}
                     countLabel={countLabel}
+                />
+
+                <PersonalTagFilter
+                    selected={tags.filter((id) => id.startsWith(PERSONAL_TAG_ID_PREFIX))}
+                    onToggle={(id) => toggleTag(id)}
                 />
 
                 {hasActiveFilter && (

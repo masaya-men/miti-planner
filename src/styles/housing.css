@@ -2150,6 +2150,35 @@ select.housing-input option {
   color: var(--housing-text-dim);
   text-align: center;
 }
+/* 個人タグ「未作成」時の作成フォーム (TagPicker「個人」タブ、 2026-07-10 タグ体系刷新 Phase B)。
+   縦積み要素の余白リズムはコンテナ gap で統一する (0px 密着を避ける、 housing-design.md 参照)。 */
+.housing-tag-picker-personal-create {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 2px;
+}
+/* 探すページの個人タグ検索結果行 (option ボタン + 軽量な通報リンク、 2026-07-10 Phase B)。 */
+.housing-personal-tag-result {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.housing-personal-tag-report-btn {
+  padding: 2px 8px;
+  border: 0;
+  background: transparent;
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-xs);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.housing-personal-tag-report-btn:hover {
+  color: var(--housing-text);
+}
 
 /* ===== Housing Panel Modal (中央浮遊ガラスモーダル統一基盤) ===== */
 .housing-panel-modal-backdrop {

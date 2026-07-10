@@ -57,6 +57,14 @@
         { "fieldPath": "contentId", "order": "ASCENDING" },
         { "fieldPath": "viewCount", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "personal_tags",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isHidden", "order": "ASCENDING" },
+        { "fieldPath": "displayNameLower", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

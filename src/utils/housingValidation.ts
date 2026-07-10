@@ -22,6 +22,7 @@ import {
   PRIVATE_CHAMBER_RANGE,
   HOUSING_LIMITS,
   MAX_TITLE_LENGTH,
+  PERSONAL_TAG_DISPLAY_NAME_MAX_LENGTH,
 } from '../constants/housing.js';
 import { isValidTagId } from '../data/housingTags.js';
 
@@ -174,6 +175,19 @@ export function validateTags(tags: string[]): ValidationResult {
   for (const id of tags) {
     if (!isValidTagId(id)) return fail({ tags: 'unknown_tag' });
   }
+  return ok();
+}
+
+/**
+ * 個人タグの表示名バリデーション (2026-07-10 タグ体系刷新 Phase B)。
+ * 1〜PERSONAL_TAG_DISPLAY_NAME_MAX_LENGTH 文字。 文字種の制限は設けない
+ * (id 側は buildPersonalTagId が別途 ASCII slug + random suffix で生成するため)。
+ */
+export function validatePersonalTagDisplayName(name: unknown): ValidationResult {
+  if (typeof name !== 'string') return fail({ displayName: 'invalid_type' });
+  const trimmed = name.trim();
+  if (trimmed.length === 0) return fail({ displayName: 'required' });
+  if (trimmed.length > PERSONAL_TAG_DISPLAY_NAME_MAX_LENGTH) return fail({ displayName: 'too_long' });
   return ok();
 }
 
