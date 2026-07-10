@@ -2170,14 +2170,19 @@
                 "step3_desc": "选择公开或非公开，确认内容后完成登记"
             },
             "check": {
-                "title": "登记前确认",
-                "address": "请输入地址",
-                "image": "添加图片可以让其他人更容易找到"
+                "panel_title": "登记前确认",
+                "row_address": "地址",
+                "row_title": "标题（选填）",
+                "row_image": "图片（建议）",
+                "missing_address": "请输入地址",
+                "missing_title": "请输入标题",
+                "missing_image": "请添加图片"
             },
             "duplicate": {
                 "title": "重复检查",
                 "idle": "输入地址后将检查同一地址是否已有登记",
                 "clear": "未发现同一地址的房屋",
+                "found_lead": "该地址已有登记",
                 "private_note": "在同一地址发现 {{count}} 个非公开房屋"
             },
             "map_preview": {

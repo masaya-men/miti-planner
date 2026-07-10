@@ -1073,13 +1073,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
   return (
     <div className="housing-register" data-testid="housing-register-form-root">
-      {/* 左カラム: ステッパーナビ + ガイド (スクロール) + 本日の登録枠 (下端固定・#6)。
-          残数はスクロールに埋もれないよう、スクロール領域の外=左パネル最下部に固定する。 */}
+      {/* 左カラム: ステッパーナビ (スクロール) + 本日の登録枠 (下端固定・#6)。
+          残数はスクロールに埋もれないよう、スクロール領域の外=左パネル最下部に固定する。
+          「登録の流れ」(RegisterGuide) はステッパーと役割が重複していたため右カラムへ移設。 */}
       <section className="housing-register-panel" data-region="left">
         <div className="housing-register-col housing-register-col-left">
           <div className="housing-register-left-scroll">
             <RegisterStepperNav steps={steps} onJump={handleJumpToStep} />
-            <RegisterGuide />
           </div>
           {remaining != null && (
             <p
@@ -1193,6 +1193,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
           {/* #5: 静的ミニマップから、ツアーと同じ「動くマップ」に統一。住所が地図解決
               できるまで (area+plot / area+apartmentBuilding) は何も出さない。 */}
           <RegisterAddressMap address={address} />
+
+          {/* 「登録の流れ」を左から移設。左のライブステッパー (現在地) と役割が重複していたため、
+              教育的な説明はこちら (参照材料) に置き、左は現在地表示に専念させる。 */}
+          <RegisterGuide />
         </div>
       </section>
 

@@ -120,7 +120,8 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
           <ul className="housing-register-confirm-missing-list">
             {missing.map((item) => (
               <li key={item.key} data-testid={`housing-register-confirm-missing-${item.key}`}>
-                {t(item.labelKey)}
+                {/* 不足アクションは命令文キー (チェック行は名詞キー) — 2026-07-10 で 2 系統に分離。 */}
+                {t(item.missingLabelKey)}
               </li>
             ))}
           </ul>

@@ -2205,14 +2205,19 @@
                 "step3_desc": "Choose public or private, confirm the details, and register"
             },
             "check": {
-                "title": "Before you register",
-                "address": "Please enter the address",
-                "image": "Adding images makes it easier for others to find"
+                "panel_title": "Before you register",
+                "row_address": "Address",
+                "row_title": "Title (optional)",
+                "row_image": "Images (recommended)",
+                "missing_address": "Please enter the address",
+                "missing_title": "Please enter a title",
+                "missing_image": "Please add an image"
             },
             "duplicate": {
                 "title": "Duplicate check",
                 "idle": "Enter an address to check for existing housing at the same location",
                 "clear": "No existing housing found at this address",
+                "found_lead": "Housing is already registered at this address",
                 "private_note": "{{count}} private listing(s) found at this address"
             },
             "map_preview": {

@@ -13,6 +13,15 @@ interface Props {
   registerFlag?: boolean;
 }
 
+/**
+ * 未ログイン時のログイン案内 (登録/ツアー/お気に入り 共通)。
+ *
+ * 2026-07-10: LoPo 汎用トークン (bg-app-blue / text-app-* / Tailwind ユーティリティ) を撤去し、
+ * ハウジング独自トンマナへ揃えた (housing-design.md)。青ボタンは世界観から浮くため、
+ * ログイン = このページの主アクションとして **ハニーゴールド** (`.housing-btn-primary`) にする。
+ * 版面は `TourEmptyState` と同じ「タイトル + リード + CTA の静かな中央寄せ空状態」パターン。
+ * パネル中央への配置は housing.css 側 (`.housing-register-panel-solo`) が担う。
+ */
 export const HousingLoginPrompt: React.FC<Props> = ({ context, registerFlag = true }) => {
   const { t } = useTranslation();
   const openLogin = useHousingModalStore((s) => s.openLogin);
@@ -26,17 +35,17 @@ export const HousingLoginPrompt: React.FC<Props> = ({ context, registerFlag = tr
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 text-center">
-      <p className="text-app-md text-app-text mb-2">
+    <div className="housing-login-prompt" data-context={context}>
+      <p className="housing-login-prompt-title">
         {t(`housing.login_prompt.${context}.title`)}
       </p>
-      <p className="text-app-sm text-app-text-muted mb-4">
+      <p className="housing-login-prompt-lead">
         {t(`housing.login_prompt.${context}.lead`)}
       </p>
       <button
         type="button"
         onClick={handleOpenLogin}
-        className="inline-block px-6 py-2 rounded-md bg-app-blue text-white hover:bg-app-blue-hover text-app-md"
+        className="housing-action-btn housing-btn-primary housing-login-prompt-cta"
       >
         {t('housing.login_prompt.open_login')}
       </button>

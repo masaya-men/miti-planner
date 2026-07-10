@@ -26,7 +26,8 @@ export const RegisterDuplicatePanel: React.FC<Props> = ({ state, duplicates, pri
   const { t } = useTranslation();
 
   return (
-    <div className="housing-register-dup-panel" data-testid="housing-register-dup-panel">
+    // data-state で「重複あり」を CSS に降ろす (見出し/枠を赤くする・#重複を目立たせる)。
+    <div className="housing-register-dup-panel" data-state={state} data-testid="housing-register-dup-panel">
       <h2 className="housing-register-dup-panel-title">{t('housing.register.duplicate.title')}</h2>
 
       {state === 'idle' && (
@@ -50,6 +51,13 @@ export const RegisterDuplicatePanel: React.FC<Props> = ({ state, duplicates, pri
 
       {state === 'found' && (
         <div className="housing-register-dup-found" data-testid="housing-register-dup-found">
+          {/* 重複は見落とすと二重登録になるため、赤いヘアライン + 赤文字 + ⚠ で強く出す。
+              色地の alert 箱にはしない (housing-design.md「色付き alert 箱を避ける」と両立)。 */}
+          <p className="housing-register-dup-found-lead" data-testid="housing-register-dup-found-lead">
+            <span className="housing-register-dup-found-icon" aria-hidden="true">⚠</span>
+            {t('housing.register.duplicate.found_lead')}
+          </p>
+
           {duplicates.length > 0 && (
             <ul className="housing-register-dup-public-list" data-testid="housing-register-dup-public">
               {duplicates.map((d) => (

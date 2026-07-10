@@ -16,7 +16,7 @@ export const RegisterCheckPanel: React.FC<Props> = ({ items }) => {
 
   return (
     <div className="housing-register-check-panel" data-testid="housing-register-check-panel">
-      <h2 className="housing-register-check-panel-title">{t('housing.register.check.title')}</h2>
+      <h2 className="housing-register-check-panel-title">{t('housing.register.check.panel_title')}</h2>
       <ul className="housing-register-check-list">
         {items.map((item) => (
           <li

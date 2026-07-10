@@ -95,6 +95,11 @@
   --housing-danger-btn-hover: #d85b4a;
   --housing-disabled-opacity: 0.35;
 
+  /* 地図の奥行き演出 (2026-07-10・案C: 実際に傾けず上端を奥に見せる)。
+     rotateX は pan/zoom の座標逆変換とラベル投影を壊すため使わない。 */
+  --housing-map-depth-far: rgba(0, 0, 0, 0.30);      /* 上端 = 遠方を落とす */
+  --housing-map-depth-vignette: rgba(0, 0, 0, 0.26); /* 内側ヴィネット */
+
   /* ===== Modal / popover surfaces ===== */
   --housing-modal-overlay: rgba(0, 0, 0, 0.55);
   --housing-popover-bg: rgba(20, 14, 8, 0.96);
@@ -3267,20 +3272,29 @@ select.housing-input option {
     cursor: not-allowed;
 }
 
-/* primary CTA (honey accent) — 通報モーダル / ガイドモーダルで共通 */
+/* primary CTA (honey accent) — 通報 / オンボ / 重複警告 / 公開する / ログイン案内 で共通。
+   2026-07-10: ここだけ「フラット単色 + hover で背景総入替」で、ツアーの次へ/完了や
+   お気に入りの「すべてツアーに追加」(= ハニー主アクションの de-facto 正典) と質感が違い、
+   同じハニーなのに別物に見えていた。正典 (グラデ + 影 + brightness hover) に揃える。
+   文字色は #1a1006 のベタ書きをやめ --housing-honey-text トークンへ。
+   base の !important は .housing-action-btn:hover (0-2-0) に負けないため維持。 */
 .housing-btn-primary {
-    background: var(--housing-honey) !important;
-    border-color: var(--housing-honey) !important;
-    color: #1a1006 !important;
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow)) !important;
+    border-color: transparent !important;
+    color: var(--housing-honey-text) !important;
     font-weight: 600;
+    box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
 }
 .housing-btn-primary:hover:not(:disabled) {
-    background: var(--housing-honey-glow) !important;
-    border-color: var(--housing-honey-glow) !important;
+    filter: brightness(1.05);
+}
+.housing-btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
 }
 .housing-btn-primary:disabled {
     opacity: var(--housing-disabled-opacity);
     cursor: not-allowed;
+    box-shadow: none;
 }
 
 /* ============================================================
@@ -6220,3 +6234,102 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   background: transparent; color: var(--housing-text); cursor: pointer;
 }
 .housing-dev-tourpreview-jump { margin-left: auto; max-width: 240px; }
+
+/* ============================================================
+ * 未ログイン時のログイン案内 (HousingLoginPrompt)
+ * 2026-07-10: LoPo 汎用トークン (bg-app-blue 等) を撤去しハウジング トンマナへ。
+ * 版面は TourEmptyState と同じ静かな中央寄せ空状態。CTA はハニー (主アクション)。
+ * ============================================================ */
+.housing-login-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 32px 16px;
+  max-width: 34em;
+}
+.housing-login-prompt-title {
+  margin: 0;
+  font-size: var(--housing-text-base);
+  font-weight: 700;
+  color: var(--housing-text);
+}
+.housing-login-prompt-lead {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  line-height: 1.6;
+  color: var(--housing-text-mute);
+}
+/* .housing-action-btn の小さめ padding を、単独 CTA として押しやすいサイズへ上書き。
+   色・グラデ・影・hover/active は .housing-btn-primary (ハニー主アクション正典) が担う。 */
+.housing-login-prompt-cta {
+  margin-top: 6px;
+  padding: 10px 18px;
+  font-size: var(--housing-text-sm);
+}
+
+/* 未ログイン時 (panel-solo) は案内をパネルの中央に置く。
+   .housing-register-col は height:100% + flex column なので既定だと上端に貼り付く。
+   margin:auto は overflow-y:auto でも上端が切れない安全な中央寄せ (justify-content:center は切れる)。 */
+.housing-register-panel-solo .housing-register-col {
+  align-items: center;
+}
+.housing-register-panel-solo .housing-register-col > * {
+  margin: auto;
+}
+
+/* ============================================================
+ * 重複チェック: 「見つかった」ときは赤で強く出す
+ * 見落とすと二重登録になるため。ただし色地の alert 箱にはせず、
+ * 赤いヘアライン + 赤文字 + ⚠ アイコン で示す (housing-design.md と両立)。
+ * ============================================================ */
+.housing-register-dup-panel[data-state="found"] .housing-register-dup-panel-title {
+  color: var(--housing-danger);
+}
+.housing-register-dup-found-lead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--housing-danger);
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-danger);
+}
+.housing-register-dup-found-icon {
+  flex: 0 0 auto;
+  font-size: var(--housing-text-md);
+  line-height: 1;
+}
+/* 重複カード自体も赤縁にして、一覧の中で「これが重複だ」と分かるようにする。 */
+.housing-register-dup-panel[data-state="found"] .housing-register-dup-public-card {
+  border-color: var(--housing-danger);
+  background: var(--housing-danger-soft);
+}
+
+/* ============================================================
+ * 地図の奥行き演出 (案C・2026-07-10)
+ * rotateX で実際に傾けるのは不可: .housing-map-zoom は translate()scale() の
+ * アフィン変換前提で、mapZoom.ts の zoomAt がその逆算をしている。3D を入れると
+ *   (a) ホイール/ピンチのカーソル固定アンカーが破綻
+ *   (b) エーテライトラベルは兄弟要素で手動投影しているためマーカーとズレる
+ *   (c) 3D レイヤー昇格で拡大時の滲みが再発 (意図的に避けてある)
+ * ため、座標系には一切触れず「上端を奥に見せる」グラデ + 内側ヴィネットだけを重ねる。
+ * wrap は transform でスタッキングコンテキストを作るので HUD(z-index:7) より下に収まる。
+ * ============================================================ */
+.housing-tour-map-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, var(--housing-map-depth-far) 0%, transparent 42%),
+    radial-gradient(120% 80% at 50% 105%, transparent 55%, var(--housing-map-depth-vignette) 100%);
+}
+/* エーテライトラベルは奥行きオーバーレイより上に (読めなくならないように)。 */
+.housing-tour-map-aetheryte-label {
+  z-index: 2;
+}

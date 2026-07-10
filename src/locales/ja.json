@@ -2226,14 +2226,19 @@
                 "step3_desc": "公開または非公開を選び、 内容を確認して登録します"
             },
             "check": {
-                "title": "登録前に確認",
-                "address": "住所を入力してください",
-                "image": "画像を追加すると見つけてもらいやすくなります"
+                "panel_title": "登録前に確認",
+                "row_address": "住所",
+                "row_title": "タイトル (任意)",
+                "row_image": "画像 (推奨)",
+                "missing_address": "住所を入力してください",
+                "missing_title": "タイトルを入力してください",
+                "missing_image": "画像を追加してください"
             },
             "duplicate": {
                 "title": "重複チェック",
                 "idle": "住所を入力すると、 同じ住所の既存ハウジングを確認します",
                 "clear": "同じ住所のハウジングは見つかりませんでした",
+                "found_lead": "同じ住所に既に登録があります",
                 "private_note": "非公開のハウジングが {{count}} 件、 同じ住所に見つかりました"
             },
             "map_preview": {
