@@ -1959,6 +1959,19 @@
             "tag_search_placeholder": "태그 검색…",
             "tag_no_results": "일치하는 태그가 없습니다",
             "tag_pick_hint": "최대 {{max}}개의 테마를 고를 수 있습니다",
+            "personal_tag": {
+                "loading": "불러오는 중…",
+                "hint": "개인 태그는 1인당 1개까지 만들 수 있습니다. 만들고 나면 다른 사람이 이 태그로 내 하우징을 검색할 수 있습니다.",
+                "placeholder": "예: yuura",
+                "create_button": "만들기",
+                "creating": "만드는 중…",
+                "error": {
+                    "required": "표시 이름을 입력해 주세요",
+                    "too_long": "{{max}}자 이내로 입력해 주세요",
+                    "limit_reached": "이미 개인 태그를 만들었습니다",
+                    "generic": "생성에 실패했습니다. 잠시 후 다시 시도해 주세요"
+                }
+            },
             "tags": "태그",
             "room_number": "방 번호",
             "parent_house_size": "본가 크기",

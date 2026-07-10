@@ -1,10 +1,33 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HousingRegisterTagPicker } from '../../components/housing/register/HousingRegisterTagPicker';
 
+const getMyPersonalTagMock = vi.fn();
+const createPersonalTagMock = vi.fn();
+vi.mock('../../lib/personalTagApiClient', () => ({
+  getMyPersonalTag: (...args: unknown[]) => getMyPersonalTagMock(...args),
+  createPersonalTag: (...args: unknown[]) => createPersonalTagMock(...args),
+  PersonalTagAlreadyExistsError: class PersonalTagAlreadyExistsError extends Error {
+    existingTag: unknown;
+    constructor(existingTag: unknown) {
+      super('already_exists');
+      this.existingTag = existingTag;
+    }
+  },
+  PersonalTagLimitReachedError: class PersonalTagLimitReachedError extends Error {
+    constructor() { super('limit_reached'); }
+  },
+}));
+
 describe('HousingRegisterTagPicker', () => {
+  beforeEach(() => {
+    getMyPersonalTagMock.mockReset();
+    createPersonalTagMock.mockReset();
+    getMyPersonalTagMock.mockResolvedValue(null);
+  });
+
   it('静的 kind (公式/季節/テーマ) の見出しを表示する', () => {
     render(<HousingRegisterTagPicker selected={[]} onChange={() => {}} />);
     expect(screen.getByText(/housing\.register\.tag_kind\.official/i)).toBeInTheDocument();
@@ -45,5 +68,65 @@ describe('HousingRegisterTagPicker', () => {
     const removeBtn = screen.getByRole('button', { name: /housing\.register\.remove_tag/i });
     await user.click(removeBtn);
     expect(onChange).toHaveBeenCalledWith([]);
+  });
+
+  describe('個人タブ', () => {
+    it('未作成なら作成フォームを出し、 作成後にタグをトグルできる', async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      const createdTag = { id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura', ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false };
+      createPersonalTagMock.mockResolvedValue(createdTag);
+
+      render(<HousingRegisterTagPicker selected={[]} onChange={onChange} />);
+      await user.click(screen.getByText(/housing\.register\.tag_kind\.personal/i));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('housing-personal-tag-name-input')).toBeInTheDocument();
+      });
+
+      await user.type(screen.getByTestId('housing-personal-tag-name-input'), 'yuura');
+      await user.click(screen.getByTestId('housing-personal-tag-create-button'));
+
+      await waitFor(() => {
+        expect(createPersonalTagMock).toHaveBeenCalledWith('yuura');
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'yuura' })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole('button', { name: 'yuura' }));
+      expect(onChange).toHaveBeenCalledWith(['personal_yuura_ab12cd']);
+    });
+
+    it('作成済みなら自分のタグをトグル可能なボタンとして表示する', async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      getMyPersonalTagMock.mockResolvedValue({
+        id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura',
+        ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false,
+      });
+
+      render(<HousingRegisterTagPicker selected={[]} onChange={onChange} />);
+      await user.click(screen.getByText(/housing\.register\.tag_kind\.personal/i));
+
+      const optionBtn = await screen.findByRole('button', { name: 'yuura' });
+      await user.click(optionBtn);
+      expect(onChange).toHaveBeenCalledWith(['personal_yuura_ab12cd']);
+    });
+
+    it('選択済みの自分のタグは選択チップとして表示され × で削除できる', async () => {
+      const user = userEvent.setup();
+      const onChange = vi.fn();
+      getMyPersonalTagMock.mockResolvedValue({
+        id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura',
+        ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false,
+      });
+
+      render(<HousingRegisterTagPicker selected={['personal_yuura_ab12cd']} onChange={onChange} />);
+
+      const removeBtn = await screen.findByRole('button', { name: /housing\.register\.remove_tag/i });
+      await user.click(removeBtn);
+      expect(onChange).toHaveBeenCalledWith([]);
+    });
   });
 });

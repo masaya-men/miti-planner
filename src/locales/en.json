@@ -1994,6 +1994,19 @@
             "tag_search_placeholder": "Search tags…",
             "tag_no_results": "No matching tags",
             "tag_pick_hint": "Pick up to {{max}} themes",
+            "personal_tag": {
+                "loading": "Loading…",
+                "hint": "You can create one personal tag. Once created, others can search your housing by this tag.",
+                "placeholder": "e.g. yuura",
+                "create_button": "Create",
+                "creating": "Creating…",
+                "error": {
+                    "required": "Please enter a display name",
+                    "too_long": "Please use {{max}} characters or fewer",
+                    "limit_reached": "You already have a personal tag",
+                    "generic": "Failed to create. Please try again later"
+                }
+            },
             "tags": "Tags",
             "room_number": "Room number",
             "parent_house_size": "Parent house size",
