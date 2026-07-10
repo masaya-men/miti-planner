@@ -95,10 +95,12 @@
   --housing-danger-btn-hover: #d85b4a;
   --housing-disabled-opacity: 0.35;
 
-  /* 地図の奥行き演出 (2026-07-10・案C: 実際に傾けず上端を奥に見せる)。
-     rotateX は pan/zoom の座標逆変換とラベル投影を壊すため使わない。 */
-  --housing-map-depth-far: rgba(0, 0, 0, 0.30);      /* 上端 = 遠方を落とす */
-  --housing-map-depth-vignette: rgba(0, 0, 0, 0.26); /* 内側ヴィネット */
+  /* 地図の奥行き演出 (2026-07-10・案C: 実際に傾けない)。
+     rotateX は pan/zoom の座標逆変換とラベル投影を壊すため使わない。
+     当初は上端だけ落として「遠方」を表現したが、傾いていない平面で片側だけ暗くすると
+     奥行きでなく「帯」に見えてバランスが崩れたため、方向を持たない全周ヴィネットに変更。 */
+  --housing-map-depth-vignette: rgba(0, 0, 0, 0.30); /* 四隅が沈む量 */
+  --housing-map-depth-start: 58%;                    /* ここまでは完全に透明 (中心を汚さない) */
 
   /* ===== Modal / popover surfaces ===== */
   --housing-modal-overlay: rgba(0, 0, 0, 0.55);
@@ -6316,7 +6318,8 @@ html[data-theme-anim="light"]::view-transition-new(root) {
  *   (a) ホイール/ピンチのカーソル固定アンカーが破綻
  *   (b) エーテライトラベルは兄弟要素で手動投影しているためマーカーとズレる
  *   (c) 3D レイヤー昇格で拡大時の滲みが再発 (意図的に避けてある)
- * ため、座標系には一切触れず「上端を奥に見せる」グラデ + 内側ヴィネットだけを重ねる。
+ * ため、座標系には一切触れず、方向を持たない全周ヴィネットだけを重ねる。
+ * (上端だけ落とす案は「遠方」でなく「帯」に見えてバランスを崩したので撤回)
  * wrap は transform でスタッキングコンテキストを作るので HUD(z-index:7) より下に収まる。
  * ============================================================ */
 .housing-tour-map-wrap::after {
@@ -6325,9 +6328,11 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  background:
-    linear-gradient(180deg, var(--housing-map-depth-far) 0%, transparent 42%),
-    radial-gradient(120% 80% at 50% 105%, transparent 55%, var(--housing-map-depth-vignette) 100%);
+  background: radial-gradient(
+    ellipse 76% 76% at 50% 50%,
+    transparent var(--housing-map-depth-start),
+    var(--housing-map-depth-vignette) 100%
+  );
 }
 /* エーテライトラベルは奥行きオーバーレイより上に (読めなくならないように)。 */
 .housing-tour-map-aetheryte-label {
