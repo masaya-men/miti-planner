@@ -2180,6 +2180,13 @@
                 "visibility": "Visibility",
                 "confirm": "Confirm"
             },
+            "step_desc": {
+                "media": "Paste a X (Twitter) or Housing Snap URL to automatically import photos and the address",
+                "address": "Whether auto-filled or entered by hand, always confirm the address before registering",
+                "intro": "The title is optional. If left blank, the listing shows the address instead",
+                "visibility": "Choose public or private, and optionally set an end date",
+                "confirm": "Review everything together, then register"
+            },
             "stepper_aria_label": "Registration steps",
             "section_visibility": "Visibility",
             "visibility": {

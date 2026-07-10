@@ -2145,6 +2145,13 @@
                 "visibility": "公开设置",
                 "confirm": "确认"
             },
+            "step_desc": {
+                "media": "粘贴 X (Twitter) 或 Housing Snap 链接，即可自动导入照片和地址",
+                "address": "无论是自动填写还是手动输入，登记前都需要确认地址",
+                "intro": "标题为选填项。留空时，列表将显示地址",
+                "visibility": "可以选择公开・非公开，以及公开期限",
+                "confirm": "统一确认输入内容后完成登记"
+            },
             "stepper_aria_label": "登记步骤",
             "section_visibility": "公开设置",
             "visibility": {

@@ -2145,6 +2145,13 @@
                 "visibility": "공개 설정",
                 "confirm": "확인"
             },
+            "step_desc": {
+                "media": "X (Twitter)나 Housing Snap URL을 붙여넣으면 사진과 주소를 자동으로 가져옵니다",
+                "address": "자동 입력이든 직접 입력이든, 등록 전에 반드시 주소를 확인합니다",
+                "intro": "제목은 선택 사항입니다. 입력하지 않으면 목록에는 주소가 표시됩니다",
+                "visibility": "공개・비공개와 공개 기간을 선택할 수 있습니다",
+                "confirm": "입력한 내용을 한눈에 확인하고 등록합니다"
+            },
             "stepper_aria_label": "등록 단계",
             "section_visibility": "공개 설정",
             "visibility": {

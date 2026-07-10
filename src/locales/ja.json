@@ -2201,6 +2201,13 @@
                 "visibility": "公開設定",
                 "confirm": "確認"
             },
+            "step_desc": {
+                "media": "X (Twitter) やハウジングスナップの URL を貼ると、写真と住所を自動で取り込みます",
+                "address": "自動入力でも手入力でも、登録前に必ず住所を確認します",
+                "intro": "タイトルは任意です。未入力の場合、一覧には住所が表示されます",
+                "visibility": "公開・非公開と、公開期限を選べます",
+                "confirm": "入力内容をまとめて確認し、登録します"
+            },
             "stepper_aria_label": "登録ステップ",
             "section_visibility": "公開設定",
             "visibility": {

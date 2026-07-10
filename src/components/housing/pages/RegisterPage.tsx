@@ -625,6 +625,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   // 最下部到達時に最終ステップ (confirm) を active にする (#7)。IO の active 帯 (top 40%) は
   // 最後のセクションが下端で止まると届かず、確認ステップまで highlight が降りてこないため、
   // scroll で最下部を検知して補う。スクロール不能な短い内容では発火させない (先頭を保つ)。
+  //
+  // 同じ scroll ハンドラで左パネルの接続線塗り進行度 (0..1・Task2) も更新する。progress の
+  // 読み取り/計算だけ rAF スロットルし (連続 scroll イベントを 1 フレームに間引く)、
+  // atBottom/activeStepId の既存ロジックは同期のまま (挙動不変)。
+  const [stepperProgress, setStepperProgress] = useState(0);
+  const progressRafRef = useRef<number | null>(null);
   useEffect(() => {
     const root = scrollContainerRef.current;
     if (!root) return;
@@ -636,10 +642,25 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         const last = effectiveStepIds[effectiveStepIds.length - 1];
         setActiveStepId((prev) => (prev === last ? prev : last));
       }
+      if (progressRafRef.current != null) return;
+      progressRafRef.current = window.requestAnimationFrame(() => {
+        progressRafRef.current = null;
+        const r = scrollContainerRef.current;
+        if (!r) return;
+        const max = r.scrollHeight - r.clientHeight;
+        const ratio = max > 0 ? r.scrollTop / max : 0;
+        setStepperProgress(Math.min(1, Math.max(0, ratio)));
+      });
     };
     onScroll();
     root.addEventListener('scroll', onScroll, { passive: true });
-    return () => root.removeEventListener('scroll', onScroll);
+    return () => {
+      root.removeEventListener('scroll', onScroll);
+      if (progressRafRef.current != null) {
+        window.cancelAnimationFrame(progressRafRef.current);
+        progressRafRef.current = null;
+      }
+    };
   }, [user, effectiveStepIds]);
 
   const handleJumpToStep = useCallback((id: number) => {
@@ -1183,7 +1204,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       <section className="housing-register-panel" data-region="left">
         <div className="housing-register-col housing-register-col-left">
           <div className="housing-register-left-scroll">
-            <RegisterStepperNav steps={steps} onJump={handleJumpToStep} />
+            <RegisterStepperNav steps={steps} onJump={handleJumpToStep} progress={stepperProgress} />
           </div>
           {remaining != null && (
             <p

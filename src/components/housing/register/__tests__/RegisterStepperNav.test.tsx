@@ -51,4 +51,33 @@ describe('RegisterStepperNav', () => {
     fireEvent.click(screen.getByTestId('housing-register-step-3'));
     expect(onJump).toHaveBeenCalledWith(3);
   });
+
+  // Task2: 各ステップの説明文 (housing.register.step_desc.*) が labelKey から導出される。
+  it('各ステップに housing.register.step_desc.* の説明文が表示される (media/address/intro)', () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <RegisterStepperNav steps={steps} onJump={() => {}} />
+      </I18nextProvider>,
+    );
+    expect(screen.getByTestId('housing-register-step-desc-1')).toHaveTextContent(
+      jaTranslations.housing.register.step_desc.media,
+    );
+    expect(screen.getByTestId('housing-register-step-desc-2')).toHaveTextContent(
+      jaTranslations.housing.register.step_desc.address,
+    );
+    expect(screen.getByTestId('housing-register-step-desc-3')).toHaveTextContent(
+      jaTranslations.housing.register.step_desc.intro,
+    );
+  });
+
+  // Task2: 中央カラムのスクロール進行度 (0..1) が接続線の CSS カスタムプロパティに反映される。
+  it('progress prop が --stepper-progress カスタムプロパティに反映される', () => {
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <RegisterStepperNav steps={steps} onJump={() => {}} progress={0.42} />
+      </I18nextProvider>,
+    );
+    const track = container.querySelector('.housing-register-stepper-track') as HTMLElement;
+    expect(track.style.getPropertyValue('--stepper-progress')).toBe('0.42');
+  });
 });
