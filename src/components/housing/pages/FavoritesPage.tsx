@@ -6,6 +6,7 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { expandTourWithDuplicates } from '../../../lib/housing/expandTourWithDuplicates';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
@@ -33,6 +34,7 @@ export const FavoritesPage: React.FC = () => {
   const myListings = useHousingListingsStore((s) => s.myListings);
   const status = useHousingListingsStore((s) => s.status);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
+  const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。
   const allListings = useMemo(
@@ -111,13 +113,14 @@ export const FavoritesPage: React.FC = () => {
   // ツアー開始: マナー通知 dismiss 済みなら直接、未 dismiss ならダイアログを挟む
   const commitStart = useCallback(() => {
     if (trayIds.length === 0) return;
-    const orderedIds = orderTourStopIds(trayIds, allListings);
+    // ツアー解決は allListings (お気に入り一覧・非汚染) + 一時 listing。一覧自体は変えない。
+    const orderedIds = orderTourStopIds(trayIds, [...allListings, ...ephemeral]);
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
     setMannerOpen(false);
     navigate('/housing/tour');
-  }, [trayIds, allListings, navigate]);
+  }, [trayIds, allListings, ephemeral, navigate]);
 
   const handleStart = useCallback(() => {
     if (trayIds.length === 0) return;

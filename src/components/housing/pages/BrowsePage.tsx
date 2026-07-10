@@ -6,6 +6,7 @@ import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
@@ -29,6 +30,7 @@ export const BrowsePage: React.FC = () => {
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
+  const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
   const dc = useHousingFilterStore((s) => s.dc);
   const regions = useHousingFilterStore((s) => s.regions);
@@ -65,7 +67,8 @@ export const BrowsePage: React.FC = () => {
 
   const onStart = () => {
     if (trayIds.length === 0) return;
-    const orderedIds = orderTourStopIds(trayIds, merged);
+    // ツアー解決は merged (探す一覧・非汚染) + 一時 listing。一覧グリッドの merged 自体は変えない。
+    const orderedIds = orderTourStopIds(trayIds, [...merged, ...ephemeral]);
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();

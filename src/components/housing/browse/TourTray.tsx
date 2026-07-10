@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Play, Route, X } from 'lucide-react';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 
@@ -17,9 +18,12 @@ export interface TourTrayProps {
 export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStart }) => {
   const { t, i18n } = useTranslation();
   const listings = useHousingListingsStore((s) => s.listings);
+  const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
+  // 行解決: 登録済み listing に無ければ一時 listing (計画: 住所登録なし一時ツアー Task2) を探す。
+  // それ以外の既存挙動 (myListings 非考慮など) は変えない。
   const items = listingIds
-    .map((id) => listings.find((l) => l.id === id))
+    .map((id) => listings.find((l) => l.id === id) ?? ephemeral.find((l) => l.id === id))
     .filter((l): l is MockListing => Boolean(l));
   const empty = listingIds.length === 0;
 

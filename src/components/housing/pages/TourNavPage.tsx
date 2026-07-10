@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
+import { buildTourPool } from '../../../lib/housing/buildTourPool';
 import { resolveTourSteps, computeTourProgress } from '../../../lib/housing/tourNav';
 import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
@@ -43,14 +44,15 @@ export const TourNavPage: React.FC = () => {
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
+  const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
   const [completed, setCompleted] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
 
-  // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。 FavoritesPage と同じ合流方式。
+  // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) + 一時 listing (計画: 住所登録なし一時ツアー Task2) を合流。
   const pool = useMemo(
-    () => mergeListingsForViewer(listings, myListings, uid, Date.now()),
-    [listings, myListings, uid],
+    () => buildTourPool(listings, myListings, uid, ephemeral, Date.now()),
+    [listings, myListings, uid, ephemeral],
   );
   const steps = useMemo(() => resolveTourSteps(listingIds, pool), [listingIds, pool]);
   const progress = useMemo(
