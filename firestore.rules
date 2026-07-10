@@ -442,6 +442,24 @@ service cloud.firestore {
     }
 
     // ========================================
+    // housing_profiles コレクション
+    // ハウジンガー公開プロフィール (spec 2026-07-10-housinger-profile-design.md)
+    // 書き込みは API (Admin SDK) のみ。公開条件を満たすか本人のみ読める。
+    // ========================================
+    match /housing_profiles/{uid} {
+      allow get, list: if (resource.data.isPublished == true
+                           && resource.data.isModerationHidden == false)
+                       || isOwner(uid);
+      allow write: if false;
+
+      // プロフィール通報 (API 経由のみ。読みは管理者)
+      match /reports/{reportId} {
+        allow read: if request.auth != null && request.auth.token.admin == true;
+        allow write: if false;
+      }
+    }
+
+    // ========================================
     // users/{uid}/featureSessions/{tool}
     // ツール毎 opt-in フラグ
     // ========================================
