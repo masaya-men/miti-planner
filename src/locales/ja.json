@@ -1983,6 +1983,7 @@
             },
             "empty_world": "このワールドにはまだ登録がありません",
             "back_to_list": "一覧に戻る",
+            "loading": "地図を読み込んでいます…",
             "load_error": "地図を読み込めませんでした",
             "ward_label": "{{ward}}区",
             "ward_count": "{{ward}}区 ({{count}}件)",

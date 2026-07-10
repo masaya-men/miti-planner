@@ -4911,6 +4911,97 @@ select.housing-input option {
   border-color: var(--housing-honey-border);
 }
 
+/* ============================================================
+ * 探す専用ワード地図 (BrowseWardMap, Task4)。SVG+パン/ズーム+マーカーレイヤ。
+ * ツアーの .housing-tour-map-wrap 系とは完全に独立(ツアー無傷方針・共有クラスは
+ * 赤ナビ隠蔽用の .housing-map-svg-host のみ流用)。
+ * ============================================================ */
+.housing-bmap-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: none; /* パン/ピンチをブラウザのスクロール/ズームに奪われない */
+  border-radius: 14px;
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-inner);
+  cursor: grab;
+}
+.housing-bmap-wrap:active { cursor: grabbing; }
+
+/* ロード中/エラーの静かな案内(装飾箱にしない・housing-empty-result 系と同じ抑制トーン)。 */
+.housing-bmap-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+}
+.housing-bmap-message-text {
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-sm);
+}
+
+/* ステージ: viewBox px 実寸で確保し、translate→scale(0,0起点)でパン/ズームする。
+ * will-change は付けない(TourNavMap と同じ理由 = SVG が拡大時ににじむのを避け、ベクターのまま再描画させる)。 */
+.housing-bmap-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}
+
+/* マーカーレイヤ: ステージの外の兄弟要素。自身は pointer-events:none にして地図操作を邪魔せず、
+ * 個々のマーカー(ボタン)だけ pointer-events:auto に戻す。 */
+.housing-bmap-markers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* 位置決めラッパ: JS 側で translate(sx,sy) だけを当てる(画面座標)。scale は掛けない
+ * = ズームしてもマーカーの大きさは画面上一定 (spec §4.3)。 */
+.housing-bmap-marker-pos {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+/* マーカー本体: 吹き出しの根本をスポット座標に合わせる静的アンカー (translate(-50%,-100%))。
+ * Task4 時点はプレースホルダの簡易ボタン(本実装 = Task5 の MapSpotCard)。 */
+.housing-bmap-marker {
+  pointer-events: auto;
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text);
+  font-family: inherit;
+  font-size: var(--housing-text-xs);
+  white-space: nowrap;
+  transform: translate(-50%, -100%);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.housing-bmap-marker:hover,
+.housing-bmap-marker[data-expanded="true"] {
+  border-color: var(--housing-honey-border);
+  color: var(--housing-candle);
+}
+.housing-bmap-marker-label { pointer-events: none; }
+.housing-bmap-badge {
+  pointer-events: none;
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-xs);
+}
+
 .housing-listing-grid {
   display: grid;
   /* 参考UI準拠で密に (中央幅で4列以上)。左右パネルを狭めた分、一覧性を上げる。 */

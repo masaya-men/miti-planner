@@ -1927,6 +1927,7 @@
             },
             "empty_world": "这个世界还没有登记的房屋",
             "back_to_list": "返回列表",
+            "loading": "正在加载地图…",
             "load_error": "无法加载地图",
             "ward_label": "{{ward}}区",
             "ward_count": "{{ward}}区 ({{count}}件)",

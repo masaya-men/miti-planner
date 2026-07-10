@@ -1962,6 +1962,7 @@
             },
             "empty_world": "No listings on this World yet",
             "back_to_list": "Back to list",
+            "loading": "Loading the map…",
             "load_error": "Couldn't load the map",
             "ward_label": "Ward {{ward}}",
             "ward_count": "Ward {{ward}} ({{count}})",
