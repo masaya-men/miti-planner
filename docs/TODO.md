@@ -23,7 +23,6 @@
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
-
 ### ✅ 大物3つ (PF/地図/一時ツアー) 設計+計画書 完成 & 並行実装3本 main 統合済 (2026-07-10・未push)
 - **🔴 次: ユーザーのローカル確認** (3本分チェックリストは引き継ぎ参照) → OK なら push (Vercel 自動デプロイ) → 大物3計画の実行開始 (順序自由・worktree 並行可)。
 - **統合後の残作業**: ①公式タグ23種の**日本語名をゲーム内で目視確認** (一覧は引き継ぎ) ②リリース時に `firebase deploy --only firestore` (personal_tags の rules+indexes) ③旧タグ一掃 `scripts/cleanup-legacy-housing-tags.ts` (dry-run 既定・本番実行は②の後) ④個人タグID方式は PF 計画 Task 8 で uid 由来へ統一予定。
