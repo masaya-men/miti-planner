@@ -132,10 +132,10 @@ describe('RegisterPage', () => {
     // 公開範囲 (RegisterSectionVisibility の選択チップ)
     expect(screen.getByTestId('housing-register-visibility-public')).toHaveAttribute('data-selected', 'true');
 
-    // タグ (選択済みチップとして表示される。 official_cafe の JA 表記は公式ソース照合待ちの仮置き。
+    // タグ (選択済みチップとして表示される。official_cafe の JA 表記はゲーム内公式名「喫茶店」)。
     // official kind タブが既定でアクティブなため、 タグ一覧側にも同名ボタンが出るので選択チップ側に絞る)
     const selectedChips = container.querySelector('.housing-tag-picker-selected') as HTMLElement;
-    expect(within(selectedChips).getByText('Café (未確認・公式ソース照合待ち)')).toBeInTheDocument();
+    expect(within(selectedChips).getByText('喫茶店')).toBeInTheDocument();
   });
 
   it('mode=edit では画像なしでも保存できる（canSubmit が画像要件で阻害されない）', () => {
