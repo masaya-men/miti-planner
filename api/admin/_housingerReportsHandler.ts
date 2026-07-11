@@ -10,9 +10,11 @@
  *      — 各プロフィールの reports サブコレクションも 20 件まで同梱 (reason/comment/createdAt)
  *      — reporterUid は管理者にも返さない (_housingReportsHandler.ts と同方針)
  * PATCH ?resource=housinger_reports&action=hide&uid=xxx
- *      — 強制非公開: isModerationHidden=true + 対応する personal_tags のタグも isHidden=true (同一 tx)
+ *      — 強制非公開: isModerationHidden=true + 対応する personal_tags のタグも isHidden=true (同一 tx)。
+ *        tagId は personalTagIdForUid(uid) で決め打ちせず、ownerUid==uid クエリ + resolvePersonalTagId
+ *        で解決する (旧 create-personal-tag 経路の legacy slug ID のタグも取りこぼさない)。
  * PATCH ?resource=housinger_reports&action=restore&uid=xxx
- *      — 復帰: isModerationHidden=false。タグの isHidden は isPublished && !isModerationHidden で再計算 (同一 tx)
+ *      — 復帰: isModerationHidden=false。タグの isHidden は isPublished && !isModerationHidden で再計算 (同一 tx、tagId 解決は hide と同じ)
  * PATCH ?resource=housinger_reports&action=dismiss-one&uid=xxx&reportId=yyy
  *      — 個別通報レコードを 1 件却下 (該当 report 削除 + reportCount-1)。
  *        listing と異なり通報閾値による自動非表示が無いため isModerationHidden には触れない。
@@ -24,7 +26,7 @@
 import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
-import { personalTagIdForUid } from '../../src/lib/housing/housingerProfile.js';
+import { resolvePersonalTagId } from '../../src/lib/housing/housingerProfile.js';
 
 const COLLECTION = 'housing_profiles';
 const LIST_LIMIT = 50;
@@ -160,15 +162,25 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({ error: 'uid required' });
       }
       const profileRef = db.collection(COLLECTION).doc(uid);
-      const tagRef = db.collection('personal_tags').doc(personalTagIdForUid(uid));
+      const tagsCol = db.collection('personal_tags');
 
       if (action === 'hide') {
         await db.runTransaction(async (tx) => {
-          const [profileSnap, tagSnap] = await Promise.all([tx.get(profileRef), tx.get(tagRef)]);
+          // tagRef を personalTagIdForUid(uid) で直接組み立てると、旧 create-personal-tag 経路の
+          // legacy slug ID (ownerUid==uid だが doc ID が canonical と異なる) のタグを取りこぼす
+          // (ドキュメントが見つからず no-op になり、強制非公開にしたのにタグが検索可能なまま残る)。
+          // upsert ハンドラ (_upsertHousingerProfileHandler.ts) と同じく ownerUid==uid で先にクエリし、
+          // resolvePersonalTagId で実在する doc ID を解決する (tx 内は読み取り→書き込みの順を維持)。
+          const [profileSnap, existingTagsSnap] = await Promise.all([
+            tx.get(profileRef),
+            tx.get(tagsCol.where('ownerUid', '==', uid).limit(5)),
+          ]);
           if (!profileSnap.exists) throw new Error('not_found');
           tx.update(profileRef, { isModerationHidden: true, updatedAt: Date.now() });
-          if (tagSnap.exists) {
-            tx.update(tagRef, { isHidden: true });
+          // admin 経路はタグドキュメントを新規作成しない (既存があるときのみ更新するガードを維持)。
+          if (existingTagsSnap.docs.length > 0) {
+            const tagId = resolvePersonalTagId(uid, existingTagsSnap.docs.map((d) => d.id));
+            tx.update(tagsCol.doc(tagId), { isHidden: true });
           }
         });
         return res.status(200).json({ success: true });
@@ -176,13 +188,17 @@ export default async function handler(req: any, res: any) {
 
       if (action === 'restore') {
         await db.runTransaction(async (tx) => {
-          const [profileSnap, tagSnap] = await Promise.all([tx.get(profileRef), tx.get(tagRef)]);
+          const [profileSnap, existingTagsSnap] = await Promise.all([
+            tx.get(profileRef),
+            tx.get(tagsCol.where('ownerUid', '==', uid).limit(5)),
+          ]);
           if (!profileSnap.exists) throw new Error('not_found');
           const data = profileSnap.data()!;
           tx.update(profileRef, { isModerationHidden: false, updatedAt: Date.now() });
-          if (tagSnap.exists) {
+          if (existingTagsSnap.docs.length > 0) {
+            const tagId = resolvePersonalTagId(uid, existingTagsSnap.docs.map((d) => d.id));
             // 復帰後の isModerationHidden は false 確定なので、タグの再表示は isPublished のみで決まる。
-            tx.update(tagRef, { isHidden: !(data.isPublished === true) });
+            tx.update(tagsCol.doc(tagId), { isHidden: !(data.isPublished === true) });
           }
         });
         return res.status(200).json({ success: true });
