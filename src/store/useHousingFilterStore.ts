@@ -36,7 +36,11 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     tags: [],
     resultCount: 0,
     totalCount: 0,
-    setDC: (dc) => set({ dc }),
+    // servers は選択中の DC 配下スコープの概念。DC が変わる/クリアされたら servers も一緒にリセットする。
+    // (地図モードの WorldSelectGate が入れた servers:[world] が、一覧で DC=すべてにしても残って
+    //  裏で絞り続ける残留フィルタバグの根治。地図ゲートは setDC の直後に setServerExclusive で
+    //  servers を入れ直すので、同一 DC 再選択時に servers を消さない guard を入れても正しく動く。)
+    setDC: (dc) => set((s) => (s.dc === dc ? { dc } : { dc, servers: [] })),
     toggleRegion: (region) => set((s) => ({ regions: toggleInArray(s.regions, region) })),
     toggleServer: (server) => set((s) => ({ servers: toggleInArray(s.servers, server) })),
     setServerExclusive: (server) => set({ servers: [server] }),

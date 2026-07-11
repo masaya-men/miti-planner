@@ -1963,11 +1963,13 @@
         },
         "map": {
             "gate": {
-                "title": "你的世界是?",
+                "title_dc": "选择哪个数据中心？",
+                "title_world": "请选择世界。",
                 "description": "地图按世界显示",
                 "dc_label": "数据中心",
                 "world_label": "世界"
             },
+            "hint": "滚轮缩放 · 拖动移动",
             "empty_world": "这个世界还没有登记的房屋",
             "back_to_list": "返回列表",
             "loading": "正在加载地图…",

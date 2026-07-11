@@ -1998,11 +1998,13 @@
         },
         "map": {
             "gate": {
-                "title": "What's your World?",
+                "title_dc": "Which data center?",
+                "title_world": "Choose your World.",
                 "description": "The map is shown per World",
                 "dc_label": "Data Center",
                 "world_label": "World"
             },
+            "hint": "Scroll to zoom · Drag to move",
             "empty_world": "No listings on this World yet",
             "back_to_list": "Back to list",
             "loading": "Loading the map…",

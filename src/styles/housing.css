@@ -5190,6 +5190,44 @@ select.housing-input option {
   font-size: var(--housing-text-sm);
 }
 
+/* 北コンパス + 操作ヒント (探す地図): ツアー地図 (TourNavMap / .housing-tour-map-compass・-hint) と
+   見た目をそろえるため同一トークン・同一寸法で複製 (tour 側 DOM/CSS は触らない = 回帰なし)。
+   FF14 のワード地図は北=上なので needle-n を上向き固定・静的。どちらも pointer-events:none。 */
+.housing-bmap-compass {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  z-index: 2;
+}
+.housing-bmap-compass svg { width: 100%; height: 100%; display: block; }
+.housing-bmap-compass-ring {
+  fill: var(--housing-panel-bg);
+  stroke: var(--housing-panel-border);
+  stroke-width: 1.5;
+}
+.housing-bmap-compass-needle-n { fill: var(--housing-honey); }
+.housing-bmap-compass-needle-s { fill: var(--housing-text-mute); }
+.housing-bmap-compass-n {
+  fill: var(--housing-candle);
+  font-size: 8px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.housing-bmap-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  letter-spacing: 0.02em;
+}
+
 /* ステージ: viewBox px 実寸で確保し、translate→scale(0,0起点)でパン/ズームする。
  * will-change は付けない(TourNavMap と同じ理由 = SVG が拡大時ににじむのを避け、ベクターのまま再描画させる)。 */
 .housing-bmap-stage {

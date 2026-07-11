@@ -35,7 +35,9 @@ export const WorldSelectGate: React.FC = () => {
 
   return (
     <div className="housing-world-gate" data-testid="housing-world-gate">
-      <div className="housing-world-gate-title">{t('housing.map.gate.title')}</div>
+      <div className="housing-world-gate-title">
+        {t(pendingDC ? 'housing.map.gate.title_world' : 'housing.map.gate.title_dc')}
+      </div>
       <div className="housing-world-gate-desc">{t('housing.map.gate.description')}</div>
 
       <div className="housing-world-gate-section">

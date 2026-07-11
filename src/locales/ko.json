@@ -1963,11 +1963,13 @@
         },
         "map": {
             "gate": {
-                "title": "당신의 월드는?",
+                "title_dc": "어느 데이터 센터로 하시겠어요?",
+                "title_world": "월드를 선택하세요.",
                 "description": "지도는 월드별로 표시됩니다",
                 "dc_label": "데이터 센터",
                 "world_label": "월드"
             },
+            "hint": "휠로 확대·축소 · 드래그로 이동",
             "empty_world": "이 월드에는 아직 등록된 매물이 없습니다",
             "back_to_list": "목록으로 돌아가기",
             "loading": "지도를 불러오는 중…",

@@ -313,6 +313,19 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
               dangerouslySetInnerHTML={{ __html: assetState.svg }}
             />
           </div>
+          {/* 北コンパス + 操作ヒント: ツアー地図(TourNavMap)と見た目をそろえる (feedback ③)。
+              いずれも pointer-events:none でパン/ズーム/クリックを邪魔しない。地図が ready のときだけ出す。 */}
+          <div className="housing-bmap-compass" data-testid="bmap-compass" aria-hidden="true">
+            <svg viewBox="0 0 40 40">
+              <circle className="housing-bmap-compass-ring" cx="20" cy="21" r="16" />
+              <path className="housing-bmap-compass-needle-n" d="M20 8 L24.5 22 L20 19 L15.5 22 Z" />
+              <path className="housing-bmap-compass-needle-s" d="M20 34 L15.5 22 L20 25 L24.5 22 Z" />
+              <text className="housing-bmap-compass-n" x="20" y="7">N</text>
+            </svg>
+          </div>
+          <div className="housing-bmap-hint" data-testid="bmap-hint" aria-hidden="true">
+            {t('housing.map.hint')}
+          </div>
           <div className="housing-bmap-markers">
             {markers.map((m) => {
               const sx = m.x * actualScale + view.tx;
