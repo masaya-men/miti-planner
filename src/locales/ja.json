@@ -2060,16 +2060,8 @@
             "tag_pick_hint": "テーマを {{max}} 件まで選べます",
             "personal_tag": {
                 "loading": "読み込み中…",
-                "hint": "1 人 1 個まで作成できます。 作成すると、 他の人があなたのハウジングをタグで検索できるようになります。",
-                "placeholder": "例: yuura",
-                "create_button": "作成する",
-                "creating": "作成中…",
-                "error": {
-                    "required": "表示名を入力してください",
-                    "too_long": "{{max}} 文字以内で入力してください",
-                    "limit_reached": "既に個人タグを作成済みです",
-                    "generic": "作成に失敗しました。しばらくしてから再試行してください"
-                }
+                "not_published_hint": "ハウジンガーとして公開すると自分のタグが使えます",
+                "open_account_settings": "公開設定を開く"
             },
             "tags": "タグ",
             "room_number": "部屋番号",
@@ -2588,7 +2580,8 @@
             "noListings": "公開中のハウジングはまだありません",
             "tourAll": "この人の家をまとめてツアー",
             "editProfile": "プロフィールを編集",
-            "loading": "読み込み中…"
+            "loading": "読み込み中…",
+            "viewPage": "{{name}} のハウジンガーページを見る →"
         },
         "topbar": {
             "login": "ログイン",

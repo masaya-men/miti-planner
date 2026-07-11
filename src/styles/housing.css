@@ -4893,6 +4893,21 @@ select.housing-input option {
   outline-offset: 2px;
 }
 
+/* 個人タグ 1 つで絞り込み中の「◯◯のハウジンガーページを見る →」リンク (結果一覧の上)。
+   質感A案の 2 アクセント体系 (青 = 選択・進行・リンク) に従い --housing-aether を使う。 */
+.housing-personal-tag-filter-link {
+  display: inline-flex; align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-aether);
+  text-decoration: none;
+}
+.housing-personal-tag-filter-link:hover {
+  color: var(--housing-aether-soft);
+  text-decoration: underline;
+}
+
 /* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える
    (要素ごとの padding-bottom で間隔を作ると一括バー→カードが 0px になり密着するため)。 */
 .housing-listing-grid-wrap {

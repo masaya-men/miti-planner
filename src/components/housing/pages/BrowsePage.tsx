@@ -11,11 +11,13 @@ import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
+import { PersonalTagFilterLink } from '../workspace/PersonalTagFilterLink';
 import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { TourTray } from '../browse/TourTray';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
+import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
 
 /**
  * 探すページ (3カラム): 左=フィルター / 中央=物件グリッド / 右=ツアートレイ。
@@ -46,6 +48,13 @@ export const BrowsePage: React.FC = () => {
   const filtered = useMemo(
     () => applyFilters(merged, { dc, regions, servers, areas, sizes, tags }),
     [merged, dc, regions, servers, areas, sizes, tags],
+  );
+
+  // 個人タグ 1 つで絞り込み中のとき、 結果一覧の上に「◯◯のハウジンガーページを見る →」リンクを出す
+  // (spec 2026-07-10-housinger-profile-design.md §3.3 統合契約4)。
+  const personalTagIds = useMemo(
+    () => tags.filter((id) => id.startsWith(PERSONAL_TAG_ID_PREFIX)),
+    [tags],
   );
 
   // 並び替え (参考UI「新着順/古い順」)。createdAt を key に client-side sort。
@@ -86,6 +95,7 @@ export const BrowsePage: React.FC = () => {
 
       <section className="housing-browse-panel" data-region="center">
         <div className="housing-browse-col housing-browse-col-center">
+          <PersonalTagFilterLink tagIds={personalTagIds} />
           {status === 'loading' || status === 'idle' ? (
             <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
           ) : status === 'error' ? (

@@ -2004,16 +2004,8 @@
             "tag_pick_hint": "최대 {{max}}개의 테마를 고를 수 있습니다",
             "personal_tag": {
                 "loading": "불러오는 중…",
-                "hint": "개인 태그는 1인당 1개까지 만들 수 있습니다. 만들고 나면 다른 사람이 이 태그로 내 하우징을 검색할 수 있습니다.",
-                "placeholder": "예: yuura",
-                "create_button": "만들기",
-                "creating": "만드는 중…",
-                "error": {
-                    "required": "표시 이름을 입력해 주세요",
-                    "too_long": "{{max}}자 이내로 입력해 주세요",
-                    "limit_reached": "이미 개인 태그를 만들었습니다",
-                    "generic": "생성에 실패했습니다. 잠시 후 다시 시도해 주세요"
-                }
+                "not_published_hint": "하우징어로 공개하면 내 태그를 사용할 수 있습니다",
+                "open_account_settings": "공개 설정 열기"
             },
             "tags": "태그",
             "room_number": "방 번호",
@@ -2532,7 +2524,8 @@
             "noListings": "공개 중인 하우징이 아직 없습니다",
             "tourAll": "이 사람의 집 모아서 투어",
             "editProfile": "프로필 수정",
-            "loading": "불러오는 중…"
+            "loading": "불러오는 중…",
+            "viewPage": "{{name}} 님의 하우징어 페이지 보기 →"
         },
         "topbar": {
             "login": "",

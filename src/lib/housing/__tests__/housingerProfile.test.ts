@@ -3,6 +3,7 @@ import {
   validateHousingerSnsUrl,
   personalTagIdForUid,
   isValidHousingerReportReason,
+  resolvePersonalTagId,
 } from '../housingerProfile';
 
 describe('validateHousingerSnsUrl', () => {
@@ -45,5 +46,23 @@ describe('isValidHousingerReportReason', () => {
   it('定義済み4種のみ true', () => {
     expect(isValidHousingerReportReason('impersonation')).toBe(true);
     expect(isValidHousingerReportReason('nsfw')).toBe(false);
+  });
+});
+
+describe('resolvePersonalTagId', () => {
+  it('既存ドキュメントが無ければ uid 決定的な canonical id を返す (新規公開)', () => {
+    expect(resolvePersonalTagId('hashed:abc123', [])).toBe('personal_abc123');
+  });
+
+  it('旧 create-personal-tag 経路の legacy slug ID が既にあれば、 それを再利用する (2つ目を作らない)', () => {
+    expect(resolvePersonalTagId('hashed:abc123', ['personal_yuura_ab12cd'])).toBe('personal_yuura_ab12cd');
+  });
+
+  it('既に canonical id で存在していればそのまま (冪等)', () => {
+    expect(resolvePersonalTagId('hashed:abc123', ['personal_abc123'])).toBe('personal_abc123');
+  });
+
+  it('異常系 (2件以上) でも決定的に先頭を正とする', () => {
+    expect(resolvePersonalTagId('hashed:abc123', ['personal_legacy_1', 'personal_legacy_2'])).toBe('personal_legacy_1');
   });
 });

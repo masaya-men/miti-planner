@@ -2004,16 +2004,8 @@
             "tag_pick_hint": "最多选择 {{max}} 个主题",
             "personal_tag": {
                 "loading": "加载中…",
-                "hint": "每人最多可创建 1 个个人标签。创建后，其他人可以通过该标签搜索到你的住宅。",
-                "placeholder": "例如：yuura",
-                "create_button": "创建",
-                "creating": "创建中…",
-                "error": {
-                    "required": "请输入显示名称",
-                    "too_long": "请输入 {{max}} 个字符以内",
-                    "limit_reached": "你已经创建过个人标签",
-                    "generic": "创建失败，请稍后重试"
-                }
+                "not_published_hint": "以房主玩家身份公开后即可使用你的标签",
+                "open_account_settings": "打开公开设置"
             },
             "tags": "标签",
             "room_number": "房间号",
@@ -2532,7 +2524,8 @@
             "noListings": "暂无公开中的房屋",
             "tourAll": "一起导览这个人的房屋",
             "editProfile": "编辑资料",
-            "loading": "加载中…"
+            "loading": "加载中…",
+            "viewPage": "查看 {{name}} 的房主玩家主页 →"
         },
         "topbar": {
             "login": "",

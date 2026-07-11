@@ -2039,16 +2039,8 @@
             "tag_pick_hint": "Pick up to {{max}} themes",
             "personal_tag": {
                 "loading": "Loading…",
-                "hint": "You can create one personal tag. Once created, others can search your housing by this tag.",
-                "placeholder": "e.g. yuura",
-                "create_button": "Create",
-                "creating": "Creating…",
-                "error": {
-                    "required": "Please enter a display name",
-                    "too_long": "Please use {{max}} characters or fewer",
-                    "limit_reached": "You already have a personal tag",
-                    "generic": "Failed to create. Please try again later"
-                }
+                "not_published_hint": "Publish as a Housinger to use your own tag.",
+                "open_account_settings": "Open publish settings"
             },
             "tags": "Tags",
             "room_number": "Room number",
@@ -2567,7 +2559,8 @@
             "noListings": "No published housing listings yet.",
             "tourAll": "Tour all of this Housinger's homes",
             "editProfile": "Edit profile",
-            "loading": "Loading…"
+            "loading": "Loading…",
+            "viewPage": "View {{name}}'s Housinger page →"
         },
         "topbar": {
             "login": "",

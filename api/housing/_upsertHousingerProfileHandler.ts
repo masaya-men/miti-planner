@@ -5,10 +5,15 @@
  * (spec: docs/superpowers/specs/2026-07-10-housinger-profile-design.md §3.2/§3.3)。
  *
  * 常に「users/{uid} の現在値を読んで housing_profiles/{uid} へ転記 +
- * personal_tags/{personalTagIdForUid(uid)} を同一トランザクションで upsert」する。
+ * personal_tags を同一トランザクションで upsert」する。
  * 名前・アイコンは body で受け取らない (サーバーが users/{uid} から読む = 改ざん不可)。
  * body の isPublished/bio/snsUrl は差分指定 (undefined = 現状維持) のため、
  * 空 body での呼び出しは「名前・アイコン変更後の同期」として機能する (冪等)。
+ *
+ * 個人タグ (personal_tags) の作成・更新はこのハンドラのみが行う (タグ刷新 Phase B 統合契約1。
+ * 旧 create-personal-tag action は削除済み)。 tagId は resolvePersonalTagId で決定する:
+ * 既存ドキュメント (ownerUid==uid、旧経路の legacy slug ID を含む) があればそれを再利用し、
+ * 無ければ uid 決定的な canonical id (personalTagIdForUid) で新規作成する。
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
@@ -17,7 +22,7 @@ import { getAuth } from 'firebase-admin/auth';
 import {
   HOUSINGER_BIO_MAX_LENGTH,
   validateHousingerSnsUrl,
-  personalTagIdForUid,
+  resolvePersonalTagId,
 } from '../../src/lib/housing/housingerProfile.js';
 import { normalizeDisplayNameForSearch } from '../../src/data/personalTags.js';
 
@@ -80,12 +85,12 @@ export default async function handler(req: any, res: any) {
     const adminDb = getAdminFirestore();
     const userRef = adminDb.collection('users').doc(uid);
     const profileRef = adminDb.collection('housing_profiles').doc(uid);
-    const tagRef = adminDb.collection('personal_tags').doc(personalTagIdForUid(uid));
+    const tagsCol = adminDb.collection('personal_tags');
 
     let resultProfile: any = null;
     await adminDb.runTransaction(async (tx) => {
-      const [userSnap, profileSnap, tagSnap] = await Promise.all([
-        tx.get(userRef), tx.get(profileRef), tx.get(tagRef),
+      const [userSnap, profileSnap, existingTagsSnap] = await Promise.all([
+        tx.get(userRef), tx.get(profileRef), tx.get(tagsCol.where('ownerUid', '==', uid).limit(5)),
       ]);
       if (!userSnap.exists) throw new Error('user_not_found');
       const userData = userSnap.data()!;
@@ -108,11 +113,17 @@ export default async function handler(req: any, res: any) {
         updatedAt: now,
       };
       tx.set(profileRef, next);
-      // 個人タグは同一 tx で一括転記 (spec §3.3: 名前の源泉はプロフィール 1 箇所)
+
+      // 個人タグは同一 tx で一括転記 (spec §3.3: 名前の源泉はプロフィール 1 箇所)。
+      // tagId は既存ドキュメント (旧 create-personal-tag 経路の legacy slug ID を含む) があれば
+      // 再利用する (resolvePersonalTagId、 統合契約1 + Task 3 レビューの carry-over)。
+      // これにより同一ユーザーに 2 つ目の personal_tags ドキュメントが生まれるのを防ぐ。
+      const tagId = resolvePersonalTagId(uid, existingTagsSnap.docs.map((d) => d.id));
+      const tagRef = tagsCol.doc(tagId);
+      const prevTag = existingTagsSnap.docs.find((d) => d.id === tagId)?.data() ?? null;
       // ⚠ reportCount は既存値を必ず保持する (0 で上書きすると通報を握りつぶす)
-      const prevTag = tagSnap.exists ? tagSnap.data()! : null;
       tx.set(tagRef, {
-        id: personalTagIdForUid(uid),
+        id: tagId,
         displayName,
         displayNameLower: normalizeDisplayNameForSearch(displayName),
         ownerUid: uid,

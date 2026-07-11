@@ -41,6 +41,27 @@ export function personalTagIdForUid(uid: string): string {
   return `personal_${uid.replace(/^hashed:/, '')}`;
 }
 
+/**
+ * personal_tags の既存ドキュメント (ownerUid == uid) があれば、その ID をそのまま再利用する。
+ * タグ刷新 Phase B 統合契約1「1人1個制約は tagId が uid 決定的なので構造的に満たされる」は
+ * 新規公開者には成り立つが、旧 create-personal-tag 経路 (ランダム slug ID) で既にタグを作成
+ * 済みのユーザーには成り立たない。 uid 決定的な id で新規ドキュメントを作ると、そのユーザーは
+ * 2 つの personal_tags ドキュメントを持つことになり 1 人 1 個の不変条件が壊れる。
+ *
+ * そのため呼び出し側 (upsert ハンドラ) は必ず「ownerUid == uid の既存ドキュメントがあるか」を
+ * 先にクエリし、その結果 (id の配列) をこの関数に渡す。既存があれば ID がどんな形式でも
+ * そのまま再利用する (delete+recreate すると、その ID を参照している既存 listing の tags 配列
+ * が壊れるため、ID は変えない)。既存が無ければ uid 決定的な canonical id で新規作成する。
+ *
+ * @param existingIds ownerUid == uid で見つかった personal_tags ドキュメント id の一覧。
+ *   通常は 0 または 1 件。2 件以上は本来起こり得ない異常系だが、その場合も決定的に
+ *   1 件目 (呼び出し側のクエリ順) を正としてこれ以上増やさない。
+ */
+export function resolvePersonalTagId(uid: string, existingIds: readonly string[]): string {
+  if (existingIds.length > 0) return existingIds[0];
+  return personalTagIdForUid(uid);
+}
+
 /** プロフィール通報理由 (spec §6.2)。listing の REPORT_REASONS とは独立。 */
 export const HOUSINGER_REPORT_REASONS = [
   'inappropriate_name', 'inappropriate_avatar', 'impersonation', 'other',

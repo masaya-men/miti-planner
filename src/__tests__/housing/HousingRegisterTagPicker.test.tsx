@@ -3,29 +3,18 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HousingRegisterTagPicker } from '../../components/housing/register/HousingRegisterTagPicker';
+import { useHousingModalStore } from '../../store/useHousingModalStore';
 
 const getMyPersonalTagMock = vi.fn();
-const createPersonalTagMock = vi.fn();
 vi.mock('../../lib/personalTagApiClient', () => ({
   getMyPersonalTag: (...args: unknown[]) => getMyPersonalTagMock(...args),
-  createPersonalTag: (...args: unknown[]) => createPersonalTagMock(...args),
-  PersonalTagAlreadyExistsError: class PersonalTagAlreadyExistsError extends Error {
-    existingTag: unknown;
-    constructor(existingTag: unknown) {
-      super('already_exists');
-      this.existingTag = existingTag;
-    }
-  },
-  PersonalTagLimitReachedError: class PersonalTagLimitReachedError extends Error {
-    constructor() { super('limit_reached'); }
-  },
 }));
 
 describe('HousingRegisterTagPicker', () => {
   beforeEach(() => {
     getMyPersonalTagMock.mockReset();
-    createPersonalTagMock.mockReset();
     getMyPersonalTagMock.mockResolvedValue(null);
+    useHousingModalStore.setState({ account: { open: false } });
   });
 
   it('静的 kind (公式/季節/テーマ) の見出しを表示する', () => {
@@ -71,54 +60,37 @@ describe('HousingRegisterTagPicker', () => {
   });
 
   describe('個人タブ', () => {
-    it('未作成なら作成フォームを出し、 作成すると自動でそのハウジングに付与される', async () => {
+    it('未公開ユーザーには公開を促すヒント + 公開設定を開くボタンを表示する (作成フォームは出さない)', async () => {
       const user = userEvent.setup();
       const onChange = vi.fn();
-      const createdTag = { id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura', ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false };
-      createPersonalTagMock.mockResolvedValue(createdTag);
+      getMyPersonalTagMock.mockResolvedValue(null);
 
       render(<HousingRegisterTagPicker selected={[]} onChange={onChange} />);
       await user.click(screen.getByText(/housing\.register\.tag_kind\.personal/i));
 
       await waitFor(() => {
-        expect(screen.getByTestId('housing-personal-tag-name-input')).toBeInTheDocument();
+        expect(screen.getByText(/housing\.register\.personal_tag\.not_published_hint/i)).toBeInTheDocument();
       });
+      expect(screen.queryByTestId('housing-personal-tag-name-input')).not.toBeInTheDocument();
 
-      await user.type(screen.getByTestId('housing-personal-tag-name-input'), 'yuura');
-      await user.click(screen.getByTestId('housing-personal-tag-create-button'));
-
-      await waitFor(() => {
-        expect(createPersonalTagMock).toHaveBeenCalledWith('yuura');
-      });
-      // 作成の流れ = 「このハウジングに使うタグを作る」文脈のため、 追加クリック無しで自動付与される。
-      await waitFor(() => {
-        expect(onChange).toHaveBeenCalledWith(['personal_yuura_ab12cd']);
-      });
+      expect(useHousingModalStore.getState().account.open).toBe(false);
+      await user.click(screen.getByRole('button', { name: /housing\.register\.personal_tag\.open_account_settings/i }));
+      expect(useHousingModalStore.getState().account.open).toBe(true);
     });
 
-    it('作成後、 既に 5 件選択済みなら自動付与しない (上限を超えない)', async () => {
+    it('取得済みタグが isHidden (未公開/運営非表示) なら未公開扱いのヒントを出す', async () => {
       const user = userEvent.setup();
-      const onChange = vi.fn();
-      const createdTag = { id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura', ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false };
-      createPersonalTagMock.mockResolvedValue(createdTag);
+      getMyPersonalTagMock.mockResolvedValue({
+        id: 'personal_abc123', displayName: 'yuura', displayNameLower: 'yuura',
+        ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: true,
+      });
 
-      render(
-        <HousingRegisterTagPicker
-          selected={['official_emporium', 'official_boutique', 'official_cafe', 'season_spring', 'season_summer']}
-          onChange={onChange}
-        />,
-      );
+      render(<HousingRegisterTagPicker selected={[]} onChange={() => {}} />);
       await user.click(screen.getByText(/housing\.register\.tag_kind\.personal/i));
-      await waitFor(() => {
-        expect(screen.getByTestId('housing-personal-tag-name-input')).toBeInTheDocument();
-      });
-      await user.type(screen.getByTestId('housing-personal-tag-name-input'), 'yuura');
-      await user.click(screen.getByTestId('housing-personal-tag-create-button'));
 
       await waitFor(() => {
-        expect(createPersonalTagMock).toHaveBeenCalledWith('yuura');
+        expect(screen.getByText(/housing\.register\.personal_tag\.not_published_hint/i)).toBeInTheDocument();
       });
-      expect(onChange).not.toHaveBeenCalled();
     });
 
     it('作成済みなら自分のタグをトグル可能なボタンとして表示する', async () => {
