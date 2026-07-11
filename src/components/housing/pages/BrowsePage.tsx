@@ -14,6 +14,8 @@ import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
+import { BrowseViewToggle } from '../browse/BrowseViewToggle';
+import { BrowseMapView } from '../browse/map/BrowseMapView';
 import { TourTray } from '../browse/TourTray';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
@@ -31,6 +33,10 @@ export const BrowsePage: React.FC = () => {
   const myListings = useHousingListingsStore((s) => s.myListings);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
+
+  // 中央の表示切替 (一覧 | 地図)。セッション記憶 (spec 3.1)。
+  const browseView = useHousingViewStore((s) => s.browseView);
+  const setBrowseView = useHousingViewStore((s) => s.setBrowseView);
 
   const dc = useHousingFilterStore((s) => s.dc);
   const regions = useHousingFilterStore((s) => s.regions);
@@ -93,15 +99,23 @@ export const BrowsePage: React.FC = () => {
             <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
           ) : status === 'error' ? (
             <div className="housing-center-error">{t('housing.gallery.error')}</div>
-          ) : filtered.length === 0 ? (
-            <EmptyResult />
           ) : (
-            <ListingGrid
-              listings={sorted}
-              onAddToTour={addToTray}
-              sort={sort}
-              onSortChange={setSort}
-            />
+            <>
+              {/* 中央だけが切り替わる。トレイ (右カラム) は地図モードでも従来どおり (spec 4.4) */}
+              <BrowseViewToggle value={browseView} onChange={setBrowseView} />
+              {browseView === 'map' ? (
+                <BrowseMapView filtered={filtered} onAddToTour={addToTray} />
+              ) : filtered.length === 0 ? (
+                <EmptyResult />
+              ) : (
+                <ListingGrid
+                  listings={sorted}
+                  onAddToTour={addToTray}
+                  sort={sort}
+                  onSortChange={setSort}
+                />
+              )}
+            </>
           )}
         </div>
       </section>
