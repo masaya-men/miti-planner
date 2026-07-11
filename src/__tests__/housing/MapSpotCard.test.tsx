@@ -10,7 +10,7 @@ import type { MockListing } from '../../data/housing/mockListings';
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
 
-import { MapSpotCard } from '../../components/housing/browse/map/MapSpotCard';
+import { MapSpotCard, HOVER_INTENT_DELAY_MS } from '../../components/housing/browse/map/MapSpotCard';
 
 beforeAll(() => {
   if (!i18n.isInitialized) {
@@ -69,6 +69,10 @@ function mkSpot(listings: MockListing[]): BrowseMapSpot {
 }
 
 const noFlip = { x: false, y: false };
+// クランプ計算 (Finding2) に十分な余裕を持たせたデフォルトの位置/コンテナ実寸。
+// 値そのものを検証したいテストはこれらを明示的に上書きする (下記「拡大カードのコンテナ内クランプ」参照)。
+const defaultMarkerPos = { x: 400, y: 300 };
+const defaultWrapSize = { w: 900, h: 500 };
 
 function renderCard(props: Partial<React.ComponentProps<typeof MapSpotCard>> = {}) {
   const spot = props.spot ?? mkSpot([mkListing()]);
@@ -80,6 +84,9 @@ function renderCard(props: Partial<React.ComponentProps<typeof MapSpotCard>> = {
         onExpand={() => {}}
         onAddToTour={() => {}}
         flip={noFlip}
+        markerPos={defaultMarkerPos}
+        wrapSize={defaultWrapSize}
+        gestureActiveRef={{ current: false }}
         {...props}
       />
     </I18nextProvider>,
@@ -190,11 +197,79 @@ describe('MapSpotCard — ミニカードの開閉トリガー', () => {
     expect(screen.getByTestId('bmap-marker-plot:5')).toHaveAttribute('aria-expanded', 'true');
   });
 
-  it('hover (mouseEnter) で onExpand(spot.key) が呼ばれる', () => {
-    const onExpand = vi.fn();
-    renderCard({ onExpand });
-    fireEvent.mouseEnter(screen.getByTestId('bmap-marker-plot:5'));
-    expect(onExpand).toHaveBeenCalledWith('plot:5');
+  it('hover (mouseEnter) は即座には展開せず、HOVER_INTENT_DELAY_MS 経過後に onExpand(spot.key) が呼ばれる', () => {
+    vi.useFakeTimers();
+    try {
+      const onExpand = vi.fn();
+      renderCard({ onExpand });
+      fireEvent.mouseEnter(screen.getByTestId('bmap-marker-plot:5'));
+      expect(onExpand).not.toHaveBeenCalled(); // 遅延中はまだ呼ばれない
+
+      vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS - 1);
+      expect(onExpand).not.toHaveBeenCalled(); // 満了直前もまだ
+
+      vi.advanceTimersByTime(1);
+      expect(onExpand).toHaveBeenCalledWith('plot:5');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('hover-intent ディレイ中に mouseLeave すると展開されない (フルに時間が経過しても呼ばれない)', () => {
+    vi.useFakeTimers();
+    try {
+      const onExpand = vi.fn();
+      renderCard({ onExpand });
+      const mini = screen.getByTestId('bmap-marker-plot:5');
+      fireEvent.mouseEnter(mini);
+      vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS / 2);
+      fireEvent.mouseLeave(mini);
+      vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS * 2);
+      expect(onExpand).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('クリックは hover ディレイを待たず即座に展開する', () => {
+    vi.useFakeTimers();
+    try {
+      const onExpand = vi.fn();
+      renderCard({ onExpand });
+      fireEvent.click(screen.getByTestId('bmap-marker-plot:5'));
+      expect(onExpand).toHaveBeenCalledWith('plot:5'); // advance 前でも即時
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('地図ジェスチャー中 (gestureActiveRef.current=true) は hover しても展開を予約しない', () => {
+    vi.useFakeTimers();
+    try {
+      const onExpand = vi.fn();
+      const gestureActiveRef = { current: true };
+      renderCard({ onExpand, gestureActiveRef });
+      fireEvent.mouseEnter(screen.getByTestId('bmap-marker-plot:5'));
+      vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS * 2);
+      expect(onExpand).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('hover ディレイ開始後にジェスチャーが始まった場合、発火時点で再チェックし展開しない', () => {
+    vi.useFakeTimers();
+    try {
+      const onExpand = vi.fn();
+      const gestureActiveRef = { current: false };
+      renderCard({ onExpand, gestureActiveRef });
+      fireEvent.mouseEnter(screen.getByTestId('bmap-marker-plot:5'));
+      gestureActiveRef.current = true; // ディレイ中にドラッグ (パン/ピンチ) が始まった想定
+      vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS);
+      expect(onExpand).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 
@@ -211,5 +286,51 @@ describe('MapSpotCard — flip', () => {
     const mini = screen.getByTestId('bmap-marker-plot:5');
     expect(mini).toHaveAttribute('data-flip-x', 'false');
     expect(mini).toHaveAttribute('data-flip-y', 'false');
+  });
+});
+
+// Finding2: 拡大カードがマウント時に自身の実寸を測定し、clampExpandedCardOffset (純関数、
+// mapCardClamp.test.ts で個別に検証済み) の結果を CSS カスタムプロパティとして反映することを、
+// 実際のコンポーネントの配線を通して確認する (ここでは getBoundingClientRect をモックして
+// 「測定されたカード実寸」を固定する。happy-dom は実レイアウトを行わないため既定は 0×0 になる)。
+describe('MapSpotCard — 拡大カードのコンテナ内クランプ (Finding2)', () => {
+  it('上端寄りスポット(flipY=true)でコンテナが低いと --housing-bmap-clamp-y が負の値になり、CSS 側の calc() でカード下端がコンテナ内に収まる', () => {
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ width: 280, height: 300, top: 0, left: 0, right: 280, bottom: 300, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+    try {
+      renderCard({
+        spot: mkSpot([mkListing()]),
+        expanded: true,
+        flip: { x: false, y: true },
+        markerPos: { x: 400, y: 15 },
+        wrapSize: { w: 900, h: 300 },
+      });
+      const expandedEl = screen.getByTestId('bmap-expanded-plot:5');
+      // top=15+14=29, bottom=29+300=329 > 300-8=292 → dy = 292-329 = -37 (mapCardClamp.test.ts と同じ式)。
+      expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-y')).toBe('-37px');
+    } finally {
+      rectSpy.mockRestore();
+    }
+  });
+
+  it('コンテナ中央付近のスポットでは --housing-bmap-clamp-x/-y が 0px のまま (flip のみの従来位置)', () => {
+    const rectSpy = vi
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ width: 280, height: 270, top: 0, left: 0, right: 280, bottom: 270, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+    try {
+      renderCard({
+        spot: mkSpot([mkListing()]),
+        expanded: true,
+        flip: noFlip,
+        markerPos: { x: 450, y: 300 },
+        wrapSize: { w: 900, h: 500 },
+      });
+      const expandedEl = screen.getByTestId('bmap-expanded-plot:5');
+      expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-x')).toBe('0px');
+      expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-y')).toBe('0px');
+    } finally {
+      rectSpy.mockRestore();
+    }
   });
 });

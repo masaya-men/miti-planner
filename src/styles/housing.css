@@ -5106,6 +5106,15 @@ select.housing-input option {
  * 無関係のローカルな重なり順のため、他コンポーネントと共通の z-index token は使わない)。
  * marker-pos 同士 (他スポット) との前後関係は上の :has() ルールが担当する。 */
 .housing-bmap-expanded {
+  /* Finding2 (review): flip (右端/上端の二値反転) だけでは「どちらの向きに開いてもコンテナに
+   * 収まらない」ケースを救えず、上端寄りスポットで下端の「ツアーに追加」CTA が
+   * .housing-bmap-wrap (overflow:hidden) の外へクリップされていた。JS 側
+   * (MapSpotCard.tsx の clampExpandedCardOffset、マウント時に実測したカード実寸から算出) が
+   * このカスタムプロパティに px 単位の追加オフセットを差し込み、下記の各 transform に
+   * calc() で加算する。JS から未設定のとき (=常に測定後の値が入る想定だが保険として) は
+   * 0px を既定にし、flip だけの従来位置に自然にフォールバックする。 */
+  --housing-bmap-clamp-x: 0px;
+  --housing-bmap-clamp-y: 0px;
   position: absolute;
   top: 0;
   left: 0;
@@ -5115,16 +5124,28 @@ select.housing-input option {
   flex-direction: column;
   gap: 6px;
   pointer-events: auto;
-  transform: translate(-50%, calc(-100% - 14px));
+  transform: translate(
+    calc(-50% + var(--housing-bmap-clamp-x)),
+    calc(-100% - 14px + var(--housing-bmap-clamp-y))
+  );
 }
 .housing-bmap-expanded[data-flip-x="true"] {
-  transform: translate(-100%, calc(-100% - 14px));
+  transform: translate(
+    calc(-100% + var(--housing-bmap-clamp-x)),
+    calc(-100% - 14px + var(--housing-bmap-clamp-y))
+  );
 }
 .housing-bmap-expanded[data-flip-y="true"] {
-  transform: translate(-50%, 14px);
+  transform: translate(
+    calc(-50% + var(--housing-bmap-clamp-x)),
+    calc(14px + var(--housing-bmap-clamp-y))
+  );
 }
 .housing-bmap-expanded[data-flip-x="true"][data-flip-y="true"] {
-  transform: translate(-100%, 14px);
+  transform: translate(
+    calc(-100% + var(--housing-bmap-clamp-x)),
+    calc(14px + var(--housing-bmap-clamp-y))
+  );
 }
 .housing-bmap-expanded-nav {
   display: flex;

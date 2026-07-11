@@ -134,11 +134,49 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
   const pinch = useRef<{ dist: number; scale: number } | null>(null);
   const justPanned = useRef(false);
 
+  // review 指摘 (Finding 1): 実機 Playwright 検証で「拡大カードの画像を起点に高速で連続ドラッグを
+  // 繰り返すと Chromium レンダラーがクラッシュする」事象が確認された。原因は上記の pointer capture
+  // 修正でカード/マーカー上の pointerdown がパン/ピンチ対象から除外されたことにより、mouseenter が
+  // ドラッグ経路上の別スポットへの hover 展開を毎回発火できるようになり、ListingCard
+  // (HousingCardAmbientSlideshow 等のメディア hook) のマウント/アンマウントが高速に連鎖したためと
+  // 推測される (ListingCard 側の根本原因の追及は本タスクのスコープ外)。
+  // 「いずれかのポインタが down している間」を ref で保持し、MapSpotCard の hover 展開ハンドラに渡す
+  // ことで、パン/ピンチ中はもちろん「カード上で始まったドラッグ」(pointerdown がここで除外され
+  // ptrs.current に載らないケース) も含めて hover 展開そのものを止める。
+  // pointermove のたびに state 更新すると再レンダーが増えて逆効果なので ref を選ぶ (jsdom では
+  // ネイティブの capture/retarget セマンティクスは再現されないため、実機再検証で有効性を確認する)。
+  const gestureActiveRef = useRef(false);
+  const downPointerCount = useRef(0);
+
+  // 解除 (減算) は wrap ではなく window で拾う。カード/マーカー上で始まったドラッグは
+  // setPointerCapture していないため、ポインタを wrap の外で離すと wrap には pointerup が
+  // 届かず、カウントが 1 のまま残って hover 展開が永久に無効化されてしまう。
+  // 増分は wrap の onPointerDown (地図起点のジェスチャーのみ)、減分は window (どこで離しても
+  // 確実に届く) の非対称構成。wrap 内で離した場合の pointerup も window までバブルするため、
+  // 減算はこのリスナーの1箇所だけで行う (wrap 側で重ねて減算すると二重減算になる)。
+  // 地図外起点のクリック等の pointerup でも減算が走るが、0 で下限クランプするので負に振れない。
+  useEffect(() => {
+    const onWindowPointerRelease = () => {
+      downPointerCount.current = Math.max(0, downPointerCount.current - 1);
+      if (downPointerCount.current === 0) gestureActiveRef.current = false;
+    };
+    window.addEventListener('pointerup', onWindowPointerRelease);
+    window.addEventListener('pointercancel', onWindowPointerRelease);
+    return () => {
+      window.removeEventListener('pointerup', onWindowPointerRelease);
+      window.removeEventListener('pointercancel', onWindowPointerRelease);
+    };
+  }, []);
+
   const localXY = (clientX: number, clientY: number) => {
     const r = wrapRef.current?.getBoundingClientRect();
     return { x: clientX - (r?.left ?? 0), y: clientY - (r?.top ?? 0) };
   };
   const onPointerDown = (e: React.PointerEvent) => {
+    // 下のマーカー/カード除外より前に「ポインタが down している」事実そのものを記録する
+    // (カード/マーカー上で始まったドラッグも hover 抑止の対象にするため、除外判定の外に置く)。
+    downPointerCount.current += 1;
+    gestureActiveRef.current = true;
     // マーカー/カード (ミニカード・拡大カードのボタン等) 上の pointerdown はパン/ピンチの対象外にする。
     // ここで setPointerCapture すると、Pointer Events 仕様上「capture 中は click も capture 要素へ
     // 再ターゲットされる」ため、以降その指で発火する click イベントが wrap 自身 (= 空白クリック
@@ -177,6 +215,8 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
     }
   };
   const onPointerUp = (e: React.PointerEvent) => {
+    // gestureActiveRef/downPointerCount の減算はここでは行わない (上の window リスナーが一元管理。
+    // ここで重ねて減算すると wrap 内で離したときに二重減算になる)。
     ptrs.current.delete(e.pointerId);
     if (ptrs.current.size < 2) pinch.current = null;
     if (ptrs.current.size === 1) {
@@ -285,6 +325,9 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
                     onExpand={onExpand}
                     onAddToTour={onAddToTour}
                     flip={flip}
+                    markerPos={{ x: sx, y: sy }}
+                    wrapSize={wrapSize}
+                    gestureActiveRef={gestureActiveRef}
                   />
                 </div>
               );
