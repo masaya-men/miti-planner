@@ -6529,6 +6529,20 @@ select.housing-input option {
   stroke: var(--housing-map-stroke-road);
 }
 
+/* 探す地図 (.housing-bmap-stage) にも同じ淡色化を適用。スコープが .housing-tour-map 限定だったため
+ * 探す側だけ元 SVG の黒枠が素通しになっていた。ルール3系統 (区画/道2系統/無名黒path) は上と対で保守する。 */
+.housing-bmap-stage .housing-map-svg-host [id^="plot_"],
+.housing-bmap-stage .housing-map-svg-host [id^="apart_"] {
+  stroke: var(--housing-map-stroke);
+}
+.housing-bmap-stage .housing-map-svg-host path[mask],
+.housing-bmap-stage .housing-map-svg-host path[id$="(Stroke)"] {
+  stroke: var(--housing-map-stroke-road);
+}
+.housing-bmap-stage .housing-map-svg-host path[stroke="black"]:not([id^="plot_"]):not([id^="apart_"]):not([mask]):not([id$="(Stroke)"]) {
+  stroke: var(--housing-map-stroke-road);
+}
+
 /* 目的地アピール: オーバーレイに目的の家の実輪郭で honey 発光ボックスを描く(TourNavMap の targetOutline)。
  * 以前は overlay の被せ矩形で確実に光っていたが、実箱パスへの JS クラス付与方式に変えてから
  * 区画再着色ルール等に負けて光らなくなっていた。オーバーレイ(=経路と同じ確実に描かれる層)へ戻す。
