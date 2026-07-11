@@ -5068,6 +5068,19 @@ select.housing-input option {
   border-top-color: transparent;
   border-bottom-color: var(--housing-honey-border);
 }
+/* flip.x (コンテナ右端近く): 右へはみ出さないよう左向きに畳む (右端がアンカー座標に来る)。
+ * しっぽの水平位置 (left) も box の右端基準へ合わせる。border-top/bottom の向きは flip.y 側の
+ * 独立したプロパティなので、flip.x と flip.y は別々のルールのまま組み合わせが成立する
+ * (transform だけは1プロパティにつき1つの宣言しか勝てないので flip-x+flip-y 用に別途上書きする)。 */
+.housing-bmap-mini[data-flip-x="true"] {
+  transform: translate(-100%, calc(-100% - 7px));
+}
+.housing-bmap-mini[data-flip-x="true"]::after {
+  left: 100%;
+}
+.housing-bmap-mini[data-flip-x="true"][data-flip-y="true"] {
+  transform: translate(-100%, 7px);
+}
 .housing-bmap-mini-thumb {
   flex: 0 0 auto;
   width: 48px;
@@ -5083,10 +5096,21 @@ select.housing-input option {
   display: block;
 }
 
+/* .housing-bmap-marker-pos (Task4) は JS 側の style="transform: translate(sx,sy)" を持つため、
+ * スポットごとに独立したスタッキングコンテキストになる。つまり子の .housing-bmap-expanded に
+ * z-index を積んでも「自分の marker-pos の中」でしか勝てず、隣接スポットの
+ * .housing-bmap-mini (z-index 未指定 = auto、DOM順で積まれる) に重なりで負けることがある。
+ * :has() で「拡大カードを持つ marker-pos」自体を兄弟の marker-pos より前面へ持ち上げることで、
+ * そのスタッキングコンテキスト全体 (= 拡大カードを含む) が確実に他スポットの上に来るようにする。 */
+.housing-bmap-marker-pos:has(.housing-bmap-expanded) {
+  z-index: 1;
+}
+
 /* 拡大カード: 既存 .housing-listing-card (ListingCard) をそのまま重ねて描画する容れ物。
  * 幅は --housing-bmap-card-w に固定 (地図の拡大縮小で大きさが変わらない = ミニカードと同じ思想)。
- * z-index はミニカード群 (兄弟スポット) より確実に前面へ出す(グローバル modal token とは無関係の
- * ローカルな重なり順のため、他コンポーネントと共通の z-index token は使わない)。 */
+ * z-index はミニカード (同じ marker-pos 内の兄弟) より前面へ出す(グローバル modal token とは
+ * 無関係のローカルな重なり順のため、他コンポーネントと共通の z-index token は使わない)。
+ * marker-pos 同士 (他スポット) との前後関係は上の :has() ルールが担当する。 */
 .housing-bmap-expanded {
   position: absolute;
   top: 0;
