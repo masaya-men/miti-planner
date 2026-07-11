@@ -4975,31 +4975,9 @@ select.housing-input option {
   left: 0;
   pointer-events: none;
 }
-/* マーカー本体: 吹き出しの根本をスポット座標に合わせる静的アンカー (translate(-50%,-100%))。
- * Task4 時点はプレースホルダの簡易ボタン(本実装 = Task5 の MapSpotCard)。 */
-.housing-bmap-marker {
-  pointer-events: auto;
-  appearance: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--housing-panel-border);
-  background: var(--housing-panel-bg-solid);
-  color: var(--housing-text);
-  font-family: inherit;
-  font-size: var(--housing-text-xs);
-  white-space: nowrap;
-  transform: translate(-50%, -100%);
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-.housing-bmap-marker:hover,
-.housing-bmap-marker[data-expanded="true"] {
-  border-color: var(--housing-honey-border);
-  color: var(--housing-candle);
-}
+/* Task4 時点のプレースホルダマーカー (.housing-bmap-marker 本体) は Task6 で MapSpotCard
+ * (.housing-bmap-mini/.housing-bmap-expanded) に差し替え済み。ラベル/バッジのクラスのみ
+ * MapSpotCard 側で引き続き使うため残す。 */
 .housing-bmap-marker-label { pointer-events: none; }
 .housing-bmap-badge {
   pointer-events: none;
@@ -5012,6 +4990,20 @@ select.housing-input option {
  * 親 (.housing-bmap-marker-pos、配線は Task6) が translate(sx,sy) でスポット座標に置き、
  * ここから先は原点(0,0)基準の静的アンカー (translate(-50%,-100%) 系) のみを扱う。
  * ============================================================ */
+
+/* Task6 実機検証で発見: BrowseWardMap.tsx の onPointerDown は「マーカー/カード上の pointerdown は
+ * パン操作としない (setPointerCapture しない)」ため、地図のパン用ドラッグと同じジェスチャーで
+ * カード内の <img> (ListingCard の代表画像等) 上をドラッグすると、ブラウザ標準の画像ドラッグ
+ * (ゴースト画像) が発生しうる。これ自体は無害だが、地図のパンジェスチャーと紛らわしい UX になる上、
+ * 実機 Playwright 検証で連続ドラッグ時にレンダラーが不安定になる事象を観測したため、地図カード内の
+ * ドラッグ開始点になりうる画像・カード本体の既定ブラウザドラッグを無効化して芽を摘む。 */
+.housing-bmap-mini,
+.housing-bmap-expanded,
+.housing-bmap-mini img,
+.housing-bmap-expanded img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
 
 /* ミニカード本体。カード下端をスポット座標へ合わせ (translate(-50%,-100%))、
  * さらに ::after の吹き出しのしっぽ分だけ上へ逃がす (しっぽの先端が座標に届くように)。 */
