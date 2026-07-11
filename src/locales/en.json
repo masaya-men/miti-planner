@@ -2561,7 +2561,13 @@
                 "unpublishConfirmBody": "Your page and registrant display will become private. Your registered housing listings will not be deleted.",
                 "toastSaved": "Housinger profile saved.",
                 "toastError": "Failed to save. Please try again later."
-            }
+            },
+            "byline": "Housing by {{name}}",
+            "unavailable": "This Housinger's page is not public.",
+            "noListings": "No published housing listings yet.",
+            "tourAll": "Tour all of this Housinger's homes",
+            "editProfile": "Edit profile",
+            "loading": "Loading…"
         },
         "topbar": {
             "login": "",

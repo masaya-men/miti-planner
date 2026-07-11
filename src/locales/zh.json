@@ -2526,7 +2526,13 @@
                 "unpublishConfirmBody": "页面和登记者显示将变为不公开。已登记的房屋不会被删除",
                 "toastSaved": "已保存房主玩家资料",
                 "toastError": "保存失败。请稍后重试"
-            }
+            },
+            "byline": "{{name}} 的房屋作品",
+            "unavailable": "此房主玩家尚未公开",
+            "noListings": "暂无公开中的房屋",
+            "tourAll": "一起导览这个人的房屋",
+            "editProfile": "编辑资料",
+            "loading": "加载中…"
         },
         "topbar": {
             "login": "",

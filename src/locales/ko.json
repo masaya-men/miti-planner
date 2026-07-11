@@ -2526,7 +2526,13 @@
                 "unpublishConfirmBody": "페이지와 등록자 표시가 비공개로 전환됩니다. 등록한 하우징은 삭제되지 않습니다",
                 "toastSaved": "하우징어 프로필을 저장했습니다",
                 "toastError": "저장에 실패했습니다. 잠시 후 다시 시도해 주세요"
-            }
+            },
+            "byline": "{{name}} 님의 하우징",
+            "unavailable": "이 하우징어는 공개되어 있지 않습니다",
+            "noListings": "공개 중인 하우징이 아직 없습니다",
+            "tourAll": "이 사람의 집 모아서 투어",
+            "editProfile": "프로필 수정",
+            "loading": "불러오는 중…"
         },
         "topbar": {
             "login": "",

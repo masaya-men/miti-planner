@@ -26,6 +26,10 @@ export function useHousingerProfile(uid: string | null): UseHousingerProfileResu
       return;
     }
     let cancelled = false;
+    // uid が別の非null値に切り替わった瞬間、 前の uid の profile を保持したままにすると
+    // 「別人のプロフィールが一瞬表示される」 事故になる (HousingerPage は同一コンポーネントの
+    // まま :uid だけ変わるルーティングを踏むため顕在化する)。 fetch 開始前に必ず null へ戻す。
+    setProfile(null);
     setLoading(true);
     (async () => {
       const result = await getHousingerProfile(uid);

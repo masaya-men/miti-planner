@@ -125,6 +125,12 @@
   --housing-detail-thumbrail-w: 84px;     /* 縦サムネイル列の幅 (メインの右) */
   --housing-detail-fullpage-max-w: 1200px;
 
+  /* ===== Task 7: ハウジンガー登録者行 / ハウジンガーページ ===== */
+  --housinger-avatar-size-sm: 20px;       /* 詳細パネルの登録者行 */
+  --housinger-avatar-size-lg: 96px;       /* ハウジンガーページのヘッダー */
+  --housinger-avatar-bg: var(--housing-chip-bg);
+  --housinger-avatar-text: var(--housing-honey);
+
   /* ===== Phase 3 Group D: report / notifications ===== */
   --housing-report-modal-max-w: 440px;
   --housing-report-modal-padding: 24px;
@@ -3134,6 +3140,49 @@ select.housing-input option {
     color: var(--housing-text-dim);
     margin: 0;
 }
+/* ===== Task 7: 詳細パネルの登録者行 (HousingerByline) =====
+   非公開/取得不可 (profile===null) のときは行ごと描画されない (JSX 側で null を返す) ので、
+   ここでは「出たときの見た目」だけ定義すればよい。 */
+.housing-detail-byline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: fit-content;
+    color: var(--housing-text-dim);
+    text-decoration: none;
+    font-size: var(--housing-text-sm);
+}
+.housing-detail-byline:hover {
+    color: var(--housing-text);
+}
+/* ハウジンガーのアイコン (詳細行 / ハウジンガーページ大アイコン 共通)。
+   avatarUrl 未設定時は頭文字プレースホルダを丸背景に表示する。 */
+.housinger-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--housinger-avatar-bg);
+}
+.housinger-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.housinger-avatar-fallback {
+    color: var(--housinger-avatar-text);
+    font-weight: 700;
+}
+.housing-detail-byline-avatar {
+    width: var(--housinger-avatar-size-sm);
+    height: var(--housinger-avatar-size-sm);
+}
+.housing-detail-byline-avatar .housinger-avatar-fallback {
+    font-size: var(--housing-text-xs);
+}
 .housing-detail-tags {
     display: flex;
     flex-wrap: wrap;
@@ -3212,6 +3261,86 @@ select.housing-input option {
     max-width: var(--housing-detail-fullpage-max-w);
     width: 100%;
     margin: 0 auto;
+}
+
+/* ===== Task 7: ハウジンガーページ (HousingerPage) =====
+   .housing-detail-panel/-shell/-fullpage-header/-fullpage-main (詳細と共通のシェル) の中身。 */
+.housinger-page-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.housinger-page-avatar {
+    width: var(--housinger-avatar-size-lg);
+    height: var(--housinger-avatar-size-lg);
+}
+.housinger-page-avatar .housinger-avatar-fallback {
+    font-size: var(--housing-detail-title-size);
+}
+.housinger-page-headertext {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+.housinger-page-name {
+    margin: 0;
+    font-size: var(--housing-detail-title-size);
+    font-weight: 600;
+    color: var(--housing-text);
+}
+.housinger-page-bio {
+    margin: 0;
+    font-size: var(--housing-text-base);
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+.housinger-page-sns {
+    width: fit-content;
+    font-size: var(--housing-text-sm);
+    color: var(--housing-honey);
+    text-decoration: none;
+}
+.housinger-page-sns:hover {
+    text-decoration: underline;
+}
+.housinger-page-listings-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+}
+/* まとめてツアー = 主アクション (ハニー系 CTA)。 .housing-tour-tray-start と同じ見た目パターン。 */
+.housinger-page-tour-btn {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 16px;
+    font-family: inherit;
+    font-size: var(--housing-text-md);
+    font-weight: 700;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    border: 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
+    transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housinger-page-tour-btn:hover {
+    filter: brightness(1.05);
+}
+.housinger-page-tour-btn:active {
+    transform: scale(0.98);
+}
+.housinger-page-empty {
+    margin: 0;
+    padding: 24px 0;
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-base);
 }
 
 /* 2026-07-09 再設計「写真ヒーロー+固定レール」: ワイド (md+) は大パネルをビューポート内に

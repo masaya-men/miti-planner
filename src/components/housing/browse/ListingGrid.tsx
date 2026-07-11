@@ -5,7 +5,8 @@ import { BrowseSortSelect, type BrowseSortOrder } from './BrowseSortSelect';
 
 export interface ListingGridProps {
   listings: MockListing[];
-  onAddToTour: (id: string) => void;
+  /** 未指定ならカードの「ツアーに追加」ボタン自体を出さない (例: ハウジンガーページの一覧)。 */
+  onAddToTour?: (id: string) => void;
   sort: BrowseSortOrder;
   onSortChange: (v: BrowseSortOrder) => void;
 }
