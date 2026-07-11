@@ -7,6 +7,21 @@ import { resolveWardMapRef } from './resolveWardMapRef';
 
 export type WardMapKind = 'main' | 'sub';
 
+/**
+ * area → 地図素材 mapKey (本街側) の対応表 (plan Task6)。
+ * 出典: `resolveWardMapRef.ts` の `AREA_TO_KEY`。あちらはモジュールスコープの非 export ローカル定数で、
+ * かつ resolveWardMapRef.ts はツアー側ファイル (編集禁止) のため export へ変更できない。そのためここに
+ * 値のみ複製する。値を変更する場合は resolveWardMapRef.ts の AREA_TO_KEY とも一致させること。
+ * 拡張街側は `${AREA_MAP_KEY[area]}-sub` (呼び出し側で組み立てる、resolveWardMapRef と同じ命名規則)。
+ */
+export const AREA_MAP_KEY: Record<HousingArea, string> = {
+  Mist: 'mist',
+  LavenderBeds: 'lavender',
+  Goblet: 'goblet',
+  Shirogane: 'shirogane',
+  Empyreum: 'empyreum',
+};
+
 export interface BrowseMapSpot {
   /** `${kind}:${plot}` (apart は plot=アパートエントリの plot 値、常に 1) */
   key: string;

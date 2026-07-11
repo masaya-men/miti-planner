@@ -5,6 +5,7 @@ import { useWardMapAsset } from '../../../../lib/housing/useWardMapAsset';
 import { applyWheelZoom, zoomAt, type MapView } from '../../../../lib/housing/mapZoom';
 import { plotToPlacementIn, apartToPlacementIn } from '../../../../lib/housing/wardRoute';
 import { useHousingViewStore } from '../../../../store/useHousingViewStore';
+import { MapSpotCard } from './MapSpotCard';
 
 export interface BrowseWardMapProps {
   mapKey: string;
@@ -20,6 +21,17 @@ const MAX_ZOOM_LEVEL = 6;
 /** パン/ピンチ操作の後に「クリックとみなす」移動量の閾値(px)。これを超えたら地図操作とみなし、
  *  wrap の onClick (空白クリック=拡大解除) を発火させない。 */
 const CLICK_MOVE_THRESHOLD = 4;
+/** 吹き出し/拡大カードがコンテナ右端・上端からはみ出さないよう反転(flip)判定に使う余白(px)。
+ *  実機確認 (DPR 2.58、開発者の参照画面 CSS 679px 高) で当初 300/300 は大きすぎ、コンテナ中央付近の
+ *  スポットまで無駄に反転してしまうこと (かつ短いコンテナでは反転後も逆側にはみ出す) を確認して調整した。
+ *  X = 拡大カード幅 --housing-bmap-card-w(280px, housing.css) の半分(中央寄せ時の右側はみ出し分)+ 余裕。
+ *  Y = ミニカードの実寸(48pxサムネ+パディングで60px程)は小さく反転がほぼ不要な一方、拡大カード
+ *  (画像+キャプション+フッターで270px超) は反転してもなお短いコンテナでは収まりきらない場合がある
+ *  (spec の flip は「右端/上端」の単純な二値反転までがスコープ、それ以上の座標クランプは対象外)。
+ *  「本当に上端に近い(=どちらの向きでもまず収まらない)ときだけ反転」程度に留め、反転しても
+ *  最低限カード上部(画像)が見えるようにする値としている。 */
+const FLIP_MARGIN_X = 180;
+const FLIP_MARGIN_Y = 220;
 
 type Marker = { spot: BrowseMapSpot; x: number; y: number };
 
@@ -38,9 +50,7 @@ type Marker = { spot: BrowseMapSpot; x: number; y: number };
  * - 実際の描画倍率は `fitScale * view.scale` (fitScale はコンテナ実寸から都度計算)。
  * ツアー側ファイル (mapZoom.ts 含む) は読み込みのみで一切編集しない。
  */
-// onAddToTour は Task 5 (MapSpotCard 拡大時の ListingCard 配線) で使う。props 型には含めるが、
-// この時点では束縛しない(未使用変数として tsc に検出されないよう destructure しない)。
-export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, expandedKey, onExpand }) => {
+export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, expandedKey, onExpand, onAddToTour }) => {
   const { t } = useTranslation();
   const setBrowseView = useHousingViewStore((s) => s.setBrowseView);
   const assetState = useWardMapAsset(mapKey);
@@ -129,6 +139,13 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
     return { x: clientX - (r?.left ?? 0), y: clientY - (r?.top ?? 0) };
   };
   const onPointerDown = (e: React.PointerEvent) => {
+    // マーカー/カード (ミニカード・拡大カードのボタン等) 上の pointerdown はパン/ピンチの対象外にする。
+    // ここで setPointerCapture すると、Pointer Events 仕様上「capture 中は click も capture 要素へ
+    // 再ターゲットされる」ため、以降その指で発火する click イベントが wrap 自身 (= 空白クリック
+    // ハンドラ onBlankClick) に奪われ、カード内のボタン (ツアー追加・お気に入り・詳細遷移等) の
+    // クリックが握りつぶされてしまう (実機 Playwright 検証で発見: ツアー追加が無反応かつ拡大カードが
+    // 閉じる不具合として再現した)。
+    if ((e.target as HTMLElement).closest('.housing-bmap-marker-pos')) return;
     justPanned.current = false;
     e.currentTarget.setPointerCapture?.(e.pointerId);
     ptrs.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -250,31 +267,25 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
             {markers.map((m) => {
               const sx = m.x * actualScale + view.tx;
               const sy = m.y * actualScale + view.ty;
+              // コンテナ右端/上端に近いスポットは吹き出し/拡大カードが枠外へはみ出すため反転する
+              // (MapSpotCard の flip prop、spec 4.2「地図の端では画面内に収まる向きに吹き出しを反転」)。
+              const flip = {
+                x: sx > wrapSize.w - FLIP_MARGIN_X,
+                y: sy < FLIP_MARGIN_Y,
+              };
               return (
                 <div
                   key={m.spot.key}
                   className="housing-bmap-marker-pos"
                   style={{ transform: `translate(${sx}px, ${sy}px)` }}
                 >
-                  {/* プレースホルダ (Task 5 の MapSpotCard に置き換え予定): 位置決め・排他配線のみここで担保する。 */}
-                  <button
-                    type="button"
-                    className="housing-bmap-marker"
-                    data-testid={`bmap-marker-${m.spot.key}`}
-                    data-expanded={expandedKey === m.spot.key ? 'true' : 'false'}
-                    aria-expanded={expandedKey === m.spot.key}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onExpand(expandedKey === m.spot.key ? null : m.spot.key);
-                    }}
-                  >
-                    <span className="housing-bmap-marker-label">
-                      {m.spot.kind === 'apart' ? t('housing.map.apartment_label') : t('housing.map.plot_label', { plot: m.spot.plot })}
-                    </span>
-                    {m.spot.listings.length > 1 && (
-                      <span className="housing-bmap-badge">×{m.spot.listings.length}</span>
-                    )}
-                  </button>
+                  <MapSpotCard
+                    spot={m.spot}
+                    expanded={expandedKey === m.spot.key}
+                    onExpand={onExpand}
+                    onAddToTour={onAddToTour}
+                    flip={flip}
+                  />
                 </div>
               );
             })}

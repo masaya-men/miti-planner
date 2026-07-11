@@ -4849,12 +4849,14 @@ select.housing-input option {
   background: var(--housing-honey-medium);
 }
 
-/* 地図モードのコンテナ。中央カラムの残り高さを占める。 */
+/* 地図モードのコンテナ。中央カラムの残り高さを占める。gap = 操作列(MapControls)と地図本体の
+ * 余白リズム (0px密着を避ける、housing-design.md の余白リズム規約)。 */
 .housing-browse-map-view {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
 /* ワールド選択ゲート (spec §3.2)。地図はワールドごとの表示のため servers が1件になるまでここで止める。 */
@@ -5165,6 +5167,130 @@ select.housing-input option {
 .housing-bmap-expanded-nav-label {
   flex: 1 1 auto;
   text-align: center;
+}
+
+/* ============================================================
+ * MapControls (Task6): 地図モードの操作列 (住宅街切替 + 区ドロップダウン + 本街/拡張街タブ)。
+ * spec §3.3。件数は常に BrowseMapView が渡す「現在のフィルタ適用後」の値をそのまま表示する
+ * (このコンポーネント自身は集計しない = 一覧と地図の件数が食い違わない)。
+ * 住宅街セグメント/本街拡張街タブは .housing-view-toggle と同系、区ドロップダウンは
+ * .housing-sort (BrowseSortSelect.tsx) と同形の質感を、別クラス名で複製している。
+ * ============================================================ */
+.housing-mapctl {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  flex: 0 0 auto;
+}
+
+.housing-mapctl-areas {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+}
+.housing-mapctl-area-btn {
+  appearance: none; cursor: pointer;
+  height: 26px; padding: 0 12px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 0; border-radius: 7px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-mapctl-area-btn:hover { color: var(--housing-text); }
+.housing-mapctl-area-btn[data-selected="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+}
+
+.housing-mapctl-ward {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.housing-mapctl-ward-arrow {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px;
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 7px;
+  transition: border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+.housing-mapctl-ward-arrow:hover { border-color: var(--housing-panel-border-strong); color: var(--housing-text); }
+.housing-mapctl-ward-arrow:disabled { opacity: 0.4; cursor: default; }
+.housing-mapctl-ward-arrow:disabled:hover { border-color: var(--housing-panel-border); color: var(--housing-text-dim); }
+
+.housing-mapctl-ward-select { position: relative; }
+.housing-mapctl-ward-trigger {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 8px 0 12px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-mapctl-ward-trigger:hover { border-color: var(--housing-panel-border-strong); }
+.housing-mapctl-ward[data-open="true"] .housing-mapctl-ward-trigger {
+  border-color: var(--housing-honey-border); background: var(--housing-honey-soft);
+}
+.housing-mapctl-ward-chevron { color: var(--housing-text-mute); transition: transform 0.15s ease; }
+.housing-mapctl-ward[data-open="true"] .housing-mapctl-ward-chevron { transform: rotate(180deg); }
+.housing-mapctl-ward-menu {
+  position: absolute; top: calc(100% + 4px); left: 0; z-index: 20;
+  list-style: none; margin: 0; padding: 4px;
+  max-height: 320px; overflow-y: auto;
+  min-width: 140px;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  box-shadow: var(--housing-popover-shadow);
+}
+.housing-mapctl-ward-option {
+  appearance: none; cursor: pointer; width: 100%;
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px;
+  font-family: inherit; font-size: var(--housing-text-sm); text-align: left;
+  color: var(--housing-text-dim);
+  background: transparent; border: 0; border-radius: 7px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-mapctl-ward-option:hover { background: var(--housing-chip-bg-hover); color: var(--housing-text); }
+.housing-mapctl-ward-option[data-selected="true"] { color: var(--housing-candle); }
+
+.housing-mapctl-kind {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 3px;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+}
+.housing-mapctl-kind-btn {
+  appearance: none; cursor: pointer;
+  height: 26px; padding: 0 12px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 0; border-radius: 7px;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-mapctl-kind-btn:hover { color: var(--housing-text); }
+.housing-mapctl-kind-btn[data-selected="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
 }
 
 .housing-listing-grid {
