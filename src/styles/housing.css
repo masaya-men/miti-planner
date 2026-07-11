@@ -3265,6 +3265,13 @@ select.housing-input option {
 
 /* ===== Task 7: ハウジンガーページ (HousingerPage) =====
    .housing-detail-panel/-shell/-fullpage-header/-fullpage-main (詳細と共通のシェル) の中身。 */
+/* Task9: 共通ヘッダー (.housing-detail-fullpage-header) に「…」メニューを追加するための行化。
+   このページだけに付与する追加クラスなので、HousingDetailPage.tsx 側の見た目は変わらない。 */
+.housinger-page-headerbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 .housinger-page-header {
     display: flex;
     align-items: flex-start;
@@ -4095,6 +4102,42 @@ select.housing-input option {
 }
 .housing-register-fields-grid > .housing-field-full {
   grid-column: 1 / -1;
+}
+
+/* ハウジンガー公開 CTA (Task9): 確認セクション直前の任意ブロック。何も要求しない導線なので
+   `.housing-register-section` の青アクセント見出し (= 必須ステップ扱い) は使わず、
+   ヘアライン区切り + 静かな見出しに留める (housing-design.md 「AI 感の払拭」原則)。 */
+.housing-register-housinger-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--housing-divider);
+}
+/* ボタンだけ内容幅に留める (見出し/説明はコンテナ幅いっぱいに広げたいので align-items は stretch のまま)。
+   .housing-action-btn 自身の display:inline-flex は「ボタン内部」の並びにのみ効き、
+   親 flex (column) の cross-axis サイズ (= 幅) は align-self で個別に制御する必要がある。 */
+.housing-register-housinger-cta .housing-action-btn {
+  align-self: flex-start;
+}
+.housing-register-housinger-cta-title {
+  margin: 0;
+  font-size: var(--housing-text-base);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-register-housinger-cta-desc {
+  margin: 0;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+  line-height: 1.5;
+}
+.housing-register-housinger-cta-published {
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
 }
 
 /* 画像/SNS URL セクション (Task11): 取得中スケルトン / 成功時枚数 / 失敗時の静かな注記。

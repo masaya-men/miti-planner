@@ -2581,7 +2581,25 @@
             "tourAll": "この人の家をまとめてツアー",
             "editProfile": "プロフィールを編集",
             "loading": "読み込み中…",
-            "viewPage": "{{name}} のハウジンガーページを見る →"
+            "viewPage": "{{name}} のハウジンガーページを見る →",
+            "register": {
+                "ctaTitle": "ハウジンガーとして名乗りますか?(任意)",
+                "ctaButton": "設定する",
+                "publishedAs": "{{name}} として公開中"
+            },
+            "report": {
+                "modal": {
+                    "title": "このハウジンガーについて報告",
+                    "subtitle": "どの点が問題ですか?"
+                },
+                "reason": {
+                    "inappropriate_name": "不適切な名前",
+                    "inappropriate_avatar": "不適切なアイコン",
+                    "impersonation": "なりすまし",
+                    "other": "その他"
+                },
+                "menuItem": "このハウジンガーを報告"
+            }
         },
         "topbar": {
             "login": "ログイン",

@@ -2525,7 +2525,25 @@
             "tourAll": "이 사람의 집 모아서 투어",
             "editProfile": "프로필 수정",
             "loading": "불러오는 중…",
-            "viewPage": "{{name}} 님의 하우징어 페이지 보기 →"
+            "viewPage": "{{name}} 님의 하우징어 페이지 보기 →",
+            "register": {
+                "ctaTitle": "하우징어로 이름을 밝히시겠어요? (선택)",
+                "ctaButton": "설정하기",
+                "publishedAs": "{{name}} 님으로 공개 중"
+            },
+            "report": {
+                "modal": {
+                    "title": "이 하우징어 신고",
+                    "subtitle": "어떤 점이 문제인가요?"
+                },
+                "reason": {
+                    "inappropriate_name": "부적절한 이름",
+                    "inappropriate_avatar": "부적절한 아이콘",
+                    "impersonation": "사칭",
+                    "other": "기타"
+                },
+                "menuItem": "이 하우징어 신고하기"
+            }
         },
         "topbar": {
             "login": "",

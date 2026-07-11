@@ -2525,7 +2525,25 @@
             "tourAll": "一起导览这个人的房屋",
             "editProfile": "编辑资料",
             "loading": "加载中…",
-            "viewPage": "查看 {{name}} 的房主玩家主页 →"
+            "viewPage": "查看 {{name}} 的房主玩家主页 →",
+            "register": {
+                "ctaTitle": "要以房主玩家身份公开吗?(可选)",
+                "ctaButton": "去设置",
+                "publishedAs": "以 {{name}} 身份公开中"
+            },
+            "report": {
+                "modal": {
+                    "title": "举报该房主玩家",
+                    "subtitle": "是哪方面的问题?"
+                },
+                "reason": {
+                    "inappropriate_name": "不当的名字",
+                    "inappropriate_avatar": "不当的头像",
+                    "impersonation": "冒充",
+                    "other": "其他"
+                },
+                "menuItem": "举报该房主玩家"
+            }
         },
         "topbar": {
             "login": "",

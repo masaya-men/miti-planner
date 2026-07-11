@@ -2560,7 +2560,25 @@
             "tourAll": "Tour all of this Housinger's homes",
             "editProfile": "Edit profile",
             "loading": "Loading…",
-            "viewPage": "View {{name}}'s Housinger page →"
+            "viewPage": "View {{name}}'s Housinger page →",
+            "register": {
+                "ctaTitle": "Show yourself as a Housinger? (optional)",
+                "ctaButton": "Set up",
+                "publishedAs": "Published as {{name}}"
+            },
+            "report": {
+                "modal": {
+                    "title": "Report this Housinger",
+                    "subtitle": "What's the issue?"
+                },
+                "reason": {
+                    "inappropriate_name": "Inappropriate name",
+                    "inappropriate_avatar": "Inappropriate avatar",
+                    "impersonation": "Impersonation",
+                    "other": "Other"
+                },
+                "menuItem": "Report this Housinger"
+            }
         },
         "topbar": {
             "login": "",

@@ -5,7 +5,7 @@
  * - profile が null (非公開/存在しない uid) → unavailable + 探すへ戻るリンク
  * - 本人 (useAuthStore の uid 一致) → プロフィールを編集ボタンが出る
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
@@ -170,5 +170,48 @@ describe('HousingerPage', () => {
     expect(
       screen.queryByRole('button', { name: 'プロフィールを編集' }),
     ).not.toBeInTheDocument();
+  });
+
+  // Task9: ページヘッダーの「…」メニュー (通報導線)
+  it('本人が見ると「…」メニューは出ない', async () => {
+    authUid = 'uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    expect(
+      screen.queryByRole('button', { name: 'メニュー' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('他人が見ると「…」メニューが出て、報告するとモーダルが開く', async () => {
+    authUid = 'uid-2';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    fireEvent.click(screen.getByRole('button', { name: 'メニュー' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'このハウジンガーを報告' }));
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('このハウジンガーについて報告')).toBeInTheDocument();
+  });
+
+  it('未ログインで報告を押すとログイン案内が出て、モーダルは開かない', async () => {
+    authUid = null;
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    fireEvent.click(screen.getByRole('button', { name: 'メニュー' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'このハウジンガーを報告' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

@@ -12,8 +12,11 @@
  * - uid 切替 (同一コンポーネントのまま :uid だけ変わる遷移) 時は前の人のプロフィール/一覧を
  *   保持したまま表示しない (useHousingerProfile の stale 対策と同じ理由で fetch 開始前に必ず
  *   null/空へ戻す)。
+ * - Task9: 本人以外が見ているときだけ、 ヘッダー右端に控えめな「…」メニュー (通報) を出す。
+ *   HousingDetailKebab.tsx と同じ popover 仕様 (クリック/Esc/外側クリックで閉じる) をこの
+ *   ページ専用に軽量実装 (項目が「報告する」1つだけなので共有コンポーネント化はしない)。
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -30,6 +33,8 @@ import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { HousingerAvatar } from '../housinger/HousingerAvatar';
+import { HousingerReportModal } from '../report/HousingerReportModal';
+import { showToast } from '../../Toast';
 import type { HousingerProfile } from '../../../types/housing';
 import type { MockListing } from '../../../data/housing/mockListings';
 import '../../../styles/housing.css';
@@ -43,6 +48,9 @@ export const HousingerPage: React.FC = () => {
   const [profile, setProfile] = useState<HousingerProfile | null>(null);
   const [listings, setListings] = useState<MockListing[]>([]);
   const [loading, setLoading] = useState(true);
+  const [kebabOpen, setKebabOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const kebabRef = useRef<HTMLDivElement>(null);
   const [sort, setSort] = useState<BrowseSortOrder>('newest');
 
   useEffect(() => {
@@ -75,6 +83,23 @@ export const HousingerPage: React.FC = () => {
     };
   }, [uid]);
 
+  // 「…」メニュー: クリック/Esc/外側クリックで閉じる (HousingDetailKebab.tsx と同じ仕様)。
+  useEffect(() => {
+    if (!kebabOpen) return;
+    const onClickOutside = (e: MouseEvent) => {
+      if (kebabRef.current && !kebabRef.current.contains(e.target as Node)) setKebabOpen(false);
+    };
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setKebabOpen(false);
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    document.addEventListener('keydown', onEsc);
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside);
+      document.removeEventListener('keydown', onEsc);
+    };
+  }, [kebabOpen]);
+
   // BrowsePage と同じ「新着順/古い順」ローカル並び替え。sortListingsForGallery (住所グルーピング)
   // は基礎データの整形用で、 表示順は BrowseSortSelect の選択で上書きする。
   const sorted = useMemo(
@@ -86,6 +111,15 @@ export const HousingerPage: React.FC = () => {
   );
 
   const isSelf = viewerUid !== null && uid === viewerUid;
+
+  // HousingActionBar.tsx の onReportClick と同形 (未ログインならログイン案内、それ以外はモーダルを開く)。
+  const onReportClick = () => {
+    if (!viewerUid) {
+      showToast(t('housing.detail.login_required'), 'info');
+      return;
+    }
+    setReportOpen(true);
+  };
 
   // BrowsePage.tsx:66-73 の onStart と同形。
   const onTourAll = () => {
@@ -141,7 +175,7 @@ export const HousingerPage: React.FC = () => {
   return (
     <div className="housing-detail-panel">
       <div className="housing-detail-shell">
-        <header className="housing-detail-fullpage-header">
+        <header className="housing-detail-fullpage-header housinger-page-headerbar">
           <Link
             to="/housing"
             className="housing-detail-back"
@@ -149,6 +183,39 @@ export const HousingerPage: React.FC = () => {
           >
             ← {t('housing.detail.back_aria')}
           </Link>
+          {/* Task9: 本人以外にだけ、控えめな「…」メニュー (通報) を出す。 */}
+          {!isSelf && (
+            <div className="housing-kebab" ref={kebabRef}>
+              <button
+                type="button"
+                aria-label={t('housing.detail.kebab.aria_label')}
+                aria-haspopup="menu"
+                aria-expanded={kebabOpen}
+                className="housing-kebab-trigger"
+                onClick={() => setKebabOpen((v) => !v)}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+                  <circle cx="12" cy="5" r="2" fill="currentColor" />
+                  <circle cx="12" cy="12" r="2" fill="currentColor" />
+                  <circle cx="12" cy="19" r="2" fill="currentColor" />
+                </svg>
+              </button>
+              {kebabOpen && (
+                <div role="menu" className="housing-kebab-menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setKebabOpen(false);
+                      onReportClick();
+                    }}
+                  >
+                    {t('housing.housinger.report.menuItem')}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </header>
         <main className="housing-detail-fullpage-main">
           <div className="housinger-page-header">
@@ -196,6 +263,14 @@ export const HousingerPage: React.FC = () => {
           )}
         </main>
       </div>
+
+      {reportOpen && (
+        <HousingerReportModal
+          open={reportOpen}
+          housingerUid={uid ?? ''}
+          onClose={() => setReportOpen(false)}
+        />
+      )}
     </div>
   );
 };
