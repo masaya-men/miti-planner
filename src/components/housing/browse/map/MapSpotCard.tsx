@@ -182,9 +182,27 @@ const MapSpotExpanded: React.FC<MapSpotExpandedProps> = ({
   useLayoutEffect(() => {
     const el = cardRef.current;
     if (!el) return;
+    // 同じ値なら state 更新を弾く (ResizeObserver は複数回発火し得る)。
+    const apply = (w: number, h: number) =>
+      setCardSize((prev) => (prev && prev.w === w && prev.h === h ? prev : { w, h }));
+    // 初回は同期測定して 1 フレーム目からクランプを効かせる (未測定→flip 位置のチラつき防止)。
     const rect = el.getBoundingClientRect();
-    setCardSize({ w: rect.width, h: rect.height });
-    // マウント時に一度だけ測定する (review 指摘: pointermove 等イベント中の layout 読み取りはしない)。
+    apply(rect.width, rect.height);
+    // 画像ロードでカードが縦に伸びる/index 切替で内容が変わると高さが変化するため追従する。
+    // これがないとマウント時の(画像前の)小さい高さでクランプが固定され、下端のツアー追加ボタンが
+    // .housing-bmap-wrap (overflow:hidden) の外へクリップされる。ResizeObserver は pointermove とは
+    // 非同期に発火するので、イベント中の layout 読み取り (forced reflow) にはならない。
+    const ro = new ResizeObserver((entries) => {
+      const box = entries[0]?.borderBoxSize?.[0];
+      if (box) apply(box.inlineSize, box.blockSize);
+      else {
+        const r = el.getBoundingClientRect();
+        apply(r.width, r.height);
+      }
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+    // el(cardRef)は安定。観測対象がマウント/アンマウントに一致するので依存は空でよい。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

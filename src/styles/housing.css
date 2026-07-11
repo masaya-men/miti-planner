@@ -189,9 +189,11 @@
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
   --housing-listing-card-min-w: 198px;
-  /* 探す地図 (Task5): 拡大カード (ListingCard 素通し) の固定幅。一覧カード相当の目安値
-     (--housing-listing-card-min-w より少し広め・地図上で読みやすいサイズを実機で調整)。 */
-  --housing-bmap-card-w: 280px;
+  /* 探す地図: 拡大カード (ListingCard 素通し) の幅は一覧グリッドのカードと同一に見せる。
+     グリッドは minmax(--housing-listing-card-min-w, 1fr) で実測 ~203px。フロートするカードは
+     1fr 伸長ができないため同じ基準トークンに連動させる (誤差数px・知覚不可・テーマ追従)。
+     2026-07-11 ユーザー要望で旧 280px から一覧カード基準へ変更。 */
+  --housing-bmap-card-w: var(--housing-listing-card-min-w);
   /* カード画像部の縦横比 (2026-07-03 ユーザー選定: 4:3 = 約1.33倍)。
      aspect-ratio ではなく「幅に対する%パディング」で高さを作る (3/4 = 75%)。
      aspect-ratio はグリッド行の高さ計算で Chrome のバージョンによって取りこぼされ、
@@ -5358,6 +5360,16 @@ select.housing-input option {
   flex-direction: column;
   gap: 6px;
   pointer-events: auto;
+  /* 地図(動画+SVG)の上に浮くカードは、ListingCard の背景が --housing-panel-inner(白5%)で
+     ほぼ透明なため、下の騒がしい地図が透けて不格好になる(一覧では暗いパネルの上なので目立たない)。
+     地図モード限定のこのラッパーにだけ、一覧と同じ暗パネル地 + 背後ぼかしで frosted glass 化する。
+     backdrop-filter の直書きは Lightning CSS が消すため --tw-backdrop-blur 変数パターン
+     (css-rules.md / 6902 行のツアー完了オーバーレイと同形)。角丸は下の ListingCard(14px)に合わせる。 */
+  border-radius: 14px;
+  background: var(--housing-panel-bg);
+  --tw-backdrop-blur: blur(8px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   transform: translate(
     calc(-50% + var(--housing-bmap-clamp-x)),
     calc(-100% - 14px + var(--housing-bmap-clamp-y))
