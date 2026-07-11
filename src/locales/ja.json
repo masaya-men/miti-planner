@@ -1815,6 +1815,32 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "housinger_reports": {
+            "title": "ハウジンガー通報",
+            "description": "通報があったハウジンガープロフィールを確認し、 必要なら強制非公開にします。 自動非表示のしきい値は無いため、 人の目で判断します。 強制非公開中のプロフィールは、 通報が0件になっても一覧に残り続けます。",
+            "empty": "通報ありプロフィールはありません",
+            "hide": "強制非公開にする",
+            "hiding": "...",
+            "hide_confirm": "このハウジンガーを強制非公開にしますか?",
+            "hide_success": "強制非公開にしました",
+            "restore": "復帰させる",
+            "restoring": "...",
+            "restore_confirm": "このハウジンガーを復帰させますか?",
+            "restore_success": "復帰させました",
+            "dismiss_one": "この通報を却下",
+            "dismissing_one": "...",
+            "dismiss_one_confirm": "この通報レコードを削除して通報数を 1 件減らしますか?",
+            "dismiss_one_success": "通報を却下しました",
+            "report_count": "通報 {{count}} 件",
+            "unpublished_badge": "非公開",
+            "hidden_badge": "強制非公開",
+            "reason": {
+                "inappropriate_name": "不適切な名前",
+                "inappropriate_avatar": "不適切なアイコン",
+                "impersonation": "なりすまし",
+                "other": "その他"
+            }
+        },
         "ugc_description": "共有URLを貼り付けて、アップロードされたロゴ画像を確認・削除できます。",
         "ugc_placeholder": "共有URLまたはshareIDを貼り付け",
         "ugc_search": "検索",
@@ -2075,16 +2101,8 @@
             "tag_pick_hint": "テーマを {{max}} 件まで選べます",
             "personal_tag": {
                 "loading": "読み込み中…",
-                "hint": "1 人 1 個まで作成できます。 作成すると、 他の人があなたのハウジングをタグで検索できるようになります。",
-                "placeholder": "例: yuura",
-                "create_button": "作成する",
-                "creating": "作成中…",
-                "error": {
-                    "required": "表示名を入力してください",
-                    "too_long": "{{max}} 文字以内で入力してください",
-                    "limit_reached": "既に個人タグを作成済みです",
-                    "generic": "作成に失敗しました。しばらくしてから再試行してください"
-                }
+                "not_published_hint": "ハウジンガーとして公開すると自分のタグが使えます",
+                "open_account_settings": "公開設定を開く"
             },
             "tags": "タグ",
             "room_number": "部屋番号",
@@ -2578,6 +2596,51 @@
             "deleteConfirmYes": "退会する",
             "deleteConfirmNo": "やめる",
             "closeLabel": "アカウント画面を閉じる"
+        },
+        "housinger": {
+            "account": {
+                "title": "ハウジンガー公開",
+                "description": "名前とアイコンを登録ハウジングに表示し、あなたのページを公開します",
+                "publish": "ハウジンガーとして公開する",
+                "nameRequired": "先に表示名を設定してください",
+                "published": "公開中",
+                "bioLabel": "ひとこと",
+                "bioPlaceholder": "例: S字改築が好きです。見学歓迎!",
+                "snsLabel": "SNSリンク",
+                "snsPlaceholder": "https://x.com/... (X / YouTube / Lodestone)",
+                "snsInvalid": "X / YouTube / Lodestone の https リンクのみ設定できます",
+                "save": "保存",
+                "unpublish": "公開をやめる",
+                "unpublishConfirmTitle": "ハウジンガー公開をやめますか?",
+                "unpublishConfirmBody": "ページと登録者表示が非公開になります。登録したハウジングは消えません",
+                "toastSaved": "ハウジンガープロフィールを保存しました",
+                "toastError": "保存に失敗しました。時間をおいて再度お試しください"
+            },
+            "byline": "{{name}} のハウジング",
+            "unavailable": "このハウジンガーは公開されていません",
+            "noListings": "公開中のハウジングはまだありません",
+            "tourAll": "この人の家をまとめてツアー",
+            "editProfile": "プロフィールを編集",
+            "loading": "読み込み中…",
+            "viewPage": "{{name}} のハウジンガーページを見る →",
+            "register": {
+                "ctaTitle": "ハウジンガーとして名乗りますか?(任意)",
+                "ctaButton": "設定する",
+                "publishedAs": "{{name}} として公開中"
+            },
+            "report": {
+                "modal": {
+                    "title": "このハウジンガーについて報告",
+                    "subtitle": "どの点が問題ですか?"
+                },
+                "reason": {
+                    "inappropriate_name": "不適切な名前",
+                    "inappropriate_avatar": "不適切なアイコン",
+                    "impersonation": "なりすまし",
+                    "other": "その他"
+                },
+                "menuItem": "このハウジンガーを報告"
+            }
         },
         "topbar": {
             "login": "ログイン",

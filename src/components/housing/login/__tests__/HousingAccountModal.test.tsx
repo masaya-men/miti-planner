@@ -40,6 +40,23 @@ vi.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (k: string) => k }),
 }));
 
+// HousingerProfileSection (Task 6) は本人プロフィールを firebase/firestore から直読みするため、
+// このモーダル配線テストでは実 Firebase を呼ばないようスタブ化する (内部挙動は
+// HousingerProfileSection.test.tsx で個別に検証済み)。
+vi.mock('firebase/firestore', () => ({
+    doc: vi.fn((...args: unknown[]) => args),
+    getDoc: vi.fn(() => Promise.resolve({ exists: () => false })),
+}));
+
+vi.mock('../../../../lib/firebase', () => ({
+    db: {},
+    auth: { currentUser: null },
+}));
+
+vi.mock('../../../../lib/housing/housingerProfileService', () => ({
+    upsertHousingerProfile: vi.fn(async () => ({ ok: true })),
+}));
+
 describe('HousingAccountModal', () => {
     beforeEach(() => {
         vi.clearAllMocks();

@@ -19,6 +19,7 @@ import { HousingPhotoGallery } from './HousingPhotoGallery';
 import { HousingDetailMap } from './HousingDetailMap';
 import { HousingActionBar } from './HousingActionBar';
 import { HousingDuplicatePeersSection } from './HousingDuplicatePeersSection';
+import { HousingerByline } from '../housinger/HousingerByline';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { useHousingReport } from '../report/useHousingReport';
@@ -198,6 +199,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
                 <p className="housing-detail-address">
                   {listing.dc} / {listing.server}
                 </p>
+                <HousingerByline ownerUid={listing.ownerUid} />
                 {listing.tags.length > 0 && (
                   <ul className="housing-detail-tags">
                     {listing.tags.map((tag) => (

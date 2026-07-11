@@ -11,9 +11,15 @@ vi.mock('../../lib/housingListingsService', () => ({
   getGalleryListings: () => Promise.resolve([]),
 }));
 
+const getPersonalTagByIdMock = vi.fn();
+vi.mock('../../lib/housing/personalTagLookup', () => ({
+  getPersonalTagById: (...args: unknown[]) => getPersonalTagByIdMock(...args),
+}));
+
 import { BrowsePage } from '../../components/housing/pages/BrowsePage';
 import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
+import { useHousingFilterStore } from '../../store/useHousingFilterStore';
 
 const mk = (id: string) => ({
   id, area: 'Mist', ward: 1, plot: 1, buildingType: 'house',
@@ -48,6 +54,8 @@ beforeAll(() => {
 beforeEach(() => {
   useHousingListingsStore.setState({ status: 'ready', listings: [mk('a'), mk('b')], error: null } as never);
   useHousingViewStore.getState().reset();
+  useHousingFilterStore.getState().clearAll();
+  getPersonalTagByIdMock.mockReset();
 });
 
 const renderPage = () =>
@@ -82,5 +90,24 @@ describe('BrowsePage', () => {
     expect(screen.queryByTestId('housing-listing-card')).toBeNull();
     // トレイ (右カラム) は地図モードでも従来どおり表示 (spec 4.4)
     expect(screen.getByRole('button', { name: /開始|start/i })).toBeTruthy();
+  });
+
+  it('個人タグ 1 つで絞り込み中は結果一覧の上にハウジンガーページへのリンクを出す (統合契約4)', async () => {
+    getPersonalTagByIdMock.mockResolvedValue({
+      id: 'personal_abc123', displayName: 'yuura', displayNameLower: 'yuura',
+      ownerUid: 'u-owner', createdAt: 0, reportCount: 0, isHidden: false,
+    });
+    useHousingFilterStore.getState().toggleTag('personal_abc123');
+
+    render(
+      <I18nextProvider i18n={i18n}>
+        <MemoryRouter>
+          <BrowsePage />
+        </MemoryRouter>
+      </I18nextProvider>,
+    );
+
+    const link = await screen.findByRole('link', { name: /yuura.*ハウジンガーページを見る/ });
+    expect(link).toHaveAttribute('href', '/housing/housinger/u-owner');
   });
 });

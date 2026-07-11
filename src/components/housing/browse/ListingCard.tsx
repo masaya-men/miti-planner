@@ -22,7 +22,8 @@ import { HousingRipple } from '../HousingRipple';
 
 export interface ListingCardProps {
   listing: MockListing;
-  onAddToTour: (id: string) => void;
+  /** 未指定なら「ツアーに追加」ボタン自体を出さない (例: ハウジンガーページの一覧)。 */
+  onAddToTour?: (id: string) => void;
   /** true のときメディア左上に選択チェックを表示する (探すページでは使わない) */
   selectable?: boolean;
   /** selectable=true のとき、選択済み状態を渡す */
@@ -154,22 +155,25 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
       </div>
 
-      {/* 画像に被らない常設フッター (主アクション) */}
-      <div className="housing-listing-card-footer">
-        <button
-          type="button"
-          className="housing-card-add-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            addRipple(e);
-            onAddToTour(listing.id);
-          }}
-        >
-          <Plus size={14} aria-hidden="true" />
-          {t('housing.card.add_to_tour')}
-          <HousingRipple ripples={ripples} />
-        </button>
-      </div>
+      {/* 画像に被らない常設フッター (主アクション)。onAddToTour 未指定 (ハウジンガーページ等) では
+          ツアー追加ボタン自体を出さない (フッターごと消す)。 */}
+      {onAddToTour && (
+        <div className="housing-listing-card-footer">
+          <button
+            type="button"
+            className="housing-card-add-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              addRipple(e);
+              onAddToTour(listing.id);
+            }}
+          >
+            <Plus size={14} aria-hidden="true" />
+            {t('housing.card.add_to_tour')}
+            <HousingRipple ripples={ripples} />
+          </button>
+        </div>
+      )}
     </article>
   );
 };

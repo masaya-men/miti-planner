@@ -33,6 +33,14 @@ vi.mock('../../../../lib/housingListingsService', () => ({
   getMyListings: vi.fn().mockResolvedValue([]),
 }));
 
+// RegisterHousingerCta (Task9) は自分のプロフィールを getDoc で直読みする。 このテストファイルは
+// firebase/firestore を実物のまま (useAuthStore が real lib/firebase を経由するため) 使っており、
+// モックしないと本番 Firestore への実ネットワーク呼び出しが発生してしまう。
+// CTA 自体のロジックは RegisterHousingerCta.test.tsx で個別に検証済みのため、ここではスタブする。
+vi.mock('../../register/RegisterHousingerCta', () => ({
+  RegisterHousingerCta: () => null,
+}));
+
 import { RegisterPage } from '../RegisterPage';
 // create パス (performRegister) の API を spy するため実モジュールを名前空間 import する
 // (module 全体 mock は他 export を壊すため spyOn で個別に差し替える)。

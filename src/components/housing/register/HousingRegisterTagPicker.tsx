@@ -5,7 +5,8 @@ import {
   HOUSING_TAG_KINDS,
   type HousingTagKind,
 } from '../../../data/housingTags';
-import { HOUSING_LIMITS, PERSONAL_TAG_DISPLAY_NAME_MAX_LENGTH } from '../../../constants/housing';
+import { HOUSING_LIMITS } from '../../../constants/housing';
+import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { usePersonalTag } from './usePersonalTag';
 
 interface Props {
@@ -24,9 +25,9 @@ export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }
   const isFull = selected.length >= HOUSING_LIMITS.MAX_TAGS_PER_LISTING;
   const [activeKind, setActiveKind] = useState<HousingTagKind>(HOUSING_TAG_KINDS[0]);
   const [query, setQuery] = useState('');
-  const [personalNameInput, setPersonalNameInput] = useState('');
+  const openAccount = useHousingModalStore((s) => s.openAccount);
 
-  const { tag: myPersonalTag, loading: personalTagLoading, creating: personalTagCreating, error: personalTagError, create: createMyPersonalTag } = usePersonalTag();
+  const { tag: myPersonalTag, loading: personalTagLoading, isPublished: personalTagIsPublished } = usePersonalTag();
 
   const toggle = (id: string) => {
     if (selected.includes(id)) {
@@ -55,18 +56,6 @@ export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }
   );
   const selectedPersonalTag = myPersonalTag && selected.includes(myPersonalTag.id) ? myPersonalTag : null;
   const selectedCount = selectedStaticTags.length + (selectedPersonalTag ? 1 : 0);
-
-  const handleCreatePersonalTag = async () => {
-    const created = await createMyPersonalTag(personalNameInput);
-    if (created) {
-      setPersonalNameInput('');
-      // 作成の流れは「このハウジングに使う個人タグを作る」文脈なので、 枠に空きがあれば
-      // 作成直後にそのまま付与する (別途トグルし直す手間を省く)。 いつでも × で外せる。
-      if (!selected.includes(created.id) && !isFull) {
-        onChange([...selected, created.id]);
-      }
-    }
-  };
 
   return (
     <div className="housing-tag-picker">
@@ -139,7 +128,7 @@ export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }
           {personalTagLoading && (
             <div className="housing-tag-picker-empty">{t('housing.register.personal_tag.loading')}</div>
           )}
-          {!personalTagLoading && myPersonalTag && (
+          {!personalTagLoading && personalTagIsPublished && myPersonalTag && (
             <button
               type="button"
               disabled={!selected.includes(myPersonalTag.id) && isFull}
@@ -150,36 +139,19 @@ export const HousingRegisterTagPicker: React.FC<Props> = ({ selected, onChange }
               {myPersonalTag.displayName}
             </button>
           )}
-          {!personalTagLoading && !myPersonalTag && (
+          {!personalTagLoading && !personalTagIsPublished && (
+            // 個人タグの作成・更新はハウジンガー公開に一本化 (タグ刷新 Phase B 統合契約1)。
+            // ここでは名前入力フォームを出さず、 公開設定 (アカウントモーダル) への導線のみ示す。
             <div className="housing-tag-picker-personal-create">
-              <p className="housing-address-note">{t('housing.register.personal_tag.hint')}</p>
-              <input
-                type="text"
-                value={personalNameInput}
-                onChange={(e) => setPersonalNameInput(e.target.value)}
-                placeholder={t('housing.register.personal_tag.placeholder')}
-                maxLength={PERSONAL_TAG_DISPLAY_NAME_MAX_LENGTH}
-                className="housing-input"
-                data-testid="housing-personal-tag-name-input"
-              />
+              <p className="housing-address-note">{t('housing.register.personal_tag.not_published_hint')}</p>
               <button
                 type="button"
-                onClick={handleCreatePersonalTag}
-                disabled={personalTagCreating || personalNameInput.trim().length === 0}
+                onClick={openAccount}
                 className="housing-action-btn housing-btn-primary"
-                data-testid="housing-personal-tag-create-button"
+                data-testid="housing-personal-tag-open-account-button"
               >
-                {personalTagCreating
-                  ? t('housing.register.personal_tag.creating')
-                  : t('housing.register.personal_tag.create_button')}
+                {t('housing.register.personal_tag.open_account_settings')}
               </button>
-              {personalTagError && (
-                <p className="housing-address-note" data-testid="housing-personal-tag-error">
-                  {t(`housing.register.personal_tag.error.${personalTagError}`, {
-                    max: PERSONAL_TAG_DISPLAY_NAME_MAX_LENGTH,
-                  })}
-                </p>
-              )}
             </div>
           )}
         </div>

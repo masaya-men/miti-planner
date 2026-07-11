@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { uploadAvatar as uploadAvatarUtil, deleteAvatar as deleteAvatarUtil } from '../../utils/avatarUpload';
+import { syncHousingerProfileBestEffort } from '../../lib/housing/housingerProfileService';
 
 /**
  * Account 設定操作 (アバター / displayName / ログアウト / 退会) を一箇所にまとめる hook。
@@ -18,6 +19,9 @@ export function useAccountActions() {
         if (!user) throw new Error('not_signed_in');
         const url = await uploadAvatarUtil(user.uid, blob);
         useAuthStore.setState({ profileAvatarUrl: url });
+        // ハウジンガー公開プロフィール (housing_profiles) にアイコンを転記する。
+        // 未公開ユーザーではサーバーが isPublished:false のまま転記するだけで無害 (冪等)。
+        syncHousingerProfileBestEffort();
         return url;
     }, [user]);
 
@@ -25,10 +29,12 @@ export function useAccountActions() {
         if (!user) throw new Error('not_signed_in');
         await deleteAvatarUtil(user.uid);
         useAuthStore.setState({ profileAvatarUrl: null });
+        syncHousingerProfileBestEffort();
     }, [user]);
 
     const updateDisplayName = useCallback(async (newName: string): Promise<void> => {
         await storeUpdateDisplayName(newName);
+        syncHousingerProfileBestEffort();
     }, [storeUpdateDisplayName]);
 
     const signOut = useCallback(async (): Promise<void> => {

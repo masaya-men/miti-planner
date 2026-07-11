@@ -14,10 +14,13 @@
  * ?action=purge-if-tweet-gone       → POST SNS 物件のツイート削除を再確認し 404 なら soft delete
  * ?action=upload-thumbnail          → POST 物件のサムネ画像を base64 で受領 → Firebase Storage に保存
  * ?action=confirm-listing           → POST 家主が「今もあります」 で lastConfirmedAt を更新 (Phase 2-2)
- * ?action=create-personal-tag       → POST 個人タグ作成 (1 ユーザー 1 個、 Phase B)
- * ?action=my-personal-tag           → GET 自分の個人タグ取得 (未作成なら null)
+ * ?action=my-personal-tag           → GET 自分の個人タグ取得 (未作成なら null。 作成は無く、
+ *                                      upsert-housinger-profile 公開時に自動作成される — タグ刷新
+ *                                      Phase B との統合契約1で create-personal-tag action は廃止)
  * ?action=search-personal-tags      → GET 個人タグ検索 (探すページのフィルタ用オートコンプリート)
  * ?action=report-personal-tag       → POST 個人タグ通報
+ * ?action=upsert-housinger-profile  → POST ハウジンガープロフィール 公開/更新/非公開/同期 (冪等)
+ * ?action=report-housinger          → POST ハウジンガープロフィール通報
  */
 import canRegisterHandler from './_canRegisterHandler.js';
 import registerListingHandler from './_registerListingHandler.js';
@@ -32,10 +35,11 @@ import resolveReportHandler from './_resolveReportHandler.js';
 import purgeIfTweetGoneHandler from './_purgeIfTweetGoneHandler.js';
 import uploadThumbnailHandler from './_uploadThumbnailHandler.js';
 import confirmListingHandler from './_confirmListingHandler.js';
-import createPersonalTagHandler from './_createPersonalTagHandler.js';
 import myPersonalTagHandler from './_myPersonalTagHandler.js';
 import searchPersonalTagsHandler from './_searchPersonalTagsHandler.js';
 import reportPersonalTagHandler from './_reportPersonalTagHandler.js';
+import upsertHousingerProfileHandler from './_upsertHousingerProfileHandler.js';
+import reportHousingerHandler from './_reportHousingerHandler.js';
 
 export default async function handler(req: any, res: any) {
   const action = req.query?.action;
@@ -67,18 +71,20 @@ export default async function handler(req: any, res: any) {
       return uploadThumbnailHandler(req, res);
     case 'confirm-listing':
       return confirmListingHandler(req, res);
-    case 'create-personal-tag':
-      return createPersonalTagHandler(req, res);
     case 'my-personal-tag':
       return myPersonalTagHandler(req, res);
     case 'search-personal-tags':
       return searchPersonalTagsHandler(req, res);
     case 'report-personal-tag':
       return reportPersonalTagHandler(req, res);
+    case 'upsert-housinger-profile':
+      return upsertHousingerProfileHandler(req, res);
+    case 'report-housinger':
+      return reportHousingerHandler(req, res);
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|confirm-listing|create-personal-tag|my-personal-tag|search-personal-tags|report-personal-tag',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|confirm-listing|my-personal-tag|search-personal-tags|report-personal-tag|upsert-housinger-profile|report-housinger',
       });
   }
 }

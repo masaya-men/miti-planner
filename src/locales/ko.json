@@ -1776,6 +1776,32 @@
             "report_count": "신고 {{count}}건",
             "hidden_badge": "숨김"
         },
+        "housinger_reports": {
+            "title": "하우징어 신고",
+            "description": "신고된 하우징어 프로필을 확인하고 필요하면 강제 비공개 처리합니다. 자동 숨김 기준이 없으므로 사람이 직접 판단합니다. 강제 비공개 중인 프로필은 신고 수가 0건이 되어도 목록에 계속 표시됩니다.",
+            "empty": "신고된 프로필이 없습니다",
+            "hide": "강제 비공개",
+            "hiding": "...",
+            "hide_confirm": "이 하우징어를 강제로 비공개 처리하시겠습니까?",
+            "hide_success": "강제 비공개 처리했습니다",
+            "restore": "복구",
+            "restoring": "...",
+            "restore_confirm": "이 하우징어를 복구하시겠습니까?",
+            "restore_success": "복구했습니다",
+            "dismiss_one": "이 신고 기각",
+            "dismissing_one": "...",
+            "dismiss_one_confirm": "이 신고 기록을 삭제하고 신고 수를 1건 줄이시겠습니까?",
+            "dismiss_one_success": "신고를 기각했습니다",
+            "report_count": "신고 {{count}}건",
+            "unpublished_badge": "비공개",
+            "hidden_badge": "강제 비공개",
+            "reason": {
+                "inappropriate_name": "부적절한 이름",
+                "inappropriate_avatar": "부적절한 아이콘",
+                "impersonation": "사칭",
+                "other": "기타"
+            }
+        },
         "ugc_description": "공유 URL을 붙여넣어 업로드된 로고 이미지를 확인하고 관리할 수 있습니다.",
         "ugc_placeholder": "공유 URL 또는 shareId를 붙여넣기",
         "ugc_search": "검색",
@@ -2019,16 +2045,8 @@
             "tag_pick_hint": "최대 {{max}}개의 테마를 고를 수 있습니다",
             "personal_tag": {
                 "loading": "불러오는 중…",
-                "hint": "개인 태그는 1인당 1개까지 만들 수 있습니다. 만들고 나면 다른 사람이 이 태그로 내 하우징을 검색할 수 있습니다.",
-                "placeholder": "예: yuura",
-                "create_button": "만들기",
-                "creating": "만드는 중…",
-                "error": {
-                    "required": "표시 이름을 입력해 주세요",
-                    "too_long": "{{max}}자 이내로 입력해 주세요",
-                    "limit_reached": "이미 개인 태그를 만들었습니다",
-                    "generic": "생성에 실패했습니다. 잠시 후 다시 시도해 주세요"
-                }
+                "not_published_hint": "하우징어로 공개하면 내 태그를 사용할 수 있습니다",
+                "open_account_settings": "공개 설정 열기"
             },
             "tags": "태그",
             "room_number": "방 번호",
@@ -2522,6 +2540,51 @@
             "deleteConfirmYes": "",
             "deleteConfirmNo": "",
             "closeLabel": ""
+        },
+        "housinger": {
+            "account": {
+                "title": "하우징어 공개",
+                "description": "이름과 아이콘을 등록한 하우징에 표시하고, 내 페이지를 공개합니다",
+                "publish": "하우징어로 공개하기",
+                "nameRequired": "먼저 표시 이름을 설정해 주세요",
+                "published": "공개 중",
+                "bioLabel": "한마디",
+                "bioPlaceholder": "예: S자형 개조를 좋아해요. 견학 환영!",
+                "snsLabel": "SNS 링크",
+                "snsPlaceholder": "https://x.com/... (X / YouTube / Lodestone)",
+                "snsInvalid": "X / YouTube / Lodestone의 https 링크만 설정할 수 있습니다",
+                "save": "저장",
+                "unpublish": "공개 중단하기",
+                "unpublishConfirmTitle": "하우징어 공개를 중단할까요?",
+                "unpublishConfirmBody": "페이지와 등록자 표시가 비공개로 전환됩니다. 등록한 하우징은 삭제되지 않습니다",
+                "toastSaved": "하우징어 프로필을 저장했습니다",
+                "toastError": "저장에 실패했습니다. 잠시 후 다시 시도해 주세요"
+            },
+            "byline": "{{name}} 님의 하우징",
+            "unavailable": "이 하우징어는 공개되어 있지 않습니다",
+            "noListings": "공개 중인 하우징이 아직 없습니다",
+            "tourAll": "이 사람의 집 모아서 투어",
+            "editProfile": "프로필 수정",
+            "loading": "불러오는 중…",
+            "viewPage": "{{name}} 님의 하우징어 페이지 보기 →",
+            "register": {
+                "ctaTitle": "하우징어로 이름을 밝히시겠어요? (선택)",
+                "ctaButton": "설정하기",
+                "publishedAs": "{{name}} 님으로 공개 중"
+            },
+            "report": {
+                "modal": {
+                    "title": "이 하우징어 신고",
+                    "subtitle": "어떤 점이 문제인가요?"
+                },
+                "reason": {
+                    "inappropriate_name": "부적절한 이름",
+                    "inappropriate_avatar": "부적절한 아이콘",
+                    "impersonation": "사칭",
+                    "other": "기타"
+                },
+                "menuItem": "이 하우징어 신고하기"
+            }
         },
         "topbar": {
             "login": "",

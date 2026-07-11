@@ -10,6 +10,7 @@ import { ConfirmDialog } from '../../ConfirmDialog';
 import { DisplayNameEditor } from '../../DisplayNameEditor';
 import { AvatarCropModal } from '../../AvatarCropModal';
 import { showToast } from '../../Toast';
+import { HousingerProfileSection } from './HousingerProfileSection';
 
 /**
  * ハウジング画面のログイン済みユーザー向けアカウント設定モーダル。
@@ -142,6 +143,8 @@ export const HousingAccountModal: React.FC = () => {
                         )}
                     </div>
                 </div>
+
+                <HousingerProfileSection />
 
                 {isAdmin && (
                     <button

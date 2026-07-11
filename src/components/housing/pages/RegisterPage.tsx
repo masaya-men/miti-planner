@@ -10,6 +10,7 @@ import { RegisterSectionIntro, type RegisterSectionIntroValues } from '../regist
 import { RegisterSectionMedia } from '../register/RegisterSectionMedia';
 import { RegisterSectionVisibility } from '../register/RegisterSectionVisibility';
 import { RegisterSectionConfirm, type RegisterConfirmSummary } from '../register/RegisterSectionConfirm';
+import { RegisterHousingerCta } from '../register/RegisterHousingerCta';
 import { RegisterStepperNav, type RegisterStep, type RegisterStepState } from '../register/RegisterStepperNav';
 import { RegisterGuide } from '../register/RegisterGuide';
 import { RegisterCheckPanel } from '../register/RegisterCheckPanel';
@@ -1329,6 +1330,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                 onChange={handleVisibilityChange}
               />
             </div>
+            {/* Task9: 確認セクション直前の任意ブロック (spec §4.1)。 ステッパー/scroll-spy の
+                対象 (STEP_IDS) には含めない — 何も要求しない導線なので「必須ステップ」に
+                見せない。 ログイン済のときだけ RegisterHousingerCta 内部で自分のプロフィールを
+                読み、 CTA (未公開時) / 公開中表示を出す。 */}
+            <RegisterHousingerCta />
             <div
               ref={(el) => { sectionRefs.current.confirm = el; }}
               data-step-id="confirm"
