@@ -1993,6 +1993,8 @@
             "prev_ward": "前の区へ",
             "next_ward": "次の区へ",
             "spot_more": "この場所の家 {{index}}/{{total}}",
+            "spot_prev": "この場所の前の家へ",
+            "spot_next": "この場所の次の家へ",
             "plot_label": "{{plot}}番地",
             "apartment_label": "アパート"
         },

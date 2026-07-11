@@ -183,6 +183,9 @@
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
   --housing-listing-card-min-w: 198px;
+  /* 探す地図 (Task5): 拡大カード (ListingCard 素通し) の固定幅。一覧カード相当の目安値
+     (--housing-listing-card-min-w より少し広め・地図上で読みやすいサイズを実機で調整)。 */
+  --housing-bmap-card-w: 280px;
   /* カード画像部の縦横比 (2026-07-03 ユーザー選定: 4:3 = 約1.33倍)。
      aspect-ratio ではなく「幅に対する%パディング」で高さを作る (3/4 = 75%)。
      aspect-ratio はグリッド行の高さ計算で Chrome のバージョンによって取りこぼされ、
@@ -5000,6 +5003,144 @@ select.housing-input option {
   pointer-events: none;
   color: var(--housing-text-mute);
   font-size: var(--housing-text-xs);
+}
+
+/* ============================================================
+ * MapSpotCard (Task5): 吹き出しミニカード ⇔ 拡大カード (ListingCard 素通し)。
+ * 親 (.housing-bmap-marker-pos、配線は Task6) が translate(sx,sy) でスポット座標に置き、
+ * ここから先は原点(0,0)基準の静的アンカー (translate(-50%,-100%) 系) のみを扱う。
+ * ============================================================ */
+
+/* ミニカード本体。カード下端をスポット座標へ合わせ (translate(-50%,-100%))、
+ * さらに ::after の吹き出しのしっぽ分だけ上へ逃がす (しっぽの先端が座標に届くように)。 */
+.housing-bmap-mini {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px 5px 5px;
+  border-radius: 10px;
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text);
+  font-family: inherit;
+  font-size: var(--housing-text-xs);
+  white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 7px));
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.housing-bmap-mini:hover,
+.housing-bmap-mini[aria-expanded="true"] {
+  border-color: var(--housing-honey-border);
+  color: var(--housing-candle);
+}
+.housing-bmap-mini::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--housing-panel-border);
+}
+.housing-bmap-mini:hover::after,
+.housing-bmap-mini[aria-expanded="true"]::after {
+  border-top-color: var(--housing-honey-border);
+}
+/* flip.y (コンテナ上端近く): 上に開く場所が無いので下向きに開く。しっぽも上向きに反転する。 */
+.housing-bmap-mini[data-flip-y="true"] {
+  transform: translate(-50%, 7px);
+}
+.housing-bmap-mini[data-flip-y="true"]::after {
+  bottom: auto;
+  top: -7px;
+  border-top: none;
+  border-bottom: 7px solid var(--housing-panel-border);
+}
+.housing-bmap-mini[data-flip-y="true"]:hover::after,
+.housing-bmap-mini[data-flip-y="true"][aria-expanded="true"]::after {
+  border-top-color: transparent;
+  border-bottom-color: var(--housing-honey-border);
+}
+.housing-bmap-mini-thumb {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--housing-card-thumb-bg);
+}
+.housing-bmap-mini-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 拡大カード: 既存 .housing-listing-card (ListingCard) をそのまま重ねて描画する容れ物。
+ * 幅は --housing-bmap-card-w に固定 (地図の拡大縮小で大きさが変わらない = ミニカードと同じ思想)。
+ * z-index はミニカード群 (兄弟スポット) より確実に前面へ出す(グローバル modal token とは無関係の
+ * ローカルな重なり順のため、他コンポーネントと共通の z-index token は使わない)。 */
+.housing-bmap-expanded {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: var(--housing-bmap-card-w);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  pointer-events: auto;
+  transform: translate(-50%, calc(-100% - 14px));
+}
+.housing-bmap-expanded[data-flip-x="true"] {
+  transform: translate(-100%, calc(-100% - 14px));
+}
+.housing-bmap-expanded[data-flip-y="true"] {
+  transform: translate(-50%, 14px);
+}
+.housing-bmap-expanded[data-flip-x="true"][data-flip-y="true"] {
+  transform: translate(-100%, 14px);
+}
+.housing-bmap-expanded-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-bg-solid);
+  color: var(--housing-text-dim);
+  font-size: var(--housing-text-xs);
+}
+.housing-bmap-expanded-nav-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--housing-text-dim);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.housing-bmap-expanded-nav-btn:hover {
+  border-color: var(--housing-honey-border);
+  color: var(--housing-candle);
+}
+.housing-bmap-expanded-nav-label {
+  flex: 1 1 auto;
+  text-align: center;
 }
 
 .housing-listing-grid {

@@ -1972,6 +1972,8 @@
             "prev_ward": "Previous ward",
             "next_ward": "Next ward",
             "spot_more": "Houses here {{index}}/{{total}}",
+            "spot_prev": "Previous house here",
+            "spot_next": "Next house here",
             "plot_label": "Plot {{plot}}",
             "apartment_label": "Apartment"
         },
