@@ -1,4 +1,4 @@
-// 探す地図の拡大カード (MapSpotCard/MapSpotExpanded) が `.housing-bmap-wrap` (overflow:hidden、
+// 探す地図の拡大カード (MapSpotCard) が `.housing-bmap-wrap` (overflow:hidden、
 // housing.css) の外へはみ出さないようにする「クランプ」計算 (code review 指摘: BrowseWardMap.tsx の
 // flip (FLIP_MARGIN_X/Y) だけでは「どちらの向きに開いてもコンテナに収まらない」ケースを救えず、
 // 上端寄りスポットで拡大カード下端の「ツアーに追加」CTA が枠外へクリップされ操作不能になっていた)。
@@ -10,7 +10,7 @@
 // pointermove 中の layout 読み取りは行わない (呼び出し側 MapSpotCard.tsx も同様)。
 
 /** 拡大カードとマーカーの吹き出し先端の間の余白(px)。housing.css の
- *  `.housing-bmap-expanded` transform (`calc(-100% - 14px)` / `14px`) と一致させること
+ *  `.housing-bmap-card` transform (`calc(-100% - 14px)` / `14px`) と一致させること
  *  (CSS 側の値を変えたらここも合わせて変える)。 */
 export const EXPANDED_CARD_GAP = 14;
 
@@ -56,7 +56,7 @@ function clampAxis(minEdge: number, maxEdge: number, containerSize: number): num
 
 /**
  * flip が決めた展開方向のまま、実際の矩形がコンテナ内に収まるための追加オフセット (dx, dy) を返す。
- * 矩形の算出式は housing.css の `.housing-bmap-expanded` transform (`translate(-50%|-100%, ...)`) と
+ * 矩形の算出式は housing.css の `.housing-bmap-card` transform (`translate(-50%|-100%, ...)`) と
  * 対応させている (CSS 側を変えたらここも合わせて変えること)。
  */
 export function clampExpandedCardOffset(input: ClampExpandedCardInput): ClampExpandedCardOffset {

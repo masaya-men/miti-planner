@@ -10,7 +10,11 @@ import type { MockListing } from '../../data/housing/mockListings';
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
 
-import { MapSpotCard, HOVER_INTENT_DELAY_MS } from '../../components/housing/browse/map/MapSpotCard';
+import {
+  MapSpotCard,
+  HOVER_INTENT_DELAY_MS,
+  HOVER_CLOSE_DELAY_MS,
+} from '../../components/housing/browse/map/MapSpotCard';
 
 beforeAll(() => {
   if (!i18n.isInitialized) {
@@ -93,20 +97,13 @@ function renderCard(props: Partial<React.ComponentProps<typeof MapSpotCard>> = {
   );
 }
 
-describe('MapSpotCard — ミニカードの件数バッジ', () => {
-  it('n=1 のときバッジを描画しない', () => {
-    renderCard({ spot: mkSpot([mkListing()]) });
-    expect(screen.queryByText('×1')).toBeNull();
+describe('MapSpotCard — 常時マウント (1 枚カードが scale 拡大)', () => {
+  it('expanded=false でも ListingCard を常時描画する (縮小表示・hover ごとの mount/unmount をしない)', () => {
+    renderCard({ expanded: false });
+    expect(screen.getByTestId('housing-listing-card')).toBeTruthy();
   });
 
-  it('n=3 のとき ×3 バッジを描画する', () => {
-    renderCard({ spot: mkSpot([mkListing(), mkListing(), mkListing()]) });
-    expect(screen.getByText('×3')).toBeTruthy();
-  });
-});
-
-describe('MapSpotCard — 拡大 (ListingCard 素通し)', () => {
-  it('expanded=true で ListingCard が描画され、onAddToTour が listing.id で届く', () => {
+  it('expanded=true でも ListingCard を描画し、onAddToTour が listing.id で届く', () => {
     const listing = mkListing();
     const spot = mkSpot([listing]);
     const onAddToTour = vi.fn();
@@ -120,14 +117,19 @@ describe('MapSpotCard — 拡大 (ListingCard 素通し)', () => {
     expect(onAddToTour).toHaveBeenCalledWith(listing.id);
   });
 
-  it('expanded=false では ListingCard も拡大カードも描画されない', () => {
+  it('data-expanded が expanded prop を反映する (CSS の scale 切替の元)', () => {
+    renderCard({ expanded: true });
+    expect(screen.getByTestId('bmap-card-plot:5')).toHaveAttribute('data-expanded', 'true');
+  });
+
+  it('expanded=false のとき data-expanded="false"', () => {
     renderCard({ expanded: false });
-    expect(screen.queryByTestId('housing-listing-card')).toBeNull();
+    expect(screen.getByTestId('bmap-card-plot:5')).toHaveAttribute('data-expanded', 'false');
   });
 
   it('n=1 のときは前後ナビを描画しない', () => {
     const { container } = renderCard({ spot: mkSpot([mkListing()]), expanded: true });
-    expect(container.querySelector('.housing-bmap-expanded-nav')).toBeNull();
+    expect(container.querySelector('.housing-bmap-card-nav')).toBeNull();
     expect(screen.queryByLabelText('この場所の前の家へ')).toBeNull();
   });
 });
@@ -181,20 +183,14 @@ describe('MapSpotCard — Esc で閉じる', () => {
   });
 });
 
-describe('MapSpotCard — ミニカードの開閉トリガー', () => {
-  it('クリックで onExpand(spot.key) が呼ばれ、aria-expanded が付与される', () => {
+describe('MapSpotCard — hover で拡大するトリガー', () => {
+  it('focus (キーボード/タッチ) は hover ディレイを待たず即座に onExpand(spot.key) を呼ぶ', () => {
     const spot = mkSpot([mkListing()]);
     const onExpand = vi.fn();
     renderCard({ spot, onExpand, expanded: false });
-    const mini = screen.getByTestId('bmap-marker-plot:5');
-    expect(mini).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.click(mini);
+    // focus は card の onFocus (focusin バブル) が拾う。ListingCard(role=link)を focus して確認。
+    fireEvent.focus(screen.getByRole('link'));
     expect(onExpand).toHaveBeenCalledWith('plot:5');
-  });
-
-  it('expanded=true のとき aria-expanded="true"', () => {
-    renderCard({ expanded: true });
-    expect(screen.getByTestId('bmap-marker-plot:5')).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('hover (mouseEnter) は即座には展開せず、HOVER_INTENT_DELAY_MS 経過後に onExpand(spot.key) が呼ばれる', () => {
@@ -202,7 +198,7 @@ describe('MapSpotCard — ミニカードの開閉トリガー', () => {
     try {
       const onExpand = vi.fn();
       renderCard({ onExpand });
-      fireEvent.mouseEnter(screen.getByTestId('bmap-marker-plot:5'));
+      fireEvent.mouseEnter(screen.getByTestId('bmap-card-plot:5'));
       expect(onExpand).not.toHaveBeenCalled(); // 遅延中はまだ呼ばれない
 
       vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS - 1);
@@ -220,24 +216,12 @@ describe('MapSpotCard — ミニカードの開閉トリガー', () => {
     try {
       const onExpand = vi.fn();
       renderCard({ onExpand });
-      const mini = screen.getByTestId('bmap-marker-plot:5');
+      const mini = screen.getByTestId('bmap-card-plot:5');
       fireEvent.mouseEnter(mini);
       vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS / 2);
       fireEvent.mouseLeave(mini);
       vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS * 2);
       expect(onExpand).not.toHaveBeenCalled();
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('クリックは hover ディレイを待たず即座に展開する', () => {
-    vi.useFakeTimers();
-    try {
-      const onExpand = vi.fn();
-      renderCard({ onExpand });
-      fireEvent.click(screen.getByTestId('bmap-marker-plot:5'));
-      expect(onExpand).toHaveBeenCalledWith('plot:5'); // advance 前でも即時
     } finally {
       vi.useRealTimers();
     }
@@ -249,7 +233,7 @@ describe('MapSpotCard — ミニカードの開閉トリガー', () => {
       const onExpand = vi.fn();
       const gestureActiveRef = { current: true };
       renderCard({ onExpand, gestureActiveRef });
-      fireEvent.mouseEnter(screen.getByTestId('bmap-marker-plot:5'));
+      fireEvent.mouseEnter(screen.getByTestId('bmap-card-plot:5'));
       vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS * 2);
       expect(onExpand).not.toHaveBeenCalled();
     } finally {
@@ -263,7 +247,7 @@ describe('MapSpotCard — ミニカードの開閉トリガー', () => {
       const onExpand = vi.fn();
       const gestureActiveRef = { current: false };
       renderCard({ onExpand, gestureActiveRef });
-      fireEvent.mouseEnter(screen.getByTestId('bmap-marker-plot:5'));
+      fireEvent.mouseEnter(screen.getByTestId('bmap-card-plot:5'));
       gestureActiveRef.current = true; // ディレイ中にドラッグ (パン/ピンチ) が始まった想定
       vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS);
       expect(onExpand).not.toHaveBeenCalled();
@@ -273,17 +257,69 @@ describe('MapSpotCard — ミニカードの開閉トリガー', () => {
   });
 });
 
+// 2026-07-12 ユーザー要望: マウスは「乗っている間だけ拡大、外したら畳む」。1 枚カードなので
+// 受け渡し隙間は無いが、端のクランプ移動での際どい離脱に備え離脱は HOVER_CLOSE_DELAY_MS の猶予付き。
+describe('MapSpotCard — hover で畳む (2026-07-12)', () => {
+  it('拡大中にカードから mouseLeave すると HOVER_CLOSE_DELAY_MS 経過後に onExpand(null) が呼ばれる', () => {
+    vi.useFakeTimers();
+    try {
+      const onExpand = vi.fn();
+      renderCard({ onExpand, expanded: true });
+      fireEvent.mouseLeave(screen.getByTestId('bmap-card-plot:5'));
+      expect(onExpand).not.toHaveBeenCalled(); // 猶予中はまだ畳まない
+      vi.advanceTimersByTime(HOVER_CLOSE_DELAY_MS - 1);
+      expect(onExpand).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
+      expect(onExpand).toHaveBeenCalledWith(null);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('mouseLeave 後、猶予内に再び mouseEnter すれば畳まれない (際どい離脱の誤クローズ吸収)', () => {
+    vi.useFakeTimers();
+    try {
+      const onExpand = vi.fn();
+      renderCard({ onExpand, expanded: true });
+      const card = screen.getByTestId('bmap-card-plot:5');
+      fireEvent.mouseLeave(card); // 畳む予約
+      vi.advanceTimersByTime(HOVER_CLOSE_DELAY_MS / 2);
+      fireEvent.mouseEnter(card); // 猶予内に戻る
+      vi.advanceTimersByTime(HOVER_CLOSE_DELAY_MS * 2);
+      expect(onExpand).not.toHaveBeenCalled(); // 畳まれない
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('未拡大のカードを素通り (enter→intent 前に leave) しても onExpand は一切呼ばれない (誤クローズを出さない)', () => {
+    vi.useFakeTimers();
+    try {
+      const onExpand = vi.fn();
+      renderCard({ onExpand, expanded: false });
+      const card = screen.getByTestId('bmap-card-plot:5');
+      fireEvent.mouseEnter(card);
+      vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS / 2);
+      fireEvent.mouseLeave(card);
+      vi.advanceTimersByTime(HOVER_INTENT_DELAY_MS + HOVER_CLOSE_DELAY_MS);
+      expect(onExpand).not.toHaveBeenCalled(); // 開きも畳みもしない
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
 describe('MapSpotCard — flip', () => {
   it('flip.x/y が data 属性として反映される', () => {
     renderCard({ flip: { x: true, y: true } });
-    const mini = screen.getByTestId('bmap-marker-plot:5');
+    const mini = screen.getByTestId('bmap-card-plot:5');
     expect(mini).toHaveAttribute('data-flip-x', 'true');
     expect(mini).toHaveAttribute('data-flip-y', 'true');
   });
 
   it('flip 未指定相当 (false/false) では data 属性が false になる', () => {
     renderCard({ flip: noFlip });
-    const mini = screen.getByTestId('bmap-marker-plot:5');
+    const mini = screen.getByTestId('bmap-card-plot:5');
     expect(mini).toHaveAttribute('data-flip-x', 'false');
     expect(mini).toHaveAttribute('data-flip-y', 'false');
   });
@@ -306,7 +342,7 @@ describe('MapSpotCard — 拡大カードのコンテナ内クランプ (Finding
         markerPos: { x: 400, y: 15 },
         wrapSize: { w: 900, h: 300 },
       });
-      const expandedEl = screen.getByTestId('bmap-expanded-plot:5');
+      const expandedEl = screen.getByTestId('bmap-card-plot:5');
       // top=15+14=29, bottom=29+300=329 > 300-8=292 → dy = 292-329 = -37 (mapCardClamp.test.ts と同じ式)。
       expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-y')).toBe('-37px');
     } finally {
@@ -326,7 +362,7 @@ describe('MapSpotCard — 拡大カードのコンテナ内クランプ (Finding
         markerPos: { x: 450, y: 300 },
         wrapSize: { w: 900, h: 500 },
       });
-      const expandedEl = screen.getByTestId('bmap-expanded-plot:5');
+      const expandedEl = screen.getByTestId('bmap-card-plot:5');
       expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-x')).toBe('0px');
       expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-y')).toBe('0px');
     } finally {

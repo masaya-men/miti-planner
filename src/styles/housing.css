@@ -194,6 +194,9 @@
      1fr 伸長ができないため同じ基準トークンに連動させる (誤差数px・知覚不可・テーマ追従)。
      2026-07-11 ユーザー要望で旧 280px から一覧カード基準へ変更。 */
   --housing-bmap-card-w: var(--housing-listing-card-min-w);
+  /* 探す地図: マーカー上のカードの縮小率 (未 hover 時)。hover で scale 1 へ拡大する。
+     2026-07-12 ユーザー要望: 小さいカードが hover でそのまま膨らむ演出。実機で微調整可。 */
+  --housing-bmap-scale-collapsed: 0.5;
   /* カード画像部の縦横比 (2026-07-03 ユーザー選定: 4:3 = 約1.33倍)。
      aspect-ratio ではなく「幅に対する%パディング」で高さを作る (3/4 = 75%)。
      aspect-ratio はグリッド行の高さ計算で Chrome のバージョンによって取りこぼされ、
@@ -5211,20 +5214,10 @@ select.housing-input option {
   left: 0;
   pointer-events: none;
 }
-/* Task4 時点のプレースホルダマーカー (.housing-bmap-marker 本体) は Task6 で MapSpotCard
- * (.housing-bmap-mini/.housing-bmap-expanded) に差し替え済み。ラベル/バッジのクラスのみ
- * MapSpotCard 側で引き続き使うため残す。 */
-.housing-bmap-marker-label { pointer-events: none; }
-.housing-bmap-badge {
-  pointer-events: none;
-  color: var(--housing-text-mute);
-  font-size: var(--housing-text-xs);
-}
-
 /* ============================================================
- * MapSpotCard (Task5): 吹き出しミニカード ⇔ 拡大カード (ListingCard 素通し)。
- * 親 (.housing-bmap-marker-pos、配線は Task6) が translate(sx,sy) でスポット座標に置き、
- * ここから先は原点(0,0)基準の静的アンカー (translate(-50%,-100%) 系) のみを扱う。
+ * MapSpotCard: マーカー位置の吹き出しカード (ListingCard 素通し・hover で scale 拡大)。
+ * 親 (.housing-bmap-marker-pos) が translate(sx,sy) でスポット座標に置き、
+ * ここから先は原点(0,0)基準の静的アンカー (translate(-50%,-100%) 系 + scale) のみを扱う。
  * ============================================================ */
 
 /* Task6 実機検証で発見: BrowseWardMap.tsx の onPointerDown は「マーカー/カード上の pointerdown は
@@ -5233,167 +5226,112 @@ select.housing-input option {
  * (ゴースト画像) が発生しうる。これ自体は無害だが、地図のパンジェスチャーと紛らわしい UX になる上、
  * 実機 Playwright 検証で連続ドラッグ時にレンダラーが不安定になる事象を観測したため、地図カード内の
  * ドラッグ開始点になりうる画像・カード本体の既定ブラウザドラッグを無効化して芽を摘む。 */
-.housing-bmap-mini,
-.housing-bmap-expanded,
-.housing-bmap-mini img,
-.housing-bmap-expanded img {
+.housing-bmap-card,
+.housing-bmap-card img {
   -webkit-user-drag: none;
   user-select: none;
 }
 
-/* ミニカード本体。カード下端をスポット座標へ合わせ (translate(-50%,-100%))、
- * さらに ::after の吹き出しのしっぽ分だけ上へ逃がす (しっぽの先端が座標に届くように)。 */
-.housing-bmap-mini {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: auto;
-  appearance: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 10px 5px 5px;
-  border-radius: 10px;
-  border: 1px solid var(--housing-panel-border);
-  background: var(--housing-panel-bg-solid);
-  color: var(--housing-text);
-  font-family: inherit;
-  font-size: var(--housing-text-xs);
-  white-space: nowrap;
-  transform: translate(-50%, calc(-100% - 7px));
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-.housing-bmap-mini:hover,
-.housing-bmap-mini[aria-expanded="true"] {
-  border-color: var(--housing-honey-border);
-  color: var(--housing-candle);
-}
-.housing-bmap-mini::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -7px;
-  transform: translateX(-50%);
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 7px solid var(--housing-panel-border);
-}
-.housing-bmap-mini:hover::after,
-.housing-bmap-mini[aria-expanded="true"]::after {
-  border-top-color: var(--housing-honey-border);
-}
-/* flip.y (コンテナ上端近く): 上に開く場所が無いので下向きに開く。しっぽも上向きに反転する。 */
-.housing-bmap-mini[data-flip-y="true"] {
-  transform: translate(-50%, 7px);
-}
-.housing-bmap-mini[data-flip-y="true"]::after {
-  bottom: auto;
-  top: -7px;
-  border-top: none;
-  border-bottom: 7px solid var(--housing-panel-border);
-}
-.housing-bmap-mini[data-flip-y="true"]:hover::after,
-.housing-bmap-mini[data-flip-y="true"][aria-expanded="true"]::after {
-  border-top-color: transparent;
-  border-bottom-color: var(--housing-honey-border);
-}
-/* flip.x (コンテナ右端近く): 右へはみ出さないよう左向きに畳む (右端がアンカー座標に来る)。
- * しっぽの水平位置 (left) も box の右端基準へ合わせる。border-top/bottom の向きは flip.y 側の
- * 独立したプロパティなので、flip.x と flip.y は別々のルールのまま組み合わせが成立する
- * (transform だけは1プロパティにつき1つの宣言しか勝てないので flip-x+flip-y 用に別途上書きする)。 */
-.housing-bmap-mini[data-flip-x="true"] {
-  transform: translate(-100%, calc(-100% - 7px));
-}
-.housing-bmap-mini[data-flip-x="true"]::after {
-  left: 100%;
-}
-.housing-bmap-mini[data-flip-x="true"][data-flip-y="true"] {
-  transform: translate(-100%, 7px);
-}
-.housing-bmap-mini-thumb {
-  flex: 0 0 auto;
-  width: 48px;
-  height: 48px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--housing-card-thumb-bg);
-}
-.housing-bmap-mini-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* .housing-bmap-marker-pos (Task4) は JS 側の style="transform: translate(sx,sy)" を持つため、
- * スポットごとに独立したスタッキングコンテキストになる。つまり子の .housing-bmap-expanded に
- * z-index を積んでも「自分の marker-pos の中」でしか勝てず、隣接スポットの
- * .housing-bmap-mini (z-index 未指定 = auto、DOM順で積まれる) に重なりで負けることがある。
- * :has() で「拡大カードを持つ marker-pos」自体を兄弟の marker-pos より前面へ持ち上げることで、
- * そのスタッキングコンテキスト全体 (= 拡大カードを含む) が確実に他スポットの上に来るようにする。 */
-.housing-bmap-marker-pos:has(.housing-bmap-expanded) {
-  z-index: 1;
-}
-
-/* 拡大カード: 既存 .housing-listing-card (ListingCard) をそのまま重ねて描画する容れ物。
- * 幅は --housing-bmap-card-w に固定 (地図の拡大縮小で大きさが変わらない = ミニカードと同じ思想)。
- * z-index はミニカード (同じ marker-pos 内の兄弟) より前面へ出す(グローバル modal token とは
- * 無関係のローカルな重なり順のため、他コンポーネントと共通の z-index token は使わない)。
- * marker-pos 同士 (他スポット) との前後関係は上の :has() ルールが担当する。 */
-.housing-bmap-expanded {
-  /* Finding2 (review): flip (右端/上端の二値反転) だけでは「どちらの向きに開いてもコンテナに
-   * 収まらない」ケースを救えず、上端寄りスポットで下端の「ツアーに追加」CTA が
-   * .housing-bmap-wrap (overflow:hidden) の外へクリップされていた。JS 側
-   * (MapSpotCard.tsx の clampExpandedCardOffset、マウント時に実測したカード実寸から算出) が
-   * このカスタムプロパティに px 単位の追加オフセットを差し込み、下記の各 transform に
-   * calc() で加算する。JS から未設定のとき (=常に測定後の値が入る想定だが保険として) は
-   * 0px を既定にし、flip だけの従来位置に自然にフォールバックする。 */
+/* 吹き出しカード本体 (2026-07-12 刷新): フル ListingCard を常時 1 枚描画し、hover で scale 拡大する。
+ * 位置は親 marker-pos の原点(スポット座標)基準。translate で吹き出し下端をスポットへ寄せ、
+ * scale(var(--housing-bmap-scale)) で拡大/縮小する。transform-origin をしっぽ側 (既定=下端中央) に
+ * 置くことで、小さいときも大きいときもしっぽがマーカーを指したまま「その場で膨らむ」。
+ * 拡大時 (scale 1) の translate は従来の拡大カードと同一なのでクランプ計算 (mapCardClamp) は不変。
+ * frosted glass: 地図(動画+SVG)が透けて騒がしいのを、暗パネル地 + 背後ぼかしで抑える
+ * (一覧側カードには .housing-bmap-card が付かないので影響なし)。backdrop-filter の直書きは
+ * Lightning CSS が消すため --tw-backdrop-blur 変数パターン (css-rules.md)。角丸は ListingCard(14px)。 */
+.housing-bmap-card {
   --housing-bmap-clamp-x: 0px;
   --housing-bmap-clamp-y: 0px;
+  --housing-bmap-scale: var(--housing-bmap-scale-collapsed);
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 10;
+  z-index: 1;
   width: var(--housing-bmap-card-w);
   display: flex;
   flex-direction: column;
   gap: 6px;
   pointer-events: auto;
-  /* 地図(動画+SVG)の上に浮くカードは、ListingCard の背景が --housing-panel-inner(白5%)で
-     ほぼ透明なため、下の騒がしい地図が透けて不格好になる(一覧では暗いパネルの上なので目立たない)。
-     地図モード限定のこのラッパーにだけ、一覧と同じ暗パネル地 + 背後ぼかしで frosted glass 化する。
-     backdrop-filter の直書きは Lightning CSS が消すため --tw-backdrop-blur 変数パターン
-     (css-rules.md / 6902 行のツアー完了オーバーレイと同形)。角丸は下の ListingCard(14px)に合わせる。 */
+  cursor: pointer;
   border-radius: 14px;
   background: var(--housing-panel-bg);
   --tw-backdrop-blur: blur(8px);
   -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  transform-origin: 50% 100%;
   transform: translate(
-    calc(-50% + var(--housing-bmap-clamp-x)),
-    calc(-100% - 14px + var(--housing-bmap-clamp-y))
-  );
+      calc(-50% + var(--housing-bmap-clamp-x)),
+      calc(-100% - 14px + var(--housing-bmap-clamp-y))
+    )
+    scale(var(--housing-bmap-scale));
+  transition: transform 180ms ease;
 }
-.housing-bmap-expanded[data-flip-x="true"] {
+/* hover 中 (= 親が expandedKey に選んだスポット) は等倍へ拡大し、他スポットの上へ。 */
+.housing-bmap-card[data-expanded="true"] {
+  --housing-bmap-scale: 1;
+  z-index: 10;
+}
+/* 吹き出しのしっぽ (下端中央→マーカー)。カードと一緒に scale されるので、拡大時に
+ * ちょうどマーカーへ届く長さ (14px = 上の translate ギャップと同じ) にしておく。 */
+.housing-bmap-card::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -13px;
+  transform: translateX(-50%);
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 14px solid var(--housing-panel-border);
+  pointer-events: none;
+}
+/* flip.y (上端近く): 下向きに開く。しっぽを上向きに反転、原点は上端中央。 */
+.housing-bmap-card[data-flip-y="true"] {
+  transform-origin: 50% 0%;
   transform: translate(
-    calc(-100% + var(--housing-bmap-clamp-x)),
-    calc(-100% - 14px + var(--housing-bmap-clamp-y))
-  );
+      calc(-50% + var(--housing-bmap-clamp-x)),
+      calc(14px + var(--housing-bmap-clamp-y))
+    )
+    scale(var(--housing-bmap-scale));
 }
-.housing-bmap-expanded[data-flip-y="true"] {
+.housing-bmap-card[data-flip-y="true"]::after {
+  bottom: auto;
+  top: -13px;
+  border-top: none;
+  border-bottom: 14px solid var(--housing-panel-border);
+}
+/* flip.x (右端近く): 左向きに畳む (右端がアンカー)。しっぽ水平位置と原点を右端へ。 */
+.housing-bmap-card[data-flip-x="true"] {
+  transform-origin: 100% 100%;
   transform: translate(
-    calc(-50% + var(--housing-bmap-clamp-x)),
-    calc(14px + var(--housing-bmap-clamp-y))
-  );
+      calc(-100% + var(--housing-bmap-clamp-x)),
+      calc(-100% - 14px + var(--housing-bmap-clamp-y))
+    )
+    scale(var(--housing-bmap-scale));
 }
-.housing-bmap-expanded[data-flip-x="true"][data-flip-y="true"] {
+.housing-bmap-card[data-flip-x="true"]::after {
+  left: 100%;
+}
+.housing-bmap-card[data-flip-x="true"][data-flip-y="true"] {
+  transform-origin: 100% 0%;
   transform: translate(
-    calc(-100% + var(--housing-bmap-clamp-x)),
-    calc(14px + var(--housing-bmap-clamp-y))
-  );
+      calc(-100% + var(--housing-bmap-clamp-x)),
+      calc(14px + var(--housing-bmap-clamp-y))
+    )
+    scale(var(--housing-bmap-scale));
 }
-.housing-bmap-expanded-nav {
+
+/* .housing-bmap-marker-pos (Task4) は JS 側の style="transform: translate(sx,sy)" を持つため、
+ * スポットごとに独立したスタッキングコンテキストになる。子カードに z-index を積んでも
+ * 「自分の marker-pos の中」でしか勝てず、隣接スポットのカードに重なりで負けることがある。
+ * :has() で「拡大中(=data-expanded)のカードを持つ marker-pos」自体を兄弟の marker-pos より
+ * 前面へ持ち上げ、そのスタッキングコンテキスト全体を確実に他スポットの上に出す。 */
+.housing-bmap-marker-pos:has(.housing-bmap-card[data-expanded="true"]) {
+  z-index: 1;
+}
+
+/* 複数物件スポットの前後送り (カード上部)。カードごと scale されるので小さいときは小さく写る。 */
+.housing-bmap-card-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -5405,7 +5343,7 @@ select.housing-input option {
   color: var(--housing-text-dim);
   font-size: var(--housing-text-xs);
 }
-.housing-bmap-expanded-nav-btn {
+.housing-bmap-card-nav-btn {
   appearance: none;
   cursor: pointer;
   display: inline-flex;
@@ -5419,11 +5357,11 @@ select.housing-input option {
   color: var(--housing-text-dim);
   transition: border-color 0.15s ease, color 0.15s ease;
 }
-.housing-bmap-expanded-nav-btn:hover {
+.housing-bmap-card-nav-btn:hover {
   border-color: var(--housing-honey-border);
   color: var(--housing-candle);
 }
-.housing-bmap-expanded-nav-label {
+.housing-bmap-card-nav-label {
   flex: 1 1 auto;
   text-align: center;
 }

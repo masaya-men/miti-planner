@@ -3,14 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { BrowseMapSpot } from '../../../../lib/housing/browseMapSpots';
 import { clampExpandedCardOffset } from '../../../../lib/housing/mapCardClamp';
-import { representativeImage } from '../../../../lib/housing/representativeImage';
 import { ListingCard } from '../ListingCard';
 
-/** hover してから展開するまでの意図確認ディレイ(ms、review finding: Finding1)。
- *  地図上を高速にスイープするドラッグ/カーソル移動で毎回 mouseenter → 展開 → アンマウントが
- *  連鎖する(=レンダラー不安定化の一因と推測)のを防ぐ。click/Enter/focus はこの遅延の対象外
- *  (spec/Task5 通り即時展開のまま)。120〜150ms 目安で「意図的な滞留」と「素通り」を切り分ける。 */
+/** hover してから拡大するまでの意図確認ディレイ(ms)。地図上を高速にスイープしただけで次々に
+ *  拡大しない(素通りと意図的な滞留を切り分ける)ため。click/Enter/focus はこの遅延の対象外。 */
 export const HOVER_INTENT_DELAY_MS = 140;
+
+/** hover が外れてから畳むまでの猶予(ms)。端でカードをクランプ移動した時などに、カーソルが
+ *  一瞬カード外(地図上)を通っても即畳まないための業界標準の hovercard 猶予。体感の
+ *  「外したらすぐ小さく」は保ちつつ、際どい移動での誤クローズだけ吸収する。 */
+export const HOVER_CLOSE_DELAY_MS = 100;
 
 export interface MapSpotCardProps {
   spot: BrowseMapSpot;
@@ -18,37 +20,38 @@ export interface MapSpotCardProps {
   onExpand: (key: string | null) => void;
   onAddToTour: (id: string) => void;
   /** コンテナ右端/上端に近いとき true (Task4/6 が画面座標から算出して渡す)。
-   *  吹き出しの向き (ミニカード) と展開方向 (拡大カード) を反転する。 */
+   *  吹き出しの向き・拡大方向・拡大時の基準点 (transform-origin) を反転する。 */
   flip: { x: boolean; y: boolean };
   /** マーカーの画面座標 (`.housing-bmap-wrap` 基準、BrowseWardMap がパン/ズーム込みで算出済み)。
-   *  拡大カードのコンテナ内クランプ計算 (Finding2) に使う。 */
+   *  拡大時のコンテナ内クランプ計算に使う。 */
   markerPos: { x: number; y: number };
   /** コンテナ (`.housing-bmap-wrap`) の実寸 (BrowseWardMap の ResizeObserver キャッシュ)。
-   *  拡大カードのコンテナ内クランプ計算 (Finding2) に使う。 */
+   *  拡大時のコンテナ内クランプ計算に使う。 */
   wrapSize: { w: number; h: number };
   /** パン/ピンチ、またはカード上で始まったドラッグの間 true (BrowseWardMap が ref で保持)。
-   *  hover 展開ハンドラがこれを参照し、地図ジェスチャー中は展開しない (review finding: Finding1)。
-   *  再レンダーを起こしたくない値なので state ではなく ref で受け取る。 */
+   *  hover 拡大ハンドラがこれを参照し、地図ジェスチャー中は拡大しない。 */
   gestureActiveRef: React.RefObject<boolean>;
 }
 
 /**
- * 地図マーカーの吹き出しミニカード ⇔ 拡大カード (spec §4.2/5.3、plan Task5)。
+ * 地図マーカーの吹き出しカード (2026-07-12 全面刷新)。
  *
- * 常時: 48px サムネ + ラベル + 件数バッジのミニカード (`button.housing-bmap-mini`)。
- * hover/focus/クリック/Enter で `onExpand(spot.key)` を呼び、expanded=true になったら
- * 既存 `ListingCard` をそのまま重ねて描画する (ロジックをフォークしない = ツアー追加/
- * ♡/詳細クリックが一覧と完全に同一の挙動になる)。拡大カードはミニカードの兄弟要素
- * (button の中に入れ子にしない = ListingCard 内部の button と入れ子ボタンになるのを避ける)。
+ * 旧: 小さなピル (ミニカード) に、別要素のフル ListingCard を hover で「かぶせて」いた。
+ * 新: フル `ListingCard` (探す一覧と同一の生きたカード・動画/♡/ツアー追加すべて同じ) を
+ *     マーカー位置に**常時 1 枚だけ**描画し、hover でその同じカードが `transform: scale()` で
+ *     そのまま拡大するアニメーションにする。中身は小さいときも大きいときも同じ。
+ *     常時マウントなので hover ごとの mount/unmount チャーンが無い (旧構成のクラッシュ要因が消える)。
+ *     動画は Allmarks 由来の spotlight 機構で同時 1 本のみ (`useHousingCardPlayback`)。
  *
- * 位置決め (translate(sx,sy)) は親 (`.housing-bmap-marker-pos`、BrowseWardMap/Task4・
- * 配線は Task6) の責務。本コンポーネントはその原点 (0,0) を基準に
- * transform: translate(-50%, -100%) 系で自身をアンカーする。
+ * 位置決め (translate(sx,sy)) は親 (`.housing-bmap-marker-pos`) の責務。本コンポーネントは
+ * その原点 (0,0) を基準に translate(-50%,-100%) 系 + scale で自身をアンカーする。拡大時 (scale 1)
+ * の translate は従来の拡大カードと同一なので、コンテナ内クランプ (mapCardClamp) はそのまま成立する。
  *
- * hover は即座に展開せず HOVER_INTENT_DELAY_MS だけ待ってから展開する (Finding1)。ポインタが
- * 遅延中に離れれば展開しない。gestureActiveRef が true の間 (地図のパン/ピンチ/カード上ドラッグ中)
- * は、遅延開始時・発火時のどちらでも展開をスキップする。click/Enter/focus はこの遅延・抑止の対象外
- * (spec/Task5 通り即時展開)。
+ * hover 挙動: マウスは「乗っている間だけ拡大」。1 枚なのでミニ⇔カードの受け渡し隙間は無いが、
+ * 端のクランプ移動での際どい離脱に備え離脱は HOVER_CLOSE_DELAY_MS の猶予付き、進入は
+ * HOVER_INTENT_DELAY_MS の意図確認付き。gestureActiveRef が true (地図パン/ピンチ/カード上ドラッグ)
+ * の間は拡大しない。タッチ/キーボードには hover が無いので、focus は即拡大、詳細遷移は
+ * ListingCard 自身の click(一覧と同一)、閉じるは地図の空白タップ (onExpand(null)) と Esc が担う。
  */
 export const MapSpotCard: React.FC<MapSpotCardProps> = ({
   spot,
@@ -61,137 +64,82 @@ export const MapSpotCard: React.FC<MapSpotCardProps> = ({
   gestureActiveRef,
 }) => {
   const { t } = useTranslation();
-  const label =
-    spot.kind === 'apart'
-      ? t('housing.map.apartment_label')
-      : t('housing.map.plot_label', { plot: spot.plot });
-  const count = spot.listings.length;
   const flipX = flip.x ? 'true' : 'false';
   const flipY = flip.y ? 'true' : 'false';
+  const total = spot.listings.length;
+  const [index, setIndex] = useState(0);
 
   const expand = () => onExpand(spot.key);
 
-  // hover-intent ディレイ用タイマー。マウント中ずっと同じミニカードが生きているため、
-  // このコンポーネント自身のアンマウント時 (スポット消失) に確実に片付ける (下の useEffect)。
-  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const clearHoverTimer = () => {
-    if (hoverTimerRef.current !== null) {
-      clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
+  // 開く(hover-intent)/畳む(hover-close)の2本のタイマー。アンマウント時に両方片付ける。
+  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearOpenTimer = () => {
+    if (openTimerRef.current !== null) {
+      clearTimeout(openTimerRef.current);
+      openTimerRef.current = null;
     }
   };
-  useEffect(() => clearHoverTimer, []);
+  const clearCloseTimer = () => {
+    if (closeTimerRef.current !== null) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+  };
+  useEffect(() => {
+    return () => {
+      clearOpenTimer();
+      clearCloseTimer();
+    };
+  }, []);
 
-  const handleMouseEnter = () => {
-    // 地図ジェスチャー中 (パン/ピンチ/カード上ドラッグ) は hover 展開そのものを予約しない。
+  // カードに hover が入った: 畳む予約を取り消し、未拡大なら意図確認後に拡大する。
+  const handlePointerEnter = () => {
+    clearCloseTimer();
+    // 地図ジェスチャー中 (パン/ピンチ/カード上ドラッグ) は hover 拡大そのものを予約しない。
     if (gestureActiveRef.current) return;
-    clearHoverTimer();
-    hoverTimerRef.current = setTimeout(() => {
-      hoverTimerRef.current = null;
-      // ディレイ中にジェスチャーが始まった場合も、発火時点で再チェックして展開しない。
+    if (expanded) return; // 既に拡大中(=カード上を移動中)なら畳む取消だけでよい。
+    clearOpenTimer();
+    openTimerRef.current = setTimeout(() => {
+      openTimerRef.current = null;
+      // ディレイ中にジェスチャーが始まった場合も、発火時点で再チェックして拡大しない。
       if (gestureActiveRef.current) return;
       expand();
     }, HOVER_INTENT_DELAY_MS);
   };
-  const handleMouseLeave = () => clearHoverTimer();
-  // click/Enter/focus は spec 通り即時展開 (待機中の hover タイマーは二重発火を避けるため破棄)。
+  // カードから hover が外れた: 開く予約は捨て、猶予後に畳む
+  // (猶予内に戻れば handlePointerEnter が取り消すのでチラつかない)。
+  const handlePointerLeave = () => {
+    clearOpenTimer();
+    // 未拡大のまま素通りしたなら開く予約を消すだけ。畳む対象が無いのに onExpand(null) を
+    // 呼ぶと無駄な再レンダー/誤クローズになるので出さない。
+    if (!expanded) return;
+    if (closeTimerRef.current !== null) return; // 既に畳む予約済みなら重ねない。
+    closeTimerRef.current = setTimeout(() => {
+      closeTimerRef.current = null;
+      onExpand(null);
+    }, HOVER_CLOSE_DELAY_MS);
+  };
+  // focus は spec 通り即時拡大 (待機中のタイマーは二重発火を避けるため破棄)。
   const expandImmediately = () => {
-    clearHoverTimer();
+    clearOpenTimer();
+    clearCloseTimer();
     expand();
   };
 
-  return (
-    <>
-      <button
-        type="button"
-        className="housing-bmap-mini"
-        data-testid={`bmap-marker-${spot.key}`}
-        aria-expanded={expanded}
-        data-flip-x={flipX}
-        data-flip-y={flipY}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onFocus={expandImmediately}
-        onClick={(e) => {
-          e.stopPropagation();
-          expandImmediately();
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
-            e.stopPropagation();
-            expandImmediately();
-          }
-        }}
-      >
-        <span className="housing-bmap-mini-thumb">
-          <img src={representativeImage(spot.representative)} alt="" loading="lazy" />
-        </span>
-        <span className="housing-bmap-marker-label">{label}</span>
-        {count > 1 && <span className="housing-bmap-badge">×{count}</span>}
-      </button>
-      {/* マウント時のみ ListingCard を生成 (常時マウントしない = spec §5.3)。 */}
-      {expanded && (
-        <MapSpotExpanded
-          spot={spot}
-          onAddToTour={onAddToTour}
-          onExpand={onExpand}
-          flipX={flipX}
-          flipY={flipY}
-          markerPos={markerPos}
-          wrapSize={wrapSize}
-        />
-      )}
-    </>
-  );
-};
-
-interface MapSpotExpandedProps {
-  spot: BrowseMapSpot;
-  onAddToTour: (id: string) => void;
-  onExpand: (key: string | null) => void;
-  flipX: 'true' | 'false';
-  flipY: 'true' | 'false';
-  markerPos: { x: number; y: number };
-  wrapSize: { w: number; h: number };
-}
-
-/** 拡大カード。expanded=true の間だけマウントされるので、index state はここに置くだけで
- *  開き直すたびに自然に 0 (代表 = 最新確認) へ戻る。
- *
- *  Finding2: flip だけでは「どちらの向きでもコンテナに収まらない」ケース (上端寄りスポットで
- *  下端のツアー追加 CTA がクリップされる) を救えないため、マウント時に自身の実寸を一度だけ測定し
- *  (`getBoundingClientRect`、pointermove 中の読み取りはしない)、`clampExpandedCardOffset` (純関数)
- *  でコンテナ内に収まる追加オフセットを計算して CSS カスタムプロパティ経由で transform に加算する。
- *  オフセット自体の再計算 (dx/dy の算術) はパン/ズームで markerPos が変わるたびに useMemo で
- *  追従させる (キャッシュ済みの数値だけを使う純粋な計算なので DOM 読み取りは発生しない)。 */
-const MapSpotExpanded: React.FC<MapSpotExpandedProps> = ({
-  spot,
-  onAddToTour,
-  onExpand,
-  flipX,
-  flipY,
-  markerPos,
-  wrapSize,
-}) => {
-  const { t } = useTranslation();
-  const [index, setIndex] = useState(0);
-  const total = spot.listings.length;
-
+  // カードの実寸 (scale 前のレイアウト実寸) を測ってクランプに使う。transform: scale は
+  // レイアウト寸法に影響しないので ResizeObserver の borderBoxSize が常に「拡大時 (scale 1)」の
+  // 実寸を返す = クランプ (scale 1 前提) に正しい値になる。
   const cardRef = useRef<HTMLDivElement>(null);
   const [cardSize, setCardSize] = useState<{ w: number; h: number } | null>(null);
   useLayoutEffect(() => {
     const el = cardRef.current;
     if (!el) return;
-    // 同じ値なら state 更新を弾く (ResizeObserver は複数回発火し得る)。
     const apply = (w: number, h: number) =>
       setCardSize((prev) => (prev && prev.w === w && prev.h === h ? prev : { w, h }));
-    // 初回は同期測定して 1 フレーム目からクランプを効かせる (未測定→flip 位置のチラつき防止)。
+    // 初回同期測定 + 以降は画像ロード/index 切替の高さ変化に追従 (pointermove 中の読み取りはしない)。
     const rect = el.getBoundingClientRect();
     apply(rect.width, rect.height);
-    // 画像ロードでカードが縦に伸びる/index 切替で内容が変わると高さが変化するため追従する。
-    // これがないとマウント時の(画像前の)小さい高さでクランプが固定され、下端のツアー追加ボタンが
-    // .housing-bmap-wrap (overflow:hidden) の外へクリップされる。ResizeObserver は pointermove とは
-    // 非同期に発火するので、イベント中の layout 読み取り (forced reflow) にはならない。
     const ro = new ResizeObserver((entries) => {
       const box = entries[0]?.borderBoxSize?.[0];
       if (box) apply(box.inlineSize, box.blockSize);
@@ -202,12 +150,13 @@ const MapSpotExpanded: React.FC<MapSpotExpandedProps> = ({
     });
     ro.observe(el);
     return () => ro.disconnect();
-    // el(cardRef)は安定。観測対象がマウント/アンマウントに一致するので依存は空でよい。
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // クランプは拡大時 (scale 1) だけ必要 (小さいときは枠内に収まる)。小さいときに拡大時基準の
+  // オフセットを当てると小カードがマーカーから離れて見えるため、未拡大では 0 にする。
   const clampOffset = useMemo(() => {
-    if (!cardSize) return { dx: 0, dy: 0 };
+    if (!expanded || !cardSize) return { dx: 0, dy: 0 };
     return clampExpandedCardOffset({
       markerX: markerPos.x,
       markerY: markerPos.y,
@@ -219,25 +168,26 @@ const MapSpotExpanded: React.FC<MapSpotExpandedProps> = ({
       flipY: flipY === 'true',
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cardSize, markerPos.x, markerPos.y, wrapSize.w, wrapSize.h, flipX, flipY]);
+  }, [expanded, cardSize, markerPos.x, markerPos.y, wrapSize.w, wrapSize.h, flipX, flipY]);
 
-  // Esc で閉じる。このコンポーネント自体が expanded 時だけマウントされるため、
-  // listener の付け外しがそのまま「開いている間だけ Esc を拾う」になる。
+  // Esc で閉じる。拡大中だけ listener を張る (全カードが常時 listener を持たないように)。
   useEffect(() => {
+    if (!expanded) return;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onExpand(null);
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [onExpand]);
+  }, [expanded, onExpand]);
 
   const goPrev = () => setIndex((i) => (i - 1 + total) % total);
   const goNext = () => setIndex((i) => (i + 1) % total);
 
   return (
     <div
-      className="housing-bmap-expanded"
-      data-testid={`bmap-expanded-${spot.key}`}
+      className="housing-bmap-card"
+      data-testid={`bmap-card-${spot.key}`}
+      data-expanded={expanded ? 'true' : 'false'}
       data-flip-x={flipX}
       data-flip-y={flipY}
       ref={cardRef}
@@ -247,26 +197,29 @@ const MapSpotExpanded: React.FC<MapSpotExpandedProps> = ({
           '--housing-bmap-clamp-y': `${clampOffset.dy}px`,
         } as React.CSSProperties
       }
-      // 地図の空白クリック (Task4: onExpand(null)) がここでの操作に反応して即閉じないよう、
-      // 拡大カード内のクリックは外へ伝播させない (BrowseWardMap.tsx のマーカー同様の防御)。
+      onMouseEnter={handlePointerEnter}
+      onMouseLeave={handlePointerLeave}
+      onFocus={expandImmediately}
+      // 地図の空白クリック (Task4: onExpand(null)) がここでの操作に反応して閉じないよう、
+      // カード内のクリックは外へ伝播させない (詳細遷移は ListingCard 自身の onClick が担う)。
       onClick={(e) => e.stopPropagation()}
     >
       {total > 1 && (
-        <div className="housing-bmap-expanded-nav">
+        <div className="housing-bmap-card-nav">
           <button
             type="button"
-            className="housing-bmap-expanded-nav-btn"
+            className="housing-bmap-card-nav-btn"
             aria-label={t('housing.map.spot_prev')}
             onClick={goPrev}
           >
             <ChevronLeft size={14} aria-hidden="true" />
           </button>
-          <span className="housing-bmap-expanded-nav-label">
+          <span className="housing-bmap-card-nav-label">
             {t('housing.map.spot_more', { index: index + 1, total })}
           </span>
           <button
             type="button"
-            className="housing-bmap-expanded-nav-btn"
+            className="housing-bmap-card-nav-btn"
             aria-label={t('housing.map.spot_next')}
             onClick={goNext}
           >
