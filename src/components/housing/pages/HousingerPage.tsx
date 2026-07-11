@@ -66,17 +66,29 @@ export const HousingerPage: React.FC = () => {
     setListings([]);
     setLoading(true);
     (async () => {
-      const [profileResult, listingDocs] = await Promise.all([
-        getHousingerProfile(uid),
-        getHousingerListings(uid),
-      ]);
-      if (cancelled) return;
-      const gallery = sortListingsForGallery(
-        listingDocs.map(firestoreToGalleryListing).filter((l): l is MockListing => l !== null),
-      );
-      setProfile(profileResult);
-      setListings(gallery);
-      setLoading(false);
+      try {
+        const [profileResult, listingDocs] = await Promise.all([
+          getHousingerProfile(uid),
+          getHousingerListings(uid),
+        ]);
+        if (cancelled) return;
+        const gallery = sortListingsForGallery(
+          listingDocs.map(firestoreToGalleryListing).filter((l): l is MockListing => l !== null),
+        );
+        setProfile(profileResult);
+        setListings(gallery);
+        setLoading(false);
+      } catch (err) {
+        if (cancelled) return;
+        // getHousingerProfile は自身のエラーを飲み込み null を返すが、getHousingerListings は
+        // reject しうる (デプロイ直後の複合インデックス未反映、一時的な Firestore エラー等)。
+        // ここで捕まえないと loading=false が呼ばれず無限ローディングになるため、
+        // 既存の unavailable 表示へ縮退する。
+        console.warn('[HousingerPage] failed to load profile/listings', err);
+        setProfile(null);
+        setListings([]);
+        setLoading(false);
+      }
     })();
     return () => {
       cancelled = true;

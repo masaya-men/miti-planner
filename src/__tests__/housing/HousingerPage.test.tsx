@@ -214,4 +214,20 @@ describe('HousingerPage', () => {
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('getHousingerListings が reject しても無限ローディングにならず unavailable 表示に縮退する', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockRejectedValueOnce(new Error('composite index missing'));
+
+    renderPage('uid-1');
+
+    expect(
+      await screen.findByText('このハウジンガーは公開されていません'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('公開中のハウジングはまだありません')).not.toBeInTheDocument();
+    expect(warnSpy).toHaveBeenCalled();
+
+    warnSpy.mockRestore();
+  });
 });
