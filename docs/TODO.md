@@ -23,10 +23,10 @@
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ 大物3つ (PF/地図/一時ツアー) 設計+計画書 完成 & 並行実装3本 main 統合済 (2026-07-10・未push)
-- **🔴 次: ユーザーのローカル確認** (3本分チェックリストは引き継ぎ参照) → OK なら push (Vercel 自動デプロイ) → 大物3計画の実行開始 (順序自由・worktree 並行可)。
-- **統合後の残作業**: ①公式タグ23種の**日本語名をゲーム内で目視確認** (一覧は引き継ぎ) ②リリース時に `firebase deploy --only firestore` (personal_tags の rules+indexes) ③旧タグ一掃 `scripts/cleanup-legacy-housing-tags.ts` (dry-run 既定・本番実行は②の後) ④個人タグID方式は PF 計画 Task 8 で uid 由来へ統一予定。
-- **大物3つの spec/plan** (`docs/superpowers/{specs,plans}/2026-07-10-*`): PF=`housinger-profile`(名前=個人タグ一体化/表示は詳細のみ/公開プロフィール中央方式) 地図=`housing-browse-map`(吹き出しミニカード常時+hover拡大=探すカード同一部品/ツアー無傷の新設) 一時ツアー=`housing-ephemeral-tour`(混在ツアー核/pool分離/揮発・ログイン不要)。
+### 🔵 大物3計画 実装完了→検証用統合ブランチ `integration/housing-big3` でローカル確認中 (2026-07-12)
+- **🔴 次: 探す地図フィードバック4点** (④文言→①フィルタ残留バグ→③操作説明+北→②点線コネクタ+重なり回避)。詳細=`docs/.private/2026-07-12-browse-map-feedback.md`+台帳末尾。統合ブランチには3ブランチ+ローカル修正(地図黒枠/フッター著作権/カード同寸見切れ/地図カードscale拡大)を積み済。全部OK後に main 反映→`firebase deploy --only firestore`(PF rules+indexes先)→push。
+- **3ブランチ** (git-ignored worktree `.claude/worktrees/`): `feat/housinger-profile`=649afc7f (12commit) / `feat/housing-browse-map`=734499e8 (12commit) / `feat/housing-ephemeral-tour`=5f2237fe (6commit)。台帳=`.superpowers/sdd/progress-*.md` (followup/triage一覧込み)・再開入口=`resume-housing-big3.md`。
+- **マージ時注意**: 競合候補=ListingCard/ListingGrid/BrowsePage/RegisterPage/App.tsx/housing.css/ロケール4json。PF実機確認前に**テスト用personal_tags(旧slug ID)掃除 or プロフィール再公開1回**。旧残作業: ①公式タグ23種の日本語名目視 ②旧タグ一掃scriptは firestore deploy 後 (個人タグuid統一はPF Task 8で完了済)。
 - **統合済の3本**: ①登録ページ改善(住所確認ゲートC案+ステッパー) ②タグ刷新(公式23+季節12+テーマ12+個人タグ・API/admin込) ③小物UI束(フッター/リップル/通知点検)。全テスト2849件緑・build成功。相談ログ=`docs/.private/2026-07-10-all-consult-intake.md`
 - **🔥 軽減表「(競合コピー)」増殖バグ**: 症状+生成箇所(`usePlanStore.ts:520/816`)特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
 - **✅ Vercel 75%通知 解明・対策済 (2026-07-10)**: Edge=6/11スパイクが窓に残存しているだけで無害。本命はオリジン転送6.26/10GB=dev の動画確認が本番 Vercel 関数経由だった→`.env.local` に `VITE_MEDIA_PROXY_BASE_URL` 追記済・**dev サーバー要再起動**。7/12 沈静化確認=`docs/.private/2026-07-10-vercel-origin-transfer-followup.md`
