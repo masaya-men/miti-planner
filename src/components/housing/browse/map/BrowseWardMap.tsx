@@ -228,8 +228,18 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
   };
 
   // 地図の空白クリックで拡大カードを閉じる(spec 4.2/Task4-6)。パン/ピンチ直後のクリックは無視する。
-  // マーカー(ミニカード)自身のクリックは stopPropagation で止まるためここまで来ない。
-  const onBlankClick = () => {
+  // マーカー(ミニカード)自身のクリックは stopPropagation で止まるためここまで来ない……はずだが、
+  // 実機 Playwright 検証で例外を発見: マウスで <button> を押すとブラウザ既定動作で mousedown 直後に
+  // フォーカスが移り、MapSpotCard の onFocus(expandImmediately) がその場で展開する。すると
+  // mouseup 時点でカーソル位置は (直前まで無かった) 展開カードの中身に変わっており、
+  // mousedown の target(マーカー) と mouseup の target(展開カード内) が食い違う。この場合ブラウザは
+  // click イベントを両者の最近共通祖先である `.housing-bmap-marker-pos` 上で発火するため、
+  // stopPropagation を経由せずここまでバブルしてくる。これを「空白クリック」と誤認して閉じると、
+  // 「クリックで即展開」のはずが 展開→即閉じる→hover-intent 遅延後に再展開 という目に見える
+  // ちらつき (review finding: click は即時のまま安定しているべき) になるため、マーカー由来の
+  // click は target ではなく closest で判定して除外する。
+  const onBlankClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest?.('.housing-bmap-marker-pos')) return;
     if (justPanned.current) {
       justPanned.current = false;
       return;
