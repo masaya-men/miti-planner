@@ -2442,8 +2442,7 @@
                 "theme_label": "Theme",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "lang_label": "Lang",
-                "copyright": "© {{year}} LoPo"
+                "lang_label": "Lang"
             },
             "filter": {
                 "title": "FILTER",

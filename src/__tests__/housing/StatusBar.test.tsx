@@ -39,9 +39,12 @@ function renderStatusBar() {
 }
 
 describe('StatusBar', () => {
-  it('renders copyright + legal links + Ko-fi link in the left group (2026-07-10 刷新)', () => {
+  it('renders SE copyright + fan-tool disclaimer + legal links + Ko-fi link in the left group (2026-07-11 著作権是正)', () => {
     renderStatusBar();
-    expect(screen.getByText(/LoPo/)).toBeInTheDocument();
+    // FF14 素材はスクエニ著作物。© LoPo は誤りで、軽減表フッターと同じ SE 表記 + 非公式免責にする。
+    expect(screen.getByText(/SQUARE ENIX CO\., LTD\. All Rights Reserved\./)).toBeInTheDocument();
+    expect(screen.getByText(/非公式のファンツール/)).toBeInTheDocument();
+    expect(screen.queryByText(/© \d+ LoPo/)).not.toBeInTheDocument();
     const privacy = screen.getByRole('link', { name: 'プライバシーポリシー' });
     const terms = screen.getByRole('link', { name: '利用規約' });
     const kofi = screen.getByRole('link', { name: 'Ko-fiで応援' });

@@ -2407,8 +2407,7 @@
                 "theme_label": "테마",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "lang_label": "언어",
-                "copyright": "© {{year}} LoPo"
+                "lang_label": "언어"
             },
             "filter": {
                 "title": "FILTER",

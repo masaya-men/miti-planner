@@ -473,7 +473,17 @@
 .housing-accent { color: var(--housing-candle); }
 .housing-accent-honey { color: var(--housing-honey); }
 
-/* 左グループ: © + 法的リンク + Ko-fi (2026-07-10 フッター刷新) */
+/* 左グループ: © + 免責 + 法的リンク + Ko-fi (2026-07-11 著作権表記を SE + 非公式免責に是正)。
+ * 法的テキストは文章なので、右側 HUD 系の uppercase/字間はここだけ解除し軽減表フッターと同じ通常ケースにする。
+ * 一行に収めるため字間は狭め、免責はやや弱いトーン。 */
+.housing-status-legal {
+  text-transform: none;
+  letter-spacing: 0.01em;
+  min-width: 0;
+}
+.housing-status-disclaimer {
+  color: var(--housing-text-dim);
+}
 .housing-status-legal a {
   color: inherit;
   text-decoration: none;

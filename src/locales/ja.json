@@ -2463,8 +2463,7 @@
                 "theme_label": "テーマ",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "lang_label": "言語",
-                "copyright": "© {{year}} LoPo"
+                "lang_label": "言語"
             },
             "filter": {
                 "title": "FILTER",

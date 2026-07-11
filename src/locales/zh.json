@@ -2407,8 +2407,7 @@
                 "theme_label": "主题",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "lang_label": "语言",
-                "copyright": "© {{year}} LoPo"
+                "lang_label": "语言"
             },
             "filter": {
                 "title": "FILTER",

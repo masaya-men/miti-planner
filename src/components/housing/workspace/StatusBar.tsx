@@ -35,7 +35,8 @@ export const StatusBar: React.FC = () => {
   return (
     <footer className="housing-status">
       <div className="housing-status-group housing-status-legal">
-        <span>{t('housing.workspace.statusbar.copyright', { year: new Date().getFullYear() })}</span>
+        <span>{t('footer.copyright')}</span>
+        <span className="housing-status-disclaimer">{t('footer.disclaimer')}</span>
         <a href="/privacy" target="_blank" rel="noopener">
           {t('footer.privacy_policy')}
         </a>
