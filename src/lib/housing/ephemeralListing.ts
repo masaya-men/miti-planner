@@ -51,7 +51,7 @@ export interface EphemeralInput {
 
 export type EphemeralValidation =
   | { ok: true }
-  | { ok: false; error: 'invalid_area' | 'invalid_ward' | 'invalid_plot' | 'invalid_room' };
+  | { ok: false; error: 'missing_dc' | 'missing_server' | 'invalid_area' | 'invalid_ward' | 'invalid_plot' | 'invalid_room' };
 
 /**
  * 境界検証 (純関数)。 range は既存 `constants/housing.ts` の `WARD_RANGE` / `PLOT_RANGE` /
@@ -63,6 +63,12 @@ export type EphemeralValidation =
  * - apartment のとき roomNumber: 1-90 (未指定/範囲外は invalid_room)
  */
 export function validateEphemeralInput(input: EphemeralInput): EphemeralValidation {
+  if (!input.dc || input.dc.trim() === '') {
+    return { ok: false, error: 'missing_dc' };
+  }
+  if (!input.server || input.server.trim() === '') {
+    return { ok: false, error: 'missing_server' };
+  }
   if (!isValidHousingArea(input.area)) {
     return { ok: false, error: 'invalid_area' };
   }

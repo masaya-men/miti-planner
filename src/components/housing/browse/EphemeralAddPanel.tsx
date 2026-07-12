@@ -189,6 +189,10 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
 
   const isApartment = address.buildingType === 'apartment';
   const complete =
+    address.dc !== undefined &&
+    address.dc !== '' &&
+    address.server !== undefined &&
+    address.server !== '' &&
     address.area !== undefined &&
     address.area !== '' &&
     address.ward !== undefined &&

@@ -26,6 +26,8 @@ const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui
 
 /** 構造化フォーム (RegisterSectionAddress variant='tour') に一軒家の住所を入れるヘルパ。 */
 const fillHouse = (area: string, ward: string, plot: string) => {
+  fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Elemental' } });
+  fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Aegis' } });
   fireEvent.change(screen.getByLabelText('エリア'), { target: { value: area } });
   fireEvent.change(screen.getByLabelText('区'), { target: { value: ward } });
   fireEvent.change(screen.getByLabelText('番地'), { target: { value: plot } });
@@ -109,5 +111,13 @@ describe('EphemeralAddPanel', () => {
     wrap(<EphemeralAddPanel open={false} onClose={() => {}} onAdd={() => {}} />);
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(screen.queryByLabelText('エリア')).toBeNull();
+  });
+
+  it('⑧ DC/サーバー未選択だと「ツアーに追加」は非活性 (エリア/区/番地だけでは不可)', () => {
+    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} />);
+    fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
+    fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
+    fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
+    expect(addButton().disabled).toBe(true);
   });
 });

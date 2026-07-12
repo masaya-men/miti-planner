@@ -40,6 +40,30 @@ describe('isEphemeralListingId', () => {
 });
 
 describe('validateEphemeralInput', () => {
+  // dc/server 必須化 (Task 2) 後もこのブロックの境界値テストは area/ward/plot/room の検証を
+  // 見るためのもの。世界 (dc/server) は常に充足させておき、missing_dc/missing_server で
+  // 先に弾かれないようにする (ローカル shadow・外側の baseHouse/baseApartment は
+  // createEphemeralListing のテスト用に dc/server 未指定のまま維持)。
+  const baseHouse: EphemeralInput = {
+    area: 'Mist',
+    ward: 5,
+    buildingType: 'house',
+    plot: 12,
+    size: 'M',
+    dc: 'Mana',
+    server: 'Anima',
+  };
+
+  const baseApartment: EphemeralInput = {
+    area: 'Shirogane',
+    ward: 10,
+    buildingType: 'apartment',
+    apartmentBuilding: 2,
+    roomNumber: 45,
+    dc: 'Mana',
+    server: 'Anima',
+  };
+
   it('正常な house 入力は ok:true', () => {
     expect(validateEphemeralInput(baseHouse)).toEqual({ ok: true });
   });
@@ -94,6 +118,19 @@ describe('validateEphemeralInput', () => {
       ok: false,
       error: 'invalid_room',
     });
+  });
+});
+
+describe('validateEphemeralInput: ワールド必須', () => {
+  const base = { area: 'Mist' as const, ward: 3, buildingType: 'house' as const, plot: 15 };
+  it('dc 未指定は missing_dc', () => {
+    expect(validateEphemeralInput({ ...base, server: 'Anima' })).toEqual({ ok: false, error: 'missing_dc' });
+  });
+  it('server 未指定は missing_server', () => {
+    expect(validateEphemeralInput({ ...base, dc: 'Mana' })).toEqual({ ok: false, error: 'missing_server' });
+  });
+  it('dc+server 揃えば ok', () => {
+    expect(validateEphemeralInput({ ...base, dc: 'Mana', server: 'Anima' })).toEqual({ ok: true });
   });
 });
 
