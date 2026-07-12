@@ -107,40 +107,38 @@ describe('TourNavPage', () => {
     expect(screen.queryByText('ルートのステップ')).not.toBeInTheDocument();
   });
 
-  it('空状態: 「住所から追加」でJP+NA混在の一時トレイを作ると開始時ネットで阻止される', () => {
-    // TourEmptyState.onAddEphemeral には canAddToTour による追加時ブロックが無い
-    // (BrowsePage/FavoritesPage の addToTray と違い、住所から追加パネルは常に追加を通す)。
-    // そのため、この画面では onStartEphemeral 内の tourRegionConflict だけが唯一の防波堤になる。
+  it('空状態: JPを積んだ後、別リージョン(NA)のDCを選ぶと注記が出て2件目が追加できない (早期ブロック)', () => {
+    // 一時追加パネルは trayRegion を受け取り、別リージョンの DC を選んだ時点で注記+追加不可にする。
+    // これにより、空状態でも住所を全部埋めてから開始時ネットで弾かれる無駄入力を避ける
+    // (開始時ネット tourRegionConflict は依然 backstop として残る)。
     renderPage();
 
     // 「住所から追加」を開く
     fireEvent.click(screen.getByRole('button', { name: '住所から追加' }));
 
-    // 1件目: JP (Elemental/Aegis)
+    // 1件目: JP (Elemental/Aegis) → 追加成功
     fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Elemental' } });
     fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Aegis' } });
     fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
     fireEvent.click(screen.getByRole('button', { name: 'ツアーに追加' }));
+    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(1);
 
-    // 2件目: NA (Aether/Gilgamesh)、別住所 (連続追加: パネルは開いたまま入力だけクリアされる)
+    // 2件目: NA (Aether) の DC を選んだ時点で注記が出て「ツアーに追加」が非活性になる
     fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Aether' } });
     fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Gilgamesh' } });
     fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '5' } });
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '20' } });
-    fireEvent.click(screen.getByRole('button', { name: 'ツアーに追加' }));
 
-    // 2件とも一時トレイに積まれている (追加時ブロックが無いことの確認)
-    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(2);
+    expect(screen.getByText('別リージョンの家は同じツアーに入れられません')).toBeInTheDocument();
+    const addBtn = screen.getByRole('button', { name: 'ツアーに追加' }) as HTMLButtonElement;
+    expect(addBtn.disabled).toBe(true);
+    fireEvent.click(addBtn);
 
-    // 開始 → 開始時ネットで弾かれ、tourStoreは変化しない
-    fireEvent.click(screen.getByRole('button', { name: 'この内容でツアーを開始' }));
-
-    expect(useHousingTourStore.getState().listingIds).toHaveLength(0);
-    expect(useHousingTourStore.getState().running).toBe(false);
-    expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
+    // 2件目は積まれない (JP の1件だけ)
+    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(1);
   });
 
   it('listingIds + listings 注入で3カラム(進行状況/地図/ショーケース)が描画される', () => {

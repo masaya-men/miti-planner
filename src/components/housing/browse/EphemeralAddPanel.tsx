@@ -16,12 +16,20 @@ import {
 } from '../../../lib/housing/ephemeralListing';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { isValidHousingArea, type HousingArea } from '../../../types/housing';
+import { regionForDC, type Region } from '../../../data/housing/dcServerMap';
+import { canAddToTour } from '../../../lib/housing/tourCrossing';
 
 export interface EphemeralAddPanelProps {
   open: boolean;
   onClose: () => void;
   /** 追加成功時に一時 listing の id (`ephemeral-` prefix) を通知。トレイ側で trayIds へ積む。 */
   onAdd: (id: string) => void;
+  /**
+   * 現在トレイに入っている家のリージョン (空トレイなら null/未指定)。
+   * 指定時、別リージョンの DC を選んだ時点で注記を出し追加ボタンを無効化する
+   * (跨ぎは不可能なため、住所を全部埋めさせてから弾く無駄入力を避ける・早期フィードバック)。
+   */
+  trayRegion?: Region | null;
 }
 
 /** SNS 由来のメタデータ (登録リンク引き継ぎ + 代表画像)。URL 未使用のときは null。 */
@@ -42,7 +50,7 @@ interface SnsSource {
  * - 全項目充足で [ツアーに追加] 活性 → validate → create → store.add → `onAdd(id)` →
  *   入力だけクリアしてモーダルは開いたまま (連続追加)。
  */
-export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onClose, onAdd }) => {
+export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onClose, onAdd, trayRegion }) => {
   const { t } = useTranslation();
 
   const [url, setUrl] = useState('');
@@ -198,6 +206,11 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     address.ward !== undefined &&
     (isApartment ? address.roomNumber !== undefined : address.plot !== undefined);
 
+  // 選んだ DC のリージョンがトレイと違えば、住所を埋め切る前でも早期に弾く (canAddToTour が唯一の判定源)。
+  const candidateRegion = address.dc ? regionForDC(address.dc) : null;
+  const crossRegionBlocked =
+    trayRegion != null && candidateRegion != null && !canAddToTour(trayRegion, candidateRegion);
+
   const handleAdd = () => {
     if (!complete || address.area === undefined || address.ward === undefined) return;
     const input: EphemeralInput = {
@@ -303,6 +316,10 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
           onChange={handleAddressChange}
         />
 
+        {crossRegionBlocked && (
+          <p className="housing-error-text">{t('housing.tour.region_block')}</p>
+        )}
+
         {limitReached && (
           <p className="housing-error-text">
             {t('housing.ephemeral.limit_note', { max: EPHEMERAL_POOL_LIMIT })}
@@ -313,7 +330,7 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
         <button
           type="button"
           className="housing-ephemeral-add"
-          disabled={!complete}
+          disabled={!complete || crossRegionBlocked}
           onClick={handleAdd}
         >
           {t('housing.ephemeral.add')}

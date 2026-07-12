@@ -44,6 +44,8 @@ export const TourEmptyState: React.FC<TourEmptyStateProps> = ({
   const items = ids
     .map((id) => ephemeral.find((l) => l.id === id))
     .filter((l): l is MockListing => Boolean(l));
+  // 積んだ先頭の家のリージョン (空なら null)。別リージョンの DC 選択を早期ブロックするため渡す。
+  const trayRegion = items[0]?.region ?? null;
 
   return (
     <div className="housing-tour-empty">
@@ -68,6 +70,7 @@ export const TourEmptyState: React.FC<TourEmptyStateProps> = ({
             open={addOpen}
             onClose={() => setAddOpen(false)}
             onAdd={onAddEphemeral}
+            trayRegion={trayRegion}
           />
 
           {items.length > 0 && (

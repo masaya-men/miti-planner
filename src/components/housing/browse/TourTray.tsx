@@ -32,6 +32,8 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
     .map((id) => listings.find((l) => l.id === id) ?? ephemeral.find((l) => l.id === id))
     .filter((l): l is MockListing => Boolean(l));
   const empty = listingIds.length === 0;
+  // トレイ先頭の家のリージョン (空なら null)。一時追加パネルの跨ぎ早期ブロックに渡す。
+  const trayRegion = items[0]?.region ?? null;
 
   const remove = (id: string) => onChange(listingIds.filter((x) => x !== id));
 
@@ -57,6 +59,7 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
         open={addOpen}
         onClose={() => setAddOpen(false)}
         onAdd={onAdd}
+        trayRegion={trayRegion}
       />
 
       {empty ? (
