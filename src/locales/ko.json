@@ -1910,9 +1910,6 @@
             "detail": "사진 갤러리, 즐겨찾기 투어, URL 공유 등 하우징을 사랑하는 모든 분을 위한 기능을 만들고 있습니다.",
             "back_to_top": "상단으로"
         },
-        "header": {
-            "search_placeholder": "주소·월드·테마로 검색…"
-        },
         "card": {
             "favorite": "즐겨찾기",
             "add_to_tour": "투어에 추가",

@@ -1945,9 +1945,6 @@
             "detail": "Photo galleries, favorite tour playlists, shareable URLs — everything for housing enthusiasts is on the way.",
             "back_to_top": "Back to top"
         },
-        "header": {
-            "search_placeholder": "Search by address, world, or theme…"
-        },
         "card": {
             "favorite": "Favorite",
             "add_to_tour": "Add to tour",

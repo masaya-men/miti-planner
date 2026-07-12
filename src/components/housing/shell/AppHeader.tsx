@@ -10,8 +10,9 @@ import { TabBar } from './TabBar';
 
 /**
  * ハウジング共通ヘッダー。
- * [ブランド] [グローバル検索] [TabBar] [通知 / テーマ / アバター]
+ * [ブランド] [TabBar] [通知 / テーマ / アバター]
  * 旧 TopBar からパネルトグル・breadcrumb を除き、中央に TabBar を据えた再構成。
+ * (グローバル検索は死んだプレースホルダーだったため撤去。検索はフィルターパネルにある。)
  */
 export const AppHeader: React.FC = () => {
   const { t } = useTranslation();
@@ -57,16 +58,6 @@ export const AppHeader: React.FC = () => {
         <span className="housing-brand-sub housing-brand-sub-standalone">
           {t('housing.workspace.topbar.subtitle')}
         </span>
-      </div>
-
-      {/* グローバル検索: 第1スパンは見た目のみ (探すのフィルタ store への接続は後続)。 */}
-      <div className="housing-app-search">
-        <input
-          type="search"
-          className="housing-app-search-input"
-          placeholder={t('housing.header.search_placeholder')}
-          aria-label={t('housing.header.search_placeholder')}
-        />
       </div>
 
       <TabBar />

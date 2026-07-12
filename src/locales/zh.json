@@ -1910,9 +1910,6 @@
             "detail": "照片画廊、收藏导览、URL 分享等，专为热爱房屋装饰的玩家打造。",
             "back_to_top": "返回顶部"
         },
-        "header": {
-            "search_placeholder": "按地址·世界·主题搜索…"
-        },
         "card": {
             "favorite": "收藏",
             "add_to_tour": "加入导览",

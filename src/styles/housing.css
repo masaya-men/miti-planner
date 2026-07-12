@@ -3946,7 +3946,7 @@ select.housing-input option {
 .housing-app-header {
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(160px, 1fr) auto auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 20px;
   padding: 0 24px;
@@ -3963,29 +3963,6 @@ select.housing-input option {
     transparent, rgba(255, 255, 255, 0.18) 30%, rgba(255, 255, 255, 0.30) 50%,
     rgba(255, 255, 255, 0.18) 70%, transparent);
   pointer-events: none;
-}
-
-/* グローバル検索 */
-.housing-app-search {
-  display: flex; align-items: center; min-width: 0;
-}
-.housing-app-search-input {
-  width: 100%;
-  height: 34px;
-  padding: 0 14px;
-  color: var(--housing-text);
-  background: var(--housing-panel-inner);
-  border: 1px solid var(--housing-panel-border);
-  border-radius: 10px;
-  font-family: inherit;
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.15s ease, background 0.15s ease;
-}
-.housing-app-search-input::placeholder { color: var(--housing-text-mute); }
-.housing-app-search-input:focus {
-  border-color: var(--housing-honey-border);
-  background: var(--housing-honey-soft);
 }
 
 /* タブバー */
