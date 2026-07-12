@@ -10,6 +10,7 @@ import type { MockListing } from '../../../../data/housing/mockListings';
 import { useHousingTourStore } from '../../../../store/useHousingTourStore';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 import { useHousingViewStore } from '../../../../store/useHousingViewStore';
+import { useEphemeralListingsStore } from '../../../../store/useEphemeralListingsStore';
 
 const navigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -22,6 +23,12 @@ vi.mock('react-router-dom', async () => {
 vi.mock('../../report/HousingReportModal', () => ({
   HousingReportModal: ({ open, listingId }: { open: boolean; listingId: string; onClose: () => void }) =>
     open ? <div data-testid="mock-report-modal">{listingId}</div> : null,
+}));
+
+// showToast をスパイして、 リージョン跨ぎブロック時に呼ばれることを検証する (BrowsePage.test.tsx と同型)。
+const showToastMock = vi.fn();
+vi.mock('../../../Toast', () => ({
+  showToast: (...args: unknown[]) => showToastMock(...args),
 }));
 
 import { TourNavPage } from '../TourNavPage';
@@ -89,6 +96,8 @@ describe('TourNavPage', () => {
     useHousingTourStore.setState({ listingIds: [], running: false, currentIndex: 0, phase: 'moving', viewStartAt: null });
     useHousingListingsStore.setState({ status: 'ready', listings: [], myListings: [] });
     useHousingViewStore.getState().reset();
+    useEphemeralListingsStore.getState().clear();
+    showToastMock.mockClear();
   });
 
   it('listingIds が空なら空状態のみ表示され、3カラムは出ない', () => {
@@ -96,6 +105,42 @@ describe('TourNavPage', () => {
     expect(screen.getByText('ツアーがまだ始まっていません')).toBeInTheDocument();
     expect(screen.queryByText('ツアー進行状況')).not.toBeInTheDocument();
     expect(screen.queryByText('ルートのステップ')).not.toBeInTheDocument();
+  });
+
+  it('空状態: 「住所から追加」でJP+NA混在の一時トレイを作ると開始時ネットで阻止される', () => {
+    // TourEmptyState.onAddEphemeral には canAddToTour による追加時ブロックが無い
+    // (BrowsePage/FavoritesPage の addToTray と違い、住所から追加パネルは常に追加を通す)。
+    // そのため、この画面では onStartEphemeral 内の tourRegionConflict だけが唯一の防波堤になる。
+    renderPage();
+
+    // 「住所から追加」を開く
+    fireEvent.click(screen.getByRole('button', { name: '住所から追加' }));
+
+    // 1件目: JP (Elemental/Aegis)
+    fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Elemental' } });
+    fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Aegis' } });
+    fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
+    fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
+    fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
+    fireEvent.click(screen.getByRole('button', { name: 'ツアーに追加' }));
+
+    // 2件目: NA (Aether/Gilgamesh)、別住所 (連続追加: パネルは開いたまま入力だけクリアされる)
+    fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Aether' } });
+    fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Gilgamesh' } });
+    fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
+    fireEvent.change(screen.getByLabelText('区'), { target: { value: '5' } });
+    fireEvent.change(screen.getByLabelText('番地'), { target: { value: '20' } });
+    fireEvent.click(screen.getByRole('button', { name: 'ツアーに追加' }));
+
+    // 2件とも一時トレイに積まれている (追加時ブロックが無いことの確認)
+    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(2);
+
+    // 開始 → 開始時ネットで弾かれ、tourStoreは変化しない
+    fireEvent.click(screen.getByRole('button', { name: 'この内容でツアーを開始' }));
+
+    expect(useHousingTourStore.getState().listingIds).toHaveLength(0);
+    expect(useHousingTourStore.getState().running).toBe(false);
+    expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 
   it('listingIds + listings 注入で3カラム(進行状況/地図/ショーケース)が描画される', () => {

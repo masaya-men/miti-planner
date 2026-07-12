@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
-import { render, screen, within, fireEvent } from '@testing-library/react';
+import { render, screen, within, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
@@ -18,6 +18,7 @@ import { useHousingFilterStore } from '../../../../store/useHousingFilterStore';
 import { useHousingViewStore } from '../../../../store/useHousingViewStore';
 import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesStore';
 import { useEphemeralListingsStore } from '../../../../store/useEphemeralListingsStore';
+import { useHousingTourStore } from '../../../../store/useHousingTourStore';
 import type { MockListing } from '../../../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -66,6 +67,7 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
     useHousingViewStore.getState().reset();
     useHousingFavoritesStore.setState({ ids: [] });
     useEphemeralListingsStore.getState().clear();
+    useHousingTourStore.setState({ listingIds: [], running: false, currentIndex: 0 });
     showToastMock.mockClear();
   });
 
@@ -107,5 +109,39 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
     const trayItems = within(trayList as HTMLElement).getAllByRole('listitem');
     expect(trayItems).toHaveLength(2);
     expect(showToastMock).not.toHaveBeenCalled();
+  });
+
+  it('トレイ確定後にlistingのregionが変わり混在した場合、開始時ネットで阻止されtourStoreは変化しない', () => {
+    // addToTray の追加時ブロックは「trayに積む瞬間」のregionしか見ないため、
+    // 積んだ後にlisting側のregionが変わるケース(実データ編集/同期などを想定)は
+    // 開始時ネット(onStart内のtourRegionConflict)だけが最後の砦になる。
+    const jp1 = mk('net-1', 'JP', 'Elemental', 'Aegis');
+    const jp2 = mk('net-2', 'JP', 'Gaia', 'Ifrit');
+    useHousingListingsStore.setState({ status: 'ready', listings: [jp1, jp2], myListings: [] } as never);
+
+    renderPage();
+
+    const addButtons = screen.getAllByRole('button', { name: 'ツアーに追加' });
+    // 追加時点では両方JPなのでブロックされず2件トレイへ
+    fireEvent.click(addButtons[0]);
+    fireEvent.click(addButtons[1]);
+
+    const trayList = document.querySelector('.housing-tour-tray-list');
+    expect(within(trayList as HTMLElement).getAllByRole('listitem')).toHaveLength(2);
+
+    // トレイ確定後、net-2 の region が NA に変わる
+    act(() => {
+      useHousingListingsStore.setState({
+        status: 'ready',
+        listings: [jp1, { ...jp2, region: 'NA' }],
+        myListings: [],
+      } as never);
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'この内容でツアーを開始' }));
+
+    expect(useHousingTourStore.getState().listingIds).toHaveLength(0);
+    expect(useHousingTourStore.getState().running).toBe(false);
+    expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 });

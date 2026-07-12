@@ -1,11 +1,18 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
+
+// showToast をスパイして、 リージョン跨ぎブロック時に呼ばれることを検証する (BrowsePage.test.tsx と同型)。
+const showToastMock = vi.fn();
+vi.mock('../../../Toast', () => ({
+  showToast: (...args: unknown[]) => showToastMock(...args),
+}));
+
 import { FavoritesPage } from '../FavoritesPage';
 import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesStore';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
@@ -42,6 +49,27 @@ function mk(id: string, ward = 1, plot = 1): MockListing {
   } as unknown as MockListing;
 }
 
+// テスト基盤メモ: JP=Elemental/Aegis、 NA(別リージョン)=Aether/Gilgamesh (serverMasterData 実在値・BrowsePage.test.tsx と同型)。
+function mkRegion(id: string, region: 'JP' | 'NA', dc: string, server: string, ward = 1, plot = 1): MockListing {
+  return {
+    id,
+    dc,
+    server,
+    region,
+    area: 'Mist',
+    ward,
+    plot,
+    buildingType: 'house',
+    title: id,
+    tags: [],
+    description: '',
+    createdAt: Date.now(),
+    sourceImageUrls: [],
+    // addressKey を空にして重複自動追加を起こさない (mk と同じ理由)
+    addressKey: '',
+  } as unknown as MockListing;
+}
+
 function renderPage() {
   return render(
     <I18nextProvider i18n={i18n}>
@@ -58,6 +86,7 @@ describe('FavoritesPage', () => {
     useHousingTourStore.setState({ listingIds: [], running: false, currentIndex: 0 });
     // マナー通知を毎回クリア
     localStorage.removeItem(MANNER_DISMISSED_KEY);
+    showToastMock.mockClear();
   });
 
   it('お気に入りが空なら空状態を表示', () => {
@@ -143,5 +172,62 @@ describe('FavoritesPage', () => {
 
     // tourStore に2件セットされている
     expect(useHousingTourStore.getState().listingIds).toHaveLength(2);
+  });
+
+  it('お気に入りにJP+NAが混在: JP追加→NA追加は弾かれ、トレイは増えずshowToastがerrorで呼ばれる', () => {
+    const jp = mkRegion('jp-1', 'JP', 'Elemental', 'Aegis');
+    const na = mkRegion('na-1', 'NA', 'Aether', 'Gilgamesh');
+
+    useHousingFavoritesStore.setState({ ids: ['jp-1', 'na-1'] });
+    useHousingListingsStore.setState({ status: 'ready', listings: [jp, na] });
+
+    const { container } = renderPage();
+
+    // カードごとに aria-label (= title = id) でスコープする。
+    // 「すべてツアーに追加」で同時追加すると1件目時点でトレイが空 (trayRegion=null) のため
+    // どちらを先に処理するかで結果が変わってしまう。個別クリックで「JPが先に追加済み」を固定する。
+    const jpCard = screen.getByRole('link', { name: 'jp-1' });
+    const naCard = screen.getByRole('link', { name: 'na-1' });
+    fireEvent.click(within(jpCard).getByRole('button', { name: 'ツアーに追加' }));
+    fireEvent.click(within(naCard).getByRole('button', { name: 'ツアーに追加' }));
+
+    const trayList = container.querySelector('.housing-tour-tray-list');
+    expect(trayList).not.toBeNull();
+    const trayItems = within(trayList as HTMLElement).getAllByRole('listitem');
+    expect(trayItems).toHaveLength(1);
+
+    expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
+  });
+
+  it('トレイ確定後にlistingのregionが変わり混在した場合、開始時ネットで阻止されtourStoreは変化しない', () => {
+    // addToTray の追加時ブロックは「trayに積む瞬間」のregionしか見ないため、
+    // 積んだ後にlisting側のregionが変わるケース(実データ編集/同期などを想定)は
+    // 開始時ネット(commitStart内のtourRegionConflict)だけが最後の砦になる。
+    const jp1 = mkRegion('net-1', 'JP', 'Elemental', 'Aegis', 1, 1);
+    const jp2 = mkRegion('net-2', 'JP', 'Elemental', 'Aegis', 2, 2);
+
+    useHousingFavoritesStore.setState({ ids: ['net-1', 'net-2'] });
+    useHousingListingsStore.setState({ status: 'ready', listings: [jp1, jp2] });
+    localStorage.setItem(MANNER_DISMISSED_KEY, 'true');
+
+    renderPage();
+
+    // 追加時点では両方JPなのでブロックされず2件トレイへ
+    fireEvent.click(screen.getByRole('button', { name: /すべてツアーに追加/ }));
+
+    // トレイ確定後、net-2 の region が NA に変わる
+    act(() => {
+      useHousingListingsStore.setState({
+        status: 'ready',
+        listings: [jp1, { ...jp2, region: 'NA' }],
+      });
+    });
+
+    // 開始 → 開始時ネットで弾かれ、tourStoreは変化しない
+    fireEvent.click(screen.getByRole('button', { name: /この内容でツアーを開始/ }));
+
+    expect(useHousingTourStore.getState().listingIds).toHaveLength(0);
+    expect(useHousingTourStore.getState().running).toBe(false);
+    expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 });
