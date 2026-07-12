@@ -1642,19 +1642,22 @@
   width: 100%;
   padding: 9px 12px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.42);
+  /* select の▼矢印は background-image + background-position で描くため、状態変化で使う背景は
+     必ず background-color 限定にする。background ショートハンドや transition:background だと
+     矢印の背景位置がリセット/アニメして「▼が左からしゅんっと出る」不具合になる (2026-07-12 根治)。 */
+  background-color: rgba(0, 0, 0, 0.42);
   border: 1px solid var(--housing-panel-border);
   color: var(--housing-text);
   font-size: var(--housing-text-base);
   font-family: inherit;
   outline: none;
-  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
 }
 .housing-input:focus,
 .housing-textarea:focus {
   border-color: var(--housing-honey);
   box-shadow: 0 0 0 1px var(--housing-honey-inset) inset;
-  background: rgba(0, 0, 0, 0.55);
+  background-color: rgba(0, 0, 0, 0.55);
 }
 .housing-input:disabled,
 .housing-textarea:disabled {
@@ -1676,6 +1679,7 @@
 }
 /* select は標準矢印を消してハニーゴールドの▼を描く */
 select.housing-input {
+  cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
   background-image: linear-gradient(45deg, transparent 50%, var(--housing-honey) 50%),
@@ -2280,6 +2284,11 @@ select.housing-input option {
   min-height: 0;
   background: rgba(8, 12, 20, 0.78);
   border-radius: 18px;
+}
+/* frost バリアントのモーダル本体は、暗い箱ではなくハウジングのトンマナ (質感A案の半透明ネイビー)
+   にする (2026-07-12 ユーザー指摘「暗い色はトンマナにない」)。背後は frost で薄ぼかしのみ。 */
+.housing-panel-modal-backdrop[data-backdrop="frost"] .housing-panel-modal-shell > .housing-panel.is-liquid {
+  background: var(--housing-panel-bg);
 }
 .housing-panel-modal-head {
   flex-shrink: 0;
