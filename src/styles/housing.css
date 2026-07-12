@@ -5966,6 +5966,15 @@ select.housing-input option {
   border-top: 1px solid var(--housing-divider);
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);
 }
+/* パネル最上部に置く導入説明。footnote 用の上罫線・極小文字ではなく、
+   読みやすい本文サイズ + 下罫線でフォームと区切る (色付き箱にはしない)。 */
+.housing-ephemeral-note-lead {
+  padding-top: 0; padding-bottom: 10px;
+  border-top: none;
+  border-bottom: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-sm); color: var(--housing-text-dim);
+  line-height: 1.5;
+}
 
 /* ツアー空状態内の入口 (簡易リスト + 開始ボタン込み)。中央寄せの空状態の中で左寄せに戻す。 */
 .housing-tour-empty-ephemeral {

@@ -120,6 +120,14 @@ describe('EphemeralAddPanel', () => {
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
     expect(addButton().disabled).toBe(true);
   });
+
+  it('⑫ 「登録されません」の説明がパネル上部 (URL欄より前) に出る', () => {
+    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} />);
+    const note = screen.getByText(/サイトに登録されません/);
+    const urlInput = screen.getByLabelText('SNSのURLから');
+    // note が URL 欄より前にある = compareDocumentPosition に FOLLOWING(4) ビットが立つ。
+    expect(note.compareDocumentPosition(urlInput) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });
 
 describe('EphemeralAddPanel — リージョン跨ぎの早期ブロック (trayRegion)', () => {

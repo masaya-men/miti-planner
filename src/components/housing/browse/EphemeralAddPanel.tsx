@@ -274,6 +274,11 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
       backdrop="frost"
     >
       <div className="housing-ephemeral-panel">
+        {/* 使い捨て挙動の説明は最上部で最初に読ませる (下部だと見落とすため・ユーザー要望 2026-07-13)。 */}
+        <p className="housing-ephemeral-note housing-ephemeral-note-lead">
+          {t('housing.ephemeral.note_volatile')}
+        </p>
+
         <div className="housing-ephemeral-field">
           <label htmlFor="housing-ephemeral-url" className="housing-label">
             {t('housing.ephemeral.url_label')}
@@ -332,8 +337,6 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
         >
           {t('housing.ephemeral.add')}
         </button>
-
-        <p className="housing-ephemeral-note">{t('housing.ephemeral.note_volatile')}</p>
       </div>
     </HousingPanelModal>
   );
