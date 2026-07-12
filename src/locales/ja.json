@@ -2078,7 +2078,7 @@
                 "label": "部屋区分",
                 "whole_house": "家全体",
                 "private_chamber": "FC 個室",
-                "apartment_room": "アパート部屋"
+                "apartment_room": "アパルトメントの部屋"
             },
             "building_type": {
                 "label": "建物タイプ",
@@ -2173,7 +2173,7 @@
                     "out_of_range": "部屋番号は 1〜90 で入力してください"
                 },
                 "roomKind": {
-                    "apartment_room_required": "アパートには部屋番号が必要です",
+                    "apartment_room_required": "アパルトメントには部屋番号が必要です",
                     "invalid_for_house": "この建物タイプでは部屋番号は不要です"
                 }
             },
@@ -2252,7 +2252,7 @@
                 "M": "Mハウス",
                 "L": "Lハウス",
                 "private": "FC個室",
-                "apartment": "アパート"
+                "apartment": "アパルトメント"
             },
             "confirm": {
                 "title": "登録内容の最終確認",

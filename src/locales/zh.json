@@ -2117,7 +2117,7 @@
                     "out_of_range": "部屋番号は 1〜90 で入力してください"
                 },
                 "roomKind": {
-                    "apartment_room_required": "アパートには部屋番号が必要です",
+                    "apartment_room_required": "公寓需要填写房间号",
                     "invalid_for_house": "この建物タイプでは部屋番号は不要です"
                 }
             },

@@ -2022,7 +2022,7 @@
                 "label": "방 구분",
                 "whole_house": "집 전체",
                 "private_chamber": "FC 개인실",
-                "apartment_room": "아파트 방"
+                "apartment_room": "아파트먼트 방"
             },
             "building_type": {
                 "label": "건물 유형",
@@ -2117,7 +2117,7 @@
                     "out_of_range": "部屋番号は 1〜90 で入力してください"
                 },
                 "roomKind": {
-                    "apartment_room_required": "アパートには部屋番号が必要です",
+                    "apartment_room_required": "아파트먼트에는 방 번호가 필요합니다",
                     "invalid_for_house": "この建物タイプでは部屋番号は不要です"
                 }
             },
@@ -2196,7 +2196,7 @@
                 "M": "중형 하우스",
                 "L": "대형 하우스",
                 "private": "FC 개인실",
-                "apartment": "아파트"
+                "apartment": "아파트먼트"
             },
             "confirm": {
                 "title": "등록 내용 최종 확인",
