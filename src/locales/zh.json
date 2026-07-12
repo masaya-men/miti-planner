@@ -2799,7 +2799,8 @@
                     "upcoming": "尚未到达",
                     "route": "移动路线（大致）"
                 }
-            }
+            },
+            "region_block": "不同大区的房屋无法加入同一导览"
         }
     },
     "system_notif": {

@@ -10,6 +10,8 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import { expandTourWithDuplicates } from '../../../lib/housing/expandTourWithDuplicates';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
+import { canAddToTour } from '../../../lib/housing/tourCrossing';
+import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { showToast } from '../../Toast';
 import { FavoritesGrid } from '../favorites/FavoritesGrid';
 import { FavoritesTabs } from '../favorites/FavoritesTabs';
@@ -70,19 +72,32 @@ export const FavoritesPage: React.FC = () => {
    * setState updater 内で副作用(トースト)は出さないよう、計算を先に行う。
    */
   const addToTray = useCallback((idsToAdd: string[]) => {
+    const eph = useEphemeralListingsStore.getState().ephemeralListings;
+    const pool = [...allListings, ...eph];
+    const regionOf = (id: string) => pool.find((l) => l.id === id)?.region ?? null;
     let nextIds = trayIds;
     let totalAutoAdded = 0;
+    let blocked = false;
     for (const addId of idsToAdd) {
+      const trayRegion = nextIds.length > 0 ? regionOf(nextIds[0]) : null;
+      const candRegion = regionOf(addId);
+      if (candRegion !== null && !canAddToTour(trayRegion, candRegion)) { blocked = true; continue; }
+      if (isEphemeralListingId(addId)) {
+        if (!nextIds.includes(addId)) nextIds = [...nextIds, addId];
+        continue;
+      }
       const r = expandTourWithDuplicates(nextIds, addId, allListings);
       if (r.nextIds.length === nextIds.length) continue;
       nextIds = r.nextIds;
       totalAutoAdded += r.autoAddedCount;
     }
-    if (nextIds.length === trayIds.length) return; // 何も増えない
-    setTrayIds(nextIds);
-    if (totalAutoAdded > 0) {
-      showToast(t('housing.workspace.tour.auto_added_toast', { count: totalAutoAdded }), 'info');
+    if (nextIds.length !== trayIds.length) {
+      setTrayIds(nextIds);
+      if (totalAutoAdded > 0) {
+        showToast(t('housing.workspace.tour.auto_added_toast', { count: totalAutoAdded }), 'info');
+      }
     }
+    if (blocked) showToast(t('housing.tour.region_block'), 'error');
   }, [trayIds, allListings, t]);
 
   // ハンドラ群
@@ -199,7 +214,7 @@ export const FavoritesPage: React.FC = () => {
       {/* 右カラム: ツアートレイ */}
       <section className="housing-browse-panel" data-region="right">
         <div className="housing-browse-col housing-browse-col-right">
-          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={handleStart} />
+          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={handleStart} onAdd={(id) => addToTray([id])} />
         </div>
       </section>
 

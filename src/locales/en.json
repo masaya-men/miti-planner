@@ -2834,7 +2834,8 @@
                     "upcoming": "Not yet visited",
                     "route": "Route (approximate)"
                 }
-            }
+            },
+            "region_block": "Houses in a different region can't be added to the same tour"
         }
     },
     "system_notif": {

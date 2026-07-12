@@ -12,13 +12,14 @@ export interface TourTrayProps {
   listingIds: string[];
   onChange: (ids: string[]) => void;
   onStart: () => void;
+  onAdd: (id: string) => void;
 }
 
 /**
  * 右カラムのツアートレイ。番号付きの行き先リスト + 削除 + 「開始」。
  * 第1スパンは 追加/削除/開始 まで。DnD 並べ替えは後続で TourBuilderPane から移植。
  */
-export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStart }) => {
+export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStart, onAdd }) => {
   const { t, i18n } = useTranslation();
   const listings = useHousingListingsStore((s) => s.listings);
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
@@ -55,7 +56,7 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
       <EphemeralAddPanel
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        onAdd={(id) => onChange([...listingIds, id])}
+        onAdd={onAdd}
       />
 
       {empty ? (

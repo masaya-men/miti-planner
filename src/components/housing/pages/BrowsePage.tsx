@@ -10,6 +10,8 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
+import { canAddToTour } from '../../../lib/housing/tourCrossing';
+import { showToast } from '../../Toast';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
 import { PersonalTagFilterLink } from '../workspace/PersonalTagFilterLink';
@@ -77,8 +79,20 @@ export const BrowsePage: React.FC = () => {
 
   // ツアートレイのドラフト (このページローカル)。開始時に tour store へ確定する。
   const [trayIds, setTrayIds] = useState<string[]>([]);
-  const addToTray = (id: string) =>
+  const addToTray = (id: string) => {
+    // 一時 listing は追加直後の stale closure を避けるためストアから fresh に解決する。
+    const eph = useEphemeralListingsStore.getState().ephemeralListings;
+    const candidate = merged.find((l) => l.id === id) ?? eph.find((l) => l.id === id);
+    if (!candidate) return;
+    const pool = [...merged, ...eph];
+    const trayRegion =
+      trayIds.length > 0 ? (pool.find((l) => l.id === trayIds[0])?.region ?? null) : null;
+    if (!canAddToTour(trayRegion, candidate.region)) {
+      showToast(t('housing.tour.region_block'), 'error');
+      return;
+    }
     setTrayIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  };
 
   const onStart = () => {
     if (trayIds.length === 0) return;
@@ -132,7 +146,7 @@ export const BrowsePage: React.FC = () => {
 
       <section className="housing-browse-panel" data-region="right">
         <div className="housing-browse-col housing-browse-col-right">
-          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} />
+          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} onAdd={addToTray} />
           <FavoritesPreviewStrip />
         </div>
       </section>

@@ -30,20 +30,20 @@ const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui
 
 describe('TourTray', () => {
   it('disables start when empty', () => {
-    wrap(<TourTray listingIds={[]} onChange={() => {}} onStart={() => {}} />);
+    wrap(<TourTray listingIds={[]} onChange={() => {}} onStart={() => {}} onAdd={() => {}} />);
     expect((screen.getByRole('button', { name: /開始|start/ }) as HTMLButtonElement).disabled).toBe(true);
   });
 
   it('calls onStart when items present', () => {
     const onStart = vi.fn();
-    wrap(<TourTray listingIds={['a']} onChange={() => {}} onStart={onStart} />);
+    wrap(<TourTray listingIds={['a']} onChange={() => {}} onStart={onStart} onAdd={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: /開始|start/ }));
     expect(onStart).toHaveBeenCalled();
   });
 
   it('removes an item via the × button', () => {
     const onChange = vi.fn();
-    wrap(<TourTray listingIds={['a']} onChange={onChange} onStart={() => {}} />);
+    wrap(<TourTray listingIds={['a']} onChange={onChange} onStart={() => {}} onAdd={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: /削除|remove/ }));
     expect(onChange).toHaveBeenCalledWith([]);
   });

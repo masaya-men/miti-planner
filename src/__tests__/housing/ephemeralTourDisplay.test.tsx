@@ -50,7 +50,7 @@ const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui
 describe('一時 listing の「一時」バッジ表示 (TourTray)', () => {
   it('一時 listing の行にバッジが出る', () => {
     const { container } = wrap(
-      <TourTray listingIds={[ephemeralListing.id]} onChange={() => {}} onStart={() => {}} />,
+      <TourTray listingIds={[ephemeralListing.id]} onChange={() => {}} onStart={() => {}} onAdd={() => {}} />,
     );
     const item = container.querySelector('.housing-tour-tray-item')!;
     expect(item.querySelector('.housing-ephemeral-badge')).not.toBeNull();
@@ -59,7 +59,7 @@ describe('一時 listing の「一時」バッジ表示 (TourTray)', () => {
 
   it('登録済み listing の行にはバッジが出ない', () => {
     const { container } = wrap(
-      <TourTray listingIds={[registered.id]} onChange={() => {}} onStart={() => {}} />,
+      <TourTray listingIds={[registered.id]} onChange={() => {}} onStart={() => {}} onAdd={() => {}} />,
     );
     const item = container.querySelector('.housing-tour-tray-item')!;
     expect(item.querySelector('.housing-ephemeral-badge')).toBeNull();
