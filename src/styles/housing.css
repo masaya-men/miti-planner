@@ -26,10 +26,10 @@
      旧値 rgba(255,255,255,0.04) は透けすぎて暗幕頼みだった。light/dark 共通 (text は常に白)。 */
   --housing-panel-bg: rgba(17, 23, 37, 0.56);
   --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
-  /* 探す地図② 大量部屋パネルの薄い半透明ベール (2026-07-12 A案)。後ろの地図がうっすら透ける濃さ。
-     backdrop-filter (ぼかし) は角丸にクリップできず角がはみ出すため不採用 → ベタのベールで代替。
-     panel-bg-solid (0.74=暗幕・却下) より薄く、地図が見える。濃さはこの1値で調整。 */
-  --housing-bmap-panel-veil: rgba(17, 23, 37, 0.38);
+  /* 探す地図② 区画セグメント (.housing-mapctl-areas) の角丸。大量部屋パネル
+     (.housing-bmap-roompanel) が同じ角丸で上に重なるので、裏のピルの角が
+     パネルの角からはみ出さないよう共有する (2026-07-12 ユーザー指摘)。 */
+  --housing-mapctl-areas-radius: 9px;
   --housing-panel-border: rgba(255, 255, 255, 0.16);
   --housing-panel-border-strong: rgba(255, 255, 255, 0.28);
   --housing-panel-inner: rgba(255, 255, 255, 0.05);
@@ -5345,18 +5345,21 @@ select.housing-input option {
   z-index: 20;
   display: flex;
   flex-direction: column;
-  /* 薄い半透明ベール (2026-07-12 A案・ユーザー確定)。後ろの地図はうっすら透けて見えるが、
-     パネル内容が別レイヤーとして読める程度に地図を後退させる。
-     backdrop-filter (ぼかし) は使わない: このブラウザ (Win Chromium) はぼかしの矩形を
-     border-radius / overflow / clip-path のどれでも角丸にクリップできず、角丸のカドにぼかしが
-     四角くはみ出す (先セッションで4手法実測)。ベタのベールなら border-radius だけで確実に角丸になる。 */
-  border-radius: 14px;
-  background: var(--housing-bmap-panel-veil);
+  /* 透明感のあるフロスト = 色は載せず backdrop のぼかしのみ。後ろの地図がぼんやり透ける
+     (ユーザー確定: 地図は隠さずぼかす)。★角丸は裏の区画ピルバー (.housing-mapctl-areas) と
+     同じ --housing-mapctl-areas-radius にそろえる: 半径が違うと裏のピルの角がパネルの角から
+     はみ出て「四角い出っ張り」に見えるため (2026-07-12 ユーザー指摘で判明)。clip-path は
+     ぼかし込みで要素を角丸に切り抜く保険 (border-radius と同値)。 */
+  border-radius: var(--housing-mapctl-areas-radius);
+  clip-path: inset(0 round var(--housing-mapctl-areas-radius));
   border: 1px solid var(--housing-panel-border);
+  --tw-backdrop-blur: blur(8px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   animation: housing-bmap-roompanel-in 190ms ease;
 }
 @keyframes housing-bmap-roompanel-in {
-  /* opacity フェードのみ (静かに現れる)。 */
+  /* opacity のみ (transform を使うと backdrop-filter との合成で角がちらつくため)。 */
   from { opacity: 0; }
   to { opacity: 1; }
 }
@@ -5445,7 +5448,7 @@ select.housing-input option {
   padding: 3px;
   background: var(--housing-panel-inner);
   border: 1px solid var(--housing-panel-border);
-  border-radius: 9px;
+  border-radius: var(--housing-mapctl-areas-radius);
 }
 .housing-mapctl-area-btn {
   appearance: none; cursor: pointer;
