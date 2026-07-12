@@ -392,4 +392,45 @@ describe('BrowseWardMap ズーム/パン/クランプ変換', () => {
     expect(after.ty).toBeCloseTo(before.ty + 30, 9);
     expect(after.scale).toBeCloseTo(before.scale, 9);
   });
+
+  // review 指摘(Task4): カサカサ根治の核心配線に自動テストが無かったための追加分。
+  // .housing-bmap-card-plane は .housing-bmap-stage と同一 transform 文字列を持つことで、
+  // カード群が地図(SVG)と全く同じズレなく追従する(=カサカサの原因だった「毎フレーム再計算した
+  // 画面座標に微妙な誤差が乗る」構造を廃止した設計そのもの)。plane が別スケール/別tx-tyを
+  // 使うようになる回帰をここで検知する。
+  it('.housing-bmap-card-plane と .housing-bmap-stage の transform は常に一致する(plane が別スケールを使う回帰を検知)', () => {
+    mockReady();
+    renderMap();
+    const stage = screen.getByTestId('bmap-stage');
+    const plane = screen.getByTestId('bmap-card-plane');
+    expect(plane.style.transform).toBe(stage.style.transform);
+
+    const wrap = screen.getByTestId('bmap-wrap');
+    fireWheelAt(wrap, 100, 50, -100); // ズームイン後も一致し続けること
+
+    expect(plane.style.transform).toBe(stage.style.transform);
+  });
+
+  // .housing-bmap-marker-pos(各カードの親)は区画座標 translate(m.x, m.y) で置かれ、
+  // view(pan/zoom) に依存しない(旧 sx/sy 画面座標の per-frame 再計算をやめたのがカサカサ根治の
+  // 本質)。stage の transform は変化するのに marker-pos の transform は不変であることを確認する。
+  it('.housing-bmap-marker-pos の transform は区画座標固定で view(pan/zoom) に依存しない', () => {
+    mockReady();
+    renderMap();
+    const wrap = screen.getByTestId('bmap-wrap');
+    const stage = screen.getByTestId('bmap-stage');
+    const markerPos = screen.getByTestId('bmap-card-plot:5').closest('.housing-bmap-marker-pos') as HTMLElement;
+    expect(markerPos).toBeTruthy();
+
+    const markerTransformBefore = markerPos.style.transform;
+    const stageTransformBefore = stage.style.transform;
+    expect(markerTransformBefore).toMatch(/^translate\([-\d.]+px, [-\d.]+px\)$/);
+
+    fireEvent.pointerDown(wrap, { pointerId: 1, clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(wrap, { pointerId: 1, clientX: 140, clientY: 130 }); // dx=40, dy=30
+    fireEvent.pointerUp(wrap, { pointerId: 1, clientX: 140, clientY: 130 });
+
+    expect(stage.style.transform).not.toBe(stageTransformBefore); // stage(地図)は動く
+    expect(markerPos.style.transform).toBe(markerTransformBefore); // marker-pos(区画座標)は不変
+  });
 });
