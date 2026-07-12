@@ -126,3 +126,30 @@ export function findInitialWardTarget(filtered: MockListing[]): { area: HousingA
   }
   return best ? { area: best.area, ward: best.ward } : null;
 }
+
+export interface SpotRoomGroups {
+  /** 家全体登録 (roomKind 未設定)。plot スポットのみ。通常 1 件、重複登録で複数もありうる。 */
+  houseWholes: MockListing[];
+  /** FC 個室 (roomKind==='private_chamber')。plot スポットのみ。 */
+  chambers: MockListing[];
+  /** アパート部屋 (apart スポットの全件)。 */
+  apartmentRooms: MockListing[];
+}
+
+/**
+ * スポットの listings を大量部屋パネル用に振り分ける (spec §4.3)。
+ * apart スポットは全件が apartment_room。plot スポットは 家全体(roomKind 未設定) と 個室(private_chamber)。
+ * Firestore 再取得はしない (既に集約済み・一覧と同じフィルタ結果)。
+ */
+export function splitSpotListings(spot: BrowseMapSpot): SpotRoomGroups {
+  if (spot.kind === 'apart') {
+    return { houseWholes: [], chambers: [], apartmentRooms: spot.listings.slice() };
+  }
+  const houseWholes: MockListing[] = [];
+  const chambers: MockListing[] = [];
+  for (const l of spot.listings) {
+    if (l.roomKind === 'private_chamber') chambers.push(l);
+    else houseWholes.push(l);
+  }
+  return { houseWholes, chambers, apartmentRooms: [] };
+}

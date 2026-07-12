@@ -6,6 +6,7 @@ import {
   countListingsByWard,
   countListingsByMapKind,
   findInitialWardTarget,
+  splitSpotListings,
 } from '../browseMapSpots';
 
 // MockListing は必須フィールドが多いため最小限を埋めるフィクスチャビルダー
@@ -154,5 +155,39 @@ describe('findInitialWardTarget', () => {
 
   it('0件ならnull', () => {
     expect(findInitialWardTarget([])).toBeNull();
+  });
+});
+
+describe('splitSpotListings', () => {
+  const spot = (kind: 'plot' | 'apart', listings: MockListing[]) =>
+    ({ key: `${kind}:5`, kind, plot: 5, listings, representative: listings[0] });
+
+  it('apart スポットは全件を apartmentRooms に入れる', () => {
+    const rooms = [
+      mkListing({ buildingType: 'apartment', roomKind: 'apartment_room', roomNumber: 1 }),
+      mkListing({ buildingType: 'apartment', roomKind: 'apartment_room', roomNumber: 2 }),
+    ];
+    const g = splitSpotListings(spot('apart', rooms));
+    expect(g.apartmentRooms).toHaveLength(2);
+    expect(g.houseWholes).toHaveLength(0);
+    expect(g.chambers).toHaveLength(0);
+  });
+
+  it('plot スポットは 家全体(roomKind未設定) と 個室(private_chamber) に分ける', () => {
+    const house = mkListing({});
+    const c1 = mkListing({ roomKind: 'private_chamber', roomNumber: 1 });
+    const c2 = mkListing({ roomKind: 'private_chamber', roomNumber: 2 });
+    const g = splitSpotListings(spot('plot', [house, c1, c2]));
+    expect(g.houseWholes).toEqual([house]);
+    expect(g.chambers).toEqual([c1, c2]);
+    expect(g.apartmentRooms).toHaveLength(0);
+  });
+
+  it('家全体が複数(重複登録)でも全部 houseWholes に残す', () => {
+    const h1 = mkListing({});
+    const h2 = mkListing({});
+    const g = splitSpotListings(spot('plot', [h1, h2]));
+    expect(g.houseWholes).toEqual([h1, h2]);
+    expect(g.chambers).toHaveLength(0);
   });
 });
