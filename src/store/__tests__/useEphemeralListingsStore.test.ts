@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useEphemeralListingsStore } from '../useEphemeralListingsStore';
-import { createEphemeralListing } from '../../lib/housing/ephemeralListing';
+import { createEphemeralListing, EPHEMERAL_POOL_LIMIT } from '../../lib/housing/ephemeralListing';
 
 function makeListing(seed: number) {
   return createEphemeralListing({
@@ -44,15 +44,15 @@ describe('useEphemeralListingsStore — persist なし専用 store', () => {
     expect(useEphemeralListingsStore.getState().ephemeralListings).toEqual([]);
   });
 
-  it('EPHEMERAL_POOL_LIMIT (30件) までは add が true・31件目は false で弾かれる', () => {
-    for (let i = 0; i < 30; i++) {
+  it('EPHEMERAL_POOL_LIMIT までは add が true・上限超過は false で弾かれる', () => {
+    for (let i = 0; i < EPHEMERAL_POOL_LIMIT; i++) {
       const result = useEphemeralListingsStore.getState().add(makeListing(i));
       expect(result).toBe(true);
     }
-    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(30);
+    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(EPHEMERAL_POOL_LIMIT);
 
-    const overflowResult = useEphemeralListingsStore.getState().add(makeListing(30));
+    const overflowResult = useEphemeralListingsStore.getState().add(makeListing(EPHEMERAL_POOL_LIMIT));
     expect(overflowResult).toBe(false);
-    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(30);
+    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(EPHEMERAL_POOL_LIMIT);
   });
 });
