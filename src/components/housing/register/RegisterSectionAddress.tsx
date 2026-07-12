@@ -293,32 +293,22 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
 
         {isApartment && (
           <>
-            <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('apartmentBuilding')}>
-              <label className="housing-label">{t('housing.register.apartment_building.label')}</label>
-              <div className="housing-type-selector" role="radiogroup">
-                <button
-                  type="button"
-                  className="housing-type-chip"
-                  data-selected={apartmentBuilding === 1 ? 'true' : 'false'}
-                  role="radio"
-                  aria-checked={apartmentBuilding === 1}
-                  disabled={locked}
-                  onClick={() => onChange('apartmentBuilding', 1)}
-                >
-                  {t('housing.register.apartment_building.main')}
-                </button>
-                <button
-                  type="button"
-                  className="housing-type-chip"
-                  data-selected={apartmentBuilding === 2 ? 'true' : 'false'}
-                  role="radio"
-                  aria-checked={apartmentBuilding === 2}
-                  disabled={locked}
-                  onClick={() => onChange('apartmentBuilding', 2)}
-                >
-                  {t('housing.register.apartment_building.sub')}
-                </button>
-              </div>
+            {/* 号棟は部屋番号と横並び(2カラム)に収めるため、全幅チップではなく半幅セレクトにする
+                (アパルトメント選択時のレイアウトのガタつきも解消・ユーザー要望 2026-07-13)。 */}
+            <div className="housing-field housing-conditional-field" data-state={fieldState.getState('apartmentBuilding')}>
+              <label htmlFor="housing-register-apartment-building" className="housing-label">
+                {t('housing.register.apartment_building.label')}
+              </label>
+              <select
+                id="housing-register-apartment-building"
+                className="housing-input"
+                value={apartmentBuilding ?? 1}
+                disabled={locked}
+                onChange={(e) => onChange('apartmentBuilding', Number(e.target.value))}
+              >
+                <option value={1}>{t('housing.register.apartment_building.main')}</option>
+                <option value={2}>{t('housing.register.apartment_building.sub')}</option>
+              </select>
             </div>
 
             <div className="housing-field housing-conditional-field" data-state={fieldState.getState('roomNumber')}>

@@ -2023,7 +2023,8 @@ select.housing-input option {
   gap: 6px;
 }
 .housing-type-chip {
-  flex: 1 1 auto;
+  /* flex-basis:0 で文言の長短に関わらず等幅にする (auto だと長い文言のチップだけ広くなる)。 */
+  flex: 1 1 0;
   min-width: 72px;
   padding: 9px 14px;
   border-radius: 8px;
