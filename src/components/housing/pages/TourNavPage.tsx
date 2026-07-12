@@ -83,11 +83,15 @@ export const TourNavPage: React.FC = () => {
     () => getPlotDirections(currentListing?.area ?? '', currentListing?.plot),
     [currentListing],
   );
-  // 前の家→この家の移動種別(DC/ワールド跨ぎ)。行き方枠(右パネル)へ渡す。
+  // 前の家→この家の移動種別(DC/ワールド跨ぎ)。行き方枠(右パネル)+中央マップのぼかし案内へ渡す。
   const crossing: TourCrossing = useMemo(
     () => (currentListing ? crossingBetween(prevStep?.listing ?? null, currentListing) : { kind: 'none' }),
     [prevStep, currentListing],
   );
+  // 中央マップの跨ぎ案内カード: 「移動しました」で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
+  const [crossingAckIndex, setCrossingAckIndex] = useState<number | null>(null);
+  const showCrossingOverlay = crossing.kind !== 'none' && crossingAckIndex !== currentIndex;
+  const onAckCrossing = useCallback(() => setCrossingAckIndex(currentIndex), [currentIndex]);
   const canView = currentListing != null;
   const mapRef = useMemo(
     () =>
@@ -225,6 +229,9 @@ export const TourNavPage: React.FC = () => {
             // 名前ラベルの源: 家は正典 directions.aetheryte、アパートは plot が無く directions が引けないため
             // 起点解決済みの mapModel.originName にフォールバック(マーカーと同じ最寄りエーテライト名)。
             originName={directions?.aetheryte ?? mapModel?.originName ?? null}
+            crossing={crossing}
+            showCrossing={showCrossingOverlay}
+            onAckCrossing={onAckCrossing}
           />
         </div>
       </section>

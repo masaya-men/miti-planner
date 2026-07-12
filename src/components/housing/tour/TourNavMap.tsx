@@ -4,6 +4,7 @@ import type { TourMapModel } from '../../../lib/housing/buildTourMapPlacements';
 import { applyWheelZoom, zoomAt, type MapView } from '../../../lib/housing/mapZoom';
 import { computeDefaultView, routeBbox } from '../../../lib/housing/mapDefaultView';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
+import type { TourCrossing } from '../../../lib/housing/tourCrossing';
 
 export interface TourNavMapProps {
   status: 'none' | 'loading' | 'ready' | 'error';
@@ -16,6 +17,12 @@ export interface TourNavMapProps {
   stepKey: string | number;
   /** 起点エーテライトの名前。origin(座標)の上に常時ラベル表示する。無ければ非表示。 */
   originName?: string | null;
+  /** 前の家→この家の移動種別。省略時は跨ぎ無し扱い。 */
+  crossing?: TourCrossing;
+  /** true の間、ステージにぼかし+跨ぎ案内カードを重ねる。省略時は出さない。 */
+  showCrossing?: boolean;
+  /** 「移動しました」ボタンの押下ハンドラ。省略時は no-op。 */
+  onAckCrossing?: () => void;
 }
 
 const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
@@ -28,7 +35,10 @@ type MapData = { svg: string; viewBox: { w: number; h: number }; model: TourMapM
 
 /** ツアー中(Nav) 中央: 実エーテライト起点→家の経路をアニメし、目的地の実区画を光らせるナビ地図。
  * 目的地が変わると「ズームアウト→フェードで地図をシームレス切替→ズームイン」で着地。指/マウスでパン&ズーム可。 */
-export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, model, stepKey, originName }) => {
+export const TourNavMap: React.FC<TourNavMapProps> = ({
+  status, svg, viewBox, model, stepKey, originName,
+  crossing = { kind: 'none' }, showCrossing = false, onAckCrossing = () => {},
+}) => {
   const { t } = useTranslation();
   const hostRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -395,6 +405,22 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({ status, svg, viewBox, mo
         {displayed && (
           <div className="housing-tour-map-hint" data-testid="tour-map-hint" aria-hidden="true">
             {t('housing.tour.nav.map_hint')}
+          </div>
+        )}
+        {showCrossing && crossing.kind !== 'none' && (
+          <div className="housing-tour-map-cross" data-testid="tour-map-cross">
+            <div className="housing-tour-map-cross-card">
+              <p className="housing-tour-map-cross-text">
+                {crossing.kind === 'dc'
+                  ? t('housing.tour.nav.cross.dc', { dc: crossing.dc, world: crossing.world })
+                  : crossing.kind === 'world'
+                    ? t('housing.tour.nav.cross.world', { world: crossing.world })
+                    : t('housing.tour.nav.cross.region')}
+              </p>
+              <button type="button" className="housing-tour-map-cross-ack" onClick={onAckCrossing}>
+                {t('housing.tour.nav.cross.ack')}
+              </button>
+            </div>
           </div>
         )}
       </div>
