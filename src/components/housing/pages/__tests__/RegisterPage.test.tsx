@@ -467,7 +467,7 @@ describe('RegisterPage', () => {
       const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
       expect(sizeField(container)).not.toBeNull();
 
-      fireEvent.click(screen.getByRole('radio', { name: 'アパート' }));
+      fireEvent.click(screen.getByRole('radio', { name: 'アパルトメント' }));
       expect(sizeField(container)).toBeNull();
     });
   });
@@ -479,7 +479,7 @@ describe('RegisterPage', () => {
     // (Task3 で解消予定)、role=radiogroup の先頭 (buildingType) を明示的に絞って操作する。
     const clickHouseChip = (container: HTMLElement) => {
       const radiogroups = container.querySelectorAll('[role="radiogroup"]');
-      fireEvent.click(within(radiogroups[0] as HTMLElement).getByRole('radio', { name: '家' }));
+      fireEvent.click(within(radiogroups[0] as HTMLElement).getByRole('radio', { name: '個人宅・FCハウス' }));
     };
 
     const fillValidAddress = (container: HTMLElement) => {

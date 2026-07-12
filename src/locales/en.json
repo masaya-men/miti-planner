@@ -2061,7 +2061,7 @@
             },
             "building_type": {
                 "label": "Building type",
-                "house": "House",
+                "house": "Private/FC House",
                 "apartment": "Apartment"
             },
             "apartment_building": {

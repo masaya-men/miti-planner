@@ -2036,7 +2036,7 @@
             "next_ward": "次の区へ",
             "spot_open_panel": "{{count}}件を見る",
             "plot_label": "{{plot}}番地",
-            "apartment_label": "アパート",
+            "apartment_label": "アパルトメント",
             "roompanel_back": "地図に戻る",
             "roompanel_house": "家全体",
             "roompanel_chambers": "個室 {{count}}件"
@@ -2082,8 +2082,8 @@
             },
             "building_type": {
                 "label": "建物タイプ",
-                "house": "家",
-                "apartment": "アパート"
+                "house": "個人宅・FCハウス",
+                "apartment": "アパルトメント"
             },
             "apartment_building": {
                 "label": "号棟",

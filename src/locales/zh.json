@@ -2025,9 +2025,9 @@
                 "apartment_room": "公寓房间"
             },
             "building_type": {
-                "label": "建物タイプ",
-                "house": "家",
-                "apartment": "アパート"
+                "label": "建筑类型",
+                "house": "个人房屋·部队房屋",
+                "apartment": "公寓"
             },
             "apartment_building": {
                 "label": "号棟",

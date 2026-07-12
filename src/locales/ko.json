@@ -1980,7 +1980,7 @@
             "next_ward": "다음 구역으로",
             "spot_open_panel": "{{count}}건 보기",
             "plot_label": "{{plot}}번지",
-            "apartment_label": "아파트",
+            "apartment_label": "아파트먼트",
             "roompanel_back": "지도로 돌아가기",
             "roompanel_house": "집 전체",
             "roompanel_chambers": "개인실 {{count}}건"
@@ -2025,9 +2025,9 @@
                 "apartment_room": "아파트 방"
             },
             "building_type": {
-                "label": "建物タイプ",
-                "house": "家",
-                "apartment": "アパート"
+                "label": "건물 유형",
+                "house": "개인·자유부대 하우스",
+                "apartment": "아파트먼트"
             },
             "apartment_building": {
                 "label": "号棟",

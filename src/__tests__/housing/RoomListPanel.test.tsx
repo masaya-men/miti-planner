@@ -47,7 +47,7 @@ describe('RoomListPanel', () => {
   it('アパート: タイトルにアパート、全部屋をグリッド表示', () => {
     const rooms = [L({ buildingType: 'apartment', roomKind: 'apartment_room', roomNumber: 1 }), L({ buildingType: 'apartment', roomKind: 'apartment_room', roomNumber: 2 })];
     renderPanel(spot({ key: 'apart:1', kind: 'apart', plot: 1, listings: rooms }));
-    expect(screen.getByText('アパート')).toBeTruthy();
+    expect(screen.getByText('アパルトメント')).toBeTruthy();
     expect(screen.getAllByTestId('housing-listing-card')).toHaveLength(2);
   });
 });
