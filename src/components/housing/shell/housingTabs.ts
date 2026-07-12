@@ -12,7 +12,6 @@ export interface HousingTab {
 export const HOUSING_TABS: readonly HousingTab[] = [
   { key: 'browse', labelKey: 'housing.tabs.browse', path: '/housing', end: true },
   { key: 'favorites', labelKey: 'housing.tabs.favorites', path: '/housing/favorites' },
-  { key: 'plan', labelKey: 'housing.tabs.plan', path: '/housing/plan' },
   { key: 'tour', labelKey: 'housing.tabs.tour', path: '/housing/tour' },
   { key: 'register', labelKey: 'housing.tabs.register', path: '/housing/register' },
   { key: 'mypage', labelKey: 'housing.tabs.mypage', path: '/housing/mypage' },

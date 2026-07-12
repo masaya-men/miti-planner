@@ -99,7 +99,6 @@ function AppRoutes() {
         <Route index element={<BrowsePage />} />
         {/* 未実装タブは暫定で「準備中」に着地 (以降のスパンで本実装に差し替え)。 */}
         <Route path="favorites" element={<FavoritesPage />} />
-        <Route path="plan" element={<ComingSoonPage tab="plan" />} />
         <Route path="tour" element={<TourNavPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
