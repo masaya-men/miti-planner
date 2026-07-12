@@ -4,6 +4,7 @@ import { HOUSING_AREAS, type HousingArea, type HousingSize } from '../../../type
 import { WARD_RANGE, PLOT_RANGE, APARTMENT_ROOM_RANGE, PRIVATE_CHAMBER_RANGE } from '../../../constants/housing';
 import { getAreaName } from '../../../lib/housing/areaName';
 import type { useHousingFieldState } from '../../../lib/housing/housingFieldState';
+import { HousingNumberStepper } from './HousingNumberStepper';
 
 export interface RegisterAddressValues {
   dc?: string;
@@ -164,15 +165,13 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
           <label htmlFor="housing-register-ward" className="housing-label">
             {t('housing.register.ward')}
           </label>
-          <input
+          <HousingNumberStepper
             id="housing-register-ward"
-            type="number"
             min={WARD_RANGE.min}
             max={WARD_RANGE.max}
-            className="housing-input"
-            value={ward ?? ''}
+            value={ward}
             disabled={locked}
-            onChange={(e) => onChange('ward', e.target.value ? Number(e.target.value) : undefined)}
+            onChange={(v) => onChange('ward', v)}
           />
           {renderBadge('ward')}
         </div>
@@ -211,15 +210,13 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               <label htmlFor="housing-register-plot" className="housing-label">
                 {t('housing.register.plot')}
               </label>
-              <input
+              <HousingNumberStepper
                 id="housing-register-plot"
-                type="number"
                 min={PLOT_RANGE.min}
                 max={PLOT_RANGE.max}
-                className="housing-input"
-                value={plot ?? ''}
+                value={plot}
                 disabled={locked}
-                onChange={(e) => onChange('plot', e.target.value ? Number(e.target.value) : undefined)}
+                onChange={(v) => onChange('plot', v)}
               />
               {renderBadge('plot')}
             </div>
@@ -280,14 +277,13 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
                 <label htmlFor="housing-register-room-number" className="housing-label">
                   {t('housing.register.room_number')}
                 </label>
-                <input
+                <HousingNumberStepper
                   id="housing-register-room-number"
-                  type="number"
                   min={PRIVATE_CHAMBER_RANGE.min}
                   max={PRIVATE_CHAMBER_RANGE.max}
-                  className="housing-input"
-                  value={roomNumber ?? ''}
-                  onChange={(e) => onChange('roomNumber', e.target.value ? Number(e.target.value) : undefined)}
+                  value={roomNumber}
+                  disabled={locked}
+                  onChange={(v) => onChange('roomNumber', v)}
                 />
                 {renderBadge('roomNumber')}
               </div>
@@ -329,15 +325,13 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               <label htmlFor="housing-register-apartment-room-number" className="housing-label">
                 {t('housing.register.room_number')}
               </label>
-              <input
+              <HousingNumberStepper
                 id="housing-register-apartment-room-number"
-                type="number"
                 min={APARTMENT_ROOM_RANGE.min}
                 max={APARTMENT_ROOM_RANGE.max}
-                className="housing-input"
-                value={roomNumber ?? ''}
+                value={roomNumber}
                 disabled={locked}
-                onChange={(e) => onChange('roomNumber', e.target.value ? Number(e.target.value) : undefined)}
+                onChange={(v) => onChange('roomNumber', v)}
               />
               {renderBadge('roomNumber')}
             </div>

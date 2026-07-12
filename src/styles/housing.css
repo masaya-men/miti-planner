@@ -4159,6 +4159,41 @@ select.housing-input option {
   margin: 0;
 }
 
+/* 数値入力の自作 ▲▼ ステッパー。ネイティブ spinner を隠し「未入力+下→最大」を実現する
+   (HousingNumberStepper)。ボタンは input の内側右端にネスト、角丸は input(8px)に合わせる。 */
+.housing-stepper { position: relative; }
+.housing-stepper-input {
+  appearance: textfield;
+  -moz-appearance: textfield;
+  padding-right: 30px;
+}
+.housing-stepper-input::-webkit-outer-spin-button,
+.housing-stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.housing-stepper-btns {
+  position: absolute; top: 1px; right: 1px; bottom: 1px;
+  display: flex; flex-direction: column; width: 24px;
+  border-left: 1px solid var(--housing-panel-border);
+  border-radius: 0 7px 7px 0;
+  overflow: hidden;
+}
+.housing-stepper-btn {
+  flex: 1 1 0; min-height: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent; cursor: pointer;
+  color: var(--housing-text-mute); font-size: 8px; line-height: 1;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+.housing-stepper-up { border-bottom: 1px solid var(--housing-panel-border); }
+.housing-stepper-btn:hover { color: var(--housing-honey); background-color: var(--housing-honey-soft); }
+.housing-stepper-btn:active { color: var(--housing-honey); }
+.housing-stepper-btn:disabled {
+  cursor: not-allowed; opacity: 0.35;
+  color: var(--housing-text-mute); background-color: transparent;
+}
+
 /* ハウジンガー公開 CTA (Task9): 確認セクション直前の任意ブロック。何も要求しない導線なので
    `.housing-register-section` の青アクセント見出し (= 必須ステップ扱い) は使わず、
    ヘアライン区切り + 静かな見出しに留める (housing-design.md 「AI 感の払拭」原則)。 */
