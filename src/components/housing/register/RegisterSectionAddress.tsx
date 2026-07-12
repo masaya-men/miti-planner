@@ -23,6 +23,12 @@ interface Props {
   values: RegisterAddressValues;
   /** buildingType 等の切替でフィールドを一括更新するとき用 (排他フィールドの初期化に使う)。 */
   onChange: (name: string, value: unknown) => void;
+  /**
+   * 'register' (既定) = 登録フォームのフル表示。 'tour' = 一時ツアー追加モーダル用に、
+   * 登録固有の部分 (セクション見出し / 自動入力注記 / サイズ自動導出 / 一軒家の個室区分) を隠す。
+   * ツアーは区画へ行くので house は区画ベースで足り、DC/サーバー/エリア/区/番地は共通で残す。
+   */
+  variant?: 'register' | 'tour';
 }
 
 /**
@@ -32,7 +38,7 @@ interface Props {
  * roomKind ベースを採用する (旧 HousingRegisterForm.tsx の 5 択 HousingExtractSize モデルは
  * 新バックエンド/WardMapPreview と不整合のため踏襲しない)。
  */
-export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, onChange }) => {
+export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, onChange, variant = 'register' }) => {
   const { t, i18n } = useTranslation();
   const { dc, server, area, ward, buildingType, plot, size, apartmentBuilding, roomKind, roomNumber } = values;
 
@@ -69,12 +75,16 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
 
   return (
     <section className="housing-register-section" data-testid="housing-register-section-address">
-      <h2 className="housing-register-section-title">{t('housing.register.section_address')}</h2>
+      {variant === 'register' && (
+        <>
+          <h2 className="housing-register-section-title">{t('housing.register.section_address')}</h2>
 
-      {/* 自動入力 (ハウジングスナップ等) を過信させない静かな注記 (#6・色付き箱にしない)。 */}
-      <p className="housing-address-note" data-testid="housing-register-address-verify-note">
-        {t('housing.register.address_verify_note')}
-      </p>
+          {/* 自動入力 (ハウジングスナップ等) を過信させない静かな注記 (#6・色付き箱にしない)。 */}
+          <p className="housing-address-note" data-testid="housing-register-address-verify-note">
+            {t('housing.register.address_verify_note')}
+          </p>
+        </>
+      )}
 
       <div className="housing-register-fields-grid">
         <div className="housing-field" data-state={fieldState.getState('dc')}>
@@ -192,52 +202,56 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               {renderBadge('plot')}
             </div>
 
-            <div className="housing-field housing-conditional-field" data-state={fieldState.getState('size')}>
-              <label htmlFor="housing-register-size" className="housing-label">
-                {t('housing.register.size')}
-              </label>
-              {/* 区画から自動導出される読み取り専用値 (Task3-1)。旧 disabled <select> は
-                  「選べそうに見えるが選べない」ドロップダウン矢印が出てしまうため、
-                  導出値をそのまま表示する読み取り専用フィールドに置き換える。 */}
-              <input
-                id="housing-register-size"
-                className="housing-input"
-                type="text"
-                value={size ? (housingSizeMasterData.find((m) => m.id === size)?.label ?? size) : ''}
-                disabled
-                readOnly
-              />
-              {renderBadge('size')}
-            </div>
-
-            <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('roomKind')}>
-              <label className="housing-label">{t('housing.register.room_kind.label')}</label>
-              <div className="housing-type-selector" role="radiogroup">
-                <button
-                  type="button"
-                  className="housing-type-chip"
-                  data-selected={roomKind == null ? 'true' : 'false'}
-                  role="radio"
-                  aria-checked={roomKind == null}
-                  onClick={() => {
-                    onChange('roomKind', undefined);
-                    onChange('roomNumber', undefined);
-                  }}
-                >
-                  {t('housing.register.room_kind.whole_house')}
-                </button>
-                <button
-                  type="button"
-                  className="housing-type-chip"
-                  data-selected={roomKind === 'private_chamber' ? 'true' : 'false'}
-                  role="radio"
-                  aria-checked={roomKind === 'private_chamber'}
-                  onClick={() => onChange('roomKind', 'private_chamber')}
-                >
-                  {t('housing.register.room_kind.private_chamber')}
-                </button>
+            {variant === 'register' && (
+              <div className="housing-field housing-conditional-field" data-state={fieldState.getState('size')}>
+                <label htmlFor="housing-register-size" className="housing-label">
+                  {t('housing.register.size')}
+                </label>
+                {/* 区画から自動導出される読み取り専用値 (Task3-1)。旧 disabled <select> は
+                    「選べそうに見えるが選べない」ドロップダウン矢印が出てしまうため、
+                    導出値をそのまま表示する読み取り専用フィールドに置き換える。 */}
+                <input
+                  id="housing-register-size"
+                  className="housing-input"
+                  type="text"
+                  value={size ? (housingSizeMasterData.find((m) => m.id === size)?.label ?? size) : ''}
+                  disabled
+                  readOnly
+                />
+                {renderBadge('size')}
               </div>
-            </div>
+            )}
+
+            {variant === 'register' && (
+              <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('roomKind')}>
+                <label className="housing-label">{t('housing.register.room_kind.label')}</label>
+                <div className="housing-type-selector" role="radiogroup">
+                  <button
+                    type="button"
+                    className="housing-type-chip"
+                    data-selected={roomKind == null ? 'true' : 'false'}
+                    role="radio"
+                    aria-checked={roomKind == null}
+                    onClick={() => {
+                      onChange('roomKind', undefined);
+                      onChange('roomNumber', undefined);
+                    }}
+                  >
+                    {t('housing.register.room_kind.whole_house')}
+                  </button>
+                  <button
+                    type="button"
+                    className="housing-type-chip"
+                    data-selected={roomKind === 'private_chamber' ? 'true' : 'false'}
+                    role="radio"
+                    aria-checked={roomKind === 'private_chamber'}
+                    onClick={() => onChange('roomKind', 'private_chamber')}
+                  >
+                    {t('housing.register.room_kind.private_chamber')}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {isPrivateChamber && (
               <div className="housing-field housing-conditional-field" data-state={fieldState.getState('roomNumber')}>

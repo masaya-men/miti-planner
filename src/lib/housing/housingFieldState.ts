@@ -65,6 +65,11 @@ export function useHousingFieldState(requiredFields: string[] = []) {
         });
     }, []);
 
+    /** 全フィールドを空に戻す (一時ツアー追加モーダルの「連続追加」でフォームをリセットする用)。 */
+    const reset = useCallback(() => {
+        setFields({});
+    }, []);
+
     const isReadyToSubmit = useCallback(() => {
         // auto-filled も submit 可能とする (自動入力された値はデフォルトで信頼)。
         // ユーザーが値を見て違うと気付いたら手動編集 → state='edited' に。
@@ -90,6 +95,7 @@ export function useHousingFieldState(requiredFields: string[] = []) {
         userEdit,
         setError,
         clearField,
+        reset,
         isReadyToSubmit,
     };
 }
