@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { crossingBetween, canAddToTour, tourRegionConflict } from '../tourCrossing';
+import type { Region } from '../../../data/housing/dcServerMap';
 
-const loc = (region: string, dc: string, server: string) => ({ region, dc, server });
+const loc = (region: Region, dc: string, server: string) => ({ region, dc, server });
 
 describe('crossingBetween', () => {
   it('prev=null(1件目)は none', () => {
