@@ -2018,7 +2018,11 @@
             "next_ward": "Next ward",
             "spot_open_panel": "View {{count}}",
             "plot_label": "Plot {{plot}}",
-            "apartment_label": "Apartment"
+            "apartment_label": "Apartment",
+            "roompanel_back": "Back to map",
+            "roompanel_house": "Entire house",
+            "roompanel_chambers": "{{count}} private chambers",
+            "roompanel_all": "{{count}} listings on this plot"
         },
         "tabs": {
             "aria": "Housing pages",

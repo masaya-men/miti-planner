@@ -1983,7 +1983,11 @@
             "next_ward": "다음 구역으로",
             "spot_open_panel": "{{count}}건 보기",
             "plot_label": "{{plot}}번지",
-            "apartment_label": "아파트"
+            "apartment_label": "아파트",
+            "roompanel_back": "지도로 돌아가기",
+            "roompanel_house": "집 전체",
+            "roompanel_chambers": "개인실 {{count}}건",
+            "roompanel_all": "이 구획의 등록 {{count}}건"
         },
         "tabs": {
             "aria": "하우징 페이지",

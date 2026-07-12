@@ -1983,7 +1983,11 @@
             "next_ward": "下一区",
             "spot_open_panel": "查看{{count}}件",
             "plot_label": "{{plot}}号地",
-            "apartment_label": "公寓"
+            "apartment_label": "公寓",
+            "roompanel_back": "返回地图",
+            "roompanel_house": "整栋房屋",
+            "roompanel_chambers": "个人房间 {{count}}件",
+            "roompanel_all": "该区划的登记 {{count}}件"
         },
         "tabs": {
             "aria": "housing 页面",
