@@ -217,6 +217,7 @@
   --housing-tour-ring-size: 108px;      /* 進捗リングの表示直径 */
   --housing-tour-ring-stroke: 8px;      /* 進捗リングの線幅 (トラック/進捗弧 共通) */
   --housing-tour-steps-fade: 32px;      /* ステップ一覧の上下端フェード(スクロール示唆)の距離 */
+  --housing-filter-body-fade: 28px;     /* フィルターパネル本文の上下端フェード距離 */
   --housing-tour-map-intro-dur: 0.75s;  /* 目的地変更時「全景→ズームイン」演出の尺 */
   --housing-tour-map-intro-ease: cubic-bezier(0.22, 1, 0.36, 1); /* 同・イージング(ease-out系) */
   --housing-tour-map-fade-dur: 0.4s;    /* 目的地変更時の地図クロスフェード(dip)の尺 */
@@ -456,6 +457,18 @@
 .housing-panel-body {
   flex: 1; min-height: 0; overflow: auto; padding: 14px 16px;
 }
+/* フィルターパネル本文: スクロールバーを出さず上下端フェードで「続きがある」を示す
+   (useScrollFade が data-at-top/bottom をトグル → 端に達した側のフェードを消す)。 */
+.housing-filter-body {
+  scrollbar-width: none; /* Firefox */
+  --fade-top: var(--housing-filter-body-fade);
+  --fade-bottom: var(--housing-filter-body-fade);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+}
+.housing-filter-body::-webkit-scrollbar { display: none; } /* WebKit/Chrome */
+.housing-filter-body[data-at-top="true"] { --fade-top: 0px; }
+.housing-filter-body[data-at-bottom="true"] { --fade-bottom: 0px; }
 
 /* ===== StatusBar ===== */
 .housing-status {

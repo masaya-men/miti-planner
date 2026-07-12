@@ -2410,7 +2410,7 @@
             },
             "filter": {
                 "title": "FILTER",
-                "dc": "DC",
+                "dc": "데이터 센터",
                 "region": "지역",
                 "server": "서버",
                 "area": "구역",

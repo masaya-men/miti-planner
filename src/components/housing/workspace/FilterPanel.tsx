@@ -18,6 +18,7 @@ import {
 } from '../../../data/housing/dcServerMap';
 import { REGION_LABELS, type RegionLocale } from '../../../data/housing/regionMap';
 import { applyFilters } from '../../../lib/housing/applyFilters';
+import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { FilterDropdown } from './FilterDropdown';
 import { ResultCountBadge } from './ResultCountBadge';
 import { RegisterCTA } from './RegisterCTA';
@@ -83,6 +84,9 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
         Boolean(dc) || regions.length > 0 || servers.length > 0 ||
         areas.length > 0 || sizes.length > 0 || tags.length > 0;
 
+    // スクロールバーを出さず端フェードで「続きがある」ことを示す (業界標準・共通フック)。
+    const { ref: bodyRef, atStart, atEnd, onScroll } = useScrollFade<HTMLDivElement>();
+
     return (
         <>
             <div className="housing-panel-head">
@@ -91,7 +95,13 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                     <ResultCountBadge result={result.length} total={source.length} />
                 </div>
             </div>
-            <div className="housing-panel-body">
+            <div
+                className="housing-panel-body housing-filter-body"
+                ref={bodyRef}
+                onScroll={onScroll}
+                data-at-top={atStart}
+                data-at-bottom={atEnd}
+            >
                 <FilterDropdown
                     label={t('housing.workspace.filter.dc')}
                     mode="single"

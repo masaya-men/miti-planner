@@ -2410,7 +2410,7 @@
             },
             "filter": {
                 "title": "FILTER",
-                "dc": "DC",
+                "dc": "数据中心",
                 "region": "区域",
                 "server": "服务器",
                 "area": "区域",

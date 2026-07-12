@@ -2445,7 +2445,7 @@
             },
             "filter": {
                 "title": "FILTER",
-                "dc": "DC",
+                "dc": "Data Center",
                 "region": "Region",
                 "server": "Server",
                 "area": "Area",

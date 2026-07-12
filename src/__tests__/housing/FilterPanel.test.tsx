@@ -45,7 +45,7 @@ describe('FilterPanel', () => {
     it('renders FILTER title and 5 base sections (DC / Region / Area / Size / Theme)', () => {
         renderPanel();
         expect(screen.getByText('FILTER')).toBeInTheDocument();
-        expect(screen.getAllByText('DC').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('データセンター').length).toBeGreaterThan(0);
         expect(screen.getByText('地域')).toBeInTheDocument();
         expect(screen.getByText('エリア')).toBeInTheDocument();
         expect(screen.getByText('サイズ')).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('FilterPanel', () => {
     it('selects DC via dropdown and decreases result count', () => {
         renderPanel();
         // ドロップダウンを開いて Mana を選ぶ (単一選択)。
-        fireEvent.click(screen.getByRole('button', { name: 'DC' }));
+        fireEvent.click(screen.getByRole('button', { name: 'データセンター' }));
         fireEvent.click(screen.getByRole('option', { name: 'Mana' }));
         expect(useHousingFilterStore.getState().dc).toBe('Mana');
         expect(useHousingFilterStore.getState().resultCount).toBeLessThan(MOCK_LISTINGS.length);
@@ -72,7 +72,7 @@ describe('FilterPanel', () => {
     it('shows Server dropdown only after DC is selected', () => {
         renderPanel();
         expect(screen.queryByText('サーバー')).toBeNull();
-        fireEvent.click(screen.getByRole('button', { name: 'DC' }));
+        fireEvent.click(screen.getByRole('button', { name: 'データセンター' }));
         fireEvent.click(screen.getByRole('option', { name: 'Mana' }));
         expect(screen.getByText('サーバー')).toBeInTheDocument();
     });
@@ -97,7 +97,7 @@ describe('FilterPanel', () => {
     it('marks zero result with data-zero=true when no listing matches', () => {
         renderPanel();
         // Mana (JP DC) + 欧州 (Europe region) = empty。ドロップダウンから選択。
-        fireEvent.click(screen.getByRole('button', { name: 'DC' }));
+        fireEvent.click(screen.getByRole('button', { name: 'データセンター' }));
         fireEvent.click(screen.getByRole('option', { name: 'Mana' }));
         fireEvent.click(screen.getByRole('button', { name: '地域' }));
         fireEvent.click(screen.getByRole('option', { name: '欧州' }));

@@ -2466,7 +2466,7 @@
             },
             "filter": {
                 "title": "FILTER",
-                "dc": "DC",
+                "dc": "データセンター",
                 "region": "地域",
                 "server": "サーバー",
                 "area": "エリア",
