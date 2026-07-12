@@ -5095,6 +5095,9 @@ select.housing-input option {
 .housing-browse-map-view {
   flex: 1 1 auto;
   min-height: 0;
+  /* RoomListPanel (position:absolute; inset:0) のアンカー。無いとパネルが中央カラム全体
+     (一覧/地図トグル含む) を覆ってしまう (探す地図② 最終レビュー指摘)。 */
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
