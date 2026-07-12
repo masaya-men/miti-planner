@@ -4,6 +4,7 @@ import { TourRouteSteps } from './TourRouteSteps';
 import { TourPhaseZone } from './TourPhaseZone';
 import type { TourProgress, TourStep } from '../../../lib/housing/tourNav';
 import type { PlotDirections } from '../../../lib/housing/wardDirections';
+import type { TourCrossing } from '../../../lib/housing/tourCrossing';
 
 export interface TourProgressPanelProps {
   progress: TourProgress;
@@ -19,6 +20,8 @@ export interface TourProgressPanelProps {
   onViewStart: () => void;
   onNext: () => void;
   onFinish: () => void;
+  /** 前の家→この家の移動種別。省略時は跨ぎ無し扱い。 */
+  crossing?: TourCrossing;
 }
 
 /**
@@ -30,6 +33,7 @@ export interface TourProgressPanelProps {
 export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   progress, steps, currentIndex, phase, viewStartAt, directions,
   canView, isLast, onPrev, onViewStart, onNext, onFinish,
+  crossing = { kind: 'none' },
 }) => {
   const { t } = useTranslation();
   const { total, percent } = progress;
@@ -53,7 +57,7 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
       {/* 下部フッター: ステップに上のスペースを譲るため、行き方枠〜操作ボタン〜終了を最下部に密集。
           行き方(フェーズ枠)は常にボタン群の直上に固定。親の gap(16px) から切り離し内部を詰める。 */}
       <div className="housing-tour-progress-foot">
-        <TourPhaseZone phase={phase} directions={directions} viewStartAt={viewStartAt} />
+        <TourPhaseZone phase={phase} directions={directions} viewStartAt={viewStartAt} crossing={crossing} />
         <div className="housing-tour-progress-actions">
           <button
             type="button"

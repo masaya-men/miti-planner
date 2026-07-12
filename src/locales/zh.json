@@ -2739,6 +2739,12 @@
                 "map_error": "地图加载失败",
                 "reset_view": "恢复默认视图",
                 "map_hint": "滚轮缩放 · 拖动移动",
+                "cross": {
+                    "dc": "请先使用数据中心旅行前往 {{dc}} 的 {{world}}",
+                    "world": "请先使用跨服访问前往 {{world}}",
+                    "region": "该房屋位于其他大区，无法前往",
+                    "ack": "我已移动（查看地图）"
+                },
                 "progress": {
                     "label": "导览进度",
                     "done_of_total": "{{done}} / {{total}} 件",

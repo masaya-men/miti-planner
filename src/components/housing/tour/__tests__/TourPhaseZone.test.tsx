@@ -1,11 +1,12 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, vi, afterEach } from 'vitest';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
 import { TourPhaseZone } from '../TourPhaseZone';
+import type { TourCrossing } from '../../../../lib/housing/tourCrossing';
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -51,5 +52,23 @@ describe('TourPhaseZone', () => {
     const timer = container.querySelector('.housing-tour-phasezone-timer')!;
     expect(timer.textContent).toContain('14:32');
     expect(timer.textContent).toContain('0:00');
+  });
+
+  const renderZone = (crossing: TourCrossing, directions = null) =>
+    render(
+      <I18nextProvider i18n={i18n}>
+        <TourPhaseZone phase="moving" directions={directions} viewStartAt={null} crossing={crossing} />
+      </I18nextProvider>,
+    );
+
+  it('dc 跨ぎで DCトラベル行が出る', () => {
+    renderZone({ kind: 'dc', dc: 'Gaia', world: 'Ifrit' });
+    expect(screen.getByTestId('tour-phase-cross')).toHaveTextContent('Gaia');
+    expect(screen.getByTestId('tour-phase-cross')).toHaveTextContent('Ifrit');
+  });
+
+  it('none 跨ぎでは行が出ない', () => {
+    renderZone({ kind: 'none' });
+    expect(screen.queryByTestId('tour-phase-cross')).toBeNull();
   });
 });

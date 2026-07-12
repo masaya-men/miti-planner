@@ -13,7 +13,7 @@ import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
-import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import { crossingBetween, tourRegionConflict, type TourCrossing } from '../../../lib/housing/tourCrossing';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
@@ -66,9 +66,13 @@ export const TourNavPage: React.FC = () => {
 
   const isLast = currentIndex === listingIds.length - 1;
 
-  // 次の目的地(左パネルの生きたカード用) / 行き方(右パネル移動中) / 見学可否。
+  // 次の目的地(左パネルの生きたカード用) / 前の目的地(跨ぎ判定用) / 行き方(右パネル移動中) / 見学可否。
   const nextStep = useMemo(
     () => (currentIndex + 1 < steps.length ? steps[currentIndex + 1] : null),
+    [steps, currentIndex],
+  );
+  const prevStep = useMemo(
+    () => (currentIndex - 1 >= 0 ? steps[currentIndex - 1] : null),
     [steps, currentIndex],
   );
 
@@ -78,6 +82,11 @@ export const TourNavPage: React.FC = () => {
   const directions = useMemo(
     () => getPlotDirections(currentListing?.area ?? '', currentListing?.plot),
     [currentListing],
+  );
+  // 前の家→この家の移動種別(DC/ワールド跨ぎ)。行き方枠(右パネル)へ渡す。
+  const crossing: TourCrossing = useMemo(
+    () => (currentListing ? crossingBetween(prevStep?.listing ?? null, currentListing) : { kind: 'none' }),
+    [prevStep, currentListing],
   );
   const canView = currentListing != null;
   const mapRef = useMemo(
@@ -235,6 +244,7 @@ export const TourNavPage: React.FC = () => {
             onViewStart={startViewing}
             onNext={onPrimary}
             onFinish={onFinish}
+            crossing={crossing}
           />
         </div>
       </section>

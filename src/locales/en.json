@@ -2774,6 +2774,12 @@
                 "map_error": "Failed to load the map",
                 "reset_view": "Reset to default view",
                 "map_hint": "Scroll to zoom · Drag to move",
+                "cross": {
+                    "dc": "First, use Data Center Travel to reach {{world}} in {{dc}}",
+                    "world": "First, use World Visit to reach {{world}}",
+                    "region": "This house is in another region and can't be reached",
+                    "ack": "I've traveled (show the map)"
+                },
                 "progress": {
                     "label": "Tour progress",
                     "done_of_total": "{{done}} / {{total}}",
