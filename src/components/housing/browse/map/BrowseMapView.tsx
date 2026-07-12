@@ -15,6 +15,7 @@ import {
 import { WorldSelectGate } from './WorldSelectGate';
 import { MapControls, autoSelectMapKind } from './MapControls';
 import { BrowseWardMap } from './BrowseWardMap';
+import { RoomListPanel } from './RoomListPanel';
 
 export interface BrowseMapViewProps {
   filtered: MockListing[];
@@ -43,6 +44,8 @@ export const BrowseMapView: React.FC<BrowseMapViewProps> = (props) => {
   const [ward, setWard] = useState<number | null>(null);
   const [mapKind, setMapKind] = useState<WardMapKind>('main');
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  // 大量部屋パネル (RoomListPanel) を開いているスポットの key。null = 閉じている (地図のみ表示)。
+  const [panelSpotKey, setPanelSpotKey] = useState<string | null>(null);
   // 直前にナビゲーション位置を初期化したワールド (同じワールド滞在中は再初期化しない)。
   const [initializedFor, setInitializedFor] = useState<string | null>(null);
 
@@ -61,9 +64,20 @@ export const BrowseMapView: React.FC<BrowseMapViewProps> = (props) => {
     // 最多件数が拡張街側に偏っている場合に初期表示のマーカーが0件になってしまう)。
     setMapKind(target ? autoSelectMapKind(kindCountsFor(target.area, target.ward)) : 'main');
     setExpandedKey(null); // ワールド切替で spot 集合が丸ごと変わるため、前ワールドの拡大カードは閉じる
+    setPanelSpotKey(null); // 同様に大量部屋パネルも閉じる (spot key の名前空間がワールドをまたいで衝突しうる)
     setInitializedFor(worldKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [worldKey, initializedFor, filtered]);
+
+  // Esc で大量部屋パネルを閉じる (spec: Esc はパネル優先。フックなので早期 return より前に置く)。
+  useEffect(() => {
+    if (!panelSpotKey) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPanelSpotKey(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [panelSpotKey]);
 
   if (servers.length !== 1) {
     return (
@@ -104,23 +118,31 @@ export const BrowseMapView: React.FC<BrowseMapViewProps> = (props) => {
     setArea(newArea);
     setMapKind(autoSelectMapKind(kindCountsFor(newArea, ward)));
     setExpandedKey(null);
+    setPanelSpotKey(null);
   };
   const handleWardChange = (newWard: number) => {
     setWard(newWard);
     setMapKind(autoSelectMapKind(kindCountsFor(area, newWard)));
     setExpandedKey(null);
+    setPanelSpotKey(null);
   };
   const handleKindChange = (newKind: WardMapKind) => {
     // spot.key (`plot:5` 等) はマップ間で名前空間が分かれていないため、切替後に旧マップの
-    // expandedKey が新マップの別スポットへ偶然一致すると誤ったカードが開いたままになる。
-    // ブリーフ本文は ward/area 変更時のリセットのみ明記しているが、同じ理由でここもリセットする。
+    // expandedKey/panelSpotKey が新マップの別スポットへ偶然一致すると誤ったカード/パネルが
+    // 開いたままになる。ブリーフ本文は ward/area 変更時のリセットのみ明記しているが、
+    // 同じ理由でここもリセットする。
     setMapKind(newKind);
     setExpandedKey(null);
+    setPanelSpotKey(null);
   };
 
-  // 大量部屋パネル (RoomListPanel) はまだ無い (計画 Task5/6 で新設・配線)。この段階では複数スポットの
-  // 「N件を見る」/カードクリックを安全な no-op で受ける (単発スポットの詳細遷移には影響しない)。
-  const handleOpenPanel = (_key: string) => {};
+  // 複数スポット (listings>=2) のカードクリック/「N件を見る」で大量部屋パネルを開く (spec 案B ②-b)。
+  // ポップドカード (expandedKey) を閉じてから開くことで、Esc がパネル優先で閉じる状態にそろえる。
+  const openPanel = (key: string) => {
+    setExpandedKey(null);
+    setPanelSpotKey(key);
+  };
+  const panelSpot = panelSpotKey ? (spots.find((s) => s.key === panelSpotKey) ?? null) : null;
 
   return (
     <div
@@ -144,8 +166,15 @@ export const BrowseMapView: React.FC<BrowseMapViewProps> = (props) => {
         expandedKey={expandedKey}
         onExpand={setExpandedKey}
         onAddToTour={onAddToTour}
-        onOpenPanel={handleOpenPanel}
+        onOpenPanel={openPanel}
       />
+      {panelSpot && (
+        <RoomListPanel
+          spot={panelSpot}
+          onClose={() => setPanelSpotKey(null)}
+          onAddToTour={onAddToTour}
+        />
+      )}
     </div>
   );
 };
