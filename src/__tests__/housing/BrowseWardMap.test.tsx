@@ -116,6 +116,7 @@ const renderMap = (props: Partial<React.ComponentProps<typeof BrowseWardMap>> = 
           expandedKey={null}
           onExpand={() => {}}
           onAddToTour={() => {}}
+          onOpenPanel={() => {}}
           {...props}
         />
       </MemoryRouter>

@@ -2037,9 +2037,7 @@
             "tab_count": "{{label}} ({{count}})",
             "prev_ward": "前の区へ",
             "next_ward": "次の区へ",
-            "spot_more": "この場所の家 {{index}}/{{total}}",
-            "spot_prev": "この場所の前の家へ",
-            "spot_next": "この場所の次の家へ",
+            "spot_open_panel": "{{count}}件を見る",
             "plot_label": "{{plot}}番地",
             "apartment_label": "アパート"
         },

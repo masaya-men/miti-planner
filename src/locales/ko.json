@@ -1981,9 +1981,7 @@
             "tab_count": "{{label}} ({{count}})",
             "prev_ward": "이전 구역으로",
             "next_ward": "다음 구역으로",
-            "spot_more": "이 장소의 집 {{index}}/{{total}}",
-            "spot_prev": "이 장소의 이전 집으로",
-            "spot_next": "이 장소의 다음 집으로",
+            "spot_open_panel": "{{count}}건 보기",
             "plot_label": "{{plot}}번지",
             "apartment_label": "아파트"
         },

@@ -13,6 +13,8 @@ export interface BrowseWardMapProps {
   expandedKey: string | null;
   onExpand: (key: string | null) => void;
   onAddToTour: (id: string) => void;
+  /** 複数スポットのカード「N件を見る」/本体クリックで大量部屋パネルを開く (MapSpotCard 経由)。 */
+  onOpenPanel: (key: string) => void;
 }
 
 /** 手動ズームで許すフィット倍率の上限 (spec: フィット×1〜×6)。
@@ -21,17 +23,6 @@ const MAX_ZOOM_LEVEL = 6;
 /** パン/ピンチ操作の後に「クリックとみなす」移動量の閾値(px)。これを超えたら地図操作とみなし、
  *  wrap の onClick (空白クリック=拡大解除) を発火させない。 */
 const CLICK_MOVE_THRESHOLD = 4;
-/** 吹き出し/拡大カードがコンテナ右端・上端からはみ出さないよう反転(flip)判定に使う余白(px)。
- *  実機確認 (DPR 2.58、開発者の参照画面 CSS 679px 高) で当初 300/300 は大きすぎ、コンテナ中央付近の
- *  スポットまで無駄に反転してしまうこと (かつ短いコンテナでは反転後も逆側にはみ出す) を確認して調整した。
- *  X = 拡大カード幅 --housing-bmap-card-w(280px, housing.css) の半分(中央寄せ時の右側はみ出し分)+ 余裕。
- *  Y = ミニカードの実寸(48pxサムネ+パディングで60px程)は小さく反転がほぼ不要な一方、拡大カード
- *  (画像+キャプション+フッターで270px超) は反転してもなお短いコンテナでは収まりきらない場合がある
- *  (spec の flip は「右端/上端」の単純な二値反転までがスコープ、それ以上の座標クランプは対象外)。
- *  「本当に上端に近い(=どちらの向きでもまず収まらない)ときだけ反転」程度に留め、反転しても
- *  最低限カード上部(画像)が見えるようにする値としている。 */
-const FLIP_MARGIN_X = 180;
-const FLIP_MARGIN_Y = 220;
 
 type Marker = { spot: BrowseMapSpot; x: number; y: number };
 
@@ -50,7 +41,7 @@ type Marker = { spot: BrowseMapSpot; x: number; y: number };
  * - 実際の描画倍率は `fitScale * view.scale` (fitScale はコンテナ実寸から都度計算)。
  * ツアー側ファイル (mapZoom.ts 含む) は読み込みのみで一切編集しない。
  */
-export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, expandedKey, onExpand, onAddToTour }) => {
+export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, expandedKey, onExpand, onAddToTour, onOpenPanel }) => {
   const { t } = useTranslation();
   const setBrowseView = useHousingViewStore((s) => s.setBrowseView);
   const assetState = useWardMapAsset(mapKey);
@@ -326,30 +317,35 @@ export const BrowseWardMap: React.FC<BrowseWardMapProps> = ({ mapKey, spots, exp
           <div className="housing-bmap-hint" data-testid="bmap-hint" aria-hidden="true">
             {t('housing.map.hint')}
           </div>
-          <div className="housing-bmap-markers">
+          <div
+            className="housing-bmap-card-plane"
+            data-testid="bmap-card-plane"
+            style={
+              {
+                transform: `translate(${view.tx}px, ${view.ty}px) scale(${actualScale})`,
+                '--housing-bmap-scale-inv': String(1 / actualScale),
+              } as React.CSSProperties
+            }
+          >
             {markers.map((m) => {
+              // sx/sy は popped の clamp 用にのみ算出 (配置は下の translate(m.x,m.y) が担う)。
               const sx = m.x * actualScale + view.tx;
               const sy = m.y * actualScale + view.ty;
-              // コンテナ右端/上端に近いスポットは吹き出し/拡大カードが枠外へはみ出すため反転する
-              // (MapSpotCard の flip prop、spec 4.2「地図の端では画面内に収まる向きに吹き出しを反転」)。
-              const flip = {
-                x: sx > wrapSize.w - FLIP_MARGIN_X,
-                y: sy < FLIP_MARGIN_Y,
-              };
               return (
                 <div
                   key={m.spot.key}
                   className="housing-bmap-marker-pos"
-                  style={{ transform: `translate(${sx}px, ${sy}px)` }}
+                  style={{ transform: `translate(${m.x}px, ${m.y}px)` }}
                 >
                   <MapSpotCard
                     spot={m.spot}
                     expanded={expandedKey === m.spot.key}
                     onExpand={onExpand}
                     onAddToTour={onAddToTour}
-                    flip={flip}
+                    onOpenPanel={onOpenPanel}
                     markerPos={{ x: sx, y: sy }}
                     wrapSize={wrapSize}
+                    mapScale={actualScale}
                     gestureActiveRef={gestureActiveRef}
                   />
                 </div>

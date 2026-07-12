@@ -72,7 +72,6 @@ function mkSpot(listings: MockListing[]): BrowseMapSpot {
   };
 }
 
-const noFlip = { x: false, y: false };
 // クランプ計算 (Finding2) に十分な余裕を持たせたデフォルトの位置/コンテナ実寸。
 // 値そのものを検証したいテストはこれらを明示的に上書きする (下記「拡大カードのコンテナ内クランプ」参照)。
 const defaultMarkerPos = { x: 400, y: 300 };
@@ -87,9 +86,10 @@ function renderCard(props: Partial<React.ComponentProps<typeof MapSpotCard>> = {
         expanded={false}
         onExpand={() => {}}
         onAddToTour={() => {}}
-        flip={noFlip}
+        onOpenPanel={() => {}}
         markerPos={defaultMarkerPos}
         wrapSize={defaultWrapSize}
+        mapScale={1}
         gestureActiveRef={{ current: false }}
         {...props}
       />
@@ -127,43 +127,30 @@ describe('MapSpotCard — 常時マウント (1 枚カードが scale 拡大)', 
     expect(screen.getByTestId('bmap-card-plot:5')).toHaveAttribute('data-expanded', 'false');
   });
 
-  it('n=1 のときは前後ナビを描画しない', () => {
-    const { container } = renderCard({ spot: mkSpot([mkListing()]), expanded: true });
-    expect(container.querySelector('.housing-bmap-card-nav')).toBeNull();
-    expect(screen.queryByLabelText('この場所の前の家へ')).toBeNull();
-  });
 });
 
-describe('MapSpotCard — 複数件の前後ナビ (循環)', () => {
-  it('前後ボタンで 1/3 → 2/3 → 3/3 → 1/3 と循環する', () => {
-    const listings = [mkListing(), mkListing(), mkListing()];
-    const spot = mkSpot(listings);
-    renderCard({ spot, expanded: true });
-
-    expect(screen.getByText('この場所の家 1/3')).toBeTruthy();
-
-    fireEvent.click(screen.getByLabelText('この場所の次の家へ'));
-    expect(screen.getByText('この場所の家 2/3')).toBeTruthy();
-
-    fireEvent.click(screen.getByLabelText('この場所の次の家へ'));
-    expect(screen.getByText('この場所の家 3/3')).toBeTruthy();
-
-    fireEvent.click(screen.getByLabelText('この場所の次の家へ'));
-    expect(screen.getByText('この場所の家 1/3')).toBeTruthy(); // 循環
-
-    fireEvent.click(screen.getByLabelText('この場所の前の家へ'));
-    expect(screen.getByText('この場所の家 3/3')).toBeTruthy(); // 逆循環
+describe('MapSpotCard — 複数スポットの導線 (パネル)', () => {
+  it('listings>=2 のとき「N件を見る」導線を描画し、クリックで onOpenPanel(spot.key)', () => {
+    const onOpenPanel = vi.fn();
+    const spot = mkSpot([mkListing(), mkListing(), mkListing()]);
+    renderCard({ spot, expanded: true, onOpenPanel });
+    const btn = screen.getByRole('button', { name: /3件を見る/ });
+    fireEvent.click(btn);
+    expect(onOpenPanel).toHaveBeenCalledWith('plot:5');
   });
 
-  it('表示中の listing が index に応じて切り替わる (ListingCard の aria-label で確認)', () => {
-    const a = mkListing({ title: 'ハウスA' });
-    const b = mkListing({ title: 'ハウスB' });
-    const spot = mkSpot([a, b]);
-    renderCard({ spot, expanded: true });
+  it('listings=1 のときは導線を出さない', () => {
+    const { container } = renderCard({ spot: mkSpot([mkListing()]), expanded: true });
+    expect(container.querySelector('.housing-bmap-card-more')).toBeNull();
+  });
 
-    expect(screen.getByRole('link', { name: 'ハウスA' })).toBeTruthy();
-    fireEvent.click(screen.getByLabelText('この場所の次の家へ'));
-    expect(screen.getByRole('link', { name: 'ハウスB' })).toBeTruthy();
+  it('複数スポットはカード本体クリックでも onOpenPanel を呼ぶ (詳細遷移しない)', () => {
+    const onOpenPanel = vi.fn();
+    const spot = mkSpot([mkListing(), mkListing()]);
+    renderCard({ spot, expanded: true, onOpenPanel });
+    fireEvent.click(screen.getByTestId('housing-listing-card'));
+    expect(onOpenPanel).toHaveBeenCalledWith('plot:5');
+    expect(navigate).not.toHaveBeenCalled();
   });
 });
 
@@ -309,64 +296,35 @@ describe('MapSpotCard — hover で畳む (2026-07-12)', () => {
   });
 });
 
-describe('MapSpotCard — flip', () => {
-  it('flip.x/y が data 属性として反映される', () => {
-    renderCard({ flip: { x: true, y: true } });
-    const mini = screen.getByTestId('bmap-card-plot:5');
-    expect(mini).toHaveAttribute('data-flip-x', 'true');
-    expect(mini).toHaveAttribute('data-flip-y', 'true');
-  });
-
-  it('flip 未指定相当 (false/false) では data 属性が false になる', () => {
-    renderCard({ flip: noFlip });
-    const mini = screen.getByTestId('bmap-card-plot:5');
-    expect(mini).toHaveAttribute('data-flip-x', 'false');
-    expect(mini).toHaveAttribute('data-flip-y', 'false');
-  });
-});
-
-// Finding2: 拡大カードがマウント時に自身の実寸を測定し、clampExpandedCardOffset (純関数、
-// mapCardClamp.test.ts で個別に検証済み) の結果を CSS カスタムプロパティとして反映することを、
-// 実際のコンポーネントの配線を通して確認する (ここでは getBoundingClientRect をモックして
-// 「測定されたカード実寸」を固定する。happy-dom は実レイアウトを行わないため既定は 0×0 になる)。
-describe('MapSpotCard — 拡大カードのコンテナ内クランプ (Finding2)', () => {
-  it('上端寄りスポット(flipY=true)でコンテナが低いと --housing-bmap-clamp-y が負の値になり、CSS 側の calc() でカード下端がコンテナ内に収まる', () => {
-    const rectSpy = vi
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ width: 280, height: 300, top: 0, left: 0, right: 280, bottom: 300, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
-    try {
-      renderCard({
-        spot: mkSpot([mkListing()]),
-        expanded: true,
-        flip: { x: false, y: true },
-        markerPos: { x: 400, y: 15 },
-        wrapSize: { w: 900, h: 300 },
-      });
-      const expandedEl = screen.getByTestId('bmap-card-plot:5');
-      // top=15+14=29, bottom=29+300=329 > 300-8=292 → dy = 292-329 = -37 (mapCardClamp.test.ts と同じ式)。
-      expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-y')).toBe('-37px');
-    } finally {
-      rectSpy.mockRestore();
-    }
-  });
-
-  it('コンテナ中央付近のスポットでは --housing-bmap-clamp-x/-y が 0px のまま (flip のみの従来位置)', () => {
-    const rectSpy = vi
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+describe('MapSpotCard — 拡大カードのコンテナ内クランプ', () => {
+  it('下端寄りスポットで --housing-bmap-clamp-y が負になり CSS で下端が収まる (mapScale=1)', () => {
+    const rectSpy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
       .mockReturnValue({ width: 280, height: 270, top: 0, left: 0, right: 280, bottom: 270, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
     try {
-      renderCard({
-        spot: mkSpot([mkListing()]),
-        expanded: true,
-        flip: noFlip,
-        markerPos: { x: 450, y: 300 },
-        wrapSize: { w: 900, h: 500 },
-      });
-      const expandedEl = screen.getByTestId('bmap-card-plot:5');
-      expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-x')).toBe('0px');
-      expect(expandedEl.style.getPropertyValue('--housing-bmap-clamp-y')).toBe('0px');
-    } finally {
-      rectSpy.mockRestore();
-    }
+      renderCard({ spot: mkSpot([mkListing()]), expanded: true, markerPos: { x: 450, y: 550 }, wrapSize: { w: 900, h: 600 }, mapScale: 1 });
+      // top=550-135=415, bottom=550+135=685 > 600-8=592 → dy=592-685=-93
+      expect(screen.getByTestId('bmap-card-plot:5').style.getPropertyValue('--housing-bmap-clamp-y')).toBe('-93px');
+    } finally { rectSpy.mockRestore(); }
+  });
+
+  it('mapScale>1 のとき clamp 値は ÷mapScale で plane 座標に変換される', () => {
+    const rectSpy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ width: 280, height: 270, top: 0, left: 0, right: 280, bottom: 270, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+    try {
+      renderCard({ spot: mkSpot([mkListing()]), expanded: true, markerPos: { x: 450, y: 550 }, wrapSize: { w: 900, h: 600 }, mapScale: 2 });
+      // screen dy=-93 → plane -93/2=-46.5
+      expect(screen.getByTestId('bmap-card-plot:5').style.getPropertyValue('--housing-bmap-clamp-y')).toBe('-46.5px');
+    } finally { rectSpy.mockRestore(); }
+  });
+
+  it('中央付近では clamp-x/-y が 0px', () => {
+    const rectSpy = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ width: 280, height: 270, top: 0, left: 0, right: 280, bottom: 270, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+    try {
+      renderCard({ spot: mkSpot([mkListing()]), expanded: true, markerPos: { x: 450, y: 300 }, wrapSize: { w: 900, h: 600 }, mapScale: 1 });
+      const el = screen.getByTestId('bmap-card-plot:5');
+      expect(el.style.getPropertyValue('--housing-bmap-clamp-x')).toBe('0px');
+      expect(el.style.getPropertyValue('--housing-bmap-clamp-y')).toBe('0px');
+    } finally { rectSpy.mockRestore(); }
   });
 });

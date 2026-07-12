@@ -1981,9 +1981,7 @@
             "tab_count": "{{label}} ({{count}})",
             "prev_ward": "上一区",
             "next_ward": "下一区",
-            "spot_more": "此处房屋 {{index}}/{{total}}",
-            "spot_prev": "此处的上一间房屋",
-            "spot_next": "此处的下一间房屋",
+            "spot_open_panel": "查看{{count}}件",
             "plot_label": "{{plot}}号地",
             "apartment_label": "公寓"
         },

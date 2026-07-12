@@ -118,6 +118,10 @@ export const BrowseMapView: React.FC<BrowseMapViewProps> = (props) => {
     setExpandedKey(null);
   };
 
+  // 大量部屋パネル (RoomListPanel) はまだ無い (計画 Task5/6 で新設・配線)。この段階では複数スポットの
+  // 「N件を見る」/カードクリックを安全な no-op で受ける (単発スポットの詳細遷移には影響しない)。
+  const handleOpenPanel = (_key: string) => {};
+
   return (
     <div
       className="housing-browse-map-view"
@@ -140,6 +144,7 @@ export const BrowseMapView: React.FC<BrowseMapViewProps> = (props) => {
         expandedKey={expandedKey}
         onExpand={setExpandedKey}
         onAddToTour={onAddToTour}
+        onOpenPanel={handleOpenPanel}
       />
     </div>
   );

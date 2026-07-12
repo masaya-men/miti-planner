@@ -28,6 +28,12 @@ export interface MockListing {
     apartmentBuilding?: 1 | 2;
     /** apartment 専用: 部屋番号 1-90 */
     roomNumber?: number;
+    /**
+     * 2026-07-12 追加 (案B ②-b 大量部屋パネル用): 'private_chamber'=FC 個室 (house・plot 内)、
+     * 'apartment_room'=アパート部屋 (apartment)。未設定 = 家全体登録 (house のみ・従来通り)。
+     * splitSpotListings (browseMapSpots.ts) の振り分けに使う。
+     */
+    roomKind?: 'private_chamber' | 'apartment_room';
     imageMode: 'sns' | 'thumbnail' | 'none';
     postUrl?: string;
     ogImageUrl?: string;
