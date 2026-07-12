@@ -2042,8 +2042,7 @@
             "apartment_label": "アパート",
             "roompanel_back": "地図に戻る",
             "roompanel_house": "家全体",
-            "roompanel_chambers": "個室 {{count}}件",
-            "roompanel_all": "この区画の登録 {{count}}件"
+            "roompanel_chambers": "個室 {{count}}件"
         },
         "tabs": {
             "aria": "ハウジングのページ切替",

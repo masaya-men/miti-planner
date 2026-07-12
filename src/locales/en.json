@@ -2021,8 +2021,7 @@
             "apartment_label": "Apartment",
             "roompanel_back": "Back to map",
             "roompanel_house": "Entire house",
-            "roompanel_chambers": "{{count}} private chambers",
-            "roompanel_all": "{{count}} listings on this plot"
+            "roompanel_chambers": "{{count}} private chambers"
         },
         "tabs": {
             "aria": "Housing pages",
