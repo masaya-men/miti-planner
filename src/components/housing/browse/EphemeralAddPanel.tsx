@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X } from 'lucide-react';
+import { HousingPanelModal } from '../HousingPanelModal';
 import { classifySnsUrl } from '../../../lib/housing/snsUrlRouting';
 import { useTweetFetch } from '../../../lib/housing/useTweetFetch';
 import { useOgpFetch } from '../../../lib/housing/useOgpFetch';
@@ -300,28 +300,25 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     setAdded(true);
   };
 
-  if (!open) return null;
-
   const fetching = tweetStatus === 'loading' || ogpStatus === 'loading';
   const fetchFailed = urlInvalid || tweetStatus === 'error' || ogpStatus === 'error';
   const hasChips = mask.area || mask.ward || mask.plot || mask.apartment;
   // 「番地 or アパート」項目が parse で確定していないときだけ切替を出す (欠けている項目だけ)。
   const showTypeToggle = !mask.plot && !mask.apartment;
 
+  // モーダル化 (2026-07-12): 右カラムのトレイに直置きすると固定高さ+overflow:hidden で
+  // お気に入りと重なりスクロールできなかった (実機バグ)。HousingPanelModal は body 直下へ
+  // portal し独自にスクロールするので、連続追加しても崩れない。ヘッダー(閉じる含む)はモーダル側。
   return (
-    <div className="housing-ephemeral-panel">
-      <div className="housing-ephemeral-head">
-        <span className="housing-ephemeral-title">{t('housing.ephemeral.panel_title')}</span>
-        <button
-          type="button"
-          className="housing-ephemeral-close"
-          aria-label={t('common.close')}
-          onClick={onClose}
-        >
-          <X size={14} aria-hidden="true" />
-        </button>
-      </div>
-
+    <HousingPanelModal
+      open={open}
+      onClose={onClose}
+      title={t('housing.ephemeral.panel_title')}
+      closeLabel={t('common.close')}
+      maxWidth={480}
+      backdrop="frost"
+    >
+      <div className="housing-ephemeral-panel">
       <div className="housing-ephemeral-field">
         <label htmlFor="housing-ephemeral-url" className="housing-label">
           {t('housing.ephemeral.url_label')}
@@ -523,6 +520,7 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
       </button>
 
       <p className="housing-ephemeral-note">{t('housing.ephemeral.note_volatile')}</p>
-    </div>
+      </div>
+    </HousingPanelModal>
   );
 };

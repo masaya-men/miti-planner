@@ -108,7 +108,7 @@ describe('EphemeralAddPanel', () => {
     expect(screen.getByLabelText('住所を入力')).toBeTruthy();
   });
 
-  it('⑤ 上限 (30件) で limit_note を表示し onAdd は呼ばれない', () => {
+  it('⑤ 上限 (50件) で limit_note を表示し onAdd は呼ばれない', () => {
     // 事前に上限まで積む
     for (let i = 0; i < EPHEMERAL_POOL_LIMIT; i++) {
       useEphemeralListingsStore.getState().add(
@@ -123,6 +123,21 @@ describe('EphemeralAddPanel', () => {
     fireEvent.click(screen.getByRole('button', { name: 'ツアーに追加' }));
 
     expect(onAdd).not.toHaveBeenCalled();
-    expect(screen.getByText('一時の家は最大 30 件までです')).toBeTruthy();
+    // メッセージは max を補間する (定数を上げてもテストがズレない)。
+    expect(screen.getByText(`一時の家は最大 ${EPHEMERAL_POOL_LIMIT} 件までです`)).toBeTruthy();
+  });
+
+  it('⑥ モーダル (role=dialog) として portal 描画される (トレイ直置きの overflow バグ回避)', () => {
+    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} />);
+    // HousingPanelModal が body 直下へ portal し role=dialog を張る。
+    expect(screen.getByRole('dialog')).toBeTruthy();
+    // フォーム中身 (住所入力) もモーダル内に在る。
+    expect(screen.getByLabelText('住所を入力')).toBeTruthy();
+  });
+
+  it('⑦ open=false ではモーダルを描画しない', () => {
+    wrap(<EphemeralAddPanel open={false} onClose={() => {}} onAdd={() => {}} />);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.queryByLabelText('住所を入力')).toBeNull();
   });
 });

@@ -18,7 +18,7 @@ import { buildAddressKey } from '../../utils/housingDuplicate';
 export const EPHEMERAL_ID_PREFIX = 'ephemeral-';
 
 /** 専用 store が同時に保持できる件数の上限。 */
-export const EPHEMERAL_POOL_LIMIT = 30;
+export const EPHEMERAL_POOL_LIMIT = 50;
 
 /** id が一時 listing (ephemeral- prefix) かどうかの唯一の判定根拠。 */
 export function isEphemeralListingId(id: string): boolean {

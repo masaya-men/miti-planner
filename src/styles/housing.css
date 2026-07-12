@@ -2258,6 +2258,14 @@ select.housing-input option {
 .housing-panel-modal-backdrop[data-modal-role="account"] {
   z-index: var(--housing-z-modal-stack);
 }
+/* frost: 暗くせず、背後にごく薄いぼかしだけ (ハウジングツアーのトンマナ・2026-07-12)。
+   モーダル本体は前面なのでぼけない。css-rules の --tw-backdrop-blur パターンで書く。 */
+.housing-panel-modal-backdrop[data-backdrop="frost"] {
+  background: transparent;
+  --tw-backdrop-blur: blur(3px);
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+}
 .housing-panel-modal-shell {
   position: relative;
   width: 100%;
@@ -5882,28 +5890,11 @@ select.housing-input option {
 .housing-ephemeral-toggle:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 .housing-ephemeral-toggle[aria-expanded="true"] { border-style: solid; background: var(--housing-chip-bg-hover); }
 
+/* モーダル body 内のフォームの器 (2026-07-12 モーダル化)。面/枠/余白はモーダル側 (HousingPanelModal)
+   が持つので、ここは縦積みのリズムだけ。ヘッダー (タイトル + 閉じる) もモーダル側。 */
 .housing-ephemeral-panel {
-  flex: 0 0 auto;
   display: flex; flex-direction: column; gap: 10px;
-  padding: 12px;
-  background: var(--housing-panel-inner);
-  border: 1px solid var(--housing-panel-border);
-  border-radius: 10px;
 }
-.housing-ephemeral-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
-}
-.housing-ephemeral-title {
-  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
-}
-.housing-ephemeral-close {
-  appearance: none; border: 0; background: transparent; cursor: pointer;
-  color: var(--housing-text-mute); padding: 4px; border-radius: 6px;
-  display: inline-flex;
-  transition: color 0.15s ease, background 0.15s ease;
-}
-.housing-ephemeral-close:hover { color: var(--housing-text); background: var(--housing-chip-bg-hover); }
-.housing-ephemeral-close:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 .housing-ephemeral-field { display: flex; flex-direction: column; }
 .housing-ephemeral-text { min-height: 0; }
 .housing-ephemeral-chips { display: flex; flex-wrap: wrap; gap: 6px; }
