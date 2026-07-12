@@ -26,6 +26,10 @@
      旧値 rgba(255,255,255,0.04) は透けすぎて暗幕頼みだった。light/dark 共通 (text は常に白)。 */
   --housing-panel-bg: rgba(17, 23, 37, 0.56);
   --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  /* 探す地図② 大量部屋パネルの薄い半透明ベール (2026-07-12 A案)。後ろの地図がうっすら透ける濃さ。
+     backdrop-filter (ぼかし) は角丸にクリップできず角がはみ出すため不採用 → ベタのベールで代替。
+     panel-bg-solid (0.74=暗幕・却下) より薄く、地図が見える。濃さはこの1値で調整。 */
+  --housing-bmap-panel-veil: rgba(17, 23, 37, 0.38);
   --housing-panel-border: rgba(255, 255, 255, 0.16);
   --housing-panel-border-strong: rgba(255, 255, 255, 0.28);
   --housing-panel-inner: rgba(255, 255, 255, 0.05);
@@ -5341,22 +5345,18 @@ select.housing-input option {
   z-index: 20;
   display: flex;
   flex-direction: column;
-  /* 透明感のある frosted glass = 色は載せず backdrop のぼかしのみ (ユーザー指摘: 白は載せない・
-     後ろの地図はぼんやり見えていていい)。backdrop-filter はパネル自身に載せる (背後の地図だけをぼかす
-     = カードは前面なのでぼけない)。
-     ★ 角丸クリップは clip-path で行う: backdrop-filter のぼかし矩形は border-radius / overflow:hidden
-     では角丸にクリップされず四角いまま角からはみ出す (このブラウザで実測)。clip-path は要素描画ごと
-     (ぼかし込みで) 切り抜くので確実に角丸になる。border-radius は border 描画用に併記。 */
+  /* 薄い半透明ベール (2026-07-12 A案・ユーザー確定)。後ろの地図はうっすら透けて見えるが、
+     パネル内容が別レイヤーとして読める程度に地図を後退させる。
+     backdrop-filter (ぼかし) は使わない: このブラウザ (Win Chromium) はぼかしの矩形を
+     border-radius / overflow / clip-path のどれでも角丸にクリップできず、角丸のカドにぼかしが
+     四角くはみ出す (先セッションで4手法実測)。ベタのベールなら border-radius だけで確実に角丸になる。 */
   border-radius: 14px;
-  clip-path: inset(0 round 14px);
+  background: var(--housing-bmap-panel-veil);
   border: 1px solid var(--housing-panel-border);
-  --tw-backdrop-blur: blur(8px);
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   animation: housing-bmap-roompanel-in 190ms ease;
 }
 @keyframes housing-bmap-roompanel-in {
-  /* opacity のみ (transform を使うと backdrop-filter との合成で角がちらつくため)。 */
+  /* opacity フェードのみ (静かに現れる)。 */
   from { opacity: 0; }
   to { opacity: 1; }
 }
