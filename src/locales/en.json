@@ -2835,7 +2835,8 @@
                     "route": "Route (approximate)"
                 }
             },
-            "region_block": "Houses in a different region can't be added to the same tour"
+            "region_block": "Houses in a different region can't be added to the same tour",
+            "region_block_start": "This tour spans multiple regions ({{regions}}) and can't start. Keep houses from a single region."
         }
     },
     "system_notif": {

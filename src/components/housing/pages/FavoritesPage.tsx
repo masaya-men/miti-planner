@@ -10,8 +10,9 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import { expandTourWithDuplicates } from '../../../lib/housing/expandTourWithDuplicates';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
-import { canAddToTour } from '../../../lib/housing/tourCrossing';
+import { canAddToTour, tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
+import type { MockListing } from '../../../data/housing/mockListings';
 import { showToast } from '../../Toast';
 import { FavoritesGrid } from '../favorites/FavoritesGrid';
 import { FavoritesTabs } from '../favorites/FavoritesTabs';
@@ -130,12 +131,21 @@ export const FavoritesPage: React.FC = () => {
     if (trayIds.length === 0) return;
     // ツアー解決は allListings (お気に入り一覧・非汚染) + 一時 listing。一覧自体は変えない。
     const orderedIds = orderTourStopIds(trayIds, [...allListings, ...ephemeral]);
+    const pool = [...allListings, ...ephemeral];
+    const stops = orderedIds
+      .map((id) => pool.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const conflict = tourRegionConflict(stops);
+    if (conflict) {
+      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
+      return;
+    }
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
     setMannerOpen(false);
     navigate('/housing/tour');
-  }, [trayIds, allListings, ephemeral, navigate]);
+  }, [trayIds, allListings, ephemeral, navigate, t]);
 
   const handleStart = useCallback(() => {
     if (trayIds.length === 0) return;

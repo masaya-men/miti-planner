@@ -2800,7 +2800,8 @@
                     "route": "移动路线（大致）"
                 }
             },
-            "region_block": "不同大区的房屋无法加入同一导览"
+            "region_block": "不同大区的房屋无法加入同一导览",
+            "region_block_start": "该导览包含多个大区（{{regions}}）的房屋，无法开始。请仅保留同一大区的房屋"
         }
     },
     "system_notif": {

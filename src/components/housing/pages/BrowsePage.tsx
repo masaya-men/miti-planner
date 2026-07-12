@@ -10,7 +10,8 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
-import { canAddToTour } from '../../../lib/housing/tourCrossing';
+import { canAddToTour, tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import type { MockListing } from '../../../data/housing/mockListings';
 import { showToast } from '../../Toast';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
@@ -97,7 +98,16 @@ export const BrowsePage: React.FC = () => {
   const onStart = () => {
     if (trayIds.length === 0) return;
     // ツアー解決は merged (探す一覧・非汚染) + 一時 listing。一覧グリッドの merged 自体は変えない。
-    const orderedIds = orderTourStopIds(trayIds, [...merged, ...ephemeral]);
+    const pool = [...merged, ...ephemeral];
+    const orderedIds = orderTourStopIds(trayIds, pool);
+    const stops = orderedIds
+      .map((id) => pool.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const conflict = tourRegionConflict(stops);
+    if (conflict) {
+      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
+      return;
+    }
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();

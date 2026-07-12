@@ -20,6 +20,12 @@ vi.mock('../../lib/housing/housingerProfileService', () => ({
   getHousingerListings: (...args: unknown[]) => mockGetHousingerListings(...args),
 }));
 
+// showToast をスパイして、 リージョン跨ぎ開始ブロック時に呼ばれることを検証する (計画 Task4 Step6)。
+const showToastMock = vi.fn();
+vi.mock('../../components/Toast', () => ({
+  showToast: (...args: unknown[]) => showToastMock(...args),
+}));
+
 // useAuthStore: uid をテストごとに差し替える (本人判定用)。
 let authUid: string | null = null;
 vi.mock('../../store/useAuthStore', () => ({
@@ -28,6 +34,7 @@ vi.mock('../../store/useAuthStore', () => ({
 }));
 
 import { HousingerPage } from '../../components/housing/pages/HousingerPage';
+import { useHousingTourStore } from '../../store/useHousingTourStore';
 
 const publishedProfile: HousingerProfile = {
   displayName: 'たかし',
@@ -90,7 +97,9 @@ beforeAll(() => {
 beforeEach(() => {
   mockGetHousingerProfile.mockReset();
   mockGetHousingerListings.mockReset();
+  showToastMock.mockClear();
   authUid = null;
+  useHousingTourStore.getState().reset();
 });
 
 function renderPage(uid: string) {
@@ -229,5 +238,28 @@ describe('HousingerPage', () => {
     expect(warnSpy).toHaveBeenCalled();
 
     warnSpy.mockRestore();
+  });
+
+  // 計画 Task4 Step6: 開始時セーフティネット (全開始経路の1つ)。
+  it('別リージョン混在の一覧では「まとめてツアー」が start されず、トーストが出る', async () => {
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([
+      rawListing('l-jp', 'uid-1'),
+      {
+        ...rawListing('l-na', 'uid-1'),
+        dc: 'Aether',
+        server: 'Gilgamesh',
+        addressKey: 'Aether-Gilgamesh-Mist-1-3',
+      },
+    ]);
+
+    renderPage('uid-1');
+
+    const tourBtn = await screen.findByRole('button', { name: 'この人の家をまとめてツアー' });
+    fireEvent.click(tourBtn);
+
+    expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
+    expect(useHousingTourStore.getState().running).toBe(false);
+    expect(useHousingTourStore.getState().listingIds).toEqual([]);
   });
 });

@@ -30,6 +30,7 @@ import {
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
+import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { HousingerAvatar } from '../housinger/HousingerAvatar';
@@ -137,6 +138,14 @@ export const HousingerPage: React.FC = () => {
   const onTourAll = () => {
     const ids = listings.map((l) => l.id);
     const orderedIds = orderTourStopIds(ids, listings);
+    const stops = orderedIds
+      .map((id) => listings.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const conflict = tourRegionConflict(stops);
+    if (conflict) {
+      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
+      return;
+    }
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();

@@ -13,11 +13,14 @@ import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
+import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { HousingReportModal } from '../report/HousingReportModal';
+import { showToast } from '../../Toast';
+import type { MockListing } from '../../../data/housing/mockListings';
 
 /**
  * ツアー中(Nav)ページ (Task8): オーケストレーター。
@@ -121,15 +124,21 @@ export const TourNavPage: React.FC = () => {
   );
   const onStartEphemeral = useCallback(() => {
     if (emptyTrayIds.length === 0) return;
-    const orderedIds = orderTourStopIds(
-      emptyTrayIds,
-      useEphemeralListingsStore.getState().ephemeralListings,
-    );
+    const pool = useEphemeralListingsStore.getState().ephemeralListings;
+    const orderedIds = orderTourStopIds(emptyTrayIds, pool);
+    const stops = orderedIds
+      .map((id) => pool.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const conflict = tourRegionConflict(stops);
+    if (conflict) {
+      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
+      return;
+    }
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
     setEmptyTrayIds([]);
-  }, [emptyTrayIds]);
+  }, [emptyTrayIds, t]);
 
   const onFinish = useCallback(() => {
     stop();
