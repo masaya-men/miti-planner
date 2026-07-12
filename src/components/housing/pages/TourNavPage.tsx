@@ -89,8 +89,11 @@ export const TourNavPage: React.FC = () => {
     [prevStep, currentListing],
   );
   // 中央マップの跨ぎ案内カード: 「移動しました」で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
+  // 見学中(viewing)は必ず解除する = 見学=既に現地に着いている前提。未 ack のまま「見学開始」を
+  // 押しても地図(光る区画)が見えるようにする(見学中もぼかしが残る不具合の防止)。
   const [crossingAckIndex, setCrossingAckIndex] = useState<number | null>(null);
-  const showCrossingOverlay = crossing.kind !== 'none' && crossingAckIndex !== currentIndex;
+  const showCrossingOverlay =
+    crossing.kind !== 'none' && crossingAckIndex !== currentIndex && phase !== 'viewing';
   const onAckCrossing = useCallback(() => setCrossingAckIndex(currentIndex), [currentIndex]);
   const canView = currentListing != null;
   const mapRef = useMemo(
