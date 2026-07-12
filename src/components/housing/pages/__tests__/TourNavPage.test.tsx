@@ -125,17 +125,13 @@ describe('TourNavPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'ツアーに追加' }));
     expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(1);
 
-    // 2件目: NA (Aether) の DC を選んだ時点で注記が出て「ツアーに追加」が非活性になる
+    // 2件目: NA (Aether) の DC を選んだ時点で注記が出て、サーバー以下がロックされ追加できない
     fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Aether' } });
-    fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Gilgamesh' } });
-    fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
-    fireEvent.change(screen.getByLabelText('区'), { target: { value: '5' } });
-    fireEvent.change(screen.getByLabelText('番地'), { target: { value: '20' } });
 
-    expect(screen.getByText('別リージョンの家は同じツアーに入れられません')).toBeInTheDocument();
+    expect(screen.getByText('別リージョンのハウジングは同じツアーに入れられません')).toBeInTheDocument();
+    expect((screen.getByLabelText('サーバー') as HTMLSelectElement).disabled).toBe(true);
     const addBtn = screen.getByRole('button', { name: 'ツアーに追加' }) as HTMLButtonElement;
     expect(addBtn.disabled).toBe(true);
-    fireEvent.click(addBtn);
 
     // 2件目は積まれない (JP の1件だけ)
     expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(1);

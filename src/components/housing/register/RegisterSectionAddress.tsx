@@ -29,6 +29,11 @@ interface Props {
    * ツアーは区画へ行くので house は区画ベースで足り、DC/サーバー/エリア/区/番地は共通で残す。
    */
   variant?: 'register' | 'tour';
+  /**
+   * 指定時: DC の直下に赤字でこの注記を表示し、DC 以外の全フィールドをロック (選ばせない)。
+   * 一時ツアー追加で別リージョンの DC を選んだときに、無駄入力させず即座に理由を見せるため。
+   */
+  crossRegionNotice?: string | null;
 }
 
 /**
@@ -38,12 +43,15 @@ interface Props {
  * roomKind ベースを採用する (旧 HousingRegisterForm.tsx の 5 択 HousingExtractSize モデルは
  * 新バックエンド/WardMapPreview と不整合のため踏襲しない)。
  */
-export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, onChange, variant = 'register' }) => {
+export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, onChange, variant = 'register', crossRegionNotice }) => {
   const { t, i18n } = useTranslation();
   const { dc, server, area, ward, buildingType, plot, size, apartmentBuilding, roomKind, roomNumber } = values;
 
   const dcKeys = Object.keys(serverMasterData);
   const serverKeys = dc ? Object.keys(serverMasterData[dc]?.servers ?? {}) : [];
+
+  // 別リージョンの DC を選んだとき等: DC 以外を選ばせない (注記で理由を明示)。
+  const locked = Boolean(crossRegionNotice);
 
   const isHouse = buildingType !== 'apartment';
   const isApartment = buildingType === 'apartment';
@@ -113,7 +121,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
             id="housing-register-server"
             className="housing-input"
             value={server ?? ''}
-            disabled={!dc}
+            disabled={!dc || locked}
             onChange={(e) => onChange('server', e.target.value || undefined)}
           >
             <option value="">—</option>
@@ -124,6 +132,15 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
           {renderBadge('server')}
         </div>
 
+        {crossRegionNotice && (
+          <p
+            className="housing-error-text housing-register-cross-region-notice"
+            data-testid="housing-cross-region-notice"
+          >
+            {crossRegionNotice}
+          </p>
+        )}
+
         <div className="housing-field" data-state={fieldState.getState('area')}>
           <label htmlFor="housing-register-area" className="housing-label">
             {t('housing.register.area')}
@@ -132,6 +149,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
             id="housing-register-area"
             className="housing-input"
             value={area ?? ''}
+            disabled={locked}
             onChange={(e) => onChange('area', e.target.value || undefined)}
           >
             <option value="">—</option>
@@ -153,6 +171,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
             max={WARD_RANGE.max}
             className="housing-input"
             value={ward ?? ''}
+            disabled={locked}
             onChange={(e) => onChange('ward', e.target.value ? Number(e.target.value) : undefined)}
           />
           {renderBadge('ward')}
@@ -167,6 +186,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               data-selected={isHouse ? 'true' : 'false'}
               role="radio"
               aria-checked={isHouse}
+              disabled={locked}
               onClick={() => handleBuildingTypeChange('house')}
             >
               {t('housing.register.building_type.house')}
@@ -177,6 +197,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               data-selected={isApartment ? 'true' : 'false'}
               role="radio"
               aria-checked={isApartment}
+              disabled={locked}
               onClick={() => handleBuildingTypeChange('apartment')}
             >
               {t('housing.register.building_type.apartment')}
@@ -197,6 +218,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
                 max={PLOT_RANGE.max}
                 className="housing-input"
                 value={plot ?? ''}
+                disabled={locked}
                 onChange={(e) => onChange('plot', e.target.value ? Number(e.target.value) : undefined)}
               />
               {renderBadge('plot')}
@@ -284,6 +306,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
                   data-selected={apartmentBuilding === 1 ? 'true' : 'false'}
                   role="radio"
                   aria-checked={apartmentBuilding === 1}
+                  disabled={locked}
                   onClick={() => onChange('apartmentBuilding', 1)}
                 >
                   {t('housing.register.apartment_building.main')}
@@ -294,6 +317,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
                   data-selected={apartmentBuilding === 2 ? 'true' : 'false'}
                   role="radio"
                   aria-checked={apartmentBuilding === 2}
+                  disabled={locked}
                   onClick={() => onChange('apartmentBuilding', 2)}
                 >
                   {t('housing.register.apartment_building.sub')}
@@ -312,6 +336,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
                 max={APARTMENT_ROOM_RANGE.max}
                 className="housing-input"
                 value={roomNumber ?? ''}
+                disabled={locked}
                 onChange={(e) => onChange('roomNumber', e.target.value ? Number(e.target.value) : undefined)}
               />
               {renderBadge('roomNumber')}

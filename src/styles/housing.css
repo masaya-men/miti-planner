@@ -4163,6 +4163,11 @@ select.housing-input option {
 .housing-register-fields-grid > .housing-field-full {
   grid-column: 1 / -1;
 }
+/* 別リージョン DC 選択時の赤字注記。DC/サーバー行の直下に全幅で出して必ず目に入れる。 */
+.housing-register-fields-grid > .housing-register-cross-region-notice {
+  grid-column: 1 / -1;
+  margin: 0;
+}
 
 /* ハウジンガー公開 CTA (Task9): 確認セクション直前の任意ブロック。何も要求しない導線なので
    `.housing-register-section` の青アクセント見出し (= 必須ステップ扱い) は使わず、

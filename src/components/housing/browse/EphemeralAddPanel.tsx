@@ -314,11 +314,8 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
           fieldState={fieldState}
           values={address}
           onChange={handleAddressChange}
+          crossRegionNotice={crossRegionBlocked ? t('housing.tour.region_block') : null}
         />
-
-        {crossRegionBlocked && (
-          <p className="housing-error-text">{t('housing.tour.region_block')}</p>
-        )}
 
         {limitReached && (
           <p className="housing-error-text">

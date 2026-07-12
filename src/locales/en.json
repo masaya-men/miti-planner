@@ -1971,7 +1971,7 @@
             "fetch_error": "Couldn't fetch information from the URL",
             "add": "Add to tour",
             "added": "Added",
-            "note_volatile": "Temporary homes are not saved (they disappear when you leave the page)",
+            "note_volatile": "Housing added by address isn't saved to the site and disappears when you leave this page. Use it when you want to include a place in a tour without registering it.",
             "limit_note": "Up to {{max}} temporary homes at a time",
             "badge": "Temporary",
             "register_link": "Register this home",

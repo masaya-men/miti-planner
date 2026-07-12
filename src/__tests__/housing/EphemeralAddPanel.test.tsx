@@ -127,30 +127,28 @@ describe('EphemeralAddPanel — リージョン跨ぎの早期ブロック (tray
     useEphemeralListingsStore.getState().clear();
   });
 
-  it('⑨ トレイが JP のとき、別リージョン(NA)の DC を選んだ時点で注記が出て「ツアーに追加」が非活性', () => {
-    const onAdd = vi.fn();
-    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={onAdd} trayRegion="JP" />);
-    // NA の DC (Aether) を選ぶ → 住所を全部埋めても追加できない
+  it('⑨ トレイが JP のとき、別リージョン(NA)の DC を選んだ時点で注記+サーバー以下ロック+「ツアーに追加」非活性', () => {
+    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={vi.fn()} trayRegion="JP" />);
+    // NA の DC (Aether) を選んだ瞬間にブロック。サーバー等は選ばせない (ロック)。
     fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Aether' } });
-    fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Gilgamesh' } });
-    fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
-    fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
-    fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
 
-    expect(screen.getByText('別リージョンの家は同じツアーに入れられません')).toBeTruthy();
+    expect(screen.getByText('別リージョンのハウジングは同じツアーに入れられません')).toBeTruthy();
+    expect((screen.getByLabelText('サーバー') as HTMLSelectElement).disabled).toBe(true);
+    expect((screen.getByLabelText('エリア') as HTMLSelectElement).disabled).toBe(true);
     expect(addButton().disabled).toBe(true);
   });
 
-  it('⑩ トレイが JP でも 同リージョン(JP)の別 DC は注記なし・追加できる (DCトラベルは許可)', () => {
+  it('⑩ トレイが JP でも 同リージョン(JP)の別 DC は注記なし・ロックなしで追加できる (DCトラベルは許可)', () => {
     wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} trayRegion="JP" />);
     // Gaia も JP → 跨ぎではない
     fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Gaia' } });
+    expect((screen.getByLabelText('サーバー') as HTMLSelectElement).disabled).toBe(false);
     fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Alexander' } });
     fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
 
-    expect(screen.queryByText('別リージョンの家は同じツアーに入れられません')).toBeNull();
+    expect(screen.queryByText('別リージョンのハウジングは同じツアーに入れられません')).toBeNull();
     expect(addButton().disabled).toBe(false);
   });
 
@@ -162,7 +160,7 @@ describe('EphemeralAddPanel — リージョン跨ぎの早期ブロック (tray
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
 
-    expect(screen.queryByText('別リージョンの家は同じツアーに入れられません')).toBeNull();
+    expect(screen.queryByText('別リージョンのハウジングは同じツアーに入れられません')).toBeNull();
     expect(addButton().disabled).toBe(false);
   });
 });

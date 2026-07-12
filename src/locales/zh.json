@@ -1936,7 +1936,7 @@
             "fetch_error": "无法从URL获取信息",
             "add": "加入导览",
             "added": "已添加",
-            "note_volatile": "临时房屋不会被保存 (离开页面后即消失)",
+            "note_volatile": "通过地址添加的房屋不会登记到网站，离开页面后即消失。想在不登记的情况下直接加入导览时可使用。",
             "limit_note": "临时房屋最多 {{max}} 件",
             "badge": "临时",
             "register_link": "登记这间房屋",
