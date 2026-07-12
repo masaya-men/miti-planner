@@ -30,6 +30,8 @@ export interface ListingCardProps {
   selected?: boolean;
   /** 選択トグル時のコールバック。selectable=true のとき使用する */
   onToggleSelect?: (id: string) => void;
+  /** 指定時、カード本体クリック/Enter で詳細遷移せずこれを呼ぶ (例: 地図の複数スポット→パネル起動)。 */
+  onCardClick?: () => void;
 }
 
 /**
@@ -50,6 +52,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   selectable,
   selected,
   onToggleSelect,
+  onCardClick,
 }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -80,8 +83,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const isPrivate = isMine && listing.visibility === 'private';
   const isExpired = isMine && !isPrivate && !isEffectivelyPublic(listing, Date.now());
 
-  // カード全体クリック → 詳細ページ。♡ / 選択 / ツアー追加は stopPropagation で独立動作。
+  // カード全体クリック → 既定は詳細ページ。onCardClick 指定時はそちらを優先
+  // (♡ / 選択 / ツアー追加は stopPropagation で独立動作、以下いずれの場合も不変)。
   const openDetail = () => navigate(`/housing/listing/${listing.id}`);
+  const activate = onCardClick ?? openDetail;
 
   return (
     <article
@@ -91,9 +96,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       role="link"
       tabIndex={0}
       aria-label={title}
-      onClick={openDetail}
+      onClick={activate}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') openDetail();
+        if (e.key === 'Enter') activate();
       }}
     >
       <div className="housing-listing-card-media" ref={mediaRef}>
