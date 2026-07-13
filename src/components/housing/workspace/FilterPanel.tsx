@@ -18,6 +18,7 @@ import {
 } from '../../../data/housing/dcServerMap';
 import { REGION_LABELS, pickRegionLocale } from '../../../data/housing/regionMap';
 import { applyFilters } from '../../../lib/housing/applyFilters';
+import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { FilterDropdown } from './FilterDropdown';
 import { ResultCountBadge } from './ResultCountBadge';
@@ -47,6 +48,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const areas = useHousingFilterStore((s) => s.areas);
     const sizes = useHousingFilterStore((s) => s.sizes);
     const tags = useHousingFilterStore((s) => s.tags);
+    const keyword = useHousingFilterStore((s) => s.keyword);
     const setDC = useHousingFilterStore((s) => s.setDC);
     const toggleRegion = useHousingFilterStore((s) => s.toggleRegion);
     const toggleServer = useHousingFilterStore((s) => s.toggleServer);
@@ -61,10 +63,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const realListings = useHousingListingsStore((s) => s.listings);
     const source = viewMode === 'map' ? MOCK_LISTINGS : realListings;
 
-    const result = useMemo(
+    const resultBase = useMemo(
         () => applyFilters(source, { dc, regions, servers, areas, sizes, tags }),
         [source, dc, regions, servers, areas, sizes, tags],
     );
+    // keyword は applyFilters の後段で適用 (件数バッジも検索反映後の数にする)。
+    const result = useKeywordFilteredListings(resultBase, keyword);
 
     useEffect(() => {
         setCounts(result.length, source.length);

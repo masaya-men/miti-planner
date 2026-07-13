@@ -8,6 +8,7 @@ import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
+import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
 import { canAddToTour, tourRegionConflict } from '../../../lib/housing/tourCrossing';
@@ -49,6 +50,7 @@ export const BrowsePage: React.FC = () => {
   const areas = useHousingFilterStore((s) => s.areas);
   const sizes = useHousingFilterStore((s) => s.sizes);
   const tags = useHousingFilterStore((s) => s.tags);
+  const keyword = useHousingFilterStore((s) => s.keyword);
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。
   const merged = useMemo(
@@ -56,10 +58,12 @@ export const BrowsePage: React.FC = () => {
     [listings, myListings, uid],
   );
 
-  const filtered = useMemo(
+  const filteredBase = useMemo(
     () => applyFilters(merged, { dc, regions, servers, areas, sizes, tags }),
     [merged, dc, regions, servers, areas, sizes, tags],
   );
+  // keyword は applyFilters(純関数)の後段で適用する (表示名解決に i18n が要るため別レイヤー)。
+  const filtered = useKeywordFilteredListings(filteredBase, keyword);
 
   // 個人タグ 1 つで絞り込み中のとき、 結果一覧の上に「◯◯のハウジンガーページを見る →」リンクを出す
   // (spec 2026-07-10-housinger-profile-design.md §3.3 統合契約4)。
