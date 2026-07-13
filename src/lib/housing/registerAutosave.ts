@@ -105,3 +105,34 @@ export function restoreDraft(raw: string | null): Partial<AutosaveDraft> | null 
     return null;
   }
 }
+
+/**
+ * ドラフトに「ユーザーが実際に入力した意味のある値」が 1 つでもあるかを判定する。
+ *
+ * 空文字のタイトル/コメント (`''`)・既定の `visibility:'public'`・`publishUntil:null` は
+ * 「何も入力していない」と見なして false に落とす。これを保存前ガード (空ドラフトを
+ * localStorage に書かない) と復元通知ガード (中身のないドラフトで「復元しました」を出さない)
+ * の両方に通し、「開いただけで毎回『入力途中を復元しました』が出る」バグを根治する。
+ *
+ * size は (area × plot) からの導出値でユーザーの直接入力ではないため、住所判定には
+ * 選択項目 (dc/server/area/ward/buildingType/plot/apartmentBuilding/roomKind/roomNumber) のみを使う。
+ */
+export function hasMeaningfulDraft(d: Partial<AutosaveDraft>): boolean {
+  return (
+    !!d.title?.trim() ||
+    !!d.description?.trim() ||
+    (Array.isArray(d.tags) && d.tags.length > 0) ||
+    d.dc != null ||
+    d.server != null ||
+    d.area != null ||
+    d.ward != null ||
+    d.buildingType != null ||
+    d.plot != null ||
+    d.apartmentBuilding != null ||
+    d.roomKind != null ||
+    d.roomNumber != null ||
+    !!d.postUrl?.trim() ||
+    d.visibility === 'private' ||
+    d.publishUntil != null
+  );
+}

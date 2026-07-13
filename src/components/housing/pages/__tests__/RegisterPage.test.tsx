@@ -268,6 +268,29 @@ describe('RegisterPage', () => {
     window.localStorage.removeItem(AUTOSAVE_KEY);
   });
 
+  // 「入力途中を復元しました」が空ドラフトで誤発火するバグの回帰テスト (2026-07-13)。
+  // 空文字タイトル/コメント + 既定 public + publishUntil null だけの下書きは「何も入力していない」
+  // ので、保存も復元通知もしてはいけない (hasMeaningfulDraft で判定)。
+  describe('オートセーブ復元通知 (空ドラフト誤発火の回帰)', () => {
+    it('空・初期値だけの下書きでは復元通知を出さない', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({ title: '', description: '', tags: [], visibility: 'public', publishUntil: null }),
+      );
+      renderPage();
+      expect(screen.getByTestId('housing-register-form-root')).toBeInTheDocument();
+      expect(screen.queryByTestId('housing-register-autosave-notice')).not.toBeInTheDocument();
+    });
+
+    it('意味のある下書き (タイトル入力) では復元通知を出す', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({ title: 'カフェ' }));
+      renderPage();
+      expect(screen.getByTestId('housing-register-autosave-notice')).toBeInTheDocument();
+    });
+  });
+
   // Task5 (計画: 住所登録なし一時ツアー・spec §4.3): 「この家を登録する」からの一回限りプリフィル。
   describe('registerPrefill: 一時ツアーからの一回限りプリフィル (Task5)', () => {
     beforeEach(() => {

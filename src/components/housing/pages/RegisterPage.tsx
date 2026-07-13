@@ -43,6 +43,7 @@ import {
   AUTOSAVE_KEY,
   serializeDraft,
   restoreDraft,
+  hasMeaningfulDraft,
   type AutosaveDraft,
 } from '../../../lib/housing/registerAutosave';
 import { consumeRegisterPrefill } from '../../../lib/housing/registerPrefill';
@@ -1053,7 +1054,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     if (autosaveTimerRef.current != null) window.clearTimeout(autosaveTimerRef.current);
     autosaveTimerRef.current = window.setTimeout(() => {
       try {
-        window.localStorage.setItem(AUTOSAVE_KEY, serializeDraft(autosaveValues));
+        // 意味のある入力が 1 つも無い間は保存しない (既存の空ドラフトも掃除する)。
+        // 「開いただけで次回『入力途中を復元しました』が出る」誤発火を保存の段階で断つ。
+        if (hasMeaningfulDraft(autosaveValues)) {
+          window.localStorage.setItem(AUTOSAVE_KEY, serializeDraft(autosaveValues));
+        } else {
+          window.localStorage.removeItem(AUTOSAVE_KEY);
+        }
       } catch {
         /* localStorage 不可でも致命的でない */
       }
@@ -1141,15 +1148,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       setIfDefined('roomKind', restored.roomKind);
       setIfDefined('roomNumber', restored.roomNumber);
 
-      // 何か 1 つでも復元したら通知 + 破棄ボタンを出す。
-      const hasAny =
-        restored.title != null ||
-        restored.description != null ||
-        (Array.isArray(restored.tags) && restored.tags.length > 0) ||
-        Object.keys(addressPatch).length > 0 ||
-        restored.postUrl != null ||
-        restored.publishUntil != null;
-      if (hasAny) setRestoredNoticeVisible(true);
+      // 実際に意味のある入力があるドラフトのときだけ通知 + 破棄ボタンを出す
+      // (空文字タイトル/コメント・既定 public・publishUntil null だけの下書きでは誤発火させない)。
+      if (hasMeaningfulDraft(restored)) setRestoredNoticeVisible(true);
     }
 
     // Task5 (spec §4.3): 一時ツアーからの一回限りプリフィル。create モードのみ消費し、
