@@ -48,12 +48,18 @@ export function buildListingSearchText(
   return parts.join(' ').toLowerCase();
 }
 
+/** カタカナをひらがなに正規化 (ひらがな入力でもカタカナ読みにヒットさせる)。 */
+function toHiragana(s: string): string {
+  return s.replace(/[ァ-ヶ]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0x60));
+}
+
 /**
  * 検索テキストがキーワードに一致するか。複数語は空白区切りで AND、大文字小文字無視の部分一致。
- * keyword が空 (trim 後 0 文字) なら常に true。
+ * カタカナ/ひらがなは区別しない (「まな」でも「マナ」でもヒット)。keyword が空なら常に true。
  */
 export function matchesKeyword(searchText: string, keyword: string): boolean {
-  const words = keyword.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const normText = toHiragana(searchText);
+  const words = toHiragana(keyword.trim().toLowerCase()).split(/\s+/).filter(Boolean);
   if (words.length === 0) return true;
-  return words.every((w) => searchText.includes(w));
+  return words.every((w) => normText.includes(w));
 }

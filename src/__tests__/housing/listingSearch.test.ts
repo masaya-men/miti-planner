@@ -50,6 +50,15 @@ describe('katakana search (略称は部分一致で自動対応)', () => {
     expect(text).toContain('gilgamesh'); // 英語で検索可能
     expect(matchesKeyword(text, 'ギルガメッシュ')).toBe(false); // 慣用カタカナは非対象
   });
+  it('matches katakana reading via hiragana input (まな / ぱんでも)', () => {
+    const text = buildListingSearchText({ ...base, server: 'Pandaemonium', dc: 'Mana' }, tId, 'ja', 'ja');
+    expect(matchesKeyword(text, 'まな')).toBe(true);           // ひらがなで DC
+    expect(matchesKeyword(text, 'ぱんでもにうむ')).toBe(true); // ひらがなでワールド
+    expect(matchesKeyword(text, 'ぱんでも')).toBe(true);       // ひらがな略称
+  });
+  it('hiragana normalization also applies to title/description (かふぇ ⇄ カフェ)', () => {
+    expect(matchesKeyword('静かな隠れ家カフェ', 'かふぇ')).toBe(true);
+  });
 });
 
 describe('matchesKeyword', () => {
