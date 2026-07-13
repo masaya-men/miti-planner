@@ -8,7 +8,6 @@ import {
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
 import { getTagsByKind } from '../../../data/housingTags';
-import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import {
     ALL_DCS,
@@ -24,7 +23,6 @@ import { FilterDropdown } from './FilterDropdown';
 import { ResultCountBadge } from './ResultCountBadge';
 import { RegisterCTA } from './RegisterCTA';
 import { PanelCloseButton } from './PanelCloseButton';
-import { PersonalTagFilter } from './PersonalTagFilter';
 
 const THEME_TAG_IDS = new Set(getTagsByKind('theme').map((tag) => tag.id));
 
@@ -199,11 +197,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                     onSelect={(v) => toggleTag(v)}
                     allLabel={allLabel}
                     countLabel={countLabel}
-                />
-
-                <PersonalTagFilter
-                    selected={tags.filter((id) => id.startsWith(PERSONAL_TAG_ID_PREFIX))}
-                    onToggle={(id) => toggleTag(id)}
                 />
 
                 {hasActiveFilter && (
