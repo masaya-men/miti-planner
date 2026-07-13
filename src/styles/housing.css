@@ -42,6 +42,7 @@
   --housing-text-dim: rgba(255, 255, 255, 0.78);
   --housing-text-mute: rgba(255, 255, 255, 0.55);
   --housing-divider: rgba(255, 255, 255, 0.12);
+  --housing-register-stepper-ring-w: 2;
   --housing-text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55), 0 0 10px rgba(0, 0, 0, 0.32);
 
   /* DEV 経路エディタ: ナビ赤線の可視化(本番非表示・DEVのみ)。 */
@@ -4348,33 +4349,45 @@ select.housing-input option {
 .housing-register-stepper-body {
   position: relative;
 }
-/* 接続線 (トラック): 先頭〜末尾バッジの中心を結ぶ。上下端は RegisterStepperNav.tsx の
-   ResizeObserver 測定値 (--connector-top/--connector-bottom) を使い、アクティブ説明文の
-   開閉で末尾ステップの高さが変わっても追従する。バッジ中心 x = item padding-left(10) +
-   バッジ半径(11) = 21px。 */
-.housing-register-stepper-track {
-  position: absolute;
-  left: 21px;
-  top: var(--connector-top, 19px);
-  bottom: var(--connector-bottom, 19px);
-  width: 2px;
-  background: var(--housing-divider);
-  border-radius: 1px;
-  pointer-events: none;
-}
-.housing-register-stepper-track-fill {
+/* SVG 進捗レイヤー: リストの丸に重ねる (絶対配置)。座標/dash は RegisterStepperNav.tsx が
+   ResizeObserver 測定値から算出する (バッジ中心 x = item padding-left(10) + バッジ半径(11) = 21px)。 */
+.housing-register-stepper-svg {
   position: absolute;
   inset: 0;
   width: 100%;
-  background: var(--housing-aether);
-  transform: scaleY(var(--stepper-progress, 0));
-  transform-origin: top;
-  transition: transform 0.4s var(--housing-tour-step-spring);
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+/* 円周リング / 接続線: 塗り済み(前景) */
+.housing-register-stepper-ring,
+.housing-register-stepper-connector {
+  fill: none;
+  stroke: var(--housing-aether);
+  stroke-width: var(--housing-register-stepper-ring-w);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.4s var(--housing-tour-step-spring);
+}
+/* 円周は下端(6時)起点・反時計回り: rotate で開始点を下へ、scale で向きを反転。
+   best-guess の向き。実画面 (CSS 1489 / DPR 2.58) で見え方を確認し、必要なら調整する。 */
+.housing-register-stepper-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(90deg) scaleX(-1);
 }
 @media (prefers-reduced-motion: reduce) {
-  .housing-register-stepper-track-fill {
+  .housing-register-stepper-ring,
+  .housing-register-stepper-connector {
     transition: none;
   }
+}
+/* 円周 / 接続線の下地(未塗りトラック): 塗り済みリングの手前(DOM順で後ろ)に敷く「これから
+   塗る道筋」。transform 不要(下地円は全周・下地線は全長なので向き無関係)。 */
+.housing-register-stepper-ring-track,
+.housing-register-stepper-connector-track {
+  fill: none;
+  stroke: var(--housing-divider);
+  stroke-width: var(--housing-register-stepper-ring-w);
 }
 .housing-register-stepper-list {
   position: relative;

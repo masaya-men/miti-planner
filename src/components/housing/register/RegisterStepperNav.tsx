@@ -108,7 +108,28 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
           height={svgHeight}
           aria-hidden="true"
         >
-          {/* 接続線 (丸の後ろ)。座標は測定値、progress に応じて dash で塗る (色は Task4) */}
+          {/* 未塗り下地(トラック): 前景の手前(DOM順で後ろ = 描画は下)に敷く「これから塗る道筋」。
+              dash なし = 全長・全周をそのまま表示。 */}
+          {connectors.map((c, i) => (
+            <line
+              key={`ct-${i}`}
+              className="housing-register-stepper-connector-track"
+              x1={RING_CX}
+              y1={c.y1}
+              x2={RING_CX}
+              y2={c.y2}
+            />
+          ))}
+          {centers.map((cy, i) => (
+            <circle
+              key={`rt-${i}`}
+              className="housing-register-stepper-ring-track"
+              cx={RING_CX}
+              cy={cy}
+              r={RING_R}
+            />
+          ))}
+          {/* 接続線 (丸の後ろ)。座標は測定値、progress に応じて dash で塗る */}
           {connectors.map((c, i) => (
             <line
               key={`c-${i}`}
@@ -120,7 +141,7 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
               style={{ strokeDasharray: c.len, strokeDashoffset: c.len * (1 - connectorFill(i)) }}
             />
           ))}
-          {/* 円周リング。座標は測定値、progress に応じて dash で塗る (色は Task4) */}
+          {/* 円周リング。座標は測定値、progress に応じて dash で塗る */}
           {centers.map((cy, i) => (
             <circle
               key={`r-${i}`}
