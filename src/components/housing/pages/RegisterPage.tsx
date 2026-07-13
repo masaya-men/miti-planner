@@ -47,11 +47,14 @@ import {
   type AutosaveDraft,
 } from '../../../lib/housing/registerAutosave';
 import { consumeRegisterPrefill } from '../../../lib/housing/registerPrefill';
-import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { YoutubeFetchedData, OgpFetchedData } from '../register/HousingRegisterSnsUrlField';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
-import type { HousingArea, HousingListing } from '../../../types/housing';
+import type { HousingArea, HousingListing, HousingSize } from '../../../types/housing';
+import { regionForDC } from '../../../data/housing/dcServerMap';
+import { buildAddressKey } from '../../../utils/housingDuplicate';
+import type { MockListing } from '../../../data/housing/mockListings';
 
 /**
  * 捕捉した SNS 取得結果 (画像 draft 構築の材料)。旧 HousingRegisterForm の tweetData/
@@ -251,6 +254,63 @@ function addressFromListing(listing: HousingListing): RegisterAddressValues {
     apartmentBuilding: listing.apartmentBuilding,
     roomKind: listing.roomKind,
     roomNumber: listing.roomNumber,
+  };
+}
+
+/**
+ * 登録直後、Firestore を読まずに探す一覧へ即反映するためのローカル view-model
+ * (2026-07-13 round2 A-5・c: Firestore 読み取り0)。
+ *
+ * registerListing の戻り値 (id) + 送信済み draft + ownerUid から `MockListing` 完全互換
+ * オブジェクトを組む。`ephemeralListing.ts` の `createEphemeralListing` と同じ組み立て方針
+ * (必須フィールドは `galleryAdapter.ts` / `mockListings.ts` 参照)。
+ *
+ * - `region` は `regionForDC(draft.dc)`。未知 DC (Shadow 等) は 'JP' を既定にする
+ *   (createEphemeralListing の DEFAULT_EPHEMERAL_REGION と同じ考え方。表示に使うだけで
+ *   実際の並び替え等クリティカルな用途ではないため、この暫定値で登録自体は止めない)。
+ * - `thumbnailPath` はサーバー upload 後に確定するため、この時点では未確定 (undefined)。
+ *   カードは sourceImageUrls/videoUrl 等の SNS/ローカル画像で暫定表示し、次回 load() で正規化される
+ *   (許容トレードオフ・設計書 c 節)。
+ * - `addressKey` は既存 `buildAddressKey` (housingDuplicate.ts) を流用 (draft は AddressInput 互換)。
+ */
+function buildLocalListingViewModel(
+  draft: RegistrationDraft,
+  id: string,
+  ownerUid: string,
+): MockListing {
+  const now = Date.now();
+  const region = regionForDC(draft.dc) ?? 'JP';
+  return {
+    id,
+    ownerUid,
+    dc: draft.dc,
+    server: draft.server,
+    region,
+    area: draft.area as HousingArea,
+    ward: draft.ward,
+    buildingType: draft.buildingType as 'house' | 'apartment',
+    plot: draft.plot,
+    size: draft.size as HousingSize | undefined,
+    apartmentBuilding: draft.apartmentBuilding,
+    roomNumber: draft.roomNumber,
+    roomKind: draft.roomKind as 'private_chamber' | 'apartment_room' | undefined,
+    imageMode: draft.imageMode ?? 'none',
+    postUrl: draft.postUrl,
+    ogImageUrl: draft.ogImageUrl,
+    sourceImageUrls: draft.sourceImageUrls,
+    sourceImageAspectRatios: draft.sourceImageAspectRatios,
+    youtubeVideoId: draft.youtubeVideoId,
+    videoUrl: draft.videoUrl,
+    videoPosterUrl: draft.videoPosterUrl,
+    videoAspectRatio: draft.videoAspectRatio,
+    tags: draft.tags,
+    description: draft.description,
+    title: draft.title,
+    visibility: draft.visibility ?? 'public',
+    publishUntil: draft.publishUntil ?? null,
+    createdAt: now,
+    lastConfirmedAt: now,
+    addressKey: buildAddressKey(draft),
   };
 }
 
@@ -492,6 +552,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         // 一意に決まるので、下の導出 effect が唯一の書き込み口になる。本文の "L" 表記が
         // 区画の実サイズと食い違っていても、区画側 (= ゲームの一次データ) を正とする。
       }
+      // アパートの号棟-部屋番号 (2026-07-13 round2 A-4)。パーサが確信を持って取れたときだけ
+      // 値が入る (取れなければ undefined のまま = 誤値を作らない)。apartmentBuilding は
+      // 上の既定値 1 補完より**後**に push することで、パーサが号棟 2 (拡張街) を検出できた
+      // 場合に正しく上書きする (fills は setTimeout スタッガーで順に適用され、後勝ち)。
+      if (result.roomNumber != null) fills.push(['roomNumber', result.roomNumber]);
+      if (result.apartmentBuilding != null) fills.push(['apartmentBuilding', result.apartmentBuilding]);
       if (fills.length === 0) return;
 
       // このハンドラ呼び出しが復元起因かをスナップショット (以降の setTimeout でも同じ値を使う)。
@@ -895,9 +961,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
           if (uploadFailedOnce) setSubmitErrorKey('upload_failed');
         }
 
-        // 中央一覧 + マイ一覧へ即反映 (リロード不要)。失敗しても登録は成功済み。
-        await useHousingListingsStore.getState().fetchAndUpsert(id);
-        if (user) await useHousingListingsStore.getState().loadMine(user.uid);
+        // 中央一覧へ即反映 (2026-07-13 round2 A-5・c: リロード不要 + Firestore 読み取り0)。
+        // 旧実装は fetchAndUpsert(id) (getDoc 1件) + loadMine(uid) (最大200件) を毎登録で
+        // 叩いていた。draft + id + ownerUid からローカルに view-model を組んで upsert する
+        // だけで反映できるため、追加の Firestore 読み取りを一切発生させない。
+        // マイ一覧 (loadMine) の即時再取得は行わない (次回マイページ訪問時に load される)。
+        if (user) {
+          useHousingListingsStore.getState().upsert(buildLocalListingViewModel(draft, id, user.uid));
+        }
 
         // 登録成功でオートセーブを破棄。
         try {
@@ -1006,8 +1077,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   const confirmSummary = useMemo<RegisterConfirmSummary>(() => {
     let addressText: string | null = null;
     if (addressOk && address.area) {
-      addressText = formatHousingAddress(
+      // 確認セクション+公開ボタン上の住所をフル住所化 (2026-07-13 round2 A-3・②)。
+      // region は regionForDC(dc) で導出し、未知 DC (Shadow 等) は null になり得るが
+      // formatFullHousingAddress 側の null ガード (A-2) が街区住所へフォールバックするので
+      // ここではそのまま渡してよい。addressOk===true のときは dc/server は必ず値が入っている。
+      addressText = formatFullHousingAddress(
         {
+          region: regionForDC(address.dc ?? ''),
+          dc: address.dc ?? '',
+          server: address.server ?? '',
           area: address.area as HousingArea,
           ward: address.ward ?? 0,
           buildingType: address.buildingType,

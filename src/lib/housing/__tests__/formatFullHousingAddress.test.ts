@@ -77,6 +77,33 @@ describe('formatFullHousingAddress', () => {
   });
 });
 
+/**
+ * region null ガード (2026-07-13 round2 A-2・②)。
+ *
+ * `DC_SERVER_MAP` に無い新 DC (Shadow 等) では `regionForDC(dc)` が null を返す。
+ * これをそのまま `formatFullHousingAddress` に渡しても `regionLabel(null, …)` で
+ * クラッシュせず、従来の `formatHousingAddress` (街区住所のみ) にフォールバックする。
+ */
+describe('formatFullHousingAddress - region null ガード (2026-07-13 round2 A-2)', () => {
+  it('region が null (未知 DC 等) のとき、従来の formatHousingAddress と同じ街区住所を返す (クラッシュしない)', () => {
+    const withUnknownRegion = { ...jpHouse, region: null };
+    expect(() => formatFullHousingAddress(withUnknownRegion, 'ja')).not.toThrow();
+    expect(formatFullHousingAddress(withUnknownRegion, 'ja')).toBe(formatHousingAddress(jpHouse, 'ja'));
+    expect(formatFullHousingAddress(withUnknownRegion, 'ja')).toBe('シロガネ 3-12');
+  });
+
+  it('apartment でも region null ならクラッシュせずフォールバックする', () => {
+    const withUnknownRegion = { ...jpApartment, region: null };
+    expect(() => formatFullHousingAddress(withUnknownRegion, 'ja')).not.toThrow();
+    expect(formatFullHousingAddress(withUnknownRegion, 'ja')).toBe(formatHousingAddress(jpApartment, 'ja'));
+  });
+
+  it('lang 未指定でも region null フォールバックがクラッシュしない', () => {
+    const withUnknownRegion = { ...jpHouse, region: null };
+    expect(() => formatFullHousingAddress(withUnknownRegion, undefined)).not.toThrow();
+  });
+});
+
 describe('formatHousingAddress (既存挙動が変わっていないことの回帰確認)', () => {
   it('house はリージョン/DC を含まない短縮住所のまま', () => {
     expect(formatHousingAddress(jpHouse, 'ja')).toBe('シロガネ 3-12');

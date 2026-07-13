@@ -1,7 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { TourStep } from '../../../lib/housing/tourNav';
-import { formatHousingAddress, formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import {
+  formatHousingAddress,
+  formatFullHousingAddress,
+  housingSizeDisplayLabel,
+} from '../../../lib/housing/formatHousingAddress';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { saveRegisterPrefill, type RegisterPrefill } from '../../../lib/housing/registerPrefill';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -79,7 +83,7 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
               (N: DC込み完全住所)。次の目的地(下の小プレビュー)は幅が狭いため短縮住所のまま。 */}
           <p className="housing-tour-dest-addrsize">
             {formatFullHousingAddress(listing, i18n.language)}
-            {!isApartment && listing.size ? ` ・ ${listing.size}` : ''}
+            {!isApartment && listing.size ? ` ・ ${housingSizeDisplayLabel(listing.size)}` : ''}
           </p>
 
           {isEphemeralListingId(listing.id) && (
@@ -112,7 +116,7 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
                 </span>
                 <span className="housing-tour-dest-next-addr">
                   {formatHousingAddress(next, i18n.language)}
-                  {!nextIsApartment && next.size ? ` ・ ${next.size}` : ''}
+                  {!nextIsApartment && next.size ? ` ・ ${housingSizeDisplayLabel(next.size)}` : ''}
                 </span>
               </div>
               <TourLivingMedia listing={next} className="is-next" />

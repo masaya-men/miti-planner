@@ -80,7 +80,7 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
           住所を変えれば自動で未確認に戻る (RegisterPage handleAddressChange / applyExtractedResult 側)。
           静かな注記トーン (色付き alert 箱にしない)。確認済みはハニーではなく確認済みトークンを使う。 */}
       <div className="housing-register-confirm-gate" data-testid="housing-register-confirm-address-gate">
-        <p className="housing-register-confirm-gate-lead">{t('housing.register.confirm.address_gate_lead')}</p>
+        <p className="housing-register-confirm-gate-lead">{t('housing.register.confirm.gate_lead_prompt')}</p>
         {summary.address && (
           <p className="housing-register-confirm-gate-address">{summary.address}</p>
         )}

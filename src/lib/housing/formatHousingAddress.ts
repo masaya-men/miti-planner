@@ -27,9 +27,15 @@ export interface AddressViewModel {
   roomNumber?: number;
 }
 
-/** DC / ワールド / リージョンまで含めた完全住所を組み立てるための view-model。 */
+/**
+ * DC / ワールド / リージョンまで含めた完全住所を組み立てるための view-model。
+ *
+ * `region` は `Region | null` (2026-07-13 round2 A-2): 呼び出し側が `regionForDC(dc)` の結果を
+ * そのまま渡せるようにするため。`DC_SERVER_MAP` に無い新 DC (Shadow 等) は regionForDC が null を
+ * 返すが、formatFullHousingAddress 側で null ガードするのでここでクラッシュしない。
+ */
 export interface FullAddressViewModel extends AddressViewModel {
-  region: Region;
+  region: Region | null;
   dc: string;
   server: string;
 }
@@ -70,11 +76,19 @@ export function formatHousingAddress(
  * - area+ward+plot / apartment 部分は既存 formatHousingAddress をそのまま流用 (house/apartment 分岐込み)。
  *   → 既存の挙動を変えず、前置きの「リージョン / DC / ワールド」だけを合成する。
  * ツアーステップ・カード等、どの鯖のどの家かを一目で示したい箇所で使う。
+ *
+ * 2026-07-13 round2 A-2: `addr.region` が falsy (null / 未知 DC で regionForDC が解決できない)
+ * ときは region/dc/server 前置きを組み立てず、従来の `formatHousingAddress` (街区住所のみ) に
+ * フォールバックする。`DC_SERVER_MAP` に無い新 DC (Shadow 等) で `regionLabel(null, …)` が
+ * 実行時クラッシュしていた潜在バグの根治。
  */
 export function formatFullHousingAddress(
   addr: FullAddressViewModel,
   lang: string | undefined | null,
 ): string {
+  if (!addr.region) {
+    return formatHousingAddress(addr, lang);
+  }
   const region = regionLabel(addr.region, pickRegionLocale(lang ?? 'ja'));
   const local = formatHousingAddress(addr, lang);
   return `${region} / ${addr.dc} / ${addr.server} / ${local}`;
@@ -106,6 +120,19 @@ export function formatHousingAddressCompact(
     return `${shortArea} ${addr.ward}-${addr.plot}`;
   }
   return `${shortArea} ${addr.ward}`;
+}
+
+/**
+ * サイズ id ('S'|'M'|'L') を表示ラベルへ変換する (2026-07-13 round2 A-1/⑨)。
+ * `housingSizeMasterData` の label は日本語 ("Sハウス" 等) だが、ユーザー要望により
+ * 生 "S"/"M"/"L" 表示箇所はスペルアウト英語 ("Small"/"Medium"/"Large") に統一する
+ * (全言語共通・ローカライズしない)。'Apartment'/'PrivateRoom' 等それ以外・未指定は空文字。
+ */
+export function housingSizeDisplayLabel(size?: 'S' | 'M' | 'L'): string {
+  if (size === 'S') return 'Small';
+  if (size === 'M') return 'Medium';
+  if (size === 'L') return 'Large';
+  return '';
 }
 
 /** aria-label / 画像 alt 用の短いテキスト (常に英数 + 数字)、 i18n 不要 */

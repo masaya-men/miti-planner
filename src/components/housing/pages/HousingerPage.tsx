@@ -28,6 +28,7 @@ import {
   getHousingerListings,
 } from '../../../lib/housing/housingerProfileService';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
+import { HousingShareButton } from '../listing/HousingShareButton';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
@@ -193,6 +194,10 @@ export const HousingerPage: React.FC = () => {
     }
   }
 
+  // e: X共有 (A案)。詳細ページと同じ HousingShareButton を流用し、このハウジンガーの
+  // まとめページ URL を共有する (公開分のみ表示のプライバシーと整合)。
+  const shareUrl = `${window.location.origin}/housing/housinger/${uid ?? ''}`;
+
   return (
     <div className="housing-detail-panel">
       <div className="housing-detail-shell">
@@ -204,39 +209,43 @@ export const HousingerPage: React.FC = () => {
           >
             ← {t('housing.detail.back_aria')}
           </Link>
-          {/* Task9: 本人以外にだけ、控えめな「…」メニュー (通報) を出す。 */}
-          {!isSelf && (
-            <div className="housing-kebab" ref={kebabRef}>
-              <button
-                type="button"
-                aria-label={t('housing.detail.kebab.aria_label')}
-                aria-haspopup="menu"
-                aria-expanded={kebabOpen}
-                className="housing-kebab-trigger"
-                onClick={() => setKebabOpen((v) => !v)}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
-                  <circle cx="12" cy="5" r="2" fill="currentColor" />
-                  <circle cx="12" cy="12" r="2" fill="currentColor" />
-                  <circle cx="12" cy="19" r="2" fill="currentColor" />
-                </svg>
-              </button>
-              {kebabOpen && (
-                <div role="menu" className="housing-kebab-menu">
-                  <button
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      setKebabOpen(false);
-                      onReportClick();
-                    }}
-                  >
-                    {t('housing.housinger.report.menuItem')}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          {/* e: X共有 (A案・詳細ページと同じ HousingShareButton) は本人/他人問わず常時表示。
+              Task9 の「…」メニュー (通報) は本人以外にだけ、この右端グループにまとめる。 */}
+          <div className="housinger-page-headerbar-actions">
+            <HousingShareButton url={shareUrl} title={profile.displayName} />
+            {!isSelf && (
+              <div className="housing-kebab" ref={kebabRef}>
+                <button
+                  type="button"
+                  aria-label={t('housing.detail.kebab.aria_label')}
+                  aria-haspopup="menu"
+                  aria-expanded={kebabOpen}
+                  className="housing-kebab-trigger"
+                  onClick={() => setKebabOpen((v) => !v)}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+                    <circle cx="12" cy="5" r="2" fill="currentColor" />
+                    <circle cx="12" cy="12" r="2" fill="currentColor" />
+                    <circle cx="12" cy="19" r="2" fill="currentColor" />
+                  </svg>
+                </button>
+                {kebabOpen && (
+                  <div role="menu" className="housing-kebab-menu">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setKebabOpen(false);
+                        onReportClick();
+                      }}
+                    >
+                      {t('housing.housinger.report.menuItem')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </header>
         <main className="housing-detail-fullpage-main">
           <div className="housinger-page-header">

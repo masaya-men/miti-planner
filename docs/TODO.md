@@ -23,11 +23,11 @@
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 本番確認待ち: 登録ページ指摘14件のうち10件を並列エージェントで一括修正・デプロイ (2026-07-13 セッション6)
-**指揮官方式**: 並列診断6体で根因を証拠付き特定 → 並列実装3体(登録/詳細タグ/ツアー)+ 共有ファイル(housing.css・4言語)を私が統合 → build(tsc厳密)+ housing 全テスト **1527/0 緑** → 本番デプロイ。詳細=`docs/.private/2026-07-13-register-production-test-feedback.md`「セッション6 実装完了」節。
-**プライバシー確認済=`personal_<hex>`は HMAC-SHA256 の一方向ハッシュ([api/_lib/hashUid.ts])で生Discord ID露出ではない**。
-**✅ 実装・デプロイ済 (本番目視確認待ち・チェックリストは引き継ぎ参照)**: G(アパート登録不能=号棟未設定を正規化で保証)/H(個室は元々OK)/I(自己編集の重複誤検知=編集時パネル非表示)/B(動画プレビュー=poster+バッジ最小)/A(免責文4言語)/C・E(タグ生表示=訳語/displayName解決)/F(スクロールフェード黒→alpha mask)/M(ボタンをコンパス隣へ)/L(跨ぎで「次へ」がぼかし解除)/N(ツアー完全住所)/K(Materia混在=非OCEアンカー方式)。+ 既存staleテスト2件修正。
-**残 (別途)**: 🟠 **D 住所確認ゲート強化 + J マイページ = 要 brainstorming**(設計相談)。M ボタン位置は実画面(DPR2.58)目視。admin レポート一覧のタグ生ID表示(`AdminHousingReports.tsx:189`・軽微・管理者のみ)。
+### 🔴 本番確認待ち: 登録/探す/詳細/ツアー 改善 round2 (2026-07-13 セッション6続き・11項目)
+**指揮官方式(自走)**: 設計書+計画書=`docs/superpowers/{specs,plans}/2026-07-13-housing-register-browse-round2*`。並列診断4体+並列実装5体(sonnet)+共有ファイル(css/4言語)統合 → build(tsc厳密)+ housing 全テスト **1570/0 緑** → 本番デプロイ。根因詳細=`docs/.private/2026-07-13-register-production-test-feedback.md`。
+**✅ round2 実装・デプロイ済 (本番目視確認待ち)**: ①アパートparser根治(名前ベース判別+区/号棟/部屋の誤読停止+roomNumber自動入力) / ②確認&公開ボタン上をフル住所化(+`formatFullHousingAddress` null ガード=Nも堅牢化) / ⑨サイズ「Small」統一 / D確認ボタン脈動+誘導文 / a詳細タグclick絞り込み / bタイトル最上部(住所残す) / c登録後の即反映(Firestore読み取り0) / dヘッダー「ハウジングツアー」→探すへ / f絞り込み解除ボタン(中央)+左文言変更 / e PF共有ボタン(URL共有) / ⑧ツアーズーム衝突根治(transitionendガード)。
+**round1(前コミット8d1658dd)はユーザー検証で概ねOK**(①アパートのみ本round2で根治)。**プライバシー確認済=`personal_<hex>`はHMAC一方向ハッシュ**。
+**残**: 🟠 **J マイページ(要brainstorming)** / admin タグ生ID(軽微) / e PF専用レイアウト深掘り(今回は共有ボタンのみ)。
 
 ### ✅ big3 本番リリース完了 (2026-07-13)
 探す地図FB / ハウジンガーPF / 一時ツアー + ④地域フィルタ連動 + ⑤ヘッダー横断検索(日本ワールドのカタカナ/ひらがな検索・PersonalTagFilter撤去) を main 反映 + `firebase deploy --only firestore`(rules+indexes) 済。
@@ -35,16 +35,12 @@
 - **保留(非ブロッカー)**: ②建物タイプ切替がたつき(`0e07d7e1`効かず・要systematic-debugging) / 通報はPFページ報告に委任(本番PF後決定)。
 - **🔥 軽減表「(競合コピー)」増殖バグ**: `usePlanStore.ts:520/816`特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
 
-### 🔴 住所を「必ず確認させる」ゲート (要 brainstorming)
-ユーザー要望(2026-07-10 本番実機)=**「自動手動どちらにもかかわらず、かならず住所を確認させたい」**。調査済みメモ=`docs/.private/2026-07-10-address-confirmation-gate.md` を**先に読む**。要点: 送信ゲートは `validateAddress().ok` しか見ておらず「ユーザーが見たか」を問わない。`fieldState.confirm()` は**呼び出し元ゼロで到達不能**。同時に片付け: `HousingRegisterAddressFields.tsx`/`HousingRegisterParentHouseSizeField.tsx` は死にコード / 部屋区分chipで「家」が2か所。
-
-- **✅📐 plot→size 表 / 住所抽出v2 / 住所誤爆の根治 / 行き方データ整備 — 全て本番反映済 (2026-07-10)**。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。要点=**確定表の再調査不要** / **辞書に短いASCII略称を足すな** ([[feedback_no_speculative_alias_data]]) / **行き方の正典は `directions-src/*.csv`** ([[reference_housing_directions_csv_canonical]])。低優先の限界2点は private doc に集約。
+### 🔴 D 住所確認ゲート強化 (要 brainstorming・上の「残」のD)
+「自動/手動問わず必ず住所を確認させる」。先読み=`docs/.private/2026-07-10-address-confirmation-gate.md`。要点=送信ゲートは`validateAddress().ok`のみで「見たか」を問わない・`fieldState.confirm()`到達不能・死にコード撤去(HousingRegisterAddressFields/ParentHouseSizeField)+部屋区分chip「家」2か所も同時に。(plot→size表/住所抽出v2/行き方整備は本番反映済→COMPLETED。要点=辞書に略称足すな[[feedback_no_speculative_alias_data]]・行き方正典=directions-src/*.csv[[reference_housing_directions_csv_canonical]])
 - **💰 Firebaseコスト対策**: ①App Check TTL 7日 ✅ / ④`/api/popular` `.select()` 射影 ✅。**②reCAPTCHA v3切替=保留 → オーナーに効果確認手順を案内済(GCPでassessment数/費用確認→月1万無料枠内ならv3不要、超過ならv3提案)。オーナー確認結果待ち**。詳細=memory [[project_firebase_cost_reduction]]。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
-- **✅ Vercel Pro→Hobby 移行済 (2026-07-10 ユーザー実施)**。⚠将来ハウジングを広告つき公開する時は Hobby 商用禁止に抵触→Pro 復帰 or 別デプロイ分離を判断。実測値→TODO_COMPLETED。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
 - **🔴 完成・push済・要実機確認(ユーザー)**: 管理画面リデザイン全18ルート(`npm run dev:admin`で目視=ヘッダー/2カラム/ウィザード4本/フォント) / スマホ最適化A+共有タブ(2026-06-15~16本番=共有2択・部屋発行・パーティ自動・Lv80 DB/星天交差1チャージ/深謀遠慮)。
-- **🔵 進捗お祝い試作** = `feat/progress-celebration-proto` 温存(未マージ・本番非露出)。`npm run dev:progress`→/miti。
 - **🔍 FFLogs 残(デプロイ済要検証)**: ①全滅(ワイプ)ログ=pull URL(`#fight=N`)で検証+キルログ回帰(`selectFight`・specs 2026-04-05-fflogs-import-v2) ②トークン502=どのキーがなぜ落ちるか特定(`fflogsTokenFailover`)。
 - **同期安定化** Step1+2+① デプロイ済(墓標ソフトデリート+マージ)。残=Step3 unload確実化(updatePlan の読んでから書く廃止)/墓標GC cron。詳細=docs/.private/2026-06-03-realtime-collab-and-sync-notes.md。
 - **中優先=動画CFエッジキャッシュ**: Worker で full mp4→Cache API→Range slice 206(アプリ変更ゼロ)。Range×cache は地雷=seek 検証必須([[reference_vercel_edge_range_cache]])。

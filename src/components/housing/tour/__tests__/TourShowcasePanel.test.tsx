@@ -7,7 +7,11 @@ import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import type { TourStep } from '../../../../lib/housing/tourNav';
-import { formatHousingAddress, formatFullHousingAddress } from '../../../../lib/housing/formatHousingAddress';
+import {
+  formatHousingAddress,
+  formatFullHousingAddress,
+  housingSizeDisplayLabel,
+} from '../../../../lib/housing/formatHousingAddress';
 import { HousingPlaybackProvider } from '../../../../lib/housing/HousingPlaybackContext';
 import { createEphemeralListing } from '../../../../lib/housing/ephemeralListing';
 import { consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill';
@@ -52,11 +56,13 @@ describe('TourShowcasePanel — 表示専用ショーケース', () => {
     window.sessionStorage.clear();
   });
 
-  it('住所＋サイズが1行に集約されて出る', () => {
+  it('住所＋サイズが1行に集約されて出る (サイズはスペルアウト表記)', () => {
     const { container } = renderPanel();
     const line = container.querySelector('.housing-tour-dest-addrsize')!;
     expect(line.textContent).toContain(formatHousingAddress(cur, 'ja'));
-    expect(line.textContent).toContain(cur.size!);
+    // ⑨ 2026-07-13 round2: 生 'S'/'M'/'L' でなく housingSizeDisplayLabel でスペルアウト表記。
+    expect(line.textContent).toContain(housingSizeDisplayLabel(cur.size));
+    expect(housingSizeDisplayLabel(cur.size)).toBe('Medium'); // cur = MOCK_LISTINGS[0] は size='M'
   });
 
   // N: 現在の目的地の住所行は DC込みの完全住所 (リージョン/DC/ワールド + area+ward+plot)。
@@ -68,7 +74,7 @@ describe('TourShowcasePanel — 表示専用ショーケース', () => {
     expect(line.textContent).toContain(cur.dc);      // 'Mana'
     expect(line.textContent).toContain(cur.server);  // 'Anima'
     expect(line.textContent).toContain(' / ');       // ` / ` 区切り
-    expect(line.textContent).toContain(cur.size!);   // サイズ併記は維持
+    expect(line.textContent).toContain('Medium');    // サイズ併記はスペルアウト表記で維持
   });
 
   it('DC/サーバー行は撤去されている', () => {
@@ -88,12 +94,16 @@ describe('TourShowcasePanel — 表示専用ショーケース', () => {
     expect(screen.getByText('──')).toBeInTheDocument();
   });
 
-  it('次の目的地(ラベル+タイトル+住所+小メディア)が出る', () => {
+  it('次の目的地(ラベル+タイトル+住所+小メディア)が出る (サイズはスペルアウト表記)', () => {
     const { container } = renderPanel();
     const nextEl = container.querySelector('.housing-tour-dest-next');
     expect(nextEl).not.toBeNull();
     expect(nextEl!.querySelector('.housing-tour-dest-next-title')).not.toBeNull();
-    expect(nextEl!.querySelector('.housing-tour-dest-next-addr')).not.toBeNull();
+    const addrEl = nextEl!.querySelector('.housing-tour-dest-next-addr');
+    expect(addrEl).not.toBeNull();
+    // nxt = MOCK_LISTINGS[1] は size='S' → housingSizeDisplayLabel で 'Small' 表記。
+    expect(housingSizeDisplayLabel(nxt.size)).toBe('Small');
+    expect(addrEl!.textContent).toContain('Small');
     expect(nextEl!.querySelector('.housing-tour-living-media')).not.toBeNull();
   });
 

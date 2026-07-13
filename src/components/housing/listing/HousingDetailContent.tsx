@@ -14,6 +14,7 @@
  */
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import type { HousingListing, ReportReason } from '../../../types/housing';
 import { HousingPhotoGallery } from './HousingPhotoGallery';
 import { HousingDetailMap } from './HousingDetailMap';
@@ -26,6 +27,7 @@ import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { useHousingReport } from '../report/useHousingReport';
 import { showToast } from '../../Toast';
+import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 
 /** 家主が通報通知から開いた時に詳細内へ出す案内 (任意) */
 export interface ReportNotice {
@@ -69,11 +71,15 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   onPeerHidden,
 }) => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  // 2026-07-13 round2 a: 詳細のタグをクリックしたら探すへ絞り込み遷移する (個人タグも同様)。
+  const toggleTag = useHousingFilterStore((s) => s.toggleTag);
   // 2026-05-26 アパート号棟欠落バグ修正 + 多言語化: 住所組み立ては必ず formatHousingAddress 経由。
   const fullAddress = formatHousingAddress(listing, i18n.language);
-  // 見出しは住所に固定 (FF14 の家は識別子が住所。 任意タイトル欄は設けない)。
-  // 紹介文 (description) は任意の本文としてスクロール領域に表示する。
-  const title = fullAddress;
+  // 2026-07-13 round2 b: 見出しは任意タイトル優先 (未設定なら住所にフォールバック)。
+  // 街区住所は見出しに出なくなる場合があるため、 下の .housing-detail-address に必ず残す
+  // (タイトル設定時は「タイトル + 街区住所/DC/ワールド」、 未設定時は住所が上下に出る=合意済み)。
+  const title = listing.title?.trim() || fullAddress;
 
   // タグは種別で表示解決が異なるため、 描画前に「表示ラベルへ解決できたものだけ」に畳む。
   // - 静的タグ (official/season/theme): getTagById で引け、 i18nKey (= housing.tag.<id>) で訳す。
@@ -222,13 +228,24 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
               <div className="housing-detail-info">
                 <h2 className="housing-detail-title">{title}</h2>
                 <p className="housing-detail-address">
-                  {listing.dc} / {listing.server}
+                  {fullAddress} / {listing.dc} / {listing.server}
                 </p>
                 <HousingerByline ownerUid={listing.ownerUid} />
                 {resolvedTags.length > 0 && (
                   <ul className="housing-detail-tags">
                     {resolvedTags.map((tag) => (
-                      <li key={tag.id}>{tag.label}</li>
+                      <li key={tag.id}>
+                        <button
+                          type="button"
+                          className="housing-detail-tag-btn"
+                          onClick={() => {
+                            toggleTag(tag.id);
+                            navigate('/housing');
+                          }}
+                        >
+                          {tag.label}
+                        </button>
+                      </li>
                     ))}
                   </ul>
                 )}

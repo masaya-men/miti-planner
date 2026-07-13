@@ -145,3 +145,40 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
     expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 });
+
+// C-2 (f): BrowseViewToggle の横の「フィルター解除」ボタン。
+// 文言 (housing.browse.clear_filter) は統合担当が locale に追加するまで未確定のため、
+// アクセシブルネームではなく新規クラス (.housing-browse-clear-filter) で対象を特定する。
+describe('BrowsePage: 中央フィルター解除ボタン (f)', () => {
+  beforeEach(() => {
+    useHousingFilterStore.getState().clearAll();
+    useHousingViewStore.getState().reset();
+    useHousingListingsStore.setState({ status: 'ready', listings: [], myListings: [] } as never);
+  });
+
+  it('絞り込み無しでは中央のフィルター解除ボタンは出ない', () => {
+    renderPage();
+    expect(document.querySelector('.housing-browse-clear-filter')).toBeNull();
+  });
+
+  it('絞り込み中 (エリア選択) は中央にフィルター解除ボタンが出る', () => {
+    useHousingFilterStore.getState().toggleArea('Mist');
+    renderPage();
+    expect(document.querySelector('.housing-browse-clear-filter')).not.toBeNull();
+  });
+
+  it('中央のフィルター解除ボタンをクリックすると clearAll される (絞り込みが全解除)', () => {
+    useHousingFilterStore.getState().toggleArea('Mist');
+    useHousingFilterStore.getState().toggleSize('M');
+    renderPage();
+
+    const clearBtn = document.querySelector('.housing-browse-clear-filter');
+    expect(clearBtn).not.toBeNull();
+    fireEvent.click(clearBtn as HTMLElement);
+
+    const state = useHousingFilterStore.getState();
+    expect(state.areas).toEqual([]);
+    expect(state.sizes).toEqual([]);
+    expect(state.dc).toBeNull();
+  });
+});

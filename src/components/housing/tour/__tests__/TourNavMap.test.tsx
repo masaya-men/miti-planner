@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
-import { describe, it, expect } from 'vitest';
-import { render, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, fireEvent, act } from '@testing-library/react';
 import '../../../../i18n';
 import type { WardMapJson } from '../../../../data/housing/wardMapManifest';
 import mistWardRaw from '../../../../data/housing/mistWard.generated.json';
@@ -93,5 +93,135 @@ describe('TourNavMap', () => {
     fireEvent.pointerMove(wrap, { pointerId: 1, clientX: 150, clientY: 100 }); // 残指を +50px 移動
     // 修正前は pan が凍結し translate(0px,0px) のまま。修正後は tx が動く。
     expect(zoom.style.transform).not.toBe('translate(0px, 0px) scale(1)');
+  });
+});
+
+// ⑧ マップ切替×ズーム衝突の根治(zoomingIn ガード + 保険タイムアウト)。
+// happy-dom は実際の CSS transition を走らせないため、旧地図のズームアウト transitionend を
+// 手動 dispatch して「out フェーズの transitionend では endIntro を呼ばない」ガードをロジック単体で検証する。
+describe('TourNavMap — ⑧ ズーム衝突根治 (zoomingIn ガード + 保険タイムアウト)', () => {
+  let roCallback: ResizeObserverCallback | null = null;
+  let origRO: unknown;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    roCallback = null;
+    origRO = (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver;
+    (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
+      constructor(cb: ResizeObserverCallback) { roCallback = cb; }
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  });
+
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+    (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = origRO;
+  });
+
+  // happy-dom の TransitionEvent は Event の別名で、コンストラクタが init から propertyName を
+  // 拾わない(happy-dom/lib/event/Event.js は bubbles/cancelable/composed のみ読む)。
+  // React の SyntheticTransitionEvent は nativeEvent.propertyName をそのまま読むため、
+  // インスタンスに直接生やしてから dispatch すれば onTransitionEnd={(e) => e.propertyName} に正しく伝わる。
+  const fireTransformTransitionEnd = (el: HTMLElement) => {
+    const evt = new Event('transitionend', { bubbles: true, cancelable: true });
+    (evt as unknown as { propertyName: string }).propertyName = 'transform';
+    act(() => { el.dispatchEvent(evt); });
+  };
+
+  const fireResize = () => {
+    act(() => {
+      roCallback?.(
+        [{ contentRect: { width: 800, height: 600 } } as unknown as ResizeObserverEntry],
+        {} as ResizeObserver,
+      );
+    });
+  };
+
+  const svgA = '<svg><path id="plot_6" /></svg>';
+  const svgB = '<svg><path id="plot_7" /></svg>';
+  const vb = { w: mistWard.viewBox.w, h: mistWard.viewBox.h };
+
+  it('初回ズームイン完了: ズームイン中(zoomingIn=true)の transform transitionend では従来どおり演出が終了する', () => {
+    const { container } = render(
+      <TourNavMap status="ready" svg={svgA} viewBox={vb} model={model} stepKey={0} />,
+    );
+    fireResize();
+    act(() => { vi.advanceTimersByTime(500); }); // OVERVIEW_HOLD_MS(350) 経過 + rAF 1 フレーム
+
+    const zoomEl = container.querySelector('.housing-map-zoom') as HTMLElement;
+    expect(zoomEl.className).toContain('is-intro'); // ズームイン transition 中
+
+    fireTransformTransitionEnd(zoomEl);
+    expect(zoomEl.className).not.toContain('is-intro'); // endIntro が呼ばれ演出終了(従来どおり)
+  });
+
+  it('目的地変更(dip)中: 旧地図のズームアウト transitionend が来ても演出を破棄しない(is-hidden を維持) = ⑧の回帰テスト本体', () => {
+    const { container, rerender } = render(
+      <TourNavMap status="ready" svg={svgA} viewBox={vb} model={model} stepKey={0} />,
+    );
+    fireResize();
+    act(() => { vi.advanceTimersByTime(500); }); // 初回ズームインを終える
+
+    // 目的地変更: 新地図はまだ ready でない(loading = 非同期ロード中を模す)。
+    rerender(<TourNavMap status="loading" svg={null} viewBox={null} model={null} stepKey={1} />);
+    const zoomEl = container.querySelector('.housing-map-zoom') as HTMLElement;
+    expect(zoomEl.className).toContain('is-hidden'); // dip 開始でフェードアウト
+
+    // JS 側 OUT_MS(550ms)は経過するが新地図はまだ来ない。
+    act(() => { vi.advanceTimersByTime(600); });
+    expect(zoomEl.className).toContain('is-hidden'); // まだ待機中
+
+    // 旧地図のズームアウト CSS transition(実測は OUT_MS より長い=根因)が遅れて完了した想定。
+    fireTransformTransitionEnd(zoomEl);
+
+    // 根治前: onTransitionEnd が無条件に endIntro() を呼び is-hidden が解除されていた
+    // (待機状態が壊れ、後で新地図がアニメ無しでパッと出る=「ズームが起きない」バグの引き金)。
+    // 根治後: zoomingIn=false (out フェーズ) のガードにより endIntro は呼ばれず、待機状態が保たれる。
+    expect(zoomEl.className).toContain('is-hidden');
+  });
+
+  it('out フェーズの誤 transitionend の後でも、新地図が ready になれば is-intro を維持したまま正しくズームインする', () => {
+    const { container, rerender } = render(
+      <TourNavMap status="ready" svg={svgA} viewBox={vb} model={model} stepKey={0} />,
+    );
+    fireResize();
+    act(() => { vi.advanceTimersByTime(500); });
+
+    rerender(<TourNavMap status="loading" svg={null} viewBox={null} model={null} stepKey={1} />);
+    act(() => { vi.advanceTimersByTime(600); }); // OUT_MS 経過(新地図はまだ ready でない)
+
+    const zoomEl = container.querySelector('.housing-map-zoom') as HTMLElement;
+    fireTransformTransitionEnd(zoomEl); // out フェーズの誤 transitionend
+
+    // 新地図がようやく ready になる。
+    rerender(<TourNavMap status="ready" svg={svgB} viewBox={vb} model={model} stepKey={1} />);
+    act(() => { vi.advanceTimersByTime(50); }); // 差し替え直後の rAF フレーム
+
+    const zoomEl2 = container.querySelector('.housing-map-zoom') as HTMLElement;
+    expect(zoomEl2.className).toContain('is-intro'); // ズームイン transition が維持されたまま
+    expect(zoomEl2.className).not.toContain('is-hidden'); // フェードインして可視化
+    expect(container.querySelector('#plot_7')).toBeTruthy(); // 新地図の内容に差し替わっている
+  });
+
+  it('保険: 新地図が長時間 ready にならない場合、保険タイムアウト経過で旧地図を可視復帰させる(無限ブランク回避)', () => {
+    const { container, rerender } = render(
+      <TourNavMap status="ready" svg={svgA} viewBox={vb} model={model} stepKey={0} />,
+    );
+    fireResize();
+    act(() => { vi.advanceTimersByTime(500); });
+
+    rerender(<TourNavMap status="loading" svg={null} viewBox={null} model={null} stepKey={1} />);
+    const zoomEl = container.querySelector('.housing-map-zoom') as HTMLElement;
+    expect(zoomEl.className).toContain('is-hidden');
+
+    // 新地図が一切来ないまま保険タイムアウト(OUT_FALLBACK_MS=4000ms)を超過。
+    act(() => { vi.advanceTimersByTime(4300); });
+
+    const zoomElAfter = container.querySelector('.housing-map-zoom') as HTMLElement;
+    expect(zoomElAfter.className).not.toContain('is-hidden'); // 旧地図(plot_6)が可視復帰
+    expect(container.querySelector('#plot_6')).toBeTruthy(); // 表示中の地図はまだ旧データのまま(無限ブランクにならない)
   });
 });

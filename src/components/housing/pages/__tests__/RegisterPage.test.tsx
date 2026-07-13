@@ -268,6 +268,108 @@ describe('RegisterPage', () => {
     window.localStorage.removeItem(AUTOSAVE_KEY);
   });
 
+  // ② 確認&公開ボタン上の住所をフル住所化 (2026-07-13 round2 A-3)。
+  it('mode=create: 住所が揃うとリージョン/DC/ワールドを含むフル住所が確認セクションに出る (A-3)', () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    window.localStorage.setItem(
+      AUTOSAVE_KEY,
+      JSON.stringify({
+        title: '新規物件',
+        dc: 'Meteor',
+        server: 'Ramuh',
+        area: 'LavenderBeds',
+        ward: 29,
+        buildingType: 'house',
+        plot: 3,
+        size: 'L',
+        visibility: 'public',
+      }),
+    );
+
+    const { container } = renderPage();
+
+    // Meteor は JP リージョン (dcServerMap.ts)。A-3 以前は住所行が街区住所のみ
+    // ("ラベンダーベッド 29-3") だったが、formatFullHousingAddress 化で
+    // リージョン/DC/ワールドを含むフル住所になる。確認ゲート上の住所行 (公開ボタン直上) と
+    // 要約 dl の住所行の両方が同じ文字列を出す。
+    const gateAddress = container.querySelector('.housing-register-confirm-gate-address');
+    expect(gateAddress?.textContent).toBe('日本 / Meteor / Ramuh / ラベンダーベッド 29-3');
+
+    window.localStorage.removeItem(AUTOSAVE_KEY);
+  });
+
+  // c: 登録後に探すへ即反映 (Firestore 読み取り0) (2026-07-13 round2 A-5)。
+  it('mode=create: 登録成功時、ローカル view-model で upsert され、fetchAndUpsert/loadMine は呼ばれない (A-5)', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    window.localStorage.setItem(
+      AUTOSAVE_KEY,
+      JSON.stringify({
+        title: '新規物件',
+        dc: 'Meteor',
+        server: 'Ramuh',
+        area: 'LavenderBeds',
+        ward: 29,
+        buildingType: 'house',
+        plot: 3,
+        size: 'L',
+        visibility: 'public',
+      }),
+    );
+    const canRegisterSpy = vi
+      .spyOn(housingApiClient, 'canRegister')
+      .mockResolvedValue({ remaining: 5 } as any);
+    const checkDuplicateSpy = vi
+      .spyOn(housingApiClient, 'checkDuplicate')
+      .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+    const registerSpy = vi
+      .spyOn(housingApiClient, 'registerListing')
+      .mockResolvedValue({ id: 'new1' } as any);
+    const upsertSpy = vi.spyOn(useHousingListingsStore.getState(), 'upsert');
+    const fetchAndUpsertSpy = vi.spyOn(useHousingListingsStore.getState(), 'fetchAndUpsert');
+    const loadMineSpy = vi.spyOn(useHousingListingsStore.getState(), 'loadMine');
+
+    renderPage();
+
+    const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+    fireEvent.click(addressGateBtn);
+
+    const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+    await waitFor(() => expect(submitBtn).not.toBeDisabled());
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+    await waitFor(() => expect(upsertSpy).toHaveBeenCalledTimes(1));
+
+    // ローカル view-model の主要フィールドを確認 (Firestore 読み取り無しで組み立てられたもの)。
+    expect(upsertSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'new1',
+        ownerUid: 'me',
+        dc: 'Meteor',
+        server: 'Ramuh',
+        region: 'JP',
+        area: 'LavenderBeds',
+        ward: 29,
+        buildingType: 'house',
+        plot: 3,
+        visibility: 'public',
+        title: '新規物件',
+      }),
+    );
+
+    // 追加の Firestore 読み取り (getDoc 1件 + getMyListings 最大200件) が発生しないことを固定する。
+    expect(fetchAndUpsertSpy).not.toHaveBeenCalled();
+    expect(loadMineSpy).not.toHaveBeenCalled();
+
+    canRegisterSpy.mockRestore();
+    checkDuplicateSpy.mockRestore();
+    registerSpy.mockRestore();
+    upsertSpy.mockRestore();
+    fetchAndUpsertSpy.mockRestore();
+    loadMineSpy.mockRestore();
+    window.localStorage.removeItem(AUTOSAVE_KEY);
+  });
+
   // 「入力途中を復元しました」が空ドラフトで誤発火するバグの回帰テスト (2026-07-13)。
   // 空文字タイトル/コメント + 既定 public + publishUntil null だけの下書きは「何も入力していない」
   // ので、保存も復元通知もしてはいけない (hasMeaningfulDraft で判定)。

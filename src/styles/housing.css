@@ -336,6 +336,19 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   white-space: nowrap;
+  /* d: <span>→<button> 化 (押すと探すへ)。 見た目はテキストのまま保つ。 */
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.housing-brand-sub-standalone:hover,
+.housing-brand-sub-standalone:focus-visible {
+  color: var(--housing-honey);
 }
 
 .housing-theme-toggle {
@@ -3263,12 +3276,25 @@ select.housing-input option {
     margin: 0;
 }
 .housing-detail-tags li {
+    display: flex;
+}
+/* a: タグを <button> 化 (クリックで絞り込み)。 chip 見た目は button 側で再現。 */
+.housing-detail-tag-btn {
+    appearance: none;
     background: var(--housing-detail-tag-bg);
     border: 1px solid var(--housing-detail-tag-border);
     color: var(--housing-honey);
     border-radius: 4px;
     padding: 2px 8px;
+    font-family: inherit;
     font-size: var(--housing-text-xs);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.housing-detail-tag-btn:hover,
+.housing-detail-tag-btn:focus-visible {
+    background: var(--housing-honey-strong);
+    border-color: var(--housing-honey);
 }
 .housing-detail-description {
     font-size: var(--housing-text-base);
@@ -3342,6 +3368,12 @@ select.housing-input option {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+/* e: PF ヘッダー右側の操作 (共有ボタン + 通報メニュー) をまとめる。 */
+.housinger-page-headerbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 .housinger-page-header {
     display: flex;
@@ -5021,6 +5053,17 @@ select.housing-input option {
   color: var(--housing-text);
   cursor: default;
 }
+/* D: 未確認の間は脈動で「押してください」を誘導 (spread のみ・過剰glow回避・トークン経由)。 */
+.housing-register-confirm-gate-btn[data-confirmed="false"] {
+  animation: housing-confirm-pulse 1.8s ease-in-out infinite;
+}
+@keyframes housing-confirm-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--housing-honey-border); }
+  50% { box-shadow: 0 0 0 5px var(--housing-honey-soft); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-confirm-gate-btn[data-confirmed="false"] { animation: none; }
+}
 
 .housing-register-confirm-summary {
   margin: 0;
@@ -5228,6 +5271,34 @@ select.housing-input option {
 }
 
 /* 中央の表示切替「一覧 | 地図」 (spec 3.1)。.housing-sort-trigger と同系の控えめなセグメント。 */
+/* f: 中央ツールバー = 一覧/マップ トグル + (絞り込み中のみ) フィルター解除ボタン。 */
+.housing-browse-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 0 0 auto;
+  padding: 0 0 12px;
+}
+.housing-browse-clear-filter {
+  appearance: none;
+  cursor: pointer;
+  height: 24px;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 7px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.housing-browse-clear-filter:hover,
+.housing-browse-clear-filter:focus-visible {
+  color: var(--housing-text);
+  border-color: var(--housing-aether-border);
+}
 .housing-view-toggle {
   display: inline-flex; align-items: center; gap: 2px;
   align-self: flex-start;

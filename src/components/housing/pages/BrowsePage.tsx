@@ -51,6 +51,11 @@ export const BrowsePage: React.FC = () => {
   const sizes = useHousingFilterStore((s) => s.sizes);
   const tags = useHousingFilterStore((s) => s.tags);
   const keyword = useHousingFilterStore((s) => s.keyword);
+  // f: 中央フィルター解除ボタンの表示条件。FilterPanel.tsx:100-102 の hasActiveFilter と同じ式
+  // (keyword は対象外・据え置き)。
+  const hasActiveFilter =
+    Boolean(dc) || regions.length > 0 || servers.length > 0 ||
+    areas.length > 0 || sizes.length > 0 || tags.length > 0;
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。
   const merged = useMemo(
@@ -142,7 +147,18 @@ export const BrowsePage: React.FC = () => {
           ) : (
             <>
               {/* 中央だけが切り替わる。トレイ (右カラム) は地図モードでも従来どおり (spec 4.4) */}
-              <BrowseViewToggle value={browseView} onChange={setBrowseView} />
+              <div className="housing-browse-toolbar">
+                <BrowseViewToggle value={browseView} onChange={setBrowseView} />
+                {hasActiveFilter && (
+                  <button
+                    type="button"
+                    className="housing-browse-clear-filter"
+                    onClick={() => useHousingFilterStore.getState().clearAll()}
+                  >
+                    {t('housing.browse.clear_filter')}
+                  </button>
+                )}
+              </div>
               {browseView === 'map' ? (
                 <BrowseMapView filtered={filtered} onAddToTour={addToTray} />
               ) : filtered.length === 0 ? (

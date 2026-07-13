@@ -104,9 +104,16 @@ export const AppHeader: React.FC = () => {
         {/* 全アプリ共通の LoPo ロゴ (= miti と同一 LoPoButton)。ハウジングではハニーゴールド単色
             (ダーク/ライト共通)。色は housing トークンを var() で参照しハードコードを回避。 */}
         <LoPoButton size="sm" onClick={() => navigate('/')} color="var(--housing-honey)" />
-        <span className="housing-brand-sub housing-brand-sub-standalone">
+        {/* d: 飾りの <span> だったサブタイトルを、探す (/housing) へのリンクとして機能化する。
+            文言は不変。アクセシブルネームはボタンの表示文言と同一 (t を再利用し新規キー追加なし)。 */}
+        <button
+          type="button"
+          className="housing-brand-sub housing-brand-sub-standalone"
+          onClick={() => navigate('/housing')}
+          aria-label={t('housing.workspace.topbar.subtitle')}
+        >
           {t('housing.workspace.topbar.subtitle')}
-        </span>
+        </button>
       </div>
 
       {showSearch && (

@@ -130,6 +130,48 @@ describe('HousingerPage', () => {
     ).toBeInTheDocument();
   });
 
+  // e: X共有 (A案)。 既存 HousingShareButton (housing.detail.share = 「シェア」・既存キー) を流用。
+  it('e: 本人以外が見てもハウジンガーページの共有ボタンが表示される', async () => {
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    expect(screen.getByRole('button', { name: 'シェア' })).toBeInTheDocument();
+  });
+
+  it('e: 本人が見てもハウジンガーページの共有ボタンが表示される', async () => {
+    authUid = 'uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    expect(screen.getByRole('button', { name: 'シェア' })).toBeInTheDocument();
+  });
+
+  it('e: 共有メニューのリンクコピーで自分のまとめページ URL (/housing/housinger/:uid) がコピーされる', async () => {
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: vi.fn(async () => {}) },
+    });
+    Object.defineProperty(navigator, 'share', { configurable: true, value: undefined });
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    fireEvent.click(screen.getByRole('button', { name: 'シェア' }));
+    fireEvent.click(screen.getByText('リンクをコピー'));
+
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringMatching(/\/housing\/housinger\/uid-1$/),
+    );
+  });
+
   it('公開ハウジングが0件なら noListings 文言が出る', async () => {
     mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
     mockGetHousingerListings.mockResolvedValueOnce([]);
