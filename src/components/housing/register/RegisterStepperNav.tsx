@@ -43,7 +43,8 @@ const RING_C = 2 * Math.PI * RING_R;
  * 既定 public のような「最初から✅」は作らない (feedback_form_ux_progress)。
  *
  * Task2: 番号を縦の接続線でつなぎ、中央カラムのスクロール進行度 (0..1) に合わせて塗る。
- * 説明文はアクティブなステップだけ開く (grid-template-rows のトランジション)。
+ * 説明文は全ステップ常時表示 (旧: アクティブのみ grid 開閉)。進捗 (progress) に連動して
+ * viewport 内を translateY でオートスクロールし、収まらない画面では上下端をフェードさせる。
  * 接続線の上端/下端は先頭・末尾バッジの中心に測って合わせる (ResizeObserver で再計測、
  * アクティブ説明文の開閉で末尾ステップの高さが変わっても追従する) — ツアーパネルの
  * ステップ接続線 (TourRouteSteps.tsx / `--housing-tour-step-spring`) と同じトークン・

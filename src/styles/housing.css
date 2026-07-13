@@ -4342,7 +4342,7 @@ select.housing-input option {
  * idle は控えめなグレー。装飾999pxピルにせず角丸8pxの静かな行にする。
  * Task2: 番号を縦の接続線でつなぎスクロール進行度で塗る (ツアーパネルのステップ接続線と
  * 同じトークン `--housing-aether` / `--housing-divider` / イージング `--housing-tour-step-spring`
- * を流用)。説明文はアクティブなステップだけ開く。
+ * を流用)。説明文は全ステップ常時表示 (進捗連動オートスクロール + 端フェード)。
  * ============================================================ */
 .housing-register-stepper {
   flex: 1 1 auto;

@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, vi } from 'vitest';
+import { describe, it, expect, beforeAll, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
@@ -21,6 +21,12 @@ describe('RegisterStepperNav', () => {
     { id: 2, labelKey: 'housing.register.step.address', state: 'active' as const },
     { id: 3, labelKey: 'housing.register.step.intro', state: 'idle' as const },
   ];
+
+  // 一部テストが Element.prototype.getBoundingClientRect を spy するため、テスト間で spy が
+  // 残らないよう毎テスト後に確実に復元する (spy の自己参照による無限再帰を未然に防ぐ)。
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   it('done は is-done、active は is-active クラス', () => {
     render(
@@ -74,7 +80,6 @@ describe('RegisterStepperNav', () => {
   it('progress を上げると先頭の円の stroke-dashoffset が減る (塗りが増える)', () => {
     // happy-dom は実レイアウト非対応 → num の矩形をスタブして中心 y を与える。
     const rects = new Map<Element, DOMRect>();
-    const orig = Element.prototype.getBoundingClientRect;
     let yCursor = 0;
     vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
       if (this.classList.contains('housing-register-stepper-num')) {
@@ -103,7 +108,6 @@ describe('RegisterStepperNav', () => {
     const off1 = parseFloat(ring1.style.strokeDashoffset);
 
     expect(off1).toBeLessThan(off0); // 塗りが増える = dashoffset が減る
-    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(orig);
   });
 
   // Task2: SVG 進捗レイヤー (円周リング + 接続線) を丸バッジに重ねて描画する。座標測定は Task3。
@@ -120,12 +124,9 @@ describe('RegisterStepperNav', () => {
 
   // Task3: progress (0..1) が viewport/body の高さ差 (overflow) に応じて body の translateY (スクロール) に反映される。
   it('progress を上げると body が上へスクロールする (translateY が増える)', () => {
-    // 既存の「progress を上げると先頭の円の stroke-dashoffset が減る」テストが
-    // `vi.spyOn(...).mockImplementation(orig)` で「復元」した後も getBoundingClientRect は
-    // spy のまま残る (mockImplementation は実装差し替えのみで spy 自体は外れない)。
-    // ここで同じパターンの orig を再取得すると spy 自身を指してしまい、終了時に自己参照で
-    // 無限再帰 (RangeError) するため、spy インスタンスを保持して mockRestore() で確実に外す。
-    const spy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+    // happy-dom は実レイアウト非対応 → body/viewport/num の矩形をスタブして高さを与える
+    // (spy は describe の afterEach の vi.restoreAllMocks() で毎テスト後に確実に外れる)。
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
       if (this.classList.contains('housing-register-stepper-body')) {
         return { top: 0, height: 300, bottom: 300, left: 0, right: 40, width: 40, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
       }
@@ -156,7 +157,6 @@ describe('RegisterStepperNav', () => {
 
     expect(y1).toBeLessThan(y0 + 0.0001); // 進むほど translateY は負に大きく (上へ)
     expect(y1).toBeLessThan(0);           // overflow あり → 0.5 で上へ送られている
-    spy.mockRestore();
   });
 
   it('全ステップの説明文が常に DOM にある (アクティブ以外も)', () => {
