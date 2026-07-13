@@ -28,7 +28,6 @@
 - **🔴 次セッション最優先の実機確認**: 本番でログインして **PF(ハウジンガーPF)を実機確認**(login本番専用・前提=テスト用personal_tags掃除 or プロフィール再公開1回)。目視項目=`docs/.private/2026-07-12-big3-release-verification-checklist.md` の B節 + ⑤節。
 - **保留(非ブロッカー)**: ②建物タイプ切替のがたつき(デバウンス修正`0e07d7e1`効かず・要systematic-debugging再調査)。
 - **通報の最終形**: PersonalTagFilter撤去で個人タグ通報導線が消えた→当面PFページ報告に委ねる。本番PF確認後に決定。
-- **🧹 ②確認用ダミー**: `node scripts/seed-housing-overlap-dummy.mjs --clear` でクリア済(要確認)。
 - **🔥 軽減表「(競合コピー)」増殖バグ**: `usePlanStore.ts:520/816`特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
 
 ### 🔴 住所を「必ず確認させる」ゲート (要 brainstorming)
