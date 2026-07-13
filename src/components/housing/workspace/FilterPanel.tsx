@@ -60,6 +60,8 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     // 件数の母集団はアクティブビューに揃える (CenterArea / RightPanel と同じ規約):
     // list ビュー = 共有ストアの実データ、 map ビュー = sampleWardLayout 準拠の MOCK (Phase 2B)。
     const viewMode = useHousingViewStore((s) => s.viewMode);
+    // 探すページの一覧/地図切替は browseView (viewMode は別概念・地図表示とは無関係)。
+    const browseView = useHousingViewStore((s) => s.browseView);
     const realListings = useHousingListingsStore((s) => s.listings);
     const source = viewMode === 'map' ? MOCK_LISTINGS : realListings;
 
@@ -88,9 +90,12 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     // 地域を外して選択中の DC がその地域外になったら DC を自動クリア。
     // (画面から消えた DC が applyFilters で裏に残り続ける残留フィルタバグの防止。
     //  setDC(null) は store 側で servers:[] も連鎖クリアする。)
+    // 地図モードは WorldSelectGate が DC/ワールドを管理し、地域跨ぎの世界選択もありうる
+    // ため、ここでの自動クリアは list モード限定にしてゲートの再出現ループを防ぐ。
     useEffect(() => {
+        if (browseView === 'map') return;
         if (dc && !dcOptions.includes(dc)) setDC(null);
-    }, [dc, dcOptions, setDC]);
+    }, [dc, dcOptions, setDC, browseView]);
 
     const allLabel = t('housing.workspace.filter.all');
     const countLabel = (n: number) => t('housing.workspace.filter.selected_count', { count: n });

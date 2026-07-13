@@ -7,6 +7,7 @@ import jaTranslations from '../../locales/ja.json';
 import { FilterPanel } from '../../components/housing/workspace/FilterPanel';
 import { useHousingFilterStore } from '../../store/useHousingFilterStore';
 import { useHousingListingsStore } from '../../store/useHousingListingsStore';
+import { useHousingViewStore } from '../../store/useHousingViewStore';
 import { MOCK_LISTINGS } from '../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -23,6 +24,8 @@ beforeAll(() => {
 beforeEach(() => {
     useHousingFilterStore.getState().clearAll();
     useHousingListingsStore.getState().reset();
+    // browseView を既定 (list) に戻す。地域外DC自動クリアは地図モードでは無効化されるため。
+    useHousingViewStore.getState().reset();
     // 件数は共有ストアの実データから。テストは mock 50 件を注入。
     useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
 });
@@ -84,6 +87,26 @@ describe('FilterPanel', () => {
         fireEvent.click(screen.getByRole('option', { name: 'Shirogane' }));
         expect(useHousingFilterStore.getState().areas).toContain('Shirogane');
         expect(useHousingFilterStore.getState().resultCount).toBeLessThan(before);
+    });
+
+    it('narrows DC options to the selected region (④ 地域連動)', () => {
+        renderPanel();
+        act(() => useHousingFilterStore.getState().toggleRegion('JP'));
+        fireEvent.click(screen.getByRole('button', { name: 'データセンター' }));
+        // 日本を選ぶと NA の DC (Aether) は候補に出ず、JP の DC (Mana) は出る。
+        expect(screen.queryByRole('option', { name: 'Aether' })).toBeNull();
+        expect(screen.getByRole('option', { name: 'Mana' })).toBeInTheDocument();
+    });
+
+    it('auto-clears a selected DC when its region goes out of range (④ 残留フィルタ防止)', () => {
+        renderPanel();
+        fireEvent.click(screen.getByRole('button', { name: 'データセンター' }));
+        fireEvent.click(screen.getByRole('option', { name: 'Mana' }));
+        expect(useHousingFilterStore.getState().dc).toBe('Mana');
+        // 北米を選ぶと Mana (JP) は範囲外 → 自動クリア (servers も連鎖クリア)。
+        act(() => useHousingFilterStore.getState().toggleRegion('NA'));
+        expect(useHousingFilterStore.getState().dc).toBeNull();
+        expect(useHousingFilterStore.getState().servers).toEqual([]);
     });
 
     // Apartment チップは Sub-spec 2B で再実装予定のためスキップ

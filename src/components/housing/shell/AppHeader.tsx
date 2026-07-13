@@ -133,6 +133,10 @@ export const AppHeader: React.FC = () => {
                   className="housing-app-search-housinger"
                   onClick={() => {
                     toggleTag(tag.id);
+                    // 名前は listing 本体に無く個人タグ経由で絞るため、残った検索語で
+                    // AND 二重フィルタして 0 件になるのを防ぐ (keyword をクリア)。
+                    setKeyword('');
+                    setHousingerHits([]);
                     setDropdownOpen(false);
                   }}
                 >
