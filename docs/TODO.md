@@ -23,9 +23,13 @@
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 最優先: ②①③本番デプロイ済 → 本番実画面で目視 (ユーザー)
-`feat/housing-register-ui-fixes` を main に FF反映+push 済 → **Vercel本番デプロイ済 (2026-07-13)**。**②復元通知バグ**(hasMeaningfulDraft) / **③ステッパー円周進捗リング**(丸貫き線→円周を下端起点・左回りに塗る連続リング。純関数`computeSegmentFills`+SVG dashoffset。subagent-driven 4タスクTDD・各タスク+最終レビュー(opus)全クリーン) / **①ヘッダー**。**①は当初「TabBar中央固定」で出したがユーザー指摘で「右寄せ固定」に再修正**(メニュー=右群の左隣に固定・検索窓の有無で不動・検索窓は元の伸縮幅に復帰・死に`data-search`/未使用トークン掃除)→ローカルOK→再デプロイ済。
-残=**本番実画面で目視**: ③塗り向き(下端起点・反時計回り? 逆ならCSS1行 `.housing-register-stepper-ring` transform調整)/done✓・active青・jump・desc回帰 / ②空下書きで復元通知が出ない / ①メニュー右寄せ・ページ間で不動・検索窓の幅。**本番ハウジング全削除=コールドスタート済**→PF/⑤は本番で家を1件登録し直してから(下のbig3チェックリスト)。
+### 🔴 次セッション最優先: 登録ページ本番テスト指摘の消化 (14件・詳細=`docs/.private/2026-07-13-register-production-test-feedback.md`)
+**本番デプロイ2回完了 (2026-07-13・main=origin/main=`0d5731b6`)**: (1) ③ステッパー円周リング+②復元通知バグ+①ヘッダー(中央固定→右寄せに再修正) (2) ステッパー静的化+進行連動オートスクロール+画像/SNS見出しコピー改善(4言語)。いずれも subagent-driven TDD・全レビュークリーン。
+ユーザーが本番で登録を一通りテスト→**14件(A〜N)を private doc にクラスタ分けで記録**。**プライバシー確認済=`personal_<hex>`は HMAC-SHA256 の一方向ハッシュ([api/_lib/hashUid.ts])で生Discord ID露出ではない**。方針=1件ずつ確実に(feedback_one_fix_one_verify)。
+**次の優先 (順は Claude 判断・私が提案した順):**
+1. 🔴 **G/H アパート/個室が登録できない** (自動判定失敗・右パネル地図出ず・住所手動でも不可・**リロードでしか登録可=不正挙動**)。systematic-debugging で根因から。手元URL=private doc。
+2. 🟠 **C/E タグがコード生表示** (`official_visitors_welcome` / `personal_<hash>`)。**根因特定済**=[HousingDetailContent.tsx:205](src/components/housing/listing/HousingDetailContent.tsx#L206) が `{tag}` を生描画。修正=静的タグ→`t('housing.tag.<id>')`(既存 `RegisterDuplicatePanel:72` 方式)、個人タグ→displayName(byline が housinger を出すので詳細では除外も検討可)。+A(help免責文4言語)ついで。
+3. 残: I重複誤判定(自分の編集で誤発火) / B画像プレビュー出ず / D住所確認ゲート強化(DC込み完全住所+「確認しました」ボタン) / Fフェード黒→alpha / Jマイページ設計 / K Materia特例(日本等からツアー組込可) / L・M・N ツアーUI。
 
 ### ✅ big3 本番リリース完了 (2026-07-13)
 探す地図FB / ハウジンガーPF / 一時ツアー + ④地域フィルタ連動 + ⑤ヘッダー横断検索(日本ワールドのカタカナ/ひらがな検索・PersonalTagFilter撤去) を main 反映 + `firebase deploy --only firestore`(rules+indexes) 済。
