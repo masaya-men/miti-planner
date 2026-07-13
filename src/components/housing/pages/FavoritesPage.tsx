@@ -10,7 +10,7 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import { expandTourWithDuplicates } from '../../../lib/housing/expandTourWithDuplicates';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
-import { canAddToTour, tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import { canAddToTour, tourAnchorRegion, tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { showToast } from '../../Toast';
@@ -80,7 +80,8 @@ export const FavoritesPage: React.FC = () => {
     let totalAutoAdded = 0;
     let blocked = false;
     for (const addId of idsToAdd) {
-      const trayRegion = nextIds.length > 0 ? regionOf(nextIds[0]) : null;
+      // 非OCEアンカー地域 (OCEは混在可なので除外・OCE先頭でも正しくアンカーを取る)。
+      const trayRegion = tourAnchorRegion(nextIds.map(regionOf));
       const candRegion = regionOf(addId);
       if (candRegion !== null && !canAddToTour(trayRegion, candRegion)) { blocked = true; continue; }
       if (isEphemeralListingId(addId)) {

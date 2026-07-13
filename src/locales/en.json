@@ -2164,6 +2164,7 @@
                 "label": "Post or site URL (optional)",
                 "placeholder": "Paste a URL",
                 "help": "Works with X (Twitter), YouTube, Housing Snap and more. Posts with video are OK too.",
+                "help_disclaimer": "Auto-fill may not always be accurate. Please use it only as an aid when entering the details.",
                 "fetching": "Reading tweet…",
                 "youtube_detected": "Detected as a YouTube video (thumbnail will be used as the listing image)",
                 "ogp_fetching": "Fetching page info…",
@@ -2210,6 +2211,7 @@
             },
             "media": {
                 "fetched_count": "Fetched {{count}} image(s)",
+                "video_badge": "Video",
                 "error_hint": "Check the URL, or upload images directly"
             },
             "tweetPreview": {

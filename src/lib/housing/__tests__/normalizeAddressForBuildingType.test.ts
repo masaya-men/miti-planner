@@ -54,4 +54,43 @@ describe('normalizeAddressForBuildingType', () => {
     const untyped = { dc: '', server: '', area: '', ward: Number.NaN };
     expect(normalizeAddressForBuildingType(untyped)).toEqual(untyped);
   });
+
+  it('アパート判定だが apartmentBuilding 未設定 (SNS自動判定の穴) を既定1で補完し validateAddress を通す (G恒久ブロッカー根治)', () => {
+    // SNS 自動判定は buildingType='apartment' + roomKind='apartment_room' は入れるが、
+    // 号棟 (apartmentBuilding) は本文から復元しないため undefined のまま残る。号棟 select が
+    // value={apartmentBuilding ?? 1} で「1号棟」を表示して未設定を隠蔽し、validateAddress が
+    // apartmentBuilding out_of_range で永遠に不合格→canSubmit=false で登録不可になっていた。
+    const autoApartment = {
+      dc: 'Mana',
+      server: 'Pandaemonium',
+      area: 'Mist',
+      ward: 17,
+      buildingType: 'apartment' as const,
+      roomKind: 'apartment_room' as const,
+      roomNumber: 13,
+      // apartmentBuilding は意図的に未設定 (自動判定の穴を再現)
+    };
+    // 未設定のままだと apartmentBuilding out_of_range で不合格 (バグ再現)
+    expect(validateAddress(autoApartment as AddressInput).ok).toBe(false);
+
+    const normalized = normalizeAddressForBuildingType(autoApartment);
+    expect(normalized.apartmentBuilding).toBe(1);
+    expect(validateAddress(normalized as AddressInput).ok).toBe(true);
+  });
+
+  it('apartmentBuilding=2 (拡張街アパート) は既定1で潰さず保持する', () => {
+    const sub = {
+      dc: 'Mana',
+      server: 'Pandaemonium',
+      area: 'Mist',
+      ward: 17,
+      buildingType: 'apartment' as const,
+      apartmentBuilding: 2 as const,
+      roomKind: 'apartment_room' as const,
+      roomNumber: 13,
+    };
+    const normalized = normalizeAddressForBuildingType(sub);
+    expect(normalized.apartmentBuilding).toBe(2);
+    expect(validateAddress(normalized as AddressInput).ok).toBe(true);
+  });
 });

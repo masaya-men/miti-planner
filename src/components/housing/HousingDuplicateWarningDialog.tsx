@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { DuplicateEntry } from '../../lib/housingApiClient';
+import { getTagById } from '../../data/housingTags';
 
 interface Props {
   duplicates: DuplicateEntry[];
@@ -58,29 +59,37 @@ export const HousingDuplicateWarningDialog: React.FC<Props> = ({ duplicates, onC
             overflowY: 'auto',
           }}
         >
-          {duplicates.map((d) => (
-            <div
-              key={d.id}
-              style={{
-                background: 'var(--housing-chip-bg)',
-                border: '1px solid var(--housing-panel-border)',
-                borderRadius: 8,
-                padding: 12,
-              }}
-            >
-              <p style={{ fontSize: 'var(--housing-text-sm)' }}>
-                {t('housing.duplicate.created_at', {
-                  date: new Date(d.createdAt).toLocaleDateString(),
-                })}
-              </p>
-              <p style={{
-                fontSize: 'var(--housing-text-sm)',
-                color: 'var(--housing-text-dim)',
-              }}>
-                {d.tags.slice(0, 3).map((tag) => t(`housing.tag.${tag}`)).join(' / ')}
-              </p>
-            </div>
-          ))}
+          {duplicates.map((d) => {
+            // 個人タグ (personal_<hex>) は i18n キーが無く t() で生キーが露出するため、
+            // 静的タグ (getTagById で引ける公式/季節/テーマ) だけに絞って表示する
+            // (詳細は RegisterDuplicatePanel と同じ判断)。
+            const staticTags = d.tags.filter((tag) => getTagById(tag));
+            return (
+              <div
+                key={d.id}
+                style={{
+                  background: 'var(--housing-chip-bg)',
+                  border: '1px solid var(--housing-panel-border)',
+                  borderRadius: 8,
+                  padding: 12,
+                }}
+              >
+                <p style={{ fontSize: 'var(--housing-text-sm)' }}>
+                  {t('housing.duplicate.created_at', {
+                    date: new Date(d.createdAt).toLocaleDateString(),
+                  })}
+                </p>
+                {staticTags.length > 0 && (
+                  <p style={{
+                    fontSize: 'var(--housing-text-sm)',
+                    color: 'var(--housing-text-dim)',
+                  }}>
+                    {staticTags.slice(0, 3).map((tag) => t(`housing.tag.${tag}`)).join(' / ')}
+                  </p>
+                )}
+              </div>
+            );
+          })}
         </div>
         <p style={{
           fontSize: 'var(--housing-text-sm)',

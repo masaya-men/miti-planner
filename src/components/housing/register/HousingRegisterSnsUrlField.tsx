@@ -221,6 +221,10 @@ export function HousingRegisterSnsUrlField({
             <p className="housing-register-sns-url-help">
                 {t('housing.register.snsUrl.help')}
             </p>
+            {/* 自動入力は誤りうる旨の免責 (別行・控えめな注記)。あくまで入力補助であることを明示。 */}
+            <p className="housing-register-sns-url-help housing-register-sns-url-help-disclaimer">
+                {t('housing.register.snsUrl.help_disclaimer')}
+            </p>
             {invalidUrl && (
                 <p className="housing-error-text">
                     {t('housing.register.snsUrl.error.invalid')}

@@ -5,6 +5,7 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { EphemeralAddPanel } from '../browse/EphemeralAddPanel';
+import { tourAnchorRegion } from '../../../lib/housing/tourCrossing';
 
 export interface TourEmptyStateProps {
   onGoFavorites: () => void;
@@ -44,8 +45,8 @@ export const TourEmptyState: React.FC<TourEmptyStateProps> = ({
   const items = ids
     .map((id) => ephemeral.find((l) => l.id === id))
     .filter((l): l is MockListing => Boolean(l));
-  // 積んだ先頭の家のリージョン (空なら null)。別リージョンの DC 選択を早期ブロックするため渡す。
-  const trayRegion = items[0]?.region ?? null;
+  // 積んだ家の非OCEアンカー地域 (OCEは混在可なので除外)。別リージョンの DC 選択を早期ブロックするため渡す。
+  const trayRegion = tourAnchorRegion(items.map((i) => i.region));
 
   return (
     <div className="housing-tour-empty">

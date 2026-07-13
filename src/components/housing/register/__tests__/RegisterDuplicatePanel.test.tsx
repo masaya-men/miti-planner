@@ -44,6 +44,19 @@ describe('RegisterDuplicatePanel', () => {
     expect(screen.getByTestId('housing-register-dup-public')).toBeTruthy();
   });
 
+  it('found: 個人タグは除外し静的タグだけ表示 (生キー personal_ を露出しない)', () => {
+    const { container } = wrap({
+      state: 'found',
+      duplicates: [{ id: '2', ownerUid: 'a', createdAt: 0, tags: ['theme_modern', 'personal_neko1'] }],
+      privateMatchCount: 0,
+    });
+    // 静的タグ theme_modern の ja ラベル「モダン」は出る。
+    expect(screen.getByText('モダン')).toBeInTheDocument();
+    // 個人タグの生 id / 生キーは DOM のどこにも出ない。
+    expect(container.innerHTML).not.toContain('personal_neko1');
+    expect(container.innerHTML).not.toContain('housing.tag.personal');
+  });
+
   it('found: 非公開重複は匿名件数のみ (中身なし)', () => {
     wrap({ state: 'found', duplicates: [], privateMatchCount: 2 });
     const anon = screen.getByTestId('housing-register-dup-private');

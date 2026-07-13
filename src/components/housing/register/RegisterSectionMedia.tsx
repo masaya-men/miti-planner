@@ -29,6 +29,14 @@ interface Props {
   initialSnsUrl?: string;
   /** ユーザーが URL 欄を手入力した時に発火 (復元 guard 解除用、Task14 fix)。 */
   onUrlUserEdit?: () => void;
+  /**
+   * 動画ツイート取得時の video ペイロード (`{url, posterUrl, aspectRatio}`)。存在すれば
+   * poster 画像 1 枚 + 「動画あり」バッジを最小プレビューとして描画する。動画のみツイート
+   * (静止画ゼロ) でも「メディア取得済み」と分かるようにするため。<video> は CSP img-src の
+   * 対象外 (media-src) で直参照できないため、poster (pbs.twimg.com・img-src 許可済み) を出す。
+   * YouTube/OGP では null (親が snsCapture.tweetData?.video を渡すため)。
+   */
+  tweetVideo?: TweetData['video'];
 }
 
 /**
@@ -57,6 +65,7 @@ export const RegisterSectionMedia: React.FC<Props> = ({
   onSourceImageUrlsChange,
   initialSnsUrl,
   onUrlUserEdit,
+  tweetVideo,
 }) => {
   const { t } = useTranslation();
   // 子が握る実 fetch 状態 (loading / errorKey)。子の onFetchStatusChange から受ける。
@@ -103,6 +112,24 @@ export const RegisterSectionMedia: React.FC<Props> = ({
         <p className="housing-register-media-success-note" data-testid="housing-register-media-success">
           {t('housing.register.media.fetched_count', { count: fetchedImageCount })}
         </p>
+      )}
+
+      {/* 動画ツイートの最小プレビュー: poster 1 枚 + 「動画あり」バッジ。静止画ゼロの動画のみ
+          ツイートでも「メディア取得済み」と分かるようにする (confirmSummary も動画を +1 で数える)。
+          取得中 (isLoading) は前の poster が残らないよう出さない (枚数注記と同じ扱い)。
+          YouTube/OGP では親が null を渡すため誤発火しない。 */}
+      {!isLoading && tweetVideo && (
+        <div className="housing-register-media-video" data-testid="housing-register-media-video">
+          <img
+            src={tweetVideo.posterUrl}
+            alt=""
+            className="housing-register-media-video-poster"
+            loading="lazy"
+          />
+          <span className="housing-register-media-video-badge">
+            {t('housing.register.media.video_badge')}
+          </span>
+        </div>
       )}
 
       {isError && errorMessageKey && (

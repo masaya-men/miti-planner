@@ -220,6 +220,7 @@
   --housing-tour-ring-stroke: 8px;      /* 進捗リングの線幅 (トラック/進捗弧 共通) */
   --housing-tour-steps-fade: 32px;      /* ステップ一覧の上下端フェード(スクロール示唆)の距離 */
   --housing-filter-body-fade: 28px;     /* フィルターパネル本文の上下端フェード距離 */
+  --housing-detail-textscroll-fade: 32px; /* 詳細パネル本文スクロールの上下端 alpha フェード距離 */
   --housing-tour-map-intro-dur: 0.75s;  /* 目的地変更時「全景→ズームイン」演出の尺 */
   --housing-tour-map-intro-ease: cubic-bezier(0.22, 1, 0.36, 1); /* 同・イージング(ease-out系) */
   --housing-tour-map-fade-dur: 0.4s;    /* 目的地変更時の地図クロスフェード(dip)の尺 */
@@ -897,7 +898,8 @@
   font-variant-numeric: tabular-nums;
   z-index: 7;
 }
-.housing-hud.is-top { top: 14px; }
+/* is-top HUD はマップ上の「全体に戻す」ボタン専用。 コンパス(右上)の隣に来るよう右寄せ+コンパス幅ぶんの余白。 */
+.housing-hud.is-top { top: 14px; justify-content: flex-end; padding-right: 44px; }
 .housing-hud.is-bot { bottom: 14px; }
 .housing-hud .pill {
   background: var(--housing-overlay-strong);
@@ -2068,6 +2070,10 @@ select.housing-input option {
   line-height: 1.5;
   color: var(--housing-text-mute);
 }
+/* 自動入力の免責文 (help 本文の直下に詰めて配置・同じ控えめトーン)。 */
+.housing-register-sns-url-help-disclaimer {
+  margin-top: 2px;
+}
 .housing-error-text {
   margin: 4px 0 0;
   font-size: var(--housing-text-xs);
@@ -3161,6 +3167,13 @@ select.housing-input option {
     min-width: 0;
     min-height: 0;
     overflow: hidden;
+    /* スクロール可能を示す上下端の alpha フェード(mask)。 文字自体が端で透ける=黒で塗り潰さない。
+       端に達した側は --fade-* を 0 にしてフェードを消す(ツアーステップ一覧・フィルタ本文と同方式)。
+       mask の #000/transparent は alpha 専用でテーマ色ではない(色トークン対象外)。 */
+    --fade-top: var(--housing-detail-textscroll-fade);
+    --fade-bottom: var(--housing-detail-textscroll-fade);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 var(--fade-top), #000 calc(100% - var(--fade-bottom)), transparent 100%);
 }
 .housing-detail-textscroll {
     display: flex;
@@ -3173,33 +3186,9 @@ select.housing-input option {
 .housing-detail-textscroll::-webkit-scrollbar {
     display: none;                    /* WebKit: スクロールバー非表示 */
 }
-/* スクロールフェード (強め・端で smooth に外れる)。 wrap は非スクロールなので端に留まる。 */
-.housing-detail-textscroll-wrap::before,
-.housing-detail-textscroll-wrap::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 32px;
-    pointer-events: none;
-    z-index: 2;
-    opacity: 1;
-    transition: opacity 0.22s ease;
-}
-.housing-detail-textscroll-wrap::before {
-    top: 0;
-    background: linear-gradient(to bottom, var(--housing-panel-bg-solid), transparent);
-}
-.housing-detail-textscroll-wrap::after {
-    bottom: 0;
-    background: linear-gradient(to top, var(--housing-panel-bg-solid), transparent);
-}
-.housing-detail-textscroll-wrap[data-at-top="true"]::before {
-    opacity: 0;
-}
-.housing-detail-textscroll-wrap[data-at-bottom="true"]::after {
-    opacity: 0;
-}
+/* スクロール端の alpha フェード(mask)。 到達した側は --fade-* を 0 にして消す(業界標準)。 */
+.housing-detail-textscroll-wrap[data-at-top="true"] { --fade-top: 0px; }
+.housing-detail-textscroll-wrap[data-at-bottom="true"] { --fade-bottom: 0px; }
 /* 区画マップの埋め込み (透け重なりの根治):
    - 固定 basis → 祖先の確定高さに依存しない (TourNavMap のツリーは自然高さ0)
    - 不透明背景 (panel-bg-solid) → マップ自身の 5% veil の裏が透けない = 濃紺の面に見える
@@ -4316,6 +4305,32 @@ select.housing-input option {
   margin: 0;
   font-size: var(--housing-text-sm);
   color: var(--housing-text-dim);
+}
+/* B: 動画ツイートの最小プレビュー (poster 1枚 + 「動画あり」バッジ)。 token 経由・装飾ピルにしない。 */
+.housing-register-media-video {
+  position: relative;
+  margin-top: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-register-media-video-poster {
+  display: block;
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+}
+.housing-register-media-video-badge {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-overlay-strong);
+  border: 1px solid var(--housing-panel-border);
 }
 .housing-register-media-quiet-notice {
   margin: 0;

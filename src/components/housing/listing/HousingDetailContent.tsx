@@ -20,6 +20,8 @@ import { HousingDetailMap } from './HousingDetailMap';
 import { HousingActionBar } from './HousingActionBar';
 import { HousingDuplicatePeersSection } from './HousingDuplicatePeersSection';
 import { HousingerByline } from '../housinger/HousingerByline';
+import { useHousingerProfile } from '../housinger/useHousingerProfile';
+import { getTagById, isPersonalTagIdFormat } from '../../../data/housingTags';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { useHousingReport } from '../report/useHousingReport';
@@ -72,6 +74,29 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   // 見出しは住所に固定 (FF14 の家は識別子が住所。 任意タイトル欄は設けない)。
   // 紹介文 (description) は任意の本文としてスクロール領域に表示する。
   const title = fullAddress;
+
+  // タグは種別で表示解決が異なるため、 描画前に「表示ラベルへ解決できたものだけ」に畳む。
+  // - 静的タグ (official/season/theme): getTagById で引け、 i18nKey (= housing.tag.<id>) で訳す。
+  // - 個人タグ (personal_<hex>): i18n キーが無く、 表示名はオーナー本人の displayName。
+  //   listing の個人タグは必ずオーナー本人のものなので useHousingerProfile(ownerUid) から引く
+  //   (byline と同一 uid = getHousingerProfile のセッションキャッシュ共有で追加読み取りは発生しない)。
+  //   オーナーの公開プロフィールが無い (profile=null=非公開/未取得) 場合は byline 同様 chip も出さない。
+  // - どちらでもない未知の旧 id は描画しない (生 id 露出とクラッシュを防ぐ)。
+  const { profile: ownerProfile } = useHousingerProfile(listing.ownerUid);
+  const resolvedTags = useMemo(
+    () =>
+      listing.tags.flatMap((tag) => {
+        const staticTag = getTagById(tag);
+        if (staticTag) return [{ id: tag, label: t(staticTag.i18nKey) }];
+        if (isPersonalTagIdFormat(tag)) {
+          return ownerProfile?.displayName
+            ? [{ id: tag, label: ownerProfile.displayName }]
+            : [];
+        }
+        return [];
+      }),
+    [listing.tags, ownerProfile?.displayName, t],
+  );
 
   // §3.8 (2026-05-27): 重複一覧の「ちがった」 で 1 撃 hide した peer は即時 UI から消す。
   // 親の peers は同じ参照のまま、 ここで filter する (= 親に再 fetch 走らせない軽量実装)。
@@ -200,10 +225,10 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
                   {listing.dc} / {listing.server}
                 </p>
                 <HousingerByline ownerUid={listing.ownerUid} />
-                {listing.tags.length > 0 && (
+                {resolvedTags.length > 0 && (
                   <ul className="housing-detail-tags">
-                    {listing.tags.map((tag) => (
-                      <li key={tag}>{tag}</li>
+                    {resolvedTags.map((tag) => (
+                      <li key={tag.id}>{tag.label}</li>
                     ))}
                   </ul>
                 )}

@@ -2129,6 +2129,7 @@
                 "label": "게시물·사이트 URL (선택)",
                 "placeholder": "URL을 붙여넣으세요",
                 "help": "X(구 Twitter)·YouTube·Housing Snap 등에 대응. 동영상이 포함된 게시물도 OK입니다",
+                "help_disclaimer": "자동 입력이 정확하지 않을 수 있습니다. 어디까지나 입력을 돕는 보조 기능으로 이용해 주세요.",
                 "fetching": "트윗을 읽는 중…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "ogp_fetching": "ページ情報を取得中…",
@@ -2175,6 +2176,7 @@
             },
             "media": {
                 "fetched_count": "이미지를 {{count}}장 가져왔습니다",
+                "video_badge": "동영상 있음",
                 "error_hint": "URL을 확인하거나 이미지를 직접 업로드해 주세요"
             },
             "tweetPreview": {

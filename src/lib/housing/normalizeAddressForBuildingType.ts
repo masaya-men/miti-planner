@@ -14,7 +14,17 @@ import type { RegisterAddressValues } from '../../components/housing/register/Re
  */
 export function normalizeAddressForBuildingType(a: RegisterAddressValues): RegisterAddressValues {
   if (a.buildingType === 'apartment') {
-    return { ...a, plot: undefined, size: undefined };
+    // apartment は plot/size を持てない (不可視フィールド残留を落とす)。
+    //
+    // さらに apartmentBuilding (号棟) は validateAddress が 1|2 必須。SNS 自動判定や手選択で
+    // buildingType='apartment' にはなっても apartmentBuilding が undefined のまま残ると、
+    // 号棟 select が value={apartmentBuilding ?? 1} で「1号棟」を表示して未設定を隠蔽するため、
+    // 全項目が埋まって見えるのに addressOk=false→canSubmit=false で永遠に登録できなくなる (G 恒久ブロッカー)。
+    // 1 でも 2 でもない (undefined/null 含む) 場合は既定 1 (本街アパート) を補完し、
+    // 検証・重複照会・送信 draft がこのチョークポイントを通る全経路でブロッカーを潰す。
+    const apartmentBuilding =
+      a.apartmentBuilding === 1 || a.apartmentBuilding === 2 ? a.apartmentBuilding : 1;
+    return { ...a, plot: undefined, size: undefined, apartmentBuilding };
   }
   if (a.buildingType === 'house') {
     const isChamber = a.roomKind === 'private_chamber';

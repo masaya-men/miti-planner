@@ -339,7 +339,7 @@ describe('RegisterPage', () => {
       renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
 
       const nav = screen.getByRole('navigation', { name: '登録ステップ' });
-      expect(within(nav).queryByText('画像・SNS URL')).not.toBeInTheDocument();
+      expect(within(nav).queryByText('SNS投稿・サイトから自動入力')).not.toBeInTheDocument();
       expect(within(nav).getAllByRole('button')).toHaveLength(4);
       // 番号がずれず 1 から詰められる (先頭は住所ステップ)。
       expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('住所');
@@ -352,7 +352,23 @@ describe('RegisterPage', () => {
 
       const nav = screen.getByRole('navigation', { name: '登録ステップ' });
       expect(within(nav).getAllByRole('button')).toHaveLength(5);
-      expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('画像・SNS URL');
+      expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('SNS投稿・サイトから自動入力');
+    });
+  });
+
+  // I 根治: 編集モードでは自分の doc が必ずヒットして誤「重複」になるため、ライブ重複照会
+  // パネルを出さない (ライブ照会 effect 側も mode==='edit' で走らせない)。create は不変。
+  describe('重複照会パネル: mode=edit は出さない (I 根治)', () => {
+    it('mode=edit では右カラムに重複照会パネルが出ない', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+      expect(screen.queryByTestId('housing-register-dup-panel')).not.toBeInTheDocument();
+    });
+
+    it('mode=create では重複照会パネルが出る (既存挙動不変)', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage();
+      expect(screen.getByTestId('housing-register-dup-panel')).toBeInTheDocument();
     });
   });
 
@@ -386,7 +402,7 @@ describe('RegisterPage', () => {
       renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
 
       const section = screen.getByTestId('housing-register-section-confirm');
-      expect(within(section).queryByText('画像・SNS URL')).not.toBeInTheDocument();
+      expect(within(section).queryByText('SNS投稿・サイトから自動入力')).not.toBeInTheDocument();
     });
 
     it('mode=create では確認セクションに画像枚数の行が出る (既存挙動不変)', () => {
@@ -394,7 +410,7 @@ describe('RegisterPage', () => {
       renderPage();
 
       const section = screen.getByTestId('housing-register-section-confirm');
-      expect(within(section).getByText('画像・SNS URL')).toBeInTheDocument();
+      expect(within(section).getByText('SNS投稿・サイトから自動入力')).toBeInTheDocument();
     });
   });
 

@@ -156,6 +156,41 @@ describe('TourNavPage', () => {
     expect(useHousingTourStore.getState().currentIndex).toBe(1);
   });
 
+  // L: 跨ぎ(DCトラベル/ワールド訪問)のぼかし中は「次へ」1回目で ack(ぼかし解除)、
+  // 2回目で次ステップへ。ユーザーは同じ「次へ」を押し続けるだけで進める。
+  it('跨ぎステップ: 「次へ」1回目でぼかし解除(ack)されcurrentIndexは進まず、2回目で次へ進む', () => {
+    // A(Aegis)→B(Atomos) は同DC別ワールド = world 跨ぎ。B→C は同ワールドで跨ぎ無し。
+    const a = mk('cross-a', 1);
+    const b = { ...mk('cross-b', 6), server: 'Atomos', addressKey: 'Elemental|Atomos|Mist|W12|H6' };
+    const c = { ...mk('cross-c', 30), server: 'Atomos', addressKey: 'Elemental|Atomos|Mist|W12|H30' };
+    useHousingListingsStore.setState({ status: 'ready', listings: [a, b, c], myListings: [] });
+    useHousingTourStore.setState({ listingIds: [a.id, b.id, c.id], running: true, currentIndex: 1, phase: 'moving' });
+
+    renderPage();
+
+    // index1 到着: 前(A)→現(B)は world 跨ぎ → 中央マップにぼかし+跨ぎ案内が出る
+    expect(screen.getByTestId('tour-map-cross')).toBeInTheDocument();
+
+    // 「次へ」1回目: ぼかし解除(ack)されるが currentIndex は 1 のまま
+    fireEvent.click(screen.getByRole('button', { name: '次へ' }));
+    expect(useHousingTourStore.getState().currentIndex).toBe(1);
+    expect(screen.queryByTestId('tour-map-cross')).not.toBeInTheDocument();
+
+    // 「次へ」2回目: 次のステップ(index2)へ進む
+    fireEvent.click(screen.getByRole('button', { name: '次へ' }));
+    expect(useHousingTourStore.getState().currentIndex).toBe(2);
+  });
+
+  it('跨ぎでないステップは「次へ」1回で進む (同DC同ワールドの ids)', () => {
+    // ids(listing1/2/3)は全て Elemental/Aegis で跨ぎ無し → 中央マップにぼかしは出ない。
+    useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 1, phase: 'moving' });
+    seedListings();
+    renderPage();
+    expect(screen.queryByTestId('tour-map-cross')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '次へ' }));
+    expect(useHousingTourStore.getState().currentIndex).toBe(2);
+  });
+
   it('「見学」で viewing に切替わりタイマーが出る / 「次へ」で moving に戻る', () => {
     useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
     seedListings();

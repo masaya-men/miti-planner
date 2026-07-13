@@ -480,6 +480,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         const converted = extractSizeToAddress(result.size);
         fills.push(['buildingType', converted.buildingType]);
         if (converted.roomKind) fills.push(['roomKind', converted.roomKind]);
+        // アパート判定時は apartmentBuilding=1 (本街) を既定補完する (G 恒久ブロッカー根治)。
+        // apartmentBuilding は validateAddress が 1|2 必須だが、自動判定は号棟を復元しないため
+        // undefined のまま残り、号棟 select の value={apartmentBuilding ?? 1}=「1号棟」表示に
+        // 隠れて addressOk=false→登録不可になる。EphemeralAddPanel も同じく apartment 検出時に
+        // apartmentBuilding=1 を積んでいる (browse/EphemeralAddPanel.tsx の applyParse)。
+        // normalize 側 (唯一のチョークポイント) でも補完済みだが、可視 state と fieldState を
+        // 一致させて号棟表示・ステッパー完了印を正しくするためここでも積む。
+        if (converted.buildingType === 'apartment') fills.push(['apartmentBuilding', 1]);
         // converted.size (S/M/L) はここでは**入れない**。house の size は (area, plot) から
         // 一意に決まるので、下の導出 effect が唯一の書き込み口になる。本文の "L" 表記が
         // 区画の実サイズと食い違っていても、区画側 (= ゲームの一次データ) を正とする。
@@ -753,6 +761,18 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     if (debounceTimerRef.current != null) {
       window.clearTimeout(debounceTimerRef.current);
       debounceTimerRef.current = null;
+    }
+
+    // 編集モード (mode='edit') では自分自身の doc が必ず住所一致でヒットし「重複」誤検知になる。
+    // 送信ゲート (handleSubmit) は既に mode==='edit' で checkDuplicate をスキップしているのに、
+    // ライブ照会側だけ mode ガードが漏れていて右カラムパネルが常に⚠重複を出していた (I 根治)。
+    // 編集中はライブ照会を一切走らせず、in-flight 応答も無効化して idle (中立) に留める。
+    if (mode === 'edit') {
+      requestSeqRef.current += 1;
+      setDuplicateState('idle');
+      setDuplicates([]);
+      setPrivateMatchCount(0);
+      return;
     }
 
     if (!addressOk) {
@@ -1302,6 +1322,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                   onSourceImageUrlsChange={setSourceImageUrls}
                   initialSnsUrl={restoredSnsUrl}
                   onUrlUserEdit={handleUrlUserEdit}
+                  // 動画ツイートの poster を最小プレビュー (ポスター1枚+「動画あり」バッジ) で見せる。
+                  // <video> 直参照は CSP 不可のため posterUrl (pbs.twimg.com) を <img> で出す。
+                  tweetVideo={snsCapture.tweetData?.video ?? null}
                 />
               </div>
             )}
@@ -1361,11 +1384,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       <section className="housing-register-panel" data-region="right">
         <div className="housing-register-col housing-register-col-right">
           <RegisterCheckPanel items={checkPanelItems} />
-          <RegisterDuplicatePanel
-            state={duplicateState}
-            duplicates={duplicates}
-            privateMatchCount={privateMatchCount}
-          />
+          {/* 重複照会パネルは create 専用。編集モードは自分の doc が必ずヒットして誤「重複」に
+              なるため出さない (ライブ照会 effect 側も mode==='edit' で走らせない・I 根治)。 */}
+          {mode !== 'edit' && (
+            <RegisterDuplicatePanel
+              state={duplicateState}
+              duplicates={duplicates}
+              privateMatchCount={privateMatchCount}
+            />
+          )}
           {/* #5: 静的ミニマップから、ツアーと同じ「動くマップ」に統一。住所が地図解決
               できるまで (area+plot / area+apartmentBuilding) は何も出さない。 */}
           <RegisterAddressMap address={address} />

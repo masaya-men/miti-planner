@@ -11,7 +11,7 @@ import { applyFilters } from '../../../lib/housing/applyFilters';
 import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
-import { canAddToTour, tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import { canAddToTour, tourAnchorRegion, tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { showToast } from '../../Toast';
 import { FilterPanel } from '../workspace/FilterPanel';
@@ -90,8 +90,10 @@ export const BrowsePage: React.FC = () => {
     const candidate = merged.find((l) => l.id === id) ?? eph.find((l) => l.id === id);
     if (!candidate) return;
     const pool = [...merged, ...eph];
-    const trayRegion =
-      trayIds.length > 0 ? (pool.find((l) => l.id === trayIds[0])?.region ?? null) : null;
+    // トレイの非OCEアンカー地域 (OCEは日/米/欧と混在可なので除外)。 先頭依存だと OCE 先頭でアンカーを取り違えるため全stopから算出。
+    const trayRegion = tourAnchorRegion(
+      trayIds.map((tid) => pool.find((l) => l.id === tid)?.region ?? null),
+    );
     if (!canAddToTour(trayRegion, candidate.region)) {
       showToast(t('housing.tour.region_block'), 'error');
       return;

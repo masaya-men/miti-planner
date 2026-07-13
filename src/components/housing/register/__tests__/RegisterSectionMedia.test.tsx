@@ -61,6 +61,7 @@ function renderMedia(props: Partial<React.ComponentProps<typeof RegisterSectionM
         onLocalImagesChange={props.onLocalImagesChange ?? vi.fn()}
         sourceImageUrls={props.sourceImageUrls ?? []}
         onSourceImageUrlsChange={props.onSourceImageUrlsChange ?? vi.fn()}
+        tweetVideo={props.tweetVideo}
       />
     </I18nextProvider>,
   );
@@ -168,5 +169,44 @@ describe('RegisterSectionMedia', () => {
     const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
     fireEvent.change(input, { target: { value: 'https://x.com/user/status/1842217368673759498' } });
     expect(mockFetchTweet).toHaveBeenCalledWith('1842217368673759498');
+  });
+
+  // B (メディアプレビュー): 動画ツイートの poster + 「動画あり」バッジ最小プレビュー。
+  describe('動画プレビュー (tweetVideo)', () => {
+    const video = {
+      url: 'https://video.twimg.com/ext_tw_video/x.mp4',
+      posterUrl: 'https://pbs.twimg.com/ext_tw_video_thumb/poster.jpg',
+      aspectRatio: 1.7777,
+    };
+
+    it('動画ツイートで poster プレビューと「動画あり」バッジを出す', () => {
+      renderMedia({ tweetVideo: video });
+      const preview = screen.getByTestId('housing-register-media-video');
+      expect(preview).toBeInTheDocument();
+      // poster は pbs.twimg.com (CSP img-src 許可) を <img> で直参照する
+      const img = preview.querySelector('img') as HTMLImageElement;
+      expect(img.getAttribute('src')).toBe(video.posterUrl);
+      // 「動画あり」バッジ (i18n キー配線)。locale 値に依存せずクラスで存在検証する
+      expect(preview.querySelector('.housing-register-media-video-badge')).toBeInTheDocument();
+    });
+
+    it('画像ツイート (tweetVideo なし) では動画プレビューを出さず、静止画枚数注記は回帰しない', () => {
+      renderMedia({
+        sourceImageUrls: ['https://pbs.twimg.com/a.jpg', 'https://pbs.twimg.com/b.jpg'],
+      });
+      expect(screen.queryByTestId('housing-register-media-video')).toBeNull();
+      expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent('2');
+    });
+
+    it('動画なし (YouTube/OGP は tweetVideo=null) では動画プレビューを誤発火しない', () => {
+      renderMedia({ tweetVideo: null });
+      expect(screen.queryByTestId('housing-register-media-video')).toBeNull();
+    });
+
+    it('取得中 (loading) は動画プレビューを出さない (前の poster を残さない)', () => {
+      tweetState = { ...tweetState, status: 'loading' };
+      renderMedia({ tweetVideo: video });
+      expect(screen.queryByTestId('housing-register-media-video')).toBeNull();
+    });
   });
 });

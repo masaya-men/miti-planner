@@ -2129,6 +2129,7 @@
                 "label": "帖子·网站 URL（可选）",
                 "placeholder": "粘贴 URL",
                 "help": "支持 X(原 Twitter)·YouTube·Housing Snap 等，带视频的帖子也 OK",
+                "help_disclaimer": "自动填充有时可能不准确，请仅将其作为填写时的辅助参考。",
                 "fetching": "正在读取推文…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "ogp_fetching": "ページ情報を取得中…",
@@ -2175,6 +2176,7 @@
             },
             "media": {
                 "fetched_count": "已获取 {{count}} 张图片",
+                "video_badge": "含视频",
                 "error_hint": "请检查 URL，或直接上传图片"
             },
             "tweetPreview": {

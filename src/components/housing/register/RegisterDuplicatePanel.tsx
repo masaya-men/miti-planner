@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import type { DuplicateEntry } from '../../../lib/housingApiClient';
+import { getTagById } from '../../../data/housingTags';
 
 export type RegisterDuplicateState = 'idle' | 'checking' | 'clear' | 'found';
 
@@ -60,20 +61,26 @@ export const RegisterDuplicatePanel: React.FC<Props> = ({ state, duplicates, pri
 
           {duplicates.length > 0 && (
             <ul className="housing-register-dup-public-list" data-testid="housing-register-dup-public">
-              {duplicates.map((d) => (
-                <li key={d.id} className="housing-register-dup-public-card">
-                  <p className="housing-register-dup-public-date">
-                    {t('housing.duplicate.created_at', {
-                      date: new Date(d.createdAt).toLocaleDateString(),
-                    })}
-                  </p>
-                  {d.tags.length > 0 && (
-                    <p className="housing-register-dup-public-tags">
-                      {d.tags.slice(0, 3).map((tag) => t(`housing.tag.${tag}`)).join(' / ')}
+              {duplicates.map((d) => {
+                // 個人タグ (personal_<hex>) は i18n キーが無く、 t() すると生キーが露出する。
+                // 他人物件のカードで displayName を引くのは重いので、 静的タグ (getTagById で
+                // 引ける公式/季節/テーマ) だけに絞って表示する。
+                const staticTags = d.tags.filter((tag) => getTagById(tag));
+                return (
+                  <li key={d.id} className="housing-register-dup-public-card">
+                    <p className="housing-register-dup-public-date">
+                      {t('housing.duplicate.created_at', {
+                        date: new Date(d.createdAt).toLocaleDateString(),
+                      })}
                     </p>
-                  )}
-                </li>
-              ))}
+                    {staticTags.length > 0 && (
+                      <p className="housing-register-dup-public-tags">
+                        {staticTags.slice(0, 3).map((tag) => t(`housing.tag.${tag}`)).join(' / ')}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
 

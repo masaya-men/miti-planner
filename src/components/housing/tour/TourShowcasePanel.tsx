@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { TourStep } from '../../../lib/housing/tourNav';
-import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { formatHousingAddress, formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { saveRegisterPrefill, type RegisterPrefill } from '../../../lib/housing/registerPrefill';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -75,8 +75,10 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
 
           <TourLivingMedia listing={listing} />
 
+          {/* 現在の目的地はどの鯖のどの家か一目で分かるよう、リージョン/DC/ワールド込みの完全住所を出す
+              (N: DC込み完全住所)。次の目的地(下の小プレビュー)は幅が狭いため短縮住所のまま。 */}
           <p className="housing-tour-dest-addrsize">
-            {formatHousingAddress(listing, i18n.language)}
+            {formatFullHousingAddress(listing, i18n.language)}
             {!isApartment && listing.size ? ` ・ ${listing.size}` : ''}
           </p>
 

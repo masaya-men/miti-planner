@@ -15,6 +15,8 @@
  */
 import type { HousingArea } from '../../types/housing';
 import { getAreaName, getApartmentName, toMasterLang } from './areaName';
+import type { Region } from '../../data/housing/dcServerMap';
+import { regionLabel, pickRegionLocale } from '../../data/housing/regionMap';
 
 export interface AddressViewModel {
   area: HousingArea;
@@ -23,6 +25,13 @@ export interface AddressViewModel {
   plot?: number;
   apartmentBuilding?: 1 | 2;
   roomNumber?: number;
+}
+
+/** DC / ワールド / リージョンまで含めた完全住所を組み立てるための view-model。 */
+export interface FullAddressViewModel extends AddressViewModel {
+  region: Region;
+  dc: string;
+  server: string;
 }
 
 const COMPACT_AREA_MAX_CHARS = 6;
@@ -51,6 +60,24 @@ export function formatHousingAddress(
     return `${areaName} ${addr.ward}-${addr.plot}`;
   }
   return `${areaName} ${addr.ward}`;
+}
+
+/**
+ * リージョン / DC / ワールド + area+ward+plot を ` / ` 区切りで並べた完全住所。
+ * 例: "オセアニア / Materia / Bismarck / シロガネ 6-6"
+ *
+ * - リージョン部のみ locale 対応 (regionLabel)。dc / server は生文字列 (ローカライズ対象外)。
+ * - area+ward+plot / apartment 部分は既存 formatHousingAddress をそのまま流用 (house/apartment 分岐込み)。
+ *   → 既存の挙動を変えず、前置きの「リージョン / DC / ワールド」だけを合成する。
+ * ツアーステップ・カード等、どの鯖のどの家かを一目で示したい箇所で使う。
+ */
+export function formatFullHousingAddress(
+  addr: FullAddressViewModel,
+  lang: string | undefined | null,
+): string {
+  const region = regionLabel(addr.region, pickRegionLocale(lang ?? 'ja'));
+  const local = formatHousingAddress(addr, lang);
+  return `${region} / ${addr.dc} / ${addr.server} / ${local}`;
 }
 
 /** MapBubbleCard 等の狭いラベル用。 area 名を先頭数文字で省略。 */

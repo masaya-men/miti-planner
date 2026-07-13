@@ -7,7 +7,7 @@ import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import type { TourStep } from '../../../../lib/housing/tourNav';
-import { formatHousingAddress } from '../../../../lib/housing/formatHousingAddress';
+import { formatHousingAddress, formatFullHousingAddress } from '../../../../lib/housing/formatHousingAddress';
 import { HousingPlaybackProvider } from '../../../../lib/housing/HousingPlaybackContext';
 import { createEphemeralListing } from '../../../../lib/housing/ephemeralListing';
 import { consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill';
@@ -57,6 +57,18 @@ describe('TourShowcasePanel — 表示専用ショーケース', () => {
     const line = container.querySelector('.housing-tour-dest-addrsize')!;
     expect(line.textContent).toContain(formatHousingAddress(cur, 'ja'));
     expect(line.textContent).toContain(cur.size!);
+  });
+
+  // N: 現在の目的地の住所行は DC込みの完全住所 (リージョン/DC/ワールド + area+ward+plot)。
+  it('現在の目的地の住所行に DC込みの完全住所(リージョン/DC/ワールド)が出る', () => {
+    const { container } = renderPanel();
+    const line = container.querySelector('.housing-tour-dest-addrsize')!;
+    // cur = MOCK_LISTINGS[0] = JP / Mana / Anima / Shirogane 3-12
+    expect(line.textContent).toContain(formatFullHousingAddress(cur, 'ja'));
+    expect(line.textContent).toContain(cur.dc);      // 'Mana'
+    expect(line.textContent).toContain(cur.server);  // 'Anima'
+    expect(line.textContent).toContain(' / ');       // ` / ` 区切り
+    expect(line.textContent).toContain(cur.size!);   // サイズ併記は維持
   });
 
   it('DC/サーバー行は撤去されている', () => {

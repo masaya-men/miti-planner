@@ -7,6 +7,7 @@ import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { EphemeralAddPanel } from './EphemeralAddPanel';
+import { tourAnchorRegion } from '../../../lib/housing/tourCrossing';
 
 export interface TourTrayProps {
   listingIds: string[];
@@ -32,8 +33,8 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
     .map((id) => listings.find((l) => l.id === id) ?? ephemeral.find((l) => l.id === id))
     .filter((l): l is MockListing => Boolean(l));
   const empty = listingIds.length === 0;
-  // トレイ先頭の家のリージョン (空なら null)。一時追加パネルの跨ぎ早期ブロックに渡す。
-  const trayRegion = items[0]?.region ?? null;
+  // トレイの非OCEアンカー地域 (OCEは日/米/欧と混在可なので除外)。一時追加パネルの跨ぎ早期ブロックに渡す。
+  const trayRegion = tourAnchorRegion(items.map((i) => i.region));
 
   const remove = (id: string) => onChange(listingIds.filter((x) => x !== id));
 

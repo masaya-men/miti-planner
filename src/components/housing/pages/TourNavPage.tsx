@@ -180,9 +180,16 @@ export const TourNavPage: React.FC = () => {
   }, [stop, exitTourMode, reset, navigate]);
 
   const onPrimary = useCallback(() => {
+    // L: 跨ぎ(DCトラベル/ワールド訪問)のぼかしオーバーレイ表示中は、「次へ」の1回目で
+    // 「移動しました(地図を見る)」と同じ ack を行い、ぼかしを解除して地図を見せる (ステップは進めない)。
+    // ack 済み(オーバーレイ非表示)なら従来通り前進する。ユーザーは同じ「次へ」を押し続けるだけで進める。
+    if (showCrossingOverlay) {
+      onAckCrossing();
+      return;
+    }
     if (isLast) setCompleted(true);
     else next();
-  }, [isLast, next]);
+  }, [showCrossingOverlay, onAckCrossing, isLast, next]);
 
   const onOpenReport = useCallback(() => {
     const listing = progress.currentStep?.listing;

@@ -2185,6 +2185,7 @@
                 "label": "投稿・サイトのURL（任意）",
                 "placeholder": "URLを貼ってください",
                 "help": "X(旧Twitter)・YouTube・ハウジングスナップなどに対応。動画付きの投稿もOKです",
+                "help_disclaimer": "自動入力は正確でない場合があります。あくまで入力の補助としてご利用ください。",
                 "fetching": "ツイートを読み取り中…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "ogp_fetching": "ページ情報を取得中…",
@@ -2231,6 +2232,7 @@
             },
             "media": {
                 "fetched_count": "画像を{{count}}枚取得しました",
+                "video_badge": "動画あり",
                 "error_hint": "URL を確認するか、 画像を直接アップロードしてください"
             },
             "tweetPreview": {
