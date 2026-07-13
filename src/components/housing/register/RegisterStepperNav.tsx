@@ -46,7 +46,7 @@ const RING_C = 2 * Math.PI * RING_R;
  * 説明文は全ステップ常時表示 (旧: アクティブのみ grid 開閉)。進捗 (progress) に連動して
  * viewport 内を translateY でオートスクロールし、収まらない画面では上下端をフェードさせる。
  * 接続線の上端/下端は先頭・末尾バッジの中心に測って合わせる (ResizeObserver で再計測、
- * アクティブ説明文の開閉で末尾ステップの高さが変わっても追従する) — ツアーパネルの
+ * 説明文は常時表示なので初回とパネル/ウィンドウのリサイズ時のみ再計測する) — ツアーパネルの
  * ステップ接続線 (TourRouteSteps.tsx / `--housing-tour-step-spring`) と同じトークン・
  * イージングを流用する。
  */
@@ -82,7 +82,7 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
       setViewportH(viewport ? viewport.getBoundingClientRect().height : 0);
     };
     measure();
-    // アクティブ説明文の開閉で末尾ステップの高さが変わる (= 末尾バッジの中心位置が動く) ため、
+    // 説明文は常時表示だが、パネル/ウィンドウのリサイズでバッジ中心位置が変わり得るため、
     // scroll ハンドラでの layout 読みではなく ResizeObserver で再計測する
     // (reference_perf_forced_reflow_resizeobserver: onMount + リサイズ時のみ計算)。
     const ro = new ResizeObserver(measure);

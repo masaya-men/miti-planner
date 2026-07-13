@@ -4167,7 +4167,7 @@ select.housing-input option {
 .housing-register-col-center,
 .housing-register-col-right { overflow-y: auto; }
 
-/* 左カラム (#6 改): ステッパー + ガイドはスクロール領域に入れ、本日の登録枠 (残数) は
+/* 左カラム (#6 改): ステッパーをスクロール領域に入れ (ガイドは右カラムへ移設済)、本日の登録枠 (残数) は
    スクロールの外=左パネル最下部に固定する。低い viewport でも残数が常に見えるようにする。 */
 .housing-register-col-left { overflow: hidden; }
 .housing-register-left-scroll {
@@ -4424,7 +4424,7 @@ select.housing-input option {
   width: 100%;
   display: flex;
   /* flex-start (center から変更・Task2): バッジを常に item 上端から一定距離に固定し、
-     アクティブ説明文の開閉で自身やそれより後ろのステップの高さが変わっても、接続線の
+     説明文の高さやリサイズで自身や後続ステップの高さが変わっても、接続線の
      計算前提 (バッジ中心の item 内オフセット固定) が崩れないようにする。 */
   align-items: flex-start;
   gap: 10px;
