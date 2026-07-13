@@ -176,6 +176,7 @@
   /* ===== Z-index tokens ===== */
   --housing-z-modal-base: 50;
   --housing-z-modal-stack: 60;
+  --housing-z-header-dropdown: 40;
 
   /* ===== Layout tokens ===== */
   --housing-header-h: 60px;
@@ -3977,6 +3978,58 @@ select.housing-input option {
     transparent, rgba(255, 255, 255, 0.18) 30%, rgba(255, 255, 255, 0.30) 50%,
     rgba(255, 255, 255, 0.18) 70%, transparent);
   pointer-events: none;
+}
+
+/* ヘッダー左 (ブランド + 探す横断検索・grid 1列目に同居させ TabBar 中央を保つ) */
+.housing-app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+/* ヘッダー横断検索 (探すページのみ・input は .housing-input 基底を流用) */
+.housing-app-search {
+  position: relative;
+  flex: 0 1 clamp(180px, 20vw, 300px);
+  min-width: 0;
+}
+.housing-app-search-input {
+  width: 100%;
+}
+.housing-app-search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: var(--housing-z-header-dropdown);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: var(--housing-input-radius-sm);
+  border: 1px solid var(--housing-panel-border);
+  background: var(--housing-panel-bg-solid);
+}
+.housing-app-search-dropdown-head {
+  padding: 4px 8px;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-app-search-housinger {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  border: none;
+  border-radius: var(--housing-input-radius-sm);
+  background: transparent;
+  color: var(--housing-text);
+  font-size: var(--housing-text-sm);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.housing-app-search-housinger:hover {
+  background: var(--housing-input-bg-hover);
 }
 
 /* タブバー */
