@@ -1,9 +1,13 @@
+import { useEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useThemeStore, type Theme } from '../../../store/useThemeStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
+import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
+import { searchPersonalTags } from '../../../lib/personalTagApiClient';
+import type { PersonalTag } from '../../../types/housing';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { LoPoButton } from '../../LoPoButton';
 import { TabBar } from './TabBar';
@@ -23,6 +27,17 @@ export const AppHeader: React.FC = () => {
   const profileAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
   const openLogin = useHousingModalStore((s) => s.openLogin);
   const openAccount = useHousingModalStore((s) => s.openAccount);
+
+  // 横断検索は探すページ (/housing の index) のみ表示。keyword は filter store 管理。
+  const location = useLocation();
+  const showSearch = location.pathname === '/housing';
+  const keyword = useHousingFilterStore((s) => s.keyword);
+  const setKeyword = useHousingFilterStore((s) => s.setKeyword);
+  const toggleTag = useHousingFilterStore((s) => s.toggleTag);
+  const [housingerHits, setHousingerHits] = useState<PersonalTag[]>([]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // テーマ切替: 縦の「日没(上→下) / 日の出(下→上)」リビール (housing 限定・View Transitions)。
   // 参考: Akash Hamirwasia の全画面テーマトグル。data-theme-anim で CSS のワイプ向き +
@@ -49,6 +64,37 @@ export const AppHeader: React.FC = () => {
     });
   };
 
+  // ハウジンガー名の候補取得 (探すページのみ・PersonalTagFilter と同じ 300ms debounce)。
+  useEffect(() => {
+    if (!showSearch) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const q = keyword.trim();
+    if (q.length === 0) {
+      setHousingerHits([]);
+      return;
+    }
+    debounceRef.current = setTimeout(() => {
+      searchPersonalTags(q)
+        .then((tags) => setHousingerHits(tags.slice(0, 5)))
+        .catch(() => setHousingerHits([]));
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [keyword, showSearch]);
+
+  // 検索窓の外側クリックで候補ドロップダウンを閉じる。
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [dropdownOpen]);
+
   return (
     <header className="housing-app-header" data-region="header">
       <div className="housing-brand-wrap">
@@ -59,6 +105,43 @@ export const AppHeader: React.FC = () => {
           {t('housing.workspace.topbar.subtitle')}
         </span>
       </div>
+
+      {showSearch && (
+        <div className="housing-app-search" ref={searchWrapRef}>
+          <input
+            type="search"
+            className="housing-app-search-input"
+            value={keyword}
+            onChange={(e) => {
+              setKeyword(e.target.value);
+              setDropdownOpen(true);
+            }}
+            onFocus={() => setDropdownOpen(true)}
+            placeholder={t('housing.header.search_placeholder')}
+            aria-label={t('housing.header.search_placeholder')}
+          />
+          {dropdownOpen && keyword.trim().length > 0 && housingerHits.length > 0 && (
+            <div className="housing-app-search-dropdown">
+              <div className="housing-app-search-dropdown-head">
+                {t('housing.header.search_housingers')}
+              </div>
+              {housingerHits.map((tag) => (
+                <button
+                  key={tag.id}
+                  type="button"
+                  className="housing-app-search-housinger"
+                  onClick={() => {
+                    toggleTag(tag.id);
+                    setDropdownOpen(false);
+                  }}
+                >
+                  {t('housing.header.search_view_homes', { name: tag.displayName })}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <TabBar />
 
