@@ -99,7 +99,6 @@ export const AppHeader: React.FC = () => {
     <header
       className="housing-app-header"
       data-region="header"
-      data-search={showSearch ? 'on' : undefined}
     >
       <div className="housing-brand-wrap">
         {/* 全アプリ共通の LoPo ロゴ (= miti と同一 LoPoButton)。ハウジングではハニーゴールド単色

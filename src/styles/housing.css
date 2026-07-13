@@ -188,8 +188,6 @@
   /* 参考UI準拠: 左右パネルを狭め、中央グリッドを広く(4列の一覧性を確保)。 */
   --housing-left-w: 240px;
   --housing-right-w: 300px;
-  /* ヘッダー横断検索の最大幅 (探すページのみ表示。中央固定 TabBar と重ならない幅)。 */
-  --housing-header-search-max: 280px;
   /* ツアー中ページ Phase3: 左=目的地ショーケース(広め) / 右=進行状況(狭め)。
      共有の --housing-left-w/--housing-right-w とは独立 (workspace 等に波及させない)。 */
   --housing-tour-showcase-w: 300px;
@@ -3960,9 +3958,9 @@ select.housing-input option {
   overflow: hidden;
 }
 
-/* ヘッダー: [ブランド(左)] … [TabBar(画面中央に絶対固定)] … [右群(右)]。
-   検索窓 (探すページのみ) はブランドの右にフロー配置。TabBar は検索窓の有無に関わらず
-   画面中央から動かない (ページ間でメニュー位置がズレて迷うのを防ぐ・2026-07-13)。 */
+/* ヘッダー: [ブランド(左)] [検索窓(探すページのみ・伸縮)] … [TabBar] [右群(右)]。
+   TabBar と右群は右寄せクラスタ。TabBar は検索窓の有無に関わらず右群の左隣から動かない
+   (ページ間でメニュー位置がズレて迷うのを防ぐ・2026-07-13 再修正=中央固定→右寄せ)。 */
 .housing-app-header {
   position: relative;
   display: flex;
@@ -3984,13 +3982,12 @@ select.housing-input option {
   pointer-events: none;
 }
 
-/* ヘッダー横断検索 (探すページのみ)。ブランドの右にフロー配置し、幅を制限して
-   画面中央に絶対固定した TabBar と重ならないようにする (flex-shrink 可)。 */
+/* ヘッダー横断検索 (探すページのみ)。ブランドの右で空きスペースを埋めて広がる
+   (撤去前の grid 1fr 相当の幅)。TabBar は常に右寄せ固定なので重ならない。 */
 .housing-app-search {
   display: flex;
   align-items: center;
-  flex: 0 1 var(--housing-header-search-max);
-  max-width: var(--housing-header-search-max);
+  flex: 1 1 auto;
   min-width: 0;
   position: relative; /* 候補ドロップダウンの位置基準 */
 }
@@ -4048,12 +4045,10 @@ select.housing-input option {
   background: var(--housing-input-bg-hover);
 }
 
-/* タブバー */
+/* タブバー (メニュー): 検索窓の有無に関わらず右群の左隣に右寄せ固定。margin-left:auto で
+   左側の空きを吸収し、ページ間でメニュー位置が動かない (2026-07-13 中央固定→右寄せに再修正)。 */
 .housing-tabbar {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
+  margin-left: auto;
   display: flex; align-items: center; gap: 4px;
   height: 100%;
 }
@@ -4086,10 +4081,10 @@ select.housing-input option {
   outline-offset: -2px;
 }
 
-/* ヘッダー右群 (通知 / テーマ / アバター) */
+/* ヘッダー右群 (通知 / テーマ / アバター)。TabBar が margin-left:auto で右へ寄るため、
+   右群はその直後に自然に並ぶ (margin-left:auto は不要)。 */
 .housing-app-header-right {
   display: flex; align-items: center; gap: 12px;
-  margin-left: auto;
 }
 
 /* ===== 探すページ (3カラム) ===== */

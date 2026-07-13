@@ -23,9 +23,9 @@
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 最優先: ②①③を本番へ (ユーザーGO待ち)
-ブランチ `feat/housing-register-ui-fixes`(未pushコミット群・big3後の本番実機3点指摘): **②復元通知バグ=修正済**(hasMeaningfulDraft) / **①ヘッダーTabBar=中央固定済**(grid→flex) / **③ステッパー円周進捗リング=実装完了**(丸貫き線→円周を下端起点・左回りに塗る連続リング。純関数`computeSegmentFills`+SVG dashoffset。subagent-driven 4タスクTDD・各タスクレビュー+最終ブランチレビュー(opus)全クリーン)。**build緑(tsc -b・7.47s)+変更4テスト58件緑**。
-残=**ユーザーGOで main反映+push→Vercel本番自動デプロイ→登録ページで目視**(本番ログイン必須)。目視=③塗り向き(下端起点・反時計回り? `rotate(90deg) scaleX(-1)`はbest-guess・逆ならCSS1行調整)/R=10・stroke-width=2 の22pxバッジ適合/丸貫き線なし/done✓・active青・jump・desc開閉の回帰なし。②①も本番実機で確認。**本番ハウジング全削除=コールドスタート済**→PF/⑤確認は本番で家を登録し直してから(下のbig3チェックリスト)。
+### 🔴 最優先: ②①③本番デプロイ済 → 本番実画面で目視 (ユーザー)
+`feat/housing-register-ui-fixes` を main に FF反映+push 済 → **Vercel本番デプロイ済 (2026-07-13)**。**②復元通知バグ**(hasMeaningfulDraft) / **③ステッパー円周進捗リング**(丸貫き線→円周を下端起点・左回りに塗る連続リング。純関数`computeSegmentFills`+SVG dashoffset。subagent-driven 4タスクTDD・各タスク+最終レビュー(opus)全クリーン) / **①ヘッダー**。**①は当初「TabBar中央固定」で出したがユーザー指摘で「右寄せ固定」に再修正**(メニュー=右群の左隣に固定・検索窓の有無で不動・検索窓は元の伸縮幅に復帰・死に`data-search`/未使用トークン掃除)→ローカルOK→再デプロイ済。
+残=**本番実画面で目視**: ③塗り向き(下端起点・反時計回り? 逆ならCSS1行 `.housing-register-stepper-ring` transform調整)/done✓・active青・jump・desc回帰 / ②空下書きで復元通知が出ない / ①メニュー右寄せ・ページ間で不動・検索窓の幅。**本番ハウジング全削除=コールドスタート済**→PF/⑤は本番で家を1件登録し直してから(下のbig3チェックリスト)。
 
 ### ✅ big3 本番リリース完了 (2026-07-13)
 探す地図FB / ハウジンガーPF / 一時ツアー + ④地域フィルタ連動 + ⑤ヘッダー横断検索(日本ワールドのカタカナ/ひらがな検索・PersonalTagFilter撤去) を main 反映 + `firebase deploy --only firestore`(rules+indexes) 済。
