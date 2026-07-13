@@ -187,6 +187,8 @@
   /* 参考UI準拠: 左右パネルを狭め、中央グリッドを広く(4列の一覧性を確保)。 */
   --housing-left-w: 240px;
   --housing-right-w: 300px;
+  /* ヘッダー横断検索の最大幅 (探すページのみ表示。中央固定 TabBar と重ならない幅)。 */
+  --housing-header-search-max: 280px;
   /* ツアー中ページ Phase3: 左=目的地ショーケース(広め) / 右=進行状況(狭め)。
      共有の --housing-left-w/--housing-right-w とは独立 (workspace 等に波及させない)。 */
   --housing-tour-showcase-w: 300px;
@@ -3957,11 +3959,12 @@ select.housing-input option {
   overflow: hidden;
 }
 
-/* ヘッダー: [ブランド] [検索] [タブ] [右群] の 4 カラムグリッド */
+/* ヘッダー: [ブランド(左)] … [TabBar(画面中央に絶対固定)] … [右群(右)]。
+   検索窓 (探すページのみ) はブランドの右にフロー配置。TabBar は検索窓の有無に関わらず
+   画面中央から動かない (ページ間でメニュー位置がズレて迷うのを防ぐ・2026-07-13)。 */
 .housing-app-header {
   position: relative;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
   gap: 20px;
   padding: 0 24px;
@@ -3970,11 +3973,6 @@ select.housing-input option {
   box-shadow:
     inset 0 1.5px 1px rgba(255, 255, 255, 0.30),
     inset 0 -1px 0 rgba(255, 255, 255, 0.06);
-}
-/* 探すページ (検索窓あり) は撤去前と同じ 4 列: brand / 検索(伸縮) / TabBar / right。
-   他ページは検索窓が無いので既定の 3 列 (auto 1fr auto) のまま。 */
-.housing-app-header[data-search="on"] {
-  grid-template-columns: auto minmax(160px, 1fr) auto auto;
 }
 /* 上端の薄い sheen (旧 .housing-top::after と同じ) */
 .housing-app-header::after {
@@ -3985,10 +3983,13 @@ select.housing-input option {
   pointer-events: none;
 }
 
-/* ヘッダー横断検索 (探すページのみ・撤去前の grid 独立列レイアウトを 1:1 復元) */
+/* ヘッダー横断検索 (探すページのみ)。ブランドの右にフロー配置し、幅を制限して
+   画面中央に絶対固定した TabBar と重ならないようにする (flex-shrink 可)。 */
 .housing-app-search {
   display: flex;
   align-items: center;
+  flex: 0 1 var(--housing-header-search-max);
+  max-width: var(--housing-header-search-max);
   min-width: 0;
   position: relative; /* 候補ドロップダウンの位置基準 */
 }
@@ -4048,8 +4049,11 @@ select.housing-input option {
 
 /* タブバー */
 .housing-tabbar {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
   display: flex; align-items: center; gap: 4px;
-  justify-self: center;
   height: 100%;
 }
 .housing-tab {
@@ -4084,7 +4088,7 @@ select.housing-input option {
 /* ヘッダー右群 (通知 / テーマ / アバター) */
 .housing-app-header-right {
   display: flex; align-items: center; gap: 12px;
-  justify-self: end;
+  margin-left: auto;
 }
 
 /* ===== 探すページ (3カラム) ===== */
