@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
@@ -96,11 +96,11 @@ describe('FilterPanel', () => {
 
     it('marks zero result with data-zero=true when no listing matches', () => {
         renderPanel();
-        // Mana (JP DC) + 欧州 (Europe region) = empty。ドロップダウンから選択。
-        fireEvent.click(screen.getByRole('button', { name: 'データセンター' }));
-        fireEvent.click(screen.getByRole('option', { name: 'Mana' }));
-        fireEvent.click(screen.getByRole('button', { name: '地域' }));
-        fireEvent.click(screen.getByRole('option', { name: '欧州' }));
+        // 地域×DC の矛盾は地域連動 (地域を選ぶと DC がその地域配下に絞られ、範囲外 DC は
+        // 自動クリア) で解消されるため、確実に 0 件を作れる検索キーワードで検証する。
+        act(() => {
+            useHousingFilterStore.getState().setKeyword('__no_such_listing_zzz__');
+        });
         const badge = document.querySelector('.housing-result-count') as HTMLElement;
         expect(badge.getAttribute('data-zero')).toBe('true');
     });
