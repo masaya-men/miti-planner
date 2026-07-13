@@ -23,11 +23,14 @@
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
+### 🔴 次セッション最優先: ③ステッパー円周アニメ実装 → ②①③まとめてpush
+ブランチ `feat/housing-register-ui-fixes`(未push3コミット・big3後の本番実機3点指摘): **②復元通知バグ=修正済**(空下書きで「入力途中を復元」誤発火・hasMeaningfulDraft・TDD緑) / **①ヘッダーTabBar=修正済**(検索窓の有無で動かず中央固定・grid→flex) / **③=spec+計画完成・実装は次**(丸貫き線→円周を下端起点左回りに塗る連続リング。計画=`plans/2026-07-13-housing-register-stepper-progress-ring.md`・subagent-driven4タスクTDD)。
+手順=**③実装→②①③まとめてbuild+test緑→push→本番1項目ずつ目視**(②早出しなら②①先行push可)。**本番ハウジング全削除=コールドスタート済**(軽減表plans等は無影響検証)→PF/⑤確認は本番で家を登録し直してから(下のbig3チェックリスト)。
+
 ### ✅ big3 本番リリース完了 (2026-07-13)
 探す地図FB / ハウジンガーPF / 一時ツアー + ④地域フィルタ連動 + ⑤ヘッダー横断検索(日本ワールドのカタカナ/ひらがな検索・PersonalTagFilter撤去) を main 反映 + `firebase deploy --only firestore`(rules+indexes) 済。
-- **🔴 次セッション最優先の実機確認**: 本番でログインして **PF(ハウジンガーPF)を実機確認**(login本番専用・前提=テスト用personal_tags掃除 or プロフィール再公開1回)。目視項目=`docs/.private/2026-07-12-big3-release-verification-checklist.md` の B節 + ⑤節。
-- **保留(非ブロッカー)**: ②建物タイプ切替のがたつき(デバウンス修正`0e07d7e1`効かず・要systematic-debugging再調査)。
-- **通報の最終形**: PersonalTagFilter撤去で個人タグ通報導線が消えた→当面PFページ報告に委ねる。本番PF確認後に決定。
+- **PF/⑤実機確認**(上の最優先の後): checklist `docs/.private/2026-07-12-big3-release-verification-checklist.md` B節+⑤節。
+- **保留(非ブロッカー)**: ②建物タイプ切替がたつき(`0e07d7e1`効かず・要systematic-debugging) / 通報はPFページ報告に委任(本番PF後決定)。
 - **🔥 軽減表「(競合コピー)」増殖バグ**: `usePlanStore.ts:520/816`特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
 
 ### 🔴 住所を「必ず確認させる」ゲート (要 brainstorming)
