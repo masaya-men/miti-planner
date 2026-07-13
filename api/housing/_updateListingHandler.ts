@@ -15,6 +15,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { validateRegistrationDraft, normalizePublishUntil, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
+import { assertPersonalTagsAttachable, PersonalTagAttachError } from './_personalTagAttachGuard.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -84,6 +85,20 @@ export default async function handler(req: any, res: any) {
     const addressKey = buildAddressKey(draftForValidation);
 
     const adminDb = getAdminFirestore();
+
+    try {
+      await assertPersonalTagsAttachable(adminDb, draftForValidation.tags ?? [], uid);
+    } catch (e) {
+      if (e instanceof PersonalTagAttachError) {
+        return res.status(400).json({
+          error: 'invalid_personal_tag',
+          rejectedTagId: e.rejectedTagId,
+          reason: e.reason,
+        });
+      }
+      throw e;
+    }
+
     const listingRef = adminDb.collection('housing_listings').doc(listingId);
 
     await adminDb.runTransaction(async (tx) => {

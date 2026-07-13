@@ -55,6 +55,9 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
     size: h.size,
     apartmentBuilding: h.apartmentBuilding,
     roomNumber: h.roomNumber,
+    // 配線漏れ修正 (2026-07-13): FC 個室(private_chamber)/アパート部屋(apartment_room) の
+    // 振り分け (browseMapSpots.splitSpotListings) に必要なため pass-through する。
+    roomKind: h.roomKind,
     imageMode: h.imageMode,
     postUrl: h.postUrl,
     ogImageUrl: h.ogImageUrl,

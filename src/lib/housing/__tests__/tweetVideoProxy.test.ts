@@ -8,6 +8,8 @@ describe('buildTweetVideoProxyUrl', () => {
   });
 
   it('既定では同一 origin の Vercel プロキシ path を返す', () => {
+    // 開発機の .env.local (VITE_MEDIA_PROXY_BASE_URL) に左右されないよう「未設定」を固定
+    vi.stubEnv('VITE_MEDIA_PROXY_BASE_URL', '');
     const url = buildTweetVideoProxyUrl('https://video.twimg.com/x.mp4');
     expect(url).toBe(
       '/api/tweet-video?url=' + encodeURIComponent('https://video.twimg.com/x.mp4'),

@@ -12,3 +12,10 @@ export const REGION_LABELS: Record<Region, Record<RegionLocale, string>> = {
 export function regionLabel(region: Region, locale: RegionLocale): string {
     return REGION_LABELS[region][locale];
 }
+
+/** i18n.language ("ja" / "en-US" 等) を RegionLocale ('ja'|'en'|'ko'|'zh') に正規化。未知/空は ja。 */
+export function pickRegionLocale(language: string): RegionLocale {
+    const head = (language || 'ja').slice(0, 2).toLowerCase();
+    if (head === 'en' || head === 'ko' || head === 'zh') return head;
+    return 'ja';
+}

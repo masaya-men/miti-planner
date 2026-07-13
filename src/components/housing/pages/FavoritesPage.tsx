@@ -6,9 +6,13 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { expandTourWithDuplicates } from '../../../lib/housing/expandTourWithDuplicates';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
+import { canAddToTour, tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
+import type { MockListing } from '../../../data/housing/mockListings';
 import { showToast } from '../../Toast';
 import { FavoritesGrid } from '../favorites/FavoritesGrid';
 import { FavoritesTabs } from '../favorites/FavoritesTabs';
@@ -33,6 +37,7 @@ export const FavoritesPage: React.FC = () => {
   const myListings = useHousingListingsStore((s) => s.myListings);
   const status = useHousingListingsStore((s) => s.status);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
+  const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。
   const allListings = useMemo(
@@ -68,19 +73,32 @@ export const FavoritesPage: React.FC = () => {
    * setState updater 内で副作用(トースト)は出さないよう、計算を先に行う。
    */
   const addToTray = useCallback((idsToAdd: string[]) => {
+    const eph = useEphemeralListingsStore.getState().ephemeralListings;
+    const pool = [...allListings, ...eph];
+    const regionOf = (id: string) => pool.find((l) => l.id === id)?.region ?? null;
     let nextIds = trayIds;
     let totalAutoAdded = 0;
+    let blocked = false;
     for (const addId of idsToAdd) {
+      const trayRegion = nextIds.length > 0 ? regionOf(nextIds[0]) : null;
+      const candRegion = regionOf(addId);
+      if (candRegion !== null && !canAddToTour(trayRegion, candRegion)) { blocked = true; continue; }
+      if (isEphemeralListingId(addId)) {
+        if (!nextIds.includes(addId)) nextIds = [...nextIds, addId];
+        continue;
+      }
       const r = expandTourWithDuplicates(nextIds, addId, allListings);
       if (r.nextIds.length === nextIds.length) continue;
       nextIds = r.nextIds;
       totalAutoAdded += r.autoAddedCount;
     }
-    if (nextIds.length === trayIds.length) return; // 何も増えない
-    setTrayIds(nextIds);
-    if (totalAutoAdded > 0) {
-      showToast(t('housing.workspace.tour.auto_added_toast', { count: totalAutoAdded }), 'info');
+    if (nextIds.length !== trayIds.length) {
+      setTrayIds(nextIds);
+      if (totalAutoAdded > 0) {
+        showToast(t('housing.workspace.tour.auto_added_toast', { count: totalAutoAdded }), 'info');
+      }
     }
+    if (blocked) showToast(t('housing.tour.region_block'), 'error');
   }, [trayIds, allListings, t]);
 
   // ハンドラ群
@@ -111,13 +129,23 @@ export const FavoritesPage: React.FC = () => {
   // ツアー開始: マナー通知 dismiss 済みなら直接、未 dismiss ならダイアログを挟む
   const commitStart = useCallback(() => {
     if (trayIds.length === 0) return;
-    const orderedIds = orderTourStopIds(trayIds, allListings);
+    // ツアー解決は allListings (お気に入り一覧・非汚染) + 一時 listing。一覧自体は変えない。
+    const orderedIds = orderTourStopIds(trayIds, [...allListings, ...ephemeral]);
+    const pool = [...allListings, ...ephemeral];
+    const stops = orderedIds
+      .map((id) => pool.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const conflict = tourRegionConflict(stops);
+    if (conflict) {
+      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
+      return;
+    }
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
     setMannerOpen(false);
     navigate('/housing/tour');
-  }, [trayIds, allListings, navigate]);
+  }, [trayIds, allListings, ephemeral, navigate, t]);
 
   const handleStart = useCallback(() => {
     if (trayIds.length === 0) return;
@@ -196,7 +224,7 @@ export const FavoritesPage: React.FC = () => {
       {/* 右カラム: ツアートレイ */}
       <section className="housing-browse-panel" data-region="right">
         <div className="housing-browse-col housing-browse-col-right">
-          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={handleStart} />
+          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={handleStart} onAdd={(id) => addToTray([id])} />
         </div>
       </section>
 

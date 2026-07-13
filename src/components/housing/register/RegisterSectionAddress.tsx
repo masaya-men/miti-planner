@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { serverMasterData, housingSizeMasterData } from '../../../data/masterData';
-import { HOUSING_AREAS, HOUSING_SIZES, type HousingArea, type HousingSize } from '../../../types/housing';
+import { HOUSING_AREAS, type HousingArea, type HousingSize } from '../../../types/housing';
 import { WARD_RANGE, PLOT_RANGE, APARTMENT_ROOM_RANGE, PRIVATE_CHAMBER_RANGE } from '../../../constants/housing';
 import { getAreaName } from '../../../lib/housing/areaName';
 import type { useHousingFieldState } from '../../../lib/housing/housingFieldState';
+import { HousingNumberStepper } from './HousingNumberStepper';
 
 export interface RegisterAddressValues {
   dc?: string;
@@ -23,6 +24,17 @@ interface Props {
   values: RegisterAddressValues;
   /** buildingType 等の切替でフィールドを一括更新するとき用 (排他フィールドの初期化に使う)。 */
   onChange: (name: string, value: unknown) => void;
+  /**
+   * 'register' (既定) = 登録フォームのフル表示。 'tour' = 一時ツアー追加モーダル用に、
+   * 登録固有の部分 (セクション見出し / 自動入力注記 / サイズ自動導出 / 一軒家の個室区分) を隠す。
+   * ツアーは区画へ行くので house は区画ベースで足り、DC/サーバー/エリア/区/番地は共通で残す。
+   */
+  variant?: 'register' | 'tour';
+  /**
+   * 指定時: DC の直下に赤字でこの注記を表示し、DC 以外の全フィールドをロック (選ばせない)。
+   * 一時ツアー追加で別リージョンの DC を選んだときに、無駄入力させず即座に理由を見せるため。
+   */
+  crossRegionNotice?: string | null;
 }
 
 /**
@@ -32,12 +44,15 @@ interface Props {
  * roomKind ベースを採用する (旧 HousingRegisterForm.tsx の 5 択 HousingExtractSize モデルは
  * 新バックエンド/WardMapPreview と不整合のため踏襲しない)。
  */
-export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, onChange }) => {
+export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, onChange, variant = 'register', crossRegionNotice }) => {
   const { t, i18n } = useTranslation();
   const { dc, server, area, ward, buildingType, plot, size, apartmentBuilding, roomKind, roomNumber } = values;
 
   const dcKeys = Object.keys(serverMasterData);
   const serverKeys = dc ? Object.keys(serverMasterData[dc]?.servers ?? {}) : [];
+
+  // 別リージョンの DC を選んだとき等: DC 以外を選ばせない (注記で理由を明示)。
+  const locked = Boolean(crossRegionNotice);
 
   const isHouse = buildingType !== 'apartment';
   const isApartment = buildingType === 'apartment';
@@ -69,12 +84,16 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
 
   return (
     <section className="housing-register-section" data-testid="housing-register-section-address">
-      <h2 className="housing-register-section-title">{t('housing.register.section_address')}</h2>
+      {variant === 'register' && (
+        <>
+          <h2 className="housing-register-section-title">{t('housing.register.section_address')}</h2>
 
-      {/* 自動入力 (ハウジングスナップ等) を過信させない静かな注記 (#6・色付き箱にしない)。 */}
-      <p className="housing-address-note" data-testid="housing-register-address-verify-note">
-        {t('housing.register.address_verify_note')}
-      </p>
+          {/* 自動入力 (ハウジングスナップ等) を過信させない静かな注記 (#6・色付き箱にしない)。 */}
+          <p className="housing-address-note" data-testid="housing-register-address-verify-note">
+            {t('housing.register.address_verify_note')}
+          </p>
+        </>
+      )}
 
       <div className="housing-register-fields-grid">
         <div className="housing-field" data-state={fieldState.getState('dc')}>
@@ -103,7 +122,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
             id="housing-register-server"
             className="housing-input"
             value={server ?? ''}
-            disabled={!dc}
+            disabled={!dc || locked}
             onChange={(e) => onChange('server', e.target.value || undefined)}
           >
             <option value="">—</option>
@@ -114,6 +133,15 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
           {renderBadge('server')}
         </div>
 
+        {crossRegionNotice && (
+          <p
+            className="housing-error-text housing-register-cross-region-notice"
+            data-testid="housing-cross-region-notice"
+          >
+            {crossRegionNotice}
+          </p>
+        )}
+
         <div className="housing-field" data-state={fieldState.getState('area')}>
           <label htmlFor="housing-register-area" className="housing-label">
             {t('housing.register.area')}
@@ -122,6 +150,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
             id="housing-register-area"
             className="housing-input"
             value={area ?? ''}
+            disabled={locked}
             onChange={(e) => onChange('area', e.target.value || undefined)}
           >
             <option value="">—</option>
@@ -136,14 +165,13 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
           <label htmlFor="housing-register-ward" className="housing-label">
             {t('housing.register.ward')}
           </label>
-          <input
+          <HousingNumberStepper
             id="housing-register-ward"
-            type="number"
             min={WARD_RANGE.min}
             max={WARD_RANGE.max}
-            className="housing-input"
-            value={ward ?? ''}
-            onChange={(e) => onChange('ward', e.target.value ? Number(e.target.value) : undefined)}
+            value={ward}
+            disabled={locked}
+            onChange={(v) => onChange('ward', v)}
           />
           {renderBadge('ward')}
         </div>
@@ -157,6 +185,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               data-selected={isHouse ? 'true' : 'false'}
               role="radio"
               aria-checked={isHouse}
+              disabled={locked}
               onClick={() => handleBuildingTypeChange('house')}
             >
               {t('housing.register.building_type.house')}
@@ -167,6 +196,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               data-selected={isApartment ? 'true' : 'false'}
               role="radio"
               aria-checked={isApartment}
+              disabled={locked}
               onClick={() => handleBuildingTypeChange('apartment')}
             >
               {t('housing.register.building_type.apartment')}
@@ -180,80 +210,80 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
               <label htmlFor="housing-register-plot" className="housing-label">
                 {t('housing.register.plot')}
               </label>
-              <input
+              <HousingNumberStepper
                 id="housing-register-plot"
-                type="number"
                 min={PLOT_RANGE.min}
                 max={PLOT_RANGE.max}
-                className="housing-input"
-                value={plot ?? ''}
-                onChange={(e) => onChange('plot', e.target.value ? Number(e.target.value) : undefined)}
+                value={plot}
+                disabled={locked}
+                onChange={(v) => onChange('plot', v)}
               />
               {renderBadge('plot')}
             </div>
 
-            <div className="housing-field housing-conditional-field" data-state={fieldState.getState('size')}>
-              <label htmlFor="housing-register-size" className="housing-label">
-                {t('housing.register.size')}
-              </label>
-              <select
-                id="housing-register-size"
-                className="housing-input"
-                value={size ?? ''}
-                disabled
-                onChange={(e) => onChange('size', e.target.value || undefined)}
-              >
-                <option value="">—</option>
-                {HOUSING_SIZES.map((s) => {
-                  const label = housingSizeMasterData.find((m) => m.id === s)?.label ?? s;
-                  return <option key={s} value={s}>{label}</option>;
-                })}
-              </select>
-              {renderBadge('size')}
-            </div>
-
-            <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('roomKind')}>
-              <label className="housing-label">{t('housing.register.room_kind.label')}</label>
-              <div className="housing-type-selector" role="radiogroup">
-                <button
-                  type="button"
-                  className="housing-type-chip"
-                  data-selected={roomKind == null ? 'true' : 'false'}
-                  role="radio"
-                  aria-checked={roomKind == null}
-                  onClick={() => {
-                    onChange('roomKind', undefined);
-                    onChange('roomNumber', undefined);
-                  }}
-                >
-                  {t('housing.register.building_type.house')}
-                </button>
-                <button
-                  type="button"
-                  className="housing-type-chip"
-                  data-selected={roomKind === 'private_chamber' ? 'true' : 'false'}
-                  role="radio"
-                  aria-checked={roomKind === 'private_chamber'}
-                  onClick={() => onChange('roomKind', 'private_chamber')}
-                >
-                  {t('housing.register.room_kind.private_chamber')}
-                </button>
+            {variant === 'register' && (
+              <div className="housing-field housing-conditional-field" data-state={fieldState.getState('size')}>
+                <label htmlFor="housing-register-size" className="housing-label">
+                  {t('housing.register.size')}
+                </label>
+                {/* 区画から自動導出される読み取り専用値 (Task3-1)。旧 disabled <select> は
+                    「選べそうに見えるが選べない」ドロップダウン矢印が出てしまうため、
+                    導出値をそのまま表示する読み取り専用フィールドに置き換える。 */}
+                <input
+                  id="housing-register-size"
+                  className="housing-input"
+                  type="text"
+                  value={size ? (housingSizeMasterData.find((m) => m.id === size)?.label ?? size) : ''}
+                  disabled
+                  readOnly
+                />
+                {renderBadge('size')}
               </div>
-            </div>
+            )}
+
+            {variant === 'register' && (
+              <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('roomKind')}>
+                <label className="housing-label">{t('housing.register.room_kind.label')}</label>
+                <div className="housing-type-selector" role="radiogroup">
+                  <button
+                    type="button"
+                    className="housing-type-chip"
+                    data-selected={roomKind == null ? 'true' : 'false'}
+                    role="radio"
+                    aria-checked={roomKind == null}
+                    onClick={() => {
+                      onChange('roomKind', undefined);
+                      onChange('roomNumber', undefined);
+                    }}
+                  >
+                    {t('housing.register.room_kind.whole_house')}
+                  </button>
+                  <button
+                    type="button"
+                    className="housing-type-chip"
+                    data-selected={roomKind === 'private_chamber' ? 'true' : 'false'}
+                    role="radio"
+                    aria-checked={roomKind === 'private_chamber'}
+                    onClick={() => onChange('roomKind', 'private_chamber')}
+                  >
+                    {t('housing.register.room_kind.private_chamber')}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {isPrivateChamber && (
               <div className="housing-field housing-conditional-field" data-state={fieldState.getState('roomNumber')}>
                 <label htmlFor="housing-register-room-number" className="housing-label">
                   {t('housing.register.room_number')}
                 </label>
-                <input
+                <HousingNumberStepper
                   id="housing-register-room-number"
-                  type="number"
                   min={PRIVATE_CHAMBER_RANGE.min}
                   max={PRIVATE_CHAMBER_RANGE.max}
-                  className="housing-input"
-                  value={roomNumber ?? ''}
-                  onChange={(e) => onChange('roomNumber', e.target.value ? Number(e.target.value) : undefined)}
+                  value={roomNumber}
+                  disabled={locked}
+                  onChange={(v) => onChange('roomNumber', v)}
                 />
                 {renderBadge('roomNumber')}
               </div>
@@ -263,44 +293,35 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
 
         {isApartment && (
           <>
-            <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('apartmentBuilding')}>
-              <label className="housing-label">{t('housing.register.apartment_building.label')}</label>
-              <div className="housing-type-selector" role="radiogroup">
-                <button
-                  type="button"
-                  className="housing-type-chip"
-                  data-selected={apartmentBuilding === 1 ? 'true' : 'false'}
-                  role="radio"
-                  aria-checked={apartmentBuilding === 1}
-                  onClick={() => onChange('apartmentBuilding', 1)}
-                >
-                  {t('housing.register.apartment_building.main')}
-                </button>
-                <button
-                  type="button"
-                  className="housing-type-chip"
-                  data-selected={apartmentBuilding === 2 ? 'true' : 'false'}
-                  role="radio"
-                  aria-checked={apartmentBuilding === 2}
-                  onClick={() => onChange('apartmentBuilding', 2)}
-                >
-                  {t('housing.register.apartment_building.sub')}
-                </button>
-              </div>
+            {/* 号棟は部屋番号と横並び(2カラム)に収めるため、全幅チップではなく半幅セレクトにする
+                (アパルトメント選択時のレイアウトのガタつきも解消・ユーザー要望 2026-07-13)。 */}
+            <div className="housing-field housing-conditional-field" data-state={fieldState.getState('apartmentBuilding')}>
+              <label htmlFor="housing-register-apartment-building" className="housing-label">
+                {t('housing.register.apartment_building.label')}
+              </label>
+              <select
+                id="housing-register-apartment-building"
+                className="housing-input"
+                value={apartmentBuilding ?? 1}
+                disabled={locked}
+                onChange={(e) => onChange('apartmentBuilding', Number(e.target.value))}
+              >
+                <option value={1}>{t('housing.register.apartment_building.main')}</option>
+                <option value={2}>{t('housing.register.apartment_building.sub')}</option>
+              </select>
             </div>
 
             <div className="housing-field housing-conditional-field" data-state={fieldState.getState('roomNumber')}>
               <label htmlFor="housing-register-apartment-room-number" className="housing-label">
                 {t('housing.register.room_number')}
               </label>
-              <input
+              <HousingNumberStepper
                 id="housing-register-apartment-room-number"
-                type="number"
                 min={APARTMENT_ROOM_RANGE.min}
                 max={APARTMENT_ROOM_RANGE.max}
-                className="housing-input"
-                value={roomNumber ?? ''}
-                onChange={(e) => onChange('roomNumber', e.target.value ? Number(e.target.value) : undefined)}
+                value={roomNumber}
+                disabled={locked}
+                onChange={(v) => onChange('roomNumber', v)}
               />
               {renderBadge('roomNumber')}
             </div>

@@ -43,6 +43,16 @@
       ]
     },
     {
+      "collectionGroup": "housing_listings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "ownerUid", "order": "ASCENDING" },
+        { "fieldPath": "visibility", "order": "ASCENDING" },
+        { "fieldPath": "isHidden", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "system_notifications",
       "queryScope": "COLLECTION",
       "fields": [
@@ -56,6 +66,14 @@
       "fields": [
         { "fieldPath": "contentId", "order": "ASCENDING" },
         { "fieldPath": "viewCount", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "personal_tags",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "isHidden", "order": "ASCENDING" },
+        { "fieldPath": "displayNameLower", "order": "ASCENDING" }
       ]
     }
   ],

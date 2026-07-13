@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
@@ -39,21 +39,37 @@ function renderStatusBar() {
 }
 
 describe('StatusBar', () => {
-  it('renders Build / Lat / Lon / Theme readouts in the left group', () => {
+  it('renders SE copyright + fan-tool disclaimer + legal links + Ko-fi link in the left group (2026-07-11 著作権是正)', () => {
     renderStatusBar();
-    expect(screen.getByText(/Build/)).toBeInTheDocument();
-    expect(screen.getByText(/Lat/)).toBeInTheDocument();
-    expect(screen.getByText(/Lon/)).toBeInTheDocument();
-    // Theme readout — matches the dark theme set in beforeEach
-    expect(screen.getAllByText(/Dark/).length).toBeGreaterThan(0);
+    // FF14 素材はスクエニ著作物。© LoPo は誤りで、軽減表フッターと同じ SE 表記 + 非公式免責にする。
+    expect(screen.getByText(/SQUARE ENIX CO\., LTD\. All Rights Reserved\./)).toBeInTheDocument();
+    expect(screen.getByText(/非公式のファンツール/)).toBeInTheDocument();
+    expect(screen.queryByText(/© \d+ LoPo/)).not.toBeInTheDocument();
+    const privacy = screen.getByRole('link', { name: 'プライバシーポリシー' });
+    const terms = screen.getByRole('link', { name: '利用規約' });
+    const kofi = screen.getByRole('link', { name: 'Ko-fiで応援' });
+    expect(privacy).toHaveAttribute('href', '/privacy');
+    expect(privacy).toHaveAttribute('target', '_blank');
+    expect(privacy).toHaveAttribute('rel', expect.stringContaining('noopener'));
+    expect(terms).toHaveAttribute('href', '/terms');
+    expect(terms).toHaveAttribute('target', '_blank');
+    expect(kofi).toHaveAttribute('href', 'https://ko-fi.com/lopoly');
+    expect(kofi).toHaveAttribute('target', '_blank');
   });
 
-  it('renders Stops / FPS in the right group (ETA は撤去済み)', () => {
+  it('does not render the removed BUILD / LAT / LON / STOPS / FPS dummy readouts', () => {
     renderStatusBar();
-    expect(screen.getByText(/Stops/)).toBeInTheDocument();
-    expect(screen.getByText(/FPS/)).toBeInTheDocument();
-    // 推定時間UI撤去 (2026-07-08・item④): ETA readout は撤去済み
-    expect(screen.queryByText(/ETA/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Build/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Lat/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Lon/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Stops/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/FPS/)).not.toBeInTheDocument();
+  });
+
+  it('renders theme readout in the right group (kept)', () => {
+    renderStatusBar();
+    // Theme readout — matches the dark theme set in beforeEach
+    expect(screen.getAllByText(/Dark/).length).toBeGreaterThan(0);
   });
 
   it('renders language switcher with ja/en/ko/zh and marks active', () => {
@@ -73,5 +89,12 @@ describe('StatusBar', () => {
     renderStatusBar();
     fireEvent.click(screen.getByRole('button', { name: 'en' }));
     expect(i18n.language).toBe('en');
+  });
+
+  it('mount 時に build 版数を console.info へ 1 回出す (BUILD UI 撤去後も診断価値を残す)', () => {
+    const spy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    renderStatusBar();
+    expect(spy).toHaveBeenCalledWith('[housing] build', expect.any(String));
+    spy.mockRestore();
   });
 });

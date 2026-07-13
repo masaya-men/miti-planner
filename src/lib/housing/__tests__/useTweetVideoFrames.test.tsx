@@ -22,6 +22,8 @@ const URL_C = 'https://video.twimg.com/c.mp4';
 
 describe('useTweetVideoFrames', () => {
   beforeEach(() => {
+    // 開発機の .env.local (VITE_MEDIA_PROXY_BASE_URL) に左右されないよう「未設定」を固定
+    vi.stubEnv('VITE_MEDIA_PROXY_BASE_URL', '');
     __resetTweetVideoFramesForTests();
     mockExtract.mockReset();
   });

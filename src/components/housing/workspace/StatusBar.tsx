@@ -1,26 +1,32 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../../../store/useThemeStore';
+import { KOFI_URL } from '../../../constants/external';
 
 const LANGS = ['ja', 'en', 'ko', 'zh'] as const;
 
 // 実行中コードの版 (短 git SHA)。vite.config.ts の define で build 時に注入される。
-// 旧バンドルは define 前なので 'v0.3-α' のまま表示 → SHA が出るか否かで新旧を一目判別できる
-// (古い Service Worker / PWA が旧版を配信していないかの現地診断計器)。
+// UI 表示は 2026-07-10 に撤去したが、旧 Service Worker / PWA が旧バンドルを配信していないかの
+// 現地診断計器としての価値は残すため、シェル起動時に console へ 1 回だけ出す。
 declare const __HOUSING_BUILD__: string;
 const BUILD_VERSION = typeof __HOUSING_BUILD__ !== 'undefined' ? __HOUSING_BUILD__ : 'v0.3-α';
 
 /**
- * StatusBar — mockup-faithful telemetry strip.
- * Left group: ● Build version · Lat/Lon · Theme readout
- * Right group: Stops · FPS · Lang switcher
+ * StatusBar — フッター (2026-07-10 刷新)。
+ * 左: © LoPo + プライバシーポリシー / 利用規約 / Ko-fi (すべて別タブ)
+ * 右: テーマ表示 · 言語スイッチャー
  *
- * Plan A scope: numeric fields are placeholders until selection / tour state lands
- * in Plan C/D. Theme readout reflects useThemeStore (live). Lang switcher kept
- * accessible here since /housing is a standalone route without global nav.
+ * BUILD / LAT・LON / STOPS / FPS のダミー数値表示は撤去。BUILD の診断価値は
+ * console.info 出力に残す (StatusBar は housing シェルに 1 度だけマウントされる)。
  */
 export const StatusBar: React.FC = () => {
   const { t, i18n } = useTranslation();
   const theme = useThemeStore((s) => s.theme);
+
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.info('[housing] build', BUILD_VERSION);
+  }, []);
 
   const themeLabel = theme === 'light'
     ? t('housing.workspace.topbar.theme_light')
@@ -28,29 +34,24 @@ export const StatusBar: React.FC = () => {
 
   return (
     <footer className="housing-status">
-      <div className="housing-status-group">
-        <span>
-          <span className="housing-status-dot" aria-hidden="true" />
-          {t('housing.workspace.statusbar.build_label')}&nbsp;
-          <span className="housing-accent">{BUILD_VERSION}</span>
-        </span>
-        <span>
-          {t('housing.workspace.statusbar.lat_label')} 31.41 · {t('housing.workspace.statusbar.lon_label')} 22.07
-        </span>
-        <span>
-          {t('housing.workspace.statusbar.theme_readout_label')}&nbsp;
-          <span className="housing-accent">{themeLabel}</span>
-        </span>
+      <div className="housing-status-group housing-status-legal">
+        <span>{t('footer.copyright')}</span>
+        <span className="housing-status-disclaimer">{t('footer.disclaimer')}</span>
+        <a href="/privacy" target="_blank" rel="noopener">
+          {t('footer.privacy_policy')}
+        </a>
+        <a href="/terms" target="_blank" rel="noopener">
+          {t('footer.terms')}
+        </a>
+        <a href={KOFI_URL} target="_blank" rel="noopener noreferrer">
+          {t('footer.kofi')}
+        </a>
       </div>
 
       <div className="housing-status-group">
         <span>
-          {t('housing.workspace.statusbar.stops_label')}&nbsp;
-          <span className="housing-accent">0</span>&nbsp;/&nbsp;7
-        </span>
-        <span>
-          {t('housing.workspace.statusbar.fps_label')}&nbsp;
-          <span className="housing-accent">60</span>
+          {t('housing.workspace.statusbar.theme_readout_label')}&nbsp;
+          <span className="housing-accent">{themeLabel}</span>
         </span>
         <span className="housing-status-lang">
           {LANGS.map((lang) => {

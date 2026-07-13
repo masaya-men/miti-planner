@@ -442,6 +442,24 @@ service cloud.firestore {
     }
 
     // ========================================
+    // housing_profiles コレクション
+    // ハウジンガー公開プロフィール (spec 2026-07-10-housinger-profile-design.md)
+    // 書き込みは API (Admin SDK) のみ。公開条件を満たすか本人のみ読める。
+    // ========================================
+    match /housing_profiles/{uid} {
+      allow get, list: if (resource.data.isPublished == true
+                           && resource.data.isModerationHidden == false)
+                       || isOwner(uid);
+      allow write: if false;
+
+      // プロフィール通報 (API 経由のみ。読みは管理者)
+      match /reports/{reportId} {
+        allow read: if request.auth != null && request.auth.token.admin == true;
+        allow write: if false;
+      }
+    }
+
+    // ========================================
     // users/{uid}/featureSessions/{tool}
     // ツール毎 opt-in フラグ
     // ========================================
@@ -461,6 +479,25 @@ service cloud.firestore {
     match /system_notifications/{id} {
       allow read: if true;
       allow write: if false;
+    }
+
+    // ========================================
+    // personal_tags コレクション (2026-07-10 タグ体系刷新 Phase B)
+    // 1 ユーザー 1 個の強制・作成・通報カウント更新は全て /api/housing 経由 (Admin SDK) で行うため、
+    // 書き込みは client から一切不可 (housing_user_meta と同じ「サーバー権威データ」パターン)。
+    // 読み取りは公開タグの解決・検索用に isHidden=false を誰でも許可、 本人は非表示でも自分の分だけ見える。
+    // ========================================
+    match /personal_tags/{tagId} {
+      allow get: if resource.data.isHidden == false
+                 || (isAuthenticated() && resource.data.ownerUid == request.auth.uid);
+      allow list: if resource.data.isHidden == false;
+      allow write: if false;
+
+      // 通報 (doc ID = reporterUid で 1 ユーザー 1 通報を dedup)。 作成・カウント更新は API 経由のみ。
+      match /reports/{reporterUid} {
+        allow read: if request.auth != null && request.auth.token.admin == true;
+        allow write: if false;
+      }
     }
 
     // ========================================

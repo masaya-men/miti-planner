@@ -20,23 +20,22 @@
    - 理想=共有ツアー同期は別PJ(`docs/.private/2026-07-08-synced-shared-tour-vision.md`)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
-### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断)
-- 有名スプシ=TRUE/FALSEマトリクス+アイコン画像でスマホ貼付は構造的に不可(実機実証)。URL直読みも対応フォーマットは広がらない。**「あらゆるスプシ対応」は棚上げ**(汎用パーサは別プロジェクト級)。
-- スマホでは取込UI自体を非表示化済(2026-06-30・PC入口は維持)。詳細=[[project_spreadsheet_mobile_grid]]
+### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
+### ✅ big3 本番リリース完了 (2026-07-13)
+探す地図FB / ハウジンガーPF / 一時ツアー + ④地域フィルタ連動 + ⑤ヘッダー横断検索(日本ワールドのカタカナ/ひらがな検索・PersonalTagFilter撤去) を main 反映 + `firebase deploy --only firestore`(rules+indexes) 済。
+- **🔴 次セッション最優先の実機確認**: 本番でログインして **PF(ハウジンガーPF)を実機確認**(login本番専用・前提=テスト用personal_tags掃除 or プロフィール再公開1回)。目視項目=`docs/.private/2026-07-12-big3-release-verification-checklist.md` の B節 + ⑤節。
+- **保留(非ブロッカー)**: ②建物タイプ切替のがたつき(デバウンス修正`0e07d7e1`効かず・要systematic-debugging再調査)。
+- **通報の最終形**: PersonalTagFilter撤去で個人タグ通報導線が消えた→当面PFページ報告に委ねる。本番PF確認後に決定。
+- **🧹 ②確認用ダミー**: `node scripts/seed-housing-overlap-dummy.mjs --clear` でクリア済(要確認)。
+- **🔥 軽減表「(競合コピー)」増殖バグ**: `usePlanStore.ts:520/816`特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
 
-### 🔴 次セッション最優先: 住所を「必ず確認させる」ゲート (要 brainstorming)
-ユーザー要望(2026-07-10 本番実機)=**「自動手動どちらにもかかわらず、かならず住所を確認させたい」**。
-調査済みメモ=`docs/.private/2026-07-10-address-confirmation-gate.md` を**先に読む**。
-要点: 送信ゲートは `validateAddress().ok` しか見ておらず「ユーザーが見たか」を問わない。`fieldState.confirm()` は**呼び出し元ゼロで到達不能**(緑の確認済み状態が一度も出ない)。`isReadyToSubmit` のコメントにある「auto-filled は信頼して通す」という当時の判断を、今回ひっくり返すことになる。
-同時に片付けたい: `HousingRegisterAddressFields.tsx` / `HousingRegisterParentHouseSizeField.tsx` は**死にコード**(撤去すれば孤児キー `address.expansionWardNote` も消せる) / 部屋区分の chip が建物タイプと同じキーを使うため「家」が2か所に出る。
+### 🔴 住所を「必ず確認させる」ゲート (要 brainstorming)
+ユーザー要望(2026-07-10 本番実機)=**「自動手動どちらにもかかわらず、かならず住所を確認させたい」**。調査済みメモ=`docs/.private/2026-07-10-address-confirmation-gate.md` を**先に読む**。要点: 送信ゲートは `validateAddress().ok` しか見ておらず「ユーザーが見たか」を問わない。`fieldState.confirm()` は**呼び出し元ゼロで到達不能**。同時に片付け: `HousingRegisterAddressFields.tsx`/`HousingRegisterParentHouseSizeField.tsx` は死にコード / 部屋区分chipで「家」が2か所。
 
-- **🆕🏠 ハウジング登録UI 連続修正 本番反映済 (main `087d81bc`・2026-07-10)**。詳細/引き継ぎ=`docs/.private/2026-07-10-housing-small-fixes.md`。
-  済=こまごま7件(#1-#7)/タイトル任意化/コメント文言/ツアー動くマップ/住所自動入力の誤検出2件/チェックパネルのキー衝突バグ/重複の赤化/ハニー主アクション統一(.housing-btn-primary をグラデ+影の正典へ)/ログイン案内のトンマナ化+中央寄せ/「登録の流れ」を右カラムへ移設/地図の全周ヴィネット。
-- **✅📐 plot→size 表 / 住所抽出v2 / 住所誤爆の根治 / 行き方データ整備 — 全て本番反映済 (2026-07-10)**。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md) + `docs/.private/2026-07-10-plot-size-table-and-address-v2.md`。要点=**確定表の再調査は不要** / **辞書 (`masterData.ts`) に短い ASCII 略称を足すな** ([[feedback_no_speculative_alias_data]]) / **行き方の正典は `directions-src/*.csv`、スプシは引退** ([[reference_housing_directions_csv_canonical]])。
-  - **🟡 残る限界(低優先)**: ①`extractHousingAddressFromPage` の候補上限400で本文が**134行超**のページは隣接3行窓が切り捨て(通常は本文全体の候補が安全網。長文にDC/鯖語が散ると安全網も `ambiguity` で沈む。housingsnap の数行では顕在化しない) ②**二重系**=住所抽出は静的 `masterData.ts` 直 import・他画面は Firestore(`useServerData`)。`/admin` の alias 編集は住所抽出に反映されない。
-- **💰 Firebaseコスト対策**: ①App Check TTL 7日 ✅ / ④`/api/popular` `.select()` 射影 ✅ (`a451791c`)。**②reCAPTCHA v3切替=保留 → 2026-07-12 自動フォローでオーナーに効果確認手順を案内済(GCPコンソールでassessment発生数/費用を確認→月1万無料枠内ならv3切替不要、超過ならv3切替提案という判断基準を提示)。オーナーの確認結果待ち**。詳細=memory [[project_firebase_cost_reduction]]。
+- **✅📐 plot→size 表 / 住所抽出v2 / 住所誤爆の根治 / 行き方データ整備 — 全て本番反映済 (2026-07-10)**。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。要点=**確定表の再調査不要** / **辞書に短いASCII略称を足すな** ([[feedback_no_speculative_alias_data]]) / **行き方の正典は `directions-src/*.csv`** ([[reference_housing_directions_csv_canonical]])。低優先の限界2点は private doc に集約。
+- **💰 Firebaseコスト対策**: ①App Check TTL 7日 ✅ / ④`/api/popular` `.select()` 射影 ✅。**②reCAPTCHA v3切替=保留 → オーナーに効果確認手順を案内済(GCPでassessment数/費用確認→月1万無料枠内ならv3不要、超過ならv3提案)。オーナー確認結果待ち**。詳細=memory [[project_firebase_cost_reduction]]。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
 - **✅ Vercel Pro→Hobby 移行済 (2026-07-10 ユーザー実施)**。⚠将来ハウジングを広告つき公開する時は Hobby 商用禁止に抵触→Pro 復帰 or 別デプロイ分離を判断。実測値→TODO_COMPLETED。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
@@ -55,10 +54,10 @@
 - **次優先**: ①「通報」文言全体見直し ②§3.8 残検証(重複 drop でツアー自動追加+トースト/単独 listing で section 非表示) ③「📅1ヶ月以上更新なし」バッジ ④通知 listingTitleSnapshot を `formatHousingAddress` 経由へ ⑤split-tweet 対応(画像ツイ+住所リプ別 URL・設計書§8)
 - **その後**: 既存テスト物件一掃+コールドスタート(ユーザー作業)→アプデ告知(#59+ハウジングα)。**保留**=マップビュー(リストで完結・非ブロッカー)。
 - **Phase 3 残/#60**: UI コンポーネント test 追従(HousingRegister系)/カードデザイン刷新(Allmarks風)/マップ実データ化+`APARTMENT_SPOT[area]`/ko・zh 翻訳実値。
-- **タグ仕様全面刷新**(詳細=docs/.private/2026-05-27-tag-system-redesign.md): 公式FF14+シーズン+個人タグ(1人1タグ)の3カテゴリ・軽量モデ。
+- **タグ仕様全面刷新**: **計画書化済み**→`docs/superpowers/plans/2026-07-10-housing-tag-overhaul-plan.md` (公式23+季節12+テーマ12+個人1人1個・軽量モデ。設計原本=.private/2026-05-27-tag-system-redesign.md)。
 - **リッチメディア化**: 複数画像+動画埋め込み+ビューポート内自動再生(**CSP に video.twimg.com 必須**・最大3本)・Allmarks 知見流用。
 - **通報モデ業界水準ロードマップ**(詳細=docs/.private/2026-05-26-housing-moderation-roadmap.md): Audit log/30日物理削除cron/異議申し立てUI/BAN自動化/NSFW高優先キュー(severity:'high' 既付与だが /admin 並び未反映)/Reporter scoring。
-- **細かい**: `fieldState.confirm()` バグ/AddressFields renderBadge prop 化/photo `alt`/SNS rate limiting/通知✕磨き/ツアー同期 Firestore 化。
+- **細かい**: photo `alt`/SNS rate limiting/通知✕磨き/ツアー同期 Firestore 化。(fieldState.confirm バグと死にコード撤去は登録ページ改善計画書に吸収済み)
 
 ---
 

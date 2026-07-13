@@ -64,4 +64,27 @@ describe('firestoreToGalleryListing', () => {
     const r = firestoreToGalleryListing({ ...base, tags: undefined as unknown as string[] });
     expect(r!.tags).toEqual([]);
   });
+
+  // 配線漏れバグ: house の個室(private_chamber)を Firestore に保存しても roomKind が
+  // 写らず、browseMapSpots.splitSpotListings が常に「家全体」に分類していた。
+  it('house の個室 (roomKind=private_chamber) を pass-through する', () => {
+    const r = firestoreToGalleryListing({ ...base, roomKind: 'private_chamber', roomNumber: 42 });
+    expect(r).not.toBeNull();
+    expect(r!.roomKind).toBe('private_chamber');
+    expect(r!.roomNumber).toBe(42);
+  });
+
+  it('apartment の roomKind (apartment_room) も pass-through する', () => {
+    const r = firestoreToGalleryListing({
+      ...base,
+      buildingType: 'apartment',
+      plot: undefined,
+      size: undefined,
+      apartmentBuilding: 1,
+      roomNumber: 5,
+      roomKind: 'apartment_room',
+    });
+    expect(r).not.toBeNull();
+    expect(r!.roomKind).toBe('apartment_room');
+  });
 });

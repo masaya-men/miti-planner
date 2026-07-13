@@ -44,4 +44,18 @@ describe('useIsScrolling', () => {
     });
     expect(result.current).toBe(false);
   });
+
+  // 実際のスクロール容器は一覧グリッド (.housing-listing-grid, overflow-y:auto)。
+  // body は overflow:hidden なので scroll は window にバブルしない → capture で拾う必要がある。
+  it('内側のスクロールコンテナで発火した scroll も捕捉する (capture)', () => {
+    const inner = document.createElement('div');
+    document.body.appendChild(inner);
+    const { result } = renderHook(() => useIsScrolling(150));
+    act(() => {
+      // scroll はバブルしない (bubbles:false)。capture していなければ window では拾えない。
+      inner.dispatchEvent(new Event('scroll', { bubbles: false }));
+    });
+    expect(result.current).toBe(true);
+    document.body.removeChild(inner);
+  });
 });

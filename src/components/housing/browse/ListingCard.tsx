@@ -14,27 +14,24 @@ import {
 } from '../../../lib/housing/youtubeImgFallback';
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
+import { useRipple } from '../../../lib/housing/useRipple';
+import { representativeImage } from '../../../lib/housing/representativeImage';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
+import { HousingRipple } from '../HousingRipple';
 
 export interface ListingCardProps {
   listing: MockListing;
-  onAddToTour: (id: string) => void;
+  /** 未指定なら「ツアーに追加」ボタン自体を出さない (例: ハウジンガーページの一覧)。 */
+  onAddToTour?: (id: string) => void;
   /** true のときメディア左上に選択チェックを表示する (探すページでは使わない) */
   selectable?: boolean;
   /** selectable=true のとき、選択済み状態を渡す */
   selected?: boolean;
   /** 選択トグル時のコールバック。selectable=true のとき使用する */
   onToggleSelect?: (id: string) => void;
-}
-
-// 代表画像が無い/未取得のときのフォールバック (既存カードと共通)。
-const PLACEHOLDER = '/housing/mock-thumbs/1.svg';
-
-function representativeImage(l: MockListing): string {
-  if (l.imageMode === 'thumbnail' && l.thumbnailPath) return l.thumbnailPath;
-  if (l.imageMode === 'sns' && l.ogImageUrl) return l.ogImageUrl;
-  return PLACEHOLDER;
+  /** 指定時、カード本体クリック/Enter で詳細遷移せずこれを呼ぶ (例: 地図の複数スポット→パネル起動)。 */
+  onCardClick?: () => void;
 }
 
 /**
@@ -55,6 +52,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   selectable,
   selected,
   onToggleSelect,
+  onCardClick,
 }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -67,6 +65,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       ? 'youtube'
       : null;
   const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
+  const { ripples, onClick: addRipple } = useRipple();
   const mediaRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     register(mediaRef.current);
@@ -84,8 +83,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const isPrivate = isMine && listing.visibility === 'private';
   const isExpired = isMine && !isPrivate && !isEffectivelyPublic(listing, Date.now());
 
-  // カード全体クリック → 詳細ページ。♡ / 選択 / ツアー追加は stopPropagation で独立動作。
+  // カード全体クリック → 既定は詳細ページ。onCardClick 指定時はそちらを優先
+  // (♡ / 選択 / ツアー追加は stopPropagation で独立動作、以下いずれの場合も不変)。
   const openDetail = () => navigate(`/housing/listing/${listing.id}`);
+  const activate = onCardClick ?? openDetail;
 
   return (
     <article
@@ -95,9 +96,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       role="link"
       tabIndex={0}
       aria-label={title}
-      onClick={openDetail}
+      onClick={activate}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') openDetail();
+        if (e.key === 'Enter') activate();
       }}
     >
       <div className="housing-listing-card-media" ref={mediaRef}>
@@ -159,20 +160,25 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
       </div>
 
-      {/* 画像に被らない常設フッター (主アクション) */}
-      <div className="housing-listing-card-footer">
-        <button
-          type="button"
-          className="housing-card-add-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddToTour(listing.id);
-          }}
-        >
-          <Plus size={14} aria-hidden="true" />
-          {t('housing.card.add_to_tour')}
-        </button>
-      </div>
+      {/* 画像に被らない常設フッター (主アクション)。onAddToTour 未指定 (ハウジンガーページ等) では
+          ツアー追加ボタン自体を出さない (フッターごと消す)。 */}
+      {onAddToTour && (
+        <div className="housing-listing-card-footer">
+          <button
+            type="button"
+            className="housing-card-add-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              addRipple(e);
+              onAddToTour(listing.id);
+            }}
+          >
+            <Plus size={14} aria-hidden="true" />
+            {t('housing.card.add_to_tour')}
+            <HousingRipple ripples={ripples} />
+          </button>
+        </div>
+      )}
     </article>
   );
 };

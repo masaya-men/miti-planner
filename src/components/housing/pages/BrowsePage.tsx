@@ -6,16 +6,25 @@ import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
+import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
+import { canAddToTour, tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import type { MockListing } from '../../../data/housing/mockListings';
+import { showToast } from '../../Toast';
 import { FilterPanel } from '../workspace/FilterPanel';
 import { EmptyResult } from '../workspace/EmptyResult';
+import { PersonalTagFilterLink } from '../workspace/PersonalTagFilterLink';
 import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
+import { BrowseViewToggle } from '../browse/BrowseViewToggle';
+import { BrowseMapView } from '../browse/map/BrowseMapView';
 import { TourTray } from '../browse/TourTray';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
+import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
 
 /**
  * 探すページ (3カラム): 左=フィルター / 中央=物件グリッド / 右=ツアートレイ。
@@ -29,6 +38,11 @@ export const BrowsePage: React.FC = () => {
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
+  const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
+
+  // 中央の表示切替 (一覧 | 地図)。セッション記憶 (spec 3.1)。
+  const browseView = useHousingViewStore((s) => s.browseView);
+  const setBrowseView = useHousingViewStore((s) => s.setBrowseView);
 
   const dc = useHousingFilterStore((s) => s.dc);
   const regions = useHousingFilterStore((s) => s.regions);
@@ -36,6 +50,7 @@ export const BrowsePage: React.FC = () => {
   const areas = useHousingFilterStore((s) => s.areas);
   const sizes = useHousingFilterStore((s) => s.sizes);
   const tags = useHousingFilterStore((s) => s.tags);
+  const keyword = useHousingFilterStore((s) => s.keyword);
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。
   const merged = useMemo(
@@ -43,9 +58,18 @@ export const BrowsePage: React.FC = () => {
     [listings, myListings, uid],
   );
 
-  const filtered = useMemo(
+  const filteredBase = useMemo(
     () => applyFilters(merged, { dc, regions, servers, areas, sizes, tags }),
     [merged, dc, regions, servers, areas, sizes, tags],
+  );
+  // keyword は applyFilters(純関数)の後段で適用する (表示名解決に i18n が要るため別レイヤー)。
+  const filtered = useKeywordFilteredListings(filteredBase, keyword);
+
+  // 個人タグ 1 つで絞り込み中のとき、 結果一覧の上に「◯◯のハウジンガーページを見る →」リンクを出す
+  // (spec 2026-07-10-housinger-profile-design.md §3.3 統合契約4)。
+  const personalTagIds = useMemo(
+    () => tags.filter((id) => id.startsWith(PERSONAL_TAG_ID_PREFIX)),
+    [tags],
   );
 
   // 並び替え (参考UI「新着順/古い順」)。createdAt を key に client-side sort。
@@ -60,12 +84,34 @@ export const BrowsePage: React.FC = () => {
 
   // ツアートレイのドラフト (このページローカル)。開始時に tour store へ確定する。
   const [trayIds, setTrayIds] = useState<string[]>([]);
-  const addToTray = (id: string) =>
+  const addToTray = (id: string) => {
+    // 一時 listing は追加直後の stale closure を避けるためストアから fresh に解決する。
+    const eph = useEphemeralListingsStore.getState().ephemeralListings;
+    const candidate = merged.find((l) => l.id === id) ?? eph.find((l) => l.id === id);
+    if (!candidate) return;
+    const pool = [...merged, ...eph];
+    const trayRegion =
+      trayIds.length > 0 ? (pool.find((l) => l.id === trayIds[0])?.region ?? null) : null;
+    if (!canAddToTour(trayRegion, candidate.region)) {
+      showToast(t('housing.tour.region_block'), 'error');
+      return;
+    }
     setTrayIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+  };
 
   const onStart = () => {
     if (trayIds.length === 0) return;
-    const orderedIds = orderTourStopIds(trayIds, merged);
+    // ツアー解決は merged (探す一覧・非汚染) + 一時 listing。一覧グリッドの merged 自体は変えない。
+    const pool = [...merged, ...ephemeral];
+    const orderedIds = orderTourStopIds(trayIds, pool);
+    const stops = orderedIds
+      .map((id) => pool.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const conflict = tourRegionConflict(stops);
+    if (conflict) {
+      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
+      return;
+    }
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
@@ -86,26 +132,35 @@ export const BrowsePage: React.FC = () => {
 
       <section className="housing-browse-panel" data-region="center">
         <div className="housing-browse-col housing-browse-col-center">
+          <PersonalTagFilterLink tagIds={personalTagIds} />
           {status === 'loading' || status === 'idle' ? (
             <div className="housing-center-loading">{t('housing.gallery.loading')}</div>
           ) : status === 'error' ? (
             <div className="housing-center-error">{t('housing.gallery.error')}</div>
-          ) : filtered.length === 0 ? (
-            <EmptyResult />
           ) : (
-            <ListingGrid
-              listings={sorted}
-              onAddToTour={addToTray}
-              sort={sort}
-              onSortChange={setSort}
-            />
+            <>
+              {/* 中央だけが切り替わる。トレイ (右カラム) は地図モードでも従来どおり (spec 4.4) */}
+              <BrowseViewToggle value={browseView} onChange={setBrowseView} />
+              {browseView === 'map' ? (
+                <BrowseMapView filtered={filtered} onAddToTour={addToTray} />
+              ) : filtered.length === 0 ? (
+                <EmptyResult />
+              ) : (
+                <ListingGrid
+                  listings={sorted}
+                  onAddToTour={addToTray}
+                  sort={sort}
+                  onSortChange={setSort}
+                />
+              )}
+            </>
           )}
         </div>
       </section>
 
       <section className="housing-browse-panel" data-region="right">
         <div className="housing-browse-col housing-browse-col-right">
-          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} />
+          <TourTray listingIds={trayIds} onChange={setTrayIds} onStart={onStart} onAdd={addToTray} />
           <FavoritesPreviewStrip />
         </div>
       </section>

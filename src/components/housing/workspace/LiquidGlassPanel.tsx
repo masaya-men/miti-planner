@@ -1,6 +1,13 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { makeDisplacementMapDataURL } from '../../../lib/housing/displacementMap';
 
+/**
+ * リサイズ連発時に変位マップ再生成をまとめる待ち時間 (ms)。条件フィールドの
+ * max-height アニメ (300ms) 中は ResizeObserver が毎フレーム発火するため、
+ * 落ち着いてから 1 回だけ再生成する。装飾的な屈折なので数十 ms のズレは不可視。
+ */
+const REBUILD_DEBOUNCE_MS = 120;
+
 export interface LiquidGlassPanelProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /** Rim thickness (px) where refraction lives. */
   edge: number;
@@ -47,11 +54,19 @@ export const LiquidGlassPanel: React.FC<LiquidGlassPanelProps> = ({
     const svg = svgRef.current;
     if (!wrapper || !svg) return;
 
+    // 直近に生成した寸法。ResizeObserver は同一寸法でも発火することがあるため、
+    // 変化が無ければ高コストな再生成をスキップする。
+    let lastW = 0;
+    let lastH = 0;
+
     const rebuild = () => {
       const rect = wrapper.getBoundingClientRect();
       const w = Math.round(rect.width);
       const h = Math.round(rect.height);
       if (w < 4 || h < 4) return;
+      if (w === lastW && h === lastH) return;
+      lastW = w;
+      lastH = h;
 
       while (svg.firstChild) svg.removeChild(svg.firstChild);
 
@@ -91,10 +106,22 @@ export const LiquidGlassPanel: React.FC<LiquidGlassPanelProps> = ({
       setTick((n) => n + 1);
     };
 
+    // 初回は即時生成 (最初の描画で屈折が正しく出るように)。
     rebuild();
-    const observer = new ResizeObserver(rebuild);
+
+    // 条件フィールドの max-height アニメ等でリサイズが連続発火するとき、毎コールバックで
+    // 変位マップを同期再生成すると屈折が「はげしくがたつく」(2026-07-13 実機 FB)。
+    // 寸法が落ち着いてから 1 回だけ再生成するようデバウンスする。
+    let debounceId: ReturnType<typeof setTimeout> | undefined;
+    const observer = new ResizeObserver(() => {
+      if (debounceId !== undefined) clearTimeout(debounceId);
+      debounceId = setTimeout(rebuild, REBUILD_DEBOUNCE_MS);
+    });
     observer.observe(wrapper);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (debounceId !== undefined) clearTimeout(debounceId);
+    };
   }, [filterId, edge, radius, scale]);
 
   return (

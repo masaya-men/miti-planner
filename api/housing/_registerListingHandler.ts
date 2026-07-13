@@ -17,6 +17,7 @@ import { evaluateCanRegister, applyRegistrationSuccess, initialUserMeta } from '
 import { validateRegistrationDraft, buildListingImageFields, normalizePublishUntil, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import type { HousingUserMeta } from '../../src/types/housing.js';
+import { assertPersonalTagsAttachable, PersonalTagAttachError } from './_personalTagAttachGuard.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -56,6 +57,22 @@ export default async function handler(req: any, res: any) {
     }
 
     const adminDb = getAdminFirestore();
+
+    // 個人タグ (personal_*) が含まれる場合、 自分の所有かつ非表示でないことを確認する
+    // (validateRegistrationDraft は同期関数のため personal_ id は形式チェックのみ)。
+    try {
+      await assertPersonalTagsAttachable(adminDb, draft.tags ?? [], uid);
+    } catch (e) {
+      if (e instanceof PersonalTagAttachError) {
+        return res.status(400).json({
+          error: 'invalid_personal_tag',
+          rejectedTagId: e.rejectedTagId,
+          reason: e.reason,
+        });
+      }
+      throw e;
+    }
+
     const metaRef = adminDb.collection('housing_user_meta').doc(uid);
     const listingsCol = adminDb.collection('housing_listings');
     const now = Date.now();

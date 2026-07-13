@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
@@ -9,6 +9,14 @@ import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import type { TourStep } from '../../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../../lib/housing/formatHousingAddress';
 import { HousingPlaybackProvider } from '../../../../lib/housing/HousingPlaybackContext';
+import { createEphemeralListing } from '../../../../lib/housing/ephemeralListing';
+import { consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill';
+
+// TourShowcasePanel は Task5 で useNavigate を使うため、Router なしで render するこの
+// テストでは react-router-dom を差し替える (ListingCard.test.tsx / TourNavPage.test.tsx と同じパターン)。
+const navigate = vi.fn();
+vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
+
 import { TourShowcasePanel } from '../TourShowcasePanel';
 
 const cur = MOCK_LISTINGS[0];   // Shirogane / size M / description あり
@@ -39,6 +47,11 @@ function renderPanel(props: Partial<Parameters<typeof TourShowcasePanel>[0]> = {
 }
 
 describe('TourShowcasePanel — 表示専用ショーケース', () => {
+  beforeEach(() => {
+    navigate.mockReset();
+    window.sessionStorage.clear();
+  });
+
   it('住所＋サイズが1行に集約されて出る', () => {
     const { container } = renderPanel();
     const line = container.querySelector('.housing-tour-dest-addrsize')!;
@@ -95,5 +108,40 @@ describe('TourShowcasePanel — 表示専用ショーケース', () => {
     const { container } = renderPanel({ currentStep: null });
     expect(screen.getByRole('button', { name: '情報が違う・報告する' })).toBeInTheDocument();
     expect(container.querySelector('.housing-tour-dest-card')).toBeNull();
+  });
+
+  // 計画: 住所登録なし一時ツアー Task5 — 「この家を登録する」リンク
+  describe('「この家を登録する」リンク (一時の家にのみ)', () => {
+    it('登録済み listing (mock) にはリンクが出ない', () => {
+      renderPanel();
+      expect(screen.queryByText('この家を登録する')).toBeNull();
+    });
+
+    it('一時の家にはリンクが出て、押すと住所/SNS URL が渡り /housing/register へ遷移する', () => {
+      const ephemeral = createEphemeralListing({
+        area: 'LavenderBeds',
+        ward: 29,
+        buildingType: 'house',
+        plot: 3,
+        size: 'L',
+        postUrl: 'https://x.com/a/status/1',
+      });
+      renderPanel({ currentStep: { id: ephemeral.id, listing: ephemeral } });
+
+      const link = screen.getByText('この家を登録する');
+      link.click();
+
+      expect(consumeRegisterPrefill()).toEqual({
+        area: 'LavenderBeds',
+        ward: 29,
+        buildingType: 'house',
+        plot: 3,
+        size: 'L',
+        apartmentBuilding: undefined,
+        roomNumber: undefined,
+        postUrl: 'https://x.com/a/status/1',
+      });
+      expect(navigate).toHaveBeenCalledWith('/housing/register');
+    });
   });
 });

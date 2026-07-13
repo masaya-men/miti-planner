@@ -28,6 +28,12 @@ export interface MockListing {
     apartmentBuilding?: 1 | 2;
     /** apartment 専用: 部屋番号 1-90 */
     roomNumber?: number;
+    /**
+     * 2026-07-12 追加 (案B ②-b 大量部屋パネル用): 'private_chamber'=FC 個室 (house・plot 内)、
+     * 'apartment_room'=アパート部屋 (apartment)。未設定 = 家全体登録 (house のみ・従来通り)。
+     * splitSpotListings (browseMapSpots.ts) の振り分けに使う。
+     */
+    roomKind?: 'private_chamber' | 'apartment_room';
     imageMode: 'sns' | 'thumbnail' | 'none';
     postUrl?: string;
     ogImageUrl?: string;
@@ -157,8 +163,4 @@ export const MOCK_LISTINGS: MockListing[] = [
     gen(48, 'Crystal', 'NA', 'Diabolos', 'LavenderBeds', 13, 14, 'S', ['minimal'], 'ロフト風'),
     gen(49, 'Chaos', 'EU', 'Phantom', 'Mist', 10, 6, 'L', ['ghibli'], 'ジブリ風'),
     gen(50, 'Light', 'EU', 'Alpha', 'Empyreum', 7, 27, 'M', ['cottagecore'], 'コテージ村'),
-];
-
-export const SAMPLE_THEME_TAGS: string[] = [
-    'wafu', 'modern', 'cafe', 'gothic', 'fantasy', 'scifi', 'minimal', 'boho', 'nordic', 'cottagecore',
 ];

@@ -19,6 +19,11 @@ export interface HousingPanelModalProps {
   maxHeightRatio?: number;
   /** モーダルの役割。 backdrop の data-modal-role 属性に反映され CSS で z-index を切り替える。 */
   modalRole?: 'register' | 'login' | 'account';
+  /**
+   * backdrop の見た目。 'dark' (既定) = 従来の暗幕。 'frost' = 暗くせず背後にごく薄いぼかしだけ
+   * (ハウジングツアーのトンマナ用・2026-07-12)。 data-backdrop 属性で CSS を切替。
+   */
+  backdrop?: 'dark' | 'frost';
   children: React.ReactNode;
 }
 
@@ -38,6 +43,7 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
   maxWidth = 720,
   maxHeightRatio = 0.86,
   modalRole,
+  backdrop = 'dark',
   children,
 }) => {
   const [mounted, setMounted] = useState(false);
@@ -74,6 +80,7 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
     <div
       className="housing-panel-modal-backdrop"
       data-modal-role={modalRole}
+      data-backdrop={backdrop}
       role="dialog"
       aria-modal="true"
       aria-label={title}

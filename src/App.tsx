@@ -15,6 +15,7 @@ import { BrowsePage } from './components/housing/pages/BrowsePage';
 import { FavoritesPage } from './components/housing/pages/FavoritesPage';
 import { RegisterPage } from './components/housing/pages/RegisterPage';
 import { HousingEditPage } from './components/housing/pages/HousingEditPage';
+import { HousingerPage } from './components/housing/pages/HousingerPage';
 import { ComingSoonPage } from './components/housing/pages/ComingSoonPage';
 import { TourNavPage } from './components/housing/pages/TourNavPage';
 import { EntranceAuthoringPage } from './components/housing/dev/EntranceAuthoringPage';
@@ -44,6 +45,8 @@ import { AdminLogs } from './components/admin/AdminLogs';
 import { AdminUgc } from './components/admin/AdminUgc';
 import { AdminFeatured } from './components/admin/AdminFeatured';
 import { AdminHousingReports } from './components/admin/AdminHousingReports';
+import { AdminPersonalTags } from './components/admin/AdminPersonalTags';
+import { AdminHousingerReports } from './components/admin/AdminHousingerReports';
 import { TutorialOverlay } from './components/tutorial/TutorialOverlay';
 import { ToastContainer } from './components/Toast';
 import { TransitionOverlayProvider } from './components/ui/TransitionOverlay';
@@ -96,7 +99,6 @@ function AppRoutes() {
         <Route index element={<BrowsePage />} />
         {/* 未実装タブは暫定で「準備中」に着地 (以降のスパンで本実装に差し替え)。 */}
         <Route path="favorites" element={<FavoritesPage />} />
-        <Route path="plan" element={<ComingSoonPage tab="plan" />} />
         <Route path="tour" element={<TourNavPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
@@ -104,6 +106,8 @@ function AppRoutes() {
         <Route path="listing/:listingId" element={<HousingDetailPage />} />
         {/* Task 3.3a: 編集ページ。詳細の編集導線 (kebab/通報バナー) から navigate してくる。 */}
         <Route path="listing/:listingId/edit" element={<HousingEditPage />} />
+        {/* Task 7: ハウジンガーページ。 詳細の登録者行クリック / 個人タグ絞り込みリンク等から着地する。 */}
+        <Route path="housinger/:uid" element={<HousingerPage />} />
       </Route>
       {/* 開発専用: 入口オーサリングツール(Task5)。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
       {import.meta.env.DEV && (
@@ -140,6 +144,8 @@ function AppRoutes() {
         <Route path="featured" element={<AdminFeatured />} />
         <Route path="notifications" element={<AdminSystemNotifications />} />
         <Route path="housing-reports" element={<AdminHousingReports />} />
+        <Route path="personal-tags" element={<AdminPersonalTags />} />
+        <Route path="housinger-reports" element={<AdminHousingerReports />} />
       </Route>
       {/* Catch-all: redirect unknown paths to portal */}
       <Route path="*" element={<Navigate to="/" replace />} />

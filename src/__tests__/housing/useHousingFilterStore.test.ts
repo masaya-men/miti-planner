@@ -12,13 +12,58 @@ describe('useHousingFilterStore', () => {
         expect(s.areas).toEqual([]);
         expect(s.sizes).toEqual([]);
         expect(s.tags).toEqual([]);
+        expect(s.keyword).toBe('');
         expect(s.resultCount).toBe(0);
         expect(s.totalCount).toBe(0);
+    });
+
+    it('setKeyword updates keyword', () => {
+        useHousingFilterStore.getState().setKeyword('cafe');
+        expect(useHousingFilterStore.getState().keyword).toBe('cafe');
+    });
+
+    it('clearAll resets keyword to empty', () => {
+        const s = useHousingFilterStore.getState();
+        s.setKeyword('cafe');
+        s.clearAll();
+        expect(useHousingFilterStore.getState().keyword).toBe('');
     });
 
     it('sets DC (single select)', () => {
         useHousingFilterStore.getState().setDC('Mana');
         expect(useHousingFilterStore.getState().dc).toBe('Mana');
+    });
+
+    it('setDC で DC が変わったら servers をクリアする (残留フィルタバグの根治)', () => {
+        const s = useHousingFilterStore.getState();
+        // 地図モードのゲート相当: DC を選び、その配下のワールドを1件に絞る
+        s.setDC('Mana');
+        s.setServerExclusive('Anima');
+        expect(useHousingFilterStore.getState().servers).toEqual(['Anima']);
+
+        // 一覧に戻り DC=すべて (null) にすると servers も消える → 裏で絞り続けない
+        s.setDC(null);
+        expect(useHousingFilterStore.getState().dc).toBeNull();
+        expect(useHousingFilterStore.getState().servers).toEqual([]);
+    });
+
+    it('setDC で別 DC に変えても servers をクリアする', () => {
+        const s = useHousingFilterStore.getState();
+        s.setDC('Mana');
+        s.setServerExclusive('Anima');
+        s.setDC('Gaia');
+        expect(useHousingFilterStore.getState().dc).toBe('Gaia');
+        expect(useHousingFilterStore.getState().servers).toEqual([]);
+    });
+
+    it('setDC で同じ DC を再指定したときは servers を保持する (地図ゲートの setDC→setServerExclusive 手順を壊さない)', () => {
+        const s = useHousingFilterStore.getState();
+        s.setDC('Mana');
+        s.toggleServer('Anima');
+        s.toggleServer('Asura');
+        expect(useHousingFilterStore.getState().servers).toEqual(['Anima', 'Asura']);
+        s.setDC('Mana');
+        expect(useHousingFilterStore.getState().servers).toEqual(['Anima', 'Asura']);
     });
 
     it('toggles area (multi select)', () => {

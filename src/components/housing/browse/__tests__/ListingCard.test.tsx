@@ -119,6 +119,32 @@ describe('ListingCard — カードクリックで詳細へ (B9)', () => {
   });
 });
 
+describe('ListingCard — onCardClick override', () => {
+  it('onCardClick 指定時、カード本体クリックは navigate せず onCardClick を呼ぶ', () => {
+    const onCardClick = vi.fn();
+    renderCard({ onCardClick });
+    fireEvent.click(screen.getByTestId('housing-listing-card'));
+    expect(onCardClick).toHaveBeenCalledTimes(1);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('onCardClick 指定時、Enter キーでも navigate せず onCardClick を呼ぶ', () => {
+    const onCardClick = vi.fn();
+    renderCard({ onCardClick });
+    fireEvent.keyDown(screen.getByTestId('housing-listing-card'), { key: 'Enter' });
+    expect(onCardClick).toHaveBeenCalledTimes(1);
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it('onCardClick 指定時でも♡クリックは onCardClick を呼ばない (stopPropagation 維持)', () => {
+    useHousingFavoritesStore.setState({ ids: [] });
+    const onCardClick = vi.fn();
+    renderCard({ onCardClick });
+    fireEvent.click(screen.getByRole('button', { name: 'お気に入り' }));
+    expect(onCardClick).not.toHaveBeenCalled();
+  });
+});
+
 describe('ListingCard — YouTubeサムネ フォールバック配線 (灰色プレースホルダ根治)', () => {
   const ytListing = {
     ...mockListing,

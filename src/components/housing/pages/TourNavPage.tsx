@@ -4,18 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
+import { buildTourPool } from '../../../lib/housing/buildTourPool';
+import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { resolveTourSteps, computeTourProgress } from '../../../lib/housing/tourNav';
 import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
+import { crossingBetween, tourRegionConflict, type TourCrossing } from '../../../lib/housing/tourCrossing';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { HousingReportModal } from '../report/HousingReportModal';
+import { showToast } from '../../Toast';
+import type { MockListing } from '../../../data/housing/mockListings';
 
 /**
  * ツアー中(Nav)ページ (Task8): オーケストレーター。
@@ -43,14 +48,15 @@ export const TourNavPage: React.FC = () => {
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
+  const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
   const [completed, setCompleted] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
 
-  // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。 FavoritesPage と同じ合流方式。
+  // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) + 一時 listing (計画: 住所登録なし一時ツアー Task2) を合流。
   const pool = useMemo(
-    () => mergeListingsForViewer(listings, myListings, uid, Date.now()),
-    [listings, myListings, uid],
+    () => buildTourPool(listings, myListings, uid, ephemeral, Date.now()),
+    [listings, myListings, uid, ephemeral],
   );
   const steps = useMemo(() => resolveTourSteps(listingIds, pool), [listingIds, pool]);
   const progress = useMemo(
@@ -60,9 +66,13 @@ export const TourNavPage: React.FC = () => {
 
   const isLast = currentIndex === listingIds.length - 1;
 
-  // 次の目的地(左パネルの生きたカード用) / 行き方(右パネル移動中) / 見学可否。
+  // 次の目的地(左パネルの生きたカード用) / 前の目的地(跨ぎ判定用) / 行き方(右パネル移動中) / 見学可否。
   const nextStep = useMemo(
     () => (currentIndex + 1 < steps.length ? steps[currentIndex + 1] : null),
+    [steps, currentIndex],
+  );
+  const prevStep = useMemo(
+    () => (currentIndex - 1 >= 0 ? steps[currentIndex - 1] : null),
     [steps, currentIndex],
   );
 
@@ -73,6 +83,18 @@ export const TourNavPage: React.FC = () => {
     () => getPlotDirections(currentListing?.area ?? '', currentListing?.plot),
     [currentListing],
   );
+  // 前の家→この家の移動種別(DC/ワールド跨ぎ)。行き方枠(右パネル)+中央マップのぼかし案内へ渡す。
+  const crossing: TourCrossing = useMemo(
+    () => (currentListing ? crossingBetween(prevStep?.listing ?? null, currentListing) : { kind: 'none' }),
+    [prevStep, currentListing],
+  );
+  // 中央マップの跨ぎ案内カード: 「移動しました」で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
+  // 見学中(viewing)は必ず解除する = 見学=既に現地に着いている前提。未 ack のまま「見学開始」を
+  // 押しても地図(光る区画)が見えるようにする(見学中もぼかしが残る不具合の防止)。
+  const [crossingAckIndex, setCrossingAckIndex] = useState<number | null>(null);
+  const showCrossingOverlay =
+    crossing.kind !== 'none' && crossingAckIndex !== currentIndex && phase !== 'viewing';
+  const onAckCrossing = useCallback(() => setCrossingAckIndex(currentIndex), [currentIndex]);
   const canView = currentListing != null;
   const mapRef = useMemo(
     () =>
@@ -103,6 +125,36 @@ export const TourNavPage: React.FC = () => {
         : 'loading';
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
+
+  // 空状態の「住所から追加」(計画: 住所登録なし一時ツアー Task3)。
+  // パネルで積んだ一時 listing の id はページローカルに保持し、開始時に既存形
+  // (orderTourStopIds → setListings → start) でツアーへ確定する。
+  const [emptyTrayIds, setEmptyTrayIds] = useState<string[]>([]);
+  const onAddEphemeral = useCallback(
+    (id: string) => setEmptyTrayIds((prev) => (prev.includes(id) ? prev : [...prev, id])),
+    [],
+  );
+  const onRemoveEphemeral = useCallback(
+    (id: string) => setEmptyTrayIds((prev) => prev.filter((x) => x !== id)),
+    [],
+  );
+  const onStartEphemeral = useCallback(() => {
+    if (emptyTrayIds.length === 0) return;
+    const pool = useEphemeralListingsStore.getState().ephemeralListings;
+    const orderedIds = orderTourStopIds(emptyTrayIds, pool);
+    const stops = orderedIds
+      .map((id) => pool.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const conflict = tourRegionConflict(stops);
+    if (conflict) {
+      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
+      return;
+    }
+    useHousingTourStore.getState().setListings(orderedIds);
+    useHousingTourStore.getState().start();
+    useHousingViewStore.getState().enterTourMode();
+    setEmptyTrayIds([]);
+  }, [emptyTrayIds, t]);
 
   const onFinish = useCallback(() => {
     stop();
@@ -141,7 +193,13 @@ export const TourNavPage: React.FC = () => {
     return (
       <div className="housing-tour-page">
         <section className="housing-tour-page-panel housing-tour-page-panel-solo" data-region="center">
-          <TourEmptyState onGoFavorites={onGoFavorites} />
+          <TourEmptyState
+            onGoFavorites={onGoFavorites}
+            ephemeralIds={emptyTrayIds}
+            onAddEphemeral={onAddEphemeral}
+            onRemoveEphemeral={onRemoveEphemeral}
+            onStartEphemeral={onStartEphemeral}
+          />
         </section>
       </div>
     );
@@ -174,6 +232,9 @@ export const TourNavPage: React.FC = () => {
             // 名前ラベルの源: 家は正典 directions.aetheryte、アパートは plot が無く directions が引けないため
             // 起点解決済みの mapModel.originName にフォールバック(マーカーと同じ最寄りエーテライト名)。
             originName={directions?.aetheryte ?? mapModel?.originName ?? null}
+            crossing={crossing}
+            showCrossing={showCrossingOverlay}
+            onAckCrossing={onAckCrossing}
           />
         </div>
       </section>
@@ -193,6 +254,7 @@ export const TourNavPage: React.FC = () => {
             onViewStart={startViewing}
             onNext={onPrimary}
             onFinish={onFinish}
+            crossing={crossing}
           />
         </div>
       </section>
