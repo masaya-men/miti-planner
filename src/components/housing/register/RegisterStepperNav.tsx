@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -28,6 +28,13 @@ function descKeyFor(labelKey: string): string {
   return labelKey.replace('.step.', '.step_desc.');
 }
 
+// SVG 進捗レイヤーの座標定数 (Task2)。丸中心 x = item padding-left 10 + num 半径 11。
+// 描画半径は num 22px の縁の内側に stroke が乗るよう実画面で調整する (色/線幅は Task4 で token 化)。
+// 円周長 (RING_C = 2 * Math.PI * RING_R) は dash 進捗計算で使う値のため Task3 で導入する
+// (Task2 で定義すると未使用のまま残り noUnusedLocals で tsc -b が落ちるため)。
+const RING_CX = 21;
+const RING_R = 10;
+
 /**
  * 登録ページ左カラム: ライブステッパーナビ (media/address/intro/visibility/confirm)。
  * スクロール位置と連動する現在地表示 + クリックで該当セクションへジャンプ。
@@ -46,11 +53,17 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
   const { t } = useTranslation();
   const listRef = useRef<HTMLOListElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  // 各丸バッジの中心 y (stepper-body 基準・px) と body の全高。SVG 進捗レイヤーの座標に使う
+  // (Task2: 静的表示のみ。progress に応じた dash 反映は Task3)。
+  const [centers, setCenters] = useState<number[]>([]);
+  const [svgHeight, setSvgHeight] = useState(0);
 
   useLayoutEffect(() => {
     const list = listRef.current;
     const track = trackRef.current;
-    if (!list || !track) return;
+    const body = bodyRef.current;
+    if (!list || !track || !body) return;
     const measure = () => {
       const badges = list.querySelectorAll<HTMLElement>('.housing-register-stepper-num');
       if (badges.length < 2) return;
@@ -61,6 +74,15 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
       const bottom = listRect.bottom - (last.top + last.height / 2);
       track.style.setProperty('--connector-top', `${top}px`);
       track.style.setProperty('--connector-bottom', `${bottom}px`);
+
+      const bodyRect = body.getBoundingClientRect();
+      const ys: number[] = [];
+      badges.forEach((b) => {
+        const r = b.getBoundingClientRect();
+        ys.push(r.top + r.height / 2 - bodyRect.top);
+      });
+      setCenters(ys);
+      setSvgHeight(bodyRect.height);
     };
     measure();
     // アクティブ説明文の開閉で末尾ステップの高さが変わる (= 末尾バッジの中心位置が動く) ため、
@@ -71,9 +93,12 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
     return () => ro.disconnect();
   }, [steps.length]);
 
+  // SVG 接続線 = 丸の縁から縁 (中心間距離 - 2R)。描画座標にだけ使う (色/dash は Task3/4)。
+  const connectors = centers.slice(0, -1).map((cy, i) => ({ y1: cy + RING_R, y2: centers[i + 1] - RING_R }));
+
   return (
     <nav className="housing-register-stepper" aria-label={t('housing.register.stepper_aria_label')}>
-      <div className="housing-register-stepper-body">
+      <div ref={bodyRef} className="housing-register-stepper-body">
         <div
           ref={trackRef}
           className="housing-register-stepper-track"
@@ -82,6 +107,35 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
         >
           <div className="housing-register-stepper-track-fill" />
         </div>
+        <svg
+          className="housing-register-stepper-svg"
+          data-testid="housing-register-stepper-svg"
+          width="100%"
+          height={svgHeight}
+          aria-hidden="true"
+        >
+          {/* 接続線 (丸の後ろ)。座標は測定値、色/dash は Task3/4 */}
+          {connectors.map((c, i) => (
+            <line
+              key={`c-${i}`}
+              className="housing-register-stepper-connector"
+              x1={RING_CX}
+              y1={c.y1}
+              x2={RING_CX}
+              y2={c.y2}
+            />
+          ))}
+          {/* 円周リング。座標は測定値、色/dash は Task3/4 */}
+          {centers.map((cy, i) => (
+            <circle
+              key={`r-${i}`}
+              className="housing-register-stepper-ring"
+              cx={RING_CX}
+              cy={cy}
+              r={RING_R}
+            />
+          ))}
+        </svg>
         <ol ref={listRef} className="housing-register-stepper-list">
           {steps.map((step) => (
             <li key={step.id}>

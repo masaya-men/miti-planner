@@ -80,4 +80,16 @@ describe('RegisterStepperNav', () => {
     const track = container.querySelector('.housing-register-stepper-track') as HTMLElement;
     expect(track.style.getPropertyValue('--stepper-progress')).toBe('0.42');
   });
+
+  // Task2: SVG 進捗レイヤー (円周リング + 接続線) を丸バッジに重ねて描画する。座標測定は Task3。
+  it('SVG レイヤーに円 (ステップ数) と接続線 (ステップ数-1) を描く', () => {
+    const { container } = render(
+      <I18nextProvider i18n={i18n}>
+        <RegisterStepperNav steps={steps} onJump={() => {}} progress={0} />
+      </I18nextProvider>,
+    );
+    expect(screen.getByTestId('housing-register-stepper-svg')).toBeInTheDocument();
+    expect(container.querySelectorAll('.housing-register-stepper-ring').length).toBe(3);
+    expect(container.querySelectorAll('.housing-register-stepper-connector').length).toBe(2);
+  });
 });
