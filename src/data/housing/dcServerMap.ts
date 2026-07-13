@@ -33,3 +33,32 @@ export function serversForDC(dc: string): string[] {
 export function regionForDC(dc: string): Region | null {
     return DC_SERVER_MAP[dc]?.region ?? null;
 }
+
+/**
+ * 日本ワールド / 日本 DC のカタカナ読み (検索専用)。英語表記のワールド/DC 名を
+ * 日本語カタカナでも検索できるようにする。略称 (例「パンデモ」) は検索の部分一致で
+ * 自動的にヒットするため、正式な読みのみ登録する (造語・略称を辞書に足さない)。
+ * 北米/欧州/オセアニアのワールドは公式カタカナが無いため対象外 (英語検索のまま)。
+ * 読みはユーザー (FF14 プレイヤー) 検証済み (2026-07-13)。
+ */
+export const JP_KATAKANA_READINGS: Record<string, string> = {
+    // DC
+    Elemental: 'エレメンタル', Gaia: 'ガイア', Mana: 'マナ', Meteor: 'メテオ',
+    // Elemental ワールド
+    Aegis: 'イージス', Atomos: 'アトモス', Carbuncle: 'カーバンクル', Garuda: 'ガルーダ',
+    Gungnir: 'グングニル', Kujata: 'クジャタ', Tonberry: 'トンベリ', Typhon: 'テュポーン',
+    // Gaia ワールド
+    Alexander: 'アレキサンダー', Bahamut: 'バハムート', Durandal: 'デュランダル', Fenrir: 'フェンリル',
+    Ifrit: 'イフリート', Ridill: 'リディル', Tiamat: 'ティアマット', Ultima: 'アルテマ',
+    // Mana ワールド
+    Anima: 'アニマ', Asura: 'アスラ', Chocobo: 'チョコボ', Hades: 'ハーデス',
+    Ixion: 'イクシオン', Masamune: 'マサムネ', Pandaemonium: 'パンデモニウム', Titan: 'タイタン',
+    // Meteor ワールド
+    Belias: 'ベリアス', Mandragora: 'マンドラゴラ', Ramuh: 'ラムウ', Shinryu: 'シンリュウ',
+    Unicorn: 'ユニコーン', Valefor: 'ヴァルファーレ', Yojimbo: 'ヨウジンボウ', Zeromus: 'ゼロムス',
+};
+
+/** 英語のワールド/DC 名にカタカナ読みがあれば返す (日本のみ・検索用)。無ければ null。 */
+export function katakanaReading(name: string): string | null {
+    return JP_KATAKANA_READINGS[name] ?? null;
+}

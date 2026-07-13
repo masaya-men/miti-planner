@@ -29,6 +29,27 @@ describe('buildListingSearchText', () => {
     expect(text).toContain('mana');             // dc
     expect(text).toContain('日本');             // regionLabel(JP, ja)
   });
+  it('includes Japanese katakana readings for JP world/DC', () => {
+    const t2 = buildListingSearchText({ ...base, server: 'Pandaemonium', dc: 'Mana' }, tId, 'ja', 'ja');
+    expect(t2).toContain('パンデモニウム'); // server カタカナ
+    expect(t2).toContain('マナ');           // dc カタカナ
+  });
+});
+
+describe('katakana search (略称は部分一致で自動対応)', () => {
+  it('matches a world by its abbreviation (パンデモ ⊂ パンデモニウム)', () => {
+    const text = buildListingSearchText({ ...base, server: 'Pandaemonium' }, tId, 'ja', 'ja');
+    expect(matchesKeyword(text, 'パンデモ')).toBe(true);
+    expect(matchesKeyword(text, 'パンデモニウム')).toBe(true);
+  });
+  it('does not add katakana for non-JP worlds (英語のまま)', () => {
+    const text = buildListingSearchText(
+      { ...base, server: 'Gilgamesh', dc: 'Aether', region: 'NA' },
+      tId, 'ja', 'ja',
+    );
+    expect(text).toContain('gilgamesh'); // 英語で検索可能
+    expect(matchesKeyword(text, 'ギルガメッシュ')).toBe(false); // 慣用カタカナは非対象
+  });
 });
 
 describe('matchesKeyword', () => {

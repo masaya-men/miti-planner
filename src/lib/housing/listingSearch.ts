@@ -2,6 +2,7 @@ import type { MockListing } from '../../data/housing/mockListings';
 import { getTagById } from '../../data/housingTags';
 import { formatHousingAddress } from './formatHousingAddress';
 import { regionLabel, type RegionLocale } from '../../data/housing/regionMap';
+import { katakanaReading } from '../../data/housing/dcServerMap';
 
 type TFunc = (key: string) => string;
 
@@ -38,6 +39,11 @@ export function buildListingSearchText(
   );
   parts.push(listing.server);
   parts.push(listing.dc);
+  // 日本ワールド/DC はカタカナ読みでも検索可能に (略称は部分一致で自動対応)。
+  const serverKana = katakanaReading(listing.server);
+  if (serverKana) parts.push(serverKana);
+  const dcKana = katakanaReading(listing.dc);
+  if (dcKana) parts.push(dcKana);
   parts.push(regionLabel(listing.region, locale));
   return parts.join(' ').toLowerCase();
 }
