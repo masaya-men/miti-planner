@@ -70,15 +70,40 @@ describe('RegisterStepperNav', () => {
     );
   });
 
-  // Task2: 中央カラムのスクロール進行度 (0..1) が接続線の CSS カスタムプロパティに反映される。
-  it('progress prop が --stepper-progress カスタムプロパティに反映される', () => {
-    const { container } = render(
-      <I18nextProvider i18n={i18n}>
-        <RegisterStepperNav steps={steps} onJump={() => {}} progress={0.42} />
-      </I18nextProvider>,
-    );
-    const track = container.querySelector('.housing-register-stepper-track') as HTMLElement;
-    expect(track.style.getPropertyValue('--stepper-progress')).toBe('0.42');
+  // Task3: progress (0..1) が SVG リングの stroke-dashoffset に反映される (旧 --stepper-progress track は廃止)。
+  it('progress を上げると先頭の円の stroke-dashoffset が減る (塗りが増える)', () => {
+    // happy-dom は実レイアウト非対応 → num の矩形をスタブして中心 y を与える。
+    const rects = new Map<Element, DOMRect>();
+    const orig = Element.prototype.getBoundingClientRect;
+    let yCursor = 0;
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      if (this.classList.contains('housing-register-stepper-num')) {
+        const y = (yCursor += 40);
+        return { top: y, height: 22, bottom: y + 22, left: 0, right: 22, width: 22, x: 0, y, toJSON: () => ({}) } as DOMRect;
+      }
+      if (this.classList.contains('housing-register-stepper-body')) {
+        return { top: 0, height: 200, bottom: 200, left: 0, right: 40, width: 40, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
+      }
+      return rects.get(this) ?? ({ top: 0, height: 0, bottom: 0, left: 0, right: 0, width: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect);
+    });
+
+    const renderAt = (p: number) =>
+      render(
+        <I18nextProvider i18n={i18n}>
+          <RegisterStepperNav steps={steps} onJump={() => {}} progress={p} />
+        </I18nextProvider>,
+      );
+
+    const { container: c0 } = renderAt(0);
+    const ring0 = c0.querySelector('.housing-register-stepper-ring') as SVGCircleElement;
+    const off0 = parseFloat(ring0.style.strokeDashoffset);
+
+    const { container: c1 } = renderAt(0.5);
+    const ring1 = c1.querySelector('.housing-register-stepper-ring') as SVGCircleElement;
+    const off1 = parseFloat(ring1.style.strokeDashoffset);
+
+    expect(off1).toBeLessThan(off0); // 塗りが増える = dashoffset が減る
+    vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(orig);
   });
 
   // Task2: SVG 進捗レイヤー (円周リング + 接続線) を丸バッジに重ねて描画する。座標測定は Task3。

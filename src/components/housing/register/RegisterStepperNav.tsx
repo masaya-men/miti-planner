@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { computeSegmentFills } from '../../../lib/housing/stepperProgress';
 
 export type RegisterStepState = 'idle' | 'active' | 'done';
 
@@ -30,10 +30,9 @@ function descKeyFor(labelKey: string): string {
 
 // SVG 進捗レイヤーの座標定数 (Task2)。丸中心 x = item padding-left 10 + num 半径 11。
 // 描画半径は num 22px の縁の内側に stroke が乗るよう実画面で調整する (色/線幅は Task4 で token 化)。
-// 円周長 (RING_C = 2 * Math.PI * RING_R) は dash 進捗計算で使う値のため Task3 で導入する
-// (Task2 で定義すると未使用のまま残り noUnusedLocals で tsc -b が落ちるため)。
 const RING_CX = 21;
 const RING_R = 10;
+const RING_C = 2 * Math.PI * RING_R;
 
 /**
  * 登録ページ左カラム: ライブステッパーナビ (media/address/intro/visibility/confirm)。
@@ -52,29 +51,17 @@ const RING_R = 10;
 export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 0 }) => {
   const { t } = useTranslation();
   const listRef = useRef<HTMLOListElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  // 各丸バッジの中心 y (stepper-body 基準・px) と body の全高。SVG 進捗レイヤーの座標に使う
-  // (Task2: 静的表示のみ。progress に応じた dash 反映は Task3)。
+  // 各丸バッジの中心 y (stepper-body 基準・px) と body の全高。SVG 進捗レイヤーの座標に使う。
   const [centers, setCenters] = useState<number[]>([]);
   const [svgHeight, setSvgHeight] = useState(0);
 
   useLayoutEffect(() => {
     const list = listRef.current;
-    const track = trackRef.current;
     const body = bodyRef.current;
-    if (!list || !track || !body) return;
+    if (!list || !body) return;
     const measure = () => {
       const badges = list.querySelectorAll<HTMLElement>('.housing-register-stepper-num');
-      if (badges.length < 2) return;
-      const listRect = list.getBoundingClientRect();
-      const first = badges[0].getBoundingClientRect();
-      const last = badges[badges.length - 1].getBoundingClientRect();
-      const top = first.top + first.height / 2 - listRect.top;
-      const bottom = listRect.bottom - (last.top + last.height / 2);
-      track.style.setProperty('--connector-top', `${top}px`);
-      track.style.setProperty('--connector-bottom', `${bottom}px`);
-
       const bodyRect = body.getBoundingClientRect();
       const ys: number[] = [];
       badges.forEach((b) => {
@@ -93,20 +80,27 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
     return () => ro.disconnect();
   }, [steps.length]);
 
-  // SVG 接続線 = 丸の縁から縁 (中心間距離 - 2R)。描画座標にだけ使う (色/dash は Task3/4)。
-  const connectors = centers.slice(0, -1).map((cy, i) => ({ y1: cy + RING_R, y2: centers[i + 1] - RING_R }));
+  // SVG 接続線 = 丸の縁から縁 (中心間距離 - 2R)。描画座標と dash 長さ (len) の両方に使う。
+  const connectors = centers.slice(0, -1).map((cy, i) => {
+    const y1 = cy + RING_R;
+    const y2 = centers[i + 1] - RING_R;
+    return { y1, y2, len: y2 - y1 };
+  });
+
+  // progress (0..1) をセグメント列 [円0, 線0, 円1, 線1, …, 円N] へ按分し、各リング/接続線の
+  // dash 塗り量に変換する (Task3)。
+  const segments: number[] = [];
+  centers.forEach((_, i) => {
+    segments.push(RING_C); // 円 i
+    if (i < connectors.length) segments.push(connectors[i].len); // 線 i
+  });
+  const fills = computeSegmentFills(progress, segments);
+  const ringFill = (i: number) => fills[i * 2] ?? 0; // 円 i
+  const connectorFill = (i: number) => fills[i * 2 + 1] ?? 0; // 線 i
 
   return (
     <nav className="housing-register-stepper" aria-label={t('housing.register.stepper_aria_label')}>
       <div ref={bodyRef} className="housing-register-stepper-body">
-        <div
-          ref={trackRef}
-          className="housing-register-stepper-track"
-          aria-hidden="true"
-          style={{ '--stepper-progress': progress } as CSSProperties}
-        >
-          <div className="housing-register-stepper-track-fill" />
-        </div>
         <svg
           className="housing-register-stepper-svg"
           data-testid="housing-register-stepper-svg"
@@ -114,7 +108,7 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
           height={svgHeight}
           aria-hidden="true"
         >
-          {/* 接続線 (丸の後ろ)。座標は測定値、色/dash は Task3/4 */}
+          {/* 接続線 (丸の後ろ)。座標は測定値、progress に応じて dash で塗る (色は Task4) */}
           {connectors.map((c, i) => (
             <line
               key={`c-${i}`}
@@ -123,9 +117,10 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
               y1={c.y1}
               x2={RING_CX}
               y2={c.y2}
+              style={{ strokeDasharray: c.len, strokeDashoffset: c.len * (1 - connectorFill(i)) }}
             />
           ))}
-          {/* 円周リング。座標は測定値、色/dash は Task3/4 */}
+          {/* 円周リング。座標は測定値、progress に応じて dash で塗る (色は Task4) */}
           {centers.map((cy, i) => (
             <circle
               key={`r-${i}`}
@@ -133,6 +128,7 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
               cx={RING_CX}
               cy={cy}
               r={RING_R}
+              style={{ strokeDasharray: RING_C, strokeDashoffset: RING_C * (1 - ringFill(i)) }}
             />
           ))}
         </svg>
