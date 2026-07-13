@@ -78,6 +78,22 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
 
     const availableServers = dc ? DC_SERVER_MAP[dc]?.servers ?? [] : [];
 
+    // 地域 ⊃ DC の階層連動: 地域を選んだら DC の選択肢をその地域配下だけに絞る。
+    // 地域未選択なら全 DC (現状維持)。
+    const dcOptions = useMemo(
+        () => (regions.length > 0
+            ? ALL_DCS.filter((d) => regions.includes(DC_SERVER_MAP[d].region))
+            : ALL_DCS),
+        [regions],
+    );
+
+    // 地域を外して選択中の DC がその地域外になったら DC を自動クリア。
+    // (画面から消えた DC が applyFilters で裏に残り続ける残留フィルタバグの防止。
+    //  setDC(null) は store 側で servers:[] も連鎖クリアする。)
+    useEffect(() => {
+        if (dc && !dcOptions.includes(dc)) setDC(null);
+    }, [dc, dcOptions, setDC]);
+
     const allLabel = t('housing.workspace.filter.all');
     const countLabel = (n: number) => t('housing.workspace.filter.selected_count', { count: n });
     const hasActiveFilter =
@@ -103,21 +119,21 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                 data-at-bottom={atEnd}
             >
                 <FilterDropdown
-                    label={t('housing.workspace.filter.dc')}
-                    mode="single"
-                    options={ALL_DCS.map((d) => ({ value: d, label: d }))}
-                    selected={dc ? [dc] : []}
-                    onSelect={(v) => setDC(dc === v ? null : v)}
-                    allLabel={allLabel}
-                    countLabel={countLabel}
-                />
-
-                <FilterDropdown
                     label={t('housing.workspace.filter.region')}
                     mode="multi"
                     options={ALL_REGIONS.map((r: Region) => ({ value: r, label: REGION_LABELS[r][locale] }))}
                     selected={regions}
                     onSelect={(v) => toggleRegion(v)}
+                    allLabel={allLabel}
+                    countLabel={countLabel}
+                />
+
+                <FilterDropdown
+                    label={t('housing.workspace.filter.dc')}
+                    mode="single"
+                    options={dcOptions.map((d) => ({ value: d, label: d }))}
+                    selected={dc ? [dc] : []}
+                    onSelect={(v) => setDC(dc === v ? null : v)}
                     allLabel={allLabel}
                     countLabel={countLabel}
                 />
