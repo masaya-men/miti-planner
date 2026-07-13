@@ -2584,6 +2584,11 @@
                 "menuItem": "举报该房主玩家"
             }
         },
+        "header": {
+            "search_placeholder": "搜索房屋（名称·主题·地址…）",
+            "search_housingers": "房主",
+            "search_view_homes": "查看 {{name}} 的房屋"
+        },
         "topbar": {
             "login": "",
             "account": ""

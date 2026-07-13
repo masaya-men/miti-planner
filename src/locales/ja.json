@@ -2640,6 +2640,11 @@
                 "menuItem": "このハウジンガーを報告"
             }
         },
+        "header": {
+            "search_placeholder": "ハウジングを検索（名前・テーマ・住所…）",
+            "search_housingers": "ハウジンガー",
+            "search_view_homes": "{{name}} の家を見る"
+        },
         "topbar": {
             "login": "ログイン",
             "account": "アカウント"

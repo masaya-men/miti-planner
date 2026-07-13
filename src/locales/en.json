@@ -2619,6 +2619,11 @@
                 "menuItem": "Report this Housinger"
             }
         },
+        "header": {
+            "search_placeholder": "Search housing (name, theme, address…)",
+            "search_housingers": "Housingers",
+            "search_view_homes": "View {{name}}'s homes"
+        },
         "topbar": {
             "login": "",
             "account": ""
