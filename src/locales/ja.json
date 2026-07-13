@@ -2062,7 +2062,7 @@
             "section_intro": "コメント",
             "section_address": "住所",
             "address_verify_note": "自動入力された住所も、登録前に必ず確認してください",
-            "section_media": "画像・SNS URL",
+            "section_media": "SNS投稿・サイトから自動入力",
             "field_title_label": "タイトル",
             "field_title_placeholder": "タイトルを入力",
             "field_title_optional_hint": "未入力の場合、住所が表示されます",
@@ -2182,8 +2182,9 @@
                 "daily_remaining": "本日の登録枠: 残り {{remaining}} / {{max}} 件"
             },
             "snsUrl": {
-                "label": "SNS URL（任意・Twitter / YouTube）",
-                "placeholder": "https://x.com/.../status/... または https://youtu.be/...",
+                "label": "投稿・サイトのURL（任意）",
+                "placeholder": "URLを貼ってください",
+                "help": "X(旧Twitter)・YouTube・ハウジングスナップなどに対応。動画付きの投稿もOKです",
                 "fetching": "ツイートを読み取り中…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "ogp_fetching": "ページ情報を取得中…",
@@ -2278,14 +2279,14 @@
             },
             "cancel": "キャンセル",
             "step": {
-                "media": "画像・SNS URL",
+                "media": "SNS投稿・サイトから自動入力",
                 "address": "住所",
                 "intro": "コメント",
                 "visibility": "公開設定",
                 "confirm": "確認"
             },
             "step_desc": {
-                "media": "X (Twitter) やハウジングスナップの URL を貼ると、写真と住所を自動で取り込みます",
+                "media": "住所が書いてあるSNS投稿やサイトのURLを貼ると、写真と住所の自動入力を試みます",
                 "address": "自動入力でも手入力でも、登録前に必ず住所を確認します",
                 "intro": "タイトルは任意です。未入力の場合、一覧には住所が表示されます",
                 "visibility": "公開・非公開と、公開期限を選べます",

@@ -2006,7 +2006,7 @@
             "section_intro": "코멘트",
             "section_address": "주소",
             "address_verify_note": "자동 입력된 주소도 등록 전에 반드시 확인해 주세요",
-            "section_media": "이미지・SNS URL",
+            "section_media": "게시물·사이트에서 자동 입력",
             "field_title_label": "제목",
             "field_title_placeholder": "제목을 입력하세요",
             "field_title_optional_hint": "입력하지 않으면 주소가 표시됩니다",
@@ -2126,8 +2126,9 @@
                 "daily_remaining": "오늘의 등록 한도: 남은 {{remaining}} / {{max}}개"
             },
             "snsUrl": {
-                "label": "SNS URL（任意・Twitter / YouTube）",
-                "placeholder": "https://x.com/.../status/... または https://youtu.be/...",
+                "label": "게시물·사이트 URL (선택)",
+                "placeholder": "URL을 붙여넣으세요",
+                "help": "X(구 Twitter)·YouTube·Housing Snap 등에 대응. 동영상이 포함된 게시물도 OK입니다",
                 "fetching": "트윗을 읽는 중…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "ogp_fetching": "ページ情報を取得中…",
@@ -2222,14 +2223,14 @@
             },
             "cancel": "취소",
             "step": {
-                "media": "이미지・SNS URL",
+                "media": "게시물·사이트에서 자동 입력",
                 "address": "주소",
                 "intro": "코멘트",
                 "visibility": "공개 설정",
                 "confirm": "확인"
             },
             "step_desc": {
-                "media": "X (Twitter)나 Housing Snap URL을 붙여넣으면 사진과 주소를 자동으로 가져옵니다",
+                "media": "주소가 적힌 SNS 게시물이나 사이트의 URL을 붙여넣으면 사진과 주소 자동 입력을 시도합니다",
                 "address": "자동 입력이든 직접 입력이든, 등록 전에 반드시 주소를 확인합니다",
                 "intro": "제목은 선택 사항입니다. 입력하지 않으면 목록에는 주소가 표시됩니다",
                 "visibility": "공개・비공개와 공개 기간을 선택할 수 있습니다",

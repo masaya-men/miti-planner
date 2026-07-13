@@ -2062,6 +2062,12 @@ select.housing-input option {
   flex-direction: column;
   gap: 4px;
 }
+.housing-register-sns-url-help {
+  margin: 6px 0 0;
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
 .housing-error-text {
   margin: 4px 0 0;
   font-size: var(--housing-text-xs);

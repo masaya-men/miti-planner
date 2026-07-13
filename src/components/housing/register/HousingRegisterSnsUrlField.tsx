@@ -218,6 +218,9 @@ export function HousingRegisterSnsUrlField({
                     handleChange(e.target.value);
                 }}
             />
+            <p className="housing-register-sns-url-help">
+                {t('housing.register.snsUrl.help')}
+            </p>
             {invalidUrl && (
                 <p className="housing-error-text">
                     {t('housing.register.snsUrl.error.invalid')}

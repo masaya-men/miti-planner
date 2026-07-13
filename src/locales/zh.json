@@ -2006,7 +2006,7 @@
             "section_intro": "留言",
             "section_address": "地址",
             "address_verify_note": "即使地址是自动填写的，也请在登记前务必核对",
-            "section_media": "图片・SNS URL",
+            "section_media": "从帖子·网站自动填充",
             "field_title_label": "标题",
             "field_title_placeholder": "请输入标题",
             "field_title_optional_hint": "留空时将显示地址",
@@ -2126,8 +2126,9 @@
                 "daily_remaining": "今日登记配额：剩余 {{remaining}} / {{max}} 个"
             },
             "snsUrl": {
-                "label": "SNS URL（任意・Twitter / YouTube）",
-                "placeholder": "https://x.com/.../status/... または https://youtu.be/...",
+                "label": "帖子·网站 URL（可选）",
+                "placeholder": "粘贴 URL",
+                "help": "支持 X(原 Twitter)·YouTube·Housing Snap 等，带视频的帖子也 OK",
                 "fetching": "正在读取推文…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "ogp_fetching": "ページ情報を取得中…",
@@ -2222,14 +2223,14 @@
             },
             "cancel": "取消",
             "step": {
-                "media": "图片・SNS URL",
+                "media": "从帖子·网站自动填充",
                 "address": "地址",
                 "intro": "留言",
                 "visibility": "公开设置",
                 "confirm": "确认"
             },
             "step_desc": {
-                "media": "粘贴 X (Twitter) 或 Housing Snap 链接，即可自动导入照片和地址",
+                "media": "粘贴含有地址的社交帖子或网站的 URL，会尝试自动填充照片和地址",
                 "address": "无论是自动填写还是手动输入，登记前都需要确认地址",
                 "intro": "标题为选填项。留空时，列表将显示地址",
                 "visibility": "可以选择公开・非公开，以及公开期限",

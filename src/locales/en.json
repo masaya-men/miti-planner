@@ -2041,7 +2041,7 @@
             "section_intro": "Comment",
             "section_address": "Address",
             "address_verify_note": "Please double-check the address before registering, even if it was auto-filled",
-            "section_media": "Images & SNS URL",
+            "section_media": "Auto-fill from a post or site",
             "field_title_label": "Title",
             "field_title_placeholder": "Enter a title",
             "field_title_optional_hint": "If left blank, the address is shown",
@@ -2161,8 +2161,9 @@
                 "daily_remaining": "Today's quota: {{remaining}} / {{max}} remaining"
             },
             "snsUrl": {
-                "label": "SNS URL (optional, Twitter / YouTube)",
-                "placeholder": "https://x.com/.../status/... or https://youtu.be/...",
+                "label": "Post or site URL (optional)",
+                "placeholder": "Paste a URL",
+                "help": "Works with X (Twitter), YouTube, Housing Snap and more. Posts with video are OK too.",
                 "fetching": "Reading tweet…",
                 "youtube_detected": "Detected as a YouTube video (thumbnail will be used as the listing image)",
                 "ogp_fetching": "Fetching page info…",
@@ -2257,14 +2258,14 @@
             },
             "cancel": "Cancel",
             "step": {
-                "media": "Images & SNS URL",
+                "media": "Auto-fill from a post or site",
                 "address": "Address",
                 "intro": "Comment",
                 "visibility": "Visibility",
                 "confirm": "Confirm"
             },
             "step_desc": {
-                "media": "Paste a X (Twitter) or Housing Snap URL to automatically import photos and the address",
+                "media": "Paste the URL of a social post or site that shows the address, and we'll try to auto-fill the photos and address.",
                 "address": "Whether auto-filled or entered by hand, always confirm the address before registering",
                 "intro": "The title is optional. If left blank, the listing shows the address instead",
                 "visibility": "Choose public or private, and optionally set an end date",
