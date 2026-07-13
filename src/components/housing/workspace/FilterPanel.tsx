@@ -16,7 +16,7 @@ import {
     DC_SERVER_MAP,
     type Region,
 } from '../../../data/housing/dcServerMap';
-import { REGION_LABELS, type RegionLocale } from '../../../data/housing/regionMap';
+import { REGION_LABELS, pickRegionLocale } from '../../../data/housing/regionMap';
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { FilterDropdown } from './FilterDropdown';
@@ -30,12 +30,6 @@ const THEME_TAG_IDS = new Set(getTagsByKind('theme').map((tag) => tag.id));
 const AREAS: HousingArea[] = ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'];
 const SIZES: HousingSize[] = ['S', 'M', 'L'];
 
-function pickLocale(language: string): RegionLocale {
-    const head = (language || 'ja').slice(0, 2).toLowerCase();
-    if (head === 'en' || head === 'ko' || head === 'zh') return head;
-    return 'ja';
-}
-
 export interface FilterPanelProps {
     onClose: () => void;
     onRegisterClick: () => void;
@@ -45,7 +39,7 @@ export interface FilterPanelProps {
 
 export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterClick, hideClose }) => {
     const { t, i18n } = useTranslation();
-    const locale = pickLocale(i18n.language);
+    const locale = pickRegionLocale(i18n.language);
 
     const dc = useHousingFilterStore((s) => s.dc);
     const regions = useHousingFilterStore((s) => s.regions);
