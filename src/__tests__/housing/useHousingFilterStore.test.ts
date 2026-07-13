@@ -12,8 +12,21 @@ describe('useHousingFilterStore', () => {
         expect(s.areas).toEqual([]);
         expect(s.sizes).toEqual([]);
         expect(s.tags).toEqual([]);
+        expect(s.keyword).toBe('');
         expect(s.resultCount).toBe(0);
         expect(s.totalCount).toBe(0);
+    });
+
+    it('setKeyword updates keyword', () => {
+        useHousingFilterStore.getState().setKeyword('cafe');
+        expect(useHousingFilterStore.getState().keyword).toBe('cafe');
+    });
+
+    it('clearAll resets keyword to empty', () => {
+        const s = useHousingFilterStore.getState();
+        s.setKeyword('cafe');
+        s.clearAll();
+        expect(useHousingFilterStore.getState().keyword).toBe('');
     });
 
     it('sets DC (single select)', () => {

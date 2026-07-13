@@ -10,6 +10,7 @@ interface HousingFilterState {
     areas: HousingArea[];
     sizes: HousingSize[];
     tags: string[];
+    keyword: string;
     resultCount: number;
     totalCount: number;
     setDC: (dc: string | null) => void;
@@ -20,6 +21,7 @@ interface HousingFilterState {
     toggleArea: (area: HousingArea) => void;
     toggleSize: (size: HousingSize) => void;
     toggleTag: (tag: string) => void;
+    setKeyword: (keyword: string) => void;
     setCounts: (result: number, total: number) => void;
     clearAll: () => void;
 }
@@ -34,6 +36,7 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     areas: [],
     sizes: [],
     tags: [],
+    keyword: '',
     resultCount: 0,
     totalCount: 0,
     // servers は選択中の DC 配下スコープの概念。DC が変わる/クリアされたら servers も一緒にリセットする。
@@ -47,8 +50,9 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     toggleArea: (area) => set((s) => ({ areas: toggleInArray(s.areas, area) })),
     toggleSize: (size) => set((s) => ({ sizes: toggleInArray(s.sizes, size) })),
     toggleTag: (tag) => set((s) => ({ tags: toggleInArray(s.tags, tag) })),
+    setKeyword: (keyword) => set({ keyword }),
     setCounts: (resultCount, totalCount) => set({ resultCount, totalCount }),
     clearAll: () => set({
-        dc: null, regions: [], servers: [], areas: [], sizes: [], tags: [],
+        dc: null, regions: [], servers: [], areas: [], sizes: [], tags: [], keyword: '',
     }),
 }));
