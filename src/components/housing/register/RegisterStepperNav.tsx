@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { computeSegmentFills } from '../../../lib/housing/stepperProgress';
+import { computeStepperScroll } from '../../../lib/housing/stepperScroll';
 
 export type RegisterStepState = 'idle' | 'active' | 'done';
 
@@ -52,9 +53,14 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
   const { t } = useTranslation();
   const listRef = useRef<HTMLOListElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   // 各丸バッジの中心 y (stepper-body 基準・px) と body の全高。SVG 進捗レイヤーの座標に使う。
   const [centers, setCenters] = useState<number[]>([]);
   const [svgHeight, setSvgHeight] = useState(0);
+  // 説明文常時表示化 (Task3) で body がビューポートより高くなり得るため、進行連動オートスクロール
+  // (computeStepperScroll) の入力として body 全高 / viewport 器高さを測る。
+  const [contentH, setContentH] = useState(0);
+  const [viewportH, setViewportH] = useState(0);
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -70,6 +76,9 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
       });
       setCenters(ys);
       setSvgHeight(bodyRect.height);
+      const viewport = viewportRef.current;
+      setContentH(bodyRect.height);
+      setViewportH(viewport ? viewport.getBoundingClientRect().height : 0);
     };
     measure();
     // アクティブ説明文の開閉で末尾ステップの高さが変わる (= 末尾バッジの中心位置が動く) ため、
@@ -77,6 +86,8 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
     // (reference_perf_forced_reflow_resizeobserver: onMount + リサイズ時のみ計算)。
     const ro = new ResizeObserver(measure);
     ro.observe(list);
+    const viewport = viewportRef.current;
+    if (viewport) ro.observe(viewport);
     return () => ro.disconnect();
   }, [steps.length]);
 
@@ -98,107 +109,122 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
   const ringFill = (i: number) => fills[i * 2] ?? 0; // 円 i
   const connectorFill = (i: number) => fills[i * 2 + 1] ?? 0; // 線 i
 
+  // 説明文常時表示化 (Task3) で body がビューポートより高くなり得る分、進行度に応じて body を
+  // 上へ送る (スクロールバー無し・端フェード併用)。器に収まる時は scrollY=0 (動かさない)。
+  const scrollY = computeStepperScroll(progress, contentH, viewportH);
+  const overflow = contentH > viewportH;
+
   return (
     <nav className="housing-register-stepper" aria-label={t('housing.register.stepper_aria_label')}>
-      <div ref={bodyRef} className="housing-register-stepper-body">
-        <svg
-          className="housing-register-stepper-svg"
-          data-testid="housing-register-stepper-svg"
-          width="100%"
-          height={svgHeight}
-          aria-hidden="true"
+      <div
+        ref={viewportRef}
+        className="housing-register-stepper-viewport"
+        data-overflow={overflow ? 'true' : 'false'}
+      >
+        <div
+          ref={bodyRef}
+          className="housing-register-stepper-body"
+          style={{ transform: `translateY(${-scrollY}px)` }}
         >
-          {/* 未塗り下地(トラック): 前景の手前(DOM順で後ろ = 描画は下)に敷く「これから塗る道筋」。
-              dash なし = 全長・全周をそのまま表示。 */}
-          {connectors.map((c, i) => (
-            <line
-              key={`ct-${i}`}
-              className="housing-register-stepper-connector-track"
-              x1={RING_CX}
-              y1={c.y1}
-              x2={RING_CX}
-              y2={c.y2}
-            />
-          ))}
-          {centers.map((cy, i) => (
-            <circle
-              key={`rt-${i}`}
-              className="housing-register-stepper-ring-track"
-              cx={RING_CX}
-              cy={cy}
-              r={RING_R}
-            />
-          ))}
-          {/* 接続線 (丸の後ろ)。座標は測定値、progress に応じて dash で塗る */}
-          {connectors.map((c, i) => (
-            <line
-              key={`c-${i}`}
-              className="housing-register-stepper-connector"
-              x1={RING_CX}
-              y1={c.y1}
-              x2={RING_CX}
-              y2={c.y2}
-              style={{ strokeDasharray: c.len, strokeDashoffset: c.len * (1 - connectorFill(i)) }}
-            />
-          ))}
-          {/* 円周リング。座標は測定値、progress に応じて dash で塗る */}
-          {centers.map((cy, i) => (
-            <circle
-              key={`r-${i}`}
-              className="housing-register-stepper-ring"
-              cx={RING_CX}
-              cy={cy}
-              r={RING_R}
-              style={{ strokeDasharray: RING_C, strokeDashoffset: RING_C * (1 - ringFill(i)) }}
-            />
-          ))}
-        </svg>
-        <ol ref={listRef} className="housing-register-stepper-list">
-          {steps.map((step) => (
-            <li key={step.id}>
-              <button
-                type="button"
-                className={`housing-register-stepper-item is-${step.state}`}
-                data-testid={`housing-register-step-${step.id}`}
-                aria-current={step.state === 'active' ? 'step' : undefined}
-                onClick={() => onJump(step.id)}
-              >
-                <span className="housing-register-stepper-num" aria-hidden="true">
-                  <span className="housing-register-stepper-num-digit">{step.id}</span>
-                  <svg
-                    className="housing-register-stepper-check"
-                    viewBox="0 0 16 16"
-                    width="12"
-                    height="12"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M3 8.5L6.2 11.5L13 4.5"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </span>
-                <span className="housing-register-stepper-content">
-                  <span className="housing-register-stepper-label">{t(step.labelKey)}</span>
-                  <span className="housing-register-stepper-desc-wrap">
-                    <span className="housing-register-stepper-desc-inner">
-                      <span
-                        className="housing-register-stepper-desc"
-                        data-testid={`housing-register-step-desc-${step.id}`}
-                      >
-                        {t(descKeyFor(step.labelKey))}
+          <svg
+            className="housing-register-stepper-svg"
+            data-testid="housing-register-stepper-svg"
+            width="100%"
+            height={svgHeight}
+            aria-hidden="true"
+          >
+            {/* 未塗り下地(トラック): 前景の手前(DOM順で後ろ = 描画は下)に敷く「これから塗る道筋」。
+                dash なし = 全長・全周をそのまま表示。 */}
+            {connectors.map((c, i) => (
+              <line
+                key={`ct-${i}`}
+                className="housing-register-stepper-connector-track"
+                x1={RING_CX}
+                y1={c.y1}
+                x2={RING_CX}
+                y2={c.y2}
+              />
+            ))}
+            {centers.map((cy, i) => (
+              <circle
+                key={`rt-${i}`}
+                className="housing-register-stepper-ring-track"
+                cx={RING_CX}
+                cy={cy}
+                r={RING_R}
+              />
+            ))}
+            {/* 接続線 (丸の後ろ)。座標は測定値、progress に応じて dash で塗る */}
+            {connectors.map((c, i) => (
+              <line
+                key={`c-${i}`}
+                className="housing-register-stepper-connector"
+                x1={RING_CX}
+                y1={c.y1}
+                x2={RING_CX}
+                y2={c.y2}
+                style={{ strokeDasharray: c.len, strokeDashoffset: c.len * (1 - connectorFill(i)) }}
+              />
+            ))}
+            {/* 円周リング。座標は測定値、progress に応じて dash で塗る */}
+            {centers.map((cy, i) => (
+              <circle
+                key={`r-${i}`}
+                className="housing-register-stepper-ring"
+                cx={RING_CX}
+                cy={cy}
+                r={RING_R}
+                style={{ strokeDasharray: RING_C, strokeDashoffset: RING_C * (1 - ringFill(i)) }}
+              />
+            ))}
+          </svg>
+          <ol ref={listRef} className="housing-register-stepper-list">
+            {steps.map((step) => (
+              <li key={step.id}>
+                <button
+                  type="button"
+                  className={`housing-register-stepper-item is-${step.state}`}
+                  data-testid={`housing-register-step-${step.id}`}
+                  aria-current={step.state === 'active' ? 'step' : undefined}
+                  onClick={() => onJump(step.id)}
+                >
+                  <span className="housing-register-stepper-num" aria-hidden="true">
+                    <span className="housing-register-stepper-num-digit">{step.id}</span>
+                    <svg
+                      className="housing-register-stepper-check"
+                      viewBox="0 0 16 16"
+                      width="12"
+                      height="12"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M3 8.5L6.2 11.5L13 4.5"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <span className="housing-register-stepper-content">
+                    <span className="housing-register-stepper-label">{t(step.labelKey)}</span>
+                    <span className="housing-register-stepper-desc-wrap">
+                      <span className="housing-register-stepper-desc-inner">
+                        <span
+                          className="housing-register-stepper-desc"
+                          data-testid={`housing-register-step-desc-${step.id}`}
+                        >
+                          {t(descKeyFor(step.labelKey))}
+                        </span>
                       </span>
                     </span>
                   </span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ol>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </nav>
   );

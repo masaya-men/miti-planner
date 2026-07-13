@@ -117,4 +117,60 @@ describe('RegisterStepperNav', () => {
     expect(container.querySelectorAll('.housing-register-stepper-ring').length).toBe(3);
     expect(container.querySelectorAll('.housing-register-stepper-connector').length).toBe(2);
   });
+
+  // Task3: progress (0..1) が viewport/body の高さ差 (overflow) に応じて body の translateY (スクロール) に反映される。
+  it('progress を上げると body が上へスクロールする (translateY が増える)', () => {
+    // 既存の「progress を上げると先頭の円の stroke-dashoffset が減る」テストが
+    // `vi.spyOn(...).mockImplementation(orig)` で「復元」した後も getBoundingClientRect は
+    // spy のまま残る (mockImplementation は実装差し替えのみで spy 自体は外れない)。
+    // ここで同じパターンの orig を再取得すると spy 自身を指してしまい、終了時に自己参照で
+    // 無限再帰 (RangeError) するため、spy インスタンスを保持して mockRestore() で確実に外す。
+    const spy = vi.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(function (this: Element) {
+      if (this.classList.contains('housing-register-stepper-body')) {
+        return { top: 0, height: 300, bottom: 300, left: 0, right: 40, width: 40, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
+      }
+      if (this.classList.contains('housing-register-stepper-viewport')) {
+        return { top: 0, height: 150, bottom: 150, left: 0, right: 40, width: 40, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
+      }
+      if (this.classList.contains('housing-register-stepper-num')) {
+        return { top: 0, height: 22, bottom: 22, left: 0, right: 22, width: 22, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
+      }
+      return { top: 0, height: 0, bottom: 0, left: 0, right: 0, width: 0, x: 0, y: 0, toJSON: () => ({}) } as DOMRect;
+    });
+
+    const translateYOf = (el: HTMLElement | null) => {
+      const m = (el?.style.transform ?? '').match(/translateY\((-?\d+(?:\.\d+)?)px\)/);
+      return m ? parseFloat(m[1]) : 0;
+    };
+    const renderAt = (p: number) =>
+      render(
+        <I18nextProvider i18n={i18n}>
+          <RegisterStepperNav steps={steps} onJump={() => {}} progress={p} />
+        </I18nextProvider>,
+      );
+
+    const { container: c0 } = renderAt(0);
+    const y0 = translateYOf(c0.querySelector('.housing-register-stepper-body'));
+    const { container: c1 } = renderAt(0.5);
+    const y1 = translateYOf(c1.querySelector('.housing-register-stepper-body'));
+
+    expect(y1).toBeLessThan(y0 + 0.0001); // 進むほど translateY は負に大きく (上へ)
+    expect(y1).toBeLessThan(0);           // overflow あり → 0.5 で上へ送られている
+    spy.mockRestore();
+  });
+
+  it('全ステップの説明文が常に DOM にある (アクティブ以外も)', () => {
+    render(
+      <I18nextProvider i18n={i18n}>
+        <RegisterStepperNav steps={steps} onJump={() => {}} progress={0} />
+      </I18nextProvider>,
+    );
+    // steps は media(active でない)/address(active)/intro(idle)。全部の説明文が出ている。
+    expect(screen.getByTestId('housing-register-step-desc-1')).toHaveTextContent(
+      jaTranslations.housing.register.step_desc.media,
+    );
+    expect(screen.getByTestId('housing-register-step-desc-3')).toHaveTextContent(
+      jaTranslations.housing.register.step_desc.intro,
+    );
+  });
 });

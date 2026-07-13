@@ -4173,7 +4173,7 @@ select.housing-input option {
 .housing-register-left-scroll {
   flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -4345,10 +4345,31 @@ select.housing-input option {
  * を流用)。説明文はアクティブなステップだけ開く。
  * ============================================================ */
 .housing-register-stepper {
-  flex: 0 0 auto;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
+/* ビューポート: 器の高さで clip。中身が超えるときだけ上下端をフェード (スクロールバー無し)。 */
+.housing-register-stepper-viewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+.housing-register-stepper-viewport[data-overflow='true'] {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 20px), transparent 100%);
+}
+/* body: 進行連動で上へ送る。translateY は inline style で与える。
+   スクロール追従なのでオーバーシュート系 (spring) は使わず ease-out で軽く追従
+   (実画面で速度感は要微調整)。 */
 .housing-register-stepper-body {
   position: relative;
+  transition: transform 0.2s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-register-stepper-body { transition: none; }
 }
 /* SVG 進捗レイヤー: リストの丸に重ねる (絶対配置)。座標/dash は RegisterStepperNav.tsx が
    ResizeObserver 測定値から算出する (バッジ中心 x = item padding-left(10) + バッジ半径(11) = 21px)。 */
@@ -4485,18 +4506,12 @@ select.housing-input option {
   font-size: var(--housing-text-md);
   font-weight: 500;
 }
-/* 説明文 (Task2): アクティブなステップだけ開く。grid-template-rows の 0fr→1fr トランジションで
-   高さ不明のテキストを滑らかに開閉する (max-height の決め打ちを避ける)。 */
+/* 説明文 (Task3): 開閉トランジションをやめ常時表示に統一 (静的ステッパー化。
+   スクロールは viewport 側の translateY オートスクロールに一本化する)。 */
 .housing-register-stepper-desc-wrap {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 220ms ease;
-}
-.housing-register-stepper-item.is-active .housing-register-stepper-desc-wrap {
-  grid-template-rows: 1fr;
+  display: block;
 }
 .housing-register-stepper-desc-inner {
-  overflow: hidden;
   min-height: 0;
 }
 .housing-register-stepper-desc {
@@ -4505,11 +4520,6 @@ select.housing-input option {
   font-size: var(--housing-text-xs);
   line-height: 1.5;
   color: var(--housing-text-mute);
-}
-@media (prefers-reduced-motion: reduce) {
-  .housing-register-stepper-desc-wrap {
-    transition: none;
-  }
 }
 
 /* ============================================================
