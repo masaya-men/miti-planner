@@ -3971,6 +3971,11 @@ select.housing-input option {
     inset 0 1.5px 1px rgba(255, 255, 255, 0.30),
     inset 0 -1px 0 rgba(255, 255, 255, 0.06);
 }
+/* 探すページ (検索窓あり) は撤去前と同じ 4 列: brand / 検索(伸縮) / TabBar / right。
+   他ページは検索窓が無いので既定の 3 列 (auto 1fr auto) のまま。 */
+.housing-app-header[data-search="on"] {
+  grid-template-columns: auto minmax(160px, 1fr) auto auto;
+}
 /* 上端の薄い sheen (旧 .housing-top::after と同じ) */
 .housing-app-header::after {
   content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
@@ -3980,21 +3985,30 @@ select.housing-input option {
   pointer-events: none;
 }
 
-/* ヘッダー左 (ブランド + 探す横断検索・grid 1列目に同居させ TabBar 中央を保つ) */
-.housing-app-header-left {
+/* ヘッダー横断検索 (探すページのみ・撤去前の grid 独立列レイアウトを 1:1 復元) */
+.housing-app-search {
   display: flex;
   align-items: center;
-  gap: 16px;
   min-width: 0;
-}
-/* ヘッダー横断検索 (探すページのみ・input は .housing-input 基底を流用) */
-.housing-app-search {
-  position: relative;
-  flex: 0 1 clamp(180px, 20vw, 300px);
-  min-width: 0;
+  position: relative; /* 候補ドロップダウンの位置基準 */
 }
 .housing-app-search-input {
   width: 100%;
+  height: 34px;
+  padding: 0 14px;
+  color: var(--housing-text);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-app-search-input::placeholder { color: var(--housing-text-mute); }
+.housing-app-search-input:focus {
+  border-color: var(--housing-honey-border);
+  background: var(--housing-honey-soft);
 }
 .housing-app-search-dropdown {
   position: absolute;

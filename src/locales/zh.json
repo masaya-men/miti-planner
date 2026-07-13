@@ -2585,7 +2585,7 @@
             }
         },
         "header": {
-            "search_placeholder": "搜索房屋（名称·主题·地址…）",
+            "search_placeholder": "按地址·世界·主题搜索…",
             "search_housingers": "房主",
             "search_view_homes": "查看 {{name}} 的房屋"
         },

@@ -2585,7 +2585,7 @@
             }
         },
         "header": {
-            "search_placeholder": "하우징 검색 (이름·테마·주소…)",
+            "search_placeholder": "주소·월드·테마로 검색…",
             "search_housingers": "하우징어",
             "search_view_homes": "{{name}} 님의 집 보기"
         },

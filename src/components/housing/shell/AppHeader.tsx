@@ -96,8 +96,11 @@ export const AppHeader: React.FC = () => {
   }, [dropdownOpen]);
 
   return (
-    <header className="housing-app-header" data-region="header">
-      <div className="housing-app-header-left">
+    <header
+      className="housing-app-header"
+      data-region="header"
+      data-search={showSearch ? 'on' : undefined}
+    >
       <div className="housing-brand-wrap">
         {/* 全アプリ共通の LoPo ロゴ (= miti と同一 LoPoButton)。ハウジングではハニーゴールド単色
             (ダーク/ライト共通)。色は housing トークンを var() で参照しハードコードを回避。 */}
@@ -111,7 +114,7 @@ export const AppHeader: React.FC = () => {
         <div className="housing-app-search" ref={searchWrapRef}>
           <input
             type="search"
-            className="housing-input housing-app-search-input"
+            className="housing-app-search-input"
             value={keyword}
             onChange={(e) => {
               setKeyword(e.target.value);
@@ -147,7 +150,6 @@ export const AppHeader: React.FC = () => {
           )}
         </div>
       )}
-      </div>
 
       <TabBar />
 

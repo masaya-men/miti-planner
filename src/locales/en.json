@@ -2620,7 +2620,7 @@
             }
         },
         "header": {
-            "search_placeholder": "Search housing (name, theme, address…)",
+            "search_placeholder": "Search by address, world, or theme…",
             "search_housingers": "Housingers",
             "search_view_homes": "View {{name}}'s homes"
         },
