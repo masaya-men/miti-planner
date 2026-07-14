@@ -1,19 +1,11 @@
 /**
  * 運営通知 (system_notifications) の購読 + 既読管理 hook。
  *
- * - Firestore 'system_notifications' を published===true で onSnapshot 購読
+ * - 公開窓口 (`GET /api/template?action=public-notifications`) を fetch でポーリング
+ *   (マウント時 + タブ復帰時)。Admin SDK 経由の窓口読みのため App Check 不要。
  * - 既読は localStorage で管理 (端末別)、 ログイン不要
- * - 認証不要で read 可 (Firestore Rules で公開 read)
  */
 import { useEffect, useMemo, useState } from 'react';
-import {
-  collection,
-  query,
-  orderBy,
-  where,
-  onSnapshot,
-  getFirestore,
-} from 'firebase/firestore';
 import type { SystemNotification } from '../types/systemNotification';
 import {
   loadReadState,
@@ -34,16 +26,23 @@ export function useSystemNotifications(): UseSystemNotificationsResult {
   const [readIds, setReadIds] = useState<string[]>(() => loadReadState().readIds);
 
   useEffect(() => {
-    const ref = collection(getFirestore(), 'system_notifications');
-    const q = query(ref, where('published', '==', true), orderBy('createdAt', 'desc'));
-    const unsub = onSnapshot(q, (snap) => {
-      const next = snap.docs.map((d) => ({
-        id: d.id,
-        ...(d.data() as Omit<SystemNotification, 'id'>),
-      }));
-      setItems(next);
-    });
-    return () => unsub();
+    let cancelled = false;
+    const load = async () => {
+      try {
+        // 公開読み窓口 (Admin SDK・キャッシュ・App Check 不要)。素の fetch で App Check を付与しない。
+        const res = await fetch('/api/template?action=public-notifications');
+        if (!res.ok) return;
+        const data = (await res.json()) as { items?: SystemNotification[] };
+        if (!cancelled) setItems(Array.isArray(data.items) ? data.items : []);
+      } catch {
+        // ネットワーク失敗時は既存 items を維持 (握りつぶし)
+      }
+    };
+    load();
+    // タブ復帰時に再取得 (運営通知は低頻度なので常時ポーリングはしない)
+    const onVisible = () => { if (document.visibilityState === 'visible') load(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { cancelled = true; document.removeEventListener('visibilitychange', onVisible); };
   }, []);
 
   const unread = useMemo(
