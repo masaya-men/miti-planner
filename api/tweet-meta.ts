@@ -15,6 +15,8 @@ import {
     extractTweetMediaPayload,
     type SyndicationRaw,
 } from '../src/lib/housing/tweetMetaExtract.js';
+import { applyRateLimitWeb } from '../src/lib/rateLimit.js';
+import { rejectIfPublicApiDisabledWeb } from '../src/lib/publicApiGuard.js';
 
 export const config = { runtime: 'edge' };
 
@@ -22,6 +24,13 @@ const TWEET_ID_REGEX = /^\d{1,20}$/;
 const TIMEOUT_MS = 10_000;
 
 export default async function handler(req: Request): Promise<Response> {
+    const disabled = rejectIfPublicApiDisabledWeb();
+    if (disabled) return disabled;
+    // s-maxage=3600 があるので、ここに来るのはキャッシュ MISS のみ。
+    // 探す一覧のカードが並行で呼ぶ場合があるため 60/分と緩めにする。
+    const limited = await applyRateLimitWeb(req, 60, 60_000, { scope: 'tweet-meta', globalMax: 600 });
+    if (limited) return limited;
+
     const url = new URL(req.url);
     const id = url.searchParams.get('id');
     if (!id || !TWEET_ID_REGEX.test(id)) {
