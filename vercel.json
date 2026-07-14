@@ -33,6 +33,24 @@
       ]
     },
     {
+      "source": "/housing/:file.webm",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=2592000" }
+      ]
+    },
+    {
+      "source": "/housing/:file.mp4",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=2592000" }
+      ]
+    },
+    {
+      "source": "/housing/:file.webp",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=2592000" }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
