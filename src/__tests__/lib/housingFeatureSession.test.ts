@@ -12,7 +12,8 @@ vi.mock('firebase/firestore', () => ({
 vi.mock('../../lib/firebase', () => ({
   db: {},
   auth: {},
-  appCheck: Promise.resolve({}),
+  ensureAppCheck: () => null,
+  getActiveAppCheck: () => null,
 }));
 
 import * as firestore from 'firebase/firestore';

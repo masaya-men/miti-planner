@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // firebase/app-check をモック(initializeAppCheck の呼び出し回数を観測する)
-const initializeAppCheck = vi.fn(() => ({ __mock: 'appcheck-instance' }));
+const initializeAppCheck = vi.fn((..._args: unknown[]) => ({ __mock: 'appcheck-instance' }));
 vi.mock('firebase/app-check', () => ({
   initializeAppCheck: (...args: unknown[]) => initializeAppCheck(...args),
   ReCaptchaEnterpriseProvider: vi.fn(function (this: unknown, key: string) {

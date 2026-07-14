@@ -3,7 +3,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../firebase', () => ({
   auth: { currentUser: { getIdToken: vi.fn().mockResolvedValue('id-token') } },
-  appCheck: Promise.resolve({}),
+  // トークン付与を検証するテストのため、真値インスタンスを返す (peek/ensure どちらでも通す)
+  ensureAppCheck: () => ({}),
+  getActiveAppCheck: () => ({}),
 }));
 vi.mock('firebase/app-check', () => ({
   getToken: vi.fn().mockResolvedValue({ token: 'app-check-token' }),

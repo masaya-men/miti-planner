@@ -17,11 +17,11 @@ const mockedExecutePlanDeletions = vi.mocked(executePlanDeletions);
 vi.mock('../../lib/firebase', () => ({
     auth: { currentUser: null },
     db: {},
-    appCheck: null,
+    ensureAppCheck: () => null,
+    getActiveAppCheck: () => null,
 }));
 vi.mock('../../lib/appCheck', () => ({
-    appCheckReady: Promise.resolve(),
-    ensureAppCheckToken: vi.fn().mockResolvedValue(''),
+    createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
 }));
 // useAuthStore は内部で firebase/auth の onAuthStateChanged 等を直接呼ぶので
 // モジュール全体をスタブ化する必要がある。

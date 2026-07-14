@@ -4,7 +4,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useMeasuredMemberLayout } from '../Timeline.layoutHooks';
 import type { MemberRefEntry } from '../Timeline.layoutHooks';
 
-vi.mock('../../lib/firebase', () => ({ db: {}, auth: {}, storage: {}, analytics: Promise.resolve(null), appCheck: null }));
+vi.mock('../../lib/firebase', () => ({ db: {}, auth: {}, storage: {}, analytics: Promise.resolve(null), ensureAppCheck: () => null, getActiveAppCheck: () => null }));
 
 describe('useMeasuredMemberLayout', () => {
   let mockRefs: Map<string, { offsetLeft: number; offsetWidth: number }>;

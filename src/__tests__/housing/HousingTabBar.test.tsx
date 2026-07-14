@@ -29,7 +29,8 @@ vi.mock('firebase/firestore', () => ({
 vi.mock('../../lib/firebase', () => ({
   auth: { currentUser: null },
   db: {},
-  appCheck: Promise.resolve({}),
+  ensureAppCheck: () => null,
+  getActiveAppCheck: () => null,
 }));
 
 import { HousingTabBar } from '../../components/housing/HousingTabBar';

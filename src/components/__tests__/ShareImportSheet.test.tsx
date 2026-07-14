@@ -8,11 +8,11 @@ import { useShareImportFlow } from '../../store/useShareImportFlow';
 vi.mock('../../lib/firebase', () => ({
     auth: { currentUser: null },
     db: {},
-    appCheck: null,
+    ensureAppCheck: () => null,
+    getActiveAppCheck: () => null,
 }));
 vi.mock('../../lib/appCheck', () => ({
-    appCheckReady: Promise.resolve(),
-    ensureAppCheckToken: vi.fn().mockResolvedValue(''),
+    createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
 }));
 vi.mock('firebase/auth', () => ({
     onAuthStateChanged: () => () => {},

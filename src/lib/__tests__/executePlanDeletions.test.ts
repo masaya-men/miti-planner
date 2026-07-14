@@ -46,10 +46,11 @@ vi.mock('../../lib/firebase', () => ({
   auth: { currentUser: null },
   db: {},
   storage: {},
-  appCheck: {},
+  ensureAppCheck: () => null,
+  getActiveAppCheck: () => null,
 }));
 vi.mock('../../lib/appCheck', () => ({
-  initAppCheck: vi.fn(() => null),
+  createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
 }));
 vi.mock('../../lib/planService', () => ({
   planService: {
