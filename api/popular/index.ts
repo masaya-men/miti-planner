@@ -10,6 +10,8 @@ import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { verifyAdmin } from '../../src/lib/adminAuth.js';
 import { isVisible, todayKey, dayKeyDaysBefore, calculateScore7d } from './popularFilters.js';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
 
 const COLLECTION = 'shared_plans';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -114,6 +116,10 @@ export default async function handler(req: any, res: any) {
 
         if (req.method === 'GET') {
             // ── 人気プラン取得 ──
+            if (rejectIfPublicApiDisabled(res)) return;
+            // globalMax で「キャッシュバストされても原点 read の総量」を頭打ちにする。
+            // edge のキャッシュキー正規化 (contentIds 以外のクエリを無視) は CF 側で行う (ops §3)。
+            if (!(await applyRateLimit(req, res, 30, 60_000, { scope: 'popular-get', globalMax: 600 }))) return;
             const { contentIds } = req.query;
             if (!contentIds) {
                 return res.status(400).json({ error: 'contentIds is required' });
@@ -175,9 +181,15 @@ export default async function handler(req: any, res: any) {
 
                     // 全プラン取得（orderBy なし、メモリ上で直近7日スコアでソート）
                     // .select() で読むフィールドだけに射影（planData 本体/logoBase64 の転送を止める）。返す JSON は不変。
+                    // 1 リクエストの最大 read を固定する (contentId ごと上位 200 候補)。
+                    // score7d ≦ 生涯 copyCount なので、生涯上位 200 に入らない doc が
+                    // 直近 7 日上位 2 件に入ることは実質ない。
+                    // ⚠ firestore.indexes.json の (contentId ASC, copyCount DESC) 複合インデックス必須。
                     const allSnap = await db
                         .collection(COLLECTION)
                         .where('contentId', '==', id)
+                        .orderBy('copyCount', 'desc')
+                        .limit(200)
                         .select(...SELECT_FIELDS)
                         .get();
 
@@ -216,6 +228,7 @@ export default async function handler(req: any, res: any) {
 
         } else if (req.method === 'POST') {
             // ── コピーカウント増加（重複排除付き）──
+            if (!(await applyRateLimit(req, res, 20, 60_000, { scope: 'popular-post' }))) return;
             // uidはFirebase IDトークンから検証（自己申告を信頼しない）
             let uid: string | null = null;
             const authHeader = req.headers.authorization || '';
