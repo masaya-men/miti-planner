@@ -4,8 +4,8 @@
  * ハウジング物件通報ハンドラ
  * Body: { listingId, reason, comment? }
  * 動作: transaction で reports/{auto-id} 作成 + reportCount +1 + 通知 doc 作成
- *       同一 reporterUid × listingId × reason の既存があれば 409
- *       reportCount >= REPORT_AUTO_HIDE_THRESHOLD で isHidden=true (自動非表示)
+ *       同一 reporterUid × listingId の既存があれば 409
+ *       相異なる通報者数 >= REPORT_AUTO_HIDE_THRESHOLD で isHidden=true (自動非表示)
  * 通知側に reporterUid は書かない (家主に渡らない)
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
@@ -14,6 +14,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { isValidReportReason } from '../../src/types/housing.js';
 import { REPORT_AUTO_HIDE_THRESHOLD } from '../../src/constants/housing.js';
+import { computeListingReportOutcome } from '../../src/lib/housing/reportOutcome.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -64,10 +65,10 @@ export default async function handler(req: any, res: any) {
     const listingRef = adminDb.collection('housing_listings').doc(listingId);
 
     // 重複チェック (transaction 外で軽く)
+    // 2026-07-14: dedup は (reporterUid, listingId) 単位 — 同一ユーザーは reason を変えても 1 回まで
     const existing = await listingRef
       .collection('reports')
       .where('reporterUid', '==', reporterUid)
-      .where('reason', '==', reason)
       .limit(1)
       .get();
     if (!existing.empty) {
@@ -105,8 +106,16 @@ export default async function handler(req: any, res: any) {
         if (hasDuplicates) threshold = 1;
       }
 
-      const newCount = (data.reportCount || 0) + 1;
-      const shouldHide = newCount >= threshold && !data.isHidden;
+      // 自動 hide は「相異なる通報者数」で判定する (reportCount も同じ意味に統一)
+      const reportsSnap = await tx.get(
+        listingRef.collection('reports').select('reporterUid').limit(500)
+      );
+      const { newCount, shouldHide } = computeListingReportOutcome(
+        reportsSnap.docs.map((d) => d.data().reporterUid as string | undefined),
+        reporterUid,
+        threshold,
+        data.isHidden === true,
+      );
 
       // 通報 doc 作成
       tx.set(reportRef, {
