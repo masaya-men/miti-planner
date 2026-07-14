@@ -27,6 +27,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { mergePlans } from './mergePlans';
+import { isSharedPlanContentEqual } from './planContentEqual';
 import { COLLECTIONS, PLAN_LIMITS } from '../types/firebase';
 import type { FirestorePlan, FirestoreUserPlanCounts } from '../types/firebase';
 import type { SavedPlan } from '../types';
@@ -278,7 +279,7 @@ async function createPlan(
 async function updatePlan(
   plan: SavedPlan,
   uid: string,
-): Promise<'updated' | 'skipped_newer_remote' | 'deleted_remotely'> {
+): Promise<'updated' | 'skipped_newer_remote' | 'skipped_same_content' | 'deleted_remotely'> {
   const planRef = doc(db, COLLECTIONS.PLANS, plan.id);
   // サーバーから直接読み取り（キャッシュの古いデータで削除済みドキュメントを誤検出しないため）
   try {
@@ -306,6 +307,15 @@ async function updatePlan(
       ? current.updatedAt.toMillis()
       : 0;
     if (remoteUpdatedAt > plan.updatedAt) {
+      // 共有中身が同一なら偽競合。共同編集(collab)の DO は保存の度に
+      // updatedAt=serverTimestamp を書き、クライアントの Date.now を必ず追い越すため、
+      // 中身が同じでも「リモートが新しい」が常態になる。ここで内容一致を確認し、
+      // 一致なら競合コピーを作らせず (呼び出し側は skipped_same_content を素通し)、
+      // 後勝ち上書き合戦も避けるためスキップする。中身が異なるときだけ本物の乖離として
+      // skipped_newer_remote を返し、退避コピー (唯一のセーフティネット) を残す。
+      if (isSharedPlanContentEqual(current.data, plan.data)) {
+        return 'skipped_same_content';
+      }
       return 'skipped_newer_remote';
     }
     await setDoc(planRef, toFirestoreUpdate(plan, current.version), { merge: true });

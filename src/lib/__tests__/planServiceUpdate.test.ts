@@ -80,6 +80,47 @@ describe('updatePlan 墓標対応', () => {
     });
 });
 
+describe('updatePlan 偽競合コピー防止 (共同編集の serverTimestamp 追い越し)', () => {
+    const shared = () => ({
+        currentLevel: 90,
+        timelineMitigations: [{ id: 'm1', skillId: 's1', time: 5 }],
+        timelineEvents: [], phases: [], partyMembers: [],
+        aaSettings: { damage: 100, type: 'magical', target: 'MT' },
+        schAetherflowPatterns: {},
+    });
+
+    it('リモートが新しくても共有中身が同一なら skipped_same_content を返し書き戻さない', async () => {
+        const Timestamp = (fs as any).Timestamp;
+        vi.mocked(fs.getDocFromServer).mockResolvedValue({
+            exists: () => true,
+            data: () => ({ ownerId: UID, version: 1, updatedAt: new Timestamp(9999), data: shared() }),
+        } as any);
+
+        const local = { ...makePlan('p5', UID, 1000), data: shared() as any };
+        const result = await planService.updatePlan(local, UID);
+
+        expect(result).toBe('skipped_same_content');
+        // 後勝ち上書き合戦を避けるため書き戻さない
+        expect(calls.setDoc).toBe(0);
+    });
+
+    it('リモートが新しく共有中身が異なるなら skipped_newer_remote (本物の乖離の退避コピーを残す)', async () => {
+        const Timestamp = (fs as any).Timestamp;
+        const remoteData = shared();
+        const localData = { ...shared(), timelineMitigations: [{ id: 'm1', skillId: 's1', time: 5 }, { id: 'm2', skillId: 's2', time: 20 }] };
+        vi.mocked(fs.getDocFromServer).mockResolvedValue({
+            exists: () => true,
+            data: () => ({ ownerId: UID, version: 1, updatedAt: new Timestamp(9999), data: remoteData }),
+        } as any);
+
+        const local = { ...makePlan('p6', UID, 1000), data: localData as any };
+        const result = await planService.updatePlan(local, UID);
+
+        expect(result).toBe('skipped_newer_remote');
+        expect(calls.setDoc).toBe(0);
+    });
+});
+
 describe('migrateLocalPlansToFirestore 墓標/ローカル削除対応', () => {
     it('ローカル既知削除ID はリモートに live で存在しても復活させない', async () => {
         // サーバには live で残っている (削除が未同期) プラン
@@ -128,5 +169,48 @@ describe('syncDirtyPlans 墓標対応', () => {
 
         expect(deletedRemotely).toContain('p4');
         expect(conflicted.map(p => p.id)).not.toContain('p4');
+    });
+});
+
+describe('syncDirtyPlans 偽競合コピー防止 (共同編集)', () => {
+    const shared = () => ({
+        currentLevel: 90,
+        timelineMitigations: [{ id: 'm1', skillId: 's1', time: 5 }],
+        timelineEvents: [], phases: [], partyMembers: [],
+        aaSettings: { damage: 100, type: 'magical', target: 'MT' },
+        schAetherflowPatterns: {},
+    });
+
+    it('共有中身が同一の dirty プランは conflicted に入らない (偽コピーを作らない)', async () => {
+        const Timestamp = (fs as any).Timestamp;
+        vi.mocked(fs.getDocFromServer).mockResolvedValue({
+            exists: () => true,
+            data: () => ({ ownerId: UID, version: 1, updatedAt: new Timestamp(9999), data: shared() }),
+        } as any);
+
+        const plan = { ...makePlan('p7', UID, 1000), data: shared() as any };
+        const { conflicted, deletedRemotely } = await planService.syncDirtyPlans(
+            new Set(['p7']), [plan], UID, 'Name',
+        );
+
+        expect(conflicted).toHaveLength(0);
+        expect(deletedRemotely).toHaveLength(0);
+        expect(calls.setDoc).toBe(0);
+    });
+
+    it('共有中身が異なる dirty プランは conflicted に入る (本物の乖離の退避コピーを残す)', async () => {
+        const Timestamp = (fs as any).Timestamp;
+        const localData = { ...shared(), timelineMitigations: [{ id: 'm1', skillId: 's1', time: 5 }, { id: 'm2', skillId: 's2', time: 20 }] };
+        vi.mocked(fs.getDocFromServer).mockResolvedValue({
+            exists: () => true,
+            data: () => ({ ownerId: UID, version: 1, updatedAt: new Timestamp(9999), data: shared() }),
+        } as any);
+
+        const plan = { ...makePlan('p8', UID, 1000), data: localData as any };
+        const { conflicted } = await planService.syncDirtyPlans(
+            new Set(['p8']), [plan], UID, 'Name',
+        );
+
+        expect(conflicted.map(p => p.id)).toContain('p8');
     });
 });

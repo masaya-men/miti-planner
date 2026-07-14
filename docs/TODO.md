@@ -31,7 +31,7 @@
    - **✅ P0(緊急耐性)+✅ P1(公開読み窓口化+rulesロック)=本番稼働**(7-14・build/test緑3285・opus最終レビュー済[admin/cron版bump漏れ1件検出→修正])。**✅ CF全ルール稼働**(メディア/窓口`/api/housing/public`/HTML60秒=全てHIT実測・sw.jsバイパス維持でPWA無傷)。**⚠Vercel Hobby 12関数上限**に当たり窓口を`api/housing`ルータへ畳んで解決(c3135486・[[reference_vercel_hobby_function_limit]]・恒久策A適用済/B=Node census後統合)。動画カード再生中タイトル消えも修正済。**🔵P1送りbacklog**: tweet-video 25MB Range回避 / popular top-200窓の新着抑制。
    - **🎯ユーザー決定(7-14)=残り全フェーズ完遂して発表(今日明日目標)。次=P1-M→P2→P3(推奨順)。** **ユーザーの手が要るゲート**: P1-M後 G3(共同編集2タブ実機) / P2後 G4(匿名でreCAPTCHA無+ログイン書込実機)+G5(Firebase App Check強制切替) / P3 G6(3択UIデザイン承認)+G7(住所漏れ確認)→発表(Discord淡々テンプレ)。P1-M前に**競合コピー増殖バグ**をsystematic-debuggingで(下記別件)。実装台帳=`.superpowers/sdd/progress.md`。
    - **⚠ セキュリティ: 公開前の脆弱性を含むため設計書・敵対監査は全て `docs/.private/2026-07-14-*` に格納(公開リポに穴の地図を出さない)。修正デプロイ後にサニタイズ版を公開可。** 詳細・優先順・ダッシュ確認は .private + memory [[project_housing_scale_hardening]]。
-   - 別件: 競合コピー増殖バグ(共同編集ON開きっぱなしで発生)はP1-M前に専用systematic-debuggingで。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`。
+   - 別件: 競合コピー増殖バグ=✅修正済(実機検証待ち・本番デプロイ後に監視)。P1-M はこの後に着手。詳細=`docs/.private/2026-07-10-conflict-copy-investigation.md`。
 2. 🔧 **c 削除時の即反映バグ** (小): `remove(id)` が `myListings` を消さず削除後もリロードまで探すに残る([useHousingListingsStore.ts:95])。`removeMine` 追加で Firestore読み取り0で即反映(登録 upsert と同型)。↑private doc に詳細。
 3. 🎨 **e PF レイアウト調整** (ユーザーが詳細を後述・一緒に詰める。今回は共有ボタンのみ実装)。J マイページ(brainstorming) / admin タグ生ID(軽微) も残。
 4. 🧹 **旧UI意匠掃除+文言 (2026-07-14 気づき・細かい・別バッチ)**: ①登録タイトル欄 autoComplete=off(履歴サジェスト抑止・URL欄と同型) ②通報モーダル ③通知ドロップダウン(✕が枠外) ④削除確認モーダル = 各々 housing トンマナへ(honey/generic 撤去・[[feedback_housing_no_ai_pills]]) ⑤ヘッダー「ツアー中」→「ツアー」 ⑥ツアー空状態「ツアーがまだ始まっていません」→「探す・お気に入りから行きたいハウジングを選んでツアーを始めましょう！」(探す追加・要文言確定) ⑦「＋住所から追加」→全箇所「＋LoPoに登録せずに追加」(要文言確定)。 ⑧✅探すページの動画カード再生中タイトル消え=修正済(caption を z-content 層へ・本番反映)。
@@ -40,7 +40,7 @@
 探す地図FB / ハウジンガーPF / 一時ツアー + ④地域フィルタ連動 + ⑤ヘッダー横断検索(日本ワールドのカタカナ/ひらがな検索・PersonalTagFilter撤去) を main 反映 + `firebase deploy --only firestore`(rules+indexes) 済。
 - **PF/⑤実機確認**(上の最優先の後): checklist `docs/.private/2026-07-12-big3-release-verification-checklist.md` B節+⑤節。
 - **保留(非ブロッカー)**: ②建物タイプ切替がたつき(`0e07d7e1`効かず・要systematic-debugging) / 通報はPFページ報告に委任(本番PF後決定)。
-- **🔥 軽減表「(競合コピー)」増殖バグ**: `usePlanStore.ts:520/816`特定済み・未修正。専用セッションで systematic-debugging。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`
+- **✅ 軽減表「(競合コピー)」増殖バグ=修正済(実機検証待ち)**: root cause=collab DO の serverTimestamp が Date.now を追い越し中身同一でも偽競合。修正=`src/lib/planContentEqual.ts`(共有中身一致ゲート)+`updatePlan`が`skipped_same_content`返す。build✅/vitest3301pass/敵対監査3回通過。**次=本番デプロイ後に実機監視**(共有プランで放置/切替→コピー生えない・既存表無事)。詳細+残課題(owner属性のpull巻き戻し=別問題)=`.private/2026-07-10-conflict-copy-investigation.md`
 
 ### 🔴 D 住所確認ゲート強化 (要 brainstorming・上の「残」のD)
 「自動/手動問わず必ず住所を確認させる」。先読み=`docs/.private/2026-07-10-address-confirmation-gate.md`。要点=送信ゲートは`validateAddress().ok`のみで「見たか」を問わない・`fieldState.confirm()`到達不能・死にコード撤去(HousingRegisterAddressFields/ParentHouseSizeField)+部屋区分chip「家」2か所も同時に。(plot→size表/住所抽出v2/行き方整備は本番反映済→COMPLETED。要点=辞書に略称足すな[[feedback_no_speculative_alias_data]]・行き方正典=directions-src/*.csv[[reference_housing_directions_csv_canonical]])
