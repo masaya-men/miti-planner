@@ -7,7 +7,6 @@
  * 作成時に正規化して保存した displayNameLower を使う)。
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
-import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { normalizeDisplayNameForSearch } from '../../src/data/personalTags.js';
 import { PERSONAL_TAG_SEARCH_LIMIT } from '../../src/constants/housing.js';
@@ -45,7 +44,7 @@ export default async function handler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  if (!(await verifyAppCheck(req, res))) return;
+  // 公開検索(認証不要)。匿名の探すページから呼ばれるため App Check は課さない。DoW は下の rate limit(60/min)が担う。
   if (!(await applyRateLimit(req, res, 60, 60_000))) return;
 
   try {

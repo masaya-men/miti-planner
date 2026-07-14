@@ -11,6 +11,7 @@ import { LoginModal } from './LoginModal';
 import { uploadTeamLogo, deleteTeamLogo, validateLogoFile } from '../utils/logoUpload';
 import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
+import { ensureAppCheck } from '../lib/firebase';
 import { stripSharedPersonalData } from '../lib/sharePrivacy';
 import type { SavedPlan } from '../types';
 import { buildOgImageUrl, type OgpLang } from '../lib/ogpHelpers';
@@ -115,6 +116,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             }
             body.lang = lang;
 
+            // 匿名でも能動的な共有作成/更新は App Check 必須。ここで初期化を保証する(受動閲覧では発火しない)。apiFetch が peek で拾う。
+            ensureAppCheck();
             const res = await apiFetch('/api/share', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -159,6 +162,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             if (withLogo && effectiveLogoUrl && user) {
                 body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
             }
+            // 匿名でも能動的な共有作成/更新は App Check 必須。ここで初期化を保証する(受動閲覧では発火しない)。apiFetch が peek で拾う。
+            ensureAppCheck();
             const res = await apiFetch('/api/share', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },

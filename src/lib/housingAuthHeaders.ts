@@ -1,8 +1,10 @@
 /**
  * /api/housing 系の共通リクエストヘッダビルダー
  *
- * - App Check トークン (X-Firebase-AppCheck) を必ず付与する
- *   → サーバーは ENFORCE_APP_CHECK=true のとき、 このヘッダが無いと 403 で弾く
+ * - App Check トークン (X-Firebase-AppCheck) は、 認証必須 (requireAuth=true) または
+ *   既にログイン済みの場合のみ初期化して付与する。 匿名の read 経路 (requireAuth=false かつ未ログイン)
+ *   では初期化せず、 ヘッダも付与しない (該当エンドポイントはサーバー側で App Check を課さない設計)
+ *   → サーバーは ENFORCE_APP_CHECK=true のとき、 必須経路でこのヘッダが無いと 403 で弾く
  * - requireAuth=true で Firebase idToken を Authorization: Bearer に付与する
  *
  * 登録系 (housingApiClient) と Phase 3 系 (通報/編集/削除/通知) で共有し、

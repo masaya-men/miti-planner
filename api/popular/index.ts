@@ -107,9 +107,9 @@ export default async function handler(req: any, res: any) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Firebase-AppCheck');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    // App Check検証（POST のみ。GET = 公開の人気取得は匿名 boot で呼ばれるため免除。
-    //   DoW 防御は rate limit + globalMax + limit(200)〈P0-2〉が担う。share GET と同型）
-    if (req.method !== 'GET') {
+    // App Check検証（管理用 PATCH のみ。GET=公開の人気取得・POST=コピーカウント(匿名 anonId dedup)は
+    //   匿名 boot/操作で呼ばれるため免除。DoW 防御は各分岐の rate limit + globalMax + limit(200)〈P0-2〉が担う）
+    if (req.method === 'PATCH') {
         if (!(await verifyAppCheck(req, res))) return;
     }
 
