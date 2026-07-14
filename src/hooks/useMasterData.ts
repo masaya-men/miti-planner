@@ -189,11 +189,15 @@ export async function fetchTemplate(contentId: string): Promise<TemplateData | n
     return localCached;
   }
 
-  // 3. Firestoreから取得
+  // 3. 公開読み窓口から取得 (Admin SDK・キャッシュ・App Check 不要)。素の fetch で App Check を付与しない。
+  //    v=dataVersion を付けることで内容変更時 (dataVersion++) に URL が変わり旧キャッシュを自然失効させる。
   try {
-    const snap = await getDoc(doc(db, 'templates', contentId));
-    if (snap.exists()) {
-      const data = snap.data() as TemplateData;
+    const dataVersion = useMasterDataStore.getState().config?.dataVersion ?? 0;
+    const res = await fetch(
+      `/api/template?action=public-template&id=${encodeURIComponent(contentId)}&v=${dataVersion}`,
+    );
+    if (res.ok) {
+      const data = (await res.json()) as TemplateData;
       saveTemplateCache(contentId, data);
       store.setTemplate(contentId, data);
       return data;
