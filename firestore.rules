@@ -50,9 +50,10 @@ service cloud.firestore {
     // 書き込み: 自分のプランのみ
     // ========================================
     match /plans/{planId} {
-      // 読み取り: 自分のプラン OR 公開プラン
-      allow read: if isOwner(resource.data.ownerId)
-                  || (resource != null && resource.data.isPublic == true);
+      // 読み取り: 自分のプランのみ (公開プランの client 直読みは撤去)。
+      // 共有は /api/share (shared_plans・Admin SDK)、collab は /api/collab/load (Admin SDK) 経由で
+      // plans を読むため client の公開読みは不要。攻撃者の直 list を permission-denied にする。
+      allow read: if isOwner(resource.data.ownerId);
 
       allow create: if isAuthenticated()
                     && request.resource.data.ownerId == request.auth.uid
@@ -104,7 +105,8 @@ service cloud.firestore {
     // 書き込み: プラン所有者のみ
     // ========================================
     match /sharedPlanMeta/{shareId} {
-      allow read: if true;
+      // read はアカウント削除の where('ownerId','==',uid) のみが使う (共有解決は shared_plans/Admin SDK 経由)。
+      allow read: if isOwner(resource.data.ownerId);
 
       allow create: if isAuthenticated()
                     && request.resource.data.ownerId == request.auth.uid
@@ -185,7 +187,10 @@ service cloud.firestore {
     // テンプレート: 誰でも読める・直接書き込み不可
     // ========================================
     match /templates/{contentId} {
-      allow read: if true;
+      // 単一 get: 公開読み窓口 (/api/template?action=public-template) の miss フォールバックとして残す。
+      // list (バルク列挙): 撤去 (大量列挙ベクタ)。テンプレは窓口経由で配る。
+      allow get: if true;
+      allow list: if false;
       allow write: if false;
     }
 
@@ -490,7 +495,9 @@ service cloud.firestore {
     // write: client から不可 (admin API + Firebase Admin SDK 経由のみ)
     // ========================================
     match /system_notifications/{id} {
-      allow read: if true;
+      // 公開読みは /api/template?action=public-notifications (Admin SDK・キャッシュ) 経由に一本化。
+      // client 直読みは管理画面 (AdminSystemNotifications) の admin のみ残す。admin claim = role:'admin'。
+      allow read: if request.auth != null && request.auth.token.role == 'admin';
       allow write: if false;
     }
 
