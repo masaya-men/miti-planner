@@ -34,7 +34,7 @@ import type { HousingListing } from '../../../types/housing';
 import type { HousingNotification } from '../../../types/notification';
 import { canViewListing } from '../../../lib/housing/listingVisibility';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
-import { findListingsByAddressKey } from '../../../lib/housingListingsService';
+import { fetchPublicListingPeers } from '../../../lib/housing/publicHousingWindow';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import type { ReportNotice } from './HousingDetailContent';
 import { useHousingDelete } from '../delete/useHousingDelete';
@@ -141,8 +141,8 @@ export function useHousingDetail(
   }, [loadListing]);
 
   // 2026-05-27 Phase 2-3 hotfix: listing 取得後に同 addressKey の他 listing を確認。
-  // findListingsByAddressKey は isHidden=false で limit(10) を fetch。 client filter で
-  // 「自分以外 + deletedAt 無し」 を絞る。 1 fetch / 詳細モーダル open 1 回。
+  // 2026-07-14 P1: 公開キャッシュ窓口 (fetchPublicListingPeers) 経由に切替 (self/deletedAt は
+  // 窓口側で除外済み)。 client filter は「自分以外」 だけ残す。 1 fetch / 詳細モーダル open 1 回。
   useEffect(() => {
     if (!listing) {
       setHasDuplicates(false);
@@ -152,14 +152,13 @@ export function useHousingDetail(
     let cancelled = false;
     (async () => {
       try {
-        const fetched = await findListingsByAddressKey(listing.addressKey);
+        const fetched = await fetchPublicListingPeers(listing.id);
         if (cancelled) return;
         // §3.8: 自分が登録した物件は peer から除外する。 サーバ側で
         // `cannot_report_own` 403 になり「ちがった」 が必ず失敗するため、
         // そもそも button を出さないのが UX 上正しい。
-        const others = fetched.filter(
-          (l) => l.id !== listing.id && !l.deletedAt && l.ownerUid !== viewerUid,
-        );
+        // (窓口が self / deletedAt 済みは既に除外して返すため、 client では自分除外だけ残す)
+        const others = fetched.filter((l) => l.ownerUid !== viewerUid);
         setHasDuplicates(others.length > 0);
         setPeers(others);
       } catch {

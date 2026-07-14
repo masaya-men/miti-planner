@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { HousingListing } from '../../types/housing';
 
-const getGalleryListingsMock = vi.fn();
+const fetchPublicGalleryMock = vi.fn();
 const getListingByIdMock = vi.fn();
+vi.mock('../../lib/housing/publicHousingWindow', () => ({
+  fetchPublicGallery: (...a: unknown[]) => fetchPublicGalleryMock(...a),
+}));
 vi.mock('../../lib/housingListingsService', () => ({
-  getGalleryListings: (...a: unknown[]) => getGalleryListingsMock(...a),
   getListingById: (...a: unknown[]) => getListingByIdMock(...a),
 }));
 
@@ -18,7 +20,7 @@ const doc = (over: Partial<HousingListing>): HousingListing => ({
 });
 
 beforeEach(() => {
-  getGalleryListingsMock.mockReset();
+  fetchPublicGalleryMock.mockReset();
   getListingByIdMock.mockReset();
   useHousingListingsStore.getState().reset();
 });
@@ -31,7 +33,7 @@ describe('useHousingListingsStore', () => {
   });
 
   it('load で fetch→アダプタ変換し ready になる (変換不可は除外)', async () => {
-    getGalleryListingsMock.mockResolvedValueOnce([
+    fetchPublicGalleryMock.mockResolvedValueOnce([
       doc({ id: 'ok', dc: 'Materia', plot: 6, size: 'M' }),
       doc({ id: 'no-region', dc: 'UnknownDC' }),
     ]);
@@ -43,7 +45,7 @@ describe('useHousingListingsStore', () => {
   });
 
   it('load 失敗で error になる', async () => {
-    getGalleryListingsMock.mockRejectedValueOnce(new Error('boom'));
+    fetchPublicGalleryMock.mockRejectedValueOnce(new Error('boom'));
     await useHousingListingsStore.getState().load();
     const s = useHousingListingsStore.getState();
     expect(s.status).toBe('error');
@@ -51,10 +53,10 @@ describe('useHousingListingsStore', () => {
   });
 
   it('ready 済みなら load は再 fetch しない (冪等)', async () => {
-    getGalleryListingsMock.mockResolvedValue([doc({ id: 'a' })]);
+    fetchPublicGalleryMock.mockResolvedValue([doc({ id: 'a' })]);
     await useHousingListingsStore.getState().load();
     await useHousingListingsStore.getState().load();
-    expect(getGalleryListingsMock).toHaveBeenCalledTimes(1);
+    expect(fetchPublicGalleryMock).toHaveBeenCalledTimes(1);
   });
 
   it('fetchAndUpsert: id で 1 件取得→変換し listings に追加 (登録直後の即反映)', async () => {
@@ -80,7 +82,7 @@ describe('useHousingListingsStore', () => {
   });
 
   it('load: 同住所複数 listing は lastConfirmedAt desc、 別住所は住所順 (plot 昇順) で並ぶ', async () => {
-    getGalleryListingsMock.mockResolvedValueOnce([
+    fetchPublicGalleryMock.mockResolvedValueOnce([
       // plot 6 グループ (2 件、 lastConfirmedAt desc で x1, x2)
       doc({ id: 'x1', addressKey: 'addr-X', createdAt: 300, lastConfirmedAt: 800, plot: 6, size: 'M' }),
       doc({ id: 'x2', addressKey: 'addr-X', createdAt: 250, lastConfirmedAt: 400, plot: 6, size: 'M' }),
@@ -94,7 +96,7 @@ describe('useHousingListingsStore', () => {
   });
 
   it('upsert: 別住所 (plot 昇順) で住所順に並び替えられる', async () => {
-    getGalleryListingsMock.mockResolvedValueOnce([
+    fetchPublicGalleryMock.mockResolvedValueOnce([
       doc({ id: 'plot10', addressKey: 'addr-A', createdAt: 500, lastConfirmedAt: 500, plot: 10, size: 'M' }),
     ]);
     await useHousingListingsStore.getState().load();
@@ -115,7 +117,7 @@ describe('useHousingListingsStore', () => {
   });
 
   it('upsert: 同住所への新規追加で lastConfirmedAt が既存より低いと後ろに挿入される', async () => {
-    getGalleryListingsMock.mockResolvedValueOnce([
+    fetchPublicGalleryMock.mockResolvedValueOnce([
       doc({ id: 'recent_confirm', addressKey: 'same', createdAt: 100, lastConfirmedAt: 900, plot: 6, size: 'M' }),
     ]);
     await useHousingListingsStore.getState().load();

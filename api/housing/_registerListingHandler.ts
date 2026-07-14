@@ -18,6 +18,7 @@ import { validateRegistrationDraft, buildListingImageFields, normalizePublishUnt
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import type { HousingUserMeta } from '../../src/types/housing.js';
 import { assertPersonalTagsAttachable, PersonalTagAttachError } from './_personalTagAttachGuard.js';
+import { bumpPublicVersionTx } from './_publicVersion.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -143,6 +144,7 @@ export default async function handler(req: any, res: any) {
         ? { ...meta, registrationCount: meta.registrationCount + 1 }
         : applyRegistrationSuccess(meta);
       tx.set(metaRef, updatedMeta);
+      bumpPublicVersionTx(tx, adminDb);
     });
 
     // 2026-05-27 (Phase 2-4): 重複登録時のベル通知。

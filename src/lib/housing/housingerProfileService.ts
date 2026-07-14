@@ -15,13 +15,12 @@
  * - syncHousingerProfileBestEffort: 表示名/アイコン変更直後の追従用 (空 body 呼び出し = 転記のみ)。
  *   未ログイン時は何もせず、失敗は console.warn のみ (呼び出し元の成功フローを止めない)。
  */
-import { collection, doc, getDoc, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { buildHousingHeaders } from '../housingAuthHeaders';
 import type { HousingerProfile, HousingListing } from '../../types/housing';
 
 const PROFILE_COLLECTION = 'housing_profiles';
-const LISTING_COLLECTION = 'housing_listings';
 
 /** uid → 取得結果 (null = 非公開/不存在/取得不可) のセッションキャッシュ */
 const profileCache = new Map<string, HousingerProfile | null>();
@@ -52,18 +51,8 @@ export function invalidateHousingerProfileCache(uid: string): void {
 }
 
 export async function getHousingerListings(uid: string): Promise<HousingListing[]> {
-  const qref = query(
-    collection(db, LISTING_COLLECTION),
-    where('ownerUid', '==', uid),
-    where('visibility', '==', 'public'),
-    where('isHidden', '==', false),
-    orderBy('createdAt', 'desc'),
-    limit(200),
-  );
-  const snap = await getDocs(qref);
-  return snap.docs
-    .map((d) => ({ id: d.id, ...(d.data() as Omit<HousingListing, 'id'>) }))
-    .filter((l) => l.deletedAt == null);
+  const { fetchPublicHousinger } = await import('./publicHousingWindow');
+  return fetchPublicHousinger(uid);
 }
 
 export async function upsertHousingerProfile(input: {

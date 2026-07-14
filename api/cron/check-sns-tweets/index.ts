@@ -13,6 +13,7 @@
  */
 import { initAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
 import { checkTweetStatus } from '../../../src/lib/housing/tweetSyndication.js';
+import { bumpPublicVersionDirect } from '../../housing/_publicVersion.js';
 
 const DEFAULT_BATCH = 150;
 
@@ -60,6 +61,8 @@ export default async function handler(req: any, res: any) {
         errored++; // fail-safe: 何も触らない (lastTweetCheckAt 据え置き = 次回再試行)
       }
     }
+
+    if (deleted > 0) await bumpPublicVersionDirect(db);
 
     return res.status(200).json({ checked: snap.size, deleted, alive, errored });
   } catch (err: any) {

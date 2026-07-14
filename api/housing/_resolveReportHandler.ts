@@ -17,6 +17,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { MAX_SELF_RESTORE } from '../../src/constants/housing.js';
+import { bumpPublicVersionBatch } from './_publicVersion.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -78,6 +79,7 @@ export default async function handler(req: any, res: any) {
       reportCount: 0,
       restoreCount: restoreCount + (wasHidden ? 1 : 0),
     });
+    bumpPublicVersionBatch(batch, adminDb);
     await batch.commit();
 
     return res.status(200).json({ success: true, restored: wasHidden });
