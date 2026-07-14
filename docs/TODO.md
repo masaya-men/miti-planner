@@ -23,13 +23,12 @@
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ round1+round2 本番検証済み・全OK (2026-07-13 セッション6・commit 9a5724d5)
-登録/探す/詳細/ツアーの指摘(A〜N)+気づき 計21項目を2デプロイで消化・ユーザー本番OK。詳細=`docs/superpowers/*/2026-07-13-housing-register-browse-round2*` + `.private/2026-07-13-register-production-test-feedback.md`。**プライバシー=`personal_<hex>`はHMAC一方向ハッシュ**。
+### ✅ 直近本番検証済: round1+round2(21項目・7-13) + P0大規模耐性ハードニング(7-14)。プライバシー=`personal_<hex>`はHMAC一方向ハッシュ。round2詳細=`.private/2026-07-13-register-production-test-feedback.md`。
 ### 🔴 次セッション最優先 (検証で判明+新アイデア)
 1. 🔴🔴 **ハウジング大規模耐性ハードニング + 住所非公開機能** (超大物・設計完成・承認済)
    - 「住所非公開の画像」が「100万人でつぶれない・請求ゼロ」要求で大規模programに拡大・承認済。Phase= P0(緊急耐性)/P1(housing読み経路刷新)/P1-M(miti同型・共同編集ありで慎重)/P2(認証コスト削減)/P3(住所非公開)。
    - **全フェーズ実行計画=完成・レビュー済**: `docs/.private/2026-07-14-housing-hardening-orchestration.md` (統括指示書=司令塔Opusの入口・§3.5にP1↔P3境界の確定ルール) + P0/P1/P1-M/P2/P3 各計画 (`2026-07-14-housing-p{0,1,1m,2,3}-*.md`・全てTDD・deviation付)。司令塔=subagent-driven-development。推奨順 P0→P1→P1-M→P2→P3。各ゲートG2〜G7でユーザー実機停止。
-   - **✅ P0(緊急耐性)=実装+全レビュー(最終opus Ready:Yes)+build/test緑(3275)+複合index Ready確認+本番push済**。9タスク(レート基盤/通報dedup/登録チケット表示/popularガード+index/tweet-video/og系流量/動画帯域/ops doc)。**残(ユーザー)**: ①G1目視=登録画面のチケット残枚数表示(本番ログイン) ②ダッシュボード作業=CFキャッシュルール2本+GCP異常アラート(手順=`.private/2026-07-14-p0-dashboard-ops.md`) ③通報dedup実機。**🔵P1フォローアップ**: tweet-video 25MB上限のRange回避/popular top-200窓の新着抑制。**次フェーズ=P1**(housing読み窓口+rulesロック・G2でユーザー実機必須)。
+   - **✅ P0(緊急耐性)=本番稼働**(9タスク・最終opus Ready:Yes・build/test緑3275・複合index Ready・curl検証全PASS[レート制限稼働/IP偽装不可])。**+登録UXフォローアップ本番済**(通報トースト文言修正/チケット残数を実描画RegisterPageに配線[孤児HousingQuotaIndicator修正]/管理者は登録無制限=「管理者」表示)。**残(ユーザー)**: ①ダッシュボード作業=CFメディアキャッシュ+GCP異常アラート(手順=`.private/2026-07-14-p0-dashboard-ops.md`・HTML60秒キャッシュは要一緒に) ②登録画面/通報トーストの実機目視 ③cf-cache HIT確認(私がcurl)。**🔵P1送り**: tweet-video 25MB上限のRange回避/popular top-200窓の新着抑制。**次フェーズ=P1**(housing読み窓口+rulesロック・G2でユーザー実機必須)。
    - **⚠ セキュリティ: 公開前の脆弱性を含むため設計書・敵対監査は全て `docs/.private/2026-07-14-*` に格納(公開リポに穴の地図を出さない)。修正デプロイ後にサニタイズ版を公開可。** 詳細・優先順・ダッシュ確認は .private + memory [[project_housing_scale_hardening]]。
    - 別件: 競合コピー増殖バグ(共同編集ON開きっぱなしで発生)はP1-M前に専用systematic-debuggingで。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`。
 2. 🔧 **c 削除時の即反映バグ** (小): `remove(id)` が `myListings` を消さず削除後もリロードまで探すに残る([useHousingListingsStore.ts:95])。`removeMine` 追加で Firestore読み取り0で即反映(登録 upsert と同型)。↑private doc に詳細。
