@@ -17,6 +17,7 @@ import { initAdmin, verifyAdmin, getAdminFirestore } from '../../src/lib/adminAu
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { REPORT_AUTO_HIDE_THRESHOLD } from '../../src/constants/housing.js';
+import { bumpPublicVersionDirect, bumpPublicVersionTx } from '../housing/_publicVersion.js';
 
 const COLLECTION = 'housing_listings';
 const LIST_LIMIT = 50;
@@ -118,6 +119,7 @@ export default async function handler(req: any, res: any) {
 
       if (action === 'hide') {
         await ref.update({ isHidden: true, updatedAt: Date.now() });
+        await bumpPublicVersionDirect(db);
         return res.status(200).json({ success: true });
       }
       if (action === 'dismiss-one') {
@@ -145,6 +147,7 @@ export default async function handler(req: any, res: any) {
           };
           if (newCount < REPORT_AUTO_HIDE_THRESHOLD) {
             update.isHidden = false;
+            if (data.isHidden === true) bumpPublicVersionTx(tx, db);
           }
           tx.delete(reportRef);
           tx.update(ref, update);
