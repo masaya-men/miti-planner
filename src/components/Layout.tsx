@@ -39,7 +39,7 @@ import { useLocalImportDialog } from '../store/useLocalImportDialog';
 import { ShareImportSheet } from './ShareImportSheet';
 import { LimitResolutionSheet } from './LimitResolutionSheet';
 import { getToken } from 'firebase/app-check';
-import { appCheck, auth } from '../lib/firebase';
+import { ensureAppCheck, auth } from '../lib/firebase';
 
 const PipView = React.lazy(() => import('./PipView'));
 
@@ -541,6 +541,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             // - OAuth リダイレクト直後は reCAPTCHA Enterprise トークン未取得で createPlan が permission-denied になる
             // - ダイアログを開く時点でトークン完備にしておけば、ユーザーが「取り込む」押下した瞬間に成功する
             try {
+                const appCheck = ensureAppCheck();
                 if (appCheck) {
                     // forceRefresh: true で確実に新規トークン取得 (post-OAuth キャッシュ空対策)
                     await getToken(appCheck, true);

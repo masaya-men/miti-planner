@@ -8,15 +8,17 @@
  * 登録系 (housingApiClient) と Phase 3 系 (通報/編集/削除/通知) で共有し、
  * App Check 付与漏れによる 403 を防ぐ。
  */
-import { auth, appCheck } from './firebase';
+import { auth, ensureAppCheck, getActiveAppCheck } from './firebase';
 import { getToken } from 'firebase/app-check';
 
 export async function buildHousingHeaders(requireAuth: boolean): Promise<Record<string, string>> {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
-  // App Check トークン付与 (appCheck は null | AppCheck | Promise<AppCheck>)
+  // App Check トークン付与 (2026-07-14 P2: 遅延初期化)。
+  // housing の書き込みは認証必須。requireAuth または既ログインなら初期化を保証 (ensure)、
+  // 万一の匿名 read 経路 (requireAuth=false かつ未ログイン) では初期化しない (peek)。
   try {
-    const ac = appCheck instanceof Promise ? await appCheck : appCheck;
+    const ac = (requireAuth || auth.currentUser) ? ensureAppCheck() : getActiveAppCheck();
     if (ac) {
       const { token } = await getToken(ac, false);
       headers['X-Firebase-AppCheck'] = token;

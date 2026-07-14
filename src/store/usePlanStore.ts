@@ -13,7 +13,7 @@ import { ensureLabelEndTimes } from '../utils/labelMigration';
 import { compressPlanData, decompressPlanData } from '../utils/compression';
 import { generateUniqueTitle } from '../utils/planTitle';
 import { getToken } from 'firebase/app-check';
-import { appCheck, auth } from '../lib/firebase';
+import { ensureAppCheck, auth } from '../lib/firebase';
 import { setLastOpened } from '../utils/lastOpenedStore';
 import { partializePlanState, mergePersistedPlanState } from './planPersist';
 import { isEmptyPlanData } from '../lib/isEmptyPlanData';
@@ -661,6 +661,7 @@ export const usePlanStore = create<PlanState>()(
                 // App Check + Auth トークンを揃えてから書き込む (post-OAuth で未準備な場合に備える)
                 // forceRefresh: true で確実に新規トークン取得 (キャッシュが空 / 期限切れでも動く)
                 try {
+                    const appCheck = ensureAppCheck();
                     if (appCheck) {
                         await getToken(appCheck, true);
                     }
