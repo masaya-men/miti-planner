@@ -278,8 +278,11 @@ service cloud.firestore {
                    )
                  );
 
-      allow list: if (resource.data.visibility == 'public' && resource.data.isHidden == false)
-                  || (isAuthenticated() && resource.data.ownerUid == request.auth.uid);
+      // 2026-07-14 (P1): 公開一覧の直バルク list はキャッシュ窓口 (api/housing/public) に一本化した。
+      // クライアント直 list はオーナー本人の自分読み (getMyListings) のみ許可し、
+      // 公開キーでの where(...).limit(N) 全件ループを permission-denied で止める。
+      // 単体 get (allow get) は §13 に従い今回は据え置き (公開詳細も get 可のまま)。
+      allow list: if isAuthenticated() && resource.data.ownerUid == request.auth.uid;
 
       allow create: if isAuthenticated()
                     && request.auth.uid == request.resource.data.ownerUid
@@ -380,6 +383,16 @@ service cloud.firestore {
                       && request.resource.data.reason in ['wrong_info', 'griefing', 'nsfw', 'sold', 'other'];
         allow update, delete: if false;
       }
+    }
+
+    // ========================================
+    // housing_meta コレクション (2026-07-14 P1)
+    // 公開データの版番号 (public.version)。窓口/クライアントが read するので公開、
+    // 書き込みは Admin SDK (全書き込みハンドラの increment) のみ。
+    // ========================================
+    match /housing_meta/{docId} {
+      allow read: if true;
+      allow write: if false;
     }
 
     // ========================================
