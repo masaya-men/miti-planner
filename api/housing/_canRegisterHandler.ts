@@ -40,6 +40,7 @@ export default async function handler(req: any, res: any) {
 
     const decoded = await getAuth().verifyIdToken(token);
     const uid = decoded.uid;
+    const isAdmin = decoded.role === 'admin';
     const adminDb = getAdminFirestore();
 
     const ref = adminDb.collection('housing_user_meta').doc(uid);
@@ -62,8 +63,8 @@ export default async function handler(req: any, res: any) {
     }
 
     return res.status(200).json({
-      allowed: result.allowed,
-      reason: result.reason ?? null,
+      allowed: result.allowed || isAdmin,
+      reason: isAdmin ? null : (result.reason ?? null),
       registrationCount: meta.registrationCount,
       remaining: meta.dailyQuota.remaining,
       lastReset: meta.dailyQuota.lastReset,

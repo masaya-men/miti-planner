@@ -2124,7 +2124,8 @@
             },
             "quota": {
                 "tickets_remaining": "초기 등록 티켓: {{remaining}} / {{total}}장 남음",
-                "daily_remaining": "오늘의 등록 한도: 남은 {{remaining}} / {{max}}개"
+                "daily_remaining": "오늘의 등록 한도: 남은 {{remaining}} / {{max}}개",
+                "admin": "등록 티켓: 관리자"
             },
             "snsUrl": {
                 "label": "게시물·사이트 URL (선택)",
@@ -2674,7 +2675,7 @@
             "submit": "報告する",
             "cancel": "キャンセル",
             "success": "報告を受け付けました。 ご協力ありがとうございます",
-            "duplicate": "すでに同じ理由で報告済みです",
+            "duplicate": "이미 신고하셨습니다.",
             "error": "報告の送信に失敗しました。 時間をおいて再度お試しください",
             "escalation_required": "この物件は繰り返し報告されています。 解除には運営の確認が必要です。 Discord で異議申し立てしてください"
         },
