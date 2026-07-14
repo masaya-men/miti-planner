@@ -23,11 +23,18 @@
 ### 🅿 棚上げ: スプシ取込スマホ / 「あらゆるスプシ対応」(2026-06-30 ユーザー判断・スマホは取込UI非表示化済・詳細=[[project_spreadsheet_mobile_grid]])
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 本番確認待ち: 登録/探す/詳細/ツアー 改善 round2 (2026-07-13 セッション6続き・11項目)
-**指揮官方式(自走)**: 設計書+計画書=`docs/superpowers/{specs,plans}/2026-07-13-housing-register-browse-round2*`。並列診断4体+並列実装5体(sonnet)+共有ファイル(css/4言語)統合 → build(tsc厳密)+ housing 全テスト **1570/0 緑** → 本番デプロイ。根因詳細=`docs/.private/2026-07-13-register-production-test-feedback.md`。
-**✅ round2 実装・デプロイ済 (本番目視確認待ち)**: ①アパートparser根治(名前ベース判別+区/号棟/部屋の誤読停止+roomNumber自動入力) / ②確認&公開ボタン上をフル住所化(+`formatFullHousingAddress` null ガード=Nも堅牢化) / ⑨サイズ「Small」統一 / D確認ボタン脈動+誘導文 / a詳細タグclick絞り込み / bタイトル最上部(住所残す) / c登録後の即反映(Firestore読み取り0) / dヘッダー「ハウジングツアー」→探すへ / f絞り込み解除ボタン(中央)+左文言変更 / e PF共有ボタン(URL共有) / ⑧ツアーズーム衝突根治(transitionendガード)。
-**round1(前コミット8d1658dd)はユーザー検証で概ねOK**(①アパートのみ本round2で根治)。**プライバシー確認済=`personal_<hex>`はHMAC一方向ハッシュ**。
-**残**: 🟠 **J マイページ(要brainstorming)** / admin タグ生ID(軽微) / e PF専用レイアウト深掘り(今回は共有ボタンのみ)。
+### ✅ round1+round2 本番検証済み・全OK (2026-07-13 セッション6・commit 9a5724d5)
+登録/探す/詳細/ツアーの指摘(A〜N)+気づき 計21項目を2デプロイで消化・ユーザー本番OK。詳細=`docs/superpowers/*/2026-07-13-housing-register-browse-round2*` + `.private/2026-07-13-register-production-test-feedback.md`。**プライバシー=`personal_<hex>`はHMAC一方向ハッシュ**。
+### 🔴 次セッション最優先 (検証で判明+新アイデア)
+1. 🔴🔴 **ハウジング大規模耐性ハードニング + 住所非公開機能** (超大物・設計完成・承認済)
+   - 「住所非公開の画像」が「100万人でつぶれない・請求ゼロ」要求で大規模programに拡大・承認済。Phase= P0(緊急耐性)/P1(housing読み経路刷新)/P1-M(miti同型・共同編集ありで慎重)/P2(認証コスト削減)/P3(住所非公開)。
+   - **全フェーズ実行計画=完成・レビュー済**: `docs/.private/2026-07-14-housing-hardening-orchestration.md` (統括指示書=司令塔Opusの入口・§3.5にP1↔P3境界の確定ルール) + P0/P1/P1-M/P2/P3 各計画 (`2026-07-14-housing-p{0,1,1m,2,3}-*.md`・全てTDD・deviation付)。司令塔=subagent-driven-development。推奨順 P0→P1→P1-M→P2→P3。各ゲートG2〜G7でユーザー実機停止。
+   - **✅ P0(緊急耐性)=実装+全レビュー(最終opus Ready:Yes)+build/test緑(3275)+複合index Ready確認+本番push済**。9タスク(レート基盤/通報dedup/登録チケット表示/popularガード+index/tweet-video/og系流量/動画帯域/ops doc)。**残(ユーザー)**: ①G1目視=登録画面のチケット残枚数表示(本番ログイン) ②ダッシュボード作業=CFキャッシュルール2本+GCP異常アラート(手順=`.private/2026-07-14-p0-dashboard-ops.md`) ③通報dedup実機。**🔵P1フォローアップ**: tweet-video 25MB上限のRange回避/popular top-200窓の新着抑制。**次フェーズ=P1**(housing読み窓口+rulesロック・G2でユーザー実機必須)。
+   - **⚠ セキュリティ: 公開前の脆弱性を含むため設計書・敵対監査は全て `docs/.private/2026-07-14-*` に格納(公開リポに穴の地図を出さない)。修正デプロイ後にサニタイズ版を公開可。** 詳細・優先順・ダッシュ確認は .private + memory [[project_housing_scale_hardening]]。
+   - 別件: 競合コピー増殖バグ(共同編集ON開きっぱなしで発生)はP1-M前に専用systematic-debuggingで。段取り=`docs/.private/2026-07-10-conflict-copy-investigation.md`。
+2. 🔧 **c 削除時の即反映バグ** (小): `remove(id)` が `myListings` を消さず削除後もリロードまで探すに残る([useHousingListingsStore.ts:95])。`removeMine` 追加で Firestore読み取り0で即反映(登録 upsert と同型)。↑private doc に詳細。
+3. 🎨 **e PF レイアウト調整** (ユーザーが詳細を後述・一緒に詰める。今回は共有ボタンのみ実装)。J マイページ(brainstorming) / admin タグ生ID(軽微) も残。
+4. 🧹 **旧UI意匠掃除+文言 (2026-07-14 気づき・細かい・別バッチ)**: ①登録タイトル欄 autoComplete=off(履歴サジェスト抑止・URL欄と同型) ②通報モーダル ③通知ドロップダウン(✕が枠外) ④削除確認モーダル = 各々 housing トンマナへ(honey/generic 撤去・[[feedback_housing_no_ai_pills]]) ⑤ヘッダー「ツアー中」→「ツアー」 ⑥ツアー空状態「ツアーがまだ始まっていません」→「探す・お気に入りから行きたいハウジングを選んでツアーを始めましょう！」(探す追加・要文言確定) ⑦「＋住所から追加」→全箇所「＋LoPoに登録せずに追加」(要文言確定)。
 
 ### ✅ big3 本番リリース完了 (2026-07-13)
 探す地図FB / ハウジンガーPF / 一時ツアー + ④地域フィルタ連動 + ⑤ヘッダー横断検索(日本ワールドのカタカナ/ひらがな検索・PersonalTagFilter撤去) を main 反映 + `firebase deploy --only firestore`(rules+indexes) 済。

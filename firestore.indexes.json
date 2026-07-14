@@ -69,6 +69,14 @@
       ]
     },
     {
+      "collectionGroup": "shared_plans",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "contentId", "order": "ASCENDING" },
+        { "fieldPath": "copyCount", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "personal_tags",
       "queryScope": "COLLECTION",
       "fields": [

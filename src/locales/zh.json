@@ -2123,7 +2123,7 @@
                 }
             },
             "quota": {
-                "bonus_phase": "登记配额：{{count}} / {{bonus}} 个（无上限）",
+                "tickets_remaining": "初始登记券：剩余 {{remaining}} / {{total}} 张",
                 "daily_remaining": "今日登记配额：剩余 {{remaining}} / {{max}} 个"
             },
             "snsUrl": {

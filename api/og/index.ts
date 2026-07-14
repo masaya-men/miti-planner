@@ -13,6 +13,8 @@
 import { ImageResponse } from '@vercel/og';
 import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { FAVICON_BASE64 } from './_faviconBase64.js';
+import { applyRateLimitWeb } from '../../src/lib/rateLimit.js';
+import { rejectIfPublicApiDisabledWeb } from '../../src/lib/publicApiGuard.js';
 
 export const config = { runtime: 'edge' };
 
@@ -25,6 +27,12 @@ const LEFT_PANEL_WIDTH = 144;
 
 export default async function handler(req: Request) {
     try {
+        const disabled = rejectIfPublicApiDisabledWeb();
+        if (disabled) return disabled;
+        // og-cache のサーバー間 fetch と SNS クローラーが主な正規呼び出し元 (低頻度)
+        const limited = await applyRateLimitWeb(req, 30, 60_000, { scope: 'og', globalMax: 120 });
+        if (limited) return limited;
+
         const { searchParams, origin } = new URL(req.url);
         const shareId = searchParams.get('id');
         const showLogo = searchParams.get('showLogo') === 'true';
@@ -106,7 +114,15 @@ export default async function handler(req: Request) {
                 ? buildBundleLayout(bundlePlans, faviconBase64, teamLogoSrc, lang)
                 : buildSingleLayout(contentName, '', categoryTag, faviconBase64, teamLogoSrc);
 
-        return new ImageResponse(element as any, { width: 1200, height: 630, fonts });
+        return new ImageResponse(element as any, {
+            width: 1200,
+            height: 630,
+            fonts,
+            headers: {
+                // 同一パラメータの再レンダー連打は edge cache に吸わせる
+                'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+            },
+        });
 
     } catch (err: any) {
         console.error('OG image error:', err);

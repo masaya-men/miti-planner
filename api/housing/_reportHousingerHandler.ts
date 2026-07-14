@@ -5,7 +5,7 @@
  * Body: { housingerUid, reason, comment? }
  * 動作: housing_profiles/{housingerUid}/reports/{auto-id} に
  *       { reporterUid, reason, comment?, createdAt } を作成 + reportCount +1 (transaction)。
- *       同一 reporterUid × reason の既存があれば 409 duplicate_report。
+ *       同一 reporterUid の既存があれば 409 duplicate_report。
  *       自己通報 (housingerUid === reporterUid) は 403 cannot_report_own。
  * §6.2 により listing 通報と異なり以下は行わない:
  *  - 閾値到達での自動非表示 (isModerationHidden は運営の明示判断のみ。強制非公開は /admin から)
@@ -19,6 +19,7 @@ import {
   isValidHousingerReportReason,
   type HousingerReportReason,
 } from '../../src/lib/housing/housingerProfile.js';
+import { countUniqueReporters } from '../../src/lib/housing/reportOutcome.js';
 
 const MAX_COMMENT_LENGTH = 500;
 
@@ -88,10 +89,10 @@ export default async function handler(req: any, res: any) {
     const profileRef = adminDb.collection('housing_profiles').doc(housingerUid);
 
     // 重複チェック (transaction 外で軽く。 _reportListingHandler.ts と同形)
+    // 2026-07-14: dedup は (reporterUid, housingerUid) 単位 — reason を変えても 1 回まで
     const existing = await profileRef
       .collection('reports')
       .where('reporterUid', '==', reporterUid)
-      .where('reason', '==', reason)
       .limit(1)
       .get();
     if (!existing.empty) {
@@ -103,7 +104,15 @@ export default async function handler(req: any, res: any) {
     await adminDb.runTransaction(async (tx) => {
       const snap = await tx.get(profileRef);
       if (!snap.exists) throw new Error('not_found');
-      const data = snap.data()!;
+
+      // reportCount = 相異なる通報者数 (listing 通報と同じセマンティクス)
+      const reportsSnap = await tx.get(
+        profileRef.collection('reports').select('reporterUid').limit(500)
+      );
+      const uniqueReporters = countUniqueReporters(
+        reportsSnap.docs.map((d) => d.data().reporterUid as string | undefined),
+        reporterUid,
+      );
 
       tx.set(reportRef, {
         reporterUid,
@@ -112,7 +121,7 @@ export default async function handler(req: any, res: any) {
         createdAt: Date.now(),
       });
       tx.update(profileRef, {
-        reportCount: (data.reportCount || 0) + 1,
+        reportCount: uniqueReporters,
       });
     });
 

@@ -19,6 +19,8 @@ import {
     extractStudioXivImages,
     normalizeStudioXivUrl,
 } from '../src/lib/housing/parseOgpHtml.js';
+import { applyRateLimitWeb } from '../src/lib/rateLimit.js';
+import { rejectIfPublicApiDisabledWeb } from '../src/lib/publicApiGuard.js';
 
 export const config = { runtime: 'edge' };
 
@@ -56,6 +58,12 @@ export default async function handler(req: Request): Promise<Response> {
             },
         });
     }
+
+    const disabled = rejectIfPublicApiDisabledWeb();
+    if (disabled) return disabled;
+    // 登録フォームの URL 貼り付け時のみ呼ばれる (1 ユーザー毎分 10 回で十分)
+    const limited = await applyRateLimitWeb(req, 10, 60_000, { scope: 'og-fetch', globalMax: 120 });
+    if (limited) return limited;
 
     const url = new URL(req.url).searchParams.get('url');
     if (!url) {

@@ -2123,7 +2123,7 @@
                 }
             },
             "quota": {
-                "bonus_phase": "등록 한도: {{count}} / {{bonus}}개 (무제한)",
+                "tickets_remaining": "초기 등록 티켓: {{remaining}} / {{total}}장 남음",
                 "daily_remaining": "오늘의 등록 한도: 남은 {{remaining}} / {{max}}개"
             },
             "snsUrl": {

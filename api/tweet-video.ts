@@ -15,6 +15,9 @@
 // - Cache-Control 1 日 (ツイートの mp4 URL は tweet 寿命中安定)。
 // - 既存 api/tweet-meta.ts と同じ Vercel Edge runtime + Web 標準のみ (Cloudflare 移行可)。
 
+import { applyRateLimitWeb } from '../src/lib/rateLimit.js';
+import { rejectIfPublicApiDisabledWeb } from '../src/lib/publicApiGuard.js';
+
 export const config = { runtime: 'edge' };
 
 const ALLOWED_HOSTS = new Set<string>(['video.twimg.com']);
@@ -35,6 +38,12 @@ export default async function handler(req: Request): Promise<Response> {
             },
         });
     }
+
+    // 公開読み系の緊急停止 + レート制限 (正規経路は media.lopoly.app、ここは縮退用)
+    const disabled = rejectIfPublicApiDisabledWeb();
+    if (disabled) return disabled;
+    const limited = await applyRateLimitWeb(req, 30, 60_000, { scope: 'tweet-video', globalMax: 300 });
+    if (limited) return limited;
 
     const url = new URL(req.url).searchParams.get('url');
     if (!url) {
@@ -76,6 +85,12 @@ export default async function handler(req: Request): Promise<Response> {
                 { error: `upstream ${upstream.status}` },
                 { status: upstream.status === 404 ? 404 : 502 },
             );
+        }
+
+        // 帯域ガード: Range 無しの全量転送は 25MB まで (通常の Twitter mp4 は数 MB)
+        const contentLength = Number(upstream.headers.get('content-length') || '0');
+        if (!range && contentLength > 25 * 1024 * 1024) {
+            return Response.json({ error: 'payload too large' }, { status: 413 });
         }
 
         const responseHeaders = new Headers();

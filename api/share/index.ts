@@ -15,6 +15,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { nanoid } from 'nanoid';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
+import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
 import { createHash } from 'crypto';
 import sharePageHandler from './_sharePageHandler.js';
 import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
@@ -343,6 +344,8 @@ export default async function handler(req: any, res: any) {
 
         } else if (req.method === 'GET') {
             // ── 取得 ──
+            if (rejectIfPublicApiDisabled(res)) return;
+            if (!(await applyRateLimit(req, res, 60, 60_000, { scope: 'share-get', globalMax: 600 }))) return;
             const { id } = req.query;
             if (!id) {
                 return res.status(400).json({ error: 'id is required' });
