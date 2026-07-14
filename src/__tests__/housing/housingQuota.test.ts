@@ -5,6 +5,7 @@ import {
   applySameDayDelete,
   initialUserMeta,
   isNewDayUTC,
+  registrationTicketsRemaining,
 } from '../../utils/housingQuota';
 import type { HousingUserMeta } from '../../types/housing';
 
@@ -82,5 +83,14 @@ describe('applySameDayDelete', () => {
     const after = applySameDayDelete(meta, NOW, next);
     expect(after.registrationCount).toBe(31);
     expect(after.dailyQuota.remaining).toBe(4);
+  });
+});
+
+describe('registrationTicketsRemaining', () => {
+  it('登録数に応じて 30 から減り、使い切ると 0 (マイナスにならない)', () => {
+    expect(registrationTicketsRemaining(0)).toBe(30);
+    expect(registrationTicketsRemaining(29)).toBe(1);
+    expect(registrationTicketsRemaining(30)).toBe(0);
+    expect(registrationTicketsRemaining(50)).toBe(0);
   });
 });

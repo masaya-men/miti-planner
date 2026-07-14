@@ -2179,7 +2179,7 @@
                 }
             },
             "quota": {
-                "bonus_phase": "登録枠: {{count}} / {{bonus}} 件 (上限なし)",
+                "tickets_remaining": "はじめの登録チケット：残り {{remaining}} / {{total}} 枚",
                 "daily_remaining": "本日の登録枠: 残り {{remaining}} / {{max}} 件"
             },
             "snsUrl": {

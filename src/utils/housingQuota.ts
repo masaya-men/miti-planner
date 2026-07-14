@@ -82,3 +82,8 @@ export function applySameDayDelete(
       : meta.dailyQuota,
   };
 }
+
+/** 初回登録チケットの残り枚数 (使い切ると 0)。表示用の純粋関数。 */
+export function registrationTicketsRemaining(registrationCount: number): number {
+  return Math.max(0, REGISTRATION_INITIAL_BONUS - registrationCount);
+}
