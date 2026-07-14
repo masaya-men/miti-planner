@@ -28,8 +28,7 @@ const mockGetDoc = vi.fn();
 vi.mock('firebase/firestore', () => ({
   doc: vi.fn((...args: unknown[]) => args),
   getDoc: (...args: unknown[]) => mockGetDoc(...args),
-  // findListingsByAddressKey (peers 取得) / useNotifications が経由する他 export は
-  // このテストでは実データを問わないため no-op スタブ
+  // useNotifications が経由する他 export は このテストでは実データを問わないため no-op スタブ
   collection: vi.fn(() => ({})),
   query: vi.fn(() => ({})),
   where: vi.fn(() => ({})),
@@ -38,6 +37,12 @@ vi.mock('firebase/firestore', () => ({
   getDocs: vi.fn(async () => ({ docs: [] })),
   onSnapshot: vi.fn(() => () => {}),
   getFirestore: vi.fn(() => ({})),
+}));
+
+// peers 取得 (2026-07-14 P1: 公開キャッシュ窓口 fetch へ切替)。 このテストでは peers の
+// 内容そのものを問わないため、 デフォルトで空配列を返す no-op スタブに固定する。
+vi.mock('../../../../lib/housing/publicHousingWindow', () => ({
+  fetchPublicListingPeers: vi.fn(async () => []),
 }));
 
 // useNotifications は firebase/auth の getAuth() を直接使う (未ログイン=購読スキップ)

@@ -143,24 +143,25 @@ describe('invalidateHousingerProfileCache', () => {
 });
 
 describe('getHousingerListings', () => {
-  it('ownerUid + 公開条件でクエリし、createdAt 降順・deletedAt 済みをクライアント除外する', async () => {
-    mockGetDocs.mockResolvedValueOnce({
-      docs: [
-        { id: 'a', data: () => ({ ownerUid: 'u-listing', createdAt: 200, deletedAt: null }) },
-        { id: 'b', data: () => ({ ownerUid: 'u-listing', createdAt: 100, deletedAt: 1717000000000 }) },
-      ],
-    });
+  it('公開キャッシュ窓口 (fetch) から uid 指定で listings を取得する', async () => {
+    (global.fetch as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ version: 5 }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        json: async () => ({ listings: [{ id: 'a', ownerUid: 'u-listing' }] }),
+      });
     const r = await getHousingerListings('u-listing');
-    expect(r.map((x) => x.id)).toEqual(['a']); // b は deletedAt 済みなので除外
-    expect(mockWhere).toHaveBeenCalledWith('ownerUid', '==', 'u-listing');
-    expect(mockWhere).toHaveBeenCalledWith('visibility', '==', 'public');
-    expect(mockWhere).toHaveBeenCalledWith('isHidden', '==', false);
-    expect(mockOrderBy).toHaveBeenCalledWith('createdAt', 'desc');
-    expect(mockLimit).toHaveBeenCalledWith(200);
+    expect(r.map((x) => x.id)).toEqual(['a']);
+    const secondCallUrl = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[1][0] as string;
+    expect(secondCallUrl).toContain('action=housinger');
+    expect(secondCallUrl).toContain('uid=u-listing');
   });
 
   it('0 件なら空配列', async () => {
-    mockGetDocs.mockResolvedValueOnce({ docs: [] });
+    (global.fetch as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ version: 1 }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ listings: [] }) });
     const r = await getHousingerListings('u-listing-empty');
     expect(r).toEqual([]);
   });

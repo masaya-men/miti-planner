@@ -55,11 +55,11 @@ export const useHousingListingsStore = create<HousingListingsState>((set, get) =
     if (cur === 'loading' || cur === 'ready') return;
     set({ status: 'loading', error: null });
     try {
-      const [{ getGalleryListings }, { firestoreToGalleryListing }] = await Promise.all([
-        import('../lib/housingListingsService'),
+      const [{ fetchPublicGallery }, { firestoreToGalleryListing }] = await Promise.all([
+        import('../lib/housing/publicHousingWindow'),
         import('../lib/housing/galleryAdapter'),
       ]);
-      const docs = await getGalleryListings();
+      const docs = await fetchPublicGallery();
       const listings = sortListingsForGallery(
         docs
           .map(firestoreToGalleryListing)
