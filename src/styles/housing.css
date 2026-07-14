@@ -5854,7 +5854,9 @@ select.housing-input option {
    タグ・住所・サイズは出さない (2026-07-03 ユーザー合意: 情報は詳細ページ/フィルタが担い、
    カードは「静かな画像タイル + タイトル」だけにする)。 */
 .housing-listing-card-caption {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;
+  /* z-content(3) で動画オーバーレイ(video=2)より前面に。これが無いと動画再生中に
+     タイトルが動画に覆われて消える (静止カードは出るのに動画カードだけ消えるバグ)。 */
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: var(--housing-card-overlay-z-content);
   padding: 20px 12px 8px;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0));
   color: var(--housing-text);
