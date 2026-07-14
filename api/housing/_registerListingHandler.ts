@@ -49,6 +49,8 @@ export default async function handler(req: any, res: any) {
 
     const decoded = await getAuth().verifyIdToken(token);
     const uid = decoded.uid;
+    // 管理者 (custom claim role=admin) は登録枠を免除 (無制限)。
+    const isAdmin = decoded.role === 'admin';
     const draft = req.body as RegistrationDraft;
 
     const validation = validateRegistrationDraft(draft);
@@ -87,7 +89,7 @@ export default async function handler(req: any, res: any) {
         : initialUserMeta(now);
 
       const can = evaluateCanRegister(meta, now);
-      if (!can.allowed) throw new Error('quota_exhausted');
+      if (!isAdmin && !can.allowed) throw new Error('quota_exhausted');
       if (can.metaAfterReset) meta = can.metaAfterReset;
 
       const newRef = listingsCol.doc();
@@ -136,7 +138,10 @@ export default async function handler(req: any, res: any) {
       tx.set(newRef, listing);
       createdId = newRef.id;
 
-      const updatedMeta = applyRegistrationSuccess(meta);
+      // 管理者は日次枠を消費しない (registrationCount は記録のため加算)。
+      const updatedMeta = isAdmin
+        ? { ...meta, registrationCount: meta.registrationCount + 1 }
+        : applyRegistrationSuccess(meta);
       tx.set(metaRef, updatedMeta);
     });
 

@@ -2180,7 +2180,8 @@
             },
             "quota": {
                 "tickets_remaining": "はじめの登録チケット：残り {{remaining}} / {{total}} 枚",
-                "daily_remaining": "本日の登録枠: 残り {{remaining}} / {{max}} 件"
+                "daily_remaining": "本日の登録枠: 残り {{remaining}} / {{max}} 件",
+                "admin": "登録チケット：管理者"
             },
             "snsUrl": {
                 "label": "投稿・サイトのURL（任意）",

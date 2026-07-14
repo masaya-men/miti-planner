@@ -2159,7 +2159,8 @@
             },
             "quota": {
                 "tickets_remaining": "Starter registration tickets: {{remaining}} / {{total}} left",
-                "daily_remaining": "Today's quota: {{remaining}} / {{max}} remaining"
+                "daily_remaining": "Today's quota: {{remaining}} / {{max}} remaining",
+                "admin": "Registration tickets: Admin"
             },
             "snsUrl": {
                 "label": "Post or site URL (optional)",

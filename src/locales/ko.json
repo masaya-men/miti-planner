@@ -2124,7 +2124,8 @@
             },
             "quota": {
                 "tickets_remaining": "초기 등록 티켓: {{remaining}} / {{total}}장 남음",
-                "daily_remaining": "오늘의 등록 한도: 남은 {{remaining}} / {{max}}개"
+                "daily_remaining": "오늘의 등록 한도: 남은 {{remaining}} / {{max}}개",
+                "admin": "등록 티켓: 관리자"
             },
             "snsUrl": {
                 "label": "게시물·사이트 URL (선택)",

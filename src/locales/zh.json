@@ -2124,7 +2124,8 @@
             },
             "quota": {
                 "tickets_remaining": "初始登记券：剩余 {{remaining}} / {{total}} 张",
-                "daily_remaining": "今日登记配额：剩余 {{remaining}} / {{max}} 个"
+                "daily_remaining": "今日登记配额：剩余 {{remaining}} / {{max}} 个",
+                "admin": "登记券：管理员"
             },
             "snsUrl": {
                 "label": "帖子·网站 URL（可选）",
