@@ -10,9 +10,14 @@
  * - 住所は projectPublicListing の許可リスト射影で制御 (unlisted は住所を返さない)。
  * - v は cache-buster のみ (サーバーは読まない)。版参照は version action だけ。
  * - Cookie / Vary: Cookie は付けない (edge cache 全滅を防ぐ)。
+ *
+ * 2026-07-14: Vercel Hobby の Serverless Function 12 個上限を超えないため、独立関数
+ * (api/housing/public/index.ts) をやめて本モジュール (named export) を api/housing/index.ts
+ * から委譲呼び出しする形へ変更。URL は vercel.json の rewrite (/api/housing/public →
+ * /api/housing) で従来どおり /api/housing/public を維持 (Cloudflare キャッシュ境界も不変)。
  */
-import { initAdmin, getAdminFirestore } from '../../../src/lib/adminAuth.js';
-import { projectPublicListing } from '../../../src/lib/housing/publicListingProjection.js';
+import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
+import { projectPublicListing } from '../../src/lib/housing/publicListingProjection.js';
 
 const COLLECTION = 'housing_listings';
 const PUBLIC_VISIBILITY = ['public', 'unlisted'];
@@ -36,7 +41,7 @@ function isPubliclyViewable(d: any, now: number): boolean {
   return true;
 }
 
-export default async function handler(req: any, res: any) {
+export async function publicWindowHandler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
