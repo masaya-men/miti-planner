@@ -12,6 +12,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { checkTweetStatus } from '../../src/lib/housing/tweetSyndication.js';
+import { bumpPublicVersionDirect } from './_publicVersion.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -65,6 +66,7 @@ export default async function handler(req: any, res: any) {
 
     if (status === 'gone') {
       await listingRef.update({ deletedAt: now, updatedAt: now });
+      await bumpPublicVersionDirect(adminDb);
       return res.status(200).json({ deleted: true });
     }
     if (status === 'alive') {

@@ -29,6 +29,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
+import { bumpPublicVersionTx } from './_publicVersion.js';
 
 const MAX_BYTES = 1 * 1024 * 1024; // 1MB
 const MAX_IMAGES_PER_LISTING = 4;
@@ -151,6 +152,7 @@ export default async function handler(req: any, res: any) {
         update.thumbnailPath = existing[0];
       }
       tx.update(listingRef, update);
+      bumpPublicVersionTx(tx, adminDb);
       return existing;
     });
 

@@ -15,6 +15,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { isValidReportReason } from '../../src/types/housing.js';
 import { REPORT_AUTO_HIDE_THRESHOLD } from '../../src/constants/housing.js';
 import { computeListingReportOutcome } from '../../src/lib/housing/reportOutcome.js';
+import { bumpPublicVersionTx } from './_publicVersion.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -130,6 +131,7 @@ export default async function handler(req: any, res: any) {
         reportCount: newCount,
         ...(shouldHide ? { isHidden: true } : {}),
       });
+      if (shouldHide) bumpPublicVersionTx(tx, adminDb);
 
       // 通知 doc 作成 (家主向け、 reporterUid は書かない)
       // 2026-05-26: 管理者が通報を却下した時に連動削除できるよう reportId を保持する。

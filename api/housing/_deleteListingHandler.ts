@@ -12,6 +12,7 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
+import { bumpPublicVersionTx } from './_publicVersion.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -63,6 +64,7 @@ export default async function handler(req: any, res: any) {
         deletedAt: Date.now(),
         updatedAt: Date.now(),
       });
+      bumpPublicVersionTx(tx, adminDb);
     });
 
     return res.status(200).json({ success: true });
