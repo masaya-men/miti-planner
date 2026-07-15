@@ -2794,6 +2794,50 @@ select.housing-input option {
     opacity: var(--housing-disabled-opacity);
     cursor: not-allowed;
 }
+
+/* 住所露出警告カード (Task 2.2・共有ツアー招待の直前確認) */
+.housing-tour-expose-card {
+    background: var(--housing-popover-bg);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: var(--housing-panel-radius);
+    padding: 24px 28px;
+    max-width: 420px;
+    width: calc(100% - 32px);
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-tour-expose-title {
+    font-size: var(--housing-text-xl);
+    font-weight: 600;
+    margin: 0 0 12px;
+    color: var(--housing-text);
+}
+.housing-tour-expose-body {
+    margin: 0 0 16px;
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+}
+.housing-tour-expose-body:last-of-type {
+    margin-bottom: 24px;
+}
+.housing-tour-expose-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.housing-tour-expose-actions button {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-tour-expose-actions button:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+}
 .housing-btn-danger {
     background: var(--housing-danger-btn) !important;
     border-color: var(--housing-danger-btn) !important;

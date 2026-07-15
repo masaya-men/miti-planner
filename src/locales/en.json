@@ -2858,6 +2858,15 @@
                     "arrived": "Visited",
                     "upcoming": "Not yet visited",
                     "route": "Route (approximate)"
+                },
+                "invite": {
+                    "warning": {
+                        "title": "These addresses will be visible to everyone",
+                        "body": "This tour includes private or temporarily-added houses. Everyone who opens the invite link will see these addresses.",
+                        "ephemeral_note": "If you added someone else's house temporarily, get their permission before inviting.",
+                        "confirm": "Invite anyway",
+                        "cancel": "Cancel"
+                    }
                 }
             },
             "region_block": "Houses in a different region can't be added to the same tour",
