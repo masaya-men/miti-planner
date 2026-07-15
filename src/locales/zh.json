@@ -2842,6 +2842,11 @@
                     }
                 }
             },
+            "join": {
+                "connecting": "连接中…",
+                "notfound": "未找到该导览",
+                "ended": "该导览已结束"
+            },
             "region_block": "不同大区的房屋无法加入同一导览",
             "region_block_start": "该导览包含多个大区（{{regions}}）的房屋，无法开始。请仅保留同一大区的房屋"
         }
