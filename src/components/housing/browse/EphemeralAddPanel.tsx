@@ -195,7 +195,10 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     fieldState.userEdit(name, value);
   };
 
+  const isHouse = address.buildingType === 'house';
   const isApartment = address.buildingType === 'apartment';
+  // 建物タイプ未選択は追加不可 (RegisterSectionAddress の厳密化に合わせる。未選択では番地/部屋番号の
+  // 欄自体が出ないため、個人宅かアパートを選ぶまで complete=false)。
   const complete =
     address.dc !== undefined &&
     address.dc !== '' &&
@@ -204,7 +207,7 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     address.area !== undefined &&
     address.area !== '' &&
     address.ward !== undefined &&
-    (isApartment ? address.roomNumber !== undefined : address.plot !== undefined);
+    (isHouse ? address.plot !== undefined : isApartment ? address.roomNumber !== undefined : false);
 
   // 選んだ DC のリージョンがトレイと違えば、住所を埋め切る前でも早期に弾く (canAddToTour が唯一の判定源)。
   const candidateRegion = address.dc ? regionForDC(address.dc) : null;

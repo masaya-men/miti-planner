@@ -80,4 +80,59 @@ describe('registerChecklist', () => {
       );
     });
   });
+
+  // 画像/動画必須 (新規登録のみ・2026-07-15)。edit / 一時ツアーは対象外 (呼び出し側で imageRequired を渡さない)。
+  describe('画像必須 (新規登録)', () => {
+    it('imageRequired + メディアなし → image 行 required・公開不可', () => {
+      const items = computeRegisterChecklist({
+        addressOk: true,
+        addressConfirmed: true,
+        titleOk: true,
+        hasImage: false,
+        imageRequired: true,
+      });
+      const image = items.find((i) => i.key === 'image');
+      expect(image?.required).toBe(true);
+      expect(image?.done).toBe(false);
+      expect(isReadyToPublish(items)).toBe(false);
+    });
+
+    it('imageRequired + メディアあり → 公開可', () => {
+      const items = computeRegisterChecklist({
+        addressOk: true,
+        addressConfirmed: true,
+        titleOk: true,
+        hasImage: true,
+        imageRequired: true,
+      });
+      expect(isReadyToPublish(items)).toBe(true);
+    });
+
+    it('imageRequired 省略時は従来どおり推奨 (メディアなしでも公開可)', () => {
+      const items = computeRegisterChecklist({
+        addressOk: true,
+        addressConfirmed: true,
+        titleOk: true,
+        hasImage: false,
+      });
+      expect(items.find((i) => i.key === 'image')?.required).toBe(false);
+      expect(isReadyToPublish(items)).toBe(true);
+    });
+
+    it('imageRequired で行ラベルが「必須」用キーに切り替わる', () => {
+      const required = computeRegisterChecklist({
+        addressOk: true, addressConfirmed: true, titleOk: true,
+        hasImage: false, imageRequired: true,
+      });
+      expect(required.find((i) => i.key === 'image')?.labelKey).toBe(
+        'housing.register.check.row_image_required',
+      );
+      const optional = computeRegisterChecklist({
+        addressOk: true, addressConfirmed: true, titleOk: true, hasImage: false,
+      });
+      expect(optional.find((i) => i.key === 'image')?.labelKey).toBe(
+        'housing.register.check.row_image',
+      );
+    });
+  });
 });

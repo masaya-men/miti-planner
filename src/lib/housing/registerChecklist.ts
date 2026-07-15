@@ -34,7 +34,13 @@ export interface RegisterChecklistInput {
    */
   addressConfirmed: boolean;
   titleOk: boolean;
+  /** 静止画 or 動画/YouTube のいずれかがあるか (メディアの有無)。 */
   hasImage: boolean;
+  /**
+   * 画像/動画を必須にするか (2026-07-15)。新規登録=true (メディアなしでは公開不可)、
+   * edit / 一時ツアーは false=推奨のまま。省略時は false。
+   */
+  imageRequired?: boolean;
 }
 
 export function computeRegisterChecklist(input: RegisterChecklistInput): RegisterChecklistItem[] {
@@ -60,9 +66,11 @@ export function computeRegisterChecklist(input: RegisterChecklistInput): Registe
     {
       key: 'image',
       done: input.hasImage,
-      labelKey: 'housing.register.check.row_image',
+      labelKey: input.imageRequired
+        ? 'housing.register.check.row_image_required'
+        : 'housing.register.check.row_image',
       missingLabelKey: 'housing.register.check.missing_image',
-      required: false,
+      required: input.imageRequired ?? false,
     },
   ];
 }

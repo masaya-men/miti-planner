@@ -4697,7 +4697,8 @@ select.housing-input option {
   flex-direction: column;
   gap: 8px;
 }
-.housing-register-visibility-enddate-toggle {
+.housing-register-visibility-enddate-toggle,
+.housing-register-room-toggle {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -4713,13 +4714,15 @@ select.housing-input option {
      吹き飛んで空表示になる (実機ゲート B2・SNS画像でフォームが長い時のみ顕在化)。 */
   position: relative;
 }
-.housing-register-visibility-enddate-toggle input[type="checkbox"] {
+.housing-register-visibility-enddate-toggle input[type="checkbox"],
+.housing-register-room-toggle input[type="checkbox"] {
   position: absolute;
   opacity: 0;
   width: 1px;
   height: 1px;
 }
-.housing-register-visibility-enddate-toggle-track {
+.housing-register-visibility-enddate-toggle-track,
+.housing-register-room-toggle-track {
   flex: 0 0 auto;
   position: relative;
   width: 34px;
@@ -4729,7 +4732,8 @@ select.housing-input option {
   border: 1px solid var(--housing-panel-border);
   transition: background 150ms ease, border-color 150ms ease;
 }
-.housing-register-visibility-enddate-toggle-knob {
+.housing-register-visibility-enddate-toggle-knob,
+.housing-register-room-toggle-knob {
   position: absolute;
   top: 1px;
   left: 1px;
@@ -4740,24 +4744,33 @@ select.housing-input option {
   transition: transform 150ms ease, background 150ms ease;
 }
 .housing-register-visibility-enddate-toggle input[type="checkbox"]:checked
-  + .housing-register-visibility-enddate-toggle-track {
+  + .housing-register-visibility-enddate-toggle-track,
+.housing-register-room-toggle input[type="checkbox"]:checked
+  + .housing-register-room-toggle-track {
   background: var(--housing-aether-medium);
   border-color: var(--housing-aether-border);
 }
 .housing-register-visibility-enddate-toggle input[type="checkbox"]:checked
   + .housing-register-visibility-enddate-toggle-track
-  .housing-register-visibility-enddate-toggle-knob {
+  .housing-register-visibility-enddate-toggle-knob,
+.housing-register-room-toggle input[type="checkbox"]:checked
+  + .housing-register-room-toggle-track
+  .housing-register-room-toggle-knob {
   transform: translateX(14px);
   background: var(--housing-aether);
 }
 .housing-register-visibility-enddate-toggle input[type="checkbox"]:focus-visible
-  + .housing-register-visibility-enddate-toggle-track {
+  + .housing-register-visibility-enddate-toggle-track,
+.housing-register-room-toggle input[type="checkbox"]:focus-visible
+  + .housing-register-room-toggle-track {
   outline: 2px solid var(--housing-aether);
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {
   .housing-register-visibility-enddate-toggle-track,
-  .housing-register-visibility-enddate-toggle-knob {
+  .housing-register-visibility-enddate-toggle-knob,
+  .housing-register-room-toggle-track,
+  .housing-register-room-toggle-knob {
     transition: none;
   }
 }

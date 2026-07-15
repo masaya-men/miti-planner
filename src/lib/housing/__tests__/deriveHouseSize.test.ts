@@ -40,7 +40,7 @@ describe('deriveHouseSize', () => {
     expect(deriveHouseSize({ buildingType: 'house', area: 'NotAnArea', plot: 12 })).toBeNull();
   });
 
-  it('buildingType 未指定は house 扱い (isHouse = buildingType !== "apartment" に合わせる)', () => {
-    expect(deriveHouseSize({ area: 'Shirogane', plot: 12 })).toBe('S');
+  it('buildingType 未選択は null (タイプを選ぶまでサイズを導出しない・isHouse === "house" に合わせる)', () => {
+    expect(deriveHouseSize({ area: 'Shirogane', plot: 12 })).toBeNull();
   });
 });

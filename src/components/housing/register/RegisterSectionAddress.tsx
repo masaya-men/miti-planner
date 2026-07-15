@@ -54,7 +54,11 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
   // 別リージョンの DC を選んだとき等: DC 以外を選ばせない (注記で理由を明示)。
   const locked = Boolean(crossRegionNotice);
 
-  const isHouse = buildingType !== 'apartment';
+  // 建物タイプを明示選択したときだけ house/apartment 固有の欄を出す。未選択 (undefined) は
+  // どちらでもない = 番地/サイズ/部屋区分・号棟/部屋番号を出さない (選ぶまで住所を進めさせない)。
+  // 以前は isHouse = buildingType !== 'apartment' で undefined を家扱いし、未選択のまま番地等を
+  // 埋められてしまうのに登録判定 (validateAddress) は buildingType 必須で弾く不整合があった。
+  const isHouse = buildingType === 'house';
   const isApartment = buildingType === 'apartment';
   const isPrivateChamber = isHouse && roomKind === 'private_chamber';
 
@@ -243,32 +247,28 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
 
             {variant === 'register' && (
               <div className="housing-field housing-field-full housing-conditional-field" data-state={fieldState.getState('roomKind')}>
-                <label className="housing-label">{t('housing.register.room_kind.label')}</label>
-                <div className="housing-type-selector" role="radiogroup">
-                  <button
-                    type="button"
-                    className="housing-type-chip"
-                    data-selected={roomKind == null ? 'true' : 'false'}
-                    role="radio"
-                    aria-checked={roomKind == null}
-                    onClick={() => {
-                      onChange('roomKind', undefined);
-                      onChange('roomNumber', undefined);
+                {/* 部屋区分の 2 択チップを廃し、「FCハウスの個室ですか?」のオンオフに (2026-07-15)。
+                    個人宅には個室が無いので default=オフ=家全体。オンにした人だけ個室扱いになり
+                    部屋番号欄が出る。保存は従来の roomKind='private_chamber' + roomNumber をそのまま使う。 */}
+                <label className="housing-register-room-toggle">
+                  <input
+                    type="checkbox"
+                    data-testid="housing-register-room-chamber-toggle"
+                    checked={isPrivateChamber}
+                    onChange={() => {
+                      if (isPrivateChamber) {
+                        onChange('roomKind', undefined);
+                        onChange('roomNumber', undefined);
+                      } else {
+                        onChange('roomKind', 'private_chamber');
+                      }
                     }}
-                  >
-                    {t('housing.register.room_kind.whole_house')}
-                  </button>
-                  <button
-                    type="button"
-                    className="housing-type-chip"
-                    data-selected={roomKind === 'private_chamber' ? 'true' : 'false'}
-                    role="radio"
-                    aria-checked={roomKind === 'private_chamber'}
-                    onClick={() => onChange('roomKind', 'private_chamber')}
-                  >
-                    {t('housing.register.room_kind.private_chamber')}
-                  </button>
-                </div>
+                  />
+                  <span className="housing-register-room-toggle-track" aria-hidden="true">
+                    <span className="housing-register-room-toggle-knob" />
+                  </span>
+                  <span>{t('housing.register.room_kind.chamber_toggle')}</span>
+                </label>
               </div>
             )}
 

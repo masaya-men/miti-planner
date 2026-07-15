@@ -121,6 +121,8 @@ describe('TourNavPage', () => {
     fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Aegis' } });
     fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
+    // 建物タイプ (個人宅) を選ぶまで番地欄は出ない → 先に選ぶ。
+    fireEvent.click(screen.getByRole('radio', { name: '個人宅・FCハウス' }));
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
     fireEvent.click(screen.getByRole('button', { name: 'ツアーに追加' }));
     expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(1);

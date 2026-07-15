@@ -2025,6 +2025,7 @@
                 "label": "방 구분",
                 "whole_house": "집 전체",
                 "private_chamber": "FC 개인실",
+                "chamber_toggle": "FC 하우스의 개인실입니다",
                 "apartment_room": "아파트먼트 방"
             },
             "building_type": {
@@ -2283,10 +2284,11 @@
                 "row_address": "주소",
                 "row_title": "제목 (선택)",
                 "row_image": "이미지 (권장)",
+                "row_image_required": "이미지·동영상 (필수)",
                 "missing_address": "주소를 입력해 주세요",
                 "missing_address_confirm": "주소를 확인해 주세요",
                 "missing_title": "제목을 입력해 주세요",
-                "missing_image": "이미지를 추가해 주세요"
+                "missing_image": "이미지 또는 동영상을 추가해 주세요"
             },
             "duplicate": {
                 "title": "중복 확인",

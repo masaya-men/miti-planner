@@ -2060,6 +2060,7 @@
                 "label": "Room type",
                 "whole_house": "Whole house",
                 "private_chamber": "FC private room",
+                "chamber_toggle": "This is an FC private chamber",
                 "apartment_room": "Apartment room"
             },
             "building_type": {
@@ -2318,10 +2319,11 @@
                 "row_address": "Address",
                 "row_title": "Title (optional)",
                 "row_image": "Images (recommended)",
+                "row_image_required": "Image/Video (required)",
                 "missing_address": "Please enter the address",
                 "missing_address_confirm": "Please confirm the address",
                 "missing_title": "Please enter a title",
-                "missing_image": "Please add an image"
+                "missing_image": "Please add an image or video"
             },
             "duplicate": {
                 "title": "Duplicate check",

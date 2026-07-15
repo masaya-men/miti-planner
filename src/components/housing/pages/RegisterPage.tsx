@@ -761,7 +761,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   }, [effectiveStepIds]);
 
-  const hasImage = localImages.length > 0 || sourceImageUrls.length > 0;
+  // メディアの有無 = 静止画 + 動画/YouTube。画像必須 (新規登録) の判定に使う
+  // (ユーザー承認 2026-07-15: 画像 or 動画があれば OK)。
+  const hasMedia =
+    localImages.length > 0 ||
+    sourceImageUrls.length > 0 ||
+    !!snsCapture.tweetData?.video?.url ||
+    !!snsCapture.youtube;
   const introDone = title.trim().length > 0;
 
   // ===== 右カラム: 入力チェック (Task13) =====
@@ -786,8 +792,16 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   const addressOk = useMemo(() => validateAddress(addressCandidate).ok, [addressCandidate]);
   const titleOk = useMemo(() => validateTitle(title).ok, [title]);
   const checklistItems = useMemo(
-    () => computeRegisterChecklist({ addressOk, addressConfirmed, titleOk, hasImage }),
-    [addressOk, addressConfirmed, titleOk, hasImage],
+    () =>
+      computeRegisterChecklist({
+        addressOk,
+        addressConfirmed,
+        titleOk,
+        hasImage: hasMedia,
+        // 新規登録のみ画像/動画を必須にする (edit は写真を編集しない方式A のため対象外)。
+        imageRequired: mode === 'create',
+      }),
+    [addressOk, addressConfirmed, titleOk, hasMedia, mode],
   );
   // 公開可否 = 必須行 (住所/タイトル) が全て done か。画像 (推奨) は見ない。
   const canSubmit = useMemo(() => isReadyToPublish(checklistItems), [checklistItems]);
@@ -803,14 +817,14 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     () => ({
       // mode='edit' は写真セクション自体を非表示にする (方式A・Task3.2) ので、
       // 未達の⚠として残らないよう常に done 扱いにする。
-      media: mode === 'edit' ? true : hasImage,
+      media: mode === 'edit' ? true : hasMedia,
       address: fieldState.isReadyToSubmit(),
       intro: introDone,
       visibility: visibilityTouched,
       // confirm = 必須項目が揃って登録可能になったら done (isReadyToPublish)。
       confirm: canSubmit,
     }),
-    [mode, hasImage, fieldState, introDone, visibilityTouched, canSubmit],
+    [mode, hasMedia, fieldState, introDone, visibilityTouched, canSubmit],
   );
 
   const steps: RegisterStep[] = useMemo(

@@ -2025,6 +2025,7 @@
                 "label": "房间类型",
                 "whole_house": "整栋房屋",
                 "private_chamber": "FC 个人房",
+                "chamber_toggle": "这是FC房屋的个人房",
                 "apartment_room": "公寓房间"
             },
             "building_type": {
@@ -2283,10 +2284,11 @@
                 "row_address": "地址",
                 "row_title": "标题（选填）",
                 "row_image": "图片（建议）",
+                "row_image_required": "图片·视频（必填）",
                 "missing_address": "请输入地址",
                 "missing_address_confirm": "请确认地址",
                 "missing_title": "请输入标题",
-                "missing_image": "请添加图片"
+                "missing_image": "请添加图片或视频"
             },
             "duplicate": {
                 "title": "重复检查",

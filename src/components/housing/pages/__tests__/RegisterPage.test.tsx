@@ -41,6 +41,19 @@ vi.mock('../../register/RegisterHousingerCta', () => ({
   RegisterHousingerCta: () => null,
 }));
 
+// 画像アップロード経路 (localImages) をテストから使うため、圧縮を同期スタブ化する。
+// 画像必須 (mode=create) の submit 可否を検証するテストが、実 canvas 圧縮なしで
+// File を 1 枚追加できるようにする。
+vi.mock('../../../../lib/housing/imageCompression', () => ({
+  compressHousingImage: vi.fn(async (file: File) => ({
+    base64: 'ZmFrZQ==',
+    mimeType: 'image/webp',
+    file,
+    originalBytes: 1000,
+    compressedBytes: 800,
+  })),
+}));
+
 import { RegisterPage } from '../RegisterPage';
 // create パス (performRegister) の API を spy するため実モジュールを名前空間 import する
 // (module 全体 mock は他 export を壊すため spyOn で個別に差し替える)。
@@ -88,6 +101,17 @@ function renderPage(props?: {
         />
       </MemoryRouter>
     </I18nextProvider>
+  );
+}
+
+// 画像必須 (mode=create) のテスト用: ローカル画像を 1 枚追加して canSubmit を満たす。
+// 圧縮は vi.mock で同期スタブ化済み。タイルが出るまで待って反映を保証する。
+async function attachImage(container: HTMLElement) {
+  const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
+  const file = new File(['x'], 'photo.png', { type: 'image/png' });
+  fireEvent.change(input, { target: { files: [file] } });
+  await waitFor(() =>
+    expect(container.querySelector('.housing-register-image-tile')).not.toBeNull(),
   );
 }
 
@@ -246,7 +270,10 @@ describe('RegisterPage', () => {
     const onSaved = vi.fn();
 
     // mode 省略 = create (既定)。
-    renderPage({ onSaved });
+    const { container } = renderPage({ onSaved });
+
+    // 画像必須 (mode=create): 復元では画像は戻らないので 1 枚追加してから確認・送信する。
+    await attachImage(container);
 
     // 住所確認ゲート (C案・2026-07-10): オートセーブ復元の住所は未確認扱いのため、
     // 送信可能になる前に確認ボタンを押す必要がある。
@@ -328,7 +355,10 @@ describe('RegisterPage', () => {
     const fetchAndUpsertSpy = vi.spyOn(useHousingListingsStore.getState(), 'fetchAndUpsert');
     const loadMineSpy = vi.spyOn(useHousingListingsStore.getState(), 'loadMine');
 
-    renderPage();
+    const { container } = renderPage();
+
+    // 画像必須 (mode=create): 復元では画像は戻らないので 1 枚追加してから確認・送信する。
+    await attachImage(container);
 
     const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
     fireEvent.click(addressGateBtn);
@@ -579,6 +609,14 @@ describe('RegisterPage', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage();
 
+      // 建物タイプ (個人宅) を選ぶまで番地/サイズ欄は出ない → 先に選ぶ。
+      fireEvent.click(
+        within(container.querySelectorAll('[role="radiogroup"]')[0] as HTMLElement).getByRole(
+          'radio',
+          { name: '個人宅・FCハウス' },
+        ),
+      );
+
       // 区画だけではエリアが決まらないので size は空のまま
       fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '1' } });
       expect(sizeField(container).value).toBe('');
@@ -613,6 +651,44 @@ describe('RegisterPage', () => {
     });
   });
 
+  // FCハウスの個室トグル (2026-07-15): 部屋区分の 2 択チップを廃し、「FCハウスの個室ですか?」の
+  // オンオフ 1 つに。default=オフ=家全体。オンで部屋番号欄が出る (roomKind=private_chamber)。
+  describe('FCハウスの個室トグル', () => {
+    const clickHouse = (container: HTMLElement) =>
+      fireEvent.click(
+        within(container.querySelectorAll('[role="radiogroup"]')[0] as HTMLElement).getByRole(
+          'radio',
+          { name: '個人宅・FCハウス' },
+        ),
+      );
+
+    it('個人宅を選んだ直後は個室オフ = 部屋番号欄が出ない (default=家全体)', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { container } = renderPage();
+      clickHouse(container);
+      expect(container.querySelector('#housing-register-room-number')).toBeNull();
+    });
+
+    it('個室トグルをオンにすると部屋番号欄が出る', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { container } = renderPage();
+      clickHouse(container);
+      fireEvent.click(screen.getByTestId('housing-register-room-chamber-toggle'));
+      expect(container.querySelector('#housing-register-room-number')).not.toBeNull();
+    });
+
+    it('個室オン→オフに戻すと部屋番号欄が消える', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { container } = renderPage();
+      clickHouse(container);
+      const toggle = screen.getByTestId('housing-register-room-chamber-toggle');
+      fireEvent.click(toggle);
+      expect(container.querySelector('#housing-register-room-number')).not.toBeNull();
+      fireEvent.click(toggle);
+      expect(container.querySelector('#housing-register-room-number')).toBeNull();
+    });
+  });
+
   // Task1: 住所確認ゲート (C案・2026-07-10)。フォーム値から組み立てた住所文を確認セクションに
   // 提示し、「この住所で間違いありません」を押すまで送信できない。
   describe('住所確認ゲート (C案・2026-07-10)', () => {
@@ -623,7 +699,7 @@ describe('RegisterPage', () => {
       fireEvent.click(within(radiogroups[0] as HTMLElement).getByRole('radio', { name: '個人宅・FCハウス' }));
     };
 
-    const fillValidAddress = (container: HTMLElement) => {
+    const fillValidAddress = async (container: HTMLElement) => {
       clickHouseChip(container);
       fireEvent.change(container.querySelector('#housing-register-dc')!, { target: { value: 'Meteor' } });
       fireEvent.change(container.querySelector('#housing-register-server')!, { target: { value: 'Ramuh' } });
@@ -632,12 +708,14 @@ describe('RegisterPage', () => {
       });
       fireEvent.change(container.querySelector('#housing-register-ward')!, { target: { value: '29' } });
       fireEvent.change(container.querySelector('#housing-register-plot')!, { target: { value: '3' } });
+      // 画像必須 (mode=create): 送信可否は「住所確認 + 画像」で決まるので 1 枚用意しておく。
+      await attachImage(container);
     };
 
-    it('mode=create: 住所が妥当でも確認ボタンを押すまで送信不可・不足アクションに出る', () => {
+    it('mode=create: 住所が妥当でも確認ボタンを押すまで送信不可・不足アクションに出る', async () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage();
-      fillValidAddress(container);
+      await fillValidAddress(container);
 
       const submitBtn = screen.getByTestId('housing-register-confirm-submit');
       expect(submitBtn).toBeDisabled();
@@ -651,10 +729,10 @@ describe('RegisterPage', () => {
       expect(screen.queryByTestId('housing-register-confirm-missing-address')).not.toBeInTheDocument();
     });
 
-    it('確認後に住所フィールド (どれでも) を変更すると確認が解除される', () => {
+    it('確認後に住所フィールド (どれでも) を変更すると確認が解除される', async () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { container } = renderPage();
-      fillValidAddress(container);
+      await fillValidAddress(container);
       fireEvent.click(screen.getByTestId('housing-register-confirm-address-btn'));
 
       const submitBtn = screen.getByTestId('housing-register-confirm-submit');

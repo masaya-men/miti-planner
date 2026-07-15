@@ -2081,6 +2081,7 @@
                 "label": "部屋区分",
                 "whole_house": "家全体",
                 "private_chamber": "FC 個室",
+                "chamber_toggle": "FCハウスの個室です",
                 "apartment_room": "アパルトメントの部屋"
             },
             "building_type": {
@@ -2339,10 +2340,11 @@
                 "row_address": "住所",
                 "row_title": "タイトル (任意)",
                 "row_image": "画像 (推奨)",
+                "row_image_required": "画像・動画 (必須)",
                 "missing_address": "住所を入力してください",
                 "missing_address_confirm": "住所を確認してください",
                 "missing_title": "タイトルを入力してください",
-                "missing_image": "画像を追加してください"
+                "missing_image": "画像または動画を追加してください"
             },
             "duplicate": {
                 "title": "重複チェック",
