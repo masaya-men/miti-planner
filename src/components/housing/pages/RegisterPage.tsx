@@ -378,7 +378,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   const [title, setTitle] = useState(() => initialValues?.title ?? '');
   const [description, setDescription] = useState(() => initialValues?.description ?? '');
   const [tags, setTags] = useState<string[]>(() => initialValues?.tags ?? []);
-  const [visibility, setVisibility] = useState<'public' | 'private'>(
+  const [visibility, setVisibility] = useState<'public' | 'unlisted' | 'private'>(
     () => initialValues?.visibility ?? 'public',
   );
   const [publishUntil, setPublishUntil] = useState<number | null>(
@@ -390,7 +390,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   // ステップは最初から done 扱いにする (Task3.1 申し送り事項・Task3.2 で対応)。
   const [visibilityTouched, setVisibilityTouched] = useState(() => mode === 'edit');
 
-  const handleVisibilityChange = (next: { visibility: 'public' | 'private'; publishUntil: number | null }) => {
+  const handleVisibilityChange = (next: { visibility: 'public' | 'unlisted' | 'private'; publishUntil: number | null }) => {
     setVisibility(next.visibility);
     setPublishUntil(next.publishUntil);
     setVisibilityTouched(true);

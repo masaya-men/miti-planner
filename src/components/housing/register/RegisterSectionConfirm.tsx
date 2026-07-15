@@ -20,7 +20,7 @@ interface Props {
   summary: RegisterConfirmSummary;
   /** 必須項目 (住所/タイトル) が揃っているか。false なら送信ボタン disabled。 */
   canSubmit: boolean;
-  visibility: 'public' | 'private';
+  visibility: 'public' | 'unlisted' | 'private';
   /** 送信中フラグ。true の間はボタン disabled + ラベルを「登録中…」にする。 */
   submitting?: boolean;
   /** エラーコード (quota_exhausted / not_authenticated / generic / upload_failed)。静かな注記で表示。

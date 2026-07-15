@@ -6,7 +6,7 @@ import type { MockListing } from '../../data/housing/mockListings';
  * publishUntil を過ぎていたら公開扱いしない。now は呼び出し側が渡す (閲覧端末の時計)。
  */
 export function isEffectivelyPublic(
-  listing: { visibility?: 'public' | 'private'; publishUntil?: number | null },
+  listing: { visibility?: 'public' | 'unlisted' | 'private'; publishUntil?: number | null },
   nowMs: number,
 ): boolean {
   if (listing.visibility === 'private') return false;

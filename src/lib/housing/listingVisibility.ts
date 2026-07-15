@@ -15,7 +15,7 @@ export interface ListingVisibilityInput {
   deletedAt?: number | null;
   isHidden?: boolean;
   ownerUid?: string;
-  visibility?: 'public' | 'private';
+  visibility?: 'public' | 'unlisted' | 'private';
   publishUntil?: number | null;
 }
 

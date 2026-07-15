@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { HousingDateTimePicker } from './HousingDateTimePicker';
 
 export interface RegisterVisibilityValues {
-  visibility: 'public' | 'private';
+  visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
 }
 
 interface Props {
-  visibility: 'public' | 'private';
+  visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
   onChange: (next: RegisterVisibilityValues) => void;
 }
@@ -34,7 +34,7 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
     if (publishUntil != null) setEndDateEnabled(true);
   }, [publishUntil]);
 
-  const handleVisibilityChange = (next: 'public' | 'private') => {
+  const handleVisibilityChange = (next: 'public' | 'unlisted' | 'private') => {
     onChange({ visibility: next, publishUntil });
   };
 

@@ -51,7 +51,7 @@ export interface RegistrationDraft extends AddressInput {
   tags: string[];
   description?: string;
   title?: string;
-  visibility?: 'public' | 'private';
+  visibility?: 'public' | 'unlisted' | 'private';
   publishUntil?: number | null;
 
   // SNS 画像 (任意。未指定なら imageMode='none' 扱い)

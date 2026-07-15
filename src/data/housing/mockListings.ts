@@ -60,7 +60,7 @@ export interface MockListing {
     /** ハウジングのタイトル (新シェル登録ページで必須・50字。旧経路 doc には無い場合あり)。 */
     title?: string;
     /** 公開設定。未設定の既存 doc は 'public' 扱い (バックフィルで付与)。 */
-    visibility?: 'public' | 'private';
+    visibility?: 'public' | 'unlisted' | 'private';
     /** 公開終了日時 (epoch ms)。null/未設定 = 無期限。過ぎたら遅延評価で非公開扱い。 */
     publishUntil?: number | null;
     createdAt: number;
