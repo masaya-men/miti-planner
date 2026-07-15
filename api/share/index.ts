@@ -13,7 +13,6 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { nanoid } from 'nanoid';
-import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
 import { createHash } from 'crypto';
@@ -99,10 +98,10 @@ export default async function handler(req: any, res: any) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Firebase-AppCheck');
     if (req.method === 'OPTIONS') return res.status(200).end();
 
-    // App Check検証（POST/PUTのみ。GETは共有リンク閲覧・OGP画像生成の内部fetchで使うためスキップ）
-    if (req.method !== 'GET') {
-        if (!(await verifyAppCheck(req, res))) return;
-    }
+    // App Check は課さない（共有は匿名でも作成/更新できる公開機能）。
+    // 匿名の App Check トークン交換は privacy 制限下（シークレットウィンドウ等）で 403 になり、
+    // しかも一度失敗すると 1 日リトライ不可（initial-throttle）に入るため、依存しない。
+    // DoW 防御は各分岐の rate limit（POST 10/分・PUT 15/分）+ body size 上限が担う。GET も従来から免除。
 
     try {
         initAdmin();

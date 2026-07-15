@@ -11,7 +11,6 @@ import { LoginModal } from './LoginModal';
 import { uploadTeamLogo, deleteTeamLogo, validateLogoFile } from '../utils/logoUpload';
 import { showToast } from './Toast';
 import { apiFetch } from '../lib/apiClient';
-import { ensureAppCheck } from '../lib/firebase';
 import { stripSharedPersonalData } from '../lib/sharePrivacy';
 import type { SavedPlan } from '../types';
 import { buildOgImageUrl, type OgpLang } from '../lib/ogpHelpers';
@@ -116,8 +115,9 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             }
             body.lang = lang;
 
-            // 匿名でも能動的な共有作成/更新は App Check 必須。ここで初期化を保証する(受動閲覧では発火しない)。apiFetch が peek で拾う。
-            ensureAppCheck();
+            // App Check は付けない（サーバ側で share は App Check 免除）。匿名は初期化しない＝
+            // privacy 制限下での reCAPTCHA 交換失敗 (initial-throttle) を踏まない。ログイン時は
+            // 既に初期化済みなので apiFetch が peek でトークンを載せるが、サーバは参照しない。
             const res = await apiFetch('/api/share', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -162,8 +162,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
             if (withLogo && effectiveLogoUrl && user) {
                 body.logoStoragePath = `users/${user.uid}/team-logo.jpg`;
             }
-            // 匿名でも能動的な共有作成/更新は App Check 必須。ここで初期化を保証する(受動閲覧では発火しない)。apiFetch が peek で拾う。
-            ensureAppCheck();
+            // App Check は付けない（サーバ側で share は App Check 免除。プレビュー更新ボタン経由で
+            // 匿名も PUT に到達するため）。匿名は初期化しない＝reCAPTCHA 交換失敗を踏まない。
             const res = await apiFetch('/api/share', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
