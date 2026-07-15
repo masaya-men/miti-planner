@@ -36,6 +36,7 @@ import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { HousingerAvatar } from '../housinger/HousingerAvatar';
 import { HousingerReportModal } from '../report/HousingerReportModal';
+import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { showToast } from '../../Toast';
 import type { HousingerProfile } from '../../../types/housing';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -52,6 +53,7 @@ export const HousingerPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [kebabOpen, setKebabOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [mannerOpen, setMannerOpen] = useState(false);
   const kebabRef = useRef<HTMLDivElement>(null);
   const [sort, setSort] = useState<BrowseSortOrder>('newest');
 
@@ -135,8 +137,14 @@ export const HousingerPage: React.FC = () => {
     setReportOpen(true);
   };
 
-  // BrowsePage.tsx:66-73 の onStart と同形。
+  // まとめてツアー: まずマナー確認を出す(#C・Browse/Favorites と同じく毎回確認)。
   const onTourAll = () => {
+    if (listings.length === 0) return;
+    setMannerOpen(true);
+  };
+
+  // マナー確認の「はじめる」で実際にツアーを開始する。BrowsePage.tsx の commitStart と同形。
+  const commitTourAll = () => {
     const ids = listings.map((l) => l.id);
     const orderedIds = orderTourStopIds(ids, listings);
     const stops = orderedIds
@@ -150,6 +158,7 @@ export const HousingerPage: React.FC = () => {
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
+    setMannerOpen(false);
     navigate('/housing/tour');
   };
 
@@ -303,6 +312,11 @@ export const HousingerPage: React.FC = () => {
           onClose={() => setReportOpen(false)}
         />
       )}
+      <MannerNoticeDialog
+        open={mannerOpen}
+        onCancel={() => setMannerOpen(false)}
+        onStart={commitTourAll}
+      />
     </div>
   );
 };

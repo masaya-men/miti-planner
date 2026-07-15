@@ -120,6 +120,9 @@
   --housing-modal-overlay: rgba(0, 0, 0, 0.55);
   --housing-popover-bg: rgba(20, 14, 8, 0.96);
   --housing-popover-bg-strong: rgba(20, 14, 8, 0.98);
+  /* 再構築ページ(質感A案=濃紺)に合わせた不透明ネイビーのポップオーバー面。
+     旧茶系 popover-bg を「今のトンマナ」へ寄せるための面(通知/ケバブ/警告ダイアログ・#D)。 */
+  --housing-popover-bg-navy: rgba(13, 18, 30, 0.98);
   --housing-popover-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
   --housing-popover-z: 80;
   --housing-popover-z-stack: 90;
@@ -2801,7 +2804,7 @@ select.housing-input option {
 
 /* 住所露出警告カード (Task 2.2・共有ツアー招待の直前確認) */
 .housing-tour-expose-card {
-    background: var(--housing-popover-bg);
+    background: var(--housing-popover-bg-navy);
     border: 1px solid var(--housing-panel-border-strong);
     border-radius: var(--housing-panel-radius);
     padding: 24px 28px;
@@ -2900,7 +2903,7 @@ select.housing-input option {
     right: 0;
     top: calc(100% + 4px);
     min-width: 160px;
-    background: var(--housing-popover-bg-strong);
+    background: var(--housing-popover-bg-navy);
     border: 1px solid var(--housing-panel-border-strong);
     border-radius: 12px;
     padding: 6px;
@@ -3763,7 +3766,7 @@ select.housing-input option {
     top: calc(100% + var(--housing-notif-dropdown-gap));
     width: var(--housing-notif-dropdown-w);
     max-width: calc(100vw - var(--housing-notif-dropdown-max-vw-pad));
-    background: var(--housing-popover-bg-strong);
+    background: var(--housing-popover-bg-navy);
     border: 1px solid var(--housing-panel-border-strong);
     border-radius: var(--housing-notif-dropdown-radius);
     z-index: var(--housing-notif-dropdown-z);
@@ -6961,6 +6964,13 @@ select.housing-input option {
 .housing-tour-map-cross-ack:hover { filter: brightness(1.05); }
 .housing-tour-map-cross-ack:active { transform: scale(0.98); }
 .housing-tour-map-cross-ack:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+/* 参加者(閲覧専用)の待機文言(#A): ボタンではなく静かな注記。地図は主催者操作でだけ出る。 */
+.housing-tour-map-cross-waiting {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  text-shadow: var(--housing-text-shadow);
+}
 
 /* 現在地マーカー (originNodeId のノード座標に青丸) */
 .housing-tour-map-origin {

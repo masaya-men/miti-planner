@@ -168,8 +168,9 @@ export const TourNavPage: React.FC = () => {
   // 幹事の操作 (前へ/見学/次へ) を live state に反映する (孤児 live 防止は onFinish 側で別途)。
   useEffect(() => {
     if (!tourToken) return;
-    void pushHostState(tourToken, { currentIndex, phase, viewStartAt });
-  }, [tourToken, currentIndex, phase, viewStartAt]);
+    // #A: crossingAckIndex(幹事の「移動しました」)も同期し、参加者の跨ぎ overlay を主催者操作でだけ解除する。
+    void pushHostState(tourToken, { currentIndex, phase, viewStartAt, crossingAckedIndex: crossingAckIndex });
+  }, [tourToken, currentIndex, phase, viewStartAt, crossingAckIndex]);
 
   const onFinish = useCallback(() => {
     // ツアー終了時、共有中なら live state を ended にして参加者側を追従させる (孤児 live 防止)。
@@ -217,9 +218,14 @@ export const TourNavPage: React.FC = () => {
       onAckCrossing();
       return;
     }
-    if (isLast) setCompleted(true);
-    else next();
-  }, [showCrossingOverlay, onAckCrossing, isLast, next]);
+    if (isLast) {
+      setCompleted(true);
+      // #B: 完了と同時に共有 live を ended にして、参加者にも同じ完了画面を出す(主催者と同じ終わり方)。
+      if (tourToken) void endHostTour(tourToken);
+    } else {
+      next();
+    }
+  }, [showCrossingOverlay, onAckCrossing, isLast, next, tourToken]);
 
   const onOpenReport = useCallback(() => {
     const listing = progress.currentStep?.listing;
