@@ -2,6 +2,12 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-15 登録改修3件 — 本番反映済 + ユーザー実機チェック通過
+main `8e912670` / `a47856fe`。ユーザーが本番実機で確認OK (2026-07-15)。
+- **⑥ 建物タイプ未選択ブロッカー解消**: 建物タイプを選ぶまで番地から下と地図を出さず、選択で展開。手入力で全部埋めても確認ボタンが灰色のまま押せなかったバグを解消。
+- **⑦ 新規登録は写真か動画が必須** (編集・一時ツアーは対象外)。1つ入れると確認ボタンが押せる。
+- **⑧ 部屋区分の2択→「FCハウスの個室ですか?」トグル**: default オフ=家全体 / オンで部屋番号欄。保存する中身 (roomKind/roomNumber) は従来どおり不変。
+
 ### ✅✅ 2026-07-13〜14 big3 本番リリース + 競合コピー増殖バグ根治 — 本番反映済
 - **big3(2026-07-13)**: 探す地図FB / ハウジンガーPF / 一時ツアー + ④地域フィルタ連動 + ⑤ヘッダー横断検索(日本ワールドのカタカナ/ひらがな検索・PersonalTagFilter撤去) を main 反映 + `firebase deploy --only firestore`(rules+indexes)。実機checklist=`docs/.private/2026-07-12-big3-release-verification-checklist.md` B節+⑤節。残(ユーザー実機)=PF/⑤横断検索の目視。保留(非ブロッカー)=②建物タイプ切替がたつき(`0e07d7e1`効かず・要systematic-debugging)/通報はPFページ報告に委任(本番PF後決定)。
 - **競合コピー増殖バグ(2026-07-14 本番デプロイ済・main `0eaa1c0a`)**: root cause=collab DO の serverTimestamp が Date.now を追い越し中身同一でも偽競合。修正=`src/lib/planContentEqual.ts`(共有中身一致ゲート)+`updatePlan`が`skipped_same_content`返す。build✅/vitest3301pass/敵対監査3回通過。残=数日実機監視のみ(共有プランで放置/切替→コピー生えない・既存表無事)。owner属性のpull巻き戻し=別問題。詳細=`.private/2026-07-10-conflict-copy-investigation.md`。memory [[reference_collab_plan_sync_false_conflict]]。
