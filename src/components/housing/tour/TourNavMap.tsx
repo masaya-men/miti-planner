@@ -26,6 +26,9 @@ export interface TourNavMapProps {
   showCrossing?: boolean;
   /** 「移動しました」ボタンの押下ハンドラ。省略時は no-op。 */
   onAckCrossing?: () => void;
+  /** 参加者(閲覧専用): 跨ぎ案内カードの「移動しました」ボタンを出さず、待機文言にする(#A)。
+   *  地図が出るかどうかは主催者の操作(broadcast された crossingAckedIndex)でだけ決まる。 */
+  crossingReadOnly?: boolean;
   /** 現在の目的地の listing。左上のフル住所オーバーレイに使う。省略時はオーバーレイ自体を出さない。 */
   addressListing?: MockListing | null;
 }
@@ -44,7 +47,7 @@ type MapData = { svg: string; viewBox: { w: number; h: number }; model: TourMapM
 export const TourNavMap: React.FC<TourNavMapProps> = ({
   status, svg, viewBox, model, stepKey, originName,
   crossing = { kind: 'none' }, showCrossing = false, onAckCrossing = () => {},
-  addressListing = null,
+  crossingReadOnly = false, addressListing = null,
 }) => {
   const { t, i18n } = useTranslation();
   const hostRef = useRef<HTMLDivElement>(null);
@@ -446,9 +449,14 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
                       ? t('housing.tour.nav.cross.world', { world: crossing.world })
                       : t('housing.tour.nav.cross.region')}
               </p>
-              <button type="button" className="housing-tour-map-cross-ack" onClick={onAckCrossing}>
-                {t('housing.tour.nav.cross.ack')}
-              </button>
+              {crossingReadOnly ? (
+                // 参加者は操作できない。地図は主催者が「移動しました」を押すと(broadcast で)出る。
+                <p className="housing-tour-map-cross-waiting">{t('housing.tour.nav.cross.waiting')}</p>
+              ) : (
+                <button type="button" className="housing-tour-map-cross-ack" onClick={onAckCrossing}>
+                  {t('housing.tour.nav.cross.ack')}
+                </button>
+              )}
             </div>
           </div>
         )}

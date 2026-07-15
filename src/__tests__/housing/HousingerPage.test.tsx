@@ -299,6 +299,8 @@ describe('HousingerPage', () => {
 
     const tourBtn = await screen.findByRole('button', { name: 'この人の家をまとめてツアー' });
     fireEvent.click(tourBtn);
+    // #C: まとめてツアーもマナー確認を挟む。「はじめる」で commitTourAll → 開始時ネットが弾く。
+    fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
 
     expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
     expect(useHousingTourStore.getState().running).toBe(false);
