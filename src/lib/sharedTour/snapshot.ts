@@ -1,5 +1,5 @@
-import type { TourSnapshot } from '../../types/sharedTour';
-import type { MockListing } from '../../data/housing/mockListings';
+import type { TourSnapshot } from '../../types/sharedTour.js';
+import type { MockListing } from '../../data/housing/mockListings.js';
 
 /** 値が undefined のキーを落とす（Firestore は undefined を受け付けないため書き込み前に必須）。 */
 function omitUndefined<T extends Record<string, unknown>>(obj: T): T {

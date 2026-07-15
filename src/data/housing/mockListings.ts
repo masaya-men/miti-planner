@@ -1,5 +1,5 @@
-import type { HousingArea, HousingSize } from '../../store/useHousingFilterStore';
-import type { Region } from './dcServerMap';
+import type { HousingArea, HousingSize } from '../../store/useHousingFilterStore.js';
+import type { Region } from './dcServerMap.js';
 
 /**
  * ギャラリー表示用 view-model。 Firestore `HousingListing` → galleryAdapter 経由でこの形に整形される。
