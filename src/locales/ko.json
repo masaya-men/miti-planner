@@ -2845,7 +2845,8 @@
             "join": {
                 "connecting": "연결 중…",
                 "notfound": "이 투어를 찾을 수 없습니다",
-                "ended": "이 투어는 종료되었습니다"
+                "ended": "이 투어는 종료되었습니다",
+                "host_guiding": "주최자가 안내 중"
             },
             "region_block": "다른 리전의 집은 같은 투어에 담을 수 없습니다",
             "region_block_start": "이 투어는 여러 리전({{regions}})의 집을 포함하고 있어 시작할 수 없습니다. 한 리전으로 좁혀 주세요"

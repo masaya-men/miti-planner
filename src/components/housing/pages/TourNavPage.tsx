@@ -8,12 +8,8 @@ import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsSt
 import { useAuthStore } from '../../../store/useAuthStore';
 import { buildTourPool } from '../../../lib/housing/buildTourPool';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
-import { resolveTourSteps, computeTourProgress } from '../../../lib/housing/tourNav';
-import { resolveWardMapRef } from '../../../lib/housing/resolveWardMapRef';
-import { getPlotDirections } from '../../../lib/housing/wardDirections';
-import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
-import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
-import { crossingBetween, tourRegionConflict, type TourCrossing } from '../../../lib/housing/tourCrossing';
+import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
 import { createSharedTour } from '../../../lib/housingApiClient';
 import { buildTourSnapshots, snapshotContainsHiddenAddress } from '../../../lib/sharedTour/snapshot';
 import { pushHostState, endHostTour } from '../../../lib/sharedTour/hostSync';
@@ -31,8 +27,9 @@ import type { TourSnapshot } from '../../../types/sharedTour';
 /**
  * ツアー中(Nav)ページ (Task8): オーケストレーター。
  *
- * store 購読 + データ解決 (resolveTourSteps/computeTourProgress/地図配線) を行い、
+ * store 購読 + データ解決 (useTourRenderModel 経由の resolveTourSteps/computeTourProgress/地図配線) を行い、
  * Task4-7 の表示専用部品 (進行状況パネル/地図/ショーケースパネル/空状態) に渡すだけ。
+ * 派生 orchestration は Task 2.4 で `useTourRenderModel` へ抽出し、参加者ページ(JoinTourPage)と共有している。
  * 完了判定はページローカルの `completed` state で表現し、
  * store の `next()` が持つ `currentIndex` の `length-1` クランプ (既存仕様・非破壊) には依存しない。
  */
@@ -71,36 +68,15 @@ export const TourNavPage: React.FC = () => {
     () => buildTourPool(listings, myListings, uid, ephemeral, Date.now()),
     [listings, myListings, uid, ephemeral],
   );
-  const steps = useMemo(() => resolveTourSteps(listingIds, pool), [listingIds, pool]);
-  const progress = useMemo(
-    () => computeTourProgress(steps, currentIndex),
-    [steps, currentIndex],
-  );
+  // ステップ/進捗/次・前の目的地/行き方/跨ぎ/地図モデルの派生一式は共有フックへ抽出済み(Task 2.4)。
+  // 参加者ページ(JoinTourPage)と全く同じ orchestration を通す。挙動は抽出前と同一(ロジック無変更)。
+  const {
+    steps, progress, nextStep, currentListing,
+    directions, crossing, mapModel, mapStatus, asset, originName,
+  } = useTourRenderModel(pool, listingIds, currentIndex);
 
   const isLast = currentIndex === listingIds.length - 1;
 
-  // 次の目的地(左パネルの生きたカード用) / 前の目的地(跨ぎ判定用) / 行き方(右パネル移動中) / 見学可否。
-  const nextStep = useMemo(
-    () => (currentIndex + 1 < steps.length ? steps[currentIndex + 1] : null),
-    [steps, currentIndex],
-  );
-  const prevStep = useMemo(
-    () => (currentIndex - 1 >= 0 ? steps[currentIndex - 1] : null),
-    [steps, currentIndex],
-  );
-
-  // 地図 (全5エリア対応): 現在の目的地の住所 → 表示すべきワード地図 mapKey を解決し、
-  // そのマップだけ遅延ロード。ready になったら実エーテライト起点→家のゴージャス経路モデルを組む。
-  const currentListing = progress.currentStep?.listing ?? null;
-  const directions = useMemo(
-    () => getPlotDirections(currentListing?.area ?? '', currentListing?.plot),
-    [currentListing],
-  );
-  // 前の家→この家の移動種別(DC/ワールド跨ぎ)。行き方枠(右パネル)+中央マップのぼかし案内へ渡す。
-  const crossing: TourCrossing = useMemo(
-    () => (currentListing ? crossingBetween(prevStep?.listing ?? null, currentListing) : { kind: 'none' }),
-    [prevStep, currentListing],
-  );
   // 中央マップの跨ぎ案内カード: 「移動しました」で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
   // 見学中(viewing)は必ず解除する = 見学=既に現地に着いている前提。未 ack のまま「見学開始」を
   // 押しても地図(光る区画)が見えるようにする(見学中もぼかしが残る不具合の防止)。
@@ -109,33 +85,6 @@ export const TourNavPage: React.FC = () => {
     crossing.kind !== 'none' && crossingAckIndex !== currentIndex && phase !== 'viewing';
   const onAckCrossing = useCallback(() => setCrossingAckIndex(currentIndex), [currentIndex]);
   const canView = currentListing != null;
-  const mapRef = useMemo(
-    () =>
-      currentListing
-        ? resolveWardMapRef(
-            currentListing.area ?? '',
-            currentListing.plot ?? null,
-            currentListing.apartmentBuilding ?? null,
-            currentListing.buildingType,
-          )
-        : null,
-    [currentListing],
-  );
-  const asset = useWardMapAsset(mapRef?.mapKey ?? null);
-  const mapModel = useMemo(
-    () =>
-      asset.status === 'ready' && mapRef
-        ? buildTourMapPlacements(asset.json, mapRef.mapKey, mapRef, currentListing, steps, currentIndex)
-        : null,
-    [asset, mapRef, currentListing, steps, currentIndex],
-  );
-  const mapStatus: 'none' | 'loading' | 'ready' | 'error' = !mapRef
-    ? 'none'
-    : asset.status === 'ready'
-      ? 'ready'
-      : asset.status === 'error'
-        ? 'error'
-        : 'loading';
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
 
@@ -311,9 +260,9 @@ export const TourNavPage: React.FC = () => {
             viewBox={asset.status === 'ready' ? asset.json.viewBox : null}
             model={mapModel}
             stepKey={currentIndex}
-            // 名前ラベルの源: 家は正典 directions.aetheryte、アパートは plot が無く directions が引けないため
-            // 起点解決済みの mapModel.originName にフォールバック(マーカーと同じ最寄りエーテライト名)。
-            originName={directions?.aetheryte ?? mapModel?.originName ?? null}
+            // originName の解決(家=directions.aetheryte優先/アパート=mapModel.originNameへフォールバック)は
+            // useTourRenderModel 内で行い、ここでは結果をそのまま渡すだけ。
+            originName={originName}
             crossing={crossing}
             showCrossing={showCrossingOverlay}
             onAckCrossing={onAckCrossing}

@@ -6681,6 +6681,17 @@ select.housing-input option {
 .housing-tour-progress-finish:hover { color: var(--housing-candle); text-decoration: underline; }
 .housing-tour-progress-finish:active { transform: scale(0.98); }
 
+/* 参加者(閲覧専用・Task 2.4): 操作3ボタン+(任意)注記+区切り+終了ボタンの塊の代わりに出す
+   「幹事が案内中」の静かな注記。ボタンではなくテキストのみ、装飾箱なし。 */
+.housing-tour-progress-readonly-note {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 10px 0 2px;
+  text-align: center;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
 /* ============================================================
  * 中央カラム: ツアー中LIVE地図 (Task5・TourNavMap)
  * 赤丸隠蔽ホスト (.housing-map-svg-host) / オーバーレイ (.housing-map-overlay) は
