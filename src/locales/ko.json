@@ -2011,6 +2011,7 @@
             "field_title_label": "제목",
             "field_title_placeholder": "제목을 입력하세요",
             "field_title_optional_hint": "입력하지 않으면 주소가 표시됩니다",
+            "field_title_optional_hint_unlisted": "입력하지 않으면 \"주소는 비공개입니다\"가 표시됩니다",
             "field_title_remaining": "남은 글자수 {{count}}자",
             "dc": "데이터 센터",
             "server": "서버",
@@ -2215,6 +2216,7 @@
                 "address_gate_confirmed": "확인 완료",
                 "publish": "공개하기",
                 "save_private": "비공개로 저장하기",
+                "save_unlisted": "주소 비공개로 등록",
                 "summary_missing": "미입력",
                 "summary_image_count": "{{count}}장",
                 "summary_visibility": "공개 설정",
@@ -2238,6 +2240,7 @@
                 "media": "주소가 적힌 SNS 게시물이나 사이트의 URL을 붙여넣으면 사진과 주소 자동 입력을 시도합니다",
                 "address": "자동 입력이든 직접 입력이든, 등록 전에 반드시 주소를 확인합니다",
                 "intro": "제목은 선택 사항입니다. 입력하지 않으면 목록에는 주소가 표시됩니다",
+                "intro_unlisted": "제목은 선택입니다. 입력하지 않으면 목록에 \"주소는 비공개입니다\"가 표시됩니다",
                 "visibility": "공개・비공개와 공개 기간을 선택할 수 있습니다",
                 "confirm": "입력한 내용을 한눈에 확인하고 등록합니다"
             },
@@ -2245,8 +2248,12 @@
             "section_visibility": "공개 설정",
             "visibility": {
                 "label": "공개 범위",
-                "public": "모든 사용자에게 공개",
-                "private": "비공개 (나만 보기)",
+                "public": "공개",
+                "unlisted": "주소 비공개",
+                "private": "비공개",
+                "public_desc": "찾기·지도·투어에 표시되고 주소도 보입니다",
+                "unlisted_desc": "이미지는 찾기에 표시되지만 주소는 숨겨지고 투어에는 사용할 수 없습니다",
+                "private_desc": "나만 볼 수 있습니다",
                 "set_end_datetime": "공개 종료 일시 설정",
                 "auto_hide_note": "공개 종료 일시가 지나면 자동으로 목록에서 숨겨집니다",
                 "picker": {
@@ -2506,7 +2513,8 @@
                 "copy_url_done": "URL을 복사했습니다",
                 "open_sns": "SNS 글 열기",
                 "close": "닫기",
-                "mine_badge": "내 등록"
+                "mine_badge": "내 등록",
+                "addressPrivate": "주소는 비공개입니다"
             },
             "empty": {
                 "title": "조건에 맞는 집이 없습니다",

@@ -2046,6 +2046,7 @@
             "field_title_label": "Title",
             "field_title_placeholder": "Enter a title",
             "field_title_optional_hint": "If left blank, the address is shown",
+            "field_title_optional_hint_unlisted": "If left blank, \"Address is private\" is shown.",
             "field_title_remaining": "{{count}} characters remaining",
             "dc": "Data Center",
             "server": "Server",
@@ -2250,6 +2251,7 @@
                 "address_gate_confirmed": "Confirmed",
                 "publish": "Publish",
                 "save_private": "Save privately",
+                "save_unlisted": "Save with address hidden",
                 "summary_missing": "Not entered",
                 "summary_image_count": "{{count}} image(s)",
                 "summary_visibility": "Visibility",
@@ -2273,6 +2275,7 @@
                 "media": "Paste the URL of a social post or site that shows the address, and we'll try to auto-fill the photos and address.",
                 "address": "Whether auto-filled or entered by hand, always confirm the address before registering",
                 "intro": "The title is optional. If left blank, the listing shows the address instead",
+                "intro_unlisted": "The title is optional. If left blank, \"Address is private\" is shown in the list.",
                 "visibility": "Choose public or private, and optionally set an end date",
                 "confirm": "Review everything together, then register"
             },
@@ -2280,8 +2283,12 @@
             "section_visibility": "Visibility",
             "visibility": {
                 "label": "Visibility",
-                "public": "Public to all users",
-                "private": "Private (only you)",
+                "public": "Public",
+                "unlisted": "Address hidden",
+                "private": "Private",
+                "public_desc": "Shown in Browse, map, and tours, with the address visible",
+                "unlisted_desc": "Images appear in Browse, but the address is hidden and it can't be used in tours",
+                "private_desc": "Only you can see it",
                 "set_end_datetime": "Set an end date/time",
                 "auto_hide_note": "The listing will automatically be hidden once the end date/time passes",
                 "picker": {
@@ -2541,7 +2548,8 @@
                 "copy_url_done": "URL copied",
                 "open_sns": "Open SNS post",
                 "close": "Close",
-                "mine_badge": "Your listing"
+                "mine_badge": "Your listing",
+                "addressPrivate": "Address is private"
             },
             "empty": {
                 "title": "No homes match your filters",
