@@ -7,6 +7,7 @@
  */
 import { buildHousingHeaders as buildHeaders } from './housingAuthHeaders';
 import type { AddressInput, RegistrationDraft } from '../utils/housingValidation';
+import type { TourSnapshot } from '../types/sharedTour';
 
 const API_BASE = '/api/housing';
 
@@ -162,4 +163,28 @@ export async function uploadListingThumbnail(params: {
     throw new Error(body.error ?? `upload-thumbnail failed: ${res.status}`);
   }
   return (await res.json()) as UploadThumbnailResponse;
+}
+
+export interface CreateSharedTourResponse {
+  tourToken: string;
+}
+
+/**
+ * 幹事が組んだツアーの家スナップショットを送って共有ツアーを発行する（招待リンク発行）。
+ * ログイン必須（buildHeaders(true) で idToken + App Check 付与）。
+ * 返り値の tourToken を招待リンク `/housing/tour/:tourToken` に載せる。
+ * 失敗時は body.error（'invalid_snapshot' 等）を message に throw。
+ */
+export async function createSharedTour(snapshot: TourSnapshot[]): Promise<CreateSharedTourResponse> {
+  const headers = await buildHeaders(true);
+  const res = await fetch(`${API_BASE}?action=create-shared-tour`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ snapshot }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `create-shared-tour failed: ${res.status}`);
+  }
+  return (await res.json()) as CreateSharedTourResponse;
 }
