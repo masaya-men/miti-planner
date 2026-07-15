@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
@@ -14,13 +14,19 @@ import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
 import { crossingBetween, tourRegionConflict, type TourCrossing } from '../../../lib/housing/tourCrossing';
+import { createSharedTour } from '../../../lib/housingApiClient';
+import { buildTourSnapshots, snapshotContainsHiddenAddress } from '../../../lib/sharedTour/snapshot';
+import { pushHostState, endHostTour } from '../../../lib/sharedTour/hostSync';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
+import { TourInvitePanel } from '../tour/TourInvitePanel';
+import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
 import { HousingReportModal } from '../report/HousingReportModal';
 import { showToast } from '../../Toast';
 import type { MockListing } from '../../../data/housing/mockListings';
+import type { TourSnapshot } from '../../../types/sharedTour';
 
 /**
  * ツアー中(Nav)ページ (Task8): オーケストレーター。
@@ -52,6 +58,13 @@ export const TourNavPage: React.FC = () => {
 
   const [completed, setCompleted] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
+
+  // 共有ツアー同期 (Task 2.1): 幹事が発行した招待の token。null=未発行。
+  // mount 時の自動復帰 (localStorage からの token 復帰) は今回スコープ外
+  // (設計§7 の同端末復帰は別タスク・stale token 誤表示を避ける)。
+  const [tourToken, setTourToken] = useState<string | null>(null);
+  // 住所露出警告ダイアログの表示に使う「発行待ち」の中身 (非公開/一時追加を含む場合のみ立つ)。
+  const [pendingInvite, setPendingInvite] = useState<{ snaps: TourSnapshot[]; hasEphemeral: boolean } | null>(null);
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) + 一時 listing (計画: 住所登録なし一時ツアー Task2) を合流。
   const pool = useMemo(
@@ -156,12 +169,74 @@ export const TourNavPage: React.FC = () => {
     setEmptyTrayIds([]);
   }, [emptyTrayIds, t]);
 
+  // 共有ツアー同期 (Task 2.1): 幹事の「みんなを招待」発行フロー。
+  // 実際の Firestore 書き込み (create-shared-tour) を行う共通処理。
+  const doCreate = useCallback(
+    async (snaps: TourSnapshot[]) => {
+      try {
+        const { tourToken: token } = await createSharedTour(snaps);
+        setTourToken(token);
+        localStorage.setItem('lopo_shared_tour_token', token);
+      } catch {
+        showToast(t('housing.tour.nav.invite.error'), 'error');
+      }
+    },
+    [t],
+  );
+
+  // 「みんなを招待」ボタン。非公開/一時追加の家を含む場合は警告ダイアログを挟み、
+  // それ以外は確認なしで即発行する。
+  const onInvite = useCallback(() => {
+    const snaps = buildTourSnapshots(listingIds, pool);
+    const hasEphemeral = listingIds.some((id) => ephemeral.some((e) => e.id === id));
+    const containsHidden = snapshotContainsHiddenAddress(snaps);
+    if (hasEphemeral || containsHidden) {
+      setPendingInvite({ snaps, hasEphemeral });
+    } else {
+      void doCreate(snaps);
+    }
+  }, [listingIds, pool, ephemeral, doCreate]);
+
+  // 警告ダイアログの「このまま招待する」。
+  const onConfirmExpose = useCallback(() => {
+    if (pendingInvite) void doCreate(pendingInvite.snaps);
+    setPendingInvite(null);
+  }, [pendingInvite, doCreate]);
+
+  // 招待リンクをクリップボードへコピー。
+  const onCopyInvite = useCallback(() => {
+    if (!tourToken) return;
+    const url = `${location.origin}/housing/tour/${tourToken}`;
+    void navigator.clipboard?.writeText(url);
+    showToast(t('housing.tour.nav.invite.copied'), 'success');
+  }, [tourToken, t]);
+
+  // 「共有を終了」。live state を ended にし、幹事側の招待状態もリセットする。
+  const onEndShare = useCallback(() => {
+    if (!tourToken) return;
+    void endHostTour(tourToken);
+    setTourToken(null);
+    localStorage.removeItem('lopo_shared_tour_token');
+    showToast(t('housing.tour.nav.invite.ended'), 'success');
+  }, [tourToken, t]);
+
+  // 幹事の操作 (前へ/見学/次へ) を live state に反映する (孤児 live 防止は onFinish 側で別途)。
+  useEffect(() => {
+    if (!tourToken) return;
+    void pushHostState(tourToken, { currentIndex, phase, viewStartAt });
+  }, [tourToken, currentIndex, phase, viewStartAt]);
+
   const onFinish = useCallback(() => {
+    // ツアー終了時、共有中なら live state を ended にして参加者側を追従させる (孤児 live 防止)。
+    if (tourToken) {
+      void endHostTour(tourToken);
+      localStorage.removeItem('lopo_shared_tour_token');
+    }
     stop();
     exitTourMode();
     reset();
     navigate('/housing');
-  }, [stop, exitTourMode, reset, navigate]);
+  }, [tourToken, stop, exitTourMode, reset, navigate]);
 
   const backToBrowse = useCallback(() => {
     stop();
@@ -244,6 +319,12 @@ export const TourNavPage: React.FC = () => {
             onAckCrossing={onAckCrossing}
           />
         </div>
+        <TourInvitePanel
+          tourToken={tourToken}
+          onInvite={onInvite}
+          onCopy={onCopyInvite}
+          onEnd={onEndShare}
+        />
       </section>
 
       <section className="housing-tour-page-panel" data-region="right" inert={frozen}>
@@ -296,6 +377,12 @@ export const TourNavPage: React.FC = () => {
       )}
 
       <HousingReportModal open={!!reportId} listingId={reportId ?? ''} onClose={() => setReportId(null)} />
+      <TourAddressExposureDialog
+        open={pendingInvite !== null}
+        hasEphemeral={pendingInvite?.hasEphemeral ?? false}
+        onConfirm={onConfirmExpose}
+        onCancel={() => setPendingInvite(null)}
+      />
     </div>
   );
 };

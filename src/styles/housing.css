@@ -200,6 +200,10 @@
      共有の --housing-left-w/--housing-right-w とは独立 (workspace 等に波及させない)。 */
   --housing-tour-showcase-w: 300px;
   --housing-tour-progress-w: 240px;
+  /* 共有ツアー同期 (Task 2.1): 幹事の招待オーバーレイ (中央地図パネル右下)。
+     地図内部オーバーレイ(cross z:6/label z:4)より前面・完了オーバーレイ(60)/ヘッダードロップダウン(40)より背面。 */
+  --housing-tour-invite-w: 240px;
+  --housing-tour-invite-z: 15;
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
   --housing-listing-card-min-w: 198px;
@@ -7257,6 +7261,102 @@ select.housing-input option {
   overflow: hidden;
   padding: 14px 16px;
 }
+
+/* ============================================================
+ * 共有ツアー招待オーバーレイ (Task 2.1・幹事の「みんなを招待」)
+ * 中央地図パネル(.housing-tour-page-panel = position:relative)の右下に浮かせる。
+ * 要素自身にのみ pointer-events (地図の wheel/drag/pan を邪魔しない)。
+ * 装飾ピル/色付きalert箱は使わない (housing-design.md 質感A案)。
+ * ============================================================ */
+.housing-tour-invite {
+  position: absolute;
+  right: var(--housing-main-padding);
+  bottom: var(--housing-main-padding);
+  z-index: var(--housing-tour-invite-z);
+  width: var(--housing-tour-invite-w);
+  max-width: calc(100% - 2 * var(--housing-main-padding));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--housing-panel-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: var(--housing-panel-radius);
+  box-shadow: var(--housing-panel-shadow);
+  pointer-events: auto;
+}
+/* 未発行: 「みんなを招待」(ハニー控えめ = ソフト背景+ボーダー、フルグラデの主CTAより静か) */
+.housing-tour-invite-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-honey);
+  background: var(--housing-honey-soft);
+  border: 1px solid var(--housing-honey-border);
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-invite-btn:hover { background: var(--housing-honey-medium); }
+.housing-tour-invite-btn:active { transform: scale(0.98); }
+.housing-tour-invite-btn:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+/* 静かな注記: 箱で囲まずヘアライン区切り+薄字のみ (feedback_housing_no_ai_pills)。 */
+.housing-tour-invite-hint {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+/* 発行済み: 招待リンク(省略表示) + コピー/共有を終了 */
+.housing-tour-invite-label {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-invite-link {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+}
+.housing-tour-invite-actions {
+  display: flex;
+  gap: 8px;
+}
+.housing-tour-invite-copy,
+.housing-tour-invite-end {
+  appearance: none;
+  cursor: pointer;
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-invite-copy:hover,
+.housing-tour-invite-end:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-invite-copy:active,
+.housing-tour-invite-end:active { transform: scale(0.98); }
+.housing-tour-invite-copy:focus-visible,
+.housing-tour-invite-end:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 
 /* 完了カード (ツアーを完了・「探すに戻る」/「お気に入りに戻る」) */
 .housing-tour-complete {

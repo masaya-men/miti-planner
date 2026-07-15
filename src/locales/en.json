@@ -2860,6 +2860,14 @@
                     "route": "Route (approximate)"
                 },
                 "invite": {
+                    "button": "Invite everyone",
+                    "hint": "Once you start, you can't add more houses. Line up the ones you want to show beforehand.",
+                    "copy": "Copy",
+                    "copied": "Link copied",
+                    "end": "End sharing",
+                    "ended": "Sharing ended",
+                    "error": "Couldn't create the invite link",
+                    "link_label": "Invite link",
                     "warning": {
                         "title": "These addresses will be visible to everyone",
                         "body": "This tour includes private or temporarily-added houses. Everyone who opens the invite link will see these addresses.",
