@@ -27,7 +27,9 @@ export interface TourMapModel {
 
 function refOf(listing: TourStep['listing']) {
   if (!listing) return null;
-  return resolveWardMapRef(listing.area, listing.plot ?? null, listing.apartmentBuilding ?? null, listing.buildingType);
+  // unlisted は area が undefined (住所非公開)。空文字を渡すと resolveWardMapRef が
+  // 既存の「未知エリア→null」フォールバックで解決不能を返し、地図に配置しない (クラッシュしない)。
+  return resolveWardMapRef(listing.area ?? '', listing.plot ?? null, listing.apartmentBuilding ?? null, listing.buildingType);
 }
 
 /** ワード地図 ref → 配置。apart は番号非依存で唯一の apart を、plot は plot 番号で解決。 */
@@ -74,7 +76,7 @@ export function buildTourMapPlacements(
   const originInfo = currentListing
     ? (currentListing.buildingType === 'apartment'
         ? getApartmentOrigin(json, mapKey)
-        : getPlotOriginNode(currentListing.area, currentListing.plot))
+        : getPlotOriginNode(currentListing.area ?? '', currentListing.plot))
     : null;
   if (currentListing && originInfo && targetPlacement && targetPlacement.nodeId) {
     const w = json.viewBox.w, h = json.viewBox.h;
@@ -84,7 +86,7 @@ export function buildTourMapPlacements(
 
     // 玄関(終点): 入口データ優先 → 幾何(箱縁) → 箱中心 の順で決める。
     let doorX = targetPlacement.x, doorY = targetPlacement.y;
-    const entrance = getPlotEntrance(currentListing.area, currentListing.plot, currentListing.buildingType, currentListing.apartmentBuilding);
+    const entrance = getPlotEntrance(currentListing.area ?? '', currentListing.plot, currentListing.buildingType, currentListing.apartmentBuilding);
     if (entrance) {
       doorX = entrance[0] * w; doorY = entrance[1] * h;
     } else {
@@ -92,7 +94,7 @@ export function buildTourMapPlacements(
       if (geoDoor) { doorX = geoDoor.x; doorY = geoDoor.y; }
     }
     // 方角ベクトル: 行き方テキスト先頭語を優先、無ければ エーテライト→玄関 の向き。
-    const dirVec = getPlotBearing(currentListing.area, currentListing.plot, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
+    const dirVec = getPlotBearing(currentListing.area ?? '', currentListing.plot, { x: oxPx, y: oyPx }, { x: doorX, y: doorY });
     // 手動上書き(plot単位)があれば最優先。無ければ方角ナビ(agree=道追従 / reroute=方角→角→破線ジャンプ)。
     const plotKey = ref.highlightKind === 'apart' ? 'apart' : String(ref.highlightPlot);
     const segs = getRouteOverride(mapKey, plotKey);

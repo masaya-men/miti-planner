@@ -34,7 +34,7 @@ import type { HousingListing } from '../../../types/housing';
 import type { HousingNotification } from '../../../types/notification';
 import { canViewListing } from '../../../lib/housing/listingVisibility';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
-import { fetchPublicListingPeers } from '../../../lib/housing/publicHousingWindow';
+import { fetchPublicListing, fetchPublicListingPeers } from '../../../lib/housing/publicHousingWindow';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import type { ReportNotice } from './HousingDetailContent';
 import { useHousingDelete } from '../delete/useHousingDelete';
@@ -116,24 +116,29 @@ export function useHousingDetail(
     if (!listingId) return null;
     try {
       const snap = await getDoc(doc(db, 'housing_listings', listingId));
-      if (!snap.exists()) {
-        setNotFound(true);
-        return null;
+      if (snap.exists()) {
+        const data = snap.data();
+        // 家主は自分の物件なら非表示でも開ける (通知から編集/異議/削除で対処するため)。
+        const uid = auth.currentUser?.uid ?? null;
+        if (canViewListing(data as HousingListing, uid)) {
+          const next = { id: snap.id, ...data } as HousingListing;
+          setListing(next);
+          return next;
+        }
       }
-      const data = snap.data();
-      // 家主は自分の物件なら非表示でも開ける (通知から編集/異議/削除で対処するため)。
-      const uid = auth.currentUser?.uid ?? null;
-      if (!canViewListing(data as HousingListing, uid)) {
-        setNotFound(true);
-        return null;
-      }
-      const next = { id: snap.id, ...data } as HousingListing;
-      setListing(next);
-      return next;
     } catch {
-      setNotFound(true);
-      return null;
+      // permission-denied (unlisted 非オーナー等) → 公開窓口へフォールバック
     }
+    // getDoc が空 / 不可視 / 例外 → 公開窓口へ (窓口は住所を射影で除去して返す)。
+    // public 非オーナーは上の getDoc 成功で全フィールド取得。unlisted 非オーナーのみ窓口の住所抜きレスポンス。
+    // private/deleted は窓口も 404 → null → notFound。
+    const win = await fetchPublicListing(listingId);
+    if (win) {
+      setListing(win);
+      return win;
+    }
+    setNotFound(true);
+    return null;
   }, [listingId, authLoading]);
 
   useEffect(() => {

@@ -378,7 +378,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   const [title, setTitle] = useState(() => initialValues?.title ?? '');
   const [description, setDescription] = useState(() => initialValues?.description ?? '');
   const [tags, setTags] = useState<string[]>(() => initialValues?.tags ?? []);
-  const [visibility, setVisibility] = useState<'public' | 'private'>(
+  const [visibility, setVisibility] = useState<'public' | 'unlisted' | 'private'>(
     () => initialValues?.visibility ?? 'public',
   );
   const [publishUntil, setPublishUntil] = useState<number | null>(
@@ -390,7 +390,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   // ステップは最初から done 扱いにする (Task3.1 申し送り事項・Task3.2 で対応)。
   const [visibilityTouched, setVisibilityTouched] = useState(() => mode === 'edit');
 
-  const handleVisibilityChange = (next: { visibility: 'public' | 'private'; publishUntil: number | null }) => {
+  const handleVisibilityChange = (next: { visibility: 'public' | 'unlisted' | 'private'; publishUntil: number | null }) => {
     setVisibility(next.visibility);
     setPublishUntil(next.publishUntil);
     setVisibilityTouched(true);
@@ -818,9 +818,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       effectiveStepIds.map((id, idx) => {
         const state: RegisterStepState = id === activeStepId ? 'active' : doneMap[id] ? 'done' : 'idle';
         // 番号は表示位置 (idx+1) で振り直す。 edit で media を除外しても 1 から詰まり欠番が出ない (Task3.4-1)。
-        return { id: idx + 1, labelKey: STEP_LABEL_KEYS[id], state };
+        // intro ステップは「住所非公開」選択時、ラベルはそのまま「コメント」の説明文だけ差し替える
+        // (一覧に住所ではなく「住所は非公開です」と出る旨を伝える・Task4)。
+        const descKey = id === 'intro' && visibility === 'unlisted' ? 'housing.register.step_desc.intro_unlisted' : undefined;
+        return { id: idx + 1, labelKey: STEP_LABEL_KEYS[id], state, descKey };
       }),
-    [effectiveStepIds, activeStepId, doneMap],
+    [effectiveStepIds, activeStepId, doneMap, visibility],
   );
 
   // ===== 右カラム: 重複照会 (debounce 500ms, Task13) =====
@@ -1439,6 +1442,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                 title={title}
                 description={description}
                 tags={tags}
+                visibility={visibility}
                 onChange={handleIntroChange}
               />
             </div>

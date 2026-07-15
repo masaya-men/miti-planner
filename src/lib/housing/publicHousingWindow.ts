@@ -56,3 +56,16 @@ export async function fetchPublicListingPeers(id: string): Promise<HousingListin
     return [];
   }
 }
+
+/** 詳細 main を公開窓口から取得 (非オーナーの unlisted 等・住所は射影で除去済)。失敗/404 は null。 */
+export async function fetchPublicListing(id: string): Promise<HousingListing | null> {
+  try {
+    const v = await fetchVersion();
+    const { listing } = await getJson<{ listing: HousingListing | null }>(
+      `${BASE}?action=listing&id=${encodeURIComponent(id)}&v=${v}`,
+    );
+    return listing ?? null;
+  } catch {
+    return null;
+  }
+}

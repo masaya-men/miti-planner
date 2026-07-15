@@ -3,19 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { HousingDateTimePicker } from './HousingDateTimePicker';
 
 export interface RegisterVisibilityValues {
-  visibility: 'public' | 'private';
+  visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
 }
 
 interface Props {
-  visibility: 'public' | 'private';
+  visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
   onChange: (next: RegisterVisibilityValues) => void;
 }
 
 /**
  * 登録フォーム中央カラム: 公開設定セクション (spec 正典④)。
- * 「すべてのユーザーに公開 (既定) / 非公開 (自分のみ)」の2択 + 任意の公開終了日時。
+ * 「公開 (既定) / 住所非公開 / 非公開 (自分のみ)」の3択 + 「公開」時のみの任意の公開終了日時。
  * 選択系 UI なので質感A案の「青 = 選択」トークンを使う (ハニーは主アクション専用)。
  */
 export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publishUntil, onChange }) => {
@@ -34,8 +34,9 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
     if (publishUntil != null) setEndDateEnabled(true);
   }, [publishUntil]);
 
-  const handleVisibilityChange = (next: 'public' | 'private') => {
-    onChange({ visibility: next, publishUntil });
+  const handleVisibilityChange = (next: 'public' | 'unlisted' | 'private') => {
+    // 公開期限は「公開」専用。unlisted/private へ切替えたら日時を破棄する。
+    onChange({ visibility: next, publishUntil: next === 'public' ? publishUntil : null });
   };
 
   const handleToggleEndDate = () => {
@@ -65,7 +66,28 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
             aria-checked={visibility === 'public'}
             onClick={() => handleVisibilityChange('public')}
           >
-            {t('housing.register.visibility.public')}
+            <span className="housing-register-visibility-chip-title">
+              {t('housing.register.visibility.public')}
+            </span>
+            <span className="housing-register-visibility-chip-desc">
+              {t('housing.register.visibility.public_desc')}
+            </span>
+          </button>
+          <button
+            type="button"
+            className="housing-register-visibility-chip"
+            data-testid="housing-register-visibility-unlisted"
+            data-selected={visibility === 'unlisted' ? 'true' : 'false'}
+            role="radio"
+            aria-checked={visibility === 'unlisted'}
+            onClick={() => handleVisibilityChange('unlisted')}
+          >
+            <span className="housing-register-visibility-chip-title">
+              {t('housing.register.visibility.unlisted')}
+            </span>
+            <span className="housing-register-visibility-chip-desc">
+              {t('housing.register.visibility.unlisted_desc')}
+            </span>
           </button>
           <button
             type="button"
@@ -76,33 +98,43 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
             aria-checked={visibility === 'private'}
             onClick={() => handleVisibilityChange('private')}
           >
-            {t('housing.register.visibility.private')}
+            <span className="housing-register-visibility-chip-title">
+              {t('housing.register.visibility.private')}
+            </span>
+            <span className="housing-register-visibility-chip-desc">
+              {t('housing.register.visibility.private_desc')}
+            </span>
           </button>
         </div>
       </div>
 
-      <div className="housing-register-visibility-enddate">
-        <label className="housing-register-visibility-enddate-toggle">
-          <input
-            type="checkbox"
-            data-testid="housing-register-visibility-enddate-toggle"
-            checked={endDateEnabled}
-            onChange={handleToggleEndDate}
-          />
-          <span className="housing-register-visibility-enddate-toggle-track" aria-hidden="true">
-            <span className="housing-register-visibility-enddate-toggle-knob" />
-          </span>
-          <span>{t('housing.register.visibility.set_end_datetime')}</span>
-        </label>
+      {/* 公開終了日時は「公開」専用 (unlisted/private には一覧掲載の概念が無いため意味を持たない)。 */}
+      {visibility === 'public' && (
+        <>
+          <div className="housing-register-visibility-enddate">
+            <label className="housing-register-visibility-enddate-toggle">
+              <input
+                type="checkbox"
+                data-testid="housing-register-visibility-enddate-toggle"
+                checked={endDateEnabled}
+                onChange={handleToggleEndDate}
+              />
+              <span className="housing-register-visibility-enddate-toggle-track" aria-hidden="true">
+                <span className="housing-register-visibility-enddate-toggle-knob" />
+              </span>
+              <span>{t('housing.register.visibility.set_end_datetime')}</span>
+            </label>
 
-        {endDateEnabled && (
-          <div data-testid="housing-register-visibility-enddate-input">
-            <HousingDateTimePicker valueMs={publishUntil} onChange={handleDateChange} />
+            {endDateEnabled && (
+              <div data-testid="housing-register-visibility-enddate-input">
+                <HousingDateTimePicker valueMs={publishUntil} onChange={handleDateChange} />
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      <p className="housing-register-visibility-note">{t('housing.register.visibility.auto_hide_note')}</p>
+          <p className="housing-register-visibility-note">{t('housing.register.visibility.auto_hide_note')}</p>
+        </>
+      )}
     </section>
   );
 };

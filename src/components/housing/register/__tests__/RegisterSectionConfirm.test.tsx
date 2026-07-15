@@ -79,4 +79,24 @@ describe('RegisterSectionConfirm', () => {
     screen.getByTestId('housing-register-confirm-address-btn').click();
     expect(onConfirmAddress).toHaveBeenCalledTimes(1);
   });
+
+  // Task4: 3択 (public/unlisted/private) の submit ラベルと要約表示。
+  it('visibility=unlisted のとき送信ボタンが save_unlisted 文言になる', () => {
+    wrap({ visibility: 'unlisted' });
+    expect(screen.getByTestId('housing-register-confirm-submit').textContent).toBe(
+      jaTranslations.housing.register.confirm.save_unlisted,
+    );
+  });
+
+  it('visibility=unlisted のとき要約が「住所非公開」表示になる', () => {
+    wrap({ visibility: 'unlisted' });
+    expect(screen.getByText(jaTranslations.housing.register.visibility.unlisted)).toBeInTheDocument();
+  });
+
+  it('visibility=private のとき送信ボタンが save_private 文言になる (回帰)', () => {
+    wrap({ visibility: 'private' });
+    expect(screen.getByTestId('housing-register-confirm-submit').textContent).toBe(
+      jaTranslations.housing.register.confirm.save_private,
+    );
+  });
 });

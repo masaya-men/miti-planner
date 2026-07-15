@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import type { HousingListing } from '../../../types/housing';
 import { confirmListing } from '../../../lib/housingApiClient';
+import { isAddressHidden } from '../../../lib/housing/listingPublish';
 import { showToast } from '../../Toast';
 import { HousingDetailKebab } from './HousingDetailKebab';
 import { HousingShareButton } from './HousingShareButton';
@@ -65,7 +66,11 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
     typeof window !== 'undefined'
       ? `${window.location.origin}/housing/listing/${listing.id}`
       : `/housing/listing/${listing.id}`;
-  const titleForShare = listing.description?.slice(0, 60) || listing.addressKey || 'LoPo Housing';
+  // unlisted は addressKey (住所) をシェアタイトルに出さない (§8.5・住所非公開)。
+  const titleForShare =
+    listing.description?.slice(0, 60)
+    || (isAddressHidden(listing) ? undefined : listing.addressKey)
+    || 'LoPo Housing';
 
   const onReportClick = () => {
     if (!viewerUid) {

@@ -15,7 +15,7 @@ export interface ListingVisibilityInput {
   deletedAt?: number | null;
   isHidden?: boolean;
   ownerUid?: string;
-  visibility?: 'public' | 'private';
+  visibility?: 'public' | 'unlisted' | 'private';
   publishUntil?: number | null;
 }
 
@@ -27,6 +27,9 @@ export function canViewListing(
   if (listing.deletedAt) return false;
   if (listing.isHidden && listing.ownerUid !== viewerUid) return false;
   const isOwner = listing.ownerUid === viewerUid;
+  // 住所非公開 (unlisted) は非オーナーには直 getDoc 経由で見せない (住所付き生 doc を渡さない)。
+  // 非オーナーの正規経路は公開窓口 fetch (住所射影済み) = useHousingDetail のフォールバック。
+  if (!isOwner && listing.visibility === 'unlisted') return false;
   if (!isOwner && !isEffectivelyPublic(listing, nowMs)) return false;
   return true;
 }

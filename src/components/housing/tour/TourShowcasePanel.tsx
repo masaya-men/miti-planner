@@ -7,6 +7,7 @@ import {
   housingSizeDisplayLabel,
 } from '../../../lib/housing/formatHousingAddress';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
+import { canDisplayAddress, canDisplayFullAddress } from '../../../lib/housing/listingPublish';
 import { saveRegisterPrefill, type RegisterPrefill } from '../../../lib/housing/registerPrefill';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { TourLivingMedia } from './TourLivingMedia';
@@ -70,7 +71,10 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
         <div className="housing-tour-dest-card">
           <div className="housing-tour-dest-title-row">
             <h2 className="housing-tour-dest-title">
-              {listing.title?.trim() || formatHousingAddress(listing, i18n.language)}
+              {listing.title?.trim()
+                || (canDisplayAddress(listing)
+                  ? formatHousingAddress(listing, i18n.language)
+                  : t('housing.card.addressPrivate'))}
             </h2>
             {isEphemeralListingId(listing.id) && (
               <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>
@@ -82,7 +86,9 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
           {/* 現在の目的地はどの鯖のどの家か一目で分かるよう、リージョン/DC/ワールド込みの完全住所を出す
               (N: DC込み完全住所)。次の目的地(下の小プレビュー)は幅が狭いため短縮住所のまま。 */}
           <p className="housing-tour-dest-addrsize">
-            {formatFullHousingAddress(listing, i18n.language)}
+            {canDisplayFullAddress(listing)
+              ? formatFullHousingAddress(listing, i18n.language)
+              : t('housing.card.addressPrivate')}
             {!isApartment && listing.size ? ` ・ ${housingSizeDisplayLabel(listing.size)}` : ''}
           </p>
 
@@ -112,10 +118,13 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
             <div className="housing-tour-dest-next-row">
               <div className="housing-tour-dest-next-info">
                 <span className="housing-tour-dest-next-title">
-                  {next.title?.trim() || formatHousingAddress(next, i18n.language)}
+                  {next.title?.trim()
+                    || (canDisplayAddress(next)
+                      ? formatHousingAddress(next, i18n.language)
+                      : t('housing.card.addressPrivate'))}
                 </span>
                 <span className="housing-tour-dest-next-addr">
-                  {formatHousingAddress(next, i18n.language)}
+                  {canDisplayAddress(next) ? formatHousingAddress(next, i18n.language) : t('housing.card.addressPrivate')}
                   {!nextIsApartment && next.size ? ` ・ ${housingSizeDisplayLabel(next.size)}` : ''}
                 </span>
               </div>

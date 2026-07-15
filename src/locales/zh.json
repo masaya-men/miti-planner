@@ -1913,7 +1913,8 @@
         "card": {
             "favorite": "收藏",
             "add_to_tour": "加入导览",
-            "select": "选择"
+            "select": "选择",
+            "addressPrivate": "地址不公开"
         },
         "tray": {
             "title": "导览清单",
@@ -2011,6 +2012,7 @@
             "field_title_label": "标题",
             "field_title_placeholder": "请输入标题",
             "field_title_optional_hint": "留空时将显示地址",
+            "field_title_optional_hint_unlisted": "若留空，将显示\"地址不公开\"",
             "field_title_remaining": "剩余 {{count}} 字",
             "dc": "数据中心",
             "server": "服务器",
@@ -2215,6 +2217,7 @@
                 "address_gate_confirmed": "已确认",
                 "publish": "公开",
                 "save_private": "以非公开方式保存",
+                "save_unlisted": "以隐藏地址方式登记",
                 "summary_missing": "未填写",
                 "summary_image_count": "{{count}} 张",
                 "summary_visibility": "公开设置",
@@ -2238,6 +2241,7 @@
                 "media": "粘贴含有地址的社交帖子或网站的 URL，会尝试自动填充照片和地址",
                 "address": "无论是自动填写还是手动输入，登记前都需要确认地址",
                 "intro": "标题为选填项。留空时，列表将显示地址",
+                "intro_unlisted": "标题为选填。若留空，列表中将显示\"地址不公开\"",
                 "visibility": "可以选择公开・非公开，以及公开期限",
                 "confirm": "统一确认输入内容后完成登记"
             },
@@ -2245,8 +2249,12 @@
             "section_visibility": "公开设置",
             "visibility": {
                 "label": "公开范围",
-                "public": "对所有用户公开",
-                "private": "非公开（仅自己可见）",
+                "public": "公开",
+                "unlisted": "隐藏地址",
+                "private": "私密",
+                "public_desc": "在浏览、地图和游览中显示，且地址可见",
+                "unlisted_desc": "图片会出现在浏览中，但地址会被隐藏，且无法用于游览",
+                "private_desc": "仅自己可见",
                 "set_end_datetime": "设置公开结束时间",
                 "auto_hide_note": "超过公开结束时间后将自动从列表中隐藏",
                 "picker": {

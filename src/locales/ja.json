@@ -1969,7 +1969,8 @@
         "card": {
             "favorite": "お気に入り",
             "add_to_tour": "ツアーに追加",
-            "select": "選択"
+            "select": "選択",
+            "addressPrivate": "住所は非公開です"
         },
         "tray": {
             "title": "ツアートレイ",
@@ -2067,6 +2068,7 @@
             "field_title_label": "タイトル",
             "field_title_placeholder": "タイトルを入力",
             "field_title_optional_hint": "未入力の場合、住所が表示されます",
+            "field_title_optional_hint_unlisted": "未入力の場合、「住所は非公開です」と表示されます",
             "field_title_remaining": "残り {{count}} 文字",
             "dc": "データセンター",
             "server": "サーバー",
@@ -2271,6 +2273,7 @@
                 "address_gate_confirmed": "確認済み",
                 "publish": "公開する",
                 "save_private": "非公開で保存する",
+                "save_unlisted": "住所非公開で登録する",
                 "summary_missing": "未入力",
                 "summary_image_count": "{{count}} 枚",
                 "summary_visibility": "公開設定",
@@ -2294,6 +2297,7 @@
                 "media": "住所が書いてあるSNS投稿やサイトのURLを貼ると、写真と住所の自動入力を試みます",
                 "address": "自動入力でも手入力でも、登録前に必ず住所を確認します",
                 "intro": "タイトルは任意です。未入力の場合、一覧には住所が表示されます",
+                "intro_unlisted": "タイトルは任意です。未入力の場合、一覧には「住所は非公開です」と表示されます",
                 "visibility": "公開・非公開と、公開期限を選べます",
                 "confirm": "入力内容をまとめて確認し、登録します"
             },
@@ -2301,8 +2305,12 @@
             "section_visibility": "公開設定",
             "visibility": {
                 "label": "公開範囲",
-                "public": "すべてのユーザーに公開",
-                "private": "非公開 (自分のみ)",
+                "public": "公開",
+                "unlisted": "住所非公開",
+                "private": "非公開",
+                "public_desc": "探す・地図・ツアーに表示され、住所も見えます",
+                "unlisted_desc": "画像は探すに出ますが、住所は隠れ、ツアーには使えません",
+                "private_desc": "自分だけが見られます",
                 "set_end_datetime": "公開終了日時を設定する",
                 "auto_hide_note": "公開終了日時を過ぎると、 自動的に一覧から非表示になります",
                 "picker": {

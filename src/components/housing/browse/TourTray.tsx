@@ -5,6 +5,7 @@ import { useHousingListingsStore } from '../../../store/useHousingListingsStore'
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { canDisplayAddress } from '../../../lib/housing/listingPublish';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { EphemeralAddPanel } from './EphemeralAddPanel';
 import { tourAnchorRegion } from '../../../lib/housing/tourCrossing';
@@ -73,7 +74,9 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
           {items.map((l, i) => (
             <li key={l.id} className="housing-tour-tray-item">
               <span className="housing-tour-tray-num">{i + 1}</span>
-              <span className="housing-tour-tray-addr">{formatHousingAddress(l, i18n.language)}</span>
+              <span className="housing-tour-tray-addr">
+                {canDisplayAddress(l) ? formatHousingAddress(l, i18n.language) : t('housing.card.addressPrivate')}
+              </span>
               {isEphemeralListingId(l.id) && (
                 <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>
               )}

@@ -7,7 +7,7 @@ import { HousingFavHeart } from './HousingFavHeart';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import { isEffectivelyPublic } from '../../../lib/housing/listingPublish';
+import { isEffectivelyPublic, canDisplayAddress } from '../../../lib/housing/listingPublish';
 import {
   handleYoutubeThumbnailError,
   handleYoutubeThumbnailLoad,
@@ -76,7 +76,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   // 主ラベルは登録者のタイトル (新シェルでは必須)。旧データ (title なし) は住所で代替。
   // 住所・サイズはカードに出さない (住所=ツアーが住所順に自動で組まれるため一覧では不要、
   // サイズ=左フィルタと詳細ページで足りる・ユーザー合意 2026-07-03)。
-  const title = listing.title?.trim() || formatHousingAddress(listing, i18n.language);
+  // unlisted はタイトル未入力でも住所へフォールバックしない (住所漏洩防止・§8.3)。
+  const title = listing.title?.trim()
+    || (canDisplayAddress(listing) ? formatHousingAddress(listing, i18n.language) : t('housing.card.addressPrivate'));
 
   // spec A-3: 自分の登録だけに非公開/期限切れの静かな注記を出す (他人には出ない)。
   const isMine = viewerUid !== null && listing.ownerUid === viewerUid;
@@ -167,8 +169,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <button
             type="button"
             className="housing-card-add-btn"
+            disabled={listing.visibility === 'unlisted'}
+            aria-disabled={listing.visibility === 'unlisted'}
+            title={listing.visibility === 'unlisted' ? t('housing.card.addressPrivate') : undefined}
             onClick={(e) => {
               e.stopPropagation();
+              if (listing.visibility === 'unlisted') return;
               addRipple(e);
               onAddToTour(listing.id);
             }}

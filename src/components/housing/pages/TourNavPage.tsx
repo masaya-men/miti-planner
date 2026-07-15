@@ -100,7 +100,7 @@ export const TourNavPage: React.FC = () => {
     () =>
       currentListing
         ? resolveWardMapRef(
-            currentListing.area,
+            currentListing.area ?? '',
             currentListing.plot ?? null,
             currentListing.apartmentBuilding ?? null,
             currentListing.buildingType,

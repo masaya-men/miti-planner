@@ -87,4 +87,39 @@ describe('firestoreToGalleryListing', () => {
     expect(r).not.toBeNull();
     expect(r!.roomKind).toBe('apartment_room');
   });
+
+  // §3.5 確定2 (P3): unlisted は探すから落とさず、住所系フィールドを丸ごと undefined にして通す。
+  describe('unlisted (§3.5 確定2)', () => {
+    it('dc が正常でも region 導出をスキップし null にならない', () => {
+      const r = firestoreToGalleryListing({ ...base, visibility: 'unlisted' });
+      expect(r).not.toBeNull();
+      expect(r!.region).toBeUndefined();
+      expect(r!.dc).toBeUndefined();
+      expect(r!.server).toBeUndefined();
+      expect(r!.area).toBeUndefined();
+      expect(r!.ward).toBeUndefined();
+      expect(r!.addressKey).toBeUndefined();
+    });
+
+    it('dc が未知 (region 導出不可) でも null にならない (通常は null になるケース)', () => {
+      const r = firestoreToGalleryListing({ ...base, visibility: 'unlisted', dc: 'UnknownDC' });
+      expect(r).not.toBeNull();
+    });
+
+    it('plot/size 欠損でも null にならない (通常は null になるケース)', () => {
+      const r = firestoreToGalleryListing({ ...base, visibility: 'unlisted', plot: undefined, size: undefined });
+      expect(r).not.toBeNull();
+      expect(r!.plot).toBeUndefined();
+      expect(r!.size).toBeUndefined();
+    });
+
+    it('title/tags/画像/公開設定は通常通り pass-through する', () => {
+      const r = firestoreToGalleryListing({ ...base, visibility: 'unlisted', title: 'ひみつの家' });
+      expect(r).not.toBeNull();
+      expect(r!.title).toBe('ひみつの家');
+      expect(r!.tags).toEqual(['luxury']);
+      expect(r!.visibility).toBe('unlisted');
+      expect(r!.createdAt).toBe(100);
+    });
+  });
 });

@@ -43,7 +43,7 @@ export interface AutosaveDraft {
   postUrl?: string;
 
   // 公開設定
-  visibility?: 'public' | 'private';
+  visibility?: 'public' | 'unlisted' | 'private';
   publishUntil?: number | null;
 }
 

@@ -4,6 +4,7 @@ import { Play, Plus, X } from 'lucide-react';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { canDisplayAddress } from '../../../lib/housing/listingPublish';
 import { EphemeralAddPanel } from '../browse/EphemeralAddPanel';
 import { tourAnchorRegion } from '../../../lib/housing/tourCrossing';
 
@@ -81,7 +82,7 @@ export const TourEmptyState: React.FC<TourEmptyStateProps> = ({
                   <li key={l.id} className="housing-tour-tray-item">
                     <span className="housing-tour-tray-num">{i + 1}</span>
                     <span className="housing-tour-tray-addr">
-                      {formatHousingAddress(l, i18n.language)}
+                      {canDisplayAddress(l) ? formatHousingAddress(l, i18n.language) : t('housing.card.addressPrivate')}
                     </span>
                     {onRemoveEphemeral && (
                       <button

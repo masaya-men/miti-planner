@@ -20,6 +20,14 @@
   --housing-aether-soft: #9fe9ff;
   --housing-aether-medium: rgba(0, 191, 255, 0.14);  /* 青バッジ面 (オンボのステップ番号等) */
   --housing-aether-border: rgba(0, 191, 255, 0.5);   /* 青バッジ枠 */
+  /* 確認 CTA (B案・2026-07-15): 「この住所で間違いありません」を鮮やかな青の塗りボタンで強調。
+     ハニー (=主アクション「公開する」) と役割を分けるため青系。青面に濃紺文字を乗せる
+     (ハニー塗り+濃文字と対称)。glow は未確認パルスの誘導色。light/dark 共通 (パネルは常に濃紺)。 */
+  --housing-aether-cta-bg: #00BFFF;
+  --housing-aether-cta-bg-hover: #33ccff;
+  --housing-aether-cta-text: #04222f;
+  --housing-aether-glow-soft: rgba(0, 191, 255, 0.42);
+  --housing-aether-glow-strong: rgba(0, 191, 255, 0.85);
   --housing-map-light: #ffffff;     /* 道なぞりの先頭の白い光 */
   /* 質感A案 (2026-07-01): 参考UIへ寄せる。白テキストが読める濃紺の面へ。
      動画背景は veil で後退させ、パネルは半不透明の濃紺で「落ち着いた面」にする。
@@ -4640,18 +4648,30 @@ select.housing-input option {
  * ヘアライン+グレーの静かな注記にする (色付き alert 箱を避ける)。
  * ============================================================ */
 .housing-register-visibility-chip {
-  flex: 1 1 auto;
-  min-width: 96px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  gap: 4px;
+  min-width: 84px;
   padding: 9px 14px;
   border-radius: 8px;
   border: 1px solid var(--housing-panel-border);
   background: var(--housing-chip-sunken-bg);
   color: var(--housing-text);
-  font-size: var(--housing-text-sm);
   font-family: inherit;
-  font-weight: 500;
+  text-align: left;
   cursor: pointer;
   transition: background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.housing-register-visibility-chip-title {
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  color: var(--housing-text);
+}
+.housing-register-visibility-chip-desc {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  line-height: 1.35;
 }
 .housing-register-visibility-chip:hover {
   background: var(--housing-chip-bg-hover);
@@ -5023,43 +5043,85 @@ select.housing-input option {
  * エラー/不足は色付き alert 箱にせず、ヘアライン + グレー文字の静かな表示にする
  * (housing-design.md「AI 感の払拭」)。主アクションのみ .housing-btn-primary (ハニー)。
  * ============================================================ */
-/* 住所確認ゲート (C案・2026-07-10): 静かな注記 + 確認ボタン。ヘアライン区切りのみで
-   色付き alert 箱にしない。確認済みは --housing-field-bg-confirmed 系 (緑) を使い、
-   ハニー (主アクション用) とは色を分ける。 */
-.housing-register-confirm-gate {
+/* 住所 = 確認セクションの主役 (2026-07-15 UI 調整・B案)。住所を 1 回だけ大きく強調し、
+   すぐ下に青の確認 CTA を置いて「確実に確認させてから押させる」。色付き alert 箱にはせず、
+   ヘアライン区切り + 住所の文字サイズ + ボタンの鮮やかさで階層を作る (housing-design.md「AI 感の払拭」)。 */
+.housing-register-confirm-address {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-bottom: 12px;
+  gap: 10px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--housing-divider);
+}
+.housing-register-confirm-address-line {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.housing-register-confirm-address-label {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+/* 住所本体: 要約行 (sm) より一段大きく太く = 住所だけが際立つ。 */
+.housing-register-confirm-address-value {
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--housing-text);
+  word-break: break-word;
 }
 .housing-register-confirm-gate-lead {
   margin: 0;
   font-size: var(--housing-text-sm);
   color: var(--housing-text-mute);
 }
-.housing-register-confirm-gate-address {
-  margin: 0;
-  font-size: var(--housing-text-base);
-  font-weight: 600;
-  color: var(--housing-text);
-}
+/* 確認 CTA (B案): 鮮やかな青の塗りボタン + 濃紺文字。全幅で押しやすく、めちゃ目立つ。
+   ハニー (主アクション「公開する」) と色で役割が分かれる。 */
 .housing-register-confirm-gate-btn {
-  align-self: flex-start;
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid var(--housing-aether-cta-bg);
+  background: var(--housing-aether-cta-bg);
+  color: var(--housing-aether-cta-text);
+  font: inherit;
+  font-size: var(--housing-text-base);
+  font-weight: 700;
+  cursor: pointer;
+  appearance: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
+.housing-register-confirm-gate-btn:hover:not(:disabled) {
+  background: var(--housing-aether-cta-bg-hover);
+  border-color: var(--housing-aether-cta-bg-hover);
+}
+.housing-register-confirm-gate-btn:focus-visible {
+  outline: 2px solid var(--housing-aether);
+  outline-offset: 2px;
+}
+/* 確認済み: 青 → 緑 (--housing-field-bg-confirmed) に切替、パルス停止。 */
 .housing-register-confirm-gate-btn[data-confirmed="true"] {
   background: var(--housing-field-bg-confirmed);
   border-color: var(--housing-field-border-confirmed);
   color: var(--housing-text);
   cursor: default;
+  box-shadow: none;
 }
-/* D: 未確認の間は脈動で「押してください」を誘導 (spread のみ・過剰glow回避・トークン経由)。 */
+/* 未確認の間は青の強調パルスで「押してください」を誘導 (ring spread + soft glow・トークン経由)。 */
 .housing-register-confirm-gate-btn[data-confirmed="false"] {
-  animation: housing-confirm-pulse 1.8s ease-in-out infinite;
+  animation: housing-confirm-cta-pulse 1.6s ease-in-out infinite;
 }
-@keyframes housing-confirm-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 var(--housing-honey-border); }
-  50% { box-shadow: 0 0 0 5px var(--housing-honey-soft); }
+@keyframes housing-confirm-cta-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--housing-aether-glow-strong);
+  }
+  50% {
+    box-shadow: 0 0 0 6px var(--housing-aether-glow-soft), 0 0 18px 2px var(--housing-aether-glow-soft);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .housing-register-confirm-gate-btn[data-confirmed="false"] { animation: none; }
@@ -5125,6 +5187,9 @@ select.housing-input option {
   margin-top: 4px;
   padding: 11px 16px;
   font-size: var(--housing-text-base);
+  /* 土台 .housing-action-btn は justify-content 未指定 (= flex-start) で、全幅ボタンだと
+     ラベルが左に張り付く。主 CTA は中央寄せにする (2026-07-15 ユーザー指摘)。 */
+  justify-content: center;
 }
 
 /* ============================================================
@@ -5973,6 +6038,7 @@ select.housing-input option {
 }
 .housing-card-add-btn:hover { background: var(--housing-honey-strong); }
 .housing-card-add-btn:active { transform: scale(0.97); }
+.housing-card-add-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* ===== クリックリップル (useRipple 共有フック・2026-07-10) =====
    位置/直径はクリック座標由来のためインライン CSS カスタムプロパティで渡す

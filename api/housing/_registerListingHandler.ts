@@ -128,12 +128,21 @@ export default async function handler(req: any, res: any) {
         isHidden: false,
         reportCount: 0,
         deletedAt: null,
-        // 公開設定 (spec A-1/A-3): 未送信は 'public' を必ず書き込む (旧クライアント互換 +
-        // 全 doc に visibility が載る保証 = ルール締めの前提)。
-        visibility: draft.visibility === 'private' ? 'private' : 'public',
-        // 過去日時も保存する (null に倒すと「期限付き公開」のつもりが無期限公開になる fail-open)。
-        // 過去なら遅延評価が即・期限切れ=他人非表示にする。
-        publishUntil: normalizePublishUntil(draft.publishUntil),
+        // 公開設定 (P3): public / unlisted / private の 3 値。未送信・未知値は 'public'。
+        // 全 doc に visibility が載る保証 = ルール締めの前提。
+        visibility:
+          draft.visibility === 'private'
+            ? 'private'
+            : draft.visibility === 'unlisted'
+              ? 'unlisted'
+              : 'public',
+        // 公開期限は「公開」専用の概念。unlisted/private では常に null に倒す
+        // (§8.2: 非公開 2 種では publishUntil 欄を隠す + サーバーで強制 null)。
+        // public のときのみ過去日時も保存する (null に倒すと「期限付き公開」が無期限化する fail-open のため)。
+        publishUntil:
+          draft.visibility === 'unlisted' || draft.visibility === 'private'
+            ? null
+            : normalizePublishUntil(draft.publishUntil),
         ...(draft.title && draft.title.trim() ? { title: draft.title.trim() } : {}),
       };
       tx.set(newRef, listing);

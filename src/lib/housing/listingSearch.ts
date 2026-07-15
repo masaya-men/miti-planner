@@ -24,27 +24,35 @@ export function buildListingSearchText(
     const tag = getTagById(id);        // 個人タグは undefined → skip
     if (tag) parts.push(t(tag.i18nKey));
   }
-  parts.push(
-    formatHousingAddress(
-      {
-        area: listing.area,
-        ward: listing.ward,
-        buildingType: listing.buildingType,
-        plot: listing.plot,
-        apartmentBuilding: listing.apartmentBuilding,
-        roomNumber: listing.roomNumber,
-      },
-      lang,
-    ),
-  );
-  parts.push(listing.server);
-  parts.push(listing.dc);
-  // 日本ワールド/DC はカタカナ読みでも検索可能に (略称は部分一致で自動対応)。
-  const serverKana = katakanaReading(listing.server);
-  if (serverKana) parts.push(serverKana);
-  const dcKana = katakanaReading(listing.dc);
-  if (dcKana) parts.push(dcKana);
-  parts.push(regionLabel(listing.region, locale));
+  // unlisted は住所系フィールドが射影で欠落している (窓口が落とす)。
+  // 住所/server/dc/region を push すると undefined 由来のゴミが混じり、かつ
+  // 住所が検索対象になってしまう。§8.6 の「場所では出ない・キーワード/タグでは出る」に合わせ、
+  // 住所系はここで丸ごと skip する (title/description/静的タグは上で push 済)。
+  if (listing.visibility !== 'unlisted' && listing.area !== undefined && listing.ward !== undefined) {
+    parts.push(
+      formatHousingAddress(
+        {
+          area: listing.area,
+          ward: listing.ward,
+          buildingType: listing.buildingType,
+          plot: listing.plot,
+          apartmentBuilding: listing.apartmentBuilding,
+          roomNumber: listing.roomNumber,
+        },
+        lang,
+      ),
+    );
+    const server = listing.server ?? '';
+    const dc = listing.dc ?? '';
+    if (server) parts.push(server);
+    if (dc) parts.push(dc);
+    // 日本ワールド/DC はカタカナ読みでも検索可能に (略称は部分一致で自動対応)。
+    const serverKana = katakanaReading(server);
+    if (serverKana) parts.push(serverKana);
+    const dcKana = katakanaReading(dc);
+    if (dcKana) parts.push(dcKana);
+    if (listing.region !== undefined) parts.push(regionLabel(listing.region, locale));
+  }
   return parts.join(' ').toLowerCase();
 }
 

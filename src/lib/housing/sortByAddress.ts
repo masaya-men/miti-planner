@@ -20,11 +20,13 @@ type SortableListing = Pick<
  * Always returns a new array (does not mutate input).
  */
 export function sortByAddress<T extends SortableListing>(items: T[]): T[] {
+    // unlisted は dc/server/area/ward が undefined (住所非公開)。空文字/0 扱いで比較しても
+    // クラッシュせず、既存の実データ (常に値あり) の並び順は一切変わらない。
     return [...items].sort((a, b) =>
-        a.dc.localeCompare(b.dc)
-        || a.server.localeCompare(b.server)
-        || a.area.localeCompare(b.area)
-        || (a.ward - b.ward)
+        (a.dc ?? '').localeCompare(b.dc ?? '')
+        || (a.server ?? '').localeCompare(b.server ?? '')
+        || (a.area ?? '').localeCompare(b.area ?? '')
+        || ((a.ward ?? 0) - (b.ward ?? 0))
         || (buildingOrder(a.buildingType) - buildingOrder(b.buildingType))
         || ((a.plot ?? 0) - (b.plot ?? 0))
         || ((a.apartmentBuilding ?? 0) - (b.apartmentBuilding ?? 0))

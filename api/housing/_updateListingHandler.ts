@@ -135,13 +135,20 @@ export default async function handler(req: any, res: any) {
       if (typeof draftForValidation.description === 'string') {
         updatePayload.description = draftForValidation.description;
       }
-      if (draftForValidation.visibility === 'public' || draftForValidation.visibility === 'private') {
+      if (
+        draftForValidation.visibility === 'public'
+        || draftForValidation.visibility === 'unlisted'
+        || draftForValidation.visibility === 'private'
+      ) {
         updatePayload.visibility = draftForValidation.visibility;
       }
       if ('publishUntil' in draftForValidation) {
-        // 過去日時も保存する (register 側と同じ fail-closed 方針。過去に編集=即・期限切れで
-        // 他人から隠す、という意図的な操作も成立させる)。
-        updatePayload.publishUntil = normalizePublishUntil(draftForValidation.publishUntil);
+        // 公開期限は「公開」専用。unlisted/private への編集時は必ず null に倒す (§8.2)。
+        // public のときのみ過去日時も保存 (register 側と同じ fail-closed 方針)。
+        updatePayload.publishUntil =
+          draftForValidation.visibility === 'unlisted' || draftForValidation.visibility === 'private'
+            ? null
+            : normalizePublishUntil(draftForValidation.publishUntil);
       }
       if (typeof draftForValidation.title === 'string' && draftForValidation.title.trim()) {
         updatePayload.title = draftForValidation.title.trim();

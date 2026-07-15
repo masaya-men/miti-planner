@@ -25,6 +25,7 @@ import { useHousingerProfile } from '../housinger/useHousingerProfile';
 import { getTagById, isPersonalTagIdFormat } from '../../../data/housingTags';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { isAddressHidden } from '../../../lib/housing/listingPublish';
 import { useHousingReport } from '../report/useHousingReport';
 import { showToast } from '../../Toast';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
@@ -75,7 +76,11 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   // 2026-07-13 round2 a: 詳細のタグをクリックしたら探すへ絞り込み遷移する (個人タグも同様)。
   const toggleTag = useHousingFilterStore((s) => s.toggleTag);
   // 2026-05-26 アパート号棟欠落バグ修正 + 多言語化: 住所組み立ては必ず formatHousingAddress 経由。
-  const fullAddress = formatHousingAddress(listing, i18n.language);
+  // unlisted は住所を一切出さない (住所漏洩防止・§8.3): 見出し/住所欄とも addressPrivate に差し替える。
+  const addressHidden = isAddressHidden(listing);
+  const fullAddress = addressHidden
+    ? t('housing.card.addressPrivate')
+    : formatHousingAddress(listing, i18n.language);
   // 2026-07-13 round2 b: 見出しは任意タイトル優先 (未設定なら住所にフォールバック)。
   // 街区住所は見出しに出なくなる場合があるため、 下の .housing-detail-address に必ず残す
   // (タイトル設定時は「タイトル + 街区住所/DC/ワールド」、 未設定時は住所が上下に出る=合意済み)。
@@ -228,7 +233,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
               <div className="housing-detail-info">
                 <h2 className="housing-detail-title">{title}</h2>
                 <p className="housing-detail-address">
-                  {fullAddress} / {listing.dc} / {listing.server}
+                  {addressHidden ? fullAddress : `${fullAddress} / ${listing.dc} / ${listing.server}`}
                 </p>
                 <HousingerByline ownerUid={listing.ownerUid} />
                 {resolvedTags.length > 0 && (
@@ -253,7 +258,10 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
               {listing.description && (
                 <p className="housing-detail-description">{listing.description}</p>
               )}
-              <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+              {/* unlisted は addressKey を他人に配らない = 同住所 peers を出さない (§8.5)。 */}
+              {!addressHidden && (
+                <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+              )}
             </div>
           </div>
 
@@ -268,8 +276,9 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
             />
           </div>
 
-          {/* mapRef が引けない物件では null → レールは操作バーで自然に終わる */}
-          <HousingDetailMap listing={listing} />
+          {/* mapRef が引けない物件では null → レールは操作バーで自然に終わる。
+              unlisted は座標が無く周辺マップを出さない (§8.5・住所非公開)。 */}
+          {!addressHidden && <HousingDetailMap listing={listing} />}
         </div>
       </div>
     </div>

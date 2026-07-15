@@ -61,6 +61,37 @@ describe('katakana search (略称は部分一致で自動対応)', () => {
   });
 });
 
+describe('buildListingSearchText — unlisted (住所漏洩防止)', () => {
+  // unlisted は galleryAdapter の窓口で住所系フィールドが射影で欠落する (undefined)。
+  // その状態でもクラッシュせず、住所/dc/server は検索テキストに含めないことを確認する。
+  const unlisted: MockListing = {
+    id: 'l2', ownerUid: 'u1', dc: undefined, server: undefined, region: undefined,
+    area: undefined, ward: undefined, buildingType: 'house', plot: undefined, size: undefined,
+    imageMode: 'none', tags: ['official_cafe'],
+    description: '隠れ家', title: 'ひみつの家',
+    visibility: 'unlisted',
+    createdAt: 0, lastConfirmedAt: 0, addressKey: undefined,
+  };
+
+  it('title と静的タグは含む', () => {
+    const text = buildListingSearchText(unlisted, tId, 'ja', 'ja');
+    expect(text).toContain('ひみつの家');
+    expect(text).toContain('housing.tag.official_cafe');
+  });
+
+  it('住所 (area名) / dc / server は含まない', () => {
+    const text = buildListingSearchText(unlisted, tId, 'ja', 'ja');
+    expect(text).not.toContain('mist');
+    expect(text).not.toContain('mana');
+    expect(text).not.toContain('anima');
+    expect(text).not.toContain('undefined'); // undefined 由来のゴミ混入防止
+  });
+
+  it('area/dc/server 欠落でもクラッシュしない', () => {
+    expect(() => buildListingSearchText(unlisted, tId, 'ja', 'ja')).not.toThrow();
+  });
+});
+
 describe('matchesKeyword', () => {
   it('empty keyword always matches', () => {
     expect(matchesKeyword('anything', '')).toBe(true);

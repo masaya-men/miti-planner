@@ -50,5 +50,6 @@ export function computeTourProgress(
 /** P2: 全5エリア対応。ワード地図に解決できる listing(house 1-60 / apartment)が配置対象。 */
 export function isTourPlaceable(listing: MockListing | null): boolean {
   if (!listing) return false;
-  return resolveWardMapRef(listing.area, listing.plot ?? null, listing.apartmentBuilding ?? null, listing.buildingType) !== null;
+  // unlisted は area が undefined (住所非公開) = 地図に配置できない (resolveWardMapRef が null を返す)。
+  return resolveWardMapRef(listing.area ?? '', listing.plot ?? null, listing.apartmentBuilding ?? null, listing.buildingType) !== null;
 }

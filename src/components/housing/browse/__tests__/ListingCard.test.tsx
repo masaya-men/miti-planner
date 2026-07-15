@@ -194,6 +194,68 @@ describe('ListingCard — 非破壊回帰(selectable未指定)', () => {
   });
 });
 
+describe('ListingCard — unlisted は住所を出さない (住所漏洩防止)', () => {
+  // galleryAdapter の窓口で unlisted は住所系フィールドが undefined になる。title 未入力時の
+  // フォールバックが formatHousingAddress (area 名等) に落ちず、addressPrivate になることを確認する。
+  const unlistedListing = {
+    ...mockListing,
+    title: undefined,
+    visibility: 'unlisted' as const,
+    area: undefined,
+    ward: undefined,
+    dc: undefined,
+    server: undefined,
+    region: undefined,
+    plot: undefined,
+    addressKey: undefined,
+  };
+
+  it('title 未入力 + unlisted は housing.card.addressPrivate を表示する', () => {
+    renderCard({ listing: unlistedListing });
+    expect(screen.getByText('住所は非公開です')).toBeInTheDocument();
+  });
+
+  it('formatHousingAddress の結果 (area 名等) は表示しない', () => {
+    renderCard({ listing: unlistedListing });
+    // MOCK_LISTINGS[0] は Shirogane なので、通常表示なら和名 (シロガネ) 等が出るはず。
+    expect(screen.queryByText(/シロガネ/)).not.toBeInTheDocument();
+  });
+});
+
+describe('ListingCard — ツアー追加ボタン (unlisted は無効化・Task7)', () => {
+  const unlistedListing = { ...mockListing, visibility: 'unlisted' as const };
+  const publicListing = { ...mockListing, visibility: 'public' as const };
+
+  it('unlisted のツアー追加ボタンは disabled になる', () => {
+    renderCard({ listing: unlistedListing });
+    const addBtn = screen.getAllByRole('button').find(
+      (btn) => btn.className.includes('housing-card-add-btn')
+    );
+    expect(addBtn).toBeDisabled();
+  });
+
+  it('unlisted のツアー追加ボタンをクリックしても onAddToTour は呼ばれない', () => {
+    const onAddToTour = vi.fn();
+    renderCard({ listing: unlistedListing, onAddToTour });
+    const addBtn = screen.getAllByRole('button').find(
+      (btn) => btn.className.includes('housing-card-add-btn')
+    );
+    fireEvent.click(addBtn!);
+    expect(onAddToTour).not.toHaveBeenCalled();
+  });
+
+  it('public のツアー追加ボタンは従来どおり有効で onAddToTour が呼ばれる', () => {
+    const onAddToTour = vi.fn();
+    renderCard({ listing: publicListing, onAddToTour });
+    const addBtn = screen.getAllByRole('button').find(
+      (btn) => btn.className.includes('housing-card-add-btn')
+    );
+    expect(addBtn).not.toBeDisabled();
+    fireEvent.click(addBtn!);
+    expect(onAddToTour).toHaveBeenCalledWith(publicListing.id);
+  });
+});
+
 describe('ListingCard — 生きたカード配線 (段階2)', () => {
   const multiImage = {
     ...mockListing,

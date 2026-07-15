@@ -6,12 +6,63 @@ import type { MockListing } from '../../data/housing/mockListings';
  * publishUntil を過ぎていたら公開扱いしない。now は呼び出し側が渡す (閲覧端末の時計)。
  */
 export function isEffectivelyPublic(
-  listing: { visibility?: 'public' | 'private'; publishUntil?: number | null },
+  listing: { visibility?: 'public' | 'unlisted' | 'private'; publishUntil?: number | null },
   nowMs: number,
 ): boolean {
   if (listing.visibility === 'private') return false;
   if (listing.publishUntil != null && listing.publishUntil <= nowMs) return false;
   return true;
+}
+
+/** カード/詳細で住所を隠すべきか (unlisted のみ true)。public/private/未設定は false。 */
+export function isAddressHidden(listing: { visibility?: 'public' | 'unlisted' | 'private' }): boolean {
+  return listing.visibility === 'unlisted';
+}
+
+/**
+ * MockListing 系 (galleryAdapter 経由) で「住所を安全に組み立てて良いか」の type guard。
+ * unlisted は galleryAdapter の窓口で area/ward が undefined になる (§3.5 確定2) ため、
+ * `!isAddressHidden` だけでは TypeScript 上 area/ward の undefined が消えない。
+ * この guard を通すと area/ward が確定型になり、formatHousingAddress 系へそのまま渡せる。
+ * (isAddressHidden の否定と実質等価: unlisted 以外は area/ward が必ず両方揃っている前提)
+ */
+export function canDisplayAddress<
+  T extends { visibility?: 'public' | 'unlisted' | 'private'; area?: unknown; ward?: number },
+>(listing: T): listing is T & { area: NonNullable<T['area']>; ward: number } {
+  return !isAddressHidden(listing) && listing.area !== undefined && listing.ward !== undefined;
+}
+
+/**
+ * formatFullHousingAddress (リージョン/DC/ワールド込み完全住所) 用の type guard。
+ * canDisplayAddress (area/ward) に加えて dc/server/region も要求する。
+ * 個別の `!== undefined` 比較を並べるだけでは (TS の仕様上) オブジェクト全体の型は narrowing
+ * されない ( formatFullHousingAddress にそのまま渡すと undefined のまま扱われる) ため、
+ * 必ずこの type guard 経由で呼ぶこと。
+ */
+export function canDisplayFullAddress<
+  T extends {
+    visibility?: 'public' | 'unlisted' | 'private';
+    area?: unknown;
+    ward?: number;
+    dc?: string;
+    server?: string;
+    region?: unknown;
+  },
+>(
+  listing: T,
+): listing is T & {
+  area: NonNullable<T['area']>;
+  ward: number;
+  dc: string;
+  server: string;
+  region: NonNullable<T['region']>;
+} {
+  return (
+    canDisplayAddress(listing)
+    && listing.dc !== undefined
+    && listing.server !== undefined
+    && listing.region !== undefined
+  );
 }
 
 /**

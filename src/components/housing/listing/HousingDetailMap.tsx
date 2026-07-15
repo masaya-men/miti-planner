@@ -6,6 +6,7 @@ import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
+import { isAddressHidden } from '../../../lib/housing/listingPublish';
 import { TourNavMap } from '../tour/TourNavMap';
 
 /**
@@ -48,7 +49,10 @@ export const HousingDetailMap: React.FC<{ listing: HousingListing }> = ({ listin
     [asset, mapRef, galleryListing, steps],
   );
 
-  if (!mapRef) return null; // 引けない物件は地図ブロックごと非表示
+  // 防御多重化 (§8.5・住所非公開): 呼び出し側の addressHidden ガードを万一忘れても unlisted は地図非表示。
+  // rules-of-hooks 順守のため全 hook 実行後に判定する (早期 return を hook 前に置くと React #310 の温床)。
+  // (unlisted は area/plot が窓口射影で undefined のため mapRef も引けず二重に落ちる)
+  if (isAddressHidden(listing) || !mapRef) return null;
 
   const status: 'loading' | 'ready' | 'error' =
     asset.status === 'ready' ? 'ready' : asset.status === 'error' ? 'error' : 'loading';

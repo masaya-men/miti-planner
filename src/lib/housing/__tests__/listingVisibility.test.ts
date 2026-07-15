@@ -44,4 +44,16 @@ describe('canViewListing (visibility 拡張)', () => {
   it('deletedAt は従来どおり全員不可', () => {
     expect(canViewListing({ ownerUid: 'me', deletedAt: 123 }, 'me', NOW)).toBe(false);
   });
+
+  // unlisted (住所非公開) は非オーナーの直 getDoc 経由では見せない (住所付き生 doc を渡さない防御硬化)。
+  // 家主本人は引き続き見える。public は従来どおり非オーナーにも見える。
+  it('他人の unlisted は不可 (住所付き生 doc を渡さない)', () => {
+    expect(canViewListing({ ownerUid: 'A', visibility: 'unlisted' }, 'B', NOW)).toBe(false);
+  });
+  it('本人の unlisted は可', () => {
+    expect(canViewListing({ ownerUid: 'A', visibility: 'unlisted' }, 'A', NOW)).toBe(true);
+  });
+  it('他人の public は引き続き可', () => {
+    expect(canViewListing({ ownerUid: 'A', visibility: 'public' }, 'B', NOW)).toBe(true);
+  });
 });
