@@ -7283,8 +7283,9 @@ select.housing-input option {
    (2026-07-15 ユーザー指示: 外枠が content より広く右にズレて見えるため撤去)。 */
 .housing-tour-invite {
   position: absolute;
-  right: var(--housing-main-padding);
-  bottom: var(--housing-main-padding);
+  /* パネル角丸(18px)より内側にインセット = 丸角に食い込まず適切な内側マージンを確保 (2026-07-15 ユーザー指示)。 */
+  right: calc(var(--housing-panel-radius) + 8px);
+  bottom: calc(var(--housing-panel-radius) + 8px);
   z-index: var(--housing-tour-invite-z);
   width: var(--housing-tour-invite-w);
   max-width: calc(100% - 2 * var(--housing-main-padding));
