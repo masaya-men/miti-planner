@@ -1,13 +1,15 @@
 /**
- * Task 2.2: 住所露出警告ダイアログ（C案）
+ * 住所露出警告ダイアログ
  *
  * 幹事が非公開／一時追加の家を含むツアーの招待リンクを発行しようとした直前に出す確認ダイアログ。
  * - 純粋な表示部品。onConfirm/onCancel を呼ぶだけで、実際の招待発行 (createSharedTour 等) の
- *   配線は Task 2.1 が担う。
- * - `hasEphemeral` が true のときだけ「持ち主の許可を…」の注記を追加表示する。
- * - HousingDeleteConfirm と同じ骨格 (portal 不使用・housing-modal-backdrop・role="dialog")。
+ *   配線は呼び出し側 (TourNavPage) が担う。
+ * - `hasEphemeral` が true のときだけ「持ち主の許可を…」の注記を、本文とヘアラインで区切って足す。
+ * - ハウジングのトンマナ(ガラス面＋ハニーのアイコンバッジ)に寄せた見た目。portal 不使用・
+ *   housing-modal-backdrop・role="dialog"。
  */
 import { useTranslation } from 'react-i18next';
+import { Eye } from 'lucide-react';
 
 export interface TourAddressExposureDialogProps {
   open: boolean;
@@ -33,17 +35,22 @@ export const TourAddressExposureDialog: React.FC<TourAddressExposureDialogProps>
         className="housing-tour-expose-card"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="housing-tour-expose-title">
-          {t('housing.tour.nav.invite.warning.title')}
-        </h2>
+        <div className="housing-tour-expose-head">
+          <span className="housing-tour-expose-icon" aria-hidden="true">
+            <Eye size={20} />
+          </span>
+          <h2 className="housing-tour-expose-title">
+            {t('housing.tour.nav.invite.warning.title')}
+          </h2>
+        </div>
         <p className="housing-tour-expose-body">{t('housing.tour.nav.invite.warning.body')}</p>
         {hasEphemeral && (
-          <p className="housing-tour-expose-body">
+          <p className="housing-tour-expose-note">
             {t('housing.tour.nav.invite.warning.ephemeral_note')}
           </p>
         )}
         <div className="housing-tour-expose-actions">
-          <button type="button" onClick={onCancel}>
+          <button type="button" className="housing-tour-expose-cancel" onClick={onCancel}>
             {t('housing.tour.nav.invite.warning.cancel')}
           </button>
           <button type="button" onClick={onConfirm} className="housing-btn-primary">

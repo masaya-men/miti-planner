@@ -21,7 +21,7 @@ const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
 
 vi.mock('../../store/useHousingListingsStore', () => ({
-  useHousingListingsStore: (sel: (s: unknown) => unknown) => sel({ listings: [registered] }),
+  useHousingListingsStore: (sel: (s: unknown) => unknown) => sel({ listings: [registered], myListings: [] }),
 }));
 vi.mock('../../store/useEphemeralListingsStore', () => ({
   useEphemeralListingsStore: (sel: (s: unknown) => unknown) =>

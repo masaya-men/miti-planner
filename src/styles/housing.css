@@ -2805,32 +2805,56 @@ select.housing-input option {
     border: 1px solid var(--housing-panel-border-strong);
     border-radius: var(--housing-panel-radius);
     padding: 24px 28px;
-    max-width: 420px;
+    max-width: 440px;
     width: calc(100% - 32px);
     color: var(--housing-text);
     font-size: var(--housing-text-base);
     box-shadow: var(--housing-popover-shadow);
 }
+.housing-tour-expose-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 14px;
+}
+.housing-tour-expose-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    color: var(--housing-honey);
+    background: var(--housing-honey-medium);
+    border: 1px solid var(--housing-honey-border);
+}
 .housing-tour-expose-title {
     font-size: var(--housing-text-xl);
     font-weight: 600;
-    margin: 0 0 12px;
+    margin: 0;
     color: var(--housing-text);
+    line-height: 1.3;
 }
 .housing-tour-expose-body {
-    margin: 0 0 16px;
+    margin: 0 0 20px;
     color: var(--housing-text-dim);
     line-height: 1.6;
 }
-.housing-tour-expose-body:last-of-type {
-    margin-bottom: 24px;
+.housing-tour-expose-note {
+    margin: 0 0 22px;
+    padding-top: 14px;
+    border-top: 1px solid var(--housing-divider);
+    color: var(--housing-text-mute);
+    font-size: var(--housing-text-sm);
+    line-height: 1.55;
 }
 .housing-tour-expose-actions {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
 }
-.housing-tour-expose-actions button {
+.housing-tour-expose-cancel {
     padding: 8px 16px;
     border-radius: 10px;
     background: var(--housing-chip-bg);
@@ -2838,8 +2862,9 @@ select.housing-input option {
     color: var(--housing-text);
     cursor: pointer;
     font-size: var(--housing-text-base);
+    transition: background 0.15s ease;
 }
-.housing-tour-expose-actions button:hover:not(:disabled) {
+.housing-tour-expose-cancel:hover:not(:disabled) {
     background: var(--housing-chip-bg-hover);
 }
 .housing-btn-danger {
@@ -6681,6 +6706,21 @@ select.housing-input option {
 .housing-tour-progress-finish:hover { color: var(--housing-candle); text-decoration: underline; }
 .housing-tour-progress-finish:active { transform: scale(0.98); }
 
+/* 参加者(閲覧専用)の「ツアーから出る」。finish と同じ静かな下線テキスト(装飾箱なし)。 */
+.housing-tour-progress-leave {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  align-self: center;
+  margin-top: 6px;
+  padding: 3px 6px;
+  font-family: inherit; font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 0;
+  transition: color 0.15s ease;
+}
+.housing-tour-progress-leave:hover { color: var(--housing-candle); text-decoration: underline; }
+.housing-tour-progress-leave:active { transform: scale(0.98); }
+
 /* 参加者(閲覧専用・Task 2.4): 操作3ボタン+(任意)注記+区切り+終了ボタンの塊の代わりに出す
    「幹事が案内中」の静かな注記。ボタンではなくテキストのみ、装飾箱なし。 */
 .housing-tour-progress-readonly-note {
@@ -7390,6 +7430,54 @@ select.housing-input option {
 .housing-tour-invite-end:active { transform: scale(0.98); }
 .housing-tour-invite-copy:focus-visible,
 .housing-tour-invite-end:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+
+/* 共有ツアー「ツアーに戻る」ピル (#1・案い): ヘッダー右に常駐。
+   青(aether=進行/リンク)で控えめに。参加中 && ツアーページ以外にいるときだけ AppHeader が出す。 */
+.housing-tour-return-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--housing-aether-medium);
+  border: 1px solid var(--housing-aether-border);
+}
+.housing-tour-return-back {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 8px;
+  font-family: inherit; font-size: var(--housing-text-xs); font-weight: 600;
+  color: var(--housing-text);
+  background: transparent; border: 0; border-radius: 8px;
+  transition: background 0.15s ease;
+}
+.housing-tour-return-back:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-return-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--housing-aether);
+  box-shadow: 0 0 0 0 var(--housing-aether-glow-soft);
+  animation: housing-tour-return-pulse 1.8s ease-out infinite;
+}
+@keyframes housing-tour-return-pulse {
+  0% { box-shadow: 0 0 0 0 var(--housing-aether-glow-soft); }
+  70% { box-shadow: 0 0 0 6px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.housing-tour-return-cta { color: var(--housing-aether-soft); font-weight: 700; }
+.housing-tour-return-leave {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  color: var(--housing-text-mute);
+  background: transparent; border: 0; border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-tour-return-leave:hover { color: var(--housing-text); background: var(--housing-chip-bg-hover); }
+.housing-tour-return-back:focus-visible,
+.housing-tour-return-leave:focus-visible { outline: 2px solid var(--housing-aether); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-return-dot { animation: none; }
+}
 
 /* 完了カード (ツアーを完了・「探すに戻る」/「お気に入りに戻る」) */
 .housing-tour-complete {

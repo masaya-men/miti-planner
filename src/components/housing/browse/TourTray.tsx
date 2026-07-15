@@ -24,14 +24,21 @@ export interface TourTrayProps {
 export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStart, onAdd }) => {
   const { t, i18n } = useTranslation();
   const listings = useHousingListingsStore((s) => s.listings);
+  const myListings = useHousingListingsStore((s) => s.myListings);
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
   // 「+ 住所から追加」パネル (計画: 住所登録なし一時ツアー Task3) の開閉。
   const [addOpen, setAddOpen] = useState(false);
 
-  // 行解決: 登録済み listing に無ければ一時 listing (計画: 住所登録なし一時ツアー Task2) を探す。
-  // それ以外の既存挙動 (myListings 非考慮など) は変えない。
+  // 行解決: 公開一覧 → 自分の登録 (myListings・完全非公開/期限切れ含む) → 一時 listing の順で探す。
+  // myListings を含めないと、完全非公開(private)の家を追加したとき行が解決できず、
+  // トレイの件数だけ増えて中身が空に見える (実機で判明・#6)。
   const items = listingIds
-    .map((id) => listings.find((l) => l.id === id) ?? ephemeral.find((l) => l.id === id))
+    .map(
+      (id) =>
+        listings.find((l) => l.id === id) ??
+        myListings.find((l) => l.id === id) ??
+        ephemeral.find((l) => l.id === id),
+    )
     .filter((l): l is MockListing => Boolean(l));
   const empty = listingIds.length === 0;
   // トレイの非OCEアンカー地域 (OCEは日/米/欧と混在可なので除外)。一時追加パネルの跨ぎ早期ブロックに渡す。
@@ -75,7 +82,11 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
             <li key={l.id} className="housing-tour-tray-item">
               <span className="housing-tour-tray-num">{i + 1}</span>
               <span className="housing-tour-tray-addr">
-                {canDisplayAddress(l) ? formatHousingAddress(l, i18n.language) : t('housing.card.addressPrivate')}
+                {l.visibility === 'private'
+                  ? t('housing.card.privateListing')
+                  : canDisplayAddress(l)
+                    ? formatHousingAddress(l, i18n.language)
+                    : t('housing.card.addressPrivate')}
               </span>
               {isEphemeralListingId(l.id) && (
                 <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>

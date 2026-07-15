@@ -1914,7 +1914,8 @@
             "favorite": "즐겨찾기",
             "add_to_tour": "투어에 추가",
             "select": "선택",
-            "addressPrivate": "주소는 비공개입니다"
+            "addressPrivate": "주소는 비공개입니다",
+            "privateListing": "비공개 하우징"
         },
         "tray": {
             "title": "투어 트레이",
@@ -2826,6 +2827,7 @@
                 },
                 "invite": {
                     "button": "모두 초대하기",
+                    "creating": "초대 링크 생성 중…",
                     "hint": "투어를 시작하면 추가할 수 없습니다. 가고 싶은 하우징은 먼저 투어에 넣어 두세요.",
                     "copy": "복사",
                     "copied": "링크를 복사했습니다",
@@ -2846,7 +2848,11 @@
                 "connecting": "연결 중…",
                 "notfound": "이 투어를 찾을 수 없습니다",
                 "ended": "이 투어는 종료되었습니다",
-                "host_guiding": "주최자가 안내 중"
+                "host_guiding": "주최자가 안내 중",
+                "complete_lead": "투어는 여기까지입니다. 함께해 주셔서 즐거웠어요.",
+                "active_pill": "투어 참여 중",
+                "return": "돌아가기",
+                "leave": "투어 나가기"
             },
             "region_block": "다른 리전의 집은 같은 투어에 담을 수 없습니다",
             "region_block_start": "이 투어는 여러 리전({{regions}})의 집을 포함하고 있어 시작할 수 없습니다. 한 리전으로 좁혀 주세요"

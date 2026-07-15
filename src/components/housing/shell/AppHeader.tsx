@@ -11,6 +11,8 @@ import type { PersonalTag } from '../../../types/housing';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { LoPoButton } from '../../LoPoButton';
 import { TabBar } from './TabBar';
+import { X } from 'lucide-react';
+import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 
 /**
  * ハウジング共通ヘッダー。
@@ -27,6 +29,9 @@ export const AppHeader: React.FC = () => {
   const profileAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
   const openLogin = useHousingModalStore((s) => s.openLogin);
   const openAccount = useHousingModalStore((s) => s.openAccount);
+  // 共有ツアー参加中の「ツアーに戻る」ピル (#1・案い)。参加中 && ツアーページ以外にいるときだけ出す。
+  const joinedToken = useJoinedTourStore((s) => s.token);
+  const clearJoined = useJoinedTourStore((s) => s.clear);
 
   // 横断検索は探すページ (/housing の index) のみ表示。keyword は filter store 管理。
   const location = useLocation();
@@ -160,6 +165,28 @@ export const AppHeader: React.FC = () => {
       <TabBar />
 
       <div className="housing-app-header-right">
+        {joinedToken && location.pathname !== `/housing/tour/${joinedToken}` && (
+          <div className="housing-tour-return-pill">
+            <button
+              type="button"
+              className="housing-tour-return-back"
+              onClick={() => navigate(`/housing/tour/${joinedToken}`)}
+            >
+              <span className="housing-tour-return-dot" aria-hidden="true" />
+              <span className="housing-tour-return-text">{t('housing.tour.join.active_pill')}</span>
+              <span className="housing-tour-return-cta">{t('housing.tour.join.return')}</span>
+            </button>
+            <button
+              type="button"
+              className="housing-tour-return-leave"
+              onClick={clearJoined}
+              aria-label={t('housing.tour.join.leave')}
+              title={t('housing.tour.join.leave')}
+            >
+              <X size={12} aria-hidden="true" />
+            </button>
+          </div>
+        )}
         {user && <NotificationBell />}
         <div
           className="housing-theme-toggle"

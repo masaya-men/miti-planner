@@ -4,9 +4,10 @@ import { UserPlus, Copy } from 'lucide-react';
 export interface TourInvitePanelProps {
   /** null=未発行 / 文字列=発行済み(招待リンクの token) */
   tourToken: string | null;
+  /** 招待リンク発行中(API 応答待ち)。true の間はボタンを「作成中…」にして二重発行を防ぐ。 */
+  creating?: boolean;
   onInvite: () => void;
   onCopy: () => void;
-  onEnd: () => void;
 }
 
 /**
@@ -17,18 +18,24 @@ export interface TourInvitePanelProps {
  */
 export const TourInvitePanel: React.FC<TourInvitePanelProps> = ({
   tourToken,
+  creating = false,
   onInvite,
   onCopy,
-  onEnd,
 }) => {
   const { t } = useTranslation();
 
   if (tourToken === null) {
     return (
       <div className="housing-tour-invite">
-        <button type="button" className="housing-tour-invite-btn" onClick={onInvite}>
+        <button
+          type="button"
+          className="housing-tour-invite-btn"
+          onClick={onInvite}
+          disabled={creating}
+          aria-busy={creating}
+        >
           <UserPlus size={14} aria-hidden="true" />
-          {t('housing.tour.nav.invite.button')}
+          {t(creating ? 'housing.tour.nav.invite.creating' : 'housing.tour.nav.invite.button')}
         </button>
         {/* 箱で囲まない静かな注記 (feedback_housing_no_ai_pills) */}
         <p className="housing-tour-invite-hint">{t('housing.tour.nav.invite.hint')}</p>
@@ -49,9 +56,6 @@ export const TourInvitePanel: React.FC<TourInvitePanelProps> = ({
         <button type="button" className="housing-tour-invite-copy" onClick={onCopy}>
           <Copy size={14} aria-hidden="true" />
           {t('housing.tour.nav.invite.copy')}
-        </button>
-        <button type="button" className="housing-tour-invite-end" onClick={onEnd}>
-          {t('housing.tour.nav.invite.end')}
         </button>
       </div>
     </div>

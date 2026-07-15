@@ -60,6 +60,8 @@ export const TourNavPage: React.FC = () => {
   // mount 時の自動復帰 (localStorage からの token 復帰) は今回スコープ外
   // (設計§7 の同端末復帰は別タスク・stale token 誤表示を避ける)。
   const [tourToken, setTourToken] = useState<string | null>(null);
+  // 招待リンク発行中 (create-shared-tour API 応答待ち)。ボタンを「作成中…」にして二重発行も防ぐ。
+  const [creatingInvite, setCreatingInvite] = useState(false);
   // 住所露出警告ダイアログの表示に使う「発行待ち」の中身 (非公開/一時追加を含む場合のみ立つ)。
   const [pendingInvite, setPendingInvite] = useState<{ snaps: TourSnapshot[]; hasEphemeral: boolean } | null>(null);
 
@@ -122,12 +124,15 @@ export const TourNavPage: React.FC = () => {
   // 実際の Firestore 書き込み (create-shared-tour) を行う共通処理。
   const doCreate = useCallback(
     async (snaps: TourSnapshot[]) => {
+      setCreatingInvite(true);
       try {
         const { tourToken: token } = await createSharedTour(snaps);
         setTourToken(token);
         localStorage.setItem('lopo_shared_tour_token', token);
       } catch {
         showToast(t('housing.tour.nav.invite.error'), 'error');
+      } finally {
+        setCreatingInvite(false);
       }
     },
     [t],
@@ -158,15 +163,6 @@ export const TourNavPage: React.FC = () => {
     const url = `${location.origin}/housing/tour/${tourToken}`;
     void navigator.clipboard?.writeText(url);
     showToast(t('housing.tour.nav.invite.copied'), 'success');
-  }, [tourToken, t]);
-
-  // 「共有を終了」。live state を ended にし、幹事側の招待状態もリセットする。
-  const onEndShare = useCallback(() => {
-    if (!tourToken) return;
-    void endHostTour(tourToken);
-    setTourToken(null);
-    localStorage.removeItem('lopo_shared_tour_token');
-    showToast(t('housing.tour.nav.invite.ended'), 'success');
   }, [tourToken, t]);
 
   // 幹事の操作 (前へ/見学/次へ) を live state に反映する (孤児 live 防止は onFinish 側で別途)。
@@ -281,9 +277,9 @@ export const TourNavPage: React.FC = () => {
         </div>
         <TourInvitePanel
           tourToken={tourToken}
+          creating={creatingInvite}
           onInvite={onInvite}
           onCopy={onCopyInvite}
-          onEnd={onEndShare}
         />
       </section>
 
@@ -298,6 +294,7 @@ export const TourNavPage: React.FC = () => {
             directions={directions}
             canView={canView}
             isLast={isLast}
+            pendingCrossingAck={showCrossingOverlay}
             onPrev={prev}
             onViewStart={startViewing}
             onNext={onPrimary}
