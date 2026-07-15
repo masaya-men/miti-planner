@@ -290,9 +290,9 @@ describe('RegisterPage', () => {
 
     // Meteor は JP リージョン (dcServerMap.ts)。A-3 以前は住所行が街区住所のみ
     // ("ラベンダーベッド 29-3") だったが、formatFullHousingAddress 化で
-    // リージョン/DC/ワールドを含むフル住所になる。確認ゲート上の住所行 (公開ボタン直上) と
-    // 要約 dl の住所行の両方が同じ文字列を出す。
-    const gateAddress = container.querySelector('.housing-register-confirm-gate-address');
+    // リージョン/DC/ワールドを含むフル住所になる。2026-07-15 の UI 調整で住所は確認セクションの
+    // 主役ブロックに 1 回だけ大きく表示するようになった (旧: ゲート + 要約 dl の二重表示)。
+    const gateAddress = container.querySelector('.housing-register-confirm-address-value');
     expect(gateAddress?.textContent).toBe('日本 / Meteor / Ramuh / ラベンダーベッド 29-3');
 
     window.localStorage.removeItem(AUTOSAVE_KEY);
