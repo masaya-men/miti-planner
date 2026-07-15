@@ -70,7 +70,9 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
       ? t('housing.edit.save')
       : visibility === 'private'
         ? t('housing.register.confirm.save_private')
-        : t('housing.register.confirm.publish');
+        : visibility === 'unlisted'
+          ? t('housing.register.confirm.save_unlisted')
+          : t('housing.register.confirm.publish');
 
   return (
     <section className="housing-register-section" data-testid="housing-register-section-confirm">
@@ -139,7 +141,9 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
           <dd>
             {visibility === 'private'
               ? t('housing.register.visibility.private')
-              : t('housing.register.visibility.public')}
+              : visibility === 'unlisted'
+                ? t('housing.register.visibility.unlisted')
+                : t('housing.register.visibility.public')}
           </dd>
         </div>
       </dl>

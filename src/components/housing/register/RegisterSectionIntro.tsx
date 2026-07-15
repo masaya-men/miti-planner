@@ -13,17 +13,19 @@ interface Props {
   title: string;
   description: string;
   tags: string[];
+  /** 「住所非公開」選択時は未入力時ヒントの文言が変わる (一覧に住所ではなく非公開注記が出るため)。 */
+  visibility: 'public' | 'unlisted' | 'private';
   /** title/description/tags いずれかの変更で、更新後の全値をまとめて通知する。 */
   onChange: (next: RegisterSectionIntroValues) => void;
 }
 
 /**
  * 登録フォーム中央カラム: 紹介セクション (タイトル/コメント/タグ)。
- * タイトルは任意 (2026-07-10 変更)。未入力なら一覧カードは住所を表示するため、
- * 必須マーク/必須エラーは出さず、未入力時に静かなヒント (住所フォールバック) だけを添える。
+ * タイトルは任意 (2026-07-10 変更)。未入力なら一覧カードは住所 (または unlisted 時は非公開注記) を
+ * 表示するため、必須マーク/必須エラーは出さず、未入力時に静かなヒントだけを添える。
  * submit ゲート自体は Task13/14 が担う。
  */
-export const RegisterSectionIntro: React.FC<Props> = ({ title, description, tags, onChange }) => {
+export const RegisterSectionIntro: React.FC<Props> = ({ title, description, tags, visibility, onChange }) => {
   const { t } = useTranslation();
   const remaining = MAX_TITLE_LENGTH - title.length;
   const titleMissing = title.trim().length === 0;
@@ -55,7 +57,11 @@ export const RegisterSectionIntro: React.FC<Props> = ({ title, description, tags
         </p>
         {titleMissing && (
           <p className="housing-address-note" data-testid="housing-register-title-optional-hint">
-            {t('housing.register.field_title_optional_hint')}
+            {t(
+              visibility === 'unlisted'
+                ? 'housing.register.field_title_optional_hint_unlisted'
+                : 'housing.register.field_title_optional_hint',
+            )}
           </p>
         )}
       </div>

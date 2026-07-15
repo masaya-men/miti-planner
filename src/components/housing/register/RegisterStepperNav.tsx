@@ -9,6 +9,10 @@ export interface RegisterStep {
   id: number;
   labelKey: string;
   state: RegisterStepState;
+  /** 説明文キーの明示指定 (省略時は labelKey から `descKeyFor` で導出)。
+   *  visibility='unlisted' 時の intro ステップ説明差し替え (Task4) など、ラベルは変えず
+   *  説明文だけを差し替えたい場合に使う。 */
+  descKey?: string;
 }
 
 interface Props {
@@ -216,7 +220,7 @@ export const RegisterStepperNav: React.FC<Props> = ({ steps, onJump, progress = 
                           className="housing-register-stepper-desc"
                           data-testid={`housing-register-step-desc-${step.id}`}
                         >
-                          {t(descKeyFor(step.labelKey))}
+                          {t(step.descKey ?? descKeyFor(step.labelKey))}
                         </span>
                       </span>
                     </span>

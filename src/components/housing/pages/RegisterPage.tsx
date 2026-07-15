@@ -818,9 +818,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       effectiveStepIds.map((id, idx) => {
         const state: RegisterStepState = id === activeStepId ? 'active' : doneMap[id] ? 'done' : 'idle';
         // 番号は表示位置 (idx+1) で振り直す。 edit で media を除外しても 1 から詰まり欠番が出ない (Task3.4-1)。
-        return { id: idx + 1, labelKey: STEP_LABEL_KEYS[id], state };
+        // intro ステップは「住所非公開」選択時、ラベルはそのまま「コメント」の説明文だけ差し替える
+        // (一覧に住所ではなく「住所は非公開です」と出る旨を伝える・Task4)。
+        const descKey = id === 'intro' && visibility === 'unlisted' ? 'housing.register.step_desc.intro_unlisted' : undefined;
+        return { id: idx + 1, labelKey: STEP_LABEL_KEYS[id], state, descKey };
       }),
-    [effectiveStepIds, activeStepId, doneMap],
+    [effectiveStepIds, activeStepId, doneMap, visibility],
   );
 
   // ===== 右カラム: 重複照会 (debounce 500ms, Task13) =====
@@ -1439,6 +1442,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                 title={title}
                 description={description}
                 tags={tags}
+                visibility={visibility}
                 onChange={handleIntroChange}
               />
             </div>

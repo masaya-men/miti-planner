@@ -23,6 +23,7 @@ function renderIntro(props: Partial<React.ComponentProps<typeof RegisterSectionI
         title={props.title ?? ''}
         description={props.description ?? ''}
         tags={props.tags ?? []}
+        visibility={props.visibility ?? 'public'}
         onChange={onChange}
       />
     </I18nextProvider>,
@@ -58,5 +59,13 @@ describe('RegisterSectionIntro', () => {
     renderIntro({ title: '' });
     expect(screen.queryByTestId('housing-register-title-required')).toBeNull();
     expect(screen.getByTestId('housing-register-title-optional-hint')).toBeTruthy();
+  });
+
+  // Task4: visibility='unlisted' のとき、未入力ヒントが「住所」でなく「非公開」文言になる。
+  it('住所非公開 (unlisted) 選択時はヒントが field_title_optional_hint_unlisted になる', () => {
+    renderIntro({ title: '', visibility: 'unlisted' });
+    expect(screen.getByTestId('housing-register-title-optional-hint').textContent).toBe(
+      jaTranslations.housing.register.field_title_optional_hint_unlisted,
+    );
   });
 });

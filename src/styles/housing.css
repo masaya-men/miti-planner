@@ -4640,18 +4640,30 @@ select.housing-input option {
  * ヘアライン+グレーの静かな注記にする (色付き alert 箱を避ける)。
  * ============================================================ */
 .housing-register-visibility-chip {
-  flex: 1 1 auto;
-  min-width: 96px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  gap: 4px;
+  min-width: 84px;
   padding: 9px 14px;
   border-radius: 8px;
   border: 1px solid var(--housing-panel-border);
   background: var(--housing-chip-sunken-bg);
   color: var(--housing-text);
-  font-size: var(--housing-text-sm);
   font-family: inherit;
-  font-weight: 500;
+  text-align: left;
   cursor: pointer;
   transition: background 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+.housing-register-visibility-chip-title {
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  color: var(--housing-text);
+}
+.housing-register-visibility-chip-desc {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+  line-height: 1.35;
 }
 .housing-register-visibility-chip:hover {
   background: var(--housing-chip-bg-hover);
