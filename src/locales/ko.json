@@ -2215,6 +2215,7 @@
                 "gate_lead_prompt": "주소를 확인하고 아래 버튼을 눌러주세요",
                 "address_gate_button": "이 주소가 맞습니다",
                 "address_gate_confirmed": "확인 완료",
+                "address_gate_needs_address": "먼저 주소를 입력해 주세요",
                 "publish": "공개하기",
                 "save_private": "비공개로 저장하기",
                 "save_unlisted": "주소 비공개로 등록",

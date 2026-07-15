@@ -5111,8 +5111,18 @@ select.housing-input option {
   cursor: default;
   box-shadow: none;
 }
-/* 未確認の間は青の強調パルスで「押してください」を誘導 (ring spread + soft glow・トークン経由)。 */
-.housing-register-confirm-gate-btn[data-confirmed="false"] {
+/* 住所未入力 (2026-07-15): 押せない沈んだ灰色。パルスもさせない。「先に住所を入力してください」で
+   住所欄へ誘導する。押せないので震え等のフィードバックは不要 (ユーザー判断)。 */
+.housing-register-confirm-gate-btn[data-address-missing="true"] {
+  background: var(--housing-chip-sunken-bg);
+  border-color: var(--housing-panel-border);
+  color: var(--housing-text-mute);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+/* 未確認かつ住所入力済みの間だけ青の強調パルスで「押してください」を誘導
+   (ring spread + soft glow・トークン経由)。住所未入力ではパルスしない。 */
+.housing-register-confirm-gate-btn[data-confirmed="false"]:not([data-address-missing="true"]) {
   animation: housing-confirm-cta-pulse 1.6s ease-in-out infinite;
 }
 @keyframes housing-confirm-cta-pulse {
@@ -5124,7 +5134,8 @@ select.housing-input option {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .housing-register-confirm-gate-btn[data-confirmed="false"] { animation: none; }
+  /* パルスルールと同じ詳細度 (0-3-0) にして確実に打ち消す。 */
+  .housing-register-confirm-gate-btn[data-confirmed="false"]:not([data-address-missing="true"]) { animation: none; }
 }
 
 .housing-register-confirm-summary {

@@ -80,6 +80,25 @@ describe('RegisterSectionConfirm', () => {
     expect(onConfirmAddress).toHaveBeenCalledTimes(1);
   });
 
+  // 2026-07-15: 住所未入力のときは確認ボタンを押せない灰色にして誘導ラベルにする (震えなし)。
+  it('住所未入力 (address=null) のとき確認ボタンは disabled + data-address-missing="true" + 誘導ラベル', () => {
+    wrap({ summary: { ...baseSummary, address: null } });
+    const btn = screen.getByTestId('housing-register-confirm-address-btn');
+    expect(btn).toBeDisabled();
+    expect(btn.getAttribute('data-address-missing')).toBe('true');
+    expect(btn.textContent).toBe(
+      jaTranslations.housing.register.confirm.address_gate_needs_address,
+    );
+  });
+
+  it('住所入力済み・未確認のとき確認ボタンは押せて data-address-missing="false"', () => {
+    wrap({ addressConfirmed: false });
+    const btn = screen.getByTestId('housing-register-confirm-address-btn');
+    expect(btn).not.toBeDisabled();
+    expect(btn.getAttribute('data-address-missing')).toBe('false');
+    expect(btn.textContent).toBe(jaTranslations.housing.register.confirm.address_gate_button);
+  });
+
   // Task4: 3択 (public/unlisted/private) の submit ラベルと要約表示。
   it('visibility=unlisted のとき送信ボタンが save_unlisted 文言になる', () => {
     wrap({ visibility: 'unlisted' });

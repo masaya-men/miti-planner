@@ -2271,6 +2271,7 @@
                 "gate_lead_prompt": "住所を確認して、下のボタンを押してください",
                 "address_gate_button": "この住所で間違いありません",
                 "address_gate_confirmed": "確認済み",
+                "address_gate_needs_address": "先に住所を入力してください",
                 "publish": "公開する",
                 "save_private": "非公開で保存する",
                 "save_unlisted": "住所非公開で登録する",
