@@ -19,6 +19,7 @@ import { useHousingViewStore } from '../../../../store/useHousingViewStore';
 import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesStore';
 import { useEphemeralListingsStore } from '../../../../store/useEphemeralListingsStore';
 import { useHousingTourStore } from '../../../../store/useHousingTourStore';
+import { useTourTrayStore } from '../../../../store/useTourTrayStore';
 import type { MockListing } from '../../../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -68,6 +69,7 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
     useHousingFavoritesStore.setState({ ids: [] });
     useEphemeralListingsStore.getState().clear();
     useHousingTourStore.setState({ listingIds: [], running: false, currentIndex: 0 });
+    useTourTrayStore.setState({ trayIds: [] });
     showToastMock.mockClear();
   });
 
@@ -139,6 +141,8 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'この内容でツアーを開始' }));
+    // #4: 開始はマナーダイアログを挟む。「はじめる」で commitStart → 開始時ネットが弾く。
+    fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
 
     expect(useHousingTourStore.getState().listingIds).toHaveLength(0);
     expect(useHousingTourStore.getState().running).toBe(false);

@@ -1949,7 +1949,8 @@
             "favorite": "Favorite",
             "add_to_tour": "Add to tour",
             "select": "Select",
-            "addressPrivate": "Address is private"
+            "addressPrivate": "Address is private",
+            "privateListing": "Private housing"
         },
         "tray": {
             "title": "Tour Tray",
@@ -2530,7 +2531,7 @@
             },
             "manner": {
                 "title": "Please respect house owners",
-                "body": "When visiting a home, be mindful of the owner. Don't overstay, don't touch their items, and don't share their address on social media. Stick to basic etiquette and enjoy your tour.",
+                "body": "When you visit someone's housing, remember to respect the owner. Please mind your manners and enjoy.",
                 "dont_show_again": "Don't show again",
                 "cancel": "Cancel",
                 "start": "Start"
@@ -2794,6 +2795,7 @@
                 "reset_view": "Reset to default view",
                 "map_hint": "Scroll to zoom · Drag to move",
                 "cross": {
+                    "start": "First, head to {{world}} (DC: {{dc}})",
                     "dc": "First, use Data Center Travel to reach {{world}} in {{dc}}",
                     "world": "First, use World Visit to reach {{world}}",
                     "region": "This house is in another region and can't be reached",
@@ -2861,6 +2863,7 @@
                 },
                 "invite": {
                     "button": "Invite everyone",
+                    "creating": "Creating invite link…",
                     "hint": "Once the tour starts, you can't add more. Build the housing you want to visit into the tour first.",
                     "copy": "Copy",
                     "copied": "Link copied",
@@ -2881,7 +2884,11 @@
                 "connecting": "Connecting…",
                 "notfound": "This tour was not found",
                 "ended": "This tour has ended",
-                "host_guiding": "Your guide is leading the tour"
+                "host_guiding": "Your guide is leading the tour",
+                "complete_lead": "That's the end of the tour. It was a pleasure sharing it with you.",
+                "active_pill": "In a tour",
+                "return": "Return",
+                "leave": "Leave tour"
             },
             "region_block": "Houses in a different region can't be added to the same tour",
             "region_block_start": "This tour spans multiple regions ({{regions}}) and can't start. Keep houses from a single region."

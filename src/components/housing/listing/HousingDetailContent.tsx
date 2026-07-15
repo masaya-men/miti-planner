@@ -277,8 +277,14 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
           </div>
 
           {/* mapRef が引けない物件では null → レールは操作バーで自然に終わる。
-              unlisted は座標が無く周辺マップを出さない (§8.5・住所非公開)。 */}
-          {!addressHidden && <HousingDetailMap listing={listing} />}
+              unlisted は座標が無く周辺マップを出さない (§8.5・住所非公開)。
+              地図の枠だけは空プレースホルダで確保する: これが無いと textscroll(flex:1)が
+              地図分まで伸びて操作バー(通報/ケバブ)が下端へ落ち、メニューが崩れる (#1)。 */}
+          {!addressHidden ? (
+            <HousingDetailMap listing={listing} />
+          ) : (
+            <div className="housing-detail-map-placeholder" aria-hidden="true" />
+          )}
         </div>
       </div>
     </div>

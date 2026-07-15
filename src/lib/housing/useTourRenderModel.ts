@@ -5,7 +5,7 @@ import { resolveWardMapRef } from './resolveWardMapRef';
 import { getPlotDirections, type PlotDirections } from './wardDirections';
 import { useWardMapAsset, type WardMapAssetState } from './useWardMapAsset';
 import { buildTourMapPlacements, type TourMapModel } from './buildTourMapPlacements';
-import { crossingBetween, type TourCrossing } from './tourCrossing';
+import { crossingBetween, firstDestination, type TourCrossing } from './tourCrossing';
 
 export interface TourRenderModel {
   steps: TourStep[];
@@ -63,10 +63,12 @@ export function useTourRenderModel(
     [currentListing],
   );
   // 前の家→この家の移動種別(DC/ワールド跨ぎ)。行き方枠(右パネル)+中央マップのぼかし案内へ渡す。
-  const crossing: TourCrossing = useMemo(
-    () => (currentListing ? crossingBetween(prevStep?.listing ?? null, currentListing) : { kind: 'none' }),
-    [prevStep, currentListing],
-  );
+  // 1件目(currentIndex===0)は前の家が無いので跨ぎ判定できない → まずどこへ向かうかの出発案内を出す(#2)。
+  const crossing: TourCrossing = useMemo(() => {
+    if (!currentListing) return { kind: 'none' };
+    if (currentIndex === 0) return firstDestination(currentListing);
+    return crossingBetween(prevStep?.listing ?? null, currentListing);
+  }, [prevStep, currentListing, currentIndex]);
   const mapRef = useMemo(
     () =>
       currentListing

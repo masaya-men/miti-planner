@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeAll } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
@@ -110,7 +110,7 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
     expect(container.querySelector('.housing-tour-dest-report')).toBeNull();
   });
 
-  it('viewing: 跨ぎ overlay は出ない(showCrossing=false・幹事が phase を駆動する前提)', () => {
+  it('viewing: 跨ぎ overlay を参加者にも出す(#3)。「移動しました」で各自ローカルに消える', () => {
     const prev = { ...snap, id: 'join-snap-0', server: 'Atomos' };
     mockState.current = {
       kind: 'viewing',
@@ -118,10 +118,55 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
         tourToken: 'tok-123', hostUid: 'host-1', snapshot: [prev, snap],
         containsHiddenAddress: false, createdAt: Date.now(),
       },
-      // currentIndex=1: 前(Atomos)→現(Aegis)は同DC別ワールド = world跨ぎ。showCrossing=false なので出ない。
+      // currentIndex=1: 前(Atomos)→現(Aegis)は同DC別ワールド = world跨ぎ。参加者にも移動案内を出す。
       live: { status: 'live', currentIndex: 1, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now() },
     };
     renderPage();
+    // 参加者にも移動案内(DC/ワールド跨ぎ)が出る
+    expect(screen.getByTestId('tour-map-cross')).toBeInTheDocument();
+    // 「移動しました」を押すと自分の判断で消える(各参加者ローカル ack・主催者操作とは独立)
+    fireEvent.click(screen.getByText('移動しました（地図を見る）'));
     expect(screen.queryByTestId('tour-map-cross')).not.toBeInTheDocument();
+  });
+
+  it('viewing: 見学中(phase=viewing)は跨ぎ overlay を出さない', () => {
+    const prev = { ...snap, id: 'join-snap-0', server: 'Atomos' };
+    mockState.current = {
+      kind: 'viewing',
+      meta: {
+        tourToken: 'tok-123', hostUid: 'host-1', snapshot: [prev, snap],
+        containsHiddenAddress: false, createdAt: Date.now(),
+      },
+      live: { status: 'live', currentIndex: 1, phase: 'viewing', viewStartAt: Date.now(), lastActivityAt: Date.now() },
+    };
+    renderPage();
+    expect(screen.queryByTestId('tour-map-cross')).not.toBeInTheDocument();
+  });
+
+  it('viewing: 参加者に「ツアーから出る」退出リンクが出る(#1)', () => {
+    mockState.current = {
+      kind: 'viewing',
+      meta: {
+        tourToken: 'tok-123', hostUid: 'host-1', snapshot: [snap],
+        containsHiddenAddress: false, createdAt: Date.now(),
+      },
+      live: { status: 'live', currentIndex: 0, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now() },
+    };
+    renderPage();
+    expect(screen.getByRole('button', { name: 'ツアーから出る' })).toBeInTheDocument();
+  });
+
+  it('ended: 「素敵な時間でしたね」の完了カードを参加者にも出す(#4・素っ気ない終了表示を置換)', () => {
+    mockState.current = { kind: 'ended', meta: null, live: null };
+    renderPage();
+    expect(screen.getByTestId('join-tour-complete')).toBeInTheDocument();
+    expect(screen.getByText('素敵な時間でしたね！')).toBeInTheDocument();
+  });
+
+  it('notfound: 見つからないメッセージ(完了カードは出さない)', () => {
+    mockState.current = { kind: 'notfound', meta: null, live: null };
+    renderPage();
+    expect(screen.getByText('このツアーは見つかりません')).toBeInTheDocument();
+    expect(screen.queryByTestId('join-tour-complete')).not.toBeInTheDocument();
   });
 });

@@ -3,6 +3,7 @@ import type { MockListing } from '../../data/housing/mockListings';
 /** 隣接2地点(前の家→次の家)の移動種別。 */
 export type TourCrossing =
   | { kind: 'none' }
+  | { kind: 'start'; dc: string; world: string } // 1件目: まずどこへ向かうかの出発案内(出発地不明のため目的地を示す)
   | { kind: 'world'; world: string }            // ワールド訪問(同DC・別ワールド)
   | { kind: 'dc'; dc: string; world: string }   // DCトラベル(別DC・同リージョン)。着地ワールドも持つ
   | { kind: 'region' };                          // 別リージョン(通常はブロックで来ない・防御表示)
@@ -25,6 +26,16 @@ export function crossingBetween(prev: Loc | null, current: Loc): TourCrossing {
   if (prev.dc !== current.dc) return { kind: 'dc', dc: current.dc ?? '', world: current.server ?? '' };
   if (prev.server !== current.server) return { kind: 'world', world: current.server ?? '' };
   return { kind: 'none' };
+}
+
+/**
+ * ツアー1件目の「まずどこへ向かうか」出発案内 (#2)。
+ * 前の家が無く跨ぎ判定できないため、出発地は不明として目的地 (DC/ワールド) を示すだけの
+ * 'start' を返す。world (server) が無い (住所未確定の一時追加等) ときは案内を出さない ('none')。
+ */
+export function firstDestination(current: Loc): TourCrossing {
+  if (!current.server) return { kind: 'none' };
+  return { kind: 'start', dc: current.dc ?? '', world: current.server };
 }
 
 /**

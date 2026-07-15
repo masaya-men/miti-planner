@@ -54,8 +54,13 @@ export function useJoinTour(tourToken: string): JoinTourState {
 
       setMeta(snap.data() as SharedTourMeta);
 
+      // includeMetadataChanges: true が必須。これが無いと、再入場でキャッシュに同じ live doc が
+      // 残っている場合、Firestore は「データ不変」とみなしサーバー到達イベント(fromCache:false)を
+      // 発火しない → reachedServer が永久に立たず connecting のまま固まる(幹事が書き込むまで)。
+      // メタデータ変更も受け取ることで、cache→server 到達の瞬間に onNext が呼ばれ viewing へ進める。
       unsub = onSnapshot(
         doc(db, 'shared_tours', tourToken, 'live', 'current'),
+        { includeMetadataChanges: true },
         (liveSnap) => {
           if (cancelled) return;
 

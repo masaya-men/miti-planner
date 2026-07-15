@@ -1914,7 +1914,8 @@
             "favorite": "收藏",
             "add_to_tour": "加入导览",
             "select": "选择",
-            "addressPrivate": "地址不公开"
+            "addressPrivate": "地址不公开",
+            "privateListing": "不公开的房屋"
         },
         "tray": {
             "title": "导览清单",
@@ -2495,7 +2496,7 @@
             },
             "manner": {
                 "title": "请文明参观",
-                "body": "参观房屋时, 请尊重房主。 不要久留, 不要乱动物品, 不要把住址发布到社交平台。 遵守基本礼节, 愉快地享受巡游吧。",
+                "body": "参观房屋时，请尊重房主。请遵守礼节，愉快地享受巡游吧。",
                 "dont_show_again": "下次不再显示",
                 "cancel": "取消",
                 "start": "开始"
@@ -2759,6 +2760,7 @@
                 "reset_view": "恢复默认视图",
                 "map_hint": "滚轮缩放 · 拖动移动",
                 "cross": {
+                    "start": "请先前往 {{world}}（大区：{{dc}}）",
                     "dc": "请先使用数据中心旅行前往 {{dc}} 的 {{world}}",
                     "world": "请先使用跨服访问前往 {{world}}",
                     "region": "该房屋位于其他大区，无法前往",
@@ -2826,6 +2828,7 @@
                 },
                 "invite": {
                     "button": "邀请所有人",
+                    "creating": "正在生成邀请链接…",
                     "hint": "开始导览后就无法再添加了。请先把想去的房屋编入导览。",
                     "copy": "复制",
                     "copied": "已复制链接",
@@ -2846,7 +2849,11 @@
                 "connecting": "连接中…",
                 "notfound": "未找到该导览",
                 "ended": "该导览已结束",
-                "host_guiding": "主持人正在带队"
+                "host_guiding": "主持人正在带队",
+                "complete_lead": "导览到此结束。很高兴与你同行。",
+                "active_pill": "正在参加导览",
+                "return": "返回",
+                "leave": "退出导览"
             },
             "region_block": "不同大区的房屋无法加入同一导览",
             "region_block_start": "该导览包含多个大区（{{regions}}）的房屋，无法开始。请仅保留同一大区的房屋"
