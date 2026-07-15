@@ -38,7 +38,7 @@ export const JoinTourPage: React.FC = () => {
       <div className="housing-tour-page housing-tour-page--reorg" data-testid="join-tour-viewing">
         <section className="housing-tour-page-panel" data-region="left">
           <div className="housing-tour-page-col">
-            <TourShowcasePanel currentStep={model.progress.currentStep} nextStep={model.nextStep} revealAddress />
+            <TourShowcasePanel currentStep={model.progress.currentStep} nextStep={model.nextStep} />
           </div>
         </section>
 
@@ -54,7 +54,6 @@ export const JoinTourPage: React.FC = () => {
               crossing={model.crossing}
               showCrossing={false}
               addressListing={model.currentListing}
-              revealAddress
             />
           </div>
         </section>
@@ -63,7 +62,6 @@ export const JoinTourPage: React.FC = () => {
           <div className="housing-tour-page-col">
             <TourProgressPanel
               readOnly
-              revealAddress
               progress={model.progress}
               steps={model.steps}
               currentIndex={live.currentIndex}

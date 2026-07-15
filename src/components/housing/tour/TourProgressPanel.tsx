@@ -29,11 +29,6 @@ export interface TourProgressPanelProps {
    * 参加者も見るため readOnly でも従来通り表示する。省略時(false)はホストの既存挙動を完全維持する。
    */
   readOnly?: boolean;
-  /**
-   * true=共有ツアーの参加者に住所を常時公開する(TourRouteSteps へそのまま中継)。readOnly とは独立。
-   * 省略時(false)はホストの既存挙動を完全維持する。
-   */
-  revealAddress?: boolean;
 }
 
 /**
@@ -45,7 +40,7 @@ export interface TourProgressPanelProps {
 export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   progress, steps, currentIndex, phase, viewStartAt, directions,
   canView, isLast, onPrev, onViewStart, onNext, onFinish,
-  crossing = { kind: 'none' }, readOnly = false, revealAddress = false,
+  crossing = { kind: 'none' }, readOnly = false,
 }) => {
   const { t } = useTranslation();
   const { total, percent } = progress;
@@ -64,7 +59,7 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
         <ProgressRing percent={percent} />
       </div>
 
-      <TourRouteSteps steps={steps} currentIndex={currentIndex} revealAddress={revealAddress} />
+      <TourRouteSteps steps={steps} currentIndex={currentIndex} />
 
       {/* 下部フッター: ステップに上のスペースを譲るため、行き方枠〜操作ボタン〜終了を最下部に密集。
           行き方(フェーズ枠)は常にボタン群の直上に固定。親の gap(16px) から切り離し内部を詰める。 */}
