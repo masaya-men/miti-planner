@@ -42,6 +42,25 @@ export function personalTagIdForUid(uid: string): string {
 }
 
 /**
+ * ハウジンガーページの共有 URL / 内部リンク用に 'hashed:' prefix を剥がす (#3・見た目のみの短縮)。
+ * 例: 'hashed:d34d9c…' → 'd34d9c…'。prefix が無ければそのまま返す。一方向ハッシュ値のため
+ * 剥がしても復元不可 = プライバシー影響ゼロ。URL から `hashed:` の語とコロンを消して警戒感を減らす。
+ */
+export function stripHashedPrefix(uid: string): string {
+  return uid.replace(/^hashed:/, '');
+}
+
+/**
+ * ルートパラメータ (`hashed:` prefix 有無どちらも来うる) を内部 ID 形式 'hashed:<hex>' に正規化する。
+ * housing_profiles の doc ID / listing の ownerUid / auth uid はすべて 'hashed:<hex>' 形式なので、
+ * URL から prefix を外しても、取得・本人判定の前にここで必ず復元する。これにより新 URL
+ * (prefix 無し) も旧 URL ('hashed:…') も同じ内部 ID に解決される (後方互換)。
+ */
+export function normalizeHousingerUid(uid: string): string {
+  return uid.startsWith('hashed:') ? uid : `hashed:${uid}`;
+}
+
+/**
  * personal_tags の既存ドキュメント (ownerUid == uid) があれば、その ID をそのまま再利用する。
  * タグ刷新 Phase B 統合契約1「1人1個制約は tagId が uid 決定的なので構造的に満たされる」は
  * 新規公開者には成り立つが、旧 create-personal-tag 経路 (ランダム slug ID) で既にタグを作成

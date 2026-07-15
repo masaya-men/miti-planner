@@ -210,6 +210,32 @@ describe('HousingerPage', () => {
     ).toBeInTheDocument();
   });
 
+  // #3: 旧 'hashed:' 付き URL でも解決し、本人判定 (viewerUid は 'hashed:<hex>' 形式) が効く。
+  it('旧 hashed: prefix 付き URL でも解決し本人判定される (後方互換)', async () => {
+    authUid = 'hashed:uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+
+    renderPage('hashed:uid-1');
+
+    expect(
+      await screen.findByRole('button', { name: 'プロフィールを編集' }),
+    ).toBeInTheDocument();
+  });
+
+  // #3: prefix を外した新 URL でも、viewerUid が 'hashed:<hex>' 形式なら本人判定される。
+  it('prefix なし新 URL + hashed: 付き viewerUid でも本人判定される', async () => {
+    authUid = 'hashed:uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([]);
+
+    renderPage('uid-1');
+
+    expect(
+      await screen.findByRole('button', { name: 'プロフィールを編集' }),
+    ).toBeInTheDocument();
+  });
+
   it('他人が見ると「プロフィールを編集」ボタンは出ない', async () => {
     authUid = 'uid-2';
     mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);

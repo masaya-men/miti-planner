@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { getPersonalTagById } from '../../../lib/housing/personalTagLookup';
+import { stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import type { PersonalTag } from '../../../types/housing';
 
 export interface PersonalTagFilterLinkProps {
@@ -40,7 +41,7 @@ export const PersonalTagFilterLink: React.FC<PersonalTagFilterLinkProps> = ({ ta
   if (!soleTagId || !tag) return null;
 
   return (
-    <Link to={`/housing/housinger/${tag.ownerUid}`} className="housing-personal-tag-filter-link">
+    <Link to={`/housing/housinger/${stripHashedPrefix(tag.ownerUid)}`} className="housing-personal-tag-filter-link">
       {t('housing.housinger.viewPage', { name: tag.displayName })}
     </Link>
   );

@@ -4,6 +4,8 @@ import {
   personalTagIdForUid,
   isValidHousingerReportReason,
   resolvePersonalTagId,
+  stripHashedPrefix,
+  normalizeHousingerUid,
 } from '../housingerProfile';
 
 describe('validateHousingerSnsUrl', () => {
@@ -39,6 +41,21 @@ describe('personalTagIdForUid', () => {
   });
   it('prefix なし uid はそのまま', () => {
     expect(personalTagIdForUid('abc123')).toBe('personal_abc123');
+  });
+});
+
+describe('stripHashedPrefix / normalizeHousingerUid (#3 共有 URL 短縮)', () => {
+  it('stripHashedPrefix: hashed: prefix を剥がす (無ければそのまま)', () => {
+    expect(stripHashedPrefix('hashed:d34d9c')).toBe('d34d9c');
+    expect(stripHashedPrefix('d34d9c')).toBe('d34d9c');
+  });
+  it('normalizeHousingerUid: prefix 無しには付け、有れば no-op (後方互換)', () => {
+    expect(normalizeHousingerUid('d34d9c')).toBe('hashed:d34d9c');
+    expect(normalizeHousingerUid('hashed:d34d9c')).toBe('hashed:d34d9c');
+  });
+  it('strip → normalize は往復して内部 ID 形式に戻る (URL 短縮の可逆性)', () => {
+    const internal = 'hashed:d34d9c';
+    expect(normalizeHousingerUid(stripHashedPrefix(internal))).toBe(internal);
   });
 });
 

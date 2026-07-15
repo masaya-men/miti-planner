@@ -27,6 +27,7 @@ import {
   getHousingerProfile,
   getHousingerListings,
 } from '../../../lib/housing/housingerProfileService';
+import { normalizeHousingerUid, stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
 import { HousingShareButton } from '../listing/HousingShareButton';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
@@ -45,7 +46,11 @@ import '../../../styles/housing.css';
 export const HousingerPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { uid } = useParams<{ uid: string }>();
+  const { uid: routeUid } = useParams<{ uid: string }>();
+  // URL は hashed: prefix を外した短縮形 (#3・/housing/housinger/<hex>)。取得・本人判定の前に
+  // 内部 ID 形式 'hashed:<hex>' へ復元する (doc ID / ownerUid / auth uid はすべてこの形式)。
+  // 旧 'hashed:…' 付き URL も normalizeHousingerUid が no-op で通す (後方互換)。
+  const uid = routeUid ? normalizeHousingerUid(routeUid) : undefined;
   const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
 
   const [profile, setProfile] = useState<HousingerProfile | null>(null);
@@ -126,7 +131,9 @@ export const HousingerPage: React.FC = () => {
     [listings, sort],
   );
 
-  const isSelf = viewerUid !== null && uid === viewerUid;
+  // viewerUid ('hashed:<hex>') と正規化済み uid を同じ内部 ID 形式で比較する
+  // (viewerUid が万一 prefix 無しでも normalize で吸収)。
+  const isSelf = viewerUid !== null && uid === normalizeHousingerUid(viewerUid);
 
   // HousingActionBar.tsx の onReportClick と同形 (未ログインならログイン案内、それ以外はモーダルを開く)。
   const onReportClick = () => {
@@ -205,7 +212,8 @@ export const HousingerPage: React.FC = () => {
 
   // e: X共有 (A案)。詳細ページと同じ HousingShareButton を流用し、このハウジンガーの
   // まとめページ URL を共有する (公開分のみ表示のプライバシーと整合)。
-  const shareUrl = `${window.location.origin}/housing/housinger/${uid ?? ''}`;
+  // 共有 URL は hashed: prefix を外した短縮形にする (#3)。
+  const shareUrl = `${window.location.origin}/housing/housinger/${stripHashedPrefix(uid ?? '')}`;
 
   return (
     <div className="housing-detail-panel">

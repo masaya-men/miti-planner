@@ -66,6 +66,17 @@ describe('HousingerByline', () => {
     expect(container.textContent).toContain('たかし のハウジング');
   });
 
+  // #3: リンクは hashed: prefix を外した短縮 URL にする (profile 取得は raw uid のまま)。
+  it('ownerUid が hashed: 付きでもリンク先は prefix を外した URL になる', async () => {
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    renderByline('hashed:d34d9c');
+
+    const link = await screen.findByRole('link', { name: /たかし/ });
+    expect(link).toHaveAttribute('href', '/housing/housinger/d34d9c');
+    // profile 取得は内部 ID (hashed: 付き) のまま呼ぶ (剥がすのはリンク文字列だけ)。
+    expect(mockGetHousingerProfile).toHaveBeenCalledWith('hashed:d34d9c');
+  });
+
   it('profile が null (非公開/取得不可) なら何も描画しない', async () => {
     mockGetHousingerProfile.mockResolvedValueOnce(null);
     const { container } = renderByline('uid-2');

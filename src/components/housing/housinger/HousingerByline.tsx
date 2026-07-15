@@ -9,6 +9,7 @@
  */
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import { useHousingerProfile } from './useHousingerProfile';
 import { HousingerAvatar } from './HousingerAvatar';
 
@@ -23,7 +24,7 @@ export const HousingerByline: React.FC<HousingerBylineProps> = ({ ownerUid }) =>
   if (!profile) return null;
 
   return (
-    <Link to={`/housing/housinger/${ownerUid}`} className="housing-detail-byline">
+    <Link to={`/housing/housinger/${stripHashedPrefix(ownerUid)}`} className="housing-detail-byline">
       <HousingerAvatar
         avatarUrl={profile.avatarUrl}
         name={profile.displayName}

@@ -24,6 +24,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 ### ✅ 直近本番検証済: round1+round2(21項目・7-13) + P0+P1大規模耐性ハードニング(7-14・CF全ルールHIT実測・実機G2全PASS)。プライバシー=`personal_<hex>`はHMAC一方向ハッシュ。round2詳細=`.private/2026-07-13-register-production-test-feedback.md`。
+### 🟡 実装済・実機目視+デプロイ待ち (2026-07-16): ダイアログ3種(通知/ケバブ/警告)のガラス化+招待ボタン角丸(housing.css) / ハウジンガー共有URLの `hashed:` 剥がし(C案・旧URL両立)。build+test緑。詳細=`.private/2026-07-16-next-session-dialog-tonmana.md`。
 ### 🔴 次セッション最優先 (2026-07-15 更新)
 0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`):
    - **本番実機チェック待ち(前デプロイ分)**: ①登録 住所未入力UX(空欄→灰色) ②管理サイドナビ スクロール(通報系まで) ③Ko-fi→/support ④マイページ ボタン上部で10件見えるか ⑤P3 unlisted 3択UI見た目。(🆕⑥登録 建物タイプ展開/確認ボタン灰色解消 ⑦画像/動画必須 ⑧FC個室トグル=2026-07-15 実機チェック通過→COMPLETED)

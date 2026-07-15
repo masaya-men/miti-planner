@@ -120,10 +120,15 @@
   --housing-modal-overlay: rgba(0, 0, 0, 0.55);
   --housing-popover-bg: rgba(20, 14, 8, 0.96);
   --housing-popover-bg-strong: rgba(20, 14, 8, 0.98);
-  /* 再構築ページ(質感A案=濃紺)に合わせた不透明ネイビーのポップオーバー面。
-     旧茶系 popover-bg を「今のトンマナ」へ寄せるための面(通知/ケバブ/警告ダイアログ・#D)。 */
-  --housing-popover-bg-navy: rgba(13, 18, 30, 0.98);
   --housing-popover-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  /* 通知/ケバブ/警告ダイアログのガラス面 (#D)。周囲の質感A案パネル (.housing-panel) と同じ
+     「半透明ネイビー + 縁の光」に揃えるための影 = ドロップ影 + 上端リム + 下端リム + 微かな内側グロー。
+     旧 --housing-popover-bg-navy (不透明ネイビーの箱) は撤去し、面自体は panel-bg-solid(0.74) を使う。 */
+  --housing-popover-shadow-glass:
+    0 20px 56px rgba(0, 0, 0, 0.5),
+    inset 0 1.5px 1px rgba(255, 255, 255, 0.14),
+    inset 0 -1.5px 2px rgba(255, 255, 255, 0.05),
+    inset 0 0 22px rgba(255, 255, 255, 0.03);
   --housing-popover-z: 80;
   --housing-popover-z-stack: 90;
   --housing-tour-complete-z: 60;      /* ツアー完了オーバーレイ(3パネルの上・detail 70/popover 80 未満) */
@@ -166,7 +171,6 @@
   --housing-notif-dropdown-max-vw-pad: 24px;
   --housing-notif-dropdown-gap: 8px;
   --housing-notif-dropdown-radius: 14px;
-  --housing-notif-dropdown-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
   --housing-notif-dropdown-z: 95;
   --housing-notif-list-max-h: 360px;
   --housing-notif-item-divider: rgba(255, 255, 255, 0.04);
@@ -2802,17 +2806,26 @@ select.housing-input option {
     cursor: not-allowed;
 }
 
+/* 通知/ケバブ/警告ダイアログ 共通のガラス面 (#D)。濃紺の不透明箱 (旧 --housing-popover-bg-navy)
+   をやめ、周囲の質感A案パネル (.housing-panel) と同じ「半透明ネイビー(0.74) + 縁の光」に統一する。
+   ブラーは付けない (A案パネルも --liquid-filter 未設定でブラー無し。材質をパネルへ揃える)。
+   個別ルールは border-radius / padding / 寸法だけを持ち、面(bg/border/影)はここへ集約。 */
+.housing-tour-expose-card,
+.housing-kebab-menu,
+.housing-notif-dropdown {
+    background: var(--housing-panel-bg-solid);
+    border: 1px solid var(--housing-panel-border);
+    box-shadow: var(--housing-popover-shadow-glass);
+}
+
 /* 住所露出警告カード (Task 2.2・共有ツアー招待の直前確認) */
 .housing-tour-expose-card {
-    background: var(--housing-popover-bg-navy);
-    border: 1px solid var(--housing-panel-border-strong);
     border-radius: var(--housing-panel-radius);
     padding: 24px 28px;
     max-width: 440px;
     width: calc(100% - 32px);
     color: var(--housing-text);
     font-size: var(--housing-text-base);
-    box-shadow: var(--housing-popover-shadow);
 }
 .housing-tour-expose-head {
     display: flex;
@@ -2857,14 +2870,19 @@ select.housing-input option {
     gap: 8px;
     justify-content: flex-end;
 }
-.housing-tour-expose-cancel {
+/* 「やめる」/「このまま招待する」の共通の箱寸法をここへ集約。招待側は .housing-btn-primary
+   (色/グラデ/影のみ・border-radius 無し) 単体だったため角丸が効かず四角く見えていた。
+   両ボタンをこの子孫セレクタで揃える (角丸 10px・padding・文字サイズ)。色は各自のクラスで付ける。 */
+.housing-tour-expose-actions button {
     padding: 8px 16px;
     border-radius: 10px;
+    font-size: var(--housing-text-base);
+    cursor: pointer;
+}
+.housing-tour-expose-cancel {
     background: var(--housing-chip-bg);
     border: 1px solid var(--housing-panel-border);
     color: var(--housing-text);
-    cursor: pointer;
-    font-size: var(--housing-text-base);
     transition: background 0.15s ease;
 }
 .housing-tour-expose-cancel:hover:not(:disabled) {
@@ -2903,15 +2921,12 @@ select.housing-input option {
     right: 0;
     top: calc(100% + 4px);
     min-width: 160px;
-    background: var(--housing-popover-bg-navy);
-    border: 1px solid var(--housing-panel-border-strong);
     border-radius: 12px;
     padding: 6px;
     display: flex;
     flex-direction: column;
     gap: 2px;
     z-index: var(--housing-popover-z-stack);
-    box-shadow: var(--housing-popover-shadow);
 }
 .housing-kebab-menu button {
     background: transparent;
@@ -3766,11 +3781,8 @@ select.housing-input option {
     top: calc(100% + var(--housing-notif-dropdown-gap));
     width: var(--housing-notif-dropdown-w);
     max-width: calc(100vw - var(--housing-notif-dropdown-max-vw-pad));
-    background: var(--housing-popover-bg-navy);
-    border: 1px solid var(--housing-panel-border-strong);
     border-radius: var(--housing-notif-dropdown-radius);
     z-index: var(--housing-notif-dropdown-z);
-    box-shadow: var(--housing-notif-dropdown-shadow);
     color: var(--housing-text);
     overflow: hidden;
 }
