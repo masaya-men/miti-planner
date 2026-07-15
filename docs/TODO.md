@@ -27,7 +27,7 @@
 ### 🔴 次セッション最優先 (2026-07-15 更新)
 0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`):
    - **本番実機チェック待ち(前デプロイ分)**: ①登録 住所未入力UX(空欄→灰色) ②管理サイドナビ スクロール(通報系まで) ③Ko-fi→/support ④マイページ ボタン上部で10件見えるか ⑤P3 unlisted 3択UI見た目。(🆕⑥登録 建物タイプ展開/確認ボタン灰色解消 ⑦画像/動画必須 ⑧FC個室トグル=2026-07-15 実機チェック通過→COMPLETED)
-   - **必須大物**: スマホ対応(詳細以外7面・雑でも動く優先) / モデレ /admin 完結確認(BAN/quota0/一括削除UI) / en翻訳確認 / **ツアー主催機能=スマホより先(brainstorming・7-15 B案最小版まで合意→登録バグ対応で中断。次=主催セッション寿命/URL有効期限から。ビジョン+今日の合意=`.private/2026-07-08-synced-shared-tour-vision.md`)** / 中韓公開(公開前候補に格上げ) / Discord告知(P3=告知可)。
+   - **必須大物**: スマホ対応(詳細以外7面・雑でも動く優先) / モデレ /admin 完結確認(BAN/quota0/一括削除UI) / en翻訳確認 / **ツアー主催機能=spec+plan+Phase0完了(2026-07-15・ブランチ feat/housing-shared-tour-sync)。spec=`superpowers/specs/2026-07-15-shared-tour-sync-design.md` / plan=`superpowers/plans/2026-07-15-shared-tour-sync.md`。Phase0=Firestore App Check「モニタリング(Unenforced)」確認→方式(a)匿名onSnapshot採用。次=Phase1実装(subagent-driven・Task1.1型定義から)。⚠将来Firestore Enforced化は匿名参加を壊す→方式(b)公開窓口ポーリングへ(計画の代替タスク群)。ビジョン=`.private/2026-07-08-synced-shared-tour-vision.md`** / 中韓公開(公開前候補に格上げ) / Discord告知(P3=告知可)。
    - **忘れず(ユーザー指摘)**: ツアー中 地図左上にフル住所 / 最初の家でもDCテレポ案内 / 30日物理削除cron(公開後) / 数日後=Claudeリマインドで GCPコスト実測→G5。
 1. ✅ **P0-P2 耐性 + P3 住所非公開 = 全部本番稼働(2026-07-15・G7完全通過)**(詳細=`.superpowers/sdd/progress.md`・セキュリティ設計は `.private/2026-07-14-*` に格納=公開リポに穴の地図を出さない・[[project_housing_scale_hardening]])
    - **✅ P3=本番稼働**。G7 住所漏洩ゲート完全通過(curl+実機・住所文字ゼロ・地図/近隣なし)。残=**Discord告知のみ**。triple protection+逆引き封じ(check-duplicate)。

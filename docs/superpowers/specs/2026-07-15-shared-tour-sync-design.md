@@ -227,6 +227,8 @@ match /shared_tours/{tourToken} {
 - **対策の分岐**：
   - (a) enforcement 無 → そのまま匿名直読みで成立（`tourToken` が鍵）。**第一候補**。
   - (b) enforcement 有 → 匿名参加者ページで App Check を初期化すると reCAPTCHA 課金（[[project_firebase_cost_reduction]] の主犯）。数百人分は避けたい。代替として **live state を「公開窓口 API のポーリング」で配る**方式に切替（`PUBLIC_WINDOW_ACTIONS` に `shared-tour-state` を追加＝verifyAppCheck 前 return・Cloudflare キャッシュは短 s-maxage。リアルタイム性は数秒粒度に落ちるがツアー用途では許容範囲）。この分岐は設計に織り込み済み。
+- **✅ 2026-07-15 確認結果**：Firebase コンソール App Check → APIs → Cloud Firestore が **「モニタリング」表示（Unenforced）**。指標も未検証/無効リクエストが通っている（弾いていない）。→ **方式 (a) 匿名 onSnapshot 直読みを採用**。probe（Phase 0 Step 2）は不要だった。詳細記録 = `docs/.private/2026-07-15-shared-tour-appcheck-probe.md`。
+- **⚠ 将来の相互依存**：今後 Firestore を **Enforced に切り替えると、共有ツアーの匿名参加（onSnapshot 直読み）が壊れる**。App Check enforcement 強化 / v3 切替（[[project_firebase_cost_reduction]]）を検討する際は、必ずこの機能への影響を確認し、切り替えるなら同時に方式 (b) へ移行すること。
 
 ### R2：`viewStartAt` の端末時計ズレ
 - 幹事の epoch ms をそのまま配り、参加者は自端末の `Date.now()` との差で経過秒を計算（既存 `useElapsed`）。両端末の時計がほぼ正確（NTP 同期）なら数秒以内。MVP は許容。将来サーバー時刻補正を検討。
