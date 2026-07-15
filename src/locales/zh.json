@@ -2514,8 +2514,7 @@
                 "copy_url_done": "已复制链接",
                 "open_sns": "打开SNS帖子",
                 "close": "关闭",
-                "mine_badge": "我的登记",
-                "addressPrivate": "地址不公开"
+                "mine_badge": "我的登记"
             },
             "empty": {
                 "title": "没有符合条件的房屋",

@@ -41,8 +41,11 @@ vi.mock('firebase/firestore', () => ({
 
 // peers 取得 (2026-07-14 P1: 公開キャッシュ窓口 fetch へ切替)。 このテストでは peers の
 // 内容そのものを問わないため、 デフォルトで空配列を返す no-op スタブに固定する。
+// fetchPublicListing (P3 §3.5: getDoc 不可視/例外時のフォールバック) はこのテストでは
+// getDoc が成功する既存シナリオが大半のため、 デフォルトで null (= フォールバックも空振り) に固定する。
 vi.mock('../../../../lib/housing/publicHousingWindow', () => ({
   fetchPublicListingPeers: vi.fn(async () => []),
+  fetchPublicListing: vi.fn(async () => null),
 }));
 
 // useNotifications は firebase/auth の getAuth() を直接使う (未ログイン=購読スキップ)
@@ -76,6 +79,10 @@ vi.mock('../../../../lib/housingAuthHeaders', () => ({
 
 import { useHousingDetail } from '../useHousingDetail';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
+import { fetchPublicListing } from '../../../../lib/housing/publicHousingWindow';
+import type { HousingListing } from '../../../../types/housing';
+
+const mockFetchPublicListing = vi.mocked(fetchPublicListing);
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <MemoryRouter>{children}</MemoryRouter>
@@ -114,6 +121,8 @@ describe('useHousingDetail', () => {
     mockGetDoc.mockReset();
     mockDeleteListing.mockReset();
     mockPurgeIfTweetGone.mockReset();
+    mockFetchPublicListing.mockReset();
+    mockFetchPublicListing.mockResolvedValue(null);
     mockAuthLoading = false;
   });
 
@@ -126,6 +135,32 @@ describe('useHousingDetail', () => {
       expect(result.current.notFound).toBe(true);
     });
     expect(result.current.listing).toBeNull();
+  });
+
+  it('P3 §3.5: getDoc が permission-denied (unlisted 非オーナー等) のとき、公開窓口 (fetchPublicListing) の住所抜きレスポンスへフォールバックして listing をセットする (notFound にはしない)', async () => {
+    mockGetDoc.mockRejectedValueOnce(new Error('permission-denied'));
+    const windowListing = {
+      id: 'lid-unlisted',
+      ownerUid: 'owner1',
+      visibility: 'unlisted',
+      imageMode: 'none',
+      tags: [],
+      createdAt: 1700000000000,
+      lastConfirmedAt: 0,
+      // 窓口は unlisted の住所フィールド (dc/server/area/ward/addressKey 等) を含めない
+      // (projectPublicListing の許可リスト射影)。
+    } as unknown as HousingListing;
+    mockFetchPublicListing.mockResolvedValueOnce(windowListing);
+
+    const { result } = renderHook(() => useHousingDetail('lid-unlisted'), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.listing).not.toBeNull();
+    });
+    expect(mockFetchPublicListing).toHaveBeenCalledWith('lid-unlisted');
+    expect(result.current.listing?.id).toBe('lid-unlisted');
+    expect((result.current.listing as unknown as Record<string, unknown>)?.addressKey).toBeUndefined();
+    expect(result.current.notFound).toBe(false);
   });
 
   it('notification クエリが無いとき reportNotice は undefined (gating の証明)', async () => {

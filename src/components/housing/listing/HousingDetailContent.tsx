@@ -258,7 +258,10 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
               {listing.description && (
                 <p className="housing-detail-description">{listing.description}</p>
               )}
-              <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+              {/* unlisted は addressKey を他人に配らない = 同住所 peers を出さない (§8.5)。 */}
+              {!addressHidden && (
+                <HousingDuplicatePeersSection peers={visiblePeers} onReportPeer={handleReportPeer} />
+              )}
             </div>
           </div>
 
@@ -273,8 +276,9 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
             />
           </div>
 
-          {/* mapRef が引けない物件では null → レールは操作バーで自然に終わる */}
-          <HousingDetailMap listing={listing} />
+          {/* mapRef が引けない物件では null → レールは操作バーで自然に終わる。
+              unlisted は座標が無く周辺マップを出さない (§8.5・住所非公開)。 */}
+          {!addressHidden && <HousingDetailMap listing={listing} />}
         </div>
       </div>
     </div>

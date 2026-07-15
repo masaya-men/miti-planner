@@ -2549,8 +2549,7 @@
                 "copy_url_done": "URL copied",
                 "open_sns": "Open SNS post",
                 "close": "Close",
-                "mine_badge": "Your listing",
-                "addressPrivate": "Address is private"
+                "mine_badge": "Your listing"
             },
             "empty": {
                 "title": "No homes match your filters",

@@ -2570,8 +2570,7 @@
                 "copy_url_done": "URLをコピーしました",
                 "open_sns": "SNS投稿を開く",
                 "close": "閉じる",
-                "mine_badge": "あなたの登録",
-                "addressPrivate": "住所は非公開です"
+                "mine_badge": "あなたの登録"
             },
             "empty": {
                 "title": "該当ハウジングがありません",

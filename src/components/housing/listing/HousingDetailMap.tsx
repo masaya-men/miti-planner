@@ -6,6 +6,7 @@ import { useWardMapAsset } from '../../../lib/housing/useWardMapAsset';
 import { buildTourMapPlacements } from '../../../lib/housing/buildTourMapPlacements';
 import { getPlotDirections } from '../../../lib/housing/wardDirections';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
+import { isAddressHidden } from '../../../lib/housing/listingPublish';
 import { TourNavMap } from '../tour/TourNavMap';
 
 /**
@@ -21,6 +22,10 @@ import { TourNavMap } from '../tour/TourNavMap';
  * currentListing=null を許容する設計)。
  */
 export const HousingDetailMap: React.FC<{ listing: HousingListing }> = ({ listing }) => {
+  // 防御多重化 (§8.5・住所非公開): 呼び出し側の addressHidden ガードを万一忘れても、
+  // unlisted の座標由来の値 (directions/mapRef) を一切計算せずここで止める。
+  if (isAddressHidden(listing)) return null;
+
   const directions = useMemo(() => getPlotDirections(listing.area, listing.plot), [listing]);
   const mapRef = useMemo(
     () =>

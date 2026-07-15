@@ -62,6 +62,40 @@ it('mapRef 引けない物件では何も描画しない(null)', () => {
   expect(queryByTestId('tour-nav-map')).toBeNull();
 });
 
+it('P3 §3.5/Task6 (防御多重化): unlisted は mapRef が解決できても何も描画せず、座標由来の計算 (getPlotDirections/resolveWardMapRef) も呼ばれない', () => {
+  // mapRef/asset が「もし呼ばれたら」描画されてしまう値をあえて用意し、
+  // それでも isAddressHidden の早期 return が座標計算そのものを止めることを検証する。
+  mockResolveWardMapRef.mockReturnValue({
+    mapKey: 'mist',
+    highlightPlot: 3,
+    highlightKind: 'plot',
+    elementId: 'plot_3',
+  });
+  mockUseWardMapAsset.mockReturnValue({
+    status: 'ready',
+    svg: '<svg></svg>',
+    json: { viewBox: { w: 100, h: 100 } } as unknown as WardMapJson,
+  });
+  mockGetPlotDirections.mockReturnValue({ aetheryte: 'Should Not Appear', directions: '道なり' });
+  // 前テストの呼び出し履歴が残っているため (このファイルに mock リセットの仕組みが無い)、
+  // 「今回のレンダーで呼ばれていないこと」 を正しく検証するためここで明示的にクリアする。
+  mockGetPlotDirections.mockClear();
+  mockResolveWardMapRef.mockClear();
+
+  const listing = {
+    id: 'unlisted-1',
+    visibility: 'unlisted',
+    area: 'Mist',
+    plot: 3,
+    buildingType: 'house',
+  } as unknown as HousingListing;
+
+  const { queryByTestId } = render(<HousingDetailMap listing={listing} />);
+  expect(queryByTestId('tour-nav-map')).toBeNull();
+  expect(mockGetPlotDirections).not.toHaveBeenCalled();
+  expect(mockResolveWardMapRef).not.toHaveBeenCalled();
+});
+
 it('mapRef 解決 + asset ready で TourNavMap に status=ready を配線し、buildTourMapPlacements を実際の変換結果で呼ぶ', () => {
   const mapRef = { mapKey: 'mist', highlightPlot: 3, highlightKind: 'plot' as const, elementId: 'plot_3' };
   mockResolveWardMapRef.mockReturnValue(mapRef);

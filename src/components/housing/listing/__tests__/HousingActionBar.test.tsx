@@ -21,6 +21,17 @@ vi.mock('../../delete/useHousingDelete', () => ({
   useHousingDelete: () => ({ deleteListing: vi.fn(), loading: false }),
 }));
 
+// HousingShareButton は実際には title を DOM テキストに出さない (navigator.share / twitter intent
+// URL に渡すだけ) ため、 titleForShare の配線 (addressKey 漏洩防止) を検証するには title を
+// data 属性で観測できるスタブに差し替える必要がある (aria-label は既存アサーションを壊さないよう維持)。
+vi.mock('../HousingShareButton', () => ({
+  HousingShareButton: ({ title }: { title: string }) => (
+    <button type="button" aria-label="housing.detail.share" data-share-title={title ?? ''}>
+      housing.detail.share
+    </button>
+  ),
+}));
+
 function renderBar(props: Partial<React.ComponentProps<typeof HousingActionBar>>) {
   return render(
     <MemoryRouter>
@@ -103,5 +114,35 @@ describe('HousingActionBar', () => {
     fireEvent.click(screen.getByRole('button', { name: 'housing.detail.kebab.aria_label' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'housing.detail.kebab.edit' }));
     expect(navigateMock).toHaveBeenCalledWith(`/housing/listing/${baseListing.id}/edit`);
+  });
+
+  // P3 §3.5/Task6 (防御多重化): unlisted は addressKey (住所) をシェアタイトルに絶対出さない。
+  it('unlisted かつ description 未設定のとき、シェアタイトルは addressKey ではなく既定文言 (LoPo Housing) になる', () => {
+    const unlistedNoDescription = {
+      ...baseListing,
+      visibility: 'unlisted',
+      description: undefined,
+      addressKey: 'Mist Ward 5 Plot 12',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    renderBar({ viewerUid: 'owner1', listing: unlistedNoDescription });
+    const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
+    expect(shareButton.dataset.shareTitle).toBe('LoPo Housing');
+    expect(shareButton.dataset.shareTitle).not.toContain('Mist Ward 5 Plot 12');
+  });
+
+  // 対照実験: public/private (住所非公開でない) では従来どおり addressKey が使われる
+  // (description 未設定時のフォールバック挙動は不変であることの証明)。
+  it('public かつ description 未設定のとき、シェアタイトルは addressKey になる (回帰確認)', () => {
+    const publicNoDescription = {
+      ...baseListing,
+      visibility: 'public',
+      description: undefined,
+      addressKey: 'Mist Ward 5 Plot 12',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    renderBar({ viewerUid: 'owner1', listing: publicNoDescription });
+    const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
+    expect(shareButton.dataset.shareTitle).toBe('Mist Ward 5 Plot 12');
   });
 });
