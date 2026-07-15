@@ -2861,7 +2861,7 @@
                 },
                 "invite": {
                     "button": "Invite everyone",
-                    "hint": "Once you start, you can't add more houses. Line up the ones you want to show beforehand.",
+                    "hint": "Once the tour starts, you can't add more. Build the housing you want to visit into the tour first.",
                     "copy": "Copy",
                     "copied": "Link copied",
                     "end": "End sharing",
