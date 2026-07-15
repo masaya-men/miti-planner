@@ -80,6 +80,9 @@ export const FavoritesPage: React.FC = () => {
     let totalAutoAdded = 0;
     let blocked = false;
     for (const addId of idsToAdd) {
+      // unlisted は住所が無くツアーに使えない (一括「すべて/選択を追加」がカードボタンを迂回するため
+      // ここでも弾く・§8.4/deviation 3)。
+      if (pool.find((l) => l.id === addId)?.visibility === 'unlisted') continue;
       // 非OCEアンカー地域 (OCEは混在可なので除外・OCE先頭でも正しくアンカーを取る)。
       const trayRegion = tourAnchorRegion(nextIds.map(regionOf));
       const candRegion = regionOf(addId);

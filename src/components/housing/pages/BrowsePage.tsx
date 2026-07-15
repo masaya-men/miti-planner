@@ -94,6 +94,8 @@ export const BrowsePage: React.FC = () => {
     const eph = useEphemeralListingsStore.getState().ephemeralListings;
     const candidate = merged.find((l) => l.id === id) ?? eph.find((l) => l.id === id);
     if (!candidate) return;
+    // unlisted は住所が無くツアーに使えない (§8.4・カードボタンは無効だが防御多重化)。
+    if (candidate.visibility === 'unlisted') return;
     const pool = [...merged, ...eph];
     // トレイの非OCEアンカー地域 (OCEは日/米/欧と混在可なので除外)。 先頭依存だと OCE 先頭でアンカーを取り違えるため全stopから算出。
     const trayRegion = tourAnchorRegion(

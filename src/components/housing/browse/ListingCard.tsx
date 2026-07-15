@@ -169,8 +169,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <button
             type="button"
             className="housing-card-add-btn"
+            disabled={listing.visibility === 'unlisted'}
+            aria-disabled={listing.visibility === 'unlisted'}
+            title={listing.visibility === 'unlisted' ? t('housing.card.addressPrivate') : undefined}
             onClick={(e) => {
               e.stopPropagation();
+              if (listing.visibility === 'unlisted') return;
               addRipple(e);
               onAddToTour(listing.id);
             }}

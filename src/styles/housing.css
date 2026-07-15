@@ -5985,6 +5985,7 @@ select.housing-input option {
 }
 .housing-card-add-btn:hover { background: var(--housing-honey-strong); }
 .housing-card-add-btn:active { transform: scale(0.97); }
+.housing-card-add-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* ===== クリックリップル (useRipple 共有フック・2026-07-10) =====
    位置/直径はクリック座標由来のためインライン CSS カスタムプロパティで渡す

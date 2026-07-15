@@ -222,6 +222,40 @@ describe('ListingCard — unlisted は住所を出さない (住所漏洩防止)
   });
 });
 
+describe('ListingCard — ツアー追加ボタン (unlisted は無効化・Task7)', () => {
+  const unlistedListing = { ...mockListing, visibility: 'unlisted' as const };
+  const publicListing = { ...mockListing, visibility: 'public' as const };
+
+  it('unlisted のツアー追加ボタンは disabled になる', () => {
+    renderCard({ listing: unlistedListing });
+    const addBtn = screen.getAllByRole('button').find(
+      (btn) => btn.className.includes('housing-card-add-btn')
+    );
+    expect(addBtn).toBeDisabled();
+  });
+
+  it('unlisted のツアー追加ボタンをクリックしても onAddToTour は呼ばれない', () => {
+    const onAddToTour = vi.fn();
+    renderCard({ listing: unlistedListing, onAddToTour });
+    const addBtn = screen.getAllByRole('button').find(
+      (btn) => btn.className.includes('housing-card-add-btn')
+    );
+    fireEvent.click(addBtn!);
+    expect(onAddToTour).not.toHaveBeenCalled();
+  });
+
+  it('public のツアー追加ボタンは従来どおり有効で onAddToTour が呼ばれる', () => {
+    const onAddToTour = vi.fn();
+    renderCard({ listing: publicListing, onAddToTour });
+    const addBtn = screen.getAllByRole('button').find(
+      (btn) => btn.className.includes('housing-card-add-btn')
+    );
+    expect(addBtn).not.toBeDisabled();
+    fireEvent.click(addBtn!);
+    expect(onAddToTour).toHaveBeenCalledWith(publicListing.id);
+  });
+});
+
 describe('ListingCard — 生きたカード配線 (段階2)', () => {
   const multiImage = {
     ...mockListing,
