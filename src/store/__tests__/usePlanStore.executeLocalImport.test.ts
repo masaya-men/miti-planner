@@ -71,11 +71,12 @@ vi.mock('../../lib/firebase', () => ({
     get auth() { return mockAuth; },
     db: {},
     storage: {},
-    appCheck: {},
+    ensureAppCheck: () => null,
+    getActiveAppCheck: () => null,
 }));
 
 vi.mock('../../lib/appCheck', () => ({
-    initAppCheck: vi.fn(() => null),
+    createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
 }));
 
 // vi.hoisted: vi.mock factory が hoist 適用される前に mock fn を確実に定義しておく。

@@ -14,7 +14,7 @@ import {
     onAuthStateChanged,
     type User
 } from 'firebase/auth';
-import { auth, db } from '../lib/firebase';
+import { auth, db, ensureAppCheck } from '../lib/firebase';
 import { doc, collection, getDocs, getDoc, query, where, writeBatch, updateDoc } from 'firebase/firestore';
 import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
@@ -78,6 +78,10 @@ export const useAuthStore = create<AuthState>((set) => ({
             case 'discord':
                 saveReturnUrl(opts?.withRegisterFlag ?? false);
                 localStorage.setItem('lopo_auth_redirecting', 'true');
+                // 2026-07-14 (P2): ログイン POST 自体が App Check 必須 (_discordHandler)。
+                // この時点で未ログインなので、能動的なログイン試行として App Check を初期化する
+                // (閲覧だけの匿名は通らない = コスト源を再導入しない)。apiFetch が peek で拾う。
+                ensureAppCheck();
                 apiFetch('/api/auth?provider=discord', { method: 'POST' })
                     .then(r => r.json())
                     .then(data => {
@@ -283,6 +287,10 @@ if (!(import.meta.env.DEV && isAdminSandbox())) {
     // Auth状態の監視（アプリ起動時に1回だけ実行）
     onAuthStateChanged(auth, async (user) => {
         if (user) {
+            // 2026-07-14 (P2): ログイン確定 (セッション復元含む) で App Check を初期化保証。
+            // これ以降の書き込み (直 Firestore / API) にトークンが載る。
+            ensureAppCheck();
+
             // Custom Claimsから管理者フラグを取得（認証に必須 → awaitで待つ）
             const tokenResult = await user.getIdTokenResult();
             const isAdmin = tokenResult.claims.role === 'admin';

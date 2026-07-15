@@ -8,10 +8,11 @@ vi.mock('../../lib/firebase', () => ({
   auth: {},
   storage: {},
   analytics: Promise.resolve(null),
-  appCheck: null,
+  ensureAppCheck: () => null,
+  getActiveAppCheck: () => null,
 }));
 vi.mock('../../lib/appCheck', () => ({
-  initAppCheck: vi.fn(() => null),
+  createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
 }));
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})), getApp: vi.fn(() => ({})) }));
 vi.mock('firebase/auth', () => ({ getAuth: vi.fn(() => ({})) }));

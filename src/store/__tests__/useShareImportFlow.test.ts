@@ -47,10 +47,11 @@ vi.mock('../../lib/firebase', () => ({
   auth: { currentUser: null },
   db: {},
   storage: {},
-  appCheck: {},
+  ensureAppCheck: () => null,
+  getActiveAppCheck: () => null,
 }));
 vi.mock('../../lib/appCheck', () => ({
-  initAppCheck: vi.fn(() => null),
+  createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
 }));
 
 // apiFetch は src/lib/apiClient.ts で named export されている

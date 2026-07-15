@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 // Firebase App Check は reCAPTCHA 初期化時に DOM (document) を参照するため、
 // node 環境のテストでは空関数にモック化して初期化ツリーを切る。
 vi.mock('../../lib/appCheck', () => ({
-    initAppCheck: () => null,
+    createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
 }));
 
 import { useMitigationStore } from '../useMitigationStore';

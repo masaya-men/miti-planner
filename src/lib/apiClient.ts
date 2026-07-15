@@ -1,6 +1,6 @@
 // src/lib/apiClient.ts
 import { getToken } from 'firebase/app-check';
-import { appCheck, auth } from './firebase';
+import { getActiveAppCheck, auth } from './firebase';
 import { isAdminSandbox } from '../dev/sandboxMode';
 
 /**
@@ -21,7 +21,9 @@ export async function apiFetch(
 
   const headers = new Headers(options.headers);
 
-  // App Checkトークン付与
+  // App Checkトークン付与(2026-07-14 P2: peek。匿名の公開 read では初期化を発火させない。
+  // ログイン試行/確定で初期化済みなら getActiveAppCheck() が返す = write にトークンが載る)
+  const appCheck = getActiveAppCheck();
   if (appCheck) {
     try {
       const { token } = await getToken(appCheck, false);

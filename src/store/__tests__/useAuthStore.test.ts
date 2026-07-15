@@ -28,7 +28,7 @@ vi.mock('firebase/analytics', () => ({
 }));
 
 vi.mock('../../lib/appCheck', () => ({
-    initAppCheck: vi.fn(() => null),
+    createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
 }));
 
 vi.mock('firebase/firestore', () => ({

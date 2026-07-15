@@ -34,6 +34,8 @@ export const analytics = isSupported().then(yes => yes ? getAnalytics(app) : nul
 // Storage（アイコン管理用）
 export const storage = getStorage(app);
 
-// App Check（アプリの正当性検証）
-import { initAppCheck } from './appCheck';
-export const appCheck = initAppCheck(app);
+// App Check（アプリの正当性検証）— 2026-07-14 (P2): 遅延初期化。
+// import 副作用では初期化しない(匿名の閲覧で reCAPTCHA を発火させない)。
+// ensureAppCheck() = ログイン試行/確定・書き込み直前で初期化。getActiveAppCheck() = peek。
+import { createLazyAppCheck } from './appCheck';
+export const { ensureAppCheck, getActiveAppCheck } = createLazyAppCheck(app);

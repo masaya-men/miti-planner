@@ -14,8 +14,10 @@ vi.mock('firebase/firestore', () => ({
   query: vi.fn(() => ({})), where: vi.fn(() => ({})), writeBatch: vi.fn(() => ({ set: vi.fn(), update: vi.fn(), delete: vi.fn(), commit: vi.fn(async () => undefined) })),
 }));
 vi.mock('firebase/app-check', () => ({ initializeAppCheck: vi.fn(() => ({})), ReCaptchaEnterpriseProvider: vi.fn(), getToken: vi.fn(async () => ({ token: 't' })) }));
-vi.mock('../../firebase', () => ({ get auth() { return { currentUser: null }; }, db: {}, storage: {}, appCheck: {} }));
-vi.mock('../../appCheck', () => ({ initAppCheck: vi.fn(() => null) }));
+vi.mock('../../firebase', () => ({ get auth() { return { currentUser: null }; }, db: {}, storage: {}, ensureAppCheck: () => null, getActiveAppCheck: () => null }));
+vi.mock('../../appCheck', () => ({
+  createLazyAppCheck: () => ({ ensureAppCheck: () => null, getActiveAppCheck: () => null }),
+}));
 vi.mock('../../planService', () => ({ planService: { createPlan: vi.fn(async () => undefined), updatePlan: vi.fn(async () => undefined), deletePlan: vi.fn(async () => undefined), fetchUserPlans: vi.fn(async () => []) } }));
 
 import { commitImportedPlan } from '../commitImportedPlan';
