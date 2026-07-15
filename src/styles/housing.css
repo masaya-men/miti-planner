@@ -3387,7 +3387,7 @@ select.housing-input option {
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
 }
 .housinger-page-avatar {
     width: var(--housinger-avatar-size-lg);
@@ -3401,6 +3401,7 @@ select.housing-input option {
     flex-direction: column;
     gap: 6px;
     min-width: 0;
+    flex: 1;
 }
 .housinger-page-name {
     margin: 0;
@@ -3424,10 +3425,14 @@ select.housing-input option {
 .housinger-page-sns:hover {
     text-decoration: underline;
 }
-.housinger-page-listings-toolbar {
+/* PF ヘッダー右のアクション (まとめてツアー + シェア)。プロフィールと同じ行の右端に置いて
+   独立ツールバー行を廃止し、一覧を上げる (2026-07-15 一覧性向上)。 */
+.housinger-page-header-actions {
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 12px;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    align-self: flex-start;
 }
 /* まとめてツアー = 主アクション (ハニー系 CTA)。 .housing-tour-tray-start と同じ見た目パターン。 */
 .housinger-page-tour-btn {
