@@ -1,4 +1,4 @@
-import type { SharedTourLiveState, SharedTourMeta } from '../../types/sharedTour';
+import type { SharedTourLiveState, SharedTourMeta } from '../../types/sharedTour.js';
 
 /** 無操作とみなす閾値（2時間）。この時間 lastActivityAt が更新されないと expired 扱い */
 export const SHARED_TOUR_IDLE_MS = 2 * 60 * 60 * 1000;
