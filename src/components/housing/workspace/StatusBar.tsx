@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useThemeStore } from '../../../store/useThemeStore';
-import { KOFI_URL } from '../../../constants/external';
 
 const LANGS = ['ja', 'en', 'ko', 'zh'] as const;
 
@@ -43,9 +43,10 @@ export const StatusBar: React.FC = () => {
         <a href="/terms" target="_blank" rel="noopener">
           {t('footer.terms')}
         </a>
-        <a href={KOFI_URL} target="_blank" rel="noopener noreferrer">
+        {/* 応援は LoPo 内の説明ページ /support を経由 (Ko-fi 直リンクは他フッター導線と不整合だった)。 */}
+        <Link to="/support">
           {t('footer.kofi')}
-        </a>
+        </Link>
       </div>
 
       <div className="housing-status-group">

@@ -8,6 +8,7 @@ import jaTranslations from '../../locales/ja.json';
 import enTranslations from '../../locales/en.json';
 import koTranslations from '../../locales/ko.json';
 import zhTranslations from '../../locales/zh.json';
+import { MemoryRouter } from 'react-router-dom';
 import { StatusBar } from '../../components/housing/workspace/StatusBar';
 import { useThemeStore } from '../../store/useThemeStore';
 
@@ -33,7 +34,9 @@ beforeEach(() => {
 function renderStatusBar() {
   return render(
     <I18nextProvider i18n={i18n}>
-      <StatusBar />
+      <MemoryRouter>
+        <StatusBar />
+      </MemoryRouter>
     </I18nextProvider>
   );
 }
@@ -47,14 +50,14 @@ describe('StatusBar', () => {
     expect(screen.queryByText(/© \d+ LoPo/)).not.toBeInTheDocument();
     const privacy = screen.getByRole('link', { name: 'プライバシーポリシー' });
     const terms = screen.getByRole('link', { name: '利用規約' });
+    // Ko-fi は LoPo 内の応援説明ページ /support への内部リンク (他フッター導線と統一)。
     const kofi = screen.getByRole('link', { name: 'Ko-fiで応援' });
     expect(privacy).toHaveAttribute('href', '/privacy');
     expect(privacy).toHaveAttribute('target', '_blank');
     expect(privacy).toHaveAttribute('rel', expect.stringContaining('noopener'));
     expect(terms).toHaveAttribute('href', '/terms');
     expect(terms).toHaveAttribute('target', '_blank');
-    expect(kofi).toHaveAttribute('href', 'https://ko-fi.com/lopoly');
-    expect(kofi).toHaveAttribute('target', '_blank');
+    expect(kofi).toHaveAttribute('href', '/support');
   });
 
   it('does not render the removed BUILD / LAT / LON / STOPS / FPS dummy readouts', () => {

@@ -209,10 +209,9 @@ export const HousingerPage: React.FC = () => {
           >
             ← {t('housing.detail.back_aria')}
           </Link>
-          {/* e: X共有 (A案・詳細ページと同じ HousingShareButton) は本人/他人問わず常時表示。
-              Task9 の「…」メニュー (通報) は本人以外にだけ、この右端グループにまとめる。 */}
+          {/* Task9 の「…」メニュー (通報) は本人以外にだけ、この右端グループに置く。
+              シェアは 2026-07-15 にプロフィールヘッダー右のアクション群へ移動した (一覧性向上)。 */}
           <div className="housinger-page-headerbar-actions">
-            <HousingShareButton url={shareUrl} title={profile.displayName} />
             {!isSelf && (
               <div className="housing-kebab" ref={kebabRef}>
                 <button
@@ -277,19 +276,22 @@ export const HousingerPage: React.FC = () => {
                 </button>
               )}
             </div>
+            {/* まとめてツアー + シェア をプロフィール右端へ (2026-07-15 一覧性向上: 独立ツールバー行を
+                廃止して一覧を上げる)。まとめてツアーは公開ハウジングが 1 件以上のときだけ出す。 */}
+            <div className="housinger-page-header-actions">
+              {listings.length > 0 && (
+                <button type="button" className="housinger-page-tour-btn" onClick={onTourAll}>
+                  {t('housing.housinger.tourAll')}
+                </button>
+              )}
+              <HousingShareButton url={shareUrl} title={profile.displayName} />
+            </div>
           </div>
 
           {listings.length === 0 ? (
             <p className="housinger-page-empty">{t('housing.housinger.noListings')}</p>
           ) : (
-            <>
-              <div className="housinger-page-listings-toolbar">
-                <button type="button" className="housinger-page-tour-btn" onClick={onTourAll}>
-                  {t('housing.housinger.tourAll')}
-                </button>
-              </div>
-              <ListingGrid listings={sorted} sort={sort} onSortChange={setSort} />
-            </>
+            <ListingGrid listings={sorted} sort={sort} onSortChange={setSort} />
           )}
         </main>
       </div>

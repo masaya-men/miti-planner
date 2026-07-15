@@ -2215,6 +2215,7 @@
                 "gate_lead_prompt": "请确认地址，然后点击下方按钮",
                 "address_gate_button": "该地址无误",
                 "address_gate_confirmed": "已确认",
+                "address_gate_needs_address": "请先输入地址",
                 "publish": "公开",
                 "save_private": "以非公开方式保存",
                 "save_unlisted": "以隐藏地址方式登记",

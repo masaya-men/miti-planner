@@ -2250,6 +2250,7 @@
                 "gate_lead_prompt": "Check the address, then press the button below",
                 "address_gate_button": "This address is correct",
                 "address_gate_confirmed": "Confirmed",
+                "address_gate_needs_address": "Enter the address first",
                 "publish": "Publish",
                 "save_private": "Save privately",
                 "save_unlisted": "Save with address hidden",

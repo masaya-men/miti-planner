@@ -64,6 +64,10 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
   // 不足アクション = required かつ未達の行だけ (画像は推奨なので required=false → 出さない)。
   const missing = checklistItems.filter((i) => i.required && !i.done);
 
+  // 住所未入力: 確認ボタンを押せない灰色にして「先に住所を入力してください」で誘導する
+  // (空文字/null どちらも未入力扱い)。
+  const addressMissing = !summary.address;
+
   const submitLabel = submitting
     ? t('housing.register.submitting')
     : mode === 'edit'
@@ -97,12 +101,16 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
           </span>
         </div>
         <p className="housing-register-confirm-gate-lead">{t('housing.register.confirm.gate_lead_prompt')}</p>
+        {/* 住所が空の間はボタンを押せない灰色にして「先に住所を入力してください」で誘導する
+            (2026-07-15 ユーザー要望)。押せないので震え等のフィードバックは不要。
+            住所が入ると青パルスの「この住所で間違いありません」になり、押すと緑✓に。 */}
         <button
           type="button"
           className="housing-register-confirm-gate-btn"
           data-testid="housing-register-confirm-address-btn"
           data-confirmed={addressConfirmed ? 'true' : 'false'}
-          disabled={addressConfirmed}
+          data-address-missing={addressMissing ? 'true' : 'false'}
+          disabled={addressConfirmed || addressMissing}
           onClick={onConfirmAddress}
         >
           {addressConfirmed ? (
@@ -110,6 +118,8 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
               <span aria-hidden="true">✓</span>
               {t('housing.register.confirm.address_gate_confirmed')}
             </>
+          ) : addressMissing ? (
+            t('housing.register.confirm.address_gate_needs_address')
           ) : (
             t('housing.register.confirm.address_gate_button')
           )}
