@@ -15,7 +15,9 @@ export function splitDuplicates(
   docs: Array<{ id: string; data: () => Record<string, unknown> }>,
 ): { duplicates: Array<{ id: string; ownerUid: unknown; createdAt: unknown; tags: unknown }>; privateMatchCount: number } {
   const alive = docs.filter((d) => !d.data().deletedAt);
-  const publicDocs = alive.filter((d) => (d.data().visibility ?? 'public') !== 'private');
+  // 住所非公開 (unlisted) / 非公開 (private) は id を返さない (= 住所の逆引きオラクル化を防ぐ)。
+  // 公開 (public) のみ duplicates に id を出し、それ以外は件数だけ privateMatchCount に畳む。
+  const publicDocs = alive.filter((d) => (d.data().visibility ?? 'public') === 'public');
   const privateMatchCount = alive.length - publicDocs.length;
   const duplicates = publicDocs.slice(0, 5).map((doc) => ({
     id: doc.id,
