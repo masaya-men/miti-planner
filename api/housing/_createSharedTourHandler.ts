@@ -12,7 +12,11 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { nanoid } from 'nanoid';
-import { parseCreateSharedTourRequest } from './_sharedTourCreateLogic.js';
+import {
+  parseCreateSharedTourRequest,
+  resolveHostQuota,
+  SHARED_TOUR_MAX_LIVE_PER_HOST,
+} from './_sharedTourCreateLogic.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -34,7 +38,8 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!(await verifyAppCheck(req, res))) return;
-  if (!(await applyRateLimit(req, res, 10, 60_000))) return;
+  // 発行は稀な操作 (5/分で十分)。閾値の根拠は docs/.private/2026-07-15-shared-tour-hardening.md 参照。
+  if (!(await applyRateLimit(req, res, 5, 60_000))) return;
 
   try {
     initAdmin();
@@ -50,9 +55,24 @@ export default async function handler(req: any, res: any) {
     // `in` 演算子で narrow する (tsconfig.api.json の方針)。
     if ('reason' in parsed) return res.status(400).json({ error: 'invalid_snapshot', reason: parsed.reason });
 
-    const tourToken = nanoid(24);
-
     const adminDb = getAdminFirestore();
+
+    // 1ホストあたりの同時 live ツアー数を頭打ちにする (悪用対策)。
+    // hostUid 単一フィールドクエリなので複合インデックス不要。
+    const existing = await adminDb.collection('shared_tours').where('hostUid', '==', hostUid).get();
+    const quota = resolveHostQuota(existing.size, SHARED_TOUR_MAX_LIVE_PER_HOST);
+    if (quota === 'reject') return res.status(429).json({ error: 'too_many_tours' });
+    if (quota === 'evict') {
+      // 既存ツアーの live/current を ended にする (clean slate・古い参加者には「終了しました」と表示される)。
+      // doc 自体は消さない (物理削除は GC=Task 3.2 の仕事)。
+      const evictBatch = adminDb.batch();
+      for (const doc of existing.docs) {
+        evictBatch.set(doc.ref.collection('live').doc('current'), { status: 'ended', lastActivityAt: Date.now() }, { merge: true });
+      }
+      await evictBatch.commit();
+    }
+
+    const tourToken = nanoid(24);
     const now = Date.now();
     const tourRef = adminDb.collection('shared_tours').doc(tourToken);
     const liveRef = tourRef.collection('live').doc('current');
