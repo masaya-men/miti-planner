@@ -1,13 +1,10 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const STORAGE_KEY = 'housing-manner-dismissed';
-
-export function isMannerNoticeDismissed(): boolean {
-    if (typeof window === 'undefined' || !window.localStorage) return false;
-    return localStorage.getItem(STORAGE_KEY) === 'true';
-}
-
+/**
+ * ツアー開始前の「マナー注意」ダイアログ。
+ * ユーザー方針(#4): 「次回から表示しない」は設けず、ツアー開始のたびに毎回確認する
+ * (実プレイヤーの家を訪問する前の意識づけ・主催者の責任を明確化)。
+ */
 export interface MannerNoticeDialogProps {
     open: boolean;
     onCancel: () => void;
@@ -20,16 +17,8 @@ export const MannerNoticeDialog: React.FC<MannerNoticeDialogProps> = ({
     onStart,
 }) => {
     const { t } = useTranslation();
-    const [dontShow, setDontShow] = useState(false);
 
     if (!open) return null;
-
-    const handleStart = () => {
-        if (dontShow && typeof window !== 'undefined' && window.localStorage) {
-            localStorage.setItem(STORAGE_KEY, 'true');
-        }
-        onStart();
-    };
 
     return (
         <div
@@ -44,14 +33,6 @@ export const MannerNoticeDialog: React.FC<MannerNoticeDialogProps> = ({
                     <span aria-hidden="true">🏠</span> {t('housing.workspace.manner.title')}
                 </h2>
                 <p className="housing-manner-body">{t('housing.workspace.manner.body')}</p>
-                <label className="housing-manner-checkbox">
-                    <input
-                        type="checkbox"
-                        checked={dontShow}
-                        onChange={(e) => setDontShow(e.target.checked)}
-                    />
-                    <span>{t('housing.workspace.manner.dont_show_again')}</span>
-                </label>
                 <div className="housing-manner-actions">
                     <button
                         type="button"
@@ -62,7 +43,7 @@ export const MannerNoticeDialog: React.FC<MannerNoticeDialogProps> = ({
                     </button>
                     <button
                         type="button"
-                        onClick={handleStart}
+                        onClick={onStart}
                         className="housing-manner-btn housing-manner-btn-start"
                     >
                         {t('housing.workspace.manner.start')}

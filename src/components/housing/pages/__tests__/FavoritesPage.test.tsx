@@ -17,9 +17,8 @@ import { FavoritesPage } from '../FavoritesPage';
 import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesStore';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 import { useHousingTourStore } from '../../../../store/useHousingTourStore';
+import { useTourTrayStore } from '../../../../store/useTourTrayStore';
 import type { MockListing } from '../../../../data/housing/mockListings';
-
-const MANNER_DISMISSED_KEY = 'housing-manner-dismissed';
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -84,8 +83,8 @@ describe('FavoritesPage', () => {
   beforeEach(() => {
     // ツアーストアをリセット
     useHousingTourStore.setState({ listingIds: [], running: false, currentIndex: 0 });
-    // マナー通知を毎回クリア
-    localStorage.removeItem(MANNER_DISMISSED_KEY);
+    // ツアートレイストア(#5でページ横断保持に変更)を毎回クリア
+    useTourTrayStore.setState({ trayIds: [] });
     showToastMock.mockClear();
   });
 
@@ -127,26 +126,22 @@ describe('FavoritesPage', () => {
     expect(trayItems).toHaveLength(2);
   });
 
-  it('トレイに2件→開始でtourStore.listingIdsに反映される(マナー通知dismiss済み)', () => {
+  it('開始ボタンだけではまだ確定せず、マナーダイアログが挟まる(#4)', () => {
     const listing1 = mk('tour-1', 1, 1);
     const listing2 = mk('tour-2', 1, 2);
 
     useHousingFavoritesStore.setState({ ids: ['tour-1', 'tour-2'] });
     useHousingListingsStore.setState({ status: 'ready', listings: [listing1, listing2] });
 
-    // マナー通知を dismiss 済みにしてダイアログを挟まない
-    localStorage.setItem(MANNER_DISMISSED_KEY, 'true');
-
     renderPage();
 
     // 全部追加ボタンで2件トレイへ
     fireEvent.click(screen.getByRole('button', { name: /すべてツアーに追加/ }));
 
-    // 開始ボタンをクリック
+    // 開始ボタン → マナーダイアログが開くだけで、まだ tourStore は変化しない(毎回確認・#4)
     fireEvent.click(screen.getByRole('button', { name: /この内容でツアーを開始/ }));
-
-    // tourStore に2件セットされている
-    expect(useHousingTourStore.getState().listingIds).toHaveLength(2);
+    expect(screen.getByRole('button', { name: /はじめる/ })).toBeInTheDocument();
+    expect(useHousingTourStore.getState().listingIds).toHaveLength(0);
   });
 
   it('トレイに2件→開始でマナー通知が表示され、ダイアログの開始を押すとtourStoreに反映される', () => {
@@ -155,9 +150,6 @@ describe('FavoritesPage', () => {
 
     useHousingFavoritesStore.setState({ ids: ['tour-3', 'tour-4'] });
     useHousingListingsStore.setState({ status: 'ready', listings: [listing1, listing2] });
-
-    // マナー通知を未dismiss状態にする
-    localStorage.removeItem(MANNER_DISMISSED_KEY);
 
     renderPage();
 
@@ -208,7 +200,6 @@ describe('FavoritesPage', () => {
 
     useHousingFavoritesStore.setState({ ids: ['net-1', 'net-2'] });
     useHousingListingsStore.setState({ status: 'ready', listings: [jp1, jp2] });
-    localStorage.setItem(MANNER_DISMISSED_KEY, 'true');
 
     renderPage();
 
@@ -223,8 +214,9 @@ describe('FavoritesPage', () => {
       });
     });
 
-    // 開始 → 開始時ネットで弾かれ、tourStoreは変化しない
+    // 開始 → マナーダイアログの「はじめる」で commitStart → 開始時ネットで弾かれる
     fireEvent.click(screen.getByRole('button', { name: /この内容でツアーを開始/ }));
+    fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
 
     expect(useHousingTourStore.getState().listingIds).toHaveLength(0);
     expect(useHousingTourStore.getState().running).toBe(false);

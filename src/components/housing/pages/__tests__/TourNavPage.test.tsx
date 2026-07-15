@@ -154,6 +154,10 @@ describe('TourNavPage', () => {
     useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
     seedListings();
     renderPage();
+    // #2: 1件目は「まず○○へ」出発案内が出るため、最初の「次へ」はその ack(前進しない)。
+    fireEvent.click(screen.getByRole('button', { name: '次へ' }));
+    expect(useHousingTourStore.getState().currentIndex).toBe(0);
+    // ack 後の「次へ」で前進する(跨ぎ ack と同型)。
     fireEvent.click(screen.getByRole('button', { name: '次へ' }));
     expect(useHousingTourStore.getState().currentIndex).toBe(1);
   });

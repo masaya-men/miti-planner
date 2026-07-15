@@ -38,7 +38,8 @@ export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
   }
 
   const crossLine =
-    crossing.kind === 'dc' ? t('housing.tour.nav.cross.dc', { dc: crossing.dc, world: crossing.world })
+    crossing.kind === 'start' ? t('housing.tour.nav.cross.start', { dc: crossing.dc, world: crossing.world })
+    : crossing.kind === 'dc' ? t('housing.tour.nav.cross.dc', { dc: crossing.dc, world: crossing.world })
     : crossing.kind === 'world' ? t('housing.tour.nav.cross.world', { world: crossing.world })
     : crossing.kind === 'region' ? t('housing.tour.nav.cross.region')
     : null;

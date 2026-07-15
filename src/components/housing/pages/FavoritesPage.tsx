@@ -19,7 +19,8 @@ import { FavoritesTabs } from '../favorites/FavoritesTabs';
 import { FavoritesBulkBar } from '../favorites/FavoritesBulkBar';
 import { FavoritesOnboarding } from '../favorites/FavoritesOnboarding';
 import { TourTray } from '../browse/TourTray';
-import { MannerNoticeDialog, isMannerNoticeDismissed } from '../workspace/MannerNoticeDialog';
+import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
+import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { orderFavorites } from '../favorites/favoritesOrder';
 import type { FavTab } from '../favorites/favoritesOrder';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
@@ -62,8 +63,9 @@ export const FavoritesPage: React.FC = () => {
     });
   }, []);
 
-  // ツアートレイのドラフト (このページローカル)
-  const [trayIds, setTrayIds] = useState<string[]>([]);
+  // ツアートレイのドラフト (#5: ページ横断で保持するストア。詳細ページ往復で消えない)
+  const trayIds = useTourTrayStore((s) => s.trayIds);
+  const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
 
   // マナー通知ダイアログ
   const [mannerOpen, setMannerOpen] = useState(false);
@@ -147,18 +149,16 @@ export const FavoritesPage: React.FC = () => {
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
+    useTourTrayStore.getState().clear();
     setMannerOpen(false);
     navigate('/housing/tour');
   }, [trayIds, allListings, ephemeral, navigate, t]);
 
   const handleStart = useCallback(() => {
     if (trayIds.length === 0) return;
-    if (isMannerNoticeDismissed()) {
-      commitStart();
-    } else {
-      setMannerOpen(true);
-    }
-  }, [trayIds, commitStart]);
+    // #4: 「次回から表示しない」は廃止。開始のたびに毎回マナー確認を出す。
+    setMannerOpen(true);
+  }, [trayIds]);
 
   return (
     <div className="housing-browse">

@@ -22,6 +22,8 @@ import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { BrowseViewToggle } from '../browse/BrowseViewToggle';
 import { BrowseMapView } from '../browse/map/BrowseMapView';
 import { TourTray } from '../browse/TourTray';
+import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
+import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
@@ -87,8 +89,11 @@ export const BrowsePage: React.FC = () => {
     [filtered, sort],
   );
 
-  // ツアートレイのドラフト (このページローカル)。開始時に tour store へ確定する。
-  const [trayIds, setTrayIds] = useState<string[]>([]);
+  // ツアートレイのドラフト (#5: ページ横断で保持するストア。詳細ページ往復で消えない)。開始時に tour store へ確定する。
+  const trayIds = useTourTrayStore((s) => s.trayIds);
+  const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
+  // マナー通知ダイアログ (#4: 開始のたびに毎回表示)。
+  const [mannerOpen, setMannerOpen] = useState(false);
   const addToTray = (id: string) => {
     // 一時 listing は追加直後の stale closure を避けるためストアから fresh に解決する。
     const eph = useEphemeralListingsStore.getState().ephemeralListings;
@@ -108,7 +113,14 @@ export const BrowsePage: React.FC = () => {
     setTrayIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
   };
 
+  // 開始ボタン: まずマナー確認を出す (#4)。トレイが空なら何もしない。
   const onStart = () => {
+    if (trayIds.length === 0) return;
+    setMannerOpen(true);
+  };
+
+  // マナー確認の「はじめる」で実際にツアーを開始する。
+  const commitStart = () => {
     if (trayIds.length === 0) return;
     // ツアー解決は merged (探す一覧・非汚染) + 一時 listing。一覧グリッドの merged 自体は変えない。
     const pool = [...merged, ...ephemeral];
@@ -124,6 +136,8 @@ export const BrowsePage: React.FC = () => {
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
+    useTourTrayStore.getState().clear();
+    setMannerOpen(false);
     navigate('/housing/tour');
   };
 
@@ -184,6 +198,12 @@ export const BrowsePage: React.FC = () => {
           <FavoritesPreviewStrip />
         </div>
       </section>
+
+      <MannerNoticeDialog
+        open={mannerOpen}
+        onCancel={() => setMannerOpen(false)}
+        onStart={commitStart}
+      />
     </div>
   );
 };

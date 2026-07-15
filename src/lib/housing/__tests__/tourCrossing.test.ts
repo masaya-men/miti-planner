@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { crossingBetween, canAddToTour, tourAnchorRegion, tourRegionConflict } from '../tourCrossing';
+import { crossingBetween, firstDestination, canAddToTour, tourAnchorRegion, tourRegionConflict } from '../tourCrossing';
 import type { Region } from '../../../data/housing/dcServerMap';
 
 const loc = (region: Region, dc: string, server: string) => ({ region, dc, server });
@@ -25,6 +25,15 @@ describe('crossingBetween', () => {
   });
   it('OCE→JP も DCトラベル扱い (dc・着地は現在地)', () => {
     expect(crossingBetween(loc('OCE', 'Materia', 'Bismarck'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'dc', dc: 'Mana', world: 'Anima' });
+  });
+});
+
+describe('firstDestination (#2: 1件目の出発案内)', () => {
+  it('world(server)があれば start(目的地DC/ワールド)を返す', () => {
+    expect(firstDestination(loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'start', dc: 'Mana', world: 'Anima' });
+  });
+  it('server が無い(住所未確定の一時追加等)なら案内を出さない none', () => {
+    expect(firstDestination({ region: 'JP', dc: 'Mana', server: undefined } as never)).toEqual({ kind: 'none' });
   });
 });
 

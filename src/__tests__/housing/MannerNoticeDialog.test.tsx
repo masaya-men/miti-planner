@@ -1,14 +1,11 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../locales/ja.json';
-import {
-    MannerNoticeDialog,
-    isMannerNoticeDismissed,
-} from '../../components/housing/workspace/MannerNoticeDialog';
+import { MannerNoticeDialog } from '../../components/housing/workspace/MannerNoticeDialog';
 
 beforeAll(() => {
     if (!i18n.isInitialized) {
@@ -26,8 +23,6 @@ function wrap(ui: React.ReactElement) {
 }
 
 describe('MannerNoticeDialog', () => {
-    beforeEach(() => localStorage.clear());
-
     it('does not render anything when open=false', () => {
         const { container } = render(wrap(<MannerNoticeDialog open={false} onCancel={() => {}} onStart={() => {}} />));
         expect(container.firstChild).toBeNull();
@@ -40,24 +35,17 @@ describe('MannerNoticeDialog', () => {
         ).toBeInTheDocument();
     });
 
-    it('persists dismissal when the checkbox is checked at start time', () => {
-        const onStart = vi.fn();
-        render(wrap(<MannerNoticeDialog open={true} onCancel={() => {}} onStart={onStart} />));
-        fireEvent.click(screen.getByRole('checkbox'));
-        fireEvent.click(
-            screen.getByRole('button', { name: jaTranslations.housing.workspace.manner.start }),
-        );
-        expect(onStart).toHaveBeenCalledOnce();
-        expect(isMannerNoticeDismissed()).toBe(true);
+    it('「次回から表示しない」チェックボックスは廃止されている(毎回表示・#4)', () => {
+        render(wrap(<MannerNoticeDialog open={true} onCancel={() => {}} onStart={() => {}} />));
+        expect(screen.queryByRole('checkbox')).toBeNull();
     });
 
-    it('does NOT persist when the checkbox is left unchecked', () => {
+    it('「はじめる」で onStart を呼ぶ(永続化なし)', () => {
         const onStart = vi.fn();
         render(wrap(<MannerNoticeDialog open={true} onCancel={() => {}} onStart={onStart} />));
         fireEvent.click(
             screen.getByRole('button', { name: jaTranslations.housing.workspace.manner.start }),
         );
         expect(onStart).toHaveBeenCalledOnce();
-        expect(isMannerNoticeDismissed()).toBe(false);
     });
 });

@@ -438,11 +438,13 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
           <div className="housing-tour-map-cross" data-testid="tour-map-cross">
             <div className="housing-tour-map-cross-card">
               <p className="housing-tour-map-cross-text">
-                {crossing.kind === 'dc'
-                  ? t('housing.tour.nav.cross.dc', { dc: crossing.dc, world: crossing.world })
-                  : crossing.kind === 'world'
-                    ? t('housing.tour.nav.cross.world', { world: crossing.world })
-                    : t('housing.tour.nav.cross.region')}
+                {crossing.kind === 'start'
+                  ? t('housing.tour.nav.cross.start', { dc: crossing.dc, world: crossing.world })
+                  : crossing.kind === 'dc'
+                    ? t('housing.tour.nav.cross.dc', { dc: crossing.dc, world: crossing.world })
+                    : crossing.kind === 'world'
+                      ? t('housing.tour.nav.cross.world', { world: crossing.world })
+                      : t('housing.tour.nav.cross.region')}
               </p>
               <button type="button" className="housing-tour-map-cross-ack" onClick={onAckCrossing}>
                 {t('housing.tour.nav.cross.ack')}

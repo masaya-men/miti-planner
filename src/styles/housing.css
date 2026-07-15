@@ -3295,6 +3295,12 @@ select.housing-input option {
     border-radius: 14px;
     background: var(--housing-panel-bg-solid);
 }
+/* unlisted で地図を出さない時の空スロット(#1): 地図と同じ高さを確保し、
+   操作バー(通報/ケバブ)が下端へ落ちてメニューが崩れるのを防ぐ。背景なし=ただの余白。 */
+.housing-detail-map-placeholder {
+    flex: 0 0 var(--housing-detail-map-h-mobile);
+    min-height: 0;
+}
 .housing-detail-title {
     font-size: var(--housing-detail-title-size);
     font-weight: 600;
@@ -3598,6 +3604,9 @@ select.housing-input option {
         flex: 0 0 auto;
     }
     .housing-detail-side .housing-tour-map {
+        flex: 0 0 var(--housing-detail-map-h);
+    }
+    .housing-detail-map-placeholder {
         flex: 0 0 var(--housing-detail-map-h);
     }
     /* 通報バナー表示時のみ: 列を潰さず main を自然スクロールさせる (バナー高を吸収)。 */
