@@ -1969,7 +1969,8 @@
         "card": {
             "favorite": "お気に入り",
             "add_to_tour": "ツアーに追加",
-            "select": "選択"
+            "select": "選択",
+            "addressPrivate": "住所は非公開です"
         },
         "tray": {
             "title": "ツアートレイ",

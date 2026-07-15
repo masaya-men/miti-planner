@@ -13,16 +13,7 @@ import { regionForDC } from '../../data/housing/dcServerMap';
  * - `createdAt` は number 設計だが、Firestore Timestamp が来た場合に備え `toMillis()` を許容。
  */
 export function firestoreToGalleryListing(h: HousingListing): MockListing | null {
-  const region = regionForDC(h.dc);
-  if (region === null) return null;
-
-  // 2026-05-27: buildingType 未定義の旧データは house 扱いで後方互換 (Phase 1 〜 Phase 3 初期の listing)
-  if (h.buildingType === 'apartment') {
-    if (h.apartmentBuilding === undefined || h.roomNumber === undefined) return null;
-  } else {
-    if (h.plot === undefined || h.size === undefined) return null;
-  }
-
+  // createdAt / lastConfirmedAt は unlisted 分岐でも使うため、region 判定より先に導出する。
   const raw = h.createdAt as unknown;
   const createdAt =
     typeof raw === 'number'
@@ -41,6 +32,36 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
       : typeof (lastConfirmedAtRaw as { toMillis?: () => number })?.toMillis === 'function'
         ? (lastConfirmedAtRaw as { toMillis: () => number }).toMillis()
         : createdAt;
+
+  // §3.5 確定2: unlisted は住所系フィールドが (射影の有無に関わらず) 一切ギャラリーに乗らない
+  // ようここで先に弾く。region 未解決 (regionForDC が null) でも探すから落とさず、住所 undefined の
+  // まま通す (実データも無い想定・カード側は isAddressHidden で住所非表示にする)。
+  if (h.visibility === 'unlisted') {
+    return {
+      id: h.id, ownerUid: h.ownerUid,
+      region: undefined, dc: undefined, server: undefined, area: undefined, ward: undefined,
+      buildingType: h.buildingType, plot: undefined, size: undefined,
+      apartmentBuilding: undefined, roomNumber: undefined, roomKind: undefined,
+      imageMode: h.imageMode, postUrl: h.postUrl, ogImageUrl: h.ogImageUrl,
+      thumbnailPath: h.thumbnailPath, thumbnailPaths: h.thumbnailPaths,
+      sourceImageUrls: h.sourceImageUrls, sourceImageAspectRatios: h.sourceImageAspectRatios,
+      youtubeVideoId: h.youtubeVideoId, videoUrl: h.videoUrl, videoPosterUrl: h.videoPosterUrl,
+      videoAspectRatio: h.videoAspectRatio,
+      tags: h.tags ?? [], description: h.description, title: h.title,
+      visibility: h.visibility, publishUntil: h.publishUntil,
+      createdAt, lastConfirmedAt, addressKey: undefined,
+    };
+  }
+
+  const region = regionForDC(h.dc);
+  if (region === null) return null;
+
+  // 2026-05-27: buildingType 未定義の旧データは house 扱いで後方互換 (Phase 1 〜 Phase 3 初期の listing)
+  if (h.buildingType === 'apartment') {
+    if (h.apartmentBuilding === undefined || h.roomNumber === undefined) return null;
+  } else {
+    if (h.plot === undefined || h.size === undefined) return null;
+  }
 
   return {
     id: h.id,

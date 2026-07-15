@@ -5,7 +5,9 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
-import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
+import { MOCK_LISTINGS, type MockListing } from '../../../../data/housing/mockListings';
+import type { HousingArea } from '../../../../types/housing';
+import type { Region } from '../../../../data/housing/dcServerMap';
 import type { TourStep } from '../../../../lib/housing/tourNav';
 import {
   formatHousingAddress,
@@ -23,8 +25,12 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
 
 import { TourShowcasePanel } from '../TourShowcasePanel';
 
-const cur = MOCK_LISTINGS[0];   // Shirogane / size M / description あり
-const nxt = MOCK_LISTINGS[1];
+// MOCK_LISTINGS は住所 (area/ward/dc/server/region) を必ず持つ完全なフィクスチャ。MockListing
+// 型は unlisted (§3.5 確定2) を通すため area 等が optional 化されたが、この2件は常に住所ありと
+// 分かっているので narrowing しておく (formatHousingAddress 系にそのまま渡せる)。
+type AddressedListing = MockListing & { area: HousingArea; ward: number; dc: string; server: string; region: Region };
+const cur = MOCK_LISTINGS[0] as AddressedListing;   // Shirogane / size M / description あり
+const nxt = MOCK_LISTINGS[1] as AddressedListing;
 const curStep: TourStep = { id: cur.id, listing: cur };
 const nextStep: TourStep = { id: nxt.id, listing: nxt };
 

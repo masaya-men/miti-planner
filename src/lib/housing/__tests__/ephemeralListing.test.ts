@@ -156,7 +156,7 @@ describe('createEphemeralListing', () => {
     expect(typeof listing.createdAt).toBe('number');
     expect(listing.createdAt).toBe(listing.lastConfirmedAt);
     expect(typeof listing.addressKey).toBe('string');
-    expect(listing.addressKey.length).toBeGreaterThan(0);
+    expect(listing.addressKey?.length).toBeGreaterThan(0);
   });
 
   it('apartment 入力: apartmentBuilding 未指定は 1 既定・roomNumber を保持・plot/size は undefined', () => {

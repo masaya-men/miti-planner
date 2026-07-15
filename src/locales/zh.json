@@ -1913,7 +1913,8 @@
         "card": {
             "favorite": "收藏",
             "add_to_tour": "加入导览",
-            "select": "选择"
+            "select": "选择",
+            "addressPrivate": "地址不公开"
         },
         "tray": {
             "title": "导览清单",

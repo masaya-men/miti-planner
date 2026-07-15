@@ -6,6 +6,7 @@ import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStor
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { canDisplayAddress } from '../../../lib/housing/listingPublish';
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
@@ -102,7 +103,9 @@ export const FavoritesPreviewStrip: React.FC = () => {
               <button
                 type="button"
                 className="housing-fav-strip-thumb"
-                aria-label={formatHousingAddress(l, i18n.language)}
+                aria-label={
+                  canDisplayAddress(l) ? formatHousingAddress(l, i18n.language) : t('housing.card.addressPrivate')
+                }
                 onClick={() => navigate(`/housing/listing/${l.id}`)}
               >
                 <FavPreviewThumb listing={l} />

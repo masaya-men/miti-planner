@@ -10,10 +10,10 @@ describe('sortByAddress', () => {
             const a = sorted[i - 1];
             const b = sorted[i];
             const cmp =
-                a.dc.localeCompare(b.dc)
-                || a.server.localeCompare(b.server)
-                || a.area.localeCompare(b.area)
-                || (a.ward - b.ward)
+                (a.dc ?? '').localeCompare(b.dc ?? '')
+                || (a.server ?? '').localeCompare(b.server ?? '')
+                || (a.area ?? '').localeCompare(b.area ?? '')
+                || ((a.ward ?? 0) - (b.ward ?? 0))
                 || ((a.plot ?? 0) - (b.plot ?? 0));
             expect(cmp).toBeLessThanOrEqual(0);
         }

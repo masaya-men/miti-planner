@@ -60,6 +60,9 @@ export function groupListingsByMapSpot(wardListings: MockListing[], mapKey: stri
   const order: string[] = [];
 
   for (const listing of wardListings) {
+    // unlisted は住所非公開で area が undefined (galleryAdapter の窓口で欠落) = 地図に置けない正常なケース。
+    // データ異常 (area はあるが解決不能) とは区別し、こちらは静かに skip する (warn しない)。
+    if (listing.area === undefined) continue;
     const ref = resolveWardMapRef(listing.area, listing.plot ?? null, listing.apartmentBuilding ?? null, listing.buildingType);
     if (!ref) {
       console.warn('[browseMapSpots] resolveWardMapRef 解決不能:', listing.id);
@@ -89,7 +92,8 @@ export function groupListingsByMapSpot(wardListings: MockListing[], mapKey: stri
 export function countListingsByWard(filtered: MockListing[], area: HousingArea): Map<number, number> {
   const counts = new Map<number, number>();
   for (const l of filtered) {
-    if (l.area !== area) continue;
+    // l.area !== area は unlisted (area undefined) を自然に除外する (住所非公開は件数バッジに乗らない)。
+    if (l.area !== area || l.ward === undefined) continue;
     counts.set(l.ward, (counts.get(l.ward) ?? 0) + 1);
   }
   return counts;
@@ -100,6 +104,7 @@ export function countListingsByMapKind(wardListings: MockListing[]): { main: num
   let main = 0;
   let sub = 0;
   for (const l of wardListings) {
+    if (l.area === undefined) continue; // unlisted (住所非公開) はどちらの件数にも含めない
     const ref = resolveWardMapRef(l.area, l.plot ?? null, l.apartmentBuilding ?? null, l.buildingType);
     if (!ref) continue; // データ異常はどちらの件数にも含めない (クラッシュしない)
     if (ref.mapKey.endsWith('-sub')) sub += 1;
@@ -114,6 +119,7 @@ export function findInitialWardTarget(filtered: MockListing[]): { area: HousingA
 
   const counts = new Map<string, { area: HousingArea; ward: number; count: number }>();
   for (const l of filtered) {
+    if (l.area === undefined || l.ward === undefined) continue; // unlisted (住所非公開) は初期表示先の対象外
     const key = `${l.area}:${l.ward}`;
     const cur = counts.get(key);
     if (cur) cur.count += 1;

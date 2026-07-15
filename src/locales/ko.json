@@ -1913,7 +1913,8 @@
         "card": {
             "favorite": "즐겨찾기",
             "add_to_tour": "투어에 추가",
-            "select": "선택"
+            "select": "선택",
+            "addressPrivate": "주소는 비공개입니다"
         },
         "tray": {
             "title": "투어 트레이",

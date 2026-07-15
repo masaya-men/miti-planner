@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { isEffectivelyPublic, mergeListingsForViewer } from '../listingPublish';
+import {
+  isEffectivelyPublic,
+  mergeListingsForViewer,
+  isAddressHidden,
+  canDisplayAddress,
+  canDisplayFullAddress,
+} from '../listingPublish';
 import type { MockListing } from '../../../data/housing/mockListings';
 
 const base = (over: Partial<MockListing>): MockListing =>
@@ -44,5 +50,34 @@ describe('mergeListingsForViewer', () => {
     const pub = [base({ id: 'c', ownerUid: 'other', visibility: 'public', publishUntil: NOW - 1 })];
     const merged = mergeListingsForViewer(pub, [], 'me', NOW);
     expect(merged).toEqual([]);
+  });
+});
+
+describe('isAddressHidden (P3 §3.5)', () => {
+  it('unlisted は true', () => {
+    expect(isAddressHidden({ visibility: 'unlisted' })).toBe(true);
+  });
+  it('public / private / 未設定は false', () => {
+    expect(isAddressHidden({ visibility: 'public' })).toBe(false);
+    expect(isAddressHidden({ visibility: 'private' })).toBe(false);
+    expect(isAddressHidden({})).toBe(false);
+  });
+});
+
+describe('canDisplayAddress / canDisplayFullAddress (P3 §3.5 型ガード)', () => {
+  it('area/ward がある通常の listing は true', () => {
+    const l = base({});
+    expect(canDisplayAddress(l)).toBe(true);
+    expect(canDisplayFullAddress(l)).toBe(true);
+  });
+  it('unlisted (area/ward/dc/server/region が undefined) は false', () => {
+    const l = { ...base({}), visibility: 'unlisted' as const, area: undefined, ward: undefined, dc: undefined, server: undefined, region: undefined, addressKey: undefined };
+    expect(canDisplayAddress(l)).toBe(false);
+    expect(canDisplayFullAddress(l)).toBe(false);
+  });
+  it('area/ward はあるが dc/server/region が欠けている場合 canDisplayAddress は true・canDisplayFullAddress は false', () => {
+    const l = { ...base({}), dc: undefined, server: undefined, region: undefined };
+    expect(canDisplayAddress(l)).toBe(true);
+    expect(canDisplayFullAddress(l)).toBe(false);
   });
 });

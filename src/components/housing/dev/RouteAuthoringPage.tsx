@@ -53,7 +53,7 @@ export const RouteAuthoringPage: React.FC = () => {
 
   const current = listings?.[index] ?? null;
   const ref = useMemo(
-    () => (current ? resolveWardMapRef(current.area, current.plot ?? null, current.apartmentBuilding ?? null, current.buildingType) : null),
+    () => (current ? resolveWardMapRef(current.area ?? '', current.plot ?? null, current.apartmentBuilding ?? null, current.buildingType) : null),
     [current],
   );
   const mapKey = ref?.mapKey ?? PREVIEW_MAPS[0].mapKey;
@@ -77,7 +77,7 @@ export const RouteAuthoringPage: React.FC = () => {
   // 入口(0..1): 収録入口 → 箱縁幾何 → なし。着地(ジャンプ終点)の目印(赤丸)。
   const door = useMemo(() => {
     if (!current || !json || !ref) return null;
-    const ent = getPlotEntrance(current.area, current.plot, current.buildingType, current.apartmentBuilding);
+    const ent = getPlotEntrance(current.area ?? '', current.plot, current.buildingType, current.apartmentBuilding);
     if (ent) return { x: ent[0], y: ent[1] };
     const gd = computePlotDoor(json, ref.highlightPlot, ref.highlightKind);
     if (gd) return { x: gd.x / w, y: gd.y / h };

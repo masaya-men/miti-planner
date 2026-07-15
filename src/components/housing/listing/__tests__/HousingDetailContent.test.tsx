@@ -183,6 +183,36 @@ describe('HousingDetailContent: b タイトル最上部', () => {
   });
 });
 
+// 住所漏洩防止 (P3 最重要): unlisted は見出し/住所欄とも住所を一切出さない。
+describe('HousingDetailContent: unlisted は住所を出さない (住所漏洩防止)', () => {
+  it('title 未設定の unlisted は見出し=addressPrivate、住所欄にも住所の数字/DC/ワールドが出ない', () => {
+    const unlistedListing = { ...listing, visibility: 'unlisted' };
+    const { container } = renderContent({ listing: unlistedListing });
+
+    const heading = container.querySelector('.housing-detail-title');
+    expect(heading?.textContent).toBe('housing.card.addressPrivate');
+
+    const addressLine = container.querySelector('.housing-detail-address');
+    expect(addressLine?.textContent).toBe('housing.card.addressPrivate');
+    expect(addressLine?.textContent).not.toContain('5-12');
+    expect(addressLine?.textContent).not.toContain('Mana');
+    expect(addressLine?.textContent).not.toContain('Anima');
+  });
+
+  it('title 設定済みの unlisted でも住所欄は addressPrivate のみで dc/server の生値が DOM に出ない', () => {
+    const unlistedWithTitle = { ...listing, visibility: 'unlisted', title: 'かわいい和風の家' };
+    const { container } = renderContent({ listing: unlistedWithTitle });
+
+    const heading = container.querySelector('.housing-detail-title');
+    expect(heading?.textContent).toBe('かわいい和風の家');
+
+    const addressLine = container.querySelector('.housing-detail-address');
+    expect(addressLine?.textContent).toBe('housing.card.addressPrivate');
+    expect(container.textContent).not.toContain('Mana');
+    expect(container.textContent).not.toContain('Anima');
+  });
+});
+
 // 2026-07-13 round2 a: 詳細タグをクリックで探すへ絞り込み遷移
 describe('HousingDetailContent: a タグクリックで絞り込み', () => {
   it('静的タグをクリックすると toggleTag(id) が呼ばれ /housing へ navigate する', () => {

@@ -1948,7 +1948,8 @@
         "card": {
             "favorite": "Favorite",
             "add_to_tour": "Add to tour",
-            "select": "Select"
+            "select": "Select",
+            "addressPrivate": "Address is private"
         },
         "tray": {
             "title": "Tour Tray",

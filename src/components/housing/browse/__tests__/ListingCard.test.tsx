@@ -194,6 +194,34 @@ describe('ListingCard — 非破壊回帰(selectable未指定)', () => {
   });
 });
 
+describe('ListingCard — unlisted は住所を出さない (住所漏洩防止)', () => {
+  // galleryAdapter の窓口で unlisted は住所系フィールドが undefined になる。title 未入力時の
+  // フォールバックが formatHousingAddress (area 名等) に落ちず、addressPrivate になることを確認する。
+  const unlistedListing = {
+    ...mockListing,
+    title: undefined,
+    visibility: 'unlisted' as const,
+    area: undefined,
+    ward: undefined,
+    dc: undefined,
+    server: undefined,
+    region: undefined,
+    plot: undefined,
+    addressKey: undefined,
+  };
+
+  it('title 未入力 + unlisted は housing.card.addressPrivate を表示する', () => {
+    renderCard({ listing: unlistedListing });
+    expect(screen.getByText('住所は非公開です')).toBeInTheDocument();
+  });
+
+  it('formatHousingAddress の結果 (area 名等) は表示しない', () => {
+    renderCard({ listing: unlistedListing });
+    // MOCK_LISTINGS[0] は Shirogane なので、通常表示なら和名 (シロガネ) 等が出るはず。
+    expect(screen.queryByText(/シロガネ/)).not.toBeInTheDocument();
+  });
+});
+
 describe('ListingCard — 生きたカード配線 (段階2)', () => {
   const multiImage = {
     ...mockListing,

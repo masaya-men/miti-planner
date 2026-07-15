@@ -30,7 +30,7 @@ describe('buildAllAddressListings', () => {
   });
   it('全件 resolveWardMapRef が非nullを返す(=実在住所のみ)', () => {
     for (const l of all) {
-      const ref = resolveWardMapRef(l.area, l.plot ?? null, l.apartmentBuilding ?? null, l.buildingType);
+      const ref = resolveWardMapRef(l.area ?? '', l.plot ?? null, l.apartmentBuilding ?? null, l.buildingType);
       expect(ref, l.id).not.toBeNull();
     }
   });

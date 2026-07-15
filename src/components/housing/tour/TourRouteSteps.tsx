@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stepStatus, isTourPlaceable, type TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { canDisplayAddress } from '../../../lib/housing/listingPublish';
 
 export interface TourRouteStepsProps {
   steps: TourStep[];
@@ -71,7 +72,9 @@ export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIn
               <div className="housing-tour-steps-body">
                 <span className="housing-tour-steps-addr">
                   {step.listing
-                    ? formatHousingAddress(step.listing, i18n.language)
+                    ? (canDisplayAddress(step.listing)
+                      ? formatHousingAddress(step.listing, i18n.language)
+                      : t('housing.card.addressPrivate'))
                     : t('housing.tour.nav.steps.missing')}
                 </span>
                 {mapPending && (

@@ -51,7 +51,7 @@ export const TourPreviewPage: React.FC = () => {
   const total = listings.length;
   const current = listings[currentIndex] ?? null;
   const hasEntrance = current
-    ? getPlotEntrance(current.area, current.plot, current.buildingType, current.apartmentBuilding) != null
+    ? getPlotEntrance(current.area ?? '', current.plot, current.buildingType, current.apartmentBuilding) != null
     : false;
   const goto = (i: number) =>
     useHousingTourStore.setState({ currentIndex: Math.max(0, Math.min(total - 1, i)) });

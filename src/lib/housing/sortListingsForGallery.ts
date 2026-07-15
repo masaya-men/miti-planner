@@ -16,6 +16,7 @@ import { HOUSING_AREAS } from '../../types/housing';
 
 type SortableListing = Pick<
     MockListing,
+    | 'id'
     | 'createdAt'
     | 'lastConfirmedAt'
     | 'addressKey'
@@ -35,13 +36,15 @@ function areaIndex(area: string): number {
 }
 
 function compareByAddress(a: SortableListing, b: SortableListing): number {
-    const areaDiff = areaIndex(a.area) - areaIndex(b.area);
+    // unlisted は area/dc/server/ward が undefined (住所非公開)。areaIndex('') は「未知のエリア」扱いで
+    // HOUSING_AREAS.length (= 末尾) に落ちる既存フォールバックにそのまま乗るため、末尾にまとまる。
+    const areaDiff = areaIndex(a.area ?? '') - areaIndex(b.area ?? '');
     if (areaDiff !== 0) return areaDiff;
-    const dcDiff = a.dc.localeCompare(b.dc);
+    const dcDiff = (a.dc ?? '').localeCompare(b.dc ?? '');
     if (dcDiff !== 0) return dcDiff;
-    const serverDiff = a.server.localeCompare(b.server);
+    const serverDiff = (a.server ?? '').localeCompare(b.server ?? '');
     if (serverDiff !== 0) return serverDiff;
-    if (a.ward !== b.ward) return a.ward - b.ward;
+    if (a.ward !== b.ward) return (a.ward ?? 0) - (b.ward ?? 0);
     const aIsApt = a.buildingType === 'apartment';
     const bIsApt = b.buildingType === 'apartment';
     if (aIsApt !== bIsApt) return aIsApt ? 1 : -1;
@@ -61,9 +64,12 @@ export function sortListingsForGallery<T extends SortableListing>(
 
     const groups = new Map<string, T[]>();
     for (const l of listings) {
-        const arr = groups.get(l.addressKey);
+        // unlisted は addressKey が undefined (住所非公開)。id にフォールバックすることで
+        // 「同住所グループ」に誤って合流させず、各 unlisted を単独グループのまま保つ。
+        const groupKey = l.addressKey ?? l.id;
+        const arr = groups.get(groupKey);
         if (arr) arr.push(l);
-        else groups.set(l.addressKey, [l]);
+        else groups.set(groupKey, [l]);
     }
 
     for (const arr of groups.values()) {

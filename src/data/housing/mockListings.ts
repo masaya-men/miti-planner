@@ -13,11 +13,17 @@ import type { Region } from './dcServerMap';
 export interface MockListing {
     id: string;
     ownerUid: string;
-    dc: string;
-    server: string;
-    region: Region;
-    area: HousingArea;
-    ward: number;
+    /**
+     * 2026-07-15 (P3 §3.5 確定2): unlisted は galleryAdapter の窓口で住所系フィールドが
+     * 丸ごと undefined になる (住所漏洩防止・isAddressHidden で表示側が判定)。
+     * dc/server/region/area/ward/addressKey は元々 house/apartment 判定用の必須項目だったが、
+     * unlisted 通過のため optional 化した。
+     */
+    dc?: string;
+    server?: string;
+    region?: Region;
+    area?: HousingArea;
+    ward?: number;
     /** 'house' | 'apartment'。 旧データは未定義 (= house 扱い) */
     buildingType?: 'house' | 'apartment';
     /** house 専用: 区画番号 1-60 (本街 1-30 / 拡張街 31-60) */
@@ -72,8 +78,9 @@ export interface MockListing {
     /**
      * 2026-05-27 (Phase 2-5 配線漏れ修正) 追加: 同住所判定用キー。 buildAddressKey で生成済の値が
      * Firestore に保存されており、 sortListingsForGallery / 重複判定で使う。 adapter で pass-through。
+     * unlisted は住所を持たないため undefined (2026-07-15)。
      */
-    addressKey: string;
+    addressKey?: string;
 }
 
 const EPOCH_BASE = 1715000000000;

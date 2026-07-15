@@ -99,7 +99,7 @@ export const BrowsePage: React.FC = () => {
     const trayRegion = tourAnchorRegion(
       trayIds.map((tid) => pool.find((l) => l.id === tid)?.region ?? null),
     );
-    if (!canAddToTour(trayRegion, candidate.region)) {
+    if (!canAddToTour(trayRegion, candidate.region ?? '')) {
       showToast(t('housing.tour.region_block'), 'error');
       return;
     }
