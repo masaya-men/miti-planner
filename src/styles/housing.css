@@ -6779,6 +6779,30 @@ select.housing-input option {
   text-anchor: middle;
 }
 
+/* 左上フル住所オーバーレイ(共有ツアー同期・参加者の住所 reveal + ホストの一覧表示)。
+ * 表示専用(クリック不要)なので pointer-events:none で地図のパン/ズーム/ドラッグを一切邪魔しない。
+ * ステージの角丸(14px)に食い込まないよう --housing-panel-radius ベースの inset で内側へ寄せる
+ * (housing-tour-invite と同じ考え方)。装飾ピル/色付き箱にはせず、エーテライトラベルと同じ
+ * 控えめな地色+text-shadow のみで地図の明るい部分でも読める最小限の可読性を確保する。 */
+.housing-tour-map-address {
+  position: absolute;
+  top: calc(var(--housing-panel-radius) + 8px);
+  left: calc(var(--housing-panel-radius) + 8px);
+  z-index: 2;
+  max-width: 60%;
+  padding: 3px 8px;
+  border-radius: 7px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-map-label-bg);
+  text-shadow: var(--housing-text-shadow);
+}
+
 /* DEV 経路エディタ / 本番ツアー(Nav) 共通: 地図SVG+オーバーレイを一体でパン/ズームするコンテナ。 */
 /* will-change/backface-visibility は付けない: GPUレイヤー昇格すると SVG が base解像度で
    ラスタライズされ拡大時ににじむ。ベクターのまま各倍率で再描画させ、くっきり保つ。

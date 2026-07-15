@@ -266,6 +266,7 @@ export const TourNavPage: React.FC = () => {
             crossing={crossing}
             showCrossing={showCrossingOverlay}
             onAckCrossing={onAckCrossing}
+            addressListing={currentListing}
           />
         </div>
         <TourInvitePanel

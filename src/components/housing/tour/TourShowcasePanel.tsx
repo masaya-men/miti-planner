@@ -7,7 +7,7 @@ import {
   housingSizeDisplayLabel,
 } from '../../../lib/housing/formatHousingAddress';
 import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
-import { canDisplayAddress, canDisplayFullAddress } from '../../../lib/housing/listingPublish';
+import { canDisplayAddressWithReveal, canDisplayFullAddressWithReveal } from '../../../lib/housing/listingPublish';
 import { saveRegisterPrefill, type RegisterPrefill } from '../../../lib/housing/registerPrefill';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { TourLivingMedia } from './TourLivingMedia';
@@ -18,6 +18,11 @@ export interface TourShowcasePanelProps {
   nextStep: TourStep | null;
   /** 省略時(参加者・Task 2.4)は報告ボタン自体を描画しない。ホストは従来通り渡す。 */
   onOpenReport?: () => void;
+  /**
+   * true=共有ツアーの参加者に住所を常時公開する(既存の canDisplay* ゲートを OR で上書き)。
+   * 省略時(false)はホストの既存挙動を完全維持する。
+   */
+  revealAddress?: boolean;
 }
 
 /**
@@ -50,6 +55,7 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
   currentStep,
   nextStep,
   onOpenReport,
+  revealAddress = false,
 }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -73,7 +79,7 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
           <div className="housing-tour-dest-title-row">
             <h2 className="housing-tour-dest-title">
               {listing.title?.trim()
-                || (canDisplayAddress(listing)
+                || (canDisplayAddressWithReveal(listing, revealAddress)
                   ? formatHousingAddress(listing, i18n.language)
                   : t('housing.card.addressPrivate'))}
             </h2>
@@ -87,7 +93,7 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
           {/* 現在の目的地はどの鯖のどの家か一目で分かるよう、リージョン/DC/ワールド込みの完全住所を出す
               (N: DC込み完全住所)。次の目的地(下の小プレビュー)は幅が狭いため短縮住所のまま。 */}
           <p className="housing-tour-dest-addrsize">
-            {canDisplayFullAddress(listing)
+            {canDisplayFullAddressWithReveal(listing, revealAddress)
               ? formatFullHousingAddress(listing, i18n.language)
               : t('housing.card.addressPrivate')}
             {!isApartment && listing.size ? ` ・ ${housingSizeDisplayLabel(listing.size)}` : ''}
@@ -120,12 +126,12 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
               <div className="housing-tour-dest-next-info">
                 <span className="housing-tour-dest-next-title">
                   {next.title?.trim()
-                    || (canDisplayAddress(next)
+                    || (canDisplayAddressWithReveal(next, revealAddress)
                       ? formatHousingAddress(next, i18n.language)
                       : t('housing.card.addressPrivate'))}
                 </span>
                 <span className="housing-tour-dest-next-addr">
-                  {canDisplayAddress(next) ? formatHousingAddress(next, i18n.language) : t('housing.card.addressPrivate')}
+                  {canDisplayAddressWithReveal(next, revealAddress) ? formatHousingAddress(next, i18n.language) : t('housing.card.addressPrivate')}
                   {!nextIsApartment && next.size ? ` ・ ${housingSizeDisplayLabel(next.size)}` : ''}
                 </span>
               </div>

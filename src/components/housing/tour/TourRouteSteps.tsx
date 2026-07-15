@@ -2,11 +2,16 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { stepStatus, isTourPlaceable, type TourStep } from '../../../lib/housing/tourNav';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import { canDisplayAddress } from '../../../lib/housing/listingPublish';
+import { canDisplayAddressWithReveal } from '../../../lib/housing/listingPublish';
 
 export interface TourRouteStepsProps {
   steps: TourStep[];
   currentIndex: number;
+  /**
+   * true=共有ツアーの参加者に住所を常時公開する(既存の canDisplayAddress ゲートを OR で上書き)。
+   * 省略時(false)はホストの既存挙動を完全維持する。
+   */
+  revealAddress?: boolean;
 }
 
 /**
@@ -16,7 +21,7 @@ export interface TourRouteStepsProps {
  * そのまま使う。listing 欠落 (steps.missing) と地図解決不可 (steps.map_pending・
  * ナビ自体は継続想定なので行自体は出す) は静かな注記として添える。
  */
-export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIndex }) => {
+export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIndex, revealAddress = false }) => {
   const { t, i18n } = useTranslation();
   const listRef = useRef<HTMLOListElement>(null);
 
@@ -72,7 +77,7 @@ export const TourRouteSteps: React.FC<TourRouteStepsProps> = ({ steps, currentIn
               <div className="housing-tour-steps-body">
                 <span className="housing-tour-steps-addr">
                   {step.listing
-                    ? (canDisplayAddress(step.listing)
+                    ? (canDisplayAddressWithReveal(step.listing, revealAddress)
                       ? formatHousingAddress(step.listing, i18n.language)
                       : t('housing.card.addressPrivate'))
                     : t('housing.tour.nav.steps.missing')}

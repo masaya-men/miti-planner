@@ -66,6 +66,45 @@ export function canDisplayFullAddress<
 }
 
 /**
+ * canDisplayAddress の共有ツアー拡張版 (revealAddress で OR ゲート)。
+ * revealAddress=true (参加者ページ) は無条件に住所表示を許可する。共有ツアーの snapshot は
+ * buildTourSnapshots(toTourSnapshot) が幹事の実住所を無条件で写すため (§共有ツアー同期設計)、
+ * revealAddress=true の時点で area/ward は実質必ず揃っている。
+ * revealAddress=false (既定・ホスト) では canDisplayAddress と完全に同じ判定・同じ型 narrowing。
+ * `(revealAddress || canDisplayAddress(listing))` を呼び出し側にインライン展開すると
+ * TypeScript は `||` の真分岐で type predicate を narrowing できず (area が `T['area'] | undefined`
+ * のまま) ビルドが落ちるため、明示的な type guard として定義して narrowing を型に保証させる。
+ */
+export function canDisplayAddressWithReveal<
+  T extends { visibility?: 'public' | 'unlisted' | 'private'; area?: unknown; ward?: number },
+>(listing: T, revealAddress: boolean): listing is T & { area: NonNullable<T['area']>; ward: number } {
+  return revealAddress || canDisplayAddress(listing);
+}
+
+/** canDisplayFullAddress の共有ツアー拡張版 (revealAddress で OR ゲート)。理由は canDisplayAddressWithReveal と同じ。 */
+export function canDisplayFullAddressWithReveal<
+  T extends {
+    visibility?: 'public' | 'unlisted' | 'private';
+    area?: unknown;
+    ward?: number;
+    dc?: string;
+    server?: string;
+    region?: unknown;
+  },
+>(
+  listing: T,
+  revealAddress: boolean,
+): listing is T & {
+  area: NonNullable<T['area']>;
+  ward: number;
+  dc: string;
+  server: string;
+  region: NonNullable<T['region']>;
+} {
+  return revealAddress || canDisplayFullAddress(listing);
+}
+
+/**
  * 一覧表示用に「公開クエリの結果」と「自分の登録クエリの結果」を合流する (spec A-3)。
  * - 公開クエリ結果からは他人の期限切れ (実質非公開) を除外する。
  * - 自分の登録は visibility/期限に関係なく全て残す (本人はバッジ付きで見える)。
