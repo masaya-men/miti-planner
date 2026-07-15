@@ -200,6 +200,10 @@
      共有の --housing-left-w/--housing-right-w とは独立 (workspace 等に波及させない)。 */
   --housing-tour-showcase-w: 300px;
   --housing-tour-progress-w: 240px;
+  /* 共有ツアー同期 (Task 2.1): 幹事の招待オーバーレイ (中央地図パネル右下)。
+     地図内部オーバーレイ(cross z:6/label z:4)より前面・完了オーバーレイ(60)/ヘッダードロップダウン(40)より背面。 */
+  --housing-tour-invite-w: 240px;
+  --housing-tour-invite-z: 15;
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
   --housing-listing-card-min-w: 198px;
@@ -2793,6 +2797,50 @@ select.housing-input option {
 .housing-delete-confirm-actions button:disabled {
     opacity: var(--housing-disabled-opacity);
     cursor: not-allowed;
+}
+
+/* 住所露出警告カード (Task 2.2・共有ツアー招待の直前確認) */
+.housing-tour-expose-card {
+    background: var(--housing-popover-bg);
+    border: 1px solid var(--housing-panel-border-strong);
+    border-radius: var(--housing-panel-radius);
+    padding: 24px 28px;
+    max-width: 420px;
+    width: calc(100% - 32px);
+    color: var(--housing-text);
+    font-size: var(--housing-text-base);
+    box-shadow: var(--housing-popover-shadow);
+}
+.housing-tour-expose-title {
+    font-size: var(--housing-text-xl);
+    font-weight: 600;
+    margin: 0 0 12px;
+    color: var(--housing-text);
+}
+.housing-tour-expose-body {
+    margin: 0 0 16px;
+    color: var(--housing-text-dim);
+    line-height: 1.6;
+}
+.housing-tour-expose-body:last-of-type {
+    margin-bottom: 24px;
+}
+.housing-tour-expose-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+.housing-tour-expose-actions button {
+    padding: 8px 16px;
+    border-radius: 10px;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    font-size: var(--housing-text-base);
+}
+.housing-tour-expose-actions button:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
 }
 .housing-btn-danger {
     background: var(--housing-danger-btn) !important;
@@ -6633,6 +6681,17 @@ select.housing-input option {
 .housing-tour-progress-finish:hover { color: var(--housing-candle); text-decoration: underline; }
 .housing-tour-progress-finish:active { transform: scale(0.98); }
 
+/* 参加者(閲覧専用・Task 2.4): 操作3ボタン+(任意)注記+区切り+終了ボタンの塊の代わりに出す
+   「幹事が案内中」の静かな注記。ボタンではなくテキストのみ、装飾箱なし。 */
+.housing-tour-progress-readonly-note {
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 10px 0 2px;
+  text-align: center;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
 /* ============================================================
  * 中央カラム: ツアー中LIVE地図 (Task5・TourNavMap)
  * 赤丸隠蔽ホスト (.housing-map-svg-host) / オーバーレイ (.housing-map-overlay) は
@@ -6718,6 +6777,30 @@ select.housing-input option {
   font-size: 8px;
   font-weight: 700;
   text-anchor: middle;
+}
+
+/* 左上フル住所オーバーレイ(共有ツアー同期・参加者の住所 reveal + ホストの一覧表示)。
+ * 表示専用(クリック不要)なので pointer-events:none で地図のパン/ズーム/ドラッグを一切邪魔しない。
+ * ステージの角丸(14px)に食い込まないよう --housing-panel-radius ベースの inset で内側へ寄せる
+ * (housing-tour-invite と同じ考え方)。装飾ピル/色付き箱にはせず、エーテライトラベルと同じ
+ * 控えめな地色+text-shadow のみで地図の明るい部分でも読める最小限の可読性を確保する。 */
+.housing-tour-map-address {
+  position: absolute;
+  top: calc(var(--housing-panel-radius) + 8px);
+  left: calc(var(--housing-panel-radius) + 8px);
+  z-index: 2;
+  max-width: 60%;
+  padding: 3px 8px;
+  border-radius: 7px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-map-label-bg);
+  text-shadow: var(--housing-text-shadow);
 }
 
 /* DEV 経路エディタ / 本番ツアー(Nav) 共通: 地図SVG+オーバーレイを一体でパン/ズームするコンテナ。 */
@@ -7213,6 +7296,100 @@ select.housing-input option {
   overflow: hidden;
   padding: 14px 16px;
 }
+
+/* ============================================================
+ * 共有ツアー招待オーバーレイ (Task 2.1・幹事の「みんなを招待」)
+ * 中央地図パネル(.housing-tour-page-panel = position:relative)の右下に浮かせる。
+ * 要素自身にのみ pointer-events (地図の wheel/drag/pan を邪魔しない)。
+ * 装飾ピル/色付きalert箱は使わない (housing-design.md 質感A案)。
+ * ============================================================ */
+/* 囲み枠なし: ピル + 下線(hint の border-top) + 文言 だけを地図右下にフロート
+   (2026-07-15 ユーザー指示: 外枠が content より広く右にズレて見えるため撤去)。 */
+.housing-tour-invite {
+  position: absolute;
+  /* パネル角丸(18px)より内側にインセット = 丸角に食い込まず適切な内側マージンを確保 (2026-07-15 ユーザー指示)。 */
+  right: calc(var(--housing-panel-radius) + 8px);
+  bottom: calc(var(--housing-panel-radius) + 8px);
+  z-index: var(--housing-tour-invite-z);
+  width: var(--housing-tour-invite-w);
+  max-width: calc(100% - 2 * var(--housing-main-padding));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+}
+/* 未発行: 「みんなを招待」(ハニー控えめ = ソフト背景+ボーダー、フルグラデの主CTAより静か) */
+.housing-tour-invite-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-honey);
+  background: var(--housing-honey-soft);
+  border: 1px solid var(--housing-honey-border);
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-invite-btn:hover { background: var(--housing-honey-medium); }
+.housing-tour-invite-btn:active { transform: scale(0.98); }
+.housing-tour-invite-btn:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+/* 静かな注記: 箱で囲まずヘアライン区切り+薄字のみ (feedback_housing_no_ai_pills)。 */
+.housing-tour-invite-hint {
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--housing-divider);
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
+/* 発行済み: 招待リンク(省略表示) + コピー/共有を終了 */
+.housing-tour-invite-label {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-invite-link {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text);
+}
+.housing-tour-invite-actions {
+  display: flex;
+  gap: 8px;
+}
+.housing-tour-invite-copy,
+.housing-tour-invite-end {
+  appearance: none;
+  cursor: pointer;
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text);
+  background: var(--housing-chip-bg);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.housing-tour-invite-copy:hover,
+.housing-tour-invite-end:hover { background: var(--housing-chip-bg-hover); }
+.housing-tour-invite-copy:active,
+.housing-tour-invite-end:active { transform: scale(0.98); }
+.housing-tour-invite-copy:focus-visible,
+.housing-tour-invite-end:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 
 /* 完了カード (ツアーを完了・「探すに戻る」/「お気に入りに戻る」) */
 .housing-tour-complete {

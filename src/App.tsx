@@ -18,6 +18,7 @@ import { HousingEditPage } from './components/housing/pages/HousingEditPage';
 import { HousingerPage } from './components/housing/pages/HousingerPage';
 import { ComingSoonPage } from './components/housing/pages/ComingSoonPage';
 import { TourNavPage } from './components/housing/pages/TourNavPage';
+import { JoinTourPage } from './components/housing/pages/JoinTourPage';
 import { EntranceAuthoringPage } from './components/housing/dev/EntranceAuthoringPage';
 import { TourPreviewPage } from './components/housing/dev/TourPreviewPage';
 import { RouteAuthoringPage } from './components/housing/dev/RouteAuthoringPage';
@@ -100,6 +101,8 @@ function AppRoutes() {
         {/* 未実装タブは暫定で「準備中」に着地 (以降のスパンで本実装に差し替え)。 */}
         <Route path="favorites" element={<FavoritesPage />} />
         <Route path="tour" element={<TourNavPage />} />
+        {/* Task 2.3: 共有ツアー参加者ページ。ホストの tour(TourNavPage) とは path 深さ違いで衝突しない。 */}
+        <Route path="tour/:tourToken" element={<JoinTourPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
         {/* Task 2.3: 詳細大パネル。一覧カード/直URL/共有URL/通知タップ、全経路の単一着地点。 */}

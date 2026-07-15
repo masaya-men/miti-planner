@@ -441,6 +441,32 @@ service cloud.firestore {
     }
 
     // ========================================
+    // shared_tours コレクション（共有ツアー同期 MVP）
+    // 読み取り: 公開 get のみ（tourToken が事実上の鍵）。list は不許可 = 列挙で
+    //           全スナップショット/hostUid/非公開住所が漏れるのを防ぐ（設計 §8）。
+    // 書き込み: メタは Admin SDK（create-shared-tour API）のみ。
+    //           live/current の update は幹事（hostUid）本人のみ。
+    // ========================================
+    match /shared_tours/{tourToken} {
+      allow get: if true;       // 単一 doc の公開読み（参加者の初回 getDoc）
+      allow list: if false;     // 列挙禁止（nanoid 鍵の推測不能性に依存）
+      allow write: if false;    // メタは Admin SDK（create-shared-tour API）経由のみ
+
+      match /live/{docId} {
+        allow get: if true;     // 参加者の onSnapshot（単一 current doc の購読）
+        allow list: if false;   // 列挙禁止
+        allow update: if isAuthenticated()
+          && get(/databases/$(database)/documents/shared_tours/$(tourToken)).data.hostUid == request.auth.uid
+          && request.resource.data.status in ['live', 'ended']
+          && request.resource.data.currentIndex is int
+          && request.resource.data.phase in ['moving', 'viewing']
+          && (request.resource.data.viewStartAt == null || request.resource.data.viewStartAt is int)
+          && request.resource.data.lastActivityAt is int;
+        allow create, delete: if false; // 生成/削除は Admin（create-shared-tour / GC cron）
+      }
+    }
+
+    // ========================================
     // housing_favorites コレクション
     // /housing_favorites/{uid}/items/{listingId}
     // 100 件上限は Cloud Function で集計（rules では direct 検証不可）

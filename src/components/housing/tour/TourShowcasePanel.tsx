@@ -16,7 +16,8 @@ export interface TourShowcasePanelProps {
   currentStep: TourStep | null;
   /** 次の目的地(タイトル+住所+小メディア)。最後の目的地では null。 */
   nextStep: TourStep | null;
-  onOpenReport: () => void;
+  /** 省略時(参加者・Task 2.4)は報告ボタン自体を描画しない。ホストは従来通り渡す。 */
+  onOpenReport?: () => void;
 }
 
 /**
@@ -42,7 +43,7 @@ function prefillFromListing(listing: MockListing): RegisterPrefill {
  * 左カラム: 目的地ショーケース (表示専用)。
  * タイトル → 写真/動画(生きたカード) → 住所 → 紹介文(固定高・空は「──」)
  * ── 次の目的地(タイトル+住所小+右寄せ小メディア)
- * ── 報告。
+ * ── 報告(onOpenReport 省略時は非表示・参加者は報告不可 — Task 2.4)。
  * 操作(前へ/見学/次へ)と行き方は右パネル(TourProgressPanel)へ移設した。
  */
 export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
@@ -133,9 +134,11 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
           </div>
         )}
 
-        <button type="button" className="housing-tour-dest-report" onClick={onOpenReport}>
-          {t('housing.tour.nav.report_button')}
-        </button>
+        {onOpenReport && (
+          <button type="button" className="housing-tour-dest-report" onClick={onOpenReport}>
+            {t('housing.tour.nav.report_button')}
+          </button>
+        )}
       </div>
     </div>
   );

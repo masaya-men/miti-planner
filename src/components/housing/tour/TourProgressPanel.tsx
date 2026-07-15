@@ -16,12 +16,19 @@ export interface TourProgressPanelProps {
   /** 見学ボタンを押せるか(=現在の家が表示できる)。 */
   canView: boolean;
   isLast: boolean;
-  onPrev: () => void;
-  onViewStart: () => void;
-  onNext: () => void;
-  onFinish: () => void;
+  /** readOnly 時は操作ハンドラを渡さなくてよい(ボタン自体を描画しないため)。 */
+  onPrev?: () => void;
+  onViewStart?: () => void;
+  onNext?: () => void;
+  onFinish?: () => void;
   /** 前の家→この家の移動種別。省略時は跨ぎ無し扱い。 */
   crossing?: TourCrossing;
+  /**
+   * true=参加者の閲覧専用(Task 2.4)。操作3ボタン+(任意)注記+区切り+終了ボタンの塊を
+   * 「幹事が案内中」の静かなテキストに置換する。進捗ヘッダー/リング/ステップ一覧/行き方・タイマーは
+   * 参加者も見るため readOnly でも従来通り表示する。省略時(false)はホストの既存挙動を完全維持する。
+   */
+  readOnly?: boolean;
 }
 
 /**
@@ -33,7 +40,7 @@ export interface TourProgressPanelProps {
 export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   progress, steps, currentIndex, phase, viewStartAt, directions,
   canView, isLast, onPrev, onViewStart, onNext, onFinish,
-  crossing = { kind: 'none' },
+  crossing = { kind: 'none' }, readOnly = false,
 }) => {
   const { t } = useTranslation();
   const { total, percent } = progress;
@@ -58,37 +65,44 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
           行き方(フェーズ枠)は常にボタン群の直上に固定。親の gap(16px) から切り離し内部を詰める。 */}
       <div className="housing-tour-progress-foot">
         <TourPhaseZone phase={phase} directions={directions} viewStartAt={viewStartAt} crossing={crossing} />
-        <div className="housing-tour-progress-actions">
-          <button
-            type="button"
-            className="housing-tour-progress-action housing-tour-progress-action--prev"
-            onClick={onPrev}
-            disabled={currentIndex === 0}
-          >
-            {t('housing.tour.nav.actions.prev')}
-          </button>
-          <button
-            type="button"
-            className="housing-tour-progress-action housing-tour-progress-action--view"
-            onClick={onViewStart}
-            disabled={!canView || phase === 'viewing'}
-          >
-            {t('housing.tour.nav.actions.view')}
-          </button>
-          <button
-            type="button"
-            className="housing-tour-progress-action housing-tour-progress-action--next"
-            onClick={onNext}
-          >
-            {t(isLast ? 'housing.tour.nav.actions.complete' : 'housing.tour.nav.actions.next')}
-          </button>
-        </div>
-        <span className="housing-tour-progress-view-note">{t('housing.tour.nav.actions.view_optional')}</span>
+        {readOnly ? (
+          // 参加者(閲覧専用): 操作ボタン群の代わりに「幹事が案内中」の静かな注記のみ。
+          <p className="housing-tour-progress-readonly-note">{t('housing.tour.join.host_guiding')}</p>
+        ) : (
+          <>
+            <div className="housing-tour-progress-actions">
+              <button
+                type="button"
+                className="housing-tour-progress-action housing-tour-progress-action--prev"
+                onClick={onPrev}
+                disabled={currentIndex === 0}
+              >
+                {t('housing.tour.nav.actions.prev')}
+              </button>
+              <button
+                type="button"
+                className="housing-tour-progress-action housing-tour-progress-action--view"
+                onClick={onViewStart}
+                disabled={!canView || phase === 'viewing'}
+              >
+                {t('housing.tour.nav.actions.view')}
+              </button>
+              <button
+                type="button"
+                className="housing-tour-progress-action housing-tour-progress-action--next"
+                onClick={onNext}
+              >
+                {t(isLast ? 'housing.tour.nav.actions.complete' : 'housing.tour.nav.actions.next')}
+              </button>
+            </div>
+            <span className="housing-tour-progress-view-note">{t('housing.tour.nav.actions.view_optional')}</span>
 
-        <div className="housing-tour-progress-foot-sep" aria-hidden="true" />
-        <button type="button" className="housing-tour-progress-finish" onClick={onFinish}>
-          {t('housing.tour.nav.finish')}
-        </button>
+            <div className="housing-tour-progress-foot-sep" aria-hidden="true" />
+            <button type="button" className="housing-tour-progress-finish" onClick={onFinish}>
+              {t('housing.tour.nav.finish')}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

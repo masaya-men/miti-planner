@@ -2858,7 +2858,30 @@
                     "arrived": "Visited",
                     "upcoming": "Not yet visited",
                     "route": "Route (approximate)"
+                },
+                "invite": {
+                    "button": "Invite everyone",
+                    "hint": "Once the tour starts, you can't add more. Build the housing you want to visit into the tour first.",
+                    "copy": "Copy",
+                    "copied": "Link copied",
+                    "end": "End sharing",
+                    "ended": "Sharing ended",
+                    "error": "Couldn't create the invite link",
+                    "link_label": "Invite link",
+                    "warning": {
+                        "title": "These addresses will be visible to everyone",
+                        "body": "This tour includes private or temporarily-added houses. Everyone who opens the invite link will see these addresses.",
+                        "ephemeral_note": "If you added someone else's house temporarily, get their permission before inviting.",
+                        "confirm": "Invite anyway",
+                        "cancel": "Cancel"
+                    }
                 }
+            },
+            "join": {
+                "connecting": "Connecting…",
+                "notfound": "This tour was not found",
+                "ended": "This tour has ended",
+                "host_guiding": "Your guide is leading the tour"
             },
             "region_block": "Houses in a different region can't be added to the same tour",
             "region_block_start": "This tour spans multiple regions ({{regions}}) and can't start. Keep houses from a single region."

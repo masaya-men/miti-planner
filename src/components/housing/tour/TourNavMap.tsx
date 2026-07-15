@@ -5,6 +5,9 @@ import { applyWheelZoom, zoomAt, type MapView } from '../../../lib/housing/mapZo
 import { computeDefaultView, routeBbox } from '../../../lib/housing/mapDefaultView';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import type { TourCrossing } from '../../../lib/housing/tourCrossing';
+import { formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { canDisplayFullAddress } from '../../../lib/housing/listingPublish';
+import type { MockListing } from '../../../data/housing/mockListings';
 
 export interface TourNavMapProps {
   status: 'none' | 'loading' | 'ready' | 'error';
@@ -23,6 +26,8 @@ export interface TourNavMapProps {
   showCrossing?: boolean;
   /** 「移動しました」ボタンの押下ハンドラ。省略時は no-op。 */
   onAckCrossing?: () => void;
+  /** 現在の目的地の listing。左上のフル住所オーバーレイに使う。省略時はオーバーレイ自体を出さない。 */
+  addressListing?: MockListing | null;
 }
 
 const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
@@ -39,8 +44,9 @@ type MapData = { svg: string; viewBox: { w: number; h: number }; model: TourMapM
 export const TourNavMap: React.FC<TourNavMapProps> = ({
   status, svg, viewBox, model, stepKey, originName,
   crossing = { kind: 'none' }, showCrossing = false, onAckCrossing = () => {},
+  addressListing = null,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const hostRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -397,6 +403,15 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
             </div>
           )}
         </div>
+        {/* 左上フル住所オーバーレイ(共有ツアー同期): showcase と同じ canDisplayFullAddress ゲート。
+            表示のみ(地図操作を邪魔しないよう pointer-events:none)。 */}
+        {addressListing && (
+          <div className="housing-tour-map-address" data-testid="tour-map-address">
+            {canDisplayFullAddress(addressListing)
+              ? formatFullHousingAddress(addressListing, i18n.language)
+              : t('housing.card.addressPrivate')}
+          </div>
+        )}
         {displayed && (
           <div className="housing-hud is-top">
             <button type="button" data-testid="tour-map-reset" className="housing-tour-map-reset" onClick={resetView}>

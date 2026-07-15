@@ -26,9 +26,9 @@
 ### ✅ 直近本番検証済: round1+round2(21項目・7-13) + P0+P1大規模耐性ハードニング(7-14・CF全ルールHIT実測・実機G2全PASS)。プライバシー=`personal_<hex>`はHMAC一方向ハッシュ。round2詳細=`.private/2026-07-13-register-production-test-feedback.md`。
 ### 🔴 次セッション最優先 (2026-07-15 更新)
 0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`):
-   - **本番実機チェック待ち(今日デプロイ済)**: ①登録 住所未入力UX(空欄→灰色) ②管理サイドナビ スクロール(通報系まで) ③Ko-fi→/support ④マイページ ボタン上部で10件見えるか ⑤P3 unlisted 3択UI見た目 / 🆕⑥登録 建物タイプ未選択なら番地/地図を出さず選択で展開(手入力の確認ボタン灰色ブロッカー解消) ⑦新規登録は画像/動画必須(edit/一時ツアー除外) ⑧部屋区分→「FCハウスの個室ですか?」トグル(defaultオフ・オンで部屋番号・保存は既存 roomKind/roomNumber 不変)。
-   - **必須大物**: スマホ対応(詳細以外7面・雑でも動く優先) / モデレ /admin 完結確認(BAN/quota0/一括削除UI) / en翻訳確認 / **ツアー主催機能=スマホより先(brainstorming・7-15 B案最小版まで合意→登録バグ対応で中断。次=主催セッション寿命/URL有効期限から。ビジョン+今日の合意=`.private/2026-07-08-synced-shared-tour-vision.md`)** / 中韓公開(公開前候補に格上げ) / Discord告知(P3=告知可)。
-   - **忘れず(ユーザー指摘)**: ツアー中 地図左上にフル住所 / 最初の家でもDCテレポ案内 / 30日物理削除cron(公開後) / 数日後=Claudeリマインドで GCPコスト実測→G5。
+   - **本番実機チェック待ち(前デプロイ分)**: ①登録 住所未入力UX(空欄→灰色) ②管理サイドナビ スクロール(通報系まで) ③Ko-fi→/support ④マイページ ボタン上部で10件見えるか ⑤P3 unlisted 3択UI見た目。(🆕⑥登録 建物タイプ展開/確認ボタン灰色解消 ⑦画像/動画必須 ⑧FC個室トグル=2026-07-15 実機チェック通過→COMPLETED)
+   - **必須大物**: スマホ対応(詳細以外7面・雑でも動く優先) / モデレ /admin 完結確認(BAN/quota0/一括削除UI) / en翻訳確認 / **ツアー主催機能=全実装完了・最終レビュー待ち(2026-07-15・ブランチ feat/housing-shared-tour-sync・HEAD e121a2ac・未push/未デプロイ)。進捗台帳=`.superpowers/sdd/progress.md`(全詳細・次セッションはこれを読む)。Phase0-3全完了(型/純関数/発行API/rules/client/同期/招待UI地図右下/住所露出警告/参加者ページ/閲覧専用/悪用ガード/GC cron日次/地図左上フル住所)・全per-task review clean・build+test緑。住所=public+一時追加は表示/unlisted は住所非公開(P3 strip・正しい)。次セッション=(1)最終whole-branchレビュー(Opus・BASE=ec759815) (2)go でデプロイ(firebase rules deploy+main merge+push) (3)Task4.1実機(2タブ)。⚠App Check Unenforced前提=将来Enforced化で匿名参加壊れる(spec§12)。path B(自unlisted住所をtour共有)は未決。spec=`superpowers/specs/2026-07-15-shared-tour-sync-design.md`** / 中韓公開 / Discord告知。
+   - **忘れず(ユーザー指摘)**: 最初の家でもDCテレポ案内 / 30日物理削除cron(公開後・listing用) / 数日後=Claudeリマインドで GCPコスト実測→G5。(✅地図左上フル住所=共有ツアーブランチで実装済)
 1. ✅ **P0-P2 耐性 + P3 住所非公開 = 全部本番稼働(2026-07-15・G7完全通過)**(詳細=`.superpowers/sdd/progress.md`・セキュリティ設計は `.private/2026-07-14-*` に格納=公開リポに穴の地図を出さない・[[project_housing_scale_hardening]])
    - **✅ P3=本番稼働**。G7 住所漏洩ゲート完全通過(curl+実機・住所文字ゼロ・地図/近隣なし)。残=**Discord告知のみ**。triple protection+逆引き封じ(check-duplicate)。
 2. 🔧 **c 削除時の即反映バグ** (小): `remove(id)` が `myListings` を消さず削除後もリロードまで探すに残る([useHousingListingsStore.ts:95])。`removeMine` 追加で Firestore読み取り0で即反映(登録 upsert と同型)。↑private doc に詳細。
