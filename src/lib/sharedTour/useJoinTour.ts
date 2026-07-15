@@ -59,21 +59,22 @@ export function useJoinTour(tourToken: string): JoinTourState {
         (liveSnap) => {
           if (cancelled) return;
 
+          // persistentLocalCache はサーバー到達前にキャッシュ発火する。未到達のキャッシュ発火は
+          // 存在有無に関わらず確定扱いにせず connecting を維持する（でないと初回参加時、
+          // 「まだキャッシュに無い＝!exists()」を掴んで一瞬 ended 画面が表示される）。
+          if (liveSnap.metadata.fromCache && !reachedServer) {
+            return;
+          }
+          reachedServer = true;
+
           if (!liveSnap.exists()) {
-            // live doc が消えた（GC 等）→ 終了扱い
+            // live doc が消えた（GC 等）→ 終了扱い（サーバー到達後の消滅のみここに来る）
             setKind('ended');
             setLive(null);
             return;
           }
 
           const data = liveSnap.data() as SharedTourLiveState;
-
-          if (liveSnap.metadata.fromCache && !reachedServer) {
-            // まだサーバー未到達のキャッシュ発火。kind は connecting を維持する
-            return;
-          }
-
-          reachedServer = true;
           setLive(data);
           setKind(isTourExpired(data, Date.now()) ? 'ended' : 'viewing');
         },

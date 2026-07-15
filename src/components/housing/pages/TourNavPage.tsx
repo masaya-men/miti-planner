@@ -188,20 +188,30 @@ export const TourNavPage: React.FC = () => {
   }, [tourToken, stop, exitTourMode, reset, navigate]);
 
   const backToBrowse = useCallback(() => {
+    // 完了後にツアーを離れる＝共有中なら live を ended にして参加者を追従させる（孤児 live 防止・onFinish と同型）。
+    if (tourToken) {
+      void endHostTour(tourToken);
+      localStorage.removeItem('lopo_shared_tour_token');
+    }
     stop();
     exitTourMode();
     reset();
     setCompleted(false);
     navigate('/housing');
-  }, [stop, exitTourMode, reset, navigate]);
+  }, [tourToken, stop, exitTourMode, reset, navigate]);
 
   const backToFavorites = useCallback(() => {
+    // 完了後にツアーを離れる＝共有中なら live を ended にして参加者を追従させる（孤児 live 防止・onFinish と同型）。
+    if (tourToken) {
+      void endHostTour(tourToken);
+      localStorage.removeItem('lopo_shared_tour_token');
+    }
     stop();
     exitTourMode();
     reset();
     setCompleted(false);
     navigate('/housing/favorites');
-  }, [stop, exitTourMode, reset, navigate]);
+  }, [tourToken, stop, exitTourMode, reset, navigate]);
 
   const onPrimary = useCallback(() => {
     // L: 跨ぎ(DCトラベル/ワールド訪問)のぼかしオーバーレイ表示中は、「次へ」の1回目で
