@@ -51,7 +51,9 @@ export function AdminLayout() {
             {profileDisplayName || 'Admin'}
           </div>
         </div>
-        <div className="flex-1 p-2 flex flex-col gap-0.5">
+        {/* メニューが多く(16項目)画面高さに収まらないとき下の通報系・戻るに到達できないため、
+            この領域だけスクロール可能にする (min-h-0 が無いと flex 子は縮まず overflow が効かない)。 */}
+        <div className="flex-1 min-h-0 overflow-y-auto p-2 flex flex-col gap-0.5">
           {NAV_ITEMS.map((item) => (
             <NavLink
               key={item.path}
