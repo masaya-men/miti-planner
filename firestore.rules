@@ -304,7 +304,7 @@ service cloud.firestore {
                     && request.resource.data.reportCount == 0
                     && request.resource.data.isHidden == false
                     && (!('visibility' in request.resource.data)
-                        || request.resource.data.visibility in ['public', 'private'])
+                        || request.resource.data.visibility in ['public', 'unlisted', 'private'])
                     // === buildingType 別の制約 (3 パターン) ===
                     && (
                       // house パターン (家全体 or FC 個室)
@@ -345,7 +345,7 @@ service cloud.firestore {
                       || (('deletedAt' in resource.data) && request.resource.data.deletedAt == resource.data.deletedAt)
                     )
                     && (!('visibility' in request.resource.data)
-                        || request.resource.data.visibility in ['public', 'private'])
+                        || request.resource.data.visibility in ['public', 'unlisted', 'private'])
                     && isValidHousingArea(request.resource.data.area)
                     && isValidWard(request.resource.data.ward)
                     && isValidBuildingType(request.resource.data.buildingType)
