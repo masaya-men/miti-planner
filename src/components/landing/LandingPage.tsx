@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
@@ -131,7 +131,6 @@ export function LandingPage() {
   useCanonicalUrl('/');
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const [showComingSoon, setShowComingSoon] = useState(false);
 
   const { scrollYProgress } = useScroll();
   const heroOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
@@ -163,12 +162,6 @@ export function LandingPage() {
     setMeta('meta[name="twitter:title"]', title);
     setMeta('meta[name="twitter:description"]', description);
   }, [t, i18n.language]);
-
-  useEffect(() => {
-    if (!showComingSoon) return;
-    const timer = setTimeout(() => setShowComingSoon(false), 2000);
-    return () => clearTimeout(timer);
-  }, [showComingSoon]);
 
   const now = new Date();
   const timeStr = now.toLocaleTimeString(i18n.language === 'ja' ? 'ja-JP' : 'en-US', {
@@ -222,7 +215,7 @@ export function LandingPage() {
           <NavLink onClick={() => navigate('/miti')}>
             {t('portal.miti_button')}
           </NavLink>
-          <NavLink onClick={() => setShowComingSoon(true)} badge="soon">
+          <NavLink onClick={() => navigate('/housing')}>
             {t('portal.housing_button')}
           </NavLink>
           <NavLink onClick={() => navigate('/stgy')}>
@@ -307,8 +300,7 @@ export function LandingPage() {
             number="02"
             title={t('portal.housing_button')}
             desc="Plan housing tour routes, share with friends, discover community builds."
-            onClick={() => setShowComingSoon(true)}
-            badge="COMING SOON"
+            onClick={() => navigate('/housing')}
           />
           <ProjectCard
             number="03"
@@ -323,22 +315,6 @@ export function LandingPage() {
 
       {/* ── Footer ── */}
       <LandingFooter />
-
-      {/* ── Coming Soon toast ── */}
-      {showComingSoon && (
-        <motion.div
-          className="fixed bottom-8 left-1/2 z-[10001] px-5 py-2.5 font-mono text-[11px] tracking-wider uppercase border"
-          style={{
-            backgroundColor: 'var(--color-lp-bg)',
-            color: 'var(--color-lp-text)',
-            borderColor: 'var(--color-lp-text-muted)',
-          }}
-          initial={{ opacity: 0, y: 10, x: '-50%' }}
-          animate={{ opacity: 1, y: 0, x: '-50%' }}
-        >
-          {t('portal.housing_coming_soon')}
-        </motion.div>
-      )}
     </div>
   );
 }
