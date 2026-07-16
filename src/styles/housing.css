@@ -8250,4 +8250,32 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-view-toggle {
     display: none;
   }
+
+  /* ----- Task3: 登録/編集フォーム (.housing-register) -----
+     探す/お気に入りと同じ3カラム骨格 (左=ステッパー+登録枠、右=チェック・重複・地図・ガイド)。
+     左右パネルは非表示にし中央カラム(フォーム本体)のみ全幅表示する。中央カラムは
+     デスクトップと同じ height:100% + 内部スクロールのまま変更しない
+     (RegisterPage.tsx のスクロール連動ステッパー進捗/最下部検知が .housing-register-col-center
+     の scroll イベントに依存しているため、ここを崩すと進捗表示が止まる)。
+     右カラムのチェック内容/住所重複警告は中央カラムの確認セクション (RegisterSectionConfirm) に
+     不足アクション一覧として重複表示済み、重複警告ダイアログは送信時に別途表示されるため、
+     右パネルを隠しても入力ゲート自体は機能する。 */
+  .housing-register {
+    grid-template-columns: 1fr;
+  }
+  .housing-register-panel[data-region="left"],
+  .housing-register-panel[data-region="right"] {
+    display: none;
+  }
+
+  /* ----- Task3: ハウジンガーPF (HousingerPage) -----
+     プロフィールヘッダーはアバター+名前列と操作ボタン列 (まとめてツアー/シェア) が
+     スマホ幅で並びきらないため、操作ボタン列を折り返して2段目・右寄せにする。 */
+  .housinger-page-header {
+    flex-wrap: wrap;
+  }
+  .housinger-page-header-actions {
+    flex-basis: 100%;
+    justify-content: flex-end;
+  }
 }

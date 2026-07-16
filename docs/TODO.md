@@ -24,11 +24,11 @@
 
 ## 現在の状態 (次セッションはここから読む)
 ### ✅ 直近本番検証済: round1+round2(21項目・7-13) + P0+P1大規模耐性ハードニング(7-14・CF全ルールHIT実測・実機G2全PASS)。プライバシー=`personal_<hex>`はHMAC一方向ハッシュ。round2詳細=`.private/2026-07-13-register-production-test-feedback.md`。
-### 🟡 実装済・実機目視+デプロイ待ち (2026-07-16): ダイアログ3種(通知/ケバブ/警告)のガラス化+招待ボタン角丸(housing.css) / ハウジンガー共有URLの `hashed:` 剥がし(C案・旧URL両立)。build+test緑。詳細=`.private/2026-07-16-next-session-dialog-tonmana.md`。
+### ✅ 2026-07-16 実機OK+本番反映: ダイアログ3種ガラス化+招待ボタン角丸 / 共有URL `hashed:`剥がし(C案) / 前デプロイ分5件(登録住所未入力UX・管理サイドナビscroll・Ko-fi→/support・マイページ10件・P3 unlisted UI)=全部OK。詳細=`.private/2026-07-16-next-session-dialog-tonmana.md`。
 ### 🔴 次セッション最優先 (2026-07-15 更新)
 0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`):
-   - **本番実機チェック待ち(前デプロイ分)**: ①登録 住所未入力UX(空欄→灰色) ②管理サイドナビ スクロール(通報系まで) ③Ko-fi→/support ④マイページ ボタン上部で10件見えるか ⑤P3 unlisted 3択UI見た目。(🆕⑥登録 建物タイプ展開/確認ボタン灰色解消 ⑦画像/動画必須 ⑧FC個室トグル=2026-07-15 実機チェック通過→COMPLETED)
-   - **必須大物**: スマホ対応(詳細以外7面・雑でも動く優先) / モデレ /admin 完結確認(BAN/quota0/一括削除UI) / en翻訳確認 / **ツアー主催機能=全実装完了・最終レビュー待ち(2026-07-15・ブランチ feat/housing-shared-tour-sync・HEAD e121a2ac・未push/未デプロイ)。進捗台帳=`.superpowers/sdd/progress.md`(全詳細・次セッションはこれを読む)。Phase0-3全完了(型/純関数/発行API/rules/client/同期/招待UI地図右下/住所露出警告/参加者ページ/閲覧専用/悪用ガード/GC cron日次/地図左上フル住所)・全per-task review clean・build+test緑。住所=public+一時追加は表示/unlisted は住所非公開(P3 strip・正しい)。次セッション=(1)最終whole-branchレビュー(Opus・BASE=ec759815) (2)go でデプロイ(firebase rules deploy+main merge+push) (3)Task4.1実機(2タブ)。⚠App Check Unenforced前提=将来Enforced化で匿名参加壊れる(spec§12)。path B(自unlisted住所をtour共有)は未決。spec=`superpowers/specs/2026-07-15-shared-tour-sync-design.md`** / 中韓公開 / Discord告知。
+   - **前デプロイ分5件=全部OK✅(2026-07-16実機)**: 登録住所未入力UX / 管理サイドナビscroll / Ko-fi→/support / マイページ10件 / P3 unlisted UI。(⑥⑦⑧は07-15通過済)
+   - **公開前ブロッカー**: ①**モデレ判断待ち**=/admin で通報一覧+非表示/強制非公開/個別却下(物件・人・個人タグ)+閾値自動非表示は可。**未実装(公開後対応)=BAN/quota永久0/一括削除/物理削除cron**([AdminHousingReports.tsx:9])→hide運用で公開か最低限BAN追加かユーザー判断。②**Discord告知**(ツアー公開・P3住所非公開も併記)。③**スマホ対応=後追い最優先(なるはや・雑可)**(詳細以外7面が固定3カラム)。④**中韓=後追いなるはや**(専用DC/鯖/ワードデータ依存・JA/ENブロッカー外)。en翻訳=日英706/706キー数一致✅ / 共有ツアー本体=本番稼働✅(2026-07-16)。
    - **忘れず(ユーザー指摘)**: 最初の家でもDCテレポ案内 / 30日物理削除cron(公開後・listing用) / 数日後=Claudeリマインドで GCPコスト実測→G5。(✅地図左上フル住所=共有ツアーブランチで実装済)
 1. ✅ **P0-P2 耐性 + P3 住所非公開 = 全部本番稼働(2026-07-15・G7完全通過)**(詳細=`.superpowers/sdd/progress.md`・セキュリティ設計は `.private/2026-07-14-*` に格納=公開リポに穴の地図を出さない・[[project_housing_scale_hardening]])
    - **✅ P3=本番稼働**。G7 住所漏洩ゲート完全通過(curl+実機・住所文字ゼロ・地図/近隣なし)。残=**Discord告知のみ**。triple protection+逆引き封じ(check-duplicate)。
