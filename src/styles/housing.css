@@ -8230,4 +8230,24 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-app-header .housing-app-header-right {
     display: none;
   }
+
+  /* ----- 探す/お気に入り: 左右パネル非表示 + 中央1カラム全幅 -----
+     左=フィルターパネル (ボトムナビのフィルターシートへ移設)、
+     右=ツアートレイ/お気に入りプレビュー (別導線)。 */
+  .housing-browse {
+    grid-template-columns: 1fr;
+  }
+  .housing-browse-panel[data-region="left"],
+  .housing-browse-panel[data-region="right"] {
+    display: none;
+  }
+  /* カードグリッドは auto-fill の可変列数をやめ、2列固定にする
+     (探す/お気に入り共通の .housing-listing-grid)。 */
+  .housing-listing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* 一覧|地図 の切替トグル。スマホは常に一覧固定 (BrowsePage.tsx の effectiveView) なので隠す。 */
+  .housing-view-toggle {
+    display: none;
+  }
 }
