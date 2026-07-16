@@ -110,28 +110,38 @@ describe('HousingBottomNav', () => {
   function renderNav() {
     return render(
       <MemoryRouter initialEntries={['/housing']}>
-        <HousingBottomNav onOpenFilter={vi.fn()} onOpenSettings={vi.fn()} />
+        <HousingBottomNav onOpenSettings={vi.fn()} />
       </MemoryRouter>,
     );
   }
 
-  it('5項目 (フィルター/お気に入り/ツアー/設定/ログイン) を描画する', () => {
+  it('5項目 (トップ/お気に入り/ツアー/設定/ログイン) を描画する', () => {
     renderNav();
     expect(screen.getAllByRole('button')).toHaveLength(5);
   });
 
   it('未ログイン時、ログイン項目クリックで openLogin が呼ばれる (openAccount は呼ばれない)', () => {
     renderNav();
-    // items 順: filter, favorites, tour, settings, login
+    // items 順: home, favorites, tour, settings, login
     screen.getAllByRole('button')[4].click();
     expect(openLogin).toHaveBeenCalled();
     expect(openAccount).not.toHaveBeenCalled();
   });
 
+  it('「トップ」タップで /housing へ navigate する (実機FB第2弾#2: 左端はフィルターでなくトップ)', () => {
+    render(
+      <MemoryRouter initialEntries={['/housing/favorites']}>
+        <HousingBottomNav onOpenSettings={vi.fn()} />
+      </MemoryRouter>,
+    );
+    screen.getAllByRole('button')[0].click();
+    expect(navigate).toHaveBeenCalledWith('/housing');
+  });
+
   it('お気に入りページで「お気に入り」を再タップすると探す(/housing)へ戻る (実機FB#2)', () => {
     render(
       <MemoryRouter initialEntries={['/housing/favorites']}>
-        <HousingBottomNav onOpenFilter={vi.fn()} onOpenSettings={vi.fn()} />
+        <HousingBottomNav onOpenSettings={vi.fn()} />
       </MemoryRouter>,
     );
     screen.getAllByRole('button')[1].click();

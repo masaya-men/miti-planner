@@ -2612,6 +2612,7 @@
             "account": ""
         },
         "mobile": {
+            "nav_home": "首页",
             "nav_filter": "筛选",
             "nav_favorites": "收藏",
             "nav_tour": "导览",

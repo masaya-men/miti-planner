@@ -1,13 +1,11 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { SlidersHorizontal, Heart, Route, Settings, User } from 'lucide-react';
+import { Home, Heart, Route, Settings, User } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { useNotifications } from '../notifications/useNotifications';
 
 export interface HousingBottomNavProps {
-  /** フィルターシートを開く (HousingShell がローカル state で保持) */
-  onOpenFilter: () => void;
   /** 設定シートを開く (HousingShell がローカル state で保持) */
   onOpenSettings: () => void;
 }
@@ -24,11 +22,12 @@ interface NavItem {
 
 /**
  * スマホ用ボトムナビ (Task1: モバイルシェル基盤)。
- * 5項目: フィルター / お気に入り / ツアー / 設定 / ログイン(orアカウント)。
+ * 5項目: トップ / お気に入り / ツアー / 設定 / ログイン(orアカウント)。
  * 構造は src/components/MobileBottomNav.tsx を参考にしつつ、見た目は --housing-* トークンで独自トンマナに。
  * ツアー没入中 (HousingShell 側の immersive 判定) は呼び出し側で非表示にする。
+ * 実機FB第2弾#2: 左端はフィルターでなくトップ(/housing へ)。フィルターはヘッダーへ移設 (AppHeader)。
  */
-export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenFilter, onOpenSettings }) => {
+export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettings }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -41,11 +40,11 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenFilter
 
   const items: NavItem[] = [
     {
-      id: 'filter',
-      icon: <SlidersHorizontal size={20} aria-hidden="true" />,
-      label: t('housing.mobile.nav_filter'),
-      onClick: onOpenFilter,
-      active: false,
+      id: 'home',
+      icon: <Home size={20} aria-hidden="true" />,
+      label: t('housing.mobile.nav_home'),
+      onClick: () => navigate('/housing'),
+      active: pathname === '/housing',
     },
     {
       id: 'favorites',

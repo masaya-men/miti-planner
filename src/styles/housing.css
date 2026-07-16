@@ -8254,6 +8254,29 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-app-header .housing-app-header-right {
     display: none;
   }
+  /* 実機FB第2弾#2: フィルターをボトムナビからヘッダーへ移設 (探すページのみ・AppHeader が isMobile ゲート)。
+     .housing-app-header-right は上で非表示なので、その外の独立要素として右寄せする
+     (ヘッダー自体が display:flex なので margin-left:auto で右端に付く)。 */
+  .housing-app-header-filterbtn {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: var(--housing-notif-bell-size);
+    height: var(--housing-notif-bell-size);
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    color: var(--housing-text);
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .housing-app-header-filterbtn:hover {
+    background: var(--housing-chip-bg-hover);
+  }
+  .housing-app-header-filterbtn:active {
+    transform: scale(0.94);
+  }
 
   /* ----- 探す/お気に入り: 左右パネル非表示 + 中央1カラム全幅 -----
      左=フィルターパネル (ボトムナビのフィルターシートへ移設)、
@@ -8288,6 +8311,39 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   }
   /* 一覧|地図 の切替トグル。スマホは常に一覧固定 (BrowsePage.tsx の effectiveView) なので隠す。 */
   .housing-view-toggle {
+    display: none;
+  }
+
+  /* ----- お気に入り: 「すべてツアーに追加」を見出し行の右端へ (実機FB第2弾#3) -----
+     一括バー (FavoritesBulkBar) の主アクションはタブの下にあり、件数が多いと
+     スクロールしないと見えない。見出し行にも控えめなチップとして複製し、
+     元の一括バー側のボタンは非表示にして同じ主張の強いボタンが2つ並ばないようにする。 */
+  .housing-fav-addall-top {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    height: 28px;
+    padding: 0 12px;
+    font-family: inherit;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-text-dim);
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .housing-fav-addall-top:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-fav-addall-top:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+  }
+  .housing-fav-bulkbar-btn--primary {
     display: none;
   }
 

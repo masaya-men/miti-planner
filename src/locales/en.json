@@ -2647,6 +2647,7 @@
             "account": ""
         },
         "mobile": {
+            "nav_home": "Home",
             "nav_filter": "Filter",
             "nav_favorites": "Favorites",
             "nav_tour": "Tour",

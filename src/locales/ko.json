@@ -2612,6 +2612,7 @@
             "account": ""
         },
         "mobile": {
+            "nav_home": "홈",
             "nav_filter": "필터",
             "nav_favorites": "즐겨찾기",
             "nav_tour": "투어",

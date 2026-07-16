@@ -2668,6 +2668,7 @@
             "account": "アカウント"
         },
         "mobile": {
+            "nav_home": "トップ",
             "nav_filter": "フィルター",
             "nav_favorites": "お気に入り",
             "nav_tour": "ツアー",

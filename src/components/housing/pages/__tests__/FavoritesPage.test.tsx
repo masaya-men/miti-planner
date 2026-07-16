@@ -13,6 +13,10 @@ vi.mock('../../../Toast', () => ({
   showToast: (...args: unknown[]) => showToastMock(...args),
 }));
 
+// useIsMobile: BrowsePage.test.tsx と同じモック流儀 (既定 false・見出し行の追加ボタンは対象外)。
+// 実機FB第2弾#3 で FavoritesPage が isMobile を参照するようになったため追加。
+vi.mock('../../../../hooks/useIsMobile', () => ({ useIsMobile: vi.fn().mockReturnValue(false) }));
+
 import { FavoritesPage } from '../FavoritesPage';
 import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesStore';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';

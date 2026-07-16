@@ -74,17 +74,14 @@ export const HousingShell: React.FC = () => {
       <SceneryVideo theme={theme} />
       {/* data-immersive: ナビ非表示中はナビ余白 (shell-body padding-bottom) も外して地図等を全画面にする。 */}
       <div className="housing-shell" data-immersive={immersive || undefined}>
-        <AppHeader />
+        <AppHeader onOpenFilter={() => setFilterOpen(true)} />
         <div className="housing-shell-body">
           <HousingPlaybackProvider>
             <Outlet />
           </HousingPlaybackProvider>
         </div>
         {isMobile && !immersive && (
-          <HousingBottomNav
-            onOpenFilter={() => setFilterOpen(true)}
-            onOpenSettings={() => setSettingsOpen(true)}
-          />
+          <HousingBottomNav onOpenSettings={() => setSettingsOpen(true)} />
         )}
         {isMobile && !immersive && <HousingRegisterFab />}
         {/* 実機FB#10: PCの右パネル(ツアートレイ)がスマホでは非表示のため、「ツアーに追加」の
