@@ -8243,14 +8243,8 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-status {
     display: none;
   }
-  /* ボトムナビの高さぶん、本体下端が隠れないように余白を確保。 */
-  .housing-shell-body {
-    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px));
-  }
-  /* ツアー没入中 (ナビ非表示) はナビ余白も外し、地図を画面いっぱいに使う (実機FB#7)。 */
-  .housing-shell[data-immersive="true"] .housing-shell-body {
-    padding-bottom: 0;
-  }
+  /* 実機FB第4弾: 本体をナビの上で切らず、カードは透けたナビの下まで流し込む
+     (ナビ被り対策は各スクロールコンテナ側の padding-bottom が持つ)。 */
   /* ヘッダーはブランドのみ残し、横断検索/タブ/右群 (通知・テーマ・アバター) は
      ボトムナビ/シート側に移設したので隠す。 */
   .housing-app-header .housing-app-search,
@@ -8302,14 +8296,28 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   /* 「ハウジング一覧 N件 / 並び替え」バーの上の無駄な縦余白を詰める:
      一覧|マップ 切替トグルはスマホ非表示 (.housing-view-toggle:none) なので上の切替バーは
      実質空 → 余白ゼロ。中央カラムの上パディングも詰めて見出し・カードを上へ寄せる。 */
-  .housing-browse-col-center { padding-top: 6px; }
+  /* 実機FB第4弾: 右パディングを外してスクロールバーを画面右端へ (カードの内側余白は grid 側で確保)。 */
+  .housing-browse-col-center { padding-top: 6px; padding-right: 0; }
   .housing-browse-col-center .housing-browse-toolbar { padding: 0; }
   /* カードグリッドは auto-fill の可変列数をやめ、2列固定にする
      (探す/お気に入り共通の .housing-listing-grid)。 */
   .housing-listing-grid {
     grid-template-columns: repeat(2, 1fr);
-    /* 実機FB#9: 最下段のカードがボトムナビ/FABと窮屈にならないよう、スクロール末尾に余裕を持たせる。 */
-    padding-bottom: 24px;
+    /* 実機FB第4弾: カードは透けたナビの下まで流れる。末尾はナビ高さ+余裕ぶん確保して
+       最後のカードがナビに隠れたままスクロールが止まらないようにする (実機FB#9 の改訂)。
+       右12px = カードと画面端の間 (スクロールバーはこの外側=画面右端に出る)。 */
+    padding: 4px 12px calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
+  }
+  /* スクロールバー: 画面右端・太め (WebKit/Android。iOS Safari は太さ指定非対応=位置のみ改善)。 */
+  .housing-listing-grid::-webkit-scrollbar {
+    width: 8px;
+  }
+  .housing-listing-grid::-webkit-scrollbar-thumb {
+    background: var(--housing-text-dim);
+    border-radius: 8px;
+  }
+  .housing-listing-grid::-webkit-scrollbar-track {
+    background: transparent;
   }
   /* 一覧|地図 の切替トグル。スマホは常に一覧固定 (BrowsePage.tsx の effectiveView) なので隠す。 */
   .housing-view-toggle {
@@ -8365,9 +8373,9 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-register-panel[data-region="right"] {
     display: none;
   }
-  /* 実機FB#11: フォーム最下部 (送信ボタン等) がボトムナビと窮屈にならないよう末尾に余裕。 */
+  /* 実機FB#11(第4弾改訂): 本体がナビの下まで届くようになったため、フォーム末尾はナビ高さ+余裕を確保。 */
   .housing-register-col-center {
-    padding-bottom: 38px;
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
   }
 
   /* ----- Task3: ハウジンガーPF (HousingerPage) -----
@@ -8683,6 +8691,41 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     min-height: 0;
     overflow-y: auto;
     padding: 4px 16px 16px;
+  }
+
+  /* ----- 実機FB第4弾: お気に入りの操作列を圧縮してカード4枚 (2列×2段) を見せる -----
+     見出し行(お気に入りN件+すべて追加)の下の タブ / 一括バー をスマホでは細身にし、
+     一括バーは折り返さず横スクロール (ボタン全部は残す・場所だけ節約)。 */
+  .housing-fav-tabs {
+    gap: 10px;
+  }
+  .housing-fav-tab {
+    padding: 4px 8px;
+    font-size: var(--housing-text-sm);
+  }
+  .housing-fav-bulkbar {
+    padding: 0;
+  }
+  .housing-fav-bulkbar-actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 6px;
+    scrollbar-width: none;
+  }
+  .housing-fav-bulkbar-actions::-webkit-scrollbar {
+    display: none;
+  }
+  .housing-fav-bulkbar-group {
+    flex-wrap: nowrap;
+  }
+  .housing-fav-bulkbar-btn {
+    padding: 5px 9px;
+    font-size: var(--housing-text-xs);
+    white-space: nowrap;
+  }
+  .housing-fav-bulkbar-count {
+    white-space: nowrap;
+    font-size: var(--housing-text-xs);
   }
 
   /* ----- housing シート (フィルター/設定) の housing トンマナ化 (実機FB#1#3) -----
