@@ -51,14 +51,18 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenFilter
       id: 'favorites',
       icon: <Heart size={20} aria-hidden="true" />,
       label: t('housing.mobile.nav_favorites'),
-      onClick: () => navigate('/housing/favorites'),
+      // 再タップ(既にそのページ)でベースの探すへ戻る (実機FB#2: 開いたページから同じボタンで帰れるように)。
+      onClick: () =>
+        navigate(pathname.startsWith('/housing/favorites') ? '/housing' : '/housing/favorites'),
       active: pathname.startsWith('/housing/favorites'),
     },
     {
       id: 'tour',
       icon: <Route size={20} aria-hidden="true" />,
       label: t('housing.mobile.nav_tour'),
-      onClick: () => navigate('/housing/tour'),
+      // 同上 (ツアー未開始でナビが見えている時に有効。ツアー実行中はナビ自体が没入で消える)。
+      onClick: () =>
+        navigate(pathname.startsWith('/housing/tour') ? '/housing' : '/housing/tour'),
       active: pathname.startsWith('/housing/tour'),
     },
     {

@@ -349,10 +349,11 @@ export const TourNavPage: React.FC = () => {
           onPrev={prev}
           onView={onMobileView}
           onNext={onPrimary}
-          // 招待済み(tourToken発行後)は地図パネル内の招待パネル(コピー表示)に一本化し、
-          // バー側は二重発行を避けるため隠す。
-          showInvite={!tourToken}
-          onInvite={onInvite}
+          // 実機FB#7: 地図上の招待パネルはスマホでは非表示 (CSS) にして地図を全画面化するため、
+          // 招待の入口はバーに一本化する。未発行=作成 / 発行済み=リンクコピー (二重発行はモード切替で防ぐ)。
+          showInvite
+          inviteMode={tourToken ? 'copy' : 'create'}
+          onInvite={tourToken ? onCopyInvite : onInvite}
         />
       )}
       {isMobile && showcaseOpen && (

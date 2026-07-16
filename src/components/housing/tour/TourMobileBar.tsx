@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { UserPlus } from 'lucide-react';
+import { Link2, UserPlus } from 'lucide-react';
 
 export interface TourMobileBarProps {
   /** 現在地→目的地の行き方(1行・省略表示)。空文字なら行き方エリアは空欄のまま。 */
@@ -13,6 +13,11 @@ export interface TourMobileBarProps {
   /** true のとき隅に招待ボタンを出す。onInvite 未指定なら描画しない。 */
   showInvite?: boolean;
   onInvite?: () => void;
+  /**
+   * 招待ボタンの意味 (実機FB#7)。'create'(既定)=招待リンクを発行 / 'copy'=発行済みリンクをコピー。
+   * スマホでは地図上の招待パネルを隠すため、発行後のコピー導線もこのバーが担う。
+   */
+  inviteMode?: 'create' | 'copy';
   /**
    * true のとき操作系(前へ/見学/次へ/招待)を一切描画せず、行き方テキストのみ表示する(Task5)。
    * 共有ツアーの参加者(幹事に追従するだけ・自分では進行できない)向け。
@@ -41,6 +46,7 @@ export const TourMobileBar: React.FC<TourMobileBarProps> = ({
   onNext,
   showInvite = false,
   onInvite,
+  inviteMode = 'create',
   readOnly = false,
 }) => {
   const { t } = useTranslation();
@@ -84,9 +90,17 @@ export const TourMobileBar: React.FC<TourMobileBarProps> = ({
           type="button"
           className="housing-tour-mobilebar-invite"
           onClick={onInvite}
-          aria-label={t('housing.tour.nav.invite.button')}
+          aria-label={t(
+            inviteMode === 'copy'
+              ? 'housing.tour.nav.invite.copy'
+              : 'housing.tour.nav.invite.button',
+          )}
         >
-          <UserPlus size={16} aria-hidden="true" />
+          {inviteMode === 'copy' ? (
+            <Link2 size={16} aria-hidden="true" />
+          ) : (
+            <UserPlus size={16} aria-hidden="true" />
+          )}
         </button>
       )}
     </div>

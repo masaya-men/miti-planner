@@ -2352,6 +2352,11 @@ select.housing-input option {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  /* 高さ上限: HousingPanelModal が --housing-modal-max (= maxHeightRatio*100) を注入する。
+     iOS Safari では 100vh がブラウザUI込みで実画面より大きく、モーダル下端が切れる (実機FB#5)。
+     dvh (実際に見えている高さ) を優先し、非対応ブラウザは vh 行にフォールバック。 */
+  max-height: calc(var(--housing-modal-max, 86) * 1vh);
+  max-height: calc(var(--housing-modal-max, 86) * 1dvh);
 }
 .housing-panel-modal-shell > .housing-panel.is-liquid {
   display: flex;
@@ -8223,6 +8228,11 @@ html[data-theme-anim="light"]::view-transition-new(root) {
      (行を残すと --housing-status-h ぶんの空白が下端に残ってしまう)。 */
   .housing-shell {
     grid-template-rows: var(--housing-header-h) 1fr;
+    /* 実機FB#9: iOS Safari の 100vh はブラウザUI込みの大きい viewport を指し、下端(ボトムナビ余白ごと)が
+       画面外に沈んでカードがナビの裏に隠れる。dvh (実際に見えている高さ) で追随させる。
+       非対応ブラウザは 1 行目の 100vh へフォールバック。 */
+    height: 100vh;
+    height: 100dvh;
   }
   /* ヘッダーを約 2/3 に (60px→40px)。浮いた縦スペースを中央パネルに回す。 */
   .housing-workspace {
@@ -8234,6 +8244,10 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   /* ボトムナビの高さぶん、本体下端が隠れないように余白を確保。 */
   .housing-shell-body {
     padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px));
+  }
+  /* ツアー没入中 (ナビ非表示) はナビ余白も外し、地図を画面いっぱいに使う (実機FB#7)。 */
+  .housing-shell[data-immersive="true"] .housing-shell-body {
+    padding-bottom: 0;
   }
   /* ヘッダーはブランドのみ残し、横断検索/タブ/右群 (通知・テーマ・アバター) は
      ボトムナビ/シート側に移設したので隠す。 */
@@ -8271,6 +8285,8 @@ html[data-theme-anim="light"]::view-transition-new(root) {
      (探す/お気に入り共通の .housing-listing-grid)。 */
   .housing-listing-grid {
     grid-template-columns: repeat(2, 1fr);
+    /* 実機FB#9: 最下段のカードがボトムナビ/FABと窮屈にならないよう、スクロール末尾に余裕を持たせる。 */
+    padding-bottom: 24px;
   }
   /* 一覧|地図 の切替トグル。スマホは常に一覧固定 (BrowsePage.tsx の effectiveView) なので隠す。 */
   .housing-view-toggle {
@@ -8292,6 +8308,10 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-register-panel[data-region="left"],
   .housing-register-panel[data-region="right"] {
     display: none;
+  }
+  /* 実機FB#11: フォーム最下部 (送信ボタン等) がボトムナビと窮屈にならないよう末尾に余裕。 */
+  .housing-register-col-center {
+    padding-bottom: 38px;
   }
 
   /* ----- Task3: ハウジンガーPF (HousingerPage) -----
@@ -8315,14 +8335,20 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   }
   .housing-tour-page {
     grid-template-columns: 1fr;
+    /* 実機FB#7: 外側インセット/パネル間隔を除去して地図を画面いっぱいに (探すの全面化と同型)。 */
+    padding: 0;
+    gap: 0;
+  }
+  .housing-tour-page-panel {
+    border-radius: 0;
+    border: none;
   }
   .housing-tour-page-panel[data-region="center"] {
     padding-bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
   }
-  /* 招待パネル(地図右下フロート)がバーの下に隠れないよう、バーの高さぶん底上げする
-     (position:absoluteの基準はpadding-boxのためpadding-bottomでは動かないためbottomを直接補正)。 */
+  /* 実機FB#7: 地図右下フロートの招待パネルはスマホでは出さない (招待/コピーは下部バーに一本化)。 */
   .housing-tour-invite {
-    bottom: calc(var(--housing-panel-radius) + 8px + var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
+    display: none;
   }
 
   /* ----- TourMobileBar: 下部の細い操作バー ----- */
@@ -8420,10 +8446,105 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     outline-offset: 2px;
   }
 
-  /* ----- TourOrientationHint: 縦持ち時の全画面「横にして」ヒント ----- */
+  /* ----- MobileTourTrayBar: トレイに積んだら出る小バー (実機FB#10) -----
+     ボトムナビの上・FAB の左に浮く。件数確認 + 開始 + クリアだけの最小トレイ。 */
+  .housing-tour-traybar {
+    position: fixed;
+    left: 12px;
+    right: calc(var(--housing-fab-size) + var(--housing-fab-offset) + 12px);
+    bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--housing-fab-gap));
+    z-index: var(--housing-z-mobile-chrome);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--housing-panel-bg-solid);
+    border: 1px solid var(--housing-honey-border);
+    border-radius: 12px;
+    box-shadow: var(--housing-panel-shadow);
+  }
+  .housing-tour-traybar-icon {
+    flex: 0 0 auto;
+    color: var(--housing-honey);
+  }
+  .housing-tour-traybar-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: var(--housing-text-xs);
+    font-weight: 600;
+    color: var(--housing-text);
+  }
+  .housing-tour-traybar-count {
+    font-size: var(--housing-text-sm);
+    font-weight: 700;
+    color: var(--housing-honey);
+    font-variant-numeric: tabular-nums;
+  }
+  .housing-tour-traybar-start {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: var(--housing-text-xs);
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .housing-tour-traybar-start:hover {
+    filter: brightness(1.05);
+  }
+  .housing-tour-traybar-start:active {
+    transform: scale(0.96);
+  }
+  .housing-tour-traybar-start:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+  .housing-tour-traybar-clear {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: var(--housing-text-mute);
+    background: transparent;
+    border: 1px solid var(--housing-panel-border);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .housing-tour-traybar-clear:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-tour-traybar-clear:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+
+  /* ----- TourOrientationHint: 縦持ち時に数秒だけ出す「横にして」ヒント (実機FB#6) ----- */
   .housing-tour-orientation-hint {
     position: fixed;
     inset: 0;
+    /* 操作をブロックしない案内 (数秒で自動消滅・縦のままでも横想定UIを使える)。 */
+    pointer-events: none;
     z-index: var(--housing-tour-orientation-z);
     display: flex;
     flex-direction: column;
@@ -8451,12 +8572,17 @@ html[data-theme-anim="light"]::view-transition-new(root) {
      全画面に写真/住所/紹介文を重ね、閉じるボタンで戻る(次へで進んだら自動で閉じる)。 */
   .housing-tour-mobile-showcase {
     position: fixed;
-    inset: 0;
+    /* 実機FB#8: inset:0 だと下部バー(z-mobile-chrome)をこのオーバーレイ(z-modal-base)が覆い、
+       「次へ」が見学中に消える。下端をバーの上で止めてバーを常時操作可能にする
+       (次へで進むと currentIndex 変化の effect がオーバーレイを自動で閉じる)。 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
     z-index: var(--housing-z-modal-base);
     display: flex;
     flex-direction: column;
     background: var(--housing-panel-bg-solid);
-    padding-bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
   }
   .housing-tour-mobile-showcase-close {
     appearance: none;

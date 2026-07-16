@@ -88,10 +88,15 @@ export const HousingPanelModal: React.FC<HousingPanelModalProps> = ({
     >
       <div
         className="housing-panel-modal-shell"
-        style={{
-          maxWidth: `${maxWidth}px`,
-          maxHeight: `calc(${maxHeightRatio} * 100vh)`,
-        }}
+        style={
+          {
+            maxWidth: `${maxWidth}px`,
+            // 高さの実値は CSS 側 (housing.css) で 100vh → 100dvh の順に解決する。
+            // iOS Safari は 100vh がブラウザ UI 込みの大きい viewport を指すため、inline の vh 固定だと
+            // モーダル下端が画面外に切れる (実機FB#5)。dvh 非対応ブラウザは vh 行へフォールバック。
+            '--housing-modal-max': maxHeightRatio * 100,
+          } as React.CSSProperties
+        }
       >
         <LiquidGlassPanel edge={140} radius={18} scale={42}>
           <div className="housing-panel-head housing-panel-modal-head">
