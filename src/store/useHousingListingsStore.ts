@@ -92,7 +92,16 @@ export const useHousingListingsStore = create<HousingListingsState>((set, get) =
       // 即反映に失敗しても登録/編集は成功済み。 次回 load で一覧に出る。
     }
   },
-  remove: (id) => set((s) => ({ listings: s.listings.filter((l) => l.id !== id) })),
+  // バグ修正 (2026-07-17): listings だけ消して myListings を消し忘れると、
+  // 探すページの mergeListingsForViewer(listings, myListings, ...) 経由で削除済みの
+  // 自分の物件が復活表示され続ける (リロードで loadMine が再取得するまで残る)。
+  // 呼び出し元は皆「この listing はギャラリーから消えるべき」という意図で呼んでいるため、
+  // 両リストから対称的に除去する (upsert 同様 Firestore 読み取りは発生しない)。
+  remove: (id) =>
+    set((s) => ({
+      listings: s.listings.filter((l) => l.id !== id),
+      myListings: s.myListings.filter((l) => l.id !== id),
+    })),
   reset: () => set(INITIAL),
   loadMine: async (uid) => {
     set({ myStatus: 'loading' });
