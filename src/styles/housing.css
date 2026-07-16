@@ -7798,6 +7798,11 @@ html[data-theme-anim="light"]::view-transition-new(root) {
 }
 
 /* ===== お気に入り一括操作バー (FavoritesBulkBar) ===== */
+/* タブ行ラッパ (実機FB第5弾): PC では箱を作らない (display:contents) = レイアウト不変。
+   スマホ側 media でタブ+選択カウントの1行 flex に切り替える。 */
+.housing-fav-tabsrow {
+  display: contents;
+}
 .housing-fav-bulkbar {
   display: flex;
   align-items: center;
@@ -8693,9 +8698,21 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     padding: 4px 16px 16px;
   }
 
-  /* ----- 実機FB第4弾: お気に入りの操作列を圧縮してカード4枚 (2列×2段) を見せる -----
-     見出し行(お気に入りN件+すべて追加)の下の タブ / 一括バー をスマホでは細身にし、
-     一括バーは折り返さず横スクロール (ボタン全部は残す・場所だけ節約)。 */
+  /* ----- 実機FB第4弾→第5弾: お気に入りの操作まわりを常に2行に固定してカード4枚を見せる -----
+     1行目 = タブ(すべて/最近追加) + 選択カウント(選択時のみ・同居)
+     2行目 = [すべて選択 選択解除]  …  [選択だけ追加 お気に入りから外す] (左右2グループ)
+     ボタンは「箱の中の箱」をやめて文字だけ (外箱 .housing-fav-bulkbar は残す)。 */
+  .housing-fav-tabsrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .housing-fav-selcount {
+    white-space: nowrap;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+  }
   .housing-fav-tabs {
     gap: 10px;
   }
@@ -8704,12 +8721,20 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     font-size: var(--housing-text-sm);
   }
   .housing-fav-bulkbar {
-    padding: 0;
+    padding: 5px 10px;
+  }
+  /* バー内蔵のカウントはタブ行へ移設したので出さない (行が増えるのを防ぐ)。 */
+  .housing-fav-bulkbar-count {
+    display: none;
   }
   .housing-fav-bulkbar-actions {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
     flex-wrap: nowrap;
+    justify-content: space-between;
     overflow-x: auto;
-    gap: 6px;
+    gap: 10px;
     scrollbar-width: none;
   }
   .housing-fav-bulkbar-actions::-webkit-scrollbar {
@@ -8717,15 +8742,24 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   }
   .housing-fav-bulkbar-group {
     flex-wrap: nowrap;
+    gap: 10px;
   }
+  /* ボタンは文字だけ (色は各 variant の文字色をそのまま生かす)。後勝ちで chip 装飾を無効化。 */
   .housing-fav-bulkbar-btn {
-    padding: 5px 9px;
+    height: auto;
+    padding: 4px 2px;
     font-size: var(--housing-text-xs);
     white-space: nowrap;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
   }
-  .housing-fav-bulkbar-count {
-    white-space: nowrap;
-    font-size: var(--housing-text-xs);
+  /* sticky hover 対策 (#5 の教訓): タップ後に variant の hover 背景が残って箱が復活しないように。 */
+  .housing-fav-bulkbar-btn:hover:not(:disabled) {
+    background: none;
+    box-shadow: none;
+    filter: none;
   }
 
   /* ----- housing シート (フィルター/設定) の housing トンマナ化 (実機FB#1#3) -----

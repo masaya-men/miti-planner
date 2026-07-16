@@ -214,10 +214,19 @@ export const FavoritesPage: React.FC = () => {
                   </button>
                 )}
               </div>
-              <FavoritesTabs
-                tab={tab}
-                onChange={setTab}
-              />
+              {/* 実機FB第5弾: スマホは「タブ + 選択カウント」を1行に同居させ、常に2行構成
+                  (タブ行 / ボタン行) に固定する。ラッパは PC では display:contents で無害。 */}
+              <div className="housing-fav-tabsrow">
+                <FavoritesTabs
+                  tab={tab}
+                  onChange={setTab}
+                />
+                {isMobile && selected.size > 0 && (
+                  <span className="housing-fav-selcount">
+                    {t('housing.favorites.bulk_selected_count', { count: selected.size })}
+                  </span>
+                )}
+              </div>
               <FavoritesBulkBar
                 total={listings.length}
                 selectedCount={selected.size}
