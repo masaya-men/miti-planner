@@ -8224,6 +8224,10 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-shell {
     grid-template-rows: var(--housing-header-h) 1fr;
   }
+  /* ヘッダーを約 2/3 に (60px→40px)。浮いた縦スペースを中央パネルに回す。 */
+  .housing-workspace {
+    --housing-header-h: 40px;
+  }
   .housing-status {
     display: none;
   }
@@ -8244,11 +8248,25 @@ html[data-theme-anim="light"]::view-transition-new(root) {
      右=ツアートレイ/お気に入りプレビュー (別導線)。 */
   .housing-browse {
     grid-template-columns: 1fr;
+    /* 外側インセットを除去して中央パネルを画面いっぱいに。 */
+    padding: 0;
   }
   .housing-browse-panel[data-region="left"],
   .housing-browse-panel[data-region="right"] {
     display: none;
   }
+  /* 中央パネルを上下左右フラッシュ: 角丸と横枠を消して全幅・全高で使う
+     (内側の .housing-browse-col padding は残すので文字は枠に当たらない)。 */
+  .housing-browse-panel[data-region="center"] {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  /* 「ハウジング一覧 N件 / 並び替え」バーの上の無駄な縦余白を詰める:
+     一覧|マップ 切替トグルはスマホ非表示 (.housing-view-toggle:none) なので上の切替バーは
+     実質空 → 余白ゼロ。中央カラムの上パディングも詰めて見出し・カードを上へ寄せる。 */
+  .housing-browse-col-center { padding-top: 6px; }
+  .housing-browse-col-center .housing-browse-toolbar { padding: 0; }
   /* カードグリッドは auto-fill の可変列数をやめ、2列固定にする
      (探す/お気に入り共通の .housing-listing-grid)。 */
   .housing-listing-grid {
