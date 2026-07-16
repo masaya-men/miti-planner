@@ -12,7 +12,11 @@ vi.mock('../../../Toast', () => ({
   showToast: (...args: unknown[]) => showToastMock(...args),
 }));
 
+// useIsMobile: SpreadsheetGridImportModal.test.tsx と同じモック流儀 (既定 false、個別 describe で true に上書き)。
+vi.mock('../../../../hooks/useIsMobile', () => ({ useIsMobile: vi.fn().mockReturnValue(false) }));
+
 import { BrowsePage } from '../BrowsePage';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 import { useHousingFilterStore } from '../../../../store/useHousingFilterStore';
 import { useHousingViewStore } from '../../../../store/useHousingViewStore';
@@ -184,5 +188,29 @@ describe('BrowsePage: 中央フィルター解除ボタン (f)', () => {
     expect(state.areas).toEqual([]);
     expect(state.sizes).toEqual([]);
     expect(state.dc).toBeNull();
+  });
+});
+
+// Task2 (スマホ2列グリッド + マップ非表示): browseView='map' でもスマホでは
+// 一覧 (effectiveView='list') を強制し、 BrowseMapView (WorldSelectGate 等) をマウントさせない。
+describe('BrowsePage: スマホでは地図を強制的に一覧表示にする', () => {
+  beforeEach(() => {
+    useHousingFilterStore.getState().clearAll();
+    useHousingViewStore.getState().reset();
+    useHousingListingsStore.setState({ status: 'ready', listings: [], myListings: [] } as never);
+    // PC側で選択済みの 'map' を保ったまま、 スマホでは一覧強制になることを検証する。
+    useHousingViewStore.getState().setBrowseView('map');
+    vi.mocked(useIsMobile).mockReturnValue(true);
+  });
+
+  afterEach(() => {
+    vi.mocked(useIsMobile).mockReturnValue(false);
+  });
+
+  it('browseView が map でもスマホでは地図 (housing-browse-map-view) をマウントしない (EmptyResult=一覧側の分岐になる)', () => {
+    renderPage();
+    expect(document.querySelector('[data-testid="housing-browse-map-view"]')).toBeNull();
+    // listings=[] なので一覧側の分岐に入っていれば EmptyResult が出る。
+    expect(document.querySelector('.housing-empty-result')).not.toBeNull();
   });
 });

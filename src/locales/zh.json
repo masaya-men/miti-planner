@@ -2611,6 +2611,18 @@
             "login": "",
             "account": ""
         },
+        "mobile": {
+            "nav_filter": "筛选",
+            "nav_favorites": "收藏",
+            "nav_tour": "导览",
+            "nav_settings": "设置",
+            "nav_login": "登录",
+            "filter_title": "筛选",
+            "settings_title": "设置",
+            "settings_theme": "主题",
+            "settings_language": "语言",
+            "rotate_hint": "请将设备横过来"
+        },
         "gallery": {
             "loading": "物件を読み込んでいます…",
             "error": "物件の読み込みに失敗しました",

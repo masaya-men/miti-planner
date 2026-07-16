@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useJoinTour } from '../../../lib/sharedTour/useJoinTour';
 import { snapshotToPoolListing } from '../../../lib/sharedTour/snapshotToPool';
 import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
@@ -8,6 +9,8 @@ import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
+import { TourMobileBar } from '../tour/TourMobileBar';
+import { TourOrientationHint } from '../tour/TourOrientationHint';
 
 /**
  * 参加者(未ログイン・匿名)が招待リンク /housing/tour/:tourToken を開いたときのページ。
@@ -25,12 +28,24 @@ export const JoinTourPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { kind, meta, live } = useJoinTour(tourToken);
+  // Task5: スマホ横持ちUI。参加者は幹事に追従するだけ(自分では進行できない)なので
+  // 操作ボタンは出さず、地図と行き方だけを大きく見せる(TourNavPage の isMobile 追加描画と同じ流儀)。
+  const isMobile = useIsMobile();
 
   // meta.snapshot(縮約データ) → useTourRenderModel が期待する MockListing[] へ写す。
   const pool = useMemo(() => (meta ? meta.snapshot.map(snapshotToPoolListing) : []), [meta]);
   const orderedIds = useMemo(() => (meta ? meta.snapshot.map((s) => s.id) : []), [meta]);
   const currentIndex = live?.currentIndex ?? 0;
   const model = useTourRenderModel(pool, orderedIds, currentIndex);
+
+  // Task5(モバイルバー用): TourNavPage.tsx の directionsText useMemo と同じ流儀で
+  // directions(PlotDirections={aetheryte,directions})を1行のテキストへ整形する。
+  // 行き方データ自体は useTourRenderModel の派生値をそのまま使う(新しい行き方ロジックは持たない)。
+  const directionsText = useMemo(() => {
+    if (!model.directions) return '';
+    const teleport = t('housing.tour.nav.dest.teleport_to', { aetheryte: model.directions.aetheryte });
+    return model.directions.directions ? `${teleport} ${model.directions.directions}` : teleport;
+  }, [model.directions, t]);
 
   // 参加状態をヘッダーの「ツアーに戻る」ピルへ橋渡し(#1・案い)。viewing で記録し、
   // ended/notfound で解除する(戻る先が無くなるのでピルも消す)。connecting は据え置き(再接続中)。
@@ -118,6 +133,24 @@ export const JoinTourPage: React.FC = () => {
           />
         </div>
       </section>
+
+      {/* Task5: スマホ横持ちUI。左右パネルはCSSで非表示(TourNavPageと同じ .housing-tour-page-panel
+          data-region セレクタを流用=CSS追加不要)にし、下部に行き方だけのバー+縦持ちヒントを重ねる。
+          参加者は幹事に追従するだけなので TourMobileBar は readOnly(操作ボタン無し)。
+          ended(完了オーバーレイ表示中)はバーを隠す(TourNavPageの !completed と同型)。 */}
+      {isMobile && <TourOrientationHint />}
+      {isMobile && !isEnded && (
+        <TourMobileBar
+          directionsText={directionsText}
+          readOnly
+          canPrev={false}
+          canView={false}
+          isLast={false}
+          onPrev={() => {}}
+          onView={() => {}}
+          onNext={() => {}}
+        />
+      )}
 
       {/* ended = 主催者と同じ完了オーバーレイ(素敵な時間でしたね)を重ねる(#B)。
           ゲストも「探す/お気に入りに戻る」で移動でき、離脱時に参加記録をクリアする。 */}

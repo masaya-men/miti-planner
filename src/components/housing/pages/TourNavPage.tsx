@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
@@ -18,6 +20,8 @@ import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { TourInvitePanel } from '../tour/TourInvitePanel';
+import { TourMobileBar } from '../tour/TourMobileBar';
+import { TourOrientationHint } from '../tour/TourOrientationHint';
 import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
 import { HousingReportModal } from '../report/HousingReportModal';
 import { showToast } from '../../Toast';
@@ -36,6 +40,8 @@ import type { TourSnapshot } from '../../../types/sharedTour';
 export const TourNavPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // Task4: スマホ横持ちUI(案A)。既存のPC向け3カラムはそのまま(CSSで左右パネルのみ非表示)。
+  const isMobile = useIsMobile();
 
   const listingIds = useHousingTourStore((s) => s.listingIds);
   const currentIndex = useHousingTourStore((s) => s.currentIndex);
@@ -87,6 +93,27 @@ export const TourNavPage: React.FC = () => {
     crossing.kind !== 'none' && crossingAckIndex !== currentIndex && phase !== 'viewing';
   const onAckCrossing = useCallback(() => setCrossingAckIndex(currentIndex), [currentIndex]);
   const canView = currentListing != null;
+
+  // Task4(モバイルバー用): directions(PlotDirections={aetheryte,directions})を1行のテキストへ整形。
+  // 右パネル(TourPhaseZone)と同じ i18n キー(teleport_to)を使うだけで、行き方データ自体は
+  // 既存の派生値(useTourRenderModel の directions)をそのまま使う(新しい行き方ロジックは持たない)。
+  const directionsText = useMemo(() => {
+    if (!directions) return '';
+    const teleport = t('housing.tour.nav.dest.teleport_to', { aetheryte: directions.aetheryte });
+    return directions.directions ? `${teleport} ${directions.directions}` : teleport;
+  }, [directions, t]);
+
+  // Task4: モバイルの「見学」は左パネル(TourShowcasePanel)が非表示のため、全画面オーバーレイで代替する。
+  // 見学開始そのものは既存の startViewing をそのまま呼ぶ(PCの見学開始ボタンと同一挙動・同期にも乗る)。
+  const [showcaseOpen, setShowcaseOpen] = useState(false);
+  const onMobileView = useCallback(() => {
+    startViewing();
+    setShowcaseOpen(true);
+  }, [startViewing]);
+  // 「次へ」で目的地が進んだら、前の家のショーケースを開けっぱなしにしないよう自動で閉じる。
+  useEffect(() => {
+    setShowcaseOpen(false);
+  }, [currentIndex]);
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
 
@@ -309,6 +336,49 @@ export const TourNavPage: React.FC = () => {
           />
         </div>
       </section>
+
+      {/* Task4: スマホ横持ちUI(案A)。左右パネルはCSSで非表示にし、下部バー+見学オーバーレイ+縦持ちヒントを追加描画する。
+          既存の3パネル/完了オーバーレイのロジックには手を入れない(表示のみの追加レイヤー)。 */}
+      {isMobile && <TourOrientationHint />}
+      {isMobile && listingIds.length > 0 && !completed && (
+        <TourMobileBar
+          directionsText={directionsText}
+          canPrev={currentIndex > 0}
+          canView={canView}
+          isLast={isLast}
+          onPrev={prev}
+          onView={onMobileView}
+          onNext={onPrimary}
+          // 招待済み(tourToken発行後)は地図パネル内の招待パネル(コピー表示)に一本化し、
+          // バー側は二重発行を避けるため隠す。
+          showInvite={!tourToken}
+          onInvite={onInvite}
+        />
+      )}
+      {isMobile && showcaseOpen && (
+        <div
+          className="housing-tour-mobile-showcase"
+          role="dialog"
+          aria-modal="true"
+          data-testid="tour-mobile-showcase"
+        >
+          <button
+            type="button"
+            className="housing-tour-mobile-showcase-close"
+            onClick={() => setShowcaseOpen(false)}
+            aria-label={t('housing.card.close')}
+          >
+            <X size={20} aria-hidden="true" />
+          </button>
+          <div className="housing-tour-mobile-showcase-body">
+            <TourShowcasePanel
+              currentStep={progress.currentStep}
+              nextStep={nextStep}
+              onOpenReport={onOpenReport}
+            />
+          </div>
+        </div>
+      )}
 
       {completed && (
         <div

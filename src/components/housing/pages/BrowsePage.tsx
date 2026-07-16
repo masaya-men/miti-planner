@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
@@ -45,6 +46,10 @@ export const BrowsePage: React.FC = () => {
   // 中央の表示切替 (一覧 | 地図)。セッション記憶 (spec 3.1)。
   const browseView = useHousingViewStore((s) => s.browseView);
   const setBrowseView = useHousingViewStore((s) => s.setBrowseView);
+  // スマホは地図非対応 (左右パネルもCSSで非表示) のため、表示は常に一覧を強制する。
+  // トグル自体の state (browseView) は変えない = PCに戻したときに選択が残る。
+  const isMobile = useIsMobile();
+  const effectiveView = isMobile ? 'list' : browseView;
 
   const dc = useHousingFilterStore((s) => s.dc);
   const regions = useHousingFilterStore((s) => s.regions);
@@ -175,7 +180,7 @@ export const BrowsePage: React.FC = () => {
                   </button>
                 )}
               </div>
-              {browseView === 'map' ? (
+              {effectiveView === 'map' ? (
                 <BrowseMapView filtered={filtered} onAddToTour={addToTray} />
               ) : filtered.length === 0 ? (
                 <EmptyResult />

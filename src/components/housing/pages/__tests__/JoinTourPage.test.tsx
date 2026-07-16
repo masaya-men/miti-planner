@@ -18,7 +18,11 @@ vi.mock('../../../../lib/sharedTour/useJoinTour', () => ({
   useJoinTour: () => mockState.current,
 }));
 
+// useIsMobile: TourNavPage.test.tsx / BrowsePage.test.tsx と同じモック流儀 (既定 false)。
+vi.mock('../../../../hooks/useIsMobile', () => ({ useIsMobile: vi.fn().mockReturnValue(false) }));
+
 import { JoinTourPage } from '../JoinTourPage';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -190,5 +194,32 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
     renderPage();
     expect(screen.getByText('このツアーは見つかりません')).toBeInTheDocument();
     expect(screen.queryByTestId('join-tour-complete')).not.toBeInTheDocument();
+  });
+
+  // Task5: スマホ横持ちUI。参加者は幹事に追従するだけ(自分では進行できない)なので
+  // TourMobileBar は行き方テキストのみ表示し、前へ/見学/次へ等の操作ボタンは一切出さない(readOnly)。
+  describe('モバイル(useIsMobile=true)', () => {
+    beforeEach(() => {
+      vi.mocked(useIsMobile).mockReturnValue(true);
+    });
+    afterEach(() => {
+      vi.mocked(useIsMobile).mockReturnValue(false);
+    });
+
+    it('viewing: TourMobileBarは出るが操作ボタン(前へ/見学/次へ)は無い(readOnly)', () => {
+      mockState.current = {
+        kind: 'viewing',
+        meta: {
+          tourToken: 'tok-123', hostUid: 'host-1', snapshot: [snap],
+          containsHiddenAddress: false, createdAt: Date.now(),
+        },
+        live: { status: 'live', currentIndex: 0, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now() },
+      };
+      renderPage();
+      expect(screen.getByTestId('tour-mobile-bar')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: '前へ' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: '見学開始' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: '次へ' })).not.toBeInTheDocument();
+    });
   });
 });
