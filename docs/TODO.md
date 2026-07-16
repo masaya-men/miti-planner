@@ -49,7 +49,7 @@
 ## ハウジング (α公開後の主軸)
 
 - **📝「完成→リリース」機能ダンプ(8件)**=`docs/.private/2026-07-08-housing-release-feature-braindump.md`。✅済=①ツアー終了オーバーレイ / ②詳細パネル一本化 / ⑤テーマ切替演出 / ⑧autocomplete off。⑦住所取得は**「既に動作」判定が誤り**だった (og:description は truncate される→上記「現在の状態」の残②)。**残る大物(要 brainstorming)**=③ハウジンガーPF+専用ページ / ④探す地図表示(ワード淡発光+hoverサムネ・保留マップビュー復活) / ⑥住所登録なし一時ツアー。
-- **次優先**: ①「通報」文言全体見直し ②§3.8 残検証(重複 drop でツアー自動追加+トースト/単独 listing で section 非表示) ③「📅1ヶ月以上更新なし」バッジ ④通知 listingTitleSnapshot を `formatHousingAddress` 経由へ ⑤split-tweet 対応(画像ツイ+住所リプ別 URL・設計書§8)
+- **次優先**: ①「通報」文言全体見直し ②§3.8 残検証(重複 drop でツアー自動追加+トースト/単独 listing で section 非表示) ③「📅1ヶ月以上更新なし」バッジ ④通知 listingTitleSnapshot を `formatHousingAddress` 経由へ ⑤split-tweet 対応(画像ツイ+住所リプ別 URL・設計書§8) ⑥公開期限後の挙動をユーザー選択制に(現状=期限切れで他人から完全に消える[listingPublish.ts:13]・「住所だけ伏せて画像は残す」需要=期限でunlistedへ自動降格オプション・公開クエリ側も絡む・要brainstorming・2026-07-16ユーザー要望)
 - **その後**: 既存テスト物件一掃+コールドスタート(ユーザー作業)→アプデ告知(#59+ハウジングα)。**保留**=マップビュー(リストで完結・非ブロッカー)。
 - **Phase 3 残/#60**: UI コンポーネント test 追従(HousingRegister系)/カードデザイン刷新(Allmarks風)/マップ実データ化+`APARTMENT_SPOT[area]`/ko・zh 翻訳実値。
 - **タグ仕様全面刷新**: **計画書化済み**→`docs/superpowers/plans/2026-07-10-housing-tag-overhaul-plan.md` (公式23+季節12+テーマ12+個人1人1個・軽量モデ。設計原本=.private/2026-05-27-tag-system-redesign.md)。
@@ -90,7 +90,7 @@
 ## アイデア / 並行 / バックログ
 
 - アイデア: メモのURL→**YouTube等その場再生(iframe・サムネ方式)**(クリック開きは✅済)・こだわりトップ・配置アニメ・OCR・横型タイムライン・Gemma AI
-- **機能ブラッシュアップ案9件**(詳細=docs/.private/2026-06-15-feature-ideas-batch.md)。✅済=③軽減競合逆方向警告 / ⑤Logsインポート上書き・追記 / ⑥有名スプシ取込 (+列グリッド取込 §9.7 `85bb7d8c`)。**残**=①同時刻3+イベント ②スマホ/タブレット最適化(ボトムナビ/FAB) ④MAXHP-10%でダメージ黄 ⑦敵攻撃 or(2択) ⑧管理画面 攻撃ID保持で任意言語翻訳(GUID保持済・仕上げのみ) ⑨メモに動画URL→iframe。取り込み導線チューザー統合は将来。
+- **機能ブラッシュアップ案9件**(詳細=docs/.private/2026-06-15-feature-ideas-batch.md)。✅済=③軽減競合逆方向警告 / ⑤Logsインポート上書き・追記 / ⑥有名スプシ取込 (+列グリッド取込 §9.7 `85bb7d8c`)。**残**=①同時刻3+イベント ②スマホ/タブレット最適化(ボトムナビ/FAB・ボトムナビの透け視認性改善=ハウジング側で不透明化済みの型を移植[2026-07-16]) ④MAXHP-10%でダメージ黄 ⑦敵攻撃 or(2択) ⑧管理画面 攻撃ID保持で任意言語翻訳(GUID保持済・仕上げのみ) ⑨メモに動画URL→iframe。取り込み導線チューザー統合は将来。
 - **🆕 Wiki型タイムライン共同編集**(大物・詳細=docs/.private/2026-06-16-wiki-collaborative-timeline.md): ログインユーザー皆で1コンテンツを Wiki 編集(オーナーロック可)。既存 collab 資産活用+公開編集モデルは別設計。⑧を先に効かせると相性良。着手時 brainstorming。
 - **🆕 共同編集の部屋に「日程調整」**(ブレスト一部合意済・詳細=docs/.private/2026-06-16-collab-fixed-group-scheduling.md): collab ON 時だけ調整さん方式(候補日×メンバー○×△)。識別=名前自由入力(PII なし)・閲覧者も回答可。Phase2 で攻略進捗バー/作戦ボード温存。次=brainstorming 継続→spec。
 - 方針: コンテンツ追加=`add-content`→`seed-contents.ts`/スキル正本=Firestore/SNS タグ `#LoPo #FF14 #BuildInPublic #AISelection`

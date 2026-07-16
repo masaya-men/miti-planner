@@ -271,8 +271,6 @@
   /* ===== Task4: ツアーのスマホ横持ちUI(案A) =====
      行き方+前へ/見学/次への下部操作バーの高さ目安(可変・min-heightとして使用)。 */
   --housing-tour-mobilebar-h: 3rem;
-  --housing-tour-orientation-z: 65; /* 縦持ちヒント: 完了オーバーレイ(--housing-tour-complete-z=60)より前面 */
-  --housing-tour-orientation-veil: rgba(10, 13, 20, 0.86); /* 縦持ちヒント全画面の暗幕(裏の地図を隠す濃さ) */
 
   /* ===== Typography ===== */
   font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
@@ -8454,7 +8452,11 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
     border: 0;
   }
+  /* 実機FB#5(2回目): 汎用 .housing-tour-mobilebar-btn:hover の灰色 background が
+     ハニーの次へにも勝ち、iOS はタップ後も hover が残る(sticky hover)ため
+     「次へが毎回消える(押せるが見えない)」症状になっていた。hover でもグラデを再指定して防ぐ。 */
   .housing-tour-mobilebar-btn--next:hover:not(:disabled) {
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
     filter: brightness(1.05);
   }
   .housing-tour-mobilebar-invite {
@@ -8574,35 +8576,6 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-tour-traybar-clear:focus-visible {
     outline: 2px solid var(--housing-honey);
     outline-offset: 2px;
-  }
-
-  /* ----- TourOrientationHint: 縦持ち時に数秒だけ出す「横にして」ヒント (実機FB#6) ----- */
-  .housing-tour-orientation-hint {
-    position: fixed;
-    inset: 0;
-    /* 操作をブロックしない案内 (数秒で自動消滅・縦のままでも横想定UIを使える)。 */
-    pointer-events: none;
-    z-index: var(--housing-tour-orientation-z);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 24px;
-    text-align: center;
-    background: var(--housing-tour-orientation-veil);
-    color: var(--housing-text);
-  }
-  .housing-tour-orientation-hint-icon {
-    color: var(--housing-honey);
-    transform: rotate(90deg);
-  }
-  .housing-tour-orientation-hint-text {
-    margin: 0;
-    max-width: 240px;
-    font-size: var(--housing-text-base);
-    font-weight: 600;
-    text-shadow: var(--housing-text-shadow);
   }
 
   /* ----- 見学オーバーレイ: 左パネル(TourShowcasePanel)非表示の代替 -----

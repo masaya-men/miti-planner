@@ -21,7 +21,6 @@ import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { TourInvitePanel } from '../tour/TourInvitePanel';
 import { TourMobileBar } from '../tour/TourMobileBar';
-import { TourOrientationHint } from '../tour/TourOrientationHint';
 import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
 import { HousingReportModal } from '../report/HousingReportModal';
 import { showToast } from '../../Toast';
@@ -342,7 +341,6 @@ export const TourNavPage: React.FC = () => {
 
       {/* Task4: スマホ横持ちUI(案A)。左右パネルはCSSで非表示にし、下部バー+見学オーバーレイ+縦持ちヒントを追加描画する。
           既存の3パネル/完了オーバーレイのロジックには手を入れない(表示のみの追加レイヤー)。 */}
-      {isMobile && <TourOrientationHint />}
       {isMobile && listingIds.length > 0 && !completed && (
         <TourMobileBar
           canPrev={currentIndex > 0}

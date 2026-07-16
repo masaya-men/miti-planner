@@ -9,7 +9,6 @@ import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
-import { TourOrientationHint } from '../tour/TourOrientationHint';
 
 /**
  * 参加者(未ログイン・匿名)が招待リンク /housing/tour/:tourToken を開いたときのページ。
@@ -141,7 +140,6 @@ export const JoinTourPage: React.FC = () => {
           実機2回目FB#4: 参加者は操作を持たず行き方だけ表示するためのバーだったが、
           行き方は地図下部の帯(footerDirections)へ移設したためバー自体は廃止した
           (TourMobileBar の readOnly prop 自体は互換のためコンポーネント側に残している)。 */}
-      {isMobile && <TourOrientationHint />}
 
       {/* ended = 主催者と同じ完了オーバーレイ(素敵な時間でしたね)を重ねる(#B)。
           ゲストも「探す/お気に入りに戻る」で移動でき、離脱時に参加記録をクリアする。 */}
