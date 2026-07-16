@@ -4271,7 +4271,9 @@ select.housing-input option {
   padding: 14px 16px;
 }
 .housing-browse-col-center { overflow: hidden; }
-.housing-browse-col-center .housing-listing-grid-toolbar { padding: 0 0 12px; }
+.housing-browse-col-center .housing-listing-grid-toolbar { padding: 0; }
+/* 探すページ中央だけ: 見出し→カードの二重余白(toolbar padding + wrap gap)を詰めて 8 枚を見切れなく収める。 */
+.housing-browse-col-center .housing-listing-grid-wrap { gap: 6px; }
 /* 左フィルタは FilterPanel の head/body が縦余白を持つので、横はカラム余白に一本化 (二重余白回避)。 */
 .housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }
 .housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }
@@ -5485,7 +5487,7 @@ select.housing-input option {
   justify-content: space-between;
   gap: 12px;
   flex: 0 0 auto;
-  padding: 0 0 12px;
+  padding: 0 0 6px;
 }
 .housing-browse-clear-filter {
   appearance: none;
