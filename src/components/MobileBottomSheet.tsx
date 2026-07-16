@@ -18,10 +18,15 @@ interface MobileBottomSheetProps {
      * (Sidebar のように内部 flex-1 スクロール + 下端固定フッターを持つ子向け)
      */
     fillContent?: boolean;
+    /**
+     * Sheet 本体に追加するクラス。housing シート等、呼び出し側の世界観で
+     * 背景・文字色を上書きするための穴 (未指定なら従来どおり)。
+     */
+    className?: string;
 }
 
 export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
-    isOpen, onClose, title, children, height = '65vh', fillContent = false, headerAction
+    isOpen, onClose, title, children, height = '65vh', fillContent = false, headerAction, className
 }) => {
     const sheetRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<{ startY: number; isDragging: boolean }>({
@@ -85,7 +90,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                         onTouchStart={handleTouchStart}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
-                        className="md:hidden fixed left-0 right-0 z-[301] flex flex-col overflow-hidden shadow-lg"
+                        className={`md:hidden fixed left-0 right-0 z-[301] flex flex-col overflow-hidden shadow-lg${className ? ` ${className}` : ''}`}
                         style={{
                             // fillContent 時は高さを確定値にして、子の h-full / flex チェーンを解決させる
                             ...(fillContent ? { height } : { maxHeight: height }),
