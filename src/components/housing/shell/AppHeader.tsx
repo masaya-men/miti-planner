@@ -13,6 +13,12 @@ import { LoPoButton } from '../../LoPoButton';
 import { TabBar } from './TabBar';
 import { X } from 'lucide-react';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
+import { useIsMobile } from '../../../hooks/useIsMobile';
+
+export interface AppHeaderProps {
+  /** 実機FB第2弾#2: スマホの探すページのみ、ヘッダー右端にフィルターボタンを出す (HousingShell がシート開閉を保持)。 */
+  onOpenFilter?: () => void;
+}
 
 /**
  * ハウジング共通ヘッダー。
@@ -20,9 +26,10 @@ import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
  * 旧 TopBar からパネルトグル・breadcrumb を除き、中央に TabBar を据えた再構成。
  * (グローバル検索は死んだプレースホルダーだったため撤去。検索はフィルターパネルにある。)
  */
-export const AppHeader: React.FC = () => {
+export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenFilter }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const user = useAuthStore((s) => s.user);
@@ -237,6 +244,19 @@ export const AppHeader: React.FC = () => {
           </button>
         )}
       </div>
+
+      {/* 実機FB第2弾#2: フィルターをボトムナビからヘッダーへ移設 (探すページ・スマホのみ)。
+          .housing-app-header-right はスマホ CSS で display:none のため、その外に独立要素として置く。 */}
+      {isMobile && location.pathname === '/housing' && onOpenFilter && (
+        <button
+          type="button"
+          className="housing-app-header-filterbtn"
+          onClick={onOpenFilter}
+        >
+          {t('housing.mobile.nav_filter')}
+          <span aria-hidden="true"> ▼</span>
+        </button>
+      )}
     </header>
   );
 };

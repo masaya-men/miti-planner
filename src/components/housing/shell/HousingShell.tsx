@@ -4,7 +4,9 @@ import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
+import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { MobileTourTrayBar } from './MobileTourTrayBar';
 import { SceneryVideo } from '../workspace/SceneryVideo';
 import { AppHeader } from './AppHeader';
 import { StatusBar } from '../workspace/StatusBar';
@@ -36,11 +38,14 @@ export const HousingShell: React.FC = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // ツアーページ (ホスト /housing/tour または共有参加 /housing/tour/:token) を開いている間は
-  // 没入UIのためボトムナビ/FAB を出さない。永続 state(mode) ではなく現在のパスで判定することで、
-  // ホストが途中でブランド等から離脱しても没入フラグが残らず、ナビが消えたままトラップされないようにする (最終レビュー I-1)。
+  // ツアー実行中 (running && ホストのツアーページ) または共有参加ページを開いている間は
+  // 没入UIのためボトムナビ/FAB を出さない。path 基準 (I-1) は維持しつつ、running を掛け合わせることで
+  // ツアー未開始 (空状態/トレイから開始前) の /housing/tour ではナビを出し、再タップで探すへ帰れるようにする
+  // (実機FB#2)。running は非永続 store なのでリロードで stale に残らない。
+  const tourRunning = useHousingTourStore((s) => s.running);
   const immersive =
-    pathname === '/housing/tour' || (!!joinedToken && pathname === `/housing/tour/${joinedToken}`);
+    (pathname === '/housing/tour' && tourRunning) ||
+    (!!joinedToken && pathname === `/housing/tour/${joinedToken}`);
 
   // 物件データを 1 回だけロード (冪等・全ページ共有)。
   useEffect(() => {
@@ -67,20 +72,21 @@ export const HousingShell: React.FC = () => {
   return (
     <main className="housing-workspace housing-shell-root" data-theme={theme}>
       <SceneryVideo theme={theme} />
-      <div className="housing-shell">
-        <AppHeader />
+      {/* data-immersive: ナビ非表示中はナビ余白 (shell-body padding-bottom) も外して地図等を全画面にする。 */}
+      <div className="housing-shell" data-immersive={immersive || undefined}>
+        <AppHeader onOpenFilter={() => setFilterOpen(true)} />
         <div className="housing-shell-body">
           <HousingPlaybackProvider>
             <Outlet />
           </HousingPlaybackProvider>
         </div>
         {isMobile && !immersive && (
-          <HousingBottomNav
-            onOpenFilter={() => setFilterOpen(true)}
-            onOpenSettings={() => setSettingsOpen(true)}
-          />
+          <HousingBottomNav onOpenSettings={() => setSettingsOpen(true)} />
         )}
         {isMobile && !immersive && <HousingRegisterFab />}
+        {/* 実機FB#10: PCの右パネル(ツアートレイ)がスマホでは非表示のため、「ツアーに追加」の
+            受け皿が無かった。トレイに積むと出る小バー (件数+開始+クリア) で開始まで完結させる。 */}
+        {isMobile && !immersive && <MobileTourTrayBar />}
         {isMobile && <HousingFilterSheet isOpen={filterOpen} onClose={() => setFilterOpen(false)} />}
         {isMobile && <HousingSettingsSheet isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />}
         <StatusBar />

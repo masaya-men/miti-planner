@@ -46,4 +46,19 @@ describe('orderFavorites', () => {
   it('ids が空のとき空配列を返す', () => {
     expect(orderFavorites([], [mk('a')], 'all')).toEqual([]);
   });
+
+  // バグ修正 (2026-07-17): ids に同じ id が複数回含まれていると、そのまま解決回数分だけ
+  // 重複してカード表示され、見出しの件数 (呼び出し元は listings.length を表示に使う) も
+  // 水増しされていた。1 件に集約する (先勝ちで順序維持)。
+  it('重複 id は 1 件にまとめる (recent: 先勝ちの逆順を維持)', () => {
+    const listings = [mk('a'), mk('b')];
+    expect(orderFavorites(['a', 'b', 'a'], listings, 'recent').map((l) => l.id)).toEqual(['b', 'a']);
+  });
+
+  it('重複 id は 1 件にまとめる (all: 件数が水増しされない)', () => {
+    const listings = [mk('a'), mk('b')];
+    const result = orderFavorites(['a', 'a', 'b', 'a'], listings, 'all');
+    expect(result.map((l) => l.id)).toEqual(['a', 'b']);
+    expect(result).toHaveLength(2);
+  });
 });

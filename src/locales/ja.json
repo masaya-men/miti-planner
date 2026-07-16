@@ -2668,6 +2668,7 @@
             "account": "アカウント"
         },
         "mobile": {
+            "nav_home": "トップ",
             "nav_filter": "フィルター",
             "nav_favorites": "お気に入り",
             "nav_tour": "ツアー",
@@ -2677,7 +2678,8 @@
             "settings_title": "設定",
             "settings_theme": "テーマ",
             "settings_language": "言語",
-            "rotate_hint": "端末を横にしてください"
+            "tray_start": "開始",
+            "tray_clear": "空にする"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

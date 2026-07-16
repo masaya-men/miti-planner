@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
@@ -32,6 +33,7 @@ import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 export const FavoritesPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const ids = useHousingFavoritesStore((s) => s.ids);
   const publicListings = useHousingListingsStore((s) => s.listings);
@@ -200,11 +202,31 @@ export const FavoritesPage: React.FC = () => {
                     {t('housing.browse.count_unit', { count: listings.length })}
                   </span>
                 </h2>
+                {/* 実機FB第2弾#3: スマホは一括バーが下でスクロールされがちなので、見出し行にも複製する。 */}
+                {isMobile && (
+                  <button
+                    type="button"
+                    className="housing-fav-addall-top"
+                    onClick={handleAddAll}
+                    disabled={listings.length === 0}
+                  >
+                    {t('housing.favorites.bulk_add_all')}
+                  </button>
+                )}
               </div>
-              <FavoritesTabs
-                tab={tab}
-                onChange={setTab}
-              />
+              {/* 実機FB第5弾: スマホは「タブ + 選択カウント」を1行に同居させ、常に2行構成
+                  (タブ行 / ボタン行) に固定する。ラッパは PC では display:contents で無害。 */}
+              <div className="housing-fav-tabsrow">
+                <FavoritesTabs
+                  tab={tab}
+                  onChange={setTab}
+                />
+                {isMobile && selected.size > 0 && (
+                  <span className="housing-fav-selcount">
+                    {t('housing.favorites.bulk_selected_count', { count: selected.size })}
+                  </span>
+                )}
+              </div>
               <FavoritesBulkBar
                 total={listings.length}
                 selectedCount={selected.size}

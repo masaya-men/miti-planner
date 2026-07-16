@@ -197,7 +197,9 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
   });
 
   // Task5: スマホ横持ちUI。参加者は幹事に追従するだけ(自分では進行できない)なので
-  // TourMobileBar は行き方テキストのみ表示し、前へ/見学/次へ等の操作ボタンは一切出さない(readOnly)。
+  // 操作ボタン(前へ/見学/次へ)は一切出さない。
+  // 実機2回目FB#4: 行き方の表示先を下部バー(TourMobileBar)から地図下部の帯(footerDirections)へ
+  // 移設したのに伴い、参加者向けバー自体を廃止した(空の操作系だけのバーが残らないようにするため)。
   describe('モバイル(useIsMobile=true)', () => {
     beforeEach(() => {
       vi.mocked(useIsMobile).mockReturnValue(true);
@@ -206,7 +208,7 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
       vi.mocked(useIsMobile).mockReturnValue(false);
     });
 
-    it('viewing: TourMobileBarは出るが操作ボタン(前へ/見学/次へ)は無い(readOnly)', () => {
+    it('viewing: TourMobileBarは廃止され出ない。行き方は地図下部の帯に全文表示される', () => {
       mockState.current = {
         kind: 'viewing',
         meta: {
@@ -216,10 +218,12 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
         live: { status: 'live', currentIndex: 0, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now() },
       };
       renderPage();
-      expect(screen.getByTestId('tour-mobile-bar')).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: '前へ' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: '見学開始' })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: '次へ' })).not.toBeInTheDocument();
+      // バー自体が無い(前へ/見学/次へ等の操作ボタンが無いことは非モバイルの既存テストで別途保証済み)。
+      expect(screen.queryByTestId('tour-mobile-bar')).not.toBeInTheDocument();
+      // 行き方は地図下部の帯(footerDirections)に全文表示される。
+      const footerDirections = screen.getByTestId('tour-map-footer-directions');
+      expect(footerDirections).toBeInTheDocument();
+      expect(footerDirections.textContent).not.toBe('');
     });
   });
 });

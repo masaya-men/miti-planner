@@ -5,11 +5,13 @@
  * FilterPanel 等の重い既存パネルを丸ごと抱えるため、ここでは対象にしない
  * (npm run build の型検証 + 実機チェックリストに委ねる)。
  */
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { HousingBottomNav } from '../HousingBottomNav';
 import { HousingRegisterFab } from '../HousingRegisterFab';
+import { MobileTourTrayBar } from '../MobileTourTrayBar';
+import { useTourTrayStore } from '../../../../store/useTourTrayStore';
 
 // react-router-dom: useNavigate だけ差し替え、他 (MemoryRouter 等) は実物のまま使う
 // (AppHeader.test.tsx / HousingActionBar.test.tsx と同じパターン)。
@@ -45,6 +47,26 @@ vi.mock('../../../../store/useHousingModalStore', () => ({
 let mockUnreadCount = 0;
 vi.mock('../../notifications/useNotifications', () => ({
   useNotifications: () => ({ unreadCount: mockUnreadCount }),
+}));
+
+// MobileTourTrayBar の依存: listings/ephemeral は空でよい (トレイ解決は空プールでも落ちない)。
+// MannerNoticeDialog は重い workspace 部品なのでスタブ化 (開始ゲートの開閉自体は本体で検証済み)。
+vi.mock('../../../../store/useHousingListingsStore', () => ({
+  useHousingListingsStore: Object.assign(
+    (sel: (s: { listings: unknown[]; myListings: unknown[] }) => unknown) =>
+      sel({ listings: [], myListings: [] }),
+    { setState: vi.fn(), getState: () => ({ listings: [], myListings: [] }) },
+  ),
+}));
+vi.mock('../../../../store/useEphemeralListingsStore', () => ({
+  useEphemeralListingsStore: Object.assign(
+    (sel: (s: { ephemeralListings: unknown[] }) => unknown) => sel({ ephemeralListings: [] }),
+    { setState: vi.fn(), getState: () => ({ ephemeralListings: [] }) },
+  ),
+}));
+vi.mock('../../workspace/MannerNoticeDialog', () => ({
+  MannerNoticeDialog: ({ open }: { open: boolean }) =>
+    open ? <div data-testid="manner-dialog-stub" /> : null,
 }));
 
 function resetMocks() {
@@ -88,22 +110,48 @@ describe('HousingBottomNav', () => {
   function renderNav() {
     return render(
       <MemoryRouter initialEntries={['/housing']}>
-        <HousingBottomNav onOpenFilter={vi.fn()} onOpenSettings={vi.fn()} />
+        <HousingBottomNav onOpenSettings={vi.fn()} />
       </MemoryRouter>,
     );
   }
 
-  it('5項目 (フィルター/お気に入り/ツアー/設定/ログイン) を描画する', () => {
+  it('5項目 (トップ/お気に入り/ツアー/設定/ログイン) を描画する', () => {
     renderNav();
     expect(screen.getAllByRole('button')).toHaveLength(5);
   });
 
   it('未ログイン時、ログイン項目クリックで openLogin が呼ばれる (openAccount は呼ばれない)', () => {
     renderNav();
-    // items 順: filter, favorites, tour, settings, login
+    // items 順: home, favorites, tour, settings, login
     screen.getAllByRole('button')[4].click();
     expect(openLogin).toHaveBeenCalled();
     expect(openAccount).not.toHaveBeenCalled();
+  });
+
+  it('「トップ」タップで /housing へ navigate する (実機FB第2弾#2: 左端はフィルターでなくトップ)', () => {
+    render(
+      <MemoryRouter initialEntries={['/housing/favorites']}>
+        <HousingBottomNav onOpenSettings={vi.fn()} />
+      </MemoryRouter>,
+    );
+    screen.getAllByRole('button')[0].click();
+    expect(navigate).toHaveBeenCalledWith('/housing');
+  });
+
+  it('お気に入りページで「お気に入り」を再タップすると探す(/housing)へ戻る (実機FB#2)', () => {
+    render(
+      <MemoryRouter initialEntries={['/housing/favorites']}>
+        <HousingBottomNav onOpenSettings={vi.fn()} />
+      </MemoryRouter>,
+    );
+    screen.getAllByRole('button')[1].click();
+    expect(navigate).toHaveBeenCalledWith('/housing');
+  });
+
+  it('探すページで「ツアー」をタップするとツアーページへ行く (トグルの順方向)', () => {
+    renderNav();
+    screen.getAllByRole('button')[2].click();
+    expect(navigate).toHaveBeenCalledWith('/housing/tour');
   });
 
   it('ログイン中 & 未読通知ありならログイン項目にバッジを描画する', () => {
@@ -117,5 +165,43 @@ describe('HousingBottomNav', () => {
     mockUnreadCount = 3;
     const { container } = renderNav();
     expect(container.querySelector('.housing-bottomnav-badge')).not.toBeInTheDocument();
+  });
+});
+
+describe('MobileTourTrayBar (実機FB#10)', () => {
+  beforeEach(() => {
+    resetMocks();
+    useTourTrayStore.getState().clear();
+  });
+
+  function renderBar() {
+    return render(
+      <MemoryRouter initialEntries={['/housing']}>
+        <MobileTourTrayBar />
+      </MemoryRouter>,
+    );
+  }
+
+  it('トレイが空なら何も描画しない', () => {
+    renderBar();
+    expect(screen.queryByTestId('mobile-tour-tray-bar')).not.toBeInTheDocument();
+  });
+
+  it('トレイに積むと件数バーが出て、開始タップでマナー確認が開く', () => {
+    useTourTrayStore.getState().setTrayIds(['a', 'b']);
+    renderBar();
+    const bar = screen.getByTestId('mobile-tour-tray-bar');
+    expect(bar.querySelector('.housing-tour-traybar-count')?.textContent).toBe('2');
+    // fireEvent = act ラップ済み (生 .click() では state 更新後の再描画が起きない)。
+    fireEvent.click(screen.getByText('housing.mobile.tray_start'));
+    expect(screen.getByTestId('manner-dialog-stub')).toBeInTheDocument();
+  });
+
+  it('クリアでトレイが空になりバーが消える', () => {
+    useTourTrayStore.getState().setTrayIds(['a']);
+    renderBar();
+    fireEvent.click(screen.getByLabelText('housing.mobile.tray_clear'));
+    expect(useTourTrayStore.getState().trayIds).toHaveLength(0);
+    expect(screen.queryByTestId('mobile-tour-tray-bar')).not.toBeInTheDocument();
   });
 });

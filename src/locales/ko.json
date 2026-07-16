@@ -2612,6 +2612,7 @@
             "account": ""
         },
         "mobile": {
+            "nav_home": "홈",
             "nav_filter": "필터",
             "nav_favorites": "즐겨찾기",
             "nav_tour": "투어",
@@ -2621,7 +2622,8 @@
             "settings_title": "설정",
             "settings_theme": "테마",
             "settings_language": "언어",
-            "rotate_hint": "기기를 가로로 돌려주세요"
+            "tray_start": "시작",
+            "tray_clear": "비우기"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

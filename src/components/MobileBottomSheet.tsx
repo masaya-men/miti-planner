@@ -18,10 +18,22 @@ interface MobileBottomSheetProps {
      * (Sidebar のように内部 flex-1 スクロール + 下端固定フッターを持つ子向け)
      */
     fillContent?: boolean;
+    /**
+     * Sheet 本体に追加するクラス。housing シート等、呼び出し側の世界観で
+     * 背景・文字色を上書きするための穴 (未指定なら従来どおり)。
+     */
+    className?: string;
+    /**
+     * 下スワイプで閉じるジェスチャの受け付け範囲。既定 'sheet' = シート全面 (従来挙動・miti 不変)。
+     * 'handle' = 上部のつまみ(ドラッグハンドル)だけ。中身を縦スクロールするシート
+     * (housing のフィルター等) は全面スワイプだとスクロールで誤って閉じて不安定なため handle を使う。
+     */
+    swipeArea?: 'sheet' | 'handle';
 }
 
 export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
-    isOpen, onClose, title, children, height = '65vh', fillContent = false, headerAction
+    isOpen, onClose, title, children, height = '65vh', fillContent = false, headerAction, className,
+    swipeArea = 'sheet'
 }) => {
     const sheetRef = useRef<HTMLDivElement>(null);
     const dragRef = useRef<{ startY: number; isDragging: boolean }>({
@@ -82,10 +94,10 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                     {/* Sheet */}
                     <motion.div
                         ref={sheetRef}
-                        onTouchStart={handleTouchStart}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
-                        className="md:hidden fixed left-0 right-0 z-[301] flex flex-col overflow-hidden shadow-lg"
+                        {...(swipeArea === 'sheet'
+                            ? { onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd }
+                            : {})}
+                        className={`md:hidden fixed left-0 right-0 z-[301] flex flex-col overflow-hidden shadow-lg${className ? ` ${className}` : ''}`}
                         style={{
                             // fillContent 時は高さを確定値にして、子の h-full / flex チェーンを解決させる
                             ...(fillContent ? { height } : { maxHeight: height }),
@@ -98,8 +110,13 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                         animate={{ y: 0, transition: { type: "spring", stiffness: 380, damping: 22 } }}
                         exit={{ y: '100%', transition: { duration: 0.25, ease: [0.32, 0.72, 0, 1] } }}
                     >
-                        {/* Drag handle */}
-                        <div className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
+                        {/* Drag handle (swipeArea='handle' のときはここだけがスワイプ閉じの受け付け範囲) */}
+                        <div
+                            className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing"
+                            {...(swipeArea === 'handle'
+                                ? { onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd }
+                                : {})}
+                        >
                             <div
                                 className="bg-[var(--app-text)]/20"
                                 style={{

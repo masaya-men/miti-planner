@@ -21,7 +21,6 @@ import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { TourInvitePanel } from '../tour/TourInvitePanel';
 import { TourMobileBar } from '../tour/TourMobileBar';
-import { TourOrientationHint } from '../tour/TourOrientationHint';
 import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
 import { HousingReportModal } from '../report/HousingReportModal';
 import { showToast } from '../../Toast';
@@ -306,6 +305,9 @@ export const TourNavPage: React.FC = () => {
             showCrossing={showCrossingOverlay}
             onAckCrossing={onAckCrossing}
             addressListing={currentListing}
+            // 実機2回目FB#4: 行き方はスマホ下部バーの1行省略表示だと読み切れないため、
+            // スマホの時だけ地図下部の帯へ全文(最大2行折返し)で渡す。PC は従来通り渡さない。
+            footerDirections={isMobile ? directionsText : null}
           />
         </div>
         <TourInvitePanel
@@ -339,20 +341,22 @@ export const TourNavPage: React.FC = () => {
 
       {/* Task4: スマホ横持ちUI(案A)。左右パネルはCSSで非表示にし、下部バー+見学オーバーレイ+縦持ちヒントを追加描画する。
           既存の3パネル/完了オーバーレイのロジックには手を入れない(表示のみの追加レイヤー)。 */}
-      {isMobile && <TourOrientationHint />}
       {isMobile && listingIds.length > 0 && !completed && (
         <TourMobileBar
-          directionsText={directionsText}
           canPrev={currentIndex > 0}
           canView={canView}
           isLast={isLast}
           onPrev={prev}
           onView={onMobileView}
           onNext={onPrimary}
-          // 招待済み(tourToken発行後)は地図パネル内の招待パネル(コピー表示)に一本化し、
-          // バー側は二重発行を避けるため隠す。
-          showInvite={!tourToken}
-          onInvite={onInvite}
+          // 実機FB#7: 地図上の招待パネルはスマホでは非表示 (CSS) にして地図を全画面化するため、
+          // 招待の入口はバーに一本化する。未発行=作成 / 発行済み=リンクコピー (二重発行はモード切替で防ぐ)。
+          showInvite
+          inviteMode={tourToken ? 'copy' : 'create'}
+          onInvite={tourToken ? onCopyInvite : onInvite}
+          // 実機2回目FB#7: 行き方が地図下部へ移って空いたバー左端に「終了」ボタンを置く。
+          // 既存の onFinish(共有 live の終了処理込み)をそのまま渡すだけ。
+          onFinish={onFinish}
         />
       )}
       {isMobile && showcaseOpen && (

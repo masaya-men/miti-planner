@@ -34,6 +34,9 @@
      旧値 rgba(255,255,255,0.04) は透けすぎて暗幕頼みだった。light/dark 共通 (text は常に白)。 */
   --housing-panel-bg: rgba(17, 23, 37, 0.56);
   --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  /* 実機FB第2弾#1(訂正): 完全不透明面は「常設ボトムナビ」ではなく「シート(フィルター/設定)」用。
+     ナビは従来どおり panel-bg-solid の透けを残し、開いたシートだけ中身が透けないようにする。 */
+  --housing-mobile-chrome-bg: rgb(13, 18, 30);
   /* 探す地図② 区画セグメント (.housing-mapctl-areas) の角丸。大量部屋パネル
      (.housing-bmap-roompanel) が同じ角丸で上に重なるので、裏のピルの角が
      パネルの角からはみ出さないよう共有する (2026-07-12 ユーザー指摘)。 */
@@ -271,8 +274,6 @@
   /* ===== Task4: ツアーのスマホ横持ちUI(案A) =====
      行き方+前へ/見学/次への下部操作バーの高さ目安(可変・min-heightとして使用)。 */
   --housing-tour-mobilebar-h: 3rem;
-  --housing-tour-orientation-z: 65; /* 縦持ちヒント: 完了オーバーレイ(--housing-tour-complete-z=60)より前面 */
-  --housing-tour-orientation-veil: rgba(10, 13, 20, 0.86); /* 縦持ちヒント全画面の暗幕(裏の地図を隠す濃さ) */
 
   /* ===== Typography ===== */
   font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
@@ -2352,6 +2353,11 @@ select.housing-input option {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  /* 高さ上限: HousingPanelModal が --housing-modal-max (= maxHeightRatio*100) を注入する。
+     iOS Safari では 100vh がブラウザUI込みで実画面より大きく、モーダル下端が切れる (実機FB#5)。
+     dvh (実際に見えている高さ) を優先し、非対応ブラウザは vh 行にフォールバック。 */
+  max-height: calc(var(--housing-modal-max, 86) * 1vh);
+  max-height: calc(var(--housing-modal-max, 86) * 1dvh);
 }
 .housing-panel-modal-shell > .housing-panel.is-liquid {
   display: flex;
@@ -4271,7 +4277,9 @@ select.housing-input option {
   padding: 14px 16px;
 }
 .housing-browse-col-center { overflow: hidden; }
-.housing-browse-col-center .housing-listing-grid-toolbar { padding: 0 0 12px; }
+.housing-browse-col-center .housing-listing-grid-toolbar { padding: 0; }
+/* 探すページ中央だけ: 見出し→カードの二重余白(toolbar padding + wrap gap)を詰めて 8 枚を見切れなく収める。 */
+.housing-browse-col-center .housing-listing-grid-wrap { gap: 6px; }
 /* 左フィルタは FilterPanel の head/body が縦余白を持つので、横はカラム余白に一本化 (二重余白回避)。 */
 .housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }
 .housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }
@@ -5485,7 +5493,7 @@ select.housing-input option {
   justify-content: space-between;
   gap: 12px;
   flex: 0 0 auto;
-  padding: 0 0 12px;
+  padding: 0 0 6px;
 }
 .housing-browse-clear-filter {
   appearance: none;
@@ -7790,6 +7798,11 @@ html[data-theme-anim="light"]::view-transition-new(root) {
 }
 
 /* ===== お気に入り一括操作バー (FavoritesBulkBar) ===== */
+/* タブ行ラッパ (実機FB第5弾): PC では箱を作らない (display:contents) = レイアウト不変。
+   スマホ側 media でタブ+選択カウントの1行 flex に切り替える。 */
+.housing-fav-tabsrow {
+  display: contents;
+}
 .housing-fav-bulkbar {
   display: flex;
   align-items: center;
@@ -8124,6 +8137,7 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   align-items: stretch;
   height: var(--housing-bottomnav-h);
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* 常設ナビは従来どおり軽く透ける (ユーザー訂正: 不透明にするのはシートの方)。 */
   background: var(--housing-panel-bg-solid);
   border-top: 1px solid var(--housing-panel-border);
   box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.14);
@@ -8221,14 +8235,21 @@ html[data-theme-anim="light"]::view-transition-new(root) {
      (行を残すと --housing-status-h ぶんの空白が下端に残ってしまう)。 */
   .housing-shell {
     grid-template-rows: var(--housing-header-h) 1fr;
+    /* 実機FB#9: iOS Safari の 100vh はブラウザUI込みの大きい viewport を指し、下端(ボトムナビ余白ごと)が
+       画面外に沈んでカードがナビの裏に隠れる。dvh (実際に見えている高さ) で追随させる。
+       非対応ブラウザは 1 行目の 100vh へフォールバック。 */
+    height: 100vh;
+    height: 100dvh;
+  }
+  /* ヘッダーを約 2/3 に (60px→40px)。浮いた縦スペースを中央パネルに回す。 */
+  .housing-workspace {
+    --housing-header-h: 40px;
   }
   .housing-status {
     display: none;
   }
-  /* ボトムナビの高さぶん、本体下端が隠れないように余白を確保。 */
-  .housing-shell-body {
-    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px));
-  }
+  /* 実機FB第4弾: 本体をナビの上で切らず、カードは透けたナビの下まで流し込む
+     (ナビ被り対策は各スクロールコンテナ側の padding-bottom が持つ)。 */
   /* ヘッダーはブランドのみ残し、横断検索/タブ/右群 (通知・テーマ・アバター) は
      ボトムナビ/シート側に移設したので隠す。 */
   .housing-app-header .housing-app-search,
@@ -8236,24 +8257,108 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-app-header .housing-app-header-right {
     display: none;
   }
+  /* 実機FB第2弾#2: フィルターをボトムナビからヘッダーへ移設 (探すページのみ・AppHeader が isMobile ゲート)。
+     .housing-app-header-right は上で非表示なので、その外の独立要素として右寄せする
+     (ヘッダー自体が display:flex なので margin-left:auto で右端に付く)。 */
+  /* 実機FB第3弾: 囲いなしのテキストボタン「フィルター ▼」(丸チップをやめる)。 */
+  .housing-app-header-filterbtn {
+    margin-left: auto;
+    flex-shrink: 0;
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 6px 4px;
+    font-family: inherit;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-text);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .housing-app-header-filterbtn:active {
+    opacity: 0.7;
+  }
 
   /* ----- 探す/お気に入り: 左右パネル非表示 + 中央1カラム全幅 -----
      左=フィルターパネル (ボトムナビのフィルターシートへ移設)、
      右=ツアートレイ/お気に入りプレビュー (別導線)。 */
   .housing-browse {
     grid-template-columns: 1fr;
+    /* 外側インセットを除去して中央パネルを画面いっぱいに。 */
+    padding: 0;
   }
   .housing-browse-panel[data-region="left"],
   .housing-browse-panel[data-region="right"] {
     display: none;
   }
+  /* 中央パネルを上下左右フラッシュ: 角丸と横枠を消して全幅・全高で使う
+     (内側の .housing-browse-col padding は残すので文字は枠に当たらない)。 */
+  .housing-browse-panel[data-region="center"] {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  /* 「ハウジング一覧 N件 / 並び替え」バーの上の無駄な縦余白を詰める:
+     一覧|マップ 切替トグルはスマホ非表示 (.housing-view-toggle:none) なので上の切替バーは
+     実質空 → 余白ゼロ。中央カラムの上パディングも詰めて見出し・カードを上へ寄せる。 */
+  /* 実機FB第4弾: 右パディングを外してスクロールバーを画面右端へ (カードの内側余白は grid 側で確保)。 */
+  .housing-browse-col-center { padding-top: 6px; padding-right: 0; }
+  .housing-browse-col-center .housing-browse-toolbar { padding: 0; }
   /* カードグリッドは auto-fill の可変列数をやめ、2列固定にする
      (探す/お気に入り共通の .housing-listing-grid)。 */
   .housing-listing-grid {
     grid-template-columns: repeat(2, 1fr);
+    /* 実機FB第4弾: カードは透けたナビの下まで流れる。末尾はナビ高さ+余裕ぶん確保して
+       最後のカードがナビに隠れたままスクロールが止まらないようにする (実機FB#9 の改訂)。
+       右12px = カードと画面端の間 (スクロールバーはこの外側=画面右端に出る)。 */
+    padding: 4px 12px calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
+  }
+  /* スクロールバー: 画面右端・太め (WebKit/Android。iOS Safari は太さ指定非対応=位置のみ改善)。 */
+  .housing-listing-grid::-webkit-scrollbar {
+    width: 8px;
+  }
+  .housing-listing-grid::-webkit-scrollbar-thumb {
+    background: var(--housing-text-dim);
+    border-radius: 8px;
+  }
+  .housing-listing-grid::-webkit-scrollbar-track {
+    background: transparent;
   }
   /* 一覧|地図 の切替トグル。スマホは常に一覧固定 (BrowsePage.tsx の effectiveView) なので隠す。 */
   .housing-view-toggle {
+    display: none;
+  }
+
+  /* ----- お気に入り: 「すべてツアーに追加」を見出し行の右端へ (実機FB第2弾#3) -----
+     一括バー (FavoritesBulkBar) の主アクションはタブの下にあり、件数が多いと
+     スクロールしないと見えない。見出し行にも控えめなチップとして複製し、
+     元の一括バー側のボタンは非表示にして同じ主張の強いボタンが2つ並ばないようにする。 */
+  .housing-fav-addall-top {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    height: 28px;
+    padding: 0 12px;
+    font-family: inherit;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    color: var(--housing-text-dim);
+    background: var(--housing-chip-bg);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .housing-fav-addall-top:hover:not(:disabled) {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-fav-addall-top:disabled {
+    opacity: var(--housing-disabled-opacity);
+    cursor: not-allowed;
+  }
+  .housing-fav-bulkbar-btn--primary {
     display: none;
   }
 
@@ -8272,6 +8377,10 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-register-panel[data-region="left"],
   .housing-register-panel[data-region="right"] {
     display: none;
+  }
+  /* 実機FB#11(第4弾改訂): 本体がナビの下まで届くようになったため、フォーム末尾はナビ高さ+余裕を確保。 */
+  .housing-register-col-center {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
   }
 
   /* ----- Task3: ハウジンガーPF (HousingerPage) -----
@@ -8295,14 +8404,51 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   }
   .housing-tour-page {
     grid-template-columns: 1fr;
+    /* 実機FB#7: 外側インセット/パネル間隔を除去して地図を画面いっぱいに (探すの全面化と同型)。 */
+    padding: 0;
+    gap: 0;
+  }
+  .housing-tour-page-panel {
+    border-radius: 0;
+    border: none;
   }
   .housing-tour-page-panel[data-region="center"] {
     padding-bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
   }
-  /* 招待パネル(地図右下フロート)がバーの下に隠れないよう、バーの高さぶん底上げする
-     (position:absoluteの基準はpadding-boxのためpadding-bottomでは動かないためbottomを直接補正)。 */
+  /* 実機FB#7: 地図右下フロートの招待パネルはスマホでは出さない (招待/コピーは下部バーに一本化)。 */
   .housing-tour-invite {
-    bottom: calc(var(--housing-panel-radius) + 8px + var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
+    display: none;
+  }
+
+  /* ----- ツアー地図(TourNavMap): 行き方を地図下部の帯へ/フル住所2行折返し/ホイールヒント非表示 (実機2回目FB#4/#6) -----
+     下部バー(TourMobileBar)の1行省略表示だと行き方が読み切れなかったため、地図側の帯へ全文
+     (最大2行折返し)で移す。入れ替えに伴い、マウス向けの「ホイールでズーム・ドラッグで移動」
+     ヒントはスマホでは不要になるため非表示にする。 */
+  .housing-tour-map-hint {
+    display: none;
+  }
+  .housing-tour-map-directions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    padding: 8px 14px;
+    background: var(--housing-panel-bg-solid);
+    color: var(--housing-candle);
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    line-height: 1.35;
+    text-shadow: var(--housing-text-shadow);
+    pointer-events: none;
+  }
+  /* 実機2回目FB#6: フル住所チップは省略せず全文(最大2行折返し)で表示する(PC は1行ellipsisのまま維持)。
+     右側はコンパス(40px + right:10px + 余白)を避けるよう100%からその分を差し引く
+     (--housing-panel-radius は左インセットと同じ変数を使い、値が変わっても追随する)。 */
+  .housing-tour-map-address {
+    white-space: normal;
+    max-width: calc(100% - var(--housing-panel-radius) - 68px);
+    text-overflow: clip;
   }
 
   /* ----- TourMobileBar: 下部の細い操作バー ----- */
@@ -8365,13 +8511,23 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     outline: 2px solid var(--housing-honey);
     outline-offset: 2px;
   }
+  /* 実機2回目FB#7: 行き方が地図下部へ移って空いたバー左端に「終了」を置く。見た目は汎用ボタンと同型
+     (ハニーにしない・控えめ)。margin-right:auto で残りの要素(前へ/見学/次へ/招待)を右側へ寄せる
+     (旧 .housing-tour-mobilebar-directions の flex:1 が担っていた「左右に分ける」役割の引き継ぎ)。 */
+  .housing-tour-mobilebar-btn--finish {
+    margin-right: auto;
+  }
   /* 次へ/完了 = 主アクション (ツアーはハニーゴールドが正典・右パネルのnextボタンと同型) */
   .housing-tour-mobilebar-btn--next {
     color: var(--housing-honey-text);
     background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
     border: 0;
   }
+  /* 実機FB#5(2回目): 汎用 .housing-tour-mobilebar-btn:hover の灰色 background が
+     ハニーの次へにも勝ち、iOS はタップ後も hover が残る(sticky hover)ため
+     「次へが毎回消える(押せるが見えない)」症状になっていた。hover でもグラデを再指定して防ぐ。 */
   .housing-tour-mobilebar-btn--next:hover:not(:disabled) {
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
     filter: brightness(1.05);
   }
   .housing-tour-mobilebar-invite {
@@ -8400,43 +8556,114 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     outline-offset: 2px;
   }
 
-  /* ----- TourOrientationHint: 縦持ち時の全画面「横にして」ヒント ----- */
-  .housing-tour-orientation-hint {
+  /* ----- MobileTourTrayBar: トレイに積んだら出る小バー (実機FB#10) -----
+     ボトムナビの上・FAB の左に浮く。件数確認 + 開始 + クリアだけの最小トレイ。 */
+  .housing-tour-traybar {
     position: fixed;
-    inset: 0;
-    z-index: var(--housing-tour-orientation-z);
+    left: 12px;
+    right: calc(var(--housing-fab-size) + var(--housing-fab-offset) + 12px);
+    bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + var(--housing-fab-gap));
+    z-index: var(--housing-z-mobile-chrome);
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 24px;
-    text-align: center;
-    background: var(--housing-tour-orientation-veil);
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--housing-panel-bg-solid);
+    border: 1px solid var(--housing-honey-border);
+    border-radius: 12px;
+    box-shadow: var(--housing-panel-shadow);
+  }
+  .housing-tour-traybar-icon {
+    flex: 0 0 auto;
+    color: var(--housing-honey);
+  }
+  .housing-tour-traybar-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: var(--housing-text-xs);
+    font-weight: 600;
     color: var(--housing-text);
   }
-  .housing-tour-orientation-hint-icon {
+  .housing-tour-traybar-count {
+    font-size: var(--housing-text-sm);
+    font-weight: 700;
     color: var(--housing-honey);
-    transform: rotate(90deg);
+    font-variant-numeric: tabular-nums;
   }
-  .housing-tour-orientation-hint-text {
-    margin: 0;
-    max-width: 240px;
-    font-size: var(--housing-text-base);
-    font-weight: 600;
-    text-shadow: var(--housing-text-shadow);
+  .housing-tour-traybar-start {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 32px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: var(--housing-text-xs);
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .housing-tour-traybar-start:hover {
+    filter: brightness(1.05);
+  }
+  .housing-tour-traybar-start:active {
+    transform: scale(0.96);
+  }
+  .housing-tour-traybar-start:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+  .housing-tour-traybar-clear {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: var(--housing-text-mute);
+    background: transparent;
+    border: 1px solid var(--housing-panel-border);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .housing-tour-traybar-clear:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-tour-traybar-clear:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
   }
 
   /* ----- 見学オーバーレイ: 左パネル(TourShowcasePanel)非表示の代替 -----
      全画面に写真/住所/紹介文を重ね、閉じるボタンで戻る(次へで進んだら自動で閉じる)。 */
   .housing-tour-mobile-showcase {
     position: fixed;
-    inset: 0;
+    /* 実機FB#8: inset:0 だと下部バー(z-mobile-chrome)をこのオーバーレイ(z-modal-base)が覆い、
+       「次へ」が見学中に消える。下端をバーの上で止めてバーを常時操作可能にする
+       (次へで進むと currentIndex 変化の effect がオーバーレイを自動で閉じる)。 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
     z-index: var(--housing-z-modal-base);
     display: flex;
     flex-direction: column;
     background: var(--housing-panel-bg-solid);
-    padding-bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
   }
   .housing-tour-mobile-showcase-close {
     appearance: none;
@@ -8469,5 +8696,160 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     min-height: 0;
     overflow-y: auto;
     padding: 4px 16px 16px;
+  }
+
+  /* ----- 実機FB第4弾→第5弾: お気に入りの操作まわりを常に2行に固定してカード4枚を見せる -----
+     1行目 = タブ(すべて/最近追加) + 選択カウント(選択時のみ・同居)
+     2行目 = [すべて選択 選択解除]  …  [選択だけ追加 お気に入りから外す] (左右2グループ)
+     ボタンは「箱の中の箱」をやめて文字だけ (外箱 .housing-fav-bulkbar は残す)。 */
+  .housing-fav-tabsrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .housing-fav-selcount {
+    white-space: nowrap;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+  }
+  .housing-fav-tabs {
+    gap: 10px;
+  }
+  .housing-fav-tab {
+    padding: 4px 8px;
+    font-size: var(--housing-text-sm);
+  }
+  .housing-fav-bulkbar {
+    padding: 5px 10px;
+  }
+  /* バー内蔵のカウントはタブ行へ移設したので出さない (行が増えるのを防ぐ)。 */
+  .housing-fav-bulkbar-count {
+    display: none;
+  }
+  .housing-fav-bulkbar-actions {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    overflow-x: auto;
+    gap: 10px;
+    scrollbar-width: none;
+  }
+  .housing-fav-bulkbar-actions::-webkit-scrollbar {
+    display: none;
+  }
+  .housing-fav-bulkbar-group {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  /* ボタンは文字だけ (色は各 variant の文字色をそのまま生かす)。後勝ちで chip 装飾を無効化。 */
+  .housing-fav-bulkbar-btn {
+    height: auto;
+    padding: 4px 2px;
+    font-size: var(--housing-text-xs);
+    white-space: nowrap;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  /* sticky hover 対策 (#5 の教訓): タップ後に variant の hover 背景が残って箱が復活しないように。 */
+  .housing-fav-bulkbar-btn:hover:not(:disabled) {
+    background: none;
+    box-shadow: none;
+    filter: none;
+  }
+
+  /* ----- housing シート (フィルター/設定) の housing トンマナ化 (実機FB#1#3) -----
+     共有 MobileBottomSheet は miti トークン (--color-sheet-bg = ライトで白) のため、
+     housing の白文字が見えなかった。className 経由でシート面を濃紺パネルに上書きする。
+     背景は元がインライン style なので、ここだけ !important が必要 (housing-design 例外)。 */
+  .housing-mobile-sheet {
+    /* シートは背後のカードが透けない完全不透明面 (ユーザー訂正・実機FB第3弾)。 */
+    background-color: var(--housing-mobile-chrome-bg) !important;
+    color: var(--housing-text);
+    border: 1px solid var(--housing-panel-border);
+    border-bottom: none;
+  }
+  /* ドラッグハンドル棒 (miti の --app-text ベースだと housing 面で沈む) */
+  .housing-mobile-sheet > div:first-child > div {
+    background: var(--housing-text-dim);
+    opacity: 0.5;
+  }
+  .housing-sheet-head {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 2px 2px 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--housing-divider);
+  }
+  .housing-sheet-title {
+    font-size: var(--housing-text-md);
+    font-weight: 700;
+    color: var(--housing-text);
+  }
+  .housing-sheet-close {
+    appearance: none;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid var(--housing-panel-border);
+    background: transparent;
+    color: var(--housing-text-mute);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .housing-sheet-close:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-sheet-close:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+
+  /* ----- 実機FB#4: 詳細ギャラリー = 全幅ヒーロー(上) + 横スクロールサムネ(下) -----
+     ベースCSSはスマホでも「左メイン+右縦サムネ」の行flex (3053行) のため、余白だらけで
+     メイン写真が小さかった。縦積みに切り替え、横長写真を画面幅いっぱいに出す。 */
+  .housing-detail-gallery {
+    height: auto;               /* 固定 min(60vh,420px) をやめ中身の実寸で */
+    min-height: 0;
+  }
+  .housing-gallery {
+    flex-direction: column;
+    height: auto;
+  }
+  .housing-gallery-stage {
+    flex: 0 0 auto;
+    width: 100%;
+    /* ヒーロー枠。中身は object-fit:contain なので縦長写真でも切り抜かれない。 */
+    aspect-ratio: 16 / 10;
+  }
+  .housing-detail-thumbrail-wrap {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+  .housing-detail-thumbrail {
+    height: auto;
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 6px;
+  }
+  .housing-detail-thumb {
+    width: 96px;                /* 横列の1枚ぶん (aspect-ratio 16/9 は既存のまま) */
+  }
+  /* 上下グラデの縦フェードは横列では意味を成さないため無効化。 */
+  .housing-detail-thumbrail-wrap::before,
+  .housing-detail-thumbrail-wrap::after {
+    display: none;
   }
 }

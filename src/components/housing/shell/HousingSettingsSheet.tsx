@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { X } from 'lucide-react';
 import { MobileBottomSheet } from '../../MobileBottomSheet';
 import { useThemeStore } from '../../../store/useThemeStore';
 
@@ -21,8 +22,20 @@ export const HousingSettingsSheet: React.FC<HousingSettingsSheetProps> = ({ isOp
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
 
+  // 実機FB#3: フィルターシートと同じく housing トンマナ化 (自前ヘッダー + className)。
   return (
-    <MobileBottomSheet isOpen={isOpen} onClose={onClose} title={t('housing.mobile.settings_title')}>
+    <MobileBottomSheet isOpen={isOpen} onClose={onClose} className="housing-mobile-sheet">
+      <div className="housing-sheet-head">
+        <span className="housing-sheet-title">{t('housing.mobile.settings_title')}</span>
+        <button
+          type="button"
+          className="housing-sheet-close"
+          onClick={onClose}
+          aria-label={t('housing.card.close')}
+        >
+          <X size={18} aria-hidden="true" />
+        </button>
+      </div>
       <div className="housing-mobile-settings-section">
         <h4 className="housing-mobile-settings-label">{t('housing.mobile.settings_theme')}</h4>
         <div
