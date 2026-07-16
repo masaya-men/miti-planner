@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Heart } from 'lucide-react';
@@ -6,7 +6,8 @@ import { useHousingFavoritesStore } from '../../../store/useHousingFavoritesStor
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import { canDisplayAddress } from '../../../lib/housing/listingPublish';
+import { canDisplayAddress, mergeListingsForViewer } from '../../../lib/housing/listingPublish';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackContext';
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
@@ -44,19 +45,31 @@ const MAX_THUMBS = 12;
  * 直近のお気に入りサムネを横一列で + 「すべて見る」でお気に入りページへ。
  * 3件超は横スクロール (ホイールでも横送り・4件目が見切れてスクロールを示唆)。
  * お気に入りが無いときは軽い誘導文。
+ * 件数は解決できた物件のみ (お気に入りページ見出しと同じ数え方)。
  */
 export const FavoritesPreviewStrip: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const favoriteIds = useHousingFavoritesStore((s) => s.ids);
   const listings = useHousingListingsStore((s) => s.listings);
+  const myListings = useHousingListingsStore((s) => s.myListings);
+  const uid = useAuthStore((s) => s.user?.uid ?? null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  // 新しい順 (add で末尾 push) で数枚。
-  const recent = [...favoriteIds]
-    .reverse()
-    .map((id) => listings.find((l) => l.id === id))
-    .filter((l): l is MockListing => Boolean(l));
+  // 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流 (探す/お気に入りページと同じ解決プール)。
+  const pool = useMemo(
+    () => mergeListingsForViewer(listings, myListings, uid, Date.now()),
+    [listings, myListings, uid],
+  );
+
+  // 新しい順 (add で末尾 push) で数枚。重複 id は dedupe してから解決 (件数の水増し防止)。
+  const recent = useMemo(() => {
+    const map = new Map(pool.map((l) => [l.id, l]));
+    return Array.from(new Set(favoriteIds))
+      .reverse()
+      .map((id) => map.get(id))
+      .filter((l): l is MockListing => Boolean(l));
+  }, [favoriteIds, pool]);
   const thumbs = recent.slice(0, MAX_THUMBS);
 
   // ストリップ上のホイールを横スクロールに変換する (横溢れがある時だけ・縦ページ送りは妨げない)。
@@ -79,7 +92,7 @@ export const FavoritesPreviewStrip: React.FC = () => {
         <span className="housing-fav-strip-title">
           <Heart size={13} aria-hidden="true" />
           {t('housing.favStrip.title')}
-          <span className="housing-fav-strip-count">{favoriteIds.length}</span>
+          <span className="housing-fav-strip-count">{recent.length}</span>
         </span>
         <button
           type="button"
