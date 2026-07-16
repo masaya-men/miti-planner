@@ -2667,6 +2667,17 @@
             "login": "ログイン",
             "account": "アカウント"
         },
+        "mobile": {
+            "nav_filter": "フィルター",
+            "nav_favorites": "お気に入り",
+            "nav_tour": "ツアー",
+            "nav_settings": "設定",
+            "nav_login": "ログイン",
+            "filter_title": "フィルター",
+            "settings_title": "設定",
+            "settings_theme": "テーマ",
+            "settings_language": "言語"
+        },
         "gallery": {
             "loading": "物件を読み込んでいます…",
             "error": "物件の読み込みに失敗しました",

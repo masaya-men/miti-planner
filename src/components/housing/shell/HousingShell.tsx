@@ -1,11 +1,18 @@
-import { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useHousingViewStore } from '../../../store/useHousingViewStore';
+import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 import { SceneryVideo } from '../workspace/SceneryVideo';
 import { AppHeader } from './AppHeader';
 import { StatusBar } from '../workspace/StatusBar';
+import { HousingBottomNav } from './HousingBottomNav';
+import { HousingRegisterFab } from './HousingRegisterFab';
+import { HousingFilterSheet } from './HousingFilterSheet';
+import { HousingSettingsSheet } from './HousingSettingsSheet';
 import { HousingLoginModal } from '../login/HousingLoginModal';
 import { HousingAccountModal } from '../login/HousingAccountModal';
 import { HousingPlaybackProvider } from '../../../lib/housing/HousingPlaybackContext';
@@ -24,6 +31,16 @@ import '../../../styles/housing.css';
 export const HousingShell: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
   const user = useAuthStore((s) => s.user);
+  const isMobile = useIsMobile();
+  const mode = useHousingViewStore((s) => s.mode);
+  const joinedToken = useJoinedTourStore((s) => s.token);
+  const { pathname } = useLocation();
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // ツアー中 (自分のツアー実行中、または共有ツアー参加中でそのページを見ている) は没入UIのため
+  // ボトムナビ/FAB を出さない (Task1 モバイルシェル基盤・plan の immersive 判定)。
+  const immersive = mode === 'tour' || (!!joinedToken && pathname === `/housing/tour/${joinedToken}`);
 
   // 物件データを 1 回だけロード (冪等・全ページ共有)。
   useEffect(() => {
@@ -57,6 +74,15 @@ export const HousingShell: React.FC = () => {
             <Outlet />
           </HousingPlaybackProvider>
         </div>
+        {isMobile && !immersive && (
+          <HousingBottomNav
+            onOpenFilter={() => setFilterOpen(true)}
+            onOpenSettings={() => setSettingsOpen(true)}
+          />
+        )}
+        {isMobile && !immersive && <HousingRegisterFab />}
+        {isMobile && <HousingFilterSheet isOpen={filterOpen} onClose={() => setFilterOpen(false)} />}
+        {isMobile && <HousingSettingsSheet isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />}
         <StatusBar />
       </div>
       <HousingLoginModal />

@@ -258,6 +258,16 @@
   /* ===== 再構築シェル (Rebuild) tokens ===== */
   --housing-tab-active: var(--housing-honey);
 
+  /* ===== モバイルシェル基盤 (Task1: ボトムナビ/FAB/フィルタ・設定シート) =====
+     --housing-bottomnav-h は MobileBottomSheet の bottom:calc(3.5rem + safe-area) 着地と
+     一致させる値 (3.5rem=56px)。シートは housing 専用トークンを持たない共有コンポーネントの
+     ため、こちらの値をシート側の着地位置に合わせて選んだ。 */
+  --housing-bottomnav-h: 3.5rem;
+  --housing-fab-size: 3.25rem;
+  --housing-fab-gap: 0.75rem;
+  --housing-fab-offset: 1rem;
+  --housing-z-mobile-chrome: 45; /* 通常コンテンツより前面、モーダル(--housing-z-modal-base=50)より背面 */
+
   /* ===== Typography ===== */
   font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
   font-size: 14px;
@@ -8091,4 +8101,133 @@ html[data-theme-anim="light"]::view-transition-new(root) {
 /* エーテライトラベルは奥行きオーバーレイより上に (読めなくならないように)。 */
 .housing-tour-map-aetheryte-label {
   z-index: 2;
+}
+
+/* ============================================================
+ * モバイルシェル基盤 (Task1: ボトムナビ / FAB / フィルタ・設定シート)
+ * ============================================================ */
+
+/* ----- ボトムナビ ----- */
+.housing-bottomnav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--housing-z-mobile-chrome);
+  display: flex;
+  align-items: stretch;
+  height: var(--housing-bottomnav-h);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-panel-border);
+  box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.14);
+}
+.housing-bottomnav-item {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--housing-text-mute);
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.housing-bottomnav-item.is-active {
+  color: var(--housing-honey);
+}
+.housing-bottomnav-icon {
+  position: relative;
+  display: inline-flex;
+}
+.housing-bottomnav-badge {
+  position: absolute;
+  top: -2px;
+  right: -3px;
+  width: var(--housing-notif-dot-size);
+  height: var(--housing-notif-dot-size);
+  border-radius: 50%;
+  background: var(--housing-notif-badge-bg);
+}
+.housing-bottomnav-label {
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* ----- 登録 FAB ----- */
+.housing-mobile-fab {
+  position: fixed;
+  right: var(--housing-fab-offset);
+  bottom: calc(var(--housing-bottomnav-h) + var(--housing-fab-gap) + env(safe-area-inset-bottom, 0px));
+  z-index: var(--housing-z-mobile-chrome);
+  width: var(--housing-fab-size);
+  height: var(--housing-fab-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: var(--housing-honey);
+  color: var(--housing-honey-text-strong);
+  box-shadow: var(--housing-panel-shadow);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-mobile-fab:active {
+  transform: scale(0.94);
+}
+
+/* ----- フィルターシート ----- */
+.housing-mobile-filter-search {
+  margin-bottom: 12px;
+}
+
+/* ----- 設定シート (旧 StatusBar の移植先) ----- */
+.housing-mobile-settings-section + .housing-mobile-settings-section {
+  margin-top: 20px;
+}
+.housing-mobile-settings-label {
+  margin: 0 0 8px;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--housing-text-mute);
+}
+.housing-mobile-settings-legal {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--housing-divider);
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+/* ----- モバイル (<=767px) レイアウト調整 ----- */
+@media (max-width: 767px) {
+  /* StatusBar 行は設定シートへ統合したので、シェルの grid から丸ごと外す
+     (行を残すと --housing-status-h ぶんの空白が下端に残ってしまう)。 */
+  .housing-shell {
+    grid-template-rows: var(--housing-header-h) 1fr;
+  }
+  .housing-status {
+    display: none;
+  }
+  /* ボトムナビの高さぶん、本体下端が隠れないように余白を確保。 */
+  .housing-shell-body {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px));
+  }
+  /* ヘッダーはブランドのみ残し、横断検索/タブ/右群 (通知・テーマ・アバター) は
+     ボトムナビ/シート側に移設したので隠す。 */
+  .housing-app-header .housing-app-search,
+  .housing-app-header .housing-tabbar,
+  .housing-app-header .housing-app-header-right {
+    display: none;
+  }
 }

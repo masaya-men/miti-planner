@@ -2611,6 +2611,17 @@
             "login": "",
             "account": ""
         },
+        "mobile": {
+            "nav_filter": "필터",
+            "nav_favorites": "즐겨찾기",
+            "nav_tour": "투어",
+            "nav_settings": "설정",
+            "nav_login": "로그인",
+            "filter_title": "필터",
+            "settings_title": "설정",
+            "settings_theme": "테마",
+            "settings_language": "언어"
+        },
         "gallery": {
             "loading": "物件を読み込んでいます…",
             "error": "物件の読み込みに失敗しました",
