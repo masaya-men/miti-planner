@@ -306,6 +306,9 @@ export const TourNavPage: React.FC = () => {
             showCrossing={showCrossingOverlay}
             onAckCrossing={onAckCrossing}
             addressListing={currentListing}
+            // 実機2回目FB#4: 行き方はスマホ下部バーの1行省略表示だと読み切れないため、
+            // スマホの時だけ地図下部の帯へ全文(最大2行折返し)で渡す。PC は従来通り渡さない。
+            footerDirections={isMobile ? directionsText : null}
           />
         </div>
         <TourInvitePanel
@@ -342,7 +345,6 @@ export const TourNavPage: React.FC = () => {
       {isMobile && <TourOrientationHint />}
       {isMobile && listingIds.length > 0 && !completed && (
         <TourMobileBar
-          directionsText={directionsText}
           canPrev={currentIndex > 0}
           canView={canView}
           isLast={isLast}
@@ -354,6 +356,9 @@ export const TourNavPage: React.FC = () => {
           showInvite
           inviteMode={tourToken ? 'copy' : 'create'}
           onInvite={tourToken ? onCopyInvite : onInvite}
+          // 実機2回目FB#7: 行き方が地図下部へ移って空いたバー左端に「終了」ボタンを置く。
+          // 既存の onFinish(共有 live の終了処理込み)をそのまま渡すだけ。
+          onFinish={onFinish}
         />
       )}
       {isMobile && showcaseOpen && (

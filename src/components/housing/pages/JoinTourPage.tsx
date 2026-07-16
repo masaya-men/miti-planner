@@ -9,7 +9,6 @@ import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
-import { TourMobileBar } from '../tour/TourMobileBar';
 import { TourOrientationHint } from '../tour/TourOrientationHint';
 
 /**
@@ -112,6 +111,9 @@ export const JoinTourPage: React.FC = () => {
             showCrossing={showCrossing}
             crossingReadOnly
             addressListing={model.currentListing}
+            // 実機2回目FB#4: TourNavPage と同じく、スマホの時だけ行き方を地図下部の帯へ全文表示する
+            // (廃止した TourMobileBar が担っていた行き方表示の移設先)。
+            footerDirections={isMobile ? directionsText : null}
           />
         </div>
       </section>
@@ -135,22 +137,11 @@ export const JoinTourPage: React.FC = () => {
       </section>
 
       {/* Task5: スマホ横持ちUI。左右パネルはCSSで非表示(TourNavPageと同じ .housing-tour-page-panel
-          data-region セレクタを流用=CSS追加不要)にし、下部に行き方だけのバー+縦持ちヒントを重ねる。
-          参加者は幹事に追従するだけなので TourMobileBar は readOnly(操作ボタン無し)。
-          ended(完了オーバーレイ表示中)はバーを隠す(TourNavPageの !completed と同型)。 */}
+          data-region セレクタを流用=CSS追加不要)にし、縦持ちヒントを重ねる。
+          実機2回目FB#4: 参加者は操作を持たず行き方だけ表示するためのバーだったが、
+          行き方は地図下部の帯(footerDirections)へ移設したためバー自体は廃止した
+          (TourMobileBar の readOnly prop 自体は互換のためコンポーネント側に残している)。 */}
       {isMobile && <TourOrientationHint />}
-      {isMobile && !isEnded && (
-        <TourMobileBar
-          directionsText={directionsText}
-          readOnly
-          canPrev={false}
-          canView={false}
-          isLast={false}
-          onPrev={() => {}}
-          onView={() => {}}
-          onNext={() => {}}
-        />
-      )}
 
       {/* ended = 主催者と同じ完了オーバーレイ(素敵な時間でしたね)を重ねる(#B)。
           ゲストも「探す/お気に入りに戻る」で移動でき、離脱時に参加記録をクリアする。 */}

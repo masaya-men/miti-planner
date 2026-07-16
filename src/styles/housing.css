@@ -8351,6 +8351,37 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     display: none;
   }
 
+  /* ----- ツアー地図(TourNavMap): 行き方を地図下部の帯へ/フル住所2行折返し/ホイールヒント非表示 (実機2回目FB#4/#6) -----
+     下部バー(TourMobileBar)の1行省略表示だと行き方が読み切れなかったため、地図側の帯へ全文
+     (最大2行折返し)で移す。入れ替えに伴い、マウス向けの「ホイールでズーム・ドラッグで移動」
+     ヒントはスマホでは不要になるため非表示にする。 */
+  .housing-tour-map-hint {
+    display: none;
+  }
+  .housing-tour-map-directions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    padding: 8px 14px;
+    background: var(--housing-panel-bg-solid);
+    color: var(--housing-candle);
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
+    line-height: 1.35;
+    text-shadow: var(--housing-text-shadow);
+    pointer-events: none;
+  }
+  /* 実機2回目FB#6: フル住所チップは省略せず全文(最大2行折返し)で表示する(PC は1行ellipsisのまま維持)。
+     右側はコンパス(40px + right:10px + 余白)を避けるよう100%からその分を差し引く
+     (--housing-panel-radius は左インセットと同じ変数を使い、値が変わっても追随する)。 */
+  .housing-tour-map-address {
+    white-space: normal;
+    max-width: calc(100% - var(--housing-panel-radius) - 68px);
+    text-overflow: clip;
+  }
+
   /* ----- TourMobileBar: 下部の細い操作バー ----- */
   .housing-tour-mobilebar {
     position: fixed;
@@ -8410,6 +8441,12 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-tour-mobilebar-btn:focus-visible {
     outline: 2px solid var(--housing-honey);
     outline-offset: 2px;
+  }
+  /* 実機2回目FB#7: 行き方が地図下部へ移って空いたバー左端に「終了」を置く。見た目は汎用ボタンと同型
+     (ハニーにしない・控えめ)。margin-right:auto で残りの要素(前へ/見学/次へ/招待)を右側へ寄せる
+     (旧 .housing-tour-mobilebar-directions の flex:1 が担っていた「左右に分ける」役割の引き継ぎ)。 */
+  .housing-tour-mobilebar-btn--finish {
+    margin-right: auto;
   }
   /* 次へ/完了 = 主アクション (ツアーはハニーゴールドが正典・右パネルのnextボタンと同型) */
   .housing-tour-mobilebar-btn--next {

@@ -31,6 +31,10 @@ export interface TourNavMapProps {
   crossingReadOnly?: boolean;
   /** 現在の目的地の listing。左上のフル住所オーバーレイに使う。省略時はオーバーレイ自体を出さない。 */
   addressListing?: MockListing | null;
+  /** 現在地→目的地の行き方(整形済みテキスト)。実機FB#4: スマホ下部バーの1行省略表示だと
+   *  読み切れなかったため、渡されたときだけ地図コンテナ下部の帯へ全文(最大2行折返し)で表示する。
+   *  省略/null なら何も出さない(PC は呼び出し側が渡さないため従来通り無表示)。 */
+  footerDirections?: string | null;
 }
 
 const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
@@ -47,7 +51,7 @@ type MapData = { svg: string; viewBox: { w: number; h: number }; model: TourMapM
 export const TourNavMap: React.FC<TourNavMapProps> = ({
   status, svg, viewBox, model, stepKey, originName,
   crossing = { kind: 'none' }, showCrossing = false, onAckCrossing = () => {},
-  crossingReadOnly = false, addressListing = null,
+  crossingReadOnly = false, addressListing = null, footerDirections = null,
 }) => {
   const { t, i18n } = useTranslation();
   const hostRef = useRef<HTMLDivElement>(null);
@@ -435,6 +439,13 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
         {displayed && (
           <div className="housing-tour-map-hint" data-testid="tour-map-hint" aria-hidden="true">
             {t('housing.tour.nav.map_hint')}
+          </div>
+        )}
+        {/* 実機FB#4: スマホ下部バーの1行省略表示に代わり、行き方を地図下部の帯へ全文表示する。
+            マウス向けの上のヒント(ホイールでズーム)はスマホでは housing.css 側で非表示にする。 */}
+        {footerDirections && (
+          <div className="housing-tour-map-directions" data-testid="tour-map-footer-directions">
+            {footerDirections}
           </div>
         )}
         {showCrossing && crossing.kind !== 'none' && (
