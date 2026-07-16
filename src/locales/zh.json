@@ -2620,7 +2620,8 @@
             "filter_title": "筛选",
             "settings_title": "设置",
             "settings_theme": "主题",
-            "settings_language": "语言"
+            "settings_language": "语言",
+            "rotate_hint": "请将设备横过来"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

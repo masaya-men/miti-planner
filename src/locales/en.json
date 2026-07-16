@@ -2655,7 +2655,8 @@
             "filter_title": "Filter",
             "settings_title": "Settings",
             "settings_theme": "Theme",
-            "settings_language": "Language"
+            "settings_language": "Language",
+            "rotate_hint": "Please rotate your device to landscape"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

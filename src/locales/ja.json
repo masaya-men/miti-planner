@@ -2676,7 +2676,8 @@
             "filter_title": "フィルター",
             "settings_title": "設定",
             "settings_theme": "テーマ",
-            "settings_language": "言語"
+            "settings_language": "言語",
+            "rotate_hint": "端末を横にしてください"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

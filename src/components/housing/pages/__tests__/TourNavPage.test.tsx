@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
@@ -18,6 +18,9 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => navigate };
 });
 
+// useIsMobile: BrowsePage.test.tsx と同じモック流儀 (既定 false、個別 it で true に上書き)。
+vi.mock('../../../../hooks/useIsMobile', () => ({ useIsMobile: vi.fn().mockReturnValue(false) }));
+
 // HousingReportModal は実物 (useHousingReport/fetch) を通さず、
 // open/listingId の配線だけを検証する軽量スタブに差し替える。
 vi.mock('../../report/HousingReportModal', () => ({
@@ -32,6 +35,7 @@ vi.mock('../../../Toast', () => ({
 }));
 
 import { TourNavPage } from '../TourNavPage';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -244,5 +248,23 @@ describe('TourNavPage', () => {
     expect(container.querySelector('[data-region="left"]')?.hasAttribute('inert')).toBe(true);
     expect(container.querySelector('[data-region="center"]')?.hasAttribute('inert')).toBe(true);
     expect(container.querySelector('[data-region="right"]')?.hasAttribute('inert')).toBe(true);
+  });
+
+  // Task4: スマホ横持ちUI(案A)。useIsMobile=true かつ未完了・listingIds ありで
+  // 下部操作バー(TourMobileBar)が追加描画されることだけを検証する(既存3カラムはそのまま)。
+  describe('モバイル(useIsMobile=true)', () => {
+    beforeEach(() => {
+      vi.mocked(useIsMobile).mockReturnValue(true);
+    });
+    afterEach(() => {
+      vi.mocked(useIsMobile).mockReturnValue(false);
+    });
+
+    it('TourMobileBarが描画される', () => {
+      useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
+      seedListings();
+      renderPage();
+      expect(screen.getByTestId('tour-mobile-bar')).toBeInTheDocument();
+    });
   });
 });
