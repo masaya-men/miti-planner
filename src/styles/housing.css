@@ -34,8 +34,8 @@
      旧値 rgba(255,255,255,0.04) は透けすぎて暗幕頼みだった。light/dark 共通 (text は常に白)。 */
   --housing-panel-bg: rgba(17, 23, 37, 0.56);
   --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
-  /* 実機FB第2弾#1: ボトムナビ用の完全不透明面。panel-bg-solid は α0.74 で背後のカードが
-     透けて視認性が悪かった (スマホ実機)。同系色の無透過版をモバイルクロム専用に持つ。 */
+  /* 実機FB第2弾#1(訂正): 完全不透明面は「常設ボトムナビ」ではなく「シート(フィルター/設定)」用。
+     ナビは従来どおり panel-bg-solid の透けを残し、開いたシートだけ中身が透けないようにする。 */
   --housing-mobile-chrome-bg: rgb(13, 18, 30);
   /* 探す地図② 区画セグメント (.housing-mapctl-areas) の角丸。大量部屋パネル
      (.housing-bmap-roompanel) が同じ角丸で上に重なるので、裏のピルの角が
@@ -8132,8 +8132,8 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   align-items: stretch;
   height: var(--housing-bottomnav-h);
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* 実機FB第2弾#1: α付き solid だと背後のカードが透ける → 完全不透明面へ。 */
-  background: var(--housing-mobile-chrome-bg);
+  /* 常設ナビは従来どおり軽く透ける (ユーザー訂正: 不透明にするのはシートの方)。 */
+  background: var(--housing-panel-bg-solid);
   border-top: 1px solid var(--housing-panel-border);
   box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.14);
 }
@@ -8261,25 +8261,23 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   /* 実機FB第2弾#2: フィルターをボトムナビからヘッダーへ移設 (探すページのみ・AppHeader が isMobile ゲート)。
      .housing-app-header-right は上で非表示なので、その外の独立要素として右寄せする
      (ヘッダー自体が display:flex なので margin-left:auto で右端に付く)。 */
+  /* 実機FB第3弾: 囲いなしのテキストボタン「フィルター ▼」(丸チップをやめる)。 */
   .housing-app-header-filterbtn {
     margin-left: auto;
     flex-shrink: 0;
-    width: var(--housing-notif-bell-size);
-    height: var(--housing-notif-bell-size);
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--housing-chip-bg);
-    border: 1px solid var(--housing-panel-border);
+    appearance: none;
+    background: none;
+    border: none;
+    padding: 6px 4px;
+    font-family: inherit;
+    font-size: var(--housing-text-sm);
+    font-weight: 600;
     color: var(--housing-text);
     cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .housing-app-header-filterbtn:hover {
-    background: var(--housing-chip-bg-hover);
+    white-space: nowrap;
   }
   .housing-app-header-filterbtn:active {
-    transform: scale(0.94);
+    opacity: 0.7;
   }
 
   /* ----- 探す/お気に入り: 左右パネル非表示 + 中央1カラム全幅 -----
@@ -8692,7 +8690,8 @@ html[data-theme-anim="light"]::view-transition-new(root) {
      housing の白文字が見えなかった。className 経由でシート面を濃紺パネルに上書きする。
      背景は元がインライン style なので、ここだけ !important が必要 (housing-design 例外)。 */
   .housing-mobile-sheet {
-    background-color: var(--housing-panel-bg-solid) !important;
+    /* シートは背後のカードが透けない完全不透明面 (ユーザー訂正・実機FB第3弾)。 */
+    background-color: var(--housing-mobile-chrome-bg) !important;
     color: var(--housing-text);
     border: 1px solid var(--housing-panel-border);
     border-bottom: none;

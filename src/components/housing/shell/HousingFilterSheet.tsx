@@ -24,7 +24,14 @@ export const HousingFilterSheet: React.FC<HousingFilterSheetProps> = ({ isOpen, 
   // 実機FB#1: 共有シートの白背景 (miti トークン) だと housing の白文字が見えない。
   // title prop はやめて housing 自前ヘッダーにし、className でシート面を housing トンマナ化する。
   return (
-    <MobileBottomSheet isOpen={isOpen} onClose={onClose} height="80vh" className="housing-mobile-sheet">
+    <MobileBottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      height="80vh"
+      className="housing-mobile-sheet"
+      // 実機FB第3弾: 中身の縦スクロールが全面スワイプ閉じと衝突して不安定 → つまみだけで閉じる。
+      swipeArea="handle"
+    >
       <div className="housing-sheet-head">
         <span className="housing-sheet-title">{t('housing.mobile.filter_title')}</span>
         <button

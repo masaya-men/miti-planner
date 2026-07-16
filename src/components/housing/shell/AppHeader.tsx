@@ -11,7 +11,7 @@ import type { PersonalTag } from '../../../types/housing';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { LoPoButton } from '../../LoPoButton';
 import { TabBar } from './TabBar';
-import { X, SlidersHorizontal } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 
@@ -252,9 +252,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenFilter }) => {
           type="button"
           className="housing-app-header-filterbtn"
           onClick={onOpenFilter}
-          aria-label={t('housing.mobile.nav_filter')}
         >
-          <SlidersHorizontal size={18} aria-hidden="true" />
+          {t('housing.mobile.nav_filter')}
+          <span aria-hidden="true"> ▼</span>
         </button>
       )}
     </header>
