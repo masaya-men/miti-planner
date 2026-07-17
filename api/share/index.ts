@@ -5,6 +5,7 @@
  * GET  /api/share?id=xxx — 短縮IDからプランデータを取得
  * PUT  /api/share        — 既存共有のロゴ更新
  * GET  /api/share?type=page&id=xxx — 共有ページHTML返却（OGP対応）
+ * GET  /api/share?type=housinger&uid=xxx — ハウジンガーページHTML返却（OGP対応）
  *
  * 既存の share + share-page を統合
  */
@@ -17,6 +18,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
 import { createHash } from 'crypto';
 import sharePageHandler from './_sharePageHandler.js';
+import housingerPageHandler from './_housingerPageHandler.js';
 import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { computeImageHash } from '../../src/lib/ogpImageHash.js';
 import { stripSharedPersonalData } from '../../src/lib/sharePrivacy.js';
@@ -80,6 +82,12 @@ export default async function handler(req: any, res: any) {
     // share-pageへのルーティング（?type=page）
     if (req.query?.type === 'page') {
         return sharePageHandler(req, res);
+    }
+
+    // ハウジンガーページへのルーティング（?type=housinger&uid=...）
+    // type=page と同様、rate limit / App Check を課さない（GET html、匿名クローラーも通す）。
+    if (req.query?.type === 'housinger') {
+        return housingerPageHandler(req, res);
     }
 
     // CORS
