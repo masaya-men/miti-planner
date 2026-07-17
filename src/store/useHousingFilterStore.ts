@@ -6,9 +6,12 @@ export type HousingSize = 'S' | 'M' | 'L';
 interface HousingFilterState {
     dc: string | null;
     regions: string[];
-    /** ユーザーが地域フィルターを一度でも自分で操作したか (toggleRegion/clearAll)。
-     *  true になったら言語切替による既定地域の上書き (applyLocaleDefaultRegions) を行わない。 */
+    /** ユーザーが地域フィルターを一度でも自分で操作したか (toggleRegion)。
+     *  true の間は言語切替による既定地域の上書き (applyLocaleDefaultRegions) を行わない。
+     *  clearAll で false に戻る (=「クリア」は言語既定の初期状態へ戻す)。 */
     regionsTouched: boolean;
+    /** 直近の言語から算出した地域の既定値。touched 中でも常に最新化する (clearAll の復帰先)。 */
+    localeDefaultRegions: string[];
     servers: string[];
     areas: HousingArea[];
     sizes: HousingSize[];
@@ -39,6 +42,7 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     dc: null,
     regions: [],
     regionsTouched: false,
+    localeDefaultRegions: [],
     servers: [],
     areas: [],
     sizes: [],
@@ -59,14 +63,18 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     toggleTag: (tag) => set((s) => ({ tags: toggleInArray(s.tags, tag) })),
     setKeyword: (keyword) => set({ keyword }),
     setCounts: (resultCount, totalCount) => set({ resultCount, totalCount }),
-    clearAll: () => set({
-        dc: null, regions: [], regionsTouched: true, servers: [], areas: [], sizes: [], tags: [], keyword: '',
-    }),
-    // 言語→地域の初期値 (spec: B案=言語は初期値のみ)。ユーザー操作後 (touched) は何もしない。
+    // クリア = 言語既定の初期状態へ戻す (全地域を見たい場合は地域チップを手で全部外せば
+    // toggleRegion 経由で touched=true になり従来どおり維持される)。
+    clearAll: () => set((s) => ({
+        dc: null, regions: s.localeDefaultRegions, regionsTouched: false,
+        servers: [], areas: [], sizes: [], tags: [], keyword: '',
+    })),
+    // 言語→地域の初期値 (spec: B案=言語は初期値のみ)。localeDefaultRegions は touched でも
+    // 常に最新化する (clearAll の復帰先として必要)。regions への反映のみ touched でガードする。
     applyLocaleDefaultRegions: (lang) => set((s) => {
-        if (s.regionsTouched) return {};
         const head = (lang || 'ja').slice(0, 2).toLowerCase();
-        const regions = head === 'ko' ? ['KR'] : head === 'zh' ? ['CN'] : ['JP', 'NA', 'EU', 'OCE'];
-        return { regions };
+        const localeDefaultRegions = head === 'ko' ? ['KR'] : head === 'zh' ? ['CN'] : ['JP', 'NA', 'EU', 'OCE'];
+        if (s.regionsTouched) return { localeDefaultRegions };
+        return { regions: localeDefaultRegions, localeDefaultRegions };
     }),
 }));

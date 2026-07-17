@@ -53,15 +53,17 @@ export const BrowsePage: React.FC = () => {
 
   const dc = useHousingFilterStore((s) => s.dc);
   const regions = useHousingFilterStore((s) => s.regions);
+  const regionsTouched = useHousingFilterStore((s) => s.regionsTouched);
   const servers = useHousingFilterStore((s) => s.servers);
   const areas = useHousingFilterStore((s) => s.areas);
   const sizes = useHousingFilterStore((s) => s.sizes);
   const tags = useHousingFilterStore((s) => s.tags);
   const keyword = useHousingFilterStore((s) => s.keyword);
-  // f: 中央フィルター解除ボタンの表示条件。FilterPanel.tsx:100-102 の hasActiveFilter と同じ式
-  // (keyword は対象外・据え置き)。
+  // f: 中央フィルター解除ボタンの表示条件。FilterPanel.tsx の hasActiveFilter と同じ式
+  // (keyword は対象外・据え置き)。地域は言語既定選択だけでは「フィルター中」扱いしない
+  // (regionsTouched ベース)。
   const hasActiveFilter =
-    Boolean(dc) || regions.length > 0 || servers.length > 0 ||
+    Boolean(dc) || regionsTouched || servers.length > 0 ||
     areas.length > 0 || sizes.length > 0 || tags.length > 0;
 
   // spec A-3: 公開一覧 + 自分の登録 (非公開/期限切れ含む) を合流。他人視点の表示は不変。

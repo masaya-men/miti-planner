@@ -90,7 +90,9 @@ describe('useHousingFilterStore', () => {
 });
 
 describe('言語別の地域初期値', () => {
-    beforeEach(() => useHousingFilterStore.getState().clearAll()); // 注: clearAll は touched を立てるので直接 setState でリセット
+    // 注: clearAll は regions を localeDefaultRegions に戻し touched を false にする
+    // (=言語既定への復帰)。テストの前提を明示的に固定するため直接 setState でもリセットする。
+    beforeEach(() => useHousingFilterStore.getState().clearAll());
     it('ko は KR、zh は CN、ja/en は全グローバル', () => {
         useHousingFilterStore.setState({ regions: [], regionsTouched: false });
         useHousingFilterStore.getState().applyLocaleDefaultRegions('ko');
@@ -104,5 +106,35 @@ describe('言語別の地域初期値', () => {
         useHousingFilterStore.getState().toggleRegion('JP');
         useHousingFilterStore.getState().applyLocaleDefaultRegions('ko');
         expect(useHousingFilterStore.getState().regions).toEqual(['JP']);
+    });
+});
+
+describe('クリア = 言語既定への復帰 (regionsTouched の往復)', () => {
+    beforeEach(() => useHousingFilterStore.getState().clearAll());
+
+    it('clearAll 後は regions=言語既定・touched=false (hasActiveFilter が false に戻る)', () => {
+        const s = useHousingFilterStore.getState();
+        s.applyLocaleDefaultRegions('ko'); // localeDefaultRegions = ['KR'], regions = ['KR']
+        s.toggleRegion('JP'); // ユーザー操作 → touched=true, regions = ['KR', 'JP']
+        s.setDC('Mana');
+        expect(useHousingFilterStore.getState().regions).toEqual(['KR', 'JP']);
+        expect(useHousingFilterStore.getState().regionsTouched).toBe(true);
+
+        s.clearAll();
+        const after = useHousingFilterStore.getState();
+        expect(after.regions).toEqual(['KR']); // 言語既定 (localeDefaultRegions) へ復帰
+        expect(after.regionsTouched).toBe(false);
+        expect(after.dc).toBeNull();
+    });
+
+    it('チップ全外し (toggleRegion で空にする) では touched=true のまま (自動では言語既定に戻らない)', () => {
+        const s = useHousingFilterStore.getState();
+        s.applyLocaleDefaultRegions('ja'); // regions = ['JP', 'NA', 'EU', 'OCE']
+        for (const region of ['JP', 'NA', 'EU', 'OCE']) {
+            s.toggleRegion(region);
+        }
+        const after = useHousingFilterStore.getState();
+        expect(after.regions).toEqual([]);
+        expect(after.regionsTouched).toBe(true);
     });
 });
