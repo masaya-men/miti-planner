@@ -5,6 +5,7 @@
 ### ✅ 2026-07-17 FB第7弾 (第6弾成果への実機FB反映)
 - **Xボタン**: アニメ発火をボタン全体の hover/focus に(TwitterXIcon を forwardRef 化しボタンから駆動)。詳細ページの X シェアは本文テキストなし=`text=`パラメータ自体を省略(URL+#LoPoのみ)。ハウジンガーページは表示名入り従来どおり。
 - **トレイ刷新**: ピンを「最初/最後」2ボタン→lucide Pin 1個の「この位置に固定」へ(resolveTourOrder 新セマンティクス=自動順でも pinned は現在indexに固定・unpinnedだけ効率順で空きスロットへ。ピン押下時は表示順を実体化してから固定)。行に 40px サムネ+タイトル/住所2行+title属性ホバー全文(PC/スマホシート共通)。i18n pin_first/pin_last→pin。
+- **スマホ見学開始の意図しないパネル**(`cf8ac37c`): 全画面ショーケースを撤去し、見学中は地図右上(コンパス直下)に「mm:ss 経過」チップのみ(pointer-events:none・PC右パネルは従来どおり)。
 - **OGP検証(systematic-debugging)**: 本番実URLを Twitterbot UA で curl → 専用メタ(表示名/bio/pbs.twimg.com画像/large card)が正しく返ることを実証。ユーザーの「黒ロゴ」は X の URL 単位カードキャッシュが原因(`?v=2`付きで新カード確認可)。実バグはフォールバック og:image が相対 `/api/og` だった1点のみ→絶対URL化済。診断で housing_profiles=1件(isPublished:true)・公開listing 5件・代表画像ありも確認。
 - 検証: build ✅ / vitest 3446 pass(既知 EphemeralAddPanel 7件のみ)。
 
