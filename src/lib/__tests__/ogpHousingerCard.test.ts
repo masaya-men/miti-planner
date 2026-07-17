@@ -20,9 +20,9 @@ const baseInput: HousingerOgCardInput = {
 };
 
 describe('buildHousingerOgCardParams', () => {
-    it('パラメータの並び順は type → name → avatar → img の固定順', () => {
+    it('パラメータの並び順は type → ver → name → avatar → img の固定順', () => {
         const params = buildHousingerOgCardParams(baseInput);
-        expect([...params.keys()]).toEqual(['type', 'name', 'avatar', 'img', 'img', 'img']);
+        expect([...params.keys()]).toEqual(['type', 'ver', 'name', 'avatar', 'img', 'img', 'img']);
     });
 
     it('imgs は先頭から最大3枚に切り詰められる', () => {

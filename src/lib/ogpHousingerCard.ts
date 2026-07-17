@@ -21,6 +21,12 @@
  */
 
 const SIG_PARAM = 'sig';
+/**
+ * カードURLの世代番号。レンダラー側の不具合修正等で「同じパラメータでも作り直したい」ときに上げる
+ * (URL が変わる = エッジ/SNS側の古いキャッシュを踏まない)。
+ * v2: WebP 画像で satori が空画像を返すバグ修正時に、失敗レスポンスの edge cache を回避するため導入。
+ */
+const CARD_VERSION = '2';
 /** hex 24桁 = 96bit。DoW対策の署名としては十分な長さ（URLを短く保つため sha256 の先頭を切る）。 */
 const SIG_HEX_LENGTH = 24;
 /** カードに載せる公開ハウジング画像の最大枚数。 */
@@ -43,6 +49,7 @@ export interface HousingerOgCardInput {
 export function buildHousingerOgCardParams(input: HousingerOgCardInput): URLSearchParams {
   const params = new URLSearchParams();
   params.set('type', 'housinger');
+  params.set('ver', CARD_VERSION);
   params.set('name', input.name || '');
   if (input.avatarUrl) params.set('avatar', input.avatarUrl);
   const imgs = (input.imageUrls || [])
