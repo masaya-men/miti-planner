@@ -2083,10 +2083,12 @@
             },
             "errors": {
                 "dc": {
-                    "required": "请选择数据中心"
+                    "required": "请选择数据中心",
+                    "unknown": "不存在的数据中心/世界，请从选项中选择"
                 },
                 "server": {
-                    "required": "请选择服务器"
+                    "required": "请选择服务器",
+                    "unknown": "不存在的数据中心/世界，请从选项中选择"
                 },
                 "area": {
                     "invalid": "请选择正确的区域"

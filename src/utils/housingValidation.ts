@@ -15,6 +15,7 @@ import {
 } from '../types/housing.js';
 import { isOgpUrlAllowed } from '../lib/housing/ogpHostAllowlist.js';
 import { getPlotSize } from '../data/housing/wardPlotSizes.js';
+import { DC_SERVER_MAP, serversForDC } from '../data/housing/dcServerMap.js';
 import {
   WARD_RANGE,
   PLOT_RANGE,
@@ -98,6 +99,9 @@ export function validateAddress(addr: AddressInput): ValidationResult {
   // 必須共通
   if (!addr.dc || addr.dc.trim() === '') errors.dc = 'required';
   if (!addr.server || addr.server.trim() === '') errors.server = 'required';
+  // DC/ワールドの実在検証 (2026-07-18 中韓対応)。未知 DC は登録させない。
+  if (!errors.dc && !DC_SERVER_MAP[addr.dc]) errors.dc = 'unknown';
+  if (!errors.dc && !errors.server && !serversForDC(addr.dc).includes(addr.server)) errors.server = 'unknown';
   if (!addr.area || !isValidHousingArea(String(addr.area))) errors.area = 'invalid';
   if (!Number.isInteger(addr.ward) || addr.ward < WARD_RANGE.min || addr.ward > WARD_RANGE.max) {
     errors.ward = 'out_of_range';

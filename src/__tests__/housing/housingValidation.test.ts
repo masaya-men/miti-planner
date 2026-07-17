@@ -199,6 +199,29 @@ describe('validateAddress: size と区画サイズの整合 (mismatch_with_plot)
   });
 });
 
+describe('validateAddress: DC/ワールド実在検証 (中韓対応)', () => {
+  // Mist plot 1 の実サイズは M (wardPlotSizes.ts PLOT_SIZE_BY_AREA.Mist[0])。
+  // size を S にすると mismatch_with_plot が別途発生し「正しい組は通る」テストが成立しないため M を使う。
+  const base = { area: 'Mist', ward: 1, buildingType: 'house', plot: 1, size: 'M' } as const;
+
+  it('実在しない DC を弾く', () => {
+    const r = validateAddress({ ...base, dc: 'Nonexistent', server: 'Aegis' });
+    expect(r.ok).toBe(false);
+    expect(r.errors.dc).toBe('unknown');
+  });
+
+  it('DC 配下に無いワールドを弾く (KR の Carbuncle を JP DC で名乗る等)', () => {
+    const r = validateAddress({ ...base, dc: 'Korea', server: 'Aegis' });
+    expect(r.ok).toBe(false);
+    expect(r.errors.server).toBe('unknown');
+  });
+
+  it('KR/CN の正しい組は通る', () => {
+    expect(validateAddress({ ...base, dc: 'Korea', server: 'Carbuncle' }).ok).toBe(true);
+    expect(validateAddress({ ...base, dc: 'ChocoboCN', server: 'RubySea' }).ok).toBe(true);
+  });
+});
+
 import { validateImage, buildListingImageFields } from '../../utils/housingValidation';
 
 describe('validateImage', () => {
