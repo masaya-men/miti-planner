@@ -111,4 +111,52 @@ describe('useTweetVideoFrames', () => {
     });
     expect(result.current).toEqual([]);
   });
+
+  // 回帰テスト: ツアー左パネルの「画像だけ前の家のまま固定される」バグ再現。
+  // TourLivingMedia は同一コンポーネントインスタンスのまま listing prop だけが
+  // 差し替わる (key なし・再マウントされない)。動画持ちの家を表示 → 抽出完了後、
+  // 次に動画を持たない家へ進んだとき、この hook の内部 state (frames) が古い
+  // 抽出結果のまま残ってはいけない。
+  it('resets frames to [] when navigating from a video listing to one without a video (stuck-image regression)', async () => {
+    mockExtract.mockResolvedValueOnce(['a', 'b', 'c']);
+    const { result, rerender } = renderHook(
+      ({ id, url }: { id: string; url: string | undefined }) =>
+        useTweetVideoFrames(id, url, true),
+      { initialProps: { id: 'video-listing', url: URL_A as string | undefined } },
+    );
+    await waitFor(() => expect(result.current).toEqual(['a', 'b', 'c']));
+
+    // ツアーが次の家 (動画なし) へ進む
+    rerender({ id: 'no-video-listing', url: undefined });
+
+    expect(result.current).toEqual([]);
+  });
+
+  it('resets frames to [] when navigating to a different (not-yet-cached) video listing', async () => {
+    mockExtract.mockResolvedValueOnce(['a', 'b', 'c']);
+    const { result, rerender } = renderHook(
+      ({ id, url }: { id: string; url: string | undefined }) =>
+        useTweetVideoFrames(id, url, true),
+      { initialProps: { id: 'video-listing-a', url: URL_A as string | undefined } },
+    );
+    await waitFor(() => expect(result.current).toEqual(['a', 'b', 'c']));
+
+    let resolveB: ((v: readonly string[]) => void) | undefined;
+    mockExtract.mockImplementationOnce(
+      () => new Promise<readonly string[]>((resolve) => { resolveB = resolve; }),
+    );
+    rerender({ id: 'video-listing-b', url: URL_B as string | undefined });
+
+    // 抽出完了前は空 (前の家 A のフレームが見えてはいけない)
+    expect(result.current).toEqual([]);
+
+    // acquireSlot() の resolve が microtask を挟むため、 extractVideoFrames が
+    // 実際に呼ばれる (= resolveB が代入される) までポーリングで待つ。
+    await waitFor(() => expect(resolveB).toBeDefined());
+    await act(async () => {
+      resolveB?.(['x', 'y', 'z']);
+      await Promise.resolve();
+    });
+    await waitFor(() => expect(result.current).toEqual(['x', 'y', 'z']));
+  });
 });

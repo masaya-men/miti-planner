@@ -66,12 +66,27 @@ export function useTweetVideoFrames(
   );
 
   useEffect(() => {
-    if (!enabled || !videoUrl || !listingId) return;
+    // listingId/videoUrl が変わった直後、 まだこの listing 用の frames を確定
+    // できない間は必ずここで空へ倒す。 呼び出し元 (TourLivingMedia 等) は
+    // key を付けずに listing prop だけ差し替えるため、 この hook の内部 state
+    // (frames) は listing が変わっても前の listing の値を保持したまま残る
+    // (useState 初期化子は mount 時 1 回しか走らない)。 動画を持たない listing へ
+    // 進んだときに一切 setFrames が呼ばれないと、 前の listing (動画あり) の
+    // 抽出結果がそのまま描画され続ける「画像だけ前の家のまま固定される」 バグに
+    // なる (2026-07-17 実機再現)。
+    if (!videoUrl || !listingId) {
+      setFrames([]);
+      return;
+    }
     const cached = frameCache.get(listingId);
     if (cached) {
       setFrames(cached);
       return;
     }
+    // この listingId 用のキャッシュがまだ無い = 前の listing の frames を
+    // 使い回してはいけないので即座にクリア (enabled=false でも実行する)。
+    setFrames([]);
+    if (!enabled) return;
 
     let cancelled = false;
     const proxied = buildTweetVideoProxyUrl(videoUrl);
