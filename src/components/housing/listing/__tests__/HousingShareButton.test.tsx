@@ -47,31 +47,31 @@ describe('HousingShareButton', () => {
     expect(shareSpy).toHaveBeenCalledWith({ title: 'My House', url: 'https://example.com/lid1' });
   });
 
-  // FB第6弾#4#5: 常時見える「Xでシェア」ボタン
-  it('常時「Xでシェア」ボタンが表示され、 sourceUrl が無ければ LoPo の url で intent を開く', () => {
+  // FB第6弾#4#5: 常時見える「Xでシェア」ボタン (follow-up改良1でアイコンのみボタンに変更)
+  it('常時「Xでシェア」アイコンボタンが表示され、 sourceUrl が無ければ LoPo の url で intent を開く', () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
     render(<HousingShareButton url="https://lopoly.app/housing/listing/lid1" title="My House" />);
     fireEvent.click(screen.getByRole('button', { name: 'housing.detail.share_x' }));
     expect(openSpy).toHaveBeenCalledWith(
-      'https://twitter.com/intent/tweet?text=My%20House&url=https%3A%2F%2Flopoly.app%2Fhousing%2Flisting%2Flid1',
+      'https://twitter.com/intent/tweet?text=My%20House&url=https%3A%2F%2Flopoly.app%2Fhousing%2Flisting%2Flid1&hashtags=LoPo',
       '_blank',
       'noopener,noreferrer',
     );
     openSpy.mockRestore();
   });
 
-  it('sourceUrl があれば「Xでシェア」ボタンは投稿元 URL を優先して intent を開く', () => {
+  it('sourceUrl があれば「Xでシェア」ボタンは投稿元 URL を優先し、 追跡クエリを剥がして intent を開く', () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
     render(
       <HousingShareButton
         url="https://lopoly.app/housing/listing/lid1"
         title="My House"
-        sourceUrl="https://twitter.com/someone/status/123"
+        sourceUrl="https://twitter.com/someone/status/123?s=20&t=xxx"
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: 'housing.detail.share_x' }));
     expect(openSpy).toHaveBeenCalledWith(
-      'https://twitter.com/intent/tweet?text=My%20House&url=https%3A%2F%2Ftwitter.com%2Fsomeone%2Fstatus%2F123',
+      'https://twitter.com/intent/tweet?text=My%20House&url=https%3A%2F%2Ftwitter.com%2Fsomeone%2Fstatus%2F123&hashtags=LoPo',
       '_blank',
       'noopener,noreferrer',
     );

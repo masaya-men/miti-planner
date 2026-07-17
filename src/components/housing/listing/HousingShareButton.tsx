@@ -7,6 +7,8 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TwitterXIcon } from './TwitterXIcon';
+import { canonicalPostUrl } from '../../../lib/housing/canonicalPostUrl';
 
 export interface HousingShareButtonProps {
   url: string;
@@ -70,7 +72,9 @@ export const HousingShareButton: React.FC<HousingShareButtonProps> = ({ url, tit
   };
 
   const tweet = () => {
-    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(xTargetUrl)}`;
+    // FB第6弾follow-up改良3: X 投稿元 URL は長大な追跡クエリを剥がしてから intent へ渡す。
+    const canonicalUrl = canonicalPostUrl(xTargetUrl);
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(canonicalUrl)}&hashtags=LoPo`;
     window.open(tweetUrl, '_blank', 'noopener,noreferrer');
     setOpen(false);
   };
@@ -87,14 +91,16 @@ export const HousingShareButton: React.FC<HousingShareButtonProps> = ({ url, tit
       >
         {t('housing.detail.share')}
       </button>
-      {/* FB第6弾#4: 常時見えるXシェアボタン。ドロップダウンを開かず直接 intent へ飛ぶ。 */}
+      {/* FB第6弾#4: 常時見えるXシェアボタン。ドロップダウンを開かず直接 intent へ飛ぶ。
+          follow-up改良1: アイコンのみボタンにアニメ付き X アイコンを採用。 */}
       <button
         type="button"
-        className="housing-action-btn"
+        className="housing-action-btn is-icon"
         onClick={tweet}
         aria-label={t('housing.detail.share_x')}
+        title={t('housing.detail.share_x')}
       >
-        {t('housing.detail.share_x')}
+        <TwitterXIcon size={16} />
       </button>
       {open && (
         <div role="menu" className="housing-share-menu">
