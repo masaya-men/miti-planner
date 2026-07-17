@@ -191,9 +191,6 @@
   --housing-text-input: 12.5px;
   --housing-ad-label-size: 10px;
   --housing-text-xl: 18px;
-  /* ツアー中(Nav)の目的地カード: リージョン/DC/ワールド込み完全住所。実機FB第6弾#6で
-     --housing-text-sm(12px)は DPR2.58 実機で小さすぎると指摘があり、専用トークンで拡大。 */
-  --housing-tour-dest-addr-size: 16px;
 
   /* ===== Z-index tokens ===== */
   --housing-z-modal-base: 50;
@@ -7209,8 +7206,7 @@ select.housing-input option {
   white-space: nowrap;
 }
 .housing-tour-dest-addrsize {
-  font-size: var(--housing-tour-dest-addr-size);
-  line-height: 1.4;
+  font-size: var(--housing-text-sm);
   color: var(--housing-text-dim);
 }
 
