@@ -1964,8 +1964,7 @@
             "start": "Start tour with these",
             "count": "{{count}}",
             "sort_efficient": "Sort by route",
-            "pin_first": "Pin to first",
-            "pin_last": "Pin to last",
+            "pin": "Pin to this position",
             "unpin": "Unpin",
             "drag_handle": "Drag to reorder"
         },

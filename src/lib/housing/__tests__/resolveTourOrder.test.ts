@@ -9,60 +9,64 @@ const listing = (over: Partial<MockListing>): MockListing => ({
 });
 
 describe('resolveTourOrder', () => {
+  // region 自動順は JP < NA < EU < OCE (ALL_REGIONS)。
   const pool = [
     listing({ id: 'na', region: 'NA', dc: 'Aether', server: 'Gilgamesh', addressKey: 'n' }),
     listing({ id: 'jp', region: 'JP', addressKey: 'j' }),
     listing({ id: 'eu', region: 'EU', dc: 'Chaos', server: 'Cerberus', addressKey: 'e' }),
+    listing({ id: 'oce', region: 'OCE', dc: 'Materia', server: 'Bismarck', addressKey: 'o' }),
   ];
 
-  it('自動順 (manualOrder=false)・ピン無し = orderTourStopIds と同じ', () => {
+  it('ピンなし(manualOrder=false) = orderTourStopIds の自動順そのまま', () => {
     const trayIds = ['na', 'jp', 'eu'];
     expect(
-      resolveTourOrder(trayIds, pool, { pinnedFirstId: null, pinnedLastId: null, manualOrder: false }),
+      resolveTourOrder(trayIds, pool, { pinnedIds: [], manualOrder: false }),
     ).toEqual(['jp', 'na', 'eu']);
   });
 
-  it('自動順 + ピン: 残りだけ自動順にして pinnedFirst/pinnedLast を前後に固定', () => {
-    const trayIds = ['na', 'jp', 'eu'];
-    // pinnedFirst=eu, pinnedLast=na: 残り(jp)だけ自動順に整列
+  it('1件ピン留め: pinned は trayIds 内の現在 index に固定され、残りだけ自動順で詰まる', () => {
+    // trayIds = [eu, na, jp] で eu (index0) をピン。残り [na, jp] の自動順は [jp, na]。
+    const trayIds = ['eu', 'na', 'jp'];
     expect(
-      resolveTourOrder(trayIds, pool, { pinnedFirstId: 'eu', pinnedLastId: 'na', manualOrder: false }),
+      resolveTourOrder(trayIds, pool, { pinnedIds: ['eu'], manualOrder: false }),
     ).toEqual(['eu', 'jp', 'na']);
   });
 
-  it('手動順 (manualOrder=true)・ピン無し = trayIds の現在順をそのまま維持', () => {
+  it('複数ピン留め: 両方の位置を固定したまま中間の unpinned だけ自動順で入れ替わる', () => {
+    // trayIds = [na, eu, oce, jp] で eu(index1)/oce(index2) をピン。
+    // unpinned = [na, jp] (index0, index3) の自動順は [jp, na]。
+    const trayIds = ['na', 'eu', 'oce', 'jp'];
+    expect(
+      resolveTourOrder(trayIds, pool, { pinnedIds: ['eu', 'oce'], manualOrder: false }),
+    ).toEqual(['jp', 'eu', 'oce', 'na']);
+  });
+
+  it('manualOrder=true はピンを見ず trayIds をそのまま返す (ドラッグ確定後の素通し)', () => {
     const trayIds = ['eu', 'na', 'jp'];
     expect(
-      resolveTourOrder(trayIds, pool, { pinnedFirstId: null, pinnedLastId: null, manualOrder: true }),
+      resolveTourOrder(trayIds, pool, { pinnedIds: ['na'], manualOrder: true }),
     ).toEqual(['eu', 'na', 'jp']);
   });
 
-  it('手動順 + ピン: 現在順を維持しつつ pinned だけ先頭/末尾へ移動', () => {
-    // trayIds の並びは eu, na, jp。pinnedFirst=jp, pinnedLast=eu を指定すると
-    // 中間(na)の相対順は保ったまま [jp, na, eu] になる。
-    const trayIds = ['eu', 'na', 'jp'];
+  it('末尾にピン留めした状態で新しい行き先を追加しても、ピンは追加後の現在 index を維持する', () => {
+    // 元々 [na, jp] で jp (末尾, index1) をピン。そこへ eu を追加して [na, jp, eu] になっても
+    // ピンは「index1 に固定」であり続ける (=役割ではなく位置を覚えている新セマンティクス)。
+    const trayIds = ['na', 'jp', 'eu'];
     expect(
-      resolveTourOrder(trayIds, pool, { pinnedFirstId: 'jp', pinnedLastId: 'eu', manualOrder: true }),
-    ).toEqual(['jp', 'na', 'eu']);
+      resolveTourOrder(trayIds, pool, { pinnedIds: ['jp'], manualOrder: false }),
+    ).toEqual(['na', 'jp', 'eu']);
   });
 
   it('pinned id が trayIds に存在しない場合は無視する', () => {
     const trayIds = ['na', 'jp'];
     expect(
-      resolveTourOrder(trayIds, pool, { pinnedFirstId: 'ghost', pinnedLastId: null, manualOrder: false }),
+      resolveTourOrder(trayIds, pool, { pinnedIds: ['ghost'], manualOrder: false }),
     ).toEqual(['jp', 'na']);
-  });
-
-  it('pinnedFirstId と pinnedLastId が同一 id なら first を優先し last は無視する', () => {
-    const trayIds = ['na', 'jp', 'eu'];
-    expect(
-      resolveTourOrder(trayIds, pool, { pinnedFirstId: 'na', pinnedLastId: 'na', manualOrder: true }),
-    ).toEqual(['na', 'jp', 'eu']);
   });
 
   it('trayIds が空なら空配列', () => {
     expect(
-      resolveTourOrder([], pool, { pinnedFirstId: null, pinnedLastId: null, manualOrder: false }),
+      resolveTourOrder([], pool, { pinnedIds: [], manualOrder: false }),
     ).toEqual([]);
   });
 });

@@ -36,8 +36,7 @@ export const MobileTourTrayBar: React.FC = () => {
 
   const trayIds = useTourTrayStore((s) => s.trayIds);
   const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
-  const pinnedFirstId = useTourTrayStore((s) => s.pinnedFirstId);
-  const pinnedLastId = useTourTrayStore((s) => s.pinnedLastId);
+  const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
   const manualOrder = useTourTrayStore((s) => s.manualOrder);
   const publicListings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
@@ -55,7 +54,7 @@ export const MobileTourTrayBar: React.FC = () => {
 
   const commitStart = useCallback(() => {
     if (trayIds.length === 0) return;
-    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedFirstId, pinnedLastId, manualOrder });
+    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedIds, manualOrder });
     const stops = orderedIds
       .map((id) => pool.find((l) => l.id === id))
       .filter((l): l is MockListing => Boolean(l));
@@ -70,7 +69,7 @@ export const MobileTourTrayBar: React.FC = () => {
     useTourTrayStore.getState().clear();
     setMannerOpen(false);
     navigate('/housing/tour');
-  }, [trayIds, pool, pinnedFirstId, pinnedLastId, manualOrder, navigate, t]);
+  }, [trayIds, pool, pinnedIds, manualOrder, navigate, t]);
 
   if (trayIds.length === 0) return null;
 

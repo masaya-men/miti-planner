@@ -6310,9 +6310,29 @@ select.housing-input option {
   font-size: var(--housing-text-sm); font-weight: 700;
   color: var(--housing-candle); background: var(--housing-honey-medium);
 }
-.housing-tour-tray-addr {
+/* 行き先の識別用サムネ (実機FB: 住所だけでは家が見分けづらいため追加)。 */
+.housing-tour-tray-thumb {
+  flex: 0 0 auto;
+  width: 40px; height: 40px; border-radius: 8px;
+  object-fit: cover;
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+}
+.housing-tour-tray-thumb-placeholder {
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--housing-text-mute);
+}
+/* 本文2行 (1行目=タイトル、2行目=住所)。 */
+.housing-tour-tray-info {
   flex: 1 1 auto; min-width: 0;
-  font-size: var(--housing-text-sm); color: var(--housing-text);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.housing-tour-tray-title {
+  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.housing-tour-tray-addr {
+  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .housing-tour-tray-remove {

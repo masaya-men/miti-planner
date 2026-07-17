@@ -22,3 +22,16 @@ export function representativeImage(listing: MockListing): string {
   if (listing.imageMode === 'sns' && listing.ogImageUrl) return listing.ogImageUrl;
   return LISTING_IMAGE_PLACEHOLDER;
 }
+
+/**
+ * 実画像 (thumbnailPath / ogImageUrl) を持つかどうか。
+ * false = representativeImage() がプレースホルダ SVG にフォールバックする状態。
+ * ツアートレイの行サムネ (TourTrayList) 等、プレースホルダ画像そのものを出さず
+ * アイコン枠に切り替えたい呼び出し元向け (2026-07-17)。
+ */
+export function hasRepresentativeImage(listing: MockListing): boolean {
+  return (
+    (listing.imageMode === 'thumbnail' && Boolean(listing.thumbnailPath)) ||
+    (listing.imageMode === 'sns' && Boolean(listing.ogImageUrl))
+  );
+}

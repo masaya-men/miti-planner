@@ -68,9 +68,8 @@ export const FavoritesPage: React.FC = () => {
   // ツアートレイのドラフト (#5: ページ横断で保持するストア。詳細ページ往復で消えない)
   const trayIds = useTourTrayStore((s) => s.trayIds);
   const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
-  // ツアー順制御 (ドラッグ並び替え + 最初/最後固定ピン): resolveTourOrder が参照する。
-  const pinnedFirstId = useTourTrayStore((s) => s.pinnedFirstId);
-  const pinnedLastId = useTourTrayStore((s) => s.pinnedLastId);
+  // ツアー順制御 (ドラッグ並び替え + ピン留め): resolveTourOrder が参照する。
+  const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
   const manualOrder = useTourTrayStore((s) => s.manualOrder);
 
   // マナー通知ダイアログ
@@ -143,7 +142,7 @@ export const FavoritesPage: React.FC = () => {
     if (trayIds.length === 0) return;
     // ツアー解決は allListings (お気に入り一覧・非汚染) + 一時 listing。一覧自体は変えない。
     const pool = [...allListings, ...ephemeral];
-    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedFirstId, pinnedLastId, manualOrder });
+    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedIds, manualOrder });
     const stops = orderedIds
       .map((id) => pool.find((l) => l.id === id))
       .filter((l): l is MockListing => Boolean(l));
@@ -158,7 +157,7 @@ export const FavoritesPage: React.FC = () => {
     useTourTrayStore.getState().clear();
     setMannerOpen(false);
     navigate('/housing/tour');
-  }, [trayIds, allListings, ephemeral, pinnedFirstId, pinnedLastId, manualOrder, navigate, t]);
+  }, [trayIds, allListings, ephemeral, pinnedIds, manualOrder, navigate, t]);
 
   const handleStart = useCallback(() => {
     if (trayIds.length === 0) return;

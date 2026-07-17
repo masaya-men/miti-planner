@@ -1929,8 +1929,7 @@
             "start": "以此内容开始导览",
             "count": "{{count}}",
             "sort_efficient": "効率順に並べ替え",
-            "pin_first": "最初に固定",
-            "pin_last": "最後に固定",
+            "pin": "この位置に固定",
             "unpin": "固定を解除",
             "drag_handle": "ドラッグして並べ替え"
         },
