@@ -34,6 +34,12 @@ export interface SharedTourLiveState {
   phase: TourPhase;
   viewStartAt: number | null;
   lastActivityAt: number;
+  /**
+   * 幹事が「移動しました」で跨ぎ(DC/ワールド移動)を ack した currentIndex（#A）。
+   * 参加者はこれと currentIndex の一致で跨ぎ overlay を解除する = 主催者の操作でだけ地図が出る。
+   * 省略/undefined/null は「未ack」扱い（既存 doc との後方互換）。
+   */
+  crossingAckedIndex?: number | null;
 }
 
 /** 家件数・スナップショットサイズの上限 */

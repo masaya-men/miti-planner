@@ -22,9 +22,13 @@ export interface TourNavMapProps {
   originName?: string | null;
   /** 前の家→この家の移動種別。省略時は跨ぎ無し扱い。 */
   crossing?: TourCrossing;
-  /** true の間、地図の上に跨ぎ案内カードを浮かせる(2026-07-17: 非ブロッキング表示。
-   *  クリック不要・地図の操作を塞がない)。省略時は出さない。 */
+  /** true の間、ステージにぼかし+跨ぎ案内カードを重ねる。省略時は出さない。 */
   showCrossing?: boolean;
+  /** 「移動しました」ボタンの押下ハンドラ。省略時は no-op。 */
+  onAckCrossing?: () => void;
+  /** 参加者(閲覧専用): 跨ぎ案内カードの「移動しました」ボタンを出さず、待機文言にする(#A)。
+   *  地図が出るかどうかは主催者の操作(broadcast された crossingAckedIndex)でだけ決まる。 */
+  crossingReadOnly?: boolean;
   /** 現在の目的地の listing。左上のフル住所オーバーレイに使う。省略時はオーバーレイ自体を出さない。 */
   addressListing?: MockListing | null;
   /** 現在地→目的地の行き方。実機FB#4: スマホ下部バーの1行省略表示だと読み切れなかったため、
@@ -51,8 +55,8 @@ type MapData = { svg: string; viewBox: { w: number; h: number }; model: TourMapM
  * 目的地が変わると「ズームアウト→フェードで地図をシームレス切替→ズームイン」で着地。指/マウスでパン&ズーム可。 */
 export const TourNavMap: React.FC<TourNavMapProps> = ({
   status, svg, viewBox, model, stepKey, originName,
-  crossing = { kind: 'none' }, showCrossing = false,
-  addressListing = null, footerDirections = null,
+  crossing = { kind: 'none' }, showCrossing = false, onAckCrossing = () => {},
+  crossingReadOnly = false, addressListing = null, footerDirections = null,
   viewingTimerText = null,
 }) => {
   const { t, i18n } = useTranslation();
@@ -474,6 +478,14 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
                       ? t('housing.tour.nav.cross.world', { world: crossing.world })
                       : t('housing.tour.nav.cross.region')}
               </p>
+              {crossingReadOnly ? (
+                // 参加者は操作できない。地図は主催者が「移動しました」を押すと(broadcast で)出る。
+                <p className="housing-tour-map-cross-waiting">{t('housing.tour.nav.cross.waiting')}</p>
+              ) : (
+                <button type="button" className="housing-tour-map-cross-ack" onClick={onAckCrossing}>
+                  {t('housing.tour.nav.cross.ack')}
+                </button>
+              )}
             </div>
           </div>
         )}

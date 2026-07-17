@@ -2823,7 +2823,9 @@
                     "start": "First, head to {{world}} (DC: {{dc}})",
                     "dc": "First, use Data Center Travel to reach {{world}} in {{dc}}",
                     "world": "First, use World Visit to reach {{world}}",
-                    "region": "This house is in another region and can't be reached"
+                    "region": "This house is in another region and can't be reached",
+                    "ack": "I've traveled (show the map)",
+                    "waiting": "The map appears once your guide moves on"
                 },
                 "progress": {
                     "label": "Tour progress",

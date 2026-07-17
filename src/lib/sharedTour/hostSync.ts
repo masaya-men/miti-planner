@@ -14,7 +14,7 @@ function liveDocRef(tourToken: string) {
  */
 export async function pushHostState(
   tourToken: string,
-  patch: Pick<SharedTourLiveState, 'currentIndex' | 'phase' | 'viewStartAt'>,
+  patch: Pick<SharedTourLiveState, 'currentIndex' | 'phase' | 'viewStartAt' | 'crossingAckedIndex'>,
 ): Promise<void> {
   await updateDoc(liveDocRef(tourToken), {
     ...patch,

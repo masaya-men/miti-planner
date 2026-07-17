@@ -17,8 +17,8 @@ import { TourShowcasePanel } from '../tour/TourShowcasePanel';
  *   - connecting: shared_tours 取得中/live 未到達 → 中央メッセージ
  *   - notfound: 招待が存在しない・読めない → 中央メッセージ
  *   - viewing / ended: 幹事とほぼ同じ3パネル(showcase/map/progress)を閲覧専用で描く。
- *     - 跨ぎ(DC/ワールド移動)案内(2026-07-17 非ブロッキング化)は幹事側と同じ条件
- *       (この目的地で跨ぎがある間 = 見学中は非表示)でそのまま表示する。ack 待ちはしない。
+ *     - 跨ぎ(DC/ワールド移動)案内は主催者が「移動しました」を押した(broadcast された
+ *       crossingAckedIndex)ときだけ解除 = 参加者は操作できず主催者操作でだけ地図が出る(#A)。
  *     - ended は主催者と同じ完了オーバーレイ(素敵な時間でしたね)を3パネルの上に重ねる(#B)。
  */
 export const JoinTourPage: React.FC = () => {
@@ -78,9 +78,13 @@ export const JoinTourPage: React.FC = () => {
   // viewing / ended = 幹事の3パネル構成をそのまま踏襲(操作系は付けない)。
   const isEnded = kind === 'ended';
   const phase = live?.phase ?? 'moving';
-  // 跨ぎ案内(2026-07-17 非ブロッキング化): 幹事側と同じ条件でそのまま表示する(ack 待ちはしない)。
-  // ended では出さない。
-  const showCrossing = !isEnded && model.crossing.kind !== 'none' && phase !== 'viewing';
+  // 跨ぎ overlay: 主催者が「移動しました」で ack した(broadcast=crossingAckedIndex が currentIndex に
+  // 一致した)ときだけ解除。参加者は自分で ack できない(crossingReadOnly)。ended では出さない。
+  const showCrossing =
+    !isEnded &&
+    model.crossing.kind !== 'none' &&
+    phase !== 'viewing' &&
+    (live?.crossingAckedIndex ?? null) !== currentIndex;
 
   return (
     <div
@@ -104,6 +108,7 @@ export const JoinTourPage: React.FC = () => {
             originName={model.originName}
             crossing={model.crossing}
             showCrossing={showCrossing}
+            crossingReadOnly
             addressListing={model.currentListing}
             // 実機2回目FB#4: TourNavPage と同じく、スマホの時だけ行き方を地図下部の帯へ表示する
             // (廃止した TourMobileBar が担っていた行き方表示の移設先)。
