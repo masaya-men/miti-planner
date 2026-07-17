@@ -2,6 +2,12 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-17 FB第7弾 (第6弾成果への実機FB反映)
+- **Xボタン**: アニメ発火をボタン全体の hover/focus に(TwitterXIcon を forwardRef 化しボタンから駆動)。詳細ページの X シェアは本文テキストなし=`text=`パラメータ自体を省略(URL+#LoPoのみ)。ハウジンガーページは表示名入り従来どおり。
+- **トレイ刷新**: ピンを「最初/最後」2ボタン→lucide Pin 1個の「この位置に固定」へ(resolveTourOrder 新セマンティクス=自動順でも pinned は現在indexに固定・unpinnedだけ効率順で空きスロットへ。ピン押下時は表示順を実体化してから固定)。行に 40px サムネ+タイトル/住所2行+title属性ホバー全文(PC/スマホシート共通)。i18n pin_first/pin_last→pin。
+- **OGP検証(systematic-debugging)**: 本番実URLを Twitterbot UA で curl → 専用メタ(表示名/bio/pbs.twimg.com画像/large card)が正しく返ることを実証。ユーザーの「黒ロゴ」は X の URL 単位カードキャッシュが原因(`?v=2`付きで新カード確認可)。実バグはフォールバック og:image が相対 `/api/og` だった1点のみ→絶対URL化済。診断で housing_profiles=1件(isPublished:true)・公開listing 5件・代表画像ありも確認。
+- 検証: build ✅ / vitest 3446 pass(既知 EphemeralAddPanel 7件のみ)。
+
 ### ✅ 2026-07-17 FB第6弾+follow-up (即修5+Xシェア改良+OGP+お気に入り同期+ツアー順)
 - **即修5件** (`fd36aa45`/`69e0a7a9`): ⑦スマホ地図下帯=1行目エーテライト/2行目以降行き方全文 / ②マイページ準備中文言(新キー housing.mypage_coming_soon.* — 旧キーは死蔵 HousingComingSoonPage と共有のため温存) / ③個人タグ絞込リンクをハニー化 / ④⑤Xシェア(投稿元postUrl優先+常設ボタン)。⑥住所拡大は2転の末**全面撤回**(`4b104609`+followup)。
 - **Xシェア磨き**: アニメ付きXアイコン(ユーザー提供・Tabler/MIT を framer-motion 移植) / intent に hashtags=LoPo / canonicalPostUrl で x.com/twitter.com の追跡クエリ除去(投稿後は t.co 短縮で常に23字扱い)。
