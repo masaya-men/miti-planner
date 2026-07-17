@@ -17,6 +17,7 @@ import { HousingSettingsSheet } from './HousingSettingsSheet';
 import { HousingLoginModal } from '../login/HousingLoginModal';
 import { HousingAccountModal } from '../login/HousingAccountModal';
 import { HousingPlaybackProvider } from '../../../lib/housing/HousingPlaybackContext';
+import { startFavoritesSync } from '../../../lib/housing/favoritesSync';
 import '../../../styles/housing.css';
 
 /**
@@ -67,6 +68,13 @@ export const HousingShell: React.FC = () => {
     return () => {
       document.body.style.overflow = prev;
     };
+  }, []);
+
+  // お気に入りのサーバー同期: /housing 滞在中だけリスナー・デバウンス書き込みを張る
+  // (他画面でコストを払わない)。ログイン状態は内部で購読するのでここでは start/stop のみ。
+  useEffect(() => {
+    const stop = startFavoritesSync();
+    return stop;
   }, []);
 
   return (

@@ -516,6 +516,19 @@ service cloud.firestore {
     }
 
     // ========================================
+    // users/{uid}/housing_favorites/{docId} (2026-07-17)
+    // ハウジングお気に入りの端末間同期。1ユーザー1ドキュメント (docId='main')。
+    // 読み書きとも本人のみ。ids は list かつ 500 件以下 (肥大化防止)。
+    // ========================================
+    match /users/{uid}/housing_favorites/{docId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+                            && request.resource.data.ids is list
+                            && request.resource.data.ids.size() <= 500;
+      allow delete: if isOwner(uid);
+    }
+
+    // ========================================
     // system_notifications コレクション
     // read: public (全ユーザー閲覧可、 認証不要)
     // write: client から不可 (admin API + Firebase Admin SDK 経由のみ)

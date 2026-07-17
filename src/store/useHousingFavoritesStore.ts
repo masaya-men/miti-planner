@@ -7,6 +7,8 @@ interface HousingFavoritesState {
     remove: (id: string) => void;
     contains: (id: string) => boolean;
     reset: () => void;
+    /** サーバー同期 (favoritesSync) が ids 配列を丸ごと置き換えるための入口。 */
+    setAll: (ids: string[]) => void;
 }
 
 /** 重複を除去しつつ挿入順 (先勝ち) を維持する (Set は挿入順を保持する仕様)。 */
@@ -20,6 +22,7 @@ export const useHousingFavoritesStore = create<HousingFavoritesState>()(
             remove: (id) => set((s) => ({ ids: s.ids.filter((x) => x !== id) })),
             contains: (id) => get().ids.includes(id),
             reset: () => set({ ids: [] }),
+            setAll: (ids) => set({ ids: dedupeIds(ids) }),
         }),
         {
             name: 'housing-favorites',
