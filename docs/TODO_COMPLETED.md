@@ -2,6 +2,14 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-17 FB第6弾+follow-up (即修5+Xシェア改良+OGP+お気に入り同期+ツアー順)
+- **即修5件** (`fd36aa45`/`69e0a7a9`): ⑦スマホ地図下帯=1行目エーテライト/2行目以降行き方全文 / ②マイページ準備中文言(新キー housing.mypage_coming_soon.* — 旧キーは死蔵 HousingComingSoonPage と共有のため温存) / ③個人タグ絞込リンクをハニー化 / ④⑤Xシェア(投稿元postUrl優先+常設ボタン)。⑥住所拡大は2転の末**全面撤回**(`4b104609`+followup)。
+- **Xシェア磨き**: アニメ付きXアイコン(ユーザー提供・Tabler/MIT を framer-motion 移植) / intent に hashtags=LoPo / canonicalPostUrl で x.com/twitter.com の追跡クエリ除去(投稿後は t.co 短縮で常に23字扱い)。
+- **ハウジンガーページ動的OGP**: /housing/housinger/:uid → /api/share?type=housinger rewrite(_housingerPageHandler・Hobby関数上限のため新規関数ゼロ)。公開条件を満たす時のみ 表示名+bio+公開listing代表画像(→avatar→/api/og)。住所はメタに出さない。
+- **お気に入りFirestore同期**: users/{uid}/housing_favorites/main 1doc。/housing 滞在中のみ start(初回=サーバー∪ローカル・以降 onSnapshot+1.5sデバウンス書込・エコー遮断)。共有PC対策=最後に同期した uid を記録し別アカウントは union せず置換。rules 追加+**deploy済(2026-07-17)**。テスト15件。
+- **ツアー順制御**: resolveTourOrder(未操作=効率順+最初/最後ピン固定、ドラッグ後=手動順+ピン)。表示順=開始順を常に一致。PC=トレイ行にグリップ+ピン2種+「効率順に並べ替え」/ スマホ=トレイバー「並べ替え」→ボトムシート(TourTrayList共有)。ハウジンガー「まとめてツアー」と空トレイ再開は従来どおり。
+- 検証: build ✅ / vitest 3443 pass(失敗は既知の EphemeralAddPanel 7件のみ)。
+
 ### ✅ 2026-07-17 残バグ#B+LP導線+中韓用語CSV (3件)
 - **#B残: 探すページ右カラムお気に入りストリップの件数** (`d6261a9d`): 生 `ids.length` → dedupe+解決済みのみ (`recent.length`)。解決プールも `mergeListingsForViewer`(公開+自分の登録) に統一し見出し側と同じ数え方に。テスト追加・vitest 19 pass・build ✅。
 - **LP「ハウジングツアー」導線** (`0aec3971`): 上部ナビ+プロジェクトカード02 を COMING SOON トーストから `navigate('/housing')` へ。未使用になった showComingSoon state/トースト JSX も削除。`portal.housing_coming_soon` キーは4言語parity維持のため残置。
