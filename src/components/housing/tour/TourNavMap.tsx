@@ -31,10 +31,11 @@ export interface TourNavMapProps {
   crossingReadOnly?: boolean;
   /** 現在の目的地の listing。左上のフル住所オーバーレイに使う。省略時はオーバーレイ自体を出さない。 */
   addressListing?: MockListing | null;
-  /** 現在地→目的地の行き方(整形済みテキスト)。実機FB#4: スマホ下部バーの1行省略表示だと
-   *  読み切れなかったため、渡されたときだけ地図コンテナ下部の帯へ全文(最大2行折返し)で表示する。
+  /** 現在地→目的地の行き方。実機FB#4: スマホ下部バーの1行省略表示だと読み切れなかったため、
+   *  渡されたときだけ地図コンテナ下部の帯へ teleport(エーテライト名)/directions(行き方本文)を
+   *  2段(1行目=エーテライト・2行目以降=全文折返し)で表示する。
    *  省略/null なら何も出さない(PC は呼び出し側が渡さないため従来通り無表示)。 */
-  footerDirections?: string | null;
+  footerDirections?: { teleport: string; directions: string } | null;
 }
 
 const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
@@ -442,10 +443,15 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
           </div>
         )}
         {/* 実機FB#4: スマホ下部バーの1行省略表示に代わり、行き方を地図下部の帯へ全文表示する。
+            実機FB第6弾#7: 1行目=最寄りエーテライト/2行目以降=行き方全文の2段構成にする
+            (連結した1本の文字列だと、テレポ文と行き方本文の境目が読み取りづらかったため)。
             マウス向けの上のヒント(ホイールでズーム)はスマホでは housing.css 側で非表示にする。 */}
         {footerDirections && (
           <div className="housing-tour-map-directions" data-testid="tour-map-footer-directions">
-            {footerDirections}
+            <div className="housing-tour-map-directions-teleport">{footerDirections.teleport}</div>
+            {footerDirections.directions && (
+              <div className="housing-tour-map-directions-body">{footerDirections.directions}</div>
+            )}
           </div>
         )}
         {showCrossing && crossing.kind !== 'none' && (

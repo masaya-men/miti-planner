@@ -93,13 +93,14 @@ export const TourNavPage: React.FC = () => {
   const onAckCrossing = useCallback(() => setCrossingAckIndex(currentIndex), [currentIndex]);
   const canView = currentListing != null;
 
-  // Task4(モバイルバー用): directions(PlotDirections={aetheryte,directions})を1行のテキストへ整形。
+  // Task4(地図下部の帯用): directions(PlotDirections={aetheryte,directions})を
+  // teleport(エーテライト名の文)/directions(行き方本文)の2段データへ整形。
   // 右パネル(TourPhaseZone)と同じ i18n キー(teleport_to)を使うだけで、行き方データ自体は
   // 既存の派生値(useTourRenderModel の directions)をそのまま使う(新しい行き方ロジックは持たない)。
-  const directionsText = useMemo(() => {
-    if (!directions) return '';
+  const footerDirections = useMemo(() => {
+    if (!directions) return null;
     const teleport = t('housing.tour.nav.dest.teleport_to', { aetheryte: directions.aetheryte });
-    return directions.directions ? `${teleport} ${directions.directions}` : teleport;
+    return { teleport, directions: directions.directions };
   }, [directions, t]);
 
   // Task4: モバイルの「見学」は左パネル(TourShowcasePanel)が非表示のため、全画面オーバーレイで代替する。
@@ -306,8 +307,8 @@ export const TourNavPage: React.FC = () => {
             onAckCrossing={onAckCrossing}
             addressListing={currentListing}
             // 実機2回目FB#4: 行き方はスマホ下部バーの1行省略表示だと読み切れないため、
-            // スマホの時だけ地図下部の帯へ全文(最大2行折返し)で渡す。PC は従来通り渡さない。
-            footerDirections={isMobile ? directionsText : null}
+            // スマホの時だけ地図下部の帯へ渡す(teleport/directions の2段構成)。PC は従来通り渡さない。
+            footerDirections={isMobile ? footerDirections : null}
           />
         </div>
         <TourInvitePanel

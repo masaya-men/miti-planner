@@ -191,6 +191,9 @@
   --housing-text-input: 12.5px;
   --housing-ad-label-size: 10px;
   --housing-text-xl: 18px;
+  /* ツアー中(Nav)の目的地カード: リージョン/DC/ワールド込み完全住所。実機FB第6弾#6で
+     --housing-text-sm(12px)は DPR2.58 実機で小さすぎると指摘があり、専用トークンで拡大。 */
+  --housing-tour-dest-addr-size: 16px;
 
   /* ===== Z-index tokens ===== */
   --housing-z-modal-base: 50;
@@ -7192,7 +7195,8 @@ select.housing-input option {
   white-space: nowrap;
 }
 .housing-tour-dest-addrsize {
-  font-size: var(--housing-text-sm);
+  font-size: var(--housing-tour-dest-addr-size);
+  line-height: 1.4;
   color: var(--housing-text-dim);
 }
 
@@ -8421,9 +8425,10 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   }
 
   /* ----- ツアー地図(TourNavMap): 行き方を地図下部の帯へ/フル住所2行折返し/ホイールヒント非表示 (実機2回目FB#4/#6) -----
-     下部バー(TourMobileBar)の1行省略表示だと行き方が読み切れなかったため、地図側の帯へ全文
-     (最大2行折返し)で移す。入れ替えに伴い、マウス向けの「ホイールでズーム・ドラッグで移動」
-     ヒントはスマホでは不要になるため非表示にする。 */
+     下部バー(TourMobileBar)の1行省略表示だと行き方が読み切れなかったため、地図側の帯へ全文で移す。
+     実機FB第6弾#7: 1行目=最寄りエーテライト/2行目以降=行き方本文の2段に分け、行き方は省略せず
+     全文折返しで表示する(行数制限は設けない)。入れ替えに伴い、マウス向けの「ホイールでズーム・
+     ドラッグで移動」ヒントはスマホでは不要になるため非表示にする。 */
   .housing-tour-map-hint {
     display: none;
   }
@@ -8433,14 +8438,25 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     right: 0;
     bottom: 0;
     z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     padding: 8px 14px;
     background: var(--housing-panel-bg-solid);
     color: var(--housing-candle);
-    font-size: var(--housing-text-sm);
-    font-weight: 600;
-    line-height: 1.35;
     text-shadow: var(--housing-text-shadow);
     pointer-events: none;
+  }
+  .housing-tour-map-directions-teleport {
+    font-size: var(--housing-text-sm);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+  .housing-tour-map-directions-body {
+    font-size: var(--housing-text-sm);
+    font-weight: 500;
+    line-height: 1.45;
+    white-space: normal;
   }
   /* 実機2回目FB#6: フル住所チップは省略せず全文(最大2行折返し)で表示する(PC は1行ellipsisのまま維持)。
      右側はコンパス(40px + right:10px + 余白)を避けるよう100%からその分を差し引く

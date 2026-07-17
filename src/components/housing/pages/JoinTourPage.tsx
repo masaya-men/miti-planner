@@ -36,13 +36,13 @@ export const JoinTourPage: React.FC = () => {
   const currentIndex = live?.currentIndex ?? 0;
   const model = useTourRenderModel(pool, orderedIds, currentIndex);
 
-  // Task5(モバイルバー用): TourNavPage.tsx の directionsText useMemo と同じ流儀で
-  // directions(PlotDirections={aetheryte,directions})を1行のテキストへ整形する。
+  // Task5(地図下部の帯用): TourNavPage.tsx の footerDirections useMemo と同じ流儀で
+  // directions(PlotDirections={aetheryte,directions})を teleport/directions の2段データへ整形する。
   // 行き方データ自体は useTourRenderModel の派生値をそのまま使う(新しい行き方ロジックは持たない)。
-  const directionsText = useMemo(() => {
-    if (!model.directions) return '';
+  const footerDirections = useMemo(() => {
+    if (!model.directions) return null;
     const teleport = t('housing.tour.nav.dest.teleport_to', { aetheryte: model.directions.aetheryte });
-    return model.directions.directions ? `${teleport} ${model.directions.directions}` : teleport;
+    return { teleport, directions: model.directions.directions };
   }, [model.directions, t]);
 
   // 参加状態をヘッダーの「ツアーに戻る」ピルへ橋渡し(#1・案い)。viewing で記録し、
@@ -110,9 +110,9 @@ export const JoinTourPage: React.FC = () => {
             showCrossing={showCrossing}
             crossingReadOnly
             addressListing={model.currentListing}
-            // 実機2回目FB#4: TourNavPage と同じく、スマホの時だけ行き方を地図下部の帯へ全文表示する
+            // 実機2回目FB#4: TourNavPage と同じく、スマホの時だけ行き方を地図下部の帯へ表示する
             // (廃止した TourMobileBar が担っていた行き方表示の移設先)。
-            footerDirections={isMobile ? directionsText : null}
+            footerDirections={isMobile ? footerDirections : null}
           />
         </div>
       </section>
