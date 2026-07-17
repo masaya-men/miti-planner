@@ -2820,9 +2820,9 @@
                 "reset_view": "Reset to default view",
                 "map_hint": "Scroll to zoom · Drag to move",
                 "cross": {
-                    "start": "First, head to {{world}} (DC: {{dc}})",
-                    "dc": "First, use Data Center Travel to reach {{world}} in {{dc}}",
-                    "world": "First, use World Visit to reach {{world}}",
+                    "start": "Head to {{world}} (DC: {{dc}})",
+                    "dc": "Use Data Center Travel to reach {{world}} in {{dc}}",
+                    "world": "Use World Visit to reach {{world}}",
                     "region": "This house is in another region and can't be reached",
                     "waiting": "The map appears once your guide moves on"
                 },
