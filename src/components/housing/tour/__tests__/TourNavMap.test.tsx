@@ -82,6 +82,14 @@ describe('TourNavMap', () => {
       crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={false} onAckCrossing={() => {}} />);
     expect(container.querySelector('[data-testid="tour-map-cross"]')).toBeNull();
   });
+  it('viewingTimerText を渡すと見学中タイマーチップを描く', () => {
+    const { container, rerender } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0} viewingTimerText={null} />);
+    expect(container.querySelector('[data-testid="tour-mobile-viewing-timer"]')).toBeNull();
+    rerender(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0} viewingTimerText="3:24 経過" />);
+    const chip = container.querySelector('[data-testid="tour-mobile-viewing-timer"]');
+    expect(chip).toBeTruthy();
+    expect(chip?.textContent).toBe('3:24 経過');
+  });
   it('2本指ピンチ後に1本指を離すと、残った指でパンが継続する', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0} />);
     const wrap = container.querySelector('.housing-tour-map-wrap') as HTMLElement;

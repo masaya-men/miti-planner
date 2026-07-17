@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { X } from 'lucide-react';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
@@ -12,6 +11,7 @@ import { buildTourPool } from '../../../lib/housing/buildTourPool';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
+import { useElapsed, formatElapsed } from '../../../lib/housing/useElapsed';
 import { createSharedTour } from '../../../lib/housingApiClient';
 import { buildTourSnapshots, snapshotContainsHiddenAddress } from '../../../lib/sharedTour/snapshot';
 import { pushHostState, endHostTour } from '../../../lib/sharedTour/hostSync';
@@ -103,17 +103,15 @@ export const TourNavPage: React.FC = () => {
     return { teleport, directions: directions.directions };
   }, [directions, t]);
 
-  // Task4: モバイルの「見学」は左パネル(TourShowcasePanel)が非表示のため、全画面オーバーレイで代替する。
-  // 見学開始そのものは既存の startViewing をそのまま呼ぶ(PCの見学開始ボタンと同一挙動・同期にも乗る)。
-  const [showcaseOpen, setShowcaseOpen] = useState(false);
-  const onMobileView = useCallback(() => {
-    startViewing();
-    setShowcaseOpen(true);
-  }, [startViewing]);
-  // 「次へ」で目的地が進んだら、前の家のショーケースを開けっぱなしにしないよう自動で閉じる。
-  useEffect(() => {
-    setShowcaseOpen(false);
-  }, [currentIndex]);
+  // 実機FB: スマホの「見学開始」は全画面ショーケースオーバーレイ(左パネルの代替)を開くと
+  // 地図が隠れてしまい実機で不評だったため撤去。地図のエリアに経過時間チップだけを出す方式に変更。
+  // 見学中(phase==='viewing')の経過秒を1秒ごとに再計算し、地図側へ整形済み文言だけを渡す
+  // (TourNavMap は表示専用・タイマー計算を持ち込まない)。PC は右パネルの既存表示があるため出さない。
+  const viewingElapsedSeconds = useElapsed(isMobile && phase === 'viewing' ? viewStartAt : null);
+  const viewingTimerText =
+    isMobile && phase === 'viewing' && viewStartAt != null
+      ? t('housing.tour.nav.viewing.elapsed', { elapsed: formatElapsed(viewingElapsedSeconds) })
+      : null;
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
 
@@ -309,6 +307,7 @@ export const TourNavPage: React.FC = () => {
             // 実機2回目FB#4: 行き方はスマホ下部バーの1行省略表示だと読み切れないため、
             // スマホの時だけ地図下部の帯へ渡す(teleport/directions の2段構成)。PC は従来通り渡さない。
             footerDirections={isMobile ? footerDirections : null}
+            viewingTimerText={viewingTimerText}
           />
         </div>
         <TourInvitePanel
@@ -340,15 +339,16 @@ export const TourNavPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Task4: スマホ横持ちUI(案A)。左右パネルはCSSで非表示にし、下部バー+見学オーバーレイ+縦持ちヒントを追加描画する。
-          既存の3パネル/完了オーバーレイのロジックには手を入れない(表示のみの追加レイヤー)。 */}
+      {/* Task4: スマホ横持ちUI(案A)。左右パネルはCSSで非表示にし、下部バー+縦持ちヒントを追加描画する。
+          既存の3パネル/完了オーバーレイのロジックには手を入れない(表示のみの追加レイヤー)。
+          実機FB: 見学開始の全画面ショーケースオーバーレイは撤去済み(地図側の経過時間チップに置き換え)。 */}
       {isMobile && listingIds.length > 0 && !completed && (
         <TourMobileBar
           canPrev={currentIndex > 0}
           canView={canView}
           isLast={isLast}
           onPrev={prev}
-          onView={onMobileView}
+          onView={startViewing}
           onNext={onPrimary}
           // 実機FB#7: 地図上の招待パネルはスマホでは非表示 (CSS) にして地図を全画面化するため、
           // 招待の入口はバーに一本化する。未発行=作成 / 発行済み=リンクコピー (二重発行はモード切替で防ぐ)。
@@ -359,30 +359,6 @@ export const TourNavPage: React.FC = () => {
           // 既存の onFinish(共有 live の終了処理込み)をそのまま渡すだけ。
           onFinish={onFinish}
         />
-      )}
-      {isMobile && showcaseOpen && (
-        <div
-          className="housing-tour-mobile-showcase"
-          role="dialog"
-          aria-modal="true"
-          data-testid="tour-mobile-showcase"
-        >
-          <button
-            type="button"
-            className="housing-tour-mobile-showcase-close"
-            onClick={() => setShowcaseOpen(false)}
-            aria-label={t('housing.card.close')}
-          >
-            <X size={20} aria-hidden="true" />
-          </button>
-          <div className="housing-tour-mobile-showcase-body">
-            <TourShowcasePanel
-              currentStep={progress.currentStep}
-              nextStep={nextStep}
-              onOpenReport={onOpenReport}
-            />
-          </div>
-        </div>
       )}
 
       {completed && (

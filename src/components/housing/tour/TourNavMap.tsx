@@ -36,6 +36,10 @@ export interface TourNavMapProps {
    *  2段(1行目=エーテライト・2行目以降=全文折返し)で表示する。
    *  省略/null なら何も出さない(PC は呼び出し側が渡さないため従来通り無表示)。 */
   footerDirections?: { teleport: string; directions: string } | null;
+  /** 実機FB: スマホの見学中(phase==='viewing')に出す経過時間チップの表示文言(整形済み)。
+   *  呼び出し側(TourNavPage)が isMobile && phase==='viewing' の時だけ渡す。
+   *  省略/null なら何も出さない(PC は呼び出し側が渡さないため従来通り無表示)。 */
+  viewingTimerText?: string | null;
 }
 
 const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
@@ -53,6 +57,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
   status, svg, viewBox, model, stepKey, originName,
   crossing = { kind: 'none' }, showCrossing = false, onAckCrossing = () => {},
   crossingReadOnly = false, addressListing = null, footerDirections = null,
+  viewingTimerText = null,
 }) => {
   const { t, i18n } = useTranslation();
   const hostRef = useRef<HTMLDivElement>(null);
@@ -435,6 +440,13 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
               <path className="housing-tour-map-compass-needle-s" d="M20 34 L15.5 22 L20 25 L24.5 22 Z" />
               <text className="housing-tour-map-compass-n" x="20" y="7">N</text>
             </svg>
+          </div>
+        )}
+        {/* 実機FB: スマホの見学開始は全画面ショーケースを開かなくなったため、代わりにコンパスの下へ
+            見学中の経過時間チップを出す(地図操作の邪魔をしない pointer-events:none)。 */}
+        {viewingTimerText && (
+          <div className="housing-tour-map-viewing-timer" data-testid="tour-mobile-viewing-timer">
+            {viewingTimerText}
           </div>
         )}
         {displayed && (

@@ -266,5 +266,50 @@ describe('TourNavPage', () => {
       renderPage();
       expect(screen.getByTestId('tour-mobile-bar')).toBeInTheDocument();
     });
+
+    // 実機FB: 見学開始で全画面ショーケースオーバーレイを開く旧UXを撤去し、
+    // 地図側の経過時間チップだけを出すようにした。overlay 非表示 + チップ表示を検証する。
+    it('見学中(phase=viewing)はショーケースオーバーレイを開かず、地図に経過時間チップだけ出す', () => {
+      useHousingTourStore.setState({
+        listingIds: ids,
+        running: true,
+        currentIndex: 0,
+        phase: 'viewing',
+        viewStartAt: Date.now(),
+      });
+      seedListings();
+      renderPage();
+      expect(screen.queryByTestId('tour-mobile-showcase')).not.toBeInTheDocument();
+      expect(screen.getByTestId('tour-mobile-viewing-timer')).toBeInTheDocument();
+    });
+
+    // 移動中(phase=moving)ではチップを出さない(見学開始前に経過時間を見せる意味がないため)。
+    it('移動中(phase=moving)は経過時間チップを出さない', () => {
+      useHousingTourStore.setState({
+        listingIds: ids,
+        running: true,
+        currentIndex: 0,
+        phase: 'moving',
+        viewStartAt: null,
+      });
+      seedListings();
+      renderPage();
+      expect(screen.queryByTestId('tour-mobile-viewing-timer')).not.toBeInTheDocument();
+    });
+  });
+
+  // PC(useIsMobile=false, 既定)では見学中でも地図に経過時間チップを出さない
+  // (右パネル TourProgressPanel/TourPhaseZone に既存の見学中表示があるため)。
+  it('PCでは見学中でも地図に経過時間チップを出さない', () => {
+    useHousingTourStore.setState({
+      listingIds: ids,
+      running: true,
+      currentIndex: 0,
+      phase: 'viewing',
+      viewStartAt: Date.now(),
+    });
+    seedListings();
+    renderPage();
+    expect(screen.queryByTestId('tour-mobile-viewing-timer')).not.toBeInTheDocument();
   });
 });

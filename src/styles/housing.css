@@ -6947,6 +6947,27 @@ select.housing-input option {
   text-anchor: middle;
 }
 
+/* 見学中タイマーチップ(実機FB): スマホの見学開始は全画面ショーケースを開かなくなったため、
+ * 見学中(phase==='viewing')の経過時間をコンパスの下に小さく表示する。
+ * 表示専用(操作不要)なので pointer-events:none で地図のパン/ズーム/ドラッグを一切邪魔しない。
+ * 見た目はエーテライトラベル/フル住所オーバーレイと同じ抑制トーン(地色+text-shadowのみ・装飾ピルにしない)。 */
+.housing-tour-map-viewing-timer {
+  position: absolute;
+  top: 54px; /* コンパス(top:10px + height:40px)の下に隙間を空けて並べる */
+  right: 10px;
+  z-index: 2;
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: 7px;
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--housing-candle);
+  background: var(--housing-map-label-bg);
+  text-shadow: var(--housing-text-shadow);
+}
+
 /* 左上フル住所オーバーレイ(共有ツアー同期・参加者の住所 reveal + ホストの一覧表示)。
  * 表示専用(クリック不要)なので pointer-events:none で地図のパン/ズーム/ドラッグを一切邪魔しない。
  * ステージの角丸(14px)に食い込まないよう --housing-panel-radius ベースの inset で内側へ寄せる
@@ -8763,55 +8784,6 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-tour-traybar-clear:focus-visible {
     outline: 2px solid var(--housing-honey);
     outline-offset: 2px;
-  }
-
-  /* ----- 見学オーバーレイ: 左パネル(TourShowcasePanel)非表示の代替 -----
-     全画面に写真/住所/紹介文を重ね、閉じるボタンで戻る(次へで進んだら自動で閉じる)。 */
-  .housing-tour-mobile-showcase {
-    position: fixed;
-    /* 実機FB#8: inset:0 だと下部バー(z-mobile-chrome)をこのオーバーレイ(z-modal-base)が覆い、
-       「次へ」が見学中に消える。下端をバーの上で止めてバーを常時操作可能にする
-       (次へで進むと currentIndex 変化の effect がオーバーレイを自動で閉じる)。 */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: calc(var(--housing-tour-mobilebar-h) + env(safe-area-inset-bottom, 0px));
-    z-index: var(--housing-z-modal-base);
-    display: flex;
-    flex-direction: column;
-    background: var(--housing-panel-bg-solid);
-  }
-  .housing-tour-mobile-showcase-close {
-    appearance: none;
-    cursor: pointer;
-    align-self: flex-end;
-    flex: 0 0 auto;
-    width: 36px;
-    height: 36px;
-    margin: 10px 10px 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    color: var(--housing-text);
-    background: var(--housing-chip-bg);
-    border: 1px solid var(--housing-panel-border);
-  }
-  .housing-tour-mobile-showcase-close:hover {
-    background: var(--housing-chip-bg-hover);
-  }
-  .housing-tour-mobile-showcase-close:active {
-    transform: scale(0.94);
-  }
-  .housing-tour-mobile-showcase-close:focus-visible {
-    outline: 2px solid var(--housing-honey);
-    outline-offset: 2px;
-  }
-  .housing-tour-mobile-showcase-body {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 4px 16px 16px;
   }
 
   /* ----- 実機FB第4弾→第5弾: お気に入りの操作まわりを常に2行に固定してカード4枚を見せる -----
