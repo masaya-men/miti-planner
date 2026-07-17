@@ -1910,6 +1910,11 @@
             "detail": "사진 갤러리, 즐겨찾기 투어, URL 공유 등 하우징을 사랑하는 모든 분을 위한 기능을 만들고 있습니다.",
             "back_to_top": "상단으로"
         },
+        "mypage_coming_soon": {
+            "eyebrow": "マイページ",
+            "title": "準備中です",
+            "lead": "登録したハウジングやお気に入りをまとめて見られるマイページを準備しています。それまでは各ページからご利用ください。"
+        },
         "card": {
             "favorite": "즐겨찾기",
             "add_to_tour": "투어에 추가",
@@ -2639,6 +2644,7 @@
             "share_copy_link": "リンクをコピー",
             "share_copied": "コピーしました",
             "share_twitter": "X で共有",
+            "share_x": "Xでシェア",
             "report_button": "ちがった",
             "back_aria": "戻る",
             "kebab": {

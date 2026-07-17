@@ -3023,6 +3023,9 @@ select.housing-input option {
 }
 .housing-share {
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 .housing-share-menu {
     position: absolute;
@@ -5399,18 +5402,29 @@ select.housing-input option {
 }
 
 /* 個人タグ 1 つで絞り込み中の「◯◯のハウジンガーページを見る →」リンク (結果一覧の上)。
-   質感A案の 2 アクセント体系 (青 = 選択・進行・リンク) に従い --housing-aether を使う。 */
+   FB第6弾#3: このタグの持ち主=ハウジンガー本人への導線というブランド性の強い文脈のため、
+   青(選択・進行・リンク)から honey 系アクセントへ変更。装飾ピル/gradient/glow はハウジング
+   AI感払拭ルールで禁止のため使わず、控えめなボタン風 (padding+角丸+hoverで明度変化) のみで組む
+   (housinger-page-tour-btn のような honey gradient CTA とは別トーン)。 */
 .housing-personal-tag-filter-link {
   display: inline-flex; align-items: center;
   gap: 4px;
   margin-bottom: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
   font-size: var(--housing-text-sm);
-  color: var(--housing-aether);
+  font-weight: 600;
+  color: var(--housing-honey);
   text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 .housing-personal-tag-filter-link:hover {
-  color: var(--housing-aether-soft);
-  text-decoration: underline;
+  background: var(--housing-honey-soft);
+  color: var(--housing-honey-glow);
+}
+.housing-personal-tag-filter-link:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
 }
 
 /* 中央グリッド。縦の並び (見出し→タブ→一括バー→グリッド) は wrap の gap で一定リズムに揃える

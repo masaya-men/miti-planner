@@ -11,13 +11,21 @@ import { useTranslation } from 'react-i18next';
 export interface HousingShareButtonProps {
   url: string;
   title: string;
+  /**
+   * FB第6弾#4#5: 投稿元 SNS ポストの URL (imageMode==='sns' のときのみ値あり)。
+   * X へ流す URL はこれがあれば優先する (他人の投稿の手柄を取らない趣旨)。
+   * リンクコピー / navigator.share は従来どおり LoPo ページ URL (`url`) を使う。
+   */
+  sourceUrl?: string | null;
 }
 
-export const HousingShareButton: React.FC<HousingShareButtonProps> = ({ url, title }) => {
+export const HousingShareButton: React.FC<HousingShareButtonProps> = ({ url, title, sourceUrl }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  // X (Twitter) へ渡す URL: 投稿元があればそちらを優先、なければ LoPo ページ URL。
+  const xTargetUrl = sourceUrl ?? url;
 
   useEffect(() => {
     if (!open) return;
@@ -62,7 +70,7 @@ export const HousingShareButton: React.FC<HousingShareButtonProps> = ({ url, tit
   };
 
   const tweet = () => {
-    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(xTargetUrl)}`;
     window.open(tweetUrl, '_blank', 'noopener,noreferrer');
     setOpen(false);
   };
@@ -78,6 +86,15 @@ export const HousingShareButton: React.FC<HousingShareButtonProps> = ({ url, tit
         aria-expanded={open}
       >
         {t('housing.detail.share')}
+      </button>
+      {/* FB第6弾#4: 常時見えるXシェアボタン。ドロップダウンを開かず直接 intent へ飛ぶ。 */}
+      <button
+        type="button"
+        className="housing-action-btn"
+        onClick={tweet}
+        aria-label={t('housing.detail.share_x')}
+      >
+        {t('housing.detail.share_x')}
       </button>
       {open && (
         <div role="menu" className="housing-share-menu">

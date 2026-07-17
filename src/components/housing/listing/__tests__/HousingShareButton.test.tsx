@@ -46,4 +46,67 @@ describe('HousingShareButton', () => {
     await Promise.resolve();
     expect(shareSpy).toHaveBeenCalledWith({ title: 'My House', url: 'https://example.com/lid1' });
   });
+
+  // FB第6弾#4#5: 常時見える「Xでシェア」ボタン
+  it('常時「Xでシェア」ボタンが表示され、 sourceUrl が無ければ LoPo の url で intent を開く', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    render(<HousingShareButton url="https://lopoly.app/housing/listing/lid1" title="My House" />);
+    fireEvent.click(screen.getByRole('button', { name: 'housing.detail.share_x' }));
+    expect(openSpy).toHaveBeenCalledWith(
+      'https://twitter.com/intent/tweet?text=My%20House&url=https%3A%2F%2Flopoly.app%2Fhousing%2Flisting%2Flid1',
+      '_blank',
+      'noopener,noreferrer',
+    );
+    openSpy.mockRestore();
+  });
+
+  it('sourceUrl があれば「Xでシェア」ボタンは投稿元 URL を優先して intent を開く', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    render(
+      <HousingShareButton
+        url="https://lopoly.app/housing/listing/lid1"
+        title="My House"
+        sourceUrl="https://twitter.com/someone/status/123"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'housing.detail.share_x' }));
+    expect(openSpy).toHaveBeenCalledWith(
+      'https://twitter.com/intent/tweet?text=My%20House&url=https%3A%2F%2Ftwitter.com%2Fsomeone%2Fstatus%2F123',
+      '_blank',
+      'noopener,noreferrer',
+    );
+    openSpy.mockRestore();
+  });
+
+  it('ドロップダウン内の X 共有も sourceUrl があればそちらを優先する', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    render(
+      <HousingShareButton
+        url="https://lopoly.app/housing/listing/lid1"
+        title="My House"
+        sourceUrl="https://twitter.com/someone/status/123"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'housing.detail.share' }));
+    fireEvent.click(screen.getByText('housing.detail.share_twitter'));
+    expect(openSpy).toHaveBeenCalledWith(
+      expect.stringContaining(encodeURIComponent('https://twitter.com/someone/status/123')),
+      '_blank',
+      'noopener,noreferrer',
+    );
+    openSpy.mockRestore();
+  });
+
+  it('リンクコピーは sourceUrl があっても LoPo の url をコピーする', () => {
+    render(
+      <HousingShareButton
+        url="https://lopoly.app/housing/listing/lid1"
+        title="My House"
+        sourceUrl="https://twitter.com/someone/status/123"
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'housing.detail.share' }));
+    fireEvent.click(screen.getByText('housing.detail.share_copy_link'));
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('https://lopoly.app/housing/listing/lid1');
+  });
 });

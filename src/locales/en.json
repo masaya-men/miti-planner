@@ -1945,6 +1945,11 @@
             "detail": "Photo galleries, favorite tour playlists, shareable URLs — everything for housing enthusiasts is on the way.",
             "back_to_top": "Back to top"
         },
+        "mypage_coming_soon": {
+            "eyebrow": "My Page",
+            "title": "Coming Soon",
+            "lead": "We're building a My Page where you can see all your registered housing and favorites in one place. In the meantime, please use the other pages."
+        },
         "card": {
             "favorite": "Favorite",
             "add_to_tour": "Add to tour",
@@ -2674,6 +2679,7 @@
             "share_copy_link": "リンクをコピー",
             "share_copied": "コピーしました",
             "share_twitter": "X で共有",
+            "share_x": "Share on X",
             "report_button": "ちがった",
             "back_aria": "戻る",
             "kebab": {

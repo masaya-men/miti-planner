@@ -1966,6 +1966,11 @@
             "detail": "投稿写真ギャラリー、お気に入りツアー作成、URL シェアなど、ハウジングを愛するすべての方のための機能を作っています。",
             "back_to_top": "トップに戻る"
         },
+        "mypage_coming_soon": {
+            "eyebrow": "マイページ",
+            "title": "準備中です",
+            "lead": "登録したハウジングやお気に入りをまとめて見られるマイページを準備しています。それまでは各ページからご利用ください。"
+        },
         "card": {
             "favorite": "お気に入り",
             "add_to_tour": "ツアーに追加",
@@ -2695,6 +2700,7 @@
             "share_copy_link": "リンクをコピー",
             "share_copied": "コピーしました",
             "share_twitter": "X で共有",
+            "share_x": "Xでシェア",
             "report_button": "ちがった",
             "back_aria": "戻る",
             "kebab": {

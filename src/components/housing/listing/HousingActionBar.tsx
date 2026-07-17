@@ -121,7 +121,7 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
     <div className="housing-action-bar">
       <HousingFavHeart listingId={listing.id} />
 
-      <HousingShareButton url={url} title={titleForShare} />
+      <HousingShareButton url={url} title={titleForShare} sourceUrl={listing.postUrl ?? null} />
 
       {!isOwner && (
         <button

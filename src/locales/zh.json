@@ -1910,6 +1910,11 @@
             "detail": "照片画廊、收藏导览、URL 分享等，专为热爱房屋装饰的玩家打造。",
             "back_to_top": "返回顶部"
         },
+        "mypage_coming_soon": {
+            "eyebrow": "マイページ",
+            "title": "準備中です",
+            "lead": "登録したハウジングやお気に入りをまとめて見られるマイページを準備しています。それまでは各ページからご利用ください。"
+        },
         "card": {
             "favorite": "收藏",
             "add_to_tour": "加入导览",
@@ -2639,6 +2644,7 @@
             "share_copy_link": "リンクをコピー",
             "share_copied": "コピーしました",
             "share_twitter": "X で共有",
+            "share_x": "Xでシェア",
             "report_button": "ちがった",
             "back_aria": "戻る",
             "kebab": {

@@ -25,8 +25,13 @@ vi.mock('../../delete/useHousingDelete', () => ({
 // URL に渡すだけ) ため、 titleForShare の配線 (addressKey 漏洩防止) を検証するには title を
 // data 属性で観測できるスタブに差し替える必要がある (aria-label は既存アサーションを壊さないよう維持)。
 vi.mock('../HousingShareButton', () => ({
-  HousingShareButton: ({ title }: { title: string }) => (
-    <button type="button" aria-label="housing.detail.share" data-share-title={title ?? ''}>
+  HousingShareButton: ({ title, sourceUrl }: { title: string; sourceUrl?: string | null }) => (
+    <button
+      type="button"
+      aria-label="housing.detail.share"
+      data-share-title={title ?? ''}
+      data-share-source-url={sourceUrl ?? ''}
+    >
       housing.detail.share
     </button>
   ),
@@ -144,5 +149,24 @@ describe('HousingActionBar', () => {
     renderBar({ viewerUid: 'owner1', listing: publicNoDescription });
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
     expect(shareButton.dataset.shareTitle).toBe('Mist Ward 5 Plot 12');
+  });
+
+  // FB第6弾#4#5: HousingShareButton へ listing.postUrl を sourceUrl として配線する。
+  it('imageMode===sns で postUrl があるとき、 HousingShareButton に sourceUrl として渡す', () => {
+    const snsListing = {
+      ...baseListing,
+      imageMode: 'sns',
+      postUrl: 'https://twitter.com/someone/status/123',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    renderBar({ viewerUid: 'owner1', listing: snsListing });
+    const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
+    expect(shareButton.dataset.shareSourceUrl).toBe('https://twitter.com/someone/status/123');
+  });
+
+  it('postUrl が無いとき、 HousingShareButton の sourceUrl は空になる', () => {
+    renderBar({ viewerUid: 'owner1' });
+    const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
+    expect(shareButton.dataset.shareSourceUrl).toBe('');
   });
 });
