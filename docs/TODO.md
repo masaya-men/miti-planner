@@ -27,7 +27,7 @@
 ### ✅ 2026-07-16 実機OK+本番反映: ダイアログ3種ガラス化+招待ボタン角丸 / 共有URL `hashed:`剥がし(C案) / 前デプロイ分5件(登録住所未入力UX・管理サイドナビscroll・Ko-fi→/support・マイページ10件・P3 unlisted UI)=全部OK。詳細=`.private/2026-07-16-next-session-dialog-tonmana.md`。
 ### 🔴 次セッション最優先 (2026-07-15 更新)
 0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`):
-   - **✅スマホ対応=実機FB5弾まで反映し本番デプロイ(2026-07-17)**: 基盤(ナビ/FAB/シート/2列/全画面/ツアー横持ち→縦OK化)+FB第2〜5弾(トップ/フィルター▼ヘッダー/シート不透明+つまみ閉じ/行き方地図下部/終了/住所2行/次へ消失根治=sticky hover/トレイバー/カードをナビ下まで/スクロールバー右端/お気に入り2行化+文字ボタン)。#A削除即反映/#Bお気に入り件数重複も修正。PC無変更。**本番確認=全部OK(2026-07-17)**。台帳=.superpowers/sdd/progress.md。**🔴次セッション(小さい順)**: ①探す右パネル下のお気に入り件数が15のまま(#B残・見出しと別のカウント箇所=右カラムのプレビュー系。同じ「解決済みのみ数える」で直す) ②LPのハウジングツアークリック→/housing導線 ③中韓用語CSV生成しユーザーへ(エリア/エーテライト/ワールド/DC/区画等もれなく・[[project_housing_gameterms_admin_glossary]]) ④お気に入りがPC⇔スマホ非同期=現状ローカル保存の疑い→サーバー同期は要調査・設計(brainstorming)。
+   - **✅スマホ対応=実機FB5弾まで反映し本番デプロイ(2026-07-17)**: 基盤(ナビ/FAB/シート/2列/全画面/ツアー横持ち→縦OK化)+FB第2〜5弾(トップ/フィルター▼ヘッダー/シート不透明+つまみ閉じ/行き方地図下部/終了/住所2行/次へ消失根治=sticky hover/トレイバー/カードをナビ下まで/スクロールバー右端/お気に入り2行化+文字ボタン)。#A削除即反映/#Bお気に入り件数重複も修正。PC無変更。**本番確認=全部OK(2026-07-17)**。台帳=.superpowers/sdd/progress.md。✅①#B残ストリップ件数(`d6261a9d`) ②LP導線(`0aec3971`) ③中韓用語CSV(`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`+デスクトップ)=2026-07-17完了→TODO_COMPLETED。**🔴次**: ④お気に入りPC⇔スマホ非同期=根因確定([useHousingFavoritesStore.ts:26] zustand persist→localStorageのみ・サーバー同期なし)→同期設計はbrainstormingから。
    - **公開前ブロッカー**: ①**モデレ判断待ち**=/admin で通報一覧+非表示/強制非公開/個別却下(物件・人・個人タグ)+閾値自動非表示は可。**未実装(公開後対応)=BAN/quota永久0/一括削除/物理削除cron**([AdminHousingReports.tsx:9])→hide運用で公開か最低限BAN追加かユーザー判断。②**Discord告知**(ツアー公開・P3住所非公開も併記)。③✅**スマホ対応=実装完了・本番反映(2026-07-16・実機確認待ち)**。④**中韓=後追いなるはや**(専用DC/鯖/ワードデータ依存・JA/ENブロッカー外)。en翻訳=日英706/706キー数一致✅ / 共有ツアー本体=本番稼働✅(2026-07-16)。
    - **忘れず(ユーザー指摘)**: 最初の家でもDCテレポ案内 / 30日物理削除cron(公開後・listing用) / 数日後=Claudeリマインドで GCPコスト実測→G5。(✅地図左上フル住所=共有ツアーブランチで実装済)
 1. ✅ **P0-P2 耐性 + P3 住所非公開 = 全部本番稼働(2026-07-15・G7完全通過)**(詳細=`.superpowers/sdd/progress.md`・セキュリティ設計は `.private/2026-07-14-*` に格納=公開リポに穴の地図を出さない・[[project_housing_scale_hardening]])
@@ -73,7 +73,7 @@
 
 - **🔮 8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修・大物・情報出揃い次第。着手時brainstorming。詳細=docs/.private/2026-06-20-skill-modeling-notes.md)。**🔵将来=スキル効果解決の窓口統一**=level+mode→正効果に解決する関数1つに集約し全~30箇所を通す(同id版違いバグの真の根治・コードのきれい。2026-06-22`_base`化が第一歩。競合resourceTracker/CD recastRow/計算calculator 未配線・autoPlanner配線済)。**ここに畳む候補(2026-06-30判断・価値低)**=スプシ取込で技名をコンテンツlevelの版に解決(例 シャドウヴィジル→Lv80はシャドウウォール)。単発実装は非推奨(スキル線リンクがデータに無く窓口統一が前提・発動はユーザーの取り違えのみ)。※リビデ正確モデル化①と表展開トグル③は2026-06-20完了(COMPLETED)。
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
-- **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留 (既知legacyテスト失敗5件=TopBar4+HousingWorkspace1は撤去予定・非アクション)
+- **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留 (既知legacyテスト失敗5件=TopBar4+HousingWorkspace1は撤去予定・非アクション)。**🆕 EphemeralAddPanel.test 7件失敗(2026-07-17発見・環境依存)**: happy-domが:3000へ実fetch(ECONNREFUSED)・devサーバー起動中のみ緑だった疑い。d77ca25f時点でも同一失敗=直近変更と無関係を切り分け済。要モック修正。
 - **🆕 共同編集の残**(詳細→`.private/2026-06-26-collab-issues-observed.md` / `2026-06-25-deleted-share-link-notice.md`): 実使用バグ A重い/Dモーダル=✅本番済・C ドット数≠実人数=🟦見送り(残=全行未仮想化#59は別タスク) / 削除済み共有リンクの空TL(狭いプライバシー窓・方針A案=deletePlan後revoke+「失効」表示で確定・今後分のみ・急ぎ不要)。
 
 ---
