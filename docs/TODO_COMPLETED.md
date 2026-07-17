@@ -2,6 +2,13 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-17 TODO整理で退避した検証済ステータス (元「現在の状態」)
+- **お気に入りPC⇔スマホ同期(FB6実装分)=ユーザー実機OK確認済(2026-07-17)**。旧TODO記載の「④非同期=同期設計はbrainstormingから」はFB6実装で解消済=打ち切り。
+- 直近本番検証済: round1+round2(21項目・7-13)+P0+P1大規模耐性ハードニング(7-14・CF全ルールHIT実測・実機G2全PASS)。プライバシー=`personal_<hex>`はHMAC一方向ハッシュ。round2詳細=`.private/2026-07-13-register-production-test-feedback.md`。
+- 2026-07-16 実機OK+本番反映: ダイアログ3種ガラス化+招待ボタン角丸 / 共有URL `hashed:`剥がし(C案) / 前デプロイ分5件(登録住所未入力UX・管理サイドナビscroll・Ko-fi→/support・マイページ10件・P3 unlisted UI)=全部OK。詳細=`.private/2026-07-16-next-session-dialog-tonmana.md`。
+- スマホ対応FB第2〜5弾の内訳: 基盤(ナビ/FAB/シート/2列/全画面/ツアー横持ち→縦OK化)+トップ/フィルター▼ヘッダー/シート不透明+つまみ閉じ/行き方地図下部/終了/住所2行/次へ消失根治=sticky hover/トレイバー/カードをナビ下まで/スクロールバー右端/お気に入り2行化+文字ボタン。#A削除即反映/#Bお気に入り件数重複も修正。PC無変更。本番確認=全部OK(2026-07-17)。台帳=.superpowers/sdd/progress.md。①#B残ストリップ件数(`d6261a9d`) ②LP導線(`0aec3971`) ③中韓用語CSV=完了。
+- P3補足: G7住所漏洩ゲート完全通過(curl+実機・住所文字ゼロ・地図/近隣なし)。triple protection+逆引き封じ(check-duplicate)。en翻訳=日英706/706キー数一致 / 共有ツアー本体=本番稼働(2026-07-16) / 地図左上フル住所=実装済。
+
 ### ✅ 2026-07-17 グローバル CLAUDE.md 剪定 (プロジェクト外メタタスク・承認済み)
 - ~/.claude/CLAUDE.md を 301行→約80行へ。**削除ゼロ=移動+ポインタ化**: RTKコマンド表→`~/.claude/rtk-reference.md` / 画面環境38行→`design-philosophy-sizing.md` §12 / 推測抑制の出典7件→`~/.claude/anti-speculation-sources.md`。コスト×品質ルールは無変更。要点数値(1489/2.58/1920・2560/Playwright設定/clamp)と5原則本体・セキュリティ3層・RTK黄金律は本文に温存。プロジェクト側 CLAUDE.md は既にスリムのため対象外(ユーザー了承)。
 
