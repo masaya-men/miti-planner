@@ -24,7 +24,7 @@ import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { orderFavorites } from '../favorites/favoritesOrder';
 import type { FavTab } from '../favorites/favoritesOrder';
-import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
+import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 
 /**
  * お気に入りページ (3カラム): 左=オンボ(後続タスク) / 中央=お気に入りグリッド / 右=トレイ。
@@ -68,6 +68,10 @@ export const FavoritesPage: React.FC = () => {
   // ツアートレイのドラフト (#5: ページ横断で保持するストア。詳細ページ往復で消えない)
   const trayIds = useTourTrayStore((s) => s.trayIds);
   const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
+  // ツアー順制御 (ドラッグ並び替え + 最初/最後固定ピン): resolveTourOrder が参照する。
+  const pinnedFirstId = useTourTrayStore((s) => s.pinnedFirstId);
+  const pinnedLastId = useTourTrayStore((s) => s.pinnedLastId);
+  const manualOrder = useTourTrayStore((s) => s.manualOrder);
 
   // マナー通知ダイアログ
   const [mannerOpen, setMannerOpen] = useState(false);
@@ -138,8 +142,8 @@ export const FavoritesPage: React.FC = () => {
   const commitStart = useCallback(() => {
     if (trayIds.length === 0) return;
     // ツアー解決は allListings (お気に入り一覧・非汚染) + 一時 listing。一覧自体は変えない。
-    const orderedIds = orderTourStopIds(trayIds, [...allListings, ...ephemeral]);
     const pool = [...allListings, ...ephemeral];
+    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedFirstId, pinnedLastId, manualOrder });
     const stops = orderedIds
       .map((id) => pool.find((l) => l.id === id))
       .filter((l): l is MockListing => Boolean(l));
@@ -154,7 +158,7 @@ export const FavoritesPage: React.FC = () => {
     useTourTrayStore.getState().clear();
     setMannerOpen(false);
     navigate('/housing/tour');
-  }, [trayIds, allListings, ephemeral, navigate, t]);
+  }, [trayIds, allListings, ephemeral, pinnedFirstId, pinnedLastId, manualOrder, navigate, t]);
 
   const handleStart = useCallback(() => {
     if (trayIds.length === 0) return;

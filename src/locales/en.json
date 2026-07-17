@@ -1962,7 +1962,12 @@
             "empty": "Add places with “Add to tour” on a card.",
             "remove": "Remove",
             "start": "Start tour with these",
-            "count": "{{count}}"
+            "count": "{{count}}",
+            "sort_efficient": "Sort by route",
+            "pin_first": "Pin to first",
+            "pin_last": "Pin to last",
+            "unpin": "Unpin",
+            "drag_handle": "Drag to reorder"
         },
         "ephemeral": {
             "add_button": "Add by address",
@@ -2663,7 +2668,8 @@
             "settings_theme": "Theme",
             "settings_language": "Language",
             "tray_start": "Start",
-            "tray_clear": "Clear"
+            "tray_clear": "Clear",
+            "reorder": "Reorder"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

@@ -26,7 +26,7 @@ import { TourTray } from '../browse/TourTray';
 import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
-import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
+import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
 
 /**
@@ -97,6 +97,10 @@ export const BrowsePage: React.FC = () => {
   // ツアートレイのドラフト (#5: ページ横断で保持するストア。詳細ページ往復で消えない)。開始時に tour store へ確定する。
   const trayIds = useTourTrayStore((s) => s.trayIds);
   const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
+  // ツアー順制御 (ドラッグ並び替え + 最初/最後固定ピン): resolveTourOrder が参照する。
+  const pinnedFirstId = useTourTrayStore((s) => s.pinnedFirstId);
+  const pinnedLastId = useTourTrayStore((s) => s.pinnedLastId);
+  const manualOrder = useTourTrayStore((s) => s.manualOrder);
   // マナー通知ダイアログ (#4: 開始のたびに毎回表示)。
   const [mannerOpen, setMannerOpen] = useState(false);
   const addToTray = (id: string) => {
@@ -129,7 +133,7 @@ export const BrowsePage: React.FC = () => {
     if (trayIds.length === 0) return;
     // ツアー解決は merged (探す一覧・非汚染) + 一時 listing。一覧グリッドの merged 自体は変えない。
     const pool = [...merged, ...ephemeral];
-    const orderedIds = orderTourStopIds(trayIds, pool);
+    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedFirstId, pinnedLastId, manualOrder });
     const stops = orderedIds
       .map((id) => pool.find((l) => l.id === id))
       .filter((l): l is MockListing => Boolean(l));

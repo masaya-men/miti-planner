@@ -1983,7 +1983,12 @@
             "empty": "カードの「ツアーに追加」で行き先を積みましょう",
             "remove": "削除",
             "start": "この内容でツアーを開始",
-            "count": "{{count}}"
+            "count": "{{count}}",
+            "sort_efficient": "効率順に並べ替え",
+            "pin_first": "最初に固定",
+            "pin_last": "最後に固定",
+            "unpin": "固定を解除",
+            "drag_handle": "ドラッグして並べ替え"
         },
         "ephemeral": {
             "add_button": "住所から追加",
@@ -2684,7 +2689,8 @@
             "settings_theme": "テーマ",
             "settings_language": "言語",
             "tray_start": "開始",
-            "tray_clear": "空にする"
+            "tray_clear": "空にする",
+            "reorder": "並べ替え"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

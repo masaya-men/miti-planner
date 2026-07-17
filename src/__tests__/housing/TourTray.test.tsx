@@ -11,6 +11,7 @@ vi.mock('../../store/useHousingListingsStore', () => ({
       listings: [
         { id: 'a', area: 'Mist', ward: 1, plot: 1, buildingType: 'house', size: 'M', imageMode: 'none', tags: [] },
       ],
+      myListings: [],
     }),
 }));
 

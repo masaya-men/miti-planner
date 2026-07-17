@@ -1927,7 +1927,12 @@
             "empty": "카드의 ‘투어에 추가’로 목적지를 담아보세요.",
             "remove": "삭제",
             "start": "이 내용으로 투어 시작",
-            "count": "{{count}}"
+            "count": "{{count}}",
+            "sort_efficient": "効率順に並べ替え",
+            "pin_first": "最初に固定",
+            "pin_last": "最後に固定",
+            "unpin": "固定を解除",
+            "drag_handle": "ドラッグして並べ替え"
         },
         "ephemeral": {
             "add_button": "주소로 추가",
@@ -2628,7 +2633,8 @@
             "settings_theme": "테마",
             "settings_language": "언어",
             "tray_start": "시작",
-            "tray_clear": "비우기"
+            "tray_clear": "비우기",
+            "reorder": "並べ替え"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

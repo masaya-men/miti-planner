@@ -1927,7 +1927,12 @@
             "empty": "用卡片上的“加入导览”添加目的地。",
             "remove": "删除",
             "start": "以此内容开始导览",
-            "count": "{{count}}"
+            "count": "{{count}}",
+            "sort_efficient": "効率順に並べ替え",
+            "pin_first": "最初に固定",
+            "pin_last": "最後に固定",
+            "unpin": "固定を解除",
+            "drag_handle": "ドラッグして並べ替え"
         },
         "ephemeral": {
             "add_button": "通过地址添加",
@@ -2628,7 +2633,8 @@
             "settings_theme": "主题",
             "settings_language": "语言",
             "tray_start": "开始",
-            "tray_clear": "清空"
+            "tray_clear": "清空",
+            "reorder": "並べ替え"
         },
         "gallery": {
             "loading": "物件を読み込んでいます…",

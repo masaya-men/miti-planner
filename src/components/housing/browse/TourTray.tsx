@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Plus, Route, X } from 'lucide-react';
+import { Play, Plus } from 'lucide-react';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
-import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import { canDisplayAddress } from '../../../lib/housing/listingPublish';
-import { isEphemeralListingId } from '../../../lib/housing/ephemeralListing';
 import { EphemeralAddPanel } from './EphemeralAddPanel';
 import { tourAnchorRegion } from '../../../lib/housing/tourCrossing';
+import { TourTrayList } from './TourTrayList';
 
 export interface TourTrayProps {
   listingIds: string[];
@@ -18,11 +16,11 @@ export interface TourTrayProps {
 }
 
 /**
- * 右カラムのツアートレイ。番号付きの行き先リスト + 削除 + 「開始」。
- * 第1スパンは 追加/削除/開始 まで。DnD 並べ替えは後続で TourBuilderPane から移植。
+ * 右カラムのツアートレイ。番号付きの行き先リスト (TourTrayList: ドラッグ並び替え + 固定ピン +
+ * 効率順ボタン) + 「開始」。行き先リスト本体は TourTrayList に集約し、スマホの並べ替えシートと共有する。
  */
 export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStart, onAdd }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
@@ -32,6 +30,8 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
   // 行解決: 公開一覧 → 自分の登録 (myListings・完全非公開/期限切れ含む) → 一時 listing の順で探す。
   // myListings を含めないと、完全非公開(private)の家を追加したとき行が解決できず、
   // トレイの件数だけ増えて中身が空に見える (実機で判明・#6)。
+  // ここでの items は「一時追加パネルの跨ぎ早期ブロック」用の地域算出だけに使う
+  // (実際の行き先リスト描画・順序解決は TourTrayList に委譲)。
   const items = listingIds
     .map(
       (id) =>
@@ -43,8 +43,6 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
   const empty = listingIds.length === 0;
   // トレイの非OCEアンカー地域 (OCEは日/米/欧と混在可なので除外)。一時追加パネルの跨ぎ早期ブロックに渡す。
   const trayRegion = tourAnchorRegion(items.map((i) => i.region));
-
-  const remove = (id: string) => onChange(listingIds.filter((x) => x !== id));
 
   return (
     <div className="housing-tour-tray">
@@ -71,38 +69,7 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
         trayRegion={trayRegion}
       />
 
-      {empty ? (
-        <div className="housing-empty-hint housing-tour-tray-empty">
-          <Route size={20} aria-hidden="true" />
-          <p>{t('housing.tray.empty')}</p>
-        </div>
-      ) : (
-        <ol className="housing-tour-tray-list">
-          {items.map((l, i) => (
-            <li key={l.id} className="housing-tour-tray-item">
-              <span className="housing-tour-tray-num">{i + 1}</span>
-              <span className="housing-tour-tray-addr">
-                {l.visibility === 'private'
-                  ? t('housing.card.privateListing')
-                  : canDisplayAddress(l)
-                    ? formatHousingAddress(l, i18n.language)
-                    : t('housing.card.addressPrivate')}
-              </span>
-              {isEphemeralListingId(l.id) && (
-                <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>
-              )}
-              <button
-                type="button"
-                className="housing-tour-tray-remove"
-                aria-label={t('housing.tray.remove')}
-                onClick={() => remove(l.id)}
-              >
-                <X size={14} aria-hidden="true" />
-              </button>
-            </li>
-          ))}
-        </ol>
-      )}
+      <TourTrayList listingIds={listingIds} onChange={onChange} />
 
       <button
         type="button"

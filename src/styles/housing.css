@@ -6274,7 +6274,35 @@ select.housing-input option {
   background: var(--housing-panel-inner);
   border: 1px solid var(--housing-panel-border);
   border-radius: 10px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
+/* ツアー順制御: ドラッグ中の行 (register の画像並び替えと同じ控えめな honey 枠) */
+.housing-tour-tray-item[data-dragging="true"] {
+  border-color: var(--housing-honey-glow);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+/* 左端のドラッグハンドル (行全体ではなくハンドルだけで並び替え発動) */
+.housing-tour-tray-drag {
+  appearance: none; border: 0; background: transparent; cursor: grab;
+  color: var(--housing-text-mute); padding: 2px; border-radius: 6px;
+  display: inline-flex; flex: 0 0 auto;
+  touch-action: none;
+  transition: color 0.15s ease;
+}
+.housing-tour-tray-drag:hover { color: var(--housing-text); }
+.housing-tour-tray-drag:active { cursor: grabbing; }
+.housing-tour-tray-drag:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+/* 最初/最後に固定するトグルボタン。有効時はハニー色 (質感A案・2アクセント体系のハニー=主アクション系)。 */
+.housing-tour-tray-pin {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--housing-text-mute); padding: 4px; border-radius: 6px;
+  display: inline-flex; flex: 0 0 auto;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-tour-tray-pin:hover { color: var(--housing-text); background: var(--housing-chip-bg-hover); }
+.housing-tour-tray-pin[data-active="true"] { color: var(--housing-honey); background: var(--housing-honey-medium); }
+.housing-tour-tray-pin:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 .housing-tour-tray-num {
   flex: 0 0 auto;
   width: 22px; height: 22px; border-radius: 50%;
@@ -6295,6 +6323,24 @@ select.housing-input option {
 }
 .housing-tour-tray-remove:hover { color: var(--housing-danger, #ff6b6b); background: var(--housing-chip-bg-hover); }
 
+/* ツアー順制御: リスト + 効率順ボタンをまとめる箱 (TourTrayList のルート要素・従来 .housing-tour-tray-list の
+   flex:1 1 auto を引き継ぐ)。 */
+.housing-tour-tray-body {
+  display: flex; flex-direction: column; gap: 8px;
+  min-height: 0; flex: 1 1 auto;
+}
+.housing-tour-tray-sortbtn {
+  appearance: none; cursor: pointer; flex: 0 0 auto;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 12px;
+  font-family: inherit; font-size: var(--housing-text-sm); font-weight: 600;
+  color: var(--housing-text-mute);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border); border-radius: 10px;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.housing-tour-tray-sortbtn:hover { color: var(--housing-text); border-color: var(--housing-honey-border); background: var(--housing-chip-bg-hover); }
+.housing-tour-tray-sortbtn:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 
 .housing-tour-tray-start {
   appearance: none; cursor: pointer; flex: 0 0 auto;
@@ -8648,6 +8694,30 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     transform: scale(0.96);
   }
   .housing-tour-traybar-start:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+  }
+  /* 並べ替えボタン (ツアー順制御): クリアボタンと同じ小さいアイコンボタンの見た目。 */
+  .housing-tour-traybar-reorder {
+    appearance: none;
+    cursor: pointer;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    color: var(--housing-text-mute);
+    background: transparent;
+    border: 1px solid var(--housing-panel-border);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .housing-tour-traybar-reorder:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+  }
+  .housing-tour-traybar-reorder:focus-visible {
     outline: 2px solid var(--housing-honey);
     outline-offset: 2px;
   }
