@@ -15,6 +15,8 @@ import { getCategoryTag, getContentName, trySeriesSummary, type OgpLang } from '
 import { FAVICON_BASE64 } from './_faviconBase64.js';
 import { applyRateLimitWeb } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabledWeb } from '../../src/lib/publicApiGuard.js';
+import { loadMPlus1Fonts } from './_fonts.js';
+import { handleHousingerCardRequest } from './_housingerCard.js';
 
 export const config = { runtime: 'edge' };
 
@@ -34,6 +36,13 @@ export default async function handler(req: Request) {
         if (limited) return limited;
 
         const { searchParams, origin } = new URL(req.url);
+
+        // ハウジンガーページ専用カード（署名付きURLのみ受理・別トンマナ）。
+        // 新規 Edge Function は増やさず、この関数内で完結させる。
+        if (searchParams.get('type') === 'housinger') {
+            return handleHousingerCardRequest(searchParams);
+        }
+
         const shareId = searchParams.get('id');
         const showLogo = searchParams.get('showLogo') === 'true';
         const lang: OgpLang = searchParams.get('lang') === 'en' ? 'en' : 'ja';
@@ -81,25 +90,7 @@ export default async function handler(req: Request) {
             allText += contentName + planTitle + categoryTag;
         }
         const uniqueChars = [...new Set(allText)].join('');
-
-        const fontCssUrl = `https://fonts.googleapis.com/css2?family=M+PLUS+1:wght@400;700;900&text=${encodeURIComponent(uniqueChars)}`;
-        const fontCss = await fetch(fontCssUrl, {
-            headers: { 'User-Agent': 'Mozilla/5.0' },
-        }).then(r => r.text());
-
-        const fontUrls = [...fontCss.matchAll(/src:\s*url\(([^)]+)\)/g)].map(m => m[1]);
-        const fontBuffers = await Promise.all(
-            fontUrls.map(url => fetch(url).then(r => r.arrayBuffer()))
-        );
-
-        const fonts: { name: string; data: ArrayBuffer; style: 'normal'; weight: 400 | 700 | 900 }[] = [];
-        if (fontBuffers.length >= 3) {
-            fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 400 });
-            fonts.push({ name: 'M PLUS 1', data: fontBuffers[1], style: 'normal', weight: 700 });
-            fonts.push({ name: 'M PLUS 1', data: fontBuffers[2], style: 'normal', weight: 900 });
-        } else if (fontBuffers.length >= 1) {
-            fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 700 });
-        }
+        const fonts = await loadMPlus1Fonts(uniqueChars);
 
         // チームロゴ: 共有データに埋め込まれたbase64を使用（showLogoフラグで制御）
         const teamLogoSrc = (showLogo && logoBase64FromShare) ? logoBase64FromShare : null;

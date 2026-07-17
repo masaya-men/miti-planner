@@ -19,6 +19,7 @@
 
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { normalizeHousingerUid, stripHashedPrefix, HOUSINGER_BIO_MAX_LENGTH } from '../../src/lib/housing/housingerProfile.js';
+import { buildHousingerOgCardUrl } from '../../src/lib/ogpHousingerCard.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
@@ -102,9 +103,9 @@ export default async function handler(req: any, res: any) {
           ogTitle = displayName ? `${displayName} のハウジング | LoPo` : DEFAULT_OG_TITLE;
           ogDescription = bio || 'FF14 のハウジングを巡るツアー機能で公開中のハウジング一覧です。';
 
-          // 代表画像: そのハウジンガーの公開中 listing (先頭 = 新着順、探すページと同じ並び順) の
-          // 代表画像。無ければ avatarUrl、それも無ければ既存デフォルト (/api/og)。
-          let resolvedImage: string | null = null;
+          // 代表画像: そのハウジンガーの公開中 listing (先頭3件 = 新着順、探すページと同じ並び順) の
+          // 代表画像を、下の「ページ風カード」(アバター+名前+画像最大3枚) に載せる。
+          const resolvedImages: string[] = [];
           try {
             const listingSnap = await db.collection(LISTING_COLLECTION)
               .where('ownerUid', '==', uid)
@@ -114,19 +115,44 @@ export default async function handler(req: any, res: any) {
               .limit(10)
               .select('visibility', 'isHidden', 'deletedAt', 'createdAt', 'imageMode', 'thumbnailPath', 'ogImageUrl')
               .get();
-            const firstAlive = listingSnap.docs.find((d) => d.data().deletedAt == null);
-            if (firstAlive) {
-              resolvedImage = listingRepresentativeImage(firstAlive.data());
+            for (const doc of listingSnap.docs) {
+              const data = doc.data();
+              if (data.deletedAt != null) continue;
+              const img = listingRepresentativeImage(data);
+              if (img) resolvedImages.push(img);
+              if (resolvedImages.length >= 3) break;
             }
           } catch (err) {
             console.error('Housinger page listing fetch error:', err);
           }
 
-          const finalImage = resolvedImage || avatarUrl;
-          if (finalImage) {
-            ogImageUrl = toAbsoluteUrl(finalImage, origin);
+          // OGP画像: アバター+名前+公開ハウジング画像(最大3枚)の「ページ風カード」を
+          // 署名付きURL (api/og?type=housinger) で動的生成する (案A)。
+          // CRON_SECRET未設定、またはURL組み立て失敗時は、従来どおり画像1枚をそのまま
+          // og:image にするフォールバックへ委ねる（OGPを壊さないための安全策）。
+          const cronSecret = process.env.CRON_SECRET;
+          let cardUrl: string | null = null;
+          if (cronSecret) {
+            try {
+              cardUrl = await buildHousingerOgCardUrl(origin, {
+                name: displayName,
+                avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
+                imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
+              }, cronSecret);
+            } catch (err) {
+              console.error('Housinger OG card URL build error:', err);
+            }
           }
-          // resolvedImage も avatarUrl も無ければ ogImageUrl は DEFAULT_OG_IMAGE のまま。
+
+          if (cardUrl) {
+            ogImageUrl = cardUrl;
+          } else {
+            const finalImage = resolvedImages[0] || avatarUrl;
+            if (finalImage) {
+              ogImageUrl = toAbsoluteUrl(finalImage, origin);
+            }
+            // finalImage も無ければ ogImageUrl は DEFAULT_OG_IMAGE のまま。
+          }
         }
         // isPublic===false の場合は専用メタを一切設定せず、デフォルトのまま下の HTML 生成に進む。
       }
