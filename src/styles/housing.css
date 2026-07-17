@@ -6950,7 +6950,7 @@ select.housing-input option {
 /* 見学中タイマーチップ(実機FB): スマホの見学開始は全画面ショーケースを開かなくなったため、
  * 見学中(phase==='viewing')の経過時間をコンパスの下に小さく表示する。
  * 表示専用(操作不要)なので pointer-events:none で地図のパン/ズーム/ドラッグを一切邪魔しない。
- * 見た目はエーテライトラベル/フル住所オーバーレイと同じ抑制トーン(地色+text-shadowのみ・装飾ピルにしない)。 */
+ * 実機スクショFB: 地色の箱だと重かったため枠なしにし、数字+text-shadowのみ(北コンパスのNラベルと同じ抑制トーン)。 */
 .housing-tour-map-viewing-timer {
   position: absolute;
   top: 54px; /* コンパス(top:10px + height:40px)の下に隙間を空けて並べる */
@@ -6958,13 +6958,10 @@ select.housing-input option {
   z-index: 2;
   pointer-events: none;
   white-space: nowrap;
-  padding: 3px 8px;
-  border-radius: 7px;
   font-size: var(--housing-text-xs);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--housing-candle);
-  background: var(--housing-map-label-bg);
   text-shadow: var(--housing-text-shadow);
 }
 
@@ -8529,6 +8526,11 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-tour-map-hint {
     display: none;
   }
+  /* 実機スクショFB: 左上フル住所オーバーレイと文言が重なって不格好だったため、
+     「デフォルト表示に戻す」ボタンはスマホでは非表示(ピンチ/ダブルタップで代替可能)。PC は不変。 */
+  .housing-tour-map-reset {
+    display: none;
+  }
   .housing-tour-map-directions {
     position: absolute;
     left: 0;
@@ -8557,10 +8559,15 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   }
   /* 実機2回目FB#6: フル住所チップは省略せず全文(最大2行折返し)で表示する(PC は1行ellipsisのまま維持)。
      右側はコンパス(40px + right:10px + 余白)を避けるよう100%からその分を差し引く
-     (--housing-panel-radius は左インセットと同じ変数を使い、値が変わっても追随する)。 */
+     (--housing-panel-radius は左インセットと同じ変数を使い、値が変わっても追随する)。
+     実機スクショFB: 左上インセットが広すぎて「デフォルト表示に戻す」文言と重なっていたため、
+     スマホはコンパスの top/right:10px に揃えてもっと左上寄りから開始する。折返し幅もこの新インセットを
+     基準に、右のコンパス(40px + right:10px + 余白10px)を避けるぶんを差し引く。 */
   .housing-tour-map-address {
+    top: 10px;
+    left: 10px;
     white-space: normal;
-    max-width: calc(100% - var(--housing-panel-radius) - 68px);
+    max-width: calc(100% - 10px - 60px);
     text-overflow: clip;
   }
 
