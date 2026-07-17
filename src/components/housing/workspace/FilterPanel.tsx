@@ -42,6 +42,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
 
     const dc = useHousingFilterStore((s) => s.dc);
     const regions = useHousingFilterStore((s) => s.regions);
+    const regionsTouched = useHousingFilterStore((s) => s.regionsTouched);
     const servers = useHousingFilterStore((s) => s.servers);
     const areas = useHousingFilterStore((s) => s.areas);
     const sizes = useHousingFilterStore((s) => s.sizes);
@@ -97,8 +98,10 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
 
     const allLabel = t('housing.workspace.filter.all');
     const countLabel = (n: number) => t('housing.workspace.filter.selected_count', { count: n });
+    // 地域は言語既定 (例: ja/en の4地域) だけが選ばれている状態を「フィルター中」扱いしない。
+    // ユーザーが自分で触った (regionsTouched) 場合のみアクティブ判定に含める。
     const hasActiveFilter =
-        Boolean(dc) || regions.length > 0 || servers.length > 0 ||
+        Boolean(dc) || regionsTouched || servers.length > 0 ||
         areas.length > 0 || sizes.length > 0 || tags.length > 0;
 
     // スクロールバーを出さず端フェードで「続きがある」ことを示す (業界標準・共通フック)。

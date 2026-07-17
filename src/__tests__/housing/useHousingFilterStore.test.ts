@@ -88,3 +88,21 @@ describe('useHousingFilterStore', () => {
         expect(useHousingFilterStore.getState().totalCount).toBe(300);
     });
 });
+
+describe('言語別の地域初期値', () => {
+    beforeEach(() => useHousingFilterStore.getState().clearAll()); // 注: clearAll は touched を立てるので直接 setState でリセット
+    it('ko は KR、zh は CN、ja/en は全グローバル', () => {
+        useHousingFilterStore.setState({ regions: [], regionsTouched: false });
+        useHousingFilterStore.getState().applyLocaleDefaultRegions('ko');
+        expect(useHousingFilterStore.getState().regions).toEqual(['KR']);
+        useHousingFilterStore.setState({ regions: [], regionsTouched: false });
+        useHousingFilterStore.getState().applyLocaleDefaultRegions('ja');
+        expect(useHousingFilterStore.getState().regions).toEqual(['JP', 'NA', 'EU', 'OCE']);
+    });
+    it('ユーザーが触った後は言語切替で上書きしない', () => {
+        useHousingFilterStore.setState({ regions: [], regionsTouched: false });
+        useHousingFilterStore.getState().toggleRegion('JP');
+        useHousingFilterStore.getState().applyLocaleDefaultRegions('ko');
+        expect(useHousingFilterStore.getState().regions).toEqual(['JP']);
+    });
+});
