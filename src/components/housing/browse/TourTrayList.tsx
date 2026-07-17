@@ -67,7 +67,10 @@ export const TourTrayList: React.FC<TourTrayListProps> = ({ listingIds, onChange
         ephemeral.find((l) => l.id === id),
     )
     .filter((l): l is MockListing => Boolean(l));
-  const displayedIds = items.map((l) => l.id);
+  // 書き戻し用の並びは「全 id の順列」を使う (items 由来だと、ストア読み込み中などで
+  // 解決できない行き先がピン/ドラッグ/効率順の書き戻しで静かにトレイから消える)。
+  // 未解決 id は行として描画されないだけで、順序上の位置は温存される。
+  const displayedIds = orderedIds;
 
   const remove = (id: string) => {
     onChange(listingIds.filter((x) => x !== id));
