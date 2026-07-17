@@ -84,13 +84,10 @@ export const TourNavPage: React.FC = () => {
 
   const isLast = currentIndex === listingIds.length - 1;
 
-  // 中央マップの跨ぎ案内カード: 「移動しました」で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
-  // 見学中(viewing)は必ず解除する = 見学=既に現地に着いている前提。未 ack のまま「見学開始」を
-  // 押しても地図(光る区画)が見えるようにする(見学中もぼかしが残る不具合の防止)。
-  const [crossingAckIndex, setCrossingAckIndex] = useState<number | null>(null);
-  const showCrossingOverlay =
-    crossing.kind !== 'none' && crossingAckIndex !== currentIndex && phase !== 'viewing';
-  const onAckCrossing = useCallback(() => setCrossingAckIndex(currentIndex), [currentIndex]);
+  // 中央マップの跨ぎ案内カード(2026-07-17 非ブロッキング化): 「移動しました」ボタン/ack 概念は撤去。
+  // 「この目的地で跨ぎがある間は表示」のみを条件にする(見学中は従来どおり非表示 = 見学=既に現地に
+  // 着いている前提)。ユーザーは右下の「次へ」を押すだけで進められる(地図操作も一切塞がない)。
+  const showCrossingOverlay = crossing.kind !== 'none' && phase !== 'viewing';
   const canView = currentListing != null;
 
   // Task4(地図下部の帯用): directions(PlotDirections={aetheryte,directions})を
@@ -193,9 +190,8 @@ export const TourNavPage: React.FC = () => {
   // 幹事の操作 (前へ/見学/次へ) を live state に反映する (孤児 live 防止は onFinish 側で別途)。
   useEffect(() => {
     if (!tourToken) return;
-    // #A: crossingAckIndex(幹事の「移動しました」)も同期し、参加者の跨ぎ overlay を主催者操作でだけ解除する。
-    void pushHostState(tourToken, { currentIndex, phase, viewStartAt, crossingAckedIndex: crossingAckIndex });
-  }, [tourToken, currentIndex, phase, viewStartAt, crossingAckIndex]);
+    void pushHostState(tourToken, { currentIndex, phase, viewStartAt });
+  }, [tourToken, currentIndex, phase, viewStartAt]);
 
   const onFinish = useCallback(() => {
     // ツアー終了時、共有中なら live state を ended にして参加者側を追従させる (孤児 live 防止)。
@@ -236,13 +232,8 @@ export const TourNavPage: React.FC = () => {
   }, [tourToken, stop, exitTourMode, reset, navigate]);
 
   const onPrimary = useCallback(() => {
-    // L: 跨ぎ(DCトラベル/ワールド訪問)のぼかしオーバーレイ表示中は、「次へ」の1回目で
-    // 「移動しました(地図を見る)」と同じ ack を行い、ぼかしを解除して地図を見せる (ステップは進めない)。
-    // ack 済み(オーバーレイ非表示)なら従来通り前進する。ユーザーは同じ「次へ」を押し続けるだけで進める。
-    if (showCrossingOverlay) {
-      onAckCrossing();
-      return;
-    }
+    // 2026-07-17: 跨ぎ案内カードは非ブロッキング化(ack 撤去)。「次へ」は跨ぎ表示中かどうかに
+    // 関わらず常に前進する(ユーザーは同じ「次へ」を押すだけで進められる)。
     if (isLast) {
       setCompleted(true);
       // #B: 完了と同時に共有 live を ended にして、参加者にも同じ完了画面を出す(主催者と同じ終わり方)。
@@ -250,7 +241,7 @@ export const TourNavPage: React.FC = () => {
     } else {
       next();
     }
-  }, [showCrossingOverlay, onAckCrossing, isLast, next, tourToken]);
+  }, [isLast, next, tourToken]);
 
   const onOpenReport = useCallback(() => {
     const listing = progress.currentStep?.listing;
@@ -302,7 +293,6 @@ export const TourNavPage: React.FC = () => {
             originName={originName}
             crossing={crossing}
             showCrossing={showCrossingOverlay}
-            onAckCrossing={onAckCrossing}
             addressListing={currentListing}
             // 実機2回目FB#4: 行き方はスマホ下部バーの1行省略表示だと読み切れないため、
             // スマホの時だけ地図下部の帯へ渡す(teleport/directions の2段構成)。PC は従来通り渡さない。
@@ -329,7 +319,6 @@ export const TourNavPage: React.FC = () => {
             directions={directions}
             canView={canView}
             isLast={isLast}
-            pendingCrossingAck={showCrossingOverlay}
             onPrev={prev}
             onViewStart={startViewing}
             onNext={onPrimary}

@@ -7044,22 +7044,20 @@ select.housing-input option {
 /* ズーム時に地図がパネル外へはみ出さないよう DEV エディタのみクリップ。 */
 .housing-dev-tourpreview .housing-tour-map-wrap { overflow: hidden; }
 
-/* DC/ワールド跨ぎ案内: ステージ全面をぼかし、中央にカードで移動手段を案内する。
- * 暗幕にはしない(質感A案の濃紺フラット面 = skeleton と同じ --housing-panel-bg + ぼかし)。
- * ステージ内の他要素(コンパス z:2/ラベル z:4)より前面。
- * ぼかしは css-rules.md の --tw-backdrop-blur 変数パターン(直書き blur() 禁止)。 */
+/* DC/ワールド跨ぎ案内 (2026-07-17 非ブロッキング化): 「移動しました」ボタンを撤去し、
+ * ユーザーは右下の「次へ」を押すだけで進められるようにした(#L撤去)。地図の操作(パン/ズーム/タップ)を
+ * 一切塞がないよう、ステージ全面のぼかし・暗幕は廃止し、地図の上に浮かせるだけの控えめな帯にする。
+ * コンテナ・カードとも pointer-events:none(クリック不要=そもそも押す要素が無い)。
+ * ステージ内の他要素(コンパス/住所/タイマー z:2、ラベル z:4)より前面。 */
 .housing-tour-map-cross {
   position: absolute;
   inset: 0;
-  z-index: 6;
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: var(--housing-panel-bg);
-  --tw-backdrop-blur: blur(6px);
-  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  pointer-events: none;
 }
 .housing-tour-map-cross-card {
   display: flex;
@@ -7067,7 +7065,7 @@ select.housing-input option {
   align-items: center;
   gap: 12px;
   max-width: 320px;
-  padding: 16px 20px;
+  padding: 12px 20px;
   border-radius: var(--housing-panel-radius);
   background: var(--housing-panel-bg-solid);
   border: 1px solid var(--housing-divider);
@@ -7079,30 +7077,6 @@ select.housing-input option {
   font-size: var(--housing-text-sm);
   line-height: 1.55;
   color: var(--housing-text);
-  text-shadow: var(--housing-text-shadow);
-}
-.housing-tour-map-cross-ack {
-  appearance: none;
-  cursor: pointer;
-  padding: 10px 16px;
-  font-family: inherit;
-  font-size: var(--housing-text-sm);
-  font-weight: 700;
-  color: var(--housing-honey-text);
-  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
-  border: 0;
-  border-radius: 10px;
-  box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
-  transition: filter 0.15s ease, transform 0.1s ease;
-}
-.housing-tour-map-cross-ack:hover { filter: brightness(1.05); }
-.housing-tour-map-cross-ack:active { transform: scale(0.98); }
-.housing-tour-map-cross-ack:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
-/* 参加者(閲覧専用)の待機文言(#A): ボタンではなく静かな注記。地図は主催者操作でだけ出る。 */
-.housing-tour-map-cross-waiting {
-  margin: 0;
-  font-size: var(--housing-text-xs);
-  color: var(--housing-text-mute);
   text-shadow: var(--housing-text-shadow);
 }
 
@@ -8545,6 +8519,12 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     color: var(--housing-candle);
     text-shadow: var(--housing-text-shadow);
     pointer-events: none;
+  }
+  /* 跨ぎ案内(非ブロッキング帯)は上の住所チップ・下の行き方帯と重ならないよう、
+     中央寄せの余白で上下を大きめに空ける(スマホは画面が狭く、行き方帯が2〜3行に伸びうるため)。 */
+  .housing-tour-map-cross {
+    padding-top: 64px;
+    padding-bottom: 96px;
   }
   .housing-tour-map-directions-teleport {
     font-size: var(--housing-text-sm);

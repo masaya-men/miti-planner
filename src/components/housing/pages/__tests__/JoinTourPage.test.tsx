@@ -114,7 +114,7 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
     expect(container.querySelector('.housing-tour-dest-report')).toBeNull();
   });
 
-  it('viewing: 跨ぎ overlay を参加者にも出すが操作は不可(#A・待機文言・ボタン無し)', () => {
+  it('viewing: 跨ぎ案内を参加者にも出す(2026-07-17 非ブロッキング化・ボタン/待機文言は無い)', () => {
     const prev = { ...snap, id: 'join-snap-0', server: 'Atomos' };
     mockState.current = {
       kind: 'viewing',
@@ -122,28 +122,13 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
         tourToken: 'tok-123', hostUid: 'host-1', snapshot: [prev, snap],
         containsHiddenAddress: false, createdAt: Date.now(),
       },
-      // currentIndex=1: 前(Atomos)→現(Aegis)は同DC別ワールド = world跨ぎ。主催者未ackなので案内が出る。
-      live: { status: 'live', currentIndex: 1, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now(), crossingAckedIndex: null },
+      // currentIndex=1: 前(Atomos)→現(Aegis)は同DC別ワールド = world跨ぎ。幹事の ack 待ちは撤去済みで即表示。
+      live: { status: 'live', currentIndex: 1, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now() },
     };
     renderPage();
     expect(screen.getByTestId('tour-map-cross')).toBeInTheDocument();
-    // 参加者は操作できない=「移動しました」ボタンは無く、待機文言のみ(主催者操作でだけ地図が出る)。
-    expect(screen.queryByText('移動しました（地図を見る）')).not.toBeInTheDocument();
-    expect(screen.getByText('幹事が移動したら地図が表示されます')).toBeInTheDocument();
-  });
-
-  it('viewing: 主催者が ack(crossingAckedIndex=currentIndex を broadcast)すると跨ぎ overlay が消える(#A)', () => {
-    const prev = { ...snap, id: 'join-snap-0', server: 'Atomos' };
-    mockState.current = {
-      kind: 'viewing',
-      meta: {
-        tourToken: 'tok-123', hostUid: 'host-1', snapshot: [prev, snap],
-        containsHiddenAddress: false, createdAt: Date.now(),
-      },
-      live: { status: 'live', currentIndex: 1, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now(), crossingAckedIndex: 1 },
-    };
-    renderPage();
-    expect(screen.queryByTestId('tour-map-cross')).not.toBeInTheDocument();
+    // ボタン/待機文言は撤去済み(参加者も幹事も同じ非ブロッキング表示)。
+    expect(screen.queryByRole('button', { name: /移動しました/ })).not.toBeInTheDocument();
   });
 
   it('viewing: 見学中(phase=viewing)は跨ぎ overlay を出さない', () => {
@@ -180,7 +165,7 @@ describe('JoinTourPage — 参加者の閲覧専用ツアー描画 (Task 2.4)', 
         tourToken: 'tok-123', hostUid: 'host-1', snapshot: [snap],
         containsHiddenAddress: false, createdAt: Date.now(),
       },
-      live: { status: 'ended', currentIndex: 0, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now(), crossingAckedIndex: null },
+      live: { status: 'ended', currentIndex: 0, phase: 'moving', viewStartAt: null, lastActivityAt: Date.now() },
     };
     renderPage();
     expect(screen.getByTestId('join-tour-complete')).toBeInTheDocument();

@@ -90,7 +90,6 @@ export default async function handler(req: any, res: any) {
       phase: 'moving',
       viewStartAt: null,
       lastActivityAt: now,
-      crossingAckedIndex: null,
     });
     await batch.commit();
 

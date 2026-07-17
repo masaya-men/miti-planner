@@ -16,12 +16,6 @@ export interface TourProgressPanelProps {
   /** 見学ボタンを押せるか(=現在の家が表示できる)。 */
   canView: boolean;
   isLast: boolean;
-  /**
-   * 最後の家へ「移動中」で、次へ押下がまだ跨ぎ(DC/ワールド)の ack になる状態か。
-   * true の間は「完了」ラベルを出さず「次へ」のまま(移動中に完了と出て混乱するのを防ぐ)。
-   * 実際に最後の家へ着いた(ack 済み)ときだけ「完了」になる。
-   */
-  pendingCrossingAck?: boolean;
   /** readOnly 時は操作ハンドラを渡さなくてよい(ボタン自体を描画しないため)。 */
   onPrev?: () => void;
   onViewStart?: () => void;
@@ -48,7 +42,7 @@ export interface TourProgressPanelProps {
 export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   progress, steps, currentIndex, phase, viewStartAt, directions,
   canView, isLast, onPrev, onViewStart, onNext, onFinish, onLeave,
-  crossing = { kind: 'none' }, readOnly = false, pendingCrossingAck = false,
+  crossing = { kind: 'none' }, readOnly = false,
 }) => {
   const { t } = useTranslation();
   const { total, percent } = progress;
@@ -107,7 +101,7 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
                 className="housing-tour-progress-action housing-tour-progress-action--next"
                 onClick={onNext}
               >
-                {t(isLast && !pendingCrossingAck ? 'housing.tour.nav.actions.complete' : 'housing.tour.nav.actions.next')}
+                {t(isLast ? 'housing.tour.nav.actions.complete' : 'housing.tour.nav.actions.next')}
               </button>
             </div>
             <span className="housing-tour-progress-view-note">{t('housing.tour.nav.actions.view_optional')}</span>

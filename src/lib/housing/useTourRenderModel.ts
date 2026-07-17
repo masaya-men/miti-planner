@@ -31,8 +31,7 @@ export interface TourRenderModel {
  * ステップ/進捗/次の目的地/前の目的地/地図モデルまで一括で解決する。
  *
  * `buildTourPool` は幹事専用の store 合流ロジックのためこのフックには含めない(呼び出し側が
- * pool を用意して渡す)。crossingAckIndex 等の「跨ぎ確認」操作 state もホスト側の操作なので
- * ここには含めず、呼び出し元(TourNavPage)に残す。
+ * pool を用意して渡す)。
  */
 export function useTourRenderModel(
   pool: MockListing[],

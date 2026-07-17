@@ -154,21 +154,19 @@ describe('TourNavPage', () => {
     expect(screen.getByText('ルートのステップ')).toBeInTheDocument();
   });
 
-  it('「次へ」でtourStore.nextが発火しcurrentIndexが進む', () => {
+  it('「次へ」でtourStore.nextが発火しcurrentIndexが進む(2026-07-17: 跨ぎ表示中でも1回で進む)', () => {
     useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
     seedListings();
     renderPage();
-    // #2: 1件目は「まず○○へ」出発案内が出るため、最初の「次へ」はその ack(前進しない)。
-    fireEvent.click(screen.getByRole('button', { name: '次へ' }));
-    expect(useHousingTourStore.getState().currentIndex).toBe(0);
-    // ack 後の「次へ」で前進する(跨ぎ ack と同型)。
+    // 1件目は「まず○○へ」出発案内(跨ぎ案内カード)が出るが、非ブロッキング化により
+    // 「次へ」は1回で前進する(ack 待ちは撤去済み)。
     fireEvent.click(screen.getByRole('button', { name: '次へ' }));
     expect(useHousingTourStore.getState().currentIndex).toBe(1);
   });
 
-  // L: 跨ぎ(DCトラベル/ワールド訪問)のぼかし中は「次へ」1回目で ack(ぼかし解除)、
-  // 2回目で次ステップへ。ユーザーは同じ「次へ」を押し続けるだけで進める。
-  it('跨ぎステップ: 「次へ」1回目でぼかし解除(ack)されcurrentIndexは進まず、2回目で次へ進む', () => {
+  // 2026-07-17: 跨ぎ(DCトラベル/ワールド訪問)案内カードは非ブロッキング化(ack撤去)。
+  // ユーザーは同じ「次へ」を1回押すだけで進める(地図操作も塞がない)。
+  it('跨ぎステップ: 案内カードが出ている間も「次へ」1回で次のステップへ進む', () => {
     // A(Aegis)→B(Atomos) は同DC別ワールド = world 跨ぎ。B→C は同ワールドで跨ぎ無し。
     const a = mk('cross-a', 1);
     const b = { ...mk('cross-b', 6), server: 'Atomos', addressKey: 'Elemental|Atomos|Mist|W12|H6' };
@@ -178,17 +176,16 @@ describe('TourNavPage', () => {
 
     renderPage();
 
-    // index1 到着: 前(A)→現(B)は world 跨ぎ → 中央マップにぼかし+跨ぎ案内が出る
+    // index1 到着: 前(A)→現(B)は world 跨ぎ → 中央マップに跨ぎ案内カードが出る(非ブロッキング)
     expect(screen.getByTestId('tour-map-cross')).toBeInTheDocument();
+    // 案内カードにはボタンが無い(クリック不要)。
+    expect(screen.queryByRole('button', { name: /移動しました/ })).not.toBeInTheDocument();
 
-    // 「次へ」1回目: ぼかし解除(ack)されるが currentIndex は 1 のまま
-    fireEvent.click(screen.getByRole('button', { name: '次へ' }));
-    expect(useHousingTourStore.getState().currentIndex).toBe(1);
-    expect(screen.queryByTestId('tour-map-cross')).not.toBeInTheDocument();
-
-    // 「次へ」2回目: 次のステップ(index2)へ進む
+    // 「次へ」: 案内カードの表示に関わらず、1回で次のステップ(index2)へ進む
     fireEvent.click(screen.getByRole('button', { name: '次へ' }));
     expect(useHousingTourStore.getState().currentIndex).toBe(2);
+    // 進んだ先(B→C)は跨ぎ無しなので案内カードは消える
+    expect(screen.queryByTestId('tour-map-cross')).not.toBeInTheDocument();
   });
 
   it('跨ぎでないステップは「次へ」1回で進む (同DC同ワールドの ids)', () => {
