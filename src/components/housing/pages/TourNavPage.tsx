@@ -84,7 +84,8 @@ export const TourNavPage: React.FC = () => {
 
   const isLast = currentIndex === listingIds.length - 1;
 
-  // 中央マップの跨ぎ案内カード: 「移動しました」で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
+  // 中央マップの跨ぎ案内カード: 「次へ」の1回目(ack)で該当ステップだけ確認済みにして消す(次の跨ぎでまた出す)。
+  // カード自体にはボタンを持たず、ack への到達手段は下記 onPrimary の「次へ」二段階ロジックに一本化している。
   // 見学中(viewing)は必ず解除する = 見学=既に現地に着いている前提。未 ack のまま「見学開始」を
   // 押しても地図(光る区画)が見えるようにする(見学中もぼかしが残る不具合の防止)。
   const [crossingAckIndex, setCrossingAckIndex] = useState<number | null>(null);
@@ -302,7 +303,6 @@ export const TourNavPage: React.FC = () => {
             originName={originName}
             crossing={crossing}
             showCrossing={showCrossingOverlay}
-            onAckCrossing={onAckCrossing}
             addressListing={currentListing}
             // 実機2回目FB#4: 行き方はスマホ下部バーの1行省略表示だと読み切れないため、
             // スマホの時だけ地図下部の帯へ渡す(teleport/directions の2段構成)。PC は従来通り渡さない。

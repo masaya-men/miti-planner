@@ -72,15 +72,23 @@ describe('TourNavMap', () => {
     expect(container.querySelector('.housing-map-zoom')).toBeTruthy();
     expect(container.querySelector('[data-testid="tour-map-reset"]')).toBeTruthy();
   });
-  it('showCrossing=true + dc で案内カードが出る', () => {
+  it('showCrossing=true + dc で案内カードが出る(ボタンは持たない)', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={true} onAckCrossing={() => {}} />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={true} />);
     expect(container.querySelector('[data-testid="tour-map-cross"]')).toBeTruthy();
+    // ユーザー指示: 「地図を見る」ボタンは撤去済み。ack への到達手段は呼び出し側の「次へ」に一本化。
+    expect(container.querySelector('.housing-tour-map-cross-ack')).toBeNull();
   });
   it('showCrossing=false では出ない', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={false} onAckCrossing={() => {}} />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={false} />);
     expect(container.querySelector('[data-testid="tour-map-cross"]')).toBeNull();
+  });
+  it('crossingReadOnly=true では待機文言を出す(ボタン無し)', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={true} crossingReadOnly />);
+    expect(container.querySelector('.housing-tour-map-cross-waiting')).toBeTruthy();
+    expect(container.querySelector('.housing-tour-map-cross-ack')).toBeNull();
   });
   it('viewingTimerText を渡すと見学中タイマーチップを描く', () => {
     const { container, rerender } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0} viewingTimerText={null} />);

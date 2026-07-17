@@ -24,10 +24,10 @@ export interface TourNavMapProps {
   crossing?: TourCrossing;
   /** true の間、ステージにぼかし+跨ぎ案内カードを重ねる。省略時は出さない。 */
   showCrossing?: boolean;
-  /** 「移動しました」ボタンの押下ハンドラ。省略時は no-op。 */
-  onAckCrossing?: () => void;
-  /** 参加者(閲覧専用): 跨ぎ案内カードの「移動しました」ボタンを出さず、待機文言にする(#A)。
-   *  地図が出るかどうかは主催者の操作(broadcast された crossingAckedIndex)でだけ決まる。 */
+  /** 参加者(閲覧専用): 跨ぎ案内カードに待機文言を出す(#A)。
+   *  地図が出るかどうかは主催者の操作(broadcast された crossingAckedIndex)でだけ決まる。
+   *  ack への到達手段は「次へ」ボタン(呼び出し側の二段階ロジック)に一本化しており、
+   *  このカード自体にはボタンを持たない。 */
   crossingReadOnly?: boolean;
   /** 現在の目的地の listing。左上のフル住所オーバーレイに使う。省略時はオーバーレイ自体を出さない。 */
   addressListing?: MockListing | null;
@@ -55,7 +55,7 @@ type MapData = { svg: string; viewBox: { w: number; h: number }; model: TourMapM
  * 目的地が変わると「ズームアウト→フェードで地図をシームレス切替→ズームイン」で着地。指/マウスでパン&ズーム可。 */
 export const TourNavMap: React.FC<TourNavMapProps> = ({
   status, svg, viewBox, model, stepKey, originName,
-  crossing = { kind: 'none' }, showCrossing = false, onAckCrossing = () => {},
+  crossing = { kind: 'none' }, showCrossing = false,
   crossingReadOnly = false, addressListing = null, footerDirections = null,
   viewingTimerText = null,
 }) => {
@@ -478,13 +478,9 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
                       ? t('housing.tour.nav.cross.world', { world: crossing.world })
                       : t('housing.tour.nav.cross.region')}
               </p>
-              {crossingReadOnly ? (
-                // 参加者は操作できない。地図は主催者が「移動しました」を押すと(broadcast で)出る。
+              {crossingReadOnly && (
+                // 参加者は操作できない。地図は主催者が「次へ」を押すと(broadcast で)出る。
                 <p className="housing-tour-map-cross-waiting">{t('housing.tour.nav.cross.waiting')}</p>
-              ) : (
-                <button type="button" className="housing-tour-map-cross-ack" onClick={onAckCrossing}>
-                  {t('housing.tour.nav.cross.ack')}
-                </button>
               )}
             </div>
           </div>

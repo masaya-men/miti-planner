@@ -7081,23 +7081,6 @@ select.housing-input option {
   color: var(--housing-text);
   text-shadow: var(--housing-text-shadow);
 }
-.housing-tour-map-cross-ack {
-  appearance: none;
-  cursor: pointer;
-  padding: 10px 16px;
-  font-family: inherit;
-  font-size: var(--housing-text-sm);
-  font-weight: 700;
-  color: var(--housing-honey-text);
-  background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
-  border: 0;
-  border-radius: 10px;
-  box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
-  transition: filter 0.15s ease, transform 0.1s ease;
-}
-.housing-tour-map-cross-ack:hover { filter: brightness(1.05); }
-.housing-tour-map-cross-ack:active { transform: scale(0.98); }
-.housing-tour-map-cross-ack:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
 /* 参加者(閲覧専用)の待機文言(#A): ボタンではなく静かな注記。地図は主催者操作でだけ出る。 */
 .housing-tour-map-cross-waiting {
   margin: 0;
