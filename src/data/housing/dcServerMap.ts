@@ -1,4 +1,4 @@
-export type Region = 'JP' | 'NA' | 'EU' | 'OCE';
+export type Region = 'JP' | 'NA' | 'EU' | 'OCE' | 'KR' | 'CN';
 
 export interface DCServers {
     region: Region;
@@ -13,14 +13,22 @@ export const DC_SERVER_MAP: Record<string, DCServers> = {
     Aether: { region: 'NA', servers: ['Adamantoise', 'Cactuar', 'Faerie', 'Gilgamesh', 'Jenova', 'Midgardsormr', 'Sargatanas', 'Siren'] },
     Primal: { region: 'NA', servers: ['Behemoth', 'Excalibur', 'Exodus', 'Famfrit', 'Hyperion', 'Lamia', 'Leviathan', 'Ultros'] },
     Crystal: { region: 'NA', servers: ['Balmung', 'Brynhildr', 'Coeurl', 'Diabolos', 'Goblin', 'Malboro', 'Mateus', 'Zalera'] },
-    Dynamis: { region: 'NA', servers: ['Halicarnassus', 'Maduin', 'Marilith', 'Seraph'] },
+    Dynamis: { region: 'NA', servers: ['Halicarnassus', 'Maduin', 'Marilith', 'Seraph', 'Cuchulainn', 'Golem', 'Kraken', 'Rafflesia'] },
     Chaos: { region: 'EU', servers: ['Cerberus', 'Louisoix', 'Moogle', 'Omega', 'Phantom', 'Ragnarok', 'Sagittarius', 'Spriggan'] },
     Light: { region: 'EU', servers: ['Alpha', 'Lich', 'Odin', 'Phoenix', 'Raiden', 'Shiva', 'Twintania', 'Zodiark'] },
+    Shadow: { region: 'EU', servers: ['Innocence', 'Pixie', 'Titania', 'Tycoon'] },
     Materia: { region: 'OCE', servers: ['Bismarck', 'Ravana', 'Sephirot', 'Sophia', 'Zurvan'] },
+    // 韓国 (物理分離リージョン)。ワールド名はグローバルと同名だが dc+server の組で常に区別される。
+    Korea: { region: 'KR', servers: ['Carbuncle', 'Chocobo', 'Moogle', 'Tonberry', 'Fenrir'] },
+    // 中国 (物理分離リージョン)。内部キーは正典 CSV の en 列を英数字のみに詰めた CamelCase。
+    ChocoboCN: { region: 'CN', servers: ['RubySea', 'Yanxia', 'Haimaochaya', 'CosmicHarmony', 'PhantomIslands', 'TheHolyGround', 'SproutPond', 'AmberPlains'] },
+    MoogleCN: { region: 'CN', servers: ['Shirogane', 'RhalgrsReach', 'PlatinumMirage', 'TravelersDock', 'TheDawnChamber', 'TheAery', 'DreamfeatherRealm', 'HaukkeManor'] },
+    FatCatCN: { region: 'CN', servers: ['AmethystShallows', 'MorDhona', 'TheGreatWall', 'BreezyBeach', 'TheAurumVale', 'CrescentCove', 'TheLostCity'] },
+    MameshibaCN: { region: 'CN', servers: ['TheCrystalTower', 'SilvertearLake', 'CostaDelSol', 'Ishgard', 'BlackTeaRiver'] },
 };
 
 export const ALL_DCS: string[] = Object.keys(DC_SERVER_MAP);
-export const ALL_REGIONS: Region[] = ['JP', 'NA', 'EU', 'OCE'];
+export const ALL_REGIONS: Region[] = ['JP', 'NA', 'EU', 'OCE', 'KR', 'CN'];
 
 export function dcsForRegion(region: Region): string[] {
     return ALL_DCS.filter((dc) => DC_SERVER_MAP[dc].region === region);

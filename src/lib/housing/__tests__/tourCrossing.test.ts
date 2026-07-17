@@ -90,3 +90,21 @@ describe('tourAnchorRegion', () => {
     expect(tourAnchorRegion([null, undefined, 'OCE', 'EU'])).toBe('EU');
   });
 });
+
+describe('KR/CN リージョン分離', () => {
+  it('KR アンカーのトレイに JP は追加できない', () => {
+    expect(canAddToTour('KR', 'JP')).toBe(false);
+  });
+  it('JP アンカーのトレイに KR/CN は追加できない', () => {
+    expect(canAddToTour('JP', 'KR')).toBe(false);
+    expect(canAddToTour('JP', 'CN')).toBe(false);
+  });
+  it('CN 同士は追加できる(4DC を 1 地域として扱う)', () => {
+    expect(canAddToTour('CN', 'CN')).toBe(true);
+  });
+  it('KR/CN と OCE の混在は許さない方向のみ許可される(OCE 候補は常に可の既存仕様)', () => {
+    // 既存仕様: candidateRegion==='OCE' は常に true。KR アンカーに OCE 候補が乗るのは
+    // ゲーム的に誤りだが、既存 OCE 例外の挙動変更はスコープ外 (spec §4)。KR 候補側は弾かれることを固定。
+    expect(canAddToTour('OCE', 'KR')).toBe(false);
+  });
+});
