@@ -25,12 +25,21 @@ vi.mock('../../delete/useHousingDelete', () => ({
 // URL に渡すだけ) ため、 titleForShare の配線 (addressKey 漏洩防止) を検証するには title を
 // data 属性で観測できるスタブに差し替える必要がある (aria-label は既存アサーションを壊さないよう維持)。
 vi.mock('../HousingShareButton', () => ({
-  HousingShareButton: ({ title, sourceUrl }: { title: string; sourceUrl?: string | null }) => (
+  HousingShareButton: ({
+    title,
+    sourceUrl,
+    tweetText,
+  }: {
+    title: string;
+    sourceUrl?: string | null;
+    tweetText?: string | null;
+  }) => (
     <button
       type="button"
       aria-label="housing.detail.share"
       data-share-title={title ?? ''}
       data-share-source-url={sourceUrl ?? ''}
+      data-share-tweet-text={tweetText === null ? '__null__' : (tweetText ?? '__undefined__')}
     >
       housing.detail.share
     </button>
@@ -168,5 +177,13 @@ describe('HousingActionBar', () => {
     renderBar({ viewerUid: 'owner1' });
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
     expect(shareButton.dataset.shareSourceUrl).toBe('');
+  });
+
+  // follow-up改良2(ユーザーFB): 物件詳細のXシェアは本文テキストなし。
+  // tweetText=null を明示的に HousingShareButton へ配線していることを検証する。
+  it('HousingShareButton へ tweetText=null を渡す (本文テキストなし)', () => {
+    renderBar({ viewerUid: 'owner1' });
+    const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
+    expect(shareButton.dataset.shareTweetText).toBe('__null__');
   });
 });

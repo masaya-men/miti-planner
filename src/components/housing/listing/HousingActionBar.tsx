@@ -121,7 +121,9 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
     <div className="housing-action-bar">
       <HousingFavHeart listingId={listing.id} />
 
-      <HousingShareButton url={url} title={titleForShare} sourceUrl={listing.postUrl ?? null} />
+      {/* follow-up改良2(ユーザーFB): 物件詳細のXシェアは本文テキストなし (タイトル/コメント等を一切含めない)。
+          tweetText=null で HousingShareButton 側の intent URL から text= パラメータ自体を省く。 */}
+      <HousingShareButton url={url} title={titleForShare} sourceUrl={listing.postUrl ?? null} tweetText={null} />
 
       {!isOwner && (
         <button

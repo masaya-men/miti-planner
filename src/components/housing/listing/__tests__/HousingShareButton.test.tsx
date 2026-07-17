@@ -97,6 +97,36 @@ describe('HousingShareButton', () => {
     openSpy.mockRestore();
   });
 
+  // follow-up改良2(ユーザーFB): 物件詳細のXシェアは本文テキストなし。
+  it('tweetText=null のとき、 intent URL に text= パラメータ自体が含まれない', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    render(
+      <HousingShareButton
+        url="https://lopoly.app/housing/listing/lid1"
+        title="My House"
+        tweetText={null}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'housing.detail.share_x' }));
+    expect(openSpy).toHaveBeenCalledWith(
+      'https://twitter.com/intent/tweet?url=https%3A%2F%2Flopoly.app%2Fhousing%2Flisting%2Flid1&hashtags=LoPo',
+      '_blank',
+      'noopener,noreferrer',
+    );
+    const calledUrl = openSpy.mock.calls[0][0] as string;
+    expect(calledUrl).not.toContain('text=');
+    openSpy.mockRestore();
+  });
+
+  it('tweetText 未指定のときは従来どおり title を text= に使う', () => {
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+    render(<HousingShareButton url="https://lopoly.app/housing/listing/lid1" title="My House" />);
+    fireEvent.click(screen.getByRole('button', { name: 'housing.detail.share_x' }));
+    const calledUrl = openSpy.mock.calls[0][0] as string;
+    expect(calledUrl).toContain('text=My%20House');
+    openSpy.mockRestore();
+  });
+
   it('リンクコピーは sourceUrl があっても LoPo の url をコピーする', () => {
     render(
       <HousingShareButton
