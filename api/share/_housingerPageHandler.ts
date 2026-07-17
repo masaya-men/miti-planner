@@ -137,6 +137,10 @@ export default async function handler(req: any, res: any) {
 
   const canonicalUrl = shortUid ? `${origin}/housing/housinger/${encodeURIComponent(shortUid)}` : origin;
 
+  // OGP の画像は絶対 URL 必須 (相対 "/api/og" のままだと X が解決できずカード画像が出ない)。
+  // 専用メタ分岐では絶対 URL 化済みだが、フォールバック (DEFAULT_OG_IMAGE) 経路をここで絶対化する。
+  ogImageUrl = toAbsoluteUrl(ogImageUrl, origin);
+
   // ビルド済みindex.htmlを取得してメタタグを差し替え (_sharePageHandler.ts と同じ手法)。
   try {
     const indexRes = await fetch(`${origin}/index.html`);
