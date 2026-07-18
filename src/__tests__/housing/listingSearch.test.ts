@@ -92,6 +92,26 @@ describe('buildListingSearchText — unlisted (住所漏洩防止)', () => {
   });
 });
 
+describe('多言語辞書名でのヒット (Task 6)', () => {
+  it('KR の家は 카벙클 でヒットし、カーバンクル では(地域名以外で)ヒットさせない', () => {
+    const krListing: MockListing = { ...base, dc: 'Korea', server: 'Carbuncle', region: 'KR' };
+    const text = buildListingSearchText(krListing, tId, 'ja', 'ja');
+    expect(matchesKeyword(text, '카벙클')).toBe(true);
+    expect(matchesKeyword(text, 'カーバンクル')).toBe(false); // spec §5: KR にカタカナ読みを足さない
+  });
+  it('CN の家は 红玉海 でも RubySea でもヒットする', () => {
+    const cnListing: MockListing = { ...base, dc: 'ChocoboCN', server: 'RubySea', region: 'CN' };
+    const text = buildListingSearchText(cnListing, tId, 'ja', 'ja');
+    expect(matchesKeyword(text, '红玉海')).toBe(true);
+    expect(matchesKeyword(text, 'RubySea')).toBe(true);
+  });
+  it('グローバルの家は ko/zh 名でもヒットする (卡邦克鲁 → JP Carbuncle)', () => {
+    const jpListing: MockListing = { ...base, dc: 'Mana', server: 'Carbuncle', region: 'JP' };
+    const text = buildListingSearchText(jpListing, tId, 'ja', 'ja');
+    expect(matchesKeyword(text, '卡邦克鲁')).toBe(true);
+  });
+});
+
 describe('matchesKeyword', () => {
   it('empty keyword always matches', () => {
     expect(matchesKeyword('anything', '')).toBe(true);

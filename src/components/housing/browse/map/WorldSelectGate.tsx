@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ALL_DCS, DC_SERVER_MAP } from '../../../../data/housing/dcServerMap';
 import { useHousingFilterStore } from '../../../../store/useHousingFilterStore';
+import { displayDcName, displayWorldName } from '../../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../../data/housing/regionMap';
 
 /**
  * 探すページ 地図表示モードのワールド選択ゲート (spec §3.2)。
@@ -10,7 +12,8 @@ import { useHousingFilterStore } from '../../../../store/useHousingFilterStore';
  * 既に dc が選択済みの場合は、その DC のワールド一覧から表示を開始する。
  */
 export const WorldSelectGate: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = pickRegionLocale(i18n.language);
   const dc = useHousingFilterStore((s) => s.dc);
   const setDC = useHousingFilterStore((s) => s.setDC);
   const setServerExclusive = useHousingFilterStore((s) => s.setServerExclusive);
@@ -51,7 +54,7 @@ export const WorldSelectGate: React.FC = () => {
               data-selected={pendingDC === d ? 'true' : 'false'}
               onClick={() => setPendingDC(d)}
             >
-              {d}
+              {displayDcName(d, locale)}
             </button>
           ))}
         </div>
@@ -68,7 +71,7 @@ export const WorldSelectGate: React.FC = () => {
                 className="housing-world-gate-chip"
                 onClick={() => handleSelectWorld(world)}
               >
-                {world}
+                {pendingDC ? displayWorldName(pendingDC, world, locale) : world}
               </button>
             ))}
           </div>

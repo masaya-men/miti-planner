@@ -2,11 +2,15 @@ import { useTranslation } from 'react-i18next';
 import type { PlotDirections } from '../../../lib/housing/wardDirections';
 import { useElapsed, formatElapsed, formatClock } from '../../../lib/housing/useElapsed';
 import type { TourCrossing } from '../../../lib/housing/tourCrossing';
+import { termLabel, displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 
 export interface TourPhaseZoneProps {
   phase: 'moving' | 'viewing';
   /** 移動中に出す行き方。無ければ枠のみ。 */
   directions: PlotDirections | null;
+  /** Task8: 行き方本文の locale 別訳。省略時は directions.directions (ja) を使う。 */
+  directionsText?: string | null;
   /** 見学開始の epoch ms（viewing のとき非 null 想定）。 */
   viewStartAt: number | null;
   /** 前の家→この家の移動種別。省略時は跨ぎ無し扱い。 */
@@ -19,9 +23,10 @@ export interface TourPhaseZoneProps {
  * DC/ワールドを跨ぐ地点では、行き方の上に跨ぎ指示行(DCトラベル/ワールド訪問)を出す。
  */
 export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
-  phase, directions, viewStartAt, crossing = { kind: 'none' },
+  phase, directions, directionsText, viewStartAt, crossing = { kind: 'none' },
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = pickRegionLocale(i18n.language);
   const elapsed = useElapsed(phase === 'viewing' ? viewStartAt : null);
 
   if (phase === 'viewing' && viewStartAt != null) {
@@ -38,9 +43,9 @@ export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
   }
 
   const crossLine =
-    crossing.kind === 'start' ? t('housing.tour.nav.cross.start', { dc: crossing.dc, world: crossing.world })
-    : crossing.kind === 'dc' ? t('housing.tour.nav.cross.dc', { dc: crossing.dc, world: crossing.world })
-    : crossing.kind === 'world' ? t('housing.tour.nav.cross.world', { world: crossing.world })
+    crossing.kind === 'start' ? t('housing.tour.nav.cross.start', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
+    : crossing.kind === 'dc' ? t('housing.tour.nav.cross.dc', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
+    : crossing.kind === 'world' ? t('housing.tour.nav.cross.world', { world: displayWorldName(crossing.dc, crossing.world, locale) })
     : crossing.kind === 'region' ? t('housing.tour.nav.cross.region')
     : null;
 
@@ -57,10 +62,12 @@ export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
         <>
           <span className="housing-tour-phasezone-route-label">{t('housing.tour.nav.dest.directions')}</span>
           <p className="housing-tour-phasezone-route-teleport">
-            {t('housing.tour.nav.dest.teleport_to', { aetheryte: directions.aetheryte })}
+            {t('housing.tour.nav.dest.teleport_to', {
+              aetheryte: termLabel('aetheryte', directions.aetheryte, locale),
+            })}
           </p>
-          {directions.directions && (
-            <p className="housing-tour-phasezone-route-walk">{directions.directions}</p>
+          {(directionsText ?? directions.directions) && (
+            <p className="housing-tour-phasezone-route-walk">{directionsText ?? directions.directions}</p>
           )}
         </>
       )}

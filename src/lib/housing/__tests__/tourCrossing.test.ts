@@ -11,8 +11,8 @@ describe('crossingBetween', () => {
   it('全一致は none', () => {
     expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'none' });
   });
-  it('別ワールド・同DC は world(着地ワールド名)', () => {
-    expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Mana', 'Titan'))).toEqual({ kind: 'world', world: 'Titan' });
+  it('別ワールド・同DC は world(着地ワールド名+dc)', () => {
+    expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Mana', 'Titan'))).toEqual({ kind: 'world', world: 'Titan', dc: 'Mana' });
   });
   it('別DC・同リージョン は dc(DC名+着地ワールド)', () => {
     expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Gaia', 'Ifrit'))).toEqual({ kind: 'dc', dc: 'Gaia', world: 'Ifrit' });
@@ -78,15 +78,58 @@ describe('tourRegionConflict', () => {
 });
 
 describe('tourAnchorRegion', () => {
-  it('非OCEアンカーを返す (OCEが先頭でも取り違えない)', () => {
+  it('非OCEがあれば先頭の非OCEを返す (M-1: OCE先頭でも追加時に即ブロックできる)', () => {
     expect(tourAnchorRegion(['OCE', 'JP'])).toBe('JP');
     expect(tourAnchorRegion(['JP', 'NA'])).toBe('JP');
+    // OCE先頭トレイ [OCE, NA] に JP: アンカー=NA なので追加時点で不可 (開始ガード頼みにしない)
+    expect(canAddToTour(tourAnchorRegion(['OCE', 'NA']), 'JP')).toBe(false);
   });
-  it('空 / OCEのみ は null', () => {
+  it('OCEのみのトレイは OCE を返す (C-1: KR/CN を混ぜさせないアンカー)', () => {
+    expect(tourAnchorRegion(['OCE', 'OCE'])).toBe('OCE');
+    expect(canAddToTour(tourAnchorRegion(['OCE']), 'KR')).toBe(false);
+  });
+  it('空は null', () => {
     expect(tourAnchorRegion([])).toBeNull();
-    expect(tourAnchorRegion(['OCE', 'OCE'])).toBeNull();
   });
-  it('null/undefined は無視して最初の非OCEを返す', () => {
+  it('null/undefined は無視する', () => {
     expect(tourAnchorRegion([null, undefined, 'OCE', 'EU'])).toBe('EU');
+    expect(tourAnchorRegion([null, undefined, 'EU'])).toBe('EU');
+  });
+});
+
+describe('KR/CN リージョン分離', () => {
+  it('KR アンカーのトレイに JP は追加できない', () => {
+    expect(canAddToTour('KR', 'JP')).toBe(false);
+  });
+  it('JP アンカーのトレイに KR/CN は追加できない', () => {
+    expect(canAddToTour('JP', 'KR')).toBe(false);
+    expect(canAddToTour('JP', 'CN')).toBe(false);
+  });
+  it('CN 同士は追加できる(4DC を 1 地域として扱う)', () => {
+    expect(canAddToTour('CN', 'CN')).toBe(true);
+  });
+  it('KR/CN と OCE の混在は移動可能圏が異なるため不可(C-1: OCE ワイルドカードより KR/CN 分離が優先)', () => {
+    // travelGroupOf('OCE')='GLOBAL' / travelGroupOf('KR')='KR' で移動可能圏が異なるため、
+    // candidateRegion==='OCE' のワイルドカード分岐に到達する前に false になる。
+    expect(canAddToTour('OCE', 'KR')).toBe(false);
+    expect(canAddToTour('KR', 'OCE')).toBe(false);
+  });
+  it('OCEのみトレイ(アンカー=OCE)にKRは追加不可', () => {
+    expect(canAddToTour('OCE', 'KR')).toBe(false);
+  });
+  it('OCEのみトレイ(アンカー=OCE)にJPは追加可(従来維持)', () => {
+    expect(canAddToTour('OCE', 'JP')).toBe(true);
+  });
+  it('tourRegionConflict: OCEとKRの混在は衝突(distinct region 配列)', () => {
+    expect(
+      tourRegionConflict([loc('OCE', 'Materia', 'Bismarck'), loc('KR', 'Neptune', 'Chocobo')]),
+    ).toEqual(['OCE', 'KR']);
+  });
+  it('crossingBetween(OCE↔KR)は region(防御表示)', () => {
+    expect(crossingBetween(loc('OCE', 'Materia', 'Bismarck'), loc('KR', 'Neptune', 'Chocobo'))).toEqual({ kind: 'region' });
+    expect(crossingBetween(loc('KR', 'Neptune', 'Chocobo'), loc('OCE', 'Materia', 'Bismarck'))).toEqual({ kind: 'region' });
+  });
+  it('crossingBetween(OCE↔JP)はdc(従来維持)', () => {
+    expect(crossingBetween(loc('OCE', 'Materia', 'Bismarck'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'dc', dc: 'Mana', world: 'Anima' });
   });
 });

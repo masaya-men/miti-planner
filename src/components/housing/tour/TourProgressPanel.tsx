@@ -13,6 +13,8 @@ export interface TourProgressPanelProps {
   phase: 'moving' | 'viewing';
   viewStartAt: number | null;
   directions: PlotDirections | null;
+  /** Task8: 行き方本文の locale 別訳。省略時は directions.directions (ja) を使う。 */
+  directionsText?: string | null;
   /** 見学ボタンを押せるか(=現在の家が表示できる)。 */
   canView: boolean;
   isLast: boolean;
@@ -46,7 +48,7 @@ export interface TourProgressPanelProps {
  * (任意) 注記 → ツアーを終了(小さな下線テキスト・最下部)。
  */
 export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
-  progress, steps, currentIndex, phase, viewStartAt, directions,
+  progress, steps, currentIndex, phase, viewStartAt, directions, directionsText,
   canView, isLast, onPrev, onViewStart, onNext, onFinish, onLeave,
   crossing = { kind: 'none' }, readOnly = false, pendingCrossingAck = false,
 }) => {
@@ -72,7 +74,13 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
       {/* 下部フッター: ステップに上のスペースを譲るため、行き方枠〜操作ボタン〜終了を最下部に密集。
           行き方(フェーズ枠)は常にボタン群の直上に固定。親の gap(16px) から切り離し内部を詰める。 */}
       <div className="housing-tour-progress-foot">
-        <TourPhaseZone phase={phase} directions={directions} viewStartAt={viewStartAt} crossing={crossing} />
+        <TourPhaseZone
+          phase={phase}
+          directions={directions}
+          directionsText={directionsText}
+          viewStartAt={viewStartAt}
+          crossing={crossing}
+        />
         {readOnly ? (
           // 参加者(閲覧専用): 操作ボタン群の代わりに「幹事が案内中」+「ツアーから出る」。
           <>

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../../../store/useThemeStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
@@ -34,6 +36,8 @@ export const HousingShell: React.FC = () => {
   const theme = useThemeStore((s) => s.theme);
   const user = useAuthStore((s) => s.user);
   const isMobile = useIsMobile();
+  const { i18n } = useTranslation();
+  const applyLocaleDefaultRegions = useHousingFilterStore((s) => s.applyLocaleDefaultRegions);
   const joinedToken = useJoinedTourStore((s) => s.token);
   const { pathname } = useLocation();
   const [filterOpen, setFilterOpen] = useState(false);
@@ -52,6 +56,12 @@ export const HousingShell: React.FC = () => {
   useEffect(() => {
     void useHousingListingsStore.getState().load();
   }, []);
+
+  // 言語別の地域フィルター初期値 (spec B案: 言語は初期値のみ)。
+  // ユーザーが地域を一度でも操作していたら (regionsTouched) store 側で無視される。
+  useEffect(() => {
+    applyLocaleDefaultRegions(i18n.language);
+  }, [i18n.language, applyLocaleDefaultRegions]);
 
   // spec A-3: 自分の登録一覧を uid 確定/変化のたびに合流する (auth 復元は非同期のため effect で追随)。
   // ログアウト (uid が null に戻る) では clearMine で即座に消す。

@@ -25,6 +25,8 @@ import { useHousingerProfile } from '../housinger/useHousingerProfile';
 import { getTagById, isPersonalTagIdFormat } from '../../../data/housingTags';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
+import { displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 import { isAddressHidden } from '../../../lib/housing/listingPublish';
 import { useHousingReport } from '../report/useHousingReport';
 import { showToast } from '../../Toast';
@@ -72,6 +74,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   onPeerHidden,
 }) => {
   const { t, i18n } = useTranslation();
+  const locale = pickRegionLocale(i18n.language);
   const navigate = useNavigate();
   // 2026-07-13 round2 a: 詳細のタグをクリックしたら探すへ絞り込み遷移する (個人タグも同様)。
   const toggleTag = useHousingFilterStore((s) => s.toggleTag);
@@ -233,7 +236,7 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
               <div className="housing-detail-info">
                 <h2 className="housing-detail-title">{title}</h2>
                 <p className="housing-detail-address">
-                  {addressHidden ? fullAddress : `${fullAddress} / ${listing.dc} / ${listing.server}`}
+                  {addressHidden ? fullAddress : `${fullAddress} / ${displayDcName(listing.dc, locale)} / ${displayWorldName(listing.dc, listing.server, locale)}`}
                 </p>
                 <HousingerByline ownerUid={listing.ownerUid} />
                 {resolvedTags.length > 0 && (

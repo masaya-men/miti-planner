@@ -3,6 +3,7 @@ import { getTagById } from '../../data/housingTags';
 import { formatHousingAddress } from './formatHousingAddress';
 import { regionLabel, type RegionLocale } from '../../data/housing/regionMap';
 import { katakanaReading } from '../../data/housing/dcServerMap';
+import { searchNamesFor } from './housingTerms';
 
 type TFunc = (key: string) => string;
 
@@ -46,11 +47,18 @@ export function buildListingSearchText(
     const dc = listing.dc ?? '';
     if (server) parts.push(server);
     if (dc) parts.push(dc);
+    // KR/CN は世界名が JP ワールドと衝突しうる (例: Carbuncle は Elemental(JP) と Korea 両方に存在)。
+    // JP_KATAKANA_READINGS は JP ワールドのみを想定した名前引きのため、KR/CN では引かない。
+    const cnkr = listing.region === 'KR' || listing.region === 'CN';
     // 日本ワールド/DC はカタカナ読みでも検索可能に (略称は部分一致で自動対応)。
-    const serverKana = katakanaReading(server);
+    const serverKana = cnkr ? null : katakanaReading(server);
     if (serverKana) parts.push(serverKana);
-    const dcKana = katakanaReading(dc);
+    const dcKana = cnkr ? null : katakanaReading(dc);
     if (dcKana) parts.push(dcKana);
+    // 辞書名でも検索可能に (ko/zh/en)。ja は KR の慣用カタカナ誤爆 (spec §5) だけでなく
+    // 西洋ワールド (例: Gilgamesh→ギルガメッシュ) にも波及するため、常に含めない。
+    for (const n of searchNamesFor('world', server)) parts.push(n);
+    for (const n of searchNamesFor('dc', dc)) parts.push(n);
     if (listing.region !== undefined) parts.push(regionLabel(listing.region, locale));
   }
   return parts.join(' ').toLowerCase();

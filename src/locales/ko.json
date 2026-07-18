@@ -1992,7 +1992,7 @@
             "next_ward": "다음 구역으로",
             "spot_open_panel": "{{count}}건 보기",
             "plot_label": "{{plot}}번지",
-            "apartment_label": "아파트먼트",
+            "apartment_label": "아파트",
             "roompanel_back": "지도로 돌아가기",
             "roompanel_house": "집 전체",
             "roompanel_chambers": "개인실 {{count}}건"
@@ -2041,7 +2041,7 @@
             "building_type": {
                 "label": "건물 유형",
                 "house": "개인·자유부대 하우스",
-                "apartment": "아파트먼트"
+                "apartment": "아파트"
             },
             "apartment_building": {
                 "label": "号棟",
@@ -2083,10 +2083,12 @@
             },
             "errors": {
                 "dc": {
-                    "required": "데이터 센터를 선택해 주세요"
+                    "required": "데이터 센터를 선택해 주세요",
+                    "unknown": "존재하지 않는 데이터 센터/월드입니다. 목록에서 선택해 주세요"
                 },
                 "server": {
-                    "required": "서버를 선택해 주세요"
+                    "required": "서버를 선택해 주세요",
+                    "unknown": "존재하지 않는 데이터 센터/월드입니다. 목록에서 선택해 주세요"
                 },
                 "area": {
                     "invalid": "올바른 에리어를 선택해 주세요"
@@ -2214,7 +2216,7 @@
                 "M": "중형 하우스",
                 "L": "대형 하우스",
                 "private": "FC 개인실",
-                "apartment": "아파트먼트"
+                "apartment": "아파트"
             },
             "confirm": {
                 "title": "등록 내용 최종 확인",
@@ -2366,7 +2368,7 @@
             "official_designer_home": "집 꾸미기",
             "official_message_book": "방명록",
             "official_tavern": "주점",
-            "official_eatery": "음식점",
+            "official_eatery": "레스토랑",
             "official_visitors_welcome": "방문객 환영",
             "official_under_renovation": "내부 공사 중",
             "official_immersive_experience": "역할극",
@@ -2396,11 +2398,11 @@
             "season_summer_festival": "여름 축제",
             "season_halloween": "할로윈",
             "season_christmas": "크리스마스",
-            "theme_wafu": "일본풍",
+            "theme_wafu": "동양풍",
             "theme_wamodern": "일본 모던",
             "theme_modern": "모던",
             "theme_natural": "내추럴",
-            "theme_antique": "앤티크",
+            "theme_antique": "앤틱",
             "theme_gothic": "고딕",
             "theme_marchen": "동화풍",
             "theme_cyberpunk": "사이버펑크",

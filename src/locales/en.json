@@ -2118,10 +2118,12 @@
             },
             "errors": {
                 "dc": {
-                    "required": "Please select a data center"
+                    "required": "Please select a data center",
+                    "unknown": "This data center/world doesn't exist. Please choose from the list"
                 },
                 "server": {
-                    "required": "Please select a server"
+                    "required": "Please select a server",
+                    "unknown": "This data center/world doesn't exist. Please choose from the list"
                 },
                 "area": {
                     "invalid": "Please select a valid area"

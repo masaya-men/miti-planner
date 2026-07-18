@@ -7,6 +7,8 @@ export const REGION_LABELS: Record<Region, Record<RegionLocale, string>> = {
     NA: { ja: '北米', en: 'North America', ko: '북미', zh: '北美' },
     EU: { ja: '欧州', en: 'Europe', ko: '유럽', zh: '欧洲' },
     OCE: { ja: 'オセアニア', en: 'Oceania', ko: '오세아니아', zh: '大洋洲' },
+    KR: { ja: '韓国', en: 'Korea', ko: '한국', zh: '韩国' },
+    CN: { ja: '中国', en: 'China', ko: '중국', zh: '中国' },
 };
 
 export function regionLabel(region: Region, locale: RegionLocale): string {

@@ -2083,10 +2083,12 @@
             },
             "errors": {
                 "dc": {
-                    "required": "请选择数据中心"
+                    "required": "请选择数据中心",
+                    "unknown": "不存在的数据中心/世界，请从选项中选择"
                 },
                 "server": {
-                    "required": "请选择服务器"
+                    "required": "请选择服务器",
+                    "unknown": "不存在的数据中心/世界，请从选项中选择"
                 },
                 "area": {
                     "invalid": "请选择正确的区域"
@@ -2366,7 +2368,7 @@
             "official_designer_home": "内部装潢别致",
             "official_message_book": "交流簿",
             "official_tavern": "酒馆",
-            "official_eatery": "餐馆",
+            "official_eatery": "餐厅",
             "official_visitors_welcome": "欢迎来访",
             "official_under_renovation": "装修中",
             "official_immersive_experience": "角色扮演",
@@ -2396,11 +2398,11 @@
             "season_summer_festival": "夏日祭",
             "season_halloween": "万圣节",
             "season_christmas": "圣诞节",
-            "theme_wafu": "日式风格",
+            "theme_wafu": "和风",
             "theme_wamodern": "日式现代",
             "theme_modern": "现代",
             "theme_natural": "自然",
-            "theme_antique": "古董",
+            "theme_antique": "复古",
             "theme_gothic": "哥特",
             "theme_marchen": "童话",
             "theme_cyberpunk": "赛博朋克",

@@ -200,39 +200,79 @@ export const serverMasterData: Record<string, ServerData> = {
       "Sophia": ["ソフィア", "Sophia", "Soph"],
       "Zurvan": ["ズルワーン", "Zurvan", "Zurv"]
     }
+  },
+
+  // --- 韓国 (KR / 物理分離) --- alias はハングルのみ (英名はグローバル同名ワールドと衝突するため入れない)
+  "Korea": {
+    "aliases": ["한국", "韓国"],
+    "servers": {
+      "Carbuncle": ["카벙클"],
+      "Chocobo": ["초코보"],
+      "Moogle": ["모그리"],
+      "Tonberry": ["톤베리"],
+      "Fenrir": ["펜리르"]
+    }
+  },
+  // --- 中国 (CN / 物理分離) --- alias は中文のみ。白银乡はエリア名と衝突するため alias なし
+  "ChocoboCN": {
+    "aliases": ["陆行鸟"],
+    "servers": {
+      "RubySea": ["红玉海"], "Yanxia": ["延夏"], "Haimaochaya": ["海猫茶屋"], "CosmicHarmony": ["宇宙和音"],
+      "PhantomIslands": ["幻影群岛"], "TheHolyGround": ["神意之地"], "SproutPond": ["萌芽池"], "AmberPlains": ["琥珀原"]
+    }
+  },
+  "MoogleCN": {
+    "aliases": ["莫古力"],
+    "servers": {
+      "Shirogane": [], "RhalgrsReach": ["神拳痕"], "PlatinumMirage": ["白金幻象"], "TravelersDock": ["旅人栈桥"],
+      "TheDawnChamber": ["拂晓之间"], "TheAery": ["龙巢神殿"], "DreamfeatherRealm": ["梦羽宝境"], "HaukkeManor": ["静语庄园"]
+    }
+  },
+  "FatCatCN": {
+    "aliases": ["猫小胖"],
+    "servers": {
+      "AmethystShallows": ["紫水栈桥"], "MorDhona": ["摩杜纳"], "TheGreatWall": ["墙壁江山"], "BreezyBeach": ["柔风海滩"],
+      "TheAurumVale": ["黄金谷"], "CrescentCove": ["月牙湾"], "TheLostCity": ["异界遗迹"]
+    }
+  },
+  "MameshibaCN": {
+    "aliases": ["豆豆柴"],
+    "servers": {
+      "TheCrystalTower": ["水晶塔"], "SilvertearLake": ["银泪湖"], "CostaDelSol": ["太阳海岸"], "Ishgard": ["伊修加德"], "BlackTeaRiver": ["红茶川"]
+    }
   }
 };
 
 // 2. ハウジングエリアのマスターデータ
 //   - name / apartment_name は全言語値 (ja/en/ko/zh) を持つ
 //   - en は FFXIV Wiki (Apartments) 由来の公式表記 (2026-05-27 確認)
-//   - ko/zh はリリース時点では ja コピー (日英先行公開、 翻訳実値はリリース後対応)
+//   - ko/zh は正典 CSV (src/data/housing/terms-src/housing-terms.csv) 由来の公式表記 (2026-07-18 実値化)
 //   - aliases はテキスト解析 (parseHousingFromText) 用、 言語横断の表記揺れを集約
 export const housingAreaMasterData: Record<string, HousingAreaData> = {
   "Mist": {
-    "name": { ja: "ミスト・ヴィレッジ", en: "Mist", ko: "ミスト・ヴィレッジ", zh: "ミスト・ヴィレッジ" },
-    "apartment_name": { ja: "トップマスト", en: "The Topmast", ko: "トップマスト", zh: "トップマスト" },
-    "aliases": ["ミスト", "ミスビレ", "Mist", "Mis", "Topmast", "トップマスト"]
+    "name": { ja: "ミスト・ヴィレッジ", en: "Mist", ko: "안갯빛 마을", zh: "海雾村" },
+    "apartment_name": { ja: "トップマスト", en: "The Topmast", ko: "중층 돛대", zh: "中桅塔" },
+    "aliases": ["ミスト", "ミスビレ", "Mist", "Mis", "Topmast", "トップマスト", "안갯빛 마을", "海雾村", "중층 돛대", "中桅塔"]
   },
   "LavenderBeds": {
-    "name": { ja: "ラベンダーベッド", en: "The Lavender Beds", ko: "ラベンダーベッド", zh: "ラベンダーベッド" },
-    "apartment_name": { ja: "リリーヒルズ", en: "Lily Hills", ko: "リリーヒルズ", zh: "リリーヒルズ" },
-    "aliases": ["ラベ", "ラベンダー", "森", "葉脈", "Lavender", "Lavender Beds", "Lav", "LB", "Lily Hills", "リリーヒルズ"]
+    "name": { ja: "ラベンダーベッド", en: "The Lavender Beds", ko: "라벤더 안식처", zh: "薰衣草苗圃" },
+    "apartment_name": { ja: "リリーヒルズ", en: "Lily Hills", ko: "백합 언덕", zh: "百合岭" },
+    "aliases": ["ラベ", "ラベンダー", "森", "葉脈", "Lavender", "Lavender Beds", "Lav", "LB", "Lily Hills", "リリーヒルズ", "라벤더 안식처", "薰衣草苗圃", "백합 언덕", "百合岭"]
   },
   "Goblet": {
-    "name": { ja: "ゴブレットビュート", en: "The Goblet", ko: "ゴブレットビュート", zh: "ゴブレットビュート" },
-    "apartment_name": { ja: "ナナモ大風車", en: "The Sultana's Breath", ko: "ナナモ大風車", zh: "ナナモ大風車" },
-    "aliases": ["ゴブ", "ゴブレット", "Goblet", "Gob", "Sultana's Breath", "ナナモ大風車"]
+    "name": { ja: "ゴブレットビュート", en: "The Goblet", ko: "하늘잔 마루", zh: "高脚孤丘" },
+    "apartment_name": { ja: "ナナモ大風車", en: "The Sultana's Breath", ko: "나나모 대풍차", zh: "娜娜莫大风车" },
+    "aliases": ["ゴブ", "ゴブレット", "Goblet", "Gob", "Sultana's Breath", "ナナモ大風車", "하늘잔 마루", "高脚孤丘", "나나모 대풍차", "娜娜莫大风车"]
   },
   "Shirogane": {
-    "name": { ja: "シロガネ", en: "Shirogane", ko: "シロガネ", zh: "シロガネ" },
-    "apartment_name": { ja: "紅梅御殿", en: "Kobai Goten", ko: "紅梅御殿", zh: "紅梅御殿" },
-    "aliases": ["シロガネ", "しろがね", "Shirogane", "Shiro", "Kobai Goten", "紅梅御殿"]
+    "name": { ja: "シロガネ", en: "Shirogane", ko: "시로가네", zh: "白银乡" },
+    "apartment_name": { ja: "紅梅御殿", en: "Kobai Goten", ko: "홍매전", zh: "红梅御殿" },
+    "aliases": ["シロガネ", "しろがね", "Shirogane", "Shiro", "Kobai Goten", "紅梅御殿", "시로가네", "白银乡", "홍매전", "红梅御殿"]
   },
   "Empyreum": {
-    "name": { ja: "エンピレアム", en: "Empyreum", ko: "エンピレアム", zh: "エンピレアム" },
-    "apartment_name": { ja: "イングルサイド", en: "Ingleside", ko: "イングルサイド", zh: "イングルサイド" },
-    "aliases": ["エンピ", "エンピレアム", "Empyreum", "Emp", "Empy", "Ingleside", "イングルサイド"]
+    "name": { ja: "エンピレアム", en: "Empyreum", ko: "지고천 거리", zh: "穹顶皓天" },
+    "apartment_name": { ja: "イングルサイド", en: "Ingleside", ko: "단란한 난롯가", zh: "皓天炉舍" },
+    "aliases": ["エンピ", "エンピレアム", "Empyreum", "Emp", "Empy", "Ingleside", "イングルサイド", "지고천 거리", "穹顶皓天", "단란한 난롯가", "皓天炉舍"]
   }
 };
 
