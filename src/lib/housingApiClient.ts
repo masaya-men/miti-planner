@@ -175,12 +175,12 @@ export interface CreateSharedTourResponse {
  * 返り値の tourToken を招待リンク `/housing/tour/:tourToken` に載せる。
  * 失敗時は body.error（'invalid_snapshot' 等）を message に throw。
  */
-export async function createSharedTour(snapshot: TourSnapshot[]): Promise<CreateSharedTourResponse> {
+export async function createSharedTour(snapshot: TourSnapshot[], tourName?: string): Promise<CreateSharedTourResponse> {
   const headers = await buildHeaders(true);
   const res = await fetch(`${API_BASE}?action=create-shared-tour`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({ snapshot }),
+    body: JSON.stringify({ snapshot, tourName }),
   });
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };

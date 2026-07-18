@@ -82,6 +82,7 @@ export default async function handler(req: any, res: any) {
       hostUid,
       snapshot: parsed.snapshot,
       containsHiddenAddress: parsed.containsHiddenAddress,
+      tourName: parsed.tourName,
       createdAt: now,
     });
     batch.set(liveRef, {

@@ -6,6 +6,7 @@
  * PUT  /api/share        — 既存共有のロゴ更新
  * GET  /api/share?type=page&id=xxx — 共有ページHTML返却（OGP対応）
  * GET  /api/share?type=housinger&uid=xxx — ハウジンガーページHTML返却（OGP対応）
+ * GET  /api/share?type=tour&token=xxx — ツアー招待ページHTML返却（OGP対応）
  *
  * 既存の share + share-page を統合
  */
@@ -19,6 +20,7 @@ import { rejectIfPublicApiDisabled } from '../../src/lib/publicApiGuard.js';
 import { createHash } from 'crypto';
 import sharePageHandler from './_sharePageHandler.js';
 import housingerPageHandler from './_housingerPageHandler.js';
+import tourInvitePageHandler from './_tourInvitePageHandler.js';
 import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { computeImageHash } from '../../src/lib/ogpImageHash.js';
 import { stripSharedPersonalData } from '../../src/lib/sharePrivacy.js';
@@ -88,6 +90,12 @@ export default async function handler(req: any, res: any) {
     // type=page と同様、rate limit / App Check を課さない（GET html、匿名クローラーも通す）。
     if (req.query?.type === 'housinger') {
         return housingerPageHandler(req, res);
+    }
+
+    // ツアー招待ページへのルーティング（?type=tour&token=...）
+    // type=page/housinger と同様、rate limit / App Check を課さない（GET html、匿名クローラーも通す）。
+    if (req.query?.type === 'tour') {
+        return tourInvitePageHandler(req, res);
     }
 
     // CORS

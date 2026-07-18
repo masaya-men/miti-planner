@@ -2889,6 +2889,8 @@
                     "route": "Route (approximate)"
                 },
                 "invite": {
+                    "name_label": "Tour name (optional)",
+                    "name_placeholder": "e.g. Weekend housing tour",
                     "button": "Invite everyone",
                     "creating": "Creating invite link…",
                     "hint": "Once the tour starts, you can't add more. Build the housing you want to visit into the tour first.",
