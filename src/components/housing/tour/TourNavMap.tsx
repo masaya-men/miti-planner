@@ -7,7 +7,7 @@ import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import type { TourCrossing } from '../../../lib/housing/tourCrossing';
 import { formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { canDisplayFullAddress } from '../../../lib/housing/listingPublish';
-import { termLabel } from '../../../lib/housing/housingTerms';
+import { termLabel, displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 import type { MockListing } from '../../../data/housing/mockListings';
 
@@ -62,9 +62,10 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
   viewingTimerText = null,
 }) => {
   const { t, i18n } = useTranslation();
+  const locale = pickRegionLocale(i18n.language);
   // originName はモデル層(useTourRenderModel/buildTourMapPlacements)から ja のまま渡ってくる。
   // KR/CN の辞書名変換はここ(実際に画面へ描く直前)で一度だけ行う(呼び出し元4箇所が全てここを通る)。
-  const originLabel = originName ? termLabel('aetheryte', originName, pickRegionLocale(i18n.language)) : null;
+  const originLabel = originName ? termLabel('aetheryte', originName, locale) : null;
   const hostRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -476,11 +477,11 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
             <div className="housing-tour-map-cross-card">
               <p className="housing-tour-map-cross-text">
                 {crossing.kind === 'start'
-                  ? t('housing.tour.nav.cross.start', { dc: crossing.dc, world: crossing.world })
+                  ? t('housing.tour.nav.cross.start', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
                   : crossing.kind === 'dc'
-                    ? t('housing.tour.nav.cross.dc', { dc: crossing.dc, world: crossing.world })
+                    ? t('housing.tour.nav.cross.dc', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
                     : crossing.kind === 'world'
-                      ? t('housing.tour.nav.cross.world', { world: crossing.world })
+                      ? t('housing.tour.nav.cross.world', { world: displayWorldName(crossing.dc, crossing.world, locale) })
                       : t('housing.tour.nav.cross.region')}
               </p>
               {crossingReadOnly && (

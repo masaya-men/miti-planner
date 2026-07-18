@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import type { PlotDirections } from '../../../lib/housing/wardDirections';
 import { useElapsed, formatElapsed, formatClock } from '../../../lib/housing/useElapsed';
 import type { TourCrossing } from '../../../lib/housing/tourCrossing';
-import { termLabel } from '../../../lib/housing/housingTerms';
+import { termLabel, displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 
 export interface TourPhaseZoneProps {
@@ -43,9 +43,9 @@ export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
   }
 
   const crossLine =
-    crossing.kind === 'start' ? t('housing.tour.nav.cross.start', { dc: crossing.dc, world: crossing.world })
-    : crossing.kind === 'dc' ? t('housing.tour.nav.cross.dc', { dc: crossing.dc, world: crossing.world })
-    : crossing.kind === 'world' ? t('housing.tour.nav.cross.world', { world: crossing.world })
+    crossing.kind === 'start' ? t('housing.tour.nav.cross.start', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
+    : crossing.kind === 'dc' ? t('housing.tour.nav.cross.dc', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
+    : crossing.kind === 'world' ? t('housing.tour.nav.cross.world', { world: displayWorldName(crossing.dc, crossing.world, locale) })
     : crossing.kind === 'region' ? t('housing.tour.nav.cross.region')
     : null;
 
