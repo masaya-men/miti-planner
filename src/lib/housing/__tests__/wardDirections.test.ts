@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getPlotDirections } from '../wardDirections';
+import { getPlotDirections, getPlotDirectionsText } from '../wardDirections';
 import wardAetherytes from '../../../data/housing/wardAetherytes.generated.json';
 
 const AREAS = ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum'] as const;
@@ -86,5 +86,19 @@ describe('getPlotDirections', () => {
     }
 
     expect(missing).toEqual([]);
+  });
+
+  // Task8: 行き方本文の en/ko/zh 訳 (正典 CSV は translations/{lang}/*.csv)。
+  it('全 300 区画に en/ko/zh の行き方がある', () => {
+    for (const area of ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum']) {
+      for (let plot = 1; plot <= 60; plot++) {
+        for (const l of ['en', 'ko', 'zh'] as const) {
+          expect(getPlotDirectionsText(area, plot, l), `${area}#${plot} ${l}`).toBeTruthy();
+        }
+      }
+    }
+  });
+  it('ja は従来値、未知 locale 系はフォールバック', () => {
+    expect(getPlotDirectionsText('Mist', 1, 'ja')).toBe(getPlotDirections('Mist', 1)!.directions);
   });
 });

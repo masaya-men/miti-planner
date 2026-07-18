@@ -37,7 +37,7 @@ export const JoinTourPage: React.FC = () => {
   const pool = useMemo(() => (meta ? meta.snapshot.map(snapshotToPoolListing) : []), [meta]);
   const orderedIds = useMemo(() => (meta ? meta.snapshot.map((s) => s.id) : []), [meta]);
   const currentIndex = live?.currentIndex ?? 0;
-  const model = useTourRenderModel(pool, orderedIds, currentIndex);
+  const model = useTourRenderModel(pool, orderedIds, currentIndex, locale);
 
   // Task5(地図下部の帯用): TourNavPage.tsx の footerDirections useMemo と同じ流儀で
   // directions(PlotDirections={aetheryte,directions})を teleport/directions の2段データへ整形する。
@@ -47,8 +47,8 @@ export const JoinTourPage: React.FC = () => {
     const teleport = t('housing.tour.nav.dest.teleport_to', {
       aetheryte: termLabel('aetheryte', model.directions.aetheryte, locale),
     });
-    return { teleport, directions: model.directions.directions };
-  }, [model.directions, t, locale]);
+    return { teleport, directions: model.directionsText ?? model.directions.directions };
+  }, [model.directions, model.directionsText, t, locale]);
 
   // 参加状態をヘッダーの「ツアーに戻る」ピルへ橋渡し(#1・案い)。viewing で記録し、
   // ended/notfound で解除する(戻る先が無くなるのでピルも消す)。connecting は据え置き(再接続中)。
@@ -133,6 +133,7 @@ export const JoinTourPage: React.FC = () => {
             phase={phase}
             viewStartAt={live?.viewStartAt ?? null}
             directions={model.directions}
+            directionsText={model.directionsText}
             canView={false}
             isLast={false}
             crossing={model.crossing}

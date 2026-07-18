@@ -2,10 +2,11 @@ import { useMemo } from 'react';
 import type { MockListing } from '../../data/housing/mockListings';
 import { resolveTourSteps, computeTourProgress, type TourStep, type TourProgress } from './tourNav';
 import { resolveWardMapRef } from './resolveWardMapRef';
-import { getPlotDirections, type PlotDirections } from './wardDirections';
+import { getPlotDirections, getPlotDirectionsText, type PlotDirections } from './wardDirections';
 import { useWardMapAsset, type WardMapAssetState } from './useWardMapAsset';
 import { buildTourMapPlacements, type TourMapModel } from './buildTourMapPlacements';
 import { crossingBetween, firstDestination, type TourCrossing } from './tourCrossing';
+import type { RegionLocale } from '../../data/housing/regionMap';
 
 export interface TourRenderModel {
   steps: TourStep[];
@@ -14,6 +15,8 @@ export interface TourRenderModel {
   prevStep: TourStep | null;
   currentListing: MockListing | null;
   directions: PlotDirections | null;
+  /** Task8: directions.directions の locale 別訳 (無ければ ja 本文にフォールバック)。 */
+  directionsText: string | null;
   crossing: TourCrossing;
   mapRef: ReturnType<typeof resolveWardMapRef>;
   asset: WardMapAssetState;
@@ -38,6 +41,8 @@ export function useTourRenderModel(
   pool: MockListing[],
   orderedIds: string[],
   currentIndex: number,
+  /** Task8: 行き方本文の表示言語。省略時は ja (従来挙動を完全維持)。 */
+  locale: RegionLocale = 'ja',
 ): TourRenderModel {
   const steps = useMemo(() => resolveTourSteps(orderedIds, pool), [orderedIds, pool]);
   const progress = useMemo(
@@ -61,6 +66,11 @@ export function useTourRenderModel(
   const directions = useMemo(
     () => getPlotDirections(currentListing?.area ?? '', currentListing?.plot),
     [currentListing],
+  );
+  // Task8: 表示用の行き方本文 (locale 別訳。無ければ directions と同じ ja 本文にフォールバック)。
+  const directionsText = useMemo(
+    () => getPlotDirectionsText(currentListing?.area ?? '', currentListing?.plot, locale),
+    [currentListing, locale],
   );
   // 前の家→この家の移動種別(DC/ワールド跨ぎ)。行き方枠(右パネル)+中央マップのぼかし案内へ渡す。
   // 1件目(currentIndex===0)は前の家が無いので跨ぎ判定できない → まずどこへ向かうかの出発案内を出す(#2)。
@@ -103,6 +113,6 @@ export function useTourRenderModel(
 
   return {
     steps, progress, nextStep, prevStep, currentListing,
-    directions, crossing, mapRef, asset, mapModel, mapStatus, originName,
+    directions, directionsText, crossing, mapRef, asset, mapModel, mapStatus, originName,
   };
 }

@@ -82,8 +82,8 @@ export const TourNavPage: React.FC = () => {
   // 参加者ページ(JoinTourPage)と全く同じ orchestration を通す。挙動は抽出前と同一(ロジック無変更)。
   const {
     steps, progress, nextStep, currentListing,
-    directions, crossing, mapModel, mapStatus, asset, originName,
-  } = useTourRenderModel(pool, listingIds, currentIndex);
+    directions, directionsText, crossing, mapModel, mapStatus, asset, originName,
+  } = useTourRenderModel(pool, listingIds, currentIndex, locale);
 
   const isLast = currentIndex === listingIds.length - 1;
 
@@ -106,8 +106,8 @@ export const TourNavPage: React.FC = () => {
     const teleport = t('housing.tour.nav.dest.teleport_to', {
       aetheryte: termLabel('aetheryte', directions.aetheryte, locale),
     });
-    return { teleport, directions: directions.directions };
-  }, [directions, t, locale]);
+    return { teleport, directions: directionsText ?? directions.directions };
+  }, [directions, directionsText, t, locale]);
 
   // 実機FB: スマホの「見学開始」は全画面ショーケースオーバーレイ(左パネルの代替)を開くと
   // 地図が隠れてしまい実機で不評だったため撤去。地図のエリアに経過時間チップだけを出す方式に変更。
@@ -332,6 +332,7 @@ export const TourNavPage: React.FC = () => {
             phase={phase}
             viewStartAt={viewStartAt}
             directions={directions}
+            directionsText={directionsText}
             canView={canView}
             isLast={isLast}
             pendingCrossingAck={showCrossingOverlay}

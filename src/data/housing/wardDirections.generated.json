@@ -2,1211 +2,2711 @@
   "Mist": {
     "1": {
       "aetheryte": "ミストゲート・スクエア",
-      "directions": "西の階段をまっすぐ降りたとこ"
+      "directions": "西の階段をまっすぐ降りたとこ",
+      "i18n": {
+        "en": "Straight down the west stairs",
+        "ko": "서쪽 계단을 곧장 내려간 곳",
+        "zh": "沿西侧楼梯直下即到"
+      }
     },
     "2": {
       "aetheryte": "ミスト・ヴィレッジ北西",
-      "directions": "西のＬハウス"
+      "directions": "西のＬハウス",
+      "i18n": {
+        "en": "L house to the west",
+        "ko": "서쪽 L형 주택",
+        "zh": "西侧L号房屋"
+      }
     },
     "3": {
       "aetheryte": "ミスト・ヴィレッジ北西",
-      "directions": "南のＳハウス"
+      "directions": "南のＳハウス",
+      "i18n": {
+        "en": "S house to the south",
+        "ko": "남쪽 S형 주택",
+        "zh": "南侧S号房屋"
+      }
     },
     "4": {
       "aetheryte": "ミスト・ヴィレッジ南（船着場）",
-      "directions": "北左側のＭハウス"
+      "directions": "北左側のＭハウス",
+      "i18n": {
+        "en": "M house on the north left side",
+        "ko": "북쪽 왼편 M형 주택",
+        "zh": "北侧左边M号房屋"
+      }
     },
     "5": {
       "aetheryte": "ミスト・ヴィレッジ南（船着場）",
-      "directions": "西のＬハウス"
+      "directions": "西のＬハウス",
+      "i18n": {
+        "en": "L house to the west",
+        "ko": "서쪽 L형 주택",
+        "zh": "西侧L号房屋"
+      }
     },
     "6": {
       "aetheryte": "ミスト・ヴィレッジ南（船着場）",
-      "directions": "北右側のＭハウス"
+      "directions": "北右側のＭハウス",
+      "i18n": {
+        "en": "M house on the north right side",
+        "ko": "북쪽 오른편 M형 주택",
+        "zh": "北侧右边M号房屋"
+      }
     },
     "7": {
       "aetheryte": "ミスト・ヴィレッジ南（船着場）",
-      "directions": "北右側2番目のＭハウス"
+      "directions": "北右側2番目のＭハウス",
+      "i18n": {
+        "en": "2nd M house on the north right side",
+        "ko": "북쪽 오른편 두 번째 M형 주택",
+        "zh": "北侧右边第二栋M号房屋"
+      }
     },
     "8": {
       "aetheryte": "ミストゲート・スクエア",
-      "directions": "西の階段を降りて一つ目の踊り場からジャンプ"
+      "directions": "西の階段を降りて一つ目の踊り場からジャンプ",
+      "i18n": {
+        "en": "Go down the west stairs and jump from the first landing",
+        "ko": "서쪽 계단을 내려가 첫 번째 계단참에서 점프",
+        "zh": "沿西侧楼梯下去在第一个平台跳下"
+      }
     },
     "9": {
       "aetheryte": "ミスト・ヴィレッジ北東",
-      "directions": "西のＳハウス（階段無し）"
+      "directions": "西のＳハウス（階段無し）",
+      "i18n": {
+        "en": "S house to the west (no stairs)",
+        "ko": "서쪽 S형 주택(계단 없음)",
+        "zh": "西侧S号房屋(无楼梯)"
+      }
     },
     "10": {
       "aetheryte": "ミスト・ヴィレッジ北東",
-      "directions": "西のＳハウス（階段有り）"
+      "directions": "西のＳハウス（階段有り）",
+      "i18n": {
+        "en": "S house to the west (with stairs)",
+        "ko": "서쪽 S형 주택(계단 있음)",
+        "zh": "西侧S号房屋(有楼梯)"
+      }
     },
     "11": {
       "aetheryte": "ミストゲート・スクエア",
-      "directions": "東の階段を降りて突き当りでジャンプ"
+      "directions": "東の階段を降りて突き当りでジャンプ",
+      "i18n": {
+        "en": "Go down the east stairs and jump at the dead end",
+        "ko": "동쪽 계단을 내려가 막다른 곳에서 점프",
+        "zh": "沿东侧楼梯下去在尽头跳下"
+      }
     },
     "12": {
       "aetheryte": "ミスト・ヴィレッジ北東",
-      "directions": "西に道なり最初の階段を降りて左"
+      "directions": "西に道なり最初の階段を降りて左",
+      "i18n": {
+        "en": "Follow the road west; go down the first stairs and turn left",
+        "ko": "서쪽으로 길을 따라 첫 번째 계단을 내려가 왼쪽",
+        "zh": "沿路向西走下第一段楼梯后左转"
+      }
     },
     "13": {
       "aetheryte": "ミスト・ヴィレッジ東",
-      "directions": "北西目の前のＳハウス"
+      "directions": "北西目の前のＳハウス",
+      "i18n": {
+        "en": "S house right in front to the northwest",
+        "ko": "북서쪽 바로 앞 S형 주택",
+        "zh": "西北侧正前方S号房屋"
+      }
     },
     "14": {
       "aetheryte": "ミスト・ヴィレッジ東",
-      "directions": "北東カーブの坂の途中左のＭハウス"
+      "directions": "北東カーブの坂の途中左のＭハウス",
+      "i18n": {
+        "en": "M house on the left partway down the northeast curve slope",
+        "ko": "북동쪽 커브 비탈길 도중 왼쪽 M형 주택",
+        "zh": "东北弯道坡道中段左侧M号房屋"
+      }
     },
     "15": {
       "aetheryte": "ミスト・ヴィレッジ北東",
-      "directions": "東のＬハウス"
+      "directions": "東のＬハウス",
+      "i18n": {
+        "en": "L house to the east",
+        "ko": "동쪽 L형 주택",
+        "zh": "东侧L号房屋"
+      }
     },
     "16": {
       "aetheryte": "ミスト・ヴィレッジ東",
-      "directions": "北東カーブの坂の途中右のＳハウス"
+      "directions": "北東カーブの坂の途中右のＳハウス",
+      "i18n": {
+        "en": "S house on the right partway down the northeast curve slope",
+        "ko": "북동쪽 커브 비탈길 도중 오른쪽 S형 주택",
+        "zh": "东北弯道坡道中段右侧S号房屋"
+      }
     },
     "17": {
       "aetheryte": "ミスト・ヴィレッジ東",
-      "directions": "東大きい階段付きのＳハウス"
+      "directions": "東大きい階段付きのＳハウス",
+      "i18n": {
+        "en": "S house with large stairs to the east",
+        "ko": "동쪽 큰 계단이 있는 S형 주택",
+        "zh": "东侧带大楼梯的S号房屋"
+      }
     },
     "18": {
       "aetheryte": "ミスト・ヴィレッジ東",
-      "directions": "南のＳハウス"
+      "directions": "南のＳハウス",
+      "i18n": {
+        "en": "S house to the south",
+        "ko": "남쪽 S형 주택",
+        "zh": "南侧S号房屋"
+      }
     },
     "19": {
       "aetheryte": "シーゲイズ商通り（居住区担当官）",
-      "directions": "南東ひとつめのＳハウス"
+      "directions": "南東ひとつめのＳハウス",
+      "i18n": {
+        "en": "1st S house to the southeast",
+        "ko": "남동쪽 첫 번째 S형 주택",
+        "zh": "东南第一栋S号房屋"
+      }
     },
     "20": {
       "aetheryte": "シーゲイズ商通り（居住区担当官）",
-      "directions": "南東ふたつめのＳハウス"
+      "directions": "南東ふたつめのＳハウス",
+      "i18n": {
+        "en": "2nd S house to the southeast",
+        "ko": "남동쪽 두 번째 S형 주택",
+        "zh": "东南第二栋S号房屋"
+      }
     },
     "21": {
       "aetheryte": "シーゲイズ商通り（居住区担当官）",
-      "directions": "南東みっつめのＳハウス"
+      "directions": "南東みっつめのＳハウス",
+      "i18n": {
+        "en": "3rd S house to the southeast",
+        "ko": "남동쪽 세 번째 S형 주택",
+        "zh": "东南第三栋S号房屋"
+      }
     },
     "22": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "南の階段降りて右のＳハウス"
+      "directions": "南の階段降りて右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after going down the south stairs",
+        "ko": "남쪽 계단을 내려가 오른쪽 S형 주택",
+        "zh": "沿南侧楼梯下去右边S号房屋"
+      }
     },
     "23": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "西に向かって真っすぐジャンプ目の前のＳハウス"
+      "directions": "西に向かって真っすぐジャンプ目の前のＳハウス",
+      "i18n": {
+        "en": "S house right in front; jump straight toward the west",
+        "ko": "서쪽을 향해 곧장 점프한 바로 앞 S형 주택",
+        "zh": "朝西直跳正前方S号房屋"
+      }
     },
     "24": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "北のＳハウス"
+      "directions": "北のＳハウス",
+      "i18n": {
+        "en": "S house to the north",
+        "ko": "북쪽 S형 주택",
+        "zh": "北侧S号房屋"
+      }
     },
     "25": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "東の階段を一つ登ってひだりのＳハウス"
+      "directions": "東の階段を一つ登ってひだりのＳハウス",
+      "i18n": {
+        "en": "S house on the left after climbing one flight of east stairs",
+        "ko": "동쪽 계단을 한 번 올라가 왼쪽 S형 주택",
+        "zh": "上东侧楼梯一段后左边S号房屋"
+      }
     },
     "26": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "南の登り階段１つめのＳハウス"
+      "directions": "南の登り階段１つめのＳハウス",
+      "i18n": {
+        "en": "1st S house up the south climbing stairs",
+        "ko": "남쪽 오르막 계단 첫 번째 S형 주택",
+        "zh": "南侧上坡楼梯第一栋S号房屋"
+      }
     },
     "27": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "東の階段を1つ登って左に曲がり突き当りのＳハウス"
+      "directions": "東の階段を1つ登って左に曲がり突き当りのＳハウス",
+      "i18n": {
+        "en": "S house at the dead end after climbing one flight of east stairs and turning left",
+        "ko": "동쪽 계단을 한 번 올라가 왼쪽으로 꺾어 막다른 곳 S형 주택",
+        "zh": "上东侧楼梯一段后左转到尽头S号房屋"
+      }
     },
     "28": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "東の階段突き当りのＳハウス"
+      "directions": "東の階段突き当りのＳハウス",
+      "i18n": {
+        "en": "S house at the dead end of the east stairs",
+        "ko": "동쪽 계단 막다른 곳 S형 주택",
+        "zh": "东侧楼梯尽头S号房屋"
+      }
     },
     "29": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "南の登り階段突き当りのＭハウス"
+      "directions": "南の登り階段突き当りのＭハウス",
+      "i18n": {
+        "en": "M house at the dead end of the south climbing stairs",
+        "ko": "남쪽 오르막 계단 막다른 곳 M형 주택",
+        "zh": "南侧上坡楼梯尽头M号房屋"
+      }
     },
     "30": {
       "aetheryte": "ミスト・ヴィレッジ南東",
-      "directions": "南の突き当りのＭハウス"
+      "directions": "南の突き当りのＭハウス",
+      "i18n": {
+        "en": "M house at the south dead end",
+        "ko": "남쪽 막다른 곳 M형 주택",
+        "zh": "南侧尽头M号房屋"
+      }
     },
     "31": {
       "aetheryte": "[拡張街]ミストゲート・スクエア",
-      "directions": "北の階段をまっすぐ降りたとこ"
+      "directions": "北の階段をまっすぐ降りたとこ",
+      "i18n": {
+        "en": "Straight down the north stairs",
+        "ko": "북쪽 계단을 곧장 내려간 곳",
+        "zh": "沿北侧楼梯直下即到"
+      }
     },
     "32": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ北東",
-      "directions": "北のＬハウス"
+      "directions": "北のＬハウス",
+      "i18n": {
+        "en": "L house to the north",
+        "ko": "북쪽 L형 주택",
+        "zh": "北侧L号房屋"
+      }
     },
     "33": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ北東",
-      "directions": "西のＳハウス"
+      "directions": "西のＳハウス",
+      "i18n": {
+        "en": "S house to the west",
+        "ko": "서쪽 S형 주택",
+        "zh": "西侧S号房屋"
+      }
     },
     "34": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ北西（船着場）",
-      "directions": "東左側のＭハウス"
+      "directions": "東左側のＭハウス",
+      "i18n": {
+        "en": "M house on the east left side",
+        "ko": "동쪽 왼편 M형 주택",
+        "zh": "东侧左边M号房屋"
+      }
     },
     "35": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ北西（船着場）",
-      "directions": "北のＬハウス"
+      "directions": "北のＬハウス",
+      "i18n": {
+        "en": "L house to the north",
+        "ko": "북쪽 L형 주택",
+        "zh": "北侧L号房屋"
+      }
     },
     "36": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ北西（船着場）",
-      "directions": "東右側のＭハウス"
+      "directions": "東右側のＭハウス",
+      "i18n": {
+        "en": "M house on the east right side",
+        "ko": "동쪽 오른편 M형 주택",
+        "zh": "东侧右边M号房屋"
+      }
     },
     "37": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ北西（船着場）",
-      "directions": "東右側2番目のＭハウス"
+      "directions": "東右側2番目のＭハウス",
+      "i18n": {
+        "en": "2nd M house on the east right side",
+        "ko": "동쪽 오른편 두 번째 M형 주택",
+        "zh": "东侧右边第二栋M号房屋"
+      }
     },
     "38": {
       "aetheryte": "[拡張街]ミストゲート・スクエア",
-      "directions": "北の階段を降りて一つ目の踊り場からジャンプ"
+      "directions": "北の階段を降りて一つ目の踊り場からジャンプ",
+      "i18n": {
+        "en": "Go down the north stairs and jump from the first landing",
+        "ko": "북쪽 계단을 내려가 첫 번째 계단참에서 점프",
+        "zh": "沿北侧楼梯下去在第一个平台跳下"
+      }
     },
     "39": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南東",
-      "directions": "北のＳハウス（階段無し）"
+      "directions": "北のＳハウス（階段無し）",
+      "i18n": {
+        "en": "S house to the north (no stairs)",
+        "ko": "북쪽 S형 주택(계단 없음)",
+        "zh": "北侧S号房屋(无楼梯)"
+      }
     },
     "40": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南東",
-      "directions": "北のＳハウス（階段有り）"
+      "directions": "北のＳハウス（階段有り）",
+      "i18n": {
+        "en": "S house to the north (with stairs)",
+        "ko": "북쪽 S형 주택(계단 있음)",
+        "zh": "北侧S号房屋(有楼梯)"
+      }
     },
     "41": {
       "aetheryte": "[拡張街]ミストゲート・スクエア",
-      "directions": "南の階段を降りて突き当りでジャンプ"
+      "directions": "南の階段を降りて突き当りでジャンプ",
+      "i18n": {
+        "en": "Go down the south stairs and jump at the dead end",
+        "ko": "남쪽 계단을 내려가 막다른 곳에서 점프",
+        "zh": "沿南侧楼梯下去在尽头跳下"
+      }
     },
     "42": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南東",
-      "directions": "北に道なり最初の階段を降りて左"
+      "directions": "北に道なり最初の階段を降りて左",
+      "i18n": {
+        "en": "Follow the road north; go down the first stairs and turn left",
+        "ko": "북쪽으로 길을 따라 첫 번째 계단을 내려가 왼쪽",
+        "zh": "沿路向北走下第一段楼梯后左转"
+      }
     },
     "43": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ中央",
-      "directions": "北東目の前のＳハウス"
+      "directions": "北東目の前のＳハウス",
+      "i18n": {
+        "en": "S house right in front to the northeast",
+        "ko": "북동쪽 바로 앞 S형 주택",
+        "zh": "东北侧正前方S号房屋"
+      }
     },
     "44": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ中央",
-      "directions": "南東カーブの坂の途中左のＭハウス"
+      "directions": "南東カーブの坂の途中左のＭハウス",
+      "i18n": {
+        "en": "M house on the left partway down the southeast curve slope",
+        "ko": "남동쪽 커브 비탈길 도중 왼쪽 M형 주택",
+        "zh": "东南弯道坡道中段左侧M号房屋"
+      }
     },
     "45": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南東",
-      "directions": "南のＬハウス"
+      "directions": "南のＬハウス",
+      "i18n": {
+        "en": "L house to the south",
+        "ko": "남쪽 L형 주택",
+        "zh": "南侧L号房屋"
+      }
     },
     "46": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ中央",
-      "directions": "南東カーブの坂の途中右のＳハウス"
+      "directions": "南東カーブの坂の途中右のＳハウス",
+      "i18n": {
+        "en": "S house on the right partway down the southeast curve slope",
+        "ko": "남동쪽 커브 비탈길 도중 오른쪽 S형 주택",
+        "zh": "东南弯道坡道中段右侧S号房屋"
+      }
     },
     "47": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ中央",
-      "directions": "南大きい階段付きのＳハウス"
+      "directions": "南大きい階段付きのＳハウス",
+      "i18n": {
+        "en": "S house with large stairs to the south",
+        "ko": "남쪽 큰 계단이 있는 S형 주택",
+        "zh": "南侧带大楼梯的S号房屋"
+      }
     },
     "48": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ中央",
-      "directions": "西のＳハウス"
+      "directions": "西のＳハウス",
+      "i18n": {
+        "en": "S house to the west",
+        "ko": "서쪽 S형 주택",
+        "zh": "西侧S号房屋"
+      }
     },
     "49": {
       "aetheryte": "[拡張街]シーゲイズ商通り（居住区担当官）",
-      "directions": "南西ひとつめのＳハウス"
+      "directions": "南西ひとつめのＳハウス",
+      "i18n": {
+        "en": "1st S house to the southwest",
+        "ko": "남서쪽 첫 번째 S형 주택",
+        "zh": "西南第一栋S号房屋"
+      }
     },
     "50": {
       "aetheryte": "[拡張街]シーゲイズ商通り（居住区担当官）",
-      "directions": "南西ふたつめのＳハウス"
+      "directions": "南西ふたつめのＳハウス",
+      "i18n": {
+        "en": "2nd S house to the southwest",
+        "ko": "남서쪽 두 번째 S형 주택",
+        "zh": "西南第二栋S号房屋"
+      }
     },
     "51": {
       "aetheryte": "[拡張街]シーゲイズ商通り（居住区担当官）",
-      "directions": "南西みっつめのＳハウス"
+      "directions": "南西みっつめのＳハウス",
+      "i18n": {
+        "en": "3rd S house to the southwest",
+        "ko": "남서쪽 세 번째 S형 주택",
+        "zh": "西南第三栋S号房屋"
+      }
     },
     "52": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "西の階段降りて右のＳハウス"
+      "directions": "西の階段降りて右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after going down the west stairs",
+        "ko": "서쪽 계단을 내려가 오른쪽 S형 주택",
+        "zh": "沿西侧楼梯下去右边S号房屋"
+      }
     },
     "53": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "北に向かって真っすぐジャンプ目の前のＳハウス"
+      "directions": "北に向かって真っすぐジャンプ目の前のＳハウス",
+      "i18n": {
+        "en": "S house right in front; jump straight toward the north",
+        "ko": "북쪽을 향해 곧장 점프한 바로 앞 S형 주택",
+        "zh": "朝北直跳正前方S号房屋"
+      }
     },
     "54": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "東のＳハウス"
+      "directions": "東のＳハウス",
+      "i18n": {
+        "en": "S house to the east",
+        "ko": "동쪽 S형 주택",
+        "zh": "东侧S号房屋"
+      }
     },
     "55": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "南の階段を一つ登ってひだりのＳハウス"
+      "directions": "南の階段を一つ登ってひだりのＳハウス",
+      "i18n": {
+        "en": "S house on the left after climbing one flight of south stairs",
+        "ko": "남쪽 계단을 한 번 올라가 왼쪽 S형 주택",
+        "zh": "上南侧楼梯一段后左边S号房屋"
+      }
     },
     "56": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "西の登り階段１つめのＳハウス"
+      "directions": "西の登り階段１つめのＳハウス",
+      "i18n": {
+        "en": "1st S house up the west climbing stairs",
+        "ko": "서쪽 오르막 계단 첫 번째 S형 주택",
+        "zh": "西侧上坡楼梯第一栋S号房屋"
+      }
     },
     "57": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "南の階段を1つ登って左に曲がり突き当りのＳハウス"
+      "directions": "南の階段を1つ登って左に曲がり突き当りのＳハウス",
+      "i18n": {
+        "en": "S house at the dead end after climbing one flight of south stairs and turning left",
+        "ko": "남쪽 계단을 한 번 올라가 왼쪽으로 꺾어 막다른 곳 S형 주택",
+        "zh": "上南侧楼梯一段后左转到尽头S号房屋"
+      }
     },
     "58": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "南の階段突き当りのＳハウス"
+      "directions": "南の階段突き当りのＳハウス",
+      "i18n": {
+        "en": "S house at the dead end of the south stairs",
+        "ko": "남쪽 계단 막다른 곳 S형 주택",
+        "zh": "南侧楼梯尽头S号房屋"
+      }
     },
     "59": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "西の登り階段突き当りのＭハウス"
+      "directions": "西の登り階段突き当りのＭハウス",
+      "i18n": {
+        "en": "M house at the dead end of the west climbing stairs",
+        "ko": "서쪽 오르막 계단 막다른 곳 M형 주택",
+        "zh": "西侧上坡楼梯尽头M号房屋"
+      }
     },
     "60": {
       "aetheryte": "[拡張街]ミスト・ヴィレッジ南西",
-      "directions": "西の突き当りのＭハウス"
+      "directions": "西の突き当りのＭハウス",
+      "i18n": {
+        "en": "M house at the west dead end",
+        "ko": "서쪽 막다른 곳 M형 주택",
+        "zh": "西侧尽头M号房屋"
+      }
     }
   },
   "LavenderBeds": {
     "1": {
       "aetheryte": "樹冠商店街（居住区担当官）",
-      "directions": "東に道なり右のＭハウス"
+      "directions": "東に道なり右のＭハウス",
+      "i18n": {
+        "en": "M house on the right; follow the road east",
+        "ko": "길을 따라 동쪽 오른쪽 M형 주택",
+        "zh": "沿路向东右边M号房屋"
+      }
     },
     "2": {
       "aetheryte": "ラベンダーベッド東",
-      "directions": "北の右のＳハウス"
+      "directions": "北の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the north",
+        "ko": "북쪽 오른쪽 S형 주택",
+        "zh": "北侧右边S号房屋"
+      }
     },
     "3": {
       "aetheryte": "樹冠商店街（居住区担当官）",
-      "directions": "東のＬハウス"
+      "directions": "東のＬハウス",
+      "i18n": {
+        "en": "L house to the east",
+        "ko": "동쪽 L형 주택",
+        "zh": "东侧L号房屋"
+      }
     },
     "4": {
       "aetheryte": "ラベンダーベッド東",
-      "directions": "北の左のＳハウス"
+      "directions": "北の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the north",
+        "ko": "북쪽 왼쪽 S형 주택",
+        "zh": "北侧左边S号房屋"
+      }
     },
     "5": {
       "aetheryte": "ラベンダーベッド東",
-      "directions": "西のＭハウス"
+      "directions": "西のＭハウス",
+      "i18n": {
+        "en": "M house to the west",
+        "ko": "서쪽 M형 주택",
+        "zh": "西侧M号房屋"
+      }
     },
     "6": {
       "aetheryte": "ラベンダーベッド東",
-      "directions": "南に行き左に橋を渡った先のＬハウス"
+      "directions": "南に行き左に橋を渡った先のＬハウス",
+      "i18n": {
+        "en": "Go south; cross the bridge on the left to reach the L house",
+        "ko": "남쪽으로 가서 왼쪽 다리를 건너면 있는 L형 주택",
+        "zh": "往南走过左边的桥即到L号房屋"
+      }
     },
     "7": {
       "aetheryte": "ラベンダーベッド南東",
-      "directions": "北の右のＳハウス"
+      "directions": "北の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the north",
+        "ko": "북쪽 오른쪽 S형 주택",
+        "zh": "北侧右边S号房屋"
+      }
     },
     "8": {
       "aetheryte": "ラベンダーベッド南東",
-      "directions": "北の左のＳハウス"
+      "directions": "北の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the north",
+        "ko": "북쪽 왼쪽 S형 주택",
+        "zh": "北侧左边S号房屋"
+      }
     },
     "9": {
       "aetheryte": "ラベンダーベッド南東",
-      "directions": "東のＳハウス"
+      "directions": "東のＳハウス",
+      "i18n": {
+        "en": "S house to the east",
+        "ko": "동쪽 S형 주택",
+        "zh": "东侧S号房屋"
+      }
     },
     "10": {
       "aetheryte": "ラベンダーベッド南東",
-      "directions": "西のＳハウス"
+      "directions": "西のＳハウス",
+      "i18n": {
+        "en": "S house to the west",
+        "ko": "서쪽 S형 주택",
+        "zh": "西侧S号房屋"
+      }
     },
     "11": {
       "aetheryte": "ラベンダーベッド南東",
-      "directions": "南西突き当りのＭハウス"
+      "directions": "南西突き当りのＭハウス",
+      "i18n": {
+        "en": "M house at the southwest dead end",
+        "ko": "남서쪽 막다른 곳 M형 주택",
+        "zh": "西南尽头M号房屋"
+      }
     },
     "12": {
       "aetheryte": "ラベンダーベッド東",
-      "directions": "南ひとつめのＳハウス"
+      "directions": "南ひとつめのＳハウス",
+      "i18n": {
+        "en": "1st S house to the south",
+        "ko": "남쪽 첫 번째 S형 주택",
+        "zh": "南侧第一栋S号房屋"
+      }
     },
     "13": {
       "aetheryte": "ラベンダーベッド東",
-      "directions": "西に良き左突き当りのＳハウス"
+      "directions": "西に良き左突き当りのＳハウス",
+      "i18n": {
+        "en": "Go west; S house at the dead end on the left",
+        "ko": "서쪽으로 가서 막다른 곳 왼쪽 S형 주택",
+        "zh": "往西走到尽头左边S号房屋"
+      }
     },
     "14": {
       "aetheryte": "ラベンダーベッド東",
-      "directions": "南２つめのＳハウス"
+      "directions": "南２つめのＳハウス",
+      "i18n": {
+        "en": "2nd S house to the south",
+        "ko": "남쪽 두 번째 S형 주택",
+        "zh": "南侧第二栋S号房屋"
+      }
     },
     "15": {
       "aetheryte": "紫水桟橋",
-      "directions": "北へ右の橋を渡って左のＳハウス"
+      "directions": "北へ右の橋を渡って左のＳハウス",
+      "i18n": {
+        "en": "Cross the bridge on the right heading north; S house on the left",
+        "ko": "북쪽으로 오른쪽 다리를 건너 왼쪽 S형 주택",
+        "zh": "往北过右边的桥后左边S号房屋"
+      }
     },
     "16": {
       "aetheryte": "ラベンダーベッド南西",
-      "directions": "西のＭハウス"
+      "directions": "西のＭハウス",
+      "i18n": {
+        "en": "M house to the west",
+        "ko": "서쪽 M형 주택",
+        "zh": "西侧M号房屋"
+      }
     },
     "17": {
       "aetheryte": "ラベンダーベッド南西",
-      "directions": "東のＳハウス"
+      "directions": "東のＳハウス",
+      "i18n": {
+        "en": "S house to the east",
+        "ko": "동쪽 S형 주택",
+        "zh": "东侧S号房屋"
+      }
     },
     "18": {
       "aetheryte": "ラベンダーベッド南西",
-      "directions": "北の右のＳハウス右にぐるっと回って入る"
+      "directions": "北の右のＳハウス右にぐるっと回って入る",
+      "i18n": {
+        "en": "S house on the right to the north; loop around to the right to enter",
+        "ko": "북쪽 오른쪽 S형 주택(오른쪽으로 빙 돌아 들어감)",
+        "zh": "北侧右边S号房屋(绕到右边进入)"
+      }
     },
     "19": {
       "aetheryte": "ラベンダーベッド南西",
-      "directions": "北の左のＳハウス"
+      "directions": "北の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the north",
+        "ko": "북쪽 왼쪽 S형 주택",
+        "zh": "北侧左边S号房屋"
+      }
     },
     "20": {
       "aetheryte": "若草商店街",
-      "directions": "南東のＳハウス"
+      "directions": "南東のＳハウス",
+      "i18n": {
+        "en": "S house to the southeast",
+        "ko": "남동쪽 S형 주택",
+        "zh": "东南S号房屋"
+      }
     },
     "21": {
       "aetheryte": "若草商店街",
-      "directions": "南西のＭハウス"
+      "directions": "南西のＭハウス",
+      "i18n": {
+        "en": "M house to the southwest",
+        "ko": "남서쪽 M형 주택",
+        "zh": "西南M号房屋"
+      }
     },
     "22": {
       "aetheryte": "若草商店街",
-      "directions": "西のＳハウス"
+      "directions": "西のＳハウス",
+      "i18n": {
+        "en": "S house to the west",
+        "ko": "서쪽 S형 주택",
+        "zh": "西侧S号房屋"
+      }
     },
     "23": {
       "aetheryte": "ラベンダーベッド北西",
-      "directions": "南東のＳハウス"
+      "directions": "南東のＳハウス",
+      "i18n": {
+        "en": "S house to the southeast",
+        "ko": "남동쪽 S형 주택",
+        "zh": "东南S号房屋"
+      }
     },
     "24": {
       "aetheryte": "若草商店街",
-      "directions": "北西に階段を上ったＳハウス"
+      "directions": "北西に階段を上ったＳハウス",
+      "i18n": {
+        "en": "S house up the northwest stairs",
+        "ko": "북서쪽 계단을 올라간 S형 주택",
+        "zh": "西北上楼梯的S号房屋"
+      }
     },
     "25": {
       "aetheryte": "若草商店街",
-      "directions": "北西の階段を上って右のＳハウス"
+      "directions": "北西の階段を上って右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after climbing the northwest stairs",
+        "ko": "북서쪽 계단을 올라가 오른쪽 S형 주택",
+        "zh": "西北上楼梯后右边S号房屋"
+      }
     },
     "26": {
       "aetheryte": "樹冠商店街（居住区担当官）",
-      "directions": "西に道なりに下ったＳハウス"
+      "directions": "西に道なりに下ったＳハウス",
+      "i18n": {
+        "en": "S house down the road to the west",
+        "ko": "서쪽으로 길을 따라 내려간 S형 주택",
+        "zh": "沿路往西下坡的S号房屋"
+      }
     },
     "27": {
       "aetheryte": "ラベンダーベッド北西",
-      "directions": "南西のＭハウス"
+      "directions": "南西のＭハウス",
+      "i18n": {
+        "en": "M house to the southwest",
+        "ko": "남서쪽 M형 주택",
+        "zh": "西南M号房屋"
+      }
     },
     "28": {
       "aetheryte": "ラベンダーベッド北西",
-      "directions": "北西のＬハウス"
+      "directions": "北西のＬハウス",
+      "i18n": {
+        "en": "L house to the northwest",
+        "ko": "북서쪽 L형 주택",
+        "zh": "西北L号房屋"
+      }
     },
     "29": {
       "aetheryte": "ラベンダーベッド北西",
-      "directions": "北西突き当りのＳハウス"
+      "directions": "北西突き当りのＳハウス",
+      "i18n": {
+        "en": "S house at the northwest dead end",
+        "ko": "북서쪽 막다른 곳 S형 주택",
+        "zh": "西北尽头S号房屋"
+      }
     },
     "30": {
       "aetheryte": "樹冠商店街（居住区担当官）",
-      "directions": "西に道なりに最初に見えるＭハウス"
+      "directions": "西に道なりに最初に見えるＭハウス",
+      "i18n": {
+        "en": "M house first seen along the road to the west",
+        "ko": "서쪽 길을 따라 처음 보이는 M형 주택",
+        "zh": "沿西侧道路最先看到的M号房屋"
+      }
     },
     "31": {
       "aetheryte": "[拡張街]樹冠商店街（居住区担当官）",
-      "directions": "南に道なり右のＭハウス"
+      "directions": "南に道なり右のＭハウス",
+      "i18n": {
+        "en": "M house on the right; follow the road south",
+        "ko": "길을 따라 남쪽 오른쪽 M형 주택",
+        "zh": "沿路向南右边M号房屋"
+      }
     },
     "32": {
       "aetheryte": "[拡張街]ラベンダーベッド南",
-      "directions": "東の右のＳハウス"
+      "directions": "東の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the east",
+        "ko": "동쪽 오른쪽 S형 주택",
+        "zh": "东侧右边S号房屋"
+      }
     },
     "33": {
       "aetheryte": "[拡張街]樹冠商店街（居住区担当官）",
-      "directions": "南のＬハウス"
+      "directions": "南のＬハウス",
+      "i18n": {
+        "en": "L house to the south",
+        "ko": "남쪽 L형 주택",
+        "zh": "南侧L号房屋"
+      }
     },
     "34": {
       "aetheryte": "[拡張街]ラベンダーベッド南",
-      "directions": "東の左のＳハウス"
+      "directions": "東の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the east",
+        "ko": "동쪽 왼쪽 S형 주택",
+        "zh": "东侧左边S号房屋"
+      }
     },
     "35": {
       "aetheryte": "[拡張街]ラベンダーベッド南",
-      "directions": "北のＭハウス"
+      "directions": "北のＭハウス",
+      "i18n": {
+        "en": "M house to the north",
+        "ko": "북쪽 M형 주택",
+        "zh": "北侧M号房屋"
+      }
     },
     "36": {
       "aetheryte": "[拡張街]ラベンダーベッド南",
-      "directions": "西に行き左に橋を渡った先のＬハウス"
+      "directions": "西に行き左に橋を渡った先のＬハウス",
+      "i18n": {
+        "en": "Go west; cross the bridge on the left to reach the L house",
+        "ko": "서쪽으로 가서 왼쪽 다리를 건너면 있는 L형 주택",
+        "zh": "往西走过左边的桥即到L号房屋"
+      }
     },
     "37": {
       "aetheryte": "[拡張街]ラベンダーベッド南西",
-      "directions": "東の右のＳハウス"
+      "directions": "東の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the east",
+        "ko": "동쪽 오른쪽 S형 주택",
+        "zh": "东侧右边S号房屋"
+      }
     },
     "38": {
       "aetheryte": "[拡張街]ラベンダーベッド南西",
-      "directions": "東の左のＳハウス"
+      "directions": "東の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the east",
+        "ko": "동쪽 왼쪽 S형 주택",
+        "zh": "东侧左边S号房屋"
+      }
     },
     "39": {
       "aetheryte": "[拡張街]ラベンダーベッド南西",
-      "directions": "南のＳハウス"
+      "directions": "南のＳハウス",
+      "i18n": {
+        "en": "S house to the south",
+        "ko": "남쪽 S형 주택",
+        "zh": "南侧S号房屋"
+      }
     },
     "40": {
       "aetheryte": "[拡張街]ラベンダーベッド南西",
-      "directions": "北のＳハウス"
+      "directions": "北のＳハウス",
+      "i18n": {
+        "en": "S house to the north",
+        "ko": "북쪽 S형 주택",
+        "zh": "北侧S号房屋"
+      }
     },
     "41": {
       "aetheryte": "[拡張街]ラベンダーベッド南西",
-      "directions": "北西突き当りのＭハウス"
+      "directions": "北西突き当りのＭハウス",
+      "i18n": {
+        "en": "M house at the northwest dead end",
+        "ko": "북서쪽 막다른 곳 M형 주택",
+        "zh": "西北尽头M号房屋"
+      }
     },
     "42": {
       "aetheryte": "[拡張街]ラベンダーベッド南",
-      "directions": "西ひとつめのＳハウス"
+      "directions": "西ひとつめのＳハウス",
+      "i18n": {
+        "en": "1st S house to the west",
+        "ko": "서쪽 첫 번째 S형 주택",
+        "zh": "西侧第一栋S号房屋"
+      }
     },
     "43": {
       "aetheryte": "[拡張街]ラベンダーベッド南",
-      "directions": "北に良き左突き当りのＳハウス"
+      "directions": "北に良き左突き当りのＳハウス",
+      "i18n": {
+        "en": "Go north; S house at the dead end on the left",
+        "ko": "북쪽으로 가서 막다른 곳 왼쪽 S형 주택",
+        "zh": "往北走到尽头左边S号房屋"
+      }
     },
     "44": {
       "aetheryte": "[拡張街]ラベンダーベッド南",
-      "directions": "西２つめのＳハウス"
+      "directions": "西２つめのＳハウス",
+      "i18n": {
+        "en": "2nd S house to the west",
+        "ko": "서쪽 두 번째 S형 주택",
+        "zh": "西侧第二栋S号房屋"
+      }
     },
     "45": {
       "aetheryte": "[拡張街]紫水桟橋",
-      "directions": "東へ右の橋を渡って左のＳハウス"
+      "directions": "東へ右の橋を渡って左のＳハウス",
+      "i18n": {
+        "en": "Cross the bridge on the right heading east; S house on the left",
+        "ko": "동쪽으로 오른쪽 다리를 건너 왼쪽 S형 주택",
+        "zh": "往东过右边的桥后左边S号房屋"
+      }
     },
     "46": {
       "aetheryte": "[拡張街]ラベンダーベッド北西",
-      "directions": "北のＭハウス"
+      "directions": "北のＭハウス",
+      "i18n": {
+        "en": "M house to the north",
+        "ko": "북쪽 M형 주택",
+        "zh": "北侧M号房屋"
+      }
     },
     "47": {
       "aetheryte": "[拡張街]ラベンダーベッド北西",
-      "directions": "南のＳハウス"
+      "directions": "南のＳハウス",
+      "i18n": {
+        "en": "S house to the south",
+        "ko": "남쪽 S형 주택",
+        "zh": "南侧S号房屋"
+      }
     },
     "48": {
       "aetheryte": "[拡張街]ラベンダーベッド北西",
-      "directions": "東の右のＳハウス右にぐるっと回って入る"
+      "directions": "東の右のＳハウス右にぐるっと回って入る",
+      "i18n": {
+        "en": "S house on the right to the east; loop around to the right to enter",
+        "ko": "동쪽 오른쪽 S형 주택(오른쪽으로 빙 돌아 들어감)",
+        "zh": "东侧右边S号房屋(绕到右边进入)"
+      }
     },
     "49": {
       "aetheryte": "[拡張街]ラベンダーベッド北西",
-      "directions": "東の左のＳハウス"
+      "directions": "東の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the east",
+        "ko": "동쪽 왼쪽 S형 주택",
+        "zh": "东侧左边S号房屋"
+      }
     },
     "50": {
       "aetheryte": "[拡張街]若草商店街",
-      "directions": "北西のＳハウス"
+      "directions": "北西のＳハウス",
+      "i18n": {
+        "en": "S house to the northwest",
+        "ko": "북서쪽 S형 주택",
+        "zh": "西北S号房屋"
+      }
     },
     "51": {
       "aetheryte": "[拡張街]若草商店街",
-      "directions": "北西のＭハウス"
+      "directions": "北西のＭハウス",
+      "i18n": {
+        "en": "M house to the northwest",
+        "ko": "북서쪽 M형 주택",
+        "zh": "西北M号房屋"
+      }
     },
     "52": {
       "aetheryte": "[拡張街]若草商店街",
-      "directions": "北のＳハウス"
+      "directions": "北のＳハウス",
+      "i18n": {
+        "en": "S house to the north",
+        "ko": "북쪽 S형 주택",
+        "zh": "北侧S号房屋"
+      }
     },
     "53": {
       "aetheryte": "[拡張街]ラベンダーベッド北東",
-      "directions": "南西のＳハウス"
+      "directions": "南西のＳハウス",
+      "i18n": {
+        "en": "S house to the southwest",
+        "ko": "남서쪽 S형 주택",
+        "zh": "西南S号房屋"
+      }
     },
     "54": {
       "aetheryte": "[拡張街]若草商店街",
-      "directions": "北東に階段を上ったＳハウス"
+      "directions": "北東に階段を上ったＳハウス",
+      "i18n": {
+        "en": "S house up the northeast stairs",
+        "ko": "북동쪽 계단을 올라간 S형 주택",
+        "zh": "东北上楼梯的S号房屋"
+      }
     },
     "55": {
       "aetheryte": "[拡張街]若草商店街",
-      "directions": "北東の階段を上って右のＳハウス"
+      "directions": "北東の階段を上って右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after climbing the northeast stairs",
+        "ko": "북동쪽 계단을 올라가 오른쪽 S형 주택",
+        "zh": "东北上楼梯后右边S号房屋"
+      }
     },
     "56": {
       "aetheryte": "[拡張街]樹冠商店街（居住区担当官）",
-      "directions": "北に道なりに下ったＳハウス"
+      "directions": "北に道なりに下ったＳハウス",
+      "i18n": {
+        "en": "S house down the road to the north",
+        "ko": "북쪽으로 길을 따라 내려간 S형 주택",
+        "zh": "沿路往北下坡的S号房屋"
+      }
     },
     "57": {
       "aetheryte": "[拡張街]ラベンダーベッド北東",
-      "directions": "北西のＭハウス"
+      "directions": "北西のＭハウス",
+      "i18n": {
+        "en": "M house to the northwest",
+        "ko": "북서쪽 M형 주택",
+        "zh": "西北M号房屋"
+      }
     },
     "58": {
       "aetheryte": "[拡張街]ラベンダーベッド北東",
-      "directions": "北東のＬハウス"
+      "directions": "北東のＬハウス",
+      "i18n": {
+        "en": "L house to the northeast",
+        "ko": "북동쪽 L형 주택",
+        "zh": "东北L号房屋"
+      }
     },
     "59": {
       "aetheryte": "[拡張街]ラベンダーベッド北東",
-      "directions": "北東突き当りのＳハウス"
+      "directions": "北東突き当りのＳハウス",
+      "i18n": {
+        "en": "S house at the northeast dead end",
+        "ko": "북동쪽 막다른 곳 S형 주택",
+        "zh": "东北尽头S号房屋"
+      }
     },
     "60": {
       "aetheryte": "[拡張街]樹冠商店街（居住区担当官）",
-      "directions": "北に道なりに最初に見えるＭハウス"
+      "directions": "北に道なりに最初に見えるＭハウス",
+      "i18n": {
+        "en": "M house first seen along the road to the north",
+        "ko": "북쪽 길을 따라 처음 보이는 M형 주택",
+        "zh": "沿北侧道路最先看到的M号房屋"
+      }
     }
   },
   "Goblet": {
     "1": {
       "aetheryte": "ゴブレット市場（居住区担当官）",
-      "directions": "西に階段を上ってすぐのＳハウス"
+      "directions": "西に階段を上ってすぐのＳハウス",
+      "i18n": {
+        "en": "S house right after going up the west stairs",
+        "ko": "서쪽 계단을 올라가면 바로 S형 주택",
+        "zh": "上西侧楼梯就到的S号房屋"
+      }
     },
     "2": {
       "aetheryte": "ゴブレットビュート西",
-      "directions": "北東呼び鈴の方に進んで最後のＳハウス"
+      "directions": "北東呼び鈴の方に進んで最後のＳハウス",
+      "i18n": {
+        "en": "Last S house heading toward the northeast doorbell",
+        "ko": "북동쪽 초인종 방향으로 가서 마지막 S형 주택",
+        "zh": "朝东北门铃方向走到底的S号房屋"
+      }
     },
     "3": {
       "aetheryte": "ゴブレットビュート西",
-      "directions": "北東呼び鈴の方に進んで最初のＳハウス"
+      "directions": "北東呼び鈴の方に進んで最初のＳハウス",
+      "i18n": {
+        "en": "First S house heading toward the northeast doorbell",
+        "ko": "북동쪽 초인종 방향으로 가서 첫 번째 S형 주택",
+        "zh": "朝东北门铃方向走最先到的S号房屋"
+      }
     },
     "4": {
       "aetheryte": "ゴブレット市場（居住区担当官）",
-      "directions": "西に階段を上って2軒目にあるＭハウス"
+      "directions": "西に階段を上って2軒目にあるＭハウス",
+      "i18n": {
+        "en": "2nd M house up the west stairs",
+        "ko": "서쪽 계단을 올라가 두 번째 집 M형 주택",
+        "zh": "上西侧楼梯后的第二栋M号房屋"
+      }
     },
     "5": {
       "aetheryte": "ゴブレットビュート西",
-      "directions": "北のＬハウス"
+      "directions": "北のＬハウス",
+      "i18n": {
+        "en": "L house to the north",
+        "ko": "북쪽 L형 주택",
+        "zh": "北侧L号房屋"
+      }
     },
     "6": {
       "aetheryte": "ゴブレットビュート西",
-      "directions": "北東呼び鈴の方に進んで飛び降りられそうなとこでジャンプするMハウス"
+      "directions": "北東呼び鈴の方に進んで飛び降りられそうなとこでジャンプするMハウス",
+      "i18n": {
+        "en": "M house you jump down to; head toward the northeast doorbell to a spot you can drop from",
+        "ko": "북동쪽 초인종 방향으로 가다 뛰어내릴 수 있을 것 같은 곳에서 점프하는 M형 주택",
+        "zh": "朝东北门铃方向走到能跳下去的地方跳下的M号房屋"
+      }
     },
     "7": {
       "aetheryte": "ゴブレットビュート西",
-      "directions": "東のＳハウス"
+      "directions": "東のＳハウス",
+      "i18n": {
+        "en": "S house to the east",
+        "ko": "동쪽 S형 주택",
+        "zh": "东侧S号房屋"
+      }
     },
     "8": {
       "aetheryte": "ゴブレットビュート西",
-      "directions": "南のＭハウス"
+      "directions": "南のＭハウス",
+      "i18n": {
+        "en": "M house to the south",
+        "ko": "남쪽 M형 주택",
+        "zh": "南侧M号房屋"
+      }
     },
     "9": {
       "aetheryte": "ゴブレットビュート西",
-      "directions": "西のＳハウス"
+      "directions": "西のＳハウス",
+      "i18n": {
+        "en": "S house to the west",
+        "ko": "서쪽 S형 주택",
+        "zh": "西侧S号房屋"
+      }
     },
     "10": {
       "aetheryte": "ナナモ大風車",
-      "directions": "北西の突き当りのＳハウス（突き当たってないけど）"
+      "directions": "北西の突き当りのＳハウス（突き当たってないけど）",
+      "i18n": {
+        "en": "S house at the northwest dead end (not really a dead end though)",
+        "ko": "북서쪽 막다른 곳 S형 주택(사실 막혀있지 않지만)",
+        "zh": "西北尽头的S号房屋(其实没到底)"
+      }
     },
     "11": {
       "aetheryte": "ナナモ大風車",
-      "directions": "北西の左のＭハウス"
+      "directions": "北西の左のＭハウス",
+      "i18n": {
+        "en": "M house on the left to the northwest",
+        "ko": "북서쪽 왼쪽 M형 주택",
+        "zh": "西北左边M号房屋"
+      }
     },
     "12": {
       "aetheryte": "ナナモ大風車",
-      "directions": "北西の右のＭハウス"
+      "directions": "北西の右のＭハウス",
+      "i18n": {
+        "en": "M house on the right to the northwest",
+        "ko": "북서쪽 오른쪽 M형 주택",
+        "zh": "西北右边M号房屋"
+      }
     },
     "13": {
       "aetheryte": "ナナモ大風車",
-      "directions": "北東の右のＬハウス"
+      "directions": "北東の右のＬハウス",
+      "i18n": {
+        "en": "L house on the right to the northeast",
+        "ko": "북동쪽 오른쪽 L형 주택",
+        "zh": "东北右边L号房屋"
+      }
     },
     "14": {
       "aetheryte": "ブリミングハート広場",
-      "directions": "北の階段をぐるっと左に行ったＳハウス"
+      "directions": "北の階段をぐるっと左に行ったＳハウス",
+      "i18n": {
+        "en": "S house reached by looping left up the north stairs",
+        "ko": "북쪽 계단을 왼쪽으로 빙 돌아간 S형 주택",
+        "zh": "沿北侧楼梯绕左边走到的S号房屋"
+      }
     },
     "15": {
       "aetheryte": "ブリミングハート広場",
-      "directions": "北の階段を２つ登ったＳハウス"
+      "directions": "北の階段を２つ登ったＳハウス",
+      "i18n": {
+        "en": "S house up two flights of the north stairs",
+        "ko": "북쪽 계단을 두 번 올라간 S형 주택",
+        "zh": "上北侧楼梯两段的S号房屋"
+      }
     },
     "16": {
       "aetheryte": "ブリミングハート広場",
-      "directions": "南東の道を渡って左へ行き階段を２つ登った左のＳハウス"
+      "directions": "南東の道を渡って左へ行き階段を２つ登った左のＳハウス",
+      "i18n": {
+        "en": "S house on the left after crossing the southeast road; go left and climb two flights of stairs",
+        "ko": "남동쪽 길을 건너 왼쪽으로 가서 계단을 두 번 올라간 왼쪽 S형 주택",
+        "zh": "过东南侧道路后向左走上两段楼梯的左边S号房屋"
+      }
     },
     "17": {
       "aetheryte": "ブリミングハート広場",
-      "directions": "南東の道を渡って左へ行き階段を登った右のＳハウス"
+      "directions": "南東の道を渡って左へ行き階段を登った右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after crossing the southeast road; go left and climb the stairs",
+        "ko": "남동쪽 길을 건너 왼쪽으로 가서 계단을 올라간 오른쪽 S형 주택",
+        "zh": "过东南侧道路后向左走上楼梯的右边S号房屋"
+      }
     },
     "18": {
       "aetheryte": "ブリミングハート広場",
-      "directions": "南東の道を渡って左前に見えるＳハウス"
+      "directions": "南東の道を渡って左前に見えるＳハウス",
+      "i18n": {
+        "en": "S house seen ahead-left after crossing the southeast road",
+        "ko": "남동쪽 길을 건너 왼쪽 앞에 보이는 S형 주택",
+        "zh": "过东南侧道路后左前方可见的S号房屋"
+      }
     },
     "19": {
       "aetheryte": "ブリミングハート広場",
-      "directions": "南東の道を渡って右前に見えるＭハウス"
+      "directions": "南東の道を渡って右前に見えるＭハウス",
+      "i18n": {
+        "en": "M house seen ahead-right after crossing the southeast road",
+        "ko": "남동쪽 길을 건너 오른쪽 앞에 보이는 M형 주택",
+        "zh": "过东南侧道路后右前方可见的M号房屋"
+      }
     },
     "20": {
       "aetheryte": "ブリミングハート広場",
-      "directions": "南のＳハウス"
+      "directions": "南のＳハウス",
+      "i18n": {
+        "en": "S house to the south",
+        "ko": "남쪽 S형 주택",
+        "zh": "南侧S号房屋"
+      }
     },
     "21": {
       "aetheryte": "ゴブレットビュート北東",
-      "directions": "西の坂道を登った先のＳハウス（階段じゃない）"
+      "directions": "西の坂道を登った先のＳハウス（階段じゃない）",
+      "i18n": {
+        "en": "S house up the west slope (not stairs)",
+        "ko": "서쪽 비탈길을 올라간 곳의 S형 주택(계단이 아님)",
+        "zh": "上西侧坡道尽头的S号房屋(不是楼梯)"
+      }
     },
     "22": {
       "aetheryte": "ゴブレットビュート東",
-      "directions": "南の階段を上り右に見える大きい階段を上ったあと左に曲がって階段を上ったＳハウス"
+      "directions": "南の階段を上り右に見える大きい階段を上ったあと左に曲がって階段を上ったＳハウス",
+      "i18n": {
+        "en": "S house reached by going up the south stairs; up the large stairs on the right then turn left and up more stairs",
+        "ko": "남쪽 계단을 올라가 오른쪽에 보이는 큰 계단을 올라간 뒤 왼쪽으로 꺾어 계단을 올라간 S형 주택",
+        "zh": "上南侧楼梯后走上右边可见的大楼梯再左转上楼梯的S号房屋"
+      }
     },
     "23": {
       "aetheryte": "ゴブレットビュート北東",
-      "directions": "南西の細い階段を上った先のＳハウス"
+      "directions": "南西の細い階段を上った先のＳハウス",
+      "i18n": {
+        "en": "S house up the narrow southwest stairs",
+        "ko": "남서쪽 좁은 계단을 올라간 곳의 S형 주택",
+        "zh": "上西南窄楼梯尽头的S号房屋"
+      }
     },
     "24": {
       "aetheryte": "ゴブレットビュート東",
-      "directions": "すぐそこのＳハウス"
+      "directions": "すぐそこのＳハウス",
+      "i18n": {
+        "en": "S house right there",
+        "ko": "바로 저기 S형 주택",
+        "zh": "就在那边的S号房屋"
+      }
     },
     "25": {
       "aetheryte": "ゴブレットビュート東",
-      "directions": "階段を上ってちょっと下ったＭハウス"
+      "directions": "階段を上ってちょっと下ったＭハウス",
+      "i18n": {
+        "en": "M house up the stairs then a bit back down",
+        "ko": "계단을 올라갔다가 조금 내려간 M형 주택",
+        "zh": "上楼梯后又稍微下来的M号房屋"
+      }
     },
     "26": {
       "aetheryte": "ゴブレットビュート南東",
-      "directions": "北に階段を上って左にＵターンしたＳハウス"
+      "directions": "北に階段を上って左にＵターンしたＳハウス",
+      "i18n": {
+        "en": "S house reached by going up the north stairs and U-turning left",
+        "ko": "북쪽 계단을 올라가 왼쪽으로 U턴한 S형 주택",
+        "zh": "上北侧楼梯后向左U形转弯的S号房屋"
+      }
     },
     "27": {
       "aetheryte": "ゴブレットビュート南東",
-      "directions": "南西のＳハウス"
+      "directions": "南西のＳハウス",
+      "i18n": {
+        "en": "S house to the southwest",
+        "ko": "남서쪽 S형 주택",
+        "zh": "西南S号房屋"
+      }
     },
     "28": {
       "aetheryte": "ゴブレットビュート南東",
-      "directions": "西に進んだＳハウス"
+      "directions": "西に進んだＳハウス",
+      "i18n": {
+        "en": "S house heading west",
+        "ko": "서쪽으로 간 S형 주택",
+        "zh": "往西走的S号房屋"
+      }
     },
     "29": {
       "aetheryte": "ゴブレットビュート南東",
-      "directions": "階段を下った先のＳハウス"
+      "directions": "階段を下った先のＳハウス",
+      "i18n": {
+        "en": "S house down the stairs",
+        "ko": "계단을 내려간 곳의 S형 주택",
+        "zh": "下楼梯尽头的S号房屋"
+      }
     },
     "30": {
       "aetheryte": "ゴブレットビュート南東",
-      "directions": "階段を下った先のＬハウス"
+      "directions": "階段を下った先のＬハウス",
+      "i18n": {
+        "en": "L house down the stairs",
+        "ko": "계단을 내려간 곳의 L형 주택",
+        "zh": "下楼梯尽头的L号房屋"
+      }
     },
     "31": {
       "aetheryte": "[拡張街]ゴブレット市場（居住区担当官）",
-      "directions": "北に階段を上ってすぐのＳハウス"
+      "directions": "北に階段を上ってすぐのＳハウス",
+      "i18n": {
+        "en": "S house right after going up the north stairs",
+        "ko": "북쪽 계단을 올라가면 바로 S형 주택",
+        "zh": "上北侧楼梯就到的S号房屋"
+      }
     },
     "32": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": "南東呼び鈴の方に進んで最後のＳハウス"
+      "directions": "南東呼び鈴の方に進んで最後のＳハウス",
+      "i18n": {
+        "en": "Last S house heading toward the southeast doorbell",
+        "ko": "남동쪽 초인종 방향으로 가서 마지막 S형 주택",
+        "zh": "朝东南门铃方向走到底的S号房屋"
+      }
     },
     "33": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": "南東呼び鈴の方に進んで最初のＳハウス"
+      "directions": "南東呼び鈴の方に進んで最初のＳハウス",
+      "i18n": {
+        "en": "First S house heading toward the southeast doorbell",
+        "ko": "남동쪽 초인종 방향으로 가서 첫 번째 S형 주택",
+        "zh": "朝东南门铃方向走最先到的S号房屋"
+      }
     },
     "34": {
       "aetheryte": "[拡張街]ゴブレット市場（居住区担当官）",
-      "directions": "北に階段を上って2軒目にあるＭハウス"
+      "directions": "北に階段を上って2軒目にあるＭハウス",
+      "i18n": {
+        "en": "2nd M house up the north stairs",
+        "ko": "북쪽 계단을 올라가 두 번째 집 M형 주택",
+        "zh": "上北侧楼梯后的第二栋M号房屋"
+      }
     },
     "35": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": "東のＬハウス"
+      "directions": "東のＬハウス",
+      "i18n": {
+        "en": "L house to the east",
+        "ko": "동쪽 L형 주택",
+        "zh": "东侧L号房屋"
+      }
     },
     "36": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": "南東呼び鈴の方に進んで飛び降りられそうなとこでジャンプするMハウス"
+      "directions": "南東呼び鈴の方に進んで飛び降りられそうなとこでジャンプするMハウス",
+      "i18n": {
+        "en": "M house you jump down to; head toward the southeast doorbell to a spot you can drop from",
+        "ko": "남동쪽 초인종 방향으로 가다 뛰어내릴 수 있을 것 같은 곳에서 점프하는 M형 주택",
+        "zh": "朝东南门铃方向走到能跳下去的地方跳下的M号房屋"
+      }
     },
     "37": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": "南のＳハウス"
+      "directions": "南のＳハウス",
+      "i18n": {
+        "en": "S house to the south",
+        "ko": "남쪽 S형 주택",
+        "zh": "南侧S号房屋"
+      }
     },
     "38": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": "西のＭハウス"
+      "directions": "西のＭハウス",
+      "i18n": {
+        "en": "M house to the west",
+        "ko": "서쪽 M형 주택",
+        "zh": "西侧M号房屋"
+      }
     },
     "39": {
       "aetheryte": "[拡張街]ゴブレットビュート北",
-      "directions": "北のＳハウス"
+      "directions": "北のＳハウス",
+      "i18n": {
+        "en": "S house to the north",
+        "ko": "북쪽 S형 주택",
+        "zh": "北侧S号房屋"
+      }
     },
     "40": {
       "aetheryte": "[拡張街]ナナモ大風車",
-      "directions": "北東の突き当りのＳハウス（突き当たってないけど）"
+      "directions": "北東の突き当りのＳハウス（突き当たってないけど）",
+      "i18n": {
+        "en": "S house at the northeast dead end (not really a dead end though)",
+        "ko": "북동쪽 막다른 곳 S형 주택(사실 막혀있지 않지만)",
+        "zh": "东北尽头的S号房屋(其实没到底)"
+      }
     },
     "41": {
       "aetheryte": "[拡張街]ナナモ大風車",
-      "directions": "北東の左のＭハウス"
+      "directions": "北東の左のＭハウス",
+      "i18n": {
+        "en": "M house on the left to the northeast",
+        "ko": "북동쪽 왼쪽 M형 주택",
+        "zh": "东北左边M号房屋"
+      }
     },
     "42": {
       "aetheryte": "[拡張街]ナナモ大風車",
-      "directions": "北東の右のＭハウス"
+      "directions": "北東の右のＭハウス",
+      "i18n": {
+        "en": "M house on the right to the northeast",
+        "ko": "북동쪽 오른쪽 M형 주택",
+        "zh": "东北右边M号房屋"
+      }
     },
     "43": {
       "aetheryte": "[拡張街]ナナモ大風車",
-      "directions": "南東の右のＬハウス"
+      "directions": "南東の右のＬハウス",
+      "i18n": {
+        "en": "L house on the right to the southeast",
+        "ko": "남동쪽 오른쪽 L형 주택",
+        "zh": "东南右边L号房屋"
+      }
     },
     "44": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": "東の階段をぐるっと左に行ったＳハウス"
+      "directions": "東の階段をぐるっと左に行ったＳハウス",
+      "i18n": {
+        "en": "S house reached by looping left up the east stairs",
+        "ko": "동쪽 계단을 왼쪽으로 빙 돌아간 S형 주택",
+        "zh": "沿东侧楼梯绕左边走到的S号房屋"
+      }
     },
     "45": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": "東の階段を２つ登ったＳハウス"
+      "directions": "東の階段を２つ登ったＳハウス",
+      "i18n": {
+        "en": "S house up two flights of the east stairs",
+        "ko": "동쪽 계단을 두 번 올라간 S형 주택",
+        "zh": "上东侧楼梯两段的S号房屋"
+      }
     },
     "46": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": "南西の道を渡って左へ行き階段を２つ登った左のＳハウス"
+      "directions": "南西の道を渡って左へ行き階段を２つ登った左のＳハウス",
+      "i18n": {
+        "en": "S house on the left after crossing the southwest road; go left and climb two flights of stairs",
+        "ko": "남서쪽 길을 건너 왼쪽으로 가서 계단을 두 번 올라간 왼쪽 S형 주택",
+        "zh": "过西南侧道路后向左走上两段楼梯的左边S号房屋"
+      }
     },
     "47": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": "南西の道を渡って左へ行き階段を登った右のＳハウス"
+      "directions": "南西の道を渡って左へ行き階段を登った右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after crossing the southwest road; go left and climb the stairs",
+        "ko": "남서쪽 길을 건너 왼쪽으로 가서 계단을 올라간 오른쪽 S형 주택",
+        "zh": "过西南侧道路后向左走上楼梯的右边S号房屋"
+      }
     },
     "48": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": "南西の道を渡って左前に見えるＳハウス"
+      "directions": "南西の道を渡って左前に見えるＳハウス",
+      "i18n": {
+        "en": "S house seen ahead-left after crossing the southwest road",
+        "ko": "남서쪽 길을 건너 왼쪽 앞에 보이는 S형 주택",
+        "zh": "过西南侧道路后左前方可见的S号房屋"
+      }
     },
     "49": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": "南西の道を渡って右前に見えるＭハウス"
+      "directions": "南西の道を渡って右前に見えるＭハウス",
+      "i18n": {
+        "en": "M house seen ahead-right after crossing the southwest road",
+        "ko": "남서쪽 길을 건너 오른쪽 앞에 보이는 M형 주택",
+        "zh": "过西南侧道路后右前方可见的M号房屋"
+      }
     },
     "50": {
       "aetheryte": "[拡張街]ブリミングハート広場",
-      "directions": "西のＳハウス"
+      "directions": "西のＳハウス",
+      "i18n": {
+        "en": "S house to the west",
+        "ko": "서쪽 S형 주택",
+        "zh": "西侧S号房屋"
+      }
     },
     "51": {
       "aetheryte": "[拡張街]ゴブレットビュート南東",
-      "directions": "北の坂道を登った先のＳハウス（階段じゃない）"
+      "directions": "北の坂道を登った先のＳハウス（階段じゃない）",
+      "i18n": {
+        "en": "S house up the north slope (not stairs)",
+        "ko": "북쪽 비탈길을 올라간 곳의 S형 주택(계단이 아님)",
+        "zh": "上北侧坡道尽头的S号房屋(不是楼梯)"
+      }
     },
     "52": {
       "aetheryte": "[拡張街]ゴブレットビュート南",
-      "directions": "西の階段を上り右に見える大きい階段を上ったあと左に曲がって階段を上ったＳハウス"
+      "directions": "西の階段を上り右に見える大きい階段を上ったあと左に曲がって階段を上ったＳハウス",
+      "i18n": {
+        "en": "S house reached by going up the west stairs; up the large stairs on the right then turn left and up more stairs",
+        "ko": "서쪽 계단을 올라가 오른쪽에 보이는 큰 계단을 올라간 뒤 왼쪽으로 꺾어 계단을 올라간 S형 주택",
+        "zh": "上西侧楼梯后走上右边可见的大楼梯再左转上楼梯的S号房屋"
+      }
     },
     "53": {
       "aetheryte": "[拡張街]ゴブレットビュート南東",
-      "directions": "北西の細い階段を上った先のＳハウス"
+      "directions": "北西の細い階段を上った先のＳハウス",
+      "i18n": {
+        "en": "S house up the narrow northwest stairs",
+        "ko": "북서쪽 좁은 계단을 올라간 곳의 S형 주택",
+        "zh": "上西北窄楼梯尽头的S号房屋"
+      }
     },
     "54": {
       "aetheryte": "[拡張街]ゴブレットビュート南",
-      "directions": "すぐそこのＳハウス"
+      "directions": "すぐそこのＳハウス",
+      "i18n": {
+        "en": "S house right there",
+        "ko": "바로 저기 S형 주택",
+        "zh": "就在那边的S号房屋"
+      }
     },
     "55": {
       "aetheryte": "[拡張街]ゴブレットビュート南",
-      "directions": "階段を上ってちょっと下ったＭハウス"
+      "directions": "階段を上ってちょっと下ったＭハウス",
+      "i18n": {
+        "en": "M house up the stairs then a bit back down",
+        "ko": "계단을 올라갔다가 조금 내려간 M형 주택",
+        "zh": "上楼梯后又稍微下来的M号房屋"
+      }
     },
     "56": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": "東に階段を上って左にＵターンしたＳハウス"
+      "directions": "東に階段を上って左にＵターンしたＳハウス",
+      "i18n": {
+        "en": "S house reached by going up the east stairs and U-turning left",
+        "ko": "동쪽 계단을 올라가 왼쪽으로 U턴한 S형 주택",
+        "zh": "上东侧楼梯后向左U形转弯的S号房屋"
+      }
     },
     "57": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": "北西のＳハウス"
+      "directions": "北西のＳハウス",
+      "i18n": {
+        "en": "S house to the northwest",
+        "ko": "북서쪽 S형 주택",
+        "zh": "西北S号房屋"
+      }
     },
     "58": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": "北に進んだＳハウス"
+      "directions": "北に進んだＳハウス",
+      "i18n": {
+        "en": "S house heading north",
+        "ko": "북쪽으로 간 S형 주택",
+        "zh": "往北走的S号房屋"
+      }
     },
     "59": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": "階段を下った先のＳハウス"
+      "directions": "階段を下った先のＳハウス",
+      "i18n": {
+        "en": "S house down the stairs",
+        "ko": "계단을 내려간 곳의 S형 주택",
+        "zh": "下楼梯尽头的S号房屋"
+      }
     },
     "60": {
       "aetheryte": "[拡張街]ゴブレットビュート南西",
-      "directions": "階段を下った先のＬハウス"
+      "directions": "階段を下った先のＬハウス",
+      "i18n": {
+        "en": "L house down the stairs",
+        "ko": "계단을 내려간 곳의 L형 주택",
+        "zh": "下楼梯尽头的L号房屋"
+      }
     }
   },
   "Shirogane": {
     "1": {
       "aetheryte": "シロガネ南",
-      "directions": "南に行って右のＭハウス"
+      "directions": "南に行って右のＭハウス",
+      "i18n": {
+        "en": "Go south; M house on the right",
+        "ko": "남쪽으로 가서 오른쪽 M형 주택",
+        "zh": "往南走右边M号房屋"
+      }
     },
     "2": {
       "aetheryte": "シロガネ南",
-      "directions": "北西の階段上ってすぐのＳハウス"
+      "directions": "北西の階段上ってすぐのＳハウス",
+      "i18n": {
+        "en": "S house right after going up the northwest stairs",
+        "ko": "북서쪽 계단을 올라가면 바로 S형 주택",
+        "zh": "上西北楼梯就到的S号房屋"
+      }
     },
     "3": {
       "aetheryte": "シロガネ南",
-      "directions": "南東に行ってから階段を下ったＳハウス"
+      "directions": "南東に行ってから階段を下ったＳハウス",
+      "i18n": {
+        "en": "S house reached by going southeast then down the stairs",
+        "ko": "남동쪽으로 간 뒤 계단을 내려간 S형 주택",
+        "zh": "往东南走后下楼梯的S号房屋"
+      }
     },
     "4": {
       "aetheryte": "シロガネ南",
-      "directions": "北のＳハウス（左右どっちから行ってもいい）"
+      "directions": "北のＳハウス（左右どっちから行ってもいい）",
+      "i18n": {
+        "en": "S house to the north (can be reached from either side)",
+        "ko": "북쪽 S형 주택(왼쪽이든 오른쪽이든 상관없음)",
+        "zh": "北侧S号房屋(从左右两边都能到)"
+      }
     },
     "5": {
       "aetheryte": "シロガネ南",
-      "directions": "北東の階段を上ったＳハウス"
+      "directions": "北東の階段を上ったＳハウス",
+      "i18n": {
+        "en": "S house up the northeast stairs",
+        "ko": "북동쪽 계단을 올라간 S형 주택",
+        "zh": "上东北楼梯的S号房屋"
+      }
     },
     "6": {
       "aetheryte": "シロガネ南東",
-      "directions": "西の右のＳハウス"
+      "directions": "西の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the west",
+        "ko": "서쪽 오른쪽 S형 주택",
+        "zh": "西侧右边S号房屋"
+      }
     },
     "7": {
       "aetheryte": "シロガネ南東",
-      "directions": "西の左のＬハウス"
+      "directions": "西の左のＬハウス",
+      "i18n": {
+        "en": "L house on the left to the west",
+        "ko": "서쪽 왼쪽 L형 주택",
+        "zh": "西侧左边L号房屋"
+      }
     },
     "8": {
       "aetheryte": "シロガネ南東",
-      "directions": "東のＭハウス"
+      "directions": "東のＭハウス",
+      "i18n": {
+        "en": "M house to the east",
+        "ko": "동쪽 M형 주택",
+        "zh": "东侧M号房屋"
+      }
     },
     "9": {
       "aetheryte": "シロガネ南東",
-      "directions": "東へ行って左に階段を上ったＳハウス"
+      "directions": "東へ行って左に階段を上ったＳハウス",
+      "i18n": {
+        "en": "S house reached by going east then up the stairs on the left",
+        "ko": "동쪽으로 가서 왼쪽 계단을 올라간 S형 주택",
+        "zh": "往东走后左边上楼梯的S号房屋"
+      }
     },
     "10": {
       "aetheryte": "シロガネ北東",
-      "directions": "南東に階段を下ったＳハウス"
+      "directions": "南東に階段を下ったＳハウス",
+      "i18n": {
+        "en": "S house down the southeast stairs",
+        "ko": "남동쪽 계단을 내려간 S형 주택",
+        "zh": "东南下楼梯的S号房屋"
+      }
     },
     "11": {
       "aetheryte": "シロガネ北東",
-      "directions": "西の階段を下って左のＳハウス"
+      "directions": "西の階段を下って左のＳハウス",
+      "i18n": {
+        "en": "S house on the left after going down the west stairs",
+        "ko": "서쪽 계단을 내려가 왼쪽 S형 주택",
+        "zh": "下西侧楼梯后左边S号房屋"
+      }
     },
     "12": {
       "aetheryte": "シロガネ北東",
-      "directions": "西の階段を下って右のＳハウス"
+      "directions": "西の階段を下って右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after going down the west stairs",
+        "ko": "서쪽 계단을 내려가 오른쪽 S형 주택",
+        "zh": "下西侧楼梯后右边S号房屋"
+      }
     },
     "13": {
       "aetheryte": "シロガネ北東",
-      "directions": "北西２軒目のＭハウス"
+      "directions": "北西２軒目のＭハウス",
+      "i18n": {
+        "en": "2nd M house to the northwest",
+        "ko": "북서쪽 두 번째 집 M형 주택",
+        "zh": "西北第二栋M号房屋"
+      }
     },
     "14": {
       "aetheryte": "シロガネ北東",
-      "directions": "北のＳハウス"
+      "directions": "北のＳハウス",
+      "i18n": {
+        "en": "S house to the north",
+        "ko": "북쪽 S형 주택",
+        "zh": "北侧S号房屋"
+      }
     },
     "15": {
       "aetheryte": "シロガネ北東",
-      "directions": "北東の階段を上ったＭハウス"
+      "directions": "北東の階段を上ったＭハウス",
+      "i18n": {
+        "en": "M house up the northeast stairs",
+        "ko": "북동쪽 계단을 올라간 M형 주택",
+        "zh": "上东北楼梯的M号房屋"
+      }
     },
     "16": {
       "aetheryte": "シロガネ北東",
-      "directions": "北東の階段を上った先のＬハウス"
+      "directions": "北東の階段を上った先のＬハウス",
+      "i18n": {
+        "en": "L house past the top of the northeast stairs",
+        "ko": "북동쪽 계단을 올라간 곳의 L형 주택",
+        "zh": "上东北楼梯尽头的L号房屋"
+      }
     },
     "17": {
       "aetheryte": "茜雲桟橋（居住区担当官）",
-      "directions": "北西最初のＳハウス（右）"
+      "directions": "北西最初のＳハウス（右）",
+      "i18n": {
+        "en": "First S house to the northwest (right)",
+        "ko": "북서쪽 첫 번째 S형 주택(오른쪽)",
+        "zh": "西北第一栋S号房屋(右)"
+      }
     },
     "18": {
       "aetheryte": "シロガネ南西",
-      "directions": "南東２つ目のＳハウス"
+      "directions": "南東２つ目のＳハウス",
+      "i18n": {
+        "en": "2nd S house to the southeast",
+        "ko": "남동쪽 두 번째 S형 주택",
+        "zh": "东南第二栋S号房屋"
+      }
     },
     "19": {
       "aetheryte": "茜雲桟橋（居住区担当官）",
-      "directions": "北西最初のＭハウス（左）"
+      "directions": "北西最初のＭハウス（左）",
+      "i18n": {
+        "en": "First M house to the northwest (left)",
+        "ko": "북서쪽 첫 번째 M형 주택(왼쪽)",
+        "zh": "西北第一栋M号房屋(左)"
+      }
     },
     "20": {
       "aetheryte": "シロガネ南西",
-      "directions": "南東１つ目のＳハウス"
+      "directions": "南東１つ目のＳハウス",
+      "i18n": {
+        "en": "1st S house to the southeast",
+        "ko": "남동쪽 첫 번째 S형 주택",
+        "zh": "东南第一栋S号房屋"
+      }
     },
     "21": {
       "aetheryte": "シロガネ南西",
-      "directions": "西の左のＳハウス"
+      "directions": "西の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the west",
+        "ko": "서쪽 왼쪽 S형 주택",
+        "zh": "西侧左边S号房屋"
+      }
     },
     "22": {
       "aetheryte": "シロガネ南西",
-      "directions": "西の右のＳハウス"
+      "directions": "西の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the west",
+        "ko": "서쪽 오른쪽 S형 주택",
+        "zh": "西侧右边S号房屋"
+      }
     },
     "23": {
       "aetheryte": "シロガネ西",
-      "directions": "西の赤い橋の前のＳハウス"
+      "directions": "西の赤い橋の前のＳハウス",
+      "i18n": {
+        "en": "S house in front of the red bridge to the west",
+        "ko": "서쪽 붉은 다리 앞 S형 주택",
+        "zh": "西侧红桥前S号房屋"
+      }
     },
     "24": {
       "aetheryte": "シロガネ西",
-      "directions": "西のＭハウス"
+      "directions": "西のＭハウス",
+      "i18n": {
+        "en": "M house to the west",
+        "ko": "서쪽 M형 주택",
+        "zh": "西侧M号房屋"
+      }
     },
     "25": {
       "aetheryte": "シロガネ西",
-      "directions": "東に階段を少し下ったＳハウス"
+      "directions": "東に階段を少し下ったＳハウス",
+      "i18n": {
+        "en": "S house a little down the east stairs",
+        "ko": "동쪽 계단을 조금 내려간 S형 주택",
+        "zh": "下东侧楼梯一点的S号房屋"
+      }
     },
     "26": {
       "aetheryte": "シロガネ西",
-      "directions": "北のＳハウス"
+      "directions": "北のＳハウス",
+      "i18n": {
+        "en": "S house to the north",
+        "ko": "북쪽 S형 주택",
+        "zh": "北侧S号房屋"
+      }
     },
     "27": {
       "aetheryte": "シロガネ西",
-      "directions": "北東のＳハウス"
+      "directions": "北東のＳハウス",
+      "i18n": {
+        "en": "S house to the northeast",
+        "ko": "북동쪽 S형 주택",
+        "zh": "东北S号房屋"
+      }
     },
     "28": {
       "aetheryte": "シロガネ北西",
-      "directions": "東のＭハウス"
+      "directions": "東のＭハウス",
+      "i18n": {
+        "en": "M house to the east",
+        "ko": "동쪽 M형 주택",
+        "zh": "东侧M号房屋"
+      }
     },
     "29": {
       "aetheryte": "シロガネ北西",
-      "directions": "南のＳハウス"
+      "directions": "南のＳハウス",
+      "i18n": {
+        "en": "S house to the south",
+        "ko": "남쪽 S형 주택",
+        "zh": "南侧S号房屋"
+      }
     },
     "30": {
       "aetheryte": "シロガネ北西",
-      "directions": "西のＬハウス"
+      "directions": "西のＬハウス",
+      "i18n": {
+        "en": "L house to the west",
+        "ko": "서쪽 L형 주택",
+        "zh": "西侧L号房屋"
+      }
     },
     "31": {
       "aetheryte": "[拡張街]シロガネ西",
-      "directions": "西に行って右のＭハウス"
+      "directions": "西に行って右のＭハウス",
+      "i18n": {
+        "en": "Go west; M house on the right",
+        "ko": "서쪽으로 가서 오른쪽 M형 주택",
+        "zh": "往西走右边M号房屋"
+      }
     },
     "32": {
       "aetheryte": "[拡張街]シロガネ西",
-      "directions": "北東の階段上ってすぐのＳハウス"
+      "directions": "北東の階段上ってすぐのＳハウス",
+      "i18n": {
+        "en": "S house right after going up the northeast stairs",
+        "ko": "북동쪽 계단을 올라가면 바로 S형 주택",
+        "zh": "上东北楼梯就到的S号房屋"
+      }
     },
     "33": {
       "aetheryte": "[拡張街]シロガネ西",
-      "directions": "南西に行ってから階段を下ったＳハウス"
+      "directions": "南西に行ってから階段を下ったＳハウス",
+      "i18n": {
+        "en": "S house reached by going southwest then down the stairs",
+        "ko": "남서쪽으로 간 뒤 계단을 내려간 S형 주택",
+        "zh": "往西南走后下楼梯的S号房屋"
+      }
     },
     "34": {
       "aetheryte": "[拡張街]シロガネ西",
-      "directions": "東のＳハウス（左右どっちから行ってもいい）"
+      "directions": "東のＳハウス（左右どっちから行ってもいい）",
+      "i18n": {
+        "en": "S house to the east (can be reached from either side)",
+        "ko": "동쪽 S형 주택(왼쪽이든 오른쪽이든 상관없음)",
+        "zh": "东侧S号房屋(从左右两边都能到)"
+      }
     },
     "35": {
       "aetheryte": "[拡張街]シロガネ西",
-      "directions": "南東の階段を上ったＳハウス"
+      "directions": "南東の階段を上ったＳハウス",
+      "i18n": {
+        "en": "S house up the southeast stairs",
+        "ko": "남동쪽 계단을 올라간 S형 주택",
+        "zh": "上东南楼梯的S号房屋"
+      }
     },
     "36": {
       "aetheryte": "[拡張街]シロガネ南西",
-      "directions": "北の右のＳハウス"
+      "directions": "北の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the north",
+        "ko": "북쪽 오른쪽 S형 주택",
+        "zh": "北侧右边S号房屋"
+      }
     },
     "37": {
       "aetheryte": "[拡張街]シロガネ南西",
-      "directions": "北の左のＬハウス"
+      "directions": "北の左のＬハウス",
+      "i18n": {
+        "en": "L house on the left to the north",
+        "ko": "북쪽 왼쪽 L형 주택",
+        "zh": "北侧左边L号房屋"
+      }
     },
     "38": {
       "aetheryte": "[拡張街]シロガネ南西",
-      "directions": "南のＭハウス"
+      "directions": "南のＭハウス",
+      "i18n": {
+        "en": "M house to the south",
+        "ko": "남쪽 M형 주택",
+        "zh": "南侧M号房屋"
+      }
     },
     "39": {
       "aetheryte": "[拡張街]シロガネ南西",
-      "directions": "南へ行って左に階段を上ったＳハウス"
+      "directions": "南へ行って左に階段を上ったＳハウス",
+      "i18n": {
+        "en": "S house reached by going south then up the stairs on the left",
+        "ko": "남쪽으로 가서 왼쪽 계단을 올라간 S형 주택",
+        "zh": "往南走后左边上楼梯的S号房屋"
+      }
     },
     "40": {
       "aetheryte": "[拡張街]シロガネ南",
-      "directions": "南西に階段を下ったＳハウス"
+      "directions": "南西に階段を下ったＳハウス",
+      "i18n": {
+        "en": "S house down the southwest stairs",
+        "ko": "남서쪽 계단을 내려간 S형 주택",
+        "zh": "西南下楼梯的S号房屋"
+      }
     },
     "41": {
       "aetheryte": "[拡張街]シロガネ南",
-      "directions": "北の階段を下って左のＳハウス"
+      "directions": "北の階段を下って左のＳハウス",
+      "i18n": {
+        "en": "S house on the left after going down the north stairs",
+        "ko": "북쪽 계단을 내려가 왼쪽 S형 주택",
+        "zh": "下北侧楼梯后左边S号房屋"
+      }
     },
     "42": {
       "aetheryte": "[拡張街]シロガネ南",
-      "directions": "北の階段を下って右のＳハウス"
+      "directions": "北の階段を下って右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after going down the north stairs",
+        "ko": "북쪽 계단을 내려가 오른쪽 S형 주택",
+        "zh": "下北侧楼梯后右边S号房屋"
+      }
     },
     "43": {
       "aetheryte": "[拡張街]シロガネ南",
-      "directions": "北東２軒目のＭハウス"
+      "directions": "北東２軒目のＭハウス",
+      "i18n": {
+        "en": "2nd M house to the northeast",
+        "ko": "북동쪽 두 번째 집 M형 주택",
+        "zh": "东北第二栋M号房屋"
+      }
     },
     "44": {
       "aetheryte": "[拡張街]シロガネ南",
-      "directions": "東のＳハウス"
+      "directions": "東のＳハウス",
+      "i18n": {
+        "en": "S house to the east",
+        "ko": "동쪽 S형 주택",
+        "zh": "东侧S号房屋"
+      }
     },
     "45": {
       "aetheryte": "[拡張街]シロガネ南",
-      "directions": "南の階段を上ったＭハウス"
+      "directions": "南の階段を上ったＭハウス",
+      "i18n": {
+        "en": "M house up the south stairs",
+        "ko": "남쪽 계단을 올라간 M형 주택",
+        "zh": "上南侧楼梯的M号房屋"
+      }
     },
     "46": {
       "aetheryte": "[拡張街]シロガネ南",
-      "directions": "南の階段を上った先のＬハウス"
+      "directions": "南の階段を上った先のＬハウス",
+      "i18n": {
+        "en": "L house past the top of the south stairs",
+        "ko": "남쪽 계단을 올라간 곳의 L형 주택",
+        "zh": "上南侧楼梯尽头的L号房屋"
+      }
     },
     "47": {
       "aetheryte": "[拡張街]茜雲桟橋（居住区担当官）",
-      "directions": "北東最初のＳハウス（右）"
+      "directions": "北東最初のＳハウス（右）",
+      "i18n": {
+        "en": "First S house to the northeast (right)",
+        "ko": "북동쪽 첫 번째 S형 주택(오른쪽)",
+        "zh": "东北第一栋S号房屋(右)"
+      }
     },
     "48": {
       "aetheryte": "[拡張街]シロガネ北",
-      "directions": "南西２つ目のＳハウス"
+      "directions": "南西２つ目のＳハウス",
+      "i18n": {
+        "en": "2nd S house to the southwest",
+        "ko": "남서쪽 두 번째 S형 주택",
+        "zh": "西南第二栋S号房屋"
+      }
     },
     "49": {
       "aetheryte": "[拡張街]茜雲桟橋（居住区担当官）",
-      "directions": "北東最初のＭハウス（左）"
+      "directions": "北東最初のＭハウス（左）",
+      "i18n": {
+        "en": "First M house to the northeast (left)",
+        "ko": "북동쪽 첫 번째 M형 주택(왼쪽)",
+        "zh": "东北第一栋M号房屋(左)"
+      }
     },
     "50": {
       "aetheryte": "[拡張街]シロガネ北",
-      "directions": "南西１つ目のＳハウス"
+      "directions": "南西１つ目のＳハウス",
+      "i18n": {
+        "en": "1st S house to the southwest",
+        "ko": "남서쪽 첫 번째 S형 주택",
+        "zh": "西南第一栋S号房屋"
+      }
     },
     "51": {
       "aetheryte": "[拡張街]シロガネ北",
-      "directions": "北の左のＳハウス"
+      "directions": "北の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the north",
+        "ko": "북쪽 왼쪽 S형 주택",
+        "zh": "北侧左边S号房屋"
+      }
     },
     "52": {
       "aetheryte": "[拡張街]シロガネ北",
-      "directions": "北の右のＳハウス"
+      "directions": "北の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the north",
+        "ko": "북쪽 오른쪽 S형 주택",
+        "zh": "北侧右边S号房屋"
+      }
     },
     "53": {
       "aetheryte": "[拡張街]シロガネ北東",
-      "directions": "北の赤い橋の前のＳハウス"
+      "directions": "北の赤い橋の前のＳハウス",
+      "i18n": {
+        "en": "S house in front of the red bridge to the north",
+        "ko": "북쪽 붉은 다리 앞 S형 주택",
+        "zh": "北侧红桥前S号房屋"
+      }
     },
     "54": {
       "aetheryte": "[拡張街]シロガネ北東",
-      "directions": "北のＭハウス"
+      "directions": "北のＭハウス",
+      "i18n": {
+        "en": "M house to the north",
+        "ko": "북쪽 M형 주택",
+        "zh": "北侧M号房屋"
+      }
     },
     "55": {
       "aetheryte": "[拡張街]シロガネ北東",
-      "directions": "西に階段を少し下ったＳハウス"
+      "directions": "西に階段を少し下ったＳハウス",
+      "i18n": {
+        "en": "S house a little down the west stairs",
+        "ko": "서쪽 계단을 조금 내려간 S형 주택",
+        "zh": "下西侧楼梯一点的S号房屋"
+      }
     },
     "56": {
       "aetheryte": "[拡張街]シロガネ北東",
-      "directions": "東のＳハウス"
+      "directions": "東のＳハウス",
+      "i18n": {
+        "en": "S house to the east",
+        "ko": "동쪽 S형 주택",
+        "zh": "东侧S号房屋"
+      }
     },
     "57": {
       "aetheryte": "[拡張街]シロガネ北東",
-      "directions": "南東のＳハウス"
+      "directions": "南東のＳハウス",
+      "i18n": {
+        "en": "S house to the southeast",
+        "ko": "남동쪽 S형 주택",
+        "zh": "东南S号房屋"
+      }
     },
     "58": {
       "aetheryte": "[拡張街]シロガネ東",
-      "directions": "南のＭハウス"
+      "directions": "南のＭハウス",
+      "i18n": {
+        "en": "M house to the south",
+        "ko": "남쪽 M형 주택",
+        "zh": "南侧M号房屋"
+      }
     },
     "59": {
       "aetheryte": "[拡張街]シロガネ東",
-      "directions": "西のＳハウス"
+      "directions": "西のＳハウス",
+      "i18n": {
+        "en": "S house to the west",
+        "ko": "서쪽 S형 주택",
+        "zh": "西侧S号房屋"
+      }
     },
     "60": {
       "aetheryte": "[拡張街]シロガネ東",
-      "directions": "北のＬハウス"
+      "directions": "北のＬハウス",
+      "i18n": {
+        "en": "L house to the north",
+        "ko": "북쪽 L형 주택",
+        "zh": "北侧L号房屋"
+      }
     }
   },
   "Empyreum": {
     "1": {
       "aetheryte": "ハイモーン広場",
-      "directions": "東のＳハウス"
+      "directions": "東のＳハウス",
+      "i18n": {
+        "en": "S house to the east",
+        "ko": "동쪽 S형 주택",
+        "zh": "东侧S号房屋"
+      }
     },
     "2": {
       "aetheryte": "エンピレアム南東",
-      "directions": "南のＭハウス（左右どっちから行ってもいい）"
+      "directions": "南のＭハウス（左右どっちから行ってもいい）",
+      "i18n": {
+        "en": "M house to the south (can be reached from either side)",
+        "ko": "남쪽 M형 주택(왼쪽이든 오른쪽이든 상관없음)",
+        "zh": "南侧M号房屋(从左右两边都能到)"
+      }
     },
     "3": {
       "aetheryte": "ハイモーン広場",
-      "directions": "北東の階段踊り場からジャンプ"
+      "directions": "北東の階段踊り場からジャンプ",
+      "i18n": {
+        "en": "Jump from the northeast stairs landing",
+        "ko": "북동쪽 계단참에서 점프",
+        "zh": "从东北楼梯平台跳下"
+      }
     },
     "4": {
       "aetheryte": "エンピレアム南東",
-      "directions": "北の階段をくねくねのぼった真ん中のＳハウス"
+      "directions": "北の階段をくねくねのぼった真ん中のＳハウス",
+      "i18n": {
+        "en": "S house in the middle up the winding north stairs",
+        "ko": "북쪽 구불구불한 계단을 올라간 가운데 S형 주택",
+        "zh": "上北侧蜿蜒楼梯中段的S号房屋"
+      }
     },
     "5": {
       "aetheryte": "エンピレアム南東",
-      "directions": "北東の右のＳハウス"
+      "directions": "北東の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the northeast",
+        "ko": "북동쪽 오른쪽 S형 주택",
+        "zh": "东北右边S号房屋"
+      }
     },
     "6": {
       "aetheryte": "エンピレアム南東",
-      "directions": "北東の左のＳハウス"
+      "directions": "北東の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the northeast",
+        "ko": "북동쪽 왼쪽 S형 주택",
+        "zh": "东北左边S号房屋"
+      }
     },
     "7": {
       "aetheryte": "エンピレアム東",
-      "directions": "大階段を上って左のＭハウス"
+      "directions": "大階段を上って左のＭハウス",
+      "i18n": {
+        "en": "M house on the left after climbing the large stairs",
+        "ko": "큰 계단을 올라가 왼쪽 M형 주택",
+        "zh": "上大楼梯后左边M号房屋"
+      }
     },
     "8": {
       "aetheryte": "斧槍通り（居住区担当官）",
-      "directions": "南のＭハウス"
+      "directions": "南のＭハウス",
+      "i18n": {
+        "en": "M house to the south",
+        "ko": "남쪽 M형 주택",
+        "zh": "南侧M号房屋"
+      }
     },
     "9": {
       "aetheryte": "斧槍通り（居住区担当官）",
-      "directions": "南の２軒目のＳハウス"
+      "directions": "南の２軒目のＳハウス",
+      "i18n": {
+        "en": "2nd S house to the south",
+        "ko": "남쪽 두 번째 집 S형 주택",
+        "zh": "南侧第二栋S号房屋"
+      }
     },
     "10": {
       "aetheryte": "斧槍通り（居住区担当官）",
-      "directions": "南の１軒目のＳハウス"
+      "directions": "南の１軒目のＳハウス",
+      "i18n": {
+        "en": "1st S house to the south",
+        "ko": "남쪽 첫 번째 집 S형 주택",
+        "zh": "南侧第一栋S号房屋"
+      }
     },
     "11": {
       "aetheryte": "エンピレアム南西",
-      "directions": "南西突き当りの階段を下った先のＳハウス"
+      "directions": "南西突き当りの階段を下った先のＳハウス",
+      "i18n": {
+        "en": "S house reached by going down the stairs at the southwest dead end",
+        "ko": "남서쪽 막다른 곳 계단을 내려간 곳의 S형 주택",
+        "zh": "下西南尽头楼梯后的S号房屋"
+      }
     },
     "12": {
       "aetheryte": "エンピレアム南西",
-      "directions": "西のＬハウス"
+      "directions": "西のＬハウス",
+      "i18n": {
+        "en": "L house to the west",
+        "ko": "서쪽 L형 주택",
+        "zh": "西侧L号房屋"
+      }
     },
     "13": {
       "aetheryte": "エンピレアム南西",
-      "directions": "北のＳハウス"
+      "directions": "北のＳハウス",
+      "i18n": {
+        "en": "S house to the north",
+        "ko": "북쪽 S형 주택",
+        "zh": "北侧S号房屋"
+      }
     },
     "14": {
       "aetheryte": "斧槍通り（居住区担当官）",
-      "directions": "北東のＳハウス"
+      "directions": "北東のＳハウス",
+      "i18n": {
+        "en": "S house to the northeast",
+        "ko": "북동쪽 S형 주택",
+        "zh": "东北S号房屋"
+      }
     },
     "15": {
       "aetheryte": "斧槍通り（居住区担当官）",
-      "directions": "北東２軒目のＳハウス"
+      "directions": "北東２軒目のＳハウス",
+      "i18n": {
+        "en": "2nd S house to the northeast",
+        "ko": "북동쪽 두 번째 집 S형 주택",
+        "zh": "东北第二栋S号房屋"
+      }
     },
     "16": {
       "aetheryte": "エンピレアム北西",
-      "directions": "東の階段を下ってまっすぐのＳハウス"
+      "directions": "東の階段を下ってまっすぐのＳハウス",
+      "i18n": {
+        "en": "S house straight ahead after going down the east stairs",
+        "ko": "동쪽 계단을 내려가 곧장 간 S형 주택",
+        "zh": "下东侧楼梯后直走的S号房屋"
+      }
     },
     "17": {
       "aetheryte": "エンピレアム北西",
-      "directions": "南東に道なりに行ったＭハウス"
+      "directions": "南東に道なりに行ったＭハウス",
+      "i18n": {
+        "en": "M house reached by following the road southeast",
+        "ko": "남동쪽으로 길을 따라간 M형 주택",
+        "zh": "沿路往东南走到的M号房屋"
+      }
     },
     "18": {
       "aetheryte": "エンピレアム北西",
-      "directions": "南東をＵターンする登り階段の先のＭハウス"
+      "directions": "南東をＵターンする登り階段の先のＭハウス",
+      "i18n": {
+        "en": "M house past the stairs that U-turn up to the southeast",
+        "ko": "남동쪽으로 U턴하며 올라가는 계단 끝의 M형 주택",
+        "zh": "上U形转弯楼梯后的东南M号房屋"
+      }
     },
     "19": {
       "aetheryte": "エンピレアム北西",
-      "directions": "北東２軒目のＳハウス"
+      "directions": "北東２軒目のＳハウス",
+      "i18n": {
+        "en": "2nd S house to the northeast",
+        "ko": "북동쪽 두 번째 집 S형 주택",
+        "zh": "东北第二栋S号房屋"
+      }
     },
     "20": {
       "aetheryte": "エンピレアム北西",
-      "directions": "北東１軒目のＳハウス"
+      "directions": "北東１軒目のＳハウス",
+      "i18n": {
+        "en": "1st S house to the northeast",
+        "ko": "북동쪽 첫 번째 집 S형 주택",
+        "zh": "东北第一栋S号房屋"
+      }
     },
     "21": {
       "aetheryte": "エンピレアム北西",
-      "directions": "北の階段を上って右のＭハウス"
+      "directions": "北の階段を上って右のＭハウス",
+      "i18n": {
+        "en": "M house on the right after going up the north stairs",
+        "ko": "북쪽 계단을 올라가 오른쪽 M형 주택",
+        "zh": "上北侧楼梯后右边M号房屋"
+      }
     },
     "22": {
       "aetheryte": "エンピレアム北西",
-      "directions": "北の階段の頂上のＬハウス"
+      "directions": "北の階段の頂上のＬハウス",
+      "i18n": {
+        "en": "L house at the top of the north stairs",
+        "ko": "북쪽 계단 꼭대기의 L형 주택",
+        "zh": "北侧楼梯顶端L号房屋"
+      }
     },
     "23": {
       "aetheryte": "エンピレアム中央",
-      "directions": "北東のＳハウス"
+      "directions": "北東のＳハウス",
+      "i18n": {
+        "en": "S house to the northeast",
+        "ko": "북동쪽 S형 주택",
+        "zh": "东北S号房屋"
+      }
     },
     "24": {
       "aetheryte": "エンピレアム北東",
-      "directions": "南東のＳハウス"
+      "directions": "南東のＳハウス",
+      "i18n": {
+        "en": "S house to the southeast",
+        "ko": "남동쪽 S형 주택",
+        "zh": "东南S号房屋"
+      }
     },
     "25": {
       "aetheryte": "エンピレアム北東",
-      "directions": "南西のＳハウス"
+      "directions": "南西のＳハウス",
+      "i18n": {
+        "en": "S house to the southwest",
+        "ko": "남서쪽 S형 주택",
+        "zh": "西南S号房屋"
+      }
     },
     "26": {
       "aetheryte": "エンピレアム東",
-      "directions": "北のＭハウス"
+      "directions": "北のＭハウス",
+      "i18n": {
+        "en": "M house to the north",
+        "ko": "북쪽 M형 주택",
+        "zh": "北侧M号房屋"
+      }
     },
     "27": {
       "aetheryte": "エンピレアム北東",
-      "directions": "階段を下ったＳハウス"
+      "directions": "階段を下ったＳハウス",
+      "i18n": {
+        "en": "S house down the stairs",
+        "ko": "계단을 내려간 S형 주택",
+        "zh": "下楼梯的S号房屋"
+      }
     },
     "28": {
       "aetheryte": "エンピレアム北東",
-      "directions": "西の階段を上った左のＳハウス"
+      "directions": "西の階段を上った左のＳハウス",
+      "i18n": {
+        "en": "S house on the left after going up the west stairs",
+        "ko": "서쪽 계단을 올라가 왼쪽 S형 주택",
+        "zh": "上西侧楼梯后左边S号房屋"
+      }
     },
     "29": {
       "aetheryte": "エンピレアム北東",
-      "directions": "西の階段を上った右のＳハウス"
+      "directions": "西の階段を上った右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after going up the west stairs",
+        "ko": "서쪽 계단을 올라가 오른쪽 S형 주택",
+        "zh": "上西侧楼梯后右边S号房屋"
+      }
     },
     "30": {
       "aetheryte": "エンピレアム北東",
-      "directions": "西の階段を上ったＬハウス"
+      "directions": "西の階段を上ったＬハウス",
+      "i18n": {
+        "en": "L house up the west stairs",
+        "ko": "서쪽 계단을 올라간 L형 주택",
+        "zh": "上西侧楼梯的L号房屋"
+      }
     },
     "31": {
       "aetheryte": "[拡張街]ハイモーン広場",
-      "directions": "南のＳハウス"
+      "directions": "南のＳハウス",
+      "i18n": {
+        "en": "S house to the south",
+        "ko": "남쪽 S형 주택",
+        "zh": "南侧S号房屋"
+      }
     },
     "32": {
       "aetheryte": "[拡張街]エンピレアム南西",
-      "directions": "西のＭハウス（左右どっちから行ってもいい）"
+      "directions": "西のＭハウス（左右どっちから行ってもいい）",
+      "i18n": {
+        "en": "M house to the west (can be reached from either side)",
+        "ko": "서쪽 M형 주택(왼쪽이든 오른쪽이든 상관없음)",
+        "zh": "西侧M号房屋(从左右两边都能到)"
+      }
     },
     "33": {
       "aetheryte": "[拡張街]ハイモーン広場",
-      "directions": "南東の階段踊り場からジャンプ"
+      "directions": "南東の階段踊り場からジャンプ",
+      "i18n": {
+        "en": "Jump from the southeast stairs landing",
+        "ko": "남동쪽 계단참에서 점프",
+        "zh": "从东南楼梯平台跳下"
+      }
     },
     "34": {
       "aetheryte": "[拡張街]エンピレアム南西",
-      "directions": "東の階段をくねくねのぼった真ん中のＳハウス"
+      "directions": "東の階段をくねくねのぼった真ん中のＳハウス",
+      "i18n": {
+        "en": "S house in the middle up the winding east stairs",
+        "ko": "동쪽 구불구불한 계단을 올라간 가운데 S형 주택",
+        "zh": "上东侧蜿蜒楼梯中段的S号房屋"
+      }
     },
     "35": {
       "aetheryte": "[拡張街]エンピレアム南西",
-      "directions": "南東の右のＳハウス"
+      "directions": "南東の右のＳハウス",
+      "i18n": {
+        "en": "S house on the right to the southeast",
+        "ko": "남동쪽 오른쪽 S형 주택",
+        "zh": "东南右边S号房屋"
+      }
     },
     "36": {
       "aetheryte": "[拡張街]エンピレアム南西",
-      "directions": "南東の左のＳハウス"
+      "directions": "南東の左のＳハウス",
+      "i18n": {
+        "en": "S house on the left to the southeast",
+        "ko": "남동쪽 왼쪽 S형 주택",
+        "zh": "东南左边S号房屋"
+      }
     },
     "37": {
       "aetheryte": "[拡張街]エンピレアム南",
-      "directions": "大階段を上って左のＭハウス"
+      "directions": "大階段を上って左のＭハウス",
+      "i18n": {
+        "en": "M house on the left after climbing the large stairs",
+        "ko": "큰 계단을 올라가 왼쪽 M형 주택",
+        "zh": "上大楼梯后左边M号房屋"
+      }
     },
     "38": {
       "aetheryte": "[拡張街]斧槍通り（居住区担当官）",
-      "directions": "西のＭハウス"
+      "directions": "西のＭハウス",
+      "i18n": {
+        "en": "M house to the west",
+        "ko": "서쪽 M형 주택",
+        "zh": "西侧M号房屋"
+      }
     },
     "39": {
       "aetheryte": "[拡張街]斧槍通り（居住区担当官）",
-      "directions": "西の２軒目のＳハウス"
+      "directions": "西の２軒目のＳハウス",
+      "i18n": {
+        "en": "2nd S house to the west",
+        "ko": "서쪽 두 번째 집 S형 주택",
+        "zh": "西侧第二栋S号房屋"
+      }
     },
     "40": {
       "aetheryte": "[拡張街]斧槍通り（居住区担当官）",
-      "directions": "西の１軒目のＳハウス"
+      "directions": "西の１軒目のＳハウス",
+      "i18n": {
+        "en": "1st S house to the west",
+        "ko": "서쪽 첫 번째 집 S형 주택",
+        "zh": "西侧第一栋S号房屋"
+      }
     },
     "41": {
       "aetheryte": "[拡張街]エンピレアム北西",
-      "directions": "北西突き当りの階段を下った先のＳハウス"
+      "directions": "北西突き当りの階段を下った先のＳハウス",
+      "i18n": {
+        "en": "S house reached by going down the stairs at the northwest dead end",
+        "ko": "북서쪽 막다른 곳 계단을 내려간 곳의 S형 주택",
+        "zh": "下西北尽头楼梯后的S号房屋"
+      }
     },
     "42": {
       "aetheryte": "[拡張街]エンピレアム北西",
-      "directions": "北のＬハウス"
+      "directions": "北のＬハウス",
+      "i18n": {
+        "en": "L house to the north",
+        "ko": "북쪽 L형 주택",
+        "zh": "北侧L号房屋"
+      }
     },
     "43": {
       "aetheryte": "[拡張街]エンピレアム北西",
-      "directions": "東のＳハウス"
+      "directions": "東のＳハウス",
+      "i18n": {
+        "en": "S house to the east",
+        "ko": "동쪽 S형 주택",
+        "zh": "东侧S号房屋"
+      }
     },
     "44": {
       "aetheryte": "[拡張街]斧槍通り（居住区担当官）",
-      "directions": "南東のＳハウス"
+      "directions": "南東のＳハウス",
+      "i18n": {
+        "en": "S house to the southeast",
+        "ko": "남동쪽 S형 주택",
+        "zh": "东南S号房屋"
+      }
     },
     "45": {
       "aetheryte": "[拡張街]斧槍通り（居住区担当官）",
-      "directions": "南東２軒目のＳハウス"
+      "directions": "南東２軒目のＳハウス",
+      "i18n": {
+        "en": "2nd S house to the southeast",
+        "ko": "남동쪽 두 번째 집 S형 주택",
+        "zh": "东南第二栋S号房屋"
+      }
     },
     "46": {
       "aetheryte": "[拡張街]エンピレアム北東",
-      "directions": "南の階段を下ってまっすぐのＳハウス"
+      "directions": "南の階段を下ってまっすぐのＳハウス",
+      "i18n": {
+        "en": "S house straight ahead after going down the south stairs",
+        "ko": "남쪽 계단을 내려가 곧장 간 S형 주택",
+        "zh": "下南侧楼梯后直走的S号房屋"
+      }
     },
     "47": {
       "aetheryte": "[拡張街]エンピレアム北東",
-      "directions": "南西に道なりに行ったＭハウス"
+      "directions": "南西に道なりに行ったＭハウス",
+      "i18n": {
+        "en": "M house reached by following the road southwest",
+        "ko": "남서쪽으로 길을 따라간 M형 주택",
+        "zh": "沿路往西南走到的M号房屋"
+      }
     },
     "48": {
       "aetheryte": "[拡張街]エンピレアム北東",
-      "directions": "南西をＵターンする登り階段の先のＭハウス"
+      "directions": "南西をＵターンする登り階段の先のＭハウス",
+      "i18n": {
+        "en": "M house past the stairs that U-turn up to the southwest",
+        "ko": "남서쪽으로 U턴하며 올라가는 계단 끝의 M형 주택",
+        "zh": "上U形转弯楼梯后的西南M号房屋"
+      }
     },
     "49": {
       "aetheryte": "[拡張街]エンピレアム北東",
-      "directions": "南東２軒目のＳハウス"
+      "directions": "南東２軒目のＳハウス",
+      "i18n": {
+        "en": "2nd M house to the southeast",
+        "ko": "남동쪽 두 번째 집 M형 주택",
+        "zh": "东南第二栋M号房屋"
+      }
     },
     "50": {
       "aetheryte": "[拡張街]エンピレアム北東",
-      "directions": "南東１軒目のＳハウス"
+      "directions": "南東１軒目のＳハウス",
+      "i18n": {
+        "en": "1st S house to the southeast",
+        "ko": "남동쪽 첫 번째 집 S형 주택",
+        "zh": "东南第一栋S号房屋"
+      }
     },
     "51": {
       "aetheryte": "[拡張街]エンピレアム北東",
-      "directions": "東の階段を上って右のＭハウス"
+      "directions": "東の階段を上って右のＭハウス",
+      "i18n": {
+        "en": "M house on the right after going up the east stairs",
+        "ko": "동쪽 계단을 올라가 오른쪽 M형 주택",
+        "zh": "上东侧楼梯后右边M号房屋"
+      }
     },
     "52": {
       "aetheryte": "[拡張街]エンピレアム北東",
-      "directions": "東の階段の頂上のＬハウス"
+      "directions": "東の階段の頂上のＬハウス",
+      "i18n": {
+        "en": "L house at the top of the east stairs",
+        "ko": "동쪽 계단 꼭대기의 L형 주택",
+        "zh": "东侧楼梯顶端L号房屋"
+      }
     },
     "53": {
       "aetheryte": "[拡張街]エンピレアム中央",
-      "directions": "南東のＳハウス"
+      "directions": "南東のＳハウス",
+      "i18n": {
+        "en": "S house to the southeast",
+        "ko": "남동쪽 S형 주택",
+        "zh": "东南S号房屋"
+      }
     },
     "54": {
       "aetheryte": "[拡張街]エンピレアム南東",
-      "directions": "南西のＳハウス"
+      "directions": "南西のＳハウス",
+      "i18n": {
+        "en": "S house to the southwest",
+        "ko": "남서쪽 S형 주택",
+        "zh": "西南S号房屋"
+      }
     },
     "55": {
       "aetheryte": "[拡張街]エンピレアム南東",
-      "directions": "北西のＳハウス"
+      "directions": "北西のＳハウス",
+      "i18n": {
+        "en": "S house to the northwest",
+        "ko": "북서쪽 S형 주택",
+        "zh": "西北S号房屋"
+      }
     },
     "56": {
       "aetheryte": "[拡張街]エンピレアム南",
-      "directions": "東のＭハウス"
+      "directions": "東のＭハウス",
+      "i18n": {
+        "en": "M house to the east",
+        "ko": "동쪽 M형 주택",
+        "zh": "东侧M号房屋"
+      }
     },
     "57": {
       "aetheryte": "[拡張街]エンピレアム南東",
-      "directions": "階段を下ったＳハウス"
+      "directions": "階段を下ったＳハウス",
+      "i18n": {
+        "en": "S house down the stairs",
+        "ko": "계단을 내려간 S형 주택",
+        "zh": "下楼梯的S号房屋"
+      }
     },
     "58": {
       "aetheryte": "[拡張街]エンピレアム南東",
-      "directions": "北の階段を上った左のＳハウス"
+      "directions": "北の階段を上った左のＳハウス",
+      "i18n": {
+        "en": "S house on the left after going up the north stairs",
+        "ko": "북쪽 계단을 올라가 왼쪽 S형 주택",
+        "zh": "上北侧楼梯后左边S号房屋"
+      }
     },
     "59": {
       "aetheryte": "[拡張街]エンピレアム南東",
-      "directions": "北の階段を上った右のＳハウス"
+      "directions": "北の階段を上った右のＳハウス",
+      "i18n": {
+        "en": "S house on the right after going up the north stairs",
+        "ko": "북쪽 계단을 올라가 오른쪽 S형 주택",
+        "zh": "上北侧楼梯后右边S号房屋"
+      }
     },
     "60": {
       "aetheryte": "[拡張街]エンピレアム南東",
-      "directions": "北の階段を上ったＬハウス"
+      "directions": "北の階段を上ったＬハウス",
+      "i18n": {
+        "en": "L house up the north stairs",
+        "ko": "북쪽 계단을 올라간 L형 주택",
+        "zh": "上北侧楼梯的L号房屋"
+      }
     }
   }
 }

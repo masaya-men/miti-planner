@@ -13,6 +13,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 
 const SRC = 'src/data/housing/directions-src';
+const I18N_SRC = `${SRC}/translations`;
 const OUT = 'src/data/housing/wardDirections.generated.json';
 // ファイル名 → area enum (HOUSING_AREAS)
 const FILES = [
@@ -22,8 +23,28 @@ const FILES = [
   ['shirogane.csv', 'Shirogane'],
   ['empyreum.csv', 'Empyreum'],
 ];
+// Task8: 行き方本文の en/ko/zh 訳。正典は translations/{lang}/{file} (列: 番地,行き方補足)。
+const LANGS = ['en', 'ko', 'zh'];
 
 const unq = (s) => s.replace(/^"|"$/g, '').trim();
+
+/** translations/{lang}/{file} を読み、 plot(1-60) → 行き方本文訳 の Map を返す。 60 行無ければ throw。 */
+function readTranslation(lang, file, area) {
+  const txt = readFileSync(`${I18N_SRC}/${lang}/${file}`, 'utf8');
+  const lines = txt.split(/\r?\n/).filter((l) => l.trim());
+  const byPlot = {};
+  for (let i = 1; i < lines.length; i++) {
+    // header skip
+    const cols = lines[i].split(',');
+    const plot = Number(unq(cols[0] ?? ''));
+    const text = unq(cols[1] ?? '');
+    if (!Number.isInteger(plot) || plot < 1 || plot > 60) continue;
+    byPlot[String(plot)] = text;
+  }
+  const n = Object.keys(byPlot).length;
+  if (n !== 60) throw new Error(`${area} (${lang}): expected 60 plots, got ${n}`);
+  return byPlot;
+}
 
 const out = {};
 for (const [file, area] of FILES) {
@@ -42,6 +63,20 @@ for (const [file, area] of FILES) {
   }
   const n = Object.keys(byPlot).length;
   if (n !== 60) throw new Error(`${area}: expected 60 plots, got ${n}`);
+
+  // 各言語の訳を plot ごとに合流 (i18n フィールド)。
+  const byLang = {};
+  for (const lang of LANGS) {
+    byLang[lang] = readTranslation(lang, file, area);
+  }
+  for (const plot of Object.keys(byPlot)) {
+    byPlot[plot].i18n = {
+      en: byLang.en[plot],
+      ko: byLang.ko[plot],
+      zh: byLang.zh[plot],
+    };
+  }
+
   out[area] = byPlot;
 }
 writeFileSync(OUT, JSON.stringify(out, null, 2) + '\n', 'utf8');

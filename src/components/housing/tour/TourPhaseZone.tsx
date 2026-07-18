@@ -9,6 +9,8 @@ export interface TourPhaseZoneProps {
   phase: 'moving' | 'viewing';
   /** 移動中に出す行き方。無ければ枠のみ。 */
   directions: PlotDirections | null;
+  /** Task8: 行き方本文の locale 別訳。省略時は directions.directions (ja) を使う。 */
+  directionsText?: string | null;
   /** 見学開始の epoch ms（viewing のとき非 null 想定）。 */
   viewStartAt: number | null;
   /** 前の家→この家の移動種別。省略時は跨ぎ無し扱い。 */
@@ -21,7 +23,7 @@ export interface TourPhaseZoneProps {
  * DC/ワールドを跨ぐ地点では、行き方の上に跨ぎ指示行(DCトラベル/ワールド訪問)を出す。
  */
 export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
-  phase, directions, viewStartAt, crossing = { kind: 'none' },
+  phase, directions, directionsText, viewStartAt, crossing = { kind: 'none' },
 }) => {
   const { t, i18n } = useTranslation();
   const locale = pickRegionLocale(i18n.language);
@@ -64,8 +66,8 @@ export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
               aetheryte: termLabel('aetheryte', directions.aetheryte, locale),
             })}
           </p>
-          {directions.directions && (
-            <p className="housing-tour-phasezone-route-walk">{directions.directions}</p>
+          {(directionsText ?? directions.directions) && (
+            <p className="housing-tour-phasezone-route-walk">{directionsText ?? directions.directions}</p>
           )}
         </>
       )}
