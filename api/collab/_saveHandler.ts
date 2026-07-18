@@ -6,9 +6,11 @@ import { authorizeCollab, getDb } from './_handlerShared.js';
 import { decideSave, emptyOverwriteSkips, type MitigationRecord, type PlanDocSnapshotFull } from './_logic.js';
 import { resolveRoom, isCollabDisabled, type CollabRoomDoc } from './_roomLogic.js';
 import { FieldValue, type Transaction } from 'firebase-admin/firestore';
+import { applyRateLimit } from '../../src/lib/rateLimit.js';
 
 export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
+  if (!(await applyRateLimit(req, res, 60, 60_000, { scope: 'collab-save', globalMax: 3000 }))) return;
   if (!authorizeCollab(req.headers['x-collab-secret'])) {
     return res.status(401).json({ error: 'unauthorized' });
   }
