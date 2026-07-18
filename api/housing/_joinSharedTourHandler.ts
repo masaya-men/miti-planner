@@ -7,9 +7,16 @@
  * 「ソフト」上限である旨(spec §3): このAPIを経由せず直接 shared_tours/{token}/live/current を
  * onSnapshot 購読すること自体は技術的に防げない。tourToken(nanoid・推測不能)が実質的な鍵であり、
  * 正規参加者が迂回する動機がないことを前提にした防御レベル。
+ *
+ * App Check 検証は意図的に付けない: 匿名クライアントの buildHousingHeaders(false) は
+ * getActiveAppCheck()(peek・未初期化なら何も返さない)を使うため、真に未ログインの初回訪問者は
+ * App Check トークンを一切持たない。ここで verifyAppCheck を課すと本番の ENFORCE_APP_CHECK=true
+ * 環境で未ログイン参加者が 403 で弾かれる(2026-07-18 本番で実際に発生・確認済み)。
+ * _searchPersonalTagsHandler.ts / api/popular(GET・POST) と同じ「App Check 無し・rate limit のみ」
+ * パターンを踏襲する(60秒ごとの heartbeat で ensureAppCheck() を発火させると匿名閲覧のたびに
+ * reCAPTCHA 課金が発生し、今回のコスト・ハードニングの趣旨と矛盾するため採用しない)。
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
-import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { SHARED_TOUR_MAX_PARTICIPANTS } from '../../src/types/sharedTour.js';
 import { shouldEnforceCap, SHARED_TOUR_PRESENCE_STALE_MS } from './_joinSharedTourLogic.js';
@@ -33,7 +40,6 @@ export default async function handler(req: any, res: any) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  if (!(await verifyAppCheck(req, res))) return;
   // 幹事1人あたりの heartbeat は約60秒に1回。300人×少し余裕を見た値。
   if (!(await applyRateLimit(req, res, 20, 60_000, { scope: 'join-shared-tour', globalMax: 1500 }))) return;
 
