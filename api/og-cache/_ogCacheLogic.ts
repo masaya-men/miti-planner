@@ -1,8 +1,8 @@
 // og-cache の MISS 時、保存された og_image_meta から内部 /api/og URL を組み立てる純ロジック。
-// Firestore I/O は呼び出し側(index.ts)が担う。type別に分岐: 'housinger' は新設カード、
-// 無指定/'page' は既存の共有プランカード(後方互換)。'tour' 分岐は Task 5 で追加する
-// (src/lib/ogpTourInviteCard.ts がまだ存在しないため、このタスク単体では import しない)。
+// Firestore I/O は呼び出し側(index.ts)が担う。type別に分岐: 'housinger'/'tour' は新設カード、
+// 無指定/'page' は既存の共有プランカード(後方互換)。
 import { buildHousingerOgCardUrl } from '../../src/lib/ogpHousingerCard.js';
+import { buildTourInviteOgCardUrl } from '../../src/lib/ogpTourInviteCard.js';
 
 export interface OgImageMeta {
   type?: string;
@@ -29,6 +29,10 @@ export async function buildInternalOgUrl(
       avatarUrl: meta.avatarUrl ?? null,
       imageUrls: meta.imageUrls ?? [],
     }, cronSecret);
+  }
+  if (meta.type === 'tour') {
+    if (!cronSecret) throw new Error('CRON_SECRET not configured');
+    return buildTourInviteOgCardUrl(origin, { name: meta.name ?? '' }, cronSecret);
   }
   let url = `${origin}/api/og?id=${encodeURIComponent(meta.shareId ?? '')}`;
   if (meta.showLogo) {

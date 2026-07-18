@@ -27,4 +27,8 @@ describe('buildInternalOgUrl', () => {
   it('type=housingerでsecret未設定なら例外', async () => {
     await expect(buildInternalOgUrl('https://lopoly.app', { type: 'housinger', name: 'A' }, undefined)).rejects.toThrow();
   });
+  it('type=tourはsecret必須で署名付きURLを組み立てる', async () => {
+    const url = await buildInternalOgUrl('https://lopoly.app', { type: 'tour', name: 'テスト' }, 'test-secret');
+    expect(url).toMatch(/^https:\/\/lopoly\.app\/api\/og\?type=tour&ver=1&name=%E3%83%86%E3%82%B9%E3%83%88&sig=[a-f0-9]{24}$/);
+  });
 });
