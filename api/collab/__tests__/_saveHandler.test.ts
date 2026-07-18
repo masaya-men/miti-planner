@@ -1,14 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-let mockApplyRateLimit = vi.fn(async () => true);
-let mockAuthorizeCollab = vi.fn(() => true);
+const { mockApplyRateLimit, mockAuthorizeCollab } = vi.hoisted(() => ({
+  mockApplyRateLimit: vi.fn(async (..._args: any[]) => true),
+  mockAuthorizeCollab: vi.fn((..._args: any[]) => true),
+}));
 
 vi.mock('../../../src/lib/rateLimit.js', () => ({
-  applyRateLimit: (...args: any[]) => mockApplyRateLimit(...args),
+  applyRateLimit: mockApplyRateLimit,
 }));
 
 vi.mock('../_handlerShared.js', () => ({
-  authorizeCollab: (...args: any[]) => mockAuthorizeCollab(...args),
+  authorizeCollab: mockAuthorizeCollab,
   getDb: () => ({}),
 }));
 
@@ -28,7 +30,7 @@ describe('_saveHandler レート制限', () => {
   });
 
   it('applyRateLimit が false を返したら 429 で即終了し、authorizeCollab を呼ばない', async () => {
-    mockApplyRateLimit.mockImplementationOnce(async (req, res) => {
+    mockApplyRateLimit.mockImplementationOnce(async (_req, res) => {
       res.status(429).json({ error: 'Too many requests. Please try again later.' });
       return false;
     });

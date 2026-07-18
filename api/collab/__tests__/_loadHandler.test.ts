@@ -1,16 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-let mockApplyRateLimit = vi.fn(async () => true);
-let mockAuthorizeCollab = vi.fn(() => true);
-let mockGetDb = vi.fn();
+const { mockApplyRateLimit, mockAuthorizeCollab, mockGetDb } = vi.hoisted(() => ({
+  mockApplyRateLimit: vi.fn(async (..._args: any[]) => true),
+  mockAuthorizeCollab: vi.fn((..._args: any[]) => true),
+  mockGetDb: vi.fn(),
+}));
 
 vi.mock('../../../src/lib/rateLimit.js', () => ({
-  applyRateLimit: (...args: any[]) => mockApplyRateLimit(...args),
+  applyRateLimit: mockApplyRateLimit,
 }));
 
 vi.mock('../_handlerShared.js', () => ({
-  authorizeCollab: (...args: any[]) => mockAuthorizeCollab(...args),
-  getDb: (...args: any[]) => mockGetDb(...args),
+  authorizeCollab: mockAuthorizeCollab,
+  getDb: mockGetDb,
 }));
 
 import handler from '../_loadHandler.js';
@@ -29,7 +31,7 @@ describe('_loadHandler レート制限', () => {
   });
 
   it('applyRateLimit が false を返したら 429 で即終了し、authorizeCollab を呼ばない', async () => {
-    mockApplyRateLimit.mockImplementationOnce(async (req, res) => {
+    mockApplyRateLimit.mockImplementationOnce(async (_req, res) => {
       res.status(429).json({ error: 'Too many requests. Please try again later.' });
       return false;
     });
