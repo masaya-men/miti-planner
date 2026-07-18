@@ -5,6 +5,8 @@ import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useJoinTour } from '../../../lib/sharedTour/useJoinTour';
 import { snapshotToPoolListing } from '../../../lib/sharedTour/snapshotToPool';
 import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
+import { termLabel } from '../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { TourProgressPanel } from '../tour/TourProgressPanel';
 import { TourNavMap } from '../tour/TourNavMap';
@@ -23,7 +25,8 @@ import { TourShowcasePanel } from '../tour/TourShowcasePanel';
  */
 export const JoinTourPage: React.FC = () => {
   const { tourToken = '' } = useParams();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = pickRegionLocale(i18n.language);
   const navigate = useNavigate();
   const { kind, meta, live } = useJoinTour(tourToken);
   // Task5: スマホ横持ちUI。参加者は幹事に追従するだけ(自分では進行できない)なので
@@ -41,9 +44,11 @@ export const JoinTourPage: React.FC = () => {
   // 行き方データ自体は useTourRenderModel の派生値をそのまま使う(新しい行き方ロジックは持たない)。
   const footerDirections = useMemo(() => {
     if (!model.directions) return null;
-    const teleport = t('housing.tour.nav.dest.teleport_to', { aetheryte: model.directions.aetheryte });
+    const teleport = t('housing.tour.nav.dest.teleport_to', {
+      aetheryte: termLabel('aetheryte', model.directions.aetheryte, locale),
+    });
     return { teleport, directions: model.directions.directions };
-  }, [model.directions, t]);
+  }, [model.directions, t, locale]);
 
   // 参加状態をヘッダーの「ツアーに戻る」ピルへ橋渡し(#1・案い)。viewing で記録し、
   // ended/notfound で解除する(戻る先が無くなるのでピルも消す)。connecting は据え置き(再接続中)。

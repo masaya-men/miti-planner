@@ -16,6 +16,7 @@ import {
     type Region,
 } from '../../../data/housing/dcServerMap';
 import { REGION_LABELS, pickRegionLocale } from '../../../data/housing/regionMap';
+import { displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
@@ -135,7 +136,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                 <FilterDropdown
                     label={t('housing.workspace.filter.dc')}
                     mode="single"
-                    options={dcOptions.map((d) => ({ value: d, label: d }))}
+                    options={dcOptions.map((d) => ({ value: d, label: displayDcName(d, locale) }))}
                     selected={dc ? [dc] : []}
                     onSelect={(v) => setDC(dc === v ? null : v)}
                     allLabel={allLabel}
@@ -146,7 +147,7 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                     <FilterDropdown
                         label={t('housing.workspace.filter.server')}
                         mode="multi"
-                        options={availableServers.map((s) => ({ value: s, label: s }))}
+                        options={availableServers.map((s) => ({ value: s, label: dc ? displayWorldName(dc, s, locale) : s }))}
                         selected={servers}
                         onSelect={(v) => toggleServer(v)}
                         allLabel={allLabel}

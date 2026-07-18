@@ -3,6 +3,8 @@ import { serverMasterData, housingSizeMasterData } from '../../../data/masterDat
 import { HOUSING_AREAS, type HousingArea, type HousingSize } from '../../../types/housing';
 import { WARD_RANGE, PLOT_RANGE, APARTMENT_ROOM_RANGE, PRIVATE_CHAMBER_RANGE } from '../../../constants/housing';
 import { getAreaName } from '../../../lib/housing/areaName';
+import { displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 import type { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import { HousingNumberStepper } from './HousingNumberStepper';
 
@@ -46,6 +48,7 @@ interface Props {
  */
 export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, onChange, variant = 'register', crossRegionNotice }) => {
   const { t, i18n } = useTranslation();
+  const locale = pickRegionLocale(i18n.language);
   const { dc, server, area, ward, buildingType, plot, size, apartmentBuilding, roomKind, roomNumber } = values;
 
   const dcKeys = Object.keys(serverMasterData);
@@ -112,7 +115,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
           >
             <option value="">—</option>
             {dcKeys.map((k) => (
-              <option key={k} value={k}>{k}</option>
+              <option key={k} value={k}>{displayDcName(k, locale)}</option>
             ))}
           </select>
           {renderBadge('dc')}
@@ -131,7 +134,7 @@ export const RegisterSectionAddress: React.FC<Props> = ({ fieldState, values, on
           >
             <option value="">—</option>
             {serverKeys.map((k) => (
-              <option key={k} value={k}>{k}</option>
+              <option key={k} value={k}>{dc ? displayWorldName(dc, k, locale) : k}</option>
             ))}
           </select>
           {renderBadge('server')}

@@ -7,6 +7,8 @@ import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import type { TourCrossing } from '../../../lib/housing/tourCrossing';
 import { formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { canDisplayFullAddress } from '../../../lib/housing/listingPublish';
+import { termLabel } from '../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 import type { MockListing } from '../../../data/housing/mockListings';
 
 export interface TourNavMapProps {
@@ -60,6 +62,9 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
   viewingTimerText = null,
 }) => {
   const { t, i18n } = useTranslation();
+  // originName はモデル層(useTourRenderModel/buildTourMapPlacements)から ja のまま渡ってくる。
+  // KR/CN の辞書名変換はここ(実際に画面へ描く直前)で一度だけ行う(呼び出し元4箇所が全てここを通る)。
+  const originLabel = originName ? termLabel('aetheryte', originName, pickRegionLocale(i18n.language)) : null;
   const hostRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -329,7 +334,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
   // 起点エーテライトのラベル位置。overlay(viewBox, xMidYMid meet)→wrap px のレターボックス写像に
   // zoom transform(translate→scale, origin 0,0)を重ねて画面座標へ投影。定サイズ HTML。演出/フェード中は隠す。
   const aetheryteLabel =
-    !introBusy && !mapHidden && originName && origin && wrapSize && dViewBox
+    !introBusy && !mapHidden && originLabel && origin && wrapSize && dViewBox
       ? (() => {
           const m = Math.min(wrapSize.w / dViewBox.w, wrapSize.h / dViewBox.h);
           const offX = (wrapSize.w - dViewBox.w * m) / 2;
@@ -412,7 +417,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
               style={{ left: `${aetheryteLabel.x}px`, top: `${aetheryteLabel.y}px` }}
               data-testid="tour-map-aetheryte-label"
             >
-              {originName}
+              {originLabel}
             </div>
           )}
         </div>

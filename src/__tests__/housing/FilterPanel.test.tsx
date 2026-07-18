@@ -28,6 +28,8 @@ beforeEach(() => {
     useHousingViewStore.getState().reset();
     // 件数は共有ストアの実データから。テストは mock 50 件を注入。
     useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
+    // locale テストの残留を防ぐため既定 ja に戻す。
+    i18n.changeLanguage('ja');
 });
 
 function renderPanel(props?: Partial<React.ComponentProps<typeof FilterPanel>>) {
@@ -138,5 +140,18 @@ describe('FilterPanel', () => {
         const { onRegisterClick } = renderPanel();
         fireEvent.click(screen.getByRole('button', { name: 'ハウジング登録モーダルを開く' }));
         expect(onRegisterClick).toHaveBeenCalledOnce();
+    });
+
+    it('locale=zh の DC 選択肢に辞書名 (陆行鸟) が表示される (KR/CN 辞書接続)', () => {
+        i18n.changeLanguage('zh');
+        renderPanel();
+        fireEvent.click(screen.getByRole('button', { name: 'データセンター' }));
+        expect(screen.getByRole('option', { name: '陆行鸟' })).toBeInTheDocument();
+    });
+
+    it('locale=ja のグローバル DC は Elemental のまま表示される (グローバル現状維持)', () => {
+        renderPanel();
+        fireEvent.click(screen.getByRole('button', { name: 'データセンター' }));
+        expect(screen.getByRole('option', { name: 'Elemental' })).toBeInTheDocument();
     });
 });

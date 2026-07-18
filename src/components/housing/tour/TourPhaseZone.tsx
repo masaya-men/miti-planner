@@ -2,6 +2,8 @@ import { useTranslation } from 'react-i18next';
 import type { PlotDirections } from '../../../lib/housing/wardDirections';
 import { useElapsed, formatElapsed, formatClock } from '../../../lib/housing/useElapsed';
 import type { TourCrossing } from '../../../lib/housing/tourCrossing';
+import { termLabel } from '../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 
 export interface TourPhaseZoneProps {
   phase: 'moving' | 'viewing';
@@ -21,7 +23,8 @@ export interface TourPhaseZoneProps {
 export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
   phase, directions, viewStartAt, crossing = { kind: 'none' },
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = pickRegionLocale(i18n.language);
   const elapsed = useElapsed(phase === 'viewing' ? viewStartAt : null);
 
   if (phase === 'viewing' && viewStartAt != null) {
@@ -57,7 +60,9 @@ export const TourPhaseZone: React.FC<TourPhaseZoneProps> = ({
         <>
           <span className="housing-tour-phasezone-route-label">{t('housing.tour.nav.dest.directions')}</span>
           <p className="housing-tour-phasezone-route-teleport">
-            {t('housing.tour.nav.dest.teleport_to', { aetheryte: directions.aetheryte })}
+            {t('housing.tour.nav.dest.teleport_to', {
+              aetheryte: termLabel('aetheryte', directions.aetheryte, locale),
+            })}
           </p>
           {directions.directions && (
             <p className="housing-tour-phasezone-route-walk">{directions.directions}</p>

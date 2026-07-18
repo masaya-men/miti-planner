@@ -12,6 +12,8 @@ import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
 import { useElapsed, formatElapsed } from '../../../lib/housing/useElapsed';
+import { termLabel } from '../../../lib/housing/housingTerms';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 import { createSharedTour } from '../../../lib/housingApiClient';
 import { buildTourSnapshots, snapshotContainsHiddenAddress } from '../../../lib/sharedTour/snapshot';
 import { pushHostState, endHostTour } from '../../../lib/sharedTour/hostSync';
@@ -37,7 +39,8 @@ import type { TourSnapshot } from '../../../types/sharedTour';
  * store の `next()` が持つ `currentIndex` の `length-1` クランプ (既存仕様・非破壊) には依存しない。
  */
 export const TourNavPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const locale = pickRegionLocale(i18n.language);
   const navigate = useNavigate();
   // Task4: スマホ横持ちUI(案A)。既存のPC向け3カラムはそのまま(CSSで左右パネルのみ非表示)。
   const isMobile = useIsMobile();
@@ -100,9 +103,11 @@ export const TourNavPage: React.FC = () => {
   // 既存の派生値(useTourRenderModel の directions)をそのまま使う(新しい行き方ロジックは持たない)。
   const footerDirections = useMemo(() => {
     if (!directions) return null;
-    const teleport = t('housing.tour.nav.dest.teleport_to', { aetheryte: directions.aetheryte });
+    const teleport = t('housing.tour.nav.dest.teleport_to', {
+      aetheryte: termLabel('aetheryte', directions.aetheryte, locale),
+    });
     return { teleport, directions: directions.directions };
-  }, [directions, t]);
+  }, [directions, t, locale]);
 
   // 実機FB: スマホの「見学開始」は全画面ショーケースオーバーレイ(左パネルの代替)を開くと
   // 地図が隠れてしまい実機で不評だったため撤去。地図のエリアに経過時間チップだけを出す方式に変更。
