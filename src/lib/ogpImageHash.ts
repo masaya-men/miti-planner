@@ -30,3 +30,11 @@ export function computeImageHash(input: ImageHashInput): string {
     const serialized = JSON.stringify(normalized);
     return createHash('sha256').update(serialized).digest('hex').slice(0, 16);
 }
+
+/**
+ * OGPカードURL(housinger/tour等)の生成パラメータ(URLSearchParams、sig抜き)から
+ * 内容ハッシュを計算する。同じ内容は同じhash=Storageで重複排除、内容が変わればhashも変わる。
+ */
+export function computeOgCardImageHash(params: URLSearchParams): string {
+  return createHash('sha256').update(params.toString()).digest('hex').slice(0, 16);
+}

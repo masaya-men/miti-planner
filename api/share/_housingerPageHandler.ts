@@ -19,7 +19,8 @@
 
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { normalizeHousingerUid, stripHashedPrefix, HOUSINGER_BIO_MAX_LENGTH } from '../../src/lib/housing/housingerProfile.js';
-import { buildHousingerOgCardUrl } from '../../src/lib/ogpHousingerCard.js';
+import { buildHousingerOgCardParams } from '../../src/lib/ogpHousingerCard.js';
+import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
@@ -127,21 +128,28 @@ export default async function handler(req: any, res: any) {
           }
 
           // OGP画像: アバター+名前+公開ハウジング画像(最大3枚)の「ページ風カード」を
-          // 署名付きURL (api/og?type=housinger) で動的生成する (案A)。
-          // CRON_SECRET未設定、またはURL組み立て失敗時は、従来どおり画像1枚をそのまま
-          // og:image にするフォールバックへ委ねる（OGPを壊さないための安全策）。
-          const cronSecret = process.env.CRON_SECRET;
+          // 安全なキャッシュ経路(/og/{hash}.png・Storage+Cloudflare長期キャッシュ)で配信する。
+          // 内容ハッシュを og_image_meta に保存し、og-cache が MISS 時だけ /api/og?type=housinger を叩く
+          // (直接 /api/og を毎回叩いていた旧実装は Cloudflare の Bypass 対象で件数が無防備だった)。
           let cardUrl: string | null = null;
-          if (cronSecret) {
-            try {
-              cardUrl = await buildHousingerOgCardUrl(origin, {
-                name: displayName,
-                avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
-                imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
-              }, cronSecret);
-            } catch (err) {
-              console.error('Housinger OG card URL build error:', err);
-            }
+          try {
+            const params = buildHousingerOgCardParams({
+              name: displayName,
+              avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
+              imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
+            });
+            const hash = computeOgCardImageHash(params);
+            await db.collection('og_image_meta').doc(hash).set({
+              type: 'housinger',
+              name: displayName,
+              avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
+              imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
+              createdAt: Date.now(),
+              lastAccessedAt: Date.now(),
+            });
+            cardUrl = `${origin}/og/${hash}.png`;
+          } catch (err) {
+            console.error('Housinger OG card hash/meta error:', err);
           }
 
           if (cardUrl) {
