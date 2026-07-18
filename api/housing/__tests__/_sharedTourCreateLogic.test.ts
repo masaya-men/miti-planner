@@ -45,21 +45,20 @@ describe('parseCreateSharedTourRequest', () => {
 
   it('tourNameが文字列ならtrimしてそのまま返す', () => {
     const result = parseCreateSharedTourRequest({ snapshot: [{ id: 'a' }], tourName: '  休日ハウジング巡り  ' });
-    expect('ok' in result && result.ok).toBe(true);
-    if ('tourName' in result) expect(result.tourName).toBe('休日ハウジング巡り');
+    expect(result).toMatchObject({ ok: true, tourName: '休日ハウジング巡り' });
   });
 
   it('tourNameが上限文字数を超えたら切り詰める', () => {
     const long = 'あ'.repeat(SHARED_TOUR_NAME_MAX_LENGTH + 20);
     const result = parseCreateSharedTourRequest({ snapshot: [{ id: 'a' }], tourName: long });
-    expect('ok' in result && result.ok).toBe(true);
-    if ('tourName' in result) expect(result.tourName?.length).toBe(SHARED_TOUR_NAME_MAX_LENGTH);
+    expect(result).toMatchObject({ ok: true });
+    expect(result).toHaveProperty('tourName');
+    expect((result as { tourName?: string }).tourName).toHaveLength(SHARED_TOUR_NAME_MAX_LENGTH);
   });
 
   it('tourName未指定なら空文字になる', () => {
     const result = parseCreateSharedTourRequest({ snapshot: [{ id: 'a' }] });
-    expect('ok' in result && result.ok).toBe(true);
-    if ('tourName' in result) expect(result.tourName).toBe('');
+    expect(result).toMatchObject({ ok: true, tourName: '' });
   });
 });
 
