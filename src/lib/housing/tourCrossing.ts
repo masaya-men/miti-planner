@@ -50,16 +50,20 @@ export function firstDestination(current: Loc): TourCrossing {
 }
 
 /**
- * トレイの「アンカー地域」。 最初の非 null/undefined リージョンをそのまま返す
- * (OCE のみのトレイは 'OCE' を返す)。 KR/CN は物理分離のため OCE を特別扱いしない。
+ * トレイの「アンカー地域」。 非OCE のリージョンがあればその先頭を返し(OCE はグローバル圏内
+ * ワイルドカードなのでアンカーにしない=[OCE, NA] でも NA がアンカーになり追加時に即ブロックできる)、
+ * OCE しか無ければ 'OCE' を返す(OCE のみのトレイに KR/CN を混ぜさせないため)。
  * 無ければ(空 or すべて null/undefined) null。
  * ジェネリックにして入力の Region 型をそのまま保つ(呼び出し元の型崩れ防止)。
  */
 export function tourAnchorRegion<T extends string>(regions: (T | null | undefined)[]): T | null {
+  let oce: T | null = null;
   for (const r of regions) {
-    if (r) return r;
+    if (!r) continue;
+    if (r !== 'OCE') return r;
+    if (oce === null) oce = r;
   }
-  return null;
+  return oce;
 }
 
 /**

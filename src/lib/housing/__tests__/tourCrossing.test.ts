@@ -78,18 +78,21 @@ describe('tourRegionConflict', () => {
 });
 
 describe('tourAnchorRegion', () => {
-  it('最初の非null/undefinedリージョンをそのまま返す (C-1: OCEをスキップしない)', () => {
-    expect(tourAnchorRegion(['OCE', 'JP'])).toBe('OCE');
+  it('非OCEがあれば先頭の非OCEを返す (M-1: OCE先頭でも追加時に即ブロックできる)', () => {
+    expect(tourAnchorRegion(['OCE', 'JP'])).toBe('JP');
     expect(tourAnchorRegion(['JP', 'NA'])).toBe('JP');
+    // OCE先頭トレイ [OCE, NA] に JP: アンカー=NA なので追加時点で不可 (開始ガード頼みにしない)
+    expect(canAddToTour(tourAnchorRegion(['OCE', 'NA']), 'JP')).toBe(false);
   });
-  it('OCEのみのトレイは OCE を返す (C-1: OCEも通常のアンカーとして扱う)', () => {
+  it('OCEのみのトレイは OCE を返す (C-1: KR/CN を混ぜさせないアンカー)', () => {
     expect(tourAnchorRegion(['OCE', 'OCE'])).toBe('OCE');
+    expect(canAddToTour(tourAnchorRegion(['OCE']), 'KR')).toBe(false);
   });
   it('空は null', () => {
     expect(tourAnchorRegion([])).toBeNull();
   });
-  it('null/undefined は無視して最初の非null/undefinedを返す', () => {
-    expect(tourAnchorRegion([null, undefined, 'OCE', 'EU'])).toBe('OCE');
+  it('null/undefined は無視する', () => {
+    expect(tourAnchorRegion([null, undefined, 'OCE', 'EU'])).toBe('EU');
     expect(tourAnchorRegion([null, undefined, 'EU'])).toBe('EU');
   });
 });
