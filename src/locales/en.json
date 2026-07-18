@@ -2910,6 +2910,7 @@
             "join": {
                 "connecting": "Connecting…",
                 "notfound": "This tour was not found",
+                "full": "This tour is full. Please try again later.",
                 "ended": "This tour has ended",
                 "host_guiding": "Your guide is leading the tour",
                 "complete_lead": "That's the end of the tour. It was a pleasure sharing it with you.",

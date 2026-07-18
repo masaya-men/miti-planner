@@ -188,3 +188,24 @@ export async function createSharedTour(snapshot: TourSnapshot[]): Promise<Create
   }
   return (await res.json()) as CreateSharedTourResponse;
 }
+
+export interface JoinSharedTourResponse {
+  ok: boolean;
+  reason?: 'full';
+}
+
+/** 参加者(匿名)の入場ゲート+heartbeat。認証不要(buildHeaders(false)=App Checkのみ)。 */
+export async function joinSharedTour(tourToken: string, sessionId: string): Promise<JoinSharedTourResponse> {
+  const headers = await buildHeaders(false);
+  const res = await fetch(`${API_BASE}?action=join-shared-tour`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ tourToken, sessionId }),
+  });
+  if (res.status === 404) return { ok: false };
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `join-shared-tour failed: ${res.status}`);
+  }
+  return (await res.json()) as JoinSharedTourResponse;
+}

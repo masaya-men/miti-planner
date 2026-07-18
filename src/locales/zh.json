@@ -2875,6 +2875,7 @@
             "join": {
                 "connecting": "连接中…",
                 "notfound": "未找到该导览",
+                "full": "本次导览人数已满，请稍后再试。",
                 "ended": "该导览已结束",
                 "host_guiding": "主持人正在带队",
                 "complete_lead": "导览到此结束。很高兴与你同行。",

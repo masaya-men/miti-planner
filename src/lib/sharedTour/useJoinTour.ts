@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { isTourExpired } from './lifecycle';
+import { getOrCreateSessionId } from './presence';
+import { joinSharedTour } from '../housingApiClient';
 import type { SharedTourMeta, SharedTourLiveState } from '../../types/sharedTour';
 
-/** useJoinTour の状態種別。connecting=接続中、notfound=存在しない/読めない、ended=終了済み、viewing=閲覧中 */
-export type JoinTourKind = 'connecting' | 'notfound' | 'ended' | 'viewing';
+/** useJoinTour の状態種別。connecting=接続中、notfound=存在しない/読めない、full=満員、ended=終了済み、viewing=閲覧中 */
+export type JoinTourKind = 'connecting' | 'notfound' | 'full' | 'ended' | 'viewing';
 
 export interface JoinTourState {
   kind: JoinTourKind;
@@ -13,11 +15,14 @@ export interface JoinTourState {
   live: SharedTourLiveState | null;
 }
 
+const HEARTBEAT_INTERVAL_MS = 60_000;
+
 /**
- * 参加者（未ログイン・匿名）が招待リンクを開いたときに使うフック。
- * shared_tours/{tourToken} を1回 getDoc（家スナップショット等の不変メタ）→
- * .../live/current を onSnapshot 購読して幹事の現在位置に追従する。
- * Phase 0 で確定した方式(a)=匿名 onSnapshot 直読み（Firestore App Check = Unenforced）。
+ * 参加者(未ログイン・匿名)が招待リンクを開いたときに使うフック。
+ * shared_tours/{tourToken} を1回 getDoc → join-shared-tour API で入場ゲート(300人ソフト上限)を
+ * 通過 → 通過できたときだけ .../live/current を onSnapshot 購読して幹事の現在位置に追従する。
+ * 満員時は onSnapshot を一切張らない(コストを発生させない)。
+ * Phase 0 で確定した方式(a)=匿名 onSnapshot 直読み(Firestore App Check = Unenforced)。
  */
 export function useJoinTour(tourToken: string): JoinTourState {
   const [kind, setKind] = useState<JoinTourKind>('connecting');
@@ -26,13 +31,11 @@ export function useJoinTour(tourToken: string): JoinTourState {
 
   useEffect(() => {
     let unsub: (() => void) | undefined;
+    let heartbeat: ReturnType<typeof setInterval> | undefined;
     let cancelled = false;
-    // persistentLocalCache はキャッシュ発火→サーバー到達の順で onNext が呼ばれうる。
-    // サーバー到達前のキャッシュ発火では確定扱いにしないためのフラグ。
     let reachedServer = false;
 
     (async () => {
-      // tourToken が変わるたびに初期化し直す
       setKind('connecting');
       setMeta(null);
       setLive(null);
@@ -52,28 +55,40 @@ export function useJoinTour(tourToken: string): JoinTourState {
         return;
       }
 
+      const sessionId = getOrCreateSessionId();
+      try {
+        const joinResult = await joinSharedTour(tourToken, sessionId);
+        if (cancelled) return;
+        if (!joinResult.ok) {
+          setKind(joinResult.reason === 'full' ? 'full' : 'notfound');
+          return;
+        }
+      } catch (err) {
+        console.error('[useJoinTour] join-shared-tour に失敗', err);
+        if (!cancelled) setKind('notfound');
+        return;
+      }
+
       setMeta(snap.data() as SharedTourMeta);
 
-      // includeMetadataChanges: true が必須。これが無いと、再入場でキャッシュに同じ live doc が
-      // 残っている場合、Firestore は「データ不変」とみなしサーバー到達イベント(fromCache:false)を
-      // 発火しない → reachedServer が永久に立たず connecting のまま固まる(幹事が書き込むまで)。
-      // メタデータ変更も受け取ることで、cache→server 到達の瞬間に onNext が呼ばれ viewing へ進める。
+      // 60秒毎に heartbeat(presence の lastSeenAt を更新し続ける)。失敗は無視(既に入場済みなので
+      // 一時的な heartbeat 失敗で閲覧を中断させない)。
+      heartbeat = setInterval(() => {
+        void joinSharedTour(tourToken, sessionId).catch(() => {});
+      }, HEARTBEAT_INTERVAL_MS);
+
       unsub = onSnapshot(
         doc(db, 'shared_tours', tourToken, 'live', 'current'),
         { includeMetadataChanges: true },
         (liveSnap) => {
           if (cancelled) return;
 
-          // persistentLocalCache はサーバー到達前にキャッシュ発火する。未到達のキャッシュ発火は
-          // 存在有無に関わらず確定扱いにせず connecting を維持する（でないと初回参加時、
-          // 「まだキャッシュに無い＝!exists()」を掴んで一瞬 ended 画面が表示される）。
           if (liveSnap.metadata.fromCache && !reachedServer) {
             return;
           }
           reachedServer = true;
 
           if (!liveSnap.exists()) {
-            // live doc が消えた（GC 等）→ 終了扱い（サーバー到達後の消滅のみここに来る）
             setKind('ended');
             setLive(null);
             return;
@@ -93,6 +108,7 @@ export function useJoinTour(tourToken: string): JoinTourState {
     return () => {
       cancelled = true;
       if (unsub) unsub();
+      if (heartbeat) clearInterval(heartbeat);
     };
   }, [tourToken]);
 
