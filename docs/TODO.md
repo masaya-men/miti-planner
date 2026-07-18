@@ -24,7 +24,7 @@
 ### 🔴 次セッション最優先 (2026-07-17 更新・並び=モデレ→中韓→OGPデザイン)
 0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`):
    - ✅ スマホ対応+実機FB第2〜8弾=全部実装・本番反映済+**全項目ユーザー実機OK(2026-07-17・お気に入り同期含む)**。詳細=TODO_COMPLETED。
-   - **中韓対応=設計書完成(2026-07-18)**: `docs/superpowers/specs/2026-07-18-housing-kr-cn-region-support-design.md`(ユーザーレビュー待ち→writing-plans)。正典CSV=`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`(修正4件反映済・スプシ側は後日ユーザー同期)。決定: B言語独立/中国4DC=1地域(DCトラベル可の未検証前提)/行き方翻訳もやる(機械品質OK)/Shadow DC+Dynamis8も同時。KR Carbuncle等の同名はdc+server組で衝突なし。
+   - **🔴 中韓対応=実装完了(2026-07-18・feat/housing-kr-cn-region 14コミット・未マージ)**: 全10タスク+最終レビュー修正3件(C-1 OCE例外をグローバル圏内限定/I-1内部キー表示漏れ/M-1アンカー非OCE優先)。build+vitest緑(fail=既知EphemeralAddPanel7件のみ)。**次=ユーザーのdev実機チェック→OKでmerge+push→本番でKRテスト登録+`npx tsx scripts/seed-servers.ts`実行**。裁定待ち2件: ①クリア=言語既定復帰へ変更の追認 ②season_christmasのko/zh=現実世界名のまま(CSVは公式イベント名指定)。正典CSV=`src/data/housing/terms-src/housing-terms.csv`(スプシ側の4セル修正は後日ユーザー同期)。
    - **公開前ブロッカー**: ①**モデレ判断待ち(要brainstorming・規模感=うまくいけば数百人〜それ以上とユーザー回答2026-07-17)**=/admin で通報一覧+非表示/強制非公開/個別却下(物件・人・個人タグ)+閾値自動非表示は可。**未実装(公開後対応)=BAN/quota永久0/一括削除/物理削除cron**([AdminHousingReports.tsx:9])→hide運用で公開か最低限BAN追加かユーザー判断。②**Discord告知**(ツアー公開・P3住所非公開も併記)。③**中韓=後追いなるはや**(専用DC/鯖/ワードデータ依存・JA/ENブロッカー外。用語CSV=`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`)。**地域分離は検証済(2026-07-17)**: 現状KR/CN鯖はマスター非存在=混在不可能。ツアー地域ガード(canAddToTour/tourRegionConflict・全追加経路+開始時二重)が実装済でKR/CN追加時も自動適用。対応時の注意=(a)Region型拡張時にOCE例外へ巻き込まない (b)APIのdc実在検証を追加([housingValidation.ts:99]は空チェックのみ)。
    - **残TODO(公開後でも可)**: ①OGPカードのデザイン作り込み=ハウジンガー+ツアー招待URLの両方(「LoPoのハウジングからの共有」と一目で分かるブランド感へ品質最大化・後日ちゃんと設計) ②アバターWebP勢のPNG変換(現状はイニシャル表示)。
    - **忘れず(ユーザー指摘)**: 最初の家でもDCテレポ案内 / 30日物理削除cron(公開後・listing用) / 数日後=GCPコスト実測→G5。
