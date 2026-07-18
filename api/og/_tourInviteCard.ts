@@ -26,7 +26,7 @@ function buildTourInviteCard(name: string) {
         width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', position: 'relative',
         backgroundImage: `url(${TOUR_INVITE_BG_DATA_URI})`,
-        backgroundSize: '100% 100%',
+        backgroundSize: 'cover',
         fontFamily: '"M PLUS 1", sans-serif',
       },
       children: [
