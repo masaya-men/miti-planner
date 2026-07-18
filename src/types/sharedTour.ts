@@ -25,6 +25,8 @@ export interface SharedTourMeta {
   snapshot: TourSnapshot[];
   containsHiddenAddress: boolean;
   createdAt: number;
+  /** 幹事が招待発行時に書いた短い文章(任意・空文字許容)。ツアー招待OGPカードにも使う。 */
+  tourName?: string;
 }
 
 /** shared_tours/{tourToken}/live/current（頻繁に変わる・参加者は onSnapshot） */
@@ -44,3 +46,9 @@ export interface SharedTourLiveState {
 
 /** 家件数・スナップショットサイズの上限 */
 export const SHARED_TOUR_MAX_STOPS = 100;
+
+/** 招待発行時に幹事が書ける短い文章(任意)。OGPカードにも使う。 */
+export const SHARED_TOUR_NAME_MAX_LENGTH = 60;
+
+/** 同時参加人数のソフト上限。join API 経由の参加者のみカウント(§9 参照)。 */
+export const SHARED_TOUR_MAX_PARTICIPANTS = 300;

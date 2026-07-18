@@ -22,6 +22,7 @@
  * ?action=upsert-housinger-profile  → POST ハウジンガープロフィール 公開/更新/非公開/同期 (冪等)
  * ?action=report-housinger          → POST ハウジンガープロフィール通報
  * ?action=create-shared-tour        → POST 招待ツアー発行 (幹事ログイン必須・shared_tours 作成)
+ * ?action=join-shared-tour          → POST 参加者の入場ゲート+heartbeat (認証不要・匿名・presence 集計で300人ソフト上限)
  * ?action=gc-shared-tours           → POST cron 専用: 期限切れ共有ツアーの物理削除 (CRON_SECRET認証・日次)
  */
 import canRegisterHandler from './_canRegisterHandler.js';
@@ -43,6 +44,7 @@ import reportPersonalTagHandler from './_reportPersonalTagHandler.js';
 import upsertHousingerProfileHandler from './_upsertHousingerProfileHandler.js';
 import reportHousingerHandler from './_reportHousingerHandler.js';
 import createSharedTourHandler from './_createSharedTourHandler.js';
+import joinSharedTourHandler from './_joinSharedTourHandler.js';
 import gcSharedToursHandler from './_gcSharedToursHandler.js';
 import { publicWindowHandler } from './_publicWindow.js';
 
@@ -98,12 +100,14 @@ export default async function handler(req: any, res: any) {
       return reportHousingerHandler(req, res);
     case 'create-shared-tour':
       return createSharedTourHandler(req, res);
+    case 'join-shared-tour':
+      return joinSharedTourHandler(req, res);
     case 'gc-shared-tours':
       return gcSharedToursHandler(req, res);
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|confirm-listing|my-personal-tag|search-personal-tags|report-personal-tag|upsert-housinger-profile|report-housinger|create-shared-tour',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|confirm-listing|my-personal-tag|search-personal-tags|report-personal-tag|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour',
       });
   }
 }
