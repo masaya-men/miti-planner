@@ -35,11 +35,14 @@ export default async function handler(req: any, res: any): Promise<void> {
       }
     }
 
-    // 各ツアー = live/current + 親 の 2 delete。Firestore batch 上限 500 op → 400 で分割。
-    // （親 doc の delete は subcollection を消さない Firestore 仕様のため live/current を明示 delete する。）
+    // 各ツアー = live/current + presence/* + 親 の delete。Firestore batch 上限 500 op → 400 で分割。
+    // （親 doc の delete は subcollection を消さない Firestore 仕様のため live/current と presence/* を
+    //   明示 delete する。presence は SHARED_TOUR_MAX_PARTICIPANTS(300) まで積み得るため、1ツアーの
+    //   途中でも delete を積むたびに 400 到達を確認し、必要ならその場で commit してバッチを切り直す。）
     let batch = adminDb.batch();
     let ops = 0;
     let deleted = 0;
+    let presenceDeleted = 0;
     for (const ref of targets) {
       batch.delete(ref.collection('live').doc('current'));
       batch.delete(ref);
@@ -50,10 +53,22 @@ export default async function handler(req: any, res: any): Promise<void> {
         batch = adminDb.batch();
         ops = 0;
       }
+
+      const presenceSnap = await ref.collection('presence').get();
+      for (const presenceDoc of presenceSnap.docs) {
+        batch.delete(presenceDoc.ref);
+        ops++;
+        presenceDeleted++;
+        if (ops >= 400) {
+          await batch.commit();
+          batch = adminDb.batch();
+          ops = 0;
+        }
+      }
     }
     if (ops > 0) await batch.commit();
 
-    res.status(200).json({ deleted });
+    res.status(200).json({ deleted, presenceDeleted });
   } catch (error: any) {
     console.error('[housing/gc-shared-tours] error:', error);
     res.status(500).json({ error: 'Internal error' });

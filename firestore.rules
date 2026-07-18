@@ -464,6 +464,13 @@ service cloud.firestore {
           && request.resource.data.lastActivityAt is int;
         allow create, delete: if false; // 生成/削除は Admin（create-shared-tour / GC cron）
       }
+
+      match /presence/{sessionId} {
+        // presence の読み書きは join-shared-tour API(Admin SDK)経由のみ。
+        // クライアント直書きを許すと集計(count)ベースの上限チェックを迂回されるため。
+        allow get, list: if false;
+        allow write: if false;
+      }
     }
 
     // ========================================

@@ -65,10 +65,12 @@ export const JoinTourPage: React.FC = () => {
     navigate(to);
   };
 
-  // connecting / notfound は中央1枚のメッセージ。
-  if (kind === 'connecting' || kind === 'notfound') {
+  // connecting / notfound / full は中央1枚のメッセージ。
+  if (kind === 'connecting' || kind === 'notfound' || kind === 'full') {
     const message =
-      kind === 'connecting' ? t('housing.tour.join.connecting') : t('housing.tour.join.notfound');
+      kind === 'connecting' ? t('housing.tour.join.connecting')
+      : kind === 'full' ? t('housing.tour.join.full')
+      : t('housing.tour.join.notfound');
     return (
       <div className="housing-tour-page">
         <section className="housing-tour-page-panel housing-tour-page-panel-solo" data-region="center">

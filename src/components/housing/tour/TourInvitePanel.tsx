@@ -1,11 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { UserPlus, Copy } from 'lucide-react';
+import { SHARED_TOUR_NAME_MAX_LENGTH } from '../../../types/sharedTour';
 
 export interface TourInvitePanelProps {
   /** null=未発行 / 文字列=発行済み(招待リンクの token) */
   tourToken: string | null;
   /** 招待リンク発行中(API 応答待ち)。true の間はボタンを「作成中…」にして二重発行を防ぐ。 */
   creating?: boolean;
+  /** 招待発行前にホストが書ける短い文章(OGPカードにも使う)。 */
+  tourName: string;
+  onTourNameChange: (value: string) => void;
   onInvite: () => void;
   onCopy: () => void;
 }
@@ -19,6 +23,8 @@ export interface TourInvitePanelProps {
 export const TourInvitePanel: React.FC<TourInvitePanelProps> = ({
   tourToken,
   creating = false,
+  tourName,
+  onTourNameChange,
   onInvite,
   onCopy,
 }) => {
@@ -27,6 +33,15 @@ export const TourInvitePanel: React.FC<TourInvitePanelProps> = ({
   if (tourToken === null) {
     return (
       <div className="housing-tour-invite">
+        <input
+          type="text"
+          className="housing-input"
+          value={tourName}
+          onChange={(e) => onTourNameChange(e.target.value)}
+          placeholder={t('housing.tour.nav.invite.name_placeholder')}
+          maxLength={SHARED_TOUR_NAME_MAX_LENGTH}
+          aria-label={t('housing.tour.nav.invite.name_label')}
+        />
         <button
           type="button"
           className="housing-tour-invite-btn"

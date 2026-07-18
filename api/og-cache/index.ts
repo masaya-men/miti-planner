@@ -19,6 +19,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
+import { isValidOgImageMeta, buildInternalOgUrl } from './_ogCacheLogic.js';
 
 const STORAGE_BUCKET = 'lopo-7793e.firebasestorage.app';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
@@ -53,23 +54,6 @@ function resolveOgOrigin(req: any): string {
         || 'lopoly.app';
     const protocol = host.includes('localhost') ? 'http' : 'https';
     return `${protocol}://${host}`;
-}
-
-/**
- * og_image_meta のパラメータから /api/og の URL を組み立てる。
- * buildOgImageUrl と同じパラメータ順序で生成（buildOgImageUrl は id → showLogo → lh → lang）。
- */
-function buildInternalOgUrl(
-    origin: string,
-    meta: { shareId: string; showLogo: boolean; logoHash: string | null; lang: 'ja' | 'en' },
-): string {
-    let url = `${origin}/api/og?id=${encodeURIComponent(meta.shareId)}`;
-    if (meta.showLogo) {
-        url += '&showLogo=true';
-        if (meta.logoHash) url += `&lh=${encodeURIComponent(meta.logoHash)}`;
-    }
-    url += `&lang=${meta.lang}`;
-    return url;
 }
 
 export default async function handler(req: any, res: any) {
@@ -110,17 +94,12 @@ export default async function handler(req: any, res: any) {
             return res.status(404).json({ error: 'not found' });
         }
         const meta = metaSnap.data() as any;
-        if (!meta || typeof meta.shareId !== 'string') {
+        if (!isValidOgImageMeta(meta)) {
             return res.status(500).json({ error: 'invalid meta' });
         }
 
         const origin = resolveOgOrigin(req);
-        const ogUrl = buildInternalOgUrl(origin, {
-            shareId: meta.shareId,
-            showLogo: !!meta.showLogo,
-            logoHash: meta.logoHash || null,
-            lang: meta.lang === 'en' ? 'en' : 'ja',
-        });
+        const ogUrl = await buildInternalOgUrl(origin, meta, process.env.CRON_SECRET);
 
         const ogRes = await fetch(ogUrl, {
             headers: { 'User-Agent': 'LoPo-OGCache/1.0' },

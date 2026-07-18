@@ -1,5 +1,5 @@
 // src/lib/__tests__/ogpImageHash.test.ts
-import { computeImageHash, type ImageHashInput } from '../ogpImageHash';
+import { computeImageHash, computeOgCardImageHash, type ImageHashInput } from '../ogpImageHash';
 
 const baseInput: ImageHashInput = {
     contentName: '絶もうひとつの未来',
@@ -57,4 +57,23 @@ describe('computeImageHash', () => {
         const b = computeImageHash({ ...baseInput, contentName: '', planTitle: '' });
         expect(a).toBe(b);
     });
+});
+
+describe('computeOgCardImageHash', () => {
+  it('戻り値は16桁の小文字16進文字列', () => {
+    const params = new URLSearchParams({ type: 'housinger', ver: '2', name: 'テスト' });
+    expect(computeOgCardImageHash(params)).toMatch(/^[a-f0-9]{16}$/);
+  });
+
+  it('同じパラメータなら決定的に同じhashを返す', () => {
+    const a = new URLSearchParams({ type: 'housinger', name: 'A' });
+    const b = new URLSearchParams({ type: 'housinger', name: 'A' });
+    expect(computeOgCardImageHash(a)).toBe(computeOgCardImageHash(b));
+  });
+
+  it('パラメータが変わればhashも変わる', () => {
+    const a = new URLSearchParams({ type: 'housinger', name: 'A' });
+    const b = new URLSearchParams({ type: 'housinger', name: 'B' });
+    expect(computeOgCardImageHash(a)).not.toBe(computeOgCardImageHash(b));
+  });
 });

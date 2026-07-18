@@ -8,6 +8,7 @@
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/share/:id", "destination": "/api/share?type=page&id=:id" },
     { "source": "/housing/housinger/:uid", "destination": "/api/share?type=housinger&uid=:uid" },
+    { "source": "/housing/tour/:tourToken", "destination": "/api/share?type=tour&token=:tourToken" },
     { "source": "/og/:hash.png", "destination": "/api/og-cache?h=:hash" },
     {
       "source": "/icons/:path",

@@ -68,6 +68,8 @@ export const TourNavPage: React.FC = () => {
   // mount 時の自動復帰 (localStorage からの token 復帰) は今回スコープ外
   // (設計§7 の同端末復帰は別タスク・stale token 誤表示を避ける)。
   const [tourToken, setTourToken] = useState<string | null>(null);
+  // 招待発行前にホストが書ける短い文章(OGPカードにも使う)。
+  const [tourName, setTourName] = useState('');
   // 招待リンク発行中 (create-shared-tour API 応答待ち)。ボタンを「作成中…」にして二重発行も防ぐ。
   const [creatingInvite, setCreatingInvite] = useState(false);
   // 住所露出警告ダイアログの表示に使う「発行待ち」の中身 (非公開/一時追加を含む場合のみ立つ)。
@@ -157,7 +159,7 @@ export const TourNavPage: React.FC = () => {
     async (snaps: TourSnapshot[]) => {
       setCreatingInvite(true);
       try {
-        const { tourToken: token } = await createSharedTour(snaps);
+        const { tourToken: token } = await createSharedTour(snaps, tourName);
         setTourToken(token);
         localStorage.setItem('lopo_shared_tour_token', token);
       } catch {
@@ -166,7 +168,7 @@ export const TourNavPage: React.FC = () => {
         setCreatingInvite(false);
       }
     },
-    [t],
+    [t, tourName],
   );
 
   // 「みんなを招待」ボタン。非公開/一時追加の家を含む場合は警告ダイアログを挟み、
@@ -318,6 +320,8 @@ export const TourNavPage: React.FC = () => {
         <TourInvitePanel
           tourToken={tourToken}
           creating={creatingInvite}
+          tourName={tourName}
+          onTourNameChange={setTourName}
           onInvite={onInvite}
           onCopy={onCopyInvite}
         />

@@ -2854,6 +2854,8 @@
                     "route": "移动路线（大致）"
                 },
                 "invite": {
+                    "name_label": "导览名称（可选）",
+                    "name_placeholder": "例如：周末住宅导览",
                     "button": "邀请所有人",
                     "creating": "正在生成邀请链接…",
                     "hint": "开始导览后就无法再添加了。请先把想去的房屋编入导览。",
@@ -2875,6 +2877,7 @@
             "join": {
                 "connecting": "连接中…",
                 "notfound": "未找到该导览",
+                "full": "本次导览人数已满，请稍后再试。",
                 "ended": "该导览已结束",
                 "host_guiding": "主持人正在带队",
                 "complete_lead": "导览到此结束。很高兴与你同行。",

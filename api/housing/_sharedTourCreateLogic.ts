@@ -1,4 +1,4 @@
-import { SHARED_TOUR_MAX_STOPS, type TourSnapshot } from '../../src/types/sharedTour.js';
+import { SHARED_TOUR_MAX_STOPS, SHARED_TOUR_NAME_MAX_LENGTH, type TourSnapshot } from '../../src/types/sharedTour.js';
 import { snapshotContainsHiddenAddress } from '../../src/lib/sharedTour/snapshot.js';
 
 /** スナップショット JSON のバイト上限（Firestore ドキュメント 1MiB 制限の安全マージン。他フィールド分を残す）。 */
@@ -12,7 +12,7 @@ export const SHARED_TOUR_HOST_HARD_CAP = 10;
 
 /** 招待発行リクエストの検証結果。 */
 export type ParseCreateSharedTourResult =
-  | { ok: true; snapshot: TourSnapshot[]; containsHiddenAddress: boolean }
+  | { ok: true; snapshot: TourSnapshot[]; containsHiddenAddress: boolean; tourName: string }
   | { ok: false; reason: 'empty' | 'too_many' | 'bad_shape' | 'too_large' };
 
 /**
@@ -25,6 +25,10 @@ export function parseCreateSharedTourRequest(body: unknown): ParseCreateSharedTo
   }
 
   const snapshot = (body as { snapshot: unknown[] }).snapshot;
+  const rawTourName = (body as { tourName?: unknown }).tourName;
+  const tourName = typeof rawTourName === 'string'
+    ? rawTourName.trim().slice(0, SHARED_TOUR_NAME_MAX_LENGTH)
+    : '';
 
   if (snapshot.length === 0) {
     return { ok: false, reason: 'empty' };
@@ -50,6 +54,7 @@ export function parseCreateSharedTourRequest(body: unknown): ParseCreateSharedTo
     ok: true,
     snapshot: typedSnapshot,
     containsHiddenAddress: snapshotContainsHiddenAddress(typedSnapshot),
+    tourName,
   };
 }
 

@@ -17,6 +17,7 @@ import { applyRateLimitWeb } from '../../src/lib/rateLimit.js';
 import { rejectIfPublicApiDisabledWeb } from '../../src/lib/publicApiGuard.js';
 import { loadMPlus1Fonts } from './_fonts.js';
 import { handleHousingerCardRequest } from './_housingerCard.js';
+import { handleTourInviteCardRequest } from './_tourInviteCard.js';
 
 export const config = { runtime: 'edge' };
 
@@ -41,6 +42,10 @@ export default async function handler(req: Request) {
         // 新規 Edge Function は増やさず、この関数内で完結させる。
         if (searchParams.get('type') === 'housinger') {
             return handleHousingerCardRequest(searchParams);
+        }
+        // ツアー招待ページ専用カード(署名付きURLのみ受理)。
+        if (searchParams.get('type') === 'tour') {
+            return handleTourInviteCardRequest(searchParams);
         }
 
         const shareId = searchParams.get('id');
