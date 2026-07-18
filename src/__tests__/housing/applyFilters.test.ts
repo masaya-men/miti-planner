@@ -61,4 +61,16 @@ describe('applyFilters', () => {
         const result = applyFilters(MOCK_LISTINGS, { ...EMPTY, dc: 'Mana', regions: ['EU'] });
         expect(result.length).toBe(0);
     });
+
+    it('unlisted (region undefined) は地域フィルターが有効でも除外されない (§3.5: 言語既定の地域選択で住所非公開の物件が探すから消える回帰の再発防止)', () => {
+        const unlisted = { ...MOCK_LISTINGS[0], id: 'unlisted-test', region: undefined, dc: undefined, server: undefined, area: undefined };
+        const result = applyFilters([unlisted], { ...EMPTY, regions: ['JP', 'NA'] });
+        expect(result).toHaveLength(1);
+    });
+
+    it('unlisted (server undefined) は従来どおりサーバーフィルターでは除外される (地域だけが例外)', () => {
+        const unlisted = { ...MOCK_LISTINGS[0], id: 'unlisted-test-2', region: undefined, dc: undefined, server: undefined, area: undefined };
+        const result = applyFilters([unlisted], { ...EMPTY, servers: ['Anima'] });
+        expect(result).toHaveLength(0);
+    });
 });
