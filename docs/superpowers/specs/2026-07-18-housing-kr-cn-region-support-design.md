@@ -36,7 +36,8 @@
 ## 2. フィルター・初期表示
 
 - [FilterPanel.tsx:125](../../../src/components/housing/workspace/FilterPanel.tsx#L125) の地域選択肢が `ALL_REGIONS` 由来のため、型拡張で自動的に韓国・中国が並ぶ。ラベルは `REGION_LABELS`。
-- **言語→初期値**: ストア初期化時に `regions` を ja/en=`['JP','NA','EU','OCE']` / ko=`['KR']` / zh=`['CN']` にセット(現状の `[]`=無フィルタだと中韓混在表示になるため、明示選択に変更)。ユーザーはいつでも変更可・クリアで全表示(混在は明示操作の結果のみ)。
+- **言語→初期値**: ストア初期化時に `regions` を ja/en=`['JP','NA','EU','OCE']` / ko=`['KR']` / zh=`['CN']` にセット(現状の `[]`=無フィルタだと中韓混在表示になるため、明示選択に変更)。ユーザーはいつでも変更可。
+- **クリアの挙動(2026-07-18 実装時改訂)**: 「クリア」は言語既定の初期状態へ戻す(=フィルター適用中バッジも消灯)。全地域まとめて表示したい場合は地域チップを手動で全部外す(明示操作)。当初案「クリアで全表示」はクリア後もバッジが残る矛盾があったため変更。
 - スマホのフィルターシートも同一ストアのため自動追従(実機確認項目)。
 - DC 絞り込み(`regions.includes(DC_SERVER_MAP[d].region)`)は型拡張だけで自動対応。
 
@@ -46,9 +47,10 @@
 - **サーバー側検証の強化**: 現在 dc は空チェックのみ([housingValidation.ts:99](../../../src/utils/housingValidation.ts#L99))。`validateRegistrationDraft` に「dc が実在するか」「server がその DC 配下か」の照合を追加(api は src を import 済みのため同一関数を共用)。
 - `addressKey` が dc を含み KR Carbuncle と JP Carbuncle が別キーになることを実装時に検証(重複チェックの誤爆防止)。
 
-## 4. ツアー地域ガード (変更なしで自動適用)
+## 4. ツアー地域ガード
 
-- [tourCrossing.ts](../../../src/lib/housing/tourCrossing.ts) の `canAddToTour` は非OCE地域同士の混在を既にブロック。KR/CN は非OCEなので**コード変更なしで「韓国は韓国のみ・中国は中国のみ」になる**。OCE 例外には触らない。
+- [tourCrossing.ts](../../../src/lib/housing/tourCrossing.ts) の `canAddToTour` は非OCE地域同士の混在を既にブロック。KR/CN は非OCEなので基本は型拡張だけで「韓国は韓国のみ・中国は中国のみ」になる。
+- **(2026-07-18 実装時改訂・最終レビューC-1)**: OCE(Materia)の「どことでも混在可」例外が KR/CN を巻き込む穴(OCEのみのトレイに KR を追加可能)が見つかったため、`travelGroupOf`('GLOBAL'|'KR'|'CN') を導入し **OCE 例外はグローバル圏(JP/NA/EU/OCE)内に限定**。グローバル内の従来挙動(OCE と日米欧の混在・DCトラベル案内)は不変。トレイのアンカーは非OCE優先(OCEのみなら'OCE')で追加時に即ブロック。
 - 中国内の DC 跨ぎは同一 region のため既存の DC トラベル案内(`kind:'dc'`)がそのまま出る。
 - 追加テストで固定: KR×JP 追加不可 / CN×JP 追加不可 / CN 内 DC 跨ぎ可 / KR 内ワールド跨ぎ可。
 
