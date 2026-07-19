@@ -15,10 +15,11 @@ import {
     type User
 } from 'firebase/auth';
 import { auth, db, ensureAppCheck } from '../lib/firebase';
-import { doc, collection, getDocs, getDoc, query, where, writeBatch, updateDoc } from 'firebase/firestore';
-import { COLLECTIONS } from '../types/firebase';
+import { doc, collection, getDocs, getDoc, query, where, writeBatch, updateDoc, setDoc } from 'firebase/firestore';
+import { COLLECTIONS, type DatabaseRole } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
+import { ensureUserDocument } from '../utils/userDocHelper';
 import { deleteTeamLogo } from '../utils/logoUpload';
 import { deleteAvatar } from '../utils/avatarUpload';
 import { apiFetch } from '../lib/apiClient';
@@ -108,11 +109,16 @@ export const useAuthStore = create<AuthState>((set) => ({
         const currentUser = auth.currentUser;
         if (!currentUser) throw new Error('not_signed_in');
 
+        // Firestoreのドキュメントが欠損（または古い）場合、安全に初期化・補完する
+        await ensureUserDocument(currentUser);
+        // 新規作成された可能性があるので、isNewUserフラグを下ろしておく
+        set({ isNewUser: false });
+
         const userRef = doc(db, COLLECTIONS.USERS, currentUser.uid);
-        await updateDoc(userRef, {
+        await setDoc(userRef, {
             displayName: trimmed,
             updatedAt: new Date().toISOString(),
-        });
+        }, { merge: true });
 
         set({ profileDisplayName: trimmed });
     },

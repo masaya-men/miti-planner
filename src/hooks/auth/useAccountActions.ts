@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { uploadAvatar as uploadAvatarUtil, deleteAvatar as deleteAvatarUtil } from '../../utils/avatarUpload';
 import { syncHousingerProfileBestEffort } from '../../lib/housing/housingerProfileService';
+import { ensureUserDocument } from '../../utils/userDocHelper';
+import { auth } from '../../lib/firebase';
 
 /**
  * Account 設定操作 (アバター / displayName / ログアウト / 退会) を一箇所にまとめる hook。
@@ -17,6 +19,13 @@ export function useAccountActions() {
 
     const uploadAvatar = useCallback(async (blob: Blob): Promise<string> => {
         if (!user) throw new Error('not_signed_in');
+        
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+            await ensureUserDocument(currentUser);
+            useAuthStore.setState({ isNewUser: false });
+        }
+        
         const url = await uploadAvatarUtil(user.uid, blob);
         useAuthStore.setState({ profileAvatarUrl: url });
         // ハウジンガー公開プロフィール (housing_profiles) にアイコンを転記する。
@@ -27,6 +36,13 @@ export function useAccountActions() {
 
     const removeAvatar = useCallback(async (): Promise<void> => {
         if (!user) throw new Error('not_signed_in');
+
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+            await ensureUserDocument(currentUser);
+            useAuthStore.setState({ isNewUser: false });
+        }
+
         await deleteAvatarUtil(user.uid);
         useAuthStore.setState({ profileAvatarUrl: null });
         syncHousingerProfileBestEffort();
