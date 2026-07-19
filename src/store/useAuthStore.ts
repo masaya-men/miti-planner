@@ -15,8 +15,8 @@ import {
     type User
 } from 'firebase/auth';
 import { auth, db, ensureAppCheck } from '../lib/firebase';
-import { doc, collection, getDocs, getDoc, query, where, writeBatch, updateDoc, setDoc } from 'firebase/firestore';
-import { COLLECTIONS, type DatabaseRole } from '../types/firebase';
+import { doc, collection, getDocs, getDoc, query, where, writeBatch, setDoc } from 'firebase/firestore';
+import { COLLECTIONS } from '../types/firebase';
 import { usePlanStore } from './usePlanStore';
 import { useMitigationStore } from './useMitigationStore';
 import { ensureUserDocument } from '../utils/userDocHelper';
