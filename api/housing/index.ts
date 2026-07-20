@@ -14,6 +14,7 @@
  * ?action=purge-if-tweet-gone       → POST SNS 物件のツイート削除を再確認し 404 なら soft delete
  * ?action=upload-thumbnail          → POST 物件のサムネ画像を base64 で受領 → Firebase Storage に保存
  * ?action=delete-thumbnail          → POST 直接アップロード画像を1枚削除 (後続を繰り上げ)
+ * ?action=reorder-thumbnails        → POST 直接アップロード画像の並び順を変更 (Firestore のみ更新)
  * ?action=confirm-listing           → POST 家主が「今もあります」 で lastConfirmedAt を更新 (Phase 2-2)
  * ?action=my-personal-tag           → GET 自分の個人タグ取得 (未作成なら null。 作成は無く、
  *                                      upsert-housinger-profile 公開時に自動作成される — タグ刷新
@@ -39,6 +40,7 @@ import resolveReportHandler from './_resolveReportHandler.js';
 import purgeIfTweetGoneHandler from './_purgeIfTweetGoneHandler.js';
 import uploadThumbnailHandler from './_uploadThumbnailHandler.js';
 import deleteThumbnailHandler from './_deleteThumbnailHandler.js';
+import reorderThumbnailsHandler from './_reorderThumbnailsHandler.js';
 import confirmListingHandler from './_confirmListingHandler.js';
 import myPersonalTagHandler from './_myPersonalTagHandler.js';
 import searchPersonalTagsHandler from './_searchPersonalTagsHandler.js';
@@ -90,6 +92,8 @@ export default async function handler(req: any, res: any) {
       return uploadThumbnailHandler(req, res);
     case 'delete-thumbnail':
       return deleteThumbnailHandler(req, res);
+    case 'reorder-thumbnails':
+      return reorderThumbnailsHandler(req, res);
     case 'confirm-listing':
       return confirmListingHandler(req, res);
     case 'my-personal-tag':
@@ -111,7 +115,7 @@ export default async function handler(req: any, res: any) {
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|delete-thumbnail|confirm-listing|my-personal-tag|search-personal-tags|report-personal-tag|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|delete-thumbnail|reorder-thumbnails|confirm-listing|my-personal-tag|search-personal-tags|report-personal-tag|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour',
       });
   }
 }
