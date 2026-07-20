@@ -11,9 +11,9 @@
 
 ## 次の作業順 (2026-07-10 更新)
 
-**ハウジングのブランチは全部 main にマージ済・origin/main に push 済** (2026-07-10 に `git merge-base --is-ancestor` で検証)。`feat/housing-tour-panel-restructure` / `feat/housing-rebuild-foundation-browse` / `feat/housing-small-fixes` はいずれも**未マージではない**。ローカルのブランチ参照は消して良い。実装内容の詳細 → [TODO_COMPLETED.md](./TODO_COMPLETED.md) + memory [[project_housing_phase_status]]。DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
+DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。**現行の作業台帳は`.claude/worktrees/housing-edit-image-management/.superpowers/sdd/progress.md`(上記「現在の状態」参照)、本節の台帳表記は古い(2026-07-10時点)ので参照しない**。
 
-1. **🔴 ハウジング公開前の残タスク** (spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`、台帳=`.superpowers/sdd/progress.md`)
+1. **🔴 ハウジング公開前の残タスク** (spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`)
    - **実機確認待ち(ユーザー)**: ①本番でログイン→**編集を1周**(ログイン本番専用でローカル不可) ②登録URL欄 autoComplete=off ③期限6/30→シークレットNotFound ④旧テスト物件を詳細…メニューから削除 ⑤カード新デザイン本番確認。
    - **ツアー地図の残 UI 4件** (マージ済だが未着手): ①B4「目的の家に行き方」吹き出し(家側) ②経路を家の縁で終端(刺さり解消) ③家と道の枠線根治 ④地図クロスフェード再挑戦(ズームイン破綻で revert 済・現行 dip・code=`c905d8c4`)。
    - **その他残**: D7(過去日時注記・要相談)/D8(全ボタン押下feedback)/カードのスマホ対応/**軽減表の更新配信トースト**(自動reload禁止・要相談)/残デザイン(NotFound見た目/詳細トンマナ/B3赤Node)/生きたカード follow-up(詳細peers配線・representativeImage 3重複撤去・`useIsScrolling` が body overflow:hidden で非発火)。
@@ -21,16 +21,14 @@
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ 編集ページの物件取り違えバグ(実ユーザー報告・重大) = 根因特定・修正・push済(2026-07-20)
-実ユーザーから「最初に登録した物件を編集すると別の物件のデータになる」と報告 → systematic-debuggingで根因2件(オートセーブがmode無視で編集フォームを汚染/RegisterPageがkey無しで再マウントされない)を特定・修正。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。
+### 🔴 ハウジング編集ページ画像管理機能: Plan A完成・Plan B未着手(2026-07-21)
+既存物件の画像を編集ページから差し替え・削除・並び替え、登録方法(アップロード⇔URL)を切り替えられるようにする機能。設計書=`docs/superpowers/specs/2026-07-20-housing-edit-image-management-design.md`。
 
-**次(ユーザー要望)**: 編集ページから画像の「差し替え」機能を追加(削除も含める方向で合意)。着手時はbrainstormingから。既存の解像度極小化/カバー画像消失で悪化した画像は、直接この機能では直らない(サーバーに元画像が残っていないため)ので、影響物件の洗い出しも別途検討。
+**Plan A(サーバーAPI)= 完成・レビュー済・build完全クリーン(mainに未merge・未push)**: 実装計画=`docs/superpowers/plans/2026-07-20-housing-edit-image-server-actions.md`。作業場所=`.claude/worktrees/housing-edit-image-management`(ブランチ`feat/housing-edit-image-management`)。台帳=そのワークツリー内`.superpowers/sdd/progress.md`。レビューでCritical1件(動画URL検証バイパス)+データロス経路1件(SNS切替で旧tweetId残留→誤soft-delete)+コスト漏れ1件(画像差替で孤児ファイル)を発見・修正済み。
 
-### ✅ 画像品質バグ3件 = 根因特定・修正・push済(2026-07-20)
-`alwaysKeepResolution:true`(解像度極小化を防止)+ WebP非対応時はJPEGへフォールバック(PNG画質劣化を防止)+ 圧縮3段階化(413によるカバー画像消失を構造的に防止)。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**古いSafari実機では未検証**、次の登録ラッシュでPNGフォールバック登録が0件になるか数日ようすを見る。複数投稿URL機能(Batch 2)完了後、登録UIで「URL経由登録」を理由付きで目立つように推奨する方向へ改修予定(着手時brainstorming)。
+**次セッション最優先**: Plan B(クライアントUI)の設計をbrainstormingから開始(同じワークツリーで続行可)。mainへのmerge判断はPlan B完了後まで保留。
 
-### ✅ 画像登録5枚目以降サイレント失敗バグ+投稿URL消失バグ = 修正・本番反映済(2026-07-20)
-Batch 1(設計→計画→サブエージェント実装→Opus最終レビュー→merge→本番反映)まで完了。詳細→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。残=新モーダルのスマホ実機見た目チェック/複数投稿URL登録(Batch2・要望メモ済)/画像コストのegress調査(要GCP Console)。
+**その前の完了分(画像品質バグ3件・編集ページ物件取り違えバグ・5枚目以降失敗バグ)は本番push済・詳細はTODO_COMPLETED.md参照**。
 
 ### 🔴 次セッション優先(2026-07-20 更新)
 00. ✅ **コスト・ハードニング全部+実機FB9件中②③⑥⑦⑧⑨+ボタン高さ統一/スマホ下端余白/お気に入りアニメ強化、全部本番反映済み・ユーザー実機OK(2026-07-20)**。詳細=TODO_COMPLETED。**残る1件**=⑤YouTube概要欄住所自動入力は要ユーザー判断(公式API導入が必要)。
