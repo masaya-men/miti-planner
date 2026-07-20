@@ -19,16 +19,23 @@
  *  - index は 0-3 の整数
  *
  * 完了動作:
- *  - Firebase Storage `housing/listings/{listingId}/main-{index}.{ext}` に保存
+ *  - Firebase Storage `housing/listings/{listingId}/{randomId}.{ext}` に保存
+ *    (2026-07-20〜: 並び順は Firestore の thumbnailPaths 配列だけが正典。
+ *     旧 main-{index}.{ext} 形式の既存ファイル/URL はそのまま動作し続ける)
  *  - Firestore listing.thumbnailPaths 配列の index 位置を URL で更新
  *  - thumbnailPath (1 枚目 = 後方互換) も index=0 のときに更新
  *  - imageMode='thumbnail' に切替
+ *  - 直前まで imageMode='sns' だった場合は SNS 由来フィールド (ogImageUrl /
+ *    sourceImageUrls / sourceImageAspectRatios / tweetId / youtubeVideoId /
+ *    videoUrl / videoPosterUrl / videoAspectRatio) をクリア (postUrl は維持)
  */
+import { randomUUID } from 'node:crypto';
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
+import { FieldValue } from 'firebase-admin/firestore';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 
 const MAX_BYTES = 1 * 1024 * 1024; // 1MB
@@ -113,11 +120,15 @@ export default async function handler(req: any, res: any) {
     if (listing.deletedAt) return res.status(404).json({ error: 'listing_deleted' });
 
     // Storage に保存。 ext は ALLOWED_MIME から確定 (ユーザー入力に依存しない)。
-    // path: main-{index}.{ext} で複数枚を区別 (上書き可)。
+    // path: ランダムID (上書き不可の新規ファイル)。 並び順(index)とは無関係にし、
+    // Firestore の thumbnailPaths 配列だけを並び順の正典とする (2026-07-20 編集ページ
+    // 画像管理設計、 delete-thumbnail / reorder-thumbnails が Storage 側のファイル移動
+    // を必要としないため)。 既存の main-{index}.{ext} 形式の URL はそのまま不透明な
+    // 文字列として動作し続けるため、 過去データの移行は不要。
     const ext = ALLOWED_MIME[mimeType];
     const storage = getStorage();
     const bucket = storage.bucket();
-    const filePath = `housing/listings/${listingId}/main-${imageIndex}.${ext}`;
+    const filePath = `housing/listings/${listingId}/${randomUUID()}.${ext}`;
     const file = bucket.file(filePath);
     await file.save(buf, {
       contentType: mimeType,
@@ -153,6 +164,20 @@ export default async function handler(req: any, res: any) {
       // 後方互換: 1 枚目を thumbnailPath にもコピー
       if (imageIndex === 0 || (data.thumbnailPath ?? '') === '') {
         update.thumbnailPath = existing[0];
+      }
+      // sns→thumbnail の登録方法切替 (2026-07-20 編集ページ画像管理設計): このアップロードが
+      // 「URL経由だった物件に初めて直接アップロード画像を追加した」ケースなら、SNS由来の
+      // フィールドをクリアする。postUrl (元投稿へのリンク) だけは imageMode と独立した
+      // フィールドとして扱う既存方針 (2026-07-20 別修正) により残す。
+      if (data.imageMode === 'sns') {
+        update.ogImageUrl = FieldValue.delete();
+        update.sourceImageUrls = FieldValue.delete();
+        update.sourceImageAspectRatios = FieldValue.delete();
+        update.tweetId = FieldValue.delete();
+        update.youtubeVideoId = FieldValue.delete();
+        update.videoUrl = FieldValue.delete();
+        update.videoPosterUrl = FieldValue.delete();
+        update.videoAspectRatio = FieldValue.delete();
       }
       tx.update(listingRef, update);
       bumpPublicVersionTx(tx, adminDb);
