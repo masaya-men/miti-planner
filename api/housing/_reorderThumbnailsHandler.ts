@@ -64,6 +64,9 @@ export default async function handler(req: any, res: any) {
       if (data.deletedAt) throw new Error('not_found');
 
       const current: string[] = Array.isArray(data.thumbnailPaths) ? data.thumbnailPaths : [];
+      if (current.length === 0) {
+        throw new Error('invalid_reorder');
+      }
       const result = computeArrayReorder(current, newOrder);
       if (!result.ok) throw new Error(result.error);
 
