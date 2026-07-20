@@ -54,7 +54,7 @@ export async function publicWindowHandler(req: any, res: any) {
     if (action === 'version') {
       const snap = await db.doc('housing_meta/public').get();
       const version = snap.exists ? (snap.data()?.version ?? 0) : 0;
-      res.setHeader('Cache-Control', 'public, s-maxage=30');
+      res.setHeader('Cache-Control', 'public, s-maxage=30, max-age=30');
       return res.status(200).json({ version });
     }
 
@@ -69,7 +69,7 @@ export async function publicWindowHandler(req: any, res: any) {
       const listings = snap.docs
         .filter((doc) => doc.data().deletedAt == null)
         .map((doc) => projectPublicListing(doc.id, doc.data()));
-      res.setHeader('Cache-Control', 'public, s-maxage=86400');
+      res.setHeader('Cache-Control', 'public, s-maxage=86400, max-age=86400');
       return res.status(200).json({ listings });
     }
 
@@ -89,7 +89,7 @@ export async function publicWindowHandler(req: any, res: any) {
       const listings = snap.docs
         .filter((doc) => doc.data().deletedAt == null)
         .map((doc) => projectPublicListing(doc.id, doc.data()));
-      res.setHeader('Cache-Control', 'public, s-maxage=86400');
+      res.setHeader('Cache-Control', 'public, s-maxage=86400, max-age=86400');
       return res.status(200).json({ listings });
     }
 
@@ -100,13 +100,13 @@ export async function publicWindowHandler(req: any, res: any) {
       }
       const snap = await db.collection(COLLECTION).doc(id).get();
       if (!snap.exists) {
-        res.setHeader('Cache-Control', 'public, s-maxage=86400');
+        res.setHeader('Cache-Control', 'public, s-maxage=86400, max-age=86400');
         return res.status(404).json({ error: 'not_found' });
       }
       const data = snap.data()!;
       if (!isPubliclyViewable(data, now)) {
         // オーナー本人向けの非公開/非表示/期限切れは窓口では返さない (本人は getDoc で直読み)。
-        res.setHeader('Cache-Control', 'public, s-maxage=86400');
+        res.setHeader('Cache-Control', 'public, s-maxage=86400, max-age=86400');
         return res.status(404).json({ error: 'not_found' });
       }
       const listing = projectPublicListing(id, data);
@@ -125,7 +125,7 @@ export async function publicWindowHandler(req: any, res: any) {
           .filter((d) => d.id !== id && d.data().deletedAt == null)
           .map((d) => projectPublicListing(d.id, d.data()));
       }
-      res.setHeader('Cache-Control', 'public, s-maxage=86400');
+      res.setHeader('Cache-Control', 'public, s-maxage=86400, max-age=86400');
       return res.status(200).json({ listing, peers });
     }
 

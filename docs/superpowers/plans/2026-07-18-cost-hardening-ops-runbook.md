@@ -1,6 +1,8 @@
 # Cloudflare Cache Rule 追加 運用手順書(コスト・ハードニング 項目1・5)
 
 > 設計書: `docs/superpowers/specs/2026-07-18-cost-hardening-and-ogp-design.md` §1・§5。実行は本番Cloudflareダッシュボードの手動操作。2026-06-12の前段化runbook(`docs/.private/2026-06-12-cloudflare-fronting-handoff.md`)と同じ「1ステップずつ検証」方式。深夜/低トラフィック帯に実施推奨。
+>
+> **⚠ 2026-07-20 訂正**: 本ドキュメント初版は「Cache Rulesは最初にマッチしたルールが勝つ(Page Rules方式)」という誤った前提で書かれていた。実際は**逆で、後にマッチしたルールが勝つ**(公式: [Order and priority](https://developers.cloudflare.com/cache/how-to/cache-rules/order/) — "the last matching rule wins" は cache eligibility の競合も含む)。既存の `housing-public-window-cache` / `miti-public-window-cache` が `bypass-dynamic-shell`(/api/* バイパス)より**下**にありながら正しく機能しているのはこのため。→ 新規ルールは**バイパスルールより上に移動する必要はなく、一覧の末尾に追加するだけでよい**。以下の Step 1・2 の「上位に配置」という記述は誤りなので無視すること。
 
 ## 対象2件
 
@@ -19,7 +21,8 @@ Cloudflare → Caching → Cache Rules → 新規ルール作成:
 - ルール名: `api-popular-cache`
 - マッチ条件: `URI Path` `equals` `/api/popular`(または `starts with` `/api/popular` — クエリ文字列 `contentIds=...` はPathに含まれないため、Pathマッチで十分)
 - 実行アクション: `Cache eligibility` = `Eligible for cache`
-- Edge TTL: `Override origin and use this TTL` → `900` 秒(Vercel側の `s-maxage=900` と揃える)
+- Edge TTL: `キャッシュ制御ヘッダーを無視し、この TTL を使用します`(= Ignore cache-control header and use this TTL)→ `900` 秒
+  - **2026-07-20 実測で確認**: `api/popular/index.ts` は `Cache-Control: public, s-maxage=900, max-age=300` を返すが、Vercelがクライアント応答から `s-maxage` を除去するため([[reference_vercel_cf_window_caching]])、Cloudflareに実際届くのは `max-age=300` のみ。「キャッシュ制御ヘッダーが存在する場合は使用」(デフォルト)を選ぶと300秒になってしまうため、意図通り900秒にするには上記のとおり明示上書きが必須。
 - Browser TTL: `Respect origin TTL`(オリジンのヘッダに従う・既存方針どおり)
 - **重要**: このルールは既存の `/api/*` Bypassルールより**上位(先に評価される順)**に配置する。Cloudflare Cache Rulesは上から順に評価され、最初にマッチしたルールが適用されるため、`/api/*` Bypassが先にあるとこの新ルールが一切効かない。
 
