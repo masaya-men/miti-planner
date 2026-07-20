@@ -36,6 +36,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 import { FieldValue } from 'firebase-admin/firestore';
+import { parseStoragePathFromPublicUrl } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 
 const MAX_BYTES = 1 * 1024 * 1024; // 1MB
@@ -142,6 +143,9 @@ export default async function handler(req: any, res: any) {
     )}?alt=media`;
 
     // thumbnailPaths 配列の index 位置を更新 (transaction で race condition 回避)。
+    // 同じスロットへの再アップロードで置き換えられる旧 URL をトランザクション内で捕捉し、
+    // トランザクション成功後に Storage 側の旧ファイルを削除する (孤児化防止)。
+    let previousUrl: string | undefined;
     const newPaths = await adminDb.runTransaction(async (tx) => {
       const snap = await tx.get(listingRef);
       const data = snap.data() ?? {};
@@ -152,6 +156,8 @@ export default async function handler(req: any, res: any) {
           : [];
       // index 位置を確保 (足りなければ pad)
       while (existing.length <= imageIndex) existing.push('');
+      // 上書き前の値を保持 (空文字列プレースホルダーは「元々何もない」= undefined に変換)。
+      previousUrl = existing[imageIndex] || undefined;
       existing[imageIndex] = publicUrl;
       // 空文字列を末尾から除去 (中間の空は維持してインデックス一意性を保つ)
       while (existing.length > 0 && existing[existing.length - 1] === '') existing.pop();
@@ -183,6 +189,20 @@ export default async function handler(req: any, res: any) {
       bumpPublicVersionTx(tx, adminDb);
       return existing;
     });
+
+    // 同一スロットへの再アップロードで置き換えられた旧 Storage オブジェクトの削除は
+    // トランザクション成功後のみ行う (delete-thumbnail と同じ理由: Storage削除の失敗で
+    // 既に成功したレスポンス/Firestore更新に影響させない)。
+    if (previousUrl) {
+      const oldPath = parseStoragePathFromPublicUrl(previousUrl);
+      if (oldPath) {
+        try {
+          await getStorage().bucket().file(oldPath).delete();
+        } catch (e) {
+          console.error('[housing/upload-thumbnail] old file cleanup failed (non-fatal):', e);
+        }
+      }
+    }
 
     return res.status(200).json({ success: true, thumbnailPath: publicUrl, thumbnailPaths: newPaths });
   } catch (error: any) {

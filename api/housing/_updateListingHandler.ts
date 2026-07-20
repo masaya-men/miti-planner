@@ -128,6 +128,11 @@ export default async function handler(req: any, res: any) {
       // 削除済みは編集不可 (not_found を返してリーク防止)
       if (data.deletedAt) throw new Error('not_found');
 
+      // トランザクションがリトライされても正しい値になるよう、毎回この attempt の
+      // data から導出しなおす (true 固定代入だと再試行時に古い true が残留しうる。
+      // 最終レビューで発見)。
+      switchedFromThumbnail = draftForValidation.imageMode === 'sns' && data.imageMode === 'thumbnail';
+
       // 更新ペイロード: undefined のフィールドは除外して既存値を残す
       const updatePayload: Record<string, unknown> = {
         dc: draftForValidation.dc,
@@ -185,6 +190,26 @@ export default async function handler(req: any, res: any) {
         const imageFields = buildListingImageFields(draftForValidation, Date.now());
         if (imageFields.imageMode === 'sns') {
           Object.assign(updatePayload, imageFields);
+
+          // 同じ imageMode==='sns' 内でのソース切替 (例: Twitter→YouTube) 時、旧ソースの
+          // フィールドが Firestore に残留しないようにする (tx.update はマージのため上書きされない)。
+          // 残留した tweetId が後日 purge-if-tweet-gone に拾われ、有効な物件が誤って
+          // soft-delete されるデータロス経路を防ぐ (最終レビューで発見)。
+          const SNS_SUBFIELDS = [
+            'tweetId',
+            'youtubeVideoId',
+            'sourceImageUrls',
+            'sourceImageAspectRatios',
+            'videoUrl',
+            'videoPosterUrl',
+            'videoAspectRatio',
+            'lastTweetCheckAt',
+          ] as const;
+          for (const field of SNS_SUBFIELDS) {
+            if (!(field in imageFields)) {
+              updatePayload[field] = FieldValue.delete();
+            }
+          }
         }
 
         // thumbnail→sns の登録方法切替クリーンアップ: 保存済みが thumbnail で、今回
@@ -193,7 +218,6 @@ export default async function handler(req: any, res: any) {
         if (data.imageMode === 'thumbnail') {
           updatePayload.thumbnailPaths = FieldValue.delete();
           updatePayload.thumbnailPath = FieldValue.delete();
-          switchedFromThumbnail = true;
         }
       }
 
