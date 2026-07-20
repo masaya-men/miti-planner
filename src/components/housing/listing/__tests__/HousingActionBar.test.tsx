@@ -84,11 +84,20 @@ describe('HousingActionBar', () => {
   });
 
   // 実機FB②: 探すページのカードはスペース不足でボタンを置けないため、詳細ページにも
-  // 「＋ツアーに追加」を追加した (BrowsePage.addToTray と同じロジック)。
-  it('「＋ツアーに追加」ボタンを押すと listing.id がトレイに積まれる', () => {
+  // ツアー追加ボタンを追加した (BrowsePage.addToTray と同じロジック)。
+  it('「＋ツアー」ボタンを押すと listing.id がトレイに積まれる', () => {
     renderBar({ viewerUid: null });
     fireEvent.click(screen.getByRole('button', { name: 'housing.card.add_to_tour' }));
     expect(useTourTrayStore.getState().trayIds).toEqual([baseListing.id]);
+  });
+
+  // 実機FB②訂正: 操作バーの他ボタンは短い表記のため、カードと同じ「ツアーに追加」だと
+  // 列がずれる。表示文言は短縮した「ツアー」にし、アクセシブルネームだけ完全な文言にする。
+  it('見た目の文言は短縮した「ツアー」で、アクセシブルネームは完全な文言になる', () => {
+    renderBar({ viewerUid: null });
+    const btn = screen.getByRole('button', { name: 'housing.card.add_to_tour' });
+    expect(btn.textContent).toContain('housing.detail.add_to_tour');
+    expect(btn.textContent).not.toContain('housing.card.add_to_tour');
   });
 
   it('unlisted の物件では「＋ツアーに追加」ボタンが disabled になる (住所非公開でツアーに使えない)', () => {

@@ -152,16 +152,20 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
     <div className="housing-action-bar">
       <HousingFavHeart listingId={listing.id} />
 
+      {/* 実機FB②訂正: 操作バーは他ボタン(ちがった/kebab等)も短い1〜4文字表記のため、
+          カードと同じ「ツアーに追加」だと列がずれる。ここだけ短縮した「ツアー」表記にする
+          (アクセシブルネームは aria-label で完全な文言を補う)。 */}
       <button
         type="button"
         className="housing-card-add-btn housing-action-bar-add-tour"
         disabled={listingUnlisted}
         aria-disabled={listingUnlisted}
+        aria-label={t('housing.card.add_to_tour')}
         title={listingUnlisted ? t('housing.card.addressPrivate') : undefined}
         onClick={onAddToTour}
       >
         <Plus size={14} aria-hidden="true" />
-        {t('housing.card.add_to_tour')}
+        {t('housing.detail.add_to_tour')}
         <HousingRipple ripples={ripples} />
       </button>
 

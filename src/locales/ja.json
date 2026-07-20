@@ -2711,6 +2711,7 @@
             "report_button": "ちがった",
             "back_aria": "戻る",
             "view_source": "元の投稿を見る",
+            "add_to_tour": "ツアー",
             "kebab": {
                 "aria_label": "メニュー",
                 "edit": "編集",

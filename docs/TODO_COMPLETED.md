@@ -2,16 +2,16 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
-### ✅ 2026-07-20 実機FB9件のうち5件を systematic-debugging で修正 (①④除く、⑤⑨は次回へ)
-- **②詳細ページに「＋ツアーに追加」ボタン追加**: `HousingActionBar`にカードと同じ意匠(honeyピル+リップル)で新設。地域跨ぎブロック(`canAddToTour`)もカード側と同一ロジック。テスト2件追加。
+### ✅ 2026-07-20 実機FB9件のうち6件を systematic-debugging で修正 (①④除く、⑤のみ次回へ)
+- **②詳細ページに「＋ツアー」ボタン追加**: `HousingActionBar`にカードと同じ意匠(honeyピル+リップル)で新設。地域跨ぎブロック(`canAddToTour`)もカード側と同一ロジック。**訂正(2026-07-20)**: 初回実装でカードと同じ長い「ツアーに追加」ラベルをそのまま流用し確認なしでpushしてしまい、ユーザー指摘で発覚(操作バーの他ボタンは短い表記のため文言が長いと列がずれる、という過去の指定を見落とした)。表示文言を短縮した「ツアー」に修正し、アクセシブルネームは`aria-label`で完全な文言(「ツアーに追加」)を維持。**教訓は memory `feedback_deploy` に反映**(新UIはpush前に必ず一度止めてローカル確認を聞く)。
 - **③詳細ページから登録時の元URL(X/YouTube/ハウジングスナップ)へ飛べるように**: `listing.postUrl`を「元の投稿を見る」リンクとして表示。**重要な防御**: unlisted(住所非公開)では元投稿の本文に住所が書かれていることが多いため、`isAddressHidden`と同条件で非表示にし間接的な住所漏洩を防止(peers セクションと同型の防御)。i18nキー`housing.detail.view_source`を4言語に追加(既存の未翻訳ブロックに合わせ暫定でja文言のまま)。
 - **⑥住所を手入力した直後、右の地図ナビが古い位置のまま(番地チップの上下クリックで直る)**: 根因特定(`TourNavMap.tsx`)。同一ワード地図内(stepKey不変)でmodelだけ変わる「アイドル中の背景更新」パスは、ハイライト位置は更新する一方でパン/ズームカメラの再フィットをしていなかった(番地チップクリックは副次的なリサイズイベント経由で偶然直っていた)。該当パスに再フィット呼び出しを追加。回帰テスト(仮説検証→反転確認)を追加。
 - **⑦iPhone Safariでハウジング画面の上下左右が少し見切れる**: `.housing-workspace`の`height:100vh`がiOS Safariのアドレスバー込みの大きいviewportを指すため。`.housing-shell`は既にモバイル時`100dvh`フォールバック済みだったが親の`.housing-workspace`が未対応だった。同じ`100vh; 100dvh;`フォールバックパターンを追加。**CSSのみの修正でjsdomでは検証不能、実機(iPhone Safari)での確認が必要**。
 - **⑧スマホ右下のアカウントアイコンがログイン中でも未ログイン表示のまま**: `HousingBottomNav`のログイン項目アイコンが常に汎用`User`アイコン固定で、ヘッダー(`AppHeader`)の顔写真アバターと違い状態を反映していなかった。ログイン中は`profileAvatarUrl`があれば顔写真、無ければ頭文字絵文字を表示するよう修正。テスト3件追加。
 - **①(ドロップダウン意匠統一)は「無理に変えなくてよい」とユーザー判断済で対応不要**。
 - **⑤(YouTube概要欄の住所自動入力)は調査完了・実装保留**: 現状はYouTube動画の説明文(概要欄)を一切取得しておらず、動画IDからサムネURLを組み立てているだけ。概要欄を読むには公式YouTube Data API (v3)が必要で、ユーザー自身がGoogle Cloudで新規APIキーを取得する作業が要る(無料枠は1日1万ユニットで十分・費用面はほぼ問題ないがキー取得は本人作業)。次回セッションで実装するか判断待ち。
-- **⑨(アカウントボタンのモーダルが画面中央より下寄り)は未解決**: `HousingPanelModal`の中央寄せCSS(`position:fixed;inset:0`+flex center)と`max-height`のdvhフォールバックは静的に読む限り正しく、明確な原因が見つからなかった。実機のcomputed style/DOM構造が無いと確定できないため次回へ持ち越し。
-- 検証: build ✅ (`tsc -b` + `vite build`) / vitest 3549 pass(既知 EphemeralAddPanel 7件のみ・環境依存で無関係と特定済み)。
+- **⑨(アカウントボタンのモーダルが画面中央より下寄り)は実機確認で解消済(2026-07-20)**: コード上は明確な原因を特定できなかったが、ユーザーが実機で再確認したところ直っていた。⑦の`.housing-workspace`の`100vh→100dvh`修正が副次的に効いた可能性(要因は未確定)。
+- 検証: build ✅ (`tsc -b` + `vite build`) / vitest 3549+1 pass(既知 EphemeralAddPanel 7件のみ・環境依存で無関係と特定済み)。
 
 ### ✅ 2026-07-20 Cloudflare運用2件(cost-hardening-ops-runbook)完了+housing公開窓口のキャッシュ欠落バグ発見・修正
 - **`api-popular-cache` / `housing-housinger-page-cache`ルールを新規作成・本番HIT実証済**(手順書=`docs/superpowers/plans/2026-07-18-cost-hardening-ops-runbook.md`)。手順書初版の「バイパスルールより上位に配置」は誤りと判明・訂正済み(公式: Cache Rulesは**後にあるルールが勝つ**=Page Rulesと逆。既存の`housing-public-window-cache`/`miti-public-window-cache`が`bypass-dynamic-shell`より下でも機能していた理由もこれで説明がつく)。
