@@ -47,6 +47,7 @@ vi.mock('firebase/firestore', () => ({
         commit: vi.fn(async () => undefined),
     })),
     updateDoc: vi.fn(async () => undefined),
+    setDoc: vi.fn(async () => undefined),
 }));
 
 vi.mock('../../lib/firebase', () => ({

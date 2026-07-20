@@ -16,7 +16,7 @@ export async function ensureUserDocument(currentUser: User): Promise<void> {
 
     if (!userDoc.exists()) {
         // 全くドキュメントが存在しない（Housing側からの新規登録など）
-        const providerData = currentUser.providerData[0];
+        const providerData = currentUser.providerData?.[0];
         const provider = providerData?.providerId === 'twitter.com' ? 'twitter' : 'discord';
         
         await setDoc(userRef, {
