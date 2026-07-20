@@ -2,6 +2,12 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-20 Cloudflare運用2件(cost-hardening-ops-runbook)完了+housing公開窓口のキャッシュ欠落バグ発見・修正
+- **`api-popular-cache` / `housing-housinger-page-cache`ルールを新規作成・本番HIT実証済**(手順書=`docs/superpowers/plans/2026-07-18-cost-hardening-ops-runbook.md`)。手順書初版の「バイパスルールより上位に配置」は誤りと判明・訂正済み(公式: Cache Rulesは**後にあるルールが勝つ**=Page Rulesと逆。既存の`housing-public-window-cache`/`miti-public-window-cache`が`bypass-dynamic-shell`より下でも機能していた理由もこれで説明がつく)。
+- **housinger専用ルールのエッジTTLは300秒でなく86400秒(1日)を採用**: `_housingerPageHandler.ts`はDiscord等のOGPプレビュー用メタタグ生成が主目的で、実際に画面へ表示される内容(プロフィール/一覧)はReact側が`getHousingerProfile`等で毎回Firestoreから直接ライブ取得するため、このHTMLのキャッシュ期間は画面内容の鮮度に一切影響しない。影響があるのは「編集直後にリンク共有した場合のOGPプレビュー文言/タブタイトルのみ」という限定的範囲と確認した上でユーザー承認・採用。
+- **重大な副産物**: `api/housing/_publicWindow.ts`の全action(version/gallery/housinger/listing)がCache-Controlに`s-maxage`しか設定しておらず、Vercelがクライアント応答から`s-maxage`を除去する仕様([[reference_vercel_cf_window_caching]])によりCloudflareに具体的な秒数が一切届いていなかった(未知の長いデフォルトTTLで代替キャッシュ)。これが実機FB④「削除した物件が10分以上『探す』に残り続ける」の根本原因だった。全6箇所に`max-age`を追記し修正・build+vitest(3540 pass, 既知の無関係な失敗7件のみ)確認後デプロイ。旧キャッシュ(`?action=version`)をCloudflare側で手動パージし、本番で30秒キャッシュへの復帰を実測確認。gallery/housinger/listingは自然入替(数時間)に委ねた。
+- 学び: max-age欠落はCloudflareが古い壊れたキャッシュを長期保持し続けるため、コード修正をデプロイしただけでは実ユーザーに反映されない→**該当URLの手動パージが必須**という手順を確立。
+
 ### ✅ 2026-07-18〜19 コスト・ハードニング本番反映後の実機不具合3件(即日修正・本番反映済)
 - **共有ツアー参加APIのApp Check回帰**(commit `4aa61ebb`): join-shared-tourにverifyAppCheckを付けていたため、本当に未ログイン初回訪問者(getActiveAppCheck=peekで未初期化)が403で弾かれツアーに参加できなかった。本番curlで403を再現confirmしてから、`_searchPersonalTagsHandler.ts`/`api/popular`と同じ「App Check無し・rate limitのみ」パターンに揃えて解消。heartbeatでensureAppCheck()を発火させる代替案はコスト面の趣旨に反するため不採用。
 - **住所非公開(unlisted)が探すから消える**(commit `c4f24517`): 地域フィルターは言語切替で未タッチでも既定地域が入る(他フィルターと違い実質デフォルトON)。unlistedはregion=undefinedのため地域フィルターに一律で弾かれていた。region未定義のリスティングは地域フィルター対象外として素通しするよう修正(server/area/sizeは従来どおり除外維持)。
