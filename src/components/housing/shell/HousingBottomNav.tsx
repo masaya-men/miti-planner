@@ -32,6 +32,7 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettin
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const user = useAuthStore((s) => s.user);
+  const profileAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
   const openLogin = useHousingModalStore((s) => s.openLogin);
   const openAccount = useHousingModalStore((s) => s.openAccount);
   // 未ログインでも呼んで良い (フック規則上、条件付き呼び出しはできない)。未ログイン時は
@@ -73,7 +74,20 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettin
     },
     {
       id: 'login',
-      icon: <User size={20} aria-hidden="true" />,
+      // 実機FB⑧: ログイン中は他画面のアバターボタン(AppHeader の .housing-top-avatar-btn)と
+      // 同じ見た目(顔写真 or 頭文字絵文字)にする。従来は常に汎用の User アイコンのままで、
+      // ログイン中でも「未ログイン」に見えていた。
+      icon: user ? (
+        profileAvatarUrl ? (
+          <img src={profileAvatarUrl} alt="" className="housing-bottomnav-avatar" />
+        ) : (
+          <span className="housing-bottomnav-avatar housing-bottomnav-avatar-fallback" aria-hidden="true">
+            👤
+          </span>
+        )
+      ) : (
+        <User size={20} aria-hidden="true" />
+      ),
       label: user ? t('housing.topbar.account') : t('housing.mobile.nav_login'),
       onClick: () => (user ? openAccount() : openLogin()),
       active: false,

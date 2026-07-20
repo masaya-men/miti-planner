@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { HousingActionBar } from '../HousingActionBar';
+import { useTourTrayStore } from '../../../../store/useTourTrayStore';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'ja' } }),
@@ -79,6 +80,28 @@ const baseListing = {
 describe('HousingActionBar', () => {
   beforeEach(() => {
     navigateMock.mockReset();
+    useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+  });
+
+  // 実機FB②: 探すページのカードはスペース不足でボタンを置けないため、詳細ページにも
+  // 「＋ツアーに追加」を追加した (BrowsePage.addToTray と同じロジック)。
+  it('「＋ツアーに追加」ボタンを押すと listing.id がトレイに積まれる', () => {
+    renderBar({ viewerUid: null });
+    fireEvent.click(screen.getByRole('button', { name: 'housing.card.add_to_tour' }));
+    expect(useTourTrayStore.getState().trayIds).toEqual([baseListing.id]);
+  });
+
+  it('unlisted の物件では「＋ツアーに追加」ボタンが disabled になる (住所非公開でツアーに使えない)', () => {
+    const unlisted = {
+      ...baseListing,
+      visibility: 'unlisted',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    renderBar({ viewerUid: null, listing: unlisted });
+    const btn = screen.getByRole('button', { name: 'housing.card.add_to_tour' });
+    expect(btn).toBeDisabled();
+    fireEvent.click(btn);
+    expect(useTourTrayStore.getState().trayIds).toEqual([]);
   });
 
   it('家主自身が見ると kebab メニューが表示され、 「ちがった」 は出ない', () => {

@@ -26,10 +26,11 @@ vi.mock('react-i18next', () => ({
 }));
 
 let mockUser: { uid: string } | null = null;
+let mockProfileAvatarUrl: string | null = null;
 vi.mock('../../../../store/useAuthStore', () => ({
   useAuthStore: Object.assign(
     (sel: (s: { user: { uid: string } | null; profileAvatarUrl: string | null }) => unknown) =>
-      sel({ user: mockUser, profileAvatarUrl: null }),
+      sel({ user: mockUser, profileAvatarUrl: mockProfileAvatarUrl }),
     { setState: vi.fn(), getState: vi.fn() },
   ),
 }));
@@ -74,6 +75,7 @@ function resetMocks() {
   openLogin.mockClear();
   openAccount.mockClear();
   mockUser = null;
+  mockProfileAvatarUrl = null;
   mockUnreadCount = 0;
 }
 
@@ -165,6 +167,30 @@ describe('HousingBottomNav', () => {
     mockUnreadCount = 3;
     const { container } = renderNav();
     expect(container.querySelector('.housing-bottomnav-badge')).not.toBeInTheDocument();
+  });
+
+  // 実機FB⑧: ログイン項目のアイコンが常に汎用 User アイコンのままで、ログイン中でも
+  // 「未ログイン」に見えるバグの回帰テスト。
+  it('未ログイン時は汎用アイコンのみでアバターは描画しない', () => {
+    const { container } = renderNav();
+    expect(container.querySelector('.housing-bottomnav-avatar')).not.toBeInTheDocument();
+  });
+
+  it('ログイン中かつ avatarUrl 未設定なら頭文字絵文字アバターを描画する', () => {
+    mockUser = { uid: 'test-uid' };
+    const { container } = renderNav();
+    const avatar = container.querySelector('.housing-bottomnav-avatar');
+    expect(avatar).toBeInTheDocument();
+    expect(avatar?.tagName).toBe('SPAN');
+  });
+
+  it('ログイン中かつ avatarUrl 設定済みなら顔写真アバターを描画する', () => {
+    mockUser = { uid: 'test-uid' };
+    mockProfileAvatarUrl = 'https://example.com/avatar.png';
+    const { container } = renderNav();
+    const avatar = container.querySelector('.housing-bottomnav-avatar');
+    expect(avatar?.tagName).toBe('IMG');
+    expect(avatar?.getAttribute('src')).toBe('https://example.com/avatar.png');
   });
 });
 

@@ -15,6 +15,7 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { ExternalLink } from 'lucide-react';
 import type { HousingListing, ReportReason } from '../../../types/housing';
 import { HousingPhotoGallery } from './HousingPhotoGallery';
 import { HousingDetailMap } from './HousingDetailMap';
@@ -238,6 +239,20 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
                 <p className="housing-detail-address">
                   {addressHidden ? fullAddress : `${fullAddress} / ${displayDcName(listing.dc, locale)} / ${displayWorldName(listing.dc, listing.server, locale)}`}
                 </p>
+                {/* 実機FB③: 登録時に貼った元URL(X/YouTube/ハウジングスナップ)へ飛べるように。
+                    元投稿の本文に住所が書かれていることが多いため、住所非公開(unlisted)では
+                    間接的な住所漏洩になる。isAddressHidden と同じ条件で隠す(§8.5 と同型の防御)。 */}
+                {!addressHidden && listing.postUrl && (
+                  <a
+                    className="housing-detail-source-link"
+                    href={listing.postUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ExternalLink size={12} aria-hidden="true" />
+                    {t('housing.detail.view_source')}
+                  </a>
+                )}
                 <HousingerByline ownerUid={listing.ownerUid} />
                 {resolvedTags.length > 0 && (
                   <ul className="housing-detail-tags">

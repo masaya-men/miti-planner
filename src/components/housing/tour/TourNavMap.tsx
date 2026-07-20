@@ -174,7 +174,17 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
       if (!displayedRef.current) {
         setDisplayedBoth({ svg, viewBox, model }); // 初回表示(演出は下の step-change effect が hasDisplayed で拾う)
       } else if (!introActive.current && key === prevStepKey.current) {
-        setDisplayedBoth({ svg, viewBox, model }); // アイドル中の背景更新(同一ステップの overlay 差し替え・アニメ無し)
+        // アイドル中の背景更新(同一ステップの overlay 差し替え・アニメ無し)。
+        // 実機FB⑥: RegisterAddressMap は同一ワード地図内で番地を手入力すると stepKey は
+        // 変わらず model (origin/target/route) だけ差し替わる。従来は overlay の中身は
+        // 新しい位置に更新される一方、パン/ズーム(view)は前回フィットしたまま据え置きだった
+        // ため、ハイライトが画面上の意図しない位置にずれて見えた(番地チップの上下クリックは
+        // 副次的に発生するリサイズ経由の再フィット(下の layoutEffect)を誘発するため直って見えていた)。
+        // ここでも同じフィット計算を行い、対象へ即座に(アニメ無しで)再センタリングする。
+        const md = { svg, viewBox, model };
+        setDisplayedBoth(md);
+        const target = computeTargetFor(md, wrapSizeRef.current);
+        if (target) setView(target);
       }
       tryDoSwap(); // 差し替え待ちなら実行
     } else if (status === 'none' || status === 'error') {
@@ -183,7 +193,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
       if (displayedRef.current) setDisplayedBoth(null);
     }
     // status === 'loading': 何もしない(旧地図を出したまま=ポップ回避)
-  }, [status, svg, viewBox, model, stepKey, tryDoSwap, endIntro, setDisplayedBoth]);
+  }, [status, svg, viewBox, model, stepKey, tryDoSwap, endIntro, setDisplayedBoth, computeTargetFor]);
 
   // 手動「デフォルト表示に戻す」= 即座に現在の地図へフィット(アニメなし)。演出中でも中断してスナップ。
   const resetView = useCallback(() => {

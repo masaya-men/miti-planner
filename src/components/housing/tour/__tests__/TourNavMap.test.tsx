@@ -240,4 +240,32 @@ describe('TourNavMap — ⑧ ズーム衝突根治 (zoomingIn ガード + 保険
     expect(zoomElAfter.className).not.toContain('is-hidden'); // 旧地図(plot_6)が可視復帰
     expect(container.querySelector('#plot_6')).toBeTruthy(); // 表示中の地図はまだ旧データのまま(無限ブランクにならない)
   });
+
+  // 実機FB⑥回帰テスト: 同一 stepKey (同じワード地図) のまま model だけ変わる
+  // (= RegisterAddressMap で番地を手入力した瞬間) 場合、パン/ズームの view が新しい対象へ
+  // 再フィットすること。根治前は overlay の位置だけ更新され view は前回フィットのまま据え置き
+  // だったため、ハイライトが画面上の意図しない位置にずれて見えた。
+  it('同一stepKeyでmodelだけ大きく変わると、view(パン/ズーム)も新対象へ再フィットする', () => {
+    const modelA: TourMapModel = { ...model, origin: { x: 10, y: 10 }, routePath: 'M10 10 L100 100' };
+    const modelB: TourMapModel = { ...model, origin: { x: 10, y: 10 }, routePath: 'M10 10 L900 900' };
+    const { container, rerender } = render(
+      <TourNavMap status="ready" svg={svgA} viewBox={vb} model={modelA} stepKey={0} />,
+    );
+    fireResize();
+    // OVERVIEW_HOLD_MS(350) + ZOOM_SETTLE_MS(1000) を越えて進め、settle の保険タイムアウトで
+    // endIntro が呼ばれ introActive=false の「アイドル状態」まで進める(register ページで
+    // 地図が一度落ち着いた後にユーザーが番地を打ち込む状況の再現)。
+    act(() => { vi.advanceTimersByTime(1500); });
+
+    const zoomEl = container.querySelector('.housing-map-zoom') as HTMLElement;
+    const transformAfterA = zoomEl.style.transform;
+
+    // stepKey は変えず (同一ワード地図)、model だけ (大きく) 差し替える。
+    act(() => {
+      rerender(<TourNavMap status="ready" svg={svgA} viewBox={vb} model={modelB} stepKey={0} />);
+    });
+    const transformAfterB = zoomEl.style.transform;
+
+    expect(transformAfterB).not.toBe(transformAfterA);
+  });
 });

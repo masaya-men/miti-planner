@@ -285,7 +285,12 @@
 
   background: #000;
   position: relative;
+  /* 実機FB⑦: iOS Safari の 100vh はアドレスバー込みの大きい viewport を指すため、overflow:hidden な
+     この根っこの高さがアドレスバー表示時の実visible領域よりはみ出し、下端寄りの子要素(絶対配置の
+     モバイル UI 等)が画面外(見切れ)になる。.housing-shell 側は 767px 以下で既に dvh 対応済みだが、
+     その親であるここ (.housing-workspace) は未対応だった。dvh 対応ブラウザは 2 行目が勝つ。 */
   height: 100vh;
+  height: 100dvh;
   width: 100%;
   overflow: hidden;
 }
@@ -3013,6 +3018,11 @@ select.housing-input option {
     top: auto;
     right: auto;
 }
+/* 実機FB②: カードと同じ「＋ツアーに追加」ボタンを操作バーの行内で使う。
+   カード側の margin-top はフッター内前提の値なので、行内では 0 に戻す。 */
+.housing-action-bar-add-tour {
+    margin-top: 0;
+}
 .housing-action-bar-confirmed-at {
     color: var(--housing-text-muted);
     font-size: var(--housing-text-small);
@@ -3353,6 +3363,19 @@ select.housing-input option {
     font-size: var(--housing-text-sm);
     color: var(--housing-text-dim);
     margin: 0;
+}
+/* 実機FB③: 元投稿(X/YouTube/ハウジングスナップ)へのリンク。登録者行(byline)と同じ静かなリンク見た目。 */
+.housing-detail-source-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: fit-content;
+    color: var(--housing-text-dim);
+    text-decoration: none;
+    font-size: var(--housing-text-sm);
+}
+.housing-detail-source-link:hover {
+    color: var(--housing-text);
 }
 /* ===== Task 7: 詳細パネルの登録者行 (HousingerByline) =====
    非公開/取得不可 (profile===null) のときは行ごと描画されない (JSX 側で null を返す) ので、
@@ -8246,6 +8269,25 @@ html[data-theme-anim="light"]::view-transition-new(root) {
 .housing-bottomnav-icon {
   position: relative;
   display: inline-flex;
+}
+/* 実機FB⑧: ログイン項目のアバター(顔写真/頭文字絵文字)。他の lucide アイコン(size=20)と
+   同じ視覚サイズに合わせた円形サムネイル。 */
+.housing-bottomnav-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  overflow: hidden;
+  object-fit: cover;
+  display: block;
+  border: 1px solid var(--housing-avatar-ring);
+  background: var(--housing-avatar-bg);
+}
+.housing-bottomnav-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  line-height: 1;
 }
 .housing-bottomnav-badge {
   position: absolute;

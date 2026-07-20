@@ -10,16 +10,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Plus } from 'lucide-react';
 import type { HousingListing } from '../../../types/housing';
 import { confirmListing } from '../../../lib/housingApiClient';
 import { isAddressHidden } from '../../../lib/housing/listingPublish';
+import { canAddToTour, tourAnchorRegion } from '../../../lib/housing/tourCrossing';
+import { regionForDC } from '../../../data/housing/dcServerMap';
+import { useRipple } from '../../../lib/housing/useRipple';
 import { showToast } from '../../Toast';
+import { HousingRipple } from '../HousingRipple';
 import { HousingDetailKebab } from './HousingDetailKebab';
 import { HousingShareButton } from './HousingShareButton';
 import { HousingFavHeart } from '../browse/HousingFavHeart';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDelete } from '../delete/useHousingDelete';
 import { HousingReportModal } from '../report/HousingReportModal';
+import { useTourTrayStore } from '../../../store/useTourTrayStore';
+import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 
 export interface HousingActionBarProps {
   listing: HousingListing;
@@ -55,6 +63,29 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   const [reportOpen, setReportOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteListing, loading: deleting } = useHousingDelete();
+  // 実機FB②: 探すページのカードはスペース不足でボタンを置けないため、詳細ページにも
+  // 「＋ツアーに追加」を追加。BrowsePage.addToTray と同じロジック (地域跨ぎブロック + トースト)。
+  const { ripples, onClick: addRipple } = useRipple();
+  const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
+  const listingUnlisted = isAddressHidden(listing);
+  const onAddToTour = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (listingUnlisted) return;
+    addRipple(e);
+    const trayIds = useTourTrayStore.getState().trayIds;
+    const pool = [
+      ...useHousingListingsStore.getState().listings,
+      ...useHousingListingsStore.getState().myListings,
+      ...useEphemeralListingsStore.getState().ephemeralListings,
+    ];
+    const trayRegion = tourAnchorRegion(
+      trayIds.map((id) => pool.find((l) => l.id === id)?.region ?? null),
+    );
+    if (!canAddToTour(trayRegion, regionForDC(listing.dc) ?? '')) {
+      showToast(t('housing.tour.region_block'), 'error');
+      return;
+    }
+    setTrayIds((prev) => (prev.includes(listing.id) ? prev : [...prev, listing.id]));
+  };
   // 2026-05-27 Phase 2-3: 「今もあります」 ボタン。 押下成功で local state を
   // 上書きすることで、 モーダルを閉じずに「○月○日 確認済」 表示を即更新する。
   // 親 (HousingDetailPage → useHousingDetail) で再 fetch すれば永続反映、 ここは表示のみ即更新。
@@ -120,6 +151,19 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   return (
     <div className="housing-action-bar">
       <HousingFavHeart listingId={listing.id} />
+
+      <button
+        type="button"
+        className="housing-card-add-btn housing-action-bar-add-tour"
+        disabled={listingUnlisted}
+        aria-disabled={listingUnlisted}
+        title={listingUnlisted ? t('housing.card.addressPrivate') : undefined}
+        onClick={onAddToTour}
+      >
+        <Plus size={14} aria-hidden="true" />
+        {t('housing.card.add_to_tour')}
+        <HousingRipple ripples={ripples} />
+      </button>
 
       {/* follow-up改良2(ユーザーFB): 物件詳細のXシェアは本文テキストなし (タイトル/コメント等を一切含めない)。
           tweetText=null で HousingShareButton 側の intent URL から text= パラメータ自体を省く。 */}
