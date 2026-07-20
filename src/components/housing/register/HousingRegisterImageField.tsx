@@ -49,13 +49,15 @@ interface SortableItem {
 }
 
 const ACCEPT_MIME = 'image/*';
-const DEFAULT_MAX_IMAGES = 4;
 /**
- * 登録時に物件画像として保存される枚数 (hotfix25 で 12 枚取得→先頭 4 枚保存に分離)。
+ * 登録時に物件画像として保存される枚数、かつピッカー自体の選択上限
+ * (2026-07-20: 「12枚選んで先頭4枚だけ保存」という二段構えが実ユーザーの混乱を招いたため、
+ * ピッカー自体をこの枚数までに制限する設計へ変更)。
  * サーバー側上限 (`api/housing/_uploadThumbnailHandler.ts` の `MAX_IMAGES_PER_LISTING`) と
- * 一致させる必要がある。 呼び出し側 (RegisterPage.tsx) が upload 枚数を絞り込む際にも参照する。
+ * 一致させる必要がある。
  */
 export const SAVED_IMAGES_LIMIT = 4;
+const DEFAULT_MAX_IMAGES = SAVED_IMAGES_LIMIT;
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b}B`;
@@ -73,21 +75,16 @@ function SortableImageTile({
   index,
   previewUrl,
   isCover,
-  isUsed,
   onRemove,
   coverBadgeLabel,
-  usedBadgeLabel,
   removeLabel,
 }: {
   item: SortableItem;
   index: number;
   previewUrl: string;
   isCover: boolean;
-  /** hotfix26: 登録時に物件画像として使われる枚 (= 先頭 4 枚) かどうか。 */
-  isUsed: boolean;
   onRemove: (index: number) => void;
   coverBadgeLabel: string;
-  usedBadgeLabel: string;
   removeLabel: string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -106,7 +103,6 @@ function SortableImageTile({
       style={style}
       className="housing-register-image-tile"
       data-dragging={isDragging}
-      data-used={isUsed}
       {...attributes}
       {...listeners}
     >
@@ -118,13 +114,9 @@ function SortableImageTile({
           draggable={false}
         />
       )}
-      {isCover ? (
+      {isCover && (
         <span className="housing-register-image-tile-badge">{coverBadgeLabel}</span>
-      ) : isUsed ? (
-        <span className="housing-register-image-tile-badge" data-variant="used">
-          {usedBadgeLabel}
-        </span>
-      ) : null}
+      )}
       <button
         type="button"
         onClick={(e) => {
@@ -306,10 +298,8 @@ export function HousingRegisterImageField({
                   index={i}
                   previewUrl={previewUrls.get(it.id) ?? ''}
                   isCover={i === 0}
-                  isUsed={i < SAVED_IMAGES_LIMIT}
                   onRemove={handleRemove}
                   coverBadgeLabel={t('housing.register.image.cover_badge')}
-                  usedBadgeLabel={t('housing.register.image.used_badge')}
                   removeLabel={t('housing.register.image.remove')}
                 />
               ))}

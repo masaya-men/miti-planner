@@ -1906,18 +1906,6 @@ select.housing-input option {
   background: var(--housing-honey-glow);
   border-radius: 4px;
 }
-/* hotfix26: 1-4 枚目 = 登録時に物件画像として使われる枚を honey 枠で強調 */
-.housing-register-image-tile[data-used="true"]:not([data-dragging="true"]) {
-  border-color: var(--housing-honey-glow);
-  box-shadow: 0 0 0 1px var(--housing-honey-glow);
-}
-/* hotfix26: 5 枚目以降 = 登録時に破棄される枚を半透明化 */
-.housing-register-image-tile[data-used="false"] {
-  opacity: 0.45;
-}
-.housing-register-image-tile-badge[data-variant="used"] {
-  background: var(--housing-candle, #ffe2b3);
-}
 .housing-register-image-tile-remove {
   position: absolute;
   top: 10px;

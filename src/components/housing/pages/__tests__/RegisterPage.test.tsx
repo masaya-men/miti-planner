@@ -116,6 +116,16 @@ async function attachImage(container: HTMLElement) {
   );
 }
 
+// 複数枚まとめて添付するヘルパー
+async function attachImages(container: HTMLElement, count: number) {
+  const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
+  const files = Array.from({ length: count }, (_, i) => new File(['x'], `photo${i}.png`, { type: 'image/png' }));
+  fireEvent.change(input, { target: { files } });
+  await waitFor(() =>
+    expect(container.querySelectorAll('.housing-register-image-tile').length).toBeGreaterThan(0),
+  );
+}
+
 describe('RegisterPage', () => {
   beforeEach(() => {
     useAuthStore.setState({ user: null, loading: false });
@@ -405,10 +415,10 @@ describe('RegisterPage', () => {
   // HousingRegisterImageField は最大12枚まで選択可能だが、登録時に物件画像として
   // 保存されるのは先頭 SAVED_IMAGES_LIMIT (4) 枚のみという UI 上の約束 (hotfix26/27 の
   // 「使用」バッジ・ja.json の「先頭4枚が保存されます」ヒント) がある。performRegister の
-  // アップロードループがこれを守らず全 localImages を送っていたため、5枚目以降はサーバー
-  // (MAX_IMAGES_PER_LISTING=4) に無条件で拒否される無駄なリクエストになっていた
-  // (かつ共有レート制限バケットを消費し、先頭4枚の成功すら道連れで失敗しうる根本原因の一端)。
-  it('mode=create: 5枚以上添付しても uploadListingThumbnail は先頭 SAVED_IMAGES_LIMIT 枚だけ呼ばれる', async () => {
+  // uploadListingThumbnail が正確に選択された画像のみ (SAVED_IMAGES_LIMIT 枚まで) を
+  // アップロードしていることを検証する。 ピッカーが 4 枚で上限に達するため、
+  // このテストは「 SAVED_IMAGES_LIMIT 枚を選ぶと全て upload される」ことを確認する。
+  it('mode=create: 4枚の画像を選ぶと、 uploadListingThumbnail は全て (SAVED_IMAGES_LIMIT 枚) 呼ばれる', async () => {
     useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
     window.localStorage.setItem(
       AUTOSAVE_KEY,
@@ -440,10 +450,10 @@ describe('RegisterPage', () => {
     const { container } = renderPage();
 
     const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
-    const files = Array.from({ length: 6 }, (_, i) => new File(['x'], `photo${i}.png`, { type: 'image/png' }));
+    const files = Array.from({ length: SAVED_IMAGES_LIMIT }, (_, i) => new File(['x'], `photo${i}.png`, { type: 'image/png' }));
     fireEvent.change(input, { target: { files } });
     await waitFor(() =>
-      expect(container.querySelectorAll('.housing-register-image-tile').length).toBe(6),
+      expect(container.querySelectorAll('.housing-register-image-tile').length).toBe(SAVED_IMAGES_LIMIT),
     );
 
     const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
@@ -466,6 +476,18 @@ describe('RegisterPage', () => {
     registerSpy.mockRestore();
     uploadSpy.mockRestore();
     window.localStorage.removeItem(AUTOSAVE_KEY);
+  });
+
+  it('mode=create: 画像ピッカーは4枚で上限に達し、追加エリアが消える', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    const { container } = renderPage();
+
+    await attachImages(container, SAVED_IMAGES_LIMIT);
+
+    expect(container.querySelectorAll('.housing-register-image-tile').length).toBe(
+      SAVED_IMAGES_LIMIT,
+    );
+    expect(container.querySelector('.housing-register-image-input')).toBeNull();
   });
 
   // 「入力途中を復元しました」が空ドラフトで誤発火するバグの回帰テスト (2026-07-13)。

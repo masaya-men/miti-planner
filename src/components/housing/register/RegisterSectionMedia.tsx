@@ -5,7 +5,7 @@ import {
   type YoutubeFetchedData,
   type OgpFetchedData,
 } from './HousingRegisterSnsUrlField';
-import { HousingRegisterImageField } from './HousingRegisterImageField';
+import { HousingRegisterImageField, SAVED_IMAGES_LIMIT } from './HousingRegisterImageField';
 import { HousingRegisterSourceImageUrlsField } from './HousingRegisterSourceImageUrlsField';
 import { SkeletonCard } from '../workspace/SkeletonCard';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
@@ -151,7 +151,7 @@ export const RegisterSectionMedia: React.FC<Props> = ({
         value={localImages}
         onChange={onLocalImagesChange}
         hasSnsUrl={sourceImageUrls.length > 0}
-        maxImages={12}
+        maxImages={SAVED_IMAGES_LIMIT}
       />
     </section>
   );
