@@ -13,6 +13,12 @@
 - **⑨(アカウントボタンのモーダルが画面中央より下寄り)は実機確認で解消済(2026-07-20)**: コード上は明確な原因を特定できなかったが、ユーザーが実機で再確認したところ直っていた。⑦の`.housing-workspace`の`100vh→100dvh`修正が副次的に効いた可能性(要因は未確定)。
 - 検証: build ✅ (`tsc -b` + `vite build`) / vitest 3549+1 pass(既知 EphemeralAddPanel 7件のみ・環境依存で無関係と特定済み)。
 
+### ✅ 2026-07-20 詳細ページのボタン高さ統一+スマホ下端余白+お気に入りアニメ強化(ユーザーの実機フィードバック経由)
+- **詳細ページ操作バーのボタン高さ統一**: ♡(30px固定円)/「＋ツアー」(パディング差で35px)/シェア・ちがった(32px)/Xアイコン(30px)/…メニュー(40px固定円)がバラバラだった実機指摘を受け、`--housing-action-bar-btn-h: 32px` トークンを新設し全ボタンに適用。共有クラス(`.housing-card-fav`/`.housing-kebab-trigger`)は他画面でも使われるため、`.housing-action-bar` にscopeしたoverrideのみ追加し既定値は不変。
+- **スマホ詳細ページの下端余白追加**: `.housing-detail-panel`(唯一のスクロール域)にボトムナビ高さ分の`padding-bottom`が無く、最後の要素がナビに隠れたままスクロールが止まる実機指摘。`.housing-listing-grid`で先に直した実機FB#9と同型のバグと判明、同じ計算式を適用。
+- **お気に入りハートの押下アニメーション強化**(ユーザー要望、motion-designスキルで方針検討): 拡大バウンド1.35倍→1.5倍+軽いひねり(rotate)を追加(keyframeベースに刷新)、飛散パーティクル8個→14個・飛距離拡大+粒ごとの大きさ/タイミングをランダム化。土台の「弾んで粒が飛ぶ」仕組みは維持。背景に光る輪を足す③案は保留(①②で「十分」とユーザー判断)。
+- 検証: build ✅ / vitest 3550 pass(既知 EphemeralAddPanel 7件のみ)。
+
 ### ✅ 2026-07-20 Cloudflare運用2件(cost-hardening-ops-runbook)完了+housing公開窓口のキャッシュ欠落バグ発見・修正
 - **`api-popular-cache` / `housing-housinger-page-cache`ルールを新規作成・本番HIT実証済**(手順書=`docs/superpowers/plans/2026-07-18-cost-hardening-ops-runbook.md`)。手順書初版の「バイパスルールより上位に配置」は誤りと判明・訂正済み(公式: Cache Rulesは**後にあるルールが勝つ**=Page Rulesと逆。既存の`housing-public-window-cache`/`miti-public-window-cache`が`bypass-dynamic-shell`より下でも機能していた理由もこれで説明がつく)。
 - **housinger専用ルールのエッジTTLは300秒でなく86400秒(1日)を採用**: `_housingerPageHandler.ts`はDiscord等のOGPプレビュー用メタタグ生成が主目的で、実際に画面へ表示される内容(プロフィール/一覧)はReact側が`getHousingerProfile`等で毎回Firestoreから直接ライブ取得するため、このHTMLのキャッシュ期間は画面内容の鮮度に一切影響しない。影響があるのは「編集直後にリンク共有した場合のOGPプレビュー文言/タブタイトルのみ」という限定的範囲と確認した上でユーザー承認・採用。
