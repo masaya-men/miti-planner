@@ -2984,9 +2984,13 @@ select.housing-input option {
     flex-wrap: wrap;
     align-items: center;
     gap: 8px;
+    /* 実機FB(ユーザー指摘2026-07-20): ♡(30px固定)/…メニュー(40px固定)/テキストボタン群
+       (パディング差で32〜35px)がバラバラだった。行内の全ボタンをこの高さに揃える。 */
+    --housing-action-bar-btn-h: 32px;
 }
 .housing-action-bar .housing-action-btn {
-    padding: 6px 12px;
+    height: var(--housing-action-bar-btn-h);
+    padding: 0 12px;
     background: var(--housing-chip-bg-hover);
     border: 1px solid var(--housing-panel-border);
     border-radius: 8px;
@@ -2994,6 +2998,14 @@ select.housing-input option {
     font-size: var(--housing-text-sm);
     cursor: pointer;
     text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+/* X アイコンだけのボタン(is-icon)は元々パディングが左右対称の小さめ値(6px)なので、
+   横パディングだけ縮めて正方形寄りに保つ(高さは共通トークンで統一)。 */
+.housing-action-bar .housing-action-btn.is-icon {
+    padding: 0 6px;
 }
 .housing-action-bar .housing-action-btn:hover {
     background: var(--housing-honey-medium);
@@ -3012,16 +3024,33 @@ select.housing-input option {
     opacity: 0.5;
     cursor: progress;
 }
-/* 探すページの HousingFavHeart を詳細の操作バー内で使う: カード角固定(absolute)を行内へ戻す。 */
+/* 探すページの HousingFavHeart を詳細の操作バー内で使う: カード角固定(absolute)を行内へ戻す。
+   実機FB(ユーザー指摘2026-07-20): カードのグリッド用サイズ(30px)のままだと行内の他ボタンと
+   高さが揃わないため、行内トークンに合わせて明示サイズを当てる。 */
 .housing-action-bar .housing-card-fav {
     position: relative;
     top: auto;
     right: auto;
+    width: var(--housing-action-bar-btn-h);
+    height: var(--housing-action-bar-btn-h);
 }
 /* 実機FB②: カードと同じ「＋ツアーに追加」ボタンを操作バーの行内で使う。
-   カード側の margin-top はフッター内前提の値なので、行内では 0 に戻す。 */
-.housing-action-bar-add-tour {
+   カード側の margin-top はフッター内前提の値なので、行内では 0 に戻す。
+   実機FB(ユーザー指摘2026-07-20): カード側パディング(7px)のままだと他ボタンより高くなるため、
+   行内トークンに高さを揃える。 */
+/* .housing-card-add-btn 単体クラスより後の定義だが同じ特異度(0,1,0)のため、確実に上書きされる
+   よう2クラス指定(0,2,0)にしてソース順に依存しないようにする。 */
+.housing-card-add-btn.housing-action-bar-add-tour {
     margin-top: 0;
+    height: var(--housing-action-bar-btn-h);
+    padding: 0 10px;
+}
+/* 家主専用「…」メニュー(HousingDetailKebab)は既定 40px 固定だが、行内の他ボタンと揃える。
+   .housing-kebab-trigger はハウジンガーページの別文脈でも使うため、ここでは操作バー内だけに
+   scope した override に留める(共有クラスの既定値は変えない)。 */
+.housing-action-bar .housing-kebab-trigger {
+    width: var(--housing-action-bar-btn-h);
+    height: var(--housing-action-bar-btn-h);
 }
 .housing-action-bar-confirmed-at {
     color: var(--housing-text-muted);
@@ -3685,6 +3714,15 @@ select.housing-input option {
     }
     .housing-detail-body:has(.housing-detail-report-banner) .housing-detail-content {
         min-height: 480px;
+    }
+}
+
+/* 実機FB: スマホは .housing-detail-panel が唯一のスクロール域で、ボトムナビは fixed で
+   画面下に被さる。末尾に確保しないと最後の要素(区画マップ/他の登録)がナビに隠れたまま
+   スクロールが止まってしまう(.housing-listing-grid で先に直した実機FB#9と同型のバグ)。 */
+@media (max-width: 767px) {
+    .housing-detail-panel {
+        padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
     }
 }
 
@@ -6157,22 +6195,34 @@ select.housing-input option {
 .housing-card-fav:active { transform: scale(0.92); }
 .housing-card-fav.is-on { color: var(--housing-honey); }
 .housing-card-fav.is-on svg { fill: currentColor; }
-/* いいね押下フィードバック: ハートの pop バウンド + 8方向パーティクル飛散 (追加時のみ)。 */
-.housing-card-fav svg { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-.housing-card-fav.is-pop svg { transform: scale(1.35); }
+/* いいね押下フィードバック: ハートの pop バウンド(拡大+軽いひねりで settle) + 多方向パーティクル飛散
+   (追加時のみ)。 2026-07-20 ユーザー要望で強化: 土台の「弾んで粒が飛ぶ」仕組みは変えず、
+   スケール/ひねり/粒の量と飛距離をより派手に。 */
+.housing-card-fav.is-pop svg {
+  animation: housing-fav-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: center;
+}
+@keyframes housing-fav-pop {
+  0% { transform: scale(1) rotate(0deg); }
+  38% { transform: scale(1.5) rotate(-10deg); }
+  62% { transform: scale(1.26) rotate(6deg); }
+  82% { transform: scale(1.08) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
 .housing-fav-particle {
   position: absolute; top: 50%; left: 50%;
-  width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+  width: var(--fav-size, 5px); height: var(--fav-size, 5px);
+  margin: calc(var(--fav-size, 5px) / -2) 0 0 calc(var(--fav-size, 5px) / -2);
   border-radius: 50%; background: var(--housing-honey);
   pointer-events: none;
-  animation: housing-fav-fly 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: housing-fav-fly 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--fav-delay, 0ms);
 }
 @keyframes housing-fav-fly {
   to { transform: translate(var(--fav-tx), var(--fav-ty)) scale(0); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .housing-card-fav svg { transition: none; }
-  .housing-card-fav.is-pop svg { transform: none; }
+  .housing-card-fav.is-pop svg { animation: none; }
   .housing-fav-particle { display: none; }
 }
 
