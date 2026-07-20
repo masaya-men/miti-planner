@@ -14,6 +14,8 @@ import {
   type RoomKind,
 } from '../types/housing.js';
 import { isOgpUrlAllowed } from '../lib/housing/ogpHostAllowlist.js';
+import { parseTweetUrl } from '../lib/housing/tweetUrlParse.js';
+import { parseYoutubeUrl } from '../lib/housing/youtubeUrl.js';
 import { getPlotSize } from '../data/housing/wardPlotSizes.js';
 import { DC_SERVER_MAP, serversForDC } from '../data/housing/dcServerMap.js';
 import {
@@ -297,7 +299,21 @@ function isYoutubeThumbHost(value: string | undefined): boolean {
 }
 
 /**
- * SNS 画像フィールドの検証。imageMode!=='sns' のときは常に ok。
+ * postUrl (元の投稿へのリンク) が、URL 貼り付け時に許可されているのと同じ種別
+ * (Twitter/X の投稿URL・YouTube・OGP allowlist) のいずれかに一致するか判定する。
+ * `classifySnsUrl` (src/lib/housing/snsUrlRouting.ts) が使う判定関数と完全に同一のものを
+ * 再利用しているため、URL 貼り付け時に成功した postUrl はここでも必ず ok になる。
+ */
+function isKnownPostUrlHost(url: string): boolean {
+  if (!isHttpsUrl(url)) return false;
+  return parseTweetUrl(url) !== null || parseYoutubeUrl(url) !== null || isOgpUrlAllowed(url);
+}
+
+/**
+ * SNS 画像フィールドの検証。imageMode!=='sns' のときは、postUrl が無ければ常に ok。
+ * postUrl がある場合 (2026-07-20: 直接画像アップロード時も postUrl だけ独立して保持できる
+ * ようになったため) は、URL 貼り付け時と同じ判定関数 (parseTweetUrl / parseYoutubeUrl /
+ * isOgpUrlAllowed) で host を検証する。新しい allowlist は作らず既存の判定を再利用する。
  * sns のときは source が 3 種で排他:
  * - Twitter: ogImageUrl が pbs.twimg.com 限定、 tweetId は数字 1-20 桁。
  * - YouTube: ogImageUrl が img.youtube.com / i.ytimg.com 限定、 youtubeVideoId は 11 文字 [A-Za-z0-9_-]。
@@ -306,7 +322,11 @@ function isYoutubeThumbHost(value: string | undefined): boolean {
  *   ogImageUrl は sourceImageUrls[0] と一致 (= 1 枚目代表)。
  */
 export function validateImage(draft: RegistrationDraft): ValidationResult {
-  if (draft.imageMode !== 'sns') return ok();
+  if (draft.imageMode !== 'sns') {
+    if (draft.postUrl === undefined) return ok();
+    if (!isKnownPostUrlHost(draft.postUrl)) return fail({ postUrl: 'invalid' });
+    return ok();
+  }
   const errors: ValidationErrors = {};
   if (!isHttpsUrl(draft.postUrl)) errors.postUrl = 'invalid';
 
@@ -332,11 +352,13 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
     if (!/^[A-Za-z0-9_-]{11}$/.test(draft.youtubeVideoId!)) {
       errors.youtubeVideoId = 'invalid';
     }
+    if (!parseYoutubeUrl(draft.postUrl ?? '')) errors.postUrl = 'invalid_host';
   } else if (hasTweet) {
     if (!isHttpsUrl(draft.ogImageUrl) || !isPbsTwimgHost(draft.ogImageUrl)) {
       errors.ogImageUrl = 'invalid';
     }
     if (!/^\d{1,20}$/.test(draft.tweetId!)) errors.tweetId = 'invalid';
+    if (!parseTweetUrl(draft.postUrl ?? '')) errors.postUrl = 'invalid_host';
 
     // 2026-05-27 (hotfix): 動画ツイートと静止画ツイートの「排他」 想定は誤りだった。
     // 実際の syndication JSON では mediaDetails:[video, photo, photo] のように同居する

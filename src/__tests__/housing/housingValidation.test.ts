@@ -227,9 +227,39 @@ import { validateImage, buildListingImageFields } from '../../utils/housingValid
 describe('validateImage', () => {
   const base = { imageMode: 'sns' as const, postUrl: 'https://x.com/u/status/123', ogImageUrl: 'https://pbs.twimg.com/media/abc.jpg', tweetId: '123' };
 
-  it('imageMode が sns 以外なら常に ok', () => {
+  it('imageMode が sns 以外 + postUrl 無しなら ok', () => {
     expect(validateImage({ imageMode: 'none' } as any).ok).toBe(true);
     expect(validateImage({} as any).ok).toBe(true);
+  });
+
+  // 2026-07-20: 直接画像アップロード時 (imageMode!=='sns') でも postUrl を保持できるようになった
+  // ため、その場合は host を検証する (実ユーザー報告: postUrl ごと消えるバグの修正に伴う)。
+  describe('imageMode!==\'sns\' でも postUrl があるケース (2026-07-20)', () => {
+    it('X の投稿URLなら ok', () => {
+      expect(validateImage({ imageMode: 'none', postUrl: 'https://x.com/foo/status/123' } as any).ok).toBe(true);
+      expect(validateImage({ postUrl: 'https://twitter.com/foo/status/123' } as any).ok).toBe(true);
+    });
+
+    it('YouTube の URL なら ok', () => {
+      expect(validateImage({ imageMode: 'none', postUrl: 'https://youtu.be/dQw4w9WgXcQ' } as any).ok).toBe(true);
+      expect(validateImage({ postUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ' } as any).ok).toBe(true);
+    });
+
+    it('OGP allowlist の URL なら ok', () => {
+      expect(validateImage({ imageMode: 'none', postUrl: 'https://housingsnap.com/12345' } as any).ok).toBe(true);
+    });
+
+    it('どれにも該当しない URL は invalid', () => {
+      const result = validateImage({ imageMode: 'none', postUrl: 'https://evil.example.com/x' } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.postUrl).toBeDefined();
+    });
+
+    it('https でない postUrl は invalid', () => {
+      const result = validateImage({ imageMode: 'none', postUrl: 'http://x.com/foo/status/123' } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.postUrl).toBeDefined();
+    });
   });
 
   it('正常な sns 入力は ok', () => {
