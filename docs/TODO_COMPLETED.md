@@ -2,6 +2,15 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-20 画像品質バグ3件 = 根因特定・修正済(systematic-debugging)
+`docs/.private/2026-07-20-housing-image-quality-and-cost-investigation.md` で発見した3件を `src/lib/housing/imageCompression.ts` で修正。
+
+- **バグ1(解像度が極小化)**: `browser-image-compression` に `alwaysKeepResolution: true` を追加。既定 `false` だと maxSizeMB 未達成時に解像度そのものを段階的に縮める仕様(パッケージ README で確認済)だったため、quality を主レバーに変更(実データ最悪例=239×134pxまで縮小していた「独房」の再現条件が解消)。
+- **バグ2(古いSafari等がPNGフォールバックで画質劣化)**: canvas の WebP encode 対応を `canvas.toDataURL` で事前 feature-detect し、非対応なら `fileType: 'image/jpeg'` を明示指定するよう変更。WHATWG仕様上 `canvas.toBlob` は非対応 type だと無言で PNG にフォールバックする一方、JPEG はほぼ全ブラウザ対応かつ quality パラメータが効く。
+- **バグ3(カバー画像だけ消える)**: `_uploadThumbnailHandler.ts:103-105` の 1MB超過413拒否が原因と特定(アップロードループは1枚失敗しても他のindexは続行するため index=0 だけ欠けうる構造を確認)。バグ1・2の修正でPNG起因の「quality無効化」が解消されるため大半は解消見込みだが、念のため圧縮を3段階化(① quality0.75+解像度維持 → ②quality0.4+解像度維持 → ③quality0.2+解像度縮小許可の最終手段)して1MBを割らないことを構造的に保証、413自体を実質起こらなくした。
+- 検証: 新規ユニットテスト5件(`src/lib/housing/__tests__/imageCompression.test.ts`、library呼び出しの引数を検証)+ `npm run build` + `vitest run` フルグリーン(既知の EphemeralAddPanel 7件のみ・無関係と特定済み)。ライブラリ内部(minified)までは追わず、README/d.ts の公式仕様 + WHATWG canvas 仕様 + サーバー側413ロジックの実コードで根因を確認。
+- **未検証(実ブラウザでは再現不能な条件)**: 実際の古いSafari実機での動作確認はしていない(feature-detectionのロジックとWHATWG仕様の整合のみで判断)。次の登録ラッシュでPNGフォールバック(=WebP非対応ブラウザ)からの登録が0件になるか、数日ようすを見て確認するのが望ましい。
+
 ### ✅ 2026-07-20 画像登録5枚目以降サイレント失敗バグ+投稿URL消失バグ = 修正・本番反映済
 根因2件を特定・修正(直接main反映): ①`RegisterPage.tsx`のアップロードループが「先頭4枚だけ保存」というUI上の約束(hotfix25/26/27)を守らず全12枚を送っていた ②housingの主要ハンドラーが`applyRateLimit`の`scope`未指定でレート制限バケットを共有しており本来成功するはずの画像アップロードまで429で弾かれる(「1枚しか残らない」の本命)。詳細=`docs/.private/2026-07-20-housing-image-upload-4-limit-bug.md`。
 
