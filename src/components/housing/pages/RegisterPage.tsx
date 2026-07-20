@@ -499,7 +499,44 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   };
 
   const [localImages, setLocalImages] = useState<CompressedImage[]>([]);
-  const [sourceImageUrls, setSourceImageUrls] = useState<string[]>([]);
+  const [sourceImageUrls, setSourceImageUrls] = useState<string[]>(
+    () => (mode === 'edit' ? (initialValues?.sourceImageUrls ?? []) : []),
+  );
+
+  /**
+   * edit モード専用: 直接アップロード画像の URL 一覧 (Plan B・2026-07-21)。
+   * create モードの `localImages` (アップロード前のローカルファイル) とは別物で、
+   * サーバーに既に保存済みの URL のみを保持する。buildDraftImageFields には渡さない
+   * (直接アップロードの commit は uploadListingThumbnail が単独で完結するため)。
+   */
+  const [editThumbnailPaths, setEditThumbnailPaths] = useState<string[]>(() => {
+    if (mode !== 'edit' || !initialValues) return [];
+    if (initialValues.thumbnailPaths && initialValues.thumbnailPaths.length > 0) {
+      return initialValues.thumbnailPaths;
+    }
+    return initialValues.thumbnailPath ? [initialValues.thumbnailPath] : [];
+  });
+
+  /** edit モード専用: 動画プレビュー (Twitter動画ツイート由来)。URL再取得で更新される。 */
+  const [editVideoPreview, setEditVideoPreview] = useState<
+    { url: string; posterUrl: string; aspectRatio?: number } | null
+  >(() => {
+    if (mode !== 'edit' || !initialValues?.videoUrl || !initialValues?.videoPosterUrl) return null;
+    return {
+      url: initialValues.videoUrl,
+      posterUrl: initialValues.videoPosterUrl,
+      aspectRatio: initialValues.videoAspectRatio,
+    };
+  });
+  /**
+   * Task1 時点では setEditThumbnailPaths / editVideoPreview / setEditVideoPreview を
+   * まだどこからも参照しない (削除・並び替え・表示配線は Task5-7 で行う)。
+   * noUnusedLocals: true 対策の一時ブリッジで挙動への影響はなし。Task5-7 で実消費コードに
+   * 置き換わり次第この3行は不要になる。
+   */
+  void setEditThumbnailPaths;
+  void editVideoPreview;
+  void setEditVideoPreview;
 
   /**
    * SNS 取得結果の捕捉 (Task14)。旧 RegisterPage は sourceImageUrls だけ拾って SNS
@@ -1136,7 +1173,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     }
     // 静止画枚数 (ローカル + SNS 取得画像)。加えて、静止画ゼロでも動画のみツイート/YouTube を
     // 捕捉していれば「1 件」として数える (sourceImageUrls 空の動画ツイートで 0 と表示されないように)。
-    const stillCount = localImages.length + sourceImageUrls.length;
+    const stillCount = localImages.length + sourceImageUrls.length + editThumbnailPaths.length;
     const hasCapturedMedia =
       stillCount === 0 && (!!snsCapture.tweetData?.video?.url || !!snsCapture.youtube);
     return {
@@ -1150,6 +1187,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     title,
     localImages.length,
     sourceImageUrls.length,
+    editThumbnailPaths.length,
     snsCapture.tweetData,
     snsCapture.youtube,
     i18n.language,
