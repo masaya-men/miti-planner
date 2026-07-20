@@ -1906,6 +1906,18 @@ select.housing-input option {
   background: var(--housing-honey-glow);
   border-radius: 4px;
 }
+/* HousingRegisterSourceImageUrlsField (取得画像URL欄) 専用: 先頭 maxImages 枚を honey 枠で強調 */
+.housing-register-image-tile[data-used="true"]:not([data-dragging="true"]) {
+  border-color: var(--housing-honey-glow);
+  box-shadow: 0 0 0 1px var(--housing-honey-glow);
+}
+/* maxImages を超えた分 = 登録時に保存されない枚を半透明化 */
+.housing-register-image-tile[data-used="false"] {
+  opacity: 0.45;
+}
+.housing-register-image-tile-badge[data-variant="used"] {
+  background: var(--housing-candle, #ffe2b3);
+}
 .housing-register-image-tile-remove {
   position: absolute;
   top: 10px;

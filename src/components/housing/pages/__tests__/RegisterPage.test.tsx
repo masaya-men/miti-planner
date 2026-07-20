@@ -412,12 +412,11 @@ describe('RegisterPage', () => {
   });
 
   // 2026-07-20 実ユーザー報告(9枚登録→1枚しか表示されない)の回帰テスト。
-  // HousingRegisterImageField は最大12枚まで選択可能だが、登録時に物件画像として
-  // 保存されるのは先頭 SAVED_IMAGES_LIMIT (4) 枚のみという UI 上の約束 (hotfix26/27 の
-  // 「使用」バッジ・ja.json の「先頭4枚が保存されます」ヒント) がある。performRegister の
-  // uploadListingThumbnail が正確に選択された画像のみ (SAVED_IMAGES_LIMIT 枚まで) を
-  // アップロードしていることを検証する。 ピッカーが 4 枚で上限に達するため、
-  // このテストは「 SAVED_IMAGES_LIMIT 枚を選ぶと全て upload される」ことを確認する。
+  // HousingRegisterImageField は登録時の保存上限 SAVED_IMAGES_LIMIT (4) 枚を
+  // ピッカー自体の選択上限としており、12枚選んで先頭4枚だけ保存するような
+  // 二段構えの UI や「使用」バッジは存在しない (常に選んだ枚がそのまま保存対象)。
+  // performRegister の uploadListingThumbnail が選択された画像を正確にアップロード
+  // していることを検証する。
   it('mode=create: 4枚の画像を選ぶと、 uploadListingThumbnail は全て (SAVED_IMAGES_LIMIT 枚) 呼ばれる', async () => {
     useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
     window.localStorage.setItem(
