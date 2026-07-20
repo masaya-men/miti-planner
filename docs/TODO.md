@@ -21,8 +21,12 @@
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ 画像登録5枚目以降サイレント失敗バグ = 修正済(2026-07-20・要実機確認)
-根因2件を特定・修正: ①`RegisterPage.tsx`のアップロードループが「先頭4枚だけ保存」というUI上の約束(hotfix25/26/27)を守らず全12枚を送っていた(5枚目以降は無意味な400) ②housingの主要ハンドラー(register-listing/upload-thumbnail/check-duplicate/can-register)が`applyRateLimit`の`scope`未指定でレート制限バケットを共有しており、住所デバウンス連打等が先に消費すると本来成功するはずの画像アップロードまで429で弾かれる(「1枚しか残らない」の本命)。詳細=`docs/.private/2026-07-20-housing-image-upload-4-limit-bug.md`。tsc+npm testフルグリーン(既知のEphemeralAddPanel7件除く)。**Redis本番環境が無く実動作は未検証**、次回デプロイ後に実ユーザー追跡確認できると理想。「画像の編集ができない」は仕様通り(バグでない)。
+### ✅ 画像登録5枚目以降サイレント失敗バグ+投稿URL消失バグ = 修正済(2026-07-20・要実機確認)
+根因2件を特定・修正済み(直接main反映): ①`RegisterPage.tsx`のアップロードループが「先頭4枚だけ保存」というUI上の約束(hotfix25/26/27)を守らず全12枚を送っていた ②housingの主要ハンドラーが`applyRateLimit`の`scope`未指定でレート制限バケットを共有しており本来成功するはずの画像アップロードまで429で弾かれる(「1枚しか残らない」の本命)。詳細=`docs/.private/2026-07-20-housing-image-upload-4-limit-bug.md`。
+
+**追加でBatch 1として設計→計画→サブエージェント実装(worktree)まで完了**(`docs/superpowers/specs/2026-07-20-housing-image-upload-postUrl-fix-design.md` + `docs/superpowers/plans/2026-07-20-housing-image-upload-postUrl-fix.md`): ③画像ピッカー自体を最初から4枚上限に作り直し(12枚選ばせる二段構え廃止)、一括で上限超過選択した場合は確認ボタン付きモーダルで知らせる ④投稿URL(postUrl)を貼った後に直接画像をアップロードするとpostUrlごと消える別バグを発見・修正(クライアント+サーバー双方。あわせて前から存在したTwitter/YouTube側のpostUrl host検証漏れも同時に解消、Opusレビューで安全性確認済み)。全6タスク、タスクごとにfresh subagent実装→レビュー(Task4/5はOpus)→必要に応じ修正の2段階ゲートを通過済み。tsc+npm testフルグリーン(既知のEphemeralAddPanel7件除く)。
+
+**残作業**: worktree (`housing-image-upload-posturl-fix`) の最終whole-branchレビュー(Opus)→merge→実機確認。Redis本番環境での実動作(レート制限分離)・スマホでの新モーダル見た目は未検証、デプロイ後に確認が理想。「画像の編集ができない」は仕様通り(バグでない)。複数投稿URL登録(Batch 2)はユーザー要望あり・別途brainstorming予定。
 
 ### 🔴 次セッション優先(2026-07-20 更新)
 00. ✅ **コスト・ハードニング全部+実機FB9件中②③⑥⑦⑧⑨+ボタン高さ統一/スマホ下端余白/お気に入りアニメ強化、全部本番反映済み・ユーザー実機OK(2026-07-20)**。詳細=TODO_COMPLETED。**残る1件**=⑤YouTube概要欄住所自動入力は要ユーザー判断(公式API導入が必要)。
