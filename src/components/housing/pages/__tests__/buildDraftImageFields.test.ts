@@ -55,4 +55,73 @@ describe('buildDraftImageFields', () => {
       youtubeVideoId: 'abcdefghijk',
     });
   });
+
+  it('localImages が無ければ従来通り Twitter (静止画のみ) の全フィールドを返す (回帰確認)', () => {
+    const sns: SnsCapture = {
+      ...EMPTY_SNS_CAPTURE,
+      tweetSource: { postUrl: 'https://x.com/foo/status/123', tweetId: '123' },
+      tweetData: {
+        text: 'hello',
+        author: { name: 'Foo', screen_name: 'foo' },
+        photos: ['https://pbs.twimg.com/media/1.jpg', 'https://pbs.twimg.com/media/2.jpg'],
+        video: null,
+      } as any,
+    };
+    expect(buildDraftImageFields(sns, [], [])).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://x.com/foo/status/123',
+      ogImageUrl: 'https://pbs.twimg.com/media/1.jpg',
+      tweetId: '123',
+      sourceImageUrls: ['https://pbs.twimg.com/media/1.jpg', 'https://pbs.twimg.com/media/2.jpg'],
+    });
+  });
+
+  it('localImages が無ければ従来通り Twitter (動画のみ) の全フィールドを返す (回帰確認)', () => {
+    const sns: SnsCapture = {
+      ...EMPTY_SNS_CAPTURE,
+      tweetSource: { postUrl: 'https://x.com/foo/status/456', tweetId: '456' },
+      tweetData: {
+        text: 'hello',
+        author: { name: 'Foo', screen_name: 'foo' },
+        photos: [],
+        video: { url: 'https://video.twimg.com/foo.mp4', posterUrl: 'https://pbs.twimg.com/poster.jpg', aspectRatio: null },
+      } as any,
+    };
+    expect(buildDraftImageFields(sns, [], [])).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://x.com/foo/status/456',
+      ogImageUrl: 'https://pbs.twimg.com/poster.jpg',
+      tweetId: '456',
+      videoUrl: 'https://video.twimg.com/foo.mp4',
+      videoPosterUrl: 'https://pbs.twimg.com/poster.jpg',
+    });
+  });
+
+  it('localImages が無ければテキストのみツイートは {} を返す (回帰確認)', () => {
+    const sns: SnsCapture = {
+      ...EMPTY_SNS_CAPTURE,
+      tweetSource: { postUrl: 'https://x.com/foo/status/789', tweetId: '789' },
+      tweetData: {
+        text: 'hello world, no media',
+        author: { name: 'Foo', screen_name: 'foo' },
+        photos: [],
+        video: null,
+      } as any,
+    };
+    expect(buildDraftImageFields(sns, [], [])).toEqual({});
+  });
+
+  it('localImages が無ければ従来通り OGP の全フィールドを返す (回帰確認)', () => {
+    const sns: SnsCapture = {
+      ...EMPTY_SNS_CAPTURE,
+      ogp: { postUrl: 'https://housingsnap.com/12345', data: {} } as any,
+    };
+    const sourceImageUrls = ['https://example.com/a.jpg', 'https://example.com/b.jpg'];
+    expect(buildDraftImageFields(sns, [], sourceImageUrls)).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://housingsnap.com/12345',
+      ogImageUrl: 'https://example.com/a.jpg',
+      sourceImageUrls: ['https://example.com/a.jpg', 'https://example.com/b.jpg'],
+    });
+  });
 });

@@ -85,6 +85,7 @@ export const EMPTY_SNS_CAPTURE: SnsCapture = {
  * 優先順位 (上から評価・先勝ち):
  *   ① localImages が 1 枚以上   → SNS 系を一切無視 (imageMode 系は付けない = 後段で
  *      localImages を uploadListingThumbnail に流す。draft 上は imageMode 未指定=サーバ 'none')。
+ *      (ただし postUrl のみ独立して保持する)。
  *   ② YouTube                    → imageMode='sns' + youtubeVideoId + ogImageUrl
  *   ③ Twitter (本文取得済)       → 静止画/動画/両方同居を OR 統合。テキストのみは何も付けない
  *   ④ OGP                        → imageMode='sns' + sourceImageUrls (先頭 10) + ogImageUrl=先頭
