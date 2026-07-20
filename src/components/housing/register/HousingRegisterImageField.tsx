@@ -50,8 +50,12 @@ interface SortableItem {
 
 const ACCEPT_MIME = 'image/*';
 const DEFAULT_MAX_IMAGES = 4;
-/** 登録時に物件画像として保存される枚数 (hotfix25 で 12 枚取得→先頭 4 枚保存に分離)。 */
-const SAVED_IMAGES_LIMIT = 4;
+/**
+ * 登録時に物件画像として保存される枚数 (hotfix25 で 12 枚取得→先頭 4 枚保存に分離)。
+ * サーバー側上限 (`api/housing/_uploadThumbnailHandler.ts` の `MAX_IMAGES_PER_LISTING`) と
+ * 一致させる必要がある。 呼び出し側 (RegisterPage.tsx) が upload 枚数を絞り込む際にも参照する。
+ */
+export const SAVED_IMAGES_LIMIT = 4;
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b}B`;

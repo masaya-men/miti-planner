@@ -52,6 +52,7 @@ import { consumeRegisterPrefill } from '../../../lib/housing/registerPrefill';
 import { formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { YoutubeFetchedData, OgpFetchedData } from '../register/HousingRegisterSnsUrlField';
+import { SAVED_IMAGES_LIMIT } from '../register/HousingRegisterImageField';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
 import type { HousingArea, HousingListing, HousingSize } from '../../../types/housing';
 import { regionForDC } from '../../../data/housing/dcServerMap';
@@ -970,10 +971,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
         // localImages があれば register 直後に upload-thumbnail を逐次呼ぶ (index=0..N-1)。
         // 1 件でも失敗したら upload_failed を控えるが listing 自体は成功済み。
-        if (localImages.length > 0) {
+        // HousingRegisterImageField は最大12枚まで選ばせるが、物件画像として保存されるのは
+        // 先頭 SAVED_IMAGES_LIMIT 枚のみ (UI の「使用」バッジ・ja.json ヒントと同じ約束)。
+        // ここで絞らずに全件送ると、サーバー側 MAX_IMAGES_PER_LISTING で確実に拒否される
+        // リクエストのぶんだけ無駄にレート制限バケットを消費してしまう (2026-07-20 実ユーザー報告)。
+        const imagesToUpload = localImages.slice(0, SAVED_IMAGES_LIMIT);
+        if (imagesToUpload.length > 0) {
           let uploadFailedOnce = false;
-          for (let i = 0; i < localImages.length; i++) {
-            const img = localImages[i];
+          for (let i = 0; i < imagesToUpload.length; i++) {
+            const img = imagesToUpload[i];
             try {
               await uploadListingThumbnail({
                 listingId: id,

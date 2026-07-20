@@ -40,7 +40,8 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!(await verifyAppCheck(req, res))) return;
-  if (!(await applyRateLimit(req, res, 10, 60_000))) return;
+  // scope 必須: upload-thumbnail と同じ理由 (2026-07-20 実ユーザー報告)。
+  if (!(await applyRateLimit(req, res, 10, 60_000, { scope: 'housing-register-listing' }))) return;
 
   try {
     initAdmin();

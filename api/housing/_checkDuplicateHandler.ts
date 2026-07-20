@@ -48,7 +48,10 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!(await verifyAppCheck(req, res))) return;
-  if (!(await applyRateLimit(req, res, 30, 60_000))) return;
+  // scope 必須: 住所入力の debounce で頻繁に呼ばれるため、他 housing ハンドラーと
+  // バケットを共有すると register-listing/upload-thumbnail の枠を先食いしてしまう
+  // (2026-07-20 実ユーザー報告の根因の一つ)。
+  if (!(await applyRateLimit(req, res, 30, 60_000, { scope: 'housing-check-duplicate' }))) return;
 
   try {
     initAdmin();

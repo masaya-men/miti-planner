@@ -30,7 +30,8 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!(await verifyAppCheck(req, res))) return;
-  if (!(await applyRateLimit(req, res, 30, 60_000))) return;
+  // scope 必須: check-duplicate と同じ理由 (2026-07-20 実ユーザー報告)。
+  if (!(await applyRateLimit(req, res, 30, 60_000, { scope: 'housing-can-register' }))) return;
 
   try {
     initAdmin();

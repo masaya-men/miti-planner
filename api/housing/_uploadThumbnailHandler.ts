@@ -60,7 +60,10 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!(await verifyAppCheck(req, res))) return;
-  if (!(await applyRateLimit(req, res, 10, 60_000))) return;
+  // scope 必須: 未指定だと他 housing ハンドラー (register-listing/check-duplicate/can-register 等)
+  // と同じ 'global' バケットを共有し、それらの呼び出しが先に消費した分だけ本来成功するはずの
+  // 画像アップロードが 429 で失敗する (2026-07-20 実ユーザー報告の根因の一つ)。
+  if (!(await applyRateLimit(req, res, 10, 60_000, { scope: 'housing-upload-thumbnail' }))) return;
 
   try {
     initAdmin();

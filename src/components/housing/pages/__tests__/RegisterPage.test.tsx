@@ -60,6 +60,7 @@ import { RegisterPage } from '../RegisterPage';
 import * as housingApiClient from '../../../../lib/housingApiClient';
 import { AUTOSAVE_KEY } from '../../../../lib/housing/registerAutosave';
 import { saveRegisterPrefill, consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill';
+import { SAVED_IMAGES_LIMIT } from '../../register/HousingRegisterImageField';
 
 const EDITABLE_LISTING = {
   id: 'l1',
@@ -397,6 +398,73 @@ describe('RegisterPage', () => {
     upsertSpy.mockRestore();
     fetchAndUpsertSpy.mockRestore();
     loadMineSpy.mockRestore();
+    window.localStorage.removeItem(AUTOSAVE_KEY);
+  });
+
+  // 2026-07-20 実ユーザー報告(9枚登録→1枚しか表示されない)の回帰テスト。
+  // HousingRegisterImageField は最大12枚まで選択可能だが、登録時に物件画像として
+  // 保存されるのは先頭 SAVED_IMAGES_LIMIT (4) 枚のみという UI 上の約束 (hotfix26/27 の
+  // 「使用」バッジ・ja.json の「先頭4枚が保存されます」ヒント) がある。performRegister の
+  // アップロードループがこれを守らず全 localImages を送っていたため、5枚目以降はサーバー
+  // (MAX_IMAGES_PER_LISTING=4) に無条件で拒否される無駄なリクエストになっていた
+  // (かつ共有レート制限バケットを消費し、先頭4枚の成功すら道連れで失敗しうる根本原因の一端)。
+  it('mode=create: 5枚以上添付しても uploadListingThumbnail は先頭 SAVED_IMAGES_LIMIT 枚だけ呼ばれる', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    window.localStorage.setItem(
+      AUTOSAVE_KEY,
+      JSON.stringify({
+        title: '新規物件',
+        dc: 'Meteor',
+        server: 'Ramuh',
+        area: 'LavenderBeds',
+        ward: 29,
+        buildingType: 'house',
+        plot: 3,
+        size: 'L',
+        visibility: 'public',
+      }),
+    );
+    const canRegisterSpy = vi
+      .spyOn(housingApiClient, 'canRegister')
+      .mockResolvedValue({ remaining: 5 } as any);
+    const checkDuplicateSpy = vi
+      .spyOn(housingApiClient, 'checkDuplicate')
+      .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+    const registerSpy = vi
+      .spyOn(housingApiClient, 'registerListing')
+      .mockResolvedValue({ id: 'new1' } as any);
+    const uploadSpy = vi
+      .spyOn(housingApiClient, 'uploadListingThumbnail')
+      .mockResolvedValue({ success: true, thumbnailPath: 'https://x/main-0.webp' });
+
+    const { container } = renderPage();
+
+    const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
+    const files = Array.from({ length: 6 }, (_, i) => new File(['x'], `photo${i}.png`, { type: 'image/png' }));
+    fireEvent.change(input, { target: { files } });
+    await waitFor(() =>
+      expect(container.querySelectorAll('.housing-register-image-tile').length).toBe(6),
+    );
+
+    const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+    fireEvent.click(addressGateBtn);
+
+    const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+    await waitFor(() => expect(submitBtn).not.toBeDisabled());
+    fireEvent.click(submitBtn);
+
+    await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+    await waitFor(() => expect(uploadSpy).toHaveBeenCalledTimes(SAVED_IMAGES_LIMIT));
+
+    const calledIndices = uploadSpy.mock.calls
+      .map(([arg]) => (arg as { index?: number }).index)
+      .sort((a, b) => (a ?? 0) - (b ?? 0));
+    expect(calledIndices).toEqual([0, 1, 2, 3]);
+
+    canRegisterSpy.mockRestore();
+    checkDuplicateSpy.mockRestore();
+    registerSpy.mockRestore();
+    uploadSpy.mockRestore();
     window.localStorage.removeItem(AUTOSAVE_KEY);
   });
 
