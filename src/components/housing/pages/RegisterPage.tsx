@@ -65,14 +65,14 @@ import type { MockListing } from '../../../data/housing/mockListings';
  * 画像優先順位ロジックへ流す。テキストツイート等で画像ゼロでも「URL は取得済み」を
  * 表せるよう postUrl を別途保持する (imageMode='none' の黙示事故を塞ぐ材料)。
  */
-interface SnsCapture {
+export interface SnsCapture {
   tweetData: TweetData | null;
   tweetSource: { postUrl: string; tweetId: string } | null;
   youtube: YoutubeFetchedData | null;
   ogp: OgpFetchedData | null;
 }
 
-const EMPTY_SNS_CAPTURE: SnsCapture = {
+export const EMPTY_SNS_CAPTURE: SnsCapture = {
   tweetData: null,
   tweetSource: null,
   youtube: null,
@@ -94,7 +94,7 @@ const EMPTY_SNS_CAPTURE: SnsCapture = {
  * 各分岐は旧ロジックと同じ条件・同じフィールド構成で組む。sourceImageUrls (ページの
  * 並び替え結果) は Twitter/OGP どちらでも代表画像 (ogImageUrl=先頭) の整合を取る。
  */
-function buildDraftImageFields(
+export function buildDraftImageFields(
   sns: SnsCapture,
   localImages: CompressedImage[],
   sourceImageUrls: string[],
@@ -102,7 +102,10 @@ function buildDraftImageFields(
   const hasLocalImages = localImages.length > 0;
   if (hasLocalImages) {
     // ① localImages 優先。SNS 画像は draft に載せない (登録後に thumbnail upload)。
-    return {};
+    // postUrl (元の投稿へのリンク) だけは画像と独立して保持する
+    // (2026-07-20 実ユーザー報告: 直接画像アップロード時に postUrl ごと消えていたバグの修正)。
+    const postUrl = sns.youtube?.postUrl ?? sns.tweetSource?.postUrl ?? sns.ogp?.postUrl;
+    return postUrl ? { postUrl } : {};
   }
 
   // ② YouTube
