@@ -15,7 +15,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
-import { validateRegistrationDraft, normalizePublishUntil, type RegistrationDraft } from '../../src/utils/housingValidation.js';
+import { validateRegistrationDraft, normalizePublishUntil, buildListingImageFields, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import { assertPersonalTagsAttachable, PersonalTagAttachError } from './_personalTagAttachGuard.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
@@ -178,30 +178,13 @@ export default async function handler(req: any, res: any) {
         updatePayload.postUrl = draftForValidation.postUrl;
       }
       if (draftForValidation.imageMode === 'sns') {
-        updatePayload.imageMode = 'sns';
-        if (typeof draftForValidation.ogImageUrl === 'string') {
-          updatePayload.ogImageUrl = draftForValidation.ogImageUrl;
-        }
-        if (typeof draftForValidation.tweetId === 'string') {
-          updatePayload.tweetId = draftForValidation.tweetId;
-        }
-        if (typeof draftForValidation.youtubeVideoId === 'string') {
-          updatePayload.youtubeVideoId = draftForValidation.youtubeVideoId;
-        }
-        if (Array.isArray(draftForValidation.sourceImageUrls)) {
-          updatePayload.sourceImageUrls = draftForValidation.sourceImageUrls;
-        }
-        if (Array.isArray(draftForValidation.sourceImageAspectRatios)) {
-          updatePayload.sourceImageAspectRatios = draftForValidation.sourceImageAspectRatios;
-        }
-        if (typeof draftForValidation.videoUrl === 'string') {
-          updatePayload.videoUrl = draftForValidation.videoUrl;
-        }
-        if (typeof draftForValidation.videoPosterUrl === 'string') {
-          updatePayload.videoPosterUrl = draftForValidation.videoPosterUrl;
-        }
-        if (typeof draftForValidation.videoAspectRatio === 'number') {
-          updatePayload.videoAspectRatio = draftForValidation.videoAspectRatio;
+        // sns 経路のフィールド選択は register-listing と同じ buildListingImageFields に委譲する
+        // (source = Twitter/YouTube/OGP ごとに保存して良いフィールドが異なり、videoUrl/videoPosterUrl
+        // は Twitter 以外では validateImage が host allowlist 検証をしていないため手書きでは書けない)。
+        // imageMode:'none' フォールバック (postUrl/ogImageUrl 欠落時) は既存データを壊さないよう無視する。
+        const imageFields = buildListingImageFields(draftForValidation, Date.now());
+        if (imageFields.imageMode === 'sns') {
+          Object.assign(updatePayload, imageFields);
         }
 
         // thumbnail→sns の登録方法切替クリーンアップ: 保存済みが thumbnail で、今回
@@ -233,6 +216,6 @@ export default async function handler(req: any, res: any) {
     if (error?.message === 'not_found') return res.status(404).json({ error: 'not_found' });
     if (error?.message === 'forbidden') return res.status(403).json({ error: 'forbidden' });
     console.error('[housing/update-listing] error:', error);
-    return res.status(500).json({ error: error?.message || 'Internal error' });
+    return res.status(500).json({ error: 'Internal error' });
   }
 }
