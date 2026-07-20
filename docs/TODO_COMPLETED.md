@@ -2,6 +2,13 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-20 編集ページの物件取り違えバグ(実ユーザー報告・重大) = 根因特定・修正済
+実ユーザー(Discord DM)から「最初に登録した物件を編集しようとすると、あとで登録した別の物件のデータになってしまい編集できない。Discordの再ログインでも直らない」と報告。systematic-debuggingで根因2件を特定:
+- **根因①(主因)**: `RegisterPage.tsx`のオートセーブ機能(新規登録の入力を途中で失わないための下書き復旧)が`mode`を一切見ておらず、edit(編集)モードでも動作していた。編集フォームの値変化を無条件で共有の`localStorage`キーに保存し、かつマウント時に無条件でそこから復元していたため、「以前どこかで(別物件の編集中や新規登録の入力中に)保存された無関係な下書き」が、今開いている編集フォームへ無条件に上書き適用されてしまっていた。**保存(復元でなく)も同じ経路のため、送信すると別物件の内容でFirestoreを上書きしうる実害あり**。localStorageは再ログインでは消えないため「再ログインしても直らない」の説明とも一致。
+- **根因②(併発)**: `HousingEditPage.tsx`が`RegisterPage`を`key`無しで描画しており(`App.tsx`のRouteも同様)、同じRoute(`/housing/listing/:listingId/edit`)のまま別listingIdへ画面遷移してもReact Routerはコンポーネントを再マウントしない。`RegisterPage`内部のタイトル/住所/タグ等は`initialValues`から一度きりの`useState`で初期化されるため、SPA内で編集→別物件の編集と遷移すると前の物件のフォーム内容が残ったままになる。
+- **修正**: オートセーブの保存/復元エフェクトを`mode==='create'`限定に変更(edit は常にサーバーの現在値=`initialValues`が正なので下書き復旧が不要)。`HousingEditPage`の`<RegisterPage>`に`key={listingId}`を追加し、listingId変更時に確実に再マウントされるようにした。
+- 検証: 回帰テスト3件追加(下書きが残っていても復元しない/保存内容が汚染されない/key変更で正しく再マウントする)+ build + vitestフルグリーン(既知のEphemeralAddPanel 7件のみ)。
+
 ### ✅ 2026-07-20 画像品質バグ3件 = 根因特定・修正済(systematic-debugging)
 `docs/.private/2026-07-20-housing-image-quality-and-cost-investigation.md` で発見した3件を `src/lib/housing/imageCompression.ts` で修正。
 

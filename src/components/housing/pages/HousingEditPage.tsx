@@ -41,8 +41,12 @@ export const HousingEditPage: React.FC = () => {
     if (authLoading) return;
     if (!listingId) return;
     // listingId が変わって同一インスタンスが再利用されても、前回の結果 (stale な
-    // notFound=true や別 listing) を残さないよう fetch 開始前にリセットする
-    // (現状の唯一の導線は detail→edit→detail で edit→edit は起きないが堅牢性のため)。
+    // notFound=true や別 listing) を残さないよう fetch 開始前にリセットする。
+    // (2026-07-20 訂正: 「edit→edit は起きない」という前提は誤りだった。ブラウザ履歴/直リンク
+    // 等で別 listing の edit へ直接遷移するケースが実際に発生し、この HousingEditPage 自体は
+    // このリセットのおかげで無事だったが、下流の RegisterPage が initialValues 変化に追従しない
+    // 一度きりの useState を使っていたため実害が出た。RegisterPage 側は key={listingId} で
+    // 強制再マウントする対策を追加済み。)
     setNotFound(false);
     setListing(null);
     let cancelled = false;
@@ -100,7 +104,18 @@ export const HousingEditPage: React.FC = () => {
     );
   }
 
+  // key={listingId}: 同じ Route (`/housing/listing/:listingId/edit`) を維持したまま
+  // 別 listingId へ遷移すると React Router はこのコンポーネントを再マウントしない。
+  // RegisterPage 内部のフォーム状態 (タイトル/住所/タグ等) は initialValues から一度きりの
+  // useState で初期化されるため、key を変えず放置すると「前に編集していた別の物件」の
+  // 内容が残ったまま新しい listingId へ保存されてしまう
+  // (2026-07-20 実ユーザー報告: 最初に登録した物件を編集すると別の物件の内容になる、の根因)。
   return (
-    <RegisterPage mode="edit" initialValues={listing} onSaved={(id) => resolveReport(id)} />
+    <RegisterPage
+      key={listingId}
+      mode="edit"
+      initialValues={listing}
+      onSaved={(id) => resolveReport(id)}
+    />
   );
 };

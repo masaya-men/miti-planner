@@ -1185,6 +1185,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   );
 
   useEffect(() => {
+    // オートセーブは「新規登録の入力を途中で失わないための復旧」機能であり、mode='edit' には
+    // 適用しない。edit は常に initialValues (サーバーの現在値) が正なので保存対象にすると、
+    // 編集中の内容が「次に開く新規登録 or 別リスティングの編集」に漏れて誤って復元される
+    // (2026-07-20 実ユーザー報告: 最初に登録した物件を編集すると別の物件の内容になる、の根因の一つ)。
+    if (mode !== 'create') return;
     if (!user) return;
     if (!autosaveReadyRef.current) return; // 復元適用前は保存しない
     if (autosaveTimerRef.current != null) window.clearTimeout(autosaveTimerRef.current);
@@ -1204,7 +1209,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     return () => {
       if (autosaveTimerRef.current != null) window.clearTimeout(autosaveTimerRef.current);
     };
-  }, [user, autosaveValues]);
+  }, [mode, user, autosaveValues]);
 
   /**
    * マウント時 (ログイン済) に localStorage から復元。復元候補があれば:
@@ -1223,9 +1228,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
    * (ユーザーが直前に自分で押した遷移のため)。
    *
    * 一度だけ実行 (user 確定後)。
+   *
+   * mode='edit' には適用しない (2026-07-20 実ユーザー報告の根因): 復元は「新規登録の
+   * 下書き」を前提にしており、edit は既に initialValues で正しい値を持っている。ここを
+   * 無条件で実行すると、以前どこかで (別リスティングの編集中や新規登録の入力中に) 保存された
+   * 無関係な下書きが、今開いている edit フォームへ無条件に上書き適用されてしまう。
    */
   const restoreAppliedRef = useRef(false);
   useEffect(() => {
+    if (mode !== 'create') return;
     if (!user) return;
     if (restoreAppliedRef.current) {
       autosaveReadyRef.current = true;
@@ -1327,9 +1338,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
     // 復元/プリフィルの適用が終わったので以降の値変化から保存を再開する。
     autosaveReadyRef.current = true;
-    // 依存は user のみ (一度だけ実行)。fieldState は identity が変わるが restoreAppliedRef で二重適用を防ぐ。
+    // 依存は user/mode のみ (一度だけ実行)。fieldState は identity が変わるが restoreAppliedRef で二重適用を防ぐ。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user, mode]);
 
   const handleDiscardRestore = useCallback(() => {
     try {

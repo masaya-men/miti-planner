@@ -250,6 +250,97 @@ describe('RegisterPage', () => {
     expect(navigateMock).not.toHaveBeenCalledWith(`/housing/listing/${EDITABLE_LISTING.id}`);
   });
 
+  // 2026-07-20 実ユーザー報告の回帰テスト:「最初に登録した物件を編集すると、別の物件の
+  // データになってしまい編集できない」。根因は2つ: ①オートセーブ (新規登録の下書き復旧)
+  // が mode を問わず動作しており、以前どこかで保存された無関係な下書きが編集フォームへ
+  // 無条件で上書き適用されていた ②HousingEditPage が RegisterPage を key 無しで描画しており
+  // (App.tsx の Route も同様)、別 listingId の編集へ遷移してもコンポーネントが再マウントされず、
+  // 一度きりの useState 初期化 (initialValues 由来) が古い物件の値のまま残っていた。
+  describe('編集ページの物件取り違えバグ回帰 (2026-07-20)', () => {
+    it('mode=edit は localStorage に残った別物件/新規登録の下書きを復元しない', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      // 「以前どこかで保存された無関係な下書き」を模す (別物件の編集中 or 新規登録の入力中)。
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({ title: '別の物件のタイトル', dc: 'Chaos', tags: ['event_seasonal'] }),
+      );
+
+      const { container } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+
+      // 表示されるのはあくまで initialValues (サーバーの現在値) であり、下書きの内容ではない。
+      expect((screen.getByTestId('housing-register-title-input') as HTMLInputElement).value).toBe(
+        'テスト物件',
+      );
+      expect((container.querySelector('#housing-register-dc') as HTMLSelectElement).value).toBe(
+        'Meteor',
+      );
+    });
+
+    it('mode=edit: 別物件の下書きが残っていても保存内容は initialValues 由来のまま (取り違え防止)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      updateMock.mockResolvedValueOnce({ ok: true });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({ title: '別の物件のタイトル', dc: 'Chaos' }),
+      );
+
+      renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+      fireEvent.click(screen.getByTestId('housing-register-confirm-submit'));
+
+      await waitFor(() => expect(updateMock).toHaveBeenCalled());
+      expect(updateMock).toHaveBeenCalledWith(
+        'l1',
+        expect.objectContaining({ title: 'テスト物件', dc: 'Meteor' }),
+      );
+    });
+
+    it('key={listingId} で再マウントすると、前に編集していた別物件のフォーム内容が残らない', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const listingA = {
+        ...EDITABLE_LISTING,
+        id: 'lidA',
+        title: '物件A',
+        dc: 'Meteor',
+      } as HousingListing;
+      const listingB = {
+        ...EDITABLE_LISTING,
+        id: 'lidB',
+        title: '物件B',
+        dc: 'Chaos',
+        server: 'Cerberus',
+      } as HousingListing;
+
+      const { rerender, container } = render(
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter>
+            <RegisterPage key={listingA.id} mode="edit" initialValues={listingA} />
+          </MemoryRouter>
+        </I18nextProvider>,
+      );
+      expect((screen.getByTestId('housing-register-title-input') as HTMLInputElement).value).toBe(
+        '物件A',
+      );
+
+      // HousingEditPage が実際に行う遷移を模す: 別 listingId への navigate で
+      // initialValues が変わり、key (= listingId) も追従して変わる。
+      rerender(
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter>
+            <RegisterPage key={listingB.id} mode="edit" initialValues={listingB} />
+          </MemoryRouter>
+        </I18nextProvider>,
+      );
+
+      // key が変わったことで RegisterPage は完全に再マウントされ、物件Bの内容だけが表示される。
+      expect((screen.getByTestId('housing-register-title-input') as HTMLInputElement).value).toBe(
+        '物件B',
+      );
+      expect((container.querySelector('#housing-register-dc') as HTMLSelectElement).value).toBe(
+        'Chaos',
+      );
+    });
+  });
+
   // Task3.3a 回帰修復: create パス (performRegister) は onSaved を呼ばない (create 挙動不変)。
   // オートセーブ復元で create フォームを valid 状態にし、実 register を spy して検証する。
   it('mode=create の登録成功では onSaved は呼ばれない', async () => {
