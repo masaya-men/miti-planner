@@ -69,7 +69,7 @@ export default async function handler(req: any, res: any) {
 
       const current: string[] = Array.isArray(data.thumbnailPaths) ? data.thumbnailPaths : [];
       const result = computeArrayDeletion(current, index);
-      if (!result.ok) throw new Error(result.error);
+      if ('error' in result) throw new Error(result.error);
 
       removedUrl = result.removed;
       newPaths = result.next;

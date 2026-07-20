@@ -67,7 +67,7 @@ export default async function handler(req: any, res: any) {
         throw new Error('invalid_reorder');
       }
       const result = computeArrayReorder(current, newOrder);
-      if (!result.ok) throw new Error(result.error);
+      if ('error' in result) throw new Error(result.error);
 
       const update: Record<string, unknown> = {
         sourceImageUrls: newOrder,

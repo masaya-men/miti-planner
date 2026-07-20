@@ -66,7 +66,7 @@ export default async function handler(req: any, res: any) {
 
       const current: string[] = Array.isArray(data.sourceImageUrls) ? data.sourceImageUrls : [];
       const result = computeArrayDeletion(current, index);
-      if (!result.ok) throw new Error(result.error);
+      if ('error' in result) throw new Error(result.error);
       newUrls = result.next;
 
       const update: Record<string, unknown> = {
