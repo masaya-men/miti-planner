@@ -2012,6 +2012,9 @@
             "register_loading": "正在加载登记表单..."
         },
         "register": {
+            "editMedia": {
+                "save_failed": "失败了,请重试"
+            },
             "title": "房屋登记",
             "badge_private": "未公开",
             "badge_expired": "公开期限已过",

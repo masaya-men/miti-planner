@@ -2047,6 +2047,9 @@
             "register_loading": "Loading registration form..."
         },
         "register": {
+            "editMedia": {
+                "save_failed": "Failed. Please try again"
+            },
             "title": "Register Property",
             "badge_private": "Private",
             "badge_expired": "Publication expired",

@@ -2068,6 +2068,9 @@
             "register_loading": "登録フォームを読み込み中..."
         },
         "register": {
+            "editMedia": {
+                "save_failed": "失敗しました。もう一度お試しください"
+            },
             "title": "物件登録",
             "badge_private": "非公開",
             "badge_expired": "公開期限切れ",

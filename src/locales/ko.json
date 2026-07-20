@@ -2012,6 +2012,9 @@
             "register_loading": "등록 폼을 불러오는 중..."
         },
         "register": {
+            "editMedia": {
+                "save_failed": "실패했습니다. 다시 시도해 주세요"
+            },
             "title": "매물 등록",
             "badge_private": "비공개",
             "badge_expired": "공개 기간 만료",
