@@ -149,6 +149,7 @@ export function HousingRegisterImageField({
   const [compressing, setCompressing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [overflowNotice, setOverflowNotice] = useState<{ selected: number; max: number } | null>(null);
 
   // 内部の sortable state。 親 value 由来で初期化し、 並び替え/追加/削除で内部更新 → onChange 通知。
   // 親から外部的に value をクリア (=[]) されたケースに追従するため effect で同期する。
@@ -156,6 +157,15 @@ export function HousingRegisterImageField({
     value.map((img) => ({ id: makeId(), img })),
   );
   const [previewUrls, setPreviewUrls] = useState<Map<string, string>>(new Map());
+
+  useEffect(() => {
+    if (!overflowNotice) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOverflowNotice(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [overflowNotice]);
 
   // 親 value が外部から変わった (例: フォームリセット) ときに items を再構築。
   // ただし「items の img reference と value の img reference が一致」 する間は触らない
@@ -210,7 +220,8 @@ export function HousingRegisterImageField({
         setError(t('housing.register.image.error.too_many', { max: maxImages }));
         return;
       }
-      const list = Array.from(files).slice(0, remaining);
+      const allSelected = Array.from(files);
+      const list = allSelected.slice(0, remaining);
       for (const f of list) {
         if (!f.type.startsWith('image/')) {
           setError(t('housing.register.image.error.not_image'));
@@ -222,6 +233,9 @@ export function HousingRegisterImageField({
         const compressed = await Promise.all(list.map((f) => compressHousingImage(f)));
         const newItems = compressed.map((img) => ({ id: makeId(), img }));
         updateItems([...items, ...newItems]);
+        if (allSelected.length > remaining) {
+          setOverflowNotice({ selected: allSelected.length, max: maxImages });
+        }
       } catch (e) {
         console.error('[HousingRegisterImageField] compress failed', e);
         setError(t('housing.register.image.error.compress_failed'));
@@ -369,6 +383,50 @@ export function HousingRegisterImageField({
         <p className="housing-register-image-note">
           {t('housing.register.image.sns_override_note')}
         </p>
+      )}
+
+      {overflowNotice && (
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          style={{ background: 'var(--housing-detail-backdrop-bg)' }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setOverflowNotice(null);
+          }}
+        >
+          <div
+            className="max-w-sm w-full"
+            style={{
+              background: 'var(--housing-panel-bg)',
+              border: '1px solid var(--housing-panel-border)',
+              borderRadius: 'var(--housing-panel-radius)',
+              color: 'var(--housing-text)',
+              padding: 24,
+            }}
+          >
+            <h2 style={{ fontSize: 'var(--housing-text-lg)', fontWeight: 600, marginBottom: 12 }}>
+              {t('housing.register.image.limitModal.title', { max: overflowNotice.max })}
+            </h2>
+            <p
+              className="housing-register-image-limit-modal-body"
+              style={{ fontSize: 'var(--housing-text-base)', color: 'var(--housing-text-dim)', marginBottom: 20 }}
+            >
+              {t('housing.register.image.limitModal.body', {
+                selected: overflowNotice.selected,
+                max: overflowNotice.max,
+              })}
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={() => setOverflowNotice(null)}
+                className="housing-action-btn housing-btn-primary"
+                style={{ padding: '8px 16px' }}
+              >
+                {t('housing.register.image.limitModal.confirm')}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

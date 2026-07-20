@@ -2216,6 +2216,11 @@
                 "remove": "Remove",
                 "reorder_hint": "Drag to reorder (the leftmost \"Cover\" becomes the listing thumbnail)",
                 "sns_override_note": "An uploaded image is used; the SNS URL image is ignored.",
+                "limitModal": {
+                    "title": "Up to {{max}} images",
+                    "body": "{{selected}} images were selected, but only {{max}} can be saved. The first {{max}} were added.",
+                    "confirm": "Got it"
+                },
                 "error": {
                     "not_image": "Please select an image file (JPEG / PNG / WebP / AVIF / HEIC)",
                     "compress_failed": "Failed to compress image. Please try a different file.",

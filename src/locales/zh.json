@@ -2181,6 +2181,11 @@
                 "remove": "削除",
                 "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像になります)",
                 "sns_override_note": "画像を直接アップロードしたので、 SNS URL の画像は使われません",
+                "limitModal": {
+                    "title": "画像は{{max}}枚まで",
+                    "body": "{{selected}}枚選択されましたが、保存できる画像は{{max}}枚までです。先頭{{max}}枚のみ追加しました。",
+                    "confirm": "わかりました"
+                },
                 "error": {
                     "not_image": "画像ファイル (JPEG / PNG / WebP / AVIF / HEIC) を選んでください",
                     "compress_failed": "画像の圧縮に失敗しました。 別の画像を試してください",

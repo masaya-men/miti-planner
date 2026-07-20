@@ -489,6 +489,42 @@ describe('RegisterPage', () => {
     expect(container.querySelector('.housing-register-image-input')).toBeNull();
   });
 
+  it('mode=create: 残り枚数を超えてまとめて選ぶと確認モーダルが出て先頭4枚だけ追加される', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    const { container } = renderPage();
+
+    await attachImages(container, 6);
+
+    expect(container.querySelectorAll('.housing-register-image-tile').length).toBe(
+      SAVED_IMAGES_LIMIT,
+    );
+    const modal = await screen.findByText(
+      i18n.t('housing.register.image.limitModal.body', { selected: 6, max: SAVED_IMAGES_LIMIT }),
+    );
+    expect(modal).not.toBeNull();
+
+    const confirmBtn = screen.getByRole('button', {
+      name: i18n.t('housing.register.image.limitModal.confirm'),
+    });
+    fireEvent.click(confirmBtn);
+    await waitFor(() =>
+      expect(
+        screen.queryByText(
+          i18n.t('housing.register.image.limitModal.body', { selected: 6, max: SAVED_IMAGES_LIMIT }),
+        ),
+      ).toBeNull(),
+    );
+  });
+
+  it('mode=create: 上限ぴったりの枚数を選んだ場合は確認モーダルを出さない', async () => {
+    useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+    const { container } = renderPage();
+
+    await attachImages(container, SAVED_IMAGES_LIMIT);
+
+    expect(container.querySelector('.housing-register-image-limit-modal-body')).toBeNull();
+  });
+
   // 「入力途中を復元しました」が空ドラフトで誤発火するバグの回帰テスト (2026-07-13)。
   // 空文字タイトル/コメント + 既定 public + publishUntil null だけの下書きは「何も入力していない」
   // ので、保存も復元通知もしてはいけない (hasMeaningfulDraft で判定)。
