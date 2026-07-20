@@ -447,7 +447,7 @@ export function buildListingImageFields(
     }
   | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; youtubeVideoId: string }
   | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; sourceImageUrls: string[]; sourceImageAspectRatios?: number[] }
-  | { imageMode: 'none' } {
+  | { imageMode: 'none'; postUrl?: string } {
   if (draft.imageMode === 'sns' && draft.postUrl && draft.ogImageUrl) {
     if (draft.tweetId) {
       // Twitter: 動画 + 画像 + テキスト の混在ツイートを受け止める (2026-05-27 hotfix で排他撤廃)。
@@ -507,7 +507,10 @@ export function buildListingImageFields(
       };
     }
   }
-  return { imageMode: 'none' };
+  // 直接画像アップロード等 (imageMode !== 'sns') でも、検証済みの postUrl (元の投稿への
+  // リンク) だけは保持する (2026-07-20 実ユーザー報告の修正。host 検証は呼び出し側が
+  // validateImage を先に通している前提)。
+  return draft.postUrl ? { imageMode: 'none', postUrl: draft.postUrl } : { imageMode: 'none' };
 }
 
 export function validateRegistrationDraft(draft: RegistrationDraft): ValidationResult {

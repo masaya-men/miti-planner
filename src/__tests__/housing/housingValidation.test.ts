@@ -564,6 +564,21 @@ describe('buildListingImageFields', () => {
     expect(buildListingImageFields({} as any, 1000)).toEqual({ imageMode: 'none' });
   });
 
+  // 2026-07-20: 直接画像アップロード時でも postUrl だけは保存する (実ユーザー報告の修正)
+  it("imageMode!=='sns' でも postUrl があれば none + postUrl を返す", () => {
+    const out = buildListingImageFields(
+      { imageMode: undefined, postUrl: 'https://x.com/foo/status/123' } as any,
+      1000,
+    );
+    expect(out).toEqual({ imageMode: 'none', postUrl: 'https://x.com/foo/status/123' });
+  });
+
+  it("imageMode!=='sns' かつ postUrl も無ければ引き続き none のみ", () => {
+    expect(buildListingImageFields({ imageMode: undefined } as any, 1000)).toEqual({
+      imageMode: 'none',
+    });
+  });
+
   // 2026-05-27: Twitter 静止画ツイート (tweetId + sourceImageUrls)
   it('Twitter 静止画ツイートは tweetId + sourceImageUrls + lastTweetCheckAt を返す', () => {
     const result = buildListingImageFields(
