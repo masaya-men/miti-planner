@@ -2,6 +2,11 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-18〜19 コスト・ハードニング本番反映後の実機不具合3件(即日修正・本番反映済)
+- **共有ツアー参加APIのApp Check回帰**(commit `4aa61ebb`): join-shared-tourにverifyAppCheckを付けていたため、本当に未ログイン初回訪問者(getActiveAppCheck=peekで未初期化)が403で弾かれツアーに参加できなかった。本番curlで403を再現confirmしてから、`_searchPersonalTagsHandler.ts`/`api/popular`と同じ「App Check無し・rate limitのみ」パターンに揃えて解消。heartbeatでensureAppCheck()を発火させる代替案はコスト面の趣旨に反するため不採用。
+- **住所非公開(unlisted)が探すから消える**(commit `c4f24517`): 地域フィルターは言語切替で未タッチでも既定地域が入る(他フィルターと違い実質デフォルトON)。unlistedはregion=undefinedのため地域フィルターに一律で弾かれていた。region未定義のリスティングは地域フィルター対象外として素通しするよう修正(server/area/sizeは従来どおり除外維持)。
+- **Housing新規ユーザーの名前/アイコン変更403**: 別セッション(通常より非力なモデル使用)がensureUserDocumentユーティリティで応急修正(bc847128+645e7927)→司令塔が診断済みの追加バグ(providerData未定義でクラッシュ・既存テスト2件が実際に落ちていた)を発見し修正(commit `0d296ea8`)。ensureUserDocument自体のテストも新規追加(4ケース)。
+
 ### ✅ 2026-07-17 TODO整理で退避した検証済ステータス (元「現在の状態」)
 - **FB第6〜8弾=全項目ユーザー実機OK確認済(2026-07-17)**: お気に入りPC⇔スマホ同期 / ツアー順+ピン / Xシェア / OGPページ風カード / 左パネル画像固定根治 / 跨ぎ通知非ブロッキング化 / スマホ地図整理。旧TODO記載の「④非同期=同期設計はbrainstormingから」はFB6実装で解消済=打ち切り。OGPカード2種(ハウジンガー+ツアー招待URL)のデザインブラッシュアップは新TODOとして継続(TODO.md 残TODO①)。
 - 直近本番検証済: round1+round2(21項目・7-13)+P0+P1大規模耐性ハードニング(7-14・CF全ルールHIT実測・実機G2全PASS)。プライバシー=`personal_<hex>`はHMAC一方向ハッシュ。round2詳細=`.private/2026-07-13-register-production-test-feedback.md`。

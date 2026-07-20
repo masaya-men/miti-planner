@@ -22,9 +22,7 @@
 
 ## 現在の状態 (次セッションはここから読む)
 ### 🔴 次セッション最優先 (2026-07-18 更新・並び=コスト監査対応→モデレ→OGPデザイン)
-00. 🚨 **コスト・ハードニング+OGP実用化=コード6タスク完了・本番反映済(2026-07-18)**。**残=Cloudflare運用2件が未着手のまま**(①`/api/popular`専用Cache Rule=6月危機と同一パターンが現在進行形で最優先 ⑤ハウジンガーページ専用Cache Rule=汎用ルールへの偶然マッチに依存し不安定)。**次セッション=`docs/superpowers/plans/2026-07-18-cost-hardening-ops-runbook.md`でCloudflare対話形式2件から着手**。
-    - ✅完了(コード6タスク・subagent-driven-development・全task-review+最終whole-branchレビューApproved): ②共同編集load/save/verifyレート制限 ③共有ツアー参加人数ソフト上限300人(presence GC込み) ④ハウジンガーOGPカード安全キャッシュ経路化(見た目不変) ⑥ツアー招待OGPカード新規(honeyグラデ+背景画像+ホスト名入力)。merge済(main)・build/vitest緑(既知EphemeralAddPanel 7件のみ)。台帳=`.superpowers/sdd/progress.md`(旧worktree`.claude/worktrees/cost-hardening-ogp`は削除予定)。
-    - ついで修正: `docs/`配下の大型ファイルでVite buildが壊れる無関係バグ(Tailwind自動content検出の除外漏れ)を発見・修正。
+00. 🚨 **コスト・ハードニング=コード6タスク本番反映済(2026-07-18)+実機不具合3件を即日修正済(2026-07-19・詳細=TODO_COMPLETED)**。**残=Cloudflare運用2件が未着手**(①`/api/popular`専用Cache Rule=6月危機と同一パターンが現在進行形で最優先 ⑤ハウジンガーページ専用Cache Rule=汎用ルールへの偶然マッチに依存し不安定)。**次セッション=`docs/superpowers/plans/2026-07-18-cost-hardening-ops-runbook.md`でCloudflare対話形式2件から着手**。台帳=`.superpowers/sdd/progress.md`(旧worktree`.claude/worktrees/cost-hardening-ogp`はファイルロックで削除失敗・手動削除要)。
 0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`):
    - ✅ スマホ対応+実機FB第2〜8弾+**中韓対応=全部実装・本番反映・シード済(2026-07-18)**。詳細=TODO_COMPLETED。裁定待ち2件(クリア挙動変更の追認/season_christmas訳)は次回確認。
    - **公開前ブロッカー**: ①**モデレ判断待ち(要brainstorming・規模感=うまくいけば数百人〜それ以上とユーザー回答2026-07-17)**=/admin で通報一覧+非表示/強制非公開/個別却下(物件・人・個人タグ)+閾値自動非表示は可。**未実装(公開後対応)=BAN/quota永久0/一括削除/物理削除cron**([AdminHousingReports.tsx:9])→hide運用で公開か最低限BAN追加かユーザー判断。②**Discord告知**(ツアー公開・P3住所非公開も併記)。③**中韓=後追いなるはや**(専用DC/鯖/ワードデータ依存・JA/ENブロッカー外。用語CSV=`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`)。**地域分離は検証済(2026-07-17)**: 現状KR/CN鯖はマスター非存在=混在不可能。ツアー地域ガード(canAddToTour/tourRegionConflict・全追加経路+開始時二重)が実装済でKR/CN追加時も自動適用。対応時の注意=(a)Region型拡張時にOCE例外へ巻き込まない (b)APIのdc実在検証を追加([housingValidation.ts:99]は空チェックのみ)。
@@ -55,6 +53,8 @@
 - **リッチメディア化**: 複数画像+動画埋め込み+ビューポート内自動再生(**CSP に video.twimg.com 必須**・最大3本)・Allmarks 知見流用。
 - **通報モデ業界水準ロードマップ**(詳細=docs/.private/2026-05-26-housing-moderation-roadmap.md): Audit log/30日物理削除cron/異議申し立てUI/BAN自動化/NSFW高優先キュー(severity:'high' 既付与だが /admin 並び未反映)/Reporter scoring。
 - **細かい**: photo `alt`/SNS rate limiting/通知✕磨き/ツアー同期 Firestore 化。(fieldState.confirm バグと死にコード撤去は登録ページ改善計画書に吸収済み)
+- **🆕 初回設定モーダル(ユーザー指摘2026-07-19)**: 軽減表は初回ログインで名前/アイコン設定モーダルが出るためステータス完備、ハウジング側は初回設定が無いため新規ユーザーがいきなり編集しようとすると弾かれる(ensureUserDocumentで応急修正済=TODO_COMPLETED参照だが根本UXは未対応)。**軽減表と同じ作りをハウジングのトンマナ(フォント/色)に合わせるだけで最小工数**とユーザー提案。
+- **🆕 実機FB6件(2026-07-19・ユーザー指摘)**: ①DC/エリア等のドロップダウンがハウジングトンマナで未統一(機能は十分・無理に変えなくてよいとユーザー判断) ②詳細ページにも「＋ツアー」ボタンを追加(探すページのボタンはスペース不足で置けない・詳細ページのシェア/X/ちがったボタン列の右に余白あり) ③詳細ページから登録時に貼った元URL(X/YouTube/ハウジングスナップ)に飛べるように ④削除した物件が10分程度「探す」に残り続けた(詳細は開けず→キャッシュ起因の可能性・コスト面とのトレードオフか要調査) ⑤YouTube概要欄記載の住所を登録時に自動入力できないか(デモURL: youtube.com/watch?v=Iay_rr25398で失敗) ⑥住所を手入力(クリックでなく)した直後は右ナビが誤った位置を指す不具合(番地チップを1回上下クリックすると直る=クリック起点でしか再計算されていない疑い)。
 
 ---
 
