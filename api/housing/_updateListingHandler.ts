@@ -13,6 +13,8 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
+import { FieldValue } from 'firebase-admin/firestore';
+import { getStorage } from 'firebase-admin/storage';
 import { validateRegistrationDraft, normalizePublishUntil, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import { assertPersonalTagsAttachable, PersonalTagAttachError } from './_personalTagAttachGuard.js';
@@ -76,6 +78,20 @@ export default async function handler(req: any, res: any) {
       title: updates.title,
       visibility: updates.visibility,
       publishUntil: updates.publishUntil,
+      // 画像関連フィールド (2026-07-20 編集ページ画像管理設計): 編集ページで登録方法
+      // (アップロード⇔URL) を切り替えたときに送られてくる。imageMode は 'sns' の
+      // ときだけ意味を持つ (それ以外は validateImage が postUrl だけ見る)。
+      // postUrl は imageMode と独立したフィールドとして扱う既存方針により常に含める。
+      imageMode: updates.imageMode === 'sns' ? 'sns' : undefined,
+      postUrl: updates.postUrl,
+      ogImageUrl: updates.ogImageUrl,
+      tweetId: updates.tweetId,
+      youtubeVideoId: updates.youtubeVideoId,
+      sourceImageUrls: updates.sourceImageUrls,
+      sourceImageAspectRatios: updates.sourceImageAspectRatios,
+      videoUrl: updates.videoUrl,
+      videoPosterUrl: updates.videoPosterUrl,
+      videoAspectRatio: updates.videoAspectRatio,
     } as RegistrationDraft;
 
     const result = validateRegistrationDraft(draftForValidation);
@@ -101,6 +117,8 @@ export default async function handler(req: any, res: any) {
     }
 
     const listingRef = adminDb.collection('housing_listings').doc(listingId);
+
+    let switchedFromThumbnail = false;
 
     await adminDb.runTransaction(async (tx) => {
       const snap = await tx.get(listingRef);
@@ -154,15 +172,67 @@ export default async function handler(req: any, res: any) {
         updatePayload.title = draftForValidation.title.trim();
       }
 
+      // 画像関連フィールド (2026-07-20 編集ページ画像管理設計、バリデーション済みの
+      // draftForValidation から読む。生の req.body を直接使わない → セキュリティ上の要点参照)。
+      if (typeof draftForValidation.postUrl === 'string') {
+        updatePayload.postUrl = draftForValidation.postUrl;
+      }
+      if (draftForValidation.imageMode === 'sns') {
+        updatePayload.imageMode = 'sns';
+        if (typeof draftForValidation.ogImageUrl === 'string') {
+          updatePayload.ogImageUrl = draftForValidation.ogImageUrl;
+        }
+        if (typeof draftForValidation.tweetId === 'string') {
+          updatePayload.tweetId = draftForValidation.tweetId;
+        }
+        if (typeof draftForValidation.youtubeVideoId === 'string') {
+          updatePayload.youtubeVideoId = draftForValidation.youtubeVideoId;
+        }
+        if (Array.isArray(draftForValidation.sourceImageUrls)) {
+          updatePayload.sourceImageUrls = draftForValidation.sourceImageUrls;
+        }
+        if (Array.isArray(draftForValidation.sourceImageAspectRatios)) {
+          updatePayload.sourceImageAspectRatios = draftForValidation.sourceImageAspectRatios;
+        }
+        if (typeof draftForValidation.videoUrl === 'string') {
+          updatePayload.videoUrl = draftForValidation.videoUrl;
+        }
+        if (typeof draftForValidation.videoPosterUrl === 'string') {
+          updatePayload.videoPosterUrl = draftForValidation.videoPosterUrl;
+        }
+        if (typeof draftForValidation.videoAspectRatio === 'number') {
+          updatePayload.videoAspectRatio = draftForValidation.videoAspectRatio;
+        }
+
+        // thumbnail→sns の登録方法切替クリーンアップ: 保存済みが thumbnail で、今回
+        // sns に切り替わるなら、Storage 上の画像ファイルを全削除し
+        // thumbnailPaths/thumbnailPath をクリアする (実ファイル削除はトランザクションの外側)。
+        if (data.imageMode === 'thumbnail') {
+          updatePayload.thumbnailPaths = FieldValue.delete();
+          updatePayload.thumbnailPath = FieldValue.delete();
+          switchedFromThumbnail = true;
+        }
+      }
+
       tx.update(listingRef, updatePayload);
       bumpPublicVersionTx(tx, adminDb);
     });
+
+    // Storageファイルの実削除はトランザクション成功後 (Task 2 の delete-thumbnail と同じ理由:
+    // Storage削除の失敗でFirestoreの更新を巻き戻さない)。
+    if (switchedFromThumbnail) {
+      try {
+        await getStorage().bucket().deleteFiles({ prefix: `housing/listings/${listingId}/` });
+      } catch (e) {
+        console.error('[housing/update-listing] thumbnail cleanup failed (non-fatal):', e);
+      }
+    }
 
     return res.status(200).json({ success: true });
   } catch (error: any) {
     if (error?.message === 'not_found') return res.status(404).json({ error: 'not_found' });
     if (error?.message === 'forbidden') return res.status(403).json({ error: 'forbidden' });
     console.error('[housing/update-listing] error:', error);
-    return res.status(500).json({ error: 'Internal error' });
+    return res.status(500).json({ error: error?.message || 'Internal error' });
   }
 }
