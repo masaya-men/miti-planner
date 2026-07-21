@@ -8,6 +8,7 @@ import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import { RegisterSectionAddress, type RegisterAddressValues } from '../register/RegisterSectionAddress';
 import { RegisterSectionIntro, type RegisterSectionIntroValues } from '../register/RegisterSectionIntro';
 import { RegisterSectionMedia } from '../register/RegisterSectionMedia';
+import { HousingRegisterMultiUrlField } from '../register/HousingRegisterMultiUrlField';
 import { HousingEditMediaSection } from '../edit/HousingEditMediaSection';
 import type { EditMediaMode } from '../edit/HousingEditMediaModeTabs';
 import { RegisterSectionVisibility } from '../register/RegisterSectionVisibility';
@@ -60,6 +61,7 @@ import type { HousingArea, HousingListing, HousingSize } from '../../../types/ho
 import { regionForDC } from '../../../data/housing/dcServerMap';
 import { buildAddressKey } from '../../../utils/housingDuplicate';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { isDuplicatePostUrl, shouldRejectIncomingVideo } from '../../../lib/housing/multiSourceGuards';
 
 /**
  * 捕捉した SNS 取得結果 (画像 draft 構築の材料)。旧 HousingRegisterForm の tweetData/
@@ -540,6 +542,21 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   /** 現在 SNS URL 欄に入っている URL (オートセーブ対象・復元時に再取得する)。 */
   const [postUrl, setPostUrl] = useState<string>('');
   /**
+   * 2026-07-21 追加 (Batch2): 貼った投稿URLの一覧 (postUrl は従来通り「先頭/代表」を保持、
+   * これは配列版)。重複URL検出 (multiSourceGuards.isDuplicatePostUrl) にも使う。
+   */
+  const [sourcePostUrls, setSourcePostUrls] = useState<string[]>(() =>
+    mode === 'edit' && initialValues
+      ? (initialValues.sourcePostUrls ?? (initialValues.postUrl ? [initialValues.postUrl] : []))
+      : [],
+  );
+  /** 表示する URL 入力欄の数 (1..5)。 */
+  const [urlSlotCount, setUrlSlotCount] = useState(1);
+  /** 既に動画を1本捕捉済みか (2本目以降の動画を拒否する判定に使う、multiSourceGuards 参照)。 */
+  const capturedVideoRef = useRef(false);
+  /** 住所を既に (どれかのURLから) 自動入力済みか。true の間は以降のURLの住所は適用しない。 */
+  const addressAppliedRef = useRef(false);
+  /**
    * オートセーブ復元時に SNS URL 欄へ流し込む初期 URL (Task14 fix)。復元時に一度だけ設定し、
    * RegisterSectionMedia → HousingRegisterSnsUrlField(initialUrl) 経由でマウント時再取得を発火する。
    */
@@ -574,6 +591,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
    */
   const applyExtractedResult = useCallback(
     (result: HousingExtractResult) => {
+      // 2026-07-21 追加 (Batch2): 複数URL対応。一度どれかのURLから住所を適用したら、
+      // 以降のURL (2本目以降) から抽出された住所は無視する (「最初に見つかった方を採用」)。
+      if (addressAppliedRef.current) return;
       const fills: Array<[string, unknown]> = [];
       if (result.dc) fills.push(['dc', result.dc]);
       if (result.server) fills.push(['server', result.server]);
@@ -603,6 +623,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       if (result.roomNumber != null) fills.push(['roomNumber', result.roomNumber]);
       if (result.apartmentBuilding != null) fills.push(['apartmentBuilding', result.apartmentBuilding]);
       if (fills.length === 0) return;
+      addressAppliedRef.current = true;
 
       // このハンドラ呼び出しが復元起因かをスナップショット (以降の setTimeout でも同じ値を使う)。
       const emptyOnly = restoreRefetchGuardRef.current;
@@ -644,33 +665,71 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
   const handleTweetFetched = useCallback(
     (data: TweetData, source: { postUrl: string; tweetId: string } | null) => {
+      if (source && isDuplicatePostUrl(sourcePostUrls, source.postUrl)) {
+        showToast(t('housing.register.snsUrl.error.duplicate_url'), 'error');
+        return;
+      }
       applyExtractedAddress(data.text);
       const photos = data.photos ?? [];
-      if (photos.length > 0) setSourceImageUrls(photos.slice(0, 10));
-      // SNS メタデータ捕捉: Twitter に切り替わったので YouTube/OGP 捕捉はクリア (排他)。
-      setSnsCapture({ tweetData: data, tweetSource: source, youtube: null, ogp: null });
-      if (source?.postUrl) setPostUrl(source.postUrl);
+      if (photos.length > 0) setSourceImageUrls((prev) => [...prev, ...photos]);
+
+      const incomingHasVideo = !!data.video?.url;
+      const rejectVideo = shouldRejectIncomingVideo(capturedVideoRef.current, incomingHasVideo);
+      if (rejectVideo) {
+        showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+      } else if (incomingHasVideo) {
+        capturedVideoRef.current = true;
+      }
+      const effectiveData = rejectVideo ? { ...data, video: null } : data;
+
+      // SNS メタデータ捕捉: まだ何も捕捉していなければこの結果を「代表」として保持する
+      // (tweetId/ogImageUrl 等は今も単数フィールドのため、最初の1件を正とする)。
+      setSnsCapture((prev) =>
+        prev.tweetData || prev.youtube || prev.ogp
+          ? prev
+          : { tweetData: effectiveData, tweetSource: source, youtube: null, ogp: null },
+      );
+      if (source?.postUrl) {
+        setSourcePostUrls((prev) => [...prev, source.postUrl]);
+        setPostUrl((prev) => prev || source.postUrl);
+      }
     },
-    [applyExtractedAddress],
+    [applyExtractedAddress, sourcePostUrls, t],
   );
 
-  const handleYoutubeFetched = useCallback((data: YoutubeFetchedData | null) => {
-    if (!data) {
-      // URL 欄が空になった / 別形式に切替 → YouTube 捕捉のみクリア (他経路は各ハンドラが管理)。
-      setSnsCapture((prev) => (prev.youtube ? { ...prev, youtube: null } : prev));
-      return;
-    }
-    setSnsCapture({ tweetData: null, tweetSource: null, youtube: data, ogp: null });
-    setPostUrl(data.postUrl);
-    // YouTube はサムネ 1 枚のみ。sourceImageUrls (静止画リスト) は使わないためクリア。
-    setSourceImageUrls([]);
-  }, []);
+  const handleYoutubeFetched = useCallback(
+    (data: YoutubeFetchedData | null) => {
+      if (!data) {
+        setSnsCapture((prev) => (prev.youtube ? { ...prev, youtube: null } : prev));
+        return;
+      }
+      if (isDuplicatePostUrl(sourcePostUrls, data.postUrl)) {
+        showToast(t('housing.register.snsUrl.error.duplicate_url'), 'error');
+        return;
+      }
+      // YouTube は静止画リストと排他 (既存 validateImage の conflict_sources 制約は不変)。
+      // 既に画像/動画を何か捕捉済みなら、この YouTube URL は追加不可として拒否する。
+      if (capturedVideoRef.current || sourceImageUrls.length > 0) {
+        showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+        return;
+      }
+      capturedVideoRef.current = true;
+      setSnsCapture({ tweetData: null, tweetSource: null, youtube: data, ogp: null });
+      setSourcePostUrls((prev) => [...prev, data.postUrl]);
+      setPostUrl((prev) => prev || data.postUrl);
+    },
+    [sourcePostUrls, sourceImageUrls.length, t],
+  );
 
   const handleOgpFetched = useCallback(
     (data: OgpFetchedData | null) => {
       if (!data) {
         // URL 欄クリア / 失敗 → OGP 捕捉と画像をクリア。
         setSnsCapture((prev) => (prev.ogp ? { ...prev, ogp: null } : prev));
+        return;
+      }
+      if (isDuplicatePostUrl(sourcePostUrls, data.postUrl)) {
+        showToast(t('housing.register.snsUrl.error.duplicate_url'), 'error');
         return;
       }
       // OGP サイトは og:title / og:description / 本文 の複数箇所に住所らしい文字列が散る。
@@ -686,16 +745,36 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       );
       const images = data.data.images ?? [];
       if (images.length > 0) {
-        setSourceImageUrls(images.slice(0, 10));
+        setSourceImageUrls((prev) => [...prev, ...images]);
       } else if (data.data.image) {
-        setSourceImageUrls([data.data.image]);
+        setSourceImageUrls((prev) => [...prev, data.data.image!]);
       }
       // SNS メタデータ捕捉: OGP に切り替わったので Twitter/YouTube 捕捉はクリア (排他)。
-      setSnsCapture({ tweetData: null, tweetSource: null, youtube: null, ogp: data });
-      if (data.postUrl) setPostUrl(data.postUrl);
+      setSnsCapture((prev) =>
+        prev.tweetData || prev.youtube || prev.ogp ? prev : { tweetData: null, tweetSource: null, youtube: null, ogp: data },
+      );
+      setSourcePostUrls((prev) => [...prev, data.postUrl]);
+      setPostUrl((prev) => prev || data.postUrl);
     },
-    [applyExtractedResult],
+    [applyExtractedResult, sourcePostUrls, t],
   );
+
+  const handleAddUrlSlot = useCallback(() => {
+    setUrlSlotCount((prev) => Math.min(5, prev + 1));
+  }, []);
+  const handleRemoveUrlSlot = useCallback((_index: number) => {
+    // 欄を1つ減らす。既に取得済みの画像/住所/動画は取り消さない (個別画像削除は既存グリッドUIで行う、
+    // ブレスト2026-07-21で「個別削除で十分」と確定済み)。
+    setUrlSlotCount((prev) => Math.max(1, prev - 1));
+  }, []);
+  // Task6 時点では urlSlotCount/handleAddUrlSlot/handleRemoveUrlSlot/HousingRegisterMultiUrlField を
+  // 消費する JSX 配線 (RegisterSectionMedia への props 差し替え) はまだ無い (Task7 の担当範囲、
+  // このタスクでは意図的にスコープ外としている)。Task7 が実際に props として渡し始めた時点で
+  // 以下の一時マーカーは削除する。noUnusedLocals (tsconfig.app.json) 対策。
+  void urlSlotCount;
+  void handleAddUrlSlot;
+  void handleRemoveUrlSlot;
+  void HousingRegisterMultiUrlField;
 
   // mode で出すステップを絞る (Task3.4-1)。mode は生存中不変の prop なので依存は [mode] のみ。
   const effectiveStepIds = useMemo<StepId[]>(() => visibleStepIds(mode), [mode]);
@@ -981,8 +1060,20 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       visibility,
       publishUntil,
       ...imageFields,
+      ...(sourcePostUrls.length > 0 ? { sourcePostUrls } : {}),
     };
-  }, [address, tags, description, title, visibility, publishUntil, snsCapture, localImages, sourceImageUrls]);
+  }, [
+    address,
+    tags,
+    description,
+    title,
+    visibility,
+    publishUntil,
+    snsCapture,
+    localImages,
+    sourceImageUrls,
+    sourcePostUrls,
+  ]);
 
   /**
    * 実 register + 後続処理 (重複 OK / 「それでも登録」 両方から呼ばれる)。

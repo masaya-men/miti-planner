@@ -91,6 +91,9 @@ import { RegisterPage } from '../RegisterPage';
 // create パス (performRegister) の API を spy するため実モジュールを名前空間 import する
 // (module 全体 mock は他 export を壊すため spyOn で個別に差し替える)。
 import * as housingApiClient from '../../../../lib/housingApiClient';
+// 複数URL集約 (Batch2) の重複検出テスト用: showToast 呼び出しを spy する
+// (housingApiClient と同じ「実モジュールを名前空間 import → vi.spyOn」方式)。
+import * as ToastModule from '../../../Toast';
 import { AUTOSAVE_KEY } from '../../../../lib/housing/registerAutosave';
 import { saveRegisterPrefill, consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill';
 import { SAVED_IMAGES_LIMIT } from '../../register/HousingRegisterImageField';
@@ -1153,6 +1156,86 @@ describe('RegisterPage', () => {
         'data-confirmed',
         'true',
       );
+    });
+  });
+
+  // Task6 (Batch2): handleTweetFetched の重複URL検出回帰テスト。
+  // mode=create の RegisterSectionMedia は現時点 (Task7未着手) では単一の
+  // HousingRegisterSnsUrlField しか描画しないため、同じ URL 入力欄に同じ URL を
+  // 2回「貼る」操作 (fireEvent.change → useTweetFetch モックを success に遷移) を繰り返すことで
+  // handleTweetFetched が同じ postUrl で2回呼ばれる状況を再現する
+  // (実際の複数欄UIはTask7で配線されるが、重複検出ロジック自体はどちらの経路でも同じ関数が
+  // 判定するため、この駆動方法で isDuplicatePostUrl の統合を検証できる)。
+  describe('RegisterPage: 複数URL集約 (Batch2)', () => {
+    const TWEET_URL = 'https://x.com/user/status/1842217368673759510';
+
+    function createTree() {
+      return (
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter>
+            <RegisterPage />
+          </MemoryRouter>
+        </I18nextProvider>
+      );
+    }
+
+    it('同じURLを2回貼っても重複エラーになりsourcePostUrlsが増えない', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const { rerender } = render(createTree());
+
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: 正常に取得 (写真1枚)。
+      fireEvent.change(input, { target: { value: TWEET_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'D',
+          author: { name: 'D', screen_name: 'd' },
+          photos: ['https://pbs.twimg.com/d1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+      expect(showToastSpy).not.toHaveBeenCalled();
+
+      // 2本目: 同じURLをもう一度貼る (重複) → 新しい data オブジェクトで dispatch ガードを
+      // すり抜けさせつつ、postUrl は1本目と完全一致させる。
+      fireEvent.change(input, { target: { value: TWEET_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'D',
+          author: { name: 'D', screen_name: 'd' },
+          photos: ['https://pbs.twimg.com/d1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+
+      await waitFor(() =>
+        expect(showToastSpy).toHaveBeenCalledWith(
+          'housing.register.snsUrl.error.duplicate_url',
+          'error',
+        ),
+      );
+
+      // sourcePostUrls / sourceImageUrls が二重追加されていない (画像枚数は1本目のまま)。
+      expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+        i18n.t('housing.register.media.fetched_count', { count: 1 }),
+      );
+
+      showToastSpy.mockRestore();
     });
   });
 });
