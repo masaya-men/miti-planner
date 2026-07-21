@@ -747,6 +747,9 @@ describe('RegisterPage', () => {
 
       const section = screen.getByTestId('housing-register-section-confirm');
       expect(within(section).getByText('SNS投稿・サイトから自動入力')).toBeInTheDocument();
+      // EDITABLE_LISTING は sourceImageUrls を1件持つ (Task1で stillCount に反映済み)。
+      // ラベルの存在だけでなく実際の枚数値も検証し、imageCount 計算の退行を検知できるようにする。
+      expect(within(section).getByText('1 枚')).toBeInTheDocument();
     });
 
     it('mode=create では確認セクションに画像枚数の行が出る (既存挙動不変)', () => {
