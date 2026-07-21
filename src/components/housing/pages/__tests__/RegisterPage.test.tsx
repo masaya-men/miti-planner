@@ -860,26 +860,29 @@ describe('RegisterPage', () => {
   });
 
   /**
-   * commitEditSnsFetch (編集ページ「投稿URLを貼り替える」commit) の回帰テスト
-   * (最終レビュー Critical/Important fix・2026-07-21)。
+   * commitEditSnsFetch (編集ページ「投稿URLを追加する」commit) の回帰テスト
+   * (最終レビュー Critical/Important fix・2026-07-21 → Batch2・2026-07-22 で
+   * 「貼り替え=全差し替え」から「追加 (既存+新規の累積)」へ仕様変更したことに伴い
+   * シナリオ/期待値を書き換え)。
    *
-   * バグ1 (Critical): `payload = { ...buildDraft(), ...freshImageFields }` は
+   * バグ1 (Critical・維持): `payload = { ...buildDraft(), ...freshImageFields }` は
    * 「buildDraft() 側の画像フィールドは常に空 = {}」という前提だったが、この関数は
    * 成功時に setSnsCapture(capture) を呼ぶため、2回目以降の呼び出し時点では
    * snsCapture (延いては buildDraft() の画像フィールド) が前回貼り付けた古いSNSデータ
-   * を保持している。freshImageFields に無いキー (例: 動画無しツイートに貼り替えた際の
-   * videoUrl) は buildDraft() 側の古い値がスプレッドで生き残り、サーバーに送信されて
-   * しまう。修正後は buildDraft() の画像フィールドを明示的に除去してからマージするため、
-   * 2回目の updateListing 呼び出しに1回目の動画データが混入しない。
+   * を保持している。freshImageFields に無いキーは buildDraft() 側の古い値がスプレッドで
+   * 生き残ってサーバーに送信されてしまう。修正 (buildDraft() の画像フィールドを明示的に
+   * 除去してからマージする) はBatch2でも変更していないため、引き続き機能する。
    *
-   * バグ2 (Important): 同じ成功ブロックに editVideoPreview を更新する行が抜けており、
-   * 動画付き→動画なしへ貼り替えても動画プレビューが古いまま残っていた。
+   * バグ2 (Important・仕様変更で意味が反転): 旧仕様 (貼り替え) では「動画付き→動画なし」
+   * で動画プレビューが消えるのが正しい挙動だった。Batch2 (追加方式) では逆に、動画を
+   * 一度確立したら動画を含まない後続URLを貼ってもプレビューが消えてはいけない
+   * (貼り替えではなく追加なので、動画を明示的に取り除く操作をしていない限り維持する)。
    *
    * HousingEditSourcePanel (実物・モックしない) 経由で URL 欄を操作し、
    * useTweetFetch をモックして「取得成功」を模擬することで、commitEditSnsFetch を
    * RegisterPage の外部から間接的に駆動する。
    */
-  describe('編集ページ URL貼り替え: commitEditSnsFetch の回帰 (最終レビュー fix・2026-07-21)', () => {
+  describe('編集ページ URL追加: commitEditSnsFetch の回帰 (Batch2・2026-07-22)', () => {
     const TWEET_URL_A = 'https://x.com/user/status/1842217368673759498';
     const TWEET_URL_C = 'https://x.com/user/status/1842217368673759499';
 
@@ -913,7 +916,7 @@ describe('RegisterPage', () => {
       );
     }
 
-    it('動画付きツイートA→写真だけのツイートCへ貼り替えると、2回目のupdateListingにAのvideoUrlが混入しない (バグ1)', async () => {
+    it('動画付きツイートA→写真だけのツイートCの順で貼ると、Aの動画を保持したままCの写真が既存画像に追記される', async () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       updateMock.mockResolvedValue({ ok: true });
       const { rerender } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
@@ -938,7 +941,7 @@ describe('RegisterPage', () => {
         );
       });
 
-      // 2回目: 写真だけのツイートCに貼り替える
+      // 2回目: 写真だけのツイートCを追加で貼る (Batch2: 貼り替えではなく追加)。
       fireEvent.change(input, { target: { value: TWEET_URL_C } });
       tweetState = { ...tweetState, status: 'success', data: tweetDataPhotosC };
       rerender(editTree());
@@ -946,16 +949,30 @@ describe('RegisterPage', () => {
       await waitFor(() => expect(updateMock).toHaveBeenCalledTimes(2));
       const secondPayload = updateMock.mock.calls[1][1];
 
-      // バグ1 回帰確認の核心: Aの動画データが2回目のpayloadに混入していない
-      expect(secondPayload.videoUrl).toBeUndefined();
-      expect(secondPayload.videoPosterUrl).toBeUndefined();
-      expect(secondPayload.videoAspectRatio).toBeUndefined();
-      expect(secondPayload.sourceImageUrls).toEqual(tweetDataPhotosC.photos);
-      expect(secondPayload.tweetId).toBe('1842217368673759499');
+      // Batch2 の核心: 追加方式なので、Cの写真は「貼り替え」ではなくEDITABLE_LISTINGの既存
+      // sourceImageUrls (['https://x/a.jpg']) に追記される。かつ、Aで確立した動画は
+      // (Cが動画を持たないからといって) 消えず維持される (バグ1の除去ロジックとは別に、
+      // capture 自体が意図的に前の動画を引き継ぐ設計)。
+      expect(secondPayload.videoUrl).toBe(tweetDataVideoA.video.url);
+      expect(secondPayload.videoPosterUrl).toBe(tweetDataVideoA.video.posterUrl);
+      expect(secondPayload.videoAspectRatio).toBe(tweetDataVideoA.video.aspectRatio);
+      expect(secondPayload.sourceImageUrls).toEqual([
+        'https://x/a.jpg',
+        ...tweetDataPhotosC.photos,
+      ]);
+      // 代表 (tweetId) は最初に確立したURL (A) のまま維持される (RegisterPage.tsx
+      // handleTweetFetched と同じ「代表は最初の1件が正」設計)。
+      expect(secondPayload.tweetId).toBe('1842217368673759498');
+      // sourcePostUrls には両方のURLが記録され、重複扱いにならない。
+      expect(secondPayload.sourcePostUrls).toEqual([TWEET_URL_A, TWEET_URL_C]);
 
-      // バグ2 回帰確認: 動画なしツイートへの貼り替えで動画プレビューが消える
+      // バグ2 回帰確認 (仕様反転): 追加方式なので動画なしツイートを追加しても
+      // 動画プレビューは消えずそのまま残る。
       await waitFor(() => {
-        expect(screen.queryByTestId('housing-register-media-video')).toBeNull();
+        const preview = screen.getByTestId('housing-register-media-video');
+        expect(preview.querySelector('img')?.getAttribute('src')).toBe(
+          tweetDataVideoA.video.posterUrl,
+        );
       });
     });
   });

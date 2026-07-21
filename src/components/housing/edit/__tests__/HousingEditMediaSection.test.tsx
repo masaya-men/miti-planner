@@ -39,6 +39,7 @@ function renderSection(overrides: Partial<React.ComponentProps<typeof HousingEdi
         sourceImageUrls={overrides.sourceImageUrls ?? []}
         onSourceImageUrlsChange={overrides.onSourceImageUrlsChange ?? vi.fn()}
         videoPreview={overrides.videoPreview ?? null}
+        sourcePostUrls={overrides.sourcePostUrls ?? []}
         onCommitSnsFetch={overrides.onCommitSnsFetch ?? vi.fn().mockResolvedValue({ ok: true })}
       />
     </I18nextProvider>,

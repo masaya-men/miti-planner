@@ -13,9 +13,12 @@ export interface HousingEditMediaSectionProps {
   sourceImageUrls: string[];
   onSourceImageUrlsChange: (next: string[]) => void;
   videoPreview: EditVideoPreview | null;
+  /** 2026-07-22 追加 (Batch2): 貼った投稿URLの一覧 (重複検出に使う)。 */
+  sourcePostUrls: string[];
   onCommitSnsFetch: (
     capture: SnsCapture,
     freshSourceImageUrls: string[],
+    nextPostUrl: string,
   ) => Promise<{ ok: boolean; skipped?: boolean }>;
 }
 
@@ -33,6 +36,7 @@ export function HousingEditMediaSection({
   sourceImageUrls,
   onSourceImageUrlsChange,
   videoPreview,
+  sourcePostUrls,
   onCommitSnsFetch,
 }: HousingEditMediaSectionProps) {
   const { t } = useTranslation();
@@ -55,6 +59,7 @@ export function HousingEditMediaSection({
           sourceImageUrls={sourceImageUrls}
           onSourceImageUrlsChange={onSourceImageUrlsChange}
           videoPreview={videoPreview}
+          sourcePostUrls={sourcePostUrls}
           onCommitSnsFetch={onCommitSnsFetch}
         />
       )}

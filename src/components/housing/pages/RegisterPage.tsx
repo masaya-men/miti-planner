@@ -192,8 +192,11 @@ export function buildDraftImageFields(
  * `r != null ? r : 0` 変換に委ねる)。両方とも比率情報が無ければ undefined のまま返し、
  * draft に sourceImageAspectRatios フィールド自体を付けない (従来の「テキストのみ」挙動と同じ)。
  * (2026-07-21 レビュー指摘 Bug2 fix: 複数URL目の写真が sourcePostUrls 集約時に消える不具合)
+ *
+ * 2026-07-22 (Task8・Batch2): 編集ページ (HousingEditSourcePanel) も同じ「Twitter代表に
+ * 後続URLの写真を追記する」ロジックが必要なため export する。
  */
-function mergeTweetPhotoAspectRatios(
+export function mergeTweetPhotoAspectRatios(
   existingRatios: (number | null)[] | undefined,
   existingCount: number,
   incomingRatios: (number | null)[] | undefined,
@@ -1262,9 +1265,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   );
 
   /**
-   * URL経由の「投稿を貼り替える」commit (Plan B・2026-07-21)。update-listing はフル
-   * ドラフトを要求するため、既存 buildDraft() の結果から画像関連フィールドを除去した
-   * ものに「今回取得した」画像フィールドを上書きマージする。
+   * URL経由の「投稿URLを追加する」commit (Plan B・2026-07-21 → Batch2 2026-07-22 で
+   * 追加方式に統一)。update-listing はフルドラフトを要求するため、既存 buildDraft() の
+   * 結果から画像関連フィールドを除去したものに「今回取得した (= 既存+新規の累積)」画像
+   * フィールドを上書きマージする。
    *
    * 注意 (2026-07-21 バグ修正): buildDraft() 自体の image 部分は snsCapture state 由来
    * だが、この関数は成功時に setSnsCapture(capture) を呼ぶため、2回目以降の呼び出し時点
@@ -1274,14 +1278,24 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
    * 値が生き残ってサーバーに送信されてしまう。画像データは freshImageFields だけを
    * 信頼できるよう、buildDraft() の画像フィールドは明示的に取り除いてからマージする。
    *
-   * 成功したら初めて画面表示用の state (snsCapture/sourceImageUrls/postUrl/
-   * editVideoPreview) を更新し、直接アップロード側の表示は空にする (サーバー側で
+   * `capture`/`freshSourceImageUrls` は呼び出し元 (HousingEditSourcePanel) 側で既に
+   * 「既存 sourceImageUrls + 今回貼ったURLの新規分」の累積結果として組まれている
+   * (代表の tweetId/postUrl 等は最初に確立したURLのものを維持しつつ、写真は常に最新の
+   * sourceImageUrls から組み直す設計。HousingEditImageGrid 経由の削除/並び替えを取りこぼ
+   * さないため)。ここでは無条件にページ state (snsCapture) を capture に追従させる —
+   * 「初回成功時だけ反映」ガードにすると、2回目以降の貼付けで snsCapture が古いまま
+   * 固まり、最終「保存」ボタン (buildDraft() 経由・performUpdate) が古い画像データで
+   * 上書きしてしまう回帰を生むため置かない。
+   *
+   * 成功したら初めて画面表示用の state (snsCapture/sourceImageUrls/sourcePostUrls/
+   * postUrl/editVideoPreview) を更新し、直接アップロード側の表示は空にする (サーバー側で
    * thumbnailPaths が削除されるため)。
    */
   const commitEditSnsFetch = useCallback(
     async (
       capture: SnsCapture,
       freshSourceImageUrls: string[],
+      nextPostUrl: string,
     ): Promise<{ ok: boolean; skipped?: boolean }> => {
       if (!initialValues) return { ok: false };
       const freshImageFields = buildDraftImageFields(capture, [], freshSourceImageUrls);
@@ -1314,11 +1328,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         _videoPosterUrl,
         _videoAspectRatio,
       ];
-      const payload = { ...nonImageDraft, ...freshImageFields };
+      // 2026-07-22 追加 (Batch2): sourcePostUrls に今回のURLを追記して送る (重複は呼び出し元の
+      // HousingEditSourcePanel が isDuplicatePostUrl で既に弾いている前提)。
+      const nextSourcePostUrls = [...sourcePostUrls, nextPostUrl];
+      const payload = { ...nonImageDraft, ...freshImageFields, sourcePostUrls: nextSourcePostUrls };
       const result = await updateListing(initialValues.id, payload);
       if (!result.ok) return { ok: false };
       setSnsCapture(capture);
       setSourceImageUrls(freshSourceImageUrls);
+      setSourcePostUrls(nextSourcePostUrls);
       setEditThumbnailPaths([]);
       setEditVideoPreview(
         capture.tweetData?.video
@@ -1327,15 +1345,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
               posterUrl: capture.tweetData.video.posterUrl,
               aspectRatio: capture.tweetData.video.aspectRatio ?? undefined,
             }
-          : null,
+          // 2026-07-22 (Batch2): 追加方式なので、今回のcaptureに動画が無くても既存のプレビューを
+          // 消さない (貼り替えではないため「動画無し=削除」ではない)。
+          : editVideoPreview,
       );
-      const nextPostUrl =
-        capture.tweetSource?.postUrl ?? capture.youtube?.postUrl ?? capture.ogp?.postUrl;
-      if (nextPostUrl) setPostUrl(nextPostUrl);
+      if (!postUrl) setPostUrl(nextPostUrl);
       await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
       return { ok: true };
     },
-    [initialValues, buildDraft, updateListing],
+    [initialValues, buildDraft, updateListing, sourcePostUrls, editVideoPreview, postUrl],
   );
 
   const performUpdate = useCallback(
@@ -1759,6 +1777,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                     sourceImageUrls={sourceImageUrls}
                     onSourceImageUrlsChange={setSourceImageUrls}
                     videoPreview={editVideoPreview}
+                    sourcePostUrls={sourcePostUrls}
                     onCommitSnsFetch={commitEditSnsFetch}
                   />
                 )
