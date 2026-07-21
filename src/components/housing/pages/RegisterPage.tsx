@@ -1083,11 +1083,20 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
   /**
    * URL経由の「投稿を貼り替える」commit (Plan B・2026-07-21)。update-listing はフル
-   * ドラフトを要求するため、既存 buildDraft() の結果に「今回取得した」画像フィールドを
-   * 上書きマージする (buildDraft() 自体の image 部分は snsCapture state 由来で edit
-   * モードでは常に空 = {} なので、fresh 側が確実に勝つ)。成功したら初めて画面表示用の
-   * state (snsCapture/sourceImageUrls/postUrl) を更新し、直接アップロード側の表示は
-   * 空にする (サーバー側で thumbnailPaths が削除されるため)。
+   * ドラフトを要求するため、既存 buildDraft() の結果から画像関連フィールドを除去した
+   * ものに「今回取得した」画像フィールドを上書きマージする。
+   *
+   * 注意 (2026-07-21 バグ修正): buildDraft() 自体の image 部分は snsCapture state 由来
+   * だが、この関数は成功時に setSnsCapture(capture) を呼ぶため、2回目以降の呼び出し時点
+   * では snsCapture は「前回貼り付けた」データを保持しており空ではない。単純に
+   * `{ ...buildDraft(), ...freshImageFields }` とマージすると、freshImageFields に存在
+   * しないキー (例: 動画無しツイートに貼り替えた際の videoUrl) は buildDraft() 側の古い
+   * 値が生き残ってサーバーに送信されてしまう。画像データは freshImageFields だけを
+   * 信頼できるよう、buildDraft() の画像フィールドは明示的に取り除いてからマージする。
+   *
+   * 成功したら初めて画面表示用の state (snsCapture/sourceImageUrls/postUrl/
+   * editVideoPreview) を更新し、直接アップロード側の表示は空にする (サーバー側で
+   * thumbnailPaths が削除されるため)。
    */
   const commitEditSnsFetch = useCallback(
     async (
@@ -1100,12 +1109,46 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         // 画像/動画が取れなかった (テキストのみツイート等)。既存データを維持し何もしない。
         return { ok: true, skipped: true };
       }
-      const payload = { ...buildDraft(), ...freshImageFields };
+      const {
+        imageMode: _imageMode,
+        postUrl: _postUrl,
+        ogImageUrl: _ogImageUrl,
+        youtubeVideoId: _youtubeVideoId,
+        tweetId: _tweetId,
+        sourceImageUrls: _sourceImageUrls,
+        sourceImageAspectRatios: _sourceImageAspectRatios,
+        videoUrl: _videoUrl,
+        videoPosterUrl: _videoPosterUrl,
+        videoAspectRatio: _videoAspectRatio,
+        ...nonImageDraft
+      } = buildDraft();
+      void [
+        _imageMode,
+        _postUrl,
+        _ogImageUrl,
+        _youtubeVideoId,
+        _tweetId,
+        _sourceImageUrls,
+        _sourceImageAspectRatios,
+        _videoUrl,
+        _videoPosterUrl,
+        _videoAspectRatio,
+      ];
+      const payload = { ...nonImageDraft, ...freshImageFields };
       const result = await updateListing(initialValues.id, payload);
       if (!result.ok) return { ok: false };
       setSnsCapture(capture);
       setSourceImageUrls(freshSourceImageUrls);
       setEditThumbnailPaths([]);
+      setEditVideoPreview(
+        capture.tweetData?.video
+          ? {
+              url: capture.tweetData.video.url,
+              posterUrl: capture.tweetData.video.posterUrl,
+              aspectRatio: capture.tweetData.video.aspectRatio ?? undefined,
+            }
+          : null,
+      );
       const nextPostUrl =
         capture.tweetSource?.postUrl ?? capture.youtube?.postUrl ?? capture.ogp?.postUrl;
       if (nextPostUrl) setPostUrl(nextPostUrl);
