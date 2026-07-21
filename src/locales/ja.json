@@ -2262,7 +2262,9 @@
             "media": {
                 "fetched_count": "画像を{{count}}枚取得しました",
                 "video_badge": "動画あり",
-                "error_hint": "URL を確認するか、 画像を直接アップロードしてください"
+                "error_hint": "URL を確認するか、 画像を直接アップロードしてください",
+                "add_url": "＋ URLを追加",
+                "remove_url": "この投稿URLを取り除く"
             },
             "tweetPreview": {
                 "title": "取得したツイート"

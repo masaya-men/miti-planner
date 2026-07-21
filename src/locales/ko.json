@@ -2206,7 +2206,9 @@
             "media": {
                 "fetched_count": "이미지를 {{count}}장 가져왔습니다",
                 "video_badge": "동영상 있음",
-                "error_hint": "URL을 확인하거나 이미지를 직접 업로드해 주세요"
+                "error_hint": "URL을 확인하거나 이미지를 직접 업로드해 주세요",
+                "add_url": "+ URL 추가",
+                "remove_url": "이 게시물 URL 제거"
             },
             "tweetPreview": {
                 "title": "가져온 트윗"

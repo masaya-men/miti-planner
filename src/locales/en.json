@@ -2241,7 +2241,9 @@
             "media": {
                 "fetched_count": "Fetched {{count}} image(s)",
                 "video_badge": "Video",
-                "error_hint": "Check the URL, or upload images directly"
+                "error_hint": "Check the URL, or upload images directly",
+                "add_url": "+ Add URL",
+                "remove_url": "Remove this post URL"
             },
             "tweetPreview": {
                 "title": "Fetched tweet"

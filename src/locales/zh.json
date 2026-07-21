@@ -2206,7 +2206,9 @@
             "media": {
                 "fetched_count": "已获取 {{count}} 张图片",
                 "video_badge": "含视频",
-                "error_hint": "请检查 URL，或直接上传图片"
+                "error_hint": "请检查 URL，或直接上传图片",
+                "add_url": "+ 添加URL",
+                "remove_url": "移除此帖子URL"
             },
             "tweetPreview": {
                 "title": "已获取的推文"
