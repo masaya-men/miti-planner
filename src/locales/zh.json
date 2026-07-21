@@ -2209,7 +2209,10 @@
                 "video_badge": "含视频",
                 "error_hint": "请检查 URL，或直接上传图片",
                 "add_url": "+ 添加URL",
-                "remove_url": "移除此帖子URL"
+                "remove_url": "移除此帖子URL",
+                "limit_note": "最多可添加10张图片和1个视频。",
+                "expand_upload": "改用上传图片注册",
+                "upload_warning": "上传的图片会被压缩、画质下降,且无法使用视频。建议改用URL方式注册。"
             },
             "tweetPreview": {
                 "title": "已获取的推文"

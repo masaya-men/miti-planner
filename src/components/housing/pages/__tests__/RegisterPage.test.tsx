@@ -141,9 +141,21 @@ function renderPage(props?: {
   );
 }
 
+// Batch2 (Task7): 直接アップロード欄は既定で折りたたまれている。
+// 「画像をアップロードして登録する」トグルがまだ展開されていなければ先に押して入力欄を出す。
+function ensureUploadExpanded(container: HTMLElement) {
+  const toggle = container.querySelector(
+    '[data-testid="housing-register-toggle-upload"]',
+  ) as HTMLButtonElement | null;
+  if (toggle) {
+    fireEvent.click(toggle);
+  }
+}
+
 // 画像必須 (mode=create) のテスト用: ローカル画像を 1 枚追加して canSubmit を満たす。
 // 圧縮は vi.mock で同期スタブ化済み。タイルが出るまで待って反映を保証する。
 async function attachImage(container: HTMLElement) {
+  ensureUploadExpanded(container);
   const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
   const file = new File(['x'], 'photo.png', { type: 'image/png' });
   fireEvent.change(input, { target: { files: [file] } });
@@ -154,6 +166,7 @@ async function attachImage(container: HTMLElement) {
 
 // 複数枚まとめて添付するヘルパー
 async function attachImages(container: HTMLElement, count: number) {
+  ensureUploadExpanded(container);
   const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
   const files = Array.from({ length: count }, (_, i) => new File(['x'], `photo${i}.png`, { type: 'image/png' }));
   fireEvent.change(input, { target: { files } });
@@ -598,6 +611,7 @@ describe('RegisterPage', () => {
 
     const { container } = renderPage();
 
+    ensureUploadExpanded(container);
     const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
     const files = Array.from({ length: SAVED_IMAGES_LIMIT }, (_, i) => new File(['x'], `photo${i}.png`, { type: 'image/png' }));
     fireEvent.change(input, { target: { files } });

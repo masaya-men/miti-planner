@@ -2209,7 +2209,10 @@
                 "video_badge": "동영상 있음",
                 "error_hint": "URL을 확인하거나 이미지를 직접 업로드해 주세요",
                 "add_url": "+ URL 추가",
-                "remove_url": "이 게시물 URL 제거"
+                "remove_url": "이 게시물 URL 제거",
+                "limit_note": "이미지는 최대 10장, 동영상은 최대 1개까지 등록할 수 있습니다.",
+                "expand_upload": "이미지를 업로드해서 등록하기",
+                "upload_warning": "업로드하면 화질이 압축되어 저하되며 동영상은 사용할 수 없습니다. URL 등록을 추천합니다."
             },
             "tweetPreview": {
                 "title": "가져온 트윗"

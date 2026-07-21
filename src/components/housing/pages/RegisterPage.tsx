@@ -8,7 +8,6 @@ import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import { RegisterSectionAddress, type RegisterAddressValues } from '../register/RegisterSectionAddress';
 import { RegisterSectionIntro, type RegisterSectionIntroValues } from '../register/RegisterSectionIntro';
 import { RegisterSectionMedia } from '../register/RegisterSectionMedia';
-import { HousingRegisterMultiUrlField } from '../register/HousingRegisterMultiUrlField';
 import { HousingEditMediaSection } from '../edit/HousingEditMediaSection';
 import type { EditMediaMode } from '../edit/HousingEditMediaModeTabs';
 import { RegisterSectionVisibility } from '../register/RegisterSectionVisibility';
@@ -866,15 +865,6 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     // ブレスト2026-07-21で「個別削除で十分」と確定済み)。
     setUrlSlotCount((prev) => Math.max(1, prev - 1));
   }, []);
-  // Task6 時点では urlSlotCount/handleAddUrlSlot/handleRemoveUrlSlot/HousingRegisterMultiUrlField を
-  // 消費する JSX 配線 (RegisterSectionMedia への props 差し替え) はまだ無い (Task7 の担当範囲、
-  // このタスクでは意図的にスコープ外としている)。Task7 が実際に props として渡し始めた時点で
-  // 以下の一時マーカーは削除する。noUnusedLocals (tsconfig.app.json) 対策。
-  void urlSlotCount;
-  void handleAddUrlSlot;
-  void handleRemoveUrlSlot;
-  void HousingRegisterMultiUrlField;
-
   // mode で出すステップを絞る (Task3.4-1)。mode は生存中不変の prop なので依存は [mode] のみ。
   const effectiveStepIds = useMemo<StepId[]>(() => visibleStepIds(mode), [mode]);
 
@@ -1787,6 +1777,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                   // 動画ツイートの poster を最小プレビュー (ポスター1枚+「動画あり」バッジ) で見せる。
                   // <video> 直参照は CSP 不可のため posterUrl (pbs.twimg.com) を <img> で出す。
                   tweetVideo={snsCapture.tweetData?.video ?? null}
+                  urlSlotCount={urlSlotCount}
+                  onAddUrlSlot={handleAddUrlSlot}
+                  onRemoveUrlSlot={handleRemoveUrlSlot}
                 />
               )}
             </div>
