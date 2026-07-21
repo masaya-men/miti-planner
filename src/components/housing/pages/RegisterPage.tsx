@@ -691,7 +691,17 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       }
       applyExtractedAddress(data.text);
       const photos = data.photos ?? [];
-      if (photos.length > 0) setSourceImageUrls((prev) => [...prev, ...photos]);
+      // 代表が既に YouTube で確定している場合、静止画は conflict_sources 制約 (YouTube は画像/動画と
+      // 排他) により追加できない。sourceImageUrls に足すと buildDraftImageFields の YouTube 分岐
+      // (sourceImageUrls を一切読まない) で黙って保存されない「受理したのに消える」事故になるため、
+      // 動画1本制限と同じエラー経路 (video_limit) で拒否する (計画書 2026-07-21 self-review 済み要件)。
+      const representativeIsYoutube = !!snsCapture.youtube;
+      const rejectPhotosForYoutube = representativeIsYoutube && photos.length > 0;
+      if (rejectPhotosForYoutube) {
+        showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+      } else if (photos.length > 0) {
+        setSourceImageUrls((prev) => [...prev, ...photos]);
+      }
 
       const incomingHasVideo = !!data.video?.url;
       // 代表 (snsCapture.tweetData/youtube/ogp) が既に確定しているか、確定しているなら
@@ -822,9 +832,17 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       // 要求する (housingValidation.ts:413) ため、混ぜると invalid_url で登録全体が失敗してしまい
       // 「一部の写真が消える」より悪い「全部保存できない」regression になる。動画の orphanVideo
       // 拒否と同じ理由でこの組み合わせは拒否する (2026-07-21 レビュー指摘 Bug2 fix)。
+      //
+      // 代表が既に YouTube で確定している場合は、conflict_sources 制約 (YouTube は画像/動画と排他)
+      // により画像を一切追加できない。buildDraftImageFields の YouTube 分岐は sourceImageUrls を
+      // 読まないため、ここで足すと「受理したのに保存時に消える」事故になる。動画1本制限と同じ
+      // エラー経路 (video_limit) で拒否する (計画書 2026-07-21 self-review 済み要件)。
+      const representativeIsYoutube = !!snsCapture.youtube;
       const representativeIsTwitter = !!snsCapture.tweetData;
       if (images.length > 0) {
-        if (representativeIsTwitter) {
+        if (representativeIsYoutube) {
+          showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+        } else if (representativeIsTwitter) {
           showToast(t('housing.register.snsUrl.error.photo_source_conflict'), 'error');
         } else {
           setSourceImageUrls((prev) => [...prev, ...images]);

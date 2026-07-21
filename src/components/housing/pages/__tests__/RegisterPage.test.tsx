@@ -1527,6 +1527,119 @@ describe('RegisterPage', () => {
     });
 
     /**
+     * 計画書の self-review 要件 (docs/superpowers/plans/2026-07-21-housing-multi-source-url.md:1606):
+     * 「YouTube+複数URLの扱い: 既存のconflict_sources制約(YouTubeは画像/動画と排他)は維持し、
+     * YouTube確定後に画像URLを追加しようとした場合はvideo_limitと同じエラー経路で拒否する」。
+     * 修正前は handleTweetFetched が「代表が既に YouTube か」を一切チェックせず、写真を
+     * 無条件で集約プール (sourceImageUrls) に追加していた。buildDraftImageFields の YouTube 分岐は
+     * sourceImageUrls を一切読まない (youtubeVideoId 優先で imageMode='sns' を組む) ため、
+     * 画面上は「N枚取得しました」と表示されるのに保存データには一切反映されない全損失
+     * (photo-loss) 事故になっていた (Bug1/Bug3 の「一部消える」より悪い「受理したのに丸ごと消える」)。
+     *
+     * 再現手順の注記: 単一URL欄 (Task7の複数枠UIはまだ無い) では、ツイートURLを貼った直後に
+     * 別URLへ書き換えると `HousingRegisterSnsUrlField` の classifySnsUrl 分岐が
+     * `onYoutubeFetched(null)` を同期的に呼び、代表を即座にクリアしてしまう。そのため
+     * 「YouTube貼付→ただちにツイートURLへ書き換えて即時解決」という単純な順序では
+     * ガード対象の状態 (代表=YouTube 確定済みのままツイートの写真が届く) に到達できない
+     * (実験して確認済み)。実際に到達可能なのは、ツイート fetch が pending のまま
+     * ユーザーが YouTube URL に書き換えて代表を確立した後、**取り残された最初のツイート fetch が
+     * 遅れて成功する**というレース (低速回線・気が変わって貼り直す、という現実的な操作順)。
+     * `useTweetFetch` の dispatch は effect 実行時点の**現在の url** から tweetId を再計算するため
+     * (`HousingRegisterSnsUrlField.tsx` の `parseTweetUrl(url)`)、url が既に YouTube に変わっていると
+     * `source=null` の「孤立ディスパッチ」になり、`isDuplicatePostUrl` の入口チェックも通過してしまう。
+     * テスト環境では `tweetState` (外部変数) の更新を意図的に遅らせることでこの pending 状態を再現する。
+     */
+    it('ツイートURL貼付(fetch pending)の直後にYouTube URLへ書き換えて代表が確定し、後から遅れてツイートの写真fetchが届いてもvideo_limitで拒否される (YouTube代表確立後の写真拒否)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Meteor',
+          server: 'Ramuh',
+          area: 'LavenderBeds',
+          ward: 29,
+          buildingType: 'house',
+          plot: 3,
+          size: 'L',
+          visibility: 'public',
+        }),
+      );
+      const canRegisterSpy = vi
+        .spyOn(housingApiClient, 'canRegister')
+        .mockResolvedValue({ remaining: 5 } as any);
+      const checkDuplicateSpy = vi
+        .spyOn(housingApiClient, 'checkDuplicate')
+        .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+      const registerSpy = vi
+        .spyOn(housingApiClient, 'registerListing')
+        .mockResolvedValue({ id: 'new1' } as any);
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const YOUTUBE_URL = 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o';
+      const TWEET_URL_PHOTO = 'https://x.com/user/status/1842217368673759541';
+
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: 写真付きツイート URL を貼るが、まだ fetch が成功していない (tweetState は idle のまま =
+      // pending を模す)。fetchTweet 自体はモックの no-op なので実際に何かが起きるわけではない。
+      fireEvent.change(input, { target: { value: TWEET_URL_PHOTO } });
+
+      // ユーザーが (低速回線で) 待たずに YouTube URL に書き換える → YouTube が代表として確定する。
+      fireEvent.change(input, { target: { value: YOUTUBE_URL } });
+
+      // 取り残された1本目のツイート fetch が遅れて成功する。dispatch 時点の url は既に YouTube URL
+      // に変わっているため tweetId が取れず source=null の「孤立ディスパッチ」になるが、
+      // data (写真) 自体は届く。
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-after-youtube',
+          author: { name: 'P', screen_name: 'p' },
+          photos: ['https://pbs.twimg.com/py1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+
+      await waitFor(() =>
+        expect(showToastSpy).toHaveBeenCalledWith(
+          'housing.register.snsUrl.error.video_limit',
+          'error',
+        ),
+      );
+
+      // 写真は集約プール (sourceImageUrls) にも追加されない
+      // (「N枚取得しました」表示自体が出ない = 実際に保存されない画像が枚数に混ざらない)。
+      expect(screen.queryByTestId('housing-register-media-success')).not.toBeInTheDocument();
+
+      // 実際に登録データ (registerListing 引数 = buildDraft の出力) にも写真が一切含まれず、
+      // YouTube のまま保存されることを確認する (プレビュー表示だけでなく保存データそのものを検証)。
+      const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+      fireEvent.click(addressGateBtn);
+      const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+      await waitFor(() => expect(submitBtn).not.toBeDisabled());
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+      expect(registerSpy.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          imageMode: 'sns',
+          youtubeVideoId: 'Ypg8w7Dmq9o',
+        }),
+      );
+      expect(registerSpy.mock.calls[0][0].sourceImageUrls).toBeUndefined();
+
+      canRegisterSpy.mockRestore();
+      checkDuplicateSpy.mockRestore();
+      registerSpy.mockRestore();
+      showToastSpy.mockRestore();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    /**
      * Bug2 回帰 (2026-07-21 レビュー指摘・Important): handleDiscardRestore が Batch2 で追加した
      * ガード state/ref (sourcePostUrls/capturedVideoRef/addressAppliedRef/urlSlotCount) を
      * リセットしていなかったため、破棄後に「破棄前と同じ URL」を貼り直すと sourcePostUrls に
