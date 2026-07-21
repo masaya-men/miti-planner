@@ -81,6 +81,31 @@ describe('HousingEditThumbnailPanel', () => {
     expect(onImagesChange).not.toHaveBeenCalled();
   });
 
+  it('アップロード処理中はドロップゾーンを無効化し多重選択を防ぐ', async () => {
+    mockCompress.mockResolvedValue({ base64: 'ZmFrZQ==', mimeType: 'image/webp', file: new File([], 'a.webp'), originalBytes: 100, compressedBytes: 50 });
+    // 解決しない Promise を返し、アップロード処理中 (uploading===true) の状態を維持する
+    mockUpload.mockReturnValue(new Promise(() => {}));
+    renderPanel(['a']);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const dropzone = document.querySelector('.housing-register-image-dropzone') as HTMLElement;
+    const clickSpy = vi.spyOn(input, 'click');
+    const file = new File(['content'], 'photo.png', { type: 'image/png' });
+    // mockUpload は describe 内の他テストでも呼ばれ呼び出し回数が累積するため、
+    // このテストで発生した呼び出し数だけを差分で検証する
+    const uploadCallCountBefore = mockUpload.mock.calls.length;
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => expect(input.disabled).toBe(true));
+
+    // uploading 中はクリック/キーボード操作のどちらも inputRef.current.click() を呼ばない
+    fireEvent.click(dropzone);
+    fireEvent.keyDown(dropzone, { key: 'Enter' });
+    fireEvent.keyDown(dropzone, { key: ' ' });
+    expect(clickSpy).not.toHaveBeenCalled();
+    // 2枚目の選択が並行実行されていないことの裏付け (同一 index 衝突の再発防止)
+    expect(mockUpload.mock.calls.length - uploadCallCountBefore).toBe(1);
+  });
+
   it('上限枚数に達したら追加ドロップゾーンを描画しない', () => {
     renderPanel(['a', 'b', 'c', 'd']);
     expect(document.querySelector('input[type="file"]')).toBeNull();

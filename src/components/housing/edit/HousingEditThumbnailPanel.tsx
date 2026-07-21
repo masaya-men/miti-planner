@@ -86,10 +86,13 @@ export function HousingEditThumbnailPanel({ listingId, images, onImagesChange }:
       {canAddMore && (
         <div
           className="housing-register-image-dropzone"
-          onClick={() => inputRef.current?.click()}
+          onClick={() => {
+            if (!uploading) inputRef.current?.click();
+          }}
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
+            if (uploading) return;
             if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
           }}
           aria-label={t('housing.register.image.select_aria')}
@@ -101,6 +104,7 @@ export function HousingEditThumbnailPanel({ listingId, images, onImagesChange }:
             onChange={handleInputChange}
             className="housing-register-image-input"
             tabIndex={-1}
+            disabled={uploading}
           />
           {uploading ? (
             <span className="housing-register-image-status">{t('housing.register.image.compressing')}</span>
