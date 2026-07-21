@@ -2370,6 +2370,13 @@
             "toast": {
                 "published": "Published",
                 "saved_private": "Saved privately"
+            },
+            "editMedia": {
+                "save_failed": "Failed. Please try again",
+                "saving": "Saving…",
+                "tab_upload": "Upload",
+                "tab_url": "URL",
+                "recommend_url": "Registering via URL keeps full image quality. For Twitter posts, deleting the original post automatically updates this listing too."
             }
         },
         "duplicate": {

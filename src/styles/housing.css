@@ -7910,6 +7910,53 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   font-size: 13px; line-height: 1.7; color: var(--housing-text-mute); margin: 0;
 }
 
+/* ===== 編集ページ 登録方法切り替えタブ (HousingEditMediaModeTabs) ===== */
+.housing-edit-media-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.housing-edit-media-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.housing-edit-media-tab:hover {
+  color: var(--housing-text);
+  background: var(--housing-chip-bg-hover);
+}
+.housing-edit-media-tab[aria-selected="true"] {
+  color: var(--housing-candle);
+}
+.housing-edit-media-tab[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+  height: 2px;
+  background: var(--housing-tab-active);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 0 8px var(--housing-honey-glow);
+  pointer-events: none;
+}
+.housing-edit-media-tab:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
 /* ===== お気に入りタブ (FavoritesTabs) ===== */
 .housing-fav-tabs {
   display: flex;

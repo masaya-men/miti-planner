@@ -2335,6 +2335,13 @@
             "toast": {
                 "published": "已公开",
                 "saved_private": "已以非公开方式保存"
+            },
+            "editMedia": {
+                "save_failed": "失败了,请重试",
+                "saving": "保存中…",
+                "tab_upload": "上传",
+                "tab_url": "URL",
+                "recommend_url": "通过URL登登不会降低画质。对于Twitter,删除原帖后该房源信息也会自动更新。"
             }
         },
         "duplicate": {
