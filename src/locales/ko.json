@@ -2013,7 +2013,8 @@
         },
         "register": {
             "editMedia": {
-                "save_failed": "실패했습니다. 다시 시도해 주세요"
+                "save_failed": "실패했습니다. 다시 시도해 주세요",
+                "saving": "저장 중…"
             },
             "title": "매물 등록",
             "badge_private": "비공개",

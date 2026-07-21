@@ -110,7 +110,7 @@ export function HousingEditSourcePanel({
         onOgpFetched={handleOgpFetched}
       />
       {committing && (
-        <p className="housing-register-image-status">{t('housing.register.image.compressing')}</p>
+        <p className="housing-register-image-status">{t('housing.register.editMedia.saving')}</p>
       )}
       {videoPreview && (
         <div className="housing-register-media-video" data-testid="housing-register-media-video">

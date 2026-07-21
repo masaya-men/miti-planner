@@ -2013,7 +2013,8 @@
         },
         "register": {
             "editMedia": {
-                "save_failed": "失败了,请重试"
+                "save_failed": "失败了,请重试",
+                "saving": "保存中…"
             },
             "title": "房屋登记",
             "badge_private": "未公开",

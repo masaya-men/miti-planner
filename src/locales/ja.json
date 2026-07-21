@@ -2069,7 +2069,8 @@
         },
         "register": {
             "editMedia": {
-                "save_failed": "失敗しました。もう一度お試しください"
+                "save_failed": "失敗しました。もう一度お試しください",
+                "saving": "保存中…"
             },
             "title": "物件登録",
             "badge_private": "非公開",

@@ -2048,7 +2048,8 @@
         },
         "register": {
             "editMedia": {
-                "save_failed": "Failed. Please try again"
+                "save_failed": "Failed. Please try again",
+                "saving": "Saving…"
             },
             "title": "Register Property",
             "badge_private": "Private",
