@@ -1237,5 +1237,215 @@ describe('RegisterPage', () => {
 
       showToastSpy.mockRestore();
     });
+
+    /**
+     * Bug1 回帰 (2026-07-21 レビュー指摘・Important): 写真だけのツイートが先に「代表」になった
+     * 状態で、2本目のツイートに動画が付いていると、修正前は setSnsCapture の updater が
+     * 常に prev (代表確定済み) をそのまま返すため、`capturedVideoRef.current` は true になり
+     * (= video_limit トーストは出ず「受理」扱い) 見た目上は動画1本制限も守られたように見えるが、
+     * 肝心の video データ自体は snsCapture に一切反映されず、buildDraft/registerListing の
+     * ペイロードにも videoUrl 等が現れない「受理したのに消える」事故になる。
+     */
+    it('写真だけのツイート→動画付きツイートの順で貼ると、2本目の動画が代表のtweetDataに合流し登録データに残る (Bug1回帰)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Meteor',
+          server: 'Ramuh',
+          area: 'LavenderBeds',
+          ward: 29,
+          buildingType: 'house',
+          plot: 3,
+          size: 'L',
+          visibility: 'public',
+        }),
+      );
+      const canRegisterSpy = vi
+        .spyOn(housingApiClient, 'canRegister')
+        .mockResolvedValue({ remaining: 5 } as any);
+      const checkDuplicateSpy = vi
+        .spyOn(housingApiClient, 'checkDuplicate')
+        .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+      const registerSpy = vi
+        .spyOn(housingApiClient, 'registerListing')
+        .mockResolvedValue({ id: 'new1' } as any);
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const TWEET_URL_PHOTO = 'https://x.com/user/status/1842217368673759511';
+      const TWEET_URL_VIDEO = 'https://x.com/user/status/1842217368673759512';
+
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: 写真だけ (動画なし) → 代表として確定する。
+      fireEvent.change(input, { target: { value: TWEET_URL_PHOTO } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-only',
+          author: { name: 'P', screen_name: 'p' },
+          photos: ['https://pbs.twimg.com/p1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+
+      // 2本目: 動画付き (写真なし)。代表は既に1本目 (tweetData) で確定済みなので、
+      // 修正前はここで受理判定 (トーストなし) にはなるが動画データ自体が握りつぶされる。
+      fireEvent.change(input, { target: { value: TWEET_URL_VIDEO } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'video-tweet',
+          author: { name: 'V', screen_name: 'v' },
+          photos: [],
+          video: {
+            url: 'https://video.twimg.com/ext_tw_video/V.mp4',
+            posterUrl: 'https://pbs.twimg.com/ext_tw_video_thumb/posterV.jpg',
+            aspectRatio: 1.7,
+          },
+        },
+      };
+      rerender(createTree());
+
+      // 「受理」判定であること (video_limit トーストは出ない)。
+      await waitFor(() => {
+        expect(screen.getByTestId('housing-register-media-video')).toBeInTheDocument();
+      });
+      expect(showToastSpy).not.toHaveBeenCalledWith(
+        'housing.register.snsUrl.error.video_limit',
+        'error',
+      );
+
+      // 実際に登録データ (registerListing 引数 = buildDraft の出力) に動画が載ることを確認する
+      // (プレビュー表示だけでなく保存データそのものを検証するのが本バグの核心)。
+      const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+      fireEvent.click(addressGateBtn);
+      const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+      await waitFor(() => expect(submitBtn).not.toBeDisabled());
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+      expect(registerSpy.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          videoUrl: 'https://video.twimg.com/ext_tw_video/V.mp4',
+          videoPosterUrl: 'https://pbs.twimg.com/ext_tw_video_thumb/posterV.jpg',
+          // 代表 (1本目) の静止画も維持されている (動画差し込みで代表自体が入れ替わっていない)。
+          sourceImageUrls: ['https://pbs.twimg.com/p1.jpg'],
+        }),
+      );
+
+      canRegisterSpy.mockRestore();
+      checkDuplicateSpy.mockRestore();
+      registerSpy.mockRestore();
+      showToastSpy.mockRestore();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    /**
+     * Bug2 回帰 (2026-07-21 レビュー指摘・Important): handleDiscardRestore が Batch2 で追加した
+     * ガード state/ref (sourcePostUrls/capturedVideoRef/addressAppliedRef/urlSlotCount) を
+     * リセットしていなかったため、破棄後に「破棄前と同じ URL」を貼り直すと sourcePostUrls に
+     * 残った URL のせいで誤って重複エラー扱いになる。
+     */
+    it('オートセーブ破棄後はsourcePostUrlsがリセットされ、破棄前と同じURLを貼っても重複扱いされない (Bug2回帰)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Meteor',
+          server: 'Ramuh',
+          area: 'LavenderBeds',
+          ward: 29,
+          buildingType: 'house',
+          plot: 3,
+          size: 'L',
+          visibility: 'public',
+        }),
+      );
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const REUSED_URL = 'https://x.com/user/status/1842217368673759520';
+
+      const { rerender } = render(createTree());
+
+      // 復元通知 (discard ボタン) が出ていることを確認。
+      await screen.findByTestId('housing-register-autosave-discard');
+
+      // 破棄前: URL を1本貼って sourcePostUrls に載せる。
+      const input1 = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+      fireEvent.change(input1, { target: { value: REUSED_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'before-discard',
+          author: { name: 'B', screen_name: 'b' },
+          photos: ['https://pbs.twimg.com/b1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+      expect(showToastSpy).not.toHaveBeenCalled();
+
+      // useTweetFetch モックの status を idle に戻してから discard する。
+      // (discard で mediaKey が変わり SnsUrlField が再マウントされるが、useTweetFetch はモックの
+      //  グローバル状態を返すだけなので、success のまま remount すると再マウント直後に古い
+      //  fetch 結果が再度 dispatch されてしまう。これは実 hook では起きないテスト側の作り物の
+      //  副作用なので、実装をテストに合わせるのではなくモック状態を idle に戻して回避する)。
+      tweetState = { ...tweetState, status: 'idle', data: null };
+      fireEvent.click(screen.getByTestId('housing-register-autosave-discard'));
+
+      // 破棄後: 通知が消え、取得済み表示もクリアされる。
+      await waitFor(() =>
+        expect(screen.queryByTestId('housing-register-autosave-notice')).toBeNull(),
+      );
+      expect(screen.queryByTestId('housing-register-media-success')).toBeNull();
+
+      // 破棄前と全く同じ URL をもう一度貼る (別の data オブジェクトで dispatch ガードを回避)。
+      const input2 = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+      fireEvent.change(input2, { target: { value: REUSED_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'after-discard',
+          author: { name: 'A2', screen_name: 'a2' },
+          photos: ['https://pbs.twimg.com/a1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+
+      // Bug2 (修正前): sourcePostUrls が破棄でクリアされず REUSED_URL を含んだままのため、
+      // 重複URLエラーになり画像が反映されない。修正後: guard がリセットされ正常に取得できる。
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+      expect(showToastSpy).not.toHaveBeenCalledWith(
+        'housing.register.snsUrl.error.duplicate_url',
+        'error',
+      );
+
+      showToastSpy.mockRestore();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
   });
 });

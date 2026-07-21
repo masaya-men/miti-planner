@@ -674,7 +674,18 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       if (photos.length > 0) setSourceImageUrls((prev) => [...prev, ...photos]);
 
       const incomingHasVideo = !!data.video?.url;
-      const rejectVideo = shouldRejectIncomingVideo(capturedVideoRef.current, incomingHasVideo);
+      // 代表 (snsCapture.tweetData/youtube/ogp) が既に確定しているか、確定しているなら
+      // tweetData 形状 (= 動画フィールドを差し込める形) を持つか。sourcePostUrls と同じく
+      // 直接 state (snsCapture) を読む (このコールバックは URL 貼付という単発の
+      // ユーザー操作起因で、既存の sourcePostUrls 依存と同じ精度で十分)。
+      const hasRepresentative = !!(snsCapture.tweetData || snsCapture.youtube || snsCapture.ogp);
+      const representativeCanHostVideo = !hasRepresentative || !!snsCapture.tweetData;
+      const existingVideoLimit = shouldRejectIncomingVideo(capturedVideoRef.current, incomingHasVideo);
+      // 代表が YouTube/OGP 由来 (tweetData を持たない) で、この動画を添付する tweetData が
+      // 存在しない場合は「受理したのに保存先が無く消える」事故を防ぐため拒否扱いにする
+      // (2026-07-21 レビュー指摘 Bug1 fix)。
+      const orphanVideo = incomingHasVideo && !existingVideoLimit && !representativeCanHostVideo;
+      const rejectVideo = existingVideoLimit || orphanVideo;
       if (rejectVideo) {
         showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
       } else if (incomingHasVideo) {
@@ -684,17 +695,24 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
       // SNS メタデータ捕捉: まだ何も捕捉していなければこの結果を「代表」として保持する
       // (tweetId/ogImageUrl 等は今も単数フィールドのため、最初の1件を正とする)。
-      setSnsCapture((prev) =>
-        prev.tweetData || prev.youtube || prev.ogp
-          ? prev
-          : { tweetData: effectiveData, tweetSource: source, youtube: null, ogp: null },
-      );
+      // 代表が既に tweetData 形状で確定していて、かつ今回の動画が受理された (rejectVideo=false)
+      // 場合は、代表自体を上書きせず動画フィールドだけを差し込む (代表の tweetId/ogImageUrl 等は
+      // 最初に確立した URL のものを維持する。2026-07-21 レビュー指摘 Bug1 fix)。
+      setSnsCapture((prev) => {
+        if (prev.tweetData || prev.youtube || prev.ogp) {
+          if (!rejectVideo && incomingHasVideo && prev.tweetData && !prev.tweetData.video) {
+            return { ...prev, tweetData: { ...prev.tweetData, video: effectiveData.video } };
+          }
+          return prev;
+        }
+        return { tweetData: effectiveData, tweetSource: source, youtube: null, ogp: null };
+      });
       if (source?.postUrl) {
         setSourcePostUrls((prev) => [...prev, source.postUrl]);
         setPostUrl((prev) => prev || source.postUrl);
       }
     },
-    [applyExtractedAddress, sourcePostUrls, t],
+    [applyExtractedAddress, snsCapture, sourcePostUrls, t],
   );
 
   const handleYoutubeFetched = useCallback(
@@ -1572,6 +1590,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     restoreRefetchGuardRef.current = false;
     setRestoredSnsUrl(undefined);
     setMediaKey((k) => k + 1);
+    // 2026-07-21 レビュー指摘 Bug2 fix: Batch2 で追加したガード state/ref も初期状態に戻す。
+    // 未リセットのままだと、破棄後も addressAppliedRef が住所自動入力を永久にブロックしたり、
+    // sourcePostUrls に残った URL を再度貼ると誤って重複扱いになったりする。
+    setSourcePostUrls([]);
+    capturedVideoRef.current = false;
+    addressAppliedRef.current = false;
+    setUrlSlotCount(1);
   }, [autosaveValues, fieldState]);
 
   // ユーザーが URL 欄を手入力したら復元 guard を外す (以降の再取得は全フィールド上書きに戻す)。
