@@ -165,6 +165,98 @@ export async function uploadListingThumbnail(params: {
   return (await res.json()) as UploadThumbnailResponse;
 }
 
+export interface DeleteThumbnailResponse {
+  success: boolean;
+  thumbnailPaths: string[];
+}
+
+/** 直接アップロード画像を1枚削除する。削除すると後続が繰り上がる。最後の1枚は拒否 (400 'last_item')。 */
+export async function deleteListingThumbnail(params: {
+  listingId: string;
+  index: number;
+}): Promise<DeleteThumbnailResponse> {
+  const headers = await buildHeaders(true);
+  const res = await fetch(`${API_BASE}?action=delete-thumbnail`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `delete-thumbnail failed: ${res.status}`);
+  }
+  return (await res.json()) as DeleteThumbnailResponse;
+}
+
+export interface ReorderThumbnailsResponse {
+  success: boolean;
+  thumbnailPaths: string[];
+}
+
+/** 直接アップロード画像の並び順を変更する。newOrder は現在の thumbnailPaths と同じ要素集合であること。 */
+export async function reorderListingThumbnails(params: {
+  listingId: string;
+  newOrder: string[];
+}): Promise<ReorderThumbnailsResponse> {
+  const headers = await buildHeaders(true);
+  const res = await fetch(`${API_BASE}?action=reorder-thumbnails`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `reorder-thumbnails failed: ${res.status}`);
+  }
+  return (await res.json()) as ReorderThumbnailsResponse;
+}
+
+export interface DeleteSourceImageResponse {
+  success: boolean;
+  sourceImageUrls: string[];
+}
+
+/** URL経由画像を1枚削除する。削除すると後続が繰り上がる。最後の1枚は拒否 (400 'last_item')。 */
+export async function deleteListingSourceImage(params: {
+  listingId: string;
+  index: number;
+}): Promise<DeleteSourceImageResponse> {
+  const headers = await buildHeaders(true);
+  const res = await fetch(`${API_BASE}?action=delete-source-image`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `delete-source-image failed: ${res.status}`);
+  }
+  return (await res.json()) as DeleteSourceImageResponse;
+}
+
+export interface ReorderSourceImagesResponse {
+  success: boolean;
+  sourceImageUrls: string[];
+}
+
+/** URL経由画像の並び順を変更する。newOrder は現在の sourceImageUrls と同じ要素集合であること。 */
+export async function reorderListingSourceImages(params: {
+  listingId: string;
+  newOrder: string[];
+}): Promise<ReorderSourceImagesResponse> {
+  const headers = await buildHeaders(true);
+  const res = await fetch(`${API_BASE}?action=reorder-source-images`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(body.error ?? `reorder-source-images failed: ${res.status}`);
+  }
+  return (await res.json()) as ReorderSourceImagesResponse;
+}
+
 export interface CreateSharedTourResponse {
   tourToken: string;
 }

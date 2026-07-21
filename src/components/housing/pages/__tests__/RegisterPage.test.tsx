@@ -54,6 +54,39 @@ vi.mock('../../../../lib/housing/imageCompression', () => ({
   })),
 }));
 
+// 編集ページ commitEditSnsFetch の回帰テスト用に useTweetFetch/useOgpFetch をモックする
+// (RegisterSectionMedia.test.tsx / HousingEditSourcePanel.test.tsx と同じ方針)。
+// このモックはファイル全体に適用されるが、他テストは URL 入力欄を一切操作しないため無影響。
+const mockFetchTweet = vi.fn();
+const mockCancelTweet = vi.fn();
+const mockResetTweet = vi.fn();
+let tweetState: any = {
+  status: 'idle',
+  data: null,
+  errorCode: null,
+  fetchTweet: mockFetchTweet,
+  cancel: mockCancelTweet,
+  reset: mockResetTweet,
+};
+vi.mock('../../../../lib/housing/useTweetFetch', () => ({
+  useTweetFetch: () => tweetState,
+}));
+
+const mockFetchOgp = vi.fn();
+const mockCancelOgp = vi.fn();
+const mockResetOgp = vi.fn();
+let ogpState: any = {
+  status: 'idle',
+  data: null,
+  errorCode: null,
+  fetchOgp: mockFetchOgp,
+  cancel: mockCancelOgp,
+  reset: mockResetOgp,
+};
+vi.mock('../../../../lib/housing/useOgpFetch', () => ({
+  useOgpFetch: () => ogpState,
+}));
+
 import { RegisterPage } from '../RegisterPage';
 // create パス (performRegister) の API を spy するため実モジュールを名前空間 import する
 // (module 全体 mock は他 export を壊すため spyOn で個別に差し替える)。
@@ -131,6 +164,29 @@ describe('RegisterPage', () => {
     useAuthStore.setState({ user: null, loading: false });
     updateMock.mockReset();
     navigateMock.mockReset();
+    // commitEditSnsFetch 回帰テスト用の tweet/ogp fetch モックを idle に戻す (テスト間独立性)。
+    mockFetchTweet.mockClear();
+    mockCancelTweet.mockClear();
+    mockResetTweet.mockClear();
+    mockFetchOgp.mockClear();
+    mockCancelOgp.mockClear();
+    mockResetOgp.mockClear();
+    tweetState = {
+      status: 'idle',
+      data: null,
+      errorCode: null,
+      fetchTweet: mockFetchTweet,
+      cancel: mockCancelTweet,
+      reset: mockResetTweet,
+    };
+    ogpState = {
+      status: 'idle',
+      data: null,
+      errorCode: null,
+      fetchOgp: mockFetchOgp,
+      cancel: mockCancelOgp,
+      reset: mockResetOgp,
+    };
     // オートセーブ復元テストが assertion 失敗で早期リターンすると、末尾の
     // removeItem に届かず後続テストへ localStorage が漏れる (実際に踏んだ事故)。
     // beforeEach で毎回クリアし、テスト間の独立性を保証する。
@@ -679,19 +735,16 @@ describe('RegisterPage', () => {
     });
   });
 
-  // Task3.4-1: 幽霊ステップ解消。 edit は写真セクションを出さない (方式A) ので、
-  // ステッパーからも media ステップを除外する (クリックしても無反応な「押せない幽霊ステップ」を無くす)。
-  describe('ステッパー: mode=edit は写真ステップを除外する (Task3.4-1)', () => {
-    it('mode=edit ではステッパーに写真ステップが出ず、4 ステップに詰められる', () => {
+  // Plan B (2026-07-21): 方式A撤廃により edit も写真ステップを含む (旧 Task3.4-1 の逆)。
+  describe('ステッパー: mode=edit も写真ステップを含む (Plan B)', () => {
+    it('mode=edit でもステッパーに写真ステップが出て、5 ステップになる', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
 
       const nav = screen.getByRole('navigation', { name: '登録ステップ' });
-      expect(within(nav).queryByText('SNS投稿・サイトから自動入力')).not.toBeInTheDocument();
-      expect(within(nav).getAllByRole('button')).toHaveLength(4);
-      // 番号がずれず 1 から詰められる (先頭は住所ステップ)。
-      expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('住所');
-      expect(within(nav).queryByTestId('housing-register-step-5')).not.toBeInTheDocument();
+      expect(within(nav).getByText('SNS投稿・サイトから自動入力')).toBeInTheDocument();
+      expect(within(nav).getAllByRole('button')).toHaveLength(5);
+      expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('SNS投稿・サイトから自動入力');
     });
 
     it('mode=create ではステッパーに写真ステップを含む 5 ステップを出す (既存挙動不変)', () => {
@@ -720,14 +773,14 @@ describe('RegisterPage', () => {
     });
   });
 
-  // Task3.4-2: 右カラム CheckPanel の画像行を edit で非表示 (写真を編集しない方式Aと整合)。
-  describe('CheckPanel: mode=edit は画像行を出さない (Task3.4-2)', () => {
-    it('mode=edit では CheckPanel に画像行が出ない (必須行は残る)', () => {
+  // Plan B (2026-07-21): 方式A撤廃により edit も CheckPanel に画像行を出す (推奨行のまま)。
+  describe('CheckPanel: mode=edit も画像行を出す (Plan B)', () => {
+    it('mode=edit でも CheckPanel に画像行が出る', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
 
       const panel = screen.getByTestId('housing-register-check-panel');
-      expect(within(panel).queryByTestId('housing-register-check-image')).not.toBeInTheDocument();
+      expect(within(panel).getByTestId('housing-register-check-image')).toBeInTheDocument();
       expect(within(panel).getByTestId('housing-register-check-address')).toBeInTheDocument();
       expect(within(panel).getByTestId('housing-register-check-title')).toBeInTheDocument();
     });
@@ -741,16 +794,18 @@ describe('RegisterPage', () => {
     });
   });
 
-  // 最終レビュー Important#1: 確認セクションの画像枚数要約は mode=edit で出さない。
-  // edit は画像 state をプリフィルしないため imageCount が常に 0 になり、「0 枚」表示が
-  // 写真を持つ家主に「写真が消えた?」と誤認させる (方式A: 写真はサーバー側で保持されたまま)。
-  describe('確認セクション: mode=edit は画像枚数の要約行を出さない (最終レビュー Important#1)', () => {
-    it('mode=edit では確認セクションに画像枚数の行が出ない', () => {
+  // Plan B (2026-07-21): Task1 で imageCount 算出に editThumbnailPaths を含めたため、
+  // edit でも正しい枚数を要約できるようになった (方式A時代の「常に0枚」誤表示は解消)。
+  describe('確認セクション: mode=edit も画像枚数の要約行を出す (Plan B)', () => {
+    it('mode=edit でも確認セクションに画像枚数の行が出る', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
 
       const section = screen.getByTestId('housing-register-section-confirm');
-      expect(within(section).queryByText('SNS投稿・サイトから自動入力')).not.toBeInTheDocument();
+      expect(within(section).getByText('SNS投稿・サイトから自動入力')).toBeInTheDocument();
+      // EDITABLE_LISTING は sourceImageUrls を1件持つ (Task1で stillCount に反映済み)。
+      // ラベルの存在だけでなく実際の枚数値も検証し、imageCount 計算の退行を検知できるようにする。
+      expect(within(section).getByText('1 枚')).toBeInTheDocument();
     });
 
     it('mode=create では確認セクションに画像枚数の行が出る (既存挙動不変)', () => {
@@ -785,6 +840,107 @@ describe('RegisterPage', () => {
     expect(callOrder).toEqual(['onSaved', 'fetchAndUpsert']);
 
     fetchAndUpsertSpy.mockRestore();
+  });
+
+  /**
+   * commitEditSnsFetch (編集ページ「投稿URLを貼り替える」commit) の回帰テスト
+   * (最終レビュー Critical/Important fix・2026-07-21)。
+   *
+   * バグ1 (Critical): `payload = { ...buildDraft(), ...freshImageFields }` は
+   * 「buildDraft() 側の画像フィールドは常に空 = {}」という前提だったが、この関数は
+   * 成功時に setSnsCapture(capture) を呼ぶため、2回目以降の呼び出し時点では
+   * snsCapture (延いては buildDraft() の画像フィールド) が前回貼り付けた古いSNSデータ
+   * を保持している。freshImageFields に無いキー (例: 動画無しツイートに貼り替えた際の
+   * videoUrl) は buildDraft() 側の古い値がスプレッドで生き残り、サーバーに送信されて
+   * しまう。修正後は buildDraft() の画像フィールドを明示的に除去してからマージするため、
+   * 2回目の updateListing 呼び出しに1回目の動画データが混入しない。
+   *
+   * バグ2 (Important): 同じ成功ブロックに editVideoPreview を更新する行が抜けており、
+   * 動画付き→動画なしへ貼り替えても動画プレビューが古いまま残っていた。
+   *
+   * HousingEditSourcePanel (実物・モックしない) 経由で URL 欄を操作し、
+   * useTweetFetch をモックして「取得成功」を模擬することで、commitEditSnsFetch を
+   * RegisterPage の外部から間接的に駆動する。
+   */
+  describe('編集ページ URL貼り替え: commitEditSnsFetch の回帰 (最終レビュー fix・2026-07-21)', () => {
+    const TWEET_URL_A = 'https://x.com/user/status/1842217368673759498';
+    const TWEET_URL_C = 'https://x.com/user/status/1842217368673759499';
+
+    // ツイートA: 動画付き (写真なし)
+    const tweetDataVideoA = {
+      text: 'A',
+      author: { name: 'A', screen_name: 'a' },
+      photos: [],
+      video: {
+        url: 'https://video.twimg.com/ext_tw_video/A.mp4',
+        posterUrl: 'https://pbs.twimg.com/ext_tw_video_thumb/posterA.jpg',
+        aspectRatio: 1.5,
+      },
+    };
+
+    // ツイートC: 写真だけ (動画なし)
+    const tweetDataPhotosC = {
+      text: 'C',
+      author: { name: 'C', screen_name: 'c' },
+      photos: ['https://pbs.twimg.com/c1.jpg', 'https://pbs.twimg.com/c2.jpg'],
+      video: null,
+    };
+
+    function editTree() {
+      return (
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter>
+            <RegisterPage mode="edit" initialValues={EDITABLE_LISTING} />
+          </MemoryRouter>
+        </I18nextProvider>
+      );
+    }
+
+    it('動画付きツイートA→写真だけのツイートCへ貼り替えると、2回目のupdateListingにAのvideoUrlが混入しない (バグ1)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      updateMock.mockResolvedValue({ ok: true });
+      const { rerender } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
+
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1回目: 動画付きツイートAを貼る
+      fireEvent.change(input, { target: { value: TWEET_URL_A } });
+      tweetState = { ...tweetState, status: 'success', data: tweetDataVideoA };
+      rerender(editTree());
+
+      await waitFor(() => expect(updateMock).toHaveBeenCalledTimes(1));
+      expect(updateMock.mock.calls[0][1]).toEqual(
+        expect.objectContaining({ videoUrl: tweetDataVideoA.video.url }),
+      );
+
+      // バグ2 回帰確認: 動画プレビューが反映される
+      await waitFor(() => {
+        const preview = screen.getByTestId('housing-register-media-video');
+        expect(preview.querySelector('img')?.getAttribute('src')).toBe(
+          tweetDataVideoA.video.posterUrl,
+        );
+      });
+
+      // 2回目: 写真だけのツイートCに貼り替える
+      fireEvent.change(input, { target: { value: TWEET_URL_C } });
+      tweetState = { ...tweetState, status: 'success', data: tweetDataPhotosC };
+      rerender(editTree());
+
+      await waitFor(() => expect(updateMock).toHaveBeenCalledTimes(2));
+      const secondPayload = updateMock.mock.calls[1][1];
+
+      // バグ1 回帰確認の核心: Aの動画データが2回目のpayloadに混入していない
+      expect(secondPayload.videoUrl).toBeUndefined();
+      expect(secondPayload.videoPosterUrl).toBeUndefined();
+      expect(secondPayload.videoAspectRatio).toBeUndefined();
+      expect(secondPayload.sourceImageUrls).toEqual(tweetDataPhotosC.photos);
+      expect(secondPayload.tweetId).toBe('1842217368673759499');
+
+      // バグ2 回帰確認: 動画なしツイートへの貼り替えで動画プレビューが消える
+      await waitFor(() => {
+        expect(screen.queryByTestId('housing-register-media-video')).toBeNull();
+      });
+    });
   });
 
   /**

@@ -2012,6 +2012,13 @@
             "register_loading": "正在加载登记表单..."
         },
         "register": {
+            "editMedia": {
+                "save_failed": "失败了,请重试",
+                "saving": "保存中…",
+                "tab_upload": "上传",
+                "tab_url": "URL",
+                "recommend_url": "通过URL登录不会降低画质。对于Twitter,删除原帖后该房源信息也会自动更新。"
+            },
             "title": "房屋登记",
             "badge_private": "未公开",
             "badge_expired": "公开期限已过",

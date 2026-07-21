@@ -2012,6 +2012,13 @@
             "register_loading": "등록 폼을 불러오는 중..."
         },
         "register": {
+            "editMedia": {
+                "save_failed": "실패했습니다. 다시 시도해 주세요",
+                "saving": "저장 중…",
+                "tab_upload": "업로드",
+                "tab_url": "URL",
+                "recommend_url": "URL로 등록하면 화질이 저하되지 않습니다. 트위터의 경우 원본 게시물을 삭제하면 이 매물 정보도 자동으로 업데이트됩니다."
+            },
             "title": "매물 등록",
             "badge_private": "비공개",
             "badge_expired": "공개 기간 만료",

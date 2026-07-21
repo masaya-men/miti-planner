@@ -2047,6 +2047,13 @@
             "register_loading": "Loading registration form..."
         },
         "register": {
+            "editMedia": {
+                "save_failed": "Failed. Please try again",
+                "saving": "Saving…",
+                "tab_upload": "Upload",
+                "tab_url": "URL",
+                "recommend_url": "Registering via URL keeps full image quality. For Twitter posts, deleting the original post automatically updates this listing too."
+            },
             "title": "Register Property",
             "badge_private": "Private",
             "badge_expired": "Publication expired",

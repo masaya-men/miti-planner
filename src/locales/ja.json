@@ -2068,6 +2068,13 @@
             "register_loading": "登録フォームを読み込み中..."
         },
         "register": {
+            "editMedia": {
+                "save_failed": "失敗しました。もう一度お試しください",
+                "saving": "保存中…",
+                "tab_upload": "アップロード",
+                "tab_url": "URL",
+                "recommend_url": "URLで登録すると画質が劣化しません。Twitterの場合、元の投稿を削除するとこの物件情報も自動で更新されます。"
+            },
             "title": "物件登録",
             "badge_private": "非公開",
             "badge_expired": "公開期限切れ",
