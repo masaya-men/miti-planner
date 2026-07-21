@@ -124,6 +124,12 @@ export interface HousingListing {
   // 画像（3 択のいずれか）
   imageMode: ImageMode;
   postUrl?: string;
+  /**
+   * 2026-07-21 追加 (Batch2・複数投稿URL登録): 貼った投稿URLの一覧(貼った順、最大5件)。
+   * postUrl (単数、後方互換) は sourcePostUrls[0] と同値で維持する。
+   * 未設定 (旧データ) の場合は表示側で `sourcePostUrls ?? (postUrl ? [postUrl] : [])` にフォールバックする。
+   */
+  sourcePostUrls?: string[];
   ogImageUrl?: string;
   /**
    * 1 枚目のサムネ URL (後方互換 + 一覧用代表画像)。

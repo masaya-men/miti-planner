@@ -61,6 +61,8 @@ export interface RegistrationDraft extends AddressInput {
   // sns 経路の source は Twitter (tweetId) / YouTube (youtubeVideoId) / OGP (sourceImageUrls) の 3 種、 排他。
   imageMode?: 'sns' | 'none';
   postUrl?: string;
+  /** 2026-07-21 追加 (Batch2): 貼った投稿URLの一覧(貼った順、最大5件、MAX_SOURCE_POST_URLS同期)。 */
+  sourcePostUrls?: string[];
   ogImageUrl?: string;
   tweetId?: string;
   youtubeVideoId?: string;
