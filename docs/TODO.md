@@ -11,7 +11,7 @@
 
 ## 次の作業順 (2026-07-10 更新)
 
-DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。**現行の作業台帳は`.claude/worktrees/housing-edit-image-management/.superpowers/sdd/progress.md`(上記「現在の状態」参照)、本節の台帳表記は古い(2026-07-10時点)ので参照しない**。
+DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 1. **🔴 ハウジング公開前の残タスク** (spec/plan=`docs/superpowers/…2026-07-01-housing-*`、議論=`.private/2026-07-01-housing-tour-rebuild.md`)
    - **実機確認待ち(ユーザー)**: ①本番でログイン→**編集を1周**(ログイン本番専用でローカル不可) ②登録URL欄 autoComplete=off ③期限6/30→シークレットNotFound ④旧テスト物件を詳細…メニューから削除 ⑤カード新デザイン本番確認。
@@ -21,12 +21,15 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 ハウジング編集ページ画像管理機能: Plan A完成・Plan B未着手(2026-07-21)
-既存物件の画像を編集ページから差し替え・削除・並び替え、登録方法(アップロード⇔URL)を切り替えられるようにする機能。設計書=`docs/superpowers/specs/2026-07-20-housing-edit-image-management-design.md`。
+### 🔴 ハウジング編集ページ画像管理機能: Plan A+B完成・本番push済・実機確認待ち(2026-07-21)
+既存物件の画像を編集ページから差し替え・削除・並び替え、登録方法(アップロード⇔URL)を切り替えられるようにする機能。設計書=`docs/superpowers/specs/2026-07-20-housing-edit-image-management-design.md`(Plan A)/`docs/superpowers/specs/2026-07-21-housing-edit-image-client-ui-design.md`(Plan B)。
 
-**Plan A(サーバーAPI)= 完成・レビュー済・build完全クリーン(mainに未merge・未push)**: 実装計画=`docs/superpowers/plans/2026-07-20-housing-edit-image-server-actions.md`。作業場所=`.claude/worktrees/housing-edit-image-management`(ブランチ`feat/housing-edit-image-management`)。台帳=そのワークツリー内`.superpowers/sdd/progress.md`。レビューでCritical1件(動画URL検証バイパス)+データロス経路1件(SNS切替で旧tweetId残留→誤soft-delete)+コスト漏れ1件(画像差替で孤児ファイル)を発見・修正済み。
+**Plan A(サーバーAPI)+Plan B(クライアントUI)= 両方完成・mainにmerge・push済み(commit `b45c93ae`)**。実装計画=`docs/superpowers/plans/2026-07-20-housing-edit-image-server-actions.md`/`docs/superpowers/plans/2026-07-21-housing-edit-image-client-ui.md`。ワークツリー・featブランチは作業完了により削除済み。
+- Plan Aレビューで発見・修正済み: Critical1件(動画URL検証バイパス)+データロス経路1件(SNS切替で旧tweetId残留→誤soft-delete)+コスト漏れ1件(画像差替で孤児ファイル)。
+- Plan Bの最終ブランチ全体レビュー(Opus)で発見・修正済み: **Critical1件(編集ページでSNS URLを2回以上貼り替えると、古いデータ(例:前の動画URL)が新データに混入したままサーバーに送信される)**+Important1件(動画プレビューが再貼り替え後に更新されない)。回帰テスト追加済み・再レビューでReady to merge確認済み。
+- build/vitest(3612件)ともクリーン(既知の無関係failure=EphemeralAddPanel7件のみ)。
 
-**次セッション最優先**: Plan B(クライアントUI)の設計をbrainstormingから開始(同じワークツリーで続行可)。mainへのmerge判断はPlan B完了後まで保留。
+**次セッション最優先**: ユーザーが本番で実機確認(ログイン必須のためローカル不可)。チェックリストはこのセッションの引き継ぎメッセージ参照。問題なければ完了、問題があれば内容を持ち帰って修正。
 
 **その前の完了分(画像品質バグ3件・編集ページ物件取り違えバグ・5枚目以降失敗バグ)は本番push済・詳細はTODO_COMPLETED.md参照**。
 
