@@ -2165,7 +2165,8 @@
                     "rateLimit": "请求过多，请 30 秒后再试",
                     "upstream": "获取推文失败，请重试",
                     "network": "无法连接到网络，请检查网络状态",
-                    "extractFailed": "无法自动填入，请参照推文内容手动输入"
+                    "extractFailed": "无法自动填入，请参照推文内容手动输入",
+                    "photo_source_conflict": "推特图片和其他网站的图片无法组合使用，因此未添加此帖子的图片。"
                 },
                 "ogp_error": {
                     "invalid": "链接无效",

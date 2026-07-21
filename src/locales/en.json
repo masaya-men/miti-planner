@@ -2200,7 +2200,8 @@
                     "rateLimit": "Too many requests. Please wait 30 seconds and try again",
                     "upstream": "Failed to fetch tweet. Please retry",
                     "network": "Network connection failed. Please check your connection",
-                    "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet"
+                    "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet",
+                    "photo_source_conflict": "Twitter photos and photos from other sites can't be combined, so this post's photos weren't added."
                 },
                 "ogp_error": {
                     "invalid": "The URL is invalid",

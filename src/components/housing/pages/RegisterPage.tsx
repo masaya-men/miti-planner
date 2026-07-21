@@ -187,6 +187,26 @@ export function buildDraftImageFields(
 }
 
 /**
+ * Twitter 代表 (tweetData) に後続 URL の写真を追記する際、photoAspectRatios (存在すれば) も
+ * 同じ index 整合を保って伸長するためのマージヘルパー。既存/追加のどちらか一方にしか
+ * 比率情報が無い場合は情報が無い側を null で埋める (buildDraftImageFields 側の
+ * `r != null ? r : 0` 変換に委ねる)。両方とも比率情報が無ければ undefined のまま返し、
+ * draft に sourceImageAspectRatios フィールド自体を付けない (従来の「テキストのみ」挙動と同じ)。
+ * (2026-07-21 レビュー指摘 Bug2 fix: 複数URL目の写真が sourcePostUrls 集約時に消える不具合)
+ */
+function mergeTweetPhotoAspectRatios(
+  existingRatios: (number | null)[] | undefined,
+  existingCount: number,
+  incomingRatios: (number | null)[] | undefined,
+  incomingCount: number,
+): (number | null)[] | undefined {
+  if (existingRatios == null && incomingRatios == null) return undefined;
+  const existingPart = existingRatios ?? new Array(existingCount).fill(null);
+  const incomingPart = incomingRatios ?? new Array(incomingCount).fill(null);
+  return [...existingPart, ...incomingPart];
+}
+
+/**
  * ステッパー/scroll-spy が対象とする5セクション (spec 正典順: media → address → intro →
  * visibility → confirm)。id はステッパーの表示順そのもの。
  */
@@ -700,8 +720,37 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       // 最初に確立した URL のものを維持する。2026-07-21 レビュー指摘 Bug1 fix)。
       setSnsCapture((prev) => {
         if (prev.tweetData || prev.youtube || prev.ogp) {
-          if (!rejectVideo && incomingHasVideo && prev.tweetData && !prev.tweetData.video) {
-            return { ...prev, tweetData: { ...prev.tweetData, video: effectiveData.video } };
+          if (prev.tweetData) {
+            // 代表 (1本目) が Twitter のとき、後続のツイート URL が持つ静止画は同じ
+            // pbs.twimg.com ホストなので validateImage の host 制約 (housingValidation.ts:413)
+            // に抵触せずマージできる。動画差し込みと同じパターンで tweetData.photos /
+            // photoAspectRatios へ index 整合を保って追記する (2026-07-21 レビュー指摘 Bug2
+            // fix: buildDraftImageFields が読むのは tweetData.photos のみで、集約プールの
+            // sourceImageUrls は見ないため、ここで合流させないと 2 本目以降の写真が
+            // 「N枚取得しました」表示には出るのに保存時に消える)。
+            const incomingPhotos = effectiveData.photos ?? [];
+            const needsVideoSplice = !rejectVideo && incomingHasVideo && !prev.tweetData.video;
+            const needsPhotoSplice = incomingPhotos.length > 0;
+            if (needsVideoSplice || needsPhotoSplice) {
+              return {
+                ...prev,
+                tweetData: {
+                  ...prev.tweetData,
+                  ...(needsPhotoSplice
+                    ? {
+                        photos: [...prev.tweetData.photos, ...incomingPhotos],
+                        photoAspectRatios: mergeTweetPhotoAspectRatios(
+                          prev.tweetData.photoAspectRatios,
+                          prev.tweetData.photos.length,
+                          effectiveData.photoAspectRatios,
+                          incomingPhotos.length,
+                        ),
+                      }
+                    : {}),
+                  ...(needsVideoSplice ? { video: effectiveData.video } : {}),
+                },
+              };
+            }
           }
           return prev;
         }
@@ -761,11 +810,25 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
           bodyText: data.data.text,
         }),
       );
-      const images = data.data.images ?? [];
+      const images =
+        data.data.images && data.data.images.length > 0
+          ? data.data.images
+          : data.data.image
+            ? [data.data.image]
+            : [];
+      // 代表が既に Twitter (tweetData) で確定している場合、OGP 画像 (pbs.twimg.com 以外の
+      // 任意ホスト) を tweetData.photos 側へマージすることはできない。buildDraftImageFields の
+      // Twitter 分岐は tweetId 併用時に sourceImageUrls の全 URL が pbs.twimg.com であることを
+      // 要求する (housingValidation.ts:413) ため、混ぜると invalid_url で登録全体が失敗してしまい
+      // 「一部の写真が消える」より悪い「全部保存できない」regression になる。動画の orphanVideo
+      // 拒否と同じ理由でこの組み合わせは拒否する (2026-07-21 レビュー指摘 Bug2 fix)。
+      const representativeIsTwitter = !!snsCapture.tweetData;
       if (images.length > 0) {
-        setSourceImageUrls((prev) => [...prev, ...images]);
-      } else if (data.data.image) {
-        setSourceImageUrls((prev) => [...prev, data.data.image!]);
+        if (representativeIsTwitter) {
+          showToast(t('housing.register.snsUrl.error.photo_source_conflict'), 'error');
+        } else {
+          setSourceImageUrls((prev) => [...prev, ...images]);
+        }
       }
       // SNS メタデータ捕捉: OGP に切り替わったので Twitter/YouTube 捕捉はクリア (排他)。
       setSnsCapture((prev) =>
@@ -774,7 +837,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       setSourcePostUrls((prev) => [...prev, data.postUrl]);
       setPostUrl((prev) => prev || data.postUrl);
     },
-    [applyExtractedResult, sourcePostUrls, t],
+    [applyExtractedResult, snsCapture, sourcePostUrls, t],
   );
 
   const handleAddUrlSlot = useCallback(() => {

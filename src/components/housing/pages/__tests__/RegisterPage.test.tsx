@@ -1352,6 +1352,181 @@ describe('RegisterPage', () => {
     });
 
     /**
+     * Bug3 回帰 (2026-07-21 レビュー指摘・Critical): buildDraftImageFields の Twitter 分岐は
+     * `sns.tweetData.photos` のみを読み、ページ全体の集約プール (`sourceImageUrls`) は見ない
+     * (並び替え UI 経由の再順序化で photoAspectRatios と index がズレるのを避けるため意図的)。
+     * 代表 (1本目) が確定した後、2本目のツイート URL が持つ写真は `sourceImageUrls` には
+     * 追記される (画面上の「N枚取得しました」表示は増える) のに、修正前の setSnsCapture
+     * updater は代表確定済みなら常に prev をそのまま返すため tweetData.photos には合流せず、
+     * 保存データから静かに消える。複数投稿URL集約という Batch2 の目玉機能 (Twitterスレッド等
+     * から画像を集約) そのものが壊れていた。
+     */
+    it('写真付きツイート→別の写真付きツイートの順で貼ると、2本目の写真も登録データに合流する (Bug3回帰)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Meteor',
+          server: 'Ramuh',
+          area: 'LavenderBeds',
+          ward: 29,
+          buildingType: 'house',
+          plot: 3,
+          size: 'L',
+          visibility: 'public',
+        }),
+      );
+      const canRegisterSpy = vi
+        .spyOn(housingApiClient, 'canRegister')
+        .mockResolvedValue({ remaining: 5 } as any);
+      const checkDuplicateSpy = vi
+        .spyOn(housingApiClient, 'checkDuplicate')
+        .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+      const registerSpy = vi
+        .spyOn(housingApiClient, 'registerListing')
+        .mockResolvedValue({ id: 'new1' } as any);
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const TWEET_URL_A = 'https://x.com/user/status/1842217368673759521';
+      const TWEET_URL_B = 'https://x.com/user/status/1842217368673759522';
+
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: 写真Aのみ → 代表として確定する。
+      fireEvent.change(input, { target: { value: TWEET_URL_A } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-A',
+          author: { name: 'A', screen_name: 'a' },
+          photos: ['https://pbs.twimg.com/a1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+
+      // 2本目: 別のツイートで写真Bのみ。代表 (1本目) は既に確定済みなので、
+      // 修正前は tweetData.photos に合流せず保存データから消える。
+      fireEvent.change(input, { target: { value: TWEET_URL_B } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-B',
+          author: { name: 'B', screen_name: 'b' },
+          photos: ['https://pbs.twimg.com/b1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 2 }),
+        ),
+      );
+      expect(showToastSpy).not.toHaveBeenCalled();
+
+      // 実際に登録データ (registerListing 引数 = buildDraft の出力) に両方の写真が載ることを
+      // 確認する (プレビュー上の枚数表示だけでなく保存データそのものを検証するのが本バグの核心)。
+      const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+      fireEvent.click(addressGateBtn);
+      const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+      await waitFor(() => expect(submitBtn).not.toBeDisabled());
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+      expect(registerSpy.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          sourceImageUrls: ['https://pbs.twimg.com/a1.jpg', 'https://pbs.twimg.com/b1.jpg'],
+        }),
+      );
+
+      canRegisterSpy.mockRestore();
+      checkDuplicateSpy.mockRestore();
+      registerSpy.mockRestore();
+      showToastSpy.mockRestore();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    /**
+     * Bug3 修正と同時に追加した安全側ガード: 代表がツイート (tweetData) で確定した後に
+     * OGP URL の写真を貼っても、pbs.twimg.com 以外の任意ホストの画像を tweetData.photos に
+     * 混ぜると validateImage の host 制約 (housingValidation.ts:413、tweetId 併用時は
+     * sourceImageUrls の全 URL が pbs.twimg.com 限定) に違反し、登録全体が invalid_url で
+     * 失敗する (「一部の写真が消える」より悪い「全部保存できない」regression)。そのため
+     * この組み合わせはマージせず拒否トーストを出し、集約プール (sourceImageUrls) にも
+     * 追加しない (見た目の「N枚」表示が実際に保存されない画像を含んで嘘をつくのを防ぐ)。
+     */
+    it('代表がツイートで確定した後にOGP画像を貼るとマージされず拒否トーストが出る (host混在防止・Bug3関連)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const TWEET_URL = 'https://x.com/user/status/1842217368673759531';
+      const OGP_URL = 'https://housingsnap.com/98765';
+
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: ツイートの写真A → 代表として確定する。
+      fireEvent.change(input, { target: { value: TWEET_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-A',
+          author: { name: 'A', screen_name: 'a' },
+          photos: ['https://pbs.twimg.com/a1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+
+      // 2本目: OGP URL の写真B。代表は既にツイートで確定済みなので拒否されるはず。
+      fireEvent.change(input, { target: { value: OGP_URL } });
+      ogpState = {
+        ...ogpState,
+        status: 'success',
+        data: {
+          image: 'https://housingsnap.com/img/b1.jpg',
+          images: ['https://housingsnap.com/img/b1.jpg'],
+          title: 't',
+          description: 'd',
+          siteName: 'housingsnap',
+          text: 'text',
+        },
+      };
+      rerender(createTree());
+
+      await waitFor(() =>
+        expect(showToastSpy).toHaveBeenCalledWith(
+          i18n.t('housing.register.snsUrl.error.photo_source_conflict'),
+          'error',
+        ),
+      );
+
+      // 写真枚数表示は1本目のまま (OGP画像は集約プールにも追加されず、実際に保存されない
+      // 画像が枚数に混ざらない)。
+      expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+        i18n.t('housing.register.media.fetched_count', { count: 1 }),
+      );
+
+      showToastSpy.mockRestore();
+    });
+
+    /**
      * Bug2 回帰 (2026-07-21 レビュー指摘・Important): handleDiscardRestore が Batch2 で追加した
      * ガード state/ref (sourcePostUrls/capturedVideoRef/addressAppliedRef/urlSlotCount) を
      * リセットしていなかったため、破棄後に「破棄前と同じ URL」を貼り直すと sourcePostUrls に
