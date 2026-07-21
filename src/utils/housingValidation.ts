@@ -289,6 +289,9 @@ function isExternalImageUrlSafe(value: string): boolean {
  */
 const MAX_SOURCE_IMAGE_URLS = 10;
 
+/** 2026-07-21 追加 (Batch2): 1物件に貼れる投稿URLの最大数。 */
+const MAX_SOURCE_POST_URLS = 5;
+
 // 2026-05-26: YouTube サムネ用 host allowlist (任意 URL 注入を防ぐ)。
 const YOUTUBE_THUMB_HOSTS = new Set(['img.youtube.com', 'i.ytimg.com']);
 function isYoutubeThumbHost(value: string | undefined): boolean {
@@ -415,6 +418,19 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
       errors.ogImageUrl = 'must_match_first_source';
     }
   }
+
+  // 2026-07-21 追加 (Batch2): 複数投稿URL。未指定なら従来通り postUrl 単数のみで判定 (後方互換)。
+  if (draft.sourcePostUrls !== undefined) {
+    const urls = draft.sourcePostUrls;
+    if (!Array.isArray(urls) || urls.length === 0 || urls.length > MAX_SOURCE_POST_URLS) {
+      errors.sourcePostUrls = 'too_many';
+    } else if (urls.some((u) => typeof u !== 'string' || !isKnownPostUrlHost(u))) {
+      errors.sourcePostUrls = 'invalid_url';
+    } else if (new Set(urls).size !== urls.length) {
+      errors.sourcePostUrls = 'duplicate';
+    }
+  }
+
   return Object.keys(errors).length > 0 ? fail(errors) : ok();
 }
 
@@ -441,24 +457,36 @@ export function buildListingImageFields(
       ogImageUrl: string;
       tweetId: string;
       lastTweetCheckAt: number;
+      sourcePostUrls?: string[];
       sourceImageUrls?: string[];
       sourceImageAspectRatios?: number[];
       videoUrl?: string;
       videoPosterUrl?: string;
       videoAspectRatio?: number;
     }
-  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; youtubeVideoId: string }
-  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; sourceImageUrls: string[]; sourceImageAspectRatios?: number[] }
+  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; youtubeVideoId: string; sourcePostUrls?: string[] }
+  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; sourceImageUrls: string[]; sourceImageAspectRatios?: number[]; sourcePostUrls?: string[] }
   | { imageMode: 'none'; postUrl?: string } {
-  if (draft.imageMode === 'sns' && draft.postUrl && draft.ogImageUrl) {
+  // 2026-07-21 追加 (Batch2): sourcePostUrls[0] を postUrl として使う (後方互換・cron監視対象は先頭のみ)。
+  const effectivePostUrl =
+    Array.isArray(draft.sourcePostUrls) && draft.sourcePostUrls.length > 0
+      ? draft.sourcePostUrls[0]
+      : draft.postUrl;
+  const sourcePostUrlsField =
+    Array.isArray(draft.sourcePostUrls) && draft.sourcePostUrls.length > 0
+      ? { sourcePostUrls: draft.sourcePostUrls.slice(0, MAX_SOURCE_POST_URLS) }
+      : {};
+
+  if (draft.imageMode === 'sns' && effectivePostUrl && draft.ogImageUrl) {
     if (draft.tweetId) {
       // Twitter: 動画 + 画像 + テキスト の混在ツイートを受け止める (2026-05-27 hotfix で排他撤廃)。
       const base = {
         imageMode: 'sns' as const,
-        postUrl: draft.postUrl,
+        postUrl: effectivePostUrl,
         ogImageUrl: draft.ogImageUrl,
         tweetId: draft.tweetId,
         lastTweetCheckAt: now,
+        ...sourcePostUrlsField,
       };
       const hasImages =
         Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0;
@@ -488,17 +516,19 @@ export function buildListingImageFields(
     if (draft.youtubeVideoId) {
       return {
         imageMode: 'sns',
-        postUrl: draft.postUrl,
+        postUrl: effectivePostUrl,
         ogImageUrl: draft.ogImageUrl,
         youtubeVideoId: draft.youtubeVideoId,
+        ...sourcePostUrlsField,
       };
     }
     if (Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0) {
       return {
         imageMode: 'sns',
-        postUrl: draft.postUrl,
+        postUrl: effectivePostUrl,
         ogImageUrl: draft.ogImageUrl,
         sourceImageUrls: draft.sourceImageUrls.slice(0, MAX_SOURCE_IMAGE_URLS),
+        ...sourcePostUrlsField,
         ...(Array.isArray(draft.sourceImageAspectRatios)
           ? {
               sourceImageAspectRatios: draft.sourceImageAspectRatios
@@ -512,7 +542,7 @@ export function buildListingImageFields(
   // 直接画像アップロード等 (imageMode !== 'sns') でも、検証済みの postUrl (元の投稿への
   // リンク) だけは保持する (2026-07-20 実ユーザー報告の修正。host 検証は呼び出し側が
   // validateImage を先に通している前提)。
-  return draft.postUrl ? { imageMode: 'none', postUrl: draft.postUrl } : { imageMode: 'none' };
+  return effectivePostUrl ? { imageMode: 'none', postUrl: effectivePostUrl } : { imageMode: 'none' };
 }
 
 export function validateRegistrationDraft(draft: RegistrationDraft): ValidationResult {
