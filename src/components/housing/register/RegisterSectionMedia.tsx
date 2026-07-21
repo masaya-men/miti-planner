@@ -20,15 +20,12 @@ interface Props {
   onSourceImageUrlsChange: (next: string[]) => void;
   /**
    * オートセーブ復元時に SNS URL 欄へ流し込む初期 URL (Task14 fix)。
-   * 2026-07-21 (Batch2 Task7) 時点の既知の制限: `HousingRegisterMultiUrlField` はこの prop を
-   * 内部の `HousingRegisterSnsUrlField` インスタンスへ転送しないため (Task5 実装、本タスクのスコープ外)、
-   * 現状は呼び出し元 (RegisterPage.tsx) との型互換のためだけに残しており、実際の URL 欄復元・
-   * 再取得トリガーには使われない。オートセーブ復元で「SNS URL の再取得」までは戻らなくなった
-   * (住所/タイトル等の他フィールド復元には影響しない)。是非は docs/TODO.md に記録し、
-   * 別タスクで `HousingRegisterMultiUrlField` 側に initialUrl 転送 (1本目の欄限定) を足すか検討する。
+   * 2026-07-22 修正: `HousingRegisterMultiUrlField` へ `initialUrl` として転送する。同コンポーネントは
+   * これを 1本目 (index 0) の欄にのみ渡すため (計画書の意図どおり、2本目以降は復元対象外)、
+   * マウント時に 1本目の `HousingRegisterSnsUrlField` が実再取得を発火する。
    */
   initialSnsUrl?: string;
-  /** ユーザーが URL 欄を手入力した時に発火。上記と同じ理由で現状未使用。 */
+  /** ユーザーが URL 欄を手入力した時に発火。上記と同じ経路で 1本目の欄にのみ配線される。 */
   onUrlUserEdit?: () => void;
   /**
    * 動画ツイート取得時の video ペイロード (`{url, posterUrl, aspectRatio}`)。存在すれば
@@ -64,6 +61,8 @@ export const RegisterSectionMedia: React.FC<Props> = ({
   onLocalImagesChange,
   sourceImageUrls,
   onSourceImageUrlsChange,
+  initialSnsUrl,
+  onUrlUserEdit,
   tweetVideo,
   urlSlotCount,
   onAddUrlSlot,
@@ -91,6 +90,8 @@ export const RegisterSectionMedia: React.FC<Props> = ({
         onTweetFetched={onTweetFetched}
         onYoutubeFetched={onYoutubeFetched ?? (() => {})}
         onOgpFetched={onOgpFetched}
+        initialUrl={initialSnsUrl}
+        onUrlUserEdit={onUrlUserEdit}
       />
 
       {showSuccess && (

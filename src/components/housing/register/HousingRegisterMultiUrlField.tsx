@@ -22,6 +22,18 @@ export interface HousingRegisterMultiUrlFieldProps {
   ) => void;
   onYoutubeFetched: (data: YoutubeFetchedData | null) => void;
   onOgpFetched: (data: OgpFetchedData | null) => void;
+  /**
+   * 2026-07-22 追加 (Task7 レビュー指摘の修正): オートセーブ復元時に SNS URL 欄へ流し込む
+   * 初期 URL。**1本目 (index 0) の欄にのみ**転送する — 計画書 (2026-07-21 設計書:1605) の
+   * 意図どおり、2本目以降の欄は復元対象に含めない (代表 URL = 1本目のみが自動復元/再取得の
+   * 対象という設計)。未指定なら従来どおり全欄が空 URL で開始する。
+   */
+  initialUrl?: string;
+  /**
+   * 2026-07-22 追加: ユーザーが 1本目の URL 欄を実際に手入力/貼り付けした時にだけ発火する。
+   * 2本目以降の欄には転送しない (initialUrl と同じ理由)。未指定なら無影響。
+   */
+  onUrlUserEdit?: () => void;
 }
 
 /**
@@ -43,6 +55,8 @@ export function HousingRegisterMultiUrlField({
   onTweetFetched,
   onYoutubeFetched,
   onOgpFetched,
+  initialUrl,
+  onUrlUserEdit,
 }: HousingRegisterMultiUrlFieldProps) {
   const { t } = useTranslation();
 
@@ -95,6 +109,10 @@ export function HousingRegisterMultiUrlField({
             onYoutubeFetched={onYoutubeFetched}
             onOgpFetched={onOgpFetched}
             suppressInlineFetchStatus={false}
+            // initialUrl/onUrlUserEdit はオートセーブ復元の代表 URL 用。1本目の欄にのみ転送する
+            // (2本目以降は index !== 0 なので undefined のまま = 従来どおり空 URL 開始)。
+            initialUrl={index === 0 ? initialUrl : undefined}
+            onUrlUserEdit={index === 0 ? onUrlUserEdit : undefined}
           />
           {slotCount > 1 && (
             <button

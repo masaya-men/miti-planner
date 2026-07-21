@@ -1,9 +1,25 @@
 // @vitest-environment happy-dom
 import { useState } from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '../../../../i18n';
+
+// 復元 (initialUrl) 回帰テスト用: HousingRegisterSnsUrlField が実際に握る useTweetFetch をモックし、
+// マウント時の initialUrl → handleChange → fetchTweet 発火を、実ネットワークなしで検証できるようにする
+// (RegisterSectionMedia.test.tsx / HousingRegisterSnsUrlField.test.tsx と同じ手法)。
+const mockFetchTweet = vi.fn();
+vi.mock('../../../../lib/housing/useTweetFetch', () => ({
+  useTweetFetch: () => ({
+    status: 'idle',
+    data: null,
+    errorCode: null,
+    fetchTweet: mockFetchTweet,
+    cancel: vi.fn(),
+    reset: vi.fn(),
+  }),
+}));
+
 import { HousingRegisterMultiUrlField } from '../HousingRegisterMultiUrlField';
 
 function renderField(props: Partial<React.ComponentProps<typeof HousingRegisterMultiUrlField>> = {}) {
@@ -26,6 +42,10 @@ function renderField(props: Partial<React.ComponentProps<typeof HousingRegisterM
 }
 
 describe('HousingRegisterMultiUrlField', () => {
+  beforeEach(() => {
+    mockFetchTweet.mockClear();
+  });
+
   it('slotCount=1 のとき URL入力欄が1個だけ表示される', () => {
     renderField({ slotCount: 1 });
     expect(screen.getAllByRole('textbox')).toHaveLength(1);
@@ -95,5 +115,39 @@ describe('HousingRegisterMultiUrlField', () => {
     // 本来生き残るべき 'SLOT-C' (旧 key=2) が黙って消える。
     expect(inputsAfter[0].value).toBe('SLOT-A');
     expect(inputsAfter[1].value).toBe('SLOT-C');
+  });
+
+  // 回帰テスト (2026-07-22): Task5/Task7 で initialUrl/onUrlUserEdit の転送が抜け落ち、オートセーブ
+  // 復元後の「SNS 画像を再取得します」通知が偽の約束になっていたバグの修正確認。
+  // 計画書の意図 (2026-07-21 設計書:1605) どおり、1本目 (index 0) の欄にのみ転送される。
+  describe('initialUrl/onUrlUserEdit の1本目限定転送 (オートセーブ復元回帰)', () => {
+    it('initialUrl (復元済み X URL) を渡すと1本目の欄がマウント時に実再取得(fetchTweet)を発火する', () => {
+      renderField({
+        slotCount: 2,
+        initialUrl: 'https://x.com/user/status/1842217368673759498',
+      });
+      // 2本目にも転送されていれば2回呼ばれてしまう。1本目だけの契約を検証する。
+      expect(mockFetchTweet).toHaveBeenCalledTimes(1);
+      expect(mockFetchTweet).toHaveBeenCalledWith('1842217368673759498');
+    });
+
+    it('initialUrl は1本目の URL 入力欄の見た目にも復元される', () => {
+      renderField({
+        slotCount: 1,
+        initialUrl: 'https://x.com/user/status/1842217368673759498',
+      });
+      const input = screen.getAllByRole('textbox')[0] as HTMLInputElement;
+      expect(input.value).toBe('https://x.com/user/status/1842217368673759498');
+    });
+
+    it('onUrlUserEdit は1本目の手入力時のみ発火し、2本目以降の手入力では発火しない', () => {
+      const onUrlUserEdit = vi.fn();
+      renderField({ slotCount: 2, onUrlUserEdit });
+      const inputs = screen.getAllByRole('textbox') as HTMLInputElement[];
+      fireEvent.change(inputs[1], { target: { value: 'https://example.com/foo' } });
+      expect(onUrlUserEdit).not.toHaveBeenCalled();
+      fireEvent.change(inputs[0], { target: { value: 'https://example.com/foo' } });
+      expect(onUrlUserEdit).toHaveBeenCalledTimes(1);
+    });
   });
 });
