@@ -327,6 +327,22 @@ function isKnownPostUrlHost(url: string): boolean {
  *   ogImageUrl は sourceImageUrls[0] と一致 (= 1 枚目代表)。
  */
 export function validateImage(draft: RegistrationDraft): ValidationResult {
+  // 2026-07-21 追加 (Batch2): 複数投稿URL。imageMode に関わらず常に検証する
+  // (imageMode==='none' 等の非sns経路でも sourcePostUrls 経由でホスト検証をすり抜けないようにするため、
+  // 下の imageMode 分岐より前に置く)。未指定なら従来通り postUrl 単数のみで判定 (後方互換)。
+  if (draft.sourcePostUrls !== undefined) {
+    const urls = draft.sourcePostUrls;
+    if (!Array.isArray(urls) || urls.length === 0 || urls.length > MAX_SOURCE_POST_URLS) {
+      return fail({ sourcePostUrls: 'too_many' });
+    }
+    if (urls.some((u) => typeof u !== 'string' || !isKnownPostUrlHost(u))) {
+      return fail({ sourcePostUrls: 'invalid_url' });
+    }
+    if (new Set(urls).size !== urls.length) {
+      return fail({ sourcePostUrls: 'duplicate' });
+    }
+  }
+
   if (draft.imageMode !== 'sns') {
     if (draft.postUrl === undefined) return ok();
     if (!isKnownPostUrlHost(draft.postUrl)) return fail({ postUrl: 'invalid' });
@@ -416,18 +432,6 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
       errors.sourceImageUrls = 'duplicate';
     } else if (!isHttpsUrl(draft.ogImageUrl) || draft.ogImageUrl !== urls[0]) {
       errors.ogImageUrl = 'must_match_first_source';
-    }
-  }
-
-  // 2026-07-21 追加 (Batch2): 複数投稿URL。未指定なら従来通り postUrl 単数のみで判定 (後方互換)。
-  if (draft.sourcePostUrls !== undefined) {
-    const urls = draft.sourcePostUrls;
-    if (!Array.isArray(urls) || urls.length === 0 || urls.length > MAX_SOURCE_POST_URLS) {
-      errors.sourcePostUrls = 'too_many';
-    } else if (urls.some((u) => typeof u !== 'string' || !isKnownPostUrlHost(u))) {
-      errors.sourcePostUrls = 'invalid_url';
-    } else if (new Set(urls).size !== urls.length) {
-      errors.sourcePostUrls = 'duplicate';
     }
   }
 

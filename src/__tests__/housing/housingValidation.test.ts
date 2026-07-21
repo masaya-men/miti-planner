@@ -718,6 +718,17 @@ describe('validateImage: sourcePostUrls (Batch2)', () => {
     const r = validateImage(baseSnsDraft);
     expect(r.ok).toBe(true);
   });
+
+  it('imageMode!=="sns" (none) でも sourcePostUrls の不正ホストは弾かれる (バイパス回帰テスト)', () => {
+    const r = validateImage({
+      dc: 'Mana', server: 'Pandaemonium', area: 'Shirogane', ward: 3,
+      buildingType: 'house', plot: 12, size: 'S',
+      tags: [],
+      sourcePostUrls: ['https://evil.example.com/x'],
+    });
+    expect(r.ok).toBe(false);
+    expect(r.errors.sourcePostUrls).toBe('invalid_url');
+  });
 });
 
 describe('buildListingImageFields: sourcePostUrls (Batch2)', () => {
