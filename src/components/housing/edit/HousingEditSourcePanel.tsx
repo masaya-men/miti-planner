@@ -139,12 +139,17 @@ export function HousingEditSourcePanel({
       // しないことで、削除/並び替え後に再度貼っても削除済み画像が復活しない)。代表の
       // tweetSource (postUrl/tweetId) は最初に確立したURLのものを維持する (RegisterPage.tsx と
       // 同じ「代表は最初の1件が正」の設計)。
+      // photoAspectRatios の「既存」側は capture.tweetData?.photoAspectRatios (このセッションで
+      // 直前に確立済みの比率) を渡す。ここを undefined 固定にすると、同一セッション内で2本目の
+      // ツイートURLを貼った瞬間に1本目の比率が消え、1本目の画像だけ aspect ratio 情報を失う
+      // (Bug2 fix・2026-07-22 レビュー指摘・RegisterPage.tsx handleTweetFetched の
+      // prev.tweetData.photoAspectRatios 渡しと同型)。
       const nextCapture: SnsCapture = {
         tweetData: {
           ...data,
           photos: freshSourceImageUrls,
           photoAspectRatios: mergeTweetPhotoAspectRatios(
-            undefined,
+            capture.tweetData?.photoAspectRatios,
             sourceImageUrls.length,
             data.photoAspectRatios,
             photos.length,
@@ -200,7 +205,24 @@ export function HousingEditSourcePanel({
       // する。代表が YouTube の場合も画像は一切追加できない (conflict_sources)。
       // どちらも「受理したのに保存先が無く消える」事故を避けるため、マージせず拒否する
       // (RegisterPage.tsx handleOgpFetched と同型)。
+      //
+      // 上記の capture.tweetData/capture.youtube チェックは「このセッション内で確立した代表」
+      // にしか効かない (captureRef はコンポーネントの mount ごとに EMPTY_SNS_CAPTURE へ戻る)。
+      // HousingEditMediaSection のタブ切替でこのパネルは同一の編集セッション内でも
+      // unmount/remount されるため、動画付き Twitter 代表が編集を開く前から保存済みでも
+      // capture 側からはそれを検出できない。videoPreview prop はサーバーの保存状態を
+      // 反映する cross-session-aware な値なので、handleYoutubeFetched と同じガード
+      // (capturedVideoRef.current || !!videoPreview) をここにも入れて、代表が動画を持つ
+      // 場合は OGP 画像を無条件で拒否する。これが無いと、動画フィールド
+      // (tweetId/videoUrl/videoPosterUrl/videoAspectRatio) を持たない OGP 形の payload が
+      // commit され、api/housing/_updateListingHandler.ts の SNS_SUBFIELDS クリーンアップが
+      // それらのフィールドを FieldValue.delete() し、保存済みの動画がトーストも無く
+      // サイレントに消える (Bug1 fix・2026-07-22 レビュー指摘)。
       if (images.length > 0) {
+        if (capturedVideoRef.current || !!videoPreview) {
+          showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+          return;
+        }
         if (capture.tweetData) {
           showToast(t('housing.register.snsUrl.error.photo_source_conflict'), 'error');
           return;
@@ -221,7 +243,7 @@ export function HousingEditSourcePanel({
       if (nextCapture === capture && freshSourceImageUrls === sourceImageUrls) return;
       commit(nextCapture, freshSourceImageUrls, data.postUrl);
     },
-    [commit, sourceImageUrls, sourcePostUrls, t],
+    [commit, sourceImageUrls, sourcePostUrls, videoPreview, t],
   );
 
   const handleDelete = useCallback(

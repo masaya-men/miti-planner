@@ -193,7 +193,7 @@ describe('HousingEditSourcePanel', () => {
       const { rerender } = renderPanel({ sourceImageUrls: [], onCommitSnsFetch });
       const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
 
-      // 1本目: 写真Aのみ。
+      // 1本目: 写真Aのみ (aspect ratio 1.5 付き)。
       fireEvent.change(input, { target: { value: TWEET_URL_A } });
       tweetState = {
         ...tweetState,
@@ -202,6 +202,7 @@ describe('HousingEditSourcePanel', () => {
           text: 'photo-A',
           author: { name: 'A', screen_name: 'a' },
           photos: ['https://pbs.twimg.com/a1.jpg'],
+          photoAspectRatios: [1.5],
           video: null,
         },
       };
@@ -218,9 +219,11 @@ describe('HousingEditSourcePanel', () => {
       expect(onCommitSnsFetch.mock.calls[0][1]).toEqual(['https://pbs.twimg.com/a1.jpg']);
       const captureAfterA = onCommitSnsFetch.mock.calls[0][0];
       expect(captureAfterA.tweetSource.tweetId).toBe('1842219000000000001');
+      expect(captureAfterA.tweetData.photoAspectRatios).toEqual([1.5]);
 
-      // 2本目: 別のツイートで写真Bのみ。親が1本目の成功結果 (sourceImageUrls蓄積後) を
-      // 反映した状態として rerender する (実際の RegisterPage の挙動を模倣)。
+      // 2本目: 別のツイートで写真Bのみ (aspect ratio 0.75 付き)。親が1本目の成功結果
+      // (sourceImageUrls蓄積後) を反映した状態として rerender する (実際の RegisterPage の
+      // 挙動を模倣)。
       fireEvent.change(input, { target: { value: TWEET_URL_B } });
       tweetState = {
         ...tweetState,
@@ -229,6 +232,7 @@ describe('HousingEditSourcePanel', () => {
           text: 'photo-B',
           author: { name: 'B', screen_name: 'b' },
           photos: ['https://pbs.twimg.com/b1.jpg'],
+          photoAspectRatios: [0.75],
           video: null,
         },
       };
@@ -248,6 +252,9 @@ describe('HousingEditSourcePanel', () => {
         'https://pbs.twimg.com/a1.jpg',
         'https://pbs.twimg.com/b1.jpg',
       ]);
+      // Bug2 fix: 2本目の photoAspectRatios マージが 1本目 (1.5) を undefined 起点でリセットせず、
+      // 1本目+2本目の両方 ([1.5, 0.75]) を保持する (index 整合)。
+      expect(captureAfterB.tweetData.photoAspectRatios).toEqual([1.5, 0.75]);
     });
 
     it('既に動画がある状態 (videoPreview) で動画付きツイートを貼ると拒否トーストが出て onCommitSnsFetch は呼ばれない', async () => {
@@ -292,6 +299,112 @@ describe('HousingEditSourcePanel', () => {
       expect(onCommitSnsFetch).not.toHaveBeenCalled();
 
       showToastSpy.mockRestore();
+    });
+
+    /**
+     * Bug1 fix (2026-07-22 レビュー指摘): サーバーに保存済みの代表が Twitter+動画のとき、
+     * HousingEditMediaSection のタブ切替でこのパネルが remount されると captureRef が
+     * EMPTY_SNS_CAPTURE に戻る (= capture.tweetData/capture.youtube はどちらも falsy)。
+     * この状態で OGP URL (画像あり) を貼ると、修正前は capture.tweetData/capture.youtube
+     * しか見ていなかったため拒否されずマージされ、動画フィールド (tweetId/videoUrl/
+     * videoPosterUrl/videoAspectRatio) を持たない OGP 形の payload が commit されて
+     * サーバー側 SNS_SUBFIELDS クリーンアップが保存済み動画を FieldValue.delete() で
+     * サイレントに消してしまっていた。videoPreview prop (cross-session-aware) を見る
+     * ガードを追加したことで、この組み合わせは commit 前にクライアント側で拒否される。
+     */
+    it('サーバー保存済みTwitter代表(動画あり=videoPreview)の状態でOGP画像URLを貼ると拒否トーストが出てcommitされず動画は消えない (Bug1 fix)', async () => {
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+      const savedVideoPreview = {
+        url: 'https://x/saved-video.mp4',
+        posterUrl: 'https://x/saved-video-poster.jpg',
+        aspectRatio: 1.78,
+      };
+      // captureRef はこのコンポーネントの初回マウント時点で常に EMPTY_SNS_CAPTURE
+      // (= remount 直後を模している)。videoPreview だけがサーバー保存済みの動画を示す。
+      const { onCommitSnsFetch, rerender } = renderPanel({
+        sourceImageUrls: [],
+        videoPreview: savedVideoPreview,
+      });
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      const OGP_URL = 'https://housingsnap.com/55501';
+      fireEvent.change(input, { target: { value: OGP_URL } });
+      ogpState = {
+        ...ogpState,
+        status: 'success',
+        data: {
+          image: 'https://housingsnap.com/img/x1.jpg',
+          images: ['https://housingsnap.com/img/x1.jpg'],
+          title: 't',
+          description: 'd',
+          siteName: 'housingsnap',
+          text: 'text',
+        },
+      };
+      rerender(
+        buildTree({
+          sourceImageUrls: [],
+          onSourceImageUrlsChange: vi.fn(),
+          videoPreview: savedVideoPreview,
+          sourcePostUrls: [],
+          onCommitSnsFetch,
+        }),
+      );
+
+      await waitFor(() =>
+        expect(showToastSpy).toHaveBeenCalledWith(
+          'housing.register.snsUrl.error.video_limit',
+          'error',
+        ),
+      );
+      // commit されない = サーバーへ「動画フィールド無しの payload」が送られない
+      // = 保存済みの videoPreview (tweetId/videoUrl 等) が消される事故が起きない。
+      expect(onCommitSnsFetch).not.toHaveBeenCalled();
+
+      showToastSpy.mockRestore();
+    });
+
+    /**
+     * (c) OGP 代表 (写真のみ・動画なし) が既に確定している状態で Twitter URL (写真あり) が
+     * 届いた場合、写真は共有プール (sourceImageUrls) へ合流する — という「既存の正しい
+     * cross-type マージ挙動」をコードトレースだけでなく実テストで確認する (レビュー指摘の
+     * カバレッジギャップ埋め)。
+     */
+    it('OGP代表(写真のみ・動画なし)の状態でTwitter URL(写真あり)を貼ると、写真は共有プールに合流する (cross-type merge)', async () => {
+      const OGP_URL = 'https://housingsnap.com/77701';
+      const { onCommitSnsFetch, rerender } = renderPanel({
+        sourceImageUrls: ['https://housingsnap.com/img/existing1.jpg'],
+        sourcePostUrls: [OGP_URL],
+        videoPreview: null,
+      });
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      fireEvent.change(input, { target: { value: TWEET_URL_A } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'cross-type',
+          author: { name: 'C', screen_name: 'c' },
+          photos: ['https://pbs.twimg.com/cross1.jpg'],
+          video: null,
+        },
+      };
+      rerender(
+        buildTree({
+          sourceImageUrls: ['https://housingsnap.com/img/existing1.jpg'],
+          onSourceImageUrlsChange: vi.fn(),
+          videoPreview: null,
+          sourcePostUrls: [OGP_URL],
+          onCommitSnsFetch,
+        }),
+      );
+
+      await waitFor(() => expect(onCommitSnsFetch).toHaveBeenCalledTimes(1));
+      expect(onCommitSnsFetch.mock.calls[0][1]).toEqual([
+        'https://housingsnap.com/img/existing1.jpg',
+        'https://pbs.twimg.com/cross1.jpg',
+      ]);
     });
   });
 });
