@@ -679,19 +679,16 @@ describe('RegisterPage', () => {
     });
   });
 
-  // Task3.4-1: 幽霊ステップ解消。 edit は写真セクションを出さない (方式A) ので、
-  // ステッパーからも media ステップを除外する (クリックしても無反応な「押せない幽霊ステップ」を無くす)。
-  describe('ステッパー: mode=edit は写真ステップを除外する (Task3.4-1)', () => {
-    it('mode=edit ではステッパーに写真ステップが出ず、4 ステップに詰められる', () => {
+  // Plan B (2026-07-21): 方式A撤廃により edit も写真ステップを含む (旧 Task3.4-1 の逆)。
+  describe('ステッパー: mode=edit も写真ステップを含む (Plan B)', () => {
+    it('mode=edit でもステッパーに写真ステップが出て、5 ステップになる', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
 
       const nav = screen.getByRole('navigation', { name: '登録ステップ' });
-      expect(within(nav).queryByText('SNS投稿・サイトから自動入力')).not.toBeInTheDocument();
-      expect(within(nav).getAllByRole('button')).toHaveLength(4);
-      // 番号がずれず 1 から詰められる (先頭は住所ステップ)。
-      expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('住所');
-      expect(within(nav).queryByTestId('housing-register-step-5')).not.toBeInTheDocument();
+      expect(within(nav).getByText('SNS投稿・サイトから自動入力')).toBeInTheDocument();
+      expect(within(nav).getAllByRole('button')).toHaveLength(5);
+      expect(within(nav).getByTestId('housing-register-step-1')).toHaveTextContent('SNS投稿・サイトから自動入力');
     });
 
     it('mode=create ではステッパーに写真ステップを含む 5 ステップを出す (既存挙動不変)', () => {
@@ -720,14 +717,14 @@ describe('RegisterPage', () => {
     });
   });
 
-  // Task3.4-2: 右カラム CheckPanel の画像行を edit で非表示 (写真を編集しない方式Aと整合)。
-  describe('CheckPanel: mode=edit は画像行を出さない (Task3.4-2)', () => {
-    it('mode=edit では CheckPanel に画像行が出ない (必須行は残る)', () => {
+  // Plan B (2026-07-21): 方式A撤廃により edit も CheckPanel に画像行を出す (推奨行のまま)。
+  describe('CheckPanel: mode=edit も画像行を出す (Plan B)', () => {
+    it('mode=edit でも CheckPanel に画像行が出る', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
 
       const panel = screen.getByTestId('housing-register-check-panel');
-      expect(within(panel).queryByTestId('housing-register-check-image')).not.toBeInTheDocument();
+      expect(within(panel).getByTestId('housing-register-check-image')).toBeInTheDocument();
       expect(within(panel).getByTestId('housing-register-check-address')).toBeInTheDocument();
       expect(within(panel).getByTestId('housing-register-check-title')).toBeInTheDocument();
     });
@@ -741,16 +738,15 @@ describe('RegisterPage', () => {
     });
   });
 
-  // 最終レビュー Important#1: 確認セクションの画像枚数要約は mode=edit で出さない。
-  // edit は画像 state をプリフィルしないため imageCount が常に 0 になり、「0 枚」表示が
-  // 写真を持つ家主に「写真が消えた?」と誤認させる (方式A: 写真はサーバー側で保持されたまま)。
-  describe('確認セクション: mode=edit は画像枚数の要約行を出さない (最終レビュー Important#1)', () => {
-    it('mode=edit では確認セクションに画像枚数の行が出ない', () => {
+  // Plan B (2026-07-21): Task1 で imageCount 算出に editThumbnailPaths を含めたため、
+  // edit でも正しい枚数を要約できるようになった (方式A時代の「常に0枚」誤表示は解消)。
+  describe('確認セクション: mode=edit も画像枚数の要約行を出す (Plan B)', () => {
+    it('mode=edit でも確認セクションに画像枚数の行が出る', () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
 
       const section = screen.getByTestId('housing-register-section-confirm');
-      expect(within(section).queryByText('SNS投稿・サイトから自動入力')).not.toBeInTheDocument();
+      expect(within(section).getByText('SNS投稿・サイトから自動入力')).toBeInTheDocument();
     });
 
     it('mode=create では確認セクションに画像枚数の行が出る (既存挙動不変)', () => {
