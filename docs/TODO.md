@@ -24,8 +24,11 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ### ✅ ハウジング編集ページ画像管理機能 (Plan A+B) = 完成・本番反映・ユーザー実機確認OK(2026-07-21)
 削除・並び替え・追加+登録方法(アップロード⇔URL)切替。mainにmerge・push済み(commit `b45c93ae`)。最終レビューでCriticalバグ1件(SNS再貼り替え時の古いデータ混入)発見・修正済み。詳細=TODO_COMPLETED.md。
 
-### 🔴 次セッション最優先1: 複数投稿URL登録機能 (Batch 2・2026-07-21ユーザー決定・要brainstorming)
-これまで「そのうちやりたい」でTODO_COMPLETED.mdに埋もれていたBatch 2案を最優先に格上げ。ユーザー要望(2026-07-21追記): URLを複数貼れるようにし、①**貼った複数URLのどれかに住所が書かれていればそれを自動入力する**②**画像・動画は複数URL合計で上限枚数いっぱいまで使う**(1URLに縛らない)。旧メモ(2026-07-20時点)= URL1/2/3固定表示・並び替えなし・「元の投稿を見る」はURL1固定・編集画面からの追加も要望あり(**今回の新要望と矛盾しないか要再確認**)。着手時はbrainstormingから。
+### 🔴 次セッション最優先1: 複数投稿URL登録機能 (Batch 2) = 設計・計画完了・実装着手済み(2026-07-21)
+設計書=`docs/superpowers/specs/2026-07-21-housing-multi-source-url-design.md`、実装計画=`docs/superpowers/plans/2026-07-21-housing-multi-source-url.md`(12タスク、subagent-driven-developmentで実行中)。
+**worktree**: `.claude/worktrees/housing-batch2-multi-url`(branch `worktree-housing-batch2-multi-url`)で作業中。mainはこのセッションの設計/計画コミットまで反映済み(worktreeにfast-forward取り込み要=`git merge main --ff-only`済み)。
+**進捗**: Task1(型追加)✅・Task2(validateImage/buildListingImageFields)✅(レビューでセキュリティバグ発見→司令塔が直接修正、commit `e9f78e0a`。imageMode!=='sns'のときsourcePostUrlsのホスト検証が素通りする不具合)。Task3〜12は未着手。進捗詳細=worktree内`.superpowers/sdd/progress.md`(gitignore対象・worktree内のみ)。
+**次回再開**: worktreeに入り(`EnterWorktree` path指定 or `cd`)、`docs/superpowers/plans/2026-07-21-housing-multi-source-url.md`のTask3から`subagent-driven-development`スキルで継続。Task2の修正はサブエージェントによる再レビュー未実施(API混雑529エラー多発のため司令塔が直接修正・自己検証のみ)、余裕があれば軽くスポットチェック。
 
 ### 🔴 次セッション最優先1.5: Twitter動画のコストを0にする(2026-07-21・Batch2ブレスト中に発覚・最優先1と2の後に着手)
 Batch2設計中に判明: **Twitter動画だけはLoPoサーバー経由でコストがかかる**(画像は`<img src>`外部直リンクで完全無料、YouTubeも`<iframe youtube-nocookie.com/embed>`直埋め込みで完全無料)。Twitter動画のみ`api/tweet-video.ts`がプロキシしており、キャッシュも明示的に無効(`Cache-Control: private, max-age=0`、`tweet-video.ts:122`)。一覧の「生きたカード」用3コマ抽出(`useTweetVideoFrames.ts`)はタブ内メモリキャッシュのみ(ページリロードで消える・他ユーザーと共有されない)なので、動画オンリー投稿が一覧に表示されるたび+誰かが動画再生するたび、閲覧のたびにLoPo経由でTwitterから転送し直している。TODO.mdの「動画CFエッジキャッシュ」(l.54)は未着手。ユーザー要望: **このコストを絶対に0にしたい**(2026-07-21明言)。対応候補(未検討・要brainstorming): ①CFエッジキャッシュ実装 ②YouTube優先を強く推奨する導線 ③その他。現状維持=動画は1物件1本のまま(複数化は見送り、Batch2でも変更なし)。
