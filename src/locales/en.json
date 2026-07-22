@@ -2201,7 +2201,9 @@
                     "upstream": "Failed to fetch tweet. Please retry",
                     "network": "Network connection failed. Please check your connection",
                     "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet",
-                    "photo_source_conflict": "Twitter photos and photos from other sites can't be combined, so this post's photos weren't added."
+                    "photo_source_conflict": "Twitter photos and photos from other sites can't be combined, so this post's photos weren't added.",
+                    "duplicate_url": "This URL has already been added.",
+                    "video_limit": "Only 1 video is allowed per listing, so this post's video wasn't added."
                 },
                 "ogp_error": {
                     "invalid": "The URL is invalid",
