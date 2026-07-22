@@ -41,6 +41,7 @@ import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { showToast } from '../../Toast';
 import type { HousingerProfile } from '../../../types/housing';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
 import '../../../styles/housing.css';
 
 export const HousingerPage: React.FC = () => {
@@ -60,7 +61,10 @@ export const HousingerPage: React.FC = () => {
   const [reportOpen, setReportOpen] = useState(false);
   const [mannerOpen, setMannerOpen] = useState(false);
   const kebabRef = useRef<HTMLDivElement>(null);
-  const [sort, setSort] = useState<BrowseSortOrder>('newest');
+  // 並び替え選択は探すページと共通のストアに保持する (詳細ページ往復で選択が保持される)。
+  // ランダムは選択肢に含めない (探すページのみの機能、既存仕様どおり新着順/古い順の2択)。
+  const sort = useHousingListOrderStore((s) => s.entries.housinger.sortMode);
+  const setSort = (v: BrowseSortOrder) => useHousingListOrderStore.getState().setSortMode('housinger', v);
 
   useEffect(() => {
     if (!uid) {
@@ -308,7 +312,7 @@ export const HousingerPage: React.FC = () => {
           {listings.length === 0 ? (
             <p className="housinger-page-empty">{t('housing.housinger.noListings')}</p>
           ) : (
-            <ListingGrid listings={sorted} sort={sort} onSortChange={setSort} />
+            <ListingGrid listings={sorted} sort={sort} onSortChange={setSort} listKey="housinger" />
           )}
         </main>
       </div>
