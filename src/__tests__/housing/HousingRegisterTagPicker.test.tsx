@@ -59,6 +59,15 @@ describe('HousingRegisterTagPicker', () => {
     expect(onChange).toHaveBeenCalledWith([]);
   });
 
+  it('初心者タブから「ハウジング若葉」タグを選べる', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<HousingRegisterTagPicker selected={[]} onChange={onChange} />);
+    await user.click(screen.getByText(/housing\.register\.tag_kind\.beginner/i));
+    await user.click(screen.getByRole('button', { name: /housing\.tag\.beginner_sprout/i }));
+    expect(onChange).toHaveBeenCalledWith(['beginner_sprout']);
+  });
+
   describe('個人タブ', () => {
     it('未公開ユーザーには公開を促すヒント + 公開設定を開くボタンを表示する (作成フォームは出さない)', async () => {
       const user = userEvent.setup();
