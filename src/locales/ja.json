@@ -2142,6 +2142,7 @@
                 "official": "公式",
                 "season": "季節",
                 "theme": "テーマ",
+                "beginner": "初心者",
                 "personal": "個人"
             },
             "errors": {
@@ -2485,7 +2486,8 @@
             "theme_fantasy": "ファンタジー",
             "theme_gimmick": "ギミックハウス",
             "theme_ruins": "廃墟",
-            "theme_botanical": "ボタニカル"
+            "theme_botanical": "ボタニカル",
+            "beginner_sprout": "ハウジング若葉"
         },
         "workspace": {
             "topbar": {

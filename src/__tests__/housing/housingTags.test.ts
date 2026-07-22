@@ -12,12 +12,12 @@ import {
 import { PERSONAL_TAG_ID_PREFIX, PERSONAL_TAG_LIMIT_PER_USER } from '../../constants/housing';
 
 describe('housingTags', () => {
-  it('kind は 公式/季節/テーマ/個人 の 4 種 (この順序)', () => {
-    expect(HOUSING_TAG_KINDS).toEqual(['official', 'season', 'theme', 'personal']);
+  it('kind は 公式/季節/テーマ/初心者/個人 の 5 種 (この順序)', () => {
+    expect(HOUSING_TAG_KINDS).toEqual(['official', 'season', 'theme', 'beginner', 'personal']);
   });
 
-  it('静的レジストリを持つ kind は 公式/季節/テーマ の 3 種 (個人は Firestore 動的管理)', () => {
-    expect(STATIC_HOUSING_TAG_KINDS).toEqual(['official', 'season', 'theme']);
+  it('静的レジストリを持つ kind は 公式/季節/テーマ/初心者 の 4 種 (個人は Firestore 動的管理)', () => {
+    expect(STATIC_HOUSING_TAG_KINDS).toEqual(['official', 'season', 'theme', 'beginner']);
   });
 
   it('全タグの id がユニーク', () => {
@@ -43,8 +43,8 @@ describe('housingTags', () => {
     }
   });
 
-  it('総数は 47 (公式23 + 季節12 + テーマ12)', () => {
-    expect(HOUSING_TAGS.length).toBe(47);
+  it('総数は 48 (公式23 + 季節12 + テーマ12 + 初心者1)', () => {
+    expect(HOUSING_TAGS.length).toBe(48);
   });
 
   it('公式タグは 23 件', () => {
@@ -79,6 +79,11 @@ describe('housingTags', () => {
         'theme_ruins', 'theme_botanical',
       ].sort(),
     );
+  });
+
+  it('初心者タグは 1 件 (beginner_sprout)', () => {
+    const ids = getTagsByKind('beginner').map((t) => t.id);
+    expect(ids).toEqual(['beginner_sprout']);
   });
 
   it('getTagById は存在する id でタグを返す', () => {

@@ -2086,6 +2086,7 @@
                 "official": "官方",
                 "season": "季节",
                 "theme": "主题",
+                "beginner": "新手",
                 "personal": "个人"
             },
             "errors": {
@@ -2429,7 +2430,8 @@
             "theme_fantasy": "奇幻",
             "theme_gimmick": "机关屋",
             "theme_ruins": "废墟",
-            "theme_botanical": "植物风"
+            "theme_botanical": "植物风",
+            "beginner_sprout": "房屋新人"
         },
         "workspace": {
             "topbar": {

@@ -2121,6 +2121,7 @@
                 "official": "Official",
                 "season": "Season",
                 "theme": "Theme",
+                "beginner": "Beginner",
                 "personal": "Personal"
             },
             "errors": {
@@ -2464,7 +2465,8 @@
             "theme_fantasy": "Fantasy",
             "theme_gimmick": "Gimmick House",
             "theme_ruins": "Ruins",
-            "theme_botanical": "Botanical"
+            "theme_botanical": "Botanical",
+            "beginner_sprout": "Housing Newcomer"
         },
         "workspace": {
             "topbar": {

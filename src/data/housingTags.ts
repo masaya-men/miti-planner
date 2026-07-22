@@ -16,11 +16,11 @@
  *   https://ffxiv.consolegameswiki.com/wiki/Estate_Tags)。 JA/KO/ZH は公式ソース照合が必要。
  */
 
-export const HOUSING_TAG_KINDS = ['official', 'season', 'theme', 'personal'] as const;
+export const HOUSING_TAG_KINDS = ['official', 'season', 'theme', 'beginner', 'personal'] as const;
 export type HousingTagKind = typeof HOUSING_TAG_KINDS[number];
 
 /** 静的レジストリを持つ kind (personal は Firestore 動的管理のためこの配列には含めない)。 */
-export const STATIC_HOUSING_TAG_KINDS = ['official', 'season', 'theme'] as const;
+export const STATIC_HOUSING_TAG_KINDS = ['official', 'season', 'theme', 'beginner'] as const;
 export type StaticHousingTagKind = typeof STATIC_HOUSING_TAG_KINDS[number];
 
 export interface HousingTag {
@@ -103,11 +103,20 @@ const THEME_TAGS: readonly HousingTag[] = [
   t('theme_botanical', 'theme'),
 ];
 
-/** 静的タグ全件 (公式23 + 季節12 + テーマ12 = 47)。 個人タグはここに含まれない。 */
+/**
+ * 初心者タグ (1 件のみ)。 自己申告で「まだ不慣れです」を可視化するタグ。
+ * 公式/季節/テーマとは性質が異なる自己申告カテゴリのため kind を分けている。
+ */
+const BEGINNER_TAGS: readonly HousingTag[] = [
+  t('beginner_sprout', 'beginner'),
+];
+
+/** 静的タグ全件 (公式23 + 季節12 + テーマ12 + 初心者1 = 48)。 個人タグはここに含まれない。 */
 export const HOUSING_TAGS: readonly HousingTag[] = [
   ...OFFICIAL_TAGS,
   ...SEASON_TAGS,
   ...THEME_TAGS,
+  ...BEGINNER_TAGS,
 ];
 
 export function getTagsByKind(kind: StaticHousingTagKind): HousingTag[] {

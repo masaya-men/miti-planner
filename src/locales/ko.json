@@ -2086,6 +2086,7 @@
                 "official": "공식",
                 "season": "계절",
                 "theme": "테마",
+                "beginner": "초보자",
                 "personal": "개인"
             },
             "errors": {
@@ -2429,7 +2430,8 @@
             "theme_fantasy": "판타지",
             "theme_gimmick": "기믹 하우스",
             "theme_ruins": "폐허",
-            "theme_botanical": "보태니컬"
+            "theme_botanical": "보태니컬",
+            "beginner_sprout": "하우징 새싹"
         },
         "workspace": {
             "topbar": {
