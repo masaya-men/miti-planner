@@ -22,6 +22,7 @@ import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesS
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 import { useHousingTourStore } from '../../../../store/useHousingTourStore';
 import { useTourTrayStore } from '../../../../store/useTourTrayStore';
+import { useHousingListOrderStore } from '../../../../store/useHousingListOrderStore';
 import type { MockListing } from '../../../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -90,6 +91,7 @@ describe('FavoritesPage', () => {
     // ツアートレイストア(#5でページ横断保持に変更)を毎回クリア
     useTourTrayStore.setState({ trayIds: [] });
     showToastMock.mockClear();
+    useHousingListOrderStore.getState().reset();
   });
 
   it('お気に入りが空なら空状態を表示', () => {

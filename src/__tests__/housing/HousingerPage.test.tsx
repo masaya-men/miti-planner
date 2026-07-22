@@ -35,6 +35,7 @@ vi.mock('../../store/useAuthStore', () => ({
 
 import { HousingerPage } from '../../components/housing/pages/HousingerPage';
 import { useHousingTourStore } from '../../store/useHousingTourStore';
+import { useHousingListOrderStore } from '../../store/useHousingListOrderStore';
 
 const publishedProfile: HousingerProfile = {
   displayName: 'たかし',
@@ -100,6 +101,7 @@ beforeEach(() => {
   showToastMock.mockClear();
   authUid = null;
   useHousingTourStore.getState().reset();
+  useHousingListOrderStore.getState().reset();
 });
 
 function renderPage(uid: string) {

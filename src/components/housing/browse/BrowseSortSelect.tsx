@@ -2,20 +2,26 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Check } from 'lucide-react';
 
-export type BrowseSortOrder = 'newest' | 'oldest';
+export type BrowseSortOrder = 'random' | 'newest' | 'oldest';
 
 export interface BrowseSortSelectProps {
   value: BrowseSortOrder;
   onChange: (v: BrowseSortOrder) => void;
+  /**
+   * 選択肢の一覧・表示順。未指定なら新着順/古い順の2択 (お気に入り/ハウジンガープロフィールの
+   * 既存仕様)。探すページはランダムを含む3択を明示的に渡す (ランダム表示順は探すページのみの
+   * 機能のため、他ページは何も変えずに済むようデフォルトを維持している)。
+   */
+  orders?: BrowseSortOrder[];
 }
 
-const ORDERS: BrowseSortOrder[] = ['newest', 'oldest'];
+const DEFAULT_ORDERS: BrowseSortOrder[] = ['newest', 'oldest'];
 
 /**
  * 中央ツールバーの並び替え (参考UI「並び替え: 新着順 ▼」)。
  * overflow パネル内でも安全なよう、短いメニューを下方向に絶対配置で開く。
  */
-export const BrowseSortSelect: React.FC<BrowseSortSelectProps> = ({ value, onChange }) => {
+export const BrowseSortSelect: React.FC<BrowseSortSelectProps> = ({ value, onChange, orders = DEFAULT_ORDERS }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -45,7 +51,7 @@ export const BrowseSortSelect: React.FC<BrowseSortSelectProps> = ({ value, onCha
       </button>
       {open && (
         <ul className="housing-sort-menu" role="listbox" aria-label={t('housing.browse.sort_label')}>
-          {ORDERS.map((o) => (
+          {orders.map((o) => (
             <li key={o}>
               <button
                 type="button"

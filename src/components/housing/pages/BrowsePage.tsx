@@ -28,6 +28,8 @@ import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
 import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
+import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
+import { seededShuffle } from '../../../lib/housing/seededShuffle';
 
 /**
  * 探すページ (3カラム): 左=フィルター / 中央=物件グリッド / 右=ツアートレイ。
@@ -86,15 +88,17 @@ export const BrowsePage: React.FC = () => {
     [tags],
   );
 
-  // 並び替え (参考UI「新着順/古い順」)。createdAt を key に client-side sort。
-  const [sort, setSort] = useState<BrowseSortOrder>('newest');
-  const sorted = useMemo(
-    () =>
-      [...filtered].sort((a, b) =>
-        sort === 'newest' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt,
-      ),
-    [filtered, sort],
-  );
+  // 並び替え。既定はランダム (2026-07-21 実機FB)。シード値/選択自体は useHousingListOrderStore が
+  // 保持するため、詳細ページ往復 (SPA nav) では再抽選されない。実リロードまたはシャッフルボタンでのみ変わる。
+  const sort = useHousingListOrderStore((s) => s.entries.browse.sortMode);
+  const seed = useHousingListOrderStore((s) => s.entries.browse.seed);
+  const setSort = (v: BrowseSortOrder) => useHousingListOrderStore.getState().setSortMode('browse', v);
+  const sorted = useMemo(() => {
+    if (sort === 'random') return seededShuffle(filtered, seed);
+    return [...filtered].sort((a, b) =>
+      sort === 'newest' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt,
+    );
+  }, [filtered, sort, seed]);
 
   // ツアートレイのドラフト (#5: ページ横断で保持するストア。詳細ページ往復で消えない)。開始時に tour store へ確定する。
   const trayIds = useTourTrayStore((s) => s.trayIds);
@@ -195,6 +199,8 @@ export const BrowsePage: React.FC = () => {
                   onAddToTour={addToTray}
                   sort={sort}
                   onSortChange={setSort}
+                  listKey="browse"
+                  sortOrders={['random', 'newest', 'oldest']}
                 />
               )}
             </>

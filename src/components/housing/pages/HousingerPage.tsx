@@ -41,6 +41,7 @@ import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { showToast } from '../../Toast';
 import type { HousingerProfile } from '../../../types/housing';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
 import '../../../styles/housing.css';
 
 export const HousingerPage: React.FC = () => {
@@ -60,7 +61,10 @@ export const HousingerPage: React.FC = () => {
   const [reportOpen, setReportOpen] = useState(false);
   const [mannerOpen, setMannerOpen] = useState(false);
   const kebabRef = useRef<HTMLDivElement>(null);
-  const [sort, setSort] = useState<BrowseSortOrder>('newest');
+  // 並び替え選択は探すページと共通のストアに保持する (詳細ページ往復で選択が保持される)。
+  // ランダムは選択肢に含めない (探すページのみの機能、既存仕様どおり新着順/古い順の2択)。
+  const sort = useHousingListOrderStore((s) => s.entries.housinger.sortMode);
+  const setSort = (v: BrowseSortOrder) => useHousingListOrderStore.getState().setSortMode('housinger', v);
 
   useEffect(() => {
     if (!uid) {
@@ -123,6 +127,8 @@ export const HousingerPage: React.FC = () => {
 
   // BrowsePage と同じ「新着順/古い順」ローカル並び替え。sortListingsForGallery (住所グルーピング)
   // は基礎データの整形用で、 表示順は BrowseSortSelect の選択で上書きする。
+  // 'random' は意図的に到達不能: 下記 ListingGrid 呼び出しは sortOrders 未指定 (新着/古い2択) のため、
+  // sort は実際には 'newest'/'oldest' しか取り得ない (共有型 BrowseSortOrder には 'random' も含むが未使用)。
   const sorted = useMemo(
     () =>
       [...listings].sort((a, b) =>
@@ -308,7 +314,7 @@ export const HousingerPage: React.FC = () => {
           {listings.length === 0 ? (
             <p className="housinger-page-empty">{t('housing.housinger.noListings')}</p>
           ) : (
-            <ListingGrid listings={sorted} sort={sort} onSortChange={setSort} />
+            <ListingGrid listings={sorted} sort={sort} onSortChange={setSort} listKey="housinger" />
           )}
         </main>
       </div>

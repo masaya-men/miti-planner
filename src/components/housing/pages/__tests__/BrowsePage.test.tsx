@@ -24,6 +24,7 @@ import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesS
 import { useEphemeralListingsStore } from '../../../../store/useEphemeralListingsStore';
 import { useHousingTourStore } from '../../../../store/useHousingTourStore';
 import { useTourTrayStore } from '../../../../store/useTourTrayStore';
+import { useHousingListOrderStore } from '../../../../store/useHousingListOrderStore';
 import type { MockListing } from '../../../../data/housing/mockListings';
 
 beforeAll(() => {
@@ -75,6 +76,10 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
     useHousingTourStore.setState({ listingIds: [], running: false, currentIndex: 0 });
     useTourTrayStore.setState({ trayIds: [] });
     showToastMock.mockClear();
+    // デフォルトが random になったことで addButtons[0]/[1] の順序保証が壊れないよう、
+    // このブロックのテストは明示的に newest (生成順=安定ソート) へ固定する。
+    useHousingListOrderStore.getState().reset();
+    useHousingListOrderStore.getState().setSortMode('browse', 'newest');
   });
 
   it('別リージョンの家をツアーに追加しようとすると弾かれ、トーストが出る', () => {
@@ -162,6 +167,7 @@ describe('BrowsePage: 中央フィルター解除ボタン (f)', () => {
     useHousingFilterStore.getState().clearAll();
     useHousingViewStore.getState().reset();
     useHousingListingsStore.setState({ status: 'ready', listings: [], myListings: [] } as never);
+    useHousingListOrderStore.getState().reset();
   });
 
   it('絞り込み無しでは中央のフィルター解除ボタンは出ない', () => {
@@ -198,6 +204,7 @@ describe('BrowsePage: スマホでは地図を強制的に一覧表示にする'
     useHousingFilterStore.getState().clearAll();
     useHousingViewStore.getState().reset();
     useHousingListingsStore.setState({ status: 'ready', listings: [], myListings: [] } as never);
+    useHousingListOrderStore.getState().reset();
     // PC側で選択済みの 'map' を保ったまま、 スマホでは一覧強制になることを検証する。
     useHousingViewStore.getState().setBrowseView('map');
     vi.mocked(useIsMobile).mockReturnValue(true);
@@ -212,5 +219,38 @@ describe('BrowsePage: スマホでは地図を強制的に一覧表示にする'
     expect(document.querySelector('[data-testid="housing-browse-map-view"]')).toBeNull();
     // listings=[] なので一覧側の分岐に入っていれば EmptyResult が出る。
     expect(document.querySelector('.housing-empty-result')).not.toBeNull();
+  });
+});
+
+describe('BrowsePage: 表示順ランダム化 (2026-07-21 実機FB)', () => {
+  beforeEach(() => {
+    useHousingFilterStore.getState().clearAll();
+    useHousingViewStore.getState().reset();
+    useHousingListOrderStore.getState().reset();
+    const jp1 = mk('r-1', 'JP', 'Elemental', 'Aegis');
+    const jp2 = mk('r-2', 'JP', 'Gaia', 'Ifrit');
+    useHousingListingsStore.setState({ status: 'ready', listings: [jp1, jp2], myListings: [] } as never);
+  });
+
+  it('既定の並び替え選択は random (シャッフルボタンが表示される)', () => {
+    renderPage();
+    expect(document.querySelector('.housing-shuffle-btn')).not.toBeNull();
+  });
+
+  it('新着順に切り替えるとシャッフルボタンが消える', () => {
+    renderPage();
+    // トリガーボタンのアクセシブルネームは現在値の表示テキスト (既定 random ='ランダム')。
+    // 「並び替え」ラベルは兄弟要素の <span> でボタンの外側にあるため、ボタン名としては使えない。
+    fireEvent.click(screen.getByRole('button', { name: 'ランダム' }));
+    fireEvent.click(screen.getByRole('option', { name: '新着順' }));
+    expect(document.querySelector('.housing-shuffle-btn')).toBeNull();
+  });
+
+  it('シャッフルボタン押下で reshuffle が呼ばれる (seed が変わる)', () => {
+    renderPage();
+    const before = useHousingListOrderStore.getState().entries.browse.seed;
+    fireEvent.click(document.querySelector('.housing-shuffle-btn') as HTMLElement);
+    const after = useHousingListOrderStore.getState().entries.browse.seed;
+    expect(after).not.toBe(before);
   });
 });

@@ -25,6 +25,7 @@ import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { orderFavorites } from '../favorites/favoritesOrder';
 import type { FavTab } from '../favorites/favoritesOrder';
 import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
+import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
 
 /**
  * お気に入りページ (3カラム): 左=オンボ(後続タスク) / 中央=お気に入りグリッド / 右=トレイ。
@@ -48,8 +49,9 @@ export const FavoritesPage: React.FC = () => {
     [publicListings, myListings, uid],
   );
 
-  // タブ状態 (すべて/最近追加)
-  const [tab, setTab] = useState<FavTab>('all');
+  // タブ状態 (すべて/最近追加)。探す/ハウジンガーと同じストアに保持し、詳細ページ往復で保持する。
+  const tab = useHousingListOrderStore((s) => s.entries.favorites.favTab);
+  const setTab = (v: FavTab) => useHousingListOrderStore.getState().setFavTab('favorites', v);
 
   // ids → orderFavorites で並び替え
   const listings = orderFavorites(ids, allListings, tab);

@@ -1967,8 +1967,10 @@
             "listings_label": "房屋一览",
             "count_unit": "{{count}}件",
             "sort_label": "排序",
+            "sort_random": "随机",
             "sort_newest": "最新",
-            "sort_oldest": "最早"
+            "sort_oldest": "最早",
+            "shuffle_button": "随机排序"
         },
         "map": {
             "gate": {
