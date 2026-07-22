@@ -2673,6 +2673,8 @@
             "report_button": "ちがった",
             "back_aria": "戻る",
             "view_source": "元の投稿を見る",
+            "view_original": "원본 게시물 보기",
+            "view_original_item": "게시물 {{index}}",
             "add_to_tour": "ツアー",
             "kebab": {
                 "aria_label": "メニュー",
