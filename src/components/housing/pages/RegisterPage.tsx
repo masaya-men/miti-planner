@@ -60,6 +60,7 @@ import type { HousingArea, HousingListing, HousingSize } from '../../../types/ho
 import { regionForDC } from '../../../data/housing/dcServerMap';
 import { buildAddressKey } from '../../../utils/housingDuplicate';
 import type { MockListing } from '../../../data/housing/mockListings';
+import { isDuplicatePostUrl, shouldRejectIncomingVideo } from '../../../lib/housing/multiSourceGuards';
 
 /**
  * 捕捉した SNS 取得結果 (画像 draft 構築の材料)。旧 HousingRegisterForm の tweetData/
@@ -182,6 +183,29 @@ export function buildDraftImageFields(
 
   // ⑤ どれも無し
   return {};
+}
+
+/**
+ * Twitter 代表 (tweetData) に後続 URL の写真を追記する際、photoAspectRatios (存在すれば) も
+ * 同じ index 整合を保って伸長するためのマージヘルパー。既存/追加のどちらか一方にしか
+ * 比率情報が無い場合は情報が無い側を null で埋める (buildDraftImageFields 側の
+ * `r != null ? r : 0` 変換に委ねる)。両方とも比率情報が無ければ undefined のまま返し、
+ * draft に sourceImageAspectRatios フィールド自体を付けない (従来の「テキストのみ」挙動と同じ)。
+ * (2026-07-21 レビュー指摘 Bug2 fix: 複数URL目の写真が sourcePostUrls 集約時に消える不具合)
+ *
+ * 2026-07-22 (Task8・Batch2): 編集ページ (HousingEditSourcePanel) も同じ「Twitter代表に
+ * 後続URLの写真を追記する」ロジックが必要なため export する。
+ */
+export function mergeTweetPhotoAspectRatios(
+  existingRatios: (number | null)[] | undefined,
+  existingCount: number,
+  incomingRatios: (number | null)[] | undefined,
+  incomingCount: number,
+): (number | null)[] | undefined {
+  if (existingRatios == null && incomingRatios == null) return undefined;
+  const existingPart = existingRatios ?? new Array(existingCount).fill(null);
+  const incomingPart = incomingRatios ?? new Array(incomingCount).fill(null);
+  return [...existingPart, ...incomingPart];
 }
 
 /**
@@ -540,6 +564,21 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   /** 現在 SNS URL 欄に入っている URL (オートセーブ対象・復元時に再取得する)。 */
   const [postUrl, setPostUrl] = useState<string>('');
   /**
+   * 2026-07-21 追加 (Batch2): 貼った投稿URLの一覧 (postUrl は従来通り「先頭/代表」を保持、
+   * これは配列版)。重複URL検出 (multiSourceGuards.isDuplicatePostUrl) にも使う。
+   */
+  const [sourcePostUrls, setSourcePostUrls] = useState<string[]>(() =>
+    mode === 'edit' && initialValues
+      ? (initialValues.sourcePostUrls ?? (initialValues.postUrl ? [initialValues.postUrl] : []))
+      : [],
+  );
+  /** 表示する URL 入力欄の数 (1..5)。 */
+  const [urlSlotCount, setUrlSlotCount] = useState(1);
+  /** 既に動画を1本捕捉済みか (2本目以降の動画を拒否する判定に使う、multiSourceGuards 参照)。 */
+  const capturedVideoRef = useRef(false);
+  /** 住所を既に (どれかのURLから) 自動入力済みか。true の間は以降のURLの住所は適用しない。 */
+  const addressAppliedRef = useRef(false);
+  /**
    * オートセーブ復元時に SNS URL 欄へ流し込む初期 URL (Task14 fix)。復元時に一度だけ設定し、
    * RegisterSectionMedia → HousingRegisterSnsUrlField(initialUrl) 経由でマウント時再取得を発火する。
    */
@@ -574,6 +613,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
    */
   const applyExtractedResult = useCallback(
     (result: HousingExtractResult) => {
+      // 2026-07-21 追加 (Batch2): 複数URL対応。一度どれかのURLから住所を適用したら、
+      // 以降のURL (2本目以降) から抽出された住所は無視する (「最初に見つかった方を採用」)。
+      if (addressAppliedRef.current) return;
       const fills: Array<[string, unknown]> = [];
       if (result.dc) fills.push(['dc', result.dc]);
       if (result.server) fills.push(['server', result.server]);
@@ -603,6 +645,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       if (result.roomNumber != null) fills.push(['roomNumber', result.roomNumber]);
       if (result.apartmentBuilding != null) fills.push(['apartmentBuilding', result.apartmentBuilding]);
       if (fills.length === 0) return;
+      addressAppliedRef.current = true;
 
       // このハンドラ呼び出しが復元起因かをスナップショット (以降の setTimeout でも同じ値を使う)。
       const emptyOnly = restoreRefetchGuardRef.current;
@@ -644,33 +687,128 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
 
   const handleTweetFetched = useCallback(
     (data: TweetData, source: { postUrl: string; tweetId: string } | null) => {
+      if (source && isDuplicatePostUrl(sourcePostUrls, source.postUrl)) {
+        showToast(t('housing.register.snsUrl.error.duplicate_url'), 'error');
+        return;
+      }
       applyExtractedAddress(data.text);
       const photos = data.photos ?? [];
-      if (photos.length > 0) setSourceImageUrls(photos.slice(0, 10));
-      // SNS メタデータ捕捉: Twitter に切り替わったので YouTube/OGP 捕捉はクリア (排他)。
-      setSnsCapture({ tweetData: data, tweetSource: source, youtube: null, ogp: null });
-      if (source?.postUrl) setPostUrl(source.postUrl);
+      // 代表が既に YouTube で確定している場合、静止画は conflict_sources 制約 (YouTube は画像/動画と
+      // 排他) により追加できない。sourceImageUrls に足すと buildDraftImageFields の YouTube 分岐
+      // (sourceImageUrls を一切読まない) で黙って保存されない「受理したのに消える」事故になるため、
+      // 動画1本制限と同じエラー経路 (video_limit) で拒否する (計画書 2026-07-21 self-review 済み要件)。
+      const representativeIsYoutube = !!snsCapture.youtube;
+      const rejectPhotosForYoutube = representativeIsYoutube && photos.length > 0;
+      if (rejectPhotosForYoutube) {
+        showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+      } else if (photos.length > 0) {
+        setSourceImageUrls((prev) => [...prev, ...photos]);
+      }
+
+      const incomingHasVideo = !!data.video?.url;
+      // 代表 (snsCapture.tweetData/youtube/ogp) が既に確定しているか、確定しているなら
+      // tweetData 形状 (= 動画フィールドを差し込める形) を持つか。sourcePostUrls と同じく
+      // 直接 state (snsCapture) を読む (このコールバックは URL 貼付という単発の
+      // ユーザー操作起因で、既存の sourcePostUrls 依存と同じ精度で十分)。
+      const hasRepresentative = !!(snsCapture.tweetData || snsCapture.youtube || snsCapture.ogp);
+      const representativeCanHostVideo = !hasRepresentative || !!snsCapture.tweetData;
+      const existingVideoLimit = shouldRejectIncomingVideo(capturedVideoRef.current, incomingHasVideo);
+      // 代表が YouTube/OGP 由来 (tweetData を持たない) で、この動画を添付する tweetData が
+      // 存在しない場合は「受理したのに保存先が無く消える」事故を防ぐため拒否扱いにする
+      // (2026-07-21 レビュー指摘 Bug1 fix)。
+      const orphanVideo = incomingHasVideo && !existingVideoLimit && !representativeCanHostVideo;
+      const rejectVideo = existingVideoLimit || orphanVideo;
+      if (rejectVideo) {
+        showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+      } else if (incomingHasVideo) {
+        capturedVideoRef.current = true;
+      }
+      const effectiveData = rejectVideo ? { ...data, video: null } : data;
+
+      // SNS メタデータ捕捉: まだ何も捕捉していなければこの結果を「代表」として保持する
+      // (tweetId/ogImageUrl 等は今も単数フィールドのため、最初の1件を正とする)。
+      // 代表が既に tweetData 形状で確定していて、かつ今回の動画が受理された (rejectVideo=false)
+      // 場合は、代表自体を上書きせず動画フィールドだけを差し込む (代表の tweetId/ogImageUrl 等は
+      // 最初に確立した URL のものを維持する。2026-07-21 レビュー指摘 Bug1 fix)。
+      setSnsCapture((prev) => {
+        if (prev.tweetData || prev.youtube || prev.ogp) {
+          if (prev.tweetData) {
+            // 代表 (1本目) が Twitter のとき、後続のツイート URL が持つ静止画は同じ
+            // pbs.twimg.com ホストなので validateImage の host 制約 (housingValidation.ts:413)
+            // に抵触せずマージできる。動画差し込みと同じパターンで tweetData.photos /
+            // photoAspectRatios へ index 整合を保って追記する (2026-07-21 レビュー指摘 Bug2
+            // fix: buildDraftImageFields が読むのは tweetData.photos のみで、集約プールの
+            // sourceImageUrls は見ないため、ここで合流させないと 2 本目以降の写真が
+            // 「N枚取得しました」表示には出るのに保存時に消える)。
+            const incomingPhotos = effectiveData.photos ?? [];
+            const needsVideoSplice = !rejectVideo && incomingHasVideo && !prev.tweetData.video;
+            const needsPhotoSplice = incomingPhotos.length > 0;
+            if (needsVideoSplice || needsPhotoSplice) {
+              return {
+                ...prev,
+                tweetData: {
+                  ...prev.tweetData,
+                  ...(needsPhotoSplice
+                    ? {
+                        photos: [...prev.tweetData.photos, ...incomingPhotos],
+                        photoAspectRatios: mergeTweetPhotoAspectRatios(
+                          prev.tweetData.photoAspectRatios,
+                          prev.tweetData.photos.length,
+                          effectiveData.photoAspectRatios,
+                          incomingPhotos.length,
+                        ),
+                      }
+                    : {}),
+                  ...(needsVideoSplice ? { video: effectiveData.video } : {}),
+                },
+              };
+            }
+          }
+          return prev;
+        }
+        return { tweetData: effectiveData, tweetSource: source, youtube: null, ogp: null };
+      });
+      if (source?.postUrl) {
+        setSourcePostUrls((prev) => [...prev, source.postUrl]);
+        setPostUrl((prev) => prev || source.postUrl);
+      }
     },
-    [applyExtractedAddress],
+    [applyExtractedAddress, snsCapture, sourcePostUrls, t],
   );
 
-  const handleYoutubeFetched = useCallback((data: YoutubeFetchedData | null) => {
-    if (!data) {
-      // URL 欄が空になった / 別形式に切替 → YouTube 捕捉のみクリア (他経路は各ハンドラが管理)。
-      setSnsCapture((prev) => (prev.youtube ? { ...prev, youtube: null } : prev));
-      return;
-    }
-    setSnsCapture({ tweetData: null, tweetSource: null, youtube: data, ogp: null });
-    setPostUrl(data.postUrl);
-    // YouTube はサムネ 1 枚のみ。sourceImageUrls (静止画リスト) は使わないためクリア。
-    setSourceImageUrls([]);
-  }, []);
+  const handleYoutubeFetched = useCallback(
+    (data: YoutubeFetchedData | null) => {
+      if (!data) {
+        setSnsCapture((prev) => (prev.youtube ? { ...prev, youtube: null } : prev));
+        return;
+      }
+      if (isDuplicatePostUrl(sourcePostUrls, data.postUrl)) {
+        showToast(t('housing.register.snsUrl.error.duplicate_url'), 'error');
+        return;
+      }
+      // YouTube は静止画リストと排他 (既存 validateImage の conflict_sources 制約は不変)。
+      // 既に画像/動画を何か捕捉済みなら、この YouTube URL は追加不可として拒否する。
+      if (capturedVideoRef.current || sourceImageUrls.length > 0) {
+        showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+        return;
+      }
+      capturedVideoRef.current = true;
+      setSnsCapture({ tweetData: null, tweetSource: null, youtube: data, ogp: null });
+      setSourcePostUrls((prev) => [...prev, data.postUrl]);
+      setPostUrl((prev) => prev || data.postUrl);
+    },
+    [sourcePostUrls, sourceImageUrls.length, t],
+  );
 
   const handleOgpFetched = useCallback(
     (data: OgpFetchedData | null) => {
       if (!data) {
         // URL 欄クリア / 失敗 → OGP 捕捉と画像をクリア。
         setSnsCapture((prev) => (prev.ogp ? { ...prev, ogp: null } : prev));
+        return;
+      }
+      if (isDuplicatePostUrl(sourcePostUrls, data.postUrl)) {
+        showToast(t('housing.register.snsUrl.error.duplicate_url'), 'error');
         return;
       }
       // OGP サイトは og:title / og:description / 本文 の複数箇所に住所らしい文字列が散る。
@@ -684,19 +822,52 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
           bodyText: data.data.text,
         }),
       );
-      const images = data.data.images ?? [];
+      const images =
+        data.data.images && data.data.images.length > 0
+          ? data.data.images
+          : data.data.image
+            ? [data.data.image]
+            : [];
+      // 代表が既に Twitter (tweetData) で確定している場合、OGP 画像 (pbs.twimg.com 以外の
+      // 任意ホスト) を tweetData.photos 側へマージすることはできない。buildDraftImageFields の
+      // Twitter 分岐は tweetId 併用時に sourceImageUrls の全 URL が pbs.twimg.com であることを
+      // 要求する (housingValidation.ts:413) ため、混ぜると invalid_url で登録全体が失敗してしまい
+      // 「一部の写真が消える」より悪い「全部保存できない」regression になる。動画の orphanVideo
+      // 拒否と同じ理由でこの組み合わせは拒否する (2026-07-21 レビュー指摘 Bug2 fix)。
+      //
+      // 代表が既に YouTube で確定している場合は、conflict_sources 制約 (YouTube は画像/動画と排他)
+      // により画像を一切追加できない。buildDraftImageFields の YouTube 分岐は sourceImageUrls を
+      // 読まないため、ここで足すと「受理したのに保存時に消える」事故になる。動画1本制限と同じ
+      // エラー経路 (video_limit) で拒否する (計画書 2026-07-21 self-review 済み要件)。
+      const representativeIsYoutube = !!snsCapture.youtube;
+      const representativeIsTwitter = !!snsCapture.tweetData;
       if (images.length > 0) {
-        setSourceImageUrls(images.slice(0, 10));
-      } else if (data.data.image) {
-        setSourceImageUrls([data.data.image]);
+        if (representativeIsYoutube) {
+          showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
+        } else if (representativeIsTwitter) {
+          showToast(t('housing.register.snsUrl.error.photo_source_conflict'), 'error');
+        } else {
+          setSourceImageUrls((prev) => [...prev, ...images]);
+        }
       }
       // SNS メタデータ捕捉: OGP に切り替わったので Twitter/YouTube 捕捉はクリア (排他)。
-      setSnsCapture({ tweetData: null, tweetSource: null, youtube: null, ogp: data });
-      if (data.postUrl) setPostUrl(data.postUrl);
+      setSnsCapture((prev) =>
+        prev.tweetData || prev.youtube || prev.ogp ? prev : { tweetData: null, tweetSource: null, youtube: null, ogp: data },
+      );
+      setSourcePostUrls((prev) => [...prev, data.postUrl]);
+      setPostUrl((prev) => prev || data.postUrl);
     },
-    [applyExtractedResult],
+    [applyExtractedResult, snsCapture, sourcePostUrls, t],
   );
 
+  const handleAddUrlSlot = useCallback(() => {
+    setUrlSlotCount((prev) => Math.min(5, prev + 1));
+  }, []);
+  const handleRemoveUrlSlot = useCallback((_index: number) => {
+    // 欄を1つ減らす。既に取得済みの画像/住所/動画は取り消さない (個別画像削除は既存グリッドUIで行う、
+    // ブレスト2026-07-21で「個別削除で十分」と確定済み)。
+    setUrlSlotCount((prev) => Math.max(1, prev - 1));
+  }, []);
   // mode で出すステップを絞る (Task3.4-1)。mode は生存中不変の prop なので依存は [mode] のみ。
   const effectiveStepIds = useMemo<StepId[]>(() => visibleStepIds(mode), [mode]);
 
@@ -981,8 +1152,20 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       visibility,
       publishUntil,
       ...imageFields,
+      ...(sourcePostUrls.length > 0 ? { sourcePostUrls } : {}),
     };
-  }, [address, tags, description, title, visibility, publishUntil, snsCapture, localImages, sourceImageUrls]);
+  }, [
+    address,
+    tags,
+    description,
+    title,
+    visibility,
+    publishUntil,
+    snsCapture,
+    localImages,
+    sourceImageUrls,
+    sourcePostUrls,
+  ]);
 
   /**
    * 実 register + 後続処理 (重複 OK / 「それでも登録」 両方から呼ばれる)。
@@ -1082,9 +1265,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   );
 
   /**
-   * URL経由の「投稿を貼り替える」commit (Plan B・2026-07-21)。update-listing はフル
-   * ドラフトを要求するため、既存 buildDraft() の結果から画像関連フィールドを除去した
-   * ものに「今回取得した」画像フィールドを上書きマージする。
+   * URL経由の「投稿URLを追加する」commit (Plan B・2026-07-21 → Batch2 2026-07-22 で
+   * 追加方式に統一)。update-listing はフルドラフトを要求するため、既存 buildDraft() の
+   * 結果から画像関連フィールドを除去したものに「今回取得した (= 既存+新規の累積)」画像
+   * フィールドを上書きマージする。
    *
    * 注意 (2026-07-21 バグ修正): buildDraft() 自体の image 部分は snsCapture state 由来
    * だが、この関数は成功時に setSnsCapture(capture) を呼ぶため、2回目以降の呼び出し時点
@@ -1094,14 +1278,24 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
    * 値が生き残ってサーバーに送信されてしまう。画像データは freshImageFields だけを
    * 信頼できるよう、buildDraft() の画像フィールドは明示的に取り除いてからマージする。
    *
-   * 成功したら初めて画面表示用の state (snsCapture/sourceImageUrls/postUrl/
-   * editVideoPreview) を更新し、直接アップロード側の表示は空にする (サーバー側で
+   * `capture`/`freshSourceImageUrls` は呼び出し元 (HousingEditSourcePanel) 側で既に
+   * 「既存 sourceImageUrls + 今回貼ったURLの新規分」の累積結果として組まれている
+   * (代表の tweetId/postUrl 等は最初に確立したURLのものを維持しつつ、写真は常に最新の
+   * sourceImageUrls から組み直す設計。HousingEditImageGrid 経由の削除/並び替えを取りこぼ
+   * さないため)。ここでは無条件にページ state (snsCapture) を capture に追従させる —
+   * 「初回成功時だけ反映」ガードにすると、2回目以降の貼付けで snsCapture が古いまま
+   * 固まり、最終「保存」ボタン (buildDraft() 経由・performUpdate) が古い画像データで
+   * 上書きしてしまう回帰を生むため置かない。
+   *
+   * 成功したら初めて画面表示用の state (snsCapture/sourceImageUrls/sourcePostUrls/
+   * postUrl/editVideoPreview) を更新し、直接アップロード側の表示は空にする (サーバー側で
    * thumbnailPaths が削除されるため)。
    */
   const commitEditSnsFetch = useCallback(
     async (
       capture: SnsCapture,
       freshSourceImageUrls: string[],
+      nextPostUrl: string,
     ): Promise<{ ok: boolean; skipped?: boolean }> => {
       if (!initialValues) return { ok: false };
       const freshImageFields = buildDraftImageFields(capture, [], freshSourceImageUrls);
@@ -1134,11 +1328,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         _videoPosterUrl,
         _videoAspectRatio,
       ];
-      const payload = { ...nonImageDraft, ...freshImageFields };
+      // 2026-07-22 追加 (Batch2): sourcePostUrls に今回のURLを追記して送る (重複は呼び出し元の
+      // HousingEditSourcePanel が isDuplicatePostUrl で既に弾いている前提)。
+      const nextSourcePostUrls = [...sourcePostUrls, nextPostUrl];
+      const payload = { ...nonImageDraft, ...freshImageFields, sourcePostUrls: nextSourcePostUrls };
       const result = await updateListing(initialValues.id, payload);
       if (!result.ok) return { ok: false };
       setSnsCapture(capture);
       setSourceImageUrls(freshSourceImageUrls);
+      setSourcePostUrls(nextSourcePostUrls);
       setEditThumbnailPaths([]);
       setEditVideoPreview(
         capture.tweetData?.video
@@ -1147,15 +1345,15 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
               posterUrl: capture.tweetData.video.posterUrl,
               aspectRatio: capture.tweetData.video.aspectRatio ?? undefined,
             }
-          : null,
+          // 2026-07-22 (Batch2): 追加方式なので、今回のcaptureに動画が無くても既存のプレビューを
+          // 消さない (貼り替えではないため「動画無し=削除」ではない)。
+          : editVideoPreview,
       );
-      const nextPostUrl =
-        capture.tweetSource?.postUrl ?? capture.youtube?.postUrl ?? capture.ogp?.postUrl;
-      if (nextPostUrl) setPostUrl(nextPostUrl);
+      if (!postUrl) setPostUrl(nextPostUrl);
       await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
       return { ok: true };
     },
-    [initialValues, buildDraft, updateListing],
+    [initialValues, buildDraft, updateListing, sourcePostUrls, editVideoPreview, postUrl],
   );
 
   const performUpdate = useCallback(
@@ -1481,6 +1679,13 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     restoreRefetchGuardRef.current = false;
     setRestoredSnsUrl(undefined);
     setMediaKey((k) => k + 1);
+    // 2026-07-21 レビュー指摘 Bug2 fix: Batch2 で追加したガード state/ref も初期状態に戻す。
+    // 未リセットのままだと、破棄後も addressAppliedRef が住所自動入力を永久にブロックしたり、
+    // sourcePostUrls に残った URL を再度貼ると誤って重複扱いになったりする。
+    setSourcePostUrls([]);
+    capturedVideoRef.current = false;
+    addressAppliedRef.current = false;
+    setUrlSlotCount(1);
   }, [autosaveValues, fieldState]);
 
   // ユーザーが URL 欄を手入力したら復元 guard を外す (以降の再取得は全フィールド上書きに戻す)。
@@ -1572,6 +1777,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                     sourceImageUrls={sourceImageUrls}
                     onSourceImageUrlsChange={setSourceImageUrls}
                     videoPreview={editVideoPreview}
+                    sourcePostUrls={sourcePostUrls}
                     onCommitSnsFetch={commitEditSnsFetch}
                   />
                 )
@@ -1590,6 +1796,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                   // 動画ツイートの poster を最小プレビュー (ポスター1枚+「動画あり」バッジ) で見せる。
                   // <video> 直参照は CSP 不可のため posterUrl (pbs.twimg.com) を <img> で出す。
                   tweetVideo={snsCapture.tweetData?.video ?? null}
+                  urlSlotCount={urlSlotCount}
+                  onAddUrlSlot={handleAddUrlSlot}
+                  onRemoveUrlSlot={handleRemoveUrlSlot}
                 />
               )}
             </div>

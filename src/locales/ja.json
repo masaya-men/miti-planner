@@ -2221,7 +2221,10 @@
                     "rateLimit": "アクセスが集中しています。 30 秒ほど待って再試行してください",
                     "upstream": "ツイートの取得に失敗しました。 再試行してください",
                     "network": "ネットワークに接続できませんでした。 通信状況を確認してください",
-                    "extractFailed": "自動取り込みできませんでした。 ツイート本文を見ながら手入力してください"
+                    "extractFailed": "自動取り込みできませんでした。 ツイート本文を見ながら手入力してください",
+                    "photo_source_conflict": "Twitter画像と他サイトの画像は組み合わせられないため、この投稿の画像は追加されませんでした。",
+                    "duplicate_url": "このURLは既に追加されています。",
+                    "video_limit": "動画は1本までのため、この投稿の動画は追加されませんでした。"
                 },
                 "ogp_error": {
                     "invalid": "URL が正しくありません",
@@ -2262,7 +2265,12 @@
             "media": {
                 "fetched_count": "画像を{{count}}枚取得しました",
                 "video_badge": "動画あり",
-                "error_hint": "URL を確認するか、 画像を直接アップロードしてください"
+                "error_hint": "URL を確認するか、 画像を直接アップロードしてください",
+                "add_url": "＋ URLを追加",
+                "remove_url": "この投稿URLを取り除く",
+                "limit_note": "画像は最大10枚まで、動画は最大1本まで登録できます。",
+                "expand_upload": "画像をアップロードして登録する",
+                "upload_warning": "アップロードすると画質が圧縮されて劣化します。動画は使用できません。URLでの登録をおすすめします。"
             },
             "tweetPreview": {
                 "title": "取得したツイート"
@@ -2723,6 +2731,8 @@
             "report_button": "ちがった",
             "back_aria": "戻る",
             "view_source": "元の投稿を見る",
+            "view_original": "元の投稿を見る",
+            "view_original_item": "投稿{{index}}",
             "add_to_tour": "ツアー",
             "kebab": {
                 "aria_label": "メニュー",

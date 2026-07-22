@@ -2200,7 +2200,10 @@
                     "rateLimit": "Too many requests. Please wait 30 seconds and try again",
                     "upstream": "Failed to fetch tweet. Please retry",
                     "network": "Network connection failed. Please check your connection",
-                    "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet"
+                    "extractFailed": "Could not auto-fill. Please enter the values manually while viewing the tweet",
+                    "photo_source_conflict": "Twitter photos and photos from other sites can't be combined, so this post's photos weren't added.",
+                    "duplicate_url": "This URL has already been added.",
+                    "video_limit": "Only 1 video is allowed per listing, so this post's video wasn't added."
                 },
                 "ogp_error": {
                     "invalid": "The URL is invalid",
@@ -2241,7 +2244,12 @@
             "media": {
                 "fetched_count": "Fetched {{count}} image(s)",
                 "video_badge": "Video",
-                "error_hint": "Check the URL, or upload images directly"
+                "error_hint": "Check the URL, or upload images directly",
+                "add_url": "+ Add URL",
+                "remove_url": "Remove this post URL",
+                "limit_note": "You can add up to 10 images and 1 video.",
+                "expand_upload": "Upload images instead",
+                "upload_warning": "Uploaded images are compressed and lose quality, and video isn't supported this way. We recommend registering via URL instead."
             },
             "tweetPreview": {
                 "title": "Fetched tweet"
@@ -2702,6 +2710,8 @@
             "report_button": "ちがった",
             "back_aria": "戻る",
             "view_source": "元の投稿を見る",
+            "view_original": "View original post",
+            "view_original_item": "Post {{index}}",
             "add_to_tour": "ツアー",
             "kebab": {
                 "aria_label": "メニュー",

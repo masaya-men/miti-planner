@@ -91,6 +91,9 @@ import { RegisterPage } from '../RegisterPage';
 // create パス (performRegister) の API を spy するため実モジュールを名前空間 import する
 // (module 全体 mock は他 export を壊すため spyOn で個別に差し替える)。
 import * as housingApiClient from '../../../../lib/housingApiClient';
+// 複数URL集約 (Batch2) の重複検出テスト用: showToast 呼び出しを spy する
+// (housingApiClient と同じ「実モジュールを名前空間 import → vi.spyOn」方式)。
+import * as ToastModule from '../../../Toast';
 import { AUTOSAVE_KEY } from '../../../../lib/housing/registerAutosave';
 import { saveRegisterPrefill, consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill';
 import { SAVED_IMAGES_LIMIT } from '../../register/HousingRegisterImageField';
@@ -138,9 +141,21 @@ function renderPage(props?: {
   );
 }
 
+// Batch2 (Task7): 直接アップロード欄は既定で折りたたまれている。
+// 「画像をアップロードして登録する」トグルがまだ展開されていなければ先に押して入力欄を出す。
+function ensureUploadExpanded(container: HTMLElement) {
+  const toggle = container.querySelector(
+    '[data-testid="housing-register-toggle-upload"]',
+  ) as HTMLButtonElement | null;
+  if (toggle) {
+    fireEvent.click(toggle);
+  }
+}
+
 // 画像必須 (mode=create) のテスト用: ローカル画像を 1 枚追加して canSubmit を満たす。
 // 圧縮は vi.mock で同期スタブ化済み。タイルが出るまで待って反映を保証する。
 async function attachImage(container: HTMLElement) {
+  ensureUploadExpanded(container);
   const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
   const file = new File(['x'], 'photo.png', { type: 'image/png' });
   fireEvent.change(input, { target: { files: [file] } });
@@ -151,6 +166,7 @@ async function attachImage(container: HTMLElement) {
 
 // 複数枚まとめて添付するヘルパー
 async function attachImages(container: HTMLElement, count: number) {
+  ensureUploadExpanded(container);
   const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
   const files = Array.from({ length: count }, (_, i) => new File(['x'], `photo${i}.png`, { type: 'image/png' }));
   fireEvent.change(input, { target: { files } });
@@ -595,6 +611,7 @@ describe('RegisterPage', () => {
 
     const { container } = renderPage();
 
+    ensureUploadExpanded(container);
     const input = container.querySelector('.housing-register-image-input') as HTMLInputElement;
     const files = Array.from({ length: SAVED_IMAGES_LIMIT }, (_, i) => new File(['x'], `photo${i}.png`, { type: 'image/png' }));
     fireEvent.change(input, { target: { files } });
@@ -843,26 +860,29 @@ describe('RegisterPage', () => {
   });
 
   /**
-   * commitEditSnsFetch (編集ページ「投稿URLを貼り替える」commit) の回帰テスト
-   * (最終レビュー Critical/Important fix・2026-07-21)。
+   * commitEditSnsFetch (編集ページ「投稿URLを追加する」commit) の回帰テスト
+   * (最終レビュー Critical/Important fix・2026-07-21 → Batch2・2026-07-22 で
+   * 「貼り替え=全差し替え」から「追加 (既存+新規の累積)」へ仕様変更したことに伴い
+   * シナリオ/期待値を書き換え)。
    *
-   * バグ1 (Critical): `payload = { ...buildDraft(), ...freshImageFields }` は
+   * バグ1 (Critical・維持): `payload = { ...buildDraft(), ...freshImageFields }` は
    * 「buildDraft() 側の画像フィールドは常に空 = {}」という前提だったが、この関数は
    * 成功時に setSnsCapture(capture) を呼ぶため、2回目以降の呼び出し時点では
    * snsCapture (延いては buildDraft() の画像フィールド) が前回貼り付けた古いSNSデータ
-   * を保持している。freshImageFields に無いキー (例: 動画無しツイートに貼り替えた際の
-   * videoUrl) は buildDraft() 側の古い値がスプレッドで生き残り、サーバーに送信されて
-   * しまう。修正後は buildDraft() の画像フィールドを明示的に除去してからマージするため、
-   * 2回目の updateListing 呼び出しに1回目の動画データが混入しない。
+   * を保持している。freshImageFields に無いキーは buildDraft() 側の古い値がスプレッドで
+   * 生き残ってサーバーに送信されてしまう。修正 (buildDraft() の画像フィールドを明示的に
+   * 除去してからマージする) はBatch2でも変更していないため、引き続き機能する。
    *
-   * バグ2 (Important): 同じ成功ブロックに editVideoPreview を更新する行が抜けており、
-   * 動画付き→動画なしへ貼り替えても動画プレビューが古いまま残っていた。
+   * バグ2 (Important・仕様変更で意味が反転): 旧仕様 (貼り替え) では「動画付き→動画なし」
+   * で動画プレビューが消えるのが正しい挙動だった。Batch2 (追加方式) では逆に、動画を
+   * 一度確立したら動画を含まない後続URLを貼ってもプレビューが消えてはいけない
+   * (貼り替えではなく追加なので、動画を明示的に取り除く操作をしていない限り維持する)。
    *
    * HousingEditSourcePanel (実物・モックしない) 経由で URL 欄を操作し、
    * useTweetFetch をモックして「取得成功」を模擬することで、commitEditSnsFetch を
    * RegisterPage の外部から間接的に駆動する。
    */
-  describe('編集ページ URL貼り替え: commitEditSnsFetch の回帰 (最終レビュー fix・2026-07-21)', () => {
+  describe('編集ページ URL追加: commitEditSnsFetch の回帰 (Batch2・2026-07-22)', () => {
     const TWEET_URL_A = 'https://x.com/user/status/1842217368673759498';
     const TWEET_URL_C = 'https://x.com/user/status/1842217368673759499';
 
@@ -896,7 +916,7 @@ describe('RegisterPage', () => {
       );
     }
 
-    it('動画付きツイートA→写真だけのツイートCへ貼り替えると、2回目のupdateListingにAのvideoUrlが混入しない (バグ1)', async () => {
+    it('動画付きツイートA→写真だけのツイートCの順で貼ると、Aの動画を保持したままCの写真が既存画像に追記される', async () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       updateMock.mockResolvedValue({ ok: true });
       const { rerender } = renderPage({ mode: 'edit', initialValues: EDITABLE_LISTING });
@@ -921,7 +941,7 @@ describe('RegisterPage', () => {
         );
       });
 
-      // 2回目: 写真だけのツイートCに貼り替える
+      // 2回目: 写真だけのツイートCを追加で貼る (Batch2: 貼り替えではなく追加)。
       fireEvent.change(input, { target: { value: TWEET_URL_C } });
       tweetState = { ...tweetState, status: 'success', data: tweetDataPhotosC };
       rerender(editTree());
@@ -929,16 +949,30 @@ describe('RegisterPage', () => {
       await waitFor(() => expect(updateMock).toHaveBeenCalledTimes(2));
       const secondPayload = updateMock.mock.calls[1][1];
 
-      // バグ1 回帰確認の核心: Aの動画データが2回目のpayloadに混入していない
-      expect(secondPayload.videoUrl).toBeUndefined();
-      expect(secondPayload.videoPosterUrl).toBeUndefined();
-      expect(secondPayload.videoAspectRatio).toBeUndefined();
-      expect(secondPayload.sourceImageUrls).toEqual(tweetDataPhotosC.photos);
-      expect(secondPayload.tweetId).toBe('1842217368673759499');
+      // Batch2 の核心: 追加方式なので、Cの写真は「貼り替え」ではなくEDITABLE_LISTINGの既存
+      // sourceImageUrls (['https://x/a.jpg']) に追記される。かつ、Aで確立した動画は
+      // (Cが動画を持たないからといって) 消えず維持される (バグ1の除去ロジックとは別に、
+      // capture 自体が意図的に前の動画を引き継ぐ設計)。
+      expect(secondPayload.videoUrl).toBe(tweetDataVideoA.video.url);
+      expect(secondPayload.videoPosterUrl).toBe(tweetDataVideoA.video.posterUrl);
+      expect(secondPayload.videoAspectRatio).toBe(tweetDataVideoA.video.aspectRatio);
+      expect(secondPayload.sourceImageUrls).toEqual([
+        'https://x/a.jpg',
+        ...tweetDataPhotosC.photos,
+      ]);
+      // 代表 (tweetId) は最初に確立したURL (A) のまま維持される (RegisterPage.tsx
+      // handleTweetFetched と同じ「代表は最初の1件が正」設計)。
+      expect(secondPayload.tweetId).toBe('1842217368673759498');
+      // sourcePostUrls には両方のURLが記録され、重複扱いにならない。
+      expect(secondPayload.sourcePostUrls).toEqual([TWEET_URL_A, TWEET_URL_C]);
 
-      // バグ2 回帰確認: 動画なしツイートへの貼り替えで動画プレビューが消える
+      // バグ2 回帰確認 (仕様反転): 追加方式なので動画なしツイートを追加しても
+      // 動画プレビューは消えずそのまま残る。
       await waitFor(() => {
-        expect(screen.queryByTestId('housing-register-media-video')).toBeNull();
+        const preview = screen.getByTestId('housing-register-media-video');
+        expect(preview.querySelector('img')?.getAttribute('src')).toBe(
+          tweetDataVideoA.video.posterUrl,
+        );
       });
     });
   });
@@ -1153,6 +1187,584 @@ describe('RegisterPage', () => {
         'data-confirmed',
         'true',
       );
+    });
+  });
+
+  // Task6 (Batch2): handleTweetFetched の重複URL検出回帰テスト。
+  // mode=create の RegisterSectionMedia は現時点 (Task7未着手) では単一の
+  // HousingRegisterSnsUrlField しか描画しないため、同じ URL 入力欄に同じ URL を
+  // 2回「貼る」操作 (fireEvent.change → useTweetFetch モックを success に遷移) を繰り返すことで
+  // handleTweetFetched が同じ postUrl で2回呼ばれる状況を再現する
+  // (実際の複数欄UIはTask7で配線されるが、重複検出ロジック自体はどちらの経路でも同じ関数が
+  // 判定するため、この駆動方法で isDuplicatePostUrl の統合を検証できる)。
+  describe('RegisterPage: 複数URL集約 (Batch2)', () => {
+    const TWEET_URL = 'https://x.com/user/status/1842217368673759510';
+
+    function createTree() {
+      return (
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter>
+            <RegisterPage />
+          </MemoryRouter>
+        </I18nextProvider>
+      );
+    }
+
+    it('同じURLを2回貼っても重複エラーになりsourcePostUrlsが増えない', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const { rerender } = render(createTree());
+
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: 正常に取得 (写真1枚)。
+      fireEvent.change(input, { target: { value: TWEET_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'D',
+          author: { name: 'D', screen_name: 'd' },
+          photos: ['https://pbs.twimg.com/d1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+      expect(showToastSpy).not.toHaveBeenCalled();
+
+      // 2本目: 同じURLをもう一度貼る (重複) → 新しい data オブジェクトで dispatch ガードを
+      // すり抜けさせつつ、postUrl は1本目と完全一致させる。
+      fireEvent.change(input, { target: { value: TWEET_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'D',
+          author: { name: 'D', screen_name: 'd' },
+          photos: ['https://pbs.twimg.com/d1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+
+      await waitFor(() =>
+        expect(showToastSpy).toHaveBeenCalledWith(
+          i18n.t('housing.register.snsUrl.error.duplicate_url'),
+          'error',
+        ),
+      );
+
+      // sourcePostUrls / sourceImageUrls が二重追加されていない (画像枚数は1本目のまま)。
+      expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+        i18n.t('housing.register.media.fetched_count', { count: 1 }),
+      );
+
+      showToastSpy.mockRestore();
+    });
+
+    /**
+     * Bug1 回帰 (2026-07-21 レビュー指摘・Important): 写真だけのツイートが先に「代表」になった
+     * 状態で、2本目のツイートに動画が付いていると、修正前は setSnsCapture の updater が
+     * 常に prev (代表確定済み) をそのまま返すため、`capturedVideoRef.current` は true になり
+     * (= video_limit トーストは出ず「受理」扱い) 見た目上は動画1本制限も守られたように見えるが、
+     * 肝心の video データ自体は snsCapture に一切反映されず、buildDraft/registerListing の
+     * ペイロードにも videoUrl 等が現れない「受理したのに消える」事故になる。
+     */
+    it('写真だけのツイート→動画付きツイートの順で貼ると、2本目の動画が代表のtweetDataに合流し登録データに残る (Bug1回帰)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Meteor',
+          server: 'Ramuh',
+          area: 'LavenderBeds',
+          ward: 29,
+          buildingType: 'house',
+          plot: 3,
+          size: 'L',
+          visibility: 'public',
+        }),
+      );
+      const canRegisterSpy = vi
+        .spyOn(housingApiClient, 'canRegister')
+        .mockResolvedValue({ remaining: 5 } as any);
+      const checkDuplicateSpy = vi
+        .spyOn(housingApiClient, 'checkDuplicate')
+        .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+      const registerSpy = vi
+        .spyOn(housingApiClient, 'registerListing')
+        .mockResolvedValue({ id: 'new1' } as any);
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const TWEET_URL_PHOTO = 'https://x.com/user/status/1842217368673759511';
+      const TWEET_URL_VIDEO = 'https://x.com/user/status/1842217368673759512';
+
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: 写真だけ (動画なし) → 代表として確定する。
+      fireEvent.change(input, { target: { value: TWEET_URL_PHOTO } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-only',
+          author: { name: 'P', screen_name: 'p' },
+          photos: ['https://pbs.twimg.com/p1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+
+      // 2本目: 動画付き (写真なし)。代表は既に1本目 (tweetData) で確定済みなので、
+      // 修正前はここで受理判定 (トーストなし) にはなるが動画データ自体が握りつぶされる。
+      fireEvent.change(input, { target: { value: TWEET_URL_VIDEO } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'video-tweet',
+          author: { name: 'V', screen_name: 'v' },
+          photos: [],
+          video: {
+            url: 'https://video.twimg.com/ext_tw_video/V.mp4',
+            posterUrl: 'https://pbs.twimg.com/ext_tw_video_thumb/posterV.jpg',
+            aspectRatio: 1.7,
+          },
+        },
+      };
+      rerender(createTree());
+
+      // 「受理」判定であること (video_limit トーストは出ない)。
+      await waitFor(() => {
+        expect(screen.getByTestId('housing-register-media-video')).toBeInTheDocument();
+      });
+      expect(showToastSpy).not.toHaveBeenCalledWith(
+        'housing.register.snsUrl.error.video_limit',
+        'error',
+      );
+
+      // 実際に登録データ (registerListing 引数 = buildDraft の出力) に動画が載ることを確認する
+      // (プレビュー表示だけでなく保存データそのものを検証するのが本バグの核心)。
+      const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+      fireEvent.click(addressGateBtn);
+      const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+      await waitFor(() => expect(submitBtn).not.toBeDisabled());
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+      expect(registerSpy.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          videoUrl: 'https://video.twimg.com/ext_tw_video/V.mp4',
+          videoPosterUrl: 'https://pbs.twimg.com/ext_tw_video_thumb/posterV.jpg',
+          // 代表 (1本目) の静止画も維持されている (動画差し込みで代表自体が入れ替わっていない)。
+          sourceImageUrls: ['https://pbs.twimg.com/p1.jpg'],
+        }),
+      );
+
+      canRegisterSpy.mockRestore();
+      checkDuplicateSpy.mockRestore();
+      registerSpy.mockRestore();
+      showToastSpy.mockRestore();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    /**
+     * Bug3 回帰 (2026-07-21 レビュー指摘・Critical): buildDraftImageFields の Twitter 分岐は
+     * `sns.tweetData.photos` のみを読み、ページ全体の集約プール (`sourceImageUrls`) は見ない
+     * (並び替え UI 経由の再順序化で photoAspectRatios と index がズレるのを避けるため意図的)。
+     * 代表 (1本目) が確定した後、2本目のツイート URL が持つ写真は `sourceImageUrls` には
+     * 追記される (画面上の「N枚取得しました」表示は増える) のに、修正前の setSnsCapture
+     * updater は代表確定済みなら常に prev をそのまま返すため tweetData.photos には合流せず、
+     * 保存データから静かに消える。複数投稿URL集約という Batch2 の目玉機能 (Twitterスレッド等
+     * から画像を集約) そのものが壊れていた。
+     */
+    it('写真付きツイート→別の写真付きツイートの順で貼ると、2本目の写真も登録データに合流する (Bug3回帰)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Meteor',
+          server: 'Ramuh',
+          area: 'LavenderBeds',
+          ward: 29,
+          buildingType: 'house',
+          plot: 3,
+          size: 'L',
+          visibility: 'public',
+        }),
+      );
+      const canRegisterSpy = vi
+        .spyOn(housingApiClient, 'canRegister')
+        .mockResolvedValue({ remaining: 5 } as any);
+      const checkDuplicateSpy = vi
+        .spyOn(housingApiClient, 'checkDuplicate')
+        .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+      const registerSpy = vi
+        .spyOn(housingApiClient, 'registerListing')
+        .mockResolvedValue({ id: 'new1' } as any);
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const TWEET_URL_A = 'https://x.com/user/status/1842217368673759521';
+      const TWEET_URL_B = 'https://x.com/user/status/1842217368673759522';
+
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: 写真Aのみ → 代表として確定する。
+      fireEvent.change(input, { target: { value: TWEET_URL_A } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-A',
+          author: { name: 'A', screen_name: 'a' },
+          photos: ['https://pbs.twimg.com/a1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+
+      // 2本目: 別のツイートで写真Bのみ。代表 (1本目) は既に確定済みなので、
+      // 修正前は tweetData.photos に合流せず保存データから消える。
+      fireEvent.change(input, { target: { value: TWEET_URL_B } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-B',
+          author: { name: 'B', screen_name: 'b' },
+          photos: ['https://pbs.twimg.com/b1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 2 }),
+        ),
+      );
+      expect(showToastSpy).not.toHaveBeenCalled();
+
+      // 実際に登録データ (registerListing 引数 = buildDraft の出力) に両方の写真が載ることを
+      // 確認する (プレビュー上の枚数表示だけでなく保存データそのものを検証するのが本バグの核心)。
+      const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+      fireEvent.click(addressGateBtn);
+      const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+      await waitFor(() => expect(submitBtn).not.toBeDisabled());
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+      expect(registerSpy.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          sourceImageUrls: ['https://pbs.twimg.com/a1.jpg', 'https://pbs.twimg.com/b1.jpg'],
+        }),
+      );
+
+      canRegisterSpy.mockRestore();
+      checkDuplicateSpy.mockRestore();
+      registerSpy.mockRestore();
+      showToastSpy.mockRestore();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    /**
+     * Bug3 修正と同時に追加した安全側ガード: 代表がツイート (tweetData) で確定した後に
+     * OGP URL の写真を貼っても、pbs.twimg.com 以外の任意ホストの画像を tweetData.photos に
+     * 混ぜると validateImage の host 制約 (housingValidation.ts:413、tweetId 併用時は
+     * sourceImageUrls の全 URL が pbs.twimg.com 限定) に違反し、登録全体が invalid_url で
+     * 失敗する (「一部の写真が消える」より悪い「全部保存できない」regression)。そのため
+     * この組み合わせはマージせず拒否トーストを出し、集約プール (sourceImageUrls) にも
+     * 追加しない (見た目の「N枚」表示が実際に保存されない画像を含んで嘘をつくのを防ぐ)。
+     */
+    it('代表がツイートで確定した後にOGP画像を貼るとマージされず拒否トーストが出る (host混在防止・Bug3関連)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const TWEET_URL = 'https://x.com/user/status/1842217368673759531';
+      const OGP_URL = 'https://housingsnap.com/98765';
+
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: ツイートの写真A → 代表として確定する。
+      fireEvent.change(input, { target: { value: TWEET_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-A',
+          author: { name: 'A', screen_name: 'a' },
+          photos: ['https://pbs.twimg.com/a1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+
+      // 2本目: OGP URL の写真B。代表は既にツイートで確定済みなので拒否されるはず。
+      fireEvent.change(input, { target: { value: OGP_URL } });
+      ogpState = {
+        ...ogpState,
+        status: 'success',
+        data: {
+          image: 'https://housingsnap.com/img/b1.jpg',
+          images: ['https://housingsnap.com/img/b1.jpg'],
+          title: 't',
+          description: 'd',
+          siteName: 'housingsnap',
+          text: 'text',
+        },
+      };
+      rerender(createTree());
+
+      await waitFor(() =>
+        expect(showToastSpy).toHaveBeenCalledWith(
+          i18n.t('housing.register.snsUrl.error.photo_source_conflict'),
+          'error',
+        ),
+      );
+
+      // 写真枚数表示は1本目のまま (OGP画像は集約プールにも追加されず、実際に保存されない
+      // 画像が枚数に混ざらない)。
+      expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+        i18n.t('housing.register.media.fetched_count', { count: 1 }),
+      );
+
+      showToastSpy.mockRestore();
+    });
+
+    /**
+     * 計画書の self-review 要件 (docs/superpowers/plans/2026-07-21-housing-multi-source-url.md:1606):
+     * 「YouTube+複数URLの扱い: 既存のconflict_sources制約(YouTubeは画像/動画と排他)は維持し、
+     * YouTube確定後に画像URLを追加しようとした場合はvideo_limitと同じエラー経路で拒否する」。
+     * 修正前は handleTweetFetched が「代表が既に YouTube か」を一切チェックせず、写真を
+     * 無条件で集約プール (sourceImageUrls) に追加していた。buildDraftImageFields の YouTube 分岐は
+     * sourceImageUrls を一切読まない (youtubeVideoId 優先で imageMode='sns' を組む) ため、
+     * 画面上は「N枚取得しました」と表示されるのに保存データには一切反映されない全損失
+     * (photo-loss) 事故になっていた (Bug1/Bug3 の「一部消える」より悪い「受理したのに丸ごと消える」)。
+     *
+     * 再現手順の注記: 単一URL欄 (Task7の複数枠UIはまだ無い) では、ツイートURLを貼った直後に
+     * 別URLへ書き換えると `HousingRegisterSnsUrlField` の classifySnsUrl 分岐が
+     * `onYoutubeFetched(null)` を同期的に呼び、代表を即座にクリアしてしまう。そのため
+     * 「YouTube貼付→ただちにツイートURLへ書き換えて即時解決」という単純な順序では
+     * ガード対象の状態 (代表=YouTube 確定済みのままツイートの写真が届く) に到達できない
+     * (実験して確認済み)。実際に到達可能なのは、ツイート fetch が pending のまま
+     * ユーザーが YouTube URL に書き換えて代表を確立した後、**取り残された最初のツイート fetch が
+     * 遅れて成功する**というレース (低速回線・気が変わって貼り直す、という現実的な操作順)。
+     * `useTweetFetch` の dispatch は effect 実行時点の**現在の url** から tweetId を再計算するため
+     * (`HousingRegisterSnsUrlField.tsx` の `parseTweetUrl(url)`)、url が既に YouTube に変わっていると
+     * `source=null` の「孤立ディスパッチ」になり、`isDuplicatePostUrl` の入口チェックも通過してしまう。
+     * テスト環境では `tweetState` (外部変数) の更新を意図的に遅らせることでこの pending 状態を再現する。
+     */
+    it('ツイートURL貼付(fetch pending)の直後にYouTube URLへ書き換えて代表が確定し、後から遅れてツイートの写真fetchが届いてもvideo_limitで拒否される (YouTube代表確立後の写真拒否)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Meteor',
+          server: 'Ramuh',
+          area: 'LavenderBeds',
+          ward: 29,
+          buildingType: 'house',
+          plot: 3,
+          size: 'L',
+          visibility: 'public',
+        }),
+      );
+      const canRegisterSpy = vi
+        .spyOn(housingApiClient, 'canRegister')
+        .mockResolvedValue({ remaining: 5 } as any);
+      const checkDuplicateSpy = vi
+        .spyOn(housingApiClient, 'checkDuplicate')
+        .mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+      const registerSpy = vi
+        .spyOn(housingApiClient, 'registerListing')
+        .mockResolvedValue({ id: 'new1' } as any);
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const YOUTUBE_URL = 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o';
+      const TWEET_URL_PHOTO = 'https://x.com/user/status/1842217368673759541';
+
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      // 1本目: 写真付きツイート URL を貼るが、まだ fetch が成功していない (tweetState は idle のまま =
+      // pending を模す)。fetchTweet 自体はモックの no-op なので実際に何かが起きるわけではない。
+      fireEvent.change(input, { target: { value: TWEET_URL_PHOTO } });
+
+      // ユーザーが (低速回線で) 待たずに YouTube URL に書き換える → YouTube が代表として確定する。
+      fireEvent.change(input, { target: { value: YOUTUBE_URL } });
+
+      // 取り残された1本目のツイート fetch が遅れて成功する。dispatch 時点の url は既に YouTube URL
+      // に変わっているため tweetId が取れず source=null の「孤立ディスパッチ」になるが、
+      // data (写真) 自体は届く。
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-after-youtube',
+          author: { name: 'P', screen_name: 'p' },
+          photos: ['https://pbs.twimg.com/py1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+
+      await waitFor(() =>
+        expect(showToastSpy).toHaveBeenCalledWith(
+          i18n.t('housing.register.snsUrl.error.video_limit'),
+          'error',
+        ),
+      );
+
+      // 写真は集約プール (sourceImageUrls) にも追加されない
+      // (「N枚取得しました」表示自体が出ない = 実際に保存されない画像が枚数に混ざらない)。
+      expect(screen.queryByTestId('housing-register-media-success')).not.toBeInTheDocument();
+
+      // 実際に登録データ (registerListing 引数 = buildDraft の出力) にも写真が一切含まれず、
+      // YouTube のまま保存されることを確認する (プレビュー表示だけでなく保存データそのものを検証)。
+      const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
+      fireEvent.click(addressGateBtn);
+      const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+      await waitFor(() => expect(submitBtn).not.toBeDisabled());
+      fireEvent.click(submitBtn);
+
+      await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+      expect(registerSpy.mock.calls[0][0]).toEqual(
+        expect.objectContaining({
+          imageMode: 'sns',
+          youtubeVideoId: 'Ypg8w7Dmq9o',
+        }),
+      );
+      expect(registerSpy.mock.calls[0][0].sourceImageUrls).toBeUndefined();
+
+      canRegisterSpy.mockRestore();
+      checkDuplicateSpy.mockRestore();
+      registerSpy.mockRestore();
+      showToastSpy.mockRestore();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    /**
+     * Bug2 回帰 (2026-07-21 レビュー指摘・Important): handleDiscardRestore が Batch2 で追加した
+     * ガード state/ref (sourcePostUrls/capturedVideoRef/addressAppliedRef/urlSlotCount) を
+     * リセットしていなかったため、破棄後に「破棄前と同じ URL」を貼り直すと sourcePostUrls に
+     * 残った URL のせいで誤って重複エラー扱いになる。
+     */
+    it('オートセーブ破棄後はsourcePostUrlsがリセットされ、破棄前と同じURLを貼っても重複扱いされない (Bug2回帰)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Meteor',
+          server: 'Ramuh',
+          area: 'LavenderBeds',
+          ward: 29,
+          buildingType: 'house',
+          plot: 3,
+          size: 'L',
+          visibility: 'public',
+        }),
+      );
+      const showToastSpy = vi.spyOn(ToastModule, 'showToast').mockImplementation(() => {});
+
+      const REUSED_URL = 'https://x.com/user/status/1842217368673759520';
+
+      const { rerender } = render(createTree());
+
+      // 復元通知 (discard ボタン) が出ていることを確認。
+      await screen.findByTestId('housing-register-autosave-discard');
+
+      // 破棄前: URL を1本貼って sourcePostUrls に載せる。
+      const input1 = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+      fireEvent.change(input1, { target: { value: REUSED_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'before-discard',
+          author: { name: 'B', screen_name: 'b' },
+          photos: ['https://pbs.twimg.com/b1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+      expect(showToastSpy).not.toHaveBeenCalled();
+
+      // useTweetFetch モックの status を idle に戻してから discard する。
+      // (discard で mediaKey が変わり SnsUrlField が再マウントされるが、useTweetFetch はモックの
+      //  グローバル状態を返すだけなので、success のまま remount すると再マウント直後に古い
+      //  fetch 結果が再度 dispatch されてしまう。これは実 hook では起きないテスト側の作り物の
+      //  副作用なので、実装をテストに合わせるのではなくモック状態を idle に戻して回避する)。
+      tweetState = { ...tweetState, status: 'idle', data: null };
+      fireEvent.click(screen.getByTestId('housing-register-autosave-discard'));
+
+      // 破棄後: 通知が消え、取得済み表示もクリアされる。
+      await waitFor(() =>
+        expect(screen.queryByTestId('housing-register-autosave-notice')).toBeNull(),
+      );
+      expect(screen.queryByTestId('housing-register-media-success')).toBeNull();
+
+      // 破棄前と全く同じ URL をもう一度貼る (別の data オブジェクトで dispatch ガードを回避)。
+      const input2 = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+      fireEvent.change(input2, { target: { value: REUSED_URL } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'after-discard',
+          author: { name: 'A2', screen_name: 'a2' },
+          photos: ['https://pbs.twimg.com/a1.jpg'],
+          video: null,
+        },
+      };
+      rerender(createTree());
+
+      // Bug2 (修正前): sourcePostUrls が破棄でクリアされず REUSED_URL を含んだままのため、
+      // 重複URLエラーになり画像が反映されない。修正後: guard がリセットされ正常に取得できる。
+      await waitFor(() =>
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
+        ),
+      );
+      expect(showToastSpy).not.toHaveBeenCalledWith(
+        i18n.t('housing.register.snsUrl.error.duplicate_url'),
+        'error',
+      );
+
+      showToastSpy.mockRestore();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
     });
   });
 });

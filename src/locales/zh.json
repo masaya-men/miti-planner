@@ -2165,7 +2165,10 @@
                     "rateLimit": "请求过多，请 30 秒后再试",
                     "upstream": "获取推文失败，请重试",
                     "network": "无法连接到网络，请检查网络状态",
-                    "extractFailed": "无法自动填入，请参照推文内容手动输入"
+                    "extractFailed": "无法自动填入，请参照推文内容手动输入",
+                    "photo_source_conflict": "推特图片和其他网站的图片无法组合使用，因此未添加此帖子的图片。",
+                    "duplicate_url": "此URL已添加过。",
+                    "video_limit": "每个房源最多只能有1个视频,因此未添加此帖子的视频。"
                 },
                 "ogp_error": {
                     "invalid": "链接无效",
@@ -2206,7 +2209,12 @@
             "media": {
                 "fetched_count": "已获取 {{count}} 张图片",
                 "video_badge": "含视频",
-                "error_hint": "请检查 URL，或直接上传图片"
+                "error_hint": "请检查 URL，或直接上传图片",
+                "add_url": "+ 添加URL",
+                "remove_url": "移除此帖子URL",
+                "limit_note": "最多可添加10张图片和1个视频。",
+                "expand_upload": "改用上传图片注册",
+                "upload_warning": "上传的图片会被压缩、画质下降,且无法使用视频。建议改用URL方式注册。"
             },
             "tweetPreview": {
                 "title": "已获取的推文"
@@ -2667,6 +2675,8 @@
             "report_button": "ちがった",
             "back_aria": "戻る",
             "view_source": "元の投稿を見る",
+            "view_original": "查看原帖",
+            "view_original_item": "帖子{{index}}",
             "add_to_tour": "ツアー",
             "kebab": {
                 "aria_label": "メニュー",

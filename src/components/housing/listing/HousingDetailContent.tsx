@@ -15,7 +15,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ExternalLink } from 'lucide-react';
 import type { HousingListing, ReportReason } from '../../../types/housing';
 import { HousingPhotoGallery } from './HousingPhotoGallery';
 import { HousingDetailMap } from './HousingDetailMap';
@@ -147,6 +146,16 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
 
   const textScroll = useScrollFade<HTMLDivElement>();
 
+  // Batch2 (複数投稿URL登録): sourcePostUrls (Task1) を優先し、旧データは postUrl 1件へ
+  // フォールバックする (§型定義コメントと同一の合意済みロジック)。2件以上ならドロップダウン、
+  // 1件なら単一リンク相当の挙動、0件ならトグル自体を出さない。
+  const sourceUrls = listing.sourcePostUrls?.length
+    ? listing.sourcePostUrls
+    : listing.postUrl
+      ? [listing.postUrl]
+      : [];
+  const [viewOriginalOpen, setViewOriginalOpen] = useState(false);
+
   return (
     <div className="housing-detail-body">
       {reportNotice && (
@@ -241,17 +250,36 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
                 </p>
                 {/* 実機FB③: 登録時に貼った元URL(X/YouTube/ハウジングスナップ)へ飛べるように。
                     元投稿の本文に住所が書かれていることが多いため、住所非公開(unlisted)では
-                    間接的な住所漏洩になる。isAddressHidden と同じ条件で隠す(§8.5 と同型の防御)。 */}
-                {!addressHidden && listing.postUrl && (
-                  <a
-                    className="housing-detail-source-link"
-                    href={listing.postUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink size={12} aria-hidden="true" />
-                    {t('housing.detail.view_source')}
-                  </a>
+                    間接的な住所漏洩になる。isAddressHidden と同じ条件で隠す(§8.5 と同型の防御)。
+                    Batch2: sourcePostUrls が複数あるとき、ボタン押下でURL一覧のドロップダウンを表示する。 */}
+                {!addressHidden && sourceUrls.length > 0 && (
+                  <div className="housing-view-original">
+                    <button
+                      type="button"
+                      data-testid="housing-view-original-toggle"
+                      className="housing-view-original-toggle"
+                      onClick={() => setViewOriginalOpen((prev) => !prev)}
+                      aria-expanded={viewOriginalOpen}
+                    >
+                      {t('housing.detail.view_original')}
+                    </button>
+                    {viewOriginalOpen && (
+                      <ul className="housing-view-original-menu">
+                        {sourceUrls.map((url, i) => (
+                          <li key={url}>
+                            <a
+                              data-testid="housing-view-original-link"
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {t('housing.detail.view_original_item', { index: i + 1 })}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 )}
                 <HousingerByline ownerUid={listing.ownerUid} />
                 {resolvedTags.length > 0 && (

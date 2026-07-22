@@ -3414,6 +3414,62 @@ select.housing-input option {
 .housing-detail-source-link:hover {
     color: var(--housing-text);
 }
+/* Batch2: 複数投稿URL対応の「元の投稿を見る」トグル+ドロップダウン。
+   旧 .housing-detail-source-link (単一リンク) と同じ静かなリンク見た目を踏襲する。 */
+.housing-view-original {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: fit-content;
+}
+.housing-view-original-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    appearance: none;
+    cursor: pointer;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    width: fit-content;
+    color: var(--housing-text-dim);
+    font: inherit;
+    font-size: var(--housing-text-sm);
+    text-decoration: none;
+    transition: color 0.12s ease;
+}
+.housing-view-original-toggle:hover {
+    color: var(--housing-text);
+}
+.housing-view-original-toggle:focus-visible {
+    outline: 2px solid var(--housing-honey);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+.housing-view-original-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 6px;
+    list-style: none;
+    background: var(--housing-panel-bg-solid);
+    border: 1px solid var(--housing-panel-border);
+    border-radius: 9px;
+}
+.housing-view-original-menu a {
+    display: block;
+    padding: 6px 8px;
+    border-radius: 6px;
+    color: var(--housing-text-dim);
+    font-size: var(--housing-text-sm);
+    text-decoration: none;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+.housing-view-original-menu a:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+}
 /* ===== Task 7: 詳細パネルの登録者行 (HousingerByline) =====
    非公開/取得不可 (profile===null) のときは行ごと描画されない (JSX 側で null を返す) ので、
    ここでは「出たときの見た目」だけ定義すればよい。 */
@@ -4585,6 +4641,109 @@ select.housing-input option {
 }
 .housing-register-media-quiet-notice-hint {
   margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+
+/* Batch2: 複数投稿URL入力欄 (HousingRegisterMultiUrlField) */
+.housing-register-multi-url-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.housing-register-multi-url-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.housing-register-multi-url-row > *:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.housing-register-multi-url-remove {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-sm);
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.housing-register-multi-url-remove:hover {
+  background: var(--housing-warning);
+  border-color: var(--housing-warning);
+  color: var(--housing-honey-text-strong);
+}
+.housing-register-multi-url-remove:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-register-multi-url-add {
+  align-self: flex-start;
+  appearance: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px dashed var(--housing-aether-border);
+  background: transparent;
+  color: var(--housing-aether-soft);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  transition: background 0.12s ease, border-style 0.12s ease;
+}
+.housing-register-multi-url-add:hover {
+  background: var(--housing-aether-medium);
+  border-style: solid;
+}
+.housing-register-multi-url-add:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+
+/* Batch2: 画像/動画の上限案内 (静かな注記・alert箱にしない) */
+.housing-register-image-limit-note {
+  margin: 0;
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+
+/* Batch2: アップロード欄の折りたたみトグル (URL優先UI)。byline/元の投稿リンクと同じ静かなリンク見た目。 */
+.housing-register-toggle-upload {
+  align-self: flex-start;
+  appearance: none;
+  cursor: pointer;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--housing-aether-soft);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: color 0.12s ease, text-decoration-color 0.12s ease;
+}
+.housing-register-toggle-upload:hover {
+  color: var(--housing-candle);
+  text-decoration-color: currentColor;
+}
+.housing-register-toggle-upload:focus-visible {
+  outline: 2px solid var(--housing-honey);
+  outline-offset: 2px;
+}
+.housing-register-upload-warning {
+  margin: 0 0 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--housing-divider);
   font-size: var(--housing-text-xs);
   color: var(--housing-text-mute);
 }

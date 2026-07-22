@@ -87,6 +87,7 @@ export default async function handler(req: any, res: any) {
       ogImageUrl: updates.ogImageUrl,
       tweetId: updates.tweetId,
       youtubeVideoId: updates.youtubeVideoId,
+      sourcePostUrls: updates.sourcePostUrls,
       sourceImageUrls: updates.sourceImageUrls,
       sourceImageAspectRatios: updates.sourceImageAspectRatios,
       videoUrl: updates.videoUrl,
@@ -204,6 +205,7 @@ export default async function handler(req: any, res: any) {
             'videoPosterUrl',
             'videoAspectRatio',
             'lastTweetCheckAt',
+            'sourcePostUrls',
           ] as const;
           for (const field of SNS_SUBFIELDS) {
             if (!(field in imageFields)) {

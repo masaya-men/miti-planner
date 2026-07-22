@@ -1,13 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  HousingRegisterSnsUrlField,
-  type YoutubeFetchedData,
-  type OgpFetchedData,
-} from './HousingRegisterSnsUrlField';
+import type { YoutubeFetchedData, OgpFetchedData } from './HousingRegisterSnsUrlField';
+import { HousingRegisterMultiUrlField } from './HousingRegisterMultiUrlField';
 import { HousingRegisterImageField, SAVED_IMAGES_LIMIT } from './HousingRegisterImageField';
 import { HousingRegisterSourceImageUrlsField } from './HousingRegisterSourceImageUrlsField';
-import { SkeletonCard } from '../workspace/SkeletonCard';
 import type { TweetData } from '../../../lib/housing/useTweetFetch';
 import type { CompressedImage } from '../../../lib/housing/imageCompression';
 
@@ -23,11 +19,13 @@ interface Props {
   sourceImageUrls: string[];
   onSourceImageUrlsChange: (next: string[]) => void;
   /**
-   * オートセーブ復元時に SNS URL 欄へ流し込む初期 URL (Task14 fix)。非空なら
-   * HousingRegisterSnsUrlField がマウント時に一度だけ再取得を発火する。未指定なら無影響。
+   * オートセーブ復元時に SNS URL 欄へ流し込む初期 URL (Task14 fix)。
+   * 2026-07-22 修正: `HousingRegisterMultiUrlField` へ `initialUrl` として転送する。同コンポーネントは
+   * これを 1本目 (index 0) の欄にのみ渡すため (計画書の意図どおり、2本目以降は復元対象外)、
+   * マウント時に 1本目の `HousingRegisterSnsUrlField` が実再取得を発火する。
    */
   initialSnsUrl?: string;
-  /** ユーザーが URL 欄を手入力した時に発火 (復元 guard 解除用、Task14 fix)。 */
+  /** ユーザーが URL 欄を手入力した時に発火。上記と同じ経路で 1本目の欄にのみ配線される。 */
   onUrlUserEdit?: () => void;
   /**
    * 動画ツイート取得時の video ペイロード (`{url, posterUrl, aspectRatio}`)。存在すれば
@@ -37,23 +35,23 @@ interface Props {
    * YouTube/OGP では null (親が snsCapture.tweetData?.video を渡すため)。
    */
   tweetVideo?: TweetData['video'];
+  /** 2026-07-21 追加 (Batch2): 複数URL欄の制御 (現在の欄数・追加・削除)。 */
+  urlSlotCount: number;
+  onAddUrlSlot: () => void;
+  onRemoveUrlSlot: (index: number) => void;
 }
 
 /**
- * 登録フォーム中央カラム: 画像/SNS URL セクション (Task11)。
+ * 登録フォーム中央カラム: 画像/SNS URL セクション (Task11、Batch2 Task7 で URL優先UIに刷新)。
  *
- * - SNS URL 入力は既存 `HousingRegisterSnsUrlField` をそのまま流用 (Twitter/YouTube/OGP の
- *   3 分岐判定 + URL 形式エラーのインライン表示は子が持つ)。
- * - **実 fetch (tweet/ogp) の取得状態は子から `onFetchStatusChange` で受け取る**。
- *   fetch を実際に走らせるのは子インスタンス 1 つだけなので、 別インスタンスの hook を
- *   ここで購読しても常に idle のまま (dead) になる。 そのため自前の useTweetFetch/useOgpFetch は
- *   持たず、 子が握る実 status を state に受けてセクション level の
- *   loading skeleton / 成功時の枚数 / 失敗時の静かな注記 を出す (spec:22)。
- *   子側のインライン fetch loading/error は `suppressInlineFetchStatus` で抑止し二重表示を避ける
- *   (成功時の枚数は sourceImageUrls.length を信頼源にする)。
+ * - SNS URL 入力は複数欄対応の `HousingRegisterMultiUrlField` (Task5) 経由で
+ *   `HousingRegisterSnsUrlField` を流用する。各欄は `suppressInlineFetchStatus={false}` で
+ *   自分の取得中/エラー状態をインライン表示する (欄が複数になったことで「どの欄の状態か」が
+ *   曖昧になるため、Task6 以前のセクション level 集約表示は廃止した)。
+ * - 直接アップロードは既定で折りたたみ、「画像をアップロードして登録する」リンクを押すと展開する
+ *   (URL優先UI: URLでの登録を第一導線にする)。
  * - 画像リストは既存 `HousingRegisterImageField` (ローカルアップロード) /
- *   `HousingRegisterSourceImageUrlsField` (SNS 取得 URL) をそのまま流用 (props 形状が
- *   そのまま適合するため adapt 不要と判断)。
+ *   `HousingRegisterSourceImageUrlsField` (SNS 取得 URL) をそのまま流用。
  */
 export const RegisterSectionMedia: React.FC<Props> = ({
   onTweetFetched,
@@ -66,47 +64,35 @@ export const RegisterSectionMedia: React.FC<Props> = ({
   initialSnsUrl,
   onUrlUserEdit,
   tweetVideo,
+  urlSlotCount,
+  onAddUrlSlot,
+  onRemoveUrlSlot,
 }) => {
   const { t } = useTranslation();
-  // 子が握る実 fetch 状態 (loading / errorKey)。子の onFetchStatusChange から受ける。
-  const [fetchStatus, setFetchStatus] = useState<{ loading: boolean; errorKey: string | null }>({
-    loading: false,
-    errorKey: null,
-  });
-  const handleFetchStatusChange = useCallback(
-    (next: { loading: boolean; errorKey: string | null }) => setFetchStatus(next),
-    [],
-  );
+  const [uploadExpanded, setUploadExpanded] = useState(false);
 
-  const isLoading = fetchStatus.loading;
-  const isError = !isLoading && fetchStatus.errorKey != null;
-  const errorMessageKey = fetchStatus.errorKey;
+  // 取得済み枚数の表示は sourceImageUrls の有無で判定する (複数 URL 欄の合算結果を
+  // RegisterPage が集約して渡す props をそのまま信頼源にする)。
   const fetchedImageCount = sourceImageUrls.length;
-  // 成功表示は sourceImageUrls の有無で判定する (RegisterPage が OGP/Twitter 取得完了後に
-  // 渡す props をそのまま信頼源にする。 fetch status は loading/error 判定にのみ使う)。
-  const showSuccess = !isLoading && !isError && fetchedImageCount > 0;
+  const showSuccess = fetchedImageCount > 0;
 
   return (
     <section className="housing-register-section" data-testid="housing-register-section-media">
       <h2 className="housing-register-section-title">{t('housing.register.section_media')}</h2>
+      <p className="housing-register-image-limit-note">
+        {t('housing.register.media.limit_note')}
+      </p>
 
-      <HousingRegisterSnsUrlField
+      <HousingRegisterMultiUrlField
+        slotCount={urlSlotCount}
+        onAddSlot={onAddUrlSlot}
+        onRemoveSlot={onRemoveUrlSlot}
         onTweetFetched={onTweetFetched}
         onYoutubeFetched={onYoutubeFetched ?? (() => {})}
         onOgpFetched={onOgpFetched}
         initialUrl={initialSnsUrl}
         onUrlUserEdit={onUrlUserEdit}
-        onFetchStatusChange={handleFetchStatusChange}
-        suppressInlineFetchStatus
       />
-
-      {isLoading && (
-        <div className="housing-register-media-skeleton-row" data-testid="housing-register-media-loading" aria-hidden="true">
-          <SkeletonCard variant="right-panel" />
-          <SkeletonCard variant="right-panel" />
-          <SkeletonCard variant="right-panel" />
-        </div>
-      )}
 
       {showSuccess && (
         <p className="housing-register-media-success-note" data-testid="housing-register-media-success">
@@ -116,9 +102,8 @@ export const RegisterSectionMedia: React.FC<Props> = ({
 
       {/* 動画ツイートの最小プレビュー: poster 1 枚 + 「動画あり」バッジ。静止画ゼロの動画のみ
           ツイートでも「メディア取得済み」と分かるようにする (confirmSummary も動画を +1 で数える)。
-          取得中 (isLoading) は前の poster が残らないよう出さない (枚数注記と同じ扱い)。
           YouTube/OGP では親が null を渡すため誤発火しない。 */}
-      {!isLoading && tweetVideo && (
+      {tweetVideo && (
         <div className="housing-register-media-video" data-testid="housing-register-media-video">
           <img
             src={tweetVideo.posterUrl}
@@ -132,27 +117,34 @@ export const RegisterSectionMedia: React.FC<Props> = ({
         </div>
       )}
 
-      {isError && errorMessageKey && (
-        <div className="housing-register-media-quiet-notice" data-testid="housing-register-media-error">
-          <p className="housing-register-media-quiet-notice-text">{t(errorMessageKey)}</p>
-          <p className="housing-register-media-quiet-notice-hint">
-            {t('housing.register.media.error_hint')}
-          </p>
-        </div>
-      )}
-
       <HousingRegisterSourceImageUrlsField
         value={sourceImageUrls}
         onChange={onSourceImageUrlsChange}
         maxImages={10}
       />
 
-      <HousingRegisterImageField
-        value={localImages}
-        onChange={onLocalImagesChange}
-        hasSnsUrl={sourceImageUrls.length > 0}
-        maxImages={SAVED_IMAGES_LIMIT}
-      />
+      {!uploadExpanded ? (
+        <button
+          type="button"
+          data-testid="housing-register-toggle-upload"
+          className="housing-register-toggle-upload"
+          onClick={() => setUploadExpanded(true)}
+        >
+          {t('housing.register.media.expand_upload')}
+        </button>
+      ) : (
+        <div data-testid="housing-register-image-field">
+          <p className="housing-register-upload-warning">
+            {t('housing.register.media.upload_warning')}
+          </p>
+          <HousingRegisterImageField
+            value={localImages}
+            onChange={onLocalImagesChange}
+            hasSnsUrl={sourceImageUrls.length > 0}
+            maxImages={SAVED_IMAGES_LIMIT}
+          />
+        </div>
+      )}
     </section>
   );
 };
