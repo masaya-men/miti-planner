@@ -20,6 +20,7 @@ import { BrowsePage } from '../../components/housing/pages/BrowsePage';
 import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 import { useHousingViewStore } from '../../store/useHousingViewStore';
 import { useHousingFilterStore } from '../../store/useHousingFilterStore';
+import { useHousingListOrderStore } from '../../store/useHousingListOrderStore';
 
 const mk = (id: string) => ({
   id, area: 'Mist', ward: 1, plot: 1, buildingType: 'house',
@@ -55,6 +56,7 @@ beforeEach(() => {
   useHousingListingsStore.setState({ status: 'ready', listings: [mk('a'), mk('b')], error: null } as never);
   useHousingViewStore.getState().reset();
   useHousingFilterStore.getState().clearAll();
+  useHousingListOrderStore.getState().reset();
   getPersonalTagByIdMock.mockReset();
 });
 
