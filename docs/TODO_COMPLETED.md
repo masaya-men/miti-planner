@@ -2,7 +2,24 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
-### ✅ 2026-07-22 複数投稿URL登録機能 (Batch 2) = 全12タスク+最終レビュー完了・main反映・本番デプロイ確認待ち
+### ✅ 2026-07-22 探すページ表示順ランダム化+一覧スクロール位置復元 = 実装完了・main反映済み
+設計書=`docs/superpowers/specs/2026-07-21-housing-browse-random-order-scroll-restore-design.md`、実装計画=`docs/superpowers/plans/2026-07-22-housing-browse-random-order-scroll-restore.md`。subagent-driven-developmentで9タスク+最終whole-branchレビュー(Opus)まで完走、全task reviewでCritical/Important指摘なし。mainにmerge済み(merge commit `2fbada38`)。
+
+**実装内容**: 探すページのデフォルト表示順を「ランダム」に変更(新着順/古い順も選択可・シャッフルボタン付き)。ランダム順のシード値・並び順選択・スクロール位置は新設の非永続zustandストア(`useHousingListOrderStore`)がSPA内遷移(詳細→戻る等)の間だけ保持し、実リロードでリセットされる。スクロール位置復元は探す/お気に入り/ハウジンガープロフィールの3画面共通。
+
+**実装時に発見した設計書との差分**: 設計書は「現在のデフォルトは住所順グループ化」としていたが、実際のコードは既に`.sort()`でcreatedAt降順(新着順)に上書きされており、住所順という選択肢自体がUIに存在したことがなかった(`sortListingsForGallery`の呼び出し結果は後続の`.sort()`で常に上書きされ事実上無効化されていた)。今回の実質的な変更は「ランダムを3つ目の選択肢として追加しデフォルトにする」のみ。最終要件(ランダム既定+新着/古い順選択可)自体は変わらない。
+
+**最終whole-branchレビュー(Opus)で見つかったMinor4件**: うち3件(favoritesエントリのsortMode既定値がrandomで紛らわしい/シャッフル時にstore側scrollTopが同期されない/コメント不足2箇所)を修正コミットで反映。残り1件(router実ナビゲーションを通した end-to-end 結合テストの追加)は計画書自身のテスト戦略で許容範囲と判断し見送り。
+
+**検証**: 全9タスクのtask-level review(各1ラウンドで承認)+最終whole-branchレビューでReady to merge=Yes。フルビルド+フルテストとも既知の無関係failure(EphemeralAddPanel7件)以外クリーン。
+
+**残(次回ユーザー実機確認)**: ①探すページで実リロードのたび並び順が変わる ②詳細→戻るで並び順・スクロール位置が保持される ③シャッフルボタンで再抽選+先頭スクロール ④新着順/古い順切替でシャッフルボタンが消え、選択も詳細往復で保持される ⑤お気に入り・ハウジンガープロフィールでもスクロール位置復元 ⑥モバイル幅でシャッフルボタンの配置確認 ⑦英語/韓国語/中国語モードの表示崩れ確認。
+
+### ✅ 2026-07-22 初心者向けタグ「ハウジング若葉」= 実装完了・main反映済み
+タグ刷新計画書 (`docs/superpowers/plans/2026-07-10-housing-tag-overhaul-plan.md`) の Phase C。実装計画=`docs/superpowers/plans/2026-07-22-housing-beginner-tag.md`。新 kind `'beginner'` を1件 (`beginner_sprout`) 追加、4言語ロケール (EN "Housing Newcomer" / KO "하우징 새싹" / ZH "房屋新人") を追加。`HousingRegisterTagPicker.tsx` はレジストリ駆動設計のため**コンポーネント側の変更は不要**(タブ・タグ選択とも自動的に出現)、統合テストでそれを実証。subagent-driven-developmentで2タスク実装、task reviewerとも Critical/Important指摘なしで承認。mainにfast-forward mergeでcommit済み(`7fda2a78`)。ビルド・全テスト確認済み(既知の無関係failure=EphemeralAddPanel 7件のみ)。
+**残(次回ユーザー実機確認)**: 登録/編集フォームで「初心者」タブ→「ハウジング若葉」選択→chip表示→×で解除、英語/韓国語/中国語モードでの表示崩れ確認。
+
+### ✅ 2026-07-22 複数投稿URL登録機能 (Batch 2) = 全12タスク+最終レビュー完了・main反映・本番デプロイ・ユーザー実機確認OK
 設計書=`docs/superpowers/specs/2026-07-21-housing-multi-source-url-design.md`、実装計画=`docs/superpowers/plans/2026-07-21-housing-multi-source-url.md`。subagent-driven-developmentで12タスク+最終whole-branchレビュー(Opus)まで完走。mainにmerge・push済み(merge commit `d079e53a`)。
 
 **発見・修正したバグ(全て「一見成功しているのに保存時にデータが消える」系・計7件)**:
@@ -16,7 +33,7 @@
 
 **検証**: 全12タスクのtask-level review(各1〜4ラウンド)+最終whole-branchレビューでReady to merge=Yes。フルテスト3647件グリーン(既知の無関係failure=EphemeralAddPanel7件のみ)+本番buildクリーン。既存(Batch2以前)の単一URL物件との後方互換性を個別に検証済み。新規UI(URL追加/削除ボタン・アップロード折りたたみ・元投稿ドロップダウン)にhousing.cssトークン準拠のスタイルを追加済み(commit `07df14d8`)。
 
-**残作業**: Vercel自動デプロイの不具合(TODO.md次セッション最優先1参照)を解消後、ユーザーが本番で以下をチェック: ①新規登録で複数URL(Twitterスレッド想定)の画像が合算されるか ②2本目以降の動画は無視され画像だけ追加されるか(トースト表示) ③同じURL2回貼りで重複エラーが出るか ④既存物件の編集でURL追加時に既存画像が消えないか ⑤**動画付き既存物件の編集で写真だけの投稿を追加しても動画が消えないか(最重要)** ⑥「元の投稿を見る」の複数URLドロップダウン ⑦登録ページのURL優先UI(アップロード折りたたみ) ⑧新規スタイルの見た目 ⑨英語モードの文字崩れ ⑩既存(Batch2以前)物件が今まで通り動くか。
+**本番確認 (2026-07-22 ユーザー実機・全項目OK)**: ①新規登録で複数URL(Twitterスレッド想定)の画像が合算される ②2本目以降の動画は無視され画像だけ追加される(トースト表示) ③同じURL2回貼りで重複エラーが出る ④既存物件の編集でURL追加時に既存画像が消えない ⑤動画付き既存物件の編集で写真だけの投稿を追加しても動画が消えない(最重要ポイント) ⑥「元の投稿を見る」の複数URLドロップダウン ⑦登録ページのURL優先UI(アップロード折りたたみ) ⑧新規スタイルの見た目 ⑨英語モードの文字崩れなし ⑩既存(Batch2以前)物件が今まで通り動く。Vercel自動デプロイが一時反応しなかった件は原因調査中に自然復旧(2026-07-22、デプロイ自体は正常完了)。
 **軽微・非ブロッキングで先送り**: ①「N枚取得しました」表示が生の取得枚数のまま(10枚上限とズレて見えることがある、実害なし) ②未使用になったi18nキー2件(`housing.detail.view_source`/`housing.register.media.error_hint`、実害なし・ユーザー了承済み)。
 
 ### ✅ 2026-07-21 編集ページ画像管理機能 (Plan A+B) = 完成・本番反映済・ユーザー実機確認OK
