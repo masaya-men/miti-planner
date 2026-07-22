@@ -179,7 +179,7 @@ describe('HousingEditSourcePanel', () => {
 
       await waitFor(() =>
         expect(showToastSpy).toHaveBeenCalledWith(
-          'housing.register.snsUrl.error.duplicate_url',
+          i18n.t('housing.register.snsUrl.error.duplicate_url'),
           'error',
         ),
       );
@@ -292,7 +292,7 @@ describe('HousingEditSourcePanel', () => {
 
       await waitFor(() =>
         expect(showToastSpy).toHaveBeenCalledWith(
-          'housing.register.snsUrl.error.video_limit',
+          i18n.t('housing.register.snsUrl.error.video_limit'),
           'error',
         ),
       );
@@ -353,7 +353,7 @@ describe('HousingEditSourcePanel', () => {
 
       await waitFor(() =>
         expect(showToastSpy).toHaveBeenCalledWith(
-          'housing.register.snsUrl.error.video_limit',
+          i18n.t('housing.register.snsUrl.error.video_limit'),
           'error',
         ),
       );

@@ -1256,7 +1256,7 @@ describe('RegisterPage', () => {
 
       await waitFor(() =>
         expect(showToastSpy).toHaveBeenCalledWith(
-          'housing.register.snsUrl.error.duplicate_url',
+          i18n.t('housing.register.snsUrl.error.duplicate_url'),
           'error',
         ),
       );
@@ -1637,7 +1637,7 @@ describe('RegisterPage', () => {
 
       await waitFor(() =>
         expect(showToastSpy).toHaveBeenCalledWith(
-          'housing.register.snsUrl.error.video_limit',
+          i18n.t('housing.register.snsUrl.error.video_limit'),
           'error',
         ),
       );
@@ -1759,7 +1759,7 @@ describe('RegisterPage', () => {
         ),
       );
       expect(showToastSpy).not.toHaveBeenCalledWith(
-        'housing.register.snsUrl.error.duplicate_url',
+        i18n.t('housing.register.snsUrl.error.duplicate_url'),
         'error',
       );
 
