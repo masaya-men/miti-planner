@@ -2023,8 +2023,10 @@
             "listings_label": "ハウジング一覧",
             "count_unit": "{{count}}件",
             "sort_label": "並び替え",
+            "sort_random": "ランダム",
             "sort_newest": "新着順",
-            "sort_oldest": "古い順"
+            "sort_oldest": "古い順",
+            "shuffle_button": "シャッフル"
         },
         "map": {
             "gate": {

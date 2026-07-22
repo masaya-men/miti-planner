@@ -2002,8 +2002,10 @@
             "listings_label": "Listings",
             "count_unit": "{{count}}",
             "sort_label": "Sort",
+            "sort_random": "Random",
             "sort_newest": "Newest",
-            "sort_oldest": "Oldest"
+            "sort_oldest": "Oldest",
+            "shuffle_button": "Shuffle"
         },
         "map": {
             "gate": {
