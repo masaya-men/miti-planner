@@ -5727,6 +5727,30 @@ select.housing-input option {
   flex: 0 0 auto; width: 14px; display: inline-flex; color: var(--housing-honey);
 }
 
+/* ツールバー右側: シャッフルボタン + 並び替えセレクトのグループ (space-between の子を2つに保つ)。 */
+.housing-listing-grid-toolbar-actions {
+  display: inline-flex; align-items: center; gap: 8px;
+  flex: 0 0 auto;
+}
+/* シャッフルボタン (ランダム表示中のみ表示・.housing-sort-trigger と同系の控えめな意匠)。 */
+.housing-shuffle-btn {
+  appearance: none; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px;
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.housing-shuffle-btn:hover,
+.housing-shuffle-btn:focus-visible {
+  color: var(--housing-text);
+  border-color: var(--housing-honey-border);
+  background: var(--housing-honey-soft);
+}
+.housing-shuffle-btn:active { transform: scale(0.95); }
+
 /* 中央の表示切替「一覧 | 地図」 (spec 3.1)。.housing-sort-trigger と同系の控えめなセグメント。 */
 /* f: 中央ツールバー = 一覧/マップ トグル + (絞り込み中のみ) フィルター解除ボタン。 */
 .housing-browse-toolbar {
