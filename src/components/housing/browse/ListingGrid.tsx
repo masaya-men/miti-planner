@@ -36,6 +36,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
 
   const onShuffle = () => {
     useHousingListOrderStore.getState().reshuffle(listKey);
+    useHousingListOrderStore.getState().setScrollTop(listKey, 0);
     if (containerRef.current) containerRef.current.scrollTop = 0;
   };
 

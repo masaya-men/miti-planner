@@ -29,7 +29,7 @@ interface HousingListOrderState {
 
 const createInitialEntries = (): Record<HousingListKey, HousingListOrderEntry> => ({
   browse: { seed: generateShuffleSeed(), scrollTop: 0, sortMode: 'random', favTab: 'all' },
-  favorites: { seed: generateShuffleSeed(), scrollTop: 0, sortMode: 'random', favTab: 'all' },
+  favorites: { seed: generateShuffleSeed(), scrollTop: 0, sortMode: 'newest', favTab: 'all' },
   housinger: { seed: generateShuffleSeed(), scrollTop: 0, sortMode: 'newest', favTab: 'all' },
 });
 

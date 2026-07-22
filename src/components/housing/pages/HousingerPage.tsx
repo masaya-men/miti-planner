@@ -127,6 +127,8 @@ export const HousingerPage: React.FC = () => {
 
   // BrowsePage と同じ「新着順/古い順」ローカル並び替え。sortListingsForGallery (住所グルーピング)
   // は基礎データの整形用で、 表示順は BrowseSortSelect の選択で上書きする。
+  // 'random' は意図的に到達不能: 下記 ListingGrid 呼び出しは sortOrders 未指定 (新着/古い2択) のため、
+  // sort は実際には 'newest'/'oldest' しか取り得ない (共有型 BrowseSortOrder には 'random' も含むが未使用)。
   const sorted = useMemo(
     () =>
       [...listings].sort((a, b) =>
