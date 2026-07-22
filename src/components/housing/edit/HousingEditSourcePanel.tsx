@@ -15,6 +15,25 @@ export interface EditVideoPreview {
   aspectRatio?: number;
 }
 
+/**
+ * videoPreview (サーバー保存済み動画のプレビュー情報。cross-session-aware) を
+ * TweetData['video'] (TweetVideoPayload) 互換の形へ変換する。videoPreview が null なら null。
+ *
+ * 最終レビュー Bug5 fix (2026-07-22): handleTweetFetched で「今回動画を新規に採用しない
+ * (adoptsVideo=false) かつセッション内に動画をまだ捕捉していない (capture.tweetData?.video
+ * が無い)」場合、これまでは無条件で null を組んでいた。captureRef はこのコンポーネントの
+ * マウントのたびに EMPTY_SNS_CAPTURE へ戻る (HousingEditMediaSection のタブ切替でも
+ * remount される) ため、サーバーに保存済みの動画付きTwitter代表へ「写真のみのツイート」を
+ * 追記すると、videoPreview prop (真の保存状態) が動画ありを示しているにもかかわらず
+ * null が commit され、api/housing/_updateListingHandler.ts の SNS_SUBFIELDS クリーンアップが
+ * 保存済み動画をトーストも無くサイレントに消していた。videoPreview から動画情報を
+ * 復元して null の代わりに使うことでこの消失を防ぐ。
+ */
+function videoPreviewToTweetVideo(preview: EditVideoPreview | null): TweetData['video'] {
+  if (!preview) return null;
+  return { url: preview.url, posterUrl: preview.posterUrl, aspectRatio: preview.aspectRatio ?? null };
+}
+
 export interface HousingEditSourcePanelProps {
   listingId: string;
   sourceImageUrls: string[];
@@ -49,6 +68,11 @@ export interface HousingEditSourcePanelProps {
  * 貼った場合の競合検出」にのみ使う。この境界を越える組み合わせ (例: 編集を開く前から
  * OGP 由来の画像が保存されており、開いた直後に動画付きツイートを貼る) はサーバー側
  * validateImage が invalid_url で明示的に (サイレントではなく) 拒否する。
+ *
+ * 例外: 動画 (videoPreview) だけは cross-session-aware な prop として渡ってくるため、
+ * handleTweetFetched は videoPreviewToTweetVideo 経由でこれを見て保存済み動画の消失を防ぐ
+ * (Bug5 fix)。一方で「代表の識別情報 (tweetId/postUrl) の re-keying」は既知の受容済み限界
+ * として残っている — 詳細は handleTweetFetched 内の該当コメントを参照。
  */
 export function HousingEditSourcePanel({
   listingId,
@@ -139,6 +163,30 @@ export function HousingEditSourcePanel({
       // しないことで、削除/並び替え後に再度貼っても削除済み画像が復活しない)。代表の
       // tweetSource (postUrl/tweetId) は最初に確立したURLのものを維持する (RegisterPage.tsx と
       // 同じ「代表は最初の1件が正」の設計)。
+      //
+      // 【既知の受容済み限界 (最終レビュー指摘・representative-identity issue)】
+      // captureRef はマウントのたび (= HousingEditMediaSection のタブ切替のたび) に
+      // EMPTY_SNS_CAPTURE へ戻るため、capture.tweetData が null の状態でこの分岐に来る
+      // ケース (= このセッションで初めて Twitter 代表を確立するケース) では、
+      // tweetSource は常に「今回貼った URL (source)」になる。もし保存済みの真の代表が
+      // 「別のツイート」だった場合 (例: 動画付きツイート A が保存済みの状態で、写真のみの
+      // 別ツイート B を追記すると B の tweetId/postUrl が代表として上書きされる)、
+      // liveness 監視 cron の監視対象が意図せず A→B に変わってしまう可能性がある
+      // (postUrl は sourcePostUrls に累積されるためデータ自体は消えない = data-loss ではない)。
+      // これを完全に直すには、edit を開く前の「真の代表」の tweetId/postUrl を
+      // RegisterPage.tsx (initialValues) から新規 prop として本コンポーネントまで通し、
+      // captureRef をマウント時に再構築する必要がある。調査の結果、その再構築は
+      // capture.tweetData の truthiness を「このセッションで何か確立済みか」の判定に
+      // 使っている複数箇所 (handleOgpFetched の photo_source_conflict 判定、本関数の
+      // 「何も変わらなければ commit をスキップする」ガード等) の前提を変えてしまい、
+      // 例えば「代表確立済み」を装うことで無関係なテキストのみのツイートを貼っただけでも
+      // 誤って commit ・ sourcePostUrls に追記されてしまう副作用が生じることを確認した。
+      // 直下の video 消失バグ (data-loss) と違い本件は「監視対象のズレ」に留まるため、
+      // 今回はこの副作用を避けて video 消失のみを修正し、本件は文書化された既知の限界として
+      // 残す (2026-07-22)。
+      //
+      // videoPreview の有無から動画情報を復元することで、動画自体はこの限界の影響を受けない
+      // (video の消失は data-loss のため上記とは切り離して修正済み)。
       // photoAspectRatios の「既存」側は capture.tweetData?.photoAspectRatios (このセッションで
       // 直前に確立済みの比率) を渡す。ここを undefined 固定にすると、同一セッション内で2本目の
       // ツイートURLを貼った瞬間に1本目の比率が消え、1本目の画像だけ aspect ratio 情報を失う
@@ -154,7 +202,11 @@ export function HousingEditSourcePanel({
             data.photoAspectRatios,
             photos.length,
           ),
-          video: capture.tweetData?.video ?? (adoptsVideo ? data.video : null),
+          // Bug5 fix (最終レビュー指摘): capture.tweetData?.video (このセッションで直前に
+          // 捕捉済みの動画) が無く、かつ今回動画を新規採用しない (adoptsVideo=false) 場合、
+          // 以前は無条件で null を組んでいた。videoPreview (サーバー保存済みの真の状態) が
+          // 動画ありを示しているならそれを復元して null にしない = 保存済み動画を破壊しない。
+          video: capture.tweetData?.video ?? (adoptsVideo ? data.video : videoPreviewToTweetVideo(videoPreview)),
         },
         tweetSource: capture.tweetData ? capture.tweetSource! : source,
         youtube: null,

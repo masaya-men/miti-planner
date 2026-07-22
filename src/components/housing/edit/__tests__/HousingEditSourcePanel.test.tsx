@@ -370,6 +370,66 @@ describe('HousingEditSourcePanel', () => {
      * cross-type マージ挙動」をコードトレースだけでなく実テストで確認する (レビュー指摘の
      * カバレッジギャップ埋め)。
      */
+    /**
+     * Bug5 fix (最終レビュー指摘・2026-07-22): サーバーに保存済みの代表が Twitter+動画のとき、
+     * HousingEditMediaSection のタブ切替でこのパネルが remount されると captureRef が
+     * EMPTY_SNS_CAPTURE に戻り、capture.tweetData は null になる (= capture.tweetData?.video も
+     * undefined)。この状態で「写真のみ (動画なし) の別ツイート」を貼ると、修正前は
+     * becomesTwitterRepresentative が true になり (hasRepresentative=false かつ photos.length>0)
+     * nextCapture.tweetData.video が `capture.tweetData?.video ?? (adoptsVideo ? data.video : null)`
+     * = `undefined ?? (false ? data.video : null)` = null に組まれてしまい、videoPreview prop
+     * (サーバー保存済みの真の状態) が動画ありを示しているにもかかわらず、commit された
+     * capture 上では動画が消えていた (トーストも無くサイレントに消失・data-loss)。
+     * videoPreviewToTweetVideo 経由で復元することで、commit される capture にも動画が
+     * 残ることを確認する (UI の videoPreview 表示だけでなく、実際に送信される payload を検証)。
+     */
+    it('サーバー保存済みTwitter代表(動画あり=videoPreview)の状態で写真のみの別ツイートを追記しても、commitされるcaptureの動画は消えない (Bug5 fix)', async () => {
+      const savedVideoPreview = {
+        url: 'https://x/saved-video.mp4',
+        posterUrl: 'https://x/saved-video-poster.jpg',
+        aspectRatio: 1.78,
+      };
+      // captureRef はこのコンポーネントの初回マウント時点で常に EMPTY_SNS_CAPTURE
+      // (= remount 直後を模している)。videoPreview だけがサーバー保存済みの動画を示す。
+      const { onCommitSnsFetch, rerender } = renderPanel({
+        sourceImageUrls: [],
+        videoPreview: savedVideoPreview,
+      });
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      fireEvent.change(input, { target: { value: TWEET_URL_A } });
+      tweetState = {
+        ...tweetState,
+        status: 'success',
+        data: {
+          text: 'photo-only',
+          author: { name: 'P', screen_name: 'p' },
+          photos: ['https://pbs.twimg.com/photo-only.jpg'],
+          video: null,
+        },
+      };
+      rerender(
+        buildTree({
+          sourceImageUrls: [],
+          onSourceImageUrlsChange: vi.fn(),
+          videoPreview: savedVideoPreview,
+          sourcePostUrls: [],
+          onCommitSnsFetch,
+        }),
+      );
+
+      await waitFor(() => expect(onCommitSnsFetch).toHaveBeenCalledTimes(1));
+      const committedCapture = onCommitSnsFetch.mock.calls[0][0];
+      // 写真は追記されている (通常のマージ動作)。
+      expect(committedCapture.tweetData.photos).toEqual(['https://pbs.twimg.com/photo-only.jpg']);
+      // 保存済み動画が videoPreview から復元され、null に潰されていない。
+      expect(committedCapture.tweetData.video).toEqual({
+        url: savedVideoPreview.url,
+        posterUrl: savedVideoPreview.posterUrl,
+        aspectRatio: savedVideoPreview.aspectRatio,
+      });
+    });
+
     it('OGP代表(写真のみ・動画なし)の状態でTwitter URL(写真あり)を貼ると、写真は共有プールに合流する (cross-type merge)', async () => {
       const OGP_URL = 'https://housingsnap.com/77701';
       const { onCommitSnsFetch, rerender } = renderPanel({
