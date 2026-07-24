@@ -19,7 +19,12 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
-import { getFirestore, type DocumentData } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import {
+  buildHousingMediaUrl,
+  extractHousingMediaFilenameFromOldUrl,
+  readThumbnailPaths,
+} from '../src/lib/housing/housingMediaUrl.js';
 
 function loadEnv(filePath: string): Record<string, string> {
   const text = readFileSync(filePath, 'utf-8');
@@ -39,40 +44,6 @@ function loadEnv(filePath: string): Record<string, string> {
   return env;
 }
 
-/** api/housing/_imageArrayLogic.ts の buildHousingImagePublicUrl と同一規則。 */
-function buildNewUrl(listingId: string, filename: string): string {
-  return `https://lopoly.app/housing-media/${listingId}/${filename}`;
-}
-
-/** 旧形式URL (firebasestorage.googleapis.com) かどうかの判定 + ファイル名抽出。 */
-function extractFilenameFromOldUrl(url: string, listingId: string): string | null {
-  try {
-    const u = new URL(url);
-    if (u.hostname !== 'firebasestorage.googleapis.com') return null;
-    const marker = '/o/';
-    const idx = u.pathname.indexOf(marker);
-    if (idx === -1) return null;
-    const decoded = decodeURIComponent(u.pathname.slice(idx + marker.length));
-    const expectedPrefix = `housing/listings/${listingId}/`;
-    if (!decoded.startsWith(expectedPrefix)) return null;
-    return decoded.slice(expectedPrefix.length);
-  } catch {
-    return null;
-  }
-}
-
-/**
- * housing_listings ドキュメントから画像URL配列を読み取る。
- * api/housing/_uploadThumbnailHandler.ts (150行目付近) と同一の正規化ロジック:
- * thumbnailPaths (配列) が無い旧データは、単数フィールド thumbnailPath を
- * 1件配列として扱う。
- */
-function readThumbnailPaths(data: DocumentData): string[] {
-  if (Array.isArray(data.thumbnailPaths)) return data.thumbnailPaths;
-  if (typeof data.thumbnailPath === 'string' && data.thumbnailPath) return [data.thumbnailPath];
-  return [];
-}
-
 const ROOT = resolve(import.meta.dirname, '..');
 const env = loadEnv(resolve(ROOT, '.env.local'));
 const projectId = env.FIREBASE_PROJECT_ID;
@@ -89,10 +60,18 @@ const db = getFirestore();
 
 const COMMIT = process.argv.includes('--commit');
 
+/**
+ * 新URLがHTTP的に解決し、かつ実際に画像を返すことを検証する。res.ok だけを見ると、
+ * 万一 Vercel の /housing-media/* リライトが機能していない場合に vercel.json 末尾の
+ * catch-all (`/(.*) → /index.html`) が拾って 200 (HTMLページ) を返してしまい、
+ * 「検証OK」と誤判定してしまう。content-type が image/ で始まることまで確認する。
+ */
 async function verifyUrlResolves(url: string): Promise<boolean> {
   try {
     const res = await fetch(url, { method: 'GET' });
-    return res.ok;
+    if (!res.ok) return false;
+    const contentType = res.headers.get('content-type') ?? '';
+    return contentType.startsWith('image/');
   } catch {
     return false;
   }
@@ -140,13 +119,13 @@ async function main() {
           newPaths.push(oldUrl); // 既に新形式
           continue;
         }
-        const filename = extractFilenameFromOldUrl(oldUrl, listingId);
+        const filename = extractHousingMediaFilenameFromOldUrl(oldUrl, listingId);
         if (!filename) {
           console.error(`  ⚠ ${listingId}: 旧URL形式を解析できず (skip): ${oldUrl}`);
           listingOk = false;
           break;
         }
-        const newUrl = buildNewUrl(listingId, filename);
+        const newUrl = buildHousingMediaUrl(listingId, filename);
         // HTTP検証はトランザクション外 (時間がかかるため、外部呼び出しをtx内に入れない)。
         const resolves = await verifyUrlResolves(newUrl);
         if (!resolves) {
@@ -183,6 +162,12 @@ async function main() {
               thumbnailPath: newPaths[0] ?? null,
               updatedAt: Date.now(),
             });
+            // 他の全書き込みハンドラー (_uploadThumbnailHandler.ts 等) と同様、公開一覧APIの
+            // 長期キャッシュ (s-maxage=86400) を新版番号へ即時追従させるため、本体書き込みと
+            // 同じtransaction内で housing_meta/public.version を +1 する (bumpPublicVersionTx と
+            // 同一ロジック。import はモジュール解決の都合で使わず、Task4の他ロジックと同様に
+            // このスクリプト内に直接実装する)。
+            tx.set(db.doc('housing_meta/public'), { version: FieldValue.increment(1) }, { merge: true });
             return true;
           });
           if (!applied) {
