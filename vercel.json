@@ -11,6 +11,10 @@
     { "source": "/housing/tour/:tourToken", "destination": "/api/share?type=tour&token=:tourToken" },
     { "source": "/og/:hash.png", "destination": "/api/og-cache?h=:hash" },
     {
+      "source": "/housing-media/:listingId/:filename",
+      "destination": "https://firebasestorage.googleapis.com/v0/b/lopo-7793e.firebasestorage.app/o/housing%2Flistings%2F:listingId%2F:filename?alt=media"
+    },
+    {
       "source": "/icons/:path",
       "destination": "https://firebasestorage.googleapis.com/v0/b/lopo-7793e.firebasestorage.app/o/icons%2F:path?alt=media"
     },
@@ -25,6 +29,13 @@
   "headers": [
     {
       "source": "/icons/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
+      "source": "/housing-media/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
         { "key": "Access-Control-Allow-Origin", "value": "*" }
