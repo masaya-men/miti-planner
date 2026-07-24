@@ -2632,7 +2632,7 @@
         "housinger": {
             "account": {
                 "title": "Housinger Profile",
-                "description": "Show your name and icon on your registered housing listings, and publish your page.",
+                "description": "Creates a public page with your name, icon, and bio, shown alongside your registered housing listings.",
                 "publish": "Publish as a Housinger",
                 "nameRequired": "Set a display name first",
                 "published": "Published",

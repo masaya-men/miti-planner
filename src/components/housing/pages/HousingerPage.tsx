@@ -21,12 +21,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Pencil } from 'lucide-react';
+import { Pencil, Camera } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
+import { useAccountActions } from '../../../hooks/auth/useAccountActions';
+import { DisplayNameEditor } from '../../DisplayNameEditor';
+import { AvatarCropModal } from '../../AvatarCropModal';
 import {
   getHousingerProfile,
   getHousingerListings,
@@ -75,6 +78,11 @@ export const HousingerPage: React.FC = () => {
   // (viewerUid が万一 prefix 無しでも normalize で吸収)。useEffect (下記) が参照するため
   // ここで先に定義する。
   const isSelf = viewerUid !== null && uid === normalizeHousingerUid(viewerUid);
+  // 本人閲覧時の名前/アイコンは housing_profiles の非同期転記を待たず、常に最新の
+  // useAuthStore 値を優先表示する (更新直後の即時反映のため。HousingerProfileSection と同じ考え方)。
+  const authDisplayName = useAuthStore((s) => s.profileDisplayName);
+  const authAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
+  const accountActions = useAccountActions();
 
   const [profile, setProfile] = useState<HousingerProfile | null>(null);
   const [listings, setListings] = useState<MockListing[]>([]);
@@ -82,6 +90,11 @@ export const HousingerPage: React.FC = () => {
   const [kebabOpen, setKebabOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [mannerOpen, setMannerOpen] = useState(false);
+  // マイページ: 名前/アイコンをその場編集する (鉛筆クリックで名前編集モードへ)。
+  const [editingName, setEditingName] = useState(false);
+  const [isSavingName, setIsSavingName] = useState(false);
+  const [showAvatarCrop, setShowAvatarCrop] = useState(false);
+  const [isAvatarBusy, setIsAvatarBusy] = useState(false);
   // マイページ: 公開状態切替の確認モーダル (対象 listing + 切替先)。
   const [visibilityTarget, setVisibilityTarget] = useState<{
     listingId: string;
@@ -210,6 +223,36 @@ export const HousingerPage: React.FC = () => {
     }
   };
 
+  // 名前/アイコンのその場編集。HousingAccountModal.tsx と同じロジック (useAccountActions 経由)。
+  // 成功後は useAuthStore が更新され、displayName/avatarUrl (下記算出) が自動で最新表示に切り替わる。
+  const handleSaveName = async (newName: string) => {
+    setIsSavingName(true);
+    try {
+      await accountActions.updateDisplayName(newName);
+      setEditingName(false);
+      showToast(t('profile.toast_name_updated'));
+    } catch (err) {
+      console.error('Display name update error:', err);
+      showToast(t('profile.toast_name_error'), 'error');
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
+  const handleAvatarComplete = async (blob: Blob) => {
+    setIsAvatarBusy(true);
+    setShowAvatarCrop(false);
+    try {
+      await accountActions.uploadAvatar(blob);
+      showToast(t('avatar.toast_uploaded'));
+    } catch (err) {
+      console.error('Avatar upload error:', err);
+      showToast(t('avatar.toast_upload_error'), 'error');
+    } finally {
+      setIsAvatarBusy(false);
+    }
+  };
+
   // HousingActionBar.tsx の onReportClick と同形 (未ログインならログイン案内、それ以外はモーダルを開く)。
   const onReportClick = () => {
     if (!viewerUid) {
@@ -294,6 +337,11 @@ export const HousingerPage: React.FC = () => {
     );
   }
 
+  // 本人閲覧時は housing_profiles の転記を待たず useAuthStore の最新値を表示する
+  // (未転記でも空にならないよう profile 側をフォールバックにする)。
+  const displayName = isSelf ? authDisplayName?.trim() || profile.displayName : profile.displayName;
+  const avatarUrl = isSelf ? (authAvatarUrl ?? profile.avatarUrl) : profile.avatarUrl;
+
   // SNS リンクは表示テキストをホスト名にする (spec §4.3)。 保存済み URL は
   // upsertHousingerProfile がサーバー側で validateHousingerSnsUrl 検証済みだが、
   // 念のため URL 構築に失敗したら生 URL のまま表示する (壊れて何も出ないよりまし)。
@@ -330,24 +378,57 @@ export const HousingerPage: React.FC = () => {
           <div className="housinger-page-body">
             <div className="housinger-page-profile-col">
               <div className="housinger-page-identity">
-                <HousingerAvatar
-                  avatarUrl={profile.avatarUrl}
-                  name={profile.displayName}
-                  className="housinger-page-avatar"
-                />
-                <h2 className="housinger-page-name">{profile.displayName}</h2>
-                {/* 本人閲覧時のみ: マイページ (プロフィール一元管理) へ飛ぶ鉛筆アイコン。
-                    旧テキストボタン「プロフィールを編集」(アカウントモーダルを開く) を置き換え。 */}
-                {isSelf && (
-                  <button
-                    type="button"
-                    className="housinger-page-edit-btn"
-                    aria-label={t('housing.housinger.editProfile')}
-                    title={t('housing.housinger.editProfile')}
-                    onClick={() => navigate('/housing/mypage')}
-                  >
-                    <Pencil size={14} aria-hidden="true" />
-                  </button>
+                {isSelf ? (
+                  <div className="housinger-page-avatar-wrap">
+                    <HousingerAvatar
+                      avatarUrl={avatarUrl}
+                      name={displayName}
+                      className="housinger-page-avatar"
+                    />
+                    <button
+                      type="button"
+                      className="housinger-page-avatar-edit-btn"
+                      onClick={() => setShowAvatarCrop(true)}
+                      disabled={isAvatarBusy}
+                      aria-label={t('housing.account.avatarChange')}
+                      title={t('housing.account.avatarChange')}
+                    >
+                      <Camera size={13} aria-hidden="true" />
+                    </button>
+                  </div>
+                ) : (
+                  <HousingerAvatar
+                    avatarUrl={avatarUrl}
+                    name={displayName}
+                    className="housinger-page-avatar"
+                  />
+                )}
+                {/* 本人閲覧時のみ: 鉛筆アイコンで名前をその場編集 (旧: /housing/mypage への
+                    ナビゲーションだったが、マイページ自体でも押せる導線だったため意味を持たなかった)。 */}
+                {isSelf && editingName ? (
+                  <div className="housinger-page-name-editor">
+                    <DisplayNameEditor
+                      value={displayName || ''}
+                      onSave={handleSaveName}
+                      onCancel={() => setEditingName(false)}
+                      isSaving={isSavingName}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="housinger-page-name">{displayName}</h2>
+                    {isSelf && (
+                      <button
+                        type="button"
+                        className="housinger-page-edit-btn"
+                        aria-label={t('housing.housinger.editProfile')}
+                        title={t('housing.housinger.editProfile')}
+                        onClick={() => setEditingName(true)}
+                      >
+                        <Pencil size={14} aria-hidden="true" />
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
               {/* 本人閲覧時は自己紹介文・SNSリンクをここで直接編集できる (旧: 設定ウィンドウ内の
@@ -453,6 +534,13 @@ export const HousingerPage: React.FC = () => {
           loading={visibilityUpdating}
           onCancel={() => setVisibilityTarget(null)}
           onConfirm={onConfirmVisibilityChange}
+        />
+      )}
+      {isSelf && (
+        <AvatarCropModal
+          isOpen={showAvatarCrop}
+          onClose={() => setShowAvatarCrop(false)}
+          onComplete={handleAvatarComplete}
         />
       )}
     </div>

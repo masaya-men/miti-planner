@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
@@ -33,6 +33,17 @@ export const HousingerProfileSection: React.FC = () => {
   const [snsError, setSnsError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showUnpublishConfirm, setShowUnpublishConfirm] = useState(false);
+  const bioRef = useRef<HTMLTextAreaElement>(null);
+
+  // ひとこと欄は入力量に応じて高さを自動で伸ばす (1行の枠から書き始めると広がる)。
+  // フォーカス時の最低高さは CSS 側 (.housing-bio-textarea:focus) が担当、
+  // ここではそれを超える分だけ実コンテンツの高さに追従させる。
+  useEffect(() => {
+    const el = bioRef.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [bio]);
 
   useEffect(() => {
     if (!uid) {
@@ -133,6 +144,7 @@ export const HousingerProfileSection: React.FC = () => {
     <div className="housing-account-housinger">
       <h4 className="housing-account-housinger-title">{t('housing.housinger.account.title')}</h4>
       <p className="housing-account-housinger-desc">{t('housing.housinger.account.description')}</p>
+      <p className="housing-account-name-note">{t('housing.account.displayNameNote')}</p>
 
       {!loading && !isPublished && (
         <>
@@ -160,10 +172,11 @@ export const HousingerProfileSection: React.FC = () => {
             <label htmlFor="housinger-bio" className="housing-label">
               {t('housing.housinger.account.bioLabel')}
             </label>
-            <input
+            <textarea
               id="housinger-bio"
-              type="text"
-              className="housing-input"
+              ref={bioRef}
+              className="housing-textarea housing-bio-textarea"
+              rows={1}
               value={bio}
               maxLength={HOUSINGER_BIO_MAX_LENGTH}
               placeholder={t('housing.housinger.account.bioPlaceholder')}

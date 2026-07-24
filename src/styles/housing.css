@@ -1753,6 +1753,18 @@
   resize: vertical;
   min-height: 80px;
 }
+/* 「ひとこと」欄: 普段は入力欄1行分の高さに収め、フォーカスすると数行分に広がり、
+   さらに入力量が増えれば JS (HousingerProfileSection.tsx) が実高さに追従させる。
+   改行も入力できるよう resize は無効化 (手動リサイズの取っ手は出さない)。 */
+.housing-bio-textarea {
+  resize: none;
+  overflow: hidden;
+  min-height: 40px;
+  line-height: 1.5;
+}
+.housing-bio-textarea:focus {
+  min-height: 92px;
+}
 /* select は標準矢印を消してハニーゴールドの▼を描く */
 select.housing-input {
   cursor: pointer;
@@ -3653,6 +3665,11 @@ select.housing-input option {
     gap: 12px;
     min-width: 0;
 }
+/* 名前編集フォーム表示中はアバターと上端を揃える (DisplayNameEditor は入力欄+保存/キャンセル行を
+   持ち中央揃えだとアバターが下寄りに見えるため)。 */
+.housinger-page-identity:has(.housinger-page-name-editor) {
+    align-items: flex-start;
+}
 .housinger-page-avatar {
     width: var(--housinger-avatar-size-lg);
     height: var(--housinger-avatar-size-lg);
@@ -3660,6 +3677,38 @@ select.housing-input option {
 }
 .housinger-page-avatar .housinger-avatar-fallback {
     font-size: var(--housing-detail-title-size);
+}
+/* 本人閲覧時のみ: アバター右下に重ねるアイコン変更バッジ。 */
+.housinger-page-avatar-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+}
+.housinger-page-avatar-edit-btn {
+    appearance: none;
+    cursor: pointer;
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border-radius: 999px;
+    border: 2px solid var(--housing-panel-bg-solid);
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.housinger-page-avatar-edit-btn:hover {
+    background: var(--housing-honey);
+    color: var(--housing-honey-text);
+}
+.housinger-page-avatar-edit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 .housinger-page-name {
     margin: 0;
@@ -3669,7 +3718,12 @@ select.housing-input option {
     min-width: 0;
     overflow-wrap: break-word;
 }
-/* 本人閲覧時のみ: 名前の横に出す編集導線 (マイページへ)。他のアイコンボタンと同じ透明背景+角丸。 */
+/* 名前のその場編集フォーム (DisplayNameEditor) の横幅確保。 */
+.housinger-page-name-editor {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+/* 本人閲覧時のみ: 名前の横に出す編集導線 (その場で名前編集モードへ)。他のアイコンボタンと同じ透明背景+角丸。 */
 .housinger-page-edit-btn {
     appearance: none;
     cursor: pointer;
@@ -3842,6 +3896,26 @@ select.housing-input option {
     }
     .housing-detail-body:has(.housing-detail-report-banner) .housing-detail-content {
         min-height: 480px;
+    }
+    /* ハウジンガーページ/マイページ (.housinger-page-main) はこの「ビューポート内フィット+固定レール」
+       レイアウトの対象外。左列 sticky (top:24px) + 右列一覧という設計で、sticky の基準になる
+       .housing-detail-panel 自体がスクロールコンテナである必要がある。上記 override のままだと
+       panel が overflow:hidden の固定高さになり、右列があふれた分がどこにもスクロールできず
+       隠れたまま切れる (2026-07-24 実機バグ)。base 定義 (通常の縦積み+panel側スクロール) に戻す。 */
+    .housing-detail-panel:has(.housinger-page-main) {
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: block;
+    }
+    .housing-detail-shell:has(.housinger-page-main) {
+        flex: none;
+        min-height: 100%;
+        display: block;
+    }
+    .housing-detail-fullpage-main.housinger-page-main {
+        flex: none;
+        min-height: 0;
+        display: block;
     }
 }
 
