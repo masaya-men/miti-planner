@@ -3,6 +3,7 @@ import {
   computeArrayDeletion,
   computeArrayReorder,
   parseStoragePathFromPublicUrl,
+  buildHousingImagePublicUrl,
 } from '../_imageArrayLogic.js';
 
 describe('computeArrayDeletion', () => {
@@ -72,5 +73,18 @@ describe('parseStoragePathFromPublicUrl', () => {
   it('新形式で listingId/filename にスラッシュ以外の記号を含んでいても正しく逆算する', () => {
     const url = 'https://lopoly.app/housing-media/abc-123_ID/a1b2-c3d4.avif';
     expect(parseStoragePathFromPublicUrl(url)).toBe('housing/listings/abc-123_ID/a1b2-c3d4.avif');
+  });
+});
+
+describe('buildHousingImagePublicUrl', () => {
+  it('listingIdとfilenameから新形式の公開URLを組み立てる', () => {
+    expect(buildHousingImagePublicUrl('abc', 'x1y2z3.webp')).toBe(
+      'https://lopoly.app/housing-media/abc/x1y2z3.webp',
+    );
+  });
+
+  it('組み立てたURLはparseStoragePathFromPublicUrlで逆変換できる(往復一致)', () => {
+    const url = buildHousingImagePublicUrl('listing-42', 'uuid-abc.avif');
+    expect(parseStoragePathFromPublicUrl(url)).toBe('housing/listings/listing-42/uuid-abc.avif');
   });
 });

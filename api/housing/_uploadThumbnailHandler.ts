@@ -36,7 +36,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 import { FieldValue } from 'firebase-admin/firestore';
-import { parseStoragePathFromPublicUrl } from './_imageArrayLogic.js';
+import { parseStoragePathFromPublicUrl, buildHousingImagePublicUrl } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 
 const MAX_BYTES = 1 * 1024 * 1024; // 1MB
@@ -136,11 +136,11 @@ export default async function handler(req: any, res: any) {
       // public URL を直接配信できるよう cache を長めに
       metadata: { cacheControl: 'public, max-age=31536000, immutable' },
     });
-    // 公開 URL を取得 (Firebase Storage の標準形式)
-    // bucket 名 + path で signed URL なしの public URL を組み立てる
-    const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(
-      filePath,
-    )}?alt=media`;
+    // 公開 URL: Cloudflareキャッシュ経由の新形式 (2026-07-24〜)。
+    // filePath = `housing/listings/{listingId}/{uuid}.{ext}` なので
+    // ファイル名部分だけを渡す (listingId は既に変数として存在)。
+    const fileName = filePath.split('/').pop()!;
+    const publicUrl = buildHousingImagePublicUrl(listingId, fileName);
 
     // thumbnailPaths 配列の index 位置を更新 (transaction で race condition 回避)。
     // 同じスロットへの再アップロードで置き換えられる旧 URL をトランザクション内で捕捉し、

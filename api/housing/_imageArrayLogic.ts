@@ -78,3 +78,12 @@ export function parseStoragePathFromPublicUrl(url: string): string | null {
     return null;
   }
 }
+
+/**
+ * ハウジング物件画像の新公開URL (Cloudflareキャッシュ経由) を組み立てる。
+ * `parseStoragePathFromPublicUrl` の逆変換に相当。listingId/filenameは
+ * どちらもスラッシュを含まない1セグメント前提 (呼び出し元で保証済み)。
+ */
+export function buildHousingImagePublicUrl(listingId: string, filename: string): string {
+  return `https://lopoly.app/housing-media/${listingId}/${filename}`;
+}
