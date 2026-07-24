@@ -13,26 +13,16 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-1. **🔴 ハウジング次の着手順(2026-07-24決定・24日再整理)**: ①コスト面 = ✅**完了**(Twitter動画0化は既に本番稼働済みと判明・画像Storage egress対策は設計書`docs/superpowers/specs/2026-07-24-housing-image-cloudflare-cache-design.md`通り実装+本番デプロイ+既存79件231枚の移行まで完了。Cloudflareキャッシュ動作確認済み。**数日後にFirebase使用状況で効果測定予定**) ②**マイページ作成 = ✅完了・本番デプロイ・ユーザー実機確認OK(2026-07-24)**。詳細=TODO_COMPLETED.md ③タグAND検索機能(要brainstorming) ④繁体字対応(要brainstorming) ⑤YouTube概要欄住所自動入力(API自体は無料・1日1万クエリ枠で問題なしと判明済み) ⑥30日物理削除cron実装(housing_listingsに家主削除済みだが未物理削除のドキュメントが38件残存確認・実害小だが公開前に直したい) ⑦運営からのアップデート告知をハウジング側にも(既存の通知ベルマーク活用・要brainstorming)。全項目の詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
+1. **🔴 ハウジング次の着手順(2026-07-24決定・24日夜さらに確定)**: ①コスト面=✅完了(詳細=TODO_COMPLETED) ②マイページ作成=✅完了(2026-07-24)。**優先度確定: ③タグAND検索 → ④繁体字対応(LoPo全体) → ⑤⑥⑦は「その他細かいブラッシュアップ」**。③④とも来週続き(brainstorming途中で区切り済み・決定事項/調査済み事実=`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`)。③要点: ハウジンガータグ以外はOR、ハウジンガータグ選択時のみAND絞り込み。④要点: DC分離は不要見込みだが翻訳量が桁違い(2,700キー規模+コード45ファイル規模)。⑤⑥⑦詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ ②マイページ作成+ブラッシュアップ全項目 = 本番デプロイ・ユーザー実機確認OK(2026-07-24)
-詳細=TODO_COMPLETED.md。
+### 2026-07-24夜: タグAND検索・繁体字対応のbrainstorming途中で区切り、Discordアップデート文言(マイページ)を作成
+次回は③タグAND検索の続きから(UI詳細→spec化)。決定事項・調査済み事実=`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`。Discord文言はユーザーが投稿予定(このセッションでは未投稿)。
+### ✅ 直近の本番反映(詳細は全てTODO_COMPLETED.md)
+マイページ作成(2026-07-24)/複数投稿URL登録Batch2(2026-07-22)/編集ページ画像管理Plan A+B(2026-07-21)/探すページ表示順ランダム化+スクロール復元・初心者タグ(2026-07-21〜23)/コスト・ハードニング+実機FB9件(2026-07-20)。
 ### ✅ ハウジング全タスク棚卸し完了(2026-07-23)
-全項目=`docs/.private/2026-07-23-housing-task-inventory.md`。**棚卸しで判明した食い違い**: ③ハウジンガーPF/④探す地図/⑥住所登録なし一時ツアーは「要brainstorming未着手」扱いだったが、実際はコード確認済みで実装済み(big3にマージ済み)→表記修正済み。片付け漏れの3worktree(housinger-profile/browse-map/ephemeral-tour)はユーザー確認の上で削除済み。**ユーザー確認により以下も完了と判明**(棚卸し時点の記載が古かった): 実機確認待ちチェックリスト全項目/Goblet拡張街directions空文字バグ/管理画面左メニュースクロール不可/地図・ツアーUI4件(枠線・吹き出し位置等)。新アイデアは4件に(④2026-07-23追加=LoPo全体で繁体字対応): ①速度改善は要Lighthouse計測(未実施) ②コストはTwitter動画0化+画像Storage egress実測に統合 ③タグAND検索は新機能のため次回brainstorming対象 ④繁体字対応も新機能のため次回brainstorming対象。
-
-### ✅ 複数投稿URL登録機能 (Batch2) = 本番デプロイ・ユーザー実機確認OK(2026-07-22)
-全12タスク+最終レビュー完了・mainにmerge・push済み(merge commit `d079e53a`)。Vercel自動デプロイが一時反応しなかった件は自然復旧、本番チェックリスト全項目OK。詳細=TODO_COMPLETED.md。
-
-### ✅ ハウジング編集ページ画像管理機能 (Plan A+B) = 完成・本番反映・ユーザー実機確認OK(2026-07-21)
-削除・並び替え・追加+登録方法(アップロード⇔URL)切替。mainにmerge・push済み(commit `b45c93ae`)。最終レビューでCriticalバグ1件(SNS再貼り替え時の古いデータ混入)発見・修正済み。詳細=TODO_COMPLETED.md。
-
-### 🔴 次セッション最優先1.5: Twitter動画のコストを0にする(2026-07-21・Batch2ブレスト中に発覚・最優先1と2の後に着手)
-Batch2設計中に判明: **Twitter動画だけはLoPoサーバー経由でコストがかかる**(画像は`<img src>`外部直リンクで完全無料、YouTubeも`<iframe youtube-nocookie.com/embed>`直埋め込みで完全無料)。Twitter動画のみ`api/tweet-video.ts`がプロキシしており、キャッシュも明示的に無効(`Cache-Control: private, max-age=0`、`tweet-video.ts:122`)。一覧の「生きたカード」用3コマ抽出(`useTweetVideoFrames.ts`)はタブ内メモリキャッシュのみ(ページリロードで消える・他ユーザーと共有されない)なので、動画オンリー投稿が一覧に表示されるたび+誰かが動画再生するたび、閲覧のたびにLoPo経由でTwitterから転送し直している。TODO.mdの「動画CFエッジキャッシュ」(l.54)は未着手。ユーザー要望: **このコストを絶対に0にしたい**(2026-07-21明言)。対応候補(未検討・要brainstorming): ①CFエッジキャッシュ実装 ②YouTube優先を強く推奨する導線 ③その他。現状維持=動画は1物件1本のまま(複数化は見送り、Batch2でも変更なし)。
-
-### ✅ 実機フィードバック3件(2026-07-21・ブレスト完了) = 全項目 実装・main反映済み・実機確認OK(2026-07-23)
-1+3. 探すページの表示順ランダム化+一覧スクロール位置復元。2. 初心者向けタグ「ハウジング若葉」。詳細=TODO_COMPLETED.md。
+全項目=`docs/.private/2026-07-23-housing-task-inventory.md`。
 
 ### 🔴 次セッション優先(2026-07-20 更新)
 00. ✅ **コスト・ハードニング全部+実機FB9件中②③⑥⑦⑧⑨+ボタン高さ統一/スマホ下端余白/お気に入りアニメ強化、全部本番反映済み・ユーザー実機OK(2026-07-20)**。詳細=TODO_COMPLETED。残=上記「次の作業順」⑤参照。
@@ -45,7 +35,7 @@ Batch2設計中に判明: **Twitter動画だけはLoPoサーバー経由でコ�
 1. ✅ **P0-P3 耐性+住所非公開=本番稼働(2026-07-15・G7完全通過)**。残作業なし(Discord告知含め対応済み・2026-07-23確認)。詳細=`.superpowers/sdd/progress.md`+`.private/2026-07-14-*`・[[project_housing_scale_hardening]]。
 2. ✅ **c 削除時の即反映バグ** = 対応済み確認(2026-07-23コード確認: `useHousingListingsStore.ts`の`remove`が`myListings`もfilter済み)。
 3. 🎨 **e PF レイアウト調整** (ユーザーが詳細を後述・一緒に詰める。今回は共有ボタンのみ実装)。admin タグ生ID(軽微) も残。
-4. 🧹 **旧UI意匠掃除+文言 (2026-07-14 気づき・細かい・別バッチ)**: ①登録タイトル欄 autoComplete=off(履歴サジェスト抑止・URL欄と同型) ②通報モーダル ③通知ドロップダウン(✕が枠外) ④削除確認モーダル = 各々 housing トンマナへ(honey/generic 撤去・[[feedback_housing_no_ai_pills]]) ⑤ヘッダー「ツアー中」→「ツアー」 ⑥ツアー空状態「ツアーがまだ始まっていません」→「探す・お気に入りから行きたいハウジングを選んでツアーを始めましょう！」(探す追加・要文言確定) ⑦「＋住所から追加」→全箇所「＋LoPoに登録せずに追加」(要文言確定)。 ⑧✅探すページの動画カード再生中タイトル消え=修正済(caption を z-content 層へ・本番反映)。
+4. ✅ **旧UI意匠掃除+文言** = 2026-07-23 ユーザー確認済み・対応済み(詳細=`docs/.private/2026-07-23-housing-task-inventory.md`)。
 
 ### big3(7-13)+競合コピー修正=✅本番反映済 → 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残(ユーザー実機)**=PF/⑤横断検索 checklist `.private/2026-07-12-big3-release-verification-checklist.md` B+⑤節。**保留**=②建物タイプ切替がたつき(`0e07d7e1`効かず・要systematic-debugging)。
 
@@ -95,7 +85,6 @@ Batch2設計中に判明: **Twitter動画だけはLoPoサーバー経由でコ�
 
 ## アイデア / 並行 / バックログ
 
-- **🆕 繁体字対応**(ユーザー発案2026-07-23・要brainstorming): LoPo全体(軽減表+ハウジング)で繁体字(台湾・香港向け)に対応するかを検討。現状`src/locales/`はja/en/ko/zh(簡体字)の4つのみで繁体字は無し。新規locale追加になるため、着手前に対象範囲(軽減表のみ先行/ハウジング同時か)を要相談。ハウジングは繁体字話者のプレイ地域がKR/CNのような専用DC分離を要するかも含めて検討要(現状のzhはCNサーバー地域向け)。
 - **🆕 ツアーPiP機能**(ユーザー発案2026-07-18・要brainstorming): ツアー中に小窓(Picture-in-Picture)で操作。表示=次の目的地の画像(オンオフ可・デフォルトオフ)/住所/コメント/ナビ/前へ/見学開始(押下でタイマー表示)/次へ(最後は完了)。**超簡易モード**=ボタン3つだけ表示に切替可。技術注意: Document PiP APIはPC Chrome系のみ・iOS Safari非対応→スマホの代替表現要設計。
 - アイデア: メモのURL→**YouTube等その場再生(iframe・サムネ方式)**(クリック開きは✅済)・こだわりトップ・配置アニメ・OCR・横型タイムライン・Gemma AI
 - **機能ブラッシュアップ案9件**(詳細=docs/.private/2026-06-15-feature-ideas-batch.md)。✅済=③軽減競合逆方向警告 / ⑤Logsインポート上書き・追記 / ⑥有名スプシ取込 (+列グリッド取込 §9.7 `85bb7d8c`)。**残**=①同時刻3+イベント ②スマホ/タブレット最適化(ボトムナビ/FAB・ボトムナビの透け視認性改善=ハウジング側で不透明化済みの型を移植[2026-07-16]) ④MAXHP-10%でダメージ黄 ⑦敵攻撃 or(2択) ⑧管理画面 攻撃ID保持で任意言語翻訳(GUID保持済・仕上げのみ) ⑨メモに動画URL→iframe。取り込み導線チューザー統合は将来。
