@@ -8,7 +8,7 @@ import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { useAccountActions } from '../../../hooks/auth/useAccountActions';
 import { ConfirmDialog } from '../../ConfirmDialog';
 import { DisplayNameEditor } from '../../DisplayNameEditor';
-import { AvatarCropModal } from '../../AvatarCropModal';
+import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
 import { showToast } from '../../Toast';
 
 /**
@@ -185,7 +185,7 @@ export const HousingAccountModal: React.FC = () => {
                 variant="danger"
             />
 
-            <AvatarCropModal
+            <HousingAvatarCropModal
                 isOpen={showAvatarCrop}
                 onClose={() => setShowAvatarCrop(false)}
                 onComplete={handleAvatarComplete}

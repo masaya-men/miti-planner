@@ -2607,7 +2607,7 @@
                 "snsPlaceholder": "https://x.com/... (X / YouTube / Lodestone)",
                 "snsInvalid": "只能设置 X / YouTube / Lodestone 的 https 链接",
                 "save": "保存",
-                "unpublish": "取消公开",
+                "unpublish": "取消房主玩家公开",
                 "unpublishConfirmTitle": "确定要取消房主玩家公开吗?",
                 "unpublishConfirmBody": "页面和登记者显示将变为不公开。已登记的房屋不会被删除",
                 "toastSaved": "已保存房主玩家资料",

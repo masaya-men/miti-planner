@@ -2798,6 +2798,81 @@ select.housing-input option {
     margin-bottom: 0;
 }
 
+/* アイコン変更モーダル (HousingAvatarCropModal.tsx)。react-easy-crop の Cropper 本体は
+   ライブラリ側の絶対配置 canvas なのでそのまま、周辺の枠だけ housing トンマナに揃える。 */
+.housing-avatar-crop {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.housing-avatar-crop-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 40px 16px;
+    border-radius: 14px;
+    border: 1px dashed var(--housing-panel-border);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.housing-avatar-crop-dropzone:hover {
+    border-color: var(--housing-honey-border);
+    background: var(--housing-chip-bg-hover);
+}
+.housing-avatar-crop-dropzone-label {
+    font-size: var(--housing-text-base);
+    color: var(--housing-text);
+}
+.housing-avatar-crop-dropzone-hint {
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+}
+.housing-avatar-crop-input {
+    display: none;
+}
+/* クロップ表示エリア: cropShape="round" (Cropper 側の丸ガイド) が実際に表示されるアイコン形状と
+   一致することを保証する。枠自体は正方形+角丸でクロップの土台であることを示す。 */
+.housing-avatar-crop-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+.housing-avatar-crop-zoom {
+    width: 100%;
+    accent-color: var(--housing-honey);
+}
+/* 確定ボタン = 主アクション。.housinger-page-tour-btn と同じ honey CTA パターン。 */
+.housing-avatar-crop-confirm {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 11px 16px;
+    font-family: inherit;
+    font-size: var(--housing-text-md);
+    font-weight: 700;
+    color: var(--housing-honey-text);
+    background: linear-gradient(180deg, var(--housing-honey), var(--housing-honey-glow));
+    border: 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px var(--housing-honey-shadow-soft);
+    transition: filter 0.15s ease, transform 0.1s ease;
+}
+.housing-avatar-crop-confirm:hover {
+    filter: brightness(1.05);
+}
+.housing-avatar-crop-confirm:active {
+    transform: scale(0.98);
+}
+
 /* ============================================================
  * Phase 3: 編集 / 削除 / kebab メニュー (家主専用 UI)
  * ============================================================ */
@@ -3897,25 +3972,30 @@ select.housing-input option {
     .housing-detail-body:has(.housing-detail-report-banner) .housing-detail-content {
         min-height: 480px;
     }
-    /* ハウジンガーページ/マイページ (.housinger-page-main) はこの「ビューポート内フィット+固定レール」
-       レイアウトの対象外。左列 sticky (top:24px) + 右列一覧という設計で、sticky の基準になる
-       .housing-detail-panel 自体がスクロールコンテナである必要がある。上記 override のままだと
-       panel が overflow:hidden の固定高さになり、右列があふれた分がどこにもスクロールできず
-       隠れたまま切れる (2026-07-24 実機バグ)。base 定義 (通常の縦積み+panel側スクロール) に戻す。 */
-    .housing-detail-panel:has(.housinger-page-main) {
-        overflow-y: auto;
-        overflow-x: hidden;
-        display: block;
-    }
-    .housing-detail-shell:has(.housinger-page-main) {
-        flex: none;
-        min-height: 100%;
-        display: block;
-    }
-    .housing-detail-fullpage-main.housinger-page-main {
-        flex: none;
+    /* ハウジンガーページ/マイページ (.housinger-page-main): このページだけは「左列固定 (プロフィール) +
+       右列だけ内部スクロール (一覧)」という設計 (詳細ページの「一列だけ内部スクロール」と同じ考え方を
+       2カラムに適用)。panel 自体は overflow:hidden のまま (上記 override を維持) で、
+       .housinger-page-body を main の残り高さいっぱいに広げ、右列 (.housinger-page-listings-col) だけに
+       overflow-y:auto を持たせる。旧実装は panel 全体をスクロールに戻していたため、左列 (プロフィール一式)
+       までスクロールで流れてしまっていた (2026-07-24 実機指摘で発覚、右列だけスクロールが正しい仕様)。 */
+    .housinger-page-body {
+        flex: 1 1 auto;
         min-height: 0;
-        display: block;
+        align-items: stretch;
+    }
+    .housinger-page-profile-col {
+        /* sticky は右列だけが内部スクロールする構成では不要かつ、この列自体が
+           overflow-y:auto を持つと sticky の挙動が不安定になるため static に戻す。
+           align-items:stretch (上記) で高さは右列と揃うため、画面内固定は結果的に成立する。 */
+        position: static;
+        overflow-y: auto;
+    }
+    /* overflow-y はここではなく中の .housing-listing-grid だけに持たせる (探す/お気に入りと同じ
+       「ツールバー固定+グリッドだけ内部スクロール」構成)。ここに overflow-y:auto を足すと
+       「ハウジング一覧 N件/並び替え」ツールバーごと流れてしまう (2026-07-24 実機指摘)。
+       min-height:0 だけ与えて .housing-listing-grid-wrap の height:100% を機能させる。 */
+    .housinger-page-listings-col {
+        min-height: 0;
     }
 }
 

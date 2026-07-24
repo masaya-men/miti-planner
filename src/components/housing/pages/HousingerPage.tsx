@@ -29,7 +29,7 @@ import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useAccountActions } from '../../../hooks/auth/useAccountActions';
 import { DisplayNameEditor } from '../../DisplayNameEditor';
-import { AvatarCropModal } from '../../AvatarCropModal';
+import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
 import {
   getHousingerProfile,
   getHousingerListings,
@@ -451,8 +451,10 @@ export const HousingerPage: React.FC = () => {
                   {profile.bio && <p className="housinger-page-bio">{profile.bio}</p>}
                 </>
               )}
-              {/* まとめてツアーは公開ハウジングが 1 件以上のときだけ出す。 */}
-              {listings.length > 0 && (
+              {/* まとめてツアーは他人のハウジングを見学する機能なので本人閲覧時は出さない
+                  (自分の家をツアーする意味がない・2026-07-24 実機指摘)。公開ハウジングが
+                  1 件以上のときだけ出すのは他人視点のみ引き続き有効。 */}
+              {!isSelf && listings.length > 0 && (
                 <button type="button" className="housinger-page-tour-btn" onClick={onTourAll}>
                   {t('housing.housinger.tourAll')}
                 </button>
@@ -537,7 +539,7 @@ export const HousingerPage: React.FC = () => {
         />
       )}
       {isSelf && (
-        <AvatarCropModal
+        <HousingAvatarCropModal
           isOpen={showAvatarCrop}
           onClose={() => setShowAvatarCrop(false)}
           onComplete={handleAvatarComplete}
