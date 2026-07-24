@@ -3992,19 +3992,8 @@ select.housing-input option {
         /* スクロールバーがテキスト/ボタンに直接くっつかないよう内側に余白を確保。 */
         padding-right: 10px;
     }
-    /* スクロールバーの見た目はハウジングアプリ内で既に使われているもの (スマホ版
-       .housing-listing-grid) と同じ値をそのまま流用する (2026-07-24 指摘: 新規に見た目を
-       考案せず、既存トンマナに揃える)。 */
-    .housinger-page-profile-col::-webkit-scrollbar {
-        width: 8px;
-    }
-    .housinger-page-profile-col::-webkit-scrollbar-thumb {
-        background: var(--housing-text-dim);
-        border-radius: 8px;
-    }
-    .housinger-page-profile-col::-webkit-scrollbar-track {
-        background: transparent;
-    }
+    /* スクロールバーの見た目はカスタマイズせずブラウザ標準のまま
+       (2026-07-24 ユーザー確認: 独自の色を作るより標準表示でよい)。 */
     /* overflow-y はここではなく中の .housing-listing-grid だけに持たせる (探す/お気に入りと同じ
        「ツールバー固定+グリッドだけ内部スクロール」構成)。ここに overflow-y:auto を足すと
        「ハウジング一覧 N件/並び替え」ツールバーごと流れてしまう (2026-07-24 実機指摘)。
