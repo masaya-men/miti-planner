@@ -48,16 +48,32 @@ export function computeArrayReorder<T>(current: T[], newOrder: T[]): ReorderResu
  * Firebase Storage の公開URL (`_uploadThumbnailHandler.ts` が生成する形式) から
  * バケット内の実パスを逆算する。firebasestorage.googleapis.com 以外のURL
  * (外部SNS画像等) は null を返し、誤って外部リソースを削除対象にしないようにする。
+ *
+ * 2026-07-24: Cloudflareキャッシュ化に伴い、`lopoly.app/housing-media/:listingId/:filename`
+ * 形式 (新形式) からも逆算できるよう対応。旧形式 (firebasestorage.googleapis.com) は
+ * 既存データ・ロールバック時のため引き続きサポートする。
  */
 export function parseStoragePathFromPublicUrl(url: string): string | null {
   try {
     const u = new URL(url);
-    if (u.hostname !== 'firebasestorage.googleapis.com') return null;
-    const marker = '/o/';
-    const idx = u.pathname.indexOf(marker);
-    if (idx === -1) return null;
-    const encodedPath = u.pathname.slice(idx + marker.length);
-    return decodeURIComponent(encodedPath);
+    if (u.hostname === 'firebasestorage.googleapis.com') {
+      const marker = '/o/';
+      const idx = u.pathname.indexOf(marker);
+      if (idx === -1) return null;
+      const encodedPath = u.pathname.slice(idx + marker.length);
+      return decodeURIComponent(encodedPath);
+    }
+    if (u.hostname === 'lopoly.app') {
+      const marker = '/housing-media/';
+      const idx = u.pathname.indexOf(marker);
+      if (idx === -1) return null;
+      const rest = u.pathname.slice(idx + marker.length);
+      // rest = "{listingId}/{filename}" (両方ともスラッシュを含まない1セグメントずつ)
+      const parts = rest.split('/');
+      if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
+      return `housing/listings/${decodeURIComponent(parts[0])}/${decodeURIComponent(parts[1])}`;
+    }
+    return null;
   } catch {
     return null;
   }

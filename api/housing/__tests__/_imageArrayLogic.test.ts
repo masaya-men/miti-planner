@@ -63,4 +63,14 @@ describe('parseStoragePathFromPublicUrl', () => {
   it('不正なURL文字列は null', () => {
     expect(parseStoragePathFromPublicUrl('not-a-url')).toBeNull();
   });
+
+  it('新形式(lopoly.app/housing-media/)のURLからもパスを逆算する', () => {
+    const url = 'https://lopoly.app/housing-media/abc/x1y2z3.webp';
+    expect(parseStoragePathFromPublicUrl(url)).toBe('housing/listings/abc/x1y2z3.webp');
+  });
+
+  it('新形式で listingId/filename にスラッシュ以外の記号を含んでいても正しく逆算する', () => {
+    const url = 'https://lopoly.app/housing-media/abc-123_ID/a1b2-c3d4.avif';
+    expect(parseStoragePathFromPublicUrl(url)).toBe('housing/listings/abc-123_ID/a1b2-c3d4.avif');
+  });
 });
