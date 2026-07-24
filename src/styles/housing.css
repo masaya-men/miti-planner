@@ -3989,6 +3989,19 @@ select.housing-input option {
            align-items:stretch (上記) で高さは右列と揃うため、画面内固定は結果的に成立する。 */
         position: static;
         overflow-y: auto;
+        /* スクロールバーがテキスト/ボタンに直接くっつかないよう内側に余白を確保
+           (.housing-listing-grid の右パディングと同じ考え方・2026-07-24 実機指摘)。 */
+        padding-right: 10px;
+    }
+    .housinger-page-profile-col::-webkit-scrollbar {
+        width: 6px;
+    }
+    .housinger-page-profile-col::-webkit-scrollbar-thumb {
+        background: var(--housing-text-dim);
+        border-radius: 8px;
+    }
+    .housinger-page-profile-col::-webkit-scrollbar-track {
+        background: transparent;
     }
     /* overflow-y はここではなく中の .housing-listing-grid だけに持たせる (探す/お気に入りと同じ
        「ツールバー固定+グリッドだけ内部スクロール」構成)。ここに overflow-y:auto を足すと
@@ -6564,16 +6577,35 @@ select.housing-input option {
   width: 100%;
   margin-top: 0;
 }
-/* マイページ専用: 公開状態バッジ(左) + 編集ボタン(右)。 */
-.housing-listing-card-owner-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
 .housing-card-visibility {
   position: relative;
   min-width: 0;
+}
+/* マイページ専用: 画像タイル右上に重ねる公開状態バッジ (HousingFavHeart と排他・同じ位置)。
+   旧: 画像の下に専用フッター行を作っていたためカードが縦に長く、一度に見える件数が
+   少なかった (2026-07-24 実機指摘・画像上のオーバーレイに統合して行数を稼ぐ)。 */
+.housing-card-visibility-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  max-width: calc(100% - 16px);
+}
+.housing-card-visibility-badge-overlay {
+  border-color: var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--housing-text);
+}
+.housing-card-visibility-badge-overlay:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--housing-text);
+}
+/* フッター内 (bottom 開き) から画像上 (top 開き) に変わったのでメニューの展開方向を反転。 */
+.housing-card-visibility-overlay .housing-card-visibility-menu {
+  left: auto;
+  right: 0;
+  top: calc(100% + 4px);
+  bottom: auto;
 }
 .housing-card-visibility-badge {
   appearance: none;
@@ -6640,6 +6672,24 @@ select.housing-input option {
 }
 .housing-card-edit-btn:hover {
   background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+/* マイページ専用: 画像タイル右下に重ねる編集ボタン。.housing-card-fav (右上) と同じ
+   丸背景トーンに揃える。 */
+.housing-card-edit-btn-overlay {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border-color: var(--housing-panel-border);
+  background: rgba(0, 0, 0, 0.45);
+  color: var(--housing-text);
+}
+.housing-card-edit-btn-overlay:hover {
+  background: rgba(0, 0, 0, 0.6);
   color: var(--housing-text);
 }
 /* 左上の常時表示列: 選択チェック + 非公開/期限切れ印 */

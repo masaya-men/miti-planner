@@ -159,7 +159,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         )}
 
         {/* 常時表示 (左上): 選択チェック (お気に入りページのみ) + 自分の登録の非公開/期限切れ印。
-            印はホバー必須にしない (非公開かどうかが一覧で即分かることが安心につながるため常時)。 */}
+            印はホバー必須にしない (非公開かどうかが一覧で即分かることが安心につながるため常時)。
+            showOwnerControls (マイページ) では isPrivate は右上の公開状態バッジと表示が重複する
+            ため出さない。isExpired (visibility=public のまま公開期限切れで実質非表示) は
+            バッジには出ない状態なので引き続き表示する。 */}
         <div className="housing-listing-card-topleft">
           {selectable && (
             <button
@@ -176,14 +179,68 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               {selected && <Check size={14} aria-hidden="true" />}
             </button>
           )}
-          {(isPrivate || isExpired) && (
+          {((isPrivate && !showOwnerControls) || isExpired) && (
             <span className="housing-listing-card-mine-note" data-testid="housing-card-mine-note">
               {isPrivate ? t('housing.register.badge_private') : t('housing.register.badge_expired')}
             </span>
           )}
         </div>
 
-        <HousingFavHeart listingId={listing.id} />
+        {/* マイページ (showOwnerControls): 右上はお気に入りハートの代わりに公開状態バッジ、
+            右下に編集(鉛筆)ボタン。旧: 画像の下に常設フッター行を作っていたため縦に長く、
+            一度に見えるカード数が少なかった (2026-07-24 実機指摘・画像タイル上のオーバーレイに統合)。 */}
+        {showOwnerControls ? (
+          <div className="housing-card-visibility housing-card-visibility-overlay" ref={visibilityMenuRef}>
+            <button
+              type="button"
+              className="housing-card-visibility-badge housing-card-visibility-badge-overlay"
+              aria-haspopup="menu"
+              aria-expanded={visibilityMenuOpen}
+              onClick={(e) => {
+                e.stopPropagation();
+                setVisibilityMenuOpen((v) => !v);
+              }}
+            >
+              {t(`housing.register.visibility.${listing.visibility ?? 'public'}`)}
+            </button>
+            {visibilityMenuOpen && (
+              <div role="menu" className="housing-card-visibility-menu">
+                {(['public', 'unlisted', 'private'] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    role="menuitem"
+                    disabled={(listing.visibility ?? 'public') === v}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setVisibilityMenuOpen(false);
+                      onRequestVisibilityChange?.(listing.id, v);
+                    }}
+                  >
+                    {t(`housing.register.visibility.${v}`)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <HousingFavHeart listingId={listing.id} />
+        )}
+
+        {showOwnerControls && (
+          <button
+            type="button"
+            className="housing-card-edit-btn housing-card-edit-btn-overlay"
+            aria-label={t('housing.mypage.editListing')}
+            title={t('housing.mypage.editListing')}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditListing?.(listing.id);
+            }}
+          >
+            <Pencil size={14} aria-hidden="true" />
+          </button>
+        )}
 
         {/* 常時表示: 下端グラデーションにタイトル1行。見切れ分はカードホバー中に
             その場でゆっくり左へ流れ続ける (ループマーキー)。
@@ -217,57 +274,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         </div>
       )}
 
-      {/* マイページ専用フッター: 公開状態バッジ(押すと切替ポップオーバー) + 編集ボタン。
-          onAddToTour とは排他 (マイページの ListingGrid 呼び出しは onAddToTour を渡さない)。 */}
-      {showOwnerControls && (
-        <div className="housing-listing-card-footer housing-listing-card-owner-footer">
-          <div className="housing-card-visibility" ref={visibilityMenuRef}>
-            <button
-              type="button"
-              className="housing-card-visibility-badge"
-              aria-haspopup="menu"
-              aria-expanded={visibilityMenuOpen}
-              onClick={(e) => {
-                e.stopPropagation();
-                setVisibilityMenuOpen((v) => !v);
-              }}
-            >
-              {t(`housing.register.visibility.${listing.visibility ?? 'public'}`)}
-            </button>
-            {visibilityMenuOpen && (
-              <div role="menu" className="housing-card-visibility-menu">
-                {(['public', 'unlisted', 'private'] as const).map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    role="menuitem"
-                    disabled={(listing.visibility ?? 'public') === v}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setVisibilityMenuOpen(false);
-                      onRequestVisibilityChange?.(listing.id, v);
-                    }}
-                  >
-                    {t(`housing.register.visibility.${v}`)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            className="housing-card-edit-btn"
-            aria-label={t('housing.mypage.editListing')}
-            title={t('housing.mypage.editListing')}
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditListing?.(listing.id);
-            }}
-          >
-            <Pencil size={14} aria-hidden="true" />
-          </button>
-        </div>
-      )}
     </article>
   );
 };
