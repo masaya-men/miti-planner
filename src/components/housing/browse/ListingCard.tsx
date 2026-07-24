@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Check, Pencil } from 'lucide-react';
@@ -69,12 +70,21 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
 
   // マイページ: 公開状態切替ポップオーバーの開閉。カードごとに独立 (HousingDetailKebab と同仕様)。
+  // カード自体が overflow:hidden (角丸のため) を持つため、メニューはカード内の絶対配置ではなく
+  // createPortal で document.body 直下に出す (でないとカードの縁でクリップされ表示が崩れる・
+  // 2026-07-24 実機指摘)。ボタンとメニューが DOM 上は離れた場所になるため、外側クリック判定は
+  // 両方の ref を見る。
   const [visibilityMenuOpen, setVisibilityMenuOpen] = useState(false);
-  const visibilityMenuRef = useRef<HTMLDivElement | null>(null);
+  const [visibilityMenuPos, setVisibilityMenuPos] = useState<{ top: number; right: number } | null>(null);
+  const visibilityBtnRef = useRef<HTMLButtonElement | null>(null);
+  const visibilityMenuPortalRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (!visibilityMenuOpen) return;
     const onClickOutside = (e: MouseEvent) => {
-      if (visibilityMenuRef.current && !visibilityMenuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const insideButton = visibilityBtnRef.current?.contains(target) ?? false;
+      const insideMenu = visibilityMenuPortalRef.current?.contains(target) ?? false;
+      if (!insideButton && !insideMenu) {
         setVisibilityMenuOpen(false);
       }
     };
@@ -190,41 +200,53 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             右下に編集(鉛筆)ボタン。旧: 画像の下に常設フッター行を作っていたため縦に長く、
             一度に見えるカード数が少なかった (2026-07-24 実機指摘・画像タイル上のオーバーレイに統合)。 */}
         {showOwnerControls ? (
-          <div className="housing-card-visibility housing-card-visibility-overlay" ref={visibilityMenuRef}>
-            <button
-              type="button"
-              className="housing-card-visibility-badge housing-card-visibility-badge-overlay"
-              aria-haspopup="menu"
-              aria-expanded={visibilityMenuOpen}
-              onClick={(e) => {
-                e.stopPropagation();
-                setVisibilityMenuOpen((v) => !v);
-              }}
-            >
-              {t(`housing.register.visibility.${listing.visibility ?? 'public'}`)}
-            </button>
-            {visibilityMenuOpen && (
-              <div role="menu" className="housing-card-visibility-menu">
-                {(['public', 'unlisted', 'private'] as const).map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    role="menuitem"
-                    disabled={(listing.visibility ?? 'public') === v}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setVisibilityMenuOpen(false);
-                      onRequestVisibilityChange?.(listing.id, v);
-                    }}
-                  >
-                    {t(`housing.register.visibility.${v}`)}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <button
+            ref={visibilityBtnRef}
+            type="button"
+            className="housing-card-visibility-badge housing-card-visibility-badge-overlay"
+            aria-haspopup="menu"
+            aria-expanded={visibilityMenuOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!visibilityMenuOpen && visibilityBtnRef.current) {
+                const rect = visibilityBtnRef.current.getBoundingClientRect();
+                setVisibilityMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+              }
+              setVisibilityMenuOpen((v) => !v);
+            }}
+          >
+            {t(`housing.register.visibility.${listing.visibility ?? 'public'}`)}
+          </button>
         ) : (
           <HousingFavHeart listingId={listing.id} />
+        )}
+
+        {/* カード自体が overflow:hidden なのでメニューは body 直下に portal し、
+            ボタンの画面座標を基準に fixed 配置する (2026-07-24 実機指摘)。 */}
+        {showOwnerControls && visibilityMenuOpen && visibilityMenuPos && createPortal(
+          <div
+            ref={visibilityMenuPortalRef}
+            role="menu"
+            className="housing-card-visibility-menu housing-card-visibility-menu-portal"
+            style={{ top: `${visibilityMenuPos.top}px`, right: `${visibilityMenuPos.right}px` }}
+          >
+            {(['public', 'unlisted', 'private'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                role="menuitem"
+                disabled={(listing.visibility ?? 'public') === v}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setVisibilityMenuOpen(false);
+                  onRequestVisibilityChange?.(listing.id, v);
+                }}
+              >
+                {t(`housing.register.visibility.${v}`)}
+              </button>
+            ))}
+          </div>,
+          document.body,
         )}
 
         {showOwnerControls && (

@@ -3989,12 +3989,14 @@ select.housing-input option {
            align-items:stretch (上記) で高さは右列と揃うため、画面内固定は結果的に成立する。 */
         position: static;
         overflow-y: auto;
-        /* スクロールバーがテキスト/ボタンに直接くっつかないよう内側に余白を確保
-           (.housing-listing-grid の右パディングと同じ考え方・2026-07-24 実機指摘)。 */
+        /* スクロールバーがテキスト/ボタンに直接くっつかないよう内側に余白を確保。 */
         padding-right: 10px;
     }
+    /* スクロールバーの見た目はハウジングアプリ内で既に使われているもの (スマホ版
+       .housing-listing-grid) と同じ値をそのまま流用する (2026-07-24 指摘: 新規に見た目を
+       考案せず、既存トンマナに揃える)。 */
     .housinger-page-profile-col::-webkit-scrollbar {
-        width: 6px;
+        width: 8px;
     }
     .housinger-page-profile-col::-webkit-scrollbar-thumb {
         background: var(--housing-text-dim);
@@ -6577,21 +6579,15 @@ select.housing-input option {
   width: 100%;
   margin-top: 0;
 }
-.housing-card-visibility {
-  position: relative;
-  min-width: 0;
-}
 /* マイページ専用: 画像タイル右上に重ねる公開状態バッジ (HousingFavHeart と排他・同じ位置)。
    旧: 画像の下に専用フッター行を作っていたためカードが縦に長く、一度に見える件数が
    少なかった (2026-07-24 実機指摘・画像上のオーバーレイに統合して行数を稼ぐ)。 */
-.housing-card-visibility-overlay {
+.housing-card-visibility-badge-overlay {
   position: absolute;
   top: 8px;
   right: 8px;
   z-index: 2;
   max-width: calc(100% - 16px);
-}
-.housing-card-visibility-badge-overlay {
   border-color: var(--housing-panel-border);
   background: rgba(0, 0, 0, 0.45);
   color: var(--housing-text);
@@ -6600,11 +6596,15 @@ select.housing-input option {
   background: rgba(0, 0, 0, 0.6);
   color: var(--housing-text);
 }
-/* フッター内 (bottom 開き) から画像上 (top 開き) に変わったのでメニューの展開方向を反転。 */
-.housing-card-visibility-overlay .housing-card-visibility-menu {
+/* カード (.housing-listing-card) が overflow:hidden を持つため、メニューは
+   createPortal で document.body 直下に出す (ListingCard.tsx)。カード内の相対配置ではなく
+   画面座標の position:fixed で、ボタンの位置を基準に top/right を inline style で指定する
+   (2026-07-24 実機指摘: カード内に収めようとして表示が崩れていた)。
+   .housing-card-visibility-menu (下方定義、position:absolute) より詳細度を上げて確実に勝たせる
+   ため複合セレクタにする (単純にファイル内の定義順で上書きすると将来の並べ替えで壊れやすい)。 */
+.housing-card-visibility-menu.housing-card-visibility-menu-portal {
+  position: fixed;
   left: auto;
-  right: 0;
-  top: calc(100% + 4px);
   bottom: auto;
 }
 .housing-card-visibility-badge {
