@@ -2349,7 +2349,8 @@
                 "unlisted_desc": "画像は探すに出ますが、住所は隠れ、ツアーには使えません",
                 "private_desc": "自分だけが見られます",
                 "set_end_datetime": "公開終了日時を設定する",
-                "auto_hide_note": "公開終了日時を過ぎると、 自動的に一覧から非表示になります",
+                "after_expiry_label": "期限が来たら",
+                "auto_hide_note": "公開終了日時を過ぎると、 選んだ設定に自動的に切り替わります",
                 "picker": {
                     "placeholder": "日時を選択",
                     "time_label": "時刻",
@@ -2639,6 +2640,7 @@
             "avatarDelete": "削除",
             "displayNameLabel": "表示名",
             "displayNameEdit": "表示名を編集",
+            "displayNameNote": "この名前がハウジンガータグとして使われます",
             "adminLink": "管理画面へ",
             "signOut": "ログアウト",
             "deleteAccount": "退会する",
@@ -2672,6 +2674,7 @@
             "noListings": "公開中のハウジングはまだありません",
             "tourAll": "この人の家をまとめてツアー",
             "editProfile": "プロフィールを編集",
+            "mypageLoginRequired": "マイページを見るにはログインが必要です",
             "loading": "読み込み中…",
             "viewPage": "{{name}} のハウジンガーページを見る →",
             "register": {
@@ -2691,6 +2694,16 @@
                     "other": "その他"
                 },
                 "menuItem": "このハウジンガーを報告"
+            }
+        },
+        "mypage": {
+            "editListing": "編集",
+            "visibilityConfirm": {
+                "title": "公開状態を変更しますか?",
+                "warningPrivate": "他の人からは一切見えなくなります",
+                "confirm": "変更する",
+                "cancel": "キャンセル",
+                "error": "変更に失敗しました。時間をおいて再度お試しください"
             }
         },
         "header": {

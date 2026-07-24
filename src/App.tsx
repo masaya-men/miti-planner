@@ -16,7 +16,6 @@ import { FavoritesPage } from './components/housing/pages/FavoritesPage';
 import { RegisterPage } from './components/housing/pages/RegisterPage';
 import { HousingEditPage } from './components/housing/pages/HousingEditPage';
 import { HousingerPage } from './components/housing/pages/HousingerPage';
-import { ComingSoonPage } from './components/housing/pages/ComingSoonPage';
 import { TourNavPage } from './components/housing/pages/TourNavPage';
 import { JoinTourPage } from './components/housing/pages/JoinTourPage';
 import { EntranceAuthoringPage } from './components/housing/dev/EntranceAuthoringPage';
@@ -104,7 +103,8 @@ function AppRoutes() {
         {/* Task 2.3: 共有ツアー参加者ページ。ホストの tour(TourNavPage) とは path 深さ違いで衝突しない。 */}
         <Route path="tour/:tourToken" element={<JoinTourPage />} />
         <Route path="register" element={<RegisterPage />} />
-        <Route path="mypage" element={<ComingSoonPage tab="mypage" />} />
+        {/* Task 7 拡張 (2026-07-24): マイページ = 自分の uid で HousingerPage を表示 (:uid なし)。 */}
+        <Route path="mypage" element={<HousingerPage />} />
         {/* Task 2.3: 詳細大パネル。一覧カード/直URL/共有URL/通知タップ、全経路の単一着地点。 */}
         <Route path="listing/:listingId" element={<HousingDetailPage />} />
         {/* Task 3.3a: 編集ページ。詳細の編集導線 (kebab/通報バナー) から navigate してくる。 */}

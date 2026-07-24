@@ -5,11 +5,13 @@ import { HousingDateTimePicker } from './HousingDateTimePicker';
 export interface RegisterVisibilityValues {
   visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
+  afterExpiryVisibility: 'unlisted' | 'private';
 }
 
 interface Props {
   visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
+  afterExpiryVisibility: 'unlisted' | 'private';
   onChange: (next: RegisterVisibilityValues) => void;
 }
 
@@ -18,7 +20,12 @@ interface Props {
  * 「公開 (既定) / 住所非公開 / 非公開 (自分のみ)」の3択 + 「公開」時のみの任意の公開終了日時。
  * 選択系 UI なので質感A案の「青 = 選択」トークンを使う (ハニーは主アクション専用)。
  */
-export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publishUntil, onChange }) => {
+export const RegisterSectionVisibility: React.FC<Props> = ({
+  visibility,
+  publishUntil,
+  afterExpiryVisibility,
+  onChange,
+}) => {
   const { t } = useTranslation();
   // トグル自体の ON/OFF は「日時が設定されているか」から導出せず、ユーザーが一度 OFF に
   // 戻したときに入力値を保持したまま非表示にできるよう独立した表示状態として持つ。
@@ -36,19 +43,27 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
 
   const handleVisibilityChange = (next: 'public' | 'unlisted' | 'private') => {
     // 公開期限は「公開」専用。unlisted/private へ切替えたら日時を破棄する。
-    onChange({ visibility: next, publishUntil: next === 'public' ? publishUntil : null });
+    onChange({
+      visibility: next,
+      publishUntil: next === 'public' ? publishUntil : null,
+      afterExpiryVisibility,
+    });
   };
 
   const handleToggleEndDate = () => {
     const nextEnabled = !endDateEnabled;
     setEndDateEnabled(nextEnabled);
     if (!nextEnabled) {
-      onChange({ visibility, publishUntil: null });
+      onChange({ visibility, publishUntil: null, afterExpiryVisibility });
     }
   };
 
   const handleDateChange = (ms: number | null) => {
-    onChange({ visibility, publishUntil: ms });
+    onChange({ visibility, publishUntil: ms, afterExpiryVisibility });
+  };
+
+  const handleAfterExpiryChange = (next: 'unlisted' | 'private') => {
+    onChange({ visibility, publishUntil, afterExpiryVisibility: next });
   };
 
   return (
@@ -128,6 +143,44 @@ export const RegisterSectionVisibility: React.FC<Props> = ({ visibility, publish
             {endDateEnabled && (
               <div data-testid="housing-register-visibility-enddate-input">
                 <HousingDateTimePicker valueMs={publishUntil} onChange={handleDateChange} />
+
+                {/* 2026-07-24: 期限切れ後の倒し先を事前選択。裏側の定期処理がこの値で visibility を
+                    実際に書き換える (他人からの見え方自体は今まで通り期限の瞬間からリアルタイム)。 */}
+                <div className="housing-field housing-field-full housing-register-visibility-after-expiry">
+                  <span className="housing-label">{t('housing.register.visibility.after_expiry_label')}</span>
+                  <div
+                    className="housing-type-selector"
+                    role="radiogroup"
+                    aria-label={t('housing.register.visibility.after_expiry_label')}
+                  >
+                    <button
+                      type="button"
+                      className="housing-register-visibility-chip"
+                      data-testid="housing-register-visibility-after-expiry-unlisted"
+                      data-selected={afterExpiryVisibility === 'unlisted' ? 'true' : 'false'}
+                      role="radio"
+                      aria-checked={afterExpiryVisibility === 'unlisted'}
+                      onClick={() => handleAfterExpiryChange('unlisted')}
+                    >
+                      <span className="housing-register-visibility-chip-title">
+                        {t('housing.register.visibility.unlisted')}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="housing-register-visibility-chip"
+                      data-testid="housing-register-visibility-after-expiry-private"
+                      data-selected={afterExpiryVisibility === 'private' ? 'true' : 'false'}
+                      role="radio"
+                      aria-checked={afterExpiryVisibility === 'private'}
+                      onClick={() => handleAfterExpiryChange('private')}
+                    >
+                      <span className="housing-register-visibility-chip-title">
+                        {t('housing.register.visibility.private')}
+                      </span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

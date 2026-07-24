@@ -231,6 +231,9 @@ export interface HousingListing {
   visibility?: 'public' | 'unlisted' | 'private';
   /** 公開終了日時 (epoch ms)。null/未設定 = 無期限。過ぎたら遅延評価で非公開扱い。 */
   publishUntil?: number | null;
+  /** 2026-07-24: 公開期限切れ後にどちらへ倒すか (publishUntil 設定時のみ意味を持つ)。
+   *  未設定は 'unlisted' 扱い (cron 側のデフォルト、住所だけ隠す穏当な方)。 */
+  afterExpiryVisibility?: 'unlisted' | 'private';
 }
 
 /**

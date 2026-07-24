@@ -10,7 +10,6 @@ import { ConfirmDialog } from '../../ConfirmDialog';
 import { DisplayNameEditor } from '../../DisplayNameEditor';
 import { AvatarCropModal } from '../../AvatarCropModal';
 import { showToast } from '../../Toast';
-import { HousingerProfileSection } from './HousingerProfileSection';
 
 /**
  * ハウジング画面のログイン済みユーザー向けアカウント設定モーダル。
@@ -141,10 +140,11 @@ export const HousingAccountModal: React.FC = () => {
                                 </button>
                             </div>
                         )}
+                        {/* 2026-07-24: 表示名 = 個人タグの源泉であることの説明 (以前は無く、
+                            ユーザーが自覚しにくいと判明)。編集中/非編集中どちらでも常に見える。 */}
+                        <p className="housing-account-name-note">{t('housing.account.displayNameNote')}</p>
                     </div>
                 </div>
-
-                <HousingerProfileSection />
 
                 {isAdmin && (
                     <button

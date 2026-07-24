@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Check } from 'lucide-react';
+import { Plus, Check, Pencil } from 'lucide-react';
 import { HousingCardMarqueeLine } from './HousingCardMarqueeLine';
 import { HousingFavHeart } from './HousingFavHeart';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -32,6 +32,13 @@ export interface ListingCardProps {
   onToggleSelect?: (id: string) => void;
   /** 指定時、カード本体クリック/Enter で詳細遷移せずこれを呼ぶ (例: 地図の複数スポット→パネル起動)。 */
   onCardClick?: () => void;
+  /** true のとき、家主向け管理コントロール (公開状態バッジ+切替+編集) をフッターに表示する。
+      マイページ専用 (2026-07-24)。 */
+  showOwnerControls?: boolean;
+  /** showOwnerControls=true のとき、公開状態の切替先を選んだら呼ぶ (確認モーダルは呼び出し側の責務)。 */
+  onRequestVisibilityChange?: (id: string, next: 'public' | 'unlisted' | 'private') => void;
+  /** showOwnerControls=true のとき、編集ボタンクリックで呼ぶ。 */
+  onEditListing?: (id: string) => void;
 }
 
 /**
@@ -53,10 +60,34 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   selected,
   onToggleSelect,
   onCardClick,
+  showOwnerControls,
+  onRequestVisibilityChange,
+  onEditListing,
 }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
+
+  // マイページ: 公開状態切替ポップオーバーの開閉。カードごとに独立 (HousingDetailKebab と同仕様)。
+  const [visibilityMenuOpen, setVisibilityMenuOpen] = useState(false);
+  const visibilityMenuRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!visibilityMenuOpen) return;
+    const onClickOutside = (e: MouseEvent) => {
+      if (visibilityMenuRef.current && !visibilityMenuRef.current.contains(e.target as Node)) {
+        setVisibilityMenuOpen(false);
+      }
+    };
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setVisibilityMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    document.addEventListener('keydown', onEsc);
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside);
+      document.removeEventListener('keydown', onEsc);
+    };
+  }, [visibilityMenuOpen]);
 
   // 生きたカード (段階2): 動画種別 → spotlight 候補判定、frames 解決、IO 登録。旧 HousingCard と同型。
   const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
@@ -182,6 +213,58 @@ export const ListingCard: React.FC<ListingCardProps> = ({
             <Plus size={14} aria-hidden="true" />
             {t('housing.card.add_to_tour')}
             <HousingRipple ripples={ripples} />
+          </button>
+        </div>
+      )}
+
+      {/* マイページ専用フッター: 公開状態バッジ(押すと切替ポップオーバー) + 編集ボタン。
+          onAddToTour とは排他 (マイページの ListingGrid 呼び出しは onAddToTour を渡さない)。 */}
+      {showOwnerControls && (
+        <div className="housing-listing-card-footer housing-listing-card-owner-footer">
+          <div className="housing-card-visibility" ref={visibilityMenuRef}>
+            <button
+              type="button"
+              className="housing-card-visibility-badge"
+              aria-haspopup="menu"
+              aria-expanded={visibilityMenuOpen}
+              onClick={(e) => {
+                e.stopPropagation();
+                setVisibilityMenuOpen((v) => !v);
+              }}
+            >
+              {t(`housing.register.visibility.${listing.visibility ?? 'public'}`)}
+            </button>
+            {visibilityMenuOpen && (
+              <div role="menu" className="housing-card-visibility-menu">
+                {(['public', 'unlisted', 'private'] as const).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    role="menuitem"
+                    disabled={(listing.visibility ?? 'public') === v}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setVisibilityMenuOpen(false);
+                      onRequestVisibilityChange?.(listing.id, v);
+                    }}
+                  >
+                    {t(`housing.register.visibility.${v}`)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            className="housing-card-edit-btn"
+            aria-label={t('housing.mypage.editListing')}
+            title={t('housing.mypage.editListing')}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditListing?.(listing.id);
+            }}
+          >
+            <Pencil size={14} aria-hidden="true" />
           </button>
         </div>
       )}

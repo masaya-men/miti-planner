@@ -2293,7 +2293,8 @@
                 "unlisted_desc": "图片会出现在浏览中，但地址会被隐藏，且无法用于游览",
                 "private_desc": "仅自己可见",
                 "set_end_datetime": "设置公开结束时间",
-                "auto_hide_note": "超过公开结束时间后将自动从列表中隐藏",
+                "after_expiry_label": "到期后",
+                "auto_hide_note": "超过公开结束时间后将自动切换为所选设置",
                 "picker": {
                     "placeholder": "选择日期和时间",
                     "time_label": "时间",
@@ -2583,6 +2584,7 @@
             "avatarDelete": "",
             "displayNameLabel": "",
             "displayNameEdit": "",
+            "displayNameNote": "此名称将作为您的房主玩家标签",
             "adminLink": "",
             "signOut": "",
             "deleteAccount": "",
@@ -2616,6 +2618,7 @@
             "noListings": "暂无公开中的房屋",
             "tourAll": "一起导览这个人的房屋",
             "editProfile": "编辑资料",
+            "mypageLoginRequired": "查看我的主页需要先登录",
             "loading": "加载中…",
             "viewPage": "查看 {{name}} 的房主玩家主页 →",
             "register": {
@@ -2635,6 +2638,16 @@
                     "other": "其他"
                 },
                 "menuItem": "举报该房主玩家"
+            }
+        },
+        "mypage": {
+            "editListing": "编辑",
+            "visibilityConfirm": {
+                "title": "要更改公开状态吗?",
+                "warningPrivate": "其他人将完全看不到",
+                "confirm": "更改",
+                "cancel": "取消",
+                "error": "更改失败,请稍后重试"
             }
         },
         "header": {

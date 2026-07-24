@@ -15,7 +15,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
-import { validateRegistrationDraft, normalizePublishUntil, buildListingImageFields, type RegistrationDraft } from '../../src/utils/housingValidation.js';
+import { validateRegistrationDraft, normalizePublishUntil, normalizeAfterExpiryVisibility, buildListingImageFields, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import { assertPersonalTagsAttachable, PersonalTagAttachError } from './_personalTagAttachGuard.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
@@ -78,6 +78,7 @@ export default async function handler(req: any, res: any) {
       title: updates.title,
       visibility: updates.visibility,
       publishUntil: updates.publishUntil,
+      afterExpiryVisibility: updates.afterExpiryVisibility,
       // 画像関連フィールド (2026-07-20 編集ページ画像管理設計): 編集ページで登録方法
       // (アップロード⇔URL) を切り替えたときに送られてくる。imageMode は 'sns' の
       // ときだけ意味を持つ (それ以外は validateImage が postUrl だけ見る)。
@@ -173,6 +174,11 @@ export default async function handler(req: any, res: any) {
           draftForValidation.visibility === 'unlisted' || draftForValidation.visibility === 'private'
             ? null
             : normalizePublishUntil(draftForValidation.publishUntil);
+      }
+      if ('afterExpiryVisibility' in draftForValidation) {
+        updatePayload.afterExpiryVisibility = normalizeAfterExpiryVisibility(
+          draftForValidation.afterExpiryVisibility,
+        );
       }
       if (typeof draftForValidation.title === 'string' && draftForValidation.title.trim()) {
         updatePayload.title = draftForValidation.title.trim();

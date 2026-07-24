@@ -16,6 +16,12 @@ export interface ListingGridProps {
   listKey: HousingListKey;
   /** BrowseSortSelect へ渡す選択肢一覧。未指定なら新着順/古い順の2択 (既存仕様)。 */
   sortOrders?: BrowseSortOrder[];
+  /** true のとき各カードに家主向け管理コントロールを出す。マイページ専用 (2026-07-24)。 */
+  showOwnerControls?: boolean;
+  /** showOwnerControls=true のとき ListingCard へ橋渡しする。 */
+  onRequestVisibilityChange?: (id: string, next: 'public' | 'unlisted' | 'private') => void;
+  /** showOwnerControls=true のとき ListingCard へ橋渡しする。 */
+  onEditListing?: (id: string) => void;
 }
 
 /**
@@ -30,6 +36,9 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   onSortChange,
   listKey,
   sortOrders,
+  showOwnerControls,
+  onRequestVisibilityChange,
+  onEditListing,
 }) => {
   const { t } = useTranslation();
   const containerRef = useListScrollRestore(listKey);
@@ -65,7 +74,14 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
       </div>
       <div className="housing-listing-grid" ref={containerRef}>
         {listings.map((l) => (
-          <ListingCard key={l.id} listing={l} onAddToTour={onAddToTour} />
+          <ListingCard
+            key={l.id}
+            listing={l}
+            onAddToTour={onAddToTour}
+            showOwnerControls={showOwnerControls}
+            onRequestVisibilityChange={onRequestVisibilityChange}
+            onEditListing={onEditListing}
+          />
         ))}
       </div>
     </div>

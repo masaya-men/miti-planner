@@ -2328,7 +2328,8 @@
                 "unlisted_desc": "Images appear in Browse, but the address is hidden and it can't be used in tours",
                 "private_desc": "Only you can see it",
                 "set_end_datetime": "Set an end date/time",
-                "auto_hide_note": "The listing will automatically be hidden once the end date/time passes",
+                "after_expiry_label": "When it expires",
+                "auto_hide_note": "It will automatically switch to your chosen setting once the end date/time passes",
                 "picker": {
                     "placeholder": "Select date & time",
                     "time_label": "Time",
@@ -2618,6 +2619,7 @@
             "avatarDelete": "",
             "displayNameLabel": "",
             "displayNameEdit": "",
+            "displayNameNote": "This name is used as your Housinger tag",
             "adminLink": "",
             "signOut": "",
             "deleteAccount": "",
@@ -2651,6 +2653,7 @@
             "noListings": "No published housing listings yet.",
             "tourAll": "Tour all of this Housinger's homes",
             "editProfile": "Edit profile",
+            "mypageLoginRequired": "Please log in to view your My Page",
             "loading": "Loading…",
             "viewPage": "View {{name}}'s Housinger page →",
             "register": {
@@ -2670,6 +2673,16 @@
                     "other": "Other"
                 },
                 "menuItem": "Report this Housinger"
+            }
+        },
+        "mypage": {
+            "editListing": "Edit",
+            "visibilityConfirm": {
+                "title": "Change visibility?",
+                "warningPrivate": "No one else will be able to see it.",
+                "confirm": "Change",
+                "cancel": "Cancel",
+                "error": "Failed to update. Please try again later."
             }
         },
         "header": {

@@ -14,7 +14,7 @@ import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { evaluateCanRegister, applyRegistrationSuccess, initialUserMeta } from '../../src/utils/housingQuota.js';
-import { validateRegistrationDraft, buildListingImageFields, normalizePublishUntil, type RegistrationDraft } from '../../src/utils/housingValidation.js';
+import { validateRegistrationDraft, buildListingImageFields, normalizePublishUntil, normalizeAfterExpiryVisibility, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import type { HousingUserMeta } from '../../src/types/housing.js';
 import { assertPersonalTagsAttachable, PersonalTagAttachError } from './_personalTagAttachGuard.js';
@@ -144,6 +144,7 @@ export default async function handler(req: any, res: any) {
           draft.visibility === 'unlisted' || draft.visibility === 'private'
             ? null
             : normalizePublishUntil(draft.publishUntil),
+        afterExpiryVisibility: normalizeAfterExpiryVisibility(draft.afterExpiryVisibility),
         ...(draft.title && draft.title.trim() ? { title: draft.title.trim() } : {}),
       };
       tx.set(newRef, listing);

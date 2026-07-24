@@ -49,7 +49,7 @@ vi.mock('../../components/Toast', () => ({
   showToast: (...args: unknown[]) => mockShowToast(...args),
 }));
 
-import { HousingerProfileSection } from '../../components/housing/login/HousingerProfileSection';
+import { HousingerProfileSection } from '../../components/housing/mypage/HousingerProfileSection';
 
 const basePublishedProfile: HousingerProfile = {
   displayName: 'たかし',

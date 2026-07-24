@@ -56,6 +56,8 @@ export interface RegistrationDraft extends AddressInput {
   title?: string;
   visibility?: 'public' | 'unlisted' | 'private';
   publishUntil?: number | null;
+  /** 2026-07-24: 公開期限切れ後にどちらへ倒すか。publishUntil 設定時のみ意味を持つ。 */
+  afterExpiryVisibility?: 'unlisted' | 'private';
 
   // SNS 画像 (任意。未指定なら imageMode='none' 扱い)
   // sns 経路の source は Twitter (tweetId) / YouTube (youtubeVideoId) / OGP (sourceImageUrls) の 3 種、 排他。
@@ -570,4 +572,12 @@ export function validateRegistrationDraft(draft: RegistrationDraft): ValidationR
 export function normalizePublishUntil(value: unknown): number | null {
   if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) return null;
   return value;
+}
+
+/**
+ * 公開期限切れ後の倒し先の保存前正規化。register / update 両ハンドラで使用。
+ * 不正値・未指定は 'unlisted' (住所だけ隠す穏当な方) に倒す。
+ */
+export function normalizeAfterExpiryVisibility(value: unknown): 'unlisted' | 'private' {
+  return value === 'private' ? 'private' : 'unlisted';
 }

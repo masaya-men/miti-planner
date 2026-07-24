@@ -414,15 +414,24 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   const [publishUntil, setPublishUntil] = useState<number | null>(
     () => initialValues?.publishUntil ?? null,
   );
+  // 2026-07-24: 公開期限切れ後の倒し先 (裏側の定期処理が使う)。既定は住所非公開 (穏当な方)。
+  const [afterExpiryVisibility, setAfterExpiryVisibility] = useState<'unlisted' | 'private'>(
+    () => initialValues?.afterExpiryVisibility ?? 'unlisted',
+  );
   // 既定 public を自動で✅にしない (feedback_form_ux_progress) ため、公開設定セクションの
   // onChange が一度でも呼ばれたかを別フラグで持つ (visibility state 自体は初期値 'public')。
   // mode='edit' は visibility が initialValues から確定済みなので、ステッパーの visibility
   // ステップは最初から done 扱いにする (Task3.1 申し送り事項・Task3.2 で対応)。
   const [visibilityTouched, setVisibilityTouched] = useState(() => mode === 'edit');
 
-  const handleVisibilityChange = (next: { visibility: 'public' | 'unlisted' | 'private'; publishUntil: number | null }) => {
+  const handleVisibilityChange = (next: {
+    visibility: 'public' | 'unlisted' | 'private';
+    publishUntil: number | null;
+    afterExpiryVisibility: 'unlisted' | 'private';
+  }) => {
     setVisibility(next.visibility);
     setPublishUntil(next.publishUntil);
+    setAfterExpiryVisibility(next.afterExpiryVisibility);
     setVisibilityTouched(true);
   };
 
@@ -1151,6 +1160,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       title: title.trim() ? title.trim() : undefined,
       visibility,
       publishUntil,
+      afterExpiryVisibility,
       ...imageFields,
       ...(sourcePostUrls.length > 0 ? { sourcePostUrls } : {}),
     };
@@ -1161,6 +1171,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     title,
     visibility,
     publishUntil,
+    afterExpiryVisibility,
     snsCapture,
     localImages,
     sourceImageUrls,
@@ -1493,8 +1504,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       postUrl: postUrl || undefined,
       visibility,
       publishUntil,
+      afterExpiryVisibility,
     }),
-    [title, description, tags, address, postUrl, visibility, publishUntil],
+    [title, description, tags, address, postUrl, visibility, publishUntil, afterExpiryVisibility],
   );
 
   useEffect(() => {
@@ -1581,6 +1593,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       }
       if (restored.publishUntil === null || typeof restored.publishUntil === 'number') {
         setPublishUntil(restored.publishUntil);
+      }
+      if (restored.afterExpiryVisibility === 'unlisted' || restored.afterExpiryVisibility === 'private') {
+        setAfterExpiryVisibility(restored.afterExpiryVisibility);
       }
       // 保存済み SNS URL: postUrl state を復元 + initialUrl として SnsUrlField に渡し実再取得する。
       // 復元起因の再取得は住所を空フィールドだけ補完する (spec:120 guard を先に true にする)。
@@ -1826,6 +1841,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                 key={mediaKey}
                 visibility={visibility}
                 publishUntil={publishUntil}
+                afterExpiryVisibility={afterExpiryVisibility}
                 onChange={handleVisibilityChange}
               />
             </div>

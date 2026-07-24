@@ -45,6 +45,8 @@ export interface AutosaveDraft {
   // 公開設定
   visibility?: 'public' | 'unlisted' | 'private';
   publishUntil?: number | null;
+  /** 2026-07-24: 公開期限切れ後の倒し先。 */
+  afterExpiryVisibility?: 'unlisted' | 'private';
 }
 
 /**
@@ -68,6 +70,7 @@ const TEXT_KEYS: (keyof AutosaveDraft)[] = [
   'postUrl',
   'visibility',
   'publishUntil',
+  'afterExpiryVisibility',
 ];
 
 /**

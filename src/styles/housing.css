@@ -151,9 +151,10 @@
 
   /* ===== Task 7: ハウジンガー登録者行 / ハウジンガーページ ===== */
   --housinger-avatar-size-sm: 20px;       /* 詳細パネルの登録者行 */
-  --housinger-avatar-size-lg: 96px;       /* ハウジンガーページのヘッダー */
+  --housinger-avatar-size-lg: 64px;       /* ハウジンガーページのヘッダー (2026-07-24: 96px から 2/3 に縮小) */
   --housinger-avatar-bg: var(--housing-chip-bg);
   --housinger-avatar-text: var(--housing-honey);
+  --housinger-page-name-size: 18px;       /* ハウジンガー名 (2026-07-24: 22px から 4/5 に縮小) */
 
   /* ===== Phase 3 Group D: report / notifications ===== */
   --housing-report-modal-max-w: 440px;
@@ -217,6 +218,10 @@
   --housing-bubble-w: 80px;
   --housing-bubble-pin: 6px;
   --housing-listing-card-min-w: 198px;
+  /* Task7 ハウジンガーページ 2026-07-24 レイアウト刷新: 左列(プロフィール)固定幅 + 自己紹介文の
+     内部スクロール上限。 */
+  --housinger-page-profile-col-w: 260px;
+  --housinger-page-bio-max-h: 200px;
   /* 探す地図: 拡大カード (ListingCard 素通し) の幅は一覧グリッドのカードと同一に見せる。
      グリッドは minmax(--housing-listing-card-min-w, 1fr) で実測 ~203px。フロートするカードは
      1fr 伸長ができないため同じ基準トークンに連動させる (誤差数px・知覚不可・テーマ追従)。
@@ -2690,6 +2695,11 @@ select.housing-input option {
 .housing-account-name-edit-btn:hover {
     color: var(--housing-honey);
 }
+.housing-account-name-note {
+    margin: 4px 0 0;
+    font-size: var(--housing-text-xs);
+    color: var(--housing-text-mute);
+}
 .housing-account-divider {
     height: 1px;
     background: var(--housing-account-divider);
@@ -2847,7 +2857,9 @@ select.housing-input option {
    個別ルールは border-radius / padding / 寸法だけを持ち、面(bg/border/影)はここへ集約。 */
 .housing-tour-expose-card,
 .housing-kebab-menu,
-.housing-notif-dropdown {
+.housing-notif-dropdown,
+.housing-card-visibility-menu,
+.housing-bottomnav-account-menu {
     background: var(--housing-panel-bg-solid);
     border: 1px solid var(--housing-panel-border);
     box-shadow: var(--housing-popover-shadow-glass);
@@ -3615,40 +3627,73 @@ select.housing-input option {
     align-items: center;
     justify-content: space-between;
 }
-/* e: PF ヘッダー右側の操作 (共有ボタン + 通報メニュー) をまとめる。 */
-.housinger-page-headerbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* 2026-07-24 レイアウト刷新: 他ページ共通の 1200px max-width は使わず、パネル幅いっぱいを使う。 */
+.housinger-page-main {
+    max-width: none;
 }
-.housinger-page-header {
+.housinger-page-body {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: 24px;
+}
+/* 左列 = プロフィール一式。固定幅、スクロールしても画面内に留まる (position: sticky)。
+   sticky の基準は .housing-detail-panel (overflow-y: auto の唯一のスクロールコンテナ)。 */
+.housinger-page-profile-col {
+    flex: 0 0 var(--housinger-page-profile-col-w);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+    position: sticky;
+    top: 24px;
+}
+.housinger-page-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
 }
 .housinger-page-avatar {
     width: var(--housinger-avatar-size-lg);
     height: var(--housinger-avatar-size-lg);
+    flex-shrink: 0;
 }
 .housinger-page-avatar .housinger-avatar-fallback {
     font-size: var(--housing-detail-title-size);
 }
-.housinger-page-headertext {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    min-width: 0;
-    flex: 1;
-}
 .housinger-page-name {
     margin: 0;
-    font-size: var(--housing-detail-title-size);
+    font-size: var(--housinger-page-name-size);
     font-weight: 600;
     color: var(--housing-text);
+    min-width: 0;
+    overflow-wrap: break-word;
 }
+/* 本人閲覧時のみ: 名前の横に出す編集導線 (マイページへ)。他のアイコンボタンと同じ透明背景+角丸。 */
+.housinger-page-edit-btn {
+    appearance: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid var(--housing-panel-border);
+    background: transparent;
+    color: var(--housing-text-dim);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.housinger-page-edit-btn:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+}
+/* 自己紹介文は常に同じ高さの枠 (文字が少なくても余白のまま・長大でもこの枠内だけでスクロール)。
+   これにより下のボタン群 (まとめてツアー/シェア/X/通報) が文章量でガタつかず常に同じ位置に来る。 */
 .housinger-page-bio {
     margin: 0;
+    height: var(--housinger-page-bio-max-h);
+    overflow-y: auto;
     font-size: var(--housing-text-base);
     color: var(--housing-text-dim);
     line-height: 1.6;
@@ -3663,16 +3708,29 @@ select.housing-input option {
 .housinger-page-sns:hover {
     text-decoration: underline;
 }
-/* PF ヘッダー右のアクション (まとめてツアー + シェア)。プロフィールと同じ行の右端に置いて
-   独立ツールバー行を廃止し、一覧を上げる (2026-07-15 一覧性向上)。 */
-.housinger-page-header-actions {
+/* シェア + 「…」メニュー(通報)の並び。 */
+.housinger-page-profile-actions {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-shrink: 0;
-    align-self: flex-start;
 }
-/* まとめてツアー = 主アクション (ハニー系 CTA)。 .housing-tour-tray-start と同じ見た目パターン。 */
+/* Task9 の「…」メニュー(通報)をこの行に合流させたぶんの override。共有 .housing-kebab-trigger
+   の既定 (40px 固定円形 + 塗り背景) はここでは使わず、隣の Xシェアアイコンボタン
+   (.housing-action-btn.is-icon) とサイズ・見た目を揃える。 */
+.housinger-page-kebab-trigger {
+    width: auto;
+    height: auto;
+    padding: 6px;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--housing-text-dim);
+}
+.housinger-page-kebab-trigger:hover {
+    background: var(--housing-chip-bg-hover);
+    color: var(--housing-text);
+}
+/* まとめてツアー = 主アクション (ハニー系 CTA)。 .housing-tour-tray-start と同じ見た目パターン。
+   左列では横幅いっぱいのボタンにする (手書きレイアウト案どおり)。 */
 .housinger-page-tour-btn {
     appearance: none;
     cursor: pointer;
@@ -3680,6 +3738,7 @@ select.housing-input option {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    width: 100%;
     padding: 11px 16px;
     font-family: inherit;
     font-size: var(--housing-text-md);
@@ -3696,6 +3755,11 @@ select.housing-input option {
 }
 .housinger-page-tour-btn:active {
     transform: scale(0.98);
+}
+/* 右列 = 一覧グリッド。残り幅いっぱい (左右いっぱいに広げたぶん、カード標準サイズのままで 5 列が収まる)。 */
+.housinger-page-listings-col {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 .housinger-page-empty {
     margin: 0;
@@ -3787,6 +3851,19 @@ select.housing-input option {
 @media (max-width: 767px) {
     .housing-detail-panel {
         padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
+    }
+}
+
+/* ハウジンガーページ: 狭幅では左右 2 カラムが成立しないので縦積みに戻す。
+   プロフィール列の固定幅・sticky は PC 専用の挙動なので解除する。 */
+@media (max-width: 767px) {
+    .housinger-page-body {
+        flex-direction: column;
+    }
+    .housinger-page-profile-col {
+        flex: 1 1 auto;
+        width: 100%;
+        position: static;
     }
 }
 
@@ -5048,6 +5125,13 @@ select.housing-input option {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+/* 期限切れ後の倒し先 (2択チップ)。日時ピッカーの下に少し間を空けて続ける。 */
+.housing-register-visibility-after-expiry {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .housing-register-visibility-enddate-toggle,
 .housing-register-room-toggle {
@@ -6325,6 +6409,84 @@ select.housing-input option {
 .housing-listing-card-footer .housing-card-add-btn {
   width: 100%;
   margin-top: 0;
+}
+/* マイページ専用: 公開状態バッジ(左) + 編集ボタン(右)。 */
+.housing-listing-card-owner-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.housing-card-visibility {
+  position: relative;
+  min-width: 0;
+}
+.housing-card-visibility-badge {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+  font: inherit;
+  font-size: var(--housing-text-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-card-visibility-badge:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
+}
+.housing-card-visibility-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 4px);
+  min-width: 140px;
+  border-radius: 12px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: var(--housing-popover-z-stack);
+}
+.housing-card-visibility-menu button {
+  background: transparent;
+  border: none;
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  text-align: left;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.housing-card-visibility-menu button:hover:not(:disabled) {
+  background: var(--housing-honey-medium);
+}
+.housing-card-visibility-menu button:disabled {
+  opacity: var(--housing-disabled-opacity);
+  cursor: not-allowed;
+}
+.housing-card-edit-btn {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--housing-panel-border);
+  background: transparent;
+  color: var(--housing-text-dim);
+}
+.housing-card-edit-btn:hover {
+  background: var(--housing-chip-bg-hover);
+  color: var(--housing-text);
 }
 /* 左上の常時表示列: 選択チェック + 非公開/期限切れ印 */
 .housing-listing-card-topleft {
@@ -8590,6 +8752,40 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   font-size: var(--housing-text-xs);
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+/* 2026-07-24: ログイン中のアカウント項目 (マイページ/アカウント設定の2択ポップオーバー)。 */
+.housing-bottomnav-account {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+}
+.housing-bottomnav-account .housing-bottomnav-item {
+  flex: 1 1 0;
+}
+.housing-bottomnav-account-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  min-width: 168px;
+  border-radius: 12px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: var(--housing-popover-z-stack);
+}
+.housing-bottomnav-account-menu button {
+  background: transparent;
+  border: none;
+  color: var(--housing-text);
+  font-size: var(--housing-text-base);
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.housing-bottomnav-account-menu button:hover {
+  background: var(--housing-honey-medium);
 }
 
 /* ----- 登録 FAB ----- */

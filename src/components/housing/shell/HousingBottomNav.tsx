@@ -1,3 +1,4 @@
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Home, Heart, Route, Settings, User } from 'lucide-react';
@@ -38,6 +39,28 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettin
   // 未ログインでも呼んで良い (フック規則上、条件付き呼び出しはできない)。未ログイン時は
   // useNotifications 内部で購読が張られず unreadCount は常に 0 になる。
   const { unreadCount } = useNotifications();
+
+  // 2026-07-24: ログイン中のアカウント項目は「マイページ」「アカウント設定」の2択メニューに。
+  // 画面が狭くタブとして両方常設できないため、下部ナビでは1項目に集約する。
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!accountMenuOpen) return;
+    const onClickOutside = (e: MouseEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target as Node)) {
+        setAccountMenuOpen(false);
+      }
+    };
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAccountMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    document.addEventListener('keydown', onEsc);
+    return () => {
+      document.removeEventListener('mousedown', onClickOutside);
+      document.removeEventListener('keydown', onEsc);
+    };
+  }, [accountMenuOpen]);
 
   const items: NavItem[] = [
     {
@@ -89,7 +112,7 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettin
         <User size={20} aria-hidden="true" />
       ),
       label: user ? t('housing.topbar.account') : t('housing.mobile.nav_login'),
-      onClick: () => (user ? openAccount() : openLogin()),
+      onClick: () => (user ? setAccountMenuOpen((v) => !v) : openLogin()),
       active: false,
       badge: Boolean(user) && unreadCount > 0,
     },
@@ -97,21 +120,59 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettin
 
   return (
     <nav className="housing-bottomnav" aria-label={t('housing.tabs.aria')}>
-      {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className={`housing-bottomnav-item${item.active ? ' is-active' : ''}`}
-          onClick={item.onClick}
-          aria-current={item.active ? 'page' : undefined}
-        >
-          <span className="housing-bottomnav-icon">
-            {item.icon}
-            {item.badge && <span className="housing-bottomnav-badge" aria-hidden="true" />}
-          </span>
-          <span className="housing-bottomnav-label">{item.label}</span>
-        </button>
-      ))}
+      {items.map((item) => {
+        const itemButton = (
+          <button
+            type="button"
+            className={`housing-bottomnav-item${item.active ? ' is-active' : ''}`}
+            onClick={item.onClick}
+            aria-current={item.active ? 'page' : undefined}
+            aria-haspopup={item.id === 'login' && user ? 'menu' : undefined}
+            aria-expanded={item.id === 'login' && user ? accountMenuOpen : undefined}
+          >
+            <span className="housing-bottomnav-icon">
+              {item.icon}
+              {item.badge && <span className="housing-bottomnav-badge" aria-hidden="true" />}
+            </span>
+            <span className="housing-bottomnav-label">{item.label}</span>
+          </button>
+        );
+
+        // ログイン中のアカウント項目だけ「マイページ/アカウント設定」の2択ポップオーバーを持つ。
+        if (item.id === 'login' && user) {
+          return (
+            <div key={item.id} className="housing-bottomnav-account" ref={accountMenuRef}>
+              {itemButton}
+              {accountMenuOpen && (
+                <div role="menu" className="housing-bottomnav-account-menu">
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      navigate('/housing/mypage');
+                    }}
+                  >
+                    {t('housing.tabs.mypage')}
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      openAccount();
+                    }}
+                  >
+                    {t('housing.topbar.account')}
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        return <Fragment key={item.id}>{itemButton}</Fragment>;
+      })}
     </nav>
   );
 };

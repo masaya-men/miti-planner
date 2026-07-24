@@ -2293,7 +2293,8 @@
                 "unlisted_desc": "이미지는 찾기에 표시되지만 주소는 숨겨지고 투어에는 사용할 수 없습니다",
                 "private_desc": "나만 볼 수 있습니다",
                 "set_end_datetime": "공개 종료 일시 설정",
-                "auto_hide_note": "공개 종료 일시가 지나면 자동으로 목록에서 숨겨집니다",
+                "after_expiry_label": "기한이 지나면",
+                "auto_hide_note": "공개 종료 일시가 지나면 선택한 설정으로 자동 전환됩니다",
                 "picker": {
                     "placeholder": "날짜와 시간 선택",
                     "time_label": "시간",
@@ -2583,6 +2584,7 @@
             "avatarDelete": "",
             "displayNameLabel": "",
             "displayNameEdit": "",
+            "displayNameNote": "이 이름이 하우징어 태그로 사용됩니다",
             "adminLink": "",
             "signOut": "",
             "deleteAccount": "",
@@ -2616,6 +2618,7 @@
             "noListings": "공개 중인 하우징이 아직 없습니다",
             "tourAll": "이 사람의 집 모아서 투어",
             "editProfile": "프로필 수정",
+            "mypageLoginRequired": "마이페이지를 보려면 로그인이 필요합니다",
             "loading": "불러오는 중…",
             "viewPage": "{{name}} 님의 하우징어 페이지 보기 →",
             "register": {
@@ -2635,6 +2638,16 @@
                     "other": "기타"
                 },
                 "menuItem": "이 하우징어 신고하기"
+            }
+        },
+        "mypage": {
+            "editListing": "수정",
+            "visibilityConfirm": {
+                "title": "공개 상태를 변경하시겠습니까?",
+                "warningPrivate": "다른 사람에게는 전혀 보이지 않게 됩니다",
+                "confirm": "변경",
+                "cancel": "취소",
+                "error": "변경에 실패했습니다. 잠시 후 다시 시도해 주세요"
             }
         },
         "header": {

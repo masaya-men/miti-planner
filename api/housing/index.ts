@@ -5,6 +5,7 @@
  * ?action=register-listing          → POST 物件登録 (canRegister + listings 作成 + meta 更新)
  * ?action=check-duplicate           → POST 同住所重複検索
  * ?action=update-listing            → POST 物件編集 (ownerUid 認可)
+ * ?action=update-visibility         → POST 物件公開状態の軽量切替 (マイページ一覧のワンクリック用)
  * ?action=delete-listing            → POST 物件 soft delete (ownerUid 認可)
  * ?action=report-listing            → POST 物件通報 (reports + reportCount + 通知 doc)
  * ?action=list-notifications        → GET 自分の通知一覧
@@ -28,11 +29,13 @@
  * ?action=create-shared-tour        → POST 招待ツアー発行 (幹事ログイン必須・shared_tours 作成)
  * ?action=join-shared-tour          → POST 参加者の入場ゲート+heartbeat (認証不要・匿名・presence 集計で300人ソフト上限)
  * ?action=gc-shared-tours           → POST cron 専用: 期限切れ共有ツアーの物理削除 (CRON_SECRET認証・日次)
+ * ?action=apply-expired-visibility  → POST cron 専用: 公開期限切れ物件の visibility 反映 (CRON_SECRET認証・日次)
  */
 import canRegisterHandler from './_canRegisterHandler.js';
 import registerListingHandler from './_registerListingHandler.js';
 import checkDuplicateHandler from './_checkDuplicateHandler.js';
 import updateListingHandler from './_updateListingHandler.js';
+import updateVisibilityHandler from './_updateVisibilityHandler.js';
 import deleteListingHandler from './_deleteListingHandler.js';
 import reportListingHandler from './_reportListingHandler.js';
 import listNotificationsHandler from './_listNotificationsHandler.js';
@@ -54,6 +57,7 @@ import reportHousingerHandler from './_reportHousingerHandler.js';
 import createSharedTourHandler from './_createSharedTourHandler.js';
 import joinSharedTourHandler from './_joinSharedTourHandler.js';
 import gcSharedToursHandler from './_gcSharedToursHandler.js';
+import applyExpiredVisibilityHandler from './_applyExpiredVisibilityHandler.js';
 import { publicWindowHandler } from './_publicWindow.js';
 
 // 公開読みキャッシュ窓口の action (App Check 不要・匿名可・Cloudflare キャッシュ対象)。
@@ -78,6 +82,8 @@ export default async function handler(req: any, res: any) {
       return checkDuplicateHandler(req, res);
     case 'update-listing':
       return updateListingHandler(req, res);
+    case 'update-visibility':
+      return updateVisibilityHandler(req, res);
     case 'delete-listing':
       return deleteListingHandler(req, res);
     case 'report-listing':
@@ -120,6 +126,8 @@ export default async function handler(req: any, res: any) {
       return joinSharedTourHandler(req, res);
     case 'gc-shared-tours':
       return gcSharedToursHandler(req, res);
+    case 'apply-expired-visibility':
+      return applyExpiredVisibilityHandler(req, res);
     default:
       return res.status(400).json({
         error:
