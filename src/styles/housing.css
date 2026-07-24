@@ -7,11 +7,14 @@
 .housing-workspace,
 .housing-panel-modal-backdrop,
 .housing-modal-backdrop,
-.housing-dev-tourpreview {
+.housing-dev-tourpreview,
+.housing-card-visibility-menu-portal {
   /* ===== Color tokens =====
      workspace と portal 化されたモーダルの両方で token を解決させる。
      モーダルは createPortal で body 直下に出るため、 .housing-workspace
-     外でも var(--housing-*) を効かせる必要がある。 */
+     外でも var(--housing-*) を効かせる必要がある(2026-07-24: 公開状態メニューの
+     ポータルもここに無いと z-index/背景/文字色が --housing-* 未解決で
+     transparent/auto に落ち、"見た目上は存在するが完全に透明で不可視" になる実機バグを確認)。 */
   --housing-honey: #ffc987;
   --housing-honey-glow: #ffb35a;
   --housing-candle: #ffe2b3;
