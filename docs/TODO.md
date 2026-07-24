@@ -13,7 +13,7 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-1. **🔴 ハウジング次の着手順(2026-07-24ユーザー決定)**: ①コスト面(Twitter動画0化+画像Storage egress実測) ②ハウジンガータグ(個人タグ)編集不可バグ修正 ③タグAND検索機能(要brainstorming) ④マイページ改善(要brainstorming・詳細未確定) ⑤繁体字対応(要brainstorming) ⑥YouTube概要欄住所自動入力(API自体は無料・1日1万クエリ枠で問題なしと判明済み・上記①〜⑤の後に着手)。全項目の詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
+1. **🔴 ハウジング次の着手順(2026-07-24ユーザー決定)**: ①コスト面(Twitter動画0化+画像Storage egress実測)→設計中=`docs/superpowers/specs/`参照 ②ハウジンガータグ(個人タグ)編集不可バグ修正 ③タグAND検索機能(要brainstorming) ④マイページ改善(要brainstorming・詳細未確定) ⑤繁体字対応(要brainstorming) ⑥YouTube概要欄住所自動入力(API自体は無料・1日1万クエリ枠で問題なしと判明済み) ⑦30日物理削除cron実装(2026-07-24再浮上: housing_listingsに家主削除済みだが未物理削除のドキュメントが38件残存確認・実害小だが公開前に直したい)。全項目の詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
