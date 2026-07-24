@@ -19,7 +19,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { initializeApp, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, type DocumentData } from 'firebase-admin/firestore';
 
 function loadEnv(filePath: string): Record<string, string> {
   const text = readFileSync(filePath, 'utf-8');
@@ -61,6 +61,18 @@ function extractFilenameFromOldUrl(url: string, listingId: string): string | nul
   }
 }
 
+/**
+ * housing_listings ドキュメントから画像URL配列を読み取る。
+ * api/housing/_uploadThumbnailHandler.ts (150行目付近) と同一の正規化ロジック:
+ * thumbnailPaths (配列) が無い旧データは、単数フィールド thumbnailPath を
+ * 1件配列として扱う。
+ */
+function readThumbnailPaths(data: DocumentData): string[] {
+  if (Array.isArray(data.thumbnailPaths)) return data.thumbnailPaths;
+  if (typeof data.thumbnailPath === 'string' && data.thumbnailPath) return [data.thumbnailPath];
+  return [];
+}
+
 const ROOT = resolve(import.meta.dirname, '..');
 const env = loadEnv(resolve(ROOT, '.env.local'));
 const projectId = env.FIREBASE_PROJECT_ID;
@@ -96,78 +108,107 @@ async function main() {
   let migrated = 0;
   let failed = 0;
   let skippedNoOldUrl = 0;
+  let skippedConcurrentEdit = 0;
 
   for (const doc of snap.docs) {
     const listingId = doc.id;
-    const data = doc.data();
-    const thumbnailPaths: string[] = Array.isArray(data.thumbnailPaths) ? data.thumbnailPaths : [];
+    // 想定外の例外 (壊れたデータ等) がこの1件を落としても他件の処理を止めない。
+    try {
+      const data = doc.data();
+      const thumbnailPaths = readThumbnailPaths(data);
 
-    if (thumbnailPaths.length === 0) {
-      skippedNoOldUrl++;
-      continue;
-    }
-
-    // 既に全部新形式なら完全スキップ (冪等性)
-    const allAlreadyNew = thumbnailPaths.every((u) => !u || u.startsWith('https://lopoly.app/housing-media/'));
-    if (allAlreadyNew) {
-      alreadyMigrated++;
-      continue;
-    }
-
-    const newPaths: string[] = [];
-    let listingOk = true;
-    for (const oldUrl of thumbnailPaths) {
-      if (!oldUrl) {
-        newPaths.push(oldUrl);
+      if (thumbnailPaths.length === 0) {
+        skippedNoOldUrl++;
         continue;
       }
-      if (oldUrl.startsWith('https://lopoly.app/housing-media/')) {
-        newPaths.push(oldUrl); // 既に新形式
+
+      // 既に全部新形式なら完全スキップ (冪等性)
+      const allAlreadyNew = thumbnailPaths.every((u) => !u || u.startsWith('https://lopoly.app/housing-media/'));
+      if (allAlreadyNew) {
+        alreadyMigrated++;
         continue;
       }
-      const filename = extractFilenameFromOldUrl(oldUrl, listingId);
-      if (!filename) {
-        console.error(`  ⚠ ${listingId}: 旧URL形式を解析できず (skip): ${oldUrl}`);
-        listingOk = false;
-        break;
+
+      const newPaths: string[] = [];
+      let listingOk = true;
+      for (const oldUrl of thumbnailPaths) {
+        if (!oldUrl) {
+          newPaths.push(oldUrl);
+          continue;
+        }
+        if (oldUrl.startsWith('https://lopoly.app/housing-media/')) {
+          newPaths.push(oldUrl); // 既に新形式
+          continue;
+        }
+        const filename = extractFilenameFromOldUrl(oldUrl, listingId);
+        if (!filename) {
+          console.error(`  ⚠ ${listingId}: 旧URL形式を解析できず (skip): ${oldUrl}`);
+          listingOk = false;
+          break;
+        }
+        const newUrl = buildNewUrl(listingId, filename);
+        // HTTP検証はトランザクション外 (時間がかかるため、外部呼び出しをtx内に入れない)。
+        const resolves = await verifyUrlResolves(newUrl);
+        if (!resolves) {
+          console.error(`  ⚠ ${listingId}: 新URLが解決しない (skip): ${newUrl}`);
+          listingOk = false;
+          break;
+        }
+        newPaths.push(newUrl);
       }
-      const newUrl = buildNewUrl(listingId, filename);
-      const resolves = await verifyUrlResolves(newUrl);
-      if (!resolves) {
-        console.error(`  ⚠ ${listingId}: 新URLが解決しない (skip): ${newUrl}`);
-        listingOk = false;
-        break;
-      }
-      newPaths.push(newUrl);
-    }
 
-    if (!listingOk) {
-      failed++;
-      continue;
-    }
-
-    console.log(`  ✅ ${listingId}: ${thumbnailPaths.length}枚 検証OK${COMMIT ? ' → 書き込み中' : ' (dry-run)'}`);
-
-    if (COMMIT) {
-      try {
-        await db.collection('housing_listings').doc(listingId).update({
-          thumbnailPaths: newPaths,
-          thumbnailPath: newPaths[0] ?? null,
-          updatedAt: Date.now(),
-        });
-      } catch (e) {
-        console.error(`  ❌ ${listingId}: Firestore書き込み失敗:`, e);
+      if (!listingOk) {
         failed++;
         continue;
       }
+
+      console.log(`  ✅ ${listingId}: ${thumbnailPaths.length}枚 検証OK${COMMIT ? ' → 書き込み中' : ' (dry-run)'}`);
+
+      if (COMMIT) {
+        const docRef = db.collection('housing_listings').doc(listingId);
+        try {
+          // HTTP検証(時間がかかる)は完了済み。書き込み直前にドキュメントを再読み込みし、
+          // 最初にこのスクリプトが読んだ時点の値と完全一致する場合のみ書き込む。
+          // その間にアプリ本体側で編集(追加/削除/並び替え等)があれば一致せず、
+          // 古いスナップショットで上書きしてしまうのを防ぐためスキップする。
+          const applied = await db.runTransaction(async (tx) => {
+            const freshSnap = await tx.get(docRef);
+            const freshPaths = readThumbnailPaths(freshSnap.data() ?? {});
+            const unchanged =
+              freshPaths.length === thumbnailPaths.length &&
+              freshPaths.every((v, i) => v === thumbnailPaths[i]);
+            if (!unchanged) return false;
+            tx.update(docRef, {
+              thumbnailPaths: newPaths,
+              thumbnailPath: newPaths[0] ?? null,
+              updatedAt: Date.now(),
+            });
+            return true;
+          });
+          if (!applied) {
+            console.error(`  ⏭ ${listingId}: 書き込み直前に他の編集を検知 (skip・次回再実行時に処理されます)`);
+            skippedConcurrentEdit++;
+            continue;
+          }
+        } catch (e) {
+          console.error(`  ❌ ${listingId}: Firestore書き込み失敗:`, e);
+          failed++;
+          continue;
+        }
+      }
+      migrated++;
+    } catch (e) {
+      console.error(`  ❌ ${listingId}: 想定外のエラーで失敗 (skip):`, e);
+      failed++;
+      continue;
     }
-    migrated++;
   }
 
   console.log('\n=== 結果 ===');
   console.log(`移行対象として処理: ${migrated}件`);
   console.log(`既に新形式でスキップ: ${alreadyMigrated}件`);
   console.log(`画像なしでスキップ: ${skippedNoOldUrl}件`);
+  console.log(`書き込み直前の競合でスキップ: ${skippedConcurrentEdit}件`);
   console.log(`検証失敗: ${failed}件`);
   if (!COMMIT) {
     console.log('\nドライランでした。問題なければ --commit を付けて再実行してください。');
