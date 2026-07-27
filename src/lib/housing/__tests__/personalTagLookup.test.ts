@@ -6,12 +6,24 @@ vi.mock('../../firebase', () => ({
 
 const mockDoc = vi.fn();
 const mockGetDoc = vi.fn();
+const mockCollection = vi.fn();
+const mockQuery = vi.fn();
+const mockWhere = vi.fn();
+const mockOrderBy = vi.fn();
+const mockLimit = vi.fn();
+const mockGetDocs = vi.fn();
 vi.mock('firebase/firestore', () => ({
   doc: (...a: unknown[]) => mockDoc(...a),
   getDoc: (...a: unknown[]) => mockGetDoc(...a),
+  collection: (...a: unknown[]) => mockCollection(...a),
+  query: (...a: unknown[]) => mockQuery(...a),
+  where: (...a: unknown[]) => mockWhere(...a),
+  orderBy: (...a: unknown[]) => mockOrderBy(...a),
+  limit: (...a: unknown[]) => mockLimit(...a),
+  getDocs: (...a: unknown[]) => mockGetDocs(...a),
 }));
 
-import { getPersonalTagById } from '../personalTagLookup';
+import { getPersonalTagById, listAllPersonalTags } from '../personalTagLookup';
 import type { PersonalTag } from '../../../types/housing';
 
 const TAG: PersonalTag = {
@@ -27,6 +39,12 @@ const TAG: PersonalTag = {
 beforeEach(() => {
   mockDoc.mockReset();
   mockGetDoc.mockReset();
+  mockCollection.mockReset();
+  mockQuery.mockReset();
+  mockWhere.mockReset();
+  mockOrderBy.mockReset();
+  mockLimit.mockReset();
+  mockGetDocs.mockReset();
 });
 
 describe('getPersonalTagById', () => {
@@ -47,5 +65,33 @@ describe('getPersonalTagById', () => {
     mockGetDoc.mockRejectedValueOnce(new Error('permission-denied'));
     const r = await getPersonalTagById('hidden-tag');
     expect(r).toBeNull();
+  });
+});
+
+describe('listAllPersonalTags', () => {
+  it('isHidden==false を displayNameLower 昇順・既定500件でクエリする', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        { data: () => ({ ...TAG, id: 'personal_taro', displayName: 'taro' }) },
+        { data: () => ({ ...TAG, id: 'personal_hanako', displayName: 'hanako' }) },
+      ],
+    });
+    const r = await listAllPersonalTags();
+    expect(r.map((t) => t.id)).toEqual(['personal_taro', 'personal_hanako']);
+    expect(mockWhere).toHaveBeenCalledWith('isHidden', '==', false);
+    expect(mockOrderBy).toHaveBeenCalledWith('displayNameLower');
+    expect(mockLimit).toHaveBeenCalledWith(500);
+  });
+
+  it('max を指定するとその件数でクエリする', async () => {
+    mockGetDocs.mockResolvedValueOnce({ docs: [] });
+    await listAllPersonalTags(50);
+    expect(mockLimit).toHaveBeenCalledWith(50);
+  });
+
+  it('0件なら空配列', async () => {
+    mockGetDocs.mockResolvedValueOnce({ docs: [] });
+    const r = await listAllPersonalTags();
+    expect(r).toEqual([]);
   });
 });
