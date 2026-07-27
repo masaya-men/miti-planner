@@ -36,3 +36,15 @@ describe('KR/CN マスター', () => {
     }
   });
 });
+
+describe('TWマスター', () => {
+  it('TW DC が ALL_REGIONS に含まれる', () => {
+    expect(ALL_REGIONS).toContain('TW');
+  });
+  it('TW ワールドが DC_SERVER_MAP に登録されている', () => {
+    const twDcs = Object.entries(DC_SERVER_MAP).filter(([, v]) => v.region === 'TW');
+    expect(twDcs.length).toBeGreaterThan(0);
+    const totalWorlds = twDcs.reduce((n, [, v]) => n + v.servers.length, 0);
+    expect(totalWorlds).toBeGreaterThanOrEqual(7);
+  });
+});

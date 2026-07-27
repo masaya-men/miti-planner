@@ -9,6 +9,9 @@ export const REGION_LABELS: Record<Region, Record<RegionLocale, string>> = {
     OCE: { ja: 'オセアニア', en: 'Oceania', ko: '오세아니아', zh: '大洋洲' },
     KR: { ja: '韓国', en: 'Korea', ko: '한국', zh: '韩国' },
     CN: { ja: '中国', en: 'China', ko: '중국', zh: '中国' },
+    // 台湾 (物理分離リージョン)。ja/en/ko/zh の値は本プラン Task 5 で確定済みの表記を先取り
+    // (Task 5 で zh-Hant キーが RegionLocale に追加されるまでは 4 言語のまま)。
+    TW: { ja: '台湾', en: 'Taiwan', ko: '대만', zh: '台湾' },
 };
 
 export function regionLabel(region: Region, locale: RegionLocale): string {
