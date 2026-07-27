@@ -51,7 +51,6 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
     const toggleServer = useHousingFilterStore((s) => s.toggleServer);
     const toggleArea = useHousingFilterStore((s) => s.toggleArea);
     const toggleSize = useHousingFilterStore((s) => s.toggleSize);
-    const toggleTag = useHousingFilterStore((s) => s.toggleTag);
     const setCounts = useHousingFilterStore((s) => s.setCounts);
     const clearAll = useHousingFilterStore((s) => s.clearAll);
     // 件数の母集団はアクティブビューに揃える (CenterArea / RightPanel と同じ規約):
