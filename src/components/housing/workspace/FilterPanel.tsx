@@ -8,6 +8,7 @@ import {
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { MOCK_LISTINGS } from '../../../data/housing/mockListings';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
+import { useHousingTagPickerStore } from '../../../store/useHousingTagPickerStore';
 import {
     ALL_DCS,
     ALL_REGIONS,
@@ -187,7 +188,14 @@ export const FilterPanel: React.FC<FilterPanelProps> = ({ onClose, onRegisterCli
                 </div>
 
                 {hasActiveFilter && (
-                    <button type="button" className="housing-filter-clear-all" onClick={clearAll}>
+                    <button
+                        type="button"
+                        className="housing-filter-clear-all"
+                        onClick={() => {
+                            clearAll();
+                            useHousingTagPickerStore.getState().clearPending();
+                        }}
+                    >
                         {t('housing.workspace.filter.clear_all')}
                     </button>
                 )}

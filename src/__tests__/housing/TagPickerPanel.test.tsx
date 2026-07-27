@@ -30,7 +30,7 @@ beforeEach(() => {
   listAllPersonalTagsMock.mockReset();
   listAllPersonalTagsMock.mockResolvedValue([]);
   useHousingFilterStore.getState().clearAll();
-  useHousingTagPickerStore.setState({ pendingTags: [], initialized: false });
+  useHousingTagPickerStore.setState({ pendingTags: [], lastSyncedCommitted: null });
   useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
 });
 
@@ -40,13 +40,13 @@ describe('TagPickerPanel', () => {
   it('マウント時に committed tags からpendingを初期化する', async () => {
     useHousingFilterStore.getState().setTags(['theme_wafu']);
     wrap(<TagPickerPanel onApplied={vi.fn()} />);
-    await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
+    await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
     expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['theme_wafu']);
   });
 
   it('チップを選んでもすぐには committed tags に反映しない', async () => {
     wrap(<TagPickerPanel onApplied={vi.fn()} />);
-    await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
+    await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
     fireEvent.click(screen.getByText('和風'));
     expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['theme_wafu']);
     expect(useHousingFilterStore.getState().tags).toEqual([]);
@@ -55,7 +55,7 @@ describe('TagPickerPanel', () => {
   it('「絞り込む」を押すと committed tags に反映し onApplied を呼ぶ', async () => {
     const onApplied = vi.fn();
     wrap(<TagPickerPanel onApplied={onApplied} />);
-    await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
+    await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
     fireEvent.click(screen.getByText('和風'));
     fireEvent.click(screen.getByText('この条件で絞り込む'));
     expect(useHousingFilterStore.getState().tags).toEqual(['theme_wafu']);
@@ -73,13 +73,13 @@ describe('TagPickerPanel', () => {
 
   it('件数プレビューを表示する', async () => {
     wrap(<TagPickerPanel onApplied={vi.fn()} />);
-    await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
+    await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
     expect(screen.getByText(`この条件で ${MOCK_LISTINGS.length}件`)).toBeInTheDocument();
   });
 
   it('コンポーネントがアンマウント→再マウントされても保留中の選択(committedと異なる状態)は保持される', async () => {
     const first = wrap(<TagPickerPanel onApplied={vi.fn()} />);
-    await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
+    await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
     fireEvent.click(screen.getByText('和風'));
     expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['theme_wafu']);
     expect(useHousingFilterStore.getState().tags).toEqual([]);
@@ -88,5 +88,17 @@ describe('TagPickerPanel', () => {
 
     wrap(<TagPickerPanel onApplied={vi.fn()} />);
     expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['theme_wafu']);
+  });
+
+  it('タグ検索の外側(ヘッダー検索等)でcommitted tagsが変わったら、次に開いたときpendingが追従する', async () => {
+    const first = wrap(<TagPickerPanel onApplied={vi.fn()} />);
+    await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
+    first.unmount();
+
+    // ピッカーを介さず、外部(ヘッダー検索の housinger クリック等を模す)から committed tags を直接変更する。
+    useHousingFilterStore.getState().setTags(['personal_taro']);
+
+    wrap(<TagPickerPanel onApplied={vi.fn()} />);
+    await waitFor(() => expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['personal_taro']));
   });
 });

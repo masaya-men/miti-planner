@@ -32,7 +32,7 @@ beforeEach(() => {
   listAllPersonalTagsMock.mockReset();
   listAllPersonalTagsMock.mockResolvedValue([]);
   useHousingFilterStore.getState().clearAll();
-  useHousingTagPickerStore.setState({ pendingTags: [], initialized: false });
+  useHousingTagPickerStore.setState({ pendingTags: [], lastSyncedCommitted: null });
   useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
   useHousingViewStore.getState().reset();
 });
@@ -55,7 +55,7 @@ describe('HousingFilterSheet タグ検索 (インライン展開)', () => {
     const onClose = vi.fn();
     wrap(<HousingFilterSheet isOpen onClose={onClose} />);
     fireEvent.click(screen.getByRole('button', { name: 'タグ' }));
-    await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
+    await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
     fireEvent.click(screen.getByText('この条件で絞り込む'));
     expect(onClose).not.toHaveBeenCalled();
     expect(screen.queryByText('ハウジンガー')).toBeNull();

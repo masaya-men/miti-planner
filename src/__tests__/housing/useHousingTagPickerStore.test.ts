@@ -3,20 +3,20 @@ import { useHousingTagPickerStore } from '../../store/useHousingTagPickerStore';
 
 describe('useHousingTagPickerStore', () => {
     beforeEach(() => {
-        useHousingTagPickerStore.setState({ pendingTags: [], initialized: false });
+        useHousingTagPickerStore.setState({ pendingTags: [], lastSyncedCommitted: null });
     });
 
-    it('初期状態は空・未初期化', () => {
+    it('初期状態は空・未同期', () => {
         const s = useHousingTagPickerStore.getState();
         expect(s.pendingTags).toEqual([]);
-        expect(s.initialized).toBe(false);
+        expect(s.lastSyncedCommitted).toBeNull();
     });
 
-    it('syncFromCommitted で pendingTags を確定値から初期化し initialized=true にする', () => {
+    it('syncFromCommitted で pendingTags を確定値から初期化し lastSyncedCommitted を記録する', () => {
         useHousingTagPickerStore.getState().syncFromCommitted(['theme_wafu', 'personal_taro']);
         const s = useHousingTagPickerStore.getState();
         expect(s.pendingTags).toEqual(['theme_wafu', 'personal_taro']);
-        expect(s.initialized).toBe(true);
+        expect(s.lastSyncedCommitted).toEqual(['theme_wafu', 'personal_taro']);
     });
 
     it('toggleTag で追加/削除をトグルする', () => {
@@ -27,21 +27,22 @@ describe('useHousingTagPickerStore', () => {
         expect(useHousingTagPickerStore.getState().pendingTags).toEqual([]);
     });
 
-    it('clearPending は pendingTags を空にするが initialized は保つ', () => {
+    it('clearPending は pendingTags を空にするが lastSyncedCommitted は保つ', () => {
         const s = useHousingTagPickerStore.getState();
         s.syncFromCommitted(['theme_wafu']);
         s.clearPending();
         const after = useHousingTagPickerStore.getState();
         expect(after.pendingTags).toEqual([]);
-        expect(after.initialized).toBe(true);
+        expect(after.lastSyncedCommitted).toEqual(['theme_wafu']);
     });
 
-    it('syncFromCommitted は呼ばれるたびに常に上書きする (呼び出し側が !initialized ガードを持つ規約)', () => {
+    it('syncFromCommitted は呼ばれるたびに常に上書きする (呼び出し側が差分ガードを持つ規約)', () => {
         const s = useHousingTagPickerStore.getState();
         s.syncFromCommitted(['a']);
         s.toggleTag('b');
         expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['a', 'b']);
         s.syncFromCommitted(['c']);
         expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['c']);
+        expect(useHousingTagPickerStore.getState().lastSyncedCommitted).toEqual(['c']);
     });
 });

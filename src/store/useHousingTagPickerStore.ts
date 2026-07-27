@@ -7,8 +7,12 @@ import { create } from 'zustand';
  */
 interface HousingTagPickerState {
     pendingTags: string[];
-    /** syncFromCommitted が一度でも呼ばれたか。呼び出し側はこれが false の間だけ再同期する。 */
-    initialized: boolean;
+    /** 直近で同期した時点の committed tags のスナップショット。null = 未同期。
+     *  呼び出し側は、現在の committed tags がこれと異なるときだけ再同期する。
+     *  タブ往復だけでは committed は変わらないので pending の下書きは保持され、
+     *  ヘッダー検索・詳細ページのタグクリック・他のクリアボタン等 picker の外から
+     *  committed が変わった場合はここで検知して pending を追従させる。 */
+    lastSyncedCommitted: string[] | null;
     toggleTag: (id: string) => void;
     clearPending: () => void;
     syncFromCommitted: (committed: string[]) => void;
@@ -16,12 +20,12 @@ interface HousingTagPickerState {
 
 export const useHousingTagPickerStore = create<HousingTagPickerState>((set) => ({
     pendingTags: [],
-    initialized: false,
+    lastSyncedCommitted: null,
     toggleTag: (id) => set((s) => ({
         pendingTags: s.pendingTags.includes(id)
             ? s.pendingTags.filter((v) => v !== id)
             : [...s.pendingTags, id],
     })),
     clearPending: () => set({ pendingTags: [] }),
-    syncFromCommitted: (committed) => set({ pendingTags: committed, initialized: true }),
+    syncFromCommitted: (committed) => set({ pendingTags: committed, lastSyncedCommitted: committed }),
 }));

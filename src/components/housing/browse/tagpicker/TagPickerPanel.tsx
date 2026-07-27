@@ -33,16 +33,23 @@ export const TagPickerPanel: React.FC<TagPickerPanelProps> = ({ onApplied }) => 
   const keyword = useHousingFilterStore((s) => s.keyword);
 
   const pendingTags = useHousingTagPickerStore((s) => s.pendingTags);
-  const initialized = useHousingTagPickerStore((s) => s.initialized);
+  const lastSyncedCommitted = useHousingTagPickerStore((s) => s.lastSyncedCommitted);
   const toggleTag = useHousingTagPickerStore((s) => s.toggleTag);
   const clearPending = useHousingTagPickerStore((s) => s.clearPending);
   const syncFromCommitted = useHousingTagPickerStore((s) => s.syncFromCommitted);
 
-  // タブ往復では pending を保持したいので、初回マウント時 (未初期化) だけ committed から同期する。
+  // committed tags がタグ検索の外側 (ヘッダー検索・詳細ページのタグクリック・
+  // 他のクリアボタン等) で変わったときは pending を追従させる。タブ往復だけでは
+  // committed は変わらないので、その間に選んだ pending の下書きはそのまま保持される
+  // (design 2026-07-27 §3)。
   useEffect(() => {
-    if (!initialized) syncFromCommitted(committedTags);
+    const changed =
+      lastSyncedCommitted === null ||
+      lastSyncedCommitted.length !== committedTags.length ||
+      lastSyncedCommitted.some((v, i) => v !== committedTags[i]);
+    if (changed) syncFromCommitted(committedTags);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialized]);
+  }, [committedTags]);
 
   const viewMode = useHousingViewStore((s) => s.viewMode);
   const realListings = useHousingListingsStore((s) => s.listings);

@@ -31,7 +31,7 @@ beforeEach(() => {
   listAllPersonalTagsMock.mockReset();
   listAllPersonalTagsMock.mockResolvedValue([]);
   useHousingFilterStore.getState().clearAll();
-  useHousingTagPickerStore.setState({ pendingTags: [], initialized: false });
+  useHousingTagPickerStore.setState({ pendingTags: [], lastSyncedCommitted: null });
   useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
   useHousingViewStore.getState().reset();
   useHousingViewStore.getState().setBrowseView('tags');
@@ -42,7 +42,7 @@ const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui
 describe('BrowseTagView', () => {
   it('絞り込むを押すと browseView が list に戻る', async () => {
     wrap(<BrowseTagView />);
-    await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
+    await waitFor(() => expect(useHousingTagPickerStore.getState().lastSyncedCommitted).not.toBeNull());
     fireEvent.click(screen.getByText('この条件で絞り込む'));
     expect(useHousingViewStore.getState().browseView).toBe('list');
   });
