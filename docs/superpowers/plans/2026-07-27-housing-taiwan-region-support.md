@@ -479,8 +479,10 @@ describe('TWリージョン分離', () => {
   it('TW 同士は追加できる', () => {
     expect(canAddToTour('TW', 'TW')).toBe(true);
   });
-  it('OCE 候補は常に可(既存仕様)だが TW 候補は弾かれる', () => {
-    expect(canAddToTour('TW', 'OCE')).toBe(true); // 既存仕様: candidateRegion==='OCE' は常にtrue
+  it('TW と OCE はどちらの向きでも混在できない(KR/CNと同じ物理分離)', () => {
+    // travelGroupOf('TW')==='TW' / travelGroupOf('OCE')==='GLOBAL' で不一致のため、
+    // OCE候補常時許可の分岐に到達する前に弾かれる(KR/CNの既存挙動と同一)。
+    expect(canAddToTour('TW', 'OCE')).toBe(false);
     expect(canAddToTour('OCE', 'TW')).toBe(false);
   });
 });
