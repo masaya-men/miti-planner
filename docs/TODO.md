@@ -13,12 +13,12 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-1. **🔴 ハウジング次の着手順(2026-07-24決定・24日夜さらに確定)**: ①コスト面=✅完了(詳細=TODO_COMPLETED) ②マイページ作成=✅完了(2026-07-24)。**優先度確定: ③タグAND検索 → ④繁体字対応(LoPo全体) → ⑤⑥⑦は「その他細かいブラッシュアップ」**。③④とも来週続き(brainstorming途中で区切り済み・決定事項/調査済み事実=`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`)。③要点: ハウジンガータグ以外はOR、ハウジンガータグ選択時のみAND絞り込み。④要点: DC分離は不要見込みだが翻訳量が桁違い(2,700キー規模+コード45ファイル規模)。⑤⑥⑦詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
+1. **🔴 ハウジング次の着手順(2026-07-24決定・27日③完了)**: ①コスト面=✅完了 ②マイページ作成=✅完了(2026-07-24) ③タグAND検索=✅実装完了(2026-07-27、詳細は下記「現在の状態」)。**次: ④繁体字対応(LoPo全体) → ⑤⑥⑦は「その他細かいブラッシュアップ」**。④要点: DC分離は不要見込みだが翻訳量が桁違い(2,700キー規模+コード45ファイル規模)。詳細=`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`。⑤⑥⑦詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 2026-07-27: ③タグAND検索は設計書完成・コミット済み、次は実装プラン化
-設計書=`docs/superpowers/specs/2026-07-27-housing-tag-and-search-design.md`。要点: 左パネル「テーマ」ドロップダウン廃止→一覧|マップと並ぶ「タグ」ビューに全種別(公式/季節/テーマ/初心者/ハウジンガー)を一本化。ハウジンガー複数選択可・選択時のみAND、他はOR。スマホは`HousingFilterSheet`内インライン展開。次回は`writing-plans`スキルで実装プランを作ってから着手。④繁体字対応は未着手のまま(`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`参照)。
+### 2026-07-27: ③タグAND検索 実装完了・mainへローカルマージ済み(未push)
+設計書=`docs/superpowers/specs/2026-07-27-housing-tag-and-search-design.md`、実装プラン=`docs/superpowers/plans/2026-07-27-housing-tag-and-search-plan.md`(14タスク、subagent-driven-developmentで実装・タスクごとレビュー・最終レビューで2件Important修正済み)。要点: 左パネル「テーマ」ドロップダウン廃止→一覧|マップと並ぶ「タグ」ビューに全種別(公式/季節/テーマ/初心者/ハウジンガー)を一本化。ハウジンガー複数選択可・選択時のみAND、他はOR。スマホは`HousingFilterSheet`内インライン展開。ハウジンガーチップに頭文字アバター追加済み(実画像は都度Firestore読み込みが要るため見送り・イニシャルのみ)。ローカル実機確認OK・ユーザー承認済み。**次回セッション最初にやること: 次の実務push時にこの分もまとめてpush(単独pushしない・docsだけのpush回避)**。次は④繁体字対応(LoPo全体、`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`参照)からbrainstorming開始。
 ### ✅ 直近の本番反映(詳細は全てTODO_COMPLETED.md)
 マイページ作成(2026-07-24)/複数投稿URL登録Batch2(2026-07-22)/編集ページ画像管理Plan A+B(2026-07-21)/探すページ表示順ランダム化+スクロール復元・初心者タグ(2026-07-21〜23)/コスト・ハードニング+実機FB9件(2026-07-20)。
 ### ✅ ハウジング全タスク棚卸し完了(2026-07-23)
