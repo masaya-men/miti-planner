@@ -15,8 +15,8 @@ const asciiKey = (en) => en.split(/\s+/).map((w) => w.charAt(0).toUpperCase() + 
 const CN_DC_KEYS = { 'Chocobo (China)': 'ChocoboCN', 'Moogle (China)': 'MoogleCN', 'Fat Cat (China)': 'FatCatCN', 'Mameshiba (China)': 'MameshibaCN' };
 
 const out = { dc: {}, world: {}, area: {}, apartment: {}, aetheryte: {}, district: {}, size: {}, tag: {} };
-for (const [cat, ja, en, ko, zh] of rows) {
-  const entry = { ja, en, ko, zh };
+for (const [cat, ja, en, ko, zh, zhHant] of rows) {
+  const entry = { ja, en, ko, zh, 'zh-Hant': zhHant };
   if (cat === 'ハウジングエリア') out.area[ja] = entry;
   else if (cat === 'アパルトメント') out.apartment[ja] = entry;
   else if (cat === '区画表記') out.district[ja] = entry;
@@ -24,8 +24,11 @@ for (const [cat, ja, en, ko, zh] of rows) {
   else if (cat === 'データセンター') out.dc[en] = entry;                       // グローバル: キー=en
   else if (cat === 'データセンター (中国)') out.dc[CN_DC_KEYS[en]] = entry;
   else if (cat === 'データセンター (韓国)') out.dc['Korea'] = entry;
+  else if (cat === 'データセンター (台湾)') out.dc['TW'] = entry;
   else if (cat.startsWith('ワールド (中国')) out.world[asciiKey(en)] = entry;   // CN: キー=en詰め
-  else if (cat.startsWith('ワールド')) out.world[en] = entry;                   // グローバル/韓国: キー=en (韓国5鯖は同名同訳で共存OK)
+  // 台湾ワールドは asciiKey 変換不要 (内部キーが Ifrit 等の素の英語表記のため)、
+  // 下のグローバル/韓国と同じ汎用分岐 (out.world[en] = entry) に自然に乗る。
+  else if (cat.startsWith('ワールド')) out.world[en] = entry;                   // グローバル/韓国/台湾: キー=en (韓国5鯖は同名同訳で共存OK)
   else if (cat === 'サイズ・種別') out.size[ja] = entry;
   else if (cat.startsWith('タグ')) out.tag[ja] = entry;
 }

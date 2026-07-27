@@ -2,7 +2,7 @@ import { DC_SERVER_MAP } from '../../../data/housing/dcServerMap';
 import terms from '../../../data/housing/housingTerms.generated.json';
 import { termLabel, displayWorldName, displayDcName } from '../housingTerms';
 
-const LOCALES = ['ja', 'en', 'ko', 'zh'] as const;
+const LOCALES = ['ja', 'en', 'ko', 'zh', 'zh-Hant'] as const;
 
 describe('housingTerms 完全性', () => {
   it('全 DC / 全ワールドに 4 言語名がある', () => {
@@ -21,5 +21,13 @@ describe('housingTerms 完全性', () => {
   it('エーテライト名は ja キーで引ける', () => {
     expect(termLabel('aetheryte', 'ミストゲート・スクエア', 'zh')).toBe('雾门广场');
     expect(termLabel('aetheryte', '未知の名前', 'zh')).toBe('未知の名前'); // フォールバック
+  });
+});
+
+describe('TW辞書', () => {
+  it('TW DC/ワールドは繁体字辞書名、グローバルはキーのまま', () => {
+    expect(displayWorldName('TW', 'Ifrit', 'zh-Hant')).toBe('伊弗利特');
+    expect(displayDcName('TW', 'zh-Hant')).toBe('台服');
+    expect(displayWorldName('Elemental', 'Carbuncle', 'zh-Hant')).toBe('Carbuncle'); // グローバル現状維持
   });
 });
