@@ -510,38 +510,56 @@ export function travelGroupOf(region: string): TravelGroup {
 
 ### Task 8: 検索の多言語ヒット拡張
 
+**訂正(実装時に判明)**: 本タスク着手時点の`listingSearch.ts`の実コードは、当初このプランが前提にしていた2026-07-18時点のKR/CN実装から既にリファインされていた。現状:
+
+```ts
+const cnkr = listing.region === 'KR' || listing.region === 'CN';
+const serverKana = cnkr ? null : katakanaReading(server);
+if (serverKana) parts.push(serverKana);
+const dcKana = cnkr ? null : katakanaReading(dc);
+if (dcKana) parts.push(dcKana);
+// 辞書名でも検索可能に (ko/zh/en)。ja は KR の慣用カタカナ誤爆(spec §5)だけでなく
+// 西洋ワールド (例: Gilgamesh→ギルガメッシュ) にも波及するため、常に含めない。
+for (const n of searchNamesFor('world', server)) parts.push(n);
+for (const n of searchNamesFor('dc', dc)) parts.push(n);
+```
+
+`searchNamesFor`は既に`includeJa`引数なし(常にfalse)で全リージョン共通に呼ばれており、region分岐は無い。Task4で辞書のTWエントリを追加済み(グローバルの実訳を保持したまま)なので、**この2行は無改修で自動的にTWでも正しく動く**(`searchNamesFor('world','Ifrit')`は`['이프리트','伊弗利特']`等を返し、TW・グローバルJP双方のIfritリスティングで有効)。
+
+実際に直す必要があるのは`katakanaReading`のガード(`cnkr`)のみ: `JP_KATAKANA_READINGS`はTWの7ワールド名(Ifrit/Garuda/Leviathan/Phoenix/Odin/Bahamut/Titan)すべてとキーが衝突するため、`cnkr`にTWを加えないと**台湾サーバーの家に日本語カタカナ読み(「イフリート」等)が誤って検索エイリアスとして付いてしまう**(Task4実装時にレビュー観点として指摘済み)。
+
 **Files:**
-- Modify: `src/lib/housing/listingSearch.ts:44-55`付近(KR/CN対応時に追加された`cnkr`判定)
+- Modify: `src/lib/housing/listingSearch.ts`(`cnkr`判定に`TW`を追加するのみ。`searchNamesFor`呼び出し行は変更しない)
 - Test: `src/__tests__/housing/listingSearch.test.ts`(追記)
 
 **Interfaces:**
-- Consumes: Task4の`searchNamesFor`
+- Consumes: Task4の`searchNamesFor`(無改修で利用)
 
 - [ ] **Step 1: 失敗するテストを書く** — `listingSearch.test.ts`の既存ヘルパー流儀に合わせて追記:
 
 ```ts
-it('TW の家は 伊弗利特 でヒットする', () => {
+it('TW の家は 伊弗利特(辞書名)でヒットするが、日本語カタカナ「イフリート」ではヒットしない', () => {
   const text = buildListingSearchText(twListing /* dc:'TW', server:'Ifrit', region:'TW' */, t, 'ja', 'ja');
   expect(matchesKeyword(text, '伊弗利特')).toBe(true);
+  expect(matchesKeyword(text, 'イフリート')).toBe(false);
+});
+it('グローバルJPのIfritの家は引き続き「イフリート」でヒットする(回帰)', () => {
+  const text = buildListingSearchText(jpIfritListing /* dc:'Gaia', server:'Ifrit', region:'JP' */, t, 'ja', 'ja');
+  expect(matchesKeyword(text, 'イフリート')).toBe(true);
 });
 ```
 
-- [ ] **Step 2: 失敗確認** — Run: `rtk vitest run src/__tests__/housing/listingSearch.test.ts` → FAIL
+- [ ] **Step 2: 失敗確認** — Run: `rtk vitest run src/__tests__/housing/listingSearch.test.ts` → FAIL(TWの家にも「イフリート」が付いてしまう)
 
-- [ ] **Step 3: 実装** — `listingSearch.ts`の既存`cnkr`判定を拡張:
+- [ ] **Step 3: 実装** — `listingSearch.ts`の既存`cnkr`判定に`TW`を追加(変数名は`cnkr`のままでもリネームしてもよいが、`searchNamesFor`の呼び出し行2つは触らない):
 
 ```ts
-    // 辞書名でも検索可能に (ko/zh/zh-Hant/en)。KR/CN/TW は ja 名を足さない (カタカナ読み非対応)。
-    const cnkrtw = listing.region === 'KR' || listing.region === 'CN' || listing.region === 'TW';
-    for (const n of searchNamesFor('world', server, !cnkrtw)) parts.push(n);
-    for (const n of searchNamesFor('dc', dc, !cnkrtw)) parts.push(n);
+    const cnkr = listing.region === 'KR' || listing.region === 'CN' || listing.region === 'TW';
 ```
-
-(`searchNamesFor`はTermLocaleが5値になった影響でzh-Hant名も含めて返すようになるため、コード変更は変数名リネームのみ)
 
 - [ ] **Step 4: パス確認** — Run: `rtk vitest run src/__tests__/housing/listingSearch.test.ts` → PASS
 
-- [ ] **Step 5: Commit** — `rtk git add -A && rtk git commit -m "feat(housing): 検索がTWのDC/ワールド名(繁体字)でもヒットするよう拡張"`
+- [ ] **Step 5: Commit** — `rtk git add -A && rtk git commit -m "fix(housing): TWの家に日本語カタカナ読みが誤って付くのを防止(katakanaReadingガードにTW追加)"`
 
 ---
 

@@ -110,6 +110,17 @@ describe('多言語辞書名でのヒット (Task 6)', () => {
     const text = buildListingSearchText(jpListing, tId, 'ja', 'ja');
     expect(matchesKeyword(text, '卡邦克鲁')).toBe(true);
   });
+  it('TW の家は 伊弗利特 (辞書名) でヒットするが、日本語カタカナ「イフリート」ではヒットしない', () => {
+    const twListing: MockListing = { ...base, dc: 'TW', server: 'Ifrit', region: 'TW' };
+    const text = buildListingSearchText(twListing, tId, 'ja', 'ja');
+    expect(matchesKeyword(text, '伊弗利特')).toBe(true);
+    expect(matchesKeyword(text, 'イフリート')).toBe(false);
+  });
+  it('グローバル JP の Ifrit の家は引き続き「イフリート」でヒットする (回帰)', () => {
+    const jpIfritListing: MockListing = { ...base, dc: 'Gaia', server: 'Ifrit', region: 'JP' };
+    const text = buildListingSearchText(jpIfritListing, tId, 'ja', 'ja');
+    expect(matchesKeyword(text, 'イフリート')).toBe(true);
+  });
 });
 
 describe('matchesKeyword', () => {
