@@ -1997,6 +1997,7 @@
             "view_aria": "View mode",
             "view_list": "List",
             "view_map": "Map",
+            "view_tags": "Tags",
             "clear_filter": "Clear filters",
             "view_route": "Route",
             "listings_label": "Listings",
@@ -2470,6 +2471,16 @@
             "theme_ruins": "Ruins",
             "theme_botanical": "Botanical",
             "beginner_sprout": "Housing Newcomer"
+        },
+        "tagpicker": {
+            "housinger_section_title": "Housingers",
+            "all_tags_section_title": "All Tags",
+            "housinger_loading": "Loading…",
+            "housinger_empty": "No housingers registered yet",
+            "housinger_error": "Failed to load",
+            "preview_count": "{{count}} matches",
+            "apply_button": "Apply filters",
+            "clear_button": "Clear selection"
         },
         "workspace": {
             "topbar": {

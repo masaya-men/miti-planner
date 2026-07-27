@@ -1962,6 +1962,7 @@
             "view_aria": "표시 전환",
             "view_list": "목록",
             "view_map": "지도",
+            "view_tags": "태그",
             "clear_filter": "필터 해제",
             "view_route": "경로",
             "listings_label": "하우징 목록",
@@ -2435,6 +2436,16 @@
             "theme_ruins": "폐허",
             "theme_botanical": "보태니컬",
             "beginner_sprout": "하우징 새싹"
+        },
+        "tagpicker": {
+            "housinger_section_title": "하우징어",
+            "all_tags_section_title": "전체 태그",
+            "housinger_loading": "불러오는 중…",
+            "housinger_empty": "등록된 하우징어가 없습니다",
+            "housinger_error": "불러오지 못했습니다",
+            "preview_count": "이 조건으로 {{count}}개",
+            "apply_button": "필터 적용",
+            "clear_button": "선택 초기화"
         },
         "workspace": {
             "topbar": {
