@@ -57,6 +57,30 @@ describe('applyFilters', () => {
         expect(result.every((l) => l.dc === 'Mana' && l.area === 'Shirogane' && l.tags.includes('wafu'))).toBe(true);
     });
 
+    it('housinger タグ (personal_) は選んだ複数人の中でOR一致する', () => {
+        const a = { ...MOCK_LISTINGS[0], id: 'h-a', tags: ['personal_taro'] };
+        const b = { ...MOCK_LISTINGS[0], id: 'h-b', tags: ['personal_hanako'] };
+        const c = { ...MOCK_LISTINGS[0], id: 'h-c', tags: ['personal_jiro'] };
+        const result = applyFilters([a, b, c], { ...EMPTY, tags: ['personal_taro', 'personal_hanako'] });
+        expect(result.map((l) => l.id).sort()).toEqual(['h-a', 'h-b']);
+    });
+
+    it('housinger タグを選んだときだけ、他のタグ条件とAND結合になる', () => {
+        const matches = { ...MOCK_LISTINGS[0], id: 'm', tags: ['theme_wafu', 'personal_taro'] };
+        const wrongHousinger = { ...MOCK_LISTINGS[0], id: 'wrong-h', tags: ['theme_wafu', 'personal_hanako'] };
+        const wrongTheme = { ...MOCK_LISTINGS[0], id: 'wrong-t', tags: ['theme_modern', 'personal_taro'] };
+        const result = applyFilters([matches, wrongHousinger, wrongTheme], {
+            ...EMPTY,
+            tags: ['theme_wafu', 'personal_taro'],
+        });
+        expect(result.map((l) => l.id)).toEqual(['m']);
+    });
+
+    it('housinger タグを選んでいなければ、非housingerタグ同士は従来どおり単純OR', () => {
+        const result = applyFilters(MOCK_LISTINGS, { ...EMPTY, tags: ['wafu'] });
+        expect(result.every((l) => l.tags.includes('wafu'))).toBe(true);
+    });
+
     it('returns empty when no listing matches', () => {
         const result = applyFilters(MOCK_LISTINGS, { ...EMPTY, dc: 'Mana', regions: ['EU'] });
         expect(result.length).toBe(0);

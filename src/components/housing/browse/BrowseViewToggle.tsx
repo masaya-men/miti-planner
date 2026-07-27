@@ -6,7 +6,7 @@ export interface BrowseViewToggleProps {
   onChange: (v: HousingBrowseView) => void;
 }
 
-const VIEWS: HousingBrowseView[] = ['list', 'map'];
+const VIEWS: HousingBrowseView[] = ['list', 'map', 'tags'];
 
 /**
  * 探す中央パネル上部の「一覧 | 地図」切替 (spec 3.1)。

@@ -47,16 +47,15 @@ function renderPanel(props?: Partial<React.ComponentProps<typeof FilterPanel>>) 
 }
 
 describe('FilterPanel', () => {
-    it('renders FILTER title and 5 base sections (DC / Region / Area / Size / Theme)', () => {
+    it('renders FILTER title and 4 base sections (DC / Region / Area / Size)', () => {
         renderPanel();
         expect(screen.getByText('FILTER')).toBeInTheDocument();
         expect(screen.getAllByText('データセンター').length).toBeGreaterThan(0);
         expect(screen.getByText('地域')).toBeInTheDocument();
         expect(screen.getByText('エリア')).toBeInTheDocument();
         expect(screen.getByText('サイズ')).toBeInTheDocument();
-        // 'テーマ' label exists; 'テーマ' is also a region in REGION_LABELS? no.
-        // chip group title appears once via FilterSection
-        expect(screen.getAllByText('テーマ').length).toBeGreaterThanOrEqual(1);
+        // テーマドロップダウンは削除済み (探すページの「タグ」ビューに統合)。
+        expect(screen.queryByRole('button', { name: 'テーマ' })).toBeNull();
     });
 
     it('shows result / total = 50 / 50 by default', () => {

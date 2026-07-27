@@ -1962,6 +1962,7 @@
             "view_aria": "显示切换",
             "view_list": "列表",
             "view_map": "地图",
+            "view_tags": "标签",
             "clear_filter": "清除筛选",
             "view_route": "路线",
             "listings_label": "房屋一览",
@@ -2435,6 +2436,16 @@
             "theme_ruins": "废墟",
             "theme_botanical": "植物风",
             "beginner_sprout": "房屋新人"
+        },
+        "tagpicker": {
+            "housinger_section_title": "房主",
+            "all_tags_section_title": "全部标签",
+            "housinger_loading": "加载中…",
+            "housinger_empty": "暂无已登记的房主",
+            "housinger_error": "加载失败",
+            "preview_count": "此条件下 {{count}}件",
+            "apply_button": "应用筛选",
+            "clear_button": "清空选择"
         },
         "workspace": {
             "topbar": {

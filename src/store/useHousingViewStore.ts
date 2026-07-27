@@ -5,8 +5,8 @@ import { persist } from 'zustand/middleware';
 // 2026-07 探すページ 地図表示モードとは無関係 — 新規実装は browseView を使うこと (誤用防止)。
 export type HousingViewMode = 'map' | 'pinterest';
 export type HousingPageMode = 'browse' | 'tour';
-/** 探すページ中央の表示切替 (2026-07 地図表示モード)。'list' = 一覧 (ListingGrid) / 'map' = 地図 (BrowseMapView)。 */
-export type HousingBrowseView = 'list' | 'map';
+/** 探すページ中央の表示切替 (2026-07 地図表示モード)。'list' = 一覧 (ListingGrid) / 'map' = 地図 (BrowseMapView) / 'tags' = タグ検索。 */
+export type HousingBrowseView = 'list' | 'map' | 'tags';
 
 interface HousingViewState {
     viewMode: HousingViewMode;

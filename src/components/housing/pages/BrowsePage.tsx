@@ -22,12 +22,14 @@ import { ListingGrid } from '../browse/ListingGrid';
 import type { BrowseSortOrder } from '../browse/BrowseSortSelect';
 import { BrowseViewToggle } from '../browse/BrowseViewToggle';
 import { BrowseMapView } from '../browse/map/BrowseMapView';
+import { BrowseTagView } from '../browse/BrowseTagView';
 import { TourTray } from '../browse/TourTray';
 import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { FavoritesPreviewStrip } from '../browse/FavoritesPreviewStrip';
 import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
+import { useHousingTagPickerStore } from '../../../store/useHousingTagPickerStore';
 import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
 import { seededShuffle } from '../../../lib/housing/seededShuffle';
 
@@ -183,13 +185,18 @@ export const BrowsePage: React.FC = () => {
                   <button
                     type="button"
                     className="housing-browse-clear-filter"
-                    onClick={() => useHousingFilterStore.getState().clearAll()}
+                    onClick={() => {
+                      useHousingFilterStore.getState().clearAll();
+                      useHousingTagPickerStore.getState().clearPending();
+                    }}
                   >
                     {t('housing.browse.clear_filter')}
                   </button>
                 )}
               </div>
-              {effectiveView === 'map' ? (
+              {effectiveView === 'tags' ? (
+                <BrowseTagView />
+              ) : effectiveView === 'map' ? (
                 <BrowseMapView filtered={filtered} onAddToTour={addToTray} />
               ) : filtered.length === 0 ? (
                 <EmptyResult />

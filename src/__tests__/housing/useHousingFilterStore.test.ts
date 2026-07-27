@@ -76,6 +76,14 @@ describe('useHousingFilterStore', () => {
         expect(useHousingFilterStore.getState().areas).toEqual(['LavenderBeds']);
     });
 
+    it('setTags は tags 配列をまるごと置き換える (絞り込む確定時に使用)', () => {
+        const s = useHousingFilterStore.getState();
+        s.toggleTag('official_cafe');
+        expect(useHousingFilterStore.getState().tags).toEqual(['official_cafe']);
+        s.setTags(['theme_wafu', 'personal_taro']);
+        expect(useHousingFilterStore.getState().tags).toEqual(['theme_wafu', 'personal_taro']);
+    });
+
     it('clearAll resets filters but keeps result/total counts intact', () => {
         const s = useHousingFilterStore.getState();
         s.setDC('Mana');
