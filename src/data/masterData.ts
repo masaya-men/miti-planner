@@ -1,7 +1,7 @@
 // ファイル名: masterData.ts
 
 // 対応言語コード (i18n キーと整合)
-export const MASTER_LANGS = ['ja', 'en', 'ko', 'zh'] as const;
+export const MASTER_LANGS = ['ja', 'en', 'ko', 'zh', 'zh-Hant'] as const;
 export type MasterLang = typeof MASTER_LANGS[number];
 export type LocalizedString = Record<MasterLang, string>;
 
@@ -250,29 +250,29 @@ export const serverMasterData: Record<string, ServerData> = {
 //   - aliases はテキスト解析 (parseHousingFromText) 用、 言語横断の表記揺れを集約
 export const housingAreaMasterData: Record<string, HousingAreaData> = {
   "Mist": {
-    "name": { ja: "ミスト・ヴィレッジ", en: "Mist", ko: "안갯빛 마을", zh: "海雾村" },
-    "apartment_name": { ja: "トップマスト", en: "The Topmast", ko: "중층 돛대", zh: "中桅塔" },
-    "aliases": ["ミスト", "ミスビレ", "Mist", "Mis", "Topmast", "トップマスト", "안갯빛 마을", "海雾村", "중층 돛대", "中桅塔"]
+    "name": { ja: "ミスト・ヴィレッジ", en: "Mist", ko: "안갯빛 마을", zh: "海雾村", "zh-Hant": "海霧村" },
+    "apartment_name": { ja: "トップマスト", en: "The Topmast", ko: "중층 돛대", zh: "中桅塔", "zh-Hant": "中桅塔" },
+    "aliases": ["ミスト", "ミスビレ", "Mist", "Mis", "Topmast", "トップマスト", "안갯빛 마을", "海雾村", "중층 돛대", "中桅塔", "海霧村"]
   },
   "LavenderBeds": {
-    "name": { ja: "ラベンダーベッド", en: "The Lavender Beds", ko: "라벤더 안식처", zh: "薰衣草苗圃" },
-    "apartment_name": { ja: "リリーヒルズ", en: "Lily Hills", ko: "백합 언덕", zh: "百合岭" },
-    "aliases": ["ラベ", "ラベンダー", "森", "葉脈", "Lavender", "Lavender Beds", "Lav", "LB", "Lily Hills", "リリーヒルズ", "라벤더 안식처", "薰衣草苗圃", "백합 언덕", "百合岭"]
+    "name": { ja: "ラベンダーベッド", en: "The Lavender Beds", ko: "라벤더 안식처", zh: "薰衣草苗圃", "zh-Hant": "薰衣草苗圃" },
+    "apartment_name": { ja: "リリーヒルズ", en: "Lily Hills", ko: "백합 언덕", zh: "百合岭", "zh-Hant": "百合嶺" },
+    "aliases": ["ラベ", "ラベンダー", "森", "葉脈", "Lavender", "Lavender Beds", "Lav", "LB", "Lily Hills", "リリーヒルズ", "라벤더 안식처", "薰衣草苗圃", "백합 언덕", "百合岭", "百合嶺"]
   },
   "Goblet": {
-    "name": { ja: "ゴブレットビュート", en: "The Goblet", ko: "하늘잔 마루", zh: "高脚孤丘" },
-    "apartment_name": { ja: "ナナモ大風車", en: "The Sultana's Breath", ko: "나나모 대풍차", zh: "娜娜莫大风车" },
-    "aliases": ["ゴブ", "ゴブレット", "Goblet", "Gob", "Sultana's Breath", "ナナモ大風車", "하늘잔 마루", "高脚孤丘", "나나모 대풍차", "娜娜莫大风车"]
+    "name": { ja: "ゴブレットビュート", en: "The Goblet", ko: "하늘잔 마루", zh: "高脚孤丘", "zh-Hant": "高腳孤丘" },
+    "apartment_name": { ja: "ナナモ大風車", en: "The Sultana's Breath", ko: "나나모 대풍차", zh: "娜娜莫大风车", "zh-Hant": "娜娜莫大風車" },
+    "aliases": ["ゴブ", "ゴブレット", "Goblet", "Gob", "Sultana's Breath", "ナナモ大風車", "하늘잔 마루", "高脚孤丘", "나나모 대풍차", "娜娜莫大风车", "高腳孤丘", "娜娜莫大風車"]
   },
   "Shirogane": {
-    "name": { ja: "シロガネ", en: "Shirogane", ko: "시로가네", zh: "白银乡" },
-    "apartment_name": { ja: "紅梅御殿", en: "Kobai Goten", ko: "홍매전", zh: "红梅御殿" },
-    "aliases": ["シロガネ", "しろがね", "Shirogane", "Shiro", "Kobai Goten", "紅梅御殿", "시로가네", "白银乡", "홍매전", "红梅御殿"]
+    "name": { ja: "シロガネ", en: "Shirogane", ko: "시로가네", zh: "白银乡", "zh-Hant": "白銀鄉" },
+    "apartment_name": { ja: "紅梅御殿", en: "Kobai Goten", ko: "홍매전", zh: "红梅御殿", "zh-Hant": "紅梅御殿" },
+    "aliases": ["シロガネ", "しろがね", "Shirogane", "Shiro", "Kobai Goten", "紅梅御殿", "시로가네", "白银乡", "홍매전", "红梅御殿", "白銀鄉"]
   },
   "Empyreum": {
-    "name": { ja: "エンピレアム", en: "Empyreum", ko: "지고천 거리", zh: "穹顶皓天" },
-    "apartment_name": { ja: "イングルサイド", en: "Ingleside", ko: "단란한 난롯가", zh: "皓天炉舍" },
-    "aliases": ["エンピ", "エンピレアム", "Empyreum", "Emp", "Empy", "Ingleside", "イングルサイド", "지고천 거리", "穹顶皓天", "단란한 난롯가", "皓天炉舍"]
+    "name": { ja: "エンピレアム", en: "Empyreum", ko: "지고천 거리", zh: "穹顶皓天", "zh-Hant": "穹頂皓天" },
+    "apartment_name": { ja: "イングルサイド", en: "Ingleside", ko: "단란한 난롯가", zh: "皓天炉舍", "zh-Hant": "皓天爐舍" },
+    "aliases": ["エンピ", "エンピレアム", "Empyreum", "Emp", "Empy", "Ingleside", "イングルサイド", "지고천 거리", "穹顶皓天", "단란한 난롯가", "皓天炉舍", "穹頂皓天", "皓天爐舍"]
   }
 };
 
