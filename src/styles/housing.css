@@ -6116,6 +6116,156 @@ select.housing-input option {
   border-color: var(--housing-honey-border);
 }
 
+/* タグ検索ビュー (探すページ 3タブ目「タグ」・design 2026-07-27)。
+   WorldSelectGate と同じ chip の見た目 (section/label/grid/chip) を踏襲しつつ、
+   ゲートと違い1画面に収めず縦スクロールする長尺レイアウトにする。 */
+.housing-tagpicker-view {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 8px 4px 24px;
+}
+.housing-tagpicker {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.housing-tagpicker-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.housing-tagpicker-section-header {
+  appearance: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-family: inherit;
+}
+.housing-tagpicker-section-title {
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text);
+}
+.housing-tagpicker-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.housing-tagpicker-status {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-tagpicker-kind-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+}
+.housing-tagpicker-kind-group:first-child {
+  padding-top: 0;
+}
+.housing-tagpicker-kind-group:not(:first-child) {
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-tagpicker-kind-label {
+  font-size: var(--housing-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--housing-text-dim);
+}
+.housing-tagpicker-chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.housing-tagpicker-chip {
+  appearance: none;
+  cursor: pointer;
+  height: 32px;
+  padding: 0 12px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: var(--housing-panel-inner);
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.housing-tagpicker-chip:hover {
+  border-color: var(--housing-panel-border-strong);
+  color: var(--housing-text);
+}
+.housing-tagpicker-chip[data-selected="true"] {
+  color: var(--housing-candle);
+  background: var(--housing-honey-medium);
+  border-color: var(--housing-honey-border);
+}
+.housing-tagpicker-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+  padding: 12px 4px 4px;
+  background: var(--housing-panel-bg-solid);
+  border-top: 1px solid var(--housing-divider);
+}
+.housing-tagpicker-preview {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-dim);
+}
+.housing-tagpicker-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.housing-tagpicker-clear-btn {
+  appearance: none;
+  cursor: pointer;
+  padding: 8px 12px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-text-dim);
+  background: transparent;
+  border: 1px solid var(--housing-panel-border);
+  border-radius: 9px;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.housing-tagpicker-clear-btn:hover {
+  color: var(--housing-text);
+  border-color: var(--housing-panel-border-strong);
+  background: var(--housing-chip-bg-hover);
+}
+.housing-tagpicker-apply-btn {
+  appearance: none;
+  cursor: pointer;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: var(--housing-text-sm);
+  font-weight: 600;
+  color: var(--housing-candle);
+  background: var(--housing-honey-soft);
+  border: 1px solid var(--housing-honey-border);
+  border-radius: 9px;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.housing-tagpicker-apply-btn:hover {
+  background: var(--housing-honey-medium);
+  box-shadow: 0 0 0 1px var(--housing-honey-inset) inset, 0 0 12px var(--housing-honey-shadow-soft);
+}
+.housing-tagpicker-inline-body {
+  padding-top: 12px;
+}
+
 /* ============================================================
  * 探す専用ワード地図 (BrowseWardMap, Task4)。SVG+パン/ズーム+マーカーレイヤ。
  * ツアーの .housing-tour-map-wrap 系とは完全に独立(ツアー無傷方針・共有クラスは
