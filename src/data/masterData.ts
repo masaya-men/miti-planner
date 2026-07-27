@@ -240,6 +240,14 @@ export const serverMasterData: Record<string, ServerData> = {
     "servers": {
       "TheCrystalTower": ["水晶塔"], "SilvertearLake": ["银泪湖"], "CostaDelSol": ["太阳海岸"], "Ishgard": ["伊修加德"], "BlackTeaRiver": ["红茶川"]
     }
+  },
+  // --- 台湾/香港/マカオ/星/馬 (TW / 物理分離) --- alias は繁体字のみ (英名はグローバル同名ワールドと衝突するため入れない)
+  "TW": {
+    "aliases": ["台服", "台灣", "台湾"],
+    "servers": {
+      "Ifrit": ["伊弗利特"], "Garuda": ["迦樓羅"], "Leviathan": ["利維坦"], "Phoenix": ["鳳凰"],
+      "Odin": ["奧汀"], "Bahamut": ["巴哈姆特"], "Titan": ["泰坦"]
+    }
   }
 };
 
