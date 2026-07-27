@@ -76,4 +76,17 @@ describe('TagPickerPanel', () => {
     await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
     expect(screen.getByText(`この条件で ${MOCK_LISTINGS.length}件`)).toBeInTheDocument();
   });
+
+  it('コンポーネントがアンマウント→再マウントされても保留中の選択(committedと異なる状態)は保持される', async () => {
+    const first = wrap(<TagPickerPanel onApplied={vi.fn()} />);
+    await waitFor(() => expect(useHousingTagPickerStore.getState().initialized).toBe(true));
+    fireEvent.click(screen.getByText('和風'));
+    expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['theme_wafu']);
+    expect(useHousingFilterStore.getState().tags).toEqual([]);
+
+    first.unmount();
+
+    wrap(<TagPickerPanel onApplied={vi.fn()} />);
+    expect(useHousingTagPickerStore.getState().pendingTags).toEqual(['theme_wafu']);
+  });
 });
