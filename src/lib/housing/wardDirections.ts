@@ -28,11 +28,13 @@ export function getPlotDirections(
 /**
  * area(enum) + plot(1-60) + locale → 行き方本文 (Task8: en/ko/zh 訳付き)。
  * ja、または該当ロケールの訳が無い場合は正典 (ja) 本文にフォールバックする。無ければ null。
+ * zh-Hant (Task5 で RegionLocale に追加) は i18n に訳が無いため常に ja 本文にフォールバックする
+ * (このフォールバック文言自体は既存ロジックのまま・新規翻訳データの追加はスコープ外)。
  */
 export function getPlotDirectionsText(
   area: string,
   plot: number | null | undefined,
-  locale: 'ja' | 'en' | 'ko' | 'zh',
+  locale: 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant',
 ): string | null {
   if (plot == null || !Number.isInteger(plot)) return null;
   const d = TABLE[area]?.[String(plot)];

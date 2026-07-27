@@ -14,6 +14,12 @@ describe('pickRegionLocale', () => {
     expect(pickRegionLocale('fr')).toBe('ja');
     expect(pickRegionLocale('')).toBe('ja');
   });
+  it('zh-Hant を zh(簡体字)と区別する', () => {
+    expect(pickRegionLocale('zh-Hant')).toBe('zh-Hant');
+    expect(pickRegionLocale('zh-Hant-TW')).toBe('zh-Hant');
+    expect(pickRegionLocale('zh-CN')).toBe('zh'); // 既存挙動: 変えない
+    expect(pickRegionLocale('zh')).toBe('zh'); // 既存挙動: 変えない
+  });
 });
 
 describe('KR/CN マスター', () => {
