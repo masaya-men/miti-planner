@@ -63,4 +63,11 @@ describe('BrowseViewToggle', () => {
     fireEvent.click(screen.getByRole('tab', { name: '一覧' }));
     expect(useHousingViewStore.getState().browseView).toBe('list');
   });
+
+  it('renders a third "タグ" tab and selecting it updates the store', () => {
+    wrap(<Host />);
+    expect(screen.getByRole('tab', { name: 'タグ' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'タグ' }));
+    expect(useHousingViewStore.getState().browseView).toBe('tags');
+  });
 });
