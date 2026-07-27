@@ -26,10 +26,8 @@ export function getPlotDirections(
 }
 
 /**
- * area(enum) + plot(1-60) + locale → 行き方本文 (Task8: en/ko/zh 訳付き)。
+ * area(enum) + plot(1-60) + locale → 行き方本文 (Task8: en/ko/zh 訳付き、Task9: zh-Hant 訳付き)。
  * ja、または該当ロケールの訳が無い場合は正典 (ja) 本文にフォールバックする。無ければ null。
- * zh-Hant (Task5 で RegionLocale に追加) は i18n に訳が無いため常に ja 本文にフォールバックする
- * (このフォールバック文言自体は既存ロジックのまま・新規翻訳データの追加はスコープ外)。
  */
 export function getPlotDirectionsText(
   area: string,

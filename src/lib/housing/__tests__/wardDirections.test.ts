@@ -101,4 +101,13 @@ describe('getPlotDirections', () => {
   it('ja は従来値、未知 locale 系はフォールバック', () => {
     expect(getPlotDirectionsText('Mist', 1, 'ja')).toBe(getPlotDirections('Mist', 1)!.directions);
   });
+
+  // Task9: 行き方本文の zh-Hant 訳 (正典 CSV は translations/zh-Hant/*.csv)。
+  it('全300区画に zh-Hant の行き方がある', () => {
+    for (const area of ['Mist', 'LavenderBeds', 'Goblet', 'Shirogane', 'Empyreum']) {
+      for (let plot = 1; plot <= 60; plot++) {
+        expect(getPlotDirectionsText(area, plot, 'zh-Hant'), `${area}#${plot}`).toBeTruthy();
+      }
+    }
+  });
 });

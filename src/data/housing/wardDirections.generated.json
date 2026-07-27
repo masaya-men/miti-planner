@@ -6,7 +6,8 @@
       "i18n": {
         "en": "Straight down the west stairs",
         "ko": "서쪽 계단을 곧장 내려간 곳",
-        "zh": "沿西侧楼梯直下即到"
+        "zh": "沿西侧楼梯直下即到",
+        "zh-Hant": "沿西側樓梯直下即到"
       }
     },
     "2": {
@@ -15,7 +16,8 @@
       "i18n": {
         "en": "L house to the west",
         "ko": "서쪽 L형 주택",
-        "zh": "西侧L号房屋"
+        "zh": "西侧L号房屋",
+        "zh-Hant": "西側L號房屋"
       }
     },
     "3": {
@@ -24,7 +26,8 @@
       "i18n": {
         "en": "S house to the south",
         "ko": "남쪽 S형 주택",
-        "zh": "南侧S号房屋"
+        "zh": "南侧S号房屋",
+        "zh-Hant": "南側S號房屋"
       }
     },
     "4": {
@@ -33,7 +36,8 @@
       "i18n": {
         "en": "M house on the north left side",
         "ko": "북쪽 왼편 M형 주택",
-        "zh": "北侧左边M号房屋"
+        "zh": "北侧左边M号房屋",
+        "zh-Hant": "北側左邊M號房屋"
       }
     },
     "5": {
@@ -42,7 +46,8 @@
       "i18n": {
         "en": "L house to the west",
         "ko": "서쪽 L형 주택",
-        "zh": "西侧L号房屋"
+        "zh": "西侧L号房屋",
+        "zh-Hant": "西側L號房屋"
       }
     },
     "6": {
@@ -51,7 +56,8 @@
       "i18n": {
         "en": "M house on the north right side",
         "ko": "북쪽 오른편 M형 주택",
-        "zh": "北侧右边M号房屋"
+        "zh": "北侧右边M号房屋",
+        "zh-Hant": "北側右邊M號房屋"
       }
     },
     "7": {
@@ -60,7 +66,8 @@
       "i18n": {
         "en": "2nd M house on the north right side",
         "ko": "북쪽 오른편 두 번째 M형 주택",
-        "zh": "北侧右边第二栋M号房屋"
+        "zh": "北侧右边第二栋M号房屋",
+        "zh-Hant": "北側右邊第二棟M號房屋"
       }
     },
     "8": {
@@ -69,7 +76,8 @@
       "i18n": {
         "en": "Go down the west stairs and jump from the first landing",
         "ko": "서쪽 계단을 내려가 첫 번째 계단참에서 점프",
-        "zh": "沿西侧楼梯下去在第一个平台跳下"
+        "zh": "沿西侧楼梯下去在第一个平台跳下",
+        "zh-Hant": "沿西側樓梯下去在第一個平臺跳下"
       }
     },
     "9": {
@@ -78,7 +86,8 @@
       "i18n": {
         "en": "S house to the west (no stairs)",
         "ko": "서쪽 S형 주택(계단 없음)",
-        "zh": "西侧S号房屋(无楼梯)"
+        "zh": "西侧S号房屋(无楼梯)",
+        "zh-Hant": "西側S號房屋(無樓梯)"
       }
     },
     "10": {
@@ -87,7 +96,8 @@
       "i18n": {
         "en": "S house to the west (with stairs)",
         "ko": "서쪽 S형 주택(계단 있음)",
-        "zh": "西侧S号房屋(有楼梯)"
+        "zh": "西侧S号房屋(有楼梯)",
+        "zh-Hant": "西側S號房屋(有樓梯)"
       }
     },
     "11": {
@@ -96,7 +106,8 @@
       "i18n": {
         "en": "Go down the east stairs and jump at the dead end",
         "ko": "동쪽 계단을 내려가 막다른 곳에서 점프",
-        "zh": "沿东侧楼梯下去在尽头跳下"
+        "zh": "沿东侧楼梯下去在尽头跳下",
+        "zh-Hant": "沿東側樓梯下去在盡頭跳下"
       }
     },
     "12": {
@@ -105,7 +116,8 @@
       "i18n": {
         "en": "Follow the road west; go down the first stairs and turn left",
         "ko": "서쪽으로 길을 따라 첫 번째 계단을 내려가 왼쪽",
-        "zh": "沿路向西走下第一段楼梯后左转"
+        "zh": "沿路向西走下第一段楼梯后左转",
+        "zh-Hant": "沿路向西走下第一段樓梯後左轉"
       }
     },
     "13": {
@@ -114,7 +126,8 @@
       "i18n": {
         "en": "S house right in front to the northwest",
         "ko": "북서쪽 바로 앞 S형 주택",
-        "zh": "西北侧正前方S号房屋"
+        "zh": "西北侧正前方S号房屋",
+        "zh-Hant": "西北側正前方S號房屋"
       }
     },
     "14": {
@@ -123,7 +136,8 @@
       "i18n": {
         "en": "M house on the left partway down the northeast curve slope",
         "ko": "북동쪽 커브 비탈길 도중 왼쪽 M형 주택",
-        "zh": "东北弯道坡道中段左侧M号房屋"
+        "zh": "东北弯道坡道中段左侧M号房屋",
+        "zh-Hant": "東北彎道坡道中段左側M號房屋"
       }
     },
     "15": {
@@ -132,7 +146,8 @@
       "i18n": {
         "en": "L house to the east",
         "ko": "동쪽 L형 주택",
-        "zh": "东侧L号房屋"
+        "zh": "东侧L号房屋",
+        "zh-Hant": "東側L號房屋"
       }
     },
     "16": {
@@ -141,7 +156,8 @@
       "i18n": {
         "en": "S house on the right partway down the northeast curve slope",
         "ko": "북동쪽 커브 비탈길 도중 오른쪽 S형 주택",
-        "zh": "东北弯道坡道中段右侧S号房屋"
+        "zh": "东北弯道坡道中段右侧S号房屋",
+        "zh-Hant": "東北彎道坡道中段右側S號房屋"
       }
     },
     "17": {
@@ -150,7 +166,8 @@
       "i18n": {
         "en": "S house with large stairs to the east",
         "ko": "동쪽 큰 계단이 있는 S형 주택",
-        "zh": "东侧带大楼梯的S号房屋"
+        "zh": "东侧带大楼梯的S号房屋",
+        "zh-Hant": "東側帶大樓梯的S號房屋"
       }
     },
     "18": {
@@ -159,7 +176,8 @@
       "i18n": {
         "en": "S house to the south",
         "ko": "남쪽 S형 주택",
-        "zh": "南侧S号房屋"
+        "zh": "南侧S号房屋",
+        "zh-Hant": "南側S號房屋"
       }
     },
     "19": {
@@ -168,7 +186,8 @@
       "i18n": {
         "en": "1st S house to the southeast",
         "ko": "남동쪽 첫 번째 S형 주택",
-        "zh": "东南第一栋S号房屋"
+        "zh": "东南第一栋S号房屋",
+        "zh-Hant": "東南第一棟S號房屋"
       }
     },
     "20": {
@@ -177,7 +196,8 @@
       "i18n": {
         "en": "2nd S house to the southeast",
         "ko": "남동쪽 두 번째 S형 주택",
-        "zh": "东南第二栋S号房屋"
+        "zh": "东南第二栋S号房屋",
+        "zh-Hant": "東南第二棟S號房屋"
       }
     },
     "21": {
@@ -186,7 +206,8 @@
       "i18n": {
         "en": "3rd S house to the southeast",
         "ko": "남동쪽 세 번째 S형 주택",
-        "zh": "东南第三栋S号房屋"
+        "zh": "东南第三栋S号房屋",
+        "zh-Hant": "東南第三棟S號房屋"
       }
     },
     "22": {
@@ -195,7 +216,8 @@
       "i18n": {
         "en": "S house on the right after going down the south stairs",
         "ko": "남쪽 계단을 내려가 오른쪽 S형 주택",
-        "zh": "沿南侧楼梯下去右边S号房屋"
+        "zh": "沿南侧楼梯下去右边S号房屋",
+        "zh-Hant": "沿南側樓梯下去右邊S號房屋"
       }
     },
     "23": {
@@ -204,7 +226,8 @@
       "i18n": {
         "en": "S house right in front; jump straight toward the west",
         "ko": "서쪽을 향해 곧장 점프한 바로 앞 S형 주택",
-        "zh": "朝西直跳正前方S号房屋"
+        "zh": "朝西直跳正前方S号房屋",
+        "zh-Hant": "朝西直跳正前方S號房屋"
       }
     },
     "24": {
@@ -213,7 +236,8 @@
       "i18n": {
         "en": "S house to the north",
         "ko": "북쪽 S형 주택",
-        "zh": "北侧S号房屋"
+        "zh": "北侧S号房屋",
+        "zh-Hant": "北側S號房屋"
       }
     },
     "25": {
@@ -222,7 +246,8 @@
       "i18n": {
         "en": "S house on the left after climbing one flight of east stairs",
         "ko": "동쪽 계단을 한 번 올라가 왼쪽 S형 주택",
-        "zh": "上东侧楼梯一段后左边S号房屋"
+        "zh": "上东侧楼梯一段后左边S号房屋",
+        "zh-Hant": "上東側樓梯一段後左邊S號房屋"
       }
     },
     "26": {
@@ -231,7 +256,8 @@
       "i18n": {
         "en": "1st S house up the south climbing stairs",
         "ko": "남쪽 오르막 계단 첫 번째 S형 주택",
-        "zh": "南侧上坡楼梯第一栋S号房屋"
+        "zh": "南侧上坡楼梯第一栋S号房屋",
+        "zh-Hant": "南側上坡樓梯第一棟S號房屋"
       }
     },
     "27": {
@@ -240,7 +266,8 @@
       "i18n": {
         "en": "S house at the dead end after climbing one flight of east stairs and turning left",
         "ko": "동쪽 계단을 한 번 올라가 왼쪽으로 꺾어 막다른 곳 S형 주택",
-        "zh": "上东侧楼梯一段后左转到尽头S号房屋"
+        "zh": "上东侧楼梯一段后左转到尽头S号房屋",
+        "zh-Hant": "上東側樓梯一段後左轉到盡頭S號房屋"
       }
     },
     "28": {
@@ -249,7 +276,8 @@
       "i18n": {
         "en": "S house at the dead end of the east stairs",
         "ko": "동쪽 계단 막다른 곳 S형 주택",
-        "zh": "东侧楼梯尽头S号房屋"
+        "zh": "东侧楼梯尽头S号房屋",
+        "zh-Hant": "東側樓梯盡頭S號房屋"
       }
     },
     "29": {
@@ -258,7 +286,8 @@
       "i18n": {
         "en": "M house at the dead end of the south climbing stairs",
         "ko": "남쪽 오르막 계단 막다른 곳 M형 주택",
-        "zh": "南侧上坡楼梯尽头M号房屋"
+        "zh": "南侧上坡楼梯尽头M号房屋",
+        "zh-Hant": "南側上坡樓梯盡頭M號房屋"
       }
     },
     "30": {
@@ -267,7 +296,8 @@
       "i18n": {
         "en": "M house at the south dead end",
         "ko": "남쪽 막다른 곳 M형 주택",
-        "zh": "南侧尽头M号房屋"
+        "zh": "南侧尽头M号房屋",
+        "zh-Hant": "南側盡頭M號房屋"
       }
     },
     "31": {
@@ -276,7 +306,8 @@
       "i18n": {
         "en": "Straight down the north stairs",
         "ko": "북쪽 계단을 곧장 내려간 곳",
-        "zh": "沿北侧楼梯直下即到"
+        "zh": "沿北侧楼梯直下即到",
+        "zh-Hant": "沿北側樓梯直下即到"
       }
     },
     "32": {
@@ -285,7 +316,8 @@
       "i18n": {
         "en": "L house to the north",
         "ko": "북쪽 L형 주택",
-        "zh": "北侧L号房屋"
+        "zh": "北侧L号房屋",
+        "zh-Hant": "北側L號房屋"
       }
     },
     "33": {
@@ -294,7 +326,8 @@
       "i18n": {
         "en": "S house to the west",
         "ko": "서쪽 S형 주택",
-        "zh": "西侧S号房屋"
+        "zh": "西侧S号房屋",
+        "zh-Hant": "西側S號房屋"
       }
     },
     "34": {
@@ -303,7 +336,8 @@
       "i18n": {
         "en": "M house on the east left side",
         "ko": "동쪽 왼편 M형 주택",
-        "zh": "东侧左边M号房屋"
+        "zh": "东侧左边M号房屋",
+        "zh-Hant": "東側左邊M號房屋"
       }
     },
     "35": {
@@ -312,7 +346,8 @@
       "i18n": {
         "en": "L house to the north",
         "ko": "북쪽 L형 주택",
-        "zh": "北侧L号房屋"
+        "zh": "北侧L号房屋",
+        "zh-Hant": "北側L號房屋"
       }
     },
     "36": {
@@ -321,7 +356,8 @@
       "i18n": {
         "en": "M house on the east right side",
         "ko": "동쪽 오른편 M형 주택",
-        "zh": "东侧右边M号房屋"
+        "zh": "东侧右边M号房屋",
+        "zh-Hant": "東側右邊M號房屋"
       }
     },
     "37": {
@@ -330,7 +366,8 @@
       "i18n": {
         "en": "2nd M house on the east right side",
         "ko": "동쪽 오른편 두 번째 M형 주택",
-        "zh": "东侧右边第二栋M号房屋"
+        "zh": "东侧右边第二栋M号房屋",
+        "zh-Hant": "東側右邊第二棟M號房屋"
       }
     },
     "38": {
@@ -339,7 +376,8 @@
       "i18n": {
         "en": "Go down the north stairs and jump from the first landing",
         "ko": "북쪽 계단을 내려가 첫 번째 계단참에서 점프",
-        "zh": "沿北侧楼梯下去在第一个平台跳下"
+        "zh": "沿北侧楼梯下去在第一个平台跳下",
+        "zh-Hant": "沿北側樓梯下去在第一個平臺跳下"
       }
     },
     "39": {
@@ -348,7 +386,8 @@
       "i18n": {
         "en": "S house to the north (no stairs)",
         "ko": "북쪽 S형 주택(계단 없음)",
-        "zh": "北侧S号房屋(无楼梯)"
+        "zh": "北侧S号房屋(无楼梯)",
+        "zh-Hant": "北側S號房屋(無樓梯)"
       }
     },
     "40": {
@@ -357,7 +396,8 @@
       "i18n": {
         "en": "S house to the north (with stairs)",
         "ko": "북쪽 S형 주택(계단 있음)",
-        "zh": "北侧S号房屋(有楼梯)"
+        "zh": "北侧S号房屋(有楼梯)",
+        "zh-Hant": "北側S號房屋(有樓梯)"
       }
     },
     "41": {
@@ -366,7 +406,8 @@
       "i18n": {
         "en": "Go down the south stairs and jump at the dead end",
         "ko": "남쪽 계단을 내려가 막다른 곳에서 점프",
-        "zh": "沿南侧楼梯下去在尽头跳下"
+        "zh": "沿南侧楼梯下去在尽头跳下",
+        "zh-Hant": "沿南側樓梯下去在盡頭跳下"
       }
     },
     "42": {
@@ -375,7 +416,8 @@
       "i18n": {
         "en": "Follow the road north; go down the first stairs and turn left",
         "ko": "북쪽으로 길을 따라 첫 번째 계단을 내려가 왼쪽",
-        "zh": "沿路向北走下第一段楼梯后左转"
+        "zh": "沿路向北走下第一段楼梯后左转",
+        "zh-Hant": "沿路向北走下第一段樓梯後左轉"
       }
     },
     "43": {
@@ -384,7 +426,8 @@
       "i18n": {
         "en": "S house right in front to the northeast",
         "ko": "북동쪽 바로 앞 S형 주택",
-        "zh": "东北侧正前方S号房屋"
+        "zh": "东北侧正前方S号房屋",
+        "zh-Hant": "東北側正前方S號房屋"
       }
     },
     "44": {
@@ -393,7 +436,8 @@
       "i18n": {
         "en": "M house on the left partway down the southeast curve slope",
         "ko": "남동쪽 커브 비탈길 도중 왼쪽 M형 주택",
-        "zh": "东南弯道坡道中段左侧M号房屋"
+        "zh": "东南弯道坡道中段左侧M号房屋",
+        "zh-Hant": "東南彎道坡道中段左側M號房屋"
       }
     },
     "45": {
@@ -402,7 +446,8 @@
       "i18n": {
         "en": "L house to the south",
         "ko": "남쪽 L형 주택",
-        "zh": "南侧L号房屋"
+        "zh": "南侧L号房屋",
+        "zh-Hant": "南側L號房屋"
       }
     },
     "46": {
@@ -411,7 +456,8 @@
       "i18n": {
         "en": "S house on the right partway down the southeast curve slope",
         "ko": "남동쪽 커브 비탈길 도중 오른쪽 S형 주택",
-        "zh": "东南弯道坡道中段右侧S号房屋"
+        "zh": "东南弯道坡道中段右侧S号房屋",
+        "zh-Hant": "東南彎道坡道中段右側S號房屋"
       }
     },
     "47": {
@@ -420,7 +466,8 @@
       "i18n": {
         "en": "S house with large stairs to the south",
         "ko": "남쪽 큰 계단이 있는 S형 주택",
-        "zh": "南侧带大楼梯的S号房屋"
+        "zh": "南侧带大楼梯的S号房屋",
+        "zh-Hant": "南側帶大樓梯的S號房屋"
       }
     },
     "48": {
@@ -429,7 +476,8 @@
       "i18n": {
         "en": "S house to the west",
         "ko": "서쪽 S형 주택",
-        "zh": "西侧S号房屋"
+        "zh": "西侧S号房屋",
+        "zh-Hant": "西側S號房屋"
       }
     },
     "49": {
@@ -438,7 +486,8 @@
       "i18n": {
         "en": "1st S house to the southwest",
         "ko": "남서쪽 첫 번째 S형 주택",
-        "zh": "西南第一栋S号房屋"
+        "zh": "西南第一栋S号房屋",
+        "zh-Hant": "西南第一棟S號房屋"
       }
     },
     "50": {
@@ -447,7 +496,8 @@
       "i18n": {
         "en": "2nd S house to the southwest",
         "ko": "남서쪽 두 번째 S형 주택",
-        "zh": "西南第二栋S号房屋"
+        "zh": "西南第二栋S号房屋",
+        "zh-Hant": "西南第二棟S號房屋"
       }
     },
     "51": {
@@ -456,7 +506,8 @@
       "i18n": {
         "en": "3rd S house to the southwest",
         "ko": "남서쪽 세 번째 S형 주택",
-        "zh": "西南第三栋S号房屋"
+        "zh": "西南第三栋S号房屋",
+        "zh-Hant": "西南第三棟S號房屋"
       }
     },
     "52": {
@@ -465,7 +516,8 @@
       "i18n": {
         "en": "S house on the right after going down the west stairs",
         "ko": "서쪽 계단을 내려가 오른쪽 S형 주택",
-        "zh": "沿西侧楼梯下去右边S号房屋"
+        "zh": "沿西侧楼梯下去右边S号房屋",
+        "zh-Hant": "沿西側樓梯下去右邊S號房屋"
       }
     },
     "53": {
@@ -474,7 +526,8 @@
       "i18n": {
         "en": "S house right in front; jump straight toward the north",
         "ko": "북쪽을 향해 곧장 점프한 바로 앞 S형 주택",
-        "zh": "朝北直跳正前方S号房屋"
+        "zh": "朝北直跳正前方S号房屋",
+        "zh-Hant": "朝北直跳正前方S號房屋"
       }
     },
     "54": {
@@ -483,7 +536,8 @@
       "i18n": {
         "en": "S house to the east",
         "ko": "동쪽 S형 주택",
-        "zh": "东侧S号房屋"
+        "zh": "东侧S号房屋",
+        "zh-Hant": "東側S號房屋"
       }
     },
     "55": {
@@ -492,7 +546,8 @@
       "i18n": {
         "en": "S house on the left after climbing one flight of south stairs",
         "ko": "남쪽 계단을 한 번 올라가 왼쪽 S형 주택",
-        "zh": "上南侧楼梯一段后左边S号房屋"
+        "zh": "上南侧楼梯一段后左边S号房屋",
+        "zh-Hant": "上南側樓梯一段後左邊S號房屋"
       }
     },
     "56": {
@@ -501,7 +556,8 @@
       "i18n": {
         "en": "1st S house up the west climbing stairs",
         "ko": "서쪽 오르막 계단 첫 번째 S형 주택",
-        "zh": "西侧上坡楼梯第一栋S号房屋"
+        "zh": "西侧上坡楼梯第一栋S号房屋",
+        "zh-Hant": "西側上坡樓梯第一棟S號房屋"
       }
     },
     "57": {
@@ -510,7 +566,8 @@
       "i18n": {
         "en": "S house at the dead end after climbing one flight of south stairs and turning left",
         "ko": "남쪽 계단을 한 번 올라가 왼쪽으로 꺾어 막다른 곳 S형 주택",
-        "zh": "上南侧楼梯一段后左转到尽头S号房屋"
+        "zh": "上南侧楼梯一段后左转到尽头S号房屋",
+        "zh-Hant": "上南側樓梯一段後左轉到盡頭S號房屋"
       }
     },
     "58": {
@@ -519,7 +576,8 @@
       "i18n": {
         "en": "S house at the dead end of the south stairs",
         "ko": "남쪽 계단 막다른 곳 S형 주택",
-        "zh": "南侧楼梯尽头S号房屋"
+        "zh": "南侧楼梯尽头S号房屋",
+        "zh-Hant": "南側樓梯盡頭S號房屋"
       }
     },
     "59": {
@@ -528,7 +586,8 @@
       "i18n": {
         "en": "M house at the dead end of the west climbing stairs",
         "ko": "서쪽 오르막 계단 막다른 곳 M형 주택",
-        "zh": "西侧上坡楼梯尽头M号房屋"
+        "zh": "西侧上坡楼梯尽头M号房屋",
+        "zh-Hant": "西側上坡樓梯盡頭M號房屋"
       }
     },
     "60": {
@@ -537,7 +596,8 @@
       "i18n": {
         "en": "M house at the west dead end",
         "ko": "서쪽 막다른 곳 M형 주택",
-        "zh": "西侧尽头M号房屋"
+        "zh": "西侧尽头M号房屋",
+        "zh-Hant": "西側盡頭M號房屋"
       }
     }
   },
@@ -548,7 +608,8 @@
       "i18n": {
         "en": "M house on the right; follow the road east",
         "ko": "길을 따라 동쪽 오른쪽 M형 주택",
-        "zh": "沿路向东右边M号房屋"
+        "zh": "沿路向东右边M号房屋",
+        "zh-Hant": "沿路向東右邊M號房屋"
       }
     },
     "2": {
@@ -557,7 +618,8 @@
       "i18n": {
         "en": "S house on the right to the north",
         "ko": "북쪽 오른쪽 S형 주택",
-        "zh": "北侧右边S号房屋"
+        "zh": "北侧右边S号房屋",
+        "zh-Hant": "北側右邊S號房屋"
       }
     },
     "3": {
@@ -566,7 +628,8 @@
       "i18n": {
         "en": "L house to the east",
         "ko": "동쪽 L형 주택",
-        "zh": "东侧L号房屋"
+        "zh": "东侧L号房屋",
+        "zh-Hant": "東側L號房屋"
       }
     },
     "4": {
@@ -575,7 +638,8 @@
       "i18n": {
         "en": "S house on the left to the north",
         "ko": "북쪽 왼쪽 S형 주택",
-        "zh": "北侧左边S号房屋"
+        "zh": "北侧左边S号房屋",
+        "zh-Hant": "北側左邊S號房屋"
       }
     },
     "5": {
@@ -584,7 +648,8 @@
       "i18n": {
         "en": "M house to the west",
         "ko": "서쪽 M형 주택",
-        "zh": "西侧M号房屋"
+        "zh": "西侧M号房屋",
+        "zh-Hant": "西側M號房屋"
       }
     },
     "6": {
@@ -593,7 +658,8 @@
       "i18n": {
         "en": "Go south; cross the bridge on the left to reach the L house",
         "ko": "남쪽으로 가서 왼쪽 다리를 건너면 있는 L형 주택",
-        "zh": "往南走过左边的桥即到L号房屋"
+        "zh": "往南走过左边的桥即到L号房屋",
+        "zh-Hant": "往南走過左邊的橋即到L號房屋"
       }
     },
     "7": {
@@ -602,7 +668,8 @@
       "i18n": {
         "en": "S house on the right to the north",
         "ko": "북쪽 오른쪽 S형 주택",
-        "zh": "北侧右边S号房屋"
+        "zh": "北侧右边S号房屋",
+        "zh-Hant": "北側右邊S號房屋"
       }
     },
     "8": {
@@ -611,7 +678,8 @@
       "i18n": {
         "en": "S house on the left to the north",
         "ko": "북쪽 왼쪽 S형 주택",
-        "zh": "北侧左边S号房屋"
+        "zh": "北侧左边S号房屋",
+        "zh-Hant": "北側左邊S號房屋"
       }
     },
     "9": {
@@ -620,7 +688,8 @@
       "i18n": {
         "en": "S house to the east",
         "ko": "동쪽 S형 주택",
-        "zh": "东侧S号房屋"
+        "zh": "东侧S号房屋",
+        "zh-Hant": "東側S號房屋"
       }
     },
     "10": {
@@ -629,7 +698,8 @@
       "i18n": {
         "en": "S house to the west",
         "ko": "서쪽 S형 주택",
-        "zh": "西侧S号房屋"
+        "zh": "西侧S号房屋",
+        "zh-Hant": "西側S號房屋"
       }
     },
     "11": {
@@ -638,7 +708,8 @@
       "i18n": {
         "en": "M house at the southwest dead end",
         "ko": "남서쪽 막다른 곳 M형 주택",
-        "zh": "西南尽头M号房屋"
+        "zh": "西南尽头M号房屋",
+        "zh-Hant": "西南盡頭M號房屋"
       }
     },
     "12": {
@@ -647,7 +718,8 @@
       "i18n": {
         "en": "1st S house to the south",
         "ko": "남쪽 첫 번째 S형 주택",
-        "zh": "南侧第一栋S号房屋"
+        "zh": "南侧第一栋S号房屋",
+        "zh-Hant": "南側第一棟S號房屋"
       }
     },
     "13": {
@@ -656,7 +728,8 @@
       "i18n": {
         "en": "Go west; S house at the dead end on the left",
         "ko": "서쪽으로 가서 막다른 곳 왼쪽 S형 주택",
-        "zh": "往西走到尽头左边S号房屋"
+        "zh": "往西走到尽头左边S号房屋",
+        "zh-Hant": "往西走到盡頭左邊S號房屋"
       }
     },
     "14": {
@@ -665,7 +738,8 @@
       "i18n": {
         "en": "2nd S house to the south",
         "ko": "남쪽 두 번째 S형 주택",
-        "zh": "南侧第二栋S号房屋"
+        "zh": "南侧第二栋S号房屋",
+        "zh-Hant": "南側第二棟S號房屋"
       }
     },
     "15": {
@@ -674,7 +748,8 @@
       "i18n": {
         "en": "Cross the bridge on the right heading north; S house on the left",
         "ko": "북쪽으로 오른쪽 다리를 건너 왼쪽 S형 주택",
-        "zh": "往北过右边的桥后左边S号房屋"
+        "zh": "往北过右边的桥后左边S号房屋",
+        "zh-Hant": "往北過右邊的橋後左邊S號房屋"
       }
     },
     "16": {
@@ -683,7 +758,8 @@
       "i18n": {
         "en": "M house to the west",
         "ko": "서쪽 M형 주택",
-        "zh": "西侧M号房屋"
+        "zh": "西侧M号房屋",
+        "zh-Hant": "西側M號房屋"
       }
     },
     "17": {
@@ -692,7 +768,8 @@
       "i18n": {
         "en": "S house to the east",
         "ko": "동쪽 S형 주택",
-        "zh": "东侧S号房屋"
+        "zh": "东侧S号房屋",
+        "zh-Hant": "東側S號房屋"
       }
     },
     "18": {
@@ -701,7 +778,8 @@
       "i18n": {
         "en": "S house on the right to the north; loop around to the right to enter",
         "ko": "북쪽 오른쪽 S형 주택(오른쪽으로 빙 돌아 들어감)",
-        "zh": "北侧右边S号房屋(绕到右边进入)"
+        "zh": "北侧右边S号房屋(绕到右边进入)",
+        "zh-Hant": "北側右邊S號房屋(繞到右邊進入)"
       }
     },
     "19": {
@@ -710,7 +788,8 @@
       "i18n": {
         "en": "S house on the left to the north",
         "ko": "북쪽 왼쪽 S형 주택",
-        "zh": "北侧左边S号房屋"
+        "zh": "北侧左边S号房屋",
+        "zh-Hant": "北側左邊S號房屋"
       }
     },
     "20": {
@@ -719,7 +798,8 @@
       "i18n": {
         "en": "S house to the southeast",
         "ko": "남동쪽 S형 주택",
-        "zh": "东南S号房屋"
+        "zh": "东南S号房屋",
+        "zh-Hant": "東南S號房屋"
       }
     },
     "21": {
@@ -728,7 +808,8 @@
       "i18n": {
         "en": "M house to the southwest",
         "ko": "남서쪽 M형 주택",
-        "zh": "西南M号房屋"
+        "zh": "西南M号房屋",
+        "zh-Hant": "西南M號房屋"
       }
     },
     "22": {
@@ -737,7 +818,8 @@
       "i18n": {
         "en": "S house to the west",
         "ko": "서쪽 S형 주택",
-        "zh": "西侧S号房屋"
+        "zh": "西侧S号房屋",
+        "zh-Hant": "西側S號房屋"
       }
     },
     "23": {
@@ -746,7 +828,8 @@
       "i18n": {
         "en": "S house to the southeast",
         "ko": "남동쪽 S형 주택",
-        "zh": "东南S号房屋"
+        "zh": "东南S号房屋",
+        "zh-Hant": "東南S號房屋"
       }
     },
     "24": {
@@ -755,7 +838,8 @@
       "i18n": {
         "en": "S house up the northwest stairs",
         "ko": "북서쪽 계단을 올라간 S형 주택",
-        "zh": "西北上楼梯的S号房屋"
+        "zh": "西北上楼梯的S号房屋",
+        "zh-Hant": "西北上樓梯的S號房屋"
       }
     },
     "25": {
@@ -764,7 +848,8 @@
       "i18n": {
         "en": "S house on the right after climbing the northwest stairs",
         "ko": "북서쪽 계단을 올라가 오른쪽 S형 주택",
-        "zh": "西北上楼梯后右边S号房屋"
+        "zh": "西北上楼梯后右边S号房屋",
+        "zh-Hant": "西北上樓梯後右邊S號房屋"
       }
     },
     "26": {
@@ -773,7 +858,8 @@
       "i18n": {
         "en": "S house down the road to the west",
         "ko": "서쪽으로 길을 따라 내려간 S형 주택",
-        "zh": "沿路往西下坡的S号房屋"
+        "zh": "沿路往西下坡的S号房屋",
+        "zh-Hant": "沿路往西下坡的S號房屋"
       }
     },
     "27": {
@@ -782,7 +868,8 @@
       "i18n": {
         "en": "M house to the southwest",
         "ko": "남서쪽 M형 주택",
-        "zh": "西南M号房屋"
+        "zh": "西南M号房屋",
+        "zh-Hant": "西南M號房屋"
       }
     },
     "28": {
@@ -791,7 +878,8 @@
       "i18n": {
         "en": "L house to the northwest",
         "ko": "북서쪽 L형 주택",
-        "zh": "西北L号房屋"
+        "zh": "西北L号房屋",
+        "zh-Hant": "西北L號房屋"
       }
     },
     "29": {
@@ -800,7 +888,8 @@
       "i18n": {
         "en": "S house at the northwest dead end",
         "ko": "북서쪽 막다른 곳 S형 주택",
-        "zh": "西北尽头S号房屋"
+        "zh": "西北尽头S号房屋",
+        "zh-Hant": "西北盡頭S號房屋"
       }
     },
     "30": {
@@ -809,7 +898,8 @@
       "i18n": {
         "en": "M house first seen along the road to the west",
         "ko": "서쪽 길을 따라 처음 보이는 M형 주택",
-        "zh": "沿西侧道路最先看到的M号房屋"
+        "zh": "沿西侧道路最先看到的M号房屋",
+        "zh-Hant": "沿西側道路最先看到的M號房屋"
       }
     },
     "31": {
@@ -818,7 +908,8 @@
       "i18n": {
         "en": "M house on the right; follow the road south",
         "ko": "길을 따라 남쪽 오른쪽 M형 주택",
-        "zh": "沿路向南右边M号房屋"
+        "zh": "沿路向南右边M号房屋",
+        "zh-Hant": "沿路向南右邊M號房屋"
       }
     },
     "32": {
@@ -827,7 +918,8 @@
       "i18n": {
         "en": "S house on the right to the east",
         "ko": "동쪽 오른쪽 S형 주택",
-        "zh": "东侧右边S号房屋"
+        "zh": "东侧右边S号房屋",
+        "zh-Hant": "東側右邊S號房屋"
       }
     },
     "33": {
@@ -836,7 +928,8 @@
       "i18n": {
         "en": "L house to the south",
         "ko": "남쪽 L형 주택",
-        "zh": "南侧L号房屋"
+        "zh": "南侧L号房屋",
+        "zh-Hant": "南側L號房屋"
       }
     },
     "34": {
@@ -845,7 +938,8 @@
       "i18n": {
         "en": "S house on the left to the east",
         "ko": "동쪽 왼쪽 S형 주택",
-        "zh": "东侧左边S号房屋"
+        "zh": "东侧左边S号房屋",
+        "zh-Hant": "東側左邊S號房屋"
       }
     },
     "35": {
@@ -854,7 +948,8 @@
       "i18n": {
         "en": "M house to the north",
         "ko": "북쪽 M형 주택",
-        "zh": "北侧M号房屋"
+        "zh": "北侧M号房屋",
+        "zh-Hant": "北側M號房屋"
       }
     },
     "36": {
@@ -863,7 +958,8 @@
       "i18n": {
         "en": "Go west; cross the bridge on the left to reach the L house",
         "ko": "서쪽으로 가서 왼쪽 다리를 건너면 있는 L형 주택",
-        "zh": "往西走过左边的桥即到L号房屋"
+        "zh": "往西走过左边的桥即到L号房屋",
+        "zh-Hant": "往西走過左邊的橋即到L號房屋"
       }
     },
     "37": {
@@ -872,7 +968,8 @@
       "i18n": {
         "en": "S house on the right to the east",
         "ko": "동쪽 오른쪽 S형 주택",
-        "zh": "东侧右边S号房屋"
+        "zh": "东侧右边S号房屋",
+        "zh-Hant": "東側右邊S號房屋"
       }
     },
     "38": {
@@ -881,7 +978,8 @@
       "i18n": {
         "en": "S house on the left to the east",
         "ko": "동쪽 왼쪽 S형 주택",
-        "zh": "东侧左边S号房屋"
+        "zh": "东侧左边S号房屋",
+        "zh-Hant": "東側左邊S號房屋"
       }
     },
     "39": {
@@ -890,7 +988,8 @@
       "i18n": {
         "en": "S house to the south",
         "ko": "남쪽 S형 주택",
-        "zh": "南侧S号房屋"
+        "zh": "南侧S号房屋",
+        "zh-Hant": "南側S號房屋"
       }
     },
     "40": {
@@ -899,7 +998,8 @@
       "i18n": {
         "en": "S house to the north",
         "ko": "북쪽 S형 주택",
-        "zh": "北侧S号房屋"
+        "zh": "北侧S号房屋",
+        "zh-Hant": "北側S號房屋"
       }
     },
     "41": {
@@ -908,7 +1008,8 @@
       "i18n": {
         "en": "M house at the northwest dead end",
         "ko": "북서쪽 막다른 곳 M형 주택",
-        "zh": "西北尽头M号房屋"
+        "zh": "西北尽头M号房屋",
+        "zh-Hant": "西北盡頭M號房屋"
       }
     },
     "42": {
@@ -917,7 +1018,8 @@
       "i18n": {
         "en": "1st S house to the west",
         "ko": "서쪽 첫 번째 S형 주택",
-        "zh": "西侧第一栋S号房屋"
+        "zh": "西侧第一栋S号房屋",
+        "zh-Hant": "西側第一棟S號房屋"
       }
     },
     "43": {
@@ -926,7 +1028,8 @@
       "i18n": {
         "en": "Go north; S house at the dead end on the left",
         "ko": "북쪽으로 가서 막다른 곳 왼쪽 S형 주택",
-        "zh": "往北走到尽头左边S号房屋"
+        "zh": "往北走到尽头左边S号房屋",
+        "zh-Hant": "往北走到盡頭左邊S號房屋"
       }
     },
     "44": {
@@ -935,7 +1038,8 @@
       "i18n": {
         "en": "2nd S house to the west",
         "ko": "서쪽 두 번째 S형 주택",
-        "zh": "西侧第二栋S号房屋"
+        "zh": "西侧第二栋S号房屋",
+        "zh-Hant": "西側第二棟S號房屋"
       }
     },
     "45": {
@@ -944,7 +1048,8 @@
       "i18n": {
         "en": "Cross the bridge on the right heading east; S house on the left",
         "ko": "동쪽으로 오른쪽 다리를 건너 왼쪽 S형 주택",
-        "zh": "往东过右边的桥后左边S号房屋"
+        "zh": "往东过右边的桥后左边S号房屋",
+        "zh-Hant": "往東過右邊的橋後左邊S號房屋"
       }
     },
     "46": {
@@ -953,7 +1058,8 @@
       "i18n": {
         "en": "M house to the north",
         "ko": "북쪽 M형 주택",
-        "zh": "北侧M号房屋"
+        "zh": "北侧M号房屋",
+        "zh-Hant": "北側M號房屋"
       }
     },
     "47": {
@@ -962,7 +1068,8 @@
       "i18n": {
         "en": "S house to the south",
         "ko": "남쪽 S형 주택",
-        "zh": "南侧S号房屋"
+        "zh": "南侧S号房屋",
+        "zh-Hant": "南側S號房屋"
       }
     },
     "48": {
@@ -971,7 +1078,8 @@
       "i18n": {
         "en": "S house on the right to the east; loop around to the right to enter",
         "ko": "동쪽 오른쪽 S형 주택(오른쪽으로 빙 돌아 들어감)",
-        "zh": "东侧右边S号房屋(绕到右边进入)"
+        "zh": "东侧右边S号房屋(绕到右边进入)",
+        "zh-Hant": "東側右邊S號房屋(繞到右邊進入)"
       }
     },
     "49": {
@@ -980,7 +1088,8 @@
       "i18n": {
         "en": "S house on the left to the east",
         "ko": "동쪽 왼쪽 S형 주택",
-        "zh": "东侧左边S号房屋"
+        "zh": "东侧左边S号房屋",
+        "zh-Hant": "東側左邊S號房屋"
       }
     },
     "50": {
@@ -989,7 +1098,8 @@
       "i18n": {
         "en": "S house to the northwest",
         "ko": "북서쪽 S형 주택",
-        "zh": "西北S号房屋"
+        "zh": "西北S号房屋",
+        "zh-Hant": "西北S號房屋"
       }
     },
     "51": {
@@ -998,7 +1108,8 @@
       "i18n": {
         "en": "M house to the northwest",
         "ko": "북서쪽 M형 주택",
-        "zh": "西北M号房屋"
+        "zh": "西北M号房屋",
+        "zh-Hant": "西北M號房屋"
       }
     },
     "52": {
@@ -1007,7 +1118,8 @@
       "i18n": {
         "en": "S house to the north",
         "ko": "북쪽 S형 주택",
-        "zh": "北侧S号房屋"
+        "zh": "北侧S号房屋",
+        "zh-Hant": "北側S號房屋"
       }
     },
     "53": {
@@ -1016,7 +1128,8 @@
       "i18n": {
         "en": "S house to the southwest",
         "ko": "남서쪽 S형 주택",
-        "zh": "西南S号房屋"
+        "zh": "西南S号房屋",
+        "zh-Hant": "西南S號房屋"
       }
     },
     "54": {
@@ -1025,7 +1138,8 @@
       "i18n": {
         "en": "S house up the northeast stairs",
         "ko": "북동쪽 계단을 올라간 S형 주택",
-        "zh": "东北上楼梯的S号房屋"
+        "zh": "东北上楼梯的S号房屋",
+        "zh-Hant": "東北上樓梯的S號房屋"
       }
     },
     "55": {
@@ -1034,7 +1148,8 @@
       "i18n": {
         "en": "S house on the right after climbing the northeast stairs",
         "ko": "북동쪽 계단을 올라가 오른쪽 S형 주택",
-        "zh": "东北上楼梯后右边S号房屋"
+        "zh": "东北上楼梯后右边S号房屋",
+        "zh-Hant": "東北上樓梯後右邊S號房屋"
       }
     },
     "56": {
@@ -1043,7 +1158,8 @@
       "i18n": {
         "en": "S house down the road to the north",
         "ko": "북쪽으로 길을 따라 내려간 S형 주택",
-        "zh": "沿路往北下坡的S号房屋"
+        "zh": "沿路往北下坡的S号房屋",
+        "zh-Hant": "沿路往北下坡的S號房屋"
       }
     },
     "57": {
@@ -1052,7 +1168,8 @@
       "i18n": {
         "en": "M house to the northwest",
         "ko": "북서쪽 M형 주택",
-        "zh": "西北M号房屋"
+        "zh": "西北M号房屋",
+        "zh-Hant": "西北M號房屋"
       }
     },
     "58": {
@@ -1061,7 +1178,8 @@
       "i18n": {
         "en": "L house to the northeast",
         "ko": "북동쪽 L형 주택",
-        "zh": "东北L号房屋"
+        "zh": "东北L号房屋",
+        "zh-Hant": "東北L號房屋"
       }
     },
     "59": {
@@ -1070,7 +1188,8 @@
       "i18n": {
         "en": "S house at the northeast dead end",
         "ko": "북동쪽 막다른 곳 S형 주택",
-        "zh": "东北尽头S号房屋"
+        "zh": "东北尽头S号房屋",
+        "zh-Hant": "東北盡頭S號房屋"
       }
     },
     "60": {
@@ -1079,7 +1198,8 @@
       "i18n": {
         "en": "M house first seen along the road to the north",
         "ko": "북쪽 길을 따라 처음 보이는 M형 주택",
-        "zh": "沿北侧道路最先看到的M号房屋"
+        "zh": "沿北侧道路最先看到的M号房屋",
+        "zh-Hant": "沿北側道路最先看到的M號房屋"
       }
     }
   },
@@ -1090,7 +1210,8 @@
       "i18n": {
         "en": "S house right after going up the west stairs",
         "ko": "서쪽 계단을 올라가면 바로 S형 주택",
-        "zh": "上西侧楼梯就到的S号房屋"
+        "zh": "上西侧楼梯就到的S号房屋",
+        "zh-Hant": "上西側樓梯就到的S號房屋"
       }
     },
     "2": {
@@ -1099,7 +1220,8 @@
       "i18n": {
         "en": "Last S house heading toward the northeast doorbell",
         "ko": "북동쪽 초인종 방향으로 가서 마지막 S형 주택",
-        "zh": "朝东北门铃方向走到底的S号房屋"
+        "zh": "朝东北门铃方向走到底的S号房屋",
+        "zh-Hant": "朝東北門鈴方向走到底的S號房屋"
       }
     },
     "3": {
@@ -1108,7 +1230,8 @@
       "i18n": {
         "en": "First S house heading toward the northeast doorbell",
         "ko": "북동쪽 초인종 방향으로 가서 첫 번째 S형 주택",
-        "zh": "朝东北门铃方向走最先到的S号房屋"
+        "zh": "朝东北门铃方向走最先到的S号房屋",
+        "zh-Hant": "朝東北門鈴方向走最先到的S號房屋"
       }
     },
     "4": {
@@ -1117,7 +1240,8 @@
       "i18n": {
         "en": "2nd M house up the west stairs",
         "ko": "서쪽 계단을 올라가 두 번째 집 M형 주택",
-        "zh": "上西侧楼梯后的第二栋M号房屋"
+        "zh": "上西侧楼梯后的第二栋M号房屋",
+        "zh-Hant": "上西側樓梯後的第二棟M號房屋"
       }
     },
     "5": {
@@ -1126,7 +1250,8 @@
       "i18n": {
         "en": "L house to the north",
         "ko": "북쪽 L형 주택",
-        "zh": "北侧L号房屋"
+        "zh": "北侧L号房屋",
+        "zh-Hant": "北側L號房屋"
       }
     },
     "6": {
@@ -1135,7 +1260,8 @@
       "i18n": {
         "en": "M house you jump down to; head toward the northeast doorbell to a spot you can drop from",
         "ko": "북동쪽 초인종 방향으로 가다 뛰어내릴 수 있을 것 같은 곳에서 점프하는 M형 주택",
-        "zh": "朝东北门铃方向走到能跳下去的地方跳下的M号房屋"
+        "zh": "朝东北门铃方向走到能跳下去的地方跳下的M号房屋",
+        "zh-Hant": "朝東北門鈴方向走到能跳下去的地方跳下的M號房屋"
       }
     },
     "7": {
@@ -1144,7 +1270,8 @@
       "i18n": {
         "en": "S house to the east",
         "ko": "동쪽 S형 주택",
-        "zh": "东侧S号房屋"
+        "zh": "东侧S号房屋",
+        "zh-Hant": "東側S號房屋"
       }
     },
     "8": {
@@ -1153,7 +1280,8 @@
       "i18n": {
         "en": "M house to the south",
         "ko": "남쪽 M형 주택",
-        "zh": "南侧M号房屋"
+        "zh": "南侧M号房屋",
+        "zh-Hant": "南側M號房屋"
       }
     },
     "9": {
@@ -1162,7 +1290,8 @@
       "i18n": {
         "en": "S house to the west",
         "ko": "서쪽 S형 주택",
-        "zh": "西侧S号房屋"
+        "zh": "西侧S号房屋",
+        "zh-Hant": "西側S號房屋"
       }
     },
     "10": {
@@ -1171,7 +1300,8 @@
       "i18n": {
         "en": "S house at the northwest dead end (not really a dead end though)",
         "ko": "북서쪽 막다른 곳 S형 주택(사실 막혀있지 않지만)",
-        "zh": "西北尽头的S号房屋(其实没到底)"
+        "zh": "西北尽头的S号房屋(其实没到底)",
+        "zh-Hant": "西北盡頭的S號房屋(其實沒到底)"
       }
     },
     "11": {
@@ -1180,7 +1310,8 @@
       "i18n": {
         "en": "M house on the left to the northwest",
         "ko": "북서쪽 왼쪽 M형 주택",
-        "zh": "西北左边M号房屋"
+        "zh": "西北左边M号房屋",
+        "zh-Hant": "西北左邊M號房屋"
       }
     },
     "12": {
@@ -1189,7 +1320,8 @@
       "i18n": {
         "en": "M house on the right to the northwest",
         "ko": "북서쪽 오른쪽 M형 주택",
-        "zh": "西北右边M号房屋"
+        "zh": "西北右边M号房屋",
+        "zh-Hant": "西北右邊M號房屋"
       }
     },
     "13": {
@@ -1198,7 +1330,8 @@
       "i18n": {
         "en": "L house on the right to the northeast",
         "ko": "북동쪽 오른쪽 L형 주택",
-        "zh": "东北右边L号房屋"
+        "zh": "东北右边L号房屋",
+        "zh-Hant": "東北右邊L號房屋"
       }
     },
     "14": {
@@ -1207,7 +1340,8 @@
       "i18n": {
         "en": "S house reached by looping left up the north stairs",
         "ko": "북쪽 계단을 왼쪽으로 빙 돌아간 S형 주택",
-        "zh": "沿北侧楼梯绕左边走到的S号房屋"
+        "zh": "沿北侧楼梯绕左边走到的S号房屋",
+        "zh-Hant": "沿北側樓梯繞左邊走到的S號房屋"
       }
     },
     "15": {
@@ -1216,7 +1350,8 @@
       "i18n": {
         "en": "S house up two flights of the north stairs",
         "ko": "북쪽 계단을 두 번 올라간 S형 주택",
-        "zh": "上北侧楼梯两段的S号房屋"
+        "zh": "上北侧楼梯两段的S号房屋",
+        "zh-Hant": "上北側樓梯兩段的S號房屋"
       }
     },
     "16": {
@@ -1225,7 +1360,8 @@
       "i18n": {
         "en": "S house on the left after crossing the southeast road; go left and climb two flights of stairs",
         "ko": "남동쪽 길을 건너 왼쪽으로 가서 계단을 두 번 올라간 왼쪽 S형 주택",
-        "zh": "过东南侧道路后向左走上两段楼梯的左边S号房屋"
+        "zh": "过东南侧道路后向左走上两段楼梯的左边S号房屋",
+        "zh-Hant": "過東南側道路後向左走上兩段樓梯的左邊S號房屋"
       }
     },
     "17": {
@@ -1234,7 +1370,8 @@
       "i18n": {
         "en": "S house on the right after crossing the southeast road; go left and climb the stairs",
         "ko": "남동쪽 길을 건너 왼쪽으로 가서 계단을 올라간 오른쪽 S형 주택",
-        "zh": "过东南侧道路后向左走上楼梯的右边S号房屋"
+        "zh": "过东南侧道路后向左走上楼梯的右边S号房屋",
+        "zh-Hant": "過東南側道路後向左走上樓梯的右邊S號房屋"
       }
     },
     "18": {
@@ -1243,7 +1380,8 @@
       "i18n": {
         "en": "S house seen ahead-left after crossing the southeast road",
         "ko": "남동쪽 길을 건너 왼쪽 앞에 보이는 S형 주택",
-        "zh": "过东南侧道路后左前方可见的S号房屋"
+        "zh": "过东南侧道路后左前方可见的S号房屋",
+        "zh-Hant": "過東南側道路後左前方可見的S號房屋"
       }
     },
     "19": {
@@ -1252,7 +1390,8 @@
       "i18n": {
         "en": "M house seen ahead-right after crossing the southeast road",
         "ko": "남동쪽 길을 건너 오른쪽 앞에 보이는 M형 주택",
-        "zh": "过东南侧道路后右前方可见的M号房屋"
+        "zh": "过东南侧道路后右前方可见的M号房屋",
+        "zh-Hant": "過東南側道路後右前方可見的M號房屋"
       }
     },
     "20": {
@@ -1261,7 +1400,8 @@
       "i18n": {
         "en": "S house to the south",
         "ko": "남쪽 S형 주택",
-        "zh": "南侧S号房屋"
+        "zh": "南侧S号房屋",
+        "zh-Hant": "南側S號房屋"
       }
     },
     "21": {
@@ -1270,7 +1410,8 @@
       "i18n": {
         "en": "S house up the west slope (not stairs)",
         "ko": "서쪽 비탈길을 올라간 곳의 S형 주택(계단이 아님)",
-        "zh": "上西侧坡道尽头的S号房屋(不是楼梯)"
+        "zh": "上西侧坡道尽头的S号房屋(不是楼梯)",
+        "zh-Hant": "上西側坡道盡頭的S號房屋(不是樓梯)"
       }
     },
     "22": {
@@ -1279,7 +1420,8 @@
       "i18n": {
         "en": "S house reached by going up the south stairs; up the large stairs on the right then turn left and up more stairs",
         "ko": "남쪽 계단을 올라가 오른쪽에 보이는 큰 계단을 올라간 뒤 왼쪽으로 꺾어 계단을 올라간 S형 주택",
-        "zh": "上南侧楼梯后走上右边可见的大楼梯再左转上楼梯的S号房屋"
+        "zh": "上南侧楼梯后走上右边可见的大楼梯再左转上楼梯的S号房屋",
+        "zh-Hant": "上南側樓梯後走上右邊可見的大樓梯再左轉上樓梯的S號房屋"
       }
     },
     "23": {
@@ -1288,7 +1430,8 @@
       "i18n": {
         "en": "S house up the narrow southwest stairs",
         "ko": "남서쪽 좁은 계단을 올라간 곳의 S형 주택",
-        "zh": "上西南窄楼梯尽头的S号房屋"
+        "zh": "上西南窄楼梯尽头的S号房屋",
+        "zh-Hant": "上西南窄樓梯盡頭的S號房屋"
       }
     },
     "24": {
@@ -1297,7 +1440,8 @@
       "i18n": {
         "en": "S house right there",
         "ko": "바로 저기 S형 주택",
-        "zh": "就在那边的S号房屋"
+        "zh": "就在那边的S号房屋",
+        "zh-Hant": "就在那邊的S號房屋"
       }
     },
     "25": {
@@ -1306,7 +1450,8 @@
       "i18n": {
         "en": "M house up the stairs then a bit back down",
         "ko": "계단을 올라갔다가 조금 내려간 M형 주택",
-        "zh": "上楼梯后又稍微下来的M号房屋"
+        "zh": "上楼梯后又稍微下来的M号房屋",
+        "zh-Hant": "上樓梯後又稍微下來的M號房屋"
       }
     },
     "26": {
@@ -1315,7 +1460,8 @@
       "i18n": {
         "en": "S house reached by going up the north stairs and U-turning left",
         "ko": "북쪽 계단을 올라가 왼쪽으로 U턴한 S형 주택",
-        "zh": "上北侧楼梯后向左U形转弯的S号房屋"
+        "zh": "上北侧楼梯后向左U形转弯的S号房屋",
+        "zh-Hant": "上北側樓梯後向左U形轉彎的S號房屋"
       }
     },
     "27": {
@@ -1324,7 +1470,8 @@
       "i18n": {
         "en": "S house to the southwest",
         "ko": "남서쪽 S형 주택",
-        "zh": "西南S号房屋"
+        "zh": "西南S号房屋",
+        "zh-Hant": "西南S號房屋"
       }
     },
     "28": {
@@ -1333,7 +1480,8 @@
       "i18n": {
         "en": "S house heading west",
         "ko": "서쪽으로 간 S형 주택",
-        "zh": "往西走的S号房屋"
+        "zh": "往西走的S号房屋",
+        "zh-Hant": "往西走的S號房屋"
       }
     },
     "29": {
@@ -1342,7 +1490,8 @@
       "i18n": {
         "en": "S house down the stairs",
         "ko": "계단을 내려간 곳의 S형 주택",
-        "zh": "下楼梯尽头的S号房屋"
+        "zh": "下楼梯尽头的S号房屋",
+        "zh-Hant": "下樓梯盡頭的S號房屋"
       }
     },
     "30": {
@@ -1351,7 +1500,8 @@
       "i18n": {
         "en": "L house down the stairs",
         "ko": "계단을 내려간 곳의 L형 주택",
-        "zh": "下楼梯尽头的L号房屋"
+        "zh": "下楼梯尽头的L号房屋",
+        "zh-Hant": "下樓梯盡頭的L號房屋"
       }
     },
     "31": {
@@ -1360,7 +1510,8 @@
       "i18n": {
         "en": "S house right after going up the north stairs",
         "ko": "북쪽 계단을 올라가면 바로 S형 주택",
-        "zh": "上北侧楼梯就到的S号房屋"
+        "zh": "上北侧楼梯就到的S号房屋",
+        "zh-Hant": "上北側樓梯就到的S號房屋"
       }
     },
     "32": {
@@ -1369,7 +1520,8 @@
       "i18n": {
         "en": "Last S house heading toward the southeast doorbell",
         "ko": "남동쪽 초인종 방향으로 가서 마지막 S형 주택",
-        "zh": "朝东南门铃方向走到底的S号房屋"
+        "zh": "朝东南门铃方向走到底的S号房屋",
+        "zh-Hant": "朝東南門鈴方向走到底的S號房屋"
       }
     },
     "33": {
@@ -1378,7 +1530,8 @@
       "i18n": {
         "en": "First S house heading toward the southeast doorbell",
         "ko": "남동쪽 초인종 방향으로 가서 첫 번째 S형 주택",
-        "zh": "朝东南门铃方向走最先到的S号房屋"
+        "zh": "朝东南门铃方向走最先到的S号房屋",
+        "zh-Hant": "朝東南門鈴方向走最先到的S號房屋"
       }
     },
     "34": {
@@ -1387,7 +1540,8 @@
       "i18n": {
         "en": "2nd M house up the north stairs",
         "ko": "북쪽 계단을 올라가 두 번째 집 M형 주택",
-        "zh": "上北侧楼梯后的第二栋M号房屋"
+        "zh": "上北侧楼梯后的第二栋M号房屋",
+        "zh-Hant": "上北側樓梯後的第二棟M號房屋"
       }
     },
     "35": {
@@ -1396,7 +1550,8 @@
       "i18n": {
         "en": "L house to the east",
         "ko": "동쪽 L형 주택",
-        "zh": "东侧L号房屋"
+        "zh": "东侧L号房屋",
+        "zh-Hant": "東側L號房屋"
       }
     },
     "36": {
@@ -1405,7 +1560,8 @@
       "i18n": {
         "en": "M house you jump down to; head toward the southeast doorbell to a spot you can drop from",
         "ko": "남동쪽 초인종 방향으로 가다 뛰어내릴 수 있을 것 같은 곳에서 점프하는 M형 주택",
-        "zh": "朝东南门铃方向走到能跳下去的地方跳下的M号房屋"
+        "zh": "朝东南门铃方向走到能跳下去的地方跳下的M号房屋",
+        "zh-Hant": "朝東南門鈴方向走到能跳下去的地方跳下的M號房屋"
       }
     },
     "37": {
@@ -1414,7 +1570,8 @@
       "i18n": {
         "en": "S house to the south",
         "ko": "남쪽 S형 주택",
-        "zh": "南侧S号房屋"
+        "zh": "南侧S号房屋",
+        "zh-Hant": "南側S號房屋"
       }
     },
     "38": {
@@ -1423,7 +1580,8 @@
       "i18n": {
         "en": "M house to the west",
         "ko": "서쪽 M형 주택",
-        "zh": "西侧M号房屋"
+        "zh": "西侧M号房屋",
+        "zh-Hant": "西側M號房屋"
       }
     },
     "39": {
@@ -1432,7 +1590,8 @@
       "i18n": {
         "en": "S house to the north",
         "ko": "북쪽 S형 주택",
-        "zh": "北侧S号房屋"
+        "zh": "北侧S号房屋",
+        "zh-Hant": "北側S號房屋"
       }
     },
     "40": {
@@ -1441,7 +1600,8 @@
       "i18n": {
         "en": "S house at the northeast dead end (not really a dead end though)",
         "ko": "북동쪽 막다른 곳 S형 주택(사실 막혀있지 않지만)",
-        "zh": "东北尽头的S号房屋(其实没到底)"
+        "zh": "东北尽头的S号房屋(其实没到底)",
+        "zh-Hant": "東北盡頭的S號房屋(其實沒到底)"
       }
     },
     "41": {
@@ -1450,7 +1610,8 @@
       "i18n": {
         "en": "M house on the left to the northeast",
         "ko": "북동쪽 왼쪽 M형 주택",
-        "zh": "东北左边M号房屋"
+        "zh": "东北左边M号房屋",
+        "zh-Hant": "東北左邊M號房屋"
       }
     },
     "42": {
@@ -1459,7 +1620,8 @@
       "i18n": {
         "en": "M house on the right to the northeast",
         "ko": "북동쪽 오른쪽 M형 주택",
-        "zh": "东北右边M号房屋"
+        "zh": "东北右边M号房屋",
+        "zh-Hant": "東北右邊M號房屋"
       }
     },
     "43": {
@@ -1468,7 +1630,8 @@
       "i18n": {
         "en": "L house on the right to the southeast",
         "ko": "남동쪽 오른쪽 L형 주택",
-        "zh": "东南右边L号房屋"
+        "zh": "东南右边L号房屋",
+        "zh-Hant": "東南右邊L號房屋"
       }
     },
     "44": {
@@ -1477,7 +1640,8 @@
       "i18n": {
         "en": "S house reached by looping left up the east stairs",
         "ko": "동쪽 계단을 왼쪽으로 빙 돌아간 S형 주택",
-        "zh": "沿东侧楼梯绕左边走到的S号房屋"
+        "zh": "沿东侧楼梯绕左边走到的S号房屋",
+        "zh-Hant": "沿東側樓梯繞左邊走到的S號房屋"
       }
     },
     "45": {
@@ -1486,7 +1650,8 @@
       "i18n": {
         "en": "S house up two flights of the east stairs",
         "ko": "동쪽 계단을 두 번 올라간 S형 주택",
-        "zh": "上东侧楼梯两段的S号房屋"
+        "zh": "上东侧楼梯两段的S号房屋",
+        "zh-Hant": "上東側樓梯兩段的S號房屋"
       }
     },
     "46": {
@@ -1495,7 +1660,8 @@
       "i18n": {
         "en": "S house on the left after crossing the southwest road; go left and climb two flights of stairs",
         "ko": "남서쪽 길을 건너 왼쪽으로 가서 계단을 두 번 올라간 왼쪽 S형 주택",
-        "zh": "过西南侧道路后向左走上两段楼梯的左边S号房屋"
+        "zh": "过西南侧道路后向左走上两段楼梯的左边S号房屋",
+        "zh-Hant": "過西南側道路後向左走上兩段樓梯的左邊S號房屋"
       }
     },
     "47": {
@@ -1504,7 +1670,8 @@
       "i18n": {
         "en": "S house on the right after crossing the southwest road; go left and climb the stairs",
         "ko": "남서쪽 길을 건너 왼쪽으로 가서 계단을 올라간 오른쪽 S형 주택",
-        "zh": "过西南侧道路后向左走上楼梯的右边S号房屋"
+        "zh": "过西南侧道路后向左走上楼梯的右边S号房屋",
+        "zh-Hant": "過西南側道路後向左走上樓梯的右邊S號房屋"
       }
     },
     "48": {
@@ -1513,7 +1680,8 @@
       "i18n": {
         "en": "S house seen ahead-left after crossing the southwest road",
         "ko": "남서쪽 길을 건너 왼쪽 앞에 보이는 S형 주택",
-        "zh": "过西南侧道路后左前方可见的S号房屋"
+        "zh": "过西南侧道路后左前方可见的S号房屋",
+        "zh-Hant": "過西南側道路後左前方可見的S號房屋"
       }
     },
     "49": {
@@ -1522,7 +1690,8 @@
       "i18n": {
         "en": "M house seen ahead-right after crossing the southwest road",
         "ko": "남서쪽 길을 건너 오른쪽 앞에 보이는 M형 주택",
-        "zh": "过西南侧道路后右前方可见的M号房屋"
+        "zh": "过西南侧道路后右前方可见的M号房屋",
+        "zh-Hant": "過西南側道路後右前方可見的M號房屋"
       }
     },
     "50": {
@@ -1531,7 +1700,8 @@
       "i18n": {
         "en": "S house to the west",
         "ko": "서쪽 S형 주택",
-        "zh": "西侧S号房屋"
+        "zh": "西侧S号房屋",
+        "zh-Hant": "西側S號房屋"
       }
     },
     "51": {
@@ -1540,7 +1710,8 @@
       "i18n": {
         "en": "S house up the north slope (not stairs)",
         "ko": "북쪽 비탈길을 올라간 곳의 S형 주택(계단이 아님)",
-        "zh": "上北侧坡道尽头的S号房屋(不是楼梯)"
+        "zh": "上北侧坡道尽头的S号房屋(不是楼梯)",
+        "zh-Hant": "上北側坡道盡頭的S號房屋(不是樓梯)"
       }
     },
     "52": {
@@ -1549,7 +1720,8 @@
       "i18n": {
         "en": "S house reached by going up the west stairs; up the large stairs on the right then turn left and up more stairs",
         "ko": "서쪽 계단을 올라가 오른쪽에 보이는 큰 계단을 올라간 뒤 왼쪽으로 꺾어 계단을 올라간 S형 주택",
-        "zh": "上西侧楼梯后走上右边可见的大楼梯再左转上楼梯的S号房屋"
+        "zh": "上西侧楼梯后走上右边可见的大楼梯再左转上楼梯的S号房屋",
+        "zh-Hant": "上西側樓梯後走上右邊可見的大樓梯再左轉上樓梯的S號房屋"
       }
     },
     "53": {
@@ -1558,7 +1730,8 @@
       "i18n": {
         "en": "S house up the narrow northwest stairs",
         "ko": "북서쪽 좁은 계단을 올라간 곳의 S형 주택",
-        "zh": "上西北窄楼梯尽头的S号房屋"
+        "zh": "上西北窄楼梯尽头的S号房屋",
+        "zh-Hant": "上西北窄樓梯盡頭的S號房屋"
       }
     },
     "54": {
@@ -1567,7 +1740,8 @@
       "i18n": {
         "en": "S house right there",
         "ko": "바로 저기 S형 주택",
-        "zh": "就在那边的S号房屋"
+        "zh": "就在那边的S号房屋",
+        "zh-Hant": "就在那邊的S號房屋"
       }
     },
     "55": {
@@ -1576,7 +1750,8 @@
       "i18n": {
         "en": "M house up the stairs then a bit back down",
         "ko": "계단을 올라갔다가 조금 내려간 M형 주택",
-        "zh": "上楼梯后又稍微下来的M号房屋"
+        "zh": "上楼梯后又稍微下来的M号房屋",
+        "zh-Hant": "上樓梯後又稍微下來的M號房屋"
       }
     },
     "56": {
@@ -1585,7 +1760,8 @@
       "i18n": {
         "en": "S house reached by going up the east stairs and U-turning left",
         "ko": "동쪽 계단을 올라가 왼쪽으로 U턴한 S형 주택",
-        "zh": "上东侧楼梯后向左U形转弯的S号房屋"
+        "zh": "上东侧楼梯后向左U形转弯的S号房屋",
+        "zh-Hant": "上東側樓梯後向左U形轉彎的S號房屋"
       }
     },
     "57": {
@@ -1594,7 +1770,8 @@
       "i18n": {
         "en": "S house to the northwest",
         "ko": "북서쪽 S형 주택",
-        "zh": "西北S号房屋"
+        "zh": "西北S号房屋",
+        "zh-Hant": "西北S號房屋"
       }
     },
     "58": {
@@ -1603,7 +1780,8 @@
       "i18n": {
         "en": "S house heading north",
         "ko": "북쪽으로 간 S형 주택",
-        "zh": "往北走的S号房屋"
+        "zh": "往北走的S号房屋",
+        "zh-Hant": "往北走的S號房屋"
       }
     },
     "59": {
@@ -1612,7 +1790,8 @@
       "i18n": {
         "en": "S house down the stairs",
         "ko": "계단을 내려간 곳의 S형 주택",
-        "zh": "下楼梯尽头的S号房屋"
+        "zh": "下楼梯尽头的S号房屋",
+        "zh-Hant": "下樓梯盡頭的S號房屋"
       }
     },
     "60": {
@@ -1621,7 +1800,8 @@
       "i18n": {
         "en": "L house down the stairs",
         "ko": "계단을 내려간 곳의 L형 주택",
-        "zh": "下楼梯尽头的L号房屋"
+        "zh": "下楼梯尽头的L号房屋",
+        "zh-Hant": "下樓梯盡頭的L號房屋"
       }
     }
   },
@@ -1632,7 +1812,8 @@
       "i18n": {
         "en": "Go south; M house on the right",
         "ko": "남쪽으로 가서 오른쪽 M형 주택",
-        "zh": "往南走右边M号房屋"
+        "zh": "往南走右边M号房屋",
+        "zh-Hant": "往南走右邊M號房屋"
       }
     },
     "2": {
@@ -1641,7 +1822,8 @@
       "i18n": {
         "en": "S house right after going up the northwest stairs",
         "ko": "북서쪽 계단을 올라가면 바로 S형 주택",
-        "zh": "上西北楼梯就到的S号房屋"
+        "zh": "上西北楼梯就到的S号房屋",
+        "zh-Hant": "上西北樓梯就到的S號房屋"
       }
     },
     "3": {
@@ -1650,7 +1832,8 @@
       "i18n": {
         "en": "S house reached by going southeast then down the stairs",
         "ko": "남동쪽으로 간 뒤 계단을 내려간 S형 주택",
-        "zh": "往东南走后下楼梯的S号房屋"
+        "zh": "往东南走后下楼梯的S号房屋",
+        "zh-Hant": "往東南走後下樓梯的S號房屋"
       }
     },
     "4": {
@@ -1659,7 +1842,8 @@
       "i18n": {
         "en": "S house to the north (can be reached from either side)",
         "ko": "북쪽 S형 주택(왼쪽이든 오른쪽이든 상관없음)",
-        "zh": "北侧S号房屋(从左右两边都能到)"
+        "zh": "北侧S号房屋(从左右两边都能到)",
+        "zh-Hant": "北側S號房屋(從左右兩邊都能到)"
       }
     },
     "5": {
@@ -1668,7 +1852,8 @@
       "i18n": {
         "en": "S house up the northeast stairs",
         "ko": "북동쪽 계단을 올라간 S형 주택",
-        "zh": "上东北楼梯的S号房屋"
+        "zh": "上东北楼梯的S号房屋",
+        "zh-Hant": "上東北樓梯的S號房屋"
       }
     },
     "6": {
@@ -1677,7 +1862,8 @@
       "i18n": {
         "en": "S house on the right to the west",
         "ko": "서쪽 오른쪽 S형 주택",
-        "zh": "西侧右边S号房屋"
+        "zh": "西侧右边S号房屋",
+        "zh-Hant": "西側右邊S號房屋"
       }
     },
     "7": {
@@ -1686,7 +1872,8 @@
       "i18n": {
         "en": "L house on the left to the west",
         "ko": "서쪽 왼쪽 L형 주택",
-        "zh": "西侧左边L号房屋"
+        "zh": "西侧左边L号房屋",
+        "zh-Hant": "西側左邊L號房屋"
       }
     },
     "8": {
@@ -1695,7 +1882,8 @@
       "i18n": {
         "en": "M house to the east",
         "ko": "동쪽 M형 주택",
-        "zh": "东侧M号房屋"
+        "zh": "东侧M号房屋",
+        "zh-Hant": "東側M號房屋"
       }
     },
     "9": {
@@ -1704,7 +1892,8 @@
       "i18n": {
         "en": "S house reached by going east then up the stairs on the left",
         "ko": "동쪽으로 가서 왼쪽 계단을 올라간 S형 주택",
-        "zh": "往东走后左边上楼梯的S号房屋"
+        "zh": "往东走后左边上楼梯的S号房屋",
+        "zh-Hant": "往東走後左邊上樓梯的S號房屋"
       }
     },
     "10": {
@@ -1713,7 +1902,8 @@
       "i18n": {
         "en": "S house down the southeast stairs",
         "ko": "남동쪽 계단을 내려간 S형 주택",
-        "zh": "东南下楼梯的S号房屋"
+        "zh": "东南下楼梯的S号房屋",
+        "zh-Hant": "東南下樓梯的S號房屋"
       }
     },
     "11": {
@@ -1722,7 +1912,8 @@
       "i18n": {
         "en": "S house on the left after going down the west stairs",
         "ko": "서쪽 계단을 내려가 왼쪽 S형 주택",
-        "zh": "下西侧楼梯后左边S号房屋"
+        "zh": "下西侧楼梯后左边S号房屋",
+        "zh-Hant": "下西側樓梯後左邊S號房屋"
       }
     },
     "12": {
@@ -1731,7 +1922,8 @@
       "i18n": {
         "en": "S house on the right after going down the west stairs",
         "ko": "서쪽 계단을 내려가 오른쪽 S형 주택",
-        "zh": "下西侧楼梯后右边S号房屋"
+        "zh": "下西侧楼梯后右边S号房屋",
+        "zh-Hant": "下西側樓梯後右邊S號房屋"
       }
     },
     "13": {
@@ -1740,7 +1932,8 @@
       "i18n": {
         "en": "2nd M house to the northwest",
         "ko": "북서쪽 두 번째 집 M형 주택",
-        "zh": "西北第二栋M号房屋"
+        "zh": "西北第二栋M号房屋",
+        "zh-Hant": "西北第二棟M號房屋"
       }
     },
     "14": {
@@ -1749,7 +1942,8 @@
       "i18n": {
         "en": "S house to the north",
         "ko": "북쪽 S형 주택",
-        "zh": "北侧S号房屋"
+        "zh": "北侧S号房屋",
+        "zh-Hant": "北側S號房屋"
       }
     },
     "15": {
@@ -1758,7 +1952,8 @@
       "i18n": {
         "en": "M house up the northeast stairs",
         "ko": "북동쪽 계단을 올라간 M형 주택",
-        "zh": "上东北楼梯的M号房屋"
+        "zh": "上东北楼梯的M号房屋",
+        "zh-Hant": "上東北樓梯的M號房屋"
       }
     },
     "16": {
@@ -1767,7 +1962,8 @@
       "i18n": {
         "en": "L house past the top of the northeast stairs",
         "ko": "북동쪽 계단을 올라간 곳의 L형 주택",
-        "zh": "上东北楼梯尽头的L号房屋"
+        "zh": "上东北楼梯尽头的L号房屋",
+        "zh-Hant": "上東北樓梯盡頭的L號房屋"
       }
     },
     "17": {
@@ -1776,7 +1972,8 @@
       "i18n": {
         "en": "First S house to the northwest (right)",
         "ko": "북서쪽 첫 번째 S형 주택(오른쪽)",
-        "zh": "西北第一栋S号房屋(右)"
+        "zh": "西北第一栋S号房屋(右)",
+        "zh-Hant": "西北第一棟S號房屋(右)"
       }
     },
     "18": {
@@ -1785,7 +1982,8 @@
       "i18n": {
         "en": "2nd S house to the southeast",
         "ko": "남동쪽 두 번째 S형 주택",
-        "zh": "东南第二栋S号房屋"
+        "zh": "东南第二栋S号房屋",
+        "zh-Hant": "東南第二棟S號房屋"
       }
     },
     "19": {
@@ -1794,7 +1992,8 @@
       "i18n": {
         "en": "First M house to the northwest (left)",
         "ko": "북서쪽 첫 번째 M형 주택(왼쪽)",
-        "zh": "西北第一栋M号房屋(左)"
+        "zh": "西北第一栋M号房屋(左)",
+        "zh-Hant": "西北第一棟M號房屋(左)"
       }
     },
     "20": {
@@ -1803,7 +2002,8 @@
       "i18n": {
         "en": "1st S house to the southeast",
         "ko": "남동쪽 첫 번째 S형 주택",
-        "zh": "东南第一栋S号房屋"
+        "zh": "东南第一栋S号房屋",
+        "zh-Hant": "東南第一棟S號房屋"
       }
     },
     "21": {
@@ -1812,7 +2012,8 @@
       "i18n": {
         "en": "S house on the left to the west",
         "ko": "서쪽 왼쪽 S형 주택",
-        "zh": "西侧左边S号房屋"
+        "zh": "西侧左边S号房屋",
+        "zh-Hant": "西側左邊S號房屋"
       }
     },
     "22": {
@@ -1821,7 +2022,8 @@
       "i18n": {
         "en": "S house on the right to the west",
         "ko": "서쪽 오른쪽 S형 주택",
-        "zh": "西侧右边S号房屋"
+        "zh": "西侧右边S号房屋",
+        "zh-Hant": "西側右邊S號房屋"
       }
     },
     "23": {
@@ -1830,7 +2032,8 @@
       "i18n": {
         "en": "S house in front of the red bridge to the west",
         "ko": "서쪽 붉은 다리 앞 S형 주택",
-        "zh": "西侧红桥前S号房屋"
+        "zh": "西侧红桥前S号房屋",
+        "zh-Hant": "西側紅橋前S號房屋"
       }
     },
     "24": {
@@ -1839,7 +2042,8 @@
       "i18n": {
         "en": "M house to the west",
         "ko": "서쪽 M형 주택",
-        "zh": "西侧M号房屋"
+        "zh": "西侧M号房屋",
+        "zh-Hant": "西側M號房屋"
       }
     },
     "25": {
@@ -1848,7 +2052,8 @@
       "i18n": {
         "en": "S house a little down the east stairs",
         "ko": "동쪽 계단을 조금 내려간 S형 주택",
-        "zh": "下东侧楼梯一点的S号房屋"
+        "zh": "下东侧楼梯一点的S号房屋",
+        "zh-Hant": "下東側樓梯一點的S號房屋"
       }
     },
     "26": {
@@ -1857,7 +2062,8 @@
       "i18n": {
         "en": "S house to the north",
         "ko": "북쪽 S형 주택",
-        "zh": "北侧S号房屋"
+        "zh": "北侧S号房屋",
+        "zh-Hant": "北側S號房屋"
       }
     },
     "27": {
@@ -1866,7 +2072,8 @@
       "i18n": {
         "en": "S house to the northeast",
         "ko": "북동쪽 S형 주택",
-        "zh": "东北S号房屋"
+        "zh": "东北S号房屋",
+        "zh-Hant": "東北S號房屋"
       }
     },
     "28": {
@@ -1875,7 +2082,8 @@
       "i18n": {
         "en": "M house to the east",
         "ko": "동쪽 M형 주택",
-        "zh": "东侧M号房屋"
+        "zh": "东侧M号房屋",
+        "zh-Hant": "東側M號房屋"
       }
     },
     "29": {
@@ -1884,7 +2092,8 @@
       "i18n": {
         "en": "S house to the south",
         "ko": "남쪽 S형 주택",
-        "zh": "南侧S号房屋"
+        "zh": "南侧S号房屋",
+        "zh-Hant": "南側S號房屋"
       }
     },
     "30": {
@@ -1893,7 +2102,8 @@
       "i18n": {
         "en": "L house to the west",
         "ko": "서쪽 L형 주택",
-        "zh": "西侧L号房屋"
+        "zh": "西侧L号房屋",
+        "zh-Hant": "西側L號房屋"
       }
     },
     "31": {
@@ -1902,7 +2112,8 @@
       "i18n": {
         "en": "Go west; M house on the right",
         "ko": "서쪽으로 가서 오른쪽 M형 주택",
-        "zh": "往西走右边M号房屋"
+        "zh": "往西走右边M号房屋",
+        "zh-Hant": "往西走右邊M號房屋"
       }
     },
     "32": {
@@ -1911,7 +2122,8 @@
       "i18n": {
         "en": "S house right after going up the northeast stairs",
         "ko": "북동쪽 계단을 올라가면 바로 S형 주택",
-        "zh": "上东北楼梯就到的S号房屋"
+        "zh": "上东北楼梯就到的S号房屋",
+        "zh-Hant": "上東北樓梯就到的S號房屋"
       }
     },
     "33": {
@@ -1920,7 +2132,8 @@
       "i18n": {
         "en": "S house reached by going southwest then down the stairs",
         "ko": "남서쪽으로 간 뒤 계단을 내려간 S형 주택",
-        "zh": "往西南走后下楼梯的S号房屋"
+        "zh": "往西南走后下楼梯的S号房屋",
+        "zh-Hant": "往西南走後下樓梯的S號房屋"
       }
     },
     "34": {
@@ -1929,7 +2142,8 @@
       "i18n": {
         "en": "S house to the east (can be reached from either side)",
         "ko": "동쪽 S형 주택(왼쪽이든 오른쪽이든 상관없음)",
-        "zh": "东侧S号房屋(从左右两边都能到)"
+        "zh": "东侧S号房屋(从左右两边都能到)",
+        "zh-Hant": "東側S號房屋(從左右兩邊都能到)"
       }
     },
     "35": {
@@ -1938,7 +2152,8 @@
       "i18n": {
         "en": "S house up the southeast stairs",
         "ko": "남동쪽 계단을 올라간 S형 주택",
-        "zh": "上东南楼梯的S号房屋"
+        "zh": "上东南楼梯的S号房屋",
+        "zh-Hant": "上東南樓梯的S號房屋"
       }
     },
     "36": {
@@ -1947,7 +2162,8 @@
       "i18n": {
         "en": "S house on the right to the north",
         "ko": "북쪽 오른쪽 S형 주택",
-        "zh": "北侧右边S号房屋"
+        "zh": "北侧右边S号房屋",
+        "zh-Hant": "北側右邊S號房屋"
       }
     },
     "37": {
@@ -1956,7 +2172,8 @@
       "i18n": {
         "en": "L house on the left to the north",
         "ko": "북쪽 왼쪽 L형 주택",
-        "zh": "北侧左边L号房屋"
+        "zh": "北侧左边L号房屋",
+        "zh-Hant": "北側左邊L號房屋"
       }
     },
     "38": {
@@ -1965,7 +2182,8 @@
       "i18n": {
         "en": "M house to the south",
         "ko": "남쪽 M형 주택",
-        "zh": "南侧M号房屋"
+        "zh": "南侧M号房屋",
+        "zh-Hant": "南側M號房屋"
       }
     },
     "39": {
@@ -1974,7 +2192,8 @@
       "i18n": {
         "en": "S house reached by going south then up the stairs on the left",
         "ko": "남쪽으로 가서 왼쪽 계단을 올라간 S형 주택",
-        "zh": "往南走后左边上楼梯的S号房屋"
+        "zh": "往南走后左边上楼梯的S号房屋",
+        "zh-Hant": "往南走後左邊上樓梯的S號房屋"
       }
     },
     "40": {
@@ -1983,7 +2202,8 @@
       "i18n": {
         "en": "S house down the southwest stairs",
         "ko": "남서쪽 계단을 내려간 S형 주택",
-        "zh": "西南下楼梯的S号房屋"
+        "zh": "西南下楼梯的S号房屋",
+        "zh-Hant": "西南下樓梯的S號房屋"
       }
     },
     "41": {
@@ -1992,7 +2212,8 @@
       "i18n": {
         "en": "S house on the left after going down the north stairs",
         "ko": "북쪽 계단을 내려가 왼쪽 S형 주택",
-        "zh": "下北侧楼梯后左边S号房屋"
+        "zh": "下北侧楼梯后左边S号房屋",
+        "zh-Hant": "下北側樓梯後左邊S號房屋"
       }
     },
     "42": {
@@ -2001,7 +2222,8 @@
       "i18n": {
         "en": "S house on the right after going down the north stairs",
         "ko": "북쪽 계단을 내려가 오른쪽 S형 주택",
-        "zh": "下北侧楼梯后右边S号房屋"
+        "zh": "下北侧楼梯后右边S号房屋",
+        "zh-Hant": "下北側樓梯後右邊S號房屋"
       }
     },
     "43": {
@@ -2010,7 +2232,8 @@
       "i18n": {
         "en": "2nd M house to the northeast",
         "ko": "북동쪽 두 번째 집 M형 주택",
-        "zh": "东北第二栋M号房屋"
+        "zh": "东北第二栋M号房屋",
+        "zh-Hant": "東北第二棟M號房屋"
       }
     },
     "44": {
@@ -2019,7 +2242,8 @@
       "i18n": {
         "en": "S house to the east",
         "ko": "동쪽 S형 주택",
-        "zh": "东侧S号房屋"
+        "zh": "东侧S号房屋",
+        "zh-Hant": "東側S號房屋"
       }
     },
     "45": {
@@ -2028,7 +2252,8 @@
       "i18n": {
         "en": "M house up the south stairs",
         "ko": "남쪽 계단을 올라간 M형 주택",
-        "zh": "上南侧楼梯的M号房屋"
+        "zh": "上南侧楼梯的M号房屋",
+        "zh-Hant": "上南側樓梯的M號房屋"
       }
     },
     "46": {
@@ -2037,7 +2262,8 @@
       "i18n": {
         "en": "L house past the top of the south stairs",
         "ko": "남쪽 계단을 올라간 곳의 L형 주택",
-        "zh": "上南侧楼梯尽头的L号房屋"
+        "zh": "上南侧楼梯尽头的L号房屋",
+        "zh-Hant": "上南側樓梯盡頭的L號房屋"
       }
     },
     "47": {
@@ -2046,7 +2272,8 @@
       "i18n": {
         "en": "First S house to the northeast (right)",
         "ko": "북동쪽 첫 번째 S형 주택(오른쪽)",
-        "zh": "东北第一栋S号房屋(右)"
+        "zh": "东北第一栋S号房屋(右)",
+        "zh-Hant": "東北第一棟S號房屋(右)"
       }
     },
     "48": {
@@ -2055,7 +2282,8 @@
       "i18n": {
         "en": "2nd S house to the southwest",
         "ko": "남서쪽 두 번째 S형 주택",
-        "zh": "西南第二栋S号房屋"
+        "zh": "西南第二栋S号房屋",
+        "zh-Hant": "西南第二棟S號房屋"
       }
     },
     "49": {
@@ -2064,7 +2292,8 @@
       "i18n": {
         "en": "First M house to the northeast (left)",
         "ko": "북동쪽 첫 번째 M형 주택(왼쪽)",
-        "zh": "东北第一栋M号房屋(左)"
+        "zh": "东北第一栋M号房屋(左)",
+        "zh-Hant": "東北第一棟M號房屋(左)"
       }
     },
     "50": {
@@ -2073,7 +2302,8 @@
       "i18n": {
         "en": "1st S house to the southwest",
         "ko": "남서쪽 첫 번째 S형 주택",
-        "zh": "西南第一栋S号房屋"
+        "zh": "西南第一栋S号房屋",
+        "zh-Hant": "西南第一棟S號房屋"
       }
     },
     "51": {
@@ -2082,7 +2312,8 @@
       "i18n": {
         "en": "S house on the left to the north",
         "ko": "북쪽 왼쪽 S형 주택",
-        "zh": "北侧左边S号房屋"
+        "zh": "北侧左边S号房屋",
+        "zh-Hant": "北側左邊S號房屋"
       }
     },
     "52": {
@@ -2091,7 +2322,8 @@
       "i18n": {
         "en": "S house on the right to the north",
         "ko": "북쪽 오른쪽 S형 주택",
-        "zh": "北侧右边S号房屋"
+        "zh": "北侧右边S号房屋",
+        "zh-Hant": "北側右邊S號房屋"
       }
     },
     "53": {
@@ -2100,7 +2332,8 @@
       "i18n": {
         "en": "S house in front of the red bridge to the north",
         "ko": "북쪽 붉은 다리 앞 S형 주택",
-        "zh": "北侧红桥前S号房屋"
+        "zh": "北侧红桥前S号房屋",
+        "zh-Hant": "北側紅橋前S號房屋"
       }
     },
     "54": {
@@ -2109,7 +2342,8 @@
       "i18n": {
         "en": "M house to the north",
         "ko": "북쪽 M형 주택",
-        "zh": "北侧M号房屋"
+        "zh": "北侧M号房屋",
+        "zh-Hant": "北側M號房屋"
       }
     },
     "55": {
@@ -2118,7 +2352,8 @@
       "i18n": {
         "en": "S house a little down the west stairs",
         "ko": "서쪽 계단을 조금 내려간 S형 주택",
-        "zh": "下西侧楼梯一点的S号房屋"
+        "zh": "下西侧楼梯一点的S号房屋",
+        "zh-Hant": "下西側樓梯一點的S號房屋"
       }
     },
     "56": {
@@ -2127,7 +2362,8 @@
       "i18n": {
         "en": "S house to the east",
         "ko": "동쪽 S형 주택",
-        "zh": "东侧S号房屋"
+        "zh": "东侧S号房屋",
+        "zh-Hant": "東側S號房屋"
       }
     },
     "57": {
@@ -2136,7 +2372,8 @@
       "i18n": {
         "en": "S house to the southeast",
         "ko": "남동쪽 S형 주택",
-        "zh": "东南S号房屋"
+        "zh": "东南S号房屋",
+        "zh-Hant": "東南S號房屋"
       }
     },
     "58": {
@@ -2145,7 +2382,8 @@
       "i18n": {
         "en": "M house to the south",
         "ko": "남쪽 M형 주택",
-        "zh": "南侧M号房屋"
+        "zh": "南侧M号房屋",
+        "zh-Hant": "南側M號房屋"
       }
     },
     "59": {
@@ -2154,7 +2392,8 @@
       "i18n": {
         "en": "S house to the west",
         "ko": "서쪽 S형 주택",
-        "zh": "西侧S号房屋"
+        "zh": "西侧S号房屋",
+        "zh-Hant": "西側S號房屋"
       }
     },
     "60": {
@@ -2163,7 +2402,8 @@
       "i18n": {
         "en": "L house to the north",
         "ko": "북쪽 L형 주택",
-        "zh": "北侧L号房屋"
+        "zh": "北侧L号房屋",
+        "zh-Hant": "北側L號房屋"
       }
     }
   },
@@ -2174,7 +2414,8 @@
       "i18n": {
         "en": "S house to the east",
         "ko": "동쪽 S형 주택",
-        "zh": "东侧S号房屋"
+        "zh": "东侧S号房屋",
+        "zh-Hant": "東側S號房屋"
       }
     },
     "2": {
@@ -2183,7 +2424,8 @@
       "i18n": {
         "en": "M house to the south (can be reached from either side)",
         "ko": "남쪽 M형 주택(왼쪽이든 오른쪽이든 상관없음)",
-        "zh": "南侧M号房屋(从左右两边都能到)"
+        "zh": "南侧M号房屋(从左右两边都能到)",
+        "zh-Hant": "南側M號房屋(從左右兩邊都能到)"
       }
     },
     "3": {
@@ -2192,7 +2434,8 @@
       "i18n": {
         "en": "Jump from the northeast stairs landing",
         "ko": "북동쪽 계단참에서 점프",
-        "zh": "从东北楼梯平台跳下"
+        "zh": "从东北楼梯平台跳下",
+        "zh-Hant": "從東北樓梯平臺跳下"
       }
     },
     "4": {
@@ -2201,7 +2444,8 @@
       "i18n": {
         "en": "S house in the middle up the winding north stairs",
         "ko": "북쪽 구불구불한 계단을 올라간 가운데 S형 주택",
-        "zh": "上北侧蜿蜒楼梯中段的S号房屋"
+        "zh": "上北侧蜿蜒楼梯中段的S号房屋",
+        "zh-Hant": "上北側蜿蜒樓梯中段的S號房屋"
       }
     },
     "5": {
@@ -2210,7 +2454,8 @@
       "i18n": {
         "en": "S house on the right to the northeast",
         "ko": "북동쪽 오른쪽 S형 주택",
-        "zh": "东北右边S号房屋"
+        "zh": "东北右边S号房屋",
+        "zh-Hant": "東北右邊S號房屋"
       }
     },
     "6": {
@@ -2219,7 +2464,8 @@
       "i18n": {
         "en": "S house on the left to the northeast",
         "ko": "북동쪽 왼쪽 S형 주택",
-        "zh": "东北左边S号房屋"
+        "zh": "东北左边S号房屋",
+        "zh-Hant": "東北左邊S號房屋"
       }
     },
     "7": {
@@ -2228,7 +2474,8 @@
       "i18n": {
         "en": "M house on the left after climbing the large stairs",
         "ko": "큰 계단을 올라가 왼쪽 M형 주택",
-        "zh": "上大楼梯后左边M号房屋"
+        "zh": "上大楼梯后左边M号房屋",
+        "zh-Hant": "上大樓梯後左邊M號房屋"
       }
     },
     "8": {
@@ -2237,7 +2484,8 @@
       "i18n": {
         "en": "M house to the south",
         "ko": "남쪽 M형 주택",
-        "zh": "南侧M号房屋"
+        "zh": "南侧M号房屋",
+        "zh-Hant": "南側M號房屋"
       }
     },
     "9": {
@@ -2246,7 +2494,8 @@
       "i18n": {
         "en": "2nd S house to the south",
         "ko": "남쪽 두 번째 집 S형 주택",
-        "zh": "南侧第二栋S号房屋"
+        "zh": "南侧第二栋S号房屋",
+        "zh-Hant": "南側第二棟S號房屋"
       }
     },
     "10": {
@@ -2255,7 +2504,8 @@
       "i18n": {
         "en": "1st S house to the south",
         "ko": "남쪽 첫 번째 집 S형 주택",
-        "zh": "南侧第一栋S号房屋"
+        "zh": "南侧第一栋S号房屋",
+        "zh-Hant": "南側第一棟S號房屋"
       }
     },
     "11": {
@@ -2264,7 +2514,8 @@
       "i18n": {
         "en": "S house reached by going down the stairs at the southwest dead end",
         "ko": "남서쪽 막다른 곳 계단을 내려간 곳의 S형 주택",
-        "zh": "下西南尽头楼梯后的S号房屋"
+        "zh": "下西南尽头楼梯后的S号房屋",
+        "zh-Hant": "下西南盡頭樓梯後的S號房屋"
       }
     },
     "12": {
@@ -2273,7 +2524,8 @@
       "i18n": {
         "en": "L house to the west",
         "ko": "서쪽 L형 주택",
-        "zh": "西侧L号房屋"
+        "zh": "西侧L号房屋",
+        "zh-Hant": "西側L號房屋"
       }
     },
     "13": {
@@ -2282,7 +2534,8 @@
       "i18n": {
         "en": "S house to the north",
         "ko": "북쪽 S형 주택",
-        "zh": "北侧S号房屋"
+        "zh": "北侧S号房屋",
+        "zh-Hant": "北側S號房屋"
       }
     },
     "14": {
@@ -2291,7 +2544,8 @@
       "i18n": {
         "en": "S house to the northeast",
         "ko": "북동쪽 S형 주택",
-        "zh": "东北S号房屋"
+        "zh": "东北S号房屋",
+        "zh-Hant": "東北S號房屋"
       }
     },
     "15": {
@@ -2300,7 +2554,8 @@
       "i18n": {
         "en": "2nd S house to the northeast",
         "ko": "북동쪽 두 번째 집 S형 주택",
-        "zh": "东北第二栋S号房屋"
+        "zh": "东北第二栋S号房屋",
+        "zh-Hant": "東北第二棟S號房屋"
       }
     },
     "16": {
@@ -2309,7 +2564,8 @@
       "i18n": {
         "en": "S house straight ahead after going down the east stairs",
         "ko": "동쪽 계단을 내려가 곧장 간 S형 주택",
-        "zh": "下东侧楼梯后直走的S号房屋"
+        "zh": "下东侧楼梯后直走的S号房屋",
+        "zh-Hant": "下東側樓梯後直走的S號房屋"
       }
     },
     "17": {
@@ -2318,7 +2574,8 @@
       "i18n": {
         "en": "M house reached by following the road southeast",
         "ko": "남동쪽으로 길을 따라간 M형 주택",
-        "zh": "沿路往东南走到的M号房屋"
+        "zh": "沿路往东南走到的M号房屋",
+        "zh-Hant": "沿路往東南走到的M號房屋"
       }
     },
     "18": {
@@ -2327,7 +2584,8 @@
       "i18n": {
         "en": "M house past the stairs that U-turn up to the southeast",
         "ko": "남동쪽으로 U턴하며 올라가는 계단 끝의 M형 주택",
-        "zh": "上U形转弯楼梯后的东南M号房屋"
+        "zh": "上U形转弯楼梯后的东南M号房屋",
+        "zh-Hant": "上U形轉彎樓梯後的東南M號房屋"
       }
     },
     "19": {
@@ -2336,7 +2594,8 @@
       "i18n": {
         "en": "2nd S house to the northeast",
         "ko": "북동쪽 두 번째 집 S형 주택",
-        "zh": "东北第二栋S号房屋"
+        "zh": "东北第二栋S号房屋",
+        "zh-Hant": "東北第二棟S號房屋"
       }
     },
     "20": {
@@ -2345,7 +2604,8 @@
       "i18n": {
         "en": "1st S house to the northeast",
         "ko": "북동쪽 첫 번째 집 S형 주택",
-        "zh": "东北第一栋S号房屋"
+        "zh": "东北第一栋S号房屋",
+        "zh-Hant": "東北第一棟S號房屋"
       }
     },
     "21": {
@@ -2354,7 +2614,8 @@
       "i18n": {
         "en": "M house on the right after going up the north stairs",
         "ko": "북쪽 계단을 올라가 오른쪽 M형 주택",
-        "zh": "上北侧楼梯后右边M号房屋"
+        "zh": "上北侧楼梯后右边M号房屋",
+        "zh-Hant": "上北側樓梯後右邊M號房屋"
       }
     },
     "22": {
@@ -2363,7 +2624,8 @@
       "i18n": {
         "en": "L house at the top of the north stairs",
         "ko": "북쪽 계단 꼭대기의 L형 주택",
-        "zh": "北侧楼梯顶端L号房屋"
+        "zh": "北侧楼梯顶端L号房屋",
+        "zh-Hant": "北側樓梯頂端L號房屋"
       }
     },
     "23": {
@@ -2372,7 +2634,8 @@
       "i18n": {
         "en": "S house to the northeast",
         "ko": "북동쪽 S형 주택",
-        "zh": "东北S号房屋"
+        "zh": "东北S号房屋",
+        "zh-Hant": "東北S號房屋"
       }
     },
     "24": {
@@ -2381,7 +2644,8 @@
       "i18n": {
         "en": "S house to the southeast",
         "ko": "남동쪽 S형 주택",
-        "zh": "东南S号房屋"
+        "zh": "东南S号房屋",
+        "zh-Hant": "東南S號房屋"
       }
     },
     "25": {
@@ -2390,7 +2654,8 @@
       "i18n": {
         "en": "S house to the southwest",
         "ko": "남서쪽 S형 주택",
-        "zh": "西南S号房屋"
+        "zh": "西南S号房屋",
+        "zh-Hant": "西南S號房屋"
       }
     },
     "26": {
@@ -2399,7 +2664,8 @@
       "i18n": {
         "en": "M house to the north",
         "ko": "북쪽 M형 주택",
-        "zh": "北侧M号房屋"
+        "zh": "北侧M号房屋",
+        "zh-Hant": "北側M號房屋"
       }
     },
     "27": {
@@ -2408,7 +2674,8 @@
       "i18n": {
         "en": "S house down the stairs",
         "ko": "계단을 내려간 S형 주택",
-        "zh": "下楼梯的S号房屋"
+        "zh": "下楼梯的S号房屋",
+        "zh-Hant": "下樓梯的S號房屋"
       }
     },
     "28": {
@@ -2417,7 +2684,8 @@
       "i18n": {
         "en": "S house on the left after going up the west stairs",
         "ko": "서쪽 계단을 올라가 왼쪽 S형 주택",
-        "zh": "上西侧楼梯后左边S号房屋"
+        "zh": "上西侧楼梯后左边S号房屋",
+        "zh-Hant": "上西側樓梯後左邊S號房屋"
       }
     },
     "29": {
@@ -2426,7 +2694,8 @@
       "i18n": {
         "en": "S house on the right after going up the west stairs",
         "ko": "서쪽 계단을 올라가 오른쪽 S형 주택",
-        "zh": "上西侧楼梯后右边S号房屋"
+        "zh": "上西侧楼梯后右边S号房屋",
+        "zh-Hant": "上西側樓梯後右邊S號房屋"
       }
     },
     "30": {
@@ -2435,7 +2704,8 @@
       "i18n": {
         "en": "L house up the west stairs",
         "ko": "서쪽 계단을 올라간 L형 주택",
-        "zh": "上西侧楼梯的L号房屋"
+        "zh": "上西侧楼梯的L号房屋",
+        "zh-Hant": "上西側樓梯的L號房屋"
       }
     },
     "31": {
@@ -2444,7 +2714,8 @@
       "i18n": {
         "en": "S house to the south",
         "ko": "남쪽 S형 주택",
-        "zh": "南侧S号房屋"
+        "zh": "南侧S号房屋",
+        "zh-Hant": "南側S號房屋"
       }
     },
     "32": {
@@ -2453,7 +2724,8 @@
       "i18n": {
         "en": "M house to the west (can be reached from either side)",
         "ko": "서쪽 M형 주택(왼쪽이든 오른쪽이든 상관없음)",
-        "zh": "西侧M号房屋(从左右两边都能到)"
+        "zh": "西侧M号房屋(从左右两边都能到)",
+        "zh-Hant": "西側M號房屋(從左右兩邊都能到)"
       }
     },
     "33": {
@@ -2462,7 +2734,8 @@
       "i18n": {
         "en": "Jump from the southeast stairs landing",
         "ko": "남동쪽 계단참에서 점프",
-        "zh": "从东南楼梯平台跳下"
+        "zh": "从东南楼梯平台跳下",
+        "zh-Hant": "從東南樓梯平臺跳下"
       }
     },
     "34": {
@@ -2471,7 +2744,8 @@
       "i18n": {
         "en": "S house in the middle up the winding east stairs",
         "ko": "동쪽 구불구불한 계단을 올라간 가운데 S형 주택",
-        "zh": "上东侧蜿蜒楼梯中段的S号房屋"
+        "zh": "上东侧蜿蜒楼梯中段的S号房屋",
+        "zh-Hant": "上東側蜿蜒樓梯中段的S號房屋"
       }
     },
     "35": {
@@ -2480,7 +2754,8 @@
       "i18n": {
         "en": "S house on the right to the southeast",
         "ko": "남동쪽 오른쪽 S형 주택",
-        "zh": "东南右边S号房屋"
+        "zh": "东南右边S号房屋",
+        "zh-Hant": "東南右邊S號房屋"
       }
     },
     "36": {
@@ -2489,7 +2764,8 @@
       "i18n": {
         "en": "S house on the left to the southeast",
         "ko": "남동쪽 왼쪽 S형 주택",
-        "zh": "东南左边S号房屋"
+        "zh": "东南左边S号房屋",
+        "zh-Hant": "東南左邊S號房屋"
       }
     },
     "37": {
@@ -2498,7 +2774,8 @@
       "i18n": {
         "en": "M house on the left after climbing the large stairs",
         "ko": "큰 계단을 올라가 왼쪽 M형 주택",
-        "zh": "上大楼梯后左边M号房屋"
+        "zh": "上大楼梯后左边M号房屋",
+        "zh-Hant": "上大樓梯後左邊M號房屋"
       }
     },
     "38": {
@@ -2507,7 +2784,8 @@
       "i18n": {
         "en": "M house to the west",
         "ko": "서쪽 M형 주택",
-        "zh": "西侧M号房屋"
+        "zh": "西侧M号房屋",
+        "zh-Hant": "西側M號房屋"
       }
     },
     "39": {
@@ -2516,7 +2794,8 @@
       "i18n": {
         "en": "2nd S house to the west",
         "ko": "서쪽 두 번째 집 S형 주택",
-        "zh": "西侧第二栋S号房屋"
+        "zh": "西侧第二栋S号房屋",
+        "zh-Hant": "西側第二棟S號房屋"
       }
     },
     "40": {
@@ -2525,7 +2804,8 @@
       "i18n": {
         "en": "1st S house to the west",
         "ko": "서쪽 첫 번째 집 S형 주택",
-        "zh": "西侧第一栋S号房屋"
+        "zh": "西侧第一栋S号房屋",
+        "zh-Hant": "西側第一棟S號房屋"
       }
     },
     "41": {
@@ -2534,7 +2814,8 @@
       "i18n": {
         "en": "S house reached by going down the stairs at the northwest dead end",
         "ko": "북서쪽 막다른 곳 계단을 내려간 곳의 S형 주택",
-        "zh": "下西北尽头楼梯后的S号房屋"
+        "zh": "下西北尽头楼梯后的S号房屋",
+        "zh-Hant": "下西北盡頭樓梯後的S號房屋"
       }
     },
     "42": {
@@ -2543,7 +2824,8 @@
       "i18n": {
         "en": "L house to the north",
         "ko": "북쪽 L형 주택",
-        "zh": "北侧L号房屋"
+        "zh": "北侧L号房屋",
+        "zh-Hant": "北側L號房屋"
       }
     },
     "43": {
@@ -2552,7 +2834,8 @@
       "i18n": {
         "en": "S house to the east",
         "ko": "동쪽 S형 주택",
-        "zh": "东侧S号房屋"
+        "zh": "东侧S号房屋",
+        "zh-Hant": "東側S號房屋"
       }
     },
     "44": {
@@ -2561,7 +2844,8 @@
       "i18n": {
         "en": "S house to the southeast",
         "ko": "남동쪽 S형 주택",
-        "zh": "东南S号房屋"
+        "zh": "东南S号房屋",
+        "zh-Hant": "東南S號房屋"
       }
     },
     "45": {
@@ -2570,7 +2854,8 @@
       "i18n": {
         "en": "2nd S house to the southeast",
         "ko": "남동쪽 두 번째 집 S형 주택",
-        "zh": "东南第二栋S号房屋"
+        "zh": "东南第二栋S号房屋",
+        "zh-Hant": "東南第二棟S號房屋"
       }
     },
     "46": {
@@ -2579,7 +2864,8 @@
       "i18n": {
         "en": "S house straight ahead after going down the south stairs",
         "ko": "남쪽 계단을 내려가 곧장 간 S형 주택",
-        "zh": "下南侧楼梯后直走的S号房屋"
+        "zh": "下南侧楼梯后直走的S号房屋",
+        "zh-Hant": "下南側樓梯後直走的S號房屋"
       }
     },
     "47": {
@@ -2588,7 +2874,8 @@
       "i18n": {
         "en": "M house reached by following the road southwest",
         "ko": "남서쪽으로 길을 따라간 M형 주택",
-        "zh": "沿路往西南走到的M号房屋"
+        "zh": "沿路往西南走到的M号房屋",
+        "zh-Hant": "沿路往西南走到的M號房屋"
       }
     },
     "48": {
@@ -2597,7 +2884,8 @@
       "i18n": {
         "en": "M house past the stairs that U-turn up to the southwest",
         "ko": "남서쪽으로 U턴하며 올라가는 계단 끝의 M형 주택",
-        "zh": "上U形转弯楼梯后的西南M号房屋"
+        "zh": "上U形转弯楼梯后的西南M号房屋",
+        "zh-Hant": "上U形轉彎樓梯後的西南M號房屋"
       }
     },
     "49": {
@@ -2606,7 +2894,8 @@
       "i18n": {
         "en": "2nd M house to the southeast",
         "ko": "남동쪽 두 번째 집 M형 주택",
-        "zh": "东南第二栋M号房屋"
+        "zh": "东南第二栋M号房屋",
+        "zh-Hant": "東南第二棟M號房屋"
       }
     },
     "50": {
@@ -2615,7 +2904,8 @@
       "i18n": {
         "en": "1st S house to the southeast",
         "ko": "남동쪽 첫 번째 집 S형 주택",
-        "zh": "东南第一栋S号房屋"
+        "zh": "东南第一栋S号房屋",
+        "zh-Hant": "東南第一棟S號房屋"
       }
     },
     "51": {
@@ -2624,7 +2914,8 @@
       "i18n": {
         "en": "M house on the right after going up the east stairs",
         "ko": "동쪽 계단을 올라가 오른쪽 M형 주택",
-        "zh": "上东侧楼梯后右边M号房屋"
+        "zh": "上东侧楼梯后右边M号房屋",
+        "zh-Hant": "上東側樓梯後右邊M號房屋"
       }
     },
     "52": {
@@ -2633,7 +2924,8 @@
       "i18n": {
         "en": "L house at the top of the east stairs",
         "ko": "동쪽 계단 꼭대기의 L형 주택",
-        "zh": "东侧楼梯顶端L号房屋"
+        "zh": "东侧楼梯顶端L号房屋",
+        "zh-Hant": "東側樓梯頂端L號房屋"
       }
     },
     "53": {
@@ -2642,7 +2934,8 @@
       "i18n": {
         "en": "S house to the southeast",
         "ko": "남동쪽 S형 주택",
-        "zh": "东南S号房屋"
+        "zh": "东南S号房屋",
+        "zh-Hant": "東南S號房屋"
       }
     },
     "54": {
@@ -2651,7 +2944,8 @@
       "i18n": {
         "en": "S house to the southwest",
         "ko": "남서쪽 S형 주택",
-        "zh": "西南S号房屋"
+        "zh": "西南S号房屋",
+        "zh-Hant": "西南S號房屋"
       }
     },
     "55": {
@@ -2660,7 +2954,8 @@
       "i18n": {
         "en": "S house to the northwest",
         "ko": "북서쪽 S형 주택",
-        "zh": "西北S号房屋"
+        "zh": "西北S号房屋",
+        "zh-Hant": "西北S號房屋"
       }
     },
     "56": {
@@ -2669,7 +2964,8 @@
       "i18n": {
         "en": "M house to the east",
         "ko": "동쪽 M형 주택",
-        "zh": "东侧M号房屋"
+        "zh": "东侧M号房屋",
+        "zh-Hant": "東側M號房屋"
       }
     },
     "57": {
@@ -2678,7 +2974,8 @@
       "i18n": {
         "en": "S house down the stairs",
         "ko": "계단을 내려간 S형 주택",
-        "zh": "下楼梯的S号房屋"
+        "zh": "下楼梯的S号房屋",
+        "zh-Hant": "下樓梯的S號房屋"
       }
     },
     "58": {
@@ -2687,7 +2984,8 @@
       "i18n": {
         "en": "S house on the left after going up the north stairs",
         "ko": "북쪽 계단을 올라가 왼쪽 S형 주택",
-        "zh": "上北侧楼梯后左边S号房屋"
+        "zh": "上北侧楼梯后左边S号房屋",
+        "zh-Hant": "上北側樓梯後左邊S號房屋"
       }
     },
     "59": {
@@ -2696,7 +2994,8 @@
       "i18n": {
         "en": "S house on the right after going up the north stairs",
         "ko": "북쪽 계단을 올라가 오른쪽 S형 주택",
-        "zh": "上北侧楼梯后右边S号房屋"
+        "zh": "上北侧楼梯后右边S号房屋",
+        "zh-Hant": "上北側樓梯後右邊S號房屋"
       }
     },
     "60": {
@@ -2705,7 +3004,8 @@
       "i18n": {
         "en": "L house up the north stairs",
         "ko": "북쪽 계단을 올라간 L형 주택",
-        "zh": "上北侧楼梯的L号房屋"
+        "zh": "上北侧楼梯的L号房屋",
+        "zh-Hant": "上北側樓梯的L號房屋"
       }
     }
   }
