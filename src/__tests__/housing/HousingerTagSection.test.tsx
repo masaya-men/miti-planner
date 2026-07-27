@@ -47,6 +47,17 @@ describe('HousingerTagSection', () => {
     expect(screen.getByText('hanako')).toBeInTheDocument();
   });
 
+  it('各チップにアバター(画像URL無し=頭文字プレースホルダ)を表示する', async () => {
+    listAllPersonalTagsMock.mockResolvedValueOnce(TAGS);
+    wrap(<HousingerTagSection selected={[]} onToggle={vi.fn()} />);
+    await waitFor(() => expect(screen.getByText('taro')).toBeInTheDocument());
+    const taroButton = screen.getByText('taro').closest('button') as HTMLElement;
+    const fallback = taroButton.querySelector('.housinger-avatar-fallback');
+    expect(fallback).not.toBeNull();
+    expect(fallback?.textContent).toBe('T');
+    expect(taroButton.querySelector('img')).toBeNull();
+  });
+
   it('selected に含まれるチップは data-selected=true', async () => {
     listAllPersonalTagsMock.mockResolvedValueOnce(TAGS);
     wrap(<HousingerTagSection selected={['personal_taro']} onToggle={vi.fn()} />);

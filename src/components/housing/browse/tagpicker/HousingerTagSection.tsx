@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listAllPersonalTags } from '../../../../lib/housing/personalTagLookup';
 import type { PersonalTag } from '../../../../types/housing';
+import { HousingerAvatar } from '../../housinger/HousingerAvatar';
 
 export interface HousingerTagSectionProps {
   selected: string[];
@@ -69,7 +70,8 @@ export const HousingerTagSection: React.FC<HousingerTagSectionProps> = ({ select
                   data-selected={selected.includes(tag.id) ? 'true' : 'false'}
                   onClick={() => onToggle(tag.id)}
                 >
-                  {tag.displayName}
+                  <HousingerAvatar avatarUrl={null} name={tag.displayName} className="housing-tagpicker-chip-avatar" />
+                  <span>{tag.displayName}</span>
                 </button>
               ))}
             </div>

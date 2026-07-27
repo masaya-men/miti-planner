@@ -3612,6 +3612,13 @@ select.housing-input option {
 .housing-detail-byline-avatar .housinger-avatar-fallback {
     font-size: var(--housing-text-xs);
 }
+.housing-tagpicker-chip-avatar {
+    width: var(--housinger-avatar-size-sm);
+    height: var(--housinger-avatar-size-sm);
+}
+.housing-tagpicker-chip-avatar .housinger-avatar-fallback {
+    font-size: var(--housing-text-xs);
+}
 .housing-detail-tags {
     display: flex;
     flex-wrap: wrap;
@@ -6186,6 +6193,9 @@ select.housing-input option {
 .housing-tagpicker-chip {
   appearance: none;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   height: 32px;
   padding: 0 12px;
   font-family: inherit;
