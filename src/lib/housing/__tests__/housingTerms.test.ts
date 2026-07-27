@@ -22,6 +22,10 @@ describe('housingTerms 完全性', () => {
     expect(termLabel('aetheryte', 'ミストゲート・スクエア', 'zh')).toBe('雾门广场');
     expect(termLabel('aetheryte', '未知の名前', 'zh')).toBe('未知の名前'); // フォールバック
   });
+  it('TW追加後もグローバルワールドの実訳が保たれる (Ifrit/Garudaはキー名がTW鯖と衝突するため回帰対象)', () => {
+    expect(termLabel('world', 'Ifrit', 'ko')).toBe('이프리트'); // Gaia の Ifrit (TW の仮置き値 "Ifrit" に上書きされていないこと)
+    expect(termLabel('world', 'Garuda', 'ja')).toBe('ガルーダ'); // Elemental の Garuda (同上)
+  });
 });
 
 describe('TW辞書', () => {
