@@ -592,7 +592,7 @@ export const EventForm: React.FC<EventFormProps> = ({ onSave, onDelete, onCancel
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const hasAltName = !!(altName.ja?.trim() || altName.en?.trim() || altName.zh?.trim() || altName.ko?.trim());
+        const hasAltName = !!(altName.ja?.trim() || altName.en?.trim() || altName.zh?.trim() || altName['zh-Hant']?.trim() || altName.ko?.trim());
         onSave({
             name,
             time,

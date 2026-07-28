@@ -254,6 +254,7 @@ export const usePlanStore = create<PlanState>()(
                                             ja: p.name.ja ?? p.name.en ?? '',
                                             en: p.name.en ?? p.name.ja ?? '',
                                             ...(p.name.zh != null ? { zh: p.name.zh } : {}),
+                                            ...(p.name['zh-Hant'] != null ? { 'zh-Hant': p.name['zh-Hant'] } : {}),
                                             ...(p.name.ko != null ? { ko: p.name.ko } : {}),
                                         })
                                     : { ja: '', en: '' },
@@ -410,6 +411,7 @@ export const usePlanStore = create<PlanState>()(
                                                     ja: p.name.ja ?? p.name.en ?? '',
                                                     en: p.name.en ?? p.name.ja ?? '',
                                                     ...(p.name.zh != null ? { zh: p.name.zh } : {}),
+                                                    ...(p.name['zh-Hant'] != null ? { 'zh-Hant': p.name['zh-Hant'] } : {}),
                                                     ...(p.name.ko != null ? { ko: p.name.ko } : {}),
                                                 })
                                             : { ja: '', en: '' },

@@ -21,7 +21,8 @@ export function resolveSheetSkill(
       (m.name.ja === normalized ||
         m.name.en === normalized ||
         m.name.ko === normalized ||
-        m.name.zh === normalized),
+        m.name.zh === normalized ||
+        m.name['zh-Hant'] === normalized),
   );
   return hit ? hit.id : null;
 }

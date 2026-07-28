@@ -30,7 +30,7 @@ function filterPhantomPhases(tpl: TemplateData): TemplateData {
   const filtered = tpl.phases.filter(p => {
     if (!p.name) return false;
     if (typeof p.name === 'string') return !!p.name;
-    return !!(p.name.ja || p.name.en || p.name.zh || p.name.ko);
+    return !!(p.name.ja || p.name.en || p.name.zh || p.name['zh-Hant'] || p.name.ko);
   });
   if (filtered.length === tpl.phases.length) return tpl;
   return { ...tpl, phases: filtered };

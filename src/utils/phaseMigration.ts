@@ -19,6 +19,7 @@ function normalizePhaseName(name: any): LocalizedString {
             ja: name.ja || '',
             en: name.en || '',
             ...(name.zh ? { zh: name.zh } : {}),
+            ...(name['zh-Hant'] ? { 'zh-Hant': name['zh-Hant'] } : {}),
             ...(name.ko ? { ko: name.ko } : {}),
         };
     }

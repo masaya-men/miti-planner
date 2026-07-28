@@ -1057,6 +1057,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                             ja: p.name.ja ?? '',
                                             en: p.name.en ?? '',
                                             ...(p.name.zh != null ? { zh: p.name.zh } : {}),
+                                            ...(p.name['zh-Hant'] != null ? { 'zh-Hant': p.name['zh-Hant'] } : {}),
                                             ...(p.name.ko != null ? { ko: p.name.ko } : {}),
                                         })
                                     : { ja: '', en: '' },
