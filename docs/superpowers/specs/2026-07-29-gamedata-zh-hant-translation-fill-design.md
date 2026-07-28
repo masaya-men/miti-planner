@@ -37,7 +37,9 @@
 
 ## 書き込み方式
 
-- ジョブ名・軽減スキル名・コンテンツ名(254件)は、フェーズ④で実装済みの管理画面 一括翻訳編集(`AdminTranslations`)のCSVインポート機能を使ってFirestoreへ書き込む。ローカルの `dev:admin` サンドボックス([[reference_admin_sandbox]])から作業する
+- **訂正(実装前調査で判明)**: `dev:admin` サンドボックス([[reference_admin_sandbox]])は `mockApiFetch` でAPI呼び出しをまるごと差し替えるモック環境であり、実際にはFirestoreに一切書き込まれない(ログイン不要でUIだけ確認できる仕組み)。よって管理画面(`AdminTranslations`)のCSVインポート機能を本当に使うには本番 `/admin` への本物の管理者ログインが必要になり、それはユーザー側の操作になってしまう
+- 代わりに、`scripts/seed-contents.ts`・`scripts/seed-skills-stats.ts` と同じ「サービスアカウント(`.env.local`) + firebase-admin」パターンの専用スクリプト(`scripts/apply-zh-hant-translations.ts`)を新規作成し、翻訳済みCSVを読み込んで `master/skills`(`jobs[].name`/`mitigations[].name`)と `master/contents`(`items[].name`)の **`zh-Hant` フィールドのみ** を書き込む。既存の `ja`/`en`/`zh`/`ko` フィールドや他のドキュメント構造には一切触れない
+- `--dry-run` オプションで実際の書き込み前に差分を確認できるようにする(既存のseedスクリプト群の慣例を踏襲)
 - この254件のデータベース(`master/skills`・`master/contents`)は開発・本番で共有しているライブFirestore([[reference_master_data_live_firestore]])。現時点では本番に繁体字を選択する手段が一切存在しない(フェーズ②③の言語切替UIも未push)ため、今このタイミングで書き込んでも既存ユーザー(ja/en/zh/ko)への影響はない。**ユーザー承認済み(2026-07-29)**
 - カテゴリ/レベル/プロジェクトラベル・シリーズ名・略称(コード直書き分)は、`contentRegistry.ts` 内の既存の `zh`/`ko` フィールドと全く同じパターンで `'zh-Hant'` を追加する
 - シード処理の安全性を確認済み: `seed-contents.ts` は既存Firestoreデータを浅マージで保持(JSONに無いキーは残る)、`seed-skills-stats.ts` は既定でADDITIVEモード(既存id は一切上書きしない)。いずれも今回の254件書き込みが将来の再シードで消える心配はない
@@ -55,8 +57,8 @@
 
 ## 実装体制
 
-- Firestore書き込み(254件)は `dev:admin` サンドボックスでの管理画面操作
-- コード変更(カテゴリ/レベル/プロジェクトラベル・シリーズ名・略称)は引き続きworktree `.claude/worktrees/housing-taiwan-region-support`(ブランチ `worktree-housing-taiwan-region-support`)で実施・コミット
+- Firestore書き込み(254件)は専用スクリプト(`scripts/apply-zh-hant-translations.ts`)を`--dry-run`で確認した上で実行
+- コード変更(カテゴリ/レベル/プロジェクトラベル・シリーズ名・略称)・上記スクリプト自体は引き続きworktree `.claude/worktrees/housing-taiwan-region-support`(ブランチ `worktree-housing-taiwan-region-support`)で実施・コミット
 - 本フェーズもpushはせず、5フェーズ全部完了後にまとめて本番反映する既存方針を継続
 
 ## リスク
