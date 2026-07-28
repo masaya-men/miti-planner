@@ -607,62 +607,88 @@ git commit -m "feat: スキル/コンテンツ個別編集モーダルにzh-Hant
 
 ---
 
-### Task 3: TemplateEditor.tsx にzh-Hant対応を追加
+### Task 3: TemplateEditor.tsx + useTemplateEditor.ts にzh-Hant対応を追加
+
+> **2026-07-28 修正**: 当初`src/components/admin/TemplateEditor.tsx`のみを対象としていたが、実装中の監査で「TemplateEditor.tsxの保存処理は`src/hooks/useTemplateEditor.ts`の`updateCell`/`setLabelAtTime`に直結しており、そちらがzh-Hantを認識しないため、UI側だけ直しても入力した繁体字がコミット時に握りつぶされて空欄に戻る」という致命的なデータ消失バグが判明した。このため`useTemplateEditor.ts`をTask3に統合し、Task4の対象ファイル一覧からは除外した(重複作業・競合を避けるため)。
 
 **Files:**
 - Modify: `src/components/admin/TemplateEditor.tsx`
+- Modify: `src/hooks/useTemplateEditor.ts`
 
 **Interfaces:**
 - Consumes: なし
 - Produces: なし
 
-**背景:** このファイルはテンプレート(コンテンツごとの攻撃名・フェーズ名)の一覧編集画面で、768行と大きく、名前関連のUI/ロジックが複数箇所に分散している。既存のzh/ko対応と全く同じパターンを、見つけた箇所それぞれにzh-Hant分として追加する。新しい抽象化やヘルパー関数の導入はしない(既存のコードスタイルを踏襲するのみ)。
+**背景:** `TemplateEditor.tsx`はテンプレート(コンテンツごとの攻撃名・フェーズ名)の一覧編集画面で、768行と大きく、名前関連のUI/ロジックが複数箇所に分散している。既存のzh/ko対応と全く同じパターンを、見つけた箇所それぞれにzh-Hant分として追加する。新しい抽象化やヘルパー関数の導入はしない(既存のコードスタイルを踏襲するのみ)。
+
+`useTemplateEditor.ts`は同画面のセル編集状態を管理するフックで、`TemplateEditor.tsx`の`onUpdateCell`/`onSetLabelAtTime` propsの実体(`AdminTemplates.tsx`経由で接続)。以下3箇所の対応が必要(実装時の監査で判明した正確な内容):
+
+1. `updateCell`(126-189行目付近)のフィールド判定switch文: `case 'name.zh':`と`case 'name.ko':`の間に`case 'name.zh-Hant':`を追加。`altName.*`のケース列挙(`altLang`の型union含む)にも`'zh-Hant'`を追加し、161行目付近の`isEmpty`判定(`!next.ja.trim() && !next.en.trim() && !(next.zh ?? '').trim() && !(next.ko ?? '').trim()`)に`&& !(next['zh-Hant'] ?? '').trim()`を追加する
+2. `setLabelAtTime`(419-444行目付近)の`isEmpty`判定(423行目、`!labelName || (!labelName.ja && !labelName.en && !labelName.zh && !labelName.ko)`)に`&& !labelName['zh-Hant']`を追加する
+3. 翻訳自動伝播ロジック(199-227行目付近、`translationFields`配列と`field === 'name.zh'`/`'name.ko'`の伝播分岐): `translationFields`に`'name.zh-Hant'`を追加し、`oldZh`/`oldKo`と同様の`oldZhHant`変数、および`field === 'name.zh-Hant'`の伝播分岐(既存の`name.zh`分岐と全く同じロジック、対象フィールドのみ置き換え)を追加する。これは机能的な必須修正ではなく、zh/koユーザーと同じ利便性(同じ日本語名の別イベントへの自動入力)をzh-Hantユーザーにも提供するための整合性対応。
 
 - [ ] **Step 1: ファイル内の`zh`/`ko`参照箇所を全て洗い出す**
 
 ```bash
 cd "C:\Users\masay\Desktop\FF14Sim\.claude\worktrees\housing-taiwan-region-support"
-grep -n "\bzh\b\|\bko\b\|nameZh\|nameKo\|\.zh\b\|\.ko\b" src/components/admin/TemplateEditor.tsx
+grep -n "\bzh\b\|\bko\b\|nameZh\|nameKo\|\.zh\b\|\.ko\b\|_zh\|_ko\|ZH\|KO\b\|zhHant\|zh-Hant" src/components/admin/TemplateEditor.tsx
 ```
+(前回監査で判明: 単純な`\bzh\b`系の正規表現だけだと`tpl_editor_name_zh`のような`_zh`接尾辞を取りこぼす。上記は`_zh`/`_ko`パターンも含めた修正版)
 
-事前調査で確認済みの主な箇所(実装時に上記grepで最終確認すること):
+**前回の監査で確定済みの全箇所**(このタスクを再開する実装者は、以下をそのまま修正対象として使ってよい。再監査は不要):
 
-1. **小型ポップオーバーコンポーネント(約250-320行目付近)**: `labels: { ja: string; en: string; zh: string; ko: string }` という props 型を持ち、`useState`で`zh`/`ko`のローカル状態を持ち、`onApply`に渡す`LocalizedString`を`{ ja, en, ...(zh ? {zh}:{}), ...(ko ? {ko}:{}) }`の形で組み立てている。ここに`zhHant`の`useState`・入力欄・`onApply`ペイロードへの追加が必要。
+1. **`LocalizedEditPopover`小型ポップオーバーコンポーネント(約250-320行目付近)**: `labels: { ja: string; en: string; zh: string; ko: string }` という props 型、`useState`で`zh`/`ko`のローカル状態、`onApply`に渡す`LocalizedString`を`{ ja, en, ...(zh ? {zh}:{}), ...(ko ? {ko}:{}) }`の形で組み立てる処理、JSX入力欄。`zhHant`のuseState・入力欄・onApplyペイロードへの追加が必要(state変数名は同ファイル内の既存`zh`/`ko`という短い命名に倣い`zhHant`、onApplyへ渡すペイロードのキーのみ`LocalizedString`型に合わせ`'zh-Hant'`)。
 
-2. **イベント一覧テーブルの列(約500-670行目付近)**: `name.zh`/`altName.zh`用の`EditableCell`列と、`name.ko`/`altName.ko`用の`EditableCell`列がある。それぞれ`isZhUntranslated`/`isZhAutoFilled`のような判定変数と`highlightClass`/`getCellHighlight`呼び出しが伴う。同じ4点セット(判定変数2つ・highlight変数1つ・`<td><EditableCell>`1つ)を、`name.zh`と`name.ko`の間、`altName.zh`と`altName.ko`の間に`zh-Hant`分として追加する。`onCommit`のキー文字列は既存の`'name.zh'`等の命名規則に倣い`'name.zh-Hant'`とする。
+2. **フェーズ名直接編集ブロック(約396-436行目付近、ポップオーバーとは別の4入力欄UI)**: `nameObj.zh`/`nameObj.ko`の`<input>`があり、`placeholder="ZH"`/`"KO"`も含む。同じ構造でzh-Hant分の`<input>`(`placeholder="ZH-Hant"`)を追加する。
 
-3. **ラベル定義オブジェクト(約745-750行目付近)**: ポップオーバーに渡す`labels`オブジェクトに`zh: t('admin.tpl_label_name_zh')`, `ko: t('admin.tpl_label_name_ko')`がある。同様に`'zh-Hant': t('admin.tpl_label_name_zh_hant')`を追加する(i18nキー`admin.tpl_label_name_zh_hant`は`src/locales/ja.json`等に存在しない場合は新規追加が必要。既存の`admin.tpl_label_name_zh`の値を確認し、同じ命名パターンでja/en/ko/zh/zh-Hant全言語分を追加すること)。
+3. **イベント一覧テーブルの列(約500-670行目付近)**: `name.zh`/`altName.zh`用の`EditableCell`列と、`name.ko`/`altName.ko`用の`EditableCell`列。それぞれ`isZhUntranslated`/`isZhAutoFilled`(altNameには存在しない、nameのみ)のような判定変数と`highlightClass`/`getCellHighlight`呼び出しが伴う。`name.zh`と`name.ko`の間、`altName.zh`と`altName.ko`の間にzh-Hant分を追加する。`onCommit`のキー文字列は既存の`'name.zh'`等の命名規則に倣い`'name.zh-Hant'`とする。
 
-4. **空チェック(約752行目付近)**: `const isEmpty = !value.ja && !value.en && !value.zh && !value.ko;` に `&& !value['zh-Hant']` を追加する。
+4. **`<colgroup>`の列幅指定(約450-455行目付近)**: 技名ZH/KO列に対応する`<col>`が2つある。zh-Hant用に`<col>`をもう1つ追加する。
+
+5. **テーブルヘッダー`<th>`(約479-484行目付近)**: `admin.tpl_editor_name_zh`/`admin.tpl_editor_name_ko`、`admin.tpl_editor_altname_zh`/`admin.tpl_editor_altname_ko`という既存i18nキーを参照している。**新規i18nキーが2つ必要**: `admin.tpl_editor_name_zh_hant`・`admin.tpl_editor_altname_zh_hant`(既存`_zh`キーと同じ構造・命名パターンで追加)。
+
+6. **ラベル定義オブジェクト(約745-750行目付近)**: ポップオーバーに渡す`labels`オブジェクトに`zh: t('admin.tpl_label_name_zh')`, `ko: t('admin.tpl_label_name_ko')`がある。同様に`'zh-Hant': t('admin.tpl_label_name_zh_hant')`を追加する。**これも新規i18nキーが1つ必要**(`admin.tpl_label_name_zh_hant`)。
+
+7. **空チェック(約752行目付近)**: `const isEmpty = !value.ja && !value.en && !value.zh && !value.ko;` に `&& !value['zh-Hant']` を追加する。
+
+8. **JSXコメント・冒頭docコメント(任意・cosmetic)**: `{/* 技名(ZH) */}`等のコメントや、ファイル冒頭の`技名(JA/EN/ZH/KO)`という説明コメントは、正確性のため`zh-Hant`を含む形に更新することが望ましいが必須ではない。
+
+**新規i18nキーは合計3つ**(`admin.tpl_label_name_zh_hant`・`admin.tpl_editor_name_zh_hant`・`admin.tpl_editor_altname_zh_hant`)。既存の`_zh`版キーの値(ja/en/ko/zh/zh-Hant全言語)を実装時に確認し、同じ構造でzh-Hant版を追加すること。
 
 - [ ] **Step 2: 洗い出した全箇所を修正**
 
-Step1のgrep結果に基づき、上記4種類のパターンをそれぞれ該当箇所全てに適用する。1件でも見落とすと「テンプレート編集画面で繁体字だけ保存できない」不具合になるため、修正後に再度同じgrepを実行し、`zh`/`ko`が出現する行数と`zh-Hant`(またはzhHant)が出現する行数を突き合わせて、対になっていない箇所がないか確認する。
+上記1〜7を修正する(8は時間があれば)。1件でも見落とすと「テンプレート編集画面で繁体字だけ保存できない」不具合になるため、修正後にStep1のgrepを再実行し、`zh`/`ko`が出現する箇所数と`zh-Hant`(またはzhHant)が出現する箇所数を突き合わせて、対になっていない箇所がないか確認する。
 
-- [ ] **Step 3: i18nキーの追加(必要な場合)**
+- [ ] **Step 3: i18nキーの追加**
 
-Step1-3で必要になった新規i18nキー(例: `admin.tpl_label_name_zh_hant`)を、既存の`admin.tpl_label_name_zh`と同じ構造で`src/locales/ja.json`・`en.json`・`ko.json`・`zh.json`・`zh-Hant.json`の5ファイル全てに追加する。値は「繁体字」「Traditional Chinese」等、既存のzh/koラベルの言い回しに倣う。
+上記3つの新規i18nキーを、対応する既存の`_zh`キーと同じ構造で`src/locales/ja.json`・`en.json`・`ko.json`・`zh.json`・`zh-Hant.json`の5ファイル全てに追加する。
 
-- [ ] **Step 4: テストとビルドを実行**
+- [ ] **Step 4: `useTemplateEditor.ts`を修正**
+
+本タスク冒頭の「背景」セクションで確定した3箇所(`updateCell`のswitch文・`setLabelAtTime`のisEmpty判定・翻訳自動伝播ロジック)を修正する。既存の`zh`/`ko`分岐と全く同じロジックをコピーし、対象言語のみ`'zh-Hant'`に置き換える形で書く(新しい抽象化は導入しない)。
+
+- [ ] **Step 5: テストとビルドを実行**
 
 ```bash
 cd "C:\Users\masay\Desktop\FF14Sim\.claude\worktrees\housing-taiwan-region-support"
 npx tsc -b
-npx vitest run src/components/admin/ src/locales/__tests__/
+npx vitest run src/components/admin/ src/hooks/ src/locales/__tests__/
 ```
-Expected: 型エラーなし、テスト全件PASS(特に`zh-hant-completeness.test.ts`が新規i18nキー追加後も通ること)
+Expected: 型エラーなし、テスト全件PASS(特に`zh-hant-completeness.test.ts`が新規i18nキー追加後も通ること、`useTemplateEditor.test.ts`も通ること)
 
-- [ ] **Step 5: コミット**
+- [ ] **Step 6: コミット**
 
 ```bash
 cd "C:\Users\masay\Desktop\FF14Sim\.claude\worktrees\housing-taiwan-region-support"
-git add src/components/admin/TemplateEditor.tsx src/locales/ja.json src/locales/en.json src/locales/ko.json src/locales/zh.json src/locales/zh-Hant.json
-git commit -m "feat: TemplateEditorにzh-Hant対応を追加(一覧編集・ポップオーバー・ラベル)"
+git add src/components/admin/TemplateEditor.tsx src/hooks/useTemplateEditor.ts src/locales/ja.json src/locales/en.json src/locales/ko.json src/locales/zh.json src/locales/zh-Hant.json
+git commit -m "feat: TemplateEditor+useTemplateEditorにzh-Hant対応を追加(一覧編集・ポップオーバー・ラベル・保存ロジック)"
 ```
 
 ---
 
-### Task 4: データ引き継ぎ処理(グループC・残り15ファイル)のzh-Hant欠落を修正
+### Task 4: データ引き継ぎ処理(グループC・残り14ファイル)のzh-Hant欠落を修正
+
+> **2026-07-28 修正**: `src/hooks/useTemplateEditor.ts`はTask3に統合済み(Task3の「背景」セクション参照)のため、本タスクの対象からは除外した。
 
 **Files:**
 - Modify: `src/utils/templateConversions.ts`
@@ -671,7 +697,6 @@ git commit -m "feat: TemplateEditorにzh-Hant対応を追加(一覧編集・ポ�
 - Modify: `src/store/usePlanStore.ts`
 - Modify: `src/lib/sheetImport/resolveJob.ts`
 - Modify: `src/lib/sheetImport/resolveSheetSkill.ts`
-- Modify: `src/hooks/useTemplateEditor.ts`
 - Modify: `src/data/templateLoader.ts`
 - Modify: `src/data/contentRegistry.ts`
 - Modify: `src/components/Sidebar.tsx`
@@ -716,7 +741,7 @@ git commit -m "feat: TemplateEditorにzh-Hant対応を追加(一覧編集・ポ�
 - `src/utils/templateConversions.ts`(約46-51行目): 上記パターンそのもの
 - `src/components/Sidebar.tsx`(約1051-1061行目、`loadSnapshot`呼び出し内のフェーズ名再構築箇所): 上記パターンそのもの
 
-- [ ] **Step 1: 16ファイル全てに対して`zh`/`ko`参照箇所を洗い出す**
+- [ ] **Step 1: 14ファイル全てに対して`zh`/`ko`参照箇所を洗い出す**
 
 ```bash
 cd "C:\Users\masay\Desktop\FF14Sim\.claude\worktrees\housing-taiwan-region-support"
@@ -727,7 +752,6 @@ grep -n "\.zh\b\|\.ko\b\|zh:\|ko:\|'zh'\|'ko'" \
   src/store/usePlanStore.ts \
   src/lib/sheetImport/resolveJob.ts \
   src/lib/sheetImport/resolveSheetSkill.ts \
-  src/hooks/useTemplateEditor.ts \
   src/data/templateLoader.ts \
   src/data/contentRegistry.ts \
   src/components/Sidebar.tsx \
@@ -765,8 +789,8 @@ Expected: 型エラーなし。テストは既知の失敗(EphemeralAddPanel.tes
 
 ```bash
 cd "C:\Users\masay\Desktop\FF14Sim\.claude\worktrees\housing-taiwan-region-support"
-git add src/utils/templateConversions.ts src/utils/phaseMigration.ts src/utils/labelMigration.ts src/store/usePlanStore.ts src/lib/sheetImport/resolveJob.ts src/lib/sheetImport/resolveSheetSkill.ts src/hooks/useTemplateEditor.ts src/data/templateLoader.ts src/data/contentRegistry.ts src/components/Sidebar.tsx src/components/PartyStatusPopover.tsx src/components/HeaderMechanicSearch.tsx src/components/BoundaryEditModal.tsx src/components/EventForm.tsx src/components/LimitResolutionSheet.tsx src/components/MobileContextMenu.tsx
-git commit -m "fix: 名前オブジェクト再構築箇所16ファイルのzh-Hant欠落を修正"
+git add src/utils/templateConversions.ts src/utils/phaseMigration.ts src/utils/labelMigration.ts src/store/usePlanStore.ts src/lib/sheetImport/resolveJob.ts src/lib/sheetImport/resolveSheetSkill.ts src/data/templateLoader.ts src/data/contentRegistry.ts src/components/Sidebar.tsx src/components/PartyStatusPopover.tsx src/components/HeaderMechanicSearch.tsx src/components/BoundaryEditModal.tsx src/components/EventForm.tsx src/components/LimitResolutionSheet.tsx src/components/MobileContextMenu.tsx
+git commit -m "fix: 名前オブジェクト再構築箇所14ファイルのzh-Hant欠落を修正"
 ```
 
 ---
