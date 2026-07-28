@@ -33,8 +33,8 @@ const LANG_LABELS: Record<ContentLanguage, string> = {
 };
 
 // 言語チップレイアウト定数 — 「言語」ラベルの左に一直線
-const LANG_CHIP_SIZE = 42;
-const LANG_CHIP_GAP = 8;
+const LANG_CHIP_SIZE = 36;
+const LANG_CHIP_GAP = 6;
 // 表示順序（左から: 日 EN 中 繁 한→ 右端が現在地に近い）
 const LANG_DISPLAY_ORDER: ContentLanguage[] = ['ja', 'en', 'zh', 'zh-Hant', 'ko'];
 
