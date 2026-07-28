@@ -29,8 +29,8 @@ zh-Hant列を追加(表示・編集・CSVエクスポート/インポート・�
 
 **グループB: 管理画面 個別編集モーダル**
 - `src/components/admin/SkillFormModal.tsx`(スキル個別編集)
-- `src/components/admin/AdminContents.tsx`(コンテンツ個別編集)
-- `src/components/admin/TemplateEditor.tsx`(テンプレート個別編集)
+- `src/components/admin/AdminContents.tsx` + `src/components/admin/AdminContentForm.tsx`(コンテンツ個別編集。実際の入力フォームは後者に分離されている)
+- `src/components/admin/TemplateEditor.tsx`(テンプレート個別編集。768行と大きく分散した箇所が多いため、実装時は独立タスクとして切り出す)
 
 zh-Hant入力欄を追加。既存のzh/ko入力欄と同じUIパターンを複製する。
 
