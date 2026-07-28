@@ -17,6 +17,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
+### 2026-07-28: ②軽減表UI文言 繁体字対応も実装完了(①②とも未push)
+繁体字対応は5フェーズ(①台湾リージョン統合→②軽減表UI文言→③ハウジングUI文言→④管理画面ゲームデータ翻訳対応→⑤ゲームデータ翻訳流し込み)。**①(2026-07-27)・②(2026-07-28)とも実装・レビュー完了**、worktree `.claude/worktrees/housing-taiwan-region-support`(ブランチ`worktree-housing-taiwan-region-support`、作業ツリークリーン)に保存済み。**ユーザー方針: ②〜⑤まで全部終わらせてから公開**(部分公開は望まない)。Firestore本番シード・pushは全フェーズ完了後にユーザー承認を得てから。**フェーズ③着手時に忘れず直すこと**: `src/components/housing/workspace/StatusBar.tsx`と`src/components/housing/shell/HousingSettingsSheet.tsx`の言語判定(`i18n.language.startsWith(\`${lang}-\`)`)がzh-Hantを簡体字と誤認識するバグ(最終レビューで発見・ユーザー承認済み、フェーズ③でまとめて対応する方針)。次回セッション最初にやること: ③(ハウジングUI文言)のスコープ確認からbrainstorming再開。詳細=①`docs/superpowers/plans/2026-07-27-housing-taiwan-region-support.md`②`docs/superpowers/plans/2026-07-28-mitigation-sheet-zh-hant-translation.md`+worktree内SDDレジャー`.superpowers/sdd/*/progress.md`。設計議論=`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`。
 ### 2026-07-27: ③タグAND検索 実装完了・mainへローカルマージ済み(未push)
 設計書=`docs/superpowers/specs/2026-07-27-housing-tag-and-search-design.md`、実装プラン=`docs/superpowers/plans/2026-07-27-housing-tag-and-search-plan.md`(14タスク、subagent-driven-developmentで実装・タスクごとレビュー・最終レビューで2件Important修正済み)。要点: 左パネル「テーマ」ドロップダウン廃止→一覧|マップと並ぶ「タグ」ビューに全種別(公式/季節/テーマ/初心者/ハウジンガー)を一本化。ハウジンガー複数選択可・選択時のみAND、他はOR。スマホは`HousingFilterSheet`内インライン展開。ハウジンガーチップに頭文字アバター追加済み(実画像は都度Firestore読み込みが要るため見送り・イニシャルのみ)。ローカル実機確認OK・ユーザー承認済み。**次回セッション最初にやること: 次の実務push時にこの分もまとめてpush(単独pushしない・docsだけのpush回避)**。次は④繁体字対応(LoPo全体、`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`参照)からbrainstorming開始。
 ### ✅ 直近の本番反映(詳細は全てTODO_COMPLETED.md)
