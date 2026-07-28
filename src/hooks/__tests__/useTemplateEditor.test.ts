@@ -83,6 +83,26 @@ describe('useTemplateEditor', () => {
     expect(ev3?.altName).toBeUndefined();
   });
 
+  it('updateCell で name.zh-Hant を編集できる（silently dropされない回帰テスト）', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    act(() => result.current.updateCell('ev1', 'name.zh-Hant', '測試攻擊'));
+    const ev1 = result.current.state.current.find(e => e.id === 'ev1');
+    expect(ev1?.name['zh-Hant']).toBe('測試攻擊');
+    expect(result.current.hasChanges).toBe(true);
+  });
+
+  it('updateCell で altName.zh-Hant を編集できる、かつzh-Hantのみ入力でも altName が空扱いで消えない', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    // ev3 は元々 altName を持たない。zh-Hant のみを入力する(ja/en/zh/koは全て空のまま)。
+    act(() => result.current.updateCell('ev3', 'altName.zh-Hant', '巨龍咆哮'));
+    const ev3 = result.current.state.current.find(e => e.id === 'ev3');
+    expect(ev3?.altName?.['zh-Hant']).toBe('巨龍咆哮');
+    // isEmpty判定にzh-Hantが含まれていないと、ここでaltName自体が削除されてしまう
+    expect(ev3?.altName).toBeDefined();
+  });
+
   it('翻訳自動伝播: 同じJA名のイベントにEN翻訳が伝播する', () => {
     const { result } = renderHook(() => useTemplateEditor());
     act(() => result.current.loadEvents(makeEvents(), makePhases()));
@@ -154,6 +174,18 @@ describe('useTemplateEditor', () => {
     // ラベルを削除（空名）
     act(() => result.current.setLabelAtTime(20, null));
     expect(result.current.state.currentLabels.length).toBe(initialCount);
+  });
+
+  it('setLabelAtTime でzh-Hantのみ入力のラベルは削除分岐に落ちず保存される（回帰テスト）', () => {
+    const { result } = renderHook(() => useTemplateEditor());
+    act(() => result.current.loadEvents(makeEvents(), makePhases()));
+    const initialCount = result.current.state.currentLabels.length;
+
+    // ja/en/zh/koは全て空、zh-Hantのみ入力。isEmpty判定にzh-Hantが無いと誤って削除分岐に入る。
+    act(() => result.current.setLabelAtTime(20, { ja: '', en: '', 'zh-Hant': '新標籤' }));
+    expect(result.current.state.currentLabels.length).toBe(initialCount + 1);
+    const added = result.current.state.currentLabels.find(l => l.startTimeSec === 20);
+    expect(added?.name['zh-Hant']).toBe('新標籤');
   });
 
   it('updateLabel でラベルIDを指定して名前を更新する', () => {
