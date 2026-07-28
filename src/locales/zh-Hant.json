@@ -1911,9 +1911,9 @@
             "back_to_top": "返回頂部"
         },
         "mypage_coming_soon": {
-            "eyebrow": "マイページ",
-            "title": "準備中です",
-            "lead": "登録したハウジングやお気に入りをまとめて見られるマイページを準備しています。それまでは各ページからご利用ください。"
+            "eyebrow": "我的頁面",
+            "title": "準備中",
+            "lead": "我們正在準備「我的頁面」，讓你可以一次檢視自己登記的房屋和收藏。在那之前請從各個頁面使用。"
         },
         "card": {
             "favorite": "收藏",
@@ -1924,27 +1924,27 @@
         },
         "tray": {
             "title": "導覽清單",
-            "empty": "用卡片上的“加入導覽”新增目的地。",
+            "empty": "用卡片上的「加入導覽」新增目的地。",
             "remove": "刪除",
             "start": "以此內容開始導覽",
             "count": "{{count}}",
-            "sort_efficient": "効率順に並べ替え",
-            "pin": "この位置に固定",
-            "unpin": "固定を解除",
-            "drag_handle": "ドラッグして並べ替え"
+            "sort_efficient": "依效率排序",
+            "pin": "固定在這個位置",
+            "unpin": "解除固定",
+            "drag_handle": "拖曳以重新排序"
         },
         "ephemeral": {
-            "add_button": "通過地址新增",
-            "panel_title": "通過地址加入導覽",
+            "add_button": "透過地址新增",
+            "panel_title": "透過地址加入導覽",
             "url_label": "從SNS的URL",
             "url_placeholder": "貼上 X / housingsnap 等的URL",
             "text_label": "輸入地址",
             "text_placeholder": "例: 海霧村 3區 15號",
             "parse_error": "無法讀取地址。請在下方選擇",
-            "fetch_error": "無法從URL獲取資訊",
+            "fetch_error": "無法從 URL 取得資訊",
             "add": "加入導覽",
             "added": "已新增",
-            "note_volatile": "通過地址新增的房屋不會登記到網站，離開頁面後即消失。想在不登記的情況下直接加入導覽時可使用。",
+            "note_volatile": "透過地址新增的房屋不會登記到網站，離開頁面後即消失。想在不登記的情況下直接加入導覽時可使用。",
             "limit_note": "臨時房屋最多 {{max}} 件",
             "badge": "臨時",
             "register_link": "登記這間房屋",
@@ -1980,7 +1980,7 @@
                 "dc_label": "資料中心",
                 "world_label": "世界"
             },
-            "hint": "滾輪縮放 · 拖動移動",
+            "hint": "滾輪縮放 · 拖曳移動",
             "empty_world": "這個世界還沒有登記的房屋",
             "back_to_list": "返回列表",
             "loading": "正在載入地圖…",
@@ -1988,7 +1988,7 @@
             "ward_label": "{{ward}}區",
             "ward_count": "{{ward}}區 ({{count}}件)",
             "main_tab": "本區",
-            "sub_tab": "擴充套件區",
+            "sub_tab": "擴展區",
             "tab_count": "{{label}} ({{count}})",
             "prev_ward": "上一區",
             "next_ward": "下一區",
@@ -2015,11 +2015,11 @@
         },
         "register": {
             "editMedia": {
-                "save_failed": "失敗了,請重試",
+                "save_failed": "失敗了，請重試",
                 "saving": "儲存中…",
                 "tab_upload": "上傳",
                 "tab_url": "URL",
-                "recommend_url": "通過URL登入不會降低畫質。對於Twitter,刪除原帖後該房源資訊也會自動更新。"
+                "recommend_url": "以 URL 登記不會降低畫質。若是 Twitter，刪除原貼文後這間房屋的資訊也會自動更新。"
             },
             "title": "房屋登記",
             "badge_private": "未公開",
@@ -2027,11 +2027,11 @@
             "section_intro": "留言",
             "section_address": "地址",
             "address_verify_note": "即使地址是自動填寫的，也請在登記前務必核對",
-            "section_media": "從帖子·網站自動填充",
+            "section_media": "從社群貼文·網站自動填入",
             "field_title_label": "標題",
             "field_title_placeholder": "請輸入標題",
             "field_title_optional_hint": "留空時將顯示地址",
-            "field_title_optional_hint_unlisted": "若留空，將顯示\"地址不公開\"",
+            "field_title_optional_hint_unlisted": "若留空，將顯示「地址不公開」",
             "field_title_remaining": "剩餘 {{count}} 字",
             "dc": "資料中心",
             "server": "伺服器",
@@ -2041,21 +2041,21 @@
             "size": "大小",
             "apartment_room": "房間號",
             "room_kind": {
-                "label": "房間型別",
+                "label": "房間類型",
                 "whole_house": "整棟房屋",
                 "private_chamber": "FC 個人房",
                 "chamber_toggle": "這是FC房屋的個人房",
                 "apartment_room": "公寓房間"
             },
             "building_type": {
-                "label": "建築型別",
+                "label": "建築類型",
                 "house": "個人房屋·部隊房屋",
                 "apartment": "公寓"
             },
             "apartment_building": {
                 "label": "號棟",
                 "main": "1號棟 (本街)",
-                "sub": "2號棟 (拡張街)"
+                "sub": "2號棟 (擴展街)"
             },
             "description": "留言（選填・200字以內）",
             "description_placeholder": "請隨意填寫",
@@ -2077,7 +2077,7 @@
                 "title": "登記前確認",
                 "ready": "全部完成，可以登記",
                 "empty": "請輸入 {{field}}",
-                "autoFilled": "{{field}}：「{{value}}」 正確嗎？",
+                "autoFilled": "{{field}}：「{{value}}」正確嗎？",
                 "error": "請修正 {{field}}",
                 "confirmBtn": "沒問題"
             },
@@ -2125,7 +2125,7 @@
                 },
                 "description": {
                     "too_long": "請在200字以內輸入",
-                    "invalid_type": "請以文本格式輸入"
+                    "invalid_type": "請以文字格式輸入"
                 },
                 "quota_exhausted": "今日登記配額已用完（明日恢復5個）",
                 "generic": "登記失敗，請稍後重試",
@@ -2134,17 +2134,17 @@
                     "too_long": "標題過長"
                 },
                 "buildingType": {
-                    "invalid": "建物タイプを選んでください"
+                    "invalid": "請選擇建築類型"
                 },
                 "apartmentBuilding": {
-                    "out_of_range": "號棟は 1 か 2 を選んでください"
+                    "out_of_range": "號棟請選擇 1 或 2"
                 },
                 "roomNumber": {
-                    "out_of_range": "部屋番號は 1〜90 で入力してください"
+                    "out_of_range": "房間號請輸入 1〜90"
                 },
                 "roomKind": {
                     "apartment_room_required": "公寓需要填寫房間號",
-                    "invalid_for_house": "この建物タイプでは部屋番號は不要です"
+                    "invalid_for_house": "此建築類型不需要填寫房間號"
                 }
             },
             "quota": {
@@ -2153,74 +2153,74 @@
                 "admin": "登記券：管理員"
             },
             "snsUrl": {
-                "label": "帖子·網站 URL（可選）",
+                "label": "貼文·網站 URL（可選）",
                 "placeholder": "貼上 URL",
-                "help": "支援 X(原 Twitter)·YouTube·Housing Snap 等，帶影片的帖子也 OK",
-                "help_disclaimer": "自動填充有時可能不準確，請僅將其作為填寫時的輔助參考。",
+                "help": "支援 X(原 Twitter)·YouTube·Housing Snap 等，帶影片的貼文也 OK",
+                "help_disclaimer": "自動填入有時可能不準確，請僅將其作為填寫時的輔助參考。",
                 "fetching": "正在讀取推文…",
-                "youtube_detected": "YouTube 動畫として認識 (サムネを物件畫像として使います)",
-                "ogp_fetching": "ページ情報を取得中…",
+                "youtube_detected": "已辨識為 YouTube 影片（將以縮圖作為房屋圖片）",
+                "ogp_fetching": "正在取得頁面資訊…",
                 "cancel": "取消",
-                "retry": "重新獲取",
+                "retry": "重新取得",
                 "error": {
                     "invalid": "請貼上受支援的連結 (Twitter / YouTube / housingsnap.com / housing-collection-ff14.com / studio-xiv.com / thonhart.com)",
-                    "notFound": "無法獲取此推文，請檢查連結或手動輸入",
+                    "notFound": "無法取得此推文，請檢查連結或手動輸入",
                     "rateLimit": "請求過多，請 30 秒後再試",
-                    "upstream": "獲取推文失敗，請重試",
+                    "upstream": "取得推文失敗，請重試",
                     "network": "無法連線到網路，請檢查網路狀態",
                     "extractFailed": "無法自動填入，請參照推文內容手動輸入",
-                    "photo_source_conflict": "推特圖片和其他網站的圖片無法組合使用，因此未新增此帖子的圖片。",
+                    "photo_source_conflict": "推特圖片和其他網站的圖片無法組合使用，因此未新增此貼文的圖片。",
                     "duplicate_url": "此URL已新增過。",
-                    "video_limit": "每個房源最多隻能有1個影片,因此未新增此帖子的影片。"
+                    "video_limit": "每間房屋最多只能有 1 個影片，因此未新增此貼文的影片。"
                 },
                 "ogp_error": {
                     "invalid": "連結無效",
-                    "forbidden": "該站點暫不支援",
+                    "forbidden": "該網站暫不支援",
                     "notFound": "未找到頁面",
-                    "upstream": "獲取頁面失敗，請重試",
+                    "upstream": "取得頁面失敗，請重試",
                     "network": "無法連線到網路"
                 }
             },
             "image": {
-                "label": "畫像 (任意・最大 {{max}} 枚)",
-                "cta": "クリックまたはドラッグして畫像を選択",
-                "cta_add": "+ 畫像を追加",
-                "hint": "{{current}} / {{max}} 枚・長辺 1920px・1 枚あたり最大 1MB に自動圧縮 (AVIF/WebP)。 ドラッグで並び替えできます (先頭が代表畫像になります)",
-                "select_aria": "畫像ファイルを選択",
-                "compressing": "畫像を圧縮中…",
-                "compressed_label": "圧縮済",
-                "cover_badge": "カバー",
-                "used_badge": "使用",
-                "remove": "削除",
-                "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表畫像になります)",
-                "sns_override_note": "畫像を直接アップロードしたので、 SNS URL の畫像は使われません",
+                "label": "圖片（可選・最多 {{max}} 張）",
+                "cta": "點選或拖曳以選擇圖片",
+                "cta_add": "+ 新增圖片",
+                "hint": "{{current}} / {{max}} 張・長邊 1920px・每張自動壓縮至最大 1MB (AVIF/WebP)。可拖曳重新排序（第一張會成為代表圖片）",
+                "select_aria": "選擇圖片檔案",
+                "compressing": "正在壓縮圖片…",
+                "compressed_label": "已壓縮",
+                "cover_badge": "封面",
+                "used_badge": "使用中",
+                "remove": "刪除",
+                "reorder_hint": "可拖曳重新排序（最左邊的「封面」會成為列表中的代表圖片）",
+                "sns_override_note": "已直接上傳圖片，因此不會使用 SNS URL 的圖片",
                 "limitModal": {
-                    "title": "畫像は{{max}}枚まで",
-                    "body": "{{selected}}枚選択されましたが、儲存できる畫像は{{max}}枚までです。先頭{{max}}枚のみ追加しました。",
-                    "confirm": "わかりました"
+                    "title": "圖片最多 {{max}} 張",
+                    "body": "你選擇了 {{selected}} 張，但最多只能儲存 {{max}} 張。已只加入前 {{max}} 張。",
+                    "confirm": "我知道了"
                 },
                 "error": {
-                    "not_image": "畫像ファイル (JPEG / PNG / WebP / AVIF / HEIC) を選んでください",
-                    "compress_failed": "畫像の圧縮に失敗しました。 別の畫像を試してください",
-                    "too_many": "畫像は最大 {{max}} 枚までです"
+                    "not_image": "請選擇圖片檔案 (JPEG / PNG / WebP / AVIF / HEIC)",
+                    "compress_failed": "圖片壓縮失敗。請換一張圖片試試",
+                    "too_many": "圖片最多 {{max}} 張"
                 }
             },
             "sourceImages": {
-                "label": "取得した畫像 (ドラッグで並び替え可・先頭 {{max}} 枚が儲存されます)",
-                "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表畫像、 先頭 {{max}} 枚が儲存されます)"
+                "label": "已取得的圖片 (可拖曳重新排序・前 {{max}} 張會被儲存)",
+                "reorder_hint": "可拖曳重新排序（最左邊的「封面」會成為列表中的代表圖片，前 {{max}} 張會被儲存）"
             },
             "media": {
-                "fetched_count": "已獲取 {{count}} 張圖片",
+                "fetched_count": "已取得 {{count}} 張圖片",
                 "video_badge": "含影片",
                 "error_hint": "請檢查 URL，或直接上傳圖片",
                 "add_url": "+ 新增URL",
-                "remove_url": "移除此帖子URL",
+                "remove_url": "移除此貼文 URL",
                 "limit_note": "最多可新增10張圖片和1個影片。",
-                "expand_upload": "改用上傳圖片註冊",
-                "upload_warning": "上傳的圖片會被壓縮、畫質下降,且無法使用影片。建議改用URL方式註冊。"
+                "expand_upload": "改用上傳圖片登記",
+                "upload_warning": "上傳的圖片會被壓縮、畫質下降，且無法使用影片。建議改用 URL 方式登記。"
             },
             "tweetPreview": {
-                "title": "已獲取的推文"
+                "title": "已取得的推文"
             },
             "fieldBadge": {
                 "autoFilled": "已自動填入",
@@ -2228,9 +2228,9 @@
                 "confirmAriaLabel": "確認此值"
             },
             "fieldError": {
-                "required": "必填項",
+                "required": "必填項目",
                 "wardOutOfRange": "區號需在 1-30 之間",
-                "plotOutOfRange": "門牌號需在 1-60 之間 (31 以上為擴充套件區)",
+                "plotOutOfRange": "門牌號需在 1-60 之間 (31 以上為擴展區)",
                 "roomNumberApartmentOutOfRange": "公寓房號需在 1-90 之間",
                 "roomNumberPrivateOutOfRange": "FC 個人房號需在 1-512 之間"
             },
@@ -2263,22 +2263,22 @@
                     "not_authenticated": "登記需要登入，請先登入後再試。",
                     "quota_exhausted": "已達到登記上限，請稍後再試。",
                     "generic": "登記失敗，請檢查網路環境後重試。",
-                    "upload_failed": "物件は登録できましたが、 畫像のアップロードに失敗しました。 編集畫面から再度アップロードしてください。"
+                    "upload_failed": "房屋已登記完成，但圖片上傳失敗。請從編輯畫面重新上傳。"
                 }
             },
             "cancel": "取消",
             "step": {
-                "media": "從帖子·網站自動填充",
+                "media": "從社群貼文·網站自動填入",
                 "address": "地址",
                 "intro": "留言",
                 "visibility": "公開設定",
                 "confirm": "確認"
             },
             "step_desc": {
-                "media": "貼上含有地址的社交帖子或網站的 URL，會嘗試自動填充照片和地址",
+                "media": "貼上含有地址的社群貼文或網站的 URL，會嘗試自動填入照片和地址",
                 "address": "無論是自動填寫還是手動輸入，登記前都需要確認地址",
-                "intro": "標題為選填項。留空時，列表將顯示地址",
-                "intro_unlisted": "標題為選填。若留空，列表中將顯示\"地址不公開\"",
+                "intro": "標題為選填。留空時，列表將顯示地址",
+                "intro_unlisted": "標題為選填。若留空，列表中將顯示「地址不公開」",
                 "visibility": "可以選擇公開・非公開，以及公開期限",
                 "confirm": "統一確認輸入內容後完成登記"
             },
@@ -2289,8 +2289,8 @@
                 "public": "公開",
                 "unlisted": "隱藏地址",
                 "private": "私密",
-                "public_desc": "在瀏覽、地圖和遊覽中顯示，且地址可見",
-                "unlisted_desc": "圖片會出現在瀏覽中，但地址會被隱藏，且無法用於遊覽",
+                "public_desc": "在瀏覽、地圖和導覽中顯示，且地址可見",
+                "unlisted_desc": "圖片會出現在瀏覽中，但地址會被隱藏，且無法用於導覽",
                 "private_desc": "僅自己可見",
                 "set_end_datetime": "設定公開結束時間",
                 "after_expiry_label": "到期後",
@@ -2344,7 +2344,7 @@
             },
             "autosave": {
                 "restored": "已恢復未完成的輸入內容",
-                "sns_refetch": "SNS 圖片將重新獲取",
+                "sns_refetch": "SNS 圖片將重新取得",
                 "discard": "放棄"
             },
             "toast": {
@@ -2355,7 +2355,7 @@
         "duplicate": {
             "title": "該地址已有房屋登記",
             "lead": "找到 {{count}} 條已有房屋登記",
-            "hint": "請再次確認輸入的地址是否正確。如果是其他地址,請修正表單。如果是房主更換需要重新登記,請直接繼續。",
+            "hint": "請再次確認輸入的地址是否正確。如果是其他地址，請修正表單。如果是房主更換需要重新登記，請直接繼續。",
             "correct": "返回並修正地址",
             "proceed": "仍要登記",
             "created_at": "登記日期：{{date}}"
@@ -2363,18 +2363,18 @@
         "onboarding": {
             "title": "歡迎來到房屋導覽",
             "lead": "這是瀏覽 FF14 房屋的導覽功能",
-            "bullet1": "可以遊覽其他玩家打造的精美房屋",
+            "bullet1": "可以參觀其他玩家打造的精美房屋",
             "bullet2": "也可以建立並分享自己的推薦導覽",
             "bullet3": "喜歡的房屋可以收藏",
             "image_modes_note": "目前僅提供核心功能，設計和圖片登記功能將陸續推出",
             "start": "開始",
-            "accept_current_account": "使用此賬戶開始",
-            "switch_account": "切換其他賬戶登入"
+            "accept_current_account": "使用此帳戶開始",
+            "switch_account": "切換其他帳戶登入"
         },
         "login_prompt": {
             "register": {
                 "title": "登記房屋需要登入",
-                "lead": "透過 Discord 登入即可註冊房屋。Discord ID 將以無法還原的形式（雜湊值）保存。"
+                "lead": "透過 Discord 登入即可登記房屋。Discord ID 將以無法還原的形式（雜湊值）儲存。"
             },
             "tour": {
                 "title": "建立導覽需要登入",
@@ -2382,13 +2382,13 @@
             },
             "favorite": {
                 "title": "收藏房屋需要登入",
-                "lead": "登入後，可在多個裝置間共享收藏"
+                "lead": "登入後，可在多個裝置間共用收藏"
             },
-            "open_login": "開啟登入"
+            "open_login": "開啟登入畫面"
         },
         "tag": {
             "official_emporium": "商店",
-            "official_boutique": "服裝模特商店",
+            "official_boutique": "服裝模特兒商店",
             "official_designer_home": "內部裝潢別緻",
             "official_message_book": "交流簿",
             "official_tavern": "酒館",
@@ -2404,11 +2404,11 @@
             "official_atelier": "工房",
             "official_bathhouse": "浴場",
             "official_garden": "植物園",
-            "official_bakery": "麵包房",
+            "official_bakery": "麵包店",
             "official_concert_hall": "劇場",
             "official_venue": "活動會場",
             "official_photo_studio": "攝影棚",
-            "official_haunted_house": "鬼怪屋",
+            "official_haunted_house": "鬼屋",
             "official_far_eastern": "東方樣式",
             "season_spring": "春",
             "season_summer": "夏",
@@ -2427,9 +2427,9 @@
             "theme_modern": "現代",
             "theme_natural": "自然",
             "theme_antique": "復古",
-            "theme_gothic": "哥特",
+            "theme_gothic": "哥德",
             "theme_marchen": "童話",
-            "theme_cyberpunk": "賽博朋克",
+            "theme_cyberpunk": "賽博龐克",
             "theme_fantasy": "奇幻",
             "theme_gimmick": "機關屋",
             "theme_ruins": "廢墟",
@@ -2439,15 +2439,15 @@
         "workspace": {
             "topbar": {
                 "home_aria": "返回 LoPo 首頁",
-                "subtitle": "豪宅遊覽",
+                "subtitle": "房屋導覽",
                 "breadcrumb_label": "麵包屑",
                 "browse_placeholder": "瀏覽模式",
                 "theme_toggle_label": "主題切換",
                 "theme_light": "Light",
                 "theme_dark": "Dark",
-                "register": "+ 註冊",
+                "register": "+ 登記",
                 "favorites": "收藏",
-                "profile": "資料"
+                "profile": "個人資料"
             },
             "panels": {
                 "left_title": "Filter",
@@ -2478,13 +2478,13 @@
                 "size_m": "M 尺寸",
                 "size_l": "L 尺寸",
                 "personal_tag": "個人標籤",
-                "personal_tag_placeholder": "按住宅玩家名稱搜尋…",
+                "personal_tag_placeholder": "按房主玩家名稱搜尋…",
                 "personal_tag_searching": "搜尋中…",
                 "personal_tag_no_results": "未找到結果",
-                "personal_tag_report": "舉報",
-                "personal_tag_report_confirm": "要舉報這個標籤嗎?",
-                "personal_tag_report_success": "已舉報",
-                "personal_tag_report_error": "舉報失敗"
+                "personal_tag_report": "檢舉",
+                "personal_tag_report_confirm": "要檢舉這個標籤嗎？",
+                "personal_tag_report_success": "已檢舉",
+                "personal_tag_report_error": "檢舉失敗"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",
@@ -2493,8 +2493,8 @@
             },
             "register_cta": {
                 "label_long": "登記你的作品",
-                "label_short": "+ 註冊",
-                "aria": "開啟住宅登記彈窗"
+                "label_short": "+ 登記",
+                "aria": "開啟房屋登記視窗"
             },
             "panel": {
                 "close_left": "關閉左面板",
@@ -2503,36 +2503,36 @@
                 "open_right": "開啟右面板"
             },
             "tour": {
-                "share": "分享此巡遊",
+                "share": "分享此導覽",
                 "copied": "已複製",
                 "start": "開始",
-                "exit": "退出巡遊",
+                "exit": "離開導覽",
                 "manner_notice": "請文明參觀",
                 "progress": "進行中",
-                "share_aria": "複製巡遊分享連結",
-                "exit_aria": "退出巡遊",
-                "auto_added_toast": "同住所の他 {{count}} 件もツアーに追加しました"
+                "share_aria": "複製導覽分享連結",
+                "exit_aria": "離開導覽",
+                "auto_added_toast": "同一地址的其他 {{count}} 間房屋也已加入導覽"
             },
             "favorites": {
                 "title": "收藏",
-                "empty": "用 ♡ 收藏你喜歡的房子, 打造專屬巡遊路線",
-                "hint": "Shift/Ctrl 多選, 拖動框選範圍",
+                "empty": "用 ♡ 收藏你喜歡的房屋，打造專屬導覽路線",
+                "hint": "Shift/Ctrl 多選，拖曳框選範圍",
                 "clear_selection": "取消選擇",
                 "run_all": "全部參觀",
                 "close_modal": "關閉"
             },
             "tour_builder": {
-                "title": "巡遊",
-                "empty": "從收藏中選擇, 拖到這裡",
-                "remove": "從巡遊中移除",
+                "title": "導覽",
+                "empty": "從收藏中選擇，拖到這裡",
+                "remove": "從導覽中移除",
                 "sort_by_address": "按地址排序",
-                "custom_order": "自定義排序",
-                "drag_handle": "拖動以調整順序",
+                "custom_order": "自訂排序",
+                "drag_handle": "拖曳以調整順序",
                 "clear_all": "全部清除"
             },
             "manner": {
                 "title": "請文明參觀",
-                "body": "參觀房屋時，請尊重房主。請遵守禮節，愉快地享受巡遊吧。",
+                "body": "參觀房屋時，請尊重房主。請遵守禮節，愉快地享受導覽吧。",
                 "dont_show_again": "下次不再顯示",
                 "cancel": "取消",
                 "start": "開始"
@@ -2543,7 +2543,7 @@
                     "pinterest": "網格",
                     "label": "顯示模式"
                 },
-                "map_alt": "住宅地圖",
+                "map_alt": "房屋地圖",
                 "compass_label": "方位"
             },
             "card": {
@@ -2552,7 +2552,7 @@
                 "add_to_tour": "新增到路線",
                 "copy_url": "複製分享連結",
                 "copy_url_done": "已複製連結",
-                "open_sns": "開啟SNS帖子",
+                "open_sns": "開啟 SNS 貼文",
                 "close": "關閉",
                 "mine_badge": "我的登記"
             },
@@ -2571,44 +2571,44 @@
             "title": "登入 LoPo",
             "notice": {
                 "intro": "為了讓大家都能愉快地使用 LoPo，有一件事想請您配合。",
-                "item1": "為了避免虛假資訊或惡意騷擾性質的登記毀掉大家找房的體驗，註冊時需要透過 Discord 登入。",
-                "item2": "LoPo 保存的僅是 Discord ID 的雜湊值。雜湊值無法還原為原始 ID，因此包括運營者在內的任何人都無法復原 Discord ID。",
+                "item1": "為了避免虛假資訊或惡意騷擾性質的登記毀掉大家找房的體驗，登記時需要透過 Discord 登入。",
+                "item2": "LoPo 儲存的僅是 Discord ID 的雜湊值。雜湊值無法還原為原始 ID，因此包括營運者在內的任何人都無法復原 Discord ID。",
                 "item3": "為了讓大家可以放心地按下「不是這個」按鈕，我們也會在後台記錄反覆利用此功能進行騷擾性檢舉的帳號。若確認有過度行為，可能會限制該帳號的使用。"
             },
             "discordButton": "使用 Discord 登入",
             "closeLabel": "關閉登入介面"
         },
         "account": {
-            "title": "賬戶",
+            "title": "帳戶",
             "avatarChange": "更改頭像",
             "avatarDelete": "刪除",
             "displayNameLabel": "顯示名稱",
             "displayNameEdit": "編輯顯示名稱",
             "displayNameNote": "此名稱將作為您的房主玩家標籤",
             "adminLink": "前往管理頁面",
-            "signOut": "退出登入",
-            "deleteAccount": "刪除賬戶",
-            "deleteConfirmTitle": "確定要刪除賬戶嗎？",
-            "deleteConfirmBody": "刪除賬戶後，您註冊的房屋、收藏、頭像圖片等所有資料都將被徹底刪除。此操作無法復原。",
-            "deleteConfirmYes": "刪除賬戶",
+            "signOut": "登出",
+            "deleteAccount": "刪除帳戶",
+            "deleteConfirmTitle": "確定要刪除帳戶嗎？",
+            "deleteConfirmBody": "刪除帳戶後，您登記的房屋、收藏、頭像圖片等所有資料都將被徹底刪除。此操作無法復原。",
+            "deleteConfirmYes": "刪除帳戶",
             "deleteConfirmNo": "取消",
-            "closeLabel": "關閉賬戶介面"
+            "closeLabel": "關閉帳戶介面"
         },
         "housinger": {
             "account": {
                 "title": "房主玩家公開",
-                "description": "會生成彙總你的名字、頭像和一句話介紹的公開主頁, 與已登記的房屋一起展示給大家",
+                "description": "會產生一個彙整你的名字、頭像和一句話介紹的公開主頁，與已登記的房屋一起展示給大家",
                 "publish": "以房主玩家身份公開",
                 "nameRequired": "請先設定顯示名稱",
                 "published": "公開中",
                 "bioLabel": "一句話介紹",
-                "bioPlaceholder": "例: 喜歡S型改建, 歡迎參觀!",
+                "bioPlaceholder": "例: 喜歡S型改建，歡迎參觀！",
                 "snsLabel": "SNS連結",
                 "snsPlaceholder": "https://x.com/... (X / YouTube / Lodestone)",
                 "snsInvalid": "只能設定 X / YouTube / Lodestone 的 https 連結",
                 "save": "儲存",
                 "unpublish": "取消房主玩家公開",
-                "unpublishConfirmTitle": "確定要取消房主玩家公開嗎?",
+                "unpublishConfirmTitle": "確定要取消房主玩家公開嗎？",
                 "unpublishConfirmBody": "頁面和登記者顯示將變為不公開。已登記的房屋不會被刪除",
                 "toastSaved": "已儲存房主玩家資料",
                 "toastError": "儲存失敗。請稍後重試"
@@ -2622,14 +2622,14 @@
             "loading": "載入中…",
             "viewPage": "檢視 {{name}} 的房主玩家主頁 →",
             "register": {
-                "ctaTitle": "要以房主玩家身份公開嗎?(可選)",
+                "ctaTitle": "要以房主玩家身份公開嗎？(可選)",
                 "ctaButton": "去設定",
                 "publishedAs": "以 {{name}} 身份公開中"
             },
             "report": {
                 "modal": {
-                    "title": "舉報該房主玩家",
-                    "subtitle": "是哪方面的問題?"
+                    "title": "檢舉這位房主玩家",
+                    "subtitle": "是哪方面的問題？"
                 },
                 "reason": {
                     "inappropriate_name": "不當的名字",
@@ -2637,17 +2637,17 @@
                     "impersonation": "冒充",
                     "other": "其他"
                 },
-                "menuItem": "舉報該房主玩家"
+                "menuItem": "檢舉這位房主玩家"
             }
         },
         "mypage": {
             "editListing": "編輯",
             "visibilityConfirm": {
-                "title": "要更改公開狀態嗎?",
+                "title": "要更改公開狀態嗎？",
                 "warningPrivate": "其他人將完全看不到",
                 "confirm": "更改",
                 "cancel": "取消",
-                "error": "更改失敗,請稍後重試"
+                "error": "更改失敗，請稍後重試"
             }
         },
         "header": {
@@ -2657,7 +2657,7 @@
         },
         "topbar": {
             "login": "登入",
-            "account": "賬戶"
+            "account": "帳戶"
         },
         "mobile": {
             "nav_home": "首頁",
@@ -2672,50 +2672,50 @@
             "settings_language": "語言",
             "tray_start": "開始",
             "tray_clear": "清空",
-            "reorder": "並べ替え"
+            "reorder": "重新排序"
         },
         "gallery": {
-            "loading": "物件を読み込んでいます…",
-            "error": "物件の読み込みに失敗しました",
+            "loading": "正在載入房屋…",
+            "error": "房屋載入失敗",
             "no_image": "無圖片",
             "thumb_aria": "圖片 {{index}} / {{total}}",
             "video_iframe_title": "房屋影片"
         },
         "detail": {
-            "title": "物件詳細",
-            "owner_label": "登録者",
-            "share": "シェア",
-            "share_copy_link": "リンクをコピー",
-            "share_copied": "コピーしました",
-            "share_twitter": "X で共有",
-            "share_x": "Xでシェア",
-            "report_button": "ちがった",
-            "back_aria": "戻る",
-            "view_source": "元の投稿を見る",
-            "view_original": "檢視原帖",
-            "view_original_item": "帖子{{index}}",
-            "add_to_tour": "ツアー",
+            "title": "房屋詳情",
+            "owner_label": "登記者",
+            "share": "分享",
+            "share_copy_link": "複製連結",
+            "share_copied": "已複製",
+            "share_twitter": "分享到 X",
+            "share_x": "分享到 X",
+            "report_button": "不是這個",
+            "back_aria": "返回",
+            "view_source": "檢視原始貼文",
+            "view_original": "檢視原始貼文",
+            "view_original_item": "貼文{{index}}",
+            "add_to_tour": "導覽",
             "kebab": {
-                "aria_label": "メニュー",
-                "edit": "編集",
-                "delete": "削除"
+                "aria_label": "選單",
+                "edit": "編輯",
+                "delete": "刪除"
             },
-            "login_required": "この操作にはログインが必要です",
-            "cannot_report_own": "自分の物件は通報できません",
-            "unavailable": "この物件は削除されたか、 表示できません",
-            "postRemoved": "元の投稿が削除されたため、 この物件の掲載も終了しました",
-            "still_here_button": "今もあります",
-            "still_here_aria": "このハウジングが今もあることを確認する",
-            "confirm_success": "「今もあります」 として確認しました",
-            "confirm_error": "確認できませんでした、 もう一度お試しください",
-            "confirm_error_forbidden_hidden": "通報により非表示中のハウジングは確認できません",
-            "last_confirmed_at": "{{date}} 確認済",
+            "login_required": "此操作需要先登入",
+            "cannot_report_own": "無法檢舉自己的房屋",
+            "unavailable": "這間房屋已被刪除，或無法顯示",
+            "postRemoved": "由於原始貼文已被刪除，這間房屋也已下架",
+            "still_here_button": "現在還在",
+            "still_here_aria": "確認這間房屋現在還在",
+            "confirm_success": "已確認為「現在還在」",
+            "confirm_error": "無法確認，請再試一次",
+            "confirm_error_forbidden_hidden": "因檢舉而隱藏中的房屋無法確認",
+            "last_confirmed_at": "{{date}} 已確認",
             "duplicates": {
-                "title": "この住所の他の登録 ({{count}})",
-                "collaboration_note": "古い情報ならご協力を",
-                "action_wrong": "ちがった",
-                "toast_hidden": "ご協力ありがとうございます！",
-                "toast_error": "うまくいきませんでした、 もう一度お試しください"
+                "title": "此地址的其他登記 ({{count}})",
+                "collaboration_note": "若是舊資訊還請協助回報",
+                "action_wrong": "不是這個",
+                "toast_hidden": "感謝您的協助！",
+                "toast_error": "操作沒有成功，請再試一次"
             }
         },
         "edit": {
@@ -2724,63 +2724,63 @@
             "error": "更新失敗"
         },
         "delete": {
-            "title": "この物件を削除しますか?",
+            "title": "要刪除這間房屋嗎？",
             "body": {
-                "line1": "一覧から非表示になります",
-                "line2": "30 日後に完全削除されます",
-                "line3": "この操作は元に戻せません"
+                "line1": "將從列表中隱藏",
+                "line2": "30 天後會完全刪除",
+                "line3": "此操作無法復原"
             },
-            "confirm": "削除する",
-            "cancel": "キャンセル",
-            "success": "削除しました",
-            "error": "削除に失敗しました"
+            "confirm": "刪除",
+            "cancel": "取消",
+            "success": "已刪除",
+            "error": "刪除失敗"
         },
         "report": {
             "modal": {
-                "title": "この物件について報告",
-                "subtitle": "どの點が違いますか?"
+                "title": "檢舉這間房屋",
+                "subtitle": "是哪個部分不對？"
             },
             "reason": {
-                "wrong_info": "位置や情報が違う",
-                "sold": "売卻済み",
-                "griefing": "嫌がらせ・ハラスメント",
-                "nsfw": "不適切なコンテンツ",
-                "other": "その他"
+                "wrong_info": "位置或資訊有誤",
+                "sold": "已經賣掉了",
+                "griefing": "惡意騷擾",
+                "nsfw": "不當內容",
+                "other": "其他"
             },
             "comment": {
-                "placeholder": "詳細を教えてください (任意)",
-                "placeholder_required": "詳細を教えてください (必須)",
-                "required": "「その他」 を選択した場合は詳細を入力してください"
+                "placeholder": "請告訴我們詳細情況 (選填)",
+                "placeholder_required": "請告訴我們詳細情況 (必填)",
+                "required": "選擇「其他」時請填寫詳細情況"
             },
-            "submit": "報告する",
-            "cancel": "キャンセル",
-            "success": "報告を受け付けました。 ご協力ありがとうございます",
-            "duplicate": "您已經舉報過了。",
-            "error": "報告の送信に失敗しました。 時間をおいて再度お試しください",
-            "escalation_required": "この物件は繰り返し報告されています。 解除には運営の確認が必要です。 Discord で異議申し立てしてください"
+            "submit": "送出檢舉",
+            "cancel": "取消",
+            "success": "已收到您的檢舉。感謝您的協助",
+            "duplicate": "您已經檢舉過了。",
+            "error": "檢舉送出失敗。請稍後再試一次",
+            "escalation_required": "這間房屋已被重複檢舉。解除需要營運方確認。請在 Discord 提出申訴"
         },
         "guide": {
-            "title": "あなたの物件に報告がありました",
+            "title": "你的房屋收到了檢舉",
             "reason_label": "理由",
             "body": {
-                "wrong_info": "內容を確認して、 必要に応じて情報を編集してください",
-                "sold": "この物件は売卻済みですか? 売卻済みなら削除してください",
-                "griefing": "身に覚えがない場合は LoPo Discord で異議申し立てが可能です",
-                "nsfw": "LoPo 運営が直接確認します。 身に覚えがない場合は Discord で異議申し立て",
-                "other": "報告者からのコメント"
+                "wrong_info": "請確認內容，並視需要修改資訊",
+                "sold": "這間房屋已經賣掉了嗎？若已賣掉請將它刪除",
+                "griefing": "若沒有印象，可以在 LoPo Discord 提出申訴",
+                "nsfw": "LoPo 營運方會直接確認。若沒有印象請在 Discord 提出申訴",
+                "other": "檢舉者的留言"
             },
             "cta": {
-                "edit": "編集する",
-                "delete": "物件を削除する",
-                "dispute": "Discord で異議申し立て",
-                "dismiss": "これは誤り（卻下）"
+                "edit": "編輯",
+                "delete": "刪除這間房屋",
+                "dispute": "在 Discord 提出申訴",
+                "dismiss": "這是誤報（駁回）"
             },
-            "escalated_note": "一度復帰した後に再び報告されました。 卻下や編集では戻せません。 Discord で異議申し立て (運営確認) してください",
-            "later": "あとで"
+            "escalated_note": "一度恢復後又再次被檢舉。已無法用駁回或編輯處理。請在 Discord 提出申訴（由營運方確認）",
+            "later": "稍後再說"
         },
         "favorites": {
             "title": "收藏",
-            "empty": "您收藏的住宅將顯示在這裡。在「探索」頁面點選♡即可儲存。",
+            "empty": "您收藏的房屋將顯示在這裡。在「探索」頁面點選♡即可儲存。",
             "tab_all": "全部",
             "tab_recent": "最近新增",
             "bulk_select_all": "全選",
@@ -2794,26 +2794,26 @@
             "onboarding_step1_title": "儲存",
             "onboarding_step1_desc": "在探索頁面點選心儀房屋的♡即可加入收藏。",
             "onboarding_step2_title": "選擇",
-            "onboarding_step2_desc": "勾選想要遊覽的房屋，可多選。",
+            "onboarding_step2_desc": "勾選想要參觀的房屋，可多選。",
             "onboarding_step3_title": "生成導覽",
             "onboarding_step3_desc": "將所選房屋加入清單並開始導覽。",
-            "onboarding_tip": "同一地址的多個投稿，選擇其中一個時會自動一併新增。"
+            "onboarding_tip": "同一地址的多篇貼文，選擇其中一篇時會自動一併新增。"
         },
         "notifications": {
             "title": "通知",
-            "empty": "通知はありません",
-            "mark_all_read": "すべて既読にする",
-            "see_all": "すべて見る",
+            "empty": "目前沒有通知",
+            "mark_all_read": "全部標示為已讀",
+            "see_all": "檢視全部",
             "see_all_coming_soon": "準備中",
             "bell_aria": "通知",
-            "unread_badge_aria": "{{n}} 件の未読",
-            "dismiss_aria": "この通知を消す",
+            "unread_badge_aria": "{{n}} 則未讀",
+            "dismiss_aria": "關閉這則通知",
             "item": {
-                "report": "あなたの物件「{{title}}」 について「{{reason}}」 と報告がありました",
-                "duplicate_alert": "あなたのハウジング「{{title}}」 と同じ住所に新しいハウジングが登録されました"
+                "report": "你的房屋「{{title}}」收到了「{{reason}}」的檢舉",
+                "duplicate_alert": "有新的房屋登記在與你的房屋「{{title}}」相同的地址"
             },
             "time": {
-                "just_now": "たった今",
+                "just_now": "剛剛",
                 "minutes_ago": "{{n}} 分前",
                 "hours_ago": "{{n}} 時間前",
                 "days_ago": "{{n}} 日前"
@@ -2826,11 +2826,11 @@
                 "map_none": "該目的地暫無地圖資料",
                 "map_error": "地圖載入失敗",
                 "reset_view": "恢復預設檢視",
-                "map_hint": "滾輪縮放 · 拖動移動",
+                "map_hint": "滾輪縮放 · 拖曳移動",
                 "cross": {
                     "start": "請前往 {{world}}（大區：{{dc}}）",
                     "dc": "請使用資料中心旅行前往 {{dc}} 的 {{world}}",
-                    "world": "請使用跨服訪問前往 {{world}}",
+                    "world": "請使用跨伺服器造訪前往 {{world}}",
                     "region": "該房屋位於其他大區，無法前往",
                     "waiting": "主持人移動後將顯示地圖"
                 },
@@ -2881,7 +2881,7 @@
                     "started_at": "{{time}} 起參觀中",
                     "elapsed": "已過 {{elapsed}}"
                 },
-                "report_button": "資訊有誤？舉報",
+                "report_button": "資訊有誤？檢舉",
                 "empty": {
                     "title": "導覽還沒有開始",
                     "lead": "從收藏中選擇想去的房屋，開始一次導覽吧。",
@@ -2896,20 +2896,20 @@
                 },
                 "invite": {
                     "name_label": "導覽名稱（可選）",
-                    "name_placeholder": "例如：週末住宅導覽",
+                    "name_placeholder": "例如：週末房屋導覽",
                     "button": "邀請所有人",
                     "creating": "正在生成邀請連結…",
-                    "hint": "開始導覽後就無法再添加了。請先把想去的房屋編入導覽。",
+                    "hint": "開始導覽後就無法再新增了。請先把想去的房屋編入導覽。",
                     "copy": "複製",
                     "copied": "已複製連結",
-                    "end": "結束共享",
-                    "ended": "已結束共享",
+                    "end": "結束分享",
+                    "ended": "已結束分享",
                     "error": "邀請連結生成失敗",
                     "link_label": "邀請連結",
                     "warning": {
                         "title": "所有參加者都能看到這個地址",
                         "body": "該導覽包含非公開或臨時新增的房屋。開啟邀請連結的所有參加者都會看到這些地址。",
-                        "ephemeral_note": "如果臨時添加了別人的房屋，請先徵得房主同意再邀請。",
+                        "ephemeral_note": "如果臨時新增了別人的房屋，請先徵得房主同意再邀請。",
                         "confirm": "仍然邀請",
                         "cancel": "取消"
                     }
@@ -2924,7 +2924,7 @@
                 "complete_lead": "導覽到此結束。很高興與你同行。",
                 "active_pill": "正在參加導覽",
                 "return": "返回",
-                "leave": "退出導覽"
+                "leave": "離開導覽"
             },
             "region_block": "不同大區的房屋無法加入同一導覽",
             "region_block_start": "該導覽包含多個大區（{{regions}}）的房屋，無法開始。請僅保留同一大區的房屋"
