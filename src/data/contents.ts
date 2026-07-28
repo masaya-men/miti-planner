@@ -10,6 +10,7 @@ export interface RawContentData {
   en: string;        // Official English Name
   zh?: string;       // Official Chinese (Simplified) Name
   ko?: string;       // Official Korean Name
+  'zh-Hant'?: string; // Official Traditional Chinese Name
   shortNameJa?: string; // Optional Abbreviation (e.g. 絶エデン, 辺獄4, etc.)
   hasCheckpoint?: boolean; // true if fight has a save-point between phases
   fflogsEncounterId?: number; // FFLogs encounter ID for Rankings API

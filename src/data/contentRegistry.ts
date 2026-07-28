@@ -126,7 +126,7 @@ const STATIC_CONTENT_DEFINITIONS: ContentDefinition[] = RAID_CONTENTS.map(rc => 
     const { seriesId, order, shortJa, shortEn, shortZh, shortKo } = getSeriesMetadata(rc.id, rc.category);
     return {
         id: rc.id,
-        name: { ja: rc.ja, en: rc.en, zh: rc.zh, ko: rc.ko },
+        name: { ja: rc.ja, en: rc.en, zh: rc.zh, 'zh-Hant': rc['zh-Hant'], ko: rc.ko },
         shortName: { ja: rc.shortNameJa || shortJa, en: shortEn, zh: shortZh, ko: shortKo },
         seriesId,
         category: rc.category,
@@ -146,7 +146,7 @@ RAID_CONTENTS.forEach(rc => {
         seriesMap.set(seriesId, {
             id: seriesId,
             name: rc.category === 'ultimate'
-                ? { ja: rc.ja, en: rc.en, zh: rc.zh, ko: rc.ko }
+                ? { ja: rc.ja, en: rc.en, zh: rc.zh, 'zh-Hant': rc['zh-Hant'], ko: rc.ko }
                 : { ja: seriesJa, en: seriesEn, zh: seriesZh, ko: seriesKo },
             category: rc.category,
             level: rc.level
