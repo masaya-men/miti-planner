@@ -145,11 +145,13 @@ export function LimitResolutionSheet() {
     const langSrc = i18n?.language ?? 'en';
     const lang = langSrc.startsWith('ja')
         ? 'ja'
-        : langSrc.startsWith('zh')
-            ? 'zh'
-            : langSrc.startsWith('ko')
-                ? 'ko'
-                : 'en';
+        : (langSrc === 'zh-Hant' || langSrc.toLowerCase().startsWith('zh-hant'))
+            ? 'zh-Hant'
+            : langSrc.startsWith('zh')
+                ? 'zh'
+                : langSrc.startsWith('ko')
+                    ? 'ko'
+                    : 'en';
     // max_total モード時は contentId が null なので contentName は空文字 (header で使わない)。
     const contentName = limitContext.contentId
         ? (getContentById(limitContext.contentId)?.name?.[lang]

@@ -24,7 +24,13 @@ export const MitigationSheetPreview: React.FC<Props> = ({ planData, loading, dis
   useSmoothWheelScroll(wrapRef, { enabled: !disableSmoothScroll });
   const { i18n } = useTranslation();
   const contentLanguage = useThemeStore(s => s.contentLanguage);
-  const lang = contentLanguage || (i18n.language.startsWith('ja') ? 'ja' : i18n.language.startsWith('zh') ? 'zh' : i18n.language.startsWith('ko') ? 'ko' : 'en');
+  const lang = contentLanguage || (
+    i18n.language.startsWith('ja') ? 'ja'
+    : (i18n.language === 'zh-Hant' || i18n.language.toLowerCase().startsWith('zh-hant')) ? 'zh-Hant'
+    : i18n.language.startsWith('zh') ? 'zh'
+    : i18n.language.startsWith('ko') ? 'ko'
+    : 'en'
+  );
 
   const formatTime = (seconds: number): string => {
     const totalSec = Math.floor(seconds);

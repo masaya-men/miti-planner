@@ -26,4 +26,11 @@ describe('resolveLocalized', () => {
   it('不明な言語コードでも en or ja にフォールバックする', () => {
     expect(resolveLocalized(full, 'fr' as 'ja')).toBe('Hello');
   });
+
+  it('zh-Hant が指定されていれば優先し、未指定なら en にフォールバックする', () => {
+    const withHant: LocalizedText = { ja: 'こんにちは', en: 'Hello', 'zh-Hant': '你好(繁體)' };
+    expect(resolveLocalized(withHant, 'zh-Hant')).toBe('你好(繁體)');
+    const noHant: LocalizedText = { ja: 'こんにちは', en: 'Hello' };
+    expect(resolveLocalized(noHant, 'zh-Hant')).toBe('Hello');
+  });
 });

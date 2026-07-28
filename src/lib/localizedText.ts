@@ -1,6 +1,6 @@
 import type { LocalizedText } from '../types/systemNotification';
 
-type SupportedLang = 'ja' | 'en' | 'ko' | 'zh';
+type SupportedLang = 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant';
 
 /**
  * 多言語テキストから指定 lang の文字列を取り出す。 順序: lang → en → ja。
