@@ -146,19 +146,23 @@ export function useTemplateEditor() {
           case 'name.zh':
             ev.name.zh = value as string;
             break;
+          case 'name.zh-Hant':
+            ev.name['zh-Hant'] = value as string;
+            break;
           case 'name.ko':
             ev.name.ko = value as string;
             break;
           case 'altName.ja':
           case 'altName.en':
           case 'altName.zh':
+          case 'altName.zh-Hant':
           case 'altName.ko': {
-            const altLang = field.split('.')[1] as 'ja' | 'en' | 'zh' | 'ko';
+            const altLang = field.split('.')[1] as 'ja' | 'en' | 'zh' | 'zh-Hant' | 'ko';
             const next: LocalizedString = ev.altName
               ? { ...ev.altName }
               : { ja: '', en: '' };
             next[altLang] = value as string;
-            const isEmpty = !next.ja.trim() && !next.en.trim() && !(next.zh ?? '').trim() && !(next.ko ?? '').trim();
+            const isEmpty = !next.ja.trim() && !next.en.trim() && !(next.zh ?? '').trim() && !(next['zh-Hant'] ?? '').trim() && !(next.ko ?? '').trim();
             if (isEmpty) {
               delete ev.altName;
             } else {
@@ -196,9 +200,10 @@ export function useTemplateEditor() {
         newAutoFilled.delete(key);
 
         // 翻訳自動伝播
-        const translationFields = ['name.en', 'name.ja', 'name.zh', 'name.ko'] as const;
+        const translationFields = ['name.en', 'name.ja', 'name.zh', 'name.zh-Hant', 'name.ko'] as const;
         if (autoPropagate && translationFields.includes(field as typeof translationFields[number])) {
           const oldZh = ev.name.zh ?? '';
+          const oldZhHant = ev.name['zh-Hant'] ?? '';
           const oldKo = ev.name.ko ?? '';
 
           for (const other of newCurrent) {
@@ -218,6 +223,11 @@ export function useTemplateEditor() {
               if (other.name.ja === oldJa && ((other.name.zh ?? '') === '' || (other.name.zh ?? '') === oldZh)) {
                 other.name.zh = value as string;
                 newAutoFilled.add(`${other.id}:name.zh`);
+              }
+            } else if (field === 'name.zh-Hant') {
+              if (other.name.ja === oldJa && ((other.name['zh-Hant'] ?? '') === '' || (other.name['zh-Hant'] ?? '') === oldZhHant)) {
+                other.name['zh-Hant'] = value as string;
+                newAutoFilled.add(`${other.id}:name.zh-Hant`);
               }
             } else if (field === 'name.ko') {
               if (other.name.ja === oldJa && ((other.name.ko ?? '') === '' || (other.name.ko ?? '') === oldKo)) {
@@ -420,7 +430,7 @@ export function useTemplateEditor() {
     (timeSec: number, labelName: LocalizedString | null) => {
       setState((prev) => {
         let newLabels = structuredClone(prev.currentLabels);
-        const isEmpty = !labelName || (!labelName.ja && !labelName.en && !labelName.zh && !labelName.ko);
+        const isEmpty = !labelName || (!labelName.ja && !labelName.en && !labelName.zh && !labelName['zh-Hant'] && !labelName.ko);
 
         const existingIdx = newLabels.findIndex((l) => l.startTimeSec === timeSec);
 

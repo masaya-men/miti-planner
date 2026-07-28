@@ -1,6 +1,6 @@
 /**
  * テンプレートエディター スプレッドシート型テーブル
- * フラットテーブル形式 — フェーズ・ラベル・技名(JA/EN/ZH/KO)・種別・対象・ダメージ
+ * フラットテーブル形式 — フェーズ・ラベル・技名(JA/EN/ZH/ZH-Hant/KO)・種別・対象・ダメージ
  */
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -249,7 +249,7 @@ function DropdownCell({ value, options, highlight, onCommit }: DropdownCellProps
 interface LocalizedEditPopoverProps {
   title: string;
   initial: LocalizedString;
-  labels: { ja: string; en: string; zh: string; ko: string };
+  labels: { ja: string; en: string; zh: string; 'zh-Hant': string; ko: string };
   position: { x: number; y: number };
   onApply: (value: LocalizedString) => void;
   onCancel: () => void;
@@ -260,6 +260,7 @@ function LocalizedEditPopover({ title, initial, labels, position, onApply, onCan
   const [ja, setJa] = useState(initial.ja);
   const [en, setEn] = useState(initial.en);
   const [zh, setZh] = useState(initial.zh ?? '');
+  const [zhHant, setZhHant] = useState(initial['zh-Hant'] ?? '');
   const [ko, setKo] = useState(initial.ko ?? '');
   const popoverRef = useRef<HTMLDivElement>(null);
 
@@ -278,6 +279,7 @@ function LocalizedEditPopover({ title, initial, labels, position, onApply, onCan
       ja,
       en,
       ...(zh ? { zh } : {}),
+      ...(zhHant ? { 'zh-Hant': zhHant } : {}),
       ...(ko ? { ko } : {}),
     });
   }
@@ -309,6 +311,10 @@ function LocalizedEditPopover({ title, initial, labels, position, onApply, onCan
         <div>
           <label className={labelClass}>{labels.zh}</label>
           <input type="text" value={zh} onChange={(e) => setZh(e.target.value)} className={inputClass} placeholder={en || 'EN fallback'} />
+        </div>
+        <div>
+          <label className={labelClass}>{labels['zh-Hant']}</label>
+          <input type="text" value={zhHant} onChange={(e) => setZhHant(e.target.value)} className={inputClass} placeholder={en || 'EN fallback'} />
         </div>
         <div>
           <label className={labelClass}>{labels.ko}</label>
@@ -426,6 +432,13 @@ export function TemplateEditor({
                 />
                 <input
                   type="text"
+                  value={nameObj['zh-Hant'] ?? ''}
+                  onChange={(e) => onUpdatePhaseName(phase.id, { ...nameObj, 'zh-Hant': e.target.value || undefined })}
+                  placeholder="ZH-Hant"
+                  className="flex-1 min-w-0 px-2 py-1 text-app-lg bg-transparent border border-app-text/20 rounded focus:outline-none focus:border-app-text/50 text-app-text"
+                />
+                <input
+                  type="text"
                   value={nameObj.ko ?? ''}
                   onChange={(e) => onUpdatePhaseName(phase.id, { ...nameObj, ko: e.target.value || undefined })}
                   placeholder="KO"
@@ -448,10 +461,12 @@ export function TemplateEditor({
           <col className="min-w-[100px]" />  {/* 技名JA */}
           <col className="min-w-[100px]" />  {/* 技名EN */}
           <col className="min-w-[100px]" />  {/* 技名ZH */}
+          <col className="min-w-[100px]" />  {/* 技名ZH-Hant */}
           <col className="min-w-[100px]" />  {/* 技名KO */}
           <col className="min-w-[90px]" />   {/* or技名JA */}
           <col className="min-w-[90px]" />   {/* or技名EN */}
           <col className="min-w-[90px]" />   {/* or技名ZH */}
+          <col className="min-w-[90px]" />   {/* or技名ZH-Hant */}
           <col className="min-w-[90px]" />   {/* or技名KO */}
           <col style={{ width: '70px' }} />  {/* 種別 */}
           <col style={{ width: '64px' }} />  {/* デバフ軽減不可 */}
@@ -477,10 +492,12 @@ export function TemplateEditor({
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_ja')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_en')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_zh')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_zh_hant')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_name_ko')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_ja')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_en')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_zh')}</th>
+            <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_zh_hant')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_altname_ko')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_damage_type')}</th>
             <th className="pb-2 pr-2 font-normal">{t('admin.tpl_editor_debuff_immune')}</th>
@@ -503,10 +520,12 @@ export function TemplateEditor({
             const nameJaHighlight = getCellHighlight(evId, 'name.ja', editState);
             const nameEnHighlight = getCellHighlight(evId, 'name.en', editState);
             const nameZhHighlight = getCellHighlight(evId, 'name.zh', editState);
+            const nameZhHantHighlight = getCellHighlight(evId, 'name.zh-Hant', editState);
             const nameKoHighlight = getCellHighlight(evId, 'name.ko', editState);
             const altNameJaHighlight = getCellHighlight(evId, 'altName.ja', editState);
             const altNameEnHighlight = getCellHighlight(evId, 'altName.en', editState);
             const altNameZhHighlight = getCellHighlight(evId, 'altName.zh', editState);
+            const altNameZhHantHighlight = getCellHighlight(evId, 'altName.zh-Hant', editState);
             const altNameKoHighlight = getCellHighlight(evId, 'altName.ko', editState);
             const damageHighlight = getCellHighlight(evId, 'damageAmount', editState);
             const damageTypeHighlight = getCellHighlight(evId, 'damageType', editState);
@@ -516,6 +535,8 @@ export function TemplateEditor({
             const isEnAutoFilled = editState.autoFilled.has(`${evId}:name.en`);
             const isZhUntranslated = !(event.name.zh ?? '').trim();
             const isZhAutoFilled = editState.autoFilled.has(`${evId}:name.zh`);
+            const isZhHantUntranslated = !(event.name['zh-Hant'] ?? '').trim();
+            const isZhHantAutoFilled = editState.autoFilled.has(`${evId}:name.zh-Hant`);
             const isKoUntranslated = !(event.name.ko ?? '').trim();
             const isKoAutoFilled = editState.autoFilled.has(`${evId}:name.ko`);
 
@@ -618,6 +639,17 @@ export function TemplateEditor({
                   />
                 </td>
 
+                {/* 技名(ZH-Hant) */}
+                <td className={`py-1 pr-2 ${highlightClass(nameZhHantHighlight)}`}>
+                  <EditableCell
+                    value={event.name['zh-Hant'] ?? ''}
+                    highlight={nameZhHantHighlight}
+                    showAutoLabel={isZhHantAutoFilled && !isZhHantUntranslated}
+                    isUntranslatedPlaceholder={isZhHantUntranslated && !isZhHantAutoFilled}
+                    onCommit={(val) => onUpdateCell(evId, 'name.zh-Hant', val)}
+                  />
+                </td>
+
                 {/* 技名(KO) */}
                 <td className={`py-1 pr-2 ${highlightClass(nameKoHighlight)}`}>
                   <EditableCell
@@ -653,6 +685,15 @@ export function TemplateEditor({
                     value={event.altName?.zh ?? ''}
                     highlight={altNameZhHighlight}
                     onCommit={(val) => onUpdateCell(evId, 'altName.zh', val)}
+                  />
+                </td>
+
+                {/* or技名(ZH-Hant) */}
+                <td className={`py-1 pr-2 ${highlightClass(altNameZhHantHighlight)}`}>
+                  <EditableCell
+                    value={event.altName?.['zh-Hant'] ?? ''}
+                    highlight={altNameZhHantHighlight}
+                    onCommit={(val) => onUpdateCell(evId, 'altName.zh-Hant', val)}
                   />
                 </td>
 
@@ -746,10 +787,11 @@ export function TemplateEditor({
           ja: t('admin.tpl_label_name_ja'),
           en: t('admin.tpl_label_name_en'),
           zh: t('admin.tpl_label_name_zh'),
+          'zh-Hant': t('admin.tpl_label_name_zh_hant'),
           ko: t('admin.tpl_label_name_ko'),
         }}
         onApply={(value) => {
-          const isEmpty = !value.ja && !value.en && !value.zh && !value.ko;
+          const isEmpty = !value.ja && !value.en && !value.zh && !value['zh-Hant'] && !value.ko;
           if (isEmpty) {
             // 削除: 囲んでいるラベルの境界を削除
             onSetLabelAtTime(editingLabel.labelStartTimeSec, null);
