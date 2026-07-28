@@ -284,7 +284,7 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
               className={inputClass}
               value={form.nameZh}
               onChange={(e) => set('nameZh', e.target.value)}
-              placeholder="例: 阿卡狄亚零式登天斗技场 重量级1"
+              placeholder="例: 阿卡狄亚���式登天斗技场 重量级1"
             />
           </div>
           <div>
