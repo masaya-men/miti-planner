@@ -2374,7 +2374,7 @@
         "login_prompt": {
             "register": {
                 "title": "매물 등록에는 로그인이 필요합니다",
-                "lead": ""
+                "lead": "Discord 로그인으로 매물을 등록할 수 있습니다. Discord ID는 복원할 수 없는 형태(해시값)로 저장됩니다."
             },
             "tour": {
                 "title": "투어 작성에는 로그인이 필요합니다",
@@ -2568,31 +2568,31 @@
             }
         },
         "login": {
-            "title": "",
+            "title": "LoPo에 로그인",
             "notice": {
-                "intro": "",
-                "item1": "",
-                "item2": "",
-                "item3": ""
+                "intro": "모두가 LoPo를 기분 좋게 이용할 수 있도록 부탁드립니다.",
+                "item1": "허위 정보나 괴롭힘 목적의 등록으로 집 찾기가 엉망이 되지 않도록, 등록 시 Discord 로그인을 부탁드리고 있습니다.",
+                "item2": "LoPo가 저장하는 것은 Discord ID의 해시값뿐입니다. 해시값은 원래 ID로 되돌릴 수 없는 형태이므로, 운영자를 포함한 그 누구도 Discord ID를 복원할 수 없습니다.",
+                "item3": "\"아니었어요\" 버튼을 부담 없이 누를 수 있도록, 반대로 이 기능을 악용해 괴롭힘성 신고를 반복하는 계정은 내부적으로 기록하고 있습니다. 도가 지나친 행위가 확인될 경우 해당 계정의 이용을 제한할 수 있습니다."
             },
-            "discordButton": "",
-            "closeLabel": ""
+            "discordButton": "Discord로 로그인",
+            "closeLabel": "로그인 화면 닫기"
         },
         "account": {
-            "title": "",
-            "avatarChange": "",
-            "avatarDelete": "",
-            "displayNameLabel": "",
-            "displayNameEdit": "",
+            "title": "계정",
+            "avatarChange": "아바타 변경",
+            "avatarDelete": "삭제",
+            "displayNameLabel": "표시 이름",
+            "displayNameEdit": "표시 이름 수정",
             "displayNameNote": "이 이름이 하우징어 태그로 사용됩니다",
-            "adminLink": "",
-            "signOut": "",
-            "deleteAccount": "",
-            "deleteConfirmTitle": "",
-            "deleteConfirmBody": "",
-            "deleteConfirmYes": "",
-            "deleteConfirmNo": "",
-            "closeLabel": ""
+            "adminLink": "관리 화면으로",
+            "signOut": "로그아웃",
+            "deleteAccount": "계정 삭제",
+            "deleteConfirmTitle": "정말 계정을 삭제하시겠습니까?",
+            "deleteConfirmBody": "계정을 삭제하면 등록한 매물, 즐겨찾기, 아바타 이미지 등 모든 데이터가 완전히 삭제됩니다. 이 작업은 되돌릴 수 없습니다.",
+            "deleteConfirmYes": "계정 삭제",
+            "deleteConfirmNo": "취소",
+            "closeLabel": "계정 화면 닫기"
         },
         "housinger": {
             "account": {
@@ -2656,8 +2656,8 @@
             "search_view_homes": "{{name}} 님의 집 보기"
         },
         "topbar": {
-            "login": "",
-            "account": ""
+            "login": "로그인",
+            "account": "계정"
         },
         "mobile": {
             "nav_home": "홈",

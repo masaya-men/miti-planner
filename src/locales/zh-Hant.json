@@ -2374,7 +2374,7 @@
         "login_prompt": {
             "register": {
                 "title": "登記房屋需要登入",
-                "lead": ""
+                "lead": "透過 Discord 登入即可註冊房屋。Discord ID 將以無法還原的形式（雜湊值）保存。"
             },
             "tour": {
                 "title": "建立導覽需要登入",
@@ -2568,31 +2568,31 @@
             }
         },
         "login": {
-            "title": "",
+            "title": "登入 LoPo",
             "notice": {
-                "intro": "",
-                "item1": "",
-                "item2": "",
-                "item3": ""
+                "intro": "為了讓大家都能愉快地使用 LoPo，有一件事想請您配合。",
+                "item1": "為了避免虛假資訊或惡意騷擾性質的登記毀掉大家找房的體驗，註冊時需要透過 Discord 登入。",
+                "item2": "LoPo 保存的僅是 Discord ID 的雜湊值。雜湊值無法還原為原始 ID，因此包括運營者在內的任何人都無法復原 Discord ID。",
+                "item3": "為了讓大家可以放心地按下「不是這個」按鈕，我們也會在後台記錄反覆利用此功能進行騷擾性檢舉的帳號。若確認有過度行為，可能會限制該帳號的使用。"
             },
-            "discordButton": "",
-            "closeLabel": ""
+            "discordButton": "使用 Discord 登入",
+            "closeLabel": "關閉登入介面"
         },
         "account": {
-            "title": "",
-            "avatarChange": "",
-            "avatarDelete": "",
-            "displayNameLabel": "",
-            "displayNameEdit": "",
+            "title": "賬戶",
+            "avatarChange": "更改頭像",
+            "avatarDelete": "刪除",
+            "displayNameLabel": "顯示名稱",
+            "displayNameEdit": "編輯顯示名稱",
             "displayNameNote": "此名稱將作為您的房主玩家標籤",
-            "adminLink": "",
-            "signOut": "",
-            "deleteAccount": "",
-            "deleteConfirmTitle": "",
-            "deleteConfirmBody": "",
-            "deleteConfirmYes": "",
-            "deleteConfirmNo": "",
-            "closeLabel": ""
+            "adminLink": "前往管理頁面",
+            "signOut": "退出登入",
+            "deleteAccount": "刪除賬戶",
+            "deleteConfirmTitle": "確定要刪除賬戶嗎？",
+            "deleteConfirmBody": "刪除賬戶後，您註冊的房屋、收藏、頭像圖片等所有資料都將被徹底刪除。此操作無法復原。",
+            "deleteConfirmYes": "刪除賬戶",
+            "deleteConfirmNo": "取消",
+            "closeLabel": "關閉賬戶介面"
         },
         "housinger": {
             "account": {
@@ -2656,8 +2656,8 @@
             "search_view_homes": "檢視 {{name}} 的房屋"
         },
         "topbar": {
-            "login": "",
-            "account": ""
+            "login": "登入",
+            "account": "賬戶"
         },
         "mobile": {
             "nav_home": "首頁",

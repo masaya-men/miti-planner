@@ -2,33 +2,8 @@ import { describe, it, expect } from 'vitest';
 import zh from '../zh.json';
 import zhHant from '../zh-Hant.json';
 
-// zh.json自体に元々あった未翻訳マーカー(空文字列)
-// フェーズ③(繁体字翻訳・ゲーム用語対応)で埋める想定
-// これら既知パスのみ非空チェックをスキップする
-const KNOWN_EMPTY_PATHS = [
-    'housing.login_prompt.register.lead',
-    'housing.login.title',
-    'housing.login.notice.intro',
-    'housing.login.notice.item1',
-    'housing.login.notice.item2',
-    'housing.login.notice.item3',
-    'housing.login.discordButton',
-    'housing.login.closeLabel',
-    'housing.account.title',
-    'housing.account.avatarChange',
-    'housing.account.avatarDelete',
-    'housing.account.displayNameLabel',
-    'housing.account.displayNameEdit',
-    'housing.account.adminLink',
-    'housing.account.signOut',
-    'housing.account.deleteAccount',
-    'housing.account.deleteConfirmTitle',
-    'housing.account.deleteConfirmBody',
-    'housing.account.deleteConfirmYes',
-    'housing.account.deleteConfirmNo',
-    'housing.account.closeLabel',
-    'housing.topbar.login',
-    'housing.topbar.account',
+// 2026-07-28 フェーズ③で housing.login/account 系23件を含め全て翻訳済みになったため空配列
+const KNOWN_EMPTY_PATHS: readonly string[] = [
 ] as const;
 
 function collectLeafPaths(obj: Record<string, unknown>, prefix = ''): string[] {
