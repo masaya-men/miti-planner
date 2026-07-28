@@ -8,6 +8,7 @@ import jaTranslations from '../../locales/ja.json';
 import enTranslations from '../../locales/en.json';
 import koTranslations from '../../locales/ko.json';
 import zhTranslations from '../../locales/zh.json';
+import zhHantTranslations from '../../locales/zh-Hant.json';
 import { MemoryRouter } from 'react-router-dom';
 import { StatusBar } from '../../components/housing/workspace/StatusBar';
 import { useThemeStore } from '../../store/useThemeStore';
@@ -21,6 +22,7 @@ beforeAll(() => {
       en: { translation: enTranslations },
       ko: { translation: koTranslations },
       zh: { translation: zhTranslations },
+      'zh-Hant': { translation: zhHantTranslations },
     },
     interpolation: { escapeValue: false },
   });
@@ -75,16 +77,18 @@ describe('StatusBar', () => {
     expect(screen.getAllByText(/Dark/).length).toBeGreaterThan(0);
   });
 
-  it('renders language switcher with ja/en/ko/zh and marks active', () => {
+  it('renders language switcher with ja/en/ko/zh/zh-Hant and marks active', () => {
     renderStatusBar();
     const ja = screen.getByRole('button', { name: 'ja' });
     const en = screen.getByRole('button', { name: 'en' });
     const ko = screen.getByRole('button', { name: 'ko' });
     const zh = screen.getByRole('button', { name: 'zh' });
+    const zhHant = screen.getByRole('button', { name: 'zh-Hant' });
     expect(ja).toBeInTheDocument();
     expect(en).toBeInTheDocument();
     expect(ko).toBeInTheDocument();
     expect(zh).toBeInTheDocument();
+    expect(zhHant).toBeInTheDocument();
     expect(ja.className).toContain('is-on');
   });
 
@@ -92,6 +96,15 @@ describe('StatusBar', () => {
     renderStatusBar();
     fireEvent.click(screen.getByRole('button', { name: 'en' }));
     expect(i18n.language).toBe('en');
+  });
+
+  it('marks only zh-Hant active (not zh) when language is zh-Hant (2026-07-28 誤判定バグの回帰テスト)', () => {
+    renderStatusBar();
+    fireEvent.click(screen.getByRole('button', { name: 'zh-Hant' }));
+    const zh = screen.getByRole('button', { name: 'zh' });
+    const zhHant = screen.getByRole('button', { name: 'zh-Hant' });
+    expect(zhHant.className).toContain('is-on');
+    expect(zh.className).not.toContain('is-on');
   });
 
   it('mount 時に build 版数を console.info へ 1 回出す (BUILD UI 撤去後も診断価値を残す)', () => {
