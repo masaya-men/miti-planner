@@ -92,7 +92,7 @@ export function AdminTranslations() {
   }, [category]);
 
   // Cell change handler
-  const handleCellChange = useCallback((rowIndex: number, field: 'ja' | 'en' | 'zh' | 'ko', value: string) => {
+  const handleCellChange = useCallback((rowIndex: number, field: 'ja' | 'en' | 'zh' | 'zhHant' | 'ko', value: string) => {
     setRows(prev => {
       const next = [...prev];
       next[rowIndex] = { ...next[rowIndex], [field]: value };
@@ -101,7 +101,7 @@ export function AdminTranslations() {
   }, []);
 
   // CSV import handler
-  const handleImport = useCallback((updates: Map<string, { ja?: string; en?: string; zh?: string; ko?: string }>) => {
+  const handleImport = useCallback((updates: Map<string, { ja?: string; en?: string; zh?: string; zhHant?: string; ko?: string }>) => {
     setRows(prev => prev.map(r => {
       const update = updates.get(r.id);
       if (!update) return r;
@@ -144,13 +144,13 @@ export function AdminTranslations() {
   // Has changes
   const hasChanges = rows.some((r, i) => {
     const o = originalRows[i];
-    return o && (r.ja !== o.ja || r.en !== o.en || r.zh !== o.zh || r.ko !== o.ko);
+    return o && (r.ja !== o.ja || r.en !== o.en || r.zh !== o.zh || r.zhHant !== o.zhHant || r.ko !== o.ko);
   });
 
   // Filtered rows
   const filteredIndices = rows.reduce<number[]>((acc, r, i) => {
     if (selectedGroup && r.group !== selectedGroup) return acc;
-    if (untranslatedOnly && r.zh && r.ko) return acc;
+    if (untranslatedOnly && r.zh && r.zhHant && r.ko) return acc;
     acc.push(i);
     return acc;
   }, []);
@@ -158,9 +158,11 @@ export function AdminTranslations() {
 
   // Progress
   const zhDone = rows.filter(r => r.zh.trim()).length;
+  const zhHantDone = rows.filter(r => r.zhHant.trim()).length;
   const koDone = rows.filter(r => r.ko.trim()).length;
   const total = rows.length;
   const zhPercent = total ? Math.round((zhDone / total) * 100) : 0;
+  const zhHantPercent = total ? Math.round((zhHantDone / total) * 100) : 0;
   const koPercent = total ? Math.round((koDone / total) * 100) : 0;
 
   return (
@@ -171,7 +173,7 @@ export function AdminTranslations() {
           {/* Progress display */}
           {total > 0 && (
             <span className="text-app-sm text-app-text-muted shrink-0">
-              zh: {zhDone}/{total} ({zhPercent}%) / ko: {koDone}/{total} ({koPercent}%)
+              zh: {zhDone}/{total} ({zhPercent}%) / zh-Hant: {zhHantDone}/{total} ({zhHantPercent}%) / ko: {koDone}/{total} ({koPercent}%)
             </span>
           )}
           {/* Untranslated-only filter */}

@@ -28,6 +28,7 @@ export interface TranslationRow {
   ja: string;
   en: string;
   zh: string;
+  zhHant: string;
   ko: string;
   group?: string;       // フィルタ用 (ジョブID、コンテンツID など)
   groupLabel?: string;  // フィルタ表示ラベル
@@ -45,11 +46,12 @@ export interface TranslationDataSet {
 // ─────────────────────────────────────────────
 
 /** LocalizedString を TranslationRow のフィールドに変換 */
-function localizedToFields(name: LocalizedString): { ja: string; en: string; zh: string; ko: string } {
+function localizedToFields(name: LocalizedString): { ja: string; en: string; zh: string; zhHant: string; ko: string } {
   return {
     ja: name.ja ?? '',
     en: name.en ?? '',
     zh: name.zh ?? '',
+    zhHant: name['zh-Hant'] ?? '',
     ko: name.ko ?? '',
   };
 }
@@ -69,6 +71,7 @@ function getChangedRows(rows: TranslationRow[], originalRows: TranslationRow[]):
       row.ja !== orig.ja ||
       row.en !== orig.en ||
       row.zh !== orig.zh ||
+      row.zhHant !== orig.zhHant ||
       row.ko !== orig.ko
     );
   });
@@ -310,6 +313,7 @@ export async function saveSkillTranslations(
         ja: changedRow.ja || j.name.ja,
         en: emptyToUndefined(changedRow.en) ?? j.name.en,
         zh: emptyToUndefined(changedRow.zh),
+        'zh-Hant': emptyToUndefined(changedRow.zhHant),
         ko: emptyToUndefined(changedRow.ko),
       } as LocalizedString,
     };
@@ -325,6 +329,7 @@ export async function saveSkillTranslations(
         ja: changedRow.ja || m.name.ja,
         en: emptyToUndefined(changedRow.en) ?? m.name.en,
         zh: emptyToUndefined(changedRow.zh),
+        'zh-Hant': emptyToUndefined(changedRow.zhHant),
         ko: emptyToUndefined(changedRow.ko),
       } as LocalizedString,
     };
@@ -369,6 +374,7 @@ export async function saveContentTranslations(
             ja: row.ja,
             en: emptyToUndefined(row.en),
             zh: emptyToUndefined(row.zh),
+            'zh-Hant': emptyToUndefined(row.zhHant),
             ko: emptyToUndefined(row.ko),
           } as LocalizedString,
         },
@@ -412,6 +418,7 @@ export async function saveAttackTranslations(
         ja: changedRow.ja || event.name.ja,
         en: emptyToUndefined(changedRow.en) ?? event.name.en,
         zh: emptyToUndefined(changedRow.zh),
+        'zh-Hant': emptyToUndefined(changedRow.zhHant),
         ko: emptyToUndefined(changedRow.ko),
       } as LocalizedString,
     };
@@ -467,6 +474,7 @@ export async function savePhaseTranslations(
       ja: changedRow.ja,
       en: emptyToUndefined(changedRow.en) ?? '',
       zh: emptyToUndefined(changedRow.zh),
+      'zh-Hant': emptyToUndefined(changedRow.zhHant),
       ko: emptyToUndefined(changedRow.ko),
     };
 
@@ -529,6 +537,7 @@ export async function saveOtherTranslations(
         ja: row.ja,
         en: emptyToUndefined(row.en) ?? updatedCategoryLabels[key]?.en ?? '',
         zh: emptyToUndefined(row.zh),
+        'zh-Hant': emptyToUndefined(row.zhHant),
         ko: emptyToUndefined(row.ko),
       } as LocalizedString;
     }
@@ -540,6 +549,7 @@ export async function saveOtherTranslations(
         ja: row.ja,
         en: emptyToUndefined(row.en) ?? updatedLevelLabels[key]?.en ?? '',
         zh: emptyToUndefined(row.zh),
+        'zh-Hant': emptyToUndefined(row.zhHant),
         ko: emptyToUndefined(row.ko),
       } as LocalizedString;
     }
@@ -568,6 +578,7 @@ export async function saveOtherTranslations(
         ja: row.ja,
         en: emptyToUndefined(row.en) ?? '',
         zh: emptyToUndefined(row.zh),
+        'zh-Hant': emptyToUndefined(row.zhHant),
         ko: emptyToUndefined(row.ko),
       } as LocalizedString,
     }));
