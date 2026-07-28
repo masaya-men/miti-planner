@@ -11,6 +11,7 @@ const LANGUAGES: { code: ContentLanguage; label: string }[] = [
     { code: 'ja', label: '日本語' },
     { code: 'en', label: 'English' },
     { code: 'zh', label: '中文' },
+    { code: 'zh-Hant', label: '繁體中文' },
     { code: 'ko', label: '한국어' },
 ];
 

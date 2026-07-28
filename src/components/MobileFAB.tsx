@@ -28,6 +28,7 @@ const LANG_LABELS: Record<ContentLanguage, string> = {
     ja: '日',
     en: 'EN',
     zh: '中',
+    'zh-Hant': '繁',
     ko: '한',
 };
 
