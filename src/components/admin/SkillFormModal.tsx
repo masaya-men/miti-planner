@@ -74,7 +74,7 @@ export function SkillFormModal({ isOpen, onClose, onSave, skill, jobId, jobs, al
         setForm(prev => ({ ...prev, [key]: value }));
     };
 
-    const updateName = (lang: 'ja' | 'en' | 'zh' | 'ko', value: string) => {
+    const updateName = (lang: 'ja' | 'en' | 'zh' | 'zh-Hant' | 'ko', value: string) => {
         setForm(prev => ({ ...prev, name: { ...prev.name, [lang]: value } }));
     };
 
@@ -195,6 +195,11 @@ export function SkillFormModal({ isOpen, onClose, onSave, skill, jobId, jobs, al
                                 <label className={labelClass}>中文</label>
                                 <input className={inputClass} value={form.name.zh ?? ''} placeholder="中国語名（任意）"
                                     onChange={e => updateName('zh', e.target.value)} />
+                            </div>
+                            <div>
+                                <label className={labelClass}>繁體中文</label>
+                                <input className={inputClass} value={form.name['zh-Hant'] ?? ''} placeholder="繁体字名（任意）"
+                                    onChange={e => updateName('zh-Hant', e.target.value)} />
                             </div>
                             <div>
                                 <label className={labelClass}>한국어</label>
