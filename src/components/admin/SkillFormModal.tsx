@@ -177,7 +177,7 @@ export function SkillFormModal({ isOpen, onClose, onSave, skill, jobId, jobs, al
                         {form.icon && <span className="text-app-base text-app-text-muted font-mono truncate">{form.icon}</span>}
                     </div>
 
-                    {/* 名前（4言語） */}
+                    {/* 名前（5言語） */}
                     <div>
                         <p className="text-app-lg font-bold mb-2">スキル名</p>
                         <div className="grid grid-cols-2 gap-3">

@@ -243,7 +243,7 @@ function DropdownCell({ value, options, highlight, onCommit }: DropdownCellProps
 }
 
 // ─────────────────────────────────────────────
-// LocalizedEditPopover — 4言語編集ポップオーバー
+// LocalizedEditPopover — 5言語編集ポップオーバー
 // ─────────────────────────────────────────────
 
 interface LocalizedEditPopoverProps {
