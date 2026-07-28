@@ -13,12 +13,12 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-1. **🔴 ハウジング次の着手順(2026-07-24決定・27日タグAND検索完了)**: ①コスト面=✅完了 ②マイページ作成=✅完了(2026-07-24) ③タグAND検索=✅実装完了(2026-07-27)。**次: ④繁体字対応(LoPo全体、5フェーズ中①②③完了・詳細は下記「現在の状態」) → ⑤⑥⑦は「その他細かいブラッシュアップ」**。⑤⑥⑦詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
+1. **🔴 ハウジング次の着手順(2026-07-24決定・27日タグAND検索完了)**: ①コスト面=✅完了 ②マイページ作成=✅完了(2026-07-24) ③タグAND検索=✅実装完了(2026-07-27)。**次: ④繁体字対応(LoPo全体、5フェーズ中①②③④完了・詳細は下記「現在の状態」) → ⑤⑥⑦は「その他細かいブラッシュアップ」**。⑤⑥⑦詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 2026-07-28: ③ハウジングUI文言 繁体字対応も実装完了(①②③とも未push)
-繁体字対応は5フェーズ(①台湾リージョン統合→②軽減表UI文言→③ハウジングUI文言→④管理画面ゲームデータ翻訳対応→⑤ゲームデータ翻訳流し込み)。**①(2026-07-27)・②(2026-07-28)・③(2026-07-28)とも実装・レビュー完了**、worktree `.claude/worktrees/housing-taiwan-region-support`(ブランチ`worktree-housing-taiwan-region-support`、作業ツリークリーン)。③の成果: StatusBar/HousingSettingsSheetのzh-Hant誤判定バグ修正(ボタン自体が存在しない不具合も含む)・housing.*文言764件の繁体字を全件レビューし220件修正(うち101件は機械変換前の未翻訳日本語の取りこぼしと判明・翻訳して解消)・ログイン/アカウントモーダル23件をen/ko/zh/zh-Hant全言語で新規翻訳。**新規発見(公開前に対応要否を判断)**: housing.*名前空間で同種の「未翻訳日本語取りこぼし」がen/ko/zhにも各約100件ずつ残存(zh-Hantのみ本フェーズで解消済み)。詳細=worktree内`.superpowers/sdd/2026-07-28-housing-ui-zh-hant-translation/task-4-report.md`。**ユーザー方針: ④⑤まで全部終わらせてから公開**(部分公開は望まない)。次回セッション最初にやること: ④(管理画面ゲームデータ翻訳対応)のスコープ確認からbrainstorming再開。詳細=設計書`docs/superpowers/specs/2026-07-28-housing-ui-zh-hant-translation-design.md`+実装プラン`docs/superpowers/plans/2026-07-28-housing-ui-zh-hant-translation.md`+worktree内SDDレジャー`.superpowers/sdd/*/progress.md`。設計議論=`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`。
+### 2026-07-28: ④管理画面ゲームデータ翻訳 繁体字対応も実装完了(①②③④とも未push)
+繁体字対応は5フェーズ(①台湾リージョン統合→②軽減表UI文言→③ハウジングUI文言→④管理画面ゲームデータ翻訳対応→⑤ゲームデータ翻訳流し込み)。**①〜④全て実装・レビュー完了**、worktree `.claude/worktrees/housing-taiwan-region-support`(ブランチ`worktree-housing-taiwan-region-support`、作業ツリークリーン)。④の成果: 一括翻訳編集・個別編集モーダル・TemplateEditorにzh-Hant列/入力欄を追加、名前オブジェクトを言語ごとに再構築する約11ファイルの欠落修正。実装中に2件の重大な連鎖バグを発見・その場で計画修正して対応: (a) TemplateEditor.tsxだけ直すと保存先のuseTemplateEditor.tsフックが繁体字を認識せず入力が消える、(b) contentRegistry.ts修正が無条件書き込みだったため将来Firestore再シード時に管理画面入力済みの繁体字コンテンツ名が消える。**新規発見(公開前に対応要否を判断)**: (1) housing.*名前空間で「未翻訳日本語取りこぼし」がen/ko/zhにも各約100件ずつ残存(③参照) (2) contentRegistry.tsのshortName/シリーズ名はコード内ハードコード文字列のためzh-Hant訳文が無い(要ラベル追加、翻訳作業) (3) スプシ取込のプレビュー表示言語がzh-Hant未対応(取込マッチング自体は対応済み)。詳細=worktree内`.superpowers/sdd/2026-07-28-admin-gamedata-zh-hant-support/progress.md`。**ユーザー方針: ⑤まで全部終わらせてから公開**(部分公開は望まない)。次回セッション最初にやること: ⑤(ゲームデータ翻訳流し込み)のスコープ確認からbrainstorming再開。詳細=設計書`docs/superpowers/specs/2026-07-28-admin-gamedata-zh-hant-support-design.md`+実装プラン`docs/superpowers/plans/2026-07-28-admin-gamedata-zh-hant-support.md`+worktree内SDDレジャー`.superpowers/sdd/*/progress.md`。設計議論=`docs/.private/2026-07-24-tag-and-search-and-traditional-chinese-scoping.md`。
 ### ✅ 直近の本番反映(詳細は全てTODO_COMPLETED.md)
 マイページ作成(2026-07-24)/複数投稿URL登録Batch2(2026-07-22)/編集ページ画像管理Plan A+B(2026-07-21)/探すページ表示順ランダム化+スクロール復元・初心者タグ(2026-07-21〜23)/コスト・ハードニング+実機FB9件(2026-07-20)。
 ### ✅ ハウジング全タスク棚卸し完了(2026-07-23)
