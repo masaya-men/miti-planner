@@ -1965,6 +1965,7 @@
             "view_aria": "顯示切換",
             "view_list": "列表",
             "view_map": "地圖",
+            "view_tags": "標籤",
             "clear_filter": "清除篩選",
             "view_route": "路線",
             "listings_label": "房屋一覽",
@@ -2438,6 +2439,16 @@
             "theme_ruins": "廢墟",
             "theme_botanical": "植物風",
             "beginner_sprout": "房屋新人"
+        },
+        "tagpicker": {
+            "housinger_section_title": "房主",
+            "all_tags_section_title": "全部標籤",
+            "housinger_loading": "載入中…",
+            "housinger_empty": "暫無已登記的房主",
+            "housinger_error": "載入失敗",
+            "preview_count": "此條件下 {{count}}件",
+            "apply_button": "套用篩選",
+            "clear_button": "清空選擇"
         },
         "workspace": {
             "topbar": {
