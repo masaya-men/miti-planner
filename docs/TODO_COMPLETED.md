@@ -2,6 +2,26 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了(未push)
+
+5フェーズ(①台湾リージョン統合→②軽減表UI文言→③ハウジングUI文言→④管理画面ゲームデータ翻訳対応→⑤ゲームデータ翻訳流し込み)すべて実装・レビュー完了。worktree `.claude/worktrees/housing-taiwan-region-support`(ブランチ`worktree-housing-taiwan-region-support`)。
+
+**④の成果**: 一括翻訳編集・個別編集モーダル・TemplateEditorにzh-Hant列/入力欄を追加、名前オブジェクトを言語ごとに再構築する約11ファイルの欠落修正。実装中に2件の重大な連鎖バグを発見・その場で対応: (a) TemplateEditor.tsxだけ直すと保存先のuseTemplateEditor.tsフックが繁体字を認識せず入力が消える (b) contentRegistry.ts修正が無条件書き込みだったため将来Firestore再シード時に管理画面入力済みの繁体字コンテンツ名が消える。
+
+**⑤の成果(2026-07-29)**: 当初「ゲームデータ翻訳は数千件規模」という粗い見積もりだったが、Firestore実データを調査した結果、対象は合計約10,800件(ジョブ名21+軽減スキル名169+コンテンツ名64+攻撃名約10,449+フェーズ名75)と判明。ユーザー確認の結果、**攻撃名・フェーズ名は戦闘ログ由来で都度個別翻訳する既存運用の対象であり対象外**と確定(既存の簡体字・韓国語もこの2カテゴリだけ約20%/0%止まりなのは意図した状態)。実際に翻訳したのは以下の254件+コード内十数件:
+- ジョブ名21件・軽減スキル名169件(タンク/ヒーラー/DPSの3グループに分けて調査)・コンテンツ名64件を、台湾版公式サイト(`ffxiv.com.tw`)・公式パッチノート・巴哈姆特(Bahamut)フォーラム等を一次ソースに個別調査
+- 調査中に「簡体字→繁体字の機械変換では正しい訳にならない」実例を多数発見(例: 战栗→戰慄が正しく戰栗は誤り、钐鐮客→奪魂者、蝰蛇剣士→毒蛇劍士、パンデモニウムの「零式」語順が簡体字と繁体字で逆転 等)
+- 6件(m9s-m12s_p2アルカディア重量級、dmu絕妖星乱舞)は台湾版がまだそのパッチに未到達のため公式ソースが存在せず、パターン推定の暫定値(台湾版が到達次第、要再確認)
+- 専用スクリプト`scripts/apply-zh-hant-translations.ts`(サービスアカウント経由・dry-run対応・zh-Hantフィールドのみ書き込み)を新規作成しFirestore(`master/skills`・`master/contents`)へ適用済み。実装中にWindows特有のCLIエントリポイント判定バグ(`import.meta.url`と`process.argv[1]`のパス形式不一致)を発見・修正
+- `contentRegistry.ts`のカテゴリ/レベル/プロジェクトラベル(13件)・シリーズ名/略称生成ロジックにもzh-Hantを追加。実装中に`contents.json`(静的フォールバックデータ)にzh-Hantが無い設計漏れを発見し、調査済みデータを反映して解消
+- フルゲート(build+vitest)通過済み(worktree: 3730 passed、7件は既存の無関係な既知失敗=EphemeralAddPanel.test.tsx)。Firestore側も254件全てzh-Hant確認済み
+
+設計書=`docs/superpowers/specs/2026-07-29-gamedata-zh-hant-translation-fill-design.md`+実装プラン=`docs/superpowers/plans/2026-07-29-gamedata-zh-hant-translation-fill.md`+SDDレジャー=`.superpowers/sdd/2026-07-29-gamedata-zh-hant-translation-fill/progress.md`(main側)+`.claude/worktrees/housing-taiwan-region-support/.superpowers/sdd/2026-07-29-gamedata-zh-hant-translation-fill/`(worktree側、Task 8のレビューパッケージ)。
+
+**未対応のまま残る既知の別件(zh-Hant固有ではない・今回のスコープ外)**: (1) `housing.*`名前空間で「未翻訳の日本語取りこぼし」がen/ko/zhに各約100件ずつ残存(zh-Hantのみ③④で解消済み) (2) スプシ取込のプレビュー表示言語がzh-Hant未対応(取込マッチング自体は対応済み) (3) コンテンツ`dmu`のko(韓国語)訳が元々欠落(今回とは無関係の既存ギャップ)。
+
+**次のアクション**: 5フェーズ全部完了。ユーザー方針どおり、まとめて本番反映(push・デプロイ)するかの判断待ち。
+
 ### ✅ 2026-07-27 ハウジング タグAND検索 = 実装完了・mainへローカルマージ済み(未push)
 設計書=`docs/superpowers/specs/2026-07-27-housing-tag-and-search-design.md`、実装プラン=`docs/superpowers/plans/2026-07-27-housing-tag-and-search-plan.md`(14タスク、subagent-driven-developmentで実装・タスクごとレビュー・最終レビューで2件Important修正済み)。要点: 左パネル「テーマ」ドロップダウン廃止→一覧|マップと並ぶ「タグ」ビューに全種別(公式/季節/テーマ/初心者/ハウジンガー)を一本化。ハウジンガー複数選択可・選択時のみAND、他はOR。スマホは`HousingFilterSheet`内インライン展開。ハウジンガーチップに頭文字アバター追加済み(実画像は都度Firestore読み込みが要るため見送り・イニシャルのみ)。ローカル実機確認OK・ユーザー承認済み。次の実務push時に他の未pushフェーズとまとめてpush予定。
 
