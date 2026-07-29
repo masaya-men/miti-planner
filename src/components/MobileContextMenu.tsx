@@ -21,6 +21,7 @@ function getEventName(event: TimelineEvent, lang: string): string {
     const loc = name as LocalizedString;
     if (lang === 'ja' && loc.ja) return loc.ja;
     if (lang === 'en' && loc.en) return loc.en;
+    if (lang === 'zh-Hant' && loc['zh-Hant']) return loc['zh-Hant'] ?? loc.en ?? loc.ja ?? '';
     if (lang === 'zh' && loc.zh) return loc.zh ?? loc.en ?? loc.ja ?? '';
     if (lang === 'ko' && loc.ko) return loc.ko ?? loc.en ?? loc.ja ?? '';
     return loc.en || loc.ja || '';

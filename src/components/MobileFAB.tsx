@@ -28,14 +28,15 @@ const LANG_LABELS: Record<ContentLanguage, string> = {
     ja: '日',
     en: 'EN',
     zh: '中',
+    'zh-Hant': '繁',
     ko: '한',
 };
 
 // 言語チップレイアウト定数 — 「言語」ラベルの左に一直線
-const LANG_CHIP_SIZE = 42;
-const LANG_CHIP_GAP = 8;
-// 表示順序（左から: 日 EN 中 한→ 右端が現在地に近い）
-const LANG_DISPLAY_ORDER: ContentLanguage[] = ['ja', 'en', 'zh', 'ko'];
+const LANG_CHIP_SIZE = 36;
+const LANG_CHIP_GAP = 6;
+// 表示順序（左から: 日 EN 中 繁 한→ 右端が現在地に近い）
+const LANG_DISPLAY_ORDER: ContentLanguage[] = ['ja', 'en', 'zh', 'zh-Hant', 'ko'];
 
 // i番目のチップのx位置（Globeボタン中心基準、左方向=負）
 // Globeボタン(44px) + gap(10px) + ラベル幅(≈50px) + gap(12px) + チップ列

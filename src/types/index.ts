@@ -3,6 +3,7 @@ export type LocalizedString = {
     en: string;
     zh?: string;
     ko?: string;
+    'zh-Hant'?: string;
 };
 
 /** Phase.nameの表示用文字列を取得（string | LocalizedString対応） */
@@ -11,6 +12,7 @@ export function getPhaseName(name: string | LocalizedString, lang?: string): str
     if (lang === 'ja' && name.ja) return name.ja;
     if (lang === 'en' && name.en) return name.en;
     if (lang === 'zh' && name.zh) return name.zh;
+    if (lang === 'zh-Hant' && name['zh-Hant']) return name['zh-Hant'];
     if (lang === 'ko' && name.ko) return name.ko;
     return name.en || name.ja || '';
 }

@@ -265,7 +265,7 @@ export function convertPlanToTemplate(
 ): Omit<TemplateData, '_warning'> {
   // フェーズ変換（名前なしフェーズは除外）
   const templatePhases: TemplateData['phases'] = planData.phases
-    .filter(phase => phase.name.ja || phase.name.en || phase.name.zh || phase.name.ko)
+    .filter(phase => phase.name.ja || phase.name.en || phase.name.zh || phase.name['zh-Hant'] || phase.name.ko)
     .map((phase, index) => {
     const idMatch = phase.id.match(/\d+/);
     const numericId = idMatch ? parseInt(idMatch[0], 10) : index + 1;
@@ -279,6 +279,7 @@ export function convertPlanToTemplate(
             ja: phase.name.ja,
             en: phase.name.en,
             ...(phase.name.zh ? { zh: phase.name.zh } : {}),
+            ...(phase.name['zh-Hant'] ? { 'zh-Hant': phase.name['zh-Hant'] } : {}),
             ...(phase.name.ko ? { ko: phase.name.ko } : {}),
         };
     }
@@ -307,6 +308,7 @@ export function convertPlanToTemplate(
       ja: label.name.ja,
       en: label.name.en,
       ...(label.name.zh ? { zh: label.name.zh } : {}),
+      ...(label.name['zh-Hant'] ? { 'zh-Hant': label.name['zh-Hant'] } : {}),
       ...(label.name.ko ? { ko: label.name.ko } : {}),
     },
     ...(label.endTime !== undefined ? { endTimeSec: label.endTime } : {}),

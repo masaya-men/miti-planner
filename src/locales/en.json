@@ -1652,10 +1652,12 @@
         "tpl_editor_name_ja": "Name (JA)",
         "tpl_editor_name_en": "Name (EN)",
         "tpl_editor_name_zh": "Name (ZH)",
+        "tpl_editor_name_zh_hant": "Name (ZH-Hant)",
         "tpl_editor_name_ko": "Name (KO)",
         "tpl_editor_altname_ja": "or Name (JA)",
         "tpl_editor_altname_en": "or Name (EN)",
         "tpl_editor_altname_zh": "or Name (ZH)",
+        "tpl_editor_altname_zh_hant": "or Name (ZH-Hant)",
         "tpl_editor_altname_ko": "or Name (KO)",
         "tpl_editor_label": "Label",
         "tpl_editor_damage": "Damage",
@@ -1701,6 +1703,7 @@
         "tpl_label_name_ja": "Label (JA)",
         "tpl_label_name_en": "Label (EN)",
         "tpl_label_name_zh": "Label (ZH)",
+        "tpl_label_name_zh_hant": "Label (ZH-Hant)",
         "tpl_label_name_ko": "Label (KO)",
         "tpl_label_edit_apply": "Apply",
         "tpl_label_edit_cancel": "Cancel",
@@ -2410,7 +2413,7 @@
         "login_prompt": {
             "register": {
                 "title": "Login required to register a property",
-                "lead": ""
+                "lead": "You can register a property by logging in with Discord. Your Discord ID is stored as an irreversible hash and can never be recovered."
             },
             "tour": {
                 "title": "Login required to create a tour",
@@ -2614,31 +2617,31 @@
             }
         },
         "login": {
-            "title": "",
+            "title": "Login to LoPo",
             "notice": {
-                "intro": "",
-                "item1": "",
-                "item2": "",
-                "item3": ""
+                "intro": "A quick request to help keep LoPo pleasant for everyone.",
+                "item1": "To keep fake listings or harassment-driven registrations from ruining the house-hunting experience for others, we ask you to log in with Discord when registering.",
+                "item2": "LoPo only stores a hash of your Discord ID. Because a hash cannot be converted back to the original ID, no one — including the operators — can recover your Discord ID.",
+                "item3": "So you can feel free to tap the \"Not it\" button, we also keep an internal record of accounts that repeatedly file harassing reports this way. If we find an account is abusing this, we may restrict that account's access."
             },
-            "discordButton": "",
-            "closeLabel": ""
+            "discordButton": "Login with Discord",
+            "closeLabel": "Close the login screen"
         },
         "account": {
-            "title": "",
-            "avatarChange": "",
-            "avatarDelete": "",
-            "displayNameLabel": "",
-            "displayNameEdit": "",
+            "title": "Account",
+            "avatarChange": "Change Avatar",
+            "avatarDelete": "Delete",
+            "displayNameLabel": "Display Name",
+            "displayNameEdit": "Edit Display Name",
             "displayNameNote": "This name is used as your Housinger tag",
-            "adminLink": "",
-            "signOut": "",
-            "deleteAccount": "",
-            "deleteConfirmTitle": "",
-            "deleteConfirmBody": "",
-            "deleteConfirmYes": "",
-            "deleteConfirmNo": "",
-            "closeLabel": ""
+            "adminLink": "Go to Admin Panel",
+            "signOut": "Log Out",
+            "deleteAccount": "Delete Account",
+            "deleteConfirmTitle": "Are you sure you want to delete your account?",
+            "deleteConfirmBody": "Deleting your account will permanently remove all of your data, including registered properties, favorites, and your avatar image. This action cannot be undone.",
+            "deleteConfirmYes": "Delete Account",
+            "deleteConfirmNo": "Cancel",
+            "closeLabel": "Close the account screen"
         },
         "housinger": {
             "account": {
@@ -2702,8 +2705,8 @@
             "search_view_homes": "View {{name}}'s homes"
         },
         "topbar": {
-            "login": "",
-            "account": ""
+            "login": "Login",
+            "account": "Account"
         },
         "mobile": {
             "nav_home": "Home",

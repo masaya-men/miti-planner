@@ -115,6 +115,14 @@ describe('言語別の地域初期値', () => {
         useHousingFilterStore.getState().applyLocaleDefaultRegions('ko');
         expect(useHousingFilterStore.getState().regions).toEqual(['JP']);
     });
+    it('zh-Hant は TW、zh(簡体字)は引き続き CN', () => {
+        useHousingFilterStore.setState({ regions: [], regionsTouched: false });
+        useHousingFilterStore.getState().applyLocaleDefaultRegions('zh-Hant');
+        expect(useHousingFilterStore.getState().regions).toEqual(['TW']);
+        useHousingFilterStore.setState({ regions: [], regionsTouched: false });
+        useHousingFilterStore.getState().applyLocaleDefaultRegions('zh-CN');
+        expect(useHousingFilterStore.getState().regions).toEqual(['CN']); // 既存挙動: 変えない
+    });
 });
 
 describe('クリア = 言語既定への復帰 (regionsTouched の往復)', () => {

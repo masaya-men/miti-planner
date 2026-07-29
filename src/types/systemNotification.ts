@@ -3,12 +3,13 @@
  * ハウジング側の HousingNotification (1-to-1 型) とは別系統。
  */
 
-/** 4 言語の多言語テキスト。 ja/en は必須、 ko/zh は将来拡張用 optional。 */
+/** 5 言語の多言語テキスト。 ja/en は必須、 ko/zh/zh-Hant は将来拡張用 optional。 */
 export interface LocalizedText {
   ja: string;
   en: string;
   ko?: string;
   zh?: string;
+  'zh-Hant'?: string;
 }
 
 /** Firestore system_notifications/{id} のスキーマ */

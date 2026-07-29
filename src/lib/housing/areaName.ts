@@ -13,8 +13,10 @@ import type { HousingArea } from '../../types/housing';
 
 export function toMasterLang(lang: string | undefined | null): MasterLang {
   if (!lang) return 'ja';
-  const primary = lang.split('-')[0].toLowerCase();
-  return (MASTER_LANGS as readonly string[]).includes(primary) ? (primary as MasterLang) : 'ja';
+  const primary = lang.toLowerCase();
+  if (primary === 'zh-hant' || primary.startsWith('zh-hant-')) return 'zh-Hant';
+  const head = primary.split('-')[0];
+  return (MASTER_LANGS as readonly string[]).includes(head) ? (head as MasterLang) : 'ja';
 }
 
 /** エリア正式名称を i18n 言語に応じて返す。 area が未知なら enum 値を素のまま返す。 */

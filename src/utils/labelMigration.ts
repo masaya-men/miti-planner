@@ -47,6 +47,7 @@ export function migrateLabels(timelineEvents: TimelineEvent[], phases: Phase[]):
                     ja: event.mechanicGroup.ja,
                     en: event.mechanicGroup.en || '',
                     ...(event.mechanicGroup.zh ? { zh: event.mechanicGroup.zh } : {}),
+                    ...(event.mechanicGroup['zh-Hant'] ? { 'zh-Hant': event.mechanicGroup['zh-Hant'] } : {}),
                     ...(event.mechanicGroup.ko ? { ko: event.mechanicGroup.ko } : {}),
                 },
                 startTime: event.time,

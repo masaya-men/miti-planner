@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type Theme = 'dark' | 'light';
-export type ContentLanguage = 'ja' | 'en' | 'zh' | 'ko';
+export type ContentLanguage = 'ja' | 'en' | 'zh' | 'ko' | 'zh-Hant';
 
 interface ThemeState {
     theme: Theme;

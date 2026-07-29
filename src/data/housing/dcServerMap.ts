@@ -1,4 +1,4 @@
-export type Region = 'JP' | 'NA' | 'EU' | 'OCE' | 'KR' | 'CN';
+export type Region = 'JP' | 'NA' | 'EU' | 'OCE' | 'KR' | 'CN' | 'TW';
 
 export interface DCServers {
     region: Region;
@@ -25,10 +25,18 @@ export const DC_SERVER_MAP: Record<string, DCServers> = {
     MoogleCN: { region: 'CN', servers: ['Shirogane', 'RhalgrsReach', 'PlatinumMirage', 'TravelersDock', 'TheDawnChamber', 'TheAery', 'DreamfeatherRealm', 'HaukkeManor'] },
     FatCatCN: { region: 'CN', servers: ['AmethystShallows', 'MorDhona', 'TheGreatWall', 'BreezyBeach', 'TheAurumVale', 'CrescentCove', 'TheLostCity'] },
     MameshibaCN: { region: 'CN', servers: ['TheCrystalTower', 'SilvertearLake', 'CostaDelSol', 'Ishgard', 'BlackTeaRiver'] },
+    // 台湾/香港/マカオ/シンガポール/マレーシア (物理分離リージョン・UserJoy運営、2025-12-10開始)。
+    // 公式サイト (https://www.ffxiv.com.tw/web/worldstatus/index.aspx) を2026-07-27に再確認した結果、
+    // 全7ワールドは単一のDCに属する (中国版のような複数DC分割はまだ発生していない)。
+    // DCの正式名称は公式サイト・公式告知のいずれにも見当たらないため、内部キーは`TW`をそのまま採用
+    // (表示名は用語辞書側で解決するため内部キーが英語風の仮名でも実害はない)。
+    // ワールド名は公式サイト表記(繁体字)をそのまま内部キーにはできないため、
+    // 英語表記 (Ifrit/Garuda/Leviathan/Phoenix/Odin/Bahamut/Titan) をローマ字内部キーに採用。
+    TW: { region: 'TW', servers: ['Ifrit', 'Garuda', 'Leviathan', 'Phoenix', 'Odin', 'Bahamut', 'Titan'] },
 };
 
 export const ALL_DCS: string[] = Object.keys(DC_SERVER_MAP);
-export const ALL_REGIONS: Region[] = ['JP', 'NA', 'EU', 'OCE', 'KR', 'CN'];
+export const ALL_REGIONS: Region[] = ['JP', 'NA', 'EU', 'OCE', 'KR', 'CN', 'TW'];
 
 export function dcsForRegion(region: Region): string[] {
     return ALL_DCS.filter((dc) => DC_SERVER_MAP[dc].region === region);

@@ -74,7 +74,7 @@ export function formatHousingAddress(
  * 例: "オセアニア / Materia / Bismarck / シロガネ 6-6"
  *
  * - リージョン / DC / ワールドとも locale 対応 (regionLabel / displayDcName / displayWorldName)。
- *   ただし displayDcName・displayWorldName は KR/CN のみ辞書名に変換し、グローバル(JP/NA/EU/OCE)は
+ *   ただし displayDcName・displayWorldName は KR/CN/TW のみ辞書名に変換し、グローバル(JP/NA/EU/OCE)は
  *   内部キー(英名)のまま表示する仕様 (I-1)。
  * - area+ward+plot / apartment 部分は既存 formatHousingAddress をそのまま流用 (house/apartment 分岐込み)。
  *   → 既存の挙動を変えず、前置きの「リージョン / DC / ワールド」だけを合成する。

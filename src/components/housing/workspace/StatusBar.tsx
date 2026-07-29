@@ -2,8 +2,9 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useThemeStore } from '../../../store/useThemeStore';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 
-const LANGS = ['ja', 'en', 'ko', 'zh'] as const;
+const LANGS = ['ja', 'en', 'ko', 'zh', 'zh-Hant'] as const;
 
 // 実行中コードの版 (短 git SHA)。vite.config.ts の define で build 時に注入される。
 // UI 表示は 2026-07-10 に撤去したが、旧 Service Worker / PWA が旧バンドルを配信していないかの
@@ -56,7 +57,7 @@ export const StatusBar: React.FC = () => {
         </span>
         <span className="housing-status-lang">
           {LANGS.map((lang) => {
-            const isActive = i18n.language === lang || i18n.language.startsWith(`${lang}-`);
+            const isActive = pickRegionLocale(i18n.language) === lang;
             return (
               <button
                 key={lang}

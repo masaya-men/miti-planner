@@ -1,7 +1,8 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { SystemNotificationBar } from '../SystemNotificationBar';
+import { SystemNotificationBar, normalizeLang } from '../SystemNotificationBar';
+import { normalizeLang as normalizeLangModal } from '../SystemNotificationModal';
 import * as hookModule from '../../store/useSystemNotifications';
 
 vi.mock('react-i18next', () => ({
@@ -57,4 +58,13 @@ describe('SystemNotificationBar', () => {
     fireEvent.click(screen.getByText('system_notif.modal.mark_read'));
     expect(markRead).toHaveBeenCalledWith('n1');
   });
+});
+
+describe('normalizeLang: zh-Hant は zh(簡体字)と区別される', () => {
+    it.each([
+        ['SystemNotificationBar', normalizeLang],
+        ['SystemNotificationModal', normalizeLangModal],
+    ] as const)('%s: zh-Hant を渡すと zh ではない値になる', (_name, fn) => {
+        expect(fn('zh-Hant')).not.toBe('zh');
+    });
 });

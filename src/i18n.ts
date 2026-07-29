@@ -3,11 +3,12 @@ import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
 import ja from './locales/ja.json';
 import zh from './locales/zh.json';
+import zhHant from './locales/zh-Hant.json';
 import ko from './locales/ko.json';
 
 // localStorageに保存されたユーザーの言語設定を復元する
 // useThemeStore (zustand persist) が 'theme-storage' キーに保存している
-const SUPPORTED_LANGS = ['ja', 'en', 'zh', 'ko'] as const;
+const SUPPORTED_LANGS = ['ja', 'en', 'zh', 'ko', 'zh-Hant'] as const;
 function getSavedLanguage(): typeof SUPPORTED_LANGS[number] {
     try {
         const raw = localStorage.getItem('theme-storage');
@@ -26,6 +27,7 @@ i18n.use(initReactI18next).init({
         ja: { translation: ja },
         zh: { translation: zh },
         ko: { translation: ko },
+        'zh-Hant': { translation: zhHant },
     },
     lng: getSavedLanguage(),
     fallbackLng: 'ja',

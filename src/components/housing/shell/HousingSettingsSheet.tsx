@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { MobileBottomSheet } from '../../MobileBottomSheet';
 import { useThemeStore } from '../../../store/useThemeStore';
+import { pickRegionLocale } from '../../../data/housing/regionMap';
 
 export interface HousingSettingsSheetProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const LANGS = ['ja', 'en', 'ko', 'zh'] as const;
+const LANGS = ['ja', 'en', 'ko', 'zh', 'zh-Hant'] as const;
 
 /**
  * スマホ用設定シート (Task1: モバイルシェル基盤)。
@@ -70,7 +71,7 @@ export const HousingSettingsSheet: React.FC<HousingSettingsSheetProps> = ({ isOp
         <h4 className="housing-mobile-settings-label">{t('housing.mobile.settings_language')}</h4>
         <div className="housing-status-lang">
           {LANGS.map((lang) => {
-            const isActive = i18n.language === lang || i18n.language.startsWith(`${lang}-`);
+            const isActive = pickRegionLocale(i18n.language) === lang;
             return (
               <button
                 key={lang}

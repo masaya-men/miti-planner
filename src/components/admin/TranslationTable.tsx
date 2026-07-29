@@ -4,13 +4,13 @@ import type { TranslationRow } from '../../lib/translationDataLoaders';
 interface Props {
   rows: TranslationRow[];
   originalRows: TranslationRow[];
-  onChange: (rowIndex: number, field: 'ja' | 'en' | 'zh' | 'ko', value: string) => void;
+  onChange: (rowIndex: number, field: 'ja' | 'en' | 'zh' | 'zhHant' | 'ko', value: string) => void;
 }
 
 export function TranslationTable({ rows, originalRows, onChange }: Props) {
   const [editingCell, setEditingCell] = useState<{ row: number; field: string } | null>(null);
 
-  const isChanged = useCallback((rowIdx: number, field: 'ja' | 'en' | 'zh' | 'ko') => {
+  const isChanged = useCallback((rowIdx: number, field: 'ja' | 'en' | 'zh' | 'zhHant' | 'ko') => {
     const orig = originalRows[rowIdx];
     if (!orig) return false;
     return rows[rowIdx][field] !== orig[field];
@@ -31,6 +31,7 @@ export function TranslationTable({ rows, originalRows, onChange }: Props) {
             <th className="px-3 py-2 text-left font-medium">日本語</th>
             <th className="px-3 py-2 text-left font-medium">English</th>
             <th className="px-3 py-2 text-left font-medium">中文</th>
+            <th className="px-3 py-2 text-left font-medium">繁體中文</th>
             <th className="px-3 py-2 text-left font-medium">한국어</th>
           </tr>
         </thead>
@@ -40,7 +41,7 @@ export function TranslationTable({ rows, originalRows, onChange }: Props) {
               <td className="px-3 py-1.5 text-app-text-muted text-app-sm font-mono truncate max-w-48">
                 {row.id}
               </td>
-              {(['ja', 'en', 'zh', 'ko'] as const).map(field => {
+              {(['ja', 'en', 'zh', 'zhHant', 'ko'] as const).map(field => {
                 const editing = editingCell?.row === idx && editingCell?.field === field;
                 const changed = isChanged(idx, field);
                 const empty = isEmpty(row[field]);
@@ -67,7 +68,7 @@ export function TranslationTable({ rows, originalRows, onChange }: Props) {
                           if (e.key === 'Enter' || e.key === 'Escape') setEditingCell(null);
                           if (e.key === 'Tab') {
                             e.preventDefault();
-                            const fields = ['ja', 'en', 'zh', 'ko'] as const;
+                            const fields = ['ja', 'en', 'zh', 'zhHant', 'ko'] as const;
                             const nextField = fields[(fields.indexOf(field) + 1) % fields.length];
                             const nextRow = nextField === 'ja' ? idx + 1 : idx;
                             if (nextRow < rows.length) setEditingCell({ row: nextRow, field: nextField });

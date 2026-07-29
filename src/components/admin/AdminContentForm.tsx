@@ -13,6 +13,7 @@ export interface ContentData {
   nameJa: string;
   nameEn: string;
   nameZh: string;
+  nameZhHant: string;
   nameKo: string;
   shortNameJa: string;
   shortNameEn: string;
@@ -73,6 +74,7 @@ export function emptyContent(): ContentData {
     nameJa: '',
     nameEn: '',
     nameZh: '',
+    nameZhHant: '',
     nameKo: '',
     shortNameJa: '',
     shortNameEn: '',
@@ -271,8 +273,8 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
           />
         </div>
 
-        {/* 名前（中国語・韓国語）— 任意 */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* 名前（中国語・繁体字・韓国語）— 任意 */}
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className={labelClass}>
               名前（中国語）
@@ -283,6 +285,18 @@ export function AdminContentForm({ initial, onSave, onCancel, saving }: Props) {
               value={form.nameZh}
               onChange={(e) => set('nameZh', e.target.value)}
               placeholder="例: 阿卡狄亚���式登天斗技场 重量级1"
+            />
+          </div>
+          <div>
+            <label className={labelClass}>
+              名前（繁体字）
+              <span className={`${exampleClass} ml-1 font-normal`}>任意</span>
+            </label>
+            <input
+              className={inputClass}
+              value={form.nameZhHant}
+              onChange={(e) => set('nameZhHant', e.target.value)}
+              placeholder="任意"
             />
           </div>
           <div>

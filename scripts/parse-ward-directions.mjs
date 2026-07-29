@@ -24,7 +24,8 @@ const FILES = [
   ['empyreum.csv', 'Empyreum'],
 ];
 // Task8: 行き方本文の en/ko/zh 訳。正典は translations/{lang}/{file} (列: 番地,行き方補足)。
-const LANGS = ['en', 'ko', 'zh'];
+// Task9: zh-Hant (繁体字/台湾) 訳を追加。
+const LANGS = ['en', 'ko', 'zh', 'zh-Hant'];
 
 const unq = (s) => s.replace(/^"|"$/g, '').trim();
 
@@ -74,6 +75,7 @@ for (const [file, area] of FILES) {
       en: byLang.en[plot],
       ko: byLang.ko[plot],
       zh: byLang.zh[plot],
+      'zh-Hant': byLang['zh-Hant'][plot],
     };
   }
 

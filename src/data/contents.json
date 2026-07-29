@@ -8,7 +8,8 @@
     "en": "AAC Heavyweight M1 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 重量级1",
     "ko": "아르카디아 선수권: 헤비급(영웅) 1",
-    "fflogsEncounterId": 101
+    "fflogsEncounterId": 101,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 重量級1"
   },
   {
     "id": "m10s",
@@ -19,7 +20,8 @@
     "en": "AAC Heavyweight M2 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 重量级2",
     "ko": "아르카디아 선수권: 헤비급(영웅) 2",
-    "fflogsEncounterId": 102
+    "fflogsEncounterId": 102,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 重量級2"
   },
   {
     "id": "m11s",
@@ -30,7 +32,8 @@
     "en": "AAC Heavyweight M3 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 重量级3",
     "ko": "아르카디아 선수권: 헤비급(영웅) 3",
-    "fflogsEncounterId": 103
+    "fflogsEncounterId": 103,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 重量級3"
   },
   {
     "id": "m12s_p1",
@@ -42,7 +45,8 @@
     "zh": "阿卡狄亚零式登天斗技场 重量级4（前半）",
     "ko": "아르카디아 선수권: 헤비급(영웅) 4 (전반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 104
+    "fflogsEncounterId": 104,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 重量級4（前半）"
   },
   {
     "id": "m12s_p2",
@@ -54,7 +58,8 @@
     "zh": "阿卡狄亚零式登天斗技场 重量级4（后半）",
     "ko": "아르카디아 선수권: 헤비급(영웅) 4 (후반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 105
+    "fflogsEncounterId": 105,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 重量級4（後半）"
   },
   {
     "id": "m5s",
@@ -65,7 +70,8 @@
     "en": "AAC Cruiserweight M1 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 中量级1",
     "ko": "아르카디아 선수권: 크루저급(영웅) 1",
-    "fflogsEncounterId": 97
+    "fflogsEncounterId": 97,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 次重量級1"
   },
   {
     "id": "m6s",
@@ -76,8 +82,22 @@
     "en": "AAC Cruiserweight M2 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 中量级2",
     "ko": "아르카디아 선수권: 크루저급(영웅) 2",
-    "phaseNames": { "1": { "ja": "", "en": "Phase One" }, "2": { "ja": "", "en": "Phase Two" }, "3": { "ja": "", "en": "Phase Three" } },
-    "fflogsEncounterId": 98
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Phase One"
+      },
+      "2": {
+        "ja": "",
+        "en": "Phase Two"
+      },
+      "3": {
+        "ja": "",
+        "en": "Phase Three"
+      }
+    },
+    "fflogsEncounterId": 98,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 次重量級2"
   },
   {
     "id": "m7s",
@@ -88,8 +108,22 @@
     "en": "AAC Cruiserweight M3 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 中量级3",
     "ko": "아르카디아 선수권: 크루저급(영웅) 3",
-    "phaseNames": { "1": { "ja": "", "en": "Phase One" }, "2": { "ja": "", "en": "Phase Two" }, "3": { "ja": "", "en": "Phase Three" } },
-    "fflogsEncounterId": 99
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Phase One"
+      },
+      "2": {
+        "ja": "",
+        "en": "Phase Two"
+      },
+      "3": {
+        "ja": "",
+        "en": "Phase Three"
+      }
+    },
+    "fflogsEncounterId": 99,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 次重量級3"
   },
   {
     "id": "m8s",
@@ -100,8 +134,18 @@
     "en": "AAC Cruiserweight M4 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 中量级4",
     "ko": "아르카디아 선수권: 크루저급(영웅) 4",
-    "phaseNames": { "1": { "ja": "", "en": "Phase One" }, "2": { "ja": "", "en": "Phase Two" } },
-    "fflogsEncounterId": 100
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Phase One"
+      },
+      "2": {
+        "ja": "",
+        "en": "Phase Two"
+      }
+    },
+    "fflogsEncounterId": 100,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 次重量級4"
   },
   {
     "id": "fru",
@@ -114,7 +158,29 @@
     "ko": "절 또 하나의 미래",
     "shortNameJa": "FRU",
     "fflogsEncounterId": 1079,
-    "phaseNames": { "1": { "ja": "", "en": "Fatebreaker" }, "2": { "ja": "", "en": "Usurper of Frost" }, "3": { "ja": "", "en": "Oracle of Darkness" }, "4": { "ja": "", "en": "Enter the Dragon" }, "5": { "ja": "", "en": "Pandora" } }
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Fatebreaker"
+      },
+      "2": {
+        "ja": "",
+        "en": "Usurper of Frost"
+      },
+      "3": {
+        "ja": "",
+        "en": "Oracle of Darkness"
+      },
+      "4": {
+        "ja": "",
+        "en": "Enter the Dragon"
+      },
+      "5": {
+        "ja": "",
+        "en": "Pandora"
+      }
+    },
+    "zh-Hant": "絕光暗未來殲滅戰"
   },
   {
     "id": "dmu",
@@ -125,7 +191,8 @@
     "en": "Dancing Mad (Ultimate)",
     "zh": "妖星乱舞绝境战",
     "shortNameJa": "DMU",
-    "phaseNames": {}
+    "phaseNames": {},
+    "zh-Hant": "絕妖星亂舞"
   },
   {
     "id": "m1s",
@@ -136,7 +203,8 @@
     "en": "AAC Light-heavyweight M1 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 轻量级1",
     "ko": "아르카디아 선수권: 라이트헤비급(영웅) 1",
-    "fflogsEncounterId": 93
+    "fflogsEncounterId": 93,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 輕量級1"
   },
   {
     "id": "m2s",
@@ -147,7 +215,8 @@
     "en": "AAC Light-heavyweight M2 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 轻量级2",
     "ko": "아르카디아 선수권: 라이트헤비급(영웅) 2",
-    "fflogsEncounterId": 94
+    "fflogsEncounterId": 94,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 輕量級2"
   },
   {
     "id": "m3s",
@@ -158,7 +227,8 @@
     "en": "AAC Light-heavyweight M3 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 轻量级3",
     "ko": "아르카디아 선수권: 라이트헤비급(영웅) 3",
-    "fflogsEncounterId": 95
+    "fflogsEncounterId": 95,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 輕量級3"
   },
   {
     "id": "m4s",
@@ -169,7 +239,8 @@
     "en": "AAC Light-heavyweight M4 (Savage)",
     "zh": "阿卡狄亚零式登天斗技场 轻量级4",
     "ko": "아르카디아 선수권: 라이트헤비급(영웅) 4",
-    "fflogsEncounterId": 96
+    "fflogsEncounterId": 96,
+    "zh-Hant": "阿卡狄亞零式登天鬥技場 輕量級4"
   },
   {
     "id": "p9s",
@@ -180,7 +251,8 @@
     "en": "Anabaseios: The Ninth Circle (Savage)",
     "zh": "零式万魔殿 荒天之狱1",
     "ko": "마의 전당 판데모니움: 천옥편(영웅) 1",
-    "fflogsEncounterId": 88
+    "fflogsEncounterId": 88,
+    "zh-Hant": "萬魔殿零式 荒天之獄1"
   },
   {
     "id": "p10s",
@@ -191,7 +263,8 @@
     "en": "Anabaseios: The Tenth Circle (Savage)",
     "zh": "零式万魔殿 荒天之狱2",
     "ko": "마의 전당 판데모니움: 천옥편(영웅) 2",
-    "fflogsEncounterId": 89
+    "fflogsEncounterId": 89,
+    "zh-Hant": "萬魔殿零式 荒天之獄2"
   },
   {
     "id": "p11s",
@@ -202,7 +275,8 @@
     "en": "Anabaseios: The Eleventh Circle (Savage)",
     "zh": "零式万魔殿 荒天之狱3",
     "ko": "마의 전당 판데모니움: 천옥편(영웅) 3",
-    "fflogsEncounterId": 90
+    "fflogsEncounterId": 90,
+    "zh-Hant": "萬魔殿零式 荒天之獄3"
   },
   {
     "id": "p12s_p1",
@@ -214,7 +288,8 @@
     "zh": "零式万魔殿 荒天之狱4（前半）",
     "ko": "마의 전당 판데모니움: 천옥편(영웅) 4 (전반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 91
+    "fflogsEncounterId": 91,
+    "zh-Hant": "萬魔殿零式 荒天之獄4（前半）"
   },
   {
     "id": "p12s_p2",
@@ -226,7 +301,8 @@
     "zh": "零式万魔殿 荒天之狱4（后半）",
     "ko": "마의 전당 판데모니움: 천옥편(영웅) 4 (후반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 92
+    "fflogsEncounterId": 92,
+    "zh-Hant": "萬魔殿零式 荒天之獄4（後半）"
   },
   {
     "id": "top",
@@ -239,7 +315,33 @@
     "ko": "절 오메가 검증전",
     "shortNameJa": "TOP",
     "fflogsEncounterId": 1077,
-    "phaseNames": { "1": { "ja": "", "en": "Omega" }, "2": { "ja": "", "en": "Omega-M/F" }, "3": { "ja": "", "en": "Omega Reconfigured" }, "4": { "ja": "", "en": "Blue Screen" }, "5": { "ja": "", "en": "Run: Dynamis" }, "6": { "ja": "", "en": "Alpha Omega" } }
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Omega"
+      },
+      "2": {
+        "ja": "",
+        "en": "Omega-M/F"
+      },
+      "3": {
+        "ja": "",
+        "en": "Omega Reconfigured"
+      },
+      "4": {
+        "ja": "",
+        "en": "Blue Screen"
+      },
+      "5": {
+        "ja": "",
+        "en": "Run: Dynamis"
+      },
+      "6": {
+        "ja": "",
+        "en": "Alpha Omega"
+      }
+    },
+    "zh-Hant": "歐米茄絕境驗證戰"
   },
   {
     "id": "p5s",
@@ -250,7 +352,8 @@
     "en": "Abyssos: The Fifth Circle (Savage)",
     "zh": "零式万魔殿 炼净之狱1",
     "ko": "마의 전당 판데모니움: 연옥편(영웅) 1",
-    "fflogsEncounterId": 83
+    "fflogsEncounterId": 83,
+    "zh-Hant": "萬魔殿零式 煉淨之獄1"
   },
   {
     "id": "p6s",
@@ -261,7 +364,8 @@
     "en": "Abyssos: The Sixth Circle (Savage)",
     "zh": "零式万魔殿 炼净之狱2",
     "ko": "마의 전당 판데모니움: 연옥편(영웅) 2",
-    "fflogsEncounterId": 84
+    "fflogsEncounterId": 84,
+    "zh-Hant": "萬魔殿零式 煉淨之獄2"
   },
   {
     "id": "p7s",
@@ -272,7 +376,8 @@
     "en": "Abyssos: The Seventh Circle (Savage)",
     "zh": "零式万魔殿 炼净之狱3",
     "ko": "마의 전당 판데모니움: 연옥편(영웅) 3",
-    "fflogsEncounterId": 85
+    "fflogsEncounterId": 85,
+    "zh-Hant": "萬魔殿零式 煉淨之獄3"
   },
   {
     "id": "p8s_p1",
@@ -284,7 +389,8 @@
     "zh": "零式万魔殿 炼净之狱4（前半）",
     "ko": "마의 전당 판데모니움: 연옥편(영웅) 4 (전반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 86
+    "fflogsEncounterId": 86,
+    "zh-Hant": "萬魔殿零式 煉淨之獄4（前半）"
   },
   {
     "id": "p8s_p2",
@@ -296,7 +402,8 @@
     "zh": "零式万魔殿 炼净之狱4（后半）",
     "ko": "마의 전당 판데모니움: 연옥편(영웅) 4 (후반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 87
+    "fflogsEncounterId": 87,
+    "zh-Hant": "萬魔殿零式 煉淨之獄4（後半）"
   },
   {
     "id": "dsr_p1",
@@ -309,7 +416,13 @@
     "ko": "절 용시전쟁 P1",
     "hasCheckpoint": true,
     "fflogsEncounterId": 1076,
-    "phaseNames": { "1": { "ja": "", "en": "Adelphel, Grinnaux and Charibert" } }
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Adelphel, Grinnaux and Charibert"
+      }
+    },
+    "zh-Hant": "幻想龍詩絕境戰P1"
   },
   {
     "id": "dsr",
@@ -323,7 +436,37 @@
     "shortNameJa": "DSR",
     "hasCheckpoint": true,
     "fflogsEncounterId": 1076,
-    "phaseNames": { "1": { "ja": "", "en": "King Thordan" }, "2": { "ja": "", "en": "Nidhogg" }, "3": { "ja": "", "en": "The Eyes" }, "4": { "ja": "", "en": "Rewind!" }, "5": { "ja": "", "en": "King Thordan II" }, "6": { "ja": "", "en": "Nidhogg and Hraesvelgr" }, "7": { "ja": "", "en": "The Dragon King" } }
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "King Thordan"
+      },
+      "2": {
+        "ja": "",
+        "en": "Nidhogg"
+      },
+      "3": {
+        "ja": "",
+        "en": "The Eyes"
+      },
+      "4": {
+        "ja": "",
+        "en": "Rewind!"
+      },
+      "5": {
+        "ja": "",
+        "en": "King Thordan II"
+      },
+      "6": {
+        "ja": "",
+        "en": "Nidhogg and Hraesvelgr"
+      },
+      "7": {
+        "ja": "",
+        "en": "The Dragon King"
+      }
+    },
+    "zh-Hant": "幻想龍詩絕境戰"
   },
   {
     "id": "p1s",
@@ -334,7 +477,8 @@
     "en": "Asphodelos: The First Circle (Savage)",
     "zh": "零式万魔殿 边境之狱1",
     "ko": "마의 전당 판데모니움: 변옥편(영웅) 1",
-    "fflogsEncounterId": 78
+    "fflogsEncounterId": 78,
+    "zh-Hant": "萬魔殿零式 邊境之獄1"
   },
   {
     "id": "p2s",
@@ -345,7 +489,8 @@
     "en": "Asphodelos: The Second Circle (Savage)",
     "zh": "零式万魔殿 边境之狱2",
     "ko": "마의 전당 판데모니움: 변옥편(영웅) 2",
-    "fflogsEncounterId": 79
+    "fflogsEncounterId": 79,
+    "zh-Hant": "萬魔殿零式 邊境之獄2"
   },
   {
     "id": "p3s",
@@ -356,7 +501,8 @@
     "en": "Asphodelos: The Third Circle (Savage)",
     "zh": "零式万魔殿 边境之狱3",
     "ko": "마의 전당 판데모니움: 변옥편(영웅) 3",
-    "fflogsEncounterId": 80
+    "fflogsEncounterId": 80,
+    "zh-Hant": "萬魔殿零式 邊境之獄3"
   },
   {
     "id": "p4s_p1",
@@ -368,7 +514,8 @@
     "zh": "零式万魔殿 边境之狱4（前半）",
     "ko": "마의 전당 판데모니움: 변옥편(영웅) 4 (전반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 81
+    "fflogsEncounterId": 81,
+    "zh-Hant": "萬魔殿零式 邊境之獄4（前半）"
   },
   {
     "id": "p4s_p2",
@@ -380,7 +527,8 @@
     "zh": "零式万魔殿 边境之狱4（后半）",
     "ko": "마의 전당 판데모니움: 변옥편(영웅) 4 (후반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 82
+    "fflogsEncounterId": 82,
+    "zh-Hant": "萬魔殿零式 邊境之獄4（後半）"
   },
   {
     "id": "e9s",
@@ -391,7 +539,8 @@
     "en": "Eden's Promise: Umbra (Savage)",
     "zh": "伊甸零式希望乐园 再生之章1",
     "ko": "희망의 낙원 에덴: 재생편(영웅) 1",
-    "fflogsEncounterId": 73
+    "fflogsEncounterId": 73,
+    "zh-Hant": "伊甸零式希望樂園 再生之章1"
   },
   {
     "id": "e10s",
@@ -402,7 +551,8 @@
     "en": "Eden's Promise: Litany (Savage)",
     "zh": "伊甸零式希望乐园 再生之章2",
     "ko": "희망의 낙원 에덴: 재생편(영웅) 2",
-    "fflogsEncounterId": 74
+    "fflogsEncounterId": 74,
+    "zh-Hant": "伊甸零式希望樂園 再生之章2"
   },
   {
     "id": "e11s",
@@ -413,7 +563,8 @@
     "en": "Eden's Promise: Anamorphosis (Savage)",
     "zh": "伊甸零式希望乐园 再生之章3",
     "ko": "희망의 낙원 에덴: 재생편(영웅) 3",
-    "fflogsEncounterId": 75
+    "fflogsEncounterId": 75,
+    "zh-Hant": "伊甸零式希望樂園 再生之章3"
   },
   {
     "id": "e12s_p1",
@@ -425,7 +576,8 @@
     "zh": "伊甸零式希望乐园 再生之章4（前半）",
     "ko": "희망의 낙원 에덴: 재생편(영웅) 4 (전반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 76
+    "fflogsEncounterId": 76,
+    "zh-Hant": "伊甸零式希望樂園 再生之章4（前半）"
   },
   {
     "id": "e12s_p2",
@@ -437,7 +589,8 @@
     "zh": "伊甸零式希望乐园 再生之章4（后半）",
     "ko": "희망의 낙원 에덴: 재생편(영웅) 4 (후반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 77
+    "fflogsEncounterId": 77,
+    "zh-Hant": "伊甸零式希望樂園 再生之章4（後半）"
   },
   {
     "id": "e5s",
@@ -448,7 +601,8 @@
     "en": "Eden's Verse: Fulmination (Savage)",
     "zh": "伊甸零式希望乐园 共鸣之章1",
     "ko": "희망의 낙원 에덴: 공명편(영웅) 1",
-    "fflogsEncounterId": 69
+    "fflogsEncounterId": 69,
+    "zh-Hant": "伊甸零式希望樂園 共鳴之章1"
   },
   {
     "id": "e6s",
@@ -459,7 +613,8 @@
     "en": "Eden's Verse: Furor (Savage)",
     "zh": "伊甸零式希望乐园 共鸣之章2",
     "ko": "희망의 낙원 에덴: 공명편(영웅) 2",
-    "fflogsEncounterId": 70
+    "fflogsEncounterId": 70,
+    "zh-Hant": "伊甸零式希望樂園 共鳴之章2"
   },
   {
     "id": "e7s",
@@ -470,7 +625,8 @@
     "en": "Eden's Verse: Iconoclasm (Savage)",
     "zh": "伊甸零式希望乐园 共鸣之章3",
     "ko": "희망의 낙원 에덴: 공명편(영웅) 3",
-    "fflogsEncounterId": 71
+    "fflogsEncounterId": 71,
+    "zh-Hant": "伊甸零式希望樂園 共鳴之章3"
   },
   {
     "id": "e8s",
@@ -481,7 +637,8 @@
     "en": "Eden's Verse: Refulgence (Savage)",
     "zh": "伊甸零式希望乐园 共鸣之章4",
     "ko": "희망의 낙원 에덴: 공명편(영웅) 4",
-    "fflogsEncounterId": 72
+    "fflogsEncounterId": 72,
+    "zh-Hant": "伊甸零式希望樂園 共鳴之章4"
   },
   {
     "id": "tea",
@@ -494,7 +651,33 @@
     "ko": "절 알렉산더 토벌전",
     "shortNameJa": "TEA",
     "fflogsEncounterId": 1075,
-    "phaseNames": { "1": { "ja": "", "en": "Living Liquid" }, "2": { "ja": "", "en": "Limit Cut" }, "3": { "ja": "", "en": "Brute Justice and Cruise Chaser" }, "4": { "ja": "", "en": "Temporal Stasis" }, "5": { "ja": "", "en": "Alexander Prime" }, "6": { "ja": "", "en": "Perfect Alexander" } }
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Living Liquid"
+      },
+      "2": {
+        "ja": "",
+        "en": "Limit Cut"
+      },
+      "3": {
+        "ja": "",
+        "en": "Brute Justice and Cruise Chaser"
+      },
+      "4": {
+        "ja": "",
+        "en": "Temporal Stasis"
+      },
+      "5": {
+        "ja": "",
+        "en": "Alexander Prime"
+      },
+      "6": {
+        "ja": "",
+        "en": "Perfect Alexander"
+      }
+    },
+    "zh-Hant": "亞歷山大絕境戰"
   },
   {
     "id": "e1s",
@@ -505,7 +688,8 @@
     "en": "Eden's Gate: Resurrection (Savage)",
     "zh": "伊甸零式希望乐园 觉醒之章1",
     "ko": "희망의 낙원 에덴: 각성편(영웅) 1",
-    "fflogsEncounterId": 65
+    "fflogsEncounterId": 65,
+    "zh-Hant": "伊甸零式希望樂園 覺醒之章1"
   },
   {
     "id": "e2s",
@@ -516,7 +700,8 @@
     "en": "Eden's Gate: Descent (Savage)",
     "zh": "伊甸零式希望乐园 觉醒之章2",
     "ko": "희망의 낙원 에덴: 각성편(영웅) 2",
-    "fflogsEncounterId": 66
+    "fflogsEncounterId": 66,
+    "zh-Hant": "伊甸零式希望樂園 覺醒之章2"
   },
   {
     "id": "e3s",
@@ -527,7 +712,8 @@
     "en": "Eden's Gate: Inundation (Savage)",
     "zh": "伊甸零式希望乐园 觉醒之章3",
     "ko": "희망의 낙원 에덴: 각성편(영웅) 3",
-    "fflogsEncounterId": 67
+    "fflogsEncounterId": 67,
+    "zh-Hant": "伊甸零式希望樂園 覺醒之章3"
   },
   {
     "id": "e4s",
@@ -538,7 +724,8 @@
     "en": "Eden's Gate: Sepulture (Savage)",
     "zh": "伊甸零式希望乐园 觉醒之章4",
     "ko": "희망의 낙원 에덴: 각성편(영웅) 4",
-    "fflogsEncounterId": 68
+    "fflogsEncounterId": 68,
+    "zh-Hant": "伊甸零式希望樂園 覺醒之章4"
   },
   {
     "id": "o9s",
@@ -549,7 +736,8 @@
     "en": "Omega: Alphascape V1.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 阿尔法幻境1",
     "ko": "차원의 틈 오메가: 알파편(영웅) 1",
-    "fflogsEncounterId": 60
+    "fflogsEncounterId": 60,
+    "zh-Hant": "歐米茄零式時空狹縫 阿爾法幻境1"
   },
   {
     "id": "o10s",
@@ -560,7 +748,8 @@
     "en": "Omega: Alphascape V2.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 阿尔法幻境2",
     "ko": "차원의 틈 오메가: 알파편(영웅) 2",
-    "fflogsEncounterId": 61
+    "fflogsEncounterId": 61,
+    "zh-Hant": "歐米茄零式時空狹縫 阿爾法幻境2"
   },
   {
     "id": "o11s",
@@ -571,7 +760,8 @@
     "en": "Omega: Alphascape V3.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 阿尔法幻境3",
     "ko": "차원의 틈 오메가: 알파편(영웅) 3",
-    "fflogsEncounterId": 62
+    "fflogsEncounterId": 62,
+    "zh-Hant": "歐米茄零式時空狹縫 阿爾法幻境3"
   },
   {
     "id": "o12s_p1",
@@ -583,7 +773,8 @@
     "zh": "欧米茄零式时空狭缝 阿尔法幻境4（前半）",
     "ko": "차원의 틈 오메가: 알파편(영웅) 4 (전반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 63
+    "fflogsEncounterId": 63,
+    "zh-Hant": "歐米茄零式時空狹縫 阿爾法幻境4（前半）"
   },
   {
     "id": "o12s_p2",
@@ -595,7 +786,8 @@
     "zh": "欧米茄零式时空狭缝 阿尔法幻境4（后半）",
     "ko": "차원의 틈 오메가: 알파편(영웅) 4 (후반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 64
+    "fflogsEncounterId": 64,
+    "zh-Hant": "歐米茄零式時空狹縫 阿爾法幻境4（後半）"
   },
   {
     "id": "uwu",
@@ -608,7 +800,29 @@
     "ko": "절 알테마 웨폰 파괴작전",
     "shortNameJa": "UWU",
     "fflogsEncounterId": 1074,
-    "phaseNames": { "1": { "ja": "", "en": "Garuda" }, "2": { "ja": "", "en": "Ifrit" }, "3": { "ja": "", "en": "Titan" }, "4": { "ja": "", "en": "Magitek Bits" }, "5": { "ja": "", "en": "The Ultima Weapon" } }
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Garuda"
+      },
+      "2": {
+        "ja": "",
+        "en": "Ifrit"
+      },
+      "3": {
+        "ja": "",
+        "en": "Titan"
+      },
+      "4": {
+        "ja": "",
+        "en": "Magitek Bits"
+      },
+      "5": {
+        "ja": "",
+        "en": "The Ultima Weapon"
+      }
+    },
+    "zh-Hant": "究極神兵絕境戰"
   },
   {
     "id": "o5s",
@@ -619,7 +833,8 @@
     "en": "Omega: Sigmascape V1.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 西格玛幻境1",
     "ko": "차원의 틈 오메가: 시그마편(영웅) 1",
-    "fflogsEncounterId": 51
+    "fflogsEncounterId": 51,
+    "zh-Hant": "歐米茄零式時空狹縫 西格瑪幻境1"
   },
   {
     "id": "o6s",
@@ -630,7 +845,8 @@
     "en": "Omega: Sigmascape V2.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 西格玛幻境2",
     "ko": "차원의 틈 오메가: 시그마편(영웅) 2",
-    "fflogsEncounterId": 52
+    "fflogsEncounterId": 52,
+    "zh-Hant": "歐米茄零式時空狹縫 西格瑪幻境2"
   },
   {
     "id": "o7s",
@@ -641,7 +857,8 @@
     "en": "Omega: Sigmascape V3.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 西格玛幻境3",
     "ko": "차원의 틈 오메가: 시그마편(영웅) 3",
-    "fflogsEncounterId": 53
+    "fflogsEncounterId": 53,
+    "zh-Hant": "歐米茄零式時空狹縫 西格瑪幻境3"
   },
   {
     "id": "o8s_p1",
@@ -653,7 +870,8 @@
     "zh": "欧米茄零式时空狭缝 西格玛幻境4（前半）",
     "ko": "차원의 틈 오메가: 시그마편(영웅) 4 (전반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 54
+    "fflogsEncounterId": 54,
+    "zh-Hant": "歐米茄零式時空狹縫 西格瑪幻境4（前半）"
   },
   {
     "id": "o8s_p2",
@@ -665,7 +883,8 @@
     "zh": "欧米茄零式时空狭缝 西格玛幻境4（后半）",
     "ko": "차원의 틈 오메가: 시그마편(영웅) 4 (후반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 55
+    "fflogsEncounterId": 55,
+    "zh-Hant": "歐米茄零式時空狹縫 西格瑪幻境4（後半）"
   },
   {
     "id": "ucob",
@@ -678,7 +897,29 @@
     "ko": "절 바하무트 토벌전",
     "shortNameJa": "UCOB",
     "fflogsEncounterId": 1073,
-    "phaseNames": { "1": { "ja": "", "en": "Twintania" }, "2": { "ja": "", "en": "Nael deus Darnus" }, "3": { "ja": "", "en": "Bahamut Prime" }, "4": { "ja": "", "en": "Triple Threat" }, "5": { "ja": "", "en": "Reborn!" } }
+    "phaseNames": {
+      "1": {
+        "ja": "",
+        "en": "Twintania"
+      },
+      "2": {
+        "ja": "",
+        "en": "Nael deus Darnus"
+      },
+      "3": {
+        "ja": "",
+        "en": "Bahamut Prime"
+      },
+      "4": {
+        "ja": "",
+        "en": "Triple Threat"
+      },
+      "5": {
+        "ja": "",
+        "en": "Reborn!"
+      }
+    },
+    "zh-Hant": "巴哈姆特絕境戰"
   },
   {
     "id": "o1s",
@@ -689,7 +930,8 @@
     "en": "Omega: Deltascape V1.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 德尔塔幻境1",
     "ko": "차원의 틈 오메가: 델타편(영웅) 1",
-    "fflogsEncounterId": 42
+    "fflogsEncounterId": 42,
+    "zh-Hant": "歐米茄零式時空狹縫 德爾塔幻境1"
   },
   {
     "id": "o2s",
@@ -700,7 +942,8 @@
     "en": "Omega: Deltascape V2.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 德尔塔幻境2",
     "ko": "차원의 틈 오메가: 델타편(영웅) 2",
-    "fflogsEncounterId": 43
+    "fflogsEncounterId": 43,
+    "zh-Hant": "歐米茄零式時空狹縫 德爾塔幻境2"
   },
   {
     "id": "o3s",
@@ -711,7 +954,8 @@
     "en": "Omega: Deltascape V3.0 (Savage)",
     "zh": "欧米茄零式时空狭缝 德尔塔幻境3",
     "ko": "차원의 틈 오메가: 델타편(영웅) 3",
-    "fflogsEncounterId": 44
+    "fflogsEncounterId": 44,
+    "zh-Hant": "歐米茄零式時空狹縫 德爾塔幻境3"
   },
   {
     "id": "o4s_p1",
@@ -723,7 +967,8 @@
     "zh": "欧米茄零式时空狭缝 德尔塔幻境4（前半）",
     "ko": "차원의 틈 오메가: 델타편(영웅) 4 (전반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 45
+    "fflogsEncounterId": 45,
+    "zh-Hant": "歐米茄零式時空狹縫 德爾塔幻境4（前半）"
   },
   {
     "id": "o4s_p2",
@@ -735,6 +980,7 @@
     "zh": "欧米茄零式时空狭缝 德尔塔幻境4（后半）",
     "ko": "차원의 틈 오메가: 델타편(영웅) 4 (후반)",
     "hasCheckpoint": true,
-    "fflogsEncounterId": 46
+    "fflogsEncounterId": 46,
+    "zh-Hant": "歐米茄零式時空狹縫 德爾塔幻境4（後半）"
   }
 ]

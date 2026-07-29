@@ -26,13 +26,13 @@ export function getPlotDirections(
 }
 
 /**
- * area(enum) + plot(1-60) + locale → 行き方本文 (Task8: en/ko/zh 訳付き)。
+ * area(enum) + plot(1-60) + locale → 行き方本文 (Task8: en/ko/zh 訳付き、Task9: zh-Hant 訳付き)。
  * ja、または該当ロケールの訳が無い場合は正典 (ja) 本文にフォールバックする。無ければ null。
  */
 export function getPlotDirectionsText(
   area: string,
   plot: number | null | undefined,
-  locale: 'ja' | 'en' | 'ko' | 'zh',
+  locale: 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant',
 ): string | null {
   if (plot == null || !Number.isInteger(plot)) return null;
   const d = TABLE[area]?.[String(plot)];

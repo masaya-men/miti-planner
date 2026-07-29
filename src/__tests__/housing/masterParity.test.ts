@@ -27,4 +27,17 @@ describe('2マスター整合 (dcServerMap ⟷ masterData)', () => {
     expect(cnMoogleAliases).not.toContain('白银乡');
     expect(cnMoogleAliases).not.toContain('시로가네');
   });
+  it('TW の alias は繁体字ワールド名のみ (英名はグローバル同名ワールドと衝突するため入れない)', () => {
+    const twAliases = Object.values(serverMasterData['TW'].servers).flat();
+    expect(twAliases).not.toContain('Ifrit'); // Gaia の Ifrit と衝突させない
+  });
+});
+
+describe('housingAreaMasterData の zh-Hant', () => {
+  it('全エリアの name / apartment_name に zh-Hant がある', () => {
+    for (const [key, a] of Object.entries(housingAreaMasterData)) {
+      expect(a.name['zh-Hant'], `${key} name.zh-Hant`).toBeTruthy();
+      expect(a.apartment_name['zh-Hant'], `${key} apartment.zh-Hant`).toBeTruthy();
+    }
+  });
 });

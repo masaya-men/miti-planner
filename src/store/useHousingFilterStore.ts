@@ -74,8 +74,12 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     // 言語→地域の初期値 (spec: B案=言語は初期値のみ)。localeDefaultRegions は touched でも
     // 常に最新化する (clearAll の復帰先として必要)。regions への反映のみ touched でガードする。
     applyLocaleDefaultRegions: (lang) => set((s) => {
-        const head = (lang || 'ja').slice(0, 2).toLowerCase();
-        const localeDefaultRegions = head === 'ko' ? ['KR'] : head === 'zh' ? ['CN'] : ['JP', 'NA', 'EU', 'OCE'];
+        const head = (lang || 'ja').toLowerCase();
+        const localeDefaultRegions = head === 'zh-hant' || head.startsWith('zh-hant-')
+            ? ['TW']
+            : head.slice(0, 2) === 'ko' ? ['KR']
+            : head.slice(0, 2) === 'zh' ? ['CN']
+            : ['JP', 'NA', 'EU', 'OCE'];
         if (s.regionsTouched) return { localeDefaultRegions };
         return { regions: localeDefaultRegions, localeDefaultRegions };
     }),

@@ -133,3 +133,21 @@ describe('KR/CN リージョン分離', () => {
     expect(crossingBetween(loc('OCE', 'Materia', 'Bismarck'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'dc', dc: 'Mana', world: 'Anima' });
   });
 });
+
+describe('TWリージョン分離', () => {
+  it('TW アンカーのトレイに JP/KR/CN は追加できない', () => {
+    expect(canAddToTour('TW', 'JP')).toBe(false);
+    expect(canAddToTour('TW', 'KR')).toBe(false);
+    expect(canAddToTour('TW', 'CN')).toBe(false);
+  });
+  it('JP アンカーのトレイに TW は追加できない', () => {
+    expect(canAddToTour('JP', 'TW')).toBe(false);
+  });
+  it('TW 同士は追加できる', () => {
+    expect(canAddToTour('TW', 'TW')).toBe(true);
+  });
+  it('TW と OCE はどちらの向きでも混在できない(KR/CNと同じ物理分離)', () => {
+    expect(canAddToTour('TW', 'OCE')).toBe(false);
+    expect(canAddToTour('OCE', 'TW')).toBe(false);
+  });
+});

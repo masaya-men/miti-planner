@@ -6,14 +6,14 @@ import type { TranslationRow } from '../../lib/translationDataLoaders';
 interface Props {
   rows: TranslationRow[];
   category: string;
-  onImport: (updates: Map<string, { ja?: string; en?: string; zh?: string; ko?: string }>) => void;
+  onImport: (updates: Map<string, { ja?: string; en?: string; zh?: string; zhHant?: string; ko?: string }>) => void;
 }
 
 interface ImportPreview {
   added: { lang: string; count: number }[];
   changed: { lang: string; count: number }[];
   unknownIds: string[];
-  updates: Map<string, { ja?: string; en?: string; zh?: string; ko?: string }>;
+  updates: Map<string, { ja?: string; en?: string; zh?: string; zhHant?: string; ko?: string }>;
 }
 
 export function TranslationCsvTools({ rows, category, onImport }: Props) {
@@ -25,9 +25,9 @@ export function TranslationCsvTools({ rows, category, onImport }: Props) {
 
   // --- Export ---
   const handleExport = () => {
-    const header = `ID,${t('admin.translations_csv_header_no_edit')} ja,${t('admin.translations_csv_header_no_edit')} en,zh,ko`;
+    const header = `ID,${t('admin.translations_csv_header_no_edit')} ja,${t('admin.translations_csv_header_no_edit')} en,zh,zh-Hant,ko`;
     const csvRows = rows.map(r =>
-      [r.id, csvEscape(r.ja), csvEscape(r.en), csvEscape(r.zh), csvEscape(r.ko)].join(',')
+      [r.id, csvEscape(r.ja), csvEscape(r.en), csvEscape(r.zh), csvEscape(r.zhHant), csvEscape(r.ko)].join(',')
     );
     const csv = [header, ...csvRows].join('\n');
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
@@ -47,9 +47,9 @@ export function TranslationCsvTools({ rows, category, onImport }: Props) {
     });
 
     const rowMap = new Map(rows.map(r => [r.id, r]));
-    const updates = new Map<string, { ja?: string; en?: string; zh?: string; ko?: string }>();
+    const updates = new Map<string, { ja?: string; en?: string; zh?: string; zhHant?: string; ko?: string }>();
     const unknownIds: string[] = [];
-    let zhAdded = 0, koAdded = 0, jaChanged = 0, enChanged = 0, zhChanged = 0, koChanged = 0;
+    let zhAdded = 0, zhHantAdded = 0, koAdded = 0, jaChanged = 0, enChanged = 0, zhChanged = 0, zhHantChanged = 0, koChanged = 0;
 
     for (const parsed of result.data) {
       const id = parsed['ID'] || parsed['id'];
@@ -67,12 +67,15 @@ export function TranslationCsvTools({ rows, category, onImport }: Props) {
       const jaVal = parsed[jaKey]?.trim();
       const enVal = parsed[enKey]?.trim();
       const zhVal = parsed['zh']?.trim();
+      const zhHantVal = parsed['zh-Hant']?.trim();
       const koVal = parsed['ko']?.trim();
 
       if (jaVal && jaVal !== existing.ja) { update.ja = jaVal; jaChanged++; }
       if (enVal && enVal !== existing.en) { update.en = enVal; enChanged++; }
       if (zhVal && !existing.zh && zhVal) { update.zh = zhVal; zhAdded++; }
       else if (zhVal && zhVal !== existing.zh) { update.zh = zhVal; zhChanged++; }
+      if (zhHantVal && !existing.zhHant && zhHantVal) { update.zhHant = zhHantVal; zhHantAdded++; }
+      else if (zhHantVal && zhHantVal !== existing.zhHant) { update.zhHant = zhHantVal; zhHantChanged++; }
       if (koVal && !existing.ko && koVal) { update.ko = koVal; koAdded++; }
       else if (koVal && koVal !== existing.ko) { update.ko = koVal; koChanged++; }
 
@@ -82,12 +85,14 @@ export function TranslationCsvTools({ rows, category, onImport }: Props) {
     setPreview({
       added: [
         { lang: 'zh', count: zhAdded },
+        { lang: 'zh-Hant', count: zhHantAdded },
         { lang: 'ko', count: koAdded },
       ].filter(a => a.count > 0),
       changed: [
         { lang: 'ja', count: jaChanged },
         { lang: 'en', count: enChanged },
         { lang: 'zh', count: zhChanged },
+        { lang: 'zh-Hant', count: zhHantChanged },
         { lang: 'ko', count: koChanged },
       ].filter(c => c.count > 0),
       unknownIds,

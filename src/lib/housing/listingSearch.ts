@@ -49,7 +49,7 @@ export function buildListingSearchText(
     if (dc) parts.push(dc);
     // KR/CN は世界名が JP ワールドと衝突しうる (例: Carbuncle は Elemental(JP) と Korea 両方に存在)。
     // JP_KATAKANA_READINGS は JP ワールドのみを想定した名前引きのため、KR/CN では引かない。
-    const cnkr = listing.region === 'KR' || listing.region === 'CN';
+    const cnkr = listing.region === 'KR' || listing.region === 'CN' || listing.region === 'TW';
     // 日本ワールド/DC はカタカナ読みでも検索可能に (略称は部分一致で自動対応)。
     const serverKana = cnkr ? null : katakanaReading(server);
     if (serverKana) parts.push(serverKana);
