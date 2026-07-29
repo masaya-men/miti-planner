@@ -35,28 +35,6 @@ const STATIC_PROJECT_LABELS: Record<string, LocalizedString> = {
 };
 
 // ==========================================
-// zh (簡体字) → zh-Hant (繁体字) 機械変換フォールバック
-// ==========================================
-// contents.json の rc.zh は既に翻訳済みの正しい語順の文字列であるため、
-// 個別コンテンツ名(rc.zh)にまだ rc['zh-Hant'] が無い場合の最終フォールバックとして、
-// 文字単位の簡体字→繁体字変換のみを行う(語順は変えない)。
-// このマップは contents.json 全64件の zh フィールドに出現する簡体字専用文字を網羅している。
-// 実際のUIでは Firestore の master/contents(zh-Hant調査済み)が優先され、
-// これは Firestore 未取得時の静的フォールバック/テスト用のみで使われる。
-const SIMPLIFIED_TO_TRADITIONAL_MAP: Record<string, string> = {
-    '亚': '亞', '场': '場', '级': '級', '后': '後', '来': '來', '绝': '絕', '战': '戰',
-    '乱': '亂', '轻': '輕', '万': '萬', '狱': '獄', '欧': '歐', '验': '驗', '证': '證',
-    '炼': '煉', '净': '淨', '龙': '龍', '诗': '詩', '边': '邊', '乐': '樂', '园': '園',
-    '鸣': '鳴', '历': '歷', '觉': '覺', '时': '時', '狭': '狹', '缝': '縫', '尔': '爾',
-    '极': '極', '玛': '瑪',
-};
-
-function fallbackZhHant(zh: string | undefined): string {
-    if (!zh) return '';
-    return zh.split('').map(ch => SIMPLIFIED_TO_TRADITIONAL_MAP[ch] ?? ch).join('');
-}
-
-// ==========================================
 // Dynamic Series Generation Logic
 // ==========================================
 // Parses the prefix of the ID from RAID_CONTENTS to group floors into Series.
@@ -146,10 +124,10 @@ function getSeriesMetadata(id: string, category: ContentCategory): { seriesId: s
 
 // Map flat RawContentData into strictly-typed ContentDefinitions
 const STATIC_CONTENT_DEFINITIONS: ContentDefinition[] = RAID_CONTENTS.map(rc => {
-    const { seriesId, order, shortJa, shortEn, shortZh, shortZhHant, shortKo } = getSeriesMetadata(rc.id, rc.category);
+    const { seriesId, seriesZhHant, order, shortJa, shortEn, shortZh, shortZhHant, shortKo } = getSeriesMetadata(rc.id, rc.category);
     return {
         id: rc.id,
-        name: { ja: rc.ja, en: rc.en, zh: rc.zh, 'zh-Hant': rc['zh-Hant'] || fallbackZhHant(rc.zh), ko: rc.ko },
+        name: { ja: rc.ja, en: rc.en, zh: rc.zh, 'zh-Hant': rc['zh-Hant'] ?? seriesZhHant, ko: rc.ko },
         shortName: { ja: rc.shortNameJa || shortJa, en: shortEn, zh: shortZh, 'zh-Hant': shortZhHant, ko: shortKo },
         seriesId,
         category: rc.category,
@@ -169,7 +147,7 @@ RAID_CONTENTS.forEach(rc => {
         seriesMap.set(seriesId, {
             id: seriesId,
             name: rc.category === 'ultimate'
-                ? { ja: rc.ja, en: rc.en, zh: rc.zh, 'zh-Hant': rc['zh-Hant'] || fallbackZhHant(rc.zh), ko: rc.ko }
+                ? { ja: rc.ja, en: rc.en, zh: rc.zh, 'zh-Hant': rc['zh-Hant'] ?? seriesZhHant, ko: rc.ko }
                 : { ja: seriesJa, en: seriesEn, zh: seriesZh, 'zh-Hant': seriesZhHant, ko: seriesKo },
             category: rc.category,
             level: rc.level
