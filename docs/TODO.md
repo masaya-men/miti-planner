@@ -17,8 +17,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 2026-07-29: 繁体字(台湾)対応 全5フェーズ実装完了・mainへローカルマージ済み(未push)
-①台湾リージョン統合〜⑤ゲームデータ翻訳流し込みまで**全フェーズ実装・レビュー完了**。worktree `.claude/worktrees/housing-taiwan-region-support`(ブランチ`worktree-housing-taiwan-region-support`)からmainへローカルマージ済み(コード側は無衝突、docs/TODO.mdのみ手動解消)。ビルド・vitest再実行済み(3730 passed、既知の無関係failure=EphemeralAddPanel 7件のみ)。詳細=TODO_COMPLETED.md「2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了」。**次のアクション: ローカル実機確認 → push・デプロイ**(ユーザー方針: 部分公開は望まない・5フェーズ全部終わらせてから公開)。未対応の別件(zh-Hant固有ではない)=housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
+### 2026-07-29: 繁体字(台湾)対応 全5フェーズ実装完了・mainへローカルマージ済み(未push・ローカル実機確認待ち)
+①台湾リージョン統合〜⑤ゲームデータ翻訳流し込みまで**全フェーズ実装・レビュー完了**。worktree `.claude/worktrees/housing-taiwan-region-support`からmainへマージ・worktree/ブランチとも削除済み(finishing-a-development-branchスキル手順)。マージ後の再検証でtag-and-search由来のzh-Hant.json欠落9キー(`housing.browse.view_tags`+`housing.tagpicker.*`一式)を発見・修正済み(commit `f7793e93`)。ビルド+vitest再実行OK(3777 passed、既知の無関係failure=EphemeralAddPanel 7件のみ)。詳細=TODO_COMPLETED.md「2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了」。**次のアクション: ユーザーがローカル(`npm run dev`起動済み・http://localhost:5173/)で実機確認 → OKならpush・デプロイ**(ユーザー方針: 部分公開は望まない・5フェーズ全部終わらせてから公開)。未対応の別件(zh-Hant固有ではない)=housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
 ### ✅ 直近の本番反映(詳細は全てTODO_COMPLETED.md)
 マイページ作成(2026-07-24)/複数投稿URL登録Batch2(2026-07-22)/編集ページ画像管理Plan A+B(2026-07-21)/探すページ表示順ランダム化+スクロール復元・初心者タグ(2026-07-21〜23)/コスト・ハードニング+実機FB9件(2026-07-20)。
 ### ✅ ハウジング全タスク棚卸し完了(2026-07-23)
