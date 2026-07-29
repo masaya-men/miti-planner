@@ -9,6 +9,7 @@ export default defineConfig({
           'src/**/__tests__/**/*.test.ts',
           'src/**/__tests__/**/*.test.tsx',
           'api/**/__tests__/**/*.test.ts',
+          'scripts/**/__tests__/**/*.test.ts',
         ],
         // pool: 'vmThreads' (VM context で isolation)。
         //
