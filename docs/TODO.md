@@ -17,8 +17,12 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 2026-07-29: 繁体字(台湾)対応 全5フェーズ実装完了・mainへローカルマージ済み(未push・ローカル実機確認待ち)
-①台湾リージョン統合〜⑤ゲームデータ翻訳流し込みまで**全フェーズ実装・レビュー完了**。worktree `.claude/worktrees/housing-taiwan-region-support`からmainへマージ・worktree/ブランチとも削除済み(finishing-a-development-branchスキル手順)。マージ後の再検証でtag-and-search由来のzh-Hant.json欠落9キー(`housing.browse.view_tags`+`housing.tagpicker.*`一式)を発見・修正済み(commit `f7793e93`)。ビルド+vitest再実行OK(3777 passed、既知の無関係failure=EphemeralAddPanel 7件のみ)。詳細=TODO_COMPLETED.md「2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了」。**次のアクション: ユーザーがローカル(`npm run dev`起動済み・http://localhost:5173/)で実機確認 → OKならpush・デプロイ**(ユーザー方針: 部分公開は望まない・5フェーズ全部終わらせてから公開)。未対応の別件(zh-Hant固有ではない)=housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
+### 2026-07-29: 繁体字(台湾)対応 全5フェーズ実装完了・mainへローカルマージ済み(未push・push保留中)
+①台湾リージョン統合〜⑤ゲームデータ翻訳流し込みまで**全フェーズ実装・レビュー完了**。worktree `.claude/worktrees/housing-taiwan-region-support`からmainへマージ・worktree/ブランチとも削除済み(finishing-a-development-branchスキル手順)。マージ後の再検証でtag-and-search由来のzh-Hant.json欠落9キー(`housing.browse.view_tags`+`housing.tagpicker.*`一式)を発見・修正済み(commit `f7793e93`)。ビルド+vitest再実行OK(3777 passed、既知の無関係failure=EphemeralAddPanel 7件のみ)。詳細=TODO_COMPLETED.md「2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了」。**ユーザー方針(2026-07-30再確認): 部分公開は望まない、以下もまとめて片付けてから一括で大きく発表**。
+### 🔲 2026-07-30: 大発表バッチに追加された残タスク(push前にここまでやる)
+①**OGPカード作り込み**(ハウジンガーページ)= brainstorming途中。ツアー招待カードは現状で完成と確定済み。方向性: 背景=そのハウジンガーの物件画像(動画のみのlistingは保存済みposter画像も対象に含めるよう修正)を拡大・ぼかしてタイル状に敷き詰め、中央にアイコン(WebP実画像化=既存TODO「アバターWebP勢のPNG変換」とセットで解消)+名前+紹介文+小さくLoPo表記。物件0件のハウジンガーは濃紺の地のままでよい(シェアされない想定)。**直近の論点(要再開)**: 「背景用画像」と「代表作5〜10枚」をハウジンガー本人に選ばせる案(重複選択可)で検討中、詳細な仕様(代表作の用途・UIの置き場所)は次回続き。Allmarks(マイコラージュ)連携案は調査の結果「見るたび生成」ではなく「作成時1回生成→恒久キャッシュ」方式と判明(LoPoの既存方式と同じ発想)、コスト目的の転用ネタは無し。Allmarks送客自体は別建ての大きな話として今回は見送り。
+②**UI不具合3件**(ユーザー指摘2026-07-30・未着手・systematic-debugging要): (a) ボタンのサイズがページごとにばらばら (b) スマホでハウジンガーページ等が中央配置になっていない (c) PC版「探す」ページのカードが中央配置になっていない。
+未対応の別件(zh-Hant固有ではない)=housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
 ### ✅ 直近の本番反映(詳細は全てTODO_COMPLETED.md)
 マイページ作成(2026-07-24)/複数投稿URL登録Batch2(2026-07-22)/編集ページ画像管理Plan A+B(2026-07-21)/探すページ表示順ランダム化+スクロール復元・初心者タグ(2026-07-21〜23)/コスト・ハードニング+実機FB9件(2026-07-20)。
 ### ✅ ハウジング全タスク棚卸し完了(2026-07-23)
