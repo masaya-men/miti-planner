@@ -147,7 +147,7 @@ export default async function handler(req: any, res: any) {
             } else {
               const listingSnap = await db.collection(LISTING_COLLECTION)
                 .where('ownerUid', '==', uid)
-                .where('visibility', 'in', PUBLIC_VISIBILITY)
+                .where('visibility', '==', 'public')
                 .where('isHidden', '==', false)
                 .orderBy('createdAt', 'desc')
                 .limit(10)
