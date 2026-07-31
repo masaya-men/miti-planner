@@ -81,3 +81,24 @@ describe('canDisplayAddress / canDisplayFullAddress (P3 §3.5 型ガード)', ()
     expect(canDisplayFullAddress(l)).toBe(false);
   });
 });
+
+import { isEligibleForOgRepresentative } from '../listingPublish';
+
+describe('isEligibleForOgRepresentative', () => {
+  const now = 1_700_000_000_000;
+  it('visibility=public かつ期限内なら true', () => {
+    expect(isEligibleForOgRepresentative({ visibility: 'public' }, now)).toBe(true);
+  });
+  it('visibility=unlisted(住所非公開)は false', () => {
+    expect(isEligibleForOgRepresentative({ visibility: 'unlisted' }, now)).toBe(false);
+  });
+  it('visibility=private は false', () => {
+    expect(isEligibleForOgRepresentative({ visibility: 'private' }, now)).toBe(false);
+  });
+  it('visibility=public でも publishUntil 経過済みなら false', () => {
+    expect(isEligibleForOgRepresentative({ visibility: 'public', publishUntil: now - 1000 }, now)).toBe(false);
+  });
+  it('visibility未設定はfalse(publicを明示していない限り選択不可)', () => {
+    expect(isEligibleForOgRepresentative({}, now)).toBe(false);
+  });
+});
