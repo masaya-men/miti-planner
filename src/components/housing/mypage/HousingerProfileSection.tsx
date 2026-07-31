@@ -21,7 +21,12 @@ import type { HousingerProfile } from '../../../types/housing';
  * 保存/公開/公開停止はすべて upsertHousingerProfile (POST /api/housing?action=upsert-housinger-profile)
  * 経由で行い、成功時はレスポンスの profile でローカル state を更新する (再フェッチ不要)。
  */
-export const HousingerProfileSection: React.FC = () => {
+export interface HousingerProfileSectionProps {
+  /** 2026-07-31: タイトル行の右側に置く追加要素 (マイページの共有ボタン等)。 */
+  actions?: React.ReactNode;
+}
+
+export const HousingerProfileSection: React.FC<HousingerProfileSectionProps> = ({ actions }) => {
   const { t } = useTranslation();
   const uid = useAuthStore((s) => s.user?.uid ?? null);
   const displayName = useAuthStore((s) => s.profileDisplayName);
@@ -142,7 +147,10 @@ export const HousingerProfileSection: React.FC = () => {
 
   return (
     <div className="housing-account-housinger">
-      <h4 className="housing-account-housinger-title">{t('housing.housinger.account.title')}</h4>
+      <div className="housing-account-housinger-titlerow">
+        <h4 className="housing-account-housinger-title">{t('housing.housinger.account.title')}</h4>
+        {actions}
+      </div>
       <p className="housing-account-housinger-desc">{t('housing.housinger.account.description')}</p>
       <p className="housing-account-name-note">{t('housing.account.displayNameNote')}</p>
 

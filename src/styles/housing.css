@@ -2771,6 +2771,13 @@ select.housing-input option {
     margin-bottom: 8px;
     border-top: 1px solid var(--housing-account-divider);
 }
+/* 2026-07-31: タイトル + 共有ボタン(マイページのみ)を横並びにする行。 */
+.housing-account-housinger-titlerow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
 .housing-account-housinger-title {
     margin: 0;
     font-size: var(--housing-text-base);
@@ -3825,7 +3832,8 @@ select.housing-input option {
     color: var(--housing-text);
 }
 /* 自己紹介文は常に同じ高さの枠 (文字が少なくても余白のまま・長大でもこの枠内だけでスクロール)。
-   これにより下のボタン群 (まとめてツアー/シェア/X/通報) が文章量でガタつかず常に同じ位置に来る。 */
+   これにより下の「まとめてツアー」ボタンが文章量でガタつかず常に同じ位置に来る
+   (シェア/X/通報は 2026-07-31 に紹介文の上へ移動済み)。 */
 .housinger-page-bio {
     margin: 0;
     height: var(--housinger-page-bio-max-h);
