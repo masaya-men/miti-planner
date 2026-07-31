@@ -3865,6 +3865,13 @@ select.housing-input option {
     background: var(--housing-chip-bg-hover);
     color: var(--housing-text);
 }
+/* シェアボタン(テキスト)が、隣のXシェア/「…」メニューの各アイコンボタン(padding 6px + 16px
+   アイコン = 28px四方)より縦に大きく見えていた不具合の修正(ユーザー実機指摘2026-07-31)。
+   高さをこの行の他ボタンに揃える(横幅はテキスト分だけ自然に広がったままでよい)。 */
+.housinger-page-profile-actions .housing-action-btn:not(.is-icon) {
+    height: 28px;
+    padding: 0 10px;
+}
 /* まとめてツアー = 主アクション (ハニー系 CTA)。 .housing-tour-tray-start と同じ見た目パターン。
    左列では横幅いっぱいのボタンにする (手書きレイアウト案どおり)。 */
 .housinger-page-tour-btn {
