@@ -27,9 +27,9 @@ import {
 import { normalizeDisplayNameForSearch } from '../../src/data/personalTags.js';
 
 export function validateUpsertBody(body: any):
-  | { ok: true; isPublished?: boolean; bio?: string | null; snsUrl?: string | null }
-  | { ok: false; error: 'invalid_bio' | 'invalid_sns_url' | 'invalid_body' } {
-  const { isPublished, bio, snsUrl } = body || {};
+  | { ok: true; isPublished?: boolean; bio?: string | null; snsUrl?: string | null; ogRepresentativeListingIds?: string[] | null }
+  | { ok: false; error: 'invalid_bio' | 'invalid_sns_url' | 'invalid_body' | 'invalid_og_representative_ids' } {
+  const { isPublished, bio, snsUrl, ogRepresentativeListingIds } = body || {};
   if (isPublished !== undefined && typeof isPublished !== 'boolean') {
     return { ok: false, error: 'invalid_body' };
   }
@@ -43,7 +43,16 @@ export function validateUpsertBody(body: any):
       return { ok: false, error: 'invalid_sns_url' };
     }
   }
-  return { ok: true, isPublished, bio, snsUrl };
+  if (ogRepresentativeListingIds !== undefined && ogRepresentativeListingIds !== null) {
+    if (
+      !Array.isArray(ogRepresentativeListingIds)
+      || ogRepresentativeListingIds.length > 10
+      || ogRepresentativeListingIds.some((id: unknown) => typeof id !== 'string' || !id)
+    ) {
+      return { ok: false, error: 'invalid_og_representative_ids' };
+    }
+  }
+  return { ok: true, isPublished, bio, snsUrl, ogRepresentativeListingIds };
 }
 
 function setCors(req: any, res: any) {
@@ -104,8 +113,12 @@ export default async function handler(req: any, res: any) {
       const next = {
         displayName,
         avatarUrl: userData.avatarUrl ?? null,
+        avatarPngUrl: userData.avatarPngUrl ?? null,
         bio: v.bio !== undefined ? v.bio : prev?.bio ?? null,
         snsUrl: v.snsUrl !== undefined ? v.snsUrl : prev?.snsUrl ?? null,
+        ogRepresentativeListingIds: v.ogRepresentativeListingIds !== undefined
+          ? v.ogRepresentativeListingIds
+          : prev?.ogRepresentativeListingIds ?? null,
         isPublished: nextPublished,
         isModerationHidden: prev?.isModerationHidden ?? false,
         reportCount: prev?.reportCount ?? 0,

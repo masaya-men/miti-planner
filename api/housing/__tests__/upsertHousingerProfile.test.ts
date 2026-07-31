@@ -19,4 +19,15 @@ describe('validateUpsertBody', () => {
   it('isPublished は boolean 以外拒否', () => {
     expect(validateUpsertBody({ isPublished: 'yes' }).ok).toBe(false);
   });
+  it('ogRepresentativeListingIds は10件以下の文字列配列のみ ok', () => {
+    expect(validateUpsertBody({ ogRepresentativeListingIds: ['a', 'b'] }).ok).toBe(true);
+    expect(validateUpsertBody({ ogRepresentativeListingIds: [] }).ok).toBe(true);
+    expect(validateUpsertBody({ ogRepresentativeListingIds: null }).ok).toBe(true);
+    expect(validateUpsertBody({ ogRepresentativeListingIds: Array(11).fill('x') }))
+      .toEqual({ ok: false, error: 'invalid_og_representative_ids' });
+    expect(validateUpsertBody({ ogRepresentativeListingIds: ['a', 123] }))
+      .toEqual({ ok: false, error: 'invalid_og_representative_ids' });
+    expect(validateUpsertBody({ ogRepresentativeListingIds: 'not-an-array' }))
+      .toEqual({ ok: false, error: 'invalid_og_representative_ids' });
+  });
 });
