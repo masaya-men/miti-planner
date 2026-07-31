@@ -87,3 +87,14 @@ export function parseStoragePathFromPublicUrl(url: string): string | null {
 export function buildHousingImagePublicUrl(listingId: string, filename: string): string {
   return `https://lopoly.app/housing-media/${listingId}/${filename}`;
 }
+
+/**
+ * WebP/AVIF画像パス/URLの拡張子を .png に置き換える (兄弟ファイルの命名規則)。
+ * satori (OGPカード生成) はWebP/AVIF非対応のため、アップロード時に並行保存した
+ * .png 派生版を指す URL を組み立てるのに使う (_imageFormatConvert.ts の
+ * convertToPngIfNeeded とペア。sharp非依存の純関数なのでこちらに置く)。
+ * 既にPNG/JPEG等の場合は変更しない。
+ */
+export function toPngSiblingPath(path: string): string {
+  return path.replace(/\.(webp|avif)$/i, '.png');
+}

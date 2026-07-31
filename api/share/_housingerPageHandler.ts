@@ -23,6 +23,7 @@ import { buildHousingerOgCardParams } from '../../src/lib/ogpHousingerCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { isEligibleForOgRepresentative } from '../../src/lib/housing/listingPublish.js';
 import { buildYoutubeThumbnailUrlFallback } from '../../src/lib/housing/youtubeUrl.js';
+import { toPngSiblingPath } from '../housing/_imageArrayLogic.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
@@ -42,6 +43,12 @@ function escapeHtml(s: string): string {
  * 動画のみ登録(imageMode:'none')の物件も、動画由来の静止画があればここで拾う
  * (2026-07-31: 従来はimageMode==='none'を一律除外していたため、動画メインのハウジンガーの
  * カードが空になっていた不具合の修正)。
+ *
+ * thumbnail経路 (直接アップロード) はブラウザ側でWebP優先圧縮されるが、OGPカード生成
+ * (satori) はWebP/AVIF非対応で黙って読み飛ばす (2026-07-31実機で発覚)。アップロード時に
+ * 保存した .png 兄弟ファイル (api/housing/_uploadThumbnailHandler.ts) を優先して指す。
+ * 未変換の既存データ (バックフィル未実行/変換失敗) では .png が存在せず、呼び出し側の
+ * fetchAsDataUri が 404 で null を返す = 従来通り「画像なし」に留まるだけで安全側に倒れる。
  */
 function listingRepresentativeImage(listing: {
   imageMode?: unknown;
@@ -51,7 +58,7 @@ function listingRepresentativeImage(listing: {
   youtubeVideoId?: unknown;
 }): string | null {
   if (listing.imageMode === 'thumbnail' && typeof listing.thumbnailPath === 'string' && listing.thumbnailPath) {
-    return listing.thumbnailPath;
+    return toPngSiblingPath(listing.thumbnailPath);
   }
   if (listing.imageMode === 'sns' && typeof listing.ogImageUrl === 'string' && listing.ogImageUrl) {
     return listing.ogImageUrl;

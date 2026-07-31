@@ -36,8 +36,9 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 import { FieldValue } from 'firebase-admin/firestore';
-import { parseStoragePathFromPublicUrl, buildHousingImagePublicUrl } from './_imageArrayLogic.js';
+import { parseStoragePathFromPublicUrl, buildHousingImagePublicUrl, toPngSiblingPath } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
+import { convertToPngIfNeeded, LISTING_THUMBNAIL_PNG_MAX_DIMENSION } from './_imageFormatConvert.js';
 
 const MAX_BYTES = 1 * 1024 * 1024; // 1MB
 const MAX_IMAGES_PER_LISTING = 4;
@@ -136,6 +137,24 @@ export default async function handler(req: any, res: any) {
       // public URL を直接配信できるよう cache を長めに
       metadata: { cacheControl: 'public, max-age=31536000, immutable' },
     });
+
+    // OGPカード生成 (satori) はWebP/AVIF非対応のため、同じ場所に .png 版も並行保存する
+    // (2026-07-31: OGPカードで代表作が黙って読み飛ばされる不具合の恒久対策)。
+    // Firestoreスキーマは変更せず、拡張子違いの兄弟ファイルとして解決する
+    // (api/share/_housingerPageHandler.ts の representative image 解決側が参照)。
+    // 失敗しても本アップロード自体は成功扱いにする (PNG派生版が無ければ従来通りの
+    // 「OGPカードでは読み飛ばされる」に留まるだけで、アップロード自体を失敗させる理由がない)。
+    const pngBuf = await convertToPngIfNeeded(buf, mimeType, { maxDimension: LISTING_THUMBNAIL_PNG_MAX_DIMENSION });
+    if (pngBuf) {
+      try {
+        await bucket.file(toPngSiblingPath(filePath)).save(pngBuf, {
+          contentType: 'image/png',
+          metadata: { cacheControl: 'public, max-age=31536000, immutable' },
+        });
+      } catch (e) {
+        console.error('[housing/upload-thumbnail] png sibling save failed (non-fatal):', e);
+      }
+    }
     // 公開 URL: Cloudflareキャッシュ経由の新形式 (2026-07-24〜)。
     // filePath = `housing/listings/{listingId}/{uuid}.{ext}` なので
     // ファイル名部分だけを渡す (listingId は既に変数として存在)。

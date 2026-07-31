@@ -4,6 +4,7 @@ import {
   computeArrayReorder,
   parseStoragePathFromPublicUrl,
   buildHousingImagePublicUrl,
+  toPngSiblingPath,
 } from '../_imageArrayLogic.js';
 
 describe('computeArrayDeletion', () => {
@@ -86,5 +87,26 @@ describe('buildHousingImagePublicUrl', () => {
   it('組み立てたURLはparseStoragePathFromPublicUrlで逆変換できる(往復一致)', () => {
     const url = buildHousingImagePublicUrl('listing-42', 'uuid-abc.avif');
     expect(parseStoragePathFromPublicUrl(url)).toBe('housing/listings/listing-42/uuid-abc.avif');
+  });
+});
+
+describe('toPngSiblingPath', () => {
+  it('.webp を .png に置き換える', () => {
+    expect(toPngSiblingPath('https://lopoly.app/housing-media/abc/xyz.webp')).toBe(
+      'https://lopoly.app/housing-media/abc/xyz.png',
+    );
+  });
+
+  it('.avif を .png に置き換える', () => {
+    expect(toPngSiblingPath('housing/listings/L1/uuid.avif')).toBe('housing/listings/L1/uuid.png');
+  });
+
+  it('大文字拡張子も置き換える', () => {
+    expect(toPngSiblingPath('foo.WEBP')).toBe('foo.png');
+  });
+
+  it('既にPNG/JPEGなら変更しない', () => {
+    expect(toPngSiblingPath('foo.png')).toBe('foo.png');
+    expect(toPngSiblingPath('foo.jpg')).toBe('foo.jpg');
   });
 });
