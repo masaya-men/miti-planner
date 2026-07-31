@@ -17,34 +17,22 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 2026-07-29: 繁体字(台湾)対応 全5フェーズ実装完了・mainへローカルマージ済み(未push・push保留中)
-①台湾リージョン統合〜⑤ゲームデータ翻訳流し込みまで**全フェーズ実装・レビュー完了**。worktree `.claude/worktrees/housing-taiwan-region-support`からmainへマージ・worktree/ブランチとも削除済み(finishing-a-development-branchスキル手順)。マージ後の再検証でtag-and-search由来のzh-Hant.json欠落9キー(`housing.browse.view_tags`+`housing.tagpicker.*`一式)を発見・修正済み(commit `f7793e93`)。ビルド+vitest再実行OK(3777 passed、既知の無関係failure=EphemeralAddPanel 7件のみ)。詳細=TODO_COMPLETED.md「2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了」。**ユーザー方針(2026-07-30再確認): 部分公開は望まない、以下もまとめて片付けてから一括で大きく発表**。
-### 🔲 2026-07-30: 大発表バッチに追加された残タスク(push前にここまでやる)
-①**OGPカード作り込み**(ハウジンガーページ)= **設計書+実装計画まで完成(2026-07-31)。次回セッションでsubagent-driven-developmentにより実装開始(ユーザー指示)**。設計書=`docs/superpowers/specs/2026-07-31-housinger-ogp-card-redesign-design.md`、実装計画(11タスク)=`docs/superpowers/plans/2026-07-31-housinger-ogp-card-redesign.md`。要点: マイページで代表作を最大10件手動選択(1件目=背景兼ヒーロー、未選択なら新着順上位10件を自動採用)、動画のみ物件もposter画像で対象化、パネルはLoPoハウジング意匠(ヘッダー/フッターなし)、アバターWebP問題もPNG併存アップロードで解消。ツアー招待カードは現状で完成と確定済み(対象外)。Allmarks(マイコラージュ)連携は調査の結果「作成時1回生成→恒久キャッシュ」でLoPo既存方式と同じと判明し見送り。
-②**UI不具合3件**(ユーザー指摘2026-07-30・未着手・systematic-debugging要): (a) ボタンのサイズがページごとにばらばら (b) スマホでハウジンガーページ等が中央配置になっていない (c) PC版「探す」ページのカードが中央配置になっていない。
+### 🔴 2026-07-31: 探すページの公開一覧に200件上限があり実データが欠落(次回最優先・頭クリアで着手)
+`api/housing/_publicWindow.ts`の`action=gallery`が`.limit(200)`で新しい順に打ち切っており、公開/住所非公開listing総数が現在204件(**既に4件超過・検索結果から消えている**)。件数が増えるほど悪化する構造的バグ(ユーザー実機でタグ検索0件として発覚・診断済み)。**ユーザー方針: 上限は撤廃**(画面描画の間引き/virtualizationは現状件数では不要、将来件数増加時に検討)。**未解決の派生論点**: このAPIのキャッシュ(version番号方式・s-maxage=86400想定)は、物件の登録/編集/削除のたびに`bumpPublicVersionTx`等でversionが上がる設計のため、想定よりキャッシュが効いていない(高頻度で再取得が走っている)疑いが浮上。**次回はこれをクリアな頭で調査してから対応方針を決める**。対象ファイル: `api/housing/_publicWindow.ts`(`.limit(200)`、gallery/housinger両action)・`api/housing/_publicVersion.ts`(version bump頻度、20箇所以上のhandlerから呼ばれている)。
+### ✅ 2026-07-31: ハウジンガーOGPカード作り込み 全11タスク完了(mainマージ待ち)
+subagent-driven-developmentで実装計画(`docs/superpowers/plans/2026-07-31-housinger-ogp-card-redesign.md`)を完走、統合確認+最終レビューも実施済み。worktree `.claude/worktrees/housinger-ogp-card-redesign`に18コミット。**mainへの統合方法(ローカルマージ/PR/保留)はユーザー未回答のまま次回持ち越し**。同worktreeで追加のUI/データ不具合3件も対応・コミット済み: ①ハウジンガーページのシェアボタン高さ不整合 ②ハウジンガータグのアバター画像欠落(データ追加+書込/読出修正+既存38件バックフィル適用済み) ③タグ絞り込み一覧の並び順(記号無視+ABC→五十音)。UI不具合3件のうち(a)ボタンサイズは対応済み、(b)スマホ中央配置(c)PC中央配置は未着手。
+### 2026-07-29: 繁体字(台湾)対応 全5フェーズ完了・mainへローカルマージ済み(未push)
+詳細=TODO_COMPLETED.md「2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了」。**ユーザー方針: 部分公開は望まない、繁体字+OGP+UI修正まとめて発表**。
 未対応の別件(zh-Hant固有ではない)=housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
-### ✅ 直近の本番反映(詳細は全てTODO_COMPLETED.md)
-マイページ作成(2026-07-24)/複数投稿URL登録Batch2(2026-07-22)/編集ページ画像管理Plan A+B(2026-07-21)/探すページ表示順ランダム化+スクロール復元・初心者タグ(2026-07-21〜23)/コスト・ハードニング+実機FB9件(2026-07-20)。
-### ✅ ハウジング全タスク棚卸し完了(2026-07-23)
-全項目=`docs/.private/2026-07-23-housing-task-inventory.md`。
+### ✅ 直近の本番反映・棚卸し(詳細は全てTODO_COMPLETED.md / `.private/2026-07-23-housing-task-inventory.md`)
+マイページ作成/複数投稿URL登録Batch2/編集ページ画像管理/探すページ表示順ランダム化+初心者タグ/コスト・ハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所確認ゲート強化/旧UI意匠掃除、全て本番反映・確認済み。
 
-### 🔴 次セッション優先(2026-07-20 更新)
-00. ✅ **コスト・ハードニング全部+実機FB9件中②③⑥⑦⑧⑨+ボタン高さ統一/スマホ下端余白/お気に入りアニメ強化、全部本番反映済み・ユーザー実機OK(2026-07-20)**。詳細=TODO_COMPLETED。残=上記「次の作業順」⑤参照。
-0-1. 🎨 **詳細ページ紹介文レイアウト改善(ブレスト途中で保留)**: 設計書=`docs/superpowers/specs/2026-07-20-housing-detail-description-hover-reveal-design.md`(3行クランプ+ホバー/フォーカスで全文カード表示)。ユーザーが「もう少しちゃんと考えたい」で次回持ち越し・未実装。
-0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`):
-   - ✅ スマホ対応+実機FB第2〜8弾+**中韓対応=全部実装・本番反映・シード済(2026-07-18)**。詳細=TODO_COMPLETED。裁定待ち2件(クリア挙動変更の追認/season_christmas訳)は次回確認。
-   - **公開前ブロッカー**: ①**モデレ判断待ち(要brainstorming・規模感=うまくいけば数百人〜それ以上とユーザー回答2026-07-17)**=/admin で通報一覧+非表示/強制非公開/個別却下(物件・人・個人タグ)+閾値自動非表示は可。**未実装(公開後対応)=BAN/quota永久0/一括削除/物理削除cron**([AdminHousingReports.tsx:9])→hide運用で公開か最低限BAN追加かユーザー判断。②**Discord告知**(ツアー公開・P3住所非公開も併記)。③**中韓=後追いなるはや**(専用DC/鯖/ワードデータ依存・JA/ENブロッカー外。用語CSV=`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`)。**地域分離は検証済(2026-07-17)**: 現状KR/CN鯖はマスター非存在=混在不可能。ツアー地域ガード(canAddToTour/tourRegionConflict・全追加経路+開始時二重)が実装済でKR/CN追加時も自動適用。対応時の注意=(a)Region型拡張時にOCE例外へ巻き込まない (b)APIのdc実在検証を追加([housingValidation.ts:99]は空チェックのみ)。
-   - **残TODO(公開後でも可)**: ①OGPカードのデザイン作り込み=ハウジンガー+ツアー招待URLの両方(「LoPoのハウジングからの共有」と一目で分かるブランド感へ品質最大化・後日ちゃんと設計) ②アバターWebP勢のPNG変換(現状はイニシャル表示)。
-   - **忘れず(ユーザー指摘)**: 最初の家でもDCテレポ案内 / 30日物理削除cron(公開後・listing用) / 数日後=GCPコスト実測→G5。
-1. ✅ **P0-P3 耐性+住所非公開=本番稼働(2026-07-15・G7完全通過)**。残作業なし(Discord告知含め対応済み・2026-07-23確認)。詳細=`.superpowers/sdd/progress.md`+`.private/2026-07-14-*`・[[project_housing_scale_hardening]]。
-2. ✅ **c 削除時の即反映バグ** = 対応済み確認(2026-07-23コード確認: `useHousingListingsStore.ts`の`remove`が`myListings`もfilter済み)。
-3. 🎨 **e PF レイアウト調整** (ユーザーが詳細を後述・一緒に詰める。今回は共有ボタンのみ実装)。admin タグ生ID(軽微) も残。
-4. ✅ **旧UI意匠掃除+文言** = 2026-07-23 ユーザー確認済み・対応済み(詳細=`docs/.private/2026-07-23-housing-task-inventory.md`)。
+### 🔴 次セッション優先(2026-07-20 更新・大半確認済みのため圧縮)
+0-1. 🎨 **詳細ページ紹介文レイアウト改善(ブレスト保留中・未実装)**: 設計書=`docs/superpowers/specs/2026-07-20-housing-detail-description-hover-reveal-design.md`(3行クランプ+ホバーで全文表示)。
+0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`): **公開前ブロッカー**=①モデレ判断待ち(要brainstorming)②Discord告知③中韓後追い(用語CSV=`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`)。**忘れず**=最初の家でもDCテレポ案内/30日物理削除cron(listing用)/GCPコスト実測→G5。
+3. 🎨 **e PF レイアウト調整**(ユーザーと詳細を詰める。今回は共有ボタンのみ実装済み)。admin タグ生ID(軽微)も残。
 
 ### big3(7-13)+競合コピー修正=✅本番反映済 → 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残(ユーザー実機)**=PF/⑤横断検索 checklist `.private/2026-07-12-big3-release-verification-checklist.md` B+⑤節。**保留**=②建物タイプ切替がたつき(`0e07d7e1`効かず・要systematic-debugging)。
-
-### ✅ D 住所確認ゲート強化 = 対応済み(2026-07-23確認)
-死にコード撤去(HousingRegisterAddressFields/ParentHouseSizeField)含め対応済み。詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
 - **🔴 緊急対応フォロー(機能): 自己対処できる管理画面**: ①緊急キルスイッチ(Firestore フラグで保存停止+メンテ表示・再デプロイ不要) ②データ健康ダッシュボード(軽減0×イベント有を監視) ③/admin 内に緊急手順書。(2026-06-16 データ破壊バグ根治2件+PITR復旧は完了→COMPLETED。監視=collab で稀に単発軽減が同期取り合いで落ちる一過性グリッチ・再現せず)
 - **デプロイ済・残検証/中優先backlog**: FFLogs残(①全滅ログ pull URL`#fight=N`検証+キルログ回帰`selectFight`/②トークン502 `fflogsTokenFailover`特定・specs 2026-04-05-fflogs-import-v2)/同期安定化 残=Step3 unload確実化(updatePlan読んでから書く廃止)+墓標GC cron(詳細=`.private/2026-06-03-realtime-collab-and-sync-notes.md`)/動画CFエッジキャッシュ(Worker full mp4→Cache API→Range slice 206・Range×cacheはseek検証必須[[reference_vercel_edge_range_cache]])/**軽減表の更新配信トースト**(自動reload禁止・要相談)。
