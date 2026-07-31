@@ -23,7 +23,7 @@ vi.mock('firebase/firestore', () => ({
   getDocs: (...a: unknown[]) => mockGetDocs(...a),
 }));
 
-import { getPersonalTagById, listAllPersonalTags } from '../personalTagLookup';
+import { getPersonalTagById, listAllPersonalTags, stripLeadingSymbolsForSort } from '../personalTagLookup';
 import type { PersonalTag } from '../../../types/housing';
 
 const TAG: PersonalTag = {
@@ -93,5 +93,48 @@ describe('listAllPersonalTags', () => {
     mockGetDocs.mockResolvedValueOnce({ docs: [] });
     const r = await listAllPersonalTags();
     expect(r).toEqual([]);
+  });
+
+  it('先頭記号を無視して並び替える (# 始まりの名前が記号を無視した位置に来る)', async () => {
+    // Firestore の orderBy('displayNameLower') は生のコードポイント比較なので、
+    // 記号始まりの名前 (# は 'a' よりコードポイントが小さい) が実際には先頭で返ってくる。
+    // クライアント側の再ソートでこれが是正され、 'E' の並び (Ayase と Zebra の間) に来ることを検証する。
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        { data: () => ({ ...TAG, id: 'personal_ephemeral', displayName: '#Ephemeral_studio', displayNameLower: '#ephemeral_studio' }) },
+        { data: () => ({ ...TAG, id: 'personal_ayase', displayName: 'Ayase', displayNameLower: 'ayase' }) },
+        { data: () => ({ ...TAG, id: 'personal_zebra', displayName: 'Zebra', displayNameLower: 'zebra' }) },
+      ],
+    });
+    const r = await listAllPersonalTags();
+    expect(r.map((t) => t.id)).toEqual(['personal_ayase', 'personal_ephemeral', 'personal_zebra']);
+  });
+
+  it('英数字 → ひらがなの順序 (Ayase → かずタマ) が壊れていないこと', async () => {
+    mockGetDocs.mockResolvedValueOnce({
+      docs: [
+        { data: () => ({ ...TAG, id: 'personal_kazutama', displayName: 'かずタマ', displayNameLower: 'かずタマ' }) },
+        { data: () => ({ ...TAG, id: 'personal_ayase', displayName: 'Ayase', displayNameLower: 'ayase' }) },
+      ],
+    });
+    const r = await listAllPersonalTags();
+    expect(r.map((t) => t.id)).toEqual(['personal_ayase', 'personal_kazutama']);
+  });
+});
+
+describe('stripLeadingSymbolsForSort', () => {
+  it('先頭の記号・アンダースコアを取り除く', () => {
+    expect(stripLeadingSymbolsForSort('#ephemeral_studio')).toBe('ephemeral_studio');
+    expect(stripLeadingSymbolsForSort('__foo')).toBe('foo');
+  });
+
+  it('先頭が既に文字・数字ならそのまま', () => {
+    expect(stripLeadingSymbolsForSort('ayase')).toBe('ayase');
+    expect(stripLeadingSymbolsForSort('かずタマ')).toBe('かずタマ');
+    expect(stripLeadingSymbolsForSort('5abc')).toBe('5abc');
+  });
+
+  it('記号のみで全て取り除かれる場合は元の文字列にフォールバックする', () => {
+    expect(stripLeadingSymbolsForSort('###')).toBe('###');
   });
 });

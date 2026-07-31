@@ -139,6 +139,7 @@ export default async function handler(req: any, res: any) {
         id: tagId,
         displayName,
         displayNameLower: normalizeDisplayNameForSearch(displayName),
+        avatarUrl: userData.avatarUrl ?? null,
         ownerUid: uid,
         createdAt: prevTag?.createdAt ?? now,
         reportCount: prevTag?.reportCount ?? 0,

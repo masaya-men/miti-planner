@@ -70,7 +70,7 @@ export const HousingerTagSection: React.FC<HousingerTagSectionProps> = ({ select
                   data-selected={selected.includes(tag.id) ? 'true' : 'false'}
                   onClick={() => onToggle(tag.id)}
                 >
-                  <HousingerAvatar avatarUrl={null} name={tag.displayName} className="housing-tagpicker-chip-avatar" />
+                  <HousingerAvatar avatarUrl={tag.avatarUrl ?? null} name={tag.displayName} className="housing-tagpicker-chip-avatar" />
                   <span>{tag.displayName}</span>
                 </button>
               ))}

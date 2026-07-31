@@ -307,6 +307,8 @@ export interface PersonalTag {
   displayName: string;
   /** displayName の小文字正規化 (Firestore の大文字小文字非依存 prefix 検索を補うための検索専用フィールド)。 */
   displayNameLower: string;
+  /** ハウジンガーのアバターURL (housing_profiles/{uid}.avatarUrl のデノーマライズコピー。 upsert-housinger-profile 実行時に同期される)。 */
+  avatarUrl?: string | null;
   ownerUid: string;
   createdAt: number;
   reportCount: number;

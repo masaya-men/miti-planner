@@ -18,6 +18,22 @@ import type { PersonalTag } from '../../types/housing';
 
 const COLLECTION = 'personal_tags';
 
+/**
+ * 並び替え用に、 先頭の英数字・かな・漢字等 (Unicode の「文字」「数字」カテゴリ) 以外の文字
+ * (記号・絵文字・アンダースコア等) を取り除いたキーを作る。
+ *
+ * Firestore の `orderBy('displayNameLower')` は単純な Unicode コードポイント比較のため、
+ * `#Ephemeral_studio` のように記号始まりの名前が `A` 始まりの名前より前に来てしまう
+ * (`#` のコードポイントが `A` より小さいため)。 「記号を無視して実際の文字で並べたい」 という
+ * 要望に対応するため、 クライアント側でこのキーを使って再ソートする (listAllPersonalTags)。
+ *
+ * 記号のみの名前等、 取り除いた結果が空文字になる極端なケースは元の文字列にフォールバックする。
+ */
+export function stripLeadingSymbolsForSort(s: string): string {
+  const stripped = s.replace(/^[^\p{L}\p{N}]+/u, '');
+  return stripped.length > 0 ? stripped : s;
+}
+
 export async function getPersonalTagById(tagId: string): Promise<PersonalTag | null> {
   try {
     const snap = await getDoc(doc(db, COLLECTION, tagId));
@@ -37,7 +53,12 @@ export async function listAllPersonalTags(max = 500): Promise<PersonalTag[]> {
       limit(max),
     );
     const snap = await getDocs(qref);
-    return snap.docs.map((d) => d.data() as PersonalTag);
+    const tags = snap.docs.map((d) => d.data() as PersonalTag);
+    // Firestore 自体の orderBy はそのまま (既存の複合索引を使い続けるため)、
+    // 記号を無視した並びはここでクライアント側に再ソートして反映する。
+    return tags.slice().sort((a, b) => (
+      stripLeadingSymbolsForSort(a.displayNameLower).localeCompare(stripLeadingSymbolsForSort(b.displayNameLower))
+    ));
   } catch {
     return [];
   }
