@@ -63,7 +63,6 @@ export async function publicWindowHandler(req: any, res: any) {
         .where('isHidden', '==', false)
         .where('visibility', 'in', PUBLIC_VISIBILITY)
         .orderBy('createdAt', 'desc')
-        .limit(200)
         .select(...SELECT_FIELDS)
         .get();
       const listings = snap.docs
@@ -83,7 +82,6 @@ export async function publicWindowHandler(req: any, res: any) {
         .where('visibility', 'in', PUBLIC_VISIBILITY)
         .where('isHidden', '==', false)
         .orderBy('createdAt', 'desc')
-        .limit(200)
         .select(...SELECT_FIELDS)
         .get();
       const listings = snap.docs
