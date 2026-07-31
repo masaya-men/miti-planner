@@ -13,23 +13,22 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-1. **🔴 ハウジング次の着手順(2026-07-24決定・27日タグAND検索完了)**: ①コスト面=✅完了 ②マイページ作成=✅完了(2026-07-24) ③タグAND検索=✅実装完了(2026-07-27) ④繁体字対応=✅**5フェーズ全部実装完了・mainへローカルマージ済み(2026-07-29・詳細は下記「現在の状態」・push/デプロイ判断待ち)**。**次: ⑤⑥⑦「その他細かいブラッシュアップ」**。詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
+1. **🔴 ハウジング次の着手順(2026-07-24決定・27日タグAND検索完了)**: ①コスト面=✅完了 ②マイページ作成=✅完了(2026-07-24) ③タグAND検索=✅完了 ④繁体字対応=✅完了 ⑤OGPカード作り込み=**本体は完了・画質バグ対応中(下記「現在の状態」参照)**。詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ 2026-07-31: ハウジンガーOGPカード作り込みworktree、mainへローカルマージ完了
-`worktree-housinger-ogp-card-redesign`(18コミット・全11タスク+シェアボタン高さ/アバター欠落/並び順の3不具合修正)をmainへマージ(finishing-a-development-branchスキル手順、コンフリクト無し)。マージ後にtsc -b+vitest run再実行OK(3809 passed、既知の無関係failure=EphemeralAddPanel 7件のみ)。**worktreeディレクトリ自体の削除は保留中**: `.claude/worktrees/housinger-ogp-card-redesign`が前回セッションの残プロセス(claude.exe、devサーバーもここから起動していた)にロックされていて`git worktree remove`が失敗する。devサーバーはmain直下(`c:\Users\masay\Desktop\FF14Sim`)から再起動済み・そちらで検証続行でOK。**次回: 前回セッションのウィンドウ/プロセスを閉じてから`git worktree remove .claude/worktrees/housinger-ogp-card-redesign`+`git branch -d worktree-housinger-ogp-card-redesign`で最終クリーンアップ**。
-### ✅ 2026-07-31: 探すページの公開一覧200件上限バグ = 修正済み・merge後も反映確認済み
-`api/housing/_publicWindow.ts`の`.limit(200)`をgallery/housinger両actionから撤廃(commit `a7988f4d`)。調査のため本番Firestoreを直接確認: `housing_meta/public.version`=936、直近7日の新規登録35件・updatedAt変化116件(うち82件は特定1日に集中=過去の一括データ移行由来)。**結論: 現状の利用規模ではversion bump頻度は軽微で緊急対応は不要と判断・ユーザー合意の上で後回し**。
-**🟡 後回し確定(次回以降・優先度低・再調査不要でここから着手可)**: ハウジンガーページ(`action=housinger&uid=U`)が全物件共通の1個のversionカウンタを見ているため、自分と無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用のversionカウンタを分離する(`api/housing/_publicVersion.ts`にhousinger用の別カウンタを追加し、`_publicWindow.ts`のhousinger actionと該当書き込みハンドラだけそちらを参照させる)。着手時はキャッシュ設計ルール`.claude/rules/api-caching.md`も併読。
-### ✅ 2026-07-31: ハウジンガー/マイページのシェア・通報ボタン位置修正(ユーザー指摘2回・mainコミット済)
-シェア/X/⋮を下部から上部へ。マイページ=「ハウジンガー公開」タイトル行の右側、他人のハウジンガーページ=SNSリンクと**同じ行**の右側(`.housinger-page-sns-row`で1回目は別行にしてしまい実機指摘で修正)。
-### ✅ 2026-07-31: UI不具合3件のうち(b)スマホ中央配置=修正完了(ユーザー指摘・mainコミット済)
-ハウジンガー/マイページの一覧がスマホで左に寄る不具合。原因=探す/お気に入り専用のスマホ2列パディング(左0/右12px、探す側が自前の左右余白を0にしている前提)が共有クラス`.housing-listing-grid`経由でハウジンガー系にも波及、既に左右24px均等パディングを持つそちらでは右だけ+12pxされ非対称になっていた。`.housinger-page-listings-col .housing-listing-grid`で左右0に上書きして解消。**(a)ボタンサイズ=対応済み、(c)PC版「探す」中央配置=未着手のまま**。
-### 🔴 上記の修正は全部ローカルcommitのみ・本番未push
-今日の全修正(200件上限/ボタン位置/スマホ中央配置等)はmainにコミット済みだがpushしていない。**200件上限バグは本番にまだ効いていないため、タグ検索等の実機確認は本番pushしないと意味が無い**(ローカルdevは`/api`を本番プロキシする構成のため)。push可否はユーザー判断待ち([[feedback_deploy]]参照)。
-### 2026-07-29: 繁体字(台湾)対応 全5フェーズ完了・mainへローカルマージ済み(未push)
-詳細=TODO_COMPLETED.md「2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了」。**ユーザー方針: 部分公開は望まない、繁体字+OGP+UI修正まとめて発表**。
+### ✅ 2026-07-31: タグ検索〜繁体字(台湾)対応〜OGPカード作り込みの113コミットを本番push・デプロイ済(`cd2d95f3`)
+3大バッチ(①タグAND検索 ②繁体字(台湾)対応 ③ハウジンガーOGPカード作り込み)+当日発見の個別不具合8件、まとめて本番反映。build+vitest OK(3809 passed、既知の無関係failure=EphemeralAddPanel 7件のみ)。
+### 🔴 本番反映後の実機確認で新たに発覚・次回ここから着手
+①**Cloudflareの古いキャッシュ**(対応済み): 200件上限バグはコードは直っていたが、デプロイ前の応答がCDNに約6時間残っていて実際には反映されていなかった(`cf-cache-status:HIT`で確認)。`housing_meta/public.version`を手動+1してキャッシュ強制切替済み・実機再確認待ち。
+②**OGPカードの画像品質**(ユーザー最優先・次回ここから・「ちゃんと完了させたい」との明言あり):
+   - YouTube動画サムネ(`maxresdefault`→`hqdefault`)は原因特定・修正済み。**コミット済み(`abde9fd5`)だがpushは③とまとめる方針で保留中**。
+   - **本命・未着手**: 通常の写真アップロード(`imageMode:'thumbnail'`)はWebP形式で保存されるが、OGPカード生成(satori)はWebP非対応で代表作画像が黙って読み飛ばされる(実データで確認済み)。SNS URL登録ユーザーは無関係(ユーザー本人も無関係と確認済み)だが、**写真アップロード登録の他ユーザー全員に影響しうる**。過去にアバターで同じ問題が起き、WebP+PNG併存保存(`avatarPngUrl`方式)で解決済み。**同方式をlisting thumbnail側にも適用(新規アップロード分の複数形式保存+既存分バックフィル)が必要、アバター修正と同規模。次回は設計から(brainstorming→plan)**。
+③**スマホのマイページ、ひとこと説明文が縦に潰れて読みにくい**(ユーザー指摘・未調査)。②と合わせて「次回ちゃんと完了させる」対象。
+**🟡 優先度低・後回し確定(再調査不要でここから着手可)**: ハウジンガーページ(`action=housinger&uid=U`)が全物件共通の1個のversionカウンタを見ているため、自分と無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離(`api/housing/_publicVersion.ts`+`_publicWindow.ts`のhousinger action)。着手時は`.claude/rules/api-caching.md`も併読。
+**worktreeディレクトリ削除も保留中**: `.claude/worktrees/housinger-ogp-card-redesign`が前回セッションの残プロセスにロックされ`git worktree remove`が失敗する。実害なし・前回セッションのウィンドウを閉じてから`git worktree remove`+`git branch -d worktree-housinger-ogp-card-redesign`。
+### ✅ 本番push済(`cd2d95f3`)の細かい修正一覧
+シェア/通報ボタン位置(マイページ/ハウジンガーページ、2回の実機指摘で正しい位置に)/スマホのハウジンガー/マイページ一覧の中央配置(真因=`align-items:flex-start`が縦積み時に横方向に効いていた)/iOS Safariの表示ズレ(visualViewport再同期処理をLayout.tsxから移植)/200件上限バグ本体/野戦治療の陣のフォールバックduration同期(17→18)。
 未対応の別件(zh-Hant固有ではない)=housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
 ### ✅ 直近の本番反映・棚卸し(詳細は全てTODO_COMPLETED.md / `.private/2026-07-23-housing-task-inventory.md`)
 マイページ作成/複数投稿URL登録Batch2/編集ページ画像管理/探すページ表示順ランダム化+初心者タグ/コスト・ハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所確認ゲート強化/旧UI意匠掃除、全て本番反映・確認済み。
