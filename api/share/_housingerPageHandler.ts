@@ -39,7 +39,8 @@ function escapeHtml(s: string): string {
 
 /**
  * 公開 listing 1 件分から代表画像 URL を解決する。
- * 優先順: thumbnail → sns(ogImageUrl) → Twitter動画のvideoPosterUrl → YouTubeサムネイル → なし。
+ * 優先順: thumbnail → YouTubeサムネイル(youtubeVideoIdから再構築) → sns(ogImageUrl) →
+ * Twitter動画のvideoPosterUrl → なし。
  * 動画のみ登録(imageMode:'none')の物件も、動画由来の静止画があればここで拾う
  * (2026-07-31: 従来はimageMode==='none'を一律除外していたため、動画メインのハウジンガーの
  * カードが空になっていた不具合の修正)。
@@ -49,6 +50,11 @@ function escapeHtml(s: string): string {
  * 保存した .png 兄弟ファイル (api/housing/_uploadThumbnailHandler.ts) を優先して指す。
  * 未変換の既存データ (バックフィル未実行/変換失敗) では .png が存在せず、呼び出し側の
  * fetchAsDataUri が 404 で null を返す = 従来通り「画像なし」に留まるだけで安全側に倒れる。
+ *
+ * youtubeVideoId は ogImageUrl より先に見る (2026-07-31実機で発覚): 登録時に保存された
+ * ogImageUrl は maxresdefault.jpg (高解像度アップロード動画にしか存在しない・404になりやすい)
+ * のまま残っている既存データがあり、そちらを優先すると黙って読み飛ばされてしまう。
+ * youtubeVideoIdからhqdefault.jpg (全動画で必ず存在) を都度組み立てれば確実。
  */
 function listingRepresentativeImage(listing: {
   imageMode?: unknown;
@@ -60,17 +66,14 @@ function listingRepresentativeImage(listing: {
   if (listing.imageMode === 'thumbnail' && typeof listing.thumbnailPath === 'string' && listing.thumbnailPath) {
     return toPngSiblingPath(listing.thumbnailPath);
   }
+  if (typeof listing.youtubeVideoId === 'string' && listing.youtubeVideoId) {
+    return buildYoutubeThumbnailUrlFallback(listing.youtubeVideoId);
+  }
   if (listing.imageMode === 'sns' && typeof listing.ogImageUrl === 'string' && listing.ogImageUrl) {
     return listing.ogImageUrl;
   }
   if (typeof listing.videoPosterUrl === 'string' && listing.videoPosterUrl) {
     return listing.videoPosterUrl;
-  }
-  if (typeof listing.youtubeVideoId === 'string' && listing.youtubeVideoId) {
-    // 2026-07-31実機指摘: maxresdefault.jpgは高解像度アップロードの動画にしか存在せず、
-    // 無い場合は404(satori側でfetch失敗→画像なし扱いになり代表作がズレる原因になっていた)。
-    // hqdefault.jpgは全動画で必ず存在する(画質は480x360だがOGPサムネ用途では十分)。
-    return buildYoutubeThumbnailUrlFallback(listing.youtubeVideoId);
   }
   return null;
 }
