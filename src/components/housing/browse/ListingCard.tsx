@@ -168,7 +168,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           <HousingCardVideoOverlay kind="youtube" youtubeVideoId={listing.youtubeVideoId} />
         )}
 
-        {/* 常時表示 (左上): 選択チェック (お気に入りページのみ) + 自分の登録の非公開/期限切れ印。
+        {/* 常時表示 (左上): 選択チェック (お気に入りページのタグ選択・マイページのOGP代表作選択で共用)
+            + 自分の登録の非公開/期限切れ印。
             印はホバー必須にしない (非公開かどうかが一覧で即分かることが安心につながるため常時)。
             showOwnerControls (マイページ) では isPrivate は右上の公開状態バッジと表示が重複する
             ため出さない。isExpired (visibility=public のまま公開期限切れで実質非表示) は

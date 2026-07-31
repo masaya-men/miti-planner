@@ -2687,6 +2687,11 @@
                     "other": "Other"
                 },
                 "menuItem": "Report this Housinger"
+            },
+            "ogSelect": {
+                "hint": "Check the top-left of a card to pick up to 10 featured listings for your share image",
+                "publicOnly": "Only public listings can be selected",
+                "maxReached": "You can select up to 10 featured listings"
             }
         },
         "mypage": {
