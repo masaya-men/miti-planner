@@ -3843,6 +3843,14 @@ select.housing-input option {
     line-height: 1.6;
     white-space: pre-wrap;
 }
+/* 2026-07-31: SNS リンクとシェア/通報ボタンを同じ行に横並びさせる行 (他人閲覧時のみ)。
+   SNS リンクが無いときは actions だけが行に残る。 */
+.housinger-page-sns-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
 .housinger-page-sns {
     width: fit-content;
     font-size: var(--housing-text-sm);

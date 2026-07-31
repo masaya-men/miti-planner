@@ -481,56 +481,58 @@ export const HousingerPage: React.FC = () => {
                   セクションだったが 2026-07-24 にマイページへ移動、設定ウィンドウはアイコン/名前/
                   ログアウト/退会のみのシンプル構成に縮小した)。
                   2026-07-31: シェア/通報の導線を下部から上部へ移動 (ユーザー指摘)。本人閲覧時は
-                  「ハウジンガー公開」タイトル行の右側 (actions prop)、他人閲覧時は SNS リンクの
-                  下・紹介文の上に置く。 */}
+                  「ハウジンガー公開」タイトル行の右側 (actions prop)、他人閲覧時は SNS リンクと
+                  同じ行の右側に置く (別行に落とすと指示と違う、という実機指摘で修正)。 */}
               {isSelf ? (
                 <HousingerProfileSection
                   actions={<HousingShareButton url={shareUrl} title={profile.displayName} />}
                 />
               ) : (
                 <>
-                  {profile.snsUrl && (
-                    <a
-                      href={profile.snsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="housinger-page-sns"
-                    >
-                      {snsHost}
-                    </a>
-                  )}
-                  {/* Task9 の「…」メニュー (通報) も本人以外にだけここに置く。 */}
-                  <div className="housinger-page-profile-actions">
-                    <HousingShareButton url={shareUrl} title={profile.displayName} />
-                    <div className="housing-kebab" ref={kebabRef}>
-                      <button
-                        type="button"
-                        aria-label={t('housing.detail.kebab.aria_label')}
-                        aria-haspopup="menu"
-                        aria-expanded={kebabOpen}
-                        className="housing-kebab-trigger housinger-page-kebab-trigger"
-                        onClick={() => setKebabOpen((v) => !v)}
+                  <div className="housinger-page-sns-row">
+                    {profile.snsUrl && (
+                      <a
+                        href={profile.snsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="housinger-page-sns"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
-                          <circle cx="12" cy="5" r="2" fill="currentColor" />
-                          <circle cx="12" cy="12" r="2" fill="currentColor" />
-                          <circle cx="12" cy="19" r="2" fill="currentColor" />
-                        </svg>
-                      </button>
-                      {kebabOpen && (
-                        <div role="menu" className="housing-kebab-menu">
-                          <button
-                            type="button"
-                            role="menuitem"
-                            onClick={() => {
-                              setKebabOpen(false);
-                              onReportClick();
-                            }}
-                          >
-                            {t('housing.housinger.report.menuItem')}
-                          </button>
-                        </div>
-                      )}
+                        {snsHost}
+                      </a>
+                    )}
+                    {/* Task9 の「…」メニュー (通報) も本人以外にだけここに置く。 */}
+                    <div className="housinger-page-profile-actions">
+                      <HousingShareButton url={shareUrl} title={profile.displayName} />
+                      <div className="housing-kebab" ref={kebabRef}>
+                        <button
+                          type="button"
+                          aria-label={t('housing.detail.kebab.aria_label')}
+                          aria-haspopup="menu"
+                          aria-expanded={kebabOpen}
+                          className="housing-kebab-trigger housinger-page-kebab-trigger"
+                          onClick={() => setKebabOpen((v) => !v)}
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden>
+                            <circle cx="12" cy="5" r="2" fill="currentColor" />
+                            <circle cx="12" cy="12" r="2" fill="currentColor" />
+                            <circle cx="12" cy="19" r="2" fill="currentColor" />
+                          </svg>
+                        </button>
+                        {kebabOpen && (
+                          <div role="menu" className="housing-kebab-menu">
+                            <button
+                              type="button"
+                              role="menuitem"
+                              onClick={() => {
+                                setKebabOpen(false);
+                                onReportClick();
+                              }}
+                            >
+                              {t('housing.housinger.report.menuItem')}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {profile.bio && <p className="housinger-page-bio">{profile.bio}</p>}
