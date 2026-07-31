@@ -4043,10 +4043,16 @@ select.housing-input option {
 }
 
 /* ハウジンガーページ: 狭幅では左右 2 カラムが成立しないので縦積みに戻す。
-   プロフィール列の固定幅・sticky は PC 専用の挙動なので解除する。 */
+   プロフィール列の固定幅・sticky は PC 専用の挙動なので解除する。
+   2026-07-31 実機指摘で判明: 縦積み (flex-direction:column) にすると align-items の効く軸が
+   縦→横に入れ替わるため、base の align-items:flex-start (PC ではプロフィール列の高さ揃え用) が
+   横方向では「内容サイズで左詰め」に変わってしまい、子要素が幅いっぱいに広がらず左に寄る。
+   プロフィール列だけ width:100% で個別に応急処置されていたが、一覧列 (housinger-page-listings-col)
+   側は漏れていた。stretch に戻せば両方まとめて正しく幅いっぱいになる。 */
 @media (max-width: 767px) {
     .housinger-page-body {
         flex-direction: column;
+        align-items: stretch;
     }
     .housinger-page-profile-col {
         flex: 1 1 auto;
