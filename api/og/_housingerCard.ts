@@ -77,13 +77,18 @@ export function buildHousingerCard(params: {
   };
 }
 
+/** position:absolute の全面フィット指定。satoriは `inset: 0` 省略記法を描画できず
+ * (2026-07-31実機+ローカルsatori直呼び出しで再現・特定: 完全に空描画になる)、
+ * 4辺を個別指定すれば正しく描画されるため、絶対配置の全面レイヤーは必ずこちらを使う。 */
+const FULL_BLEED_ABSOLUTE = { position: 'absolute' as const, top: 0, right: 0, bottom: 0, left: 0 };
+
 /** 背景兼ヒーロー画像を拡大+ぼかしてカード全面に敷く。画像が無ければツアー招待カードと共通の固定背景。 */
 function buildBackgroundLayer(heroSrc: string | null) {
   return {
     type: 'div',
     props: {
       style: {
-        position: 'absolute', inset: 0, display: 'flex',
+        ...FULL_BLEED_ABSOLUTE, display: 'flex',
         backgroundImage: `url(${heroSrc ?? TOUR_INVITE_BG_DATA_URI})`,
         backgroundSize: 'cover', backgroundPosition: 'center',
         // ヒーロー画像(ユーザー写真)のときだけ強くぼかす。ツアー背景は既にぼかし加工済みの
@@ -98,7 +103,7 @@ function buildBackgroundLayer(heroSrc: string | null) {
 function buildScrimLayer() {
   return {
     type: 'div',
-    props: { style: { position: 'absolute', inset: 0, display: 'flex', backgroundColor: 'rgba(10,14,24,0.55)' } },
+    props: { style: { ...FULL_BLEED_ABSOLUTE, display: 'flex', backgroundColor: 'rgba(10,14,24,0.55)' } },
   };
 }
 

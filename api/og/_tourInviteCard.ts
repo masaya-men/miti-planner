@@ -31,9 +31,11 @@ function buildTourInviteCard(name: string) {
       },
       children: [
         // 可読性のための暗幕(背景がぼかし済みでも文字が沈まないよう軽く重ねる)。
+        // satoriは `inset: 0` 省略記法を描画できない(api/og/_housingerCard.ts の
+        // FULL_BLEED_ABSOLUTE コメント参照)ため4辺を個別指定する。
         {
           type: 'div',
-          props: { style: { position: 'absolute', inset: 0, backgroundColor: 'rgba(10,14,24,0.42)', display: 'flex' } },
+          props: { style: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(10,14,24,0.42)', display: 'flex' } },
         },
         {
           type: 'div',
