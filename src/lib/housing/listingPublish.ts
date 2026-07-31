@@ -1,4 +1,4 @@
-import type { MockListing } from '../../data/housing/mockListings';
+import type { MockListing } from '../../data/housing/mockListings.js';
 
 /**
  * 表示時点で「実質公開中」かを判定する遅延評価 (spec A-1)。

@@ -26,7 +26,6 @@ import { buildYoutubeThumbnailUrl } from '../../src/lib/housing/youtubeUrl.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
-const PUBLIC_VISIBILITY = ['public', 'unlisted'];
 
 // _sharePageHandler.ts のデフォルトと同じ文言 (専用メタを出さないケースの統一フォールバック)。
 const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';

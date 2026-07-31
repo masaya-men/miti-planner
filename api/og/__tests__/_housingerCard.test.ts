@@ -32,7 +32,7 @@ describe('buildHousingerCard', () => {
     expect(countImgNodes(tree)).toBe(1);
     // 背景兼ヒーロー使用の核心: 背景レイヤー(children[0])のbackgroundImageが
     // ヒーロー画像と同じdata URIを指していること(配線ミスで背景に渡し忘れる事故を検知する)
-    const backgroundLayer = tree.props.children[0];
+    const backgroundLayer = tree.props.children[0] as { props: { style: { backgroundImage: string } } };
     expect(backgroundLayer.props.style.backgroundImage).toContain('data:image/png;base64,AAA');
   });
 
