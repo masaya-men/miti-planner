@@ -6015,6 +6015,26 @@ select.housing-input option {
   display: inline-flex; align-items: center; gap: 8px;
   flex: 0 0 auto;
 }
+
+/* 実機FB (2026-07-31): マイページで見出し (タイトル+件数+OGP代表作ヒント文) が「並び替え」と
+   横並びのまま幅を奪い合い、見出し側に min-width の下限が無い (flexアイテムの既定
+   min-width:auto は CJK テキストだと1文字まで縮む) ため、日本語が1文字ずつ縦積みに潰れて
+   読めなくなっていた。狭幅では見出しを常に単独の行いっぱいに確保し (flex-basis:100%)、
+   その中で「タイトル+件数」と「ヒント文」を別行に分けて自然に折り返す。 並び替えは
+   見出しの次の行へ回り、margin-left:auto で従来通り右寄せを維持する。 */
+@media (max-width: 767px) {
+  .housing-listing-grid-toolbar {
+    flex-wrap: wrap;
+  }
+  .housing-listing-grid-heading {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+  .housing-listing-grid-toolbar-actions {
+    margin-left: auto;
+  }
+}
 /* シャッフルボタン (ランダム表示中のみ表示・.housing-sort-trigger と同系の控えめな意匠)。 */
 .housing-shuffle-btn {
   appearance: none; cursor: pointer;
