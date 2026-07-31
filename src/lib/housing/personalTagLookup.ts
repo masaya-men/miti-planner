@@ -57,7 +57,7 @@ export async function listAllPersonalTags(max = 500): Promise<PersonalTag[]> {
     // Firestore 自体の orderBy はそのまま (既存の複合索引を使い続けるため)、
     // 記号を無視した並びはここでクライアント側に再ソートして反映する。
     return tags.slice().sort((a, b) => (
-      stripLeadingSymbolsForSort(a.displayNameLower).localeCompare(stripLeadingSymbolsForSort(b.displayNameLower))
+      stripLeadingSymbolsForSort(a.displayNameLower).localeCompare(stripLeadingSymbolsForSort(b.displayNameLower), 'ja')
     ));
   } catch {
     return [];
