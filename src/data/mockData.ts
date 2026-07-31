@@ -378,7 +378,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "sacred_soil", jobId: "sch", name: { ja: "野戦治療の陣", en: "Sacred Soil", zh: "野战治疗阵", ko: "야전치유진" }, icon: "/icons/Sacred_Soil.png",
-        recast: 30, duration: 17, type: "all", value: 10, isShield: false, resourceCost: { type: 'aetherflow', amount: 1 }, minLevel: 45, family: "healer_bubble"
+        recast: 30, duration: 18, type: "all", value: 10, isShield: false, resourceCost: { type: 'aetherflow', amount: 1 }, minLevel: 45, family: "healer_bubble"
     },
     {
         id: "whispering_dawn", jobId: "sch", name: { ja: "光の囁き", en: "Whispering Dawn", zh: "仙光的低语", ko: "빛의 속삭임" }, icon: "/icons/Whispering_Dawn.png",
