@@ -307,6 +307,8 @@ export interface PersonalTag {
   displayName: string;
   /** displayName の小文字正規化 (Firestore の大文字小文字非依存 prefix 検索を補うための検索専用フィールド)。 */
   displayNameLower: string;
+  /** ハウジンガーのアバターURL (housing_profiles/{uid}.avatarUrl のデノーマライズコピー。 upsert-housinger-profile 実行時に同期される)。 */
+  avatarUrl?: string | null;
   ownerUid: string;
   createdAt: number;
   reportCount: number;
@@ -326,13 +328,17 @@ export interface PersonalTagReport {
  * read: 公開 (isPublished && !isModerationHidden) or 本人 / write: API (Admin SDK) のみ
  */
 export interface HousingerProfile {
-  displayName: string;            // users/{uid}.displayName のサーバー転記コピー
-  avatarUrl: string | null;       // users/{uid}.avatarUrl の同上
-  bio: string | null;             // ひとこと (HOUSINGER_BIO_MAX_LENGTH)
-  snsUrl: string | null;          // 許可ホストのみ (validateHousingerSnsUrl)
+  displayName: string;
+  avatarUrl: string | null;
+  /** WebP非対応環境(satoriのOGPレンダラー等)向けのPNG変換済みコピー。無ければnull(旧アバターのまま未変換)。 */
+  avatarPngUrl?: string | null;
+  bio: string | null;
+  snsUrl: string | null;
   isPublished: boolean;
-  isModerationHidden: boolean;    // 運営強制非公開。true なら公開扱いにしない
+  isModerationHidden: boolean;
   reportCount: number;
   createdAt: number;
   updatedAt: number;
+  /** OGPカードに使う代表作(最大10件、listing id、順序付き・先頭=背景兼ヒーロー)。未設定/空なら新着順上位10件を自動採用する。 */
+  ogRepresentativeListingIds?: string[] | null;
 }

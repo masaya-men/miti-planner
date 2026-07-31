@@ -18,6 +18,8 @@ export interface FirestoreUser {
   displayName: string;
   /** アバター画像URL */
   avatarUrl: string | null;
+  /** WebP非対応環境向けのPNG変換済みアバターコピー(2026-07-31追加、既存ユーザーはnullのまま)。 */
+  avatarPngUrl?: string | null;
   /** 認証プロバイダ */
   provider: 'discord' | 'twitter';
   /** アカウント作成日時 */

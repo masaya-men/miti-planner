@@ -58,6 +58,26 @@ describe('HousingerTagSection', () => {
     expect(taroButton.querySelector('img')).toBeNull();
   });
 
+  it('tag.avatarUrl があれば HousingerAvatar に渡り img で表示される (頭文字フォールバックにならない)', async () => {
+    const tagsWithAvatar = [
+      { ...TAGS[0], avatarUrl: 'https://example.com/taro.webp' },
+      TAGS[1],
+    ];
+    listAllPersonalTagsMock.mockResolvedValueOnce(tagsWithAvatar);
+    wrap(<HousingerTagSection selected={[]} onToggle={vi.fn()} />);
+    await waitFor(() => expect(screen.getByText('taro')).toBeInTheDocument());
+    const taroButton = screen.getByText('taro').closest('button') as HTMLElement;
+    const img = taroButton.querySelector('img');
+    expect(img).not.toBeNull();
+    expect(img?.getAttribute('src')).toBe('https://example.com/taro.webp');
+    expect(taroButton.querySelector('.housinger-avatar-fallback')).toBeNull();
+
+    // avatarUrl の無い hanako は引き続き頭文字フォールバックのまま
+    const hanakoButton = screen.getByText('hanako').closest('button') as HTMLElement;
+    expect(hanakoButton.querySelector('img')).toBeNull();
+    expect(hanakoButton.querySelector('.housinger-avatar-fallback')?.textContent).toBe('H');
+  });
+
   it('selected に含まれるチップは data-selected=true', async () => {
     listAllPersonalTagsMock.mockResolvedValueOnce(TAGS);
     wrap(<HousingerTagSection selected={['personal_taro']} onToggle={vi.fn()} />);

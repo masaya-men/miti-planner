@@ -22,6 +22,12 @@ export interface ListingGridProps {
   onRequestVisibilityChange?: (id: string, next: 'public' | 'unlisted' | 'private') => void;
   /** showOwnerControls=true のとき ListingCard へ橋渡しする。 */
   onEditListing?: (id: string) => void;
+  /** true のとき各カード左上にOGP代表作選択トグルを出す。マイページ専用 (2026-07-31)。 */
+  selectable?: boolean;
+  /** selectable=true のとき、選択済みlisting idの集合。 */
+  selectedIds?: Set<string>;
+  /** selectable=true のとき、選択トグル時のコールバック。 */
+  onToggleSelect?: (id: string) => void;
 }
 
 /**
@@ -39,6 +45,9 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   showOwnerControls,
   onRequestVisibilityChange,
   onEditListing,
+  selectable,
+  selectedIds,
+  onToggleSelect,
 }) => {
   const { t } = useTranslation();
   const containerRef = useListScrollRestore(listKey);
@@ -57,6 +66,9 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
           <span className="housing-listing-grid-count">
             {t('housing.browse.count_unit', { count: listings.length })}
           </span>
+          {selectable && (
+            <span className="housing-listing-grid-og-hint">{t('housing.housinger.ogSelect.hint')}</span>
+          )}
         </h2>
         <div className="housing-listing-grid-toolbar-actions">
           {sort === 'random' && (
@@ -81,6 +93,9 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
             showOwnerControls={showOwnerControls}
             onRequestVisibilityChange={onRequestVisibilityChange}
             onEditListing={onEditListing}
+            selectable={selectable}
+            selected={selectable ? (selectedIds?.has(l.id) ?? false) : undefined}
+            onToggleSelect={onToggleSelect}
           />
         ))}
       </div>

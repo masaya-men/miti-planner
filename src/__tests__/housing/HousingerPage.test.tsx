@@ -15,9 +15,19 @@ import type { HousingerProfile, HousingListing } from '../../types/housing';
 
 const mockGetHousingerProfile = vi.fn();
 const mockGetHousingerListings = vi.fn();
+const mockUpsertHousingerProfile = vi.fn();
 vi.mock('../../lib/housing/housingerProfileService', () => ({
   getHousingerProfile: (...args: unknown[]) => mockGetHousingerProfile(...args),
   getHousingerListings: (...args: unknown[]) => mockGetHousingerListings(...args),
+  upsertHousingerProfile: (...args: unknown[]) => mockUpsertHousingerProfile(...args),
+}));
+
+// isSelf=true (本人閲覧) の一覧取得は HousingerPage.tsx 内で getHousingerListings ではなく
+// useHousingListingsStore.loadMine → housingListingsService.getMyListings 経由になる
+// (Task 7 既存実装、visibility 問わず全件取得のため)。同じ HousingListing[] を返す想定なので
+// mockGetHousingerListings にルーティングし、本人/他人どちらの視点でも同じテストデータが使えるようにする。
+vi.mock('../../lib/housingListingsService', () => ({
+  getMyListings: (...args: unknown[]) => mockGetHousingerListings(...args),
 }));
 
 // showToast をスパイして、 リージョン跨ぎ開始ブロック時に呼ばれることを検証する (計画 Task4 Step6)。
@@ -98,6 +108,7 @@ beforeAll(() => {
 beforeEach(() => {
   mockGetHousingerProfile.mockReset();
   mockGetHousingerListings.mockReset();
+  mockUpsertHousingerProfile.mockReset();
   showToastMock.mockClear();
   authUid = null;
   useHousingTourStore.getState().reset();
@@ -333,5 +344,72 @@ describe('HousingerPage', () => {
     expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
     expect(useHousingTourStore.getState().running).toBe(false);
     expect(useHousingTourStore.getState().listingIds).toEqual([]);
+  });
+
+  it('本人閲覧・代表作未選択なら新着順上位が自動選択され、選択トグルにチェックが入る', async () => {
+    authUid = 'uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    const selectButtons = await screen.findAllByTestId('housing-card-select');
+    expect(selectButtons).toHaveLength(1);
+    expect(selectButtons[0].className).toContain('is-selected');
+  });
+
+  it('他人が見ると代表作選択トグルは出ない', async () => {
+    authUid = 'uid-2';
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    expect(screen.queryByTestId('housing-card-select')).not.toBeInTheDocument();
+  });
+
+  it('非公開物件を選ぼうとするとエラートーストが出て選択されず、APIも呼ばれない', async () => {
+    authUid = 'uid-1';
+    // HousingerPage の一覧は sortMode 既定値 'newest' (createdAt 降順) で並ぶため、
+    // l-1 (createdAt: 100, rawListing 既定値) より古い値にして selectButtons[1] (2番目) に来るようにする。
+    const privateListing = { ...rawListing('l-2', 'uid-1'), visibility: 'private' as const, createdAt: 50 };
+    mockGetHousingerProfile.mockResolvedValueOnce({ ...publishedProfile, ogRepresentativeListingIds: ['l-1'] });
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1'), privateListing]);
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    const selectButtons = await screen.findAllByTestId('housing-card-select');
+    expect(selectButtons).toHaveLength(2);
+    fireEvent.click(selectButtons[1]); // l-2 (private) を選ぼうとする
+
+    // showToast はモック (vi.mock('../../components/Toast', ...)) のため実 DOM には描画されない。
+    // 他の既存テスト (別リージョン混在時のトースト検証) と同じく showToastMock の呼び出しで検証する。
+    expect(showToastMock).toHaveBeenCalledWith('公開物件のみ選択できます', 'error');
+    expect(selectButtons[1].className).not.toContain('is-selected');
+    expect(mockUpsertHousingerProfile).not.toHaveBeenCalled();
+  });
+
+  it('公開物件のトグルを押すと選択され、upsertHousingerProfileがogRepresentativeListingIds込みで呼ばれる', async () => {
+    authUid = 'uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce({ ...publishedProfile, ogRepresentativeListingIds: ['l-1'] });
+    // sortMode 既定値 'newest' (createdAt 降順) で l-2 が selectButtons[1] (2番目) に来るよう
+    // l-1 (createdAt: 100, rawListing 既定値) より古い値にする。
+    mockGetHousingerListings.mockResolvedValueOnce([
+      rawListing('l-1', 'uid-1'),
+      { ...rawListing('l-2', 'uid-1'), createdAt: 50 },
+    ]);
+    mockUpsertHousingerProfile.mockResolvedValueOnce({ ok: true, profile: publishedProfile });
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    const selectButtons = await screen.findAllByTestId('housing-card-select');
+    fireEvent.click(selectButtons[1]); // l-2 を追加選択
+
+    await screen.findByText((_, el) => el?.className === 'housing-card-select is-selected' && selectButtons[1] === el);
+    expect(mockUpsertHousingerProfile).toHaveBeenCalledWith({ ogRepresentativeListingIds: ['l-1', 'l-2'] });
   });
 });

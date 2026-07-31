@@ -15,35 +15,37 @@
  * で動作するため、Node 専用 API (`node:crypto`) を避けて Edge 互換を保つ。単体テストも
  * Node のテストランナー上でそのまま通る）。
  *
- * パラメータ順序（固定・sig を除く）: type → name → avatar? → img (0〜3個、順に複数指定)。
+ * パラメータ順序（固定・sig を除く）: type → ver → name → bio → avatar? → img (0〜10個、順に複数指定)。
  * URLSearchParams は挿入順を保持して `toString()` するため、署名対象の文字列は
  * ビルド側・検証側の両方で同じ手順 (URLSearchParams 経由) を踏む限り一致する。
  */
 
 const SIG_PARAM = 'sig';
 /**
- * カードURLの世代番号。レンダラー側の不具合修正等で「同じパラメータでも作り直したい」ときに上げる
- * (URL が変わる = エッジ/SNS側の古いキャッシュを踏まない)。
- * v2: WebP 画像で satori が空画像を返すバグ修正時に、失敗レスポンスの edge cache を回避するため導入。
+ * v3: ハウジンガーOGPカード全面刷新(2026-07-31・背景ぼかし+ハウジング意匠パネル+
+ * 代表作最大10枚グリッド)に伴い更新。パラメータの並びも type→ver→name→bio→avatar→img に変更したため、
+ * 旧v2キャッシュを一切踏まないようversionを必ず上げる。
  */
-const CARD_VERSION = '2';
+const CARD_VERSION = '3';
 /** hex 24桁 = 96bit。DoW対策の署名としては十分な長さ（URLを短く保つため sha256 の先頭を切る）。 */
 const SIG_HEX_LENGTH = 24;
-/** カードに載せる公開ハウジング画像の最大枚数。 */
-const MAX_CARD_IMAGES = 3;
+/** カードに載せる公開ハウジング画像の最大枚数(代表作10件、先頭=背景兼ヒーロー)。 */
+const MAX_CARD_IMAGES = 10;
 
 export interface HousingerOgCardInput {
-  /** ハウジンガー表示名。空文字/未指定でも可（フォールバックは呼び出し側の表示ロジックに委ねる）。 */
+  /** ハウジンガー表示名。空文字/未指定でも可(フォールバックは呼び出し側の表示ロジックに委ねる)。 */
   name: string;
+  /** 紹介文(ひとこと)。未指定/nullは空文字として扱う。 */
+  bio?: string | null;
   /** アバター画像 URL。無ければ省略。 */
   avatarUrl?: string | null;
-  /** 公開ハウジングの代表画像 URL 一覧。先頭から最大 {@link MAX_CARD_IMAGES} 枚まで使用。 */
+  /** 代表作(公開ハウジング)の画像 URL 一覧。先頭が背景兼ヒーロー。最大 {@link MAX_CARD_IMAGES} 枚まで使用。 */
   imageUrls?: (string | null | undefined)[];
 }
 
 /**
- * クエリパラメータを安定順で組み立てる（`sig` は含まない）。
- * ビルド側・検証側の両方がこの関数（または同じ挿入順の手順）を通ることで
+ * クエリパラメータを安定順で組み立てる(`sig` は含まない)。
+ * ビルド側・検証側の両方がこの関数(または同じ挿入順の手順)を通ることで
  * 署名対象の文字列表現を一致させる。
  */
 export function buildHousingerOgCardParams(input: HousingerOgCardInput): URLSearchParams {
@@ -51,6 +53,7 @@ export function buildHousingerOgCardParams(input: HousingerOgCardInput): URLSear
   params.set('type', 'housinger');
   params.set('ver', CARD_VERSION);
   params.set('name', input.name || '');
+  params.set('bio', input.bio || '');
   if (input.avatarUrl) params.set('avatar', input.avatarUrl);
   const imgs = (input.imageUrls || [])
     .filter((u): u is string => typeof u === 'string' && u.length > 0)

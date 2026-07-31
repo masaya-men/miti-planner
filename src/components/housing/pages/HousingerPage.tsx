@@ -33,7 +33,9 @@ import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
 import {
   getHousingerProfile,
   getHousingerListings,
+  upsertHousingerProfile,
 } from '../../../lib/housing/housingerProfileService';
+import { isEligibleForOgRepresentative } from '../../../lib/housing/listingPublish';
 import { normalizeHousingerUid, stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
 import { HousingShareButton } from '../listing/HousingShareButton';
@@ -202,6 +204,50 @@ export const HousingerPage: React.FC = () => {
 
   const onEditListing = (id: string) => {
     navigate(`/housing/listing/${id}/edit`);
+  };
+
+  // OGP代表作選択(本人閲覧時のみ)。初期値: profile.ogRepresentativeListingIds があればそれ、
+  // 無ければ新着順上位10件を自動採用(spec: 何もしなくてもシェアできる状態にする)。
+  const [ogSelectionIds, setOgSelectionIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!isSelf) return;
+    const saved = profile?.ogRepresentativeListingIds;
+    if (saved && saved.length > 0) {
+      setOgSelectionIds(saved);
+      return;
+    }
+    const nowMs = Date.now();
+    const defaultIds = [...listings]
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .filter((l) => isEligibleForOgRepresentative(l, nowMs))
+      .slice(0, 10)
+      .map((l) => l.id);
+    setOgSelectionIds(defaultIds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSelf, profile?.ogRepresentativeListingIds, listings]);
+
+  const ogSelectionSet = useMemo(() => new Set(ogSelectionIds), [ogSelectionIds]);
+
+  const handleToggleOgSelect = async (id: string) => {
+    const target = listings.find((l) => l.id === id);
+    if (!target) return;
+    const isSelected = ogSelectionIds.includes(id);
+    if (!isSelected && !isEligibleForOgRepresentative(target, Date.now())) {
+      showToast(t('housing.housinger.ogSelect.publicOnly'), 'error');
+      return;
+    }
+    if (!isSelected && ogSelectionIds.length >= 10) {
+      showToast(t('housing.housinger.ogSelect.maxReached'), 'error');
+      return;
+    }
+    const previous = ogSelectionIds;
+    const next = isSelected ? ogSelectionIds.filter((x) => x !== id) : [...ogSelectionIds, id];
+    setOgSelectionIds(next);
+    const result = await upsertHousingerProfile({ ogRepresentativeListingIds: next });
+    if (!result.ok) {
+      setOgSelectionIds(previous);
+      showToast(t('housing.housinger.account.toastError'), 'error');
+    }
   };
 
   const onConfirmVisibilityChange = async () => {
@@ -509,6 +555,9 @@ export const HousingerPage: React.FC = () => {
                   showOwnerControls={isSelf}
                   onRequestVisibilityChange={isSelf ? onRequestVisibilityChange : undefined}
                   onEditListing={isSelf ? onEditListing : undefined}
+                  selectable={isSelf}
+                  selectedIds={isSelf ? ogSelectionSet : undefined}
+                  onToggleSelect={isSelf ? handleToggleOgSelect : undefined}
                 />
               )}
             </div>

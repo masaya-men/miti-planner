@@ -20,17 +20,22 @@ const baseInput: HousingerOgCardInput = {
 };
 
 describe('buildHousingerOgCardParams', () => {
-    it('パラメータの並び順は type → ver → name → avatar → img の固定順', () => {
-        const params = buildHousingerOgCardParams(baseInput);
-        expect([...params.keys()]).toEqual(['type', 'ver', 'name', 'avatar', 'img', 'img', 'img']);
+    it('パラメータの並び順は type → ver → name → bio → avatar → img の固定順', () => {
+        const params = buildHousingerOgCardParams({ ...baseInput, bio: 'よろしくお願いします' });
+        expect([...params.keys()]).toEqual(['type', 'ver', 'name', 'bio', 'avatar', 'img', 'img', 'img']);
     });
 
-    it('imgs は先頭から最大3枚に切り詰められる', () => {
+    it('bio未指定でもbioパラメータは空文字で含まれる(バージョン変更と合わせて必ずハッシュに反映する)', () => {
+        const params = buildHousingerOgCardParams(baseInput);
+        expect(params.get('bio')).toBe('');
+    });
+
+    it('imgs は先頭から最大10枚に切り詰められる', () => {
         const params = buildHousingerOgCardParams({
             ...baseInput,
-            imageUrls: ['1', '2', '3', '4', '5'],
+            imageUrls: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'],
         });
-        expect(params.getAll('img')).toEqual(['1', '2', '3']);
+        expect(params.getAll('img')).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
     });
 
     it('imageUrls が0枚でも name+avatar のみで組み立てられる', () => {

@@ -7,7 +7,7 @@ import { buildTourInviteOgCardUrl } from '../../src/lib/ogpTourInviteCard.js';
 export interface OgImageMeta {
   type?: string;
   shareId?: string; showLogo?: boolean; logoHash?: string | null; lang?: string;
-  name?: string; avatarUrl?: string | null; imageUrls?: string[];
+  name?: string; bio?: string | null; avatarUrl?: string | null; imageUrls?: string[];
 }
 
 /** page型(type無し/'page')はshareIdが必須。housinger/tour等その他は不要。 */
@@ -26,6 +26,7 @@ export async function buildInternalOgUrl(
     if (!cronSecret) throw new Error('CRON_SECRET not configured');
     return buildHousingerOgCardUrl(origin, {
       name: meta.name ?? '',
+      bio: meta.bio ?? null,
       avatarUrl: meta.avatarUrl ?? null,
       imageUrls: meta.imageUrls ?? [],
     }, cronSecret);

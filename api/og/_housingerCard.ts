@@ -1,92 +1,131 @@
 /**
- * ハウジンガーページ (/housing/housinger/:uid) 専用 OGP カードのレイアウト定義
+ * ハウジンガーページ (/housing/housinger/:uid) 専用 OGP カードのレイアウト定義 (v3・2026-07-31刷新)
  *
- * api/og/index.ts の `type=housinger` 分岐から呼ばれる（新規 Edge Function は作らない）。
+ * api/og/index.ts の `type=housinger` 分岐から呼ばれる(新規 Edge Function は作らない)。
  * satori の要素ツリーは実 JSX ではなく、既存 api/og/index.ts と同じくプレーンな
- * オブジェクトリテラル ({ type, props: { style, children } }) で組み立てる流儀に合わせる
- * (index.ts が createElement も .tsx も使っていないため、ここでも .ts のまま踏襲)。
+ * オブジェクトリテラル ({ type, props: { style, children } }) で組み立てる流儀に合わせる。
  *
- * トンマナはハウジング独自 (.claude/rules/housing-design.md 系統): 濃紺背景 + ハニーゴールド
- * アクセント。既存 LoPo 本体 OGP (黒背景+白文字) とは別トーン。
+ * v3レイアウト(spec docs/superpowers/specs/2026-07-31-housinger-ogp-card-redesign-design.md):
+ * 代表作の1枚目(背景兼ヒーロー) → 拡大+ぼかしでカード全面の背景にし、同じ画像をパネル内
+ * 右下にもぼかさず大きめに再表示する。パネルはヘッダー/フッターなしのハウジング意匠(honey accent)。
+ * 中央にアイコン+名前+紹介文+「Shared via LoPo Housing」固定英語表記。残り9枚は上4・下4・
+ * 中1のグリッドに配置する。画像が1枚も無ければ物件0件用の固定背景(ツアー招待カードと共通)に
+ * フォールバックしパネルのみ表示する。
  *
- * 重要 (satori の画像フェッチに関する制約): @vercel/og の `ImageResponse` は実際の
- * レンダリング (satori 呼び出し・画像 src の fetch を含む) を `Response` の
- * ReadableStream `start()` 内で遅延実行する。つまり `new ImageResponse(...)` を
- * try/catch で囲んでも、レンダリング中の画像 fetch 失敗はその try/catch では
- * 捕捉できない（Response 生成後の非同期ストリーム内で起きるため）。
- * 既存 index.ts が team ロゴ/favicon を常に base64 data URI で satori に渡している
- * (決して `img src` にリモート URL を直接渡さない) のはこの制約を回避するため。
- * このモジュールも同じ方針を踏襲し、リクエストハンドラ内で avatar/img を
- * 事前に fetch → base64 data URI 化してから要素ツリーに渡す。フェッチに失敗した
- * 画像は無いものとして構築するため、部分成功時も破綻しない。
+ * 重要 (satori の画像フェッチに関する制約): 既存の index.ts / _tourInviteCard.ts と同じく、
+ * リモート URL は avatar/img とも事前に fetch → base64 data URI 化してから要素ツリーに渡す
+ * (レンダリング中の画像 fetch 失敗は ImageResponse 生成後の非同期ストリーム内で起きるため
+ * try/catch で捕捉できない)。
  */
 
 import { ImageResponse } from '@vercel/og';
 import { loadMPlus1Fonts } from './_fonts.js';
 import { verifyHousingerOgCardSig } from '../../src/lib/ogpHousingerCard.js';
+import { TOUR_INVITE_BG_DATA_URI } from './_tourInviteBg.generated.js';
 
-// ハウジングのトンマナ（正典 docs/.private/housing-tour-mockup/index.html 系統の色）
+// ハウジングのトンマナ(正典 docs/.private/housing-tour-mockup/index.html 系統の色)
 const BG_COLOR = '#111725';
 const ACCENT_HONEY = '#ffc987';
 const TEXT_MUTED = 'rgba(255,255,255,0.55)';
+const PANEL_BORDER = 'rgba(255,201,135,0.35)';
+const PANEL_BG = 'rgba(17,23,37,0.72)';
 
 const CARD_WIDTH = 1200;
 const CARD_HEIGHT = 630;
+const PANEL_MARGIN = 28;
+const HERO_SIZE = 220;
+const GRID_THUMB = 84;
+const GRID_GAP = 10;
 const CACHE_HEADERS = {
   // URL に content-derived な sig が入るため、内容が変われば URL 自体が変わる = 実質 immutable。
   'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
 };
-/** 画像1枚あたりの取得タイムアウト（外部SNS画像等が遅い/無応答でもカード生成全体を巻き込まない）。 */
+/** 画像1枚あたりの取得タイムアウト(外部SNS画像等が遅い/無応答でもカード生成全体を巻き込まない)。 */
 const IMAGE_FETCH_TIMEOUT_MS = 4000;
-/** 異常に大きい画像レスポンスを弾く上限（OGP用途でここまでのサイズは不要）。 */
+/** 異常に大きい画像レスポンスを弾く上限(OGP用途でここまでのサイズは不要)。 */
 const IMAGE_MAX_BYTES = 8 * 1024 * 1024;
 
 /**
  * `type=housinger` カード用の要素ツリーを組み立てる。
- * imgs が 0〜3 枚のどのケースでも破綻しないレイアウト。
+ * imageSrcs は0〜10枚のいずれでも破綻しない(0枚ならツアー背景+パネルのみ、
+ * 1枚以上なら先頭を背景兼ヒーローとして使う)。
  */
 export function buildHousingerCard(params: {
   name: string;
+  bio: string | null;
   avatarSrc: string | null;
   imageSrcs: string[];
 }) {
-  const { name, avatarSrc, imageSrcs } = params;
+  const { name, bio, avatarSrc, imageSrcs } = params;
   const displayName = name || 'ハウジンガー';
+  const heroSrc = imageSrcs[0] ?? null;
+  const gridSrcs = imageSrcs.slice(1, 10); // 残り最大9枚(上4/中1/下4)
 
   return {
     type: 'div',
     props: {
       style: {
-        width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+        width: '100%', height: '100%', display: 'flex', position: 'relative',
         backgroundColor: BG_COLOR, fontFamily: '"M PLUS 1", sans-serif',
       },
       children: [
-        buildHeaderRow(displayName, avatarSrc),
-        buildImageArea(imageSrcs),
+        buildBackgroundLayer(heroSrc),
+        buildScrimLayer(),
+        buildPanel(displayName, bio, avatarSrc, heroSrc, gridSrcs),
       ],
     },
   };
 }
 
-/** アバター＋名前＋「LoPo Housing」マークのヘッダー行。 */
-function buildHeaderRow(displayName: string, avatarSrc: string | null) {
+/** 背景兼ヒーロー画像を拡大+ぼかしてカード全面に敷く。画像が無ければツアー招待カードと共通の固定背景。 */
+function buildBackgroundLayer(heroSrc: string | null) {
+  return {
+    type: 'div',
+    props: {
+      style: {
+        position: 'absolute', inset: 0, display: 'flex',
+        backgroundImage: `url(${heroSrc ?? TOUR_INVITE_BG_DATA_URI})`,
+        backgroundSize: 'cover', backgroundPosition: 'center',
+        // ヒーロー画像(ユーザー写真)のときだけ強くぼかす。ツアー背景は既にぼかし加工済みの
+        // 素材のためここで二重にぼかさない(輪郭が甘くなりすぎるのを防ぐ)。
+        ...(heroSrc ? { filter: 'blur(32px)', transform: 'scale(1.15)' } : {}),
+      },
+    },
+  };
+}
+
+/** 可読性のための暗幕(ツアー招待カードと同じ考え方)。 */
+function buildScrimLayer() {
+  return {
+    type: 'div',
+    props: { style: { position: 'absolute', inset: 0, display: 'flex', backgroundColor: 'rgba(10,14,24,0.55)' } },
+  };
+}
+
+/** ヘッダー・フッターなしの1枚パネル。左=アイコン+名前+紹介文+ブランド表記、右=代表作グリッド。 */
+function buildPanel(
+  displayName: string,
+  bio: string | null,
+  avatarSrc: string | null,
+  heroSrc: string | null,
+  gridSrcs: string[],
+) {
   const nameLen = displayName.length;
-  const nameFontSize = nameLen > 20 ? 40 : nameLen > 12 ? 48 : 56;
+  const nameFontSize = nameLen > 20 ? 32 : nameLen > 12 ? 38 : 44;
 
   const avatarNode = avatarSrc
-    ? { type: 'img', props: { src: avatarSrc, width: 120, height: 120, style: { borderRadius: 60, objectFit: 'cover' } } }
-    // アバター無し: イニシャル風の丸プレースホルダ
+    ? { type: 'img', props: { src: avatarSrc, width: 88, height: 88, style: { borderRadius: 44, objectFit: 'cover' } } }
     : {
       type: 'div',
       props: {
         style: {
-          width: 120, height: 120, borderRadius: 60, display: 'flex',
+          width: 88, height: 88, borderRadius: 44, display: 'flex',
           alignItems: 'center', justifyContent: 'center',
           backgroundColor: 'rgba(255,201,135,0.14)', border: `2px solid ${ACCENT_HONEY}`,
         },
         children: {
           type: 'div',
-          props: { style: { fontSize: 48, fontWeight: 900, color: ACCENT_HONEY }, children: displayName.slice(0, 1) },
+          props: { style: { fontSize: 36, fontWeight: 900, color: ACCENT_HONEY }, children: displayName.slice(0, 1) },
         },
       },
     };
@@ -95,88 +134,94 @@ function buildHeaderRow(displayName: string, avatarSrc: string | null) {
     type: 'div',
     props: {
       style: {
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '48px 64px', flexShrink: 0,
+        position: 'absolute', display: 'flex', flexDirection: 'row',
+        top: PANEL_MARGIN, left: PANEL_MARGIN, right: PANEL_MARGIN, bottom: PANEL_MARGIN,
+        borderRadius: 24, border: `1px solid ${PANEL_BORDER}`, backgroundColor: PANEL_BG,
+        padding: 36, gap: 32,
       },
       children: [
         {
           type: 'div',
           props: {
-            style: { display: 'flex', alignItems: 'center', gap: 32 },
+            style: { flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 16, minWidth: 0 },
             children: [
-              avatarNode,
               {
                 type: 'div',
                 props: {
-                  style: { fontSize: nameFontSize, fontWeight: 900, color: '#ffffff', letterSpacing: -0.5, lineHeight: 1.2 },
-                  children: displayName,
+                  style: { display: 'flex', alignItems: 'center', gap: 20 },
+                  children: [
+                    avatarNode,
+                    { type: 'div', props: { style: { fontSize: nameFontSize, fontWeight: 900, color: '#ffffff', letterSpacing: -0.5, lineHeight: 1.2, display: 'flex' }, children: displayName } },
+                  ],
+                },
+              },
+              ...(bio ? [{
+                type: 'div',
+                props: { style: { fontSize: 20, color: TEXT_MUTED, lineHeight: 1.5, display: 'flex', lineClamp: 2 }, children: bio },
+              }] : []),
+              {
+                type: 'div',
+                props: {
+                  style: {
+                    fontSize: 16, fontWeight: 700, letterSpacing: 1.5, color: ACCENT_HONEY,
+                    textTransform: 'uppercase', display: 'flex',
+                  },
+                  children: 'Shared via LoPo Housing',
                 },
               },
             ],
           },
         },
-        {
-          type: 'div',
-          props: {
-            style: {
-              fontSize: 20, fontWeight: 700, letterSpacing: 2, color: ACCENT_HONEY,
-              textTransform: 'uppercase', border: `1px solid ${ACCENT_HONEY}`,
-              borderRadius: 8, padding: '10px 20px',
-            },
-            children: 'LoPo Housing',
-          },
-        },
+        ...(heroSrc ? [buildGridColumn(heroSrc, gridSrcs)] : []),
       ],
     },
   };
 }
 
-/**
- * 残り面積の画像グリッド。0枚なら装飾テキストのみ、1〜3枚は等分カラムで cover 表示。
- */
-function buildImageArea(imageSrcs: string[]) {
-  if (imageSrcs.length === 0) {
-    return {
-      type: 'div',
-      props: {
-        style: {
-          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '0 64px 56px',
-        },
-        children: {
-          type: 'div',
-          props: {
-            style: { fontSize: 22, color: TEXT_MUTED, letterSpacing: 4, textTransform: 'uppercase' },
-            children: 'FF14 Housing Tour',
-          },
-        },
-      },
-    };
-  }
+/** 右側の代表作グリッド: 上4・(中1+ヒーロー)・下4。 */
+function buildGridColumn(heroSrc: string, gridSrcs: string[]) {
+  const top = gridSrcs.slice(0, 4);
+  const leftover = gridSrcs[4] ?? null;
+  const bottom = gridSrcs.slice(5, 9);
 
   return {
     type: 'div',
     props: {
-      style: {
-        flex: 1, display: 'flex', flexDirection: 'row', gap: 16,
-        padding: '0 64px 56px',
-      },
-      children: imageSrcs.map((src) => ({
-        type: 'div',
-        props: {
-          style: {
-            flex: 1, display: 'flex', position: 'relative', borderRadius: 16, overflow: 'hidden',
-            backgroundColor: 'rgba(255,255,255,0.04)',
-          },
-          children: {
-            type: 'img',
-            props: {
-              src, width: 1200, height: 630,
-              style: { width: '100%', height: '100%', objectFit: 'cover' },
-            },
+      style: { flex: '0 0 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: GRID_GAP },
+      children: [
+        { type: 'div', props: { style: { display: 'flex', flexDirection: 'row', gap: GRID_GAP }, children: top.map((src) => buildGridThumb(src)) } },
+        {
+          type: 'div',
+          props: {
+            style: { display: 'flex', flexDirection: 'row', gap: GRID_GAP, alignItems: 'flex-end', justifyContent: 'space-between' },
+            children: [
+              leftover ? buildGridThumb(leftover) : { type: 'div', props: { style: { width: GRID_THUMB, height: GRID_THUMB, display: 'flex' } } },
+              buildHeroThumb(heroSrc),
+            ],
           },
         },
-      })),
+        { type: 'div', props: { style: { display: 'flex', flexDirection: 'row', gap: GRID_GAP }, children: bottom.map((src) => buildGridThumb(src)) } },
+      ],
+    },
+  };
+}
+
+function buildHeroThumb(src: string) {
+  return {
+    type: 'div',
+    props: {
+      style: { width: HERO_SIZE, height: HERO_SIZE, borderRadius: 16, overflow: 'hidden', display: 'flex', border: `2px solid ${ACCENT_HONEY}`, flex: '0 0 auto' },
+      children: { type: 'img', props: { src, width: HERO_SIZE, height: HERO_SIZE, style: { objectFit: 'cover' } } },
+    },
+  };
+}
+
+function buildGridThumb(src: string) {
+  return {
+    type: 'div',
+    props: {
+      style: { width: GRID_THUMB, height: GRID_THUMB, borderRadius: 8, overflow: 'hidden', display: 'flex', flex: '0 0 auto' },
+      children: { type: 'img', props: { src, width: GRID_THUMB, height: GRID_THUMB, style: { objectFit: 'cover' } } },
     },
   };
 }
@@ -278,8 +323,9 @@ export async function handleHousingerCardRequest(searchParams: URLSearchParams):
   }
 
   const name = (searchParams.get('name') || '').slice(0, 100);
+  const bio = (searchParams.get('bio') || '').slice(0, 100) || null;
   const avatarUrl = searchParams.get('avatar');
-  const imageUrls = searchParams.getAll('img').slice(0, 3);
+  const imageUrls = searchParams.getAll('img').slice(0, 10);
 
   try {
     const [avatarSrc, ...imageSrcs] = await Promise.all([
@@ -288,10 +334,10 @@ export async function handleHousingerCardRequest(searchParams: URLSearchParams):
     ]);
     const resolvedImageSrcs = imageSrcs.filter((s): s is string => !!s);
 
-    const uniqueChars = [...new Set('LoPo Housing FF14 Housing Tour' + name)].join('');
+    const uniqueChars = [...new Set('LoPo Housing Shared via LoPo Housing FF14 Housing Tour' + name + (bio ?? ''))].join('');
     const fonts = await loadMPlus1Fonts(uniqueChars);
 
-    const element = buildHousingerCard({ name, avatarSrc, imageSrcs: resolvedImageSrcs });
+    const element = buildHousingerCard({ name, bio, avatarSrc, imageSrcs: resolvedImageSrcs });
     return new ImageResponse(element as any, {
       width: CARD_WIDTH,
       height: CARD_HEIGHT,

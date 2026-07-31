@@ -1,4 +1,4 @@
-import type { MockListing } from '../../data/housing/mockListings';
+import type { MockListing } from '../../data/housing/mockListings.js';
 
 /**
  * 表示時点で「実質公開中」かを判定する遅延評価 (spec A-1)。
@@ -85,4 +85,19 @@ export function mergeListingsForViewer(
     if (l.ownerUid === viewerUid) byId.set(l.id, l);
   }
   return Array.from(byId.values());
+}
+
+/**
+ * OGPカードの代表作として選択可能か(spec 2026-07-31 §確定済みの決定「選べる物件の条件」)。
+ * visibility が明示的に 'public' であることを要求する(unlisted=住所非公開・private・未設定は不可)。
+ * isEffectivelyPublic と異なり visibility 未設定を許容しない(選択は本人の能動的操作のため、
+ * バックフィル前の保険的デフォルトに頼らず厳密に判定する)。
+ */
+export function isEligibleForOgRepresentative(
+  listing: { visibility?: 'public' | 'unlisted' | 'private'; publishUntil?: number | null },
+  nowMs: number,
+): boolean {
+  if (listing.visibility !== 'public') return false;
+  if (listing.publishUntil != null && listing.publishUntil <= nowMs) return false;
+  return true;
 }

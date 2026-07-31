@@ -21,10 +21,11 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { normalizeHousingerUid, stripHashedPrefix, HOUSINGER_BIO_MAX_LENGTH } from '../../src/lib/housing/housingerProfile.js';
 import { buildHousingerOgCardParams } from '../../src/lib/ogpHousingerCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
+import { isEligibleForOgRepresentative } from '../../src/lib/housing/listingPublish.js';
+import { buildYoutubeThumbnailUrl } from '../../src/lib/housing/youtubeUrl.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
-const PUBLIC_VISIBILITY = ['public', 'unlisted'];
 
 // _sharePageHandler.ts のデフォルトと同じ文言 (専用メタを出さないケースの統一フォールバック)。
 const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
@@ -37,20 +38,29 @@ function escapeHtml(s: string): string {
 
 /**
  * 公開 listing 1 件分から代表画像 URL を解決する。
- * src/lib/housing/representativeImage.ts の優先順 (thumbnail → sns(ogImageUrl) → なし) と
- * 同じロジックだが、OGP では「画像なし」時にプレースホルダ SVG (mock-thumbs) を使わず、
- * 呼び出し側で avatarUrl → デフォルト画像へフォールバックさせるため null を返す。
+ * 優先順: thumbnail → sns(ogImageUrl) → Twitter動画のvideoPosterUrl → YouTubeサムネイル → なし。
+ * 動画のみ登録(imageMode:'none')の物件も、動画由来の静止画があればここで拾う
+ * (2026-07-31: 従来はimageMode==='none'を一律除外していたため、動画メインのハウジンガーの
+ * カードが空になっていた不具合の修正)。
  */
 function listingRepresentativeImage(listing: {
   imageMode?: unknown;
   thumbnailPath?: unknown;
   ogImageUrl?: unknown;
+  videoPosterUrl?: unknown;
+  youtubeVideoId?: unknown;
 }): string | null {
   if (listing.imageMode === 'thumbnail' && typeof listing.thumbnailPath === 'string' && listing.thumbnailPath) {
     return listing.thumbnailPath;
   }
   if (listing.imageMode === 'sns' && typeof listing.ogImageUrl === 'string' && listing.ogImageUrl) {
     return listing.ogImageUrl;
+  }
+  if (typeof listing.videoPosterUrl === 'string' && listing.videoPosterUrl) {
+    return listing.videoPosterUrl;
+  }
+  if (typeof listing.youtubeVideoId === 'string' && listing.youtubeVideoId) {
+    return buildYoutubeThumbnailUrl(listing.youtubeVideoId);
   }
   return null;
 }
@@ -99,29 +109,57 @@ export default async function handler(req: any, res: any) {
             ? profile.displayName
             : '';
           const bio: string = typeof profile.bio === 'string' ? profile.bio.slice(0, HOUSINGER_BIO_MAX_LENGTH) : '';
-          const avatarUrl: string | null = typeof profile.avatarUrl === 'string' && profile.avatarUrl ? profile.avatarUrl : null;
+          // OGPレンダラー(satori)はWebP非対応のため、PNG派生版(Task6でアップロード)があれば
+          // そちらを優先する。無ければ(旧アップロードのまま等)従来通りWebP URLを渡し、
+          // レンダラー側でイニシャルプレースホルダにフォールバックさせる(致命的にしない)。
+          const avatarUrl: string | null =
+            typeof profile.avatarPngUrl === 'string' && profile.avatarPngUrl
+              ? profile.avatarPngUrl
+              : (typeof profile.avatarUrl === 'string' && profile.avatarUrl ? profile.avatarUrl : null);
 
           ogTitle = displayName ? `${displayName} のハウジング | LoPo` : DEFAULT_OG_TITLE;
           ogDescription = bio || 'FF14 のハウジングを巡るツアー機能で公開中のハウジング一覧です。';
 
-          // 代表画像: そのハウジンガーの公開中 listing (先頭3件 = 新着順、探すページと同じ並び順) の
-          // 代表画像を、下の「ページ風カード」(アバター+名前+画像最大3枚) に載せる。
+          // 代表画像: ハウジンガー本人がマイページで選んだ代表作(最大10件・順序付き・先頭=背景兼ヒーロー)。
+          // 未選択(ogRepresentativeListingIds が空/未設定)なら新着順上位10件を自動採用するフォールバック。
+          // どちらの経路でも「選択後に非公開/住所非公開/削除された」listingはここで除外する。
+          const nowMs = Date.now();
           const resolvedImages: string[] = [];
           try {
-            const listingSnap = await db.collection(LISTING_COLLECTION)
-              .where('ownerUid', '==', uid)
-              .where('visibility', 'in', PUBLIC_VISIBILITY)
-              .where('isHidden', '==', false)
-              .orderBy('createdAt', 'desc')
-              .limit(10)
-              .select('visibility', 'isHidden', 'deletedAt', 'createdAt', 'imageMode', 'thumbnailPath', 'ogImageUrl')
-              .get();
-            for (const doc of listingSnap.docs) {
-              const data = doc.data();
-              if (data.deletedAt != null) continue;
-              const img = listingRepresentativeImage(data);
-              if (img) resolvedImages.push(img);
-              if (resolvedImages.length >= 3) break;
+            const selectedIds: string[] = Array.isArray(profile.ogRepresentativeListingIds)
+              ? profile.ogRepresentativeListingIds.slice(0, 10)
+              : [];
+
+            if (selectedIds.length > 0) {
+              const snaps = await Promise.all(
+                selectedIds.map((id: string) => db.collection(LISTING_COLLECTION).doc(id).get()),
+              );
+              for (const snap of snaps) {
+                if (!snap.exists) continue;
+                const data = snap.data()!;
+                if (data.ownerUid !== uid) continue; // 改ざん防止: 他人のlistingを混入させない
+                if (data.deletedAt != null || data.isHidden === true) continue;
+                if (!isEligibleForOgRepresentative(data, nowMs)) continue;
+                const img = listingRepresentativeImage(data);
+                if (img) resolvedImages.push(img);
+              }
+            } else {
+              const listingSnap = await db.collection(LISTING_COLLECTION)
+                .where('ownerUid', '==', uid)
+                .where('visibility', '==', 'public')
+                .where('isHidden', '==', false)
+                .orderBy('createdAt', 'desc')
+                .limit(10)
+                .select('visibility', 'isHidden', 'deletedAt', 'createdAt', 'imageMode', 'thumbnailPath', 'ogImageUrl', 'videoPosterUrl', 'youtubeVideoId', 'ownerUid', 'publishUntil')
+                .get();
+              for (const doc of listingSnap.docs) {
+                const data = doc.data();
+                if (data.deletedAt != null) continue;
+                if (!isEligibleForOgRepresentative(data, nowMs)) continue;
+                const img = listingRepresentativeImage(data);
+                if (img) resolvedImages.push(img);
+                if (resolvedImages.length >= 10) break;
+              }
             }
           } catch (err) {
             console.error('Housinger page listing fetch error:', err);
@@ -135,6 +173,7 @@ export default async function handler(req: any, res: any) {
           try {
             const params = buildHousingerOgCardParams({
               name: displayName,
+              bio,
               avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
               imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
             });
@@ -142,6 +181,7 @@ export default async function handler(req: any, res: any) {
             await db.collection('og_image_meta').doc(hash).set({
               type: 'housinger',
               name: displayName,
+              bio,
               avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
               imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
               createdAt: Date.now(),
