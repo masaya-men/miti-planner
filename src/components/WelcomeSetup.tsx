@@ -46,26 +46,29 @@ export const WelcomeSetup: React.FC<WelcomeSetupProps> = ({ onComplete }) => {
         setIsSubmitting(true);
 
         try {
+            // プロバイダー判定
+            const provider = 'discord' as const;
+
+            // Firestore users/{uid} ドキュメント作成
+            // (uploadAvatar内部のupdateDocはドキュメントの存在を前提にavatarPngUrlを書き込むため、
+            //  必ずuploadAvatarより先にドキュメントを作成する。順序を逆にするとドキュメント未作成で
+            //  updateDocがサイレントにスキップされ、avatarPngUrlが永久に欠落するバグになる)
+            const now = new Date().toISOString();
+            await setDoc(doc(db, COLLECTIONS.USERS, user.uid), {
+                displayName: displayName.trim(),
+                avatarUrl: null,
+                provider,
+                createdAt: now,
+                updatedAt: now,
+                settings: {},
+            });
+
             let avatarUrl: string | null = null;
 
             // アバターアップロード（設定されている場合）
             if (avatarBlob) {
                 avatarUrl = await uploadAvatar(user.uid, avatarBlob);
             }
-
-            // プロバイダー判定
-            const provider = 'discord' as const;
-
-            // Firestore users/{uid} ドキュメント作成
-            const now = new Date().toISOString();
-            await setDoc(doc(db, COLLECTIONS.USERS, user.uid), {
-                displayName: displayName.trim(),
-                avatarUrl,
-                provider,
-                createdAt: now,
-                updatedAt: now,
-                settings: {},
-            });
 
             // ストア更新
             useAuthStore.setState({
