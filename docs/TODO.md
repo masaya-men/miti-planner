@@ -17,10 +17,13 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 2026-07-31: 探すページの公開一覧に200件上限があり実データが欠落(次回最優先・頭クリアで着手)
-`api/housing/_publicWindow.ts`の`action=gallery`が`.limit(200)`で新しい順に打ち切っており、公開/住所非公開listing総数が現在204件(**既に4件超過・検索結果から消えている**)。件数が増えるほど悪化する構造的バグ(ユーザー実機でタグ検索0件として発覚・診断済み)。**ユーザー方針: 上限は撤廃**(画面描画の間引き/virtualizationは現状件数では不要、将来件数増加時に検討)。**未解決の派生論点**: このAPIのキャッシュ(version番号方式・s-maxage=86400想定)は、物件の登録/編集/削除のたびに`bumpPublicVersionTx`等でversionが上がる設計のため、想定よりキャッシュが効いていない(高頻度で再取得が走っている)疑いが浮上。**次回はこれをクリアな頭で調査してから対応方針を決める**。対象ファイル: `api/housing/_publicWindow.ts`(`.limit(200)`、gallery/housinger両action)・`api/housing/_publicVersion.ts`(version bump頻度、20箇所以上のhandlerから呼ばれている)。
-### ✅ 2026-07-31: ハウジンガーOGPカード作り込み 全11タスク完了(mainマージ待ち)
-subagent-driven-developmentで実装計画(`docs/superpowers/plans/2026-07-31-housinger-ogp-card-redesign.md`)を完走、統合確認+最終レビューも実施済み。worktree `.claude/worktrees/housinger-ogp-card-redesign`に18コミット。**mainへの統合方法(ローカルマージ/PR/保留)はユーザー未回答のまま次回持ち越し**。同worktreeで追加のUI/データ不具合3件も対応・コミット済み: ①ハウジンガーページのシェアボタン高さ不整合 ②ハウジンガータグのアバター画像欠落(データ追加+書込/読出修正+既存38件バックフィル適用済み) ③タグ絞り込み一覧の並び順(記号無視+ABC→五十音)。UI不具合3件のうち(a)ボタンサイズは対応済み、(b)スマホ中央配置(c)PC中央配置は未着手。
+### ✅ 2026-07-31: ハウジンガーOGPカード作り込みworktree、mainへローカルマージ完了
+`worktree-housinger-ogp-card-redesign`(18コミット・全11タスク+シェアボタン高さ/アバター欠落/並び順の3不具合修正)をmainへマージ(finishing-a-development-branchスキル手順、コンフリクト無し)。マージ後にtsc -b+vitest run再実行OK(3809 passed、既知の無関係failure=EphemeralAddPanel 7件のみ)。**worktreeディレクトリ自体の削除は保留中**: `.claude/worktrees/housinger-ogp-card-redesign`が前回セッションの残プロセス(claude.exe、devサーバーもここから起動していた)にロックされていて`git worktree remove`が失敗する。devサーバーはmain直下(`c:\Users\masay\Desktop\FF14Sim`)から再起動済み・そちらで検証続行でOK。**次回: 前回セッションのウィンドウ/プロセスを閉じてから`git worktree remove .claude/worktrees/housinger-ogp-card-redesign`+`git branch -d worktree-housinger-ogp-card-redesign`で最終クリーンアップ**。
+### ✅ 2026-07-31: 探すページの公開一覧200件上限バグ = 修正済み・merge後も反映確認済み
+`api/housing/_publicWindow.ts`の`.limit(200)`をgallery/housinger両actionから撤廃(commit `a7988f4d`)。調査のため本番Firestoreを直接確認: `housing_meta/public.version`=936、直近7日の新規登録35件・updatedAt変化116件(うち82件は特定1日に集中=過去の一括データ移行由来)。**結論: 現状の利用規模ではversion bump頻度は軽微で緊急対応は不要と判断・ユーザー合意の上で後回し**。
+**🟡 後回し確定(次回以降・優先度低・再調査不要でここから着手可)**: ハウジンガーページ(`action=housinger&uid=U`)が全物件共通の1個のversionカウンタを見ているため、自分と無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用のversionカウンタを分離する(`api/housing/_publicVersion.ts`にhousinger用の別カウンタを追加し、`_publicWindow.ts`のhousinger actionと該当書き込みハンドラだけそちらを参照させる)。着手時はキャッシュ設計ルール`.claude/rules/api-caching.md`も併読。
+### ✅ 2026-07-31: ハウジンガー/マイページのシェア・通報ボタン位置修正(ユーザー指摘・mainにマージ済)
+シェア/X/⋮を下部から上部へ移動。マイページ=「ハウジンガー公開」タイトル行の右側(`HousingerProfileSection`に`actions` prop追加)、他人のハウジンガーページ=SNSリンクの下・紹介文の上。ユーザー実機確認待ち。
 ### 2026-07-29: 繁体字(台湾)対応 全5フェーズ完了・mainへローカルマージ済み(未push)
 詳細=TODO_COMPLETED.md「2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了」。**ユーザー方針: 部分公開は望まない、繁体字+OGP+UI修正まとめて発表**。
 未対応の別件(zh-Hant固有ではない)=housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
