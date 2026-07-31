@@ -22,7 +22,7 @@ import { normalizeHousingerUid, stripHashedPrefix, HOUSINGER_BIO_MAX_LENGTH } fr
 import { buildHousingerOgCardParams } from '../../src/lib/ogpHousingerCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { isEligibleForOgRepresentative } from '../../src/lib/housing/listingPublish.js';
-import { buildYoutubeThumbnailUrl } from '../../src/lib/housing/youtubeUrl.js';
+import { buildYoutubeThumbnailUrlFallback } from '../../src/lib/housing/youtubeUrl.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
@@ -60,7 +60,10 @@ function listingRepresentativeImage(listing: {
     return listing.videoPosterUrl;
   }
   if (typeof listing.youtubeVideoId === 'string' && listing.youtubeVideoId) {
-    return buildYoutubeThumbnailUrl(listing.youtubeVideoId);
+    // 2026-07-31実機指摘: maxresdefault.jpgは高解像度アップロードの動画にしか存在せず、
+    // 無い場合は404(satori側でfetch失敗→画像なし扱いになり代表作がズレる原因になっていた)。
+    // hqdefault.jpgは全動画で必ず存在する(画質は480x360だがOGPサムネ用途では十分)。
+    return buildYoutubeThumbnailUrlFallback(listing.youtubeVideoId);
   }
   return null;
 }

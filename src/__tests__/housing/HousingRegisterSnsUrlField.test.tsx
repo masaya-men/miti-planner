@@ -72,7 +72,7 @@ describe('HousingRegisterSnsUrlField', () => {
         fireEvent.change(input, { target: { value: 'https://youtu.be/Ypg8w7Dmq9o?si=6-QZYvd0_Qqrk0pJ' } });
         expect(ytSpy).toHaveBeenCalledWith({
             postUrl: 'https://youtu.be/Ypg8w7Dmq9o?si=6-QZYvd0_Qqrk0pJ',
-            ogImageUrl: 'https://img.youtube.com/vi/Ypg8w7Dmq9o/maxresdefault.jpg',
+            ogImageUrl: 'https://img.youtube.com/vi/Ypg8w7Dmq9o/hqdefault.jpg',
             videoId: 'Ypg8w7Dmq9o',
         });
         // Twitter fetch は呼ばれない (YouTube に切替たため)

@@ -1,5 +1,5 @@
 import { parseTweetUrl } from './tweetUrlParse';
-import { parseYoutubeUrl, buildYoutubeThumbnailUrl } from './youtubeUrl';
+import { parseYoutubeUrl, buildYoutubeThumbnailUrlFallback } from './youtubeUrl';
 import { isOgpUrlAllowed } from './ogpHostAllowlist';
 
 /**
@@ -34,7 +34,9 @@ export function classifySnsUrl(value: string): SnsUrlRoute {
             kind: 'youtube',
             videoId,
             postUrl: trimmed,
-            ogImageUrl: buildYoutubeThumbnailUrl(videoId),
+            // maxresdefault は高解像度アップロード動画にしか存在せず404になりうる (2026-07-31実機指摘)。
+            // hqdefault は全動画で必ず存在するフォールバック品質。
+            ogImageUrl: buildYoutubeThumbnailUrlFallback(videoId),
         };
     }
 
