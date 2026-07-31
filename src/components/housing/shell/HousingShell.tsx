@@ -80,6 +80,45 @@ export const HousingShell: React.FC = () => {
     };
   }, []);
 
+  // 2026-07-31 実機指摘: iOS Safari のビューポートずれ修正 (Layout.tsx の同名処理を移植)。
+  // ページを開いた直後、住所バーが引っ込んで表示エリアが広がるタイミングで
+  // .housing-shell (100dvh 固定) のサイズ計算がズレたまま残ることがある。
+  // body スクロールをロックしているため (上の effect)、ユーザー自身のスクロールでは直せない。
+  // Layout.tsx 側は「キーボードが閉じた時」というコメントで導入されたが、実体は
+  // 「visualViewport の高さが急に増えた」を検知して強制的にレイアウトを再計算させる
+  // 汎用処理で、住所バー引き込みも同じ現象として拾って直してくれている。
+  // ハウジング側にはこの処理自体が無かったため無防備だった。
+  useEffect(() => {
+    if (!isMobile) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+    let prevHeight = vv.height;
+    const resync = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.style.height = '100%';
+      requestAnimationFrame(() => {
+        document.documentElement.style.height = '';
+      });
+    };
+    const handleResize = () => {
+      const newHeight = vv.height;
+      if (newHeight > prevHeight + 50) resync();
+      prevHeight = newHeight;
+    };
+    const handleFocusOut = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        setTimeout(resync, 100);
+      }
+    };
+    vv.addEventListener('resize', handleResize);
+    document.addEventListener('focusout', handleFocusOut);
+    return () => {
+      vv.removeEventListener('resize', handleResize);
+      document.removeEventListener('focusout', handleFocusOut);
+    };
+  }, [isMobile]);
+
   // お気に入りのサーバー同期: /housing 滞在中だけリスナー・デバウンス書き込みを張る
   // (他画面でコストを払わない)。ログイン状態は内部で購読するのでここでは start/stop のみ。
   useEffect(() => {
