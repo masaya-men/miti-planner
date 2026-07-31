@@ -59,6 +59,7 @@ export async function upsertHousingerProfile(input: {
   isPublished?: boolean;
   bio?: string | null;
   snsUrl?: string | null;
+  ogRepresentativeListingIds?: string[] | null;
 }): Promise<{ ok: boolean; error?: string; profile?: HousingerProfile }> {
   try {
     const headers = await buildHousingHeaders(true);
