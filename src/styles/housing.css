@@ -9321,8 +9321,17 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     grid-template-columns: repeat(2, 1fr);
     /* 実機FB第4弾: カードは透けたナビの下まで流れる。末尾はナビ高さ+余裕ぶん確保して
        最後のカードがナビに隠れたままスクロールが止まらないようにする (実機FB#9 の改訂)。
-       右12px = カードと画面端の間 (スクロールバーはこの外側=画面右端に出る)。 */
+       右12px = カードと画面端の間 (スクロールバーはこの外側=画面右端に出る)。
+       この左0/右12pxは「探す」ページが自前の左右余白をゼロにしている前提の値
+       (下の .housinger-page-listings-col 側では上書きする)。 */
     padding: 4px 12px calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
+  }
+  /* 2026-07-31 実機指摘: ハウジンガーページ/マイページは .housing-detail-fullpage-main が
+     既に左右24pxの均等余白を持っているため、上の「探す」専用の左0/右12pxがそのまま乗ると
+     右だけ12px広くなり全体が左に寄って見える (探す/お気に入りとは前提が違う)。
+     左右を揃えて中央に来るようにする。 */
+  .housinger-page-listings-col .housing-listing-grid {
+    padding: 4px 0 calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px) 0;
   }
   /* スクロールバー: 画面右端・太め (WebKit/Android。iOS Safari は太さ指定非対応=位置のみ改善)。 */
   .housing-listing-grid::-webkit-scrollbar {
