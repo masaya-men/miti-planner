@@ -30,4 +30,13 @@ describe('validateUpsertBody', () => {
     expect(validateUpsertBody({ ogRepresentativeListingIds: 'not-an-array' }))
       .toEqual({ ok: false, error: 'invalid_og_representative_ids' });
   });
+  it('ogBackgroundListingIdは文字列またはnullのみok(空文字・数値はinvalid)', () => {
+    expect(validateUpsertBody({ ogBackgroundListingId: 'l-1' }).ok).toBe(true);
+    expect(validateUpsertBody({ ogBackgroundListingId: null }).ok).toBe(true);
+    expect(validateUpsertBody({}).ok).toBe(true);
+    expect(validateUpsertBody({ ogBackgroundListingId: '' }))
+      .toEqual({ ok: false, error: 'invalid_og_background_id' });
+    expect(validateUpsertBody({ ogBackgroundListingId: 123 }))
+      .toEqual({ ok: false, error: 'invalid_og_background_id' });
+  });
 });

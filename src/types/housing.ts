@@ -341,4 +341,6 @@ export interface HousingerProfile {
   updatedAt: number;
   /** OGPカードに使う代表作(最大10件、listing id、順序付き・先頭=背景兼ヒーロー)。未設定/空なら新着順上位10件を自動採用する。 */
   ogRepresentativeListingIds?: string[] | null;
+  /** 代表作の中から「背景にも使う」と明示指定した1件のlisting id。未設定/nullなら ogRepresentativeListingIds の先頭を自動的に背景として使う(既存挙動のフォールバック)。 */
+  ogBackgroundListingId?: string | null;
 }
