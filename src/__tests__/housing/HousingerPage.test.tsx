@@ -412,4 +412,50 @@ describe('HousingerPage', () => {
     await screen.findByText((_, el) => el?.className === 'housing-card-select is-selected' && selectButtons[1] === el);
     expect(mockUpsertHousingerProfile).toHaveBeenCalledWith({ ogRepresentativeListingIds: ['l-1', 'l-2'] });
   });
+
+  it('代表作選択済みのカードだけ背景トグルが出て、押すと選ばれる', async () => {
+    authUid = 'uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce({ ...publishedProfile, ogRepresentativeListingIds: ['l-1', 'l-2'] });
+    mockGetHousingerListings.mockResolvedValueOnce([
+      rawListing('l-1', 'uid-1'),
+      { ...rawListing('l-2', 'uid-1'), createdAt: 50 },
+    ]);
+    mockUpsertHousingerProfile.mockResolvedValueOnce({ ok: true, profile: publishedProfile });
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    const bgButtons = await screen.findAllByTestId('housing-card-background-select');
+    expect(bgButtons).toHaveLength(2);
+    fireEvent.click(bgButtons[1]);
+
+    await screen.findByText((_, el) => el?.className === 'housing-card-background-select is-selected' && bgButtons[1] === el);
+    expect(mockUpsertHousingerProfile).toHaveBeenCalledWith({ ogBackgroundListingId: 'l-2' });
+  });
+
+  it('背景に選んだカードを代表作から外すと、背景指定も一緒に解除される', async () => {
+    authUid = 'uid-1';
+    mockGetHousingerProfile.mockResolvedValueOnce({
+      ...publishedProfile,
+      ogRepresentativeListingIds: ['l-1', 'l-2'],
+      ogBackgroundListingId: 'l-1',
+    });
+    mockGetHousingerListings.mockResolvedValueOnce([
+      rawListing('l-1', 'uid-1'),
+      { ...rawListing('l-2', 'uid-1'), createdAt: 50 },
+    ]);
+    mockUpsertHousingerProfile.mockResolvedValueOnce({ ok: true, profile: publishedProfile });
+
+    renderPage('uid-1');
+
+    await screen.findByRole('heading', { name: 'たかし' });
+    const selectButtons = await screen.findAllByTestId('housing-card-select');
+    fireEvent.click(selectButtons[0]); // l-1(背景指定済み)を代表作から外す
+
+    await screen.findByText((_, el) => el?.className === 'housing-card-select' && selectButtons[0] === el);
+    expect(mockUpsertHousingerProfile).toHaveBeenCalledWith({
+      ogRepresentativeListingIds: ['l-2'],
+      ogBackgroundListingId: null,
+    });
+  });
 });

@@ -226,6 +226,14 @@ export const HousingerPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSelf, profile?.ogRepresentativeListingIds, listings]);
 
+  // OGP背景選択(本人閲覧時のみ)。初期値: profile.ogBackgroundListingId。未設定ならnull
+  // (ogSelectionIds[0]が自動的に背景として使われる、既存フォールバック)。
+  const [ogBackgroundId, setOgBackgroundId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isSelf) return;
+    setOgBackgroundId(profile?.ogBackgroundListingId ?? null);
+  }, [isSelf, profile?.ogBackgroundListingId]);
+
   const ogSelectionSet = useMemo(() => new Set(ogSelectionIds), [ogSelectionIds]);
 
   const handleToggleOgSelect = async (id: string) => {
@@ -240,12 +248,34 @@ export const HousingerPage: React.FC = () => {
       showToast(t('housing.housinger.ogSelect.maxReached'), 'error');
       return;
     }
-    const previous = ogSelectionIds;
+    const previousSelection = ogSelectionIds;
+    const previousBackground = ogBackgroundId;
     const next = isSelected ? ogSelectionIds.filter((x) => x !== id) : [...ogSelectionIds, id];
+    // 背景に指定していたカードを代表作から外す場合は、背景指定も一緒に解除する
+    // (外れたlistingが背景のまま残ると、次回描画時にサーバー側フォールバックで無視されるだけで
+    // 見た目には問題ないが、UI上の状態としては矛盾するため明示的に解除する)。
+    const clearsBackground = isSelected && ogBackgroundId === id;
     setOgSelectionIds(next);
-    const result = await upsertHousingerProfile({ ogRepresentativeListingIds: next });
+    if (clearsBackground) setOgBackgroundId(null);
+    const result = await upsertHousingerProfile({
+      ogRepresentativeListingIds: next,
+      ...(clearsBackground ? { ogBackgroundListingId: null } : {}),
+    });
     if (!result.ok) {
-      setOgSelectionIds(previous);
+      setOgSelectionIds(previousSelection);
+      if (clearsBackground) setOgBackgroundId(previousBackground);
+      showToast(t('housing.housinger.account.toastError'), 'error');
+    }
+  };
+
+  const handleToggleOgBackground = async (id: string) => {
+    if (!ogSelectionIds.includes(id)) return;
+    const previous = ogBackgroundId;
+    const next = ogBackgroundId === id ? null : id;
+    setOgBackgroundId(next);
+    const result = await upsertHousingerProfile({ ogBackgroundListingId: next });
+    if (!result.ok) {
+      setOgBackgroundId(previous);
       showToast(t('housing.housinger.account.toastError'), 'error');
     }
   };
@@ -563,6 +593,8 @@ export const HousingerPage: React.FC = () => {
                   selectable={isSelf}
                   selectedIds={isSelf ? ogSelectionSet : undefined}
                   onToggleSelect={isSelf ? handleToggleOgSelect : undefined}
+                  backgroundId={isSelf ? ogBackgroundId : undefined}
+                  onToggleBackground={isSelf ? handleToggleOgBackground : undefined}
                 />
               )}
             </div>
