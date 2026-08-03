@@ -17,9 +17,11 @@
  * 住所文字列は og:title/og:description のいずれにも含めない。
  */
 
+import { getStorage } from 'firebase-admin/storage';
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { normalizeHousingerUid, stripHashedPrefix, HOUSINGER_BIO_MAX_LENGTH } from '../../src/lib/housing/housingerProfile.js';
 import { buildHousingerOgCardParams } from '../../src/lib/ogpHousingerCard.js';
+import type { HousingerCardPattern } from '../../src/lib/ogpHousingerCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { isEligibleForOgRepresentative } from '../../src/lib/housing/listingPublish.js';
 import { buildYoutubeThumbnailUrlFallback } from '../../src/lib/housing/youtubeUrl.js';
@@ -27,6 +29,12 @@ import { toPngSiblingPath } from '../housing/_imageArrayLogic.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
+/** api/og-cache/index.ts と同じバケット(OGPカードの永続キャッシュ先)。 */
+const OG_STORAGE_BUCKET = 'lopo-7793e.firebasestorage.app';
+/** カード生成パラメータのカードに載せる画像は最大10枚(src/lib/ogpHousingerCard.ts の MAX_CARD_IMAGES と一致させる)。 */
+const MAX_CARD_IMAGES = 10;
+/** 配信時にランダムに選ぶ2案。両方を事前生成・キャッシュしておく(配信時に生成コストを払わせない)。 */
+const CARD_PATTERNS: HousingerCardPattern[] = ['grid', 'sidebar'];
 
 // _sharePageHandler.ts のデフォルトと同じ文言 (専用メタを出さないケースの統一フォールバック)。
 const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
@@ -38,12 +46,16 @@ function escapeHtml(s: string): string {
 }
 
 /**
- * 公開 listing 1 件分から代表画像 URL を解決する。
- * 優先順: thumbnail → YouTubeサムネイル(youtubeVideoIdから再構築) → sns(ogImageUrl) →
- * Twitter動画のvideoPosterUrl → なし。
+ * 公開 listing 1 件分から代表画像 URL を「複数」解決する(2026-08-03: OGPカードの写真スロットが
+ * 常に10枚固定になったため、1物件1枚だけでなく持っている分だけ返すよう拡張)。
+ * 優先順: thumbnail(複数可) → YouTubeサムネイル(youtubeVideoIdから再構築・1枚のみ) →
+ * sns(sourceImageUrls優先・複数可、無ければogImageUrl1枚) → Twitter動画のvideoPosterUrl(1枚) → なし。
  * 動画のみ登録(imageMode:'none')の物件も、動画由来の静止画があればここで拾う
  * (2026-07-31: 従来はimageMode==='none'を一律除外していたため、動画メインのハウジンガーの
  * カードが空になっていた不具合の修正)。
+ *
+ * 戻り値の先頭 = 呼び出し側が「この物件の代表1枚」として使う画像(呼び出し順序を変えないため)。
+ * 2枚目以降は「登録物件が10件に満たないユーザー」の穴埋め用の追加候補。
  *
  * thumbnail経路 (直接アップロード) はブラウザ側でWebP優先圧縮されるが、OGPカード生成
  * (satori) はWebP/AVIF非対応で黙って読み飛ばす (2026-07-31実機で発覚)。アップロード時に
@@ -56,26 +68,80 @@ function escapeHtml(s: string): string {
  * のまま残っている既存データがあり、そちらを優先すると黙って読み飛ばされてしまう。
  * youtubeVideoIdからhqdefault.jpg (全動画で必ず存在) を都度組み立てれば確実。
  */
-function listingRepresentativeImage(listing: {
+export function listingRepresentativeImages(listing: {
   imageMode?: unknown;
   thumbnailPath?: unknown;
+  thumbnailPaths?: unknown;
   ogImageUrl?: unknown;
+  sourceImageUrls?: unknown;
   videoPosterUrl?: unknown;
   youtubeVideoId?: unknown;
-}): string | null {
-  if (listing.imageMode === 'thumbnail' && typeof listing.thumbnailPath === 'string' && listing.thumbnailPath) {
-    return toPngSiblingPath(listing.thumbnailPath);
+}): string[] {
+  if (listing.imageMode === 'thumbnail') {
+    if (Array.isArray(listing.thumbnailPaths) && listing.thumbnailPaths.length > 0) {
+      return listing.thumbnailPaths
+        .filter((p): p is string => typeof p === 'string' && p.length > 0)
+        .map((p) => toPngSiblingPath(p));
+    }
+    if (typeof listing.thumbnailPath === 'string' && listing.thumbnailPath) {
+      return [toPngSiblingPath(listing.thumbnailPath)];
+    }
   }
   if (typeof listing.youtubeVideoId === 'string' && listing.youtubeVideoId) {
-    return buildYoutubeThumbnailUrlFallback(listing.youtubeVideoId);
+    return [buildYoutubeThumbnailUrlFallback(listing.youtubeVideoId)];
   }
-  if (listing.imageMode === 'sns' && typeof listing.ogImageUrl === 'string' && listing.ogImageUrl) {
-    return listing.ogImageUrl;
+  if (listing.imageMode === 'sns') {
+    if (Array.isArray(listing.sourceImageUrls) && listing.sourceImageUrls.length > 0) {
+      return listing.sourceImageUrls.filter((u): u is string => typeof u === 'string' && u.length > 0);
+    }
+    if (typeof listing.ogImageUrl === 'string' && listing.ogImageUrl) {
+      return [listing.ogImageUrl];
+    }
   }
   if (typeof listing.videoPosterUrl === 'string' && listing.videoPosterUrl) {
-    return listing.videoPosterUrl;
+    return [listing.videoPosterUrl];
   }
-  return null;
+  return [];
+}
+
+/**
+ * 複数 listing の画像候補配列(各要素=1物件分、先頭が代表画像)から、カードの写真スロットを
+ * 優先順位付きで埋める: ①各物件の代表1枚ずつ ②足りなければ各物件の2枚目以降。
+ * 巡回コピーでの穴埋めは行わない(それは呼び出し側=カード描画側 `_housingerCard.ts` の責務)。
+ */
+export function collectImagesFromListings(listingImageArrays: string[][], target: number): string[] {
+  const result: string[] = [];
+  for (const imgs of listingImageArrays) {
+    if (result.length >= target) break;
+    if (imgs.length > 0) result.push(imgs[0]);
+  }
+  if (result.length < target) {
+    outer: for (const imgs of listingImageArrays) {
+      for (let i = 1; i < imgs.length; i++) {
+        if (result.length >= target) break outer;
+        result.push(imgs[i]);
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * `listingImageArrays` の中から `backgroundListingId` に一致する要素を先頭へ移動する。
+ * 一致なし(未指定/代表作から外れた/非公開になった等)ならそのまま返す = 既存の並び順を使う
+ * (このあとの `collectImagesFromListings` が並び順の先頭を「背景兼ヒーロー」として扱う)。
+ */
+export function reorderListingImageArraysByBackgroundId(
+  entries: { id: string; images: string[] }[],
+  backgroundListingId: string | null | undefined,
+): { id: string; images: string[] }[] {
+  if (!backgroundListingId) return entries;
+  const idx = entries.findIndex((e) => e.id === backgroundListingId);
+  if (idx <= 0) return entries;
+  const copy = [...entries];
+  const [target] = copy.splice(idx, 1);
+  copy.unshift(target);
+  return copy;
 }
 
 /** 相対パスの場合のみ絶対URLに組み立てる (現行データは基本的に絶対URL保存だが念のため)。 */
@@ -136,13 +202,17 @@ export default async function handler(req: any, res: any) {
           // 代表画像: ハウジンガー本人がマイページで選んだ代表作(最大10件・順序付き・先頭=背景兼ヒーロー)。
           // 未選択(ogRepresentativeListingIds が空/未設定)なら新着順上位10件を自動採用するフォールバック。
           // どちらの経路でも「選択後に非公開/住所非公開/削除された」listingはここで除外する。
+          // 2026-08-03: 写真スロットが常に10枚固定になったため、各listingから複数枚(thumbnailPaths/
+          // sourceImageUrls)拾えるだけ拾い、それでも10枚に満たない場合のみ呼び出し側でのカード描画時に
+          // 巡回コピーで埋める(cycleToLength、_housingerCard.ts側の責務)。
           const nowMs = Date.now();
-          const resolvedImages: string[] = [];
+          let resolvedImages: string[] = [];
           try {
             const selectedIds: string[] = Array.isArray(profile.ogRepresentativeListingIds)
               ? profile.ogRepresentativeListingIds.slice(0, 10)
               : [];
 
+            const listingImageEntries: { id: string; images: string[] }[] = [];
             if (selectedIds.length > 0) {
               const snaps = await Promise.all(
                 selectedIds.map((id: string) => db.collection(LISTING_COLLECTION).doc(id).get()),
@@ -153,8 +223,7 @@ export default async function handler(req: any, res: any) {
                 if (data.ownerUid !== uid) continue; // 改ざん防止: 他人のlistingを混入させない
                 if (data.deletedAt != null || data.isHidden === true) continue;
                 if (!isEligibleForOgRepresentative(data, nowMs)) continue;
-                const img = listingRepresentativeImage(data);
-                if (img) resolvedImages.push(img);
+                listingImageEntries.push({ id: snap.id, images: listingRepresentativeImages(data) });
               }
             } else {
               const listingSnap = await db.collection(LISTING_COLLECTION)
@@ -163,44 +232,67 @@ export default async function handler(req: any, res: any) {
                 .where('isHidden', '==', false)
                 .orderBy('createdAt', 'desc')
                 .limit(10)
-                .select('visibility', 'isHidden', 'deletedAt', 'createdAt', 'imageMode', 'thumbnailPath', 'ogImageUrl', 'videoPosterUrl', 'youtubeVideoId', 'ownerUid', 'publishUntil')
+                .select('visibility', 'isHidden', 'deletedAt', 'createdAt', 'imageMode', 'thumbnailPath', 'thumbnailPaths', 'ogImageUrl', 'sourceImageUrls', 'videoPosterUrl', 'youtubeVideoId', 'ownerUid', 'publishUntil')
                 .get();
               for (const doc of listingSnap.docs) {
                 const data = doc.data();
                 if (data.deletedAt != null) continue;
                 if (!isEligibleForOgRepresentative(data, nowMs)) continue;
-                const img = listingRepresentativeImage(data);
-                if (img) resolvedImages.push(img);
-                if (resolvedImages.length >= 10) break;
+                listingImageEntries.push({ id: doc.id, images: listingRepresentativeImages(data) });
               }
             }
+            const backgroundListingId = typeof profile.ogBackgroundListingId === 'string' ? profile.ogBackgroundListingId : null;
+            const orderedEntries = reorderListingImageArraysByBackgroundId(listingImageEntries, backgroundListingId);
+            resolvedImages = collectImagesFromListings(orderedEntries.map((e) => e.images), MAX_CARD_IMAGES);
           } catch (err) {
             console.error('Housinger page listing fetch error:', err);
           }
 
-          // OGP画像: アバター+名前+公開ハウジング画像(最大3枚)の「ページ風カード」を
+          // OGP画像: アバター+名前+公開ハウジング画像の「ページ風カード」を
           // 安全なキャッシュ経路(/og/{hash}.png・Storage+Cloudflare長期キャッシュ)で配信する。
           // 内容ハッシュを og_image_meta に保存し、og-cache が MISS 時だけ /api/og?type=housinger を叩く
           // (直接 /api/og を毎回叩いていた旧実装は Cloudflare の Bypass 対象で件数が無防備だった)。
+          //
+          // 2026-08-03: デザイン2案(grid/sidebar)を「配信時にランダム選択」する運用にしたため、
+          // 両方を毎回ここで生成・キャッシュしておく(未キャッシュな方が偶然選ばれて生成待ちになる
+          // リクエストが起きないようにするため)。既にキャッシュ済みなら Storage の exists() だけで
+          // 済ませ、実際の生成(satoriレンダリング)はデータが変わって新しいhashになった時だけ走る。
           let cardUrl: string | null = null;
           try {
-            const params = buildHousingerOgCardParams({
-              name: displayName,
-              bio,
-              avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
-              imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
-            });
-            const hash = computeOgCardImageHash(params);
-            await db.collection('og_image_meta').doc(hash).set({
-              type: 'housinger',
-              name: displayName,
-              bio,
-              avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
-              imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
-              createdAt: Date.now(),
-              lastAccessedAt: Date.now(),
-            });
-            cardUrl = `${origin}/og/${hash}.png`;
+            const bucket = getStorage().bucket(OG_STORAGE_BUCKET);
+            const patternUrls = await Promise.all(CARD_PATTERNS.map(async (pattern) => {
+              const params = buildHousingerOgCardParams({
+                pattern,
+                name: displayName,
+                bio,
+                avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
+                imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
+              });
+              const hash = computeOgCardImageHash(params);
+              await db.collection('og_image_meta').doc(hash).set({
+                type: 'housinger',
+                pattern,
+                name: displayName,
+                bio,
+                avatarUrl: avatarUrl ? toAbsoluteUrl(avatarUrl, origin) : null,
+                imageUrls: resolvedImages.map((img) => toAbsoluteUrl(img, origin)),
+                createdAt: Date.now(),
+                lastAccessedAt: Date.now(),
+              });
+              const url = `${origin}/og/${hash}.png`;
+              try {
+                const [exists] = await bucket.file(`og-images/${hash}.png`).exists();
+                if (!exists) {
+                  // 未キャッシュ = このリクエストが初回。ここで生成させておけば、後で別のリクエストが
+                  // このパターンをランダムに選んだ時にはもう生成待ちにならない。
+                  await fetch(url, { headers: { 'User-Agent': 'LoPo-HousingerWarmup/1.0' } });
+                }
+              } catch (warmErr) {
+                console.error('Housinger OG card warm-up error:', pattern, warmErr);
+              }
+              return url;
+            }));
+            cardUrl = patternUrls[Math.floor(Math.random() * patternUrls.length)];
           } catch (err) {
             console.error('Housinger OG card hash/meta error:', err);
           }
