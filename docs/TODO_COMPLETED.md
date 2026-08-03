@@ -2,6 +2,22 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-08-03 ハウジンガーOGPカード 背景画像の明示選択機能 = 実装完了(未push)
+
+ハウジンガーがマイページで「シェアに使う代表作(最大10件)」の中から1枚を「背景にも使う」と明示的に選べる機能。設計書=`docs/superpowers/specs/2026-08-03-ogp-card-background-image-selection-design.md`、実装プラン=`docs/superpowers/plans/2026-08-03-ogp-card-background-image-selection.md`(6タスク、subagent-driven-developmentで実装・タスクごとレビュー+最終レビュー(opus)+修正1件+scoped re-review、SDDレジャー=`.superpowers/sdd/2026-08-03-ogp-card-background-image-selection/progress.md`)。
+
+**仕組み**: 新規背景専用スロットは作らず、既存の「代表作選択」の中から選んだ1枚を画像配列の先頭へ並べ替えるだけ(`reorderListingImageArraysByBackgroundId`)。カード描画側(`api/og/_housingerCard.ts`)は「配列の先頭=背景」という既存ルールをそのまま使うため無改修。マイページのカードに、代表作チェック済みのものだけ隣に「背景にも使う」トグル(ハニーゴールド、既存の青い選択チェックとあえて別アクセント=ユーザー指示)を表示。代表作から外すと背景指定も同じAPI呼び出しで連動解除。未指定時は既存どおり先頭の代表作が自動的に背景になる(既存ユーザーへの影響ゼロ)。
+
+**最終レビューで発見・修正した1件**: 代表作リストを一度も明示保存していないユーザーが背景トグルだけ押すと、サーバー側フォールバック計算とクライアント表示がズレて背景が黙って反映されないエッジケース→背景トグル押下時に代表作リストも同じ呼び出しで明示保存するよう修正(`ac0c512c`)。残り6件のMinor指摘(0枚物件を背景に選んだ場合のフォールバック/handler内配線の直接テスト無し/CSS重複/タップ標的サイズ/ラジオ挙動の直接テスト無し/6コミットに分かれた点)はレビューで実害なしと判断し対応見送り(詳細はSDDレジャー参照)。
+
+build+vitest OK(既知の無関係failure=EphemeralAddPanel 7件のみ。まれに全体スイート実行時にこのfailureの網が原因でHousingerPage系テストが1件道連れでflakyになることがあるが、単体実行では常にgreen)。`npx tsc -b` clean。
+
+### ✅ 2026-08-01 OGPカード新デザイン(grid/sidebar 2パターン)刷新 = 実装完了(未push)
+
+ユーザー作成モックアップの実物SVGをclipPath解析して座標を実測し再現(目視推定ではない)。grid=上下2段グリッド+中央オーバーレイ、sidebar=縦書きブランド文字+写真コラージュの2案を`api/og/_housingerCard.ts`に実装。写真は常に10枚固定スロットで、渡された枚数が10枚未満なら巡回コピーで埋める(0枚は写真無しフォールバック)。枠線色は実測値`#ffeb99`に修正(旧`#ffc987`は目視ドラフトの不正確な値だった)。
+
+`api/share/_housingerPageHandler.ts`を`listingRepresentativeImages()`(複数形)に拡張し物件の2枚目以降の写真も取得、配信時にgrid/sidebarの2パターン同時にキャッシュ生成しランダムに1つ選ぶ運用に対応。詳細な設計判断の経緯は`docs/.private/2026-08-01-ogp-card-design-mockups.md`。
+
 ### ✅ 2026-07-29 ハウジング+LoPo全体 繁体字(台湾)対応 全5フェーズ実装完了(未push)
 
 5フェーズ(①台湾リージョン統合→②軽減表UI文言→③ハウジングUI文言→④管理画面ゲームデータ翻訳対応→⑤ゲームデータ翻訳流し込み)すべて実装・レビュー完了。worktree `.claude/worktrees/housing-taiwan-region-support`(ブランチ`worktree-housing-taiwan-region-support`)。
