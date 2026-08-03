@@ -93,7 +93,7 @@ function buildBackgroundLayer(heroSrc: string | null) {
         backgroundSize: 'cover', backgroundPosition: 'center',
         // ヒーロー画像(ユーザー写真)のときだけ強くぼかす。ツアー背景は既にぼかし加工済みの
         // 素材のためここで二重にぼかさない(輪郭が甘くなりすぎるのを防ぐ)。
-        ...(heroSrc ? { filter: 'blur(32px)', transform: 'scale(1.15)' } : {}),
+        ...(heroSrc ? { filter: 'blur(10px)', transform: 'scale(1.08)' } : {}),
       },
     },
   };
