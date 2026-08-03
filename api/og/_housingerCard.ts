@@ -46,6 +46,9 @@ const CACHE_HEADERS = {
 const IMAGE_FETCH_TIMEOUT_MS = 4000;
 /** 異常に大きい画像レスポンスを弾く上限(OGP用途でここまでのサイズは不要)。 */
 const IMAGE_MAX_BYTES = 8 * 1024 * 1024;
+/** grid パターン中央の隙間(アバター+テキスト置き場)だけを暗くする濃さ。カード全体を覆う
+ * 暗幕は廃止し、文字が乗る隙間だけをこの値で暗くする(元SVGモックアップの技法、2026-08-04)。 */
+const GRID_CENTER_SCRIM_OPACITY = 0.55;
 
 /**
  * `type=housinger` カード用の要素ツリーを組み立てる。
@@ -178,7 +181,7 @@ function buildBioLine(bio: string | null) {
 // パターン grid: 上下2段(各4枚)+中央左右2枚の大判写真、中央の隙間にアバター+横書きテキスト。
 // 座標は 3.svg の clipPath 実測値(960x540 viewBox → 1200x630へ scaleX1.25/scaleY1.1667)。
 // =========================================================================
-function buildGridPattern(displayName: string, bio: string | null, avatarSrc: string | null, heroSrc: string, photos: string[]) {
+function buildGridPattern(displayName: string, _bio: string | null, avatarSrc: string | null, heroSrc: string, photos: string[]) {
   const [top1, top2, top3, top4, midL, midR, bot1, bot2, bot3, bot4] = photos;
   return {
     type: 'div',
@@ -186,7 +189,6 @@ function buildGridPattern(displayName: string, bio: string | null, avatarSrc: st
       style: { width: '100%', height: '100%', display: 'flex', position: 'relative', backgroundColor: BG_COLOR, fontFamily: '"M PLUS 1", sans-serif' },
       children: [
         buildBackdropLayer(heroSrc),
-        buildScrimLayer(0.35),
         buildFrameLayer(),
         buildPhotoTile(31, 33, 267, 141, top1),
         buildPhotoTile(31, 322, 268, 141, top2),
@@ -198,7 +200,10 @@ function buildGridPattern(displayName: string, bio: string | null, avatarSrc: st
         buildPhotoTile(427, 322, 268, 160, bot2),
         buildPhotoTile(427, 611, 268, 160, bot3),
         buildPhotoTile(427, 900, 268, 160, bot4),
-        // 中央: midL(x33-375)とmidR(x819-1168)の間の隙間にアバター+テキスト(写真には重ねない)
+        // 中央: midL(x33-375)とmidR(x819-1168)の間の隙間にアバター+テキスト(写真には重ねない)。
+        // ユーザー実機指摘(2026-08-04): カード全体を覆う暗幕ではなく、この隙間だけ背景を
+        // 暗くして文字を読ませる(元SVGモックアップの技法)。全面スクリムは廃止しこの隙間限定にした。
+        { type: 'div', props: { style: { position: 'absolute', top: 199, left: 375, width: 444, height: 183, display: 'flex', backgroundColor: `rgba(10,14,24,${GRID_CENTER_SCRIM_OPACITY})` } } },
         {
           type: 'div',
           props: {
@@ -214,8 +219,7 @@ function buildGridPattern(displayName: string, bio: string | null, avatarSrc: st
                   children: [buildAvatarNode(avatarSrc, displayName, 76), buildBrandTextBlock(displayName, 32, 'flex-start')],
                 },
               },
-              buildBioLine(bio),
-            ].filter(Boolean),
+            ],
           },
         },
       ],
@@ -238,35 +242,33 @@ function buildSidebarPattern(displayName: string, avatarSrc: string | null, hero
       style: { width: '100%', height: '100%', display: 'flex', position: 'relative', backgroundColor: BG_COLOR, fontFamily: '"M PLUS 1", sans-serif' },
       children: [
         buildBackdropLayer(heroSrc),
-        buildScrimLayer(0.35),
         buildFrameLayer(),
-        // 左: 縦書きテキスト+アバター(背景と同化・箱は敷かない)
+        // 左: 縦書きテキスト+アバター(2026-08-04ユーザー実機指摘・モックアップ実測: 見た目の
+        // 上から [名前, Shared via, LoPo, アバター] の順)。アバターは円形なので回転させても
+        // 見た目は変わらない(satoriは回転した祖先の中のimgを正しく描けない実測バグがあるため、
+        // アバターだけは回転させず、視覚的に正しい位置へ直接絶対配置する)。
+        // テキスト行: transformOrigin:'left top' でピボット点(top,left)を固定し、
+        // rotate(-90deg)でピボットから上方向へ伸びる(satoriのtransform-origin実測挙動)。
+        // 回転前の行は左から [LoPo, Shared via, 名前] の順に並べ、回転後に上から
+        // [名前, Shared via, LoPo] の順で見えるようにする。
         {
           type: 'div',
           props: {
-            style: { position: 'absolute', top: BORDER_MARGIN, left: BORDER_MARGIN, bottom: BORDER_MARGIN, width: 205, display: 'flex' },
+            style: {
+              // 実測値はラッパー撤去分(BORDER_MARGIN=16×2)を足し戻し、かつ名前が上端に
+              // つかえないよう pivot を下げてある(nameFontSizeが大きい長い名前でも収まる余白)。
+              position: 'absolute', top: 500, left: 68 + BORDER_MARGIN,
+              transform: 'rotate(-90deg)', transformOrigin: 'left top',
+              display: 'flex', alignItems: 'center', gap: 12, whiteSpace: 'nowrap',
+            },
             children: [
-              // 縦書きテキスト: transformOrigin:'left top' でピボット点(top,left)を固定し、
-              // rotate(-90deg)でピボットから上方向へ伸びる(satoriのtransform-origin実測挙動)。
-              {
-                type: 'div',
-                props: {
-                  style: {
-                    position: 'absolute', top: 470, left: 68,
-                    transform: 'rotate(-90deg)', transformOrigin: 'left top',
-                    display: 'flex', alignItems: 'center', gap: 12, whiteSpace: 'nowrap',
-                  },
-                  children: [
-                    { type: 'div', props: { style: { fontSize: nameFontSize, fontWeight: 900, color: '#fff6e6', textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: displayName } },
-                    { type: 'div', props: { style: { fontSize: 17, fontWeight: 700, color: ACCENT_HONEY, textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: 'Shared via' } },
-                    { type: 'div', props: { style: { fontSize: 17, fontWeight: 700, color: ACCENT_HONEY, textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: 'LoPo' } },
-                  ],
-                },
-              },
-              { type: 'div', props: { style: { position: 'absolute', left: 60, bottom: 32, display: 'flex' }, children: buildAvatarNode(avatarSrc, displayName, 84) } },
+              { type: 'div', props: { style: { fontSize: 17, fontWeight: 700, color: ACCENT_HONEY, textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: 'LoPo' } },
+              { type: 'div', props: { style: { fontSize: 17, fontWeight: 700, color: ACCENT_HONEY, textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: 'Shared via' } },
+              { type: 'div', props: { style: { fontSize: nameFontSize, fontWeight: 900, color: '#fff6e6', textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: displayName } },
             ],
           },
         },
+        { type: 'div', props: { style: { position: 'absolute', top: 516, left: 60, display: 'flex' }, children: buildAvatarNode(avatarSrc, displayName, 84) } },
         // 右: 写真コラージュ(絶対配置・実測座標)
         buildPhotoTile(36, 331, 219, 204, topLeft),
         buildPhotoTile(248, 331, 219, 205, belowTopLeft),

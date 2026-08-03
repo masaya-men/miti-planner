@@ -69,12 +69,12 @@ describe.each([['grid'], ['sidebar']] as const)('buildHousingerCard(pattern=%s)'
   });
 });
 
-describe('buildHousingerCard 紹介文の表示(写真ありグリッド/サイドバー本体のレイアウト差)', () => {
+describe('buildHousingerCard 紹介文の表示(写真ありグリッド/サイドバー、どちらもコラージュには出さない)', () => {
   const imageSrcs = ['data:image/png;base64,A'];
 
-  it('gridパターンは紹介文を表示する(中央の隙間に余白があるため)', () => {
+  it('gridパターンは紹介文を表示しない(2026-08-04ユーザー指摘でコラージュから撤去)', () => {
     const tree = buildHousingerCard({ pattern: 'grid', name: 'テスト', bio: 'よろしく', avatarSrc: null, imageSrcs });
-    expect(findByText(tree, 'よろしく')).toBe(true);
+    expect(findByText(tree, 'よろしく')).toBe(false);
   });
 
   it('sidebarパターンは紹介文を表示しない(縦書き帯に紹介文を置く余白が無い設計)', () => {
