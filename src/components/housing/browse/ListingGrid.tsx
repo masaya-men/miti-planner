@@ -28,6 +28,10 @@ export interface ListingGridProps {
   selectedIds?: Set<string>;
   /** selectable=true のとき、選択トグル時のコールバック。 */
   onToggleSelect?: (id: string) => void;
+  /** selectable=true のとき、背景に使うと明示指定されたlisting id(0/1件)。 */
+  backgroundId?: string | null;
+  /** selectable=true のとき、背景トグル時のコールバック。 */
+  onToggleBackground?: (id: string) => void;
 }
 
 /**
@@ -48,6 +52,8 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   selectable,
   selectedIds,
   onToggleSelect,
+  backgroundId,
+  onToggleBackground,
 }) => {
   const { t } = useTranslation();
   const containerRef = useListScrollRestore(listKey);
@@ -96,6 +102,8 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
             selectable={selectable}
             selected={selectable ? (selectedIds?.has(l.id) ?? false) : undefined}
             onToggleSelect={onToggleSelect}
+            isBackground={selectable ? backgroundId === l.id : undefined}
+            onToggleBackground={onToggleBackground}
           />
         ))}
       </div>

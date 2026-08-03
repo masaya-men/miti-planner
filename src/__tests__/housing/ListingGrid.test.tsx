@@ -61,3 +61,23 @@ describe('ListingGrid selectable', () => {
     expect(screen.queryByTestId('housing-card-select')).toBeNull();
   });
 });
+
+describe('ListingGrid backgroundId', () => {
+  it('backgroundIdに一致するカードだけ背景トグルがis-selectedになる', () => {
+    const onToggleBackground = vi.fn();
+    renderGrid({
+      selectable: true,
+      selectedIds: new Set(['a', 'b']),
+      onToggleSelect: vi.fn(),
+      backgroundId: 'b',
+      onToggleBackground,
+    });
+
+    const bgButtons = screen.getAllByTestId('housing-card-background-select');
+    expect(bgButtons).toHaveLength(2);
+    expect(bgButtons[0].className).not.toContain('is-selected');
+    expect(bgButtons[1].className).toContain('is-selected');
+    fireEvent.click(bgButtons[0]);
+    expect(onToggleBackground).toHaveBeenCalledWith('a');
+  });
+});
