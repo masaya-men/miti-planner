@@ -2689,9 +2689,10 @@
                 "menuItem": "Report this Housinger"
             },
             "ogSelect": {
-                "hint": "Check the top-left of a card to pick up to 10 featured listings for your share image",
+                "hint": "Check the top-left of a card to pick up to 10 featured listings for your share image. Tap the icon that appears on a selected card to also use that photo as the background",
                 "publicOnly": "Only public listings can be selected",
-                "maxReached": "You can select up to 10 featured listings"
+                "maxReached": "You can select up to 10 featured listings",
+                "backgroundToggle": "Also use as background"
             }
         },
         "mypage": {
