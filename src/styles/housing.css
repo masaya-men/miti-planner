@@ -7029,6 +7029,30 @@ select.housing-input option {
   border-color: var(--housing-aether);
   color: var(--housing-panel-bg-solid);
 }
+/* 「背景にも使う」トグル(代表作選択済みのカードにのみ表示)。既存の選択チェック(青=選択)とは
+   あえて別アクセント(ハニーゴールド)にする(2026-08-03ユーザー指示: 同じ青だと2つのトグルの
+   意味が見分けられないため)。塗り/文字色は housing.css 既存の honey 塗りボタン(例:
+   .housing-filter-option[data-selected="true"] .housing-filter-option-check)と同じトークンの
+   組み合わせ(--housing-honey / --housing-honey-border / --housing-honey-text)を使う。 */
+.housing-card-background-select {
+  flex: 0 0 auto;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--housing-bubble-bg);
+  border: 2px solid var(--housing-panel-border-strong);
+  color: var(--housing-text-mute); cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.housing-card-background-select:hover {
+  border-color: var(--housing-honey);
+  color: var(--housing-honey);
+}
+.housing-card-background-select:active { transform: scale(0.92); }
+.housing-card-background-select.is-selected {
+  background: var(--housing-honey);
+  border-color: var(--housing-honey-border);
+  color: var(--housing-honey-text);
+}
 /* 自分の登録の非公開/期限切れ印 (本人にのみ・画像の上に常時乗るので沈んだ地色のチップ) */
 .housing-listing-card-mine-note {
   font-size: var(--housing-text-xs); color: var(--housing-text-dim);

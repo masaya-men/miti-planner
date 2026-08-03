@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Check, Pencil } from 'lucide-react';
+import { Plus, Check, Pencil, Image as ImageIcon } from 'lucide-react';
 import { HousingCardMarqueeLine } from './HousingCardMarqueeLine';
 import { HousingFavHeart } from './HousingFavHeart';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -31,6 +31,10 @@ export interface ListingCardProps {
   selected?: boolean;
   /** 選択トグル時のコールバック。selectable=true のとき使用する */
   onToggleSelect?: (id: string) => void;
+  /** selectable=true かつ selected=true の時だけ表示する「背景にも使う」トグルの選択状態。 */
+  isBackground?: boolean;
+  /** 背景トグルクリック時のコールバック。未指定ならトグル自体を描画しない。 */
+  onToggleBackground?: (id: string) => void;
   /** 指定時、カード本体クリック/Enter で詳細遷移せずこれを呼ぶ (例: 地図の複数スポット→パネル起動)。 */
   onCardClick?: () => void;
   /** true のとき、家主向け管理コントロール (公開状態バッジ+切替+編集) をフッターに表示する。
@@ -60,6 +64,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   selectable,
   selected,
   onToggleSelect,
+  isBackground,
+  onToggleBackground,
   onCardClick,
   showOwnerControls,
   onRequestVisibilityChange,
@@ -188,6 +194,21 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               }}
             >
               {selected && <Check size={14} aria-hidden="true" />}
+            </button>
+          )}
+          {selectable && selected && onToggleBackground && (
+            <button
+              type="button"
+              className={`housing-card-background-select${isBackground ? ' is-selected' : ''}`}
+              aria-label={t('housing.housinger.ogSelect.backgroundToggle')}
+              aria-pressed={isBackground ?? false}
+              data-testid="housing-card-background-select"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleBackground(listing.id);
+              }}
+            >
+              <ImageIcon size={13} aria-hidden="true" />
             </button>
           )}
           {((isPrivate && !showOwnerControls) || isExpired) && (

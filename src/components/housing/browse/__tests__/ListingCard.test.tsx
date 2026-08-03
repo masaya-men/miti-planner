@@ -70,6 +70,38 @@ describe('ListingCard — selectable (選択UI)', () => {
   });
 });
 
+describe('ListingCard — 背景にも使うトグル', () => {
+  it('selected=falseなら背景トグルは出ない', () => {
+    renderCard({ selectable: true, selected: false, onToggleSelect: vi.fn(), onToggleBackground: vi.fn() });
+    expect(screen.queryByTestId('housing-card-background-select')).not.toBeInTheDocument();
+  });
+
+  it('selected=trueかつonToggleBackground指定なら背景トグルが出る', () => {
+    renderCard({ selectable: true, selected: true, onToggleSelect: vi.fn(), onToggleBackground: vi.fn() });
+    expect(screen.getByTestId('housing-card-background-select')).toBeInTheDocument();
+  });
+
+  it('onToggleBackground未指定なら背景トグルは出ない', () => {
+    renderCard({ selectable: true, selected: true, onToggleSelect: vi.fn() });
+    expect(screen.queryByTestId('housing-card-background-select')).not.toBeInTheDocument();
+  });
+
+  it('背景トグルをクリックするとonToggleBackgroundがlisting.idで呼ばれる', () => {
+    const onToggleBackground = vi.fn();
+    renderCard({ selectable: true, selected: true, onToggleSelect: vi.fn(), onToggleBackground });
+    fireEvent.click(screen.getByTestId('housing-card-background-select'));
+    expect(onToggleBackground).toHaveBeenCalledWith(mockListing.id);
+  });
+
+  it('isBackground=trueのとき is-selected クラスが付く', () => {
+    renderCard({
+      selectable: true, selected: true, onToggleSelect: vi.fn(),
+      onToggleBackground: vi.fn(), isBackground: true,
+    });
+    expect(screen.getByTestId('housing-card-background-select')).toHaveClass('is-selected');
+  });
+});
+
 describe('ListingCard — ♡と選択の独立性', () => {
   it('選択クリックが ♡(favorites)状態を変えない', () => {
     useHousingFavoritesStore.setState({ ids: [] });
