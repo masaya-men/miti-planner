@@ -430,7 +430,7 @@ describe('HousingerPage', () => {
     fireEvent.click(bgButtons[1]);
 
     await screen.findByText((_, el) => el?.className === 'housing-card-background-select is-selected' && bgButtons[1] === el);
-    expect(mockUpsertHousingerProfile).toHaveBeenCalledWith({ ogBackgroundListingId: 'l-2' });
+    expect(mockUpsertHousingerProfile).toHaveBeenCalledWith({ ogRepresentativeListingIds: ['l-1', 'l-2'], ogBackgroundListingId: 'l-2' });
   });
 
   it('背景に選んだカードを代表作から外すと、背景指定も一緒に解除される', async () => {

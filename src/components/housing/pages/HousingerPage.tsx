@@ -273,7 +273,7 @@ export const HousingerPage: React.FC = () => {
     const previous = ogBackgroundId;
     const next = ogBackgroundId === id ? null : id;
     setOgBackgroundId(next);
-    const result = await upsertHousingerProfile({ ogBackgroundListingId: next });
+    const result = await upsertHousingerProfile({ ogRepresentativeListingIds: ogSelectionIds, ogBackgroundListingId: next });
     if (!result.ok) {
       setOgBackgroundId(previous);
       showToast(t('housing.housinger.account.toastError'), 'error');
