@@ -11,7 +11,7 @@ export interface LoadedFont {
     name: string;
     data: ArrayBuffer;
     style: 'normal';
-    weight: 400 | 700 | 900;
+    weight: 400 | 700 | 800 | 900;
 }
 
 /**
@@ -37,6 +37,29 @@ export async function loadMPlus1Fonts(uniqueChars: string): Promise<LoadedFont[]
         fonts.push({ name: 'M PLUS 1', data: fontBuffers[2], style: 'normal', weight: 900 });
     } else if (fontBuffers.length >= 1) {
         fonts.push({ name: 'M PLUS 1', data: fontBuffers[0], style: 'normal', weight: 700 });
+    }
+    return fonts;
+}
+
+/**
+ * 使用文字 (uniqueChars) を元に Inter の 800(ハウジングのブランド文字で使う太さ)を取得する。
+ * ハウジンガーOGPカードのブランド文字(名前/Shared via/LoPo)専用(ハウジング標準フォント、
+ * docs/.private/2026-08-01-ogp-card-design-mockups.md のArtifact確定値)。
+ */
+export async function loadInterFonts(uniqueChars: string): Promise<LoadedFont[]> {
+    const fontCssUrl = `https://fonts.googleapis.com/css2?family=Inter:wght@800&text=${encodeURIComponent(uniqueChars)}`;
+    const fontCss = await fetch(fontCssUrl, {
+        headers: { 'User-Agent': 'Mozilla/5.0' },
+    }).then((r) => r.text());
+
+    const fontUrls = [...fontCss.matchAll(/src:\s*url\(([^)]+)\)/g)].map((m) => m[1]);
+    const fontBuffers = await Promise.all(
+        fontUrls.map((url) => fetch(url).then((r) => r.arrayBuffer())),
+    );
+
+    const fonts: LoadedFont[] = [];
+    if (fontBuffers.length >= 1) {
+        fonts.push({ name: 'Inter', data: fontBuffers[0], style: 'normal', weight: 800 });
     }
     return fonts;
 }

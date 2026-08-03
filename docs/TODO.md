@@ -17,10 +17,11 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 次セッション最優先: OGPカードの見た目、実機で一緒に確認しながら詰める(2026-08-04ユーザー指示でここで区切り)
-grid/sidebar新デザイン本体+背景画像選択機能に加え、実機指摘(アイコンが文字と一緒に回転していない/カード全体の暗幕がおかしい/紹介文をコラージュから撤去)を`63c8120d`で修正済み・ローカルでは実データ再現して確認済みだが、**ユーザーが実機(共有リンク経由?)で見た限り「変わっていない」と指摘、原因未確定のまま区切り**。全てローカルコミット済み・未push(まだ本番には出ていない)。
-**次セッションでやること**: ①なぜ直った「はず」なのに変わって見えなかったかをユーザーと一緒に確認(キャッシュ/artifact側の表示/別要因の切り分け) ②調整用Artifact(https://claude.ai/code/artifact/ff567711-3544-4722-938b-44f01f51e7e2 、ぼかし・拡大・grid中央パッチの暗さをスライダーで調整できる)をユーザーと一緒に操作しながら数値を決める(チャットでの言葉のやり取りだけで進めない、との明示指示) ③数値確定後、コードに反映→push→デプロイ→実機確認。
-一時解析スクリプト3件(`scripts/preview-ogp-cards.mjs`/`edge-map-ogp-mockups.mjs`/`extract-ogp-svg-geometry.mjs`)は削除するか確認。
+### 🔴 次セッション最優先: OGPカード新デザイン、本番push後に実機確認
+Artifact(https://claude.ai/code/artifact/ff567711-3544-4722-938b-44f01f51e7e2)でのsidebar/grid対話調整が完了し、`api/og/_housingerCard.ts`へ移植・push済み(実機確認前提でこのセッションで作業完了)。**次回セッションはまず本番のハウジンガーページで実際の見た目を確認すること**(ローカルはログイン必須で確認不可、[[reference_housing_local_login_unavailable]])。
+**実装内容**: gridパターンの中央文字パッチは黒塗りではなく背景と同じ写真を重ねたもの(box=top125・left248・w706・h378、写真opacity=0.72+黒重ねopacity=0.50の2層、手本SVG`C:\Users\masay\Downloads\NoraSieHousing\3.svg`をmask構造+MD5比較で実測確認)。sidebar側の黒帯は平塗りrgba(0,0,0,0.5)のまま(left67px幅222px)。ブランド文字(名前/Shared via/LoPo)は3行ともInter太さ800・色#fff3c3に統一、長い名前は縮小せずmaxWidthで自然に2行目へ折り返す(sidebar/grid名前折返し幅とも500px)。位置: sidebar top572・left79・文字43px、grid top213・left322・文字48px、アイコンとも70px。`CARD_VERSION`を4→5に更新(Firebase Storageのhash永久キャッシュ対策)。
+**技術メモ(新規発見・重要)**: satoriには`transformOrigin:'left top'`を指定した回転コンテナの中に画像(img)を2階層以上ネストすると空描画になる実バグがある(default originなら問題ない)。これとは別に既知の「回転枠に画像+文字混在」バグもあり。このためsidebarのアバターはtransformOrigin省略の独立回転divとして分離し、テキストブロック(文字のみ・transformOrigin:'left top')とは別要素に保った。移植前に`npx tsx`で実TSファイルを直接satori+sharpでPNG化して目視検証済み(ローカルで実施可能・本番デプロイ不要)。
+**残作業**: ①本番デプロイ後、実際のハウジンガー写真で表示確認 ②`docs/.private/2026-08-01-ogp-card-design-mockups.md`など詳細記録の整理・COMPLETED移動は実機OK後。
 **🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。/ `.claude/worktrees/housinger-ogp-card-redesign`が前回セッションの残プロセスにロックされ`git worktree remove`失敗中(実害なし・ウィンドウを閉じてから削除)。
 ### ✅ 本番push済(`cd2d95f3`)の細かい修正一覧
 シェア/通報ボタン位置(マイページ/ハウジンガーページ、2回の実機指摘で正しい位置に)/スマホのハウジンガー/マイページ一覧の中央配置(真因=`align-items:flex-start`が縦積み時に横方向に効いていた)/iOS Safariの表示ズレ(visualViewport再同期処理をLayout.tsxから移植)/200件上限バグ本体/野戦治療の陣のフォールバックduration同期(17→18)。

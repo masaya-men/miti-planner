@@ -21,7 +21,7 @@
  */
 
 import { ImageResponse } from '@vercel/og';
-import { loadMPlus1Fonts } from './_fonts.js';
+import { loadMPlus1Fonts, loadInterFonts } from './_fonts.js';
 import { verifyHousingerOgCardSig } from '../../src/lib/ogpHousingerCard.js';
 import type { HousingerCardPattern } from '../../src/lib/ogpHousingerCard.js';
 import { TOUR_INVITE_BG_DATA_URI } from './_tourInviteBg.generated.js';
@@ -32,6 +32,11 @@ const BG_COLOR = '#111725';
 const ACCENT_HONEY = '#ffeb99';
 const TEXT_MUTED = 'rgba(255,255,255,0.6)';
 const GLOW_TEXT_SHADOW = '0 0 20px rgba(255,220,140,0.9), 0 0 40px rgba(255,180,80,0.6)';
+/** ブランド文字(名前/Shared via/LoPo)専用の色・フォント(2026-08-04 Artifact確定値)。
+ * ハウジング標準のInter・太さ800で統一(縮小はせず、名前が長い場合はmaxWidthで自然に折り返す)。 */
+const BRAND_TEXT_COLOR = '#fff3c3';
+const BRAND_FONT_FAMILY = '"Inter"';
+const BRAND_FONT_WEIGHT = 800;
 
 const CARD_WIDTH = 1200;
 const CARD_HEIGHT = 630;
@@ -46,9 +51,34 @@ const CACHE_HEADERS = {
 const IMAGE_FETCH_TIMEOUT_MS = 4000;
 /** 異常に大きい画像レスポンスを弾く上限(OGP用途でここまでのサイズは不要)。 */
 const IMAGE_MAX_BYTES = 8 * 1024 * 1024;
-/** grid パターン中央の隙間(アバター+テキスト置き場)だけを暗くする濃さ。カード全体を覆う
- * 暗幕は廃止し、文字が乗る隙間だけをこの値で暗くする(元SVGモックアップの技法、2026-08-04)。 */
-const GRID_CENTER_SCRIM_OPACITY = 0.55;
+
+/** grid パターン中央パッチ(2026-08-04 手本SVG実測): 黒塗りではなく、背景と同じ写真を
+ * このbox位置に重ね、写真の不透明度+黒の重ねの2層で暗くする(Artifact確定値)。 */
+const GRID_PATCH_TOP = 125;
+const GRID_PATCH_LEFT = 248;
+const GRID_PATCH_WIDTH = 706;
+const GRID_PATCH_HEIGHT = 378;
+const GRID_PATCH_PHOTO_OPACITY = 0.72;
+const GRID_PATCH_TINT_OPACITY = 0.5;
+/** grid パターン: アバター+ブランド文字ブロックの位置・サイズ(Artifact確定値)。 */
+const GRID_TEXT_TOP = 213;
+const GRID_TEXT_LEFT = 322;
+const GRID_FONT_SIZE = 48;
+const GRID_AVATAR_SIZE = 70;
+const GRID_NAME_MAX_WIDTH = 500;
+
+/** sidebar パターン: 縦書きブロックの位置・サイズ(Artifact確定値)。 */
+const SIDEBAR_TEXT_TOP = 572;
+const SIDEBAR_TEXT_LEFT = 79;
+const SIDEBAR_FONT_SIZE = 43;
+const SIDEBAR_ROW_GAP = 0;
+const SIDEBAR_AVATAR_SIZE = 70;
+/** row1(アバター+名前)内の間隔。2,3行目をこの分だけ右にmarginLeftして名前の頭に揃える。 */
+const SIDEBAR_ROW1_GAP = 12;
+const SIDEBAR_NAME_MAX_WIDTH = 500;
+/** 縦書きテキストの背後の黒帯(手本SVG実測: 平塗りrgba(0,0,0,0.5)で正しい、写真重ねではない)。 */
+const SIDEBAR_BAND_LEFT = 67;
+const SIDEBAR_BAND_WIDTH = 222;
 
 /**
  * `type=housinger` カード用の要素ツリーを組み立てる。
@@ -97,7 +127,7 @@ function buildBackdropLayer(heroSrc: string | null) {
         ...FULL_BLEED_ABSOLUTE, display: 'flex',
         backgroundImage: `url(${heroSrc ?? TOUR_INVITE_BG_DATA_URI})`,
         backgroundSize: 'cover', backgroundPosition: 'center',
-        ...(heroSrc ? { filter: 'blur(18px)', transform: 'scale(1.1)' } : {}),
+        ...(heroSrc ? { filter: 'blur(2px)', transform: 'scale(1.1)' } : {}),
       },
     },
   };
@@ -162,6 +192,22 @@ function buildBrandTextBlock(displayName: string, baseFontSize: number, align: '
   };
 }
 
+/** grid/sidebarパターン専用のブランド文字1行(Inter/太さ800/#fff3c3で統一、縮小はせず
+ * extraStyleのmaxWidthで自然に折り返す)。buildBrandTextBlock(旧2パターン用)とは別物。 */
+function buildBrandLine(text: string, fontSize: number, extraStyle: Record<string, unknown> = {}) {
+  return {
+    type: 'div',
+    props: {
+      style: {
+        fontSize, fontWeight: BRAND_FONT_WEIGHT, color: BRAND_TEXT_COLOR,
+        fontFamily: BRAND_FONT_FAMILY, textShadow: GLOW_TEXT_SHADOW, display: 'flex',
+        ...extraStyle,
+      },
+      children: text,
+    },
+  };
+}
+
 function buildPhotoTile(top: number, left: number, width: number, height: number, src: string, radius = 6) {
   return {
     type: 'div',
@@ -200,23 +246,42 @@ function buildGridPattern(displayName: string, _bio: string | null, avatarSrc: s
         buildPhotoTile(427, 322, 268, 160, bot2),
         buildPhotoTile(427, 611, 268, 160, bot3),
         buildPhotoTile(427, 900, 268, 160, bot4),
-        // 中央: midL(x33-375)とmidR(x819-1168)の間の隙間にアバター+テキスト(写真には重ねない)。
-        // ユーザー実機指摘(2026-08-04): カード全体を覆う暗幕ではなく、この隙間だけ背景を
-        // 暗くして文字を読ませる(元SVGモックアップの技法)。全面スクリムは廃止しこの隙間限定にした。
-        { type: 'div', props: { style: { position: 'absolute', top: 199, left: 375, width: 444, height: 183, display: 'flex', backgroundColor: `rgba(10,14,24,${GRID_CENTER_SCRIM_OPACITY})` } } },
+        // 中央パッチ(2026-08-04 手本SVG実測): 黒塗りではなく、背景と同じ写真をこのbox位置に
+        // 重ね、①写真自体の不透明度 ②黒の重ね の2層で暗くする(Artifact確定値そのまま)。
         {
           type: 'div',
           props: {
             style: {
-              position: 'absolute', top: 199, left: 375, width: 444, height: 183,
-              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,
+              position: 'absolute', top: GRID_PATCH_TOP, left: GRID_PATCH_LEFT, width: GRID_PATCH_WIDTH, height: GRID_PATCH_HEIGHT,
+              display: 'flex', backgroundImage: `url(${heroSrc})`, backgroundSize: 'cover', backgroundPosition: 'center',
+              opacity: GRID_PATCH_PHOTO_OPACITY,
             },
+          },
+        },
+        {
+          type: 'div',
+          props: {
+            style: {
+              position: 'absolute', top: GRID_PATCH_TOP, left: GRID_PATCH_LEFT, width: GRID_PATCH_WIDTH, height: GRID_PATCH_HEIGHT,
+              display: 'flex', backgroundColor: '#000', opacity: GRID_PATCH_TINT_OPACITY,
+            },
+          },
+        },
+        {
+          type: 'div',
+          props: {
+            style: { position: 'absolute', top: GRID_TEXT_TOP, left: GRID_TEXT_LEFT, display: 'flex', alignItems: 'flex-start', gap: 14 },
             children: [
+              buildAvatarNode(avatarSrc, displayName, GRID_AVATAR_SIZE),
               {
                 type: 'div',
                 props: {
-                  style: { display: 'flex', alignItems: 'center', gap: 20 },
-                  children: [buildAvatarNode(avatarSrc, displayName, 76), buildBrandTextBlock(displayName, 32, 'flex-start')],
+                  style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 },
+                  children: [
+                    buildBrandLine(displayName, GRID_FONT_SIZE, { maxWidth: GRID_NAME_MAX_WIDTH, lineHeight: 1.15 }),
+                    buildBrandLine('Shared via', GRID_FONT_SIZE, { lineHeight: 1.25 }),
+                    buildBrandLine('LoPo', GRID_FONT_SIZE, { lineHeight: 1.25 }),
+                  ],
                 },
               },
             ],
@@ -233,8 +298,6 @@ function buildGridPattern(displayName: string, _bio: string | null, avatarSrc: s
 // =========================================================================
 function buildSidebarPattern(displayName: string, avatarSrc: string | null, heroSrc: string, photos: string[]) {
   const [topLeft, belowTopLeft, topRight, belowTopRight, centerBig, b1, b2, b3, b4, b5] = photos;
-  const nameLen = displayName.length;
-  const nameFontSize = nameLen > 20 ? 24 : nameLen > 12 ? 28 : 32;
 
   return {
     type: 'div',
@@ -242,33 +305,54 @@ function buildSidebarPattern(displayName: string, avatarSrc: string | null, hero
       style: { width: '100%', height: '100%', display: 'flex', position: 'relative', backgroundColor: BG_COLOR, fontFamily: '"M PLUS 1", sans-serif' },
       children: [
         buildBackdropLayer(heroSrc),
+        // 縦書きテキストの背後の黒帯(2026-08-04 手本SVG実測: 平塗りrgba(0,0,0,0.5)で正しい。
+        // grid側の中央パッチと違いこちらは写真重ねではない)。
+        {
+          type: 'div',
+          props: {
+            style: { position: 'absolute', top: 0, left: SIDEBAR_BAND_LEFT, width: SIDEBAR_BAND_WIDTH, height: CARD_HEIGHT, display: 'flex', backgroundColor: 'rgba(0,0,0,0.5)' },
+          },
+        },
         buildFrameLayer(),
-        // 左: 縦書きテキスト+アバター(2026-08-04ユーザー実機指摘・モックアップ実測: 見た目の
-        // 上から [名前, Shared via, LoPo, アバター] の順)。アバターは円形なので回転させても
-        // 見た目は変わらない(satoriは回転した祖先の中のimgを正しく描けない実測バグがあるため、
-        // アバターだけは回転させず、視覚的に正しい位置へ直接絶対配置する)。
-        // テキスト行: transformOrigin:'left top' でピボット点(top,left)を固定し、
-        // rotate(-90deg)でピボットから上方向へ伸びる(satoriのtransform-origin実測挙動)。
-        // 回転前の行は左から [LoPo, Shared via, 名前] の順に並べ、回転後に上から
-        // [名前, Shared via, LoPo] の順で見えるようにする。
+        // 左: 縦書きテキスト(名前/Shared via/LoPoの3行、flex-columnをrotate(-90deg)で回転)。
+        // アバターはこのブロックに含めない(satoriの実バグ: 回転した祖先の中に画像を2階層以上
+        // ネストすると空描画になる。transformOrigin:'left top'指定時に特に顕著・2026-08-04実機確認)。
+        // 名前は文字を縮小せず、SIDEBAR_NAME_MAX_WIDTHを超えたら自然に2行目へ折り返す
+        // (Shared via/LoPoは1行のまま・アバター分の空きスペースだけ確保して頭を揃える)。
         {
           type: 'div',
           props: {
             style: {
-              // 実測値はラッパー撤去分(BORDER_MARGIN=16×2)を足し戻し、かつ名前が上端に
-              // つかえないよう pivot を下げてある(nameFontSizeが大きい長い名前でも収まる余白)。
-              position: 'absolute', top: 500, left: 68 + BORDER_MARGIN,
+              position: 'absolute', top: SIDEBAR_TEXT_TOP, left: SIDEBAR_TEXT_LEFT,
               transform: 'rotate(-90deg)', transformOrigin: 'left top',
-              display: 'flex', alignItems: 'center', gap: 12, whiteSpace: 'nowrap',
+              display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: SIDEBAR_ROW_GAP,
             },
             children: [
-              { type: 'div', props: { style: { fontSize: 17, fontWeight: 700, color: ACCENT_HONEY, textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: 'LoPo' } },
-              { type: 'div', props: { style: { fontSize: 17, fontWeight: 700, color: ACCENT_HONEY, textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: 'Shared via' } },
-              { type: 'div', props: { style: { fontSize: nameFontSize, fontWeight: 900, color: '#fff6e6', textShadow: GLOW_TEXT_SHADOW, display: 'flex' }, children: displayName } },
+              {
+                type: 'div',
+                props: {
+                  style: { display: 'flex', alignItems: 'center', gap: SIDEBAR_ROW1_GAP, minHeight: SIDEBAR_AVATAR_SIZE },
+                  children: [
+                    { type: 'div', props: { style: { width: SIDEBAR_AVATAR_SIZE, height: 1, display: 'flex' } } },
+                    buildBrandLine(displayName, SIDEBAR_FONT_SIZE, { maxWidth: SIDEBAR_NAME_MAX_WIDTH }),
+                  ],
+                },
+              },
+              buildBrandLine('Shared via', SIDEBAR_FONT_SIZE, { marginLeft: SIDEBAR_AVATAR_SIZE + SIDEBAR_ROW1_GAP, lineHeight: 1.25 }),
+              buildBrandLine('LoPo', SIDEBAR_FONT_SIZE, { marginLeft: SIDEBAR_AVATAR_SIZE + SIDEBAR_ROW1_GAP, lineHeight: 1.25 }),
             ],
           },
         },
-        { type: 'div', props: { style: { position: 'absolute', top: 516, left: 60, display: 'flex' }, children: buildAvatarNode(avatarSrc, displayName, 84) } },
+        // アバター: テキストブロックとは別要素で独立回転(transformOrigin省略=中心基準)。
+        // 正方形を自身の中心で回転しても見た目のbboxは変わらないため、テキストブロックの
+        // row1(アバター分の空きスペース)と同じ位置になるよう算出したtop/leftをそのまま使う。
+        {
+          type: 'div',
+          props: {
+            style: { position: 'absolute', top: SIDEBAR_TEXT_TOP - SIDEBAR_AVATAR_SIZE, left: SIDEBAR_TEXT_LEFT, display: 'flex', transform: 'rotate(-90deg)' },
+            children: buildAvatarNode(avatarSrc, displayName, SIDEBAR_AVATAR_SIZE),
+          },
+        },
         // 右: 写真コラージュ(絶対配置・実測座標)
         buildPhotoTile(36, 331, 219, 204, topLeft),
         buildPhotoTile(248, 331, 219, 205, belowTopLeft),
@@ -421,7 +505,11 @@ export async function handleHousingerCardRequest(searchParams: URLSearchParams):
     const resolvedImageSrcs = imageSrcs.filter((s): s is string => !!s);
 
     const uniqueChars = [...new Set('Shared via LoPo' + name + (bio ?? ''))].join('');
-    const fonts = await loadMPlus1Fonts(uniqueChars);
+    const [mplus1Fonts, interFonts] = await Promise.all([
+      loadMPlus1Fonts(uniqueChars),
+      loadInterFonts(uniqueChars),
+    ]);
+    const fonts = [...mplus1Fonts, ...interFonts];
 
     const element = buildHousingerCard({ pattern, name, bio, avatarSrc, imageSrcs: resolvedImageSrcs });
     return new ImageResponse(element as any, {
