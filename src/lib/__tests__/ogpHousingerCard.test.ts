@@ -10,6 +10,7 @@ import {
 const SECRET = 'test-cron-secret';
 
 const baseInput: HousingerOgCardInput = {
+    pattern: 'grid',
     name: 'モグモグ工房',
     avatarUrl: 'https://example.com/avatar.png',
     imageUrls: [
@@ -20,9 +21,9 @@ const baseInput: HousingerOgCardInput = {
 };
 
 describe('buildHousingerOgCardParams', () => {
-    it('パラメータの並び順は type → ver → name → bio → avatar → img の固定順', () => {
+    it('パラメータの並び順は type → ver → pattern → name → bio → avatar → img の固定順', () => {
         const params = buildHousingerOgCardParams({ ...baseInput, bio: 'よろしくお願いします' });
-        expect([...params.keys()]).toEqual(['type', 'ver', 'name', 'bio', 'avatar', 'img', 'img', 'img']);
+        expect([...params.keys()]).toEqual(['type', 'ver', 'pattern', 'name', 'bio', 'avatar', 'img', 'img', 'img']);
     });
 
     it('bio未指定でもbioパラメータは空文字で含まれる(バージョン変更と合わせて必ずハッシュに反映する)', () => {
@@ -39,19 +40,20 @@ describe('buildHousingerOgCardParams', () => {
     });
 
     it('imageUrls が0枚でも name+avatar のみで組み立てられる', () => {
-        const params = buildHousingerOgCardParams({ name: 'ソロ活動家', avatarUrl: 'https://example.com/a.png', imageUrls: [] });
+        const params = buildHousingerOgCardParams({ pattern: 'grid', name: 'ソロ活動家', avatarUrl: 'https://example.com/a.png', imageUrls: [] });
         expect(params.getAll('img')).toEqual([]);
         expect(params.get('name')).toBe('ソロ活動家');
         expect(params.get('avatar')).toBe('https://example.com/a.png');
     });
 
     it('avatarUrl が無ければ avatar パラメータを含まない', () => {
-        const params = buildHousingerOgCardParams({ name: '名無し', imageUrls: [] });
+        const params = buildHousingerOgCardParams({ pattern: 'grid', name: '名無し', imageUrls: [] });
         expect(params.has('avatar')).toBe(false);
     });
 
     it('imageUrls に null/undefined/空文字が混ざっていても除去される', () => {
         const params = buildHousingerOgCardParams({
+            pattern: 'grid',
             name: 'テスト',
             imageUrls: [null, '', undefined, 'https://example.com/x.png'],
         });
@@ -59,7 +61,7 @@ describe('buildHousingerOgCardParams', () => {
     });
 
     it('name/avatarUrl が未指定でも安全に動く（空文字として扱う）', () => {
-        const params = buildHousingerOgCardParams({ name: '' });
+        const params = buildHousingerOgCardParams({ pattern: 'grid', name: '' });
         expect(params.get('name')).toBe('');
         expect(params.has('avatar')).toBe(false);
     });
@@ -119,6 +121,14 @@ describe('buildHousingerOgCardUrl / verifyHousingerOgCardSig', () => {
         expect(ok).toBe(false);
     });
 
+    it('pattern を改ざんすると検証は false（2案を別ハッシュ・別キャッシュにするための前提）', async () => {
+        const url = await buildHousingerOgCardUrl('https://lopoly.app', baseInput, SECRET);
+        const parsed = new URL(url);
+        parsed.searchParams.set('pattern', 'sidebar');
+        const ok = await verifyHousingerOgCardSig(parsed.searchParams, SECRET);
+        expect(ok).toBe(false);
+    });
+
     it('img を追加改ざんすると検証は false', async () => {
         const url = await buildHousingerOgCardUrl('https://lopoly.app', baseInput, SECRET);
         const parsed = new URL(url);
@@ -136,7 +146,7 @@ describe('buildHousingerOgCardUrl / verifyHousingerOgCardSig', () => {
 
     it('imgs 0〜3枚のいずれでも往復できる', async () => {
         for (const imageUrls of [[], ['https://example.com/1.png'], ['https://example.com/1.png', 'https://example.com/2.png', 'https://example.com/3.png']]) {
-            const url = await buildHousingerOgCardUrl('https://lopoly.app', { name: 'テスト', imageUrls }, SECRET);
+            const url = await buildHousingerOgCardUrl('https://lopoly.app', { pattern: 'grid', name: 'テスト', imageUrls }, SECRET);
             const parsed = new URL(url);
             const ok = await verifyHousingerOgCardSig(parsed.searchParams, SECRET);
             expect(ok).toBe(true);

@@ -18,40 +18,68 @@ function countImgNodes(node: any): number {
   return count;
 }
 
-describe('buildHousingerCard', () => {
+describe.each([['grid'], ['sidebar']] as const)('buildHousingerCard(pattern=%s)', (pattern) => {
   it('画像0枚(物件0件/全滅)でもフォールバック背景付きで破綻しない', () => {
-    const tree = buildHousingerCard({ name: 'ソロ活動家', bio: null, avatarSrc: null, imageSrcs: [] });
+    const tree = buildHousingerCard({ pattern, name: 'ソロ活動家', bio: null, avatarSrc: null, imageSrcs: [] });
     expect(countImgNodes(tree)).toBe(0);
     expect(findByText(tree, 'ソロ活動家')).toBe(true);
   });
 
-  it('画像1枚は背景兼ヒーローとして使われる(背景はCSS backgroundImageスタイルのdivのため、imgノードとしてはヒーロー表示の1回のみ)', () => {
-    const tree = buildHousingerCard({ name: 'テスト', bio: null, avatarSrc: null, imageSrcs: ['data:image/png;base64,AAA'] });
-    // 背景は既存_tourInviteCard.tsと同じくCSS backgroundImageスタイルで敷かれる(imgタグではない)ため
-    // imgノードとしてはパネル内ヒーロー表示の1回のみ
-    expect(countImgNodes(tree)).toBe(1);
+  it('画像1枚でも写真スロット10個全てに巡回コピーされて埋まる(常に10枚グリッド)', () => {
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: null, avatarSrc: null, imageSrcs: ['data:image/png;base64,AAA'] });
+    expect(countImgNodes(tree)).toBe(10);
     // 背景兼ヒーロー使用の核心: 背景レイヤー(children[0])のbackgroundImageが
-    // ヒーロー画像と同じdata URIを指していること(配線ミスで背景に渡し忘れる事故を検知する)
+    // 巡回コピー元の画像と同じdata URIを指していること(配線ミスで背景に渡し忘れる事故を検知する)
     const backgroundLayer = tree.props.children[0] as { props: { style: { backgroundImage: string } } };
     expect(backgroundLayer.props.style.backgroundImage).toContain('data:image/png;base64,AAA');
   });
 
-  it('画像10枚全てがグリッドに描画される(背景兼ヒーロー1 + 上4 + 中1 + 下4)', () => {
-    const imageSrcs = Array.from({ length: 10 }, (_, i) => `data:image/png;base64,IMG${i}`);
-    const tree = buildHousingerCard({ name: 'テスト', bio: 'よろしく', avatarSrc: null, imageSrcs });
-    // 背景はCSS backgroundImageスタイルのためimgノードにカウントされない。ヒーロー1 + 残り9枚 = 10個のimgノード
+  it('画像3枚は10枚になるまで先頭から巡回コピーされる(3,3,3,1で10)', () => {
+    const imageSrcs = ['data:image/png;base64,A', 'data:image/png;base64,B', 'data:image/png;base64,C'];
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: null, avatarSrc: null, imageSrcs });
     expect(countImgNodes(tree)).toBe(10);
-    expect(findByText(tree, 'よろしく')).toBe(true);
+  });
+
+  it('画像10枚全てがグリッドに描画される(背景兼ヒーロー1 + 写真10枚)', () => {
+    const imageSrcs = Array.from({ length: 10 }, (_, i) => `data:image/png;base64,IMG${i}`);
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: 'よろしく', avatarSrc: null, imageSrcs });
+    expect(countImgNodes(tree)).toBe(10);
+  });
+
+  it('11枚以上渡されても先頭10枚のみ使われる', () => {
+    const imageSrcs = Array.from({ length: 15 }, (_, i) => `data:image/png;base64,IMG${i}`);
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: null, avatarSrc: null, imageSrcs });
+    expect(countImgNodes(tree)).toBe(10);
   });
 
   it('紹介文が無ければbio行を出さない', () => {
-    const tree = buildHousingerCard({ name: 'テスト', bio: '', avatarSrc: null, imageSrcs: [] });
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: '', avatarSrc: null, imageSrcs: [] });
     expect(findByText(tree, '')).toBe(false);
   });
 
-  it('「Shared via LoPo Housing」の固定英語表記を必ず含む', () => {
-    const tree = buildHousingerCard({ name: 'テスト', bio: null, avatarSrc: null, imageSrcs: [] });
-    expect(findByText(tree, 'Shared via LoPo Housing')).toBe(true);
+  it('ブランド文字("Shared via"/"LoPo")を必ず含む', () => {
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: null, avatarSrc: null, imageSrcs: [] });
+    expect(findByText(tree, 'Shared via')).toBe(true);
+    expect(findByText(tree, 'LoPo')).toBe(true);
+  });
+
+  it('アバターURLがあればimgノードとして描画される(写真0枚でも)', () => {
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: null, avatarSrc: 'data:image/png;base64,AVATAR', imageSrcs: [] });
+    expect(countImgNodes(tree)).toBe(1);
+  });
+});
+
+describe('buildHousingerCard 紹介文の表示(写真ありグリッド/サイドバー本体のレイアウト差)', () => {
+  const imageSrcs = ['data:image/png;base64,A'];
+
+  it('gridパターンは紹介文を表示する(中央の隙間に余白があるため)', () => {
+    const tree = buildHousingerCard({ pattern: 'grid', name: 'テスト', bio: 'よろしく', avatarSrc: null, imageSrcs });
+    expect(findByText(tree, 'よろしく')).toBe(true);
+  });
+
+  it('sidebarパターンは紹介文を表示しない(縦書き帯に紹介文を置く余白が無い設計)', () => {
+    const tree = buildHousingerCard({ pattern: 'sidebar', name: 'テスト', bio: 'よろしく', avatarSrc: null, imageSrcs });
+    expect(findByText(tree, 'よろしく')).toBe(false);
   });
 });
 

@@ -15,24 +15,33 @@
  * で動作するため、Node 専用 API (`node:crypto`) を避けて Edge 互換を保つ。単体テストも
  * Node のテストランナー上でそのまま通る）。
  *
- * パラメータ順序（固定・sig を除く）: type → ver → name → bio → avatar? → img (0〜10個、順に複数指定)。
+ * パラメータ順序（固定・sig を除く）: type → ver → pattern → name → bio → avatar? → img (0〜10個、順に複数指定)。
  * URLSearchParams は挿入順を保持して `toString()` するため、署名対象の文字列は
  * ビルド側・検証側の両方で同じ手順 (URLSearchParams 経由) を踏む限り一致する。
  */
 
 const SIG_PARAM = 'sig';
 /**
- * v3: ハウジンガーOGPカード全面刷新(2026-07-31・背景ぼかし+ハウジング意匠パネル+
- * 代表作最大10枚グリッド)に伴い更新。パラメータの並びも type→ver→name→bio→avatar→img に変更したため、
- * 旧v2キャッシュを一切踏まないようversionを必ず上げる。
+ * v4: ユーザー作成モックアップ2案(グリッド+オーバーレイ / 縦書きサイドバー)への全面刷新
+ * (2026-08-03)に伴い更新。`pattern` パラメータを追加したため、旧v3キャッシュを一切踏まない
+ * ようversionを必ず上げる。
  */
-const CARD_VERSION = '3';
+const CARD_VERSION = '4';
 /** hex 24桁 = 96bit。DoW対策の署名としては十分な長さ（URLを短く保つため sha256 の先頭を切る）。 */
 const SIG_HEX_LENGTH = 24;
 /** カードに載せる公開ハウジング画像の最大枚数(代表作10件、先頭=背景兼ヒーロー)。 */
 const MAX_CARD_IMAGES = 10;
 
+/**
+ * 採用デザイン2案の識別子。`grid`=上下グリッド+中央オーバーレイ、`sidebar`=縦書きテキスト帯。
+ * どちらを配信するかは呼び出し側(api/share/_housingerPageHandler.ts)がランダムに選ぶが、
+ * 両方とも事前に生成・キャッシュしておくため、パラメータとしては両方の値が使われる。
+ */
+export type HousingerCardPattern = 'grid' | 'sidebar';
+
 export interface HousingerOgCardInput {
+  /** 採用デザイン2案のどちらを描画するか。 */
+  pattern: HousingerCardPattern;
   /** ハウジンガー表示名。空文字/未指定でも可(フォールバックは呼び出し側の表示ロジックに委ねる)。 */
   name: string;
   /** 紹介文(ひとこと)。未指定/nullは空文字として扱う。 */
@@ -52,6 +61,7 @@ export function buildHousingerOgCardParams(input: HousingerOgCardInput): URLSear
   const params = new URLSearchParams();
   params.set('type', 'housinger');
   params.set('ver', CARD_VERSION);
+  params.set('pattern', input.pattern);
   params.set('name', input.name || '');
   params.set('bio', input.bio || '');
   if (input.avatarUrl) params.set('avatar', input.avatarUrl);
