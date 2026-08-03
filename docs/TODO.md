@@ -17,11 +17,13 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 次セッション最優先: OGPカード新デザイン、本番push後に実機確認
-Artifact(https://claude.ai/code/artifact/ff567711-3544-4722-938b-44f01f51e7e2)でのsidebar/grid対話調整が完了し、`api/og/_housingerCard.ts`へ移植・push済み(実機確認前提でこのセッションで作業完了)。**次回セッションはまず本番のハウジンガーページで実際の見た目を確認すること**(ローカルはログイン必須で確認不可、[[reference_housing_local_login_unavailable]])。
-**実装内容**: gridパターンの中央文字パッチは黒塗りではなく背景と同じ写真を重ねたもの(box=top125・left248・w706・h378、写真opacity=0.72+黒重ねopacity=0.50の2層、手本SVG`C:\Users\masay\Downloads\NoraSieHousing\3.svg`をmask構造+MD5比較で実測確認)。sidebar側の黒帯は平塗りrgba(0,0,0,0.5)のまま(left67px幅222px)。ブランド文字(名前/Shared via/LoPo)は3行ともInter太さ800・色#fff3c3に統一、長い名前は縮小せずmaxWidthで自然に2行目へ折り返す(sidebar/grid名前折返し幅とも500px)。位置: sidebar top572・left79・文字43px、grid top213・left322・文字48px、アイコンとも70px。`CARD_VERSION`を4→5に更新(Firebase Storageのhash永久キャッシュ対策)。
-**技術メモ(新規発見・重要)**: satoriには`transformOrigin:'left top'`を指定した回転コンテナの中に画像(img)を2階層以上ネストすると空描画になる実バグがある(default originなら問題ない)。これとは別に既知の「回転枠に画像+文字混在」バグもあり。このためsidebarのアバターはtransformOrigin省略の独立回転divとして分離し、テキストブロック(文字のみ・transformOrigin:'left top')とは別要素に保った。移植前に`npx tsx`で実TSファイルを直接satori+sharpでPNG化して目視検証済み(ローカルで実施可能・本番デプロイ不要)。
-**残作業**: ①本番デプロイ後、実際のハウジンガー写真で表示確認 ②`docs/.private/2026-08-01-ogp-card-design-mockups.md`など詳細記録の整理・COMPLETED移動は実機OK後。
+### ✅ OGPカード新デザイン = 本番push・ユーザー実機確認OK(詳細→TODO_COMPLETED.md)
+### 🔴 次セッション最優先(2026-08-04 ユーザー提起): タグ検索のUX向上
+**問題**: 探すページのタグ検索(ハウジンガー絞り込み)は、そのハウジンガーが個人タグ(`personal_tags`)を作って自分の物件に付けていないとヒットしない(`src/lib/housing/applyFilters.ts`は`listing.tags`に該当タグIDが入っているかだけで判定、タグ未設定だと絞り込み対象外)。
+**ユーザー提案**: タグという概念に頼らず、既にハウジンガー登録している人ならその**登録名でも**絞り込めるようにしたい(タグ検索使用時)。要brainstorming(現状のpersonal_tags設計・検索UIとの統合方法を検討してから着手)。
+### 🔔 次セッション**終了時**(ユーザー指定): ハウジング大型アップデートDiscord告知
+前回のDiscord告知(ハウジングα公開告知)は2026-07-23時点で対応済み。**それ以降に本番反映した機能が一切未告知のまま溜まっている**ため、次回セッションの最後に、それら全部をまとめた1本の大型アップデート告知を作成する(feedback_discord_announcement_tone: 淡々と機能列挙・Markdown太字+bullet・「ぜひ試して」等の煽り文句は使わない)。
+**候補(TODO_COMPLETED.mdの07-24以降の日付から棚卸し・要push状況再確認)**: マイページ作成/複数投稿URL登録(Batch2)/編集ページ画像管理(削除・並び替え・追加)/探すページ表示順ランダム化+初心者タグ「ハウジング若葉」/タグAND検索/繁体字(台湾)対応/OGPカード新デザイン(今回)。**バグ修正系(取り違えバグ・画像品質バグ等)は通常アプデ告知に含めない想定だが最終判断は次回**。次回セッション開始時にTODO_COMPLETED.mdを実際に棚卸しして対象確定→ユーザー承認→投稿はユーザーが実施(Claudeからは直接投稿しない)。
 **🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。/ `.claude/worktrees/housinger-ogp-card-redesign`が前回セッションの残プロセスにロックされ`git worktree remove`失敗中(実害なし・ウィンドウを閉じてから削除)。
 ### ✅ 本番push済(`cd2d95f3`)の細かい修正一覧
 シェア/通報ボタン位置(マイページ/ハウジンガーページ、2回の実機指摘で正しい位置に)/スマホのハウジンガー/マイページ一覧の中央配置(真因=`align-items:flex-start`が縦積み時に横方向に効いていた)/iOS Safariの表示ズレ(visualViewport再同期処理をLayout.tsxから移植)/200件上限バグ本体/野戦治療の陣のフォールバックduration同期(17→18)。

@@ -2,6 +2,14 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-08-04 ハウジンガーOGPカード 見た目調整(Artifact対話調整)= 本番push・実機確認OK
+
+Artifact(claude.ai/code/artifact/ff567711...)でsidebar/grid両パターンをスライダーで対話調整し、確定値を`api/og/_housingerCard.ts`へ移植・push・ユーザー実機確認済み(見た目OK)。
+
+**主な変更**: gridパターンの中央文字パッチは黒塗り(rgba)ではなく**背景と同じ写真を重ねて2層(写真opacity=0.72+黒重ねopacity=0.50)で暗くしたもの**と判明、ユーザー提供の元SVG(`C:\Users\masay\Downloads\NoraSieHousing\3.svg`)をmask構造+MD5比較で実測確認(box=top125・left248・w706・h378)。sidebar側の黒帯は平塗りrgba(0,0,0,0.5)のままで正しかった(left67px幅222px)。ブランド文字(名前/Shared via/LoPo)はInter太さ800・色#fff3c3に統一。長い名前は文字を縮小せず、maxWidth(sidebar/gridとも500px)を超えたら自然に2行目へ折り返す方式に変更(旧: 18文字超で最大0.5倍まで縮小、を撤回)。`CARD_VERSION`を4→5に更新。
+
+**新規発見のsatoriバグ**: `transformOrigin:'left top'`を指定した回転コンテナの中に画像(img)を2階層以上ネストすると空描画になる(default originなら問題ない、既知の「回転枠に画像+文字混在」バグとは別物)。sidebarのアバターはtransformOrigin省略の独立回転divとして分離し回避。移植前に`npx tsx`で実TSファイルを直接satori+sharpでPNG化しローカルで目視検証(本番デプロイ不要で確認できた)。
+
 ### ✅ 2026-08-03 ハウジンガーOGPカード 背景画像の明示選択機能 = 実装完了(未push)
 
 ハウジンガーがマイページで「シェアに使う代表作(最大10件)」の中から1枚を「背景にも使う」と明示的に選べる機能。設計書=`docs/superpowers/specs/2026-08-03-ogp-card-background-image-selection-design.md`、実装プラン=`docs/superpowers/plans/2026-08-03-ogp-card-background-image-selection.md`(6タスク、subagent-driven-developmentで実装・タスクごとレビュー+最終レビュー(opus)+修正1件+scoped re-review、SDDレジャー=`.superpowers/sdd/2026-08-03-ogp-card-background-image-selection/progress.md`)。
