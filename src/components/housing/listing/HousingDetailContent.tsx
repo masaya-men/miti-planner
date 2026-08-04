@@ -21,8 +21,7 @@ import { HousingDetailMap } from './HousingDetailMap';
 import { HousingActionBar } from './HousingActionBar';
 import { HousingDuplicatePeersSection } from './HousingDuplicatePeersSection';
 import { HousingerByline } from '../housinger/HousingerByline';
-import { useHousingerProfile } from '../housinger/useHousingerProfile';
-import { getTagById, isPersonalTagIdFormat } from '../../../data/housingTags';
+import { getTagById } from '../../../data/housingTags';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
@@ -89,27 +88,17 @@ export const HousingDetailContent: React.FC<HousingDetailContentProps> = ({
   // (タイトル設定時は「タイトル + 街区住所/DC/ワールド」、 未設定時は住所が上下に出る=合意済み)。
   const title = listing.title?.trim() || fullAddress;
 
-  // タグは種別で表示解決が異なるため、 描画前に「表示ラベルへ解決できたものだけ」に畳む。
-  // - 静的タグ (official/season/theme): getTagById で引け、 i18nKey (= housing.tag.<id>) で訳す。
-  // - 個人タグ (personal_<hex>): i18n キーが無く、 表示名はオーナー本人の displayName。
-  //   listing の個人タグは必ずオーナー本人のものなので useHousingerProfile(ownerUid) から引く
-  //   (byline と同一 uid = getHousingerProfile のセッションキャッシュ共有で追加読み取りは発生しない)。
-  //   オーナーの公開プロフィールが無い (profile=null=非公開/未取得) 場合は byline 同様 chip も出さない。
-  // - どちらでもない未知の旧 id は描画しない (生 id 露出とクラッシュを防ぐ)。
-  const { profile: ownerProfile } = useHousingerProfile(listing.ownerUid);
+  // タグは静的レジストリ (official/season/theme/beginner) のみ描画する。
+  // 2026-08-04: 個人タグ (personal_) はハウジンガー名検索が ownerUid ベースの自動判定になった
+  // ため撤去 (同じ情報は上の HousingerByline に一本化済み)。
+  // 未知の旧 id (静的レジストリに無い文字列) は描画しない (生 id 露出とクラッシュを防ぐ)。
   const resolvedTags = useMemo(
     () =>
       listing.tags.flatMap((tag) => {
         const staticTag = getTagById(tag);
-        if (staticTag) return [{ id: tag, label: t(staticTag.i18nKey) }];
-        if (isPersonalTagIdFormat(tag)) {
-          return ownerProfile?.displayName
-            ? [{ id: tag, label: ownerProfile.displayName }]
-            : [];
-        }
-        return [];
+        return staticTag ? [{ id: tag, label: t(staticTag.i18nKey) }] : [];
       }),
-    [listing.tags, ownerProfile?.displayName, t],
+    [listing.tags, t],
   );
 
   // §3.8 (2026-05-27): 重複一覧の「ちがった」 で 1 撃 hide した peer は即時 UI から消す。
