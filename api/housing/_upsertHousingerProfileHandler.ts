@@ -132,6 +132,7 @@ export default async function handler(req: any, res: any) {
       const now = Date.now();
       const next = {
         displayName,
+        displayNameLower: normalizeDisplayNameForSearch(displayName),
         avatarUrl: userData.avatarUrl ?? null,
         avatarPngUrl: userData.avatarPngUrl ?? null,
         bio: v.bio !== undefined ? v.bio : prev?.bio ?? null,

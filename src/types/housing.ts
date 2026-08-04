@@ -329,6 +329,8 @@ export interface PersonalTagReport {
  */
 export interface HousingerProfile {
   displayName: string;
+  /** displayName の小文字正規化 (探すページのハウジンガー一覧クエリの orderBy に使う検索専用フィールド)。 */
+  displayNameLower: string;
   avatarUrl: string | null;
   /** WebP非対応環境(satoriのOGPレンダラー等)向けのPNG変換済みコピー。無ければnull(旧アバターのまま未変換)。 */
   avatarPngUrl?: string | null;
