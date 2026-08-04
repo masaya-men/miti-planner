@@ -2,6 +2,7 @@ import type { MockListing } from '../../data/housing/mockListings';
 import type { HousingArea, HousingSize } from '../../store/useHousingFilterStore';
 import type { Region } from '../../data/housing/dcServerMap';
 import { isPersonalTagIdFormat } from '../../data/housingTags';
+import { ownerUidFromPersonalFilterId } from './housingerProfile';
 
 export interface FilterCondition {
     dc: string | null;
@@ -34,7 +35,10 @@ export function applyFilters(listings: MockListing[], filters: FilterCondition):
         // サイズフィルタが指定されている時、 apartment (size 未定義) は概念的に該当しないので除外。
         if (filters.sizes.length > 0 && (listing.size === undefined || !filters.sizes.includes(listing.size))) return false;
         if (otherTags.length > 0 && !otherTags.some((t) => listing.tags.includes(t))) return false;
-        if (personalTags.length > 0 && !personalTags.some((t) => listing.tags.includes(t))) return false;
+        // ハウジンガー選択の判定は listing.tags ではなく listing.ownerUid の一致で行う。
+        // タグを実際に物件へ付けたかどうかに関係なく、 本人が登録した物件は全てヒットする
+        // (2026-08-04 設計変更。 詳細: docs/superpowers/specs/2026-08-04-housing-tag-search-by-owner-design.md)。
+        if (personalTags.length > 0 && !personalTags.some((t) => listing.ownerUid === ownerUidFromPersonalFilterId(t))) return false;
         return true;
     });
 }

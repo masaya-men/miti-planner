@@ -57,18 +57,18 @@ describe('applyFilters', () => {
         expect(result.every((l) => l.dc === 'Mana' && l.area === 'Shirogane' && l.tags.includes('wafu'))).toBe(true);
     });
 
-    it('housinger タグ (personal_) は選んだ複数人の中でOR一致する', () => {
-        const a = { ...MOCK_LISTINGS[0], id: 'h-a', tags: ['personal_taro'] };
-        const b = { ...MOCK_LISTINGS[0], id: 'h-b', tags: ['personal_hanako'] };
-        const c = { ...MOCK_LISTINGS[0], id: 'h-c', tags: ['personal_jiro'] };
+    it('housinger タグ (personal_) は listing.tags ではなく ownerUid で判定する (タグを付けていない物件もヒットする)', () => {
+        const a = { ...MOCK_LISTINGS[0], id: 'h-a', ownerUid: 'hashed:taro', tags: [] };
+        const b = { ...MOCK_LISTINGS[0], id: 'h-b', ownerUid: 'hashed:hanako', tags: [] };
+        const c = { ...MOCK_LISTINGS[0], id: 'h-c', ownerUid: 'hashed:jiro', tags: [] };
         const result = applyFilters([a, b, c], { ...EMPTY, tags: ['personal_taro', 'personal_hanako'] });
         expect(result.map((l) => l.id).sort()).toEqual(['h-a', 'h-b']);
     });
 
-    it('housinger タグを選んだときだけ、他のタグ条件とAND結合になる', () => {
-        const matches = { ...MOCK_LISTINGS[0], id: 'm', tags: ['theme_wafu', 'personal_taro'] };
-        const wrongHousinger = { ...MOCK_LISTINGS[0], id: 'wrong-h', tags: ['theme_wafu', 'personal_hanako'] };
-        const wrongTheme = { ...MOCK_LISTINGS[0], id: 'wrong-t', tags: ['theme_modern', 'personal_taro'] };
+    it('housinger タグを選んだときだけ、他のタグ条件とAND結合になる (ownerUid 判定)', () => {
+        const matches = { ...MOCK_LISTINGS[0], id: 'm', ownerUid: 'hashed:taro', tags: ['theme_wafu'] };
+        const wrongHousinger = { ...MOCK_LISTINGS[0], id: 'wrong-h', ownerUid: 'hashed:hanako', tags: ['theme_wafu'] };
+        const wrongTheme = { ...MOCK_LISTINGS[0], id: 'wrong-t', ownerUid: 'hashed:taro', tags: ['theme_modern'] };
         const result = applyFilters([matches, wrongHousinger, wrongTheme], {
             ...EMPTY,
             tags: ['theme_wafu', 'personal_taro'],

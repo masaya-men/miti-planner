@@ -42,6 +42,15 @@ export function personalTagIdForUid(uid: string): string {
 }
 
 /**
+ * personalTagIdForUid の逆変換。 探すページのタグ検索でハウジンガーを選んだとき、
+ * その擬似 ID (`personal_<hex>`) から本来の uid (`hashed:<hex>`) を復元するために使う
+ * (applyFilters.ts の ownerUid 判定、 PersonalTagFilterLink.tsx のプロフィール解決)。
+ */
+export function ownerUidFromPersonalFilterId(filterId: string): string {
+  return `hashed:${filterId.replace(/^personal_/, '')}`;
+}
+
+/**
  * ハウジンガーページの共有 URL / 内部リンク用に 'hashed:' prefix を剥がす (#3・見た目のみの短縮)。
  * 例: 'hashed:d34d9c…' → 'd34d9c…'。prefix が無ければそのまま返す。一方向ハッシュ値のため
  * 剥がしても復元不可 = プライバシー影響ゼロ。URL から `hashed:` の語とコロンを消して警戒感を減らす。
