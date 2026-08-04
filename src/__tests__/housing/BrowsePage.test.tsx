@@ -11,9 +11,9 @@ vi.mock('../../lib/housingListingsService', () => ({
   getGalleryListings: () => Promise.resolve([]),
 }));
 
-const getPersonalTagByIdMock = vi.fn();
-vi.mock('../../lib/housing/personalTagLookup', () => ({
-  getPersonalTagById: (...args: unknown[]) => getPersonalTagByIdMock(...args),
+const getHousingerProfileMock = vi.fn();
+vi.mock('../../lib/housing/housingerProfileService', () => ({
+  getHousingerProfile: (...args: unknown[]) => getHousingerProfileMock(...args),
 }));
 
 import { BrowsePage } from '../../components/housing/pages/BrowsePage';
@@ -57,7 +57,7 @@ beforeEach(() => {
   useHousingViewStore.getState().reset();
   useHousingFilterStore.getState().clearAll();
   useHousingListOrderStore.getState().reset();
-  getPersonalTagByIdMock.mockReset();
+  getHousingerProfileMock.mockReset();
 });
 
 const renderPage = () =>
@@ -95,9 +95,10 @@ describe('BrowsePage', () => {
   });
 
   it('個人タグ 1 つで絞り込み中は結果一覧の上にハウジンガーページへのリンクを出す (統合契約4)', async () => {
-    getPersonalTagByIdMock.mockResolvedValue({
-      id: 'personal_abc123', displayName: 'yuura', displayNameLower: 'yuura',
-      ownerUid: 'u-owner', createdAt: 0, reportCount: 0, isHidden: false,
+    getHousingerProfileMock.mockResolvedValue({
+      displayName: 'yuura', avatarUrl: null, bio: null, snsUrl: null,
+      isPublished: true, isModerationHidden: false, reportCount: 0, createdAt: 0, updatedAt: 0,
+      displayNameLower: 'yuura',
     });
     useHousingFilterStore.getState().toggleTag('personal_abc123');
 
@@ -110,6 +111,6 @@ describe('BrowsePage', () => {
     );
 
     const link = await screen.findByRole('link', { name: /yuura.*ハウジンガーページを見る/ });
-    expect(link).toHaveAttribute('href', '/housing/housinger/u-owner');
+    expect(link).toHaveAttribute('href', '/housing/housinger/abc123');
   });
 });

@@ -6,9 +6,9 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
 
-const listAllPersonalTagsMock = vi.fn();
-vi.mock('../../lib/housing/personalTagLookup', () => ({
-  listAllPersonalTags: (...args: unknown[]) => listAllPersonalTagsMock(...args),
+const listPublishedHousingersMock = vi.fn();
+vi.mock('../../lib/housing/publishedHousingers', () => ({
+  listPublishedHousingers: (...args: unknown[]) => listPublishedHousingersMock(...args),
 }));
 
 import { HousingFilterSheet } from '../../components/housing/shell/HousingFilterSheet';
@@ -29,8 +29,8 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  listAllPersonalTagsMock.mockReset();
-  listAllPersonalTagsMock.mockResolvedValue([]);
+  listPublishedHousingersMock.mockReset();
+  listPublishedHousingersMock.mockResolvedValue([]);
   useHousingFilterStore.getState().clearAll();
   useHousingTagPickerStore.setState({ pendingTags: [], lastSyncedCommitted: null });
   useHousingListingsStore.setState({ status: 'ready', listings: MOCK_LISTINGS, error: null });
