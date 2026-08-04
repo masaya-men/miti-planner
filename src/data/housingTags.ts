@@ -143,10 +143,12 @@ export function isPersonalTagIdFormat(id: string): boolean {
 }
 
 /**
- * タグ id の構造的妥当性 (静的レジストリに存在 OR 個人タグ形式)。
- * `validateTags` (housingValidation.ts) から同期的に呼ばれるため、 Firestore アクセスを伴う
- * 個人タグの実在確認はここでは行わない (前述の isPersonalTagIdFormat と同じ制約)。
+ * タグ id の構造的妥当性 (静的レジストリに存在するか)。
+ * 2026-08-04: ハウジンガー検索は listing.tags ではなく ownerUid ベースの判定に変わったため、
+ * personal_ 形式は物件の tags フィールドに書き込める値としてはもう無効。
+ * (personal_ 形式の文字列は探すページのフィルター選択状態の中でのみ意味を持つ擬似 ID —
+ *  isPersonalTagIdFormat / applyFilters.ts 参照)
  */
 export function isValidTagId(id: string): boolean {
-  return isStaticTagId(id) || isPersonalTagIdFormat(id);
+  return isStaticTagId(id);
 }

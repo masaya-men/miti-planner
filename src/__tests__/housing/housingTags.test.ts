@@ -9,7 +9,7 @@ import {
   isStaticTagId,
   isPersonalTagIdFormat,
 } from '../../data/housingTags';
-import { PERSONAL_TAG_ID_PREFIX, PERSONAL_TAG_LIMIT_PER_USER } from '../../constants/housing';
+import { PERSONAL_TAG_ID_PREFIX } from '../../constants/housing';
 
 describe('housingTags', () => {
   it('kind は 公式/季節/テーマ/初心者/個人 の 5 種 (この順序)', () => {
@@ -133,8 +133,8 @@ describe('housingTags', () => {
       expect(isValidTagId('theme_modern')).toBe(true);
     });
 
-    it('personal_ 形式の id で true を返す (実在確認はサーバー側の別レイヤー)', () => {
-      expect(isValidTagId('personal_yuura')).toBe(true);
+    it('personal_ 形式の id はもう有効な listing タグではない (2026-08-04: ownerUid ベースの検索に一本化)', () => {
+      expect(isValidTagId('personal_yuura')).toBe(false);
     });
 
     it('旧 (prefix なし) id で false を返す', () => {
@@ -150,7 +150,4 @@ describe('housingTags', () => {
     });
   });
 
-  it('PERSONAL_TAG_LIMIT_PER_USER は 1 (1 ユーザー 1 個)', () => {
-    expect(PERSONAL_TAG_LIMIT_PER_USER).toBe(1);
-  });
 });
