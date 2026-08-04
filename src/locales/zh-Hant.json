@@ -1763,22 +1763,6 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
-        "personal_tags": {
-            "title": "個人標籤舉報",
-            "description": "檢視被舉報的個人標籤，必要時將其隱藏。恢復顯示時會同時清除舉報記錄。",
-            "empty": "沒有被舉報的個人標籤",
-            "id_label": "標籤 ID",
-            "hide": "隱藏",
-            "hiding": "...",
-            "hide_confirm": "要隱藏這個標籤嗎?",
-            "hide_success": "已隱藏",
-            "unhide": "恢復顯示",
-            "unhiding": "...",
-            "unhide_confirm": "要恢復顯示這個標籤嗎? 舉報記錄將被清除。",
-            "unhide_success": "已恢復顯示",
-            "report_count": "{{count}} 次舉報",
-            "hidden_badge": "已隱藏"
-        },
         "housinger_reports": {
             "title": "房主玩家舉報",
             "description": "檢視被舉報的房主玩家資料，必要時強制隱藏。由於沒有自動隱藏閾值，需要人工判斷。強制隱藏中的資料即使舉報數變為0件，也會繼續顯示在列表中。",
@@ -2069,11 +2053,6 @@
             "tag_search_placeholder": "搜尋標籤…",
             "tag_no_results": "未找到匹配的標籤",
             "tag_pick_hint": "最多選擇 {{max}} 個主題",
-            "personal_tag": {
-                "loading": "載入中…",
-                "not_published_hint": "以房主玩家身份公開後即可使用你的標籤",
-                "open_account_settings": "開啟公開設定"
-            },
             "tags": "標籤",
             "room_number": "房間號",
             "parent_house_size": "主屋大小",
@@ -2092,8 +2071,7 @@
                 "official": "官方",
                 "season": "季節",
                 "theme": "主題",
-                "beginner": "新手",
-                "personal": "個人"
+                "beginner": "新手"
             },
             "errors": {
                 "dc": {
@@ -2490,15 +2468,7 @@
                 "clear_all": "清除篩選",
                 "size_s": "S 尺寸",
                 "size_m": "M 尺寸",
-                "size_l": "L 尺寸",
-                "personal_tag": "個人標籤",
-                "personal_tag_placeholder": "按房主玩家名稱搜尋…",
-                "personal_tag_searching": "搜尋中…",
-                "personal_tag_no_results": "未找到結果",
-                "personal_tag_report": "檢舉",
-                "personal_tag_report_confirm": "要檢舉這個標籤嗎？",
-                "personal_tag_report_success": "已檢舉",
-                "personal_tag_report_error": "檢舉失敗"
+                "size_l": "L 尺寸"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

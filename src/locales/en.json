@@ -1798,22 +1798,6 @@
             "report_count": "{{count}} report(s)",
             "hidden_badge": "Hidden"
         },
-        "personal_tags": {
-            "title": "Personal tag reports",
-            "description": "Review reported personal tags and hide them if necessary. Restoring also clears the report records.",
-            "empty": "No reported personal tags",
-            "id_label": "Tag ID",
-            "hide": "Hide",
-            "hiding": "...",
-            "hide_confirm": "Hide this tag?",
-            "hide_success": "Hidden",
-            "unhide": "Restore",
-            "unhiding": "...",
-            "unhide_confirm": "Restore this tag? Its report records will be cleared.",
-            "unhide_success": "Restored",
-            "report_count": "{{count}} report(s)",
-            "hidden_badge": "Hidden"
-        },
         "housinger_reports": {
             "title": "Housinger reports",
             "description": "Review reported Housinger profiles and force-hide them if necessary. There is no automatic hide threshold, so this requires human judgment. Force-hidden profiles stay listed here even after their report count reaches zero.",
@@ -2104,11 +2088,6 @@
             "tag_search_placeholder": "Search tags…",
             "tag_no_results": "No matching tags",
             "tag_pick_hint": "Pick up to {{max}} themes",
-            "personal_tag": {
-                "loading": "Loading…",
-                "not_published_hint": "Publish as a Housinger to use your own tag.",
-                "open_account_settings": "Open publish settings"
-            },
             "tags": "Tags",
             "room_number": "Room number",
             "parent_house_size": "Parent house size",
@@ -2127,8 +2106,7 @@
                 "official": "Official",
                 "season": "Season",
                 "theme": "Theme",
-                "beginner": "Beginner",
-                "personal": "Personal"
+                "beginner": "Beginner"
             },
             "errors": {
                 "dc": {
@@ -2525,15 +2503,7 @@
                 "clear_all": "Clear filters",
                 "size_s": "Small",
                 "size_m": "Medium",
-                "size_l": "Large",
-                "personal_tag": "Personal Tag",
-                "personal_tag_placeholder": "Search by housinger name…",
-                "personal_tag_searching": "Searching…",
-                "personal_tag_no_results": "No matches found",
-                "personal_tag_report": "Report",
-                "personal_tag_report_confirm": "Report this tag?",
-                "personal_tag_report_success": "Reported",
-                "personal_tag_report_error": "Failed to report"
+                "size_l": "Large"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

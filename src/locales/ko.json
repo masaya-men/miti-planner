@@ -1763,22 +1763,6 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
-        "personal_tags": {
-            "title": "개인 태그 신고",
-            "description": "신고된 개인 태그를 확인하고 필요하면 숨김 처리합니다. 표시로 되돌리면 신고 기록도 초기화됩니다.",
-            "empty": "신고된 개인 태그가 없습니다",
-            "id_label": "태그 ID",
-            "hide": "숨기기",
-            "hiding": "...",
-            "hide_confirm": "이 태그를 숨기시겠습니까?",
-            "hide_success": "숨김 처리했습니다",
-            "unhide": "표시로 되돌리기",
-            "unhiding": "...",
-            "unhide_confirm": "이 태그를 다시 표시하시겠습니까? 신고 기록은 초기화됩니다.",
-            "unhide_success": "표시로 되돌렸습니다",
-            "report_count": "신고 {{count}}건",
-            "hidden_badge": "숨김"
-        },
         "housinger_reports": {
             "title": "하우징어 신고",
             "description": "신고된 하우징어 프로필을 확인하고 필요하면 강제 비공개 처리합니다. 자동 숨김 기준이 없으므로 사람이 직접 판단합니다. 강제 비공개 중인 프로필은 신고 수가 0건이 되어도 목록에 계속 표시됩니다.",
@@ -2069,11 +2053,6 @@
             "tag_search_placeholder": "태그 검색…",
             "tag_no_results": "일치하는 태그가 없습니다",
             "tag_pick_hint": "최대 {{max}}개의 테마를 고를 수 있습니다",
-            "personal_tag": {
-                "loading": "불러오는 중…",
-                "not_published_hint": "하우징어로 공개하면 내 태그를 사용할 수 있습니다",
-                "open_account_settings": "공개 설정 열기"
-            },
             "tags": "태그",
             "room_number": "방 번호",
             "parent_house_size": "본가 크기",
@@ -2092,8 +2071,7 @@
                 "official": "공식",
                 "season": "계절",
                 "theme": "테마",
-                "beginner": "초보자",
-                "personal": "개인"
+                "beginner": "초보자"
             },
             "errors": {
                 "dc": {
@@ -2490,15 +2468,7 @@
                 "clear_all": "필터 해제",
                 "size_s": "S 크기",
                 "size_m": "M 크기",
-                "size_l": "L 크기",
-                "personal_tag": "개인 태그",
-                "personal_tag_placeholder": "하우징어 이름으로 검색…",
-                "personal_tag_searching": "검색 중…",
-                "personal_tag_no_results": "검색 결과가 없습니다",
-                "personal_tag_report": "신고",
-                "personal_tag_report_confirm": "이 태그를 신고하시겠습니까?",
-                "personal_tag_report_success": "신고했습니다",
-                "personal_tag_report_error": "신고에 실패했습니다"
+                "size_l": "L 크기"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

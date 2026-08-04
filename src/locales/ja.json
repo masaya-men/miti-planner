@@ -1802,22 +1802,6 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
-        "personal_tags": {
-            "title": "個人タグ通報",
-            "description": "通報があった個人タグを確認し、 必要なら非表示にします。 表示に戻すと通報記録もクリアされます。",
-            "empty": "通報あり個人タグはありません",
-            "id_label": "タグ ID",
-            "hide": "非表示にする",
-            "hiding": "...",
-            "hide_confirm": "このタグを非表示にしますか?",
-            "hide_success": "非表示にしました",
-            "unhide": "表示に戻す",
-            "unhiding": "...",
-            "unhide_confirm": "このタグを表示に戻しますか? 通報記録はクリアされます。",
-            "unhide_success": "表示に戻しました",
-            "report_count": "通報 {{count}} 件",
-            "hidden_badge": "非表示"
-        },
         "housinger_reports": {
             "title": "ハウジンガー通報",
             "description": "通報があったハウジンガープロフィールを確認し、 必要なら強制非公開にします。 自動非表示のしきい値は無いため、 人の目で判断します。 強制非公開中のプロフィールは、 通報が0件になっても一覧に残り続けます。",
@@ -2125,11 +2109,6 @@
             "tag_search_placeholder": "タグを検索…",
             "tag_no_results": "該当するタグがありません",
             "tag_pick_hint": "テーマを {{max}} 件まで選べます",
-            "personal_tag": {
-                "loading": "読み込み中…",
-                "not_published_hint": "ハウジンガーとして公開すると自分のタグが使えます",
-                "open_account_settings": "公開設定を開く"
-            },
             "tags": "タグ",
             "room_number": "部屋番号",
             "parent_house_size": "親家サイズ",
@@ -2148,8 +2127,7 @@
                 "official": "公式",
                 "season": "季節",
                 "theme": "テーマ",
-                "beginner": "初心者",
-                "personal": "個人"
+                "beginner": "初心者"
             },
             "errors": {
                 "dc": {
@@ -2546,15 +2524,7 @@
                 "clear_all": "フィルターを解除",
                 "size_s": "Sサイズ",
                 "size_m": "Mサイズ",
-                "size_l": "Lサイズ",
-                "personal_tag": "個人タグ",
-                "personal_tag_placeholder": "ハウジンガー名で検索…",
-                "personal_tag_searching": "検索中…",
-                "personal_tag_no_results": "見つかりませんでした",
-                "personal_tag_report": "通報",
-                "personal_tag_report_confirm": "このタグを通報しますか?",
-                "personal_tag_report_success": "通報しました",
-                "personal_tag_report_error": "通報に失敗しました"
+                "size_l": "Lサイズ"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",

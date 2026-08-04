@@ -1763,22 +1763,6 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
-        "personal_tags": {
-            "title": "个人标签举报",
-            "description": "查看被举报的个人标签，必要时将其隐藏。恢复显示时会同时清除举报记录。",
-            "empty": "没有被举报的个人标签",
-            "id_label": "标签 ID",
-            "hide": "隐藏",
-            "hiding": "...",
-            "hide_confirm": "要隐藏这个标签吗?",
-            "hide_success": "已隐藏",
-            "unhide": "恢复显示",
-            "unhiding": "...",
-            "unhide_confirm": "要恢复显示这个标签吗? 举报记录将被清除。",
-            "unhide_success": "已恢复显示",
-            "report_count": "{{count}} 次举报",
-            "hidden_badge": "已隐藏"
-        },
         "housinger_reports": {
             "title": "房主玩家举报",
             "description": "查看被举报的房主玩家资料，必要时强制隐藏。由于没有自动隐藏阈值，需要人工判断。强制隐藏中的资料即使举报数变为0件，也会继续显示在列表中。",
@@ -2069,11 +2053,6 @@
             "tag_search_placeholder": "搜索标签…",
             "tag_no_results": "未找到匹配的标签",
             "tag_pick_hint": "最多选择 {{max}} 个主题",
-            "personal_tag": {
-                "loading": "加载中…",
-                "not_published_hint": "以房主玩家身份公开后即可使用你的标签",
-                "open_account_settings": "打开公开设置"
-            },
             "tags": "标签",
             "room_number": "房间号",
             "parent_house_size": "主屋大小",
@@ -2092,8 +2071,7 @@
                 "official": "官方",
                 "season": "季节",
                 "theme": "主题",
-                "beginner": "新手",
-                "personal": "个人"
+                "beginner": "新手"
             },
             "errors": {
                 "dc": {
@@ -2490,15 +2468,7 @@
                 "clear_all": "清除筛选",
                 "size_s": "S 尺寸",
                 "size_m": "M 尺寸",
-                "size_l": "L 尺寸",
-                "personal_tag": "个人标签",
-                "personal_tag_placeholder": "按住宅玩家名称搜索…",
-                "personal_tag_searching": "搜索中…",
-                "personal_tag_no_results": "未找到结果",
-                "personal_tag_report": "举报",
-                "personal_tag_report_confirm": "要举报这个标签吗?",
-                "personal_tag_report_success": "已举报",
-                "personal_tag_report_error": "举报失败"
+                "size_l": "L 尺寸"
             },
             "result_count": {
                 "label": "{{result}} / {{total}}",
