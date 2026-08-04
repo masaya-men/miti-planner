@@ -2,6 +2,16 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-08-04 ハウジングタグ検索UX向上: 個人タグ廃止・ownerUidベース化 = 実装+本番デプロイ完了
+
+**問題**: 探すページの「ハウジンガー」タグ検索は、選んだ人の物件が実際にはヒットしないことが多かった。原因は、一覧表示(`personal_tags`コレクション由来)とヒット判定(`listing.tags`配列に該当タグIDが入っているかのみ判定)が別経路で、物件登録・編集画面で手動チェックを入れない限りヒットしなかったため。マイページを公開しているだけではタグは付かない仕様だった。
+
+**方針**: 個人タグという裏側の概念を完全廃止し、「その人が登録した物件かどうか(`listing.ownerUid`)」だけで判定する方式に刷新。設計書=`docs/superpowers/specs/2026-08-04-housing-tag-search-by-owner-design.md`、実装計画=`docs/superpowers/plans/2026-08-04-housing-tag-search-by-owner.md`(15タスク、subagent-driven-developmentで実装・タスクごとレビュー+最終whole-branchレビュー(opus)+修正1件)。worktree`housing-tag-search-ownerid`で隔離実施、fast-forwardでmainへマージ済み。
+
+**最終レビューで発見・修正した重大な見落とし**: `housing_profiles`に新設した`displayNameLower`(検索用小文字正規化名)は、今後の新規登録・更新時にしか書き込まれない。Firestoreの`orderBy()`はそのフィールドを持たないドキュメントを結果から除外する仕様のため、バックフィルなしでデプロイすると既存の公開済みハウジンガー全員が名前検索から一時的に消えるところだった。個別タスクレビューでは検出できず、全タスクを通しで見た最終レビューで発覚。対処として`scripts/backfill-housinger-display-name-lower.ts`を新規作成し、デプロイ手順書に「①Firestoreインデックス→②バックフィル→③フロントエンド/APIコード→④rules→⑤クリーンアップ」の順序を明文化。
+
+**本番デプロイ実施内容(2026-08-04)**: ①`firestore.indexes.json`の新規複合インデックス(`housing_profiles`: isPublished/isModerationHidden/displayNameLower)をデプロイ ②バックフィルスクリプトをdry-run(42件)→apply実行 ③mainへマージ・push(Vercel自動デプロイ、ビルド完了確認・本番200確認) ④firestore.rulesデプロイ(`personal_tags`ルール削除) ⑤`personal_tags`コレクション全削除(42件)・`housing_listings`の`personal_`形式タグ除去(124件、他の静的タグには一切影響なし)を各dry-run確認後apply。全工程完了、既知の無関係failure(EphemeralAddPanel 7件)以外は build+vitest ともclean。
+
 ### ✅ 2026-08-04 ハウジンガーOGPカード 見た目調整(Artifact対話調整)= 本番push・実機確認OK
 
 Artifact(claude.ai/code/artifact/ff567711...)でsidebar/grid両パターンをスライダーで対話調整し、確定値を`api/og/_housingerCard.ts`へ移植・push・ユーザー実機確認済み(見た目OK)。
