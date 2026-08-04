@@ -338,7 +338,11 @@ export default async function handler(req: any, res: any) {
         .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.setHeader('Cache-Control', 'public, s-maxage=300, max-age=60');
+      // 2026-08-04: OGPカードのgrid/sidebarランダム抽選(CARD_PATTERNS)を短い間隔で
+      // 振り直すため、このページ自体のキャッシュを短縮(旧: s-maxage=300, max-age=60)。
+      // 画像本体は内容ハッシュ単位で別途永続キャッシュされるため、ここを短くしても
+      // 増えるのは軽いFirestore書き込み程度(satoriレンダリングの再発生はない)。
+      res.setHeader('Cache-Control', 'public, s-maxage=30, max-age=0');
       return res.send(html);
     }
   } catch (err) {
