@@ -5,9 +5,9 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
 
-const listAllPersonalTagsMock = vi.fn();
-vi.mock('../../lib/housing/personalTagLookup', () => ({
-  listAllPersonalTags: (...args: unknown[]) => listAllPersonalTagsMock(...args),
+const listPublishedHousingersMock = vi.fn();
+vi.mock('../../lib/housing/publishedHousingers', () => ({
+  listPublishedHousingers: (...args: unknown[]) => listPublishedHousingersMock(...args),
 }));
 
 import { HousingerTagSection } from '../../components/housing/browse/tagpicker/HousingerTagSection';
@@ -23,32 +23,32 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  listAllPersonalTagsMock.mockReset();
+  listPublishedHousingersMock.mockReset();
 });
 
 const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>);
 
-const TAGS = [
-  { id: 'personal_taro', displayName: 'taro', displayNameLower: 'taro', ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false },
-  { id: 'personal_hanako', displayName: 'hanako', displayNameLower: 'hanako', ownerUid: 'u2', createdAt: 0, reportCount: 0, isHidden: false },
+const HOUSINGERS = [
+  { uid: 'taro', displayName: 'taro', displayNameLower: 'taro', avatarUrl: null, bio: null, snsUrl: null, isPublished: true, isModerationHidden: false, reportCount: 0, createdAt: 0, updatedAt: 0 },
+  { uid: 'hanako', displayName: 'hanako', displayNameLower: 'hanako', avatarUrl: null, bio: null, snsUrl: null, isPublished: true, isModerationHidden: false, reportCount: 0, createdAt: 0, updatedAt: 0 },
 ];
 
 describe('HousingerTagSection', () => {
   it('ロード中はローディング文言を表示する', () => {
-    listAllPersonalTagsMock.mockReturnValue(new Promise(() => {}));
+    listPublishedHousingersMock.mockReturnValue(new Promise(() => {}));
     wrap(<HousingerTagSection selected={[]} onToggle={vi.fn()} />);
     expect(screen.getByText('読み込み中…')).toBeInTheDocument();
   });
 
   it('取得できたら全員分をチップで表示する', async () => {
-    listAllPersonalTagsMock.mockResolvedValueOnce(TAGS);
+    listPublishedHousingersMock.mockResolvedValueOnce(HOUSINGERS);
     wrap(<HousingerTagSection selected={[]} onToggle={vi.fn()} />);
     await waitFor(() => expect(screen.getByText('taro')).toBeInTheDocument());
     expect(screen.getByText('hanako')).toBeInTheDocument();
   });
 
   it('各チップにアバター(画像URL無し=頭文字プレースホルダ)を表示する', async () => {
-    listAllPersonalTagsMock.mockResolvedValueOnce(TAGS);
+    listPublishedHousingersMock.mockResolvedValueOnce(HOUSINGERS);
     wrap(<HousingerTagSection selected={[]} onToggle={vi.fn()} />);
     await waitFor(() => expect(screen.getByText('taro')).toBeInTheDocument());
     const taroButton = screen.getByText('taro').closest('button') as HTMLElement;
@@ -60,10 +60,10 @@ describe('HousingerTagSection', () => {
 
   it('tag.avatarUrl があれば HousingerAvatar に渡り img で表示される (頭文字フォールバックにならない)', async () => {
     const tagsWithAvatar = [
-      { ...TAGS[0], avatarUrl: 'https://example.com/taro.webp' },
-      TAGS[1],
+      { ...HOUSINGERS[0], avatarUrl: 'https://example.com/taro.webp' },
+      HOUSINGERS[1],
     ];
-    listAllPersonalTagsMock.mockResolvedValueOnce(tagsWithAvatar);
+    listPublishedHousingersMock.mockResolvedValueOnce(tagsWithAvatar);
     wrap(<HousingerTagSection selected={[]} onToggle={vi.fn()} />);
     await waitFor(() => expect(screen.getByText('taro')).toBeInTheDocument());
     const taroButton = screen.getByText('taro').closest('button') as HTMLElement;
@@ -79,7 +79,7 @@ describe('HousingerTagSection', () => {
   });
 
   it('selected に含まれるチップは data-selected=true', async () => {
-    listAllPersonalTagsMock.mockResolvedValueOnce(TAGS);
+    listPublishedHousingersMock.mockResolvedValueOnce(HOUSINGERS);
     wrap(<HousingerTagSection selected={['personal_taro']} onToggle={vi.fn()} />);
     await waitFor(() => expect(screen.getByText('taro')).toBeInTheDocument());
     expect(screen.getByText('taro').closest('button')).toHaveAttribute('data-selected', 'true');
@@ -87,7 +87,7 @@ describe('HousingerTagSection', () => {
   });
 
   it('チップクリックで onToggle が呼ばれる', async () => {
-    listAllPersonalTagsMock.mockResolvedValueOnce(TAGS);
+    listPublishedHousingersMock.mockResolvedValueOnce(HOUSINGERS);
     const onToggle = vi.fn();
     wrap(<HousingerTagSection selected={[]} onToggle={onToggle} />);
     await waitFor(() => expect(screen.getByText('taro')).toBeInTheDocument());
@@ -96,13 +96,13 @@ describe('HousingerTagSection', () => {
   });
 
   it('0件なら空状態の文言を表示する', async () => {
-    listAllPersonalTagsMock.mockResolvedValueOnce([]);
+    listPublishedHousingersMock.mockResolvedValueOnce([]);
     wrap(<HousingerTagSection selected={[]} onToggle={vi.fn()} />);
     await waitFor(() => expect(screen.getByText('まだハウジンガーが登録されていません')).toBeInTheDocument());
   });
 
   it('セクション見出しクリックで折りたたむ (チップが非表示になる)', async () => {
-    listAllPersonalTagsMock.mockResolvedValueOnce(TAGS);
+    listPublishedHousingersMock.mockResolvedValueOnce(HOUSINGERS);
     wrap(<HousingerTagSection selected={[]} onToggle={vi.fn()} />);
     await waitFor(() => expect(screen.getByText('taro')).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'ハウジンガー' }));

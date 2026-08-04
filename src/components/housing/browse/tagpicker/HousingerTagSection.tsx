@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { listAllPersonalTags } from '../../../../lib/housing/personalTagLookup';
-import type { PersonalTag } from '../../../../types/housing';
+import { listPublishedHousingers, type PublishedHousinger } from '../../../../lib/housing/publishedHousingers';
+import { personalTagIdForUid } from '../../../../lib/housing/housingerProfile';
 import { HousingerAvatar } from '../../housinger/HousingerAvatar';
 
 export interface HousingerTagSectionProps {
@@ -12,21 +12,22 @@ export interface HousingerTagSectionProps {
 type LoadStatus = 'loading' | 'ready' | 'error';
 
 /**
- * タグ検索「ハウジンガー」セクション。全員分の個人タグをチップで並べる (検索欄なし)。
- * design 2026-07-27-housing-tag-and-search-design.md §2。
+ * タグ検索「ハウジンガー」セクション。マイページを公開している全員をチップで並べる (検索欄なし)。
+ * design 2026-07-27-housing-tag-and-search-design.md §2 / 2026-08-04 個人タグ廃止でデータ元を
+ * housing_profiles に変更 (design 2026-08-04-housing-tag-search-by-owner-design.md §3.1)。
  */
 export const HousingerTagSection: React.FC<HousingerTagSectionProps> = ({ selected, onToggle }) => {
   const { t } = useTranslation();
   const [open, setOpen] = useState(true);
   const [status, setStatus] = useState<LoadStatus>('loading');
-  const [tags, setTags] = useState<PersonalTag[]>([]);
+  const [housingers, setHousingers] = useState<PublishedHousinger[]>([]);
 
   useEffect(() => {
     let cancelled = false;
-    listAllPersonalTags()
+    listPublishedHousingers()
       .then((result) => {
         if (cancelled) return;
-        setTags(result);
+        setHousingers(result);
         setStatus('ready');
       })
       .catch(() => {
@@ -57,23 +58,26 @@ export const HousingerTagSection: React.FC<HousingerTagSectionProps> = ({ select
           {status === 'error' && (
             <div className="housing-tagpicker-status">{t('housing.tagpicker.housinger_error')}</div>
           )}
-          {status === 'ready' && tags.length === 0 && (
+          {status === 'ready' && housingers.length === 0 && (
             <div className="housing-tagpicker-status">{t('housing.tagpicker.housinger_empty')}</div>
           )}
-          {status === 'ready' && tags.length > 0 && (
+          {status === 'ready' && housingers.length > 0 && (
             <div className="housing-tagpicker-chip-grid">
-              {tags.map((tag) => (
-                <button
-                  key={tag.id}
-                  type="button"
-                  className="housing-tagpicker-chip"
-                  data-selected={selected.includes(tag.id) ? 'true' : 'false'}
-                  onClick={() => onToggle(tag.id)}
-                >
-                  <HousingerAvatar avatarUrl={tag.avatarUrl ?? null} name={tag.displayName} className="housing-tagpicker-chip-avatar" />
-                  <span>{tag.displayName}</span>
-                </button>
-              ))}
+              {housingers.map((h) => {
+                const filterId = personalTagIdForUid(h.uid);
+                return (
+                  <button
+                    key={h.uid}
+                    type="button"
+                    className="housing-tagpicker-chip"
+                    data-selected={selected.includes(filterId) ? 'true' : 'false'}
+                    onClick={() => onToggle(filterId)}
+                  >
+                    <HousingerAvatar avatarUrl={h.avatarUrl ?? null} name={h.displayName} className="housing-tagpicker-chip-avatar" />
+                    <span>{h.displayName}</span>
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
