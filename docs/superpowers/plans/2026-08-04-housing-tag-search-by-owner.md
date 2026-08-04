@@ -1981,8 +1981,28 @@ EOF
 - [ ] `npx tsc -b` がエラーなしで通る
 - [ ] `npx vitest run` が全件 green(既知の legacy 失敗5件を除く。 詳細は `docs/TODO.md` 参照)
 - [ ] `grep -rn "personal_tags\|personalTag\|PersonalTag" src/ api/ --include=*.ts --include=*.tsx` で `.claude/worktrees/` 以外・意図した残存(`personalTagIdForUid`/`ownerUidFromPersonalFilterId`/`PERSONAL_TAG_ID_PREFIX`/`isPersonalTagIdFormat`/`stripLeadingSymbolsForSort` 等、擬似ID関連の意図的な存続分)以外にヒットしないことを目視確認
-- [ ] `firestore.rules`/`firestore.indexes.json` のデプロイをユーザーに確認の上で実行(Task 13 の注記通り。 Task 4 の `search-housingers` エンドポイントもこのインデックスに依存するため、フロントエンド反映と同時期にデプロイすること)
-- [ ] Task 15 のデータ移行をユーザーに確認の上で実行
+
+### デプロイ手順(順序厳守)
+
+最終レビューで発覚: `displayNameLower` を持たない既存 housing_profiles ドキュメントは、
+`orderBy('displayNameLower')` を使う新しい2つの読み取り経路(`listPublishedHousingers` /
+`search-housingers`)からクエリごと除外される(Firestore の `orderBy` はそのフィールドを
+持たないドキュメントを結果から外す仕様)。**手順1・2をフロントエンド/APIコードのデプロイ
+(手順3)より前に終わらせないと、既存の公開済みハウジンガーが検索から一時的に全員消える**
+(本人が改名・アバター変更等で再保存するまで自然回復しない)。この順序は必須、前後させない。
+
+1. [ ] `firestore.indexes.json` をデプロイ(`housing_profiles` の複合インデックス追加分)し、
+       **Firebase コンソールでインデックスのビルド完了を待つ**(ビルド未完了のインデックスは
+       「クエリが空を返す」という、displayNameLower 欠落と全く同じ症状を引き起こすため)。
+2. [ ] `scripts/backfill-housinger-display-name-lower.ts` の dry-run 結果をレビューした上で
+       `--apply` を実行する(既存の housing_profiles 全件に displayNameLower を補完する)。
+       これは**手順3より前に完了させること**。
+3. [ ] このブランチのフロントエンド/APIコードをデプロイする。
+4. [ ] `firestore.rules` をデプロイする(personal_tags ブロック削除分)。
+5. [ ] `scripts/delete-personal-tags-collection.ts` と `scripts/cleanup-legacy-housing-tags.ts` を
+       dry-run で確認した上で `--apply` 実行する(Task 15)。この2つは後片付けであり手順3以降
+       いつ実行しても良い(手順1・2のようにブロッキングではない)。
+
 - [ ] 実機確認: マイページ公開済み・物件に一切タグを付けていないテストアカウントで、探すページ「ハウジンガー」から自分の名前を選び、登録した物件(住所非公開含む)が全部出ること/完全非公開の物件は出ないことを確認
 - [ ] 実機確認: 物件詳細ページのタグ欄から名前チップが消え、投稿者欄のみになっていることを確認
 - [ ] 実機確認: `/admin/personal-tags` への直リンクが 404 になること
