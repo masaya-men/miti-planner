@@ -27,12 +27,11 @@ vi.mock('../HousingDetailMap', () => ({
   HousingDetailMap: () => null,
 }));
 // byline は react-router-dom の <Link> を張るため、 Router を用意しなくて済むよう空モック。
-// タグの個人名解決は HousingDetailContent 自身が useHousingerProfile を呼ぶので、 byline を
-// 潰してもタグ経路の検証には影響しない。
+// (2026-08-04: 個人タグ chip を撤去したため、 HousingDetailContent に useHousingerProfile 呼び出し
+// は残されておらず、 byline のモック有無は検証に影響しない)
 vi.mock('../../housinger/HousingerByline', () => ({
   HousingerByline: () => null,
 }));
-
 
 const listing = {
   id: 'lid1',
