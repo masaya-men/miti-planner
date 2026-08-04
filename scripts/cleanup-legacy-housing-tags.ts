@@ -13,9 +13,12 @@
  * 触るもの: housing_listings コレクションの `tags` フィールドのみ。 他のコレクション
  *   (軽減表 = plans 等) には一切触れない。
  *
- * 動作: 各ドキュメントの tags 配列から isValidTagId (新レジストリ: 公式/季節/テーマ の
- *   静的 id、 または personal_ 形式) を満たさない要素を除去する。 0 件になっても許容
- *   (タグ optional 化済み、 2026-05-27)。
+ * 動作: 各ドキュメントの tags 配列から isValidTagId (新レジストリ: 公式/季節/テーマ/初心者 の
+ *   静的 id のみ) を満たさない要素を除去する。 2026-08-04 の個人タグ廃止 (計画書:
+ *   docs/superpowers/plans/2026-08-04-housing-tag-search-by-owner.md) で isValidTagId は
+ *   personal_ 形式をもう有効と認めなくなったため、 このスクリプトは listing.tags に残る
+ *   personal_ 形式のタグも旧タグと同様に除去対象となる (--apply 時に実際に剥がされる)。
+ *   0 件になっても許容 (タグ optional 化済み、 2026-05-27)。
  *
  * 使い方:
  *   npx tsx scripts/cleanup-legacy-housing-tags.ts            # dry-run (既定・書き込みゼロ)
