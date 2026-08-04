@@ -53,6 +53,7 @@ import { RegisterHousingerCta } from '../../components/housing/register/Register
 
 const basePublishedProfile: HousingerProfile = {
   displayName: 'たかし',
+  displayNameLower: 'たかし',
   avatarUrl: null,
   bio: null,
   snsUrl: null,

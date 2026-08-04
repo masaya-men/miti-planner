@@ -5,6 +5,7 @@ describe('HousingerProfile型', () => {
   it('ogRepresentativeListingIds/avatarPngUrlを省略してもコンパイルできる(既存データ互換)', () => {
     const legacy: HousingerProfile = {
       displayName: 'テスト',
+      displayNameLower: 'テスト',
       avatarUrl: null,
       bio: null,
       snsUrl: null,
@@ -20,6 +21,7 @@ describe('HousingerProfile型', () => {
   it('ogRepresentativeListingIdsに順序付き配列を設定できる', () => {
     const profile: HousingerProfile = {
       displayName: 'テスト',
+      displayNameLower: 'テスト',
       avatarUrl: null,
       avatarPngUrl: 'https://example.com/a.png',
       bio: null,

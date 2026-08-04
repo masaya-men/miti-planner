@@ -18,6 +18,7 @@ import { useHousingerProfile } from '../useHousingerProfile';
 
 const profileA: HousingerProfile = {
   displayName: 'A太郎',
+  displayNameLower: 'a太郎',
   avatarUrl: null,
   bio: null,
   snsUrl: null,
@@ -27,7 +28,7 @@ const profileA: HousingerProfile = {
   createdAt: 1,
   updatedAt: 1,
 };
-const profileB: HousingerProfile = { ...profileA, displayName: 'B次郎' };
+const profileB: HousingerProfile = { ...profileA, displayName: 'B次郎', displayNameLower: 'b次郎' };
 
 beforeEach(() => {
   mockGetHousingerProfile.mockReset();

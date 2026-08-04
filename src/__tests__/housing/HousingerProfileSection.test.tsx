@@ -53,6 +53,7 @@ import { HousingerProfileSection } from '../../components/housing/mypage/Housing
 
 const basePublishedProfile: HousingerProfile = {
   displayName: 'たかし',
+  displayNameLower: 'たかし',
   avatarUrl: null,
   bio: '',
   snsUrl: null,

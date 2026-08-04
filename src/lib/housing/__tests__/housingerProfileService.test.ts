@@ -44,6 +44,7 @@ import type { HousingerProfile } from '../../../types/housing';
 
 const baseProfile: HousingerProfile = {
   displayName: 'たかし',
+  displayNameLower: 'たかし',
   avatarUrl: null,
   bio: null,
   snsUrl: null,

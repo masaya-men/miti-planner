@@ -21,6 +21,7 @@ import { HousingerByline } from '../../components/housing/housinger/HousingerByl
 
 const publishedProfile: HousingerProfile = {
   displayName: 'たかし',
+  displayNameLower: 'たかし',
   avatarUrl: null,
   bio: null,
   snsUrl: null,

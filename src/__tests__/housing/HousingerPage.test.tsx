@@ -49,6 +49,7 @@ import { useHousingListOrderStore } from '../../store/useHousingListOrderStore';
 
 const publishedProfile: HousingerProfile = {
   displayName: 'たかし',
+  displayNameLower: 'たかし',
   avatarUrl: null,
   bio: 'S字改築が好きです',
   snsUrl: null,
