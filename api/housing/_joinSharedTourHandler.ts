@@ -12,7 +12,7 @@
  * getActiveAppCheck()(peek・未初期化なら何も返さない)を使うため、真に未ログインの初回訪問者は
  * App Check トークンを一切持たない。ここで verifyAppCheck を課すと本番の ENFORCE_APP_CHECK=true
  * 環境で未ログイン参加者が 403 で弾かれる(2026-07-18 本番で実際に発生・確認済み)。
- * _searchPersonalTagsHandler.ts / api/popular(GET・POST) と同じ「App Check 無し・rate limit のみ」
+ * _searchHousingersHandler.ts / api/popular(GET・POST) と同じ「App Check 無し・rate limit のみ」
  * パターンを踏襲する(60秒ごとの heartbeat で ensureAppCheck() を発火させると匿名閲覧のたびに
  * reCAPTCHA 課金が発生し、今回のコスト・ハードニングの趣旨と矛盾するため採用しない)。
  */

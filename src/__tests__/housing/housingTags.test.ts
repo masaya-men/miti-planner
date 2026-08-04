@@ -12,11 +12,11 @@ import {
 import { PERSONAL_TAG_ID_PREFIX } from '../../constants/housing';
 
 describe('housingTags', () => {
-  it('kind は 公式/季節/テーマ/初心者/個人 の 5 種 (この順序)', () => {
-    expect(HOUSING_TAG_KINDS).toEqual(['official', 'season', 'theme', 'beginner', 'personal']);
+  it('kind は 公式/季節/テーマ/初心者 の 4 種 (この順序、 personal は2026-08-04廃止)', () => {
+    expect(HOUSING_TAG_KINDS).toEqual(['official', 'season', 'theme', 'beginner']);
   });
 
-  it('静的レジストリを持つ kind は 公式/季節/テーマ/初心者 の 4 種 (個人は Firestore 動的管理)', () => {
+  it('静的レジストリを持つ kind は 公式/季節/テーマ/初心者 の 4 種 (personal 廃止によりHOUSING_TAG_KINDSと一致)', () => {
     expect(STATIC_HOUSING_TAG_KINDS).toEqual(['official', 'season', 'theme', 'beginner']);
   });
 

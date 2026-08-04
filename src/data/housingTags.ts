@@ -3,10 +3,15 @@
  *
  * 計画書: docs/superpowers/plans/2026-07-10-housing-tag-overhaul-plan.md
  *
- * - 3+1 kind 構成: 公式 (official) 23 / 季節 (season) 12 / テーマ (theme) 12 / 個人 (personal)
+ * - 4 kind 構成: 公式 (official) 23 / 季節 (season) 12 / テーマ (theme) 12 / 初心者 (beginner) 1。
  *   旧 6 カテゴリ約 147 タグ (taste/scene/season/environment/structure/other) は引退。
- * - 公式・季節・テーマは静的レジストリ (このファイル)。 個人タグは Firestore `personal_tags`
- *   コレクションで動的管理する (1 ユーザー 1 個、 PERSONAL_TAG_LIMIT_PER_USER で定数化)。
+ *   (個人 (personal) kind は 2026-08-04 に廃止済み。 詳細は次項)
+ * - 公式・季節・テーマは静的レジストリ (このファイル)。 個人タグ (`personal` kind) は
+ *   2026-08-04 に概念ごと廃止 (計画書: docs/superpowers/plans/2026-08-04-housing-tag-search-by-owner.md)。
+ *   ハウジンガー名検索は Firestore `housing_profiles` + `listing.ownerUid` の直接判定に一本化され、
+ *   個人タグを動的管理していた `personal_tags` コレクションと `PERSONAL_TAG_LIMIT_PER_USER` は
+ *   ともに削除済み。 `personal_` prefix 自体は探すページのフィルター状態が使う擬似 ID として
+ *   引き続き存在する (isPersonalTagIdFormat / PERSONAL_TAG_ID_PREFIX 参照)。
  * - id は kind ごとに prefix 統一 (`official_` / `season_` / `theme_` / `personal_`)。
  * - i18nKey 経由で 4 言語表示 (実訳は src/locales/{ja,en,ko,zh}.json)。
  * - kind の一覧・表示順は HOUSING_TAG_KINDS (このファイル) から導出する。
@@ -16,10 +21,14 @@
  *   https://ffxiv.consolegameswiki.com/wiki/Estate_Tags)。 JA/KO/ZH は公式ソース照合が必要。
  */
 
-export const HOUSING_TAG_KINDS = ['official', 'season', 'theme', 'beginner', 'personal'] as const;
+export const HOUSING_TAG_KINDS = ['official', 'season', 'theme', 'beginner'] as const;
 export type HousingTagKind = typeof HOUSING_TAG_KINDS[number];
 
-/** 静的レジストリを持つ kind (personal は Firestore 動的管理のためこの配列には含めない)。 */
+/**
+ * 静的レジストリを持つ kind。 2026-08-04 に personal kind が廃止されたため、 現時点では
+ * HOUSING_TAG_KINDS と内容が一致する (将来また動的管理の kind が増えたときのために
+ * 別の配列として残す)。
+ */
 export const STATIC_HOUSING_TAG_KINDS = ['official', 'season', 'theme', 'beginner'] as const;
 export type StaticHousingTagKind = typeof STATIC_HOUSING_TAG_KINDS[number];
 
@@ -133,9 +142,11 @@ export function isStaticTagId(id: string): boolean {
 }
 
 /**
- * 個人タグ id の形式検証 (`personal_` + 英数字/アンダースコアのみ)。
- * **実在確認 (Firestore personal_tags に存在し isHidden=false か) はこの関数の責務外**。
- * サーバー側 (api/housing 登録・編集ハンドラ) が別レイヤーで行う。
+ * 個人タグ形式の擬似 id (`personal_` + 英数字/アンダースコアのみ) の形式検証。
+ * 2026-08-04: 実在確認 (旧 api/housing/_personalTagAttachGuard.ts、 Firestore personal_tags に
+ * 存在し isHidden=false か) は personal_tags 廃止に伴い削除済み。 現在この関数は探すページの
+ * フィルター状態から「ハウジンガー選択の擬似 ID (`personal_<hex>`)」を判別する目的でのみ使う
+ * (applyFilters.ts 参照。 ownerUidFromPersonalFilterId で本来の uid へ逆変換する)。
  */
 const PERSONAL_TAG_ID_PATTERN = /^personal_[a-z0-9_]{1,64}$/;
 export function isPersonalTagIdFormat(id: string): boolean {

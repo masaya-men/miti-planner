@@ -19,7 +19,7 @@
  * ?action=reorder-thumbnails        → POST 直接アップロード画像の並び順を変更 (Firestore のみ更新)
  * ?action=reorder-source-images     → POST URL経由画像の並び順を変更 (Firestore のみ更新)
  * ?action=confirm-listing           → POST 家主が「今もあります」 で lastConfirmedAt を更新 (Phase 2-2)
- * ?action=search-housingers          → GET ハウジンガー名検索 (探すページヘッダー検索窓のサジェスト用)
+ * ?action=search-housingers         → GET ハウジンガー名検索 (探すページヘッダー検索窓のサジェスト用)
  * ?action=upsert-housinger-profile  → POST ハウジンガープロフィール 公開/更新/非公開/同期 (冪等)
  * ?action=report-housinger          → POST ハウジンガープロフィール通報
  * ?action=create-shared-tour        → POST 招待ツアー発行 (幹事ログイン必須・shared_tours 作成)

@@ -77,7 +77,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenFilter }) => {
     });
   };
 
-  // ハウジンガー名の候補取得 (探すページのみ・PersonalTagFilter と同じ 300ms debounce)。
+  // ハウジンガー名の候補取得 (探すページのみ・タグ検索の他サジェスト系入力と揃えた 300ms debounce)。
   useEffect(() => {
     if (!showSearch) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
