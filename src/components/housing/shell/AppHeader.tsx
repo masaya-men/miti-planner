@@ -6,8 +6,9 @@ import { useThemeStore, type Theme } from '../../../store/useThemeStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { useHousingFilterStore } from '../../../store/useHousingFilterStore';
-import { searchPersonalTags } from '../../../lib/personalTagApiClient';
-import type { PersonalTag } from '../../../types/housing';
+import { searchPublishedHousingers } from '../../../lib/housing/housingerSearchApiClient';
+import type { PublishedHousinger } from '../../../lib/housing/publishedHousingers';
+import { personalTagIdForUid } from '../../../lib/housing/housingerProfile';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { LoPoButton } from '../../LoPoButton';
 import { TabBar } from './TabBar';
@@ -46,7 +47,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenFilter }) => {
   const keyword = useHousingFilterStore((s) => s.keyword);
   const setKeyword = useHousingFilterStore((s) => s.setKeyword);
   const toggleTag = useHousingFilterStore((s) => s.toggleTag);
-  const [housingerHits, setHousingerHits] = useState<PersonalTag[]>([]);
+  const [housingerHits, setHousingerHits] = useState<PublishedHousinger[]>([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,8 +87,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenFilter }) => {
       return;
     }
     debounceRef.current = setTimeout(() => {
-      searchPersonalTags(q)
-        .then((tags) => setHousingerHits(tags.slice(0, 5)))
+      searchPublishedHousingers(q)
+        .then((housingers) => setHousingerHits(housingers.slice(0, 5)))
         .catch(() => setHousingerHits([]));
     }, 300);
     return () => {
@@ -147,21 +148,21 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ onOpenFilter }) => {
               <div className="housing-app-search-dropdown-head">
                 {t('housing.header.search_housingers')}
               </div>
-              {housingerHits.map((tag) => (
+              {housingerHits.map((h) => (
                 <button
-                  key={tag.id}
+                  key={h.uid}
                   type="button"
                   className="housing-app-search-housinger"
                   onClick={() => {
-                    toggleTag(tag.id);
-                    // 名前は listing 本体に無く個人タグ経由で絞るため、残った検索語で
+                    toggleTag(personalTagIdForUid(h.uid));
+                    // 名前は listing 本体に無く擬似タグ経由で絞るため、残った検索語で
                     // AND 二重フィルタして 0 件になるのを防ぐ (keyword をクリア)。
                     setKeyword('');
                     setHousingerHits([]);
                     setDropdownOpen(false);
                   }}
                 >
-                  {t('housing.header.search_view_homes', { name: tag.displayName })}
+                  {t('housing.header.search_view_homes', { name: h.displayName })}
                 </button>
               ))}
             </div>

@@ -23,6 +23,7 @@
  *                                      upsert-housinger-profile 公開時に自動作成される — タグ刷新
  *                                      Phase B との統合契約1で create-personal-tag action は廃止)
  * ?action=search-personal-tags      → GET 個人タグ検索 (探すページのフィルタ用オートコンプリート)
+ * ?action=search-housingers          → GET ハウジンガー名検索 (探すページヘッダー検索窓のサジェスト用)
  * ?action=report-personal-tag       → POST 個人タグ通報
  * ?action=upsert-housinger-profile  → POST ハウジンガープロフィール 公開/更新/非公開/同期 (冪等)
  * ?action=report-housinger          → POST ハウジンガープロフィール通報
@@ -51,6 +52,7 @@ import reorderSourceImagesHandler from './_reorderSourceImagesHandler.js';
 import confirmListingHandler from './_confirmListingHandler.js';
 import myPersonalTagHandler from './_myPersonalTagHandler.js';
 import searchPersonalTagsHandler from './_searchPersonalTagsHandler.js';
+import searchHousingersHandler from './_searchHousingersHandler.js';
 import reportPersonalTagHandler from './_reportPersonalTagHandler.js';
 import upsertHousingerProfileHandler from './_upsertHousingerProfileHandler.js';
 import reportHousingerHandler from './_reportHousingerHandler.js';
@@ -114,6 +116,8 @@ export default async function handler(req: any, res: any) {
       return myPersonalTagHandler(req, res);
     case 'search-personal-tags':
       return searchPersonalTagsHandler(req, res);
+    case 'search-housingers':
+      return searchHousingersHandler(req, res);
     case 'report-personal-tag':
       return reportPersonalTagHandler(req, res);
     case 'upsert-housinger-profile':
@@ -131,7 +135,7 @@ export default async function handler(req: any, res: any) {
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|delete-thumbnail|delete-source-image|reorder-thumbnails|reorder-source-images|confirm-listing|my-personal-tag|search-personal-tags|report-personal-tag|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|delete-thumbnail|delete-source-image|reorder-thumbnails|reorder-source-images|confirm-listing|my-personal-tag|search-personal-tags|search-housingers|report-personal-tag|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour',
       });
   }
 }
