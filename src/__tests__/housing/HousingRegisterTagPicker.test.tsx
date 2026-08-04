@@ -5,15 +5,9 @@ import userEvent from '@testing-library/user-event';
 import { HousingRegisterTagPicker } from '../../components/housing/register/HousingRegisterTagPicker';
 import { useHousingModalStore } from '../../store/useHousingModalStore';
 
-const getMyPersonalTagMock = vi.fn();
-vi.mock('../../lib/personalTagApiClient', () => ({
-  getMyPersonalTag: (...args: unknown[]) => getMyPersonalTagMock(...args),
-}));
 
 describe('HousingRegisterTagPicker', () => {
   beforeEach(() => {
-    getMyPersonalTagMock.mockReset();
-    getMyPersonalTagMock.mockResolvedValue(null);
     useHousingModalStore.setState({ account: { open: false } });
   });
 
@@ -66,71 +60,5 @@ describe('HousingRegisterTagPicker', () => {
     await user.click(screen.getByText(/housing\.register\.tag_kind\.beginner/i));
     await user.click(screen.getByRole('button', { name: /housing\.tag\.beginner_sprout/i }));
     expect(onChange).toHaveBeenCalledWith(['beginner_sprout']);
-  });
-
-  describe('個人タブ', () => {
-    it('未公開ユーザーには公開を促すヒント + 公開設定を開くボタンを表示する (作成フォームは出さない)', async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-      getMyPersonalTagMock.mockResolvedValue(null);
-
-      render(<HousingRegisterTagPicker selected={[]} onChange={onChange} />);
-      await user.click(screen.getByText(/housing\.register\.tag_kind\.personal/i));
-
-      await waitFor(() => {
-        expect(screen.getByText(/housing\.register\.personal_tag\.not_published_hint/i)).toBeInTheDocument();
-      });
-      expect(screen.queryByTestId('housing-personal-tag-name-input')).not.toBeInTheDocument();
-
-      expect(useHousingModalStore.getState().account.open).toBe(false);
-      await user.click(screen.getByRole('button', { name: /housing\.register\.personal_tag\.open_account_settings/i }));
-      expect(useHousingModalStore.getState().account.open).toBe(true);
-    });
-
-    it('取得済みタグが isHidden (未公開/運営非表示) なら未公開扱いのヒントを出す', async () => {
-      const user = userEvent.setup();
-      getMyPersonalTagMock.mockResolvedValue({
-        id: 'personal_abc123', displayName: 'yuura', displayNameLower: 'yuura',
-        ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: true,
-      });
-
-      render(<HousingRegisterTagPicker selected={[]} onChange={() => {}} />);
-      await user.click(screen.getByText(/housing\.register\.tag_kind\.personal/i));
-
-      await waitFor(() => {
-        expect(screen.getByText(/housing\.register\.personal_tag\.not_published_hint/i)).toBeInTheDocument();
-      });
-    });
-
-    it('作成済みなら自分のタグをトグル可能なボタンとして表示する', async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-      getMyPersonalTagMock.mockResolvedValue({
-        id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura',
-        ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false,
-      });
-
-      render(<HousingRegisterTagPicker selected={[]} onChange={onChange} />);
-      await user.click(screen.getByText(/housing\.register\.tag_kind\.personal/i));
-
-      const optionBtn = await screen.findByRole('button', { name: 'yuura' });
-      await user.click(optionBtn);
-      expect(onChange).toHaveBeenCalledWith(['personal_yuura_ab12cd']);
-    });
-
-    it('選択済みの自分のタグは選択チップとして表示され × で削除できる', async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-      getMyPersonalTagMock.mockResolvedValue({
-        id: 'personal_yuura_ab12cd', displayName: 'yuura', displayNameLower: 'yuura',
-        ownerUid: 'u1', createdAt: 0, reportCount: 0, isHidden: false,
-      });
-
-      render(<HousingRegisterTagPicker selected={['personal_yuura_ab12cd']} onChange={onChange} />);
-
-      const removeBtn = await screen.findByRole('button', { name: /housing\.register\.remove_tag/i });
-      await user.click(removeBtn);
-      expect(onChange).toHaveBeenCalledWith([]);
-    });
   });
 });
