@@ -85,10 +85,11 @@
       ]
     },
     {
-      "collectionGroup": "personal_tags",
+      "collectionGroup": "housing_profiles",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "isHidden", "order": "ASCENDING" },
+        { "fieldPath": "isPublished", "order": "ASCENDING" },
+        { "fieldPath": "isModerationHidden", "order": "ASCENDING" },
         { "fieldPath": "displayNameLower", "order": "ASCENDING" }
       ]
     }
