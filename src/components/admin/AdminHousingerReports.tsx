@@ -1,7 +1,7 @@
 /**
  * ハウジンガープロフィール通報管理画面 (spec 2026-07-10-housinger-profile-design.md §6.2)
  *
- * AdminHousingReports.tsx / AdminPersonalTags.tsx と同じ「案 B」パターン:
+ * AdminHousingReports.tsx と同じ「案 B」パターン:
  * 通報数の多い順に最大 50 件表示、各プロフィールの通報レコード (reason/comment/createdAt) を
  * カード内にリスト表示。
  * - 「強制非公開にする」 (isModerationHidden=false 時のみ) と「復帰させる」 (true 時のみ) の 2 択
