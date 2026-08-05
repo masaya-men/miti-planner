@@ -111,6 +111,10 @@ export const HousingShell: React.FC = () => {
         setTimeout(resync, 100);
       }
     };
+    // 業界標準パターン(例: CSS-Tricks の --vh 手法)に合わせ、マウント直後にも無条件で1回補正する。
+    // 従来は resize イベント(変化)にしか反応しておらず、初回描画時点で既に高さがズレていた場合に
+    // 直す手段が無かった(以後の変化を待つしかなく、変化が起きなければ永久にズレたまま)。
+    resync();
     vv.addEventListener('resize', handleResize);
     document.addEventListener('focusout', handleFocusOut);
     return () => {

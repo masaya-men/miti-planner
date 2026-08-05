@@ -65,4 +65,34 @@ describe('HousingShell', () => {
     renderShell();
     expect(screen.getAllByRole('link').length).toBeGreaterThanOrEqual(6);
   });
+
+  it('モバイルではマウント直後に無条件でビューポート補正する (resizeイベント無しでも)', () => {
+    const originalMatchMedia = window.matchMedia;
+    const originalVisualViewport = (window as unknown as { visualViewport?: unknown }).visualViewport;
+
+    // モバイル判定を true に固定
+    (window as unknown as { matchMedia: (q: string) => MediaQueryList }).matchMedia = (query: string) => ({
+      matches: true, media: query, onchange: null,
+      addListener: () => {}, removeListener: () => {},
+      addEventListener: () => {}, removeEventListener: () => {},
+      dispatchEvent: () => false,
+    } as unknown as MediaQueryList);
+    (window as unknown as { visualViewport: unknown }).visualViewport = {
+      height: 600,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    };
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+
+    try {
+      renderShell();
+      // resync() は window.scrollTo(0, 0) を最初に呼ぶ。resizeイベントを一切発火させていないので、
+      // これが呼ばれているならマウント時の無条件補正が効いている証拠。
+      expect(scrollToSpy).toHaveBeenCalledWith(0, 0);
+    } finally {
+      scrollToSpy.mockRestore();
+      window.matchMedia = originalMatchMedia;
+      (window as unknown as { visualViewport: unknown }).visualViewport = originalVisualViewport;
+    }
+  });
 });
