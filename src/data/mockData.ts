@@ -753,7 +753,13 @@ export const MITIGATIONS: Mitigation[] = [
     // Rampart (Tanks)
     ...['pld', 'war', 'drk', 'gnb'].map(job => ({
         id: `rampart_${job}`, jobId: job, name: { ja: "ランパート", en: "Rampart", zh: "铁壁", ko: "철벽 방어" }, icon: "/icons/Rampart.png",
-        recast: 90, duration: 20, type: "all" as const, value: 20, isShield: false, scope: "self" as const, minLevel: 8, family: "role_action"
+        recast: 90, duration: 20, type: "all" as const, value: 20, isShield: false, scope: "self" as const, minLevel: 8, maxLevel: 93, family: "role_action"
+    })),
+    // Rampart 効果アップ (Lv94特性で被回復+15%が追加)
+    ...['pld', 'war', 'drk', 'gnb'].map(job => ({
+        id: `rampart_v2_${job}`, jobId: job, name: { ja: "ランパート", en: "Rampart", zh: "铁壁", ko: "철벽 방어" }, icon: "/icons/Rampart.png",
+        recast: 90, duration: 20, type: "all" as const, value: 20, isShield: false, scope: "self" as const,
+        healingIncrease: 15, note: "自身の被ダメージ20%軽減 + 受ける回復効果+15%", minLevel: 94, family: "role_action"
     })),
     // Reprisal (Tanks)
     ...['pld', 'war', 'drk', 'gnb'].map(job => ({
