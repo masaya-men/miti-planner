@@ -133,7 +133,11 @@ export const MITIGATION_DISPLAY_ORDER = [
 ];
 
 export function getMitigationPriority(mitigationId: string): number {
-    const baseId = mitigationId.replace(/_(pld|war|drk|gnb|whm|sch|ast|sge|mnk|drg|nin|sam|rpr|vpr|brd|mch|dnc|blm|smn|rdm|pct)$/, '');
+    const withoutJob = mitigationId.replace(/_(pld|war|drk|gnb|whm|sch|ast|sge|mnk|drg|nin|sam|rpr|vpr|brd|mch|dnc|blm|smn|rdm|pct)$/, '');
+    // レベルで効果が変わる技の版違い接尾辞 (例: rampart_v2, aurora_v2) を剥がし、
+    // 素の技(rampart, aurora)と同じ表示順に揃える。剥がさないと MITIGATION_DISPLAY_ORDER に
+    // 見つからず優先度999(モーダル最下段)に落ちる。
+    const baseId = withoutJob.replace(/_v\d+$/, '');
     const index = MITIGATION_DISPLAY_ORDER.indexOf(baseId);
     return index !== -1 ? index : 999;
 }
