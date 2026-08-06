@@ -209,6 +209,17 @@ export function generateAutoPlan(
                     }
                 }
             }
+
+            // フェイブレッシング/エーテルパクトはエオス・セレネ専用(セラフィムには実行不可)。
+            // 光の囁き/フェイイルミネーションは名称が変わるだけで実際は使えるため対象外。
+            if (mitiId === 'fey_blessing' || mitiId === 'aetherpact') {
+                for (const a of state) {
+                    if (a.mitigationId === 'summon_seraph' &&
+                        time >= a.time && time < a.time + a.duration) {
+                        return false;
+                    }
+                }
+            }
         }
 
         // 前提スキル（requires）の確認

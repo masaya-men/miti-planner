@@ -542,6 +542,17 @@ export function validateMitigationPlacement(
         }
     }
 
+    // フェイブレッシング/エーテルパクトはエオス・セレネ専用(セラフィムには実行させられない)。
+    // 光の囁き/フェイイルミネーションは名称が変わるだけで実際は使えるため対象外。
+    if (m.id === 'fey_blessing' || m.id === 'aetherpact') {
+        const isSeraphActive = relevantMitigations.some(am =>
+            am.mitigationId === 'summon_seraph' && selectedTime >= am.time && selectedTime < am.time + am.duration
+        );
+        if (isSeraphActive) {
+            return { available: false, message: t('mitigation.requires_fairy_not_seraph', 'フェアリーが必要なため、セラフィム中は使用できません') };
+        }
+    }
+
     // Dissipation is blocked while Seraph is active (requires normal fairy)
     if (m.id === 'dissipation') {
         const isSeraphActive = relevantMitigations.some(am => am.mitigationId === 'summon_seraph' && selectedTime >= am.time && selectedTime < am.time + am.duration);
