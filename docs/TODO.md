@@ -13,7 +13,7 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-0. **🔴🔴 最優先: 共同編集participant側クラッシュ(`TypeError: Cannot read properties of undefined (reading 'timelineEvents')`)**。ハードリロードでも復帰しない。頻度は「デプロイすると結構な頻度で」とのユーザー所感(相関未確認)。調査メモ・候補箇所(`collabProvider.ts`の`reseedEmptyDocFields`等)は`docs/.private/2026-08-05-collab-participant-timelineevents-crash.md`に記録済み。**ユーザー指示: 次回は先走らず、勝手な修正をせず丁寧に調査から**(原因確定までコード変更禁止)。
+0. **🔴 共同編集participant側クラッシュ: 2026-08-06 原因は未確定(複数仮説がユーザー実地検証で反証済み)**。スタックトレース無しでの推測はこれ以上やらない方針に転換。暫定対応=`ErrorBoundary.tsx`の詳細欄を`error.stack`+`componentStack`込みに拡張済み(本番反映待ち)。次回赤画面が出たら、まずその詳細欄の内容をそのまま貼ってもらうところから再開。却下済み仮説(サイレント圧縮/reflectMemosToPlan誤書込み/直近コード変更/SWキャッシュ)は`docs/.private/2026-08-05-collab-participant-timelineevents-crash.md`に記録済み、再提案しない。
 1. **🔴 ハウジング次の着手順(2026-07-24決定)**: ①コスト面=✅完了 ②マイページ作成=✅完了 ③タグAND検索=✅完了 ④繁体字対応=✅完了 ⑤OGPカード作り込み=✅完了(本番push・実機確認OK・抽選頻度チューニング済) ⑥タグ検索UX向上(個人タグ廃止・ownerUidベース化)=✅完了(2026-08-04本番デプロイ)。詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 3. **🆕 共同編集参加者のヘッダー開閉解禁 → 軽減表スプシモード**(いずれも大物・2026-08-05ブレスト済・**最高モデルを潤沢に使えるときに着手**、着手順は①→②固定)。ブレスト内容・確定設計・未解決論点は全て`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`に記録済み。着手時は同ファイルを土台にbrainstormingスキルで設計書化からやり直す。
