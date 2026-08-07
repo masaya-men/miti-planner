@@ -12,6 +12,7 @@ import { usePlanStore } from '../../store/usePlanStore';
 import { nameForClient } from '../../lib/collab/presence';
 import { PresenceControls } from './PresenceControls';
 import { ConfirmDialog } from '../ConfirmDialog';
+import { showToast } from '../Toast';
 import { SYSTEM_MAX_PARTICIPANTS } from '../../../api/collab/_roomLogic';
 
 interface OwnerCollabPanelProps {
@@ -29,6 +30,11 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
   const [confirmOff, setConfirmOff] = React.useState(false);
   // ⑤-3c: 任意の部屋名(ジョイナーのバナーに「○○ の本物の表」と表示)。空欄なら汎用文言。
   const [label, setLabel] = React.useState('');
+  // 仮の値(確定ボタンを押すまでサーバーへ送らない)。maxParticipants(確定値)が外部要因で
+  // 変わったら追従する(#6の再同期やsetMax成功後の反映を含む)。
+  const [draftMax, setDraftMax] = React.useState(maxParticipants);
+  React.useEffect(() => { setDraftMax(maxParticipants); }, [maxParticipants]);
+  const [maxBusy, setMaxBusy] = React.useState(false);
 
   // リンクはプラン保存トークン(Task4)へフォールバック=接続前でも即生成・空欄にしない(A案・業界水準)。
   const planToken = usePlanStore(s => s.plans.find(p => p.id === planId)?.activeCollabRoomToken);
@@ -60,8 +66,18 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
   };
 
   const step = (delta: number) => {
-    const next = Math.max(1, Math.min(SYSTEM_MAX_PARTICIPANTS, maxParticipants + delta));
-    if (next !== maxParticipants) void setMax(planId, next);
+    setDraftMax((d) => Math.max(1, Math.min(SYSTEM_MAX_PARTICIPANTS, d + delta)));
+  };
+
+  const handleConfirmMax = async () => {
+    setMaxBusy(true);
+    try {
+      await setMax(planId, draftMax);
+    } catch {
+      showToast(t('collab.error_generic'));
+    } finally {
+      setMaxBusy(false);
+    }
   };
 
   const handleRevoke = async () => {
@@ -123,11 +139,20 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
               {/* 人数 */}
               <div>
                 <div className="text-app-xs uppercase tracking-wide text-app-text-muted mb-1.5">{t('collab.people_label')}</div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <button aria-label="dec-people" onClick={() => step(-1)} className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center text-app-text cursor-pointer active:scale-95"><Minus size={15} /></button>
-                  <span className="text-app-xl font-bold text-app-text min-w-[1.5rem] text-center">{maxParticipants}</span>
+                  <span className="text-app-xl font-bold text-app-text min-w-[1.5rem] text-center">{draftMax}</span>
                   <button aria-label="inc-people" onClick={() => step(1)} className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center text-app-text cursor-pointer active:scale-95"><Plus size={15} /></button>
                   <span className="text-app-sm text-app-text-muted">{t('collab.people_unit')}</span>
+                  {draftMax !== maxParticipants && (
+                    <button
+                      disabled={maxBusy}
+                      onClick={handleConfirmMax}
+                      className="px-3 h-8 rounded-lg bg-app-text text-app-bg font-bold text-app-sm cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {t('collab.confirm_max', { count: draftMax })}
+                    </button>
+                  )}
                 </div>
                 <div className="text-app-xs text-app-text-muted mt-1">{t('collab.people_hint', { max: SYSTEM_MAX_PARTICIPANTS })}</div>
               </div>

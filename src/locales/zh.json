@@ -46,6 +46,7 @@
         "people_label": "可加入人数",
         "people_unit": "人以内",
         "people_hint": "默认 8 人(一个满编小队)。可设置 1~{{max}}人。",
+        "confirm_max": "将人数上限改为{{count}}人",
         "label_field": "房间名称（可选）",
         "label_placeholder": "例: 周六固定队（可选）",
         "reissue": "重新生成链接",

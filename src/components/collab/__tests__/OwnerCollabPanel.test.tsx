@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 // src/components/collab/__tests__/OwnerCollabPanel.test.tsx
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { OwnerCollabPanel } from '../OwnerCollabPanel';
 import { useCollabSessionStore } from '../../../store/useCollabSessionStore';
 import { useCollabPresenceStore } from '../../../store/useCollabPresenceStore';
@@ -36,12 +36,31 @@ describe('OwnerCollabPanel', () => {
     expect(screen.getByText('8')).toBeInTheDocument();
   });
 
-  it('＋/− で setMax を呼ぶ(1..20 クランプ)', () => {
-    const setMax = vi.fn();
+  it('＋/− は仮の値だけを変える。確定ボタンを押すまで setMax は呼ばれない', () => {
+    const setMax = vi.fn().mockResolvedValue(undefined);
     useCollabSessionStore.setState({ setMax } as any);
     render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
     fireEvent.click(screen.getByLabelText('inc-people'));
-    expect(setMax).toHaveBeenCalledWith('plan1', 9);
+    expect(setMax).not.toHaveBeenCalled();
+    expect(screen.getByText('9')).toBeInTheDocument();
+  });
+
+  it('変更していない間は確定ボタンが出ない', () => {
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    expect(screen.queryByText(/collab.confirm_max/)).not.toBeInTheDocument();
+  });
+
+  it('仮の値を変えると確定ボタンが出る。押すと setMax(planId, 仮の値) を呼び、成功後はボタンが消える', async () => {
+    const setMax = vi.fn().mockImplementation(async (_planId: string, n: number) => {
+      useCollabSessionStore.setState({ maxParticipants: n });
+    });
+    useCollabSessionStore.setState({ setMax } as any);
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    fireEvent.click(screen.getByLabelText('inc-people'));
+    const confirmBtn = screen.getByText('collab.confirm_max:9');
+    fireEvent.click(confirmBtn);
+    await waitFor(() => expect(setMax).toHaveBeenCalledWith('plan1', 9));
+    await waitFor(() => expect(screen.queryByText(/collab.confirm_max/)).not.toBeInTheDocument());
   });
 
   it('OFFボタンは即 revoke せず確認モーダルを挟む→確認で revoke', () => {

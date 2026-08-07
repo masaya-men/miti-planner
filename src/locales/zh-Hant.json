@@ -46,6 +46,7 @@
         "people_label": "可加入人數",
         "people_unit": "人以內",
         "people_hint": "預設 8 人(一個滿編小隊)。可設定 1~{{max}}人。",
+        "confirm_max": "將人數上限改為{{count}}人",
         "label_field": "房間名稱（可選）",
         "label_placeholder": "例: 週六固定隊（可選）",
         "reissue": "重新生成連結",
