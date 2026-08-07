@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseRoomManageRequest, ROOM_ACTIONS } from '../../../api/collab/_roomManageLogic';
+import { parseRoomManageRequest, ROOM_ACTIONS, resolveRoomOwner } from '../../../api/collab/_roomManageLogic';
 
 describe('parseRoomManageRequest', () => {
   it('body が object でない → invalid_body', () => {
@@ -42,8 +42,18 @@ describe('parseRoomManageRequest', () => {
     expect(parseRoomManageRequest({ action: 'set-max', planId: 'p1', maxParticipants: 6 }))
       .toEqual({ ok: true, req: { action: 'set-max', planId: 'p1', maxParticipants: 6 } });
   });
-  it('ROOM_ACTIONS は 4 アクション', () => {
-    expect(ROOM_ACTIONS).toEqual(['create', 'revoke', 'reissue', 'set-max']);
+  it('ROOM_ACTIONS は 5 アクション', () => {
+    expect(ROOM_ACTIONS).toEqual(['create', 'revoke', 'reissue', 'set-max', 'check-owner']);
+  });
+  it('check-owner は roomToken 必須(planId不要)', () => {
+    expect(parseRoomManageRequest({ action: 'check-owner', roomToken: 'tok123' }))
+      .toEqual({ ok: true, req: { action: 'check-owner', roomToken: 'tok123' } });
+  });
+  it('check-owner で roomToken 欠落/空 → invalid_roomToken', () => {
+    expect(parseRoomManageRequest({ action: 'check-owner' }))
+      .toEqual({ ok: false, error: 'invalid_roomToken' });
+    expect(parseRoomManageRequest({ action: 'check-owner', roomToken: '' }))
+      .toEqual({ ok: false, error: 'invalid_roomToken' });
   });
   it('create は任意の label を trim して受理する', () => {
     const r = parseRoomManageRequest({ action: 'create', planId: 'p1', label: '  土曜固定P  ' });
@@ -62,5 +72,23 @@ describe('parseRoomManageRequest', () => {
   it('label 空文字/空白のみは未設定として受理（label を含めない）', () => {
     const r = parseRoomManageRequest({ action: 'create', planId: 'p1', label: '   ' });
     expect(r).toEqual({ ok: true, req: { action: 'create', planId: 'p1' } });
+  });
+});
+
+describe('resolveRoomOwner', () => {
+  it('room が null(roomToken不存在) → isOwner:false', () => {
+    expect(resolveRoomOwner(null, 'uid1')).toEqual({ isOwner: false });
+  });
+  it('ownerId が一致 → isOwner:true + planId', () => {
+    expect(resolveRoomOwner({ ownerId: 'uid1', planId: 'plan1' }, 'uid1'))
+      .toEqual({ isOwner: true, planId: 'plan1' });
+  });
+  it('ownerId が不一致(他人) → isOwner:false', () => {
+    expect(resolveRoomOwner({ ownerId: 'uid1', planId: 'plan1' }, 'uid2'))
+      .toEqual({ isOwner: false });
+  });
+  it('失効済みルームでもオーナー本人なら isOwner:true', () => {
+    expect(resolveRoomOwner({ ownerId: 'uid1', planId: 'plan1' }, 'uid1'))
+      .toEqual({ isOwner: true, planId: 'plan1' });
   });
 });
