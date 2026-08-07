@@ -140,9 +140,9 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
               <div>
                 <div className="text-app-xs uppercase tracking-wide text-app-text-muted mb-1.5">{t('collab.people_label')}</div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <button aria-label="dec-people" onClick={() => step(-1)} className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center text-app-text cursor-pointer active:scale-95"><Minus size={15} /></button>
+                  <button aria-label="dec-people" disabled={maxBusy} onClick={() => step(-1)} className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center text-app-text cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><Minus size={15} /></button>
                   <span className="text-app-xl font-bold text-app-text min-w-[1.5rem] text-center">{draftMax}</span>
-                  <button aria-label="inc-people" onClick={() => step(1)} className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center text-app-text cursor-pointer active:scale-95"><Plus size={15} /></button>
+                  <button aria-label="inc-people" disabled={maxBusy} onClick={() => step(1)} className="w-8 h-8 rounded-lg border border-app-border bg-app-surface2/60 flex items-center justify-center text-app-text cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"><Plus size={15} /></button>
                   <span className="text-app-sm text-app-text-muted">{t('collab.people_unit')}</span>
                   {draftMax !== maxParticipants && (
                     <button

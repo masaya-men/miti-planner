@@ -63,6 +63,22 @@ describe('OwnerCollabPanel', () => {
     await waitFor(() => expect(screen.queryByText(/collab.confirm_max/)).not.toBeInTheDocument());
   });
 
+  it('確定API応答待ち中は+/-ボタンを無効化し、未送信の変更が無言で消えるのを防ぐ', async () => {
+    let resolveSetMax: (() => void) | undefined;
+    const setMax = vi.fn().mockImplementation(() => new Promise<void>((resolve) => {
+      resolveSetMax = () => resolve();
+    }));
+    useCollabSessionStore.setState({ setMax } as any);
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    fireEvent.click(screen.getByLabelText('inc-people'));
+    fireEvent.click(screen.getByText('collab.confirm_max:9'));
+    await waitFor(() => expect(setMax).toHaveBeenCalledWith('plan1', 9));
+    expect(screen.getByLabelText('inc-people')).toBeDisabled();
+    expect(screen.getByLabelText('dec-people')).toBeDisabled();
+    resolveSetMax?.();
+    await waitFor(() => expect(screen.getByLabelText('inc-people')).not.toBeDisabled());
+  });
+
   it('OFFボタンは即 revoke せず確認モーダルを挟む→確認で revoke', () => {
     const revoke = vi.fn().mockResolvedValue(undefined);
     const onClose = vi.fn();
