@@ -1262,7 +1262,7 @@ const Timeline: React.FC = () => {
         // 空プラン (新規作成直後・テンプレ未整備コンテンツ等): 軽減配置時刻を見せたいので強制的に展開状態へ
         const isTutorial = useTutorialStore.getState().isActive;
         const plan = usePlanStore.getState().plans.find(p => p.id === currentPlanId);
-        const isEmptyPlan = plan ? plan.data.timelineEvents.length === 0 : false;
+        const isEmptyPlan = plan ? (plan.data?.timelineEvents?.length ?? 0) === 0 : false;
         if (isTutorial) return;
         if (isEmptyPlan) {
             useMitigationStore.getState().setHideEmptyRows(false);
