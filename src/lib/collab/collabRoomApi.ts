@@ -29,7 +29,7 @@ export class CollabRoomError extends Error {
   }
 }
 
-type Action = 'create' | 'set-max' | 'revoke' | 'reissue';
+type Action = 'create' | 'set-max' | 'revoke' | 'reissue' | 'check-owner';
 
 async function post(body: Record<string, unknown>): Promise<any> {
   const res = await apiFetch('/api/collab/room', {
@@ -65,4 +65,15 @@ export function reissueRoom(planId: string, label?: string): Promise<RoomInfo> {
   const body: Record<string, unknown> = { action: 'reissue' as Action, planId };
   if (label !== undefined && label.trim().length > 0) body.label = label;
   return post(body);
+}
+
+/** 共有リンクを開いた人が、この部屋のオーナー本人かどうかをサーバーに確認する。 */
+export interface OwnerCheckResult {
+  isOwner: boolean;
+  planId?: string;
+}
+
+/** roomToken ベースの本人確認(planId不要)。共有リンクをオーナーが踏んだときの自動判別に使う。 */
+export function checkOwner(roomToken: string): Promise<OwnerCheckResult> {
+  return post({ action: 'check-owner' as Action, roomToken });
 }
