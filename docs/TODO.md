@@ -70,6 +70,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留 (既知legacyテスト失敗5件=TopBar4+HousingWorkspace1は撤去予定・非アクション)。**🆕 EphemeralAddPanel.test 7件失敗(2026-07-17発見・環境依存)**: happy-domが:3000へ実fetch(ECONNREFUSED)・devサーバー起動中のみ緑だった疑い。d77ca25f時点でも同一失敗=直近変更と無関係を切り分け済。要モック修正。
 - **🆕 共同編集の残**(詳細→`.private/2026-06-26-collab-issues-observed.md` / `2026-06-25-deleted-share-link-notice.md`): 実使用バグ A重い/Dモーダル=✅本番済・C ドット数≠実人数=🟦見送り(残=全行未仮想化#59は別タスク) / 削除済み共有リンクの空TL(狭いプライバシー窓・方針A案=deletePlan後revoke+「失効」表示で確定・今後分のみ・急ぎ不要)。
 - **🟡 共同編集: reseedEmptyDocFieldsの信頼境界欠如(2026-08-07発見→2026-08-08修正完了・build/フルテスト確認済み、詳細は最上部0-1番)**: 本番pushはオーナー自動判別機能とセットでユーザー判断待ち。
+- **🔵 (低優先・記録のみ) 競合コピーがactiveCollabRoomTokenを引き継ぐ既存バグ**: `usePlanStore.ts`の競合コピー2箇所(525-533行/826-834行)が`structuredClone`後も`activeCollabRoomToken`/`collabMaxParticipants`をclearしておらず、コピー先が元プランと同じ部屋トークンを名乗りうる。reseed信頼境界修正とは無関係のpre-existingバグ・今回のスコープ外(2026-08-08最終レビューで発見)。
 
 ---
 
