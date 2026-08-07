@@ -34,3 +34,18 @@ export function shouldRestoreMitigationFromPlan(args: {
     if (loadedPlanId !== null && loadedPlanId !== currentPlanId) return true;
     return false;
 }
+
+/**
+ * 起動時、shouldRestoreMitigationFromPlan が false(復元しない)だったときに、
+ * 札(_loadedPlanId)を currentPlanId で貼り直してよいかを判定する。
+ * 2026-08-07データ安全監査(最終レビュー指摘): 札が既に currentPlanId と食い違っているのに
+ * (例: plan.data が圧縮等で読めず復元できなかった場合)ここで盲目的に貼り直すと、
+ * 誤った札が「確定」してしまい、後続の接続直前ガード(canTrustLocalDataForRoom)がそれを
+ * 信頼してしまう。札が未確定(null)か、既に一致しているときだけ貼ってよい。
+ */
+export function shouldRelabelLoadedPlanId(args: {
+    currentPlanId: string;
+    loadedPlanId: string | null;
+}): boolean {
+    return args.loadedPlanId === null || args.loadedPlanId === args.currentPlanId;
+}

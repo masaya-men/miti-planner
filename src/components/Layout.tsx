@@ -8,7 +8,7 @@ import { usePlanStore } from '../store/usePlanStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCollabSessionStore } from '../store/useCollabSessionStore';
 import { reconcileCollabForPlan } from '../lib/collab/collabLifecycle';
-import { shouldRestoreMitigationFromPlan } from '../lib/bootstrapMitigation';
+import { shouldRestoreMitigationFromPlan, shouldRelabelLoadedPlanId } from '../lib/bootstrapMitigation';
 import { persistWorkingStore } from '../lib/persistWorkingStore';
 import { Sidebar } from './Sidebar';
 import { LocalDataSafetyAutoPrompt } from './LocalDataSafetyAutoPrompt';
@@ -248,7 +248,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         } else if (currentPlanId) {
             // 通常起動: 作業ストア(persist 復元済)は currentPlanId を表している → 持ち主を記録。
             // これが無いと初回保存で _loadedPlanId=null となり保存がスキップされる。
-            useMitigationStore.getState().setLoadedPlanId(currentPlanId);
+            // ただし、札が既に別プランを指していて(圧縮等でplan.dataが読めず復元もできない場合)
+            // 盲目的に貼り直すと誤った札が「確定」してしまうため、その場合は貼らない(データ安全監査)。
+            if (shouldRelabelLoadedPlanId({ currentPlanId, loadedPlanId: useMitigationStore.getState()._loadedPlanId })) {
+                useMitigationStore.getState().setLoadedPlanId(currentPlanId);
+            }
         }
     }, []);
 

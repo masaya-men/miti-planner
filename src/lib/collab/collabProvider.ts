@@ -186,9 +186,13 @@ export function applyRoomToStore(
     if (trusted) {
       reseedEmptyDocFields(doc, store);
     } else {
-      console.warn('[LoPo][collab] 手元データの持ち主が接続先の部屋と一致しないため、空上書き防御をスキップしました', {
-        loadedPlanId: store._loadedPlanId, roomToken: opts.roomToken,
-      });
+      // 通常の参加者接続(他人の部屋へゲスト参加)では毎回不一致になるのが正常なため、
+      // 本番コンソールを汚さないよう dev のみ警告する(2026-08-07監査 最終レビュー指摘)。
+      if (import.meta.env.DEV) {
+        console.warn('[LoPo][collab] 手元データの持ち主が接続先の部屋と一致しないため、空上書き防御をスキップしました', {
+          loadedPlanId: store._loadedPlanId, roomToken: opts.roomToken,
+        });
+      }
     }
   }
   const s = useMitigationStore.getState();
