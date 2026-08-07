@@ -74,7 +74,8 @@ export const OwnerCollabPanel: React.FC<OwnerCollabPanelProps> = ({ planId, onCl
     try {
       await setMax(planId, draftMax);
     } catch {
-      showToast(t('collab.error_generic'));
+      // 失敗トーストなので 'error' を明示(既定は 'success' = 緑チェックで成功に見えてしまう)。
+      showToast(t('collab.error_generic'), 'error');
     } finally {
       setMaxBusy(false);
     }

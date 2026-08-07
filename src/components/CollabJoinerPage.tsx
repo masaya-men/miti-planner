@@ -48,6 +48,43 @@ export function shouldRedirectToOwnerEditor(
 }
 
 /**
+ * ⑤-4(データ安全): オーナー判別が redirect と出ても、実際に `/miti` へ送ってよいのは
+ * 「送った先が確実に**このプランの**ライブ共同編集になる」と保証できるときだけ。
+ *
+ * 背景(ここを緩めると不可逆なデータ破壊が起きる):
+ *  - このページを離れる瞬間、効果A の cleanup が `persist.rehydrate()` を呼び、作業ストア
+ *    (MitigationStore)は localStorage の「自分のソロ状態 = 直前に開いていたプランの内容」に戻る。
+ *    Layout.tsx の起動時復旧も「作業ストア = currentPlanId のプラン」を前提にしている。
+ *    よって currentPlanId だけを別プランへ書き換えて送ると、作業ストアが**別プランの内容のまま**
+ *    新しい currentPlanId に紐付き、(a) 自動保存が別プランの内容を対象プランへ書き戻す
+ *    (b) 接続時の空上書き防御(collabProvider.reseedEmptyDocFields)が別プランの内容を
+ *    **部屋そのもの**へ流し込む、という壊し方をする。プランデータのロード無しに
+ *    setCurrentPlanId を呼んではいけない、という既存契約(usePlanStore.ts の警告コメント、
+ *    Sidebar のプラン切替の順序)と同じ話。
+ *  - Layout の自動接続 (collabLifecycle.reconcileCollabForPlan → collabReconcile.decideCollabAction)
+ *    が `connect` を返す条件は「ローカル plan に activeCollabRoomToken があり、plan.ownerId が
+ *    自分の uid」。ここが噛み合わないと、ライブ接続されないまま `/miti` でローカル編集を続け、
+ *    部屋側の参加者の編集と静かに分岐する。
+ *
+ * したがって「プラン切替が不要(既に現在のプラン)」かつ「そのローカル plan がまさにこの部屋を
+ * 指していて自分が持ち主」のときだけ true。満たさなければ今まで通り参加者フローを継続する(安全側)。
+ */
+export function canOpenOwnerEditor(args: {
+  planId: string;
+  roomToken: string;
+  currentPlanId: string | null;
+  uid: string | null;
+  plan: { ownerId: string; activeCollabRoomToken?: string } | undefined;
+}): boolean {
+  const { planId, roomToken, currentPlanId, uid, plan } = args;
+  if (!plan) return false;                                  // ローカルに無い(このブラウザで未取得)
+  if (currentPlanId !== planId) return false;               // 作業ストアが別プランを載せている
+  if (plan.activeCollabRoomToken !== roomToken) return false; // この部屋へ自動接続されない
+  if (!uid || plan.ownerId !== uid) return false;           // Layout 側の isOwner が立たない
+  return true;
+}
+
+/**
  * 退室 cleanup: rehydrate(readonly 中=書込 skip で自分のソロ state を store へ戻す)→ 完了後に readonly 解除。
  * zustand persist は **同期 storage のとき `.finally` を持たない最小 thenable** を返す
  * (useMitigationStore は同期 storage)。素朴な `rehydrate()?.finally(...)` は `?.` が短絡せず
@@ -129,8 +166,11 @@ export default function CollabJoinerPage() {
   }, [roomToken]);
 
   // 効果0(⑤-4): オーナー自動判別。ログイン済みなら「自分の部屋か」をサーバーに確認し、本人なら
-  // いつもの編集画面(そのプランを開いた状態)へ案内する。共有リンクを自分で踏んでも参加者扱いの
-  // まま権限を失わないための処置。判別未完了・非ログイン・失敗は全て安全側(参加者フロー継続)。
+  // いつもの編集画面 `/miti` へ案内する。共有リンクを自分で踏んでも参加者扱いのまま権限を失わない
+  // ための処置。判別未完了・非ログイン・失敗は全て安全側(参加者フロー継続)。
+  // 送る条件は canOpenOwnerEditor で厳格に絞る(= プラン切替もデータロードもせずに済むときだけ)。
+  // 送った後は /miti の Layout がマウント時に reconcileCollabForPlan を呼び、collab-ON + オーナー
+  // 本人 → connectExisting でこの部屋へライブ接続し直す(部屋の内容が唯一の正なので再ロード不要)。
   useEffect(() => {
     if (!roomToken || authLoading || !isLoggedIn) return;
     let cancelled = false;
@@ -138,10 +178,19 @@ export default function CollabJoinerPage() {
       .then((result) => {
         if (cancelled) return;
         const decision = shouldRedirectToOwnerEditor(result);
-        if (decision.redirect) {
-          usePlanStore.getState().setCurrentPlanId(decision.planId);
-          navigate('/');
-        }
+        if (!decision.redirect) return;
+        const { plans, currentPlanId } = usePlanStore.getState();
+        const ok = canOpenOwnerEditor({
+          planId: decision.planId,
+          roomToken,
+          currentPlanId,
+          // uid は getState で都度取得(user オブジェクトを deps に入れて checkOwner を余計に叩かない)。
+          uid: useAuthStore.getState().user?.uid ?? null,
+          plan: plans.find((p) => p.id === decision.planId),
+        });
+        if (!ok) return; // 安全側: 参加者フローを継続(今までと同じ表示)
+        // replace: true = 戻るボタンで /collab/:roomToken に戻って再度ここへ跳ぶループを作らない。
+        navigate('/miti', { replace: true });
       })
       .catch(() => { /* 判別失敗は安全側: 参加者フローを継続 */ });
     return () => { cancelled = true; };
@@ -257,7 +306,9 @@ export default function CollabJoinerPage() {
   if (kind === "invalid") return <JoinerNotice text={t("collab.joiner_invalid")} />;
   if (kind === "full") return <JoinerNotice text={t("collab.joiner_full")} />;
   // sheet: Layout を通さず Timeline サブツリーのみ(自動保存・サイドバー・プラン管理なし)。
-  // ConsolidatedHeader は viewer モードで使用 — usePlanStore は参照しない(viewer 分岐が担保)。
+  // ConsolidatedHeader は viewer モードで使用 — 参加者ビューは usePlanStore を参照しない(viewer 分岐が担保)。
+  // 例外は効果0(⑤-4)のオーナー判別だけで、そこも **読み取り専用**(currentPlanId / plans を見て
+  // 案内可否を決めるのみ・書き込みは一切しない)。ユーザーの永続データに触れない構造は不変。
   return (
     // 本体シェル(Layout.tsx:566)と同一の font-sans + コンテナ最大幅(1489 中央寄せ)で
     // フォント・横幅の文脈を一致させる(= 本物ヘッダー/表と同じサイズ・字形)。

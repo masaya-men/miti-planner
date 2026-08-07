@@ -7,6 +7,9 @@ import { useCollabSessionStore } from '../../../store/useCollabSessionStore';
 import { useCollabPresenceStore } from '../../../store/useCollabPresenceStore';
 import type { RosterEntry } from '../../../lib/collab/presence';
 
+const showToast = vi.hoisted(() => vi.fn());
+vi.mock('../../Toast', () => ({ showToast }));
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (k: string, o?: any) => (o?.max ? `${k}:${o.max}` : o?.count != null ? `${k}:${o.count}` : k),
@@ -15,6 +18,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 beforeEach(() => {
+  showToast.mockClear();
   useCollabSessionStore.setState({
     active: true, roomToken: 'tok7Qk2', maxParticipants: 8, session: null,
     start: vi.fn(), setMax: vi.fn(), revoke: vi.fn(), reissue: vi.fn(),
@@ -61,6 +65,17 @@ describe('OwnerCollabPanel', () => {
     fireEvent.click(confirmBtn);
     await waitFor(() => expect(setMax).toHaveBeenCalledWith('plan1', 9));
     await waitFor(() => expect(screen.queryByText(/collab.confirm_max/)).not.toBeInTheDocument());
+  });
+
+  it('確定に失敗したら「失敗」トースト(type=error)を出す。成功トースト(既定)にしない', async () => {
+    const setMax = vi.fn().mockRejectedValue(new Error('network'));
+    useCollabSessionStore.setState({ setMax } as any);
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    fireEvent.click(screen.getByLabelText('inc-people'));
+    fireEvent.click(screen.getByText('collab.confirm_max:9'));
+    await waitFor(() => expect(showToast).toHaveBeenCalledWith('collab.error_generic', 'error'));
+    // 失敗なので確定ボタンは残る(未送信の変更が消えない)
+    expect(screen.getByText('collab.confirm_max:9')).toBeInTheDocument();
   });
 
   it('確定API応答待ち中は+/-ボタンを無効化し、未送信の変更が無言で消えるのを防ぐ', async () => {
