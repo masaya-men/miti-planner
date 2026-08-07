@@ -6,15 +6,18 @@ import { startCollabSession, type CollabSession } from "../lib/collab/collabProv
 import { useCollabJoinerSession } from "../store/useCollabJoinerSession";
 import { useMitigationStore } from "../store/useMitigationStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { useThemeStore } from "../store/useThemeStore";
 import { hasCollabEditConsent, setCollabEditConsent } from "../lib/collabEditConsent";
 import { CollabEditConsentModal } from "./CollabEditConsentModal";
 import { CollabJoinerBanner } from "./CollabJoinerBanner";
 import { ConsolidatedHeader } from "./ConsolidatedHeader";
 import { MobileHeader } from "./MobileHeader";
+import { MobileFAB } from "./MobileFAB";
 import { AppFooter } from "./AppFooter";
 import { CollabViewerCluster } from "./collab/CollabViewerCluster";
 import { LoginModal } from "./LoginModal";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { useTransitionOverlay } from "./ui/TransitionOverlay";
 import Timeline from "./Timeline";
 
 export type JoinerViewKind = "connecting" | "invalid" | "full" | "revoked" | "sheet";
@@ -75,6 +78,12 @@ export default function CollabJoinerPage() {
   const [consentPrompted, setConsentPrompted] = useState(false);
   const ownerLabel = useCollabJoinerSession((s) => s.ownerLabel);
   const contentId = useCollabJoinerSession((s) => s.contentId);
+
+  // モバイルFAB(展開切替・フェーズ/ラベルジャンプ・機構検索・テーマ)。本体 Layout.tsx と同じ配線。
+  const theme = useThemeStore((s) => s.theme);
+  const setTheme = useThemeStore((s) => s.setTheme);
+  const hideEmptyRows = useMitigationStore((s) => s.hideEmptyRows);
+  const { runTransition } = useTransitionOverlay();
 
   const canEdit = computeCanEdit(isLoggedIn, hasConsent);
   // 「一度でも sync したか」を session 再接続(canEdit 切替)を跨いで保持。再接続時に
@@ -287,6 +296,21 @@ export default function CollabJoinerPage() {
 
       {/* 本物 AppFooter */}
       <AppFooter />
+
+      {/* モバイル FAB — 展開切替・フェーズ/ラベルジャンプ・機構検索・テーマ/言語(本体 Layout.tsx と同一コンポーネント)。
+          いずれも表示切替/ナビゲーションのみで部屋データを書き換えないため、閲覧者・編集者どちらでも使える。 */}
+      <MobileFAB
+        onToggleTheme={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
+        theme={theme}
+        onPhaseJump={() => window.dispatchEvent(new Event('mobile:phase-jump'))}
+        onLabelJump={() => window.dispatchEvent(new Event('mobile:label-jump'))}
+        onMechanicSearch={() => window.dispatchEvent(new Event('mobile:mechanic-search'))}
+        onToggleExpand={() => {
+          const store = useMitigationStore.getState();
+          store.setHideEmptyRows(!store.hideEmptyRows);
+        }}
+        hideEmptyRows={hideEmptyRows}
+      />
 
       {/* モーダル群 */}
       <CollabEditConsentModal isOpen={consentOpen} onAccept={acceptConsent} onCancel={() => setConsentOpen(false)} />

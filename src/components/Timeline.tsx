@@ -1258,6 +1258,13 @@ const Timeline: React.FC = () => {
         if (scrollContainerRef.current) {
             scrollContainerRef.current.scrollTo({ top: 0, left: 0 });
         }
+        // 共同編集ルーム表示中(ジョイナー)は currentPlanId が参加者自身の無関係な個人プランを
+        // 指したままになる(部屋を開いても更新されない)。その個人プランの空/非空を部屋の表示に
+        // 持ち込まないよう、常にコンパクト表示から開始する。
+        if (joinerRoomToken) {
+            useMitigationStore.getState().setHideEmptyRows(true);
+            return;
+        }
         // チュートリアル中: NewPlanModal が hideEmptyRows を制御しているのでスキップ
         // 空プラン (新規作成直後・テンプレ未整備コンテンツ等): 軽減配置時刻を見せたいので強制的に展開状態へ
         const isTutorial = useTutorialStore.getState().isActive;
@@ -1269,7 +1276,7 @@ const Timeline: React.FC = () => {
         } else {
             useMitigationStore.getState().setHideEmptyRows(true);
         }
-    }, [currentPlanId]);
+    }, [currentPlanId, joinerRoomToken]);
 
     const currentPlan = usePlanStore(s => s.plans.find(p => p.id === s.currentPlanId));
     // ⑤-3b: ジョイナー(SavedPlan 無し)は一時セッションの contentId にフォールバック。
