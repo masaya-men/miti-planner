@@ -170,4 +170,27 @@ describe('useCollabSessionStore', () => {
     expect(s.session).toBe(newSess);
     expect(s.active).toBe(true);
   });
+
+  it('reissue: startCollabSession が呼ばれる時点で、既に新トークンが plan 側に反映されている(順序の回帰防止・データ安全監査④)', async () => {
+    useCollabSessionStore.setState({ active: true, roomToken: 'old', maxParticipants: 8, session: fakeSession() });
+    mk(reissueRoom).mockResolvedValue({ roomToken: 'new', maxParticipants: 8, revoked: false });
+    usePlanStore.setState({
+      currentPlanId: 'plan1',
+      plans: [{
+        id: 'plan1', ownerId: 'uid1', ownerDisplayName: 'Owner', title: 'p',
+        contentId: null, isPublic: false, copyCount: 0, useCount: 0,
+        data: { timelineEvents: [], timelineMitigations: [], phases: [], partyMembers: [], labels: [], memos: [] },
+        createdAt: 0, updatedAt: 0, activeCollabRoomToken: 'old',
+      }],
+    } as any);
+    let tokenAtConnectTime: string | undefined;
+    mk(startCollabSession).mockImplementation(() => {
+      tokenAtConnectTime = usePlanStore.getState().plans.find((p) => p.id === 'plan1')?.activeCollabRoomToken;
+      return fakeSession();
+    });
+
+    await useCollabSessionStore.getState().reissue('plan1');
+
+    expect(tokenAtConnectTime).toBe('new'); // 接続の瞬間には、既に新トークンへ更新済み
+  });
 });

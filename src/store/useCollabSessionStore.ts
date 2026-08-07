@@ -102,9 +102,12 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     // 非同期の間に別プランへ移っていたら張り直さない(現在表示プラン束縛)。
     const { usePlanStore } = await import('./usePlanStore');
     if (usePlanStore.getState().currentPlanId !== planId) return;
-    const session = startCollabSession(info.roomToken);
-    // #6: 新トークン + 引き継いだ上限をローカル plan へ(再発行で 8 に戻さない・次回リロード用)。
+    // #6 + データ安全(2026-08-07監査④): 新トークン + 引き継いだ上限をローカル plan へ
+    // *先に* 反映してから接続する(start() と同じ順序)。reseed の信頼確認
+    // (collabProvider.canTrustLocalDataForRoom)は接続時点の activeCollabRoomToken を見るため、
+    // 先に更新しないと自分自身の再発行を誤って「不一致」と判定してしまう。
     usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken, collabMaxParticipants: info.maxParticipants });
+    const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
   },
 
