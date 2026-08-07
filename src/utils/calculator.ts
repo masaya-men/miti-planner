@@ -152,6 +152,7 @@ export const SKILL_DATA = {
     "ブラックナイト": { "percent": 25, "type": "hp", "jobs": ["drk"], "icon": "The_Blackest_Night.png", "nameEn": "The Blackest Night" },
 
     "アクセッション": { "potency": 240, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Accession.png", "nameEn": "Accession", "minLevel": 100 },
+    "マニフェステーション": { "potency": 360, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Manifestation.png", "nameEn": "Manifestation", "minLevel": 100 },
     "意気軒高の策": { "potency": 200, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Concitation.png", "nameEn": "Concitation", "minLevel": 92 },
     "士気高揚の策": { "potency": 180, "type": "potency", "multiplier": 1.8, "jobs": ["sch"], "icon": "Succor.png", "nameEn": "Succor", "maxLevel": 91, "minLevel": 35 },
     "コンソレイション": { "potency": 250, "type": "potency", "multiplier": 1, "jobs": ["sch"], "icon": "Consolation.png", "nameEn": "Consolation", "minLevel": 80 },
