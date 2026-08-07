@@ -1831,6 +1831,9 @@ export const useMitigationStore = create<MitigationState>()(
                 timelineSortOrder: state.timelineSortOrder,
                 memos: state.memos,
                 progress: state.progress,
+                // データ安全(2026-08-07): 持ち主の札も再読込をまたいで持ち歩く。
+                // これが無いと起動のたびに null に戻り、誤った札の貼り直しを招く。
+                _loadedPlanId: state._loadedPlanId,
             }),
             migrate: (persistedState: any, _version: number) => {
                 return persistedState;
