@@ -238,6 +238,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             currentPlanId,
             plan,
             mitigationSnapshot: useMitigationStore.getState().getSnapshot(),
+            // データ安全(2026-08-07監査): 札(_loadedPlanId)と currentPlanId の食い違いも
+            // ここで検出させる(マルチタブ desync 対策。詳細は bootstrapMitigation.ts 参照)。
+            loadedPlanId: useMitigationStore.getState()._loadedPlanId,
         }) && plan?.data) {
             isRemoteLoadingRef.current = true;
             useMitigationStore.getState().loadSnapshot(plan.data, currentPlanId!);
