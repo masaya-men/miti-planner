@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { joinerView, computeCanEdit, rehydrateThenClearReadonly } from "../CollabJoinerPage";
+import { joinerView, computeCanEdit, rehydrateThenClearReadonly, shouldRedirectToOwnerEditor } from "../CollabJoinerPage";
 
 describe("joinerView(状態 → 表示種別)", () => {
   it("未同期は connecting", () => {
@@ -62,5 +62,21 @@ describe("rehydrateThenClearReadonly", () => {
       () => order.push("clear"),
     );
     expect(order).toEqual(["rehydrate", "clear"]);
+  });
+});
+
+describe("shouldRedirectToOwnerEditor(オーナー判別結果 → リダイレクト要否)", () => {
+  it("isOwner:true かつ planId があれば redirect:true", () => {
+    expect(shouldRedirectToOwnerEditor({ isOwner: true, planId: "plan1" }))
+      .toEqual({ redirect: true, planId: "plan1" });
+  });
+  it("isOwner:false は redirect:false", () => {
+    expect(shouldRedirectToOwnerEditor({ isOwner: false })).toEqual({ redirect: false });
+  });
+  it("isOwner:true でも planId が無ければ redirect:false(安全側)", () => {
+    expect(shouldRedirectToOwnerEditor({ isOwner: true })).toEqual({ redirect: false });
+  });
+  it("result が null(判別未完了/失敗)は redirect:false", () => {
+    expect(shouldRedirectToOwnerEditor(null)).toEqual({ redirect: false });
   });
 });

@@ -19,6 +19,8 @@ import { LoginModal } from "./LoginModal";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { useTransitionOverlay } from "./ui/TransitionOverlay";
 import Timeline from "./Timeline";
+import { checkOwner, type OwnerCheckResult } from "../lib/collab/collabRoomApi";
+import { usePlanStore } from "../store/usePlanStore";
 
 export type JoinerViewKind = "connecting" | "invalid" | "full" | "revoked" | "sheet";
 
@@ -34,6 +36,15 @@ export function joinerView(s: { synced: boolean; invalid: boolean; full: boolean
 /** ⑤-3c: 編集可否（ログイン && 部屋ごと同意）。 */
 export function computeCanEdit(isLoggedIn: boolean, hasConsent: boolean): boolean {
   return isLoggedIn && hasConsent;
+}
+
+/** ⑤-4: オーナー判別結果 → いつもの編集画面へ案内するか。判別未完了・非オーナー・情報欠落は
+ * 全て redirect:false(安全側=今まで通り参加者フローを継続)。 */
+export function shouldRedirectToOwnerEditor(
+  result: OwnerCheckResult | null,
+): { redirect: false } | { redirect: true; planId: string } {
+  if (!result || !result.isOwner || !result.planId) return { redirect: false };
+  return { redirect: true, planId: result.planId };
 }
 
 /**
@@ -72,6 +83,7 @@ export default function CollabJoinerPage() {
   const [revoked, setRevoked] = useState(false); // オーナーがリンクを失効=共同編集終了
 
   const user = useAuthStore((s) => s.user);
+  const authLoading = useAuthStore((s) => s.loading);
   const isLoggedIn = user !== null;
   const [hasConsent, setHasConsent] = useState(false);
   const [consentOpen, setConsentOpen] = useState(false);
@@ -115,6 +127,25 @@ export default function CollabJoinerPage() {
       );
     };
   }, [roomToken]);
+
+  // 効果0(⑤-4): オーナー自動判別。ログイン済みなら「自分の部屋か」をサーバーに確認し、本人なら
+  // いつもの編集画面(そのプランを開いた状態)へ案内する。共有リンクを自分で踏んでも参加者扱いの
+  // まま権限を失わないための処置。判別未完了・非ログイン・失敗は全て安全側(参加者フロー継続)。
+  useEffect(() => {
+    if (!roomToken || authLoading || !isLoggedIn) return;
+    let cancelled = false;
+    void checkOwner(roomToken)
+      .then((result) => {
+        if (cancelled) return;
+        const decision = shouldRedirectToOwnerEditor(result);
+        if (decision.redirect) {
+          usePlanStore.getState().setCurrentPlanId(decision.planId);
+          navigate('/');
+        }
+      })
+      .catch(() => { /* 判別失敗は安全側: 参加者フローを継続 */ });
+    return () => { cancelled = true; };
+  }, [roomToken, authLoading, isLoggedIn, navigate]);
 
   // 効果B: WebSocket セッション。readOnly は canEdit に連動。canEdit 切替で張り直す
   // (cleanup で旧セッション disconnect → 新 readOnly で再接続)。persist skip(効果A)は触らない。
