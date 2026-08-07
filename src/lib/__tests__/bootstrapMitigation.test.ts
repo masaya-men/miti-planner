@@ -29,6 +29,7 @@ function makePlan(data: PlanData): SavedPlan {
 /**
  * 起動時 desync 復旧 (hydration gate / bootstrapping):
  * currentPlanId は非空プランを指すのに作業ストアが空 = desync → プランデータを復元すべき。
+ * 2026-08-07データ安全監査: 札(loadedPlanId)が currentPlanId と食い違うときも復元すべき。
  */
 describe('shouldRestoreMitigationFromPlan (起動時 desync 復旧判定)', () => {
     it('非空プランを指すのに作業ストアが空なら復元すべき (desync 検出)', () => {
@@ -36,6 +37,7 @@ describe('shouldRestoreMitigationFromPlan (起動時 desync 復旧判定)', () =
             currentPlanId: 'fixed',
             plan: makePlan(nonEmptyData()),
             mitigationSnapshot: emptyData(),
+            loadedPlanId: null,
         })).toBe(true);
     });
 
@@ -44,6 +46,7 @@ describe('shouldRestoreMitigationFromPlan (起動時 desync 復旧判定)', () =
             currentPlanId: 'fixed',
             plan: makePlan(nonEmptyData()),
             mitigationSnapshot: nonEmptyData(),
+            loadedPlanId: null,
         })).toBe(false);
     });
 
@@ -52,6 +55,7 @@ describe('shouldRestoreMitigationFromPlan (起動時 desync 復旧判定)', () =
             currentPlanId: 'fixed',
             plan: makePlan(emptyData()),
             mitigationSnapshot: emptyData(),
+            loadedPlanId: null,
         })).toBe(false);
     });
 
@@ -60,6 +64,7 @@ describe('shouldRestoreMitigationFromPlan (起動時 desync 復旧判定)', () =
             currentPlanId: null,
             plan: undefined,
             mitigationSnapshot: emptyData(),
+            loadedPlanId: null,
         })).toBe(false);
     });
 
@@ -68,6 +73,34 @@ describe('shouldRestoreMitigationFromPlan (起動時 desync 復旧判定)', () =
             currentPlanId: 'fixed',
             plan: undefined,
             mitigationSnapshot: emptyData(),
+            loadedPlanId: null,
+        })).toBe(false);
+    });
+
+    it('札が未設定(null)・作業ストア非空 → 復元しない(この修正配信直後の全既存ユーザーの初回起動と同じ状態。データを一切触らない)', () => {
+        expect(shouldRestoreMitigationFromPlan({
+            currentPlanId: 'fixed',
+            plan: makePlan(nonEmptyData()),
+            mitigationSnapshot: nonEmptyData(),
+            loadedPlanId: null,
+        })).toBe(false);
+    });
+
+    it('札が currentPlanId と食い違う・作業ストア非空 → 復元すべき(データ安全監査⑤: マルチタブ desync 検出)', () => {
+        expect(shouldRestoreMitigationFromPlan({
+            currentPlanId: 'fixed',
+            plan: makePlan(nonEmptyData()),
+            mitigationSnapshot: nonEmptyData(),
+            loadedPlanId: 'other-plan',
+        })).toBe(true);
+    });
+
+    it('札が currentPlanId と一致・作業ストア非空 → 復元しない(正常な状態)', () => {
+        expect(shouldRestoreMitigationFromPlan({
+            currentPlanId: 'fixed',
+            plan: makePlan(nonEmptyData()),
+            mitigationSnapshot: nonEmptyData(),
+            loadedPlanId: 'fixed',
         })).toBe(false);
     });
 });
