@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { fieldsNeedingReseed, RESEED_FIELDS, type FieldCounts } from '../collabReseed';
+import { canTrustLocalDataForRoom } from '../collabReseed';
 
 const counts = (over: Partial<FieldCounts> = {}): FieldCounts => ({
   timelineMitigations: 0, timelineEvents: 0, phases: 0, partyMembers: 0, ...over,
@@ -38,5 +39,30 @@ describe('fieldsNeedingReseed (client 側 空上書き防御)', () => {
 
   it('labels/memos は対象外(RESEED_FIELDS に含めない)', () => {
     expect([...RESEED_FIELDS]).toEqual(['timelineMitigations', 'timelineEvents', 'phases', 'partyMembers']);
+  });
+});
+
+describe('canTrustLocalDataForRoom (reseed 実行前の持ち主確認・2026-08-07データ安全監査)', () => {
+  const plans = [{ id: 'plan1', activeCollabRoomToken: 'room1' }] as any;
+
+  it('loadedPlanId が指すプランの部屋トークンと接続先が一致 → 信頼する', () => {
+    expect(canTrustLocalDataForRoom({ loadedPlanId: 'plan1', roomToken: 'room1', plans })).toBe(true);
+  });
+
+  it('loadedPlanId が null(まだ確定していない) → 信頼しない', () => {
+    expect(canTrustLocalDataForRoom({ loadedPlanId: null, roomToken: 'room1', plans })).toBe(false);
+  });
+
+  it('loadedPlanId が指すプランがローカルに無い(削除済み等) → 信頼しない', () => {
+    expect(canTrustLocalDataForRoom({ loadedPlanId: 'missing', roomToken: 'room1', plans })).toBe(false);
+  });
+
+  it('プランの activeCollabRoomToken が接続先と異なる → 信頼しない', () => {
+    expect(canTrustLocalDataForRoom({ loadedPlanId: 'plan1', roomToken: 'other-room', plans })).toBe(false);
+  });
+
+  it('プランに activeCollabRoomToken が無い(collab-OFF) → 信頼しない', () => {
+    const offPlans = [{ id: 'plan1' }] as any;
+    expect(canTrustLocalDataForRoom({ loadedPlanId: 'plan1', roomToken: 'room1', plans: offPlans })).toBe(false);
   });
 });
