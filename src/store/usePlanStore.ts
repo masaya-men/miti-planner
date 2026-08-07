@@ -387,6 +387,11 @@ export const usePlanStore = create<PlanState>()(
                     useCount: 0,
                     archived: false,
                     compressedData: undefined,
+                    // データ安全(2026-08-08): 複製は独立した新しいプラン。元プランが
+                    // 共同編集ルームに繋がっていても、複製先まで同じ部屋の「持ち主」を
+                    // 名乗らせない(reseed信頼境界ガードが誤って信頼してしまうため)。
+                    activeCollabRoomToken: undefined,
+                    collabMaxParticipants: undefined,
                 };
 
                 // 最新テンプレートでイベント・フェーズ・ラベルを差し替え
@@ -530,6 +535,12 @@ export const usePlanStore = create<PlanState>()(
                                 title: `${plan.title} (競合コピー)`,
                                 createdAt: Date.now(),
                                 updatedAt: Date.now(),
+                                // データ安全(2026-08-08): 競合コピーは独立した新しいプラン。
+                                // 元プランが共同編集ルームに繋がっていても、コピー先まで
+                                // 同じ部屋の「持ち主」を名乗らせない(reseed信頼境界ガードが
+                                // 誤って信頼してしまうため)。
+                                activeCollabRoomToken: undefined,
+                                collabMaxParticipants: undefined,
                             };
                             get().addPlan(copyPlan);
                         }
@@ -827,6 +838,12 @@ export const usePlanStore = create<PlanState>()(
                                     title: `${plan.title} (競合コピー)`,
                                     createdAt: Date.now(),
                                     updatedAt: Date.now(),
+                                    // データ安全(2026-08-08): 競合コピーは独立した新しいプラン。
+                                    // 元プランが共同編集ルームに繋がっていても、コピー先まで
+                                    // 同じ部屋の「持ち主」を名乗らせない(reseed信頼境界ガードが
+                                    // 誤って信頼してしまうため)。
+                                    activeCollabRoomToken: undefined,
+                                    collabMaxParticipants: undefined,
                                 };
                                 get().addPlan(copyPlan);
                             }
