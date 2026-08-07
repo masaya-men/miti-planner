@@ -14,14 +14,14 @@
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 0. **✅ 共同編集participant側クラッシュ(ジョイナー経由)+副次発見2件: 2026-08-07 全て修正・本番デプロイ済み(ユーザー実機確認待ち)**。①`Timeline.tsx:1265`の`plan.data.timelineEvents`未ガード(参加者自身の圧縮済み個人プラン参照でクラッシュ)→`plan.data?.timelineEvents?.length ?? 0`に修正。②修正確認中に発覚: 圧縮済みプラン参照時、無関係な共同編集ルームの行表示が強制展開される→ジョイナー中(`joinerRoomToken`あり)はこの個人プラン判定自体をスキップし常にコンパクト表示に固定。③スマホのジョイナー画面は`Layout.tsx`を通さずFAB自体が無かった→`CollabJoinerPage.tsx`に`MobileFAB`を追加(展開切替・フェーズ/ラベルジャンプ・機構検索・テーマ、本体と同一配線・部屋データ非破壊)。詳細=`docs/.private/2026-08-05-collab-participant-timelineevents-crash.md`。**注**: 2026-08-05報告分(サイドバー経由の通常利用中に発生)は別トリガーの可能性があり真因未確定のまま(再発したら別件として調査)。
-0-1. **🔴 共同編集: オーナー自動判別+人数変更確定ボタン — 実装(6タスク)は完了・全レビュー完了・ただし本番pushはブロック中(2026-08-07)**。**実装場所はここ(main)ではなくworktree**: `C:\Users\masay\Desktop\FF14Sim\.claude\worktrees\collab-owner-link-and-live-capacity`(ブランチ`worktree-collab-owner-link-and-live-capacity`、未push・未マージ)。ブロック理由=最終レビュー中に「共同編集の空上書き防御(`reseedEmptyDocFields`)が、書き込み前に手元データの出所を一切検証しない」という、この新機能とは無関係の既存の重大データ安全バグを発見。ユーザー指示で「直してからでないとデプロイ不可」。4方向の独立調査(`docs/.private/2026-08-07-collab-data-safety-audit/`)→設計書(`docs/superpowers/specs/2026-08-07-collab-reseed-trust-boundary-design.md`、承認済み`d052b7e8`)→実装計画(`docs/superpowers/plans/2026-08-07-collab-reseed-trust-boundary.md`、TDDで7タスク、`df440716`)まで完了。**次セッションはこの実装計画をsubagent-driven-development(推奨)またはexecuting-plansで実行するところから**(brainstorming/設計はやり直し不要)。実装は上記worktreeで行い、Task1〜7完了後に①この安全修正と②既存の6タスク(オーナー自動判別+人数変更)を合わせて初めて本番pushの判断をユーザーに仰ぐ。
+0-1. **✅ 共同編集: オーナー自動判別+人数変更確定ボタン(6タスク)+reseedEmptyDocFields信頼境界バグ修正(7タスク+最終レビュー指摘の追加修正)+プラン複製3経路のactiveCollabRoomToken引き継ぎバグ修正、全て実装・検証完了・本番push実行中(2026-08-08)**。背景=オーナー機能の最終レビュー中に見つけた「別プランのデータが共同編集ルームへ不可逆に混入しうる」経路(`reseedEmptyDocFields`が手元データの出処を検証しない設計)は、新機能とは無関係に前から存在する、参加者側でも起こりうる既存バグだった。`_loadedPlanId`永続化/`canTrustLocalDataForRoom`ガード/reissue順序修正/起動時の札食い違い検出、加えて最終レビューで見つかった圧縮済みプランのフェイルオープン・プラン複製時のトークン引き継ぎも修正。`npm run build`(exit 0)・フルテスト(3865 passed/7 failed=housing既知の環境依存分のみ/2 skipped)で確認済み。詳細=`docs/.private/2026-08-07-collab-data-safety-audit/00-synthesis-and-next-steps.md`(調査)+`docs/superpowers/specs/2026-08-07-collab-reseed-trust-boundary-design.md`(設計)+`docs/superpowers/plans/2026-08-07-collab-reseed-trust-boundary.md`(実装計画)。
 1. **🔴 ハウジング次の着手順(2026-07-24決定)**: ①コスト面=✅完了 ②マイページ作成=✅完了 ③タグAND検索=✅完了 ④繁体字対応=✅完了 ⑤OGPカード作り込み=✅完了(本番push・実機確認OK・抽選頻度チューニング済) ⑥タグ検索UX向上(個人タグ廃止・ownerUidベース化)=✅完了(2026-08-04本番デプロイ)。詳細=`docs/.private/2026-07-23-housing-task-inventory.md`。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)
 3. **🆕 共同編集参加者のヘッダー開閉解禁 → 軽減表スプシモード**(いずれも大物・2026-08-05ブレスト済・**最高モデルを潤沢に使えるときに着手**、着手順は①→②固定)。ブレスト内容・確定設計・未解決論点は全て`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`に記録済み。着手時は同ファイルを土台にbrainstormingスキルで設計書化からやり直す。
 
 ## 現在の状態 (次セッションはここから読む)
 ### 🟡 共同編集participantクラッシュ+副次2件(強制展開/FAB無し)は修正・本番デプロイ済み(詳細→最上部0番)。実機で「外部共有リンクからの参加(展開されずFABが使えるか)」を確認待ち。
-### 🔴 共同編集: オーナー自動判別+人数変更確定ボタンは実装済みだがpushブロック中(詳細→最上部0-1番)。**次セッション最優先**=実装計画`docs/superpowers/plans/2026-08-07-collab-reseed-trust-boundary.md`をsubagent-driven-development等で実行。
+### ✅ 共同編集: オーナー自動判別+人数変更確定ボタン+reseed信頼境界修正、全て実装・検証完了・本番push実行中(詳細→最上部0-1番)。
 ### ✅ 2026-08-05セッション完了分(詳細→TODO_COMPLETED.md): ランパートLv94回復効果アップ追加/ハウジングのモバイル表示ズレ修正/技の版違い(_v2)表示順バグ修正/サモン・セラフィム中のフェイブレッシング・エーテルパクト使用不可制約追加。全て本番デプロイ済み(ハウジングの表示ズレのみ実機確認は次回)。
 ### ✅ 2026-08-04セッション完了分(詳細→TODO_COMPLETED.md): タグ検索UX向上(個人タグ廃止・ownerUidベース化・本番デプロイ済)/OGPカード抽選頻度チューニング(本番デプロイ済)
 ### 📤 Discordアップデート告知 = 下書き完成・投稿待ち(ユーザー側アクション)
@@ -70,6 +70,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留 (既知legacyテスト失敗5件=TopBar4+HousingWorkspace1は撤去予定・非アクション)。**🆕 EphemeralAddPanel.test 7件失敗(2026-07-17発見・環境依存)**: happy-domが:3000へ実fetch(ECONNREFUSED)・devサーバー起動中のみ緑だった疑い。d77ca25f時点でも同一失敗=直近変更と無関係を切り分け済。要モック修正。
 - **🔴 共同編集: reseedEmptyDocFieldsの信頼境界欠如(2026-08-07発見・4方向の徹底調査完了・設計未着手・本番pushブロック中)**: `reseedEmptyDocFields`(空上書き防御)が「手元データが本当にこの部屋のものか」を一切検証せず書き込む。P0経路2件確定=①参加者が同意済み部屋を再訪問(リンクを開くだけ)②オーナーが2タブで別プランを開いてリロードするだけ(**ユーザー操作すら不要**)。過去のどの監査(2026-06-18の48エージェント監査含む)でもカバーされていない新規発見。詳細・全経路・対策案比較=`docs/.private/2026-08-07-collab-data-safety-audit/00-synthesis-and-next-steps.md`(+個別4調査ファイル)。**次セッション最優先**。
 - **🆕 共同編集の残**(詳細→`.private/2026-06-26-collab-issues-observed.md` / `2026-06-25-deleted-share-link-notice.md`): 実使用バグ A重い/Dモーダル=✅本番済・C ドット数≠実人数=🟦見送り(残=全行未仮想化#59は別タスク) / 削除済み共有リンクの空TL(狭いプライバシー窓・方針A案=deletePlan後revoke+「失効」表示で確定・今後分のみ・急ぎ不要)。
+- **🟡 共同編集: reseedEmptyDocFieldsの信頼境界欠如(2026-08-07発見→2026-08-08修正完了・build/フルテスト確認済み、詳細は最上部0-1番)**: 本番pushはオーナー自動判別機能とセットでユーザー判断待ち。付随して発見した「プラン複製3経路(手動複製duplicatePlan+競合コピー2箇所)がactiveCollabRoomTokenを引き継ぐ既存バグ」も同時に修正済み(ユーザーの積年の要望「共同編集プランを複製したら普通のプランになってほしい」もこれで解消)。
 
 ---
 

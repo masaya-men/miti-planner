@@ -12,10 +12,6 @@ import type { CollabSession } from '../lib/collab/collabProvider';
 // 静的 import すると yjs が main に混入する)。型は import type なので erase され影響なし。
 const loadProvider = () => import('../lib/collab/collabProvider');
 
-// 人数変更のデバウンス: 連打しても最後の値だけサーバへ送る(往復待ちで表示が遅れるのを防ぐ)。
-let maxSyncTimer: ReturnType<typeof setTimeout> | null = null;
-const MAX_SYNC_DEBOUNCE_MS = 400;
-
 interface CollabSessionState {
   /** 共同編集モードに入っているか(常設チップ/パネルの表示判定)。 */
   active: boolean;
@@ -33,8 +29,8 @@ interface CollabSessionState {
   /** 既存トークンへ接続(room 新規作成なし)。collab-ON プランを開いた時の自動接続(Task 6)。
    *  collabProvider を動的 import するため async(呼び出し側は fire-and-forget で良い)。 */
   connectExisting: (roomToken: string, planId: string) => Promise<void>;
-  /** 入れる人数を変更(楽観的更新で即時反映・API はデバウンスで最終値のみ送信)。 */
-  setMax: (planId: string, n: number) => void;
+  /** 入れる人数を確定変更する(呼び出し成功で store と plan 側の両方を更新)。失敗時は例外を投げる。 */
+  setMax: (planId: string, n: number) => Promise<void>;
   /** リンク失効→切断→クリア。 */
   revoke: (planId: string) => Promise<void>;
   /** 旧を切断・失効し新リンクで張り直し。label は任意の部屋名(⑤-3c)。 */
@@ -82,22 +78,12 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     set({ active: true, roomToken, session, collabPlanId: planId, ...(typeof planMax === 'number' ? { maxParticipants: planMax } : {}) });
   },
 
-  setMax: (planId, n) => {
-    // 楽観的更新: クリックで即時に表示へ反映(サーバ往復を待たない)。
-    set({ maxParticipants: n });
-    // デバウンス: 連打中は送らず、止まってから最終値だけ送る。
-    if (maxSyncTimer) clearTimeout(maxSyncTimer);
-    const requested = n;
-    maxSyncTimer = setTimeout(() => {
-      maxSyncTimer = null;
-      void setMaxParticipants(planId, requested)
-        .then((info) => {
-          // stale なレスポンス破棄: 送った値が今も表示されている時だけ reconcile する。
-          // (例: 12→9 と動かした時、先に飛んだ 12 の応答が遅れて来ても 9 を 12 に戻さない)
-          if (get().maxParticipants === requested) set({ maxParticipants: info.maxParticipants });
-        })
-        .catch(() => { /* 反映失敗時は楽観値のまま(次の操作で再送される) */ });
-    }, MAX_SYNC_DEBOUNCE_MS);
+  setMax: async (planId, n) => {
+    const info = await setMaxParticipants(planId, n);
+    set({ maxParticipants: info.maxParticipants });
+    // #6 と同じ理由: plan 側にも書き戻す(でないとリロード後に古い値で上書き表示される)。
+    const { usePlanStore } = await import('./usePlanStore');
+    usePlanStore.getState().updatePlan(planId, { collabMaxParticipants: info.maxParticipants });
   },
 
   revoke: async (planId) => {
@@ -116,9 +102,12 @@ export const useCollabSessionStore = create<CollabSessionState>((set, get) => ({
     // 非同期の間に別プランへ移っていたら張り直さない(現在表示プラン束縛)。
     const { usePlanStore } = await import('./usePlanStore');
     if (usePlanStore.getState().currentPlanId !== planId) return;
-    const session = startCollabSession(info.roomToken);
-    // #6: 新トークン + 引き継いだ上限をローカル plan へ(再発行で 8 に戻さない・次回リロード用)。
+    // #6 + データ安全(2026-08-07監査④): 新トークン + 引き継いだ上限をローカル plan へ
+    // *先に* 反映してから接続する(start() と同じ順序)。reseed の信頼確認
+    // (collabProvider.canTrustLocalDataForRoom)は接続時点の activeCollabRoomToken を見るため、
+    // 先に更新しないと自分自身の再発行を誤って「不一致」と判定してしまう。
     usePlanStore.getState().updatePlan(planId, { activeCollabRoomToken: info.roomToken, collabMaxParticipants: info.maxParticipants });
+    const session = startCollabSession(info.roomToken);
     set({ active: true, roomToken: info.roomToken, maxParticipants: info.maxParticipants, session, collabPlanId: planId });
   },
 

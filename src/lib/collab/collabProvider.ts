@@ -1,6 +1,7 @@
 import * as Y from 'yjs';
 import YProvider from 'y-partyserver/provider';
 import { useMitigationStore } from '../../store/useMitigationStore';
+import { usePlanStore } from '../../store/usePlanStore';
 import { getMitigationsFromStore } from '../../hooks/useSkillsData';
 import { appliedToYMap, readMitigations, indexOfMitigation, YJS_MITIGATIONS_KEY } from './yjsMitigations';
 import {
@@ -10,7 +11,7 @@ import {
   recordToYMap, buildArrByKey, applyBatch, metaKeyForField,
 } from './yjsPlanData';
 import { dedupeById } from './dedupeById';
-import { fieldsNeedingReseed, RESEED_FIELDS } from './collabReseed';
+import { fieldsNeedingReseed, RESEED_FIELDS, canTrustLocalDataForRoom } from './collabReseed';
 import { classifyRecord, computeProgressPercent, newlyAddedRemotePoint } from '../progressLogic';
 import { useProgressRecording } from '../../components/progress/useProgressRecording';
 import type { AppliedMitigation, TimelineEvent, Phase, Label, PlanMemo, PartyMember, ProgressPoint } from '../../types';
@@ -162,7 +163,7 @@ function reseedEmptyDocFields(
  */
 export function applyRoomToStore(
   doc: Y.Doc,
-  opts: { readOnly: boolean; handlers: CollabHandlers; onContentId?: (id: string | undefined) => void; onOwnerLabel?: (label: string | undefined) => void },
+  opts: { readOnly: boolean; roomToken: string; handlers: CollabHandlers; onContentId?: (id: string | undefined) => void; onOwnerLabel?: (label: string | undefined) => void },
 ): void {
   if (!opts.readOnly) {
     const store = useMitigationStore.getState();
@@ -173,7 +174,26 @@ export function applyRoomToStore(
     // データ破壊の真因で、旧実装は「丸ごと空」しか守れていなかった)。applyUpsert = id 一致は部分
     // 更新・新規のみ push = 列増殖しない。再シード後は doc が手元と一致するので、下の apply-all を
     // 空が潰すことはない(早期 return 不要)。サーバ側 emptyOverwriteSkips と対の多重防御。
-    reseedEmptyDocFields(doc, store);
+    // 2026-08-07データ安全監査: 上記は「手元データ=このプランのもの」という前提を無条件に
+    // 信頼していたため、無関係なプランのデータが他人の部屋へ混入する経路があった。接続直前に
+    // 持ち主を確認し、一致するときだけ再シードする(不一致でも enterCollabMode 自体は続行し、
+    // 直後の apply-all で部屋の真のデータが手元に反映されるので共同編集は問題なく始まる)。
+    const trusted = canTrustLocalDataForRoom({
+      loadedPlanId: store._loadedPlanId,
+      roomToken: opts.roomToken,
+      plans: usePlanStore.getState().plans,
+    });
+    if (trusted) {
+      reseedEmptyDocFields(doc, store);
+    } else {
+      // 通常の参加者接続(他人の部屋へゲスト参加)では毎回不一致になるのが正常なため、
+      // 本番コンソールを汚さないよう dev のみ警告する(2026-08-07監査 最終レビュー指摘)。
+      if (import.meta.env.DEV) {
+        console.warn('[LoPo][collab] 手元データの持ち主が接続先の部屋と一致しないため、空上書き防御をスキップしました', {
+          loadedPlanId: store._loadedPlanId, roomToken: opts.roomToken,
+        });
+      }
+    }
   }
   const s = useMitigationStore.getState();
   s._applyMitigationsFromCollab(readMitigations(doc));
@@ -446,7 +466,7 @@ export function startCollabSession(
     if (!isSynced || entered) return;
     entered = true;
     // ②-b-1/②-b-2 の全要素初期反映 + ⑤-3b の readOnly 分岐 + contentId seed 取得を 1 箇所に集約。
-    applyRoomToStore(doc, { readOnly, handlers, onContentId: opts.onContentId, onOwnerLabel: opts.onOwnerLabel });
+    applyRoomToStore(doc, { readOnly, roomToken, handlers, onContentId: opts.onContentId, onOwnerLabel: opts.onOwnerLabel });
     planUndo.clear(); // ②-c データ安全: 初期同期/reseed(空上書き防御の復元)は undo 対象外にする(参加前の状態は戻せない=Ctrl+Z で復元データを消さない)
     refreshCount(); // #3d: 接続確立時に確実な人数を 1 回取得。
     // ①: 初回 /count は他者の接続/presence 伝播より早いことがある。少し置いて 2 回だけ再チェックし、

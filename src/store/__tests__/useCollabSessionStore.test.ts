@@ -50,21 +50,32 @@ describe('useCollabSessionStore', () => {
     expect(s.session).toBe(sess);
   });
 
-  it('setMax: 楽観的更新は即時・API はデバウンス後に送信', async () => {
-    vi.useFakeTimers();
-    try {
-      useCollabSessionStore.setState({ active: true, roomToken: 'tok', maxParticipants: 8, session: fakeSession() });
-      mk(setMaxParticipants).mockResolvedValue({ roomToken: 'tok', maxParticipants: 12, revoked: false });
+  it('setMax: API を呼び、成功したら store と plan 側の両方を更新する', async () => {
+    useCollabSessionStore.setState({ active: true, roomToken: 'tok', maxParticipants: 8, session: fakeSession() });
+    usePlanStore.setState({
+      currentPlanId: 'plan1',
+      plans: [{
+        id: 'plan1', ownerId: 'uid1', ownerDisplayName: 'Owner', title: 'p',
+        contentId: null, isPublic: false, copyCount: 0, useCount: 0,
+        data: { timelineEvents: [], timelineMitigations: [], phases: [], partyMembers: [], labels: [], memos: [] },
+        createdAt: 0, updatedAt: 0, collabMaxParticipants: 8,
+      }],
+    } as any);
+    mk(setMaxParticipants).mockResolvedValue({ roomToken: 'tok', maxParticipants: 12, revoked: false });
 
-      useCollabSessionStore.getState().setMax('plan1', 12);
-      // 楽観的更新: 表示は即時に 12。
-      expect(useCollabSessionStore.getState().maxParticipants).toBe(12);
-      // デバウンス(400ms)後に API へ最終値を送る。
-      await vi.advanceTimersByTimeAsync(400);
-      expect(setMaxParticipants).toHaveBeenCalledWith('plan1', 12);
-    } finally {
-      vi.useRealTimers();
-    }
+    await useCollabSessionStore.getState().setMax('plan1', 12);
+
+    expect(setMaxParticipants).toHaveBeenCalledWith('plan1', 12);
+    expect(useCollabSessionStore.getState().maxParticipants).toBe(12);
+    expect(usePlanStore.getState().plans.find((p) => p.id === 'plan1')?.collabMaxParticipants).toBe(12);
+  });
+
+  it('setMax: API 失敗時は store を書き換えず例外を投げる', async () => {
+    useCollabSessionStore.setState({ active: true, roomToken: 'tok', maxParticipants: 8, session: fakeSession() });
+    mk(setMaxParticipants).mockRejectedValue(new Error('network'));
+
+    await expect(useCollabSessionStore.getState().setMax('plan1', 12)).rejects.toThrow('network');
+    expect(useCollabSessionStore.getState().maxParticipants).toBe(8);
   });
 
   it('revoke: revokeRoom→session.disconnect→active=false でクリア', async () => {
@@ -158,5 +169,28 @@ describe('useCollabSessionStore', () => {
     expect(s.roomToken).toBe('new');
     expect(s.session).toBe(newSess);
     expect(s.active).toBe(true);
+  });
+
+  it('reissue: startCollabSession が呼ばれる時点で、既に新トークンが plan 側に反映されている(順序の回帰防止・データ安全監査④)', async () => {
+    useCollabSessionStore.setState({ active: true, roomToken: 'old', maxParticipants: 8, session: fakeSession() });
+    mk(reissueRoom).mockResolvedValue({ roomToken: 'new', maxParticipants: 8, revoked: false });
+    usePlanStore.setState({
+      currentPlanId: 'plan1',
+      plans: [{
+        id: 'plan1', ownerId: 'uid1', ownerDisplayName: 'Owner', title: 'p',
+        contentId: null, isPublic: false, copyCount: 0, useCount: 0,
+        data: { timelineEvents: [], timelineMitigations: [], phases: [], partyMembers: [], labels: [], memos: [] },
+        createdAt: 0, updatedAt: 0, activeCollabRoomToken: 'old',
+      }],
+    } as any);
+    let tokenAtConnectTime: string | undefined;
+    mk(startCollabSession).mockImplementation(() => {
+      tokenAtConnectTime = usePlanStore.getState().plans.find((p) => p.id === 'plan1')?.activeCollabRoomToken;
+      return fakeSession();
+    });
+
+    await useCollabSessionStore.getState().reissue('plan1');
+
+    expect(tokenAtConnectTime).toBe('new'); // 接続の瞬間には、既に新トークンへ更新済み
   });
 });

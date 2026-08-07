@@ -9,7 +9,7 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, type Transaction } from 'firebase-admin/firestore';
 import { nanoid } from 'nanoid';
-import { parseRoomManageRequest } from './_roomManageLogic.js';
+import { parseRoomManageRequest, resolveRoomOwner, type RoomOwnerDoc } from './_roomManageLogic.js';
 import { clampMaxParticipants, isCollabDisabled } from './_roomLogic.js';
 import { destroyRoomBinary, liveUpdateRoomMax } from './_roomDestroy.js';
 
@@ -68,9 +68,18 @@ export default async function handler(req: any, res: any) {
   // @vercel/node の strictNullChecks-off ビルドでは効かないため。`in` 演算子の narrow は strict 非依存)。
   if ('error' in parsed) return res.status(400).json({ error: parsed.error });
   const reqData = parsed.req;
-  const planId = reqData.planId;
 
   const db = getAdminFirestore();
+
+  // check-owner: roomToken ベースの所有者判定(planId 不要・Firestore トランザクション不要・読み取りのみ)。
+  // 共有リンクをオーナー本人が踏んだときの自動リダイレクト判定に使う。
+  if (reqData.action === 'check-owner') {
+    const roomSnap = await db.collection('collabRooms').doc(reqData.roomToken).get();
+    const room = roomSnap.exists ? (roomSnap.data() as RoomOwnerDoc) : null;
+    return res.status(200).json(resolveRoomOwner(room, uid));
+  }
+
+  const planId = reqData.planId;
   const planRef = db.collection('plans').doc(planId);
 
   // トークンはトランザクション外で先に確定(リトライ非依存・冪等)。

@@ -45,4 +45,11 @@ describe('useMitigationStore._loadedPlanId (作業ストアの持ち主追跡)',
     useMitigationStore.getState().resetForTutorial();
     expect(useMitigationStore.getState()._loadedPlanId).toBeNull();
   });
+
+  it('_loadedPlanId は partialize(永続化対象)に含まれる(再読込をまたいで持ち歩くため)', () => {
+    useMitigationStore.setState({ _loadedPlanId: 'plan-X' });
+    const partialize = useMitigationStore.persist.getOptions().partialize;
+    const persisted = partialize ? partialize(useMitigationStore.getState()) : {};
+    expect((persisted as { _loadedPlanId?: string | null })._loadedPlanId).toBe('plan-X');
+  });
 });

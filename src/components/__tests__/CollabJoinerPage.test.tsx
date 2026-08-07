@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { joinerView, computeCanEdit, rehydrateThenClearReadonly } from "../CollabJoinerPage";
+import { joinerView, computeCanEdit, rehydrateThenClearReadonly, shouldRedirectToOwnerEditor, canOpenOwnerEditor } from "../CollabJoinerPage";
 
 describe("joinerView(状態 → 表示種別)", () => {
   it("未同期は connecting", () => {
@@ -62,5 +62,58 @@ describe("rehydrateThenClearReadonly", () => {
       () => order.push("clear"),
     );
     expect(order).toEqual(["rehydrate", "clear"]);
+  });
+});
+
+describe("shouldRedirectToOwnerEditor(オーナー判別結果 → リダイレクト要否)", () => {
+  it("isOwner:true かつ planId があれば redirect:true", () => {
+    expect(shouldRedirectToOwnerEditor({ isOwner: true, planId: "plan1" }))
+      .toEqual({ redirect: true, planId: "plan1" });
+  });
+  it("isOwner:false は redirect:false", () => {
+    expect(shouldRedirectToOwnerEditor({ isOwner: false })).toEqual({ redirect: false });
+  });
+  it("isOwner:true でも planId が無ければ redirect:false(安全側)", () => {
+    expect(shouldRedirectToOwnerEditor({ isOwner: true })).toEqual({ redirect: false });
+  });
+  it("result が null(判別未完了/失敗)は redirect:false", () => {
+    expect(shouldRedirectToOwnerEditor(null)).toEqual({ redirect: false });
+  });
+});
+
+// ⑤-4 データ安全ガード。オーナー本人と判別できても、編集画面へ送ってよいのは
+// 「プラン切替もデータロードも不要 = 作業ストアが既にそのプランを載せている」かつ
+// 「Layout の自動接続(reconcileCollabForPlan)がまさにこの部屋へ繋ぎ直せる」ときだけ。
+// 緩めると、別プランの内容が対象プランや**部屋そのもの**へ流れ込む(空上書き防御の再シード)。
+describe("canOpenOwnerEditor(編集画面へ送ってよいか)", () => {
+  const base = {
+    planId: "plan1",
+    roomToken: "tok7Qk2",
+    currentPlanId: "plan1",
+    uid: "uid-me",
+    plan: { ownerId: "uid-me", activeCollabRoomToken: "tok7Qk2" },
+  };
+
+  it("現在のプラン = その部屋のプランで、自分が持ち主なら true", () => {
+    expect(canOpenOwnerEditor(base)).toBe(true);
+  });
+
+  it("ローカルにそのプランが無ければ false(作業ストアの中身が別プランのまま紐付く事故を防ぐ)", () => {
+    expect(canOpenOwnerEditor({ ...base, plan: undefined })).toBe(false);
+  });
+
+  it("いま別のプランを開いている(プラン切替が必要)なら false", () => {
+    expect(canOpenOwnerEditor({ ...base, currentPlanId: "plan2" })).toBe(false);
+    expect(canOpenOwnerEditor({ ...base, currentPlanId: null })).toBe(false);
+  });
+
+  it("ローカル plan のルームトークンがこの部屋と違う(失効/再発行で古い)なら false", () => {
+    expect(canOpenOwnerEditor({ ...base, plan: { ownerId: "uid-me", activeCollabRoomToken: "old" } })).toBe(false);
+    expect(canOpenOwnerEditor({ ...base, plan: { ownerId: "uid-me" } })).toBe(false); // collab OFF
+  });
+
+  it("ローカル plan の持ち主が自分でない(=Layout の isOwner が立たない)なら false", () => {
+    expect(canOpenOwnerEditor({ ...base, plan: { ownerId: "uid-other", activeCollabRoomToken: "tok7Qk2" } })).toBe(false);
+    expect(canOpenOwnerEditor({ ...base, uid: null })).toBe(false);
   });
 });

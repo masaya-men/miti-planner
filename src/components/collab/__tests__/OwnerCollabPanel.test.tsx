@@ -1,11 +1,14 @@
 // @vitest-environment happy-dom
 // src/components/collab/__tests__/OwnerCollabPanel.test.tsx
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { OwnerCollabPanel } from '../OwnerCollabPanel';
 import { useCollabSessionStore } from '../../../store/useCollabSessionStore';
 import { useCollabPresenceStore } from '../../../store/useCollabPresenceStore';
 import type { RosterEntry } from '../../../lib/collab/presence';
+
+const showToast = vi.hoisted(() => vi.fn());
+vi.mock('../../Toast', () => ({ showToast }));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -15,6 +18,7 @@ vi.mock('react-i18next', () => ({
 }));
 
 beforeEach(() => {
+  showToast.mockClear();
   useCollabSessionStore.setState({
     active: true, roomToken: 'tok7Qk2', maxParticipants: 8, session: null,
     start: vi.fn(), setMax: vi.fn(), revoke: vi.fn(), reissue: vi.fn(),
@@ -36,12 +40,58 @@ describe('OwnerCollabPanel', () => {
     expect(screen.getByText('8')).toBeInTheDocument();
   });
 
-  it('＋/− で setMax を呼ぶ(1..20 クランプ)', () => {
-    const setMax = vi.fn();
+  it('＋/− は仮の値だけを変える。確定ボタンを押すまで setMax は呼ばれない', () => {
+    const setMax = vi.fn().mockResolvedValue(undefined);
     useCollabSessionStore.setState({ setMax } as any);
     render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
     fireEvent.click(screen.getByLabelText('inc-people'));
-    expect(setMax).toHaveBeenCalledWith('plan1', 9);
+    expect(setMax).not.toHaveBeenCalled();
+    expect(screen.getByText('9')).toBeInTheDocument();
+  });
+
+  it('変更していない間は確定ボタンが出ない', () => {
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    expect(screen.queryByText(/collab.confirm_max/)).not.toBeInTheDocument();
+  });
+
+  it('仮の値を変えると確定ボタンが出る。押すと setMax(planId, 仮の値) を呼び、成功後はボタンが消える', async () => {
+    const setMax = vi.fn().mockImplementation(async (_planId: string, n: number) => {
+      useCollabSessionStore.setState({ maxParticipants: n });
+    });
+    useCollabSessionStore.setState({ setMax } as any);
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    fireEvent.click(screen.getByLabelText('inc-people'));
+    const confirmBtn = screen.getByText('collab.confirm_max:9');
+    fireEvent.click(confirmBtn);
+    await waitFor(() => expect(setMax).toHaveBeenCalledWith('plan1', 9));
+    await waitFor(() => expect(screen.queryByText(/collab.confirm_max/)).not.toBeInTheDocument());
+  });
+
+  it('確定に失敗したら「失敗」トースト(type=error)を出す。成功トースト(既定)にしない', async () => {
+    const setMax = vi.fn().mockRejectedValue(new Error('network'));
+    useCollabSessionStore.setState({ setMax } as any);
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    fireEvent.click(screen.getByLabelText('inc-people'));
+    fireEvent.click(screen.getByText('collab.confirm_max:9'));
+    await waitFor(() => expect(showToast).toHaveBeenCalledWith('collab.error_generic', 'error'));
+    // 失敗なので確定ボタンは残る(未送信の変更が消えない)
+    expect(screen.getByText('collab.confirm_max:9')).toBeInTheDocument();
+  });
+
+  it('確定API応答待ち中は+/-ボタンを無効化し、未送信の変更が無言で消えるのを防ぐ', async () => {
+    let resolveSetMax: (() => void) | undefined;
+    const setMax = vi.fn().mockImplementation(() => new Promise<void>((resolve) => {
+      resolveSetMax = () => resolve();
+    }));
+    useCollabSessionStore.setState({ setMax } as any);
+    render(<OwnerCollabPanel planId="plan1" onClose={() => {}} />);
+    fireEvent.click(screen.getByLabelText('inc-people'));
+    fireEvent.click(screen.getByText('collab.confirm_max:9'));
+    await waitFor(() => expect(setMax).toHaveBeenCalledWith('plan1', 9));
+    expect(screen.getByLabelText('inc-people')).toBeDisabled();
+    expect(screen.getByLabelText('dec-people')).toBeDisabled();
+    resolveSetMax?.();
+    await waitFor(() => expect(screen.getByLabelText('inc-people')).not.toBeDisabled());
   });
 
   it('OFFボタンは即 revoke せず確認モーダルを挟む→確認で revoke', () => {

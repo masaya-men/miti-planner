@@ -3,20 +3,39 @@
 // ここは「リクエスト body が正しい形か」だけを決定的に判定する(③/⑤-1 と同じ純関数分離方針)。
 
 /** ルーム管理アクション。create=発行(冪等) / revoke=失効 / reissue=再発行 / set-max=上限変更。 */
-export type RoomAction = 'create' | 'revoke' | 'reissue' | 'set-max';
+export type RoomAction = 'create' | 'revoke' | 'reissue' | 'set-max' | 'check-owner';
 
 /** 受理可能なアクション一覧(検証と一覧表示の単一の真実)。 */
-export const ROOM_ACTIONS: RoomAction[] = ['create', 'revoke', 'reissue', 'set-max'];
+export const ROOM_ACTIONS: RoomAction[] = ['create', 'revoke', 'reissue', 'set-max', 'check-owner'];
 
 export type RoomManageRequest =
   | { action: 'create'; planId: string; maxParticipants?: number; label?: string }
   | { action: 'revoke'; planId: string }
   | { action: 'reissue'; planId: string; label?: string }
-  | { action: 'set-max'; planId: string; maxParticipants: number };
+  | { action: 'set-max'; planId: string; maxParticipants: number }
+  | { action: 'check-owner'; roomToken: string };
 
 export type ParseResult =
   | { ok: true; req: RoomManageRequest }
-  | { ok: false; error: 'invalid_body' | 'invalid_action' | 'invalid_planId' | 'invalid_maxParticipants' | 'invalid_label' };
+  | { ok: false; error: 'invalid_body' | 'invalid_action' | 'invalid_planId' | 'invalid_maxParticipants' | 'invalid_label' | 'invalid_roomToken' };
+
+/** roomToken に紐づく共同編集ルームの所有者判定に使う最小限のドキュメント形。 */
+export interface RoomOwnerDoc {
+  ownerId?: string;
+  planId?: string;
+}
+
+/** 結果: サーバーが認証済みuidと照合した本人判定。 */
+export interface OwnerCheckResult {
+  isOwner: boolean;
+  planId?: string;
+}
+
+/** collabRooms/{roomToken} のドキュメント(存在しなければ null)と uid から本人判定を行う純関数。 */
+export function resolveRoomOwner(room: RoomOwnerDoc | null, uid: string): OwnerCheckResult {
+  if (!room || room.ownerId !== uid) return { isOwner: false };
+  return { isOwner: true, planId: room.planId };
+}
 
 /** リクエスト body を RoomManageRequest に検証する。不正は理由付きで弾く。 */
 export function parseRoomManageRequest(body: unknown): ParseResult {
@@ -27,6 +46,16 @@ export function parseRoomManageRequest(body: unknown): ParseResult {
   if (typeof action !== 'string' || !ROOM_ACTIONS.includes(action as RoomAction)) {
     return { ok: false, error: 'invalid_action' };
   }
+
+  // check-owner だけ roomToken ベース(planId 不要)。他の4アクションより前に分岐する。
+  if (action === 'check-owner') {
+    const roomToken = b.roomToken;
+    if (typeof roomToken !== 'string' || roomToken.length === 0) {
+      return { ok: false, error: 'invalid_roomToken' };
+    }
+    return { ok: true, req: { action: 'check-owner', roomToken } };
+  }
+
   const planId = b.planId;
   if (typeof planId !== 'string' || planId.length === 0) {
     return { ok: false, error: 'invalid_planId' };

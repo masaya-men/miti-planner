@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../apiClient', () => ({ apiFetch: vi.fn() }));
 import { apiFetch } from '../../apiClient';
-import { createRoom, setMaxParticipants, revokeRoom, reissueRoom } from '../collabRoomApi';
+import { createRoom, setMaxParticipants, revokeRoom, reissueRoom, checkOwner } from '../collabRoomApi';
 
 const mockApi = apiFetch as unknown as ReturnType<typeof vi.fn>;
 const ok = (body: unknown) => ({ ok: true, status: 200, json: async () => body });
@@ -60,5 +60,20 @@ describe('collabRoomApi', () => {
   it('非2xx は CollabRoomError を投げる(エラーコード付き)', async () => {
     mockApi.mockResolvedValue({ ok: false, status: 403, json: async () => ({ error: 'forbidden' }) });
     await expect(createRoom('plan1')).rejects.toMatchObject({ code: 'forbidden', status: 403 });
+  });
+
+  it('checkOwner は action=check-owner を roomToken で POST する', async () => {
+    mockApi.mockResolvedValue(ok({ isOwner: true, planId: 'plan1' }));
+    const r = await checkOwner('tok123');
+    expect(mockApi).toHaveBeenCalledWith('/api/collab/room', expect.objectContaining({
+      body: JSON.stringify({ action: 'check-owner', roomToken: 'tok123' }),
+    }));
+    expect(r).toEqual({ isOwner: true, planId: 'plan1' });
+  });
+
+  it('checkOwner は isOwner:false もそのまま返す', async () => {
+    mockApi.mockResolvedValue(ok({ isOwner: false }));
+    const r = await checkOwner('tok123');
+    expect(r).toEqual({ isOwner: false });
   });
 });
