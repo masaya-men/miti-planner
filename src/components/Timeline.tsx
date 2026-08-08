@@ -42,6 +42,7 @@ import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
 import { isLivingDeadStyle, maxHpForEffectiveTarget, resolveLivingDeadSurvival, type LivingDeadInstance } from '../utils/livingDead';
 import { resolveMitigationTap } from '../utils/mitigationTapResolver';
+import { isRecitationCritEligible, resolveSeraphismMitigation } from '../utils/scholarShieldRules';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -2110,24 +2111,26 @@ const Timeline: React.FC = () => {
 
                     // 消費型バフチェック: バリアスキルに対して最初の1回のみ適用
                     if (def.isShield) {
-                        // 秘策 (SCH): 確定クリティカル ×1.6
-                        const activeRecitation = buffsAtCast.find(b =>
-                            b.mitigationId === 'recitation' && b.ownerId === appMit.ownerId
-                        );
+                        // 秘策 (SCH): 確定クリティカル ×1.6。公式仕様では鼓舞激励の策/意気軒高の策
+                        // (旧:士気高揚の策)のみが対象。マニフェステーション/アクセッション/
+                        // コンソレイションは対象外(isRecitationCritEligible で絞り込み済み)。
+                        const activeRecitation = isRecitationCritEligible(def.id)
+                            ? buffsAtCast.find(b => b.mitigationId === 'recitation' && b.ownerId === appMit.ownerId)
+                            : undefined;
                         if (activeRecitation) {
                             const earlierShieldConsumes = timelineMitigations.some(m =>
                                 m.id !== appMit.id &&
                                 m.ownerId === appMit.ownerId &&
                                 m.time >= activeRecitation.time &&
                                 m.time < appMit.time &&
-                                MITIGATIONS.find(d => d.id === m.mitigationId)?.isShield
+                                isRecitationCritEligible(m.mitigationId)
                             );
                             if (!earlierShieldConsumes) {
                                 critMultiplier = CRIT_MULTIPLIER;
                             }
                         }
 
-                        // ゾーエ (SGE): 次の回復魔法 ×1.5
+                        // ゾーエ (SGE): 次の回復魔法 ×1.5 (公式仕様上「次の回復魔法」全般が対象のため id 制限なし)
                         const activeZoe = buffsAtCast.find(b =>
                             b.mitigationId === 'zoe' && b.ownerId === appMit.ownerId
                         );
@@ -3796,6 +3799,7 @@ const Timeline: React.FC = () => {
                                 {sortedPartyMembers.map(member => {
                                     const job = JOBS.find(j => j.id === member.jobId);
                                     if (!job) return null;
+                                    const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
                                     const mitis = MITIGATIONS
                                         .filter(m =>
                                             m.jobId === job.id
@@ -3803,9 +3807,11 @@ const Timeline: React.FC = () => {
                                             && (!m.minLevel || m.minLevel <= currentLevel)
                                             && (!m.maxLevel || m.maxLevel >= currentLevel)
                                         )
-                                        .sort((a, b) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
+                                        // ソートは「すり替え前」の id で行う(PC版と同じ理由: セラフィズムの
+                                        // 発動/終了のたびに一覧内の表示位置が飛ぶのを防ぐ)
+                                        .sort((a, b) => getMitigationPriority(a.id) - getMitigationPriority(b.id))
+                                        .map(m => resolveSeraphismMitigation(m, mobileMitiFlow.time, memberMitis, MITIGATIONS));
                                     if (mitis.length === 0) return null;
-                                    const memberMitis = timelineMitigations.filter(m => m.ownerId === member.id);
 
                                     return (
                                         <section key={member.id}>

@@ -57,4 +57,10 @@ describe('resolveMitigationTap', () => {
         expect(resolveMitigationTap(mit({ copiesShield: 'adloquium' }), 100, shields))
             .toEqual({ kind: 'selectShield', shields: [] });
     });
+
+    it('copiesShield=adloquium はマニフェステーションのバリアも候補に含める', () => {
+        const shields = [applied({ id: 'sh1', mitigationId: 'manifestation', time: 90, duration: 30 })];
+        const r = resolveMitigationTap(mit({ copiesShield: 'adloquium' }), 100, shields);
+        expect(r).toEqual({ kind: 'place', linkedMitigationId: 'sh1' });
+    });
 });

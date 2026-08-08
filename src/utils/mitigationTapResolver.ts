@@ -1,4 +1,5 @@
 import type { Mitigation, AppliedMitigation } from '../types';
+import { matchesCopiesShieldSource } from './scholarShieldRules';
 
 /**
  * 軽減スキルをタップ/クリックしたときに「即配置」か「対象選択が必要」か「鼓舞選択が必要」かを判定する純粋関数。
@@ -22,7 +23,7 @@ export function resolveMitigationTap(
 ): MitigationTapResolution {
     if (mit.copiesShield) {
         const shields = timelineMitigations.filter(l =>
-            l.mitigationId === mit.copiesShield &&
+            matchesCopiesShieldSource(l.mitigationId, mit.copiesShield!) &&
             l.time <= time &&
             l.time + l.duration > time
         );
