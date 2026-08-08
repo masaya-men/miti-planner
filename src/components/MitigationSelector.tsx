@@ -7,6 +7,7 @@ import type { Mitigation, AppliedMitigation, PartyMember } from '../types';
 import { getPhaseName } from '../types';
 import { useThemeStore } from '../store/useThemeStore';
 import { validateMitigationPlacement } from '../utils/resourceTracker';
+import { resolveSeraphismMitigation, matchesCopiesShieldSource } from '../utils/scholarShieldRules';
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useTutorialStore } from '../store/useTutorialStore';
 import { useEscapeClose } from '../hooks/useEscapeClose';
@@ -136,6 +137,12 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         selectedTime < am.time + am.duration
     );
 
+    const isSeraphismActive = jobId === 'sch' && activeMitigations.some(am =>
+        am.mitigationId === 'seraphism' &&
+        selectedTime >= am.time &&
+        selectedTime < am.time + am.duration
+    );
+
     const availableMitigations = allJobMitigations
         .filter((m: Mitigation) => {
             // Level sync filtering
@@ -178,8 +185,17 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 return am.mitigationId === m.requires;
             });
         })
+        // ソートは「すり替え前」の id で行う。すり替え後の id でソートすると、セラフィズムの
+        // 発動/終了のたびに一覧内の表示位置が飛んでしまうため。
+        .sort((a: Mitigation, b: Mitigation) => getMitigationPriority(a.id) - getMitigationPriority(b.id))
         .map((m: Mitigation) => {
-            // Scholar Seraph dynamic changes
+            // セラフィズム中: 鼓舞激励の策→マニフェステーション、意気軒高の策→アクセッション
+            const seraphismResolved = isSeraphismActive
+                ? resolveSeraphismMitigation(m, selectedTime, activeMitigations, MITIGATIONS)
+                : m;
+            if (seraphismResolved !== m) return seraphismResolved;
+
+            // Scholar Seraph dynamic changes (サモン・セラフィム中の名称のみ変更)
             if (isSeraphActive) {
                 if (m.id === 'whispering_dawn') {
                     return { ...m, name: { ...m.name, ja: '光輝の囁き', en: 'Angel\'s Whisper' }, icon: '/icons/Angel\'s_Whisper.png' };
@@ -189,8 +205,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                 }
             }
             return m;
-        })
-        .sort((a: Mitigation, b: Mitigation) => getMitigationPriority(a.id) - getMitigationPriority(b.id));
+        });
 
     const handleMitigationClick = (mitigation: Mitigation) => {
         const existingInstance = activeMitigations.find(am => am.mitigationId === mitigation.id && am.time === selectedTime);
@@ -202,7 +217,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
         // copiesShield: 展開戦術 → 有効な鼓舞を検索してUI分岐
         if (mitigation.copiesShield) {
             const availableShields = timelineMitigations.filter(l =>
-                l.mitigationId === mitigation.copiesShield &&
+                matchesCopiesShieldSource(l.mitigationId, mitigation.copiesShield!) &&
                 l.time <= selectedTime &&
                 l.time + l.duration > selectedTime
             );
@@ -492,7 +507,7 @@ export const MitigationSelector: React.FC<MitigationSelectorProps> = ({
                                     {/* copiesShield: 鼓舞選択パネル */}
                                     {selectedCopyShieldMit?.id === mitigation.id && (() => {
                                         const availableShields = timelineMitigations.filter(l =>
-                                            l.mitigationId === mitigation.copiesShield &&
+                                            matchesCopiesShieldSource(l.mitigationId, mitigation.copiesShield!) &&
                                             l.time <= selectedTime &&
                                             l.time + l.duration > selectedTime
                                         );
