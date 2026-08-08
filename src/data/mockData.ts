@@ -328,11 +328,11 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Scholar ---
     {
         id: "accession", jobId: "sch", name: { ja: "アクセッション", en: "Accession", zh: "降临之章", ko: "강림" }, icon: "/icons/Accession.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 432, requires: "seraphism", minLevel: 100, family: "healer_gcd_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 432, requires: "seraphism", minLevel: 100, family: "healer_gcd_shield", hidden: true
     },
     {
         id: "manifestation", jobId: "sch", name: { ja: "マニフェステーション", en: "Manifestation", zh: "显灵之章", ko: "현시" }, icon: "/icons/Manifestation.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 648, scope: "target", requires: "seraphism", minLevel: 100, family: "healer_gcd_target_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 648, scope: "target", requires: "seraphism", minLevel: 100, family: "healer_gcd_target_shield", hidden: true
     },
     {
         id: "concitation", jobId: "sch", name: { ja: "意気軒高の策", en: "Concitation", zh: "意气轩昂之策", ko: "의기왕성책" }, icon: "/icons/Concitation.png",
