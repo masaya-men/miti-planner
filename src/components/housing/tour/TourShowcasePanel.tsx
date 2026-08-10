@@ -71,7 +71,10 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
     <div className="housing-tour-dest">
       {listing && (
         <div className="housing-tour-dest-card">
-          <TourLivingMedia listing={listing} />
+          {/* お気に入りハートは現在地の大カードだけに出す(ユーザー要望)。一時追加(住所登録なし)は
+              お気に入りページ側の一覧に存在しない id なので、favIds に永久に残る孤児エントリを
+              作らないよう対象から外す。 */}
+          <TourLivingMedia listing={listing} showFavorite={!isEphemeralListingId(listing.id)} />
 
           {/* 登録者がハウジンガーページを公開しているときだけ、写真の直下に小アイコン+名前を出す
               (公開なしなら HousingerByline 自身が null を返し何も描画されない)。

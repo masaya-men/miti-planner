@@ -5,10 +5,13 @@ import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackCont
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
+import { HousingFavHeart } from '../browse/HousingFavHeart';
 
 export interface TourLivingMediaProps {
   listing: MockListing;
   className?: string;
+  /** true のとき右上にお気に入りハートを重ねる(ツアー現在地の大カードのみ想定・次の目的地の小サムネには渡さない)。 */
+  showFavorite?: boolean;
 }
 
 /**
@@ -16,7 +19,7 @@ export interface TourLivingMediaProps {
  * ツアー左パネルの現在カード(大)と次の目的地カード(小)で共用する。
  * 再生制御は HousingPlaybackProvider(cap1) 配下で行う想定。
  */
-export const TourLivingMedia: React.FC<TourLivingMediaProps> = ({ listing, className }) => {
+export const TourLivingMedia: React.FC<TourLivingMediaProps> = ({ listing, className, showFavorite }) => {
   const videoKind: 'twitter' | 'youtube' | null = listing.videoUrl
     ? 'twitter'
     : listing.youtubeVideoId
@@ -49,6 +52,7 @@ export const TourLivingMedia: React.FC<TourLivingMediaProps> = ({ listing, class
       {isPlaying && videoKind === 'youtube' && listing.youtubeVideoId && (
         <HousingCardVideoOverlay kind="youtube" youtubeVideoId={listing.youtubeVideoId} />
       )}
+      {showFavorite && <HousingFavHeart listingId={listing.id} />}
     </div>
   );
 };
