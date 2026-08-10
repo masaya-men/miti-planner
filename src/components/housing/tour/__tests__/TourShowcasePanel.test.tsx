@@ -23,6 +23,12 @@ import { consumeRegisterPrefill } from '../../../../lib/housing/registerPrefill'
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
 
+// HousingerByline は内部で Firestore getDoc を叩く(未モックだと実ネットワーク呼び出しが残留し
+// vmThreads プールが終了できずテストプロセスがハングする・HousingDetailContent.test.tsx と同じ対処)。
+vi.mock('../../housinger/HousingerByline', () => ({
+  HousingerByline: () => null,
+}));
+
 import { TourShowcasePanel } from '../TourShowcasePanel';
 
 // MOCK_LISTINGS は住所 (area/ward/dc/server/region) を必ず持つ完全なフィクスチャ。MockListing

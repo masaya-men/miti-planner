@@ -8216,6 +8216,19 @@ select.housing-input option {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* HousingerByline は詳細ページの広い横幅前提(width:fit-content)なので、
+   次の目的地の細い列では長い名前が列からはみ出す。この文脈だけ縮めて省略記号にする。 */
+.housing-tour-dest-next-info .housing-detail-byline {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+.housing-tour-dest-next-info .housing-detail-byline span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .housing-tour-dest-next .housing-tour-living-media {
   flex: 0 0 auto;
   width: 104px;

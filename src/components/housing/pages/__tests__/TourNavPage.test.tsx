@@ -35,6 +35,13 @@ vi.mock('../../../Toast', () => ({
   showToast: (...args: unknown[]) => showToastMock(...args),
 }));
 
+// HousingerByline(TourShowcasePanel 経由で描画される)は内部で Firestore getDoc を叩く。
+// 未モックだと実ネットワーク呼び出しが残留し vmThreads プールが終了できずハングする
+// (HousingDetailContent.test.tsx / TourShowcasePanel.test.tsx と同じ対処)。
+vi.mock('../../housinger/HousingerByline', () => ({
+  HousingerByline: () => null,
+}));
+
 import { TourNavPage } from '../TourNavPage';
 import { useIsMobile } from '../../../../hooks/useIsMobile';
 

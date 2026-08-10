@@ -11,6 +11,7 @@ import { canDisplayAddress, canDisplayFullAddress } from '../../../lib/housing/l
 import { saveRegisterPrefill, type RegisterPrefill } from '../../../lib/housing/registerPrefill';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { TourLivingMedia } from './TourLivingMedia';
+import { HousingerByline } from '../housinger/HousingerByline';
 
 export interface TourShowcasePanelProps {
   currentStep: TourStep | null;
@@ -70,6 +71,14 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
     <div className="housing-tour-dest">
       {listing && (
         <div className="housing-tour-dest-card">
+          <TourLivingMedia listing={listing} />
+
+          {/* 登録者がハウジンガーページを公開しているときだけ、写真の直下に小アイコン+名前を出す
+              (公開なしなら HousingerByline 自身が null を返し何も描画されない)。
+              一時追加(住所登録なし)は ownerUid が '__ephemeral__' 固定でプロフィールが存在し得ない
+              ため、無駄な Firestore 読み取りを避けてそもそも呼ばない。 */}
+          {!isEphemeralListingId(listing.id) && <HousingerByline ownerUid={listing.ownerUid} />}
+
           <div className="housing-tour-dest-title-row">
             <h2 className="housing-tour-dest-title">
               {listing.title?.trim()
@@ -81,8 +90,6 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
               <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>
             )}
           </div>
-
-          <TourLivingMedia listing={listing} />
 
           {/* 現在の目的地はどの鯖のどの家か一目で分かるよう、リージョン/DC/ワールド込みの完全住所を出す
               (N: DC込み完全住所)。次の目的地(下の小プレビュー)は幅が狭いため短縮住所のまま。 */}
@@ -118,6 +125,7 @@ export const TourShowcasePanel: React.FC<TourShowcasePanelProps> = ({
             <span className="housing-tour-dest-next-label">{t('housing.tour.nav.legend.next')}</span>
             <div className="housing-tour-dest-next-row">
               <div className="housing-tour-dest-next-info">
+                {!isEphemeralListingId(next.id) && <HousingerByline ownerUid={next.ownerUid} />}
                 <span className="housing-tour-dest-next-title">
                   {next.title?.trim()
                     || (canDisplayAddress(next)
