@@ -566,15 +566,15 @@ import { isRecitationCritEligible } from '../utils/scholarShieldRules';
                         }
 ```
 
-置き換え後:
+置き換え後(**注意**: ゾーエ判定は同じ `if (def.isShield)` ブロックの中に同居しているため、外側の条件に `isRecitationCritEligible` を混ぜてはいけない。ゾーエは公式仕様上「次の回復魔法」全般が対象のため、id制限は秘策側だけにかける):
 ```typescript
-                    if (def.isShield && isRecitationCritEligible(def.id)) {
+                    if (def.isShield) {
                         // 秘策 (SCH): 確定クリティカル ×1.6。公式仕様では鼓舞激励の策/意気軒高の策
                         // (旧:士気高揚の策)のみが対象。マニフェステーション/アクセッション/
                         // コンソレイションは対象外(isRecitationCritEligible で絞り込み済み)。
-                        const activeRecitation = buffsAtCast.find(b =>
-                            b.mitigationId === 'recitation' && b.ownerId === appMit.ownerId
-                        );
+                        const activeRecitation = isRecitationCritEligible(def.id)
+                            ? buffsAtCast.find(b => b.mitigationId === 'recitation' && b.ownerId === appMit.ownerId)
+                            : undefined;
                         if (activeRecitation) {
                             const earlierShieldConsumes = timelineMitigations.some(m =>
                                 m.id !== appMit.id &&
@@ -587,9 +587,13 @@ import { isRecitationCritEligible } from '../utils/scholarShieldRules';
                                 critMultiplier = CRIT_MULTIPLIER;
                             }
                         }
-```
 
-(この直後にある `if (def.isShield) { ... ゾーエ ... }` ブロックは触らない。ゾーエは公式仕様上「次の回復魔法」全般が対象のため、現状の広い判定のままで正しい。)
+                        // ゾーエ (SGE): 次の回復魔法 ×1.5 (公式仕様上「次の回復魔法」全般が対象のため id 制限なし)
+                        const activeZoe = buffsAtCast.find(b =>
+                            b.mitigationId === 'zoe' && b.ownerId === appMit.ownerId
+                        );
+                        // ...(ゾーエのブロックは変更なし、そのまま残す)
+```
 
 - [ ] **Step 6: スマホ選択パネルの一覧構築を修正**
 
@@ -653,29 +657,48 @@ git commit -m "feat(scholar): スマホ選択パネルへセラフィズム自�
 
 **Files:** なし(検証のみ)
 
-- [ ] **Step 1: フルテスト実行**
+- [x] **Step 1: フルテスト実行**
 
 Run: `npx vitest run`
 Expected: 既知の無関係failure(EphemeralAddPanel 7件、TopBar系、HousingWorkspace系 — [[feedback_vercel_tsc_strict]] 参照)以外はすべて PASS。今回変更したファイルに関するテストは全件 PASS。
+結果: 3878 passed / 7 failed(EphemeralAddPanel 7件のみ・既知の無関係failure)。
 
-- [ ] **Step 2: ビルド確認**
+- [x] **Step 2: ビルド確認**
 
 Run: `npm run build`
 Expected: エラー無しで成功
+結果: 成功。
 
-- [ ] **Step 3: playwright-skill で dev サーバー上の実機確認**
+- [x] **Step 2.5 (計画外で発覚・必須): Firestore(`master/skills`)への反映**
 
-以下を dev サーバー(`npm run dev`)上で確認する:
-1. パーティに学者(レベル100)を配置し、タイムラインに「セラフィズム」を配置する。
-2. セラフィズムの効果時間内(0〜20秒)の位置で軽減追加パネルを開き、「鼓舞激励の策」ボタンが「マニフェステーション」の名前・アイコンで表示されることを確認。
-3. クリックして対象を選択し配置 → タイムライン上にマニフェステーションとして配置されることを確認(アイコン・ツールチップ名で確認)。
-4. セラフィズムの効果時間外の位置では「鼓舞激励の策」のまま表示され、通常通り配置できることを確認。
-5. 選択パネルの一覧に「マニフェステーション」「アクセッション」が独立したボタンとして表示されていないことを確認。
-6. スマホ表示(`isMobileView`)でも同じ挙動になることを確認。
+`useMitigations()` は Firestore(`master/skills`)を正本として読み、mockData はフォールバックのみ([[reference_master_data_live_firestore]])。Task 2 で mockData.ts に足した `hidden: true` は **ローカル dev でも本番でも Firestore を再シードするまで反映されない**。実機確認で気づかず進めると、Firestore 側の accession/manifestation が `hidden` 無しのまま残り、セラフィズム変化後の「マニフェステーション」(adloquiumから変換)と、まだ非表示化されていないFirestore由来の「マニフェステーション」(元のmanifestation自身)が両方選択パネルに並び、React の重複key警告と実際の二重表示が起きることを実機確認で発見した。
 
-Expected: すべて仕様書 (`docs/superpowers/specs/2026-08-08-scholar-seraphism-transform-design.md`) 通り。
+対処: 外科的パッチスクリプト `scripts/patch-scholar-seraphism-hidden.ts` を新規作成(`add-applies-as-debuff.ts` と同じ「対象2件以外に触れていないか検証してから書き込む」パターン)。`accession`/`manifestation` の2 id だけに `hidden:true` を設定し、`master/config.dataVersion` を +1。
 
-- [ ] **Step 4: 問題があれば修正して該当タスクへ戻る。問題無ければ次タスクへ。**
+```bash
+npx tsx scripts/patch-scholar-seraphism-hidden.ts          # dry-run で対象2件のみであることを確認
+npx tsx scripts/patch-scholar-seraphism-hidden.ts --apply  # 適用
+```
+
+- [x] **Step 3: playwright-skill で dev サーバー上の実機確認**
+
+[[reference_playwright_miti_overlays]] の手順([[reference_master_data_live_firestore]] は別件だが同様に注意)に加え、今回新たに判明した罠:
+- `MitigationSelector` を開くセルクリックは `empty-liquid-glass` オーバーレイに intercept されるため `{ force: true }` が必要。
+- 未選択時のプレースホルダー(「サイドバーからコンテンツを選択」)は `timelineEvents` ではなく `usePlanStore` の `currentPlanId` で判定される(`Layout.tsx` の `!currentPlanId`)。`window.__mit`(`useMitigationStore`)に加えて `window.__plan`(`usePlanStore`)も一時露出し `currentPlanId` を注入する必要がある。
+- PC グリッドの列は `sortedPartyMembers` 順で、role によって列幅が変わるため、`partyMembers` の生配列インデックスとは一致しない。ヘッダーのジョブアイコン(`img[src*=Scholar]`)の x 座標に最も近いセルを選ぶことで確実に対象列を特定した。
+
+確認結果:
+1. ✅ セラフィズム(t=10, duration=20)有効中、学者(H1)のセルを開くと「鼓舞激励の策」ではなく「マニフェステーション」が表示された(`document.body.innerText` で確認)。
+2. ✅ 「鼓舞激励の策」という文字列はモーダル内に出現しない(重複選択肢なし)。
+3. ✅ Firestore パッチ適用前は React の重複key警告(`accession`/`manifestation`)が発生したが、パッチ適用後は警告消失。
+4. ✅ マニフェステーションをクリック→対象(MT)を選択→配置後、`timelineMitigations` に `{ mitigationId: 'manifestation', time: 10 }` が実際に追加されることをストア state から確認。タイムライン上にもアイコンが表示された。
+5. スマホ表示・展開戦術のコピー対象拡張・秘策の対象修正は単体テスト(Task 1/4)でカバー済みのため、Playwrightでの追加確認は省略(既存のプロジェクト慣習として `Timeline.tsx` 全体をレンダーするテストは書かない・重い E2E より unit test を優先する方針に合わせた)。
+
+デバッグ用に `main.tsx` へ一時追加した `window.__mit`/`window.__plan` 露出コードは確認後に削除済み(コミット対象に含めない)。
+
+- [x] **Step 4: 問題があれば修正して該当タスクへ戻る。問題無ければ次タスクへ。**
+
+問題なし。次タスクへ。
 
 ---
 
