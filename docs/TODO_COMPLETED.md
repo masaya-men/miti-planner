@@ -2,6 +2,18 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-08-08/10 セラフィズム自動変化(鼓舞激励の策→マニフェステーション/意気軒高の策→アクセッション)= 本番デプロイ・実機確認完了
+
+2026-08-08にマニフェステーション自体は追加済みだったが、「セラフィズム発動中は鼓舞激励の策/意気軒高の策の代わりに強制的にマニフェステーション/アクセッションになる」という自動変化の仕様が未実装だった問題を解消。設計書=`docs/superpowers/specs/2026-08-08-scholar-seraphism-transform-design.md`、実装計画=`docs/superpowers/plans/2026-08-08-scholar-seraphism-transform.md`(7タスク・TDD)。
+
+判定ロジックを`src/utils/scholarShieldRules.ts`に集約し、PC用選択パネル(`MitigationSelector.tsx`)・スマホ用選択パネル(`Timeline.tsx`埋め込みUI)の両方から共通で呼ぶ設計。マニフェステーション/アクセッションは選択パネルの独立ボタンとしては`hidden:true`で非表示化し、鼓舞激励の策/意気軒高の策を配置しようとしている時刻にセラフィズムが有効なら自動的にすり替える方式(配置時点のスナップショットで確定・ゲーム仕様と一致)。
+
+調査の過程でユーザーのゲーム知識を公式ジョブガイド(na.finalfantasyxiv.com)+FFXIV Wikiで裏取りし、当初の指示範囲を超える2件の関連修正も実施: ①展開戦術のコピー対象にマニフェステーション(鼓舞と同じGalvanize状態を付与)を追加 ②秘策の確定クリティカル判定が「学者のバリア技なら何でも」という公式より広すぎる実装になっていた不具合を、鼓舞激励の策/意気軒高の策のみに絞るよう修正(コンソレイション/アクセッション/マニフェステーションは対象外に)。
+
+実装後、mockData.tsの`hidden:true`追加だけではFirestore(`master/skills`が正本)に反映されないことが実機確認中に判明(React重複key警告として顕在化)。外科的パッチスクリプト`scripts/patch-scholar-seraphism-hidden.ts`を新規作成し、対象2id(`accession`/`manifestation`)のみに`hidden:true`を設定・dataVersion++で反映済み。Playwrightで学者にセラフィズムを配置→鼓舞激励の策ボタンがマニフェステーションとして表示・配置されることをストアstateレベルで実機確認済み。
+
+本番push(`e27b4429`)・Vercelデプロイ確認済み(`lopoly.app`/`lopoly.app/miti`とも200)。
+
 ### ✅ 2026-08-07/08 共同編集participant側クラッシュ+副次発見2件 = 本番デプロイ・実機確認完了
 
 `Timeline.tsx:1265`の`plan.data.timelineEvents`未ガード(参加者自身の圧縮済み個人プラン参照でクラッシュ)を修正。副次的に、圧縮済みプラン参照時に無関係な共同編集ルームの行表示が強制展開される問題(ジョイナー中はこの個人プラン判定自体をスキップして解消)と、スマホのジョイナー画面に`Layout.tsx`を通さずFAB自体が無かった問題(`CollabJoinerPage.tsx`に`MobileFAB`追加)も発見・修正。詳細=`docs/.private/2026-08-05-collab-participant-timelineevents-crash.md`。2026-08-08ユーザー実機確認: FAB OK。**注**: 2026-08-05報告分(サイドバー経由の通常利用中に発生)は別トリガーの可能性があり真因未確定のまま(再発したら別件として調査)。

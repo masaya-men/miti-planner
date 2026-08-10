@@ -706,17 +706,21 @@ npx tsx scripts/patch-scholar-seraphism-hidden.ts --apply  # 適用
 
 **Files:** なし(デプロイ作業のみ)
 
-- [ ] **Step 1: main へマージ済みであることを確認し、リモートへ push**
+- [x] **Step 1: main へマージ済みであることを確認し、リモートへ push**
 
 ```bash
 git push origin main
 ```
+結果: `d2174d83..e27b4429 main -> main` 成功。
 
-- [ ] **Step 2: Vercel の自動デプロイ完了を確認**
+- [x] **Step 2: Vercel の自動デプロイ完了を確認**
 
 ([[reference_vercel_git_autodeploy]]: push で自動デプロイされる。手動 `vercel --prod` 不要)
+結果: `vercel inspect --wait` で Production デプロイが `● Ready` になったことを確認。
 
-- [ ] **Step 3: 本番URLで簡易確認(200応答・該当画面が開けること)**
+- [x] **Step 3: 本番URLで簡易確認(200応答・該当画面が開けること)**
+
+結果: `https://lopoly.app/` および `https://lopoly.app/miti` ともに 200。
 
 ---
 
@@ -729,14 +733,14 @@ git push origin main
 2. データ安全性の修正(別プランのデータ混入バグ + プラン複製時のルーム引き継ぎバグ)
 3. 学者: セラフィズム中のマニフェステーション/アクセッション自動変化(本タスク)
 
-- [ ] **Step 1: Discord 告知文を作成**
+- [x] **Step 1: Discord 告知文を作成**
 
-[[feedback_discord_announcement_tone]] に従い、淡々とした機能列挙・Markdown太字+bullet・「ぜひ試して」等の煽り文句は使わない。コピペ1ブロックでユーザーに渡す。
+[[feedback_discord_announcement_tone]] の現行様式(`@silent`+🛠️ヘッダーTOC+セクション見出し+`・`bullet+たまに`(((...)))`)に従って作成。
 
-- [ ] **Step 2: アプリ内告知(`system_notifications`)用の title/body(ja/en)を作成**
+- [x] **Step 2: アプリ内告知(`system_notifications`)用の title/body(ja/en/ko/zh)を作成**
 
-`SystemNotifCreatePayload`([types/systemNotification.ts](../../../src/types/systemNotification.ts))の形式に合わせ、ja必須+en必須で作成。Discord版より短く、アプリ内通知欄に収まる長さにする。
+`SystemNotifCreatePayload`([types/systemNotification.ts](../../../src/types/systemNotification.ts))の形式に合わせて作成。型上の必須は ja/en のみだが、既存の多言語対応方針に合わせ ko/zh も用意(スキル名は mockData.ts の既存訳語と一致させた)。
 
-- [ ] **Step 3: 両方をコピペ1ブロックでユーザーに引き継ぎ、公開作業(Discord投稿 / `/admin` システム通知パネルでの作成)はユーザーに依頼する**
+- [x] **Step 3: 両方をコピペ1ブロックでユーザーに引き継ぎ、公開作業(Discord投稿 / `/admin` システム通知パネルでの作成)はユーザーに依頼する**
 
-[[feedback_shell_commands]] / 既存の Discord 告知運用([[project_...]] 相当)に合わせ、Claude が直接投稿・本番Firestoreへの通知作成は行わない。
+[[feedback_shell_commands]] に合わせ、Claude が直接投稿・本番Firestoreへの通知作成は行わない。
