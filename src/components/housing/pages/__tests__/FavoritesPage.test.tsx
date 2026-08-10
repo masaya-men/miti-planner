@@ -172,7 +172,7 @@ describe('FavoritesPage', () => {
     expect(useHousingTourStore.getState().listingIds).toHaveLength(2);
   });
 
-  it('お気に入りにJP+NAが混在: JP追加→NA追加は弾かれ、トレイは増えずshowToastがerrorで呼ばれる', () => {
+  it('お気に入りにJP+NAが混在: JP追加→NA追加は弾かれ、トレイは増えず吹き出しが出る(2026-08-10: showToastは呼ばれない)', () => {
     const jp = mkRegion('jp-1', 'JP', 'Elemental', 'Aegis');
     const na = mkRegion('na-1', 'NA', 'Aether', 'Gilgamesh');
 
@@ -194,7 +194,10 @@ describe('FavoritesPage', () => {
     const trayItems = within(trayList as HTMLElement).getAllByRole('listitem');
     expect(trayItems).toHaveLength(1);
 
-    expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
+    // 2026-08-10: ListingCard 内の useTourAddFeedback がブロックを完結させるため、
+    // 呼び出し元 (FavoritesPage.addToTray) の showToast までは到達しない。
+    expect(screen.getByTestId('housing-tour-error-bubble')).toBeInTheDocument();
+    expect(showToastMock).not.toHaveBeenCalled();
   });
 
   it('トレイ確定後にlistingのregionが変わり混在した場合、開始時ネットで阻止されtourStoreは変化しない', () => {

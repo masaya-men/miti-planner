@@ -82,7 +82,7 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
     useHousingListOrderStore.getState().setSortMode('browse', 'newest');
   });
 
-  it('別リージョンの家をツアーに追加しようとすると弾かれ、トーストが出る', () => {
+  it('別リージョンの家をツアーに追加しようとすると弾かれ、ボタン直上に吹き出しが出る(2026-08-10: カード側でブロックを完結させるためshowToastは呼ばれない)', () => {
     const jp = mk('jp-1', 'JP', 'Elemental', 'Aegis');
     const na = mk('na-1', 'NA', 'Aether', 'Gilgamesh');
     useHousingListingsStore.setState({ status: 'ready', listings: [jp, na], myListings: [] } as never);
@@ -102,7 +102,11 @@ describe('BrowsePage: リージョン跨ぎの追加時ブロック', () => {
     const trayItems = within(trayList as HTMLElement).getAllByRole('listitem');
     expect(trayItems).toHaveLength(1);
 
-    expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
+    // 2026-08-10: ツアー追加ボタンの地域チェックは ListingCard 内の useTourAddFeedback で完結し、
+    // ブロック時は呼び出し元 (BrowsePage.addToTray) の showToast まで到達しない
+    // (吹き出し+シェイクに一本化・旧トーストとの二重表示防止)。
+    expect(screen.getByTestId('housing-tour-error-bubble')).toBeInTheDocument();
+    expect(showToastMock).not.toHaveBeenCalled();
   });
 
   it('同リージョンの家は両方ともトレイに追加される (回帰なし)', () => {
