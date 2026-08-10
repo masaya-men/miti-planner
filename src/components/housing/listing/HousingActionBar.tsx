@@ -7,27 +7,25 @@
  * - 「ちがった」 (= 通報) ボタン (家主以外に表示)
  * - kebab メニュー (家主のみ、 編集 / 削除)
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus } from 'lucide-react';
+import { Plus, Check } from 'lucide-react';
 import type { HousingListing } from '../../../types/housing';
 import { confirmListing } from '../../../lib/housingApiClient';
 import { isAddressHidden } from '../../../lib/housing/listingPublish';
-import { canAddToTour, tourAnchorRegion } from '../../../lib/housing/tourCrossing';
 import { regionForDC } from '../../../data/housing/dcServerMap';
 import { useRipple } from '../../../lib/housing/useRipple';
+import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
 import { showToast } from '../../Toast';
 import { HousingRipple } from '../HousingRipple';
+import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
 import { HousingDetailKebab } from './HousingDetailKebab';
 import { HousingShareButton } from './HousingShareButton';
 import { HousingFavHeart } from '../browse/HousingFavHeart';
 import { HousingDeleteConfirm } from '../delete/HousingDeleteConfirm';
 import { useHousingDelete } from '../delete/useHousingDelete';
 import { HousingReportModal } from '../report/HousingReportModal';
-import { useTourTrayStore } from '../../../store/useTourTrayStore';
-import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
-import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 
 export interface HousingActionBarProps {
   listing: HousingListing;
@@ -64,27 +62,16 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const { deleteListing, loading: deleting } = useHousingDelete();
   // 実機FB②: 探すページのカードはスペース不足でボタンを置けないため、詳細ページにも
-  // 「＋ツアーに追加」を追加。BrowsePage.addToTray と同じロジック (地域跨ぎブロック + トースト)。
+  // 「＋ツアーに追加」を追加。地域跨ぎチェック・演出は useTourAddFeedback に集約
+  // (ListingCard.tsx の footer ボタンと共有)。
   const { ripples, onClick: addRipple } = useRipple();
-  const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
   const listingUnlisted = isAddressHidden(listing);
-  const onAddToTour = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const addToTourBtnRef = useRef<HTMLButtonElement>(null);
+  const tourFeedback = useTourAddFeedback(listing.id, regionForDC(listing.dc));
+  const onAddToTourClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (listingUnlisted) return;
     addRipple(e);
-    const trayIds = useTourTrayStore.getState().trayIds;
-    const pool = [
-      ...useHousingListingsStore.getState().listings,
-      ...useHousingListingsStore.getState().myListings,
-      ...useEphemeralListingsStore.getState().ephemeralListings,
-    ];
-    const trayRegion = tourAnchorRegion(
-      trayIds.map((id) => pool.find((l) => l.id === id)?.region ?? null),
-    );
-    if (!canAddToTour(trayRegion, regionForDC(listing.dc) ?? '')) {
-      showToast(t('housing.tour.region_block'), 'error');
-      return;
-    }
-    setTrayIds((prev) => (prev.includes(listing.id) ? prev : [...prev, listing.id]));
+    tourFeedback.attemptToggle();
   };
   // 2026-05-27 Phase 2-3: 「今もあります」 ボタン。 押下成功で local state を
   // 上書きすることで、 モーダルを閉じずに「○月○日 確認済」 表示を即更新する。
@@ -156,18 +143,26 @@ export const HousingActionBar: React.FC<HousingActionBarProps> = ({
           カードと同じ「ツアーに追加」だと列がずれる。ここだけ短縮した「ツアー」表記にする
           (アクセシブルネームは aria-label で完全な文言を補う)。 */}
       <button
+        ref={addToTourBtnRef}
         type="button"
-        className="housing-card-add-btn housing-action-bar-add-tour"
+        className={`housing-card-add-btn housing-action-bar-add-tour${tourFeedback.isAdded ? ' is-added' : ''}`}
+        data-tour-anim={tourFeedback.animState}
         disabled={listingUnlisted}
         aria-disabled={listingUnlisted}
-        aria-label={t('housing.card.add_to_tour')}
+        aria-pressed={tourFeedback.isAdded}
+        aria-label={tourFeedback.isAdded ? t('housing.card.added_to_tour') : t('housing.card.add_to_tour')}
         title={listingUnlisted ? t('housing.card.addressPrivate') : undefined}
-        onClick={onAddToTour}
+        onClick={onAddToTourClick}
       >
-        <Plus size={14} aria-hidden="true" />
-        {t('housing.detail.add_to_tour')}
+        {tourFeedback.isAdded ? (
+          <Check size={14} aria-hidden="true" />
+        ) : (
+          <Plus size={14} aria-hidden="true" />
+        )}
+        {tourFeedback.isAdded ? t('housing.card.added_to_tour') : t('housing.detail.add_to_tour')}
         <HousingRipple ripples={ripples} />
       </button>
+      <HousingTourAddErrorBubble anchorRef={addToTourBtnRef} message={tourFeedback.errorMessage} />
 
       {/* follow-up改良2(ユーザーFB): 物件詳細のXシェアは本文テキストなし (タイトル/コメント等を一切含めない)。
           tweetText=null で HousingShareButton 側の intent URL から text= パラメータ自体を省く。 */}

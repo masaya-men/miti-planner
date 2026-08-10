@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { HousingActionBar } from '../HousingActionBar';
 import { useTourTrayStore } from '../../../../store/useTourTrayStore';
+import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'ja' } }),
@@ -81,6 +82,7 @@ describe('HousingActionBar', () => {
   beforeEach(() => {
     navigateMock.mockReset();
     useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+    useHousingListingsStore.setState({ listings: [], myListings: [] } as never);
   });
 
   // 実機FB②: 探すページのカードはスペース不足でボタンを置けないため、詳細ページにも
@@ -93,6 +95,37 @@ describe('HousingActionBar', () => {
 
   // 実機FB②訂正: 操作バーの他ボタンは短い表記のため、カードと同じ「ツアーに追加」だと
   // 列がずれる。表示文言は短縮した「ツアー」にし、アクセシブルネームだけ完全な文言にする。
+  it('追加成功で「追加済み」表示になりaria-pressedがtrueになる', () => {
+    renderBar({ viewerUid: null });
+    const btn = screen.getByRole('button', { name: 'housing.card.add_to_tour' });
+    fireEvent.click(btn);
+    expect(btn).toHaveTextContent('housing.card.added_to_tour');
+    expect(btn).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('追加済みの状態でもう一度押すとトレイから外れる', () => {
+    renderBar({ viewerUid: null });
+    const btn = screen.getByRole('button', { name: 'housing.card.add_to_tour' });
+    fireEvent.click(btn); // 追加
+    fireEvent.click(btn); // 外す
+    expect(useTourTrayStore.getState().trayIds).toEqual([]);
+    expect(btn).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('別リージョンのためブロックされたときはトレイに積まれず吹き出しが出る(下中央トーストは出ない想定)', () => {
+    useHousingListingsStore.setState({
+      listings: [{ id: 'other1', region: 'NA' } as never],
+      myListings: [],
+    } as never);
+    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [], manualOrder: false });
+    // baseListing.dc === 'Mana' → region 'JP'。'NA' とはブロックされる組み合わせ。
+    renderBar({ viewerUid: null });
+    const btn = screen.getByRole('button', { name: 'housing.card.add_to_tour' });
+    fireEvent.click(btn);
+    expect(useTourTrayStore.getState().trayIds).toEqual(['other1']);
+    expect(screen.getByTestId('housing-tour-error-bubble')).toBeInTheDocument();
+  });
+
   it('見た目の文言は短縮した「ツアー」で、アクセシブルネームは完全な文言になる', () => {
     renderBar({ viewerUid: null });
     const btn = screen.getByRole('button', { name: 'housing.card.add_to_tour' });
