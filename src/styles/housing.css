@@ -7935,6 +7935,16 @@ select.housing-input option {
   border: 1px solid var(--housing-divider);
   box-shadow: var(--housing-panel-shadow);
   text-align: center;
+  /* 実機FB(2026-08-10): 主催者が「次へ」を押すまで見落とされがちだったため、
+     枠をハニーゴールドでゆっくり明滅させて視線誘導する(housing-tour-target-breatheと同系統)。 */
+  animation: housing-tour-cross-breathe 1.6s ease-in-out infinite;
+}
+@keyframes housing-tour-cross-breathe {
+  0%, 100% { border-color: var(--housing-divider); box-shadow: var(--housing-panel-shadow); }
+  50% { border-color: var(--housing-honey-border); box-shadow: var(--housing-panel-shadow), 0 0 20px var(--housing-honey-shadow-soft); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-map-cross-card { animation: none; }
 }
 .housing-tour-map-cross-text {
   margin: 0;
@@ -7942,6 +7952,12 @@ select.housing-input option {
   line-height: 1.55;
   color: var(--housing-text);
   text-shadow: var(--housing-text-shadow);
+}
+/* 移動先の固有名詞(DC/ワールド/区画名)だけ目立たせ、実際にゲーム内で選ぶべき値を一目で分かるようにする。 */
+.housing-tour-map-cross-highlight {
+  font-size: var(--housing-text-lg);
+  font-weight: 700;
+  color: var(--housing-aether);
 }
 /* 参加者(閲覧専用)の待機文言(#A): ボタンではなく静かな注記。地図は主催者操作でだけ出る。 */
 .housing-tour-map-cross-waiting {

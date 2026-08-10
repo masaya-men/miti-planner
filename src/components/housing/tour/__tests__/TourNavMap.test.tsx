@@ -95,6 +95,12 @@ describe('TourNavMap', () => {
     expect(text).toContain('Ifrit');
     expect(text).toContain('エンピレアム');
   });
+  it('dc/world 跨ぎカードは移動先の固有名詞(dc/world/area)だけ強調表示する', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={true} />);
+    const highlights = Array.from(container.querySelectorAll('.housing-tour-map-cross-highlight')).map((el) => el.textContent);
+    expect(highlights).toEqual(['Gaia', 'Ifrit', 'ミスト・ヴィレッジ']);
+  });
   it('showCrossing=false では出ない', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
       crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={false} />);
