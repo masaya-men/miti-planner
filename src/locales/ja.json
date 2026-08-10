@@ -2874,10 +2874,14 @@
                 "map_error": "地図の読み込みに失敗しました",
                 "reset_view": "デフォルト表示に戻す",
                 "map_hint": "ホイールでズーム・ドラッグで移動",
+                "address": {
+                    "nearest_aetheryte": "最寄りエーテライト：{{aetheryte}}",
+                    "extension_badge": "拡張街"
+                },
                 "cross": {
                     "start": "{{world}}(DC: {{dc}})へ向かいましょう",
-                    "dc": "ログアウトしてデータセンタートラベルで <hl>{{dc}}</hl> の <hl>{{world}}</hl>、<hl>{{area}}</hl>へ",
-                    "world": "ワールド訪問で <hl>{{world}}</hl> の <hl>{{area}}</hl>へ",
+                    "dc": "ログアウトしてデータセンタートラベルで <hl>{{dc}}</hl> の <hl>{{world}}</hl>、<hl>{{area}}{{ward}}区</hl>へ",
+                    "world": "ワールド訪問で <hl>{{world}}</hl> の <hl>{{area}}{{ward}}区</hl>へ",
                     "region": "この家は別リージョンにあり移動できません",
                     "waiting": "幹事が移動したら地図が表示されます"
                 },

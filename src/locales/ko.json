@@ -2818,10 +2818,14 @@
                 "map_error": "지도를 불러오지 못했습니다",
                 "reset_view": "기본 화면으로",
                 "map_hint": "휠로 확대·축소 · 드래그로 이동",
+                "address": {
+                    "nearest_aetheryte": "가장 가까운 에테라이트: {{aetheryte}}",
+                    "extension_badge": "확장 구역"
+                },
                 "cross": {
                     "start": "{{world}}(DC: {{dc}})(으)로 향하세요",
-                    "dc": "로그아웃 후 데이터 센터 이동으로 <hl>{{dc}}</hl>의 <hl>{{world}}</hl>, <hl>{{area}}</hl>(으)로 이동하세요",
-                    "world": "월드 방문으로 <hl>{{world}}</hl>의 <hl>{{area}}</hl>(으)로 이동하세요",
+                    "dc": "로그아웃 후 데이터 센터 이동으로 <hl>{{dc}}</hl>의 <hl>{{world}}</hl>, <hl>{{area}} {{ward}}구</hl>(으)로 이동하세요",
+                    "world": "월드 방문으로 <hl>{{world}}</hl>의 <hl>{{area}} {{ward}}구</hl>(으)로 이동하세요",
                     "region": "이 집은 다른 리전에 있어 이동할 수 없습니다",
                     "waiting": "주최자가 이동하면 지도가 표시됩니다"
                 },

@@ -11,6 +11,14 @@ const AREA_TO_KEY: Record<string, string> = {
   Empyreum: 'empyreum',
 };
 
+/** 拡張街(サブディビジョン)かどうか。FF14 仕様: plot 31-60 が拡張、アパートは棟2が拡張。 */
+export function isExtensionWard(
+  listing: { plot?: number; apartmentBuilding?: 1 | 2; buildingType?: 'house' | 'apartment' },
+): boolean {
+  if (listing.buildingType === 'apartment') return listing.apartmentBuilding === 2;
+  return listing.plot != null && listing.plot >= 31;
+}
+
 export function resolveWardMapRef(
   area: string,
   plot: number | null | undefined,

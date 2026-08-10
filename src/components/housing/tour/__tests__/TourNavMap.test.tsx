@@ -5,9 +5,14 @@ import '../../../../i18n';
 import type { WardMapJson } from '../../../../data/housing/wardMapManifest';
 import mistWardRaw from '../../../../data/housing/mistWard.generated.json';
 import type { TourMapModel } from '../../../../lib/housing/buildTourMapPlacements';
+import type { MockListing } from '../../../../data/housing/mockListings';
 import { TourNavMap } from '../TourNavMap';
 const mistWard = mistWardRaw as unknown as WardMapJson;
 const model: TourMapModel = { target: { x: 100, y: 100 }, placed: [ { index: 0, x: 100, y: 100, status: 'current' }, { index: 1, x: 200, y: 150, status: 'upcoming' } ], routePath: 'M10 10 L100 100', routeJumpPath: null, origin: { x: 10, y: 10 }, originName: null, targetElId: 'plot_6', targetOutline: null };
+const baseListing = (over: Partial<MockListing>): MockListing =>
+  ({ id: 'x', ownerUid: 'o', dc: 'Elemental', server: 'Gaia', region: 'JP',
+     area: 'Mist', ward: 6, buildingType: 'house', plot: 6, imageMode: 'none', tags: [], createdAt: 0,
+     lastConfirmedAt: 0, addressKey: 'k', ...over } as MockListing);
 
 describe('TourNavMap', () => {
   it('ready で host/ゴージャス経路/起点マーカーを描く（番号ノード・LIVE・凡例は撤去済み）', () => {
@@ -74,43 +79,70 @@ describe('TourNavMap', () => {
   });
   it('showCrossing=true + dc で案内カードが出る(ボタンは持たない)', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={true} />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist', ward: 23 }} showCrossing={true} />);
     expect(container.querySelector('[data-testid="tour-map-cross"]')).toBeTruthy();
     // ユーザー指示: 「地図を見る」ボタンは撤去済み。ack への到達手段は呼び出し側の「次へ」に一本化。
     expect(container.querySelector('.housing-tour-map-cross-ack')).toBeNull();
   });
-  it('dc 跨ぎカードにはログアウト操作+着地先の区画名(area)が入る', () => {
+  it('dc 跨ぎカードにはログアウト操作+着地先の区画名+区番号(area/ward)が入る', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={true} />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist', ward: 23 }} showCrossing={true} />);
     const text = container.querySelector('[data-testid="tour-map-cross"]')?.textContent ?? '';
     expect(text).toContain('ログアウト');
     expect(text).toContain('Gaia');
     expect(text).toContain('Ifrit');
-    expect(text).toContain('ミスト・ヴィレッジ');
+    expect(text).toContain('ミスト・ヴィレッジ23区');
   });
-  it('world 跨ぎカードには着地先の区画名(area)が入る', () => {
+  it('world 跨ぎカードには着地先の区画名+区番号(area/ward)が入る', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'world', world: 'Ifrit', dc: 'Gaia', area: 'Empyreum' }} showCrossing={true} />);
+      crossing={{ kind: 'world', world: 'Ifrit', dc: 'Gaia', area: 'Empyreum', ward: 5 }} showCrossing={true} />);
     const text = container.querySelector('[data-testid="tour-map-cross"]')?.textContent ?? '';
     expect(text).toContain('Ifrit');
-    expect(text).toContain('エンピレアム');
+    expect(text).toContain('エンピレアム5区');
   });
-  it('dc/world 跨ぎカードは移動先の固有名詞(dc/world/area)だけ強調表示する', () => {
+  it('dc/world 跨ぎカードは移動先の固有名詞(dc/world/area+ward)だけ強調表示する', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={true} />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist', ward: 23 }} showCrossing={true} />);
     const highlights = Array.from(container.querySelectorAll('.housing-tour-map-cross-highlight')).map((el) => el.textContent);
-    expect(highlights).toEqual(['Gaia', 'Ifrit', 'ミスト・ヴィレッジ']);
+    expect(highlights).toEqual(['Gaia', 'Ifrit', 'ミスト・ヴィレッジ23区']);
   });
   it('showCrossing=false では出ない', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={false} />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist', ward: 23 }} showCrossing={false} />);
     expect(container.querySelector('[data-testid="tour-map-cross"]')).toBeNull();
   });
   it('crossingReadOnly=true では待機文言を出す(ボタン無し)', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={true} crossingReadOnly />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist', ward: 23 }} showCrossing={true} crossingReadOnly />);
     expect(container.querySelector('.housing-tour-map-cross-waiting')).toBeTruthy();
     expect(container.querySelector('.housing-tour-map-cross-ack')).toBeNull();
+  });
+  it('フル住所オーバーレイの2段目に最寄りエーテライトを表示する', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      addressListing={baseListing({})} originName="ラベンダーベッド東" />);
+    const aetheryte = container.querySelector('.housing-tour-map-address-aetheryte');
+    expect(aetheryte?.textContent).toContain('ラベンダーベッド東');
+  });
+  it('本街(plot 1-30)では拡張街バッジを出さない', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      addressListing={baseListing({ plot: 6 })} originName="ラベンダーベッド東" />);
+    expect(container.querySelector('[data-testid="tour-map-extension-badge"]')).toBeNull();
+  });
+  it('拡張街の家(plot 31-60)では拡張街バッジを出す', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      addressListing={baseListing({ plot: 45 })} originName="ラベンダーベッド東" />);
+    expect(container.querySelector('[data-testid="tour-map-extension-badge"]')).toBeTruthy();
+  });
+  it('拡張街のアパート(棟2)でも拡張街バッジを出す', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      addressListing={baseListing({ buildingType: 'apartment', plot: undefined, apartmentBuilding: 2, roomNumber: 5 })} originName="ラベンダーベッド東" />);
+    expect(container.querySelector('[data-testid="tour-map-extension-badge"]')).toBeTruthy();
+  });
+  it('住所非公開(unlisted)の家では拡張街バッジも最寄りエーテライトも出さない', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      addressListing={baseListing({ plot: 45, visibility: 'unlisted' } as never)} originName="ラベンダーベッド東" />);
+    expect(container.querySelector('[data-testid="tour-map-extension-badge"]')).toBeNull();
+    expect(container.querySelector('.housing-tour-map-address-aetheryte')).toBeNull();
   });
   it('viewingTimerText を渡すと見学中タイマーチップを描く', () => {
     const { container, rerender } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0} viewingTimerText={null} />);

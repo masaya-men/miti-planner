@@ -7841,14 +7841,44 @@ select.housing-input option {
   padding: 3px 8px;
   border-radius: 7px;
   pointer-events: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   font-size: var(--housing-text-xs);
   font-weight: 600;
   color: var(--housing-candle);
   background: var(--housing-map-label-bg);
   text-shadow: var(--housing-text-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+/* 1段目: フル住所 + (拡張街のみ)バッジ。バッジは常に全文表示、住所側だけ省略する。 */
+.housing-tour-map-address-full {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.housing-tour-map-address-full-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.housing-tour-map-address-badge {
+  flex-shrink: 0;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: var(--housing-chip-bg);
+  white-space: nowrap;
+}
+/* 2段目: 最寄りエーテライト。実機FB(2026-08-10): 住所だけだとテレポ後にどこへ向かうべきか
+   分からなかったため追加。1段目より控えめな重み・色にして情報の主従を示す。 */
+.housing-tour-map-address-aetheryte {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 400;
+  color: var(--housing-text-mute);
 }
 
 /* DEV 経路エディタ / 本番ツアー(Nav) 共通: 地図SVG+オーバーレイを一体でパン/ズームするコンテナ。 */
@@ -9563,8 +9593,11 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   .housing-tour-map-address {
     top: 10px;
     left: 10px;
-    white-space: normal;
     max-width: calc(100% - 10px - 60px);
+  }
+  .housing-tour-map-address-full-text,
+  .housing-tour-map-address-aetheryte {
+    white-space: normal;
     text-overflow: clip;
   }
 

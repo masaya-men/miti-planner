@@ -7,6 +7,7 @@ import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
 import type { TourCrossing } from '../../../lib/housing/tourCrossing';
 import { formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { canDisplayFullAddress } from '../../../lib/housing/listingPublish';
+import { isExtensionWard } from '../../../lib/housing/resolveWardMapRef';
 import { termLabel, displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
 import { getAreaName } from '../../../lib/housing/areaName';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
@@ -435,12 +436,29 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
           )}
         </div>
         {/* 左上フル住所オーバーレイ(共有ツアー同期): showcase と同じ canDisplayFullAddress ゲート。
-            表示のみ(地図操作を邪魔しないよう pointer-events:none)。 */}
+            表示のみ(地図操作を邪魔しないよう pointer-events:none)。
+            実機FB(2026-08-10): 住所だけだとテレポ後にどこへ向かうべきか分からなかったため、
+            2段目に最寄りエーテライト名を追加。エーテライト名には拡張街だと公式に「[拡張街]」
+            プレフィックスが付くため、あわせて号地(plot)から拡張街かを判定し小さなバッジも出す。 */}
         {addressListing && (
           <div className="housing-tour-map-address" data-testid="tour-map-address">
-            {canDisplayFullAddress(addressListing)
-              ? formatFullHousingAddress(addressListing, i18n.language)
-              : t('housing.card.addressPrivate')}
+            <div className="housing-tour-map-address-full">
+              <span className="housing-tour-map-address-full-text">
+                {canDisplayFullAddress(addressListing)
+                  ? formatFullHousingAddress(addressListing, i18n.language)
+                  : t('housing.card.addressPrivate')}
+              </span>
+              {canDisplayFullAddress(addressListing) && isExtensionWard(addressListing) && (
+                <span className="housing-tour-map-address-badge" data-testid="tour-map-extension-badge">
+                  {t('housing.tour.nav.address.extension_badge')}
+                </span>
+              )}
+            </div>
+            {canDisplayFullAddress(addressListing) && originLabel && (
+              <div className="housing-tour-map-address-aetheryte">
+                {t('housing.tour.nav.address.nearest_aetheryte', { aetheryte: originLabel })}
+              </div>
+            )}
           </div>
         )}
         {displayed && (
@@ -498,6 +516,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
                       dc: displayDcName(crossing.dc, locale),
                       world: displayWorldName(crossing.dc, crossing.world, locale),
                       area: crossing.area ? getAreaName(crossing.area as HousingArea, i18n.language) : '',
+                      ward: crossing.ward ?? '',
                     }}
                     components={{ hl: <span className="housing-tour-map-cross-highlight" /> }}
                   />
@@ -508,6 +527,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
                     values={{
                       world: displayWorldName(crossing.dc, crossing.world, locale),
                       area: crossing.area ? getAreaName(crossing.area as HousingArea, i18n.language) : '',
+                      ward: crossing.ward ?? '',
                     }}
                     components={{ hl: <span className="housing-tour-map-cross-highlight" /> }}
                   />

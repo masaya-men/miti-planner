@@ -2818,10 +2818,14 @@
                 "map_error": "地圖載入失敗",
                 "reset_view": "恢復預設檢視",
                 "map_hint": "滾輪縮放 · 拖曳移動",
+                "address": {
+                    "nearest_aetheryte": "最近以太之光：{{aetheryte}}",
+                    "extension_badge": "擴建區"
+                },
                 "cross": {
                     "start": "請前往 {{world}}（大區：{{dc}}）",
-                    "dc": "請先登出，再使用資料中心旅行前往 <hl>{{dc}}</hl> 的 <hl>{{world}}</hl>、<hl>{{area}}</hl>",
-                    "world": "請使用跨伺服器造訪前往 <hl>{{world}}</hl> 的 <hl>{{area}}</hl>",
+                    "dc": "請先登出，再使用資料中心旅行前往 <hl>{{dc}}</hl> 的 <hl>{{world}}</hl>、<hl>{{area}}{{ward}}區</hl>",
+                    "world": "請使用跨伺服器造訪前往 <hl>{{world}}</hl> 的 <hl>{{area}}{{ward}}區</hl>",
                     "region": "該房屋位於其他大區，無法前往",
                     "waiting": "主持人移動後將顯示地圖"
                 },
