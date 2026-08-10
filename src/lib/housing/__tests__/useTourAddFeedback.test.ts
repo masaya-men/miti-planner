@@ -67,6 +67,20 @@ describe('useTourAddFeedback', () => {
     expect(useTourTrayStore.getState().trayIds).toEqual([]);
   });
 
+  it('ピン留め済みのitemを外すとpinnedIdsからも消える(浮いたピンを残さない)', () => {
+    useTourTrayStore.setState({ trayIds: ['house1'], pinnedIds: ['house1'], manualOrder: false });
+    const { result } = renderHook(() => useTourAddFeedback('house1', 'JP'));
+    expect(result.current.isAdded).toBe(true);
+
+    act(() => {
+      const outcome = result.current.attemptToggle();
+      expect(outcome).toBe('removed');
+    });
+
+    expect(useTourTrayStore.getState().trayIds).toEqual([]);
+    expect(useTourTrayStore.getState().pinnedIds).not.toContain('house1');
+  });
+
   it('animStateは一定時間後にidleへ自動で戻る(success)', async () => {
     vi.useFakeTimers();
     const { result } = renderHook(() => useTourAddFeedback('house1', 'JP'));

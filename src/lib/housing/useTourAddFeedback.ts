@@ -40,6 +40,7 @@ export function useTourAddFeedback(
   const { t } = useTranslation();
   const trayIds = useTourTrayStore((s) => s.trayIds);
   const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
+  const togglePin = useTourTrayStore((s) => s.togglePin);
   const isAdded = trayIds.includes(listingId);
 
   const [animState, setAnimState] = useState<TourAddAnimState>('idle');
@@ -55,7 +56,18 @@ export function useTourAddFeedback(
 
   const attemptToggle = useCallback((): TourAddOutcome => {
     if (isAdded) {
+      // 外す操作は静かでよい(新規アニメーションは起こさない)が、直前の成功/失敗フラーリッシュが
+      // 再生中のまま外された場合に、既に「未追加」に戻ったボタンへ古い演出が居残らないよう
+      // 保留中のタイマーと状態は破棄する。
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      setAnimState('idle');
+      setErrorMessage(null);
       setTrayIds((prev) => prev.filter((id) => id !== listingId));
+      // TourTrayList.remove と同じく、ピン留め済みのまま外すとピンが浮いた状態(pinnedIdsに
+      // 残るが trayIds には無い)になり、同じ listing を後で入れ直すと不可解な再ピンを起こす。
+      if (useTourTrayStore.getState().pinnedIds.includes(listingId)) {
+        togglePin(listingId);
+      }
       return 'removed';
     }
 
@@ -85,7 +97,7 @@ export function useTourAddFeedback(
     setErrorMessage(null);
     timeoutRef.current = setTimeout(() => setAnimState('idle'), SUCCESS_ANIM_MS);
     return 'added';
-  }, [isAdded, trayIds, region, listingId, setTrayIds, t]);
+  }, [isAdded, trayIds, region, listingId, setTrayIds, togglePin, t]);
 
   return { isAdded, animState, errorMessage, attemptToggle };
 }

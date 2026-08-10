@@ -7110,14 +7110,26 @@ select.housing-input option {
   .housing-card-add-btn[data-tour-anim="success"],
   .housing-card-add-btn[data-tour-anim="success"] svg,
   .housing-card-add-btn[data-tour-anim="success"]::after,
-  .housing-card-add-btn[data-tour-anim="error"] {
+  .housing-card-add-btn[data-tour-anim="error"],
+  .housing-tour-error-bubble {
     animation: none;
   }
 }
 
 /* ツアー追加失敗の吹き出し (HousingTourAddErrorBubble)。document.body 直下に portal されるため
-   ここでは housing-workspace スコープに依存しないグローバルなスタイルにする。 */
+   ここでは housing-workspace スコープに依存しないグローバルなスタイルにする。
+   body 直下の portal は .housing-workspace の外なので --housing-* が未解決になる
+   (.housing-card-visibility-menu-portal で踏んだのと同じ問題、2026-07-24 実機バグの再発)。
+   .housing-workspace 側の共有ブロックにはページシェルレイアウト (width:100%/height:100vh 等) も
+   同居しており丸ごと加えると副作用が出るため、実際に使っている --housing-* だけをここで
+   個別に再定義する (.housing-card-visibility-menu-portal と同じやり方)。font-family も
+   .housing-workspace の外では継承されないため合わせて再定義する。 */
 .housing-tour-error-bubble {
+  --housing-panel-bg-solid: rgba(13, 18, 30, 0.74);
+  --housing-danger: #ff8a6c;
+  --housing-panel-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  --housing-text-xs: 11px;
+  font-family: "Inter", "Helvetica Neue", -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
   position: fixed;
   transform: translate(-50%, calc(-100% - 8px));
   max-width: 220px;

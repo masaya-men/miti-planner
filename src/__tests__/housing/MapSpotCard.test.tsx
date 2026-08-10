@@ -6,6 +6,7 @@ import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
 import type { BrowseMapSpot } from '../../lib/housing/browseMapSpots';
 import type { MockListing } from '../../data/housing/mockListings';
+import { useTourTrayStore } from '../../store/useTourTrayStore';
 
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
@@ -37,6 +38,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   navigate.mockReset();
+  useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
 });
 
 let seq = 0;
