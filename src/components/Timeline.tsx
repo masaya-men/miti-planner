@@ -1012,9 +1012,11 @@ const Timeline: React.FC = () => {
         const timeSec = yToTimeSec(yPx, timeToYMapRef.current);
         if (timeSec === null) return;  // シート範囲外、 メモ作成不可
         const xRatio = clampXRatio(pxToXRatio(xPx, rect.width));
+        // 入力ボックスは position: fixed で body 直下に portal するため、
+        // 位置はビューポート基準 (クリック座標そのもの) で渡す (画面端クリップ対策)。
         setMemoInput({
-            topPx: yPx,
-            leftPx: xPx,
+            topPx: e.clientY,
+            leftPx: e.clientX,
             timeSec,
             xRatio,
         });
@@ -1072,8 +1074,11 @@ const Timeline: React.FC = () => {
     const handleMemoClick = useCallback((memo: PlanMemo) => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
         if (!isMemoMode) return;
-        const topPx = timeSecToY(memo.timeSec, timeToYMapRef.current);
-        const leftPx = xRatioToPx(memo.xRatio, sheetWidth);
+        // 既存メモの位置はシート相対 → 入力ボックスは position: fixed(body直下)なので
+        // sheetContainerRef の実画面位置を足してビューポート基準に変換する。
+        const sheetRect = sheetContainerRef.current?.getBoundingClientRect();
+        const topPx = timeSecToY(memo.timeSec, timeToYMapRef.current) + (sheetRect?.top ?? 0);
+        const leftPx = xRatioToPx(memo.xRatio, sheetWidth) + (sheetRect?.left ?? 0);
         setMemoInput({
             topPx,
             leftPx,

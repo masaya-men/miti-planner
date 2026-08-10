@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { MEMO_LIMITS } from '../../types/firebase';
 
+// 画面端からの最小マージン (ContextMenu.tsx と同じ考え方)
+const VIEWPORT_PADDING = 8;
+
 interface MemoInputBoxProps {
-    /** 配置位置 (シート相対 px) */
+    /** 配置位置 (ビューポート基準 px。position: fixed で body 直下に portal する) */
     topPx: number;
     leftPx: number;
     /** 既存メモを編集中なら初期値、 新規なら空 */
@@ -39,6 +43,25 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [onCancel]);
 
+    // 画面端からはみ出さないよう位置調整 (ContextMenu.tsx と同じパターン)
+    useEffect(() => {
+        const box = boxRef.current;
+        if (!box) return;
+        const rect = box.getBoundingClientRect();
+        let nextLeft = leftPx;
+        let nextTop = topPx;
+        if (rect.right > window.innerWidth - VIEWPORT_PADDING) {
+            nextLeft = leftPx - (rect.right - window.innerWidth + VIEWPORT_PADDING);
+        }
+        if (rect.bottom > window.innerHeight - VIEWPORT_PADDING) {
+            nextTop = topPx - (rect.bottom - window.innerHeight + VIEWPORT_PADDING);
+        }
+        nextLeft = Math.max(VIEWPORT_PADDING, nextLeft);
+        nextTop = Math.max(VIEWPORT_PADDING, nextTop);
+        box.style.left = `${nextLeft}px`;
+        box.style.top = `${nextTop}px`;
+    }, [topPx, leftPx]);
+
     const handleSave = () => {
         onSave(text.trim());
     };
@@ -53,10 +76,10 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
         }
     };
 
-    return (
+    return createPortal(
         <div
             ref={boxRef}
-            className="absolute z-[9999] glass-tier3 rounded-xl shadow-sm p-3 flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-200"
+            className="fixed z-[9999] glass-tier3 rounded-xl shadow-sm p-3 flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-200"
             style={{ top: `${topPx}px`, left: `${leftPx}px`, width: 320 }}
             onClick={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
@@ -91,6 +114,7 @@ export const MemoInputBox: React.FC<MemoInputBoxProps> = ({
                     {t('memo.input_save')}
                 </button>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
