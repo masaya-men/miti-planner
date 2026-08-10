@@ -7054,6 +7054,91 @@ select.housing-input option {
 .housing-card-add-btn:active { transform: scale(0.97); }
 .housing-card-add-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+/* ===== ツアー追加ボタンのフィードバック演出 (2026-08-10) =====
+   成功: チェック描画ライクなフラーリッシュ (housing-check-bounce/ripple を流用、色はエーテライトの
+   青に統一。ハウジングの2アクセント体系(honey=主アクション/aether=選択・進行)に合わせ、
+   「追加済み」は選択状態として扱うため aether を使う)。
+   失敗: ボタン単体のシェイク(danger色)。 */
+.housing-card-add-btn[data-tour-anim="success"] {
+  overflow: visible;
+  animation: housing-tour-add-glow 300ms ease-in-out;
+}
+.housing-card-add-btn[data-tour-anim="success"] svg {
+  animation: housing-check-bounce 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.housing-card-add-btn[data-tour-anim="success"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--housing-aether);
+  animation: housing-check-ripple 600ms ease-out;
+  pointer-events: none;
+}
+@keyframes housing-tour-add-glow {
+  0% { box-shadow: 0 0 0 rgba(0, 191, 255, 0); }
+  40% { box-shadow: 0 0 20px var(--housing-aether-glow-strong); }
+  100% { box-shadow: 0 0 0 rgba(0, 191, 255, 0); }
+}
+
+/* 追加済み(トレイに入っている間ずっと維持する状態)。honey=主アクションの土台色から、
+   aether=選択状態の塗りへ切り替える(housing-card-select.is-selected と同じ意味付け)。 */
+.housing-card-add-btn.is-added {
+  background: var(--housing-aether-cta-bg);
+  border-color: var(--housing-aether-cta-bg);
+  color: var(--housing-aether-cta-text);
+}
+.housing-card-add-btn.is-added:hover {
+  background: var(--housing-aether-cta-bg-hover);
+  border-color: var(--housing-aether-cta-bg-hover);
+}
+
+.housing-card-add-btn[data-tour-anim="error"] {
+  animation: housing-shake 320ms ease-in-out;
+  border-color: var(--housing-danger);
+  color: var(--housing-danger);
+}
+@keyframes housing-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .housing-card-add-btn[data-tour-anim="success"],
+  .housing-card-add-btn[data-tour-anim="success"] svg,
+  .housing-card-add-btn[data-tour-anim="success"]::after,
+  .housing-card-add-btn[data-tour-anim="error"] {
+    animation: none;
+  }
+}
+
+/* ツアー追加失敗の吹き出し (HousingTourAddErrorBubble)。document.body 直下に portal されるため
+   ここでは housing-workspace スコープに依存しないグローバルなスタイルにする。 */
+.housing-tour-error-bubble {
+  position: fixed;
+  transform: translate(-50%, calc(-100% - 8px));
+  max-width: 220px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--housing-panel-bg-solid);
+  border: 1px solid var(--housing-danger);
+  box-shadow: var(--housing-panel-shadow);
+  color: var(--housing-danger);
+  font-size: var(--housing-text-xs);
+  line-height: 1.35;
+  text-align: center;
+  z-index: 60;
+  pointer-events: none;
+  animation: housing-tour-bubble-in 160ms ease-out;
+}
+@keyframes housing-tour-bubble-in {
+  from { opacity: 0; transform: translate(-50%, calc(-100% - 2px)); }
+  to { opacity: 1; transform: translate(-50%, calc(-100% - 8px)); }
+}
+
 /* ===== クリックリップル (useRipple 共有フック・2026-07-10) =====
    位置/直径はクリック座標由来のためインライン CSS カスタムプロパティで渡す
    (--housing-longpress-progress と同じ既存パターン踏襲。色/尺は token 経由)。 */
