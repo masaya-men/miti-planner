@@ -2396,7 +2396,7 @@
             },
             "tour": {
                 "title": "Login required to create a tour",
-                "lead": "After logging in, your favorites and tours will sync to the cloud"
+                "lead": "If anyone could issue invite links freely, it could be abused, so we ask you to log in before creating one"
             },
             "favorite": {
                 "title": "Login required to save favorites",
