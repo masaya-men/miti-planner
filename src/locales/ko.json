@@ -1906,6 +1906,7 @@
         "card": {
             "favorite": "즐겨찾기",
             "add_to_tour": "투어에 추가",
+            "added_to_tour": "추가됨",
             "select": "선택",
             "addressPrivate": "주소는 비공개입니다",
             "privateListing": "비공개 하우징"

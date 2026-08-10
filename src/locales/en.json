@@ -1941,6 +1941,7 @@
         "card": {
             "favorite": "Favorite",
             "add_to_tour": "Add to tour",
+            "added_to_tour": "Added",
             "select": "Select",
             "addressPrivate": "Address is private",
             "privateListing": "Private housing"

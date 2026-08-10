@@ -1962,6 +1962,7 @@
         "card": {
             "favorite": "お気に入り",
             "add_to_tour": "ツアーに追加",
+            "added_to_tour": "追加済み",
             "select": "選択",
             "addressPrivate": "住所は非公開です",
             "privateListing": "非公開のハウジング"

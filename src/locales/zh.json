@@ -1906,6 +1906,7 @@
         "card": {
             "favorite": "收藏",
             "add_to_tour": "加入导览",
+            "added_to_tour": "已加入",
             "select": "选择",
             "addressPrivate": "地址不公开",
             "privateListing": "不公开的房屋"
