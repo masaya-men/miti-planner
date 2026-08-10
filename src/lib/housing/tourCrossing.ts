@@ -4,11 +4,11 @@ import type { MockListing } from '../../data/housing/mockListings';
 export type TourCrossing =
   | { kind: 'none' }
   | { kind: 'start'; dc: string; world: string } // 1件目: まずどこへ向かうかの出発案内(出発地不明のため目的地を示す)
-  | { kind: 'world'; world: string; dc: string } // ワールド訪問(同DC・別ワールド)。dc は表示側の displayWorldName(dc, world) 用
-  | { kind: 'dc'; dc: string; world: string }   // DCトラベル(別DC・同リージョン)。着地ワールドも持つ
+  | { kind: 'world'; world: string; dc: string; area: string } // ワールド訪問(同DC・別ワールド)。dc は表示側の displayWorldName(dc, world) 用。area = 着地先(次の家)のハウジングエリア区画名(未確定時は空文字)
+  | { kind: 'dc'; dc: string; world: string; area: string }   // DCトラベル(別DC・同リージョン)。着地ワールドも持つ。area は world と同様
   | { kind: 'region' };                          // 別リージョン(通常はブロックで来ない・防御表示)
 
-type Loc = Pick<MockListing, 'region' | 'dc' | 'server'>;
+type Loc = Pick<MockListing, 'region' | 'dc' | 'server' | 'area'>;
 
 /** リージョン→移動可能圏。KR/CN/TW は物理分離、それ以外(JP/NA/EU/OCE)は相互移動可能なグローバル圏。 */
 export type TravelGroup = 'GLOBAL' | 'KR' | 'CN' | 'TW';
@@ -30,12 +30,12 @@ export function crossingBetween(prev: Loc | null, current: Loc): TourCrossing {
     const prevGroup = prev.region ? travelGroupOf(prev.region) : 'GLOBAL';
     const currentGroup = current.region ? travelGroupOf(current.region) : 'GLOBAL';
     if (prevGroup === 'GLOBAL' && currentGroup === 'GLOBAL' && (prev.region === 'OCE' || current.region === 'OCE')) {
-      return { kind: 'dc', dc: current.dc ?? '', world: current.server ?? '' };
+      return { kind: 'dc', dc: current.dc ?? '', world: current.server ?? '', area: current.area ?? '' };
     }
     return { kind: 'region' };
   }
-  if (prev.dc !== current.dc) return { kind: 'dc', dc: current.dc ?? '', world: current.server ?? '' };
-  if (prev.server !== current.server) return { kind: 'world', world: current.server ?? '', dc: current.dc ?? '' };
+  if (prev.dc !== current.dc) return { kind: 'dc', dc: current.dc ?? '', world: current.server ?? '', area: current.area ?? '' };
+  if (prev.server !== current.server) return { kind: 'world', world: current.server ?? '', dc: current.dc ?? '', area: current.area ?? '' };
   return { kind: 'none' };
 }
 

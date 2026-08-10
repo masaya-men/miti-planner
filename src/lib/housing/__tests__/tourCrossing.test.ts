@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { crossingBetween, firstDestination, canAddToTour, tourAnchorRegion, tourRegionConflict } from '../tourCrossing';
 import type { Region } from '../../../data/housing/dcServerMap';
+import type { HousingArea } from '../../../types/housing';
 
-const loc = (region: Region, dc: string, server: string) => ({ region, dc, server });
+const loc = (region: Region, dc: string, server: string, area?: HousingArea) => ({ region, dc, server, area });
 
 describe('crossingBetween', () => {
   it('prev=null(1件目)は none', () => {
@@ -11,20 +12,23 @@ describe('crossingBetween', () => {
   it('全一致は none', () => {
     expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'none' });
   });
-  it('別ワールド・同DC は world(着地ワールド名+dc)', () => {
-    expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Mana', 'Titan'))).toEqual({ kind: 'world', world: 'Titan', dc: 'Mana' });
+  it('別ワールド・同DC は world(着地ワールド名+dc+着地エリア)', () => {
+    expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Mana', 'Titan'))).toEqual({ kind: 'world', world: 'Titan', dc: 'Mana', area: '' });
   });
-  it('別DC・同リージョン は dc(DC名+着地ワールド)', () => {
-    expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Gaia', 'Ifrit'))).toEqual({ kind: 'dc', dc: 'Gaia', world: 'Ifrit' });
+  it('別ワールド・同DC で着地先の area があれば crossing.area に載る', () => {
+    expect(crossingBetween(loc('JP', 'Mana', 'Anima', 'Mist'), loc('JP', 'Mana', 'Titan', 'Goblet'))).toEqual({ kind: 'world', world: 'Titan', dc: 'Mana', area: 'Goblet' });
+  });
+  it('別DC・同リージョン は dc(DC名+着地ワールド+着地エリア)', () => {
+    expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('JP', 'Gaia', 'Ifrit'))).toEqual({ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: '' });
   });
   it('別リージョン(OCE以外同士) は region', () => {
     expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('NA', 'Aether', 'Gilgamesh'))).toEqual({ kind: 'region' });
   });
   it('JP→OCE(Materia) は DCトラベル扱い (dc)', () => {
-    expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('OCE', 'Materia', 'Bismarck'))).toEqual({ kind: 'dc', dc: 'Materia', world: 'Bismarck' });
+    expect(crossingBetween(loc('JP', 'Mana', 'Anima'), loc('OCE', 'Materia', 'Bismarck'))).toEqual({ kind: 'dc', dc: 'Materia', world: 'Bismarck', area: '' });
   });
   it('OCE→JP も DCトラベル扱い (dc・着地は現在地)', () => {
-    expect(crossingBetween(loc('OCE', 'Materia', 'Bismarck'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'dc', dc: 'Mana', world: 'Anima' });
+    expect(crossingBetween(loc('OCE', 'Materia', 'Bismarck'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'dc', dc: 'Mana', world: 'Anima', area: '' });
   });
 });
 
@@ -130,7 +134,7 @@ describe('KR/CN リージョン分離', () => {
     expect(crossingBetween(loc('KR', 'Neptune', 'Chocobo'), loc('OCE', 'Materia', 'Bismarck'))).toEqual({ kind: 'region' });
   });
   it('crossingBetween(OCE↔JP)はdc(従来維持)', () => {
-    expect(crossingBetween(loc('OCE', 'Materia', 'Bismarck'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'dc', dc: 'Mana', world: 'Anima' });
+    expect(crossingBetween(loc('OCE', 'Materia', 'Bismarck'), loc('JP', 'Mana', 'Anima'))).toEqual({ kind: 'dc', dc: 'Mana', world: 'Anima', area: '' });
   });
 });
 

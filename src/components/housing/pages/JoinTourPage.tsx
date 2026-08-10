@@ -138,7 +138,6 @@ export const JoinTourPage: React.FC = () => {
             directionsText={model.directionsText}
             canView={false}
             isLast={false}
-            crossing={model.crossing}
           />
         </div>
       </section>

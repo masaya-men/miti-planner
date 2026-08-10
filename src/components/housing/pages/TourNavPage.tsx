@@ -361,7 +361,6 @@ export const TourNavPage: React.FC = () => {
             onViewStart={startViewing}
             onNext={onPrimary}
             onFinish={onFinish}
-            crossing={crossing}
           />
         </div>
       </section>

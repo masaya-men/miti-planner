@@ -4,7 +4,6 @@ import { TourRouteSteps } from './TourRouteSteps';
 import { TourPhaseZone } from './TourPhaseZone';
 import type { TourProgress, TourStep } from '../../../lib/housing/tourNav';
 import type { PlotDirections } from '../../../lib/housing/wardDirections';
-import type { TourCrossing } from '../../../lib/housing/tourCrossing';
 
 export interface TourProgressPanelProps {
   progress: TourProgress;
@@ -31,8 +30,6 @@ export interface TourProgressPanelProps {
   onFinish?: () => void;
   /** 参加者(readOnly)の「ツアーから出る」。省略時は退出リンクを出さない。 */
   onLeave?: () => void;
-  /** 前の家→この家の移動種別。省略時は跨ぎ無し扱い。 */
-  crossing?: TourCrossing;
   /**
    * true=参加者の閲覧専用(Task 2.4)。操作3ボタン+(任意)注記+区切り+終了ボタンの塊を
    * 「幹事が案内中」の静かなテキストに置換する。進捗ヘッダー/リング/ステップ一覧/行き方・タイマーは
@@ -50,7 +47,7 @@ export interface TourProgressPanelProps {
 export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
   progress, steps, currentIndex, phase, viewStartAt, directions, directionsText,
   canView, isLast, onPrev, onViewStart, onNext, onFinish, onLeave,
-  crossing = { kind: 'none' }, readOnly = false, pendingCrossingAck = false,
+  readOnly = false, pendingCrossingAck = false,
 }) => {
   const { t } = useTranslation();
   const { total, percent } = progress;
@@ -79,7 +76,6 @@ export const TourProgressPanel: React.FC<TourProgressPanelProps> = ({
           directions={directions}
           directionsText={directionsText}
           viewStartAt={viewStartAt}
-          crossing={crossing}
         />
         {readOnly ? (
           // 参加者(閲覧専用): 操作ボタン群の代わりに「幹事が案内中」+「ツアーから出る」。

@@ -6,7 +6,6 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import jaTranslations from '../../../../locales/ja.json';
 import { TourPhaseZone } from '../TourPhaseZone';
-import type { TourCrossing } from '../../../../lib/housing/tourCrossing';
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -54,21 +53,16 @@ describe('TourPhaseZone', () => {
     expect(timer.textContent).toContain('0:00');
   });
 
-  const renderZone = (crossing: TourCrossing, directions = null) =>
+  it('跨ぎ案内は中央マップ側に一本化済みのため、行き方枠には出さない', () => {
     render(
       <I18nextProvider i18n={i18n}>
-        <TourPhaseZone phase="moving" directions={directions} viewStartAt={null} crossing={crossing} />
+        <TourPhaseZone
+          phase="moving"
+          directions={{ aetheryte: 'ゴブレットビュート', directions: '西へ少し' }}
+          viewStartAt={null}
+        />
       </I18nextProvider>,
     );
-
-  it('dc 跨ぎで DCトラベル行が出る', () => {
-    renderZone({ kind: 'dc', dc: 'Gaia', world: 'Ifrit' });
-    expect(screen.getByTestId('tour-phase-cross')).toHaveTextContent('Gaia');
-    expect(screen.getByTestId('tour-phase-cross')).toHaveTextContent('Ifrit');
-  });
-
-  it('none 跨ぎでは行が出ない', () => {
-    renderZone({ kind: 'none' });
     expect(screen.queryByTestId('tour-phase-cross')).toBeNull();
   });
 });

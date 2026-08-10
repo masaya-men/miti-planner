@@ -8,8 +8,10 @@ import type { TourCrossing } from '../../../lib/housing/tourCrossing';
 import { formatFullHousingAddress } from '../../../lib/housing/formatHousingAddress';
 import { canDisplayFullAddress } from '../../../lib/housing/listingPublish';
 import { termLabel, displayDcName, displayWorldName } from '../../../lib/housing/housingTerms';
+import { getAreaName } from '../../../lib/housing/areaName';
 import { pickRegionLocale } from '../../../data/housing/regionMap';
 import type { MockListing } from '../../../data/housing/mockListings';
+import type { HousingArea } from '../../../types/housing';
 
 export interface TourNavMapProps {
   status: 'none' | 'loading' | 'ready' | 'error';
@@ -489,9 +491,16 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
                 {crossing.kind === 'start'
                   ? t('housing.tour.nav.cross.start', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
                   : crossing.kind === 'dc'
-                    ? t('housing.tour.nav.cross.dc', { dc: displayDcName(crossing.dc, locale), world: displayWorldName(crossing.dc, crossing.world, locale) })
+                    ? t('housing.tour.nav.cross.dc', {
+                        dc: displayDcName(crossing.dc, locale),
+                        world: displayWorldName(crossing.dc, crossing.world, locale),
+                        area: crossing.area ? getAreaName(crossing.area as HousingArea, i18n.language) : '',
+                      })
                     : crossing.kind === 'world'
-                      ? t('housing.tour.nav.cross.world', { world: displayWorldName(crossing.dc, crossing.world, locale) })
+                      ? t('housing.tour.nav.cross.world', {
+                          world: displayWorldName(crossing.dc, crossing.world, locale),
+                          area: crossing.area ? getAreaName(crossing.area as HousingArea, i18n.language) : '',
+                        })
                       : t('housing.tour.nav.cross.region')}
               </p>
               {crossingReadOnly && (

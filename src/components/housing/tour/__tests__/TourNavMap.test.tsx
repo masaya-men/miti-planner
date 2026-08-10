@@ -74,19 +74,35 @@ describe('TourNavMap', () => {
   });
   it('showCrossing=true + dc で案内カードが出る(ボタンは持たない)', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={true} />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={true} />);
     expect(container.querySelector('[data-testid="tour-map-cross"]')).toBeTruthy();
     // ユーザー指示: 「地図を見る」ボタンは撤去済み。ack への到達手段は呼び出し側の「次へ」に一本化。
     expect(container.querySelector('.housing-tour-map-cross-ack')).toBeNull();
   });
+  it('dc 跨ぎカードにはログアウト操作+着地先の区画名(area)が入る', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={true} />);
+    const text = container.querySelector('[data-testid="tour-map-cross"]')?.textContent ?? '';
+    expect(text).toContain('ログアウト');
+    expect(text).toContain('Gaia');
+    expect(text).toContain('Ifrit');
+    expect(text).toContain('ミスト・ヴィレッジ');
+  });
+  it('world 跨ぎカードには着地先の区画名(area)が入る', () => {
+    const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
+      crossing={{ kind: 'world', world: 'Ifrit', dc: 'Gaia', area: 'Empyreum' }} showCrossing={true} />);
+    const text = container.querySelector('[data-testid="tour-map-cross"]')?.textContent ?? '';
+    expect(text).toContain('Ifrit');
+    expect(text).toContain('エンピレアム');
+  });
   it('showCrossing=false では出ない', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={false} />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={false} />);
     expect(container.querySelector('[data-testid="tour-map-cross"]')).toBeNull();
   });
   it('crossingReadOnly=true では待機文言を出す(ボタン無し)', () => {
     const { container } = render(<TourNavMap status="ready" svg={'<svg><path id="plot_6" /></svg>'} viewBox={{ w: mistWard.viewBox.w, h: mistWard.viewBox.h }} model={model} stepKey={0}
-      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit' }} showCrossing={true} crossingReadOnly />);
+      crossing={{ kind: 'dc', dc: 'Gaia', world: 'Ifrit', area: 'Mist' }} showCrossing={true} crossingReadOnly />);
     expect(container.querySelector('.housing-tour-map-cross-waiting')).toBeTruthy();
     expect(container.querySelector('.housing-tour-map-cross-ack')).toBeNull();
   });

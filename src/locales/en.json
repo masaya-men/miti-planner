@@ -2855,8 +2855,8 @@
                 "map_hint": "Scroll to zoom · Drag to move",
                 "cross": {
                     "start": "Head to {{world}} (DC: {{dc}})",
-                    "dc": "Use Data Center Travel to reach {{world}} in {{dc}}",
-                    "world": "Use World Visit to reach {{world}}",
+                    "dc": "Log out, then use Data Center Travel to reach {{world}} in {{dc}} ({{area}})",
+                    "world": "Use World Visit to reach {{world}} ({{area}})",
                     "region": "This house is in another region and can't be reached",
                     "waiting": "The map appears once your guide moves on"
                 },
