@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export interface HousingTourAddErrorBubbleProps {
-  anchorRef: React.RefObject<HTMLElement>;
+  anchorRef: React.RefObject<HTMLElement | null>;
   /** null/空文字なら何も描画しない。 */
   message: string | null;
 }
