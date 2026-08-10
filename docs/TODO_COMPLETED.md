@@ -14,6 +14,8 @@
 
 本番push(`e27b4429`)・Vercelデプロイ確認済み(`lopoly.app`/`lopoly.app/miti`とも200)。
 
+**追加修正(2026-08-10・ユーザー実機指摘)**: 展開戦術でマニフェステーションのバリアを展開できない不具合。原因は`useMitigationStore.ts`内の`resolveShieldLinks`(展開戦術のリンク自動解決)が`MitigationSelector`/`mitigationTapResolver`とは別の独立実装で、`matchesCopiesShieldSource`統一に追従できていなかったため(リンクしても直後に自動解除されていた)。同関数を使うよう修正しTDDで回帰テスト追加(`66ab70fb`)。**ユーザーが他の小修正も重ねてからまとめて報告・デプロイする方針のため、このコミットはまだ未push**(ローカルのみ)。
+
 ### ✅ 2026-08-07/08 共同編集participant側クラッシュ+副次発見2件 = 本番デプロイ・実機確認完了
 
 `Timeline.tsx:1265`の`plan.data.timelineEvents`未ガード(参加者自身の圧縮済み個人プラン参照でクラッシュ)を修正。副次的に、圧縮済みプラン参照時に無関係な共同編集ルームの行表示が強制展開される問題(ジョイナー中はこの個人プラン判定自体をスキップして解消)と、スマホのジョイナー画面に`Layout.tsx`を通さずFAB自体が無かった問題(`CollabJoinerPage.tsx`に`MobileFAB`追加)も発見・修正。詳細=`docs/.private/2026-08-05-collab-participant-timelineevents-crash.md`。2026-08-08ユーザー実機確認: FAB OK。**注**: 2026-08-05報告分(サイドバー経由の通常利用中に発生)は別トリガーの可能性があり真因未確定のまま(再発したら別件として調査)。
