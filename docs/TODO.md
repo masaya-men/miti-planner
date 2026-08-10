@@ -35,9 +35,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ### 📤 Discordアップデート告知 = 下書き完成・投稿待ち(ユーザー側アクション)
 下書き=`docs/.private/2026-08-04-discord-housing-update-draft.md`(複数投稿URL登録/編集ページ画像管理/表示順ランダム化+初心者タグ/タグAND検索/繁体字対応/OGPカード新デザイン/タグ検索UX向上、計7件。マイページ作成は別便で告知済みのため除外)。ユーザー確認・投稿待ちのみ(Claudeからは直接投稿しない)。
 **🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。/ `.claude/worktrees/housinger-ogp-card-redesign`が前回セッションの残プロセスにロックされ`git worktree remove`失敗中(実害なし・ウィンドウを閉じてから削除)。
-### ✅ 本番push済(`cd2d95f3`)の細かい修正一覧
-シェア/通報ボタン位置(マイページ/ハウジンガーページ、2回の実機指摘で正しい位置に)/スマホのハウジンガー/マイページ一覧の中央配置(真因=`align-items:flex-start`が縦積み時に横方向に効いていた)/iOS Safariの表示ズレ(visualViewport再同期処理をLayout.tsxから移植)/200件上限バグ本体/野戦治療の陣のフォールバックduration同期(17→18)。
-未対応の別件(zh-Hant固有ではない)=housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
+未対応の別件(2026-07-31分・zh-Hant固有ではない・詳細→TODO_COMPLETED.md): housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
 ### ✅ 直近の本番反映・棚卸し(詳細は全てTODO_COMPLETED.md / `.private/2026-07-23-housing-task-inventory.md`)
 マイページ作成/複数投稿URL登録Batch2/編集ページ画像管理/探すページ表示順ランダム化+初心者タグ/コスト・ハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所確認ゲート強化/旧UI意匠掃除、全て本番反映・確認済み。
 
