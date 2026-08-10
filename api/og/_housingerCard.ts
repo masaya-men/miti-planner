@@ -31,6 +31,8 @@ import { TOUR_INVITE_BG_DATA_URI } from './_tourInviteBg.generated.js';
 const BG_COLOR = '#111725';
 const ACCENT_HONEY = '#ffeb99';
 const TEXT_MUTED = 'rgba(255,255,255,0.6)';
+/** ファンサイトポリシー対応の著作権表記。既存フッター (ja.json footer.copyright) と同一文言。 */
+const COPYRIGHT_TEXT = '© SQUARE ENIX CO., LTD. All Rights Reserved.';
 const GLOW_TEXT_SHADOW = '0 0 20px rgba(255,220,140,0.9), 0 0 40px rgba(255,180,80,0.6)';
 /** ブランド文字(名前/Shared via/LoPo)専用の色・フォント(2026-08-04 Artifact確定値)。
  * ハウジング標準のInter・太さ800で統一(縮小はせず、名前が長い場合はmaxWidthで自然に折り返す)。 */
@@ -218,6 +220,31 @@ function buildPhotoTile(top: number, left: number, width: number, height: number
   };
 }
 
+/** 著作権表記(全パターン共通・カード下端中央)。写真の上に乗っても読めるよう強めのシャドウで縁取る。 */
+function buildCopyrightLine() {
+  return {
+    type: 'div',
+    props: {
+      style: {
+        position: 'absolute', bottom: BORDER_MARGIN + 4, left: 0, right: 0,
+        display: 'flex', justifyContent: 'center',
+      },
+      children: {
+        type: 'div',
+        props: {
+          style: {
+            fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.9)',
+            fontFamily: BRAND_FONT_FAMILY, letterSpacing: 0.2,
+            textShadow: '0 1px 3px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85)',
+            display: 'flex',
+          },
+          children: COPYRIGHT_TEXT,
+        },
+      },
+    },
+  };
+}
+
 function buildBioLine(bio: string | null) {
   if (!bio) return null;
   return { type: 'div', props: { style: { fontSize: 18, color: TEXT_MUTED, lineHeight: 1.4, display: 'flex', maxWidth: 380 }, children: bio } };
@@ -287,6 +314,7 @@ function buildGridPattern(displayName: string, _bio: string | null, avatarSrc: s
             ],
           },
         },
+        buildCopyrightLine(),
       ],
     },
   };
@@ -364,6 +392,7 @@ function buildSidebarPattern(displayName: string, avatarSrc: string | null, hero
         buildPhotoTile(465, 673, 145, 135, b3),
         buildPhotoTile(465, 844, 145, 135, b4),
         buildPhotoTile(465, 1014, 145, 135, b5),
+        buildCopyrightLine(),
       ],
     },
   };
@@ -390,6 +419,7 @@ function buildNoPhotoCard(displayName: string, bio: string | null, avatarSrc: st
             ].filter(Boolean),
           },
         },
+        buildCopyrightLine(),
       ],
     },
   };
@@ -402,7 +432,7 @@ export function buildHousingerFallbackCard(name: string) {
     type: 'div',
     props: {
       style: {
-        width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+        width: '100%', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative',
         alignItems: 'center', justifyContent: 'center',
         backgroundColor: BG_COLOR, fontFamily: '"M PLUS 1", sans-serif', gap: 24,
       },
@@ -419,6 +449,7 @@ export function buildHousingerFallbackCard(name: string) {
             children: 'LoPo Housing',
           },
         },
+        buildCopyrightLine(),
       ],
     },
   };

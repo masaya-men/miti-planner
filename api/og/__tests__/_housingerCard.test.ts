@@ -63,6 +63,11 @@ describe.each([['grid'], ['sidebar']] as const)('buildHousingerCard(pattern=%s)'
     expect(findByText(tree, 'LoPo')).toBe(true);
   });
 
+  it('SQUARE ENIX 著作権表記を必ず含む(写真0枚)', () => {
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: null, avatarSrc: null, imageSrcs: [] });
+    expect(findByText(tree, '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
+  });
+
   it('アバターURLがあればimgノードとして描画される(写真0枚でも)', () => {
     const tree = buildHousingerCard({ pattern, name: 'テスト', bio: null, avatarSrc: 'data:image/png;base64,AVATAR', imageSrcs: [] });
     expect(countImgNodes(tree)).toBe(1);
@@ -81,12 +86,18 @@ describe('buildHousingerCard 紹介文の表示(写真ありグリッド/サイ�
     const tree = buildHousingerCard({ pattern: 'sidebar', name: 'テスト', bio: 'よろしく', avatarSrc: null, imageSrcs });
     expect(findByText(tree, 'よろしく')).toBe(false);
   });
+
+  it.each([['grid'], ['sidebar']] as const)('%sパターンは写真ありでもSQUARE ENIX 著作権表記を含む', (pattern) => {
+    const tree = buildHousingerCard({ pattern, name: 'テスト', bio: null, avatarSrc: null, imageSrcs });
+    expect(findByText(tree, '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
+  });
 });
 
 describe('buildHousingerFallbackCard', () => {
-  it('従来どおり名前とLoPo Housing表記のみで構成される', () => {
+  it('名前とLoPo Housing表記に加えてSQUARE ENIX 著作権表記も含む', () => {
     const tree = buildHousingerFallbackCard('テスト');
     expect(findByText(tree, 'テスト')).toBe(true);
     expect(findByText(tree, 'LoPo Housing')).toBe(true);
+    expect(findByText(tree, '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
   });
 });
