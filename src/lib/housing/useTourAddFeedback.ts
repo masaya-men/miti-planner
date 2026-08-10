@@ -82,6 +82,7 @@ export function useTourAddFeedback(
 
     setTrayIds((prev) => (prev.includes(listingId) ? prev : [...prev, listingId]));
     setAnimState('success');
+    setErrorMessage(null);
     timeoutRef.current = setTimeout(() => setAnimState('idle'), SUCCESS_ANIM_MS);
     return 'added';
   }, [isAdded, trayIds, region, listingId, setTrayIds, t]);

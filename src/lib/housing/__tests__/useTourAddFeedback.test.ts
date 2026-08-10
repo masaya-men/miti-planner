@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
@@ -78,6 +78,42 @@ describe('useTourAddFeedback', () => {
       vi.advanceTimersByTime(1000);
     });
     expect(result.current.animState).toBe('idle');
+    vi.useRealTimers();
+  });
+
+  it('ブロック後に競合が解消されて成功するとerrorMessageがクリアされる', () => {
+    vi.useFakeTimers();
+    // 初期状態: 別リージョンの家がトレイに入っている
+    useHousingListingsStore.setState({
+      listings: [{ id: 'other1', region: 'NA' } as never],
+      myListings: [],
+    } as never);
+    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [], manualOrder: false });
+
+    const { result } = renderHook(() => useTourAddFeedback('house1', 'JP'));
+
+    // 1回目: ブロック(region conflict)
+    act(() => {
+      const outcome = result.current.attemptToggle();
+      expect(outcome).toBe('blocked');
+    });
+    expect(result.current.animState).toBe('error');
+    expect(result.current.errorMessage).toBe('housing.tour.region_block');
+
+    // 競合の家をトレイから削除(別の場所で削除されたと仮定)
+    act(() => {
+      useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+    });
+
+    // 2回目: 再度同じhouseIdで追加しようとするが、今度は成功する
+    act(() => {
+      const outcome = result.current.attemptToggle();
+      expect(outcome).toBe('added');
+    });
+    expect(result.current.animState).toBe('success');
+    // 重要: errorMessageは成功後にクリアされているはず(古いエラーが残らない)
+    expect(result.current.errorMessage).toBe(null);
+
     vi.useRealTimers();
   });
 });
