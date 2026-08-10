@@ -5,6 +5,7 @@ import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
 import { useHousingFavoritesStore } from '../../store/useHousingFavoritesStore';
+import { useTourTrayStore } from '../../store/useTourTrayStore';
 import type { MockListing } from '../../data/housing/mockListings';
 
 const navigate = vi.fn();
@@ -29,6 +30,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   useHousingFavoritesStore.setState({ ids: [] } as never);
+  useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
   navigate.mockReset();
 });
 

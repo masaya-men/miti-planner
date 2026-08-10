@@ -8,6 +8,8 @@ import jaTranslations from '../../../../locales/ja.json';
 import { MOCK_LISTINGS } from '../../../../data/housing/mockListings';
 import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesStore';
 import { HousingPlaybackProvider } from '../../../../lib/housing/HousingPlaybackContext';
+import { useTourTrayStore } from '../../../../store/useTourTrayStore';
+import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
@@ -18,6 +20,8 @@ const mockListing = MOCK_LISTINGS[0];
 
 beforeEach(() => {
   navigate.mockReset();
+  useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+  useHousingListingsStore.setState({ listings: [], myListings: [] } as never);
 });
 
 beforeAll(() => {
@@ -318,5 +322,49 @@ describe('ListingCard — 生きたカード配線 (段階2)', () => {
       </I18nextProvider>,
     );
     expect(container.querySelector('.housing-listing-card-img')).not.toBeNull();
+  });
+});
+
+describe('ListingCard — ツアー追加のフィードバック(2026-08-10)', () => {
+  it('追加成功で「追加済み」表示になりaria-pressedがtrueになる', () => {
+    const onAddToTour = vi.fn();
+    renderCard({ onAddToTour, listing: { ...mockListing, region: 'JP' } });
+    const addBtn = screen.getAllByRole('button').find((btn) =>
+      btn.className.includes('housing-card-add-btn'),
+    )!;
+    fireEvent.click(addBtn);
+    expect(addBtn).toHaveTextContent('追加済み');
+    expect(addBtn).toHaveAttribute('aria-pressed', 'true');
+    expect(addBtn).toHaveClass('is-added');
+    expect(onAddToTour).toHaveBeenCalledWith(mockListing.id);
+  });
+
+  it('追加済みの状態でもう一度押すとトレイから外れ「ツアーに追加」表示に戻る', () => {
+    renderCard({ listing: { ...mockListing, region: 'JP' } });
+    const addBtn = screen.getAllByRole('button').find((btn) =>
+      btn.className.includes('housing-card-add-btn'),
+    )!;
+    fireEvent.click(addBtn); // 追加
+    fireEvent.click(addBtn); // 外す
+    expect(addBtn).toHaveTextContent('ツアーに追加');
+    expect(addBtn).toHaveAttribute('aria-pressed', 'false');
+    expect(useTourTrayStore.getState().trayIds).toEqual([]);
+  });
+
+  it('別リージョンのためブロックされたときは onAddToTour を呼ばず吹き出しを出す', () => {
+    useHousingListingsStore.setState({
+      listings: [{ id: 'other1', region: 'NA' } as never],
+      myListings: [],
+    } as never);
+    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [], manualOrder: false });
+    const onAddToTour = vi.fn();
+    renderCard({ onAddToTour, listing: { ...mockListing, region: 'JP' } });
+    const addBtn = screen.getAllByRole('button').find((btn) =>
+      btn.className.includes('housing-card-add-btn'),
+    )!;
+    fireEvent.click(addBtn);
+    expect(onAddToTour).not.toHaveBeenCalled();
+    expect(screen.getByTestId('housing-tour-error-bubble')).toBeInTheDocument();
+    expect(useTourTrayStore.getState().trayIds).toEqual(['other1']);
   });
 });

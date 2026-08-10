@@ -20,6 +20,8 @@ import { representativeImage } from '../../../lib/housing/representativeImage';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingRipple } from '../HousingRipple';
+import { useTourAddFeedback } from '../../../lib/housing/useTourAddFeedback';
+import { HousingTourAddErrorBubble } from '../HousingTourAddErrorBubble';
 
 export interface ListingCardProps {
   listing: MockListing;
@@ -113,6 +115,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       : null;
   const { isPlaying, ambientOn, register } = useHousingCardPlayback(listing.id, videoKind !== null);
   const { ripples, onClick: addRipple } = useRipple();
+  const addToTourBtnRef = useRef<HTMLButtonElement>(null);
+  const tourFeedback = useTourAddFeedback(listing.id, listing.region ?? null);
   const mediaRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     register(mediaRef.current);
@@ -299,22 +303,31 @@ export const ListingCard: React.FC<ListingCardProps> = ({
       {onAddToTour && (
         <div className="housing-listing-card-footer">
           <button
+            ref={addToTourBtnRef}
             type="button"
-            className="housing-card-add-btn"
+            className={`housing-card-add-btn${tourFeedback.isAdded ? ' is-added' : ''}`}
+            data-tour-anim={tourFeedback.animState}
             disabled={listing.visibility === 'unlisted'}
             aria-disabled={listing.visibility === 'unlisted'}
+            aria-pressed={tourFeedback.isAdded}
             title={listing.visibility === 'unlisted' ? t('housing.card.addressPrivate') : undefined}
             onClick={(e) => {
               e.stopPropagation();
               if (listing.visibility === 'unlisted') return;
               addRipple(e);
-              onAddToTour(listing.id);
+              const outcome = tourFeedback.attemptToggle();
+              if (outcome === 'added') onAddToTour(listing.id);
             }}
           >
-            <Plus size={14} aria-hidden="true" />
-            {t('housing.card.add_to_tour')}
+            {tourFeedback.isAdded ? (
+              <Check size={14} aria-hidden="true" />
+            ) : (
+              <Plus size={14} aria-hidden="true" />
+            )}
+            {tourFeedback.isAdded ? t('housing.card.added_to_tour') : t('housing.card.add_to_tour')}
             <HousingRipple ripples={ripples} />
           </button>
+          <HousingTourAddErrorBubble anchorRef={addToTourBtnRef} message={tourFeedback.errorMessage} />
         </div>
       )}
 
