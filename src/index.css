@@ -344,8 +344,8 @@
     --color-overlay: rgba(0, 0, 0, 0.4);
     /* FAB メニューは項目が見やすいよう通常オーバーレイより濃く(約2倍) */
     --color-fab-overlay: rgba(0, 0, 0, 0.7);
-    --color-fab-bg: rgba(255, 255, 255, 0.1);
-    --color-fab-border: rgba(255, 255, 255, 0.15);
+    --color-fab-bg: rgba(255, 255, 255, 0.18);
+    --color-fab-border: rgba(255, 255, 255, 0.3);
 
     /* === LP === */
     --color-lp-bg: #0e0e0e;
@@ -447,8 +447,8 @@
     --color-overlay: rgba(0, 0, 0, 0.2);
     /* FAB メニューは項目が見やすいよう通常オーバーレイより濃く(約2倍) */
     --color-fab-overlay: rgba(0, 0, 0, 0.45);
-    --color-fab-bg: rgba(255, 255, 255, 0.9);
-    --color-fab-border: rgba(0, 0, 0, 0.08);
+    --color-fab-bg: rgba(255, 255, 255, 0.95);
+    --color-fab-border: rgba(0, 0, 0, 0.16);
 
     /* === LP ライトモード === */
     --color-lp-bg: #f2efe9;

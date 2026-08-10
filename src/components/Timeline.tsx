@@ -3987,7 +3987,7 @@ const Timeline: React.FC = () => {
                     onClick={() => useMitigationStore.getState().undo()}
                     disabled={!canUndo || readOnly}
                     aria-label={t('timeline.undo')}
-                    className="flex items-center justify-center border text-app-text shadow-lg active:scale-90 transition-transform duration-100 disabled:opacity-30 disabled:pointer-events-none"
+                    className="flex items-center justify-center border text-app-text shadow-xl active:scale-90 transition-transform duration-100 disabled:opacity-40 disabled:pointer-events-none"
                     style={{
                         width: MOBILE_TOKENS.fab.itemSize,
                         height: MOBILE_TOKENS.fab.itemSize,
@@ -4002,7 +4002,7 @@ const Timeline: React.FC = () => {
                     onClick={() => useMitigationStore.getState().redo()}
                     disabled={!canRedo || readOnly}
                     aria-label={t('timeline.redo')}
-                    className="flex items-center justify-center border text-app-text shadow-lg active:scale-90 transition-transform duration-100 disabled:opacity-30 disabled:pointer-events-none"
+                    className="flex items-center justify-center border text-app-text shadow-xl active:scale-90 transition-transform duration-100 disabled:opacity-40 disabled:pointer-events-none"
                     style={{
                         width: MOBILE_TOKENS.fab.itemSize,
                         height: MOBILE_TOKENS.fab.itemSize,

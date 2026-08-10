@@ -352,7 +352,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                             onClick={item.onClick}
                                             className={clsx(
                                                 "flex items-center justify-center border",
-                                                "shadow-lg active:scale-90 transition-transform duration-100",
+                                                "shadow-xl active:scale-90 transition-transform duration-100",
                                                 "text-app-text"
                                             )}
                                             style={{
@@ -374,7 +374,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                             disabled={'disabled' in item ? Boolean(item.disabled) : false}
                                             className={clsx(
                                                 "flex items-center justify-center border",
-                                                "shadow-lg active:scale-90 transition-transform duration-100",
+                                                "shadow-xl active:scale-90 transition-transform duration-100",
                                                 "disabled:pointer-events-none disabled:opacity-40",
                                                 isSync
                                                     ? "bg-app-blue/12 border-app-blue/20 text-app-blue"
@@ -449,7 +449,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             {/* メインFABボタン */}
             <motion.button
                 onClick={() => setOpen(prev => !prev)}
-                className="flex items-center justify-center border text-app-text shadow-xl active:scale-90 transition-all duration-200"
+                className="flex items-center justify-center border text-app-text shadow-2xl active:scale-90 transition-all duration-200"
                 style={{
                     width: MOBILE_TOKENS.fab.size,
                     height: MOBILE_TOKENS.fab.size,
