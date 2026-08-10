@@ -46,6 +46,7 @@ vi.mock('../../store/useAuthStore', () => ({
 import { HousingerPage } from '../../components/housing/pages/HousingerPage';
 import { useHousingTourStore } from '../../store/useHousingTourStore';
 import { useHousingListOrderStore } from '../../store/useHousingListOrderStore';
+import { useTourTrayStore } from '../../store/useTourTrayStore';
 
 const publishedProfile: HousingerProfile = {
   displayName: 'たかし',
@@ -114,6 +115,7 @@ beforeEach(() => {
   authUid = null;
   useHousingTourStore.getState().reset();
   useHousingListOrderStore.getState().reset();
+  useTourTrayStore.getState().clear();
 });
 
 function renderPage(uid: string) {
@@ -345,6 +347,30 @@ describe('HousingerPage', () => {
     expect(showToastMock).toHaveBeenCalledWith(expect.any(String), 'error');
     expect(useHousingTourStore.getState().running).toBe(false);
     expect(useHousingTourStore.getState().listingIds).toEqual([]);
+  });
+
+  // バグ報告(2026-08-10): 既存のツアートレイ(探す/お気に入りで組んでいた候補)を無視して
+  // このハウジンガーの家だけで上書きしていた。トレイの家 + この人の家が両方残るべき。
+  it('既にツアートレイに家が積まれている状態で「まとめてツアー」を実行すると、トレイの家とこの人の家が両方ツアーに含まれる(上書きされない)', async () => {
+    useTourTrayStore.getState().setTrayIds(['tray-house-1']);
+    mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
+    mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);
+
+    const { unmount } = renderPage('uid-1');
+
+    const tourBtn = await screen.findByRole('button', { name: 'この人の家をまとめてツアー' });
+    fireEvent.click(tourBtn);
+    fireEvent.click(screen.getByRole('button', { name: /はじめる/ }));
+
+    expect(useHousingTourStore.getState().running).toBe(true);
+    expect(useHousingTourStore.getState().listingIds).toEqual(
+      expect.arrayContaining(['tray-house-1', 'l-1']),
+    );
+    expect(useHousingTourStore.getState().listingIds).toHaveLength(2);
+    // 開始時にトレイは空になる (他ページの commitStart と同じ後始末)。
+    expect(useTourTrayStore.getState().trayIds).toEqual([]);
+    // navigate('/housing/tour') 後の未解決な副作用が次のテストへ漏れないよう明示的に片付ける。
+    unmount();
   });
 
   it('本人閲覧・代表作未選択なら新着順上位が自動選択され、選択トグルにチェックが入る', async () => {

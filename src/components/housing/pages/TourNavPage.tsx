@@ -6,6 +6,7 @@ import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
+import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { buildTourPool } from '../../../lib/housing/buildTourPool';
@@ -139,10 +140,15 @@ export const TourNavPage: React.FC = () => {
     (id: string) => setEmptyTrayIds((prev) => prev.filter((x) => x !== id)),
     [],
   );
+  // バグ修正(2026-08-10): 探す/お気に入りで既にツアートレイに家を組んでいた場合、
+  // そのトレイを無視してこの一時追加分だけで上書きしていた(HousingerPage.commitTourAll と
+  // 同種の不具合)。実際に発生するのは listingIds===0 のまま直接この画面へ来た稀なケースだが、
+  // 直しは軽微で他経路(BrowsePage 等)と同じ「トレイ起点」形に揃うため合わせて対応する。
   const onStartEphemeral = useCallback(() => {
     if (emptyTrayIds.length === 0) return;
-    const pool = useEphemeralListingsStore.getState().ephemeralListings;
-    const orderedIds = orderTourStopIds(emptyTrayIds, pool);
+    const trayIds = useTourTrayStore.getState().trayIds;
+    const mergedIds = [...trayIds, ...emptyTrayIds.filter((id) => !trayIds.includes(id))];
+    const orderedIds = orderTourStopIds(mergedIds, pool);
     const stops = orderedIds
       .map((id) => pool.find((l) => l.id === id))
       .filter((l): l is MockListing => Boolean(l));
@@ -154,8 +160,9 @@ export const TourNavPage: React.FC = () => {
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
+    useTourTrayStore.getState().clear();
     setEmptyTrayIds([]);
-  }, [emptyTrayIds, t]);
+  }, [emptyTrayIds, pool, t]);
 
   // 共有ツアー同期 (Task 2.1): 幹事の「みんなを招待」発行フロー。
   // 実際の Firestore 書き込み (create-shared-tour) を行う共通処理。

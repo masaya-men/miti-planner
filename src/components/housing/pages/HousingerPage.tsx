@@ -27,6 +27,8 @@ import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
+import { useTourTrayStore } from '../../../store/useTourTrayStore';
+import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { useAccountActions } from '../../../hooks/auth/useAccountActions';
 import { DisplayNameEditor } from '../../DisplayNameEditor';
 import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
@@ -35,7 +37,7 @@ import {
   getHousingerListings,
   upsertHousingerProfile,
 } from '../../../lib/housing/housingerProfileService';
-import { isEligibleForOgRepresentative } from '../../../lib/housing/listingPublish';
+import { isEligibleForOgRepresentative, mergeListingsForViewer } from '../../../lib/housing/listingPublish';
 import { normalizeHousingerUid, stripHashedPrefix } from '../../../lib/housing/housingerProfile';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
 import { HousingShareButton } from '../listing/HousingShareButton';
@@ -344,12 +346,26 @@ export const HousingerPage: React.FC = () => {
     setMannerOpen(true);
   };
 
-  // マナー確認の「はじめる」で実際にツアーを開始する。BrowsePage.tsx の commitStart と同形。
+  // マナー確認の「はじめる」で実際にツアーを開始する。
+  // バグ修正(2026-08-10): 以前はこの人の家だけで setListings して、探す/お気に入りで
+  // 既に組んでいたツアートレイを上書きしていた。トレイ + この人の家をマージしてから開始する
+  // (BrowsePage.tsx の commitStart と同じ「トレイを起点に開始」形へ統一)。
   const commitTourAll = () => {
-    const ids = listings.map((l) => l.id);
-    const orderedIds = orderTourStopIds(ids, listings);
+    const trayIds = useTourTrayStore.getState().trayIds;
+    const newIds = listings.map((l) => l.id);
+    const mergedIds = [...trayIds, ...newIds.filter((id) => !trayIds.includes(id))];
+    // トレイ内の id はこの人以外の家も含みうるため、探すページと同じ合流プールで解決する。
+    const publicListings = useHousingListingsStore.getState().listings;
+    const myListings = useHousingListingsStore.getState().myListings;
+    const ephemeral = useEphemeralListingsStore.getState().ephemeralListings;
+    const pool = [
+      ...mergeListingsForViewer(publicListings, myListings, viewerUid, Date.now()),
+      ...ephemeral,
+      ...listings,
+    ];
+    const orderedIds = orderTourStopIds(mergedIds, pool);
     const stops = orderedIds
-      .map((id) => listings.find((l) => l.id === id))
+      .map((id) => pool.find((l) => l.id === id))
       .filter((l): l is MockListing => Boolean(l));
     const conflict = tourRegionConflict(stops);
     if (conflict) {
@@ -359,6 +375,7 @@ export const HousingerPage: React.FC = () => {
     useHousingTourStore.getState().setListings(orderedIds);
     useHousingTourStore.getState().start();
     useHousingViewStore.getState().enterTourMode();
+    useTourTrayStore.getState().clear();
     setMannerOpen(false);
     navigate('/housing/tour');
   };
