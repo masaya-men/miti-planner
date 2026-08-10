@@ -9032,6 +9032,20 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   font-size: var(--housing-text-sm);
 }
 
+/* ツアーの「みんなを招待」コーナーパネル(240px幅)に出す場合は、RegisterPage の
+   大きい中央寄せカードではなく詰めた左寄せに調整する(未ログインでも招待の入口が
+   わかるように、この場所だけログイン案内へ差し替える)。 */
+.housing-tour-invite--login .housing-login-prompt {
+  padding: 0;
+  align-items: flex-start;
+  text-align: left;
+  gap: 8px;
+  max-width: none;
+}
+.housing-tour-invite--login .housing-login-prompt-cta {
+  width: 100%;
+}
+
 /* 未ログイン時 (panel-solo) は案内をパネルの中央に置く。
    .housing-register-col は height:100% + flex column なので既定だと上端に貼り付く。
    margin:auto は overflow-y:auto でも上端が切れない安全な中央寄せ (justify-content:center は切れる)。 */

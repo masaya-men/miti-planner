@@ -7,6 +7,7 @@ import { useHousingViewStore } from '../../../store/useHousingViewStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { buildTourPool } from '../../../lib/housing/buildTourPool';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
@@ -22,6 +23,7 @@ import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { TourInvitePanel } from '../tour/TourInvitePanel';
+import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { TourMobileBar } from '../tour/TourMobileBar';
 import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
 import { HousingReportModal } from '../report/HousingReportModal';
@@ -59,6 +61,8 @@ export const TourNavPage: React.FC = () => {
   const listings = useHousingListingsStore((s) => s.listings);
   const myListings = useHousingListingsStore((s) => s.myListings);
   const uid = useAuthStore((s) => s.user?.uid ?? null);
+  const isLoggedIn = uid !== null;
+  const openLogin = useHousingModalStore((s) => s.openLogin);
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
   const [completed, setCompleted] = useState(false);
@@ -173,7 +177,14 @@ export const TourNavPage: React.FC = () => {
 
   // 「みんなを招待」ボタン。非公開/一時追加の家を含む場合は警告ダイアログを挟み、
   // それ以外は確認なしで即発行する。
+  // 招待の発行(create-shared-tour)はログイン必須(housingApiClient 参照)。デスクトップは
+  // パネルごとログイン案内に差し替えるため通常ここに来ないが、スマホ下部バーはボタンが
+  // 常設のため、未ログイン時はここでログインモーダルを開いて終わる(サイレント失敗の防止)。
   const onInvite = useCallback(() => {
+    if (!isLoggedIn) {
+      openLogin();
+      return;
+    }
     const snaps = buildTourSnapshots(listingIds, pool);
     const hasEphemeral = listingIds.some((id) => ephemeral.some((e) => e.id === id));
     const containsHidden = snapshotContainsHiddenAddress(snaps);
@@ -182,7 +193,7 @@ export const TourNavPage: React.FC = () => {
     } else {
       void doCreate(snaps);
     }
-  }, [listingIds, pool, ephemeral, doCreate]);
+  }, [isLoggedIn, openLogin, listingIds, pool, ephemeral, doCreate]);
 
   // 警告ダイアログの「このまま招待する」。
   const onConfirmExpose = useCallback(() => {
@@ -317,14 +328,20 @@ export const TourNavPage: React.FC = () => {
             viewingTimerText={viewingTimerText}
           />
         </div>
-        <TourInvitePanel
-          tourToken={tourToken}
-          creating={creatingInvite}
-          tourName={tourName}
-          onTourNameChange={setTourName}
-          onInvite={onInvite}
-          onCopy={onCopyInvite}
-        />
+        {isLoggedIn ? (
+          <TourInvitePanel
+            tourToken={tourToken}
+            creating={creatingInvite}
+            tourName={tourName}
+            onTourNameChange={setTourName}
+            onInvite={onInvite}
+            onCopy={onCopyInvite}
+          />
+        ) : (
+          <div className="housing-tour-invite housing-tour-invite--login">
+            <HousingLoginPrompt context="tour" />
+          </div>
+        )}
       </section>
 
       <section className="housing-tour-page-panel" data-region="right" inert={frozen}>

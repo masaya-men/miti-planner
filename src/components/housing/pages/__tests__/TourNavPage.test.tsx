@@ -11,6 +11,7 @@ import { useHousingTourStore } from '../../../../store/useHousingTourStore';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
 import { useHousingViewStore } from '../../../../store/useHousingViewStore';
 import { useEphemeralListingsStore } from '../../../../store/useEphemeralListingsStore';
+import { useAuthStore } from '../../../../store/useAuthStore';
 
 const navigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -101,6 +102,7 @@ describe('TourNavPage', () => {
     useHousingListingsStore.setState({ status: 'ready', listings: [], myListings: [] });
     useHousingViewStore.getState().reset();
     useEphemeralListingsStore.getState().clear();
+    useAuthStore.setState({ user: null });
     showToastMock.mockClear();
   });
 
@@ -152,6 +154,26 @@ describe('TourNavPage', () => {
     // Phase3 Task2でショーケースパネル(右)からTourRouteStepsを撤去したため、
     // 「ルートのステップ」見出しは進行状況パネル(左)のみに出る。
     expect(screen.getByText('ルートのステップ')).toBeInTheDocument();
+  });
+
+  // 招待発行(create-shared-tour)はログイン必須。未ログインで招待パネルを普通に出すと
+  // 「みんなを招待」→サイレント失敗(招待リンクの発行に失敗しました)になるバグが実機で見つかった。
+  // ログイン案内へ差し替えることで、非ログインユーザーが原因不明の失敗に遭わないようにする。
+  it('未ログインなら招待パネルの代わりにログイン案内が出て、招待ボタンは出ない', () => {
+    useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
+    seedListings();
+    renderPage();
+    expect(screen.getByText('ツアー作成にはログインが必要です')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'みんなを招待' })).not.toBeInTheDocument();
+  });
+
+  it('ログイン済みなら通常通り「みんなを招待」ボタンが出る', () => {
+    useAuthStore.setState({ user: { uid: 'test-uid' } as any });
+    useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
+    seedListings();
+    renderPage();
+    expect(screen.getByRole('button', { name: 'みんなを招待' })).toBeInTheDocument();
+    expect(screen.queryByText('ツアー作成にはログインが必要です')).not.toBeInTheDocument();
   });
 
   it('「次へ」でtourStore.nextが発火しcurrentIndexが進む', () => {
