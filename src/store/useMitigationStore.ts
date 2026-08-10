@@ -21,6 +21,7 @@ import { DEFAULT_NEW_MODE } from '../utils/mitigationResolver';
 import type { CollabHandlers } from '../lib/collab/collabTypes';
 import type { BatchOp } from '../lib/collab/yjsPlanData';
 import { resolveImportEvents, type ImportMode } from '../utils/importModes';
+import { matchesCopiesShieldSource } from '../utils/scholarShieldRules';
 
 export interface AASettings {
     damage: number;
@@ -470,7 +471,7 @@ const resolveShieldLinks = (
         // 現在のリンクが有効か確認
         if (m.linkedMitigationId) {
             const linked = mitigations.find(l => l.id === m.linkedMitigationId);
-            if (linked && linked.mitigationId === def.copiesShield &&
+            if (linked && matchesCopiesShieldSource(linked.mitigationId, def.copiesShield) &&
                 linked.time <= m.time && linked.time + linked.duration > m.time) {
                 // リンク有効 — durationを鼓舞の残り時間に同期
                 const remainingDuration = Math.max(1, linked.time + linked.duration - m.time);
@@ -485,7 +486,7 @@ const resolveShieldLinks = (
         // 有効なコピー元を検索
         const available = mitigations.filter(l =>
             l.id !== m.id &&
-            l.mitigationId === def.copiesShield &&
+            matchesCopiesShieldSource(l.mitigationId, def.copiesShield!) &&
             l.time <= m.time &&
             l.time + l.duration > m.time
         );
