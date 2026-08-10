@@ -214,6 +214,15 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
   const crossRegionBlocked =
     trayRegion != null && candidateRegion != null && !canAddToTour(trayRegion, candidateRegion);
 
+  // フォーム送信(Enter/クリック双方が経由)。追加ボタンは type="submit" にして委譲する
+  // ため、複合フォーム(URL欄・番地欄など)のどこで Enter を押しても反応する。ボタンが
+  // disabled(=complete でない)間はブラウザが implicit submission を発火させないので、
+  // ここでの complete チェックは handleAdd 側の既存ガードに任せて重複させない。
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleAdd();
+  };
+
   const handleAdd = () => {
     if (!complete || address.area === undefined || address.ward === undefined) return;
     const input: EphemeralInput = {
@@ -276,7 +285,7 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
       maxWidth={480}
       backdrop="frost"
     >
-      <div className="housing-ephemeral-panel">
+      <form className="housing-ephemeral-panel" onSubmit={handleSubmit}>
         {/* 使い捨て挙動の説明は最上部で最初に読ませる (下部だと見落とすため・ユーザー要望 2026-07-13)。 */}
         <p className="housing-ephemeral-note housing-ephemeral-note-lead">
           {t('housing.ephemeral.note_volatile')}
@@ -332,15 +341,18 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
         )}
         {added && <p className="housing-ephemeral-added">{t('housing.ephemeral.added')}</p>}
 
-        <button
-          type="button"
-          className="housing-ephemeral-add"
-          disabled={!complete || crossRegionBlocked}
-          onClick={handleAdd}
-        >
-          {t('housing.ephemeral.add')}
-        </button>
-      </div>
+        {/* スクロールしても押せる位置に留まるよう、ボタンだけ最下部に固定する
+            (実機フィードバック: 住所が埋まるとボタンがスクロール外に出て押しにくかった)。 */}
+        <div className="housing-ephemeral-footer">
+          <button
+            type="submit"
+            className="housing-ephemeral-add"
+            disabled={!complete || crossRegionBlocked}
+          >
+            {t('housing.ephemeral.add')}
+          </button>
+        </div>
+      </form>
     </HousingPanelModal>
   );
 };
