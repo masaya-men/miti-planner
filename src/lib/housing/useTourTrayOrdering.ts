@@ -35,9 +35,9 @@ export function useTourTrayOrdering(
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
   const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
-  const manualOrder = useTourTrayStore((s) => s.manualOrder);
   const togglePinStore = useTourTrayStore((s) => s.togglePin);
-  const setManualOrder = useTourTrayStore((s) => s.setManualOrder);
+  const pinStore = useTourTrayStore((s) => s.pin);
+  const clearPinsStore = useTourTrayStore((s) => s.clearPins);
 
   // 行解決プール: 公開一覧 → 自分の登録 → 一時 listing (TourTray と同じ合流)。
   // 50-100 件規模 + ドラッグ中の高頻度再描画を想定するため、配列 spread と並び解決 (Map 構築 + sort)
@@ -47,8 +47,8 @@ export function useTourTrayOrdering(
     [listings, myListings, ephemeral],
   );
   const orderedIds = useMemo(
-    () => resolveTourOrder(listingIds, pool, { pinnedIds, manualOrder }),
-    [listingIds, pool, pinnedIds, manualOrder],
+    () => resolveTourOrder(listingIds, pool, { pinnedIds }),
+    [listingIds, pool, pinnedIds],
   );
 
   const items = useMemo(
@@ -70,16 +70,20 @@ export function useTourTrayOrdering(
   };
 
   // ピン留め: 表示中の並び (resolveTourOrder の結果) をまず実体化してからピンを立てる
-  // = 見えている位置がそのまま固定位置になる。manualOrder は変えない。
+  // = 見えている位置がそのまま固定位置になる。
   const togglePin = (id: string) => {
     onChange(orderedIds);
     togglePinStore(id);
   };
 
+  // 効率順に並び替え = リセット動作。ピンをドラッグ由来分も含め全解除してから、
+  // 何も固定しない状態で自動順を組み直す (2026-08-11: ピンが「1回ドラッグしただけで無反応になる」
+  // 罠を解消するため、ドラッグ確定は下記の通りピン留めとして扱うことにした。その代わり
+  // 「まっさらに戻したい」ときの手段としてこのボタンを全ピン解除も兼ねる形にした)。
   const onSortEfficient = () => {
-    const next = resolveTourOrder(listingIds, pool, { pinnedIds, manualOrder: false });
+    clearPinsStore();
+    const next = resolveTourOrder(listingIds, pool, { pinnedIds: [] });
     onChange(next);
-    setManualOrder(false);
   };
 
   const sensors = useSensors(
@@ -87,6 +91,9 @@ export function useTourTrayOrdering(
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
+  // ドラッグで動かしたカードは、その場でピン留めする (2026-08-11)。こうすることで
+  // 「ドラッグ=その位置に固定する意思表示」として統一し、他の既存ピンを巻き込んで
+  // 無効化することもなくなる (resolveTourOrder は常にピンを尊重する1ルールのみ)。
   const handleDragEnd = (e: DragEndEvent) => {
     const { active, over } = e;
     if (!over || active.id === over.id) return;
@@ -94,7 +101,7 @@ export function useTourTrayOrdering(
     const newIndex = orderedIds.indexOf(String(over.id));
     if (oldIndex === -1 || newIndex === -1) return;
     onChange(arrayMove(orderedIds, oldIndex, newIndex));
-    setManualOrder(true);
+    pinStore(String(active.id));
   };
 
   return { items, orderedIds, pinnedIds, remove, togglePin, onSortEfficient, sensors, handleDragEnd };

@@ -174,13 +174,12 @@ export const TourNavPage: React.FC = () => {
   const trayIds = useTourTrayStore((s) => s.trayIds);
   const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
   const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
-  const manualOrder = useTourTrayStore((s) => s.manualOrder);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [planMannerOpen, setPlanMannerOpen] = useState(false);
 
   // 選択中idがトレイから外れたら(削除/開始等)、先頭の家へ選択を戻す。
   // 「先頭」はトレイ配列の生の順ではなく、グリッド/一覧が実際に表示している解決済みの順
-  // (resolveTourOrder = ピン留め + 手動並び or 効率順) の先頭に合わせる。
+  // (resolveTourOrder = ピン留め + 効率順) の先頭に合わせる。
   // でないと初期選択の家がカード①と一致せず紛らわしい。
   useEffect(() => {
     if (trayIds.length === 0) {
@@ -188,10 +187,10 @@ export const TourNavPage: React.FC = () => {
       return;
     }
     if (!selectedPlanId || !trayIds.includes(selectedPlanId)) {
-      const displayOrder = resolveTourOrder(trayIds, pool, { pinnedIds, manualOrder });
+      const displayOrder = resolveTourOrder(trayIds, pool, { pinnedIds });
       setSelectedPlanId(displayOrder[0] ?? trayIds[0]);
     }
-  }, [trayIds, selectedPlanId, pool, pinnedIds, manualOrder]);
+  }, [trayIds, selectedPlanId, pool, pinnedIds]);
 
   const selectedPlanListing = selectedPlanId
     ? (pool.find((l) => l.id === selectedPlanId) ?? null)
@@ -203,7 +202,7 @@ export const TourNavPage: React.FC = () => {
   // (useHousingTourStore.listingIds が非0になり、このページ自身が実行中の3パネルへ再描画される)。
   const commitPlanStart = useCallback(() => {
     if (trayIds.length === 0) return;
-    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedIds, manualOrder });
+    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedIds });
     const stops = orderedIds
       .map((id) => pool.find((l) => l.id === id))
       .filter((l): l is MockListing => Boolean(l));
@@ -217,7 +216,7 @@ export const TourNavPage: React.FC = () => {
     useHousingViewStore.getState().enterTourMode();
     useTourTrayStore.getState().clear();
     setPlanMannerOpen(false);
-  }, [trayIds, pool, pinnedIds, manualOrder, t]);
+  }, [trayIds, pool, pinnedIds, t]);
 
   // 共有ツアー同期 (Task 2.1): 幹事の「みんなを招待」発行フロー。
   // 実際の Firestore 書き込み (create-shared-tour) を行う共通処理。

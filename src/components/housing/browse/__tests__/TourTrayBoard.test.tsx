@@ -58,6 +58,6 @@ describe('TourTrayBoard', () => {
 
   it('案内文が表示される', () => {
     wrap(<TourTrayBoard listingIds={['a']} onChange={() => {}} selectedId={null} onSelect={() => {}} />);
-    expect(screen.getByText('ドラッグで並べ替え、ピンでこの位置に固定できます')).toBeInTheDocument();
+    expect(screen.getByText('カード左側のハンドルをつかんでドラッグで並べ替えできます')).toBeInTheDocument();
   });
 });

@@ -81,7 +81,7 @@ const baseListing = {
 describe('HousingActionBar', () => {
   beforeEach(() => {
     navigateMock.mockReset();
-    useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+    useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
     useHousingListingsStore.setState({ listings: [], myListings: [] } as never);
   });
 
@@ -117,7 +117,7 @@ describe('HousingActionBar', () => {
       listings: [{ id: 'other1', region: 'NA' } as never],
       myListings: [],
     } as never);
-    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [], manualOrder: false });
+    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [] });
     // baseListing.dc === 'Mana' → region 'JP'。'NA' とはブロックされる組み合わせ。
     renderBar({ viewerUid: null });
     const btn = screen.getByRole('button', { name: 'housing.card.add_to_tour' });

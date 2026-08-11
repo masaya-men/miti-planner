@@ -7254,13 +7254,6 @@ select.housing-input option {
 .housing-tour-tray-pin:hover { color: var(--housing-text); background: var(--housing-chip-bg-hover); }
 .housing-tour-tray-pin[data-active="true"] { color: var(--housing-honey); background: var(--housing-honey-medium); }
 .housing-tour-tray-pin:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
-.housing-tour-tray-num {
-  flex: 0 0 auto;
-  width: 22px; height: 22px; border-radius: 50%;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: var(--housing-text-sm); font-weight: 700;
-  color: var(--housing-candle); background: var(--housing-honey-medium);
-}
 /* 行き先の識別用サムネ (実機FB: 住所だけでは家が見分けづらいため追加)。 */
 .housing-tour-tray-thumb {
   flex: 0 0 auto;
@@ -7368,6 +7361,11 @@ select.housing-input option {
   min-height: 0;
   overflow-x: auto;
   overflow-y: hidden;
+  /* ホバーの浮き上がり (translateY) や影の滲みが overflow-y:hidden に切られないよう
+     上下に少し余白を確保する (.housing-listing-grid の同種対策と同じ考え方)。
+     接続線は角丸ポリライン方式 (2026-08-11) でカード中心の範囲内に収まるため、
+     これ以上の余白は不要。 */
+  padding: 14px 0;
 }
 .housing-tour-board-grid {
   position: relative;
@@ -7385,19 +7383,51 @@ select.housing-input option {
 }
 .housing-tour-board-path path {
   fill: none;
-  stroke: var(--housing-aether-border);
-  stroke-width: 2;
+  /* 実機指摘(2026-08-11): 動画背景の上だと --housing-aether-border(50%薄め・元はバッジ枠用)
+     では線が埋もれて見えなかった。他の経路線(register stepper 等)と同じ不透明トークンに揃える。 */
+  stroke: var(--housing-aether);
+  stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
+  /* カードの裏を通る区間も「光る一本道」として続いて見えるよう淡いグローを足す
+     (カード自体は不透明トークンだが完全な100%ではないため、グローがうっすら透けて見える)。 */
+  filter: drop-shadow(0 0 6px var(--housing-aether-glow-soft));
   transition: d 0.2s ease;
 }
+/* 巡る順番を示す、線の上をすーっと流れる光の玉 (2026-08-11)。 */
+.housing-tour-board-path-glow {
+  fill: var(--housing-map-light);
+  filter: drop-shadow(0 0 6px var(--housing-aether)) drop-shadow(0 0 10px var(--housing-aether-glow-strong));
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-board-path-glow {
+    display: none;
+  }
+}
 .housing-tour-board-cell {
+  /* 実機指摘(2026-08-11): position指定なし(static)だと、position:absoluteの接続線
+     (.housing-tour-board-path)がDOM順に関係なく常に手前に描画されてしまうため、
+     カードの方をpositioned要素にしてDOM順どおり(線→カード)の重なりに揃える。 */
+  position: relative;
   display: flex;
   align-items: center;
   padding: 4px 8px;
+  cursor: pointer;
 }
 .housing-tour-board-cell .housing-tour-tray-item {
   width: 100%;
+  /* 実機指摘(2026-08-11): サイドバートレイと共有の --housing-panel-inner(白5%)は、
+     パネルに囲まれず動画背景に直接浮くこのグリッドだと透けすぎて見えたため、
+     このグリッド内のカードだけ不透明な板トークンに差し替える(サイドバー側は変更なし)。 */
+  background: var(--housing-panel-bg-solid);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+/* ホバーで軽く浮き上がる (.housing-listing-card:hover と同系のインタラクション)。
+   選択状態 (青枠) とは独立に効かせてよい (:hover はドラッグ中は dnd-kit の inline transform が
+   上書きするため無視される)。 */
+.housing-tour-board-cell .housing-tour-tray-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 /* 選択中のカード: 左の詳細パネルに出ている家がどれかを示す。
    既存の選択表現 (.housing-register-visibility-chip[data-selected="true"]) と同じ青系トークンで揃える。
@@ -9328,6 +9358,9 @@ html[data-theme-anim="light"]::view-transition-new(root) {
 }
 .housing-tour-invite--login .housing-login-prompt-cta {
   width: 100%;
+  /* 土台 .housing-action-btn は justify-content 未指定(=flex-start)のため、全幅にすると
+     文字が左に寄って見える(register の主CTAと同じ既知パターン)。中央寄せに揃える。 */
+  justify-content: center;
 }
 
 /* 未ログイン時 (panel-solo) は案内をパネルの中央に置く。

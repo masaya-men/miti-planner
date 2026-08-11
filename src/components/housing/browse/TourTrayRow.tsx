@@ -10,7 +10,6 @@ import type { MockListing } from '../../../data/housing/mockListings';
 
 export interface TourTrayRowProps {
   listing: MockListing;
-  index: number;
   language: string;
   isPinned: boolean;
   onRemove: (id: string) => void;
@@ -23,7 +22,6 @@ export interface TourTrayRowProps {
  */
 export function TourTrayRow({
   listing,
-  index,
   language,
   isPinned,
   onRemove,
@@ -67,7 +65,6 @@ export function TourTrayRow({
       >
         <GripVertical size={14} aria-hidden="true" />
       </button>
-      <span className="housing-tour-tray-num">{index + 1}</span>
       {showThumbImage ? (
         <img className="housing-tour-tray-thumb" src={representativeImage(listing)} alt="" loading="lazy" />
       ) : (

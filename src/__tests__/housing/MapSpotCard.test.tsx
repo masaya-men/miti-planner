@@ -38,7 +38,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   navigate.mockReset();
-  useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+  useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
 });
 
 let seq = 0;

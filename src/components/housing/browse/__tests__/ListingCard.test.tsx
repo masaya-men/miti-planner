@@ -20,7 +20,7 @@ const mockListing = MOCK_LISTINGS[0];
 
 beforeEach(() => {
   navigate.mockReset();
-  useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+  useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
   useHousingListingsStore.setState({ listings: [], myListings: [] } as never);
 });
 
@@ -356,7 +356,7 @@ describe('ListingCard — ツアー追加のフィードバック(2026-08-10)', 
       listings: [{ id: 'other1', region: 'NA' } as never],
       myListings: [],
     } as never);
-    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [], manualOrder: false });
+    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [] });
     const onAddToTour = vi.fn();
     renderCard({ onAddToTour, listing: { ...mockListing, region: 'JP' } });
     const addBtn = screen.getAllByRole('button').find((btn) =>

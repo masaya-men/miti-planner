@@ -163,7 +163,7 @@ describe('TourNavPage', () => {
     expect(screen.queryByText('ツアーがまだ始まっていません')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /開始/ })).toBeInTheDocument();
     // 蛇行グリッド(TourTrayBoard)だけが出す案内文で、PC版であることを確定させる。
-    expect(screen.getByText('ドラッグで並べ替え、ピンでこの位置に固定できます')).toBeInTheDocument();
+    expect(screen.getByText('カード左側のハンドルをつかんでドラッグで並べ替えできます')).toBeInTheDocument();
   });
 
   // 計画画面の要: 右のグリッドで家を選ぶと左の詳細パネルが差し替わる、という繋ぎ目。
@@ -212,7 +212,7 @@ describe('TourNavPage', () => {
       renderPage();
       expect(screen.getByRole('button', { name: /開始/ })).toBeInTheDocument();
       // 蛇行グリッド(TourTrayBoard)の案内文が出ていないこと = PC版でなく縦一覧版であることの確認。
-      expect(screen.queryByText('ドラッグで並べ替え、ピンでこの位置に固定できます')).not.toBeInTheDocument();
+      expect(screen.queryByText('カード左側のハンドルをつかんでドラッグで並べ替えできます')).not.toBeInTheDocument();
       // ボタンが在るだけでなく、PC版と同じく「開始 → マナー確認 → はじめる」で実際に開始できること。
       fireEvent.click(screen.getByRole('button', { name: /開始/ }));
       fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));

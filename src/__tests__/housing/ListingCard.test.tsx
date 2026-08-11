@@ -30,7 +30,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   useHousingFavoritesStore.setState({ ids: [] } as never);
-  useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+  useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
   navigate.mockReset();
 });
 

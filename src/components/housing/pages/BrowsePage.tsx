@@ -107,7 +107,6 @@ export const BrowsePage: React.FC = () => {
   const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
   // ツアー順制御 (ドラッグ並び替え + ピン留め): resolveTourOrder が参照する。
   const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
-  const manualOrder = useTourTrayStore((s) => s.manualOrder);
   // マナー通知ダイアログ (#4: 開始のたびに毎回表示)。
   const [mannerOpen, setMannerOpen] = useState(false);
   const addToTray = (id: string) => {
@@ -140,7 +139,7 @@ export const BrowsePage: React.FC = () => {
     if (trayIds.length === 0) return;
     // ツアー解決は merged (探す一覧・非汚染) + 一時 listing。一覧グリッドの merged 自体は変えない。
     const pool = [...merged, ...ephemeral];
-    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedIds, manualOrder });
+    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedIds });
     const stops = orderedIds
       .map((id) => pool.find((l) => l.id === id))
       .filter((l): l is MockListing => Boolean(l));

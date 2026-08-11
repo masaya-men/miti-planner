@@ -12,7 +12,7 @@ vi.mock('react-i18next', () => ({
 import { useTourAddFeedback } from '../useTourAddFeedback';
 
 beforeEach(() => {
-  useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+  useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
   useHousingListingsStore.setState({ listings: [], myListings: [] } as never);
   useEphemeralListingsStore.setState({ ephemeralListings: [] } as never);
 });
@@ -37,7 +37,7 @@ describe('useTourAddFeedback', () => {
       listings: [{ id: 'other1', region: 'NA' } as never],
       myListings: [],
     } as never);
-    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [], manualOrder: false });
+    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [] });
 
     const { result } = renderHook(() => useTourAddFeedback('house1', 'JP'));
 
@@ -53,7 +53,7 @@ describe('useTourAddFeedback', () => {
   });
 
   it('追加済みの状態でattemptToggleを呼ぶと演出なしでトレイから外れる', () => {
-    useTourTrayStore.setState({ trayIds: ['house1'], pinnedIds: [], manualOrder: false });
+    useTourTrayStore.setState({ trayIds: ['house1'], pinnedIds: [] });
     const { result } = renderHook(() => useTourAddFeedback('house1', 'JP'));
     expect(result.current.isAdded).toBe(true);
 
@@ -68,7 +68,7 @@ describe('useTourAddFeedback', () => {
   });
 
   it('ピン留め済みのitemを外すとpinnedIdsからも消える(浮いたピンを残さない)', () => {
-    useTourTrayStore.setState({ trayIds: ['house1'], pinnedIds: ['house1'], manualOrder: false });
+    useTourTrayStore.setState({ trayIds: ['house1'], pinnedIds: ['house1'] });
     const { result } = renderHook(() => useTourAddFeedback('house1', 'JP'));
     expect(result.current.isAdded).toBe(true);
 
@@ -102,7 +102,7 @@ describe('useTourAddFeedback', () => {
       listings: [{ id: 'other1', region: 'NA' } as never],
       myListings: [],
     } as never);
-    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [], manualOrder: false });
+    useTourTrayStore.setState({ trayIds: ['other1'], pinnedIds: [] });
 
     const { result } = renderHook(() => useTourAddFeedback('house1', 'JP'));
 
@@ -116,7 +116,7 @@ describe('useTourAddFeedback', () => {
 
     // 競合の家をトレイから削除(別の場所で削除されたと仮定)
     act(() => {
-      useTourTrayStore.setState({ trayIds: [], pinnedIds: [], manualOrder: false });
+      useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
     });
 
     // 2回目: 再度同じhouseIdで追加しようとするが、今度は成功する

@@ -35,11 +35,10 @@ export const TourTrayList: React.FC<TourTrayListProps> = ({ listingIds, onChange
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
           <ol className="housing-tour-tray-list">
-            {items.map((l, i) => (
+            {items.map((l) => (
               <TourTrayRow
                 key={l.id}
                 listing={l}
-                index={i}
                 language={i18n.language}
                 isPinned={pinnedIds.includes(l.id)}
                 onRemove={remove}

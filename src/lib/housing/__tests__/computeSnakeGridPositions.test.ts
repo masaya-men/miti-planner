@@ -50,13 +50,38 @@ describe('computeSnakeGridPositions', () => {
 });
 
 describe('buildSnakePathD', () => {
-  it('セル中心を結ぶSVGパス文字列を作る', () => {
+  // 2026-08-11(4回目の実機指摘): 「角を丸めた折れ線」方式に刷新。直線で点をつなぎ、
+  // 実際に方向が変わる箇所だけ二次ベジェで丸める、シンプルな手描き風のつなぎ方。
+
+  it('同じ列内(一直線上の3点)は角丸めの影響を受けず実質まっすぐになる', () => {
     const cells = [
       { id: 'a', row: 0, col: 0 },
       { id: 'b', row: 1, col: 0 },
+      { id: 'c', row: 2, col: 0 },
     ];
     const d = buildSnakePathD(cells, 200, 60);
-    expect(d).toBe('M 100 30 L 100 90');
+    // bの前後(a・c)が一直線上にあるため、Q制御点(=b自身)も直線上に乗り、見た目はまっすぐ。
+    expect(d).toBe('M 100 30 L 100 69 Q 100 90, 100 111 L 100 150');
+  });
+
+  it('実際に方向が変わる箇所(列をまたぐ折返し)だけ丸くカーブする', () => {
+    const cells = [
+      { id: 'a', row: 0, col: 0 },
+      { id: 'b', row: 1, col: 0 },
+      { id: 'c', row: 1, col: 1 },
+      { id: 'd', row: 0, col: 1 },
+    ];
+    const d = buildSnakePathD(cells, 200, 60);
+    expect(d).toBe('M 100 30 L 100 69 Q 100 90, 121 90 L 279 90 Q 300 90, 300 69 L 300 30');
+  });
+
+  it('2点しかない場合は丸める基準点が無いため直線でつなぐ', () => {
+    const cells = [
+      { id: 'a', row: 0, col: 0 },
+      { id: 'b', row: 0, col: 1 },
+    ];
+    const d = buildSnakePathD(cells, 200, 60);
+    expect(d).toBe('M 100 30 L 300 30');
   });
 
   it('空配列は空文字列を返す', () => {
