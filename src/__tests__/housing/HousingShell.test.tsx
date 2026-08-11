@@ -12,6 +12,7 @@ vi.mock('../../lib/housingListingsService', () => ({
 }));
 
 import { HousingShell } from '../../components/housing/shell/HousingShell';
+import { useTourTrayStore } from '../../store/useTourTrayStore';
 
 // シェルは Outlet に任意の子を描画できることだけ検証する (BrowsePage 本体には依存しない)。
 const DummyPage: React.FC = () => <div data-testid="browse-page" />;
@@ -93,6 +94,54 @@ describe('HousingShell', () => {
       scrollToSpy.mockRestore();
       window.matchMedia = originalMatchMedia;
       (window as unknown as { visualViewport: unknown }).visualViewport = originalVisualViewport;
+    }
+  });
+
+  // Task8 スコープ追加 (実機FB#10 派生): Task7 の計画画面 (/housing/tour, トレイあり&未開始) は
+  // 自前の一覧+開始ボタンを持つため、フローティングの MobileTourTrayBar が重なると開始ボタンが
+  // 二重表示され、並べ替えも機能重複していた。HousingShell 側で /housing/tour タブ在中だけ
+  // 小バーの描画を止める (onTourTab ガード) ことを検証する。対照として他タブでは従来通り出ることも確認する。
+  it('モバイル+トレイあり+/housing/tour タブでは MobileTourTrayBar を描画しない (対照: 他タブでは描画する)', () => {
+    const originalMatchMedia = window.matchMedia;
+    (window as unknown as { matchMedia: (q: string) => MediaQueryList }).matchMedia = (query: string) => ({
+      matches: true, media: query, onchange: null,
+      addListener: () => {}, removeListener: () => {},
+      addEventListener: () => {}, removeEventListener: () => {},
+      dispatchEvent: () => false,
+    } as unknown as MediaQueryList);
+    useTourTrayStore.getState().setTrayIds(['a']);
+
+    try {
+      const onTour = render(
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter initialEntries={['/housing/tour']}>
+            <Routes>
+              <Route path="/housing/tour" element={<HousingShell />}>
+                <Route index element={<DummyPage />} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </I18nextProvider>,
+      );
+      expect(onTour.queryByTestId('mobile-tour-tray-bar')).not.toBeInTheDocument();
+      onTour.unmount();
+
+      const elsewhere = render(
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter initialEntries={['/housing/favorites']}>
+            <Routes>
+              <Route path="/housing/favorites" element={<HousingShell />}>
+                <Route index element={<DummyPage />} />
+              </Route>
+            </Routes>
+          </MemoryRouter>
+        </I18nextProvider>,
+      );
+      expect(elsewhere.getByTestId('mobile-tour-tray-bar')).toBeInTheDocument();
+      elsewhere.unmount();
+    } finally {
+      window.matchMedia = originalMatchMedia;
+      useTourTrayStore.getState().clear();
     }
   });
 });

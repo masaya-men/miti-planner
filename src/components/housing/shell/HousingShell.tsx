@@ -52,6 +52,13 @@ export const HousingShell: React.FC = () => {
     (pathname === '/housing/tour' && tourRunning) ||
     (!!joinedToken && pathname === `/housing/tour/${joinedToken}`);
 
+  // Task8 スコープ追加: /housing/tour タブ自体にいる間は MobileTourTrayBar (フローティングの
+  // 小バー) を出さない。Task7 の計画画面 (トレイあり&未開始) は自前の一覧+開始ボタンを既に
+  // 持つため、小バーが重なると開始ボタンが二重表示され、並べ替えも小バー側と機能重複する。
+  // immersive 自体は広げない (ボトムナビ/FAB は「タブ移動で離脱できる」ため計画中も表示を維持
+  // する意図的な設計・実機FB#2) ので、MobileTourTrayBar の描画条件だけ別途絞る。
+  const onTourTab = pathname === '/housing/tour';
+
   // 物件データを 1 回だけロード (冪等・全ページ共有)。
   useEffect(() => {
     void useHousingListingsStore.getState().load();
@@ -147,7 +154,7 @@ export const HousingShell: React.FC = () => {
         {isMobile && !immersive && <HousingRegisterFab />}
         {/* 実機FB#10: PCの右パネル(ツアートレイ)がスマホでは非表示のため、「ツアーに追加」の
             受け皿が無かった。トレイに積むと出る小バー (件数+開始+クリア) で開始まで完結させる。 */}
-        {isMobile && !immersive && <MobileTourTrayBar />}
+        {isMobile && !immersive && !onTourTab && <MobileTourTrayBar />}
         {isMobile && <HousingFilterSheet isOpen={filterOpen} onClose={() => setFilterOpen(false)} />}
         {isMobile && <HousingSettingsSheet isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />}
         <StatusBar />

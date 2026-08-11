@@ -14,7 +14,6 @@ import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { showToast } from '../../Toast';
 import type { MockListing } from '../../../data/housing/mockListings';
-import { TourReorderSheet } from './TourReorderSheet';
 
 /**
  * スマホ専用のツアートレイ小バー (実機FB#10)。
@@ -27,15 +26,15 @@ import { TourReorderSheet } from './TourReorderSheet';
  * 開始フローは FavoritesPage.commitStart と同型: 並べ替え (resolveTourOrder = ピン留め対応の
  * 自動/手動順) → 跨ぎ検査 (tourRegionConflict) → マナー確認 (MannerNoticeDialog・毎回) → start。
  *
- * ツアー順制御 (#並べ替え): 「並べ替え」ボタンから TourReorderSheet を開き、PC の TourTray と
- * 同じ TourTrayList (ドラッグ並び替え/固定ピン/効率順ボタン) をスマホでも操作できる。
+ * ツアー順制御 (#並べ替え): 「並べ替え」ボタンは /housing/tour (計画画面) へ遷移する。
+ * 並べ替え自体は計画画面側の一覧 (Task7 で追加) が担当し、この小バーは導線のみを持つ
+ * (旧専用シート方式は Task8 で撤去済み)。
  */
 export const MobileTourTrayBar: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const trayIds = useTourTrayStore((s) => s.trayIds);
-  const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
   const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
   const manualOrder = useTourTrayStore((s) => s.manualOrder);
   const publicListings = useHousingListingsStore((s) => s.listings);
@@ -44,7 +43,6 @@ export const MobileTourTrayBar: React.FC = () => {
   const ephemeral = useEphemeralListingsStore((s) => s.ephemeralListings);
 
   const [mannerOpen, setMannerOpen] = useState(false);
-  const [reorderOpen, setReorderOpen] = useState(false);
 
   // 行き先の解決プール: 公開一覧 + 自分の登録 (非公開含む) + 一時 listing (FavoritesPage と同じ合流)。
   const pool = useMemo<MockListing[]>(
@@ -85,7 +83,7 @@ export const MobileTourTrayBar: React.FC = () => {
           type="button"
           className="housing-tour-traybar-reorder"
           aria-label={t('housing.mobile.reorder')}
-          onClick={() => setReorderOpen(true)}
+          onClick={() => navigate('/housing/tour')}
         >
           <List size={14} aria-hidden="true" />
         </button>
@@ -106,12 +104,6 @@ export const MobileTourTrayBar: React.FC = () => {
           <X size={14} aria-hidden="true" />
         </button>
       </div>
-      <TourReorderSheet
-        isOpen={reorderOpen}
-        onClose={() => setReorderOpen(false)}
-        listingIds={trayIds}
-        onChange={setTrayIds}
-      />
       <MannerNoticeDialog
         open={mannerOpen}
         onCancel={() => setMannerOpen(false)}

@@ -230,4 +230,11 @@ describe('MobileTourTrayBar (実機FB#10)', () => {
     expect(useTourTrayStore.getState().trayIds).toHaveLength(0);
     expect(screen.queryByTestId('mobile-tour-tray-bar')).not.toBeInTheDocument();
   });
+
+  it('「並べ替え」タップで /housing/tour へ遷移する', () => {
+    useTourTrayStore.getState().setTrayIds(['a']);
+    renderBar();
+    fireEvent.click(screen.getByLabelText('housing.mobile.reorder'));
+    expect(navigate).toHaveBeenCalledWith('/housing/tour');
+  });
 });
