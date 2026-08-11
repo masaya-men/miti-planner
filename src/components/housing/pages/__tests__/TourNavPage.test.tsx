@@ -166,6 +166,34 @@ describe('TourNavPage', () => {
     expect(screen.getByText('ドラッグで並べ替え、ピンでこの位置に固定できます')).toBeInTheDocument();
   });
 
+  // 計画画面の要: 右のグリッドで家を選ぶと左の詳細パネルが差し替わる、という繋ぎ目。
+  // 初期選択がどの家になるか(表示順=resolveTourOrder)に依存しないよう、
+  // 「今出ていない家」のカードを選んでクリックする。
+  it('計画画面(PC): グリッドのカードをクリックすると左の詳細パネルがその家に切り替わる', () => {
+    seedListings();
+    useTourTrayStore.getState().setTrayIds([listing1.id, listing2.id, listing3.id]);
+    const { container } = renderPage();
+
+    const detailTitle = () =>
+      container.querySelector('.housing-tour-dest-title')?.textContent?.trim() ?? '';
+    const initial = detailTitle();
+    expect([listing1.title, listing2.title, listing3.title]).toContain(initial);
+
+    // 初期選択と違う家 = クリックで確実に表示が変わる対象。
+    const other = [listing1, listing2, listing3].find((l) => l.title !== initial);
+    expect(other).toBeDefined();
+
+    // グリッド(蛇行グリッド)のカード側のタイトル。左パネルの h2 と取り違えないよう
+    // .housing-tour-board-cell 配下に限定して探す。
+    const card = Array.from(
+      container.querySelectorAll('.housing-tour-board-cell .housing-tour-tray-title'),
+    ).find((el) => el.textContent?.trim() === other!.title);
+    expect(card).toBeTruthy();
+
+    fireEvent.click(card!);
+    expect(detailTitle()).toBe(other!.title);
+  });
+
   it('計画画面: 開始ボタンでマナー確認が開き、開始するとトレイが空になりlistingIdsが積まれる', () => {
     seedListings();
     useTourTrayStore.getState().setTrayIds([listing1.id, listing2.id]);
@@ -176,15 +204,20 @@ describe('TourNavPage', () => {
     expect(useHousingTourStore.getState().listingIds.length).toBeGreaterThan(0);
   });
 
-  it('計画画面(スマホ): 蛇行グリッドではなく縦一覧が出る', () => {
+  it('計画画面(スマホ): 蛇行グリッドではなく縦一覧が出て、開始ボタンから実際にツアーが始まる', () => {
     vi.mocked(useIsMobile).mockReturnValue(true);
     try {
       seedListings();
-      useTourTrayStore.getState().setTrayIds([listing1.id]);
+      useTourTrayStore.getState().setTrayIds([listing1.id, listing2.id]);
       renderPage();
       expect(screen.getByRole('button', { name: /開始/ })).toBeInTheDocument();
       // 蛇行グリッド(TourTrayBoard)の案内文が出ていないこと = PC版でなく縦一覧版であることの確認。
       expect(screen.queryByText('ドラッグで並べ替え、ピンでこの位置に固定できます')).not.toBeInTheDocument();
+      // ボタンが在るだけでなく、PC版と同じく「開始 → マナー確認 → はじめる」で実際に開始できること。
+      fireEvent.click(screen.getByRole('button', { name: /開始/ }));
+      fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+      expect(useTourTrayStore.getState().trayIds).toHaveLength(0);
+      expect(useHousingTourStore.getState().listingIds.length).toBeGreaterThan(0);
     } finally {
       // 失敗時も後続テスト(PC前提)へ mobile が漏れないよう必ず戻す。
       vi.mocked(useIsMobile).mockReturnValue(false);

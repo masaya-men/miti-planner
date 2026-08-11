@@ -179,15 +179,19 @@ export const TourNavPage: React.FC = () => {
   const [planMannerOpen, setPlanMannerOpen] = useState(false);
 
   // 選択中idがトレイから外れたら(削除/開始等)、先頭の家へ選択を戻す。
+  // 「先頭」はトレイ配列の生の順ではなく、グリッド/一覧が実際に表示している解決済みの順
+  // (resolveTourOrder = ピン留め + 手動並び or 効率順) の先頭に合わせる。
+  // でないと初期選択の家がカード①と一致せず紛らわしい。
   useEffect(() => {
     if (trayIds.length === 0) {
       setSelectedPlanId(null);
       return;
     }
     if (!selectedPlanId || !trayIds.includes(selectedPlanId)) {
-      setSelectedPlanId(trayIds[0]);
+      const displayOrder = resolveTourOrder(trayIds, pool, { pinnedIds, manualOrder });
+      setSelectedPlanId(displayOrder[0] ?? trayIds[0]);
     }
-  }, [trayIds, selectedPlanId]);
+  }, [trayIds, selectedPlanId, pool, pinnedIds, manualOrder]);
 
   const selectedPlanListing = selectedPlanId
     ? (pool.find((l) => l.id === selectedPlanId) ?? null)

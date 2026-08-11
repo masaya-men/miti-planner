@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useSensors, useSensor, PointerSensor, KeyboardSensor, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useHousingListingsStore } from '../../store/useHousingListingsStore';
@@ -39,17 +40,29 @@ export function useTourTrayOrdering(
   const setManualOrder = useTourTrayStore((s) => s.setManualOrder);
 
   // 行解決プール: 公開一覧 → 自分の登録 → 一時 listing (TourTray と同じ合流)。
-  const pool = [...listings, ...myListings, ...ephemeral];
-  const orderedIds = resolveTourOrder(listingIds, pool, { pinnedIds, manualOrder });
+  // 50-100 件規模 + ドラッグ中の高頻度再描画を想定するため、配列 spread と並び解決 (Map 構築 + sort)
+  // は毎レンダー再計算せず useMemo で固定する。参照が変わらない限り結果は同一。
+  const pool = useMemo(
+    () => [...listings, ...myListings, ...ephemeral],
+    [listings, myListings, ephemeral],
+  );
+  const orderedIds = useMemo(
+    () => resolveTourOrder(listingIds, pool, { pinnedIds, manualOrder }),
+    [listingIds, pool, pinnedIds, manualOrder],
+  );
 
-  const items = orderedIds
-    .map(
-      (id) =>
-        listings.find((l) => l.id === id) ??
-        myListings.find((l) => l.id === id) ??
-        ephemeral.find((l) => l.id === id),
-    )
-    .filter((l): l is MockListing => Boolean(l));
+  const items = useMemo(
+    () =>
+      orderedIds
+        .map(
+          (id) =>
+            listings.find((l) => l.id === id) ??
+            myListings.find((l) => l.id === id) ??
+            ephemeral.find((l) => l.id === id),
+        )
+        .filter((l): l is MockListing => Boolean(l)),
+    [orderedIds, listings, myListings, ephemeral],
+  );
 
   const remove = (id: string) => {
     onChange(listingIds.filter((x) => x !== id));

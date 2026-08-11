@@ -15,7 +15,10 @@ export interface TourTrayBoardProps {
 }
 
 const ROW_H = 60;
-const COL_W = 200;
+// 列幅: 行カードの固定幅要素 (グリップ/番号/サムネ/ピン/削除 + gap) を引くと 200px では
+// タイトルの表示幅がほぼ 0 になっていたため、既存サイドバートレイ幅 (--housing-right-w: 300px)
+// に揃える。300px はこの行カードがタイトル込みで収まることが判っている実績値。
+const COL_W = 300;
 const DEFAULT_ROWS = 5;
 
 /**
@@ -104,11 +107,22 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
                     className="housing-tour-board-cell"
                     data-selected={l.id === selectedId}
                     style={{ gridRow: cell.row + 1, gridColumn: cell.col + 1 }}
+                    role="button"
+                    tabIndex={0}
                     onClick={(e) => {
                       // グリップ/ピン/削除ボタンからのクリックは選択に波及させない
                       // (TourTrayRow 自体は Task2 の共用コンポーネントなので変更しない)。
                       if ((e.target as HTMLElement).closest('button')) return;
                       onSelect(l.id);
+                    }}
+                    onKeyDown={(e) => {
+                      // キーボードでも選択できるようにする (ドラッグは KeyboardSensor 側で既に対応済み)。
+                      // 内側ボタン由来のキー操作は onClick と同じガードで無視する。
+                      if ((e.target as HTMLElement).closest('button')) return;
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelect(l.id);
+                      }
                     }}
                   >
                     <TourTrayRow

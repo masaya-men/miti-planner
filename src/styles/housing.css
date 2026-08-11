@@ -7372,7 +7372,8 @@ select.housing-input option {
 .housing-tour-board-grid {
   position: relative;
   display: grid;
-  grid-auto-flow: column;
+  /* 自動フロー指定は持たない: セルはすべて inline style の gridRow/gridColumn で明示配置するため
+     効かない (対して grid-auto-columns は暗黙列トラックの幅として必要なので残す)。 */
   grid-auto-columns: var(--housing-snake-col-w);
   height: 100%;
 }
@@ -7397,6 +7398,13 @@ select.housing-input option {
 }
 .housing-tour-board-cell .housing-tour-tray-item {
   width: 100%;
+}
+/* 選択中のカード: 左の詳細パネルに出ている家がどれかを示す。
+   既存の選択表現 (.housing-register-visibility-chip[data-selected="true"]) と同じ青系トークンで揃える。
+   実際に見えている枠は cell 内の .housing-tour-tray-item なのでそちらへ当てる。 */
+.housing-tour-board-cell[data-selected="true"] .housing-tour-tray-item {
+  border-color: var(--housing-aether-border);
+  box-shadow: 0 0 0 1px var(--housing-aether-border) inset;
 }
 @media (prefers-reduced-motion: reduce) {
   .housing-tour-board-path path {
@@ -9748,6 +9756,13 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   /* 実機FB#7: 地図右下フロートの招待パネルはスマホでは出さない (招待/コピーは下部バーに一本化)。 */
   .housing-tour-invite {
     display: none;
+  }
+
+  /* 最終レビュー指摘(Critical): 計画画面(スマホ)は末尾に「ツアーを開始する」ボタンが来るが、
+     固定下部ナビ (.housing-bottomnav) に隠れて押せなかった。.housing-register-col-center と
+     同型でナビ高さ+セーフエリア+余裕を下端に確保する (padding-bottom のみ上書き)。 */
+  .housing-tour-plan-mobile {
+    padding-bottom: calc(var(--housing-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 24px);
   }
 
   /* ----- ツアー地図(TourNavMap): 行き方を地図下部の帯へ/フル住所2行折返し/ホイールヒント非表示 (実機2回目FB#4/#6) -----
