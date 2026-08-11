@@ -23,7 +23,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Pencil, Camera } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
@@ -31,6 +30,7 @@ import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { useAccountActions } from '../../../hooks/auth/useAccountActions';
 import { DisplayNameEditor } from '../../DisplayNameEditor';
+import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
 import {
   getHousingerProfile,
@@ -387,14 +387,7 @@ export const HousingerPage: React.FC = () => {
       <div className="housing-detail-panel">
         <div className="housing-detail-shell">
           <main className="housing-detail-fullpage-main">
-            <p>{t('housing.housinger.mypageLoginRequired')}</p>
-            <button
-              type="button"
-              className="housing-action-btn"
-              onClick={() => useHousingModalStore.getState().openLogin()}
-            >
-              {t('housing.topbar.login')}
-            </button>
+            <HousingLoginPrompt context="mypage" />
           </main>
         </div>
       </div>

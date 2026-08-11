@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useHousingModalStore } from '../../store/useHousingModalStore';
 
 interface Props {
-  context: 'register' | 'tour' | 'favorite';
+  context: 'register' | 'tour' | 'favorite' | 'mypage';
   /**
    * context==='register' の場合に openLogin へ fromRegister を渡すかどうか。
    * 既定 true (旧挙動維持: HousingRegisterFormModal 等、旧ワークスペース経由のログイン誘導は

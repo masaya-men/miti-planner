@@ -47,6 +47,7 @@ import { HousingerPage } from '../../components/housing/pages/HousingerPage';
 import { useHousingTourStore } from '../../store/useHousingTourStore';
 import { useHousingListOrderStore } from '../../store/useHousingListOrderStore';
 import { useTourTrayStore } from '../../store/useTourTrayStore';
+import { useHousingListingsStore } from '../../store/useHousingListingsStore';
 
 const publishedProfile: HousingerProfile = {
   displayName: 'たかし',
@@ -116,6 +117,9 @@ beforeEach(() => {
   useHousingTourStore.getState().reset();
   useHousingListOrderStore.getState().reset();
   useTourTrayStore.getState().clear();
+  // isSelf 分岐 (loadMine 経由) が myListings を書き込むストア。他ストアと同様リセットしないと
+  // 前のテストの非同期 loadMine がアンマウント後に解決し myListings を汚染しうる (テスト間干渉)。
+  useHousingListingsStore.getState().reset();
 });
 
 function renderPage(uid: string) {
@@ -130,7 +134,26 @@ function renderPage(uid: string) {
   );
 }
 
+function renderMyPage() {
+  return render(
+    <I18nextProvider i18n={i18n}>
+      <MemoryRouter initialEntries={['/housing/mypage']}>
+        <Routes>
+          <Route path="/housing/mypage" element={<HousingerPage />} />
+        </Routes>
+      </MemoryRouter>
+    </I18nextProvider>,
+  );
+}
+
 describe('HousingerPage', () => {
+  it('未ログインで /housing/mypage を見ると HousingLoginPrompt (他画面と共通の主CTAボタン) が出る', () => {
+    renderMyPage();
+    expect(screen.getByText('マイページを見るにはログインが必要です')).toBeInTheDocument();
+    const cta = screen.getByRole('button', { name: 'ログイン画面を開く' });
+    expect(cta.className).toContain('housing-btn-primary');
+  });
+
   it('profile あり → 名前 + 公開ハウジング一覧が表示される', async () => {
     mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
     mockGetHousingerListings.mockResolvedValueOnce([rawListing('l-1', 'uid-1')]);

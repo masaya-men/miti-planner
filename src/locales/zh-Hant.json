@@ -2371,6 +2371,10 @@
                 "title": "收藏房屋需要登入",
                 "lead": "登入後，可在多個裝置間共用收藏"
             },
+            "mypage": {
+                "title": "檢視我的主頁需要先登入",
+                "lead": "登入後，可以在一處集中管理你登記的房屋和收藏"
+            },
             "open_login": "開啟登入畫面"
         },
         "tag": {
@@ -2607,7 +2611,6 @@
             "noListings": "暫無公開中的房屋",
             "tourAll": "一起導覽這個人的房屋",
             "editProfile": "編輯資料",
-            "mypageLoginRequired": "檢視我的主頁需要先登入",
             "loading": "載入中…",
             "viewPage": "檢視 {{name}} 的房主玩家主頁 →",
             "register": {

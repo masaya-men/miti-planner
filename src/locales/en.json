@@ -2406,6 +2406,10 @@
                 "title": "Login required to save favorites",
                 "lead": "After logging in, your favorites will sync across devices"
             },
+            "mypage": {
+                "title": "Login required to view My Page",
+                "lead": "Once logged in, you can manage your listings and favorites in one place."
+            },
             "open_login": "Open login"
         },
         "tag": {
@@ -2642,7 +2646,6 @@
             "noListings": "No published housing listings yet.",
             "tourAll": "Tour all of this Housinger's homes",
             "editProfile": "Edit profile",
-            "mypageLoginRequired": "Please log in to view your My Page",
             "loading": "Loading…",
             "viewPage": "View {{name}}'s Housinger page →",
             "register": {
