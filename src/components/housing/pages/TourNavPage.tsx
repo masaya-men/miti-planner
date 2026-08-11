@@ -12,6 +12,7 @@ import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { buildTourPool } from '../../../lib/housing/buildTourPool';
 import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
 import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
 import { useElapsed, formatElapsed } from '../../../lib/housing/useElapsed';
 import { termLabel } from '../../../lib/housing/housingTerms';
@@ -24,6 +25,10 @@ import { TourNavMap } from '../tour/TourNavMap';
 import { TourShowcasePanel } from '../tour/TourShowcasePanel';
 import { TourEmptyState } from '../tour/TourEmptyState';
 import { TourInvitePanel } from '../tour/TourInvitePanel';
+import { TourTrayDetailPanel } from '../tour/TourTrayDetailPanel';
+import { TourTrayBoard } from '../browse/TourTrayBoard';
+import { TourTrayList } from '../browse/TourTrayList';
+import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { TourMobileBar } from '../tour/TourMobileBar';
 import { TourAddressExposureDialog } from '../tour/TourAddressExposureDialog';
@@ -164,6 +169,52 @@ export const TourNavPage: React.FC = () => {
     setEmptyTrayIds([]);
   }, [emptyTrayIds, pool, t]);
 
+  // 計画画面(蛇行グリッド): トレイに1件以上あれば「ツアー未開始だが計画中」として
+  // TourEmptyState の代わりに TourTrayDetailPanel + TourTrayBoard(PC)/TourTrayList(スマホ)を出す。
+  const trayIds = useTourTrayStore((s) => s.trayIds);
+  const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
+  const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
+  const manualOrder = useTourTrayStore((s) => s.manualOrder);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
+  const [planMannerOpen, setPlanMannerOpen] = useState(false);
+
+  // 選択中idがトレイから外れたら(削除/開始等)、先頭の家へ選択を戻す。
+  useEffect(() => {
+    if (trayIds.length === 0) {
+      setSelectedPlanId(null);
+      return;
+    }
+    if (!selectedPlanId || !trayIds.includes(selectedPlanId)) {
+      setSelectedPlanId(trayIds[0]);
+    }
+  }, [trayIds, selectedPlanId]);
+
+  const selectedPlanListing = selectedPlanId
+    ? (pool.find((l) => l.id === selectedPlanId) ?? null)
+    : null;
+
+  // 計画画面の「ツアーを開始する」。BrowsePage.commitStart / FavoritesPage.commitStart と同型
+  // (resolveTourOrder → 跨ぎ検査 → マナー確認 → setListings/start/enterTourMode/clear)。
+  // 既にこのページ(/housing/tour)にいるため、開始後の navigate は不要
+  // (useHousingTourStore.listingIds が非0になり、このページ自身が実行中の3パネルへ再描画される)。
+  const commitPlanStart = useCallback(() => {
+    if (trayIds.length === 0) return;
+    const orderedIds = resolveTourOrder(trayIds, pool, { pinnedIds, manualOrder });
+    const stops = orderedIds
+      .map((id) => pool.find((l) => l.id === id))
+      .filter((l): l is MockListing => Boolean(l));
+    const conflict = tourRegionConflict(stops);
+    if (conflict) {
+      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
+      return;
+    }
+    useHousingTourStore.getState().setListings(orderedIds);
+    useHousingTourStore.getState().start();
+    useHousingViewStore.getState().enterTourMode();
+    useTourTrayStore.getState().clear();
+    setPlanMannerOpen(false);
+  }, [trayIds, pool, pinnedIds, manualOrder, t]);
+
   // 共有ツアー同期 (Task 2.1): 幹事の「みんなを招待」発行フロー。
   // 実際の Firestore 書き込み (create-shared-tour) を行う共通処理。
   const doCreate = useCallback(
@@ -283,7 +334,8 @@ export const TourNavPage: React.FC = () => {
     if (listing) setReportId(listing.id);
   }, [progress.currentStep]);
 
-  if (listingIds.length === 0) {
+  // 実行中でも計画中でもない (トレイも空) = 従来通りの空状態。
+  if (listingIds.length === 0 && trayIds.length === 0) {
     return (
       <div className="housing-tour-page">
         <section className="housing-tour-page-panel housing-tour-page-panel-solo" data-region="center">
@@ -296,6 +348,56 @@ export const TourNavPage: React.FC = () => {
             onStartEphemeral={onStartEphemeral}
           />
         </section>
+      </div>
+    );
+  }
+
+  // 未開始だがトレイに行き先がある = 計画画面。
+  // PC: 左に選択中の家の詳細 + 右に蛇行グリッド / スマホ: 既存の縦一覧 + 開始ボタン。
+  if (listingIds.length === 0 && trayIds.length > 0) {
+    return isMobile ? (
+      <div className="housing-tour-plan-mobile">
+        <TourTrayList listingIds={trayIds} onChange={setTrayIds} />
+        <button
+          type="button"
+          className="housing-tour-tray-start"
+          disabled={trayIds.length === 0}
+          onClick={() => setPlanMannerOpen(true)}
+        >
+          {t('housing.tray.start')}
+        </button>
+        <MannerNoticeDialog
+          open={planMannerOpen}
+          onCancel={() => setPlanMannerOpen(false)}
+          onStart={commitPlanStart}
+        />
+      </div>
+    ) : (
+      <div className="housing-tour-plan">
+        <section className="housing-tour-page-panel" data-region="left">
+          <div className="housing-tour-page-col">
+            <TourTrayDetailPanel
+              listing={selectedPlanListing}
+              onStartClick={() => setPlanMannerOpen(true)}
+              startDisabled={trayIds.length === 0}
+            />
+          </div>
+        </section>
+        <section className="housing-tour-page-panel" data-region="right">
+          <div className="housing-tour-page-col">
+            <TourTrayBoard
+              listingIds={trayIds}
+              onChange={setTrayIds}
+              selectedId={selectedPlanId}
+              onSelect={setSelectedPlanId}
+            />
+          </div>
+        </section>
+        <MannerNoticeDialog
+          open={planMannerOpen}
+          onCancel={() => setPlanMannerOpen(false)}
+          onStart={commitPlanStart}
+        />
       </div>
     );
   }

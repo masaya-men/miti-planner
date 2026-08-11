@@ -12,6 +12,7 @@ import { useHousingListingsStore } from '../../../../store/useHousingListingsSto
 import { useHousingViewStore } from '../../../../store/useHousingViewStore';
 import { useEphemeralListingsStore } from '../../../../store/useEphemeralListingsStore';
 import { useAuthStore } from '../../../../store/useAuthStore';
+import { useTourTrayStore } from '../../../../store/useTourTrayStore';
 
 const navigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -110,6 +111,7 @@ describe('TourNavPage', () => {
     useHousingViewStore.getState().reset();
     useEphemeralListingsStore.getState().clear();
     useAuthStore.setState({ user: null });
+    useTourTrayStore.getState().clear();
     showToastMock.mockClear();
   });
 
@@ -150,6 +152,43 @@ describe('TourNavPage', () => {
 
     // 2件目は積まれない (JP の1件だけ)
     expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(1);
+  });
+
+  // ツアー計画画面: listingIds は空 (未開始) でもトレイに行き先があれば、空状態ではなく
+  // 計画画面 (PC=詳細+蛇行グリッド / スマホ=縦一覧) を出す。
+  it('listingIdsは空だがtrayIdsに1件以上あれば計画画面(PC・蛇行グリッド)を表示する', () => {
+    seedListings();
+    useTourTrayStore.getState().setTrayIds([listing1.id]);
+    renderPage();
+    expect(screen.queryByText('ツアーがまだ始まっていません')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /開始/ })).toBeInTheDocument();
+    // 蛇行グリッド(TourTrayBoard)だけが出す案内文で、PC版であることを確定させる。
+    expect(screen.getByText('ドラッグで並べ替え、ピンでこの位置に固定できます')).toBeInTheDocument();
+  });
+
+  it('計画画面: 開始ボタンでマナー確認が開き、開始するとトレイが空になりlistingIdsが積まれる', () => {
+    seedListings();
+    useTourTrayStore.getState().setTrayIds([listing1.id, listing2.id]);
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: /開始/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'はじめる' }));
+    expect(useTourTrayStore.getState().trayIds).toHaveLength(0);
+    expect(useHousingTourStore.getState().listingIds.length).toBeGreaterThan(0);
+  });
+
+  it('計画画面(スマホ): 蛇行グリッドではなく縦一覧が出る', () => {
+    vi.mocked(useIsMobile).mockReturnValue(true);
+    try {
+      seedListings();
+      useTourTrayStore.getState().setTrayIds([listing1.id]);
+      renderPage();
+      expect(screen.getByRole('button', { name: /開始/ })).toBeInTheDocument();
+      // 蛇行グリッド(TourTrayBoard)の案内文が出ていないこと = PC版でなく縦一覧版であることの確認。
+      expect(screen.queryByText('ドラッグで並べ替え、ピンでこの位置に固定できます')).not.toBeInTheDocument();
+    } finally {
+      // 失敗時も後続テスト(PC前提)へ mobile が漏れないよう必ず戻す。
+      vi.mocked(useIsMobile).mockReturnValue(false);
+    }
   });
 
   it('listingIds + listings 注入で3カラム(進行状況/地図/ショーケース)が描画される', () => {
