@@ -7275,11 +7275,7 @@ select.housing-input option {
   display: flex; flex-direction: column; gap: 2px;
 }
 .housing-tour-tray-title {
-  font-size: var(--housing-text-sm); font-weight: 700; color: var(--housing-text);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.housing-tour-tray-addr {
-  font-size: var(--housing-text-xs); color: var(--housing-text-mute);
+  font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .housing-tour-tray-remove {
