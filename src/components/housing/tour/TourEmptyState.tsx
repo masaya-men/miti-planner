@@ -10,6 +10,7 @@ import { tourAnchorRegion } from '../../../lib/housing/tourCrossing';
 
 export interface TourEmptyStateProps {
   onGoFavorites: () => void;
+  onGoBrowse: () => void;
   /**
    * 「住所から追加」入口 (計画: 住所登録なし一時ツアー Task3)。
    * 呼び出し側 (TourNavPage) がローカル state に積んだ一時 listing の id リスト。
@@ -33,6 +34,7 @@ export interface TourEmptyStateProps {
  */
 export const TourEmptyState: React.FC<TourEmptyStateProps> = ({
   onGoFavorites,
+  onGoBrowse,
   ephemeralIds,
   onAddEphemeral,
   onRemoveEphemeral,
@@ -55,6 +57,9 @@ export const TourEmptyState: React.FC<TourEmptyStateProps> = ({
       <p className="housing-tour-empty-lead">{t('housing.tour.nav.empty.lead')}</p>
       <button type="button" className="housing-tour-empty-cta" onClick={onGoFavorites}>
         {t('housing.tour.nav.empty.cta')}
+      </button>
+      <button type="button" className="housing-tour-empty-cta" onClick={onGoBrowse}>
+        {t('housing.tour.nav.empty.cta_browse')}
       </button>
 
       {onAddEphemeral && (

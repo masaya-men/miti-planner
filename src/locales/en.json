@@ -1955,7 +1955,8 @@
             "sort_efficient": "Sort by route",
             "pin": "Pin to this position",
             "unpin": "Unpin",
-            "drag_handle": "Drag to reorder"
+            "drag_handle": "Drag to reorder",
+            "board_hint": "Drag to reorder, or pin a card to keep it in place"
         },
         "ephemeral": {
             "add_button": "Add by address",
@@ -2029,7 +2030,7 @@
             "search": "Search",
             "browse": "Browse",
             "favorites": "Favorites",
-            "tour": "On Tour",
+            "tour": "Tour",
             "register": "Register",
             "mypage": "My Page"
         },
@@ -2916,7 +2917,8 @@
                 "empty": {
                     "title": "Your tour hasn't started yet",
                     "lead": "Pick housing you'd like to visit from your favorites to start a tour.",
-                    "cta": "Go to Favorites"
+                    "cta": "Go to Favorites",
+                    "cta_browse": "Go to Browse"
                 },
                 "legend": {
                     "here": "You are here",

@@ -17,10 +17,10 @@ beforeAll(() => {
   });
 });
 
-function renderEmptyState(onGoFavorites: () => void = () => {}) {
+function renderEmptyState(onGoFavorites: () => void = () => {}, onGoBrowse: () => void = () => {}) {
   return render(
     <I18nextProvider i18n={i18n}>
-      <TourEmptyState onGoFavorites={onGoFavorites} />
+      <TourEmptyState onGoFavorites={onGoFavorites} onGoBrowse={onGoBrowse} />
     </I18nextProvider>
   );
 }
@@ -43,5 +43,12 @@ describe('TourEmptyState — ツアー未開始の空状態', () => {
     renderEmptyState(onGoFavorites);
     fireEvent.click(screen.getByRole('button', { name: 'お気に入りへ' }));
     expect(onGoFavorites).toHaveBeenCalledTimes(1);
+  });
+
+  it('「探すへ」クリックで onGoBrowse が呼ばれる', () => {
+    const onGoBrowse = vi.fn();
+    renderEmptyState(() => {}, onGoBrowse);
+    fireEvent.click(screen.getByRole('button', { name: '探すへ' }));
+    expect(onGoBrowse).toHaveBeenCalledTimes(1);
   });
 });

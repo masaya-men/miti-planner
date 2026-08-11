@@ -1920,7 +1920,8 @@
             "sort_efficient": "依效率排序",
             "pin": "固定在這個位置",
             "unpin": "解除固定",
-            "drag_handle": "拖曳以重新排序"
+            "drag_handle": "拖曳以重新排序",
+            "board_hint": "拖曳可調整順序，點擊圖釘可固定卡片位置"
         },
         "ephemeral": {
             "add_button": "透過地址新增",
@@ -1994,7 +1995,7 @@
             "search": "搜尋",
             "browse": "瀏覽",
             "favorites": "收藏",
-            "tour": "導覽中",
+            "tour": "導覽",
             "register": "登記",
             "mypage": "我的頁面"
         },
@@ -2881,7 +2882,8 @@
                 "empty": {
                     "title": "導覽還沒有開始",
                     "lead": "從收藏中選擇想去的房屋，開始一次導覽吧。",
-                    "cta": "前往收藏"
+                    "cta": "前往收藏",
+                    "cta_browse": "前往瀏覽"
                 },
                 "legend": {
                     "here": "當前位置",

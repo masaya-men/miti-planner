@@ -1920,7 +1920,8 @@
             "sort_efficient": "効率順に並べ替え",
             "pin": "この位置に固定",
             "unpin": "固定を解除",
-            "drag_handle": "ドラッグして並べ替え"
+            "drag_handle": "ドラッグして並べ替え",
+            "board_hint": "拖曳可调整顺序，点击图钉可固定卡片位置"
         },
         "ephemeral": {
             "add_button": "通过地址添加",
@@ -1994,7 +1995,7 @@
             "search": "搜索",
             "browse": "浏览",
             "favorites": "收藏",
-            "tour": "导览中",
+            "tour": "导览",
             "register": "登记",
             "mypage": "我的页面"
         },
@@ -2881,7 +2882,8 @@
                 "empty": {
                     "title": "导览还没有开始",
                     "lead": "从收藏中选择想去的房屋，开始一次导览吧。",
-                    "cta": "前往收藏"
+                    "cta": "前往收藏",
+                    "cta_browse": "前往浏览"
                 },
                 "legend": {
                     "here": "当前位置",

@@ -289,6 +289,7 @@ export const TourNavPage: React.FC = () => {
         <section className="housing-tour-page-panel housing-tour-page-panel-solo" data-region="center">
           <TourEmptyState
             onGoFavorites={onGoFavorites}
+            onGoBrowse={() => navigate('/housing')}
             ephemeralIds={emptyTrayIds}
             onAddEphemeral={onAddEphemeral}
             onRemoveEphemeral={onRemoveEphemeral}
