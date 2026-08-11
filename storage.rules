@@ -19,7 +19,7 @@ service firebase.storage {
       allow delete: if request.auth != null && request.auth.uid == userId;
       allow create, update: if request.auth != null
                       && request.auth.uid == userId
-                      && file.matches('(team-logo\\.(jpg|webp)|avatar\\.webp)')
+                      && file.matches('(team-logo\\.(jpg|webp)|avatar\\.(webp|png))')
                       && request.resource.size < 2 * 1024 * 1024
                       && request.resource.contentType.matches('image/.*');
     }
