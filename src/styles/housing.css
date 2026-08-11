@@ -7293,6 +7293,31 @@ select.housing-input option {
   min-height: 0; flex: 1 1 auto;
 }
 
+/* ===== ツアー計画画面: 左の固定詳細パネル (TourTrayDetailPanel・2026-08-11) ===== */
+.housing-tour-plan-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  height: 100%;
+}
+.housing-tour-plan-detail-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  color: var(--housing-text-mute);
+  font-size: var(--housing-text-sm);
+}
+.housing-tour-plan-detail-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 /* ===== ツアー計画画面: 蛇行グリッド (TourTrayBoard・2026-08-11) =====
    列を上下交互に埋めながら右へ続く一本道。画面に入りきらない分は横スクロール。 */
 .housing-tour-board {
