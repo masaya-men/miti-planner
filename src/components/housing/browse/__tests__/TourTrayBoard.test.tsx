@@ -30,6 +30,21 @@ beforeAll(() => {
 
 const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>);
 
+// useSmoothWheelScroll.test.tsx と同じ PC 判定モック (横スクロールのバネ補間は PC + 非 reduce-motion のみ)。
+function setMatchMediaPc(): void {
+  window.matchMedia = ((query: string) => {
+    let matches = false;
+    if (query === '(hover: hover) and (pointer: fine)') matches = true;
+    return { matches, media: query, onchange: null, addListener: () => {}, removeListener: () => {}, addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false } as unknown as MediaQueryList;
+  }) as Window['matchMedia'];
+}
+
+function getBoardScroll(): HTMLDivElement {
+  const el = document.querySelector('.housing-tour-board-scroll');
+  if (!el) throw new Error('.housing-tour-board-scroll が見つかりません');
+  return el as HTMLDivElement;
+}
+
 describe('TourTrayBoard', () => {
   it('トレイが空なら空状態を表示する', () => {
     wrap(<TourTrayBoard listingIds={[]} onChange={() => {}} selectedId={null} onSelect={() => {}} />);
@@ -59,5 +74,35 @@ describe('TourTrayBoard', () => {
   it('案内文が表示される', () => {
     wrap(<TourTrayBoard listingIds={['a']} onChange={() => {}} selectedId={null} onSelect={() => {}} />);
     expect(screen.getByText('カード左側のハンドルをつかんでドラッグで並べ替えできます')).toBeInTheDocument();
+  });
+
+  it('ホイールでバネ補間により scrollLeft が進む(横スクロール・PC環境)', async () => {
+    setMatchMediaPc();
+    wrap(<TourTrayBoard listingIds={['a', 'b']} onChange={() => {}} selectedId={null} onSelect={() => {}} />);
+    const el = getBoardScroll();
+    Object.defineProperty(el, 'scrollWidth', { configurable: true, value: 2000 });
+    Object.defineProperty(el, 'clientWidth', { configurable: true, value: 500 });
+    el.scrollLeft = 200;
+
+    const event = new WheelEvent('wheel', { deltaY: 50, deltaX: 0, bubbles: true, cancelable: true });
+    el.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(null)));
+    expect(el.scrollLeft).toBeGreaterThan(200);
+  });
+
+  it('境界(scrollLeft=0 で左方向)では preventDefault を呼ばない(横スクロール)', () => {
+    setMatchMediaPc();
+    wrap(<TourTrayBoard listingIds={['a', 'b']} onChange={() => {}} selectedId={null} onSelect={() => {}} />);
+    const el = getBoardScroll();
+    Object.defineProperty(el, 'scrollWidth', { configurable: true, value: 2000 });
+    Object.defineProperty(el, 'clientWidth', { configurable: true, value: 500 });
+    el.scrollLeft = 0;
+
+    const event = new WheelEvent('wheel', { deltaY: -50, deltaX: 0, bubbles: true, cancelable: true });
+    el.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
   });
 });

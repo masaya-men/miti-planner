@@ -5,6 +5,7 @@ import { ListingCard } from './ListingCard';
 import { BrowseSortSelect, type BrowseSortOrder } from './BrowseSortSelect';
 import { useHousingListOrderStore, type HousingListKey } from '../../../store/useHousingListOrderStore';
 import { useListScrollRestore } from '../../../lib/housing/useListScrollRestore';
+import { useSmoothWheelScroll } from '../../../lib/scroll/useSmoothWheelScroll';
 
 export interface ListingGridProps {
   listings: MockListing[];
@@ -57,6 +58,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
 }) => {
   const { t } = useTranslation();
   const containerRef = useListScrollRestore(listKey);
+  useSmoothWheelScroll(containerRef);
 
   const onShuffle = () => {
     useHousingListOrderStore.getState().reshuffle(listKey);

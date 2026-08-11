@@ -5,7 +5,13 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
 import { useTourTrayOrdering } from '../../../lib/housing/useTourTrayOrdering';
 import { computeSnakeGridPositions, buildSnakePathD } from '../../../lib/housing/computeSnakeGridPositions';
+import { isAtScrollBoundary, isSmoothScrollSupported, springStep } from '../../../lib/scroll/smoothScrollLogic';
 import { TourTrayRow } from './TourTrayRow';
+
+// 軽減表側の useSmoothWheelScroll (縦専用) と同じバネ定数。横方向へ転用するのでここに複製する。
+const WHEEL_SPRING_STIFFNESS = 200;
+const WHEEL_SPRING_DAMPING = 2 * Math.sqrt(WHEEL_SPRING_STIFFNESS);
+const WHEEL_SPRING_MAX_DT = 0.05;
 
 export interface TourTrayBoardProps {
   listingIds: string[];
@@ -80,16 +86,48 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
     // 実機指摘(2026-08-11): トラックパッドの横スワイプ(deltaX)は元々効くが、普通のマウスホイール
     // (縦deltaYのみ)では横スクロールしなかったため、縦ホイールを横スクロールへ変換する。
     // React の onWheel は passive リスナーで preventDefault できないため、直接 addEventListener する。
+    // 2026-08-12: PC + reduce-motion 無効の環境では、軽減表の useSmoothWheelScroll と同じバネ補間で
+    // 減速させる(純粋関数 springStep/isAtScrollBoundary を横方向に転用)。非対応環境(タッチ/reduce-motion)
+    // は従来どおり即時反映のまま。
+    const smooth = isSmoothScrollSupported(window);
+    const springState = { targetDy: 0, velY: 0 };
+    let lastTime = 0;
+    let rafId: number | null = null;
+
+    const step = (now: number): void => {
+      const dt = lastTime === 0 ? 1 / 60 : (now - lastTime) / 1000;
+      lastTime = now;
+      const result = springStep(springState, dt, WHEEL_SPRING_STIFFNESS, WHEEL_SPRING_DAMPING, WHEEL_SPRING_MAX_DT);
+      springState.targetDy = result.state.targetDy;
+      springState.velY = result.state.velY;
+      if (result.atRest) {
+        lastTime = 0;
+        rafId = null;
+        return;
+      }
+      const max = el.scrollWidth - el.clientWidth;
+      el.scrollLeft = Math.max(0, Math.min(max, el.scrollLeft + result.stepY));
+      rafId = requestAnimationFrame(step);
+    };
+
     const onWheel = (e: WheelEvent) => {
       if (e.deltaY === 0 || e.deltaX !== 0) return;
-      el.scrollLeft += e.deltaY;
+      if (!smooth) {
+        el.scrollLeft += e.deltaY;
+        e.preventDefault();
+        return;
+      }
+      if (isAtScrollBoundary(el.scrollLeft, el.scrollWidth, el.clientWidth, e.deltaY) !== null) return;
       e.preventDefault();
+      springState.targetDy += e.deltaY;
+      if (rafId === null) rafId = requestAnimationFrame(step);
     };
     el.addEventListener('wheel', onWheel, { passive: false });
 
     cleanupRef.current = () => {
       observer?.disconnect();
       el.removeEventListener('wheel', onWheel);
+      if (rafId !== null) cancelAnimationFrame(rafId);
     };
   }, []);
 
