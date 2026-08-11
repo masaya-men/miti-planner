@@ -207,8 +207,6 @@
   /* 参考UI準拠: 左右パネルを狭め、中央グリッドを広く(4列の一覧性を確保)。 */
   --housing-left-w: 240px;
   --housing-right-w: 300px;
-  --housing-snake-row-h: 60px;
-  --housing-snake-col-w: 200px;
   /* ツアー中ページ Phase3: 左=目的地ショーケース(広め) / 右=進行状況(狭め)。
      共有の --housing-left-w/--housing-right-w とは独立 (workspace 等に波及させない)。 */
   --housing-tour-showcase-w: 300px;

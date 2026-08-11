@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowDownUp, Route } from 'lucide-react';
 import { DndContext, closestCenter } from '@dnd-kit/core';
@@ -34,18 +34,22 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
   const { items, orderedIds, pinnedIds, remove, togglePin, onSortEfficient, sensors, handleDragEnd } =
     useTourTrayOrdering(listingIds, onChange);
 
-  const scrollRef = useRef<HTMLDivElement | null>(null);
   const [rowsPerColumn, setRowsPerColumn] = useState(DEFAULT_ROWS);
 
-  useEffect(() => {
-    const el = scrollRef.current;
+  // トレイが空 → 追加、で `.housing-tour-board-scroll` が初めて DOM に現れるケースがあるため、
+  // useEffect([]) ではなく callback ref で「ノードが実際に付いた瞬間」に observe する。
+  // ノードが差し替わる(空⇄件数あり往復)たびに前の observer は必ず disconnect する。
+  const observerRef = useRef<ResizeObserver | null>(null);
+  const scrollRef = useCallback((el: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    observerRef.current = null;
     if (!el || typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver((entries) => {
       const height = entries[0]?.contentRect.height ?? 0;
       setRowsPerColumn(Math.max(1, Math.floor(height / ROW_H)));
     });
     observer.observe(el);
-    return () => observer.disconnect();
+    observerRef.current = observer;
   }, []);
 
   if (items.length === 0) {
@@ -79,7 +83,9 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
               style={{
                 gridTemplateRows: `repeat(${rowsPerColumn}, ${ROW_H}px)`,
                 width: colCount * COL_W,
-              }}
+                '--housing-snake-row-h': `${ROW_H}px`,
+                '--housing-snake-col-w': `${COL_W}px`,
+              } as React.CSSProperties}
             >
               <svg
                 className="housing-tour-board-path"
@@ -98,7 +104,12 @@ export const TourTrayBoard: React.FC<TourTrayBoardProps> = ({
                     className="housing-tour-board-cell"
                     data-selected={l.id === selectedId}
                     style={{ gridRow: cell.row + 1, gridColumn: cell.col + 1 }}
-                    onClick={() => onSelect(l.id)}
+                    onClick={(e) => {
+                      // グリップ/ピン/削除ボタンからのクリックは選択に波及させない
+                      // (TourTrayRow 自体は Task2 の共用コンポーネントなので変更しない)。
+                      if ((e.target as HTMLElement).closest('button')) return;
+                      onSelect(l.id);
+                    }}
                   >
                     <TourTrayRow
                       listing={l}
