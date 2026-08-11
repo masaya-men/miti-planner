@@ -21,6 +21,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ### ✅ プロフィール画像(アイコン)アップロード不具合 = 本番修正済み(2026-08-11・実ユーザー報告→即日解決)
 根本原因: 2026-07-31のPNG派生版保存機能追加(`b46bf9a4`)でStorageへの書き込みファイルが`avatar.webp`+`avatar.png`の2つになったが、`storage.rules`の書き込み許可パターンが`avatar.webp`のみのままだった。WebP本体アップロード後のPNGアップロードがpermission-deniedで例外→処理全体が失敗しユーザーには「アップロードできない」だけが見える状態に(実際はWebP本体は保存済みだがFirestoreのURL保存まで届かない)。ユニットテストは`uploadBytes`をモックしておりStorageルールを検証しないため検知できなかった。`storage.rules`の正規表現に`avatar.png`を追加し本番デプロイ済み(`firebase deploy --only storage`)・コミット`f64e1640`。**次セッションでユーザーに実機再アップロードの確認を依頼する**(LoPo側のアイコン設定でも同じ経路のため両方直っているはず)。
 - 🟡 残課題: このバグを機械的に検知するテストが無い(`@firebase/rules-unit-testing`未導入)。次にStorageルールを触る時は導入を検討。
+### ✅ 未ログイン時マイページのログインボタン不一致を修正(2026-08-12・未push)
+`/housing/mypage`を未ログインで開いた時のログイン導線が、登録/ツアー/お気に入りで使う共通コンポーネント`HousingLoginPrompt`(ハニーゴールド主CTA)ではなく`HousingerPage.tsx`内の直書きボタン(色なし)だったため見た目が浮いていた不具合を修正。`HousingLoginPrompt`のcontextに'mypage'追加・i18n5言語・旧キー削除。**副産物**: 修正過程でテスト追加時に発覚した`HousingerPage.test.tsx`の既存不備(`useHousingListingsStore`が`beforeEach`未resetでテスト順依存の汚染が起きうる)も解消。tsc・vitest(94件・3回連続実行で安定確認)確認済み。
 ### ✅ ハウジング小粒ブラッシュアップ3件(2026-08-12・未push・全てtsc/vitest確認済み)
 ①探すページ一覧+ツアー横スクロールにスムーズスクロール追加: 過去にdocument全体へLenisを適用しホイールが全画面で効かなくなり撤去した経緯(2026-05-14, `b0f948d8`)があるため、同じ罠を避けて軽減表で実績のある個別要素配線方式(`useSmoothWheelScroll`のバネ補間)を採用。`ListingGrid`(探す/お気に入り/マイページ共通)配線+`TourTrayBoard`の横スクロールをバネ補間化。
 ②ツアートレイのサムネイル画像クリックで詳細ページへ: 共有部品`TourTrayRow`のサムネイルだけボタン化(探す/ツアー計画画面/スマホ縦一覧の3箇所に一括反映)。行本体クリック(in-place詳細パネル表示)とは独立動作、一時listingは対象外。
