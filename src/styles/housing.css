@@ -207,6 +207,8 @@
   /* 参考UI準拠: 左右パネルを狭め、中央グリッドを広く(4列の一覧性を確保)。 */
   --housing-left-w: 240px;
   --housing-right-w: 300px;
+  --housing-snake-row-h: 60px;
+  --housing-snake-col-w: 200px;
   /* ツアー中ページ Phase3: 左=目的地ショーケース(広め) / 右=進行状況(狭め)。
      共有の --housing-left-w/--housing-right-w とは独立 (workspace 等に波及させない)。 */
   --housing-tour-showcase-w: 300px;
@@ -7292,6 +7294,69 @@ select.housing-input option {
   display: flex; flex-direction: column; gap: 8px;
   min-height: 0; flex: 1 1 auto;
 }
+
+/* ===== ツアー計画画面: 蛇行グリッド (TourTrayBoard・2026-08-11) =====
+   列を上下交互に埋めながら右へ続く一本道。画面に入りきらない分は横スクロール。 */
+.housing-tour-board {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+.housing-tour-board-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+.housing-tour-board-hint {
+  font-size: var(--housing-text-xs);
+  color: var(--housing-text-mute);
+}
+.housing-tour-board-scroll {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.housing-tour-board-grid {
+  position: relative;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--housing-snake-col-w);
+  height: 100%;
+}
+.housing-tour-board-path {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.housing-tour-board-path path {
+  fill: none;
+  stroke: var(--housing-aether-border);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: d 0.2s ease;
+}
+.housing-tour-board-cell {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+}
+.housing-tour-board-cell .housing-tour-tray-item {
+  width: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-tour-board-path path {
+    transition: none;
+  }
+}
+
 .housing-tour-tray-sortbtn {
   appearance: none; cursor: pointer; flex: 0 0 auto;
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
