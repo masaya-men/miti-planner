@@ -3702,6 +3702,20 @@ select.housing-input option {
     align-items: center;
     justify-content: space-between;
 }
+/* 未ログイン時のマイページ (ログイン案内のみ): 共通シェルは左上詰めの通常コンテンツ前提の
+   ブロックレイアウトなので、このページ限定でシェルごと中央寄せに切り替える
+   (HousingDetailPage.tsx 側の見た目は変わらない・.housing-register-panel-solo と同じ考え方)。 */
+.housinger-page-login-shell {
+    display: flex;
+    flex-direction: column;
+}
+.housinger-page-login-main {
+    flex: 1 1 auto;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 /* 2026-07-24 レイアウト刷新: 他ページ共通の 1200px max-width は使わず、パネル幅いっぱいを使う。 */
 .housinger-page-main {
     max-width: none;

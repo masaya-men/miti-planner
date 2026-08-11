@@ -385,8 +385,8 @@ export const HousingerPage: React.FC = () => {
   if (isMyPageRoute && !viewerUid) {
     return (
       <div className="housing-detail-panel">
-        <div className="housing-detail-shell">
-          <main className="housing-detail-fullpage-main">
+        <div className="housing-detail-shell housinger-page-login-shell">
+          <main className="housing-detail-fullpage-main housinger-page-login-main">
             <HousingLoginPrompt context="mypage" />
           </main>
         </div>
