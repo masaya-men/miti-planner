@@ -1,9 +1,18 @@
 // @vitest-environment happy-dom
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../../../locales/ja.json';
+
+// TourTrayRow (サムネイル部分) が useNavigate を使うため、他の react-router-dom export
+// (MemoryRouter 等) は実物のまま useNavigate だけ差し替える (HousingActionBar.test.tsx と同じ方式)。
+const navigateMock = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...actual, useNavigate: () => navigateMock };
+});
 
 vi.mock('../../../../store/useHousingListingsStore', () => ({
   useHousingListingsStore: (sel: (s: unknown) => unknown) =>
@@ -28,7 +37,8 @@ beforeAll(() => {
   }
 });
 
-const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>);
+const wrap = (ui: React.ReactElement) =>
+  render(<MemoryRouter><I18nextProvider i18n={i18n}>{ui}</I18nextProvider></MemoryRouter>);
 
 // useSmoothWheelScroll.test.tsx と同じ PC 判定モック (横スクロールのバネ補間は PC + 非 reduce-motion のみ)。
 function setMatchMediaPc(): void {
@@ -62,6 +72,15 @@ describe('TourTrayBoard', () => {
     wrap(<TourTrayBoard listingIds={['a', 'b']} onChange={() => {}} selectedId={null} onSelect={onSelect} />);
     fireEvent.click(screen.getByText('A'));
     expect(onSelect).toHaveBeenCalledWith('a');
+  });
+
+  it('サムネイルをクリックすると詳細ページへ遷移し、onSelect は呼ばれない', () => {
+    navigateMock.mockClear();
+    const onSelect = vi.fn();
+    wrap(<TourTrayBoard listingIds={['a', 'b']} onChange={() => {}} selectedId={null} onSelect={onSelect} />);
+    fireEvent.click(screen.getAllByRole('button', { name: '詳細ページを見る' })[0]);
+    expect(navigateMock).toHaveBeenCalledWith('/housing/listing/a');
+    expect(onSelect).not.toHaveBeenCalled();
   });
 
   it('削除ボタンで onChange が呼ばれる', () => {

@@ -1956,7 +1956,8 @@
             "pin": "Pin to this position",
             "unpin": "Unpin",
             "drag_handle": "Drag to reorder",
-            "board_hint": "Grab the handle on the left of a card to drag and reorder"
+            "board_hint": "Grab the handle on the left of a card to drag and reorder",
+            "open_detail": "View listing detail"
         },
         "ephemeral": {
             "add_button": "Add by address",

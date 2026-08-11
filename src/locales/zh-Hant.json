@@ -1921,7 +1921,8 @@
             "pin": "固定在這個位置",
             "unpin": "解除固定",
             "drag_handle": "拖曳以重新排序",
-            "board_hint": "抓住卡片左側的握把即可拖曳調整順序"
+            "board_hint": "抓住卡片左側的握把即可拖曳調整順序",
+            "open_detail": "查看詳情頁"
         },
         "ephemeral": {
             "add_button": "透過地址新增",

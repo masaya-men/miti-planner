@@ -1,9 +1,17 @@
 // @vitest-environment happy-dom
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeAll } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
+
+// TourTrayRow (サムネイル部分) が useNavigate を使うため、他の react-router-dom export
+// (MemoryRouter 等) は実物のまま useNavigate だけ差し替える。
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...actual, useNavigate: () => vi.fn() };
+});
 
 vi.mock('../../store/useHousingListingsStore', () => ({
   useHousingListingsStore: (sel: (s: unknown) => unknown) =>
@@ -27,7 +35,8 @@ beforeAll(() => {
   }
 });
 
-const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>);
+const wrap = (ui: React.ReactElement) =>
+  render(<MemoryRouter><I18nextProvider i18n={i18n}>{ui}</I18nextProvider></MemoryRouter>);
 
 describe('TourTray', () => {
   it('disables start when empty', () => {

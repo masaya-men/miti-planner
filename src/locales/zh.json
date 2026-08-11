@@ -1921,7 +1921,8 @@
             "pin": "この位置に固定",
             "unpin": "固定を解除",
             "drag_handle": "ドラッグして並べ替え",
-            "board_hint": "抓住卡片左侧的把手即可拖动调整顺序"
+            "board_hint": "抓住卡片左侧的把手即可拖动调整顺序",
+            "open_detail": "查看详情页"
         },
         "ephemeral": {
             "add_button": "通过地址添加",

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { GripVertical, Pin, Route, X } from 'lucide-react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -28,6 +29,7 @@ export function TourTrayRow({
   onTogglePin,
 }: TourTrayRowProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: listing.id,
   });
@@ -46,7 +48,15 @@ export function TourTrayRow({
         : t('housing.card.addressPrivate');
   const title = listing.title?.trim() || addr;
 
-  const showThumbImage = !isEphemeralListingId(listing.id) && hasRepresentativeImage(listing);
+  const isEphemeral = isEphemeralListingId(listing.id);
+  const showThumbImage = !isEphemeral && hasRepresentativeImage(listing);
+  const thumb = showThumbImage ? (
+    <img className="housing-tour-tray-thumb" src={representativeImage(listing)} alt="" loading="lazy" />
+  ) : (
+    <span className="housing-tour-tray-thumb housing-tour-tray-thumb-placeholder" aria-hidden="true">
+      <Route size={16} aria-hidden="true" />
+    </span>
+  );
 
   return (
     <li
@@ -65,17 +75,22 @@ export function TourTrayRow({
       >
         <GripVertical size={14} aria-hidden="true" />
       </button>
-      {showThumbImage ? (
-        <img className="housing-tour-tray-thumb" src={representativeImage(listing)} alt="" loading="lazy" />
+      {isEphemeral ? (
+        thumb
       ) : (
-        <span className="housing-tour-tray-thumb housing-tour-tray-thumb-placeholder" aria-hidden="true">
-          <Route size={16} aria-hidden="true" />
-        </span>
+        <button
+          type="button"
+          className="housing-tour-tray-thumb-btn"
+          aria-label={t('housing.tray.open_detail')}
+          onClick={() => navigate(`/housing/listing/${listing.id}`)}
+        >
+          {thumb}
+        </button>
       )}
       <span className="housing-tour-tray-info">
         <span className="housing-tour-tray-title">{title}</span>
       </span>
-      {isEphemeralListingId(listing.id) && (
+      {isEphemeral && (
         <span className="housing-ephemeral-badge">{t('housing.ephemeral.badge')}</span>
       )}
       <button
