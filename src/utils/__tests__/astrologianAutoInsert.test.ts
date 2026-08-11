@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { AppliedMitigation, TimelineEvent } from '../../types';
 import { hasAnyAstrologianDraw, buildAstrologianAutoInserts, buildAstrologianDrawChainFrom } from '../astrologianAutoInsert';
+import { DEFAULT_FIGHT_DURATION_SEC } from '../../constants/timeline';
 
 const member = 'H1';
 
@@ -96,15 +97,15 @@ describe('buildAstrologianAutoInserts', () => {
         expect(inserts.length).toBeGreaterThan(0);
     });
 
-    it('イベントが無いとき、 20分 (1200秒) まで配置される', () => {
+    it('イベントが無いとき、 DEFAULT_FIGHT_DURATION_SEC まで配置される', () => {
         const inserts = buildAstrologianAutoInserts(member, [], []);
         const prepull = inserts.find(i => i.time === -3);
         expect(prepull).toBeDefined();
-        // 1200秒までのドローが配置される
+        // DEFAULT_FIGHT_DURATION_SEC までのドローが配置される
         const draws = inserts.filter(i => i.time >= 9);
         expect(draws.length).toBeGreaterThan(0);
-        // 最後のドローが1200秒以内であることを確認
-        expect(Math.max(...draws.map(d => d.time))).toBeLessThanOrEqual(1200);
+        // 最後のドローが上限秒数以内であることを確認
+        expect(Math.max(...draws.map(d => d.time))).toBeLessThanOrEqual(DEFAULT_FIGHT_DURATION_SEC);
     });
 
     it('全インサートに ownerId と genId 由来の id が入る', () => {
@@ -216,10 +217,10 @@ describe('buildAstrologianDrawChainFrom', () => {
         expect(inserts[0].time).toBe(120);
     });
 
-    it('イベントが無い (maxTime=0) ときは 1200秒 まで配置する', () => {
+    it('イベントが無い (maxTime=0) ときは DEFAULT_FIGHT_DURATION_SEC まで配置する', () => {
         const inserts = buildAstrologianDrawChainFrom(member, 60, 'astral_draw', [], []);
         expect(inserts.length).toBeGreaterThan(0);
-        expect(Math.max(...inserts.map(i => i.time))).toBeLessThanOrEqual(1200);
+        expect(Math.max(...inserts.map(i => i.time))).toBeLessThanOrEqual(DEFAULT_FIGHT_DURATION_SEC);
     });
 
     it('全インサートに ownerId と genId 由来の id が入る', () => {

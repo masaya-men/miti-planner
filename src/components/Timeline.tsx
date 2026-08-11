@@ -32,6 +32,7 @@ import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkil
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import clsx from 'clsx';
 import { PARTY_MEMBER_IDS } from '../constants/party';
+import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement, findSameSkillCdConflicts } from '../utils/resourceTracker';
@@ -864,7 +865,7 @@ const Timeline: React.FC = () => {
         newJobId: string;
     } | null>(null);
 
-    const fightDuration = 1200;
+    const fightDuration = DEFAULT_FIGHT_DURATION_SEC;
 
     const handleTogglePhaseCollapse = () => {
         setPhaseColumnCollapsed(prev => {

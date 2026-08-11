@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildScholarAutoInserts, buildAetherflowChainFrom, hasAnyAetherflow } from '../scholarAutoInsert';
 import type { AppliedMitigation, TimelineEvent } from '../../types';
+import { DEFAULT_FIGHT_DURATION_SEC } from '../../constants/timeline';
 
 const makeEvent = (time: number): TimelineEvent => ({
     id: `evt_${time}`,
@@ -10,11 +11,11 @@ const makeEvent = (time: number): TimelineEvent => ({
 });
 
 describe('buildScholarAutoInserts', () => {
-    it('イベントが無いとき、 20分 (1200秒) までエーテルフローが配置される', () => {
+    it('イベントが無いとき、 DEFAULT_FIGHT_DURATION_SEC までエーテルフローが配置される', () => {
         const inserts = buildScholarAutoInserts('H1', [], []);
         const aetherflows = inserts.filter(i => i.mitigationId === 'aetherflow');
         expect(aetherflows.length).toBeGreaterThan(0);
-        expect(Math.max(...aetherflows.map(a => a.time))).toBeLessThanOrEqual(1200);
+        expect(Math.max(...aetherflows.map(a => a.time))).toBeLessThanOrEqual(DEFAULT_FIGHT_DURATION_SEC);
     });
 
     it('空のタイムラインでも転化 t=1 は挿入される', () => {
@@ -118,9 +119,9 @@ describe('buildAetherflowChainFrom', () => {
         expect(inserts.map(m => m.time)).toEqual([90]);
     });
 
-    it('イベントが無い (maxTime=0) ときは 1200秒 まで配置する', () => {
+    it('イベントが無い (maxTime=0) ときは DEFAULT_FIGHT_DURATION_SEC まで配置する', () => {
         const inserts = buildAetherflowChainFrom('H1', 60, [], []);
         expect(inserts.length).toBeGreaterThan(0);
-        expect(Math.max(...inserts.map(a => a.time))).toBeLessThanOrEqual(1200);
+        expect(Math.max(...inserts.map(a => a.time))).toBeLessThanOrEqual(DEFAULT_FIGHT_DURATION_SEC);
     });
 });
