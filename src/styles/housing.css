@@ -4715,6 +4715,15 @@ select.housing-input option {
   line-height: 1.5;
   color: var(--housing-text-mute);
 }
+/* はじめの登録チケットが尽きた後どうなるかの添え書き(常時ではなくチケット残あり時だけ)。
+   新しい区切り線は足さず、上の残数表示に寄り添う静かな1行にする。 */
+.housing-register-left-remaining-hint {
+  flex: 0 0 auto;
+  margin: 4px 0 0;
+  font-size: var(--housing-text-xs);
+  line-height: 1.5;
+  color: var(--housing-text-mute);
+}
 
 /* 登録フォームの中央カラム: セクション単位で縦積み。要素毎の padding-bottom ではなく
    コンテナ gap で余白リズムを揃える (housing-design.md 質感A案・余白リズム原則)。 */

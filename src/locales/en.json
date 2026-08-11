@@ -2170,6 +2170,7 @@
             },
             "quota": {
                 "tickets_remaining": "Starter registration tickets: {{remaining}} / {{total}} left",
+                "tickets_hint": "Once these are used up, you can register up to {{max}} listings a day.",
                 "daily_remaining": "Today's quota: {{remaining}} / {{max}} remaining",
                 "admin": "Registration tickets: Admin"
             },

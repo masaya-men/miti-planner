@@ -2135,6 +2135,7 @@
             },
             "quota": {
                 "tickets_remaining": "初始登記券：剩餘 {{remaining}} / {{total}} 張",
+                "tickets_hint": "用完後，每天最多可登記 {{max}} 個",
                 "daily_remaining": "今日登記配額：剩餘 {{remaining}} / {{max}} 個",
                 "admin": "登記券：管理員"
             },

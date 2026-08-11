@@ -1733,22 +1733,29 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
             <RegisterStepperNav steps={steps} onJump={handleJumpToStep} progress={stepperProgress} />
           </div>
           {(isAdmin || (remaining != null && registrationCount != null)) && (
-            <p
-              className="housing-register-left-remaining"
-              data-testid="housing-register-guide-remaining"
-            >
-              {isAdmin
-                ? t('housing.register.quota.admin')
-                : registrationTicketsRemaining(registrationCount!) > 0
-                  ? t('housing.register.quota.tickets_remaining', {
-                      remaining: registrationTicketsRemaining(registrationCount!),
-                      total: REGISTRATION_INITIAL_BONUS,
-                    })
-                  : t('housing.register.quota.daily_remaining', {
-                      remaining: remaining!,
-                      max: REGISTRATION_DAILY_QUOTA,
-                    })}
-            </p>
+            <>
+              <p
+                className="housing-register-left-remaining"
+                data-testid="housing-register-guide-remaining"
+              >
+                {isAdmin
+                  ? t('housing.register.quota.admin')
+                  : registrationTicketsRemaining(registrationCount!) > 0
+                    ? t('housing.register.quota.tickets_remaining', {
+                        remaining: registrationTicketsRemaining(registrationCount!),
+                        total: REGISTRATION_INITIAL_BONUS,
+                      })
+                    : t('housing.register.quota.daily_remaining', {
+                        remaining: remaining!,
+                        max: REGISTRATION_DAILY_QUOTA,
+                      })}
+              </p>
+              {!isAdmin && registrationTicketsRemaining(registrationCount!) > 0 && (
+                <p className="housing-register-left-remaining-hint">
+                  {t('housing.register.quota.tickets_hint', { max: REGISTRATION_DAILY_QUOTA })}
+                </p>
+              )}
+            </>
           )}
         </div>
       </section>
