@@ -1554,26 +1554,57 @@ const Timeline: React.FC = () => {
 
     // エフェクト棒トグル: スクロール中だけ data-mobile-scrolling="1" を立て、
     // 専用行アイコン⇄エフェクト棒の表示切り替えをCSS側に任せる(React再レンダーなし)。
+    // 指が画面に触れている間はアイドルタイマーでクリアしない(指を置いたまま止まっている
+    // 一瞬でアイコン表示に戻ってガタつくのを防ぐ、実機FB 2026-08-12)。指を離した瞬間か、
+    // 最後の scroll イベントから MOBILE_EFFECT_BAR_SCROLL_IDLE_MS 経過後にクリアする。
     const mobileEffectBarIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const mobileEffectBarTouchDownRef = useRef(false);
+
+    const scheduleMobileEffectBarHide = useCallback(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        if (mobileEffectBarIdleTimerRef.current) clearTimeout(mobileEffectBarIdleTimerRef.current);
+        mobileEffectBarIdleTimerRef.current = setTimeout(() => {
+            if (mobileEffectBarTouchDownRef.current) return; // 指がまだ触れていればクリアしない
+            container.removeAttribute('data-mobile-scrolling');
+        }, MOBILE_EFFECT_BAR_SCROLL_IDLE_MS);
+    }, []);
+
     const syncMobileEffectBarVisibility = useCallback(() => {
         const container = scrollContainerRef.current;
         if (!container) return;
         container.setAttribute('data-mobile-scrolling', '1');
+        scheduleMobileEffectBarHide();
+    }, [scheduleMobileEffectBarHide]);
+
+    const handleMobileEffectBarTouchStart = useCallback(() => {
+        mobileEffectBarTouchDownRef.current = true;
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        container.setAttribute('data-mobile-scrolling', '1');
         if (mobileEffectBarIdleTimerRef.current) clearTimeout(mobileEffectBarIdleTimerRef.current);
-        mobileEffectBarIdleTimerRef.current = setTimeout(() => {
-            container.removeAttribute('data-mobile-scrolling');
-        }, MOBILE_EFFECT_BAR_SCROLL_IDLE_MS);
     }, []);
+
+    const handleMobileEffectBarTouchEnd = useCallback(() => {
+        mobileEffectBarTouchDownRef.current = false;
+        scheduleMobileEffectBarHide();
+    }, [scheduleMobileEffectBarHide]);
 
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container || !isMobileTimeline) return;
         container.addEventListener('scroll', syncMobileEffectBarVisibility, { passive: true });
+        container.addEventListener('touchstart', handleMobileEffectBarTouchStart, { passive: true });
+        container.addEventListener('touchend', handleMobileEffectBarTouchEnd, { passive: true });
+        container.addEventListener('touchcancel', handleMobileEffectBarTouchEnd, { passive: true });
         return () => {
             container.removeEventListener('scroll', syncMobileEffectBarVisibility);
+            container.removeEventListener('touchstart', handleMobileEffectBarTouchStart);
+            container.removeEventListener('touchend', handleMobileEffectBarTouchEnd);
+            container.removeEventListener('touchcancel', handleMobileEffectBarTouchEnd);
             if (mobileEffectBarIdleTimerRef.current) clearTimeout(mobileEffectBarIdleTimerRef.current);
         };
-    }, [syncMobileEffectBarVisibility, isMobileTimeline]);
+    }, [syncMobileEffectBarVisibility, handleMobileEffectBarTouchStart, handleMobileEffectBarTouchEnd, isMobileTimeline]);
 
     useEffect(() => {
         syncMobilePhaseLabel();
@@ -3218,6 +3249,35 @@ const Timeline: React.FC = () => {
 
                                 return (
                                     <>
+                                        {isMobileTimeline && (() => {
+                                            // 行の文字(攻撃名・ダメージ等)より奥に描画するため、renderItems(行本体)より
+                                            // 前にマウントする(z-index を持たない同士は DOM 順で手前/奥が決まる)。
+                                            // このFragment内の他の兄弟ブロック(フェーズ/ラベルオーバーレイ)と同じく、
+                                            // 各IIFEは自分のスコープなので offsetTime をローカルで再計算する。
+                                            const offsetTime = showPreStart ? -10 : 0;
+                                            // 画面幅から横に並べられる最大同時本数を算出。
+                                            // sheetWidth 未計測時(初回フレーム)はモバイル最小幅を仮定した安全値にフォールバック。
+                                            const availableWidth = sheetWidth > 0 ? sheetWidth : 350;
+                                            const maxConcurrent = Math.max(
+                                                1,
+                                                Math.floor((availableWidth - MOBILE_EFFECT_BAR_ROW_INSET * 2) / MOBILE_EFFECT_BAR_SLOT_PITCH)
+                                            );
+                                            const mobileBars = computeMobileEffectBars({
+                                                timelineMitigations,
+                                                mitigationDefs: MITIGATIONS,
+                                                timeToYMap,
+                                                pixelsPerSecond,
+                                                offsetTime,
+                                                hideEmptyRows,
+                                                maxTime,
+                                                eventsByTime,
+                                                mitStartsByTime,
+                                                showPreStart,
+                                                maxConcurrent,
+                                                getColorClasses: (jobId, ownerId) => getMitigationColorClasses(jobId, ownerId, 'role'),
+                                            });
+                                            return <MobileEffectBarLayer bars={mobileBars} />;
+                                        })()}
                                         {renderItems}
 
 
@@ -3597,33 +3657,6 @@ const Timeline: React.FC = () => {
                                             });
 
                                             return renderedItems;
-                                        })()}
-                                        {isMobileTimeline && (() => {
-                                            // このFragment内の他の兄弟ブロック(フェーズ/ラベルオーバーレイ)と同じく、
-                                            // 各IIFEは自分のスコープなので offsetTime をローカルで再計算する。
-                                            const offsetTime = showPreStart ? -10 : 0;
-                                            // 画面幅から横に並べられる最大同時本数を算出。
-                                            // sheetWidth 未計測時(初回フレーム)はモバイル最小幅を仮定した安全値にフォールバック。
-                                            const availableWidth = sheetWidth > 0 ? sheetWidth : 350;
-                                            const maxConcurrent = Math.max(
-                                                1,
-                                                Math.floor((availableWidth - MOBILE_EFFECT_BAR_ROW_INSET * 2) / MOBILE_EFFECT_BAR_SLOT_PITCH)
-                                            );
-                                            const mobileBars = computeMobileEffectBars({
-                                                timelineMitigations,
-                                                mitigationDefs: MITIGATIONS,
-                                                timeToYMap,
-                                                pixelsPerSecond,
-                                                offsetTime,
-                                                hideEmptyRows,
-                                                maxTime,
-                                                eventsByTime,
-                                                mitStartsByTime,
-                                                showPreStart,
-                                                maxConcurrent,
-                                                getColorClasses: (jobId, ownerId) => getMitigationColorClasses(jobId, ownerId, 'role'),
-                                            });
-                                            return <MobileEffectBarLayer bars={mobileBars} />;
                                         })()}
                                     </>
                                 );

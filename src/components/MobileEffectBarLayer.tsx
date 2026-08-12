@@ -18,7 +18,7 @@ interface MobileEffectBarLayerProps {
  */
 export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars }) => {
   return (
-    <div className="mobile-effect-bar-layer absolute inset-0 pointer-events-none md:hidden" style={{ zIndex: 5 }}>
+    <div className="mobile-effect-bar-layer absolute inset-0 pointer-events-none md:hidden">
       {bars.map(bar => (
         <div
           key={bar.id}
@@ -38,7 +38,7 @@ export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars
           <img
             src={bar.iconUrl}
             alt=""
-            className="absolute rounded object-cover"
+            className="absolute rounded object-cover max-w-none"
             style={{
               width: `${MOBILE_EFFECT_BAR_ICON_SIZE}px`,
               height: `${MOBILE_EFFECT_BAR_ICON_SIZE}px`,

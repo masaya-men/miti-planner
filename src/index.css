@@ -1417,7 +1417,8 @@ button, [role="button"], .touch-none {
   transition: opacity 150ms ease;
 }
 .timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-layer {
-  opacity: 1;
+  /* 主張を抑えて背景にうっすら浮かぶ見た目にする(ユーザー希望・2026-08-12実機FB)。強すぎればさらに下げる。 */
+  opacity: 0.55;
 }
 .timeline-scroll-container[data-mobile-scrolling="1"] .mobile-miti-icons {
   opacity: 0;
