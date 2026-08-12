@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, vi, afterEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { SceneryVideo } from '../../components/housing/workspace/SceneryVideo';
 
@@ -46,5 +46,52 @@ describe('SceneryVideo', () => {
     expect(paths.some((p) => p?.includes('/housing/scenery-day.mp4'))).toBe(true);
     expect(paths.some((p) => p?.includes('/housing/scenery-night.webm'))).toBe(true);
     expect(paths.some((p) => p?.includes('/housing/scenery-night.mp4'))).toBe(true);
+  });
+
+  // 2026-08-12 実機指摘対応: 動画が猶予時間内に描画開始しなければ自動で load() し直す自己修復。
+  describe('読み込み自己修復(ウォッチドッグ)', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('猶予時間内に描画開始しなければアクティブな動画だけ load() し直す', () => {
+      vi.useFakeTimers();
+      const { container } = render(<SceneryVideo theme="light" />);
+      const day = container.querySelector('video[data-scenery="day"]') as HTMLVideoElement;
+      const night = container.querySelector('video[data-scenery="night"]') as HTMLVideoElement;
+      const dayLoad = vi.spyOn(day, 'load').mockImplementation(() => {});
+      const nightLoad = vi.spyOn(night, 'load').mockImplementation(() => {});
+      Object.defineProperty(day, 'readyState', { value: 0, configurable: true });
+
+      vi.advanceTimersByTime(6000);
+
+      expect(dayLoad).toHaveBeenCalledTimes(1);
+      expect(nightLoad).not.toHaveBeenCalled();
+    });
+
+    it('猶予時間内にloadeddataが発火すればload()し直さない', () => {
+      vi.useFakeTimers();
+      const { container } = render(<SceneryVideo theme="light" />);
+      const day = container.querySelector('video[data-scenery="day"]') as HTMLVideoElement;
+      const dayLoad = vi.spyOn(day, 'load').mockImplementation(() => {});
+      Object.defineProperty(day, 'readyState', { value: 2, configurable: true });
+
+      day.dispatchEvent(new Event('loadeddata'));
+      vi.advanceTimersByTime(6000);
+
+      expect(dayLoad).not.toHaveBeenCalled();
+    });
+
+    it('errorイベントで即座にload()し直すが、上限(1回)を超えて再試行しない', () => {
+      vi.useFakeTimers();
+      const { container } = render(<SceneryVideo theme="light" />);
+      const day = container.querySelector('video[data-scenery="day"]') as HTMLVideoElement;
+      const dayLoad = vi.spyOn(day, 'load').mockImplementation(() => {});
+
+      day.dispatchEvent(new Event('error'));
+      day.dispatchEvent(new Event('error'));
+
+      expect(dayLoad).toHaveBeenCalledTimes(1);
+    });
   });
 });
