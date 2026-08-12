@@ -22,6 +22,7 @@ import { JobPicker } from './JobPicker';
 import { PartySettingsModal } from './PartySettingsModal';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
+import { MOBILE_EFFECT_BAR_SCROLL_IDLE_MS } from '../utils/mobileEffectBar';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
     Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sword, ChevronDown, ChevronLeft, Rows3, Settings, Crosshair, PictureInPicture2, Clock
@@ -1544,6 +1545,29 @@ const Timeline: React.FC = () => {
         container.addEventListener('scroll', syncMobilePhaseLabel, { passive: true });
         return () => container.removeEventListener('scroll', syncMobilePhaseLabel);
     }, [syncMobilePhaseLabel, isMobileTimeline]);
+
+    // エフェクト棒トグル: スクロール中だけ data-mobile-scrolling="1" を立て、
+    // 専用行アイコン⇄エフェクト棒の表示切り替えをCSS側に任せる(React再レンダーなし)。
+    const mobileEffectBarIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const syncMobileEffectBarVisibility = useCallback(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        container.setAttribute('data-mobile-scrolling', '1');
+        if (mobileEffectBarIdleTimerRef.current) clearTimeout(mobileEffectBarIdleTimerRef.current);
+        mobileEffectBarIdleTimerRef.current = setTimeout(() => {
+            container.removeAttribute('data-mobile-scrolling');
+        }, MOBILE_EFFECT_BAR_SCROLL_IDLE_MS);
+    }, []);
+
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container || !isMobileTimeline) return;
+        container.addEventListener('scroll', syncMobileEffectBarVisibility, { passive: true });
+        return () => {
+            container.removeEventListener('scroll', syncMobileEffectBarVisibility);
+            if (mobileEffectBarIdleTimerRef.current) clearTimeout(mobileEffectBarIdleTimerRef.current);
+        };
+    }, [syncMobileEffectBarVisibility, isMobileTimeline]);
 
     useEffect(() => {
         syncMobilePhaseLabel();

@@ -98,7 +98,7 @@ const MitiIcons: React.FC<{
     return (
         // 同じ人のアイコン同士はほぼ密着(gap-px=1px)、人が変わるところだけ gap-1.5(6px)空ける。
         // 「ぴったりくっつく」ためには同グループ内の隙間をほぼ0にする必要があった。
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="mobile-miti-icons flex items-center gap-1.5 flex-wrap transition-opacity duration-150">
             {groups.map(group => (
                 <div key={group.key} className="flex items-center gap-px">
                     {group.items.map(mit => {

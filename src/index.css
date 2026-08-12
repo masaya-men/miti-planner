@@ -1409,6 +1409,20 @@ button, [role="button"], .touch-none {
     background-color: transparent;
 }
 
+/* ===== モバイル: スクロール中だけエフェクト棒に切り替える ===== */
+/* 静止時: 専用行アイコンを表示、エフェクト棒は透明。
+   スクロール中(data-mobile-scrolling="1"): 逆。両方とも同じdurationでクロスフェードする。 */
+.timeline-scroll-container .mobile-effect-bar-layer {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-layer {
+  opacity: 1;
+}
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-miti-icons {
+  opacity: 0;
+}
+
 /* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */
 /* デスクトップ: フェーズ/ラベル列を個別にハイライト */
 .phase-select-preview .preview-highlight [data-phase-col] {
