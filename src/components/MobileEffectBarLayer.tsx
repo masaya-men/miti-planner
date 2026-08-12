@@ -17,8 +17,6 @@ interface MobileEffectBarLayerProps {
  * このコンポーネント自身は常時マウントし続ける(表示制御はopacityのみ)。
  */
 export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars }) => {
-  if (bars.length === 0) return null;
-
   return (
     <div className="mobile-effect-bar-layer absolute inset-0 pointer-events-none md:hidden" style={{ zIndex: 5 }}>
       {bars.map(bar => (
