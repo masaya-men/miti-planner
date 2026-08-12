@@ -6,6 +6,7 @@ import { fetchSeedFull, postPlanData } from "./collabPersistence";
 import { resolveMaxParticipants, MAX_PARTICIPANTS_KEY } from "./collabCapacity";
 import { EDITOR_UID_HEADER, isEditorState } from "./collabAuth";
 import { saveDocBinary, loadDocBinary, clearDocBinary, type KVLike } from "./docPersistence";
+import { shouldSyncFirestore } from "./saveThrottle";
 
 /**
  * ライブ部屋 = 1 Durable Object。段取り②-a で YServer 化、段取り③で恒久保存。
@@ -15,9 +16,17 @@ import { saveDocBinary, loadDocBinary, clearDocBinary, type KVLike } from "./doc
  * - onConnect は override しない(YServer の sync step1 送出を継承し、新規接続者へ既存状態を渡すため)。
  * - 段取り③ 保存層:
  *   - onLoad(): 受付係(Vercel)から現在の軽減配置を取得し Y.Doc を seed。
- *   - onSave(): 編集 debounce で受付係へ書き戻す(callbackOptions で頻度制御)。
- *   - onClose(): 最後の1人退室時に明示 flush(onSave は debounce のみで退室では発火しないため)。
+ *   - onSave(): 編集 debounce で発火(callbackOptions で頻度制御)。DO ストレージへは毎回保存、
+ *     Firestore への書き戻しは FIRESTORE_SYNC_MIN_INTERVAL_MS 未満なら間引く(2026-08-12・後述)。
+ *   - onClose(): 最後の1人退室時に明示 flush(強制 Firestore 反映。onSave は debounce のみで退室では発火しないため)。
  *   - 破壊保存ガード(#saveEnabled): seed が正常完了した部屋だけ保存可。墓標/不存在/障害では保存しない。
+ *
+ * 2026-08-12 コスト改善: 保存は元々「DOストレージ(Cloudflare側・無料)」と「Firestore反映(Vercel経由・
+ * 有料枠を消費)」の2層があり、どちらも同じ debounce(最長15秒)で一緒に動いていた。実測で Firestore 反映
+ * (/api/collab)が Vercel の Fluid Active CPU 使用量の大半を占めていたため、DOストレージへの保存は
+ * 従来どおり毎回(こまめな保護は維持)、Firestore への反映だけ間引く形に分離した。ソロ機能の自動保存
+ * (Firestore への定期バックアップ=5分間隔)と同じ考え方に揃えている(src/components/Layout.tsx 参照)。
+ * 全員退室時(onClose)は間引かず必ず即時反映する(タブを閉じる=確実に保存、という体験は変えない)。
  */
 interface CollabEnv {
   APP_API_BASE: string;
@@ -33,11 +42,13 @@ export class Room extends YServer {
   // hibernation を明示 ON(デフォルト OFF)。これが無いと WebSocket 接続中ずっと duration 課金。
   static options = { hibernate: true };
 
-  // 保存頻度(③ 設計): 編集が 5s 落ち着いたら保存 / 連続編集でも最大 15s ごと。Firestore 書込最小化。
+  // 保存頻度(③ 設計): 編集が 5s 落ち着いたら保存 / 連続編集でも最大 15s ごと。DOストレージ保存はこの頻度のまま。
   static callbackOptions = { debounceWait: 5000, debounceMaxWait: 15000 };
 
   // 破壊保存ガード: seed が正常完了した部屋だけ保存可。墓標/不存在/障害(空 seed)では false のまま。
   #saveEnabled = false;
+  // 直近で Firestore へ反映を試みた時刻(ms)。0 = 未実施(初回は必ず反映する)。
+  #lastFirestoreSyncAt = 0;
 
   private get collabEnv(): CollabEnv {
     return this.env as unknown as CollabEnv;
@@ -75,32 +86,46 @@ export class Room extends YServer {
     // max も書かない(/count は既定 8 を返す)。
   }
 
-  /** バイナリ(DO ストレージ=CRDT の真実) + JSON 射影(Firestore=ソロ機能/初回 seed 用)の二層保存。
-   *  skipped(墓標)を受けたら以後保存せず、バイナリも破棄する（削除が勝つ）。 */
-  async flushSave(): Promise<void> {
+  /** DO ストレージへの保存だけを行う(CRDT の真実・Cloudflare 側で完結・Vercel コストと無関係)。
+   *  onSave のたび毎回実施する(こまめな保護は従来どおり)。 */
+  private async saveBinaryOnly(): Promise<void> {
     if (!this.#saveEnabled) return;
     const storage = this.ctx.storage as unknown as KVLike;
-    // 1) バイナリを DO ストレージへ（identity 保持の真実）。
-    //    DO KV 障害で投げても Worker をクラッシュさせず、次の debounce/onClose で再試行（JSON 側と対称のベストエフォート）。
-    //    saveDocBinary は meta を最後に書くため、途中失敗しても loadDocBinary は meta 欠如で null を返し JSON seed に安全フォールバックする。
+    // DO KV 障害で投げても Worker をクラッシュさせず、次の debounce/onClose で再試行（JSON 側と対称のベストエフォート）。
+    // saveDocBinary は meta を最後に書くため、途中失敗しても loadDocBinary は meta 欠如で null を返し JSON seed に安全フォールバックする。
     try {
       await saveDocBinary(storage, Y.encodeStateAsUpdate(this.document));
     } catch (e) {
       console.error("collab: saveDocBinary failed (best-effort, will retry):", e);
     }
-    // 2) JSON 射影を Firestore へ（ソロ機能が読む / 別部屋の初回 seed 元）。
+  }
+
+  /** JSON 射影を Firestore へ反映する(ソロ機能が読む / 別部屋の初回 seed 元)。
+   *  force=false のときは shouldSyncFirestore の判定で間引く(コスト対策・2026-08-12)。
+   *  skipped(墓標)を受けたら以後保存せず、バイナリも破棄する（削除が勝つ）。 */
+  private async syncFirestore(force: boolean): Promise<void> {
+    if (!this.#saveEnabled) return;
+    if (!shouldSyncFirestore(force, this.#lastFirestoreSyncAt, Date.now())) return;
     const { APP_API_BASE, COLLAB_SHARED_SECRET } = this.collabEnv;
     const result = await postPlanData(APP_API_BASE, COLLAB_SHARED_SECRET, this.name, readPlanDataFull(this.document));
+    this.#lastFirestoreSyncAt = Date.now();
     if (result === "skipped") {
       this.#saveEnabled = false;
+      const storage = this.ctx.storage as unknown as KVLike;
       await clearDocBinary(storage); // 墓標 = この部屋は死んだ。バイナリも残さない。
     }
     // 'error' は次の debounce / onClose flush で再試行（ベストエフォート）。
   }
 
-  /** 編集 debounce(callbackOptions)で発火。受付係へ書き戻す。 */
+  /** DOストレージ保存(常時) + Firestore反映(force=trueなら強制、それ以外は間引き)。 */
+  async flushSave(force = false): Promise<void> {
+    await this.saveBinaryOnly();
+    await this.syncFirestore(force);
+  }
+
+  /** 編集 debounce(callbackOptions)で発火。DOストレージは毎回、Firestoreは間引いて受付係へ書き戻す。 */
   override async onSave(): Promise<void> {
-    await this.flushSave();
+    await this.flushSave(false);
   }
 
   /**
@@ -136,7 +161,7 @@ export class Room extends YServer {
   override async onClose(connection: Connection, code: number, reason: string, wasClean: boolean): Promise<void> {
     await super.onClose(connection, code, reason, wasClean); // YServer の awareness クリーンアップ
     const remaining = [...this.getConnections()].filter((c) => c !== connection).length;
-    if (remaining === 0) await this.flushSave();
+    if (remaining === 0) await this.flushSave(true); // 全員退室 = Firestore反映も間引かず必ず実施
   }
 
   // 在室数 + 上限 HTTP。onBeforeConnect(index.ts)が接続前に GET /count で満員判定する。
