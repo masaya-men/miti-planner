@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { TimelineRow } from './TimelineRow';
 import { MobileTimelineRow } from './MobileTimelineRow';
 import { MobileContextMenu } from './MobileContextMenu';
+import { MobileEffectBarLayer } from './MobileEffectBarLayer';
 
 import { useMitigationStore } from '../store/useMitigationStore';
 import { useShallow } from 'zustand/react/shallow';
@@ -22,7 +23,12 @@ import { JobPicker } from './JobPicker';
 import { PartySettingsModal } from './PartySettingsModal';
 import { JobMigrationModal } from './JobMigrationModal';
 import { migrateMitigations } from '../utils/jobMigration';
-import { MOBILE_EFFECT_BAR_SCROLL_IDLE_MS } from '../utils/mobileEffectBar';
+import {
+    computeMobileEffectBars,
+    MOBILE_EFFECT_BAR_ROW_INSET,
+    MOBILE_EFFECT_BAR_SLOT_PITCH,
+    MOBILE_EFFECT_BAR_SCROLL_IDLE_MS,
+} from '../utils/mobileEffectBar';
 import { AASettingsPopover } from './AASettingsPopover';
 import {
     Pencil, Trash2, Plus, X, Undo2, Redo2, AlignJustify, CloudDownload, Sword, ChevronDown, ChevronLeft, Rows3, Settings, Crosshair, PictureInPicture2, Clock
@@ -3591,6 +3597,33 @@ const Timeline: React.FC = () => {
                                             });
 
                                             return renderedItems;
+                                        })()}
+                                        {isMobileTimeline && (() => {
+                                            // このFragment内の他の兄弟ブロック(フェーズ/ラベルオーバーレイ)と同じく、
+                                            // 各IIFEは自分のスコープなので offsetTime をローカルで再計算する。
+                                            const offsetTime = showPreStart ? -10 : 0;
+                                            // 画面幅から横に並べられる最大同時本数を算出。
+                                            // sheetWidth 未計測時(初回フレーム)はモバイル最小幅を仮定した安全値にフォールバック。
+                                            const availableWidth = sheetWidth > 0 ? sheetWidth : 350;
+                                            const maxConcurrent = Math.max(
+                                                1,
+                                                Math.floor((availableWidth - MOBILE_EFFECT_BAR_ROW_INSET * 2) / MOBILE_EFFECT_BAR_SLOT_PITCH)
+                                            );
+                                            const mobileBars = computeMobileEffectBars({
+                                                timelineMitigations,
+                                                mitigationDefs: MITIGATIONS,
+                                                timeToYMap,
+                                                pixelsPerSecond,
+                                                offsetTime,
+                                                hideEmptyRows,
+                                                maxTime,
+                                                eventsByTime,
+                                                mitStartsByTime,
+                                                showPreStart,
+                                                maxConcurrent,
+                                                getColorClasses: (jobId, ownerId) => getMitigationColorClasses(jobId, ownerId, 'role'),
+                                            });
+                                            return <MobileEffectBarLayer bars={mobileBars} />;
                                         })()}
                                     </>
                                 );
