@@ -86,6 +86,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                 borderTop: '0.5px solid var(--color-nav-border)',
             }}
         >
+            {/* 下端の数px、実機のセーフエリア計算の誤差でガラス無しの隙間が見えることがあるための保険の延長。
+                視覚上は画面外に隠れるだけで、アイコンの配置(padding計算)には影響しない。 */}
+            <div
+                className="absolute left-0 right-0 top-full h-4 backdrop-blur-md pointer-events-none"
+                style={{ backgroundColor: 'var(--color-nav-bg)' }}
+            />
             {/* Sliding indicator */}
             {activeIndex >= 0 && (
                 <motion.div

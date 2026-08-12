@@ -11,6 +11,7 @@ import { SCALE, SPRING } from '../tokens/motionTokens';
 import { AnimatedDamage } from './AnimatedDamage';
 import { DamageTypeIcon } from './DamageTypeIcon';
 import { getEffectiveTarget } from '../utils/effectiveTarget';
+import { PARTY_MEMBER_IDS } from '../constants/party';
 
 interface DamageInfo {
     unmitigated: number;
@@ -38,8 +39,10 @@ interface MobileTimelineRowProps {
     onTimelineSelectHover?: (time: number) => void;
     /** 表示するイベントのインデックス（複数イベント時に1つだけ表示） */
     eventIndex?: number;
-    /** true の場合、時間の代わりに「〃」を表示し背景を少し変える */
+    /** true の場合、背景を少し変える(同時刻2件目) */
     isSecondEvent?: boolean;
+    /** true の場合、下部区切り線を出さない(同時刻2件の1件目・2件目との間の罫線を消すため) */
+    hideBottomDivider?: boolean;
     /** 行の高さ (pixelsPerSecond) */
     rowHeight?: number;
 }
@@ -74,7 +77,7 @@ const TargetBadge: React.FC<{ effTarget: TimelineEvent['target']; partyMembers: 
     );
 };
 
-/** 軽減スキルアイコン列（22px） */
+/** 軽減スキルアイコン列（専用行・フル幅・18px・使用者ごとにグルーピング表示） */
 const MitiIcons: React.FC<{
     mitigations: AppliedMitigation[];
     contentLanguage: string;
@@ -82,25 +85,39 @@ const MitiIcons: React.FC<{
 }> = ({ mitigations, contentLanguage, myMemberId }) => {
     const MITIGATIONS = useMitigations();
     if (mitigations.length === 0) return null;
-    const isCompact = mitigations.length >= 6;
-    const iconSize = isCompact ? "w-[14px] h-[14px]" : "w-[22px] h-[22px]";
+
+    // 表示順は常に MT→ST→H1→H2→D1〜D4 固定(PARTY_MEMBER_IDS)。PC の並び替え設定
+    // (partySortOrder='light_party' 等)の影響を受けない — スマホは常に同じ並びにする。
+    const groups: { key: string; items: AppliedMitigation[] }[] = PARTY_MEMBER_IDS
+        .map(id => ({ key: id, items: mitigations.filter(m => m.ownerId === id) }))
+        .filter(g => g.items.length > 0);
+    const knownIds = new Set<string>(PARTY_MEMBER_IDS);
+    const orphan = mitigations.filter(m => !knownIds.has(m.ownerId));
+    if (orphan.length > 0) groups.push({ key: 'orphan', items: orphan });
+
     return (
-        <div className={clsx("flex items-center gap-px flex-shrink-0 ml-auto", isCompact && "flex-wrap max-w-[120px] justify-end")}>
-            {mitigations.map(mit => {
-                const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
-                if (!def) return null;
-                // 薄暗くは親 .timeline-scroll-container[data-myjob-highlight] + CSS が担当（myJobHighlight 非購読）。
-                const isNotMine = !!myMemberId && mit.ownerId !== myMemberId;
-                return (
-                    <img
-                        key={mit.id}
-                        src={def.icon}
-                        alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}
-                        data-myjob-dim={isNotMine ? 'gray' : undefined}
-                        className={clsx(iconSize, "object-cover rounded-md opacity-90")}
-                    />
-                );
-            })}
+        // 同じ人のアイコン同士はほぼ密着(gap-px=1px)、人が変わるところだけ gap-1.5(6px)空ける。
+        // 「ぴったりくっつく」ためには同グループ内の隙間をほぼ0にする必要があった。
+        <div className="flex items-center gap-1.5 flex-wrap">
+            {groups.map(group => (
+                <div key={group.key} className="flex items-center gap-px">
+                    {group.items.map(mit => {
+                        const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
+                        if (!def) return null;
+                        // 薄暗くは親 .timeline-scroll-container[data-myjob-highlight] + CSS が担当（myJobHighlight 非購読）。
+                        const isNotMine = !!myMemberId && mit.ownerId !== myMemberId;
+                        return (
+                            <img
+                                key={mit.id}
+                                src={def.icon}
+                                alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}
+                                data-myjob-dim={isNotMine ? 'gray' : undefined}
+                                className="w-[22px] h-[22px] object-cover rounded-md opacity-90"
+                            />
+                        );
+                    })}
+                </div>
+            ))}
         </div>
     );
 };
@@ -122,6 +139,7 @@ export const MobileTimelineRow = memo(({
     onTimelineSelectHover,
     eventIndex,
     isSecondEvent,
+    hideBottomDivider,
     rowHeight = 80,
 }: MobileTimelineRowProps) => {
     const { t } = useTranslation();
@@ -246,23 +264,22 @@ export const MobileTimelineRow = memo(({
             }}
         >
             <div className="h-full flex">
-                {/* 左: フェーズ/ラベル列 (24px) — 常に縦罫線を表示 */}
-                <div className="w-[24px] min-w-[24px] h-full flex items-center justify-center relative">
-                    <div className="absolute right-0 top-0 bottom-0 w-px bg-app-text/[0.06]" />
-                </div>
-
-                {/* 右: コンテンツエリア + 区切り線 */}
-                <div className="flex-1 min-w-0 flex flex-col justify-center px-3 gap-0.5 relative">
-                    {/* 下部区切り線 */}
-                    <div className="absolute bottom-0 left-3 right-0 h-px bg-app-text/[0.06]" />
-                {/* 上段: 時間 + 種別アイコン + 攻撃名 + 対象バッジ */}
+                {/* コンテンツエリア + 区切り線 (フェーズ名はヘッダー直下の固定ラベルへ移動済みのため全幅使用)。
+                    justify-start 固定: justify-center だと軽減アイコン行の有無で1行/2行の合計高さが
+                    変わり、時間・攻撃名の位置が行ごとに上下してしまうため、常に上基準に揃える。 */}
+                <div className="flex-1 min-w-0 flex flex-col justify-start pt-2 px-3 gap-1 relative">
+                    {/* 下部区切り線 (同時刻2件の1件目は2件目との間の罫線を出さない) */}
+                    {!hideBottomDivider && (
+                        <div className="absolute bottom-0 left-3 right-0 h-px bg-app-text/[0.06]" />
+                    )}
+                {/* 1行目: 時間 + 種別アイコン + 攻撃名 + 対象バッジ + ダメージ */}
                 <div className="flex items-center gap-1.5 min-w-0">
-                    {/* 時間 or 〃 — 固定幅で後続要素の開始位置を揃える */}
+                    {/* 時間 — 同時刻2件目も実際の時刻をそのまま表示(固定幅で後続要素の開始位置を揃える) */}
                     <span className={clsx(
                         "font-mono text-[15px] leading-none flex-shrink-0 w-[38px]",
                         isSecondEvent ? "text-app-text-muted opacity-50" : "text-app-text opacity-50"
                     )}>
-                        {isSecondEvent ? t('app.mobile_same_time') : formattedTime}
+                        {formattedTime}
                     </span>
 
                     {/* 種別アイコン (角丸四角)。デバフ軽減不可フラグで赤箱印が付く */}
@@ -279,12 +296,12 @@ export const MobileTimelineRow = memo(({
                     {event && (
                         <TargetBadge effTarget={getEffectiveTarget(event, swapMarkers, phases)} partyMembers={partyMembers} />
                     )}
-                </div>
 
-                {/* 下段: 軽減前ダメージ → 軽減後ダメージ + 軽減% + スキルアイコン */}
-                <div className="flex items-center gap-1.5 min-w-0">
-                    {damage && damage.unmitigated > 0 ? (
-                        <>
+                    {/* 軽減前ダメージ → 軽減後ダメージ + 軽減% (右寄せ)。
+                        items-baseline: 13px(ダメージ数字)と11px(矢印・%)が混在するため、
+                        items-center だと箱の高さの違いで下端がズレる。文字のベースラインで揃える。 */}
+                    {damage && damage.unmitigated > 0 && (
+                        <div className="flex items-baseline gap-1.5 flex-shrink-0 ml-auto">
                             {/* 軽減前ダメージ */}
                             <span className="font-mono text-[13px] text-app-text opacity-30 leading-none flex-shrink-0">
                                 {formatDmg(damage.unmitigated)}
@@ -292,17 +309,18 @@ export const MobileTimelineRow = memo(({
 
                             <span className="text-app-text-muted opacity-30 text-[11px] flex-shrink-0">→</span>
 
-                            {/* 軽減後ダメージ */}
+                            {/* 軽減後ダメージ — AnimatedDamage は内部で高さ22px固定(.dmg-slot)なので、
+                                周囲の13pxテキストと下端を揃えるため !h-[13px] で上書き(TimelineRow.tsx の
+                                !h-[16px] 上書きと同じ仕組み)。 */}
                             <AnimatedDamage
                                 value={damage.mitigated}
                                 isLethal={isLethal}
                                 className={clsx(
-                                    "font-mono text-[13px] font-black leading-none flex-shrink-0",
+                                    "font-mono text-[13px] font-black leading-none flex-shrink-0 !h-[13px]",
                                     isLethal ? "text-red-500" : "text-green-500"
                                 )}
                             />
 
-                            {/* 致死バッジ */}
                             {/* 軽減% */}
                             {damage.mitigationPercent > 0 && !isLethal && (
                                 <span className="font-mono text-[11px] text-app-text opacity-25 leading-none flex-shrink-0">
@@ -316,19 +334,16 @@ export const MobileTimelineRow = memo(({
                                     {t('timeline.invuln', 'Invuln')}
                                 </span>
                             )}
-                        </>
-                    ) : (
-                        /* ダメージなし時のスペーサー */
-                        <span className="text-[13px] leading-none">&nbsp;</span>
+                        </div>
                     )}
-
-                    {/* 軽減スキルアイコン (22px, 右寄せ) */}
-                    <MitiIcons
-                        mitigations={activeMitigations}
-                        contentLanguage={contentLanguage}
-                        myMemberId={myMemberId}
-                    />
                 </div>
+
+                {/* 2行目: 軽減スキルアイコン (専用行・フル幅) */}
+                <MitiIcons
+                    mitigations={activeMitigations}
+                    contentLanguage={contentLanguage}
+                    myMemberId={myMemberId}
+                />
             </div>
             </div>{/* カード本体 end */}
         </motion.div>

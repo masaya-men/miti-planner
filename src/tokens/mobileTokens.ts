@@ -7,6 +7,7 @@ export const MOBILE_TOKENS = {
     logoSize: 11,
     subtitleSize: 12,
     logoLetterSpacing: '0.15em',
+    phaseBarHeight: 26,
   },
   bottomNav: {
     height: 52,

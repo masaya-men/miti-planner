@@ -1476,6 +1476,79 @@ const Timeline: React.FC = () => {
         syncRecastRow();
     }, [syncRecastRow, timelineMitigations]);
 
+    // モバイル: スクロール位置(ピクセル)そのものから「今どのフェーズを見ているか」を求める。
+    // 縦フェーズ列は「スクロールに連動して自然に流れ替わる」感覚だった(位置がスクロールに
+    // 物理的に紐づいていただけで、時間固定のアニメではない)。横のヘッダーでも同じ感覚にする
+    // ため、固定時間トランジションではなくスクロール量そのものを進捗 p として transform に
+    // 直接反映する「スクラブ」方式にする。
+    // ⚠ 時刻(秒)ベースで進捗を出すと、hideEmptyRows(行の間引き表示)時に現在時刻が実在行の
+    // 時刻へ飛び飛びにスナップし、2秒の遷移窓を一またぎで通過して「ぱっと切り替わる」ように
+    // 見える不具合があった。timeToYMap は間引き時も全時刻ぶんYを持つ(隠れた時刻は直前のYに
+    // 圧縮される)ため、scrollTopとYの差分(ピクセル)で比較すれば hideEmptyRows でも滑らかになる。
+    // RecastRow と同じく毎スクロールで React state を経由せず ref 直書き(GPU描画・再レンダーなし)。
+    const mobilePhaseCurRef = useRef<HTMLSpanElement>(null);
+    const mobilePhaseNextRef = useRef<HTMLSpanElement>(null);
+    const MOBILE_PHASE_TRANSITION_SECONDS = 2;
+    const syncMobilePhaseLabel = useCallback(() => {
+        const curEl = mobilePhaseCurRef.current;
+        const nextEl = mobilePhaseNextRef.current;
+        if (!curEl || !nextEl) return;
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        const scrollTop = container.scrollTop;
+        const offsetTime = showPreStart ? -10 : 0;
+        const yOfTime = (time: number) => timeToYMapRef.current.get(time) ?? ((time - offsetTime) * pixelsPerSecond);
+
+        const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
+        const labelFor = (i: number) => {
+            const phase = sorted[i];
+            const prefix = t('timeline.phase_prefix', { index: i + 1 });
+            const customName = getPhaseName(phase.name, contentLanguage);
+            return customName && customName !== prefix ? `${prefix}　${customName}` : prefix;
+        };
+
+        if (sorted.length === 0 || scrollTop < yOfTime(sorted[0].startTime)) {
+            curEl.textContent = '';
+            curEl.style.transform = 'translateX(0%)';
+            nextEl.textContent = '';
+            nextEl.style.transform = 'translateX(100%)';
+            return;
+        }
+
+        let idx = 0;
+        for (let i = 0; i < sorted.length; i++) {
+            if (scrollTop >= yOfTime(sorted[i].startTime)) idx = i;
+        }
+
+        curEl.textContent = labelFor(idx);
+
+        const next = sorted[idx + 1];
+        let p = 0;
+        if (next) {
+            nextEl.textContent = labelFor(idx + 1);
+            const transitionPx = MOBILE_PHASE_TRANSITION_SECONDS * pixelsPerSecond;
+            const distancePx = Math.max(0, yOfTime(next.startTime) - scrollTop);
+            p = distancePx <= transitionPx ? 1 - distancePx / transitionPx : 0;
+        } else {
+            nextEl.textContent = '';
+        }
+
+        curEl.style.transform = `translateX(${-p * 100}%)`;
+        nextEl.style.transform = `translateX(${(1 - p) * 100}%)`;
+    }, [showPreStart, pixelsPerSecond, phases, contentLanguage, t]);
+
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container || !isMobileTimeline) return;
+        syncMobilePhaseLabel();
+        container.addEventListener('scroll', syncMobilePhaseLabel, { passive: true });
+        return () => container.removeEventListener('scroll', syncMobilePhaseLabel);
+    }, [syncMobilePhaseLabel, isMobileTimeline]);
+
+    useEffect(() => {
+        syncMobilePhaseLabel();
+    }, [syncMobilePhaseLabel, timelineMitigations, timelineEvents]);
+
     // AA モード中に Escape キーで終了
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -2843,8 +2916,35 @@ const Timeline: React.FC = () => {
                             !currentPlanId && isMobileTimeline && !collabReadonly && "hidden"
                         )}
                         onScroll={handleScrollSync}
-                        style={{ paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined }}
+                        style={{
+                            // sticky なフェーズバー(下)は通常フローの実要素なので、padding では
+                            // ヘッダー分だけ確保すれば十分(バーの高さは自身の実高さで自動的に押し出す)。
+                            // ここに phaseBarHeight を足すと二重計上になりヘッダーとバーの間に隙間ができるので入れない。
+                            paddingTop: isMobileView ? MOBILE_TOKENS.header.compactHeight : undefined,
+                        }}
                     >
+                        {/* モバイル: ヘッダー直下に隙間なく固定した現在フェーズ名。ヘッダーと同じガラス背景で1枚のパネルに見せる。
+                            境界に近づくスクロール量そのものに連動して横スライド(syncMobilePhaseLabelがscroll毎にtransform直書き)。
+                            PC 側の行ごと回転ラベルはモバイルでは出さずこちらに一本化。 */}
+                        {isMobileTimeline && phases.length > 0 && (
+                            <div
+                                className="sticky top-0 z-20 overflow-hidden backdrop-blur-md"
+                                style={{
+                                    height: MOBILE_TOKENS.header.phaseBarHeight,
+                                    backgroundColor: 'var(--color-nav-bg)',
+                                    borderBottom: '0.5px solid var(--color-nav-border)',
+                                }}
+                            >
+                                <span
+                                    ref={mobilePhaseCurRef}
+                                    className="absolute inset-0 flex items-center justify-center text-app-base font-bold text-app-text leading-none"
+                                />
+                                <span
+                                    ref={mobilePhaseNextRef}
+                                    className="absolute inset-0 flex items-center justify-center text-app-base font-bold text-app-text leading-none"
+                                />
+                            </div>
+                        )}
                         {/* 画面外競合ガイド矢印: sticky + height:0 で viewport 端に固定、コンテンツと一緒に流れない */}
                         {/* 常時マウントにすることで scroll/ResizeObserver の付け外し churn を防ぐ。
                             points が空のときは ConflictOffscreenArrows が何も描画しない。 */}
@@ -2979,6 +3079,7 @@ const Timeline: React.FC = () => {
                                                     onTimelineSelect={mobileSelectHandler}
                                                     onTimelineSelectHover={mobileHoverHandler}
                                                     eventIndex={0}
+                                                    hideBottomDivider
                                                     rowHeight={pixelsPerSecond}
                                                 />
                                             );
@@ -3090,8 +3191,8 @@ const Timeline: React.FC = () => {
                                         {renderItems}
 
 
-                                        {/* フェーズオーバーレイ */}
-                                        {!phaseColumnCollapsed && (() => {
+                                        {/* フェーズオーバーレイ (PC のみ。モバイルはヘッダー直下の固定ラベルに一本化) */}
+                                        {!isMobileTimeline && !phaseColumnCollapsed && (() => {
                                             const sorted = [...phases].sort((a, b) => a.startTime - b.startTime);
                                             return sorted.map((phase, index) => {
                                             const offsetTime = showPreStart ? -10 : 0;
@@ -3637,10 +3738,11 @@ const Timeline: React.FC = () => {
                 <div className="fixed inset-0 z-[11000]" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
                     {/* 半透明背景 */}
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
-                    {/* ボトムシート — ボトムナビの上に配置（safe-area含む） */}
+                    {/* ボトムシート — ボトムナビの上に配置（safe-area含む）。80vh: 全画面にはせず
+                        上にタイムラインを少し覗かせて「どの行を編集中か」の手がかりを残す。 */}
                     <div
                         className={clsx(
-                            "absolute left-0 right-0 max-h-[50vh] rounded-t-2xl flex flex-col overflow-hidden",
+                            "absolute left-0 right-0 max-h-[80vh] rounded-t-2xl flex flex-col overflow-hidden",
                             "bg-app-bg border-t border-app-border shadow-lg"
                         )}
                         style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' }}
@@ -3651,8 +3753,8 @@ const Timeline: React.FC = () => {
                             <div className="w-10 h-1 rounded-full bg-app-border" />
                         </div>
                         {/* ヘッダー: 時間 + イベント名 */}
-                        <div className="px-4 pb-2 flex items-center justify-between">
-                            <div>
+                        <div className="px-4 pb-2 flex items-center justify-between gap-2">
+                            <div className="min-w-0">
                                 <span className="text-app-base font-black text-app-text-muted uppercase tracking-widest">{t('timeline.add_mitigation_here')}</span>
                                 <div className="text-app-md text-app-text font-mono">
                                     {(() => {
@@ -3666,27 +3768,28 @@ const Timeline: React.FC = () => {
                                     })()}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1">
-                                {/* この時間に配置済みの軽減アイコン（多い場合は小さく2段に） */}
-                                {(() => {
-                                    const placed = timelineMitigations.filter(am => am.time === mobileMitiFlow.time);
-                                    const isCompact = placed.length >= 6;
-                                    const iconSize = isCompact ? "w-3.5 h-3.5" : "w-5 h-5";
-                                    return (
-                                        <div className={clsx("flex items-center gap-px", isCompact && "flex-wrap max-w-[120px] justify-end")}>
-                                            {placed.map(am => {
-                                                const def = MITIGATIONS.find(m => m.id === am.mitigationId);
-                                                if (!def) return null;
-                                                return <img key={am.id} src={def.icon} className={clsx(iconSize, "rounded-sm object-contain opacity-80")} />;
-                                            })}
-                                        </div>
-                                    );
-                                })()}
-                                <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="p-1.5 rounded-lg bg-app-surface2 text-app-text cursor-pointer ml-1 shrink-0">
-                                    <X size={16} />
-                                </button>
-                            </div>
+                            <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="p-1.5 rounded-lg bg-app-surface2 text-app-text cursor-pointer shrink-0">
+                                <X size={16} />
+                            </button>
                         </div>
+                        {/* この時間に配置済みの軽減アイコン — 専用行(長い攻撃名と競合して見えなくなるのを防ぐ)。
+                            「ちょうどこの秒に置かれたもの」だけでなく「効果が続いていて今も効いているもの」も含める
+                            (タイムライン本体行の mitigationsByTime と同じ判定 = mit.time <= t < mit.time+duration)。 */}
+                        {(() => {
+                            const placed = timelineMitigations.filter(am =>
+                                !am.autoHidden && am.time <= mobileMitiFlow.time && mobileMitiFlow.time < am.time + am.duration
+                            );
+                            if (placed.length === 0) return null;
+                            return (
+                                <div className="px-4 pb-2 flex items-center gap-1 flex-wrap">
+                                    {placed.map(am => {
+                                        const def = MITIGATIONS.find(m => m.id === am.mitigationId);
+                                        if (!def) return null;
+                                        return <img key={am.id} src={def.icon} className="w-[22px] h-[22px] rounded-sm object-contain opacity-80" />;
+                                    })}
+                                </div>
+                            );
+                        })()}
                         {/* 対象/鼓舞の選択サブビュー (対象指定スキル・展開戦術等)。pending 中はスキル一覧に重ねて表示 */}
                         {mobileMitiFlow.pending && (() => {
                             const pending = mobileMitiFlow.pending;

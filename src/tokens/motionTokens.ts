@@ -18,6 +18,8 @@ export const DURATION = {
 // CSS easing curves
 export const EASING = {
   sheet: 'cubic-bezier(0.32, 0.72, 0, 1)',
+  // MD3 標準 (0.2, 0, 0, 1) — オン画面の状態切り替え全般向け、オーバーシュート無し
+  standard: 'cubic-bezier(0.2, 0, 0, 1)',
 } as const;
 
 // Stagger delays (ms)
