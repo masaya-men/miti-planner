@@ -242,7 +242,7 @@ describe('TourNavPage', () => {
     useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
     seedListings();
     renderPage();
-    expect(screen.getByText('ツアー作成にはログインが必要です')).toBeInTheDocument();
+    expect(screen.getByText('ツアーへの招待にはログインが必要です')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'みんなを招待' })).not.toBeInTheDocument();
   });
 
@@ -252,7 +252,7 @@ describe('TourNavPage', () => {
     seedListings();
     renderPage();
     expect(screen.getByRole('button', { name: 'みんなを招待' })).toBeInTheDocument();
-    expect(screen.queryByText('ツアー作成にはログインが必要です')).not.toBeInTheDocument();
+    expect(screen.queryByText('ツアーへの招待にはログインが必要です')).not.toBeInTheDocument();
   });
 
   it('「次へ」でtourStore.nextが発火しcurrentIndexが進む', () => {

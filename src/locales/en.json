@@ -2399,7 +2399,7 @@
                 "lead": "You can register a property by logging in with Discord. Your Discord ID is stored as an irreversible hash and can never be recovered."
             },
             "tour": {
-                "title": "Login required to create a tour",
+                "title": "Login required to invite others to a tour",
                 "lead": "If anyone could issue invite links freely, it could be abused, so we ask you to log in before creating one"
             },
             "favorite": {
