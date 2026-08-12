@@ -9871,6 +9871,20 @@ html[data-theme-anim="light"]::view-transition-new(root) {
     line-height: 1.45;
     white-space: normal;
   }
+  /* 招待の案内(2026-08-12): 行き方と同じ帯に相乗り。行き方がある時は上に薄い区切りを入れて分離する。 */
+  .housing-tour-map-invite-hint {
+    font-size: var(--housing-text-xs);
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--housing-candle);
+    opacity: 0.85;
+  }
+  .housing-tour-map-directions-teleport + .housing-tour-map-invite-hint,
+  .housing-tour-map-directions-body + .housing-tour-map-invite-hint {
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid var(--housing-divider);
+  }
   /* 実機2回目FB#6: フル住所チップは省略せず全文(最大2行折返し)で表示する(PC は1行ellipsisのまま維持)。
      右側はコンパス(40px + right:10px + 余白)を避けるよう100%からその分を差し引く
      (--housing-panel-radius は左インセットと同じ変数を使い、値が変わっても追随する)。

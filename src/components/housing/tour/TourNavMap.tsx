@@ -45,6 +45,11 @@ export interface TourNavMapProps {
    *  呼び出し側(TourNavPage)が isMobile && phase==='viewing' の時だけ渡す。
    *  省略/null なら何も出さない(PC は呼び出し側が渡さないため従来通り無表示)。 */
   viewingTimerText?: string | null;
+  /** 実機指摘(2026-08-12): スマホには招待の入口説明が一切無かったため追加。
+   *  地図下部の帯(footerDirections と同じ帯)に常時1行だけ出す招待案内(未ログイン/ログイン済みで文言が変わる)。
+   *  footerDirections が null(アパート等で行き方データが無い)でもこの文言だけは出したいため、
+   *  帯自体の表示条件は footerDirections || inviteHint とする。省略/null なら何も出さない(PC は渡さない)。 */
+  inviteHint?: string | null;
 }
 
 const FIT_PAD_PX = 28;         // 既定表示で経路が端に貼り付かない余白（実画面ゲートで調整可）
@@ -62,7 +67,7 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
   status, svg, viewBox, model, stepKey, originName,
   crossing = { kind: 'none' }, showCrossing = false,
   crossingReadOnly = false, addressListing = null, footerDirections = null,
-  viewingTimerText = null,
+  viewingTimerText = null, inviteHint = null,
 }) => {
   const { t, i18n } = useTranslation();
   const locale = pickRegionLocale(i18n.language);
@@ -494,11 +499,20 @@ export const TourNavMap: React.FC<TourNavMapProps> = ({
             実機FB第6弾#7: 1行目=最寄りエーテライト/2行目以降=行き方全文の2段構成にする
             (連結した1本の文字列だと、テレポ文と行き方本文の境目が読み取りづらかったため)。
             マウス向けの上のヒント(ホイールでズーム)はスマホでは housing.css 側で非表示にする。 */}
-        {footerDirections && (
+        {(footerDirections || inviteHint) && (
           <div className="housing-tour-map-directions" data-testid="tour-map-footer-directions">
-            <div className="housing-tour-map-directions-teleport">{footerDirections.teleport}</div>
-            {footerDirections.directions && (
-              <div className="housing-tour-map-directions-body">{footerDirections.directions}</div>
+            {footerDirections && (
+              <>
+                <div className="housing-tour-map-directions-teleport">{footerDirections.teleport}</div>
+                {footerDirections.directions && (
+                  <div className="housing-tour-map-directions-body">{footerDirections.directions}</div>
+                )}
+              </>
+            )}
+            {inviteHint && (
+              <div className="housing-tour-map-invite-hint" data-testid="tour-map-invite-hint">
+                {inviteHint}
+              </div>
             )}
           </div>
         )}

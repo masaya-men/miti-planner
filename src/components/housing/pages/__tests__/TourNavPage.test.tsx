@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
@@ -13,6 +13,7 @@ import { useHousingViewStore } from '../../../../store/useHousingViewStore';
 import { useEphemeralListingsStore } from '../../../../store/useEphemeralListingsStore';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import { useTourTrayStore } from '../../../../store/useTourTrayStore';
+import { useHousingModalStore } from '../../../../store/useHousingModalStore';
 
 const navigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -255,6 +256,14 @@ describe('TourNavPage', () => {
     expect(screen.queryByText('ツアーへの招待にはログインが必要です')).not.toBeInTheDocument();
   });
 
+  // スマホ地図下部の招待案内(tour-map-invite-hint)は isMobile 限定。PC側に漏れ出さないことを確認する。
+  it('PC(既定)では地図下部の招待案内は出ない', () => {
+    useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
+    seedListings();
+    renderPage();
+    expect(screen.queryByTestId('tour-map-invite-hint')).not.toBeInTheDocument();
+  });
+
   it('「次へ」でtourStore.nextが発火しcurrentIndexが進む', () => {
     useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
     seedListings();
@@ -396,6 +405,36 @@ describe('TourNavPage', () => {
       seedListings();
       renderPage();
       expect(screen.queryByTestId('tour-mobile-viewing-timer')).not.toBeInTheDocument();
+    });
+
+    // 2026-08-12 相談: スマホには招待の入口説明が一切無かった実機指摘への対応。
+    // 未ログイン=人+マークのまま・地図下部にログイン案内、タップでログインモーダルが開く。
+    it('未ログイン: 招待アイコンは変わらず、地図下部にログイン案内が出てタップでログインモーダルが開く', () => {
+      useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
+      seedListings();
+      renderPage();
+      const bar = screen.getByTestId('tour-mobile-bar');
+      const inviteBtn = within(bar).getByRole('button', { name: 'みんなを招待' });
+      expect(screen.getByTestId('tour-map-invite-hint')).toHaveTextContent(
+        'ログインするとツアーに招待できます',
+      );
+      expect(useHousingModalStore.getState().login.open).toBe(false);
+      fireEvent.click(inviteBtn);
+      expect(useHousingModalStore.getState().login.open).toBe(true);
+    });
+
+    // ログイン済み(未発行含む)は最初からリンクマーク+「右下のボタンでコピー」案内にする
+    // (文言と見た目を一致させるための2026-08-12方針)。
+    it('ログイン済み(未発行): 招待アイコンはリンクマークになり、地図下部に「右下のボタンでコピー」案内が出る', () => {
+      useAuthStore.setState({ user: { uid: 'test-uid' } as any });
+      useHousingTourStore.setState({ listingIds: ids, running: true, currentIndex: 0 });
+      seedListings();
+      renderPage();
+      const bar = screen.getByTestId('tour-mobile-bar');
+      expect(within(bar).getByRole('button', { name: 'コピー' })).toBeInTheDocument();
+      expect(screen.getByTestId('tour-map-invite-hint')).toHaveTextContent(
+        '右下のボタンから招待リンクをコピーできます',
+      );
     });
   });
 

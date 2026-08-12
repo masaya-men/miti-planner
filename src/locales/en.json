@@ -2944,6 +2944,8 @@
                     "ended": "Sharing ended",
                     "error": "Couldn't create the invite link",
                     "link_label": "Invite link",
+                    "mobile_hint_login": "Log in to invite others to this tour",
+                    "mobile_hint_copy": "Copy the invite link from the button in the bottom right",
                     "warning": {
                         "title": "These addresses will be visible to everyone",
                         "body": "This tour includes private or temporarily-added houses. Everyone who opens the invite link will see these addresses.",
