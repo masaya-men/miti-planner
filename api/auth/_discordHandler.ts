@@ -39,6 +39,34 @@ function parseCookies(cookieHeader: string): Record<string, string> {
     return cookies;
 }
 
+/**
+ * OAuth失敗時(キャンセル/state不一致/トークン交換失敗等)に、SPAの元いた画面へ戻すHTML。
+ * このエンドポイントはDiscordからのトップレベル遷移でしか呼ばれないため、失敗時に生JSONを
+ * 返すと「ログイン状態は変えず、素の画面に戻る」体験にならずブラウザにJSONがそのまま表示されてしまう
+ * (実機指摘・2026-08-12)。成功時(ステップ6)と同じ returnUrl 読み出し/検証ロジックを踏襲するが、
+ * lopo_auth_pending は書かない(ログインは成立していないため)。
+ */
+function sendAuthFailureRedirect(res: any): void {
+    res.setHeader('Content-Type', 'text/html');
+    res.status(200).send(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>LoPo</title></head>
+        <body>
+            <script>
+                var returnUrl = localStorage.getItem('lopo_auth_return_url') || '/';
+                localStorage.removeItem('lopo_auth_return_url');
+                try {
+                    var u = new URL(returnUrl, window.location.origin);
+                    if (u.origin !== window.location.origin) returnUrl = '/';
+                } catch(e) { returnUrl = '/'; }
+                window.location.href = returnUrl;
+            </script>
+        </body>
+        </html>
+    `);
+}
+
 export default async function handler(req: any, res: any) {
     // CORS（同一オリジンからのPOSTリクエストに対応）
     const origin = req.headers?.origin || '';
@@ -91,14 +119,22 @@ export default async function handler(req: any, res: any) {
         // ステップ2: GET — Discordからのコールバック（外部リダイレクトのためApp Checkスキップ）
         const { code, state } = req.query;
         if (!code) {
-            return res.status(400).json({ error: 'Missing authorization code' });
+            // ユーザーがDiscordの認可画面でキャンセルした場合もここに来る(code無し・error=access_denied付き)。
+            // stateクッキーは使われないまま残っても実害は小さいが(5分で自然失効)、ついでに片付ける。
+            res.setHeader('Set-Cookie',
+                'discord_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=0'
+            );
+            return sendAuthFailureRedirect(res);
         }
 
         const cookies = parseCookies(req.headers.cookie || '');
         const savedState = cookies['discord_oauth_state'];
 
         if (!savedState || state !== savedState) {
-            return res.status(400).json({ error: 'State mismatch. Please try again.' });
+            res.setHeader('Set-Cookie',
+                'discord_oauth_state=; HttpOnly; Secure; SameSite=Lax; Path=/api/auth; Max-Age=0'
+            );
+            return sendAuthFailureRedirect(res);
         }
 
         // cookieをクリア
@@ -128,7 +164,7 @@ export default async function handler(req: any, res: any) {
 
         if (!tokenRes.ok) {
             console.error('Discord token exchange failed:', await tokenRes.text());
-            return res.status(400).json({ error: 'Discord token exchange failed' });
+            return sendAuthFailureRedirect(res);
         }
 
         const { access_token } = await tokenRes.json();
@@ -139,7 +175,8 @@ export default async function handler(req: any, res: any) {
         });
 
         if (!userRes.ok) {
-            return res.status(400).json({ error: 'Failed to fetch Discord user' });
+            console.error('Discord user fetch failed:', userRes.status);
+            return sendAuthFailureRedirect(res);
         }
 
         // idのみ取り出し、他の個人情報は即破棄
@@ -149,7 +186,7 @@ export default async function handler(req: any, res: any) {
         const secret = process.env.LOPO_PSEUDONYM_SECRET;
         if (!secret) {
             console.error('LOPO_PSEUDONYM_SECRET 未設定');
-            return res.status(500).json({ error: 'Server configuration error' });
+            return sendAuthFailureRedirect(res);
         }
         const firebaseUid = hashUid(discordUserId, secret);
         const customToken = await getAuth().createCustomToken(firebaseUid, {
@@ -182,6 +219,9 @@ export default async function handler(req: any, res: any) {
         `);
     } catch (err: any) {
         console.error('Discord auth error:', err);
+        // GET(Discordからのトップレベル遷移)は生JSONを見せず元画面へ戻す。POSTはフロントの
+        // fetch呼び出しが待っているため、従来どおりJSONで返す(フロント側のエラーハンドリングを維持)。
+        if (req.method === 'GET') return sendAuthFailureRedirect(res);
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
