@@ -9,14 +9,18 @@ import { useAccountActions } from '../../../hooks/auth/useAccountActions';
 import { ConfirmDialog } from '../../ConfirmDialog';
 import { DisplayNameEditor } from '../../DisplayNameEditor';
 import { HousingAvatarCropModal } from '../mypage/HousingAvatarCropModal';
+import { HousingerProfileSection } from '../mypage/HousingerProfileSection';
 import { showToast } from '../../Toast';
 
 /**
  * ハウジング画面のログイン済みユーザー向けアカウント設定モーダル。
  *
- * 5 機能:
+ * 6 機能:
  * - アバター編集 (AvatarCropModal 流用)
  * - 表示名編集 (DisplayNameEditor 流用)
+ * - ハウジンガー公開設定 (HousingerProfileSection 流用。2026-08-13: 物件登録画面の
+ *   「設定する」ボタンがアイコン/名前しか設定できず、公開までここで完結できなかった不具合を受けて追加。
+ *   このモーダルはポップアップなので、開いたまま物件登録作業には影響しない)
  * - 管理画面リンク (admin のみ表示)
  * - ログアウト
  * - 退会 (ConfirmDialog 流用で確認ダイアログ)
@@ -145,6 +149,8 @@ export const HousingAccountModal: React.FC = () => {
                         <p className="housing-account-name-note">{t('housing.account.displayNameNote')}</p>
                     </div>
                 </div>
+
+                <HousingerProfileSection />
 
                 {isAdmin && (
                     <button

@@ -130,7 +130,7 @@ export const HousingerPage: React.FC = () => {
           // 自分の場合: 公開/住所非公開/完全非公開すべて (myListings ストア、visibility 問わず)。
           // 他人視点の表示 (getHousingerListings、公開分のみ) はこの分岐に入らない限り不変。
           const [profileResult] = await Promise.all([
-            getHousingerProfile(uid),
+            getHousingerProfile(uid, { isSelf: true }),
             useHousingListingsStore.getState().loadMine(uid),
           ]);
           if (cancelled) return;

@@ -2,12 +2,16 @@
  * housing_profiles コレクションのクライアント取得/キャッシュ + upsert API 呼び出し
  * (spec: docs/superpowers/specs/2026-07-10-housinger-profile-design.md §3.2/§3.3/§4)
  *
- * - getHousingerProfile: 他人のハウジンガー公開プロフィールを取得する。firestore.rules 上、
+ * - getHousingerProfile: ハウジンガープロフィールを取得する。firestore.rules 上、
  *   公開条件 (isPublished===true && isModerationHidden===false) を満たさないドキュメントの
- *   read は本人以外だと permission-denied で拒否される。「非公開」も「取得エラー」も呼び出し側
- *   からは区別する意味がないため、例外・不存在・公開条件不成立のいずれも null に丸めて返す。
+ *   read は本人以外だと permission-denied で拒否される (本人は無条件で読める)。
+ *   isSelf=true (自分のマイページ表示時) は、rules が既に本人読み取りを許可している前提で
+ *   isPublished/isModerationHidden によるクライアント側フィルタをスキップし、下書き
+ *   (未公開) 状態のプロフィールもそのまま返す。isSelf=false (既定・他人のページ表示) は
+ *   従来どおりフィルタを適用する。「非公開」も「取得エラー」も呼び出し側からは区別する意味が
+ *   ないため、例外・不存在・公開条件不成立のいずれも null に丸めて返す。
  *   結果 (null 含む) はモジュール内 Map でセッションキャッシュし、invalidate されるまで
- *   2 回目以降は Firestore を叩かない。
+ *   2 回目以降は Firestore を叩かない (self/public は別キーでキャッシュする)。
  * - getHousingerListings: housingListingsService.ts の getGalleryListings と同形。
  *   ownerUid で絞り込み、公開中のみ createdAt 降順で返す。
  * - upsertHousingerProfile: POST /api/housing?action=upsert-housinger-profile。
@@ -25,16 +29,18 @@ const PROFILE_COLLECTION = 'housing_profiles';
 /** uid → 取得結果 (null = 非公開/不存在/取得不可) のセッションキャッシュ */
 const profileCache = new Map<string, HousingerProfile | null>();
 
-export async function getHousingerProfile(uid: string): Promise<HousingerProfile | null> {
-  if (profileCache.has(uid)) {
-    return profileCache.get(uid) ?? null;
+export async function getHousingerProfile(uid: string, options?: { isSelf?: boolean }): Promise<HousingerProfile | null> {
+  const isSelf = options?.isSelf === true;
+  const cacheKey = isSelf ? `${uid}::self` : uid;
+  if (profileCache.has(cacheKey)) {
+    return profileCache.get(cacheKey) ?? null;
   }
   let result: HousingerProfile | null = null;
   try {
     const snap = await getDoc(doc(db, PROFILE_COLLECTION, uid));
     if (snap.exists()) {
       const data = snap.data() as HousingerProfile;
-      if (data.isPublished === true && data.isModerationHidden !== true) {
+      if (isSelf || (data.isPublished === true && data.isModerationHidden !== true)) {
         result = data;
       }
     }
@@ -42,12 +48,13 @@ export async function getHousingerProfile(uid: string): Promise<HousingerProfile
     // rules 上、公開条件を満たさないドキュメントの read は permission-denied で例外になる。
     result = null;
   }
-  profileCache.set(uid, result);
+  profileCache.set(cacheKey, result);
   return result;
 }
 
 export function invalidateHousingerProfileCache(uid: string): void {
   profileCache.delete(uid);
+  profileCache.delete(`${uid}::self`);
 }
 
 export async function getHousingerListings(uid: string): Promise<HousingListing[]> {
