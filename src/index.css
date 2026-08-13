@@ -1409,26 +1409,94 @@ button, [role="button"], .touch-none {
     background-color: transparent;
 }
 
-/* ===== モバイル: スクロール中だけエフェクト棒に切り替える ===== */
-/* 静止時: 専用行アイコンを表示、エフェクト棒は透明。
-   スクロール中(data-mobile-scrolling="1"): 逆。
-   両レイヤーが必ず同じ duration/easing でクロスフェードするよう1つの transition 宣言にまとめる
-   (以前は片方が Tailwind 既定、もう片方が plain ease で不統一 → 揃わず滲んで見える実機FB)。
-   250ms + cubic-bezier(0.4,0,0.2,1) は「奥で常時ゆらぐ背景要素」向けの穏やかなイージング
-   (motion-design スキル: Gentle float/Ambient・Tailwind 既定と同じ曲線)。 */
-.timeline-scroll-container .mobile-effect-bar-layer,
-.timeline-scroll-container .mobile-miti-icons {
-  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+/* ===== モバイル: スクロール量に連動して専用行アイコン⇄エフェクト棒が変身する ===== */
+/* 進み具合(--mobile-effect-bar-progress、0〜1)は Timeline.tsx の syncMobileEffectBarVisibility が
+   「今回の連続スクロールで何pxスクロールしたか」から算出し、コンテナのCSS変数として都度更新する
+   (2026-08-13、ユーザー判断=速さは無関係。指を止めればそこで止まり、戻せば逆再生される)。
+   var()未設定時のフォールバックは0(=静止時と同じ、専用行アイコンのみ表示)。
+   アイコンの縮小(mobile-effect-bar-icon)と棒の伸び(mobile-effect-bar-fill)を別要素にしているのは、
+   棒の scaleY が子要素(アイコン)にも伝播して縦潰れするのを避けるため。
+   transitionの長さを2段階にしているのは実機検証で判明した不具合の修正: scroll中は
+   syncMobileEffectBarVisibilityが約16〜20msおきにprogressを書き換え続けるため、短い
+   transitionで実際の値に追いつかせておかないと、指を止めた瞬間の実際の描画上の進み具合が
+   数%程度しか育っていない状態になる(2026-08-13実機FB=「戻る時に全くアニメしていないように
+   見える」の真因。戻り自体は正しく動いていたが、育つ前に戻されていた)。
+   スクロール中(data-mobile-scrolling="1")の速さは --mobile-effect-bar-transition-ms
+   (Timeline.tsxがスクロール初速から算出、単位なしの数値)で可変にする: ゆっくりしたスクロール
+   は素早く追従、勢いよくスクロールした瞬間はわざと長めにしてアニメーション自体をしっかり
+   見せる(2026-08-13ユーザー要望=速くスクロールした時ほどアニメが一瞬で終わって見えないため)。
+   指を止めて戻る時(属性除去後)は400ms+cubic-bezier(0.4,0,0.2,1)のゆったりしたイージング
+   (motion-design スキル: Gentle float/Ambient・Tailwind 既定と同じ曲線。250msでも実機で
+   「感じられない」FBがあり400msへ延長)。
+   スクロール中の追従イージングは linear→cubic-bezier(0.2, 0, 0, 1)(MD3 emphasized-decelerate、
+   MobileFAB.tsxの隠す/出すtweenと同じ曲線)に変更(2026-08-13実機FB=「変身がなめらかでない」)。
+   linear(等速)は機械的に見える一因。減速カーブは残り距離を毎回のretriggerでより速く詰める
+   ため、直前の「戻る時に育っていない」バグの再発リスクは無い(むしろ追いつきは速くなる)。 */
+.mobile-effect-bar-item,
+.mobile-effect-bar-fill,
+.mobile-effect-bar-icon,
+.mobile-miti-icons {
+  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
-.timeline-scroll-container .mobile-effect-bar-layer {
-  opacity: 0;
-}
-.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-layer {
-  /* 主張を抑えて背景にうっすら浮かぶ見た目にする(ユーザー希望・2026-08-12実機FB)。強すぎればさらに下げる。 */
-  opacity: 0.55;
-}
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-item,
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-fill,
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-icon,
 .timeline-scroll-container[data-mobile-scrolling="1"] .mobile-miti-icons {
+  transition: transform calc(var(--mobile-effect-bar-transition-ms, 80) * 1ms) cubic-bezier(0.2, 0, 0, 1),
+              opacity calc(var(--mobile-effect-bar-transition-ms, 80) * 1ms) cubic-bezier(0.2, 0, 0, 1);
+}
+.mobile-effect-bar-item {
+  /* 複数同時発生時、自分のスロット位置(--mobile-effect-bar-slot-x)へ変身と同時に横スライドする。
+     progress=0では常にスロット0(=静止時アイコンの位置)にいる。
+     opacityはここには付けない(棒とアイコンで別々の濃さにするため、fill/iconそれぞれで持つ)。
+     ここに付けると子要素(アイコン)まで一緒に薄くなってしまう
+     (2026-08-13実機FB=アイコンは通常の明るさのまま、薄く/暗くするのは棒だけでいい、との指摘)。 */
+  transform: translateX(calc(-1 * var(--mobile-effect-bar-slot-x, 0px) * var(--mobile-effect-bar-progress, 0)));
+}
+.mobile-effect-bar-fill {
+  transform-origin: top;
+  transform: scaleY(var(--mobile-effect-bar-progress, 0));
+  /* 0.55はJS側 MOBILE_EFFECT_BAR_MAX_OPACITY と同じ数値(主張を抑えた見た目・2026-08-12実機FB)。
+     棒(帯そのもの)だけを薄くする。アイコンは別途 .mobile-effect-bar-icon 側で通常の濃さにする。 */
+  opacity: calc(0.55 * var(--mobile-effect-bar-progress, 0));
+}
+.mobile-effect-bar-icon {
+  /* 22px = MobileTimelineRow.tsx の専用行アイコン(w-[22px])と同じ基準サイズ。
+     15px = エフェクト棒側の完了時サイズ(MOBILE_EFFECT_BAR_ICON_SIZE)。
+     widthではなくscaleで縮めるのはレイアウト再計算(reflow)を避けるため。
+     0.9は専用行アイコン(MitiIcons)側のopacity-90と同じ数値=変身し終えても明るさが変わらない。
+     静止時(progress=0)は0にして、変身し切るまで見えないようにする
+     (0にしないと変身前から右端にうっすら見えるバグになる。2026-08-13実機FB)。 */
+  opacity: calc(0.9 * var(--mobile-effect-bar-progress, 0));
+  width: 22px;
+  height: 22px;
+  transform-origin: top center;
+  transform: translateX(-50%) scale(calc((22 - 7 * var(--mobile-effect-bar-progress, 0)) / 22));
+}
+.mobile-miti-icons {
+  /* エフェクト棒側の変身が進むほど、専用行アイコン側は透明になっていく(連続クロスフェード)。 */
+  opacity: calc(1 - var(--mobile-effect-bar-progress, 0));
+}
+
+/* ===== モバイル: 左端Undo/Redoもスクロール中は隠す(右端FABと同じ見た目に揃える・2026-08-13) ===== */
+/* MobileFAB.tsx側のtween(duration 0.2, MD3標準イージング)と揃えた値。 */
+.mobile-undo-redo-wrap {
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+.mobile-undo-redo-wrap[data-hidden="1"] {
   opacity: 0;
+  transform: scale(0);
+  pointer-events: none;
+}
+
+/* ===== モバイル: 行の時間・元ダメージ・矢印・軽減率の濃さ ===== */
+/* 影を使った立体感は実機FBで不採用(2026-08-13)。地の不透明度そのものを上げて読みやすくする方針に変更。
+   エフェクト表示中(data-mobile-scrolling="1")はさらに一段濃くする。 */
+.mobile-row-dim-text {
+  transition: opacity 200ms ease;
+}
+.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-row-dim-text {
+  opacity: 0.95 !important;
 }
 
 /* タイムライン選択プレビュー — DOM直接操作でクラスを付与 */

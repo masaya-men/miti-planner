@@ -26,7 +26,9 @@ export const MOBILE_TOKENS = {
     handleRadius: 3,
   },
   touchTarget: {
-    min: 44,
+    // 44→64(2026-08-13ユーザー要望=シート上部のドラッグハンドルが掴みにくい、もっと広げてほしい)。
+    // 見た目のハンドルバー(sheet.handleHeight=5px)は変えず、当たり判定だけ拡張する。
+    min: 64,
   },
   party: {
     slotColumns: 4,

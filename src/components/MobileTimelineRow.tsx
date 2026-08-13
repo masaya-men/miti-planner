@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
-import type { PartyMember, TimelineEvent, AppliedMitigation } from '../types';
+import type { PartyMember, TimelineEvent, AppliedMitigation, Mitigation } from '../types';
 import { getPhaseName } from '../types';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/useThemeStore';
@@ -45,14 +45,11 @@ interface MobileTimelineRowProps {
     hideBottomDivider?: boolean;
     /** 行の高さ (pixelsPerSecond) */
     rowHeight?: number;
+    /** 軽減アイコン専用行に横並びで入りきる最大アイコン数(画面幅から算出、呼び出し側が渡す)。
+     * あふれた分は折り返さず「+N」バッジにする(2026-08-13ユーザー要望=行の高さが固定コマの
+     * ため2段折り返しは絶対にしない)。 */
+    maxMitiIcons?: number;
 }
-
-/** ダメージ値を短縮表示 */
-const formatDmg = (val: number): string => {
-    if (val >= 1000000) return (val / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (val >= 1000) return (val / 1000).toFixed(0) + 'k';
-    return String(val);
-};
 
 /** 対象バッジ（AoE以外）。effTarget = 挑発考慮済みの実効ターゲット */
 const TargetBadge: React.FC<{ effTarget: TimelineEvent['target']; partyMembers: PartyMember[] }> = ({ effTarget, partyMembers }) => {
@@ -77,15 +74,11 @@ const TargetBadge: React.FC<{ effTarget: TimelineEvent['target']; partyMembers: 
     );
 };
 
-/** 軽減スキルアイコン列（専用行・フル幅・18px・使用者ごとにグルーピング表示） */
-const MitiIcons: React.FC<{
-    mitigations: AppliedMitigation[];
-    contentLanguage: string;
-    myMemberId: string | null;
-}> = ({ mitigations, contentLanguage, myMemberId }) => {
-    const MITIGATIONS = useMitigations();
-    if (mitigations.length === 0) return null;
-
+/** 軽減アイコンを「1行に入りきる分」と「あふれた分」に分ける(グルーピング込み)。
+ * MitiIcons(2行目に表示)とMobileTimelineRow(あふれた分を1行目のダメージ表記エリアに表示)の
+ * 両方が同じ分け方を使う必要があるため共通関数化(バラバラに計算すると数がズレるバグの元に
+ * なる。2026-08-13実機検証で実際に1件ズレるバグを踏んだ)。 */
+function groupAndCapMitigations(mitigations: AppliedMitigation[], maxIcons: number | undefined) {
     // 表示順は常に MT→ST→H1→H2→D1〜D4 固定(PARTY_MEMBER_IDS)。PC の並び替え設定
     // (partySortOrder='light_party' 等)の影響を受けない — スマホは常に同じ並びにする。
     const groups: { key: string; items: AppliedMitigation[] }[] = PARTY_MEMBER_IDS
@@ -95,32 +88,95 @@ const MitiIcons: React.FC<{
     const orphan = mitigations.filter(m => !knownIds.has(m.ownerId));
     if (orphan.length > 0) groups.push({ key: 'orphan', items: orphan });
 
+    // 「+N」バッジ自体も1枠分の幅を使うため、あふれる場合はバッジの分を1枠減らして確保する
+    // (2026-08-13実機検証: バッジの分を引かずに満タンまで表示すると行の見積り幅を超える)。
+    const cap = maxIcons ?? Infinity;
+    const overflowCount = Math.max(0, mitigations.length - cap);
+    let visibleBudget = overflowCount > 0 ? Math.max(0, cap - 1) : cap;
+    const visibleGroups: { key: string; items: AppliedMitigation[] }[] = [];
+    for (const g of groups) {
+        if (visibleBudget <= 0) break;
+        const take = g.items.slice(0, visibleBudget);
+        if (take.length > 0) visibleGroups.push({ key: g.key, items: take });
+        visibleBudget -= take.length;
+    }
+    const visibleIds = new Set(visibleGroups.flatMap(g => g.items.map(i => i.id)));
+    const hiddenMitigations = mitigations.filter(m => !visibleIds.has(m.id));
+    return { visibleGroups, hiddenMitigations };
+}
+
+/** 軽減アイコン(1個)。MitiIcons(2行目)と、あふれた分を表示する1行目ダメージエリアの
+ * 両方から同じ見た目で使う。 */
+const MitiIconImg: React.FC<{
+    mit: AppliedMitigation;
+    def: Mitigation;
+    contentLanguage: string;
+    isNotMine: boolean;
+    isStartRow: boolean;
+}> = ({ mit, def, contentLanguage, isNotMine, isStartRow }) => (
+    <img
+        key={mit.id}
+        src={def.icon}
+        alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}
+        data-myjob-dim={isNotMine ? 'gray' : undefined}
+        className={clsx(
+            'w-[22px] h-[22px] object-cover rounded-md',
+            isStartRow ? 'opacity-90' : 'opacity-[0.55]',
+        )}
+    />
+);
+
+/** 軽減スキルアイコン列（専用行・フル幅・18px・使用者ごとにグルーピング表示） */
+const MitiIcons: React.FC<{
+    visibleGroups: { key: string; items: AppliedMitigation[] }[];
+    hiddenCount: number;
+    contentLanguage: string;
+    myMemberId: string | null;
+    /** この行の時刻。mit.timeと一致する行(=設置した瞬間)だけ通常の濃さにし、それ以外
+     * (効果継続中の行)はエフェクト棒と同じ濃さ(0.55)まで薄くして「どこで使ったか」を
+     * 目立たせる(2026-08-13ユーザー提案)。 */
+    time: number;
+    /** 「+N」タップ時のコールバック(1行目ダメージ表記エリアへのあふれ表示ON/OFFを親が管理)。
+     * 2026-08-13ユーザー確認=「+Nを押した時だけそうなる」= 常時表示ではなくタップ式に確定。 */
+    onOverflowTap: () => void;
+}> = ({ visibleGroups, hiddenCount, contentLanguage, myMemberId, time, onOverflowTap }) => {
+    const MITIGATIONS = useMitigations();
+    if (visibleGroups.length === 0 && hiddenCount === 0) return null;
+
     return (
         // 同じ人のアイコン同士はほぼ密着(gap-px=1px)、人が変わるところだけ gap-1.5(6px)空ける。
         // 「ぴったりくっつく」ためには同グループ内の隙間をほぼ0にする必要があった。
         // mix-blend-plus-lighter: エフェクト棒(奥に描画済み)とのクロスフェード時、不透明度の
         // 単純な上げ下げだと切り替わりの中間で両方が重なって濁って見える問題があるため、
         // 加算合成にして常に綺麗に混ざるようにする(静止時は背景がほぼ黒なので見た目は変わらない)。
-        <div className="mobile-miti-icons flex items-center justify-end gap-1.5 flex-wrap mix-blend-plus-lighter">
-            {groups.map(group => (
+        // flex-wrap は使わない(2026-08-13ユーザー要望=行の高さが固定コマのため2段折り返しは
+        // 絶対にしない。あふれた分は「+N」タップで1行目のダメージ表記エリアに表示する。
+        // overflow-hidden は maxIcons 見積もりのズレに対する保険)。
+        <div className="mobile-miti-icons flex items-center justify-end gap-1.5 flex-nowrap overflow-hidden mix-blend-plus-lighter">
+            {visibleGroups.map(group => (
                 <div key={group.key} className="flex items-center gap-px">
                     {group.items.map(mit => {
                         const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
                         if (!def) return null;
                         // 薄暗くは親 .timeline-scroll-container[data-myjob-highlight] + CSS が担当（myJobHighlight 非購読）。
                         const isNotMine = !!myMemberId && mit.ownerId !== myMemberId;
+                        // 0.55 = エフェクト棒(MOBILE_EFFECT_BAR_MAX_OPACITY)と同じ濃さ。
+                        const isStartRow = mit.time === time;
                         return (
-                            <img
-                                key={mit.id}
-                                src={def.icon}
-                                alt={def.name ? getPhaseName(def.name, contentLanguage) : ''}
-                                data-myjob-dim={isNotMine ? 'gray' : undefined}
-                                className="w-[22px] h-[22px] object-cover rounded-md opacity-90"
-                            />
+                            <MitiIconImg key={mit.id} mit={mit} def={def} contentLanguage={contentLanguage} isNotMine={isNotMine} isStartRow={isStartRow} />
                         );
                     })}
                 </div>
             ))}
+            {hiddenCount > 0 && (
+                <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onOverflowTap(); }}
+                    className="flex-shrink-0 w-[22px] h-[22px] rounded-md bg-app-text/15 text-app-text text-[10px] font-black flex items-center justify-center"
+                >
+                    +{hiddenCount}
+                </button>
+            )}
         </div>
     );
 };
@@ -144,6 +200,7 @@ export const MobileTimelineRow = memo(({
     isSecondEvent,
     hideBottomDivider,
     rowHeight = 80,
+    maxMitiIcons,
 }: MobileTimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -160,6 +217,14 @@ export const MobileTimelineRow = memo(({
         }),
         [timelineMitigations, MITIGATIONS]
     );
+
+    // 軽減アイコンの「入りきる分」と「あふれた分」。あふれた分は「+N」タップで1行目の
+    // ダメージ表記エリアに切り替え表示する(2026-08-13ユーザー確認=常時表示ではなくタップ式)。
+    const { visibleGroups: mitiVisibleGroups, hiddenMitigations: mitiHiddenMitigations } = useMemo(
+        () => groupAndCapMitigations(activeMitigations, maxMitiIcons),
+        [activeMitigations, maxMitiIcons]
+    );
+    const [mitiOverflowOpen, setMitiOverflowOpen] = useState(false);
 
     // 表示するイベントとダメージを決定
     const idx = eventIndex ?? 0;
@@ -251,6 +316,11 @@ export const MobileTimelineRow = memo(({
             className={clsx(
                 "absolute left-0 w-full",
                 "active:bg-app-text/[0.03] transition-colors duration-100",
+                // 長押し判定(300ms)とiOS標準の「範囲選択」ジェスチャーが競合し、長押し編集を
+                // 開くたびに選択ハイライトも一緒に出てしまう不具合の対策(2026-08-13実機FB)。
+                // .touch-none は使わない(Tailwindのtouch-action:noneも付与されてしまい、縦スクロール
+                // ごと殺してしまうため)。select-none(user-select)のみ+callout抑制を個別指定。
+                "select-none [-webkit-touch-callout:none]",
                 (timelineSelectMode || labelSelectMode) && "cursor-pointer"
             )}
             style={{ top: `${top}px`, height: `${rowHeight}px` }}
@@ -270,17 +340,22 @@ export const MobileTimelineRow = memo(({
                 {/* コンテンツエリア + 区切り線 (フェーズ名はヘッダー直下の固定ラベルへ移動済みのため全幅使用)。
                     justify-start 固定: justify-center だと軽減アイコン行の有無で1行/2行の合計高さが
                     変わり、時間・攻撃名の位置が行ごとに上下してしまうため、常に上基準に揃える。 */}
-                <div className="flex-1 min-w-0 flex flex-col justify-start pt-2 px-3 gap-1 relative">
+                {/* pt/pb: 元はpt-[7px]のみ(下端の余白ゼロ→2行目アイコンが罫線にぴったり付いて見える
+                    実機FB・2026-08-14)。合計7pxの枠内でtop/bottomへ再配分し、行の高さ(60px)は
+                    不変のままコンテンツを縦方向にやや中央寄せする。 */}
+                <div className="flex-1 min-w-0 flex flex-col justify-start pt-[4px] pb-[3px] px-3 gap-1 relative">
                     {/* 下部区切り線 (同時刻2件の1件目は2件目との間の罫線を出さない) */}
                     {!hideBottomDivider && (
                         <div className="absolute bottom-0 left-3 right-0 h-px bg-app-text/[0.06]" />
                     )}
                 {/* 1行目: 時間 + 種別アイコン + 攻撃名 + 対象バッジ + ダメージ */}
                 <div className="flex items-center gap-1.5 min-w-0">
-                    {/* 時間 — 同時刻2件目も実際の時刻をそのまま表示(固定幅で後続要素の開始位置を揃える) */}
+                    {/* 時間 — 同時刻2件目も実際の時刻をそのまま表示(固定幅で後続要素の開始位置を揃える)。
+                        mobile-row-dim-text: エフェクト表示中に濃さを一段上げる対象
+                        (2026-08-13ユーザー要望=薄い文字が読みにくい。影は不採用、地の濃さで対応)。 */}
                     <span className={clsx(
-                        "font-mono text-[15px] leading-none flex-shrink-0 w-[38px]",
-                        isSecondEvent ? "text-app-text-muted opacity-50" : "text-app-text opacity-50"
+                        "mobile-row-dim-text font-mono text-[15px] leading-none flex-shrink-0 w-[38px]",
+                        isSecondEvent ? "text-app-text-muted opacity-85" : "text-app-text opacity-85"
                     )}>
                         {formattedTime}
                     </span>
@@ -300,53 +375,95 @@ export const MobileTimelineRow = memo(({
                         <TargetBadge effTarget={getEffectiveTarget(event, swapMarkers, phases)} partyMembers={partyMembers} />
                     )}
 
-                    {/* 軽減前ダメージ → 軽減後ダメージ + 軽減% (右寄せ)。
-                        items-baseline: 13px(ダメージ数字)と11px(矢印・%)が混在するため、
-                        items-center だと箱の高さの違いで下端がズレる。文字のベースラインで揃える。 */}
-                    {damage && damage.unmitigated > 0 && (
-                        <div className="flex items-baseline gap-1.5 flex-shrink-0 ml-auto">
-                            {/* 軽減前ダメージ */}
-                            <span className="font-mono text-[13px] text-app-text opacity-30 leading-none flex-shrink-0">
-                                {formatDmg(damage.unmitigated)}
-                            </span>
+                    {/* ダメージ表記 — 行は増やさず、1行目の右端に「元ダメ→(極小)」を上段・
+                        「軽減率+軽減後ダメージ(通常サイズ)」を下段にした2段スタックとして詰め込む
+                        (2026-08-13ユーザー指定=行の高さを変えずに、フル桁表示化で潰れた攻撃名の
+                        表示幅を確保する)。gap-0で上下を密着させ、行の高さ増を最小限にする。
+                        wrapper自体は常時描画してmin-h-[27px]で高さを確保する(ダメージ無し行だと
+                        中身ごと消えて1行目の高さが縮み、2行目の軽減アイコンの位置がズレる不具合を
+                        Playwright実測で発見・対策)。
+                        軽減アイコンがあふれている行は、2行目の「+N」タップでここ(ダメージ表記の
+                        場所)にあふれた分のアイコンを切り替え表示する(2026-08-13ユーザー確認=
+                        「+Nを押した時だけ」。旧・2段折り返しと同じ見た目(ポップアップ等のカード
+                        装飾は無し)だが、下の行ではなく上の数字エリアへ、タップで切り替え)。 */}
+                    <div className="flex flex-col items-end justify-center gap-0 flex-shrink-0 ml-auto min-h-[27px]">
+                        {mitiOverflowOpen && mitiHiddenMitigations.length > 0 ? (
+                            <div className="flex items-center flex-nowrap overflow-hidden justify-end gap-px mix-blend-plus-lighter">
+                                {mitiHiddenMitigations.map(mit => {
+                                    const def = MITIGATIONS.find(m => m.id === mit.mitigationId);
+                                    if (!def) return null;
+                                    const isNotMine = !!myMemberId && mit.ownerId !== myMemberId;
+                                    const isStartRow = mit.time === time;
+                                    return (
+                                        <MitiIconImg key={mit.id} mit={mit} def={def} contentLanguage={contentLanguage} isNotMine={isNotMine} isStartRow={isStartRow} />
+                                    );
+                                })}
+                            </div>
+                        ) : damage && damage.unmitigated > 0 && (
+                            <>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="mobile-row-dim-text font-mono text-[9px] text-app-text opacity-60 leading-none flex-shrink-0">
+                                        {damage.unmitigated.toLocaleString()}
+                                    </span>
+                                    <span className="mobile-row-dim-text text-app-text-muted opacity-50 text-[9px] flex-shrink-0">→</span>
+                                </div>
+                                <div className="flex items-baseline gap-1.5">
+                                    {/* 軽減% */}
+                                    {damage.mitigationPercent > 0 && !isLethal && (
+                                        <span className="mobile-row-dim-text font-mono text-[11px] text-app-text opacity-60 leading-none flex-shrink-0">
+                                            {damage.mitigationPercent}%
+                                        </span>
+                                    )}
 
-                            <span className="text-app-text-muted opacity-30 text-[11px] flex-shrink-0">→</span>
+                                    {/* 軽減後ダメージ — AnimatedDamage は内部で高さ22px固定(.dmg-slot)なので、
+                                        周囲の13pxテキストと下端を揃えるため !h-[13px] で上書き(TimelineRow.tsx の
+                                        !h-[16px] 上書きと同じ仕組み)。 */}
+                                    <AnimatedDamage
+                                        value={damage.mitigated}
+                                        isLethal={isLethal}
+                                        className={clsx(
+                                            "font-mono text-[13px] font-black leading-none flex-shrink-0 !h-[13px]",
+                                            isLethal ? "text-red-500" : "text-green-500"
+                                        )}
+                                    />
 
-                            {/* 軽減後ダメージ — AnimatedDamage は内部で高さ22px固定(.dmg-slot)なので、
-                                周囲の13pxテキストと下端を揃えるため !h-[13px] で上書き(TimelineRow.tsx の
-                                !h-[16px] 上書きと同じ仕組み)。 */}
-                            <AnimatedDamage
-                                value={damage.mitigated}
-                                isLethal={isLethal}
-                                className={clsx(
-                                    "font-mono text-[13px] font-black leading-none flex-shrink-0 !h-[13px]",
-                                    isLethal ? "text-red-500" : "text-green-500"
-                                )}
-                            />
-
-                            {/* 軽減% */}
-                            {damage.mitigationPercent > 0 && !isLethal && (
-                                <span className="font-mono text-[11px] text-app-text opacity-25 leading-none flex-shrink-0">
-                                    {damage.mitigationPercent}%
-                                </span>
-                            )}
-
-                            {/* 無敵 */}
-                            {damage.isInvincible && (
-                                <span className="text-[9px] font-black text-app-text-sec px-1 py-px rounded-md bg-app-text/5 flex-shrink-0">
-                                    {t('timeline.invuln', 'Invuln')}
-                                </span>
-                            )}
-                        </div>
-                    )}
+                                    {/* 無敵 */}
+                                    {damage.isInvincible && (
+                                        <span className="text-[9px] font-black text-app-text-sec px-1 py-px rounded-md bg-app-text/5 flex-shrink-0">
+                                            {t('timeline.invuln', 'Invuln')}
+                                        </span>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
                 </div>
 
                 {/* 2行目: 軽減スキルアイコン (専用行・フル幅) */}
                 <MitiIcons
-                    mitigations={activeMitigations}
+                    visibleGroups={mitiVisibleGroups}
+                    hiddenCount={mitiHiddenMitigations.length}
                     contentLanguage={contentLanguage}
                     myMemberId={myMemberId}
+                    time={time}
+                    onOverflowTap={() => setMitiOverflowOpen(v => !v)}
                 />
+
+                {/* 「+N」バッジの当たり判定拡張(2026-08-13実機FB=見た目の22pxのままだと押しにくい)。
+                    .mobile-miti-icons は overflow-hidden(あふれ見積りのズレ対策)で22px高固定のため、
+                    その内側に当たり判定を拡張すると自身のoverflow-hiddenでクリップされてしまう。
+                    ここ(row1の relative コンテナ、overflow指定なし)に外側から重ねることで回避。
+                    バッジは常に右詰め最後尾(px-3の右端)に来るため、座標計算(ref測定)無しで
+                    right-3/bottom-0基準の絶対配置だけで実用上十分揃う。 */}
+                {mitiHiddenMitigations.length > 0 && (
+                    <button
+                        type="button"
+                        aria-hidden="true"
+                        tabIndex={-1}
+                        onClick={(e) => { e.stopPropagation(); setMitiOverflowOpen(v => !v); }}
+                        className="absolute bottom-0 right-2 w-10 h-9"
+                    />
+                )}
             </div>
             </div>{/* カード本体 end */}
         </motion.div>

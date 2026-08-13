@@ -6,10 +6,11 @@ import {
     MoreHorizontal, X, List, Tag, Search,
     Globe, Sun, Moon,
     Rows3, AlignJustify, ChevronDown,
+    Sparkles,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
-import type { ContentLanguage } from '../store/useThemeStore';
+import type { ContentLanguage, MobileEffectBarMode } from '../store/useThemeStore';
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 import { SPRING, STAGGER } from '../tokens/motionTokens';
@@ -32,21 +33,30 @@ const LANG_LABELS: Record<ContentLanguage, string> = {
     ko: '한',
 };
 
-// 言語チップレイアウト定数 — 「言語」ラベルの左に一直線
-const LANG_CHIP_SIZE = 36;
-const LANG_CHIP_GAP = 6;
+// チップ(言語/エフェクトモード共通)のレイアウト定数 — 対応するボタンのラベルの左に一直線
+const FAN_CHIP_SIZE = 36;
+const FAN_CHIP_GAP = 6;
 // 表示順序（左から: 日 EN 中 繁 한→ 右端が現在地に近い）
 const LANG_DISPLAY_ORDER: ContentLanguage[] = ['ja', 'en', 'zh', 'zh-Hant', 'ko'];
+const EFFECT_MODE_ORDER: MobileEffectBarMode[] = ['icon', 'scroll', 'bar'];
+const EFFECT_MODE_CHIP_LABELS: Record<MobileEffectBarMode, string> = {
+    icon: '静止',
+    scroll: '連動',
+    bar: '常時',
+};
 
-// i番目のチップのx位置（Globeボタン中心基準、左方向=負）
-// Globeボタン(44px) + gap(10px) + ラベル幅(≈50px) + gap(12px) + チップ列
-function langChipX(i: number): number {
-    const labelOffset = -(MOBILE_TOKENS.fab.itemSize / 2 + 10 + 50 + 12);
-    return labelOffset - (LANG_DISPLAY_ORDER.length - 1 - i) * (LANG_CHIP_SIZE + LANG_CHIP_GAP) - LANG_CHIP_SIZE / 2;
+// i番目のチップのx位置（対応ボタン中心基準、左方向=負）。
+// ボタン(44px) + gap(10px) + ラベル実測幅 + gap(12px) + チップ列。
+// ラベル幅を固定50px決め打ちにしていた版は「スクロール演出」等の長いラベルでチップが
+// ラベル本体に重なるバグだったため、実測値(labelWidth)を必須で受け取るようにした
+// (2026-08-14実機FB)。
+function fanChipX(i: number, count: number, labelWidth: number): number {
+    const labelOffset = -(MOBILE_TOKENS.fab.itemSize / 2 + 10 + labelWidth + 12);
+    return labelOffset - (count - 1 - i) * (FAN_CHIP_SIZE + FAN_CHIP_GAP) - FAN_CHIP_SIZE / 2;
 }
 
-// 言語チップのアニメーション variants
-const langChipVariants = {
+// チップ(言語/エフェクトモード共通)のアニメーション variants
+const fanChipVariants = {
     hidden: {
         x: 0,
         scale: 0,
@@ -61,9 +71,8 @@ const langChipVariants = {
             delay: custom.i * 0.05,
         },
     }),
-    exit: (custom: { i: number; lang: ContentLanguage; selectedLang: ContentLanguage | null }) => {
-        const isSelected = custom.selectedLang === custom.lang;
-        if (isSelected) {
+    exit: (custom: { i: number; count: number; isSelected: boolean }) => {
+        if (custom.isSelected) {
             return {
                 x: 0,
                 scale: 0,
@@ -74,14 +83,13 @@ const langChipVariants = {
                 },
             };
         }
-        const totalChips = LANG_DISPLAY_ORDER.length;
         return {
             x: 0,
             scale: 0,
             opacity: 0,
             transition: {
                 ...SPRING.snappy,
-                delay: (totalChips - 1 - custom.i) * 0.04,
+                delay: (custom.count - 1 - custom.i) * 0.04,
             },
         };
     },
@@ -105,12 +113,28 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     hideEmptyRows,
 }) => {
     const { t, i18n } = useTranslation();
-    const { setContentLanguage } = useThemeStore();
+    const { setContentLanguage, mobileEffectBarMode, setMobileEffectBarMode } = useThemeStore();
     const { runTransition } = useTransitionOverlay();
     const [open, setOpen] = React.useState(false);
+    // タイムラインを指でスクロール中はFAB本体を隠す(親指の邪魔になるという実機FB・2026-08-13)。
+    // Timeline.tsx とは別コンポーネントなので、他のFAB系連携と同じ window CustomEvent 経由で受け取る
+    // (Timeline.tsx側はReact stateを介さずDOM属性を直接操作する高頻度更新の仕組みのため、こちらも
+    // Reactの再レンダーを伴わない直接イベント発火に揃える。開始/終了の低頻度イベントのみなので軽量)。
+    const [isMobileScrolling, setIsMobileScrolling] = React.useState(false);
+    React.useEffect(() => {
+        const handler = (e: Event) => {
+            const detail = (e as CustomEvent<{ scrolling: boolean }>).detail;
+            setIsMobileScrolling(detail.scrolling);
+        };
+        window.addEventListener('mobile:timeline-scroll-state', handler);
+        return () => window.removeEventListener('mobile:timeline-scroll-state', handler);
+    }, []);
     const [langOpen, setLangOpen] = React.useState(false);
     const [selectedLang, setSelectedLang] = React.useState<ContentLanguage | null>(null);
     const langTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    // エフェクトモード選択チップ(言語チップと同じ「ボタン→fan-out」パターン。2026-08-14ユーザー要望=
+    // 順送りタップ式ではなく言語ボタンのように選べる形にしたい)。
+    const [effectModeOpen, setEffectModeOpen] = React.useState(false);
 
     // メニューのスクロール可否（端のフェード + ↓ アイコン表示用）
     const menuRef = React.useRef<HTMLDivElement>(null);
@@ -134,9 +158,13 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     }, [canScrollUp, canScrollDown]);
 
     // 言語ボタンの位置を取得（言語チップを Portal で body に出すため）
-    // overflow-y-auto のメニュー内では横方向に展開するチップが clip されるので Portal 化が必須
+    // overflow-y-auto のメニュー内では横方向に展開するチップが clip されるので Portal 化が必須。
+    // ラベル幅も一緒に実測する(チップの開始位置計算に使う。固定50px決め打ちだと「スクロール演出」
+    // のような長いラベルにチップが重なるバグだったため。2026-08-14実機FB)。
     const langButtonRef = React.useRef<HTMLButtonElement>(null);
+    const langLabelRef = React.useRef<HTMLSpanElement>(null);
     const [langButtonRect, setLangButtonRect] = React.useState<DOMRect | null>(null);
+    const [langLabelWidth, setLangLabelWidth] = React.useState(50);
     React.useEffect(() => {
         if (!langOpen) {
             setLangButtonRect(null);
@@ -145,6 +173,9 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         const update = () => {
             if (langButtonRef.current) {
                 setLangButtonRect(langButtonRef.current.getBoundingClientRect());
+            }
+            if (langLabelRef.current) {
+                setLangLabelWidth(langLabelRef.current.getBoundingClientRect().width);
             }
         };
         update();
@@ -158,6 +189,34 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         };
     }, [langOpen]);
 
+    // エフェクトモードボタンの位置取得(言語ボタンと同じ仕組み)。
+    const effectModeButtonRef = React.useRef<HTMLButtonElement>(null);
+    const effectModeLabelRef = React.useRef<HTMLSpanElement>(null);
+    const [effectModeButtonRect, setEffectModeButtonRect] = React.useState<DOMRect | null>(null);
+    const [effectModeLabelWidth, setEffectModeLabelWidth] = React.useState(50);
+    React.useEffect(() => {
+        if (!effectModeOpen) {
+            setEffectModeButtonRect(null);
+            return;
+        }
+        const update = () => {
+            if (effectModeButtonRef.current) {
+                setEffectModeButtonRect(effectModeButtonRef.current.getBoundingClientRect());
+            }
+            if (effectModeLabelRef.current) {
+                setEffectModeLabelWidth(effectModeLabelRef.current.getBoundingClientRect().width);
+            }
+        };
+        update();
+        const onChange = () => update();
+        window.addEventListener('scroll', onChange, true);
+        window.addEventListener('resize', onChange);
+        return () => {
+            window.removeEventListener('scroll', onChange, true);
+            window.removeEventListener('resize', onChange);
+        };
+    }, [effectModeOpen]);
+
     // 言語切替タイマーのクリーンアップ
     React.useEffect(() => {
         return () => {
@@ -167,13 +226,22 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         };
     }, []);
 
-    const close = () => {
+    // fan-outチップ(言語/エフェクトモード)を両方とも閉じる。メニュー全体を閉じる時に
+    // チップだけ画面に取り残されるバグの対策(2026-08-14実機FB=「言語を選択するまで消えない」。
+    // 原因はメインFABボタンのトグルがlangOpenをリセットしていなかったこと)。
+    const closeAllChips = () => {
         setLangOpen(false);
+        setEffectModeOpen(false);
+    };
+
+    const close = () => {
+        closeAllChips();
         setOpen(false);
     };
 
-    // 言語円弧セレクターのトグル
+    // 言語円弧セレクターのトグル。同時に両方開かないよう、もう片方は閉じる。
     const handleLanguageToggle = () => {
+        setEffectModeOpen(false);
         setLangOpen(prev => !prev);
     };
 
@@ -202,6 +270,23 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const handleTheme = () => {
         close();
         onToggleTheme();
+    };
+
+    // エフェクトモード選択チップのトグル(言語ボタンと同じ操作感。2026-08-14ユーザー要望=
+    // 順送りタップ式だと何度もメニューを開き直す必要があって分かりにくかったため)。
+    const handleEffectModeToggle = () => {
+        setLangOpen(false);
+        setEffectModeOpen(prev => !prev);
+    };
+    const handleEffectModeSelect = (mode: MobileEffectBarMode) => {
+        setEffectModeOpen(false);
+        close();
+        setMobileEffectBarMode(mode);
+    };
+    const EFFECT_BAR_MODE_LABEL_KEY: Record<MobileEffectBarMode, string> = {
+        icon: 'app.fab_effect_mode_icon',
+        scroll: 'app.fab_effect_mode_scroll',
+        bar: 'app.fab_effect_mode_bar',
     };
 
     // ナビゲーションアクション
@@ -256,6 +341,13 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             onClick: handleTheme,
             accent: false,
         },
+        {
+            key: 'effect-bar-mode',
+            label: t(EFFECT_BAR_MODE_LABEL_KEY[mobileEffectBarMode]),
+            icon: <Sparkles size={20} />,
+            onClick: handleEffectModeToggle,
+            accent: false,
+        },
     ];
 
     // アニメーション: トークン使用
@@ -284,7 +376,15 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const allItems = [...navItems, 'divider' as const, ...settingsItems];
 
     return (
-        <div className="fixed bottom-20 right-4 z-[300] md:hidden flex flex-col items-end gap-0">
+        <div
+            className="fixed right-4 z-[300] md:hidden flex flex-col items-end gap-0"
+            style={{
+                // 内側へ寄せる案は「中途半端な位置でダサい」と不評だったため右端(right-4)に戻す
+                // (2026-08-13)。縦位置はボトムナビゲーションにできるだけ近づける
+                // (MOBILE_TOKENS.bottomNav.height + 少しの余白)。
+                bottom: `calc(${MOBILE_TOKENS.bottomNav.height}px + 0.5rem)`,
+            }}
+        >
 
             {/* 背景オーバーレイ */}
             <AnimatePresence>
@@ -332,23 +432,31 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                             }
                             const isSync = item.key === 'sync';
                             const isLang = item.key === 'language';
+                            const isEffectMode = item.key === 'effect-bar-mode';
+                            const isChipButton = isLang || isEffectMode;
+                            const chipRef = isLang ? langButtonRef : effectModeButtonRef;
+                            const chipOpen = isLang ? langOpen : effectModeOpen;
+                            const chipLabelRef = isLang ? langLabelRef : effectModeLabelRef;
                             return (
                                 <motion.div
                                     key={item.key}
                                     custom={idx}
                                     variants={itemVariants}
                                     className="flex items-center gap-2.5"
-                                    style={isLang ? { position: 'relative', zIndex: 50 } : undefined}
+                                    style={isChipButton ? { position: 'relative', zIndex: 50 } : undefined}
                                 >
                                     {/* ラベル（ボタンの左） */}
-                                    <span className="text-[13px] font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md">
+                                    <span
+                                        ref={isChipButton ? chipLabelRef : undefined}
+                                        className="text-[13px] font-semibold text-white/90 bg-black/70 backdrop-blur-sm rounded-lg px-2.5 py-1 select-none whitespace-nowrap shadow-md"
+                                    >
                                         {item.label}
                                     </span>
 
                                     {/* ボタン */}
-                                    {isLang ? (
+                                    {isChipButton ? (
                                         <motion.button
-                                            ref={langButtonRef}
+                                            ref={chipRef}
                                             onClick={item.onClick}
                                             className={clsx(
                                                 "flex items-center justify-center border",
@@ -362,7 +470,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                                 backgroundColor: 'var(--color-fab-bg)',
                                                 borderColor: 'var(--color-fab-border)',
                                             }}
-                                            animate={langOpen ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                                            animate={chipOpen ? { scale: [1, 1.15, 1] } : { scale: 1 }}
                                             whileTap={{ scale: 0.9 }}
                                             transition={{ duration: 0.12 }}
                                         >
@@ -417,8 +525,8 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                     {langOpen && LANG_DISPLAY_ORDER.map((lang: ContentLanguage, i: number) => (
                         <motion.button
                             key={lang}
-                            custom={{ i, lang, selectedLang, targetX: langChipX(i) }}
-                            variants={langChipVariants}
+                            custom={{ i, targetX: fanChipX(i, LANG_DISPLAY_ORDER.length, langLabelWidth), count: LANG_DISPLAY_ORDER.length, isSelected: selectedLang === lang }}
+                            variants={fanChipVariants}
                             initial="hidden"
                             animate="visible"
                             exit="exit"
@@ -432,10 +540,10 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     : "bg-black/70 text-white/90 backdrop-blur-sm"
                             )}
                             style={{
-                                width: LANG_CHIP_SIZE,
-                                height: LANG_CHIP_SIZE,
-                                left: langButtonRect.left + (MOBILE_TOKENS.fab.itemSize - LANG_CHIP_SIZE) / 2,
-                                top: langButtonRect.top + (MOBILE_TOKENS.fab.itemSize - LANG_CHIP_SIZE) / 2,
+                                width: FAN_CHIP_SIZE,
+                                height: FAN_CHIP_SIZE,
+                                left: langButtonRect.left + (MOBILE_TOKENS.fab.itemSize - FAN_CHIP_SIZE) / 2,
+                                top: langButtonRect.top + (MOBILE_TOKENS.fab.itemSize - FAN_CHIP_SIZE) / 2,
                                 zIndex: 9999,
                             }}
                         >
@@ -446,18 +554,69 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                 document.body
             )}
 
-            {/* メインFABボタン */}
+            {/* エフェクトモードチップ — 言語チップと同じPortalパターン(2026-08-14ユーザー要望)。 */}
+            {effectModeButtonRect && createPortal(
+                <AnimatePresence>
+                    {effectModeOpen && EFFECT_MODE_ORDER.map((mode, i) => (
+                        <motion.button
+                            key={mode}
+                            custom={{ i, targetX: fanChipX(i, EFFECT_MODE_ORDER.length, effectModeLabelWidth), count: EFFECT_MODE_ORDER.length, isSelected: mobileEffectBarMode === mode }}
+                            variants={fanChipVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            whileTap="tap"
+                            onClick={() => handleEffectModeSelect(mode)}
+                            className={clsx(
+                                "fixed flex items-center justify-center rounded-full",
+                                "font-semibold text-[13px] shadow-lg select-none",
+                                mode === mobileEffectBarMode
+                                    ? "bg-app-blue text-white shadow-app-blue/30"
+                                    : "bg-black/70 text-white/90 backdrop-blur-sm"
+                            )}
+                            style={{
+                                width: FAN_CHIP_SIZE,
+                                height: FAN_CHIP_SIZE,
+                                left: effectModeButtonRect.left + (MOBILE_TOKENS.fab.itemSize - FAN_CHIP_SIZE) / 2,
+                                top: effectModeButtonRect.top + (MOBILE_TOKENS.fab.itemSize - FAN_CHIP_SIZE) / 2,
+                                zIndex: 9999,
+                            }}
+                        >
+                            {EFFECT_MODE_CHIP_LABELS[mode]}
+                        </motion.button>
+                    ))}
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {/* メインFABボタン。タイムラインをスクロール中(かつメニューが開いていない時)だけ
+                縮小+透明化して隠す(親指の邪魔になる実機FB対応)。メニューを開いたまま偶発的に
+                スクロールされても本体ごと消えて宙に浮かないよう !open をガードに入れる。
+                閉じる時はfan-outチップも道連れに閉じる(2026-08-14実機FB=言語チップが
+                「言語を選択するまで消えない」バグの根治=このボタンでもチップを閉じる)。 */}
             <motion.button
-                onClick={() => setOpen(prev => !prev)}
-                className="flex items-center justify-center border text-app-text shadow-2xl active:scale-90 transition-all duration-200"
+                onClick={() => setOpen(prev => {
+                    const next = !prev;
+                    if (!next) closeAllChips();
+                    return next;
+                })}
+                className="flex items-center justify-center border text-app-text shadow-2xl"
                 style={{
                     width: MOBILE_TOKENS.fab.size,
                     height: MOBILE_TOKENS.fab.size,
                     borderRadius: MOBILE_TOKENS.fab.radius,
                     backgroundColor: 'var(--color-fab-bg)',
                     borderColor: 'var(--color-fab-border)',
+                    pointerEvents: (isMobileScrolling && !open) ? 'none' : 'auto',
                 }}
-                whileTap={{ scale: 0.88 }}
+                // active:scale-90 + transition-all(CSS)を外した: framer-motionのanimate/whileTapと
+                // 同じtransformを取り合ってカクつく原因になっていた(2026-08-13実機FB=消える/出現する
+                // アニメがぎこちない)。press演出はwhileTapだけに一本化。
+                // scroll中の縮小/透明化はバネ(spring)だとopacityとscaleの収束タイミングがズレて
+                // ぎこちなく見えるため、両方が同じ速度で揃って動く一定時間のtween+MD3標準イージングに変更。
+                animate={{ scale: (isMobileScrolling && !open) ? 0 : 1, opacity: (isMobileScrolling && !open) ? 0 : 1 }}
+                transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+                whileTap={{ scale: 0.88, transition: { duration: 0.1 } }}
             >
                 <AnimatePresence mode="wait" initial={false}>
                     {open ? (
