@@ -636,6 +636,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 title={t('sidebar.menu')}
                 height="calc(100dvh - 3.5rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px) - 8px)"
                 fillContent
+                swipeArea="handle"
                 headerAction={
                     <button
                         onClick={() => { setMobileMenuOpen(false); setMobilePartyOpen(true); }}
@@ -662,6 +663,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onClose={() => setMobilePartyOpen(false)}
                 title={t('nav.party')}
                 height="calc(100dvh - 3.5rem - env(safe-area-inset-bottom, 0px) - env(safe-area-inset-top, 0px) - 8px)"
+                swipeArea="handle"
             >
                 <MobilePartyWithTabs />
             </MobileBottomSheet>
@@ -863,6 +865,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onClose={() => setMobileAccountOpen(false)}
                 title={t('nav.account')}
                 height="auto"
+                swipeArea="handle"
             >
                 <MobileAccountMenu onClose={() => setMobileAccountOpen(false)} />
             </MobileBottomSheet>

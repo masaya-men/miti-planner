@@ -42,7 +42,9 @@ export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars
             style={{
               width: `${MOBILE_EFFECT_BAR_ICON_SIZE}px`,
               height: `${MOBILE_EFFECT_BAR_ICON_SIZE}px`,
-              top: `-${MOBILE_EFFECT_BAR_ICON_SIZE}px`,
+              // 使用した秒の行より上(=前の行)にアイコンがはみ出さないよう、bar.top(=使用時刻の行)
+              // を基準に真下へ描画する(実機FB: 前の行に配置されて見える不具合の修正)。
+              top: '0px',
               left: '50%',
               transform: 'translateX(-50%)',
             }}

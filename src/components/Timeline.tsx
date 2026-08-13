@@ -1578,10 +1578,10 @@ const Timeline: React.FC = () => {
     }, [scheduleMobileEffectBarHide]);
 
     const handleMobileEffectBarTouchStart = useCallback(() => {
+        // ここでは data-mobile-scrolling を新規に立てない(スクロールを伴わない
+        // ただのタップ・長押しでもエフェクト棒に切り替わってしまうバグになるため)。
+        // 既にスクロール中で表示済みの場合だけ、指を置いている間は隠れないようにする。
         mobileEffectBarTouchDownRef.current = true;
-        const container = scrollContainerRef.current;
-        if (!container) return;
-        container.setAttribute('data-mobile-scrolling', '1');
         if (mobileEffectBarIdleTimerRef.current) clearTimeout(mobileEffectBarIdleTimerRef.current);
     }, []);
 
@@ -3017,7 +3017,9 @@ const Timeline: React.FC = () => {
                                 />
                             </div>
                         )}
-                        <div ref={sheetContainerRef} onClick={handleSheetClick} className="relative bg-transparent md:w-max md:min-w-full" style={{
+                        {/* isolate: 内部の mix-blend-mode(モバイルのエフェクト棒⇄アイコンのクロスフェード)を
+                            このコンテナ内だけに閉じ込め、ページ全体の背景と混ざらないようにする。 */}
+                        <div ref={sheetContainerRef} onClick={handleSheetClick} className="relative isolate bg-transparent md:w-max md:min-w-full" style={{
                             height: `${(() => {
                                 let totalHeight = 0;
                                 let maxPopulatedTime = -11;
@@ -3824,44 +3826,30 @@ const Timeline: React.FC = () => {
             />
 
             {/* ── モバイル軽減一覧シート: 全メンバーの軽減を一画面で表示 ── */}
-            {mobileMitiFlow.isOpen && (
-                <div className="fixed inset-0 z-[11000]" onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}>
-                    {/* 半透明背景 */}
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
-                    {/* ボトムシート — ボトムナビの上に配置（safe-area含む）。80vh: 全画面にはせず
-                        上にタイムラインを少し覗かせて「どの行を編集中か」の手がかりを残す。 */}
-                    <div
-                        className={clsx(
-                            "absolute left-0 right-0 max-h-[80vh] rounded-t-2xl flex flex-col overflow-hidden",
-                            "bg-app-bg border-t border-app-border shadow-lg"
-                        )}
-                        style={{ bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))' }}
-                        onClick={e => e.stopPropagation()}
-                    >
-                        {/* ドラッグハンドル */}
-                        <div className="flex justify-center pt-2 pb-1">
-                            <div className="w-10 h-1 rounded-full bg-app-border" />
-                        </div>
-                        {/* ヘッダー: 時間 + イベント名 */}
-                        <div className="px-4 pb-2 flex items-center justify-between gap-2">
-                            <div className="min-w-0">
-                                <span className="text-app-base font-black text-app-text-muted uppercase tracking-widest">{t('timeline.add_mitigation_here')}</span>
-                                <div className="text-app-md text-app-text font-mono">
-                                    {(() => {
-                                        const flowTime = mobileMitiFlow.time;
-                                        const eventsAtTime = timelineEvents.filter(e => e.time === flowTime);
-                                        const timeStr = Math.floor(Math.abs(flowTime) / 60) + ':' + (Math.abs(flowTime) % 60).toString().padStart(2, '0');
-                                        const eventName = eventsAtTime.length > 0
-                                            ? (eventsAtTime[0].name ? getPhaseName(eventsAtTime[0].name, contentLanguage) : null)
-                                            : null;
-                                        return <>{timeStr}{eventName ? ` — ${eventName}` : ''}</>;
-                                    })()}
-                                </div>
-                            </div>
-                            <button onClick={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))} className="p-1.5 rounded-lg bg-app-surface2 text-app-text cursor-pointer shrink-0">
-                                <X size={16} />
-                            </button>
-                        </div>
+            <MobileBottomSheet
+                isOpen={mobileMitiFlow.isOpen}
+                onClose={() => setMobileMitiFlow(prev => ({ ...prev, isOpen: false }))}
+                title={
+                    <span className="flex flex-col min-w-0 items-start gap-0.5">
+                        <span className="text-app-base font-black text-app-text-muted uppercase tracking-widest">{t('timeline.add_mitigation_here')}</span>
+                        <span className="text-app-md text-app-text font-mono">
+                            {(() => {
+                                const flowTime = mobileMitiFlow.time;
+                                const eventsAtTime = timelineEvents.filter(e => e.time === flowTime);
+                                const timeStr = Math.floor(Math.abs(flowTime) / 60) + ':' + (Math.abs(flowTime) % 60).toString().padStart(2, '0');
+                                const eventName = eventsAtTime.length > 0
+                                    ? (eventsAtTime[0].name ? getPhaseName(eventsAtTime[0].name, contentLanguage) : null)
+                                    : null;
+                                return <>{timeStr}{eventName ? ` — ${eventName}` : ''}</>;
+                            })()}
+                        </span>
+                    </span>
+                }
+                height="80dvh"
+                fillContent
+                swipeArea="handle"
+            >
+                <div className="flex-1 min-h-0 flex flex-col relative">
                         {/* この時間に配置済みの軽減アイコン — 専用行(長い攻撃名と競合して見えなくなるのを防ぐ)。
                             「ちょうどこの秒に置かれたもの」だけでなく「効果が続いていて今も効いているもの」も含める
                             (タイムライン本体行の mitigationsByTime と同じ判定 = mit.time <= t < mit.time+duration)。 */}
@@ -4106,9 +4094,8 @@ const Timeline: React.FC = () => {
                                 })}
                             </div>
                         </div>
-                    </div>
                 </div>
-            )}
+            </MobileBottomSheet>
 
             <MitigationSelector
                 isOpen={mitigationSelectorOpen}
@@ -4219,6 +4206,7 @@ const Timeline: React.FC = () => {
                 onClose={() => setMobileToolsSheetOpen(false)}
                 title={t('mobile.import_title')}
                 height="55vh"
+                swipeArea="handle"
             >
                 <div className="flex flex-col gap-3">
                     {/* FFLogs Import */}

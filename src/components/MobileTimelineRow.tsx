@@ -98,7 +98,10 @@ const MitiIcons: React.FC<{
     return (
         // 同じ人のアイコン同士はほぼ密着(gap-px=1px)、人が変わるところだけ gap-1.5(6px)空ける。
         // 「ぴったりくっつく」ためには同グループ内の隙間をほぼ0にする必要があった。
-        <div className="mobile-miti-icons flex items-center gap-1.5 flex-wrap transition-opacity duration-150">
+        // mix-blend-plus-lighter: エフェクト棒(奥に描画済み)とのクロスフェード時、不透明度の
+        // 単純な上げ下げだと切り替わりの中間で両方が重なって濁って見える問題があるため、
+        // 加算合成にして常に綺麗に混ざるようにする(静止時は背景がほぼ黒なので見た目は変わらない)。
+        <div className="mobile-miti-icons flex items-center justify-end gap-1.5 flex-wrap mix-blend-plus-lighter">
             {groups.map(group => (
                 <div key={group.key} className="flex items-center gap-px">
                     {group.items.map(mit => {

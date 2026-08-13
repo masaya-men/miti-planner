@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
 import clsx from 'clsx';
 import type { TimelineEvent, LocalizedString } from '../types';
-import { MOBILE_TOKENS } from '../tokens/mobileTokens';
+import { MOBILE_TOKENS, MOBILE_SHEET_BOTTOM_OFFSET_CSS } from '../tokens/mobileTokens';
 import { SPRING, SCALE } from '../tokens/motionTokens';
+import { useSwipeToDismiss } from '../hooks/useSwipeToDismiss';
 
 // ─── ヘルパー ─────────────────────────────────────────────────────────────────
 
@@ -53,6 +54,7 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
     contentLanguage,
 }) => {
     const { t } = useTranslation();
+    const { sheetRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeToDismiss<HTMLDivElement>(onClose);
 
     const eventName = getEventName(event, contentLanguage);
     const timeDisplay = formatTimeDisplay(time);
@@ -89,6 +91,7 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
 
                         {/* ボトムシート */}
                         <motion.div
+                            ref={sheetRef}
                             key="context-sheet"
                             className={clsx(
                                 "absolute left-0 right-0",
@@ -96,7 +99,7 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                                 "pointer-events-auto",
                             )}
                             style={{
-                                bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))',
+                                bottom: MOBILE_SHEET_BOTTOM_OFFSET_CSS,
                                 backgroundColor: 'var(--color-sheet-bg)',
                                 borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
                                 borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
@@ -106,8 +109,16 @@ export const MobileContextMenu: React.FC<MobileContextMenuProps> = ({
                             exit={{ y: '100%', scale: SCALE.ctxMenu }}
                             transition={SPRING.default}
                         >
-                            {/* ドラッグハンドル */}
-                            <div className="flex justify-center pt-3 pb-1">
+                            {/* ドラッグハンドル(下スワイプで閉じる)。見た目の高さは変えず、
+                                当たり判定だけ絶対配置の透明レイヤーで MOBILE_TOKENS.touchTarget.min(44px)まで拡張する。 */}
+                            <div className="relative flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing">
+                                <div
+                                    className="absolute inset-x-0"
+                                    style={{ top: '50%', height: MOBILE_TOKENS.touchTarget.min, transform: 'translateY(-50%)' }}
+                                    onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                />
                                 <div
                                     className="bg-[var(--app-text)]/20"
                                     style={{

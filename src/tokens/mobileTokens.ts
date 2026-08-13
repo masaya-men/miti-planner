@@ -36,3 +36,12 @@ export const MOBILE_TOKENS = {
     jobChipRadius: 12,
   },
 } as const;
+
+/**
+ * ボトムナビの上に重なるモバイルシート類(メニュー/インポート/軽減追加/イベント編集 等)の
+ * bottom オフセット。以前は各シートが独立に `3.5rem`(56px)をハードコードしており、
+ * 実際の nav 高さ(MOBILE_TOKENS.bottomNav.height=52 + nav 自身の paddingBottom 2px = 54px)
+ * とズレて隙間が見える不具合があった。nav の実測値に追従するようここから算出する。
+ */
+export const MOBILE_SHEET_BOTTOM_OFFSET_CSS =
+  `calc(${MOBILE_TOKENS.bottomNav.height + 2}px + env(safe-area-inset-bottom, 0px))`;

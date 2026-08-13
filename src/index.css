@@ -1411,10 +1411,17 @@ button, [role="button"], .touch-none {
 
 /* ===== モバイル: スクロール中だけエフェクト棒に切り替える ===== */
 /* 静止時: 専用行アイコンを表示、エフェクト棒は透明。
-   スクロール中(data-mobile-scrolling="1"): 逆。両方とも同じdurationでクロスフェードする。 */
+   スクロール中(data-mobile-scrolling="1"): 逆。
+   両レイヤーが必ず同じ duration/easing でクロスフェードするよう1つの transition 宣言にまとめる
+   (以前は片方が Tailwind 既定、もう片方が plain ease で不統一 → 揃わず滲んで見える実機FB)。
+   250ms + cubic-bezier(0.4,0,0.2,1) は「奥で常時ゆらぐ背景要素」向けの穏やかなイージング
+   (motion-design スキル: Gentle float/Ambient・Tailwind 既定と同じ曲線)。 */
+.timeline-scroll-container .mobile-effect-bar-layer,
+.timeline-scroll-container .mobile-miti-icons {
+  transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
 .timeline-scroll-container .mobile-effect-bar-layer {
   opacity: 0;
-  transition: opacity 150ms ease;
 }
 .timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-layer {
   /* 主張を抑えて背景にうっすら浮かぶ見た目にする(ユーザー希望・2026-08-12実機FB)。強すぎればさらに下げる。 */

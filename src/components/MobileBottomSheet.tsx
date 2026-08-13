@@ -1,12 +1,13 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { MOBILE_TOKENS } from '../tokens/mobileTokens';
+import { MOBILE_TOKENS, MOBILE_SHEET_BOTTOM_OFFSET_CSS } from '../tokens/mobileTokens';
+import { useSwipeToDismiss } from '../hooks/useSwipeToDismiss';
 
 interface MobileBottomSheetProps {
     isOpen: boolean;
     onClose: () => void;
-    title?: string;
+    title?: React.ReactNode;
     children: React.ReactNode;
     /** Max height. Default '65vh' */
     height?: string;
@@ -24,7 +25,7 @@ interface MobileBottomSheetProps {
      */
     className?: string;
     /**
-     * 下スワイプで閉じるジェスチャの受け付け範囲。既定 'sheet' = シート全面 (従来挙動・miti 不変)。
+     * 下スワイプで閉じるジェスチャの受け付け範囲。既定 'sheet' = シート全面 (従来挙動)。
      * 'handle' = 上部のつまみ(ドラッグハンドル)だけ。中身を縦スクロールするシート
      * (housing のフィルター等) は全面スワイプだとスクロールで誤って閉じて不安定なため handle を使う。
      */
@@ -35,10 +36,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
     isOpen, onClose, title, children, height = '65vh', fillContent = false, headerAction, className,
     swipeArea = 'sheet'
 }) => {
-    const sheetRef = useRef<HTMLDivElement>(null);
-    const dragRef = useRef<{ startY: number; isDragging: boolean }>({
-        startY: 0, isDragging: false
-    });
+    const { sheetRef, handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeToDismiss<HTMLDivElement>(onClose);
 
     // Close on Escape
     useEffect(() => {
@@ -49,33 +47,6 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
         document.addEventListener('keydown', handleKeyDown);
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, onClose]);
-
-    // Swipe-to-dismiss handlers
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
-        dragRef.current.startY = e.touches[0].clientY;
-        dragRef.current.isDragging = true;
-    }, []);
-
-    const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        if (!dragRef.current.isDragging || !sheetRef.current) return;
-        const deltaY = e.touches[0].clientY - dragRef.current.startY;
-        if (deltaY > 0) {
-            sheetRef.current.style.transform = `translateY(${deltaY}px)`;
-            sheetRef.current.style.transition = 'none';
-        }
-    }, []);
-
-    const handleTouchEnd = useCallback(() => {
-        if (!dragRef.current.isDragging || !sheetRef.current) return;
-        dragRef.current.isDragging = false;
-        const deltaY = parseInt(sheetRef.current.style.transform.replace(/[^-?\d]/g, '') || '0');
-        if (deltaY > 100) {
-            onClose();
-        } else {
-            sheetRef.current.style.transform = 'translateY(0)';
-            sheetRef.current.style.transition = 'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)';
-        }
-    }, [onClose]);
 
     return (
         <AnimatePresence>
@@ -101,7 +72,7 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                         style={{
                             // fillContent 時は高さを確定値にして、子の h-full / flex チェーンを解決させる
                             ...(fillContent ? { height } : { maxHeight: height }),
-                            bottom: 'calc(3.5rem + env(safe-area-inset-bottom, 0px))',
+                            bottom: MOBILE_SHEET_BOTTOM_OFFSET_CSS,
                             backgroundColor: 'var(--color-sheet-bg)',
                             borderTopLeftRadius: MOBILE_TOKENS.sheet.radius,
                             borderTopRightRadius: MOBILE_TOKENS.sheet.radius,
@@ -110,13 +81,19 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                         animate={{ y: 0, transition: { type: "spring", stiffness: 380, damping: 22 } }}
                         exit={{ y: '100%', transition: { duration: 0.25, ease: [0.32, 0.72, 0, 1] } }}
                     >
-                        {/* Drag handle (swipeArea='handle' のときはここだけがスワイプ閉じの受け付け範囲) */}
-                        <div
-                            className="flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing"
-                            {...(swipeArea === 'handle'
-                                ? { onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd }
-                                : {})}
-                        >
+                        {/* Drag handle (swipeArea='handle' のときはここだけがスワイプ閉じの受け付け範囲)。
+                            見た目の高さは変えず、当たり判定だけ絶対配置の透明レイヤーで
+                            MOBILE_TOKENS.touchTarget.min(44px)まで拡張する(狭すぎて掴めない実機FB対応)。 */}
+                        <div className="relative flex justify-center pt-2.5 pb-1 cursor-grab active:cursor-grabbing">
+                            {swipeArea === 'handle' && (
+                                <div
+                                    className="absolute inset-x-0"
+                                    style={{ top: '50%', height: MOBILE_TOKENS.touchTarget.min, transform: 'translateY(-50%)' }}
+                                    onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
+                                    onTouchEnd={handleTouchEnd}
+                                />
+                            )}
                             <div
                                 className="bg-[var(--app-text)]/20"
                                 style={{
