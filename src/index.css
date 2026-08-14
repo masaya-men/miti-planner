@@ -1531,11 +1531,12 @@ button, [role="button"], .touch-none {
 
 /* ===== モバイル: 行の時間・元ダメージ・矢印・軽減率の濃さ ===== */
 /* 影を使った立体感は実機FBで不採用(2026-08-13)。地の不透明度そのものを上げて読みやすくする方針に変更。
-   エフェクト表示中(data-mobile-scrolling="1")はさらに一段濃くする。 */
+   以前は「エフェクト表示中(data-mobile-scrolling="1")だけさらに一段濃くする」仕様だったが、
+   このスクロール毎のON/OFF切替(属性セレクタ、表全体の行を横断して再評価が走る)が初動の
+   重さの一因と判明(2026-08-14実機FB=常時表示モードの方が軽いという報告から発覚)。
+   常時表示モードは元々属性が固定されていたため、その状態(濃い方)を全モード共通の
+   基準値にして、属性セレクタでのON/OFF切替自体を廃止した。 */
 .mobile-row-dim-text {
-  transition: opacity 200ms ease;
-}
-.timeline-scroll-container[data-mobile-scrolling="1"] .mobile-row-dim-text {
   opacity: 0.95 !important;
 }
 
