@@ -3147,6 +3147,7 @@ const Timeline: React.FC = () => {
                             <ConflictOffscreenArrows
                                 points={conflictPoints}
                                 scrollContainerRef={scrollContainerRef}
+                                topInset={isMobileTimeline && phases.length > 0 ? MOBILE_TOKENS.header.phaseBarHeight : 0}
                             />
                         </div>
                         {/* isolate: 内部の mix-blend-mode(モバイルのエフェクト棒⇄アイコンのクロスフェード)を
@@ -3416,7 +3417,7 @@ const Timeline: React.FC = () => {
                                                 maxConcurrent,
                                                 getColorClasses: (jobId, ownerId) => getMitigationColorClasses(jobId, ownerId, 'role'),
                                             });
-                                            return <MobileEffectBarLayer bars={mobileBars} />;
+                                            return <MobileEffectBarLayer bars={mobileBars} conflictingIds={mobileConflictingIds} />;
                                         })()}
                                         {renderItems}
 

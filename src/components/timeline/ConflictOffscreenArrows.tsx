@@ -7,6 +7,9 @@ interface Props {
     /** 競合中インスタンスの位置情報(親が timelineMitigations + conflictingIds + レイアウトから算出) */
     points: ConflictPoint[];
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+    /** 上端に固定表示の帯(モバイルのフェーズ名バー等)がある場合、そのpx高さ分だけ上矢印を
+     * 下にずらして重なりを避ける(2026-08-14ユーザー実機FB=矢印がフェーズ表記に被る)。 */
+    topInset?: number;
 }
 
 /** 矢印ボタンの直径 */
@@ -24,7 +27,7 @@ const EDGE_MARGIN = 4;
  *   - 下矢印は top = viewportHeight - ARROW_SIZE - EDGE_MARGIN (= ビューポート下端から逆算)
  *   - いずれも sticky コンテナ(top: 0 固定)を基準とするため、スクロールと一緒に流れない。
  */
-export function ConflictOffscreenArrows({ points, scrollContainerRef }: Props) {
+export function ConflictOffscreenArrows({ points, scrollContainerRef, topInset = 0 }: Props) {
     const { t } = useTranslation();
     const [arrows, setArrows] = useState<ArrowDescriptor[]>([]);
     const [viewportHeight, setViewportHeight] = useState(0);
@@ -70,7 +73,7 @@ export function ConflictOffscreenArrows({ points, scrollContainerRef }: Props) {
                 // sticky コンテナ (height: 0, top: 0) を基準に top 値を決定。
                 // 下矢印は「ビューポート高さ - ボタン径 - マージン」にして下端に貼り付ける。
                 const topPx = a.direction === 'up'
-                    ? EDGE_MARGIN
+                    ? EDGE_MARGIN + topInset
                     : viewportHeight - ARROW_SIZE - EDGE_MARGIN;
                 const label = a.direction === 'up'
                     ? t('mitigation.conflict_above', { defaultValue: '競合あり (上へ)' })

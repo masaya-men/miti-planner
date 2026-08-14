@@ -8,6 +8,10 @@ import {
 
 interface MobileEffectBarLayerProps {
   bars: MobileEffectBarItem[];
+  /** 競合(同スキルCDかぶり)中の軽減インスタンスID集合。'常時'/'連動'モードでは専用行アイコン
+   * (.mobile-miti-icons)がopacity:0で隠れてこちらに変身しきっているため、パルス表示は
+   * こちらのアイコンにも付けないと競合が一切見えなくなる(2026-08-14ユーザー実機FB)。 */
+  conflictingIds?: Set<string>;
 }
 
 /**
@@ -18,10 +22,12 @@ interface MobileEffectBarLayerProps {
  * 棒本体(mobile-effect-bar-fill)とアイコンを別要素にしているのは、棒の伸び(scaleY)がアイコンの
  * 縮小(scale)に干渉しないようにするため(子要素は親のtransformの影響を受けてしまう)。
  */
-export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars }) => {
+export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars, conflictingIds }) => {
   return (
     <div className="mobile-effect-bar-layer absolute inset-0 pointer-events-none md:hidden">
-      {bars.map(bar => (
+      {bars.map(bar => {
+        const isConflicting = !!conflictingIds?.has(bar.id);
+        return (
         <div
           key={bar.id}
           className="mobile-effect-bar-item absolute"
@@ -44,7 +50,10 @@ export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars
           <img
             src={bar.iconUrl}
             alt=""
-            className="mobile-effect-bar-icon absolute rounded object-cover max-w-none"
+            className={clsx(
+              'mobile-effect-bar-icon absolute rounded object-cover max-w-none',
+              isConflicting && 'animate-conflict-pulse ring-1 ring-amber-400',
+            )}
             style={{
               // 使用した秒の行より上(=前の行)にアイコンがはみ出さないよう、bar.top(=使用時刻の行)
               // を基準に真下へ描画する(実機FB: 前の行に配置されて見える不具合の修正)。
@@ -53,7 +62,8 @@ export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars
             }}
           />
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

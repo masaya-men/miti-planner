@@ -112,8 +112,11 @@ export const MobileBottomSheet: React.FC<MobileBottomSheetProps> = ({
                                     {headerAction}
                                     <button
                                         onClick={onClose}
-                                        className="p-1.5 rounded-lg hover:bg-app-surface2 transition-colors cursor-pointer shrink-0"
+                                        className="relative p-1.5 rounded-lg hover:bg-app-surface2 transition-colors cursor-pointer shrink-0"
                                     >
+                                        {/* 見た目は変えず当たり判定だけ拡張(2026-08-14実機FB=「バツボタン全然押せない」)。
+                                            はみ出す方向に配置した要素へのクリックもbutton自身までバブルするため機能する。 */}
+                                        <span className="absolute -inset-2" aria-hidden="true" />
                                         <X size={16} className="text-app-text-sec" />
                                     </button>
                                 </div>
