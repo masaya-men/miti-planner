@@ -1416,22 +1416,15 @@ button, [role="button"], .touch-none {
    var()未設定時のフォールバックは0(=静止時と同じ、専用行アイコンのみ表示)。
    アイコンの縮小(mobile-effect-bar-icon)と棒の伸び(mobile-effect-bar-fill)を別要素にしているのは、
    棒の scaleY が子要素(アイコン)にも伝播して縦潰れするのを避けるため。
-   transitionの長さを2段階にしているのは実機検証で判明した不具合の修正: scroll中は
-   syncMobileEffectBarVisibilityが約16〜20msおきにprogressを書き換え続けるため、短い
-   transitionで実際の値に追いつかせておかないと、指を止めた瞬間の実際の描画上の進み具合が
-   数%程度しか育っていない状態になる(2026-08-13実機FB=「戻る時に全くアニメしていないように
-   見える」の真因。戻り自体は正しく動いていたが、育つ前に戻されていた)。
-   スクロール中(data-mobile-scrolling="1")の速さは --mobile-effect-bar-transition-ms
-   (Timeline.tsxがスクロール初速から算出、単位なしの数値)で可変にする: ゆっくりしたスクロール
-   は素早く追従、勢いよくスクロールした瞬間はわざと長めにしてアニメーション自体をしっかり
-   見せる(2026-08-13ユーザー要望=速くスクロールした時ほどアニメが一瞬で終わって見えないため)。
-   指を止めて戻る時(属性除去後)は400ms+cubic-bezier(0.4,0,0.2,1)のゆったりしたイージング
-   (motion-design スキル: Gentle float/Ambient・Tailwind 既定と同じ曲線。250msでも実機で
-   「感じられない」FBがあり400msへ延長)。
-   スクロール中の追従イージングは linear→cubic-bezier(0.2, 0, 0, 1)(MD3 emphasized-decelerate、
-   MobileFAB.tsxの隠す/出すtweenと同じ曲線)に変更(2026-08-13実機FB=「変身がなめらかでない」)。
-   linear(等速)は機械的に見える一因。減速カーブは残り距離を毎回のretriggerでより速く詰める
-   ため、直前の「戻る時に育っていない」バグの再発リスクは無い(むしろ追いつきは速くなる)。 */
+   スクロール中(data-mobile-scrolling="1")はtransitionを切って指の位置に直結させ、
+   指を止めて戻る時(属性除去後)だけ400ms+cubic-bezier(0.4,0,0.2,1)のゆったりしたイージングで
+   アニメーションさせる(motion-design スキル: Gentle float/Ambient・Tailwind 既定と同じ曲線。
+   250msでも実機で「感じられない」FBがあり400msへ延長)。過去に「スクロール中も追いつき用の
+   短いtransitionを掛ける」2段階方式を試したことがあるが、進み具合の書き換え頻度
+   (約16〜20msおき)よりtransitionが長く「前の目標を追いきる前に次へ切り替わる」ため
+   見た目がガクつく問題があり撤回(2026-08-14実機FB「連動アニメだけFPSが低い」)。
+   --mobile-effect-bar-transition-ms(Timeline.tsx側の初速ベース算出)は現在このCSSからは
+   参照していないが、後方互換のためJS側の算出自体は残置(害はない)。 */
 /* --mobile-effect-bar-progress を型付きプロパティとして登録する(CSS Properties and Values
    API)。未登録のカスタムプロパティは値が単なるトークン列(syntax:'*')として扱われ、値が
    変わるたびにブラウザが「このプロパティを参照している可能性がある要素」を広く再計算する
@@ -1453,12 +1446,19 @@ button, [role="button"], .touch-none {
 .mobile-miti-icons {
   transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
+/* 指でスクロール中(data-mobile-scrolling="1")はtransitionを完全に切る。以前はここに
+   80〜400msの「追いつき」transitionを掛けていたが、進み具合(--mobile-effect-bar-progress)が
+   約16〜20msおきに書き換わり続ける一方でtransitionはそれより長いため、常に「前の目標を
+   追いきる前に次の目標へ切り替わる」状態になり、処理の重さとは別に見た目のガクつきの
+   原因になっていた(2026-08-14ユーザー実機報告「連動アニメだけFPSが低い感じ」)。
+   スクロール中は指の位置(=実際の進み具合)へ遅延なく直結させ、指を離した後の「戻る」
+   演出だけ上のベースルール(400ms cubic-bezier)のゆったりしたイージングに任せる、
+   王道のスクロールスクラブ方式に変更。 */
 .timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-item,
 .timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-fill,
 .timeline-scroll-container[data-mobile-scrolling="1"] .mobile-effect-bar-icon,
 .timeline-scroll-container[data-mobile-scrolling="1"] .mobile-miti-icons {
-  transition: transform calc(var(--mobile-effect-bar-transition-ms, 80) * 1ms) cubic-bezier(0.2, 0, 0, 1),
-              opacity calc(var(--mobile-effect-bar-transition-ms, 80) * 1ms) cubic-bezier(0.2, 0, 0, 1);
+  transition: none;
 }
 .mobile-effect-bar-item {
   /* 複数同時発生時、自分のスロット位置(--mobile-effect-bar-slot-x)へ変身と同時に横スライドする。
