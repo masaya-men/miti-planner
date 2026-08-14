@@ -1466,12 +1466,17 @@ button, [role="button"], .touch-none {
      widthではなくscaleで縮めるのはレイアウト再計算(reflow)を避けるため。
      0.9は専用行アイコン(MitiIcons)側のopacity-90と同じ数値=変身し終えても明るさが変わらない。
      静止時(progress=0)は0にして、変身し切るまで見えないようにする
-     (0にしないと変身前から右端にうっすら見えるバグになる。2026-08-13実機FB)。 */
+     (0にしないと変身前から右端にうっすら見えるバグになる。2026-08-13実機FB)。
+     中央寄せは transform:translateX(-50%) ではなく margin-left:-11px(22pxの半分)で行う。
+     transformのtranslateXとscaleを併記すると一部環境で0%扱いになり中央寄せが効かず
+     アイコンが右にはみ出す不具合が実機FBで発覚(2026-08-14)したため、位置決めと
+     scaleの責務を分離した。 */
   opacity: calc(0.9 * var(--mobile-effect-bar-progress, 0));
   width: 22px;
   height: 22px;
+  margin-left: -11px;
   transform-origin: top center;
-  transform: translateX(-50%) scale(calc((22 - 7 * var(--mobile-effect-bar-progress, 0)) / 22));
+  transform: scale(calc((22 - 7 * var(--mobile-effect-bar-progress, 0)) / 22));
 }
 .mobile-miti-icons {
   /* エフェクト棒側の変身が進むほど、専用行アイコン側は透明になっていく(連続クロスフェード)。 */
