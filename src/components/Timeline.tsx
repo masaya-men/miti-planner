@@ -947,6 +947,15 @@ const Timeline: React.FC = () => {
     // 「置いた時は既存の相手だけ光る」: 直前に手動配置したインスタンスは脈動/矢印から除外する。
     // リロードで null に戻るため、開き直した時は既存競合が両方光る(自己責任)。
     const lastPlacedMitigationId = useMitigationStore(s => s.lastPlacedMitigationId);
+    // モバイル行アイコンのパルス表示用: PC の MitigationItem が行うインライン除外
+    // (conflictingIds.has(id) && id !== lastPlacedMitigationId) と同じ結果を、
+    // MobileTimelineRow に渡せるよう Set として1箇所で確定させる。
+    const mobileConflictingIds = useMemo(() => {
+        if (lastPlacedMitigationId === null || !conflictingIds.has(lastPlacedMitigationId)) return conflictingIds;
+        const next = new Set(conflictingIds);
+        next.delete(lastPlacedMitigationId);
+        return next;
+    }, [conflictingIds, lastPlacedMitigationId]);
 
     const handleAutoPlan = useCallback(() => {
         if (readOnlyRef.current) return; // ⑤-3b: ジョイナー読み取り専用
@@ -2671,16 +2680,21 @@ const Timeline: React.FC = () => {
     //   初回マウント時の 1 フレームずれは ConflictOffscreenArrows 側で viewportHeight===0 中は
     //   描画しないことで緩和している。
     const conflictPoints = useMemo<ConflictPoint[]>(() => {
-        if (isMobileTimeline) return [];
         const tMap = timeToYMapRef.current;
         const offsetT = showPreStart ? -10 : 0;
         return timelineMitigations
             .filter(m => conflictingIds.has(m.id) && m.id !== lastPlacedMitigationId)
             .map(m => {
-                const layout = memberLayout.get(m.ownerId);
                 const y = hideEmptyRows
                     ? (tMap.get(m.time) ?? (m.time - offsetT) * pixelsPerSecond)
                     : (m.time - offsetT) * pixelsPerSecond;
+                if (isMobileTimeline) {
+                    // モバイルは担当者ごとの列が無い(1本の行に全員分のアイコンが並ぶ)ため、
+                    // ownerId を固定値にして矢印を「上下1個ずつ」に集約する(PCのように
+                    // 担当者ごとにバラバラ出ると窮屈になるため)。x は行の水平中央。
+                    return { id: m.id, ownerId: '__mobile__', y, columnCenterX: sheetWidth / 2 };
+                }
+                const layout = memberLayout.get(m.ownerId);
                 return {
                     id: m.id,
                     ownerId: m.ownerId,
@@ -2692,7 +2706,7 @@ const Timeline: React.FC = () => {
     // memberLayout は Map で参照同一・中身が変化するため refVersion を直接含められない。
     // timeToYMapRef は ref なので deps に入れられない → timelineMitigations / conflictingIds 変化で再算出。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [timelineMitigations, conflictingIds, lastPlacedMitigationId, memberLayout, hideEmptyRows, pixelsPerSecond, showPreStart, isMobileTimeline]);
+    }, [timelineMitigations, conflictingIds, lastPlacedMitigationId, memberLayout, hideEmptyRows, pixelsPerSecond, showPreStart, isMobileTimeline, sheetWidth]);
 
     const getJobIcon = (jobId: string | null) => {
         if (!jobId) return null;
@@ -3128,15 +3142,13 @@ const Timeline: React.FC = () => {
                         )}
                         {/* 画面外競合ガイド矢印: sticky + height:0 で viewport 端に固定、コンテンツと一緒に流れない */}
                         {/* 常時マウントにすることで scroll/ResizeObserver の付け外し churn を防ぐ。
-                            points が空のときは ConflictOffscreenArrows が何も描画しない。 */}
-                        {!isMobileTimeline && (
-                            <div className="sticky top-0 z-30 h-0 overflow-visible pointer-events-none">
-                                <ConflictOffscreenArrows
-                                    points={conflictPoints}
-                                    scrollContainerRef={scrollContainerRef}
-                                />
-                            </div>
-                        )}
+                            points が空のときは ConflictOffscreenArrows が何も描画しない。PC/モバイル共通。 */}
+                        <div className="sticky top-0 z-30 h-0 overflow-visible pointer-events-none">
+                            <ConflictOffscreenArrows
+                                points={conflictPoints}
+                                scrollContainerRef={scrollContainerRef}
+                            />
+                        </div>
                         {/* isolate: 内部の mix-blend-mode(モバイルのエフェクト棒⇄アイコンのクロスフェード)を
                             このコンテナ内だけに閉じ込め、ページ全体の背景と混ざらないようにする。 */}
                         <div ref={sheetContainerRef} onClick={handleSheetClick} className="relative isolate bg-transparent md:w-max md:min-w-full" style={{
@@ -3265,6 +3277,7 @@ const Timeline: React.FC = () => {
                                                     hideBottomDivider
                                                     rowHeight={pixelsPerSecond}
                                                     maxMitiIcons={maxMitiIconsPerRow}
+                                                    conflictingIds={mobileConflictingIds}
                                                 />
                                             );
                                             currentY += pixelsPerSecond;
@@ -3289,6 +3302,7 @@ const Timeline: React.FC = () => {
                                                     isSecondEvent
                                                     rowHeight={pixelsPerSecond}
                                                     maxMitiIcons={maxMitiIconsPerRow}
+                                                    conflictingIds={mobileConflictingIds}
                                                 />
                                             );
                                         } else {
@@ -3311,6 +3325,7 @@ const Timeline: React.FC = () => {
                                                     onTimelineSelectHover={mobileHoverHandler}
                                                     rowHeight={pixelsPerSecond}
                                                     maxMitiIcons={maxMitiIconsPerRow}
+                                                    conflictingIds={mobileConflictingIds}
                                                 />
                                             );
                                         }
@@ -4141,8 +4156,9 @@ const Timeline: React.FC = () => {
                                                     const status = validateMitigationPlacement(
                                                         mit, mobileMitiFlow.time, memberMitis, t
                                                     );
-                                                    // スマホ: 競合警告時も配置不可にする（PCではwarningでも配置可能）
-                                                    const isClickable = (status.available && !status.warning) || isAlreadyPlaced;
+                                                    // PC の MitigationSelector と同じ判定に統一(競合時も配置可能に)。
+                                                    // conflictOverride: 既存CD中(forward)でも見た目は赤のままクリックだけ解放。
+                                                    const isClickable = status.available || status.conflictOverride || isAlreadyPlaced;
 
                                                     return (
                                                         <button
@@ -4154,7 +4170,7 @@ const Timeline: React.FC = () => {
                                                                     if (amToRemove) removeMitigation(amToRemove.id);
                                                                     return;
                                                                 }
-                                                                if (!status.available) return;
+                                                                if (!status.available && !status.conflictOverride) return;
                                                                 // 対象指定スキル(インターベンション等)/鼓舞コピー(展開戦術等)は
                                                                 // 即配置せず、サブ選択ビューへ。それ以外は即配置。
                                                                 const resolution = resolveMitigationTap(mit, mobileMitiFlow.time, timelineMitigations);

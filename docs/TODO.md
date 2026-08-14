@@ -18,9 +18,9 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **🆕 共同編集参加者のヘッダー開閉解禁 → 軽減表スプシモード**(いずれも大物・2026-08-05ブレスト済・**最高モデルを潤沢に使えるときに着手**、着手順は①→②固定)。ブレスト内容・確定設計・未解決論点は全て`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`に記録済み。着手時は同ファイルを土台にbrainstormingスキルで設計書化からやり直す。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 次セッション最優先: モバイル軽減表レイアウト刷新 ①フェーズ = 実機確認完了・ローカルコミット済(未push)
-2026-08-13〜14でユーザー実機iPhone確認まで完了(詳細は[TODO_COMPLETED.md](./TODO_COMPLETED.md)の同日エントリ参照)。**push・デプロイは翌セッションに持ち越し**(今夜はローカル安全終了で合意済み)。
-**次セッションの最初にやること**: push前ゲート(build+全テスト)→push→デプロイ→本番実機で最終確認。完了後は②競合(CDかぶり)表示に着手(`conflictingIds`はPC同様リング/バッジ想定・検出ロジックは既存流用可)。
+### 🔴 次セッション最優先: モバイル軽減表レイアウト刷新 ①②とも実装完了・push待ち
+①レイアウト刷新は2026-08-13〜14で実機iPhone確認完了(詳細は[TODO_COMPLETED.md](./TODO_COMPLETED.md))。続けて**②競合(CDかぶり)表示も実装完了**(2026-08-14、Playwright実機相当で検証済・実機iPhone確認は未実施): PC版で確定済みの検出ロジック(`findSameSkillCdConflicts`)とパルスCSS(`.animate-conflict-pulse`)、画面外ガイド矢印コンポーネント(`ConflictOffscreenArrows`)をそのままモバイルにも配線。①スキル選択シートの配置制限をPCと同じ(`available || conflictOverride`)に緩和=CD中/かぶり警告でも置けるように。②軽減アイコン行の競合中インスタンスを黄色パルスで表示(`Timeline.tsx`→`MobileTimelineRow.tsx`へ`conflictingIds`を配線、直前配置分は除外してPCと同じ「既存の相手だけ光る」挙動)。③「+N」オーバーフローバッジも隠れている分に競合があれば同じパルスで光る。④画面外の競合相手を指す矢印はPCの担当者別列と違いモバイルは1列のため上下1個ずつに集約、タップでその位置まで自動スクロール。触ったファイルは`Timeline.tsx`(競合位置算出のモバイル分岐・配置制限緩和・矢印を常時描画化)と`MobileTimelineRow.tsx`(パルス/バッジのprop配線)のみ。tsc・既存Timeline系vitest(8件)は確認済み。
+**次セッションの最初にやること**: 実機iPhoneで②の見た目・タップ操作を最終確認 → push前ゲート(build+全テスト)→push→デプロイ→本番実機確認。
 ### ✅ Discordログインキャンセル時に生JSON画面が出る不具合 = 修正実装完了(未push)
 Discordの認可画面でキャンセルすると、SPAに戻らずブラウザに`{"error":"Missing authorization code"}`という生JSONがそのまま表示される不具合(ユーザー実機指摘)。`api/auth/_discordHandler.ts`のGETコールバックはDiscordからのトップレベル遷移でしか呼ばれないため、失敗時も成功時と同じ「元いた画面へ戻す」HTMLリダイレクトを返すよう統一(`sendAuthFailureRedirect`)。ログインは成立しないため`lopo_auth_pending`は書かない(クライアント側`processPendingAuth`が「pendingデータ無し=失敗」を既に正しく処理する作りだったため、サーバー側のこの1点だけが穴だった)。対象は「キャンセル」だけでなくstate不一致/トークン交換失敗/ユーザー情報取得失敗/内部エラーの全失敗パス。vitest3件追加・tsc確認済み。**次セッション: push前ゲート→pushのみ残**。
 ### 📤 Discordアップデート告知 = 統合版下書き完成・投稿待ち(ユーザー側アクション)

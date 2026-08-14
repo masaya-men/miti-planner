@@ -49,6 +49,10 @@ interface MobileTimelineRowProps {
      * あふれた分は折り返さず「+N」バッジにする(2026-08-13ユーザー要望=行の高さが固定コマの
      * ため2段折り返しは絶対にしない)。 */
     maxMitiIcons?: number;
+    /** 競合(同スキルCDかぶり)中の軽減インスタンスID集合。Timeline.tsx で PC と共通の
+     * findSameSkillCdConflicts から算出(直前配置分のパルス除外込み)。渡された分だけ
+     * アイコンを黄色パルスで光らせる(2026-08-14ユーザー要望=PC版と同じ競合表示)。 */
+    conflictingIds?: Set<string>;
 }
 
 /** 対象バッジ（AoE以外）。effTarget = 挑発考慮済みの実効ターゲット */
@@ -113,7 +117,9 @@ const MitiIconImg: React.FC<{
     contentLanguage: string;
     isNotMine: boolean;
     isStartRow: boolean;
-}> = ({ mit, def, contentLanguage, isNotMine, isStartRow }) => (
+    /** 競合(同スキルCDかぶり)中: PC版のring-2より枠を細くして22pxアイコンでも潰れないようにする。 */
+    isConflicting?: boolean;
+}> = ({ mit, def, contentLanguage, isNotMine, isStartRow, isConflicting }) => (
     <img
         key={mit.id}
         src={def.icon}
@@ -122,6 +128,7 @@ const MitiIconImg: React.FC<{
         className={clsx(
             'w-[22px] h-[22px] object-cover rounded-md',
             isStartRow ? 'opacity-90' : 'opacity-[0.55]',
+            isConflicting && 'animate-conflict-pulse ring-1 ring-amber-400',
         )}
     />
 );
@@ -139,7 +146,11 @@ const MitiIcons: React.FC<{
     /** 「+N」タップ時のコールバック(1行目ダメージ表記エリアへのあふれ表示ON/OFFを親が管理)。
      * 2026-08-13ユーザー確認=「+Nを押した時だけそうなる」= 常時表示ではなくタップ式に確定。 */
     onOverflowTap: () => void;
-}> = ({ visibleGroups, hiddenCount, contentLanguage, myMemberId, time, onOverflowTap }) => {
+    conflictingIds?: Set<string>;
+    /** 隠れている(あふれた)分の中に競合中インスタンスが含まれるか。含まれる場合は
+     * 「+N」バッジ自体も光らせ、開かないと気づけない競合を示唆する(2026-08-14ユーザー確認)。 */
+    hiddenHasConflict?: boolean;
+}> = ({ visibleGroups, hiddenCount, contentLanguage, myMemberId, time, onOverflowTap, conflictingIds, hiddenHasConflict }) => {
     const MITIGATIONS = useMitigations();
     if (visibleGroups.length === 0 && hiddenCount === 0) return null;
 
@@ -163,7 +174,7 @@ const MitiIcons: React.FC<{
                         // 0.55 = エフェクト棒(MOBILE_EFFECT_BAR_MAX_OPACITY)と同じ濃さ。
                         const isStartRow = mit.time === time;
                         return (
-                            <MitiIconImg key={mit.id} mit={mit} def={def} contentLanguage={contentLanguage} isNotMine={isNotMine} isStartRow={isStartRow} />
+                            <MitiIconImg key={mit.id} mit={mit} def={def} contentLanguage={contentLanguage} isNotMine={isNotMine} isStartRow={isStartRow} isConflicting={conflictingIds?.has(mit.id)} />
                         );
                     })}
                 </div>
@@ -172,7 +183,10 @@ const MitiIcons: React.FC<{
                 <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); onOverflowTap(); }}
-                    className="flex-shrink-0 w-[22px] h-[22px] rounded-md bg-app-text/15 text-app-text text-[10px] font-black flex items-center justify-center"
+                    className={clsx(
+                        "flex-shrink-0 w-[22px] h-[22px] rounded-md bg-app-text/15 text-app-text text-[10px] font-black flex items-center justify-center",
+                        hiddenHasConflict && "animate-conflict-pulse ring-1 ring-amber-400",
+                    )}
                 >
                     +{hiddenCount}
                 </button>
@@ -201,6 +215,7 @@ export const MobileTimelineRow = memo(({
     hideBottomDivider,
     rowHeight = 80,
     maxMitiIcons,
+    conflictingIds,
 }: MobileTimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -225,6 +240,11 @@ export const MobileTimelineRow = memo(({
         [activeMitigations, maxMitiIcons]
     );
     const [mitiOverflowOpen, setMitiOverflowOpen] = useState(false);
+    // 隠れている(あふれた)分に競合中インスタンスが含まれるか(「+N」バッジを光らせる判定)。
+    const mitiHiddenHasConflict = useMemo(
+        () => !!conflictingIds && mitiHiddenMitigations.some(m => conflictingIds.has(m.id)),
+        [mitiHiddenMitigations, conflictingIds]
+    );
 
     // 表示するイベントとダメージを決定
     const idx = eventIndex ?? 0;
@@ -395,7 +415,7 @@ export const MobileTimelineRow = memo(({
                                     const isNotMine = !!myMemberId && mit.ownerId !== myMemberId;
                                     const isStartRow = mit.time === time;
                                     return (
-                                        <MitiIconImg key={mit.id} mit={mit} def={def} contentLanguage={contentLanguage} isNotMine={isNotMine} isStartRow={isStartRow} />
+                                        <MitiIconImg key={mit.id} mit={mit} def={def} contentLanguage={contentLanguage} isNotMine={isNotMine} isStartRow={isStartRow} isConflicting={conflictingIds?.has(mit.id)} />
                                     );
                                 })}
                             </div>
@@ -447,6 +467,8 @@ export const MobileTimelineRow = memo(({
                     myMemberId={myMemberId}
                     time={time}
                     onOverflowTap={() => setMitiOverflowOpen(v => !v)}
+                    conflictingIds={conflictingIds}
+                    hiddenHasConflict={mitiHiddenHasConflict}
                 />
 
                 {/* 「+N」バッジの当たり判定拡張(2026-08-13実機FB=見た目の22pxのままだと押しにくい)。
