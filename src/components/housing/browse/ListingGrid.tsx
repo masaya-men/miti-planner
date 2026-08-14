@@ -62,7 +62,9 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
 }) => {
   const { t } = useTranslation();
   const containerRef = useListScrollRestore(listKey);
-  useSmoothWheelScroll(containerRef);
+  // stiffness を下げるほど惰性が長く「ヌルっと」した滑らかさになる(既定値200は硬め)。
+  // 軽減表タイムライン(Timeline.tsx)の80よりさらに柔らかくして「超スムーズ」要望に応える。
+  useSmoothWheelScroll(containerRef, { stiffness: 60, wheelMultiplier: 1.4 });
 
   const onShuffle = () => {
     useHousingListOrderStore.getState().reshuffle(listKey);
