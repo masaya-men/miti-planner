@@ -1409,10 +1409,10 @@ button, [role="button"], .touch-none {
     background-color: transparent;
 }
 
-/* ===== モバイル: スクロール量に連動して専用行アイコン⇄エフェクト棒がクロスフェードする ===== */
-/* 2026-08-14ユーザー判断: 棒が伸びる(scaleY)/アイコンが縮む(scale)演出は廃止し、
-   opacityの連続クロスフェードのみで表現する(初動カクつき調査の過程で、動く演出自体が
-   スクロール中の「見た目上の重さ」に寄与している可能性が高いと判明したため)。
+/* ===== モバイル: スクロール量に連動して専用行アイコン⇄エフェクト棒が変身する ===== */
+/* 2026-08-14: 初動の重さ調査中に一時「棒が伸びる/アイコンが縮む演出を廃止しopacityのみに」
+   としていたが、真因が別(.mobile-row-dim-textの属性セレクタ切替)と判明・そちらを修正して
+   大幅改善したため、ユーザー判断で変身演出を復活させた。
    進み具合(--mobile-effect-bar-progress、0〜1)は Timeline.tsx の syncMobileEffectBarVisibility が
    「今回の連続スクロールで何pxスクロールしたか」から算出し、コンテナのCSS変数として都度更新する
    (2026-08-13、ユーザー判断=速さは無関係。指を止めればそこで止まり、戻せば逆再生される)。
@@ -1464,17 +1464,19 @@ button, [role="button"], .touch-none {
   transition: none;
 }
 .mobile-effect-bar-item {
-  /* 複数同時発生時の横スライドは廃止(2026-08-14ユーザー判断=伸びる/動く演出は不要、
-     見た目はクロスフェードのみにする)。スロット位置は progress に関わらず常に確定値へ
-     固定し、以後は opacity の連続クロスフェードだけで見た目を作る(位置自体は不可視の間も
-     既に確定しているだけなので、動きとしては見えない)。 */
-  transform: translateX(calc(-1 * var(--mobile-effect-bar-slot-x, 0px)));
+  /* 複数同時発生時、自分のスロット位置(--mobile-effect-bar-slot-x)へ変身と同時に横スライドする。
+     progress=0では常にスロット0(=静止時アイコンの位置)にいる。
+     opacityはここには付けない(棒とアイコンで別々の濃さにするため、fill/iconそれぞれで持つ)。
+     ここに付けると子要素(アイコン)まで一緒に薄くなってしまう
+     (2026-08-13実機FB=アイコンは通常の明るさのまま、薄く/暗くするのは棒だけでいい、との指摘)。
+     2026-08-14: 一時的にscaleY/scaleの変身演出を廃止していたが、初動の重さの主因が
+     .mobile-row-dim-textの属性セレクタ切替だったと判明・そちらを修正したため、
+     ユーザー判断で変身演出を復活。 */
+  transform: translateX(calc(-1 * var(--mobile-effect-bar-slot-x, 0px) * var(--mobile-effect-bar-progress, 0)));
 }
 .mobile-effect-bar-fill {
   transform-origin: top;
-  /* 「棒が伸びる」演出を廃止(2026-08-14ユーザー判断)。scaleYは常に1固定、
-     表示のON/OFFはopacityのクロスフェードのみで表現する。 */
-  transform: scaleY(1);
+  transform: scaleY(var(--mobile-effect-bar-progress, 0));
   /* 0.55はJS側 MOBILE_EFFECT_BAR_MAX_OPACITY と同じ数値(主張を抑えた見た目・2026-08-12実機FB)。
      棒(帯そのもの)だけを薄くする。アイコンは別途 .mobile-effect-bar-icon 側で通常の濃さにする。 */
   opacity: calc(0.55 * var(--mobile-effect-bar-progress, 0));
@@ -1489,14 +1491,13 @@ button, [role="button"], .touch-none {
      中央寄せは transform:translateX(-50%) ではなく margin-left:-11px(22pxの半分)で行う。
      transformのtranslateXとscaleを併記すると一部環境で0%扱いになり中央寄せが効かず
      アイコンが右にはみ出す不具合が実機FBで発覚(2026-08-14)したため、位置決めと
-     scaleの責務を分離した。「縮む」演出も廃止(2026-08-14ユーザー判断)、scaleは
-     完了時サイズ(15/22)に固定しopacityのクロスフェードのみで表現する。 */
+     scaleの責務を分離した。 */
   opacity: calc(0.9 * var(--mobile-effect-bar-progress, 0));
   width: 22px;
   height: 22px;
   margin-left: -11px;
   transform-origin: top center;
-  transform: scale(calc(15 / 22));
+  transform: scale(calc((22 - 7 * var(--mobile-effect-bar-progress, 0)) / 22));
 }
 /* 競合中(.animate-conflict-pulseを付ける)アイコンの中央寄せ専用ラッパー。22px固定のスロットを
    用意し、実際の見た目(進み具合連動のopacity/scale)は中の.mobile-effect-bar-icon(img)に
