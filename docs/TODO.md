@@ -18,11 +18,11 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **🆕 共同編集参加者のヘッダー開閉解禁 → 軽減表スプシモード**(いずれも大物・2026-08-05ブレスト済・**最高モデルを潤沢に使えるときに着手**、着手順は①→②固定)。ブレスト内容・確定設計・未解決論点は全て`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`に記録済み。着手時は同ファイルを土台にbrainstormingスキルで設計書化からやり直す。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 次セッション最優先: スマホのスクロール重さ = 2件とも原因特定・修正実装済み、実機確認待ち
-2026-08-14、systematic-debuggingで根本原因を特定しコード修正済み(**まだユーザー実機確認前**、pushもしていない)。
-①**ハウジング探すページ**: 今回セッションで追加した下端フェード演出が、スクロールする本体要素(`.housing-listing-grid`)に直接`mask-image`を掛けていた(iOS Safariでスクロール毎にマスク再合成が走り重くなる典型パターン)。マスクをスクロールしない親(`.housing-listing-grid-wrap`)に移動して解消(`src/styles/housing.css`)。wrap下端=grid下端が一致することはPlaywrightで実測確認済み、見た目は変化なし(自分で screenshot 確認済・ユーザーには未送付)。
-②**軽減表モバイル 連動エフェクト棒(`mobileEffectBarMode:'scroll'`)**: `MobileEffectBarLayer.tsx`がプラン全体ぶんの棒(1プランで数十本規模)を画面外分も含め常時DOM保持し、スクロール毎に親の`--mobile-effect-bar-progress`カスタムプロパティ変更で全部の再計算が走る作りだった。既存のperf #59(`TimelineRow.tsx:284`)と同じ`content-visibility:auto`+`contain-intrinsic-size`を`.mobile-effect-bar-item`に追加し画面外をスキップさせて解消。tsc通過確認済み。
-**次セッション最初にやること**: ユーザーに開発サーバー(`http://10.0.0.4:5173`、動いたまま)で①②とも実機スクロールが軽くなったか確認してもらう → OKならpush前ゲート(build+全テスト)→push→デプロイ→本番実機で最終確認。まだ重ければ、どちらのアプリのどんな操作かを再度切り分けて別原因を探る。
+### 🔴 次セッション最優先: スマホのスクロール重さ ①ハウジングは解決 ②軽減表(共同編集)は未解決・要再調査
+2026-08-14、本番実機確認まで完了。
+①**ハウジング探すページ**: 下端フェードが`.housing-listing-grid`(スクロール本体)に直接`mask-image`を掛けていたのが原因、マスクをスクロールしない親`.housing-listing-grid-wrap`に移動して解消。**ユーザー実機確認OK**(`src/styles/housing.css`、本番反映済み)。
+②**軽減表モバイル 連動エフェクト棒(`mobileEffectBarMode:'scroll'`、共同編集・軽減多数の表)**: 「画面外の棒(数十本規模)がスクロール毎に全部再計算されている」という仮説で`MobileEffectBarLayer.tsx`に`content-visibility:auto`+`contain-intrinsic-size`を追加したが、**ユーザー実機検証で重さは改善せず、かつエフェクト表示中にアイコンがつぶれる新規不具合が発生**→**差し戻し済み・本番反映済み**(`99769490`)。**この仮説は棄却**、根本原因は別にある。
+**次セッション最初にやること**: systematic-debuggingのPhase1に戻り再調査。まだ確認していない切り分け情報: (a) 共同編集ではない自分だけの表でも、軽減が同じくらい多ければ同じくらい重いか(collab固有の重さか、単に軽減の数の問題か) (b) 「アイコンがつぶれる」は差し戻し後も再現するか(自分の変更由来か、元々あった別バグか)。Timeline.tsxの同一スクロールコンテナに`handleScrollSync`/`syncRecastRow`/`syncMobilePhaseLabel`/`syncMobileEffectBarVisibility`の4つのnative scrollリスナーが並列稼働している点は未検証のまま残っている(調査済みだが原因と確定はしていない)。
 ### ✅ 2026-08-14 ハウジング探すページ(PC/スマホ)見た目改善 + モバイル軽減表全面刷新・競合表示 = 本番push/デプロイ済
 ハウジング探すページ(中央パネルのツールバー1段集約・常時区切り線・パネル下端フェード・モバイル右余白修正)、モバイル軽減表レイアウト刷新+競合(CDかぶり)表示、Discordログインキャンセル修正、全て実機確認済みで本番反映済み(詳細→TODO_COMPLETED.md)。
 ### 📤 Discordアップデート告知 = 2本立て(下書き準備済・投稿はユーザー側)
