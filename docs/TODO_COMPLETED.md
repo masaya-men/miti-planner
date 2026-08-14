@@ -2,6 +2,10 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-08-14 Discordログインキャンセル時に生JSON画面が出る不具合 = 修正・本番push/デプロイ完了
+
+Discordの認可画面でキャンセルすると、SPAに戻らずブラウザに`{"error":"Missing authorization code"}`という生JSONがそのまま表示される不具合(ユーザー実機指摘)。`api/auth/_discordHandler.ts`のGETコールバックはDiscordからのトップレベル遷移でしか呼ばれないため、失敗時も成功時と同じ「元いた画面へ戻す」HTMLリダイレクトを返すよう統一(`sendAuthFailureRedirect`)。ログインは成立しないため`lopo_auth_pending`は書かない(クライアント側`processPendingAuth`が「pendingデータ無し=失敗」を既に正しく処理する作りだったため、サーバー側のこの1点だけが穴だった)。対象は「キャンセル」だけでなくstate不一致/トークン交換失敗/ユーザー情報取得失敗/内部エラーの全失敗パス。vitest3件追加・tsc確認済み。
+
 ### ✅ 2026-08-14 モバイル軽減表 競合(CDかぶり)表示(②フェーズ) = 実機iPhone確認完了・ローカルコミット済(push・デプロイは翌セッション)
 
 PC版で確定済みの検出ロジック(`findSameSkillCdConflicts`)・パルスCSS(`.animate-conflict-pulse`)・画面外ガイド矢印(`ConflictOffscreenArrows`)をモバイルにも配線。①スキル選択シートの配置制限をPCと同じ(`available || conflictOverride`)に緩和(CD中/かぶり警告でも置けるように)。②軽減アイコン行の競合中インスタンスを黄色パルスで表示(`conflictingIds`を`Timeline.tsx`→`MobileTimelineRow.tsx`へ配線、直前配置分は除外してPCと同じ「既存の相手だけ光る」挙動)。③「+N」オーバーフローバッジも隠れた分に競合があれば同じパルスで光る。④画面外の競合相手を指す矢印はモバイルが1列のため上下1個ずつに集約、タップで自動スクロール。
