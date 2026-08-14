@@ -17,6 +17,9 @@ export interface ListingGridProps {
   listKey: HousingListKey;
   /** BrowseSortSelect へ渡す選択肢一覧。未指定なら新着順/古い順の2択 (既存仕様)。 */
   sortOrders?: BrowseSortOrder[];
+  /** ツールバー見出しの前に差し込む要素 (例: 探すページの「一覧|マップ|タグ」トグル)。
+   * 呼び出し元(BrowsePage)が1段にまとめたい場合に使う。未指定なら従来通り見出しのみ。 */
+  toolbarPrefix?: React.ReactNode;
   /** true のとき各カードに家主向け管理コントロールを出す。マイページ専用 (2026-07-24)。 */
   showOwnerControls?: boolean;
   /** showOwnerControls=true のとき ListingCard へ橋渡しする。 */
@@ -55,6 +58,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   onToggleSelect,
   backgroundId,
   onToggleBackground,
+  toolbarPrefix,
 }) => {
   const { t } = useTranslation();
   const containerRef = useListScrollRestore(listKey);
@@ -69,15 +73,18 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   return (
     <div className="housing-listing-grid-wrap">
       <div className="housing-listing-grid-toolbar">
-        <h2 className="housing-listing-grid-heading">
-          {t('housing.browse.listings_label')}
-          <span className="housing-listing-grid-count">
-            {t('housing.browse.count_unit', { count: listings.length })}
-          </span>
-          {selectable && (
-            <span className="housing-listing-grid-og-hint">{t('housing.housinger.ogSelect.hint')}</span>
-          )}
-        </h2>
+        <div className="housing-listing-grid-toolbar-start">
+          {toolbarPrefix}
+          <h2 className="housing-listing-grid-heading">
+            {t('housing.browse.listings_label')}
+            <span className="housing-listing-grid-count">
+              {t('housing.browse.count_unit', { count: listings.length })}
+            </span>
+            {selectable && (
+              <span className="housing-listing-grid-og-hint">{t('housing.housinger.ogSelect.hint')}</span>
+            )}
+          </h2>
+        </div>
         <div className="housing-listing-grid-toolbar-actions">
           {sort === 'random' && (
             <button

@@ -156,6 +156,26 @@ export const BrowsePage: React.FC = () => {
     navigate('/housing/tour');
   };
 
+  // 「一覧|マップ|タグ」トグル + (絞り込み中のみ) フィルター解除ボタン。一覧表示のときは
+  // ListingGrid のツールバー行に差し込み、マップ/タグ/結果0件のときは単独の行として使う。
+  const viewToggleNode = (
+    <>
+      <BrowseViewToggle value={browseView} onChange={setBrowseView} />
+      {hasActiveFilter && (
+        <button
+          type="button"
+          className="housing-browse-clear-filter"
+          onClick={() => {
+            useHousingFilterStore.getState().clearAll();
+            useHousingTagPickerStore.getState().clearPending();
+          }}
+        >
+          {t('housing.browse.clear_filter')}
+        </button>
+      )}
+    </>
+  );
+
   return (
     <div className="housing-browse">
       <section className="housing-browse-panel" data-region="left">
@@ -177,22 +197,12 @@ export const BrowsePage: React.FC = () => {
             <div className="housing-center-error">{t('housing.gallery.error')}</div>
           ) : (
             <>
-              {/* 中央だけが切り替わる。トレイ (右カラム) は地図モードでも従来どおり (spec 4.4) */}
-              <div className="housing-browse-toolbar">
-                <BrowseViewToggle value={browseView} onChange={setBrowseView} />
-                {hasActiveFilter && (
-                  <button
-                    type="button"
-                    className="housing-browse-clear-filter"
-                    onClick={() => {
-                      useHousingFilterStore.getState().clearAll();
-                      useHousingTagPickerStore.getState().clearPending();
-                    }}
-                  >
-                    {t('housing.browse.clear_filter')}
-                  </button>
-                )}
-              </div>
+              {/* 中央だけが切り替わる。トレイ (右カラム) は地図モードでも従来どおり (spec 4.4)。
+                  PCの一覧表示 (件数+並び替えが出るとき) は、その行と1段にまとめてカード表示
+                  エリアを広げる (2026-08-14ユーザー提案・まずPCのみ、モバイルは従来通り)。 */}
+              {isMobile || effectiveView !== 'list' || filtered.length === 0 ? (
+                <div className="housing-browse-toolbar">{viewToggleNode}</div>
+              ) : null}
               {effectiveView === 'tags' ? (
                 <BrowseTagView />
               ) : effectiveView === 'map' ? (
@@ -207,6 +217,7 @@ export const BrowsePage: React.FC = () => {
                   onSortChange={setSort}
                   listKey="browse"
                   sortOrders={['random', 'newest', 'oldest']}
+                  toolbarPrefix={isMobile ? undefined : viewToggleNode}
                 />
               )}
             </>

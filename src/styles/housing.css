@@ -4663,10 +4663,28 @@ select.housing-input option {
   /* 内側余白 = 文字がガラス枠にぶつかって見切れるのを防ぐ。 */
   padding: 14px 16px;
 }
-.housing-browse-col-center { overflow: hidden; }
-.housing-browse-col-center .housing-listing-grid-toolbar { padding: 0; }
-/* 探すページ中央だけ: 見出し→カードの二重余白(toolbar padding + wrap gap)を詰めて 8 枚を見切れなく収める。 */
-.housing-browse-col-center .housing-listing-grid-wrap { gap: 6px; }
+/* 中央カラムだけ下側の内側余白を0に(2026-08-14ユーザー指定=フェード演出をパネル下端まで
+   使い切りたいので、いったん詰めてみる)。左右カラム(FilterPanel/TourTray)は元のまま。 */
+.housing-browse-col-center { overflow: hidden; padding-bottom: 0; }
+/* 探すページだけ: 「一覧|マップ|タグ」+「件数・並び替え」を1段に集約した分、ツールバーと
+   カードの境目が曖昧にならないよう常時区切り線を出す(2026-08-14ユーザー指定)。
+   他ページ(ハウジンガー等)のListingGrid再利用箇所には影響させない。
+   padding-bottom = 文字と線の間の余白、wrap側のgapが線とカードの間の余白を担う。 */
+.housing-browse-col-center .housing-listing-grid-toolbar {
+  padding: 0 0 8px 0;
+  border-bottom: 1px solid var(--housing-divider);
+}
+/* 探すページ中央だけ: 見出し→カードの二重余白(toolbar padding + wrap gap)を詰めて 8 枚を見切れなく収める
+   という元の狙いは維持しつつ、区切り線とカードの間にも最低限の余白を持たせる。 */
+.housing-browse-col-center .housing-listing-grid-wrap { gap: 10px; }
+/* パネルの高さが行の高さの整数倍にならない画面(実機1489x679等)では、最後の行がタイトル/ボタン
+   無しで画像だけ中途半端に見切れる(2026-08-14ユーザー実機指摘=カード表示エリアの下端がおかしい)。
+   カードを大きくして埋めるのではなく、下端をソフトフェードにして「まだ続きがある」と読める
+   見え方にする(スクロール位置に関わらず常時、下端40pxをグラデーションで透過)。 */
+.housing-browse-col-center .housing-listing-grid {
+  mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent 100%);
+}
 /* 左フィルタは FilterPanel の head/body が縦余白を持つので、横はカラム余白に一本化 (二重余白回避)。 */
 .housing-browse-col-left .housing-panel-head { padding-left: 0; padding-right: 0; }
 .housing-browse-col-left .housing-panel-body { padding-left: 0; padding-right: 0; }
@@ -5940,6 +5958,12 @@ select.housing-input option {
   padding: 0 4px 0 0;
   flex: 0 0 auto;
 }
+/* トグル(あれば) + 見出しの左側グループ。並び替え等の右側グループと space-between で分かれる。 */
+.housing-listing-grid-toolbar-start {
+  display: flex; align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
 /* 「ハウジング一覧 N件」見出し */
 .housing-listing-grid-heading {
   display: inline-flex; align-items: baseline; gap: 8px;
@@ -6727,6 +6751,10 @@ select.housing-input option {
   gap: var(--housing-main-gap);
   overflow-y: auto;
   min-height: 0;
+  /* カード枚数が少なくパネルより低くても、パネル下端まで枠自体は埋める
+     (2026-08-14ユーザー提案: 上のツールバー集約とセットで、下端に余白を残さない)。
+     flex-shrink は既定の 1 のまま (カードが多くて溢れる場合は従来通り縮んで内部スクロール)。 */
+  flex: 1 1 auto;
   /* ホバーの浮き上がり (translateY(-2px)) がスクロール枠の上端で切れないよう
      上に余白を確保し、negative margin で見た目の開始位置は変えない。 */
   padding: 4px 4px 4px 0;
@@ -9700,6 +9728,13 @@ html[data-theme-anim="light"]::view-transition-new(root) {
   /* 実機FB第4弾: 右パディングを外してスクロールバーを画面右端へ (カードの内側余白は grid 側で確保)。 */
   .housing-browse-col-center { padding-top: 6px; padding-right: 0; }
   .housing-browse-col-center .housing-browse-toolbar { padding: 0; }
+  /* 「ハウジング一覧 N件 / 並び替え」バーはグリッド(cards)の外にあるため、上の
+     .housing-browse-col-center { padding-right: 0 } の影響をそのまま受けて右端に張り付いて
+     しまう(区切り線も同様)。padding だとボックス自体は画面端まで伸びたままで区切り線
+     (border-bottom)は右端に残るため、margin でボックス自体を右に狭める。
+     カード側の右12px(.housing-listing-gridのpadding)と揃える
+     (2026-08-14ユーザー実機指摘=並び替えボタンと線が右端にくっついて見える)。 */
+  .housing-browse-col-center .housing-listing-grid-toolbar { margin-right: 12px; }
   /* カードグリッドは auto-fill の可変列数をやめ、2列固定にする
      (探す/お気に入り共通の .housing-listing-grid)。 */
   .housing-listing-grid {
