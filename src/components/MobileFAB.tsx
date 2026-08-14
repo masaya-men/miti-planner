@@ -38,7 +38,10 @@ const FAN_CHIP_SIZE = 36;
 const FAN_CHIP_GAP = 6;
 // 表示順序（左から: 日 EN 中 繁 한→ 右端が現在地に近い）
 const LANG_DISPLAY_ORDER: ContentLanguage[] = ['ja', 'en', 'zh', 'zh-Hant', 'ko'];
-const EFFECT_MODE_ORDER: MobileEffectBarMode[] = ['icon', 'scroll', 'bar'];
+// 2026-08-14ユーザー判断: 'scroll'(連動)はスクロール時の重さの根本原因が未解決のため
+// 選択肢から一時的に除外(解決策が出るまでの暫定対応)。既存ユーザーで'scroll'が
+// 選択済みだった場合はuseThemeStore側のmigrateで'icon'へ寄せる。
+const EFFECT_MODE_ORDER: MobileEffectBarMode[] = ['icon', 'bar'];
 const EFFECT_MODE_CHIP_LABELS: Record<MobileEffectBarMode, string> = {
     icon: '静止',
     scroll: '連動',
