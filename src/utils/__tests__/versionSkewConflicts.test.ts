@@ -49,3 +49,37 @@ describe('同id版違いバグ修正後も、本当の被りは競合検出し�
         expect(r.has('b')).toBe(true);
     });
 });
+
+/**
+ * レベル帯で id が分かれる技(別id版違い)の競合検出漏れバグ回帰テスト。
+ * 「同id版違いバグ」対策で低Lv版が _base/_v2 等の別idに分離されたが、getSharedCooldownIds が
+ * 単純な id 一致のみだったため、旧idで置いた軽減が現Lvの新idと同じ技として認識されず
+ * CD競合が検出されない不具合があった(2026-08-14ユーザー実機報告: ランパートが赤くならない)。
+ */
+describe('別id版違い(rampart/rampart_v2等)は同じCDグループとして競合検出する', () => {
+    it('ランパート: 旧id(rampart_pld)と新id(rampart_v2_pld)を混ぜて置いても被りは競合する', () => {
+        // rampart recast=90 → 4秒→7秒(3秒後)は明確にCD内
+        const r = findSameSkillCdConflicts([ap('a', 'rampart_pld', 4), ap('b', 'rampart_v2_pld', 7)]);
+        expect(r.has('a')).toBe(true);
+        expect(r.has('b')).toBe(true);
+    });
+
+    it('リプライザル: reprisal_pldとreprisal_base_pldも同じCDグループとして被りを検出する', () => {
+        // reprisal recast=60
+        const r = findSameSkillCdConflicts([ap('a', 'reprisal_base_pld', 0), ap('b', 'reprisal_pld', 30)]);
+        expect(r.has('a')).toBe(true);
+        expect(r.has('b')).toBe(true);
+    });
+
+    it('原初の血気ライン: bloodwhettingとraw_intuition/nascent_flash系は全て同一CDグループ', () => {
+        // recast=25、別名・別アイコンでも同一リキャストを共有する特例
+        const r = findSameSkillCdConflicts([ap('a', 'raw_intuition', 0), ap('b', 'nascent_flash', 10)]);
+        expect(r.has('a')).toBe(true);
+        expect(r.has('b')).toBe(true);
+    });
+
+    it('別idでもリキャストを超えて離れていれば競合しない', () => {
+        const r = findSameSkillCdConflicts([ap('a', 'rampart_pld', 0), ap('b', 'rampart_v2_pld', 95)]);
+        expect(r.size).toBe(0);
+    });
+});

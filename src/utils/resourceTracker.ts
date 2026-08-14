@@ -11,14 +11,29 @@ import { useMitigationStore } from '../store/useMitigationStore';
  */
 const ALLOW_DRAG_INTO_CONFLICT = true;
 
+// WAR: 原初の血気ライン(bloodwhetting/raw_intuition)と原初の猛りライン(nascent_flash/
+// nascent_flash_base)は別名・別アイコンだが、ゲーム内では同一のリキャストを共有する特例
+// (自動判定では検出できないため個別に列挙)。
+const BLOODWHETTING_SHARED_GROUP = ['bloodwhetting', 'raw_intuition', 'nascent_flash', 'nascent_flash_base'];
+
 /**
- * 共有リキャストの技グループを返す(例: bloodwhetting / nascent_flash は同一CD)。
+ * 共有リキャストの技グループを返す。
+ *
+ * ほとんどの技は id 単体だが、レベル帯で新しいバージョンに切り替わる技(例: ランパートは
+ * Lv93以下=rampart、Lv94以上=rampart_v2)はこのデータモデルでは**別idの別エントリ**として
+ * 定義されている。過去のレベルで置いた軽減(旧id)を現在のレベルで再度置こうとした時、
+ * 素の id 一致だけで判定すると「同じ技のCD被り」を検出できず、赤表示/競合パルスが出ない
+ * 不具合になっていた(2026-08-14ユーザー実機報告で発覚)。
+ * 同一 jobId + 同一 icon = 見た目も効果も同じ技とみなし、自動的に同じCDグループにまとめる。
  */
 export function getSharedCooldownIds(id: string): string[] {
-    if (id === 'bloodwhetting' || id === 'nascent_flash') {
-        return ['bloodwhetting', 'nascent_flash'];
+    if (BLOODWHETTING_SHARED_GROUP.includes(id)) {
+        return BLOODWHETTING_SHARED_GROUP;
     }
-    return [id];
+    const defs = getMitigationsFromStore();
+    const def = defs.find(d => d.id === id);
+    if (!def) return [id];
+    return defs.filter(d => d.jobId === def.jobId && d.icon === def.icon).map(d => d.id);
 }
 
 /**
