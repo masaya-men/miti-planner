@@ -1432,6 +1432,21 @@ button, [role="button"], .touch-none {
    MobileFAB.tsxの隠す/出すtweenと同じ曲線)に変更(2026-08-13実機FB=「変身がなめらかでない」)。
    linear(等速)は機械的に見える一因。減速カーブは残り距離を毎回のretriggerでより速く詰める
    ため、直前の「戻る時に育っていない」バグの再発リスクは無い(むしろ追いつきは速くなる)。 */
+/* --mobile-effect-bar-progress を型付きプロパティとして登録する(CSS Properties and Values
+   API)。未登録のカスタムプロパティは値が単なるトークン列(syntax:'*')として扱われ、値が
+   変わるたびにブラウザが「このプロパティを参照している可能性がある要素」を広く再計算する
+   (実機計測で確認: 連動モードはスクロール毎にこの値が変わり続けるため、静止/常時モード
+   [値が固定]の約3.7倍のスタイル再計算コストが発生していた=2026-08-14ユーザー実機報告
+   「スマホでスクロールが重い/連動モードだけ重い」の根本原因)。型を<number>と明示することで
+   ブラウザは軽量なアニメータブルプロパティとして扱えるようになる。見た目・アニメーション挙動は
+   一切変えない(数値の意味・参照側のcalc()はそのまま)。inherits:trueは維持必須(コンテナから
+   子孫の棒/アイコンへ伝播させる現在の仕組みを変えないため)。未対応ブラウザでは単に従来通りの
+   動作にフォールバックするだけで安全(Safari 16.4+/Chrome 85+で対応)。 */
+@property --mobile-effect-bar-progress {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
 .mobile-effect-bar-item,
 .mobile-effect-bar-fill,
 .mobile-effect-bar-icon,

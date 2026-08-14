@@ -18,13 +18,10 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **🆕 共同編集参加者のヘッダー開閉解禁 → 軽減表スプシモード**(いずれも大物・2026-08-05ブレスト済・**最高モデルを潤沢に使えるときに着手**、着手順は①→②固定)。ブレスト内容・確定設計・未解決論点は全て`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`に記録済み。着手時は同ファイルを土台にbrainstormingスキルで設計書化からやり直す。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 次セッション最優先: スマホのスクロール重さ ①ハウジングは解決 ②軽減表(共同編集)は未解決・要再調査
-2026-08-14、本番実機確認まで完了。
-①**ハウジング探すページ**: 下端フェードが`.housing-listing-grid`(スクロール本体)に直接`mask-image`を掛けていたのが原因、マスクをスクロールしない親`.housing-listing-grid-wrap`に移動して解消。**ユーザー実機確認OK**(`src/styles/housing.css`、本番反映済み)。
-②**軽減表モバイル 連動エフェクト棒 = 根本原因まだ未確定、要再調査(ユーザー指示: 確証が出るまで追加の修正はしない)**。
-経緯: 1回目仮説(画面外の棒の再計算)は`content-visibility`化で改善せずアイコンつぶれの新規不具合も出たため差し戻し(`99769490`)。2回目仮説(`syncRecastRow`のtimeToYMap全走査)は修正実装([syncRecastRow](src/components/Timeline.tsx)を二分探索化)したが**ユーザー実機再検証で改善せず**(「共同編集じゃなくても重い」「変身アニメがとびとび」でcollab固有ではないと確定)。3回目、ローカルでCPUプロファイル実測(149軽減・900秒戦闘のテストデータをPlaywright+CDPで注入し4倍CPUスロットル下で計測)し`handleScrollSync`が支配的という手がかりを得たが、**この関数が呼ぶ`coords.ts`の`sortedEntries`(→`WeakMap`キャッシュ化、単体では56倍高速化を確認)が真因という解釈は追加検証で誤りと判明・撤回済み**(全体の1%未満の寄与しかなかった)。`sortedEntries`キャッシュ化+`handleScrollSync`内`querySelector`のキャッシュ化(効果は限定的、~1.3倍)は安全な改善として実装・本番反映済みだが、**「けた違いに軽くなる」効果は期待しないこと**。
-**新しい手がかり(未検証)**: `handleScrollSync`だけ`onScroll`(Reactの合成イベント経由)で登録されており、他の3つのスクロールリスナー(`syncRecastRow`/`syncMobilePhaseLabel`/`syncMobileEffectBarVisibility`)は`addEventListener`(ネイティブ)経由。プロファイルにReact内部関数(`getListener`/`getNearestMountedFiber`等)が有意に出ており、合成イベント経由のオーバーヘッドが疑わしいが未確証。
-**次セッション最初にやること**: CPUサンプリングプロファイラは今回ノイズが大きく信頼性不足と判明したため、Chrome DevTools Protocol の `Tracing`(サンプリングでなく実イベント記録、Layout/Recalculate Style/Paint等のフェーズ別内訳と発生源が取れる)で再調査してから、確証が得られた場合のみ修正に進む。
+### ✅ 2026-08-14 スマホのスクロール重さ ①②とも根本原因特定・修正・本番反映済み
+①**ハウジング探すページ**: 下端フェードが`.housing-listing-grid`(スクロール本体)に直接`mask-image`を掛けていたのが原因、マスクをスクロールしない親`.housing-listing-grid-wrap`に移動して解消。**ユーザー実機確認OK**。
+②**軽減表モバイル 連動エフェクト棒**: 複数回の仮説が外れた後(経緯は[TODO_COMPLETED.md](./TODO_COMPLETED.md)参照)、CDP Tracingの実イベント記録(サンプリングでなく)で「静止/常時はさくさく、連動だけ重い」というユーザー実機報告をローカルA/B比較で完全再現・特定に成功。**根本原因**: 連動モードだけスクロール毎に`--mobile-effect-bar-progress`カスタムプロパティが毎回違う値に書き換わり、それを参照する多数の要素(棒・アイコン・専用行アイコン)のスタイル再計算が走っていた(値が固定の静止/常時は再計算がほぼ無料)。`src/index.css`に`@property --mobile-effect-bar-progress`(型付きプロパティ登録、CSS Properties and Values API)を追加して解消。実測で連動モードの重さが静止/常時比3.7倍→1.3倍まで改善(見た目・計算結果は数値検証済みで完全不変)。**ユーザー実機確認OK・本番反映済み**。
+**業界標準の追加調査**(ユーザー指示): `will-change`先回り付与は2026年時点ではむしろ非推奨(ブラウザの自動判定に任せるのが現行ベストプラクティス)と判明、見送り。本命の`animation-timeline: scroll()`(CSS純正のスクロール駆動アニメーション、JS主導不要)はSafari 26ベータでようやく対応開始した段階で正式版はまだのため今回は見送り。**将来Safari正式対応後の移行検討メモ**は`docs/.private/2026-08-14-scroll-driven-animation-future-migration.md`に記録済み。
 ### ✅ 2026-08-14 ハウジング探すページ(PC/スマホ)見た目改善 + モバイル軽減表全面刷新・競合表示 = 本番push/デプロイ済
 ハウジング探すページ(中央パネルのツールバー1段集約・常時区切り線・パネル下端フェード・モバイル右余白修正)、モバイル軽減表レイアウト刷新+競合(CDかぶり)表示、Discordログインキャンセル修正、全て実機確認済みで本番反映済み(詳細→TODO_COMPLETED.md)。
 ### 📤 Discordアップデート告知 = 2本立て(下書き準備済・投稿はユーザー側)
@@ -67,6 +64,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 ## バグ・不具合 (要修正)
 
+- **🆕 2026-08-14実機報告2件(未調査)**: ①メモ機能(表中に自由記述)がスマホの共同編集表で表示されている(`MemoOverlay`にモバイル非表示条件が無い、新規作成操作のみモバイル無効化されていた可能性)。②モバイル軽減表「連動」エフェクト表示、指を離す前に(スクロール中のはずなのに)アイコン表示へ勝手に戻ることがある(スクロール重さ起因の取りこぼしの可能性、要検証)。
 - **🔮 8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修・大物・情報出揃い次第。着手時brainstorming。詳細=docs/.private/2026-06-20-skill-modeling-notes.md)。**🔵将来=スキル効果解決の窓口統一**=level+mode→正効果に解決する関数1つに集約し全~30箇所を通す(同id版違いバグの真の根治・コードのきれい。2026-06-22`_base`化が第一歩。競合resourceTracker/CD recastRow/計算calculator 未配線・autoPlanner配線済)。**ここに畳む候補(2026-06-30判断・価値低)**=スプシ取込で技名をコンテンツlevelの版に解決(例 シャドウヴィジル→Lv80はシャドウウォール)。単発実装は非推奨(スキル線リンクがデータに無く窓口統一が前提・発動はユーザーの取り違えのみ)。※リビデ正確モデル化①と表展開トグル③は2026-06-20完了(COMPLETED)。
 - **低(動作影響なし)**: FFLogs 英語ログ/無敵反映/オートプラン同一技/パルス設定スライダー/ヘッダー縦罫線
 - **Phase 2 follow-up**: api/popular `viewCount` 削除/en・ko privacy_section1_auto_items bullet バグ/`MitigationSheet.copyPlan` POST 失敗時 localStorage 残留 (既知legacyテスト失敗5件=TopBar4+HousingWorkspace1は撤去予定・非アクション)。**🆕 EphemeralAddPanel.test 7件失敗(2026-07-17発見・環境依存)**: happy-domが:3000へ実fetch(ECONNREFUSED)・devサーバー起動中のみ緑だった疑い。d77ca25f時点でも同一失敗=直近変更と無関係を切り分け済。要モック修正。
