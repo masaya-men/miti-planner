@@ -3148,6 +3148,12 @@ const Timeline: React.FC = () => {
                                 points={conflictPoints}
                                 scrollContainerRef={scrollContainerRef}
                                 topInset={isMobileTimeline && phases.length > 0 ? MOBILE_TOKENS.header.phaseBarHeight : 0}
+                                // +compactHeight: 矢印のsticky土台自体がスクロールコンテナのpadding-top
+                                // (compactHeight分)だけ画面上端からずれた位置を基準点にしているため、
+                                // 下矢印を「本当の画面下端」基準で置くにはその分も追加で引く必要がある
+                                // (実測で判明。上矢印側は偶然この基準ズレとフェーズバーの位置が一致するため
+                                // 補正不要だった)。
+                                bottomInset={isMobileTimeline ? MOBILE_TOKENS.bottomNav.height + 2 + MOBILE_TOKENS.header.compactHeight : 0}
                             />
                         </div>
                         {/* isolate: 内部の mix-blend-mode(モバイルのエフェクト棒⇄アイコンのクロスフェード)を
