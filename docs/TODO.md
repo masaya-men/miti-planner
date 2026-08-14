@@ -21,8 +21,10 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ### 🔴 次セッション最優先: スマホのスクロール重さ ①ハウジングは解決 ②軽減表(共同編集)は未解決・要再調査
 2026-08-14、本番実機確認まで完了。
 ①**ハウジング探すページ**: 下端フェードが`.housing-listing-grid`(スクロール本体)に直接`mask-image`を掛けていたのが原因、マスクをスクロールしない親`.housing-listing-grid-wrap`に移動して解消。**ユーザー実機確認OK**(`src/styles/housing.css`、本番反映済み)。
-②**軽減表モバイル 連動エフェクト棒**: 1回目の仮説(画面外の棒の再計算)は`content-visibility`化で改善せずアイコンつぶれの新規不具合も出たため差し戻し済み(`99769490`)。ユーザーから「共同編集じゃなくても重い」「変身アニメがとびとび」「FAB/Undo-Redoの出し入れが重いのでは」との追加情報を得て再調査。**2回目の根本原因を特定・修正済み(まだユーザー実機確認前)**: `Timeline.tsx`の`syncRecastRow`(RecastRow表示用にスクロール位置→時刻を逆引き)が、`hideEmptyRows`(デフォルトtrue)時に`timeToYMap`を**スクロールイベント毎に毎回forEachで全走査**しており、戦闘が長い(=行数が多い)ほどこの1回のコストが積み重なりメインスレッドを塞いでいた(FAB/Undo-Redoの仮説は調査の結果否定=どちらも低頻度発火で軽量と確認)。ソート済み配列+二分探索に置き換えて解消(`sortedTimeYRef`)、旧実装との出力一致は40,000ケースのランダム検証+同点ケースで確認済み。tsc/build/対象vitest通過。
-**次セッション最初にやること**: デプロイ後ユーザーに実機再確認(共同編集・軽減多数の表で重さ/アニメのがたつきが直ったか)。まだ重ければ`handleScrollSync`(querySelector呼び出しがスクロール毎に発生)と`syncMobilePhaseLabel`(phases配列をスクロール毎にsort)がまだ手つかずの候補として残っている(この回では触っていない、1件ずつ検証する方針のため)。
+②**軽減表モバイル 連動エフェクト棒 = 根本原因まだ未確定、要再調査(ユーザー指示: 確証が出るまで追加の修正はしない)**。
+経緯: 1回目仮説(画面外の棒の再計算)は`content-visibility`化で改善せずアイコンつぶれの新規不具合も出たため差し戻し(`99769490`)。2回目仮説(`syncRecastRow`のtimeToYMap全走査)は修正実装([syncRecastRow](src/components/Timeline.tsx)を二分探索化)したが**ユーザー実機再検証で改善せず**(「共同編集じゃなくても重い」「変身アニメがとびとび」でcollab固有ではないと確定)。3回目、ローカルでCPUプロファイル実測(149軽減・900秒戦闘のテストデータをPlaywright+CDPで注入し4倍CPUスロットル下で計測)し`handleScrollSync`が支配的という手がかりを得たが、**この関数が呼ぶ`coords.ts`の`sortedEntries`(→`WeakMap`キャッシュ化、単体では56倍高速化を確認)が真因という解釈は追加検証で誤りと判明・撤回済み**(全体の1%未満の寄与しかなかった)。`sortedEntries`キャッシュ化+`handleScrollSync`内`querySelector`のキャッシュ化(効果は限定的、~1.3倍)は安全な改善として実装・本番反映済みだが、**「けた違いに軽くなる」効果は期待しないこと**。
+**新しい手がかり(未検証)**: `handleScrollSync`だけ`onScroll`(Reactの合成イベント経由)で登録されており、他の3つのスクロールリスナー(`syncRecastRow`/`syncMobilePhaseLabel`/`syncMobileEffectBarVisibility`)は`addEventListener`(ネイティブ)経由。プロファイルにReact内部関数(`getListener`/`getNearestMountedFiber`等)が有意に出ており、合成イベント経由のオーバーヘッドが疑わしいが未確証。
+**次セッション最初にやること**: CPUサンプリングプロファイラは今回ノイズが大きく信頼性不足と判明したため、Chrome DevTools Protocol の `Tracing`(サンプリングでなく実イベント記録、Layout/Recalculate Style/Paint等のフェーズ別内訳と発生源が取れる)で再調査してから、確証が得られた場合のみ修正に進む。
 ### ✅ 2026-08-14 ハウジング探すページ(PC/スマホ)見た目改善 + モバイル軽減表全面刷新・競合表示 = 本番push/デプロイ済
 ハウジング探すページ(中央パネルのツールバー1段集約・常時区切り線・パネル下端フェード・モバイル右余白修正)、モバイル軽減表レイアウト刷新+競合(CDかぶり)表示、Discordログインキャンセル修正、全て実機確認済みで本番反映済み(詳細→TODO_COMPLETED.md)。
 ### 📤 Discordアップデート告知 = 2本立て(下書き準備済・投稿はユーザー側)

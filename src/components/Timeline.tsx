@@ -1360,6 +1360,11 @@ const Timeline: React.FC = () => {
     // 積み重なりメインスレッドを塞いでいた)。中身はtimeToYMapと同じタイミング(レイアウト
     // 再計算時)でのみ作り直し、スクロール中は読むだけ。
     const sortedTimeYRef = useRef<[number, number][]>([]);
+    // handleScrollSync がヘッダー/コントロールバー内の対象要素を毎スクロールイベントで
+    // querySelector していたのをキャッシュする(2026-08-14、実測プロファイルでスクロール毎の
+    // 負荷の一因と判明)。要素が差し替わった場合のみ(isConnected/contains チェックで検知して)
+    // 再検索するので、挙動(idヒット→firstElementChildフォールバック)は変えていない。
+    const scrollSyncInnerElsRef = useRef<{ header: HTMLElement | null; controls: HTMLElement | null }>({ header: null, controls: null });
     // 表の展開/折りたたみ前後でスクロールアンカーを維持するため、直近のビューポート中央の時刻を保持
     const lastCenterTimeRef = useRef<number | null>(null);
     const recastRowRef = useRef<RecastRowHandle>(null);
@@ -1424,19 +1429,19 @@ const Timeline: React.FC = () => {
 
         // Use transform for more reliable sync across different content widths
         const containers = [
-            { ref: headerRef, id: 'timeline-header-inner' },
-            { ref: controlBarRef, id: 'timeline-controls-inner' },
+            { ref: headerRef, id: 'timeline-header-inner', cacheKey: 'header' as const },
+            { ref: controlBarRef, id: 'timeline-controls-inner', cacheKey: 'controls' as const },
         ];
 
-        containers.forEach(({ ref, id }) => {
-            if (ref.current) {
-                const inner = ref.current.querySelector(`#${id}`) as HTMLElement;
-                if (inner) {
-                    inner.style.transform = `translateX(-${scrollLeft}px)`;
-                } else if (ref.current.firstElementChild) {
-                    (ref.current.firstElementChild as HTMLElement).style.transform = `translateX(-${scrollLeft}px)`;
-                }
+        containers.forEach(({ ref, id, cacheKey }) => {
+            if (!ref.current) return;
+            let inner = scrollSyncInnerElsRef.current[cacheKey];
+            if (!inner || !inner.isConnected || !ref.current.contains(inner)) {
+                inner = (ref.current.querySelector(`#${id}`) as HTMLElement | null)
+                    ?? (ref.current.firstElementChild as HTMLElement | null);
+                scrollSyncInnerElsRef.current[cacheKey] = inner;
             }
+            if (inner) inner.style.transform = `translateX(-${scrollLeft}px)`;
         });
     };
 

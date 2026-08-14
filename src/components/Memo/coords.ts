@@ -17,9 +17,22 @@ export interface MemoCoords {
 /**
  * timeToYMap (time → y) を時刻昇順の配列に変換。
  * gridLines が含む全 time に対応する y を返す (gridLines 順で y も増加)。
+ *
+ * timeSecToY/yToTimeSec は Timeline.tsx のスクロールハンドラから毎スクロールイベントで
+ * 呼ばれるため、ここを Map オブジェクト参照キーの WeakMap でキャッシュする(2026-08-14
+ * ユーザー実機報告「スマホでスクロールが重い」の実測プロファイルで、この毎回の配列化+
+ * ソートがスクロール処理の体感重さの大半を占めていたと判明)。
+ * timeToYMapRef.current は常に新しい Map インスタンスへの丸ごと差し替えでのみ更新され
+ * (in-place の set/delete は無い)、内容が変わるときは必ず参照も変わるため、参照キーの
+ * キャッシュが古い結果を返すことはない。
  */
+const sortedEntriesCache = new WeakMap<Map<number, number>, Array<[number, number]>>();
 function sortedEntries(timeToYMap: Map<number, number>): Array<[number, number]> {
-    return Array.from(timeToYMap.entries()).sort((a, b) => a[0] - b[0]);
+    const cached = sortedEntriesCache.get(timeToYMap);
+    if (cached) return cached;
+    const sorted = Array.from(timeToYMap.entries()).sort((a, b) => a[0] - b[0]);
+    sortedEntriesCache.set(timeToYMap, sorted);
+    return sorted;
 }
 
 /**
@@ -31,16 +44,17 @@ export function timeSecToY(timeSec: number, timeToYMap: Map<number, number>): nu
     if (entries.length === 0) return 0;
     if (timeSec <= entries[0][0]) return entries[0][1];
     if (timeSec >= entries[entries.length - 1][0]) return entries[entries.length - 1][1];
-    // 隣接 entry の間で補間
-    for (let i = 0; i < entries.length - 1; i++) {
-        const [t0, y0] = entries[i];
-        const [t1, y1] = entries[i + 1];
-        if (timeSec >= t0 && timeSec <= t1) {
-            const ratio = (timeSec - t0) / (t1 - t0);
-            return y0 + ratio * (y1 - y0);
-        }
+    // 隣接 entry の間で補間。entries は time 昇順なので二分探索で区間を求める
+    // (2026-08-14、毎スクロールイベントで呼ばれるため全走査版は負荷が大きかった)。
+    let lo = 0, hi = entries.length - 1;
+    while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1;
+        if (entries[mid][0] <= timeSec) lo = mid; else hi = mid;
     }
-    return entries[entries.length - 1][1];
+    const [t0, y0] = entries[lo];
+    const [t1, y1] = entries[hi];
+    const ratio = t1 === t0 ? 0 : (timeSec - t0) / (t1 - t0);
+    return y0 + ratio * (y1 - y0);
 }
 
 /**
@@ -52,15 +66,16 @@ export function yToTimeSec(yPx: number, timeToYMap: Map<number, number>): number
     if (entries.length === 0) return null;
     if (yPx < entries[0][1]) return null;
     if (yPx > entries[entries.length - 1][1]) return null;
-    for (let i = 0; i < entries.length - 1; i++) {
-        const [t0, y0] = entries[i];
-        const [t1, y1] = entries[i + 1];
-        if (yPx >= y0 && yPx <= y1) {
-            const ratio = y1 === y0 ? 0 : (yPx - y0) / (y1 - y0);
-            return t0 + ratio * (t1 - t0);
-        }
+    // entries は time 昇順 = y も昇順(gridLines順でyも増加)なので、yPx でも二分探索できる。
+    let lo = 0, hi = entries.length - 1;
+    while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1;
+        if (entries[mid][1] <= yPx) lo = mid; else hi = mid;
     }
-    return entries[entries.length - 1][0];
+    const [t0, y0] = entries[lo];
+    const [t1, y1] = entries[hi];
+    const ratio = y1 === y0 ? 0 : (yPx - y0) / (y1 - y0);
+    return t0 + ratio * (t1 - t0);
 }
 
 /**
