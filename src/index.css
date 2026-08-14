@@ -1478,6 +1478,21 @@ button, [role="button"], .touch-none {
   transform-origin: top center;
   transform: scale(calc((22 - 7 * var(--mobile-effect-bar-progress, 0)) / 22));
 }
+/* 競合中(.animate-conflict-pulseを付ける)アイコンの中央寄せ専用ラッパー。22px固定のスロットを
+   用意し、実際の見た目(進み具合連動のopacity/scale)は中の.mobile-effect-bar-icon(img)に
+   任せる。ラッパー自身に脈動アニメを付けることで、進み具合側のopacity/scaleと脈動側の
+   opacity/scaleが別要素として掛け算合成され、静止時(progress=0)は従来通り完全に不可視になる
+   (MobileEffectBarLayer.tsx のコメント参照)。 */
+.mobile-effect-bar-icon-slot {
+  width: 22px;
+  height: 22px;
+  margin-left: -11px;
+}
+.mobile-effect-bar-icon-slot .mobile-effect-bar-icon {
+  width: 100%;
+  height: 100%;
+  margin-left: 0;
+}
 .mobile-miti-icons {
   /* エフェクト棒側の変身が進むほど、専用行アイコン側は透明になっていく(連続クロスフェード)。 */
   opacity: calc(1 - var(--mobile-effect-bar-progress, 0));

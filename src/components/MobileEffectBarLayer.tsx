@@ -47,20 +47,37 @@ export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars
               bar.colors.shadow,
             )}
           />
-          <img
-            src={bar.iconUrl}
-            alt=""
-            className={clsx(
-              'mobile-effect-bar-icon absolute rounded object-cover max-w-none',
-              isConflicting && 'animate-conflict-pulse ring-1 ring-amber-400',
-            )}
-            style={{
-              // 使用した秒の行より上(=前の行)にアイコンがはみ出さないよう、bar.top(=使用時刻の行)
-              // を基準に真下へ描画する(実機FB: 前の行に配置されて見える不具合の修正)。
-              top: '0px',
-              left: '50%',
-            }}
-          />
+          {isConflicting ? (
+            // 競合中は脈動アニメ(.animate-conflict-pulse)をラッパーに逃がす。CSSアニメーションは
+            // 対象プロパティ(opacity/transform)を丸ごと上書きするため、.mobile-effect-bar-icon本体
+            // に付けると進み具合連動のopacity(静止時=0で不可視)が無視され、本来隠れているはずの
+            // 競合アイコンだけが変身前の待機位置(画面右端そば)に薄く常時居座って見える不具合になる
+            // (2026-08-14ユーザー実機FB「競合してるスキルだけ画面右に漏れて見える」の真因)。
+            // ラッパーとアイコンを別要素にすれば、脈動のopacity/scaleは進み具合側のopacity/scaleと
+            // 掛け算で合成されるため、進み具合0のときは従来通り完全に不可視へ戻る。
+            <div
+              className="mobile-effect-bar-icon-slot absolute animate-conflict-pulse"
+              style={{ top: '0px', left: '50%' }}
+            >
+              <img
+                src={bar.iconUrl}
+                alt=""
+                className="mobile-effect-bar-icon absolute inset-0 rounded object-cover max-w-none ring-1 ring-amber-400"
+              />
+            </div>
+          ) : (
+            <img
+              src={bar.iconUrl}
+              alt=""
+              className="mobile-effect-bar-icon absolute rounded object-cover max-w-none"
+              style={{
+                // 使用した秒の行より上(=前の行)にアイコンがはみ出さないよう、bar.top(=使用時刻の行)
+                // を基準に真下へ描画する(実機FB: 前の行に配置されて見える不具合の修正)。
+                top: '0px',
+                left: '50%',
+              }}
+            />
+          )}
         </div>
         );
       })}
