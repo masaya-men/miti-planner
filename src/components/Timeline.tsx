@@ -1353,6 +1353,13 @@ const Timeline: React.FC = () => {
     const headerRef = useRef<HTMLDivElement>(null);
     const controlBarRef = useRef<HTMLDivElement>(null);
     const timeToYMapRef = useRef(new Map<number, number>());
+    // syncRecastRow (hideEmptyRows時) がスクロール毎にY最近傍の時刻を逆引きするための索引。
+    // timeToYMapをforEachで毎回全走査していたのをY昇順ソート済み配列+二分探索に変える
+    // (2026-08-14ユーザー実機報告「スマホでスクロールが重い/変身アニメがとびとび」対応。
+    // 長い戦闘ほどtimeToYMapの要素数が増え、毎スクロールイベントでの全走査コストが
+    // 積み重なりメインスレッドを塞いでいた)。中身はtimeToYMapと同じタイミング(レイアウト
+    // 再計算時)でのみ作り直し、スクロール中は読むだけ。
+    const sortedTimeYRef = useRef<[number, number][]>([]);
     // 表の展開/折りたたみ前後でスクロールアンカーを維持するため、直近のビューポート中央の時刻を保持
     const lastCenterTimeRef = useRef<number | null>(null);
     const recastRowRef = useRef<RecastRowHandle>(null);
@@ -1476,15 +1483,23 @@ const Timeline: React.FC = () => {
         const scrollTop = container.scrollTop;
         const offsetTime = showPreStart ? -10 : 0;
         let currentTime: number;
-        if (hideEmptyRows && timeToYMapRef.current.size > 0) {
-            // hideEmptyRows モード: Y に最も近い可視時刻を逆引き
-            let closest = offsetTime;
-            let minDiff = Infinity;
-            timeToYMapRef.current.forEach((y, t) => {
-                const diff = Math.abs(y - scrollTop);
-                if (diff < minDiff) { minDiff = diff; closest = t; }
-            });
-            currentTime = closest;
+        if (hideEmptyRows && sortedTimeYRef.current.length > 0) {
+            // hideEmptyRows モード: Y に最も近い可視時刻を逆引き。
+            // Y昇順ソート済み配列(sortedTimeYRef)を二分探索する。以前はtimeToYMapを毎回
+            // forEachで全走査しており、戦闘が長い(=行数が多い)ほどスクロール1回ごとの
+            // コストが積み重なりメインスレッドを塞いでいた(2026-08-14ユーザー実機報告
+            // 「スマホでスクロールが重い/変身アニメがとびとび」の主因)。
+            const arr = sortedTimeYRef.current;
+            let lo = 0, hi = arr.length - 1;
+            while (lo < hi) {
+                const mid = (lo + hi) >> 1;
+                if (arr[mid][1] < scrollTop) lo = mid + 1; else hi = mid;
+            }
+            let closestIdx = lo;
+            if (lo > 0 && Math.abs(arr[lo - 1][1] - scrollTop) <= Math.abs(arr[lo][1] - scrollTop)) {
+                closestIdx = lo - 1;
+            }
+            currentTime = arr[closestIdx][0];
         } else {
             currentTime = offsetTime + Math.round(scrollTop / pixelsPerSecond);
         }
@@ -3393,6 +3408,7 @@ const Timeline: React.FC = () => {
                                 });
 
                                 timeToYMapRef.current = timeToYMap;
+                                sortedTimeYRef.current = Array.from(timeToYMap.entries()).sort((a, b) => a[1] - b[1]);
 
                                 return (
                                     <>
