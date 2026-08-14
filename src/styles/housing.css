@@ -4680,8 +4680,14 @@ select.housing-input option {
 /* パネルの高さが行の高さの整数倍にならない画面(実機1489x679等)では、最後の行がタイトル/ボタン
    無しで画像だけ中途半端に見切れる(2026-08-14ユーザー実機指摘=カード表示エリアの下端がおかしい)。
    カードを大きくして埋めるのではなく、下端をソフトフェードにして「まだ続きがある」と読める
-   見え方にする(スクロール位置に関わらず常時、下端40pxをグラデーションで透過)。 */
-.housing-browse-col-center .housing-listing-grid {
+   見え方にする(スクロール位置に関わらず常時、下端40pxをグラデーションで透過)。
+   マスクは実際にスクロールする .housing-listing-grid 本体ではなく、その親(スクロールしない
+   .housing-listing-grid-wrap)に掛ける。wrap は toolbar(flex:0 0 auto)+ grid(flex:1 1 auto)の
+   縦積みで、grid が残り全部を埋めるため wrap の下端 = grid の下端(見た目は変わらない)。
+   スクロールする要素自身に mask-image を掛けると、スクロール中にマスクの再合成が毎フレーム
+   走り体感が重くなる(iOS Safari実機で顕著)ため、この分離で回避する
+   (2026-08-14ユーザー実機報告「スマホでスクロールが重い」の根本原因・修正)。 */
+.housing-browse-col-center .housing-listing-grid-wrap {
   mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 40px), transparent 100%);
 }
