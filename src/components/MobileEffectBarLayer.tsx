@@ -37,13 +37,6 @@ export const MobileEffectBarLayer: React.FC<MobileEffectBarLayerProps> = ({ bars
             width: `${MOBILE_EFFECT_BAR_WIDTH}px`,
             right: `${MOBILE_EFFECT_BAR_ROW_INSET}px`,
             '--mobile-effect-bar-slot-x': `${bar.slotIndex * MOBILE_EFFECT_BAR_SLOT_PITCH}px`,
-            // 全時間帯ぶんの棒(1本のプランで数十本規模)が常時DOMに存在し、画面外の分も
-            // 親の--mobile-effect-bar-progress変更(=スクロール毎)のたびに再計算されていた
-            // (perf #59でTimelineRow.tsxに適用済みの手法と同根)。画面外はstyle/layout/paintを
-            // まるごとスキップさせ、実測サイズを渡してスキップ復帰時のガタつきを防ぐ
-            // (2026-08-14ユーザー実機報告「スマホでスクロールが重い」への対応)。
-            contentVisibility: 'auto',
-            containIntrinsicSize: `${MOBILE_EFFECT_BAR_WIDTH}px ${bar.height}px`,
           } as React.CSSProperties}
         >
           <div
