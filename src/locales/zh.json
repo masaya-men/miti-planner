@@ -2025,6 +2025,7 @@
             "section_intro": "留言",
             "section_address": "地址",
             "address_verify_note": "即使地址是自动填写的，也请在登记前务必核对",
+            "address_extract_failed": "无法读取地址。请在下方选择",
             "section_media": "从帖子·网站自动填充",
             "field_title_label": "标题",
             "field_title_placeholder": "请输入标题",

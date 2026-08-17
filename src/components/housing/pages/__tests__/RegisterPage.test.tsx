@@ -87,6 +87,20 @@ vi.mock('../../../../lib/housing/useOgpFetch', () => ({
   useOgpFetch: () => ogpState,
 }));
 
+const mockFetchYoutubeMeta = vi.fn();
+const mockCancelYoutube = vi.fn();
+const mockResetYoutube = vi.fn();
+let youtubeState: any = {
+  status: 'idle',
+  data: null,
+  fetchYoutubeMeta: mockFetchYoutubeMeta,
+  cancel: mockCancelYoutube,
+  reset: mockResetYoutube,
+};
+vi.mock('../../../../lib/housing/useYoutubeFetch', () => ({
+  useYoutubeFetch: () => youtubeState,
+}));
+
 import { RegisterPage } from '../RegisterPage';
 // create パス (performRegister) の API を spy するため実モジュールを名前空間 import する
 // (module 全体 mock は他 export を壊すため spyOn で個別に差し替える)。
@@ -202,6 +216,16 @@ describe('RegisterPage', () => {
       fetchOgp: mockFetchOgp,
       cancel: mockCancelOgp,
       reset: mockResetOgp,
+    };
+    mockFetchYoutubeMeta.mockClear();
+    mockCancelYoutube.mockClear();
+    mockResetYoutube.mockClear();
+    youtubeState = {
+      status: 'idle',
+      data: null,
+      fetchYoutubeMeta: mockFetchYoutubeMeta,
+      cancel: mockCancelYoutube,
+      reset: mockResetYoutube,
     };
     // オートセーブ復元テストが assertion 失敗で早期リターンすると、末尾の
     // removeItem に届かず後続テストへ localStorage が漏れる (実際に踏んだ事故)。
@@ -1620,6 +1644,14 @@ describe('RegisterPage', () => {
       // ユーザーが (低速回線で) 待たずに YouTube URL に書き換える → YouTube が代表として確定する。
       fireEvent.change(input, { target: { value: YOUTUBE_URL } });
 
+      // YouTube の概要欄取得が (この URL については) 先に解決し、代表が確定する。
+      youtubeState = {
+        ...youtubeState,
+        status: 'success',
+        data: { description: null },
+      };
+      rerender(createTree());
+
       // 取り残された1本目のツイート fetch が遅れて成功する。dispatch 時点の url は既に YouTube URL
       // に変わっているため tweetId が取れず source=null の「孤立ディスパッチ」になるが、
       // data (写真) 自体は届く。
@@ -1668,6 +1700,48 @@ describe('RegisterPage', () => {
       registerSpy.mockRestore();
       showToastSpy.mockRestore();
       window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    it('YouTube URL貼付→概要欄取得成功で住所が自動入力される', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
+      youtubeState = {
+        ...youtubeState,
+        status: 'success',
+        // Adamantoise は Aether DC 所属 (Mana ではない) のため dcServerMismatch で棄却されてしまう。
+        // Mana/Anima は既存の parseHousingFromText.test.ts と同じ組み合わせで dc/server 一致。
+        data: { description: 'Mana / Anima / Mist 3-15' },
+      };
+      rerender(createTree());
+
+      // dc/server/area/ward/plot は TYPING_STAGGER_MS ごとに setTimeout で順次適用されるため、
+      // 2つ目以降のフィールド (server) も同じ waitFor 内で待つ (dc 到達直後の同期チェックだと
+      // server 用 setTimeout がまだ発火していない)。
+      await waitFor(() => {
+        expect((screen.getByLabelText('データセンター') as HTMLSelectElement).value).toBe('Mana');
+        expect((screen.getByLabelText('サーバー') as HTMLSelectElement).value).toBe('Anima');
+      });
+    });
+
+    it('YouTube URL貼付→概要欄に住所が無いと失敗案内が表示される (Twitterでも同じ経路)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
+      youtubeState = {
+        ...youtubeState,
+        status: 'success',
+        data: { description: 'よろしくお願いします' },
+      };
+      rerender(createTree());
+
+      expect(
+        await screen.findByTestId('housing-register-address-extract-failed'),
+      ).toBeInTheDocument();
     });
 
     /**

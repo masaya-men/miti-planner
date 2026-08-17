@@ -404,6 +404,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
    * size の自動導出 (区画由来・別 effect) では解除しない。
    */
   const [addressConfirmed, setAddressConfirmed] = useState(() => mode === 'edit');
+  const [addressExtractFailed, setAddressExtractFailed] = useState(false);
 
   const [title, setTitle] = useState(() => initialValues?.title ?? '');
   const [description, setDescription] = useState(() => initialValues?.description ?? '');
@@ -471,6 +472,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     fieldState.userEdit(name, value);
     // 住所確認ゲート: 手編集は「住所が変わった」とみなし確認を解除する。
     setAddressConfirmed(false);
+    setAddressExtractFailed(false);
   };
 
   /**
@@ -653,7 +655,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       // 場合に正しく上書きする (fills は setTimeout スタッガーで順に適用され、後勝ち)。
       if (result.roomNumber != null) fills.push(['roomNumber', result.roomNumber]);
       if (result.apartmentBuilding != null) fills.push(['apartmentBuilding', result.apartmentBuilding]);
-      if (fills.length === 0) return;
+      if (fills.length === 0) {
+        setAddressExtractFailed(true);
+        return;
+      }
+      setAddressExtractFailed(false);
       addressAppliedRef.current = true;
 
       // このハンドラ呼び出しが復元起因かをスナップショット (以降の setTimeout でも同じ値を使う)。
@@ -795,6 +801,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         showToast(t('housing.register.snsUrl.error.duplicate_url'), 'error');
         return;
       }
+      applyExtractedAddress(data.description ?? '');
       // YouTube は静止画リストと排他 (既存 validateImage の conflict_sources 制約は不変)。
       // 既に画像/動画を何か捕捉済みなら、この YouTube URL は追加不可として拒否する。
       if (capturedVideoRef.current || sourceImageUrls.length > 0) {
@@ -806,7 +813,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       setSourcePostUrls((prev) => [...prev, data.postUrl]);
       setPostUrl((prev) => prev || data.postUrl);
     },
-    [sourcePostUrls, sourceImageUrls.length, t],
+    [applyExtractedAddress, sourcePostUrls, sourceImageUrls.length, t],
   );
 
   const handleOgpFetched = useCallback(
@@ -1825,6 +1832,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
               )}
             </div>
             <div ref={(el) => { sectionRefs.current.address = el; }} data-step-id="address">
+              {addressExtractFailed && (
+                <p className="housing-error-text" data-testid="housing-register-address-extract-failed">
+                  {t('housing.register.address_extract_failed')}
+                </p>
+              )}
               <RegisterSectionAddress
                 fieldState={fieldState}
                 values={address}

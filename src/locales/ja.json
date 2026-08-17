@@ -2081,6 +2081,7 @@
             "section_intro": "コメント",
             "section_address": "住所",
             "address_verify_note": "自動入力された住所も、登録前に必ず確認してください",
+            "address_extract_failed": "住所を読み取れませんでした。下の欄で選択してください",
             "section_media": "SNS投稿・サイトから自動入力",
             "field_title_label": "タイトル",
             "field_title_placeholder": "タイトルを入力",

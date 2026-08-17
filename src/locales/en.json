@@ -2060,6 +2060,7 @@
             "section_intro": "Comment",
             "section_address": "Address",
             "address_verify_note": "Please double-check the address before registering, even if it was auto-filled",
+            "address_extract_failed": "Couldn't read the address. Please pick the fields below",
             "section_media": "Auto-fill from a post or site",
             "field_title_label": "Title",
             "field_title_placeholder": "Enter a title",
