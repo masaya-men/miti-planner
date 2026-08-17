@@ -6,6 +6,7 @@ import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
 import { classifySnsUrl } from '../../../lib/housing/snsUrlRouting';
 import { useTweetFetch } from '../../../lib/housing/useTweetFetch';
 import { useOgpFetch } from '../../../lib/housing/useOgpFetch';
+import { useYoutubeFetch, type YoutubeMetaData } from '../../../lib/housing/useYoutubeFetch';
 import { parseHousingFromText, type HousingExtractResult } from '../../../lib/housing/parseHousingFromText';
 import { extractHousingAddressFromPage } from '../../../lib/housing/extractHousingAddressFromPage';
 import {
@@ -42,8 +43,9 @@ interface SnsSource {
 /**
  * 「+ 住所から追加」モーダル (住所登録なし一時ツアー・spec §4.1 / 2026-07-12 フル構造化)。
  *
- * - 上段 URL 欄: `classifySnsUrl` で種別ルーティング → ツイート本文 `parseHousingFromText` /
- *   OGP `extractHousingAddressFromPage`。取れた住所は下の構造化フォームへ自動入力 (🟡)。
+ * - 上段 URL 欄: `classifySnsUrl` で種別ルーティング → ツイート本文/YouTube概要欄
+ *   `parseHousingFromText` / OGP `extractHousingAddressFromPage`。取れた住所は下の
+ *   構造化フォームへ自動入力 (🟡)。
  * - 住所は**登録ページと同じ** `RegisterSectionAddress` (variant='tour') = 全部クリックのセレクト
  *   + 数字だけ入力。DC/サーバーも持つ (DC を跨いだツアーは日常的なため。将来のワールド判定にも効く)。
  *   フリーテキスト欄は廃止 (決められた書式で入れてもらう方が誤爆しない・ユーザー確定 2026-07-12)。
@@ -66,10 +68,14 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
 
   const { status: tweetStatus, data: tweetData, fetchTweet, reset: resetTweet } = useTweetFetch();
   const { status: ogpStatus, data: ogpData, fetchOgp, reset: resetOgp } = useOgpFetch();
+  const { status: youtubeStatus, data: youtubeData, fetchYoutubeMeta, reset: resetYoutube } = useYoutubeFetch();
 
   // fetch 結果 1 つにつき 1 回だけ適用する (SnsUrlField と同じ dispatch ガード)。
   const dispatchedTweetRef = useRef<unknown>(null);
   const dispatchedOgpRef = useRef<unknown>(null);
+  const dispatchedYoutubeRef = useRef<YoutubeMetaData | null>(null);
+  // YouTube fetch 成功時に postUrl/ogImageUrl を組むための route (effect から読む)。
+  const youtubeRouteRef = useRef<{ postUrl: string; ogImageUrl: string } | null>(null);
   // fetch 完了時に postUrl を組むための最新 URL (effect から読む)。
   const urlRef = useRef('');
 
@@ -147,6 +153,19 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     applyParse(result);
   }, [ogpStatus, ogpData, applyParse]);
 
+  // YouTube 取得成功 → 概要欄テキストを parse (tweet/ogp と同じ applyParse 経路)。
+  useEffect(() => {
+    if (youtubeStatus !== 'success' || !youtubeData) return;
+    if (dispatchedYoutubeRef.current === youtubeData) return;
+    dispatchedYoutubeRef.current = youtubeData;
+    const route = youtubeRouteRef.current;
+    if (route) {
+      setSource({ postUrl: route.postUrl, ogImageUrl: route.ogImageUrl });
+    }
+    const result = parseHousingFromText(youtubeData.description ?? '');
+    applyParse(result);
+  }, [youtubeStatus, youtubeData, applyParse]);
+
   const handleUrlChange = (value: string) => {
     setUrl(value);
     urlRef.current = value;
@@ -158,29 +177,33 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
       case 'empty':
         resetTweet();
         resetOgp();
+        resetYoutube();
         setSource(null);
         setParseError(false);
         break;
       case 'youtube':
-        // YouTube に本文テキストは無い → 住所は取れない = 手選択へ誘導 (画像だけ引き継ぐ)。
         resetTweet();
         resetOgp();
-        setSource({ postUrl: route.postUrl, ogImageUrl: route.ogImageUrl });
-        setParseError(true);
+        youtubeRouteRef.current = { postUrl: route.postUrl, ogImageUrl: route.ogImageUrl };
+        dispatchedYoutubeRef.current = null;
+        fetchYoutubeMeta(route.videoId);
         break;
       case 'tweet':
         resetOgp();
+        resetYoutube();
         dispatchedTweetRef.current = null;
         fetchTweet(route.tweetId);
         break;
       case 'ogp':
         resetTweet();
+        resetYoutube();
         dispatchedOgpRef.current = null;
         fetchOgp(route.postUrl);
         break;
       case 'invalid':
         resetTweet();
         resetOgp();
+        resetYoutube();
         setSource(null);
         setUrlInvalid(true);
         break;
@@ -266,11 +289,12 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     setSource(null);
     resetTweet();
     resetOgp();
+    resetYoutube();
     setLimitReached(false);
     setAdded(true);
   };
 
-  const fetching = tweetStatus === 'loading' || ogpStatus === 'loading';
+  const fetching = tweetStatus === 'loading' || ogpStatus === 'loading' || youtubeStatus === 'loading';
   const fetchFailed = urlInvalid || tweetStatus === 'error' || ogpStatus === 'error';
 
   // モーダル化 (2026-07-12): 右カラムのトレイに直置きすると固定高さ+overflow:hidden で
@@ -311,7 +335,9 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
                 {t(
                   tweetStatus === 'loading'
                     ? 'housing.register.snsUrl.fetching'
-                    : 'housing.register.snsUrl.ogp_fetching',
+                    : youtubeStatus === 'loading'
+                      ? 'housing.register.snsUrl.youtube_fetching'
+                      : 'housing.register.snsUrl.ogp_fetching',
                 )}
               </span>
             </div>

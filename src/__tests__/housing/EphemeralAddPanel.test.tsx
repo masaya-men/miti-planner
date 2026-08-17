@@ -12,6 +12,18 @@ import {
   EPHEMERAL_POOL_LIMIT,
 } from '../../lib/housing/ephemeralListing';
 
+const mockFetchYoutubeMeta = vi.fn();
+let youtubeState: any = {
+  status: 'idle',
+  data: null,
+  fetchYoutubeMeta: mockFetchYoutubeMeta,
+  cancel: vi.fn(),
+  reset: vi.fn(),
+};
+vi.mock('../../lib/housing/useYoutubeFetch', () => ({
+  useYoutubeFetch: () => youtubeState,
+}));
+
 beforeAll(() => {
   if (!i18n.isInitialized) {
     i18n.use(initReactI18next).init({
@@ -24,12 +36,15 @@ beforeAll(() => {
 
 const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>);
 
-/** 構造化フォーム (RegisterSectionAddress variant='tour') に一軒家の住所を入れるヘルパ。 */
+/** 構造化フォーム (RegisterSectionAddress variant='tour') に一軒家の住所を入れるヘルパ。
+ * 建物タイプ (個人宅・FCハウス) を明示選択するまで「番地」欄自体が描画されないため
+ * (RegisterSectionAddress 2026-08時点の仕様・8e912670)、先にラジオを選んでおく。 */
 const fillHouse = (area: string, ward: string, plot: string) => {
   fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Elemental' } });
   fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Aegis' } });
   fireEvent.change(screen.getByLabelText('エリア'), { target: { value: area } });
   fireEvent.change(screen.getByLabelText('区'), { target: { value: ward } });
+  fireEvent.click(screen.getByRole('radio', { name: '個人宅・FCハウス' }));
   fireEvent.change(screen.getByLabelText('番地'), { target: { value: plot } });
 };
 
@@ -38,6 +53,8 @@ const addButton = () => screen.getByRole('button', { name: 'ツアーに追加' 
 describe('EphemeralAddPanel', () => {
   beforeEach(() => {
     useEphemeralListingsStore.getState().clear();
+    mockFetchYoutubeMeta.mockClear();
+    youtubeState = { status: 'idle', data: null, fetchYoutubeMeta: mockFetchYoutubeMeta, cancel: vi.fn(), reset: vi.fn() };
   });
 
   it('① エリア/区/番地を選ぶと「ツアーに追加」が活性 (未入力では不活性)', () => {
@@ -50,6 +67,7 @@ describe('EphemeralAddPanel', () => {
   it('② エリア未選択だと不活性のまま (推測で埋めない)', () => {
     wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} />);
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
+    fireEvent.click(screen.getByRole('radio', { name: '個人宅・FCハウス' }));
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
     expect(addButton().disabled).toBe(true);
   });
@@ -75,10 +93,12 @@ describe('EphemeralAddPanel', () => {
     expect(stored[0]?.ward).toBe(3);
     expect(stored[0]?.plot).toBe(15);
 
-    // 連続追加: 入力だけクリアしてモーダルは開いたまま
+    // 連続追加: 入力だけクリアしてモーダルは開いたまま。buildingType もクリアされるため
+    // 「番地」欄自体は建物タイプ再選択まで非表示になる (8e912670) → 常設の「エリア」欄で
+    // フォームが表示されたままであることを確認する。
     expect((screen.getByLabelText('区') as HTMLInputElement).value).toBe('');
     expect(screen.getByText('追加しました')).toBeTruthy();
-    expect(screen.getByLabelText('番地')).toBeTruthy();
+    expect(screen.getByLabelText('エリア')).toBeTruthy();
   });
 
   it('⑤ 上限 (50件) で limit_note を表示し onAdd は呼ばれない', () => {
@@ -117,6 +137,7 @@ describe('EphemeralAddPanel', () => {
     wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} />);
     fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
+    fireEvent.click(screen.getByRole('radio', { name: '個人宅・FCハウス' }));
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
     expect(addButton().disabled).toBe(true);
   });
@@ -127,6 +148,30 @@ describe('EphemeralAddPanel', () => {
     const urlInput = screen.getByLabelText('SNSのURLから');
     // note が URL 欄より前にある = compareDocumentPosition に FOLLOWING(4) ビットが立つ。
     expect(note.compareDocumentPosition(urlInput) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('⑥ YouTube URL貼付→概要欄取得成功で住所が自動入力される', () => {
+    const { rerender } = wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} />);
+    const urlInput = screen.getByLabelText('SNSのURLから');
+    fireEvent.change(urlInput, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
+    expect(mockFetchYoutubeMeta).toHaveBeenCalledWith('Ypg8w7Dmq9o');
+
+    youtubeState = { ...youtubeState, status: 'success', data: { description: 'Mist 3-15' } };
+    rerender(<I18nextProvider i18n={i18n}><EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} /></I18nextProvider>);
+
+    expect((screen.getByLabelText('区') as HTMLInputElement).value).toBe('3');
+    expect((screen.getByLabelText('番地') as HTMLInputElement).value).toBe('15');
+  });
+
+  it('⑦ YouTube URL貼付→概要欄に住所が無いとparse_error表示', () => {
+    const { rerender } = wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} />);
+    const urlInput = screen.getByLabelText('SNSのURLから');
+    fireEvent.change(urlInput, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
+
+    youtubeState = { ...youtubeState, status: 'success', data: { description: null } };
+    rerender(<I18nextProvider i18n={i18n}><EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} /></I18nextProvider>);
+
+    expect(screen.getByText('住所を読み取れませんでした。下の欄で選択してください')).toBeInTheDocument();
   });
 });
 
@@ -154,6 +199,7 @@ describe('EphemeralAddPanel — リージョン跨ぎの早期ブロック (tray
     fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Alexander' } });
     fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
+    fireEvent.click(screen.getByRole('radio', { name: '個人宅・FCハウス' }));
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
 
     expect(screen.queryByText('別リージョンのハウジングは同じツアーに入れられません')).toBeNull();
@@ -166,6 +212,7 @@ describe('EphemeralAddPanel — リージョン跨ぎの早期ブロック (tray
     fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Gilgamesh' } });
     fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
     fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
+    fireEvent.click(screen.getByRole('radio', { name: '個人宅・FCハウス' }));
     fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
 
     expect(screen.queryByText('別リージョンのハウジングは同じツアーに入れられません')).toBeNull();
