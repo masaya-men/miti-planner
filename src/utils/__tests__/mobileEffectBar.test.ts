@@ -41,9 +41,10 @@ describe('computeMobileEffectBars', () => {
     expect(result[0].id).toBe('p1');
     expect(result[0].ownerId).toBe('MT');
     expect(result[0].slotIndex).toBe(0);
-    // top = (5 - 0) * 60 = 300
-    expect(result[0].top).toBe(300);
+    // top = (5 - 0) * 60 + MOBILE_EFFECT_BAR_ICON_ROW_OFFSET(38) = 338
+    expect(result[0].top).toBe(338);
     // effectiveEndTime = 5 + 10 - 1 = 14, endY = (14-0)*60 + 24 = 864, height = 864 - 300 = 564
+    // (heightにはICON_ROW_OFFSETは乗らない。startY/endYどちらもオフセット無しの値のまま差分を取るため)
     expect(result[0].height).toBe(564);
   });
 
@@ -98,9 +99,10 @@ describe('computeMobileEffectBars', () => {
     expect(mtSlot).not.toBe(stSlot);
   });
 
-  it('drops lower-priority (later PARTY_MEMBER_IDS) mitigations first when maxConcurrent is exceeded', () => {
+  it('drops lower-priority (later MOBILE_EFFECT_BAR_FILL_ORDER) mitigations first when maxConcurrent is exceeded', () => {
     const def = makeDef('reprisal', { duration: 100 });
-    // 4人が同時刻(time=0)から同じ長さ重ねる。MT/ST/H1が優先、D1は4番目=はみ出し候補。
+    // 4人が同時刻(time=0)から同じ長さ重ねる。FILL_ORDER上の優先順位はST(3)<D1(5)<H1(6)<MT(7)
+    // なので、4番目=優先順位が最も低いMTがはみ出し候補になる。
     const mits = [
       makeMit('mt', 'reprisal', 'MT', 0, 100),
       makeMit('st', 'reprisal', 'ST', 0, 100),
@@ -114,7 +116,30 @@ describe('computeMobileEffectBars', () => {
       maxConcurrent: 3,
     });
     const ids = result.map(r => r.id).sort();
-    expect(ids).toEqual(['h1', 'mt', 'st']);
+    expect(ids).toEqual(['d1', 'h1', 'st']);
+  });
+
+  it('does not drop a chronologically-early low-priority mitigation just because a higher-priority owner has unrelated later-fight casts (regression, 2026-08-17)', () => {
+    const def = makeDef('reprisal', { duration: 15 });
+    // D4/D2/H2(FILL_ORDER上の優先順位が高い)がそれぞれ終盤(t=500)に1回だけ使う → 3枠
+    // (maxConcurrent)を消費する。MT(優先順位が最も低い)はt=39に1回だけ使い、他の誰とも
+    // 実際には時間が重なっていない。旧実装ではオーナーごとにまとめて処理していたため、
+    // D4/D2/H2の枠が「t=515まで埋まっている」と記録され、時系列的に無関係なMTのt=39が
+    // 弾かれてしまっていた。
+    const mits = [
+      makeMit('d4_late', 'reprisal', 'D4', 500, 15),
+      makeMit('d2_late', 'reprisal', 'D2', 500, 15),
+      makeMit('h2_late', 'reprisal', 'H2', 500, 15),
+      makeMit('mt_early', 'reprisal', 'MT', 39, 15),
+    ];
+    const result = computeMobileEffectBars({
+      ...baseArgs,
+      timelineMitigations: mits,
+      mitigationDefs: [def],
+      maxConcurrent: 3,
+    });
+    const ids = result.map(r => r.id).sort();
+    expect(ids).toEqual(['d2_late', 'd4_late', 'h2_late', 'mt_early']);
   });
 
   it('clips effectiveEndTime to the nearest visible row when hideEmptyRows is on', () => {

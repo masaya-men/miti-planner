@@ -118,25 +118,57 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
     return true;
   });
 
-  // 優先順位(MOBILE_EFFECT_BAR_FILL_ORDER順)→ 開始時刻の順に処理する。
-  // 同じ優先順位内では早く始まったものから枠を確保する。
-  const sorted = [...candidates].sort((a, b) => {
-    const pa = priorityOf(a.ownerId);
-    const pb = priorityOf(b.ownerId);
-    if (pa !== pb) return pa - pb;
-    return a.time - b.time;
+  // 時系列順(同時刻なら優先順位が高い方を先)に処理する。
+  // 旧実装は「優先順位→時刻」の順でソートしていたため、優先順位が高いオーナーの終盤の
+  // 使用まで先にまとめて処理してしまい、その枠が「ずっと先まで埋まっている」と記録され、
+  // 優先順位が低いオーナーの序盤の使用が(実際には誰とも重なっていなくても)弾かれる
+  // バグがあった(2026-08-17 実機不具合)。時系列でスイープすることで、
+  // 「入りきらない」判定を常にその瞬間の実際の重なり本数だけで行うようにする。
+  const chronological = [...candidates].sort((a, b) => {
+    if (a.time !== b.time) return a.time - b.time;
+    return priorityOf(a.ownerId) - priorityOf(b.ownerId);
   });
 
-  // slotFreeAt[i] = スロットiが「何秒時点から」空くか。
-  // 割り当ては必ず freeAt <= 新規アイテムの開始時刻 のときだけ許可するため、
-  // 処理順によらず同一スロット内での時間重複は起きない(詳細は設計書3.3)。
-  const slotFreeAt: number[] = [];
+  // 現在アクティブな(枠を使用中の)軽減の一覧。idで対応するresults要素を追跡し、
+  // 追い出し(下記)が発生した際にresultsからも一緒に取り除けるようにする。
+  const active: { id: string; priority: number; slotIndex: number; endTime: number }[] = [];
   const results: MobileEffectBarItem[] = [];
 
-  for (const mit of sorted) {
+  for (const mit of chronological) {
     const def = defById.get(mit.mitigationId)!;
-    const durationEndTime = mit.time + mit.duration - 1;
+    const endTime = mit.time + mit.duration;
+    const priority = priorityOf(mit.ownerId);
 
+    // 開始時刻より前に終わっている枠を解放する。
+    for (let i = active.length - 1; i >= 0; i--) {
+      if (active[i].endTime <= mit.time) active.splice(i, 1);
+    }
+
+    const occupied = new Set(active.map(a => a.slotIndex));
+    let slotIndex = -1;
+    for (let i = 0; i < maxConcurrent; i++) {
+      if (!occupied.has(i)) { slotIndex = i; break; }
+    }
+
+    if (slotIndex === -1) {
+      // 本当にmaxConcurrent本を超えて重なっている → 優先順位が最も低いものを追い出す。
+      let worst = -1;
+      let worstPriority = -Infinity;
+      active.forEach((a, i) => {
+        if (a.priority > worstPriority) { worstPriority = a.priority; worst = i; }
+      });
+      if (worst !== -1 && worstPriority > priority) {
+        slotIndex = active[worst].slotIndex;
+        const evictedId = active[worst].id;
+        active.splice(worst, 1);
+        const evictedResultsIndex = results.findIndex(r => r.id === evictedId);
+        if (evictedResultsIndex !== -1) results.splice(evictedResultsIndex, 1);
+      } else {
+        continue; // 入りきらない → この軽減は棒を出さない
+      }
+    }
+
+    const durationEndTime = mit.time + mit.duration - 1;
     let effectiveEndTime = durationEndTime;
     if (hideEmptyRows) {
       const isEndVisible = eventsByTime.has(durationEndTime) || mitStartsByTime.has(durationEndTime);
@@ -149,14 +181,6 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
       }
     }
     effectiveEndTime = Math.min(effectiveEndTime, maxTime);
-
-    let slotIndex = slotFreeAt.findIndex(freeAt => freeAt <= mit.time);
-    if (slotIndex === -1) {
-      if (slotFreeAt.length >= maxConcurrent) continue; // 入りきらない → この軽減は棒を出さない
-      slotIndex = slotFreeAt.length;
-      slotFreeAt.push(0);
-    }
-    slotFreeAt[slotIndex] = mit.time + mit.duration;
 
     const startY = getMappedY(mit.time);
     const endY = getMappedY(effectiveEndTime) + ICON_BOTTOM_PADDING;
@@ -171,6 +195,7 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
       slotIndex,
       colors: getColorClasses(def.jobId, mit.ownerId),
     });
+    active.push({ id: mit.id, priority, slotIndex, endTime });
   }
 
   return results;
