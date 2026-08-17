@@ -43,6 +43,7 @@ export default async function handler(req: any, res: any) {
     let lang: OgpLang = 'ja';
     let httpStatus = 200;
     let found = false;
+    let fetchFailed = false;
 
     try {
         if (shareId) {
@@ -106,9 +107,10 @@ export default async function handler(req: any, res: any) {
         }
     } catch (err) {
         console.error('Share page data fetch error:', err);
+        fetchFailed = true;
     }
 
-    if (!found) httpStatus = 404;
+    if (!found && !fetchFailed) httpStatus = 404;
     const seoSnapshotHtml = found ? buildSharePageSeoSnapshotHtml(ogTitle, ogDescription) : '';
 
     try {
