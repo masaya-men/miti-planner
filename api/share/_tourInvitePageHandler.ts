@@ -1,20 +1,24 @@
 /**
  * ツアー招待ページ (/housing/tour/:tourToken) 動的OGPハンドラー
- * _housingerPageHandler.ts と同じ仕組み(クローラーにはOGPメタ入りHTML、通常ユーザーには
- * 同じHTML内の <div id="root"> 経由で React Router が SPA を描画する)。vercel.json の
+ * _housingerPageHandler.ts と同じ仕組み(クローラーにはOGPメタ+可視テキストスナップショット入りHTML、
+ * 通常ユーザーには同じHTML内の <div id="root"> 経由で React Router が SPA を描画する)。vercel.json の
  * rewrite で /housing/tour/:tourToken → /api/share?type=tour&token=:tourToken に内部委譲される。
+ * トークンが存在しない場合は真の404を返す (ソフト404対策)。
  */
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { buildTourInviteOgCardParams } from '../../src/lib/ogpTourInviteCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { SHARED_TOUR_NAME_MAX_LENGTH } from '../../src/types/sharedTour.js';
+import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 
 const DEFAULT_OG_TITLE = 'LoPo Housing Tour';
 const DEFAULT_OG_DESCRIPTION = 'FF14のハウジングを巡るツアーに招待されました。リンクを開くと幹事と同じ景色を一緒に見られます。';
 const DEFAULT_OG_IMAGE = '/api/og?type=tour';
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/** ツアー招待ページのSEOスナップショット (Googlebot向けに<div id="root">へ埋め込む可視テキスト)。 */
+export function buildTourInviteSeoSnapshotHtml(tourName: string): string {
+  const name = tourName || DEFAULT_OG_TITLE;
+  return `<h1>${escapeHtml(name)}</h1><p>${escapeHtml(DEFAULT_OG_DESCRIPTION)}</p>`;
 }
 
 export default async function handler(req: any, res: any) {
@@ -23,6 +27,10 @@ export default async function handler(req: any, res: any) {
   let ogTitle = DEFAULT_OG_TITLE;
   const ogDescription = DEFAULT_OG_DESCRIPTION;
   let ogImageUrl: string = DEFAULT_OG_IMAGE;
+  let httpStatus = 200;
+  let found = false;
+  let fetchFailed = false;
+  let tourNameForSnapshot = '';
 
   const allowedHosts = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
   const previewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
@@ -39,8 +47,10 @@ export default async function handler(req: any, res: any) {
       const db = getAdminFirestore();
       const snap = await db.collection('shared_tours').doc(rawToken).get();
       if (snap.exists) {
+        found = true;
         const data = snap.data()!;
         const tourName: string = typeof data.tourName === 'string' ? data.tourName.slice(0, SHARED_TOUR_NAME_MAX_LENGTH) : '';
+        tourNameForSnapshot = tourName;
 
         ogTitle = tourName ? `${tourName} | LoPo Housing Tour` : DEFAULT_OG_TITLE;
 
@@ -60,8 +70,12 @@ export default async function handler(req: any, res: any) {
       }
     }
   } catch (err) {
+    fetchFailed = true;
     console.error('Tour invite page data fetch error:', err);
   }
+
+  if (!found && !fetchFailed) httpStatus = 404;
+  const seoSnapshotHtml = found ? buildTourInviteSeoSnapshotHtml(tourNameForSnapshot) : '';
 
   const canonicalUrl = rawToken ? `${origin}/housing/tour/${encodeURIComponent(rawToken)}` : origin;
   if (!/^https?:\/\//.test(ogImageUrl)) ogImageUrl = `${origin}${ogImageUrl}`;
@@ -79,9 +93,11 @@ export default async function handler(req: any, res: any) {
         .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
         .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
         .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
+      if (seoSnapshotHtml) html = injectSeoSnapshot(html, seoSnapshotHtml);
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Cache-Control', 'public, s-maxage=300, max-age=60');
+      res.status(httpStatus);
       return res.send(html);
     }
   } catch (err) {
@@ -92,6 +108,7 @@ export default async function handler(req: any, res: any) {
   const safeDesc = escapeHtml(ogDescription);
   const safeImg = escapeHtml(ogImageUrl);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.status(httpStatus);
   return res.send(`<!doctype html>
 <html lang="ja">
 <head>
@@ -108,8 +125,7 @@ export default async function handler(req: any, res: any) {
 <meta name="twitter:image" content="${safeImg}" />
 </head>
 <body>
-<div id="root"></div>
-<p style="text-align:center;margin-top:40vh;color:#888">読み込み中...</p>
+<div id="root">${seoSnapshotHtml}</div>
 </body>
 </html>`);
 }
