@@ -20,8 +20,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ## 現在の状態 (次セッションはここから読む)
 ### 🆕 2026-08-16 ハウジング探すページ「NEW」演出 + 管理画面日数設定 = 実装完了・実機確認待ち(未コミット)
 投稿7日以内の物件を、ランダム表示時のみ先頭固定+左上NEWリボン+縁を1周光るビーム演出(画面内に入るたび再生・カードごとに0〜3秒ずらす)で表示。日数は`/admin/config`(要ログイン)で1〜90日の範囲で変更可能(`master/config.newListingWindowDays`、既存configに相乗りでコスト増無し)。型チェック・ビルド・テスト(listingPublish/seededShuffle/ListingCard/BrowsePage)全通過。**次回**: ユーザーが管理画面ログイン込みで実機確認 → 問題なければcommit・push。ビームCSSの試行錯誤の経緯は本セッションログ参照(mask-composite方式、`::before`には React styleが効かないため`--beam-delay`カスタムプロパティ経由)。
-### 📋 2026-08-16 SEOソフト404対策 = 計画書のみ作成・未実装
-Google Search Console指摘(`housing/housinger/:uid`)の根本原因調査済み(SPAの初期HTMLが空でJS依存)。4ページ(ハウジンガー/共有プラン/ツアー招待/物件詳細)を対象にした実装計画=`docs/superpowers/plans/2026-08-16-housing-seo-soft-404-fix.md`。次回この計画を実行(サブエージェント方式 or 自分で実行、未選択)。
+### ✅ 2026-08-16 SEO: ソフト404対策 = 実装完了・デプロイ待ち
+ハウジンガー/共有プラン/ツアー招待/物件詳細の4動的ページで、データ不存在時は真の404を返し、データ存在時はサーバー側で可視テキストスナップショットを`<div id="root">`に埋め込むよう修正(詳細=`docs/.private/2026-08-15-soft-404-investigation.md`、実装計画=`docs/superpowers/plans/2026-08-16-housing-seo-soft-404-fix.md`)。**残**=Cloudflare Cache Rule (`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`) の存在確認・無ければ追加(ユーザー作業)/デプロイ後Search Console「URL検査」で再確認+インデックス登録リクエスト。
 ### ✅ 2026-08-15 スマホのスクロール重さ = ほぼ解決・本番反映済み(残課題は低優先に格下げ)
 モバイル軽減表「連動」エフェクト棒の初動カクつき、根本原因2つのうち1つ(`.mobile-row-dim-text`の`[data-mobile-scrolling]`属性セレクタが毎スクロールON/OFFされ表全体を再評価)を解消(常時濃い状態に固定)。実測で重いフレーム6件→2件に激減、**ユーザー実機確認済み「軽くなってる」**。連動モードをFABピッカーへ復活・変身アニメ(伸縮)も元通りに本番反映済み。残るもう1つの原因(5つのscrollリスナーの累積コスト、詳細=`docs/.private/2026-08-14-mobile-scroll-stutter-investigation.md`)は未着手だが、体感で十分とのことなので優先度は低。加えてハウジング探すページの重さも別件で解消済み(`mask-image`の親要素移動)。
 ### ✅ 2026-08-15 ハウジング探すページ PC中央パネルのスクロールを滑らかに = 本番反映済み
