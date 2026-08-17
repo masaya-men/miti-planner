@@ -1,0 +1,1889 @@
+/**
+ * ハウジング用語辞書 — housing-terms.csv から自動生成。
+ *
+ * なぜ .json ではなく .ts か: このファイルは Vercel の Node Function (api/share) から
+ * formatHousingAddress.ts 経由で参照されうる。JSON import は Node Function バンドルで
+ * 実行時 500 になる既知の罠のため、TypeScript 定数として持つ。
+ *
+ * @generated — このファイルは scripts/parse-housing-terms.mjs で生成される。直接編集しない。
+ */
+export default {
+  "dc": {
+    "Elemental": {
+      "ja": "エレメンタル",
+      "en": "Elemental",
+      "ko": "엘리멘탈",
+      "zh": "元素",
+      "zh-Hant": "元素"
+    },
+    "Gaia": {
+      "ja": "ガイア",
+      "en": "Gaia",
+      "ko": "가이아",
+      "zh": "大地",
+      "zh-Hant": "大地"
+    },
+    "Mana": {
+      "ja": "マナ",
+      "en": "Mana",
+      "ko": "마나",
+      "zh": "玛那",
+      "zh-Hant": "瑪那"
+    },
+    "Meteor": {
+      "ja": "メテオ",
+      "en": "Meteor",
+      "ko": "메테오",
+      "zh": "陨石",
+      "zh-Hant": "隕石"
+    },
+    "Aether": {
+      "ja": "エーテル",
+      "en": "Aether",
+      "ko": "에테르",
+      "zh": "以太",
+      "zh-Hant": "以太"
+    },
+    "Primal": {
+      "ja": "プライマル",
+      "en": "Primal",
+      "ko": "프라이멀",
+      "zh": "蛮神",
+      "zh-Hant": "蠻神"
+    },
+    "Crystal": {
+      "ja": "クリスタル",
+      "en": "Crystal",
+      "ko": "크리스탈",
+      "zh": "水晶",
+      "zh-Hant": "水晶"
+    },
+    "Dynamis": {
+      "ja": "デュナミス",
+      "en": "Dynamis",
+      "ko": "다이너미스",
+      "zh": "活力",
+      "zh-Hant": "活力"
+    },
+    "Chaos": {
+      "ja": "カオス",
+      "en": "Chaos",
+      "ko": "카오스",
+      "zh": "混沌",
+      "zh-Hant": "混沌"
+    },
+    "Light": {
+      "ja": "ライト",
+      "en": "Light",
+      "ko": "라이트",
+      "zh": "光明",
+      "zh-Hant": "光明"
+    },
+    "Shadow": {
+      "ja": "シャドウ",
+      "en": "Shadow",
+      "ko": "섀도우",
+      "zh": "暗影",
+      "zh-Hant": "暗影"
+    },
+    "Materia": {
+      "ja": "マテリア",
+      "en": "Materia",
+      "ko": "마테리아",
+      "zh": "魔晶石",
+      "zh-Hant": "魔晶石"
+    },
+    "ChocoboCN": {
+      "ja": "チョコボ (中国)",
+      "en": "Chocobo (China)",
+      "ko": "초코보 (중국)",
+      "zh": "陆行鸟",
+      "zh-Hant": "陸行鳥"
+    },
+    "MoogleCN": {
+      "ja": "モーグリ (中国)",
+      "en": "Moogle (China)",
+      "ko": "모그리 (중국)",
+      "zh": "莫古力",
+      "zh-Hant": "莫古力"
+    },
+    "FatCatCN": {
+      "ja": "デブチョコボ (中国)",
+      "en": "Fat Cat (China)",
+      "ko": "뚱보 초코보 (중국)",
+      "zh": "猫小胖",
+      "zh-Hant": "貓小胖"
+    },
+    "MameshibaCN": {
+      "ja": "マメシバ (中国)",
+      "en": "Mameshiba (China)",
+      "ko": "마메시바 (중국)",
+      "zh": "豆豆柴",
+      "zh-Hant": "豆豆柴"
+    },
+    "Korea": {
+      "ja": "韓国DC",
+      "en": "Korea DC",
+      "ko": "한국 DC",
+      "zh": "韩国DC",
+      "zh-Hant": "韓國DC"
+    },
+    "TW": {
+      "ja": "TW",
+      "en": "TW",
+      "ko": "TW",
+      "zh": "TW",
+      "zh-Hant": "台服"
+    }
+  },
+  "world": {
+    "Aegis": {
+      "ja": "イージス",
+      "en": "Aegis",
+      "ko": "에이지스",
+      "zh": "埃癸斯",
+      "zh-Hant": "埃癸斯"
+    },
+    "Atomos": {
+      "ja": "アトモス",
+      "en": "Atomos",
+      "ko": "아토모스",
+      "zh": "阿托摩斯",
+      "zh-Hant": "阿托摩斯"
+    },
+    "Carbuncle": {
+      "ja": "カーバンクル",
+      "en": "Carbuncle",
+      "ko": "카벙클",
+      "zh": "卡邦克鲁",
+      "zh-Hant": "卡邦克魯"
+    },
+    "Garuda": {
+      "ja": "ガルーダ",
+      "en": "Garuda",
+      "ko": "가루다",
+      "zh": "迦楼罗",
+      "zh-Hant": "迦樓羅"
+    },
+    "Gungnir": {
+      "ja": "グングニル",
+      "en": "Gungnir",
+      "ko": "궁니르",
+      "zh": "冈尼尔",
+      "zh-Hant": "岡尼爾"
+    },
+    "Kujata": {
+      "ja": "クジャタ",
+      "en": "Kujata",
+      "ko": "쿠자타",
+      "zh": "库扎塔",
+      "zh-Hant": "庫扎塔"
+    },
+    "Tonberry": {
+      "ja": "トンベリ",
+      "en": "Tonberry",
+      "ko": "톤베리",
+      "zh": "冬贝利",
+      "zh-Hant": "冬貝利"
+    },
+    "Typhon": {
+      "ja": "テュポーン",
+      "en": "Typhon",
+      "ko": "타이폰",
+      "zh": "泰风",
+      "zh-Hant": "泰風"
+    },
+    "Alexander": {
+      "ja": "アレキサンダー",
+      "en": "Alexander",
+      "ko": "알렉산더",
+      "zh": "亚历山大",
+      "zh-Hant": "亞歷山大"
+    },
+    "Bahamut": {
+      "ja": "バハムート",
+      "en": "Bahamut",
+      "ko": "바하무트",
+      "zh": "巴哈姆特",
+      "zh-Hant": "巴哈姆特"
+    },
+    "Durandal": {
+      "ja": "デュランダル",
+      "en": "Durandal",
+      "ko": "듀란달",
+      "zh": "杜兰达尔",
+      "zh-Hant": "杜蘭達爾"
+    },
+    "Fenrir": {
+      "ja": "フェンリル",
+      "en": "Fenrir",
+      "ko": "펜리르",
+      "zh": "芬里尔",
+      "zh-Hant": "芬里爾"
+    },
+    "Ifrit": {
+      "ja": "イフリート",
+      "en": "Ifrit",
+      "ko": "이프리트",
+      "zh": "伊弗利特",
+      "zh-Hant": "伊弗利特"
+    },
+    "Ridill": {
+      "ja": "リディル",
+      "en": "Ridill",
+      "ko": "리딜",
+      "zh": "利迪尔",
+      "zh-Hant": "利迪爾"
+    },
+    "Tiamat": {
+      "ja": "ティアマト",
+      "en": "Tiamat",
+      "ko": "티아마트",
+      "zh": "提亚马特",
+      "zh-Hant": "提亞馬特"
+    },
+    "Ultima": {
+      "ja": "アルテマ",
+      "en": "Ultima",
+      "ko": "울티마",
+      "zh": "究极",
+      "zh-Hant": "究極"
+    },
+    "Anima": {
+      "ja": "アニマ",
+      "en": "Anima",
+      "ko": "애니마",
+      "zh": "阿尼玛",
+      "zh-Hant": "阿尼瑪"
+    },
+    "Asura": {
+      "ja": "アスラ",
+      "en": "Asura",
+      "ko": "아수라",
+      "zh": "阿修罗",
+      "zh-Hant": "阿修羅"
+    },
+    "Chocobo": {
+      "ja": "チョコボ",
+      "en": "Chocobo",
+      "ko": "초코보",
+      "zh": "陆行鸟",
+      "zh-Hant": "陸行鳥"
+    },
+    "Hades": {
+      "ja": "ハデス",
+      "en": "Hades",
+      "ko": "하데스",
+      "zh": "哈迪斯",
+      "zh-Hant": "哈迪斯"
+    },
+    "Ixion": {
+      "ja": "イクシオン",
+      "en": "Ixion",
+      "ko": "익시온",
+      "zh": "伊克西翁",
+      "zh-Hant": "伊克西翁"
+    },
+    "Masamune": {
+      "ja": "マサムネ",
+      "en": "Masamune",
+      "ko": "마사무네",
+      "zh": "正宗",
+      "zh-Hant": "正宗"
+    },
+    "Pandaemonium": {
+      "ja": "パンデモニウム",
+      "en": "Pandaemonium",
+      "ko": "판데모니움",
+      "zh": "万魔殿",
+      "zh-Hant": "萬魔殿"
+    },
+    "Titan": {
+      "ja": "タイタン",
+      "en": "Titan",
+      "ko": "타이탄",
+      "zh": "泰坦",
+      "zh-Hant": "泰坦"
+    },
+    "Belias": {
+      "ja": "ベリアス",
+      "en": "Belias",
+      "ko": "벨리아스",
+      "zh": "贝利亚斯",
+      "zh-Hant": "貝利亞斯"
+    },
+    "Mandragora": {
+      "ja": "マンドラゴラ",
+      "en": "Mandragora",
+      "ko": "만드라고라",
+      "zh": "曼德拉草",
+      "zh-Hant": "曼德拉草"
+    },
+    "Ramuh": {
+      "ja": "ラムウ",
+      "en": "Ramuh",
+      "ko": "라무",
+      "zh": "拉姆",
+      "zh-Hant": "拉姆"
+    },
+    "Shinryu": {
+      "ja": "シンリュウ",
+      "en": "Shinryu",
+      "ko": "신류",
+      "zh": "神龙",
+      "zh-Hant": "神龍"
+    },
+    "Unicorn": {
+      "ja": "ユニコーン",
+      "en": "Unicorn",
+      "ko": "유니콘",
+      "zh": "独角兽",
+      "zh-Hant": "獨角獸"
+    },
+    "Valefor": {
+      "ja": "ヴァルファーレ",
+      "en": "Valefor",
+      "ko": "발레포르",
+      "zh": "瓦尔法雷",
+      "zh-Hant": "瓦爾法雷"
+    },
+    "Yojimbo": {
+      "ja": "ヨウジンボウ",
+      "en": "Yojimbo",
+      "ko": "요짐보",
+      "zh": "保镖",
+      "zh-Hant": "保鏢"
+    },
+    "Zeromus": {
+      "ja": "ゼロムス",
+      "en": "Zeromus",
+      "ko": "제로무스",
+      "zh": "泽罗姆斯",
+      "zh-Hant": "澤羅姆斯"
+    },
+    "Adamantoise": {
+      "ja": "アダマンタイマイ",
+      "en": "Adamantoise",
+      "ko": "아다만토이즈",
+      "zh": "金刚龟",
+      "zh-Hant": "金剛龜"
+    },
+    "Cactuar": {
+      "ja": "サボテンダー",
+      "en": "Cactuar",
+      "ko": "칵투어",
+      "zh": "仙人掌",
+      "zh-Hant": "仙人掌"
+    },
+    "Faerie": {
+      "ja": "フェアリー",
+      "en": "Faerie",
+      "ko": "페어리",
+      "zh": "小仙子",
+      "zh-Hant": "小仙子"
+    },
+    "Gilgamesh": {
+      "ja": "ギルガメッシュ",
+      "en": "Gilgamesh",
+      "ko": "길가메시",
+      "zh": "吉尔伽美什",
+      "zh-Hant": "吉爾伽美什"
+    },
+    "Jenova": {
+      "ja": "ジェノバ",
+      "en": "Jenova",
+      "ko": "제노바",
+      "zh": "杰诺瓦",
+      "zh-Hant": "傑諾瓦"
+    },
+    "Midgardsormr": {
+      "ja": "ミドガルズオルム",
+      "en": "Midgardsormr",
+      "ko": "미드가르드오름",
+      "zh": "米德加尔奥姆",
+      "zh-Hant": "米德加爾奧姆"
+    },
+    "Sargatanas": {
+      "ja": "サルガタナス",
+      "en": "Sargatanas",
+      "ko": "사르가타나스",
+      "zh": "萨尔加塔纳斯",
+      "zh-Hant": "薩爾加塔納斯"
+    },
+    "Siren": {
+      "ja": "セイレーン",
+      "en": "Siren",
+      "ko": "세이렌",
+      "zh": "塞壬",
+      "zh-Hant": "塞壬"
+    },
+    "Behemoth": {
+      "ja": "ベヒーモス",
+      "en": "Behemoth",
+      "ko": "베히모스",
+      "zh": "贝希摩斯",
+      "zh-Hant": "貝希摩斯"
+    },
+    "Excalibur": {
+      "ja": "エクスカリバー",
+      "en": "Excalibur",
+      "ko": "엑스칼리버",
+      "zh": "断钢剑",
+      "zh-Hant": "斷鋼劍"
+    },
+    "Exodus": {
+      "ja": "エクソダス",
+      "en": "Exodus",
+      "ko": "엑소더스",
+      "zh": "埃克索达斯",
+      "zh-Hant": "埃克索達斯"
+    },
+    "Famfrit": {
+      "ja": "ファムフリート",
+      "en": "Famfrit",
+      "ko": "팜프리트",
+      "zh": "范弗里特",
+      "zh-Hant": "范弗里特"
+    },
+    "Hyperion": {
+      "ja": "ハイペリオン",
+      "en": "Hyperion",
+      "ko": "하이페리온",
+      "zh": "海伯利安",
+      "zh-Hant": "海伯利安"
+    },
+    "Lamia": {
+      "ja": "ラミア",
+      "en": "Lamia",
+      "ko": "라미아",
+      "zh": "拉米亚",
+      "zh-Hant": "拉米亞"
+    },
+    "Leviathan": {
+      "ja": "リヴァイアサン",
+      "en": "Leviathan",
+      "ko": "리바이어던",
+      "zh": "利维坦",
+      "zh-Hant": "利維坦"
+    },
+    "Ultros": {
+      "ja": "オルトロス",
+      "en": "Ultros",
+      "ko": "울트로스",
+      "zh": "奥尔特罗斯",
+      "zh-Hant": "奧爾特羅斯"
+    },
+    "Balmung": {
+      "ja": "バルムンク",
+      "en": "Balmung",
+      "ko": "발뭉",
+      "zh": "巴尔蒙克",
+      "zh-Hant": "巴爾蒙克"
+    },
+    "Brynhildr": {
+      "ja": "ブリュンヒルデ",
+      "en": "Brynhildr",
+      "ko": "브륀힐트",
+      "zh": "布伦希尔德",
+      "zh-Hant": "布倫希爾德"
+    },
+    "Coeurl": {
+      "ja": "クァール",
+      "en": "Coeurl",
+      "ko": "쿠얼",
+      "zh": "夸尔",
+      "zh-Hant": "夸爾"
+    },
+    "Diabolos": {
+      "ja": "ディアボロス",
+      "en": "Diabolos",
+      "ko": "디아볼로스",
+      "zh": "迪亚波罗斯",
+      "zh-Hant": "迪亞波羅斯"
+    },
+    "Goblin": {
+      "ja": "ゴブリン",
+      "en": "Goblin",
+      "ko": "고블린",
+      "zh": "哥布林",
+      "zh-Hant": "哥布林"
+    },
+    "Malboro": {
+      "ja": "モルボル",
+      "en": "Malboro",
+      "ko": "말보로",
+      "zh": "魔界花",
+      "zh-Hant": "魔界花"
+    },
+    "Mateus": {
+      "ja": "マティウス",
+      "en": "Mateus",
+      "ko": "마태오",
+      "zh": "马修斯",
+      "zh-Hant": "馬修斯"
+    },
+    "Zalera": {
+      "ja": "ザルエラ",
+      "en": "Zalera",
+      "ko": "자레라",
+      "zh": "扎雷拉",
+      "zh-Hant": "扎雷拉"
+    },
+    "Halicarnassus": {
+      "ja": "ハリカルナッソス",
+      "en": "Halicarnassus",
+      "ko": "할리카르나소스",
+      "zh": "哈利卡纳苏斯",
+      "zh-Hant": "哈利卡納蘇斯"
+    },
+    "Maduin": {
+      "ja": "マディーン",
+      "en": "Maduin",
+      "ko": "마두인",
+      "zh": "马丁",
+      "zh-Hant": "馬丁"
+    },
+    "Marilith": {
+      "ja": "マリリス",
+      "en": "Marilith",
+      "ko": "마릴리스",
+      "zh": "六臂蛇魔",
+      "zh-Hant": "六臂蛇魔"
+    },
+    "Seraph": {
+      "ja": "セラフ",
+      "en": "Seraph",
+      "ko": "세라프",
+      "zh": "炽天使",
+      "zh-Hant": "熾天使"
+    },
+    "Cuchulainn": {
+      "ja": "クーフーリン",
+      "en": "Cuchulainn",
+      "ko": "쿠훌린",
+      "zh": "库丘林",
+      "zh-Hant": "庫丘林"
+    },
+    "Golem": {
+      "ja": "ゴーレム",
+      "en": "Golem",
+      "ko": "골렘",
+      "zh": "魔像",
+      "zh-Hant": "魔像"
+    },
+    "Kraken": {
+      "ja": "クラーケン",
+      "en": "Kraken",
+      "ko": "크라켄",
+      "zh": "克拉肯",
+      "zh-Hant": "克拉肯"
+    },
+    "Rafflesia": {
+      "ja": "ラフレシア",
+      "en": "Rafflesia",
+      "ko": "라플레시아",
+      "zh": "大王花",
+      "zh-Hant": "大王花"
+    },
+    "Cerberus": {
+      "ja": "ケルベロス",
+      "en": "Cerberus",
+      "ko": "세르베루스",
+      "zh": "地狱犬",
+      "zh-Hant": "地獄犬"
+    },
+    "Louisoix": {
+      "ja": "ルイゾワ",
+      "en": "Louisoix",
+      "ko": "루이수아",
+      "zh": "路易索瓦",
+      "zh-Hant": "路易索瓦"
+    },
+    "Moogle": {
+      "ja": "モーグリ",
+      "en": "Moogle",
+      "ko": "모그리",
+      "zh": "莫古力",
+      "zh-Hant": "莫古力"
+    },
+    "Omega": {
+      "ja": "オメガ",
+      "en": "Omega",
+      "ko": "오메가",
+      "zh": "欧米茄",
+      "zh-Hant": "歐米茄"
+    },
+    "Phantom": {
+      "ja": "ファントム",
+      "en": "Phantom",
+      "ko": "팬텀",
+      "zh": "幻影",
+      "zh-Hant": "幻影"
+    },
+    "Ragnarok": {
+      "ja": "ラグナロク",
+      "en": "Ragnarok",
+      "ko": "라그나로크",
+      "zh": "诸神黄昏",
+      "zh-Hant": "諸神黃昏"
+    },
+    "Sagittarius": {
+      "ja": "サジタリウス",
+      "en": "Sagittarius",
+      "ko": "사지타리우스",
+      "zh": "射手座",
+      "zh-Hant": "射手座"
+    },
+    "Spriggan": {
+      "ja": "スプリガン",
+      "en": "Spriggan",
+      "ko": "스프리건",
+      "zh": "丝普利根",
+      "zh-Hant": "絲普利根"
+    },
+    "Alpha": {
+      "ja": "アルファ",
+      "en": "Alpha",
+      "ko": "알파",
+      "zh": "阿尔法",
+      "zh-Hant": "阿爾法"
+    },
+    "Lich": {
+      "ja": "リッチ",
+      "en": "Lich",
+      "ko": "리치",
+      "zh": "巫妖",
+      "zh-Hant": "巫妖"
+    },
+    "Odin": {
+      "ja": "オーディン",
+      "en": "Odin",
+      "ko": "오딘",
+      "zh": "奥丁",
+      "zh-Hant": "奧汀"
+    },
+    "Phoenix": {
+      "ja": "フェニックス",
+      "en": "Phoenix",
+      "ko": "피닉스",
+      "zh": "凤凰",
+      "zh-Hant": "鳳凰"
+    },
+    "Raiden": {
+      "ja": "ライデン",
+      "en": "Raiden",
+      "ko": "라이덴",
+      "zh": "雷电",
+      "zh-Hant": "雷電"
+    },
+    "Shiva": {
+      "ja": "シヴァ",
+      "en": "Shiva",
+      "ko": "시바",
+      "zh": "希瓦",
+      "zh-Hant": "希瓦"
+    },
+    "Twintania": {
+      "ja": "ツインタニア",
+      "en": "Twintania",
+      "ko": "트윈타니아",
+      "zh": "双塔尼亚",
+      "zh-Hant": "雙塔尼亞"
+    },
+    "Zodiark": {
+      "ja": "ゾディアーク",
+      "en": "Zodiark",
+      "ko": "조디아크",
+      "zh": "佐迪亚克",
+      "zh-Hant": "佐迪亞克"
+    },
+    "Innocence": {
+      "ja": "イノセンス",
+      "en": "Innocence",
+      "ko": "이노센스",
+      "zh": "无罪",
+      "zh-Hant": "無罪"
+    },
+    "Pixie": {
+      "ja": "ピクシー",
+      "en": "Pixie",
+      "ko": "픽시",
+      "zh": "妖精",
+      "zh-Hant": "妖精"
+    },
+    "Titania": {
+      "ja": "ティターニア",
+      "en": "Titania",
+      "ko": "티타니아",
+      "zh": "蒂塔妮亚",
+      "zh-Hant": "蒂塔妮亞"
+    },
+    "Tycoon": {
+      "ja": "タイクーン",
+      "en": "Tycoon",
+      "ko": "타이쿤",
+      "zh": "大亨",
+      "zh-Hant": "大亨"
+    },
+    "Bismarck": {
+      "ja": "ビスマルク",
+      "en": "Bismarck",
+      "ko": "비스마르크",
+      "zh": "俾斯麦",
+      "zh-Hant": "俾斯麥"
+    },
+    "Ravana": {
+      "ja": "ラーヴァナ",
+      "en": "Ravana",
+      "ko": "라바나",
+      "zh": "武神",
+      "zh-Hant": "武神"
+    },
+    "Sephirot": {
+      "ja": "セフィロト",
+      "en": "Sephirot",
+      "ko": "세피로트",
+      "zh": "魔神",
+      "zh-Hant": "魔神"
+    },
+    "Sophia": {
+      "ja": "ソフィア",
+      "en": "Sophia",
+      "ko": "소피아",
+      "zh": "女神",
+      "zh-Hant": "女神"
+    },
+    "Zurvan": {
+      "ja": "ズルワーン",
+      "en": "Zurvan",
+      "ko": "주르반",
+      "zh": "鬼神",
+      "zh-Hant": "鬼神"
+    },
+    "RubySea": {
+      "ja": "紅玉海",
+      "en": "Ruby Sea",
+      "ko": "홍옥해",
+      "zh": "红玉海",
+      "zh-Hant": "紅玉海"
+    },
+    "Yanxia": {
+      "ja": "延夏",
+      "en": "Yanxia",
+      "ko": "얀샤",
+      "zh": "延夏",
+      "zh-Hant": "延夏"
+    },
+    "Haimaochaya": {
+      "ja": "海猫茶屋",
+      "en": "Haimaochaya",
+      "ko": "해묘찻집",
+      "zh": "海猫茶屋",
+      "zh-Hant": "海貓茶屋"
+    },
+    "CosmicHarmony": {
+      "ja": "宇宙和音",
+      "en": "Cosmic Harmony",
+      "ko": "우주화음",
+      "zh": "宇宙和音",
+      "zh-Hant": "宇宙和音"
+    },
+    "PhantomIslands": {
+      "ja": "幻影群岛",
+      "en": "Phantom Islands",
+      "ko": "환영제도",
+      "zh": "幻影群岛",
+      "zh-Hant": "幻影群島"
+    },
+    "TheHolyGround": {
+      "ja": "神意之地",
+      "en": "The Holy Ground",
+      "ko": "신의지",
+      "zh": "神意之地",
+      "zh-Hant": "神意之地"
+    },
+    "SproutPond": {
+      "ja": "萌芽池",
+      "en": "Sprout Pond",
+      "ko": "맹아지",
+      "zh": "萌芽池",
+      "zh-Hant": "萌芽池"
+    },
+    "AmberPlains": {
+      "ja": "琥珀原",
+      "en": "Amber Plains",
+      "ko": "호박원",
+      "zh": "琥珀原",
+      "zh-Hant": "琥珀原"
+    },
+    "Shirogane": {
+      "ja": "白銀郷",
+      "en": "Shirogane",
+      "ko": "시로가네",
+      "zh": "白银乡",
+      "zh-Hant": "白銀鄉"
+    },
+    "RhalgrsReach": {
+      "ja": "神拳痕",
+      "en": "Rhalgr's Reach",
+      "ko": "랄거의 손길",
+      "zh": "神拳痕",
+      "zh-Hant": "神拳痕"
+    },
+    "PlatinumMirage": {
+      "ja": "白金幻象",
+      "en": "Platinum Mirage",
+      "ko": "백금환상",
+      "zh": "白金幻象",
+      "zh-Hant": "白金幻象"
+    },
+    "TravelersDock": {
+      "ja": "旅人桟橋",
+      "en": "Traveler's Dock",
+      "ko": "여행자 부두",
+      "zh": "旅人栈桥",
+      "zh-Hant": "旅人棧橋"
+    },
+    "TheDawnChamber": {
+      "ja": "拂暁の間",
+      "en": "The Dawn Chamber",
+      "ko": "새벽의 방",
+      "zh": "拂晓之间",
+      "zh-Hant": "拂曉之間"
+    },
+    "TheAery": {
+      "ja": "竜巣神殿",
+      "en": "The Aery",
+      "ko": "용둥지 신전",
+      "zh": "龙巢神殿",
+      "zh-Hant": "龍巢神殿"
+    },
+    "DreamfeatherRealm": {
+      "ja": "夢羽宝境",
+      "en": "Dreamfeather Realm",
+      "ko": "몽우보경",
+      "zh": "梦羽宝境",
+      "zh-Hant": "夢羽寶境"
+    },
+    "HaukkeManor": {
+      "ja": "静語荘園",
+      "en": "Haukke Manor",
+      "ko": "고요한 별장",
+      "zh": "静语庄园",
+      "zh-Hant": "靜語莊園"
+    },
+    "AmethystShallows": {
+      "ja": "紫水桟橋",
+      "en": "Amethyst Shallows",
+      "ko": "보랏빛 나루",
+      "zh": "紫水栈桥",
+      "zh-Hant": "紫水棧橋"
+    },
+    "MorDhona": {
+      "ja": "モドゥーナ",
+      "en": "Mor Dhona",
+      "ko": "모르도나",
+      "zh": "摩杜纳",
+      "zh-Hant": "摩杜納"
+    },
+    "TheGreatWall": {
+      "ja": "牆壁江山",
+      "en": "The Great Wall",
+      "ko": "장벽강산",
+      "zh": "墙壁江山",
+      "zh-Hant": "牆壁江山"
+    },
+    "BreezyBeach": {
+      "ja": "柔風海浜",
+      "en": "Breezy Beach",
+      "ko": "유풍해변",
+      "zh": "柔风海滩",
+      "zh-Hant": "柔風海灘"
+    },
+    "TheAurumVale": {
+      "ja": "黄金谷",
+      "en": "The Aurum Vale",
+      "ko": "금골",
+      "zh": "黄金谷",
+      "zh-Hant": "黃金谷"
+    },
+    "CrescentCove": {
+      "ja": "月牙湾",
+      "en": "Crescent Cove",
+      "ko": "초승달만",
+      "zh": "月牙湾",
+      "zh-Hant": "月牙灣"
+    },
+    "TheLostCity": {
+      "ja": "異界遺跡",
+      "en": "The Lost City",
+      "ko": "이계유적",
+      "zh": "异界遗迹",
+      "zh-Hant": "異界遺蹟"
+    },
+    "TheCrystalTower": {
+      "ja": "水晶タワー",
+      "en": "The Crystal Tower",
+      "ko": "크리스탈 타워",
+      "zh": "水晶塔",
+      "zh-Hant": "水晶塔"
+    },
+    "SilvertearLake": {
+      "ja": "銀泪湖",
+      "en": "Silvertear Lake",
+      "ko": "은눈물 호수",
+      "zh": "银泪湖",
+      "zh-Hant": "銀淚湖"
+    },
+    "CostaDelSol": {
+      "ja": "太陽海岸",
+      "en": "Costa del Sol",
+      "ko": "코스타 델 솔",
+      "zh": "太阳海岸",
+      "zh-Hant": "太陽海岸"
+    },
+    "Ishgard": {
+      "ja": "イシュガルド",
+      "en": "Ishgard",
+      "ko": "이슈가르드",
+      "zh": "伊修加德",
+      "zh-Hant": "伊修加德"
+    },
+    "BlackTeaRiver": {
+      "ja": "紅茶川",
+      "en": "Black Tea River",
+      "ko": "홍차천",
+      "zh": "红茶川",
+      "zh-Hant": "紅茶川"
+    }
+  },
+  "area": {
+    "ミスト・ヴィレッジ": {
+      "ja": "ミスト・ヴィレッジ",
+      "en": "Mist",
+      "ko": "안갯빛 마을",
+      "zh": "海雾村",
+      "zh-Hant": "海霧村"
+    },
+    "ラベンダーベッド": {
+      "ja": "ラベンダーベッド",
+      "en": "The Lavender Beds",
+      "ko": "라벤더 안식처",
+      "zh": "薰衣草苗圃",
+      "zh-Hant": "薰衣草苗圃"
+    },
+    "ゴブレットビュート": {
+      "ja": "ゴブレットビュート",
+      "en": "The Goblet",
+      "ko": "하늘잔 마루",
+      "zh": "高脚孤丘",
+      "zh-Hant": "高腳孤丘"
+    },
+    "シロガネ": {
+      "ja": "シロガネ",
+      "en": "Shirogane",
+      "ko": "시로가네",
+      "zh": "白银乡",
+      "zh-Hant": "白銀鄉"
+    },
+    "エンピレアム": {
+      "ja": "エンピレアム",
+      "en": "Empyreum",
+      "ko": "지고천 거리",
+      "zh": "穹顶皓天",
+      "zh-Hant": "穹頂皓天"
+    }
+  },
+  "apartment": {
+    "トップマスト": {
+      "ja": "トップマスト",
+      "en": "The Topmast",
+      "ko": "중층 돛대",
+      "zh": "中桅塔",
+      "zh-Hant": "中桅塔"
+    },
+    "リリーヒルズ": {
+      "ja": "リリーヒルズ",
+      "en": "Lily Hills",
+      "ko": "백합 언덕",
+      "zh": "百合岭",
+      "zh-Hant": "百合嶺"
+    },
+    "ナナモ大風車": {
+      "ja": "ナナモ大風車",
+      "en": "The Sultana's Breath",
+      "ko": "나나모 대풍차",
+      "zh": "娜娜莫大风车",
+      "zh-Hant": "娜娜莫大風車"
+    },
+    "紅梅御殿": {
+      "ja": "紅梅御殿",
+      "en": "Kobai Goten",
+      "ko": "홍매전",
+      "zh": "红梅御殿",
+      "zh-Hant": "紅梅御殿"
+    },
+    "イングルサイド": {
+      "ja": "イングルサイド",
+      "en": "Ingleside",
+      "ko": "단란한 난롯가",
+      "zh": "皓天炉舍",
+      "zh-Hant": "皓天爐舍"
+    }
+  },
+  "aetheryte": {
+    "シーゲイズ商通り": {
+      "ja": "シーゲイズ商通り",
+      "en": "Seagaze Markets",
+      "ko": "바다눈길 시장",
+      "zh": "观海贸易路",
+      "zh-Hant": "觀海貿易路"
+    },
+    "ミスト・ヴィレッジ東": {
+      "ja": "ミスト・ヴィレッジ東",
+      "en": "Mist East",
+      "ko": "안갯빛 마을 동부",
+      "zh": "海雾村东区",
+      "zh-Hant": "海霧村東區"
+    },
+    "ミスト・ヴィレッジ南東": {
+      "ja": "ミスト・ヴィレッジ南東",
+      "en": "Mist Southeast",
+      "ko": "안갯빛 마을 남동부",
+      "zh": "海雾村东南区",
+      "zh-Hant": "海霧村東南區"
+    },
+    "ミスト・ヴィレッジ北東": {
+      "ja": "ミスト・ヴィレッジ北東",
+      "en": "Mist Northeast",
+      "ko": "안갯빛 마을 북동부",
+      "zh": "海雾村东北区",
+      "zh-Hant": "海霧村東北區"
+    },
+    "ミストゲート・スクエア": {
+      "ja": "ミストゲート・スクエア",
+      "en": "Mistgate Square",
+      "ko": "안개문 광장",
+      "zh": "雾门广场",
+      "zh-Hant": "霧門廣場"
+    },
+    "ミスト・ヴィレッジ南": {
+      "ja": "ミスト・ヴィレッジ南",
+      "en": "Mist South",
+      "ko": "안갯빛 마을 남부",
+      "zh": "海雾村南区",
+      "zh-Hant": "海霧村南區"
+    },
+    "ミスト・ヴィレッジ北西": {
+      "ja": "ミスト・ヴィレッジ北西",
+      "en": "Mist West",
+      "ko": "안갯빛 마을 북서부",
+      "zh": "海雾村西北区",
+      "zh-Hant": "海霧村西北區"
+    },
+    "トップマスト": {
+      "ja": "トップマスト",
+      "en": "The Topmast",
+      "ko": "중층 돛대",
+      "zh": "中桅塔",
+      "zh-Hant": "中桅塔"
+    },
+    "[拡張街]シーゲイズ商通り": {
+      "ja": "[拡張街]シーゲイズ商通り",
+      "en": "Seagaze Markets Subdivision",
+      "ko": "[확장 구역] 바다눈길 시장",
+      "zh": "[扩建区]观海贸易路",
+      "zh-Hant": "[擴建區]觀海貿易路"
+    },
+    "[拡張街]ミスト・ヴィレッジ中央": {
+      "ja": "[拡張街]ミスト・ヴィレッジ中央",
+      "en": "Central Mist Subdivision",
+      "ko": "[확장 구역] 안갯빛 마을 중앙부",
+      "zh": "[扩建区]海雾村中央区",
+      "zh-Hant": "[擴建區]海霧村中央區"
+    },
+    "[拡張街]ミスト・ヴィレッジ南西": {
+      "ja": "[拡張街]ミスト・ヴィレッジ南西",
+      "en": "Mist Southwest Subdivision",
+      "ko": "[확장 구역] 안갯빛 마을 남서부",
+      "zh": "[扩建区]海雾村西南区",
+      "zh-Hant": "[擴建區]海霧村西南區"
+    },
+    "[拡張街]ミスト・ヴィレッジ南東": {
+      "ja": "[拡張街]ミスト・ヴィレッジ南東",
+      "en": "Mist Southeast Subdivision",
+      "ko": "[확장 구역] 안갯빛 마을 남동부",
+      "zh": "[扩建区]海雾村东南区",
+      "zh-Hant": "[擴建區]海霧村東南區"
+    },
+    "[拡張街]ミストゲート・スクエア": {
+      "ja": "[拡張街]ミストゲート・スクエア",
+      "en": "Mistgate Square Subdivision",
+      "ko": "[확장 구역] 안개문 광장",
+      "zh": "[扩建区]雾门广场",
+      "zh-Hant": "[擴建區]霧門廣場"
+    },
+    "[拡張街]ミスト・ヴィレッジ北西": {
+      "ja": "[拡張街]ミスト・ヴィレッジ北西",
+      "en": "Mist Northwest Subdivision",
+      "ko": "[확장 구역] 안갯빛 마을 북서부",
+      "zh": "[扩建区]海雾村西北区",
+      "zh-Hant": "[擴建區]海霧村西北區"
+    },
+    "[拡張街]ミスト・ヴィレッジ北東": {
+      "ja": "[拡張街]ミスト・ヴィレッジ北東",
+      "en": "Mist Northeast Subdivision",
+      "ko": "[확장 구역] 안갯빛 마을 북동부",
+      "zh": "[扩建区]海雾村东北区",
+      "zh-Hant": "[擴建區]海霧村東北區"
+    },
+    "[拡張街]トップマスト": {
+      "ja": "[拡張街]トップマスト",
+      "en": "The Topmast Subdivision",
+      "ko": "[확장 구역] 중층 돛대",
+      "zh": "[扩建区]中桅塔",
+      "zh-Hant": "[擴建區]中桅塔"
+    },
+    "紫水桟橋": {
+      "ja": "紫水桟橋",
+      "en": "Amethyst Shallows",
+      "ko": "보랏빛 나루",
+      "zh": "紫水栈桥",
+      "zh-Hant": "紫水棧橋"
+    },
+    "ラベンダーベッド東": {
+      "ja": "ラベンダーベッド東",
+      "en": "Lavender East",
+      "ko": "라벤더 안식처 동부",
+      "zh": "薰衣草苗圃东区",
+      "zh-Hant": "薰衣草苗圃東區"
+    },
+    "ラベンダーベッド南東": {
+      "ja": "ラベンダーベッド南東",
+      "en": "Lavender Southeast",
+      "ko": "라벤더 안식처 남동부",
+      "zh": "薰衣草苗圃东南区",
+      "zh-Hant": "薰衣草苗圃東南區"
+    },
+    "若草商店街": {
+      "ja": "若草商店街",
+      "en": "Wildflower Stalls",
+      "ko": "연둣빛 상점가",
+      "zh": "芳草商店街",
+      "zh-Hant": "芳草商店街"
+    },
+    "ラベンダーベッド北西": {
+      "ja": "ラベンダーベッド北西",
+      "en": "Lavender Northwest",
+      "ko": "라벤더 안식처 북서부",
+      "zh": "薰衣草苗圃西北区",
+      "zh-Hant": "薰衣草苗圃西北區"
+    },
+    "ラベンダーベッド南西": {
+      "ja": "ラベンダーベッド南西",
+      "en": "Lavender Southwest",
+      "ko": "라벤더 안식처 남서부",
+      "zh": "薰衣草苗圃西南区",
+      "zh-Hant": "薰衣草苗圃西南區"
+    },
+    "樹冠商店街": {
+      "ja": "樹冠商店街",
+      "en": "Dappled Stalls",
+      "ko": "나무왕관 상점가",
+      "zh": "树冠商店街",
+      "zh-Hant": "樹冠商店街"
+    },
+    "リリーヒルズ": {
+      "ja": "リリーヒルズ",
+      "en": "Lily Hills",
+      "ko": "백합 언덕",
+      "zh": "百合岭",
+      "zh-Hant": "百合嶺"
+    },
+    "[拡張街]紫水桟橋": {
+      "ja": "[拡張街]紫水桟橋",
+      "en": "Amethyst Shallows Subdivision",
+      "ko": "[확장 구역] 보랏빛 나루",
+      "zh": "[扩建区]紫水栈桥",
+      "zh-Hant": "[擴建區]紫水棧橋"
+    },
+    "[拡張街]ラベンダーベッド南": {
+      "ja": "[拡張街]ラベンダーベッド南",
+      "en": "Lavender South Subdivision",
+      "ko": "[확장 구역] 라벤더 안식처 남부",
+      "zh": "[扩建区]薰衣草苗圃南区",
+      "zh-Hant": "[擴建區]薰衣草苗圃南區"
+    },
+    "[拡張街]ラベンダーベッド南西": {
+      "ja": "[拡張街]ラベンダーベッド南西",
+      "en": "Lavender Southwest Subdivision",
+      "ko": "[확장 구역] 라벤더 안식처 남서부",
+      "zh": "[扩建区]薰衣草苗圃西南区",
+      "zh-Hant": "[擴建區]薰衣草苗圃西南區"
+    },
+    "[拡張街]若草商店街": {
+      "ja": "[拡張街]若草商店街",
+      "en": "Wildflower Stalls Subdivision",
+      "ko": "[확장 구역] 연둣빛 상점가",
+      "zh": "[扩建区]芳草商店街",
+      "zh-Hant": "[擴建區]芳草商店街"
+    },
+    "[拡張街]ラベンダーベッド北東": {
+      "ja": "[拡張街]ラベンダーベッド北東",
+      "en": "Lavender Northeast Subdivision",
+      "ko": "[확장 구역] 라벤더 안식처 북동부",
+      "zh": "[扩建区]薰衣草苗圃东北区",
+      "zh-Hant": "[擴建區]薰衣草苗圃東北區"
+    },
+    "[拡張街]ラベンダーベッド北西": {
+      "ja": "[拡張街]ラベンダーベッド北西",
+      "en": "Lavender Northwest Subdivision",
+      "ko": "[확장 구역] 라벤더 안식처 북서부",
+      "zh": "[扩建区]薰衣草苗圃西北区",
+      "zh-Hant": "[擴建區]薰衣草苗圃西北區"
+    },
+    "[拡張街]樹冠商店街": {
+      "ja": "[拡張街]樹冠商店街",
+      "en": "Dappled Stalls Subdivision",
+      "ko": "[확장 구역] 나무왕관 상점가",
+      "zh": "[扩建区]树冠商店街",
+      "zh-Hant": "[擴建區]樹冠商店街"
+    },
+    "[拡張街]リリーヒルズ": {
+      "ja": "[拡張街]リリーヒルズ",
+      "en": "Lily Hills Subdivision",
+      "ko": "[확장 구역] 백합 언덕",
+      "zh": "[扩建区]百合岭",
+      "zh-Hant": "[擴建區]百合嶺"
+    },
+    "ブリミングハート広場": {
+      "ja": "ブリミングハート広場",
+      "en": "The Brimming Heart",
+      "ko": "한마음 광장",
+      "zh": "雄心广场",
+      "zh-Hant": "雄心廣場"
+    },
+    "ゴブレットビュート東": {
+      "ja": "ゴブレットビュート東",
+      "en": "Goblet East",
+      "ko": "하늘잔 마루 동부",
+      "zh": "高脚孤丘东区",
+      "zh-Hant": "高腳孤丘東區"
+    },
+    "ゴブレットビュート南東": {
+      "ja": "ゴブレットビュート南東",
+      "en": "Goblet Southeast",
+      "ko": "하늘잔 마루 남동부",
+      "zh": "高脚孤丘东南区",
+      "zh-Hant": "高腳孤丘東南區"
+    },
+    "ゴブレットビュート北東": {
+      "ja": "ゴブレットビュート北東",
+      "en": "Goblet Northeast",
+      "ko": "하늘잔 마루 북동부",
+      "zh": "高脚孤丘东北区",
+      "zh-Hant": "高腳孤丘東北區"
+    },
+    "ゴブレットビュート西": {
+      "ja": "ゴブレットビュート西",
+      "en": "Goblet West",
+      "ko": "하늘잔 마루 서부",
+      "zh": "高脚孤丘西区",
+      "zh-Hant": "高腳孤丘西區"
+    },
+    "ナナモ大風車": {
+      "ja": "ナナモ大風車",
+      "en": "The Sultana's Breath",
+      "ko": "나나모 대풍차",
+      "zh": "娜娜莫大风车",
+      "zh-Hant": "娜娜莫大風車"
+    },
+    "ゴブレット市場": {
+      "ja": "ゴブレット市場",
+      "en": "Goblet Exchange",
+      "ko": "하늘잔 시장",
+      "zh": "高脚市场",
+      "zh-Hant": "高腳市場"
+    },
+    "[拡張街]ブリミングハート広場": {
+      "ja": "[拡張街]ブリミングハート広場",
+      "en": "The Brimming Heart Subdivision",
+      "ko": "[확장 구역] 한마음 광장",
+      "zh": "[扩建区]雄心广场",
+      "zh-Hant": "[擴建區]雄心廣場"
+    },
+    "[拡張街]ゴブレットビュート南": {
+      "ja": "[拡張街]ゴブレットビュート南",
+      "en": "Goblet South Subdivision",
+      "ko": "[확장 구역] 하늘잔 마루 남부",
+      "zh": "[扩建区]高脚孤丘南区",
+      "zh-Hant": "[擴建區]高腳孤丘南區"
+    },
+    "[拡張街]ゴブレットビュート南西": {
+      "ja": "[拡張街]ゴブレットビュート南西",
+      "en": "Goblet Southwest Subdivision",
+      "ko": "[확장 구역] 하늘잔 마루 남서부",
+      "zh": "[扩建区]高脚孤丘西南区",
+      "zh-Hant": "[擴建區]高腳孤丘西南區"
+    },
+    "[拡張街]ゴブレットビュート南東": {
+      "ja": "[拡張街]ゴブレットビュート南東",
+      "en": "Goblet Southeast Subdivision",
+      "ko": "[확장 구역] 하늘잔 마루 남동부",
+      "zh": "[扩建区]高脚孤丘东南区",
+      "zh-Hant": "[擴建區]高腳孤丘東南區"
+    },
+    "[拡張街]ゴブレットビュート北": {
+      "ja": "[拡張街]ゴブレットビュート北",
+      "en": "Goblet North Subdivision",
+      "ko": "[확장 구역] 하늘잔 마루 북부",
+      "zh": "[扩建区]高脚孤丘北区",
+      "zh-Hant": "[擴建區]高腳孤丘北區"
+    },
+    "[拡張街]ナナモ大風車": {
+      "ja": "[拡張街]ナナモ大風車",
+      "en": "The Sultana's Breath Subdivision",
+      "ko": "[확장 구역] 나나모 대풍차",
+      "zh": "[扩建区]娜娜莫大风车",
+      "zh-Hant": "[擴建區]娜娜莫大風車"
+    },
+    "[拡張街]ゴブレット市場": {
+      "ja": "[拡張街]ゴブレット市場",
+      "en": "Goblet Exchange Subdivision",
+      "ko": "[확장 구역] 하늘잔 시장",
+      "zh": "[扩建区]高脚市场",
+      "zh-Hant": "[擴建區]高腳市場"
+    },
+    "茜雲桟橋": {
+      "ja": "茜雲桟橋",
+      "en": "Akanegumo Bridge",
+      "ko": "아카네구모 나루터",
+      "zh": "茜云栈桥",
+      "zh-Hant": "茜雲棧橋"
+    },
+    "シロガネ南": {
+      "ja": "シロガネ南",
+      "en": "Southern Shirogane",
+      "ko": "시로가네 남부",
+      "zh": "白银乡南区",
+      "zh-Hant": "白銀鄉南區"
+    },
+    "シロガネ南東": {
+      "ja": "シロガネ南東",
+      "en": "Southeastern Shirogane",
+      "ko": "시로가네 남동부",
+      "zh": "白银乡东南区",
+      "zh-Hant": "白銀鄉東南區"
+    },
+    "シロガネ北東": {
+      "ja": "シロガネ北東",
+      "en": "Northeastern Shirogane",
+      "ko": "시로가네 북동부",
+      "zh": "白银乡东北区",
+      "zh-Hant": "白銀鄉東北區"
+    },
+    "シロガネ西": {
+      "ja": "シロガネ西",
+      "en": "Western Shirogane",
+      "ko": "시로가네 서부",
+      "zh": "白银乡西区",
+      "zh-Hant": "白銀鄉西區"
+    },
+    "シロガネ南西": {
+      "ja": "シロガネ南西",
+      "en": "Southwestern Shirogane",
+      "ko": "시로가네 남서부",
+      "zh": "白银乡西南区",
+      "zh-Hant": "白銀鄉西南區"
+    },
+    "シロガネ北西": {
+      "ja": "シロガネ北西",
+      "en": "Northwestern Shirogane",
+      "ko": "시로가네 북서부",
+      "zh": "白银乡西北区",
+      "zh-Hant": "白銀鄉西北區"
+    },
+    "紅梅御殿": {
+      "ja": "紅梅御殿",
+      "en": "Kobai Goten",
+      "ko": "홍매전",
+      "zh": "红梅御殿",
+      "zh-Hant": "紅梅御殿"
+    },
+    "[拡張街]茜雲桟橋": {
+      "ja": "[拡張街]茜雲桟橋",
+      "en": "Akanegumo Bridge Subdivision",
+      "ko": "[확장 구역] 아카네구모 나루터",
+      "zh": "[扩建区]茜云栈桥",
+      "zh-Hant": "[擴建區]茜雲棧橋"
+    },
+    "[拡張街]シロガネ西": {
+      "ja": "[拡張街]シロガネ西",
+      "en": "Western Shirogane Subdivision",
+      "ko": "[확장 구역] 시로가네 서부",
+      "zh": "[扩建区]白银乡西区",
+      "zh-Hant": "[擴建區]白銀鄉西區"
+    },
+    "[拡張街]シロガネ南西": {
+      "ja": "[拡張街]シロガネ南西",
+      "en": "Southwestern Shirogane Subdivision",
+      "ko": "[확장 구역] 시로가네 남서부",
+      "zh": "[扩建区]白银乡西南区",
+      "zh-Hant": "[擴建區]白銀鄉西南區"
+    },
+    "[拡張街]シロガネ南": {
+      "ja": "[拡張街]シロガネ南",
+      "en": "Southern Shirogane Subdivision",
+      "ko": "[확장 구역] 시로가네 남부",
+      "zh": "[扩建区]白银乡南区",
+      "zh-Hant": "[擴建區]白銀鄉南區"
+    },
+    "[拡張街]シロガネ北東": {
+      "ja": "[拡張街]シロガネ北東",
+      "en": "Northeastern Shirogane Subdivision",
+      "ko": "[확장 구역] 시로가네 북동부",
+      "zh": "[扩建区]白银乡东北区",
+      "zh-Hant": "[擴建區]白銀鄉東北區"
+    },
+    "[拡張街]シロガネ北": {
+      "ja": "[拡張街]シロガネ北",
+      "en": "Northern Shirogane Subdivision",
+      "ko": "[확장 구역] 시로가네 북부",
+      "zh": "[扩建区]白银乡北区",
+      "zh-Hant": "[擴建區]白銀鄉北區"
+    },
+    "[拡張街]シロガネ東": {
+      "ja": "[拡張街]シロガネ東",
+      "en": "Eastern Shirogane Subdivision",
+      "ko": "[확장 구역] 시로가네 동부",
+      "zh": "[扩建区]白银乡东区",
+      "zh-Hant": "[擴建區]白銀鄉東區"
+    },
+    "[拡張街]紅梅御殿": {
+      "ja": "[拡張街]紅梅御殿",
+      "en": "Kobai Goten Subdivision",
+      "ko": "[확장 구역] 홍매전",
+      "zh": "[扩建区]红梅御殿",
+      "zh-Hant": "[擴建區]紅梅御殿"
+    },
+    "エンピレアム南東": {
+      "ja": "エンピレアム南東",
+      "en": "Empyreum Southeast",
+      "ko": "지고천 거리 남동부",
+      "zh": "穹顶皓天东南区",
+      "zh-Hant": "穹頂皓天東南區"
+    },
+    "エンピレアム中央": {
+      "ja": "エンピレアム中央",
+      "en": "Central Empyreum",
+      "ko": "지고천 거리 중앙부",
+      "zh": "穹顶皓天中央区",
+      "zh-Hant": "穹頂皓天中央區"
+    },
+    "斧槍通り": {
+      "ja": "斧槍通り",
+      "en": "The Halberd's Head",
+      "ko": "도끼창 거리",
+      "zh": "战戟大街",
+      "zh-Hant": "戰戟大街"
+    },
+    "エンピレアム北東": {
+      "ja": "エンピレアム北東",
+      "en": "Empyreum Northeast",
+      "ko": "지고천 거리 북동부",
+      "zh": "穹顶皓天东北区",
+      "zh-Hant": "穹頂皓天東北區"
+    },
+    "エンピレアム東": {
+      "ja": "エンピレアム東",
+      "en": "Empyreum East",
+      "ko": "지고천 거리 동부",
+      "zh": "穹顶皓天东区",
+      "zh-Hant": "穹頂皓天東區"
+    },
+    "エンピレアム南西": {
+      "ja": "エンピレアム南西",
+      "en": "Empyreum Southwest",
+      "ko": "지고천 거리 남서부",
+      "zh": "穹顶皓天西南区",
+      "zh-Hant": "穹頂皓天西南區"
+    },
+    "ハイモーン広場": {
+      "ja": "ハイモーン広場",
+      "en": "Highmorn's Horizon",
+      "ko": "한아침 광장",
+      "zh": "迎晨广场",
+      "zh-Hant": "迎晨廣場"
+    },
+    "エンピレアム北西": {
+      "ja": "エンピレアム北西",
+      "en": "Empyreum Northwest",
+      "ko": "지고천 거리 북서부",
+      "zh": "穹顶皓天西北区",
+      "zh-Hant": "穹頂皓天西北區"
+    },
+    "イングルサイド": {
+      "ja": "イングルサイド",
+      "en": "Ingleside",
+      "ko": "단란한 난롯가",
+      "zh": "皓天炉舍",
+      "zh-Hant": "皓天爐舍"
+    },
+    "[拡張街]エンピレアム南西": {
+      "ja": "[拡張街]エンピレアム南西",
+      "en": "Empyreum Southwest Subdivision",
+      "ko": "[확장 구역] 지고천 거리 남서부",
+      "zh": "[扩建区]穹顶皓天西南区",
+      "zh-Hant": "[擴建區]穹頂皓天西南區"
+    },
+    "[拡張街]エンピレアム中央": {
+      "ja": "[拡張街]エンピレアム中央",
+      "en": "Central Empyreum Subdivision",
+      "ko": "[확장 구역] 지고천 거리 중앙부",
+      "zh": "[扩建区]穹顶皓天中央区",
+      "zh-Hant": "[擴建區]穹頂皓天中央區"
+    },
+    "[拡張街]斧槍通り": {
+      "ja": "[拡張街]斧槍通り",
+      "en": "The Halberd's Head Subdivision",
+      "ko": "[확장 구역] 도끼창 거리",
+      "zh": "[扩建区]战戟大街",
+      "zh-Hant": "[擴建區]戰戟大街"
+    },
+    "[拡張街]エンピレアム南東": {
+      "ja": "[拡張街]エンピレアム南東",
+      "en": "Empyreum Southeast Subdivision",
+      "ko": "[확장 구역] 지고천 거리 남동부",
+      "zh": "[扩建区]穹顶皓天东南区",
+      "zh-Hant": "[擴建區]穹頂皓天東南區"
+    },
+    "[拡張街]エンピレアム南": {
+      "ja": "[拡張街]エンピレアム南",
+      "en": "Empyreum South Subdivision",
+      "ko": "[확장 구역] 지고천 거리 남부",
+      "zh": "[扩建区]穹顶皓天南区",
+      "zh-Hant": "[擴建區]穹頂皓天南區"
+    },
+    "[拡張街]エンピレアム北西": {
+      "ja": "[拡張街]エンピレアム北西",
+      "en": "Empyreum Northwest Subdivision",
+      "ko": "[확장 구역] 지고천 거리 북서부",
+      "zh": "[扩建区]穹顶皓天西北区",
+      "zh-Hant": "[擴建區]穹頂皓天西北區"
+    },
+    "[拡張街]ハイモーン広場": {
+      "ja": "[拡張街]ハイモーン広場",
+      "en": "Highmorn's Horizon Subdivision",
+      "ko": "[확장 구역] 한아침 광장",
+      "zh": "[扩建区]迎晨广场",
+      "zh-Hant": "[擴建區]迎晨廣場"
+    },
+    "[拡張街]エンピレアム北東": {
+      "ja": "[拡張街]エンピレアム北東",
+      "en": "Empyreum Northeast Subdivision",
+      "ko": "[확장 구역] 지고천 거리 북동부",
+      "zh": "[扩建区]穹顶皓天东北区",
+      "zh-Hant": "[擴建區]穹頂皓天東北區"
+    },
+    "[拡張街]イングルサイド": {
+      "ja": "[拡張街]イングルサイド",
+      "en": "Ingleside Subdivision",
+      "ko": "[확장 구역] 단란한 난롯가",
+      "zh": "[扩建区]皓天炉舍",
+      "zh-Hant": "[擴建區]皓天爐舍"
+    },
+    "ミスト・ヴィレッジ南（船着場）": {
+      "ja": "ミスト・ヴィレッジ南（船着場）",
+      "en": "Mist South (Docks)",
+      "ko": "안갯빛 마을 남부(선착장)",
+      "zh": "海雾村南区码头",
+      "zh-Hant": "海霧村南區碼頭"
+    },
+    "シーゲイズ商通り（居住区担当官）": {
+      "ja": "シーゲイズ商通り（居住区担当官）",
+      "en": "Seagaze Markets",
+      "ko": "바다눈길 시장(거주구 담당관)",
+      "zh": "观海贸易路（住宅区管理人）",
+      "zh-Hant": "觀海貿易路（住宅區管理人）"
+    },
+    "[拡張街]ミスト・ヴィレッジ北西（船着場）": {
+      "ja": "[拡張街]ミスト・ヴィレッジ北西（船着場）",
+      "en": "Mist Northwest Subdivision",
+      "ko": "[확장 구역] 안갯빛 마을 북서부(선착장)",
+      "zh": "[扩建区]海雾村西北区（码头）",
+      "zh-Hant": "[擴建區]海霧村西北區（碼頭）"
+    },
+    "[拡張街]シーゲイズ商通り（居住区担当官）": {
+      "ja": "[拡張街]シーゲイズ商通り（居住区担当官）",
+      "en": "Seagaze Markets Subdivision",
+      "ko": "[확장 구역] 바다눈길 시장(거주구 담당관)",
+      "zh": "[扩建区]观海贸易路（住宅区管理人）",
+      "zh-Hant": "[擴建區]觀海貿易路（住宅區管理人）"
+    },
+    "樹冠商店街（居住区担当官）": {
+      "ja": "樹冠商店街（居住区担当官）",
+      "en": "Dappled Stalls",
+      "ko": "나무왕관 상점가(거주구 담당관)",
+      "zh": "树冠商店街（住宅区管理人）",
+      "zh-Hant": "樹冠商店街（住宅區管理人）"
+    },
+    "[拡張街]樹冠商店街（居住区担当官）": {
+      "ja": "[拡張街]樹冠商店街（居住区担当官）",
+      "en": "Dappled Stalls Subdivision",
+      "ko": "[확장 구역] 나무왕관 상점가(거주구 담당관)",
+      "zh": "[扩建区]树冠商店街（住宅区管理人）",
+      "zh-Hant": "[擴建區]樹冠商店街（住宅區管理人）"
+    },
+    "ゴブレット市場（居住区担当官）": {
+      "ja": "ゴブレット市場（居住区担当官）",
+      "en": "Goblet Exchange",
+      "ko": "하늘잔 시장(거주구 담당관)",
+      "zh": "高脚市场（住宅区管理人）",
+      "zh-Hant": "高腳市場（住宅區管理人）"
+    },
+    "[拡張街]ゴブレット市場（居住区担当官）": {
+      "ja": "[拡張街]ゴブレット市場（居住区担当官）",
+      "en": "Goblet Exchange Subdivision",
+      "ko": "[확장 구역] 하늘잔 시장(거주구 담당관)",
+      "zh": "[扩建区]高脚市场（住宅区管理人）",
+      "zh-Hant": "[擴建區]高腳市場（住宅區管理人）"
+    },
+    "茜雲桟橋（居住区担当官）": {
+      "ja": "茜雲桟橋（居住区担当官）",
+      "en": "Akanegumo Bridge",
+      "ko": "아카네구모 나루터(거주구 담당관)",
+      "zh": "茜云栈桥（住宅区管理人）",
+      "zh-Hant": "茜雲棧橋（住宅區管理人）"
+    },
+    "[拡張街]茜雲桟橋（居住区担当官）": {
+      "ja": "[拡張街]茜雲桟橋（居住区担当官）",
+      "en": "Akanegumo Bridge Subdivision",
+      "ko": "[확장 구역] 아카네구모 나루터(거주구 담당관)",
+      "zh": "[扩建区]茜云栈桥（住宅区管理人）",
+      "zh-Hant": "[擴建區]茜雲棧橋（住宅區管理人）"
+    },
+    "斧槍通り（居住区担当官）": {
+      "ja": "斧槍通り（居住区担当官）",
+      "en": "The Halberd's Head",
+      "ko": "도끼창 거리(거주구 담당관)",
+      "zh": "战戟大街（住宅区管理人）",
+      "zh-Hant": "戰戟大街（住宅區管理人）"
+    },
+    "[拡張街]斧槍通り（居住区担当官）": {
+      "ja": "[拡張街]斧槍通り（居住区担当官）",
+      "en": "The Halberd's Head Subdivision",
+      "ko": "[확장 구역] 도끼창 거리(거주구 담당관)",
+      "zh": "[扩建区]战戟大街（住宅区管理人）",
+      "zh-Hant": "[擴建區]戰戟大街（住宅區管理人）"
+    }
+  },
+  "district": {
+    "本街": {
+      "ja": "本街",
+      "en": "Main District",
+      "ko": "본구",
+      "zh": "本街",
+      "zh-Hant": "本街"
+    },
+    "拡張街": {
+      "ja": "拡張街",
+      "en": "Subdivision",
+      "ko": "확장 구역",
+      "zh": "扩建区",
+      "zh-Hant": "擴建區"
+    }
+  },
+  "size": {
+    "Sハウス": {
+      "ja": "Sハウス",
+      "en": "Small",
+      "ko": "소형",
+      "zh": "小型",
+      "zh-Hant": "小型"
+    },
+    "Mハウス": {
+      "ja": "Mハウス",
+      "en": "Medium",
+      "ko": "중형",
+      "zh": "中型",
+      "zh-Hant": "中型"
+    },
+    "Lハウス": {
+      "ja": "Lハウス",
+      "en": "Large",
+      "ko": "대형",
+      "zh": "大型",
+      "zh-Hant": "大型"
+    },
+    "アパルトメント": {
+      "ja": "アパルトメント",
+      "en": "Apartment",
+      "ko": "아파트",
+      "zh": "公寓",
+      "zh-Hant": "公寓"
+    },
+    "FC個室": {
+      "ja": "FC個室",
+      "en": "Private Room",
+      "ko": "개인실",
+      "zh": "个人房间",
+      "zh-Hant": "個人房間"
+    }
+  },
+  "tag": {
+    "モダン": {
+      "ja": "モダン",
+      "en": "Modern",
+      "ko": "모던",
+      "zh": "现代",
+      "zh-Hant": "現代"
+    },
+    "和風": {
+      "ja": "和風",
+      "en": "Japanese",
+      "ko": "동양풍",
+      "zh": "和风",
+      "zh-Hant": "和風"
+    },
+    "アジアン": {
+      "ja": "アジアン",
+      "en": "Asian",
+      "ko": "아시안",
+      "zh": "亚洲风",
+      "zh-Hant": "亞洲風"
+    },
+    "サイバーパンク": {
+      "ja": "サイバーパンク",
+      "en": "Cyberpunk",
+      "ko": "사이버펑크",
+      "zh": "赛博朋克",
+      "zh-Hant": "賽博朋克"
+    },
+    "廃墟": {
+      "ja": "廃墟",
+      "en": "Ruins",
+      "ko": "폐허",
+      "zh": "废墟",
+      "zh-Hant": "廢墟"
+    },
+    "ファンタジー": {
+      "ja": "ファンタジー",
+      "en": "Fantasy",
+      "ko": "판타지",
+      "zh": "奇幻",
+      "zh-Hant": "奇幻"
+    },
+    "スチームパンク": {
+      "ja": "スチームパンク",
+      "en": "Steampunk",
+      "ko": "스팀펑크",
+      "zh": "蒸汽朋克",
+      "zh-Hant": "蒸汽朋克"
+    },
+    "ナチュラル": {
+      "ja": "ナチュラル",
+      "en": "Natural",
+      "ko": "내추럴",
+      "zh": "自然",
+      "zh-Hant": "自然"
+    },
+    "アンティーク": {
+      "ja": "アンティーク",
+      "en": "Antique",
+      "ko": "앤틱",
+      "zh": "复古",
+      "zh-Hant": "復古"
+    },
+    "ホラー": {
+      "ja": "ホラー",
+      "en": "Horror",
+      "ko": "호러",
+      "zh": "恐怖",
+      "zh-Hant": "恐怖"
+    },
+    "カフェ": {
+      "ja": "カフェ",
+      "en": "Café",
+      "ko": "카페",
+      "zh": "咖啡厅",
+      "zh-Hant": "咖啡廳"
+    },
+    "バー・居酒屋": {
+      "ja": "バー・居酒屋",
+      "en": "Bar/Pub",
+      "ko": "바/선술집",
+      "zh": "酒吧/居酒屋",
+      "zh-Hant": "酒吧/居酒屋"
+    },
+    "レストラン": {
+      "ja": "レストラン",
+      "en": "Restaurant",
+      "ko": "레스토랑",
+      "zh": "餐厅",
+      "zh-Hant": "餐廳"
+    },
+    "植物園・温室": {
+      "ja": "植物園・温室",
+      "en": "Botanical Garden/Greenhouse",
+      "ko": "식물원/온실",
+      "zh": "植物园/温室",
+      "zh-Hant": "植物園/溫室"
+    },
+    "図書館・書斎": {
+      "ja": "図書館・書斎",
+      "en": "Library/Study",
+      "ko": "도서관/서재",
+      "zh": "图书馆/书房",
+      "zh-Hant": "圖書館/書房"
+    },
+    "教会・神殿": {
+      "ja": "教会・神殿",
+      "en": "Church/Temple",
+      "ko": "교회/신전",
+      "zh": "教堂/神殿",
+      "zh-Hant": "教堂/神殿"
+    },
+    "春・桜": {
+      "ja": "春・桜",
+      "en": "Spring/Cherry Blossoms",
+      "ko": "봄/벚꽃",
+      "zh": "春季/樱花",
+      "zh-Hant": "春季/櫻花"
+    },
+    "夏・海": {
+      "ja": "夏・海",
+      "en": "Summer/Beach",
+      "ko": "여름/바다",
+      "zh": "夏季/海洋",
+      "zh-Hant": "夏季/海洋"
+    },
+    "秋・紅葉": {
+      "ja": "秋・紅葉",
+      "en": "Autumn/Maple Leaves",
+      "ko": "가을/단풍",
+      "zh": "秋季/红叶",
+      "zh-Hant": "秋季/紅葉"
+    },
+    "冬・雪": {
+      "ja": "冬・雪",
+      "en": "Winter/Snow",
+      "ko": "겨울/눈",
+      "zh": "冬季/白雪",
+      "zh-Hant": "冬季/白雪"
+    },
+    "ハロウィン": {
+      "ja": "ハロウィン",
+      "en": "Halloween",
+      "ko": "할로윈",
+      "zh": "万圣节",
+      "zh-Hant": "萬聖節"
+    },
+    "クリスマス": {
+      "ja": "クリスマス",
+      "en": "Starlight Celebration",
+      "ko": "별빛 축제",
+      "zh": "星芒节",
+      "zh-Hant": "星芒節"
+    }
+  }
+} as const;

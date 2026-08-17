@@ -1,4 +1,4 @@
-import type { Region } from './dcServerMap';
+import type { Region } from './dcServerMap.js';
 
 export type RegionLocale = 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant';
 
