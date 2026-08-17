@@ -34,6 +34,13 @@ const LISTING_COLLECTION = 'housing_listings';
 const OG_STORAGE_BUCKET = 'lopo-7793e.firebasestorage.app';
 /** カード生成パラメータのカードに載せる画像は最大10枚(src/lib/ogpHousingerCard.ts の MAX_CARD_IMAGES と一致させる)。 */
 const MAX_CARD_IMAGES = 10;
+/**
+ * 「公開中」の visibility 集合。api/housing/_publicWindow.ts の PUBLIC_VISIBILITY (同ファイル内非公開
+ * 定数のためここに複製・値は同一) / getHousingerListings 相当のクエリと同じ定義。listingCount算出用
+ * (isEligibleForOgRepresentative は OGP代表画像選定基準でありvisibility==='public'限定・unlistedを
+ * 除外するため、件数表示にはそのまま使えない。2026-08-17 レビュー指摘対応)。
+ */
+const PUBLIC_VISIBILITY = ['public', 'unlisted'] as const;
 /** 配信時にランダムに選ぶ2案。両方を事前生成・キャッシュしておく(配信時に生成コストを払わせない)。 */
 const CARD_PATTERNS: HousingerCardPattern[] = ['grid', 'sidebar'];
 
@@ -218,6 +225,26 @@ export default async function handler(req: any, res: any) {
           const nowMs = Date.now();
           let resolvedImages: string[] = [];
           let listingCount = 0;
+
+          // listingCount: 上の代表画像選定 (curated選択時は最大10件・自動時もisEligibleForOgRepresentative
+          // でvisibility==='public'限定=unlisted除外) とは別に、「本当に公開中(public/unlisted)」の
+          // 実件数を専用クエリで数える。画像選定用の件数をそのまま使うと (a) 10件で頭打ち (b) unlisted
+          // (住所非公開だが一覧・詳細には出る) が0件扱いになり、クローラーに誤った件数を見せてしまう
+          // (2026-08-17 最終レビュー指摘)。deletedAtはFirestoreの where(==null) がフィールド未定義の
+          // 旧docにマッチしない既知の罠 (api/housing/_checkDuplicateHandler.ts 参照) のため、
+          // クエリ本体には含めずフェッチ後にJS側でフィルタする(_publicWindow.ts housingerアクションと同じ手法)。
+          try {
+            const countSnap = await db.collection(LISTING_COLLECTION)
+              .where('ownerUid', '==', uid)
+              .where('visibility', 'in', PUBLIC_VISIBILITY)
+              .where('isHidden', '==', false)
+              .select('deletedAt')
+              .get();
+            listingCount = countSnap.docs.filter((doc) => doc.data().deletedAt == null).length;
+          } catch (err) {
+            console.error('Housinger page listing count error:', err);
+          }
+
           try {
             const selectedIds: string[] = Array.isArray(profile.ogRepresentativeListingIds)
               ? profile.ogRepresentativeListingIds.slice(0, 10)
@@ -255,7 +282,6 @@ export default async function handler(req: any, res: any) {
             const backgroundListingId = typeof profile.ogBackgroundListingId === 'string' ? profile.ogBackgroundListingId : null;
             const orderedEntries = reorderListingImageArraysByBackgroundId(listingImageEntries, backgroundListingId);
             resolvedImages = collectImagesFromListings(orderedEntries.map((e) => e.images), MAX_CARD_IMAGES);
-            listingCount = listingImageEntries.length;
           } catch (err) {
             console.error('Housinger page listing fetch error:', err);
           }

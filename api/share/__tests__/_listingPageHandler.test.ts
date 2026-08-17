@@ -26,6 +26,10 @@ vi.mock('../../src/lib/ogpPageShell.js', () => ({
 
 import { buildListingSeoSnapshotHtml } from '../_listingPageHandler.js';
 import handler from '../_listingPageHandler.js';
+import { formatFullHousingAddress } from '../../../src/lib/housing/formatHousingAddress.js';
+import { regionForDC } from '../../../src/data/housing/dcServerMap.js';
+
+const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
 
 function makeReqRes(overrides: Partial<{ query: Record<string, unknown>; headers: Record<string, string> }> = {}) {
   const headers: Record<string, string> = { host: 'lopoly.app', ...(overrides.headers ?? {}) };
@@ -104,5 +108,117 @@ describe('_listingPageHandler', () => {
     await handler(req, res);
 
     expect(res.statusCode).toBe(404);
+  });
+
+  // 最終レビュー指摘1: タイトル未入力の物件が全て同じ汎用タイトル(DEFAULT_OG_TITLE)になり
+  // SEO上の重複コンテンツを生んでいたバグの回帰テスト。ListingCard.tsx / HousingDetailContent.tsx
+  // と同じ「タイトル未入力なら住所にフォールバック」規約に揃える。
+  it('タイトル未入力・住所公開(public)の物件は、汎用タイトルではなく住所にフォールバックする', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'no-title-listing' } });
+
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        visibility: 'public',
+        isHidden: false,
+        deletedAt: null,
+        title: '',
+        description: '',
+        area: 'Mist',
+        ward: 5,
+        plot: 12,
+        buildingType: 'house',
+        dc: 'Elemental',
+        server: 'Carbuncle',
+      }),
+    });
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+
+    await handler(req, res);
+
+    const expectedAddress = formatFullHousingAddress(
+      { area: 'Mist', ward: 5, buildingType: 'house', plot: 12, region: regionForDC('Elemental'), dc: 'Elemental', server: 'Carbuncle' },
+      'ja',
+    );
+    expect(res.body as string).toContain(expectedAddress);
+    expect(res.body as string).not.toContain(DEFAULT_OG_TITLE);
+  });
+
+  it('空白のみのタイトルは未入力扱いになり住所にフォールバックする(.trim())', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'whitespace-title-listing' } });
+
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        visibility: 'public',
+        isHidden: false,
+        deletedAt: null,
+        title: '   ',
+        description: '',
+        area: 'Mist',
+        ward: 5,
+        plot: 12,
+        buildingType: 'house',
+        dc: 'Elemental',
+        server: 'Carbuncle',
+      }),
+    });
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+
+    await handler(req, res);
+
+    const expectedAddress = formatFullHousingAddress(
+      { area: 'Mist', ward: 5, buildingType: 'house', plot: 12, region: regionForDC('Elemental'), dc: 'Elemental', server: 'Carbuncle' },
+      'ja',
+    );
+    expect(res.body as string).toContain(expectedAddress);
+    expect(res.body as string).not.toContain(DEFAULT_OG_TITLE);
+    expect(res.body as string).not.toContain('<h1>   </h1>');
+  });
+
+  it('タイトル未入力・住所非公開(unlisted)の物件は「住所は非公開です」にフォールバックする(汎用タイトルにはしない)', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'unlisted-no-title-listing' } });
+
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        visibility: 'unlisted',
+        isHidden: false,
+        deletedAt: null,
+        title: '',
+        description: '',
+        area: 'Mist',
+        ward: 5,
+        plot: 12,
+        buildingType: 'house',
+        dc: 'Elemental',
+        server: 'Carbuncle',
+      }),
+    });
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+
+    await handler(req, res);
+
+    expect(res.body as string).toContain('<h1>住所は非公開です</h1>');
+    expect(res.body as string).not.toContain(DEFAULT_OG_TITLE);
+  });
+
+  it('Cache-Controlはブラウザ側max-ageを60秒に抑える(s-maxageはCDN意図のまま長期)', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'cache-header-listing' } });
+
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({ visibility: 'public', isHidden: false, deletedAt: null, title: 'テスト物件' }),
+    });
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve('<html><head><title>x</title><meta property="og:title" content="x" /><meta property="og:description" content="x" /><meta property="og:url" content="x" /><meta property="og:image" content="x" /><meta name="twitter:title" content="x" /><meta name="twitter:description" content="x" /><meta name="twitter:image" content="x" /></head><body></body></html>'),
+      }),
+    ) as unknown as typeof fetch;
+
+    await handler(req, res);
+
+    expect(res.headers['Cache-Control']).toBe('public, s-maxage=86400, max-age=60');
   });
 });
