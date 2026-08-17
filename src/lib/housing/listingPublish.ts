@@ -88,6 +88,22 @@ export function mergeListingsForViewer(
 }
 
 /**
+ * 探すページの NEW バッジ対象期間 (ミリ秒) の既定値。
+ * 管理画面 (master/config.newListingWindowDays) で日数を変更可能 (2026-08-16)。
+ * Firestore未取得時 (起動直後・オフラインフォールバック) はこの既定値 (7日) を使う。
+ */
+export const NEW_LISTING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+
+/**
+ * 投稿から windowMs 以内かどうか (探すページの NEW バッジ判定用)。
+ * windowMs 省略時は既定7日 (NEW_LISTING_WINDOW_MS)。呼び出し側は通常
+ * master/config.newListingWindowDays 由来の値 (useMasterData) を渡す。
+ */
+export function isNewListing(createdAt: number, nowMs: number, windowMs: number = NEW_LISTING_WINDOW_MS): boolean {
+  return nowMs - createdAt < windowMs;
+}
+
+/**
  * OGPカードの代表作として選択可能か(spec 2026-07-31 §確定済みの決定「選べる物件の条件」)。
  * visibility が明示的に 'public' であることを要求する(unlisted=住所非公開・private・未設定は不可)。
  * isEffectivelyPublic と異なり visibility 未設定を許容しない(選択は本人の能動的操作のため、

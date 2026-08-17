@@ -1457,6 +1457,7 @@
         "config_title": "설정",
         "promotion_threshold": "승격 기준 (복사 횟수)",
         "promotion_multiplier": "승격 배수",
+        "new_listing_window_days": "하우징 찾기 페이지: NEW 표시 일수 (게시 후 며칠간 강조할지)",
         "config_save": "저장",
         "config_saved": "설정이 저장되었습니다",
         "icon_upload": "아이콘 변경",
@@ -1912,7 +1913,9 @@
             "added_to_tour": "추가됨",
             "select": "선택",
             "addressPrivate": "주소는 비공개입니다",
-            "privateListing": "비공개 하우징"
+            "privateListing": "비공개 하우징",
+            "new_badge": "NEW",
+            "new_badge_aria": "신규 하우징"
         },
         "tray": {
             "title": "투어 트레이",

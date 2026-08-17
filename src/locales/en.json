@@ -1492,6 +1492,7 @@
         "config_title": "Settings",
         "promotion_threshold": "Promotion threshold (copy count)",
         "promotion_multiplier": "Promotion multiplier",
+        "new_listing_window_days": "Housing browse page: NEW badge days (how many days after posting)",
         "config_save": "Save",
         "config_saved": "Settings saved",
         "icon_upload": "Change icon",
@@ -1947,7 +1948,9 @@
             "added_to_tour": "Added",
             "select": "Select",
             "addressPrivate": "Address is private",
-            "privateListing": "Private housing"
+            "privateListing": "Private housing",
+            "new_badge": "NEW",
+            "new_badge_aria": "New listing"
         },
         "tray": {
             "title": "Tour Tray",

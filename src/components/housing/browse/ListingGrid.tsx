@@ -36,6 +36,8 @@ export interface ListingGridProps {
   backgroundId?: string | null;
   /** selectable=true のとき、背景トグル時のコールバック。 */
   onToggleBackground?: (id: string) => void;
+  /** true のとき、投稿7日以内のカードにNEWリボン+ビーム演出を出す。探すページ専用 (2026-08-16)。 */
+  showNewBadge?: boolean;
 }
 
 /**
@@ -59,6 +61,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   backgroundId,
   onToggleBackground,
   toolbarPrefix,
+  showNewBadge,
 }) => {
   const { t } = useTranslation();
   const containerRef = useListScrollRestore(listKey);
@@ -115,6 +118,7 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
             onToggleSelect={onToggleSelect}
             isBackground={selectable ? backgroundId === l.id : undefined}
             onToggleBackground={onToggleBackground}
+            showNewBadge={showNewBadge}
           />
         ))}
       </div>

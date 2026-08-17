@@ -1457,6 +1457,7 @@
         "config_title": "设置",
         "promotion_threshold": "推荐阈值（复制次数）",
         "promotion_multiplier": "推荐倍率",
+        "new_listing_window_days": "住宅探索页面：NEW标示天数（发布后几天内显示）",
         "config_save": "保存",
         "config_saved": "设置已保存",
         "icon_upload": "更换图标",
@@ -1912,7 +1913,9 @@
             "added_to_tour": "已加入",
             "select": "选择",
             "addressPrivate": "地址不公开",
-            "privateListing": "不公开的房屋"
+            "privateListing": "不公开的房屋",
+            "new_badge": "NEW",
+            "new_badge_aria": "新上架房屋"
         },
         "tray": {
             "title": "导览清单",

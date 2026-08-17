@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
@@ -10,11 +10,12 @@ import { useHousingFavoritesStore } from '../../../../store/useHousingFavoritesS
 import { HousingPlaybackProvider } from '../../../../lib/housing/HousingPlaybackContext';
 import { useTourTrayStore } from '../../../../store/useTourTrayStore';
 import { useHousingListingsStore } from '../../../../store/useHousingListingsStore';
+import { useMasterDataStore } from '../../../../store/useMasterDataStore';
 
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
 
-import { ListingCard } from '../ListingCard';
+import { ListingCard, staggerDelayMs } from '../ListingCard';
 
 const mockListing = MOCK_LISTINGS[0];
 
@@ -22,7 +23,26 @@ beforeEach(() => {
   navigate.mockReset();
   useTourTrayStore.setState({ trayIds: [], pinnedIds: [] });
   useHousingListingsStore.setState({ listings: [], myListings: [] } as never);
+  useMasterDataStore.setState({ config: null } as never);
 });
+
+// NEWビーム演出 (ListingCard.tsx) の IntersectionObserver をモック。happy-dom は実際の
+// 交差判定をしないため、テスト側で「画面内に入った」を疑似的に発火できるようにする。
+let ioCallback: IntersectionObserverCallback | null = null;
+class MockIntersectionObserver {
+  constructor(cb: IntersectionObserverCallback) { ioCallback = cb; }
+  observe(): void {}
+  unobserve(): void {}
+  disconnect(): void {}
+}
+function fireIntersection(isIntersecting: boolean): void {
+  act(() => {
+    ioCallback?.(
+      [{ isIntersecting } as IntersectionObserverEntry],
+      {} as IntersectionObserver,
+    );
+  });
+}
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -40,6 +60,13 @@ beforeAll(() => {
         addEventListener: () => {}, removeEventListener: () => {}, dispatchEvent: () => false,
       } as unknown as MediaQueryList);
   }
+
+  (window as unknown as { IntersectionObserver: typeof IntersectionObserver }).IntersectionObserver =
+    MockIntersectionObserver as unknown as typeof IntersectionObserver;
+});
+
+beforeEach(() => {
+  ioCallback = null;
 });
 
 function renderCard(props: Partial<Parameters<typeof ListingCard>[0]> = {}) {
@@ -322,6 +349,124 @@ describe('ListingCard — 生きたカード配線 (段階2)', () => {
       </I18nextProvider>,
     );
     expect(container.querySelector('.housing-listing-card-img')).not.toBeNull();
+  });
+});
+
+describe('ListingCard — NEWリボン (2026-08-16・探すページ限定)', () => {
+  const recentListing = { ...mockListing, createdAt: Date.now() };
+  const oldListing = { ...mockListing, createdAt: Date.now() - 8 * 24 * 60 * 60 * 1000 };
+
+  it('showNewBadge未指定なら投稿が新しくてもリボンは出ない', () => {
+    renderCard({ listing: recentListing });
+    expect(screen.queryByTestId('housing-card-new-ribbon')).not.toBeInTheDocument();
+  });
+
+  it('showNewBadge=true + 7日以内の投稿ならリボンが出る', () => {
+    renderCard({ listing: recentListing, showNewBadge: true });
+    expect(screen.getByTestId('housing-card-new-ribbon')).toBeInTheDocument();
+    expect(screen.getByTestId('housing-card-new-ribbon')).toHaveTextContent('NEW');
+  });
+
+  it('管理画面の設定 (newListingWindowDays) を優先する: 3日設定なら5日前の投稿はリボン無し', () => {
+    useMasterDataStore.setState({ config: { newListingWindowDays: 3 } } as never);
+    const fiveDaysAgo = { ...mockListing, createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000 };
+    renderCard({ listing: fiveDaysAgo, showNewBadge: true });
+    expect(screen.queryByTestId('housing-card-new-ribbon')).not.toBeInTheDocument();
+  });
+
+  it('管理画面の設定 (newListingWindowDays) を優先する: 10日設定なら8日前の投稿でもリボンが出る', () => {
+    useMasterDataStore.setState({ config: { newListingWindowDays: 10 } } as never);
+    renderCard({ listing: oldListing, showNewBadge: true }); // oldListing = 8日前
+    expect(screen.getByTestId('housing-card-new-ribbon')).toBeInTheDocument();
+  });
+
+  it('showNewBadge=true でも7日より前の投稿ならリボンは出ない', () => {
+    renderCard({ listing: oldListing, showNewBadge: true });
+    expect(screen.queryByTestId('housing-card-new-ribbon')).not.toBeInTheDocument();
+  });
+
+  it('マウント直後 (まだ画面内に入っていない) はビーム演出が付かない (画面外での無駄光り防止)', () => {
+    renderCard({ listing: recentListing, showNewBadge: true });
+    const cardEl = screen.getByTestId('housing-listing-card');
+    expect(cardEl).not.toHaveClass('housing-card-new-beam');
+    expect(cardEl.querySelector('.housing-card-new-beam-glow')).toBeNull();
+  });
+
+  it('IntersectionObserverが交差(isIntersecting)を通知したらビーム演出クラス+光る輪が付く', () => {
+    renderCard({ listing: recentListing, showNewBadge: true });
+    fireIntersection(true);
+    const cardEl = screen.getByTestId('housing-listing-card');
+    expect(cardEl).toHaveClass('housing-card-new-beam');
+    expect(cardEl.querySelector('.housing-card-new-beam-glow')).not.toBeNull();
+  });
+
+  it('isIntersecting=false の通知だけでは付かない (実際に交差するまで待つ)', () => {
+    renderCard({ listing: recentListing, showNewBadge: true });
+    fireIntersection(false);
+    expect(screen.getByTestId('housing-listing-card')).not.toHaveClass('housing-card-new-beam');
+  });
+
+  it('画面外に出て(false)また入る(true)と、光る輪のDOM要素が作り直される (再生のkeyが変わる)', () => {
+    renderCard({ listing: recentListing, showNewBadge: true });
+    fireIntersection(true);
+    const cardEl = screen.getByTestId('housing-listing-card');
+    const firstGlow = cardEl.querySelector('.housing-card-new-beam-glow');
+    expect(firstGlow).not.toBeNull();
+
+    fireIntersection(false); // 画面外へ
+    fireIntersection(true); // 再度画面内へ
+
+    const secondGlow = cardEl.querySelector('.housing-card-new-beam-glow');
+    expect(secondGlow).not.toBeNull();
+    expect(secondGlow).not.toBe(firstGlow); // 同一要素の使い回しではなく作り直されている
+  });
+
+  it('画面内に居続けたまま同じ交差通知が重複しても作り直さない (無駄な再生をしない)', () => {
+    renderCard({ listing: recentListing, showNewBadge: true });
+    fireIntersection(true);
+    const cardEl = screen.getByTestId('housing-listing-card');
+    const firstGlow = cardEl.querySelector('.housing-card-new-beam-glow');
+
+    fireIntersection(true); // 画面内のまま再通知 (実際のIOでも起こりうる)
+
+    expect(cardEl.querySelector('.housing-card-new-beam-glow')).toBe(firstGlow);
+  });
+
+  it('リボン非表示のときはビーム演出クラスが付かない (既存構造を変えない)', () => {
+    renderCard({ listing: oldListing, showNewBadge: true });
+    fireIntersection(true);
+    expect(screen.getByTestId('housing-listing-card')).not.toHaveClass('housing-card-new-beam');
+  });
+
+  it('光る輪に listing.id 由来の --beam-delay CSS変数が付く (複数カード同時発光を避けるずらし)', () => {
+    // 実際に回転しているのは疑似要素 (::before) で React の style を直接当てられないため、
+    // CSS変数 (--beam-delay) 経由で橋渡しする。素の style.animationDelay ではなく
+    // カスタムプロパティを確認する (2026-08-16 実機指摘で判明したバグの回帰防止)。
+    renderCard({ listing: recentListing, showNewBadge: true });
+    fireIntersection(true);
+    const glow = screen.getByTestId('housing-listing-card').querySelector('.housing-card-new-beam-glow') as HTMLElement;
+    expect(glow.style.getPropertyValue('--beam-delay')).toBe(`${staggerDelayMs(recentListing.id)}ms`);
+  });
+});
+
+describe('staggerDelayMs', () => {
+  it('同じidなら常に同じ値を返す (決定的)', () => {
+    expect(staggerDelayMs('listing-abc')).toBe(staggerDelayMs('listing-abc'));
+  });
+
+  it('idが違えば基本的に異なる値になる (完全一致は稀)', () => {
+    const a = staggerDelayMs('listing-abc');
+    const b = staggerDelayMs('listing-xyz');
+    expect(a).not.toBe(b);
+  });
+
+  it('0以上3000未満の範囲に収まる', () => {
+    const ids = ['a', 'listing-1', 'listing-2', 'とても長いID-0123456789', ''];
+    for (const id of ids) {
+      const delay = staggerDelayMs(id);
+      expect(delay).toBeGreaterThanOrEqual(0);
+      expect(delay).toBeLessThan(3000);
+    }
   });
 });
 

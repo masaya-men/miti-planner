@@ -1457,6 +1457,7 @@
         "config_title": "設定",
         "promotion_threshold": "推薦閾值（複製次數）",
         "promotion_multiplier": "推薦倍率",
+        "new_listing_window_days": "住宅探索頁面：NEW標示天數（發布後幾天內顯示）",
         "config_save": "儲存",
         "config_saved": "設定已儲存",
         "icon_upload": "更換圖示",
@@ -1912,7 +1913,9 @@
             "added_to_tour": "已加入",
             "select": "選擇",
             "addressPrivate": "地址不公開",
-            "privateListing": "不公開的房屋"
+            "privateListing": "不公開的房屋",
+            "new_badge": "NEW",
+            "new_badge_aria": "新上架房屋"
         },
         "tray": {
             "title": "導覽清單",

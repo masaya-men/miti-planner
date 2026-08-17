@@ -268,10 +268,17 @@ export default async function handler(req: any, res: any) {
       if (req.body?.type === 'config') {
         const configRef = db.doc('master/config');
         const updates = req.body;
-        const allowed = ['promotionThreshold', 'promotionMultiplier', 'featureFlags'];
+        const allowed = ['promotionThreshold', 'promotionMultiplier', 'featureFlags', 'newListingWindowDays'];
         const filtered: Record<string, any> = {};
         for (const key of allowed) {
           if (updates[key] !== undefined) filtered[key] = updates[key];
+        }
+        // newListingWindowDays: 1〜90の整数のみ許可 (2026-08-16、ハウジング探すページのNEW表示日数)。
+        if (filtered.newListingWindowDays !== undefined) {
+          const days = filtered.newListingWindowDays;
+          if (!Number.isInteger(days) || days < 1 || days > 90) {
+            return res.status(400).json({ error: 'newListingWindowDays must be an integer between 1 and 90' });
+          }
         }
         if (Object.keys(filtered).length === 0) {
           return res.status(400).json({ error: 'No valid fields to update' });

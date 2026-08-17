@@ -1496,6 +1496,7 @@
         "config_title": "設定",
         "promotion_threshold": "昇格閾値（コピー数）",
         "promotion_multiplier": "昇格倍率",
+        "new_listing_window_days": "ハウジング探すページ: NEW表示の日数（投稿から何日間目立たせるか）",
         "config_save": "保存",
         "config_saved": "設定を保存しました",
         "icon_upload": "アイコンを変更",
@@ -1968,7 +1969,9 @@
             "added_to_tour": "追加済み",
             "select": "選択",
             "addressPrivate": "住所は非公開です",
-            "privateListing": "非公開のハウジング"
+            "privateListing": "非公開のハウジング",
+            "new_badge": "NEW",
+            "new_badge_aria": "新着のハウジング"
         },
         "tray": {
             "title": "ツアートレイ",

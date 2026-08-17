@@ -25,6 +25,8 @@ export interface MasterConfig {
   featureFlags: { useFirestore: boolean };
   categoryLabels: Record<ContentCategory, LocalizedString>;
   levelLabels: Record<number, LocalizedString>;
+  /** ハウジング探すページ: 投稿から何日間をNEW扱いにするか。未設定時は7日 (2026-08-16)。 */
+  newListingWindowDays?: number;
 }
 
 export interface MasterContents {

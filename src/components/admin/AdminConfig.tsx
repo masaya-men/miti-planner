@@ -14,6 +14,7 @@ export function AdminConfig() {
 
   const [threshold, setThreshold] = useState(20);
   const [multiplier, setMultiplier] = useState(2);
+  const [newListingWindowDays, setNewListingWindowDays] = useState(7);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -25,6 +26,7 @@ export function AdminConfig() {
         const data = await res.json();
         if (data.promotionThreshold !== undefined) setThreshold(data.promotionThreshold);
         if (data.promotionMultiplier !== undefined) setMultiplier(data.promotionMultiplier);
+        if (data.newListingWindowDays !== undefined) setNewListingWindowDays(data.newListingWindowDays);
       }
     } catch {
       showToast(t('admin.error_load'), 'error');
@@ -47,6 +49,7 @@ export function AdminConfig() {
           type: 'config',
           promotionThreshold: threshold,
           promotionMultiplier: multiplier,
+          newListingWindowDays,
         }),
       });
       if (!res.ok) throw new Error(res.statusText);
@@ -92,6 +95,21 @@ export function AdminConfig() {
             onChange={(e) => setMultiplier(Number(e.target.value))}
             min={1}
             step={0.1}
+          />
+        </div>
+
+        <div>
+          <label className="block text-app-lg text-app-text-muted mb-1">
+            {t('admin.new_listing_window_days')}
+          </label>
+          <input
+            type="number"
+            className={inputClass}
+            value={newListingWindowDays}
+            onChange={(e) => setNewListingWindowDays(Number(e.target.value))}
+            min={1}
+            max={90}
+            step={1}
           />
         </div>
 

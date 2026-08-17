@@ -8,7 +8,8 @@ import { HousingFavHeart } from './HousingFavHeart';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import { isEffectivelyPublic, canDisplayAddress } from '../../../lib/housing/listingPublish';
+import { isEffectivelyPublic, canDisplayAddress, isNewListing, NEW_LISTING_WINDOW_MS } from '../../../lib/housing/listingPublish';
+import { useMasterData } from '../../../hooks/useMasterData';
 import {
   handleYoutubeThumbnailError,
   handleYoutubeThumbnailLoad,
@@ -46,6 +47,29 @@ export interface ListingCardProps {
   onRequestVisibilityChange?: (id: string, next: 'public' | 'unlisted' | 'private') => void;
   /** showOwnerControls=true のとき、編集ボタンクリックで呼ぶ。 */
   onEditListing?: (id: string) => void;
+  /** true のとき、投稿から7日以内のカードに左上のNEWリボン+縁のビーム演出を出す。探すページ専用 (2026-08-16)。 */
+  showNewBadge?: boolean;
+}
+
+// 光る時間 (3s) と同じ幅までズレを広げ、「そろって見える」を確実に避ける
+// (2026-08-16: 400ms→1000msでもまだ物足りずさらに広げる実機指摘)。
+const NEW_BEAM_MAX_STAGGER_MS = 3000;
+
+/**
+ * NEWビーム演出の開始を listing.id から決定的にずらす (2026-08-16)。
+ * 複数のNEWカードが同時に画面内へ入ったとき全員が寸分違わず同時に光ると
+ * 機械的で不自然に見えるため(Material Designの staggered animation 指針、
+ * Framer Motion の staggerChildren / GSAP の stagger 等が標準機能として
+ * 存在するのが示す通り、複数要素の同時アニメーションは業界的に避けられる)、
+ * カードごとに 0〜3000ms の範囲でずらす。id 由来の決定的な値なので同じカードは
+ * 毎回同じズレになる (再現性のためランダムにはしない)。
+ */
+export function staggerDelayMs(id: string): number {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash) % NEW_BEAM_MAX_STAGGER_MS;
 }
 
 /**
@@ -72,6 +96,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   showOwnerControls,
   onRequestVisibilityChange,
   onEditListing,
+  showNewBadge,
 }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -135,15 +160,55 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const isMine = viewerUid !== null && listing.ownerUid === viewerUid;
   const isPrivate = isMine && listing.visibility === 'private';
   const isExpired = isMine && !isPrivate && !isEffectivelyPublic(listing, Date.now());
+  // 探すページ限定 (showNewBadge): 投稿からN日以内のカードに左上のNEWリボン+縁のビーム演出。
+  // N日は管理画面 (master/config.newListingWindowDays) で変更可能 (2026-08-16)。
+  // 未設定/未取得時は既定7日 (NEW_LISTING_WINDOW_MS) にフォールバックする。
+  const { config: masterConfig } = useMasterData();
+  const newListingWindowMs = masterConfig?.newListingWindowDays != null
+    ? masterConfig.newListingWindowDays * 24 * 60 * 60 * 1000
+    : NEW_LISTING_WINDOW_MS;
+  const isNew = Boolean(showNewBadge) && isNewListing(listing.createdAt, Date.now(), newListingWindowMs);
+  // ビーム演出はマウント直後ではなく、実際にスクロールして画面内に入るたびに1周だけ再生する
+  // (2026-08-16 実機指摘: 全カードが一度にDOM化されるため、マウント基準だと画面外のカードが
+  // 見えないまま光り終わっていた。さらに2026-08-16 追加要望: 画面外に出てまた入ってきた時にも
+  // 再度光ってほしい)。リボン自体 (isNew) は静的表示なので画面内に入るのを待たず即座に出す。
+  // enterCount を「画面内に入った回数」として増やし、それを beam span の key にすることで、
+  // React に毎回そのDOM要素を作り直させ (再マウント)、CSSアニメーションを確実に最初から
+  // 再生させる (クラスの再付与だけでは既に走り終えたCSSアニメーションは再始動しないため)。
+  const [enterCount, setEnterCount] = useState(0);
+  const wasIntersectingRef = useRef(false);
+  const cardElRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!isNew) return;
+    const el = cardElRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !wasIntersectingRef.current) {
+          wasIntersectingRef.current = true;
+          setEnterCount((c) => c + 1);
+        } else if (!entry.isIntersecting) {
+          wasIntersectingRef.current = false;
+        }
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isNew]);
 
   // カード全体クリック → 既定は詳細ページ。onCardClick 指定時はそちらを優先
   // (♡ / 選択 / ツアー追加は stopPropagation で独立動作、以下いずれの場合も不変)。
   const openDetail = () => navigate(`/housing/listing/${listing.id}`);
   const activate = onCardClick ?? openDetail;
 
+  // NEW かつ画面内に入った後だけ、縁を光が一周するビーム演出クラスを足す (投稿7日以内・探すページ限定)。
+  const showBeam = isNew && enterCount > 0;
+
   return (
     <article
-      className="housing-listing-card"
+      ref={cardElRef}
+      className={`housing-listing-card${showBeam ? ' housing-card-new-beam' : ''}`}
       style={{ contentVisibility: 'auto' } as React.CSSProperties}
       data-testid="housing-listing-card"
       role="link"
@@ -154,6 +219,23 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         if (e.key === 'Enter') activate();
       }}
     >
+      {/* 縁だけを光が一周するリング (2026-08-16改: 透ける部分から光が漏れる問題の根治のため
+          mask で輪の形に切り抜く方式にした。中の巨大な正方形だけが回転し、この輪自体は
+          カードの角丸の縁に固定されたまま動かない)。
+          key={enterCount}: 画面内に入るたびに増える値をkeyにすることで、2回目以降の再入場でも
+          Reactに要素を作り直させ、既に再生し終えたCSSアニメーションを確実に最初から再生させる。
+          --beam-delay: 実際に回転しているのは疑似要素 (::before) で、React の style は
+          疑似要素に直接効かないため、CSS変数として span に渡し housing.css 側の
+          animation-delay: var(--beam-delay) で疑似要素に届ける (2026-08-16 バグ修正: 当初
+          span 自身に animationDelay を置いていて何も効いていなかった)。 */}
+      {showBeam && (
+        <span
+          key={enterCount}
+          className="housing-card-new-beam-glow"
+          style={{ '--beam-delay': `${staggerDelayMs(listing.id)}ms` } as React.CSSProperties}
+          aria-hidden="true"
+        />
+      )}
       <div className="housing-listing-card-media" ref={mediaRef}>
         <img
           className="housing-listing-card-img"
@@ -176,6 +258,18 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         )}
         {isPlaying && videoKind === 'youtube' && listing.youtubeVideoId && (
           <HousingCardVideoOverlay kind="youtube" youtubeVideoId={listing.youtubeVideoId} />
+        )}
+
+        {/* NEWリボン (探すページ限定・投稿7日以内): 左上の角を斜めに横切る帯。
+            selectable (お気に入り/マイページ) では showNewBadge 自体を渡さないので競合しない。 */}
+        {isNew && (
+          <span
+            className="housing-card-new-ribbon"
+            data-testid="housing-card-new-ribbon"
+            aria-label={t('housing.card.new_badge_aria')}
+          >
+            {t('housing.card.new_badge')}
+          </span>
         )}
 
         {/* 常時表示 (左上): 選択チェック (お気に入りページのタグ選択・マイページのOGP代表作選択で共用)

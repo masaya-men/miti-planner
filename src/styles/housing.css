@@ -7092,6 +7092,83 @@ select.housing-input option {
   border-radius: 6px; padding: 2px 7px;
   white-space: nowrap;
 }
+/* NEWリボン (探すページ限定・投稿7日以内、2026-08-16): 左上の角を斜めに横切る帯。
+   親 (.housing-listing-card-media) が position:relative + overflow:hidden のため、
+   はみ出た部分は自然にカードの角丸でクリップされる。 */
+.housing-card-new-ribbon {
+  position: absolute;
+  top: 14px;
+  left: -34px;
+  z-index: 3;
+  width: 116px;
+  padding: 3px 0;
+  text-align: center;
+  transform: rotate(-45deg);
+  background: linear-gradient(135deg, var(--housing-honey), var(--housing-honey-glow));
+  color: var(--housing-honey-text);
+  font-size: var(--housing-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+/* NEWカードの縁だけを光が一周するビーム演出 (2026-08-16改)。
+   表示(画面内に入る)のたびに1周だけ再生して止まる(無限ループにしない・ユーザー合意)。
+   .housing-card-new-beam-glow (静的な「輪っか」のマスク、mask-composite:exclude で
+   content-box の内側を切り抜いて縁だけ残す) の中で、::before (画面より大きい正方形の
+   conic-gradient) だけが回転する。輪自体は回転せずカードの角丸の縁に固定されたまま動かない
+   ため、ツアー追加ボタン等の透ける部分から光が大きくにじみ出る問題が起きない
+   (旧実装=カード全体の背後に置いて周辺だけ透けさせる方式だった不具合の根治)。
+   ::before を 200vmax の正方形にしているのは、カードの縦横比のまま拡大すると
+   conic-gradient が歪む([[css-rules]] 既知の注意点)ため。 */
+.housing-listing-card.housing-card-new-beam {
+  position: relative;
+}
+.housing-card-new-beam-glow {
+  /* 2026-08-16: inset:-1px (親のborder分を補正する試み) は親の overflow:hidden の
+     クリップ境界の実際の挙動と合わず、リングがほぼ見えなくなる regression を起こしたため
+     inset:0 に戻した。境界線とのわずかなズレは残るが「見える」方を優先する。 */
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: inherit;
+  padding: 1px;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+.housing-card-new-beam-glow::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200vmax;
+  height: 200vmax;
+  margin-top: -100vmax;
+  margin-left: -100vmax;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 72%,
+    var(--housing-honey-glow) 84%,
+    var(--housing-candle) 90%,
+    transparent 96%
+  );
+  animation: housing-new-beam-spin 3s linear 1;
+  /* animation ショートハンドは未指定のサブプロパティ (animation-delay 含む) を 0s に
+     リセットするため、ずらし値は必ずショートハンドより後ろで指定する。
+     --beam-delay は span (::before の親) 側の inline style から渡される
+     (擬似要素には React の style を直接当てられないための橋渡し)。 */
+  animation-delay: var(--beam-delay, 0ms);
+}
+@keyframes housing-new-beam-spin {
+  to { transform: rotate(1turn); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .housing-card-new-beam-glow::before { animation: none; }
+}
 .housing-pill {
   font-size: var(--housing-text-xs); color: var(--housing-text-mute);
   background: var(--housing-honey-soft);

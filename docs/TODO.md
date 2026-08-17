@@ -18,12 +18,14 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **🆕 共同編集参加者のヘッダー開閉解禁 → 軽減表スプシモード**(いずれも大物・2026-08-05ブレスト済・**最高モデルを潤沢に使えるときに着手**、着手順は①→②固定)。ブレスト内容・確定設計・未解決論点は全て`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`に記録済み。着手時は同ファイルを土台にbrainstormingスキルで設計書化からやり直す。
 
 ## 現在の状態 (次セッションはここから読む)
+### 🆕 2026-08-16 ハウジング探すページ「NEW」演出 + 管理画面日数設定 = 実装完了・実機確認待ち(未コミット)
+投稿7日以内の物件を、ランダム表示時のみ先頭固定+左上NEWリボン+縁を1周光るビーム演出(画面内に入るたび再生・カードごとに0〜3秒ずらす)で表示。日数は`/admin/config`(要ログイン)で1〜90日の範囲で変更可能(`master/config.newListingWindowDays`、既存configに相乗りでコスト増無し)。型チェック・ビルド・テスト(listingPublish/seededShuffle/ListingCard/BrowsePage)全通過。**次回**: ユーザーが管理画面ログイン込みで実機確認 → 問題なければcommit・push。ビームCSSの試行錯誤の経緯は本セッションログ参照(mask-composite方式、`::before`には React styleが効かないため`--beam-delay`カスタムプロパティ経由)。
+### 📋 2026-08-16 SEOソフト404対策 = 計画書のみ作成・未実装
+Google Search Console指摘(`housing/housinger/:uid`)の根本原因調査済み(SPAの初期HTMLが空でJS依存)。4ページ(ハウジンガー/共有プラン/ツアー招待/物件詳細)を対象にした実装計画=`docs/superpowers/plans/2026-08-16-housing-seo-soft-404-fix.md`。次回この計画を実行(サブエージェント方式 or 自分で実行、未選択)。
 ### ✅ 2026-08-15 スマホのスクロール重さ = ほぼ解決・本番反映済み(残課題は低優先に格下げ)
 モバイル軽減表「連動」エフェクト棒の初動カクつき、根本原因2つのうち1つ(`.mobile-row-dim-text`の`[data-mobile-scrolling]`属性セレクタが毎スクロールON/OFFされ表全体を再評価)を解消(常時濃い状態に固定)。実測で重いフレーム6件→2件に激減、**ユーザー実機確認済み「軽くなってる」**。連動モードをFABピッカーへ復活・変身アニメ(伸縮)も元通りに本番反映済み。残るもう1つの原因(5つのscrollリスナーの累積コスト、詳細=`docs/.private/2026-08-14-mobile-scroll-stutter-investigation.md`)は未着手だが、体感で十分とのことなので優先度は低。加えてハウジング探すページの重さも別件で解消済み(`mask-image`の親要素移動)。
 ### ✅ 2026-08-15 ハウジング探すページ PC中央パネルのスクロールを滑らかに = 本番反映済み
 `useSmoothWheelScroll`が既定値(硬め)のままだったのを軽減表タイムラインより柔らかい設定(stiffness=60, wheelMultiplier=1.4)に調整。**ユーザー確認OK**。
-### ✅ 2026-08-14 ハウジング探すページ(PC/スマホ)見た目改善 + モバイル軽減表全面刷新・競合表示 = 本番push/デプロイ済
-ハウジング探すページ(中央パネルのツールバー1段集約・常時区切り線・パネル下端フェード・モバイル右余白修正)、モバイル軽減表レイアウト刷新+競合(CDかぶり)表示、Discordログインキャンセル修正、全て実機確認済みで本番反映済み(詳細→TODO_COMPLETED.md)。
 ### 📤 Discordアップデート告知 = 2本立て(下書き準備済・投稿はユーザー側)
 ①既存統合版下書き=`docs/.private/2026-08-12-discord-full-update-draft.md`(投稿待ち、ハウジング13項目+共同編集3件+軽減/学者3件)。②2026-08-14分の新規下書き=`docs/.private/2026-08-14-discord-update-draft.md`(モバイル軽減表レイアウト刷新+競合表示+Discordログインキャンセル修正+探すページ見た目改善+スクロール引っかかり軽減、2026-08-15追記済み)。アイコンアップロード不具合の再発有無は、実際に不具合報告をしたユーザー自身が次にアップロードを試した際の反応を待つ方針(こちらから確認を仕掛けない)。修正自体(Storageルール)は完了済み。
 **🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。/ `.claude/worktrees/housinger-ogp-card-redesign`が前回セッションの残プロセスにロックされ`git worktree remove`失敗中(実害なし・ウィンドウを閉じてから削除)。
@@ -88,8 +90,9 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 - **機能ブラッシュアップ案9件**(詳細=docs/.private/2026-06-15-feature-ideas-batch.md)。✅済=③軽減競合逆方向警告 / ⑤Logsインポート上書き・追記 / ⑥有名スプシ取込 (+列グリッド取込 §9.7 `85bb7d8c`)。**残**=①同時刻3+イベント ②スマホ/タブレット最適化(ボトムナビ/FAB・ボトムナビの透け視認性改善=ハウジング側で不透明化済みの型を移植[2026-07-16]) ④MAXHP-10%でダメージ黄 ⑦敵攻撃 or(2択) ⑧管理画面 攻撃ID保持で任意言語翻訳(GUID保持済・仕上げのみ) ⑨メモに動画URL→iframe。取り込み導線チューザー統合は将来。
 - **🆕 Wiki型タイムライン共同編集**(大物・詳細=docs/.private/2026-06-16-wiki-collaborative-timeline.md): ログインユーザー皆で1コンテンツを Wiki 編集(オーナーロック可)。既存 collab 資産活用+公開編集モデルは別設計。⑧を先に効かせると相性良。着手時 brainstorming。
 - **🆕 共同編集の部屋に「日程調整」**(ブレスト一部合意済・詳細=docs/.private/2026-06-16-collab-fixed-group-scheduling.md): collab ON 時だけ調整さん方式(候補日×メンバー○×△)。識別=名前自由入力(PII なし)・閲覧者も回答可。Phase2 で攻略進捗バー/作戦ボード温存。次=brainstorming 継続→spec。
+- **🆕 ハウジング投稿: YouTube動画URL貼付時に概要欄から住所を自動入力**(ユーザー発案2026-08-15): 動画の説明欄にゲーム内住所が書かれているケースがある想定。要調査=YouTube側で概要欄取得にAPIキー要否(oEmbedは概要欄非対応の可能性)・住所らしき文字列の抽出パターン設計。着手時brainstorming。
 - 方針: コンテンツ追加=`add-content`→`seed-contents.ts`/スキル正本=Firestore/SNS タグ `#LoPo #FF14 #BuildInPublic #AISelection`
 - 並行: マイコラージュ(収益化・28日まで凍結)/ハウジングは MUL 対象外で広告 OK
-- バックログ: npm audit/a11y/SE 利用規約/GDPR/SEO/FFLogs アイコン/MTST 分け/みんなの軽減表/ローカルデータ IndexedDB 移行(任意・Safari7日消去はIDBでも起きるので A 併用前提)
+- バックログ: npm audit/a11y/SE 利用規約/GDPR/FFLogs アイコン/MTST 分け/みんなの軽減表/ローカルデータ IndexedDB 移行(任意・Safari7日消去はIDBでも起きるので A 併用前提)
 
 <!-- When compacting, always preserve: 現在のタスク、変更中のファイルパス、本ファイルの「現在の状態」セクション -->

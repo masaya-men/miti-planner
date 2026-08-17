@@ -5,6 +5,8 @@ import {
   isAddressHidden,
   canDisplayAddress,
   canDisplayFullAddress,
+  isNewListing,
+  NEW_LISTING_WINDOW_MS,
 } from '../listingPublish';
 import type { MockListing } from '../../../data/housing/mockListings';
 
@@ -30,6 +32,27 @@ describe('isEffectivelyPublic', () => {
   });
   it('publishUntil が null なら無期限公開', () => {
     expect(isEffectivelyPublic({ visibility: 'public', publishUntil: null }, NOW)).toBe(true);
+  });
+});
+
+describe('isNewListing', () => {
+  it('投稿直後は true', () => {
+    expect(isNewListing(NOW, NOW)).toBe(true);
+  });
+  it('7日未満はtrue', () => {
+    expect(isNewListing(NOW, NOW + NEW_LISTING_WINDOW_MS - 1)).toBe(true);
+  });
+  it('ちょうど7日経過はfalse', () => {
+    expect(isNewListing(NOW, NOW + NEW_LISTING_WINDOW_MS)).toBe(false);
+  });
+  it('7日以上前の投稿はfalse', () => {
+    expect(isNewListing(NOW, NOW + NEW_LISTING_WINDOW_MS + 1)).toBe(false);
+  });
+
+  it('windowMsを明示指定すればその日数で判定する (管理画面の設定値を渡す想定)', () => {
+    const threeDays = 3 * 24 * 60 * 60 * 1000;
+    expect(isNewListing(NOW, NOW + threeDays - 1, threeDays)).toBe(true);
+    expect(isNewListing(NOW, NOW + threeDays, threeDays)).toBe(false);
   });
 });
 

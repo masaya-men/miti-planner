@@ -10,7 +10,8 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import { applyFilters } from '../../../lib/housing/applyFilters';
 import { useKeywordFilteredListings } from '../../../lib/housing/useKeywordFilteredListings';
-import { mergeListingsForViewer } from '../../../lib/housing/listingPublish';
+import { mergeListingsForViewer, NEW_LISTING_WINDOW_MS } from '../../../lib/housing/listingPublish';
+import { useMasterData } from '../../../hooks/useMasterData';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
 import { canAddToTour, tourAnchorRegion, tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -31,7 +32,7 @@ import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { PERSONAL_TAG_ID_PREFIX } from '../../../constants/housing';
 import { useHousingTagPickerStore } from '../../../store/useHousingTagPickerStore';
 import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
-import { seededShuffle } from '../../../lib/housing/seededShuffle';
+import { shuffleWithNewPinned } from '../../../lib/housing/seededShuffle';
 
 /**
  * 探すページ (3カラム): 左=フィルター / 中央=物件グリッド / 右=ツアートレイ。
@@ -95,12 +96,18 @@ export const BrowsePage: React.FC = () => {
   const sort = useHousingListOrderStore((s) => s.entries.browse.sortMode);
   const seed = useHousingListOrderStore((s) => s.entries.browse.seed);
   const setSort = (v: BrowseSortOrder) => useHousingListOrderStore.getState().setSortMode('browse', v);
+  // NEW固定表示の対象期間。管理画面 (master/config.newListingWindowDays) で変更可能 (2026-08-16)。
+  // 未設定/未取得時は既定7日 (NEW_LISTING_WINDOW_MS)。
+  const { config: masterConfig } = useMasterData();
+  const newListingWindowMs = masterConfig?.newListingWindowDays != null
+    ? masterConfig.newListingWindowDays * 24 * 60 * 60 * 1000
+    : NEW_LISTING_WINDOW_MS;
   const sorted = useMemo(() => {
-    if (sort === 'random') return seededShuffle(filtered, seed);
+    if (sort === 'random') return shuffleWithNewPinned(filtered, seed, Date.now(), newListingWindowMs);
     return [...filtered].sort((a, b) =>
       sort === 'newest' ? b.createdAt - a.createdAt : a.createdAt - b.createdAt,
     );
-  }, [filtered, sort, seed]);
+  }, [filtered, sort, seed, newListingWindowMs]);
 
   // ツアートレイのドラフト (#5: ページ横断で保持するストア。詳細ページ往復で消えない)。開始時に tour store へ確定する。
   const trayIds = useTourTrayStore((s) => s.trayIds);
@@ -218,6 +225,7 @@ export const BrowsePage: React.FC = () => {
                   listKey="browse"
                   sortOrders={['random', 'newest', 'oldest']}
                   toolbarPrefix={isMobile ? undefined : viewToggleNode}
+                  showNewBadge
                 />
               )}
             </>
