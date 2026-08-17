@@ -26,6 +26,7 @@ import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { isEligibleForOgRepresentative } from '../../src/lib/housing/listingPublish.js';
 import { buildYoutubeThumbnailUrlFallback } from '../../src/lib/housing/youtubeUrl.js';
 import { toPngSiblingPath } from '../housing/_imageArrayLogic.js';
+import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
@@ -40,10 +41,6 @@ const CARD_PATTERNS: HousingerCardPattern[] = ['grid', 'sidebar'];
 const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
 const DEFAULT_OG_DESCRIPTION = 'FF14の軽減プランをサクサク作れるウェブアプリ。FFLogsから自動生成されたタイムラインで、最適な軽減配置を。';
 const DEFAULT_OG_IMAGE = '/api/og';
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
 
 /**
  * 公開 listing 1 件分から代表画像 URL を「複数」解決する(2026-08-03: OGPカードの写真スロットが
@@ -150,6 +147,17 @@ function toAbsoluteUrl(url: string, origin: string): string {
   return `${origin}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
+/** ハウジンガーページのSEOスナップショット (Googlebot向けに<div id="root">へ埋め込む可視テキスト)。 */
+export function buildHousingerSeoSnapshotHtml(input: {
+  displayName: string;
+  bio: string;
+  listingCount: number;
+}): string {
+  const name = input.displayName || 'ハウジンガー';
+  const bioHtml = input.bio ? `<p>${escapeHtml(input.bio)}</p>` : '';
+  return `<h1>${escapeHtml(name)} のハウジング</h1>${bioHtml}<p>${input.listingCount}件のハウジングを公開中</p>`;
+}
+
 export default async function handler(req: any, res: any) {
   const rawUid = (req.query?.uid as string) || '';
 
@@ -157,6 +165,8 @@ export default async function handler(req: any, res: any) {
   let ogDescription = DEFAULT_OG_DESCRIPTION;
   let ogImageUrl: string = DEFAULT_OG_IMAGE;
   const lang = 'ja';
+  let httpStatus = 200;
+  let seoSnapshotHtml = '';
 
   // 自サイトのホスト名を固定 (host ヘッダー偽装対策)。_sharePageHandler.ts と同じ許可リスト。
   const allowedHosts = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
@@ -207,6 +217,7 @@ export default async function handler(req: any, res: any) {
           // 巡回コピーで埋める(cycleToLength、_housingerCard.ts側の責務)。
           const nowMs = Date.now();
           let resolvedImages: string[] = [];
+          let listingCount = 0;
           try {
             const selectedIds: string[] = Array.isArray(profile.ogRepresentativeListingIds)
               ? profile.ogRepresentativeListingIds.slice(0, 10)
@@ -244,6 +255,7 @@ export default async function handler(req: any, res: any) {
             const backgroundListingId = typeof profile.ogBackgroundListingId === 'string' ? profile.ogBackgroundListingId : null;
             const orderedEntries = reorderListingImageArraysByBackgroundId(listingImageEntries, backgroundListingId);
             resolvedImages = collectImagesFromListings(orderedEntries.map((e) => e.images), MAX_CARD_IMAGES);
+            listingCount = listingImageEntries.length;
           } catch (err) {
             console.error('Housinger page listing fetch error:', err);
           }
@@ -306,9 +318,19 @@ export default async function handler(req: any, res: any) {
             }
             // finalImage も無ければ ogImageUrl は DEFAULT_OG_IMAGE のまま。
           }
+
+          seoSnapshotHtml = buildHousingerSeoSnapshotHtml({ displayName, bio, listingCount });
+        } else {
+          // 非公開・運営非表示: 専用メタを一切設定せず404を返す。
+          httpStatus = 404;
         }
-        // isPublic===false の場合は専用メタを一切設定せず、デフォルトのまま下の HTML 生成に進む。
+      } else {
+        // プロフィールが存在しない
+        httpStatus = 404;
       }
+    } else {
+      // uidパラメータが無い
+      httpStatus = 404;
     }
   } catch (err) {
     console.error('Housinger page data fetch error:', err);
@@ -336,6 +358,7 @@ export default async function handler(req: any, res: any) {
         .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
         .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
         .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
+      if (seoSnapshotHtml) html = injectSeoSnapshot(html, seoSnapshotHtml);
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       // 2026-08-04: OGPカードのgrid/sidebarランダム抽選(CARD_PATTERNS)を短い間隔で
@@ -343,6 +366,7 @@ export default async function handler(req: any, res: any) {
       // 画像本体は内容ハッシュ単位で別途永続キャッシュされるため、ここを短くしても
       // 増えるのは軽いFirestore書き込み程度(satoriレンダリングの再発生はない)。
       res.setHeader('Cache-Control', 'public, s-maxage=30, max-age=0');
+      res.status(httpStatus);
       return res.send(html);
     }
   } catch (err) {
@@ -355,6 +379,7 @@ export default async function handler(req: any, res: any) {
   const safeImg = escapeHtml(ogImageUrl);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.status(httpStatus);
   return res.send(`<!doctype html>
 <html lang="${lang}">
 <head>
@@ -371,8 +396,7 @@ export default async function handler(req: any, res: any) {
 <meta name="twitter:image" content="${safeImg}" />
 </head>
 <body>
-<div id="root"></div>
-<p style="text-align:center;margin-top:40vh;color:#888">読み込み中...</p>
+<div id="root">${seoSnapshotHtml}</div>
 </body>
 </html>`);
 }

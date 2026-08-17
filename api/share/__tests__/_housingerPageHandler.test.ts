@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { listingRepresentativeImages, collectImagesFromListings, reorderListingImageArraysByBackgroundId } from '../_housingerPageHandler.js';
+import { buildHousingerSeoSnapshotHtml } from '../_housingerPageHandler.js';
 
 describe('listingRepresentativeImages', () => {
   it('thumbnailPathsがあれば複数枚(.png兄弟パスに変換して)返す', () => {
@@ -105,5 +106,27 @@ describe('reorderListingImageArraysByBackgroundId', () => {
 
   it('空配列はそのまま空配列', () => {
     expect(reorderListingImageArraysByBackgroundId([], 'l-1')).toEqual([]);
+  });
+});
+
+describe('buildHousingerSeoSnapshotHtml', () => {
+  it('displayName・bio・件数からスナップショットHTMLを組み立てる', () => {
+    const html = buildHousingerSeoSnapshotHtml({ displayName: 'ミスト太郎', bio: '内装こだわってます', listingCount: 3 });
+    expect(html).toBe('<h1>ミスト太郎 のハウジング</h1><p>内装こだわってます</p><p>3件のハウジングを公開中</p>');
+  });
+
+  it('bioが空なら<p>を出さない', () => {
+    const html = buildHousingerSeoSnapshotHtml({ displayName: 'ミスト太郎', bio: '', listingCount: 0 });
+    expect(html).toBe('<h1>ミスト太郎 のハウジング</h1><p>0件のハウジングを公開中</p>');
+  });
+
+  it('displayNameが空なら「ハウジンガー」にフォールバックする', () => {
+    const html = buildHousingerSeoSnapshotHtml({ displayName: '', bio: '', listingCount: 1 });
+    expect(html).toBe('<h1>ハウジンガー のハウジング</h1><p>1件のハウジングを公開中</p>');
+  });
+
+  it('displayName・bioのHTML特殊文字をエスケープする', () => {
+    const html = buildHousingerSeoSnapshotHtml({ displayName: '<b>x</b>', bio: '"quote"', listingCount: 0 });
+    expect(html).toBe('<h1>&lt;b&gt;x&lt;/b&gt; のハウジング</h1><p>&quot;quote&quot;</p><p>0件のハウジングを公開中</p>');
   });
 });
