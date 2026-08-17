@@ -18,6 +18,10 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 2. **🆕 共同編集参加者のヘッダー開閉解禁 → 軽減表スプシモード**(いずれも大物・2026-08-05ブレスト済・**最高モデルを潤沢に使えるときに着手**、着手順は①→②固定)。ブレスト内容・確定設計・未解決論点は全て`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`に記録済み。着手時は同ファイルを土台にbrainstormingスキルで設計書化からやり直す。
 
 ## 現在の状態 (次セッションはここから読む)
+### ✅ 2026-08-17 YouTube概要欄からの住所自動入力 = 実装完了・本番反映済み
+登録ページ(新規作成)+一時ツアークイック追加パネルで、YouTube URL貼付時に概要欄を取得(新規Edge Function `api/youtube-meta.ts`)し、既存の`parseHousingFromText`で住所自動入力。設計書=`docs/superpowers/specs/2026-08-17-youtube-description-address-autofill-design.md`、実装計画=`docs/superpowers/plans/2026-08-17-youtube-description-address-autofill.md`。subagent-driven-developmentで6タスク実装、各タスクレビュー+最終全体レビュー(opus)まで完了。最終レビューで発見した実バグ1件(オートセーブ復元時に既に正しい住所が入っているのに失敗バナーが誤表示される)を修正済み。**編集ページは対象外**(調査の結果、住所には元々一切触れていないと判明、リスク回避のため意図的に据え置き)。ソフト404対策とまとめてmain統合・push・本番反映済み(2026-08-17)。**残**=Vercel本番環境変数`YOUTUBE_API_KEY`の設定(未設定の間はサムネイル添付のみ成功し住所自動入力は常に「読み取れませんでした」表示、実害小だが早めに設定推奨)/実機での動作確認。
+### 🟡 モバイル軽減表エフェクト表示バグ修正 = 未完・要デバッグ(別セッションで)
+`src/utils/mobileEffectBar.ts`他に前セッションからの未コミット変更が残っており、テスト9件中1件が失敗中(`computeMobileEffectBars`のtop計算が期待値300に対し実際338、38pxのズレ)。意図的な計算式変更でテスト側の期待値更新が必要なのか、実装側にバグが残っているのか未調査。実機確認もまだ。ユーザー判断でこのセッションでは着手せず、次回別セッションでsystematic-debuggingから。
 ### 🆕 2026-08-16 ハウジング探すページ「NEW」演出 + 管理画面日数設定 = 実装完了・コミット済み・本番反映済み(2026-08-17push)。実機での見た目確認はまだ
 投稿7日以内の物件を、ランダム表示時のみ先頭固定+左上NEWリボン+縁を1周光るビーム演出(画面内に入るたび再生・カードごとに0〜3秒ずらす)で表示。日数は`/admin/config`(要ログイン)で1〜90日の範囲で変更可能(`master/config.newListingWindowDays`、既存configに相乗りでコスト増無し)。型チェック・ビルド・テスト(listingPublish/seededShuffle/ListingCard/BrowsePage)全通過。**次回**: 管理画面ログイン込みで本番実機確認。ビームCSSの試行錯誤の経緯は過去セッションログ参照(mask-composite方式、`::before`には React styleが効かないため`--beam-delay`カスタムプロパティ経由)。
 ### ✅ 2026-08-17 SEOソフト404対策 = 実装・レビュー完了、YouTube機能とまとめてmain統合・本番反映済み
@@ -28,7 +32,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 `useSmoothWheelScroll`が既定値(硬め)のままだったのを軽減表タイムラインより柔らかい設定(stiffness=60, wheelMultiplier=1.4)に調整。**ユーザー確認OK**。
 ### 📤 Discordアップデート告知 = 2本立て(下書き準備済・投稿はユーザー側)
 ①既存統合版下書き=`docs/.private/2026-08-12-discord-full-update-draft.md`(投稿待ち、ハウジング13項目+共同編集3件+軽減/学者3件)。②2026-08-14分の新規下書き=`docs/.private/2026-08-14-discord-update-draft.md`(モバイル軽減表レイアウト刷新+競合表示+Discordログインキャンセル修正+探すページ見た目改善+スクロール引っかかり軽減、2026-08-15追記済み)。アイコンアップロード不具合の再発有無は、実際に不具合報告をしたユーザー自身が次にアップロードを試した際の反応を待つ方針(こちらから確認を仕掛けない)。修正自体(Storageルール)は完了済み。
-**🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。/ `.claude/worktrees/housinger-ogp-card-redesign`が前回セッションの残プロセスにロックされ`git worktree remove`失敗中(実害なし・ウィンドウを閉じてから削除)。
+**🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。
+**ハウジンガーOGPカード見た目調整**: ユーザー確認(2026-08-17)によると完成済み扱い。`.claude/worktrees/housinger-ogp-card-redesign`には未コミットの差分3ファイルが残っているが、これは不採用と確定済みのもの。**触らない**(壊さないことが最優先とのユーザー指示)。前回セッションの残プロセスにロックされ`git worktree remove`も失敗中(実害なし)。
 未対応の別件(2026-07-31分・zh-Hant固有ではない・詳細→TODO_COMPLETED.md): housing.*の日本語取りこぼし(en/ko/zh各約100件)/スプシ取込プレビューのzh-Hant未対応/コンテンツdmuのko欠落。
 ### ✅ 直近の本番反映・棚卸し(詳細は全てTODO_COMPLETED.md / `.private/2026-07-23-housing-task-inventory.md`)
 マイページ作成/複数投稿URL登録Batch2/編集ページ画像管理/探すページ表示順ランダム化+初心者タグ/コスト・ハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所確認ゲート強化/旧UI意匠掃除、全て本番反映・確認済み。
