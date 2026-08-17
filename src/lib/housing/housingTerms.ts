@@ -1,5 +1,5 @@
-import terms from '../../data/housing/housingTerms.generated.json';
-import { regionForDC } from '../../data/housing/dcServerMap';
+import terms from '../../data/housing/housingTerms.generated.js';
+import { regionForDC } from '../../data/housing/dcServerMap.js';
 
 export type TermLocale = 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant';
 export type TermKind = 'dc' | 'world' | 'area' | 'apartment' | 'aetheryte' | 'district' | 'size' | 'tag';

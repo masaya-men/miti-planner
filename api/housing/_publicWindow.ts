@@ -33,7 +33,7 @@ const SELECT_FIELDS = [
   'buildingType', 'roomKind', 'lastConfirmedAt',
 ];
 
-function isPubliclyViewable(d: any, now: number): boolean {
+export function isPubliclyViewable(d: any, now: number): boolean {
   if (d.deletedAt != null) return false;
   if (d.isHidden === true) return false;
   if (!PUBLIC_VISIBILITY.includes(d.visibility ?? 'public')) return false;

@@ -1,5 +1,81 @@
-import { describe, it, expect } from 'vitest';
-import { listingRepresentativeImages, collectImagesFromListings, reorderListingImageArraysByBackgroundId } from '../_housingerPageHandler.js';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Firebase Admin のモック (listingCount 専用クエリ経由の回帰テスト用・_listingPageHandler.test.ts と同じ手法)。
+let mockProfileExists = true;
+let mockProfileData: any = null;
+const mockQueryResults: any[] = [];
+
+vi.mock('firebase-admin/app', () => ({
+  initializeApp: vi.fn(),
+  getApps: vi.fn(() => []),
+  cert: vi.fn((config) => config),
+}));
+
+vi.mock('firebase-admin/firestore', () => ({
+  getFirestore: vi.fn(() => ({
+    collection: vi.fn((name: string) => {
+      if (name === 'housing_profiles') {
+        return {
+          doc: vi.fn(() => ({
+            get: vi.fn(() => Promise.resolve({ exists: mockProfileExists, data: () => mockProfileData })),
+          })),
+        };
+      }
+      // housing_listings / og_image_meta: where/select/orderBy/limit チェーン + doc().get()/set()。
+      const chain: any = {
+        where: vi.fn(() => chain),
+        select: vi.fn(() => chain),
+        orderBy: vi.fn(() => chain),
+        limit: vi.fn(() => chain),
+        get: vi.fn(() => Promise.resolve(mockQueryResults.shift() ?? { docs: [] })),
+        doc: vi.fn(() => ({
+          get: vi.fn(() => Promise.resolve({ exists: false })),
+          set: vi.fn(() => Promise.resolve()),
+        })),
+      };
+      return chain;
+    }),
+  })),
+}));
+
+vi.mock('firebase-admin/storage', () => ({
+  getStorage: vi.fn(() => ({
+    bucket: vi.fn(() => ({
+      file: vi.fn(() => ({
+        exists: vi.fn(() => Promise.resolve([true])), // 既にキャッシュ済み扱い→warm-up fetch を発生させない
+      })),
+    })),
+  })),
+}));
+
+vi.mock('../../src/lib/ogpPageShell.js', () => ({
+  escapeHtml: (s: string) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+  injectSeoSnapshot: vi.fn((html: string) => html),
+}));
+
+import {
+  listingRepresentativeImages,
+  collectImagesFromListings,
+  reorderListingImageArraysByBackgroundId,
+  buildHousingerSeoSnapshotHtml,
+} from '../_housingerPageHandler.js';
+import handler from '../_housingerPageHandler.js';
+
+function makeReqRes(overrides: Partial<{ query: Record<string, unknown>; headers: Record<string, string> }> = {}) {
+  const headers: Record<string, string> = { host: 'lopoly.app', ...(overrides.headers ?? {}) };
+  const req: any = { method: 'GET', query: overrides.query ?? {}, headers, body: {} };
+  const res: any = {
+    statusCode: 0,
+    headers: {} as Record<string, string>,
+    body: undefined as unknown,
+    setHeader(key: string, value: string) { this.headers[key] = value; },
+    status(c: number) { this.statusCode = c; return this; },
+    json(b: unknown) { this.body = b; return this; },
+    send(b: unknown) { this.body = b; return this; },
+    end() { return this; },
+  };
+  return { req, res };
+}
 
 describe('listingRepresentativeImages', () => {
   it('thumbnailPathsがあれば複数枚(.png兄弟パスに変換して)返す', () => {
@@ -105,5 +181,72 @@ describe('reorderListingImageArraysByBackgroundId', () => {
 
   it('空配列はそのまま空配列', () => {
     expect(reorderListingImageArraysByBackgroundId([], 'l-1')).toEqual([]);
+  });
+});
+
+describe('buildHousingerSeoSnapshotHtml', () => {
+  it('displayName・bio・件数からスナップショットHTMLを組み立てる', () => {
+    const html = buildHousingerSeoSnapshotHtml({ displayName: 'ミスト太郎', bio: '内装こだわってます', listingCount: 3 });
+    expect(html).toBe('<h1>ミスト太郎 のハウジング</h1><p>内装こだわってます</p><p>3件のハウジングを公開中</p>');
+  });
+
+  it('bioが空なら<p>を出さない', () => {
+    const html = buildHousingerSeoSnapshotHtml({ displayName: 'ミスト太郎', bio: '', listingCount: 0 });
+    expect(html).toBe('<h1>ミスト太郎 のハウジング</h1><p>0件のハウジングを公開中</p>');
+  });
+
+  it('displayNameが空なら「ハウジンガー」にフォールバックする', () => {
+    const html = buildHousingerSeoSnapshotHtml({ displayName: '', bio: '', listingCount: 1 });
+    expect(html).toBe('<h1>ハウジンガー のハウジング</h1><p>1件のハウジングを公開中</p>');
+  });
+
+  it('displayName・bioのHTML特殊文字をエスケープする', () => {
+    const html = buildHousingerSeoSnapshotHtml({ displayName: '<b>x</b>', bio: '"quote"', listingCount: 0 });
+    expect(html).toBe('<h1>&lt;b&gt;x&lt;/b&gt; のハウジング</h1><p>&quot;quote&quot;</p><p>0件のハウジングを公開中</p>');
+  });
+});
+
+// 最終レビュー指摘2の回帰テスト: listingCount は OGP代表画像選定クエリ(最大10件・isEligibleForOgRepresentative
+// でvisibility==='public'限定=unlistedを除外)の副産物ではなく、専用クエリ(ownerUid + visibility in
+// ['public','unlisted'] + isHidden===false)の真の件数を反映すること。旧実装なら本テストの画像選定クエリは
+// 0件を返すため listingCount も 0 になっていたはず(= listingImageEntries.length を使っていた証拠)。
+describe('_housingerPageHandler の listingCount (専用クエリ経由)', () => {
+  beforeEach(() => {
+    mockQueryResults.length = 0;
+    mockProfileExists = true;
+    mockProfileData = null;
+  });
+
+  it('画像選定クエリの結果(0件)ではなく、専用クエリの真の件数(deletedAt済みは除外・未設定は除外しない)を使う', async () => {
+    mockProfileData = {
+      isPublished: true,
+      isModerationHidden: false,
+      displayName: 'テストハウジンガー',
+      bio: '',
+      avatarUrl: null,
+      avatarPngUrl: null,
+      // ogRepresentativeListingIds 未設定 → フォールバック(新着上位10件自動採用)分岐へ進む
+    };
+
+    // 1回目の get(): listingCount 専用クエリ。15件中、soft-delete 2件を除外して13件が正解。
+    // deletedAt フィールド自体が無い(旧データ)1件は「削除済みではない」扱いのまま含める
+    // (where('deletedAt','==',null) がフィールド未定義docにマッチしない既知の罠を踏まないため、
+    // ハンドラーはこのクエリにdeletedAt条件を含めずJS側フィルタで判定する実装になっている)。
+    const countDocs = [
+      ...Array.from({ length: 12 }, () => ({ data: () => ({ deletedAt: null }) })),
+      ...Array.from({ length: 2 }, () => ({ data: () => ({ deletedAt: Date.now() }) })),
+      { data: () => ({}) },
+    ];
+    mockQueryResults.push({ docs: countDocs });
+    // 2回目の get(): OGP代表画像選定用フォールバッククエリ。0件でもlistingCountには影響しないはず。
+    mockQueryResults.push({ docs: [] });
+
+    const { req, res } = makeReqRes({ query: { uid: 'testuser1' } });
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))); // index.html取得失敗→手組みHTMLフォールバックへ
+
+    await handler(req, res);
+
+    expect(res.body as string).toContain('13件のハウジングを公開中');
+    expect(res.body as string).not.toContain('0件のハウジングを公開中');
   });
 });

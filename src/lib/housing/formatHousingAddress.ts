@@ -13,11 +13,11 @@
  *
  * `compact` は MapBubbleCard 等の幅制約があるカード用に area 名を切り詰めた変種。
  */
-import type { HousingArea } from '../../types/housing';
-import { getAreaName, getApartmentName, toMasterLang } from './areaName';
-import type { Region } from '../../data/housing/dcServerMap';
-import { regionLabel, pickRegionLocale } from '../../data/housing/regionMap';
-import { displayDcName, displayWorldName } from './housingTerms';
+import type { HousingArea } from '../../types/housing.js';
+import { getAreaName, getApartmentName, toMasterLang } from './areaName.js';
+import type { Region } from '../../data/housing/dcServerMap.js';
+import { regionLabel, pickRegionLocale } from '../../data/housing/regionMap.js';
+import { displayDcName, displayWorldName } from './housingTerms.js';
 
 export interface AddressViewModel {
   area: HousingArea;

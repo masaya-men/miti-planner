@@ -2,13 +2,15 @@
  * 共有ページHTML返却ハンドラー
  *
  * /share/:id へのアクセスを受けて、動的OGPメタタグ付きHTMLを返す。
- * - クローラー: OGPメタタグを読み取ってカード表示
- * - 通常ユーザー: SPAのindex.htmlを返してReact Routerで表示
+ * - クローラー: OGPメタタグ + 可視テキストスナップショットを読み取る
+ * - 通常ユーザー: SPAのindex.htmlを返してReact Routerで表示 (即 /miti へ遷移)
+ * - 共有が存在しない (期限切れ/削除済み/不正ID) 場合は真の404を返す (ソフト404対策)。
  */
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getContentName, buildOgImageUrl, type OgpLang } from '../../src/lib/ogpHelpers.js';
+import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 
 const COLLECTION = 'shared_plans';
 
@@ -27,8 +29,9 @@ function initAdmin() {
     }
 }
 
-function escapeHtml(s: string): string {
-    return s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/** 共有プランページのSEOスナップショット (Googlebot向けに<div id="root">へ埋め込む可視テキスト)。 */
+export function buildSharePageSeoSnapshotHtml(ogTitle: string, ogDescription: string): string {
+    return `<h1>${escapeHtml(ogTitle)}</h1><p>${escapeHtml(ogDescription)}</p>`;
 }
 
 export default async function handler(req: any, res: any) {
@@ -38,6 +41,9 @@ export default async function handler(req: any, res: any) {
     let ogDescription = 'FF14の軽減プランをサクサク作れるウェブアプリ。FFLogsから自動生成されたタイムラインで、最適な軽減配置を。';
     let ogImageUrl = '/api/og';
     let lang: OgpLang = 'ja';
+    let httpStatus = 200;
+    let found = false;
+    let fetchFailed = false;
 
     try {
         if (shareId) {
@@ -46,10 +52,10 @@ export default async function handler(req: any, res: any) {
             const snap = await db.collection(COLLECTION).doc(shareId).get();
 
             if (snap.exists) {
+                found = true;
                 const data = snap.data()!;
                 lang = data.lang === 'en' ? 'en' : 'ja';
 
-                // バンドル共有
                 if (data.type === 'bundle' && Array.isArray(data.plans)) {
                     const names = data.plans
                         .map((p: any) => getContentName(p.contentId, lang) || p.title || '')
@@ -61,7 +67,6 @@ export default async function handler(req: any, res: any) {
                             : `${names.length}件の軽減プラン`;
                     }
                 } else {
-                    // 単一プラン
                     const contentName = getContentName(data.contentId, lang);
                     const planTitle = data.title || '';
 
@@ -86,19 +91,12 @@ export default async function handler(req: any, res: any) {
                     || 'lopoly.app';
                 const ogProtocol = ogHost.includes('localhost') ? 'http' : 'https';
                 const hasLogo = typeof data.logoBase64 === 'string' && data.logoBase64.length > 0;
-                // logoHash: ロゴ内容変更時に URL を変えて CDN キャッシュを別エントリにするためのバージョン子。
-                // 旧シェア（logoHash 未保存）は undefined のまま → URL に lh は付かず後方互換。
                 const logoHashStr = typeof data.logoHash === 'string' ? data.logoHash : undefined;
 
-                // OGP 画像 URL:
-                //   新仕様（imageHash あり）: /og/{hash}.png （同一オリジン静的画像、Firebase Storage キャッシュ）
-                //   旧仕様（imageHash なし）: /api/og?... （動的生成、後方互換）
-                // X クローラーが /api/ プレフィックスを嫌う問題を回避するため、新共有は必ず新仕様を使う。
                 const imageHashFromDoc = typeof data.imageHash === 'string' ? data.imageHash : '';
                 if (/^[a-f0-9]{16}$/.test(imageHashFromDoc)) {
                     ogImageUrl = `${ogProtocol}://${ogHost}/og/${imageHashFromDoc}.png`;
                 } else {
-                    // 後方互換: 旧共有は buildOgImageUrl で従来の /api/og?... を使う
                     ogImageUrl = buildOgImageUrl(`${ogProtocol}://${ogHost}`, shareId, {
                         showLogo: hasLogo,
                         logoHash: hasLogo ? logoHashStr : undefined,
@@ -109,11 +107,13 @@ export default async function handler(req: any, res: any) {
         }
     } catch (err) {
         console.error('Share page data fetch error:', err);
+        fetchFailed = true;
     }
 
-    // ビルド済みindex.htmlを取得してメタタグを差し替え
+    if (!found && !fetchFailed) httpStatus = 404;
+    const seoSnapshotHtml = found ? buildSharePageSeoSnapshotHtml(ogTitle, ogDescription) : '';
+
     try {
-        // 自サイトのホスト名を固定（hostヘッダー偽装対策）
         const allowedHosts = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
         const previewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
         const rawHost = req.headers.host || 'lopoly.app';
@@ -125,8 +125,6 @@ export default async function handler(req: any, res: any) {
 
         if (indexRes.ok) {
             let html = await indexRes.text();
-
-            // 共有ページの正規 URL（OGP の og:url を共有 URL に正しく差し替え）
             const sharePageUrl = shareId ? `${protocol}://${host}/share/${encodeURIComponent(shareId)}` : `${protocol}://${host}`;
 
             html = html
@@ -138,21 +136,23 @@ export default async function handler(req: any, res: any) {
                 .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
                 .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
                 .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
+            if (seoSnapshotHtml) html = injectSeoSnapshot(html, seoSnapshotHtml);
 
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.setHeader('Cache-Control', 'public, s-maxage=300, max-age=60');
+            res.status(httpStatus);
             return res.send(html);
         }
     } catch (err) {
         console.error('Index.html fetch error:', err);
     }
 
-    // フォールバック: 最小限のOGP HTMLを返す
     const safeTitle = escapeHtml(ogTitle);
     const safeDesc = escapeHtml(ogDescription);
     const safeImg = escapeHtml(ogImageUrl);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(httpStatus);
     return res.send(`<!doctype html>
 <html lang="${lang}">
 <head>
@@ -169,8 +169,7 @@ export default async function handler(req: any, res: any) {
 <meta name="twitter:image" content="${safeImg}" />
 </head>
 <body>
-<div id="root"></div>
-<p style="text-align:center;margin-top:40vh;color:#888">読み込み中...</p>
+<div id="root">${seoSnapshotHtml}</div>
 </body>
 </html>`);
 }

@@ -21,6 +21,7 @@ import { createHash } from 'crypto';
 import sharePageHandler from './_sharePageHandler.js';
 import housingerPageHandler from './_housingerPageHandler.js';
 import tourInvitePageHandler from './_tourInvitePageHandler.js';
+import listingPageHandler from './_listingPageHandler.js';
 import { getContentName, type OgpLang } from '../../src/lib/ogpHelpers.js';
 import { computeImageHash } from '../../src/lib/ogpImageHash.js';
 import { stripSharedPersonalData } from '../../src/lib/sharePrivacy.js';
@@ -96,6 +97,12 @@ export default async function handler(req: any, res: any) {
     // type=page/housinger と同様、rate limit / App Check を課さない（GET html、匿名クローラーも通す）。
     if (req.query?.type === 'tour') {
         return tourInvitePageHandler(req, res);
+    }
+
+    // 物件詳細ページへのルーティング（?type=listing&id=...）
+    // type=page/housinger/tour と同様、rate limit / App Check を課さない（GET html、匿名クローラーも通す）。
+    if (req.query?.type === 'listing') {
+        return listingPageHandler(req, res);
     }
 
     // CORS

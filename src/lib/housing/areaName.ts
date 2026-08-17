@@ -8,8 +8,8 @@
  *   (ja は必ず値が揃っている保証あり)
  * - region サブタグ (例: 'en-US') は primary subtag ('en') に正規化
  */
-import { housingAreaMasterData, MASTER_LANGS, type MasterLang } from '../../data/masterData';
-import type { HousingArea } from '../../types/housing';
+import { housingAreaMasterData, MASTER_LANGS, type MasterLang } from '../../data/masterData.js';
+import type { HousingArea } from '../../types/housing.js';
 
 export function toMasterLang(lang: string | undefined | null): MasterLang {
   if (!lang) return 'ja';

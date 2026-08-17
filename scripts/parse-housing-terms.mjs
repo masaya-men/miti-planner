@@ -1,9 +1,11 @@
 // 使い方: node scripts/parse-housing-terms.mjs
 // 正典: src/data/housing/terms-src/housing-terms.csv → src/data/housing/housingTerms.generated.json
+//                                                     → src/data/housing/housingTerms.generated.ts
 import { readFileSync, writeFileSync } from 'fs';
 
 const SRC = 'src/data/housing/terms-src/housing-terms.csv';
 const OUT = 'src/data/housing/housingTerms.generated.json';
+const OUT_TS = 'src/data/housing/housingTerms.generated.ts';
 // CSV は素朴に , split (本文にASCIIカンマ禁止)。BOM を剥がす。
 const rows = readFileSync(SRC, 'utf8').replace(/^﻿/, '').split(/\r?\n/).filter((l) => l.trim()).slice(1)
   .map((l) => l.split(',').map((c) => c.replace(/^"|"$/g, '').trim()));
@@ -34,4 +36,12 @@ for (const [cat, ja, en, ko, zh, zhHant] of rows) {
 }
 for (const [k, v] of Object.entries(out)) if (!Object.keys(v).length) throw new Error(`empty kind: ${k}`);
 writeFileSync(OUT, JSON.stringify(out, null, 2) + '\n', 'utf8');
-console.log('housingTerms.generated.json:', Object.entries(out).map(([k, v]) => `${k}=${Object.keys(v).length}`).join(' '));
+
+// .ts も併せて生成する。理由: housingTerms.ts は Vercel の Node Function (api/share) から
+// formatHousingAddress.ts 経由で参照されうる。JSON import は Node Function バンドルで
+// 実行時 FUNCTION_INVOCATION_FAILED (500) になる既知の罠 (memory: reference_vercel_node_function_json_import,
+// 2026-06-02 に api/share 全体が落ちた実例あり) なので、参照元は .ts 定数を使う。
+const TS_HEADER = `/**\n * ハウジング用語辞書 — housing-terms.csv から自動生成。\n *\n * なぜ .json ではなく .ts か: このファイルは Vercel の Node Function (api/share) から\n * formatHousingAddress.ts 経由で参照されうる。JSON import は Node Function バンドルで\n * 実行時 500 になる既知の罠のため、TypeScript 定数として持つ。\n *\n * @generated — このファイルは scripts/parse-housing-terms.mjs で生成される。直接編集しない。\n */\n`;
+writeFileSync(OUT_TS, TS_HEADER + `export default ${JSON.stringify(out, null, 2)} as const;\n`, 'utf8');
+
+console.log('housingTerms.generated.json/.ts:', Object.entries(out).map(([k, v]) => `${k}=${Object.keys(v).length}`).join(' '));
