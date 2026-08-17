@@ -656,7 +656,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       if (result.roomNumber != null) fills.push(['roomNumber', result.roomNumber]);
       if (result.apartmentBuilding != null) fills.push(['apartmentBuilding', result.apartmentBuilding]);
       if (fills.length === 0) {
-        setAddressExtractFailed(true);
+        // 復元起因の再取得 (spec:120) では「今回抽出できなかった」だけで、住所自体は既に
+        // 復元済み値で正しく埋まっている可能性が高い。ここで失敗扱いにすると、正しく入力済みの
+        // 住所欄の上に誤った「住所を読み取れませんでした」バナーが出てしまう (最終レビュー指摘)。
+        if (!restoreRefetchGuardRef.current) setAddressExtractFailed(true);
         return;
       }
       setAddressExtractFailed(false);
@@ -795,6 +798,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     (data: YoutubeFetchedData | null) => {
       if (!data) {
         setSnsCapture((prev) => (prev.youtube ? { ...prev, youtube: null } : prev));
+        // 最終レビュー指摘: URL クリアで住所抽出失敗バナーの原因も消えたので、バナーも消す。
+        setAddressExtractFailed(false);
         return;
       }
       if (isDuplicatePostUrl(sourcePostUrls, data.postUrl)) {
@@ -821,6 +826,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       if (!data) {
         // URL 欄クリア / 失敗 → OGP 捕捉と画像をクリア。
         setSnsCapture((prev) => (prev.ogp ? { ...prev, ogp: null } : prev));
+        // 最終レビュー指摘: URL クリアで住所抽出失敗バナーの原因も消えたので、バナーも消す。
+        setAddressExtractFailed(false);
         return;
       }
       if (isDuplicatePostUrl(sourcePostUrls, data.postUrl)) {
@@ -1708,6 +1715,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     capturedVideoRef.current = false;
     addressAppliedRef.current = false;
     setUrlSlotCount(1);
+    // 最終レビュー指摘: 復元下書きを破棄したら、その下書き由来の抽出失敗バナーも残さない。
+    setAddressExtractFailed(false);
   }, [autosaveValues, fieldState]);
 
   // ユーザーが URL 欄を手入力したら復元 guard を外す (以降の再取得は全フィールド上書きに戻す)。

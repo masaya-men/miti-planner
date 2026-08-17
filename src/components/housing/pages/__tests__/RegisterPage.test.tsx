@@ -1745,6 +1745,90 @@ describe('RegisterPage', () => {
     });
 
     /**
+     * 最終レビュー指摘 Finding1 回帰 (2026-08-17): オートセーブ復元 (spec:120) で住所は
+     * 既に正しく復元済みなのに、復元起因の SNS 再取得 (initialUrl 経由) が「今回は住所を
+     * 抽出できなかった」(fills.length===0) だけで addressExtractFailed(true) にしてしまい、
+     * 正しく入力済みの住所欄の上に誤った失敗バナーが出てしまうバグの回帰テスト。
+     * restoreRefetchGuardRef.current===true の間は fills.length===0 でも失敗バナーを出さない。
+     */
+    it('復元起因の再取得で住所0件でも既に住所が復元済みなら失敗バナーを出さない (最終レビュー Finding1 回帰)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      // Mana/Anima/Mist 3-15 は既存の YouTube 成功テストと同じ dc/server/area/ward/plot 組み合わせ
+      // (dcServerMismatch を回避できることが確認済みの組み合わせ)。
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件',
+          dc: 'Mana',
+          server: 'Anima',
+          area: 'Mist',
+          ward: 3,
+          buildingType: 'house',
+          plot: 15,
+          size: 'L',
+          visibility: 'public',
+          postUrl: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o',
+        }),
+      );
+
+      const { rerender } = render(createTree());
+
+      // 復元で住所が既に正しく埋まっていることを確認 (バナーが出れば誤りだと分かる前提)。
+      await waitFor(() => {
+        expect((screen.getByLabelText('データセンター') as HTMLSelectElement).value).toBe('Mana');
+        expect((screen.getByLabelText('サーバー') as HTMLSelectElement).value).toBe('Anima');
+      });
+      expect(screen.queryByTestId('housing-register-address-extract-failed')).toBeNull();
+
+      // 復元起因の再取得 (initialUrl 経由で自動発火済み) が完了 → 概要欄に住所なし (fills.length===0)。
+      youtubeState = {
+        ...youtubeState,
+        status: 'success',
+        data: { description: 'よろしくお願いします' },
+      };
+      rerender(createTree());
+
+      // fills.length===0 でも restoreRefetchGuardRef.current===true のため失敗バナーは出ない。
+      await waitFor(() => {
+        expect(screen.queryByTestId('housing-register-address-extract-failed')).toBeNull();
+      });
+      // 復元済みの住所も上書き/クリアされず維持されている。
+      expect((screen.getByLabelText('データセンター') as HTMLSelectElement).value).toBe('Mana');
+
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    /**
+     * 最終レビュー指摘 Finding2 回帰 (2026-08-17): addressExtractFailed が SNS URL クリア時に
+     * クリアされていなかったため、失敗バナー表示後に URL 欄を空にしても古いバナーが残り続けた。
+     * handleYoutubeFetched の null-data 分岐 (URL クリア) で setAddressExtractFailed(false) する。
+     */
+    it('失敗バナー表示後にURL欄をクリアするとバナーが消える (最終レビュー Finding2 回帰)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { rerender } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
+      youtubeState = {
+        ...youtubeState,
+        status: 'success',
+        data: { description: 'よろしくお願いします' },
+      };
+      rerender(createTree());
+
+      expect(
+        await screen.findByTestId('housing-register-address-extract-failed'),
+      ).toBeInTheDocument();
+
+      // URL 欄をクリア → classifySnsUrl の 'empty' 分岐で onYoutubeFetched(null) が呼ばれる。
+      fireEvent.change(input, { target: { value: '' } });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('housing-register-address-extract-failed')).toBeNull();
+      });
+    });
+
+    /**
      * Bug2 回帰 (2026-07-21 レビュー指摘・Important): handleDiscardRestore が Batch2 で追加した
      * ガード state/ref (sourcePostUrls/capturedVideoRef/addressAppliedRef/urlSlotCount) を
      * リセットしていなかったため、破棄後に「破棄前と同じ URL」を貼り直すと sourcePostUrls に
