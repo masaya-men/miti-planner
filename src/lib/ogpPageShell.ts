@@ -15,5 +15,5 @@ export function escapeHtml(s: string): string {
 export function injectSeoSnapshot(html: string, snapshotHtml: string): string {
   const marker = '<div id="root"></div>';
   if (!html.includes(marker)) return html;
-  return html.replace(marker, `<div id="root">${snapshotHtml}</div>`);
+  return html.replace(marker, () => `<div id="root">${snapshotHtml}</div>`);
 }

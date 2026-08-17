@@ -25,4 +25,11 @@ describe('injectSeoSnapshot', () => {
     const result = injectSeoSnapshot(html, '<h1>タイトル</h1>');
     expect(result).toBe(html);
   });
+
+  it('snapshotHtml に $ パターン ($&, $`, $\') が含まれている場合もそのまま差し込む', () => {
+    const html = '<body><div id="root"></div></body>';
+    const snapshotWithDollarPattern = '<h1>Price: $& other</h1>';
+    const result = injectSeoSnapshot(html, snapshotWithDollarPattern);
+    expect(result).toBe(`<body><div id="root"><h1>Price: $& other</h1></div></body>`);
+  });
 });
