@@ -2153,6 +2153,7 @@
                 "fetching": "正在讀取推文…",
                 "youtube_detected": "已辨識為 YouTube 影片（將以縮圖作為房屋圖片）",
                 "ogp_fetching": "正在取得頁面資訊…",
+                "youtube_fetching": "正在取得影片資訊…",
                 "cancel": "取消",
                 "retry": "重新取得",
                 "error": {

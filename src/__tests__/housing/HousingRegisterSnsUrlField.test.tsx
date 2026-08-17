@@ -23,6 +23,20 @@ vi.mock('../../lib/housing/useTweetFetch', () => ({
     useTweetFetch: () => tweetState,
 }));
 
+const mockFetchYoutubeMeta = vi.fn();
+const mockCancelYoutube = vi.fn();
+const mockResetYoutube = vi.fn();
+let youtubeState: any = {
+    status: 'idle',
+    data: null,
+    fetchYoutubeMeta: mockFetchYoutubeMeta,
+    cancel: mockCancelYoutube,
+    reset: mockResetYoutube,
+};
+vi.mock('../../lib/housing/useYoutubeFetch', () => ({
+    useYoutubeFetch: () => youtubeState,
+}));
+
 import { HousingRegisterSnsUrlField } from '../../components/housing/register/HousingRegisterSnsUrlField';
 
 describe('HousingRegisterSnsUrlField', () => {
@@ -37,6 +51,16 @@ describe('HousingRegisterSnsUrlField', () => {
             fetchTweet: mockFetchTweet,
             cancel: mockCancel,
             reset: mockReset,
+        };
+        mockFetchYoutubeMeta.mockClear();
+        mockCancelYoutube.mockClear();
+        mockResetYoutube.mockClear();
+        youtubeState = {
+            status: 'idle',
+            data: null,
+            fetchYoutubeMeta: mockFetchYoutubeMeta,
+            cancel: mockCancelYoutube,
+            reset: mockResetYoutube,
         };
     });
 
@@ -65,28 +89,42 @@ describe('HousingRegisterSnsUrlField', () => {
         expect(mockFetchTweet).not.toHaveBeenCalled();
     });
 
-    it('detects YouTube URL (youtu.be 形式) and calls onYoutubeFetched', () => {
-        const ytSpy = vi.fn();
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} onOgpFetched={() => {}} />);
+    it('detects YouTube URL (youtu.be 形式) and calls fetchYoutubeMeta with the video id', () => {
+        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={() => {}} onOgpFetched={() => {}} />);
         const input = screen.getByLabelText('housing.register.snsUrl.label');
         fireEvent.change(input, { target: { value: 'https://youtu.be/Ypg8w7Dmq9o?si=6-QZYvd0_Qqrk0pJ' } });
-        expect(ytSpy).toHaveBeenCalledWith({
-            postUrl: 'https://youtu.be/Ypg8w7Dmq9o?si=6-QZYvd0_Qqrk0pJ',
-            ogImageUrl: 'https://img.youtube.com/vi/Ypg8w7Dmq9o/hqdefault.jpg',
-            videoId: 'Ypg8w7Dmq9o',
-        });
+        expect(mockFetchYoutubeMeta).toHaveBeenCalledWith('Ypg8w7Dmq9o');
         // Twitter fetch は呼ばれない (YouTube に切替たため)
         expect(mockFetchTweet).not.toHaveBeenCalled();
     });
 
-    it('detects YouTube URL (watch?v= 形式) and calls onYoutubeFetched', () => {
+    it('YouTube概要欄取得成功後、onYoutubeFetchedがdescription込みで1回だけ呼ばれる', () => {
         const ytSpy = vi.fn();
-        render(<HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} onOgpFetched={() => {}} />);
+        const { rerender } = render(
+            <HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} onOgpFetched={() => {}} />,
+        );
         const input = screen.getByLabelText('housing.register.snsUrl.label');
         fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
-        expect(ytSpy).toHaveBeenCalledWith(
-            expect.objectContaining({ videoId: 'Ypg8w7Dmq9o' }),
+        expect(ytSpy).not.toHaveBeenCalled();
+
+        youtubeState = { ...youtubeState, status: 'success', data: { description: 'Mist 3-15' } };
+        rerender(
+            <HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} onOgpFetched={() => {}} />,
         );
+
+        expect(ytSpy).toHaveBeenCalledTimes(1);
+        expect(ytSpy).toHaveBeenCalledWith({
+            postUrl: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o',
+            ogImageUrl: 'https://img.youtube.com/vi/Ypg8w7Dmq9o/hqdefault.jpg',
+            videoId: 'Ypg8w7Dmq9o',
+            description: 'Mist 3-15',
+        });
+
+        // 同じ data オブジェクトのままの再レンダリングでは再ディスパッチしない
+        rerender(
+            <HousingRegisterSnsUrlField onTweetFetched={() => {}} onYoutubeFetched={ytSpy} onOgpFetched={() => {}} />,
+        );
+        expect(ytSpy).toHaveBeenCalledTimes(1);
     });
 
     // リグレッション: onTweetFetched の identity が毎レンダリングで変わっても (親の

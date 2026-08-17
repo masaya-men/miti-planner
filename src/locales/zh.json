@@ -2153,6 +2153,7 @@
                 "fetching": "正在读取推文…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "ogp_fetching": "ページ情報を取得中…",
+                "youtube_fetching": "正在获取视频信息…",
                 "cancel": "取消",
                 "retry": "重新获取",
                 "error": {

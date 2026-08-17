@@ -2209,6 +2209,7 @@
                 "fetching": "ツイートを読み取り中…",
                 "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
                 "ogp_fetching": "ページ情報を取得中…",
+                "youtube_fetching": "動画情報を読み取り中…",
                 "cancel": "取消",
                 "retry": "再取得",
                 "error": {

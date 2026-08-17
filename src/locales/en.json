@@ -2188,6 +2188,7 @@
                 "fetching": "Reading tweet…",
                 "youtube_detected": "Detected as a YouTube video (thumbnail will be used as the listing image)",
                 "ogp_fetching": "Fetching page info…",
+                "youtube_fetching": "Fetching video info…",
                 "cancel": "Cancel",
                 "retry": "Retry",
                 "error": {

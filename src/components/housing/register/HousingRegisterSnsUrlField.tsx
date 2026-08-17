@@ -3,12 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { parseTweetUrl } from '../../../lib/housing/tweetUrlParse';
 import { useTweetFetch, type TweetData } from '../../../lib/housing/useTweetFetch';
 import { useOgpFetch, type OgpData } from '../../../lib/housing/useOgpFetch';
+import { useYoutubeFetch, type YoutubeMetaData } from '../../../lib/housing/useYoutubeFetch';
 import { classifySnsUrl } from '../../../lib/housing/snsUrlRouting';
 
 export interface YoutubeFetchedData {
     postUrl: string;
     ogImageUrl: string;
     videoId: string;
+    description: string | null;
 }
 
 export interface OgpFetchedData {
@@ -76,8 +78,7 @@ export function HousingRegisterSnsUrlField({
     const { t } = useTranslation();
     const [url, setUrl] = useState('');
     const [invalidUrl, setInvalidUrl] = useState(false);
-    // 内部の YouTube 取得状態は親が握る (onYoutubeFetched で通知)、 子側では setter のみ使う。
-    const [, setYoutubeData] = useState<YoutubeFetchedData | null>(null);
+    const { status: youtubeStatus, data: youtubeData, fetchYoutubeMeta, reset: resetYoutube } = useYoutubeFetch();
     const { status, data, errorCode, fetchTweet, cancel, reset } = useTweetFetch();
     const {
         status: ogpStatus,
@@ -91,6 +92,8 @@ export function HousingRegisterSnsUrlField({
     // ガードしないとこの effect が再発火して自動入力を再適用→ユーザー編集 (区=17 等) を巻き戻す。
     const dispatchedDataRef = useRef<TweetData | null>(null);
     const dispatchedOgpRef = useRef<OgpData | null>(null);
+    const dispatchedYoutubeRef = useRef<YoutubeMetaData | null>(null);
+    const youtubeRouteRef = useRef<{ postUrl: string; ogImageUrl: string; videoId: string } | null>(null);
 
     useEffect(() => {
         if (status !== 'success' || !data) return;
@@ -111,6 +114,16 @@ export function HousingRegisterSnsUrlField({
         onOgpFetched({ postUrl: url.trim(), data: ogpData });
     }, [ogpStatus, ogpData, onOgpFetched, url]);
 
+    // YouTube 概要欄取得成功時に親へ通知 (Twitter/OGP と同じ「1 result = 1 dispatch」ガード)。
+    useEffect(() => {
+        if (youtubeStatus !== 'success' || !youtubeData) return;
+        if (dispatchedYoutubeRef.current === youtubeData) return;
+        dispatchedYoutubeRef.current = youtubeData;
+        const route = youtubeRouteRef.current;
+        if (!route) return;
+        onYoutubeFetched({ ...route, description: youtubeData.description });
+    }, [youtubeStatus, youtubeData, onYoutubeFetched]);
+
     // 実 fetch (tweet/ogp) の取得状態を上位へ通知する (RegisterSectionMedia がセクション level の
     // スケルトン/失敗注記に使う)。tweet と ogp のどちらかが loading なら loading、どちらかが error なら
     // その errorKey を渡す (tweet 優先)。onFetchStatusChange の identity 変化で毎回発火しないよう
@@ -121,7 +134,7 @@ export function HousingRegisterSnsUrlField({
             : ogpStatus === 'error' && ogpErrorCode
               ? `housing.register.snsUrl.ogp_error.${ogpErrorCode}`
               : null;
-    const loading = status === 'loading' || ogpStatus === 'loading';
+    const loading = status === 'loading' || ogpStatus === 'loading' || youtubeStatus === 'loading';
     useEffect(() => {
         onFetchStatusChange?.({ loading, errorKey });
         // onFetchStatusChange の identity は親側で安定 (useCallback) 前提。実値変化でのみ通知する。
@@ -138,7 +151,7 @@ export function HousingRegisterSnsUrlField({
                 setInvalidUrl(false);
                 reset();
                 resetOgp();
-                setYoutubeData(null);
+                resetYoutube();
                 onYoutubeFetched(null);
                 onOgpFetched(null);
                 return;
@@ -148,19 +161,15 @@ export function HousingRegisterSnsUrlField({
                 reset();
                 resetOgp();
                 onOgpFetched(null);
-                const yt: YoutubeFetchedData = {
-                    postUrl: route.postUrl,
-                    ogImageUrl: route.ogImageUrl,
-                    videoId: route.videoId,
-                };
-                setYoutubeData(yt);
-                onYoutubeFetched(yt);
+                youtubeRouteRef.current = { postUrl: route.postUrl, ogImageUrl: route.ogImageUrl, videoId: route.videoId };
+                dispatchedYoutubeRef.current = null;
+                fetchYoutubeMeta(route.videoId);
                 return;
             }
             // Twitter 判定
             case 'tweet':
                 setInvalidUrl(false);
-                setYoutubeData(null);
+                resetYoutube();
                 onYoutubeFetched(null);
                 resetOgp();
                 onOgpFetched(null);
@@ -170,7 +179,7 @@ export function HousingRegisterSnsUrlField({
             case 'ogp':
                 setInvalidUrl(false);
                 reset();
-                setYoutubeData(null);
+                resetYoutube();
                 onYoutubeFetched(null);
                 dispatchedOgpRef.current = null; // 別 URL → 再 dispatch を許す
                 fetchOgp(route.postUrl);
@@ -178,12 +187,12 @@ export function HousingRegisterSnsUrlField({
             // どれにも該当しない URL
             case 'invalid':
                 setInvalidUrl(true);
-                setYoutubeData(null);
+                resetYoutube();
                 onYoutubeFetched(null);
                 resetOgp();
                 onOgpFetched(null);
         }
-    }, [fetchTweet, reset, fetchOgp, resetOgp, onYoutubeFetched, onOgpFetched]);
+    }, [fetchTweet, reset, fetchOgp, resetOgp, resetYoutube, fetchYoutubeMeta, onYoutubeFetched, onOgpFetched]);
 
     // オートセーブ復元時 (initialUrl 非空) にマウント一度だけ handleChange を発火し、URL 欄復元 +
     // 種別判定→fetch を再実行する (spec:120)。復元起因の再取得であることは親側の ref で判定するため
@@ -262,6 +271,12 @@ export function HousingRegisterSnsUrlField({
                 <div className="housing-fetch-indicator">
                     <span className="housing-spinner" aria-hidden />
                     <span>{t('housing.register.snsUrl.ogp_fetching')}</span>
+                </div>
+            )}
+            {!suppressInlineFetchStatus && youtubeStatus === 'loading' && (
+                <div className="housing-fetch-indicator">
+                    <span className="housing-spinner" aria-hidden />
+                    <span>{t('housing.register.snsUrl.youtube_fetching')}</span>
                 </div>
             )}
             {!suppressInlineFetchStatus && ogpStatus === 'error' && ogpErrorCode && (
