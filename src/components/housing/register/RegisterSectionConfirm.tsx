@@ -34,6 +34,13 @@ interface Props {
   addressConfirmed: boolean;
   /** 確認ボタン押下ハンドラ。 */
   onConfirmAddress: () => void;
+  /**
+   * 右カラム RegisterDuplicatePanel と同じ重複チェック結果が「見つかった」状態かどうか
+   * (2026-08-18 ユーザー指摘)。右パネルは離れた位置にあるため、住所を確認してボタンを
+   * 押す瞬間に見落とされやすい。true のときだけ、住所直下にも同じ警告を出す
+   * (詳細な一覧・非公開件数は右パネルに残す。ここは見落とし防止の一言のみ)。
+   */
+  duplicateFound?: boolean;
 }
 
 /**
@@ -58,6 +65,7 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
   checklistItems,
   addressConfirmed,
   onConfirmAddress,
+  duplicateFound = false,
 }) => {
   const { t } = useTranslation();
 
@@ -100,6 +108,14 @@ export const RegisterSectionConfirm: React.FC<Props> = ({
             )}
           </span>
         </div>
+        {/* 重複警告 (見落とし防止・2026-08-18): 右パネルと同じ判定・同じ文言/トーンを、
+            確認ボタンの目の前にも出す。found のときだけ (idle/checking/clear は右パネルのみ)。 */}
+        {duplicateFound && (
+          <p className="housing-register-dup-found-lead" data-testid="housing-register-confirm-duplicate-warning">
+            <span className="housing-register-dup-found-icon" aria-hidden="true">⚠</span>
+            {t('housing.register.duplicate.found_lead')}
+          </p>
+        )}
         <p className="housing-register-confirm-gate-lead">{t('housing.register.confirm.gate_lead_prompt')}</p>
         {/* 住所が空の間はボタンを押せない灰色にして「先に住所を入力してください」で誘導する
             (2026-07-15 ユーザー要望)。押せないので震え等のフィードバックは不要。

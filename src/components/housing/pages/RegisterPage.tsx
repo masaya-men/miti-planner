@@ -1903,6 +1903,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                 checklistItems={checklistItems}
                 addressConfirmed={addressConfirmed}
                 onConfirmAddress={handleConfirmAddress}
+                duplicateFound={duplicateState === 'found'}
               />
             </div>
           </div>

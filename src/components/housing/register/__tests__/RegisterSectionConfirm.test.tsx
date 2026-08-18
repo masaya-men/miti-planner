@@ -118,4 +118,17 @@ describe('RegisterSectionConfirm', () => {
       jaTranslations.housing.register.confirm.save_private,
     );
   });
+
+  // 2026-08-18 ユーザー指摘: 重複チェックが右パネルにしかなく、住所確認ボタンを押す瞬間に
+  // 見落とされやすい。duplicateFound=true のときは住所直下にも同じ警告を出す。
+  it('duplicateFound=true のとき住所直下に重複警告が表示される', () => {
+    wrap({ duplicateFound: true });
+    const warning = screen.getByTestId('housing-register-confirm-duplicate-warning');
+    expect(warning).toHaveTextContent(jaTranslations.housing.register.duplicate.found_lead);
+  });
+
+  it('duplicateFound が未指定/false のときは重複警告を表示しない', () => {
+    wrap();
+    expect(screen.queryByTestId('housing-register-confirm-duplicate-warning')).not.toBeInTheDocument();
+  });
 });
