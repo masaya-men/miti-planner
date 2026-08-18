@@ -1726,6 +1726,37 @@ describe('RegisterPage', () => {
       });
     });
 
+    /**
+     * 実機報告 (2026-08-18): 番地(plot)は自動入力できたのに、本文に S/M/L 等のサイズ表記が
+     * 無いために建物タイプ (個人宅/アパルトメント) が未選択のまま残り、番地欄自体が
+     * (isHouse ゲートで) 非表示になってしまう UX ギャップの回帰テスト。
+     * parseHousingFromText は「アパート文脈でない」と判定できたときだけ plot を設定するため、
+     * plot が取れた時点で house を自動選択しても新たな推測は増えない。
+     */
+    it('YouTube概要欄にサイズ表記が無くても、番地が取れたら建物タイプ(個人宅)が自動選択される', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      const { rerender, container } = render(createTree());
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+
+      fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=Ypg8w7Dmq9o' } });
+      youtubeState = {
+        ...youtubeState,
+        status: 'success',
+        data: { description: 'Mana / Anima / Mist 3-15' },
+      };
+      rerender(createTree());
+
+      await waitFor(() => {
+        expect(container.querySelector('#housing-register-plot')).not.toBeNull();
+      });
+      expect((container.querySelector('#housing-register-plot') as HTMLInputElement).value).toBe('15');
+      expect(
+        within(container.querySelectorAll('[role="radiogroup"]')[0] as HTMLElement).getByRole('radio', {
+          name: '個人宅・FCハウス',
+        }),
+      ).toHaveAttribute('aria-checked', 'true');
+    });
+
     it('YouTube URL貼付→概要欄に住所が無いと失敗案内が表示される (Twitterでも同じ経路)', async () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       const { rerender } = render(createTree());

@@ -648,6 +648,16 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         // converted.size (S/M/L) はここでは**入れない**。house の size は (area, plot) から
         // 一意に決まるので、下の導出 effect が唯一の書き込み口になる。本文の "L" 表記が
         // 区画の実サイズと食い違っていても、区画側 (= ゲームの一次データ) を正とする。
+      } else if (result.plot != null || result.apartmentBuilding != null || result.roomNumber != null) {
+        // S/M/L 等のサイズ表記が本文に無くても、番地かアパート号棟/部屋番号が読み取れていれば
+        // 建物タイプは実質確定している。parseHousingFromText は plot をアパート文脈でないと
+        // 判定したときだけ、apartmentBuilding/roomNumber をアパート文脈と判定したときだけ設定する
+        // ため(誤爆しない)、ここで house/apartment を選んでも新たな推測は増えない。これが無いと
+        // 番地が自動入力済みなのに建物タイプだけ未選択のまま残り、番地欄自体が非表示になる
+        // (isHouse/isApartment ゲート) UXギャップになる(2026-08-18 ユーザー実機報告)。
+        const buildingType: 'house' | 'apartment' = result.plot != null ? 'house' : 'apartment';
+        fills.push(['buildingType', buildingType]);
+        if (buildingType === 'apartment') fills.push(['apartmentBuilding', 1]);
       }
       // アパートの号棟-部屋番号 (2026-07-13 round2 A-4)。パーサが確信を持って取れたときだけ
       // 値が入る (取れなければ undefined のまま = 誤値を作らない)。apartmentBuilding は
