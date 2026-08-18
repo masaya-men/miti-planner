@@ -2,14 +2,14 @@ import type { SheetImportResult } from './buildPlanFromSheets';
 import type { GridTable, GridColumn } from './gridTypes';
 import type { Mitigation, Job } from '../../types/index';
 
-type Lang = 'ja' | 'en' | 'ko' | 'zh';
+type Lang = 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant';
 
-/** ダメージ種別 enum → 表示ラベルの 4 言語マップ。 */
+/** ダメージ種別 enum → 表示ラベルの 5 言語マップ。 */
 const DAMAGE_TYPE_LABELS: Record<string, Record<Lang, string>> = {
-  physical:    { ja: '物理',   en: 'Physical',    ko: '물리',       zh: '物理'     },
-  magical:     { ja: '魔法',   en: 'Magic',       ko: '마법',       zh: '魔法'     },
-  enrage:      { ja: '時間切れ', en: 'Enrage',    ko: '시간 초과',  zh: '超时'     },
-  unavoidable: { ja: '回避不可', en: 'Unavoidable', ko: '회피 불가', zh: '无法回避' },
+  physical:    { ja: '物理',   en: 'Physical',    ko: '물리',       zh: '物理',     'zh-Hant': '物理'     },
+  magical:     { ja: '魔法',   en: 'Magic',       ko: '마법',       zh: '魔法',     'zh-Hant': '魔法'     },
+  enrage:      { ja: '時間切れ', en: 'Enrage',    ko: '시간 초과',  zh: '超时',     'zh-Hant': '超時'     },
+  unavoidable: { ja: '回避不可', en: 'Unavoidable', ko: '회피 불가', zh: '无法回避', 'zh-Hant': '無法回避' },
 };
 
 /** damageType enum を lang に対応するラベルに変換。未知の値は ja フォールバック、それもなければ元の値を返す。 */
@@ -20,7 +20,7 @@ function localizeDamageType(damageType: string, lang: Lang): string {
 }
 
 /** LocalizedString から lang に対応する文字列を取得。なければ ja、それもなければ fallback。 */
-function localize(name: { ja: string; en?: string; ko?: string; zh?: string } | undefined, lang: Lang): string {
+function localize(name: { ja: string; en?: string; ko?: string; zh?: string; 'zh-Hant'?: string } | undefined, lang: Lang): string {
   if (!name) return '';
   return name[lang] ?? name.ja ?? '';
 }

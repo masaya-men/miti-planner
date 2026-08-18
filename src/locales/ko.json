@@ -1903,9 +1903,9 @@
             "back_to_top": "상단으로"
         },
         "mypage_coming_soon": {
-            "eyebrow": "マイページ",
-            "title": "準備中です",
-            "lead": "登録したハウジングやお気に入りをまとめて見られるマイページを準備しています。それまでは各ページからご利用ください。"
+            "eyebrow": "마이페이지",
+            "title": "준비 중입니다",
+            "lead": "등록한 하우징과 즐겨찾기를 한곳에서 볼 수 있는 마이페이지를 준비하고 있습니다. 그때까지는 각 페이지에서 이용해 주세요."
         },
         "card": {
             "favorite": "즐겨찾기",
@@ -1923,10 +1923,10 @@
             "remove": "삭제",
             "start": "이 내용으로 투어 시작",
             "count": "{{count}}",
-            "sort_efficient": "効率順に並べ替え",
-            "pin": "この位置に固定",
-            "unpin": "固定を解除",
-            "drag_handle": "ドラッグして並べ替え",
+            "sort_efficient": "효율순으로 정렬",
+            "pin": "이 위치에 고정",
+            "unpin": "고정 해제",
+            "drag_handle": "드래그하여 순서 변경",
             "board_hint": "카드 왼쪽의 핸들을 잡고 드래그하면 순서를 바꿀 수 있습니다",
             "open_detail": "상세 페이지 보기"
         },
@@ -2052,9 +2052,9 @@
                 "apartment": "아파트"
             },
             "apartment_building": {
-                "label": "号棟",
-                "main": "1号棟 (本街)",
-                "sub": "2号棟 (拡張街)"
+                "label": "동",
+                "main": "1동 (본구역)",
+                "sub": "2동 (확장 구역)"
             },
             "description": "코멘트 (선택 사항・200자 이내)",
             "description_placeholder": "자유롭게 작성해 주세요",
@@ -2127,17 +2127,17 @@
                     "too_long": "제목이 너무 깁니다"
                 },
                 "buildingType": {
-                    "invalid": "建物タイプを選んでください"
+                    "invalid": "건물 유형을 선택해 주세요"
                 },
                 "apartmentBuilding": {
-                    "out_of_range": "号棟は 1 か 2 を選んでください"
+                    "out_of_range": "동은 1 또는 2를 선택해 주세요"
                 },
                 "roomNumber": {
-                    "out_of_range": "部屋番号は 1〜90 で入力してください"
+                    "out_of_range": "방 번호는 1〜90 사이로 입력해 주세요"
                 },
                 "roomKind": {
                     "apartment_room_required": "아파트먼트에는 방 번호가 필요합니다",
-                    "invalid_for_house": "この建物タイプでは部屋番号は不要です"
+                    "invalid_for_house": "이 건물 유형에는 방 번호가 필요하지 않습니다"
                 }
             },
             "quota": {
@@ -2152,8 +2152,8 @@
                 "help": "X(구 Twitter)·YouTube·Housing Snap 등에 대응. 동영상이 포함된 게시물도 OK입니다",
                 "help_disclaimer": "자동 입력이 정확하지 않을 수 있습니다. 어디까지나 입력을 돕는 보조 기능으로 이용해 주세요.",
                 "fetching": "트윗을 읽는 중…",
-                "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
-                "ogp_fetching": "ページ情報を取得中…",
+                "youtube_detected": "YouTube 동영상으로 인식 (썸네일을 매물 이미지로 사용합니다)",
+                "ogp_fetching": "페이지 정보를 가져오는 중…",
                 "youtube_fetching": "동영상 정보를 가져오는 중…",
                 "cancel": "취소",
                 "retry": "다시 가져오기",
@@ -2177,32 +2177,32 @@
                 }
             },
             "image": {
-                "label": "画像 (任意・最大 {{max}} 枚)",
-                "cta": "クリックまたはドラッグして画像を選択",
-                "cta_add": "+ 画像を追加",
-                "hint": "{{current}} / {{max}} 枚・長辺 1920px・1 枚あたり最大 1MB に自動圧縮 (AVIF/WebP)。 ドラッグで並び替えできます (先頭が代表画像になります)",
-                "select_aria": "画像ファイルを選択",
-                "compressing": "画像を圧縮中…",
-                "compressed_label": "圧縮済",
-                "cover_badge": "カバー",
-                "used_badge": "使用",
-                "remove": "削除",
-                "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像になります)",
-                "sns_override_note": "画像を直接アップロードしたので、 SNS URL の画像は使われません",
+                "label": "이미지 (선택 사항・최대 {{max}}장)",
+                "cta": "클릭하거나 드래그하여 이미지 선택",
+                "cta_add": "+ 이미지 추가",
+                "hint": "{{current}} / {{max}}장・긴 변 1920px・장당 최대 1MB로 자동 압축 (AVIF/WebP). 드래그로 순서를 바꿀 수 있습니다 (맨 앞이 대표 이미지가 됩니다)",
+                "select_aria": "이미지 파일 선택",
+                "compressing": "이미지 압축 중…",
+                "compressed_label": "압축 완료",
+                "cover_badge": "커버",
+                "used_badge": "사용",
+                "remove": "삭제",
+                "reorder_hint": "드래그로 순서를 바꿀 수 있습니다 (맨 왼쪽의 '커버'가 목록의 대표 이미지가 됩니다)",
+                "sns_override_note": "이미지를 직접 업로드했으므로 SNS URL의 이미지는 사용되지 않습니다",
                 "limitModal": {
-                    "title": "画像は{{max}}枚まで",
-                    "body": "{{selected}}枚選択されましたが、保存できる画像は{{max}}枚までです。先頭{{max}}枚のみ追加しました。",
-                    "confirm": "わかりました"
+                    "title": "이미지는 최대 {{max}}장까지",
+                    "body": "{{selected}}장을 선택하셨지만 저장할 수 있는 이미지는 최대 {{max}}장입니다. 처음 {{max}}장만 추가했습니다.",
+                    "confirm": "확인"
                 },
                 "error": {
-                    "not_image": "画像ファイル (JPEG / PNG / WebP / AVIF / HEIC) を選んでください",
-                    "compress_failed": "画像の圧縮に失敗しました。 別の画像を試してください",
-                    "too_many": "画像は最大 {{max}} 枚までです"
+                    "not_image": "이미지 파일 (JPEG / PNG / WebP / AVIF / HEIC)을 선택해 주세요",
+                    "compress_failed": "이미지 압축에 실패했습니다. 다른 이미지를 시도해 주세요",
+                    "too_many": "이미지는 최대 {{max}}장까지입니다"
                 }
             },
             "sourceImages": {
-                "label": "取得した画像 (ドラッグで並び替え可・先頭 {{max}} 枚が保存されます)",
-                "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像、 先頭 {{max}} 枚が保存されます)"
+                "label": "가져온 이미지 (드래그로 순서 변경 가능・앞쪽 {{max}}장이 저장됩니다)",
+                "reorder_hint": "드래그로 순서를 바꿀 수 있습니다 (맨 왼쪽의 '커버'가 목록의 대표 이미지이며, 앞쪽 {{max}}장이 저장됩니다)"
             },
             "media": {
                 "fetched_count": "이미지를 {{count}}장 가져왔습니다",
@@ -2258,7 +2258,7 @@
                     "not_authenticated": "등록에는 로그인이 필요합니다. 로그인 후 다시 시도해 주세요.",
                     "quota_exhausted": "등록 한도에 도달했습니다. 잠시 후 다시 시도해 주세요.",
                     "generic": "등록에 실패했습니다. 네트워크 환경을 확인하고 다시 시도해 주세요.",
-                    "upload_failed": "物件は登録できましたが、 画像のアップロードに失敗しました。 編集画面から再度アップロードしてください。"
+                    "upload_failed": "매물은 등록되었지만 이미지 업로드에 실패했습니다. 수정 화면에서 다시 업로드해 주세요."
                 }
             },
             "cancel": "취소",
@@ -2417,7 +2417,7 @@
             "season_valentine": "발렌타인",
             "season_hinamatsuri": "雛祭り (Hinamatsuri)",
             "season_easter": "부활절",
-            "season_tanabata": "七夕 (Tanabata)",
+            "season_tanabata": "칠석 (Tanabata)",
             "season_summer_festival": "여름 축제",
             "season_halloween": "할로윈",
             "season_christmas": "크리스마스",
@@ -2512,7 +2512,7 @@
                 "progress": "진행 중",
                 "share_aria": "투어 공유 URL 복사",
                 "exit_aria": "투어 종료하기",
-                "auto_added_toast": "同住所の他 {{count}} 件もツアーに追加しました"
+                "auto_added_toast": "같은 주소의 다른 {{count}}건도 투어에 추가했습니다"
             },
             "favorites": {
                 "title": "즐겨찾기",
@@ -2678,50 +2678,50 @@
             "settings_language": "언어",
             "tray_start": "시작",
             "tray_clear": "비우기",
-            "reorder": "並べ替え"
+            "reorder": "순서 변경"
         },
         "gallery": {
-            "loading": "物件を読み込んでいます…",
-            "error": "物件の読み込みに失敗しました",
+            "loading": "매물을 불러오는 중…",
+            "error": "매물을 불러올 수 없습니다",
             "no_image": "이미지 없음",
             "thumb_aria": "이미지 {{index}}/{{total}}",
             "video_iframe_title": "주택 동영상"
         },
         "detail": {
-            "title": "物件詳細",
-            "owner_label": "登録者",
-            "share": "シェア",
-            "share_copy_link": "リンクをコピー",
-            "share_copied": "コピーしました",
-            "share_twitter": "X で共有",
-            "share_x": "Xでシェア",
-            "report_button": "ちがった",
-            "back_aria": "戻る",
-            "view_source": "元の投稿を見る",
+            "title": "매물 상세",
+            "owner_label": "등록자",
+            "share": "공유",
+            "share_copy_link": "링크 복사",
+            "share_copied": "복사했습니다",
+            "share_twitter": "X로 공유",
+            "share_x": "X 공유",
+            "report_button": "아니었어요",
+            "back_aria": "뒤로 가기",
+            "view_source": "원본 게시물 보기",
             "view_original": "원본 게시물 보기",
             "view_original_item": "게시물 {{index}}",
-            "add_to_tour": "ツアー",
+            "add_to_tour": "투어",
             "kebab": {
-                "aria_label": "メニュー",
-                "edit": "編集",
-                "delete": "削除"
+                "aria_label": "메뉴",
+                "edit": "수정",
+                "delete": "삭제"
             },
-            "login_required": "この操作にはログインが必要です",
-            "cannot_report_own": "自分の物件は通報できません",
-            "unavailable": "この物件は削除されたか、 表示できません",
-            "postRemoved": "元の投稿が削除されたため、 この物件の掲載も終了しました",
-            "still_here_button": "今もあります",
-            "still_here_aria": "このハウジングが今もあることを確認する",
-            "confirm_success": "「今もあります」 として確認しました",
-            "confirm_error": "確認できませんでした、 もう一度お試しください",
-            "confirm_error_forbidden_hidden": "通報により非表示中のハウジングは確認できません",
-            "last_confirmed_at": "{{date}} 確認済",
+            "login_required": "이 작업에는 로그인이 필요합니다",
+            "cannot_report_own": "본인 매물은 신고할 수 없습니다",
+            "unavailable": "이 매물은 삭제되었거나 표시할 수 없습니다",
+            "postRemoved": "원본 게시물이 삭제되어 이 매물의 게재도 종료되었습니다",
+            "still_here_button": "지금도 있어요",
+            "still_here_aria": "이 하우징이 지금도 있는지 확인",
+            "confirm_success": "'지금도 있어요'로 확인했습니다",
+            "confirm_error": "확인하지 못했습니다. 다시 시도해 주세요",
+            "confirm_error_forbidden_hidden": "신고로 인해 숨김 처리된 하우징은 확인할 수 없습니다",
+            "last_confirmed_at": "{{date}} 확인 완료",
             "duplicates": {
-                "title": "この住所の他の登録 ({{count}})",
-                "collaboration_note": "古い情報ならご協力を",
-                "action_wrong": "ちがった",
-                "toast_hidden": "ご協力ありがとうございます！",
-                "toast_error": "うまくいきませんでした、 もう一度お試しください"
+                "title": "이 주소의 다른 등록 ({{count}}개)",
+                "collaboration_note": "오래된 정보라면 협조를 부탁드립니다",
+                "action_wrong": "아니었어요",
+                "toast_hidden": "협조해 주셔서 감사합니다!",
+                "toast_error": "처리하지 못했습니다. 다시 시도해 주세요"
             }
         },
         "edit": {
@@ -2730,59 +2730,59 @@
             "error": "업데이트에 실패했습니다"
         },
         "delete": {
-            "title": "この物件を削除しますか?",
+            "title": "이 매물을 삭제하시겠습니까?",
             "body": {
-                "line1": "一覧から非表示になります",
-                "line2": "30 日後に完全削除されます",
-                "line3": "この操作は元に戻せません"
+                "line1": "목록에서 숨겨집니다",
+                "line2": "30일 후 완전히 삭제됩니다",
+                "line3": "이 작업은 되돌릴 수 없습니다"
             },
-            "confirm": "削除する",
-            "cancel": "キャンセル",
-            "success": "削除しました",
-            "error": "削除に失敗しました"
+            "confirm": "삭제하기",
+            "cancel": "취소",
+            "success": "삭제했습니다",
+            "error": "삭제에 실패했습니다"
         },
         "report": {
             "modal": {
-                "title": "この物件について報告",
-                "subtitle": "どの点が違いますか?"
+                "title": "이 매물 신고",
+                "subtitle": "어떤 점이 다른가요?"
             },
             "reason": {
-                "wrong_info": "位置や情報が違う",
-                "sold": "売却済み",
-                "griefing": "嫌がらせ・ハラスメント",
-                "nsfw": "不適切なコンテンツ",
-                "other": "その他"
+                "wrong_info": "위치 또는 정보 오류",
+                "sold": "매각 완료",
+                "griefing": "괴롭힘·희롱",
+                "nsfw": "부적절한 콘텐츠",
+                "other": "기타"
             },
             "comment": {
-                "placeholder": "詳細を教えてください (任意)",
-                "placeholder_required": "詳細を教えてください (必須)",
-                "required": "「その他」 を選択した場合は詳細を入力してください"
+                "placeholder": "자세한 내용을 알려주세요 (선택 사항)",
+                "placeholder_required": "자세한 내용을 알려주세요 (필수)",
+                "required": "'기타'를 선택한 경우 자세한 내용을 입력해 주세요"
             },
-            "submit": "報告する",
-            "cancel": "キャンセル",
-            "success": "報告を受け付けました。 ご協力ありがとうございます",
+            "submit": "신고하기",
+            "cancel": "취소",
+            "success": "신고가 접수되었습니다. 협조해 주셔서 감사합니다",
             "duplicate": "이미 신고하셨습니다.",
-            "error": "報告の送信に失敗しました。 時間をおいて再度お試しください",
-            "escalation_required": "この物件は繰り返し報告されています。 解除には運営の確認が必要です。 Discord で異議申し立てしてください"
+            "error": "신고 전송에 실패했습니다. 잠시 후 다시 시도해 주세요",
+            "escalation_required": "이 매물은 반복적으로 신고되었습니다. 해제하려면 운영자의 확인이 필요합니다. Discord에서 이의를 제기해 주세요"
         },
         "guide": {
-            "title": "あなたの物件に報告がありました",
-            "reason_label": "理由",
+            "title": "등록하신 매물에 신고가 접수되었습니다",
+            "reason_label": "사유",
             "body": {
-                "wrong_info": "内容を確認して、 必要に応じて情報を編集してください",
-                "sold": "この物件は売却済みですか? 売却済みなら削除してください",
-                "griefing": "身に覚えがない場合は LoPo Discord で異議申し立てが可能です",
-                "nsfw": "LoPo 運営が直接確認します。 身に覚えがない場合は Discord で異議申し立て",
-                "other": "報告者からのコメント"
+                "wrong_info": "내용을 확인하고 필요하면 정보를 수정해 주세요",
+                "sold": "이 매물은 매각되었나요? 매각되었다면 삭제해 주세요",
+                "griefing": "짐작 가는 바가 없다면 LoPo Discord에서 이의를 제기할 수 있습니다",
+                "nsfw": "LoPo 운영자가 직접 확인합니다. 짐작 가는 바가 없다면 Discord에서 이의를 제기해 주세요",
+                "other": "신고자의 코멘트"
             },
             "cta": {
-                "edit": "編集する",
-                "delete": "物件を削除する",
-                "dispute": "Discord で異議申し立て",
-                "dismiss": "これは誤り（却下）"
+                "edit": "수정하기",
+                "delete": "매물 삭제하기",
+                "dispute": "Discord에서 이의 제기",
+                "dismiss": "잘못된 신고예요 (기각)"
             },
-            "escalated_note": "一度復帰した後に再び報告されました。 却下や編集では戻せません。 Discord で異議申し立て (運営確認) してください",
-            "later": "あとで"
+            "escalated_note": "한 번 복귀된 후 다시 신고되었습니다. 기각이나 수정으로는 되돌릴 수 없습니다. Discord에서 이의를 제기해 주세요 (운영자 확인)",
+            "later": "나중에"
         },
         "favorites": {
             "title": "즐겨찾기",
@@ -2806,23 +2806,23 @@
             "onboarding_tip": "같은 주소의 여러 게시물은 하나를 선택하면 자동으로 함께 추가됩니다."
         },
         "notifications": {
-            "title": "通知",
-            "empty": "通知はありません",
-            "mark_all_read": "すべて既読にする",
-            "see_all": "すべて見る",
-            "see_all_coming_soon": "準備中",
-            "bell_aria": "通知",
-            "unread_badge_aria": "{{n}} 件の未読",
-            "dismiss_aria": "この通知を消す",
+            "title": "알림",
+            "empty": "알림이 없습니다",
+            "mark_all_read": "모두 읽음으로 표시",
+            "see_all": "전체 보기",
+            "see_all_coming_soon": "준비 중",
+            "bell_aria": "알림",
+            "unread_badge_aria": "읽지 않은 알림 {{n}}건",
+            "dismiss_aria": "이 알림 지우기",
             "item": {
-                "report": "あなたの物件「{{title}}」 について「{{reason}}」 と報告がありました",
-                "duplicate_alert": "あなたのハウジング「{{title}}」 と同じ住所に新しいハウジングが登録されました"
+                "report": "'{{title}}' 매물에 '{{reason}}' 사유로 신고가 접수되었습니다",
+                "duplicate_alert": "'{{title}}' 하우징과 같은 주소에 새 하우징이 등록되었습니다"
             },
             "time": {
-                "just_now": "たった今",
-                "minutes_ago": "{{n}} 分前",
-                "hours_ago": "{{n}} 時間前",
-                "days_ago": "{{n}} 日前"
+                "just_now": "방금 전",
+                "minutes_ago": "{{n}}분 전",
+                "hours_ago": "{{n}}시간 전",
+                "days_ago": "{{n}}일 전"
             }
         },
         "tour": {

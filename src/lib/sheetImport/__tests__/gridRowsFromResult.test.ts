@@ -322,6 +322,24 @@ describe('gridRowsFromResult', () => {
     const table = gridRowsFromResult(result, { mitigations: MITIGATIONS, jobs: JOBS }, 'ko');
     expect(table.rows[0][7]).toBe('메디카라');
   });
+
+  // 回帰: 'zh-Hant' が Lang に含まれておらず、スプシ取込プレビューが繁体字ユーザーには
+  // 常に日本語フォールバックになっていた不具合(2026-08-18)。damageType ラベルと
+  // メンバー名の両方で zh-Hant が正しく解決されることを確認する。
+  it('zh-Hant lang で damageType ラベルとメンバー名が繁体字になる(2026-08-18回帰)', () => {
+    const jobsZhHant: Job[] = [
+      { id: 'whm', name: { ja: '白魔道士', en: 'White Mage', 'zh-Hant': '白魔導士' }, role: 'healer', icon: '' },
+    ];
+    const result = makeResult({
+      party: [{ slot: 'H1', jobId: 'whm' }],
+      timelineEvents: [
+        { id: 'e1', time: 10, name: { ja: '攻撃', en: 'Attack' }, damageType: 'magical' },
+      ],
+    });
+    const table = gridRowsFromResult(result, { mitigations: MITIGATIONS, jobs: jobsZhHant }, 'zh-Hant');
+    expect(table.columns.find((c) => c.field === 'member')?.header).toBe('白魔導士');
+    expect(table.rows[0][6]).toBe('魔法');
+  });
 });
 
 // ─── Task 5: skipped 注入テスト ──────────────────────────────────────────────

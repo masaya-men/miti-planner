@@ -56,7 +56,7 @@ const BASE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 
  */
 const ASSIGNABLE_FIELDS: GridField[] = ['phase', 'label', 'time', 'action', 'damage', 'target', 'damageType', 'ignore'];
 
-type Lang4 = 'ja' | 'en' | 'ko' | 'zh';
+type Lang4 = 'ja' | 'en' | 'ko' | 'zh' | 'zh-Hant';
 
 /** 見出しだけの空グリッド(コンテンツ選択直後の初期表示用)。t は呼び出し側で渡す。 */
 function emptyHeaderTable(t: (k: string) => string): GridTable {
@@ -146,9 +146,13 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
   useEscapeClose(isOpen, onClose);
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'en' ? 'en' : 'ja';
-  // gridRowsFromResult / ジョブ名表示には 4 言語を正確に渡す(ImportContentSelector 向けの 2 値 lang とは別)
-  const gridLang: Lang4 = (['ja', 'en', 'ko', 'zh'] as const).includes(i18n.language as Lang4)
-    ? (i18n.language as Lang4)
+  // gridRowsFromResult / ジョブ名表示には zh-Hant を含む5言語を正確に渡す(ImportContentSelector 向けの 2 値 lang とは別)。
+  // zh-Hant は "zh" で始まるため zh より先に判定する(MitigationSheetPreview.tsx と同じ判定順)。
+  const gridLang: Lang4 = i18n.language.startsWith('ja') ? 'ja'
+    : (i18n.language === 'zh-Hant' || i18n.language.toLowerCase().startsWith('zh-hant')) ? 'zh-Hant'
+    : i18n.language.startsWith('zh') ? 'zh'
+    : i18n.language.startsWith('ko') ? 'ko'
+    : i18n.language.startsWith('en') ? 'en'
     : 'ja';
   const jobs = useMemo(() => getJobsFromStore(), []);
   const mitigations = useMemo(() => getMitigationsFromStore(), []);

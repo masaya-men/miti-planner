@@ -2716,41 +2716,41 @@
             "reorder": "Reorder"
         },
         "gallery": {
-            "loading": "物件を読み込んでいます…",
-            "error": "物件の読み込みに失敗しました",
+            "loading": "Loading listings…",
+            "error": "Failed to load listings",
             "no_image": "No image",
             "thumb_aria": "Image {{index}} of {{total}}",
             "video_iframe_title": "Listing video"
         },
         "detail": {
-            "title": "物件詳細",
-            "owner_label": "登録者",
-            "share": "シェア",
-            "share_copy_link": "リンクをコピー",
-            "share_copied": "コピーしました",
-            "share_twitter": "X で共有",
+            "title": "Listing Details",
+            "owner_label": "Registered by",
+            "share": "Share",
+            "share_copy_link": "Copy link",
+            "share_copied": "Copied!",
+            "share_twitter": "Share on X",
             "share_x": "Share on X",
-            "report_button": "ちがった",
-            "back_aria": "戻る",
-            "view_source": "元の投稿を見る",
+            "report_button": "Wrong",
+            "back_aria": "Back",
+            "view_source": "View original post",
             "view_original": "View original post",
             "view_original_item": "Post {{index}}",
-            "add_to_tour": "ツアー",
+            "add_to_tour": "Tour",
             "kebab": {
-                "aria_label": "メニュー",
-                "edit": "編集",
-                "delete": "削除"
+                "aria_label": "Menu",
+                "edit": "Edit",
+                "delete": "Delete"
             },
-            "login_required": "この操作にはログインが必要です",
-            "cannot_report_own": "自分の物件は通報できません",
-            "unavailable": "この物件は削除されたか、 表示できません",
-            "postRemoved": "元の投稿が削除されたため、 この物件の掲載も終了しました",
-            "still_here_button": "今もあります",
-            "still_here_aria": "このハウジングが今もあることを確認する",
-            "confirm_success": "「今もあります」 として確認しました",
-            "confirm_error": "確認できませんでした、 もう一度お試しください",
-            "confirm_error_forbidden_hidden": "通報により非表示中のハウジングは確認できません",
-            "last_confirmed_at": "{{date}} 確認済",
+            "login_required": "Login is required for this action",
+            "cannot_report_own": "You can't report your own listing",
+            "unavailable": "This listing has been deleted or is unavailable",
+            "postRemoved": "This listing is no longer available because the original post was deleted",
+            "still_here_button": "Still here",
+            "still_here_aria": "Confirm this housing is still here",
+            "confirm_success": "Confirmed as \"Still here\"",
+            "confirm_error": "Couldn't confirm. Please try again",
+            "confirm_error_forbidden_hidden": "Housing hidden due to a report can't be confirmed",
+            "last_confirmed_at": "Confirmed on {{date}}",
             "duplicates": {
                 "title": "Other listings at this address ({{count}})",
                 "collaboration_note": "Please help if outdated",
@@ -2765,59 +2765,59 @@
             "error": "Failed to update"
         },
         "delete": {
-            "title": "この物件を削除しますか?",
+            "title": "Delete this listing?",
             "body": {
-                "line1": "一覧から非表示になります",
-                "line2": "30 日後に完全削除されます",
-                "line3": "この操作は元に戻せません"
+                "line1": "It will be hidden from listings",
+                "line2": "It will be permanently deleted after 30 days",
+                "line3": "This action cannot be undone"
             },
-            "confirm": "削除する",
-            "cancel": "キャンセル",
-            "success": "削除しました",
-            "error": "削除に失敗しました"
+            "confirm": "Delete",
+            "cancel": "Cancel",
+            "success": "Deleted",
+            "error": "Failed to delete"
         },
         "report": {
             "modal": {
-                "title": "この物件について報告",
-                "subtitle": "どの点が違いますか?"
+                "title": "Report this listing",
+                "subtitle": "What's wrong?"
             },
             "reason": {
-                "wrong_info": "位置や情報が違う",
-                "sold": "売却済み",
-                "griefing": "嫌がらせ・ハラスメント",
-                "nsfw": "不適切なコンテンツ",
-                "other": "その他"
+                "wrong_info": "Location or details are wrong",
+                "sold": "Sold",
+                "griefing": "Griefing or harassment",
+                "nsfw": "Inappropriate content",
+                "other": "Other"
             },
             "comment": {
-                "placeholder": "詳細を教えてください (任意)",
-                "placeholder_required": "詳細を教えてください (必須)",
-                "required": "「その他」 を選択した場合は詳細を入力してください"
+                "placeholder": "Please provide details (optional)",
+                "placeholder_required": "Please provide details (required)",
+                "required": "If you select \"Other\", please provide details"
             },
-            "submit": "報告する",
-            "cancel": "キャンセル",
-            "success": "報告を受け付けました。 ご協力ありがとうございます",
+            "submit": "Submit report",
+            "cancel": "Cancel",
+            "success": "Report submitted. Thank you for your help",
             "duplicate": "You have already reported this.",
-            "error": "報告の送信に失敗しました。 時間をおいて再度お試しください",
-            "escalation_required": "この物件は繰り返し報告されています。 解除には運営の確認が必要です。 Discord で異議申し立てしてください"
+            "error": "Failed to submit the report. Please wait a moment and try again",
+            "escalation_required": "This listing has been reported multiple times. Restoring it requires review by the operators. Please file a dispute on Discord"
         },
         "guide": {
-            "title": "あなたの物件に報告がありました",
-            "reason_label": "理由",
+            "title": "Your listing has been reported",
+            "reason_label": "Reason",
             "body": {
-                "wrong_info": "内容を確認して、 必要に応じて情報を編集してください",
-                "sold": "この物件は売却済みですか? 売却済みなら削除してください",
-                "griefing": "身に覚えがない場合は LoPo Discord で異議申し立てが可能です",
-                "nsfw": "LoPo 運営が直接確認します。 身に覚えがない場合は Discord で異議申し立て",
-                "other": "報告者からのコメント"
+                "wrong_info": "Please review the details and edit the listing if needed",
+                "sold": "Is this listing sold? If so, please delete it",
+                "griefing": "If this doesn't apply to you, you can file a dispute on the LoPo Discord",
+                "nsfw": "The LoPo operators will review this directly. If this doesn't apply to you, file a dispute on Discord",
+                "other": "Comment from the reporter"
             },
             "cta": {
-                "edit": "編集する",
-                "delete": "物件を削除する",
-                "dispute": "Discord で異議申し立て",
-                "dismiss": "これは誤り（却下）"
+                "edit": "Edit",
+                "delete": "Delete listing",
+                "dispute": "Dispute on Discord",
+                "dismiss": "This is a mistake (Dismiss)"
             },
-            "escalated_note": "一度復帰した後に再び報告されました。 却下や編集では戻せません。 Discord で異議申し立て (運営確認) してください",
-            "later": "あとで"
+            "escalated_note": "This listing was restored once already but has been reported again. Dismissing or editing it won't restore it this time — please file a dispute on Discord for operator review",
+            "later": "Later"
         },
         "favorites": {
             "title": "Favorites",
@@ -2841,23 +2841,23 @@
             "onboarding_tip": "Multiple posts at the same address are added together automatically when you pick one."
         },
         "notifications": {
-            "title": "通知",
-            "empty": "通知はありません",
-            "mark_all_read": "すべて既読にする",
-            "see_all": "すべて見る",
-            "see_all_coming_soon": "準備中",
-            "bell_aria": "通知",
-            "unread_badge_aria": "{{n}} 件の未読",
-            "dismiss_aria": "この通知を消す",
+            "title": "Notifications",
+            "empty": "No notifications yet",
+            "mark_all_read": "Mark all as read",
+            "see_all": "See all",
+            "see_all_coming_soon": "Coming Soon",
+            "bell_aria": "Notifications",
+            "unread_badge_aria": "{{n}} unread notifications",
+            "dismiss_aria": "Dismiss this notification",
             "item": {
-                "report": "あなたの物件「{{title}}」 について「{{reason}}」 と報告がありました",
+                "report": "Your housing \"{{title}}\" was reported for \"{{reason}}\"",
                 "duplicate_alert": "A new housing has been registered at the same address as your housing \"{{title}}\""
             },
             "time": {
-                "just_now": "たった今",
-                "minutes_ago": "{{n}} 分前",
-                "hours_ago": "{{n}} 時間前",
-                "days_ago": "{{n}} 日前"
+                "just_now": "Just now",
+                "minutes_ago": "{{n}} minutes ago",
+                "hours_ago": "{{n}} hours ago",
+                "days_ago": "{{n}} days ago"
             }
         },
         "tour": {

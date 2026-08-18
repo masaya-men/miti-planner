@@ -1903,9 +1903,9 @@
             "back_to_top": "返回顶部"
         },
         "mypage_coming_soon": {
-            "eyebrow": "マイページ",
-            "title": "準備中です",
-            "lead": "登録したハウジングやお気に入りをまとめて見られるマイページを準備しています。それまでは各ページからご利用ください。"
+            "eyebrow": "我的页面",
+            "title": "准备中",
+            "lead": "我们正在准备可以一次查看你登记的房屋和收藏的「我的页面」。在此之前，请继续通过各个页面使用相关功能。"
         },
         "card": {
             "favorite": "收藏",
@@ -1923,10 +1923,10 @@
             "remove": "删除",
             "start": "以此内容开始导览",
             "count": "{{count}}",
-            "sort_efficient": "効率順に並べ替え",
-            "pin": "この位置に固定",
-            "unpin": "固定を解除",
-            "drag_handle": "ドラッグして並べ替え",
+            "sort_efficient": "按效率排序",
+            "pin": "固定在这个位置",
+            "unpin": "解除固定",
+            "drag_handle": "拖动以重新排序",
             "board_hint": "抓住卡片左侧的把手即可拖动调整顺序",
             "open_detail": "查看详情页"
         },
@@ -1963,7 +1963,7 @@
             "clear_filter": "清除筛选",
             "view_route": "路线",
             "listings_label": "房屋一览",
-            "count_unit": "{{count}}件",
+            "count_unit": "{{count}}个",
             "sort_label": "排序",
             "sort_random": "随机",
             "sort_newest": "最新",
@@ -1984,7 +1984,7 @@
             "loading": "正在加载地图…",
             "load_error": "无法加载地图",
             "ward_label": "{{ward}}区",
-            "ward_count": "{{ward}}区 ({{count}}件)",
+            "ward_count": "{{ward}}区 ({{count}}个)",
             "main_tab": "本区",
             "sub_tab": "扩展区",
             "tab_count": "{{label}} ({{count}})",
@@ -2052,9 +2052,9 @@
                 "apartment": "公寓"
             },
             "apartment_building": {
-                "label": "号棟",
-                "main": "1号棟 (本街)",
-                "sub": "2号棟 (拡張街)"
+                "label": "号栋",
+                "main": "1号栋 (本街)",
+                "sub": "2号栋 (扩展街)"
             },
             "description": "留言（选填・200字以内）",
             "description_placeholder": "请随意填写",
@@ -2127,17 +2127,17 @@
                     "too_long": "标题过长"
                 },
                 "buildingType": {
-                    "invalid": "建物タイプを選んでください"
+                    "invalid": "请选择建筑类型"
                 },
                 "apartmentBuilding": {
-                    "out_of_range": "号棟は 1 か 2 を選んでください"
+                    "out_of_range": "号栋请选择 1 或 2"
                 },
                 "roomNumber": {
-                    "out_of_range": "部屋番号は 1〜90 で入力してください"
+                    "out_of_range": "房间号请指定在1〜90之间"
                 },
                 "roomKind": {
                     "apartment_room_required": "公寓需要填写房间号",
-                    "invalid_for_house": "この建物タイプでは部屋番号は不要です"
+                    "invalid_for_house": "此建筑类型不需要填写房间号"
                 }
             },
             "quota": {
@@ -2152,8 +2152,8 @@
                 "help": "支持 X(原 Twitter)·YouTube·Housing Snap 等，带视频的帖子也 OK",
                 "help_disclaimer": "自动填充有时可能不准确，请仅将其作为填写时的辅助参考。",
                 "fetching": "正在读取推文…",
-                "youtube_detected": "YouTube 動画として認識 (サムネを物件画像として使います)",
-                "ogp_fetching": "ページ情報を取得中…",
+                "youtube_detected": "已识别为 YouTube 视频（将以缩略图作为房屋图片）",
+                "ogp_fetching": "正在获取页面信息…",
                 "youtube_fetching": "正在获取视频信息…",
                 "cancel": "取消",
                 "retry": "重新获取",
@@ -2177,32 +2177,32 @@
                 }
             },
             "image": {
-                "label": "画像 (任意・最大 {{max}} 枚)",
-                "cta": "クリックまたはドラッグして画像を選択",
-                "cta_add": "+ 画像を追加",
-                "hint": "{{current}} / {{max}} 枚・長辺 1920px・1 枚あたり最大 1MB に自動圧縮 (AVIF/WebP)。 ドラッグで並び替えできます (先頭が代表画像になります)",
-                "select_aria": "画像ファイルを選択",
-                "compressing": "画像を圧縮中…",
-                "compressed_label": "圧縮済",
-                "cover_badge": "カバー",
-                "used_badge": "使用",
-                "remove": "削除",
-                "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像になります)",
-                "sns_override_note": "画像を直接アップロードしたので、 SNS URL の画像は使われません",
+                "label": "图片（可选・最多 {{max}} 张）",
+                "cta": "点击或拖动以选择图片",
+                "cta_add": "+ 新增图片",
+                "hint": "{{current}} / {{max}} 张・长边 1920px・每张自动压缩至最大 1MB (AVIF/WebP)。可拖动重新排序（第一张会成为代表图片）",
+                "select_aria": "选择图片文件",
+                "compressing": "正在压缩图片…",
+                "compressed_label": "已压缩",
+                "cover_badge": "封面",
+                "used_badge": "使用中",
+                "remove": "删除",
+                "reorder_hint": "可拖动重新排序（最左边的「封面」会成为列表中的代表图片）",
+                "sns_override_note": "已直接上传图片，因此不会使用 SNS URL 的图片",
                 "limitModal": {
-                    "title": "画像は{{max}}枚まで",
-                    "body": "{{selected}}枚選択されましたが、保存できる画像は{{max}}枚までです。先頭{{max}}枚のみ追加しました。",
-                    "confirm": "わかりました"
+                    "title": "图片最多 {{max}} 张",
+                    "body": "你选择了 {{selected}} 张，但最多只能保存 {{max}} 张，已仅添加前 {{max}} 张。",
+                    "confirm": "我知道了"
                 },
                 "error": {
-                    "not_image": "画像ファイル (JPEG / PNG / WebP / AVIF / HEIC) を選んでください",
-                    "compress_failed": "画像の圧縮に失敗しました。 別の画像を試してください",
-                    "too_many": "画像は最大 {{max}} 枚までです"
+                    "not_image": "请选择图片文件 (JPEG / PNG / WebP / AVIF / HEIC)",
+                    "compress_failed": "图片压缩失败。请换一张图片试试",
+                    "too_many": "图片最多 {{max}} 张"
                 }
             },
             "sourceImages": {
-                "label": "取得した画像 (ドラッグで並び替え可・先頭 {{max}} 枚が保存されます)",
-                "reorder_hint": "ドラッグで並び替えできます (左端の「カバー」 が一覧の代表画像、 先頭 {{max}} 枚が保存されます)"
+                "label": "已获取的图片 (可拖动重新排序・前 {{max}} 张会被保存)",
+                "reorder_hint": "可拖动重新排序（最左边的「封面」会成为列表中的代表图片，前 {{max}} 张会被保存）"
             },
             "media": {
                 "fetched_count": "已获取 {{count}} 张图片",
@@ -2258,7 +2258,7 @@
                     "not_authenticated": "登记需要登录，请先登录后再试。",
                     "quota_exhausted": "已达到登记上限，请稍后再试。",
                     "generic": "登记失败，请检查网络环境后重试。",
-                    "upload_failed": "物件は登録できましたが、 画像のアップロードに失敗しました。 編集画面から再度アップロードしてください。"
+                    "upload_failed": "房屋已登记完成，但图片上传失败。请从编辑页面重新上传。"
                 }
             },
             "cancel": "取消",
@@ -2512,7 +2512,7 @@
                 "progress": "进行中",
                 "share_aria": "复制巡游分享链接",
                 "exit_aria": "退出巡游",
-                "auto_added_toast": "同住所の他 {{count}} 件もツアーに追加しました"
+                "auto_added_toast": "同一地址的其他 {{count}} 间房屋也已加入导览"
             },
             "favorites": {
                 "title": "收藏",
@@ -2678,50 +2678,50 @@
             "settings_language": "语言",
             "tray_start": "开始",
             "tray_clear": "清空",
-            "reorder": "並べ替え"
+            "reorder": "重新排序"
         },
         "gallery": {
-            "loading": "物件を読み込んでいます…",
-            "error": "物件の読み込みに失敗しました",
+            "loading": "正在载入房屋…",
+            "error": "房屋载入失败",
             "no_image": "无图片",
             "thumb_aria": "图片 {{index}} / {{total}}",
             "video_iframe_title": "房屋视频"
         },
         "detail": {
-            "title": "物件詳細",
-            "owner_label": "登録者",
-            "share": "シェア",
-            "share_copy_link": "リンクをコピー",
-            "share_copied": "コピーしました",
-            "share_twitter": "X で共有",
-            "share_x": "Xでシェア",
-            "report_button": "ちがった",
-            "back_aria": "戻る",
-            "view_source": "元の投稿を見る",
+            "title": "房屋详情",
+            "owner_label": "登记者",
+            "share": "分享",
+            "share_copy_link": "复制链接",
+            "share_copied": "已复制",
+            "share_twitter": "分享到 X",
+            "share_x": "分享到 X",
+            "report_button": "不是这个",
+            "back_aria": "返回",
+            "view_source": "查看原帖",
             "view_original": "查看原帖",
             "view_original_item": "帖子{{index}}",
-            "add_to_tour": "ツアー",
+            "add_to_tour": "加入导览",
             "kebab": {
-                "aria_label": "メニュー",
-                "edit": "編集",
-                "delete": "削除"
+                "aria_label": "菜单",
+                "edit": "编辑",
+                "delete": "删除"
             },
-            "login_required": "この操作にはログインが必要です",
-            "cannot_report_own": "自分の物件は通報できません",
-            "unavailable": "この物件は削除されたか、 表示できません",
-            "postRemoved": "元の投稿が削除されたため、 この物件の掲載も終了しました",
-            "still_here_button": "今もあります",
-            "still_here_aria": "このハウジングが今もあることを確認する",
-            "confirm_success": "「今もあります」 として確認しました",
-            "confirm_error": "確認できませんでした、 もう一度お試しください",
-            "confirm_error_forbidden_hidden": "通報により非表示中のハウジングは確認できません",
-            "last_confirmed_at": "{{date}} 確認済",
+            "login_required": "此操作需要先登录",
+            "cannot_report_own": "无法举报自己的房屋",
+            "unavailable": "这间房屋已被删除，或无法显示",
+            "postRemoved": "由于原帖已被删除，这间房屋也已下架",
+            "still_here_button": "现在还在",
+            "still_here_aria": "确认这间房屋现在还在",
+            "confirm_success": "已确认为「现在还在」",
+            "confirm_error": "无法确认，请重试",
+            "confirm_error_forbidden_hidden": "因被举报而隐藏的房屋无法确认",
+            "last_confirmed_at": "{{date}} 已确认",
             "duplicates": {
-                "title": "この住所の他の登録 ({{count}})",
-                "collaboration_note": "古い情報ならご協力を",
-                "action_wrong": "ちがった",
-                "toast_hidden": "ご協力ありがとうございます！",
-                "toast_error": "うまくいきませんでした、 もう一度お試しください"
+                "title": "此地址的其他登记 ({{count}})",
+                "collaboration_note": "若信息已过时，欢迎协助反馈",
+                "action_wrong": "不是这个",
+                "toast_hidden": "感谢您的协助！",
+                "toast_error": "操作没有成功，请重试"
             }
         },
         "edit": {
@@ -2730,59 +2730,59 @@
             "error": "更新失败"
         },
         "delete": {
-            "title": "この物件を削除しますか?",
+            "title": "要删除这间房屋吗？",
             "body": {
-                "line1": "一覧から非表示になります",
-                "line2": "30 日後に完全削除されます",
-                "line3": "この操作は元に戻せません"
+                "line1": "将从列表中隐藏",
+                "line2": "30 天后会完全删除",
+                "line3": "此操作无法复原"
             },
-            "confirm": "削除する",
-            "cancel": "キャンセル",
-            "success": "削除しました",
-            "error": "削除に失敗しました"
+            "confirm": "删除",
+            "cancel": "取消",
+            "success": "已删除",
+            "error": "删除失败"
         },
         "report": {
             "modal": {
-                "title": "この物件について報告",
-                "subtitle": "どの点が違いますか?"
+                "title": "举报这间房屋",
+                "subtitle": "是哪个部分不对？"
             },
             "reason": {
-                "wrong_info": "位置や情報が違う",
-                "sold": "売却済み",
-                "griefing": "嫌がらせ・ハラスメント",
-                "nsfw": "不適切なコンテンツ",
-                "other": "その他"
+                "wrong_info": "位置或信息有误",
+                "sold": "已经卖掉了",
+                "griefing": "恶意骚扰",
+                "nsfw": "不当内容",
+                "other": "其他"
             },
             "comment": {
-                "placeholder": "詳細を教えてください (任意)",
-                "placeholder_required": "詳細を教えてください (必須)",
-                "required": "「その他」 を選択した場合は詳細を入力してください"
+                "placeholder": "请告诉我们详细情况 (选填)",
+                "placeholder_required": "请告诉我们详细情况 (必填)",
+                "required": "选择「其他」时请填写详细情况"
             },
-            "submit": "報告する",
-            "cancel": "キャンセル",
-            "success": "報告を受け付けました。 ご協力ありがとうございます",
+            "submit": "提交举报",
+            "cancel": "取消",
+            "success": "已收到您的举报。感谢您的协助",
             "duplicate": "您已经举报过了。",
-            "error": "報告の送信に失敗しました。 時間をおいて再度お試しください",
-            "escalation_required": "この物件は繰り返し報告されています。 解除には運営の確認が必要です。 Discord で異議申し立てしてください"
+            "error": "举报提交失败，请稍后重试",
+            "escalation_required": "这间房屋已被重复举报。解除需要运营方确认。请在 Discord 提出申诉"
         },
         "guide": {
-            "title": "あなたの物件に報告がありました",
+            "title": "你的房屋收到了举报",
             "reason_label": "理由",
             "body": {
-                "wrong_info": "内容を確認して、 必要に応じて情報を編集してください",
-                "sold": "この物件は売却済みですか? 売却済みなら削除してください",
-                "griefing": "身に覚えがない場合は LoPo Discord で異議申し立てが可能です",
-                "nsfw": "LoPo 運営が直接確認します。 身に覚えがない場合は Discord で異議申し立て",
-                "other": "報告者からのコメント"
+                "wrong_info": "请确认内容，如有需要请修改信息",
+                "sold": "这间房屋已经卖掉了吗？若已卖掉请将它删除",
+                "griefing": "若没有印象，可以在 LoPo Discord 提出申诉",
+                "nsfw": "LoPo 运营方会直接确认。若没有印象请在 Discord 提出申诉",
+                "other": "举报者的留言"
             },
             "cta": {
-                "edit": "編集する",
-                "delete": "物件を削除する",
-                "dispute": "Discord で異議申し立て",
-                "dismiss": "これは誤り（却下）"
+                "edit": "编辑",
+                "delete": "删除这间房屋",
+                "dispute": "在 Discord 提出申诉",
+                "dismiss": "这是误报（驳回）"
             },
-            "escalated_note": "一度復帰した後に再び報告されました。 却下や編集では戻せません。 Discord で異議申し立て (運営確認) してください",
-            "later": "あとで"
+            "escalated_note": "一度恢复后又再次被举报。已无法用驳回或编辑处理。请在 Discord 提出申诉（由运营方确认）",
+            "later": "稍后再说"
         },
         "favorites": {
             "title": "收藏",
@@ -2807,22 +2807,22 @@
         },
         "notifications": {
             "title": "通知",
-            "empty": "通知はありません",
-            "mark_all_read": "すべて既読にする",
-            "see_all": "すべて見る",
-            "see_all_coming_soon": "準備中",
+            "empty": "目前没有通知",
+            "mark_all_read": "全部标为已读",
+            "see_all": "查看全部",
+            "see_all_coming_soon": "准备中",
             "bell_aria": "通知",
-            "unread_badge_aria": "{{n}} 件の未読",
-            "dismiss_aria": "この通知を消す",
+            "unread_badge_aria": "{{n}} 条未读",
+            "dismiss_aria": "关闭这条通知",
             "item": {
-                "report": "あなたの物件「{{title}}」 について「{{reason}}」 と報告がありました",
-                "duplicate_alert": "あなたのハウジング「{{title}}」 と同じ住所に新しいハウジングが登録されました"
+                "report": "你的房屋「{{title}}」收到了「{{reason}}」的举报",
+                "duplicate_alert": "有新的房屋登记在与你的房屋「{{title}}」相同的地址"
             },
             "time": {
-                "just_now": "たった今",
-                "minutes_ago": "{{n}} 分前",
-                "hours_ago": "{{n}} 時間前",
-                "days_ago": "{{n}} 日前"
+                "just_now": "刚刚",
+                "minutes_ago": "{{n}} 分钟前",
+                "hours_ago": "{{n}} 小时前",
+                "days_ago": "{{n}} 天前"
             }
         },
         "tour": {
