@@ -1,6 +1,5 @@
-import { Home } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ProgressRing } from '../tour/ProgressRing';
+import { AllmarksFallingHouses } from './AllmarksFallingHouses';
 import type { AllmarksImportProgress as AllmarksImportProgressState } from '../../../lib/housing/useAllmarksImport';
 import type { Region } from '../../../data/housing/dcServerMap';
 import { regionLabel, pickRegionLocale } from '../../../data/housing/regionMap';
@@ -20,9 +19,9 @@ export interface AllmarksImportProgressProps {
 
 /**
  * Allmarksまとめてインポートの進捗表示 (2026-08-19)。
- * 数値の進捗は既存 ProgressRing (青/aether、ツアー画面と共通言語) を流用し、
- * その上でハニー色の家アイコンをぴょんぴょん弾ませて「かわいさ」を足すだけに留める
- * (新しい色/新しい進捗の見せ方は増やさない)。
+ * 数値の進捗はテキストで表示し、視覚演出は `AllmarksFallingHouses`(家が降ってくる→
+ * 道でつながる→歩く→消える、を繰り返す)に任せる。 実際の取り込み進捗とは連動しない
+ * 純粋な演出(ユーザー発案、2026-08-19)。
  */
 export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ progress, onClose, onChooseRegion }) => {
   const { t, i18n } = useTranslation();
@@ -43,13 +42,9 @@ export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ 
   }
 
   if (progress.status === 'importing') {
-    const percent = progress.total > 0 ? (progress.processed / progress.total) * 100 : 0;
     return (
       <div className="housing-allmarks-import-panel">
-        <div className="housing-allmarks-import-ring-wrap">
-          <Home className="housing-allmarks-import-icon" size={22} aria-hidden />
-          <ProgressRing percent={percent} />
-        </div>
+        <AllmarksFallingHouses />
         <p className="housing-allmarks-import-status">
           {t('housing.ephemeral.allmarks_import.checking', { processed: progress.processed, total: progress.total })}
         </p>

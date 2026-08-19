@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../locales/ja.json';
@@ -43,6 +43,16 @@ beforeAll(() => {
       interpolation: { escapeValue: false },
     });
   }
+});
+
+// importing 表示は AllmarksFallingHouses (実タイマーで無限ループするデコレーション) を
+// マウントするため、vmThreads が実タイマーを残すテストを終了できない事故を避けるため
+// fake timers で駆動する ([[reference_vitest_vmthreads_hang]])。
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 const wrap = (ui: React.ReactElement) => render(<I18nextProvider i18n={i18n}>{ui}</I18nextProvider>);
