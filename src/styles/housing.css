@@ -1744,8 +1744,9 @@
 .housing-allmarks-wave-house {
   position: absolute;
   bottom: 0;
-  transform: translateX(-50%);
+  transform-origin: bottom center;
   color: var(--housing-honey);
+  line-height: 0;
 }
 
 .housing-allmarks-wave-ball {
