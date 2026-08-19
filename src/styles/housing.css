@@ -1687,8 +1687,10 @@
 }
 
 /* Allmarksまとめてインポート (2026-08-19)。演出は AllmarksMapRoadDraw コンポーネント側
-   (ワードマップの一角がズームして切り取られ、道路の線が描かれる→消える→別のマップの
-   別の場所でまた描かれる、を繰り返す)。 */
+   (ワードマップの一角がズームして切り取られ、道路の線と家の区画の形が一緒にスーッと
+   描かれる→消える→別のマップの別の場所でまた描かれる、を繰り返す)。 描く速さは
+   DrawnShape.tsx で実寸(getTotalLength)ぶんの stroke-dasharray/dashoffset を都度計測して
+   適用するので、ここに固定のdasharray値は持たない。 */
 .housing-allmarks-import-panel {
   display: flex;
   flex-direction: column;
@@ -1696,11 +1698,6 @@
   gap: 14px;
   padding: 28px 16px 20px;
   text-align: center;
-}
-
-@keyframes housing-allmarks-map-road-draw {
-  from { stroke-dashoffset: 8000; }
-  to { stroke-dashoffset: 0; }
 }
 
 .housing-allmarks-map-road {
@@ -1722,9 +1719,10 @@
 }
 
 .housing-allmarks-map-road-house {
-  fill: var(--housing-honey-medium);
-  stroke: var(--housing-honey-border);
-  stroke-width: 2;
+  fill: none;
+  stroke: var(--housing-honey);
+  stroke-width: 4;
+  stroke-linejoin: round;
 }
 
 .housing-allmarks-map-road-path {
@@ -1733,13 +1731,6 @@
   stroke-width: 7;
   stroke-linecap: round;
   stroke-linejoin: round;
-}
-
-.housing-allmarks-map-road-path-drawing {
-  stroke-dasharray: 8000;
-  animation-name: housing-allmarks-map-road-draw;
-  animation-timing-function: ease-out;
-  animation-fill-mode: forwards;
 }
 
 .housing-allmarks-import-status {
@@ -1784,8 +1775,7 @@
   .housing-typing-cursor,
   .housing-spinner,
   .housing-conditional-field,
-  .housing-allmarks-map-road,
-  .housing-allmarks-map-road-path-drawing {
+  .housing-allmarks-map-road {
     animation: none !important;
     transition: none !important;
   }

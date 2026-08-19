@@ -1,4 +1,5 @@
 import { useMapRoadCycle, DRAWING_MS, FADE_MS } from '../../../lib/housing/useMapRoadCycle';
+import { DrawnShape } from './DrawnShape';
 
 const DISPLAY_WIDTH = 420;
 const DISPLAY_HEIGHT = 270;
@@ -6,7 +7,7 @@ const DISPLAY_HEIGHT = 270;
 /**
  * Allmarksまとめてインポート中の演出 (2026-08-19、ユーザー発案)。
  * ゲーム内ハウジングエリアのワードマップをランダムに1つ選び、その中の一角だけをズームして
- * 切り取り、切り取った範囲にかかる道路の線がスーッと描かれる→少し止まる→消える→
+ * 切り取り、道路の線と家の区画の形が一緒にスーッと描かれる→少し止まる→消える→
  * また別のマップの別の場所で描かれる、を繰り返す。 数値の進捗は呼び出し側が別途テキストで
  * 表示するため、こちらは実際の取り込み進捗とは連動しない純粋な演出。
  */
@@ -31,21 +32,20 @@ export const AllmarksMapRoadDraw: React.FC = () => {
         className="housing-allmarks-map-road-svg"
       >
         {snippet.houses.map((outline, i) => (
-          <polygon
+          <DrawnShape
             key={`${cycleId}-house-${i}`}
             points={outline.map((p) => `${p.x},${p.y}`).join(' ')}
+            animate={isDrawing}
+            durationMs={DRAWING_MS}
             className="housing-allmarks-map-road-house"
           />
         ))}
-        <path
+        <DrawnShape
           key={cycleId}
           d={snippet.d}
-          className={
-            isDrawing
-              ? 'housing-allmarks-map-road-path housing-allmarks-map-road-path-drawing'
-              : 'housing-allmarks-map-road-path'
-          }
-          style={isDrawing ? { animationDuration: `${DRAWING_MS}ms` } : undefined}
+          animate={isDrawing}
+          durationMs={DRAWING_MS}
+          className="housing-allmarks-map-road-path"
         />
       </svg>
     </div>
