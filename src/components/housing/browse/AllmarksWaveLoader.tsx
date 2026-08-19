@@ -127,19 +127,34 @@ function buildWaveFrames(): WaveFrames {
 export const AllmarksWaveLoader: React.FC = () => {
   const reducedMotion = useReducedMotion();
   const frames = useMemo(buildWaveFrames, []);
-  const transition = reducedMotion ? undefined : { duration: CYCLE_SECONDS, repeat: Infinity, times: frames.times, ease: 'linear' as const };
+
+  // transition/animate オブジェクトを毎レンダー新規生成すると、進捗テキストの更新等で
+  // 親が再レンダーされるたびに framer-motion がループアニメーションを最初からやり直して
+  // しまい、家への到達(xFrac=1)まで辿り着けない事故になる(2026-08-19 ユーザー指摘:
+  // 「家がバウンドしない」の原因)。 frames/reducedMotion が変わらない限り同一参照を
+  // 保つよう useMemo でまとめて安定化する。
+  const anim = useMemo(() => {
+    if (reducedMotion) return null;
+    const transition = { duration: CYCLE_SECONDS, repeat: Infinity, times: frames.times, ease: 'linear' as const };
+    return {
+      transition,
+      bars: frames.barHeights.map((heights, i) => ({ height: heights, opacity: frames.barGlow[i] })),
+      house: { scaleX: frames.houseScaleX, scaleY: frames.houseScaleY },
+      ball: { x: frames.ballX, y: frames.ballY, scaleX: frames.ballScaleX, scaleY: frames.ballScaleY },
+    };
+  }, [frames, reducedMotion]);
 
   return (
     <div className="housing-allmarks-wave-loader" aria-hidden>
       <div className="housing-allmarks-wave-loader-track" style={{ width: TRACK_WIDTH }}>
-        {frames.barHeights.map((heights, i) => (
+        {frames.barHeights.map((_, i) => (
           <div key={i} className="housing-allmarks-wave-bar-wrap" style={{ width: BAR_WIDTH }}>
             <div className="housing-allmarks-wave-bar-base" />
             <motion.div
               className="housing-allmarks-wave-bar-glow"
-              animate={reducedMotion ? undefined : { height: heights, opacity: frames.barGlow[i] }}
-              transition={transition}
-              style={reducedMotion ? { height: BASE_BAR_H, opacity: 0 } : undefined}
+              animate={anim?.bars[i]}
+              transition={anim?.transition}
+              style={anim ? undefined : { height: BASE_BAR_H, opacity: 0 }}
             />
           </div>
         ))}
@@ -147,22 +162,17 @@ export const AllmarksWaveLoader: React.FC = () => {
         <motion.div
           className="housing-allmarks-wave-house"
           style={{ left: HOUSE_LEFT_X }}
-          animate={reducedMotion ? undefined : { scaleX: frames.houseScaleX, scaleY: frames.houseScaleY }}
-          transition={transition}
+          animate={anim?.house}
+          transition={anim?.transition}
         >
           <Home size={HOUSE_SIZE} />
         </motion.div>
 
         <motion.div
           className="housing-allmarks-wave-ball"
-          animate={reducedMotion ? undefined : {
-            x: frames.ballX,
-            y: frames.ballY,
-            scaleX: frames.ballScaleX,
-            scaleY: frames.ballScaleY,
-          }}
-          transition={transition}
-          style={reducedMotion ? { transform: 'translate(0, -44px)' } : undefined}
+          animate={anim?.ball}
+          transition={anim?.transition}
+          style={anim ? undefined : { transform: 'translate(0, -44px)' }}
         />
       </div>
     </div>
