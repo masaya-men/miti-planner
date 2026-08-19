@@ -62,6 +62,7 @@ export interface Mitigation {
     requires?: string; // Prerequisite mitigation ID that must be active
     requiresWindow?: number; // Override window (seconds) for requires check (default: parent's duration)
     resourceCost?: { type: 'aetherflow' | 'addersgall' | 'lily'; amount: number };
+    resourceGain?: { type: 'aetherflow' | 'addersgall' | 'lily'; amount: number };
     maxCharges?: number; // For charge-based skills (e.g. Oblation=2, Consolation=2, Sun Sign=1)
     /** maxCharges に到達するコンテンツレベル(特性で2チャージ化する技用)。
      *  コンテンツ level < chargeMinLevel のときは実効チャージ数 1 として扱う。

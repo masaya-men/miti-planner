@@ -165,26 +165,26 @@ export function getAddersgallStacks(
     time: number,
     placedMitigations: AppliedMitigation[]
 ): number {
-    // Collect Addersgall-consuming skills sorted by time
-    const consumptions = placedMitigations
+    // Collect Addersgall-consuming/granting skills (ケーラコレ等の消費 + リゾーマタの獲得) sorted by time
+    const events = placedMitigations
         .filter(m => {
             const def = getMitigationsFromStore().find(d => d.id === m.mitigationId);
-            return def?.resourceCost?.type === 'addersgall';
+            return def?.resourceCost?.type === 'addersgall' || def?.resourceGain?.type === 'addersgall';
         })
         .filter(m => m.time <= time)
         .sort((a, b) => a.time - b.time);
 
-    if (consumptions.length === 0) return 3; // No consumption, always 3
+    if (events.length === 0) return 3; // No consumption/gain, always 3
 
-    // Simulate: start at 3, process consumptions with regen
+    // Simulate: start at 3, process events with regen
     // アダーガルは戦闘状態に関係なく常に20秒ごとにリチャージ
-    // 初期ゲージ3個 = 最初の消費前は常に最大なのでリチャージ起点は最初の消費時刻
+    // 初期ゲージ3個 = 最初のイベント前は常に最大なのでリチャージ起点は最初のイベント時刻
     let stacks = 3;
-    let lastTime = consumptions[0].time;
+    let lastTime = events[0].time;
     let regenAccumulator = 0;
 
-    for (const consumption of consumptions) {
-        const elapsed = consumption.time - lastTime;
+    for (const event of events) {
+        const elapsed = event.time - lastTime;
         const totalRegenTime = regenAccumulator + elapsed;
         const regenGains = Math.floor(totalRegenTime / 20);
         stacks = Math.min(3, stacks + regenGains);
@@ -199,13 +199,18 @@ export function getAddersgallStacks(
             regenAccumulator = 0;
         }
 
-        // Consume
-        const def = getMitigationsFromStore().find(d => d.id === consumption.mitigationId);
-        stacks = Math.max(0, stacks - (def?.resourceCost?.amount || 0));
-        lastTime = consumption.time;
+        // Consume or gain
+        const def = getMitigationsFromStore().find(d => d.id === event.mitigationId);
+        if (def?.resourceCost?.type === 'addersgall') {
+            stacks = Math.max(0, stacks - (def.resourceCost.amount || 0));
+        } else if (def?.resourceGain?.type === 'addersgall') {
+            stacks = Math.min(3, stacks + (def.resourceGain.amount || 0));
+            if (stacks >= 3) regenAccumulator = 0; // 獲得で満タンになった場合も蓄積分は破棄
+        }
+        lastTime = event.time;
     }
 
-    // Regen from last consumption to target time
+    // Regen from last event to target time
     const finalElapsed = time - lastTime;
     const finalRegenTime = regenAccumulator + finalElapsed;
     const finalRegenGains = Math.floor(finalRegenTime / 20);

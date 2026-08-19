@@ -528,7 +528,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "rhizomata", jobId: "sge", name: { ja: "リゾーマタ", en: "Rhizomata", zh: "根素", ko: "만물의 근원", "zh-Hant": "根素" }, icon: "/icons/Rhizomata.png",
-        recast: 90, duration: 0, type: "all", value: 0, isShield: false, scope: "self", note: "アダーガルを1スタック獲得(最大3)", minLevel: 74
+        recast: 90, duration: 0, type: "all", value: 0, isShield: false, scope: "self", resourceGain: { type: 'addersgall', amount: 1 }, note: "アダーガルを1スタック獲得(最大3)", minLevel: 74
     },
 
     // --- Red Mage ---
