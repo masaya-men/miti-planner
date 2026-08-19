@@ -12,8 +12,8 @@ export interface MapRoadState {
   reducedMotion: boolean;
 }
 
-export const DRAWING_MS = 900;
-export const HOLD_MS = 500;
+export const DRAWING_MS = 1800;
+export const HOLD_MS = 600;
 export const FADE_MS = 400;
 
 const MAP_KEYS = Object.keys(WARD_MAP_LOADERS);

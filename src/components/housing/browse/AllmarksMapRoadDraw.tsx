@@ -1,7 +1,7 @@
 import { useMapRoadCycle, DRAWING_MS, FADE_MS } from '../../../lib/housing/useMapRoadCycle';
 
-const DISPLAY_WIDTH = 240;
-const DISPLAY_HEIGHT = 150;
+const DISPLAY_WIDTH = 420;
+const DISPLAY_HEIGHT = 270;
 
 /**
  * Allmarksまとめてインポート中の演出 (2026-08-19、ユーザー発案)。
@@ -30,6 +30,13 @@ export const AllmarksMapRoadDraw: React.FC = () => {
         viewBox={`${snippet.crop.x} ${snippet.crop.y} ${snippet.crop.w} ${snippet.crop.h}`}
         className="housing-allmarks-map-road-svg"
       >
+        {snippet.houses.map((outline, i) => (
+          <polygon
+            key={`${cycleId}-house-${i}`}
+            points={outline.map((p) => `${p.x},${p.y}`).join(' ')}
+            className="housing-allmarks-map-road-house"
+          />
+        ))}
         <path
           key={cycleId}
           d={snippet.d}

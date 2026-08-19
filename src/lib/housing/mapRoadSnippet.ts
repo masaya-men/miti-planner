@@ -19,9 +19,11 @@ export interface CropWindow {
   h: number;
 }
 
-/** 切り取り範囲のサイズ(マップのネイティブ座標系での幅高さ)。 */
-export const CROP_WIDTH = 240;
-export const CROP_HEIGHT = 150;
+/** 切り取り範囲のサイズ(マップのネイティブ座標系での幅高さ)。 マップ全体(だいたい
+ * 1000〜1900角)のうち意味のある広さを見せる「引き」の画にする(2026-08-19 ユーザーFB:
+ * 最初の240x150は寄りすぎて地図に見えなかった)。 */
+export const CROP_WIDTH = 700;
+export const CROP_HEIGHT = 450;
 
 /** 十分「意味のある」道が描けたと判断する最小文字数(短すぎる/ほぼ空の切り取りを避ける)。 */
 const MIN_SNIPPET_LENGTH = 40;
@@ -100,6 +102,29 @@ export function selectRoadSnippet(roadPath: string, crop: CropWindow): string {
   return relevant.join(' ');
 }
 
+/** `WardMapJson.houses[].outline` (正規化0-1座標) をネイティブ座標系の頂点列に変換する。 */
+export function outlineToNativePoints(outline: number[][], viewBox: { w: number; h: number }): Point[] {
+  return outline.map(([x, y]) => ({ x: x * viewBox.w, y: y * viewBox.h }));
+}
+
+/** 家(区画)の輪郭のうち、切り取り範囲とかすっているものだけを抜き出す。 道路だけでなく
+ * 実際の区画の形も見せることで「地図らしさ」を出す(2026-08-19 ユーザー指摘: 家の区画データも
+ * outline としてJSONにそのまま入っている)。 */
+export function selectHouseOutlines(
+  houses: WardMapJson['houses'],
+  viewBox: { w: number; h: number },
+  crop: CropWindow,
+): Point[][] {
+  const result: Point[][] = [];
+  for (const house of houses) {
+    if (!house.outline) continue;
+    const points = outlineToNativePoints(house.outline, viewBox);
+    const box = boundingBox(points);
+    if (box !== null && intersects(crop, box)) result.push(points);
+  }
+  return result;
+}
+
 /** ノード(道路グラフの頂点、正規化0-1座標)からランダムに1つ選び、ネイティブ座標系での
  * 切り取り範囲(マップ境界内にクランプ済み)を作る。 ノードは道路の頂点なので、
  * その周辺には高確率で道が通っている。 */
@@ -119,18 +144,22 @@ export function pickCropWindow(
 export interface RoadSnippet {
   crop: CropWindow;
   d: string;
+  houses: Point[][];
 }
 
 /** ランダムな切り取り範囲を選び、十分な長さの道が取れるまで(最大 {@link MAX_ANCHOR_ATTEMPTS} 回)
  * 候補を選び直す。 見つからなくても最も長かった候補(空文字含む)を返す(呼び出し側は
- * `d === ''` を「今回は何も描かない」として扱えばよい)。 */
+ * `d === ''` を「今回は何も描かない」として扱えばよい)。 同じ切り取り範囲で家の区画も
+ * 一緒に抜き出す(道路と家、両方とも同じ「窓」の中身)。 */
 export function pickRoadSnippet(json: WardMapJson, rng: () => number = Math.random): RoadSnippet {
-  let best: RoadSnippet | null = null;
+  let best: { crop: CropWindow; d: string } | null = null;
   for (let attempt = 0; attempt < MAX_ANCHOR_ATTEMPTS; attempt++) {
     const crop = pickCropWindow(json, rng);
     const d = selectRoadSnippet(json.roadPath, crop);
     if (!best || d.length > best.d.length) best = { crop, d };
-    if (d.length >= MIN_SNIPPET_LENGTH) return best;
+    if (d.length >= MIN_SNIPPET_LENGTH) break;
   }
-  return best ?? { crop: pickCropWindow(json, rng), d: '' };
+  const picked = best ?? { crop: pickCropWindow(json, rng), d: '' };
+  const houses = selectHouseOutlines(json.houses, json.viewBox, picked.crop);
+  return { ...picked, houses };
 }

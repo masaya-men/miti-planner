@@ -6,6 +6,8 @@ import {
   selectRoadSnippet,
   pickCropWindow,
   pickRoadSnippet,
+  outlineToNativePoints,
+  selectHouseOutlines,
   CROP_WIDTH,
   CROP_HEIGHT,
 } from '../mapRoadSnippet';
@@ -77,12 +79,31 @@ describe('mapRoadSnippet (2026-08-19 Allmarksまとめてインポート演出)'
     expect(crop.y + crop.h).toBeLessThanOrEqual(800);
   });
 
-  it('pickRoadSnippet: 実データ(Mistワード)で十分な長さの道が取れる', () => {
+  it('outlineToNativePoints: 正規化座標をviewBoxの実寸に変換する', () => {
+    const points = outlineToNativePoints([[0.1, 0.2], [0.5, 0.5]], { w: 1000, h: 800 });
+    expect(points).toEqual([{ x: 100, y: 160 }, { x: 500, y: 400 }]);
+  });
+
+  it('selectHouseOutlines: 切り取り範囲とかすっている家だけを抜き出す(outline無しはスキップ)', () => {
+    const houses: WardMapJson['houses'] = [
+      { kind: 'plot', plot: 1, x: 0.05, y: 0.05, node: null, outline: [[0, 0], [0.1, 0], [0.1, 0.1], [0, 0.1]] }, // crop内
+      { kind: 'plot', plot: 2, x: 0.9, y: 0.9, node: null, outline: [[0.9, 0.9], [1, 0.9], [1, 1], [0.9, 1]] }, // crop外
+      { kind: 'plot', plot: 3, x: 0.02, y: 0.02, node: null, outline: null }, // outline無し
+    ];
+    const viewBox = { w: 1000, h: 800 };
+    const crop = { x: 0, y: 0, w: 200, h: 200 };
+    const result = selectHouseOutlines(houses, viewBox, crop);
+    expect(result).toHaveLength(1);
+    expect(result[0][0]).toEqual({ x: 0, y: 0 });
+  });
+
+  it('pickRoadSnippet: 実データ(Mistワード)で十分な長さの道と家の区画が取れる', () => {
     const json = mistWard as unknown as WardMapJson;
     // 複数回試して安定して非空を返すことを確認(実データでの結合テスト)。
     for (let i = 0; i < 10; i++) {
       const result = pickRoadSnippet(json, Math.random);
       expect(result.d.length).toBeGreaterThan(0);
+      expect(Array.isArray(result.houses)).toBe(true);
     }
   });
 
