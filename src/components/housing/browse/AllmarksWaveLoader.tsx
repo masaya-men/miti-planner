@@ -22,7 +22,9 @@ const MAX_BOUNCE = 60;
 const BASE_BAR_H = 16;
 const WAVE_PEAK_H = 48;
 const CYCLE_SECONDS = 4;
-const IMPACT_WINDOW = 0.15; // 家が衝撃で反応する範囲(xFracの残り距離)
+/** 家が衝突後に元の形へ戻るまでの速さ(t単位、0.05=4秒サイクルの0.2秒間で戻り切る)。
+ * 2026-08-19 ユーザー指摘: 「当たった瞬間に」反応し「もっと素早く」戻るべき。 */
+const IMPACT_RECOVER_WINDOW = 0.05;
 
 /** lucide `house.js` の外形パス(viewBox 24x24)の左屋根の斜め線: 壁との境目(ROOF_LEFT_BASE)
  * 〜 頂点寄り(ROOF_APEX)。 ボールはこの斜め線の壁寄り(下から30%)を狙う
@@ -94,9 +96,13 @@ function buildWaveFrames(): WaveFrames {
     ballScaleY.push(1 - squish * 0.3);
     ballScaleX.push(1 + squish * 0.25);
 
-    const distFromImpact = Math.abs(xFrac - 1);
-    const houseHit = distFromImpact < IMPACT_WINDOW
-      ? Math.cos((distFromImpact / IMPACT_WINDOW) * (Math.PI / 2))
+    // 家の反応: 衝突の瞬間(t=0.5, xFrac=1)より前は微動だにせず、当たった瞬間に即座に
+    // 凹み、そこから素早く元に戻る(予備動作なし・当たった瞬間から反応・素早く、の
+    // ユーザー指摘に合わせて非対称にした — 前回は前後対称で「当たる前から凹む」
+    // 不自然さがあった)。
+    const sinceImpact = t - 0.5;
+    const houseHit = sinceImpact >= 0 && sinceImpact < IMPACT_RECOVER_WINDOW
+      ? Math.cos((sinceImpact / IMPACT_RECOVER_WINDOW) * (Math.PI / 2))
       : 0;
     houseScaleY.push(1 - houseHit * 0.28);
     houseScaleX.push(1 + houseHit * 0.22);
