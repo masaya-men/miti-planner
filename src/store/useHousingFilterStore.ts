@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { localeDefaultRegionOrder } from '../lib/housing/localeRegionDefaults.js';
 
 export type HousingArea = 'Mist' | 'LavenderBeds' | 'Goblet' | 'Shirogane' | 'Empyreum';
 export type HousingSize = 'S' | 'M' | 'L';
@@ -74,12 +75,7 @@ export const useHousingFilterStore = create<HousingFilterState>((set) => ({
     // 言語→地域の初期値 (spec: B案=言語は初期値のみ)。localeDefaultRegions は touched でも
     // 常に最新化する (clearAll の復帰先として必要)。regions への反映のみ touched でガードする。
     applyLocaleDefaultRegions: (lang) => set((s) => {
-        const head = (lang || 'ja').toLowerCase();
-        const localeDefaultRegions = head === 'zh-hant' || head.startsWith('zh-hant-')
-            ? ['TW']
-            : head.slice(0, 2) === 'ko' ? ['KR']
-            : head.slice(0, 2) === 'zh' ? ['CN']
-            : ['JP', 'NA', 'EU', 'OCE'];
+        const localeDefaultRegions = localeDefaultRegionOrder(lang);
         if (s.regionsTouched) return { localeDefaultRegions };
         return { regions: localeDefaultRegions, localeDefaultRegions };
     }),

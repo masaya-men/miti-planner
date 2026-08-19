@@ -132,6 +132,69 @@ describe('useAllmarksImport (2026-08-19 Allmarksまとめてインポート)', (
     expect(result.current.progress.limitReached).toBe(true);
   });
 
+  it('空のツアーからの一括インポートで異なるリージョン(JP/EU)が混在したら choosing-region になり、両方とも一時プールに残る', async () => {
+    mockFetchUrls.mockResolvedValueOnce(['u1', 'u2', 'u3']);
+    mockResolve
+      .mockResolvedValueOnce({ result: houseResult({ dc: 'Elemental', server: 'Carbuncle' }), source: { postUrl: 'u1' } }) // JP
+      .mockResolvedValueOnce({ result: houseResult({ dc: 'Chaos', server: 'Cerberus' }), source: { postUrl: 'u2' } }) // EU
+      .mockResolvedValueOnce({ result: houseResult({ dc: 'Elemental', server: 'Carbuncle' }), source: { postUrl: 'u3' } }); // JP
+    const onAdd = vi.fn();
+    const { result } = renderHook(() => useAllmarksImport());
+
+    await act(async () => {
+      await result.current.start('Ab3xY9', null, onAdd);
+    });
+
+    expect(result.current.progress.status).toBe('choosing-region');
+    expect(result.current.progress.added).toBe(3);
+    expect(onAdd).toHaveBeenCalledTimes(3); // 混在していてもブロックせず全部追加する
+    expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(3);
+    const choices = [...result.current.progress.regionChoices].sort((a, b) => a.region.localeCompare(b.region));
+    expect(choices).toEqual([
+      { region: 'EU', count: 1 },
+      { region: 'JP', count: 2 },
+    ]);
+  });
+
+  it('choosing-region の後 chooseRegion で選ばなかったリージョンを取り消し、done に確定する', async () => {
+    mockFetchUrls.mockResolvedValueOnce(['u1', 'u2']);
+    mockResolve
+      .mockResolvedValueOnce({ result: houseResult({ dc: 'Elemental', server: 'Carbuncle' }), source: { postUrl: 'u1' } }) // JP
+      .mockResolvedValueOnce({ result: houseResult({ dc: 'Chaos', server: 'Cerberus' }), source: { postUrl: 'u2' } }); // EU
+    const { result } = renderHook(() => useAllmarksImport());
+
+    await act(async () => {
+      await result.current.start('Ab3xY9', null, vi.fn());
+    });
+    expect(result.current.progress.status).toBe('choosing-region');
+
+    act(() => {
+      result.current.chooseRegion('JP');
+    });
+
+    expect(result.current.progress.status).toBe('done');
+    expect(result.current.progress.added).toBe(1);
+    expect(result.current.progress.regionExcluded).toBe(1);
+    const remaining = useEphemeralListingsStore.getState().ephemeralListings;
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0].region).toBe('JP');
+  });
+
+  it('単一リージョンのみなら choosing-region を経ずに done へ (従来通り)', async () => {
+    mockFetchUrls.mockResolvedValueOnce(['u1', 'u2']);
+    mockResolve.mockImplementation(async (url: string) =>
+      ({ result: houseResult({ dc: 'Elemental', server: 'Carbuncle' }), source: { postUrl: url } }),
+    );
+    const { result } = renderHook(() => useAllmarksImport());
+
+    await act(async () => {
+      await result.current.start('Ab3xY9', null, vi.fn());
+    });
+
+    expect(result.current.progress.status).toBe('done');
+    expect(result.current.progress.regionChoices).toEqual([]);
+  });
+
   it('cancel: 進行中に呼ぶと即座に idle へ戻る', async () => {
     mockFetchUrls.mockImplementationOnce(() => new Promise(() => {})); // 永久に解決しない = fetching-list のまま止める
     const { result } = renderHook(() => useAllmarksImport());

@@ -7,13 +7,18 @@ import { housingExtractResultToAddressPatch } from './housingExtractResultToAddr
 import { validateEphemeralInput, createEphemeralListing, type EphemeralInput } from './ephemeralListing';
 import { useEphemeralListingsStore } from '../../store/useEphemeralListingsStore';
 import { regionForDC, type Region } from '../../data/housing/dcServerMap';
-import { canAddToTour } from './tourCrossing';
+import { canAddToTour, regionConflictAmong } from './tourCrossing';
 import type { RegisterAddressValues } from '../../components/housing/register/RegisterSectionAddress';
 
 /** 一度に並行して処理する件数。外部サービス(Twitter/YouTube等)への負荷と速さのバランス。 */
 const CONCURRENCY = 2;
 
-export type AllmarksImportStatus = 'idle' | 'fetching-list' | 'importing' | 'done';
+export type AllmarksImportStatus = 'idle' | 'fetching-list' | 'importing' | 'choosing-region' | 'done';
+
+export interface AllmarksRegionChoice {
+  region: Region;
+  count: number;
+}
 
 export interface AllmarksImportProgress {
   status: AllmarksImportStatus;
@@ -27,6 +32,10 @@ export interface AllmarksImportProgress {
   limitReached: boolean;
   /** 共有そのものが見つからなかった(期限切れ/不正なリンク)。 */
   shareNotFound: boolean;
+  /** status='choosing-region' のときだけ非空。 混在したリージョンごとの件数。 */
+  regionChoices: AllmarksRegionChoice[];
+  /** リージョン選択で除外された件数(選択後の done でのみ意味を持つ)。 */
+  regionExcluded: number;
 }
 
 const IDLE_PROGRESS: AllmarksImportProgress = {
@@ -37,6 +46,8 @@ const IDLE_PROGRESS: AllmarksImportProgress = {
   failed: 0,
   limitReached: false,
   shareNotFound: false,
+  regionChoices: [],
+  regionExcluded: 0,
 };
 
 /** address patch (RegisterSectionAddress 相当) が EphemeralInput を組み立てられる完全な状態か。 */
@@ -55,11 +66,21 @@ function isCompleteAddress(a: RegisterAddressValues): boolean {
 /**
  * Allmarks共有リンクからの一時ツアー一括インポートを行う (2026-08-19)。
  * `EphemeralAddPanel.tsx` の「+ 住所から追加」1件ずつのフローと同じ判定・同じ一時プールを、
- * URLの配列に対してループで実行するだけ(新しい判定ロジックは持たない)。
+ * URLの配列に対してループで実行する。
+ *
+ * リージョン跨ぎの扱い(2026-08-19 追記): 空の一時ツアーから始めたときは、取り込み中は
+ * リージョンでブロックせず見つかった順にすべて追加する(従来通りの「増えていく」体験を維持)。
+ * 全件処理し終えた時点で実際に混在リージョンがあれば `status: 'choosing-region'` に遷移し、
+ * `chooseRegion()` で選ばれなかった方だけを後から取り消す。 既にツアーに家がある状態(=
+ * `initialTrayRegion` が非null)で始めたときは、リージョンはもう決まっているため従来通り
+ * その場でブロックする(選択肢は出さない)。
  */
 export function useAllmarksImport() {
   const [progress, setProgress] = useState<AllmarksImportProgress>(IDLE_PROGRESS);
   const cancelledRef = useRef(false);
+  /** 空のツアーから始めたときに、追加した各アイテムの id とリージョンを覚えておく。
+   * 全件処理後の混在判定・`chooseRegion` での取り消しに使う。 */
+  const addedItemsRef = useRef<{ id: string; region: Region }[]>([]);
 
   /** インポート中に「やめる」/完了後に「閉じる」どちらからも呼ぶ。進行中のループがあれば
    * その場で止め(以降 setProgress しない)、状態を idle に戻す。ここまで追加済みの分は
@@ -71,6 +92,7 @@ export function useAllmarksImport() {
 
   const start = useCallback(async (shareId: string, initialTrayRegion: Region | null, onAdd: (id: string) => void) => {
     cancelledRef.current = false;
+    addedItemsRef.current = [];
     setProgress({ ...IDLE_PROGRESS, status: 'fetching-list' });
 
     const urls = await fetchAllmarksShareUrls(shareId);
@@ -82,7 +104,7 @@ export function useAllmarksImport() {
 
     setProgress({ ...IDLE_PROGRESS, status: 'importing', total: urls.length });
 
-    let currentRegion = initialTrayRegion;
+    const startedEmpty = initialTrayRegion === null;
     let added = 0;
     let failed = 0;
     let processed = 0;
@@ -99,8 +121,10 @@ export function useAllmarksImport() {
         failed += 1;
       } else {
         const candidateRegion = patch.dc ? regionForDC(patch.dc) : null;
+        // 空のツアーから始めたときはリージョンでブロックしない(後で choosing-region で聞く)。
         const crossRegionBlocked =
-          currentRegion != null && candidateRegion != null && !canAddToTour(currentRegion, candidateRegion);
+          !startedEmpty && initialTrayRegion != null && candidateRegion != null &&
+          !canAddToTour(initialTrayRegion, candidateRegion);
         if (crossRegionBlocked) {
           failed += 1;
         } else {
@@ -130,7 +154,9 @@ export function useAllmarksImport() {
               stop = true;
             } else {
               added += 1;
-              if (currentRegion == null && candidateRegion != null) currentRegion = candidateRegion;
+              if (startedEmpty && candidateRegion != null) {
+                addedItemsRef.current.push({ id: listing.id, region: candidateRegion });
+              }
               onAdd(listing.id);
             }
           }
@@ -145,6 +171,8 @@ export function useAllmarksImport() {
         failed,
         limitReached,
         shareNotFound: false,
+        regionChoices: [],
+        regionExcluded: 0,
       });
     };
 
@@ -161,6 +189,27 @@ export function useAllmarksImport() {
     await Promise.all(Array.from({ length: Math.min(CONCURRENCY, urls.length) }, () => worker()));
 
     if (cancelledRef.current) return;
+
+    const conflict = startedEmpty ? regionConflictAmong(addedItemsRef.current.map((i) => i.region)) : null;
+    if (conflict) {
+      const regionChoices: AllmarksRegionChoice[] = conflict.map((region) => ({
+        region: region as Region,
+        count: addedItemsRef.current.filter((i) => i.region === region).length,
+      }));
+      setProgress({
+        status: 'choosing-region',
+        total: urls.length,
+        processed,
+        added,
+        failed,
+        limitReached,
+        shareNotFound: false,
+        regionChoices,
+        regionExcluded: 0,
+      });
+      return;
+    }
+
     setProgress({
       status: 'done',
       total: urls.length,
@@ -169,8 +218,27 @@ export function useAllmarksImport() {
       failed,
       limitReached,
       shareNotFound: false,
+      regionChoices: [],
+      regionExcluded: 0,
     });
   }, []);
 
-  return { progress, start, cancel };
+  /** `choosing-region` の選択肢からユーザーが1つ選んだあとに呼ぶ。選ばれなかったリージョンの
+   * アイテムを一時ツアーから取り消し、`status: 'done'` に確定する。 */
+  const chooseRegion = useCallback((chosenRegion: Region) => {
+    const items = addedItemsRef.current;
+    const kept = items.filter((i) => canAddToTour(chosenRegion, i.region));
+    const excluded = items.filter((i) => !canAddToTour(chosenRegion, i.region));
+    excluded.forEach((i) => useEphemeralListingsStore.getState().remove(i.id));
+    addedItemsRef.current = kept;
+    setProgress((prev) => ({
+      ...prev,
+      status: 'done',
+      added: kept.length,
+      regionExcluded: excluded.length,
+      regionChoices: [],
+    }));
+  }, []);
+
+  return { progress, start, cancel, chooseRegion };
 }

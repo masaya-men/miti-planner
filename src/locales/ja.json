@@ -2015,7 +2015,10 @@
                 "not_found": "共有リンクが見つかりませんでした。期限切れか、URLが正しくない可能性があります。",
                 "summary_added": "{{total}}件中{{count}}件を追加できました",
                 "summary_failed": "{{count}}件は住所を読み取れませんでした",
-                "summary_limit_reached": "一時ツアーの上限に達したため、途中で打ち切りました"
+                "summary_limit_reached": "一時ツアーの上限に達したため、途中で打ち切りました",
+                "choose_region_title": "複数リージョンの家が含まれていました。どちらをツアーにしますか？",
+                "choose_region_option": "{{region}}（{{count}}件）",
+                "summary_region_excluded": "{{count}}件は選ばなかったリージョンのため除外しました"
             }
         },
         "favStrip": {

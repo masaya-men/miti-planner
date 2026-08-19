@@ -2,6 +2,9 @@ import { Home } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProgressRing } from '../tour/ProgressRing';
 import type { AllmarksImportProgress as AllmarksImportProgressState } from '../../../lib/housing/useAllmarksImport';
+import type { Region } from '../../../data/housing/dcServerMap';
+import { regionLabel, pickRegionLocale } from '../../../data/housing/regionMap';
+import { localeDefaultRegion } from '../../../lib/housing/localeRegionDefaults';
 
 export interface AllmarksImportProgressProps {
   progress: AllmarksImportProgressState;
@@ -11,6 +14,8 @@ export interface AllmarksImportProgressProps {
    * (`progress.added`) は一時ツアーに残る(取り消さない)。
    */
   onClose: () => void;
+  /** status='choosing-region' のとき、選ばれたリージョンを渡して確定する。 */
+  onChooseRegion: (region: Region) => void;
 }
 
 /**
@@ -19,8 +24,9 @@ export interface AllmarksImportProgressProps {
  * その上でハニー色の家アイコンをぴょんぴょん弾ませて「かわいさ」を足すだけに留める
  * (新しい色/新しい進捗の見せ方は増やさない)。
  */
-export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ progress, onClose }) => {
-  const { t } = useTranslation();
+export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ progress, onClose, onChooseRegion }) => {
+  const { t, i18n } = useTranslation();
+  const regionLocale = pickRegionLocale(i18n.language);
 
   if (progress.status === 'fetching-list') {
     return (
@@ -57,6 +63,38 @@ export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ 
     );
   }
 
+  if (progress.status === 'choosing-region') {
+    const preferred = localeDefaultRegion(i18n.language);
+    const defaultRegion =
+      progress.regionChoices.find((c) => c.region === preferred)?.region ?? progress.regionChoices[0]?.region;
+    return (
+      <div className="housing-allmarks-import-panel">
+        <p className="housing-allmarks-import-status">
+          {t('housing.ephemeral.allmarks_import.choose_region_title')}
+        </p>
+        <div className="housing-allmarks-import-region-choices">
+          {progress.regionChoices.map((choice) => (
+            <button
+              key={choice.region}
+              type="button"
+              className={
+                choice.region === defaultRegion
+                  ? 'housing-action-btn housing-btn-primary'
+                  : 'housing-action-btn'
+              }
+              onClick={() => onChooseRegion(choice.region)}
+            >
+              {t('housing.ephemeral.allmarks_import.choose_region_option', {
+                region: regionLabel(choice.region, regionLocale),
+                count: choice.count,
+              })}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   // status === 'done'
   if (progress.shareNotFound) {
     return (
@@ -85,6 +123,11 @@ export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ 
         {progress.limitReached && (
           <p className="housing-allmarks-import-status">
             {t('housing.ephemeral.allmarks_import.summary_limit_reached')}
+          </p>
+        )}
+        {progress.regionExcluded > 0 && (
+          <p className="housing-allmarks-import-status">
+            {t('housing.ephemeral.allmarks_import.summary_region_excluded', { count: progress.regionExcluded })}
           </p>
         )}
       </div>

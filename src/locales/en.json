@@ -1994,7 +1994,10 @@
                 "not_found": "Couldn't find that share link. It may have expired or the URL may be incorrect.",
                 "summary_added": "Added {{count}} of {{total}}",
                 "summary_failed": "Couldn't read the address for {{count}} of them",
-                "summary_limit_reached": "Stopped partway because the temporary tour limit was reached"
+                "summary_limit_reached": "Stopped partway because the temporary tour limit was reached",
+                "choose_region_title": "This includes houses from multiple regions. Which one do you want to tour?",
+                "choose_region_option": "{{region}} ({{count}})",
+                "summary_region_excluded": "{{count}} were excluded because they were in a different region"
             }
         },
         "favStrip": {

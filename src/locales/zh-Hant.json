@@ -1959,7 +1959,10 @@
                 "not_found": "找不到該共享連結。可能已過期或URL不正確。",
                 "summary_added": "{{total}} 件中已新增 {{count}} 件",
                 "summary_failed": "有 {{count}} 件無法讀取地址",
-                "summary_limit_reached": "已達臨時導覽上限，已中途停止"
+                "summary_limit_reached": "已達臨時導覽上限，已中途停止",
+                "choose_region_title": "包含了多個大區的房屋。要巡遊哪個大區？",
+                "choose_region_option": "{{region}}（{{count}}件）",
+                "summary_region_excluded": "有 {{count}} 件因不屬於所選大區而被排除"
             }
         },
         "favStrip": {

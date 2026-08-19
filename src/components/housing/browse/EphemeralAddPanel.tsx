@@ -329,7 +329,11 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
         </p>
 
         {isAllmarksImporting ? (
-          <AllmarksImportProgress progress={allmarksImport.progress} onClose={handleAllmarksClose} />
+          <AllmarksImportProgress
+            progress={allmarksImport.progress}
+            onClose={handleAllmarksClose}
+            onChooseRegion={allmarksImport.chooseRegion}
+          />
         ) : (
           <>
             <div className="housing-ephemeral-field">

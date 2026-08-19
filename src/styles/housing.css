@@ -1740,6 +1740,13 @@
   margin-top: 4px;
 }
 
+.housing-allmarks-import-region-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
 /* prefers-reduced-motion 対応 */
 @media (prefers-reduced-motion: reduce) {
   .housing-confirm-button,

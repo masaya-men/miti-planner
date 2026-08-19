@@ -81,18 +81,24 @@ export function canAddToTour(trayAnchorRegion: string | null, candidateRegion: s
 }
 
 /**
- * 地点集合の地域衝突。
+ * region の配列そのものに対する地域衝突判定 (Loc の他フィールドを持たない場面向け、
+ * 例: Allmarksまとめてインポートで追加済みアイテムの region 一覧だけを見るケース)。
  * 定義済み region の distinct な移動可能圏(travelGroupOf)が2種以上あれば衝突(distinct region 配列を返す)。
  * それ以外(移動可能圏が1種以下)は従来ルール: OCE(Materia)は混在可なので除外し、
  * 非OCE地域が2種以上で衝突(その配列を返す)。 1種以下なら null(=問題なし)。
  */
-export function tourRegionConflict(stops: Loc[]): string[] | null {
+export function regionConflictAmong(regions: (string | undefined)[]): string[] | null {
   // unlisted (region undefined) は地域衝突判定の対象外 (住所非公開でどの地域か分からないため)。
-  const regions = stops.map((s) => s.region).filter((r): r is Exclude<typeof r, undefined> => r !== undefined);
-  const distinctRegions = [...new Set(regions)];
+  const defined = regions.filter((r): r is string => r !== undefined);
+  const distinctRegions = [...new Set(defined)];
   const distinctGroups = new Set(distinctRegions.map((r) => travelGroupOf(r)));
   if (distinctGroups.size > 1) return distinctRegions;
 
   const nonOce = distinctRegions.filter((r) => r !== 'OCE');
   return nonOce.length > 1 ? nonOce : null;
+}
+
+/** 地点集合の地域衝突。 判定ロジックは {@link regionConflictAmong} 参照。 */
+export function tourRegionConflict(stops: Loc[]): string[] | null {
+  return regionConflictAmong(stops.map((s) => s.region));
 }
