@@ -191,7 +191,7 @@ describe('HousingerPage', () => {
     expect(screen.getByRole('button', { name: 'シェア' })).toBeInTheDocument();
   });
 
-  it('e: 共有メニューのリンクコピーで自分のまとめページ URL (/housing/housinger/:uid) がコピーされる', async () => {
+  it('e: 共有メニューのリンクコピーで短縮URL (/h/<名前>-<識別コード>、2026-08-19) がコピーされる', async () => {
     mockGetHousingerProfile.mockResolvedValueOnce(publishedProfile);
     mockGetHousingerListings.mockResolvedValueOnce([]);
     Object.defineProperty(navigator, 'clipboard', {
@@ -206,8 +206,9 @@ describe('HousingerPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'シェア' }));
     fireEvent.click(screen.getByText('リンクをコピー'));
 
+    // 名前 (たかし) は飾りのみ・実際の判定は識別コード (uid-1 は8文字未満なのでそのまま) だけで行う。
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-      expect.stringMatching(/\/housing\/housinger\/uid-1$/),
+      expect.stringMatching(/\/h\/たかし-uid-1$/),
     );
   });
 

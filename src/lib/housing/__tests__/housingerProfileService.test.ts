@@ -13,6 +13,7 @@ const mockWhere = vi.fn();
 const mockOrderBy = vi.fn();
 const mockLimit = vi.fn();
 const mockGetDocs = vi.fn();
+const mockDocumentId = vi.fn(() => '__name__');
 vi.mock('firebase/firestore', () => ({
   doc: (...a: unknown[]) => mockDoc(...a),
   getDoc: (...a: unknown[]) => mockGetDoc(...a),
@@ -22,6 +23,7 @@ vi.mock('firebase/firestore', () => ({
   orderBy: (...a: unknown[]) => mockOrderBy(...a),
   limit: (...a: unknown[]) => mockLimit(...a),
   getDocs: (...a: unknown[]) => mockGetDocs(...a),
+  documentId: () => mockDocumentId(),
 }));
 
 vi.mock('../../housingAuthHeaders', () => ({
@@ -38,6 +40,7 @@ import {
   getHousingerListings,
   upsertHousingerProfile,
   syncHousingerProfileBestEffort,
+  resolveHousingerUidByShortCode,
 } from '../housingerProfileService';
 import { auth } from '../../firebase';
 import type { HousingerProfile } from '../../../types/housing';
@@ -122,6 +125,33 @@ describe('getHousingerProfile', () => {
     expect(p1).toBeNull();
     expect(p2).toBeNull();
     expect(mockGetDoc).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('resolveHousingerUidByShortCode (2026-08-19 短縮URL)', () => {
+  it('見つかれば doc ID (uid) を返す', async () => {
+    mockGetDocs.mockResolvedValueOnce({ empty: false, docs: [{ id: 'hashed:d34d9c12abcdef' }] });
+    const uid = await resolveHousingerUidByShortCode('d34d9c12');
+    expect(uid).toBe('hashed:d34d9c12abcdef');
+  });
+
+  it('公開条件 (isPublished/isModerationHidden) を明示的にクエリへ含める (rules の list 許可条件と一致させる)', async () => {
+    mockGetDocs.mockResolvedValueOnce({ empty: true, docs: [] });
+    await resolveHousingerUidByShortCode('deadbeef');
+    expect(mockWhere).toHaveBeenCalledWith('isPublished', '==', true);
+    expect(mockWhere).toHaveBeenCalledWith('isModerationHidden', '==', false);
+  });
+
+  it('該当なしなら null', async () => {
+    mockGetDocs.mockResolvedValueOnce({ empty: true, docs: [] });
+    const uid = await resolveHousingerUidByShortCode('deadbeef');
+    expect(uid).toBeNull();
+  });
+
+  it('例外 (rules拒否等) は null に丸める (呼び出し側に漏らさない)', async () => {
+    mockGetDocs.mockRejectedValueOnce(new Error('permission-denied'));
+    const uid = await resolveHousingerUidByShortCode('deadbeef');
+    expect(uid).toBeNull();
   });
 });
 

@@ -6,7 +6,7 @@ import {
     MoreHorizontal, X, List, Tag, Search,
     Globe, Sun, Moon,
     Rows3, AlignJustify, ChevronDown,
-    Sparkles,
+    Sparkles, Users,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useThemeStore } from '../store/useThemeStore';
@@ -14,6 +14,9 @@ import type { ContentLanguage, MobileEffectBarMode } from '../store/useThemeStor
 import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { MOBILE_TOKENS } from '../tokens/mobileTokens';
 import { SPRING, STAGGER } from '../tokens/motionTokens';
+import { useMitigationStore } from '../store/useMitigationStore';
+import { useJobs } from '../hooks/useSkillsData';
+import { PARTY_MEMBER_IDS } from '../constants/party';
 
 interface MobileFABProps {
     onToggleTheme: () => void;
@@ -101,6 +104,30 @@ const fanChipVariants = {
     },
 };
 
+// パーティ表示/非表示グリッド専用のチップvariants(2026-08-19、fanChipVariantsと同じ技法を
+// 2段×4列グリッドに適用)。1軸のx移動ではなくx/y両方でボタン位置から個別に飛び出す。
+// タップしても閉じない仕様のため exit の isSelected 分岐は不要(fanChipVariantsと違う点)。
+const partyVisCellVariants = {
+    hidden: { x: 0, y: 0, scale: 0, opacity: 0 },
+    visible: (custom: { i: number; targetX: number; targetY: number }) => ({
+        x: custom.targetX,
+        y: custom.targetY,
+        scale: 1,
+        opacity: 1,
+        transition: { ...SPRING.bouncy, delay: custom.i * (STAGGER.fab / 1000) },
+    }),
+    exit: (custom: { i: number; count: number }) => ({
+        x: 0,
+        y: 0,
+        scale: 0,
+        opacity: 0,
+        transition: {
+            ...SPRING.snappy,
+            delay: (custom.count - 1 - custom.i) * 0.04,
+        },
+    }),
+};
+
 // セッション 22: スマホは同期ボタン完全撤去。 FAB メニュー奥で結局見えないし、
 // 自動同期が信頼できる状態なので意味も乏しい。 PC ヘッダのインジケータ (SyncButton)
 // にエラー時のみ気づける形に集約。
@@ -117,6 +144,20 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const { t, i18n } = useTranslation();
     const { setContentLanguage, mobileEffectBarMode, setMobileEffectBarMode } = useThemeStore();
     const { runTransition } = useTransitionOverlay();
+
+    // パーティ表示/非表示スイッチ(2026-08-19): 見た目だけの絞り込み。共同編集とは無関係。
+    // モバイルは並び替え設定を使わず常に固定順(PARTY_MEMBER_IDS)で表示する既存方針に合わせる。
+    const partyMembersForVisibility = useMitigationStore(state => state.partyMembers);
+    const hiddenPartyMemberIds = useMitigationStore(state => state.hiddenPartyMemberIds);
+    const toggleHiddenPartyMember = useMitigationStore(state => state.toggleHiddenPartyMember);
+    const JOBS_FOR_VISIBILITY = useJobs();
+    const partyVisibilityCells = React.useMemo(() => {
+        return PARTY_MEMBER_IDS.map((id) => {
+            const member = partyMembersForVisibility.find(m => m.id === id);
+            const job = member?.jobId ? JOBS_FOR_VISIBILITY.find(j => j.id === member.jobId) : null;
+            return { id, icon: job?.icon ?? null, hidden: hiddenPartyMemberIds.includes(id) };
+        });
+    }, [partyMembersForVisibility, hiddenPartyMemberIds, JOBS_FOR_VISIBILITY]);
     const [open, setOpen] = React.useState(false);
     // タイムラインを指でスクロール中はFAB本体を隠す(親指の邪魔になるという実機FB・2026-08-13)。
     // Timeline.tsx とは別コンポーネントなので、他のFAB系連携と同じ window CustomEvent 経由で受け取る
@@ -137,6 +178,11 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     // エフェクトモード選択チップ(言語チップと同じ「ボタン→fan-out」パターン。2026-08-14ユーザー要望=
     // 順送りタップ式ではなく言語ボタンのように選べる形にしたい)。
     const [effectModeOpen, setEffectModeOpen] = React.useState(false);
+    // パーティ表示/非表示スイッチ(2026-08-19)。言語/エフェクトモードと同じ「ボタン→ぽよん」の
+    // 開閉パターンだが、中身は横一列のfan-outチップではなく2段×4列のジョブアイコングリッド
+    // (複数メンバーをまとめてON/OFFするため、選択して即閉じる言語チップとは違い開いたまま連続で
+    // 操作できる)。
+    const [partyVisOpen, setPartyVisOpen] = React.useState(false);
 
     // メニューのスクロール可否（端のフェード + ↓ アイコン表示用）
     const menuRef = React.useRef<HTMLDivElement>(null);
@@ -191,6 +237,36 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         };
     }, [langOpen]);
 
+    // パーティ表示/非表示ボタンの位置取得(言語/エフェクトモードボタンと同じ仕組み)。
+    // ラベル幅も実測する(2026-08-19実機FB: 固定オフセットだとグリッドがFABラベル文言
+    // 「表示メンバー」に重なるバグだった。言語/エフェクトモードと同じ理由・同じ直し方)。
+    const partyVisButtonRef = React.useRef<HTMLButtonElement>(null);
+    const partyVisLabelRef = React.useRef<HTMLSpanElement>(null);
+    const [partyVisButtonRect, setPartyVisButtonRect] = React.useState<DOMRect | null>(null);
+    const [partyVisLabelWidth, setPartyVisLabelWidth] = React.useState(50);
+    React.useEffect(() => {
+        if (!partyVisOpen) {
+            setPartyVisButtonRect(null);
+            return;
+        }
+        const update = () => {
+            if (partyVisButtonRef.current) {
+                setPartyVisButtonRect(partyVisButtonRef.current.getBoundingClientRect());
+            }
+            if (partyVisLabelRef.current) {
+                setPartyVisLabelWidth(partyVisLabelRef.current.getBoundingClientRect().width);
+            }
+        };
+        update();
+        const onChange = () => update();
+        window.addEventListener('scroll', onChange, true);
+        window.addEventListener('resize', onChange);
+        return () => {
+            window.removeEventListener('scroll', onChange, true);
+            window.removeEventListener('resize', onChange);
+        };
+    }, [partyVisOpen]);
+
     // エフェクトモードボタンの位置取得(言語ボタンと同じ仕組み)。
     const effectModeButtonRef = React.useRef<HTMLButtonElement>(null);
     const effectModeLabelRef = React.useRef<HTMLSpanElement>(null);
@@ -234,6 +310,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     const closeAllChips = () => {
         setLangOpen(false);
         setEffectModeOpen(false);
+        setPartyVisOpen(false);
     };
 
     const close = () => {
@@ -241,10 +318,19 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
         setOpen(false);
     };
 
-    // 言語円弧セレクターのトグル。同時に両方開かないよう、もう片方は閉じる。
+    // 言語円弧セレクターのトグル。同時に他が開かないよう、他は閉じる。
     const handleLanguageToggle = () => {
         setEffectModeOpen(false);
+        setPartyVisOpen(false);
         setLangOpen(prev => !prev);
+    };
+
+    // パーティ表示/非表示グリッドのトグル。他のチップと同時に開かないよう閉じる。
+    // 言語チップと違い選択しても閉じない(複数メンバーを続けてON/OFFできるようにするため)。
+    const handlePartyVisToggle = () => {
+        setLangOpen(false);
+        setEffectModeOpen(false);
+        setPartyVisOpen(prev => !prev);
     };
 
     // 言語選択実行（選択チップをscale 1.3→吸い込み、他は逆staggerで中心へ）
@@ -278,6 +364,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
     // 順送りタップ式だと何度もメニューを開き直す必要があって分かりにくかったため)。
     const handleEffectModeToggle = () => {
         setLangOpen(false);
+        setPartyVisOpen(false);
         setEffectModeOpen(prev => !prev);
     };
     const handleEffectModeSelect = (mode: MobileEffectBarMode) => {
@@ -348,6 +435,13 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
             label: t(EFFECT_BAR_MODE_LABEL_KEY[mobileEffectBarMode]),
             icon: <Sparkles size={20} />,
             onClick: handleEffectModeToggle,
+            accent: false,
+        },
+        {
+            key: 'party-visibility',
+            label: t('app.fab_party_visibility'),
+            icon: <Users size={20} />,
+            onClick: handlePartyVisToggle,
             accent: false,
         },
     ];
@@ -435,10 +529,11 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                             const isSync = item.key === 'sync';
                             const isLang = item.key === 'language';
                             const isEffectMode = item.key === 'effect-bar-mode';
-                            const isChipButton = isLang || isEffectMode;
-                            const chipRef = isLang ? langButtonRef : effectModeButtonRef;
-                            const chipOpen = isLang ? langOpen : effectModeOpen;
-                            const chipLabelRef = isLang ? langLabelRef : effectModeLabelRef;
+                            const isPartyVis = item.key === 'party-visibility';
+                            const isChipButton = isLang || isEffectMode || isPartyVis;
+                            const chipRef = isLang ? langButtonRef : isEffectMode ? effectModeButtonRef : partyVisButtonRef;
+                            const chipOpen = isLang ? langOpen : isEffectMode ? effectModeOpen : partyVisOpen;
+                            const chipLabelRef = isLang ? langLabelRef : isEffectMode ? effectModeLabelRef : isPartyVis ? partyVisLabelRef : undefined;
                             return (
                                 <motion.div
                                     key={item.key}
@@ -587,6 +682,59 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                             {EFFECT_MODE_CHIP_LABELS[mode]}
                         </motion.button>
                     ))}
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {/* パーティ表示/非表示グリッド — 言語/エフェクトモードのfan-outチップと同じ技法
+                (ボタン位置から個別にバネで飛び出す・タップ後も閉じない)を2段×4列に適用
+                (2026-08-19)。共通の箱には入れず、ジョブアイコン1個ずつが独立したチップ。 */}
+            {partyVisButtonRect && createPortal(
+                <AnimatePresence>
+                    {partyVisOpen && partyVisibilityCells.map((m, i) => {
+                        const col = i % 4;
+                        const row = Math.floor(i / 4);
+                        // グリッド全体(4列×2段)の右端をFABラベル文言の左に実測ぶんの隙間を空けて置く
+                        // (fanChipXと同じ gap=10/12 の考え方。固定オフセットだと「表示メンバー」等の
+                        // 長いラベルに重なるバグだったため、言語/エフェクトモードと同じくラベル幅実測に揃えた)。
+                        const gridW = 4 * 44 + 3 * 6;
+                        const gridRight = partyVisButtonRect.left - 10 - partyVisLabelWidth - 12;
+                        const anchorLeft = gridRight - gridW;
+                        const anchorTop = partyVisButtonRect.top - (2 * 44 + 6 + 16 - MOBILE_TOKENS.fab.itemSize) / 2;
+                        const targetX = anchorLeft + col * (44 + 6) - partyVisButtonRect.left;
+                        const targetY = anchorTop + row * (44 + 6) - partyVisButtonRect.top;
+                        return (
+                            <motion.button
+                                key={m.id}
+                                type="button"
+                                custom={{ i, targetX, targetY, count: partyVisibilityCells.length }}
+                                variants={partyVisCellVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                onClick={() => toggleHiddenPartyMember(m.id)}
+                                className="fixed flex items-center justify-center active:scale-90"
+                                style={{
+                                    left: partyVisButtonRect.left,
+                                    top: partyVisButtonRect.top,
+                                    width: 44,
+                                    height: 44,
+                                    zIndex: 9999,
+                                }}
+                            >
+                                {m.icon && (
+                                    <img
+                                        src={m.icon}
+                                        alt={m.id}
+                                        className={clsx(
+                                            'w-8 h-8 rounded-md object-cover drop-shadow-lg transition-all duration-150',
+                                            m.hidden && 'opacity-30 grayscale scale-90'
+                                        )}
+                                    />
+                                )}
+                            </motion.button>
+                        );
+                    })}
                 </AnimatePresence>,
                 document.body
             )}

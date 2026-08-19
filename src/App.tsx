@@ -16,6 +16,7 @@ import { FavoritesPage } from './components/housing/pages/FavoritesPage';
 import { RegisterPage } from './components/housing/pages/RegisterPage';
 import { HousingEditPage } from './components/housing/pages/HousingEditPage';
 import { HousingerPage } from './components/housing/pages/HousingerPage';
+import { HousingerShortLinkPage } from './components/housing/pages/HousingerShortLinkPage';
 import { TourNavPage } from './components/housing/pages/TourNavPage';
 import { JoinTourPage } from './components/housing/pages/JoinTourPage';
 import { EntranceAuthoringPage } from './components/housing/dev/EntranceAuthoringPage';
@@ -110,6 +111,12 @@ function AppRoutes() {
         <Route path="listing/:listingId/edit" element={<HousingEditPage />} />
         {/* Task 7: ハウジンガーページ。 詳細の登録者行クリック / 個人タグ絞り込みリンク等から着地する。 */}
         <Route path="housinger/:uid" element={<HousingerPage />} />
+      </Route>
+      {/* 短縮共有URL (2026-08-19): /h/<名前>-<識別コード>。X等での共有専用の入口で、
+          /housing 配下ではなくトップレベルに置くことで URL 自体を短くする。
+          HousingShell を独立で被せる (housing.css のトークンスコープ/ヘッダー等が必須のため)。 */}
+      <Route path="/h" element={<HousingShell />}>
+        <Route path=":slug" element={<HousingerShortLinkPage />} />
       </Route>
       {/* 開発専用: 入口オーサリングツール(Task5)。本番ビルドでは import.meta.env.DEV が false に畳み込まれ、route ごとツリーから除去される。 */}
       {import.meta.env.DEV && (

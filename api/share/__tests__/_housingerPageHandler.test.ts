@@ -12,6 +12,7 @@ vi.mock('firebase-admin/app', () => ({
 }));
 
 vi.mock('firebase-admin/firestore', () => ({
+  FieldPath: { documentId: vi.fn(() => '__name__') },
   getFirestore: vi.fn(() => ({
     collection: vi.fn((name: string) => {
       if (name === 'housing_profiles') {
@@ -58,6 +59,7 @@ import {
   collectImagesFromListings,
   reorderListingImageArraysByBackgroundId,
   buildHousingerSeoSnapshotHtml,
+  resolveHousingerUid,
 } from '../_housingerPageHandler.js';
 import handler from '../_housingerPageHandler.js';
 
@@ -203,6 +205,51 @@ describe('buildHousingerSeoSnapshotHtml', () => {
   it('displayName・bioのHTML特殊文字をエスケープする', () => {
     const html = buildHousingerSeoSnapshotHtml({ displayName: '<b>x</b>', bio: '"quote"', listingCount: 0 });
     expect(html).toBe('<h1>&lt;b&gt;x&lt;/b&gt; のハウジング</h1><p>&quot;quote&quot;</p><p>0件のハウジングを公開中</p>');
+  });
+});
+
+describe('resolveHousingerUid (2026-08-19 短縮URL /h/:slug のサーバー側解決)', () => {
+  function fakeDb(result: { empty: boolean; docs: { id: string }[] }) {
+    const where = vi.fn(() => chain);
+    const limit = vi.fn(() => chain);
+    const get = vi.fn(() => Promise.resolve(result));
+    const chain: any = { where, limit, get };
+    return { collection: vi.fn(() => chain), _chain: chain };
+  }
+
+  it('rawUid があればクエリを一切叩かずそのまま返す (通常の /housing/housinger/:uid 経路は不変)', async () => {
+    const db = fakeDb({ empty: true, docs: [] });
+    const uid = await resolveHousingerUid(db, 'raw-uid-1', '');
+    expect(uid).toBe('raw-uid-1');
+    expect(db.collection).not.toHaveBeenCalled();
+  });
+
+  it('slug から識別コードを解決できれば uid (hashed: prefix 剥がし済み) を返す', async () => {
+    const db = fakeDb({ empty: false, docs: [{ id: 'hashed:d34d9c12abcdef' }] });
+    const uid = await resolveHousingerUid(db, '', 'たかし-d34d9c12');
+    expect(uid).toBe('d34d9c12abcdef');
+    expect(db._chain.where).toHaveBeenCalledWith('isPublished', '==', true);
+    expect(db._chain.where).toHaveBeenCalledWith('isModerationHidden', '==', false);
+  });
+
+  it('slug が不正な形式 (識別コード無し) なら空文字 (クエリを叩かない)', async () => {
+    const db = fakeDb({ empty: true, docs: [] });
+    const uid = await resolveHousingerUid(db, '', 'たかし');
+    expect(uid).toBe('');
+    expect(db.collection).not.toHaveBeenCalled();
+  });
+
+  it('該当プロフィールが無ければ空文字', async () => {
+    const db = fakeDb({ empty: true, docs: [] });
+    const uid = await resolveHousingerUid(db, '', 'たかし-deadbeef');
+    expect(uid).toBe('');
+  });
+
+  it('rawUid・rawSlug どちらも無ければクエリを叩かず空文字', async () => {
+    const db = fakeDb({ empty: true, docs: [] });
+    const uid = await resolveHousingerUid(db, '', '');
+    expect(uid).toBe('');
+    expect(db.collection).not.toHaveBeenCalled();
   });
 });
 

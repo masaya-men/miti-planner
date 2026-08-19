@@ -6,6 +6,10 @@ import {
   isValidHousingerReportReason,
   stripHashedPrefix,
   normalizeHousingerUid,
+  getHousingerShortCode,
+  slugifyHousingerName,
+  buildHousingerShortSlug,
+  extractHousingerShortCode,
 } from '../housingerProfile';
 
 describe('validateHousingerSnsUrl', () => {
@@ -56,6 +60,54 @@ describe('stripHashedPrefix / normalizeHousingerUid (#3 共有 URL 短縮)', () 
   it('strip → normalize は往復して内部 ID 形式に戻る (URL 短縮の可逆性)', () => {
     const internal = 'hashed:d34d9c';
     expect(normalizeHousingerUid(stripHashedPrefix(internal))).toBe(internal);
+  });
+});
+
+describe('getHousingerShortCode / slugifyHousingerName / buildHousingerShortSlug / extractHousingerShortCode (2026-08-19 短縮URL)', () => {
+  it('getHousingerShortCode: 既存uidの先頭8文字を使う (新しいデータは作らない)', () => {
+    expect(getHousingerShortCode('hashed:d34d9c1234567890abcdef')).toBe('d34d9c12');
+    expect(getHousingerShortCode('d34d9c1234567890abcdef')).toBe('d34d9c12');
+  });
+  it('getHousingerShortCode: 8文字未満のuidはそのまま (テスト用の短いuid等)', () => {
+    expect(getHousingerShortCode('uid-1')).toBe('uid-1');
+  });
+
+  it('slugifyHousingerName: 空白はハイフンに、区切り文字として意味を持つ記号は除去する', () => {
+    expect(slugifyHousingerName('たかし')).toBe('たかし');
+    expect(slugifyHousingerName('た か し')).toBe('た-か-し');
+    expect(slugifyHousingerName('a/b?c#d%e&f')).toBe('abcdef');
+  });
+  it('slugifyHousingerName: 整形後に空になる名前 (絵文字のみ等) は null', () => {
+    expect(slugifyHousingerName('🏠')).toBeNull();
+    expect(slugifyHousingerName('   ')).toBeNull();
+  });
+  it('slugifyHousingerName: maxLength で切り詰める', () => {
+    expect(slugifyHousingerName('abcdefghij', 5)).toBe('abcde');
+  });
+
+  it('buildHousingerShortSlug: 名前+識別コードを組み立てる', () => {
+    expect(buildHousingerShortSlug('たかし', 'hashed:d34d9c1234567890')).toBe('たかし-d34d9c12');
+  });
+  it('buildHousingerShortSlug: 名前が空になる場合は識別コードのみ', () => {
+    expect(buildHousingerShortSlug('🏠', 'hashed:d34d9c1234567890')).toBe('d34d9c12');
+  });
+
+  it('extractHousingerShortCode: slug 末尾の識別コードだけを取り出す (名前部分は無視)', () => {
+    expect(extractHousingerShortCode('たかし-d34d9c12')).toBe('d34d9c12');
+    expect(extractHousingerShortCode('d34d9c12')).toBe('d34d9c12');
+  });
+  it('extractHousingerShortCode: 大文字は小文字化して返す', () => {
+    expect(extractHousingerShortCode('たかし-D34D9C12')).toBe('d34d9c12');
+  });
+  it('extractHousingerShortCode: 形式に合わなければ null (不正な slug)', () => {
+    expect(extractHousingerShortCode('たかし')).toBeNull();
+    expect(extractHousingerShortCode('たかし-1234567')).toBeNull(); // 7桁は不足
+    expect(extractHousingerShortCode('')).toBeNull();
+  });
+
+  it('build → extract は往復する (名前が変わっても識別コードは不変)', () => {
+    const slug = buildHousingerShortSlug('たかし', 'hashed:d34d9c1234567890');
+    expect(extractHousingerShortCode(slug)).toBe(getHousingerShortCode('hashed:d34d9c1234567890'));
   });
 });
 

@@ -1686,6 +1686,60 @@
   animation: housing-field-slide-out 200ms ease-in forwards;
 }
 
+/* Allmarksまとめてインポート (2026-08-19)。数値の進捗は既存 ProgressRing (青/aether) を
+   流用し、その上に乗る家アイコンだけをぴょんぴょん弾ませて「かわいさ」を足す。 */
+@keyframes housing-allmarks-import-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.housing-allmarks-import-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 16px 20px;
+  text-align: center;
+}
+
+.housing-allmarks-import-ring-wrap {
+  position: relative;
+}
+
+.housing-allmarks-import-icon {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--housing-honey);
+  animation: housing-allmarks-import-bounce 900ms ease-in-out infinite;
+}
+
+.housing-allmarks-import-status {
+  font-size: var(--housing-text-sm);
+  color: var(--housing-text-mute);
+}
+
+.housing-allmarks-import-tally {
+  font-size: var(--housing-text-md);
+  font-weight: 700;
+  color: var(--housing-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.housing-allmarks-import-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+}
+
+.housing-allmarks-import-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 /* prefers-reduced-motion 対応 */
 @media (prefers-reduced-motion: reduce) {
   .housing-confirm-button,
@@ -1695,7 +1749,8 @@
   .housing-field,
   .housing-typing-cursor,
   .housing-spinner,
-  .housing-conditional-field {
+  .housing-conditional-field,
+  .housing-allmarks-import-icon {
     animation: none !important;
     transition: none !important;
   }
@@ -7729,6 +7784,16 @@ select.housing-input option {
   border-bottom: 1px solid var(--housing-divider);
   font-size: var(--housing-text-sm); color: var(--housing-text-dim);
   line-height: 1.5;
+}
+/* 注記内のインラインリンク (Allmarksまとめてインポートの導線等)。
+   housing-design.md「青 = 選択・進行・リンク」に合わせる。 */
+.housing-ephemeral-note a {
+  color: var(--housing-aether-soft);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.housing-ephemeral-note a:hover {
+  color: var(--housing-aether);
 }
 
 /* ツアー空状態内の入口 (簡易リスト + 開始ボタン込み)。中央寄せの空状態の中で左寄せに戻す。 */

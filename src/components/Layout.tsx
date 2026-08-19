@@ -22,6 +22,7 @@ import { useTransitionOverlay } from './ui/TransitionOverlay';
 import { AppFooter } from './AppFooter';
 import { Loader2, Sun, Moon, Star, Users } from 'lucide-react';
 import { LoginModal } from './LoginModal';
+import { RenderPendingIndicator } from './RenderPendingIndicator';
 import { SyncButton } from './SyncButton';
 import { showToast } from './Toast';
 import { WelcomeSetup } from './WelcomeSetup';
@@ -29,7 +30,7 @@ import { motion } from 'framer-motion';
 import clsx from 'clsx';
 // import { ParticleBackground } from './ParticleBackground';
 import { MobileHeader } from './MobileHeader';
-import { MobileFAB } from './MobileFAB';
+import { MobileFAB } from './MobileFab';
 import { GridOverlay } from './GridOverlay';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
@@ -858,6 +859,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             {/* Mobile: ログインモーダル（未ログイン時） */}
             <LoginModal isOpen={mobileLoginModalOpen} onClose={() => setMobileLoginModalOpen(false)} />
+
+            {/* 重い再描画中インジケーター(表示メンバー絞り込みトグル用・2026-08-19) */}
+            <RenderPendingIndicator />
 
             {/* Mobile: アカウントシート（ログイン済み時） */}
             <MobileBottomSheet

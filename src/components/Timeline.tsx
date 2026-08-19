@@ -7,6 +7,7 @@ import { MobileContextMenu } from './MobileContextMenu';
 import { MobileEffectBarLayer } from './MobileEffectBarLayer';
 
 import { useMitigationStore } from '../store/useMitigationStore';
+import { useRenderPendingStore } from '../store/useRenderPendingStore';
 import { useShallow } from 'zustand/react/shallow';
 import { usePlanStore } from '../store/usePlanStore';
 import { useCollabJoinerSession } from '../store/useCollabJoinerSession';
@@ -45,7 +46,7 @@ import VideoRecorderModal from './VideoRecorderModal';
 import { useJobs, useMitigations, getMitigationPriority } from '../hooks/useSkillsData';
 import { useSmoothWheelScroll } from '../lib/scroll/useSmoothWheelScroll';
 import clsx from 'clsx';
-import { PARTY_MEMBER_IDS } from '../constants/party';
+import { getSortedPartyMemberIds } from '../constants/party';
 import { DEFAULT_FIGHT_DURATION_SEC } from '../constants/timeline';
 import { generateAutoPlan } from '../utils/autoPlanner';
 import { FFLogsImportModal } from './FFLogsImportModal';
@@ -637,6 +638,7 @@ const Timeline: React.FC = () => {
         aaSettings, partyMembers,
         timelineMitigations, timelineEvents, phases,
         clipboardEvent, hideEmptyRows, currentLevel, showRowBorders,
+        hiddenPartyMemberIds,
     } = useMitigationStore(useShallow(s => ({
         aaSettings: s.aaSettings,
         partyMembers: s.partyMembers,
@@ -647,6 +649,7 @@ const Timeline: React.FC = () => {
         hideEmptyRows: s.hideEmptyRows,
         currentLevel: s.currentLevel,
         showRowBorders: s.showRowBorders,
+        hiddenPartyMemberIds: s.hiddenPartyMemberIds,
     })));
     const partySortOrder = useMitigationStore(s => s.timelineSortOrder);
     // ジョイナー閲覧/編集中フラグ。モバイルで currentPlanId が無くても表を隠さないために参照する
@@ -2645,9 +2648,13 @@ const Timeline: React.FC = () => {
         };
     }, [clearMenuOpen]);
 
+    // 注意: sortedPartyMembers は TimelineRow 等で「H1 の maxHp を引く」ような計算にも
+    // partyMembers として渡って使われている(表示専用ではない)。表示/非表示スイッチは
+    // 見た目だけの絞り込みという確定仕様のため、ここでは絶対にフィルタしない。
+    // 非表示メンバーの列描画だけを絞り込みたい箇所は、必ず visiblePartyMembers
+    // (この下で定義・hiddenPartyMemberIds を反映した派生リスト)の方を使うこと。
     const sortedPartyMembers = useMemo(() => {
-        const lightPartyOrder = ['MT', 'H1', 'D1', 'D3', 'ST', 'H2', 'D2', 'D4'];
-        const order: string[] = partySortOrder === 'light_party' ? lightPartyOrder : [...PARTY_MEMBER_IDS];
+        const order = getSortedPartyMemberIds(partySortOrder);
 
         return [...partyMembers].sort((a, b) => {
             const indexA = order.indexOf(a.id);
@@ -2655,6 +2662,13 @@ const Timeline: React.FC = () => {
             return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
         });
     }, [partyMembers, partySortOrder]);
+
+    // 表示/非表示スイッチで隠したメンバーを除いた列描画専用リスト。JobPickerRow/RecastRow など
+    // 「メンバーごとに1列描画するだけ」のコンポーネントにのみ渡す(見た目だけへの影響に限定するため)。
+    const visiblePartyMembers = useMemo(
+        () => sortedPartyMembers.filter((m) => !hiddenPartyMemberIds.includes(m.id)),
+        [sortedPartyMembers, hiddenPartyMemberIds]
+    );
 
     // DOM 計測ベースの memberLayout (CSS clamp() に追従)
     const [refVersion, setRefVersion] = useState(0);
@@ -2688,6 +2702,13 @@ const Timeline: React.FC = () => {
     );
     const memberLayout = useMeasuredMemberLayout(memberRefEntries);
 
+    // 表示メンバー絞り込みトグル(PartyVisibilityMenu)が出す「更新中」インジケーターを消すタイミング。
+    // memberLayout は列の増減(=表示切り替え)による再描画カスケードの最後に更新される値なので、
+    // これが確定した = 一連の重い再描画が落ち着いた、とみなせる(2026-08-19実測で確認済み)。
+    useEffect(() => {
+        useRenderPendingStore.getState().hide();
+    }, [memberLayout]);
+
     // 画面外ガイド矢印用: 競合中インスタンスの列中央X + コンテンツ内絶対Y を算出。
     // timeToYMap は render IIFE 内ローカル変数のため ref 経由でアクセスする。
     // PC 専用(isMobileTimeline が true のときは空配列)。
@@ -2703,7 +2724,9 @@ const Timeline: React.FC = () => {
         const tMap = timeToYMapRef.current;
         const offsetT = showPreStart ? -10 : 0;
         return timelineMitigations
-            .filter(m => conflictingIds.has(m.id) && m.id !== lastPlacedMitigationId)
+            // 表示/非表示スイッチで隠したメンバーの競合は、列自体が描画されないため画面外
+            // ガイド矢印の対象からも除外する(競合検知=conflictingIds 自体は不変・見た目だけ)。
+            .filter(m => conflictingIds.has(m.id) && m.id !== lastPlacedMitigationId && !hiddenPartyMemberIds.includes(m.ownerId))
             .map(m => {
                 const y = hideEmptyRows
                     ? (tMap.get(m.time) ?? (m.time - offsetT) * pixelsPerSecond)
@@ -2984,7 +3007,7 @@ const Timeline: React.FC = () => {
 
                             {/* セッション 18 案 C1 物理移動: ジョブアイコン行を controlBar の右端に */}
                             <JobPickerRow
-                                partyMembers={sortedPartyMembers}
+                                partyMembers={visiblePartyMembers}
                                 partySortOrder={partySortOrder}
                                 getJobIcon={getJobIcon}
                                 jobs={JOBS}
@@ -3111,7 +3134,7 @@ const Timeline: React.FC = () => {
                                 OFF 時もセルは render する (= 罫線は維持)。 中のアイコンだけ scroll handler で hideAll。 */}
                             <RecastRow
                                 ref={recastRowRef}
-                                partyMembers={sortedPartyMembers}
+                                partyMembers={visiblePartyMembers}
                                 placements={timelineMitigations}
                                 mitigationDefs={MITIGATIONS}
                             />
@@ -3291,6 +3314,7 @@ const Timeline: React.FC = () => {
                                                     damages={rowDamages}
                                                     events={rowEvents}
                                                     partyMembers={sortedPartyMembers}
+                                                    hiddenPartyMemberIds={hiddenPartyMemberIds}
                                                     activeMitigations={activeMitigationsForRow}
                                                     onMobileDamageClick={handleMobileDamageClick}
                                                     onLongPress={handleMobileLongPress}
@@ -3316,6 +3340,7 @@ const Timeline: React.FC = () => {
                                                     damages={rowDamages}
                                                     events={rowEvents}
                                                     partyMembers={sortedPartyMembers}
+                                                    hiddenPartyMemberIds={hiddenPartyMemberIds}
                                                     activeMitigations={activeMitigationsForRow}
                                                     onMobileDamageClick={handleMobileDamageClick}
                                                     onLongPress={handleMobileLongPress}
@@ -3341,6 +3366,7 @@ const Timeline: React.FC = () => {
                                                     damages={rowDamages}
                                                     events={rowEvents}
                                                     partyMembers={sortedPartyMembers}
+                                                    hiddenPartyMemberIds={hiddenPartyMemberIds}
                                                     activeMitigations={activeMitigationsForRow}
                                                     onMobileDamageClick={handleMobileDamageClick}
                                                     onLongPress={handleMobileLongPress}
@@ -3366,6 +3392,7 @@ const Timeline: React.FC = () => {
                                                 damages={rowDamages}
                                                 events={rowEvents}
                                                 partyMembers={sortedPartyMembers}
+                                                visiblePartyMembers={visiblePartyMembers}
                                                 activeMitigations={activeMitigationsForRow}
                                                 onPhaseAdd={handlePhaseAdd}
                                                 onLabelAdd={handleLabelAdd}
@@ -3430,8 +3457,12 @@ const Timeline: React.FC = () => {
                                                 1,
                                                 Math.floor((availableWidth - MOBILE_EFFECT_BAR_ROW_INSET * 2) / MOBILE_EFFECT_BAR_SLOT_PITCH)
                                             );
+                                            // 表示/非表示スイッチで隠したメンバーの効果棒は除外(見た目だけの絞り込み・2026-08-19)。
+                                            const visibleTimelineMitigationsForBars = hiddenPartyMemberIds.length === 0
+                                                ? timelineMitigations
+                                                : timelineMitigations.filter(m => !hiddenPartyMemberIds.includes(m.ownerId));
                                             const mobileBars = computeMobileEffectBars({
-                                                timelineMitigations,
+                                                timelineMitigations: visibleTimelineMitigationsForBars,
                                                 mitigationDefs: MITIGATIONS,
                                                 timeToYMap,
                                                 pixelsPerSecond,
@@ -3563,8 +3594,12 @@ const Timeline: React.FC = () => {
 
                                         {/* スマホは MitiIcons (各行内) が軽減表示を担うので PC 用 MitigationItem は呼ばない (呼ぶと colStart=0 で左フェーズ列に見切れ流入) */}
                                         {!isMobileTimeline && (() => {
+                                            // 表示/非表示スイッチで隠したメンバーの軽減バーはここで除外する。memberLayout 経由
+                                            // (ヘッダー列の DOM ref 未登録→undefined)に頼ると colStart=0 の初回マウント用
+                                            // fallback に乗って左端に誤描画されるため、必ずソースの時点で弾く。
                                             const visibleMitigations = timelineMitigations.filter(m =>
                                                 (showPreStart || (m.time + m.duration > 0)) && (!hideEmptyRows || !m.autoHidden)
+                                                && !hiddenPartyMemberIds.includes(m.ownerId)
                                             );
 
                                             const mitigationsByOwner: Record<string, typeof timelineMitigations> = {};

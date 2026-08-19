@@ -17,9 +17,10 @@
  * 住所文字列は og:title/og:description のいずれにも含めない。
  */
 
+import { FieldPath } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
-import { normalizeHousingerUid, stripHashedPrefix, HOUSINGER_BIO_MAX_LENGTH } from '../../src/lib/housing/housingerProfile.js';
+import { normalizeHousingerUid, stripHashedPrefix, extractHousingerShortCode, HOUSINGER_BIO_MAX_LENGTH } from '../../src/lib/housing/housingerProfile.js';
 import { buildHousingerOgCardParams } from '../../src/lib/ogpHousingerCard.js';
 import type { HousingerCardPattern } from '../../src/lib/ogpHousingerCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
@@ -165,8 +166,40 @@ export function buildHousingerSeoSnapshotHtml(input: {
   return `<h1>${escapeHtml(name)} のハウジング</h1>${bioHtml}<p>${input.listingCount}件のハウジングを公開中</p>`;
 }
 
+/**
+ * 短縮URL (/h/:slug) の入口から来た場合、rawUid が空で rawSlug だけが来る。
+ * 新しいデータは一切持たず、既存の uid (housing_profiles の doc ID) の先頭一致検索だけで
+ * 実際の uid を解決する (client 側 resolveHousingerUidByShortCode と対の実装。名前部分は
+ * 判定に使わない飾りのため、slug からは識別コードだけを取り出す)。
+ * rawUid があればそれを優先しそのまま返す (通常の /housing/housinger/:uid 経路は不変)。
+ * 解決できなければ空文字 (呼び出し側は既存の「uidパラメータが無い」ケースと同じ404に倒す)。
+ */
+export async function resolveHousingerUid(
+  db: { collection: (name: string) => any },
+  rawUid: string,
+  rawSlug: string,
+): Promise<string> {
+  if (rawUid) return rawUid;
+  if (!rawSlug) return '';
+  const code = extractHousingerShortCode(rawSlug);
+  if (!code) return '';
+  const prefixStart = `hashed:${code}`;
+  const prefixEnd = `${prefixStart}\uf8ff`;
+  const snap = await db.collection(PROFILE_COLLECTION)
+    .where('isPublished', '==', true)
+    .where('isModerationHidden', '==', false)
+    .where(FieldPath.documentId(), '>=', prefixStart)
+    .where(FieldPath.documentId(), '<', prefixEnd)
+    .limit(1)
+    .get();
+  return snap.empty ? '' : stripHashedPrefix(snap.docs[0].id);
+}
+
 export default async function handler(req: any, res: any) {
   const rawUid = (req.query?.uid as string) || '';
+  // 短縮URL (/h/:slug) 経由のときは slug で来る (vercel.json rewrite)。名前部分は飾りなので無視し、
+  // 末尾の識別コードだけを使って uid を解決する (下記)。
+  const rawSlug = (req.query?.slug as string) || '';
 
   let ogTitle = DEFAULT_OG_TITLE;
   let ogDescription = DEFAULT_OG_DESCRIPTION;
@@ -188,12 +221,14 @@ export default async function handler(req: any, res: any) {
   let shortUid = rawUid;
 
   try {
-    if (rawUid) {
-      const uid = normalizeHousingerUid(rawUid);
-      shortUid = stripHashedPrefix(uid);
+    initAdmin();
+    const db = getAdminFirestore();
 
-      initAdmin();
-      const db = getAdminFirestore();
+    const effectiveUid = await resolveHousingerUid(db, rawUid, rawSlug);
+
+    if (effectiveUid) {
+      const uid = normalizeHousingerUid(effectiveUid);
+      shortUid = stripHashedPrefix(uid);
 
       const profileSnap = await db.collection(PROFILE_COLLECTION).doc(uid).get();
       if (profileSnap.exists) {
@@ -355,7 +390,7 @@ export default async function handler(req: any, res: any) {
         httpStatus = 404;
       }
     } else {
-      // uidパラメータが無い
+      // uid/slug のいずれからも uid を特定できなかった
       httpStatus = 404;
     }
   } catch (err) {

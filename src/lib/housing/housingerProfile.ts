@@ -69,6 +69,60 @@ export function normalizeHousingerUid(uid: string): string {
   return uid.startsWith('hashed:') ? uid : `hashed:${uid}`;
 }
 
+/**
+ * 短縮共有 URL (`/h/<name>-<code>`) 用の識別コードの桁数。16進数8桁 = 約43億通りで、
+ * ハウジンガー規模で偶然の衝突が起きる確率は現実的に無視できる (仮に起きても衝突検知は
+ * resolveHousingerUidByShortCode 側で先頭一致 limit(1) が拾うだけ = 実害は極小)。
+ */
+const HOUSINGER_SHORT_CODE_LENGTH = 8;
+
+/**
+ * uid (`hashed:<hex>` 形式) から短縮 URL 用の識別コードを作る。既存の一方向ハッシュの
+ * 先頭 8 文字を流用するだけなので、新しいデータの保存・既存ユーザーへの移行は一切不要
+ * (2026-07-16 に一度却下された「名前を鍵にする」A案と違い、名前は判定に使わない飾りに留める)。
+ */
+export function getHousingerShortCode(uid: string): string {
+  return stripHashedPrefix(normalizeHousingerUid(uid)).slice(0, HOUSINGER_SHORT_CODE_LENGTH).toLowerCase();
+}
+
+/**
+ * 表示名を短縮 URL の飾り部分として使える形に整形する。文字・数字 (Unicode の「文字」
+ * 「数字」カテゴリ、日本語/中国語/韓国語等の表記も含む) 以外の記号・絵文字は取り除き
+ * (URL の区切り文字として意味を持つ `/ ? # % &` は当然含まれる。絵文字は一部クライアントで
+ * URL エンコードされて長い %XX の羅列になり「短い URL」の趣旨を損なうため除外する)、
+ * 空白はハイフンに統一する。整形後に空になる場合 (絵文字・記号のみの名前等) は null を返し、
+ * 呼び出し側は識別コードだけの URL にフォールバックする。
+ */
+export function slugifyHousingerName(displayName: string, maxLength = 20): string | null {
+  const cleaned = displayName
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\p{L}\p{N}-]+/gu, '')
+    .slice(0, maxLength)
+    .replace(/^-+|-+$/g, '');
+  return cleaned.length > 0 ? cleaned : null;
+}
+
+/**
+ * ハウジンガー短縮 URL (`/h/<slug>`) の slug 部分を組み立てる。実際にどのプロフィールを
+ * 開くかは末尾の識別コードだけで判定し、名前部分はあくまで見た目 (改名しても既存リンクは
+ * 壊れない・同名の人がいても混ざらない)。
+ */
+export function buildHousingerShortSlug(displayName: string, uid: string): string {
+  const code = getHousingerShortCode(uid);
+  const namePart = slugifyHousingerName(displayName);
+  return namePart ? `${namePart}-${code}` : code;
+}
+
+/**
+ * 短縮 URL の slug から識別コード (末尾の16進数8桁) だけを取り出す。飾りの名前部分は無視する。
+ * 形式に合わなければ null (不正な slug・ページ側は not-found 扱いにする)。
+ */
+export function extractHousingerShortCode(slug: string): string | null {
+  const match = new RegExp(`(?:^|-)([0-9a-f]{${HOUSINGER_SHORT_CODE_LENGTH}})$`, 'i').exec(slug);
+  return match ? match[1].toLowerCase() : null;
+}
+
 /** プロフィール通報理由 (spec §6.2)。listing の REPORT_REASONS とは独立。 */
 export const HOUSINGER_REPORT_REASONS = [
   'inappropriate_name', 'inappropriate_avatar', 'impersonation', 'other',

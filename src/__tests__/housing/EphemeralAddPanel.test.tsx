@@ -24,6 +24,17 @@ vi.mock('../../lib/housing/useYoutubeFetch', () => ({
   useYoutubeFetch: () => youtubeState,
 }));
 
+const mockAllmarksStart = vi.fn();
+const mockAllmarksCancel = vi.fn();
+const ALLMARKS_IDLE_PROGRESS = {
+  status: 'idle' as const,
+  total: 0, processed: 0, added: 0, failed: 0, limitReached: false, shareNotFound: false,
+};
+let allmarksImportState: any = { progress: ALLMARKS_IDLE_PROGRESS, start: mockAllmarksStart, cancel: mockAllmarksCancel };
+vi.mock('../../lib/housing/useAllmarksImport', () => ({
+  useAllmarksImport: () => allmarksImportState,
+}));
+
 beforeAll(() => {
   if (!i18n.isInitialized) {
     i18n.use(initReactI18next).init({
@@ -55,6 +66,9 @@ describe('EphemeralAddPanel', () => {
     useEphemeralListingsStore.getState().clear();
     mockFetchYoutubeMeta.mockClear();
     youtubeState = { status: 'idle', data: null, fetchYoutubeMeta: mockFetchYoutubeMeta, cancel: vi.fn(), reset: vi.fn() };
+    mockAllmarksStart.mockClear();
+    mockAllmarksCancel.mockClear();
+    allmarksImportState = { progress: ALLMARKS_IDLE_PROGRESS, start: mockAllmarksStart, cancel: mockAllmarksCancel };
   });
 
   it('① エリア/区/番地を選ぶと「ツアーに追加」が活性 (未入力では不活性)', () => {
@@ -101,7 +115,7 @@ describe('EphemeralAddPanel', () => {
     expect(screen.getByLabelText('エリア')).toBeTruthy();
   });
 
-  it('⑤ 上限 (50件) で limit_note を表示し onAdd は呼ばれない', () => {
+  it('⑤ 上限で limit_note を表示し onAdd は呼ばれない', () => {
     // 事前に上限まで積む
     for (let i = 0; i < EPHEMERAL_POOL_LIMIT; i++) {
       useEphemeralListingsStore.getState().add(
@@ -172,6 +186,47 @@ describe('EphemeralAddPanel', () => {
     rerender(<I18nextProvider i18n={i18n}><EphemeralAddPanel open onClose={() => {}} onAdd={() => {}} /></I18nextProvider>);
 
     expect(screen.getByText('住所を読み取れませんでした。下の欄で選択してください')).toBeInTheDocument();
+  });
+
+  // Allmarksまとめてインポート (2026-08-19)。
+  it('⑫ URL欄にAllmarksの共有リンクを貼ると useAllmarksImport.start が shareId/trayRegion/onAdd で呼ばれる', () => {
+    const onAdd = vi.fn();
+    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={onAdd} trayRegion="JP" />);
+    fireEvent.change(screen.getByLabelText('SNSのURLから'), {
+      target: { value: 'https://allmarks.app/s/Ab3xY9' },
+    });
+    expect(mockAllmarksStart).toHaveBeenCalledWith('Ab3xY9', 'JP', onAdd);
+  });
+
+  it('⑬ インポート中 (status!=idle) は通常の住所フォームの代わりに進捗表示を出す', () => {
+    allmarksImportState = {
+      progress: { status: 'importing', total: 50, processed: 12, added: 10, failed: 2, limitReached: false, shareNotFound: false },
+      start: mockAllmarksStart,
+      cancel: mockAllmarksCancel,
+    };
+    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={vi.fn()} />);
+    expect(screen.getByText('12/50件を確認中…')).toBeInTheDocument();
+    expect(screen.queryByLabelText('データセンター')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'ツアーに追加' })).toBeNull();
+  });
+
+  it('⑭ インポート中に「キャンセル」を押すと cancel が呼ばれる', () => {
+    allmarksImportState = {
+      progress: { status: 'importing', total: 50, processed: 12, added: 10, failed: 2, limitReached: false, shareNotFound: false },
+      start: mockAllmarksStart,
+      cancel: mockAllmarksCancel,
+    };
+    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: 'キャンセル' }));
+    expect(mockAllmarksCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('⑮ Allmarksへの導線リンクが別タブで開く形で表示される', () => {
+    wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={vi.fn()} />);
+    const link = screen.getByRole('link', { name: 'Allmarksを見る' }) as HTMLAnchorElement;
+    expect(link.href).toBe('https://allmarks.app/');
+    expect(link.target).toBe('_blank');
+    expect(link.rel).toContain('noopener');
   });
 });
 

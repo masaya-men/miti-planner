@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 import { HousingPanelModal } from '../HousingPanelModal';
 import { RegisterSectionAddress, type RegisterAddressValues } from '../register/RegisterSectionAddress';
 import { useHousingFieldState } from '../../../lib/housing/housingFieldState';
@@ -16,9 +16,13 @@ import {
   type EphemeralInput,
 } from '../../../lib/housing/ephemeralListing';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
-import { isValidHousingArea, type HousingArea } from '../../../types/housing';
+import type { HousingArea } from '../../../types/housing';
+import { housingExtractResultToAddressPatch } from '../../../lib/housing/housingExtractResultToAddressPatch';
 import { regionForDC, type Region } from '../../../data/housing/dcServerMap';
 import { canAddToTour } from '../../../lib/housing/tourCrossing';
+import { parseAllmarksShareUrl } from '../../../lib/housing/allmarksImport';
+import { useAllmarksImport } from '../../../lib/housing/useAllmarksImport';
+import { AllmarksImportProgress } from './AllmarksImportProgress';
 
 export interface EphemeralAddPanelProps {
   open: boolean;
@@ -66,6 +70,11 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
   // RegisterSectionAddress が要求する fieldState (自動入力 🟡 バッジ + onChange 契約)。
   const fieldState = useHousingFieldState();
 
+  // Allmarksまとめてインポート (2026-08-19)。URL欄にAllmarksの共有リンクが来たときだけ
+  // このモードに切り替わり、通常の構造化フォームの代わりに進捗表示を出す。
+  const allmarksImport = useAllmarksImport();
+  const isAllmarksImporting = allmarksImport.progress.status !== 'idle';
+
   const { status: tweetStatus, data: tweetData, fetchTweet, reset: resetTweet } = useTweetFetch();
   const { status: ogpStatus, data: ogpData, fetchOgp, reset: resetOgp } = useOgpFetch();
   const { status: youtubeStatus, data: youtubeData, fetchYoutubeMeta, reset: resetYoutube } = useYoutubeFetch();
@@ -91,28 +100,12 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
       setParseError(false);
       return;
     }
-    const gotSomething =
-      r.area !== undefined || r.ward !== undefined || r.plot !== undefined || r.size !== undefined;
-    if (r.ambiguity.length > 0 || !gotSomething) {
+    const patch = housingExtractResultToAddressPatch(r);
+    if (!patch) {
       setParseError(true);
       return;
     }
     setParseError(false);
-    const isApartment = r.size === 'Apartment';
-    const patch: RegisterAddressValues = {};
-    if (r.area !== undefined && isValidHousingArea(r.area)) patch.area = r.area;
-    if (r.ward !== undefined) patch.ward = r.ward;
-    if (r.dc !== undefined) patch.dc = r.dc;
-    if (r.server !== undefined) patch.server = r.server;
-    if (isApartment) {
-      patch.buildingType = 'apartment';
-      patch.apartmentBuilding = 1;
-      patch.roomKind = 'apartment_room';
-    } else {
-      patch.buildingType = 'house';
-      if (r.plot !== undefined) patch.plot = r.plot;
-      if (r.size === 'S' || r.size === 'M' || r.size === 'L') patch.size = r.size;
-    }
     setAddress((prev) => ({ ...prev, ...patch }));
     for (const [name, value] of Object.entries(patch)) fieldState.setAutoFilled(name, value);
   }, [fieldState]);
@@ -172,6 +165,18 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
     setAdded(false);
     setLimitReached(false);
     setUrlInvalid(false);
+
+    const allmarksShareId = parseAllmarksShareUrl(value);
+    if (allmarksShareId) {
+      resetTweet();
+      resetOgp();
+      resetYoutube();
+      setSource(null);
+      setParseError(false);
+      void allmarksImport.start(allmarksShareId, trayRegion ?? null, onAdd);
+      return;
+    }
+
     const route = classifySnsUrl(value);
     switch (route.kind) {
       case 'empty':
@@ -297,6 +302,14 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
   const fetching = tweetStatus === 'loading' || ogpStatus === 'loading' || youtubeStatus === 'loading';
   const fetchFailed = urlInvalid || tweetStatus === 'error' || ogpStatus === 'error';
 
+  // Allmarksインポートの「やめる」/「閉じる」。通常の追加パネルへ戻る(ここまで追加済みの
+  // 分は一時ツアーに残る。取り消さない)。
+  const handleAllmarksClose = () => {
+    allmarksImport.cancel();
+    setUrl('');
+    urlRef.current = '';
+  };
+
   // モーダル化 (2026-07-12): 右カラムのトレイに直置きすると固定高さ+overflow:hidden で
   // お気に入りと重なりスクロールできなかった (実機バグ)。HousingPanelModal は body 直下へ
   // portal し独自にスクロールするので、連続追加しても崩れない。ヘッダー(閉じる含む)はモーダル側。
@@ -315,69 +328,87 @@ export const EphemeralAddPanel: React.FC<EphemeralAddPanelProps> = ({ open, onCl
           {t('housing.ephemeral.note_volatile')}
         </p>
 
-        <div className="housing-ephemeral-field">
-          <label htmlFor="housing-ephemeral-url" className="housing-label">
-            {t('housing.ephemeral.url_label')}
-          </label>
-          <input
-            id="housing-ephemeral-url"
-            type="url"
-            className="housing-input"
-            autoComplete="off"
-            placeholder={t('housing.ephemeral.url_placeholder')}
-            value={url}
-            onChange={(e) => handleUrlChange(e.target.value)}
-          />
-          {fetching && (
-            <div className="housing-fetch-indicator">
-              <span className="housing-spinner" aria-hidden />
-              <span>
-                {t(
-                  tweetStatus === 'loading'
-                    ? 'housing.register.snsUrl.fetching'
-                    : youtubeStatus === 'loading'
-                      ? 'housing.register.snsUrl.youtube_fetching'
-                      : 'housing.register.snsUrl.ogp_fetching',
-                )}
-              </span>
+        {isAllmarksImporting ? (
+          <AllmarksImportProgress progress={allmarksImport.progress} onClose={handleAllmarksClose} />
+        ) : (
+          <>
+            <div className="housing-ephemeral-field">
+              <label htmlFor="housing-ephemeral-url" className="housing-label">
+                {t('housing.ephemeral.url_label')}
+              </label>
+              <input
+                id="housing-ephemeral-url"
+                type="url"
+                className="housing-input"
+                autoComplete="off"
+                placeholder={t('housing.ephemeral.url_placeholder')}
+                value={url}
+                onChange={(e) => handleUrlChange(e.target.value)}
+              />
+              {fetching && (
+                <div className="housing-fetch-indicator">
+                  <span className="housing-spinner" aria-hidden />
+                  <span>
+                    {t(
+                      tweetStatus === 'loading'
+                        ? 'housing.register.snsUrl.fetching'
+                        : youtubeStatus === 'loading'
+                          ? 'housing.register.snsUrl.youtube_fetching'
+                          : 'housing.register.snsUrl.ogp_fetching',
+                    )}
+                  </span>
+                </div>
+              )}
+              {fetchFailed && (
+                <p className="housing-error-text">{t('housing.ephemeral.fetch_error')}</p>
+              )}
             </div>
-          )}
-          {fetchFailed && (
-            <p className="housing-error-text">{t('housing.ephemeral.fetch_error')}</p>
-          )}
-        </div>
 
-        {parseError && (
-          <p className="housing-error-text">{t('housing.ephemeral.parse_error')}</p>
+            {/* Allmarksまとめてインポートの導線 (2026-08-19)。この機能自体を知らない人向けの
+                控えめな案内 (発見の主経路はDiscordアップデート告知)。別タブで開き、
+                作成中のツアーからは離脱させない。 */}
+            <p className="housing-ephemeral-note">
+              <Trans
+                i18nKey="housing.ephemeral.allmarks_hint"
+                components={{
+                  lnk: <a href="https://allmarks.app" target="_blank" rel="noopener noreferrer" />,
+                }}
+              />
+            </p>
+
+            {parseError && (
+              <p className="housing-error-text">{t('housing.ephemeral.parse_error')}</p>
+            )}
+
+            {/* 住所は登録ページと同じ構造化フォーム (variant='tour' で登録固有部を隠す)。 */}
+            <RegisterSectionAddress
+              variant="tour"
+              fieldState={fieldState}
+              values={address}
+              onChange={handleAddressChange}
+              crossRegionNotice={crossRegionBlocked ? t('housing.tour.region_block') : null}
+            />
+
+            {limitReached && (
+              <p className="housing-error-text">
+                {t('housing.ephemeral.limit_note', { max: EPHEMERAL_POOL_LIMIT })}
+              </p>
+            )}
+            {added && <p className="housing-ephemeral-added">{t('housing.ephemeral.added')}</p>}
+
+            {/* スクロールしても押せる位置に留まるよう、ボタンだけ最下部に固定する
+                (実機フィードバック: 住所が埋まるとボタンがスクロール外に出て押しにくかった)。 */}
+            <div className="housing-ephemeral-footer">
+              <button
+                type="submit"
+                className="housing-ephemeral-add"
+                disabled={!complete || crossRegionBlocked}
+              >
+                {t('housing.ephemeral.add')}
+              </button>
+            </div>
+          </>
         )}
-
-        {/* 住所は登録ページと同じ構造化フォーム (variant='tour' で登録固有部を隠す)。 */}
-        <RegisterSectionAddress
-          variant="tour"
-          fieldState={fieldState}
-          values={address}
-          onChange={handleAddressChange}
-          crossRegionNotice={crossRegionBlocked ? t('housing.tour.region_block') : null}
-        />
-
-        {limitReached && (
-          <p className="housing-error-text">
-            {t('housing.ephemeral.limit_note', { max: EPHEMERAL_POOL_LIMIT })}
-          </p>
-        )}
-        {added && <p className="housing-ephemeral-added">{t('housing.ephemeral.added')}</p>}
-
-        {/* スクロールしても押せる位置に留まるよう、ボタンだけ最下部に固定する
-            (実機フィードバック: 住所が埋まるとボタンがスクロール外に出て押しにくかった)。 */}
-        <div className="housing-ephemeral-footer">
-          <button
-            type="submit"
-            className="housing-ephemeral-add"
-            disabled={!complete || crossRegionBlocked}
-          >
-            {t('housing.ephemeral.add')}
-          </button>
-        </div>
       </form>
     </HousingPanelModal>
   );

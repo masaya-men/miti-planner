@@ -43,6 +43,7 @@
   --shadow-glass: var(--glass-shadow);
 
   --animate-ripple: ripple 600ms linear;
+  --animate-gear-spin-once: gearSpin 0.6s cubic-bezier(0.7,-0.03,0.26,1.05);
 
   /* Font size tokens */
   --text-app-3xs: var(--font-size-3xs);
@@ -80,6 +81,11 @@
 @keyframes ripple {
   0% { transform: scale(0); opacity: 1; }
   100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes gearSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* 進捗詳細パネルの開閉(開く=下へ伸びる / 閉じる=上にしまわれる):

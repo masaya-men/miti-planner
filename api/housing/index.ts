@@ -26,6 +26,7 @@
  * ?action=join-shared-tour          → POST 参加者の入場ゲート+heartbeat (認証不要・匿名・presence 集計で300人ソフト上限)
  * ?action=gc-shared-tours           → POST cron 専用: 期限切れ共有ツアーの物理削除 (CRON_SECRET認証・日次)
  * ?action=apply-expired-visibility  → POST cron 専用: 公開期限切れ物件の visibility 反映 (CRON_SECRET認証・日次)
+ * ?action=fetch-allmarks-share      → GET Allmarks共有リンクの中身(元URL一覧)を取得 (認証不要・匿名可)
  */
 import canRegisterHandler from './_canRegisterHandler.js';
 import registerListingHandler from './_registerListingHandler.js';
@@ -53,6 +54,7 @@ import joinSharedTourHandler from './_joinSharedTourHandler.js';
 import gcSharedToursHandler from './_gcSharedToursHandler.js';
 import applyExpiredVisibilityHandler from './_applyExpiredVisibilityHandler.js';
 import { publicWindowHandler } from './_publicWindow.js';
+import fetchAllmarksShareHandler from './_fetchAllmarksShareHandler.js';
 
 // 公開読みキャッシュ窓口の action (App Check 不要・匿名可・Cloudflare キャッシュ対象)。
 // クライアントは /api/housing/public?action=... を叩き、vercel.json の rewrite で
@@ -118,10 +120,12 @@ export default async function handler(req: any, res: any) {
       return gcSharedToursHandler(req, res);
     case 'apply-expired-visibility':
       return applyExpiredVisibilityHandler(req, res);
+    case 'fetch-allmarks-share':
+      return fetchAllmarksShareHandler(req, res);
     default:
       return res.status(400).json({
         error:
-          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|delete-thumbnail|delete-source-image|reorder-thumbnails|reorder-source-images|confirm-listing|search-housingers|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour',
+          'Missing or invalid action parameter. Use ?action=can-register|register-listing|check-duplicate|update-listing|delete-listing|report-listing|list-notifications|mark-notification-read|delete-notification|resolve-report|purge-if-tweet-gone|upload-thumbnail|delete-thumbnail|delete-source-image|reorder-thumbnails|reorder-source-images|confirm-listing|search-housingers|upsert-housinger-profile|report-housinger|create-shared-tour|join-shared-tour|fetch-allmarks-share',
       });
   }
 }

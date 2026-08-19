@@ -17,8 +17,14 @@ import { buildAddressKey } from '../../utils/housingDuplicate';
 /** 一時 listing の id prefix。`isEphemeralListingId` の判定根拠 (spec §3.1) 以外の用途で複製しないこと。 */
 export const EPHEMERAL_ID_PREFIX = 'ephemeral-';
 
-/** 専用 store が同時に保持できる件数の上限。 */
-export const EPHEMERAL_POOL_LIMIT = 50;
+/**
+ * 専用 store が同時に保持できる件数の上限。
+ * 2026-08-19: 30→50→100。Allmarksまとめてインポート機能(共有1本につき最大100件)を
+ * 上限内で受けきれるよう、Allmarks側の上限に合わせた(コスト面の制約は無い。一時listingは
+ * Firestore/Storageに一切保存しないブラウザメモリのみの存在のため、件数を増やしても
+ * 課金には影響しない)。
+ */
+export const EPHEMERAL_POOL_LIMIT = 100;
 
 /** id が一時 listing (ephemeral- prefix) かどうかの唯一の判定根拠。 */
 export function isEphemeralListingId(id: string): boolean {

@@ -152,6 +152,7 @@
         "fab_sync": "同期",
         "fab_language": "言語",
         "fab_theme": "テーマ",
+        "fab_party_visibility": "表示メンバー",
         "fab_effect_mode_icon": "アイコン表示",
         "fab_effect_mode_scroll": "スクロール演出",
         "fab_effect_mode_bar": "エフェクト常時",
@@ -455,6 +456,10 @@
         "sort": "並び替え",
         "sort_light_party": "ライトパーティ",
         "sort_role": "ロール別",
+        "party_visibility": "表示メンバー設定",
+        "party_visibility_toggle_tooltip": "{{id}}を{{action}}",
+        "party_visibility_show": "表示",
+        "party_visibility_hide": "非表示",
         "highlight_my_job": "自分のジョブをハイライト",
         "compact_view": "表を展開する",
         "compact_view_on": "コンパクト表示",
@@ -1990,7 +1995,8 @@
             "add_button": "住所から追加",
             "panel_title": "住所からツアーに追加",
             "url_label": "SNSのURLから",
-            "url_placeholder": "X / housingsnap などのURLを貼り付け",
+            "url_placeholder": "X / housingsnap / Allmarksの共有リンクなどを貼り付け",
+            "allmarks_hint": "Allmarksでタグを付けてまとめて共有すると、複数件を一度に追加できます（<lnk>Allmarksを見る</lnk>）",
             "text_label": "住所を入力",
             "text_placeholder": "例: ミスト 3区 15番地",
             "parse_error": "住所を読み取れませんでした。下の欄で選択してください",
@@ -2001,7 +2007,16 @@
             "limit_note": "一時の家は最大 {{max}} 件までです",
             "badge": "一時",
             "register_link": "この家を登録する",
-            "empty_start": "この内容でツアーを開始"
+            "empty_start": "この内容でツアーを開始",
+            "allmarks_import": {
+                "fetching_list": "Allmarksから受け取っています…",
+                "checking": "{{processed}}/{{total}}件を確認中…",
+                "added_so_far": "{{count}}件追加できました",
+                "not_found": "共有リンクが見つかりませんでした。期限切れか、URLが正しくない可能性があります。",
+                "summary_added": "{{total}}件中{{count}}件を追加できました",
+                "summary_failed": "{{count}}件は住所を読み取れませんでした",
+                "summary_limit_reached": "一時ツアーの上限に達したため、途中で打ち切りました"
+            }
         },
         "favStrip": {
             "title": "お気に入り",

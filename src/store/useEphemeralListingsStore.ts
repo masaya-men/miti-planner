@@ -6,7 +6,7 @@ import { EPHEMERAL_POOL_LIMIT } from '../lib/housing/ephemeralListing';
  * 一時 listing (`ephemeral-` prefix の `MockListing`) 専用 store。
  *
  * persist なし = リロードで消えるのが仕様 (計画書 §2-4)。 Firestore にも保存しない。
- * `add` は `EPHEMERAL_POOL_LIMIT` (30件) を超えると追加せず `false` を返す
+ * `add` は `EPHEMERAL_POOL_LIMIT` を超えると追加せず `false` を返す
  * (呼び出し側でユーザーに上限到達を通知する想定)。
  */
 interface EphemeralListingsState {

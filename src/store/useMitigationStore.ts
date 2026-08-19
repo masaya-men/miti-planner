@@ -70,6 +70,10 @@ interface MitigationState {
     showRowBorders: boolean;
     clipboardEvent: TimelineEvent | null;
     timelineSortOrder: 'light_party' | 'role';
+    /** 表示/非表示スイッチで非表示にしたパーティメンバーID。見た目だけの絞り込みで、
+     *  自動配置・競合チェック・ダメージ計算等の内部処理には一切影響しない
+     *  (2026-08-19 ブラウザ全体の見た目設定・プランをまたいで保持・共同編集は同期しない)。 */
+    hiddenPartyMemberIds: string[];
     /** 競合表示用: 直前にユーザーが手動配置したインスタンス id (セッションのみ・partialize 非対象)。
      *  「置いた時は"既存の相手"だけ光らせ、自分が今置いた方は光らせない」を実現するため、
      *  この id だけ脈動/矢印から除外する。リロードで null に戻る → 既存競合は両方光る。 */
@@ -163,6 +167,7 @@ interface MitigationState {
     setShowRowBorders: (show: boolean) => void;
     setClipboardEvent: (event: TimelineEvent | null) => void;
     setTimelineSortOrder: (order: 'light_party' | 'role') => void;
+    toggleHiddenPartyMember: (id: string) => void;
     /** エーテルフロー連鎖配置プロンプト制御 */
     dismissAetherflowChainPrompt: () => void;
     /** プロンプトの startTime から 60s 間隔で最終イベントまで aetherflow を連続配置する */
@@ -551,6 +556,7 @@ export const useMitigationStore = create<MitigationState>()(
                 myJobHighlight: false,
                 hideEmptyRows: true,
                 showRowBorders: false,
+                hiddenPartyMemberIds: [],
                 clipboardEvent: null,
                 timelineSortOrder: 'light_party',
                 lastPlacedMitigationId: null,
@@ -857,6 +863,11 @@ export const useMitigationStore = create<MitigationState>()(
                 setMyJobHighlight: (enabled) => set({ myJobHighlight: enabled }),
                 setHideEmptyRows: (hide) => set({ hideEmptyRows: hide }),
                 setShowRowBorders: (show) => set({ showRowBorders: show }),
+                toggleHiddenPartyMember: (id) => set((state) => ({
+                    hiddenPartyMemberIds: state.hiddenPartyMemberIds.includes(id)
+                        ? state.hiddenPartyMemberIds.filter((mid) => mid !== id)
+                        : [...state.hiddenPartyMemberIds, id],
+                })),
                 setClipboardEvent: (event) => set({ clipboardEvent: event }),
                 setTimelineSortOrder: (order) => set({ timelineSortOrder: order }),
 
@@ -1830,6 +1841,7 @@ export const useMitigationStore = create<MitigationState>()(
                 hideEmptyRows: state.hideEmptyRows,
                 showRowBorders: state.showRowBorders,
                 timelineSortOrder: state.timelineSortOrder,
+                hiddenPartyMemberIds: state.hiddenPartyMemberIds,
                 memos: state.memos,
                 progress: state.progress,
                 // データ安全(2026-08-07): 持ち主の札も再読込をまたいで持ち歩く。

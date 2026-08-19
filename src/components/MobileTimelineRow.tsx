@@ -53,6 +53,10 @@ interface MobileTimelineRowProps {
      * findSameSkillCdConflicts から算出(直前配置分のパルス除外込み)。渡された分だけ
      * アイコンを黄色パルスで光らせる(2026-08-14ユーザー要望=PC版と同じ競合表示)。 */
     conflictingIds?: Set<string>;
+    /** 表示/非表示スイッチで隠したパーティメンバーID(2026-08-19)。partyMembers 自体は
+     * TargetBadge 等の対象アイコン参照(全員分必要)にも使うため絞り込まず、軽減アイコンの
+     * グルーピングだけこの一覧を見て除外する。 */
+    hiddenPartyMemberIds?: string[];
 }
 
 /** 対象バッジ（AoE以外）。effTarget = 挑発考慮済みの実効ターゲット */
@@ -81,21 +85,38 @@ const TargetBadge: React.FC<{ effTarget: TimelineEvent['target']; partyMembers: 
 /** 軽減アイコンを「1行に入りきる分」と「あふれた分」に分ける(グルーピング込み)。
  * MitiIcons(2行目に表示)とMobileTimelineRow(あふれた分を1行目のダメージ表記エリアに表示)の
  * 両方が同じ分け方を使う必要があるため共通関数化(バラバラに計算すると数がズレるバグの元に
- * なる。2026-08-13実機検証で実際に1件ズレるバグを踏んだ)。 */
-function groupAndCapMitigations(mitigations: AppliedMitigation[], maxIcons: number | undefined) {
+ * なる。2026-08-13実機検証で実際に1件ズレるバグを踏んだ)。
+ * visibleMemberIds: 表示/非表示スイッチで隠していないメンバーID(2026-08-19)。省略時は全員表示。
+ * 隠したメンバーのアイコンは「+N」あふれ扱いにはせず、そのまま非表示にする(orphan 判定=
+ * 「スロットIDとして未知かどうか」は非表示状態に関わらず変えない)。 */
+export function groupAndCapMitigations(
+    mitigations: AppliedMitigation[],
+    maxIcons: number | undefined,
+    visibleMemberIds?: readonly string[],
+) {
+    // 表示/非表示スイッチで隠したメンバーの分は、以降の計算(あふれ判定・「+N」あふれ扱い)
+    // に一切混ざらないよう最初に取り除く。「+N」タップで復活してしまうバグを防ぐため、
+    // このあとは raw な mitigations を絶対に参照しない(2026-08-19)。
+    const knownIds = new Set<string>(PARTY_MEMBER_IDS);
+    const visibleIdSet = new Set<string>(visibleMemberIds ?? PARTY_MEMBER_IDS);
+    // orphan(未知スロットID)は非表示スイッチの対象外(そもそも対応するメンバーが無いため)。
+    const mitigationsInScope = mitigations.filter(
+        (m) => !knownIds.has(m.ownerId) || visibleIdSet.has(m.ownerId)
+    );
+
     // 表示順は常に MT→ST→H1→H2→D1〜D4 固定(PARTY_MEMBER_IDS)。PC の並び替え設定
     // (partySortOrder='light_party' 等)の影響を受けない — スマホは常に同じ並びにする。
     const groups: { key: string; items: AppliedMitigation[] }[] = PARTY_MEMBER_IDS
-        .map(id => ({ key: id, items: mitigations.filter(m => m.ownerId === id) }))
+        .filter(id => visibleIdSet.has(id))
+        .map(id => ({ key: id, items: mitigationsInScope.filter(m => m.ownerId === id) }))
         .filter(g => g.items.length > 0);
-    const knownIds = new Set<string>(PARTY_MEMBER_IDS);
-    const orphan = mitigations.filter(m => !knownIds.has(m.ownerId));
+    const orphan = mitigationsInScope.filter(m => !knownIds.has(m.ownerId));
     if (orphan.length > 0) groups.push({ key: 'orphan', items: orphan });
 
     // 「+N」バッジ自体も1枠分の幅を使うため、あふれる場合はバッジの分を1枠減らして確保する
     // (2026-08-13実機検証: バッジの分を引かずに満タンまで表示すると行の見積り幅を超える)。
     const cap = maxIcons ?? Infinity;
-    const overflowCount = Math.max(0, mitigations.length - cap);
+    const overflowCount = Math.max(0, mitigationsInScope.length - cap);
     let visibleBudget = overflowCount > 0 ? Math.max(0, cap - 1) : cap;
     const visibleGroups: { key: string; items: AppliedMitigation[] }[] = [];
     for (const g of groups) {
@@ -105,7 +126,7 @@ function groupAndCapMitigations(mitigations: AppliedMitigation[], maxIcons: numb
         visibleBudget -= take.length;
     }
     const visibleIds = new Set(visibleGroups.flatMap(g => g.items.map(i => i.id)));
-    const hiddenMitigations = mitigations.filter(m => !visibleIds.has(m.id));
+    const hiddenMitigations = mitigationsInScope.filter(m => !visibleIds.has(m.id));
     return { visibleGroups, hiddenMitigations };
 }
 
@@ -216,6 +237,7 @@ export const MobileTimelineRow = memo(({
     rowHeight = 80,
     maxMitiIcons,
     conflictingIds,
+    hiddenPartyMemberIds,
 }: MobileTimelineRowProps) => {
     const { t } = useTranslation();
     const { contentLanguage } = useThemeStore();
@@ -235,9 +257,15 @@ export const MobileTimelineRow = memo(({
 
     // 軽減アイコンの「入りきる分」と「あふれた分」。あふれた分は「+N」タップで1行目の
     // ダメージ表記エリアに切り替え表示する(2026-08-13ユーザー確認=常時表示ではなくタップ式)。
+    // partyMembers 自体は TargetBadge 等が全員分参照するため絞り込まない。表示/非表示スイッチの
+    // 対象は hiddenPartyMemberIds から個別に引く(2026-08-19)。
+    const visibleMemberIds = useMemo(
+        () => PARTY_MEMBER_IDS.filter(id => !(hiddenPartyMemberIds ?? []).includes(id)),
+        [hiddenPartyMemberIds]
+    );
     const { visibleGroups: mitiVisibleGroups, hiddenMitigations: mitiHiddenMitigations } = useMemo(
-        () => groupAndCapMitigations(activeMitigations, maxMitiIcons),
-        [activeMitigations, maxMitiIcons]
+        () => groupAndCapMitigations(activeMitigations, maxMitiIcons, visibleMemberIds),
+        [activeMitigations, maxMitiIcons, visibleMemberIds]
     );
     const [mitiOverflowOpen, setMitiOverflowOpen] = useState(false);
     // 隠れている(あふれた)分に競合中インスタンスが含まれるか(「+N」バッジを光らせる判定)。

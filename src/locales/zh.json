@@ -141,6 +141,7 @@
         "fab_sync": "同步",
         "fab_language": "语言",
         "fab_theme": "主题",
+        "fab_party_visibility": "显示成员",
         "fab_effect_mode_icon": "仅图标",
         "fab_effect_mode_scroll": "滚动特效",
         "fab_effect_mode_bar": "常显特效",
@@ -443,6 +444,10 @@
         "sort": "排序",
         "sort_light_party": "小队",
         "sort_role": "职能排序",
+        "party_visibility": "显示成员设置",
+        "party_visibility_toggle_tooltip": "{{action}}{{id}}",
+        "party_visibility_show": "显示",
+        "party_visibility_hide": "隐藏",
         "highlight_my_job": "高亮我的职业",
         "compact_view": "展开表格",
         "compact_view_on": "紧凑视图",
@@ -1934,7 +1939,8 @@
             "add_button": "通过地址添加",
             "panel_title": "通过地址加入导览",
             "url_label": "从SNS的URL",
-            "url_placeholder": "粘贴 X / housingsnap 等的URL",
+            "url_placeholder": "粘贴 X / housingsnap / Allmarks 共享链接等的URL",
+            "allmarks_hint": "在Allmarks中打标签并一起共享，即可一次添加多件（<lnk>打开Allmarks</lnk>）",
             "text_label": "输入地址",
             "text_placeholder": "例: 海雾村 3区 15号",
             "parse_error": "无法读取地址。请在下方选择",
@@ -1945,7 +1951,16 @@
             "limit_note": "临时房屋最多 {{max}} 件",
             "badge": "临时",
             "register_link": "登记这间房屋",
-            "empty_start": "以此内容开始导览"
+            "empty_start": "以此内容开始导览",
+            "allmarks_import": {
+                "fetching_list": "正在从Allmarks获取…",
+                "checking": "正在确认第 {{processed}}/{{total}} 件…",
+                "added_so_far": "已添加 {{count}} 件",
+                "not_found": "未找到该共享链接。可能已过期或URL不正确。",
+                "summary_added": "{{total}} 件中已添加 {{count}} 件",
+                "summary_failed": "有 {{count}} 件无法读取地址",
+                "summary_limit_reached": "已达到临时导览上限，中途已停止"
+            }
         },
         "favStrip": {
             "title": "收藏",

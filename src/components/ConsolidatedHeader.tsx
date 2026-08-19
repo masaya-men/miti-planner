@@ -32,6 +32,7 @@ import { useProgressBarVisibility } from '../store/useProgressBarVisibility';
 import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';
 import { HeaderToolsMenu } from './HeaderToolsMenu';
 import { ImportMenu } from './ImportMenu';
+import { PartyVisibilityMenu } from './PartyVisibilityMenu';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -60,6 +61,7 @@ const iconBtnDefault = `bg-transparent border-app-border text-app-text ${hoverIn
 const pillBtnBase = "group flex items-center gap-2 px-3.5 h-9 rounded-full border whitespace-nowrap transition-all duration-300 cursor-pointer active:scale-95";
 const pillBtnDefault = `bg-transparent border-app-border text-app-text ${hoverInvert}`;
 const pillBtnActive = `bg-app-toggle text-app-toggle-text border-app-toggle ${hoverInvert}`;
+const iconBtnActive = `bg-app-toggle text-app-toggle-text border-app-toggle ${hoverInvert}`;
 
 // #2b: ネイティブ disabled ボタンはブラウザが cursor 指定を無視するため、禁止カーソルを
 // wrapper(span)側で出す。span を hover ターゲットにし、中のボタンは pointer-events-none で透過。
@@ -404,6 +406,18 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             </Tooltip>
 
                             {/* 自動組み立て / MYジョブハイライト / 進捗バー表示 は「⋯ その他」メニューへ集約済み */}
+
+                            <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
+
+                            {/* パーティ表示/非表示スイッチ(2026-08-19、2026-08-19再設計): 見た目だけの
+                                絞り込みで自動配置・競合チェック・ダメージ計算には一切影響しない。
+                                アイコンボタン→ポップオーバー方式(HeaderToolsMenuと同パターン)。 */}
+                            <PartyVisibilityMenu
+                                btnClassName={clsx(iconBtnBase, iconBtnDefault)}
+                                btnActiveClassName={clsx(iconBtnBase, iconBtnActive)}
+                                sortOrder={partySortOrder}
+                                readOnly={readOnly}
+                            />
 
                             <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 

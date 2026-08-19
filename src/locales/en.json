@@ -141,6 +141,7 @@
         "fab_sync": "Sync",
         "fab_language": "Language",
         "fab_theme": "Theme",
+        "fab_party_visibility": "Show Members",
         "fab_effect_mode_icon": "Icon Only",
         "fab_effect_mode_scroll": "Scroll Effect",
         "fab_effect_mode_bar": "Always Effect",
@@ -451,6 +452,10 @@
         "sort": "SORT",
         "sort_light_party": "Light Party",
         "sort_role": "Role Order",
+        "party_visibility": "Member Display Settings",
+        "party_visibility_toggle_tooltip": "{{action}} {{id}}",
+        "party_visibility_show": "Show",
+        "party_visibility_hide": "Hide",
         "highlight_my_job": "Highlight My Job",
         "compact_view": "Expand Table",
         "compact_view_on": "Compact View",
@@ -1969,7 +1974,8 @@
             "add_button": "Add by address",
             "panel_title": "Add to tour by address",
             "url_label": "From an SNS URL",
-            "url_placeholder": "Paste a URL from X, housingsnap, etc.",
+            "url_placeholder": "Paste a URL from X, housingsnap, an Allmarks share link, etc.",
+            "allmarks_hint": "Tag items in Allmarks and share them together to add several at once (<lnk>Open Allmarks</lnk>)",
             "text_label": "Enter an address",
             "text_placeholder": "e.g. Mist W3 P15",
             "parse_error": "Couldn't read the address. Please pick the fields below",
@@ -1980,7 +1986,16 @@
             "limit_note": "Up to {{max}} temporary homes at a time",
             "badge": "Temporary",
             "register_link": "Register this home",
-            "empty_start": "Start tour with these"
+            "empty_start": "Start tour with these",
+            "allmarks_import": {
+                "fetching_list": "Getting the list from Allmarks…",
+                "checking": "Checking {{processed}}/{{total}}…",
+                "added_so_far": "{{count}} added so far",
+                "not_found": "Couldn't find that share link. It may have expired or the URL may be incorrect.",
+                "summary_added": "Added {{count}} of {{total}}",
+                "summary_failed": "Couldn't read the address for {{count}} of them",
+                "summary_limit_reached": "Stopped partway because the temporary tour limit was reached"
+            }
         },
         "favStrip": {
             "title": "Favorites",

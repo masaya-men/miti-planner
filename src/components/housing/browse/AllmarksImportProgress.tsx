@@ -1,0 +1,98 @@
+import { Home } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ProgressRing } from '../tour/ProgressRing';
+import type { AllmarksImportProgress as AllmarksImportProgressState } from '../../../lib/housing/useAllmarksImport';
+
+export interface AllmarksImportProgressProps {
+  progress: AllmarksImportProgressState;
+  /**
+   * 「やめる」(取得中/インポート中)・「閉じる」(完了後) どちらからも呼ぶ、通常の
+   * 追加パネルへ戻る単一の窓口。取得中/インポート中に呼んでも、ここまで追加済みの分
+   * (`progress.added`) は一時ツアーに残る(取り消さない)。
+   */
+  onClose: () => void;
+}
+
+/**
+ * Allmarksまとめてインポートの進捗表示 (2026-08-19)。
+ * 数値の進捗は既存 ProgressRing (青/aether、ツアー画面と共通言語) を流用し、
+ * その上でハニー色の家アイコンをぴょんぴょん弾ませて「かわいさ」を足すだけに留める
+ * (新しい色/新しい進捗の見せ方は増やさない)。
+ */
+export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ progress, onClose }) => {
+  const { t } = useTranslation();
+
+  if (progress.status === 'fetching-list') {
+    return (
+      <div className="housing-allmarks-import-panel">
+        <div className="housing-fetch-indicator">
+          <span className="housing-spinner" aria-hidden />
+          <span>{t('housing.ephemeral.allmarks_import.fetching_list')}</span>
+        </div>
+        <button type="button" className="housing-action-btn" onClick={onClose}>
+          {t('common.cancel')}
+        </button>
+      </div>
+    );
+  }
+
+  if (progress.status === 'importing') {
+    const percent = progress.total > 0 ? (progress.processed / progress.total) * 100 : 0;
+    return (
+      <div className="housing-allmarks-import-panel">
+        <div className="housing-allmarks-import-ring-wrap">
+          <Home className="housing-allmarks-import-icon" size={22} aria-hidden />
+          <ProgressRing percent={percent} />
+        </div>
+        <p className="housing-allmarks-import-status">
+          {t('housing.ephemeral.allmarks_import.checking', { processed: progress.processed, total: progress.total })}
+        </p>
+        <p className="housing-allmarks-import-tally">
+          {t('housing.ephemeral.allmarks_import.added_so_far', { count: progress.added })}
+        </p>
+        <button type="button" className="housing-action-btn" onClick={onClose}>
+          {t('common.cancel')}
+        </button>
+      </div>
+    );
+  }
+
+  // status === 'done'
+  if (progress.shareNotFound) {
+    return (
+      <div className="housing-allmarks-import-panel">
+        <p className="housing-error-text">{t('housing.ephemeral.allmarks_import.not_found')}</p>
+        <div className="housing-allmarks-import-actions">
+          <button type="button" className="housing-action-btn housing-btn-primary" onClick={onClose}>
+            {t('common.close')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="housing-allmarks-import-panel">
+      <div className="housing-allmarks-import-summary">
+        <p className="housing-ephemeral-added">
+          {t('housing.ephemeral.allmarks_import.summary_added', { count: progress.added, total: progress.total })}
+        </p>
+        {progress.failed > 0 && (
+          <p className="housing-allmarks-import-status">
+            {t('housing.ephemeral.allmarks_import.summary_failed', { count: progress.failed })}
+          </p>
+        )}
+        {progress.limitReached && (
+          <p className="housing-allmarks-import-status">
+            {t('housing.ephemeral.allmarks_import.summary_limit_reached')}
+          </p>
+        )}
+      </div>
+      <div className="housing-allmarks-import-actions">
+        <button type="button" className="housing-action-btn housing-btn-primary" onClick={onClose}>
+          {t('common.close')}
+        </button>
+      </div>
+    </div>
+  );
+};

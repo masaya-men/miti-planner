@@ -24,6 +24,9 @@ const mitiStore = {
   myJobHighlight: false,
   setMyJobHighlight: vi.fn(),
   timelineEvents: [],
+  partyMembers: [],
+  hiddenPartyMemberIds: [],
+  toggleHiddenPartyMember: vi.fn(),
 };
 vi.mock('../../store/useMitigationStore', () => ({
   useMitigationStore: (sel: (s: typeof mitiStore) => unknown) => sel(mitiStore),

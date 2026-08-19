@@ -38,7 +38,7 @@ import {
   upsertHousingerProfile,
 } from '../../../lib/housing/housingerProfileService';
 import { isEligibleForOgRepresentative, mergeListingsForViewer } from '../../../lib/housing/listingPublish';
-import { normalizeHousingerUid, stripHashedPrefix } from '../../../lib/housing/housingerProfile';
+import { normalizeHousingerUid, buildHousingerShortSlug } from '../../../lib/housing/housingerProfile';
 import { firestoreToGalleryListing } from '../../../lib/housing/galleryAdapter';
 import { HousingShareButton } from '../listing/HousingShareButton';
 import { sortListingsForGallery } from '../../../lib/housing/sortListingsForGallery';
@@ -61,20 +61,23 @@ import type { MockListing } from '../../../data/housing/mockListings';
 import { useHousingListOrderStore } from '../../../store/useHousingListOrderStore';
 import '../../../styles/housing.css';
 
-export const HousingerPage: React.FC = () => {
+export const HousingerPage: React.FC<{ uidOverride?: string }> = ({ uidOverride }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { uid: routeUid } = useParams<{ uid: string }>();
   const viewerUid = useAuthStore((s) => s.user?.uid ?? null);
+  // uidOverride: 短縮URL (/h/:slug、HousingerShortLinkPage.tsx) 経由のときは、slug の名前+識別コードを
+  // 実際の uid へ解決済みの値がここに渡ってくる。routeUid (通常の /housing/housinger/:uid) より優先。
+  const effectiveRouteUid = uidOverride ?? routeUid;
   // URL は hashed: prefix を外した短縮形 (#3・/housing/housinger/<hex>)。取得・本人判定の前に
   // 内部 ID 形式 'hashed:<hex>' へ復元する (doc ID / ownerUid / auth uid はすべてこの形式)。
   // 旧 'hashed:…' 付き URL も normalizeHousingerUid が no-op で通す (後方互換)。
   // /housing/mypage (:uid なし) はログイン中の自分の uid にフォールバックする。
   // isSelf 判定 (下記) と同様、viewerUid 側も normalizeHousingerUid を通す (auth uid が
   // 'hashed:' 無し形式で来るケースの防御。付いていれば no-op)。
-  const isMyPageRoute = !routeUid;
-  const uid = routeUid
-    ? normalizeHousingerUid(routeUid)
+  const isMyPageRoute = !effectiveRouteUid;
+  const uid = effectiveRouteUid
+    ? normalizeHousingerUid(effectiveRouteUid)
     : viewerUid
       ? normalizeHousingerUid(viewerUid)
       : undefined;
@@ -442,8 +445,9 @@ export const HousingerPage: React.FC = () => {
 
   // e: X共有 (A案)。詳細ページと同じ HousingShareButton を流用し、このハウジンガーの
   // まとめページ URL を共有する (公開分のみ表示のプライバシーと整合)。
-  // 共有 URL は hashed: prefix を外した短縮形にする (#3)。
-  const shareUrl = `${window.location.origin}/housing/housinger/${stripHashedPrefix(uid ?? '')}`;
+  // 共有 URL は名前+識別コードの短縮形 (/h/<slug>、2026-08-19)。名前は飾りのみで実際の
+  // 解決は識別コードだけが担うため、改名しても既存に共有済みのリンクは壊れない。
+  const shareUrl = `${window.location.origin}/h/${buildHousingerShortSlug(displayName, uid ?? '')}`;
 
   return (
     <div className="housing-detail-panel">

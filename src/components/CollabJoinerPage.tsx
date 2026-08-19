@@ -12,7 +12,7 @@ import { CollabEditConsentModal } from "./CollabEditConsentModal";
 import { CollabJoinerBanner } from "./CollabJoinerBanner";
 import { ConsolidatedHeader } from "./ConsolidatedHeader";
 import { MobileHeader } from "./MobileHeader";
-import { MobileFAB } from "./MobileFAB";
+import { MobileFAB } from "./MobileFab";
 import { AppFooter } from "./AppFooter";
 import { CollabViewerCluster } from "./collab/CollabViewerCluster";
 import { LoginModal } from "./LoginModal";

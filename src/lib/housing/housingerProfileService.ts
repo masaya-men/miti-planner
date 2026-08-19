@@ -19,7 +19,7 @@
  * - syncHousingerProfileBestEffort: 表示名/アイコン変更直後の追従用 (空 body 呼び出し = 転記のみ)。
  *   未ログイン時は何もせず、失敗は console.warn のみ (呼び出し元の成功フローを止めない)。
  */
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, doc, documentId, getDoc, getDocs, limit, query, where } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { buildHousingHeaders } from '../housingAuthHeaders';
 import type { HousingerProfile, HousingListing } from '../../types/housing';
@@ -55,6 +55,32 @@ export async function getHousingerProfile(uid: string, options?: { isSelf?: bool
 export function invalidateHousingerProfileCache(uid: string): void {
   profileCache.delete(uid);
   profileCache.delete(`${uid}::self`);
+}
+
+/**
+ * 短縮URL (`/h/<name>-<code>`) の識別コードから、実際の housing_profiles doc ID (uid) を解決する。
+ * 新しいデータは持たず、既存の uid (doc ID) の先頭一致検索だけで済ませる (getHousingerShortCode と対)。
+ * 公開プロフィールのみが対象 (firestore.rules と同じ isPublished/isModerationHidden 条件を
+ * クエリ自身にも明示しないと list が拒否される。publishedHousingers.ts と同じ理由)。
+ * 見つからない/複数該当いずれも先頭1件を採用するか null (呼び出し側は not-found 扱い)。
+ */
+export async function resolveHousingerUidByShortCode(code: string): Promise<string | null> {
+  const start = `hashed:${code}`;
+  const end = `${start}\uf8ff`;
+  try {
+    const qref = query(
+      collection(db, PROFILE_COLLECTION),
+      where('isPublished', '==', true),
+      where('isModerationHidden', '==', false),
+      where(documentId(), '>=', start),
+      where(documentId(), '<', end),
+      limit(1),
+    );
+    const snap = await getDocs(qref);
+    return snap.empty ? null : snap.docs[0].id;
+  } catch {
+    return null;
+  }
 }
 
 export async function getHousingerListings(uid: string): Promise<HousingListing[]> {

@@ -141,6 +141,7 @@
         "fab_sync": "동기화",
         "fab_language": "언어",
         "fab_theme": "테마",
+        "fab_party_visibility": "표시 멤버",
         "fab_effect_mode_icon": "아이콘만",
         "fab_effect_mode_scroll": "스크롤 연출",
         "fab_effect_mode_bar": "항상 연출",
@@ -443,6 +444,10 @@
         "sort": "정렬",
         "sort_light_party": "라이트 파티",
         "sort_role": "역할 순서",
+        "party_visibility": "표시 멤버 설정",
+        "party_visibility_toggle_tooltip": "{{id}} {{action}}",
+        "party_visibility_show": "표시",
+        "party_visibility_hide": "숨김",
         "highlight_my_job": "내 잡 강조",
         "compact_view": "테이블 확장",
         "compact_view_on": "간결 보기",
@@ -1934,7 +1939,8 @@
             "add_button": "주소로 추가",
             "panel_title": "주소로 투어에 추가",
             "url_label": "SNS URL로",
-            "url_placeholder": "X / housingsnap 등의 URL을 붙여넣기",
+            "url_placeholder": "X / housingsnap / Allmarks 공유 링크 등의 URL을 붙여넣기",
+            "allmarks_hint": "Allmarks에서 태그를 붙여 함께 공유하면 여러 건을 한 번에 추가할 수 있습니다 (<lnk>Allmarks 열기</lnk>)",
             "text_label": "주소 입력",
             "text_placeholder": "예: 미스트 3구역 15번지",
             "parse_error": "주소를 읽지 못했습니다. 아래에서 선택해 주세요",
@@ -1945,7 +1951,16 @@
             "limit_note": "임시 집은 최대 {{max}}건까지입니다",
             "badge": "임시",
             "register_link": "이 집을 등록하기",
-            "empty_start": "이 내용으로 투어 시작"
+            "empty_start": "이 내용으로 투어 시작",
+            "allmarks_import": {
+                "fetching_list": "Allmarks에서 받아오는 중…",
+                "checking": "{{processed}}/{{total}}건 확인 중…",
+                "added_so_far": "{{count}}건 추가했습니다",
+                "not_found": "공유 링크를 찾을 수 없습니다. 만료되었거나 URL이 올바르지 않을 수 있습니다.",
+                "summary_added": "{{total}}건 중 {{count}}건을 추가했습니다",
+                "summary_failed": "{{count}}건은 주소를 읽지 못했습니다",
+                "summary_limit_reached": "임시 투어 상한에 도달하여 중간에 중단했습니다"
+            }
         },
         "favStrip": {
             "title": "즐겨찾기",

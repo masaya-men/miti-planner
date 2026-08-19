@@ -33,6 +33,10 @@ interface TimelineRowProps {
     damages: (DamageInfo | null)[];
     events: TimelineEvent[];
     partyMembers: PartyMember[];
+    /** 表示/非表示スイッチで隠したメンバーを除いた列描画専用リスト(2026-08-19)。「Job Columns
+     * Cells」(1人1列の当たり判定セル)にのみ使う。partyMembers 自体は maxHp 参照等の計算に
+     * 使われているため絞り込まない(全員分を維持)。 */
+    visiblePartyMembers: PartyMember[];
     activeMitigations: AppliedMitigation[];
     onPhaseAdd: (time: number, e: React.MouseEvent) => void;
     onAddEventClick: (time: number, e: React.MouseEvent) => void;
@@ -219,6 +223,7 @@ export const TimelineRow = memo(({
     damages,
     events,
     partyMembers,
+    visiblePartyMembers,
     activeMitigations,
     onPhaseAdd,
     onAddEventClick,
@@ -663,9 +668,9 @@ export const TimelineRow = memo(({
                 )}
             </div >
 
-            {/* Job Columns Cells — PC専用 */}
+            {/* Job Columns Cells — PC専用(表示/非表示スイッチで隠したメンバーの列は描画しない) */}
             {
-                partyMembers.map((member) => (
+                visiblePartyMembers.map((member) => (
                     <div
                         key={member.id}
                         data-tutorial={
@@ -694,6 +699,7 @@ export const TimelineRow = memo(({
     if (prevProps.events !== nextProps.events) return false;
     if (prevProps.damages !== nextProps.damages) return false;
     if (prevProps.partyMembers !== nextProps.partyMembers) return false;
+    if (prevProps.visiblePartyMembers !== nextProps.visiblePartyMembers) return false;
     if (prevProps.activeMitigations !== nextProps.activeMitigations) {
         if (prevProps.activeMitigations.length !== nextProps.activeMitigations.length) return false;
         for (let i = 0; i < prevProps.activeMitigations.length; i++) {
