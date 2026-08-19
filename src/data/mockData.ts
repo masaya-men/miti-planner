@@ -78,11 +78,13 @@ export const MITIGATION_DISPLAY_ORDER = [
     'taurochole',
     'eukrasian_diagnosis',
     'druochole',
+    'rhizomata',
     'feint_base',
     'feint',
     'mantra',
     'riddle_of_earth',
     'earths_reply',
+    'arcane_crest',
     'troubadour_base',
     'troubadour',
     'nature_s_minne',
@@ -524,12 +526,23 @@ export const MITIGATIONS: Mitigation[] = [
         id: "krasis", jobId: "sge", name: { ja: "クラーシス", en: "Krasis", zh: "混合", ko: "체액 혼화" }, icon: "/icons/Krasis.png",
         recast: 60, duration: 10, type: "all", value: 0, isShield: false, scope: "target", healingIncrease: 20, note: "対象の被回復+20%", minLevel: 86, family: "healer_ogcd_target_buff"
     },
+    {
+        id: "rhizomata", jobId: "sge", name: { ja: "リゾーマタ", en: "Rhizomata", zh: "根素", ko: "만물의 근원", "zh-Hant": "根素" }, icon: "/icons/Rhizomata.png",
+        recast: 90, duration: 0, type: "all", value: 0, isShield: false, scope: "self", note: "アダーガルを1スタック獲得(最大3)", minLevel: 74
+    },
 
     // --- Red Mage ---
     {
         id: "magick_barrier", jobId: "rdm", name: { ja: "バマジク", en: "Magick Barrier", zh: "抗死", ko: "바매직" }, icon: "/icons/Magick_Barrier.png",
         recast: 120, duration: 10, type: "all", value: 10, isShield: false,
         note: "被魔法10%軽減, 回復効果5%上昇", valueMagical: 10, valuePhysical: 0, healingIncrease: 5, minLevel: 86, family: "caster_party_miti"
+    },
+
+    // --- Reaper ---
+    {
+        id: "arcane_crest", jobId: "rpr", name: { ja: "アルケインクレスト", en: "Arcane Crest", zh: "神秘纹", ko: "신비의 문장", "zh-Hant": "神秘紋" }, icon: "/icons/Arcane_Crest.png",
+        recast: 30, duration: 5, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", scope: "self",
+        note: "バリア完全吸収で自身と周囲15m以内に回復力50のHP継続回復(15秒)", minLevel: 40, hidden: true
     },
 
     // --- Astrologian ---
