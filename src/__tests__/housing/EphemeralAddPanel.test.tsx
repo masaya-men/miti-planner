@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
@@ -35,6 +35,27 @@ vi.mock('../../lib/housing/useAllmarksImport', () => ({
   useAllmarksImport: () => allmarksImportState,
 }));
 
+// importing 表示は AllmarksMapRoadDraw (実タイマーで無限ループするデコレーション、実際の
+// ワードマップを動的importする) をマウントするため、vmThreads が実タイマー/実importを
+// 残すテストを終了できない事故を避けるため、軽量な固定マップにモックする
+// ([[reference_vitest_vmthreads_hang]])。
+vi.mock('../../data/housing/wardMapManifest', () => ({
+  WARD_MAP_LOADERS: {
+    testmap: async () => ({
+      json: {
+        area: 'Test',
+        viewBox: { w: 1000, h: 800 },
+        nodes: [{ id: 'n', x: 0.5, y: 0.5 }],
+        edges: [],
+        houses: [],
+        roadPath: 'M400 400L440 440',
+        visibleRoadPath: null,
+      },
+      svg: '',
+    }),
+  },
+}));
+
 beforeAll(() => {
   if (!i18n.isInitialized) {
     i18n.use(initReactI18next).init({
@@ -45,9 +66,7 @@ beforeAll(() => {
   }
 });
 
-// importing 表示は AllmarksFallingHouses (実タイマーで無限ループするデコレーション) を
-// マウントするため、vmThreads が実タイマーを残すテストを終了できない事故を避けるため
-// fake timers で駆動する ([[reference_vitest_vmthreads_hang]])。
+// 上記モックに加え fake timers でも駆動する(タイマー連鎖の残留を確実に防ぐ)。
 beforeEach(() => {
   vi.useFakeTimers();
 });
@@ -208,9 +227,9 @@ describe('EphemeralAddPanel', () => {
     expect(mockAllmarksStart).toHaveBeenCalledWith('Ab3xY9', 'JP', onAdd);
   });
 
-  it('⑬ インポート中 (status!=idle) は通常の住所フォームの代わりに進捗表示を出す', () => {
+  it('⑬ インポート中 (status!=idle) は通常の住所フォームの代わりに進捗表示を出す', async () => {
     allmarksImportState = {
-      progress: { status: 'importing', total: 50, processed: 12, added: 10, failed: 2, limitReached: false, shareNotFound: false },
+      progress: { status: 'importing', total: 50, processed: 12, added: 10, failed: 2, limitReached: false, shareNotFound: false, regionChoices: [], regionExcluded: 0 },
       start: mockAllmarksStart,
       cancel: mockAllmarksCancel,
     };
@@ -218,17 +237,25 @@ describe('EphemeralAddPanel', () => {
     expect(screen.getByText('12/50件を確認中…')).toBeInTheDocument();
     expect(screen.queryByLabelText('データセンター')).toBeNull();
     expect(screen.queryByRole('button', { name: 'ツアーに追加' })).toBeNull();
+    // AllmarksMapRoadDraw 内部のマップ読み込み(モック済み非同期)を act() 内で解決しておく
+    // (未解決のままだと後続テストへ act() 外の state 更新が漏れ、vmThreads ハングの誘因になる)。
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
-  it('⑭ インポート中に「キャンセル」を押すと cancel が呼ばれる', () => {
+  it('⑭ インポート中に「キャンセル」を押すと cancel が呼ばれる', async () => {
     allmarksImportState = {
-      progress: { status: 'importing', total: 50, processed: 12, added: 10, failed: 2, limitReached: false, shareNotFound: false },
+      progress: { status: 'importing', total: 50, processed: 12, added: 10, failed: 2, limitReached: false, shareNotFound: false, regionChoices: [], regionExcluded: 0 },
       start: mockAllmarksStart,
       cancel: mockAllmarksCancel,
     };
     wrap(<EphemeralAddPanel open onClose={() => {}} onAdd={vi.fn()} />);
     fireEvent.click(screen.getByRole('button', { name: 'キャンセル' }));
     expect(mockAllmarksCancel).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
   it('⑮ Allmarksへの導線リンクが別タブで開く形で表示される', () => {

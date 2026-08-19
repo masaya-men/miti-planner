@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { AllmarksFallingHouses } from './AllmarksFallingHouses';
+import { AllmarksMapRoadDraw } from './AllmarksMapRoadDraw';
 import type { AllmarksImportProgress as AllmarksImportProgressState } from '../../../lib/housing/useAllmarksImport';
 import type { Region } from '../../../data/housing/dcServerMap';
 import { regionLabel, pickRegionLocale } from '../../../data/housing/regionMap';
@@ -19,9 +19,9 @@ export interface AllmarksImportProgressProps {
 
 /**
  * Allmarksまとめてインポートの進捗表示 (2026-08-19)。
- * 数値の進捗はテキストで表示し、視覚演出は `AllmarksFallingHouses`(家が降ってくる→
- * 道でつながる→歩く→消える、を繰り返す)に任せる。 実際の取り込み進捗とは連動しない
- * 純粋な演出(ユーザー発案、2026-08-19)。
+ * 数値の進捗はテキストで表示し、視覚演出は `AllmarksMapRoadDraw`(ワードマップの一角が
+ * ズームして切り取られ、道路の線が描かれる→消える→別のマップの別の場所でまた描かれる、を
+ * 繰り返す)に任せる。 実際の取り込み進捗とは連動しない純粋な演出(ユーザー発案)。
  */
 export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ progress, onClose, onChooseRegion }) => {
   const { t, i18n } = useTranslation();
@@ -44,7 +44,7 @@ export const AllmarksImportProgress: React.FC<AllmarksImportProgressProps> = ({ 
   if (progress.status === 'importing') {
     return (
       <div className="housing-allmarks-import-panel">
-        <AllmarksFallingHouses />
+        <AllmarksMapRoadDraw />
         <p className="housing-allmarks-import-status">
           {t('housing.ephemeral.allmarks_import.checking', { processed: progress.processed, total: progress.total })}
         </p>

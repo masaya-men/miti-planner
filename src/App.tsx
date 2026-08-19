@@ -22,6 +22,7 @@ import { JoinTourPage } from './components/housing/pages/JoinTourPage';
 import { EntranceAuthoringPage } from './components/housing/dev/EntranceAuthoringPage';
 import { TourPreviewPage } from './components/housing/dev/TourPreviewPage';
 import { RouteAuthoringPage } from './components/housing/dev/RouteAuthoringPage';
+import { AllmarksAnimationPreviewPage } from './components/housing/dev/AllmarksAnimationPreviewPage';
 import { isAppRoute, rememberAppRoute } from './lib/lastAppRoute';
 import { requestPersistentStorage } from './lib/requestPersistentStorage';
 
@@ -111,6 +112,11 @@ function AppRoutes() {
         <Route path="listing/:listingId/edit" element={<HousingEditPage />} />
         {/* Task 7: ハウジンガーページ。 詳細の登録者行クリック / 個人タグ絞り込みリンク等から着地する。 */}
         <Route path="housinger/:uid" element={<HousingerPage />} />
+        {/* 開発専用: Allmarksまとめてインポート演出プレビュー。HousingShell配下(トークンスコープ)に
+            ネストして本番ビルドでは import.meta.env.DEV が false に畳み込まれ除去される。 */}
+        {import.meta.env.DEV && (
+          <Route path="dev/allmarks-animation" element={<AllmarksAnimationPreviewPage />} />
+        )}
       </Route>
       {/* 短縮共有URL (2026-08-19): /h/<名前>-<識別コード>。X等での共有専用の入口で、
           /housing 配下ではなくトップレベルに置くことで URL 自体を短くする。

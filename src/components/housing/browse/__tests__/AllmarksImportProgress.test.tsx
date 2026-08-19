@@ -1,11 +1,33 @@
 // @vitest-environment happy-dom
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { I18nextProvider, initReactI18next } from 'react-i18next';
 import i18n from 'i18next';
 import jaTranslations from '../../../../locales/ja.json';
-import { AllmarksImportProgress } from '../AllmarksImportProgress';
 import type { AllmarksImportProgress as ProgressState } from '../../../../lib/housing/useAllmarksImport';
+
+// importing 表示は AllmarksMapRoadDraw (実タイマーで無限ループするデコレーション、実際の
+// ワードマップを動的importする) をマウントするため、vmThreads が実タイマー/実importを
+// 残すテストを終了できない事故を避けるため、軽量な固定マップにモックし fake timers で
+// 駆動する ([[reference_vitest_vmthreads_hang]])。
+vi.mock('../../../../data/housing/wardMapManifest', () => ({
+  WARD_MAP_LOADERS: {
+    testmap: async () => ({
+      json: {
+        area: 'Test',
+        viewBox: { w: 1000, h: 800 },
+        nodes: [{ id: 'n', x: 0.5, y: 0.5 }],
+        edges: [],
+        houses: [],
+        roadPath: 'M400 400L440 440',
+        visibleRoadPath: null,
+      },
+      svg: '',
+    }),
+  },
+}));
+
+import { AllmarksImportProgress } from '../AllmarksImportProgress';
 
 beforeAll(() => {
   i18n.use(initReactI18next).init({
@@ -15,9 +37,6 @@ beforeAll(() => {
   });
 });
 
-// importing 表示は AllmarksFallingHouses (実タイマーで無限ループするデコレーション) を
-// マウントするため、vmThreads が実タイマーを残すテストを終了できない事故を避けるため
-// fake timers で駆動する ([[reference_vitest_vmthreads_hang]])。
 beforeEach(() => {
   vi.useFakeTimers();
 });
@@ -45,10 +64,15 @@ describe('AllmarksImportProgress', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('importing: 進捗件数と追加できた件数を表示する', () => {
+  it('importing: 進捗件数と追加できた件数を表示する', async () => {
     renderWith({ status: 'importing', total: 50, processed: 23, added: 20, failed: 3, limitReached: false, shareNotFound: false, regionChoices: [], regionExcluded: 0 });
     expect(screen.getByText('23/50件を確認中…')).toBeInTheDocument();
     expect(screen.getByText('20件追加できました')).toBeInTheDocument();
+    // AllmarksMapRoadDraw 内部のマップ読み込み(モック済み非同期)を act() 内で解決しておく
+    // (未解決のままだと後続テストへ act() 外の state 更新が漏れ、vmThreads ハングの誘因になる)。
+    await act(async () => {
+      await Promise.resolve();
+    });
   });
 
   it('done + shareNotFound: 見つからなかった旨を表示する', () => {

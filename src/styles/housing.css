@@ -1686,8 +1686,9 @@
   animation: housing-field-slide-out 200ms ease-in forwards;
 }
 
-/* Allmarksまとめてインポート (2026-08-19)。演出は AllmarksFallingHouses コンポーネント側
-   (家が降ってくる→道でつながる→歩く→消える、を繰り返す)。 */
+/* Allmarksまとめてインポート (2026-08-19)。演出は AllmarksMapRoadDraw コンポーネント側
+   (ワードマップの一角がズームして切り取られ、道路の線が描かれる→消える→別のマップの
+   別の場所でまた描かれる、を繰り返す)。 */
 .housing-allmarks-import-panel {
   display: flex;
   flex-direction: column;
@@ -1697,66 +1698,41 @@
   text-align: center;
 }
 
-@keyframes housing-allmarks-falling-houses-fall {
-  0% { transform: translate(-50%, calc(-50% - 36px)); opacity: 0; }
-  60% { opacity: 1; }
-  80% { transform: translate(-50%, calc(-50% + 3px)); }
-  100% { transform: translate(-50%, -50%); opacity: 1; }
-}
-
-@keyframes housing-allmarks-falling-houses-draw {
-  from { stroke-dashoffset: 400; }
+@keyframes housing-allmarks-map-road-draw {
+  from { stroke-dashoffset: 2500; }
   to { stroke-dashoffset: 0; }
 }
 
-.housing-allmarks-falling-houses {
+.housing-allmarks-map-road {
   position: relative;
   transition-property: opacity;
   transition-timing-function: ease;
   opacity: 1;
 }
 
-.housing-allmarks-falling-houses-fading {
+.housing-allmarks-map-road-fading {
   opacity: 0;
 }
 
-.housing-allmarks-falling-houses-svg {
-  position: absolute;
-  inset: 0;
+.housing-allmarks-map-road-svg {
+  display: block;
   width: 100%;
   height: 100%;
-  overflow: visible;
+  overflow: hidden;
 }
 
-.housing-allmarks-falling-houses-path {
+.housing-allmarks-map-road-path {
   fill: none;
   stroke: var(--housing-aether);
-  stroke-width: 2;
+  stroke-width: 7;
   stroke-linecap: round;
-  opacity: 0.65;
+  stroke-linejoin: round;
 }
 
-.housing-allmarks-falling-houses-path-drawing {
-  stroke-dasharray: 400;
-  animation-name: housing-allmarks-falling-houses-draw;
+.housing-allmarks-map-road-path-drawing {
+  stroke-dasharray: 2500;
+  animation-name: housing-allmarks-map-road-draw;
   animation-timing-function: ease-out;
-  animation-fill-mode: forwards;
-}
-
-.housing-allmarks-falling-houses-traveler {
-  fill: var(--housing-honey);
-}
-
-.housing-allmarks-falling-houses-house {
-  position: absolute;
-  color: var(--housing-honey);
-  transform: translate(-50%, -50%);
-  opacity: 0;
-}
-
-.housing-allmarks-falling-houses-house-fall {
-  animation-name: housing-allmarks-falling-houses-fall;
-  animation-timing-function: cubic-bezier(0.34, 1.2, 0.64, 1);
   animation-fill-mode: forwards;
 }
 
@@ -1802,9 +1778,8 @@
   .housing-typing-cursor,
   .housing-spinner,
   .housing-conditional-field,
-  .housing-allmarks-falling-houses,
-  .housing-allmarks-falling-houses-path-drawing,
-  .housing-allmarks-falling-houses-house-fall {
+  .housing-allmarks-map-road,
+  .housing-allmarks-map-road-path-drawing {
     animation: none !important;
     transition: none !important;
   }
