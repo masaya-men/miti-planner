@@ -26,8 +26,16 @@ interface AllmarksShareCard {
   u?: unknown;
 }
 
-interface AllmarksShareData {
-  cards?: unknown;
+/**
+ * `GET /api/share/<id>` のレスポンス形。Allmarks側 `KVShareEntry`
+ * (`lib/share/types-v2.ts`) と同じ、カード配列は `share.cards` に入っている
+ * (トップレベルに直接 `cards` は無い。R2移行の経緯で `share`/`thumb` の
+ * 2キー構造になっている。実機で確認済み: 2026-08-19実データで検証)。
+ */
+interface AllmarksShareResponse {
+  share?: {
+    cards?: unknown;
+  };
 }
 
 export default async function handler(req: any, res: any): Promise<void> {
@@ -50,8 +58,8 @@ export default async function handler(req: any, res: any): Promise<void> {
       res.status(200).json({ urls: [] });
       return;
     }
-    const data = (await upstream.json()) as AllmarksShareData;
-    const cards = Array.isArray(data.cards) ? (data.cards as AllmarksShareCard[]) : [];
+    const data = (await upstream.json()) as AllmarksShareResponse;
+    const cards = Array.isArray(data.share?.cards) ? (data.share.cards as AllmarksShareCard[]) : [];
     const urls = cards
       .map((c) => c.u)
       .filter((u): u is string => typeof u === 'string' && u.length > 0)
