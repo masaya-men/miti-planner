@@ -1686,11 +1686,9 @@
   animation: housing-field-slide-out 200ms ease-in forwards;
 }
 
-/* Allmarksまとめてインポート (2026-08-19)。演出は AllmarksMapRoadDraw コンポーネント側
-   (ワードマップの一角がズームして切り取られ、道路の線と家の区画の形が一緒にスーッと
-   描かれる→消える→別のマップの別の場所でまた描かれる、を繰り返す)。 描く速さは
-   DrawnShape.tsx で実寸(getTotalLength)ぶんの stroke-dasharray/dashoffset を都度計測して
-   適用するので、ここに固定のdasharray値は持たない。 */
+/* Allmarksまとめてインポート (2026-08-19)。演出は AllmarksWaveLoader コンポーネント側
+   (波打つバー+跳ねるボール、ユーザー提供デザインを移植)。 バーの色変化は元コードの
+   RGB直接補間ではなく、aetherトーンの重ね(不透明度アニメ)で表現し token 経由を徹底。 */
 .housing-allmarks-import-panel {
   display: flex;
   flex-direction: column;
@@ -1700,37 +1698,66 @@
   text-align: center;
 }
 
-.housing-allmarks-map-road {
-  position: relative;
-  transition-property: opacity;
-  transition-timing-function: ease;
-  opacity: 1;
-}
-
-.housing-allmarks-map-road-fading {
-  opacity: 0;
-}
-
-.housing-allmarks-map-road-svg {
-  display: block;
+.housing-allmarks-wave-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  height: 100%;
-  overflow: hidden;
+  padding: 12px 0;
 }
 
-.housing-allmarks-map-road-house {
-  fill: none;
-  stroke: var(--housing-honey);
-  stroke-width: 4;
-  stroke-linejoin: round;
+.housing-allmarks-wave-loader-track {
+  position: relative;
+  height: 150px;
+  display: flex;
+  align-items: flex-end;
 }
 
-.housing-allmarks-map-road-path {
-  fill: none;
-  stroke: var(--housing-aether);
-  stroke-width: 7;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.housing-allmarks-wave-bar-wrap {
+  position: relative;
+  height: 64px;
+  margin-right: 8px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.housing-allmarks-wave-bar-wrap:last-of-type {
+  margin-right: 0;
+}
+
+.housing-allmarks-wave-bar-base {
+  width: 100%;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--housing-divider);
+}
+
+.housing-allmarks-wave-bar-glow {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--housing-aether);
+}
+
+.housing-allmarks-wave-house {
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%);
+  color: var(--housing-honey);
+}
+
+.housing-allmarks-wave-ball {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--housing-honey);
+  transform-origin: bottom center;
+  box-shadow: 0 0 8px var(--housing-honey-glow);
 }
 
 .housing-allmarks-import-status {
