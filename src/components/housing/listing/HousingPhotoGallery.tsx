@@ -130,7 +130,9 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
               />
             ) : listing.youtubeVideoId ? (
               <iframe
-                src={`https://www.youtube-nocookie.com/embed/${listing.youtubeVideoId}?autoplay=1&mute=1&playsinline=1&rel=0`}
+                // loop=1 + playlist=(自身のID) で再生終了後にYouTubeの「関連動画」オーバーレイが
+                // 動画を覆ってしまうのを防ぐ(HousingCardVideoOverlayの常時ambient再生と同じ対策)。
+                src={`https://www.youtube-nocookie.com/embed/${listing.youtubeVideoId}?autoplay=1&mute=1&playsinline=1&rel=0&loop=1&playlist=${listing.youtubeVideoId}&modestbranding=1`}
                 title={t('housing.gallery.video_iframe_title', {
                   defaultValue: 'Listing video',
                 })}

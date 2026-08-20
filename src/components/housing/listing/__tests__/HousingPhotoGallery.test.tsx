@@ -51,3 +51,12 @@ it('画像なし: 空プレースホルダを出す', () => {
   );
   expect(container.querySelector('.housing-gallery-empty')).not.toBeNull();
 });
+
+it('YouTube動画: loop/playlistを付けて再生終了後の関連動画オーバーレイで隠れないようにする', () => {
+  const { container } = render(
+    <HousingPhotoGallery listing={makeListing({ imageMode: 'none', sourceImageUrls: [], youtubeVideoId: 'abcdefghijk' })} />,
+  );
+  const src = container.querySelector('iframe')?.getAttribute('src') ?? '';
+  expect(src).toContain('loop=1');
+  expect(src).toContain('playlist=abcdefghijk');
+});
