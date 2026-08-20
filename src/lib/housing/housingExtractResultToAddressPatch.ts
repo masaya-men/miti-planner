@@ -24,8 +24,11 @@ export function housingExtractResultToAddressPatch(r: HousingExtractResult): Reg
   if (r.server !== undefined) patch.server = r.server;
   if (isApartment) {
     patch.buildingType = 'apartment';
-    patch.apartmentBuilding = 1;
+    // パーサーが号棟(1=本街/2=拡張街)を確信を持って検出できていればそれを使い、
+    // できていなければ既定の1号棟を補完する(号棟select表示・登録可否ゲートのため)。
+    patch.apartmentBuilding = r.apartmentBuilding === 2 ? 2 : 1;
     patch.roomKind = 'apartment_room';
+    if (r.roomNumber !== undefined) patch.roomNumber = r.roomNumber;
   } else {
     patch.buildingType = 'house';
     if (r.plot !== undefined) patch.plot = r.plot;

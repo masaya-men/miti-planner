@@ -31,6 +31,25 @@ describe('housingExtractResultToAddressPatch (2026-08-19 Allmarksまとめてイ
     });
   });
 
+  it('apartment: パーサーがroomNumber/apartmentBuildingを検出済みならpatchへコピーする (実ツイート例: Mist|17|Topmast 1-25|Apartment)', () => {
+    const r = result({ area: 'Mist', ward: 17, size: 'Apartment', apartmentBuilding: 1, roomNumber: 25 });
+    expect(housingExtractResultToAddressPatch(r)).toEqual({
+      area: 'Mist',
+      ward: 17,
+      buildingType: 'apartment',
+      apartmentBuilding: 1,
+      roomKind: 'apartment_room',
+      roomNumber: 25,
+    });
+  });
+
+  it('apartment: 拡張街(号棟2)を検出したらapartmentBuilding=1に固定せずそのまま使う', () => {
+    const r = result({ area: 'Mist', ward: 17, size: 'Apartment', apartmentBuilding: 2, roomNumber: 40 });
+    const patch = housingExtractResultToAddressPatch(r);
+    expect(patch?.apartmentBuilding).toBe(2);
+    expect(patch?.roomNumber).toBe(40);
+  });
+
   it('曖昧 (ambiguity.length > 0) ならnull (推測で埋めない)', () => {
     const r = result({ area: 'Mist', ward: 5, ambiguity: ['area'] });
     expect(housingExtractResultToAddressPatch(r)).toBeNull();
