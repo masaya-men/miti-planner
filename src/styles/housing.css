@@ -7449,6 +7449,7 @@ select.housing-input option {
   display: flex; align-items: center; justify-content: space-between;
   flex: 0 0 auto;
 }
+.housing-tour-tray-head-left { display: flex; align-items: center; gap: 8px; }
 .housing-tour-tray-title { font-size: var(--housing-text-md); font-weight: 700; color: var(--housing-text); }
 .housing-tour-tray-count {
   font-size: var(--housing-text-sm); color: var(--housing-candle);
@@ -7456,6 +7457,17 @@ select.housing-input option {
   min-width: 22px; text-align: center; padding: 1px 9px;
   font-variant-numeric: tabular-nums;
 }
+/* トレイを空にするボタン。.housing-tour-traybar-clear (スマホ版) と同じ控えめなアイコンボタン。 */
+.housing-tour-tray-clear {
+  appearance: none; border: 1px solid var(--housing-panel-border); background: transparent; cursor: pointer;
+  flex: 0 0 auto; width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 8px; color: var(--housing-text-mute);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.housing-tour-tray-clear:hover:not(:disabled) { background: var(--housing-chip-bg-hover); color: var(--housing-text); }
+.housing-tour-tray-clear:focus-visible { outline: 2px solid var(--housing-honey); outline-offset: 2px; }
+.housing-tour-tray-clear:disabled { opacity: var(--housing-disabled-opacity); cursor: not-allowed; }
 .housing-tour-tray-list {
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-direction: column; gap: 6px;

@@ -1961,6 +1961,7 @@
             "title": "Tour Tray",
             "empty": "Add places with “Add to tour” on a card.",
             "remove": "Remove",
+            "clear": "Clear",
             "start": "Start tour with these",
             "count": "{{count}}",
             "sort_efficient": "Sort by route",

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Play, Plus } from 'lucide-react';
+import { Play, Plus, X } from 'lucide-react';
 import { useHousingListingsStore } from '../../../store/useHousingListingsStore';
 import { useEphemeralListingsStore } from '../../../store/useEphemeralListingsStore';
 import type { MockListing } from '../../../data/housing/mockListings';
@@ -47,10 +47,21 @@ export const TourTray: React.FC<TourTrayProps> = ({ listingIds, onChange, onStar
   return (
     <div className="housing-tour-tray">
       <div className="housing-tour-tray-head">
-        <span className="housing-tour-tray-title">{t('housing.tray.title')}</span>
-        <span className="housing-tour-tray-count">
-          {t('housing.tray.count', { count: listingIds.length })}
-        </span>
+        <div className="housing-tour-tray-head-left">
+          <span className="housing-tour-tray-title">{t('housing.tray.title')}</span>
+          <span className="housing-tour-tray-count">
+            {t('housing.tray.count', { count: listingIds.length })}
+          </span>
+        </div>
+        <button
+          type="button"
+          className="housing-tour-tray-clear"
+          aria-label={t('housing.tray.clear')}
+          disabled={empty}
+          onClick={() => onChange([])}
+        >
+          <X size={14} aria-hidden="true" />
+        </button>
       </div>
 
       <button

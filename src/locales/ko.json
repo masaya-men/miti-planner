@@ -1926,6 +1926,7 @@
             "title": "투어 트레이",
             "empty": "카드의 ‘투어에 추가’로 목적지를 담아보세요.",
             "remove": "삭제",
+            "clear": "비우기",
             "start": "이 내용으로 투어 시작",
             "count": "{{count}}",
             "sort_efficient": "효율순으로 정렬",

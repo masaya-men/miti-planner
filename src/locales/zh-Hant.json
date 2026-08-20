@@ -1926,6 +1926,7 @@
             "title": "導覽清單",
             "empty": "用卡片上的「加入導覽」新增目的地。",
             "remove": "刪除",
+            "clear": "清空",
             "start": "以此內容開始導覽",
             "count": "{{count}}",
             "sort_efficient": "依效率排序",

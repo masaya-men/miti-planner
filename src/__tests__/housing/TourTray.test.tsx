@@ -57,4 +57,16 @@ describe('TourTray', () => {
     fireEvent.click(screen.getByRole('button', { name: /削除|remove/ }));
     expect(onChange).toHaveBeenCalledWith([]);
   });
+
+  it('disables the clear button when empty', () => {
+    wrap(<TourTray listingIds={[]} onChange={() => {}} onStart={() => {}} onAdd={() => {}} />);
+    expect((screen.getByRole('button', { name: /空にする|clear/i }) as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('clears the whole tray via the clear button', () => {
+    const onChange = vi.fn();
+    wrap(<TourTray listingIds={['a']} onChange={onChange} onStart={() => {}} onAdd={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: /空にする|clear/i }));
+    expect(onChange).toHaveBeenCalledWith([]);
+  });
 });
