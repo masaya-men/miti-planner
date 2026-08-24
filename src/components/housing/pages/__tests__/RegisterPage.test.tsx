@@ -1582,14 +1582,12 @@ describe('RegisterPage', () => {
     });
 
     /**
-     * 計画書の self-review 要件 (docs/superpowers/plans/2026-07-21-housing-multi-source-url.md:1606):
-     * 「YouTube+複数URLの扱い: 既存のconflict_sources制約(YouTubeは画像/動画と排他)は維持し、
-     * YouTube確定後に画像URLを追加しようとした場合はvideo_limitと同じエラー経路で拒否する」。
-     * 修正前は handleTweetFetched が「代表が既に YouTube か」を一切チェックせず、写真を
-     * 無条件で集約プール (sourceImageUrls) に追加していた。buildDraftImageFields の YouTube 分岐は
-     * sourceImageUrls を一切読まない (youtubeVideoId 優先で imageMode='sns' を組む) ため、
-     * 画面上は「N枚取得しました」と表示されるのに保存データには一切反映されない全損失
-     * (photo-loss) 事故になっていた (Bug1/Bug3 の「一部消える」より悪い「受理したのに丸ごと消える」)。
+     * 2026-08-20 排他緩和: YouTube動画 + Xの静止画の同居を許可したことで、この「YouTube代表
+     * 確立後にツイートの写真が遅れて届く」レースは拒否対象ではなくなった。buildDraftImageFields
+     * の YouTube 分岐が sourceImageUrls も読むようになったため、遅れて届いた写真も
+     * sourceImageUrls へ合流させて問題なく保存できる (旧テストが検証していた photo-loss
+     * 事故=「受理したのに保存時に消える」の心配自体が構造的に解消されたため、video_limit で
+     * 拒否する必要が無くなった)。
      *
      * 再現手順の注記: 単一URL欄 (Task7の複数枠UIはまだ無い) では、ツイートURLを貼った直後に
      * 別URLへ書き換えると `HousingRegisterSnsUrlField` の classifySnsUrl 分岐が
@@ -1604,7 +1602,7 @@ describe('RegisterPage', () => {
      * `source=null` の「孤立ディスパッチ」になり、`isDuplicatePostUrl` の入口チェックも通過してしまう。
      * テスト環境では `tweetState` (外部変数) の更新を意図的に遅らせることでこの pending 状態を再現する。
      */
-    it('ツイートURL貼付(fetch pending)の直後にYouTube URLへ書き換えて代表が確定し、後から遅れてツイートの写真fetchが届いてもvideo_limitで拒否される (YouTube代表確立後の写真拒否)', async () => {
+    it('ツイートURL貼付(fetch pending)の直後にYouTube URLへ書き換えて代表が確定し、後から遅れてツイートの写真fetchが届いても拒否されずsourceImageUrlsへ合流する (2026-08-20 排他緩和)', async () => {
       useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
       window.localStorage.setItem(
         AUTOSAVE_KEY,
@@ -1667,19 +1665,21 @@ describe('RegisterPage', () => {
       };
       rerender(createTree());
 
+      // video_limit トーストは出ない (YouTube+静止画は同居許可のため拒否理由が無い)。
+      expect(showToastSpy).not.toHaveBeenCalledWith(
+        i18n.t('housing.register.snsUrl.error.video_limit'),
+        'error',
+      );
+
+      // 写真は集約プール (sourceImageUrls) に合流する。
       await waitFor(() =>
-        expect(showToastSpy).toHaveBeenCalledWith(
-          i18n.t('housing.register.snsUrl.error.video_limit'),
-          'error',
+        expect(screen.getByTestId('housing-register-media-success')).toHaveTextContent(
+          i18n.t('housing.register.media.fetched_count', { count: 1 }),
         ),
       );
 
-      // 写真は集約プール (sourceImageUrls) にも追加されない
-      // (「N枚取得しました」表示自体が出ない = 実際に保存されない画像が枚数に混ざらない)。
-      expect(screen.queryByTestId('housing-register-media-success')).not.toBeInTheDocument();
-
-      // 実際に登録データ (registerListing 引数 = buildDraft の出力) にも写真が一切含まれず、
-      // YouTube のまま保存されることを確認する (プレビュー表示だけでなく保存データそのものを検証)。
+      // 実際に登録データ (registerListing 引数 = buildDraft の出力) に YouTube と写真の両方が
+      // 含まれることを確認する (プレビュー表示だけでなく保存データそのものを検証)。
       const addressGateBtn = await screen.findByTestId('housing-register-confirm-address-btn');
       fireEvent.click(addressGateBtn);
       const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
@@ -1691,9 +1691,9 @@ describe('RegisterPage', () => {
         expect.objectContaining({
           imageMode: 'sns',
           youtubeVideoId: 'Ypg8w7Dmq9o',
+          sourceImageUrls: ['https://pbs.twimg.com/py1.jpg'],
         }),
       );
-      expect(registerSpy.mock.calls[0][0].sourceImageUrls).toBeUndefined();
 
       canRegisterSpy.mockRestore();
       checkDuplicateSpy.mockRestore();

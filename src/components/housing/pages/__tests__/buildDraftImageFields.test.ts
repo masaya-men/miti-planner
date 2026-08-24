@@ -111,6 +111,21 @@ describe('buildDraftImageFields', () => {
     expect(buildDraftImageFields(sns, [], [])).toEqual({});
   });
 
+  it('YouTube + Xの静止画(sourceImageUrls)を両方捕捉していれば両方を含めて返す (2026-08-20 排他緩和)', () => {
+    const sns: SnsCapture = {
+      ...EMPTY_SNS_CAPTURE,
+      youtube: { postUrl: 'https://youtu.be/abcdefghijk', ogImageUrl: 'https://img.youtube.com/vi/abcdefghijk/hqdefault.jpg', videoId: 'abcdefghijk' } as any,
+    };
+    const sourceImageUrls = ['https://pbs.twimg.com/media/1.jpg', 'https://pbs.twimg.com/media/2.jpg'];
+    expect(buildDraftImageFields(sns, [], sourceImageUrls)).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://youtu.be/abcdefghijk',
+      ogImageUrl: 'https://img.youtube.com/vi/abcdefghijk/hqdefault.jpg',
+      youtubeVideoId: 'abcdefghijk',
+      sourceImageUrls: ['https://pbs.twimg.com/media/1.jpg', 'https://pbs.twimg.com/media/2.jpg'],
+    });
+  });
+
   it('localImages が無ければ従来通り OGP の全フィールドを返す (回帰確認)', () => {
     const sns: SnsCapture = {
       ...EMPTY_SNS_CAPTURE,

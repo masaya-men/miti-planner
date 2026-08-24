@@ -361,10 +361,69 @@ describe('validateImage', () => {
       ).toBe(false);
     });
 
-    it('youtubeVideoId と sourceImageUrls の同居は conflict (2026-05-27 引き続き禁止)', () => {
+    it('youtubeVideoId と OGP経路の sourceImageUrls (pbs.twimg.com以外) の同居は invalid (host不一致で拒否・conflict自体は撤廃済み)', () => {
       expect(
         validateImage({ ...ogpBase, youtubeVideoId: 'abcdefghijk' } as any).ok,
       ).toBe(false);
+    });
+  });
+
+  // 2026-08-20: youtubeVideoId + sourceImageUrls 排他緩和 (YouTube動画 + Xの静止画)
+  describe('YouTube動画 + Xの静止画 (youtubeVideoId + sourceImageUrls 同居)', () => {
+    const youtubeBase = {
+      imageMode: 'sns' as const,
+      postUrl: 'https://youtu.be/abcdefghijk',
+      ogImageUrl: 'https://img.youtube.com/vi/abcdefghijk/hqdefault.jpg',
+      youtubeVideoId: 'abcdefghijk',
+      tags: [],
+    };
+
+    it('youtubeVideoId 単独 (画像なし) は従来通り ok', () => {
+      expect(validateImage(youtubeBase as any).ok).toBe(true);
+    });
+
+    it('youtubeVideoId と pbs.twimg.com の sourceImageUrls 4枚の同居は ok', () => {
+      const result = validateImage({
+        ...youtubeBase,
+        sourceImageUrls: [
+          'https://pbs.twimg.com/media/A.jpg',
+          'https://pbs.twimg.com/media/B.jpg',
+          'https://pbs.twimg.com/media/C.jpg',
+          'https://pbs.twimg.com/media/D.jpg',
+        ],
+      } as any);
+      expect(result.ok).toBe(true);
+    });
+
+    it('ogImageUrlはYouTubeサムネのままでよい (sourceImageUrls[0]と一致必須のTwitter branchとは異なる)', () => {
+      const result = validateImage({
+        ...youtubeBase,
+        ogImageUrl: 'https://img.youtube.com/vi/abcdefghijk/hqdefault.jpg',
+        sourceImageUrls: ['https://pbs.twimg.com/media/A.jpg'],
+      } as any);
+      expect(result.ok).toBe(true);
+    });
+
+    it('sourceImageUrlsにpbs.twimg.com以外のホストが混ざるとinvalid', () => {
+      const result = validateImage({
+        ...youtubeBase,
+        sourceImageUrls: ['https://pbs.twimg.com/media/A.jpg', 'https://cdn.example.com/b.jpg'],
+      } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.sourceImageUrls).toBe('invalid_url');
+    });
+
+    it('sourceImageUrlsが11件はtoo_many', () => {
+      const urls = Array.from({ length: 11 }, (_, i) => `https://pbs.twimg.com/media/${i}.jpg`);
+      const result = validateImage({ ...youtubeBase, sourceImageUrls: urls } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.sourceImageUrls).toBe('too_many');
+    });
+
+    it('youtubeVideoId と tweetId の同居は引き続き conflict (動画が2本になるため)', () => {
+      const result = validateImage({ ...youtubeBase, tweetId: '123' } as any);
+      expect(result.ok).toBe(false);
+      expect(result.errors.imageMode).toBe('conflict_sources');
     });
   });
 
@@ -558,6 +617,45 @@ describe('buildListingImageFields', () => {
     if (out.imageMode !== 'sns' || !('sourceImageUrls' in out)) throw new Error('expected OGP sns');
     expect(out.sourceImageUrls).toHaveLength(10);
     expect(out.sourceImageUrls).toEqual(urls.slice(0, 10));
+  });
+
+  // 2026-08-20: YouTube動画 + Xの静止画の同居
+  it('YouTube (sourceImageUrls なし) は従来通り youtubeVideoId のみ返す (回帰確認)', () => {
+    const out = buildListingImageFields(
+      {
+        imageMode: 'sns',
+        postUrl: 'https://youtu.be/abcdefghijk',
+        ogImageUrl: 'https://img.youtube.com/vi/abcdefghijk/hqdefault.jpg',
+        youtubeVideoId: 'abcdefghijk',
+      } as any,
+      1000,
+    );
+    expect(out).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://youtu.be/abcdefghijk',
+      ogImageUrl: 'https://img.youtube.com/vi/abcdefghijk/hqdefault.jpg',
+      youtubeVideoId: 'abcdefghijk',
+    });
+  });
+
+  it('YouTube + sourceImageUrls (Xの静止画) ありなら両方を含めて返す', () => {
+    const out = buildListingImageFields(
+      {
+        imageMode: 'sns',
+        postUrl: 'https://youtu.be/abcdefghijk',
+        ogImageUrl: 'https://img.youtube.com/vi/abcdefghijk/hqdefault.jpg',
+        youtubeVideoId: 'abcdefghijk',
+        sourceImageUrls: ['https://pbs.twimg.com/media/a.jpg', 'https://pbs.twimg.com/media/b.jpg'],
+      } as any,
+      1000,
+    );
+    expect(out).toEqual({
+      imageMode: 'sns',
+      postUrl: 'https://youtu.be/abcdefghijk',
+      ogImageUrl: 'https://img.youtube.com/vi/abcdefghijk/hqdefault.jpg',
+      youtubeVideoId: 'abcdefghijk',
+      sourceImageUrls: ['https://pbs.twimg.com/media/a.jpg', 'https://pbs.twimg.com/media/b.jpg'],
+    });
   });
 
   it('sns 以外は none を返す', () => {

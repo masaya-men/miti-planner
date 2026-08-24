@@ -90,6 +90,7 @@ export const EMPTY_SNS_CAPTURE: SnsCapture = {
  *      localImages を uploadListingThumbnail に流す。draft 上は imageMode 未指定=サーバ 'none')。
  *      (ただし postUrl のみ独立して保持する)。
  *   ② YouTube                    → imageMode='sns' + youtubeVideoId + ogImageUrl
+ *      (+ sourceImageUrls があれば同居させる。2026-08-20 排他緩和、Xの静止画+YouTube動画)
  *   ③ Twitter (本文取得済)       → 静止画/動画/両方同居を OR 統合。テキストのみは何も付けない
  *   ④ OGP                        → imageMode='sns' + sourceImageUrls (先頭 10) + ogImageUrl=先頭
  *   ⑤ どれも無し                 → imageMode 未指定 (= 'none')
@@ -112,13 +113,17 @@ export function buildDraftImageFields(
     return postUrl ? { postUrl } : {};
   }
 
-  // ② YouTube
+  // ② YouTube (2026-08-20 排他緩和: Xの静止画(sourceImageUrls)があれば同居させる。
+  // ogImageUrl はYouTubeサムネのまま=先頭画像に差し替えない。tweetIdは持たない
+  // (動画側の代表はYouTubeで確定させ、Xは画像の出処としてのみ使う)。
   if (sns.youtube) {
+    const hasImages = sourceImageUrls.length > 0;
     return {
       imageMode: 'sns',
       postUrl: sns.youtube.postUrl,
       ogImageUrl: sns.youtube.ogImageUrl,
       youtubeVideoId: sns.youtube.videoId,
+      ...(hasImages ? { sourceImageUrls: sourceImageUrls.slice(0, 10) } : {}),
     };
   }
 
@@ -721,15 +726,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       }
       applyExtractedAddress(data.text);
       const photos = data.photos ?? [];
-      // 代表が既に YouTube で確定している場合、静止画は conflict_sources 制約 (YouTube は画像/動画と
-      // 排他) により追加できない。sourceImageUrls に足すと buildDraftImageFields の YouTube 分岐
-      // (sourceImageUrls を一切読まない) で黙って保存されない「受理したのに消える」事故になるため、
-      // 動画1本制限と同じエラー経路 (video_limit) で拒否する (計画書 2026-07-21 self-review 済み要件)。
-      const representativeIsYoutube = !!snsCapture.youtube;
-      const rejectPhotosForYoutube = representativeIsYoutube && photos.length > 0;
-      if (rejectPhotosForYoutube) {
-        showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
-      } else if (photos.length > 0) {
+      // 2026-08-20 排他緩和: 代表が既に YouTube で確定していても、静止画は sourceImageUrls
+      // に追加してよい (buildDraftImageFields の YouTube 分岐が sourceImageUrls も読むように
+      // なったため、「受理したのに消える」事故は解消済み)。動画側の代表は YouTube のまま変えない。
+      if (photos.length > 0) {
         setSourceImageUrls((prev) => [...prev, ...photos]);
       }
 
@@ -817,9 +817,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
         return;
       }
       applyExtractedAddress(data.description ?? '');
-      // YouTube は静止画リストと排他 (既存 validateImage の conflict_sources 制約は不変)。
-      // 既に画像/動画を何か捕捉済みなら、この YouTube URL は追加不可として拒否する。
-      if (capturedVideoRef.current || sourceImageUrls.length > 0) {
+      // 2026-08-20 排他緩和: 静止画 (sourceImageUrls) が既にあっても YouTube は受理してよい
+      // (YouTube動画 + Xの静止画の同居を許可)。動画同士 (capturedVideoRef.current) の競合だけ拒否する。
+      // 既に Twitter が代表だった場合はここで YouTube に代表を差し替える (静止画は sourceImageUrls
+      // に残るのでそのまま同居する)。
+      if (capturedVideoRef.current) {
         showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
         return;
       }
@@ -828,7 +830,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       setSourcePostUrls((prev) => [...prev, data.postUrl]);
       setPostUrl((prev) => prev || data.postUrl);
     },
-    [applyExtractedAddress, sourcePostUrls, sourceImageUrls.length, t],
+    [applyExtractedAddress, sourcePostUrls, t],
   );
 
   const handleOgpFetched = useCallback(

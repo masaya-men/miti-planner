@@ -344,8 +344,9 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
   const hasSourceUrls = Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0;
 
   // 2026-05-27 排他緩和: tweetId + sourceImageUrls の同居許可 (Twitter 静止画ツイート 1-10 枚)。
-  // youtubeVideoId と sourceImageUrls は引き続き排他 (YouTube は storyboard 都度生成、 静止画 URL を保存しない)。
-  if (hasYoutube && (hasTweet || hasSourceUrls)) {
+  // 2026-08-20 排他緩和: youtubeVideoId + sourceImageUrls の同居も許可 (YouTube動画 + Xの静止画)。
+  // youtubeVideoId + tweetId は引き続き排他 (動画が2本になるため)。
+  if (hasYoutube && hasTweet) {
     errors.imageMode = 'conflict_sources';
     return fail(errors);
   }
@@ -362,6 +363,20 @@ export function validateImage(draft: RegistrationDraft): ValidationResult {
       errors.youtubeVideoId = 'invalid';
     }
     if (!parseYoutubeUrl(draft.postUrl ?? '')) errors.postUrl = 'invalid_host';
+
+    // 2026-08-20 排他緩和: YouTube動画 + Xの静止画の同居。ogImageUrlはYouTubeサムネのまま
+    // (Twitter branchと違いsourceImageUrls[0]と一致させる必要はない)、静止画は全てpbs.twimg.com
+    // 限定で検証する (画像の出処はXの投稿のみ・OGP等の任意ホストはここでは許可しない)。
+    if (hasSourceUrls) {
+      const urls = draft.sourceImageUrls!;
+      if (urls.length > MAX_SOURCE_IMAGE_URLS) {
+        errors.sourceImageUrls = 'too_many';
+      } else if (urls.some((u) => typeof u !== 'string' || !isPbsTwimgHost(u))) {
+        errors.sourceImageUrls = 'invalid_url';
+      } else if (new Set(urls).size !== urls.length) {
+        errors.sourceImageUrls = 'duplicate';
+      }
+    }
   } else if (hasTweet) {
     if (!isHttpsUrl(draft.ogImageUrl) || !isPbsTwimgHost(draft.ogImageUrl)) {
       errors.ogImageUrl = 'invalid';
@@ -456,7 +471,14 @@ export function buildListingImageFields(
       videoPosterUrl?: string;
       videoAspectRatio?: number;
     }
-  | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; youtubeVideoId: string; sourcePostUrls?: string[] }
+  | {
+      imageMode: 'sns';
+      postUrl: string;
+      ogImageUrl: string;
+      youtubeVideoId: string;
+      sourcePostUrls?: string[];
+      sourceImageUrls?: string[];
+    }
   | { imageMode: 'sns'; postUrl: string; ogImageUrl: string; sourceImageUrls: string[]; sourceImageAspectRatios?: number[]; sourcePostUrls?: string[] }
   | { imageMode: 'none'; postUrl?: string } {
   // 2026-07-21 追加 (Batch2): sourcePostUrls[0] を postUrl として使う (後方互換・cron監視対象は先頭のみ)。
@@ -506,12 +528,18 @@ export function buildListingImageFields(
       };
     }
     if (draft.youtubeVideoId) {
+      // 2026-08-20 排他緩和: YouTube動画 + Xの静止画(sourceImageUrls)の同居を許可。
+      const hasImages =
+        Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0;
       return {
         imageMode: 'sns',
         postUrl: effectivePostUrl,
         ogImageUrl: draft.ogImageUrl,
         youtubeVideoId: draft.youtubeVideoId,
         ...sourcePostUrlsField,
+        ...(hasImages
+          ? { sourceImageUrls: draft.sourceImageUrls!.slice(0, MAX_SOURCE_IMAGE_URLS) }
+          : {}),
       };
     }
     if (Array.isArray(draft.sourceImageUrls) && draft.sourceImageUrls.length > 0) {

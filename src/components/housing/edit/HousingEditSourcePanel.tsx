@@ -119,15 +119,6 @@ export function HousingEditSourcePanel({
       const capture = captureRef.current;
       const photos = data.photos ?? [];
 
-      // 代表が既に YouTube (このセッション内) の場合、静止画は conflict_sources 制約により
-      // 追加できない (buildDraftImageFields の YouTube 分岐は写真を一切見ないため、受理すると
-      // 保存時に消える)。
-      const representativeIsYoutube = !!capture.youtube;
-      if (representativeIsYoutube && photos.length > 0) {
-        showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
-        return;
-      }
-
       const incomingHasVideo = !!data.video?.url;
       const hasRepresentative = !!(capture.tweetData || capture.youtube || capture.ogp);
       const representativeCanHostVideo = !hasRepresentative || !!capture.tweetData;
@@ -151,8 +142,11 @@ export function HousingEditSourcePanel({
 
       if (!becomesTwitterRepresentative) {
         // テキストのみのツイート (代表未確立・写真も動画も無し)、または代表が既に
-        // YouTube/OGP で確定していて今回の Twitter 由来の写真/動画がどちらも対象外だった
-        // 場合は、代表の識別情報を変更しない。何も変化がないなら commit 自体もスキップする。
+        // YouTube/OGP で確定していて今回の Twitter 由来の動画が対象外だった場合は、代表の
+        // 識別情報を変更しない。写真は代表が YouTube でも sourceImageUrls に追記する
+        // (2026-08-20 排他緩和: buildDraftImageFields の YouTube 分岐が sourceImageUrls も
+        // 読むようになったため、代表を差し替えずに同居させられる)。何も変化がなければ
+        // commit 自体もスキップする。
         if (freshSourceImageUrls === sourceImageUrls) return;
         commit(capture, freshSourceImageUrls, source.postUrl);
         return;
@@ -225,17 +219,18 @@ export function HousingEditSourcePanel({
         showToast(t('housing.register.snsUrl.error.duplicate_url'), 'error');
         return;
       }
-      // YouTube は静止画・動画のどちらとも排他 (conflict_sources 制約)。既に何か捕捉済み
-      // (このセッション内の動画/写真、または編集を開く前からの既存データ) ならこの
-      // YouTube URL は追加不可として拒否する。
-      if (capturedVideoRef.current || !!videoPreview || sourceImageUrls.length > 0) {
+      // YouTube は動画とだけ排他 (このセッション内の動画、または編集を開く前からの既存動画)。
+      // 2026-08-20 排他緩和: 静止画 (sourceImageUrls) が既にあっても YouTube は受理してよい
+      // (YouTube動画 + Xの静止画の同居を許可)。既存の静止画は commit の freshUrls に
+      // そのまま引き継ぐ (以前の `[]` 固定だと同居許可後も既存写真が保存時に消えてしまう)。
+      if (capturedVideoRef.current || !!videoPreview) {
         showToast(t('housing.register.snsUrl.error.video_limit'), 'error');
         return;
       }
       capturedVideoRef.current = true;
-      commit({ tweetData: null, tweetSource: null, youtube: data, ogp: null }, [], data.postUrl);
+      commit({ tweetData: null, tweetSource: null, youtube: data, ogp: null }, sourceImageUrls, data.postUrl);
     },
-    [commit, sourceImageUrls.length, sourcePostUrls, videoPreview, t],
+    [commit, sourceImageUrls, sourcePostUrls, videoPreview, t],
   );
 
   const handleOgpFetched = useCallback(
