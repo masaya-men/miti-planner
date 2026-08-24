@@ -1812,6 +1812,26 @@
             "report_count": "通報 {{count}} 件",
             "hidden_badge": "非表示"
         },
+        "housing_new_badge": {
+            "title": "ハウジング NEW リボン固定",
+            "description": "物件のURL(または詳細ページ/編集ページのURL)を入力して検索すると、投稿日に関わらずNEWリボンを指定した日数だけ固定表示できます。期限が過ぎると自動的に通常の判定(投稿から数日以内)へ戻ります。",
+            "not_found": "物件が見つかりません",
+            "search_placeholder": "物件のURL または ID",
+            "search_button": "検索",
+            "field_title": "タイトル",
+            "field_address": "住所",
+            "status_pinned": "固定表示中 ({{date}} まで)",
+            "status_off": "固定表示なし",
+            "status_deleted": "削除済み",
+            "days_label": "固定日数",
+            "days_unit": "日間",
+            "pin_button": "この日数で固定する",
+            "pin_success": "{{days}}日間、NEWリボンを固定表示しました",
+            "unpin_button": "固定を解除",
+            "unpin_confirm": "NEWリボンの固定表示を解除しますか?",
+            "unpin_success": "固定を解除しました",
+            "view_listing": "物件を見る"
+        },
         "housinger_reports": {
             "title": "ハウジンガー通報",
             "description": "通報があったハウジンガープロフィールを確認し、 必要なら強制非公開にします。 自動非表示のしきい値は無いため、 人の目で判断します。 強制非公開中のプロフィールは、 通報が0件になっても一覧に残り続けます。",

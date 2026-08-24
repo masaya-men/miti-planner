@@ -19,14 +19,12 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**は2026-08-18時点で2の次に着手予定・大物。2とは完全に別軸=「誰でもログインすれば編集できる」公開編集モデルを新設する共同編集機能の話。要件はまだ白紙に近く2より重い。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」(GUID保持済・仕上げのみ)を先に仕上げておくと相性が良い。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ 2026-08-20 ハウジング3機能+軽減表スキル2件、push→デプロイ→Firestore seed完了。Discord統合告知ドラフト作成済み(投稿待ち)
-①表示メンバー絞り込みスイッチ・②ハウジンガー短縮共有URL・③Allmarksまとめてインポート・④軽減表(賢者「リゾーマタ」追加、リーパー「アルケインクレスト」は非表示のまま追加)、全部`main`push→Vercel本番デプロイ確認済み。スキル2件はFirestore(`master/skills`)へのseedも実行済み・内容を直接読み出して確認済み。詳細=`docs/TODO_COMPLETED.md`。
-**🐛 リゾーマタ実機報告→即修正・デプロイ済み**: 「使ってもアダーガルゲージが回復してない」とユーザー報告。根本原因=`getAddersgallStacks`が消費(resourceCost)専用でリゾーマタのような獲得効果を計算する仕組みが元々無かったため(追加時に「消費しないマーカー」として実装した設計漏れ)。`resourceGain`フィールドを型・データ・計算ロジックに追加、回帰テスト4件、Firestoreへは`scripts/add-rhizomata-resource-gain.ts`で対象1件だけ外科的反映・確認済み。
-**Discord告知**: `docs/.private/2026-08-12-discord-full-update-draft.md`と`2026-08-14-discord-update-draft.md`は**ユーザー確認により既に投稿済みと判明**(TODO.mdの「投稿待ち」表記が古いままだった)。ドラフトを08-16〜20の真に未投稿分だけに絞った確定版=`docs/.private/2026-08-20-discord-full-update-draft.md`(NEW演出/YouTube住所自動入力/Allmarksまとめてインポート/ハウジンガー短縮URL/表示メンバー絞り込み/賢者リゾーマタの6項目。アルケインクレストは非表示のため含めず)。**投稿文確定**(短縮URLの名前=アカウント表示名という説明/Allmarksは「別プロジェクト」と書かず「ほぼすべてのURLをビジュアルに管理できる超便利なウェブアプリ」と紹介、いずれもユーザー確認済み)。投稿待ち。
-**残**: Allmarksのリージョン混在ケースは実際の2地域混在共有リンクが無いと検証できないため、本番利用時に問題が出たら対応する方針で保留(ロジック自体はテストで担保済み)。/ 探すページNEW演出の実機での見た目確認はまだ。/ ユーザーがAllmarksにさらに改善を加える予定(次回セッションで内容判明、今回のデプロイとは別サイクル)。
-### ✅ 2026-08-24 YouTube動画+Xの静止画の共存を許可・push→デプロイ済み
-ユーザー実機報告: X画像4枚→YouTube動画を追加すると「動画は1本まで」と誤って拒否/逆順(YouTube→X)だと画像は登録されるが動画側が消える、という矛盾した2症状。根本原因=各fetchの**解決順序**(貼り付け順ではない)で「代表」が決まる設計＋`buildDraftImageFields`のYouTube分岐が`sourceImageUrls`を一切読まない構造的排他(旧仕様は意図的にYouTube×画像/動画を排他としていた)。ユーザー判断=**コスト0を確認の上で排他自体を撤廃**(画像は元々外部URL保存のみでStorage/API費用増なしと確認済み)。新規登録側(`buildDraftImageFields`/`validateImage`/`buildListingImageFields`)と編集側(`HousingEditSourcePanel`)の両方でYouTube×X静止画(pbs.twimg.com限定)の同居を許可、OGP画像との同居は従来通り不可のまま(host制約は維持)。
-**🐛 直後の実機報告→即修正・デプロイ済み**: デプロイ直後、ユーザーが実際に自分の物件(過去に旧排他バグでYouTube動画情報を失っていた物件)でYouTube動画を再登録しようとしたところ「既に追加されています」と拒否され、ハードリロードしても動画プレビューが一切出ない、と報告。調査の結果3つの根本原因: ①その物件の`sourcePostUrls`に、旧バグ発生時の失敗した試行で残った「亡霊URL」があり`isDuplicatePostUrl`の完全一致チェックが再登録を永久ブロック→対象1件だけ`scripts/fix-ghost-youtube-posturl.ts`で外科的に除去。②編集ページの動画プレビュー初期化がTwitter動画の形(videoUrl+videoPosterUrl)しか見ておらずyoutubeVideoIdを見ていなかった→YouTubeサムネ(ogImageUrl)ベースの静的カード表示に対応(再生はしない、あるかどうかだけ示す)。③(データ実害あり得た重要な発見)編集ページのcaptureRef(パネル再マウントごとに空へ戻るセッションローカルstate)がサーバー保存済みのYouTube代表を知らないため、YouTube動画がある物件に写真だけの新規ツイートURLを追加するとTwitterが代表を横取りしyoutubeVideoIdがサーバー側クリーンアップで削除される事故になりかねなかった→videoPreviewに`source:'tweet'|'youtube'`の出処タグを追加し、Twitter動画由来なら継続を許可・YouTube由来なら横取りを禁止するよう修正。TDD(失敗テスト先行)で全て検証、tsc/build/関連テスト(162件)通過。
+### ✅ 2026-08-20 ハウジング3機能+軽減表スキル2件、push→デプロイ→Firestore seed完了 (詳細=TODO_COMPLETED.md)
+**残**: Discord統合告知 (`docs/.private/2026-08-20-discord-full-update-draft.md`・投稿文確定済み) が投稿待ち。/ Allmarksのリージョン混在ケースは実リンクが無く未検証(本番で問題が出たら対応)。
+### ✅ 2026-08-24 YouTube動画+Xの静止画の共存を許可(+直後の編集ページ3不具合修正)・push→デプロイ→ユーザー実機確認OK
+排他仕様(YouTube×画像/動画)を撤廃しコスト0で共存可能に。デプロイ直後の実機報告で編集ページ側の3バグ(亡霊URLでの再登録永久ブロック/YouTube動画プレビュー欠落/セッションローカルstateがサーバー保存済みYouTube代表を知らずTwitterに横取りされる事故)も発見・即修正。詳細=`docs/TODO_COMPLETED.md`。
+### 🔵 進行中 2026-08-24 管理者がお気に入り物件のNEWリボンを期間限定で手動固定表示できる機能
+`publishUntil`と同じ「期限(epoch ms)・未来なら有効・遅延評価、cron不要」設計で`pinnedNewUntil`を追加。/admin に新規ページ(物件URL/ID検索→日数指定→固定/解除)。型/ヘルパー/ListingCard判定/admin API(`resource=housing_new_badge`)/admin UI/5言語ロケール(admin配下の既存パターンに合わせko/zh/zh-Hantは日本語のまま)まで実装済み、tsc/build/テスト(95件)通過。**次**: コミット→push→デプロイ→ユーザーが/adminで実機確認。
 ### 🟡 SEOソフト404対策(2026-08-17実装・本番反映済み)のデプロイ後インフラ設定が未着手
 Cloudflare Cache Rule設定(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console「URL検査」再確認+インデックス登録リクエスト。
 **🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。

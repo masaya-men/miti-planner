@@ -8,7 +8,7 @@ import { HousingFavHeart } from './HousingFavHeart';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { formatHousingAddress } from '../../../lib/housing/formatHousingAddress';
-import { isEffectivelyPublic, canDisplayAddress, isNewListing, NEW_LISTING_WINDOW_MS } from '../../../lib/housing/listingPublish';
+import { isEffectivelyPublic, canDisplayAddress, isNewListing, isPinnedNew, NEW_LISTING_WINDOW_MS } from '../../../lib/housing/listingPublish';
 import { useMasterData } from '../../../hooks/useMasterData';
 import {
   handleYoutubeThumbnailError,
@@ -167,7 +167,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   const newListingWindowMs = masterConfig?.newListingWindowDays != null
     ? masterConfig.newListingWindowDays * 24 * 60 * 60 * 1000
     : NEW_LISTING_WINDOW_MS;
-  const isNew = Boolean(showNewBadge) && isNewListing(listing.createdAt, Date.now(), newListingWindowMs);
+  // 2026-08-24 追加: 管理者が pinnedNewUntil (期限付き) を設定していれば、投稿日に関わらず
+  // NEWリボンを固定表示する (publishUntil と同じ「未来なら有効・遅延評価」設計、期限を
+  // 過ぎたら自動的に通常の投稿日ベース判定へフォールバックする)。
+  const isNew = Boolean(showNewBadge) &&
+    (isNewListing(listing.createdAt, Date.now(), newListingWindowMs) || isPinnedNew(listing.pinnedNewUntil, Date.now()));
   // ビーム演出はマウント直後ではなく、実際にスクロールして画面内に入るたびに1周だけ再生する
   // (2026-08-16 実機指摘: 全カードが一度にDOM化されるため、マウント基準だと画面外のカードが
   // 見えないまま光り終わっていた。さらに2026-08-16 追加要望: 画面外に出てまた入ってきた時にも

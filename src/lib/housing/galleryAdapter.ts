@@ -49,6 +49,7 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
       videoAspectRatio: h.videoAspectRatio,
       tags: h.tags ?? [], description: h.description, title: h.title,
       visibility: h.visibility, publishUntil: h.publishUntil,
+      pinnedNewUntil: h.pinnedNewUntil,
       createdAt, lastConfirmedAt, addressKey: undefined,
     };
   }
@@ -96,6 +97,7 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
     title: h.title,
     visibility: h.visibility,
     publishUntil: h.publishUntil,
+    pinnedNewUntil: h.pinnedNewUntil,
     createdAt,
     lastConfirmedAt,
     // 2026-05-27 (Phase 2-5 配線漏れ修正): 同住所判定用キーを pass-through。

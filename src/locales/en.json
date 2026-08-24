@@ -1808,6 +1808,26 @@
             "report_count": "{{count}} report(s)",
             "hidden_badge": "Hidden"
         },
+        "housing_new_badge": {
+            "title": "Housing NEW ribbon pin",
+            "description": "Search for a listing by URL (detail or edit page) or ID to pin its NEW ribbon for a chosen number of days, regardless of when it was posted. Once the period ends it automatically falls back to the normal rule (within N days of posting).",
+            "not_found": "Listing not found",
+            "search_placeholder": "Listing URL or ID",
+            "search_button": "Search",
+            "field_title": "Title",
+            "field_address": "Address",
+            "status_pinned": "Pinned until {{date}}",
+            "status_off": "Not pinned",
+            "status_deleted": "Deleted",
+            "days_label": "Pin duration",
+            "days_unit": "day(s)",
+            "pin_button": "Pin for this duration",
+            "pin_success": "NEW ribbon pinned for {{days}} day(s)",
+            "unpin_button": "Unpin",
+            "unpin_confirm": "Unpin the NEW ribbon?",
+            "unpin_success": "Unpinned",
+            "view_listing": "View listing"
+        },
         "housinger_reports": {
             "title": "Housinger reports",
             "description": "Review reported Housinger profiles and force-hide them if necessary. There is no automatic hide threshold, so this requires human judgment. Force-hidden profiles stay listed here even after their report count reaches zero.",

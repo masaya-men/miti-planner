@@ -392,6 +392,33 @@ describe('ListingCard — NEWリボン (2026-08-16・探すページ限定)', ()
     expect(cardEl.querySelector('.housing-card-new-beam-glow')).toBeNull();
   });
 
+  it('管理者が pinnedNewUntil を未来に設定していれば、投稿が古くてもリボンが出る (2026-08-24)', () => {
+    const pinnedOld = {
+      ...oldListing,
+      pinnedNewUntil: Date.now() + 3 * 24 * 60 * 60 * 1000,
+    };
+    renderCard({ listing: pinnedOld, showNewBadge: true });
+    expect(screen.getByTestId('housing-card-new-ribbon')).toBeInTheDocument();
+  });
+
+  it('pinnedNewUntil が過去なら (期限切れ)、投稿が新しくなくても自動判定にフォールバックする (2026-08-24)', () => {
+    const expiredPin = {
+      ...oldListing,
+      pinnedNewUntil: Date.now() - 1000,
+    };
+    renderCard({ listing: expiredPin, showNewBadge: true });
+    expect(screen.queryByTestId('housing-card-new-ribbon')).not.toBeInTheDocument();
+  });
+
+  it('pinnedNewUntil が設定されていても showNewBadge=false なら出ない (2026-08-24)', () => {
+    const pinnedOld = {
+      ...oldListing,
+      pinnedNewUntil: Date.now() + 3 * 24 * 60 * 60 * 1000,
+    };
+    renderCard({ listing: pinnedOld });
+    expect(screen.queryByTestId('housing-card-new-ribbon')).not.toBeInTheDocument();
+  });
+
   it('IntersectionObserverが交差(isIntersecting)を通知したらビーム演出クラス+光る輪が付く', () => {
     renderCard({ listing: recentListing, showNewBadge: true });
     fireIntersection(true);

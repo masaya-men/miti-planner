@@ -104,6 +104,15 @@ export function isNewListing(createdAt: number, nowMs: number, windowMs: number 
 }
 
 /**
+ * 管理者が任意の物件に手動でNEWリボンを固定表示させる機能 (2026-08-24)。
+ * publishUntil (公開終了日時) と同じ「未来なら有効・遅延評価」の設計。cron 等での自動解除は
+ * 不要で、期限を過ぎたら次に読まれたタイミングで自動的に通常判定 (isNewListing) へフォールバックする。
+ */
+export function isPinnedNew(pinnedNewUntil: number | null | undefined, nowMs: number): boolean {
+  return typeof pinnedNewUntil === 'number' && nowMs < pinnedNewUntil;
+}
+
+/**
  * OGPカードの代表作として選択可能か(spec 2026-07-31 §確定済みの決定「選べる物件の条件」)。
  * visibility が明示的に 'public' であることを要求する(unlisted=住所非公開・private・未設定は不可)。
  * isEffectivelyPublic と異なり visibility 未設定を許容しない(選択は本人の能動的操作のため、

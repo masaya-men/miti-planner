@@ -10,6 +10,7 @@
  * ?resource=system_notifications → 運営通知 (POST/PATCH/DELETE)
  * ?resource=housing_reports      → ハウジング通報管理 (GET/PATCH)
  * ?resource=housinger_reports    → ハウジンガープロフィール通報管理 (GET/PATCH)
+ * ?resource=housing_new_badge    → ハウジング NEW リボン手動固定管理 (GET/PATCH)
  */
 import contentsHandler from './_contentsHandler.js';
 import roleHandler from './_roleHandler.js';
@@ -21,6 +22,7 @@ import popularHandler from './_popularHandler.js';
 import systemNotificationsHandler from './_systemNotificationsHandler.js';
 import housingReportsHandler from './_housingReportsHandler.js';
 import housingerReportsHandler from './_housingerReportsHandler.js';
+import housingNewBadgeHandler from './_housingNewBadgeHandler.js';
 
 export default async function handler(req: any, res: any) {
   const resource = req.query?.resource;
@@ -46,7 +48,9 @@ export default async function handler(req: any, res: any) {
       return housingReportsHandler(req, res);
     case 'housinger_reports':
       return housingerReportsHandler(req, res);
+    case 'housing_new_badge':
+      return housingNewBadgeHandler(req, res);
     default:
-      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|popular|system_notifications|housing_reports|housinger_reports' });
+      return res.status(400).json({ error: 'Missing or invalid resource parameter. Use ?resource=contents|role|templates|sync|dashboard|ugc|popular|system_notifications|housing_reports|housinger_reports|housing_new_badge' });
   }
 }

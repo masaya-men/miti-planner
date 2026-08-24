@@ -2,6 +2,10 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-08-24 YouTube動画+Xの静止画の共存を許可・push→デプロイ済み(コミット e2cd1d8a/c4007f49)
+ユーザー実機報告: X画像4枚→YouTube動画を追加すると「動画は1本まで」と誤って拒否/逆順(YouTube→X)だと画像は登録されるが動画側が消える、という矛盾した2症状。根本原因=各fetchの**解決順序**(貼り付け順ではない)で「代表」が決まる設計＋`buildDraftImageFields`のYouTube分岐が`sourceImageUrls`を一切読まない構造的排他(旧仕様は意図的にYouTube×画像/動画を排他としていた)。ユーザー判断=**コスト0を確認の上で排他自体を撤廃**(画像は元々外部URL保存のみでStorage/API費用増なしと確認済み)。新規登録側(`buildDraftImageFields`/`validateImage`/`buildListingImageFields`)と編集側(`HousingEditSourcePanel`)の両方でYouTube×X静止画(pbs.twimg.com限定)の同居を許可、OGP画像との同居は従来通り不可のまま(host制約は維持)。
+**🐛 直後の実機報告→即修正・デプロイ済み**: デプロイ直後、ユーザーが実際に自分の物件(過去に旧排他バグでYouTube動画情報を失っていた物件)でYouTube動画を再登録しようとしたところ「既に追加されています」と拒否され、ハードリロードしても動画プレビューが一切出ない、と報告。調査の結果3つの根本原因: ①その物件の`sourcePostUrls`に、旧バグ発生時の失敗した試行で残った「亡霊URL」があり`isDuplicatePostUrl`の完全一致チェックが再登録を永久ブロック→対象1件だけ`scripts/fix-ghost-youtube-posturl.ts`で外科的に除去。②編集ページの動画プレビュー初期化がTwitter動画の形(videoUrl+videoPosterUrl)しか見ておらずyoutubeVideoIdを見ていなかった→YouTubeサムネ(ogImageUrl)ベースの静的カード表示に対応(再生はしない、あるかどうかだけ示す)。③(データ実害あり得た重要な発見)編集ページのcaptureRef(パネル再マウントごとに空へ戻るセッションローカルstate)がサーバー保存済みのYouTube代表を知らないため、YouTube動画がある物件に写真だけの新規ツイートURLを追加するとTwitterが代表を横取りしyoutubeVideoIdがサーバー側クリーンアップで削除される事故になりかねなかった→videoPreviewに`source:'tweet'|'youtube'`の出処タグを追加し、Twitter動画由来なら継続を許可・YouTube由来なら横取りを禁止するよう修正。TDD(失敗テスト先行)で全て検証、tsc/build/関連テスト(162件)通過。ユーザー実機確認OK。
+
 ### ✅ 2026-08-20 ユーザー実機報告3件を修正・デプロイ済み(コミット a1792911/a4373e13/e6a9973b)
 ①**アパートの住所自動入力: 部屋番号が空欄になる不具合**。ユーザー実機報告(実ツイート2件で検証)。根本原因=`housingExtractResultToAddressPatch`がアパート判定時にapartmentBuildingを1固定・roomNumberを一切コピーしていなかった(パーサー自体は正しく抽出できていた)。一時ツアーの住所追加パネル(EphemeralAddPanel)とAllmarksまとめてインポート(useAllmarksImport)の両方が本関数を共有しているため両方に影響していた。TDD(失敗テスト先行)で修正、回帰テスト2件追加。
 ②**PC版ツアートレイに「空にする」ボタンを追加**。スマホ版(MobileTourTrayBar)には既にあったがPC版(TourTray)には無かった。同じ見た目パターン(控えめなアイコンボタン)でヘッダー右側に追加、空の時は押せない。5言語のtranslationキーはスマホ版の既存訳と揃えた。

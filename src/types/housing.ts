@@ -149,10 +149,11 @@ export interface HousingListing {
    *
    * - **画像本体は LoPo の倉庫にコピーせず**、 表示時に `<img src>` で元サイトを直接読む
    *   (投稿削除で自動消失、 LoPo 帯域消費ゼロ、 設計書 §6.2 sns モード)
-   * - 2 経路で使われる (2026-05-27 排他緩和):
+   * - 3 経路で使われる (2026-05-27 排他緩和 / 2026-08-20 YouTube同居緩和):
    *   - OGP 経路 (housingsnap / studio-xiv 等): 各 URL は OGP 取得元サイト由来
    *   - Twitter 静止画ツイート (tweetId 併用): 各 URL は pbs.twimg.com 限定
-   * - YouTube リスティング (youtubeVideoId) とは排他 (storyboard 都度生成)
+   *   - YouTube リスティング (youtubeVideoId) と Twitter静止画の同居 (pbs.twimg.com限定・
+   *     OGP画像との同居は不可のまま)
    * - 表示側は sourceImageUrls があれば配列で切替、 なければ ogImageUrl 1 枚を fallback
    */
   sourceImageUrls?: string[];
@@ -234,6 +235,12 @@ export interface HousingListing {
   /** 2026-07-24: 公開期限切れ後にどちらへ倒すか (publishUntil 設定時のみ意味を持つ)。
    *  未設定は 'unlisted' 扱い (cron 側のデフォルト、住所だけ隠す穏当な方)。 */
   afterExpiryVisibility?: 'unlisted' | 'private';
+  /**
+   * 2026-08-24 追加: 管理者が探すページのNEWリボンを手動で固定表示させる期限 (epoch ms)。
+   * publishUntil と同じ「未来なら有効・遅延評価」の設計 (cron不要、過ぎたら自動で通常の
+   * 投稿日ベース判定 (isNewListing) にフォールバックする)。null/未設定 = 手動固定なし。
+   */
+  pinnedNewUntil?: number | null;
 }
 
 /**
