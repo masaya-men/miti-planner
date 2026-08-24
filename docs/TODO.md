@@ -23,8 +23,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 **残**: Discord統合告知 (`docs/.private/2026-08-20-discord-full-update-draft.md`・投稿文確定済み) が投稿待ち。/ Allmarksのリージョン混在ケースは実リンクが無く未検証(本番で問題が出たら対応)。
 ### ✅ 2026-08-24 YouTube動画+Xの静止画の共存を許可(+直後の編集ページ3不具合修正)・push→デプロイ→ユーザー実機確認OK
 排他仕様(YouTube×画像/動画)を撤廃しコスト0で共存可能に。デプロイ直後の実機報告で編集ページ側の3バグ(亡霊URLでの再登録永久ブロック/YouTube動画プレビュー欠落/セッションローカルstateがサーバー保存済みYouTube代表を知らずTwitterに横取りされる事故)も発見・即修正。詳細=`docs/TODO_COMPLETED.md`。
-### 🔵 進行中 2026-08-24 管理者がお気に入り物件のNEWリボンを期間限定で手動固定表示できる機能
-`publishUntil`と同じ「期限(epoch ms)・未来なら有効・遅延評価、cron不要」設計で`pinnedNewUntil`を追加。/admin に新規ページ(物件URL/ID検索→日数指定→固定/解除)。型/ヘルパー/ListingCard判定/admin API(`resource=housing_new_badge`)/admin UI/5言語ロケール(admin配下の既存パターンに合わせko/zh/zh-Hantは日本語のまま)まで実装済み、tsc/build/テスト(95件)通過。**次**: コミット→push→デプロイ→ユーザーが/adminで実機確認。
+### ✅ 2026-08-24 管理者がお気に入り物件のNEWリボンを期間限定で手動固定表示できる機能・push→デプロイ済み(実機報告2件を追加修正済み)
+`publishUntil`と同じ「期限(epoch ms)・未来なら有効・遅延評価、cron不要」設計で`pinnedNewUntil`を追加。/adminに新規ページ(物件URL/ID検索→日数指定→固定/解除)。**デプロイ後の実機報告→即修正**: ①「固定したのに反映されない」→探すページの配信経路に2段の許可リスト(Firestoreクエリの`.select()`側+出力側の射影)があり両方に登録漏れ、加えてバージョン番号ベースのキャッシュが古いまま配信され続けていたため手動でバージョンを1つ進めて解消。②「NEWは付いたが上に固定されない」→ランダム表示モードの並び順を決める`shuffleWithNewPinned`が投稿日ベースの自動NEW判定しか見ておらず`pinnedNewUntil`を考慮していなかった(リボン表示と並び順が別ロジックだったための漏れ)。全てTDD+実データ直接確認で検証、tsc/build/テスト通過。**次**: ユーザーが探すページで最終確認。
 ### 🟡 SEOソフト404対策(2026-08-17実装・本番反映済み)のデプロイ後インフラ設定が未着手
 Cloudflare Cache Rule設定(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console「URL検査」再確認+インデックス登録リクエスト。
 **🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。
