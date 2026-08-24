@@ -1002,6 +1002,106 @@ describe('RegisterPage', () => {
   });
 
   /**
+   * 2026-08-24 実機報告 (対象listingをFirestoreで直接確認済み): サーバーに youtubeVideoId が
+   * 保存済みの物件を編集ページで開くと、①YouTube動画の存在を示すプレビューが一切表示され
+   * ない (editVideoPreview の初期化がTwitter動画の形 (videoUrl+videoPosterUrl) しか見て
+   * おらずyoutubeVideoIdを見ていない)、②その状態で写真だけのツイートURLを追加すると
+   * HousingEditSourcePanel内のcaptureRef (マウントごとに空へ戻るセッションローカルstate) が
+   * サーバー保存済みの代表を知らないため、代表を写真だけの新規ツイートに奪われてYouTube側
+   * 情報がbuildDraftImageFieldsから丸ごと落ち (最悪の場合サーバー側のクリーンアップで
+   * youtubeVideoId自体が削除される)、という2つの不具合が見つかった。
+   */
+  describe('編集ページ: 保存済みYouTube動画がある物件を開く (2026-08-24 実機報告)', () => {
+    const YOUTUBE_LISTING = {
+      ...EDITABLE_LISTING,
+      postUrl: 'https://youtu.be/9Lg45cM9mpA',
+      ogImageUrl: 'https://img.youtube.com/vi/9Lg45cM9mpA/hqdefault.jpg',
+      youtubeVideoId: '9Lg45cM9mpA',
+      sourceImageUrls: [],
+    } as unknown as HousingListing;
+
+    const TWEET_URL_PHOTOS = 'https://x.com/user/status/1842217368673759501';
+    const tweetDataPhotosOnly = {
+      text: 'photos',
+      author: { name: 'P', screen_name: 'p' },
+      photos: ['https://pbs.twimg.com/p1.jpg', 'https://pbs.twimg.com/p2.jpg'],
+      video: null,
+    };
+
+    function youtubeEditTree() {
+      return (
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter>
+            <RegisterPage mode="edit" initialValues={YOUTUBE_LISTING} />
+          </MemoryRouter>
+        </I18nextProvider>
+      );
+    }
+
+    it('編集ページを開いた直後にYouTube動画のプレビュー(サムネ+バッジ)が表示される', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage({ mode: 'edit', initialValues: YOUTUBE_LISTING });
+      const preview = screen.getByTestId('housing-register-media-video');
+      expect(preview.querySelector('img')?.getAttribute('src')).toBe(YOUTUBE_LISTING.ogImageUrl);
+    });
+
+    it('写真だけのツイートを追加してもYouTube動画の代表を奪わず、動画を保ったまま写真が保存される', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      updateMock.mockResolvedValue({ ok: true });
+      const { rerender } = renderPage({ mode: 'edit', initialValues: YOUTUBE_LISTING });
+
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+      fireEvent.change(input, { target: { value: TWEET_URL_PHOTOS } });
+      tweetState = { ...tweetState, status: 'success', data: tweetDataPhotosOnly };
+      rerender(youtubeEditTree());
+
+      await waitFor(() => expect(updateMock).toHaveBeenCalledTimes(1));
+      const payload = updateMock.mock.calls[0][1];
+      expect(payload.youtubeVideoId).toBe('9Lg45cM9mpA');
+      expect(payload.sourceImageUrls).toEqual(tweetDataPhotosOnly.photos);
+
+      // 動画プレビューも消えずそのまま残る。
+      const preview = screen.getByTestId('housing-register-media-video');
+      expect(preview.querySelector('img')?.getAttribute('src')).toBe(YOUTUBE_LISTING.ogImageUrl);
+    });
+
+    it('写真のみの物件にYouTube動画を新規追加すると、保存直後にプレビューへ反映される(再読み込み不要)', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      updateMock.mockResolvedValue({ ok: true });
+      const PHOTO_ONLY_LISTING = {
+        ...EDITABLE_LISTING,
+        sourceImageUrls: ['https://pbs.twimg.com/existing.jpg'],
+      } as unknown as HousingListing;
+      const { rerender } = renderPage({ mode: 'edit', initialValues: PHOTO_ONLY_LISTING });
+
+      expect(screen.queryByTestId('housing-register-media-video')).not.toBeInTheDocument();
+
+      const input = screen.getByLabelText(jaTranslations.housing.register.snsUrl.label);
+      fireEvent.change(input, { target: { value: 'https://www.youtube.com/watch?v=9Lg45cM9mpA' } });
+      youtubeState = { ...youtubeState, status: 'success', data: { description: null } };
+      rerender(
+        <I18nextProvider i18n={i18n}>
+          <MemoryRouter>
+            <RegisterPage mode="edit" initialValues={PHOTO_ONLY_LISTING} />
+          </MemoryRouter>
+        </I18nextProvider>,
+      );
+
+      await waitFor(() => expect(updateMock).toHaveBeenCalledTimes(1));
+      const payload = updateMock.mock.calls[0][1];
+      expect(payload.youtubeVideoId).toBe('9Lg45cM9mpA');
+      expect(payload.sourceImageUrls).toEqual(['https://pbs.twimg.com/existing.jpg']);
+
+      await waitFor(() => {
+        const preview = screen.getByTestId('housing-register-media-video');
+        expect(preview.querySelector('img')?.getAttribute('src')).toBe(
+          'https://img.youtube.com/vi/9Lg45cM9mpA/hqdefault.jpg',
+        );
+      });
+    });
+  });
+
+  /**
    * size は (エリア × 区画) から一意に決まるので手入力させない (2026-07-10)。
    * RegisterPage の導出 effect が唯一の書き込み口で、UI 側は読み取り専用表示 (Task3-1: 旧
    * disabled <select> はドロップダウン矢印が見えてしまうため disabled <input> に置換済み)。

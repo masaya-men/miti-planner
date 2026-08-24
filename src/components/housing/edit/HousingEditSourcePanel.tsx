@@ -13,6 +13,12 @@ export interface EditVideoPreview {
   url: string;
   posterUrl: string;
   aspectRatio?: number;
+  /**
+   * 2026-08-24: 動画の出処。'youtube' なら Twitter とは非互換 (Twitter が代表を横取りしては
+   * いけない)。省略時は既存呼び出し元との後方互換のため 'tweet' 扱い (Twitter動画は
+   * Twitterが再度代表を確立して継続できる別ソース)。
+   */
+  source?: 'tweet' | 'youtube';
 }
 
 /**
@@ -120,7 +126,17 @@ export function HousingEditSourcePanel({
       const photos = data.photos ?? [];
 
       const incomingHasVideo = !!data.video?.url;
-      const hasRepresentative = !!(capture.tweetData || capture.youtube || capture.ogp);
+      // 2026-08-24 実機報告: captureRef はこのパネルのマウントごとに空へ戻るため、videoPreview
+      // が YouTube 由来 (source==='youtube') の場合を見ないと「サーバーには YouTube 代表が
+      // 既にあるのに、このセッションではまだ何も確立していないから代表は空」と誤認する。その
+      // 誤認のまま写真だけの新規ツイートが来ると、下の becomesTwitterRepresentative が誤って
+      // true になり Twitter が代表を横取りして nextCapture.youtube を null に上書き → 保存時に
+      // 既存動画情報 (youtubeVideoId 等) がサーバー側クリーンアップで削除されてしまう事故に
+      // なる。videoPreview が Twitter 動画由来 (source==='tweet'・省略時デフォルト) の場合は
+      // Twitter 自身が再度代表を確立して継続するだけなので「代表あり」とはカウントしない
+      // (videoPreviewToTweetVideo で動画を復元する既存の正しい挙動)。
+      const videoPreviewBlocksTwitter = !!videoPreview && videoPreview.source === 'youtube';
+      const hasRepresentative = !!(capture.tweetData || capture.youtube || capture.ogp || videoPreviewBlocksTwitter);
       const representativeCanHostVideo = !hasRepresentative || !!capture.tweetData;
       const existingVideoLimit = shouldRejectIncomingVideo(
         capturedVideoRef.current || !!videoPreview,

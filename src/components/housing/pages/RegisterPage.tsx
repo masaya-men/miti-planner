@@ -558,16 +558,29 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     return initialValues.thumbnailPath ? [initialValues.thumbnailPath] : [];
   });
 
-  /** edit モード専用: 動画プレビュー (Twitter動画ツイート由来)。URL再取得で更新される。 */
+  /** edit モード専用: 動画プレビュー (Twitter動画ツイート or YouTube 由来)。URL再取得で更新される。 */
   const [editVideoPreview, setEditVideoPreview] = useState<
-    { url: string; posterUrl: string; aspectRatio?: number } | null
+    { url: string; posterUrl: string; aspectRatio?: number; source?: 'tweet' | 'youtube' } | null
   >(() => {
-    if (mode !== 'edit' || !initialValues?.videoUrl || !initialValues?.videoPosterUrl) return null;
-    return {
-      url: initialValues.videoUrl,
-      posterUrl: initialValues.videoPosterUrl,
-      aspectRatio: initialValues.videoAspectRatio,
-    };
+    if (mode !== 'edit') return null;
+    if (initialValues?.videoUrl && initialValues?.videoPosterUrl) {
+      return {
+        url: initialValues.videoUrl,
+        posterUrl: initialValues.videoPosterUrl,
+        aspectRatio: initialValues.videoAspectRatio,
+        source: 'tweet',
+      };
+    }
+    // 2026-08-24 実機報告: YouTube動画 (youtubeVideoId) の場合は Twitter の mp4 url を
+    // 持たないため、posterUrl (= ogImageUrl = YouTube サムネ) だけで「動画あり」を示す。
+    // このバッジは静止画カードを出すだけで再生はしない (videoPreviewToTweetVideo 経由で
+    // Twitter動画へ変換されるのは Twitter が新規に代表を確立するときだけなので、この url を
+    // 再生用ではなく識別用の postUrl にしても実害はない)。source:'youtube' はTwitterが代表を
+    // 横取りしないための印 (HousingEditSourcePanel.tsx の hasRepresentative 参照)。
+    if (initialValues?.youtubeVideoId && initialValues?.ogImageUrl) {
+      return { url: initialValues.postUrl ?? '', posterUrl: initialValues.ogImageUrl, source: 'youtube' };
+    }
+    return null;
   });
   /**
    * SNS 取得結果の捕捉 (Task14)。旧 RegisterPage は sourceImageUrls だけ拾って SNS
@@ -1335,7 +1348,28 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       nextPostUrl: string,
     ): Promise<{ ok: boolean; skipped?: boolean }> => {
       if (!initialValues) return { ok: false };
-      const freshImageFields = buildDraftImageFields(capture, [], freshSourceImageUrls);
+      // 2026-08-24 実機報告: HousingEditSourcePanel の captureRef はパネルのマウントごとに
+      // 空へ戻るため、今回のセッションで代表の種別が一切変わっていない (= 空のcapture) まま
+      // 写真だけ追加された場合、buildDraftImageFields は代表が無いとみなして imageMode='sns'
+      // を組めず保存が無音でスキップされる。サーバーに youtubeVideoId が保存済みならそこから
+      // 代表を復元してから渡す (HousingEditSourcePanel 側は videoPreview 経由でこの代表を
+      // 横取りしないよう既にガード済み)。
+      const isEmptyCapture = !capture.tweetData && !capture.youtube && !capture.ogp;
+      const effectiveCapture: SnsCapture =
+        isEmptyCapture && initialValues.youtubeVideoId
+          ? {
+              tweetData: null,
+              tweetSource: null,
+              ogp: null,
+              youtube: {
+                postUrl: initialValues.postUrl ?? '',
+                ogImageUrl: initialValues.ogImageUrl ?? '',
+                videoId: initialValues.youtubeVideoId,
+                description: null,
+              },
+            }
+          : capture;
+      const freshImageFields = buildDraftImageFields(effectiveCapture, [], freshSourceImageUrls);
       if (freshImageFields.imageMode !== 'sns') {
         // 画像/動画が取れなかった (テキストのみツイート等)。既存データを維持し何もしない。
         return { ok: true, skipped: true };
@@ -1381,10 +1415,16 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
               url: capture.tweetData.video.url,
               posterUrl: capture.tweetData.video.posterUrl,
               aspectRatio: capture.tweetData.video.aspectRatio ?? undefined,
+              source: 'tweet',
             }
-          // 2026-07-22 (Batch2): 追加方式なので、今回のcaptureに動画が無くても既存のプレビューを
-          // 消さない (貼り替えではないため「動画無し=削除」ではない)。
-          : editVideoPreview,
+          // 2026-08-24 実機報告: capture.youtube (このセッションで新規に確立したYouTube代表)
+          // も同様にプレビューへ反映する。無いと保存自体は成功するのに画面上は再読み込み
+          // するまでYouTube動画が「無い」ように見えてしまう。
+          : capture.youtube
+            ? { url: capture.youtube.postUrl, posterUrl: capture.youtube.ogImageUrl, source: 'youtube' }
+            // 2026-07-22 (Batch2): 追加方式なので、今回のcaptureに動画が無くても既存のプレビューを
+            // 消さない (貼り替えではないため「動画無し=削除」ではない)。
+            : editVideoPreview,
       );
       if (!postUrl) setPostUrl(nextPostUrl);
       await useHousingListingsStore.getState().fetchAndUpsert(initialValues.id);
