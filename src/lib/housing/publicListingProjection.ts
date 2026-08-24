@@ -20,7 +20,7 @@ const SAFE_FIELDS = [
   'sourceImageUrls', 'sourceImageAspectRatios',
   'youtubeVideoId', 'videoUrl', 'videoPosterUrl', 'videoAspectRatio',
   'tweetId', 'buildingType', 'roomKind',
-  'createdAt', 'lastConfirmedAt', 'publishUntil',
+  'createdAt', 'lastConfirmedAt', 'publishUntil', 'pinnedNewUntil',
 ] as const;
 
 export function projectPublicListing(

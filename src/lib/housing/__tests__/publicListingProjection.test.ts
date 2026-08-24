@@ -9,6 +9,7 @@ const rawPublic = {
   tags: ['wafu'], title: '和風邸', description: 'desc', createdAt: 100, lastConfirmedAt: 100,
   postUrl: 'https://x.com/a/status/1', tweetId: '1',
   isHidden: false, deletedAt: null, reportCount: 3, restoreCount: 2, updatedAt: 999, // ← 未許可 (漏らさない)
+  pinnedNewUntil: 1893456000000,
 };
 
 const rawUnlisted = { ...rawPublic, visibility: 'unlisted' };
@@ -52,5 +53,12 @@ describe('projectPublicListing (許可リスト方式)', () => {
   it('tags 欠損は空配列', () => {
     const out = projectPublicListing('id5', { ...rawPublic, tags: undefined });
     expect(out.tags).toEqual([]);
+  });
+
+  it('★ pinnedNewUntil (管理者固定NEW) は public/unlisted 両方で含む (2026-08-24 実機報告: 射影漏れで探すページに反映されなかった)', () => {
+    const outPublic = projectPublicListing('id6', rawPublic);
+    expect(outPublic.pinnedNewUntil).toBe(1893456000000);
+    const outUnlisted = projectPublicListing('id7', rawUnlisted);
+    expect(outUnlisted.pinnedNewUntil).toBe(1893456000000);
   });
 });
