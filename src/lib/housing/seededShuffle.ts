@@ -1,4 +1,4 @@
-import { isNewListing, NEW_LISTING_WINDOW_MS } from './listingPublish';
+import { isNewListing, isPinnedNew, NEW_LISTING_WINDOW_MS } from './listingPublish';
 
 /**
  * seed から決定的な Fisher-Yates シャッフルを行う (mulberry32 PRNG)。
@@ -34,15 +34,17 @@ export function generateShuffleSeed(): number {
  * windowMs 省略時は既定7日 (NEW_LISTING_WINDOW_MS)。呼び出し側は通常
  * master/config.newListingWindowDays 由来の値 (useMasterData) を渡す。
  */
-export function shuffleWithNewPinned<T extends { createdAt: number }>(
+export function shuffleWithNewPinned<T extends { createdAt: number; pinnedNewUntil?: number | null }>(
   items: readonly T[],
   seed: number,
   nowMs: number,
   windowMs: number = NEW_LISTING_WINDOW_MS,
 ): T[] {
-  const pinned = items
-    .filter((l) => isNewListing(l.createdAt, nowMs, windowMs))
-    .sort((a, b) => b.createdAt - a.createdAt);
-  const rest = items.filter((l) => !isNewListing(l.createdAt, nowMs, windowMs));
+  // 2026-08-24 実機報告: 管理者が pinnedNewUntil で固定した投稿 (投稿日は古いことが多い) も
+  // NEWリボンと同じ扱いで先頭グループに含める。含めないと、リボンは付くのにランダム表示
+  // モードでは他の投稿に埋もれて見えてしまう (「NEWは付いたが上に固定されていない」不具合)。
+  const isPinned = (l: T) => isNewListing(l.createdAt, nowMs, windowMs) || isPinnedNew(l.pinnedNewUntil, nowMs);
+  const pinned = items.filter(isPinned).sort((a, b) => b.createdAt - a.createdAt);
+  const rest = items.filter((l) => !isPinned(l));
   return [...pinned, ...seededShuffle(rest, seed)];
 }

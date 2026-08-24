@@ -89,4 +89,33 @@ describe('shuffleWithNewPinned', () => {
     expect(result[0].id).toBe('day2');
     expect(result.map((i) => i.id)).toContain('day5'); // rest側に残る (消えない)
   });
+
+  it('管理者が pinnedNewUntil を設定した古い投稿は、新着でも固定でもない投稿より必ず前に来る (2026-08-24 実機報告・全シードで成立を検証し偶然一致を排除)', () => {
+    const items = [
+      { ...item('old-pinned', 30), pinnedNewUntil: NOW + 3 * DAY },
+      item('plain1', 60),
+      item('plain2', 90),
+      item('plain3', 45),
+      item('new-a', 1),
+    ];
+    for (let seed = 0; seed < 30; seed++) {
+      const result = shuffleWithNewPinned(items, seed, NOW);
+      const pinnedIdx = result.findIndex((i) => i.id === 'old-pinned');
+      const plainIdxs = ['plain1', 'plain2', 'plain3'].map((id) => result.findIndex((i) => i.id === id));
+      expect(pinnedIdx).toBeGreaterThanOrEqual(0);
+      expect(plainIdxs.every((idx) => pinnedIdx < idx)).toBe(true);
+    }
+  });
+
+  it('pinnedNewUntil が過去 (期限切れ) の投稿は先頭グループに含まれない (同様に決定的な検証)', () => {
+    const items = [
+      { ...item('expired-pin', 30), pinnedNewUntil: NOW - 1000 },
+      item('plain1', 60),
+      item('plain2', 90),
+      item('plain3', 45),
+    ];
+    const result = shuffleWithNewPinned(items, 42, NOW);
+    // 期限切れなので全件 rest 扱い = seededShuffle と完全一致する
+    expect(result).toEqual(seededShuffle(items, 42));
+  });
 });
