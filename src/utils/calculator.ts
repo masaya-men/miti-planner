@@ -269,6 +269,7 @@ export const calculateLinkedShieldValue = (
 
     // 回復効果アップバフを集計（転化、クラーシス、生命回生法、フェイイルミネーション等）
     let healingMultiplier = 1;
+    const linkedRecipientId = linkedMit.targetId ?? linkedMit.ownerId;
     buffsAtCast.forEach(buff => {
         const bDef = mitigationDefs.find(d => d.id === buff.mitigationId);
         if (bDef && bDef.healingIncrease) {
@@ -276,6 +277,8 @@ export const calculateLinkedShieldValue = (
             if (linkedMit.time >= buff.time + hiDuration) return;
             // 自身のみ効果（転化等）: バフの使用者とリンク先スキルの使用者が同一の場合のみ
             if (bDef.healingIncreaseSelfOnly && buff.ownerId !== linkedMit.ownerId) return;
+            // セルフバフ（ランパート等）: バフの所有者とバリアの受け取り手が同一の場合のみ
+            if (bDef.scope === 'self' && buff.ownerId !== linkedRecipientId) return;
             // 対象指定バフ（クラーシス、生命回生法等）: バフの対象と鼓舞の対象が一致する場合のみ
             if (bDef.scope === 'target' && buff.targetId !== linkedMit.targetId) return;
             healingMultiplier += (bDef.healingIncrease / 100);

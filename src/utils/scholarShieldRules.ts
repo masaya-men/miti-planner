@@ -58,3 +58,15 @@ const RECITATION_CRIT_ELIGIBLE_IDS = new Set(['adloquium', 'concitation', 'succo
 export function isRecitationCritEligible(mitigationId: string): boolean {
     return RECITATION_CRIT_ELIGIBLE_IDS.has(mitigationId);
 }
+
+/**
+ * バリアの回復魔力(ポテンシー)倍率対応チェック: 確定クリティカルや回復効果アップ(受ける回復効果+n%等)
+ * は、回復魔力から算出するバリア(valueType: 'potency')にしか乗らない。「最大HPの◯%」のような
+ * 固定計算のバリア(valueType: 'hp'、ブラックナイト・ディヴァインヴェール・シェイクオフ等)は
+ * 回復魔力の計算式を経由しないため、これらの倍率は乗らない。
+ * 2026-08-26 網羅調査で確認済み: 海外攻略サイトでも「戦士のシェイクオフには乗らないが、
+ * 賢者のエウクラシア・ディアグノシスには乗る」と明記されている。
+ */
+export function isPotencyBasedShield(mit: Pick<Mitigation, 'isShield' | 'valueType'>): boolean {
+    return !!mit.isShield && mit.valueType === 'potency';
+}

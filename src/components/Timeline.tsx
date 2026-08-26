@@ -58,7 +58,7 @@ import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
 import { isLivingDeadStyle, maxHpForEffectiveTarget, resolveLivingDeadSurvival, type LivingDeadInstance } from '../utils/livingDead';
 import { resolveMitigationTap } from '../utils/mitigationTapResolver';
-import { isRecitationCritEligible, resolveSeraphismMitigation } from '../utils/scholarShieldRules';
+import { isRecitationCritEligible, resolveSeraphismMitigation, isPotencyBasedShield } from '../utils/scholarShieldRules';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -2401,8 +2401,13 @@ const Timeline: React.FC = () => {
                         b.time <= appMit.time && appMit.time < b.time + b.duration && b.id !== appMit.id
                     );
 
+                    // 回復魔力(ポテンシー)から算出するバリアだけが対象。「最大HPの◯%」等の固定値バリア
+                    // (ブラックナイト・ディヴァインヴェール等、valueType:'hp')は回復魔力の計算式を
+                    // 経由しないため、確定クリティカルや回復効果アップの倍率がそもそも乗らない。
+                    const potencyShield = (def.isShield || isConditionalShield) && isPotencyBasedShield(def);
+
                     // 消費型バフチェック: バリアスキルに対して最初の1回のみ適用
-                    if (def.isShield) {
+                    if (potencyShield) {
                         // 秘策 (SCH): 確定クリティカル ×1.6。公式仕様では鼓舞激励の策/意気軒高の策
                         // (旧:士気高揚の策)のみが対象。マニフェステーション/アクセッション/
                         // コンソレイションは対象外(isRecitationCritEligible で絞り込み済み)。
@@ -2438,22 +2443,22 @@ const Timeline: React.FC = () => {
                                 critMultiplier *= 1.5;
                             }
                         }
-                    }
 
-                    buffsAtCast.forEach(buff => {
-                        const bDef = MITIGATIONS.find(d => d.id === buff.mitigationId);
-                        if (bDef && bDef.healingIncrease) {
-                            // healingIncreaseDuration: 回復効果アップの持続時間がメイン効果と異なる場合（例: ピュシスII）
-                            const hiDuration = bDef.healingIncreaseDuration ?? bDef.duration;
-                            if (appMit.time >= buff.time + hiDuration) return;
-                            if (bDef.scope === 'self' && buff.ownerId !== displayContext) return;
-                            // Self-only healing increase (e.g. Dissipation, Neutral Sect) only applies to the caster's own heals
-                            if (bDef.healingIncreaseSelfOnly && buff.ownerId !== appMit.ownerId) return;
-                            // 対象指定バフ（クラーシス、生命回生法等）: バフの対象とスキルの対象が一致する場合のみ
-                            if (bDef.scope === 'target' && buff.targetId !== appMit.targetId) return;
-                            healingMultiplier += (bDef.healingIncrease / 100);
-                        }
-                    });
+                        buffsAtCast.forEach(buff => {
+                            const bDef = MITIGATIONS.find(d => d.id === buff.mitigationId);
+                            if (bDef && bDef.healingIncrease) {
+                                // healingIncreaseDuration: 回復効果アップの持続時間がメイン効果と異なる場合（例: ピュシスII）
+                                const hiDuration = bDef.healingIncreaseDuration ?? bDef.duration;
+                                if (appMit.time >= buff.time + hiDuration) return;
+                                if (bDef.scope === 'self' && buff.ownerId !== displayContext) return;
+                                // Self-only healing increase (e.g. Dissipation, Neutral Sect) only applies to the caster's own heals
+                                if (bDef.healingIncreaseSelfOnly && buff.ownerId !== appMit.ownerId) return;
+                                // 対象指定バフ（クラーシス、生命回生法等）: バフの対象とスキルの対象が一致する場合のみ
+                                if (bDef.scope === 'target' && buff.targetId !== appMit.targetId) return;
+                                healingMultiplier += (bDef.healingIncrease / 100);
+                            }
+                        });
+                    }
 
                     // Always use Japanese name for computedValues lookup (SKILL_DATA keys are Japanese)
                     const jaName = typeof def.name === 'string' ? def.name : (def.name.ja || '');

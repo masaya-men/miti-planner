@@ -3,6 +3,7 @@ import {
     resolveSeraphismMitigation,
     matchesCopiesShieldSource,
     isRecitationCritEligible,
+    isPotencyBasedShield,
 } from '../scholarShieldRules';
 import { MITIGATIONS } from '../../data/mockData';
 import type { AppliedMitigation } from '../../types';
@@ -82,5 +83,56 @@ describe('isRecitationCritEligible', () => {
         expect(isRecitationCritEligible('manifestation')).toBe(false);
         expect(isRecitationCritEligible('accession')).toBe(false);
         expect(isRecitationCritEligible('consolation')).toBe(false);
+    });
+});
+
+// 2026-08-26 網羅調査(回帰): 確定クリティカル・回復効果アップは「回復魔力から算出するバリア」
+// (valueType: 'potency') にしか乗らない。「最大HPの◯%」の固定計算バリア(valueType: 'hp') には
+// 乗らない。8.0以降の新規バリア技追加時も、この判定はvalueTypeを見るだけで自動的に正しくなる。
+describe('isPotencyBasedShield', () => {
+    // 最大HPの◯%で決まる固定バリア(回復魔力計算を経由しない) = 回復効果アップ・確定クリは乗らない
+    const flatHpShieldIds = [
+        'divine_veil', 'tempera_grassa', 'the_blackest_night',
+        'arcane_crest', 'shake_it_off', 'improvisation',
+    ];
+
+    it.each(flatHpShieldIds)('%s (最大HP%%固定) は false', (id) => {
+        const mit = MITIGATIONS.find(m => m.id === id);
+        expect(mit).toBeTruthy();
+        expect(mit!.isShield).toBe(true);
+        expect(mit!.valueType).toBe('hp');
+        expect(isPotencyBasedShield(mit!)).toBe(false);
+    });
+
+    // 回復魔力(ポテンシー)から算出するバリア = 回復効果アップ・確定クリが乗る
+    const potencyShieldIds = [
+        'adloquium', 'manifestation', 'concitation', 'succor', 'accession', 'consolation',
+        'eukrasian_prognosis_ii', 'eukrasian_prognosis', 'holos', 'panhaima', 'haima', 'eukrasian_diagnosis',
+        'helios_conjunction', 'aspected_helios', 'celestial_intersection', 'the_spire',
+        'bloodwhetting', 'nascent_flash', 'divine_caress', 'divine_benison',
+    ];
+
+    it.each(potencyShieldIds)('%s (回復魔力計算) は true', (id) => {
+        const mit = MITIGATIONS.find(m => m.id === id);
+        expect(mit).toBeTruthy();
+        expect(mit!.isShield).toBe(true);
+        expect(mit!.valueType).toBe('potency');
+        expect(isPotencyBasedShield(mit!)).toBe(true);
+    });
+
+    it('バリア技ではない(isShield:false)技は false', () => {
+        const reprisal = MITIGATIONS.find(m => m.id.startsWith('reprisal_'));
+        expect(reprisal).toBeTruthy();
+        expect(isPotencyBasedShield(reprisal!)).toBe(false);
+    });
+
+    it('MITIGATIONS内の isShield:true 全件が hp/potency のどちらかに分類され、判定結果と矛盾しない(将来の追加漏れ検知用)', () => {
+        const copiesShieldIds = new Set(['deployment_tactics', 'deployment_tactics_base']);
+        const shields = MITIGATIONS.filter(m => m.isShield && !copiesShieldIds.has(m.id));
+        expect(shields.length).toBeGreaterThan(0);
+        for (const mit of shields) {
+            expect(mit.valueType, `${mit.id} は isShield:true なのに valueType が未設定`).toBeDefined();
+            expect(isPotencyBasedShield(mit)).toBe(mit.valueType === 'potency');
+        }
     });
 });

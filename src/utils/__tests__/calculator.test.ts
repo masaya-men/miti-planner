@@ -46,6 +46,7 @@ import {
   calculateCriticalValue,
   calculateHpValue,
   getColumnCssVar,
+  calculateLinkedShieldValue,
   CRIT_MULTIPLIER,
 } from '../calculator';
 
@@ -131,5 +132,33 @@ describe('getColumnCssVar', () => {
   it('DPS (および未知ロール) はマージン込み全幅の calc() を返す', () => {
     expect(getColumnCssVar('dps')).toBe('calc(var(--col-dps-w) + var(--col-member-pad-x) * 2)');
     expect(getColumnCssVar('unknown')).toBe('calc(var(--col-dps-w) + var(--col-member-pad-x) * 2)');
+  });
+});
+
+describe('calculateLinkedShieldValue (展開戦術のコピー先バリア計算・回帰)', () => {
+  const mitigationDefs = [
+    { id: 'adloquium', name: { ja: '鼓舞激励の策' }, duration: 30, isShield: true },
+    { id: 'rampart_v2_gnb', name: { ja: 'ランパート' }, duration: 20, scope: 'self', healingIncrease: 15 },
+  ];
+  const partyMembers = [
+    { id: 'H1', stats: {} as any, role: 'healer', computedValues: { '鼓舞激励の策': 80000 } },
+  ];
+
+  it('対象外(ST)のランパートは、MT向けの鼓舞コピー値に混入しない', () => {
+    const linkedMit = { id: 'adl1', mitigationId: 'adloquium', ownerId: 'H1', targetId: 'MT', time: 10, duration: 30 };
+    const allMitigations = [
+      linkedMit,
+      { id: 'ram1', mitigationId: 'rampart_v2_gnb', ownerId: 'ST', time: 5, duration: 20 },
+    ];
+    expect(calculateLinkedShieldValue(linkedMit, allMitigations, partyMembers, mitigationDefs)).toBe(80000);
+  });
+
+  it('本人(MT)のランパートは鼓舞コピー値の被回復+15%に正しく反映される', () => {
+    const linkedMit = { id: 'adl1', mitigationId: 'adloquium', ownerId: 'H1', targetId: 'MT', time: 10, duration: 30 };
+    const allMitigations = [
+      linkedMit,
+      { id: 'ram1', mitigationId: 'rampart_v2_gnb', ownerId: 'MT', time: 5, duration: 20 },
+    ];
+    expect(calculateLinkedShieldValue(linkedMit, allMitigations, partyMembers, mitigationDefs)).toBe(92000);
   });
 });
