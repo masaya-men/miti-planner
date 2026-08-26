@@ -25,8 +25,12 @@ const GAP = 6;
 const PANEL_PADDING = 8;
 const GRID_CONTENT_W = 4 * CELL + 3 * GAP;
 const GRID_CONTENT_H = 2 * CELL + GAP;
+// 全部表示/全部非表示/反転ボタンの行(2026-08-27追加)。パネル位置クランプの計算に使うため、
+// PANEL_H はこの行の高さ込みで確定する。
+const ACTIONS_ROW_H = 22;
+const ACTIONS_ROW_GAP = 6;
 const PANEL_W = GRID_CONTENT_W + PANEL_PADDING * 2;
-const PANEL_H = GRID_CONTENT_H + PANEL_PADDING * 2;
+const PANEL_H = GRID_CONTENT_H + ACTIONS_ROW_GAP + ACTIONS_ROW_H + PANEL_PADDING * 2;
 const VIEWPORT_PADDING = 8;
 
 interface Pos {
@@ -83,6 +87,7 @@ export function PartyVisibilityMenu({ btnClassName, btnActiveClassName, sortOrde
     const partyMembers = useMitigationStore(state => state.partyMembers);
     const hiddenPartyMemberIds = useMitigationStore(state => state.hiddenPartyMemberIds);
     const toggleHiddenPartyMember = useMitigationStore(state => state.toggleHiddenPartyMember);
+    const setHiddenPartyMemberIds = useMitigationStore(state => state.setHiddenPartyMemberIds);
     const jobs = useJobs();
 
     const cells = React.useMemo(() => {
@@ -106,6 +111,20 @@ export function PartyVisibilityMenu({ btnClassName, btnActiveClassName, sortOrde
             });
         });
     };
+
+    // 全部表示/全部非表示/反転(2026-08-27追加)。1件ずつtoggleを繰り返すと重い再描画が
+    // 人数分発生するため、1回のsetHiddenPartyMemberIdsで一気に置き換える。
+    const handleBulkAction = (next: string[]) => {
+        useRenderPendingStore.getState().show();
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                setHiddenPartyMemberIds(next);
+            });
+        });
+    };
+    const handleShowAll = () => handleBulkAction([]);
+    const handleHideAll = () => handleBulkAction(cells.map(c => c.id));
+    const handleInvertAll = () => handleBulkAction(cells.filter(c => !c.hidden).map(c => c.id));
 
     // パネル位置: トリガーの中央下が基本。画面端では収まるように補正する
     // (右にはみ出す→左にクランプ、下にはみ出す→ボタンの上に反転)。
@@ -183,9 +202,10 @@ export function PartyVisibilityMenu({ btnClassName, btnActiveClassName, sortOrde
                             transition={SPRING.default}
                             onMouseEnter={cancelClose}
                             onMouseLeave={scheduleClose}
-                            className="glass-tier3 fixed grid grid-cols-4 gap-1.5 p-2 rounded-2xl z-[99999]"
-                            style={{ left: pos.left, top: pos.top }}
+                            className="glass-tier3 fixed flex flex-col gap-1.5 p-2 rounded-2xl z-[99999]"
+                            style={{ left: pos.left, top: pos.top, width: PANEL_W }}
                         >
+                            <div className="grid grid-cols-4 gap-1.5">
                             {cells.map((m, i) => (
                                 <Tooltip
                                     key={m.id}
@@ -205,7 +225,7 @@ export function PartyVisibilityMenu({ btnClassName, btnActiveClassName, sortOrde
                                         className="group flex items-center justify-center rounded-lg cursor-pointer active:scale-90"
                                         style={{ width: CELL, height: CELL }}
                                     >
-                                        {m.icon && (
+                                        {m.icon ? (
                                             <img
                                                 src={m.icon}
                                                 alt={m.id}
@@ -214,10 +234,45 @@ export function PartyVisibilityMenu({ btnClassName, btnActiveClassName, sortOrde
                                                     m.hidden && 'opacity-30 grayscale scale-90'
                                                 )}
                                             />
+                                        ) : (
+                                            // ジョブ未設定の空席: ジョブアイコンが無いだけで押せない訳ではないため、
+                                            // 何も見えない透明なボタンにならないようロール名(D1等)を出す(2026-08-27実機FB)。
+                                            <span className={clsx(
+                                                'text-[11px] font-black text-app-text/70 tracking-tight',
+                                                m.hidden && 'opacity-30'
+                                            )}>
+                                                {m.id}
+                                            </span>
                                         )}
                                     </motion.button>
                                 </Tooltip>
                             ))}
+                            </div>
+
+                            {/* 全部表示/全部非表示/反転(2026-08-27追加)。装飾なしの白黒テキストボタン。 */}
+                            <div className="grid grid-cols-3 gap-1" style={{ height: ACTIONS_ROW_H }}>
+                                <button
+                                    type="button"
+                                    onClick={handleShowAll}
+                                    className="rounded-md border border-app-border text-app-text/80 hover:bg-app-surface2 hover:text-app-text transition-colors text-[9px] font-black uppercase tracking-wide leading-none"
+                                >
+                                    {t('ui.party_visibility_show_all')}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleHideAll}
+                                    className="rounded-md border border-app-border text-app-text/80 hover:bg-app-surface2 hover:text-app-text transition-colors text-[9px] font-black uppercase tracking-wide leading-none"
+                                >
+                                    {t('ui.party_visibility_hide_all')}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleInvertAll}
+                                    className="rounded-md border border-app-border text-app-text/80 hover:bg-app-surface2 hover:text-app-text transition-colors text-[9px] font-black uppercase tracking-wide leading-none"
+                                >
+                                    {t('ui.party_visibility_invert')}
+                                </button>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>,

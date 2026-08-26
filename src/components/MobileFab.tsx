@@ -729,7 +729,7 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                     zIndex: 9999,
                                 }}
                             >
-                                {m.icon && (
+                                {m.icon ? (
                                     <img
                                         src={m.icon}
                                         alt={m.id}
@@ -738,6 +738,14 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                             m.hidden && 'opacity-30 grayscale scale-90'
                                         )}
                                     />
+                                ) : (
+                                    // ジョブ未設定の空席: PC版(PartyVisibilityMenu)と同じくロール名を出す(2026-08-27)。
+                                    <span className={clsx(
+                                        'text-[12px] font-black text-white/80 tracking-tight drop-shadow-lg',
+                                        m.hidden && 'opacity-30'
+                                    )}>
+                                        {m.id}
+                                    </span>
                                 )}
                             </motion.button>
                         );

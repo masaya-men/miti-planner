@@ -168,6 +168,9 @@ interface MitigationState {
     setClipboardEvent: (event: TimelineEvent | null) => void;
     setTimelineSortOrder: (order: 'light_party' | 'role') => void;
     toggleHiddenPartyMember: (id: string) => void;
+    /** 全部表示/全部非表示/反転の一括操作用。1件ずつtoggleを繰り返すと再描画も1回ずつ発生するため、
+     * 1回のsetで一気に置き換える(2026-08-27)。 */
+    setHiddenPartyMemberIds: (ids: string[]) => void;
     /** エーテルフロー連鎖配置プロンプト制御 */
     dismissAetherflowChainPrompt: () => void;
     /** プロンプトの startTime から 60s 間隔で最終イベントまで aetherflow を連続配置する */
@@ -878,6 +881,7 @@ export const useMitigationStore = create<MitigationState>()(
                         ? state.hiddenPartyMemberIds.filter((mid) => mid !== id)
                         : [...state.hiddenPartyMemberIds, id],
                 })),
+                setHiddenPartyMemberIds: (ids) => set({ hiddenPartyMemberIds: ids }),
                 setClipboardEvent: (event) => set({ clipboardEvent: event }),
                 setTimelineSortOrder: (order) => set({ timelineSortOrder: order }),
 

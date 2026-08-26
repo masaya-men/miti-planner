@@ -629,11 +629,15 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                         }}
                     >
                         {/* ホバー検知だけを担う内側のTooltip。棒自体の絶対配置(top-3/left/transform)は
-                            外側のdivのまま変えず、内側をw-full h-fullで重ねるだけに留める(2026-08-26)。 */}
+                            外側のdivのまま変えず、内側を重ねるだけに留める(2026-08-26)。棒の見た目の
+                            幅(6px)そのままだと当たり判定が細すぎて確認しづらいとの実機FBのため、
+                            左右3pxずつ当たり判定だけ広げる(見た目のバー幅は変えない)。同じ持ち主の
+                            隣接レーン間隔が12px(PLACEMENT_STEP)のため、3px×2=6pxの拡張なら隣のレーンの
+                            判定と重ならない上限ちょうど。 */}
                         <Tooltip
-                            content={<img src={iconUrl} alt="" className="w-8 h-8 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" />}
+                            content={<img src={iconUrl} alt="" className="w-4 h-4 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" />}
                             bare
-                            wrapperClassName="!w-full !h-full"
+                            wrapperClassName="!absolute !inset-y-0 !-left-[3px] !-right-[3px]"
                         >
                             <div className="w-full h-full" />
                         </Tooltip>

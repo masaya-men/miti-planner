@@ -46,6 +46,13 @@ describe('useMitigationStore: hiddenPartyMemberIds (表示/非表示スイッチ
         expect(useMitigationStore.getState().hiddenPartyMemberIds).toEqual([]);
     });
 
+    it('setHiddenPartyMemberIds で一括置き換えできる(全部表示/全部非表示/反転ボタン用)', () => {
+        useMitigationStore.getState().setHiddenPartyMemberIds(['MT', 'D3']);
+        expect(useMitigationStore.getState().hiddenPartyMemberIds).toEqual(['MT', 'D3']);
+        useMitigationStore.getState().setHiddenPartyMemberIds([]);
+        expect(useMitigationStore.getState().hiddenPartyMemberIds).toEqual([]);
+    });
+
     it('複数メンバーを独立に非表示にできる', () => {
         useMitigationStore.getState().toggleHiddenPartyMember('MT');
         useMitigationStore.getState().toggleHiddenPartyMember('D3');
