@@ -133,4 +133,19 @@ describe('ConsolidatedHeader viewer mode', () => {
     const partyBtn = screen.getByRole('button', { name: /party\.comp_short/i });
     expect(partyBtn).not.toBeDisabled();
   });
+
+  // 2026-08-26回帰テスト: 表示切替/並び替えは見た目だけのローカル設定(共同編集の同期対象外・
+  // 部屋のデータに一切影響しない)なので、閲覧専用ジョイナー(viewer)でも操作できる必要がある。
+  it('viewer 時でもパーティ表示/非表示スイッチは無効化されない', () => {
+    render(
+      <MemoryRouter>
+        <ConsolidatedHeader
+          {...dummyProps}
+          viewer={{ contentId: 'TEA', ownerLabel: null }}
+        />
+      </MemoryRouter>
+    );
+    const visibilityBtn = screen.getByRole('button', { name: /ui\.party_visibility/i });
+    expect(visibilityBtn).not.toBeDisabled();
+  });
 });

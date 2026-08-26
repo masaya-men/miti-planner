@@ -412,32 +412,30 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {/* パーティ表示/非表示スイッチ(2026-08-19、2026-08-19再設計): 見た目だけの
                                 絞り込みで自動配置・競合チェック・ダメージ計算には一切影響しない。
                                 アイコンボタン→ポップオーバー方式(HeaderToolsMenuと同パターン)。 */}
+                            {/* 表示切替/並び替えは見た目だけのローカル設定(共同編集の同期対象外・
+                                閲覧専用ジョイナーが操作しても部屋のデータには一切影響しない)なので、
+                                閲覧専用モード(readOnly)の対象からは意図的に除外する(2026-08-26)。 */}
                             <PartyVisibilityMenu
                                 btnClassName={clsx(iconBtnBase, iconBtnDefault)}
                                 btnActiveClassName={clsx(iconBtnBase, iconBtnActive)}
                                 sortOrder={partySortOrder}
-                                readOnly={readOnly}
+                                readOnly={false}
                             />
 
                             <div className="h-5 w-px shrink-0 dark:bg-app-text/25 bg-app-text/25 mx-0.5 rounded-full" />
 
                             {/* Sort */}
                             <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
-                            {/* #2b: 外 span=禁止カーソル(hover ターゲット) / 内 span=pointer-events-none(透過) */}
-                            <span className={clsx(readOnly && 'cursor-not-allowed')}>
-                            <span className={clsx(readOnly && 'pointer-events-none opacity-50')}>
-                                <SegmentButton
-                                    options={[
-                                        { value: 'light_party', label: t('ui.sort_light_party') },
-                                        { value: 'role', label: t('ui.sort_role') },
-                                    ]}
-                                    value={partySortOrder}
-                                    onChange={setPartySortOrder}
-                                    size="sm"
-                                    pill
-                                />
-                            </span>
-                            </span>
+                            <SegmentButton
+                                options={[
+                                    { value: 'light_party', label: t('ui.sort_light_party') },
+                                    { value: 'role', label: t('ui.sort_role') },
+                                ]}
+                                value={partySortOrder}
+                                onChange={setPartySortOrder}
+                                size="sm"
+                                pill
+                            />
                         </div>
                     </div>
                 </div>

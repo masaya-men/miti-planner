@@ -13,6 +13,8 @@ interface TooltipProps {
     position?: 'top' | 'bottom' | 'left' | 'right';
     /** @deprecated glass-panel統一のため無視されます */
     invert?: boolean;
+    /** true: glassの箱・余白・角丸を一切付けず content をそのまま浮かべる(アイコンだけのプレビュー等)。 */
+    bare?: boolean;
 }
 
 // カーソル右横からの距離
@@ -26,6 +28,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
     delay = 100,
     className,
     wrapperClassName,
+    bare = false,
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -167,7 +170,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
                                 top: -9999,
                             }}
                             className={clsx(
-                                "glass-tier3 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-app-md font-semibold tracking-tight text-app-text",
+                                !bare && "glass-tier3 whitespace-nowrap px-2.5 py-1.5 rounded-lg text-app-md font-semibold tracking-tight text-app-text",
                                 className
                             )}
                         >

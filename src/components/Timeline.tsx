@@ -130,6 +130,10 @@ interface MitigationItemProps {
     layoutReady?: boolean;
     /** timelineMitigations から派生した競合フラグ（親が useMemo で算出して渡す） */
     isConflicting?: boolean;
+    /** エフェクト棒クリック時、下にある配置マス目と同じ挙動にするための転送先(TimelineRowのonCellClickと同一関数)。
+     * エフェクト棒はホバーでツールチップを出すためpointer-events-autoにしており、そのままだと
+     * 素通りしていた配置クリックが棒に吸われてしまうため、ここで明示的に転送する(2026-08-26)。 */
+    onCellClick?: (memberId: string, time: number, e: React.MouseEvent) => void;
 }
 
 const getMitigationColorClasses = (jobId: string | undefined, ownerId: string, partySortOrder: string = 'role') => {
@@ -225,7 +229,8 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         mitigation, pixelsPerSecond, onRemove, onUpdateTime,
         top, height, left, partySortOrder, offsetTime,
         scrollContainerRef, activeMitigations, overlapOffset = 0, timeToYMap,
-        isVirtual = false, iconOverride, layoutReady = true, grayscale = false
+        isVirtual = false, iconOverride, layoutReady = true, grayscale = false,
+        onCellClick
     } = props;
 
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -279,6 +284,21 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
         });
 
         return closestTime;
+    };
+
+    // エフェクト棒クリック → 下のマス目に配置クリックしたのと同じ扱いに転送する(2026-08-26)。
+    // 棒はホバーでツールチップを出すためpointer-events-autoが要るが、そのままだと今まで
+    // 素通りしていた配置クリックがここで止まってしまうため、getTimeFromYで棒のクリック位置
+    // (ratio)から行の時間を逆算し、TimelineRowのonCellClickと同じ関数を直接呼んで橋渡しする。
+    const handleBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!onCellClick || isVirtual) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const ratio = rect.height > 0 ? (e.clientY - rect.top) / rect.height : 0;
+        // top+13(コンテナ) + 12(棒自身のtop-3) = 棒の上端のシート座標Y。durationHeight×ratioで
+        // クリック位置まで進める(drag系のtop+dyと同じ座標系、getTimeFromYの入力そのもの)。
+        const barTopY = top + 13 + 12;
+        const time = getTimeFromY(barTopY + ratio * durationHeight);
+        onCellClick(mitigation.ownerId, time, e);
     };
 
     const updateDragPosition = (dy: number, animateSnap: boolean = false) => {
@@ -587,12 +607,17 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     })()}
                 </div>
 
-                {/* エフェクト棒: copiesShieldスキル（展開戦術）とduration≤1秒（瞬発スキル）は非表示 */}
+                {/* エフェクト棒: copiesShieldスキル（展開戦術）とduration≤1秒（瞬発スキル）は非表示。
+                    ホバーでスキルアイコンだけを浮かべるツールチップを出す(2026-08-26、スクロールで
+                    アイコンが画面外に出た後も棒だけでどのスキルか分かるように)。ホバー検知のため
+                    pointer-events-autoにする必要があり、今まで棒を素通りしていた配置クリックが
+                    棒に吸われてしまうため、handleBarClickでonCellClickへ明示的に転送している。 */}
                 {mitigation.duration > 1 && !def?.copiesShield && (
                     <div
                         data-myjob-dim={isNotMine ? 'bar' : undefined}
+                        onClick={handleBarClick}
                         className={clsx(
-                            "absolute top-3 w-1.5 z-10 rounded-b-sm border-x pointer-events-none",
+                            "absolute top-3 w-1.5 z-10 rounded-b-sm border-x pointer-events-auto cursor-pointer",
                             colors.bg,
                             colors.border,
                             colors.shadow
@@ -602,7 +627,17 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                             left: `calc(50% + ${overlapOffset}px)`,
                             transform: 'translateX(-50%)'
                         }}
-                    ></div>
+                    >
+                        {/* ホバー検知だけを担う内側のTooltip。棒自体の絶対配置(top-3/left/transform)は
+                            外側のdivのまま変えず、内側をw-full h-fullで重ねるだけに留める(2026-08-26)。 */}
+                        <Tooltip
+                            content={<img src={iconUrl} alt="" className="w-8 h-8 object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]" />}
+                            bare
+                            wrapperClassName="!w-full !h-full"
+                        >
+                            <div className="w-full h-full" />
+                        </Tooltip>
+                    </div>
                 )}
 
                 {/* リキャスト残時間点線は廃止 (セッション 18 のリキャスト専用行で代替可能)。
@@ -3859,6 +3894,7 @@ const Timeline: React.FC = () => {
                                                             iconOverride={mitigation.iconOverride}
                                                             layoutReady={layout !== undefined}
                                                             isConflicting={conflictingIds.has(mitigation.id) && mitigation.id !== lastPlacedMitigationId}
+                                                            onCellClick={handleCellClick}
                                                         />
                                                     );
                                                 });

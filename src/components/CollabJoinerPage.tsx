@@ -132,6 +132,10 @@ export default function CollabJoinerPage() {
   const theme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
   const hideEmptyRows = useMitigationStore((s) => s.hideEmptyRows);
+  // 表示切替/並び替えは見た目だけのローカル設定(部屋のデータには影響しない)なので、
+  // 閲覧専用ジョイナーでも実ストアに繋ぐ("role"固定+no-opだと操作しても何も起きなかった、2026-08-26修正)。
+  const timelineSortOrder = useMitigationStore((s) => s.timelineSortOrder);
+  const setTimelineSortOrder = useMitigationStore((s) => s.setTimelineSortOrder);
   const { runTransition } = useTransitionOverlay();
 
   const canEdit = computeCanEdit(isLoggedIn, hasConsent);
@@ -340,8 +344,8 @@ export default function CollabJoinerPage() {
               viewerCluster={<CollabViewerCluster />}
               onAutoPlan={() => {}}
               onImportLogs={() => {}}
-              partySortOrder="role"
-              setPartySortOrder={() => {}}
+              partySortOrder={timelineSortOrder}
+              setPartySortOrder={setTimelineSortOrder}
               statusOpen={false}
               setStatusOpen={() => {}}
             />
