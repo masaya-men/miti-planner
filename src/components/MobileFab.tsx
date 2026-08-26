@@ -713,7 +713,14 @@ export const MobileFAB: React.FC<MobileFABProps> = ({
                                 animate="visible"
                                 exit="exit"
                                 onClick={() => toggleHiddenPartyMember(m.id)}
-                                className="fixed flex items-center justify-center active:scale-90"
+                                // active:scale-90(CSS)は使わない: このボタンはframer-motionが
+                                // variants経由でx/y/scaleのtransformを継続制御しており、CSS:activeの
+                                // transformと取り合って指を置いた瞬間にアイコンが動こうとするような
+                                // 見た目になり、タップ判定が安定しない(メインFABボタンで2026-08-13に
+                                // 同じ原因を特定済み・下記769行目付近のコメント参照)。press演出は
+                                // whileTapだけに一本化する。
+                                whileTap={{ scale: 0.85, transition: { duration: 0.1 } }}
+                                className="fixed flex items-center justify-center"
                                 style={{
                                     left: partyVisButtonRect.left,
                                     top: partyVisButtonRect.top,

@@ -580,7 +580,9 @@ export const useMitigationStore = create<MitigationState>()(
                 setLoadedPlanId: (id) => set({ _loadedPlanId: id }),
 
                 // collab 入室時に solo 履歴を持ち込まない(collab 中は CRDT undo が真実)。
-                enterCollabMode: (handlers) => set({ _collabActive: true, _collabHandlers: handlers, _history: [], _future: [] }),
+                // hiddenPartyMemberIds/timelineSortOrder も、自分のプランでいじった設定が
+                // 無関係な部屋にまで持ち込まれる不具合だったため入室のたびにリセットする(2026-08-26)。
+                enterCollabMode: (handlers) => set({ _collabActive: true, _collabHandlers: handlers, _history: [], _future: [], hiddenPartyMemberIds: [], timelineSortOrder: 'light_party' }),
 
                 // collab 退出時も _history/_future をクリア。revoke/手動 disconnect 後の Ctrl+Z で
                 // 入室前データへ巻き戻り→Firestore 恒久上書きする経路を塞ぐ(canUndo=false 化)。
@@ -655,6 +657,8 @@ export const useMitigationStore = create<MitigationState>()(
                         myMemberId: state.myMemberId,
                         memos: state.memos,
                         progress: state.progress,
+                        hiddenPartyMemberIds: state.hiddenPartyMemberIds,
+                        timelineSortOrder: state.timelineSortOrder,
                     };
                 },
 
@@ -717,6 +721,12 @@ export const useMitigationStore = create<MitigationState>()(
                         memos: snapshot.memos ?? [],
                         // 進捗: 未マイグレ既存プランは undefined → デフォルト値にフォールバック
                         progress: normalizeProgress(snapshot.progress),
+                        // 表示メンバー絞り込み/並び替えは以前ブラウザ全体の見た目設定として持ち回っており、
+                        // 別プランを開くたびに前のプランの設定が意図せず引き継がれる不具合だった。
+                        // プランごとに独立して記憶する仕様に変更(2026-08-26)。未マイグレ既存プランは
+                        // フィールド自体が無い(undefined)ため初期値にフォールバック。
+                        hiddenPartyMemberIds: snapshot.hiddenPartyMemberIds ?? [],
+                        timelineSortOrder: snapshot.timelineSortOrder ?? 'light_party',
                         // Reset Undo/Redo on load
                         _history: [],
                         _future: [],
@@ -1770,6 +1780,8 @@ export const useMitigationStore = create<MitigationState>()(
                         myMemberId: null,
                         myJobHighlight: false,
                         hideEmptyRows: true,
+                        hiddenPartyMemberIds: [],
+                        timelineSortOrder: 'light_party',
                         memos: [],
                         // 進捗トラッキング: リセット時もデフォルト値に戻す
                         progress: { points: [], cleared: false },
@@ -1802,6 +1814,8 @@ export const useMitigationStore = create<MitigationState>()(
                         myMemberId: snapshot.myMemberId,
                         myJobHighlight: snapshot.myJobHighlight,
                         hideEmptyRows: snapshot.hideEmptyRows,
+                        hiddenPartyMemberIds: [],
+                        timelineSortOrder: 'light_party',
                         _history: [],
                         _future: [],
                     });

@@ -291,6 +291,10 @@ export interface PlanData {
     memos?: PlanMemo[];
     /** 進捗トラッキング v1、 未マイグレ既存プランは undefined */
     progress?: PlanProgress;
+    /** 表示メンバー絞り込み v1(2026-08-26)、プランごとに独立して記憶。未マイグレ既存プランは undefined → [] にフォールバック */
+    hiddenPartyMemberIds?: string[];
+    /** メンバー並び替え v1(2026-08-26)、プランごとに独立して記憶。未マイグレ既存プランは undefined → 'light_party' にフォールバック */
+    timelineSortOrder?: 'light_party' | 'role';
 }
 
 /** DC/サーバーマスターデータ */

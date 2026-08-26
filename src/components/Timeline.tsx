@@ -3869,16 +3869,20 @@ const Timeline: React.FC = () => {
                                     </>
                                 );
                             })()}
-                        {/* メモオーバーレイ (= 既存メモをシート上に表示) */}
-                        <MemoOverlay
-                            memos={memos}
-                            timeToYMap={timeToYMapRef.current}
-                            sheetWidth={sheetWidth}
-                            interactive={isMemoMode}
-                            onMemoDragEnd={handleMemoDragEnd}
-                            onMemoClick={handleMemoClick}
-                            onMemoDelete={handleMemoDelete}
-                        />
+                        {/* メモオーバーレイ (= 既存メモをシート上に表示)。
+                            メモ機能自体がスマホ非対応(作成ボタンも hidden md:flex)のため、
+                            既存メモの読み取り専用表示もスマホでは出さない(2026-08-14実機報告)。 */}
+                        {!isMobileTimeline && (
+                            <MemoOverlay
+                                memos={memos}
+                                timeToYMap={timeToYMapRef.current}
+                                sheetWidth={sheetWidth}
+                                interactive={isMemoMode}
+                                onMemoDragEnd={handleMemoDragEnd}
+                                onMemoClick={handleMemoClick}
+                                onMemoDelete={handleMemoDelete}
+                            />
+                        )}
                         {/* ④-b-2: 他者カーソル(P2P 受信)。CursorOverlay が自分で roster を購読して
                             描く相手の有無を判定する(ソロ/閲覧者なら自前で null を返し rAF も回さない)。
                             map/width は ref で渡し、Timeline 再描画なしでも rAF が最新を読める。 */}
