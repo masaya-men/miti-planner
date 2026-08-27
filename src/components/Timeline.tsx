@@ -87,6 +87,7 @@ import { SpreadsheetGridImportModal } from './SpreadsheetGridImportModal';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
 import { importWithLimitCheck } from '../lib/sheetImport/importWithLimitCheck';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
+import { stepShieldAbsorption, shieldCoverageContext } from '../utils/barrierStacking';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -102,61 +103,6 @@ export function resolveContentId(planContentId: string | null, joinerContentId: 
 export function isJoinerReadonly(roomToken: string | null, canEdit: boolean): boolean {
     return roomToken !== null && !canEdit;
 }
-
-/**
- * バリア(シールド)1インスタンスに一撃が当たったときの状態遷移(純粋・テスト可能)。
- * damageMapResult の被弾ループから切り出したもの。挙動は元コードと 1:1。
- *
- * - `absorbed`: この一撃で肩代わりした量
- * - `finalShield`: 一撃後の残バリア量。スタック制(`reapplyOnAbsorption`)は壊れると
- *   1 スタック消費して `maxVal` に貼り直されるため、スタックが残っていれば 0 にはならない。
- * - `finalStacks`: 一撃後の残スタック数(スタック非対応なら `undefined`)
- * - `exhausted`: バリアが完全に尽きた(= `finalShield <= 0`、もう肩代わりできない)か。
- *   スタックが残っている限り `false`。エフェクト棒の早期終了判定に使う。
- */
-export function stepShieldAbsorption(args: {
-    shieldRemaining: number;
-    incomingDamage: number;
-    stacksRemaining: number | undefined;
-    maxVal: number;
-    reapplyOnAbsorption: boolean | undefined;
-}): { absorbed: number; finalShield: number; finalStacks: number | undefined; exhausted: boolean } {
-    const { shieldRemaining, incomingDamage, stacksRemaining, maxVal, reapplyOnAbsorption } = args;
-    const absorbed = Math.min(shieldRemaining, incomingDamage);
-    const isBroken = absorbed >= shieldRemaining;
-    let finalShield = shieldRemaining - absorbed;
-    let finalStacks = stacksRemaining;
-    // 🚨 仕様: 1回の着弾で複数スタックを一気に消費しない
-    if (isBroken && finalStacks !== undefined && finalStacks > 0 && reapplyOnAbsorption) {
-        finalStacks -= 1;
-        finalShield = maxVal; // 貼り直されたので次は新品
-    }
-    return { absorbed, finalShield, finalStacks, exhausted: finalShield <= 0 };
-}
-
-/**
- * バリアの「実効カバー範囲」を表す context を返す(純粋・テスト可能)。
- * エフェクト棒の早期終了は、このカバー範囲のバケツが尽きたときだけ行う。
- *
- * ダメージ計算はバリアを Party / MT / ST の 3 バケツで別々に追跡する。全体バリア
- * (意気軒高の策・ディヴァインヴェール等)はタンク単体攻撃で MT バケツだけ枯れても、
- * 全体攻撃用の Party バケツと他メンバー分は残っている = まだ効いている。棒を止めて
- * よいのは「全体攻撃で全体分(Party バケツ)が尽きたとき」だけ。
- *
- * - 対象指定バリア(鼓舞激励の策等 targetId あり)      → その対象 context
- * - 自分バリア(scope:'self')                          → 使用者本人の context
- * - それ以外(全体バリア / scope:'party' / 未指定)     → 'Party'
- */
-export function shieldCoverageContext(
-    targetId: string | undefined,
-    scope: string | undefined,
-    ownerId: string,
-): string {
-    if (targetId) return targetId;
-    if (scope === 'self') return ownerId;
-    return 'Party';
-}
-
 
 interface MitigationItemProps {
     mitigation: AppliedMitigation;

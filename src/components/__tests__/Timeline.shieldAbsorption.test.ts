@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { stepShieldAbsorption, shieldCoverageContext } from '../Timeline';
+import { stepShieldAbsorption, shieldCoverageContext } from '../../utils/barrierStacking';
 
 describe('stepShieldAbsorption (バリア1インスタンスの被弾遷移)', () => {
   describe('スタック非対応バリア(ディヴァインヴェール等)', () => {
