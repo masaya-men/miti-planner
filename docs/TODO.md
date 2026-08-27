@@ -33,8 +33,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 Cloudflare Cache Rule設定(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console「URL検査」再確認+インデックス登録リクエスト。
 **🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。
 **ハウジンガーOGPカード見た目調整**: ユーザー確認(2026-08-17)によると完成済み扱い。`.claude/worktrees/housinger-ogp-card-redesign`には未コミットの差分3ファイルが残っているが、これは不採用と確定済みのもの。**触らない**(壊さないことが最優先とのユーザー指示)。前回セッションの残プロセスにロックされ`git worktree remove`も失敗中(実害なし)。
-### ✅ 直近の本番反映・棚卸し(詳細は全てTODO_COMPLETED.md / `.private/2026-07-23-housing-task-inventory.md`)
-マイページ作成/複数投稿URL登録Batch2/編集ページ画像管理/探すページ表示順ランダム化+初心者タグ/コスト・ハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所確認ゲート強化/旧UI意匠掃除、全て本番反映・確認済み。
+### ✅ 直近の本番反映・棚卸し: マイページ/複数投稿URL Batch2/編集ページ画像管理/探すページランダム化+初心者タグ/コストハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所ゲート強化/旧UI意匠掃除、全て本番反映・確認済み(詳細=TODO_COMPLETED.md)。
 
 ### 🔴 次セッション優先(2026-07-20 更新・大半確認済みのため圧縮)
 0-1. 🎨 **詳細ページ紹介文レイアウト改善(ブレスト保留中・未実装)**: 設計書=`docs/superpowers/specs/2026-07-20-housing-detail-description-hover-reveal-design.md`(3行クランプ+ホバーで全文表示)。
