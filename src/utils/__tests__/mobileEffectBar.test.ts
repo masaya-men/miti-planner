@@ -224,6 +224,21 @@ describe('computeMobileEffectBars', () => {
     });
   });
 
+  describe('barrierOverwrittenAt (上書き負けしたバリアの棒を負けた時刻で終了)', () => {
+    it('barrierOverwrittenAt: 上書き負けした時刻で棒を止める', () => {
+      const def = makeDef('adloquium', { duration: 30, isShield: true });
+      const mit = makeMit('p1', 'adloquium', 'MT', 0, 30);
+      const result = computeMobileEffectBars({
+        ...baseArgs,
+        timelineMitigations: [mit],
+        mitigationDefs: [def],
+        barrierOverwrittenAt: new Map([['p1', 8]]),
+      });
+      // effectiveEndTime = min(29, 8) = 8 → endY = 8*60 + 24 = 504
+      expect(result[0].height).toBe(504);
+    });
+  });
+
   it('passes the mitigation def jobId and owner id to getColorClasses', () => {
     const def = makeDef('reprisal', { jobId: 'pld' });
     const mit = makeMit('p1', 'reprisal', 'MT', 0, 10);

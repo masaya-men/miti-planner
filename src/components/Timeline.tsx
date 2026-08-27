@@ -2383,14 +2383,22 @@ const Timeline: React.FC = () => {
 
                     const res = resolveContextShields(entriesForCtx, damageForShields, getCtxState(ctx));
 
-                    // 上書き負けが確定した時刻(暫定でこの被弾時刻。castTime 基準の補正は Task 6)。
+                    // 上書き負けしたバリアの棒を止める時刻を記録する(方式a・エフェクト棒のクリップ用)。
                     // そのバリアが覆う context のバケツで負けたときだけ記録する(Ruling H と同じ理由)。
                     // 全体バリアは Party/ST バケツで負けても MT バケツではまだ生きて吸収していることがあり、
-                    // ゲート無しだと「まだ効いている棒」を Task 6 がグレーにしてしまう。
+                    // ゲート無しだと「まだ効いている棒」をクリップしてしまう。
                     res.newlyOverwritten.forEach(id => {
-                        if (ctx === coverageCtxByAppMit.get(id) && !barrierOverwrittenAt.has(id)) {
-                            barrierOverwrittenAt.set(id, event.time);
-                        }
+                        if (ctx !== coverageCtxByAppMit.get(id) || barrierOverwrittenAt.has(id)) return;
+                        // 負けた時刻 = 「自分の詠唱時刻」と「同 ctx の他グループ付きバリアの最も遅い詠唱時刻」の遅い方
+                        // = 両方が同時に存在し始めた時刻。被弾時刻より前になる(棒がより正確に短く終わる)。
+                        // 暫定: 勝った相手そのものの castTime ではなく同 ctx グループ付きバリアの最遅 castTime を使う。
+                        // 鼓舞系の「大きい方が古い」ケースで棒がやや長め or 短めになるが実害小(方式a の許容範囲)。
+                        const me = entriesForCtx.find(e => e.appMitId === id)!;
+                        const rivalLatestCast = Math.max(
+                            me.castTime,
+                            ...entriesForCtx.filter(e => e.appMitId !== id && e.group != null).map(e => e.castTime),
+                        );
+                        barrierOverwrittenAt.set(id, rivalLatestCast);
                     });
 
                     // このバリアが覆う context のバケツが尽きた瞬間を記録 → エフェクト棒をその時刻で早期終了。
@@ -2444,8 +2452,7 @@ const Timeline: React.FC = () => {
     const damageMap = damageMapResult.map;
     const livingDeadTriggers = damageMapResult.livingDeadTriggers; // Task 5 で白黒アイコン描画に使用
     const shieldExhaustedAt = damageMapResult.shieldExhaustedAt; // バリア吸収し切り時刻 → エフェクト棒の早期終了に使用
-    // damageMapResult.barrierOverwrittenAt (上書き負け時刻) は Task 6(エフェクト棒のグレー描画)で取り出す。
-    // noUnusedLocals: true のため、使うタイミングで const にする。
+    const barrierOverwrittenAt = damageMapResult.barrierOverwrittenAt; // 上書き負け時刻 → エフェクト棒を負けた時刻でクリップ(方式a)
 
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -3395,6 +3402,7 @@ const Timeline: React.FC = () => {
                                                 maxConcurrent,
                                                 getColorClasses: (jobId, ownerId) => getMitigationColorClasses(jobId, ownerId, 'role'),
                                                 shieldExhaustedAt,
+                                                barrierOverwrittenAt,
                                             });
                                             return <MobileEffectBarLayer bars={mobileBars} conflictingIds={mobileConflictingIds} />;
                                         })()}
@@ -3753,6 +3761,11 @@ const Timeline: React.FC = () => {
                                                         // 既存の horoscope/earthly_star/WD クリップとは Math.min で共存させる。
                                                         if (def?.isShield && shieldExhaustedAt.has(mitigation.id)) {
                                                             const cutY = getMappedY(shieldExhaustedAt.get(mitigation.id)!);
+                                                            height = Math.min(height, Math.max(0, Math.round(cutY + 24 - startY)));
+                                                        }
+                                                        // 上書き負けしたバリア: 負けた時刻で棒を止める(方式a)。overwritten に入るのはバリアのみなので def?.isShield 判定は不要。
+                                                        if (barrierOverwrittenAt.has(mitigation.id)) {
+                                                            const cutY = getMappedY(barrierOverwrittenAt.get(mitigation.id)!);
                                                             height = Math.min(height, Math.max(0, Math.round(cutY + 24 - startY)));
                                                         }
                                                     }

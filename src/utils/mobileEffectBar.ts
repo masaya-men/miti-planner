@@ -84,6 +84,13 @@ export interface ComputeMobileEffectBarsArgs {
    * スタック制シールド(ハイマ等)は壊れても継続するため Map 側で既に除外されている。
    */
   shieldExhaustedAt?: Map<string, number>;
+  /**
+   * 上書き負けしたバリア(グループ付きバリア同士が重なり、後勝ちルールで負けた側)の
+   * 「負けた時刻」を軽減インスタンス(AppliedMitigation.id)ごとに持つ Map。渡されると
+   * 棒をこの時刻で早期終了させる(方式a・PC 側 Timeline.tsx と同じ)。overwritten に
+   * 入るのはバリアのみなので def.isShield 判定は不要。
+   */
+  barrierOverwrittenAt?: Map<string, number>;
 }
 
 // 表示は右詰め1本のクラスタで、読み順(左→右)は MT H1 D1 D3 ST H2 D2 D4 にしたい。
@@ -100,7 +107,7 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
   const {
     timelineMitigations, mitigationDefs, timeToYMap, pixelsPerSecond, offsetTime,
     hideEmptyRows, maxTime, eventsByTime, mitStartsByTime, showPreStart,
-    maxConcurrent, getColorClasses, shieldExhaustedAt,
+    maxConcurrent, getColorClasses, shieldExhaustedAt, barrierOverwrittenAt,
   } = args;
 
   const defById = new Map(mitigationDefs.map(d => [d.id, d]));
@@ -191,6 +198,10 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
     // 尽きた時刻は必ずイベント行なので hideEmptyRows の可視行スナップは不要。
     if (def.isShield && shieldExhaustedAt?.has(mit.id)) {
       effectiveEndTime = Math.min(effectiveEndTime, shieldExhaustedAt.get(mit.id)!);
+    }
+    // 上書き負けしたバリアも、負けた時刻で棒を止める(PC 側と同じ)。
+    if (barrierOverwrittenAt?.has(mit.id)) {
+      effectiveEndTime = Math.min(effectiveEndTime, barrierOverwrittenAt.get(mit.id)!);
     }
 
     const startY = getMappedY(mit.time);
