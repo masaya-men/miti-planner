@@ -13,15 +13,15 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-0. **🔴 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)。デプロイ後の作業が残**。手順=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。**デプロイ完了後に必須**: `npx tsx scripts/add-barrier-stacking-fields.ts --apply`（Firestoreにグループ/優先順位を同期・これをやらないと本番で無効）→ その後に実機確認（チェックリスト・見た目が変わる点・フォローアップ6件は同ファイル）。フォロー: ②イベント疎区間の上書き判定の穴（詠唱時刻で先に全解決する改修）③EventForm逆算がまだ加算式。
+0. **🔴 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)・Firestore同期済み。残=Vercelデプロイ確認＋実機確認だけ**。手順・チェックリスト・見た目が変わる点(🛡️が吸収量表示・切り株バー)・フォロー6件=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。主なフォロー: ①スマホの展開戦術バー(PCのみ解禁) ②イベント疎区間の上書き判定の穴(詠唱時刻で先に全解決する改修) ③EventForm逆算がまだ加算式。**Task7(グレー2色棒)未着手・見積もりは引き継ぎ§⑤**。
    **実機確認待ち（push済み・前セッション）**: ①iOS表示ズレ共通フック化 ②バリア吸収し切りで棒終了＋②フォロー。詳細=`docs/.private/2026-08-27-viewport-shift-audit-and-barrier-bar-cutoff.md`。/ 共編の部屋別ローカル表示設定記憶は後回し。
 1. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。2026-08-27ブレスト中断・**要再開**。仕様の大枠(常時ローカル記録・GIF・本物のLoPo画面をそのままキャプチャ・保存→X共有の2段階)は固まったが、実機テストで**本物のタイムライン画面のDOMキャプチャがハングする不具合を発見・原因未特定のまま保留中**。詳細・次にやること=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
 2. 次=軽減表スプシモード(表示メンバー絞り込みスイッチを流用ではなく、同じ仕組みが両方で使えるだけ)。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。**共同編集参加者のヘッダー開閉解禁は保留**(無関係な別項目)。
 3. **Wiki型タイムライン共同編集**は2026-08-18時点で2の次に着手予定・大物。2とは完全に別軸=「誰でもログインすれば編集できる」公開編集モデルを新設する共同編集機能の話。要件はまだ白紙に近く2より重い。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」(GUID保持済・仕上げのみ)を先に仕上げておくと相性が良い。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 2026-08-27 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)・デプロイ後の作業が残
-Task1〜6実装＋最終レビュー(opus=マージ可)＋Firestore外科マイグレーション作成、全て main にpush済み。**残**: ①Vercelデプロイ確認 ②`npx tsx scripts/add-barrier-stacking-fields.ts --apply`（本番でルールを有効化・必須）③実機確認。**Task7(グレー2色棒=方式c)は未着手**（方式a=負けた時刻で棒停止 で確定・方式cは見た目追加のみ、見積もり=引き継ぎ§⑤）。手順・チェックリスト・見た目が変わる点(🛡️が吸収量表示に・切り株バー)・フォロー6件 全部=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
+### 🔴 2026-08-27 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)・Firestore同期済み
+Task1〜6実装＋最終レビュー(opus=マージ可・Criticalゼロ)＋Firestore外科マイグレーション作成・`--apply`実行済み(28スキル/38フィールド・全て新規セット・dataVersion++)、全て main にpush済み。**残=Vercelデプロイ確認＋実機確認だけ**。**Task7(グレー2色棒=方式c)は未着手**（方式a=負けた時刻で棒停止 で確定・方式cは見た目追加のみ、見積もり=引き継ぎ§⑤）。手順・チェックリスト・見た目が変わる点(🛡️が吸収量表示に・切り株バー)・フォロー6件=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
 ### 🟡 2026-08-27 ①②実装完了・push済み・実機確認待ち
 ①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約しLayout/HousingShell/CollabJoinerPageの3箇所へ適用。②バリア吸収し切り時刻を `damageMapResult.shieldExhaustedAt` で追跡→棒をPC/スマホ早期終了。**②フォロー**: 全体バリアは全体攻撃でのみ棒終了（`shieldCoverageContext`）。実機確認: ①iPhone表示ズレ ②シールド棒の早期終了。
 タイムラプスSNS投稿は技術的ブロッカーで中断中(詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`)。
