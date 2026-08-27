@@ -20,8 +20,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**は2026-08-18時点で2の次に着手予定・大物。2とは完全に別軸=「誰でもログインすれば編集できる」公開編集モデルを新設する共同編集機能の話。要件はまだ白紙に近く2より重い。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」(GUID保持済・仕上げのみ)を先に仕上げておくと相性が良い。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟡 2026-08-27 ①②実装完了・未push・実機確認待ち
-①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約しLayout/HousingShell/CollabJoinerPageの3箇所へ適用(CollabJoinerPageは対策ゼロだった穴)。②バリアが吸収量を使い切った時刻を `damageMapResult.shieldExhaustedAt` で追跡しエフェクト棒をPC/スマホ両方で早期終了(スタック制シールドは除外)。`npm run build`通過・変更関連vitest緑・フルスイートは既知ハングでスキップ。次: push→デプロイ→実機確認。
+### 🟡 2026-08-27 ①②実装完了・push済み(コミット f411bbb8 / 03352652)・実機確認待ち
+①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約しLayout/HousingShell/CollabJoinerPageの3箇所へ適用(CollabJoinerPageは対策ゼロだった穴)。②バリアが吸収量を使い切った時刻を `damageMapResult.shieldExhaustedAt` で追跡しエフェクト棒をPC/スマホ両方で早期終了(スタック制シールドは除外)。`npm run build`通過・変更関連vitest緑(533件)・フルスイートは既知ハングでスキップ。2026-08-27 push→Vercel自動デプロイ。次: 実機確認(①iPhone Safariの表示ズレ ②シールド棒の早期終了・ハイマ継続)。
 軽減表ブラッシュアップ6件+バリア計算バグ2件は全てpush済み・ユーザー確認OK・完了(詳細→TODO_COMPLETED.md)。
 タイムラプスSNS投稿は技術的ブロッカーで中断中(詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`)。
 ### ✅ 2026-08-20〜24 ハウジング一括: 3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定、全てpush→デプロイ済み (詳細=TODO_COMPLETED.md)
