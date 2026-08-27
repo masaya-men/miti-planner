@@ -21,7 +21,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 ## 現在の状態 (次セッションはここから読む)
 ### 🔴 2026-08-27 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)・Firestore同期済み
-Task1〜6実装＋最終レビュー(opus=マージ可・Criticalゼロ)＋Firestore外科マイグレーション作成・`--apply`実行済み(28スキル/38フィールド・全て新規セット・dataVersion++)、全て main にpush済み。**残=Vercelデプロイ確認＋実機確認だけ**。**Task7(グレー2色棒=方式c)は未着手**（方式a=負けた時刻で棒停止 で確定・方式cは見た目追加のみ、見積もり=引き継ぎ§⑤）。スマホの展開戦術バー(①)と設計書typo(⑥)は対応済み(491bb697・push済み)。残フォロー: ②イベント疎区間の穴 ③EventForm逆算 ④tempera_grassa scope。手順・チェックリスト・見た目が変わる点(🛡️が吸収量表示に・切り株バー)=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
+Task1〜6実装＋最終レビュー(opus=マージ可・Criticalゼロ)＋Firestore外科マイグレーション作成・`--apply`実行済み(28スキル/38フィールド・全て新規セット・dataVersion++)、全て main にpush済み。**残=Vercelデプロイ確認＋実機確認だけ**。**Task7(グレー2色棒=方式c)は未着手**（方式a=負けた時刻で棒停止 で確定・方式cは見た目追加のみ、見積もり=引き継ぎ§⑤）。スマホの展開戦術バー(①)・設計書typo(⑥)・削れたEディアへの鼓舞上書き(②)は対応済み(〜4c4c9509・push済み)。②はコードのみで再シード不要・masaya実機再現不可のため実測未確認(違えば1行revert)。残フォロー: 上書き判定がper-hitで詠唱時点を見ない既知制限(②の根本)・③EventForm逆算がまだ加算式・④tempera_grassa scope。手順・チェックリスト・見た目変化=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
 ### 🟡 2026-08-27 ①②実装完了・push済み・実機確認待ち
 ①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約しLayout/HousingShell/CollabJoinerPageの3箇所へ適用。②バリア吸収し切り時刻を `damageMapResult.shieldExhaustedAt` で追跡→棒をPC/スマホ早期終了。**②フォロー**: 全体バリアは全体攻撃でのみ棒終了（`shieldCoverageContext`）。実機確認: ①iPhone表示ズレ ②シールド棒の早期終了。
 タイムラプスSNS投稿は技術的ブロッカーで中断中(詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`)。
