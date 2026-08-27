@@ -216,6 +216,46 @@ describe('buildContextShieldEntries (context ごとのバリア entry 組み立�
     expect(idsIn(r, 'MT')).toEqual([]);
     expect(r.coverageCtxByAppMit.has('d1')).toBe(false);
   });
+
+  // 旧実装の `if (shieldRemaining > 0)` ゲートの回帰。値 0 のバリアが entry になると
+  // 非スタック解決(値を見ない後勝ちルール)で実バリアを負かしてしまうため、entry にしない。
+  it('maxVal が 0 のバリア(computedValues にキーが無い)は entry を作らない', () => {
+    const adlo = mkMit({ id: 'a1', mitigationId: 'adloquium', ownerId: 'H1', targetId: 'MT' });
+    const emptyMembers = [mkMember('H1', {}), mkMember('MT', {})];
+
+    const r = build({
+      mitigations: [adlo],
+      displayContext: 'MT',
+      affectedContexts: ['MT'],
+      partyMembers: emptyMembers,
+    });
+
+    expect(idsIn(r, 'MT')).toEqual([]);
+    expect(r.entriesByCtx.has('MT')).toBe(false);
+    expect(r.coverageCtxByAppMit.has('a1')).toBe(false);
+  });
+
+  it('コピー元の鼓舞値が 0 の展開戦術も entry を作らない', () => {
+    const adlo = mkMit({ id: 'a1', mitigationId: 'adloquium', ownerId: 'H1', targetId: 'MT' });
+    const dep = mkMit({
+      id: 'd1',
+      mitigationId: 'deployment_tactics',
+      ownerId: 'H1',
+      linkedMitigationId: 'a1',
+    });
+    const emptyMembers = [mkMember('H1', {}), mkMember('MT', {}), mkMember('ST', {})];
+
+    const r = build({
+      mitigations: [adlo, dep],
+      displayContext: 'Party',
+      affectedContexts: ['Party', 'MT', 'ST'],
+      partyMembers: emptyMembers,
+    });
+
+    expect(idsIn(r, 'Party')).toEqual([]);
+    expect(idsIn(r, 'ST')).toEqual([]);
+    expect(r.coverageCtxByAppMit.has('d1')).toBe(false);
+  });
 });
 
 describe('統合: buildContextShieldEntries + resolveContextShields', () => {
@@ -256,5 +296,32 @@ describe('統合: buildContextShieldEntries + resolveContextShields', () => {
     expect(res.totalAbsorbed).toBe(50000);
     expect(state.remaining.get('v1')).toBe(0);
     expect(state.remaining.get('a1')).toBe(20000);
+    expect(res.newlyExhausted).toEqual(['v1']); // 尽きたのはヴェールだけ(鼓舞の棒は止めない)
+  });
+
+  it('イベントをまたいで state が永続する: 2 発目は 1 発目の残量だけ吸って尽きる', () => {
+    const veil = mkMit({ id: 'v1', mitigationId: 'divine_veil', ownerId: 'MT' });
+    const members = scholarMembers();
+    members.find(m => m.id === 'MT')!.computedValues = { ディヴァインヴェール: 30000 };
+
+    const r = build({
+      mitigations: [veil],
+      displayContext: 'MT',
+      affectedContexts: ['MT'],
+      partyMembers: members,
+    });
+    const entries = r.entriesByCtx.get('MT')!;
+    // damageMapResult と同じく、context ごとの state を被弾をまたいで使い回す
+    const state = newState();
+
+    const first = resolveContextShields(entries, 20000, state);
+    expect(first.totalAbsorbed).toBe(20000);
+    expect(state.remaining.get('v1')).toBe(10000);
+    expect(first.newlyExhausted).toEqual([]);
+
+    const second = resolveContextShields(entries, 15000, state);
+    expect(second.totalAbsorbed).toBe(10000); // 満タンの 30,000 ではなく 1 発目の残り
+    expect(state.remaining.get('v1')).toBe(0);
+    expect(second.newlyExhausted).toEqual(['v1']);
   });
 });

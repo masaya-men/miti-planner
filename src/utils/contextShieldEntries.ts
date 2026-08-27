@@ -92,6 +92,10 @@ export function buildContextShieldEntries(
             const shieldValue = calculateLinkedShieldValue(
                 linkedMit, timelineMitigations, partyMembers, mitigationDefs
             );
+            // 旧 `if (shieldRemaining > 0)` ゲートの再現。値 0 のバリアは entry にしない。
+            // entry にすると非スタック解決(resolveContextShields の上書き合戦)に参加してしまい、
+            // 値を見ない後勝ちルール(laterWins)で実バリアを負かしてしまうため。
+            if (shieldValue <= 0) return;
 
             coverageCtxByAppMit.set(appMit.id, coverageCtx);
             // copiesShieldはパーティ全体にコピー（元の鼓舞対象は直接のバリアがあるので除外）
@@ -192,6 +196,10 @@ export function buildContextShieldEntries(
         }
 
         const maxVal = Math.floor(maxValBase * critMultiplier * healingMultiplier);
+        // 旧 `if (shieldRemaining > 0)` ゲートの再現。値 0 のバリア(computedValues にキーが無い等)は
+        // entry にしない。entry にすると非スタック解決(resolveContextShields の上書き合戦)に参加し、
+        // 値を見ない後勝ちルール(laterWins)で実バリアを負かして吸収から永久に外してしまうため。
+        if (maxVal <= 0) return;
 
         coverageCtxByAppMit.set(appMit.id, coverageCtx);
         affectedContexts.forEach(ctx => {

@@ -2384,8 +2384,13 @@ const Timeline: React.FC = () => {
                     const res = resolveContextShields(entriesForCtx, damageForShields, getCtxState(ctx));
 
                     // 上書き負けが確定した時刻(暫定でこの被弾時刻。castTime 基準の補正は Task 6)。
+                    // そのバリアが覆う context のバケツで負けたときだけ記録する(Ruling H と同じ理由)。
+                    // 全体バリアは Party/ST バケツで負けても MT バケツではまだ生きて吸収していることがあり、
+                    // ゲート無しだと「まだ効いている棒」を Task 6 がグレーにしてしまう。
                     res.newlyOverwritten.forEach(id => {
-                        if (!barrierOverwrittenAt.has(id)) barrierOverwrittenAt.set(id, event.time);
+                        if (ctx === coverageCtxByAppMit.get(id) && !barrierOverwrittenAt.has(id)) {
+                            barrierOverwrittenAt.set(id, event.time);
+                        }
                     });
 
                     // このバリアが覆う context のバケツが尽きた瞬間を記録 → エフェクト棒をその時刻で早期終了。
