@@ -160,6 +160,70 @@ describe('computeMobileEffectBars', () => {
     expect(result[0].height).toBe(504);
   });
 
+  describe('shieldExhaustedAt (バリア吸収し切りで棒を早期終了)', () => {
+    it('シールドが尽きた時刻で棒を短く切る', () => {
+      const def = makeDef('divine_veil', { duration: 30, isShield: true });
+      const mit = makeMit('p1', 'divine_veil', 'MT', 0, 30); // durationEndTime = 29
+      const result = computeMobileEffectBars({
+        ...baseArgs,
+        timelineMitigations: [mit],
+        mitigationDefs: [def],
+        shieldExhaustedAt: new Map([['p1', 10]]),
+      });
+      // effectiveEndTime = min(29, 10) = 10 → endY = 10*60 + 24 = 624, top = 0
+      expect(result[0].height).toBe(624);
+    });
+
+    it('shieldExhaustedAt が無ければ本来の duration いっぱい', () => {
+      const def = makeDef('divine_veil', { duration: 30, isShield: true });
+      const mit = makeMit('p1', 'divine_veil', 'MT', 0, 30);
+      const result = computeMobileEffectBars({
+        ...baseArgs,
+        timelineMitigations: [mit],
+        mitigationDefs: [def],
+      });
+      // effectiveEndTime = 29 → endY = 29*60 + 24 = 1764
+      expect(result[0].height).toBe(1764);
+    });
+
+    it('def.isShield でない軽減は shieldExhaustedAt があってもクランプしない', () => {
+      const def = makeDef('reprisal', { duration: 30, isShield: false });
+      const mit = makeMit('p1', 'reprisal', 'MT', 0, 30);
+      const result = computeMobileEffectBars({
+        ...baseArgs,
+        timelineMitigations: [mit],
+        mitigationDefs: [def],
+        shieldExhaustedAt: new Map([['p1', 10]]),
+      });
+      expect(result[0].height).toBe(1764);
+    });
+
+    it('尽きた時刻が本来の終端より後なら短くならない(Math.min)', () => {
+      const def = makeDef('divine_veil', { duration: 10, isShield: true });
+      const mit = makeMit('p1', 'divine_veil', 'MT', 0, 10); // durationEndTime = 9
+      const result = computeMobileEffectBars({
+        ...baseArgs,
+        timelineMitigations: [mit],
+        mitigationDefs: [def],
+        shieldExhaustedAt: new Map([['p1', 50]]),
+      });
+      // effectiveEndTime = min(9, 50) = 9 → endY = 9*60 + 24 = 564
+      expect(result[0].height).toBe(564);
+    });
+
+    it('別インスタンスの尽き時刻は流用しない(id 一致のみ)', () => {
+      const def = makeDef('divine_veil', { duration: 30, isShield: true });
+      const mit = makeMit('p1', 'divine_veil', 'MT', 0, 30);
+      const result = computeMobileEffectBars({
+        ...baseArgs,
+        timelineMitigations: [mit],
+        mitigationDefs: [def],
+        shieldExhaustedAt: new Map([['other-id', 10]]),
+      });
+      expect(result[0].height).toBe(1764);
+    });
+  });
+
   it('passes the mitigation def jobId and owner id to getColorClasses', () => {
     const def = makeDef('reprisal', { jobId: 'pld' });
     const mit = makeMit('p1', 'reprisal', 'MT', 0, 10);

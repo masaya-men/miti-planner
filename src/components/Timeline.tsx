@@ -103,6 +103,37 @@ export function isJoinerReadonly(roomToken: string | null, canEdit: boolean): bo
     return roomToken !== null && !canEdit;
 }
 
+/**
+ * バリア(シールド)1インスタンスに一撃が当たったときの状態遷移(純粋・テスト可能)。
+ * damageMapResult の被弾ループから切り出したもの。挙動は元コードと 1:1。
+ *
+ * - `absorbed`: この一撃で肩代わりした量
+ * - `finalShield`: 一撃後の残バリア量。スタック制(`reapplyOnAbsorption`)は壊れると
+ *   1 スタック消費して `maxVal` に貼り直されるため、スタックが残っていれば 0 にはならない。
+ * - `finalStacks`: 一撃後の残スタック数(スタック非対応なら `undefined`)
+ * - `exhausted`: バリアが完全に尽きた(= `finalShield <= 0`、もう肩代わりできない)か。
+ *   スタックが残っている限り `false`。エフェクト棒の早期終了判定に使う。
+ */
+export function stepShieldAbsorption(args: {
+    shieldRemaining: number;
+    incomingDamage: number;
+    stacksRemaining: number | undefined;
+    maxVal: number;
+    reapplyOnAbsorption: boolean | undefined;
+}): { absorbed: number; finalShield: number; finalStacks: number | undefined; exhausted: boolean } {
+    const { shieldRemaining, incomingDamage, stacksRemaining, maxVal, reapplyOnAbsorption } = args;
+    const absorbed = Math.min(shieldRemaining, incomingDamage);
+    const isBroken = absorbed >= shieldRemaining;
+    let finalShield = shieldRemaining - absorbed;
+    let finalStacks = stacksRemaining;
+    // 🚨 仕様: 1回の着弾で複数スタックを一気に消費しない
+    if (isBroken && finalStacks !== undefined && finalStacks > 0 && reapplyOnAbsorption) {
+        finalStacks -= 1;
+        finalShield = maxVal; // 貼り直されたので次は新品
+    }
+    return { absorbed, finalShield, finalStacks, exhausted: finalShield <= 0 };
+}
+
 
 interface MitigationItemProps {
     mitigation: AppliedMitigation;
@@ -2253,6 +2284,9 @@ const Timeline: React.FC = () => {
         const sortedEvents = [...timelineEvents].sort((a, b) => a.time - b.time);
         const shieldStates = new Map<string, Map<string, number>>();
         const stackStates = new Map<string, Map<string, number>>(); // 🚀 Added for Haima/Panhaima
+        // バリア(シールド)が肩代わり量を完全に使い切った時刻を軽減インスタンス(appMit.id)ごとに記録。
+        // エフェクト棒をこの時刻で早期終了させるために使う(PC/スマホ共通)。最初に尽きた時刻を残す。
+        const shieldExhaustedAt = new Map<string, number>();
 
         const getShieldState = (context: string, instanceId: string, maxValue: number) => {
             if (!shieldStates.has(context)) {
@@ -2515,21 +2549,17 @@ const Timeline: React.FC = () => {
 
                     // 🚀 Handle stacks (Haima/Panhaima)
                     affectedContexts.forEach(ctx => {
-                        let shieldRemaining = getShieldState(ctx, appMit.id, maxVal);
-                        let stacksRemaining = def.stacks !== undefined ? getStackState(ctx, appMit.id, def.stacks) : undefined;
+                        const shieldRemaining = getShieldState(ctx, appMit.id, maxVal);
+                        const stacksRemaining = def.stacks !== undefined ? getStackState(ctx, appMit.id, def.stacks) : undefined;
 
                         if (shieldRemaining > 0) {
-                            const absorbed = Math.min(shieldRemaining, damageForShields);
-                            const isBroken = absorbed >= shieldRemaining;
-
-                            let finalShield = shieldRemaining - absorbed;
-                            let finalStacks = stacksRemaining;
-
-                            // 🚨 仕様修正：1回の着弾で複数スタックを一気に消費しない
-                            if (isBroken && finalStacks !== undefined && finalStacks > 0 && def.reapplyOnAbsorption) {
-                                finalStacks -= 1;
-                                finalShield = maxVal; // 貼り直されたので次は新品
-                            }
+                            const { absorbed, finalShield, finalStacks, exhausted } = stepShieldAbsorption({
+                                shieldRemaining,
+                                incomingDamage: damageForShields,
+                                stacksRemaining,
+                                maxVal,
+                                reapplyOnAbsorption: def.reapplyOnAbsorption,
+                            });
 
                             updateShieldState(ctx, appMit.id, finalShield);
                             if (finalStacks !== undefined) updateStackState(ctx, appMit.id, finalStacks);
@@ -2538,6 +2568,12 @@ const Timeline: React.FC = () => {
                                 displayShieldTotal += shieldRemaining;
                                 eventMitigationStates[appMit.id] = { stacks: finalStacks };
                                 currentDamage = Math.max(0, currentDamage - absorbed);
+                                // この一撃でバリアが完全に尽きた瞬間を記録 → エフェクト棒をこの時刻で早期終了。
+                                // スタック制(ハイマ等 reapplyOnAbsorption)は壊れても貼り直されるため exhausted=false、
+                                // 全スタック消費後の最後の一撃でのみ true になる。最初に尽きた時刻を残す。
+                                if (exhausted && !shieldExhaustedAt.has(appMit.id)) {
+                                    shieldExhaustedAt.set(appMit.id, event.time);
+                                }
                             }
                         }
                     });
@@ -2569,11 +2605,12 @@ const Timeline: React.FC = () => {
             });
         });
 
-        return { map, livingDeadTriggers };
+        return { map, livingDeadTriggers, shieldExhaustedAt };
     }, [eventsByTime, timelineMitigations, partyMembers, phases]);
 
     const damageMap = damageMapResult.map;
     const livingDeadTriggers = damageMapResult.livingDeadTriggers; // Task 5 で白黒アイコン描画に使用
+    const shieldExhaustedAt = damageMapResult.shieldExhaustedAt; // バリア吸収し切り時刻 → エフェクト棒の早期終了に使用
 
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
@@ -3522,6 +3559,7 @@ const Timeline: React.FC = () => {
                                                 showPreStart,
                                                 maxConcurrent,
                                                 getColorClasses: (jobId, ownerId) => getMitigationColorClasses(jobId, ownerId, 'role'),
+                                                shieldExhaustedAt,
                                             });
                                             return <MobileEffectBarLayer bars={mobileBars} conflictingIds={mobileConflictingIds} />;
                                         })()}
@@ -3874,6 +3912,13 @@ const Timeline: React.FC = () => {
                                                                 const cutY = getMappedY(wd.time);
                                                                 height = Math.max(0, Math.round(cutY - startY) - 8);
                                                             }
+                                                        }
+                                                        // バリア(シールド)が吸収量を使い切ったら、その時点で棒を止める。
+                                                        // スタック制シールド(ハイマ等)は damageMapResult 側で除外済み(壊れても継続扱い)。
+                                                        // 既存の horoscope/earthly_star/WD クリップとは Math.min で共存させる。
+                                                        if (def?.isShield && shieldExhaustedAt.has(mitigation.id)) {
+                                                            const cutY = getMappedY(shieldExhaustedAt.get(mitigation.id)!);
+                                                            height = Math.min(height, Math.max(0, Math.round(cutY + 24 - startY)));
                                                         }
                                                     }
 
