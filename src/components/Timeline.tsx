@@ -134,6 +134,29 @@ export function stepShieldAbsorption(args: {
     return { absorbed, finalShield, finalStacks, exhausted: finalShield <= 0 };
 }
 
+/**
+ * バリアの「実効カバー範囲」を表す context を返す(純粋・テスト可能)。
+ * エフェクト棒の早期終了は、このカバー範囲のバケツが尽きたときだけ行う。
+ *
+ * ダメージ計算はバリアを Party / MT / ST の 3 バケツで別々に追跡する。全体バリア
+ * (意気軒高の策・ディヴァインヴェール等)はタンク単体攻撃で MT バケツだけ枯れても、
+ * 全体攻撃用の Party バケツと他メンバー分は残っている = まだ効いている。棒を止めて
+ * よいのは「全体攻撃で全体分(Party バケツ)が尽きたとき」だけ。
+ *
+ * - 対象指定バリア(鼓舞激励の策等 targetId あり)      → その対象 context
+ * - 自分バリア(scope:'self')                          → 使用者本人の context
+ * - それ以外(全体バリア / scope:'party' / 未指定)     → 'Party'
+ */
+export function shieldCoverageContext(
+    targetId: string | undefined,
+    scope: string | undefined,
+    ownerId: string,
+): string {
+    if (targetId) return targetId;
+    if (scope === 'self') return ownerId;
+    return 'Party';
+}
+
 
 interface MitigationItemProps {
     mitigation: AppliedMitigation;
@@ -2433,6 +2456,9 @@ const Timeline: React.FC = () => {
 
                     if (!def.isShield && !isConditionalShield) return;
 
+                    // このバリアが実際に覆う context。棒の早期終了はこのバケツが尽きたときだけ。
+                    const coverageCtx = shieldCoverageContext(appMit.targetId, def.scope, appMit.ownerId);
+
                     // copiesShield: リンク先バリアのコピー処理（展開戦術）
                     if (def.copiesShield) {
                         if (!appMit.linkedMitigationId) return; // リンクなし → バリア0、スキップ
@@ -2450,11 +2476,15 @@ const Timeline: React.FC = () => {
                         // copiesShieldはパーティ全体にコピー（元の鼓舞対象は直接のバリアがあるので除外）
                         affectedContexts.forEach(ctx => {
                             if (ctx === linkedMit.targetId) return;
-                            let shieldRemaining = getShieldState(ctx, appMit.id, shieldValue);
+                            const shieldRemaining = getShieldState(ctx, appMit.id, shieldValue);
                             if (shieldRemaining > 0) {
                                 const absorbed = Math.min(shieldRemaining, damageForShields);
                                 const finalShield = shieldRemaining - absorbed;
                                 updateShieldState(ctx, appMit.id, finalShield);
+                                // コピーバリアも全体扱い: Party バケツが尽きた(=全体攻撃で使い切った)ときだけ棒を止める。
+                                if (ctx === coverageCtx && finalShield <= 0 && !shieldExhaustedAt.has(appMit.id)) {
+                                    shieldExhaustedAt.set(appMit.id, event.time);
+                                }
                                 if (ctx === displayContext) {
                                     displayShieldTotal += shieldRemaining;
                                     currentDamage = Math.max(0, currentDamage - absorbed);
@@ -2564,16 +2594,18 @@ const Timeline: React.FC = () => {
                             updateShieldState(ctx, appMit.id, finalShield);
                             if (finalStacks !== undefined) updateStackState(ctx, appMit.id, finalStacks);
 
+                            // このバリアが覆う context のバケツが尽きた瞬間を記録 → エフェクト棒をその時刻で早期終了。
+                            // 全体バリアは coverageCtx='Party' なので「全体攻撃で Party バケツが尽きたとき」だけ止まり、
+                            // タンク単体攻撃で MT バケツが枯れても棒は継続する(他メンバー/全体分がまだ効いているため)。
+                            // スタック制(ハイマ等)は貼り直されるため exhausted=false、全スタック消費後の最後の一撃でのみ true。
+                            if (ctx === coverageCtx && exhausted && !shieldExhaustedAt.has(appMit.id)) {
+                                shieldExhaustedAt.set(appMit.id, event.time);
+                            }
+
                             if (ctx === displayContext) {
                                 displayShieldTotal += shieldRemaining;
                                 eventMitigationStates[appMit.id] = { stacks: finalStacks };
                                 currentDamage = Math.max(0, currentDamage - absorbed);
-                                // この一撃でバリアが完全に尽きた瞬間を記録 → エフェクト棒をこの時刻で早期終了。
-                                // スタック制(ハイマ等 reapplyOnAbsorption)は壊れても貼り直されるため exhausted=false、
-                                // 全スタック消費後の最後の一撃でのみ true になる。最初に尽きた時刻を残す。
-                                if (exhausted && !shieldExhaustedAt.has(appMit.id)) {
-                                    shieldExhaustedAt.set(appMit.id, event.time);
-                                }
                             }
                         }
                     });
