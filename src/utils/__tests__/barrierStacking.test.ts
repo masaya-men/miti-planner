@@ -35,11 +35,18 @@ describe('resolveBarrierConflict', () => {
     expect(resolveBarrierConflict(progSmall, galBig)).toBe('a');
   });
 
-  it('何か ↔ エウクラシア・ディアグノシス: ディアグノシスが必ず勝つ（後から鼓舞を置いても）', () => {
+  it('何か ↔ エウクラシア・ディアグノシス: 残量がある間は必ず勝つ（後から鼓舞を置いても）', () => {
     const diagOld = mk({ group: 'eukrasian_diagnosis', remaining: 20, castTime: 0, id: 'a' });
     const galNew = mk({ group: 'galvanize', remaining: 100, castTime: 10, id: 'b' });
     expect(resolveBarrierConflict(diagOld, galNew)).toBe('a');
     expect(resolveBarrierConflict(galNew, diagOld)).toBe('b');
+  });
+
+  it('エウクラシア・ディアグノシス: 削り切られた（remaining<=0）なら鼓舞系で上書きできる（後勝ちに戻る）', () => {
+    const diagEmpty = mk({ group: 'eukrasian_diagnosis', remaining: 0, castTime: 0, id: 'a' });
+    const galLater = mk({ group: 'galvanize', remaining: 40000, castTime: 10, id: 'b' });
+    expect(resolveBarrierConflict(diagEmpty, galLater)).toBe('b'); // 後から置いた鼓舞が勝つ
+    expect(resolveBarrierConflict(galLater, diagEmpty)).toBe('a');
   });
 
   it('エウクラシア・プログノシス ↔ エウクラシア・ディアグノシス: ディアグノシス', () => {

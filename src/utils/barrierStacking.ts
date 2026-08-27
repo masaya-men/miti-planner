@@ -21,11 +21,13 @@ function laterWins(a: BarrierConflictInput, b: BarrierConflictInput): 'a' | 'b' 
 export function resolveBarrierConflict(a: BarrierConflictInput, b: BarrierConflictInput): 'a' | 'b' | 'both' {
   if (a.group == null || b.group == null) return 'both';
 
-  // グループをまたぐ: ディアグノシスが絡めばディアグノシスが勝つ
+  // グループをまたぐ: エウクラシア・ディアグノシスは「バリアが残っている間」は一方通行で勝つ
+  // （鼓舞系では上書きできない）。削り切られた（remaining<=0）ディアグノシスは buff が落ちて
+  // いる状態なので、後から置いた鼓舞系で上書きできる（＝後勝ちに戻る）。
   if (a.group !== b.group) {
-    if (a.group === 'eukrasian_diagnosis') return 'a';
-    if (b.group === 'eukrasian_diagnosis') return 'b';
-    // galvanize ↔ eukrasian_prognosis → 後勝ち
+    if (a.group === 'eukrasian_diagnosis' && a.remaining > 0) return 'a';
+    if (b.group === 'eukrasian_diagnosis' && b.remaining > 0) return 'b';
+    // galvanize ↔ eukrasian_prognosis、または削り切られたディアグノシス → 後勝ち
     return laterWins(a, b);
   }
 

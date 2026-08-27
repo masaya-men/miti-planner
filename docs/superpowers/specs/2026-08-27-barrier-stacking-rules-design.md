@@ -37,7 +37,7 @@ masaya さんの決定（2026-08-27）:
 | 組み合わせ | 勝つ方 |
 |---|---|
 | 鼓舞系 ↔ エウクラシア・プログノシス系 | **後に使った方**（後勝ち・相互上書き） |
-| 鼓舞系 ↔ エウクラシア・ディアグノシス | **エウクラシア・ディアグノシスが必ず勝つ**（一方通行。鼓舞系はディアグノシスを上書きできない） |
+| 鼓舞系 ↔ エウクラシア・ディアグノシス | **ディアグノシスのバリアが残っている間は一方通行でディアグノシスが勝つ**（鼓舞系では上書きできない）。ディアグノシスを削り切った後は buff が落ちるので、後から置いた鼓舞系で上書きできる（後勝ちに戻る）。※2026-08-27 masaya 追加。実測で違ったら `resolveBarrierConflict` の `&& remaining > 0` を外すだけで元に戻る |
 | エウクラシア・プログノシス系 ↔ エウクラシア・ディアグノシス | **後に使った方**（要確認。当面は後勝ちで実装） |
 
 公式ゲーム内の効果説明にも「鼓舞系バリアは賢者のエウクラシア・ディアグノシス／エウクラシア・プログノシスとは重複しない」と明記あり。
@@ -107,8 +107,9 @@ export function resolveBarrierConflict(
    - `eukrasian_prognosis` → 後勝ち（`castTime` が新しい方）
    - `eukrasian_diagnosis` → 後勝ち
 3. `group` が違う:
-   - `eukrasian_diagnosis` が絡む → `eukrasian_diagnosis` が勝つ
-   - `galvanize` ↔ `eukrasian_prognosis` → 後勝ち
+   - `eukrasian_diagnosis` が絡む＆その `remaining > 0` → `eukrasian_diagnosis` が勝つ（一方通行）
+   - `eukrasian_diagnosis` が削り切られている（`remaining <= 0`）→ 下の後勝ちルールに落ちる
+   - `galvanize` ↔ `eukrasian_prognosis`（または削り切られた `eukrasian_diagnosis`）→ 後勝ち
 
 ### 3-3. 適用フロー
 
