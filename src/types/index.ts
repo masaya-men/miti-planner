@@ -71,6 +71,12 @@ export interface Mitigation {
     family?: string; // Compatibility family for job migration mappings
     stacks?: number; // Max stacks for multi-layer barriers (e.g. Haima=5)
     reapplyOnAbsorption?: boolean; // If true, shield reapplies using a stack when broken
+    /** バリアの重なりグループ。同じ context に同グループ or 上書き関係のバリアが複数あるとき、
+     *  勝敗ルール(resolveBarrierConflict)で 1 枚に絞る。未設定 = 自由に加算スタック。 */
+    barrierStackGroup?: 'galvanize' | 'eukrasian_prognosis' | 'eukrasian_diagnosis';
+    /** バリア消費優先順位。小さいほど先に割れる（FF14 実測の固定優先順位表・パッチ7.31）。
+     *  未設定のバリアは最も遅く消費される扱い。 */
+    barrierConsumptionPriority?: number;
     onExpiryHealingPotency?: number; // Healing per remaining stack when duration expires
     burstValue?: number; // Additional mitigation % during initial burst window (e.g., 10 for extra 10%)
     burstDuration?: number; // Duration in seconds for the burst mitigation window (e.g., 4)

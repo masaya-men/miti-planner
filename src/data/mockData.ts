@@ -222,7 +222,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "divine_veil", jobId: "pld", name: { ja: "ディヴァインヴェール", en: "Divine Veil", zh: "圣光幕帘", ko: "신성한 보호막" }, icon: "/icons/Divine_Veil.png",
-        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", scope: "party", minLevel: 56, family: "tank_party_miti"
+        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", scope: "party", minLevel: 56, family: "tank_party_miti", barrierConsumptionPriority: 20
     },
     {
         id: "guardian", jobId: "pld", name: { ja: "エクストリームガード", en: "Guardian", zh: "极致防御", ko: "극한 방어" }, icon: "/icons/Guardian.png",
@@ -278,7 +278,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Pictomancer ---
     {
         id: "tempera_grassa", jobId: "pct", name: { ja: "テンペラグラッサ", en: "Tempera Grassa", zh: "油性坦培拉涂层", ko: "무지개 빛방울" }, icon: "/icons/Tempera_Grassa.png",
-        recast: 90, duration: 10, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", minLevel: 88, family: "caster_personal_shield"
+        recast: 90, duration: 10, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", minLevel: 88, family: "caster_personal_shield", barrierConsumptionPriority: 2
     },
 
     // --- Monk ---
@@ -320,7 +320,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "the_blackest_night", jobId: "drk", name: { ja: "ブラックナイト", en: "The Blackest Night", zh: "至黑之夜", ko: "흑야" }, icon: "/icons/The_Blackest_Night.png",
-        recast: 15, duration: 7, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "25% HP", scope: "target", minLevel: 70, family: "tank_short"
+        recast: 15, duration: 7, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "25% HP", scope: "target", minLevel: 70, family: "tank_short", barrierConsumptionPriority: 3
     },
     {
         id: "living_dead", jobId: "drk", name: { ja: "リビングデッド", en: "Living Dead", zh: "行尸走肉", ko: "산송장" }, icon: "/icons/Living_Dead.png",
@@ -330,27 +330,27 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Scholar ---
     {
         id: "accession", jobId: "sch", name: { ja: "アクセッション", en: "Accession", zh: "降临之章", ko: "강림" }, icon: "/icons/Accession.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 432, requires: "seraphism", minLevel: 100, family: "healer_gcd_shield", hidden: true
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 432, requires: "seraphism", minLevel: 100, family: "healer_gcd_shield", hidden: true, barrierStackGroup: 'galvanize', barrierConsumptionPriority: 25
     },
     {
         id: "manifestation", jobId: "sch", name: { ja: "マニフェステーション", en: "Manifestation", zh: "显灵之章", ko: "현시" }, icon: "/icons/Manifestation.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 648, scope: "target", requires: "seraphism", minLevel: 100, family: "healer_gcd_target_shield", hidden: true
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 648, scope: "target", requires: "seraphism", minLevel: 100, family: "healer_gcd_target_shield", hidden: true, barrierStackGroup: 'galvanize', barrierConsumptionPriority: 25
     },
     {
         id: "concitation", jobId: "sch", name: { ja: "意気軒高の策", en: "Concitation", zh: "意气轩昂之策", ko: "의기왕성책" }, icon: "/icons/Concitation.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 360, minLevel: 92, family: "succor"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 360, minLevel: 92, family: "succor", barrierStackGroup: 'galvanize', barrierConsumptionPriority: 25
     },
     {
         id: "succor", jobId: "sch", name: { ja: "士気高揚の策", en: "Succor", zh: "士气高扬之策", ko: "사기고양책" }, icon: "/icons/Concitation.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 320, maxLevel: 91, family: "succor"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 320, maxLevel: 91, family: "succor", barrierStackGroup: 'galvanize', barrierConsumptionPriority: 25
     },
     {
         id: "consolation", jobId: "sch", name: { ja: "コンソレイション", en: "Consolation", zh: "慰藉", ko: "위안" }, icon: "/icons/Consolation.png",
-        recast: 1, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 250, requires: "summon_seraph", maxCharges: 2, minLevel: 80, family: "bh_sub_a", requiresFairy: true
+        recast: 1, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 250, requires: "summon_seraph", maxCharges: 2, minLevel: 80, family: "bh_sub_a", requiresFairy: true, barrierConsumptionPriority: 16
     },
     {
         id: "adloquium", jobId: "sch", name: { ja: "鼓舞激励の策", en: "Adloquium", zh: "鼓舞激励之策", ko: "고무격려책" }, icon: "/icons/Adloquium.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", minLevel: 30, family: "healer_gcd_target_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", minLevel: 30, family: "healer_gcd_target_shield", barrierStackGroup: 'galvanize', barrierConsumptionPriority: 25
     },
     {
         id: "recitation", jobId: "sch", name: { ja: "秘策", en: "Recitation", zh: "秘策", ko: "비책" }, icon: "/icons/Recitation.png",
@@ -362,11 +362,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "deployment_tactics", jobId: "sch", name: { ja: "展開戦術", en: "Deployment Tactics", zh: "展开战术", ko: "전개전술" }, icon: "/icons/Deployment_Tactics.png",
-        recast: 90, duration: 30, type: "all", value: 0, isShield: true, copiesShield: 'adloquium', note: "対象の鼓舞バリアをパーティにコピー", minLevel: 88, family: "bh_90_shield"
+        recast: 90, duration: 30, type: "all", value: 0, isShield: true, copiesShield: 'adloquium', note: "対象の鼓舞バリアをパーティにコピー", minLevel: 88, family: "bh_90_shield", barrierStackGroup: 'galvanize', barrierConsumptionPriority: 25
     },
     {
         id: "deployment_tactics_base", jobId: "sch", name: { ja: "展開戦術", en: "Deployment Tactics", zh: "展开战术", ko: "전개전술" }, icon: "/icons/Deployment_Tactics.png",
-        recast: 120, duration: 30, type: "all", value: 0, isShield: true, copiesShield: 'adloquium', note: "対象の鼓舞バリアをパーティにコピー", minLevel: 56, maxLevel: 87, family: "bh_90_shield"
+        recast: 120, duration: 30, type: "all", value: 0, isShield: true, copiesShield: 'adloquium', note: "対象の鼓舞バリアをパーティにコピー", minLevel: 56, maxLevel: 87, family: "bh_90_shield", barrierStackGroup: 'galvanize', barrierConsumptionPriority: 25
     },
 
     {
@@ -458,15 +458,15 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Sage ---
     {
         id: "eukrasian_prognosis_ii", jobId: "sge", name: { ja: "エウクラシア・プログノシスII", en: "Eukrasian Prognosis II", zh: "均衡预后II", ko: "정상건강: 예후II" }, icon: "/icons/Eukrasian_Prognosis_II.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 360, minLevel: 96, family: "healer_gcd_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 360, minLevel: 96, family: "healer_gcd_shield", barrierStackGroup: 'eukrasian_prognosis', barrierConsumptionPriority: 15
     },
     {
         id: "eukrasian_prognosis", jobId: "sge", name: { ja: "エウクラシア・プログノシス", en: "Eukrasian Prognosis", zh: "均衡预后", ko: "정상건강: 예후" }, icon: "/icons/Eukrasian_Prognosis_II.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 320, maxLevel: 95, family: "healer_gcd_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 320, maxLevel: 95, family: "healer_gcd_shield", barrierStackGroup: 'eukrasian_prognosis', barrierConsumptionPriority: 15
     },
     {
         id: "holos", jobId: "sge", name: { ja: "ホーリズム", en: "Holos", zh: "整体论", ko: "전체론" }, icon: "/icons/Holos.png",
-        recast: 120, duration: 20, type: "all", value: 10, isShield: true, valueType: 'potency', shieldPotency: 300, minLevel: 76, family: "bh_120_b"
+        recast: 120, duration: 20, type: "all", value: 10, isShield: true, valueType: 'potency', shieldPotency: 300, minLevel: 76, family: "bh_120_b", barrierConsumptionPriority: 17
     },
     {
         id: "kerachole", jobId: "sge", name: { ja: "ケーラコレ", en: "Kerachole", zh: "坚角清汁", ko: "케이라콜레" }, icon: "/icons/Kerachole.png",
@@ -475,7 +475,7 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "panhaima", jobId: "sge", name: { ja: "パンハイマ", en: "Panhaima", zh: "泛输血", ko: "온혈액" }, icon: "/icons/Panhaima.png",
         recast: 120, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 200,
-        stacks: 5, reapplyOnAbsorption: true, onExpiryHealingPotency: 100, minLevel: 80, family: "bh_120_a"
+        stacks: 5, reapplyOnAbsorption: true, onExpiryHealingPotency: 100, minLevel: 80, family: "bh_120_a", barrierConsumptionPriority: 6
     },
     {
         id: "philosophia", jobId: "sge", name: { ja: "フィロソフィア", en: "Philosophia", zh: "智慧之爱", ko: "필로소피아" }, icon: "/icons/Philosophia.png",
@@ -496,7 +496,7 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "haima", jobId: "sge", name: { ja: "ハイマ", en: "Haima", zh: "输血", ko: "혈액" }, icon: "/icons/Haima.png",
         recast: 120, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 300,
-        stacks: 5, reapplyOnAbsorption: true, onExpiryHealingPotency: 150, note: "300x(1+5)回分", scope: "target", minLevel: 70, family: "bh_sub_c"
+        stacks: 5, reapplyOnAbsorption: true, onExpiryHealingPotency: 150, note: "300x(1+5)回分", scope: "target", minLevel: 70, family: "bh_sub_c", barrierConsumptionPriority: 5
     },
     {
         id: "pneuma", jobId: "sge", name: { ja: "プネウマ", en: "Pneuma", zh: "魂灵风息", ko: "프네우마" }, icon: "/icons/Pneuma.png",
@@ -504,7 +504,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "eukrasian_diagnosis", jobId: "sge", name: { ja: "エウクラシア・ディアグノシス", en: "Eukrasian Diagnosis", zh: "均衡诊断", ko: "정상건강: 진단치료" }, icon: "/icons/Eukrasian_Diagnosis.png",
-        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", minLevel: 30, family: "healer_gcd_target_shield"
+        recast: 2.5, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 540, scope: "target", minLevel: 30, family: "healer_gcd_target_shield", barrierStackGroup: 'eukrasian_diagnosis', barrierConsumptionPriority: 4
     },
     {
         id: "zoe", jobId: "sge", name: { ja: "ゾーエ", en: "Zoe", zh: "活化", ko: "생명력" }, icon: "/icons/Zoe.png",
@@ -542,7 +542,9 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "arcane_crest", jobId: "rpr", name: { ja: "アルケインクレスト", en: "Arcane Crest", zh: "神秘纹", ko: "신비의 문장", "zh-Hant": "神秘紋" }, icon: "/icons/Arcane_Crest.png",
         recast: 30, duration: 5, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", scope: "self",
-        note: "バリア完全吸収で自身と周囲15m以内に回復力50のHP継続回復(15秒)", minLevel: 40, hidden: true
+        note: "バリア完全吸収で自身と周囲15m以内に回復力50のHP継続回復(15秒)", minLevel: 40, hidden: true,
+        // 暫定: 命脈を借り受け(Lv84+)は本来 priority 1 だが軽減表はレベル分岐を持たないため 11 固定
+        barrierConsumptionPriority: 11
     },
 
     // --- Astrologian ---
@@ -552,11 +554,11 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "helios_conjunction", jobId: "ast", name: { ja: "コンジャンクション・ヘリオス", en: "Helios Conjunction", zh: "阳星合相", ko: "회합: 헬리오스" }, icon: "/icons/Helios_Conjunction.png",
-        recast: 2.5, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 312.5, note: "ニュートラルセクト中のみバリア", minLevel: 96, family: "healer_gcd_shield"
+        recast: 2.5, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 312.5, note: "ニュートラルセクト中のみバリア", minLevel: 96, family: "healer_gcd_shield", barrierConsumptionPriority: 21
     },
     {
         id: "aspected_helios", jobId: "ast", name: { ja: "アスペクト・ヘリオス", en: "Aspected Helios", zh: "阳星相位", ko: "별읽기: 헬리오스" }, icon: "/icons/Helios_Conjunction.png",
-        recast: 2.5, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 312.5, note: "ニュートラルセクト中のみバリア", maxLevel: 95, family: "healer_gcd_shield"
+        recast: 2.5, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 312.5, note: "ニュートラルセクト中のみバリア", maxLevel: 95, family: "healer_gcd_shield", barrierConsumptionPriority: 21
     },
     {
         id: "macrocosmos", jobId: "ast", name: { ja: "マクロコスモス", en: "Macrocosmos", zh: "大宇宙", ko: "대우주" }, icon: "/icons/Macrocosmos.png",
@@ -588,7 +590,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "celestial_intersection", jobId: "ast", name: { ja: "星天交差", en: "Celestial Intersection", zh: "天星交错", ko: "천궁의 교차" }, icon: "/icons/Celestial_Intersection.png",
-        recast: 30, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, scope: "target", maxCharges: 2, chargeMinLevel: 88, minLevel: 74, family: "ph_target_shield"
+        recast: 30, duration: 30, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, scope: "target", maxCharges: 2, chargeMinLevel: 88, minLevel: 74, family: "ph_target_shield", barrierConsumptionPriority: 13
     },
     {
         id: "astral_draw", jobId: "ast",
@@ -624,7 +626,7 @@ export const MITIGATIONS: Mitigation[] = [
         valueType: 'potency', shieldPotency: 400, scope: "target",
         requires: "astral_draw",
         note: "バリア (回復力400相当) / 30秒",
-        minLevel: 30, family: "ph_target_shield"
+        minLevel: 30, family: "ph_target_shield", barrierConsumptionPriority: 14
     },
     {
         id: "the_bole", jobId: "ast",
@@ -668,7 +670,7 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "bloodwhetting", jobId: "war", name: { ja: "原初の血気", en: "Bloodwhetting", zh: "原初的血气", ko: "원초의 혈기" }, icon: "/icons/Bloodwhetting.png",
         recast: 25, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: true, valueType: 'potency', shieldPotency: 400,
-        note: "最初4秒10%*10%, 残り4秒10％", scope: "self", minLevel: 82, family: "tank_short"
+        note: "最初4秒10%*10%, 残り4秒10％", scope: "self", minLevel: 82, family: "tank_short", barrierConsumptionPriority: 8
     },
     {
         id: "raw_intuition", jobId: "war", name: { ja: "原初の直感", en: "Raw Intuition", zh: "原初的直觉", ko: "원초의 직감" }, icon: "/icons/Bloodwhetting.png",
@@ -678,7 +680,7 @@ export const MITIGATIONS: Mitigation[] = [
     {
         id: "nascent_flash", jobId: "war", name: { ja: "原初の猛り", en: "Nascent Flash", zh: "原初的勇猛", ko: "원초의 분노" }, icon: "/icons/Nascent_Flash.png",
         recast: 25, duration: 8, type: "all", value: 10, burstValue: 10, burstDuration: 4, isShield: true, valueType: 'potency', shieldPotency: 400,
-        note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted", targetCannotBeSelf: true
+        note: "最初4秒10%*10%, 残り4秒10％", scope: "target", minLevel: 82, family: "tank_sub_targeted", targetCannotBeSelf: true, barrierConsumptionPriority: 8
     },
     {
         id: "nascent_flash_base", jobId: "war", name: { ja: "原初の猛り", en: "Nascent Flash", zh: "原初的勇猛", ko: "원초의 분노" }, icon: "/icons/Nascent_Flash.png",
@@ -687,7 +689,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "shake_it_off", jobId: "war", name: { ja: "シェイクオフ", en: "Shake It Off", zh: "摆脱", ko: "뿌리치기" }, icon: "/icons/Shake_It_Off.png",
-        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "15% HP", scope: "party", minLevel: 68, family: "tank_party_miti"
+        recast: 90, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "15% HP", scope: "party", minLevel: 68, family: "tank_party_miti", barrierConsumptionPriority: 19
     },
     {
         id: "holmgang", jobId: "war", name: { ja: "ホルムギャング", en: "Holmgang", zh: "死斗", ko: "일대일 결투" }, icon: "/icons/Holmgang.png",
@@ -701,7 +703,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- White Mage ---
     {
         id: "divine_caress", jobId: "whm", name: { ja: "ディヴァインカレス", en: "Divine Caress", zh: "神爱抚", ko: "만상투기" }, icon: "/icons/Divine_Caress.png",
-        recast: 1, duration: 10, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, requires: "temperance", requiresWindow: 30, maxCharges: 1, minLevel: 100, family: "ph_sub_120"
+        recast: 1, duration: 10, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 400, requires: "temperance", requiresWindow: 30, maxCharges: 1, minLevel: 100, family: "ph_sub_120", barrierConsumptionPriority: 10
     },
     {
         id: "plenary_indulgence", jobId: "whm", name: { ja: "インドゥルゲンティア", en: "Plenary Indulgence", zh: "全大赦", ko: "대사면" }, icon: "/icons/Plenary_Indulgence.png",
@@ -721,7 +723,7 @@ export const MITIGATIONS: Mitigation[] = [
     },
     {
         id: "divine_benison", jobId: "whm", name: { ja: "ディヴァインベニゾン", en: "Divine Benison", zh: "神祝祷", ko: "신성한 축복" }, icon: "/icons/Divine_Benison.png",
-        recast: 30, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 500, scope: "target", maxCharges: 2, chargeMinLevel: 88, minLevel: 66, family: "ph_target_shield"
+        recast: 30, duration: 15, type: "all", value: 0, isShield: true, valueType: 'potency', shieldPotency: 500, scope: "target", maxCharges: 2, chargeMinLevel: 88, minLevel: 66, family: "ph_target_shield", barrierConsumptionPriority: 12
     },
     {
         id: "medica_ii", jobId: "whm", name: { ja: "メディカラ", en: "Medica II", zh: "医济", ko: "메디카라" }, icon: "/icons/Medica_II.png",
@@ -759,7 +761,7 @@ export const MITIGATIONS: Mitigation[] = [
     // --- Dancer ---
     {
         id: "improvisation", jobId: "dnc", name: { ja: "インプロビゼーション", en: "Improvisation", zh: "即兴表演", ko: "즉흥 연기" }, icon: "/icons/Improvisation.png",
-        recast: 120, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", minLevel: 80, family: "ranged_party_heal"
+        recast: 120, duration: 30, type: "all", value: 0, isShield: true, valueType: 'hp', shieldScale: "10% HP", minLevel: 80, family: "ranged_party_heal", barrierConsumptionPriority: 22
     },
     {
         id: "shield_samba", jobId: "dnc", name: { ja: "守りのサンバ", en: "Shield Samba", zh: "防守之桑巴", ko: "수세의 삼바" }, icon: "/icons/Shield_Samba.png",

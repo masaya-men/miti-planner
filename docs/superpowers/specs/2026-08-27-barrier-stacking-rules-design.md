@@ -180,6 +180,53 @@ https://na.finalfantasyxiv.com/lodestone/character/34801907/blog/5607030/
 未設定のバリアは最低優先度（末尾）扱いで、既存の相対順を壊さない安全側に倒す。
 表に無い（自己バリア等で未検証の）ものは、性質から近い位置に暫定配置し、コメントで明記。
 
+### 3-5b. 実際に付与したマッピング（Task 2 実装結果・2026-08-27）
+
+`src/types/index.ts` の `Mitigation` に 2 フィールドを追加（`reapplyOnAbsorption` の直後）:
+- `barrierStackGroup?: 'galvanize' | 'eukrasian_prognosis' | 'eukrasian_diagnosis'`
+- `barrierConsumptionPriority?: number`
+
+`src/data/mockData.ts` の `isShield: true` な def は 28 件（`grep -n 'isShield: true'`）。全 28 件に priority を付与、うち 10 件に group も付与。未設定で残した def は **なし**。
+
+| def id | job | 日本語名 | barrierStackGroup | barrierConsumptionPriority |
+|---|---|---|---|---|
+| `tempera_grassa` | pct | テンペラグラッサ | — | 2 |
+| `the_blackest_night` | drk | ブラックナイト | — | 3 |
+| `eukrasian_diagnosis` | sge | エウクラシア・ディアグノシス | `eukrasian_diagnosis` | 4 |
+| `haima` | sge | ハイマ | — | 5 |
+| `panhaima` | sge | パンハイマ | — | 6 |
+| `bloodwhetting` | war | 原初の血気 | — | 8 |
+| `nascent_flash` | war | 原初の猛り | — | 8 |
+| `divine_caress` | whm | ディヴァインカレス | — | 10 |
+| `arcane_crest` | rpr | アルケインクレスト | — | 11 ※暫定（下記） |
+| `divine_benison` | whm | ディヴァインベニゾン | — | 12 |
+| `celestial_intersection` | ast | 星天交差 | — | 13 |
+| `the_spire` | ast | ビエルゴの塔 | — | 14 |
+| `eukrasian_prognosis` | sge | エウクラシア・プログノシス（maxLv95旧版） | `eukrasian_prognosis` | 15 |
+| `eukrasian_prognosis_ii` | sge | エウクラシア・プログノシスII | `eukrasian_prognosis` | 15 |
+| `consolation` | sch | コンソレイション（セラフ・慰藉／セラフィックヴェール源） | — | 16 |
+| `holos` | sge | ホーリズム | — | 17 |
+| `shake_it_off` | war | シェイクオフ | — | 19 |
+| `divine_veil` | pld | ディヴァインヴェール | — | 20 |
+| `helios_conjunction` | ast | コンジャンクション・ヘリオス（Nセクト中のみバリア） | — | 21 |
+| `aspected_helios` | ast | アスペクト・ヘリオス（Nセクト中のみバリア・旧版） | — | 21 |
+| `improvisation` | dnc | インプロビゼーション（即興） | — | 22 |
+| `adloquium` | sch | 鼓舞激励の策 | `galvanize` | 25 |
+| `succor` | sch | 士気高揚の策 | `galvanize` | 25 |
+| `concitation` | sch | 意気軒高の策 | `galvanize` | 25 |
+| `deployment_tactics` | sch | 展開戦術 | `galvanize` | 25 |
+| `deployment_tactics_base` | sch | 展開戦術（低レベル版） | `galvanize` | 25 |
+| `manifestation` | sch | マニフェステーション（セラフィズム中の鼓舞激励・hidden） | `galvanize` | 25 |
+| `accession` | sch | アクセッション（セラフィズム中の士気高揚・hidden） | `galvanize` | 25 |
+
+**補足:**
+- `arcane_crest` の 11 は暫定。コード上に「命脈を借り受け(Lv84+)は本来 priority 1 だが軽減表はレベル分岐を持たないため 11 固定」とコメント。
+- `manifestation` / `accession` はセラフィズム中の鼓舞激励／士気高揚。Galvanize バリアを付与するため `galvanize` グループ・25。**セラフィックヴェールではない**。
+- `neutral_sect` def は `isShield: false`（ヒール強化バフ）なので触っていない。Nセクト由来バリアは `helios_conjunction` / `aspected_helios` が担当（21）。
+- 優先順位表の 1（テンペラコート）/ 7（ブルータルシェル＝ハート・オブ・コランダムは `isShield: false`）/ 9（ガーディアン）/ 11（マバリア・残影）/ 14（The Spire は AST の `the_spire` として実装済み）/ 18（守りのエギ）/ 23-24（会心追加バリア）に対応する `isShield: true` の def は存在しない。
+- `helios_conjunction_base` は `MITIGATION_DISPLAY_ORDER` 配列に id 参照はあるが、対応する def は存在しない（実体は `aspected_helios`）。既存の不整合であり本タスクでは触れていない。
+- ロジック変更ゼロ。後続 Task 3-5 がこのデータを純関数で消費する。
+
 ### 3-4. エフェクト棒
 
 - **上書きで負けたバリア**: masaya さん判断 = (c) 優先。
