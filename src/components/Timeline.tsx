@@ -53,12 +53,12 @@ import { FFLogsImportModal } from './FFLogsImportModal';
 import { validateMitigationPlacement, findSameSkillCdConflicts } from '../utils/resourceTracker';
 import { ConflictOffscreenArrows } from './timeline/ConflictOffscreenArrows';
 import type { ConflictPoint } from './timeline/conflictArrows';
-import { calculateLinkedShieldValue, CRIT_MULTIPLIER } from '../utils/calculator';
+import { calculateLinkedShieldValue } from '../utils/calculator';
 import { isMitigationBlockedByEvent } from '../utils/damageTypeLogic';
 import { buildEffectiveTargetMap } from '../utils/effectiveTarget';
 import { isLivingDeadStyle, maxHpForEffectiveTarget, resolveLivingDeadSurvival, type LivingDeadInstance } from '../utils/livingDead';
 import { resolveMitigationTap } from '../utils/mitigationTapResolver';
-import { isRecitationCritEligible, resolveSeraphismMitigation, isPotencyBasedShield } from '../utils/scholarShieldRules';
+import { resolveSeraphismMitigation } from '../utils/scholarShieldRules';
 import { useMeasuredMemberLayout } from './Timeline.layoutHooks';
 import type { MemberRefEntry } from './Timeline.layoutHooks';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -87,7 +87,8 @@ import { SpreadsheetGridImportModal } from './SpreadsheetGridImportModal';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
 import { importWithLimitCheck } from '../lib/sheetImport/importWithLimitCheck';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
-import { stepShieldAbsorption, shieldCoverageContext } from '../utils/barrierStacking';
+import { resolveContextShields, type ContextShieldState } from '../utils/barrierStacking';
+import { buildContextShieldEntries } from '../utils/contextShieldEntries';
 
 function genId(): string {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
@@ -2252,47 +2253,23 @@ const Timeline: React.FC = () => {
     const damageMapResult = useMemo(() => {
         const map = new Map<string, { unmitigated: number; mitigated: number, mitigationPercent: number, shieldTotal: number, isInvincible?: boolean, mitigationStates?: Record<string, { stacks?: number }> }>();
         const sortedEvents = [...timelineEvents].sort((a, b) => a.time - b.time);
-        const shieldStates = new Map<string, Map<string, number>>();
-        const stackStates = new Map<string, Map<string, number>>(); // 🚀 Added for Haima/Panhaima
         // バリア(シールド)が肩代わり量を完全に使い切った時刻を軽減インスタンス(appMit.id)ごとに記録。
         // エフェクト棒をこの時刻で早期終了させるために使う(PC/スマホ共通)。最初に尽きた時刻を残す。
         const shieldExhaustedAt = new Map<string, number>();
+        // 重ならないバリア(鼓舞系・エウクラシア系)が上書き負けした時刻を記録。
+        // 負けたバリアはその context の吸収に以降参加しない。エフェクト棒の描画は Task 6。
+        const barrierOverwrittenAt = new Map<string, number>();
 
-        const getShieldState = (context: string, instanceId: string, maxValue: number) => {
-            if (!shieldStates.has(context)) {
-                shieldStates.set(context, new Map());
+        // context('Party' / 'MT' / 'ST') → その context のバリア状態。イベントをまたいで永続する。
+        // 旧 shieldStates + stackStates(+ 上書き負けのラッチ)を 1 つにまとめたもの。
+        const ctxShieldState = new Map<string, ContextShieldState>();
+        const getCtxState = (context: string): ContextShieldState => {
+            let state = ctxShieldState.get(context);
+            if (!state) {
+                state = { remaining: new Map(), stacks: new Map(), overwritten: new Set() };
+                ctxShieldState.set(context, state);
             }
-            const contextMap = shieldStates.get(context)!;
-            if (!contextMap.has(instanceId)) {
-                contextMap.set(instanceId, maxValue);
-            }
-            return contextMap.get(instanceId)!;
-        };
-
-        const updateShieldState = (context: string, instanceId: string, newValue: number) => {
-            if (!shieldStates.has(context)) {
-                shieldStates.set(context, new Map());
-            }
-            shieldStates.get(context)!.set(instanceId, newValue);
-        };
-
-        // 🚀 Helper to manage stack states
-        const getStackState = (context: string, instanceId: string, maxStacks: number) => {
-            if (!stackStates.has(context)) {
-                stackStates.set(context, new Map());
-            }
-            const contextMap = stackStates.get(context)!;
-            if (!contextMap.has(instanceId)) {
-                contextMap.set(instanceId, maxStacks);
-            }
-            return contextMap.get(instanceId)!;
-        };
-
-        const updateStackState = (context: string, instanceId: string, newValue: number) => {
-            if (!stackStates.has(context)) {
-                stackStates.set(context, new Map());
-            }
-            stackStates.get(context)!.set(instanceId, newValue);
+            return state;
         };
 
         // 挑発スイッチ: 実効ターゲットマップを構築
@@ -2387,175 +2364,47 @@ const Timeline: React.FC = () => {
             const damageForShields = currentDamage;
 
             if (!isInvincibleForEvent) {
-                activeMitigations.forEach(appMit => {
-                    const def = MITIGATIONS.find(m => m.id === appMit.mitigationId);
-                    if (!def) return;
+                // フェーズ1: この被弾で各 context に効くバリアの entry を組み立てる(吸収はまだしない)。
+                const { entriesByCtx, coverageCtxByAppMit } = buildContextShieldEntries({
+                    activeMitigations,
+                    timelineMitigations,
+                    partyMembers,
+                    mitigationDefs: MITIGATIONS,
+                    event,
+                    displayContext,
+                    affectedContexts,
+                });
 
-                    let isConditionalShield = false;
-                    if (def.id === 'helios_conjunction') {
-                        const nsActive = timelineMitigations.some(m =>
-                            m.mitigationId === 'neutral_sect' &&
-                            m.time <= appMit.time &&
-                            appMit.time < m.time + m.duration
-                        );
-                        if (nsActive) isConditionalShield = true;
-                    }
+                // フェーズ2: context ごとに「重ならないバリアの勝敗 → 消費優先順位順の吸収」を解決する。
+                // ダメージを持ち回るので、1 枚目が吸った残りだけが 2 枚目に渡る(二重削りが起きない)。
+                affectedContexts.forEach(ctx => {
+                    const entriesForCtx = entriesByCtx.get(ctx);
+                    if (!entriesForCtx || entriesForCtx.length === 0) return;
 
-                    if (!def.isShield && !isConditionalShield) return;
+                    const res = resolveContextShields(entriesForCtx, damageForShields, getCtxState(ctx));
 
-                    // このバリアが実際に覆う context。棒の早期終了はこのバケツが尽きたときだけ。
-                    const coverageCtx = shieldCoverageContext(appMit.targetId, def.scope, appMit.ownerId);
+                    // 上書き負けが確定した時刻(暫定でこの被弾時刻。castTime 基準の補正は Task 6)。
+                    res.newlyOverwritten.forEach(id => {
+                        if (!barrierOverwrittenAt.has(id)) barrierOverwrittenAt.set(id, event.time);
+                    });
 
-                    // copiesShield: リンク先バリアのコピー処理（展開戦術）
-                    if (def.copiesShield) {
-                        if (!appMit.linkedMitigationId) return; // リンクなし → バリア0、スキップ
-
-                        const linkedMit = timelineMitigations.find(l => l.id === appMit.linkedMitigationId);
-                        if (!linkedMit) return; // リンク先が見つからない → スキップ
-
-                        const linkedOwner = partyMembers.find(p => p.id === linkedMit.ownerId);
-                        if (!linkedOwner) return;
-
-                        const shieldValue = calculateLinkedShieldValue(
-                            linkedMit, timelineMitigations, partyMembers, MITIGATIONS
-                        );
-
-                        // copiesShieldはパーティ全体にコピー（元の鼓舞対象は直接のバリアがあるので除外）
-                        affectedContexts.forEach(ctx => {
-                            if (ctx === linkedMit.targetId) return;
-                            const shieldRemaining = getShieldState(ctx, appMit.id, shieldValue);
-                            if (shieldRemaining > 0) {
-                                const absorbed = Math.min(shieldRemaining, damageForShields);
-                                const finalShield = shieldRemaining - absorbed;
-                                updateShieldState(ctx, appMit.id, finalShield);
-                                // コピーバリアも全体扱い: Party バケツが尽きた(=全体攻撃で使い切った)ときだけ棒を止める。
-                                if (ctx === coverageCtx && finalShield <= 0 && !shieldExhaustedAt.has(appMit.id)) {
-                                    shieldExhaustedAt.set(appMit.id, event.time);
-                                }
-                                if (ctx === displayContext) {
-                                    displayShieldTotal += shieldRemaining;
-                                    currentDamage = Math.max(0, currentDamage - absorbed);
-                                }
-                            }
-                        });
-                        return; // 通常のバリア計算をスキップ
-                    }
-
-                    if (def.scope === 'self' && appMit.ownerId !== displayContext && appMit.targetId !== displayContext) return;
-                    if (appMit.targetId && appMit.targetId !== displayContext) return;
-                    if (def.type === 'physical' && event.damageType === 'magical') return;
-                    if (def.type === 'magical' && event.damageType === 'physical') return;
-
-                    const member = partyMembers.find(m => m.id === appMit.ownerId);
-                    if (!member) return;
-
-                    let healingMultiplier = 1;
-                    let critMultiplier = 1;
-                    const buffsAtCast = timelineMitigations.filter(b =>
-                        b.time <= appMit.time && appMit.time < b.time + b.duration && b.id !== appMit.id
-                    );
-
-                    // 回復魔力(ポテンシー)から算出するバリアだけが対象。「最大HPの◯%」等の固定値バリア
-                    // (ブラックナイト・ディヴァインヴェール等、valueType:'hp')は回復魔力の計算式を
-                    // 経由しないため、確定クリティカルや回復効果アップの倍率がそもそも乗らない。
-                    const potencyShield = (def.isShield || isConditionalShield) && isPotencyBasedShield(def);
-
-                    // 消費型バフチェック: バリアスキルに対して最初の1回のみ適用
-                    if (potencyShield) {
-                        // 秘策 (SCH): 確定クリティカル ×1.6。公式仕様では鼓舞激励の策/意気軒高の策
-                        // (旧:士気高揚の策)のみが対象。マニフェステーション/アクセッション/
-                        // コンソレイションは対象外(isRecitationCritEligible で絞り込み済み)。
-                        const activeRecitation = isRecitationCritEligible(def.id)
-                            ? buffsAtCast.find(b => b.mitigationId === 'recitation' && b.ownerId === appMit.ownerId)
-                            : undefined;
-                        if (activeRecitation) {
-                            const earlierShieldConsumes = timelineMitigations.some(m =>
-                                m.id !== appMit.id &&
-                                m.ownerId === appMit.ownerId &&
-                                m.time >= activeRecitation.time &&
-                                m.time < appMit.time &&
-                                isRecitationCritEligible(m.mitigationId)
-                            );
-                            if (!earlierShieldConsumes) {
-                                critMultiplier = CRIT_MULTIPLIER;
-                            }
-                        }
-
-                        // ゾーエ (SGE): 次の回復魔法 ×1.5 (公式仕様上「次の回復魔法」全般が対象のため id 制限なし)
-                        const activeZoe = buffsAtCast.find(b =>
-                            b.mitigationId === 'zoe' && b.ownerId === appMit.ownerId
-                        );
-                        if (activeZoe) {
-                            const earlierShieldConsumesZoe = timelineMitigations.some(m =>
-                                m.id !== appMit.id &&
-                                m.ownerId === appMit.ownerId &&
-                                m.time >= activeZoe.time &&
-                                m.time < appMit.time &&
-                                MITIGATIONS.find(d => d.id === m.mitigationId)?.isShield
-                            );
-                            if (!earlierShieldConsumesZoe) {
-                                critMultiplier *= 1.5;
-                            }
-                        }
-
-                        buffsAtCast.forEach(buff => {
-                            const bDef = MITIGATIONS.find(d => d.id === buff.mitigationId);
-                            if (bDef && bDef.healingIncrease) {
-                                // healingIncreaseDuration: 回復効果アップの持続時間がメイン効果と異なる場合（例: ピュシスII）
-                                const hiDuration = bDef.healingIncreaseDuration ?? bDef.duration;
-                                if (appMit.time >= buff.time + hiDuration) return;
-                                if (bDef.scope === 'self' && buff.ownerId !== displayContext) return;
-                                // Self-only healing increase (e.g. Dissipation, Neutral Sect) only applies to the caster's own heals
-                                if (bDef.healingIncreaseSelfOnly && buff.ownerId !== appMit.ownerId) return;
-                                // 対象指定バフ（クラーシス、生命回生法等）: バフの対象とスキルの対象が一致する場合のみ
-                                if (bDef.scope === 'target' && buff.targetId !== appMit.targetId) return;
-                                healingMultiplier += (bDef.healingIncrease / 100);
-                            }
-                        });
-                    }
-
-                    // Always use Japanese name for computedValues lookup (SKILL_DATA keys are Japanese)
-                    const jaName = typeof def.name === 'string' ? def.name : (def.name.ja || '');
-                    let maxValBase = member.computedValues[jaName] || 0;
-
-                    if ((def.id === 'helios_conjunction' || def.id === 'aspected_helios') && isConditionalShield) {
-                        maxValBase = member.computedValues[`${def.name.ja} (Nセクト)`] || 0;
-                    }
-
-                    const maxVal = Math.floor(maxValBase * critMultiplier * healingMultiplier);
-
-                    // 🚀 Handle stacks (Haima/Panhaima)
-                    affectedContexts.forEach(ctx => {
-                        const shieldRemaining = getShieldState(ctx, appMit.id, maxVal);
-                        const stacksRemaining = def.stacks !== undefined ? getStackState(ctx, appMit.id, def.stacks) : undefined;
-
-                        if (shieldRemaining > 0) {
-                            const { absorbed, finalShield, finalStacks, exhausted } = stepShieldAbsorption({
-                                shieldRemaining,
-                                incomingDamage: damageForShields,
-                                stacksRemaining,
-                                maxVal,
-                                reapplyOnAbsorption: def.reapplyOnAbsorption,
-                            });
-
-                            updateShieldState(ctx, appMit.id, finalShield);
-                            if (finalStacks !== undefined) updateStackState(ctx, appMit.id, finalStacks);
-
-                            // このバリアが覆う context のバケツが尽きた瞬間を記録 → エフェクト棒をその時刻で早期終了。
-                            // 全体バリアは coverageCtx='Party' なので「全体攻撃で Party バケツが尽きたとき」だけ止まり、
-                            // タンク単体攻撃で MT バケツが枯れても棒は継続する(他メンバー/全体分がまだ効いているため)。
-                            // スタック制(ハイマ等)は貼り直されるため exhausted=false、全スタック消費後の最後の一撃でのみ true。
-                            if (ctx === coverageCtx && exhausted && !shieldExhaustedAt.has(appMit.id)) {
-                                shieldExhaustedAt.set(appMit.id, event.time);
-                            }
-
-                            if (ctx === displayContext) {
-                                displayShieldTotal += shieldRemaining;
-                                eventMitigationStates[appMit.id] = { stacks: finalStacks };
-                                currentDamage = Math.max(0, currentDamage - absorbed);
-                            }
+                    // このバリアが覆う context のバケツが尽きた瞬間を記録 → エフェクト棒をその時刻で早期終了。
+                    // 全体バリアは coverageCtx='Party' なので「全体攻撃で Party バケツが尽きたとき」だけ止まり、
+                    // タンク単体攻撃で MT バケツが枯れても棒は継続する(他メンバー/全体分がまだ効いているため)。
+                    // スタック制(ハイマ等)は貼り直されるため尽きた扱いにならず、全スタック消費後の最後の一撃でのみ記録される。
+                    res.newlyExhausted.forEach(id => {
+                        if (ctx === coverageCtxByAppMit.get(id) && !shieldExhaustedAt.has(id)) {
+                            shieldExhaustedAt.set(id, event.time);
                         }
                     });
+
+                    if (ctx === displayContext) {
+                        displayShieldTotal += res.totalAbsorbed; // その被弾で実際に肩代わりした量
+                        currentDamage = Math.max(0, currentDamage - res.totalAbsorbed);
+                        res.stacksAfter.forEach((stacks, id) => {
+                            eventMitigationStates[id] = { stacks };
+                        });
+                    }
                 });
             }
 
@@ -2584,12 +2433,14 @@ const Timeline: React.FC = () => {
             });
         });
 
-        return { map, livingDeadTriggers, shieldExhaustedAt };
+        return { map, livingDeadTriggers, shieldExhaustedAt, barrierOverwrittenAt };
     }, [eventsByTime, timelineMitigations, partyMembers, phases]);
 
     const damageMap = damageMapResult.map;
     const livingDeadTriggers = damageMapResult.livingDeadTriggers; // Task 5 で白黒アイコン描画に使用
     const shieldExhaustedAt = damageMapResult.shieldExhaustedAt; // バリア吸収し切り時刻 → エフェクト棒の早期終了に使用
+    // damageMapResult.barrierOverwrittenAt (上書き負け時刻) は Task 6(エフェクト棒のグレー描画)で取り出す。
+    // noUnusedLocals: true のため、使うタイミングで const にする。
 
     const [clearMenuOpen, setClearMenuOpen] = useState(false);
     const clearMenuButtonRef = useRef<HTMLButtonElement>(null);
