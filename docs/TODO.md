@@ -13,15 +13,17 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-0. **🟡 ①②(iOS表示ズレ共通フック化 / バリア吸収し切りで棒を止める)は実装完了・push待ち・実機確認待ち**。詳細=`docs/.private/2026-08-27-viewport-shift-audit-and-barrier-bar-cutoff.md`「実装完了メモ」。実機で確認すること: ①iPhone Safariで軽減表通常画面&共同編集リンク画面の表示ズレ ②シールド系スキルを容量超ダメージで壊し、棒がPC/スマホ両方で短く切れる(ハイマ/パンハイマは1スタック壊れても続く)。
-   **後回し(スコープ外・要望あれば着手)**: 共同編集の部屋についても、自分が同じ部屋に再入室した時だけ自分の前回の表示切替/並び替え設定を覚えておく(部屋のデータには含めずローカルのみ、部屋IDごとの記録が必要)。
+0. **🔴 バリアの重なり方ルール実装（設計・計画完了、実装これから）**。計画=`docs/superpowers/plans/2026-08-27-barrier-stacking-rules.md`（Task1〜8）、設計=同specフォルダ。FF14実測どおり「重ならないバリアは1枚に絞る（鼓舞系=大きい方/エウクラシア=後勝ち）」「固定優先順位表の順に消費」「二重削り修正」「展開戦術の棒解禁」。masayaと全項目合意済み。次=subagent-driven-developmentで実装。
+   **実機確認待ち（push済み）**: ①iOS表示ズレ共通フック化 ②バリア吸収し切りで棒終了＋②フォロー（全体バリアは全体攻撃でのみ）。詳細=`docs/.private/2026-08-27-viewport-shift-audit-and-barrier-bar-cutoff.md`。/ 共編の部屋別ローカル表示設定記憶は後回し。
 1. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。2026-08-27ブレスト中断・**要再開**。仕様の大枠(常時ローカル記録・GIF・本物のLoPo画面をそのままキャプチャ・保存→X共有の2段階)は固まったが、実機テストで**本物のタイムライン画面のDOMキャプチャがハングする不具合を発見・原因未特定のまま保留中**。詳細・次にやること=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
 2. 次=軽減表スプシモード(表示メンバー絞り込みスイッチを流用ではなく、同じ仕組みが両方で使えるだけ)。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。**共同編集参加者のヘッダー開閉解禁は保留**(無関係な別項目)。
 3. **Wiki型タイムライン共同編集**は2026-08-18時点で2の次に着手予定・大物。2とは完全に別軸=「誰でもログインすれば編集できる」公開編集モデルを新設する共同編集機能の話。要件はまだ白紙に近く2より重い。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」(GUID保持済・仕上げのみ)を先に仕上げておくと相性が良い。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
+### 🔴 2026-08-27 バリアの重なり方ルール = 設計・実装計画まで完了、実装はこれから
+`docs/superpowers/plans/2026-08-27-barrier-stacking-rules.md`（Task1: 展開戦術の棒解禁 / Task2: グループ+優先順位データ / Task3-4: 純関数 / Task5: damageMapResult統合 / Task6: 上書き棒クリップ / Task7: グレー棒(任意) / Task8: push+実機）。設計は`docs/superpowers/specs/2026-08-27-barrier-stacking-rules-design.md`。masayaと全項目合意済み（全部やる/エウクラシア後勝ち/棒は方式c優先a可/大小比較は新満タンvs既存残量/会心バリアは混ぜ込みのまま/消費は固定優先順位表/警告なし）。実装方式=subagent-driven-development推奨。
 ### 🟡 2026-08-27 ①②実装完了・push済み・実機確認待ち
-①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約しLayout/HousingShell/CollabJoinerPageの3箇所へ適用(CollabJoinerPageは対策ゼロだった穴)。②バリアが吸収量を使い切った時刻を `damageMapResult.shieldExhaustedAt` で追跡しエフェクト棒をPC/スマホ両方で早期終了(スタック制シールドは除外)。**②フォロー(実機報告→修正済)**: 全体バリア(意気軒高の策等)がタンクバスターで棒が早期終了していた→`shieldCoverageContext`で「そのバリアが覆う範囲のバケツ(全体バリアは全体攻撃用バケツ)が尽きたときだけ」に変更。`npm run build`通過・関連vitest緑・フルスイートは既知ハングでスキップ。次: 実機確認(①iPhone Safariの表示ズレ ②シールド棒の早期終了・全体バリアは全体攻撃でのみ・ハイマ継続)。
+①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約しLayout/HousingShell/CollabJoinerPageの3箇所へ適用。②バリア吸収し切り時刻を `damageMapResult.shieldExhaustedAt` で追跡→棒をPC/スマホ早期終了。**②フォロー**: 全体バリアは全体攻撃でのみ棒終了（`shieldCoverageContext`）。build通過・関連vitest緑。実機確認: ①iPhone表示ズレ ②シールド棒の早期終了。
 軽減表ブラッシュアップ6件+バリア計算バグ2件は全てpush済み・ユーザー確認OK・完了(詳細→TODO_COMPLETED.md)。
 タイムラプスSNS投稿は技術的ブロッカーで中断中(詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`)。
 ### ✅ 2026-08-20〜24 ハウジング一括: 3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定、全てpush→デプロイ済み (詳細=TODO_COMPLETED.md)
