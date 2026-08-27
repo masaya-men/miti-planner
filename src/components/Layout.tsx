@@ -41,6 +41,7 @@ import { ShareImportSheet } from './ShareImportSheet';
 import { LimitResolutionSheet } from './LimitResolutionSheet';
 import { getToken } from 'firebase/app-check';
 import { ensureAppCheck, auth } from '../lib/firebase';
+import { useIOSViewportFix } from '../hooks/useIOSViewportFix';
 
 const PipView = React.lazy(() => import('./PipView'));
 
@@ -116,40 +117,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         }
     }, [isTutorialActive]);
 
-    // iOS キーボード閉じた後のビューポートずれ修正
-    React.useEffect(() => {
-        if (!isMobile) return;
-        const vv = window.visualViewport;
-        if (!vv) return;
-        let prevHeight = vv.height;
-        const handleResize = () => {
-            const newHeight = vv.height;
-            // キーボードが閉じた（高さが増えた）
-            if (newHeight > prevHeight + 50) {
-                window.scrollTo(0, 0);
-                document.documentElement.style.height = '100%';
-                requestAnimationFrame(() => {
-                    document.documentElement.style.height = '';
-                });
-            }
-            prevHeight = newHeight;
-        };
-        // input/textareaのblur時にもスクロール位置をリセット
-        const handleFocusOut = (e: FocusEvent) => {
-            const target = e.target as HTMLElement;
-            if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-                setTimeout(() => {
-                    window.scrollTo(0, 0);
-                }, 100);
-            }
-        };
-        vv.addEventListener('resize', handleResize);
-        document.addEventListener('focusout', handleFocusOut);
-        return () => {
-            vv.removeEventListener('resize', handleResize);
-            document.removeEventListener('focusout', handleFocusOut);
-        };
-    }, [isMobile]);
+    // iOS Safari のビューポートずれ補正(共通フック。マウント時 1 回 + resize/focusout)
+    useIOSViewportFix(isMobile);
 
     // スマホ用カンペビューイベント
     React.useEffect(() => {

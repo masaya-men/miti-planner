@@ -8,6 +8,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useJoinedTourStore } from '../../../store/useJoinedTourStore';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { useIOSViewportFix } from '../../../hooks/useIOSViewportFix';
 import { MobileTourTrayBar } from './MobileTourTrayBar';
 import { SceneryVideo } from '../workspace/SceneryVideo';
 import { AppHeader } from './AppHeader';
@@ -87,48 +88,11 @@ export const HousingShell: React.FC = () => {
     };
   }, []);
 
-  // 2026-07-31 実機指摘: iOS Safari のビューポートずれ修正 (Layout.tsx の同名処理を移植)。
-  // ページを開いた直後、住所バーが引っ込んで表示エリアが広がるタイミングで
+  // 2026-07-31 実機指摘: iOS Safari のビューポートずれ補正 (共通フック)。
+  // ページを開いた直後、アドレスバーが引っ込んで表示エリアが広がるタイミングで
   // .housing-shell (100dvh 固定) のサイズ計算がズレたまま残ることがある。
   // body スクロールをロックしているため (上の effect)、ユーザー自身のスクロールでは直せない。
-  // Layout.tsx 側は「キーボードが閉じた時」というコメントで導入されたが、実体は
-  // 「visualViewport の高さが急に増えた」を検知して強制的にレイアウトを再計算させる
-  // 汎用処理で、住所バー引き込みも同じ現象として拾って直してくれている。
-  // ハウジング側にはこの処理自体が無かったため無防備だった。
-  useEffect(() => {
-    if (!isMobile) return;
-    const vv = window.visualViewport;
-    if (!vv) return;
-    let prevHeight = vv.height;
-    const resync = () => {
-      window.scrollTo(0, 0);
-      document.documentElement.style.height = '100%';
-      requestAnimationFrame(() => {
-        document.documentElement.style.height = '';
-      });
-    };
-    const handleResize = () => {
-      const newHeight = vv.height;
-      if (newHeight > prevHeight + 50) resync();
-      prevHeight = newHeight;
-    };
-    const handleFocusOut = (e: FocusEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-        setTimeout(resync, 100);
-      }
-    };
-    // 業界標準パターン(例: CSS-Tricks の --vh 手法)に合わせ、マウント直後にも無条件で1回補正する。
-    // 従来は resize イベント(変化)にしか反応しておらず、初回描画時点で既に高さがズレていた場合に
-    // 直す手段が無かった(以後の変化を待つしかなく、変化が起きなければ永久にズレたまま)。
-    resync();
-    vv.addEventListener('resize', handleResize);
-    document.addEventListener('focusout', handleFocusOut);
-    return () => {
-      vv.removeEventListener('resize', handleResize);
-      document.removeEventListener('focusout', handleFocusOut);
-    };
-  }, [isMobile]);
+  useIOSViewportFix(isMobile);
 
   // お気に入りのサーバー同期: /housing 滞在中だけリスナー・デバウンス書き込みを張る
   // (他画面でコストを払わない)。ログイン状態は内部で購読するのでここでは start/stop のみ。

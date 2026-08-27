@@ -21,6 +21,8 @@ import { useTransitionOverlay } from "./ui/TransitionOverlay";
 import Timeline from "./Timeline";
 import { checkOwner, type OwnerCheckResult } from "../lib/collab/collabRoomApi";
 import { usePlanStore } from "../store/usePlanStore";
+import { useIsMobile } from "../hooks/useIsMobile";
+import { useIOSViewportFix } from "../hooks/useIOSViewportFix";
 
 export type JoinerViewKind = "connecting" | "invalid" | "full" | "revoked" | "sheet";
 
@@ -137,6 +139,13 @@ export default function CollabJoinerPage() {
   const timelineSortOrder = useMitigationStore((s) => s.timelineSortOrder);
   const setTimelineSortOrder = useMitigationStore((s) => s.setTimelineSortOrder);
   const { runTransition } = useTransitionOverlay();
+
+  // iOS Safari のビューポートずれ補正(共通フック)。このページは内部で <Timeline /> を描画し、
+  // Timeline 自身が document.body の overflow を hidden にしてスクロールロックをかける。
+  // 本体アプリ(Layout.tsx)/ハウジング(HousingShell.tsx)には対策済みだがここだけ穴だった
+  // (共同編集リンクから開くとスマホ表示が上にズレてリロードでも戻らない、という実機報告と一致)。
+  const isMobile = useIsMobile();
+  useIOSViewportFix(isMobile);
 
   const canEdit = computeCanEdit(isLoggedIn, hasConsent);
   // 「一度でも sync したか」を session 再接続(canEdit 切替)を跨いで保持。再接続時に
