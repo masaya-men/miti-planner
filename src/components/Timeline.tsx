@@ -2392,7 +2392,7 @@ const Timeline: React.FC = () => {
                         // 負けた時刻 = 「自分の詠唱時刻」と「同 ctx の他グループ付きバリアの最も遅い詠唱時刻」の遅い方
                         // = 両方が同時に存在し始めた時刻。被弾時刻より前になる(棒がより正確に短く終わる)。
                         // 暫定: 勝った相手そのものの castTime ではなく同 ctx グループ付きバリアの最遅 castTime を使う。
-                        // 鼓舞系の「大きい方が古い」ケースで棒がやや長め or 短めになるが実害小(方式a の許容範囲)。
+                        // 鼓舞系の「大きい方が古い」ケースで棒が同じか、やや長めになるが実害小(方式a の許容範囲)。
                         const me = entriesForCtx.find(e => e.appMitId === id)!;
                         const rivalLatestCast = Math.max(
                             me.castTime,

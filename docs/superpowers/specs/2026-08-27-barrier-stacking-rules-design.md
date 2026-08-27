@@ -223,7 +223,7 @@ https://na.finalfantasyxiv.com/lodestone/character/34801907/blog/5607030/
 - `arcane_crest` の 11 は暫定。コード上に「命脈を借り受け(Lv84+)は本来 priority 1 だが軽減表はレベル分岐を持たないため 11 固定」とコメント。
 - `manifestation` / `accession` はセラフィズム中の鼓舞激励／士気高揚。Galvanize バリアを付与するため `galvanize` グループ・25。**セラフィックヴェールではない**。
 - `neutral_sect` def は `isShield: false`（ヒール強化バフ）なので触っていない。Nセクト由来バリアは `helios_conjunction` / `aspected_helios` が担当（21）。
-- 優先順位表の 1（テンペラコート）/ 7（ブルータルシェル＝ハート・オブ・コランダムは `isShield: false`）/ 9（ガーディアン）/ 11（マバリア・残影）/ 14（The Spire は AST の `the_spire` として実装済み）/ 18（守りのエギ）/ 23-24（会心追加バリア）に対応する `isShield: true` の def は存在しない。
+- 優先順位表の 1（テンペラコート）/ 7（ブルータルシェル＝ハート・オブ・コランダムは `isShield: false`）/ 9（ガーディアン）/ 11（マバリア・残影）/ 18（守りのエギ）/ 23-24（会心追加バリア）に対応する `isShield: true` の def は存在しない。
 - `helios_conjunction_base` は `MITIGATION_DISPLAY_ORDER` 配列に id 参照はあるが、対応する def は存在しない（実体は `aspected_helios`）。既存の不整合であり本タスクでは触れていない。
 - ロジック変更ゼロ。後続 Task 3-5 がこのデータを純関数で消費する。
 
