@@ -59,7 +59,7 @@ describe('computeMobileEffectBars', () => {
     expect(result).toHaveLength(0);
   });
 
-  it('excludes mitigations whose def has copiesShield set', () => {
+  it('includes 展開戦術(copiesShield) bars (PC と揃える・2026-08-27 解禁)', () => {
     const def = makeDef('deployment_tactics', { duration: 10, copiesShield: 'adloquium' });
     const mit = makeMit('p1', 'deployment_tactics', 'MT', 5, 10);
     const result = computeMobileEffectBars({
@@ -67,7 +67,10 @@ describe('computeMobileEffectBars', () => {
       timelineMitigations: [mit],
       mitigationDefs: [def],
     });
-    expect(result).toHaveLength(0);
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('p1');
+    // reprisal と同じ幾何: effectiveEndTime = 14, endY = 14*60+24 = 864, startY = 5*60 = 300 → height 564
+    expect(result[0].height).toBe(564);
   });
 
   it('reuses the same slot for non-overlapping mitigations from the same owner', () => {

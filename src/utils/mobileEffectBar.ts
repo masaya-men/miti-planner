@@ -127,7 +127,7 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
     const def = defById.get(m.mitigationId);
     if (!def) return false;
     if (m.duration <= 1) return false;
-    if (def.copiesShield) return false;
+    // 展開戦術(copiesShield)も「全体扱いのコピーバリア」を表す棒として表示する（2026-08-27・PC と揃える）。
     return true;
   });
 
