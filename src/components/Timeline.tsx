@@ -661,12 +661,13 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     })()}
                 </div>
 
-                {/* エフェクト棒: copiesShieldスキル（展開戦術）とduration≤1秒（瞬発スキル）は非表示。
+                {/* エフェクト棒: duration≤1秒（瞬発スキル）は非表示。展開戦術(copiesShield)は
+                    「全体扱いのコピーバリア」を表す棒として表示する（2026-08-27 解禁）。
                     ホバーでスキルアイコンだけを浮かべるツールチップを出す(2026-08-26、スクロールで
                     アイコンが画面外に出た後も棒だけでどのスキルか分かるように)。ホバー検知のため
                     pointer-events-autoにする必要があり、今まで棒を素通りしていた配置クリックが
                     棒に吸われてしまうため、handleBarClickでonCellClickへ明示的に転送している。 */}
-                {mitigation.duration > 1 && !def?.copiesShield && (
+                {mitigation.duration > 1 && (
                     <div
                         data-myjob-dim={isNotMine ? 'bar' : undefined}
                         onClick={handleBarClick}
