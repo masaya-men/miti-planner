@@ -14,7 +14,7 @@
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 0. バリアの重なり方ルール = 実装完了・push済み・Firestore同期済み。**残=Vercelデプロイ確認＋実機確認だけ**。手順/チェックリスト/フォロー=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。前セッション分①iOS表示ズレ共通フック ②バリア吸収し切りで棒終了 も実機確認待ち(詳細=`docs/.private/2026-08-27-viewport-shift-audit-and-barrier-bar-cutoff.md`)。
-1. **🔴 新着ハウジングのワンクリックツイート下書き通知**(masaya要望・次に着手)。詳細=本ファイル87行目付近の🆕項目。専用設計docなし＝**brainstormingから**(詰める点: Discord通知の発火場所[Firestoreトリガー/cron/登録フック]・事前入力ツイートのURL形式と文面)。→writing-plans→実装。
+1. **🔴 新着ハウジングのワンクリックツイート下書き通知**(masaya要望・進行中)。**brainstorming完了・設計確定→次はwriting-plans**。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md`。要点: 発火=登録API相乗り(best-effort・admin登録とprivateは除外) / ハッシュタグ=`#FF14ハウジング #FFXIVHousing`の2個固定 / 文面言語はDC地域でja・en出し分け / リプ=Discordにコピペ用テキスト(中継ページ無し) / **E=物件詳細ページのOGP画像を家の写真にする修正も同梱**(現状は汎用ロゴ固定)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断・要再開。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
 3. 軽減表スプシモード(同じメンバー絞り込みの仕組みを両方で使えるだけ)。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。
 4. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
@@ -86,7 +86,7 @@ Cloudflare Cache Rule設定(`/housing/housinger/*` `/share/*` `/housing/tour/*` 
 
 ## アイデア / 並行 / バックログ
 
-- **🆕 新着ハウジングの自動ツイート下書き通知**(ユーザー要望2026-08-20・詳細確定済み、実装は次回): 新着物件登録のたびに、**本人しか見えないDiscordチャンネル**へ通知。中身は①物件詳細ページへのワンクリック投稿リンク(事前入力済みツイート作成画面が開く、公式Xの無料の仕組み・投稿ボタンは本人が押す)②その返信(リプ)用にハウジンガーページへの同様のリンク。文面はハッシュタグ+「〇〇さんの他のハウジングは👇」的な一文を検討中。Xの公式API連携は2026年の値上げで有料化(リンク付き投稿1件0.2ドル)されたため見送り、この無料のワンクリック方式に決定。1ツイートに複数リンクを貼るとカード(OGP)が1つしか出ない仕様のため、あえて本文+リプの2段構成にする。
+- **🆕 新着ハウジングの自動ツイート下書き通知** → 「次の作業順」1番に昇格・**設計確定済み**。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md`。
 - **🆕 ツアーPiP機能**(ユーザー発案2026-07-18・要brainstorming): ツアー中に小窓(Picture-in-Picture)で操作。表示=次の目的地の画像(オンオフ可・デフォルトオフ)/住所/コメント/ナビ/前へ/見学開始(押下でタイマー表示)/次へ(最後は完了)。**超簡易モード**=ボタン3つだけ表示に切替可。技術注意: Document PiP APIはPC Chrome系のみ・iOS Safari非対応→スマホの代替表現要設計。
 - アイデア: メモのURL→**YouTube等その場再生(iframe・サムネ方式)**(クリック開きは✅済)・こだわりトップ・配置アニメ・OCR・横型タイムライン・Gemma AI
 - **機能ブラッシュアップ案9件**(詳細=docs/.private/2026-06-15-feature-ideas-batch.md)。✅済=③軽減競合逆方向警告 / ⑤Logsインポート上書き・追記 / ⑥有名スプシ取込 (+列グリッド取込 §9.7 `85bb7d8c`)。**残**=①同時刻3+イベント ②スマホ/タブレット最適化(ボトムナビ/FAB・ボトムナビの透け視認性改善=ハウジング側で不透明化済みの型を移植[2026-07-16]) ④MAXHP-10%でダメージ黄 ⑦敵攻撃 or(2択) ⑧管理画面 攻撃ID保持で任意言語翻訳(GUID保持済・仕上げのみ) ⑨メモに動画URL→iframe。取り込み導線チューザー統合は将来。
