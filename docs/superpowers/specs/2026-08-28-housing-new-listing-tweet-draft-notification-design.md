@@ -254,10 +254,11 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 `og:image` / `twitter:image` に使う。無ければ従来どおり `DEFAULT_OG_IMAGE`。
 
 - 代表画像の解決は `listingRepresentativeImages(listing)` を再利用する。
-  現在 `_housingerPageHandler.ts` にあるので、**共有モジュールへ切り出す**
-  (例: `src/lib/housing/listingRepresentativeImages.ts`) → 両ハンドラーから import。
-  - `toPngSiblingPath` (`api/housing/_imageArrayLogic.ts`) も一緒に共有側へ持っていくか、
-    共有モジュールから import できる形にする。
+  現在 `_housingerPageHandler.ts` にあるので、**共有モジュール `api/share/_listingImages.ts` へ
+  切り出す** → 両ハンドラーから import (`_housingerPageHandler.ts` は後方互換で re-export)。
+  - `api/share/` 配下に置けば `toPngSiblingPath` (`../housing/_imageArrayLogic.js`) と
+    `buildYoutubeThumbnailUrlFallback` (`../../src/lib/housing/youtubeUrl.js`) を
+    `_housingerPageHandler.ts` と同じ相対パスで import できる。
 - 優先順 (既存ロジックのまま): thumbnail (PNG 兄弟) → YouTube サムネ → sns 画像
   (sourceImageUrls → ogImageUrl) → 動画ポスター → なし。
 - `projectPublicListing` は `imageMode` / `thumbnailPath(s)` / `ogImageUrl` /
@@ -326,10 +327,9 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 ### 新規ファイル (想定)
 
 - `src/lib/housing/newListingTweet.ts` — 文面テンプレート定数 + Web Intent URL 組み立て +
-  リプテキスト組み立て (pure 関数、単体テスト対象)。
-- `src/lib/housing/listingRepresentativeImages.ts` — §6 の共有切り出し。
-- `src/lib/discordWebhook.ts` に `sendHousingNewListingNotification()` を追加
-  (または `sendDiscordNotification` を webhook URL 差し替え可能に一般化)。
+  リプテキスト + Discord メッセージ組み立て (pure 関数、単体テスト対象)。
+- `api/share/_listingImages.ts` — §6 の `listingRepresentativeImages` 共有切り出し。
+- `src/lib/discordWebhook.ts` に `sendHousingNewListingNotification(content)` を追加。
 
 ---
 
