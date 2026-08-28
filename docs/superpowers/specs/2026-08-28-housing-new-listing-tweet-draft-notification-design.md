@@ -49,11 +49,10 @@ POST /api/housing?action=register-listing  (既存)
    │      1. 登録者 (ownerUid) が admin なら何もしない (テストデータ除外)
    │      2. visibility が 'private' なら何もしない
    │      3. housing_profiles/{ownerUid} を 1 read → displayName / isPublished
-   │      4. draft.dc から地域 (JP / NA / EU / ...) を判定 → 文面の言語を決定
-   │      5. 本文ツイートの Web Intent URL を組み立てる
+   │      4. 本文ツイートの Web Intent URL を組み立てる (本文は常に日本語)
    │         - postUrl (投稿元 URL) があれば: 本文に「LoPo 物件ページ URL + 投稿元 URL」両方
    │         - 無ければ: 本文に「LoPo 物件ページ URL」のみ (カード = 家の写真)
-   │      6. リプ用テキスト (ハウジンガー短縮 URL 付き) を組み立てる
+   │      5. リプ用テキスト (ハウジンガー短縮 URL 付き) を組み立てる
    │         - isPublished でなければリプはスキップ (その旨を通知に明記)
    │      7. DISCORD_HOUSING_NEW_WEBHOOK_URL へ POST
    │
@@ -167,9 +166,17 @@ Web Intent の URL は `<...>` で囲んでリンクプレビューを抑制す�
 
 ## 5. C. ツイート文面とハッシュタグ
 
+### 言語方針 (確定)
+
+- **本文は常に日本語**。masaya 自身のサイト・アカウントで、フォロワーも日本語中心のため。
+  物件が NA/EU サーバーでも日本語で投稿する。
+- **地域による出し分けはしない** (本文もタグも固定)。
+- 将来 KR/CN/TW 地域が開き、その言語で本文ごと投稿するようになったら、
+  そのとき初めて「本文 + タグをセットでその言語に切り替える」を検討する (§12)。
+
 ### ハッシュタグ (確定)
 
-**`#FF14ハウジング #FFXIVHousing` の 2 個のみ**。全ツイート共通 (地域で変えない)。
+**`#FF14ハウジング #FFXIVHousing` の 2 個のみ**。全ツイート固定。
 
 根拠 (2026 年の X の実態):
 - X 公式ヘルプはハッシュタグ最大 2 個を推奨、それ以上はスパム判定に触れうる。
@@ -179,20 +186,13 @@ Web Intent の URL は `<...>` で囲んでリンクプレビューを抑制す�
   実際に眺めている = ここは意味が残る数少ない場所。日本語勢・英語勢に 1 個ずつ。
 - `#FF14` `#FFXIV` `#LoPo` は入れない (巨大タグは数秒で流れ発見効果ほぼ無し、
   「タグが多い」マイナスだけ食う)。LoPo の追跡は全ツイートに入る `lopoly.app` リンクで足りる。
+- 日本語本文のツイートを韓国語/中国語タグの下に置いても、そのタグを見る人には通じない。
+  だからタグも固定 (地域で `#FF14ハウジング` を差し替えたりしない)。
 
 ### 文面テンプレート
 
-**1 箇所にまとめた定数**として実装する (実際の伸びを見て masaya が書き換えられるように)。
-言語は**新着物件の DC 地域**で選ぶ:
-
-| 地域 | 言語 | 状態 |
-|------|------|------|
-| JP | 日本語 | 有効 |
-| NA / EU / OCE | 英語 | 有効 |
-| KR | 韓国語 | 定数のみ用意・地域開放時に有効化 |
-| CN | 簡体字 | 同上 |
-| TW | 繁体字 | 同上 |
-| (`regionForDC` が null = 未知 DC) | 日本語 | フォールバック |
+`text` / リプの各リードは **1 箇所にまとめた定数**として実装する
+(実際の伸びを見て masaya が書き換えられるように)。日本語のみ。
 
 #### 本文ツイート (テキスト)
 
@@ -202,8 +202,7 @@ Web Intent の URL は `<...>` で囲んでリンクプレビューを抑制す�
 {投稿元 URL があれば改行して追加}
 ```
 
-- 日本語 本文リード: `新しいハウジングが投稿されました🏠`
-- 英語 本文リード: `A new housing entry was just posted 🏠`
+- 本文リード: `新しいハウジングが投稿されました🏠` (日本語固定)
 
 投稿元 URL を本文の**最後**に置く。X の仕様:
 - ツイート内にツイート URL があると**必ず引用表示**になり、他リンクのカードより優先される。
@@ -220,8 +219,7 @@ Web Intent の URL は `<...>` で囲んでリンクプレビューを抑制す�
 {ハウジンガー短縮 URL}
 ```
 
-- 日本語 リプリード: `{name}さんの他のハウジングはこちら👇`
-- 英語 リプリード: `More housing by {name} 👇`
+- リプリード: `{name}さんの他のハウジングはこちら👇` (日本語固定・`{name}` は displayName)
 - ハウジンガー短縮 URL: `https://lopoly.app/h/{buildHousingerShortSlug(displayName, uid)}`
   (`/h/<名前>-<識別コード>` は X 等での共有専用の入口として既に用意されている)
 - リプは masaya が本文投稿後に「自分のツイートへの返信」として手で貼る (案 1 で確定)。
@@ -311,7 +309,6 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 ### 既存の入力 (register ハンドラーが既に持っている)
 
 - `createdId` (新規 listing の doc ID) — 物件ページ URL に使う。
-- `draft.dc` — 地域判定 (`regionForDC`) → 文面言語。
 - `draft.title` / 住所フィールド — タイトル解決。
 - `draft.postUrl` / `draft.sourcePostUrls?.[0]` — 投稿元 URL。
 - `draft.visibility` — private 除外 / unlisted ラベル。
@@ -323,7 +320,6 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 |-----------|------|
 | `src/lib/discordWebhook.ts` | Discord 送信ヘルパー。新 webhook 用の関数を追加 (§10)。 |
 | `src/lib/housing/housingerProfile.ts` | `buildHousingerShortSlug`, `stripHashedPrefix` |
-| `src/data/housing/dcServerMap.ts` | `regionForDC` |
 | `src/lib/housing/formatHousingAddress.ts` | タイトルの住所フォールバック |
 | `src/lib/housing/publicListingProjection.ts` | (§6) 代表画像解決の入力 |
 
@@ -351,8 +347,7 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 
 ### pure 関数 (`src/lib/housing/newListingTweet.ts`)
 
-- 日本語地域 (JP DC) → 日本語リード + 2 ハッシュタグ。
-- 英語地域 (NA/EU/OCE DC) → 英語リード。
+- 本文リード + `#FF14ハウジング #FFXIVHousing` の 2 個が入る (常に固定・地域非依存)。
 - 投稿元 URL あり → 本文の末尾が投稿元 URL、その手前に LoPo 物件 URL。
 - 投稿元 URL なし → 本文に LoPo 物件 URL のみ。
 - `text` パラメータが正しく `encodeURIComponent` されている。
@@ -409,8 +404,10 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 ## 12. 未解決 / 将来
 
 - リプの完全 2 クリック化 (中継ページ = 案 2) が欲しくなったら別タスクで。
-- KR / CN / TW 地域が開いたら、文面定数の該当言語を有効化 + ハッシュタグの見直し
-  (韓国語 `#FF14하우징` 等)。地域は DC 分離なので、その地域の物件はその言語だけで送る。
+- KR / CN / TW 地域が開き、その言語で本文ごと投稿するようになったら、そのとき初めて
+  「本文リード + ハッシュタグをセットでその言語版に切り替える」を実装する
+  (韓国語なら本文韓国語 + `#FF14하우징` 等)。DC 分離なのでその地域の物件はその言語だけ。
+  それまでは本文もタグも日本語固定。
 - 物件詳細ページの OGP を「写真 1 枚」ではなく合成カード (住所 + タイトル + 複数写真) に
   格上げする案 — 今回は YAGNI。ハウジンガーカードの資産 (`api/og/_housingerCard.ts`) を
   流用すれば作れるが、需要を見てから。

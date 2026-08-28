@@ -14,7 +14,7 @@
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 0. バリアの重なり方ルール = 実装完了・push済み・Firestore同期済み。**残=Vercelデプロイ確認＋実機確認だけ**。手順/チェックリスト/フォロー=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。前セッション分①iOS表示ズレ共通フック ②バリア吸収し切りで棒終了 も実機確認待ち(詳細=`docs/.private/2026-08-27-viewport-shift-audit-and-barrier-bar-cutoff.md`)。
-1. **🔴 新着ハウジングのワンクリックツイート下書き通知**(masaya要望・進行中)。**brainstorming完了・設計確定→次はwriting-plans**。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md`。要点: 発火=登録API相乗り(best-effort・admin登録とprivateは除外) / ハッシュタグ=`#FF14ハウジング #FFXIVHousing`の2個固定 / 文面言語はDC地域でja・en出し分け / リプ=Discordにコピペ用テキスト(中継ページ無し) / **E=物件詳細ページのOGP画像を家の写真にする修正も同梱**(現状は汎用ロゴ固定)。
+1. **🔴 新着ハウジングのワンクリックツイート下書き通知**(masaya要望・進行中)。**brainstorming完了・設計確定→次はwriting-plans**。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md`。要点: 発火=登録API相乗り(best-effort・admin登録とprivateは除外) / 本文は常に日本語・ハッシュタグ=`#FF14ハウジング #FFXIVHousing`の2個固定(地域出し分けなし) / リプ=Discordにコピペ用テキスト(中継ページ無し) / **E=物件詳細ページのOGP画像を家の写真にする修正も同梱**(現状は汎用ロゴ固定)。
 2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断・要再開。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
 3. 軽減表スプシモード(同じメンバー絞り込みの仕組みを両方で使えるだけ)。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。
 4. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
