@@ -13,6 +13,7 @@ import { projectPublicListing } from '../../src/lib/housing/publicListingProject
 import { formatFullHousingAddress } from '../../src/lib/housing/formatHousingAddress.js';
 import { regionForDC } from '../../src/data/housing/dcServerMap.js';
 import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
+import { listingRepresentativeImages } from './_listingImages.js';
 
 const COLLECTION = 'housing_listings';
 const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
@@ -100,6 +101,14 @@ export default async function handler(req: any, res: any) {
         ogTitle = `${title} - LoPo Housing`;
         ogDescription = description || DEFAULT_OG_DESCRIPTION;
         seoSnapshotHtml = buildListingSeoSnapshotHtml({ title, addressText, description });
+
+        // OGP 画像: この家の代表写真 1 枚 (thumbnail は .png 兄弟)。無ければ DEFAULT_OG_IMAGE のまま。
+        // X (Twitter) は og:image の WebP を安定サポートしないため、thumbnail 経路は必ず .png を指す
+        // (listingRepresentativeImages が toPngSiblingPath 済みを返す)。
+        const repImages = listingRepresentativeImages(projected as Record<string, unknown>);
+        if (repImages[0]) {
+          ogImageUrl = /^https?:\/\//.test(repImages[0]) ? repImages[0] : `${origin}${repImages[0]}`;
+        }
       } else {
         httpStatus = 404;
       }

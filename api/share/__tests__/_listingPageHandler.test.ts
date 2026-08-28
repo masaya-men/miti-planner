@@ -203,6 +203,46 @@ describe('_listingPageHandler', () => {
     expect(res.body as string).not.toContain(DEFAULT_OG_TITLE);
   });
 
+  it('thumbnail物件はog:imageに家の写真(.png兄弟の絶対URL)を使う', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'thumb-listing' } });
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        visibility: 'public', isHidden: false, deletedAt: null,
+        title: '海の見える家', description: '',
+        area: 'Mist', ward: 5, plot: 12, buildingType: 'house',
+        dc: 'Elemental', server: 'Carbuncle',
+        imageMode: 'thumbnail',
+        thumbnailPaths: ['https://lopoly.app/housing-media/thumb-listing/a.webp'],
+      }),
+    });
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+
+    await handler(req, res);
+
+    expect(res.body as string).toContain('og:image" content="https://lopoly.app/housing-media/thumb-listing/a.png"');
+    expect(res.body as string).toContain('twitter:image" content="https://lopoly.app/housing-media/thumb-listing/a.png"');
+  });
+
+  it('画像の無い物件(テキストツイート等)はog:imageがDEFAULT_OG_IMAGEのまま', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'no-image-listing' } });
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        visibility: 'public', isHidden: false, deletedAt: null,
+        title: 'テキストのみ', description: '',
+        area: 'Mist', ward: 5, plot: 12, buildingType: 'house',
+        dc: 'Elemental', server: 'Carbuncle',
+        imageMode: 'sns', tweetId: '123',
+      }),
+    });
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+
+    await handler(req, res);
+
+    expect(res.body as string).toContain('og:image" content="https://lopoly.app/api/og"');
+  });
+
   it('Cache-Controlはブラウザ側max-ageを60秒に抑える(s-maxageはCDN意図のまま長期)', async () => {
     const { req, res } = makeReqRes({ query: { id: 'cache-header-listing' } });
 
