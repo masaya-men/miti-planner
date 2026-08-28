@@ -35,3 +35,28 @@ export async function sendDiscordNotification(embed: DiscordEmbed): Promise<void
     console.error('[Discord:ADMIN] Webhook送信エラー:', err);
   }
 }
+
+/**
+ * ハウジング新着通知 (masaya 専用チャンネル) — プレーンテキストを送る。
+ * embed ではなく content を使う理由: リプ用テキストをコードブロックで送り、
+ * タップ長押しでコピーできるようにするため (設計書 §4)。
+ */
+export async function sendHousingNewListingNotification(content: string): Promise<void> {
+  const url = process.env.DISCORD_HOUSING_NEW_WEBHOOK_URL;
+  if (!url) {
+    console.warn('[Discord] DISCORD_HOUSING_NEW_WEBHOOK_URL が未設定。新着通知をスキップ');
+    return;
+  }
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+    if (!resp.ok) {
+      console.error(`[Discord:HOUSING_NEW] Webhook送信失敗: ${resp.status} ${resp.statusText}`);
+    }
+  } catch (err) {
+    console.error('[Discord:HOUSING_NEW] Webhook送信エラー:', err);
+  }
+}
