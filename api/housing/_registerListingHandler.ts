@@ -18,6 +18,8 @@ import { validateRegistrationDraft, buildListingImageFields, normalizePublishUnt
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import type { HousingUserMeta } from '../../src/types/housing.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
+import { buildNewListingNotification } from '../../src/lib/housing/newListingTweet.js';
+import { sendHousingNewListingNotification } from '../../src/lib/discordWebhook.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -182,6 +184,47 @@ export default async function handler(req: any, res: any) {
       }
     } catch (notifErr) {
       console.error('[housing/register-listing] duplicate_alert notify failed:', notifErr);
+    }
+
+    // 2026-08-28: 新着ハウジングの「ワンクリックツイート下書き」通知 (masaya 専用チャンネル)。
+    // best-effort。失敗しても登録レスポンスは 200 のまま。
+    // 設計書: docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md
+    if (!isAdmin && draft.visibility !== 'private' && createdId) {
+      try {
+        const listingSnap = await listingsCol.doc(createdId).get();
+        const L = listingSnap.data() ?? {};
+        const profileSnap = await adminDb.collection('housing_profiles').doc(uid).get();
+        const P = profileSnap.exists ? profileSnap.data()! : null;
+
+        const postUrl: string | null =
+          (typeof L.postUrl === 'string' && L.postUrl)
+            ? L.postUrl
+            : (Array.isArray(L.sourcePostUrls) && typeof L.sourcePostUrls[0] === 'string'
+                ? L.sourcePostUrls[0]
+                : null);
+
+        const { discordContent } = buildNewListingNotification({
+          listingId: createdId,
+          title: typeof L.title === 'string' ? L.title : null,
+          visibility: (L.visibility === 'unlisted' || L.visibility === 'private') ? L.visibility : 'public',
+          dc: typeof L.dc === 'string' ? L.dc : undefined,
+          server: typeof L.server === 'string' ? L.server : undefined,
+          area: typeof L.area === 'string' ? L.area : undefined,
+          ward: typeof L.ward === 'number' ? L.ward : undefined,
+          buildingType: L.buildingType === 'house' || L.buildingType === 'apartment' ? L.buildingType : undefined,
+          plot: typeof L.plot === 'number' ? L.plot : undefined,
+          apartmentBuilding: L.apartmentBuilding === 1 || L.apartmentBuilding === 2 ? L.apartmentBuilding : undefined,
+          roomNumber: typeof L.roomNumber === 'number' ? L.roomNumber : undefined,
+          postUrl,
+          housingerUid: uid,
+          housingerName: P && typeof P.displayName === 'string' ? P.displayName : null,
+          housingerProfilePublished: !!(P && P.isPublished === true && P.isModerationHidden !== true),
+        });
+
+        await sendHousingNewListingNotification(discordContent);
+      } catch (tweetNotifyErr) {
+        console.error('[housing/register-listing] new-listing tweet notify failed:', tweetNotifyErr);
+      }
     }
 
     return res.status(200).json({ id: createdId, addressKey });

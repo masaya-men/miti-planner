@@ -47,6 +47,14 @@ curl -X POST "https://lopoly.app/api/admin?resource=role" \
 - 解除: `COLLAB_DISABLED` を削除 or `1` 以外にする(`0`/`true` 等は無効=停止しない。**厳密に文字列 `1` のみ**有効)。
 - ※ Cloudflare DO 自体は止めない。受付係(Vercel)で止めるため、起きている部屋も以後 seed/保存されなくなる。
 
+## 新着ハウジングのツイート下書き通知
+
+- **環境変数 `DISCORD_HOUSING_NEW_WEBHOOK_URL`** — masaya 専用チャンネルの Incoming Webhook URL。
+  - Discord: 対象チャンネル → 連携サービス → ウェブフック → 新規ウェブフック → URL をコピー。
+  - Vercel: Settings → Environment Variables に Production / Preview / Development で追加。
+  - 未設定でも登録機能は正常動作する (通知だけスキップ)。
+  - 実値は `.env.local` / `ADMIN_REFERENCE.md` にのみ記載。
+
 ## 技術メモ
 - Vercel無料プラン: 月10万関数実行 / Firebase無料: 月5万アクティブユーザーまでOK
 - Twitter OAuth 2.0 + Vercel API方式
