@@ -40,4 +40,23 @@ describe('HousingCardAmbientSlideshow', () => {
     img?.dispatchEvent(new Event('error'));
     expect(img?.src).toContain('/a-fallback.jpg');
   });
+
+  it('フレーム4枚でも <img> は3枚だけマウントする', () => {
+    const frames = [
+      { src: 'https://lopoly.app/housing-media/L1/a.webp' },
+      { src: 'https://lopoly.app/housing-media/L1/b.webp' },
+      { src: 'https://lopoly.app/housing-media/L1/c.webp' },
+      { src: 'https://lopoly.app/housing-media/L1/d.webp' },
+    ];
+    const { container } = render(<HousingCardAmbientSlideshow frames={frames} enabled={false} />);
+    expect(container.querySelectorAll('img')).toHaveLength(3);
+  });
+
+  it('housing-media フレームは派生 srcSet を持つ', () => {
+    const frames = [{ src: 'https://lopoly.app/housing-media/L1/a.webp' }, { src: 'https://lopoly.app/housing-media/L1/b.webp' }];
+    const { container } = render(<HousingCardAmbientSlideshow frames={frames} enabled={false} />);
+    const img = container.querySelector('img') as HTMLImageElement;
+    expect(img.getAttribute('srcset')).toContain('a-480.webp 480w');
+    expect(img.getAttribute('decoding')).toBe('async');
+  });
 });
