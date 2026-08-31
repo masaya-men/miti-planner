@@ -15,6 +15,11 @@ import { useMasterDataStore } from '../../../../store/useMasterDataStore';
 const navigate = vi.fn();
 vi.mock('react-router-dom', () => ({ useNavigate: () => navigate }));
 
+vi.mock('thumbhash', async (orig) => ({
+  ...(await orig<typeof import('thumbhash')>()),
+  thumbHashToDataURL: () => 'data:image/png;base64,BLURMOCK',
+}));
+
 import { ListingCard, staggerDelayMs } from '../ListingCard';
 
 const mockListing = MOCK_LISTINGS[0];
@@ -261,6 +266,32 @@ describe('ListingCard — メイン画像の最適化 (Task 9)', () => {
     const img = container.querySelector('img.housing-listing-card-img') as HTMLImageElement;
     expect(img.getAttribute('src')).toBe('https://pbs.twimg.com/media/ABC.jpg?name=small');
     expect(img.hasAttribute('srcset')).toBe(false);
+  });
+});
+
+describe('ListingCard — ThumbHash ぼかしレイヤー (Task 11)', () => {
+  it('coverThumbHash があればぼかしレイヤーを敷く', () => {
+    const listing = {
+      ...mockListing,
+      imageMode: 'thumbnail' as const,
+      thumbnailPath: 'https://lopoly.app/housing-media/L1/u.webp',
+      thumbnailPaths: ['https://lopoly.app/housing-media/L1/u.webp'],
+      coverThumbHash: btoa('fakehashbytes'),
+    };
+    const { container } = renderCard({ listing });
+    const blur = container.querySelector('.housing-listing-card-blur') as HTMLElement;
+    expect(blur).toBeTruthy();
+    expect(blur.style.backgroundImage).toContain('BLURMOCK');
+  });
+
+  it('coverThumbHash が無ければぼかしレイヤーは出さない', () => {
+    const listing = {
+      ...mockListing,
+      imageMode: 'sns' as const,
+      ogImageUrl: 'https://pbs.twimg.com/media/ABC.jpg',
+    };
+    const { container } = renderCard({ listing });
+    expect(container.querySelector('.housing-listing-card-blur')).toBeNull();
   });
 });
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +19,7 @@ import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames'
 import { useRipple } from '../../../lib/housing/useRipple';
 import { representativeImage } from '../../../lib/housing/representativeImage';
 import { cardImageAttrs, CARD_IMAGE_SIZES } from '../../../lib/housing/cardImageAttrs';
+import { thumbHashToDataURL } from 'thumbhash';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingRipple } from '../HousingRipple';
@@ -150,6 +151,21 @@ export const ListingCard: React.FC<ListingCardProps> = ({
   }, [register]);
   const frames = useHousingCardFrames(listing, ambientOn);
 
+  // カード画像のぼかしプレースホルダ (ThumbHash・§5.5)。coverThumbHash がある物件
+  // (= 直接アップロードの代表画像) だけメイン <img> の背面にぼかしを敷き、画像 load 完了で
+  // フェードアウトさせる。X / YouTube / 旧データ / 生成失敗は coverThumbHash 無し = 従来の背景色。
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const blurDataUrl = useMemo(() => {
+    if (!listing.coverThumbHash) return null;
+    try {
+      return thumbHashToDataURL(
+        Uint8Array.from(atob(listing.coverThumbHash), (c) => c.charCodeAt(0)),
+      );
+    } catch {
+      return null;
+    }
+  }, [listing.coverThumbHash]);
+
   // 主ラベルは登録者のタイトル (新シェルでは必須)。旧データ (title なし) は住所で代替。
   // 住所・サイズはカードに出さない (住所=ツアーが住所順に自動で組まれるため一覧では不要、
   // サイズ=左フィルタと詳細ページで足りる・ユーザー合意 2026-07-03)。
@@ -242,6 +258,14 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         />
       )}
       <div className="housing-listing-card-media" ref={mediaRef}>
+        {blurDataUrl && (
+          <div
+            className="housing-listing-card-blur"
+            style={{ backgroundImage: `url("${blurDataUrl}")` }}
+            data-hidden={imgLoaded || undefined}
+            aria-hidden="true"
+          />
+        )}
         {(() => {
           const a = cardImageAttrs(representativeImage(listing), {
             sizes: CARD_IMAGE_SIZES,
@@ -260,7 +284,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({
               // hqdefault→mqdefault→default へ段階フォールバック (他カードと同一機構)。
               // 非 YouTube 画像 (Twitter/プレースホルダ) では両ハンドラとも no-op。
               onError={handleYoutubeThumbnailError}
-              onLoad={handleYoutubeThumbnailLoad}
+              onLoad={(e) => {
+                handleYoutubeThumbnailLoad(e);
+                setImgLoaded(true);
+              }}
             />
           );
         })()}

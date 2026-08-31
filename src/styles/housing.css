@@ -103,6 +103,8 @@
   --housing-card-overlay-z-ambient: 1;
   --housing-card-overlay-z-video: 2;
   --housing-card-overlay-z-content: 3;
+  /* 2026-08-31: カード画像の ThumbHash ぼかしプレースホルダが load 完了でフェードアウトする時間。 */
+  --housing-card-blur-fade: 400ms;
 
   /* ===== Semantic / status ===== */
   --housing-warning: #ff8080;
@@ -6911,6 +6913,18 @@ select.housing-input option {
 .housing-listing-card-img {
   position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover; display: block;
+}
+/* ThumbHash ぼかしプレースホルダ (§5.5)。メイン <img> より DOM 上で前 = 背面に描かれる。
+   背景画像は data URI を TSX の inline style で当てる (テーマ色ではなくデータなのでトークン外)。 */
+.housing-listing-card-blur {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  transition: opacity var(--housing-card-blur-fade) ease;
+}
+.housing-listing-card-blur[data-hidden] {
+  opacity: 0;
 }
 /* 画像に被らない常設フッター (主アクション) */
 .housing-listing-card-footer {
