@@ -105,12 +105,13 @@ describe('register-listing の新着通知', () => {
     expect(sendNotifyMock.mock.calls[0][0]).toContain('🏠 新着ハウジング');
   });
 
-  it('admin の登録では通知が送られない', async () => {
+  it('admin (masaya 自身) の登録でも通知が送られる (2026-08-31: masaya もハウジング製作者・自分の家も宣伝したい)', async () => {
     decodedToken = { uid: 'hashed:admin1', role: 'admin' };
     const { req, res } = makeReqRes(validBody);
     await handler(req, res);
     expect(res.statusCode).toBe(200);
-    expect(sendNotifyMock).not.toHaveBeenCalled();
+    expect(sendNotifyMock).toHaveBeenCalledTimes(1);
+    expect(sendNotifyMock.mock.calls[0][0]).toContain('🏠 新着ハウジング');
   });
 
   it('visibility=private では通知が送られない', async () => {

@@ -186,10 +186,13 @@ export default async function handler(req: any, res: any) {
       console.error('[housing/register-listing] duplicate_alert notify failed:', notifErr);
     }
 
-    // 2026-08-28: 新着ハウジングの「ワンクリックツイート下書き」通知 (masaya 専用チャンネル)。
+    // 2026-08-28: 新着ハウジングの「ワンクリックツイート下書き」通知 (masaya 専用プライベートチャンネル)。
     // best-effort。失敗しても登録レスポンスは 200 のまま。
+    // 2026-08-31: 管理者 (masaya) 自身の登録も通知する (masaya もハウジング製作者・自分の家も
+    //   ワンクリック宣伝したい。テスト物件は「宣伝しなければいい」だけ)。除外は private のみ
+    //   (誰も見られず、ツイートのリンク先が壊れるため)。
     // 設計書: docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md
-    if (!isAdmin && draft.visibility !== 'private' && createdId) {
+    if (draft.visibility !== 'private' && createdId) {
       try {
         const [listingSnap, profileSnap] = await Promise.all([
           listingsCol.doc(createdId).get(),

@@ -46,8 +46,10 @@ POST /api/housing?action=register-listing  (既存)
    │  重複住所への duplicate_alert 通知 (既存・best-effort)
    │
    ├─▶ 【新規】新着ハウジング Discord 通知 (best-effort)
-   │      1. 登録者 (ownerUid) が admin なら何もしない (テストデータ除外)
-   │      2. visibility が 'private' なら何もしない
+   │      1. visibility が 'private' なら何もしない (誰も見られずツイートのリンクが壊れる)
+   │         ※ 2026-08-31 変更: 当初は「登録者が admin なら通知しない」も条件だったが、
+   │           masaya もハウジング製作者で自分の家も宣伝したいため撤回。テスト物件は
+   │           「宣伝しなければいい」だけ。除外は private のみ。
    │      3. housing_profiles/{ownerUid} を 1 read → displayName / isPublished
    │      4. 本文ツイートの Web Intent URL を組み立てる (本文は常に日本語)
    │         - postUrl (投稿元 URL) があれば: 本文に「LoPo 物件ページ URL + 投稿元 URL」両方
@@ -83,11 +85,16 @@ Discord 通知が失敗しても登録は成功のまま返す。既存の `dupl
 
 以下をすべて満たすときだけ送る:
 
-- 登録者が admin **ではない** (`decoded.role !== 'admin'`)。masaya 自身のテストデータで
-  チャンネルが埋まるのを防ぐ。masaya が自分の本物の物件を宣伝したい場合は手動ツイートで対応。
 - `visibility !== 'private'` (private は誰にも見えず、物件ページが 404 = ツイートが壊れる)。
 - `visibility === 'unlisted'` (住所非公開) の場合は送る。ただし通知に「住所非公開の物件」と明記し、
-  ツイートするかは masaya が判断する。
+  ツイートするかは masaya が判断する (通知先は masaya 専用プライベートチャンネル。住所を出しても
+  他人には見えない・2026-08-31 チャンネルの private 化を確認済み)。
+
+> **2026-08-31 変更**: 当初は「登録者が admin **ではない**」も条件に入れていた
+> (masaya のテストデータでチャンネルが埋まるのを防ぐ意図)。しかし masaya 自身も
+> ハウジング製作者で、自分の家もワンクリック宣伝したいため撤回。ガードは
+> `draft.visibility !== 'private' && createdId` のみ。テスト物件は「宣伝ボタンを押さなければいい」だけ。
+> 通知量が実際にうるさくなったら §12 の「1 日 N 件まで / ダイジェスト化」を検討する。
 
 ### コスト
 
@@ -312,8 +319,7 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 - `createdId` (新規 listing の doc ID) — 物件ページ URL に使う。
 - `draft.title` / 住所フィールド — タイトル解決。
 - `draft.postUrl` / `draft.sourcePostUrls?.[0]` — 投稿元 URL。
-- `draft.visibility` — private 除外 / unlisted ラベル。
-- `decoded.role` — admin 除外。
+- `draft.visibility` — private 除外 / unlisted ラベル。(2026-08-31: 当初あった admin 除外は撤回)
 
 ### 依存する既存モジュール
 
@@ -410,5 +416,5 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 - 物件詳細ページの OGP を「写真 1 枚」ではなく合成カード (住所 + タイトル + 複数写真) に
   格上げする案 — 今回は YAGNI。ハウジンガーカードの資産 (`api/og/_housingerCard.ts`) を
   流用すれば作れるが、需要を見てから。
-- 物件登録が増えて通知量が多くなったら、admin 除外だけでなく「1 日 N 件まで」
-  「ダイジェスト化」も検討。
+- 物件登録が増えて通知量が多くなったら「1 日 N 件まで」「ダイジェスト化」
+  「テスト用に登録時オプトアウトチェック」等を検討。

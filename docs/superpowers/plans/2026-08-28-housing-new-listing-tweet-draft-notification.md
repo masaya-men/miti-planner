@@ -758,9 +758,13 @@ git commit -m "feat(housing): Discord新着通知の送信ヘルパー (専用we
 **動作:** トランザクション後、既存の `duplicate_alert` best-effort ブロックの**直後**に新ブロックを足す。
 
 発火条件 (すべて満たすときだけ送る):
-1. `!isAdmin` (`decoded.role === 'admin'` は既にハンドラーで算出済み)。
-2. `draft.visibility !== 'private'`。
-3. （通知内容の組み立てには、作成済み listing doc を 1 read + `housing_profiles/{uid}` を 1 read）
+1. `draft.visibility !== 'private'`。
+2. （通知内容の組み立てには、作成済み listing doc を 1 read + `housing_profiles/{uid}` を 1 read）
+
+> **2026-08-31 変更**: 当初は条件に `!isAdmin` も入れていたが、masaya 自身も
+> ハウジング製作者で自分の家も宣伝したいため撤回。ガードは `draft.visibility !== 'private' && createdId` のみ。
+> 実装済みコード (`api/housing/_registerListingHandler.ts`) とテスト
+> (`_registerListingHandler.notify.test.ts` の「admin でも通知が送られる」ケース) は本変更を反映済み。
 
 - [ ] **Step 1: 失敗するテストを書く**
 
