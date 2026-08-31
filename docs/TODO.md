@@ -14,12 +14,13 @@
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 0. バリアの重なり方ルール = 実装完了・push済み・Firestore同期済み。**残=Vercelデプロイ確認＋実機確認だけ**。手順/チェックリスト/フォロー=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。前セッション分①iOS表示ズレ共通フック ②バリア吸収し切りで棒終了 も実機確認待ち(詳細=`docs/.private/2026-08-27-viewport-shift-audit-and-barrier-bar-cutoff.md`)。
-1. **🔴 新着ハウジングのワンクリックツイート下書き通知**(masaya要望・進行中)。**brainstorming完了・設計確定→次はwriting-plans**。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md`。要点: 発火=登録API相乗り(best-effort・admin登録とprivateは除外) / 本文は常に日本語・ハッシュタグ=`#FF14ハウジング #FFXIVHousing`の2個固定(地域出し分けなし) / リプ=Discordにコピペ用テキスト(中継ページ無し) / **E=物件詳細ページのOGP画像を家の写真にする修正も同梱**(現状は汎用ロゴ固定)。
-2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断・要再開。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
-3. 軽減表スプシモード(同じメンバー絞り込みの仕組みを両方で使えるだけ)。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。
-4. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
+1. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断・要再開。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
+2. 軽減表スプシモード(同じメンバー絞り込みの仕組みを両方で使えるだけ)。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。
+3. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
+### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実装完了・main反映済み(9b3f33f9)・**要デプロイ後作業**
+subagent-driven 6タスク+最終レビュー(opus=マージ可・Criticalゼロ)+指摘4件修正(Discord mentions防御/5sタイムアウト/OGP寸法meta/軽微)。テスト135緑・build緑。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md` / 計画=`docs/superpowers/plans/2026-08-28-...`。**残**: ①Discord webhook作成→Vercel環境変数 `DISCORD_HOUSING_NEW_WEBHOOK_URL` 追加(未設定でも登録は正常・通知だけskip) ②`scripts/backfill-listing-thumbnail-png.ts --apply` 実行状況確認 ③実機=一般アカウントでテスト物件登録→Discord通知→本文リンクで投稿画面→物件URLのXカードに家写真(YouTube由来も) ④テスト物件削除。**フォロー**: 物件thumbnailの.png兄弟がupload時best-effortで失敗しうる→新規listingでog:image 404の恒久対策(`.exists()`チェック or upload fatal化)。backfillは既存分のみ。
 ### 🔴 2026-08-27 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)・Firestore同期済み
 Task1〜6実装＋最終レビュー(opus=マージ可・Criticalゼロ)＋Firestore外科マイグレーション作成・`--apply`実行済み(28スキル/38フィールド・全て新規セット・dataVersion++)、全て main にpush済み。**残=Vercelデプロイ確認＋実機確認だけ**。**Task7(グレー2色棒=方式c)は未着手**（方式a=負けた時刻で棒停止 で確定・方式cは見た目追加のみ、見積もり=引き継ぎ§⑤）。スマホの展開戦術バー(①)・設計書typo(⑥)・削れたEディアへの鼓舞上書き(②)は対応済み(〜4c4c9509・push済み)。②はコードのみで再シード不要・masaya実機再現不可のため実測未確認(違えば1行revert)。残フォロー: 上書き判定がper-hitで詠唱時点を見ない既知制限(②の根本)・③EventForm逆算がまだ加算式・④tempera_grassa scope。手順・チェックリスト・見た目変化=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
 ### 🟡 2026-08-27 ①②実装完了・push済み・実機確認待ち
