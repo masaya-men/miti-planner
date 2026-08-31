@@ -12,6 +12,7 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
+import { FieldValue } from 'firebase-admin/firestore';
 import { computeArrayReorder } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 
@@ -70,11 +71,16 @@ export default async function handler(req: any, res: any) {
       const result = computeArrayReorder(current, newOrder);
       if ('error' in result) throw new Error(result.error);
 
-      tx.update(listingRef, {
+      const update: Record<string, unknown> = {
         thumbnailPaths: newOrder,
         thumbnailPath: newOrder[0],
         updatedAt: Date.now(),
-      });
+      };
+      if (newOrder[0] !== current[0]) {
+        // 代表画像が変わったら古い coverThumbHash は無効 (次回バックフィルで再生成される)
+        update.coverThumbHash = FieldValue.delete();
+      }
+      tx.update(listingRef, update);
       bumpPublicVersionTx(tx, adminDb);
     });
 

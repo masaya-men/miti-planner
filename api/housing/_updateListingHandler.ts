@@ -212,6 +212,10 @@ export default async function handler(req: any, res: any) {
         if (data.imageMode === 'thumbnail') {
           updatePayload.thumbnailPaths = FieldValue.delete();
           updatePayload.thumbnailPath = FieldValue.delete();
+          // sns 切替時は代表画像が直接アップロード画像でなくなるため、
+          // coverThumbHash (ThumbHash ブラー) は常に無効。残すと誤ったブラーが
+          // 恒久表示される (新代表画像がロード不能なら data-blur-pending で永続)。
+          updatePayload.coverThumbHash = FieldValue.delete();
         }
       }
 

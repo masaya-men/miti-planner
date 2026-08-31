@@ -2,12 +2,15 @@ import { housingImageVariant } from './housingMediaUrl';
 import { twitterImageVariant, type TwitterImageName } from './twitterImageVariant';
 
 /**
- * カード / スライドショー用の <img sizes>。グリッドは minmax(198px, 1fr)。
- * よくある iPhone(390pt DPR3)は 1 カラム = ほぼ 100vw、2 カラムなら約 50vw、PC は約 240px。
- * .housing-listing-grid の左右 padding 4px を差し引く。実測で微調整可。
+ * カード / スライドショー用の <img sizes>。
+ *
+ * `.housing-listing-grid` は `@media (max-width: 767px)` で `repeat(2, 1fr)` 固定
+ * (390pt iPhone でも常に 2 カラム。1 カラムになる幅は無い)。ブラウズページの
+ * グリッド padding は `4px 12px … 0`(左 0 / 右 12px)、カラム間 gap は
+ * `--housing-main-gap` = 14px。よって 1 カード幅 = (100vw − 12 − 14) / 2 = 50vw − 13px。
+ * PC は中央カラムに収まり約 240px。実測で微調整可 (§9)。
  */
-export const CARD_IMAGE_SIZES =
-  '(max-width: 419px) calc(100vw - 8px), (max-width: 767px) calc(50vw - 8px), 240px';
+export const CARD_IMAGE_SIZES = '(max-width: 767px) calc(50vw - 13px), 240px';
 
 export interface CardImageAttrs {
   src: string;

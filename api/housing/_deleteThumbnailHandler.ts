@@ -12,6 +12,7 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { verifyAppCheck } from '../../src/lib/appCheckVerify.js';
 import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
+import { FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { computeArrayDeletion, parseStoragePathFromPublicUrl } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
@@ -74,11 +75,16 @@ export default async function handler(req: any, res: any) {
       removedUrl = result.removed;
       newPaths = result.next;
 
-      tx.update(listingRef, {
+      const update: Record<string, unknown> = {
         thumbnailPaths: newPaths,
         thumbnailPath: newPaths[0],
         updatedAt: Date.now(),
-      });
+      };
+      if (newPaths[0] !== current[0]) {
+        // 代表画像が変わったら古い coverThumbHash は無効 (次回バックフィルで再生成される)
+        update.coverThumbHash = FieldValue.delete();
+      }
+      tx.update(listingRef, update);
       bumpPublicVersionTx(tx, adminDb);
     });
 
