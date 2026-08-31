@@ -63,7 +63,8 @@ export function buildNewListingNotification(input: NewListingNotificationInput):
   const listingUrl = `${SITE_ORIGIN}/housing/listing/${input.listingId}`;
 
   // --- 本文ツイート (Web Intent。URL はすべて text= に入れる) ---
-  const bodyLines = [`${BODY_LEAD} ${HASHTAGS}`, listingUrl];
+  // リード文とハッシュタグの間は改行 + 空白行 1 行 (2026-08-31 実機テスト後のユーザー指定)。
+  const bodyLines = [`${BODY_LEAD}\n\n${HASHTAGS}`, listingUrl];
   if (input.postUrl) bodyLines.push(input.postUrl);
   const bodyText = bodyLines.join('\n');
   const bodyIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(bodyText)}`;

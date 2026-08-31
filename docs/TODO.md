@@ -13,20 +13,16 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-0. バリアの重なり方ルール = 実装完了・push済み・Firestore同期済み。**残=Vercelデプロイ確認＋実機確認だけ**。手順/チェックリスト/フォロー=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。前セッション分①iOS表示ズレ共通フック ②バリア吸収し切りで棒終了 も実機確認待ち(詳細=`docs/.private/2026-08-27-viewport-shift-audit-and-barrier-bar-cutoff.md`)。
+0. **新着ハウジング通知のフォロー**: 物件thumbnailの`.png`兄弟がupload時best-effortで失敗しうる→新規listingでog:image 404の恒久対策(`.exists()`チェック or upload fatal化)。既存分はバックフィル確認でOK。
 1. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断・要再開。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
 2. 軽減表スプシモード(同じメンバー絞り込みの仕組みを両方で使えるだけ)。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。
 3. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟡 2026-08-31 ホーリズムのエフェクト棒が初弾で消えるバグ = 修正完了・push済み(3c8e0721)・デプロイ済み
-バリア+持続%軽減の複合スキル(ホーリズム/原初の血気/原初の猛り の3つ)で、バリア枯渇クリップ(2026-08-27機能)が `def.isShield` だけで判定し棒を切っていた。純関数 `shieldEffectBarEndsOnBarrierExhaustion`(barrierStacking.ts)でPC/スマホ両クリップをゲート。data変更なし・再シード不要。build緑・関連vitest緑(46+92+21)。**残=実機確認のみ**。前回(2026-08-27)から溜まった実機確認を全部まとめた平易チェックリスト=`docs/.private/2026-08-31-prod-verification-checklist.md`(今回のホーリズム / ①iOS表示ズレ / ②③バリアの重なり方・棒早期終了)。
-### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実装完了・main反映済み(9b3f33f9)・**要デプロイ後作業**
-subagent-driven 6タスク+最終レビュー(opus=マージ可・Criticalゼロ)+指摘4件修正(Discord mentions防御/5sタイムアウト/OGP寸法meta/軽微)。テスト135緑・build緑。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md` / 計画=`docs/superpowers/plans/2026-08-28-...`。**デプロイ済み(2026-08-31)**: main反映・Vercel環境変数 `DISCORD_HOUSING_NEW_WEBHOOK_URL` 設定・再デプロイ済み。backfillは不要だった(既存サムネ全部PNG版あり)。webhook先=#ハウジング告知(private確認済み)。**発火条件は private除外のみ**(2026-08-31: 当初のadmin除外は撤回。masaya自身の家も宣伝したいため。テスト物件は宣伝しなければいいだけ)。**残**: 実機動作テスト(通知が届くか/本文リンクでX投稿画面/リプコピペ/カード画像)。**フォロー**: 物件thumbnailの.png兄弟がupload時best-effortで失敗しうる→新規listingでog:image 404の恒久対策(`.exists()`チェック or upload fatal化)。
-### 🔴 2026-08-27 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)・Firestore同期済み
-Task1〜6実装＋Firestore同期(`--apply`済・28スキル/dataVersion++)・main push済み。**残=Vercelデプロイ確認＋実機確認**。**Task7(グレー2色棒=方式c)未着手**(方式a確定・方式cは見た目追加のみ・§⑤)。①⑥②対応済(〜4c4c9509)。残フォロー: 上書き判定がper-hitで詠唱時点を見ない既知制限・③EventForm逆算が加算式・④tempera_grassa scope。詳細=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
-### 🟡 2026-08-27 ①②実装完了・push済み・実機確認待ち
-①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約(Layout/HousingShell/CollabJoinerPage)。②バリア吸収し切り時刻(`shieldExhaustedAt`)で棒をPC/スマホ早期終了・全体バリアは全体攻撃のみ(`shieldCoverageContext`)。実機確認: ①iPhone表示ズレ ②シールド棒の早期終了。
+### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実機テストOK・本文微修正を未デプロイ
+2026-08-28設計→実装→デプロイ済み。masaya実機テストで通知/本文リンク/リプ/カード画像すべてOK。**本文の微修正**: リード文「新しいハウジングが投稿されました🏠」とハッシュタグの間を改行+空白行1行に(`newListingTweet.ts` の `bodyLines`)。テスト10緑。**残=push+デプロイ**。フォロー(og:image 404恒久対策)は「次の作業順」0番へ。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md`。
+### ✅ 2026-08-31 ホーリズムのエフェクト棒バグ + 2026-08-27 バリアの重なり方/iOS表示ズレ/シールド棒早期終了 = 全てデプロイ・実機確認OK → TODO_COMPLETED.md
+残った小課題(別件・急ぎなし): Task7グレー2色棒(見た目のみ・要指示) / 上書き勝敗のper-hit近似 / EventForm逆算が加算式 / tempera_grassa の `scope:'self'` 欠落(要承認)。詳細=TODO_COMPLETED.md + `docs/.private/2026-08-27-barrier-stacking-handoff.md`。
 ### ✅ 2026-08-20〜24 ハウジング一括: 3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定、全てpush→デプロイ済み (詳細=TODO_COMPLETED.md)
 直近セッションの実装は全て本番反映・実機確認済み(NEWリボン固定機能はデプロイ後に見つかった2件の不具合=キャッシュ許可リスト漏れ/ランダム表示の並び順漏れ、も同セッションで修正済み)。
 **残**: Discord統合告知 (`docs/.private/2026-08-20-discord-full-update-draft.md`・投稿文確定済み) が投稿待ち。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。

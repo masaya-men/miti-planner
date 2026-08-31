@@ -18,6 +18,8 @@ describe('buildNewListingNotification', () => {
     const decoded = decodeURIComponent(m![1]);
     expect(decoded).toContain('新しいハウジングが投稿されました🏠');
     expect(decoded).toContain('#FF14ハウジング #FFXIVHousing');
+    // リード文とハッシュタグの間は改行 + 空白行 1 行
+    expect(decoded).toContain('新しいハウジングが投稿されました🏠\n\n#FF14ハウジング #FFXIVHousing');
     expect(decoded).toContain('https://lopoly.app/housing/listing/AbC123');
   });
 
