@@ -36,9 +36,10 @@ import { applyRateLimit } from '../../src/lib/rateLimit.js';
 import { getAuth } from 'firebase-admin/auth';
 import { getStorage } from 'firebase-admin/storage';
 import { FieldValue } from 'firebase-admin/firestore';
-import { parseStoragePathFromPublicUrl, buildHousingImagePublicUrl, toPngSiblingPath } from './_imageArrayLogic.js';
+import { parseStoragePathFromPublicUrl, buildHousingImagePublicUrl, toPngSiblingPath, toDerivativePath, HOUSING_CARD_DERIVATIVE_WIDTHS } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
-import { convertToPngIfNeeded, LISTING_THUMBNAIL_PNG_MAX_DIMENSION } from './_imageFormatConvert.js';
+import { convertToPngIfNeeded, LISTING_THUMBNAIL_PNG_MAX_DIMENSION, resizeToWebp } from './_imageFormatConvert.js';
+import { computeCoverThumbHash } from './_coverThumbHash.js';
 
 const MAX_BYTES = 1 * 1024 * 1024; // 1MB
 const MAX_IMAGES_PER_LISTING = 4;
@@ -138,23 +139,35 @@ export default async function handler(req: any, res: any) {
       metadata: { cacheControl: 'public, max-age=31536000, immutable' },
     });
 
-    // OGPカード生成 (satori) はWebP/AVIF非対応のため、同じ場所に .png 版も並行保存する
-    // (2026-07-31: OGPカードで代表作が黙って読み飛ばされる不具合の恒久対策)。
-    // Firestoreスキーマは変更せず、拡張子違いの兄弟ファイルとして解決する
-    // (api/share/_housingerPageHandler.ts の representative image 解決側が参照)。
-    // 失敗しても本アップロード自体は成功扱いにする (PNG派生版が無ければ従来通りの
-    // 「OGPカードでは読み飛ばされる」に留まるだけで、アップロード自体を失敗させる理由がない)。
-    const pngBuf = await convertToPngIfNeeded(buf, mimeType, { maxDimension: LISTING_THUMBNAIL_PNG_MAX_DIMENSION });
-    if (pngBuf) {
-      try {
+    // カード用の縮小 WebP 派生(480/960/1440)+ OGP 用 PNG 兄弟を生成・保存する。
+    // 表示側が srcset でこれらを参照するため、1 枚でも欠けると画像が壊れて見える。
+    // → best-effort ではなく必須(失敗したらアップロード自体を 500 で失敗させる)。
+    try {
+      await Promise.all(
+        HOUSING_CARD_DERIVATIVE_WIDTHS.map(async (w) => {
+          const derived = await resizeToWebp(buf, w);
+          await bucket.file(toDerivativePath(filePath, w)).save(derived, {
+            contentType: 'image/webp',
+            metadata: { cacheControl: 'public, max-age=31536000, immutable' },
+          });
+        }),
+      );
+      const pngBuf = await convertToPngIfNeeded(buf, mimeType, {
+        maxDimension: LISTING_THUMBNAIL_PNG_MAX_DIMENSION,
+      });
+      if (pngBuf) {
         await bucket.file(toPngSiblingPath(filePath)).save(pngBuf, {
           contentType: 'image/png',
           metadata: { cacheControl: 'public, max-age=31536000, immutable' },
         });
-      } catch (e) {
-        console.error('[housing/upload-thumbnail] png sibling save failed (non-fatal):', e);
       }
+    } catch (e) {
+      console.error('[housing/upload-thumbnail] derivative/png generation failed:', e);
+      return res.status(500).json({ error: 'derivative_generation_failed' });
     }
+
+    // 代表画像(index 0)のときは ThumbHash も計算する(非致命)。
+    const coverThumbHash = imageIndex === 0 ? await computeCoverThumbHash(buf) : undefined;
     // 公開 URL: Cloudflareキャッシュ経由の新形式 (2026-07-24〜)。
     // filePath = `housing/listings/{listingId}/{uuid}.{ext}` なので
     // ファイル名部分だけを渡す (listingId は既に変数として存在)。
@@ -189,6 +202,11 @@ export default async function handler(req: any, res: any) {
       // 後方互換: 1 枚目を thumbnailPath にもコピー
       if (imageIndex === 0 || (data.thumbnailPath ?? '') === '') {
         update.thumbnailPath = existing[0];
+      }
+      // 代表画像の差し替え時は ThumbHash も更新。計算に失敗したら古いハッシュを消す
+      // (誤ったぼかしを出し続けない)。
+      if (imageIndex === 0) {
+        update.coverThumbHash = coverThumbHash ?? FieldValue.delete();
       }
       // sns→thumbnail の登録方法切替 (2026-07-20 編集ページ画像管理設計): このアップロードが
       // 「URL経由だった物件に初めて直接アップロード画像を追加した」ケースなら、SNS由来の
