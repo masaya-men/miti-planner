@@ -165,7 +165,7 @@ describe('computeMobileEffectBars', () => {
 
   describe('shieldExhaustedAt (バリア吸収し切りで棒を早期終了)', () => {
     it('シールドが尽きた時刻で棒を短く切る', () => {
-      const def = makeDef('divine_veil', { duration: 30, isShield: true });
+      const def = makeDef('divine_veil', { duration: 30, isShield: true, value: 0 });
       const mit = makeMit('p1', 'divine_veil', 'MT', 0, 30); // durationEndTime = 29
       const result = computeMobileEffectBars({
         ...baseArgs,
@@ -178,7 +178,7 @@ describe('computeMobileEffectBars', () => {
     });
 
     it('shieldExhaustedAt が無ければ本来の duration いっぱい', () => {
-      const def = makeDef('divine_veil', { duration: 30, isShield: true });
+      const def = makeDef('divine_veil', { duration: 30, isShield: true, value: 0 });
       const mit = makeMit('p1', 'divine_veil', 'MT', 0, 30);
       const result = computeMobileEffectBars({
         ...baseArgs,
@@ -201,8 +201,23 @@ describe('computeMobileEffectBars', () => {
       expect(result[0].height).toBe(1764);
     });
 
+    it('バリア + 持続 % 軽減の複合スキル(ホーリズム相当)は shieldExhaustedAt があってもクランプしない', () => {
+      // ホーリズム: バリア + 10% 軽減 20 秒。バリアが初弾で割れても % 軽減は 20 秒間効き続けるので
+      // 棒は効果時間いっぱい出す(2026-08-31 実機報告の修正)。
+      const def = makeDef('holos', { duration: 20, isShield: true, value: 10 });
+      const mit = makeMit('p1', 'holos', 'MT', 0, 20); // durationEndTime = 19
+      const result = computeMobileEffectBars({
+        ...baseArgs,
+        timelineMitigations: [mit],
+        mitigationDefs: [def],
+        shieldExhaustedAt: new Map([['p1', 3]]),
+      });
+      // クランプされない: effectiveEndTime = 19 → endY = 19*60 + 24 = 1164
+      expect(result[0].height).toBe(1164);
+    });
+
     it('尽きた時刻が本来の終端より後なら短くならない(Math.min)', () => {
-      const def = makeDef('divine_veil', { duration: 10, isShield: true });
+      const def = makeDef('divine_veil', { duration: 10, isShield: true, value: 0 });
       const mit = makeMit('p1', 'divine_veil', 'MT', 0, 10); // durationEndTime = 9
       const result = computeMobileEffectBars({
         ...baseArgs,
@@ -215,7 +230,7 @@ describe('computeMobileEffectBars', () => {
     });
 
     it('別インスタンスの尽き時刻は流用しない(id 一致のみ)', () => {
-      const def = makeDef('divine_veil', { duration: 30, isShield: true });
+      const def = makeDef('divine_veil', { duration: 30, isShield: true, value: 0 });
       const mit = makeMit('p1', 'divine_veil', 'MT', 0, 30);
       const result = computeMobileEffectBars({
         ...baseArgs,

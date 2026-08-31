@@ -1,4 +1,5 @@
 import type { AppliedMitigation, Mitigation } from '../types';
+import { shieldEffectBarEndsOnBarrierExhaustion } from './barrierStacking';
 
 export const MOBILE_EFFECT_BAR_ICON_SIZE = 15;
 export const MOBILE_EFFECT_BAR_WIDTH = 4;
@@ -80,8 +81,10 @@ export interface ComputeMobileEffectBarsArgs {
   getColorClasses: (jobId: string | undefined, ownerId: string) => MobileEffectBarColors;
   /**
    * バリア(シールド)が吸収量を完全に使い切った時刻を軽減インスタンス(AppliedMitigation.id)
-   * ごとに持つ Map。渡されると、対象が def.isShield の場合に棒をこの時刻で早期終了させる。
-   * スタック制シールド(ハイマ等)は壊れても継続するため Map 側で既に除外されている。
+   * ごとに持つ Map。渡されると、対象が「バリア専用スキル」の場合に棒をこの時刻で早期終了させる
+   * (判定は shieldEffectBarEndsOnBarrierExhaustion)。スタック制シールド(ハイマ等)は壊れても
+   * 継続するため Map 側で既に除外されている。バリア + 持続 % 軽減の複合スキル
+   * (ホーリズム/原初の血気・猛り)は Map に載っていてもクランプしない。
    */
   shieldExhaustedAt?: Map<string, number>;
   /**
@@ -196,7 +199,9 @@ export function computeMobileEffectBars(args: ComputeMobileEffectBarsArgs): Mobi
     effectiveEndTime = Math.min(effectiveEndTime, maxTime);
     // バリアが吸収量を使い切ったら、その時点で棒を止める(PC 側 Timeline.tsx と同じ制約)。
     // 尽きた時刻は必ずイベント行なので hideEmptyRows の可視行スナップは不要。
-    if (def.isShield && shieldExhaustedAt?.has(mit.id)) {
+    // バリア + 持続 % 軽減の複合スキル(ホーリズム/原初の血気・猛り)は棒を切らない
+    // (バリアが割れても効果時間いっぱい % 軽減が乗り続けるため・2026-08-31 実機報告)。
+    if (shieldEffectBarEndsOnBarrierExhaustion(def) && shieldExhaustedAt?.has(mit.id)) {
       effectiveEndTime = Math.min(effectiveEndTime, shieldExhaustedAt.get(mit.id)!);
     }
     // 上書き負けしたバリアも、負けた時刻で棒を止める(PC 側と同じ)。

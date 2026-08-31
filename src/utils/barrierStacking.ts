@@ -72,6 +72,35 @@ export function stepShieldAbsorption(args: {
 }
 
 /**
+ * バリアを使い切った時点でエフェクト棒を早期終了してよいスキルか(純粋・テスト可能)。
+ *
+ * バリア専用スキル(ディヴァインヴェール / 鼓舞激励の策 / エウクラシア系等・いずれも value:0)は、
+ * バリアを使い切ったらもう効果が無いので、その時刻で棒を止めてよい。
+ *
+ * 一方、バリア + 効果時間中ずっと続く別効果(% 軽減 / 被回復量アップ)を併せ持つスキル
+ * (ホーリズム value:10 / 原初の血気・原初の猛り value:10 + burstValue)は、バリアが割れても
+ * その効果は効果時間いっぱい効き続ける。これらはバリア枯渇で棒を切ると「まだ効いている効果」を
+ * 隠してしまう(2026-08-31 実機報告: ホーリズムの棒が初弾で消える)。→ 棒を切らない。
+ */
+export function shieldEffectBarEndsOnBarrierExhaustion(def: {
+    isShield?: boolean;
+    value?: number;
+    valuePhysical?: number;
+    valueMagical?: number;
+    burstValue?: number;
+    healingIncrease?: number;
+}): boolean {
+    if (!def.isShield) return false;
+    const hasPersistentNonShieldEffect =
+        (def.value ?? 0) > 0 ||
+        (def.valuePhysical ?? 0) > 0 ||
+        (def.valueMagical ?? 0) > 0 ||
+        (def.burstValue ?? 0) > 0 ||
+        (def.healingIncrease ?? 0) > 0;
+    return !hasPersistentNonShieldEffect;
+}
+
+/**
  * バリアの「実効カバー範囲」を表す context を返す(純粋・テスト可能)。
  * エフェクト棒の早期終了は、このカバー範囲のバケツが尽きたときだけ行う。
  *

@@ -87,7 +87,7 @@ import { SpreadsheetGridImportModal } from './SpreadsheetGridImportModal';
 import type { SheetImportResult } from '../lib/sheetImport/buildPlanFromSheets';
 import { importWithLimitCheck } from '../lib/sheetImport/importWithLimitCheck';
 import type { ContentSelectionDefault } from '../lib/contentSelection';
-import { resolveContextShields, type ContextShieldState } from '../utils/barrierStacking';
+import { resolveContextShields, shieldEffectBarEndsOnBarrierExhaustion, type ContextShieldState } from '../utils/barrierStacking';
 import { buildContextShieldEntries } from '../utils/contextShieldEntries';
 
 function genId(): string {
@@ -3758,8 +3758,10 @@ const Timeline: React.FC = () => {
                                                         }
                                                         // バリア(シールド)が吸収量を使い切ったら、その時点で棒を止める。
                                                         // スタック制シールド(ハイマ等)は damageMapResult 側で除外済み(壊れても継続扱い)。
+                                                        // バリア + 持続 % 軽減の複合スキル(ホーリズム/原初の血気・猛り)は棒を切らない
+                                                        // (バリアが割れても効果時間いっぱい % 軽減が乗り続けるため・2026-08-31 実機報告)。
                                                         // 既存の horoscope/earthly_star/WD クリップとは Math.min で共存させる。
-                                                        if (def?.isShield && shieldExhaustedAt.has(mitigation.id)) {
+                                                        if (def && shieldEffectBarEndsOnBarrierExhaustion(def) && shieldExhaustedAt.has(mitigation.id)) {
                                                             const cutY = getMappedY(shieldExhaustedAt.get(mitigation.id)!);
                                                             height = Math.min(height, Math.max(0, Math.round(cutY + 24 - startY)));
                                                         }

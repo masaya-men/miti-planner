@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   stepShieldAbsorption,
   shieldCoverageContext,
+  shieldEffectBarEndsOnBarrierExhaustion,
   resolveContextShields,
   type ContextShieldState,
 } from '../../utils/barrierStacking';
@@ -99,6 +100,48 @@ describe('shieldCoverageContext (バリアの実効カバー範囲)', () => {
     expect(coverage).toBe('Party');
     expect(coverage).not.toBe('MT');
     expect(coverage).not.toBe('ST');
+  });
+});
+
+describe('shieldEffectBarEndsOnBarrierExhaustion (バリア枯渇で棒を切ってよいか)', () => {
+  it('バリア専用スキル(value 0)→ true(枯渇時刻で棒を止めてよい)', () => {
+    expect(shieldEffectBarEndsOnBarrierExhaustion({ isShield: true, value: 0 })).toBe(true);
+  });
+
+  it('シールドでないスキル → false(そもそもこのクリップの対象外)', () => {
+    expect(shieldEffectBarEndsOnBarrierExhaustion({ isShield: false, value: 0 })).toBe(false);
+    expect(shieldEffectBarEndsOnBarrierExhaustion({ value: 10 })).toBe(false);
+  });
+
+  it('バリア + 持続 % 軽減(ホーリズム相当 value:10)→ false(棒を切らない)', () => {
+    expect(shieldEffectBarEndsOnBarrierExhaustion({ isShield: true, value: 10 })).toBe(false);
+  });
+
+  it('バリア + burst のみ(value:0, burstValue:10)→ false', () => {
+    expect(shieldEffectBarEndsOnBarrierExhaustion({ isShield: true, value: 0, burstValue: 10 })).toBe(false);
+  });
+
+  it('バリア + 物理/魔法個別軽減 → false', () => {
+    expect(shieldEffectBarEndsOnBarrierExhaustion({ isShield: true, value: 0, valuePhysical: 10 })).toBe(false);
+    expect(shieldEffectBarEndsOnBarrierExhaustion({ isShield: true, value: 0, valueMagical: 10 })).toBe(false);
+  });
+
+  // 実データ回帰: 「isShield かつ 効果時間中ずっと乗る % 軽減を持つ」スキルは現状
+  // holos / bloodwhetting / nascent_flash の 3 つだけ。新たに該当スキルが増えたら
+  // ここが落ちて「棒クリップ除外の手当てが要る」と気付ける。
+  it('回帰: MITIGATIONS 中「isShield かつ持続 % 軽減あり」は holos/bloodwhetting/nascent_flash のみ', () => {
+    const affected = MITIGATIONS
+      .filter(d => d.isShield && !shieldEffectBarEndsOnBarrierExhaustion(d))
+      .map(d => d.id)
+      .sort();
+    expect(affected).toEqual(['bloodwhetting', 'holos', 'nascent_flash']);
+  });
+
+  it('実データ: ホーリズムは棒を切らない / ディヴァインヴェールは切ってよい', () => {
+    const holos = MITIGATIONS.find(d => d.id === 'holos')!;
+    const veil = MITIGATIONS.find(d => d.id === 'divine_veil')!;
+    expect(shieldEffectBarEndsOnBarrierExhaustion(holos)).toBe(false);
+    expect(shieldEffectBarEndsOnBarrierExhaustion(veil)).toBe(true);
   });
 });
 

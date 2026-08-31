@@ -19,13 +19,14 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
+### 🟡 2026-08-31 ホーリズムのエフェクト棒が初弾で消えるバグ = 修正完了・未push
+実機報告: バリア+持続%軽減の複合スキル(ホーリズム/原初の血気/原初の猛り の3つ)で、バリア枯渇クリップ(2026-08-27機能)が `def.isShield` だけで判定し棒を切っていた。純関数 `shieldEffectBarEndsOnBarrierExhaustion`(barrierStacking.ts)を追加しPC(Timeline.tsx)/スマホ(mobileEffectBar.ts)両方のクリップをゲート。data変更なし・再シード不要。build緑・関連vitest緑(mobileEffectBar/shieldAbsorption 46・barrier/shield系 92)。回帰テスト=該当3スキルを実データ列挙。**残**: push+デプロイ / PC実機でホーリズムの棒が20秒フル表示になるか確認(JSX部分はunit test不可)。
 ### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実装完了・main反映済み(9b3f33f9)・**要デプロイ後作業**
 subagent-driven 6タスク+最終レビュー(opus=マージ可・Criticalゼロ)+指摘4件修正(Discord mentions防御/5sタイムアウト/OGP寸法meta/軽微)。テスト135緑・build緑。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md` / 計画=`docs/superpowers/plans/2026-08-28-...`。**デプロイ済み(2026-08-31)**: main反映・Vercel環境変数 `DISCORD_HOUSING_NEW_WEBHOOK_URL` 設定・再デプロイ済み。backfillは不要だった(既存サムネ全部PNG版あり)。webhook先=#ハウジング告知(private確認済み)。**発火条件は private除外のみ**(2026-08-31: 当初のadmin除外は撤回。masaya自身の家も宣伝したいため。テスト物件は宣伝しなければいいだけ)。**残**: 実機動作テスト(通知が届くか/本文リンクでX投稿画面/リプコピペ/カード画像)。**フォロー**: 物件thumbnailの.png兄弟がupload時best-effortで失敗しうる→新規listingでog:image 404の恒久対策(`.exists()`チェック or upload fatal化)。
 ### 🔴 2026-08-27 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)・Firestore同期済み
-Task1〜6実装＋最終レビュー(opus=マージ可・Criticalゼロ)＋Firestore外科マイグレーション作成・`--apply`実行済み(28スキル/38フィールド・全て新規セット・dataVersion++)、全て main にpush済み。**残=Vercelデプロイ確認＋実機確認だけ**。**Task7(グレー2色棒=方式c)は未着手**（方式a=負けた時刻で棒停止 で確定・方式cは見た目追加のみ、見積もり=引き継ぎ§⑤）。スマホの展開戦術バー(①)・設計書typo(⑥)・削れたEディアへの鼓舞上書き(②)は対応済み(〜4c4c9509・push済み)。②はコードのみで再シード不要・masaya実機再現不可のため実測未確認(違えば1行revert)。残フォロー: 上書き判定がper-hitで詠唱時点を見ない既知制限(②の根本)・③EventForm逆算がまだ加算式・④tempera_grassa scope。手順・チェックリスト・見た目変化=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
+Task1〜6実装＋Firestore同期(`--apply`済・28スキル/dataVersion++)・main push済み。**残=Vercelデプロイ確認＋実機確認**。**Task7(グレー2色棒=方式c)未着手**(方式a確定・方式cは見た目追加のみ・§⑤)。①⑥②対応済(〜4c4c9509)。残フォロー: 上書き判定がper-hitで詠唱時点を見ない既知制限・③EventForm逆算が加算式・④tempera_grassa scope。詳細=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
 ### 🟡 2026-08-27 ①②実装完了・push済み・実機確認待ち
-①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約しLayout/HousingShell/CollabJoinerPageの3箇所へ適用。②バリア吸収し切り時刻を `damageMapResult.shieldExhaustedAt` で追跡→棒をPC/スマホ早期終了。**②フォロー**: 全体バリアは全体攻撃でのみ棒終了（`shieldCoverageContext`）。実機確認: ①iPhone表示ズレ ②シールド棒の早期終了。
-タイムラプスSNS投稿は技術的ブロッカーで中断中(詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`)。
+①iOS表示ズレ対策を共通フック `useIOSViewportFix` に集約(Layout/HousingShell/CollabJoinerPage)。②バリア吸収し切り時刻(`shieldExhaustedAt`)で棒をPC/スマホ早期終了・全体バリアは全体攻撃のみ(`shieldCoverageContext`)。実機確認: ①iPhone表示ズレ ②シールド棒の早期終了。
 ### ✅ 2026-08-20〜24 ハウジング一括: 3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定、全てpush→デプロイ済み (詳細=TODO_COMPLETED.md)
 直近セッションの実装は全て本番反映・実機確認済み(NEWリボン固定機能はデプロイ後に見つかった2件の不具合=キャッシュ許可リスト漏れ/ランダム表示の並び順漏れ、も同セッションで修正済み)。
 **残**: Discord統合告知 (`docs/.private/2026-08-20-discord-full-update-draft.md`・投稿文確定済み) が投稿待ち。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。
