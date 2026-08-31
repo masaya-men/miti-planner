@@ -19,8 +19,9 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 2026-08-31 スマホのカードに青い「?」+ 一覧が重い = 設計書+実装計画 確定・**次セッションで実装**
-原因: カード画像1920pxを実表示150〜360pxで使用(12〜16倍過剰・1枚8MBデコード)→ iOS Safariのデコード画像メモリ超過。404ではない。**実装計画=`docs/superpowers/plans/2026-08-31-housing-card-image-optimization-phase1.md`**(12タスク・全コード記載済・未push)/ 設計書=`docs/superpowers/specs/2026-08-31-housing-card-image-optimization-phase1-design.md`。方針: 作り置き(CDN不使用)/WebPのみ/X画像は`?name=small`のURL加工のみ/ThumbHashは直接アップロード分のみ。Phase1=480/960/1440派生+srcset+ThumbHash+スライドショー3枚窓+backfill。**3段階リリース厳守**: サーバー先行(Task5-7)→backfill --apply 全件成功確認(Task8)→表示側(Task9-12)。**Phase2送り=仮想化・ページネーション**。次セッション: `subagent-driven-development` で計画を実行。調査ログ=`docs/.private/2026-08-31-housing-card-broken-image-glyph-ios.md`。
+### ✅ 2026-08-31 スマホのカード青「?」+ 一覧重い = Phase1完了・3段階リリース本番反映・自動検証OK(commit `67a3647f`..`cd7e1587` main + 未pushの `ba47d67d` docs)
+480/960/1440 WebP派生(アップロード必須化+既存77件backfill 768枚・失敗0)/srcset+sizes/X画像`?name=small`/ThumbHashぼかし/スライドショー3枚窓/`decoding=async`/詳細ギャラリー派生化。設計書ズレ4件+最終レビュー2件を修正。Playwright本番検証: カードは`-960.webp`取得(2列グリッド`50vw-13px`確認, [[reference_housing_listing_grid_2col_mobile]])・X`?name=small`・壊れ画像0・詳細srcset正常。**残=masaya実機で「?」とスクロール体感チェックだけ** → 結果次第でPhase2要否(不要/「もっと見る」ボタン/フル仮想化)。[[reference_housing_coverThumbHash]]
+**Phase2候補(未着手・実機判断待ち)**: 一覧仮想化/ページネーション/孤児派生の掃除スクリプト(1差替で`-480/960/1440.webp`+`.png`が残る)/SNS画像ぼかし/AVIF。
 ### 🟡 2026-08-31 スマホのボトムナビ「トップ」再タップで一覧先頭スクロール = 実装・push・デプロイ済み(未実機確認)
 `/housing`にいる状態で左端「トップ」再タップ→一覧をスムーズスクロールで先頭へ。一方向シグナルstore(`useHousingHomeScrollSignal`)。テスト緑。**残=iPhoneでタップ確認だけ**。
 ### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実機テストOK・本文微修正デプロイ済み
