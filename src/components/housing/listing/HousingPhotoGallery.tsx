@@ -17,10 +17,14 @@ import {
 } from '../../../lib/housing/youtubeImgFallback';
 import { buildTweetVideoProxyUrl } from '../../../lib/housing/tweetVideoProxy';
 import { useScrollFade } from '../../../lib/housing/useScrollFade';
+import { cardImageAttrs, smallHousingImageUrl } from '../../../lib/housing/cardImageAttrs';
 
 export interface HousingPhotoGalleryProps {
   listing: HousingListing;
 }
+
+// 詳細メインステージ(object-fit: contain)。PC で最大 ~800px 相当まで拡大しうる。
+const GALLERY_MAIN_SIZES = '(max-width: 767px) 100vw, 800px';
 
 /**
  * listing から画像 URL の配列を取り出す（挙動は従来と同一）。
@@ -142,14 +146,26 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
             ) : null}
           </div>
         ) : (
-          <img
-            src={active.src}
-            alt=""
-            loading="lazy"
-            className="housing-gallery-main"
-            onError={handleImgError(active.src)}
-            onLoad={handleYoutubeThumbnailLoad}
-          />
+          (() => {
+            const a = cardImageAttrs(active.src, {
+              widths: [960, 1440],
+              appendOriginal: true,
+              sizes: GALLERY_MAIN_SIZES,
+            });
+            return (
+              <img
+                src={a.src}
+                srcSet={a.srcSet}
+                sizes={a.sizes}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="housing-gallery-main"
+                onError={handleImgError(active.src)}
+                onLoad={handleYoutubeThumbnailLoad}
+              />
+            );
+          })()
         )}
       </div>
 
@@ -193,9 +209,10 @@ export const HousingPhotoGallery: React.FC<HousingPhotoGalleryProps> = ({ listin
                     </>
                   ) : (
                     <img
-                      src={item.src}
+                      src={smallHousingImageUrl(item.src)}
                       alt=""
                       loading="lazy"
+                      decoding="async"
                       onError={handleImgError(item.src)}
                       onLoad={handleYoutubeThumbnailLoad}
                     />

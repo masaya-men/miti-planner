@@ -60,3 +60,44 @@ it('YouTube動画: loop/playlistを付けて再生終了後の関連動画オー
   expect(src).toContain('loop=1');
   expect(src).toContain('playlist=abcdefghijk');
 });
+
+it('メインステージ画像は 960/1440/原本1920 の srcSet + decoding=async', () => {
+  const listing = makeListing({
+    imageMode: 'thumbnail',
+    thumbnailPaths: [
+      'https://lopoly.app/housing-media/L1/a.webp',
+      'https://lopoly.app/housing-media/L1/b.webp',
+    ],
+  });
+  const { container } = render(<HousingPhotoGallery listing={listing} />);
+  const main = container.querySelector('.housing-gallery-main') as HTMLImageElement;
+  expect(main.getAttribute('srcset')).toContain('a-960.webp 960w');
+  expect(main.getAttribute('srcset')).toContain('a-1440.webp 1440w');
+  expect(main.getAttribute('srcset')).toContain('a.webp 1920w');
+  expect(main.getAttribute('decoding')).toBe('async');
+});
+
+it('サムネ列の画像は 480w 実体 URL', () => {
+  const listing = makeListing({
+    imageMode: 'thumbnail',
+    thumbnailPaths: [
+      'https://lopoly.app/housing-media/L1/a.webp',
+      'https://lopoly.app/housing-media/L1/b.webp',
+    ],
+  });
+  const { container } = render(<HousingPhotoGallery listing={listing} />);
+  const thumbs = Array.from(container.querySelectorAll('.housing-detail-thumb img')) as HTMLImageElement[];
+  expect(thumbs[0].getAttribute('src')).toBe('https://lopoly.app/housing-media/L1/a-480.webp');
+});
+
+it('X 画像のメインステージは原本(?name= なし)、サムネは ?name=small', () => {
+  const listing = makeListing({
+    imageMode: 'sns',
+    sourceImageUrls: ['https://pbs.twimg.com/media/A.jpg', 'https://pbs.twimg.com/media/B.jpg'],
+  });
+  const { container } = render(<HousingPhotoGallery listing={listing} />);
+  const main = container.querySelector('.housing-gallery-main') as HTMLImageElement;
+  expect(main.getAttribute('src')).toBe('https://pbs.twimg.com/media/A.jpg');
+  const thumb = container.querySelector('.housing-detail-thumb img') as HTMLImageElement;
+  expect(thumb.getAttribute('src')).toBe('https://pbs.twimg.com/media/A.jpg?name=small');
+});
