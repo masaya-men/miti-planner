@@ -6913,6 +6913,7 @@ select.housing-input option {
 .housing-listing-card-img {
   position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: opacity var(--housing-card-blur-fade) ease;
 }
 /* ThumbHash ぼかしプレースホルダ (§5.5)。メイン <img> より DOM 上で前 = 背面に描かれる。
    背景画像は data URI を TSX の inline style で当てる (テーマ色ではなくデータなのでトークン外)。 */
@@ -6924,6 +6925,13 @@ select.housing-input option {
   transition: opacity var(--housing-card-blur-fade) ease;
 }
 .housing-listing-card-blur[data-hidden] {
+  opacity: 0;
+}
+/* ぼかし表示中 (coverThumbHash あり & メイン画像 load 前) はメイン画像を opacity:0 にし、
+   load 完了で data-blur-pending が外れると 0→1 にトランジションして「ぼかしの上に鮮明画像が
+   現れる」本物のリビール (§5.5) にする。coverThumbHash 無しのカードは data-blur-pending が
+   付かないため既定 opacity:1 のまま = 従来挙動。 */
+.housing-listing-card-media[data-blur-pending] .housing-listing-card-img {
   opacity: 0;
 }
 /* 画像に被らない常設フッター (主アクション) */

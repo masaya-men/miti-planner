@@ -282,6 +282,10 @@ describe('ListingCard — ThumbHash ぼかしレイヤー (Task 11)', () => {
     const blur = container.querySelector('.housing-listing-card-blur') as HTMLElement;
     expect(blur).toBeTruthy();
     expect(blur.style.backgroundImage).toContain('BLURMOCK');
+    // load 前はメディア div に data-blur-pending が立ち、CSS でメイン画像を opacity:0 にして
+    // ぼかしを見せる (load 完了で外れ、画像が 0→1 にフェードして鮮明画像がぼかしの上に現れる)。
+    const media = container.querySelector('.housing-listing-card-media') as HTMLElement;
+    expect(media.hasAttribute('data-blur-pending')).toBe(true);
   });
 
   it('coverThumbHash が無ければぼかしレイヤーは出さない', () => {

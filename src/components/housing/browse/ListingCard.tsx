@@ -257,7 +257,11 @@ export const ListingCard: React.FC<ListingCardProps> = ({
           aria-hidden="true"
         />
       )}
-      <div className="housing-listing-card-media" ref={mediaRef}>
+      <div
+        className="housing-listing-card-media"
+        ref={mediaRef}
+        data-blur-pending={blurDataUrl && !imgLoaded ? '' : undefined}
+      >
         {blurDataUrl && (
           <div
             className="housing-listing-card-blur"
