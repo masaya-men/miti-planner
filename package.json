@@ -47,6 +47,7 @@
     "sharp": "^0.35.3",
     "tailwind-merge": "^3.4.1",
     "three": "^0.183.2",
+    "thumbhash": "^0.1.1",
     "y-partyserver": "^2.2.0",
     "yjs": "^13.6.31",
     "zustand": "^5.0.11"

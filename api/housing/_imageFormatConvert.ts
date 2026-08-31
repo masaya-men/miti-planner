@@ -48,3 +48,15 @@ export async function convertToPngIfNeeded(
     return null;
   }
 }
+
+/**
+ * 画像 Buffer を指定幅の WebP に縮小する(カード用派生)。
+ * 元より大きい幅を指定しても拡大しない。品質 78(写真のカード用途で十分・約85%削減)。
+ * 変換失敗は throw する(呼び出し側で致命的に扱う。派生欠けは srcset の 404 を招くため)。
+ */
+export async function resizeToWebp(buf: Buffer, width: number): Promise<Buffer> {
+  return sharp(buf)
+    .resize(width, null, { withoutEnlargement: true, fit: 'inside' })
+    .webp({ quality: 78 })
+    .toBuffer();
+}
