@@ -57,13 +57,13 @@ Cloudflare Image Resizing は無効(`/cdn-cgi/image/...` が 404)。
 
 ### やること(Phase 1)
 
-1. 直接アップロード画像(`imageMode='thumbnail'`)に **480px / 960px 幅の WebP 派生**を追加生成
-   (アップロード時 + 既存 74 件のバックフィル)。
+1. 直接アップロード画像(`imageMode='thumbnail'`)に **480px / 960px / 1440px 幅の WebP 派生**を
+   追加生成(アップロード時 + 既存 74 件のバックフィル)。
 2. **ThumbHash** による代表画像 1 枚のぼかしプレースホルダ(生成 + 保存 + カード表示)。
 3. カード・詳細ページの画像を **`srcset` / `sizes`** 配線(直接アップロード分)。
 4. X 画像に **`?name=small`** をカード表示コンテキストでだけ付与。
-5. ambient スライドショーを **frame[0] 除外 + 3 枚窓**に変更。二重デコード解消。
-6. カード画像 `<img>` に `decoding="async"`。
+5. ambient スライドショーを **最大3枚窓**に変更(全フレーム常時マウントをやめる)。
+6. カード画像 `<img>` すべて(メイン + スライドショー各フレーム)に `decoding="async"`。
 7. バックフィルで欠けている `.png` 兄弟も再生成(TODO「新規 listing で og:image 404 の恒久対策」を同梱)。
 
 ### やらないこと(Phase 2 以降)
@@ -81,12 +81,17 @@ Cloudflare Image Resizing は無効(`/cdn-cgi/image/...` が 404)。
 
 ### 4.1 派生サイズ
 
-各対象画像につき **480px 幅** と **960px 幅** の WebP を追加生成する。
+各対象画像につき **480px / 960px / 1440px 幅** の WebP を追加生成する(3 枚)。
 元画像(長辺 ≤ 1920px・クライアントが `imageCompression.ts` で圧縮済・現状のまま)は残し、
-`srcset` の最大候補(1920w)兼 ライトボックス拡大表示のソースとして使う。
+詳細ページのメインステージ用の最大候補として使う(カードの `srcset` には 1920 は入れない)。
 
-カード実表示幅の想定:2 カラム時 約 198px、1 カラム(狭いスマホ)時 約 360px、PC 中央列 約 240px。
-DPR 2〜3。→ 実ピクセル要求は概ね 400〜1080px。480/960 + 元(1920)の 3 候補でカバーできる。
+カード実表示幅の想定:グリッドは `minmax(198px, 1fr)`。**よくある iPhone(390pt・DPR3)は
+1 カラム**になり、カード ≈ 382px CSS × DPR3 ≈ **1146 device px** を要求する。ここで 960 では
+足りず 1920 原本が選ばれてしまう(まさに直したい状態)ので、**1440w を用意して原本を
+カード srcset から外す**。
+- 1 カラム(390pt DPR3): ~1146 → 1440w(約 5MB デコード。原本 8MB より軽い)
+- 2 カラム(430pt DPR3・masaya の実機): カード ~209px × 3 ≈ 627 → 960w
+- PC 中央列(~240px DPR1〜2): ~240〜480 → 480w / 960w
 
 ### 4.2 保存形式・命名
 
@@ -95,34 +100,34 @@ Firestore スキーマは変更しない。`thumbnailPaths` は元画像 URL の
 
 - 元: `housing/listings/{listingId}/{uuid}.webp`
   → 公開 URL `https://lopoly.app/housing-media/{listingId}/{uuid}.webp`
-- 派生: 同ディレクトリの兄弟ファイル `{uuid}-480.webp` / `{uuid}-960.webp`
+- 派生: 同ディレクトリの兄弟ファイル `{uuid}-480.webp` / `{uuid}-960.webp` / `{uuid}-1440.webp`
 - Storage メタデータは元と同じ(`cacheControl: 'public, max-age=31536000, immutable'`)
 
 純関数ヘルパー(サーバー / クライアントで**同一規則・パリティテストで担保**):
 
 - サーバー: `api/housing/_imageArrayLogic.ts` に `toDerivativePath(path, width)` を追加
-  (`toPngSiblingPath` の隣)。
+  (`toPngSiblingPath` の隣)。`width` は `480 | 960 | 1440`。
 - クライアント: `src/lib/housing/housingMediaUrl.ts` に `housingImageVariant(url, width)` を追加。
   `lopoly.app/housing-media/` ドメインかつ `.webp` のときだけ加工。それ以外(X 画像・旧
   `firebasestorage.googleapis.com` URL・`.png`)は**素通し**。
 
 ### 4.3 容量見積もり
 
-1 画像あたり追加 ≈ 480w(約 30KB)+ 960w(約 90KB)= 約 120KB。
-74 件 × 平均 2.5 枚 ≈ 185 枚 → **合計 約 22MB**(Firebase Storage 無料枠 5GB の約 0.4%)。
+1 画像あたり追加 ≈ 480w(約 30KB)+ 960w(約 90KB)+ 1440w(約 160KB)= 約 280KB。
+74 件 × 平均 2.5 枚 ≈ 185 枚 → **合計 約 52MB**(Firebase Storage 無料枠 5GB の約 1%)。
 配信量(通信料)はむしろ**減る**(小さい画像を配るため)。
 
 ### 4.4 生成する場所
 
 **アップロード時**(`api/housing/_uploadThumbnailHandler.ts`):
 既に「webp 本体を Storage 保存 → `.png` 兄弟を並行保存」している箇所に、
-480w / 960w WebP の生成・保存を追加する。`sharp` は `_imageFormatConvert.ts` で導入済み。
+480w / 960w / 1440w WebP の生成・保存を追加する。`sharp` は `_imageFormatConvert.ts` で導入済み。
 `sharp(buf).resize(width, null, { withoutEnlargement: true }).webp({ quality: 78 }).toBuffer()`。
 
 **既存分**(バックフィルスクリプト `scripts/backfill-listing-card-derivatives.ts` 新設):
 - 前例: `scripts/backfill-listing-thumbnail-png.ts` / `scripts/migrate-housing-images-to-cf-cache.ts`。
 - `housing_listings` の `imageMode == 'thumbnail'` かつ `deletedAt == null` を走査。
-- 各 `thumbnailPaths[]` の元画像を Storage から読む → 480w/960w WebP を生成・保存。
+- 各 `thumbnailPaths[]` の元画像を Storage から読む → 480w/960w/1440w WebP を生成・保存。
 - 同時に、`.png` 兄弟が欠けていれば再生成(`toPngSiblingPath` / `convertToPngIfNeeded`)。
 - 代表画像(`thumbnailPaths[0]`)から `coverThumbHash` を計算し Firestore 更新(セクション2)。
 - `--dry-run`(既定)で対象件数・生成予定を表示。`--apply` で実行。冪等(既存派生はスキップ、
@@ -194,8 +199,16 @@ coverThumbHash?: string   // ThumbHash の base64(約 40 文字)。無ければ�
 
 ### 6.1 派生 URL 導出ヘルパー(3a)
 
-セクション 4.2 の `housingImageVariant(url, 480|960)`。サーバー側 `toDerivativePath` と
+セクション 4.2 の `housingImageVariant(url, 480|960|1440)`。サーバー側 `toDerivativePath` と
 パリティテスト(`.webp`→`-480.webp`、X 画像 / `.png` / 旧 URL は素通し)。
+
+カード用の `src` / `srcSet` / `sizes` の組み立ては純関数 `cardImageAttrs(url, opts)` に集約
+(`src/lib/housing/cardImageAttrs.ts` 新規):
+- `lopoly.app/housing-media/*.webp` → `{ src: url, srcSet: '{480w} 480w, {960w} 960w, {1440w} 1440w', sizes: opts.sizes }`
+- `pbs.twimg.com/media/*` → `{ src: twitterImageVariant(url, opts.twitterName ?? 'small') }`(srcSet なし)
+- その他 → `{ src: url }`
+- `opts.widths` で候補を差し替え可能(既定 `[480, 960, 1440]`。詳細メインは `[960, 1440]` +
+  原本を `1920w` として付ける)。
 
 ### 6.2 X 画像の縮小(3b・URL 加工のみ・保存なし)
 
@@ -210,31 +223,38 @@ coverThumbHash?: string   // ThumbHash の base64(約 40 文字)。無ければ�
 ### 6.3 カードの画像描画(3c・`ListingCard` + `HousingCardAmbientSlideshow`)
 
 **メイン `<img>`**(`representativeImage()` の結果):
-- 直接アップロード(`housing-media` webp)なら
-  `srcset="{480w} 480w, {960w} 960w, {original} 1920w"` + `sizes`。
-  `sizes` の目安: `(max-width: 519px) 100vw, (max-width: 767px) 50vw, 240px`
-  (2 カラムの分岐は `--housing-listing-card-min-w: 198px` × 2 + gap ≈ 実測で調整)。
-- X 画像なら `src` に `twitterImageVariant(url, 'small')`。
-- `decoding="async"` を追加。既存の `onError`(YouTube フォールバック)は維持。
-
-**二重デコードの解消**:
-現在メイン `<img>` と スライドショー frame[0] が同一ファイルを二重デコードしている。
-スライドショーは **frame[0] を描画対象から外す**。スライドショーは「1 番目以降のフレーム」だけを
-クロスフェード対象にし、サイクルが 0 に戻るタイミングでは全フレームを `opacity:0` にして
-背後のメイン `<img>` を見せる。frame が 1 枚だけ(= [0] のみ)の listing はスライドショー自体を
-描画しない(現状の `frames.length === 0` early-return と同じ扱いに実質統合)。
+- `cardImageAttrs(url, { sizes: CARD_SIZES })` の結果を `src` / `srcSet` / `sizes` に展開。
+  直接アップロードは 480/960/1440 の `srcSet`、X は `?name=small` の `src`。
+- `CARD_SIZES = '(max-width: 419px) calc(100vw - 8px), (max-width: 767px) calc(50vw - 8px), 240px'`
+  (グリッド `minmax(198px, 1fr)` + `.housing-listing-grid` の左右 padding 4px に対応。実測で微調整可)。
+- `decoding="async"` を追加。既存の `onError`(YouTube フォールバック)/ `onLoad` は維持。
 
 **スライドショーのフレーム窓**:
 `frames.map()` で全マウント → 表示 index を中心に `{index-1, index, index+1}`(mod n)の
 最大 3 枚だけマウント。クロスフェードは 2 枚で成立するが、退場フレームのフェードアウトを
-保つため 3 枚。n ≤ 3 のときは全部(挙動不変)。各フレームにも `srcset` / X 加工 /
-`decoding="async"`。
+保つため 3 枚(`{prev, cur, next}` で退場フレームが 1 ステップ残る)。n ≤ 3 のときは全部
+(挙動不変)。各フレームにも `srcset`(`housing-media` webp のとき)/ X 加工 / `decoding="async"`。
+`key` はフレームごとに安定(`f.src` ベース)にして、窓がずれても React が要素を保持するようにする。
+
+**frame[0] の二重デコードについて**:メイン `<img>`(`representativeImage`)と スライドショー
+frame[0] が `imageMode='thumbnail'` では同一 URL になり二重デコードが起きるが、画像が 640px に
+縮むと 1 枚あたり約 1.5MB・二重でも約 3MB でありコスト僅少。frame[0] 除外の dedup は
+複雑さ(クロスフェードのフラッシュリスク)に見合わないため **Phase 1 では行わない**
+(必要になれば Phase 2)。
 
 ### 6.4 詳細ページ(3d・`HousingPhotoGallery`)
 
-- サムネのストリップ: 480w 派生 / X は `?name=small`。
-- メインの大きい画像(非拡大): 960w 派生 / X は元 URL(1200px)。
-- ライトボックス(拡大)時: 元サイズ(直接アップロードは 1920px 元画像、X は元 URL)。
+このコンポーネントに**ライトボックス/拡大は無い**(メインステージが `object-fit:contain` で
+全体表示するだけ)。`resolveSources()` が `imageMode` 別に URL 配列を返し、
+サムネ列とメインステージの両方で同じ URL を使っている。
+
+- **サムネ列**(`.housing-detail-thumb` の `<img>`・約 60〜80px): 480w 派生 / X は `?name=small`。
+- **メインステージ**(`.housing-gallery-main`・`contain` で最大 ~800px 相当まで拡大しうる):
+  `cardImageAttrs(url, { widths: [960, 1440], appendOriginal: true, sizes: GALLERY_MAIN_SIZES })`
+  → `srcSet="{960w} 960w, {1440w} 1440w, {original} 1920w"` / X は元 URL(1200px・`twitterName` 指定なし)。
+- 既存の `onError`(YouTube フォールバック → markFailed で除外)はそのまま維持。X の `?name=small`
+  加工後 URL に対しても markFailed の元 URL 追跡が壊れないようにする(加工は表示用の別変数で持ち、
+  `failedSources` の判定は元 URL で行う)。
 
 ### 6.5 `content-visibility`(3e)
 
@@ -250,16 +270,16 @@ coverThumbHash?: string   // ThumbHash の base64(約 40 文字)。無ければ�
 
 **純関数**:
 - `housingImageVariant()` / サーバー側 `toDerivativePath()` — パリティテスト
-  (`.webp`→`-480.webp` / `-960.webp`、X 画像・`.png`・旧 `firebasestorage` URL は素通し)
+  (`.webp`→`-480.webp` / `-960.webp` / `-1440.webp`、X 画像・`.png`・旧 `firebasestorage` URL は素通し)
 - `twitterImageVariant()` — `pbs.twimg.com/media/*` だけ加工 / `amplify_video_thumb` ・
   YouTube は素通し / 既存 query とのマージ / `orig` 指定
-- `resolveSlideshowFrames` + スライドショー窓ロジック — frame[0] 除外 / 3 枚窓 / n≤3 で全表示 /
-  n=1 でスライドショー非描画
+- スライドショー窓ロジック(純関数として切り出す)— `{prev,cur,next}` の index 集合 /
+  n≤3 で全表示 / n=4 で 3 枚 / 環状(index=0 のとき prev=n-1)
 - ThumbHash — サーバー生成(sharp → rgba → `rgbaToThumbHash`)、クライアント
   `thumbHashToDataURL` の呼び出しと `useMemo`
 
 **アップロードハンドラ**(既存テスト拡張):
-- 480w / 960w 派生 + `.png` 兄弟が保存される
+- 480w / 960w / 1440w 派生 + `.png` 兄弟が保存される
 - 派生生成が失敗したらアップロードが失敗する(非致命 → 致命への格上げの回帰)
 - `imageIndex === 0` のとき `coverThumbHash` が Firestore update に含まれる
 - `imageIndex !== 0` のとき `coverThumbHash` は触らない
@@ -287,7 +307,7 @@ window レスポンスに出ることの回帰テスト。
    射影追加。以降の新規アップロードは派生あり。表示側は**まだ元 URL を参照**(この時点で挙動不変)。
 2. **バックフィル実行**:`scripts/backfill-listing-card-derivatives.ts --apply`。既存 74 件。
    全件成功・失敗 0 を確認。
-3. **表示側デプロイ**:`srcset` / X の `?name=` / スライドショー窓 + frame[0] 除外 / ぼかし表示。
+3. **表示側デプロイ**:`srcset` / X の `?name=` / スライドショー3枚窓 / ぼかし表示。
    ここで初めてカードが派生 URL を参照する。バックフィルが 100% 終わっているので参照先は必ず存在。
 
 ロールバック:3 を戻せば元の挙動(元画像を直参照)に戻る。派生ファイル・`coverThumbHash` が
@@ -307,8 +327,8 @@ window レスポンスに出ることの回帰テスト。
 **クライアント lib**:
 - `src/lib/housing/housingMediaUrl.ts` — `housingImageVariant()` 追加
 - `src/lib/housing/twitterImageVariant.ts`(新規)— `twitterImageVariant()`
-- `src/lib/housing/slideshowFrames.ts` / `useHousingCardFrames.ts` — frame[0] 除外の扱い
-- `src/lib/housing/representativeImage.ts` — 参照(srcset 用に元 URL も返せるように)
+- `src/lib/housing/slideshowWindow.ts`(新規)— `slideshowWindowIndices(n, index)` 純関数
+- `src/lib/housing/representativeImage.ts` — 変更なし(カード側が返り値を srcset 用に加工)
 - `src/lib/housing/galleryAdapter.ts` — `coverThumbHash` の伝播
 - `src/data/housing/mockListings.ts`(型 `MockListing`)/ `src/types/housing.ts`(`HousingListing`)
   — `coverThumbHash?: string`
@@ -316,8 +336,8 @@ window レスポンスに出ることの回帰テスト。
 **コンポーネント**:
 - `src/components/housing/browse/ListingCard.tsx` — メイン `<img>` の srcset / X 加工 /
   `decoding` / ぼかしレイヤー / `onLoad` フェード
-- `src/components/housing/workspace/HousingCardAmbientSlideshow.tsx` — 3 枚窓 + frame[0] 除外
-- `src/components/housing/listing/HousingPhotoGallery.tsx` — サムネ 480 / メイン 960 / 拡大は元
+- `src/components/housing/workspace/HousingCardAmbientSlideshow.tsx` — 3 枚窓(`slideshowWindowIndices`)+ 各フレームに srcset / X 加工 / `decoding`
+- `src/components/housing/listing/HousingPhotoGallery.tsx` — サムネ 480w / メインステージ 960+1440(+原本1920w)
 - `src/styles/housing.css` — ぼかしレイヤー / `onLoad` フェードのスタイル(トークン経由)
 
 **スクリプト**:
