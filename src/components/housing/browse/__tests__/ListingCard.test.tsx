@@ -234,6 +234,36 @@ describe('ListingCard — YouTubeサムネ フォールバック配線 (灰色�
   });
 });
 
+describe('ListingCard — メイン画像の最適化 (Task 9)', () => {
+  it('直接アップロード物件のメイン画像は派生 srcSet + decoding=async を持つ', () => {
+    const listing = {
+      ...mockListing,
+      imageMode: 'thumbnail' as const,
+      thumbnailPath: 'https://lopoly.app/housing-media/L1/u.webp',
+      thumbnailPaths: ['https://lopoly.app/housing-media/L1/u.webp'],
+    };
+    const { container } = renderCard({ listing });
+    const img = container.querySelector('img.housing-listing-card-img') as HTMLImageElement;
+    expect(img.getAttribute('srcset')).toContain('u-480.webp 480w');
+    expect(img.getAttribute('srcset')).toContain('u-1440.webp 1440w');
+    expect(img.getAttribute('srcset')).not.toContain('1920w'); // カードは原本を入れない
+    expect(img.getAttribute('decoding')).toBe('async');
+  });
+
+  it('X 物件のメイン画像は ?name=small の src(srcSet なし)', () => {
+    const listing = {
+      ...mockListing,
+      imageMode: 'sns' as const,
+      ogImageUrl: 'https://pbs.twimg.com/media/ABC.jpg',
+      sourceImageUrls: ['https://pbs.twimg.com/media/ABC.jpg'],
+    };
+    const { container } = renderCard({ listing });
+    const img = container.querySelector('img.housing-listing-card-img') as HTMLImageElement;
+    expect(img.getAttribute('src')).toBe('https://pbs.twimg.com/media/ABC.jpg?name=small');
+    expect(img.hasAttribute('srcset')).toBe(false);
+  });
+});
+
 describe('ListingCard — 非破壊回帰(selectable未指定)', () => {
   it('♡クリックでfavoritesにIDが追加される', () => {
     useHousingFavoritesStore.setState({ ids: [] });

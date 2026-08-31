@@ -18,6 +18,7 @@ import { useHousingCardPlayback } from '../../../lib/housing/HousingPlaybackCont
 import { useHousingCardFrames } from '../../../lib/housing/useHousingCardFrames';
 import { useRipple } from '../../../lib/housing/useRipple';
 import { representativeImage } from '../../../lib/housing/representativeImage';
+import { cardImageAttrs, CARD_IMAGE_SIZES } from '../../../lib/housing/cardImageAttrs';
 import { HousingCardAmbientSlideshow } from '../workspace/HousingCardAmbientSlideshow';
 import { HousingCardVideoOverlay } from '../workspace/HousingCardVideoOverlay';
 import { HousingRipple } from '../HousingRipple';
@@ -241,17 +242,28 @@ export const ListingCard: React.FC<ListingCardProps> = ({
         />
       )}
       <div className="housing-listing-card-media" ref={mediaRef}>
-        <img
-          className="housing-listing-card-img"
-          src={representativeImage(listing)}
-          alt=""
-          loading="lazy"
-          // YouTube maxresdefault 不在動画の 120x90 グレー画像 (200) / 404 を検出し
-          // hqdefault→mqdefault→default へ段階フォールバック (他カードと同一機構)。
-          // 非 YouTube 画像 (Twitter/プレースホルダ) では両ハンドラとも no-op。
-          onError={handleYoutubeThumbnailError}
-          onLoad={handleYoutubeThumbnailLoad}
-        />
+        {(() => {
+          const a = cardImageAttrs(representativeImage(listing), {
+            sizes: CARD_IMAGE_SIZES,
+            twitterName: 'small',
+          });
+          return (
+            <img
+              className="housing-listing-card-img"
+              src={a.src}
+              srcSet={a.srcSet}
+              sizes={a.sizes}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              // YouTube maxresdefault 不在動画の 120x90 グレー画像 (200) / 404 を検出し
+              // hqdefault→mqdefault→default へ段階フォールバック (他カードと同一機構)。
+              // 非 YouTube 画像 (Twitter/プレースホルダ) では両ハンドラとも no-op。
+              onError={handleYoutubeThumbnailError}
+              onLoad={handleYoutubeThumbnailLoad}
+            />
+          );
+        })()}
         <HousingCardAmbientSlideshow frames={frames} enabled={ambientOn} />
         {isPlaying && videoKind === 'twitter' && listing.videoUrl && (
           <HousingCardVideoOverlay
