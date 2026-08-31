@@ -19,8 +19,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟡 2026-08-31 ホーリズムのエフェクト棒が初弾で消えるバグ = 修正完了・未push
-実機報告: バリア+持続%軽減の複合スキル(ホーリズム/原初の血気/原初の猛り の3つ)で、バリア枯渇クリップ(2026-08-27機能)が `def.isShield` だけで判定し棒を切っていた。純関数 `shieldEffectBarEndsOnBarrierExhaustion`(barrierStacking.ts)を追加しPC(Timeline.tsx)/スマホ(mobileEffectBar.ts)両方のクリップをゲート。data変更なし・再シード不要。build緑・関連vitest緑(mobileEffectBar/shieldAbsorption 46・barrier/shield系 92)。回帰テスト=該当3スキルを実データ列挙。**残**: push+デプロイ / PC実機でホーリズムの棒が20秒フル表示になるか確認(JSX部分はunit test不可)。
+### 🟡 2026-08-31 ホーリズムのエフェクト棒が初弾で消えるバグ = 修正完了・push済み(3c8e0721)・デプロイ済み
+バリア+持続%軽減の複合スキル(ホーリズム/原初の血気/原初の猛り の3つ)で、バリア枯渇クリップ(2026-08-27機能)が `def.isShield` だけで判定し棒を切っていた。純関数 `shieldEffectBarEndsOnBarrierExhaustion`(barrierStacking.ts)でPC/スマホ両クリップをゲート。data変更なし・再シード不要。build緑・関連vitest緑(46+92+21)。**残=実機確認のみ**。前回(2026-08-27)から溜まった実機確認を全部まとめた平易チェックリスト=`docs/.private/2026-08-31-prod-verification-checklist.md`(今回のホーリズム / ①iOS表示ズレ / ②③バリアの重なり方・棒早期終了)。
 ### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実装完了・main反映済み(9b3f33f9)・**要デプロイ後作業**
 subagent-driven 6タスク+最終レビュー(opus=マージ可・Criticalゼロ)+指摘4件修正(Discord mentions防御/5sタイムアウト/OGP寸法meta/軽微)。テスト135緑・build緑。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md` / 計画=`docs/superpowers/plans/2026-08-28-...`。**デプロイ済み(2026-08-31)**: main反映・Vercel環境変数 `DISCORD_HOUSING_NEW_WEBHOOK_URL` 設定・再デプロイ済み。backfillは不要だった(既存サムネ全部PNG版あり)。webhook先=#ハウジング告知(private確認済み)。**発火条件は private除外のみ**(2026-08-31: 当初のadmin除外は撤回。masaya自身の家も宣伝したいため。テスト物件は宣伝しなければいいだけ)。**残**: 実機動作テスト(通知が届くか/本文リンクでX投稿画面/リプコピペ/カード画像)。**フォロー**: 物件thumbnailの.png兄弟がupload時best-effortで失敗しうる→新規listingでog:image 404の恒久対策(`.exists()`チェック or upload fatal化)。
 ### 🔴 2026-08-27 バリアの重なり方ルール = 実装完了・push済み(a7e5ff30)・Firestore同期済み
