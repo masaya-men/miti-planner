@@ -44,19 +44,30 @@ export async function sendDiscordNotification(embed: DiscordEmbed): Promise<void
 export async function sendHousingNewListingNotification(content: string): Promise<void> {
   const url = process.env.DISCORD_HOUSING_NEW_WEBHOOK_URL;
   if (!url) {
-    console.warn('[Discord] DISCORD_HOUSING_NEW_WEBHOOK_URL が未設定。新着通知をスキップ');
+    console.warn('[Discord:HOUSING_NEW] DISCORD_HOUSING_NEW_WEBHOOK_URL が未設定。新着通知をスキップ');
     return;
   }
+  // content は登録者の入力 (物件タイトル・ハウジンガー表示名) を埋め込むため、
+  // allowed_mentions で @everyone/@here 等のメンションを一切無効化する (悪用防止)。
+  // また 呼び出し元 (_registerListingHandler) は登録 transaction コミット後・res.status(200) 前に
+  // これを await するため、Discord エンドポイントが無応答だと Vercel 関数タイムアウト → 504 →
+  // ユーザーが登録失敗と誤認して再登録 (重複) を招く。5 秒で abort する
+  // (abort は reject として下の catch が握り潰す = ベストエフォートのまま)。
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), 5000);
   try {
     const resp = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, allowed_mentions: { parse: [] } }),
+      signal: ac.signal,
     });
     if (!resp.ok) {
       console.error(`[Discord:HOUSING_NEW] Webhook送信失敗: ${resp.status} ${resp.statusText}`);
     }
   } catch (err) {
     console.error('[Discord:HOUSING_NEW] Webhook送信エラー:', err);
+  } finally {
+    clearTimeout(timer);
   }
 }

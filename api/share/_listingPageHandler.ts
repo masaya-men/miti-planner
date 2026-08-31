@@ -47,6 +47,9 @@ export default async function handler(req: any, res: any) {
   let ogImageUrl: string = DEFAULT_OG_IMAGE;
   let httpStatus = 200;
   let seoSnapshotHtml = '';
+  // この家の代表写真を実際に og:image へ採用したか。index.html が固定宣言している
+  // og:image:width/height (1200x630) を削除すべきかの判定に使う (下記 .replace チェーン)。
+  let usedListingPhoto = false;
 
   const allowedHosts = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
   const previewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
@@ -108,6 +111,7 @@ export default async function handler(req: any, res: any) {
         const repImages = listingRepresentativeImages(projected as Record<string, unknown>);
         if (repImages[0]) {
           ogImageUrl = /^https?:\/\//.test(repImages[0]) ? repImages[0] : `${origin}${repImages[0]}`;
+          usedListingPhoto = true;
         }
       } else {
         httpStatus = 404;
@@ -135,6 +139,16 @@ export default async function handler(req: any, res: any) {
         .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
         .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
         .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
+      // index.html は og:image:width/height を 1200x630 で固定宣言している。任意アスペクト比の
+      // 家の写真 (YouTube サムネ 480x360・スマホ縦写真等) を og:image に差し替えたときは、
+      // その寸法宣言が虚偽になり Discord/Slack/Facebook の埋め込みレイアウトが崩れるため削除し、
+      // クローラーに実寸を測らせる。フォールバック (DEFAULT_OG_IMAGE = /api/og の 1200x630 生成
+      // カード) のままなら宣言は正しいので残す。
+      if (usedListingPhoto) {
+        html = html
+          .replace(/\s*<meta property="og:image:width"[^>]*>/, '')
+          .replace(/\s*<meta property="og:image:height"[^>]*>/, '');
+      }
       if (seoSnapshotHtml) html = injectSeoSnapshot(html, seoSnapshotHtml);
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');

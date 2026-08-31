@@ -50,15 +50,6 @@ const DEFAULT_OG_DESCRIPTION = 'FF14の軽減プランをサクサク作れる�
 const DEFAULT_OG_IMAGE = '/api/og';
 
 /**
- * `listingRepresentativeImages` は 2026-08-28 に共有モジュール `./_listingImages.ts` へ切り出した
- * (Task 2 の `_listingPageHandler.ts` と共有するため。挙動は変更なし)。
- * このハンドラー本体でも下の handler 内で使用しているため import しており、
- * 既存テスト (`_housingerPageHandler.test.ts` 以外の import 元がある可能性も考慮) の
- * 後方互換のためここから re-export する。
- */
-export { listingRepresentativeImages };
-
-/**
  * 複数 listing の画像候補配列(各要素=1物件分、先頭が代表画像)から、カードの写真スロットを
  * 優先順位付きで埋める: ①各物件の代表1枚ずつ ②足りなければ各物件の2枚目以降。
  * 巡回コピーでの穴埋めは行わない(それは呼び出し側=カード描画側 `_housingerCard.ts` の責務)。

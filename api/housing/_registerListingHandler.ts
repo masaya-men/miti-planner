@@ -191,10 +191,12 @@ export default async function handler(req: any, res: any) {
     // 設計書: docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md
     if (!isAdmin && draft.visibility !== 'private' && createdId) {
       try {
-        const listingSnap = await listingsCol.doc(createdId).get();
+        const [listingSnap, profileSnap] = await Promise.all([
+          listingsCol.doc(createdId).get(),
+          adminDb.collection('housing_profiles').doc(uid).get(),
+        ]);
         const L = listingSnap.data() ?? {};
-        const profileSnap = await adminDb.collection('housing_profiles').doc(uid).get();
-        const P = profileSnap.exists ? profileSnap.data()! : null;
+        const P = profileSnap.exists ? (profileSnap.data() ?? null) : null;
 
         const postUrl: string | null =
           (typeof L.postUrl === 'string' && L.postUrl)

@@ -243,6 +243,61 @@ describe('_listingPageHandler', () => {
     expect(res.body as string).toContain('og:image" content="https://lopoly.app/api/og"');
   });
 
+  // 最終レビュー指摘: index.html が固定宣言する og:image:width/height (1200x630) は、
+  // 任意アスペクト比の家の写真を og:image に差し替えたときは虚偽になる。写真を採用したときだけ
+  // 寸法 meta を削除し、フォールバック (/api/og の 1200x630) のときは残す。
+  const INDEX_HTML_WITH_DIMS =
+    '<html><head><title>x</title>'
+    + '<meta property="og:title" content="x" /><meta property="og:description" content="x" />'
+    + '<meta property="og:url" content="x" /><meta property="og:image" content="x" />'
+    + '<meta property="og:image:width" content="1200" /><meta property="og:image:height" content="630" />'
+    + '<meta name="twitter:title" content="x" /><meta name="twitter:description" content="x" />'
+    + '<meta name="twitter:image" content="x" /></head><body></body></html>';
+
+  it('家の写真をog:imageに採用したときは固定のog:image:width/height(1200x630)を削除する', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'thumb-dim-listing' } });
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        visibility: 'public', isHidden: false, deletedAt: null,
+        title: '海の見える家', description: '',
+        area: 'Mist', ward: 5, plot: 12, buildingType: 'house',
+        dc: 'Elemental', server: 'Carbuncle',
+        imageMode: 'thumbnail',
+        thumbnailPaths: ['https://lopoly.app/housing-media/thumb-dim-listing/a.webp'],
+      }),
+    });
+    global.fetch = vi.fn(() =>
+      Promise.resolve({ ok: true, text: () => Promise.resolve(INDEX_HTML_WITH_DIMS) }),
+    ) as unknown as typeof fetch;
+
+    await handler(req, res);
+
+    expect(res.body as string).not.toContain('og:image:width');
+    expect(res.body as string).not.toContain('og:image:height');
+  });
+
+  it('画像の無い物件(フォールバック)は固定のog:image:width(1200)を残す', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'no-image-dim-listing' } });
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        visibility: 'public', isHidden: false, deletedAt: null,
+        title: 'テキストのみ', description: '',
+        area: 'Mist', ward: 5, plot: 12, buildingType: 'house',
+        dc: 'Elemental', server: 'Carbuncle',
+        imageMode: 'sns', tweetId: '123',
+      }),
+    });
+    global.fetch = vi.fn(() =>
+      Promise.resolve({ ok: true, text: () => Promise.resolve(INDEX_HTML_WITH_DIMS) }),
+    ) as unknown as typeof fetch;
+
+    await handler(req, res);
+
+    expect(res.body as string).toContain('og:image:width" content="1200"');
+  });
+
   it('Cache-Controlはブラウザ側max-ageを60秒に抑える(s-maxageはCDN意図のまま長期)', async () => {
     const { req, res } = makeReqRes({ query: { id: 'cache-header-listing' } });
 

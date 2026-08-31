@@ -19,8 +19,19 @@ describe('sendHousingNewListingNotification', () => {
     expect(fetchMock).toHaveBeenCalledWith('https://discord.test/webhook/xyz', expect.objectContaining({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: 'こんにちは' }),
+      body: JSON.stringify({ content: 'こんにちは', allowed_mentions: { parse: [] } }),
     }));
+  });
+
+  it('レスポンスが ok でない場合も throw せず error を出す', async () => {
+    process.env.DISCORD_HOUSING_NEW_WEBHOOK_URL = 'https://discord.test/webhook/xyz';
+    const fetchMock = vi.fn(() => Promise.resolve({ ok: false, status: 500, statusText: 'err' }));
+    vi.stubGlobal('fetch', fetchMock);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { sendHousingNewListingNotification } = await import('../discordWebhook');
+
+    await expect(sendHousingNewListingNotification('x')).resolves.toBeUndefined();
+    expect(errorSpy).toHaveBeenCalled();
   });
 
   it('環境変数が未設定なら fetch を呼ばず warn だけ', async () => {
