@@ -50,6 +50,15 @@ vi.mock('../../notifications/useNotifications', () => ({
   useNotifications: () => ({ unreadCount: mockUnreadCount }),
 }));
 
+const requestScrollTop = vi.fn();
+vi.mock('../../../../store/useHousingHomeScrollSignal', () => ({
+  useHousingHomeScrollSignal: Object.assign(
+    (sel: (s: { tick: number; requestScrollTop: typeof requestScrollTop }) => unknown) =>
+      sel({ tick: 0, requestScrollTop }),
+    { getState: () => ({ tick: 0, requestScrollTop }) },
+  ),
+}));
+
 // MobileTourTrayBar の依存: listings/ephemeral は空でよい (トレイ解決は空プールでも落ちない)。
 // MannerNoticeDialog は重い workspace 部品なのでスタブ化 (開始ゲートの開閉自体は本体で検証済み)。
 vi.mock('../../../../store/useHousingListingsStore', () => ({
@@ -74,6 +83,7 @@ function resetMocks() {
   navigate.mockClear();
   openLogin.mockClear();
   openAccount.mockClear();
+  requestScrollTop.mockClear();
   mockUser = null;
   mockProfileAvatarUrl = null;
   mockUnreadCount = 0;
@@ -138,6 +148,14 @@ describe('HousingBottomNav', () => {
     );
     screen.getAllByRole('button')[0].click();
     expect(navigate).toHaveBeenCalledWith('/housing');
+    expect(requestScrollTop).not.toHaveBeenCalled();
+  });
+
+  it('既に探す(/housing)にいて「トップ」を再タップ → navigate せず一覧の先頭スクロールを要求する', () => {
+    renderNav(); // initialEntries=['/housing']
+    screen.getAllByRole('button')[0].click();
+    expect(requestScrollTop).toHaveBeenCalledTimes(1);
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('お気に入りページで「お気に入り」を再タップすると探す(/housing)へ戻る (実機FB#2)', () => {

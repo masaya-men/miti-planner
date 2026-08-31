@@ -1,9 +1,11 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Shuffle } from 'lucide-react';
 import type { MockListing } from '../../../data/housing/mockListings';
 import { ListingCard } from './ListingCard';
 import { BrowseSortSelect, type BrowseSortOrder } from './BrowseSortSelect';
 import { useHousingListOrderStore, type HousingListKey } from '../../../store/useHousingListOrderStore';
+import { useHousingHomeScrollSignal } from '../../../store/useHousingHomeScrollSignal';
 import { useListScrollRestore } from '../../../lib/housing/useListScrollRestore';
 import { useSmoothWheelScroll } from '../../../lib/scroll/useSmoothWheelScroll';
 
@@ -68,6 +70,15 @@ export const ListingGrid: React.FC<ListingGridProps> = ({
   // stiffness を下げるほど惰性が長く「ヌルっと」した滑らかさになる(既定値200は硬め)。
   // 軽減表タイムライン(Timeline.tsx)の80よりさらに柔らかくして「超スムーズ」要望に応える。
   useSmoothWheelScroll(containerRef, { stiffness: 60, wheelMultiplier: 1.4 });
+
+  // スマホのボトムナビ「トップ」を、探すページにいる状態で再タップ → 一覧を先頭へスクロール。
+  // シグナルは HousingBottomNav が /housing にいるときだけ発火するが、念のため探す一覧
+  // (listKey='browse') 以外は無視する。
+  const homeScrollTick = useHousingHomeScrollSignal((s) => s.tick);
+  useEffect(() => {
+    if (homeScrollTick === 0 || listKey !== 'browse') return;
+    containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [homeScrollTick, listKey, containerRef]);
 
   const onShuffle = () => {
     useHousingListOrderStore.getState().reshuffle(listKey);

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Home, Heart, Route, Settings, User } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
+import { useHousingHomeScrollSignal } from '../../../store/useHousingHomeScrollSignal';
 import { useNotifications } from '../notifications/useNotifications';
 
 export interface HousingBottomNavProps {
@@ -67,7 +68,11 @@ export const HousingBottomNav: React.FC<HousingBottomNavProps> = ({ onOpenSettin
       id: 'home',
       icon: <Home size={20} aria-hidden="true" />,
       label: t('housing.mobile.nav_home'),
-      onClick: () => navigate('/housing'),
+      // 既にトップ (探す) にいて再タップ → 一覧を先頭までスクロール (多くのサイトの定番挙動)。
+      onClick: () =>
+        pathname === '/housing'
+          ? useHousingHomeScrollSignal.getState().requestScrollTop()
+          : navigate('/housing'),
       active: pathname === '/housing',
     },
     {
