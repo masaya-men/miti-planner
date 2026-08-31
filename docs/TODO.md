@@ -19,12 +19,15 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実機テストOK・本文微修正を未デプロイ
-2026-08-28設計→実装→デプロイ済み。masaya実機テストで通知/本文リンク/リプ/カード画像すべてOK。**本文の微修正**: リード文「新しいハウジングが投稿されました🏠」とハッシュタグの間を改行+空白行1行に(`newListingTweet.ts` の `bodyLines`)。テスト10緑。**残=push+デプロイ**。フォロー(og:image 404恒久対策)は「次の作業順」0番へ。設計書=`docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md`。
+### 🔴 2026-08-31 スマホのカードに青い「?」(壊れ画像glyph)= 原因特定済み・対策は未着手(要方針決定)
+根本原因: カード画像が1920×1080なのに実表示は約150px(12〜16倍過剰・1枚8MBデコード)+ambientスライドショーが全フレーム常時マウント+一覧が非仮想化+iOS<18は`content-visibility`無視 → iOS Safariのデコード画像メモリ上限超過でSafariが画像を捨て壊れglyph表示。全URL200・404ではない。**本命対策A**=カード用の小さい派生画像(長辺~600px)をアップロード時に並行保存(`.png`兄弟と同規模)+backfill。**軽い緩和B**=スライドショー3枚窓+`contain-intrinsic-size`+`decoding=async`。詳細=`docs/.private/2026-08-31-housing-card-broken-image-glyph-ios.md`。
+### 🟡 2026-08-31 スマホのボトムナビ「トップ」再タップで一覧先頭スクロール = 実装・push・デプロイ済み(未実機確認)
+`/housing`にいる状態で左端「トップ」再タップ→一覧をスムーズスクロールで先頭へ。一方向シグナルstore(`useHousingHomeScrollSignal`)。テスト緑。**残=iPhoneでタップ確認だけ**。
+### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実機テストOK・本文微修正デプロイ済み
+2026-08-28設計→実装→デプロイ。masaya実機テストで通知/本文リンク/リプ/カード画像すべてOK。本文の微修正(リード文とハッシュタグの間を改行+空白行1行)も `da830252` でデプロイ済み。フォロー(og:image 404恒久対策)は「次の作業順」0番。
 ### ✅ 2026-08-31 ホーリズムのエフェクト棒バグ + 2026-08-27 バリアの重なり方/iOS表示ズレ/シールド棒早期終了 = 全てデプロイ・実機確認OK → TODO_COMPLETED.md
 残った小課題(別件・急ぎなし): Task7グレー2色棒(見た目のみ・要指示) / 上書き勝敗のper-hit近似 / EventForm逆算が加算式 / tempera_grassa の `scope:'self'` 欠落(要承認)。詳細=TODO_COMPLETED.md + `docs/.private/2026-08-27-barrier-stacking-handoff.md`。
-### ✅ 2026-08-20〜24 ハウジング一括: 3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定、全てpush→デプロイ済み (詳細=TODO_COMPLETED.md)
-直近セッションの実装は全て本番反映・実機確認済み(NEWリボン固定機能はデプロイ後に見つかった2件の不具合=キャッシュ許可リスト漏れ/ランダム表示の並び順漏れ、も同セッションで修正済み)。
+### ✅ 2026-08-20〜24 ハウジング一括(3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定)= 全て本番反映・実機確認済み (詳細=TODO_COMPLETED.md)
 **残**: Discord統合告知 (`docs/.private/2026-08-20-discord-full-update-draft.md`・投稿文確定済み) が投稿待ち。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。
 ### 🟡 SEOソフト404対策(2026-08-17実装・本番反映済み)のデプロイ後インフラ設定が未着手
 Cloudflare Cache Rule設定(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console「URL検査」再確認+インデックス登録リクエスト。
