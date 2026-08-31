@@ -19,8 +19,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 2026-08-31 スマホのカードに青い「?」(壊れ画像glyph)= 原因特定済み・対策は未着手(要方針決定)
-根本原因: カード画像が1920×1080なのに実表示は約150px(12〜16倍過剰・1枚8MBデコード)+ambientスライドショーが全フレーム常時マウント+一覧が非仮想化+iOS<18は`content-visibility`無視 → iOS Safariのデコード画像メモリ上限超過でSafariが画像を捨て壊れglyph表示。全URL200・404ではない。**本命対策A**=カード用の小さい派生画像(長辺~600px)をアップロード時に並行保存(`.png`兄弟と同規模)+backfill。**軽い緩和B**=スライドショー3枚窓+`contain-intrinsic-size`+`decoding=async`。詳細=`docs/.private/2026-08-31-housing-card-broken-image-glyph-ios.md`。
+### 🔴 2026-08-31 スマホのカードに青い「?」(壊れ画像glyph)+ 一覧が重い = 原因特定・**設計書確定・plan化へ**
+原因: カード画像が1920×1080なのに実表示約150〜360px(12〜16倍過剰・1枚8MBデコード)+ambientスライドショー全フレーム常時マウント+一覧非仮想化+iOS<18は`content-visibility`無視 → iOS Safariのデコード画像メモリ超過。全URL200・404ではない。**設計書=`docs/superpowers/specs/2026-08-31-housing-card-image-optimization-phase1-design.md`**(未push・実装pushに同梱)。方針確定: 作り置き(CDN不使用)/WebPのみ(AVIF無)/X画像は`?name=small`のURL加工のみ(削除方針と整合)/ThumbHashぼかしは直接アップロード分のみ。Phase1=480/960派生+srcset+ThumbHash+スライドショー3枚窓+backfill。**Phase2送り=仮想化・ページネーション**(Phase1実測後)。次=ユーザーが設計書レビュー→writing-plans。調査ログ=`docs/.private/2026-08-31-housing-card-broken-image-glyph-ios.md`。
 ### 🟡 2026-08-31 スマホのボトムナビ「トップ」再タップで一覧先頭スクロール = 実装・push・デプロイ済み(未実機確認)
 `/housing`にいる状態で左端「トップ」再タップ→一覧をスムーズスクロールで先頭へ。一方向シグナルstore(`useHousingHomeScrollSignal`)。テスト緑。**残=iPhoneでタップ確認だけ**。
 ### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実機テストOK・本文微修正デプロイ済み
