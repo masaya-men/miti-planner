@@ -75,6 +75,7 @@ vi.mock('../_imageFormatConvert.js', () => ({
   resizeToWebp: h.resizeToWebpMock,
   convertToPngIfNeeded: h.convertToPngIfNeededMock,
   LISTING_THUMBNAIL_PNG_MAX_DIMENSION: 480,
+  CONVERTIBLE_MIME: new Set(['image/webp', 'image/avif']),
 }));
 vi.mock('../_coverThumbHash.js', () => ({
   computeCoverThumbHash: h.computeCoverThumbHashMock,
@@ -149,6 +150,18 @@ describe('_uploadThumbnailHandler の派生生成 + coverThumbHash 保存', () =
   it('派生生成 (resizeToWebp) が throw したらアップロードは 500 derivative_generation_failed', async () => {
     h.resizeToWebpMock.mockRejectedValueOnce(new Error('sharp boom'));
     const { req, res } = makeReqRes(makeBody(0));
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(500);
+    expect(res.body.error).toBe('derivative_generation_failed');
+  });
+
+  it('WebP/AVIF 原本で png 兄弟変換が null (=変換失敗) を返したらアップロードは 500 derivative_generation_failed', async () => {
+    // convertToPngIfNeeded は「変換不要」でも「変換失敗(内部で握り潰し)」でも null を返す。
+    // 原本 MIME が変換対象(webp/avif)なら null = 失敗しかありえないため、
+    // OGP 用 png 兄弟は必須 → アップロードごと 500 にする(spec §4.5)。
+    h.convertToPngIfNeededMock.mockResolvedValueOnce(null);
+    const { req, res } = makeReqRes(makeBody(0)); // mimeType: 'image/webp'
     await handler(req, res);
 
     expect(res.statusCode).toBe(500);

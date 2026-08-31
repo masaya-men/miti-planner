@@ -10,7 +10,12 @@
  */
 import sharp from 'sharp';
 
-const CONVERTIBLE_MIME = new Set(['image/webp', 'image/avif']);
+/**
+ * PNG 兄弟変換の対象となる原本 MIME（satori 非対応形式）。
+ * アップロードハンドラ側も「変換対象なのに null が返った = 変換失敗」の判定に使うため
+ * export する（MIME ペアが 2 箇所で drift しないように単一定義）。
+ */
+export const CONVERTIBLE_MIME = new Set(['image/webp', 'image/avif']);
 
 /**
  * 物件写真のPNG派生版に使う長辺上限 (px)。OGPカードでの実際の表示サイズ

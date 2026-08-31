@@ -38,7 +38,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { FieldValue } from 'firebase-admin/firestore';
 import { parseStoragePathFromPublicUrl, buildHousingImagePublicUrl, toPngSiblingPath, toDerivativePath, HOUSING_CARD_DERIVATIVE_WIDTHS } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
-import { convertToPngIfNeeded, LISTING_THUMBNAIL_PNG_MAX_DIMENSION, resizeToWebp } from './_imageFormatConvert.js';
+import { convertToPngIfNeeded, LISTING_THUMBNAIL_PNG_MAX_DIMENSION, resizeToWebp, CONVERTIBLE_MIME } from './_imageFormatConvert.js';
 import { computeCoverThumbHash } from './_coverThumbHash.js';
 
 const MAX_BYTES = 1 * 1024 * 1024; // 1MB
@@ -160,6 +160,12 @@ export default async function handler(req: any, res: any) {
           contentType: 'image/png',
           metadata: { cacheControl: 'public, max-age=31536000, immutable' },
         });
+      } else if (CONVERTIBLE_MIME.has(mimeType)) {
+        // 原本が WebP/AVIF なのに null が返った = convertToPngIfNeeded 内部の
+        // sharp 変換が失敗している(「変換不要」ではない)。png 兄弟は必須なので
+        // ここで throw して下の catch → 500 に落とす(誤って sibling 無しのまま
+        // 成功扱いにしない・spec §4.5)。
+        throw new Error(`png sibling conversion returned null for convertible mime: ${mimeType}`);
       }
     } catch (e) {
       console.error('[housing/upload-thumbnail] derivative/png generation failed:', e);
