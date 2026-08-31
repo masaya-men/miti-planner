@@ -129,13 +129,31 @@ async function main() {
         return srcBuf;
       };
 
+      // dry-run 専用: 元ファイルの存在確認(メタデータのみ・DL なし・srcPath ごとに 1 回)。
+      // これが無いと元ファイルが Storage から消えている物件で dry-run が生成予定を水増しし
+      // (--apply は if (!buf) break で何も作らない)、「再 dry-run で生成予定 0」ゲートが不正確になる。
+      let srcExistsCache: boolean | null = null;
+      let srcMissingLogged = false;
+      const srcExistsForDryRun = async (): Promise<boolean> => {
+        if (srcExistsCache === null) {
+          [srcExistsCache] = await bucket.file(srcPath).exists();
+        }
+        if (!srcExistsCache && !srcMissingLogged) {
+          console.error(`  ⚠ ${listingId}: 元ファイル不在 (skip): ${srcPath}`);
+          srcMissingLogged = true;
+        }
+        return srcExistsCache;
+      };
+
       for (const w of HOUSING_CARD_DERIVATIVE_WIDTHS) {
         const dstPath = toDerivativePath(srcPath, w);
         try {
           const [exists] = await bucket.file(dstPath).exists();
           if (exists) continue;
           if (!APPLY) {
-            // dry-run: 派生が無い = 生成予定。元画像は DL しない。
+            // dry-run: 派生が無い = 生成予定。元画像は DL しない(存在確認のみ)。
+            // 元ファイルが消えていれば --apply は if (!buf) break で何も作らないので、ここでも数えず break。
+            if (!(await srcExistsForDryRun())) break;
             console.log(`  · ${listingId}: ${dstPath}`);
             derivativesMade++;
             continue;
@@ -164,8 +182,11 @@ async function main() {
             if (!APPLY) {
               // dry-run: webp/avif 元 かつ .png 兄弟が無い = 生成予定。
               // (jpeg/png 元は convertToPngIfNeeded が null を返すので --apply でも作らない → ここに来ない)
-              console.log(`  · ${listingId}: ${pngPath} (png兄弟)`);
-              pngMade++;
+              // 元ファイルが消えていれば --apply は ensureBuf が null で作らないので、ここでも数えない。
+              if (await srcExistsForDryRun()) {
+                console.log(`  · ${listingId}: ${pngPath} (png兄弟)`);
+                pngMade++;
+              }
             } else {
               const buf = await ensureBuf();
               if (buf) {
@@ -193,9 +214,12 @@ async function main() {
       if (i === 0 && !data.coverThumbHash) {
         try {
           if (!APPLY) {
-            // dry-run: 代表画像 かつ coverThumbHash 未設定 = 計算予定。元画像は DL しない。
-            console.log(`  · ${listingId}: coverThumbHash`);
-            hashesWritten++;
+            // dry-run: 代表画像 かつ coverThumbHash 未設定 = 計算予定。元画像は DL しない(存在確認のみ)。
+            // 元ファイルが消えていれば --apply は ensureBuf が null で計算しないので、ここでも数えない。
+            if (await srcExistsForDryRun()) {
+              console.log(`  · ${listingId}: coverThumbHash`);
+              hashesWritten++;
+            }
           } else {
             const buf = await ensureBuf();
             if (buf) {
