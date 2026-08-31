@@ -98,3 +98,21 @@ export function buildHousingImagePublicUrl(listingId: string, filename: string):
 export function toPngSiblingPath(path: string): string {
   return path.replace(/\.(webp|avif)$/i, '.png');
 }
+
+/**
+ * カード用の縮小 WebP 派生の対応幅。srcset の候補になる。原本(≤1920px)は含めない。
+ * 表示側(src/lib/housing/housingMediaUrl.ts の housingImageVariant)と同一。
+ */
+export const HOUSING_CARD_DERIVATIVE_WIDTHS = [480, 960, 1440] as const;
+
+/**
+ * カード用の縮小 WebP 派生ファイルの Storage パスを組み立てる。
+ * `{uuid}.{ext}` → `{uuid}-{width}.webp`(派生は常に webp・元形式に依らない)。
+ * _uploadThumbnailHandler.ts(生成側)と housingImageVariant(表示側)で同一規則。
+ */
+export function toDerivativePath(
+  path: string,
+  width: (typeof HOUSING_CARD_DERIVATIVE_WIDTHS)[number],
+): string {
+  return path.replace(/\.(webp|avif|jpe?g|png)$/i, `-${width}.webp`);
+}

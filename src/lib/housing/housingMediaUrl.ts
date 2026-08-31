@@ -17,6 +17,23 @@ export function buildHousingMediaUrl(listingId: string, filename: string): strin
 }
 
 /**
+ * housing-media の画像 URL を、カード用の縮小 WebP 派生 URL に差し替える。
+ * `https://lopoly.app/housing-media/{id}/{uuid}.{ext}` → `.../{uuid}-{width}.webp`。
+ * housing-media ドメインの画像でなければ(X 画像・旧 firebasestorage URL・.png 兄弟)そのまま返す。
+ * api/housing/_imageArrayLogic.ts の toDerivativePath と同一規則(パリティテストで担保)。
+ */
+export function housingImageVariant(url: string, width: 480 | 960 | 1440): string {
+  try {
+    const u = new URL(url);
+    if (u.hostname !== 'lopoly.app' || !u.pathname.startsWith('/housing-media/')) return url;
+    if (!/\.(webp|avif|jpe?g)(?:$|\?)/i.test(url)) return url;
+    return url.replace(/\.(webp|avif|jpe?g)(?=$|\?)/i, `-${width}.webp`);
+  } catch {
+    return url;
+  }
+}
+
+/**
  * 旧形式URL (firebasestorage.googleapis.com) かどうかを判定し、指定 listingId の
  * 物件のファイル名部分だけを取り出す。listingId が一致しない・旧形式でない・
  * 不正なURLの場合は null を返す。
