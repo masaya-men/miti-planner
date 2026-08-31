@@ -46,6 +46,8 @@ export interface MockListing {
     thumbnailPath?: string;
     /** 旧 thumbnail mode の複数画像。 2026-05-27 追加 (slideshow 用)。 */
     thumbnailPaths?: string[];
+    /** 2026-08-31: カードのぼかしプレースホルダ用 ThumbHash(base64)。 */
+    coverThumbHash?: string;
     /**
      * 2026-05-27 追加: 外部画像 URL リスト (OGP / Twitter 静止画ツイート)。
      * card 一覧の ambient slideshow 用に galleryAdapter で pass-through。

@@ -43,7 +43,7 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
       buildingType: h.buildingType, plot: undefined, size: undefined,
       apartmentBuilding: undefined, roomNumber: undefined, roomKind: undefined,
       imageMode: h.imageMode, postUrl: h.postUrl, ogImageUrl: h.ogImageUrl,
-      thumbnailPath: h.thumbnailPath, thumbnailPaths: h.thumbnailPaths,
+      thumbnailPath: h.thumbnailPath, thumbnailPaths: h.thumbnailPaths, coverThumbHash: h.coverThumbHash,
       sourceImageUrls: h.sourceImageUrls, sourceImageAspectRatios: h.sourceImageAspectRatios,
       youtubeVideoId: h.youtubeVideoId, videoUrl: h.videoUrl, videoPosterUrl: h.videoPosterUrl,
       videoAspectRatio: h.videoAspectRatio,
@@ -86,6 +86,7 @@ export function firestoreToGalleryListing(h: HousingListing): MockListing | null
     thumbnailPath: h.thumbnailPath,
     // 2026-05-27 追加: card 一覧の ambient slideshow + 動画オーバーレイ用に pass-through
     thumbnailPaths: h.thumbnailPaths,
+    coverThumbHash: h.coverThumbHash,
     sourceImageUrls: h.sourceImageUrls,
     sourceImageAspectRatios: h.sourceImageAspectRatios,
     youtubeVideoId: h.youtubeVideoId,

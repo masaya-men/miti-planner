@@ -61,4 +61,16 @@ describe('projectPublicListing (許可リスト方式)', () => {
     const outUnlisted = projectPublicListing('id7', rawUnlisted);
     expect(outUnlisted.pinnedNewUntil).toBe(1893456000000);
   });
+
+  it('coverThumbHash は public / unlisted 両方で射影に含まれる', () => {
+    const pub = projectPublicListing('L1', { visibility: 'public', coverThumbHash: 'ABC123' });
+    expect(pub.coverThumbHash).toBe('ABC123');
+    const unl = projectPublicListing('L2', { visibility: 'unlisted', coverThumbHash: 'XYZ789' });
+    expect(unl.coverThumbHash).toBe('XYZ789');
+  });
+
+  it('coverThumbHash が無ければ射影にキー自体を出さない', () => {
+    const out = projectPublicListing('L3', { visibility: 'public' });
+    expect('coverThumbHash' in out).toBe(false);
+  });
 });

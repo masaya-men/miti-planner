@@ -144,6 +144,13 @@ export interface HousingListing {
   thumbnailPaths?: string[];
 
   /**
+   * 2026-08-31 追加: カードのぼかしプレースホルダ用 ThumbHash(base64・約40文字)。
+   * imageMode==='thumbnail' の代表画像(thumbnailPaths[0])からアップロード時/バックフィルで計算。
+   * X / YouTube / 生成失敗分は持たない(カードは従来どおり背景色)。
+   */
+  coverThumbHash?: string;
+
+  /**
    * 2026-05-27 追加: SNS 投稿元から取得した外部画像 URL リスト (1-10 件)。
    * imageMode==='sns' のときのみ持つ。
    *

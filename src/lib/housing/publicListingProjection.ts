@@ -16,7 +16,7 @@ export const ADDRESS_FIELDS = [
 /** 住所以外の安全フィールド。public / unlisted 両方で返す。 */
 const SAFE_FIELDS = [
   'ownerUid', 'title', 'description', 'tags',
-  'imageMode', 'postUrl', 'ogImageUrl', 'thumbnailPath', 'thumbnailPaths',
+  'imageMode', 'postUrl', 'ogImageUrl', 'thumbnailPath', 'thumbnailPaths', 'coverThumbHash',
   'sourceImageUrls', 'sourceImageAspectRatios',
   'youtubeVideoId', 'videoUrl', 'videoPosterUrl', 'videoAspectRatio',
   'tweetId', 'buildingType', 'roomKind',
