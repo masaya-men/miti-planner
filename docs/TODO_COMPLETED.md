@@ -2,6 +2,14 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-08-31 ハウジング カード画像最適化 Phase1 = 全12タスク実装・3段階リリース本番反映・Playwright自動検証OK
+症状: iOS Safari で `/housing` カードに青い「?」(1920px画像を150〜360px枠で使用→デコードメモリ超過)+一覧が重い。`subagent-driven-development` で12タスク実装 → 最終whole-branchレビュー(fix wave 1回)→ 3段階リリース。main `67a3647f`..`cd7e1587`(docs `b25bec70` は未pushで次回同梱)。
+- **実装**: 480/960/1440 WebP派生をアップロード時に必須生成(失敗→500)+既存77件をbackfillスクリプトで作り置き(768枚・失敗0・`bumpPublicVersionDirect`)。派生URLは文字列加工で導出しFirestore無変更。`srcset`/`sizes` 配線(カード=`50vw-13px`基準・詳細=960/1440/原本1920)。X画像は `?name=small` のURL加工のみ。ThumbHash ぼかしプレースホルダ(`coverThumbHash` フィールド新設・直接アップロード分のみ・onLoadで画像フェードイン §5.5)。ambientスライドショー全マウント→3枚窓。全カード画像に `decoding=async`。
+- **実行中の判断(設計書と実装のズレ)**: T1-D1(`.png`が壊れるURL加工→表示側ヘルパーのみ修正)/T7-D1(PNG兄弟の生成失敗を致命扱いに §4.5)/T11-D1(ぼかしを画像フェードインに §5.5)/T8(dry-runをDLゼロ+GOゲートは「生成予定0」)。
+- **最終レビューで発見・修正した見落とし2件**: `coverThumbHash` の失効を編集3経路(`_updateListingHandler` sns切替 / `_deleteThumbnailHandler` / `_reorderThumbnailsHandler`, 先頭画像変化時)に追加 / `CARD_IMAGE_SIZES` を実グリッド(≤767pxは常に2列 [[reference_housing_listing_grid_2col_mobile]])に合わせて修正(390pt iPhoneが1440w→960wを掴むように)。
+- **本番検証(Playwright)**: カード→`-960.webp`取得(2列グリッド確認)、X→`?name=small`(680px)、壊れ画像0、詳細ページ srcset正常・画像消失0、派生URL 200(6物件×3サイズ)、backfill dry-run再実行「残り0件」。
+- **Phase2送り(未着手・実機判断待ち)**: 一覧の仮想化/ページネーション、孤児派生の掃除スクリプト(1差替で `-480/960/1440.webp`+`.png` が残る)、SNS画像のぼかし、AVIF。masayaの実機体感チェック(「?」消えたか/スクロール)が判断材料。memory: [[reference_housing_coverThumbHash]] [[reference_housing_listing_grid_2col_mobile]]。
+
 ### ✅ 2026-08-31 ホーリズムのエフェクト棒が初弾で消えるバグ = 修正・デプロイ・ユーザー実機確認OK
 実機報告: バリア+効果時間中ずっと乗る%軽減の複合スキル(ホーリズム/原初の血気/原初の猛りの3つ)で、2026-08-27の「バリア枯渇でエフェクト棒を早期終了」機能が `def.isShield` だけで判定し、バリアが割れた時点で棒を切っていた(%軽減はまだ効いているのに)。純関数 `shieldEffectBarEndsOnBarrierExhaustion(def)` を `barrierStacking.ts` に追加し、`isShield` かつ value/valuePhysical/valueMagical/burstValue/healingIncrease が全て0の「バリア専用スキル」のときだけクリップを許可。PC(`Timeline.tsx`)・スマホ(`mobileEffectBar.ts`)両方のクリップ箇所に適用。スキルデータ無変更・再シード不要。回帰テスト=該当3スキルを実データから列挙。コミット `3c8e0721`。build緑・関連vitest緑(46+92+21)。ユーザー「OKでした」。
 
