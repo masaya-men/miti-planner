@@ -47,6 +47,8 @@ export interface AutosaveDraft {
   publishUntil?: number | null;
   /** 2026-07-24: 公開期限切れ後の倒し先。 */
   afterExpiryVisibility?: 'unlisted' | 'private';
+  /** 2026-09-01: 新着ハウジングの LoPo 公式 X 紹介 (下書き通知) を許可するか。未指定 = 許可。 */
+  allowPromoTweet?: boolean;
 }
 
 /**
@@ -71,6 +73,7 @@ const TEXT_KEYS: (keyof AutosaveDraft)[] = [
   'visibility',
   'publishUntil',
   'afterExpiryVisibility',
+  'allowPromoTweet',
 ];
 
 /**

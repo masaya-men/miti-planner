@@ -598,6 +598,79 @@ describe('RegisterPage', () => {
     window.localStorage.removeItem(AUTOSAVE_KEY);
   });
 
+  describe('LoPo 公式 X 紹介トグル (allowPromoTweet・2026-09-01)', () => {
+    const seedPublicDraft = () => {
+      window.localStorage.setItem(
+        AUTOSAVE_KEY,
+        JSON.stringify({
+          title: '新規物件', dc: 'Meteor', server: 'Ramuh', area: 'LavenderBeds',
+          ward: 29, buildingType: 'house', plot: 3, size: 'L', visibility: 'public',
+        }),
+      );
+    };
+
+    const submitAndGetDraft = async (registerSpy: any, container: HTMLElement) => {
+      await attachImage(container);
+      fireEvent.click(await screen.findByTestId('housing-register-confirm-address-btn'));
+      const submitBtn = await screen.findByTestId('housing-register-confirm-submit');
+      await waitFor(() => expect(submitBtn).not.toBeDisabled());
+      fireEvent.click(submitBtn);
+      await waitFor(() => expect(registerSpy).toHaveBeenCalled());
+      return registerSpy.mock.calls[0][0];
+    };
+
+    it('既定 ON: registerListing に allowPromoTweet:true が渡る', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      seedPublicDraft();
+      vi.spyOn(housingApiClient, 'canRegister').mockResolvedValue({ remaining: 5 } as any);
+      vi.spyOn(housingApiClient, 'checkDuplicate').mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+      const registerSpy = vi.spyOn(housingApiClient, 'registerListing').mockResolvedValue({ id: 'n1' } as any);
+
+      const { container } = renderPage();
+      expect(screen.getByTestId('housing-register-promo-toggle')).toBeChecked();
+      const draft = await submitAndGetDraft(registerSpy, container);
+      expect(draft.allowPromoTweet).toBe(true);
+
+      vi.restoreAllMocks();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    it('トグルを OFF にすると registerListing に allowPromoTweet:false が渡る', async () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      seedPublicDraft();
+      vi.spyOn(housingApiClient, 'canRegister').mockResolvedValue({ remaining: 5 } as any);
+      vi.spyOn(housingApiClient, 'checkDuplicate').mockResolvedValue({ duplicates: [], privateMatchCount: 0 } as any);
+      const registerSpy = vi.spyOn(housingApiClient, 'registerListing').mockResolvedValue({ id: 'n1' } as any);
+
+      const { container } = renderPage();
+      fireEvent.click(screen.getByTestId('housing-register-promo-toggle'));
+      const draft = await submitAndGetDraft(registerSpy, container);
+      expect(draft.allowPromoTweet).toBe(false);
+
+      vi.restoreAllMocks();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    it('住所非公開を選ぶとトグルは消える', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      seedPublicDraft();
+      vi.spyOn(housingApiClient, 'canRegister').mockResolvedValue({ remaining: 5 } as any);
+      renderPage();
+      expect(screen.getByTestId('housing-register-promo-toggle')).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('housing-register-visibility-unlisted'));
+      expect(screen.queryByTestId('housing-register-promo-toggle')).not.toBeInTheDocument();
+      vi.restoreAllMocks();
+      window.localStorage.removeItem(AUTOSAVE_KEY);
+    });
+
+    it('mode=edit ではトグルを出さない', () => {
+      useAuthStore.setState({ user: { uid: 'me' } as any, loading: false });
+      renderPage({ mode: 'edit', initialValues: { ...EDITABLE_LISTING, visibility: 'public' } as any });
+      expect(screen.queryByTestId('housing-register-promo-toggle')).not.toBeInTheDocument();
+      vi.restoreAllMocks();
+    });
+  });
+
   // 2026-07-20 実ユーザー報告(9枚登録→1枚しか表示されない)の回帰テスト。
   // HousingRegisterImageField は登録時の保存上限 SAVED_IMAGES_LIMIT (4) 枚を
   // ピッカー自体の選択上限としており、12枚選んで先頭4枚だけ保存するような

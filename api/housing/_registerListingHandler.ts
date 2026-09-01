@@ -131,6 +131,9 @@ export default async function handler(req: any, res: any) {
             ? null
             : normalizePublishUntil(draft.publishUntil),
         afterExpiryVisibility: normalizeAfterExpiryVisibility(draft.afterExpiryVisibility),
+        // 2026-09-01: 新着通知 (LoPo 公式 X 紹介の下書き) のオプトアウト。
+        // 登録画面で明示的にオフにしたときだけ doc に残す (未指定 = 許可なので省略)。
+        ...(draft.allowPromoTweet === false ? { allowPromoTweet: false } : {}),
         ...(draft.title && draft.title.trim() ? { title: draft.title.trim() } : {}),
       };
       tx.set(newRef, listing);
@@ -189,10 +192,11 @@ export default async function handler(req: any, res: any) {
     // 2026-08-28: 新着ハウジングの「ワンクリックツイート下書き」通知 (masaya 専用プライベートチャンネル)。
     // best-effort。失敗しても登録レスポンスは 200 のまま。
     // 2026-08-31: 管理者 (masaya) 自身の登録も通知する (masaya もハウジング製作者・自分の家も
-    //   ワンクリック宣伝したい。テスト物件は「宣伝しなければいい」だけ)。除外は private のみ
-    //   (誰も見られず、ツイートのリンク先が壊れるため)。
+    //   ワンクリック宣伝したい。テスト物件は「宣伝しなければいい」だけ)。
+    // 2026-09-01: 通知は「公開」物件だけに絞る。住所非公開 (unlisted) は宣伝しない方針に変更。
+    //   さらに登録画面の「LoPo 公式 X で紹介してよいか」トグルを OFF にした物件も除外。
     // 設計書: docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md
-    if (draft.visibility !== 'private' && createdId) {
+    if (draft.visibility === 'public' && draft.allowPromoTweet !== false && createdId) {
       try {
         const [listingSnap, profileSnap] = await Promise.all([
           listingsCol.doc(createdId).get(),
@@ -211,7 +215,8 @@ export default async function handler(req: any, res: any) {
         const { discordContent } = buildNewListingNotification({
           listingId: createdId,
           title: typeof L.title === 'string' ? L.title : null,
-          visibility: (L.visibility === 'unlisted' || L.visibility === 'private') ? L.visibility : 'public',
+          // ここへ来るのは public のときだけ (上のガード)。
+          visibility: 'public',
           dc: typeof L.dc === 'string' ? L.dc : undefined,
           server: typeof L.server === 'string' ? L.server : undefined,
           area: typeof L.area === 'string' ? L.area : undefined,

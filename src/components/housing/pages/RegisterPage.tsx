@@ -424,6 +424,11 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
   const [afterExpiryVisibility, setAfterExpiryVisibility] = useState<'unlisted' | 'private'>(
     () => initialValues?.afterExpiryVisibility ?? 'unlisted',
   );
+  // 2026-09-01: 新着ハウジングの LoPo 公式 X 紹介 (下書き通知) を許可するか。既定 ON。
+  // 「公開」を選んだ create のときだけトグルを表示する。
+  const [allowPromoTweet, setAllowPromoTweet] = useState<boolean>(
+    () => initialValues?.allowPromoTweet ?? true,
+  );
   // 既定 public を自動で✅にしない (feedback_form_ux_progress) ため、公開設定セクションの
   // onChange が一度でも呼ばれたかを別フラグで持つ (visibility state 自体は初期値 'public')。
   // mode='edit' は visibility が initialValues から確定済みなので、ステッパーの visibility
@@ -434,10 +439,12 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     visibility: 'public' | 'unlisted' | 'private';
     publishUntil: number | null;
     afterExpiryVisibility: 'unlisted' | 'private';
+    allowPromoTweet: boolean;
   }) => {
     setVisibility(next.visibility);
     setPublishUntil(next.publishUntil);
     setAfterExpiryVisibility(next.afterExpiryVisibility);
+    setAllowPromoTweet(next.allowPromoTweet);
     setVisibilityTouched(true);
   };
 
@@ -1200,6 +1207,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       visibility,
       publishUntil,
       afterExpiryVisibility,
+      allowPromoTweet,
       ...imageFields,
       ...(sourcePostUrls.length > 0 ? { sourcePostUrls } : {}),
     };
@@ -1211,6 +1219,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     visibility,
     publishUntil,
     afterExpiryVisibility,
+    allowPromoTweet,
     snsCapture,
     localImages,
     sourceImageUrls,
@@ -1571,8 +1580,10 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       visibility,
       publishUntil,
       afterExpiryVisibility,
+      // 既定 (許可) のときは保存しない。OFF にしたときだけ false を残す。
+      allowPromoTweet: allowPromoTweet === false ? false : undefined,
     }),
-    [title, description, tags, address, postUrl, visibility, publishUntil, afterExpiryVisibility],
+    [title, description, tags, address, postUrl, visibility, publishUntil, afterExpiryVisibility, allowPromoTweet],
   );
 
   useEffect(() => {
@@ -1663,6 +1674,9 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
       if (restored.afterExpiryVisibility === 'unlisted' || restored.afterExpiryVisibility === 'private') {
         setAfterExpiryVisibility(restored.afterExpiryVisibility);
       }
+      if (typeof restored.allowPromoTweet === 'boolean') {
+        setAllowPromoTweet(restored.allowPromoTweet);
+      }
       // 保存済み SNS URL: postUrl state を復元 + initialUrl として SnsUrlField に渡し実再取得する。
       // 復元起因の再取得は住所を空フィールドだけ補完する (spec:120 guard を先に true にする)。
       if (typeof restored.postUrl === 'string' && restored.postUrl.trim()) {
@@ -1752,6 +1766,7 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
     setVisibility('public');
     setVisibilityTouched(false);
     setPublishUntil(null);
+    setAllowPromoTweet(true);
     setLocalImages([]);
     setSourceImageUrls([]);
     setSnsCapture(EMPTY_SNS_CAPTURE);
@@ -1922,6 +1937,8 @@ export const RegisterPage: React.FC<RegisterPageProps> = ({ mode = 'create', ini
                 visibility={visibility}
                 publishUntil={publishUntil}
                 afterExpiryVisibility={afterExpiryVisibility}
+                allowPromoTweet={allowPromoTweet}
+                showPromoToggle={mode === 'create'}
                 onChange={handleVisibilityChange}
               />
             </div>

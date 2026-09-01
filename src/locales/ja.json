@@ -2388,6 +2388,8 @@
                 "set_end_datetime": "公開終了日時を設定する",
                 "after_expiry_label": "期限が来たら",
                 "auto_hide_note": "公開終了日時を過ぎると、 選んだ設定に自動的に切り替わります",
+                "allow_promo_tweet": "LoPo 公式 X (@lopoly_app) での紹介を許可する",
+                "allow_promo_tweet_desc": "オンのとき、登録後に運営がこのハウジングを LoPo 公式 X で紹介することがあります。オフにしても公開範囲や表示は変わりません。",
                 "picker": {
                     "placeholder": "日時を選択",
                     "time_label": "時刻",

@@ -121,6 +121,28 @@ describe('register-listing の新着通知', () => {
     expect(sendNotifyMock).not.toHaveBeenCalled();
   });
 
+  it('visibility=unlisted (住所非公開) では通知が送られない (2026-09-01: 住所非公開は宣伝しない方針)', async () => {
+    // plot なし住所は住所非公開でも size 一致チェックに掛かるため validBody をそのまま使う。
+    const { req, res } = makeReqRes({ ...validBody, visibility: 'unlisted' });
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(sendNotifyMock).not.toHaveBeenCalled();
+  });
+
+  it('allowPromoTweet=false では通知が送られない (登録画面で紹介トグルを OFF)', async () => {
+    const { req, res } = makeReqRes({ ...validBody, allowPromoTweet: false });
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(sendNotifyMock).not.toHaveBeenCalled();
+  });
+
+  it('allowPromoTweet=true (明示) の public 登録では通知が送られる', async () => {
+    const { req, res } = makeReqRes({ ...validBody, allowPromoTweet: true });
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(sendNotifyMock).toHaveBeenCalledTimes(1);
+  });
+
   it('通知送信が reject してもレスポンスは 200', async () => {
     sendNotifyMock.mockRejectedValueOnce(new Error('discord down'));
     const { req, res } = makeReqRes(validBody);

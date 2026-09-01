@@ -6,12 +6,17 @@ export interface RegisterVisibilityValues {
   visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
   afterExpiryVisibility: 'unlisted' | 'private';
+  /** 新着ハウジングの LoPo 公式 X 紹介 (下書き通知) を許可するか。既定 true。 */
+  allowPromoTweet: boolean;
 }
 
 interface Props {
   visibility: 'public' | 'unlisted' | 'private';
   publishUntil: number | null;
   afterExpiryVisibility: 'unlisted' | 'private';
+  allowPromoTweet: boolean;
+  /** 登録 (create) のときだけ紹介トグルを出す。編集ではそもそも再通知が無いため隠す。 */
+  showPromoToggle?: boolean;
   onChange: (next: RegisterVisibilityValues) => void;
 }
 
@@ -24,6 +29,8 @@ export const RegisterSectionVisibility: React.FC<Props> = ({
   visibility,
   publishUntil,
   afterExpiryVisibility,
+  allowPromoTweet,
+  showPromoToggle = false,
   onChange,
 }) => {
   const { t } = useTranslation();
@@ -47,6 +54,7 @@ export const RegisterSectionVisibility: React.FC<Props> = ({
       visibility: next,
       publishUntil: next === 'public' ? publishUntil : null,
       afterExpiryVisibility,
+      allowPromoTweet,
     });
   };
 
@@ -54,16 +62,20 @@ export const RegisterSectionVisibility: React.FC<Props> = ({
     const nextEnabled = !endDateEnabled;
     setEndDateEnabled(nextEnabled);
     if (!nextEnabled) {
-      onChange({ visibility, publishUntil: null, afterExpiryVisibility });
+      onChange({ visibility, publishUntil: null, afterExpiryVisibility, allowPromoTweet });
     }
   };
 
   const handleDateChange = (ms: number | null) => {
-    onChange({ visibility, publishUntil: ms, afterExpiryVisibility });
+    onChange({ visibility, publishUntil: ms, afterExpiryVisibility, allowPromoTweet });
   };
 
   const handleAfterExpiryChange = (next: 'unlisted' | 'private') => {
-    onChange({ visibility, publishUntil, afterExpiryVisibility: next });
+    onChange({ visibility, publishUntil, afterExpiryVisibility: next, allowPromoTweet });
+  };
+
+  const handleTogglePromo = () => {
+    onChange({ visibility, publishUntil, afterExpiryVisibility, allowPromoTweet: !allowPromoTweet });
   };
 
   return (
@@ -122,6 +134,28 @@ export const RegisterSectionVisibility: React.FC<Props> = ({
           </button>
         </div>
       </div>
+
+      {/* 「LoPo 公式 X での紹介」トグル。登録 (create) で「公開」を選んだときだけ表示。
+          住所非公開・非公開はそもそも通知しない。編集では再通知が無いため出さない。 */}
+      {showPromoToggle && visibility === 'public' && (
+        <div className="housing-register-promo" data-testid="housing-register-promo">
+          <label className="housing-register-promo-toggle">
+            <input
+              type="checkbox"
+              data-testid="housing-register-promo-toggle"
+              checked={allowPromoTweet}
+              onChange={handleTogglePromo}
+            />
+            <span className="housing-register-promo-toggle-track" aria-hidden="true">
+              <span className="housing-register-promo-toggle-knob" />
+            </span>
+            <span>{t('housing.register.visibility.allow_promo_tweet')}</span>
+          </label>
+          <p className="housing-register-promo-note">
+            {t('housing.register.visibility.allow_promo_tweet_desc')}
+          </p>
+        </div>
+      )}
 
       {/* 公開終了日時は「公開」専用 (unlisted/private には一覧掲載の概念が無いため意味を持たない)。 */}
       {visibility === 'public' && (

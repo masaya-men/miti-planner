@@ -2332,6 +2332,8 @@
                 "set_end_datetime": "设置公开结束时间",
                 "after_expiry_label": "到期后",
                 "auto_hide_note": "超过公开结束时间后将自动切换为所选设置",
+                "allow_promo_tweet": "允许在 LoPo 官方 X (@lopoly_app) 上介绍",
+                "allow_promo_tweet_desc": "开启后，登记后运营方可能会在 LoPo 官方 X 上介绍这个房屋。关闭不会改变公开范围或显示方式。",
                 "picker": {
                     "placeholder": "选择日期和时间",
                     "time_label": "时间",

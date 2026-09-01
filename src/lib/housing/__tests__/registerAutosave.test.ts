@@ -8,6 +8,14 @@ describe('registerAutosave', () => {
     expect(restored?.title).toBe('わが家');
     expect(restored?.tags).toEqual(['x']);
   });
+  it('allowPromoTweet=false を round-trip する', () => {
+    const restored = restoreDraft(serializeDraft({ title: 'x', allowPromoTweet: false } as any));
+    expect(restored?.allowPromoTweet).toBe(false);
+  });
+  it('allowPromoTweet=undefined (既定・許可) は保存しない', () => {
+    const restored = restoreDraft(serializeDraft({ title: 'x', allowPromoTweet: undefined } as any));
+    expect(restored && 'allowPromoTweet' in restored).toBe(false);
+  });
   it('壊れた JSON は null', () => {
     expect(restoreDraft('{bad')).toBeNull();
   });

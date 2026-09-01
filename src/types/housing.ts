@@ -248,6 +248,13 @@ export interface HousingListing {
    * 投稿日ベース判定 (isNewListing) にフォールバックする)。null/未設定 = 手動固定なし。
    */
   pinnedNewUntil?: number | null;
+  /**
+   * 2026-09-01 追加: 登録直後の「新着ハウジング」Discord 通知 (= LoPo 公式 X 紹介の下書き)
+   * を出してよいか。false のときだけ doc に書かれ、通知はスキップされる。未設定 = 許可。
+   * 通知は登録時の一発なので、この値は実質「登録時にオフにしたか」の記録
+   * (設計書: docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md §3)。
+   */
+  allowPromoTweet?: boolean;
 }
 
 /**

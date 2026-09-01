@@ -2,6 +2,15 @@
 
 - 作成日: 2026-08-28
 - ステータス: 設計確定 → 実装計画へ
+
+> **2026-09-01 変更 (実装済み)**: 通知対象を絞った。
+> 1. **住所非公開 (`unlisted`) は通知しない** — 従来は「(住所非公開)」ラベル付きで送っていたが、
+>    宣伝しない方針に変更。通知は `visibility === 'public'` のときだけ。
+> 2. **登録画面に「LoPo 公式 X (@lopoly_app) での紹介を許可する」トグルを追加** (既定 ON、
+>    「公開」を選んだ create のときだけ表示)。OFF の物件は通知しない (`draft.allowPromoTweet === false`)。
+>    OFF にしたときだけ `housing_listings` doc に `allowPromoTweet: false` を残す。
+> 以下の本文で「unlisted は送る」としている箇所はこの変更で無効。`buildNewListingNotification`
+> 純関数の `(住所非公開)` 見出し分岐はコード・テストとも残置 (将来の手動通知用)。
 - 関連: `docs/TODO.md`「次の作業順」1番 / アイデア欄「新着ハウジングの自動ツイート下書き通知」(2026-08-20)
 - 種別: architectural (新しい通知経路 + X 連携 + 既存 OGP ハンドラーの修正)
 
@@ -83,12 +92,13 @@ Discord 通知が失敗しても登録は成功のまま返す。既存の `dupl
 
 ### 発火条件
 
-以下をすべて満たすときだけ送る:
+以下をすべて満たすときだけ送る (2026-09-01 更新):
 
-- `visibility !== 'private'` (private は誰にも見えず、物件ページが 404 = ツイートが壊れる)。
-- `visibility === 'unlisted'` (住所非公開) の場合は送る。ただし通知に「住所非公開の物件」と明記し、
-  ツイートするかは masaya が判断する (通知先は masaya 専用プライベートチャンネル。住所を出しても
-  他人には見えない・2026-08-31 チャンネルの private 化を確認済み)。
+- `draft.visibility === 'public'` (private / unlisted は宣伝しない。private は 404、unlisted は住所を
+  隠したい人が多く「宣伝しない」が穏当)。
+- `draft.allowPromoTweet !== false` (登録画面の「LoPo 公式 X での紹介を許可する」トグル。既定 ON)。
+
+実ゲート: `draft.visibility === 'public' && draft.allowPromoTweet !== false && createdId`。
 
 > **2026-08-31 変更**: 当初は「登録者が admin **ではない**」も条件に入れていた
 > (masaya のテストデータでチャンネルが埋まるのを防ぐ意図)。しかし masaya 自身も
@@ -378,9 +388,12 @@ https://twitter.com/intent/tweet?text={encodeURIComponent(本文全体)}
 
 ### register ハンドラー (通知ブロック)
 
-- admin 登録 → Discord fetch が呼ばれない。
+- 一般ユーザーの `visibility: 'public'` 登録 → 呼ばれる。
+- admin (masaya 自身) の public 登録 → 呼ばれる (2026-08-31)。
 - `visibility: 'private'` → 呼ばれない。
-- `visibility: 'unlisted'` → 呼ばれる + メッセージに「住所非公開」ラベル。
+- `visibility: 'unlisted'` → 呼ばれない (2026-09-01 変更)。
+- `allowPromoTweet: false` → 呼ばれない (2026-09-01 追加)。
+- `allowPromoTweet: true` / 未指定 の public → 呼ばれる。
 - profile 未公開 → メッセージにリプなし + 「未公開」付記。
 - Discord fetch が reject → レスポンスは 200 のまま (登録は成功)。
 - webhook URL 未設定 → fetch されず 200。
