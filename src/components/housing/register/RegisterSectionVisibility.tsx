@@ -135,7 +135,7 @@ export const RegisterSectionVisibility: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* 「LoPo 公式 X での紹介」トグル。登録 (create) で「公開」を選んだときだけ表示。
+      {/* 「LoPo 運営による X での紹介」トグル。登録 (create) で「公開」を選んだときだけ表示。
           住所非公開・非公開はそもそも通知しない。編集では再通知が無いため出さない。 */}
       {showPromoToggle && visibility === 'public' && (
         <div className="housing-register-promo" data-testid="housing-register-promo">

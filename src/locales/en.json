@@ -2367,8 +2367,8 @@
                 "set_end_datetime": "Set an end date/time",
                 "after_expiry_label": "When it expires",
                 "auto_hide_note": "It will automatically switch to your chosen setting once the end date/time passes",
-                "allow_promo_tweet": "Allow features on LoPo's official X (@lopoly_app)",
-                "allow_promo_tweet_desc": "When on, we may showcase this listing on LoPo's official X account after you register. Turning it off does not change visibility or how the listing appears.",
+                "allow_promo_tweet": "Allow the LoPo team to feature this on X (Twitter)",
+                "allow_promo_tweet_desc": "When on, the LoPo team may feature this listing on X after you register. Turning it off does not change visibility or how the listing appears.",
                 "picker": {
                     "placeholder": "Select date & time",
                     "time_label": "Time",

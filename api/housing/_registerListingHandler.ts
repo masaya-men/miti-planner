@@ -194,7 +194,7 @@ export default async function handler(req: any, res: any) {
     // 2026-08-31: 管理者 (masaya) 自身の登録も通知する (masaya もハウジング製作者・自分の家も
     //   ワンクリック宣伝したい。テスト物件は「宣伝しなければいい」だけ)。
     // 2026-09-01: 通知は「公開」物件だけに絞る。住所非公開 (unlisted) は宣伝しない方針に変更。
-    //   さらに登録画面の「LoPo 公式 X で紹介してよいか」トグルを OFF にした物件も除外。
+    //   さらに登録画面の「LoPo 運営による X での紹介を許可する」トグルを OFF にした物件も除外。
     // 設計書: docs/superpowers/specs/2026-08-28-housing-new-listing-tweet-draft-notification-design.md
     if (draft.visibility === 'public' && draft.allowPromoTweet !== false && createdId) {
       try {

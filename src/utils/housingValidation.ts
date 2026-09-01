@@ -58,7 +58,7 @@ export interface RegistrationDraft extends AddressInput {
   /** 2026-07-24: 公開期限切れ後にどちらへ倒すか。publishUntil 設定時のみ意味を持つ。 */
   afterExpiryVisibility?: 'unlisted' | 'private';
   /**
-   * 2026-09-01: 登録直後の「新着ハウジング」Discord 通知 (LoPo 公式 X 紹介の下書き) を
+   * 2026-09-01: 登録直後の「新着ハウジング」Discord 通知 (LoPo 運営が X で紹介する下書き) を
    * 許可するか。既定は許可 (未指定 / true)。登録画面で「公開」を選んだときだけトグルが出る。
    * 住所非公開・非公開はそもそも通知しないため無関係。
    */

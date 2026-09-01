@@ -2332,8 +2332,8 @@
                 "set_end_datetime": "設定公開結束時間",
                 "after_expiry_label": "到期後",
                 "auto_hide_note": "超過公開結束時間後將自動切換為所選設定",
-                "allow_promo_tweet": "允許在 LoPo 官方 X (@lopoly_app) 上介紹",
-                "allow_promo_tweet_desc": "開啟後，登錄後營運方可能會在 LoPo 官方 X 上介紹這個房屋。關閉不會改變公開範圍或顯示方式。",
+                "allow_promo_tweet": "允許 LoPo 營運方在 X（Twitter）上介紹",
+                "allow_promo_tweet_desc": "開啟後，登錄後 LoPo 營運方可能會在 X 上介紹這個房屋。關閉不會改變公開範圍或顯示方式。",
                 "picker": {
                     "placeholder": "選擇日期和時間",
                     "time_label": "時間",
