@@ -86,18 +86,23 @@ export function getHousingerShortCode(uid: string): string {
 }
 
 /**
- * 表示名を短縮 URL の飾り部分として使える形に整形する。文字・数字 (Unicode の「文字」
- * 「数字」カテゴリ、日本語/中国語/韓国語等の表記も含む) 以外の記号・絵文字は取り除き
- * (URL の区切り文字として意味を持つ `/ ? # % &` は当然含まれる。絵文字は一部クライアントで
- * URL エンコードされて長い %XX の羅列になり「短い URL」の趣旨を損なうため除外する)、
- * 空白はハイフンに統一する。整形後に空になる場合 (絵文字・記号のみの名前等) は null を返し、
- * 呼び出し側は識別コードだけの URL にフォールバックする。
+ * 表示名を短縮 URL の飾り部分として使える形に整形する。
+ *
+ * **ASCII の英数字とハイフンだけを残す** (2026-09-01 変更)。日本語・中国語・韓国語・
+ * 絵文字・記号はすべて除去する。理由: URL パスに生の非 ASCII 文字が入ると、X (Twitter) や
+ * Discord など「本文中の URL を自動でリンク化する」判定器が、その文字で URL が終わったと
+ * みなしてリンクにしてくれない (`https://lopoly.app/h/ばるこ-xxxx` が丸ごとリンクにならない)。
+ * percent エンコードすれば技術的にはリンク化するが `%E3%81%B0...` の羅列で「短い URL」の
+ * 趣旨を損なうため採らない。
+ *
+ * 空白はハイフンに統一し、整形後に空になる場合 (非ラテン文字のみ・絵文字のみ等) は null を
+ * 返す。呼び出し側は識別コードだけの URL (`/h/<code>`) にフォールバックする。
  */
 export function slugifyHousingerName(displayName: string, maxLength = 20): string | null {
   const cleaned = displayName
     .trim()
     .replace(/\s+/g, '-')
-    .replace(/[^\p{L}\p{N}-]+/gu, '')
+    .replace(/[^A-Za-z0-9-]+/g, '')
     .slice(0, maxLength)
     .replace(/^-+|-+$/g, '');
   return cleaned.length > 0 ? cleaned : null;

@@ -72,10 +72,17 @@ describe('getHousingerShortCode / slugifyHousingerName / buildHousingerShortSlug
     expect(getHousingerShortCode('uid-1')).toBe('uid-1');
   });
 
-  it('slugifyHousingerName: 空白はハイフンに、区切り文字として意味を持つ記号は除去する', () => {
-    expect(slugifyHousingerName('たかし')).toBe('たかし');
-    expect(slugifyHousingerName('た か し')).toBe('た-か-し');
+  it('slugifyHousingerName: ASCII 英数字とハイフンだけ残す。空白はハイフン、記号は除去', () => {
+    expect(slugifyHousingerName('Baruko')).toBe('Baruko');
+    expect(slugifyHousingerName('Ma Sa')).toBe('Ma-Sa');
     expect(slugifyHousingerName('a/b?c#d%e&f')).toBe('abcdef');
+  });
+  it('slugifyHousingerName: 非ラテン文字 (日本語/中韓) は除去され null (2026-09-01: X等でURL判定されないため)', () => {
+    expect(slugifyHousingerName('たかし')).toBeNull();
+    expect(slugifyHousingerName('た か し')).toBeNull();
+    expect(slugifyHousingerName('바르코')).toBeNull();
+    // ラテン文字が混じっていればその部分だけ残る
+    expect(slugifyHousingerName('ばるこ123')).toBe('123');
   });
   it('slugifyHousingerName: 整形後に空になる名前 (絵文字のみ等) は null', () => {
     expect(slugifyHousingerName('🏠')).toBeNull();
@@ -85,10 +92,11 @@ describe('getHousingerShortCode / slugifyHousingerName / buildHousingerShortSlug
     expect(slugifyHousingerName('abcdefghij', 5)).toBe('abcde');
   });
 
-  it('buildHousingerShortSlug: 名前+識別コードを組み立てる', () => {
-    expect(buildHousingerShortSlug('たかし', 'hashed:d34d9c1234567890')).toBe('たかし-d34d9c12');
+  it('buildHousingerShortSlug: ラテン文字名は 名前+識別コードを組み立てる', () => {
+    expect(buildHousingerShortSlug('Baruko', 'hashed:d34d9c1234567890')).toBe('Baruko-d34d9c12');
   });
-  it('buildHousingerShortSlug: 名前が空になる場合は識別コードのみ', () => {
+  it('buildHousingerShortSlug: 名前が非ラテン文字/空になる場合は識別コードのみ', () => {
+    expect(buildHousingerShortSlug('たかし', 'hashed:d34d9c1234567890')).toBe('d34d9c12');
     expect(buildHousingerShortSlug('🏠', 'hashed:d34d9c1234567890')).toBe('d34d9c12');
   });
 
@@ -106,8 +114,14 @@ describe('getHousingerShortCode / slugifyHousingerName / buildHousingerShortSlug
   });
 
   it('build → extract は往復する (名前が変わっても識別コードは不変)', () => {
-    const slug = buildHousingerShortSlug('たかし', 'hashed:d34d9c1234567890');
+    const slug = buildHousingerShortSlug('Takashi', 'hashed:d34d9c1234567890');
+    expect(slug).toBe('Takashi-d34d9c12');
     expect(extractHousingerShortCode(slug)).toBe(getHousingerShortCode('hashed:d34d9c1234567890'));
+  });
+  it('build → extract: 非ラテン文字名でも識別コードで解決できる (旧来の日本語名リンクも含む)', () => {
+    expect(extractHousingerShortCode(buildHousingerShortSlug('たかし', 'hashed:d34d9c1234567890'))).toBe('d34d9c12');
+    // 2026-09-01 以前に共有された日本語入り slug も引き続き解決する
+    expect(extractHousingerShortCode('たかし-d34d9c12')).toBe('d34d9c12');
   });
 });
 
