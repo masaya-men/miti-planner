@@ -14,10 +14,10 @@
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 0. ~~新着ハウジング通知フォロー: `.png`兄弟upload失敗→og:image 404~~ **✅ 2026-08-31 カード画像最適化 Task7 で `.png`兄弟生成を必須化(失敗→500)。既存分もbackfillで再生成済み。完了。**
-1. **SF軍事テーマ(見た目・ユーザー本命)**: `C:\Users\masay\Downloads\SF軍事デザイン設計書.md`(2026-05・AI生成・1669行)。**大本はユニコーンガンダム**(白いパネルの軍事的分割・デカール・意味のない小文字)。⚠️旧設計書は「アラガン/シアンHUD on黒」枠で、ユーザー本命の"白パネル"は旧書のLight版寄り→**着手前に旧書を素材にbrainstormで再定義必須**(白基調フラグシップ化 / Allaganロード外し / 新規コンポーネント範囲 / 4つ目の追加テーマ扱い=既存の白黒のみルール対象外)。数セッション規模+恒久メンテコスト。詳細見解=下記。
-2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断・要再開。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
-3. 軽減表スプシモード(同じメンバー絞り込みの仕組みを両方で使えるだけ)。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。「使える機能を確実に増やす」寄り・低リスク・設計書あり。
-4. **Wiki型タイムライン共同編集**(大物・「誰でもログインで編集」公開編集モデル新設)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
+1. **軍事SFテーマ(見た目・ユーザー本命・次にやる)**: 4つ目の選択式テーマ。大本ユニコーンガンダム(白パネル軍事分割・デカール・意味のない小文字)。**Light/Dark両方コア**。**再スキン主体でレイアウト大改造しない**方針。**着手前に brainstorm 必須**。資産: 参考画像2枚=`docs/.private/theme-refs/`(masaya手動保存・README参照)、元設計書=`docs/.private/2026-05-11-sf-military-theme-design-ORIGINAL.md`(そのまま実行しない)。論点は memory [[project_sf_military_theme]]。→ その後スプシモードを全テーマに載せる。
+2. 軽減表スプシモード(テーマの後)。全テーマにトークン経由で載せる。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。
+3. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
+4. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
 ### ✅→COMPLETED 2026-08-31 ハウジング カード画像最適化 Phase1 = 3段階リリース本番反映・自動検証OK
