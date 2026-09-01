@@ -13,25 +13,25 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-0. ~~新着ハウジング通知フォロー: `.png`兄弟upload失敗→og:image 404~~ **✅ 2026-08-31 カード画像最適化 Task7 で `.png`兄弟生成を必須化(失敗→500)。既存分もbackfillで再生成済み。完了。**
-1. **軍事SFテーマ(見た目・ユーザー本命・次にやる)**: 4つ目の選択式テーマ。大本ユニコーンガンダム(白パネル軍事分割・デカール・意味のない小文字)。**Light/Dark両方コア**。**再スキン主体でレイアウト大改造しない**方針。**着手前に brainstorm 必須**。資産: 参考画像2枚=`docs/.private/theme-refs/`(masaya手動保存・README参照)、元設計書=`docs/.private/2026-05-11-sf-military-theme-design-ORIGINAL.md`(そのまま実行しない)。論点は memory [[project_sf_military_theme]]。→ その後スプシモードを全テーマに載せる。
-2. 軽減表スプシモード(テーマの後)。全テーマにトークン経由で載せる。詳細=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。
-3. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
-4. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
+1. **軍事SF(MIL-SPEC)テーマ + スプシモード = 1つの大型アップデート(ユーザー本命・次にやる)**。**worktree で隔離**して両方作り、揃ったらまとめて main へ1本化・push(2026-09-02 masaya 決定)。
+   - **① MIL-SPEC テーマ**: brainstorm済み・**設計書=`docs/superpowers/specs/2026-09-02-military-theme-design.md`** / **実装計画=`docs/superpowers/plans/2026-09-02-military-theme.md`**。次セッション頭で `using-git-worktrees` → Phase 0 Task 0.1 から `subagent-driven-development`。Phase 0 Task 0.7 が masaya の見た目承認ゲート。参考画像=`docs/.private/theme-refs/`。論点 memory [[project_sf_military_theme]]。
+   - **② 軽減表スプシモード**(①の後・同じ worktree)。全テーマにトークン経由。要 brainstorm→spec→plan。議論=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。WIP中は両方 dev ガード(`localStorage 'milspec-preview'`)、マージ時に公開。
+2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
+3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
+### 🟣 2026-09-02 MIL-SPEC テーマ = brainstorm完了・設計書+実装計画 commit済(未実装)。次セッションで worktree→Phase 0。スプシモードとセットで大型リリース(→「次の作業順」1)。未push docs commit あり。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
 ### 🟡 2026-08-31 カード画像最適化 Phase1(本番反映済) — 残: masaya実機で「?」消えたか+スクロール体感 → Phase2(仮想化/「もっと見る」/孤児派生掃除)要否判断。
 ### 🟡 2026-08-31 スマホのボトムナビ「トップ」再タップで一覧先頭スクロール = push/デプロイ済み。**残=iPhoneでタップ確認だけ**。
-### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実機テストOK・デプロイ済み。フォロー(og:image 404恒久対策)は「次の作業順」0番。
+### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実機テストOK・デプロイ済み(og:image 404フォローは`.png`兄弟必須化で完了済)。
 ### ✅ 2026-08-31 ホーリズム棒バグ + バリア重なり/iOS/シールド棒 = 全てデプロイ・実機OK。残小課題(急ぎなし): Task7グレー2色棒 / 上書き勝敗per-hit近似 / EventForm逆算加算式 / tempera_grassa `scope:'self'`欠落(要承認)。詳細=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
 ### ✅ 2026-08-20〜24 ハウジング一括(3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定)= 全て本番反映・実機確認済み (詳細=TODO_COMPLETED.md)
-**残**: Discord統合告知 (`docs/.private/2026-08-20-discord-full-update-draft.md`・投稿文確定済み) が投稿待ち。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。
-### 🟡 SEOソフト404対策(2026-08-17実装・本番反映済み)のデプロイ後インフラ設定が未着手
-Cloudflare Cache Rule設定(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console「URL検査」再確認+インデックス登録リクエスト。
-**🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタを見ているため、無関係な他ユーザーの物件編集でも自分のハウジンガーページのCDNキャッシュが割れる。改善案=ハウジンガー専用versionカウンタ分離。
-**ハウジンガーOGPカード見た目調整**: ユーザー確認(2026-08-17)によると完成済み扱い。`.claude/worktrees/housinger-ogp-card-redesign`には未コミットの差分3ファイルが残っているが、これは不採用と確定済みのもの。**触らない**(壊さないことが最優先とのユーザー指示)。前回セッションの残プロセスにロックされ`git worktree remove`も失敗中(実害なし)。
+**残**: Discord告知 = 2026-08-20分は投稿済み確認。8/24〜9/1分の下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。
+### 🟡 SEOソフト404対策(2026-08-17本番反映済)のデプロイ後インフラ設定が未着手: Cloudflare Cache Rule(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console 再検査+インデックス登録。
+**🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタ参照 → 他人の物件編集で自分のハウジンガーCDNキャッシュが割れる。改善案=専用versionカウンタ分離。
+**ハウジンガーOGPカード**: 完成扱い(2026-08-17)。`.claude/worktrees/housinger-ogp-card-redesign` の未コミット3差分は不採用確定・**触らない**。残プロセスにロックされ `git worktree remove` 失敗中(実害なし)。
 ### ✅ 直近の本番反映・棚卸し: マイページ/複数投稿URL Batch2/編集ページ画像管理/探すページランダム化+初心者タグ/コストハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所ゲート強化/旧UI意匠掃除、全て本番反映・確認済み(詳細=TODO_COMPLETED.md)。
 
 ### 🔴 次セッション優先(2026-07-20 更新・大半確認済みのため圧縮)
