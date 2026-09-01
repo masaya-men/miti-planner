@@ -10,6 +10,13 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-02-military-theme-design.md`（本プランはこの spec から論証する。実装者は両方読むこと）
 
+## リリース方針（2026-09-02 masaya 決定）
+
+- 本テーマは **軽減表スプシモード**（`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md` の議論・別 spec/plan を後で作る）と**セットで1回の大型アップデートとしてリリース**する。
+- そのため **worktree で隔離**して作業する（main は hotfix 用に空けておく）。次セッション頭で `superpowers:using-git-worktrees` skill で worktree を作成 → このプランを実行 → スプシモードのプランも同じ worktree で実行 → 両方揃ったら whole-branch レビュー → main へ1本化。
+- **WIP 中はスタイル切替ボタンを本番 UI に出さない**: Task 0.5 の `MilspecStyleToggle` は `ConsolidatedHeader` に置くが、`import.meta.env.DEV || localStorage.getItem('milspec-preview')==='1'` でガードする。Task 3.6（最終マージ）でガードを外して公開する。同様にスプシモードの入口もマージ時まで dev-only。
+- Vercel ビルド節約: worktree からの push はしない。マージ後にまとめて push。
+
 ## Global Constraints
 
 - **言語**: コード内コメント・ドキュメントは日本語（CLAUDE.md）。
@@ -690,15 +697,19 @@ export const MilspecStyleToggle: React.FC<Props> = ({ compact = false, className
 Run: `npx vitest run src/components/military/__tests__/MilspecStyleToggle.test.tsx`
 Expected: PASS（3 ケース）
 
-- [ ] **Step 6: ConsolidatedHeader に配置**
+- [ ] **Step 6: ConsolidatedHeader に配置（WIP はガード付き）**
 
 `src/components/ConsolidatedHeader.tsx` の Sun/Moon の `<Tooltip>...</Tooltip>` ブロック（現 294-306 行あたり）の**直後**に:
 
 ```tsx
-                            <MilspecStyleToggle className={clsx(iconBtnBase, iconBtnDefault)} />
+                            {(import.meta.env.DEV || (typeof localStorage !== 'undefined' && localStorage.getItem('milspec-preview') === '1')) && (
+                              <MilspecStyleToggle className={clsx(iconBtnBase, iconBtnDefault)} />
+                            )}
 ```
 
 import 追加: `import { MilspecStyleToggle } from './military/MilspecStyleToggle';`
+
+> このガードは大型アップデートのマージ時（Task 3.6）に外す。WIP 中は開発と `?milspec-preview` 相当でしか見えない。
 
 - [ ] **Step 7: 回帰テスト**
 
@@ -984,9 +995,12 @@ git commit -m "feat(theme): Phase 0 調整 — MIL-SPEC のさじ加減を実機
 - [ ] Step 4: `grep -rn "MilspecTunePanel\|milspec-tune" src/` → CSS の変数定義（`--milspec-tune-*` を各装飾ルールが参照している）だけが残り、パネル参照は 0
 - [ ] Step 5: コミット `chore(theme): MIL-SPEC 調整パネルを撤去(確定値は焼き込み済み)`
 
-### Task 3.6: whole-branch 敵対レビュー + マージ
-- **内容:** fresh context のサブエージェントで `requesting-code-review`。採用は「正しさに関わる指摘」のみ（過剰防御は入れない）。standard 回帰・スコープ外への波及（admin/LP/housing/MitigationSheet が変わっていないか）を重点確認。
-- **DoD:** レビュー指摘対応済み / `npm run build` + 対象 vitest green / masaya 最終実機確認（Dark/Light・PC/スマホ）→ main へ。
+### Task 3.6: WIP ガード解除 + whole-branch 敵対レビュー + マージ
+- **前提:** スプシモードのプランも同じ worktree で完了していること（セット・リリース方針）。
+- **内容:**
+  - Task 0.5 の `import.meta.env.DEV || localStorage 'milspec-preview'` ガードを外し、`<MilspecStyleToggle />` を無条件表示に。Task 3.1 のモバイル導線・スプシモード入口の dev ガードも同様に解除。
+  - fresh context のサブエージェントで `requesting-code-review`。採用は「正しさに関わる指摘」のみ（過剰防御は入れない）。standard 回帰・スコープ外への波及（admin/LP/housing/MitigationSheet が変わっていないか）を重点確認。
+- **DoD:** ガード解除済み / レビュー指摘対応済み / `npm run build` + 対象 vitest green / masaya 最終実機確認（standard/military × Dark/Light × PC/スマホ、スプシモード込み）→ worktree を main へマージ → まとめて push（大型アップデート1本）。
 
 ---
 

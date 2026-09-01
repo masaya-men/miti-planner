@@ -13,14 +13,15 @@
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-1. **軍事SF(MIL-SPEC)テーマ + スプシモード = 1つの大型アップデート(ユーザー本命・次にやる)**。**worktree で隔離**して両方作り、揃ったらまとめて main へ1本化・push(2026-09-02 masaya 決定)。
-   - **① MIL-SPEC テーマ**: brainstorm済み・**設計書=`docs/superpowers/specs/2026-09-02-military-theme-design.md`** / **実装計画=`docs/superpowers/plans/2026-09-02-military-theme.md`**。次セッション頭で `using-git-worktrees` → Phase 0 Task 0.1 から `subagent-driven-development`。Phase 0 Task 0.7 が masaya の見た目承認ゲート。参考画像=`docs/.private/theme-refs/`。論点 memory [[project_sf_military_theme]]。
+1. **ハウジング物件ページの OGP カード画像を生成方式にする(致命バグ・単独で先に出す・2026-09-02 masaya=a)**。X投稿由来の物件は `og:image` が `pbs.twimg.com` 直リンク → **X はそれを外部カード画像として描画しない**(Discord等は出る)ので、誰かが物件URLだけXに貼ると画像なしカードになる。直し方=`_listingPageHandler` の3画像分岐(直接アップ/YouTube/sns)を **1200×630 の生成カード1本**に置換。既存 `/api/og` + `/api/og-cache`(共有プラン・ハウジンガーで実績) を流用。写真取得失敗時は LoPo Housing ブランドのテキストカードにフォールバック。カード押下先は常に LoPo 物件ページ(YouTube由来もLoPoに飛ぶ・その場でページ内再生)。恒常コスト≒0(hash-keyed immutable・生涯1回生成)。既存ツイートのXカードキャッシュは数日〜数週間残る点は許容。→ **次セッション: これを spec→plan→実装してから 2 へ**。
+2. **軍事SF(MIL-SPEC)テーマ + スプシモード = 1つの大型アップデート(ユーザー本命)**。**worktree で隔離**して両方作り、揃ったらまとめて main へ1本化・push(2026-09-02 masaya 決定)。
+   - **① MIL-SPEC テーマ**: brainstorm済み・**設計書=`docs/superpowers/specs/2026-09-02-military-theme-design.md`** / **実装計画=`docs/superpowers/plans/2026-09-02-military-theme.md`**。`using-git-worktrees` → Phase 0 Task 0.1 から `subagent-driven-development`。Phase 0 Task 0.7 が masaya の見た目承認ゲート。参考画像=`docs/.private/theme-refs/`。論点 memory [[project_sf_military_theme]]。
    - **② 軽減表スプシモード**(①の後・同じ worktree)。全テーマにトークン経由。要 brainstorm→spec→plan。議論=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。WIP中は両方 dev ガード(`localStorage 'milspec-preview'`)、マージ時に公開。
-2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機テストで**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留中。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
-3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
+3. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機で**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
+4. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟣 2026-09-02 MIL-SPEC テーマ = brainstorm完了・設計書+実装計画 commit済(未実装)。次セッションで worktree→Phase 0。スプシモードとセットで大型リリース(→「次の作業順」1)。未push docs commit あり。
+### 🔴 2026-09-02 **次セッション最優先** = ハウジングOGPカード致命バグ(X投稿由来物件がXで画像なし)→ spec→plan→実装。その後 MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。どちらも詳細=「次の作業順」1・2。未push docs commit あり。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
 ### 🟡 2026-08-31 カード画像最適化 Phase1(本番反映済) — 残: masaya実機で「?」消えたか+スクロール体感 → Phase2(仮想化/「もっと見る」/孤児派生掃除)要否判断。
@@ -34,10 +35,9 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 **ハウジンガーOGPカード**: 完成扱い(2026-08-17)。`.claude/worktrees/housinger-ogp-card-redesign` の未コミット3差分は不採用確定・**触らない**。残プロセスにロックされ `git worktree remove` 失敗中(実害なし)。
 ### ✅ 直近の本番反映・棚卸し: マイページ/複数投稿URL Batch2/編集ページ画像管理/探すページランダム化+初心者タグ/コストハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所ゲート強化/旧UI意匠掃除、全て本番反映・確認済み(詳細=TODO_COMPLETED.md)。
 
-### 🔴 次セッション優先(2026-07-20 更新・大半確認済みのため圧縮)
-0-1. 🎨 **詳細ページ紹介文レイアウト改善(ブレスト保留中・未実装)**: 設計書=`docs/superpowers/specs/2026-07-20-housing-detail-description-hover-reveal-design.md`(3行クランプ+ホバーで全文表示)。
-0. 🏠 **ハウジング公開前 残タスク**(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`): **公開前ブロッカー**=①モデレ判断待ち(要brainstorming)②Discord告知③中韓後追い(用語CSV=`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`)。**忘れず**=最初の家でもDCテレポ案内/30日物理削除cron(listing用)/GCPコスト実測→G5。
-3. 🎨 **e PF レイアウト調整**(ユーザーと詳細を詰める。今回は共有ボタンのみ実装済み)。admin タグ生ID(軽微)も残。
+### 🟡 ハウジング中期タスク(2026-07-20 棚卸し)
+- 🎨 詳細ページ紹介文レイアウト改善(ブレスト保留・未実装): 設計書=`docs/superpowers/specs/2026-07-20-housing-detail-description-hover-reveal-design.md`(3行クランプ+ホバー全文)。/ e PF レイアウト調整(共有ボタンのみ実装済・admin タグ生ID軽微残)。
+- 🏠 公開前 残タスク(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`): ブロッカー=①モデレ判断待ち(要brainstorming)②Discord告知③中韓後追い(用語CSV=`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`)。忘れず=最初の家でもDCテレポ案内/30日物理削除cron(listing用)/GCPコスト実測→G5。
 
 ### big3(7-13)+競合コピー修正=✅本番反映済 → 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残(ユーザー実機)**=PF/⑤横断検索 checklist `.private/2026-07-12-big3-release-verification-checklist.md` B+⑤節。**保留**=②建物タイプ切替がたつき(`0e07d7e1`効かず・要systematic-debugging)。
 - **6/22〜30 本番反映済の大物(数値入力Phase1/MM:SS/共同編集重さA/メモURL/stgy/スプシ取込一式/ローカルデータ安全性 等)**: 詳細全て→[TODO_COMPLETED.md](./TODO_COMPLETED.md)。**残**=数値入力 Phase 2(admin49件・マスタ書込リスクで保留)/スプシ後追い候補(「A or B」自動分割/`no_phases`理由非表示/skipped amber トークン化/途中取込spec§7)/6/20残(進捗スマホ記録/FFLogs Phase1.5再アンカー/リビデ非対象=回復要否・HP経時追跡)。
