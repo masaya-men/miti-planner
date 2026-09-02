@@ -520,28 +520,13 @@
   pointer-events: none; z-index: 3;
 }
 
-/* 装飾クローム層。
- * ※ v3: 参照ヘッダーは中央に散らばる小テキストが無い(クリーンなベイ構成)。
- *   px 直値配置で幅により重なる問題(spec-v2 §12)もあるため、中央の文字群は隠し、
- *   四隅の控えめなマーク(hash / reg / grid)だけ残す。将来ベイ構成に作り直す。 */
+/* 装飾クローム層 */
 [data-milspec-chrome] { display: none; }
 .theme-military [data-milspec-chrome] {
   display: block; position: absolute; inset: 0;
   pointer-events: none; z-index: 6; overflow: hidden;
-  opacity: 0.5;
 }
 .theme-military [data-milspec-chrome] > * { position: absolute; }
-.theme-military [data-milspec-chrome] .milspec-c-topcode,
-.theme-military [data-milspec-chrome] .milspec-c-serial,
-.theme-military [data-milspec-chrome] .milspec-c-sec,
-.theme-military [data-milspec-chrome] .milspec-c-caution,
-.theme-military [data-milspec-chrome] .milspec-c-seq,
-.theme-military [data-milspec-chrome] .milspec-c-status,
-.theme-military [data-milspec-chrome] .milspec-c-unit,
-.theme-military [data-milspec-chrome] .milspec-c-ruler,
-.theme-military [data-milspec-chrome] .milspec-c-barcode {
-  display: none;
-}
 .theme-military .milspec-c-topcode  { top: 3px;  left: 50%; transform: translateX(-50%); }
 .theme-military .milspec-c-barcode  { top: 16px; left: 50%; margin-left: -150px; width: 44px; height: 9px; }
 .theme-military .milspec-c-serial   { top: 17px; left: 50%; margin-left: 60px; }
