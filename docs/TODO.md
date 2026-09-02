@@ -20,11 +20,9 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟡 2026-09-02 ハウジング物件OGPカード follow-up = **本番デプロイ済(1bf9f2d2)**。cold-start 不具合(初回クロール4〜9秒→Xタイムアウト→画像なし固定)を修正。
-  - 内容: ①`_listingPageHandler` を生成非ブロック化(warm TTFB 0.4s / cold 最悪3s) ②登録・編集・画像操作の全7経路でカード事前生成(`warmListingOgCard`・5秒timeout・非致命) ③カードから©削除(FF14 スクショ側の透かしのみ残る・`CARD_VERSION` 2) ④X共有で `sourcePostUrls` 優先。
-  - warm-all で全237物件のカード生成(v2 hash 全変更)。手動スポット確認~15件すべて200・有効PNG・©なし。burst 負荷で一部が transient 502→og-cacheはリトライで自己回復(5xxは非キャッシュ)。永続失敗0。
-  - **残 = masaya の実機確認**: 既存物件URLを1つ新Xアカウントで投稿 → 画像が出るか。出れば TODO_COMPLETED へ。
-  - follow-up別(未・急がない): **`/og/` の MISS応答が `max-age=1年 immutable`→transient不良が長期キャッシュされる隙。MISSは短TTL(~5分)にしてHITで長期化すべき**(housinger/tourカード共通・要scoped変更) / HMAC三重複製統合 / degradedパステスト / `/og/*` Cloudflare Cache Rule / `listingRepresentativeImages` を api/share から src/lib へ / update の warm を画像変更時のみに / `_listingPageHandler` の og_image_meta 無条件 `.set()` を存在時skipに。
+### ✅ 2026-09-02 ハウジング物件OGPカード = 本番デプロイ済(`1bf9f2d2`)・X実機確認OK → 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md)。
+  - **この1週間だけの注意**: 8/28〜9/2午前に X がクロール済みの既存物件は「画像なし」カードが約7日キャッシュされる(自然回復)。既存物件を X に貼って画像が出なければ URL 末尾に `?x=1`。新規物件は最初から OK。
+  - follow-up(急がない): `/og/` MISS応答の1年TTL短縮(housinger/tour共通) / カードPNG 1.68MB→JPEG化 / HMAC三重複製統合 / `/og/*` Cloudflare Cache Rule明示 / `listingRepresentativeImages` を src/lib へ / update warm を画像変更時のみ / `og_image_meta` 存在時skip。
 ### 🔴 次セッション最優先 = MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。詳細=「次の作業順」1。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。

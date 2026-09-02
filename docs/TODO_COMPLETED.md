@@ -2,6 +2,17 @@
 
 このファイルはTODO.mdから移動した完了済みタスクです。思考の邪魔にならないよう分離しています。
 
+### ✅ 2026-09-02 ハウジング物件OGPカード(X投稿由来物件の画像なしカード致命バグ) = 本番デプロイ済(`1bf9f2d2`)・X実機確認OK
+症状: X 投稿由来の物件を X にシェアするとカードに画像が出ない。原因=`og:image` が `pbs.twimg.com`(X 自社 CDN)を指しており、X は他サイトのカード画像として自社 CDN を描画しない。
+- **方式(masaya 承認)**: 代表写真をサーバー側で fetch → 1200×630 に整形(ぼかし背景 cover + 写真 contain・文字/枠/©なし)した PNG を自ドメイン `/og/{hash}.png` から配る。既存の `/api/og`(edge・satori)+ `/api/og-cache`(Node・Firebase Storage 永続)+ `og_image_meta` + 週次 GC cron を再利用。content-hash は `sha256(params).slice(0,16)`、HMAC(`CRON_SECRET`)署名で任意 URL 生成を防止。
+- **初回ブランチ(`9dbd1cf4`〜`4fa24083`)**: `_listingPageHandler` の og:image を `/og/{hash}.png` に。`ogpListingCard.ts`(署名)/ `_fetchOgImage.ts`(WebP/AVIF はマジックバイトで弾く)/ `_listingCard.ts`(satori カード)新規。
+- **follow-up ブランチ(`44b1bf91`〜`1bf9f2d2`・SDD 6タスク+fix wave)**: 初回デプロイ後に **cold-start 不具合**発覚(ページ初回クロールが生成を同期 await → 4〜9秒 → X タイムアウト → 「画像なし」を URL 単位キャッシュ)。①`_listingPageHandler` を生成非ブロック化(warm TTFB 0.4s)②登録・編集・サムネ/ソース画像の追加/削除/並べ替えの**全7ハンドラ**でカード事前生成(`warmListingOgCard` / `_warmListingCard.ts` wrapper・`AbortSignal.timeout(5000)`・全経路 try/catch で非致命)③カードから©削除(物件ページフッター StatusBar が FFXIV Materials Usage License の「1ページ1回」を充足・`CARD_VERSION` `1`→`2`)④X共有ボタンで `sourcePostUrls?.[0] ?? postUrl` 優先(`HousingActionBar`)。
+- **デプロイ後**: warm-all で全237物件のカード再生成(v2 で hash 全変更)。burst 負荷で一部 transient 502 → og-cache がリトライで自己回復(5xx は非キャッシュ)・永続失敗0。手動スポット確認 ~23件すべて 200・有効 PNG・©なし。
+- **X 実機確認**: `?x=1` 付き URL(= X が未クロール = 新規物件と同条件)で画像が正常表示。masaya 確認済み。**新規物件は今後 OK 確定**。
+- **既知の一時事象(コード対応不要)**: 2026-08-28〜09-02 午前は og:image が `pbs.twimg.com` 直だったため、その間に X がクロール済みの既存物件は「画像なし」カードを約7日キャッシュ(URL 単位)。自然回復。回避=URL 末尾に `?x=1`。
+- **follow-up-follow-up(TODO に残置・急がない)**: `/og/` の MISS 応答が `max-age=1年 immutable` で transient 不良が長期キャッシュされる隙(MISS は短 TTL 化すべき・housinger/tour 共通)/ カード PNG 1.68MB は重い→JPEG 化検討 / HMAC 署名ヘルパー三重複製の統合 / degraded パステスト / `/og/*` の Cloudflare Cache Rule 明示 / `listingRepresentativeImages` を `api/share` から `src/lib/housing/` へ / update の warm を画像フィールド変更時のみに絞る / `_listingPageHandler` の `og_image_meta` 無条件 `.set()` を存在時 skip に。
+- 設計書 `docs/superpowers/specs/2026-09-02-housing-listing-og-card-design.md` / 計画 `docs/superpowers/plans/2026-09-02-housing-listing-og-card{,-followup}.md`。memory [[reference_ffxiv_copyright_notice_short_form]]。
+
 ### ✅ 2026-08-31 ハウジング カード画像最適化 Phase1 = 全12タスク実装・3段階リリース本番反映・Playwright自動検証OK
 症状: iOS Safari で `/housing` カードに青い「?」(1920px画像を150〜360px枠で使用→デコードメモリ超過)+一覧が重い。`subagent-driven-development` で12タスク実装 → 最終whole-branchレビュー(fix wave 1回)→ 3段階リリース。main `67a3647f`..`cd7e1587`(docs `b25bec70` は未pushで次回同梱)。
 - **実装**: 480/960/1440 WebP派生をアップロード時に必須生成(失敗→500)+既存77件をbackfillスクリプトで作り置き(768枚・失敗0・`bumpPublicVersionDirect`)。派生URLは文字列加工で導出しFirestore無変更。`srcset`/`sizes` 配線(カード=`50vw-13px`基準・詳細=960/1440/原本1920)。X画像は `?name=small` のURL加工のみ。ThumbHash ぼかしプレースホルダ(`coverThumbHash` フィールド新設・直接アップロード分のみ・onLoadで画像フェードイン §5.5)。ambientスライドショー全マウント→3枚窓。全カード画像に `decoding=async`。
