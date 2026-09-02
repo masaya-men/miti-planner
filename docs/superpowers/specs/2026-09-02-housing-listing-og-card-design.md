@@ -269,6 +269,11 @@ if (meta.type === 'listing') {
 3. **30 日で自動削除**: `api/cron/cleanup-og-images`（週次・日曜 03:00 UTC）が
    `lastAccessedAt` 30 日超の `og-images/*` と `og_image_meta/{hash}` を削除。
    誰もシェアせず Google も来なくなった物件の画像は自然に消える＝貯まり続けない
+   - **延命**: `_listingPageHandler` は `og-images/{hash}.png` が既に存在するとき
+     `lastAccessedAt` を現在時刻に更新する（`og-cache` HIT と同じ手当て）。クローラーは
+     `immutable` な画像を再取得しないため og-cache 側の HIT では更新されず、この手当てが無いと
+     「まだページはクロールされているのに 30 日でカードが消える」が起きる（最終レビュー Important 2）。
+     ページが再クロール（Google）される限りカードは生き続け、本当に忘れられた物件だけ GC される。
 
 ### 試算
 
@@ -295,6 +300,14 @@ if (meta.type === 'listing') {
 - **デプロイ後**: 実際の物件 URL を X / Discord のカードバリデータ（またはツイート）で確認。
   X 投稿由来の物件（`imageMode:'sns'`）で写真が出ることを最優先で確認
 - **デプロイ後**: `og-images/*` に `listing` 分の hash が生成されているか Storage で確認
+- **デプロイ後（最終レビュー Important 1）**: 新規物件 1 件の **cold TTFB を実測**。
+  初回リクエスト（＝X クローラーになりうる）はページ応答内で warm-up（外部写真 fetch 最大 4 秒 +
+  フォント + satori + Storage upload）を同期 await するため、数秒を超えるなら X が「画像なし」を
+  キャッシュしうる。超えるようなら `context.waitUntil` 等の別対応を検討（fire-and-forget は
+  serverless で warm を保証しないので不可）
+- **デプロイ後（最終レビュー Minor 4）**: © 行の見え方を目視。`loadInterFonts` は wght@800 のみ
+  取得するが `buildCopyrightLine` は `fontWeight:500` を要求＝プレビュー（500 取得）と本番（800）で
+  微妙に太さが違う。`_housingerCard.ts` の © 行も本番で同じ組み合わせなので実害は無い想定
 
 ---
 

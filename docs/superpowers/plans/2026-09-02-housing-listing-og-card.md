@@ -1109,6 +1109,15 @@ rtk git commit -m "docs: 物件OGPカード実装完了・デプロイ待ちに�
 
 ---
 
+## 実装後の追記(最終レビュー fix wave・2026-09-02)
+
+opus の全体レビューは **Ready to merge: Yes**（Critical 0 / Important 2 は「マージはブロックしない・デプロイ後計測」）。以下を fix wave で追加対応（commit `26edfd64`）:
+- `_listingCard.ts` `loadFonts`: M PLUS 1 サブセットに © 文字も含める（Inter 読み込み失敗時に © 行が空白になるのを防ぐ・M PLUS 1 に `U+00A9` あり確認済）。
+- `_listingPageHandler.ts`: `og-images/{hash}.png` が既存のとき `lastAccessedAt` を更新（30 日 GC がクロール中の物件のカードを消すのを防ぐ・og-cache HIT と同じ手当て）。spec §6 に反映。
+- `_imageFormatConvert.ts:5`: `sniffSupportedImageMime` の参照先を `_fetchOgImage.ts` に修正。
+- デプロイ後チェックに cold TTFB 実測（Important 1）と © 行の太さ目視（Minor 4）を追加。spec §7 に反映。
+- follow-up 別チケット: HMAC 三重複製の統合 / degraded パスのテスト+コメント / `_fetchOgImage` カバレッジ / `/og/*` Cloudflare Cache Rule。
+
 ## Self-Review(この計画を書いた後のチェック結果)
 
 **Spec coverage:**
