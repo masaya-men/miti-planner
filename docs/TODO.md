@@ -23,7 +23,10 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ### ✅ 2026-09-02 ハウジング物件OGPカード = 本番デプロイ済(`1bf9f2d2`)・X実機確認OK → 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md)。
   - **この1週間だけの注意**: 8/28〜9/2午前に X がクロール済みの既存物件は「画像なし」カードが約7日キャッシュされる(自然回復)。既存物件を X に貼って画像が出なければ URL 末尾に `?x=1`。新規物件は最初から OK。
   - follow-up(急がない): `/og/` MISS応答の1年TTL短縮(housinger/tour共通) / カードPNG 1.68MB→JPEG化 / HMAC三重複製統合 / `/og/*` Cloudflare Cache Rule明示 / `listingRepresentativeImages` を src/lib へ / update warm を画像変更時のみ / `og_image_meta` 存在時skip。
-### 🔴 次セッション最優先 = MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。詳細=「次の作業順」1。
+### 🔴 次セッション最優先 = MIL-SPEC テーマ **Phase 0 コード完了・Task 0.7(masaya 承認/調整ゲート)待ち**。
+  - worktree `.claude/worktrees/milspec-theme`(branch `milspec-theme`)。Phase 0 の 6 commit 済(29af250d..83c94a78): 2軸化 store / html クラス / military.css 骨格 / 自前フォント / 切替ボタン+i18n5言語 / 調整パネル。build 緑・対象 vitest 13件緑。
+  - **次 = Task 0.7**: masaya が `npm run dev` → `/miti?tune` で MIL-SPEC を Dark/Light 実機確認 → 調整パネルでさじ加減を詰める → 確定値を `src/styles/military.css` に焼き込み → 「Phase 1 に進んでよい」承認。SDD ledger=`.superpowers/sdd/2026-09-02-military-theme/progress.md`。
+  - その後 Phase 1(画面別リスキン)→ Phase 2/3 → ② スプシモード(同 worktree)→ 敵対レビュー → main へ1本化・push。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
 ### 🟡 2026-08-31 (本番済・残=実機確認のみ) カード画像最適化Phase1(「?」消えたか+スクロール体感→Phase2要否) / スマホボトムナビ「トップ」再タップで先頭スクロール(iPhone確認)。
