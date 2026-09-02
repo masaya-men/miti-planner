@@ -174,7 +174,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     className="flex flex-col w-full h-[96px] pt-[5px]"
                 >
                     {/* Layer A（上段）: 左=ナビ+タイトル / 右=共有+チュートリアル+設定（固定） */}
-                    <div className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-x-hidden overflow-y-visible">
+                    <div data-milspec-titlebar className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-x-hidden overflow-y-visible">
                         {/* ── 左グループ（余ったスペースを使う） ── */}
                         <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                             <Tooltip content={t('app.return_home')}>
@@ -182,6 +182,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     <LoPoButton size="sm" onClick={() => navigate('/')} />
                                 </div>
                             </Tooltip>
+
+                            {/* MIL-SPEC のみ: ロゴ脇のステンシル副題（装飾・standard では CSS で非表示） */}
+                            <div data-milspec-wordmark aria-hidden="true" className="shrink-0">
+                                <span className="milspec-wm-main">Combat Analysis System</span>
+                                <span className="milspec-wm-sub">Ver 2.0.0 // Loop Optimizer</span>
+                            </div>
 
                             {/* viewer モード: 部屋の contentId からコンテンツ名を表示（ownerLabel があればタイトルも） */}
                             {readOnly && (contentLabel || viewer!.ownerLabel) && (
@@ -335,7 +341,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     </div>
 
                     {/* Layer B（下段・表に近い）: ツールボタン群 */}
-                    <div className="h-12 flex items-center justify-between px-6 shrink-0">
+                    <div data-milspec-toolbar className="milspec-hash h-12 flex items-center justify-between px-6 shrink-0">
                         <div className="flex items-center gap-1.5">
                             {/* Party Comp */}
                             <NotAllowed on={readOnly}>
