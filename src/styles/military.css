@@ -194,12 +194,38 @@
   --milspec-surface-2: #111925;
   --milspec-surface-3: #212e3b;
   --milspec-panel-grad: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0) 34%, rgba(0,0,0,0.14));
+
+  /* --- v3 マテリアル: 装甲板の深度 (spec-v2 §13 / 5/11 設計書 §2.4・§7) --- */
+  --milspec-well: #090e15;                       /* 凹地: パネルの下に落ちる暗いチャンネル */
+  --milspec-plate-top: #223041;                  /* 装甲板 上辺(明) */
+  --milspec-plate-bot: #131c27;                  /* 装甲板 下辺(暗) */
+  --milspec-plate-grad: linear-gradient(180deg, var(--milspec-plate-top) 0%, var(--milspec-plate-bot) 100%);
+  --milspec-plate-raised-top: #2a3a4c;           /* 浮いたプレート(ボタン) 上辺 */
+  --milspec-plate-raised-bot: #1a2633;
+  --milspec-plate-raised-grad: linear-gradient(180deg, var(--milspec-plate-raised-top) 0%, var(--milspec-plate-raised-bot) 100%);
+  --milspec-edge-hi: inset 0 1px 0 rgba(255,255,255,0.07);       /* 上辺のハイライト線 */
+  --milspec-edge-lo: inset 0 -1px 0 rgba(0,0,0,0.55);            /* 下辺の墨 */
+  --milspec-shadow-panel:
+    0 8px 22px rgba(0,0,0,0.5),
+    0 1px 0 rgba(var(--app-accent-rgb), 0.05),
+    var(--milspec-edge-hi);
+  --milspec-shadow-raised:
+    0 3px 8px rgba(0,0,0,0.45),
+    var(--milspec-edge-hi);
+  --milspec-shadow-pressed:
+    inset 0 2px 7px rgba(0,0,0,0.6),
+    inset 0 0 0 1px rgba(var(--app-accent-rgb), 0.22);
+  /* 棚(shelf)の下辺ベベル: ツールバー等の帯の底に走る「明線 → 影」の段差 */
+  --milspec-shelf-bevel:
+    inset 0 -1px 0 rgba(255,255,255,0.08),
+    0 2px 0 rgba(0,0,0,0.4),
+    0 6px 14px rgba(0,0,0,0.35);
   /* サイコフレーム: クリスプな細線発光のみ(ブルーム最小) */
   --milspec-glow-text: 0 0 1px rgba(var(--app-accent-rgb), calc(0.6 * var(--milspec-tune-glow)));
   --milspec-glow-edge: 0 0 3px rgba(var(--app-accent-rgb), calc(0.55 * var(--milspec-tune-glow)));
   /* 汚し: 低アルファを SVG に焼き込んだ粒状ノイズ(そのまま background レイヤーで使える) */
-  --milspec-noise: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='matrix'%20values='0%200%200%200%200.55%200%200%200%200%200.6%200%200%200%200%200.66%200%200%200%200.16%200'/%3E%3C/filter%3E%3Crect%20width='120'%20height='120'%20filter='url(%23n)'/%3E%3C/svg%3E");
-  --milspec-noise-size: 120px 120px;
+  --milspec-noise: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='matrix'%20values='0%200%200%200%200.55%200%200%200%200%200.6%200%200%200%200%200.66%200%200%200%200.09%200'/%3E%3C/filter%3E%3Crect%20width='120'%20height='120'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  --milspec-noise-size: 160px 160px;
   /* ドット地(Nothing) */
   --milspec-dots: radial-gradient(circle at center, rgba(var(--app-accent-rgb), 0.05) 0.7px, transparent 0.7px);
   /* 十字レジストレーションマーク */
@@ -226,6 +252,30 @@
   --milspec-panel-grad: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0) 40%, rgba(30,62,96,0.03));
   --milspec-glow-text: none;
   --milspec-glow-edge: none;
+
+  /* --- v3 マテリアル (Light = 青写真的な柔らかい影・発光半減) --- */
+  --milspec-well: #dce4ed;
+  --milspec-plate-top: #ffffff;
+  --milspec-plate-bot: #eef3f8;
+  --milspec-plate-grad: linear-gradient(180deg, #ffffff 0%, #eef3f8 100%);
+  --milspec-plate-raised-top: #ffffff;
+  --milspec-plate-raised-bot: #f4f8fb;
+  --milspec-plate-raised-grad: linear-gradient(180deg, #ffffff 0%, #f4f8fb 100%);
+  --milspec-edge-hi: inset 0 1px 0 rgba(255,255,255,0.9);
+  --milspec-edge-lo: inset 0 -1px 0 rgba(30,62,96,0.08);
+  --milspec-shadow-panel:
+    0 4px 14px rgba(40,80,120,0.12),
+    0 1px 0 rgba(255,255,255,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  --milspec-shadow-raised:
+    0 1px 4px rgba(40,80,120,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  --milspec-shadow-pressed:
+    inset 0 2px 5px rgba(40,80,120,0.16);
+  --milspec-shelf-bevel:
+    inset 0 -1px 0 rgba(255,255,255,0.9),
+    0 1px 0 rgba(30,62,96,0.10),
+    0 4px 10px rgba(40,80,120,0.08);
   /* Light の汚しは更に薄く: 暗めのグレーを低アルファで */
   --milspec-noise: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='matrix'%20values='0%200%200%200%200.15%200%200%200%200%200.2%200%200%200%200%200.28%200%200%200%200.06%200'/%3E%3C/filter%3E%3Crect%20width='120'%20height='120'%20filter='url(%23n)'/%3E%3C/svg%3E");
   --milspec-dots: radial-gradient(circle at center, rgba(30, 62, 96, 0.07) 0.7px, transparent 0.7px);
@@ -263,13 +313,16 @@
  * コア: パネル
  * ============================================================ */
 
-/* 参照様式のパネル: 角切り(TL/BR) + 1px 枠 + 上光り微グラデ + L ブラケット + ノイズ */
+/* 参照様式の装甲板パネル: 角切り(TL/BR) + 1px 枠 + 縦グラデ(上明→下暗) +
+ * 上辺ハイライト線 + 下辺の墨 + L ブラケット + グレイン。
+ * ※clip-path があるため外側 drop-shadow は出ない → 浮きは「凹地(--milspec-well)の
+ *   コンテナ地 + 上辺ハイライト」のトーン差で出す(参照画像もこの作り)。 */
 .theme-military .milspec-panel {
   position: relative;
-  background-color: var(--milspec-surface);
-  background-image: var(--milspec-panel-grad);
+  background-color: var(--milspec-plate-bot);
+  background-image: var(--milspec-plate-grad);
   border: 1px solid var(--milspec-hairline);
-  box-shadow: var(--milspec-groove);
+  box-shadow: var(--milspec-edge-hi), var(--milspec-edge-lo);
   clip-path: var(--milspec-poly-tlbr);
 }
 /* 粒状ノイズ(パネル内) */
@@ -432,22 +485,21 @@
  * ヘッダー
  * ============================================================ */
 
-.theme-military.theme-dark .glass-frame {
-  --glass-tier3-bg: var(--milspec-surface);
-  --glass-tier3-border: var(--milspec-hairline);
-  --glass-tier3-blur: 0px;
-}
+.theme-military.theme-dark .glass-frame,
 .theme-military.theme-light .glass-frame {
-  --glass-tier3-bg: var(--milspec-surface-2);
+  --glass-tier3-bg: var(--milspec-plate-grad);
   --glass-tier3-border: var(--milspec-hairline);
   --glass-tier3-blur: 0px;
+  --glass-tier3-shadow: var(--milspec-shadow-panel);
 }
 
+/* ヘッダー = 装甲板(縦グラデ) + 下に落ちる影 + 上辺ハイライト + グレイン */
 .theme-military [data-milspec-header] {
   position: relative;
-  background-color: var(--milspec-surface);
-  background-image: var(--milspec-panel-grad), var(--milspec-dots), var(--milspec-noise);
-  background-size: auto, 8px 8px, 120px 120px;
+  background-color: var(--milspec-plate-bot);
+  background-image: var(--milspec-plate-grad), var(--milspec-noise);
+  background-size: auto, var(--milspec-noise-size);
+  box-shadow: var(--milspec-shadow-panel), 0 8px 20px rgba(0,0,0,0.4);
 }
 /* 上端: クリスプなサイコフレームライン + tick */
 .theme-military [data-milspec-header]::before {
@@ -459,14 +511,37 @@
   box-shadow: var(--milspec-glow-edge);
   pointer-events: none; z-index: 3;
 }
+/* 下端: 赤ハザード短帯(参照ヘッダー下辺) */
+.theme-military [data-milspec-header]::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -3px; height: 2px;
+  background: repeating-linear-gradient(-45deg,
+    rgba(208, 67, 60, 0.55) 0 6px, transparent 6px 12px);
+  pointer-events: none; z-index: 3;
+}
 
-/* 装飾クローム層 */
+/* 装飾クローム層。
+ * ※ v3: 参照ヘッダーは中央に散らばる小テキストが無い(クリーンなベイ構成)。
+ *   px 直値配置で幅により重なる問題(spec-v2 §12)もあるため、中央の文字群は隠し、
+ *   四隅の控えめなマーク(hash / reg / grid)だけ残す。将来ベイ構成に作り直す。 */
 [data-milspec-chrome] { display: none; }
 .theme-military [data-milspec-chrome] {
   display: block; position: absolute; inset: 0;
   pointer-events: none; z-index: 6; overflow: hidden;
+  opacity: 0.5;
 }
 .theme-military [data-milspec-chrome] > * { position: absolute; }
+.theme-military [data-milspec-chrome] .milspec-c-topcode,
+.theme-military [data-milspec-chrome] .milspec-c-serial,
+.theme-military [data-milspec-chrome] .milspec-c-sec,
+.theme-military [data-milspec-chrome] .milspec-c-caution,
+.theme-military [data-milspec-chrome] .milspec-c-seq,
+.theme-military [data-milspec-chrome] .milspec-c-status,
+.theme-military [data-milspec-chrome] .milspec-c-unit,
+.theme-military [data-milspec-chrome] .milspec-c-ruler,
+.theme-military [data-milspec-chrome] .milspec-c-barcode {
+  display: none;
+}
 .theme-military .milspec-c-topcode  { top: 3px;  left: 50%; transform: translateX(-50%); }
 .theme-military .milspec-c-barcode  { top: 16px; left: 50%; margin-left: -150px; width: 44px; height: 9px; }
 .theme-military .milspec-c-serial   { top: 17px; left: 50%; margin-left: 60px; }
@@ -498,12 +573,16 @@
   pointer-events: none; z-index: 1;
 }
 
+/* ツールバー = 棚(shelf): 下辺に向かって暗くなる面 + 底の明るいベベル + 影の段差。
+ * ボタンはこの棚の上に乗った「ステーション」。 */
 .theme-military [data-milspec-toolbar] {
   position: relative; z-index: 4;
-  background-color: var(--milspec-surface-2);
-  background-image: var(--milspec-noise);
-  background-size: 120px 120px;
-  box-shadow: var(--milspec-groove);
+  background-color: var(--milspec-plate-bot);
+  background-image:
+    linear-gradient(180deg, var(--milspec-plate-top) 0%, var(--milspec-well) 100%),
+    var(--milspec-noise);
+  background-size: auto, var(--milspec-noise-size);
+  box-shadow: var(--milspec-shelf-bevel);
 }
 
 /* LoPo ロゴ + ステンシル副題 */
@@ -538,49 +617,60 @@
   clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
 }
 
-/* 右クラスタのアイコンボタン */
-.theme-military [data-milspec-titlebar] button {
+/* --- ボタン共通: パネルの上に乗った「浮いたプレート」(v3 マテリアル) ---
+ * 矩形 + 縦グラデ + 1px 枠 + 上辺ハイライト + 外側ドロップシャドウ。
+ * ※以前の per-button clip-path 面取りは撤去(clip-path が drop-shadow を消すため。
+ *   参照画像のツールバーボタンも面取りより「棚の上のステーション」の作り)。 */
+.theme-military [data-milspec-titlebar] button,
+.theme-military [data-milspec-toolbar] button,
+.theme-military [data-milspec-dock] button {
   border-radius: 0 !important;
-  border-color: var(--milspec-hairline) !important;
-  background-color: var(--milspec-surface-3);
-  background-image: var(--milspec-panel-grad);
+  border: 1px solid var(--milspec-hairline) !important;
+  background-color: var(--milspec-plate-raised-bot);
+  background-image: var(--milspec-plate-raised-grad);
+  box-shadow: var(--milspec-shadow-raised);
 }
-/* hover 修正: 既存 Tailwind の hover:bg-app-toggle/hover:text-app-toggle-text は
- * こちらの不透明 background で殺しているのに text だけ暗転して文字が消える不具合。
- * → hover は薄いシアン tint + 文字色を明色に固定(子要素も)。 */
+
+/* hover = 浮上 + シアン発光。文字色は必ず明色を維持(hover 文字消え不具合の対策)。 */
 .theme-military [data-milspec-titlebar] button:hover,
 .theme-military [data-milspec-toolbar] button:hover,
 .theme-military [data-milspec-dock] button:hover,
 .theme-military [data-milspec-sidebar] .sidebar-item:hover {
-  border-color: var(--milspec-hairline-strong) !important;
-  background-color: rgba(var(--app-accent-rgb), 0.16) !important;
-  background-image: none !important;
-  color: var(--color-text-primary) !important;
+  border-color: var(--color-accent-primary) !important;
+  background-color: var(--milspec-plate-raised-top) !important;
+  background-image:
+    linear-gradient(180deg, rgba(var(--app-accent-rgb), 0.16), rgba(var(--app-accent-rgb), 0.04)) !important;
+  color: var(--milspec-heading, var(--color-text-primary)) !important;
+  box-shadow:
+    var(--milspec-shadow-raised),
+    0 0 12px rgba(var(--app-accent-rgb), calc(0.4 * var(--milspec-tune-glow))) !important;
 }
 .theme-military [data-milspec-titlebar] button:hover *,
 .theme-military [data-milspec-toolbar] button:hover *,
 .theme-military [data-milspec-dock] button:hover *,
 .theme-military [data-milspec-sidebar] .sidebar-item:hover * {
-  color: var(--color-text-primary) !important;
-}
-.theme-military [data-milspec-titlebar] .w-px {
-  width: 1px !important; background: var(--milspec-hairline) !important; border-radius: 0 !important;
+  color: var(--milspec-heading, var(--color-text-primary)) !important;
 }
 
-/* ツールバーのボタン */
-.theme-military [data-milspec-toolbar] button {
-  border-radius: 0 !important;
-  border-color: var(--milspec-hairline) !important;
-  background-color: var(--milspec-surface-3);
-  background-image: var(--milspec-panel-grad);
+/* 押下 = 沈む */
+.theme-military [data-milspec-titlebar] button:active,
+.theme-military [data-milspec-toolbar] button:active,
+.theme-military [data-milspec-dock] button:active {
+  box-shadow: var(--milspec-shadow-pressed) !important;
 }
-.theme-military [data-milspec-toolbar] > div > span > button,
-.theme-military [data-milspec-toolbar] > div > button {
-  clip-path: polygon(7px 0, 100% 0, 100% 100%, 0 100%, 0 7px);
-}
+/* トグル ON = 押し込まれたシアンプレート */
 .theme-military [data-milspec-toolbar] button.bg-app-toggle,
 .theme-military [data-milspec-toolbar] button[class*="bg-app-toggle"] {
-  box-shadow: inset 0 2px 0 rgba(var(--app-accent-rgb), 1);
+  background-image: none !important;
+  background-color: var(--color-accent-dim) !important;
+  border-color: var(--color-accent-primary) !important;
+  box-shadow:
+    var(--milspec-shadow-pressed),
+    inset 0 2px 0 rgba(var(--app-accent-rgb), 0.9) !important;
+}
+
+.theme-military [data-milspec-titlebar] .w-px {
+  width: 1px !important; background: var(--milspec-hairline) !important; border-radius: 0 !important;
 }
 
 /* 常設ハンドル領域 */
@@ -617,19 +707,20 @@
  * サイドバー (SCENARIO)
  * ============================================================ */
 
+/* サイドバー = 凹地(well): 中の SCENARIO / フェーズ / DEPLOYMENT パネルが浮いて見える地 */
 .theme-military [data-milspec-sidebar] {
   position: relative;
-  background-color: var(--milspec-surface-2);
-  background-image: var(--milspec-noise);
-  background-size: 120px 120px;
+  background:
+    var(--milspec-noise) 0 0 / var(--milspec-noise-size),
+    var(--milspec-well) !important;
   border-right: 1px solid var(--milspec-hairline) !important;
 }
-/* 左端の縦ハザードストリップ */
+/* 左端の縦ハザードストリップ = 黄/黒(spec-v2 §6) */
 .theme-military [data-milspec-sidebar]::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background-image: repeating-linear-gradient(0deg,
-    rgba(var(--app-accent-rgb), calc(var(--milspec-tune-hazard) * 0.7)) 0 6px,
-    var(--milspec-ink) 6px 8px, transparent 8px 16px);
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background-image: repeating-linear-gradient(-45deg,
+    #e6b422 0 4px, #12151a 4px 8px);
+  opacity: calc(0.5 + 0.4 * var(--milspec-tune-hazard));
   pointer-events: none; z-index: 2;
 }
 
@@ -639,17 +730,22 @@
   border-radius: 0 !important;
 }
 
-/* dock ボタンバー(NEW / 共有 / 選択削除) = コンソールスイッチ */
-.theme-military [data-milspec-dock] > div { gap: 0 !important; }
+/* dock ボタンバー(NEW / 共有 / 選択削除) = SCENARIO パネルの上のコンソールスイッチ群。
+ * バー自体を装甲板の枠にして、中のボタンは共通の「浮いたプレート」規則(上記)が効く。 */
+.theme-military [data-milspec-dock] {
+  position: relative;
+  background-color: var(--milspec-plate-bot);
+  background-image: var(--milspec-plate-grad);
+  border: 1px solid var(--milspec-hairline);
+  box-shadow: var(--milspec-edge-hi), var(--milspec-edge-lo);
+  clip-path: var(--milspec-poly-tlbr);
+  padding-top: 6px !important; padding-bottom: 6px !important;
+}
+.theme-military [data-milspec-dock] > div { gap: 3px !important; }
 .theme-military [data-milspec-dock] button {
-  border-color: var(--milspec-hairline) !important;
-  background-color: var(--milspec-surface-3) !important;
-  background-image: var(--milspec-panel-grad) !important;
-  clip-path: polygon(5px 0, 100% 0, 100% 100%, 0 100%, 0 5px);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-family: var(--milspec-font-mono);
-  margin-right: -1px;
 }
 
 /* セクション見出し(零式シリーズ名) = mono + シアン下線 */
@@ -685,8 +781,66 @@
 /* SegmentButton(タブ)の pill インジケータを角ばりに */
 .theme-military [data-milspec-sidebar] [class*="rounded-full"] { border-radius: 0 !important; }
 
-/* BACKUP / RESTORE(サイドバー下部) */
+/* BACKUP / RESTORE(サイドバー下部) = 装甲板の枠 */
 .theme-military [data-milspec-sidebar] .custom-scrollbar { scrollbar-width: thin; }
+.theme-military [data-milspec-backup] {
+  position: relative;
+  background-color: var(--milspec-plate-bot);
+  background-image: var(--milspec-plate-grad);
+  border: 1px solid var(--milspec-hairline);
+  box-shadow: var(--milspec-edge-hi), var(--milspec-edge-lo);
+  clip-path: var(--milspec-poly-tlbr);
+  padding-bottom: 6px !important;
+}
+.theme-military [data-milspec-backup] > .border-t { border-color: var(--milspec-hairline) !important; }
+
+/* ============================================================
+ * DEPLOYMENT ブロック (MIL-SPEC 専用・参照 Dark 版 / 5/11 §7.2.3)
+ * ============================================================ */
+[data-milspec-deployment] { display: none; }
+.theme-military [data-milspec-deployment] { display: block; }
+
+/* 上辺: 黄/黒ハザードストライプ */
+.theme-military [data-milspec-deployment] [data-milspec-deployment-hazard] {
+  height: 8px;
+  background-image: repeating-linear-gradient(-45deg, #e6b422 0 7px, #12151a 7px 14px);
+  border: 1px solid var(--milspec-hairline);
+  border-bottom: 0;
+}
+/* 本体: 一段明るい装甲板 + X 紋章 + ステンシル */
+.theme-military [data-milspec-deployment] .milspec-deployment-body {
+  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background-color: var(--milspec-plate-raised-bot);
+  background-image: var(--milspec-plate-raised-grad), var(--milspec-noise);
+  background-size: auto, var(--milspec-noise-size);
+  border: 1px solid var(--milspec-hairline);
+  box-shadow: var(--milspec-edge-hi), var(--milspec-edge-lo);
+  overflow: hidden;
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-mark {
+  width: 34px; height: 34px; flex: none;
+  color: rgba(var(--app-accent-rgb), 0.35);
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5));
+}
+.theme-military.theme-light [data-milspec-deployment] .milspec-deployment-mark {
+  color: rgba(var(--app-accent-rgb), 0.30);
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,0.8));
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-text {
+  display: flex; flex-direction: column; line-height: 1.35; min-width: 0;
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-en {
+  font-family: var(--milspec-font-mono);
+  font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase;
+  color: var(--milspec-heading, var(--color-text-primary));
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-jp {
+  font-size: 10px; letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  opacity: var(--milspec-tune-decal);
+}
 
 /* ============================================================
  * タイムライン表
@@ -699,11 +853,12 @@
   background-size: 120px 120px;
   position: relative;
 }
-/* ヘッダー行のセル(data-milspec-thead) */
+/* ヘッダー行のセル(data-milspec-thead) = 装甲板 + 下辺シアン発光 */
 .theme-military [data-milspec-thead] {
   position: relative;
-  background-color: var(--milspec-surface-3) !important;
-  background-image: var(--milspec-panel-grad);
+  background-color: var(--milspec-plate-top) !important;
+  background-image: var(--milspec-plate-grad) !important;
+  box-shadow: var(--milspec-edge-hi), var(--milspec-edge-lo);
   border-bottom: 1px solid var(--milspec-hairline-strong) !important;
 }
 .theme-military [data-milspec-thead]::after {
@@ -757,10 +912,11 @@
  * ============================================================ */
 .theme-military [data-milspec-footer] {
   position: relative;
-  background-color: var(--milspec-surface) !important;
-  background-image: var(--milspec-noise) !important;
-  background-size: 120px 120px !important;
+  background-color: var(--milspec-plate-bot) !important;
+  background-image: var(--milspec-plate-grad), var(--milspec-noise) !important;
+  background-size: auto, var(--milspec-noise-size) !important;
   border-top: 1px solid var(--milspec-hairline-strong) !important;
+  box-shadow: 0 -6px 18px rgba(0,0,0,0.35), var(--milspec-edge-hi);
 }
 .theme-military [data-milspec-footer]::before {
   content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;

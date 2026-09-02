@@ -1583,7 +1583,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* バックアップ/復元ボタン */}
                     {!multiSelect.isEnabled && (
-                        <div className="shrink-0 px-3 pt-1 pb-0">
+                        <div data-milspec-backup className="shrink-0 px-3 pt-1 pb-0">
                             <div className="border-t border-glass-border w-full mb-1" />
                             <div className="flex gap-1">
                                 <button
@@ -1600,6 +1600,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     <Download size={11} />
                                     {isOpen ? t('backup.restore_button') : null}
                                 </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* MIL-SPEC テーマ専用: DEPLOYMENT ブロック (standard では CSS で display:none) */}
+                    {!multiSelect.isEnabled && isOpen && (
+                        <div data-milspec-deployment aria-hidden="true" className="shrink-0 mx-3 mt-2">
+                            <div data-milspec-deployment-hazard />
+                            <div className="milspec-deployment-body">
+                                <svg className="milspec-deployment-mark" viewBox="0 0 40 40">
+                                    <path d="M7 7 L33 33 M33 7 L7 33" stroke="currentColor" strokeWidth="5" strokeLinecap="square" />
+                                    <path d="M4 13 L4 4 L13 4 M27 4 L36 4 L36 13 M36 27 L36 36 L27 36 M13 36 L4 36 L4 27" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                                </svg>
+                                <div className="milspec-deployment-text">
+                                    <span className="milspec-deployment-en">DEPLOYMENT</span>
+                                    <span className="milspec-deployment-jp">展開を支援する</span>
+                                </div>
                             </div>
                         </div>
                     )}
