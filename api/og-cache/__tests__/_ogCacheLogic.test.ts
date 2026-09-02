@@ -9,6 +9,9 @@ describe('isValidOgImageMeta', () => {
   it('type=housingerはshareId不要', () => {
     expect(isValidOgImageMeta({ type: 'housinger', name: 'A' })).toBe(true);
   });
+  it('type=listing は shareId 不要', () => {
+    expect(isValidOgImageMeta({ type: 'listing', imageUrl: 'https://x.test/a.jpg' })).toBe(true);
+  });
   it('null/undefinedは無効', () => {
     expect(isValidOgImageMeta(null)).toBe(false);
     expect(isValidOgImageMeta(undefined)).toBe(false);
@@ -38,5 +41,21 @@ describe('buildInternalOgUrl', () => {
   it('type=tourはsecret必須で署名付きURLを組み立てる', async () => {
     const url = await buildInternalOgUrl('https://lopoly.app', { type: 'tour', name: 'テスト' }, 'test-secret');
     expect(url).toMatch(/^https:\/\/lopoly\.app\/api\/og\?type=tour&ver=1&name=%E3%83%86%E3%82%B9%E3%83%88&sig=[a-f0-9]{24}$/);
+  });
+  it('type=listing は secret 必須で署名付き URL を組み立てる', async () => {
+    const url = await buildInternalOgUrl(
+      'https://lopoly.app',
+      { type: 'listing', imageUrl: 'https://pbs.twimg.com/media/abc.jpg' },
+      'test-secret',
+    );
+    expect(url).toMatch(
+      /^https:\/\/lopoly\.app\/api\/og\?type=listing&ver=1&img=https%3A%2F%2Fpbs\.twimg\.com%2Fmedia%2Fabc\.jpg&sig=[a-f0-9]{24}$/,
+    );
+  });
+
+  it('type=listing で secret 未設定なら例外', async () => {
+    await expect(
+      buildInternalOgUrl('https://lopoly.app', { type: 'listing', imageUrl: 'https://x.test/a.jpg' }, undefined),
+    ).rejects.toThrow();
   });
 });
