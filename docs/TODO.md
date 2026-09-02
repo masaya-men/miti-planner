@@ -20,14 +20,17 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟢 2026-09-02 ハウジング物件OGPカード致命バグ = **main merge・push・デプロイ済(commit 4fa24083)**。自ドメイン再ホスト方式=代表写真を satori で 1200×630 整形(ぼかし背景+contain・© SQUARE ENIX 短縮1行)、既存 `/api/og`+`/api/og-cache`+`og_image_meta`+週次cron に `type=listing` 追加。spec/plan=`docs/superpowers/{specs,plans}/2026-09-02-housing-listing-og-card*`。本番確認済: SNS由来/thumbnail 両方 `og:image` が `lopoly.app/og/<hash>.png` に(pbs.twimg でない)・カード実描画OK・width/height 保持・x-og-cache HIT。**残(masaya)=① 物件URLを実際にXに貼って写真カードが出るか(最重要)② 新規物件登録して cold TTFB 実測(spec §7 Important 1)③ © 行の太さ目視。** follow-up別チケット候補: HMAC三重複製統合 / degradedパステスト / _fetchOgImage カバレッジ / `/og/*` Cloudflare Cache Rule。
+### 🟡 2026-09-02 ハウジング物件OGPカード = デプロイ済(4fa24083・自ドメイン再ホスト方式)。**本番で `og:image`=`lopoly.app/og/<hash>.png`・カード描画OK 確認。だが cold-start 不具合発覚。** spec/plan=`docs/superpowers/{specs,plans}/2026-09-02-housing-listing-og-card*`。
+  - **🔴 不具合**: 物件ページ初回クロールが 4〜9秒(カード生成を同期 await)→ X がタイムアウトし「画像なし」を URL 単位でキャッシュ。masaya の新URL テストが出なかった原因。housinger は s-maxage=30 で常時warm、listing は 86400 で cold ゆえ露見。
+  - **暫定対応済**: 既存237物件のカードを全部事前生成(全部 0.4s に)。既存物件は今すぐ貼れる(masaya テスト済 URL は X が miss キャッシュ済→別の未共有URLで)。
+  - **🔴 要follow-up修正**: ①登録/編集時にカード事前生成 ②`_listingPageHandler` を warm-up 非ブロック化(waitUntil 未導入・要検討 or og-cache 初回MISS任せ)。詳細=spec §7。
+  - **要masaya判断**: X共有ボタンは SNS由来物件で元ツイート引用→LoPoカード不使用。LoPo URL 貼付方式に変えるか(本文で元投稿者クレジット)。
+  - follow-up別: HMAC三重複製統合 / degradedパステスト / `/og/*` Cloudflare Cache Rule / in-game © との二重表記。
 ### 🔴 次セッション最優先 = MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。詳細=「次の作業順」1。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
-### 🟡 2026-08-31 カード画像最適化 Phase1(本番反映済) — 残: masaya実機で「?」消えたか+スクロール体感 → Phase2(仮想化/「もっと見る」/孤児派生掃除)要否判断。
-### 🟡 2026-08-31 スマホのボトムナビ「トップ」再タップで一覧先頭スクロール = push/デプロイ済み。**残=iPhoneでタップ確認だけ**。
-### 🟡 2026-08-31 新着ハウジングのツイート下書き通知 = 実機テストOK・デプロイ済み(og:image 404フォローは`.png`兄弟必須化で完了済)。
-### ✅ 2026-08-31 ホーリズム棒バグ + バリア重なり/iOS/シールド棒 = 全てデプロイ・実機OK。残小課題(急ぎなし): Task7グレー2色棒 / 上書き勝敗per-hit近似 / EventForm逆算加算式 / tempera_grassa `scope:'self'`欠落(要承認)。詳細=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
+### 🟡 2026-08-31 (本番済・残=実機確認のみ) カード画像最適化Phase1(「?」消えたか+スクロール体感→Phase2要否) / スマホボトムナビ「トップ」再タップで先頭スクロール(iPhone確認)。
+### ✅ 2026-08-31 ホーリズム棒 + バリア重なり/iOS/シールド棒 = 全デプロイ・実機OK。残小課題(急ぎなし)=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
 ### ✅ 2026-08-20〜24 ハウジング一括(3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定)= 全て本番反映・実機確認済み (詳細=TODO_COMPLETED.md)
 **残**: Discord告知 = 2026-08-20分は投稿済み確認。8/24〜9/1分の下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。
 ### 🟡 SEOソフト404対策(2026-08-17本番反映済)のデプロイ後インフラ設定が未着手: Cloudflare Cache Rule(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console 再検査+インデックス登録。
