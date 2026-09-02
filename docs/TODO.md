@@ -20,7 +20,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟢 2026-09-02 ハウジング物件OGPカード致命バグ = **実装完了・build+関連テスト緑・見た目承認済**。branch `fix/housing-listing-og-card`(7コミット)。自ドメイン再ホスト方式=代表写真を satori で 1200×630 整形(ぼかし背景+contain・© SQUARE ENIX 短縮1行)、既存 `/api/og`+`/api/og-cache`+`og_image_meta`+週次cron に `type=listing` 追加。spec/plan=`docs/superpowers/{specs,plans}/2026-09-02-housing-listing-og-card*`。**残=最終コードレビュー → main へ merge → デプロイ → X 実機確認**(X投稿由来物件で写真カードが出るか最優先・Discord退行なし・Storage に listing hash 増加確認)。既存ツイートのXカードキャッシュは数日〜数週間で自然更新。
+### 🟢 2026-09-02 ハウジング物件OGPカード致命バグ = **main merge・push・デプロイ済(commit 4fa24083)**。自ドメイン再ホスト方式=代表写真を satori で 1200×630 整形(ぼかし背景+contain・© SQUARE ENIX 短縮1行)、既存 `/api/og`+`/api/og-cache`+`og_image_meta`+週次cron に `type=listing` 追加。spec/plan=`docs/superpowers/{specs,plans}/2026-09-02-housing-listing-og-card*`。本番確認済: SNS由来/thumbnail 両方 `og:image` が `lopoly.app/og/<hash>.png` に(pbs.twimg でない)・カード実描画OK・width/height 保持・x-og-cache HIT。**残(masaya)=① 物件URLを実際にXに貼って写真カードが出るか(最重要)② 新規物件登録して cold TTFB 実測(spec §7 Important 1)③ © 行の太さ目視。** follow-up別チケット候補: HMAC三重複製統合 / degradedパステスト / _fetchOgImage カバレッジ / `/og/*` Cloudflare Cache Rule。
 ### 🔴 次セッション最優先 = MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。詳細=「次の作業順」1。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
