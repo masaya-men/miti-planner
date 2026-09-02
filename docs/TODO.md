@@ -20,9 +20,7 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ 2026-09-02 ハウジング物件OGPカード = 本番デプロイ済(`1bf9f2d2`)・X実機確認OK → 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md)。
-  - **この1週間だけの注意**: 8/28〜9/2午前に X がクロール済みの既存物件は「画像なし」カードが約7日キャッシュされる(自然回復)。既存物件を X に貼って画像が出なければ URL 末尾に `?x=1`。新規物件は最初から OK。
-  - follow-up(急がない): `/og/` MISS応答の1年TTL短縮(housinger/tour共通) / カードPNG 1.68MB→JPEG化 / HMAC三重複製統合 / `/og/*` Cloudflare Cache Rule明示 / `listingRepresentativeImages` を src/lib へ / update warm を画像変更時のみ / `og_image_meta` 存在時skip。
+### ✅ 2026-09-02 ハウジング物件OGPカード = 本番済(`1bf9f2d2`)・X確認OK → [TODO_COMPLETED.md](./TODO_COMPLETED.md)。follow-up(急がない): `/og/` MISS応答の1年TTL短縮 / カードPNG→JPEG化 / HMAC三重複製統合 / `/og/*` CF Cache Rule明示 / `listingRepresentativeImages`をsrc/libへ / update warm画像変更時のみ / `og_image_meta`存在時skip。
 ### 🔴 次セッション最優先 = MIL-SPEC テーマ **v1 実装完了・masaya レビュー反映で v2 本格実装**。
   - worktree `.claude/worktrees/milspec-theme`(branch `milspec-theme`)。commit `2851d258` まで。build/tsc 緑・standard 不変。
   - v1: Phase 0(2軸store/フォント/切替ボタン/調整パネル) + ヘッダー/サイドバー/表/フッターを軍事化。data 属性フック多数。
