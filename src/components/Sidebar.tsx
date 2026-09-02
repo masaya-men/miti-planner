@@ -1240,6 +1240,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     return (<>
         <motion.aside
             initial={false}
+            data-milspec-sidebar
             animate={{ width: fullWidth ? '100%' : isOpen ? 300 : 24 }}
             transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 22 }}
             className={clsx("h-full flex z-40 relative group/sidebar glass-tier3 glass-frame glass-border-t-0 glass-border-r-0 glass-shadow-none", !fullWidth && "shadow-sm")}

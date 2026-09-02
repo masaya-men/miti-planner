@@ -2691,7 +2691,7 @@ const Timeline: React.FC = () => {
             <div data-timeline-root className="flex flex-col h-full w-full bg-transparent overflow-hidden relative z-[1]">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
-                <div className={clsx(
+                <div data-milspec-table className={clsx(
                     "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden transition-all duration-300 ease-out",
                     "h-full z-[1]",
                     isMobileTimeline

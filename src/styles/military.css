@@ -164,123 +164,203 @@
   .theme-military body::before { display: none; }
 }
 
+
 /* ============================================================
- * MIL-SPEC 装飾語彙 + ヘッダー / ツールバー リスキン
+ * MIL-SPEC 装飾語彙 + 画面リスキン
  * 正典: docs/.private/theme-refs/allagan-{dark,light}.png
- * 方針(2026-09-02 masaya): 無機質・フラット・ハードエッジ。
- *   グラデ/ブルーム発光は使わない (Nothing 的な工業デザイン)。
- *   フラット単色面 + 1px ハードライン + PCB シルクスクリーン風の機能的ラベル +
- *   ドットマトリクス地 + 十字レジストレーションマーク。
- *   墨入れ = 1px のフラット凹線 1 本のみ (ベベルなし)。
- *   まず盛り切り → マージ前に引き算。「デフォルトのまま」の面を残さない。
+ * 方針(2026-09-02 masaya): 「デザインとして優れていること」が最優先。
+ *   マット塗装の実機質感 — フラット基調だが必要ならわずかにグラデ可。
+ *   汚し加工(ウォッシュ / チッピング / ノイズ) で "本物の質感" を出す。
+ *   参照画像の様式: パネル = TL/BR 角を斜めカット + L 字ブラケット + 1px シアングレー枠
+ *   + 上光りの微グラデ + ノイズ地。見出し = EN大文字 + JP小。隅に "////"。
+ *   キーラベルは色収差の二重刷り(echo)。選択 = シアン tint。
+ *   まず全体に施す → 雰囲気を見て引き算。「デフォルトのまま」の面を残さない。
  * すべて .theme-military 前置。standard では 1px も変わらない。
  * ============================================================ */
 
-/* --- tune 変数からの導出トークン --- */
 .theme-military {
   --milspec-clip-corner: var(--milspec-tune-corner);
 
-  /* 墨入れ = フラットな 1px 凹線 1 本 (ベベル・ハイライトなし) */
-  --milspec-ink: rgba(0, 0, 0, 0.42);
+  /* 墨入れ(パネルライン)= フラットな凹線 */
+  --milspec-ink: rgba(0, 0, 0, 0.45);
   --milspec-groove: inset 0 0 0 1px var(--milspec-ink);
-  /* ハードライン (パネル境界) */
-  --milspec-hairline: rgba(var(--app-accent-rgb), 0.28);
-  /* フラットパネル面 (base より一段違うフラット単色) */
-  --milspec-surface: #0d151d;
-  --milspec-surface-2: #0a1219;
-  /* サイコフレーム = クリスプな細線発光のみ (ブルーム最小) */
-  --milspec-glow-text: 0 0 1px rgba(var(--app-accent-rgb), calc(0.55 * var(--milspec-tune-glow)));
-  --milspec-glow-edge: 0 0 2px rgba(var(--app-accent-rgb), calc(0.5 * var(--milspec-tune-glow)));
-  /* ドットマトリクス地 (Nothing 的) */
-  --milspec-dots: radial-gradient(circle at center, rgba(var(--app-accent-rgb), 0.045) 0.6px, transparent 0.6px);
-  /* 十字レジストレーションマーク 1 個 (ハードストップ = フラット) */
+  /* パネル境界のハードライン */
+  --milspec-hairline: rgba(var(--app-accent-rgb), 0.26);
+  --milspec-hairline-strong: rgba(var(--app-accent-rgb), 0.5);
+  /* パネル面: フラット単色 + ごく浅い上光り(マット金属) */
+  --milspec-surface: #0e161f;
+  --milspec-surface-2: #0a1119;
+  --milspec-surface-3: #121c26;
+  --milspec-panel-grad: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0) 34%, rgba(0,0,0,0.14));
+  /* サイコフレーム: クリスプな細線発光のみ(ブルーム最小) */
+  --milspec-glow-text: 0 0 1px rgba(var(--app-accent-rgb), calc(0.6 * var(--milspec-tune-glow)));
+  --milspec-glow-edge: 0 0 3px rgba(var(--app-accent-rgb), calc(0.55 * var(--milspec-tune-glow)));
+  /* 汚し: 低アルファを SVG に焼き込んだ粒状ノイズ(そのまま background レイヤーで使える) */
+  --milspec-noise: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='matrix'%20values='0%200%200%200%200.55%200%200%200%200%200.6%200%200%200%200%200.66%200%200%200%200.16%200'/%3E%3C/filter%3E%3Crect%20width='120'%20height='120'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  --milspec-noise-size: 120px 120px;
+  /* ドット地(Nothing) */
+  --milspec-dots: radial-gradient(circle at center, rgba(var(--app-accent-rgb), 0.05) 0.7px, transparent 0.7px);
+  /* 十字レジストレーションマーク */
   --milspec-cross:
-    linear-gradient(rgba(var(--app-accent-rgb), 0.55), rgba(var(--app-accent-rgb), 0.55)) center / 1px 9px no-repeat,
-    linear-gradient(rgba(var(--app-accent-rgb), 0.55), rgba(var(--app-accent-rgb), 0.55)) center / 9px 1px no-repeat;
-  /* ネジ穴 (フラットなリング。ハードストップ radial) */
+    linear-gradient(rgba(var(--app-accent-rgb), 0.5), rgba(var(--app-accent-rgb), 0.5)) center / 1px 100% no-repeat,
+    linear-gradient(rgba(var(--app-accent-rgb), 0.5), rgba(var(--app-accent-rgb), 0.5)) center / 100% 1px no-repeat;
+  /* ネジ穴(フラットリング) */
   --milspec-screw: radial-gradient(circle at center,
-    transparent 0 33%, var(--milspec-ink) 33% 60%, transparent 60% 100%);
+    rgba(0,0,0,0.5) 0 26%, rgba(var(--app-accent-rgb),0.35) 26% 42%, transparent 44% 100%);
+  /* 角切りポリゴン(TL + BR) */
+  --milspec-poly-tlbr: polygon(
+    var(--milspec-clip-corner) 0, 100% 0,
+    100% calc(100% - var(--milspec-clip-corner)), calc(100% - var(--milspec-clip-corner)) 100%,
+    0 100%, 0 var(--milspec-clip-corner));
 }
-/* Light: 白基調・線画。発光ゼロ、墨入れは薄いブルーグレー */
+
 .theme-military.theme-light {
-  --milspec-ink: rgba(40, 80, 120, 0.16);
+  --milspec-ink: rgba(30, 62, 96, 0.14);
   --milspec-hairline: rgba(var(--app-accent-rgb), 0.32);
-  --milspec-surface: #f4f7fa;
-  --milspec-surface-2: #eef3f8;
+  --milspec-hairline-strong: rgba(var(--app-accent-rgb), 0.55);
+  --milspec-surface: #f5f8fb;
+  --milspec-surface-2: #ffffff;
+  --milspec-surface-3: #eef3f8;
+  --milspec-panel-grad: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0) 40%, rgba(30,62,96,0.03));
   --milspec-glow-text: none;
   --milspec-glow-edge: none;
-  --milspec-dots: radial-gradient(circle at center, rgba(40, 80, 120, 0.06) 0.6px, transparent 0.6px);
+  /* Light の汚しは更に薄く: 暗めのグレーを低アルファで */
+  --milspec-noise: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='120'%20height='120'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='matrix'%20values='0%200%200%200%200.15%200%200%200%200%200.2%200%200%200%200%200.28%200%200%200%200.06%200'/%3E%3C/filter%3E%3Crect%20width='120'%20height='120'%20filter='url(%23n)'/%3E%3C/svg%3E");
+  --milspec-dots: radial-gradient(circle at center, rgba(30, 62, 96, 0.07) 0.7px, transparent 0.7px);
+  --milspec-screw: radial-gradient(circle at center,
+    rgba(30,62,96,0.28) 0 26%, rgba(var(--app-accent-rgb),0.3) 26% 42%, transparent 44% 100%);
 }
 
 /* ============================================================
- * 装飾プリミティブ (全画面で再利用)
+ * 汚し加工 (全体オーバーレイ)
  * ============================================================ */
 
-/* 切り欠き角プレート (右上 + 左下を斜めカット) */
-.theme-military .milspec-cut-corner {
-  clip-path: polygon(
-    0 0, calc(100% - var(--milspec-clip-corner)) 0, 100% var(--milspec-clip-corner),
-    100% 100%, var(--milspec-clip-corner) 100%, 0 calc(100% - var(--milspec-clip-corner)));
+/* 面に乗せる粒状ノイズ。.milspec-weather を付けた positioned 要素に。 */
+.theme-military .milspec-weather::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background-image: var(--milspec-noise);
+  background-size: var(--milspec-noise-size);
+  z-index: 0;
 }
-/* 右上だけカット (バッジ・タブ) */
-.theme-military .milspec-cut-tr {
-  clip-path: polygon(
-    0 0, calc(100% - var(--milspec-clip-corner)) 0, 100% var(--milspec-clip-corner), 100% 100%, 0 100%);
+/* 角のウォッシュ(凹んだ所に汚れが溜まる) */
+.theme-military .milspec-wash {
+  box-shadow:
+    var(--milspec-groove),
+    inset 0 0 40px rgba(0, 0, 0, 0.28),
+    inset 0 -18px 30px rgba(0, 0, 0, 0.18);
+}
+.theme-military.theme-light .milspec-wash {
+  box-shadow:
+    var(--milspec-groove),
+    inset 0 0 30px rgba(30, 62, 96, 0.05);
 }
 
-/* パネル: フラット単色 + 1px ハードボーダー + フラット凹線 */
-.theme-military .milspec-plate {
+/* ============================================================
+ * コア: パネル
+ * ============================================================ */
+
+/* 参照様式のパネル: 角切り(TL/BR) + 1px 枠 + 上光り微グラデ + L ブラケット + ノイズ */
+.theme-military .milspec-panel {
   position: relative;
-  background: var(--milspec-surface);
+  background-color: var(--milspec-surface);
+  background-image: var(--milspec-panel-grad);
   border: 1px solid var(--milspec-hairline);
   box-shadow: var(--milspec-groove);
+  clip-path: var(--milspec-poly-tlbr);
+}
+/* 粒状ノイズ(パネル内) */
+.theme-military .milspec-panel::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background-image: var(--milspec-noise);
+  background-size: var(--milspec-noise-size);
+}
+/* L 字コーナーブラケット(TR + BL の 2 隅・角切りされない側) */
+.theme-military .milspec-panel::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--milspec-hairline-strong), var(--milspec-hairline-strong)) 100% 0 / 12px 1px no-repeat,
+    linear-gradient(var(--milspec-hairline-strong), var(--milspec-hairline-strong)) 100% 0 / 1px 12px no-repeat,
+    linear-gradient(var(--milspec-hairline-strong), var(--milspec-hairline-strong)) 0 100% / 12px 1px no-repeat,
+    linear-gradient(var(--milspec-hairline-strong), var(--milspec-hairline-strong)) 0 100% / 1px 12px no-repeat;
 }
 
-/* 隅の L 字ブラケット (対角 2 隅・1px) */
+/* ============================================================
+ * 装飾プリミティブ
+ * ============================================================ */
+
+.theme-military .milspec-cut-corner { clip-path: var(--milspec-poly-tlbr); }
+.theme-military .milspec-cut-tr {
+  clip-path: polygon(0 0, calc(100% - var(--milspec-clip-corner)) 0, 100% var(--milspec-clip-corner), 100% 100%, 0 100%);
+}
+
+/* L 字ブラケット(対角 2 隅・単体要素用) */
 .theme-military .milspec-brackets::before,
 .theme-military .milspec-brackets::after {
-  content: "";
-  position: absolute;
-  width: 10px; height: 10px;
-  border: 1px solid rgba(var(--app-accent-rgb), 0.6);
+  content: ""; position: absolute; width: 10px; height: 10px;
+  border: 1px solid var(--milspec-hairline-strong);
   pointer-events: none;
 }
 .theme-military .milspec-brackets::before { top: 2px; left: 2px; border-right: 0; border-bottom: 0; }
-.theme-military .milspec-brackets::after  { bottom: 2px; right: 2px; border-left: 0;  border-top: 0; }
+.theme-military .milspec-brackets::after  { bottom: 2px; right: 2px; border-left: 0; border-top: 0; }
 
-/* ネジ穴 4 個 (フラットなリング・オーバーレイ層) */
+/* ネジ穴 4 個 */
 .theme-military .milspec-rivets::after {
-  content: "";
-  position: absolute; inset: 0; pointer-events: none;
+  content: ""; position: absolute; inset: 0; pointer-events: none;
   background:
-    var(--milspec-screw) 4px 4px / 6px 6px no-repeat,
-    var(--milspec-screw) calc(100% - 4px) 4px / 6px 6px no-repeat,
-    var(--milspec-screw) 4px calc(100% - 4px) / 6px 6px no-repeat,
-    var(--milspec-screw) calc(100% - 4px) calc(100% - 4px) / 6px 6px no-repeat;
+    var(--milspec-screw) 5px 5px / 6px 6px no-repeat,
+    var(--milspec-screw) calc(100% - 5px) 5px / 6px 6px no-repeat,
+    var(--milspec-screw) 5px calc(100% - 5px) / 6px 6px no-repeat,
+    var(--milspec-screw) calc(100% - 5px) calc(100% - 5px) / 6px 6px no-repeat;
 }
 
-/* 十字レジストレーションマーク (単体・非操作) */
-.theme-military .milspec-regmark {
-  width: 9px; height: 9px;
-  background: var(--milspec-cross);
+/* 色収差の二重刷り(echo) — キーラベル用。要 position:relative + data-text */
+.theme-military .milspec-echo { position: relative; }
+.theme-military .milspec-echo::before,
+.theme-military .milspec-echo::after {
+  content: attr(data-text);
+  position: absolute; left: 0; top: 0;
   pointer-events: none;
 }
+.theme-military .milspec-echo::before { color: rgba(var(--app-accent-rgb), 0.6); transform: translate(-1px, 0); }
+.theme-military .milspec-echo::after  { color: rgba(255, 60, 90, 0.45); transform: translate(1px, 0); }
+.theme-military.theme-light .milspec-echo::after { color: rgba(210, 30, 40, 0.3); }
 
-/* PCB シルクスクリーン風のラベル (型番・コード。全部同じフラット色・mono) */
+/* 見出し: EN 大文字 + JP 小(子 .milspec-sub) */
+.theme-military .milspec-hdg {
+  font-family: var(--milspec-font-mono);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--color-text-primary);
+}
+.theme-military .milspec-hdg .milspec-sub {
+  display: block;
+  font-size: 0.62em;
+  letter-spacing: 0.1em;
+  text-transform: none;
+  color: var(--color-text-muted);
+  opacity: var(--milspec-tune-decal);
+}
+
+/* PCB シルクスクリーン風ラベル */
 .theme-military .milspec-decal {
   font-family: var(--milspec-font-mono);
   font-size: 7px; line-height: 1;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  letter-spacing: 0.22em; text-transform: uppercase;
   color: var(--color-text-muted);
   opacity: var(--milspec-tune-decal);
-  white-space: nowrap;
-  pointer-events: none;
+  white-space: nowrap; pointer-events: none;
 }
 .theme-military .milspec-decal--accent { color: rgba(var(--app-accent-rgb), 0.8); }
 .theme-military .milspec-decal--lg { font-size: 8px; letter-spacing: 0.26em; }
 
-/* ハザード斜線帯 (フラット 2 トーン・ハードストップ) */
+/* ハザード斜線帯(フラット 2 トーン) */
 .theme-military .milspec-hazard {
   background-image: repeating-linear-gradient(-45deg,
     rgba(var(--app-accent-rgb), var(--milspec-tune-hazard)) 0 5px,
@@ -288,165 +368,157 @@
     var(--milspec-ink) 6px 11px,
     transparent 11px 12px);
 }
-
-/* ハッシュマーク "////" ストリップ (フラット) */
-.theme-military .milspec-hash-strip {
-  background-image: repeating-linear-gradient(-55deg,
-    rgba(var(--app-accent-rgb), var(--milspec-tune-decal)) 0 1px,
-    transparent 1px 4px);
+/* 赤系ハザードチェブロン(ヘッダーのベイ間トランジション) */
+.theme-military .milspec-chevron {
+  background-image: repeating-linear-gradient(-58deg,
+    rgba(210, 60, 60, 0.5) 0 3px,
+    rgba(120, 130, 140, 0.35) 3px 6px,
+    transparent 6px 12px);
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
 }
 
-/* 計測目盛り (フラットな tick 列) */
+.theme-military .milspec-hash-strip {
+  background-image: repeating-linear-gradient(-55deg,
+    rgba(var(--app-accent-rgb), var(--milspec-tune-decal)) 0 1px, transparent 1px 4px);
+}
 .theme-military .milspec-ruler {
   background-image: repeating-linear-gradient(90deg,
     rgba(var(--app-accent-rgb), 0.4) 0 1px, transparent 1px 9px);
 }
-
-/* バーコードデカール (フラット) */
 .theme-military .milspec-barcode {
   background-image: repeating-linear-gradient(90deg,
-    currentColor 0 1px, transparent 1px 2px,
-    currentColor 2px 4px, transparent 4px 5px,
-    currentColor 5px 6px, transparent 6px 9px,
-    currentColor 9px 11px, transparent 11px 12px);
-  color: var(--color-text-muted);
-  opacity: var(--milspec-tune-decal);
+    currentColor 0 1px, transparent 1px 2px, currentColor 2px 4px, transparent 4px 5px,
+    currentColor 5px 6px, transparent 6px 9px, currentColor 9px 11px, transparent 11px 12px);
+  color: var(--color-text-muted); opacity: var(--milspec-tune-decal);
 }
-
-/* 警告トライアングル (フラット) */
 .theme-military .milspec-tri {
   width: 8px; height: 7px;
   background: rgba(var(--app-accent-rgb), var(--milspec-tune-hazard));
   clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
-
-/* インジケータ LED (クリスプ・小さいドット) */
 .theme-military .milspec-led {
-  width: 4px; height: 4px; border-radius: 0;
+  width: 4px; height: 4px;
   background: rgba(var(--app-accent-rgb), 1);
-  box-shadow: 0 0 3px rgba(var(--app-accent-rgb), 0.8);
+  box-shadow: 0 0 4px rgba(var(--app-accent-rgb), 0.85);
 }
-
-/* ルーバー (通気口スリット・フラット) */
+.theme-military .milspec-regmark { width: 9px; height: 9px; background: var(--milspec-cross); pointer-events: none; }
 .theme-military .milspec-vents {
-  background-image: repeating-linear-gradient(0deg,
-    var(--milspec-ink) 0 1px, transparent 1px 4px);
+  background-image: repeating-linear-gradient(0deg, var(--milspec-ink) 0 1px, transparent 1px 4px);
 }
+.theme-military .milspec-seam { width: 1px; align-self: stretch; flex: none; background: var(--milspec-ink); }
 
-/* パネルシーム (縦の 1px 分割線・フラット) */
-.theme-military .milspec-seam {
-  width: 1px; align-self: stretch; flex: none;
-  background: var(--milspec-ink);
+/* ============================================================
+ * 全体背景 (dot + noise)
+ * ============================================================ */
+.theme-military body {
+  background-color: var(--color-bg-primary);
+  background-image: var(--milspec-dots), var(--milspec-noise);
+  background-size: 22px 22px, 120px 120px;
 }
+.theme-military.theme-dark body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(0deg,
+    rgba(var(--app-accent-rgb), var(--milspec-tune-scanline)) 0px,
+    rgba(var(--app-accent-rgb), var(--milspec-tune-scanline)) 1px,
+    transparent 1px, transparent 3px);
+  mix-blend-mode: screen;
+}
+@media (prefers-reduced-motion: reduce) { .theme-military body::before { display: none; } }
 
 /* ============================================================
  * ヘッダー
  * ============================================================ */
 
-/* glass-frame をフラット単色の装甲板に (standard の transparent を上書き)。
- * .theme-military .glass-frame = (0,2,0)、military.css は index.css より後 → tie を勝つ。 */
 .theme-military.theme-dark .glass-frame {
-  --glass-tier3-bg: #0c141d;
+  --glass-tier3-bg: var(--milspec-surface);
   --glass-tier3-border: var(--milspec-hairline);
   --glass-tier3-blur: 0px;
 }
 .theme-military.theme-light .glass-frame {
-  --glass-tier3-bg: #ffffff;
+  --glass-tier3-bg: var(--milspec-surface-2);
   --glass-tier3-border: var(--milspec-hairline);
   --glass-tier3-blur: 0px;
 }
 
-/* ヘッダー本体: フラット面 + ドットマトリクス地 + 上端クリスプライン */
 .theme-military [data-milspec-header] {
   position: relative;
   background-color: var(--milspec-surface);
-  background-image: var(--milspec-dots);
-  background-size: 8px 8px;
+  background-image: var(--milspec-panel-grad), var(--milspec-dots), var(--milspec-noise);
+  background-size: auto, 8px 8px, 120px 120px;
 }
+/* 上端: クリスプなサイコフレームライン + tick */
 .theme-military [data-milspec-header]::before {
   content: "";
   position: absolute; left: 0; right: 0; top: 0; height: 2px;
   background:
-    repeating-linear-gradient(90deg, rgba(var(--app-accent-rgb), 0.55) 0 2px, transparent 2px 16px) left top / 100% 2px no-repeat,
-    rgba(var(--app-accent-rgb), 0.32);
+    repeating-linear-gradient(90deg, rgba(var(--app-accent-rgb), 0.6) 0 2px, transparent 2px 18px) left top / 100% 2px no-repeat,
+    rgba(var(--app-accent-rgb), 0.3);
   box-shadow: var(--milspec-glow-edge);
-  pointer-events: none;
-  z-index: 3;
+  pointer-events: none; z-index: 3;
 }
 
-/* 装飾クローム層 (デカール・コード・計器。aria-hidden・standard 非表示) */
+/* 装飾クローム層 */
 [data-milspec-chrome] { display: none; }
 .theme-military [data-milspec-chrome] {
-  display: block;
-  position: absolute; inset: 0;
-  pointer-events: none;
-  z-index: 6;
-  overflow: hidden;
+  display: block; position: absolute; inset: 0;
+  pointer-events: none; z-index: 6; overflow: hidden;
 }
 .theme-military [data-milspec-chrome] > * { position: absolute; }
-/* 配置 — 段ごとの空きゾーンに散らす (上段中央 / 継ぎ目 / 下段) */
 .theme-military .milspec-c-topcode  { top: 3px;  left: 50%; transform: translateX(-50%); }
 .theme-military .milspec-c-barcode  { top: 16px; left: 50%; margin-left: -150px; width: 44px; height: 9px; }
 .theme-military .milspec-c-serial   { top: 17px; left: 50%; margin-left: 60px; }
 .theme-military .milspec-c-sec      { top: 30px; left: 50%; transform: translateX(-50%); }
-.theme-military .milspec-c-ruler    { left: 20%; right: 20%; top: 47px; height: 4px; opacity: 0.45; }
-.theme-military .milspec-c-caution  { top: 60px; left: 50%; margin-left: -230px; display: flex; align-items: center; gap: 4px; }
-.theme-military .milspec-c-seq      { top: 62px; left: 50%; margin-left: 150px; letter-spacing: 0.5em; }
+.theme-military .milspec-c-ruler    { left: 22%; right: 22%; top: 47px; height: 4px; opacity: 0.4; }
+.theme-military .milspec-c-caution  { top: 61px; left: 50%; margin-left: -235px; display: flex; align-items: center; gap: 4px; }
+.theme-military .milspec-c-seq      { top: 63px; left: 50%; margin-left: 150px; letter-spacing: 0.5em; }
 .theme-military .milspec-c-status   { bottom: 4px; left: 50%; margin-left: -40px; display: flex; align-items: center; gap: 5px; }
-.theme-military .milspec-c-hash     { top: 5px; right: 10px; width: 28px; height: 6px; }
-.theme-military .milspec-c-reg1     { top: 44px; left: 118px; }
+.theme-military .milspec-c-hash     { top: 6px; right: 12px; width: 26px; height: 6px; }
+.theme-military .milspec-c-reg1     { top: 44px; left: 116px; }
 .theme-military .milspec-c-reg2     { top: 44px; right: 118px; }
-.theme-military .milspec-c-unit     { top: 3px; left: 50%; margin-left: -290px; }
-.theme-military .milspec-c-grid     { bottom: 4px; right: 200px; }
+.theme-military .milspec-c-unit     { top: 3px; left: 50%; margin-left: -292px; }
+.theme-military .milspec-c-grid     { bottom: 4px; right: 210px; }
 
-/* タイトルバー (上段) */
 .theme-military [data-milspec-titlebar] {
   position: relative;
   border-bottom: 1px solid var(--milspec-hairline) !important;
   z-index: 4;
 }
 .theme-military [data-milspec-titlebar]::after {
-  content: "";
-  position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
-  background: rgba(var(--app-accent-rgb), 0.45);
-  pointer-events: none;
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: rgba(var(--app-accent-rgb), 0.4); pointer-events: none;
 }
 .theme-military [data-milspec-titlebar]::before {
-  content: "";
-  position: absolute; left: 0; bottom: 0; width: 88px; height: 3px;
+  content: ""; position: absolute; left: 0; bottom: 0; width: 84px; height: 3px;
   background-image: repeating-linear-gradient(-45deg,
     rgba(var(--app-accent-rgb), var(--milspec-tune-hazard)) 0 5px,
-    transparent 5px 6px,
-    var(--milspec-ink) 6px 11px,
-    transparent 11px 12px);
+    transparent 5px 6px, var(--milspec-ink) 6px 11px, transparent 11px 12px);
   pointer-events: none; z-index: 1;
 }
 
-/* ツールバー (下段): フラットな暗い凹チャンネル */
 .theme-military [data-milspec-toolbar] {
-  position: relative;
-  z-index: 4;
+  position: relative; z-index: 4;
   background-color: var(--milspec-surface-2);
+  background-image: var(--milspec-noise);
+  background-size: 120px 120px;
   box-shadow: var(--milspec-groove);
 }
 
-/* ---------- LoPo ロゴ + ステンシル副題 ---------- */
+/* LoPo ロゴ + ステンシル副題 */
 [data-milspec-wordmark] { display: none; }
 .theme-military [data-milspec-wordmark] {
   display: flex; flex-direction: column; justify-content: center;
-  line-height: 1.25;
-  margin-left: 2px; padding-left: 10px;
+  line-height: 1.3; margin-left: 2px; padding-left: 10px;
   border-left: 1px solid var(--milspec-hairline);
   position: relative; z-index: 5;
 }
 .theme-military [data-milspec-wordmark]::before {
-  content: ""; position: absolute; left: -1px; top: 2px;
+  content: ""; position: absolute; left: -1px; top: 3px;
   width: 1px; height: 5px; background: rgba(var(--app-accent-rgb), 0.9);
 }
-/* 無機質: Orbitron でなく mono・発光なし・フラット色 */
 .theme-military [data-milspec-wordmark] .milspec-wm-main {
   font-family: var(--milspec-font-mono); font-weight: 400;
-  font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase;
+  font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase;
   color: var(--color-text-primary);
 }
 .theme-military [data-milspec-wordmark] .milspec-wm-sub {
@@ -454,48 +526,39 @@
   letter-spacing: 0.18em; text-transform: uppercase;
   color: var(--color-text-muted); opacity: var(--milspec-tune-decal);
 }
-/* LoPo カプセル枠線を撤去 */
 .theme-military .lopo-capsule-path { display: none; }
 
-/* ---------- タイトル (エンカウント名) ---------- */
+/* タイトル(エンカウント名) */
 .theme-military [data-milspec-title] {
-  position: relative;
-  padding: 2px 10px 2px 12px;
-  background: rgba(var(--app-accent-rgb), 0.07);
+  position: relative; padding: 2px 10px 2px 12px;
+  background: rgba(var(--app-accent-rgb), 0.06);
   box-shadow: inset 3px 0 0 rgba(var(--app-accent-rgb), 0.85);
   clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
 }
 
-/* ---------- 右クラスタのアイコンボタン (フラット・角ばり) ---------- */
+/* 右クラスタのアイコンボタン */
 .theme-military [data-milspec-titlebar] button {
   border-radius: 0 !important;
   border-color: var(--milspec-hairline) !important;
-  background-color: var(--milspec-surface-2);
+  background-color: var(--milspec-surface-3);
+  background-image: var(--milspec-panel-grad);
 }
 .theme-military [data-milspec-titlebar] button:hover {
-  border-color: rgba(var(--app-accent-rgb), 0.7) !important;
+  border-color: var(--milspec-hairline-strong) !important;
   background-color: rgba(var(--app-accent-rgb), 0.08);
 }
-/* 縦罫線ディバイダ → フラットな 1px ジョイント線 */
 .theme-military [data-milspec-titlebar] .w-px {
-  width: 1px !important;
-  background: var(--milspec-hairline) !important;
-  border-radius: 0 !important;
+  width: 1px !important; background: var(--milspec-hairline) !important; border-radius: 0 !important;
 }
 
-/* ---------- ツールバーのボタン = フラット・角ばり ----------
- * 注: 幅広い `button` セレクタ。SegmentButton(Sort)の内部ボタンにも当たるが
- * border-radius/border-color/bg のみ = 形は壊さない。skew(clip-path)は入れない。 */
+/* ツールバーのボタン */
 .theme-military [data-milspec-toolbar] button {
   border-radius: 0 !important;
   border-color: var(--milspec-hairline) !important;
-  background-color: var(--milspec-surface);
+  background-color: var(--milspec-surface-3);
+  background-image: var(--milspec-panel-grad);
 }
-.theme-military [data-milspec-toolbar] button:hover {
-  border-color: rgba(var(--app-accent-rgb), 0.6) !important;
-}
-/* PARTY / STATUS / ⋯ = 独立配置の pill/icon ボタンだけ左上を斜めカット。
- * SegmentButton は内部に p-0.5 コンテナを持つので、その子は除外。 */
+.theme-military [data-milspec-toolbar] button:hover { border-color: var(--milspec-hairline-strong) !important; }
 .theme-military [data-milspec-toolbar] > div > span > button,
 .theme-military [data-milspec-toolbar] > div > button {
   clip-path: polygon(7px 0, 100% 0, 100% 100%, 0 100%, 0 7px);
@@ -505,32 +568,27 @@
   box-shadow: inset 0 2px 0 rgba(var(--app-accent-rgb), 1);
 }
 
-/* 常設ハンドル領域: 上辺だけ細いフラットハザード帯 */
+/* 常設ハンドル領域 */
 .theme-military [data-progress-drawer-anchor] .glass-frame {
-  position: relative;
-  background-color: var(--milspec-surface-2) !important;
+  position: relative; background-color: var(--milspec-surface-2) !important;
 }
 .theme-military [data-progress-drawer-anchor] .glass-frame::before {
-  content: "";
-  position: absolute; left: 0; right: 0; top: 0; height: 3px;
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px;
   background-image: repeating-linear-gradient(-45deg,
     rgba(var(--app-accent-rgb), var(--milspec-tune-hazard)) 0 5px,
-    transparent 5px 6px,
-    var(--milspec-ink) 6px 11px,
-    transparent 11px 12px);
+    transparent 5px 6px, var(--milspec-ink) 6px 11px, transparent 11px 12px);
   pointer-events: none;
 }
 
-/* ---------- モバイルヘッダー ---------- */
+/* モバイルヘッダー */
 .theme-military [data-milspec-mobile-header] {
-  border-bottom: 1px solid rgba(var(--app-accent-rgb), 0.45) !important;
+  border-bottom: 1px solid var(--milspec-hairline-strong) !important;
   background-color: var(--milspec-surface) !important;
-  background-image: var(--milspec-dots) !important;
-  background-size: 8px 8px !important;
+  background-image: var(--milspec-dots), var(--milspec-noise) !important;
+  background-size: 8px 8px, 120px 120px !important;
 }
 .theme-military [data-milspec-mobile-header]::after {
-  content: "";
-  position: absolute; left: 0; bottom: -1px; width: 56px; height: 2px;
+  content: ""; position: absolute; left: 0; bottom: -1px; width: 52px; height: 2px;
   background-image: repeating-linear-gradient(-45deg,
     rgba(var(--app-accent-rgb), var(--milspec-tune-hazard)) 0 5px, transparent 5px 10px);
 }
@@ -538,4 +596,100 @@
   font-family: var(--milspec-font-mono) !important;
   color: var(--color-text-primary) !important;
   letter-spacing: 0.3em !important;
+}
+
+/* ============================================================
+ * サイドバー (SCENARIO)
+ * ============================================================ */
+
+.theme-military [data-milspec-sidebar] {
+  position: relative;
+  background-color: var(--milspec-surface-2);
+  background-image: var(--milspec-noise);
+  background-size: 120px 120px;
+  border-right: 1px solid var(--milspec-hairline) !important;
+}
+/* 左端の縦ハザードストリップ */
+.theme-military [data-milspec-sidebar]::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background-image: repeating-linear-gradient(0deg,
+    rgba(var(--app-accent-rgb), calc(var(--milspec-tune-hazard) * 0.7)) 0 6px,
+    var(--milspec-ink) 6px 8px, transparent 8px 16px);
+  pointer-events: none; z-index: 2;
+}
+
+/* サイドバー内のカード/パネル(BACKUP 群・プラン群コンテナ等) */
+.theme-military [data-milspec-sidebar] [class*="rounded"]:where(section, .group, [data-plan-list], [data-sidebar-card]) {
+  border-radius: 0 !important;
+}
+
+/* サイドバー見出し(SCENARIO) */
+.theme-military [data-milspec-scenario-hd] {
+  font-family: var(--milspec-font-mono) !important;
+  text-transform: uppercase; letter-spacing: 0.24em;
+}
+
+/* ============================================================
+ * タイムライン表
+ * ============================================================ */
+
+/* 表コンテナ枠 */
+.theme-military [data-milspec-table] {
+  border-color: var(--milspec-hairline) !important;
+  background-image: var(--milspec-noise);
+  background-size: 120px 120px;
+}
+/* ヘッダー行のセル */
+.theme-military [data-milspec-thead] {
+  position: relative;
+  background-color: var(--milspec-surface-3) !important;
+  background-image: var(--milspec-panel-grad);
+  border-bottom: 1px solid var(--milspec-hairline-strong) !important;
+}
+.theme-military [data-milspec-thead]::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: rgba(var(--app-accent-rgb), 0.55); box-shadow: var(--milspec-glow-edge);
+}
+/* 時刻セル = mono + シアン */
+.theme-military [data-milspec-time] {
+  font-family: var(--milspec-font-mono) !important;
+  color: var(--color-accent-primary) !important;
+  letter-spacing: 0.06em;
+}
+/* 数値 = mono */
+.theme-military [data-milspec-num] { font-family: var(--milspec-font-mono) !important; }
+/* 行 hover */
+.theme-military [data-milspec-row]:hover {
+  box-shadow: inset 2px 0 0 rgba(var(--app-accent-rgb), 0.8) !important;
+}
+
+/* ============================================================
+ * カード / モーダル (エディタ配下)
+ * ============================================================ */
+.theme-military [data-milspec-modal] {
+  border-radius: 0 !important;
+  border: 1px solid var(--milspec-hairline-strong) !important;
+  background-image: var(--milspec-noise) !important;
+  background-size: 120px 120px !important;
+}
+.theme-military [data-milspec-modal]::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: rgba(var(--app-accent-rgb), 0.5);
+  pointer-events: none; z-index: 1;
+}
+
+/* ============================================================
+ * フッター
+ * ============================================================ */
+.theme-military [data-milspec-footer] {
+  position: relative;
+  background-color: var(--milspec-surface) !important;
+  background-image: var(--milspec-noise) !important;
+  background-size: 120px 120px !important;
+  border-top: 1px solid var(--milspec-hairline-strong) !important;
+}
+.theme-military [data-milspec-footer]::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px;
+  background: rgba(var(--app-accent-rgb), 0.5); box-shadow: var(--milspec-glow-edge);
+  pointer-events: none;
 }
