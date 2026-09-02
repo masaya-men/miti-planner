@@ -174,11 +174,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     data-milspec-header
                     className="flex flex-col w-full h-[96px] pt-[5px]"
                 >
-                    {/* MIL-SPEC 装飾クローム層: デカール・型番・計器（aria-hidden・standard は CSS 非表示） */}
+                    {/* MIL-SPEC 装飾クローム層: PCB シルクスクリーン風のコード・計器・レジストレーションマーク
+                        （aria-hidden・standard は CSS 非表示） */}
                     <div data-milspec-chrome aria-hidden="true">
                         <span className="milspec-decal milspec-c-topcode">A.R.D // Combat Analysis System</span>
                         <span className="milspec-barcode milspec-c-barcode" />
-                        <span className="milspec-decal milspec-c-serial">AR-2409-NT // LP-OPT</span>
+                        <span className="milspec-decal milspec-c-serial">AR-2409-NT // LP-OPT-02</span>
                         <span className="milspec-decal milspec-decal--accent milspec-decal--lg milspec-c-sec">Sector 01 — Command</span>
                         <span className="milspec-hash-strip milspec-c-hash" />
                         <span className="milspec-c-caution">
@@ -187,11 +188,15 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             <span className="milspec-tri" />
                         </span>
                         <span className="milspec-ruler milspec-c-ruler" />
-                        <span className="milspec-decal milspec-c-seq">01 02 03 04 05</span>
+                        <span className="milspec-decal milspec-c-seq">01 02 03 04 05 06</span>
                         <span className="milspec-c-status">
                             <span className="milspec-decal milspec-decal--accent">Sys Online</span>
                             <span className="milspec-led" />
                         </span>
+                        <span className="milspec-regmark milspec-c-reg1" />
+                        <span className="milspec-regmark milspec-c-reg2" />
+                        <span className="milspec-decal milspec-c-unit">Unit LP // Rev 2.0.0</span>
+                        <span className="milspec-decal milspec-c-grid">Grid 40 · Scale 1:1</span>
                     </div>
 
                     {/* Layer A（上段）: 左=ナビ+タイトル / 右=共有+チュートリアル+設定（固定） */}
