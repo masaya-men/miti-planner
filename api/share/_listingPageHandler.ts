@@ -15,8 +15,7 @@ import { formatFullHousingAddress } from '../../src/lib/housing/formatHousingAdd
 import { regionForDC } from '../../src/data/housing/dcServerMap.js';
 import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 import { listingRepresentativeImages } from './_listingImages.js';
-import { buildListingOgCardParams } from '../../src/lib/ogpListingCard.js';
-import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
+import { computeListingOgCardHash } from '../../src/lib/housing/listingOgCardWarm.js';
 
 const COLLECTION = 'housing_listings';
 const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
@@ -112,14 +111,12 @@ export default async function handler(req: any, res: any) {
         // 写真 URL をそのまま og:image にすると X 投稿由来の物件が画像なしカードになる
         // (Discord 等は出る)。写真 URL から内容ハッシュを作り、既存の安全なキャッシュ経路
         // (/og/{hash}.png・Storage + 長期キャッシュ・週次クリーンアップ cron)に乗せる。
-        // _housingerPageHandler.ts の card-hash / meta / warm-up パターンと同型。
         const repImages = listingRepresentativeImages(projected as Record<string, unknown>);
         const rawPhoto = repImages[0];
         if (rawPhoto) {
           const photoUrl = /^https?:\/\//.test(rawPhoto) ? rawPhoto : `${origin}${rawPhoto}`;
           try {
-            const params = buildListingOgCardParams({ img: photoUrl });
-            const hash = computeOgCardImageHash(params);
+            const hash = computeListingOgCardHash(photoUrl);
             await db.collection('og_image_meta').doc(hash).set({
               type: 'listing',
               imageUrl: photoUrl,
@@ -127,22 +124,26 @@ export default async function handler(req: any, res: any) {
               lastAccessedAt: Date.now(),
             });
             const cardUrl = `${origin}/og/${hash}.png`;
+            // ここでカード生成を待たない。旧実装は !exists のとき warm-up fetch を同期 await して
+            // おり、初回クロールの TTFB が 4〜9 秒になっていた(外部写真取得 + フォント + satori +
+            // Storage upload)。X のクローラーは数秒でタイムアウト → 「画像なし」を URL 単位で
+            // キャッシュ → 新規物件の初回シェアが画像なしカードで固定される、という不具合だった。
+            // カードは物件の登録・編集時に事前生成される(_registerListingHandler / _updateListingHandler)。
+            // 万一未生成でも、/og/{hash}.png への初回アクセスで og-cache(専用関数・ページ描画とは
+            // 別予算)が生成するため、このページハンドラは高速なまま返す。
             try {
               const bucket = getStorage().bucket(OG_STORAGE_BUCKET);
               const [exists] = await bucket.file(`og-images/${hash}.png`).exists();
-              if (!exists) {
-                // 未キャッシュ = このリクエストが初回。ここで生成させておけば後続の
-                // クローラーが生成待ちにならない。失敗は握りつぶす(次リクエストで再試行)。
-                await fetch(cardUrl, { headers: { 'User-Agent': 'LoPo-ListingWarmup/1.0' } });
-              } else {
-                // 既にキャッシュ済み: cleanup cron が 30 日で消さないよう参照時刻を更新する
+              if (exists) {
+                // 既にキャッシュ済み: cleanup cron が古い判定で消さないよう参照時刻を更新する
                 // (クローラーは immutable な画像を再取得しないため og-cache 側の HIT では更新されない)。
-                try {
-                  await bucket.file(`og-images/${hash}.png`).setMetadata({ metadata: { lastAccessedAt: String(Date.now()) } });
-                } catch { /* 参照時刻更新の失敗は致命的でない */ }
+                await bucket.file(`og-images/${hash}.png`)
+                  .setMetadata({ metadata: { lastAccessedAt: String(Date.now()) } })
+                  .catch(() => { /* 参照時刻更新の失敗は致命的でない */ });
               }
-            } catch (warmErr) {
-              console.error('Listing OG card warm-up error:', warmErr);
+              // exists === false: 何もしない(warm-up fetch しない)。次アクセスで og-cache が生成する。
+            } catch (metaErr) {
+              console.error('Listing OG card lastAccessed touch error:', metaErr);
             }
             ogImageUrl = cardUrl;
           } catch (err) {

@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Firebase Admin のモック（Firestore 取得失敗をシミュレート）
 let mockGetFn: any = vi.fn();
+// firebase-admin/storage の exists() 既定は [true]（カードはキャッシュ済み → exists===true 経路で
+// lastAccessedAt を touch）。exists===false（未生成）のケースは個別テストで
+// mockFileExists.mockResolvedValueOnce([false]) に差し替える。
+const mockFileExists: any = vi.fn(async () => [true]);
+const mockFileSetMetadata: any = vi.fn(async () => undefined);
 
 vi.mock('firebase-admin/app', () => ({
   initializeApp: vi.fn(),
@@ -22,14 +27,15 @@ vi.mock('firebase-admin/firestore', () => ({
 }));
 
 // firebase-admin/storage: OGP カードが既にキャッシュ済みかの exists() 判定に使う。
-// [true] を返しておくと warm-up の fetch がスキップされ、fetch モックは index.html 専用のままで済む。
+// ページハンドラはもうカード生成の warm-up fetch をしない(初回クロールを待たせないため)。
+// exists===true なら lastAccessedAt を touch するだけ、exists===false なら何もしない。
 vi.mock('firebase-admin/storage', () => ({
   getStorage: vi.fn(() => ({
     bucket: vi.fn(() => ({
       file: vi.fn(() => ({
-        exists: vi.fn(async () => [true]),
+        exists: mockFileExists,
         // exists === true 経路で参照時刻(lastAccessedAt)を更新する。og-cache の HIT と同じ。
-        setMetadata: vi.fn(async () => undefined),
+        setMetadata: mockFileSetMetadata,
       })),
     })),
   })),
@@ -238,6 +244,36 @@ describe('_listingPageHandler', () => {
 
     expect(res.body as string).toMatch(/og:image" content="https:\/\/lopoly\.app\/og\/[a-f0-9]{16}\.png"/);
     expect(res.body as string).toMatch(/twitter:image" content="https:\/\/lopoly\.app\/og\/[a-f0-9]{16}\.png"/);
+  });
+
+  // 修正の本丸: カードが未生成(Storage に無い)でも、ページハンドラは /og/<hash>.png を fetch しない。
+  // 旧実装は !exists で warm-up fetch を同期 await していて初回クロールが 4〜9 秒かかり X がタイムアウトしていた。
+  // カードは登録・編集時に事前生成される。未生成でも /og/ への初回アクセスで og-cache が生成する(別関数・別予算)。
+  it('カード未生成(exists===false)でも warm-up fetch せず、og:image は生成カードURLのまま', async () => {
+    const { req, res } = makeReqRes({ query: { id: 'uncached-thumb-listing' } });
+    mockGetFn.mockResolvedValueOnce({
+      exists: true,
+      data: () => ({
+        visibility: 'public', isHidden: false, deletedAt: null,
+        title: '海の見える家', description: '',
+        area: 'Mist', ward: 5, plot: 12, buildingType: 'house',
+        dc: 'Elemental', server: 'Carbuncle',
+        imageMode: 'thumbnail',
+        thumbnailPaths: ['https://lopoly.app/housing-media/uncached-thumb-listing/a.webp'],
+      }),
+    });
+    mockFileExists.mockResolvedValueOnce([false]);
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))) as any;
+
+    await handler(req, res);
+
+    // fetch は index.html 取得のみ。/og/ を叩く呼び出しは 1 件も無い。
+    const ogFetchCalls = (global.fetch as any).mock.calls.filter(
+      (c: any[]) => typeof c[0] === 'string' && c[0].includes('/og/'),
+    );
+    expect(ogFetchCalls).toHaveLength(0);
+    // og:image は自ドメインの生成カード URL のまま(未生成でも URL は貼る)。
+    expect(res.body as string).toMatch(/og:image" content="https:\/\/lopoly\.app\/og\/[a-f0-9]{16}\.png"/);
   });
 
   it('画像の無い物件(テキストツイート等)はog:imageがDEFAULT_OG_IMAGEのまま', async () => {
