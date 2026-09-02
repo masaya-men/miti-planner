@@ -1,0 +1,166 @@
+/* ============================================================
+ * MIL-SPEC テーマ (軍事SF HUD) — codename: military
+ * 設計書: docs/superpowers/specs/2026-09-02-military-theme-design.md
+ * ⚠ .theme-military クラスが <html> に無いときは完全に不活性。
+ * ⚠ 数値(色・発光・サイズ)は Phase 0 の調整パネルで確定する暫定値。
+ * ============================================================ */
+
+/* --- フォント (自前ホスト・latin サブセット・.theme-military 配下でのみ参照 → 自然遅延) --- */
+@font-face {
+  font-family: 'Orbitron';
+  src: url('/fonts/orbitron-400.woff2') format('woff2');
+  font-weight: 400; font-display: swap;
+}
+@font-face {
+  font-family: 'Orbitron';
+  src: url('/fonts/orbitron-700.woff2') format('woff2');
+  font-weight: 700; font-display: swap;
+}
+@font-face {
+  font-family: 'Orbitron';
+  src: url('/fonts/orbitron-900.woff2') format('woff2');
+  font-weight: 900; font-display: swap;
+}
+@font-face {
+  font-family: 'Share Tech Mono';
+  src: url('/fonts/share-tech-mono-400.woff2') format('woff2');
+  font-weight: 400; font-display: swap;
+}
+
+/* --- さじ加減変数 (調整パネルが上書きする。ここが Phase 0 で確定する最終値になる) --- */
+.theme-military {
+  --milspec-tune-glow: 0.5;          /* 発光の強さ 0-1 (Dark で主に効く) */
+  --milspec-tune-accent-hue: 0deg;   /* シアンの色相回転 */
+  --milspec-tune-accent-sat: 1;      /* アクセント彩度倍率 */
+  --milspec-tune-corner: 8px;        /* 切り欠き角のサイズ */
+  --milspec-tune-scanline: 0.02;     /* 走査線の不透明度 (Dark のみ) */
+  --milspec-tune-grid: 0.04;         /* 背景グリッド線の不透明度 */
+  --milspec-tune-panel-line: 1px;    /* パネルラインの太さ (Light で主に効く) */
+  --milspec-tune-decal: 0.9;         /* デカール/ステンシル小文字の不透明度 */
+  --milspec-tune-hazard: 0.55;       /* ハザード斜線帯の不透明度 */
+
+  /* --- 固有トークン --- */
+  --milspec-font-display: 'Orbitron', 'Rajdhani', sans-serif;
+  --milspec-font-ui: 'Rajdhani', 'M PLUS 1', system-ui, sans-serif;
+  --milspec-font-mono: 'Share Tech Mono', ui-monospace, monospace;
+  --milspec-border-w: 1px;
+  --milspec-border-w-strong: 2px;
+
+  /* 角を全体的に立てる */
+  --radius-sm: 2px; --radius-md: 3px; --radius-lg: 4px; --radius-xl: 6px; --radius-2xl: 8px;
+
+  font-family: var(--milspec-font-display), var(--milspec-font-ui, 'Rajdhani'), sans-serif;
+}
+
+/* --- Dark: 黒地・シアン発光 (意味トークン再定義・暫定値 spec §5) --- */
+.theme-military.theme-dark {
+  --color-bg-primary: #0a1015;
+  --color-bg-secondary: #0a1015;
+  --color-bg-tertiary: #0e1620;
+  --color-accent-primary: #5fd4ff;
+  --app-accent-rgb: 95, 212, 255;
+  --color-accent-secondary: #5fd4ff;
+  --color-accent-dim: rgba(95, 212, 255, 0.12);
+  --color-text-primary: #d8e8f4;
+  --color-text-secondary: #94afc6;
+  --color-text-muted: #5d7a92;
+  --color-text-on-accent: #06090c;
+  --color-toggle-bg: #5fd4ff;
+  --color-toggle-text: #06090c;
+  --color-border: rgba(120, 180, 220, 0.12);
+  --color-border-accent: rgba(120, 200, 240, 0.35);
+  --color-blue: #5fd4ff; --color-blue-hover: #8fe2ff;
+  --color-blue-dim: rgba(95,212,255,0.12); --color-blue-border: rgba(95,212,255,0.3);
+  --color-amber: #ff8a3d; --color-amber-hover: #ffa561;
+  --color-amber-dim: rgba(255,138,61,0.12); --color-amber-border: rgba(255,138,61,0.3);
+  --color-red: #ff3b3b; --color-red-hover: #ff6161;
+  --color-red-dim: rgba(255,59,59,0.12); --color-red-border: rgba(255,59,59,0.3);
+  /* ガラス = 金属プレート化 (blur 0) */
+  --glass-tier1-bg: linear-gradient(180deg, rgba(20,32,44,0.85), rgba(14,22,32,0.92));
+  --glass-tier1-border: rgba(95,212,255,0.14);
+  --glass-tier1-blur: 0px;
+  --glass-tier2-bg: linear-gradient(180deg, rgba(26,39,51,0.95), rgba(18,28,40,0.98));
+  --glass-tier2-border: rgba(95,212,255,0.22);
+  --glass-tier2-blur: 0px;
+  --glass-tier2-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
+  --glass-tier3-bg: linear-gradient(180deg, rgba(30,45,60,0.98), rgba(20,30,42,1));
+  --glass-tier3-border: rgba(95,212,255,0.3);
+  --glass-tier3-blur: 0px;
+  --glass-tier3-shadow: 0 12px 36px rgba(0,0,0,0.7), 0 0 0 1px rgba(95,212,255,0.05);
+  --glass-tier3-inset: inset 0 1px 0 rgba(255,255,255,0.06);
+  --glass-panel-border: rgba(95,212,255,0.2);
+  --glass-panel-shadow: 0 0 12px rgba(95,212,255,0.08), 0 0 3px rgba(95,212,255,0.15);
+  /* モバイル */
+  --color-sheet-bg: #0e1620;
+  --color-nav-bg: rgba(10,16,21,0.85);
+  --color-nav-border: rgba(95,212,255,0.14);
+  --color-fab-bg: rgba(95,212,255,0.12);
+  --color-fab-border: rgba(95,212,255,0.35);
+}
+
+/* --- Light: 白基調・細いシアンライン (暫定値 spec §5) --- */
+.theme-military.theme-light {
+  --color-bg-primary: #e9eff5;
+  --color-bg-secondary: #e9eff5;
+  --color-bg-tertiary: #ffffff;
+  --color-accent-primary: #0a8fd1;
+  --app-accent-rgb: 10, 143, 209;
+  --color-accent-secondary: #0a8fd1;
+  --color-accent-dim: rgba(10, 143, 209, 0.10);
+  --color-text-primary: #162533;
+  --color-text-secondary: #3e556b;
+  --color-text-muted: #6f8398;
+  --color-text-on-accent: #ffffff;
+  --color-toggle-bg: #0a8fd1;
+  --color-toggle-text: #ffffff;
+  --color-border: rgba(40, 80, 120, 0.18);
+  --color-border-accent: rgba(30, 90, 140, 0.45);
+  --color-blue: #0a8fd1; --color-blue-hover: #0876ad;
+  --color-blue-dim: rgba(10,143,209,0.08); --color-blue-border: rgba(10,143,209,0.25);
+  --color-amber: #e26a1a; --color-amber-hover: #c05713;
+  --color-amber-dim: rgba(226,106,26,0.08); --color-amber-border: rgba(226,106,26,0.25);
+  --color-red: #d92020; --color-red-hover: #b81a1a;
+  --color-red-dim: rgba(217,32,32,0.08); --color-red-border: rgba(217,32,32,0.25);
+  --glass-tier1-bg: linear-gradient(180deg, #ffffff, #f5f8fb);
+  --glass-tier1-border: rgba(30,90,140,0.14);
+  --glass-tier1-blur: 0px;
+  --glass-tier2-bg: linear-gradient(180deg, #ffffff, #f0f5fa);
+  --glass-tier2-border: rgba(30,90,140,0.18);
+  --glass-tier2-blur: 0px;
+  --glass-tier3-bg: #ffffff;
+  --glass-tier3-border: rgba(30,90,140,0.22);
+  --glass-tier3-blur: 0px;
+  --glass-tier3-shadow: 0 12px 36px rgba(20,40,70,0.12);
+  --glass-tier3-inset: inset 0 1px 0 rgba(255,255,255,0.6);
+  --glass-panel-border: rgba(30,90,140,0.16);
+  --glass-panel-shadow: 0 0 8px rgba(30,90,140,0.06), 0 0 2px rgba(30,90,140,0.12);
+  --color-sheet-bg: #ffffff;
+  --color-nav-bg: rgba(233,239,245,0.9);
+  --color-nav-border: rgba(30,90,140,0.16);
+  --color-fab-bg: rgba(255,255,255,0.95);
+  --color-fab-border: rgba(30,90,140,0.2);
+}
+
+/* --- 全体背景: グリッド (dark/light 共通) --- */
+.theme-military body {
+  background-image:
+    linear-gradient(rgba(var(--app-accent-rgb), var(--milspec-tune-grid)) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--app-accent-rgb), var(--milspec-tune-grid)) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* --- CRT 走査線 (Dark のみ) --- */
+.theme-military.theme-dark body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(var(--app-accent-rgb), var(--milspec-tune-scanline)) 0px,
+    rgba(var(--app-accent-rgb), var(--milspec-tune-scanline)) 1px,
+    transparent 1px, transparent 3px);
+  mix-blend-mode: screen;
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-military body::before { display: none; }
+}
