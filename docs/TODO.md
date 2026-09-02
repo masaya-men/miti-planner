@@ -20,12 +20,11 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟡 2026-09-02 ハウジング物件OGPカード = デプロイ済(4fa24083・自ドメイン再ホスト方式)。**本番で `og:image`=`lopoly.app/og/<hash>.png`・カード描画OK 確認。だが cold-start 不具合発覚。** spec/plan=`docs/superpowers/{specs,plans}/2026-09-02-housing-listing-og-card*`。
-  - **🔴 不具合**: 物件ページ初回クロールが 4〜9秒(カード生成を同期 await)→ X がタイムアウトし「画像なし」を URL 単位でキャッシュ。masaya の新URL テストが出なかった原因。housinger は s-maxage=30 で常時warm、listing は 86400 で cold ゆえ露見。
-  - **暫定対応済**: 既存237物件のカードを全部事前生成(全部 0.4s に)。既存物件は今すぐ貼れる(masaya テスト済 URL は X が miss キャッシュ済→別の未共有URLで)。
-  - **🔴 要follow-up修正**: ①登録/編集時にカード事前生成 ②`_listingPageHandler` を warm-up 非ブロック化(waitUntil 未導入・要検討 or og-cache 初回MISS任せ)。詳細=spec §7。
-  - **要masaya判断**: X共有ボタンは SNS由来物件で元ツイート引用→LoPoカード不使用。LoPo URL 貼付方式に変えるか(本文で元投稿者クレジット)。
-  - follow-up別: HMAC三重複製統合 / degradedパステスト / `/og/*` Cloudflare Cache Rule / in-game © との二重表記。
+### 🟡 2026-09-02 ハウジング物件OGPカード = 初回デプロイ済(4fa24083・自ドメイン再ホスト)。**follow-up 実装完了・デプロイ待ち**(branch `fix/housing-listing-og-card-warm-and-cleanup`)。spec §10 / plan=`...-followup.md`。
+  - 初回デプロイ後に **cold-start 不具合**発覚: 物件ページ初回クロール 4〜9秒(生成を同期 await)→ X タイムアウト→「画像なし」を URL 単位キャッシュ。masaya の新URLテストが出なかった原因。既存237物件は暫定 warm 済。
+  - **follow-up(6タスク・全緑)**: ①`_listingPageHandler` を生成非ブロック化 ②登録・編集時にカード事前生成(`warmListingOgCard` / `listingOgCardWarm.ts`)③カードから ©削除(ページフッター StatusBar が License 充足・`CARD_VERSION` 2)④X共有で `sourcePostUrls` 優先。
+  - **残**: 最終レビュー → merge → デプロイ → 全公開物件を warm-all 再実行(v2 で hash 全変更)→ masaya が「新規物件登録→即Xシェアで画像出るか」確認。
+  - follow-up別(未): HMAC三重複製統合 / degradedパステスト / `/og/*` Cloudflare Cache Rule / `listingRepresentativeImages` を api/share から src/lib へ / update の warm を画像変更時のみに絞るか。
 ### 🔴 次セッション最優先 = MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。詳細=「次の作業順」1。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。

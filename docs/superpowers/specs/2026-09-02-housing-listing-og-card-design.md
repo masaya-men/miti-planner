@@ -42,15 +42,9 @@ X はうちのドメイン (`lopoly.app`) の画像なら普通に表示する�
 4. `/api/og?type=listing` は写真 URL をサーバー側で fetch し、**1200×630 に整形**した PNG を返す。
    - 整形方式: 背景に同じ写真を `cover`（はみ出しトリミング）でぼかして敷き、
      その上に写真全体を `contain`（切らずに収める）で重ねる（Instagram の縦長投稿の見え方）。
-   - **タイトル・枠・ブランド印は焼き込まない**（masaya 指示）。タイトル・住所は `og:title` /
-     `og:description` から各 SNS が自前でカード文字部分に出すので画像には不要。
-   - **例外: © 表記のみ焼き込む**（masaya 2026-09-02 決定）。下端中央に極小 1 行 **`© SQUARE ENIX`**。
-     FFXIV Materials Usage License は「`© SQUARE ENIX` か、ゲーム内表示どおりの
-     `© SQUARE ENIX CO., LTD. All rights reserved.` のどちらでも可」と明記（EU/NA 版 Trademark and
-     Copyright Notice の項・2026-09-02 確認）。カードは最小フットプリント優先で短い方を採用。
-     サイト他所（footer / LegalPage / `_housingerCard.ts` / `_tourInviteCard.ts`）はフル表記のまま
-     （フルも有効・統一は別タスク）。写真の上でも読める強シャドウ。この 1 行のためだけに
-     写真カード経路でもフォント（Inter）を読み込む。
+   - **タイトル・枠・ブランド印・© 表記、一切焼き込まない**（下記 §10 follow-up で © も削除）。
+     タイトル・住所は `og:title` / `og:description` から各 SNS が自前でカード文字部分に出すので画像には不要。
+     写真カードは文字ノードゼロ = フォント読み込み不要。
 
 ### この方式が「デザインしたカード生成」より優れている点
 
@@ -320,5 +314,43 @@ if (meta.type === 'listing') {
 
 ## 9. 確定済み（旧・未確定事項）
 
-1. © 表記 → **masaya 2026-09-02「入れる・ただし短縮形 `© SQUARE ENIX`」**。§2 に反映済み。
-   ライセンス上「短縮形 or フル」どちらも可であることを確認済み（§2 の出典）。全カード下端中央に 11px 1 行。
+1. © 表記 → 一度「短縮形を入れる」に決めたが、§10 follow-up で **カードからは削除**に変更。
+
+---
+
+## 10. 2026-09-02 follow-up（デプロイ後の実測 + masaya 判断・§4 の一部を上書き）
+
+初回デプロイ（自ドメイン再ホスト方式）は本番稼働したが、以下が判明・変更された。
+plan: `docs/superpowers/plans/2026-09-02-housing-listing-og-card-followup.md`。
+
+### 10.1 cold-start 不具合（§7 Important 1 の実測結果 = 深刻）
+物件ページの**初回クロール TTFB が 4〜9 秒**（`_listingPageHandler` がカード生成を同期 await していた）。
+X のクローラーは数秒でタイムアウト → 「画像なし」を **URL 単位で**キャッシュ → 新規物件の初回シェアが死ぬ。
+housinger ページは `s-maxage=30` で常に warm、listing は `s-maxage=86400` で cold なのが差。
+
+**対策（follow-up で実装）**:
+- **`_listingPageHandler` はカード生成を待たない**（§4.1 の warm-up ブロックを撤去）。`exists===true` の
+  `lastAccessedAt` touch のみ残す。未生成でも `/og/{hash}.png` 初回アクセスで og-cache（専用関数・別予算）が生成。
+- **カードは物件の登録・編集時に事前生成**（`_registerListingHandler` / `_updateListingHandler` が
+  `warmListingOgCard` を await。登録処理は元々数秒 & クローラー不在なので待ってよい。warm 失敗は登録を落とさない）。
+- 共有ロジック: `src/lib/housing/listingOgCardWarm.ts`（`computeListingOgCardHash` / `warmListingOgCard`・
+  firebase-admin 非依存・`setMeta` 注入）。origin: `src/lib/housing/resolveSiteOrigin.ts`。
+- デプロイ後、既存の全公開物件を一度 warm し直す（`CARD_VERSION` を上げるため hash が全部変わる・§10.2）。
+
+### 10.2 カードから © 削除（§2 / §4.3 / §4.4 を上書き）
+LoPo 物件ページは `HousingShell` → `StatusBar` に `footer.copyright`（フル © 表記）を常時表示 =
+FFXIV Materials Usage License の「各ウェブページに 1 回」を**ページ側が満たしている**。カードは preview 画像で
+別 webpage ではないので © は不要（masaya 判断）。ゲーム内スクショは SE 自身の透かしも入るため二重表記の回避にもなる。
+- `_listingCard.ts`: `buildCopyrightLine` / `COPYRIGHT_TEXT` 削除。photo card = [blur, scrim, img] のみ。
+  fallback = 「LoPo Housing」のみ。`loadInterFonts` 不使用。
+- `CARD_VERSION` `'1'` → `'2'`（© ありの旧キャッシュと別 hash にして再生成させる）。
+- ハウジンガー / ツアーカードは今回触らない（同じ理屈で消せるが別タスク）。
+
+### 10.3 X シェアの複数投稿URL対応
+`HousingActionBar` の X シェアが旧 `postUrl` のみ見ていた → `sourcePostUrls?.[0] ?? postUrl ?? null` に。
+複数URL登録の物件でも元URL（tweet / YouTube / housingsnap 等）を引用できる。
+
+### 10.4 デプロイ後チェック（follow-up）
+- 新規物件を 1 件登録 → **すぐ** X に貼って写真カードが出るか（cold-start 不具合の解消確認）。
+- カードから © が消えているか目視。
+- 既存物件の warm-all スクリプト実行後、`/og/` が `x-og-cache: HIT` になるか。
