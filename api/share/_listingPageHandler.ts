@@ -7,6 +7,7 @@
  * 完全に同じロジック (isPubliclyViewable / projectPublicListing) を再利用する。
  * 独自の住所フィルタリングを書かない (住所非公開機能の二重実装によるドリフトを防ぐため)。
  */
+import { getStorage } from 'firebase-admin/storage';
 import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { isPubliclyViewable } from '../housing/_publicWindow.js';
 import { projectPublicListing } from '../../src/lib/housing/publicListingProjection.js';
@@ -14,11 +15,15 @@ import { formatFullHousingAddress } from '../../src/lib/housing/formatHousingAdd
 import { regionForDC } from '../../src/data/housing/dcServerMap.js';
 import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 import { listingRepresentativeImages } from './_listingImages.js';
+import { buildListingOgCardParams } from '../../src/lib/ogpListingCard.js';
+import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 
 const COLLECTION = 'housing_listings';
 const DEFAULT_OG_TITLE = 'LoPo | FF14 軽減プランナー';
 const DEFAULT_OG_DESCRIPTION = 'FF14の軽減プランをサクサク作れるウェブアプリ。FFLogsから自動生成されたタイムラインで、最適な軽減配置を。';
 const DEFAULT_OG_IMAGE = '/api/og';
+/** api/og-cache/index.ts と同じバケット(OGP カードの永続キャッシュ先)。 */
+const OG_STORAGE_BUCKET = 'lopo-7793e.firebasestorage.app';
 const DESCRIPTION_MAX_LENGTH = 140;
 // タイトル未入力 かつ 住所も非公開(unlisted)の物件用フォールバック。ListingCard.tsx / HousingDetailContent.tsx
 // の housing.card.addressPrivate (「住所は非公開です」) と同じ文言。OGP/SEOスナップショット生成はi18nを
@@ -47,9 +52,6 @@ export default async function handler(req: any, res: any) {
   let ogImageUrl: string = DEFAULT_OG_IMAGE;
   let httpStatus = 200;
   let seoSnapshotHtml = '';
-  // この家の代表写真を実際に og:image へ採用したか。index.html が固定宣言している
-  // og:image:width/height (1200x630) を削除すべきかの判定に使う (下記 .replace チェーン)。
-  let usedListingPhoto = false;
 
   const allowedHosts = ['lopoly.app', 'lopo-miti.vercel.app', 'localhost:5173', 'localhost:4173'];
   const previewPattern = /^lopo-miti(-[a-z0-9]+)?\.vercel\.app$/;
@@ -105,14 +107,45 @@ export default async function handler(req: any, res: any) {
         ogDescription = description || DEFAULT_OG_DESCRIPTION;
         seoSnapshotHtml = buildListingSeoSnapshotHtml({ title, addressText, description });
 
-        // OGP 画像: この家の代表写真 1 枚 (thumbnail は .png 兄弟)。無ければ DEFAULT_OG_IMAGE のまま。
-        // X (Twitter) は og:image の WebP を安定サポートしないため、thumbnail 経路は必ず .png を指す
-        // (listingRepresentativeImages が toPngSiblingPath 済みを返す)。
+        // OGP 画像: この家の代表写真を「自ドメインの整形済みカード」として配る。
+        // X は他サイトのカード画像として pbs.twimg.com(Twitter 自社 CDN)を描画しないため、
+        // 写真 URL をそのまま og:image にすると X 投稿由来の物件が画像なしカードになる
+        // (Discord 等は出る)。写真 URL から内容ハッシュを作り、既存の安全なキャッシュ経路
+        // (/og/{hash}.png・Storage + 長期キャッシュ・週次クリーンアップ cron)に乗せる。
+        // _housingerPageHandler.ts の card-hash / meta / warm-up パターンと同型。
         const repImages = listingRepresentativeImages(projected as Record<string, unknown>);
-        if (repImages[0]) {
-          ogImageUrl = /^https?:\/\//.test(repImages[0]) ? repImages[0] : `${origin}${repImages[0]}`;
-          usedListingPhoto = true;
+        const rawPhoto = repImages[0];
+        if (rawPhoto) {
+          const photoUrl = /^https?:\/\//.test(rawPhoto) ? rawPhoto : `${origin}${rawPhoto}`;
+          try {
+            const params = buildListingOgCardParams({ img: photoUrl });
+            const hash = computeOgCardImageHash(params);
+            await db.collection('og_image_meta').doc(hash).set({
+              type: 'listing',
+              imageUrl: photoUrl,
+              createdAt: Date.now(),
+              lastAccessedAt: Date.now(),
+            });
+            const cardUrl = `${origin}/og/${hash}.png`;
+            try {
+              const bucket = getStorage().bucket(OG_STORAGE_BUCKET);
+              const [exists] = await bucket.file(`og-images/${hash}.png`).exists();
+              if (!exists) {
+                // 未キャッシュ = このリクエストが初回。ここで生成させておけば後続の
+                // クローラーが生成待ちにならない。失敗は握りつぶす(次リクエストで再試行)。
+                await fetch(cardUrl, { headers: { 'User-Agent': 'LoPo-ListingWarmup/1.0' } });
+              }
+            } catch (warmErr) {
+              console.error('Listing OG card warm-up error:', warmErr);
+            }
+            ogImageUrl = cardUrl;
+          } catch (err) {
+            // Firestore/Storage 障害時の degraded パス: 従来どおり生 URL(Discord では出る)。
+            console.error('Listing OG card hash/meta error:', err);
+            ogImageUrl = photoUrl;
+          }
         }
+        // rawPhoto が無ければ ogImageUrl は DEFAULT_OG_IMAGE('/api/og')のまま = 現状維持。
       } else {
         httpStatus = 404;
       }
@@ -139,16 +172,9 @@ export default async function handler(req: any, res: any) {
         .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
         .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
         .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
-      // index.html は og:image:width/height を 1200x630 で固定宣言している。任意アスペクト比の
-      // 家の写真 (YouTube サムネ 480x360・スマホ縦写真等) を og:image に差し替えたときは、
-      // その寸法宣言が虚偽になり Discord/Slack/Facebook の埋め込みレイアウトが崩れるため削除し、
-      // クローラーに実寸を測らせる。フォールバック (DEFAULT_OG_IMAGE = /api/og の 1200x630 生成
-      // カード) のままなら宣言は正しいので残す。
-      if (usedListingPhoto) {
-        html = html
-          .replace(/\s*<meta property="og:image:width"[^>]*>/, '')
-          .replace(/\s*<meta property="og:image:height"[^>]*>/, '');
-      }
+      // og:image は写真経路(自ドメイン再ホストカード /og/{hash}.png)でもフォールバック
+      // (DEFAULT_OG_IMAGE = /api/og)でも常に 1200x630 の生成 PNG になるため、index.html が
+      // 固定宣言している og:image:width/height (1200x630) は常に正しい。削除しない。
       if (seoSnapshotHtml) html = injectSeoSnapshot(html, seoSnapshotHtml);
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');

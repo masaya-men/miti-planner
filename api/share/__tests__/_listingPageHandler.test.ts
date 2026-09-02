@@ -14,7 +14,19 @@ vi.mock('firebase-admin/firestore', () => ({
     collection: vi.fn(() => ({
       doc: vi.fn(() => ({
         get: mockGetFn,
+        // ハンドラーは og_image_meta/{hash} へ内容ハッシュを書き込む(再ホストカードのメタ)。
+        set: vi.fn(async () => undefined),
       })),
+    })),
+  })),
+}));
+
+// firebase-admin/storage: OGP カードが既にキャッシュ済みかの exists() 判定に使う。
+// [true] を返しておくと warm-up の fetch がスキップされ、fetch モックは index.html 専用のままで済む。
+vi.mock('firebase-admin/storage', () => ({
+  getStorage: vi.fn(() => ({
+    bucket: vi.fn(() => ({
+      file: vi.fn(() => ({ exists: vi.fn(async () => [true]) })),
     })),
   })),
 }));
@@ -203,7 +215,7 @@ describe('_listingPageHandler', () => {
     expect(res.body as string).not.toContain(DEFAULT_OG_TITLE);
   });
 
-  it('thumbnail物件はog:imageに家の写真(.png兄弟の絶対URL)を使う', async () => {
+  it('thumbnail物件はog:imageに自ドメインの生成カードURL(/og/<hash>.png)を使う', async () => {
     const { req, res } = makeReqRes({ query: { id: 'thumb-listing' } });
     mockGetFn.mockResolvedValueOnce({
       exists: true,
@@ -216,12 +228,12 @@ describe('_listingPageHandler', () => {
         thumbnailPaths: ['https://lopoly.app/housing-media/thumb-listing/a.webp'],
       }),
     });
-    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error'))) as any;
 
     await handler(req, res);
 
-    expect(res.body as string).toContain('og:image" content="https://lopoly.app/housing-media/thumb-listing/a.png"');
-    expect(res.body as string).toContain('twitter:image" content="https://lopoly.app/housing-media/thumb-listing/a.png"');
+    expect(res.body as string).toMatch(/og:image" content="https:\/\/lopoly\.app\/og\/[a-f0-9]{16}\.png"/);
+    expect(res.body as string).toMatch(/twitter:image" content="https:\/\/lopoly\.app\/og\/[a-f0-9]{16}\.png"/);
   });
 
   it('画像の無い物件(テキストツイート等)はog:imageがDEFAULT_OG_IMAGEのまま', async () => {
@@ -243,9 +255,9 @@ describe('_listingPageHandler', () => {
     expect(res.body as string).toContain('og:image" content="https://lopoly.app/api/og"');
   });
 
-  // 最終レビュー指摘: index.html が固定宣言する og:image:width/height (1200x630) は、
-  // 任意アスペクト比の家の写真を og:image に差し替えたときは虚偽になる。写真を採用したときだけ
-  // 寸法 meta を削除し、フォールバック (/api/og の 1200x630) のときは残す。
+  // og:image は写真経路でもフォールバック経路でも常に 1200x630 の生成 PNG(自ドメイン再ホスト
+  // カード /og/<hash>.png、または /api/og)になったため、index.html が固定宣言する
+  // og:image:width/height (1200x630) は常に正しい。どちらの経路でも寸法 meta は残す。
   const INDEX_HTML_WITH_DIMS =
     '<html><head><title>x</title>'
     + '<meta property="og:title" content="x" /><meta property="og:description" content="x" />'
@@ -254,7 +266,7 @@ describe('_listingPageHandler', () => {
     + '<meta name="twitter:title" content="x" /><meta name="twitter:description" content="x" />'
     + '<meta name="twitter:image" content="x" /></head><body></body></html>';
 
-  it('家の写真をog:imageに採用したときは固定のog:image:width/height(1200x630)を削除する', async () => {
+  it('生成カードは常に1200x630なので固定のog:image:width/heightを残す', async () => {
     const { req, res } = makeReqRes({ query: { id: 'thumb-dim-listing' } });
     mockGetFn.mockResolvedValueOnce({
       exists: true,
@@ -273,8 +285,8 @@ describe('_listingPageHandler', () => {
 
     await handler(req, res);
 
-    expect(res.body as string).not.toContain('og:image:width');
-    expect(res.body as string).not.toContain('og:image:height');
+    expect(res.body as string).toContain('og:image:width" content="1200"');
+    expect(res.body as string).toContain('og:image:height" content="630"');
   });
 
   it('画像の無い物件(フォールバック)は固定のog:image:width(1200)を残す', async () => {
