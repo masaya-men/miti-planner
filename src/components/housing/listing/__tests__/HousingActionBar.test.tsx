@@ -251,4 +251,41 @@ describe('HousingActionBar', () => {
     const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
     expect(shareButton.dataset.shareTweetText).toBe('__null__');
   });
+
+  // Task 5: Batch2 複数投稿URL。sourcePostUrls[0] を優先して sourceUrl に配線する。
+  it('sourcePostUrls があり postUrl が無いとき、 HousingShareButton に sourcePostUrls[0] を sourceUrl として渡す', () => {
+    const multiUrlListing = {
+      ...baseListing,
+      sourcePostUrls: ['https://youtu.be/abc123', 'https://youtube.com/watch?v=def456'],
+      postUrl: undefined,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    renderBar({ viewerUid: 'owner1', listing: multiUrlListing });
+    const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
+    expect(shareButton.dataset.shareSourceUrl).toBe('https://youtu.be/abc123');
+  });
+
+  it('sourcePostUrls が空配列でも postUrl があるとき、 postUrl を sourceUrl として使う (フォールバック)', () => {
+    const fallbackListing = {
+      ...baseListing,
+      sourcePostUrls: [],
+      postUrl: 'https://twitter.com/user/status/999',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    renderBar({ viewerUid: 'owner1', listing: fallbackListing });
+    const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
+    expect(shareButton.dataset.shareSourceUrl).toBe('https://twitter.com/user/status/999');
+  });
+
+  it('sourcePostUrls と postUrl 両方が無いとき、 sourceUrl は空になる', () => {
+    const noUrlListing = {
+      ...baseListing,
+      sourcePostUrls: undefined,
+      postUrl: undefined,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    renderBar({ viewerUid: 'owner1', listing: noUrlListing });
+    const shareButton = screen.getByRole('button', { name: 'housing.detail.share' });
+    expect(shareButton.dataset.shareSourceUrl).toBe('');
+  });
 });
