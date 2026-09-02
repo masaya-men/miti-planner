@@ -134,6 +134,12 @@ export default async function handler(req: any, res: any) {
                 // 未キャッシュ = このリクエストが初回。ここで生成させておけば後続の
                 // クローラーが生成待ちにならない。失敗は握りつぶす(次リクエストで再試行)。
                 await fetch(cardUrl, { headers: { 'User-Agent': 'LoPo-ListingWarmup/1.0' } });
+              } else {
+                // 既にキャッシュ済み: cleanup cron が 30 日で消さないよう参照時刻を更新する
+                // (クローラーは immutable な画像を再取得しないため og-cache 側の HIT では更新されない)。
+                try {
+                  await bucket.file(`og-images/${hash}.png`).setMetadata({ metadata: { lastAccessedAt: String(Date.now()) } });
+                } catch { /* 参照時刻更新の失敗は致命的でない */ }
               }
             } catch (warmErr) {
               console.error('Listing OG card warm-up error:', warmErr);

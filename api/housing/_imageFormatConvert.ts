@@ -2,7 +2,7 @@
  * WebP/AVIF → PNG 変換 (サーバー側、sharp使用)。
  *
  * satori (@vercel/og、OGPカード生成に使用) はWebP/AVIFを描画できない
- * (api/og/_housingerCard.ts の sniffSupportedImageMime 参照)。物件写真は
+ * (api/og/_fetchOgImage.ts の sniffSupportedImageMime 参照)。物件写真は
  * ブラウザ側でWebP優先圧縮されるため、OGPカードの代表作としてそのまま渡すと
  * 黙って読み飛ばされる。アップロード時にPNG派生版も並行保存し、OGP生成側は
  * WebP/AVIF由来のURLを見たら同じパスの .png 版を優先して使う (拡張子違いの

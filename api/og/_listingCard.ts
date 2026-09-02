@@ -152,7 +152,9 @@ export async function handleListingCardRequest(searchParams: URLSearchParams): P
 
   const loadFonts = async () => {
     const [mplus1, inter] = await Promise.all([
-      loadMPlus1Fonts('LoPo Housing').catch(() => []),
+      // © 行のグリフも M PLUS 1 サブセットに含める(重複除去): Inter 読み込みが CDN 不調で
+      // 失敗しても satori が M PLUS 1 にフォールバックして © 行が空描画にならないようにする。
+      loadMPlus1Fonts([...new Set('LoPo Housing' + COPYRIGHT_TEXT)].join('')).catch(() => []),
       loadInterFonts([...new Set(COPYRIGHT_TEXT)].join('')).catch(() => []),
     ]);
     return [...mplus1, ...inter];

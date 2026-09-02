@@ -26,7 +26,11 @@ vi.mock('firebase-admin/firestore', () => ({
 vi.mock('firebase-admin/storage', () => ({
   getStorage: vi.fn(() => ({
     bucket: vi.fn(() => ({
-      file: vi.fn(() => ({ exists: vi.fn(async () => [true]) })),
+      file: vi.fn(() => ({
+        exists: vi.fn(async () => [true]),
+        // exists === true 経路で参照時刻(lastAccessedAt)を更新する。og-cache の HIT と同じ。
+        setMetadata: vi.fn(async () => undefined),
+      })),
     })),
   })),
 }));
