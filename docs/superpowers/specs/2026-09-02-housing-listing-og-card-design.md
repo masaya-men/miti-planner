@@ -42,8 +42,12 @@ X はうちのドメイン (`lopoly.app`) の画像なら普通に表示する�
 4. `/api/og?type=listing` は写真 URL をサーバー側で fetch し、**1200×630 に整形**した PNG を返す。
    - 整形方式: 背景に同じ写真を `cover`（はみ出しトリミング）でぼかして敷き、
      その上に写真全体を `contain`（切らずに収める）で重ねる（Instagram の縦長投稿の見え方）。
-   - **文字・枠・ブランド印は一切焼き込まない**（masaya 指示）。
-   - タイトル・住所は `og:title` / `og:description` から各 SNS が自前でカード文字部分に出すので画像には不要。
+   - **タイトル・枠・ブランド印は焼き込まない**（masaya 指示）。タイトル・住所は `og:title` /
+     `og:description` から各 SNS が自前でカード文字部分に出すので画像には不要。
+   - **例外: © SQUARE ENIX 表記のみ焼き込む**（masaya 2026-09-02 決定）。下端中央に極小 1 行
+     `© SQUARE ENIX CO., LTD. All Rights Reserved.`（`_housingerCard.ts` の `COPYRIGHT_TEXT` /
+     `ja.json footer.copyright` と同一文言）。写真の上でも読める強シャドウ。この 1 行のためだけに
+     写真カード経路でもフォント（Inter）を読み込む。
 
 ### この方式が「デザインしたカード生成」より優れている点
 
@@ -164,30 +168,33 @@ handleListingCardRequest(searchParams):
   2. verifyListingOgCardSig 失敗 → 400
   3. imgUrl = searchParams.get('img')
   4. photoDataUri = await fetchAsDataUri(imgUrl)   // _fetchOgImage.ts、4秒 timeout / 8MB 上限 / WebP 弾き
-  5a. photoDataUri あり → ImageResponse(buildListingPhotoCard(photoDataUri), 1200x630, CACHE_HEADERS)
-  5b. photoDataUri なし（fetch 失敗・WebP・timeout・404）
+  5. fonts = loadMPlus1Fonts('LoPo Housing') + loadInterFonts(© 文字)   // © 行のため写真経路でも読む
+  6a. photoDataUri あり → ImageResponse(buildListingPhotoCard(photoDataUri), 1200x630, fonts, CACHE_HEADERS)
+  6b. photoDataUri なし（fetch 失敗・WebP・timeout・404）
       → ImageResponse(buildListingBrandFallbackCard(), 1200x630, fonts, CACHE_HEADERS)
-  6. try 全体が投げたら buildListingBrandFallbackCard() で 200 を返す（500 を返さない）
+  7. try 全体が投げたら buildListingBrandFallbackCard() で 200 を返す（500 を返さない）
 ```
 
-`buildListingPhotoCard(photoDataUri)`（フォント不要・文字ゼロ）:
+`buildListingPhotoCard(photoDataUri)`（写真 + © 1 行のみ・タイトル/住所なし）:
 
 ```
 div  1200x630 relative flex  backgroundColor: '#111725'（葉書外の下地。ハウジング BG 色）
   ├─ div  FULL_BLEED_ABSOLUTE  backgroundImage: url(photo)  backgroundSize: cover
   │       backgroundPosition: center  filter: blur(24px)  transform: scale(1.15)
   ├─ div  FULL_BLEED_ABSOLUTE  backgroundColor: 'rgba(10,14,24,0.28)'（ぼかし帯を軽く沈める）
-  └─ img  src: photo  width: 1200  height: 630  style: { objectFit: 'contain' }
+  ├─ img  src: photo  width: 1200  height: 630  style: { objectFit: 'contain' }
+  └─ buildCopyrightLine()  下端中央 11px  © SQUARE ENIX ...  強シャドウ
 ```
 
-- `FULL_BLEED_ABSOLUTE` は `_housingerCard.ts` と同じ「4 辺個別指定」（satori の `inset:0` バグ回避）。共有モジュールに置くか各ファイルで定義。
+- `FULL_BLEED_ABSOLUTE` は `_housingerCard.ts` と同じ「4 辺個別指定」（satori の `inset:0` バグ回避）。各ファイルで定義。
+- `buildCopyrightLine()` は `_housingerCard.ts` の同名関数と同じスタイル方針（absolute bottom / 11px / Inter / 強 textShadow）。
 - `objectFit: 'contain'` が satori で期待通り動くことを**ローカルプレビュースクリプトで確認**（§7）。
-  想定外なら「写真を短辺基準で `cover` にして中央」など代替。ただし切れる。要判断。
+  想定外なら「img を flex 中央の div でラップし maxWidth/maxHeight」に代替。
 
 `buildListingBrandFallbackCard()`（写真が取れないテキストツイート由来など）:
 
-- `#111725` 背景中央に「LoPo Housing」の文字（`loadMPlus1Fonts('LoPo Housing')`）。
-- `api/og/_tourInviteCard.ts` の `buildTourInviteFallbackCard` とほぼ同じ。
+- `#111725` 背景中央に「LoPo Housing」の文字（M PLUS 1）+ 下端に `buildCopyrightLine()`。
+- `api/og/_tourInviteCard.ts` の `buildTourInviteFallbackCard` に © 行を足したもの。
 - **注意**: `_listingPageHandler` は代表写真がある物件でしか `type=listing` を呼ばない
   （写真ゼロなら `DEFAULT_OG_IMAGE` のまま）。このフォールバックが使われるのは
   「代表写真の URL はあるが取得に失敗した」ケースのみ。
@@ -290,15 +297,11 @@ if (meta.type === 'listing') {
 
 ## 8. スコープ外（今回やらない）
 
-- カードへのタイトル・住所・ブランド印・© 表記の焼き込み（masaya 指示で「文字も枠もなし」）
-  - **要確認**: FF14 ファンサイトポリシー上、合成した SS を自ドメインでホストする際に
-    © SQUARE ENIX 表記が要るか。現状は生 SS を無表記で og:image にしており「悪化」はしないが、
-    merge 前に masaya に一度確認する（§9）
+- カードへのタイトル・住所・ブランド印の焼き込み（masaya 指示。© 1 行だけは §2 のとおり入れる）
 - 写真ゼロの物件の OGP を housing ブランドカードにする（今は汎用 `/api/og`。別タスク）
 - 中国語・韓国語・繁体字対応（この経路は i18n を通らず静的日本語。他ハンドラーと同じ方針）
 - `/og/*` の Cloudflare Cache Rule 追加（§6 運用メモ）
 
-## 9. 未確定・merge 前に確認
+## 9. 確定済み（旧・未確定事項）
 
-1. © SQUARE ENIX 表記を画像下端に極小で入れるか（§8）。masaya は「文字なし」希望。
-   → デフォルト「入れない」。ファンサイトポリシー的に必須と判断されたら 11px の 1 行だけ足す
+1. © SQUARE ENIX 表記 → **masaya 2026-09-02「入れる」**。§2 に反映済み。全カード下端中央に 11px 1 行。

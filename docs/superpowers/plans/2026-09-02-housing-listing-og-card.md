@@ -19,10 +19,10 @@
 - カード寸法は常に **1200×630**。`CARD_VERSION = '1'`。署名 hex は先頭 **24 桁**。
 - 新規 Serverless/Edge Function を増やさない(Vercel Hobby 12 関数上限)。`/api/og` 内の分岐で完結させる。
 - Firestore/Storage バケット名: `lopo-7793e.firebasestorage.app`。og_image_meta コレクション: `og_image_meta`。
-- コミットは 1 タスク 1 コミット。`rtk git ...` を使う。commit メッセージ末尾に:
+- コミットは 1 タスク 1 コミット。`rtk git add ...` / `rtk git commit ...` を使う。commit メッセージ末尾に:
   `Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>`
 - テスト実行はフルスイートを流し込まない。対象ファイルに絞って実行し、要約だけ取り込む。
-- RTK: コマンド先頭に `rtk` を付ける(`rtk npx vitest run ...` 等)。
+- **テスト/型チェックは `npx vitest run <file>` / `npx tsc ...`(`rtk` は付けない — この環境で `rtk npx` は壊れる)。git だけ `rtk` を付ける。**
 
 ---
 
@@ -111,7 +111,7 @@ describe('buildListingOgCardUrl / verifyListingOgCardSig', () => {
 
 - [ ] **Step 2: テストが落ちることを確認**
 
-Run: `rtk npx vitest run src/lib/__tests__/ogpListingCard.test.ts`
+Run: `npx vitest run src/lib/__tests__/ogpListingCard.test.ts`
 Expected: FAIL(モジュールが存在しない)
 
 - [ ] **Step 3: 実装**
@@ -197,7 +197,7 @@ export async function verifyListingOgCardSig(searchParams: URLSearchParams, secr
 
 - [ ] **Step 4: テストが通ることを確認**
 
-Run: `rtk npx vitest run src/lib/__tests__/ogpListingCard.test.ts`
+Run: `npx vitest run src/lib/__tests__/ogpListingCard.test.ts`
 Expected: PASS(4 件)
 
 - [ ] **Step 5: コミット**
@@ -280,7 +280,7 @@ describe('fetchAsDataUri', () => {
 
 - [ ] **Step 2: テストが落ちることを確認**
 
-Run: `rtk npx vitest run api/og/__tests__/_fetchOgImage.test.ts`
+Run: `npx vitest run api/og/__tests__/_fetchOgImage.test.ts`
 Expected: FAIL(モジュールが存在しない)
 
 - [ ] **Step 3: `_fetchOgImage.ts` を作成**
@@ -319,12 +319,12 @@ import { fetchAsDataUri } from './_fetchOgImage.js';
 
 - [ ] **Step 5: 既存テスト + 新テストが通ることを確認**
 
-Run: `rtk npx vitest run api/og/__tests__/_fetchOgImage.test.ts api/og/__tests__/_housingerCard.test.ts`
+Run: `npx vitest run api/og/__tests__/_fetchOgImage.test.ts api/og/__tests__/_housingerCard.test.ts`
 Expected: 両方 PASS(`_housingerCard.test.ts` は挙動不変なので全件緑のまま)
 
 - [ ] **Step 6: 型チェック**
 
-Run: `rtk npx tsc -p tsconfig.json --noEmit`(または該当ファイルのみ確認できる方法)
+Run: `npx tsc -p tsconfig.json --noEmit`(または該当ファイルのみ確認できる方法)
 Expected: エラーなし(未使用 import に注意 — [[feedback_vercel_tsc_strict]])
 
 - [ ] **Step 7: コミット**
@@ -347,11 +347,13 @@ rtk git commit -m "refactor(og): 画像fetchヘルパーを_fetchOgImage.tsに�
 - Consumes:
   - `verifyListingOgCardSig` from `../../src/lib/ogpListingCard.js`(Task 1)
   - `fetchAsDataUri` from `./_fetchOgImage.js`(Task 2)
-  - `loadMPlus1Fonts(uniqueChars: string)` from `./_fonts.js`(既存)
+  - `loadMPlus1Fonts(uniqueChars: string)` / `loadInterFonts(uniqueChars: string)` from `./_fonts.js`(既存)
 - Produces:
-  - `buildListingPhotoCard(photoDataUri: string): object` — 要素ツリー。子 = [ぼかし背景 div, 暗幕 div, `objectFit:'contain'` の img]。文字ノードなし
-  - `buildListingBrandFallbackCard(): object` — `#111725` 背景中央に「LoPo Housing」テキスト 1 つ
+  - `buildListingPhotoCard(photoDataUri: string): object` — 要素ツリー。子 = [ぼかし背景 div, 暗幕 div, `objectFit:'contain'` の img, 著作権表記 div]。タイトル/住所/ブランド印は無い(© 1 行のみ)
+  - `buildListingBrandFallbackCard(): object` — `#111725` 背景中央に「LoPo Housing」+ 下端に © 表記
   - `handleListingCardRequest(searchParams: URLSearchParams): Promise<Response>`
+
+**© 表記(masaya 2026-09-02 決定「入れる」)**: 全カード下端中央に極小 1 行 `© SQUARE ENIX CO., LTD. All Rights Reserved.`(`_housingerCard.ts` の `COPYRIGHT_TEXT` / `ja.json footer.copyright` と同一文言・11px・写真の上でも読める強シャドウ)。文言を焼き込む以上フォントが要るので写真カード経路でもフォントを読み込む。
 
 - [ ] **Step 1: 失敗するテストを書く**
 
@@ -397,8 +399,12 @@ describe('buildListingPhotoCard', () => {
     expect(img.props.style.objectFit).toBe('contain');
   });
 
-  it('文字ノードを一切含まない(タイトル/住所/ブランド印なし)', () => {
+  it('タイトル/住所/ブランド印は含まない(「LoPo」文字が無い)', () => {
     expect(findByText(buildListingPhotoCard(uri), 'LoPo')).toBe(false);
+  });
+
+  it('SQUARE ENIX 著作権表記を必ず含む', () => {
+    expect(findByText(buildListingPhotoCard(uri), '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
   });
 
   it('全面レイヤーは inset:0 省略記法を使わず 4 辺個別指定(satori バグ回避)', () => {
@@ -416,6 +422,9 @@ describe('buildListingBrandFallbackCard', () => {
   it('「LoPo Housing」テキストを含む', () => {
     expect(findByText(buildListingBrandFallbackCard(), 'LoPo Housing')).toBe(true);
   });
+  it('SQUARE ENIX 著作権表記を含む', () => {
+    expect(findByText(buildListingBrandFallbackCard(), '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
+  });
   it('img ノードを含まない', () => {
     expect(countImgNodes(buildListingBrandFallbackCard())).toBe(0);
   });
@@ -424,7 +433,7 @@ describe('buildListingBrandFallbackCard', () => {
 
 - [ ] **Step 2: テストが落ちることを確認**
 
-Run: `rtk npx vitest run api/og/__tests__/_listingCard.test.ts`
+Run: `npx vitest run api/og/__tests__/_listingCard.test.ts`
 Expected: FAIL(モジュールが存在しない)
 
 - [ ] **Step 3: `_listingCard.ts` を実装**
@@ -447,7 +456,7 @@ Expected: FAIL(モジュールが存在しない)
  */
 
 import { ImageResponse } from '@vercel/og';
-import { loadMPlus1Fonts } from './_fonts.js';
+import { loadMPlus1Fonts, loadInterFonts } from './_fonts.js';
 import { fetchAsDataUri } from './_fetchOgImage.js';
 import { verifyListingOgCardSig } from '../../src/lib/ogpListingCard.js';
 
@@ -455,6 +464,8 @@ const CARD_WIDTH = 1200;
 const CARD_HEIGHT = 630;
 /** ハウジングの背景色(正典 docs/.private/housing-tour-mockup 系統)。葉書外の下地に使う。 */
 const BG_COLOR = '#111725';
+/** ファンサイトポリシー対応の著作権表記。_housingerCard.ts / ja.json footer.copyright と同一文言。 */
+const COPYRIGHT_TEXT = '© SQUARE ENIX CO., LTD. All Rights Reserved.';
 const CACHE_HEADERS = {
   // URL に content-derived な sig が入るため、内容が変われば URL 自体が変わる = 実質 immutable。
   'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
@@ -464,7 +475,36 @@ const CACHE_HEADERS = {
 const FULL_BLEED_ABSOLUTE = { position: 'absolute' as const, top: 0, right: 0, bottom: 0, left: 0 };
 
 /**
- * 写真カード: ぼかし背景(cover)+ 軽い暗幕 + 写真本体(contain)。文字ノードは一切含まない。
+ * 著作権表記(全カード共通・下端中央)。写真の上に乗っても読めるよう強めのシャドウで縁取る。
+ * _housingerCard.ts の buildCopyrightLine と同じスタイル方針(11px / Inter / 強シャドウ)。
+ */
+function buildCopyrightLine() {
+  return {
+    type: 'div',
+    props: {
+      style: {
+        position: 'absolute', bottom: 14, left: 0, right: 0,
+        display: 'flex', justifyContent: 'center',
+      },
+      children: {
+        type: 'div',
+        props: {
+          style: {
+            fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.9)',
+            fontFamily: '"Inter"', letterSpacing: 0.2,
+            textShadow: '0 1px 3px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85)',
+            display: 'flex',
+          },
+          children: COPYRIGHT_TEXT,
+        },
+      },
+    },
+  };
+}
+
+/**
+ * 写真カード: ぼかし背景(cover)+ 軽い暗幕 + 写真本体(contain)+ 下端の © 表記。
+ * タイトル・住所・ブランド印は焼き込まない(og:title / og:description が各 SNS のカード文字部分に出る)。
  */
 export function buildListingPhotoCard(photoDataUri: string) {
   return {
@@ -497,13 +537,14 @@ export function buildListingPhotoCard(photoDataUri: string) {
             style: { position: 'relative', width: CARD_WIDTH, height: CARD_HEIGHT, objectFit: 'contain' },
           },
         },
+        buildCopyrightLine(),
       ],
     },
   };
 }
 
 /**
- * 代表写真の URL はあるが取得に失敗した場合のフォールバック(テキストのみ・枠なし)。
+ * 代表写真の URL はあるが取得に失敗した場合のフォールバック(「LoPo Housing」+ © 表記)。
  * _listingPageHandler は写真ゼロの物件では type=listing を呼ばない(DEFAULT_OG_IMAGE のまま)ため、
  * これが使われるのは「URL はあるが dead / WebP / timeout」のケースのみ。
  */
@@ -512,16 +553,20 @@ export function buildListingBrandFallbackCard() {
     type: 'div',
     props: {
       style: {
-        width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        width: '100%', height: '100%', display: 'flex', position: 'relative',
+        alignItems: 'center', justifyContent: 'center',
         backgroundColor: BG_COLOR, fontFamily: '"M PLUS 1", sans-serif',
       },
-      children: {
-        type: 'div',
-        props: {
-          style: { fontSize: 64, fontWeight: 900, color: '#ffffff', letterSpacing: -1, display: 'flex' },
-          children: 'LoPo Housing',
+      children: [
+        {
+          type: 'div',
+          props: {
+            style: { fontSize: 64, fontWeight: 900, color: '#ffffff', letterSpacing: -1, display: 'flex' },
+            children: 'LoPo Housing',
+          },
         },
-      },
+        buildCopyrightLine(),
+      ],
     },
   };
 }
@@ -530,6 +575,8 @@ export function buildListingBrandFallbackCard() {
  * `type=listing` リクエストの本体。api/og/index.ts から委譲される。
  * 署名検証 → 写真の事前フェッチ(base64 化) → satori レンダリング。
  * 写真が取れない / レンダリング失敗時はブランドフォールバックカードで 200 を返す(500 を返さない)。
+ * © 表記を焼き込むため写真カード経路でもフォントを読み込む(Inter=© 行 / M PLUS 1=フォールバックの見出し。
+ * _housingerCard.ts の handleHousingerCardRequest と同じ二種読み込み)。
  */
 export async function handleListingCardRequest(searchParams: URLSearchParams): Promise<Response> {
   const cronSecret = process.env.CRON_SECRET;
@@ -544,21 +591,25 @@ export async function handleListingCardRequest(searchParams: URLSearchParams): P
 
   const imgUrl = searchParams.get('img') || '';
 
+  const loadFonts = async () => {
+    const [mplus1, inter] = await Promise.all([
+      loadMPlus1Fonts('LoPo Housing').catch(() => []),
+      loadInterFonts([...new Set(COPYRIGHT_TEXT)].join('')).catch(() => []),
+    ]);
+    return [...mplus1, ...inter];
+  };
+
   try {
     const photoDataUri = imgUrl ? await fetchAsDataUri(imgUrl) : null;
-    if (photoDataUri) {
-      return new ImageResponse(buildListingPhotoCard(photoDataUri) as any, {
-        width: CARD_WIDTH, height: CARD_HEIGHT, headers: CACHE_HEADERS,
-      });
-    }
-    const fonts = await loadMPlus1Fonts('LoPo Housing').catch(() => []);
-    return new ImageResponse(buildListingBrandFallbackCard() as any, {
+    const fonts = await loadFonts();
+    const element = photoDataUri ? buildListingPhotoCard(photoDataUri) : buildListingBrandFallbackCard();
+    return new ImageResponse(element as any, {
       width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS,
     });
   } catch (err) {
     console.error('Listing OG card error:', err);
     try {
-      const fonts = await loadMPlus1Fonts('LoPo Housing').catch(() => []);
+      const fonts = await loadFonts();
       return new ImageResponse(buildListingBrandFallbackCard() as any, {
         width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS,
       });
@@ -572,8 +623,8 @@ export async function handleListingCardRequest(searchParams: URLSearchParams): P
 
 - [ ] **Step 4: テストが通ることを確認**
 
-Run: `rtk npx vitest run api/og/__tests__/_listingCard.test.ts`
-Expected: PASS(7 件)
+Run: `npx vitest run api/og/__tests__/_listingCard.test.ts`
+Expected: PASS(9 件)
 
 - [ ] **Step 5: `api/og/index.ts` に分岐を追加**
 
@@ -594,7 +645,7 @@ import { handleListingCardRequest } from './_listingCard.js';
 
 - [ ] **Step 6: 型チェック**
 
-Run: `rtk npx tsc -p tsconfig.json --noEmit`
+Run: `npx tsc -p tsconfig.json --noEmit`
 Expected: エラーなし
 
 - [ ] **Step 7: コミット**
@@ -649,7 +700,7 @@ rtk git commit -m "feat(og): type=listing カード(写真をぼかし背景+con
 
 - [ ] **Step 2: テストが落ちることを確認**
 
-Run: `rtk npx vitest run api/og-cache/__tests__/_ogCacheLogic.test.ts`
+Run: `npx vitest run api/og-cache/__tests__/_ogCacheLogic.test.ts`
 Expected: FAIL(`type=listing` の 2 件 — 現状は housinger/tour 用 URL ビルダーが無いので `buildInternalOgUrl` が page 型フォールバックに落ちて `img=` を含まない URL を返す)
 
 - [ ] **Step 3: 実装**
@@ -687,7 +738,7 @@ export interface OgImageMeta {
 
 - [ ] **Step 4: テストが通ることを確認**
 
-Run: `rtk npx vitest run api/og-cache/__tests__/_ogCacheLogic.test.ts`
+Run: `npx vitest run api/og-cache/__tests__/_ogCacheLogic.test.ts`
 Expected: PASS(既存 + 追加 3 件)
 
 - [ ] **Step 5: コミット**
@@ -800,7 +851,7 @@ vi.mock('firebase-admin/storage', () => ({
 
 - [ ] **Step 2: テストが落ちることを確認**
 
-Run: `rtk npx vitest run api/share/__tests__/_listingPageHandler.test.ts`
+Run: `npx vitest run api/share/__tests__/_listingPageHandler.test.ts`
 Expected: 書き換えた 2 件が FAIL(まだハンドラーが旧仕様)
 
 - [ ] **Step 3: `_listingPageHandler.ts` を実装**
@@ -871,12 +922,12 @@ width/height 削除ブランチ(現行 143-151 行の `if (usedListingPhoto) { .
 
 - [ ] **Step 4: テストが通ることを確認**
 
-Run: `rtk npx vitest run api/share/__tests__/_listingPageHandler.test.ts`
+Run: `npx vitest run api/share/__tests__/_listingPageHandler.test.ts`
 Expected: PASS(全件 — 書き換えた 2 件 + 不変の既存件)
 
 - [ ] **Step 5: 型チェック**
 
-Run: `rtk npx tsc -p tsconfig.json --noEmit`
+Run: `npx tsc -p tsconfig.json --noEmit`
 Expected: エラーなし(`usedListingPhoto` の削除漏れ・未使用 import に注意)
 
 - [ ] **Step 6: コミット**
@@ -908,35 +959,52 @@ import { Resvg } from '@resvg/resvg-js';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { buildListingPhotoCard } from '../api/og/_listingCard.js';
 
-// 手元の適当な画像 3 枚(横長/縦長/正方形)を data URI 化して差し込む。
-// ない場合は下記 URL を差し替えるか、単色の SVG data URI で代用。
+// 手元の適当な画像 3 枚(横長/縦長/正方形)。無ければ下記の単色 SVG data URI 生成で代用する。
+// FF14 スクショが手元にあれば置き換える(pbs.twimg / YouTube サムネの URL 文字列でも可 = fetch する)。
 const samples = {
-  wide: 'PATH_OR_URL_16_9.jpg',
-  tall: 'PATH_OR_URL_9_16.jpg',
-  square: 'PATH_OR_URL_1_1.jpg',
+  wide: solidSvgDataUri(1600, 900, '#3b6ea5'),
+  tall: solidSvgDataUri(900, 1600, '#a5623b'),
+  square: solidSvgDataUri(1200, 1200, '#3ba56e'),
 };
 
-function toDataUri(pathOrUrl) {
-  const buf = readFileSync(pathOrUrl);
-  const b64 = buf.toString('base64');
-  const mime = pathOrUrl.endsWith('.png') ? 'image/png' : 'image/jpeg';
-  return `data:${mime};base64,${b64}`;
+function solidSvgDataUri(w, h, color) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="100%" height="100%" fill="${color}"/><text x="50%" y="50%" fill="#fff" font-size="80" text-anchor="middle">${w}x${h}</text></svg>`;
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
 }
 
+async function toDataUri(srcOrUri) {
+  if (srcOrUri.startsWith('data:')) return srcOrUri;
+  if (/^https?:\/\//.test(srcOrUri)) {
+    const buf = Buffer.from(await (await fetch(srcOrUri)).arrayBuffer());
+    return `data:image/jpeg;base64,${buf.toString('base64')}`;
+  }
+  const buf = readFileSync(srcOrUri);
+  const mime = srcOrUri.endsWith('.png') ? 'image/png' : 'image/jpeg';
+  return `data:${mime};base64,${buf.toString('base64')}`;
+}
+
+// © 行のフォント(Inter)を Google Fonts から取得。_fonts.ts の loadInterFonts と同じ手法。
+const cssUrl = 'https://fonts.googleapis.com/css2?family=Inter:wght@500&text=' +
+  encodeURIComponent('© SQUARE ENIX CO., LTD. All Rights Reserved.');
+const css = await (await fetch(cssUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } })).text();
+const fontUrl = css.match(/src:\s*url\(([^)]+)\)/)[1];
+const fontData = await (await fetch(fontUrl)).arrayBuffer();
+const fonts = [{ name: 'Inter', data: fontData, style: 'normal', weight: 500 }];
+
 for (const [label, src] of Object.entries(samples)) {
-  const tree = buildListingPhotoCard(toDataUri(src));
-  const svg = await satori(tree, { width: 1200, height: 630, fonts: [] });
+  const tree = buildListingPhotoCard(await toDataUri(src));
+  const svg = await satori(tree, { width: 1200, height: 630, fonts });
   const png = new Resvg(svg).render().asPng();
   writeFileSync(`scripts/_preview-listing-${label}.png`, png);
   console.log(`wrote scripts/_preview-listing-${label}.png`);
 }
 ```
 
-(`satori` / `@resvg/resvg-js` は `@vercel/og` の依存として既に `node_modules` にある。無ければ `rtk npm ls satori` で確認し、`_housingerCard` のプレビュー手法 `docs/.private/2026-08-01-ogp-card-design-mockups.md` に合わせる)
+(`satori` / `@resvg/resvg-js` は `@vercel/og` の依存として既に `node_modules` にある。無ければ `npm ls satori @resvg/resvg-js` で確認し、`_housingerCard` のプレビュー手法 `docs/.private/2026-08-01-ogp-card-design-mockups.md` に合わせる。`_listingCard.ts` を `.mjs` から直接 import できない場合(TS)は、`buildListingPhotoCard` 相当を script 内にインラインコピーして確認してよい — このスクリプトは使い捨て)
 
 - [ ] **Step 2: 実行して 3 枚の PNG を目視**
 
-Run: `rtk node scripts/preview-listing-og-card.mjs`
+Run: `node scripts/preview-listing-og-card.mjs`
 確認:
 - 横長(16:9): 写真がほぼ全面、上下にわずかにぼかし帯 → OK
 - 縦長(9:16): 写真が中央に立ち、左右がぼかし帯 → OK(切れていないこと)
@@ -970,20 +1038,20 @@ rtk git commit -m "chore: 物件OGPカードのプレビュースクリプトを
 
 - [ ] **Step 1: フルビルド**
 
-Run: `rtk npm run build`
+Run: `npm run build`
 Expected: exit 0(tsc -b 厳密・未使用変数が罠 [[feedback_vercel_tsc_strict]])
 
 - [ ] **Step 2: 関連テストをまとめて実行**
 
 Run:
 ```
-rtk npx vitest run src/lib/__tests__/ogpListingCard.test.ts api/og/__tests__/_fetchOgImage.test.ts api/og/__tests__/_listingCard.test.ts api/og/__tests__/_housingerCard.test.ts api/og-cache/__tests__/_ogCacheLogic.test.ts api/share/__tests__/_listingPageHandler.test.ts
+npx vitest run src/lib/__tests__/ogpListingCard.test.ts api/og/__tests__/_fetchOgImage.test.ts api/og/__tests__/_listingCard.test.ts api/og/__tests__/_housingerCard.test.ts api/og-cache/__tests__/_ogCacheLogic.test.ts api/share/__tests__/_listingPageHandler.test.ts
 ```
 Expected: 全 PASS
 
 - [ ] **Step 3: フルスイート(push 前ゲート・要約のみ取り込む)**
 
-Run: `rtk npx vitest run 2>&1 | tail -30`
+Run: `npx vitest run 2>&1 | tail -30`
 Expected: 既知の失敗(EphemeralAddPanel 7 件・TopBar4 + HousingWorkspace1)以外は緑。
 ハングしたら早期 kill([[feedback_test_run_cost_discipline]])。
 
@@ -992,7 +1060,7 @@ Expected: 既知の失敗(EphemeralAddPanel 7 件・TopBar4 + HousingWorkspace1)
 「次の作業順」1 番を完了に。「現在の状態」の 🔴 行を更新:
 - 1 番の項目本文を「= 実装・全テスト緑・**デプロイ待ち**(masaya が X 実機確認 → 完了なら TODO_COMPLETED へ)」に置換
 - 「次の作業順」は 2 番(MIL-SPEC)が先頭に繰り上がる形に番号を振り直す
-- 100 行以内を維持(`rtk wc -l docs/TODO.md`)
+- 100 行以内を維持(`wc -l docs/TODO.md`)
 
 - [ ] **Step 5: コミット**
 
@@ -1023,7 +1091,7 @@ rtk git commit -m "docs: 物件OGPカード実装完了・デプロイ待ちに�
 ## Self-Review(この計画を書いた後のチェック結果)
 
 **Spec coverage:**
-- §2 解決方針(再ホスト・ぼかし背景 + contain・文字なし)→ Task 3 `buildListingPhotoCard`
+- §2 解決方針(再ホスト・ぼかし背景 + contain・タイトル/住所/ブランド印なし・© 1 行のみ)→ Task 3 `buildListingPhotoCard`
 - §3 新規/変更ファイル → Task 1〜5 で全カバー
 - §4.1 `_listingPageHandler` の選定ロジック → Task 5 Step 3
 - §4.2 width/height 宣言を残す → Task 5 Step 3(削除ブランチ撤去)+ Task 5 Step 1 のテスト反転
@@ -1033,9 +1101,9 @@ rtk git commit -m "docs: 物件OGPカード実装完了・デプロイ待ちに�
 - §5 既存テスト更新 → Task 5 Step 1
 - §6 コスト(ハッシュ dedup / immutable / 30 日 cron)→ 実装は既存機構の再利用、Task 5 で meta に `lastAccessedAt` を書く
 - §7 ローカルプレビュー + push 前ゲート → Task 6 / Task 7
-- §9 未確定(© 表記)→ Task 7 Step 6 で再確認を促す(実装はしない = デフォルト「入れない」)
+- §9 → **masaya 2026-09-02 決定「入れる」**。Task 3 で全カード下端に © 1 行を焼き込む(`buildCopyrightLine` / Inter / 11px)。写真カード経路もフォント読み込みが必要になった。
 
-**Placeholder scan:** コード無しステップなし。全ステップに実コード or 実コマンド。`scripts/preview-listing-og-card.mjs` の `PATH_OR_URL_*` は「手元の画像に差し替える」旨を明記済み(プレースホルダではなく利用者入力)。
+**Placeholder scan:** コード無しステップなし。全ステップに実コード or 実コマンド。`scripts/preview-listing-og-card.mjs` はサンプル画像を単色 SVG data URI で自動生成(手元に FF14 スクショがあれば置換可)= プレースホルダなし。
 
 **Type consistency:**
 - `buildListingOgCardParams({ img })` — Task 1 で定義、Task 4 / Task 5 で同じシグネチャで使用 ✓
