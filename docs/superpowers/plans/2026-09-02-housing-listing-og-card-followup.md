@@ -223,7 +223,7 @@
 - [ ] `npm run build` exit 0。
 - [ ] `npx vitest run api/ src/lib/ src/components/housing/listing/__tests__/HousingActionBar.test.tsx` 全緑(フルスイートは既知ハングのため範囲限定・元 plan と同じ運用)。
 - [ ] commit `docs: 物件OGPカード follow-up 完了`
-- [ ] デプロイ後: `scripts/` に一時 warm-all スクリプトを作り直して全 237 物件を再 warm(v2 で hash が変わり全部再生成が要るため)。masaya に「新規物件を1件登録 → すぐXに貼って画像が出るか」を依頼。
+- [ ] デプロイ後: `scripts/` に一時 warm-all スクリプトを作り直して全 237 物件を再 warm(v2 で hash が変わり全部再生成が要るため)。スクリプトは各物件について **(1) 物件ページ (`/housing/listing/:id`) を GET → (2) レスポンス HTML から `og:image` の URL(`${origin}/og/<hash>.png`)を parse → (3) その `/og/<hash>.png` URL を GET** する。v2 ではページを踏むだけでは `og_image_meta/{hash}` doc が書かれるだけで **PNG は生成されない**(生成は `/og/<hash>.png` = og-cache への初回アクセスで起きる)ので、(3) を必ず実行すること。masaya に「新規物件を1件登録 → すぐXに貼って画像が出るか」を依頼。
 
 ---
 

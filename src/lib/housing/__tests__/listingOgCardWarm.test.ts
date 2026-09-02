@@ -65,4 +65,33 @@ describe('warmListingOgCard', () => {
     expect(hash).toMatch(/^[a-f0-9]{16}$/);
     expect(setMeta).toHaveBeenCalledTimes(1);
   });
+
+  it('fetch が非 ok を返しても hash は返す(warm は best-effort)', async () => {
+    const setMeta = vi.fn(async () => {});
+    const fetchImpl = vi.fn(async () => ({ ok: false, status: 503 }) as Response);
+    const hash = await warmListingOgCard({
+      origin: 'https://lopoly.app',
+      photoUrl: 'https://x.test/a.jpg',
+      setMeta,
+      fetchImpl,
+    });
+
+    expect(hash).toMatch(/^[a-f0-9]{16}$/);
+    expect(setMeta).toHaveBeenCalledTimes(1);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it('warm-up fetch に 5 秒 timeout の AbortSignal を渡す', async () => {
+    const setMeta = vi.fn(async () => {});
+    const fetchImpl = vi.fn(async (_url?: unknown, _init?: unknown) => ({ ok: true }) as Response);
+    await warmListingOgCard({
+      origin: 'https://lopoly.app',
+      photoUrl: 'https://x.test/a.jpg',
+      setMeta,
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+
+    const init = fetchImpl.mock.calls[0]?.[1] as RequestInit | undefined;
+    expect(init?.signal).toBeInstanceOf(AbortSignal);
+  });
 });

@@ -16,6 +16,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { computeArrayDeletion, parseStoragePathFromPublicUrl } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
+import { warmListingCardByRef } from './_warmListingCard.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -101,6 +102,10 @@ export default async function handler(req: any, res: any) {
         }
       }
     }
+
+    // 2026-09-02: 1 枚目を削除すると代表画像 (= カード) が変わるので OGカードを事前生成。
+    // 非致命 (_warmListingCard.ts が read も含め全体 try/catch)。
+    await warmListingCardByRef(adminDb, req.headers?.host, listingRef);
 
     return res.status(200).json({ success: true, thumbnailPaths: newPaths });
   } catch (error: any) {

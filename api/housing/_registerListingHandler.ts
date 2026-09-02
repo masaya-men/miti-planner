@@ -20,9 +20,7 @@ import type { HousingUserMeta } from '../../src/types/housing.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 import { buildNewListingNotification } from '../../src/lib/housing/newListingTweet.js';
 import { sendHousingNewListingNotification } from '../../src/lib/discordWebhook.js';
-import { listingRepresentativeImages } from '../share/_listingImages.js';
-import { warmListingOgCard } from '../../src/lib/housing/listingOgCardWarm.js';
-import { resolveSiteOrigin } from '../../src/lib/housing/resolveSiteOrigin.js';
+import { warmListingCard } from './_warmListingCard.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -248,23 +246,8 @@ export default async function handler(req: any, res: any) {
     // カード生成を待たなくなった (初回クロールの TTFB 短縮) ため、ここで Storage に焼いておかないと
     // 新規物件の初回シェアが「画像なしカード」で X にキャッシュされてしまう。
     // 登録処理は元々数秒かかる & クローラーは待っていないので warm-up fetch を await してよい。
-    // warm 失敗は登録の成否に一切影響させない (全体 try/catch)。
-    try {
-      const origin = resolveSiteOrigin(req.headers?.host);
-      const rawPhoto = createdListing ? listingRepresentativeImages(createdListing)[0] : undefined;
-      if (rawPhoto) {
-        const photoUrl = /^https?:\/\//.test(rawPhoto) ? rawPhoto : `${origin}${rawPhoto}`;
-        await warmListingOgCard({
-          origin,
-          photoUrl,
-          setMeta: async (hash, meta) => {
-            await adminDb.collection('og_image_meta').doc(hash).set(meta);
-          },
-        });
-      }
-    } catch (warmErr) {
-      console.error('[housing/register-listing] OG card warm-up failed (non-fatal):', warmErr);
-    }
+    // warm 失敗は登録の成否に一切影響させない (_warmListingCard.ts が全体 try/catch)。
+    await warmListingCard(adminDb, req.headers?.host, createdListing);
 
     return res.status(200).json({ id: createdId, addressKey });
   } catch (error: any) {

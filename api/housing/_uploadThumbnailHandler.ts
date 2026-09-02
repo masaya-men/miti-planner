@@ -38,6 +38,7 @@ import { getStorage } from 'firebase-admin/storage';
 import { FieldValue } from 'firebase-admin/firestore';
 import { parseStoragePathFromPublicUrl, buildHousingImagePublicUrl, toPngSiblingPath, toDerivativePath, HOUSING_CARD_DERIVATIVE_WIDTHS } from './_imageArrayLogic.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
+import { warmListingCardByRef } from './_warmListingCard.js';
 import { convertToPngIfNeeded, LISTING_THUMBNAIL_PNG_MAX_DIMENSION, resizeToWebp, CONVERTIBLE_MIME } from './_imageFormatConvert.js';
 import { computeCoverThumbHash } from './_coverThumbHash.js';
 
@@ -246,6 +247,10 @@ export default async function handler(req: any, res: any) {
         }
       }
     }
+
+    // 2026-09-02: 代表画像 (index 0) の差し替え/追加でカードが変わりうるので OGカードを事前生成。
+    // 非致命 (_warmListingCard.ts が read も含め全体 try/catch)。
+    await warmListingCardByRef(adminDb, req.headers?.host, listingRef);
 
     return res.status(200).json({ success: true, thumbnailPath: publicUrl, thumbnailPaths: newPaths });
   } catch (error: any) {

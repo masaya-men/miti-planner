@@ -15,10 +15,18 @@ const h = vi.hoisted(() => {
   const txUpdateSpy = vi.fn();
   const deleteFilesSpy = vi.fn(async () => {});
   const fileDeleteSpy = vi.fn(async () => {});
+  const ogMetaSetSpy = vi.fn(async () => {});
   const state = { storedData: {} as Record<string, unknown> };
-  const listingRef = { id: 'listing1' };
+  // warmListingCard が更新後に `(await listingRef.get()).data()` を読むため get() を持たせる
+  // (このテストの storedData には代表画像が無いので warm は早期 return = 実効 no-op)。
+  const listingRef = {
+    id: 'listing1',
+    get: vi.fn(async () => ({ exists: true, data: () => state.storedData })),
+  };
   const fakeDb = {
-    collection: vi.fn(() => ({ doc: vi.fn(() => listingRef) })),
+    collection: vi.fn((name: string) => ({
+      doc: vi.fn(() => (name === 'og_image_meta' ? { set: ogMetaSetSpy } : listingRef)),
+    })),
     doc: vi.fn(() => ({})),
     runTransaction: vi.fn(async (cb: (tx: unknown) => unknown) =>
       cb({
@@ -28,7 +36,7 @@ const h = vi.hoisted(() => {
       }),
     ),
   };
-  return { txUpdateSpy, deleteFilesSpy, fileDeleteSpy, state, listingRef, fakeDb };
+  return { txUpdateSpy, deleteFilesSpy, fileDeleteSpy, ogMetaSetSpy, state, listingRef, fakeDb };
 });
 
 vi.mock('../../../src/lib/appCheckVerify.js', () => ({ verifyAppCheck: vi.fn(async () => true) }));
@@ -110,6 +118,9 @@ const snsSwitchBody = {
 beforeEach(() => {
   vi.clearAllMocks();
   h.state.storedData = { ownerUid: 'hashed:user1', imageMode: 'thumbnail' };
+  // warmListingCard 経由の実ネットワーク fetch を防ぐ (storedData に代表画像が無いので
+  // 実際には呼ばれないが、保険として stub しておく)。
+  global.fetch = vi.fn(async () => ({ ok: true }) as Response) as unknown as typeof fetch;
 });
 
 describe('_updateListingHandler: thumbnail→sns 切替で coverThumbHash を失効', () => {
@@ -172,5 +183,53 @@ describe('_reorderThumbnailsHandler: 先頭 URL が変わったときだけ cove
     const payload = h.txUpdateSpy.mock.calls[0][1] as Record<string, unknown>;
     expect('coverThumbHash' in payload).toBe(false);
     expect(payload.thumbnailPaths).toEqual(['a', 'c', 'b']);
+  });
+});
+
+describe('画像ミューテーション後の OGカード事前生成 (warmListingCard の配線)', () => {
+  const thumbListing = {
+    ownerUid: 'hashed:user1',
+    imageMode: 'thumbnail',
+    thumbnailPaths: [
+      'https://lopoly.app/housing-media/listing1/a.png',
+      'https://lopoly.app/housing-media/listing1/b.png',
+    ],
+  };
+
+  it('delete-thumbnail 後、更新後 doc に代表画像があれば og_image_meta.set + /og/<hash>.png fetch が走り 200', async () => {
+    h.state.storedData = { ...thumbListing };
+    const { req, res } = makeReqRes({ listingId: 'listing1', index: 1 });
+    await deleteHandler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(h.ogMetaSetSpy).toHaveBeenCalledTimes(1);
+    const ogFetch = (global.fetch as any).mock.calls.find(
+      (c: unknown[]) => typeof c[0] === 'string' && (c[0] as string).includes('/og/'),
+    );
+    expect(ogFetch?.[0]).toMatch(/^https:\/\/lopoly\.app\/og\/[a-f0-9]{16}\.png$/);
+  });
+
+  it('reorder-thumbnails 後も同様に warm が走り 200', async () => {
+    h.state.storedData = { ...thumbListing };
+    const { req, res } = makeReqRes({
+      listingId: 'listing1',
+      newOrder: [
+        'https://lopoly.app/housing-media/listing1/b.png',
+        'https://lopoly.app/housing-media/listing1/a.png',
+      ],
+    });
+    await reorderHandler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(h.ogMetaSetSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('warm (og_image_meta.set) が失敗しても delete-thumbnail は 200 のまま', async () => {
+    h.state.storedData = { ...thumbListing };
+    h.ogMetaSetSpy.mockRejectedValueOnce(new Error('firestore down'));
+    const { req, res } = makeReqRes({ listingId: 'listing1', index: 1 });
+    await deleteHandler(req, res);
+
+    expect(res.statusCode).toBe(200);
   });
 });

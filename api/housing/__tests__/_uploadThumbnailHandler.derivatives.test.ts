@@ -18,13 +18,16 @@ const h = vi.hoisted(() => {
   const computeCoverThumbHashMock = vi.fn(async () => 'HASH64' as string | null);
   const txUpdateSpy = vi.fn();
   const bumpPublicVersionTxMock = vi.fn();
+  const ogMetaSetSpy = vi.fn(async () => {});
   // beforeEach で差し替える per-test 状態
   const state = { listingData: {} as Record<string, unknown> };
   const listingRef = {
     get: vi.fn(async () => ({ exists: true, data: () => state.listingData })),
   };
   const fakeDb = {
-    collection: vi.fn(() => ({ doc: vi.fn(() => listingRef) })),
+    collection: vi.fn((name: string) => ({
+      doc: vi.fn(() => (name === 'og_image_meta' ? { set: ogMetaSetSpy } : listingRef)),
+    })),
     doc: vi.fn(() => ({})),
     runTransaction: vi.fn(async (cb: (tx: unknown) => unknown) =>
       cb({
@@ -44,6 +47,7 @@ const h = vi.hoisted(() => {
     computeCoverThumbHashMock,
     txUpdateSpy,
     bumpPublicVersionTxMock,
+    ogMetaSetSpy,
     state,
     fakeDb,
   };
@@ -121,6 +125,8 @@ function makeReqRes(body: unknown) {
   return { req, res };
 }
 
+const fetchMock = vi.fn(async (_url?: unknown, _init?: unknown) => ({ ok: true }) as Response);
+
 beforeEach(() => {
   vi.clearAllMocks();
   h.filePaths.length = 0;
@@ -128,6 +134,9 @@ beforeEach(() => {
   h.resizeToWebpMock.mockReset().mockImplementation(async (_b: unknown, w: number) => Buffer.from(`webp-${w}`));
   h.convertToPngIfNeededMock.mockReset().mockImplementation(async () => Buffer.from('png-sibling'));
   h.computeCoverThumbHashMock.mockReset().mockImplementation(async () => 'HASH64');
+  h.ogMetaSetSpy.mockReset().mockImplementation(() => Promise.resolve());
+  fetchMock.mockReset().mockImplementation(async () => ({ ok: true }) as Response);
+  global.fetch = fetchMock as unknown as typeof fetch;
 });
 
 describe('_uploadThumbnailHandler の派生生成 + coverThumbHash 保存', () => {
@@ -196,5 +205,36 @@ describe('_uploadThumbnailHandler の派生生成 + coverThumbHash 保存', () =
     const updateArg = h.txUpdateSpy.mock.calls[0][1] as Record<string, unknown>;
     expect('coverThumbHash' in updateArg).toBe(false);
     expect(h.computeCoverThumbHashMock).not.toHaveBeenCalled();
+  });
+
+  it('アップロード成功後、更新後 doc に代表画像があれば warmListingCard が走る (og_image_meta.set + /og/<hash>.png fetch)・200 のまま', async () => {
+    // mock tx は更新を storedData に反映しないので、更新後 .get() が返す doc を直接用意する。
+    h.state.listingData = {
+      ownerUid: 'hashed:user1',
+      imageMode: 'thumbnail',
+      thumbnailPaths: ['https://lopoly.app/housing-media/listing1/existing.png'],
+    };
+    const { req, res } = makeReqRes(makeBody(0));
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(h.ogMetaSetSpy).toHaveBeenCalledTimes(1);
+    const ogFetch = fetchMock.mock.calls.find(
+      (c: unknown[]) => typeof c[0] === 'string' && (c[0] as string).includes('/og/'),
+    );
+    expect(ogFetch?.[0]).toMatch(/^https:\/\/lopoly\.app\/og\/[a-f0-9]{16}\.png$/);
+  });
+
+  it('warm (og_image_meta.set) が失敗してもアップロードは 200 のまま', async () => {
+    h.state.listingData = {
+      ownerUid: 'hashed:user1',
+      imageMode: 'thumbnail',
+      thumbnailPaths: ['https://lopoly.app/housing-media/listing1/existing.png'],
+    };
+    h.ogMetaSetSpy.mockRejectedValueOnce(new Error('firestore down'));
+    const { req, res } = makeReqRes(makeBody(0));
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
   });
 });
