@@ -30,6 +30,9 @@ interface HeaderToolsMenuProps {
 export function HeaderToolsMenu({ btnClassName, onAutoPlan, readOnly }: HeaderToolsMenuProps) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
+    // ⋯ アイコンの 90°回転は「ボタン全体」のホバーで発火させる。
+    // motion.span の whileHover だと 16px アイコンの真上でしか反応しない。
+    const [hovered, setHovered] = useState(false);
     const btnRef = useRef<HTMLButtonElement>(null);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -69,14 +72,15 @@ export function HeaderToolsMenu({ btnClassName, onAutoPlan, readOnly }: HeaderTo
                     ref={btnRef}
                     type="button"
                     onClick={() => setOpen(prev => !prev)}
+                    onMouseEnter={() => setHovered(true)}
+                    onMouseLeave={() => setHovered(false)}
                     className={btnClassName}
                     aria-label={t('ui.more')}
                 >
-                    {/* ホバー or 開いている間は 90°回転 (横三点→縦三点) */}
+                    {/* ボタン上ホバー中 or 開いている間は 90°回転 (横三点→縦三点) */}
                     <motion.span
                         className="flex items-center justify-center"
-                        animate={{ rotate: open ? 90 : 0 }}
-                        whileHover={{ rotate: 90 }}
+                        animate={{ rotate: (open || hovered) ? 90 : 0 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 18 }}
                     >
                         <MoreHorizontal size={16} />
