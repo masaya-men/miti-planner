@@ -42,7 +42,7 @@ describe('buildListingPhotoCard', () => {
   });
 
   it('SQUARE ENIX 著作権表記を必ず含む', () => {
-    expect(findByText(buildListingPhotoCard(uri), '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
+    expect(findByText(buildListingPhotoCard(uri), '© SQUARE ENIX')).toBe(true);
   });
 
   it('全面レイヤーは inset:0 省略記法を使わず 4 辺個別指定(satori バグ回避)', () => {
@@ -61,7 +61,7 @@ describe('buildListingBrandFallbackCard', () => {
     expect(findByText(buildListingBrandFallbackCard(), 'LoPo Housing')).toBe(true);
   });
   it('SQUARE ENIX 著作権表記を含む', () => {
-    expect(findByText(buildListingBrandFallbackCard(), '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
+    expect(findByText(buildListingBrandFallbackCard(), '© SQUARE ENIX')).toBe(true);
   });
   it('img ノードを含まない', () => {
     expect(countImgNodes(buildListingBrandFallbackCard())).toBe(0);

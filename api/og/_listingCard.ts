@@ -23,8 +23,8 @@ const CARD_WIDTH = 1200;
 const CARD_HEIGHT = 630;
 /** ハウジングの背景色(正典 docs/.private/housing-tour-mockup 系統)。葉書外の下地に使う。 */
 const BG_COLOR = '#111725';
-/** ファンサイトポリシー対応の著作権表記。_housingerCard.ts / ja.json footer.copyright と同一文言。 */
-const COPYRIGHT_TEXT = '© SQUARE ENIX CO., LTD. All Rights Reserved.';
+/** FFXIV Materials Usage License が認める短縮形 `© SQUARE ENIX` を使用。ゲーム内正式表記より文字数削減。 */
+const COPYRIGHT_TEXT = '© SQUARE ENIX';
 const CACHE_HEADERS = {
   // URL に content-derived な sig が入るため、内容が変われば URL 自体が変わる = 実質 immutable。
   'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
