@@ -9,19 +9,19 @@
 
 ---
 
-## 次の作業順 (2026-08-26 更新)
+## 次の作業順 (2026-09-02 更新)
 
 DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
-1. **ハウジング物件ページの OGP カード画像を生成方式にする(致命バグ・単独で先に出す・2026-09-02 masaya=a)**。X投稿由来の物件は `og:image` が `pbs.twimg.com` 直リンク → **X はそれを外部カード画像として描画しない**(Discord等は出る)ので、誰かが物件URLだけXに貼ると画像なしカードになる。直し方=`_listingPageHandler` の3画像分岐(直接アップ/YouTube/sns)を **1200×630 の生成カード1本**に置換。既存 `/api/og` + `/api/og-cache`(共有プラン・ハウジンガーで実績) を流用。写真取得失敗時は LoPo Housing ブランドのテキストカードにフォールバック。カード押下先は常に LoPo 物件ページ(YouTube由来もLoPoに飛ぶ・その場でページ内再生)。恒常コスト≒0(hash-keyed immutable・生涯1回生成)。既存ツイートのXカードキャッシュは数日〜数週間残る点は許容。→ **次セッション: これを spec→plan→実装してから 2 へ**。
-2. **軍事SF(MIL-SPEC)テーマ + スプシモード = 1つの大型アップデート(ユーザー本命)**。**worktree で隔離**して両方作り、揃ったらまとめて main へ1本化・push(2026-09-02 masaya 決定)。
+1. **軍事SF(MIL-SPEC)テーマ + スプシモード = 1つの大型アップデート(ユーザー本命)**。**worktree で隔離**して両方作り、揃ったらまとめて main へ1本化・push(2026-09-02 masaya 決定)。
    - **① MIL-SPEC テーマ**: brainstorm済み・**設計書=`docs/superpowers/specs/2026-09-02-military-theme-design.md`** / **実装計画=`docs/superpowers/plans/2026-09-02-military-theme.md`**。`using-git-worktrees` → Phase 0 Task 0.1 から `subagent-driven-development`。Phase 0 Task 0.7 が masaya の見た目承認ゲート。参考画像=`docs/.private/theme-refs/`。論点 memory [[project_sf_military_theme]]。
    - **② 軽減表スプシモード**(①の後・同じ worktree)。全テーマにトークン経由。要 brainstorm→spec→plan。議論=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。WIP中は両方 dev ガード(`localStorage 'milspec-preview'`)、マージ時に公開。
-3. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機で**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
-4. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
+2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機で**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
+3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🔴 2026-09-02 **次セッション最優先** = ハウジングOGPカード致命バグ(X投稿由来物件がXで画像なし)→ spec→plan→実装。その後 MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。どちらも詳細=「次の作業順」1・2。未push docs commit あり。
+### 🟢 2026-09-02 ハウジング物件OGPカード致命バグ = **実装完了・build+関連テスト緑・見た目承認済**。branch `fix/housing-listing-og-card`(7コミット)。自ドメイン再ホスト方式=代表写真を satori で 1200×630 整形(ぼかし背景+contain・© SQUARE ENIX 短縮1行)、既存 `/api/og`+`/api/og-cache`+`og_image_meta`+週次cron に `type=listing` 追加。spec/plan=`docs/superpowers/{specs,plans}/2026-09-02-housing-listing-og-card*`。**残=最終コードレビュー → main へ merge → デプロイ → X 実機確認**(X投稿由来物件で写真カードが出るか最優先・Discord退行なし・Storage に listing hash 増加確認)。既存ツイートのXカードキャッシュは数日〜数週間で自然更新。
+### 🔴 次セッション最優先 = MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。詳細=「次の作業順」1。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
 ### 🟡 2026-08-31 カード画像最適化 Phase1(本番反映済) — 残: masaya実機で「?」消えたか+スクロール体感 → Phase2(仮想化/「もっと見る」/孤児派生掃除)要否判断。
