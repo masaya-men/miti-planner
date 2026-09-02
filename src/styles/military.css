@@ -52,93 +52,95 @@
   font-family: var(--milspec-font-display), var(--milspec-font-ui, 'Rajdhani'), sans-serif;
 }
 
-/* --- Dark: 黒地・シアン発光 (意味トークン再定義・暫定値 spec §5) --- */
+/* --- Dark: 脱色した濃紺グレー地 + スチールシアン (参照 allagan-dark.png 採色 / spec-v2 §1) --- */
 .theme-military.theme-dark {
-  --color-bg-primary: #0a1015;
-  --color-bg-secondary: #0a1015;
-  --color-bg-tertiary: #0e1620;
-  --color-accent-primary: #5fd4ff;
-  --app-accent-rgb: 95, 212, 255;
-  --color-accent-secondary: #5fd4ff;
-  --color-accent-dim: rgba(95, 212, 255, 0.12);
-  --color-text-primary: #d8e8f4;
-  --color-text-secondary: #94afc6;
-  --color-text-muted: #5d7a92;
+  --color-bg-primary: #0d131b;
+  --color-bg-secondary: #0d131b;
+  --color-bg-tertiary: #1a2430;
+  --color-accent-primary: #79c6dc;
+  --app-accent-rgb: 121, 198, 220;
+  --color-accent-secondary: #79c6dc;
+  --color-accent-dim: rgba(121, 198, 220, 0.12);
+  --milspec-heading: #f0f4f7;              /* 見出しは白 (シアンにしない・spec §1) */
+  --color-text-primary: #e6edf2;
+  --color-text-secondary: #9fb0be;
+  --color-text-muted: #63788a;
   --color-text-on-accent: #06090c;
-  --color-toggle-bg: #5fd4ff;
+  --color-toggle-bg: #79c6dc;
   --color-toggle-text: #06090c;
-  --color-border: rgba(120, 180, 220, 0.12);
-  --color-border-accent: rgba(120, 200, 240, 0.35);
-  --color-blue: #5fd4ff; --color-blue-hover: #8fe2ff;
-  --color-blue-dim: rgba(95,212,255,0.12); --color-blue-border: rgba(95,212,255,0.3);
-  --color-amber: #ff8a3d; --color-amber-hover: #ffa561;
-  --color-amber-dim: rgba(255,138,61,0.12); --color-amber-border: rgba(255,138,61,0.3);
-  --color-red: #ff3b3b; --color-red-hover: #ff6161;
-  --color-red-dim: rgba(255,59,59,0.12); --color-red-border: rgba(255,59,59,0.3);
-  /* ガラス = 金属プレート化 (blur 0) */
-  --glass-tier1-bg: linear-gradient(180deg, rgba(20,32,44,0.85), rgba(14,22,32,0.92));
-  --glass-tier1-border: rgba(95,212,255,0.14);
+  --color-border: rgba(150, 178, 196, 0.16);         /* グレー寄り hairline (シアンにしない) */
+  --color-border-accent: rgba(121, 198, 220, 0.32);
+  --color-blue: #79c6dc; --color-blue-hover: #9fd8e8;
+  --color-blue-dim: rgba(121,198,220,0.12); --color-blue-border: rgba(121,198,220,0.32);
+  --color-amber: #f7a13c; --color-amber-hover: #ffb964;
+  --color-amber-dim: rgba(247,161,60,0.12); --color-amber-border: rgba(247,161,60,0.32);
+  --color-red: #f2555a; --color-red-hover: #ff7479;
+  --color-red-dim: rgba(242,85,90,0.12); --color-red-border: rgba(242,85,90,0.34);
+  /* ガラス = 金属プレート化 (blur 0・新サーフェス系に合わせて再採色) */
+  --glass-tier1-bg: linear-gradient(180deg, rgba(26,36,48,0.85), rgba(17,25,37,0.92));
+  --glass-tier1-border: rgba(121,198,220,0.14);
   --glass-tier1-blur: 0px;
-  --glass-tier2-bg: linear-gradient(180deg, rgba(26,39,51,0.95), rgba(18,28,40,0.98));
-  --glass-tier2-border: rgba(95,212,255,0.22);
+  --glass-tier2-bg: linear-gradient(180deg, rgba(30,41,54,0.95), rgba(20,28,40,0.98));
+  --glass-tier2-border: rgba(121,198,220,0.20);
   --glass-tier2-blur: 0px;
-  --glass-tier2-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
-  --glass-tier3-bg: linear-gradient(180deg, rgba(30,45,60,0.98), rgba(20,30,42,1));
-  --glass-tier3-border: rgba(95,212,255,0.3);
+  --glass-tier2-shadow: 0 8px 24px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.035);
+  --glass-tier3-bg: linear-gradient(180deg, rgba(33,46,59,0.98), rgba(23,33,44,1));
+  --glass-tier3-border: rgba(121,198,220,0.28);
   --glass-tier3-blur: 0px;
-  --glass-tier3-shadow: 0 12px 36px rgba(0,0,0,0.7), 0 0 0 1px rgba(95,212,255,0.05);
-  --glass-tier3-inset: inset 0 1px 0 rgba(255,255,255,0.06);
-  --glass-panel-border: rgba(95,212,255,0.2);
-  --glass-panel-shadow: 0 0 12px rgba(95,212,255,0.08), 0 0 3px rgba(95,212,255,0.15);
+  --glass-tier3-shadow: 0 12px 36px rgba(0,0,0,0.62), 0 0 0 1px rgba(121,198,220,0.05);
+  --glass-tier3-inset: inset 0 1px 0 rgba(255,255,255,0.05);
+  --glass-panel-border: rgba(121,198,220,0.20);
+  --glass-panel-shadow: 0 0 10px rgba(121,198,220,0.06), 0 0 3px rgba(121,198,220,0.12);
   /* モバイル */
-  --color-sheet-bg: #0e1620;
-  --color-nav-bg: rgba(10,16,21,0.85);
-  --color-nav-border: rgba(95,212,255,0.14);
-  --color-fab-bg: rgba(95,212,255,0.12);
-  --color-fab-border: rgba(95,212,255,0.35);
+  --color-sheet-bg: #1a2430;
+  --color-nav-bg: rgba(13,19,27,0.85);
+  --color-nav-border: rgba(121,198,220,0.14);
+  --color-fab-bg: rgba(121,198,220,0.12);
+  --color-fab-border: rgba(121,198,220,0.32);
 }
 
-/* --- Light: 白基調・細いシアンライン (暫定値 spec §5) --- */
+/* --- Light: 「同じ機体の設計図」白基調 (参照 allagan-light.png 採色 / spec-v2 §1) --- */
 .theme-military.theme-light {
-  --color-bg-primary: #e9eff5;
-  --color-bg-secondary: #e9eff5;
+  --color-bg-primary: #eef2f6;
+  --color-bg-secondary: #eef2f6;
   --color-bg-tertiary: #ffffff;
-  --color-accent-primary: #0a8fd1;
-  --app-accent-rgb: 10, 143, 209;
-  --color-accent-secondary: #0a8fd1;
-  --color-accent-dim: rgba(10, 143, 209, 0.10);
-  --color-text-primary: #162533;
-  --color-text-secondary: #3e556b;
-  --color-text-muted: #6f8398;
+  --color-accent-primary: #1183b0;
+  --app-accent-rgb: 17, 131, 176;
+  --color-accent-secondary: #1183b0;
+  --color-accent-dim: rgba(17, 131, 176, 0.10);
+  --milspec-heading: #12222f;              /* 見出しは黒 (spec §1) */
+  --color-text-primary: #12222f;
+  --color-text-secondary: #45596b;
+  --color-text-muted: #6f8195;
   --color-text-on-accent: #ffffff;
-  --color-toggle-bg: #0a8fd1;
+  --color-toggle-bg: #1183b0;
   --color-toggle-text: #ffffff;
-  --color-border: rgba(40, 80, 120, 0.18);
-  --color-border-accent: rgba(30, 90, 140, 0.45);
-  --color-blue: #0a8fd1; --color-blue-hover: #0876ad;
-  --color-blue-dim: rgba(10,143,209,0.08); --color-blue-border: rgba(10,143,209,0.25);
-  --color-amber: #e26a1a; --color-amber-hover: #c05713;
-  --color-amber-dim: rgba(226,106,26,0.08); --color-amber-border: rgba(226,106,26,0.25);
-  --color-red: #d92020; --color-red-hover: #b81a1a;
-  --color-red-dim: rgba(217,32,32,0.08); --color-red-border: rgba(217,32,32,0.25);
+  --color-border: rgba(40, 84, 120, 0.16);           /* 細い青グレー線 */
+  --color-border-accent: rgba(17, 131, 176, 0.42);
+  --color-blue: #1183b0; --color-blue-hover: #0d6d94;
+  --color-blue-dim: rgba(17,131,176,0.08); --color-blue-border: rgba(17,131,176,0.25);
+  --color-amber: #c26f1c; --color-amber-hover: #a25a12;
+  --color-amber-dim: rgba(194,111,28,0.08); --color-amber-border: rgba(194,111,28,0.25);
+  --color-red: #d33b3f; --color-red-hover: #b52d31;
+  --color-red-dim: rgba(211,59,63,0.08); --color-red-border: rgba(211,59,63,0.25);
   --glass-tier1-bg: linear-gradient(180deg, #ffffff, #f5f8fb);
-  --glass-tier1-border: rgba(30,90,140,0.14);
+  --glass-tier1-border: rgba(17,131,176,0.14);
   --glass-tier1-blur: 0px;
   --glass-tier2-bg: linear-gradient(180deg, #ffffff, #f0f5fa);
-  --glass-tier2-border: rgba(30,90,140,0.18);
+  --glass-tier2-border: rgba(17,131,176,0.18);
   --glass-tier2-blur: 0px;
   --glass-tier3-bg: #ffffff;
-  --glass-tier3-border: rgba(30,90,140,0.22);
+  --glass-tier3-border: rgba(17,131,176,0.22);
   --glass-tier3-blur: 0px;
   --glass-tier3-shadow: 0 12px 36px rgba(20,40,70,0.12);
   --glass-tier3-inset: inset 0 1px 0 rgba(255,255,255,0.6);
-  --glass-panel-border: rgba(30,90,140,0.16);
-  --glass-panel-shadow: 0 0 8px rgba(30,90,140,0.06), 0 0 2px rgba(30,90,140,0.12);
+  --glass-panel-border: rgba(17,131,176,0.16);
+  --glass-panel-shadow: 0 0 8px rgba(17,131,176,0.06), 0 0 2px rgba(17,131,176,0.12);
   --color-sheet-bg: #ffffff;
-  --color-nav-bg: rgba(233,239,245,0.9);
-  --color-nav-border: rgba(30,90,140,0.16);
+  --color-nav-bg: rgba(238,242,246,0.9);
+  --color-nav-border: rgba(17,131,176,0.16);
   --color-fab-bg: rgba(255,255,255,0.95);
-  --color-fab-border: rgba(30,90,140,0.2);
+  --color-fab-border: rgba(17,131,176,0.2);
 }
 
 /* --- 全体背景: ドットマトリクス (Nothing 的・dark/light 共通・フラット) --- */
@@ -184,13 +186,13 @@
   /* 墨入れ(パネルライン)= フラットな凹線 */
   --milspec-ink: rgba(0, 0, 0, 0.45);
   --milspec-groove: inset 0 0 0 1px var(--milspec-ink);
-  /* パネル境界のハードライン */
-  --milspec-hairline: rgba(var(--app-accent-rgb), 0.26);
+  /* パネル境界のハードライン: グレー寄り(spec §1/§2)。強調線だけシアン。 */
+  --milspec-hairline: var(--color-border);
   --milspec-hairline-strong: rgba(var(--app-accent-rgb), 0.5);
   /* パネル面: フラット単色 + ごく浅い上光り(マット金属) */
-  --milspec-surface: #0e161f;
-  --milspec-surface-2: #0a1119;
-  --milspec-surface-3: #121c26;
+  --milspec-surface: #1a2430;
+  --milspec-surface-2: #111925;
+  --milspec-surface-3: #212e3b;
   --milspec-panel-grad: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0) 34%, rgba(0,0,0,0.14));
   /* サイコフレーム: クリスプな細線発光のみ(ブルーム最小) */
   --milspec-glow-text: 0 0 1px rgba(var(--app-accent-rgb), calc(0.6 * var(--milspec-tune-glow)));
@@ -216,11 +218,11 @@
 
 .theme-military.theme-light {
   --milspec-ink: rgba(30, 62, 96, 0.14);
-  --milspec-hairline: rgba(var(--app-accent-rgb), 0.32);
+  --milspec-hairline: var(--color-border);
   --milspec-hairline-strong: rgba(var(--app-accent-rgb), 0.55);
-  --milspec-surface: #f5f8fb;
-  --milspec-surface-2: #ffffff;
-  --milspec-surface-3: #eef3f8;
+  --milspec-surface: #ffffff;
+  --milspec-surface-2: #f4f7fa;
+  --milspec-surface-3: #fbfcfe;
   --milspec-panel-grad: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(255,255,255,0) 40%, rgba(30,62,96,0.03));
   --milspec-glow-text: none;
   --milspec-glow-edge: none;
@@ -337,7 +339,7 @@
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  color: var(--color-text-primary);
+  color: var(--milspec-heading, var(--color-text-primary));
 }
 .theme-military .milspec-hdg .milspec-sub {
   display: block;
@@ -519,7 +521,7 @@
 .theme-military [data-milspec-wordmark] .milspec-wm-main {
   font-family: var(--milspec-font-mono); font-weight: 400;
   font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase;
-  color: var(--color-text-primary);
+  color: var(--milspec-heading, var(--color-text-primary));
 }
 .theme-military [data-milspec-wordmark] .milspec-wm-sub {
   font-family: var(--milspec-font-mono); font-size: 7px;
