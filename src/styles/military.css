@@ -618,28 +618,74 @@
   pointer-events: none; z-index: 2;
 }
 
-/* サイドバー内のカード/パネル(BACKUP 群・プラン群コンテナ等) */
-.theme-military [data-milspec-sidebar] [class*="rounded"]:where(section, .group, [data-plan-list], [data-sidebar-card]) {
+/* サイドバー内: 全ボタンをフラット・角ばりに */
+.theme-military [data-milspec-sidebar] button,
+.theme-military [data-milspec-sidebar] [class*="rounded"] {
   border-radius: 0 !important;
 }
 
-/* サイドバー見出し(SCENARIO) */
-.theme-military [data-milspec-scenario-hd] {
-  font-family: var(--milspec-font-mono) !important;
-  text-transform: uppercase; letter-spacing: 0.24em;
+/* dock ボタンバー(NEW / 共有 / 選択削除) = コンソールスイッチ */
+.theme-military [data-milspec-dock] > div { gap: 0 !important; }
+.theme-military [data-milspec-dock] button {
+  border-color: var(--milspec-hairline) !important;
+  background-color: var(--milspec-surface-3) !important;
+  background-image: var(--milspec-panel-grad) !important;
+  clip-path: polygon(5px 0, 100% 0, 100% 100%, 0 100%, 0 5px);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: var(--milspec-font-mono);
+  margin-right: -1px;
 }
+
+/* セクション見出し(零式シリーズ名) = mono + シアン下線 */
+.theme-military [data-milspec-sect] {
+  font-family: var(--milspec-font-mono) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 10px !important;
+  color: var(--color-text-secondary) !important;
+  border-bottom: 1px solid var(--milspec-hairline);
+  padding-bottom: 4px !important;
+  margin: 6px 4px 2px !important;
+  position: relative;
+}
+.theme-military [data-milspec-sect]::before {
+  content: "▚";
+  color: rgba(var(--app-accent-rgb), 0.7);
+  margin-right: 5px;
+  font-size: 8px;
+}
+
+/* コンテンツ/フロア行(sidebar-item) — 選択でシアン左バー + tint */
+.theme-military [data-milspec-sidebar] .sidebar-item {
+  border-left: 1px solid transparent;
+}
+.theme-military [data-milspec-sidebar] .sidebar-item.text-app-text:not(.bg-transparent),
+.theme-military [data-milspec-sidebar] .sidebar-item[class*="text-app-text"]:hover {
+  background-color: rgba(var(--app-accent-rgb), 0.05) !important;
+}
+
+/* 選択プランの左 2px バー → 発光 */
+.theme-military [data-milspec-sidebar] .bg-app-toggle { box-shadow: var(--milspec-glow-edge); }
+
+/* SegmentButton(タブ)の pill インジケータを角ばりに */
+.theme-military [data-milspec-sidebar] [class*="rounded-full"] { border-radius: 0 !important; }
+
+/* BACKUP / RESTORE(サイドバー下部) */
+.theme-military [data-milspec-sidebar] .custom-scrollbar { scrollbar-width: thin; }
 
 /* ============================================================
  * タイムライン表
  * ============================================================ */
 
-/* 表コンテナ枠 */
+/* 表コンテナ枠 + 微ノイズ */
 .theme-military [data-milspec-table] {
   border-color: var(--milspec-hairline) !important;
   background-image: var(--milspec-noise);
   background-size: 120px 120px;
+  position: relative;
 }
-/* ヘッダー行のセル */
+/* ヘッダー行のセル(data-milspec-thead) */
 .theme-military [data-milspec-thead] {
   position: relative;
   background-color: var(--milspec-surface-3) !important;
@@ -649,12 +695,20 @@
 .theme-military [data-milspec-thead]::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
   background: rgba(var(--app-accent-rgb), 0.55); box-shadow: var(--milspec-glow-edge);
+  pointer-events: none;
+}
+/* 表内の見出しラベル(列名) → mono uppercase・字間広め */
+.theme-military [data-milspec-table] [class*="uppercase"],
+.theme-military [data-milspec-table] [data-milspec-collabel] {
+  font-family: var(--milspec-font-mono) !important;
+  letter-spacing: 0.14em !important;
 }
 /* 時刻セル = mono + シアン */
-.theme-military [data-milspec-time] {
+.theme-military [data-milspec-time],
+.theme-military [data-milspec-table] [data-timeline-time] {
   font-family: var(--milspec-font-mono) !important;
   color: var(--color-accent-primary) !important;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
 }
 /* 数値 = mono */
 .theme-military [data-milspec-num] { font-family: var(--milspec-font-mono) !important; }
@@ -662,6 +716,12 @@
 .theme-military [data-milspec-row]:hover {
   box-shadow: inset 2px 0 0 rgba(var(--app-accent-rgb), 0.8) !important;
 }
+
+/* ============================================================
+ * エディタ配下のモーダル (glass-tier3 を共有)
+ * ============================================================ */
+/* body 直下 portal の全画面モーダルは対象外(admin/housing/共有等と混ざるため
+ * data-milspec-modal を付けた要素のみ。※既存モーダルは Phase 3 で個別 hook)。 */
 
 /* ============================================================
  * カード / モーダル (エディタ配下)

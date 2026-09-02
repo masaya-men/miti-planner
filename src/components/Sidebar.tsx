@@ -1274,7 +1274,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                     </div>
 
                     {/* ボタンバー */}
-                    <div className="px-3 shrink-0 my-2">
+                    <div data-milspec-dock className="px-3 shrink-0 my-2">
                         <div className="flex items-center gap-1 flex-wrap">
                         <button
                             onClick={() => {
@@ -1346,7 +1346,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         : seriesName;
                                     return (
                                         <div key={sid}>
-                                            <div className="text-app-base font-bold text-app-text px-2.5 pt-3 pb-1">
+                                            <div data-milspec-sect className="text-app-base font-bold text-app-text px-2.5 pt-3 pb-1">
                                                 {sectionLabel}
                                             </div>
                                             {contents.map((content, idx) => (
