@@ -20,6 +20,9 @@ import type { HousingUserMeta } from '../../src/types/housing.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
 import { buildNewListingNotification } from '../../src/lib/housing/newListingTweet.js';
 import { sendHousingNewListingNotification } from '../../src/lib/discordWebhook.js';
+import { listingRepresentativeImages } from '../share/_listingImages.js';
+import { warmListingOgCard } from '../../src/lib/housing/listingOgCardWarm.js';
+import { resolveSiteOrigin } from '../../src/lib/housing/resolveSiteOrigin.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -70,6 +73,9 @@ export default async function handler(req: any, res: any) {
 
     let createdId: string | null = null;
     let newRefId: string | null = null;
+    // OGカード事前生成用に、作成した listing データをトランザクション外へ退避する
+    // (トランザクションはリトライされうるため、最後に成立した attempt の値で上書きする)。
+    let createdListing: Record<string, unknown> | null = null;
     await adminDb.runTransaction(async (tx) => {
       const metaSnap = await tx.get(metaRef);
       let meta: HousingUserMeta = metaSnap.exists
@@ -138,6 +144,7 @@ export default async function handler(req: any, res: any) {
       };
       tx.set(newRef, listing);
       createdId = newRef.id;
+      createdListing = listing as Record<string, unknown>;
 
       // 管理者は日次枠を消費しない (registrationCount は記録のため加算)。
       const updatedMeta = isAdmin
@@ -235,6 +242,28 @@ export default async function handler(req: any, res: any) {
       } catch (tweetNotifyErr) {
         console.error('[housing/register-listing] new-listing tweet notify failed:', tweetNotifyErr);
       }
+    }
+
+    // 2026-09-02: OGカードを登録時に事前生成する。物件ページ側 (_listingPageHandler) は
+    // カード生成を待たなくなった (初回クロールの TTFB 短縮) ため、ここで Storage に焼いておかないと
+    // 新規物件の初回シェアが「画像なしカード」で X にキャッシュされてしまう。
+    // 登録処理は元々数秒かかる & クローラーは待っていないので warm-up fetch を await してよい。
+    // warm 失敗は登録の成否に一切影響させない (全体 try/catch)。
+    try {
+      const origin = resolveSiteOrigin(req.headers?.host);
+      const rawPhoto = createdListing ? listingRepresentativeImages(createdListing)[0] : undefined;
+      if (rawPhoto) {
+        const photoUrl = /^https?:\/\//.test(rawPhoto) ? rawPhoto : `${origin}${rawPhoto}`;
+        await warmListingOgCard({
+          origin,
+          photoUrl,
+          setMeta: async (hash, meta) => {
+            await adminDb.collection('og_image_meta').doc(hash).set(meta);
+          },
+        });
+      }
+    } catch (warmErr) {
+      console.error('[housing/register-listing] OG card warm-up failed (non-fatal):', warmErr);
     }
 
     return res.status(200).json({ id: createdId, addressKey });

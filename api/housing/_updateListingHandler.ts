@@ -18,6 +18,9 @@ import { getStorage } from 'firebase-admin/storage';
 import { validateRegistrationDraft, normalizePublishUntil, normalizeAfterExpiryVisibility, buildListingImageFields, type RegistrationDraft } from '../../src/utils/housingValidation.js';
 import { buildAddressKey } from '../../src/utils/housingDuplicate.js';
 import { bumpPublicVersionTx } from './_publicVersion.js';
+import { listingRepresentativeImages } from '../share/_listingImages.js';
+import { warmListingOgCard } from '../../src/lib/housing/listingOgCardWarm.js';
+import { resolveSiteOrigin } from '../../src/lib/housing/resolveSiteOrigin.js';
 
 function setCors(req: any, res: any) {
   const origin = req.headers?.origin || '';
@@ -231,6 +234,30 @@ export default async function handler(req: any, res: any) {
       } catch (e) {
         console.error('[housing/update-listing] thumbnail cleanup failed (non-fatal):', e);
       }
+    }
+
+    // 2026-09-02: 編集後も OGカードを事前生成する (登録時と同じ理由。_listingPageHandler は
+    // もうカード生成を待たないため、代表画像を差し替えた編集の初回シェアが画像なしになるのを防ぐ)。
+    // updatePayload には FieldValue.delete() センチネルが混ざっていて既存 doc とマージできないので、
+    // 更新後の doc を読み直してから代表画像を判定する。画像が変わっていなければ hash は同一で、
+    // Storage 側はほぼ no-op の冪等な再タッチになるため「更新後は常に warm」で許容する。
+    // warm 失敗は編集の成否に一切影響させない (全体 try/catch)。
+    try {
+      const origin = resolveSiteOrigin(req.headers?.host);
+      const fresh = (await listingRef.get()).data();
+      const rawPhoto = fresh ? listingRepresentativeImages(fresh as Record<string, unknown>)[0] : undefined;
+      if (rawPhoto) {
+        const photoUrl = /^https?:\/\//.test(rawPhoto) ? rawPhoto : `${origin}${rawPhoto}`;
+        await warmListingOgCard({
+          origin,
+          photoUrl,
+          setMeta: async (hash, meta) => {
+            await adminDb.collection('og_image_meta').doc(hash).set(meta);
+          },
+        });
+      }
+    } catch (warmErr) {
+      console.error('[housing/update-listing] OG card warm-up failed (non-fatal):', warmErr);
     }
 
     return res.status(200).json({ success: true });

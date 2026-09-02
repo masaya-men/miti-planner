@@ -28,6 +28,10 @@ let listingDocData: any = {
 let profileSnap: any = { exists: false, data: () => null };
 let dupDocs: any[] = [];
 
+// OGカード事前生成 (Task 4): og_image_meta/{hash}.set() の spy と warm-up fetch の spy。
+const ogImageMetaSetMock = vi.fn(async (_hash?: string, _meta?: unknown) => {});
+const fetchMock = vi.fn(async (_url?: unknown, _init?: unknown) => ({ ok: true }) as Response);
+
 function makeChain(name: string): any {
   const chain: any = {
     where: vi.fn(() => chain),
@@ -42,6 +46,7 @@ function makeChain(name: string): any {
         if (name === 'housing_profiles') return profileSnap;
         return { exists: false, data: () => null };
       }),
+      set: (hash: string, meta: unknown) => ogImageMetaSetMock(hash, meta),
     })),
   };
   return chain;
@@ -86,6 +91,11 @@ const validBody = {
 beforeEach(() => {
   sendNotifyMock.mockClear();
   sendNotifyMock.mockImplementation(() => Promise.resolve());
+  ogImageMetaSetMock.mockClear();
+  ogImageMetaSetMock.mockImplementation(() => Promise.resolve());
+  fetchMock.mockClear();
+  fetchMock.mockImplementation(async () => ({ ok: true }) as Response);
+  global.fetch = fetchMock as unknown as typeof fetch;
   decodedToken = { uid: 'hashed:user1', role: undefined };
   listingDocData = {
     title: 'テストハウス', visibility: 'public',
@@ -156,5 +166,48 @@ describe('register-listing の新着通知', () => {
     await handler(req, res);
     expect(sendNotifyMock).toHaveBeenCalledTimes(1);
     expect(sendNotifyMock.mock.calls[0][0]).toContain('ハウジンガー太郎さんの他のハウジングはこちら👇');
+  });
+});
+
+describe('register-listing の OGカード事前生成 (Task 4)', () => {
+  // plot 12 / Mist = 区画サイズ 'S'。X 静止画ツイート経路 (代表画像 = ogImageUrl)。
+  const validBodyWithPhoto = {
+    ...validBody,
+    imageMode: 'sns',
+    postUrl: 'https://x.com/user/status/1234567890123',
+    ogImageUrl: 'https://pbs.twimg.com/media/ABC.jpg',
+    tweetId: '1234567890123',
+  };
+
+  it('写真つき登録で meta 書き込み + warm-up fetch (/og/<hash>.png) が走り、レスポンスは 200', async () => {
+    const { req, res } = makeReqRes(validBodyWithPhoto);
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(ogImageMetaSetMock).toHaveBeenCalledTimes(1);
+    const ogFetch = fetchMock.mock.calls.find(
+      (c: any[]) => typeof c[0] === 'string' && c[0].includes('/og/'),
+    );
+    expect(ogFetch?.[0]).toMatch(/^https:\/\/lopoly\.app\/og\/[a-f0-9]{16}\.png$/);
+  });
+
+  it('画像ゼロの登録では事前生成が走らない', async () => {
+    const { req, res } = makeReqRes(validBody);
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(ogImageMetaSetMock).not.toHaveBeenCalled();
+    const ogFetch = fetchMock.mock.calls.find(
+      (c: any[]) => typeof c[0] === 'string' && c[0].includes('/og/'),
+    );
+    expect(ogFetch).toBeUndefined();
+  });
+
+  it('事前生成 (meta 書き込み) が失敗しても登録は 200 のまま', async () => {
+    ogImageMetaSetMock.mockRejectedValueOnce(new Error('firestore down'));
+    const { req, res } = makeReqRes(validBodyWithPhoto);
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
   });
 });
