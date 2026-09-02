@@ -543,9 +543,23 @@
   background-color: var(--milspec-surface-3);
   background-image: var(--milspec-panel-grad);
 }
-.theme-military [data-milspec-titlebar] button:hover {
+/* hover 修正: 既存 Tailwind の hover:bg-app-toggle/hover:text-app-toggle-text は
+ * こちらの不透明 background で殺しているのに text だけ暗転して文字が消える不具合。
+ * → hover は薄いシアン tint + 文字色を明色に固定(子要素も)。 */
+.theme-military [data-milspec-titlebar] button:hover,
+.theme-military [data-milspec-toolbar] button:hover,
+.theme-military [data-milspec-dock] button:hover,
+.theme-military [data-milspec-sidebar] .sidebar-item:hover {
   border-color: var(--milspec-hairline-strong) !important;
-  background-color: rgba(var(--app-accent-rgb), 0.08);
+  background-color: rgba(var(--app-accent-rgb), 0.16) !important;
+  background-image: none !important;
+  color: var(--color-text-primary) !important;
+}
+.theme-military [data-milspec-titlebar] button:hover *,
+.theme-military [data-milspec-toolbar] button:hover *,
+.theme-military [data-milspec-dock] button:hover *,
+.theme-military [data-milspec-sidebar] .sidebar-item:hover * {
+  color: var(--color-text-primary) !important;
 }
 .theme-military [data-milspec-titlebar] .w-px {
   width: 1px !important; background: var(--milspec-hairline) !important; border-radius: 0 !important;
@@ -558,7 +572,6 @@
   background-color: var(--milspec-surface-3);
   background-image: var(--milspec-panel-grad);
 }
-.theme-military [data-milspec-toolbar] button:hover { border-color: var(--milspec-hairline-strong) !important; }
 .theme-military [data-milspec-toolbar] > div > span > button,
 .theme-military [data-milspec-toolbar] > div > button {
   clip-path: polygon(7px 0, 100% 0, 100% 100%, 0 100%, 0 7px);
@@ -660,8 +673,7 @@
 .theme-military [data-milspec-sidebar] .sidebar-item {
   border-left: 1px solid transparent;
 }
-.theme-military [data-milspec-sidebar] .sidebar-item.text-app-text:not(.bg-transparent),
-.theme-military [data-milspec-sidebar] .sidebar-item[class*="text-app-text"]:hover {
+.theme-military [data-milspec-sidebar] .sidebar-item.text-app-text:not(.bg-transparent) {
   background-color: rgba(var(--app-accent-rgb), 0.05) !important;
 }
 
