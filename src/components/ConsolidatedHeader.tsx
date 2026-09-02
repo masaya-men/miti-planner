@@ -171,8 +171,29 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 className="w-full overflow-hidden pointer-events-auto glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-shadow-none"
             >
                 <div
+                    data-milspec-header
                     className="flex flex-col w-full h-[96px] pt-[5px]"
                 >
+                    {/* MIL-SPEC 装飾クローム層: デカール・型番・計器（aria-hidden・standard は CSS 非表示） */}
+                    <div data-milspec-chrome aria-hidden="true">
+                        <span className="milspec-decal milspec-c-topcode">A.R.D // Combat Analysis System</span>
+                        <span className="milspec-barcode milspec-c-barcode" />
+                        <span className="milspec-decal milspec-c-serial">AR-2409-NT // LP-OPT</span>
+                        <span className="milspec-decal milspec-decal--accent milspec-decal--lg milspec-c-sec">Sector 01 — Command</span>
+                        <span className="milspec-hash-strip milspec-c-hash" />
+                        <span className="milspec-c-caution">
+                            <span className="milspec-tri" />
+                            <span className="milspec-decal">Mitigation Loop Optimizer</span>
+                            <span className="milspec-tri" />
+                        </span>
+                        <span className="milspec-ruler milspec-c-ruler" />
+                        <span className="milspec-decal milspec-c-seq">01 02 03 04 05</span>
+                        <span className="milspec-c-status">
+                            <span className="milspec-decal milspec-decal--accent">Sys Online</span>
+                            <span className="milspec-led" />
+                        </span>
+                    </div>
+
                     {/* Layer A（上段）: 左=ナビ+タイトル / 右=共有+チュートリアル+設定（固定） */}
                     <div data-milspec-titlebar className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-x-hidden overflow-y-visible">
                         {/* ── 左グループ（余ったスペースを使う） ── */}
@@ -194,6 +215,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <div className="flex items-baseline gap-2" style={{ minWidth: 0, overflow: 'hidden', flex: '1 1 0%' }}>
                                     {contentLabel && (
                                         <span
+                                            data-milspec-title
                                             className={clsx(
                                                 "text-app-text leading-tight whitespace-nowrap shrink-0",
                                                 i18n.language.startsWith('ja') ? "text-app-4xl" : "text-app-5xl"
@@ -229,6 +251,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <div className="flex items-baseline gap-2" style={{ minWidth: 0, overflow: 'hidden', flex: '1 1 0%' }}>
                                     {contentLabel && (
                                         <span
+                                            data-milspec-title
                                             className={clsx(
                                                 "text-app-text leading-tight whitespace-nowrap shrink-0",
                                                 i18n.language.startsWith('ja') ? "text-app-4xl" : "text-app-5xl"
