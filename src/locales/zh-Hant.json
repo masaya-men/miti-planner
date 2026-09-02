@@ -170,6 +170,8 @@
         "swipe_delete": "刪除",
         "toggle_theme_light": "切換到淺色主題",
         "toggle_theme_dark": "切換到深色主題",
+        "theme_style_to_milspec": "切換到 MIL-SPEC 主題",
+        "theme_style_to_standard": "返回標準主題",
         "switch_language": "語言切換",
         "page_title_planner": "LoPo | 減傷規劃器",
         "page_title_landing": "LoPo | FF14 減傷軸 & 房屋 | 移動端支援",

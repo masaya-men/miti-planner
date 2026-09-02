@@ -170,6 +170,8 @@
         "swipe_delete": "Delete",
         "toggle_theme_light": "Switch to Light Theme",
         "toggle_theme_dark": "Switch to Dark Theme",
+        "theme_style_to_milspec": "Switch to MIL-SPEC theme",
+        "theme_style_to_standard": "Back to standard theme",
         "switch_language": "Language",
         "page_title_planner": "LoPo | Mitigation Planner",
         "page_title_landing": "LoPo | FFXIV Mitigation Sheet & Housing | Mobile-Friendly",
