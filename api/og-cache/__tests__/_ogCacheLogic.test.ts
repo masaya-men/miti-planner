@@ -49,7 +49,7 @@ describe('buildInternalOgUrl', () => {
       'test-secret',
     );
     expect(url).toMatch(
-      /^https:\/\/lopoly\.app\/api\/og\?type=listing&ver=1&img=https%3A%2F%2Fpbs\.twimg\.com%2Fmedia%2Fabc\.jpg&sig=[a-f0-9]{24}$/,
+      /^https:\/\/lopoly\.app\/api\/og\?type=listing&ver=2&img=https%3A%2F%2Fpbs\.twimg\.com%2Fmedia%2Fabc\.jpg&sig=[a-f0-9]{24}$/,
     );
   });
 

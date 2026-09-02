@@ -41,8 +41,9 @@ describe('buildListingPhotoCard', () => {
     expect(findByText(buildListingPhotoCard(uri), 'LoPo')).toBe(false);
   });
 
-  it('SQUARE ENIX 著作権表記を必ず含む', () => {
-    expect(findByText(buildListingPhotoCard(uri), '© SQUARE ENIX')).toBe(true);
+  it('子レイヤーは [ぼかし背景, 暗幕, 写真] の 3 つのみ(© 行なし)', () => {
+    const tree = buildListingPhotoCard(uri) as any;
+    expect(tree.props.children).toHaveLength(3);
   });
 
   it('全面レイヤーは inset:0 省略記法を使わず 4 辺個別指定(satori バグ回避)', () => {
@@ -59,9 +60,6 @@ describe('buildListingPhotoCard', () => {
 describe('buildListingBrandFallbackCard', () => {
   it('「LoPo Housing」テキストを含む', () => {
     expect(findByText(buildListingBrandFallbackCard(), 'LoPo Housing')).toBe(true);
-  });
-  it('SQUARE ENIX 著作権表記を含む', () => {
-    expect(findByText(buildListingBrandFallbackCard(), '© SQUARE ENIX')).toBe(true);
   });
   it('img ノードを含まない', () => {
     expect(countImgNodes(buildListingBrandFallbackCard())).toBe(0);

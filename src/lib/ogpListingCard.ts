@@ -9,10 +9,15 @@
  * Web Crypto (`crypto.subtle`) のみ使用(Node 18+/Edge 双方で動作・単体テストも Node で通る)。
  *
  * パラメータ順序(固定・sig を除く): type → ver → img。
+ *
+ * v2 (2026-09-02 masaya): カード画像から `© SQUARE ENIX` 行を削除。LoPo 物件ページのフッター
+ * (StatusBar)が「1 ページ 1 回」で FFXIV Materials Usage License を満たすため、プレビュー画像に
+ * © は不要(ゲーム内スクショは SE 自身の透かしも入るので二重表記の回避にもなる)。CARD_VERSION を
+ * 上げることで sig / URL が変わり、既存のキャッシュ済みカードが新ハッシュで再生成される。
  */
 
 const SIG_PARAM = 'sig';
-const CARD_VERSION = '1';
+const CARD_VERSION = '2';
 const SIG_HEX_LENGTH = 24;
 
 export interface ListingOgCardInput {

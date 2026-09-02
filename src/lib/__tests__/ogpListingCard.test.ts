@@ -4,9 +4,9 @@ describe('buildListingOgCardParams', () => {
   it('type/ver/img を挿入順で含む', () => {
     const params = buildListingOgCardParams({ img: 'https://pbs.twimg.com/media/abc.jpg' });
     expect(params.get('type')).toBe('listing');
-    expect(params.get('ver')).toBe('1');
+    expect(params.get('ver')).toBe('2');
     expect(params.get('img')).toBe('https://pbs.twimg.com/media/abc.jpg');
-    expect(params.toString()).toBe('type=listing&ver=1&img=https%3A%2F%2Fpbs.twimg.com%2Fmedia%2Fabc.jpg');
+    expect(params.toString()).toBe('type=listing&ver=2&img=https%3A%2F%2Fpbs.twimg.com%2Fmedia%2Fabc.jpg');
   });
 });
 

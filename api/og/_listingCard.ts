@@ -15,7 +15,7 @@
  */
 
 import { ImageResponse } from '@vercel/og';
-import { loadMPlus1Fonts, loadInterFonts } from './_fonts.js';
+import { loadMPlus1Fonts } from './_fonts.js';
 import { fetchAsDataUri } from './_fetchOgImage.js';
 import { verifyListingOgCardSig } from '../../src/lib/ogpListingCard.js';
 
@@ -23,8 +23,6 @@ const CARD_WIDTH = 1200;
 const CARD_HEIGHT = 630;
 /** ハウジングの背景色(正典 docs/.private/housing-tour-mockup 系統)。葉書外の下地に使う。 */
 const BG_COLOR = '#111725';
-/** FFXIV Materials Usage License が認める短縮形 `© SQUARE ENIX` を使用。ゲーム内正式表記より文字数削減。 */
-const COPYRIGHT_TEXT = '© SQUARE ENIX';
 const CACHE_HEADERS = {
   // URL に content-derived な sig が入るため、内容が変われば URL 自体が変わる = 実質 immutable。
   'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
@@ -34,36 +32,10 @@ const CACHE_HEADERS = {
 const FULL_BLEED_ABSOLUTE = { position: 'absolute' as const, top: 0, right: 0, bottom: 0, left: 0 };
 
 /**
- * 著作権表記(全カード共通・下端中央)。写真の上に乗っても読めるよう強めのシャドウで縁取る。
- * _housingerCard.ts の buildCopyrightLine と同じスタイル方針(11px / Inter / 強シャドウ)。
- */
-function buildCopyrightLine() {
-  return {
-    type: 'div',
-    props: {
-      style: {
-        position: 'absolute', bottom: 14, left: 0, right: 0,
-        display: 'flex', justifyContent: 'center',
-      },
-      children: {
-        type: 'div',
-        props: {
-          style: {
-            fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.9)',
-            fontFamily: '"Inter"', letterSpacing: 0.2,
-            textShadow: '0 1px 3px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85)',
-            display: 'flex',
-          },
-          children: COPYRIGHT_TEXT,
-        },
-      },
-    },
-  };
-}
-
-/**
- * 写真カード: ぼかし背景(cover)+ 軽い暗幕 + 写真本体(contain)+ 下端の © 表記。
- * タイトル・住所・ブランド印は焼き込まない(og:title / og:description が各 SNS のカード文字部分に出る)。
+ * 写真カード: ぼかし背景(cover)+ 軽い暗幕 + 写真本体(contain)の 3 レイヤーのみ。
+ * 文字・枠・ブランド印・© 表記は焼き込まない。© は LoPo 物件ページのフッター(StatusBar)が
+ * 「1 ページ 1 回」で FFXIV Materials Usage License を満たすため、プレビュー画像側には不要
+ * (2026-09-02 masaya 判断)。タイトル・住所は og:title / og:description が各 SNS のカード文字部分に出す。
  */
 export function buildListingPhotoCard(photoDataUri: string) {
   return {
@@ -96,14 +68,13 @@ export function buildListingPhotoCard(photoDataUri: string) {
             style: { position: 'relative', width: CARD_WIDTH, height: CARD_HEIGHT, objectFit: 'contain' },
           },
         },
-        buildCopyrightLine(),
       ],
     },
   };
 }
 
 /**
- * 代表写真の URL はあるが取得に失敗した場合のフォールバック(「LoPo Housing」+ © 表記)。
+ * 代表写真の URL はあるが取得に失敗した場合のフォールバック(「LoPo Housing」の 1 行のみ)。
  * _listingPageHandler は写真ゼロの物件では type=listing を呼ばない(DEFAULT_OG_IMAGE のまま)ため、
  * これが使われるのは「URL はあるが dead / WebP / timeout」のケースのみ。
  */
@@ -112,20 +83,17 @@ export function buildListingBrandFallbackCard() {
     type: 'div',
     props: {
       style: {
-        width: '100%', height: '100%', display: 'flex', position: 'relative',
+        width: '100%', height: '100%', display: 'flex',
         alignItems: 'center', justifyContent: 'center',
         backgroundColor: BG_COLOR, fontFamily: '"M PLUS 1", sans-serif',
       },
-      children: [
-        {
-          type: 'div',
-          props: {
-            style: { fontSize: 64, fontWeight: 900, color: '#ffffff', letterSpacing: -1, display: 'flex' },
-            children: 'LoPo Housing',
-          },
+      children: {
+        type: 'div',
+        props: {
+          style: { fontSize: 64, fontWeight: 900, color: '#ffffff', letterSpacing: -1, display: 'flex' },
+          children: 'LoPo Housing',
         },
-        buildCopyrightLine(),
-      ],
+      },
     },
   };
 }
@@ -134,8 +102,8 @@ export function buildListingBrandFallbackCard() {
  * `type=listing` リクエストの本体。api/og/index.ts から委譲される。
  * 署名検証 → 写真の事前フェッチ(base64 化) → satori レンダリング。
  * 写真が取れない / レンダリング失敗時はブランドフォールバックカードで 200 を返す(500 を返さない)。
- * © 表記を焼き込むため写真カード経路でもフォントを読み込む(Inter=© 行 / M PLUS 1=フォールバックの見出し。
- * _housingerCard.ts の handleHousingerCardRequest と同じ二種読み込み)。
+ * 写真カードは文字ノードがゼロなのでフォント読み込み不要。フォールバックカードの見出し
+ * (「LoPo Housing」)のみ M PLUS 1 を読み込む(取得失敗時は空配列 = satori 既定フォント)。
  */
 export async function handleListingCardRequest(searchParams: URLSearchParams): Promise<Response> {
   const cronSecret = process.env.CRON_SECRET;
@@ -150,27 +118,22 @@ export async function handleListingCardRequest(searchParams: URLSearchParams): P
 
   const imgUrl = searchParams.get('img') || '';
 
-  const loadFonts = async () => {
-    const [mplus1, inter] = await Promise.all([
-      // © 行のグリフも M PLUS 1 サブセットに含める(重複除去): Inter 読み込みが CDN 不調で
-      // 失敗しても satori が M PLUS 1 にフォールバックして © 行が空描画にならないようにする。
-      loadMPlus1Fonts([...new Set('LoPo Housing' + COPYRIGHT_TEXT)].join('')).catch(() => []),
-      loadInterFonts([...new Set(COPYRIGHT_TEXT)].join('')).catch(() => []),
-    ]);
-    return [...mplus1, ...inter];
-  };
-
   try {
     const photoDataUri = imgUrl ? await fetchAsDataUri(imgUrl) : null;
-    const fonts = await loadFonts();
-    const element = photoDataUri ? buildListingPhotoCard(photoDataUri) : buildListingBrandFallbackCard();
-    return new ImageResponse(element as any, {
+    if (photoDataUri) {
+      // 写真カードは文字ノードゼロ = フォント不要。
+      return new ImageResponse(buildListingPhotoCard(photoDataUri) as any, {
+        width: CARD_WIDTH, height: CARD_HEIGHT, headers: CACHE_HEADERS,
+      });
+    }
+    const fonts = await loadMPlus1Fonts('LoPo Housing').catch(() => []);
+    return new ImageResponse(buildListingBrandFallbackCard() as any, {
       width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS,
     });
   } catch (err) {
     console.error('Listing OG card error:', err);
     try {
-      const fonts = await loadFonts();
+      const fonts = await loadMPlus1Fonts('LoPo Housing').catch(() => []);
       return new ImageResponse(buildListingBrandFallbackCard() as any, {
         width: CARD_WIDTH, height: CARD_HEIGHT, fonts, headers: CACHE_HEADERS,
       });
