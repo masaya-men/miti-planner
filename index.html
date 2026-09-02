@@ -34,14 +34,19 @@
     // テーマフラッシュ防止: Reactより前にlocalStorageからテーマを適用
     try {
       var d = JSON.parse(localStorage.getItem('theme-storage') || '{}');
-      var t = d && d.state && d.state.theme;
-      if (t === 'light' || t === 'dark') {
-        document.documentElement.classList.add('theme-' + t);
-      } else {
-        document.documentElement.classList.add(window.matchMedia('(prefers-color-scheme: light)').matches ? 'theme-light' : 'theme-dark');
+      var s = d && d.state;
+      var t = s && s.theme;
+      var brightness = (t === 'light' || t === 'dark')
+        ? t
+        : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.classList.add('theme-' + brightness);
+      if (s && s.themeStyle === 'military') {
+        document.documentElement.classList.add('theme-military');
       }
     } catch(e) {
-      document.documentElement.classList.add(window.matchMedia('(prefers-color-scheme: light)').matches ? 'theme-light' : 'theme-dark');
+      document.documentElement.classList.add(
+        window.matchMedia('(prefers-color-scheme: light)').matches ? 'theme-light' : 'theme-dark'
+      );
     }
     // フォントサイズスケーリング（最小6px保証）
     document.documentElement.setAttribute('data-font-scale', '1');

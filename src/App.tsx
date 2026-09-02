@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
-import { useThemeStore } from './store/useThemeStore';
+import { useThemeStore, applyThemeClasses } from './store/useThemeStore';
 import { LandingPage } from './components/landing/LandingPage';
 import { MitiPlannerPage } from './components/MitiPlannerPage';
 import { SharePage } from './components/SharePage';
@@ -171,6 +171,7 @@ function AppRoutes() {
 
 function App() {
   const theme = useThemeStore((state) => state.theme);
+  const themeStyle = useThemeStore((state) => state.themeStyle);
   const { i18n } = useTranslation();
   useMasterDataInit();
 
@@ -183,12 +184,10 @@ function App() {
     requestPersistentStorage();
   }, []);
 
-  // Sync theme class on <html> so Tailwind dark: variants work
+  // Sync theme classes on <html> so Tailwind dark: variants & .theme-military skins work
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove('theme-dark', 'theme-light');
-    root.classList.add(`theme-${theme}`);
-  }, [theme]);
+    applyThemeClasses(theme, themeStyle);
+  }, [theme, themeStyle]);
 
   // Sync <html lang> for SEO and accessibility
   useEffect(() => {
