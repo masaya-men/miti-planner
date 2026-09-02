@@ -44,9 +44,12 @@ X はうちのドメイン (`lopoly.app`) の画像なら普通に表示する�
      その上に写真全体を `contain`（切らずに収める）で重ねる（Instagram の縦長投稿の見え方）。
    - **タイトル・枠・ブランド印は焼き込まない**（masaya 指示）。タイトル・住所は `og:title` /
      `og:description` から各 SNS が自前でカード文字部分に出すので画像には不要。
-   - **例外: © SQUARE ENIX 表記のみ焼き込む**（masaya 2026-09-02 決定）。下端中央に極小 1 行
-     `© SQUARE ENIX CO., LTD. All Rights Reserved.`（`_housingerCard.ts` の `COPYRIGHT_TEXT` /
-     `ja.json footer.copyright` と同一文言）。写真の上でも読める強シャドウ。この 1 行のためだけに
+   - **例外: © 表記のみ焼き込む**（masaya 2026-09-02 決定）。下端中央に極小 1 行 **`© SQUARE ENIX`**。
+     FFXIV Materials Usage License は「`© SQUARE ENIX` か、ゲーム内表示どおりの
+     `© SQUARE ENIX CO., LTD. All rights reserved.` のどちらでも可」と明記（EU/NA 版 Trademark and
+     Copyright Notice の項・2026-09-02 確認）。カードは最小フットプリント優先で短い方を採用。
+     サイト他所（footer / LegalPage / `_housingerCard.ts` / `_tourInviteCard.ts`）はフル表記のまま
+     （フルも有効・統一は別タスク）。写真の上でも読める強シャドウ。この 1 行のためだけに
      写真カード経路でもフォント（Inter）を読み込む。
 
 ### この方式が「デザインしたカード生成」より優れている点
@@ -183,7 +186,7 @@ div  1200x630 relative flex  backgroundColor: '#111725'（葉書外の下地。�
   │       backgroundPosition: center  filter: blur(24px)  transform: scale(1.15)
   ├─ div  FULL_BLEED_ABSOLUTE  backgroundColor: 'rgba(10,14,24,0.28)'（ぼかし帯を軽く沈める）
   ├─ img  src: photo  width: 1200  height: 630  style: { objectFit: 'contain' }
-  └─ buildCopyrightLine()  下端中央 11px  © SQUARE ENIX ...  強シャドウ
+  └─ buildCopyrightLine()  下端中央 11px  `© SQUARE ENIX`（短縮形・§2）  強シャドウ
 ```
 
 - `FULL_BLEED_ABSOLUTE` は `_housingerCard.ts` と同じ「4 辺個別指定」（satori の `inset:0` バグ回避）。各ファイルで定義。
@@ -304,4 +307,5 @@ if (meta.type === 'listing') {
 
 ## 9. 確定済み（旧・未確定事項）
 
-1. © SQUARE ENIX 表記 → **masaya 2026-09-02「入れる」**。§2 に反映済み。全カード下端中央に 11px 1 行。
+1. © 表記 → **masaya 2026-09-02「入れる・ただし短縮形 `© SQUARE ENIX`」**。§2 に反映済み。
+   ライセンス上「短縮形 or フル」どちらも可であることを確認済み（§2 の出典）。全カード下端中央に 11px 1 行。

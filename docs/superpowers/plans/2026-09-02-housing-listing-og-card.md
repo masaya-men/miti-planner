@@ -353,7 +353,7 @@ rtk git commit -m "refactor(og): 画像fetchヘルパーを_fetchOgImage.tsに�
   - `buildListingBrandFallbackCard(): object` — `#111725` 背景中央に「LoPo Housing」+ 下端に © 表記
   - `handleListingCardRequest(searchParams: URLSearchParams): Promise<Response>`
 
-**© 表記(masaya 2026-09-02 決定「入れる」)**: 全カード下端中央に極小 1 行 `© SQUARE ENIX CO., LTD. All Rights Reserved.`(`_housingerCard.ts` の `COPYRIGHT_TEXT` / `ja.json footer.copyright` と同一文言・11px・写真の上でも読める強シャドウ)。文言を焼き込む以上フォントが要るので写真カード経路でもフォントを読み込む。
+**© 表記(masaya 2026-09-02 決定「入れる・短縮形」)**: 全カード下端中央に極小 1 行 **`© SQUARE ENIX`**。FFXIV Materials Usage License が「`© SQUARE ENIX` か、ゲーム内表示どおりのフル形のどちらでも可」と明記(2026-09-02 確認・出典は spec §2)。カードは短い方を採用。11px・写真の上でも読める強シャドウ。文言を焼き込む以上フォントが要るので写真カード経路でもフォントを読み込む。サイト他所(footer / LegalPage / `_housingerCard.ts` / `_tourInviteCard.ts`)のフル表記は今回触らない。
 
 - [ ] **Step 1: 失敗するテストを書く**
 
@@ -404,7 +404,7 @@ describe('buildListingPhotoCard', () => {
   });
 
   it('SQUARE ENIX 著作権表記を必ず含む', () => {
-    expect(findByText(buildListingPhotoCard(uri), '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
+    expect(findByText(buildListingPhotoCard(uri), '© SQUARE ENIX')).toBe(true);
   });
 
   it('全面レイヤーは inset:0 省略記法を使わず 4 辺個別指定(satori バグ回避)', () => {
@@ -423,7 +423,7 @@ describe('buildListingBrandFallbackCard', () => {
     expect(findByText(buildListingBrandFallbackCard(), 'LoPo Housing')).toBe(true);
   });
   it('SQUARE ENIX 著作権表記を含む', () => {
-    expect(findByText(buildListingBrandFallbackCard(), '© SQUARE ENIX CO., LTD. All Rights Reserved.')).toBe(true);
+    expect(findByText(buildListingBrandFallbackCard(), '© SQUARE ENIX')).toBe(true);
   });
   it('img ノードを含まない', () => {
     expect(countImgNodes(buildListingBrandFallbackCard())).toBe(0);
@@ -465,7 +465,7 @@ const CARD_HEIGHT = 630;
 /** ハウジングの背景色(正典 docs/.private/housing-tour-mockup 系統)。葉書外の下地に使う。 */
 const BG_COLOR = '#111725';
 /** ファンサイトポリシー対応の著作権表記。_housingerCard.ts / ja.json footer.copyright と同一文言。 */
-const COPYRIGHT_TEXT = '© SQUARE ENIX CO., LTD. All Rights Reserved.';
+const COPYRIGHT_TEXT = '© SQUARE ENIX';
 const CACHE_HEADERS = {
   // URL に content-derived な sig が入るため、内容が変われば URL 自体が変わる = 実質 immutable。
   'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
@@ -950,14 +950,29 @@ satori の `object-fit: contain` が期待どおり(縦長/横長/正方形を�
 
 `scripts/preview-listing-og-card.mjs`:
 
+**ラスタライズ手段**: `@resvg/resvg-js` はこの環境に**無い**。`sharp`(あり)で SVG→PNG する。
+`satori` はあり。`buildListingPhotoCard` は `.ts` なので `.mjs` から直接 import できない →
+スクリプト内に同等のツリー生成をインラインコピーする(使い捨てなので可)。
+
 ```js
-// 使い捨て: buildListingPhotoCard の見た目をローカルで PNG 出力する。
+// 使い捨て: buildListingPhotoCard 相当の見た目をローカルで PNG 出力する。
 // 実行: node scripts/preview-listing-og-card.mjs
 // 出力: scripts/_preview-listing-{wide,tall,square}.png
 import satori from 'satori';
-import { Resvg } from '@resvg/resvg-js';
+import sharp from 'sharp';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { buildListingPhotoCard } from '../api/og/_listingCard.js';
+
+// api/og/_listingCard.ts の buildListingPhotoCard と同じツリー(© 行含む)をインラインで再現。
+// _listingCard.ts を編集したらここも合わせること(このスクリプトは確認用の使い捨て)。
+const FULL_BLEED = { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 };
+function buildListingPhotoCard(photoDataUri) {
+  return { type: 'div', props: { style: { width: '100%', height: '100%', display: 'flex', position: 'relative', backgroundColor: '#111725' }, children: [
+    { type: 'div', props: { style: { ...FULL_BLEED, display: 'flex', backgroundImage: `url(${photoDataUri})`, backgroundSize: 'cover', backgroundPosition: 'center', filter: 'blur(24px)', transform: 'scale(1.15)' } } },
+    { type: 'div', props: { style: { ...FULL_BLEED, display: 'flex', backgroundColor: 'rgba(10,14,24,0.28)' } } },
+    { type: 'img', props: { src: photoDataUri, width: 1200, height: 630, style: { position: 'relative', width: 1200, height: 630, objectFit: 'contain' } } },
+    { type: 'div', props: { style: { position: 'absolute', bottom: 14, left: 0, right: 0, display: 'flex', justifyContent: 'center' }, children: { type: 'div', props: { style: { fontSize: 11, fontWeight: 500, color: 'rgba(255,255,255,0.9)', fontFamily: '"Inter"', letterSpacing: 0.2, textShadow: '0 1px 3px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85)', display: 'flex' }, children: '© SQUARE ENIX' } } } },
+  ] } };
+}
 
 // 手元の適当な画像 3 枚(横長/縦長/正方形)。無ければ下記の単色 SVG data URI 生成で代用する。
 // FF14 スクショが手元にあれば置き換える(pbs.twimg / YouTube サムネの URL 文字列でも可 = fetch する)。
@@ -985,7 +1000,7 @@ async function toDataUri(srcOrUri) {
 
 // © 行のフォント(Inter)を Google Fonts から取得。_fonts.ts の loadInterFonts と同じ手法。
 const cssUrl = 'https://fonts.googleapis.com/css2?family=Inter:wght@500&text=' +
-  encodeURIComponent('© SQUARE ENIX CO., LTD. All Rights Reserved.');
+  encodeURIComponent('© SQUARE ENIX');
 const css = await (await fetch(cssUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } })).text();
 const fontUrl = css.match(/src:\s*url\(([^)]+)\)/)[1];
 const fontData = await (await fetch(fontUrl)).arrayBuffer();
@@ -994,13 +1009,15 @@ const fonts = [{ name: 'Inter', data: fontData, style: 'normal', weight: 500 }];
 for (const [label, src] of Object.entries(samples)) {
   const tree = buildListingPhotoCard(await toDataUri(src));
   const svg = await satori(tree, { width: 1200, height: 630, fonts });
-  const png = new Resvg(svg).render().asPng();
+  const png = await sharp(Buffer.from(svg)).png().toBuffer();
   writeFileSync(`scripts/_preview-listing-${label}.png`, png);
   console.log(`wrote scripts/_preview-listing-${label}.png`);
 }
 ```
 
-(`satori` / `@resvg/resvg-js` は `@vercel/og` の依存として既に `node_modules` にある。無ければ `npm ls satori @resvg/resvg-js` で確認し、`_housingerCard` のプレビュー手法 `docs/.private/2026-08-01-ogp-card-design-mockups.md` に合わせる。`_listingCard.ts` を `.mjs` から直接 import できない場合(TS)は、`buildListingPhotoCard` 相当を script 内にインラインコピーして確認してよい — このスクリプトは使い捨て)
+(`satori` と `sharp` はこの環境にある。`@resvg/resvg-js` は**無い**ので sharp で SVG→PNG する。
+`_listingCard.ts` は `.ts` で `.mjs` から直接 import できないため `buildListingPhotoCard` 相当を
+インラインコピー済み — 使い捨てスクリプトなので可。`_listingCard.ts` を編集したらこのインラインも合わせる)
 
 - [ ] **Step 2: 実行して 3 枚の PNG を目視**
 
@@ -1010,9 +1027,13 @@ Run: `node scripts/preview-listing-og-card.mjs`
 - 縦長(9:16): 写真が中央に立ち、左右がぼかし帯 → OK(切れていないこと)
 - 正方形: 写真が中央、左右がぼかし帯 → OK
 
-**破綻していたら**(`objectFit` が効かず引き伸ばし/切れ)、`_listingCard.ts` の img スタイルを調整:
-- 代替案: img を外し、中央に `div`(`display:flex`, `alignItems/justifyContent: center`)を置き、その中に `img` を `style={{ maxWidth: 1200, maxHeight: 630 }}` で入れる。
-直したら Task 3 の Step 4(テスト)→ Step 7(コミット `fix(og): ...`)をやり直す。
+**破綻していたら**(`objectFit` が効かず引き伸ばし/切れ)、`api/og/_listingCard.ts` の
+`buildListingPhotoCard` の img を調整(スクリプトのインラインも同じに合わせる):
+- 代替案: img を `div`(`display:flex`, `alignItems/justifyContent:center`)でラップし、
+  img 側を `style: { maxWidth: 1200, maxHeight: 630 }` にする。
+- 直したら `npx vitest run api/og/__tests__/_listingCard.test.ts`(children[2] が img で maxWidth 持ち等、
+  テストの該当アサーションも直す)→ `npx tsc -p tsconfig.api.json --noEmit` → このタスクのコミットに含める
+  (`fix(og): 物件カードの写真フィットを調整`)。
 
 - [ ] **Step 3: masaya に 3 枚を見せて確認**
 
@@ -1074,7 +1095,7 @@ rtk git commit -m "docs: 物件OGPカード実装完了・デプロイ待ちに�
 - 変更ファイル一覧
 - 「push 前ゲート緑」の証拠(build exit 0 / 関連テスト件数)
 - 次アクション: デプロイ → X で実物確認(§下記)
-- §9 未確定(© SQUARE ENIX 表記)の確認を再度促す
+- 見た目承認は Task 6 で取得済(© は短縮形 `© SQUARE ENIX`・masaya 2026-09-02)
 
 ---
 
