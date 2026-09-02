@@ -20,16 +20,15 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟡 2026-09-02 ハウジング物件OGPカード = 初回デプロイ済(4fa24083・自ドメイン再ホスト)。**follow-up 実装完了・デプロイ待ち**(branch `fix/housing-listing-og-card-warm-and-cleanup`)。spec §10 / plan=`...-followup.md`。
-  - 初回デプロイ後に **cold-start 不具合**発覚: 物件ページ初回クロール 4〜9秒(生成を同期 await)→ X タイムアウト→「画像なし」を URL 単位キャッシュ。masaya の新URLテストが出なかった原因。既存237物件は暫定 warm 済。
-  - **follow-up(6タスク・全緑)**: ①`_listingPageHandler` を生成非ブロック化 ②登録・編集時にカード事前生成(`warmListingOgCard` / `listingOgCardWarm.ts`)③カードから ©削除(ページフッター StatusBar が License 充足・`CARD_VERSION` 2)④X共有で `sourcePostUrls` 優先。
-  - **残**: 最終レビュー → merge → デプロイ → 全公開物件を warm-all 再実行(v2 で hash 全変更)→ masaya が「新規物件登録→即Xシェアで画像出るか」確認。
-  - follow-up別(未): HMAC三重複製統合 / degradedパステスト / `/og/*` Cloudflare Cache Rule / `listingRepresentativeImages` を api/share から src/lib へ / update の warm を画像変更時のみに絞るか。
+### 🟡 2026-09-02 ハウジング物件OGPカード follow-up = **本番デプロイ済(1bf9f2d2)**。cold-start 不具合(初回クロール4〜9秒→Xタイムアウト→画像なし固定)を修正。
+  - 内容: ①`_listingPageHandler` を生成非ブロック化(warm TTFB 0.4s / cold 最悪3s) ②登録・編集・画像操作の全7経路でカード事前生成(`warmListingOgCard`・5秒timeout・非致命) ③カードから©削除(FF14 スクショ側の透かしのみ残る・`CARD_VERSION` 2) ④X共有で `sourcePostUrls` 優先。
+  - warm-all で全237物件のカード生成(v2 hash 全変更)。手動スポット確認~15件すべて200・有効PNG・©なし。burst 負荷で一部が transient 502→og-cacheはリトライで自己回復(5xxは非キャッシュ)。永続失敗0。
+  - **残 = masaya の実機確認**: 既存物件URLを1つ新Xアカウントで投稿 → 画像が出るか。出れば TODO_COMPLETED へ。
+  - follow-up別(未・急がない): **`/og/` の MISS応答が `max-age=1年 immutable`→transient不良が長期キャッシュされる隙。MISSは短TTL(~5分)にしてHITで長期化すべき**(housinger/tourカード共通・要scoped変更) / HMAC三重複製統合 / degradedパステスト / `/og/*` Cloudflare Cache Rule / `listingRepresentativeImages` を api/share から src/lib へ / update の warm を画像変更時のみに / `_listingPageHandler` の og_image_meta 無条件 `.set()` を存在時skipに。
 ### 🔴 次セッション最優先 = MIL-SPEC テーマ(設計書+計画 commit済・未実装・worktree→Phase 0)。詳細=「次の作業順」1。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
 ### 🟡 2026-08-31 (本番済・残=実機確認のみ) カード画像最適化Phase1(「?」消えたか+スクロール体感→Phase2要否) / スマホボトムナビ「トップ」再タップで先頭スクロール(iPhone確認)。
-### ✅ 2026-08-31 ホーリズム棒 + バリア重なり/iOS/シールド棒 = 全デプロイ・実機OK。残小課題(急ぎなし)=`docs/.private/2026-08-27-barrier-stacking-handoff.md`。
 ### ✅ 2026-08-20〜24 ハウジング一括(3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定)= 全て本番反映・実機確認済み (詳細=TODO_COMPLETED.md)
 **残**: Discord告知 = 2026-08-20分は投稿済み確認。8/24〜9/1分の下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。
 ### 🟡 SEOソフト404対策(2026-08-17本番反映済)のデプロイ後インフラ設定が未着手: Cloudflare Cache Rule(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console 再検査+インデックス登録。
