@@ -18,7 +18,10 @@ describe('sniffSupportedImageMime', () => {
 });
 
 describe('fetchAsDataUri', () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
 
   it('PNG を data URI 化して返す', async () => {
     const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 1, 2, 3, 4]);

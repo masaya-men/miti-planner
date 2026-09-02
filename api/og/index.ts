@@ -18,6 +18,7 @@ import { rejectIfPublicApiDisabledWeb } from '../../src/lib/publicApiGuard.js';
 import { loadMPlus1Fonts } from './_fonts.js';
 import { handleHousingerCardRequest } from './_housingerCard.js';
 import { handleTourInviteCardRequest } from './_tourInviteCard.js';
+import { handleListingCardRequest } from './_listingCard.js';
 
 export const config = { runtime: 'edge' };
 
@@ -46,6 +47,10 @@ export default async function handler(req: Request) {
         // ツアー招待ページ専用カード(署名付きURLのみ受理)。
         if (searchParams.get('type') === 'tour') {
             return handleTourInviteCardRequest(searchParams);
+        }
+        // 物件詳細ページ専用カード(署名付きURLのみ受理)。
+        if (searchParams.get('type') === 'listing') {
+            return handleListingCardRequest(searchParams);
         }
 
         const shareId = searchParams.get('id');
