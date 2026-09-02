@@ -39,6 +39,7 @@ import { LocalImportDialog } from './LocalImportDialog';
 import { useLocalImportDialog } from '../store/useLocalImportDialog';
 import { ShareImportSheet } from './ShareImportSheet';
 import { LimitResolutionSheet } from './LimitResolutionSheet';
+import { MilspecTunePanel } from './dev/MilspecTunePanel';
 import { getToken } from 'firebase/app-check';
 import { ensureAppCheck, auth } from '../lib/firebase';
 import { useIOSViewportFix } from '../hooks/useIOSViewportFix';
@@ -874,6 +875,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <LocalDataSafetyAutoPrompt />
             {/* 上限解消シートはグローバル単一マウント（共有取込・スプシ取込の両方が setLimitContext で呼ぶ） */}
             <LimitResolutionSheet />
+            <MilspecTunePanel />
         </div>
     );
 };
