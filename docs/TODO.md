@@ -16,24 +16,22 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 1. **軍事SF(MIL-SPEC)テーマ + スプシモード = 1つの大型アップデート(ユーザー本命)**。**worktree で隔離**して両方作り、揃ったらまとめて main へ1本化・push(2026-09-02 masaya 決定)。
    - **① MIL-SPEC テーマ**: brainstorm済み・**設計書=`docs/superpowers/specs/2026-09-02-military-theme-design.md`** / **実装計画=`docs/superpowers/plans/2026-09-02-military-theme.md`**。`using-git-worktrees` → Phase 0 Task 0.1 から `subagent-driven-development`。Phase 0 Task 0.7 が masaya の見た目承認ゲート。参考画像=`docs/.private/theme-refs/`。論点 memory [[project_sf_military_theme]]。
    - **② 軽減表スプシモード**(①の後・同じ worktree)。全テーマにトークン経由。要 brainstorm→spec→plan。議論=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。WIP中は両方 dev ガード(`localStorage 'milspec-preview'`)、マージ時に公開。
-2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機で**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
-3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
+2. **🆕 スケジュール管理 + ロット管理(固定PT運営)** — ①②の直後(masaya 2026-09-04)。要brainstorming。形態 A(軽減表collab内の1機能)or B(別アプリ+プラン紐付け)未定。日程調整アイデア(2026-06-16)を吸収検討。詳細=`docs/.private/2026-09-04-schedule-and-loot-management-idea.md`。
+3. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機で**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
+4. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### 🟠 2026-09-04 X OGPカード画像が出ない不具合 = 実装完了・**未デプロイ**。診断+設計=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`
-  根因: カードは Storage 生成済だが CF エッジに載らず(warm が5秒abort=CF は途中応答を非キャッシュ)+ 物件/ハウジンガーページ CF 未キャッシュ(2〜3秒)→ X がページ取得で予算切れ→「画像なし」~7日固定。修正(コストゼロ/削減): ①og-cache カード JPEG化(1MB→110KB・sharp 4:4:4)②ハウジンガー生成待ち削除(warm 2.5s abort・ランダム維持・s-maxage 30→600)③og:description 生改行を単一行化(`metaContent()`)。検証: 6テスト+tsc緑・sharp実機OK。
-  **残: ④ Cloudflare Cache Rule 追加(masaya・下記🟡SEO項目と同じ)→ その後デプロイ**。既存の壊れツイートは `?x=1` で貼り直し。旧follow-up(急がない): `/og/` MISS応答1年TTL短縮 / HMAC三重複製統合 / update warm を画像変更時のみ / `og_image_meta` 存在時skip。
+### 🟢 2026-09-04 X OGPカード画像が出ない不具合 = デプロイ済(`280da74d`)+CF Cache Rule #10 追加済。診断=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`
+  修正: ①og-cache カード JPEG化(1.5MB→90KB・sharp 4:4:4)②ハウジンガー生成待ち削除(warm 2.5s abort・ランダム維持)③og:description 生改行を単一行化 ④CF が `/housing/(listing|housinger|tour)/`・`/h/` を1h edge cache。本番実測OK(既存カード不変・新カードJPEG・ページ0.35s)。**残=実機確認のみ**: 次の新規登録ツイートで一発で出るか。出なければ「登録→通知の間隔を空ける」方向で追加対応。既存の壊れツイートは `?x=1` で貼り直し。⚠フロント変更デプロイ後は CF「すべてパージ」必須([[reference_cf_cache_housing_ogp_pages]])。
 ### 🔴 次セッション最優先 = MIL-SPEC テーマ。worktree `milspec-theme`。トレース中: `docs/.private/theme-refs/milspec-mockup.html`(GITIGNORE・ブラウザで開く)。方向 **B確定**(構成/角度/色は手本`allagan-dark.png`に忠実、立体感/分離感は手本より強く=ハードサーフェス装甲)。
   **2026-09-03**: dark 全ゾーン trace 1周 → masaya レビュー=「案B・MGEX級の情報密度」確定 → **全ゾーンをパネル化(全部盛り)1周完了**(toolbar/subtoolbar/workspace/sidebar/footer を独立プレート + 沈みスクリーン + サブプレート + ビス/ステンシル/スジ彫り + 外枠コンソール。ゾーン矩形は不変=playwright 実測確認。調整ノブに panelline/channel 追加)。**次 = masaya が mockup を実機で開いて全ゾーン一括レビュー → 直し指示**。その後 light(要 compare.cjs 1710x920 対応 + 新規ダーク固定hex に light override)→ military.css 移植(standard 不変)。
   workflow=`docs/.private/2026-09-03-milspec-trace-workflow.md` / ツール=`compare.cjs <zone> dark` `measure.cjs` / ledger=worktree `.superpowers/sdd/2026-09-02-military-theme/progress.md`。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
-### 🟡 2026-08-31 (本番済・残=実機確認のみ) カード画像最適化Phase1(「?」消えたか+スクロール体感→Phase2要否) / スマホボトムナビ「トップ」再タップで先頭スクロール(iPhone確認)。
-### ✅ 2026-08-20〜24 ハウジング一括(3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定)= 全て本番反映・実機確認済み (詳細=TODO_COMPLETED.md)
-**残**: Discord告知 = 2026-08-20分は投稿済み確認。8/24〜9/1分の下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。
-### 🟡 SEOソフト404対策(2026-08-17本番反映済)のデプロイ後インフラ設定が未着手: Cloudflare Cache Rule(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console 再検査+インデックス登録。
-**🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタ参照 → 他人の物件編集で自分のハウジンガーCDNキャッシュが割れる。改善案=専用versionカウンタ分離。
-**ハウジンガーOGPカード**: 完成扱い(2026-08-17)。`.claude/worktrees/housinger-ogp-card-redesign` の未コミット3差分は不採用確定・**触らない**。残プロセスにロックされ `git worktree remove` 失敗中(実害なし)。
+### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
+### 🟡 SEOソフト404対策: CF Cache Rule は `/housing/(listing|housinger|tour)/` `/h/` 追加済(2026-09-04・OGP修正と同時)。**残**: `/share/*` の CF ルール検討 / Search Console 再検査+インデックス登録。
+### 🟡 2026-09-04 ハウジングツアー スマホ #2#3 修正済(`TourNavPage`/`TourEmptyState`・未デプロイ・未実機)。詳細=バグ節 + `docs/.private/2026-09-04-housing-tour-mobile-observations.md`。
+**🟡 優先度低**: ハウジンガーページが全物件共通の1個のversionカウンタ参照 → 他人の物件編集で自分のハウジンガーCDNキャッシュが割れる。改善案=専用versionカウンタ分離。／ **ハウジンガーOGPカード**=完成扱い(2026-08-17)、`.claude/worktrees/housinger-ogp-card-redesign` の未コミット3差分は不採用・**触らない**(worktree remove ロック中・実害なし)。
 ### ✅ 直近の本番反映・棚卸し: マイページ/複数投稿URL Batch2/編集ページ画像管理/探すページランダム化+初心者タグ/コストハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所ゲート強化/旧UI意匠掃除、全て本番反映・確認済み(詳細=TODO_COMPLETED.md)。
 
 ### 🟡 ハウジング中期タスク(2026-07-20 棚卸し)
@@ -67,6 +65,11 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ---
 
 ## バグ・不具合 (要修正)
+
+- **🆕 2026-09-04 ハウジングツアー スマホ実機観察(masaya)** 詳細=`docs/.private/2026-09-04-housing-tour-mobile-observations.md`:
+  ①②【修正済・未デプロイ・未実機確認】ツアー空状態の「住所から追加」がページローカル state に積んでいた根因を修正(→ `useTourTrayStore` 直積み)。1件追加で計画ビューに切替=PC見た目直る/遷移で消えない=#3解消/スマホ計画ビューの下端固定開始ボタンで#2も解消。スマホ計画ビュー先頭に「住所から追加」トグル追加。PC計画ビューは無改変。`TourNavPage.tsx`/`TourEmptyState.tsx`。回帰テスト2件。
+  ③【スマホ小・未着手】Allmarks インジケーターが右端(家の形にボールが弾む演出)で見切れ → PC と同じく最後まで見せる。 ④スレッド内ツイート読み取り=却下(API必須)。
+  ⚠ **残 = 実機確認**(スマホでツアー組み立て→開始が通るか / タブ往復で消えないか)。Safari タブ破棄・リロード耐性(Layer 2=store persist)は別判断・未着手。
 
 - **🆕 2026-08-14実機報告2件(未調査)**: ①メモ機能(表中に自由記述)がスマホの共同編集表で表示されている(`MemoOverlay`にモバイル非表示条件が無い、新規作成操作のみモバイル無効化されていた可能性)。②モバイル軽減表「連動」エフェクト表示、指を離す前に(スクロール中のはずなのに)アイコン表示へ勝手に戻ることがある(スクロール重さ起因の取りこぼしの可能性、要検証)。
 - **🔮 8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修・大物・情報出揃い次第。着手時brainstorming。詳細=docs/.private/2026-06-20-skill-modeling-notes.md)。**🔵将来=スキル効果解決の窓口統一**=level+mode→正効果に解決する関数1つに集約し全~30箇所を通す(同id版違いバグの真の根治・コードのきれい。2026-06-22`_base`化が第一歩。競合resourceTracker/CD recastRow/計算calculator 未配線・autoPlanner配線済)。**ここに畳む候補(2026-06-30判断・価値低)**=スプシ取込で技名をコンテンツlevelの版に解決(例 シャドウヴィジル→Lv80はシャドウウォール)。単発実装は非推奨(スキル線リンクがデータに無く窓口統一が前提・発動はユーザーの取り違えのみ)。※リビデ正確モデル化①と表展開トグル③は2026-06-20完了(COMPLETED)。

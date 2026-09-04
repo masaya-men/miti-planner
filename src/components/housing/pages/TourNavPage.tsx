@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useHousingTourStore } from '../../../store/useHousingTourStore';
 import { useHousingViewStore } from '../../../store/useHousingViewStore';
@@ -10,8 +11,7 @@ import { useTourTrayStore } from '../../../store/useTourTrayStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useHousingModalStore } from '../../../store/useHousingModalStore';
 import { buildTourPool } from '../../../lib/housing/buildTourPool';
-import { orderTourStopIds } from '../../../lib/housing/orderTourStops';
-import { tourRegionConflict } from '../../../lib/housing/tourCrossing';
+import { canAddToTour, tourAnchorRegion, tourRegionConflict } from '../../../lib/housing/tourCrossing';
 import { resolveTourOrder } from '../../../lib/housing/resolveTourOrder';
 import { useTourRenderModel } from '../../../lib/housing/useTourRenderModel';
 import { useElapsed, formatElapsed } from '../../../lib/housing/useElapsed';
@@ -28,6 +28,7 @@ import { TourInvitePanel } from '../tour/TourInvitePanel';
 import { TourTrayDetailPanel } from '../tour/TourTrayDetailPanel';
 import { TourTrayBoard } from '../browse/TourTrayBoard';
 import { TourTrayList } from '../browse/TourTrayList';
+import { EphemeralAddPanel } from '../browse/EphemeralAddPanel';
 import { MannerNoticeDialog } from '../workspace/MannerNoticeDialog';
 import { HousingLoginPrompt } from '../HousingLoginPrompt';
 import { TourMobileBar } from '../tour/TourMobileBar';
@@ -149,47 +150,47 @@ export const TourNavPage: React.FC = () => {
 
   const onGoFavorites = useCallback(() => navigate('/housing/favorites'), [navigate]);
 
-  // 空状態の「住所から追加」(計画: 住所登録なし一時ツアー Task3)。
-  // パネルで積んだ一時 listing の id はページローカルに保持し、開始時に既存形
-  // (orderTourStopIds → setListings → start) でツアーへ確定する。
-  const [emptyTrayIds, setEmptyTrayIds] = useState<string[]>([]);
-  const onAddEphemeral = useCallback(
-    (id: string) => setEmptyTrayIds((prev) => (prev.includes(id) ? prev : [...prev, id])),
-    [],
+  // 空状態/計画画面の「住所から追加」モーダル (計画: 住所登録なし一時ツアー Task3)。
+  // 開閉 state をここ (TourNavPage) が持つことで、trayIds 0↔1 や PC↔スマホ切替でレイアウトが
+  // 入れ替わっても EphemeralAddPanel がアンマウントされず、Allmarks 一括インポートの進捗が
+  // 途中で消えない。
+  const [addOpen, setAddOpen] = useState(false);
+  // BrowsePage.addToTray と同型: 一時 listing をストアから fresh 解決 → 跨ぎ検査 →
+  // useTourTrayStore へ積む。旧実装はページローカルの emptyTrayIds に積んでいたため、
+  // 探す等へ遷移した瞬間に消え、trayIds が 0 のままで PC 計画ビューにも切り替わらなかった
+  // (2026-09-04 bug #3 修正)。
+  const onAddToTray = useCallback(
+    (id: string) => {
+      const eph = useEphemeralListingsStore.getState().ephemeralListings;
+      const candidate = pool.find((l) => l.id === id) ?? eph.find((l) => l.id === id);
+      if (!candidate || candidate.visibility === 'unlisted') return;
+      const curTrayIds = useTourTrayStore.getState().trayIds;
+      const trayRegion = tourAnchorRegion(
+        curTrayIds.map(
+          (tid) => (pool.find((l) => l.id === tid) ?? eph.find((l) => l.id === tid))?.region ?? null,
+        ),
+      );
+      if (!canAddToTour(trayRegion, candidate.region ?? '')) {
+        showToast(t('housing.tour.region_block'), 'error');
+        return;
+      }
+      useTourTrayStore
+        .getState()
+        .setTrayIds((prev) => (prev.includes(id) ? prev : [...prev, id]));
+    },
+    [pool, t],
   );
-  const onRemoveEphemeral = useCallback(
-    (id: string) => setEmptyTrayIds((prev) => prev.filter((x) => x !== id)),
-    [],
-  );
-  // バグ修正(2026-08-10): 探す/お気に入りで既にツアートレイに家を組んでいた場合、
-  // そのトレイを無視してこの一時追加分だけで上書きしていた(HousingerPage.commitTourAll と
-  // 同種の不具合)。実際に発生するのは listingIds===0 のまま直接この画面へ来た稀なケースだが、
-  // 直しは軽微で他経路(BrowsePage 等)と同じ「トレイ起点」形に揃うため合わせて対応する。
-  const onStartEphemeral = useCallback(() => {
-    if (emptyTrayIds.length === 0) return;
-    const trayIds = useTourTrayStore.getState().trayIds;
-    const mergedIds = [...trayIds, ...emptyTrayIds.filter((id) => !trayIds.includes(id))];
-    const orderedIds = orderTourStopIds(mergedIds, pool);
-    const stops = orderedIds
-      .map((id) => pool.find((l) => l.id === id))
-      .filter((l): l is MockListing => Boolean(l));
-    const conflict = tourRegionConflict(stops);
-    if (conflict) {
-      showToast(t('housing.tour.region_block_start', { regions: conflict.join(' / ') }), 'error');
-      return;
-    }
-    useHousingTourStore.getState().setListings(orderedIds);
-    useHousingTourStore.getState().start();
-    useHousingViewStore.getState().enterTourMode();
-    useTourTrayStore.getState().clear();
-    setEmptyTrayIds([]);
-  }, [emptyTrayIds, pool, t]);
 
   // 計画画面(蛇行グリッド): トレイに1件以上あれば「ツアー未開始だが計画中」として
   // TourEmptyState の代わりに TourTrayDetailPanel + TourTrayBoard(PC)/TourTrayList(スマホ)を出す。
   const trayIds = useTourTrayStore((s) => s.trayIds);
   const setTrayIds = useTourTrayStore((s) => s.setTrayIds);
   const pinnedIds = useTourTrayStore((s) => s.pinnedIds);
+  // EphemeralAddPanel の早期跨ぎブロック用: いまトレイに入っている家の非OCEアンカー地域。
+  const trayRegionForAdd = useMemo(
+    () => tourAnchorRegion(trayIds.map((tid) => pool.find((l) => l.id === tid)?.region ?? null)),
+    [trayIds, pool],
+  );
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [planMannerOpen, setPlanMannerOpen] = useState(false);
 
@@ -375,71 +376,94 @@ export const TourNavPage: React.FC = () => {
     if (listing) setReportId(listing.id);
   }, [progress.currentStep]);
 
-  // 実行中でも計画中でもない (トレイも空) = 従来通りの空状態。
-  if (listingIds.length === 0 && trayIds.length === 0) {
+  // 実行中でない = 計画フェーズ (listingIds は空)。
+  // トレイが空 → 空状態 / トレイに行き先あり → 計画画面 (PC=詳細+蛇行グリッド / スマホ=縦一覧)。
+  // 「住所から追加」モーダル (EphemeralAddPanel) は、trayIds 0↔1 や PC↔スマホ切替でレイアウトが
+  // 入れ替わってもアンマウントされないよう、下のフラグメント直下に1つだけ置く。
+  if (listingIds.length === 0) {
+    const planning = trayIds.length > 0;
     return (
-      <div className="housing-tour-page">
-        <section className="housing-tour-page-panel housing-tour-page-panel-solo" data-region="center">
-          <TourEmptyState
-            onGoFavorites={onGoFavorites}
-            onGoBrowse={() => navigate('/housing')}
-            ephemeralIds={emptyTrayIds}
-            onAddEphemeral={onAddEphemeral}
-            onRemoveEphemeral={onRemoveEphemeral}
-            onStartEphemeral={onStartEphemeral}
-          />
-        </section>
-      </div>
-    );
-  }
+      <>
+        {!planning && (
+          <div className="housing-tour-page">
+            <section
+              className="housing-tour-page-panel housing-tour-page-panel-solo"
+              data-region="center"
+            >
+              <TourEmptyState
+                onGoFavorites={onGoFavorites}
+                onGoBrowse={() => navigate('/housing')}
+                onOpenAdd={() => setAddOpen(true)}
+                addOpen={addOpen}
+              />
+            </section>
+          </div>
+        )}
 
-  // 未開始だがトレイに行き先がある = 計画画面。
-  // PC: 左に選択中の家の詳細 + 右に蛇行グリッド / スマホ: 既存の縦一覧 + 開始ボタン。
-  if (listingIds.length === 0 && trayIds.length > 0) {
-    return isMobile ? (
-      <div className="housing-tour-plan-mobile">
-        <TourTrayList listingIds={trayIds} onChange={setTrayIds} />
-        <button
-          type="button"
-          className="housing-tour-tray-start"
-          disabled={trayIds.length === 0}
-          onClick={() => setPlanMannerOpen(true)}
-        >
-          {t('housing.tray.start')}
-        </button>
-        <MannerNoticeDialog
-          open={planMannerOpen}
-          onCancel={() => setPlanMannerOpen(false)}
-          onStart={commitPlanStart}
-        />
-      </div>
-    ) : (
-      <div className="housing-tour-plan">
-        <section className="housing-tour-page-panel" data-region="left">
-          <div className="housing-tour-page-col">
-            <TourTrayDetailPanel
-              listing={selectedPlanListing}
-              onStartClick={() => setPlanMannerOpen(true)}
-              startDisabled={trayIds.length === 0}
+        {planning && isMobile && (
+          <div className="housing-tour-plan-mobile">
+            <button
+              type="button"
+              className="housing-ephemeral-toggle"
+              aria-expanded={addOpen}
+              onClick={() => setAddOpen((o) => !o)}
+            >
+              <Plus size={14} aria-hidden="true" />
+              {t('housing.ephemeral.add_button')}
+            </button>
+            <TourTrayList listingIds={trayIds} onChange={setTrayIds} />
+            <button
+              type="button"
+              className="housing-tour-tray-start"
+              disabled={trayIds.length === 0}
+              onClick={() => setPlanMannerOpen(true)}
+            >
+              {t('housing.tray.start')}
+            </button>
+            <MannerNoticeDialog
+              open={planMannerOpen}
+              onCancel={() => setPlanMannerOpen(false)}
+              onStart={commitPlanStart}
             />
           </div>
-        </section>
-        <section className="housing-tour-page-panel" data-region="right">
-          <div className="housing-tour-page-col">
-            <TourTrayBoard
-              listingIds={trayIds}
-              onChange={setTrayIds}
-              selectedId={selectedPlanId}
-              onSelect={setSelectedPlanId}
+        )}
+
+        {planning && !isMobile && (
+          <div className="housing-tour-plan">
+            <section className="housing-tour-page-panel" data-region="left">
+              <div className="housing-tour-page-col">
+                <TourTrayDetailPanel
+                  listing={selectedPlanListing}
+                  onStartClick={() => setPlanMannerOpen(true)}
+                  startDisabled={trayIds.length === 0}
+                />
+              </div>
+            </section>
+            <section className="housing-tour-page-panel" data-region="right">
+              <div className="housing-tour-page-col">
+                <TourTrayBoard
+                  listingIds={trayIds}
+                  onChange={setTrayIds}
+                  selectedId={selectedPlanId}
+                  onSelect={setSelectedPlanId}
+                />
+              </div>
+            </section>
+            <MannerNoticeDialog
+              open={planMannerOpen}
+              onCancel={() => setPlanMannerOpen(false)}
+              onStart={commitPlanStart}
             />
           </div>
-        </section>
-        <MannerNoticeDialog
-          open={planMannerOpen}
-          onCancel={() => setPlanMannerOpen(false)}
-          onStart={commitPlanStart}
+        )}
+
+        <EphemeralAddPanel
+          open={addOpen}
+          onClose={() => setAddOpen(false)}
+          onAdd={onAddToTray}
+          trayRegion={trayRegionForAdd}
         />
-      </div>
+      </>
     );
   }
 
