@@ -1708,6 +1708,13 @@
   padding: 12px 0;
 }
 
+/* スマホ幅ではトラック (固定 ~394px) が収まらず右端の家が見切れていたため、
+   AllmarksWaveLoader.tsx が利用可能幅を採寸して transform: scale で縮小する。
+   この wrapper が縮小後の実寸を占め、外側の中央寄せ・縦レイアウトを崩さない。 */
+.housing-allmarks-wave-loader-fit {
+  position: relative;
+}
+
 .housing-allmarks-wave-loader-track {
   position: relative;
   height: 150px;
