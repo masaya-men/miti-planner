@@ -19,11 +19,43 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
+import sharp from 'sharp';
 import { isValidOgImageMeta, buildInternalOgUrl } from './_ogCacheLogic.js';
 
 const STORAGE_BUCKET = 'lopo-7793e.firebasestorage.app';
 const OG_IMAGE_META_COLLECTION = 'og_image_meta';
 const HASH_PATTERN = /^[a-f0-9]{16}$/;
+
+/**
+ * 先頭バイトから画像 MIME を判定する。og-images/{hash}.png に保存されるバイトは
+ * 新カード = JPEG / 旧カード(このコミット以前に生成済み)= PNG が混在するため、
+ * 拡張子ではなく実バイトで Content-Type を決める。
+ */
+function sniffImageContentType(buf: Buffer): 'image/jpeg' | 'image/png' {
+    return (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff)
+        ? 'image/jpeg'
+        : 'image/png';
+}
+
+/**
+ * @vercel/og が返す 1200x630 PNG(写真カードで ~1MB)を JPEG に変換して ~5 分の 1 に落とす。
+ * OGP カードは SNS タイムライン内で小さく表示されるだけなので JPEG で十分。
+ * 転送量 = X / Discord / 訪問者 / 再スクレイプ 全員の毎回の DL に効く(帯域コスト削減)。
+ * 変換失敗時は PNG のまま返す(致命的にしない)。text/edge の劣化を避けるため
+ * chromaSubsampling は 4:4:4、品質 85。
+ */
+async function toJpegOgCard(pngBuffer: Buffer): Promise<{ buffer: Buffer; contentType: 'image/jpeg' | 'image/png' }> {
+    try {
+        const jpeg = await sharp(pngBuffer)
+            .flatten({ background: '#0e1116' })
+            .jpeg({ quality: 85, mozjpeg: true, chromaSubsampling: '4:4:4' })
+            .toBuffer();
+        return { buffer: jpeg, contentType: 'image/jpeg' };
+    } catch (err) {
+        console.warn('OG card JPEG conversion failed (serving PNG):', err);
+        return { buffer: pngBuffer, contentType: 'image/png' };
+    }
+}
 
 function initAdmin() {
     if (!getApps().length) {
@@ -76,7 +108,7 @@ export default async function handler(req: any, res: any) {
         // HIT: Storage から直接配信
         if (exists) {
             const [buffer] = await file.download();
-            res.setHeader('Content-Type', 'image/png');
+            res.setHeader('Content-Type', sniffImageContentType(buffer));
             res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
             res.setHeader('X-OG-Cache', 'HIT');
             // Storage の updated タイムスタンプを更新して LRU 的に使えるようにする
@@ -108,13 +140,15 @@ export default async function handler(req: any, res: any) {
             console.error('Upstream /api/og failed:', ogRes.status);
             return res.status(502).json({ error: 'upstream failed' });
         }
-        const imageBuffer = Buffer.from(await ogRes.arrayBuffer());
+        const pngBuffer = Buffer.from(await ogRes.arrayBuffer());
+        // @vercel/og は PNG しか出せないため、ここ(Node runtime)で JPEG に落として容量を ~5 分の 1 に。
+        const { buffer: imageBuffer, contentType } = await toJpegOgCard(pngBuffer);
 
         // Storage に保存（次回以降 HIT）
         // resumable: false で単発アップロード（軽量画像のためリジューム不要）
         try {
             await file.save(imageBuffer, {
-                contentType: 'image/png',
+                contentType,
                 resumable: false,
                 metadata: {
                     cacheControl: 'public, max-age=31536000, immutable',
@@ -127,7 +161,7 @@ export default async function handler(req: any, res: any) {
             console.warn('Storage upload failed (non-critical):', err);
         }
 
-        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Type', contentType);
         res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
         res.setHeader('X-OG-Cache', 'MISS');
         return res.status(200).send(imageBuffer);

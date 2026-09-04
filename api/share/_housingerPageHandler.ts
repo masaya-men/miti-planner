@@ -26,7 +26,7 @@ import type { HousingerCardPattern } from '../../src/lib/ogpHousingerCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { isEligibleForOgRepresentative } from '../../src/lib/housing/listingPublish.js';
 import { listingRepresentativeImages } from './_listingImages.js';
-import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
+import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 
 const PROFILE_COLLECTION = 'housing_profiles';
 const LISTING_COLLECTION = 'housing_listings';
@@ -296,9 +296,16 @@ export default async function handler(req: any, res: any) {
               try {
                 const [exists] = await bucket.file(`og-images/${hash}.png`).exists();
                 if (!exists) {
-                  // 未キャッシュ = このリクエストが初回。ここで生成させておけば、後で別のリクエストが
-                  // このパターンをランダムに選んだ時にはもう生成待ちにならない。
-                  await fetch(url, { headers: { 'User-Agent': 'LoPo-HousingerWarmup/1.0' } });
+                  // 未キャッシュ = このリクエストが初回。生成を「起こす」だけで完了は待たない。
+                  // 2.5 秒で abort しても og-cache 側の生成 + Storage upload はサーバーで完走する
+                  // (src/lib/housing/listingOgCardWarm.ts に同じ根拠・2026-09-04 実測確認済)。
+                  // 旧実装は timeout 無しで await しており、grid/sidebar 2 枚の cold 生成
+                  // (各 4〜13 秒) の完了を待って、クローラー向けページの TTFB が十数秒 → X が
+                  // ページ取得でタイムアウト → カードが出ない、という不具合だった。
+                  await fetch(url, {
+                    headers: { 'User-Agent': 'LoPo-HousingerWarmup/1.0' },
+                    signal: AbortSignal.timeout(2500),
+                  }).catch(() => { /* abort / 非 ok は握りつぶす(サーバー側で完走する) */ });
                 }
               } catch (warmErr) {
                 console.error('Housinger OG card warm-up error:', pattern, warmErr);
@@ -351,22 +358,23 @@ export default async function handler(req: any, res: any) {
       let html = await indexRes.text();
 
       html = html
-        .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(ogTitle)}</title>`)
-        .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${escapeHtml(ogTitle)}" />`)
-        .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${escapeHtml(ogDescription)}" />`)
+        .replace(/<title>[^<]*<\/title>/, `<title>${metaContent(ogTitle)}</title>`)
+        .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${metaContent(ogTitle)}" />`)
+        .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${metaContent(ogDescription)}" />`)
         .replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${escapeHtml(canonicalUrl)}" />`)
         .replace(/<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${escapeHtml(ogImageUrl)}" />`)
-        .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
-        .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
+        .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${metaContent(ogTitle)}" />`)
+        .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${metaContent(ogDescription)}" />`)
         .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
       if (seoSnapshotHtml) html = injectSeoSnapshot(html, seoSnapshotHtml);
 
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      // 2026-08-04: OGPカードのgrid/sidebarランダム抽選(CARD_PATTERNS)を短い間隔で
-      // 振り直すため、このページ自体のキャッシュを短縮(旧: s-maxage=300, max-age=60)。
-      // 画像本体は内容ハッシュ単位で別途永続キャッシュされるため、ここを短くしても
-      // 増えるのは軽いFirestore書き込み程度(satoriレンダリングの再発生はない)。
-      res.setHeader('Cache-Control', 'public, s-maxage=30, max-age=0');
+      // 2026-09-04: s-maxage 30→600 に戻す。OGPカードの grid/sidebar ランダム抽選は
+      // 「10 分ごとに振り直し」で十分(同じページを 10 分以内に 2 回シェアする人はいない)。
+      // 短すぎると (a) クローラーが来るたびページ本体を毎回サーバー再生成 = Vercel/Firestore
+      // コスト (b) Cloudflare が max-age=0 でキャッシュしない → X のページ取得が毎回 2〜3 秒 →
+      // カードが出ない不具合の一因、だった。画像本体は内容ハッシュ単位で永続キャッシュ。
+      res.setHeader('Cache-Control', 'public, s-maxage=600, max-age=0');
       res.status(httpStatus);
       return res.send(html);
     }
@@ -375,8 +383,8 @@ export default async function handler(req: any, res: any) {
   }
 
   // フォールバック: 最小限のOGP HTMLを返す
-  const safeTitle = escapeHtml(ogTitle);
-  const safeDesc = escapeHtml(ogDescription);
+  const safeTitle = metaContent(ogTitle);
+  const safeDesc = metaContent(ogDescription);
   const safeImg = escapeHtml(ogImageUrl);
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');

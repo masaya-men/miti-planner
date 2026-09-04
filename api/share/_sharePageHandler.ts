@@ -10,7 +10,7 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getContentName, buildOgImageUrl, type OgpLang } from '../../src/lib/ogpHelpers.js';
-import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
+import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 
 const COLLECTION = 'shared_plans';
 
@@ -128,13 +128,13 @@ export default async function handler(req: any, res: any) {
             const sharePageUrl = shareId ? `${protocol}://${host}/share/${encodeURIComponent(shareId)}` : `${protocol}://${host}`;
 
             html = html
-                .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(ogTitle)}</title>`)
-                .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${escapeHtml(ogTitle)}" />`)
-                .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${escapeHtml(ogDescription)}" />`)
+                .replace(/<title>[^<]*<\/title>/, `<title>${metaContent(ogTitle)}</title>`)
+                .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${metaContent(ogTitle)}" />`)
+                .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${metaContent(ogDescription)}" />`)
                 .replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${escapeHtml(sharePageUrl)}" />`)
                 .replace(/<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${escapeHtml(ogImageUrl)}" />`)
-                .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
-                .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
+                .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${metaContent(ogTitle)}" />`)
+                .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${metaContent(ogDescription)}" />`)
                 .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
             if (seoSnapshotHtml) html = injectSeoSnapshot(html, seoSnapshotHtml);
 
@@ -147,8 +147,8 @@ export default async function handler(req: any, res: any) {
         console.error('Index.html fetch error:', err);
     }
 
-    const safeTitle = escapeHtml(ogTitle);
-    const safeDesc = escapeHtml(ogDescription);
+    const safeTitle = metaContent(ogTitle);
+    const safeDesc = metaContent(ogDescription);
     const safeImg = escapeHtml(ogImageUrl);
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

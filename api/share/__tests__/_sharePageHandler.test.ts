@@ -26,6 +26,7 @@ vi.mock('../../src/lib/ogpHelpers.js', () => ({
 
 vi.mock('../../src/lib/ogpPageShell.js', () => ({
   escapeHtml: (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+  metaContent: (s: string) => s.replace(/\s+/g, ' ').trim().replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'),
   injectSeoSnapshot: vi.fn((html: string) => html),
 }));
 

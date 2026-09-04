@@ -13,7 +13,7 @@ import { isPubliclyViewable } from '../housing/_publicWindow.js';
 import { projectPublicListing } from '../../src/lib/housing/publicListingProjection.js';
 import { formatFullHousingAddress } from '../../src/lib/housing/formatHousingAddress.js';
 import { regionForDC } from '../../src/data/housing/dcServerMap.js';
-import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
+import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 import { listingRepresentativeImages } from './_listingImages.js';
 import { computeListingOgCardHash } from '../../src/lib/housing/listingOgCardWarm.js';
 
@@ -171,13 +171,13 @@ export default async function handler(req: any, res: any) {
     if (indexRes.ok) {
       let html = await indexRes.text();
       html = html
-        .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(ogTitle)}</title>`)
-        .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${escapeHtml(ogTitle)}" />`)
-        .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${escapeHtml(ogDescription)}" />`)
+        .replace(/<title>[^<]*<\/title>/, `<title>${metaContent(ogTitle)}</title>`)
+        .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${metaContent(ogTitle)}" />`)
+        .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${metaContent(ogDescription)}" />`)
         .replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${escapeHtml(canonicalUrl)}" />`)
         .replace(/<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${escapeHtml(ogImageUrl)}" />`)
-        .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
-        .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
+        .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${metaContent(ogTitle)}" />`)
+        .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${metaContent(ogDescription)}" />`)
         .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
       // og:image は写真経路(自ドメイン再ホストカード /og/{hash}.png)でもフォールバック
       // (DEFAULT_OG_IMAGE = /api/og)でも常に 1200x630 の生成 PNG になるため、index.html が
@@ -198,8 +198,8 @@ export default async function handler(req: any, res: any) {
     console.error('Listing page index.html fetch error:', err);
   }
 
-  const safeTitle = escapeHtml(ogTitle);
-  const safeDesc = escapeHtml(ogDescription);
+  const safeTitle = metaContent(ogTitle);
+  const safeDesc = metaContent(ogDescription);
   const safeImg = escapeHtml(ogImageUrl);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.status(httpStatus);

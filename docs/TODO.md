@@ -20,10 +20,12 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ 2026-09-02 ハウジング物件OGPカード = 本番デプロイ済(`1bf9f2d2`)・X実機確認OK → 詳細 [TODO_COMPLETED.md](./TODO_COMPLETED.md)。
-  - **この1週間だけの注意**: 8/28〜9/2午前に X がクロール済みの既存物件は「画像なし」カードが約7日キャッシュされる(自然回復)。既存物件を X に貼って画像が出なければ URL 末尾に `?x=1`。新規物件は最初から OK。
-  - follow-up(急がない): `/og/` MISS応答の1年TTL短縮(housinger/tour共通) / カードPNG 1.68MB→JPEG化 / HMAC三重複製統合 / `/og/*` Cloudflare Cache Rule明示 / `listingRepresentativeImages` を src/lib へ / update warm を画像変更時のみ / `og_image_meta` 存在時skip。
-### 🔴 次セッション最優先 = MIL-SPEC テーマ。worktree `milspec-theme`。**見た目トレース中**: `docs/.private/theme-refs/milspec-mockup.html`(GITIGNORE)。方向=**B確定**(構成/角度/色は手本`allagan-dark.png`に忠実、立体感/分離感は手本より強く=ハードサーフェス装甲パネル)。ヘッダーを`.hp`語彙(プレート+シーム+ビス+面取り)で再構築済(斜めゾーンは実測`╱`60°/赤rgb158,56,50)。次=サイドバー→ツールバー→表→フッターを同方式で。要素ごと実測→手本と並べて反復。ledger=`.superpowers/sdd/2026-09-02-military-theme/progress.md`。grainタイル=`theme-refs/tex/`([[reference_sharp_noise_mean_128]])。実機調整パネルあり(右下「調整」)。完成後military.cssへ移植(standard不変厳守)。
+### 🟠 2026-09-04 X OGPカード画像が出ない不具合 = 実装完了・**未デプロイ**。診断+設計=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`
+  根因: カードは Storage 生成済だが CF エッジに載らず(warm が5秒abort=CF は途中応答を非キャッシュ)+ 物件/ハウジンガーページ CF 未キャッシュ(2〜3秒)→ X がページ取得で予算切れ→「画像なし」~7日固定。修正(コストゼロ/削減): ①og-cache カード JPEG化(1MB→110KB・sharp 4:4:4)②ハウジンガー生成待ち削除(warm 2.5s abort・ランダム維持・s-maxage 30→600)③og:description 生改行を単一行化(`metaContent()`)。検証: 6テスト+tsc緑・sharp実機OK。
+  **残: ④ Cloudflare Cache Rule 追加(masaya・下記🟡SEO項目と同じ)→ その後デプロイ**。既存の壊れツイートは `?x=1` で貼り直し。旧follow-up(急がない): `/og/` MISS応答1年TTL短縮 / HMAC三重複製統合 / update warm を画像変更時のみ / `og_image_meta` 存在時skip。
+### 🔴 次セッション最優先 = MIL-SPEC テーマ。worktree `milspec-theme`。トレース中: `docs/.private/theme-refs/milspec-mockup.html`(GITIGNORE・ブラウザで開く)。方向 **B確定**(構成/角度/色は手本`allagan-dark.png`に忠実、立体感/分離感は手本より強く=ハードサーフェス装甲)。
+  **2026-09-03**: dark 全ゾーン trace 1周 → masaya レビュー=「案B・MGEX級の情報密度」確定 → **全ゾーンをパネル化(全部盛り)1周完了**(toolbar/subtoolbar/workspace/sidebar/footer を独立プレート + 沈みスクリーン + サブプレート + ビス/ステンシル/スジ彫り + 外枠コンソール。ゾーン矩形は不変=playwright 実測確認。調整ノブに panelline/channel 追加)。**次 = masaya が mockup を実機で開いて全ゾーン一括レビュー → 直し指示**。その後 light(要 compare.cjs 1710x920 対応 + 新規ダーク固定hex に light override)→ military.css 移植(standard 不変)。
+  workflow=`docs/.private/2026-09-03-milspec-trace-workflow.md` / ツール=`compare.cjs <zone> dark` `measure.cjs` / ledger=worktree `.superpowers/sdd/2026-09-02-military-theme/progress.md`。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
 ### 🟡 2026-08-31 (本番済・残=実機確認のみ) カード画像最適化Phase1(「?」消えたか+スクロール体感→Phase2要否) / スマホボトムナビ「トップ」再タップで先頭スクロール(iPhone確認)。
