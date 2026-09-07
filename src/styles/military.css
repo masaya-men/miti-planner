@@ -1814,3 +1814,84 @@
     linear-gradient(var(--ms-bracket), var(--ms-bracket)) right bottom / 10px 1px no-repeat,
     linear-gradient(var(--ms-bracket), var(--ms-bracket)) right bottom / 1px 10px no-repeat;
 }
+
+/* Phase 2.8: モバイル — ここに追記 */
+/* ============================================================
+ * Phase 2.8 — モバイル (MobileHeader 塗替え + 横型デカール1行 + 行のステンシル + Task 2.7 carry-in)
+ * 正典: design spec §13 (モバイル = 色 + MobileHeader 塗替え + カード/行の角切り・ステンシル + 横型デカール1行)
+ * 本番 DOM:
+ *   - MobileHeader.tsx  [data-milspec-mobile-header] (~34 · <header> fixed top-0 · flex md:hidden ·
+ *       bg は inline style の var(--color-nav-bg) = Phase 1.2 で --ms-well) /
+ *       [data-milspec-mobile-logo] (~54 · <span> "LOPO")
+ *   - MobileTimelineRow.tsx  行 = motion.div[data-time-row] (mobile は Timeline.tsx の
+ *       [data-milspec-scroll] 内にマウント。Phase 2.5 (B) は @media(min-width:768px) 限定なので
+ *       mobile 行は未装飾)。区切り線 = .h-px / 数値 = .font-mono。描画スキップ最適化系プロパティは持たない。
+ * ⚠ フッター HUD (AppFooter = hidden md:flex) / .milspec-console-frame (MilspecChrome =
+ *   window.innerWidth>=768 ガードで null) / タービン / 導管 は モバイル DOM に存在しない。ここでは扱わない。
+ * ⚠ MobileEffectBarLayer / 効果バー進捗の型付きプロパティ (index.css ~1447) / 描画封じ込め系 /
+ *   行 height は一切触らない (色・border・font のみ)。
+ * ⚠ 角丸は Phase 1.2 が --radius-* を全体的に立て済 (sm2/md3/lg4/xl6/2xl8) = 追加の border-radius 不要。
+ * ⚠ 全ルール .theme-military 前置 = standard は完全不変。!important 不使用。blur なし。
+ * ============================================================ */
+
+/* --- モバイルヘッダー = 暗い筐体面 (bg は Phase 1.2 の inline var(--color-nav-bg)=--ms-well)
+       + 立体の内陰 (上明/下暗・光源は画面上方)。position:fixed で box には影響しない。 --- */
+.theme-military [data-milspec-mobile-header] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045), inset 0 -2px 6px rgba(0, 0, 0, 0.45);
+}
+.theme-military.theme-light [data-milspec-mobile-header] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -2px 6px rgba(40, 80, 120, 0.12);
+}
+/* 横型デカール1行 — ヘッダー最下辺に貼る部品番号ステンシル (mockup .milspec-decal 792 と同式・
+   AppFooter の "A.R.D // AR-2409" 系と同一フィクション)。aria に出ない擬似要素・pointer-events:none・
+   1行 no-wrap・はみ出しは clip。ヘッダーの box には影響しない。 */
+.theme-military [data-milspec-mobile-header]::after {
+  content: "A.R.D // AR-2409 // SYS ONLINE ●";
+  position: absolute; left: 12px; right: 12px; bottom: 0;
+  font: 400 6px/1 var(--ms-font-mono); letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ms-text-muted); opacity: 0.5;
+  white-space: nowrap; overflow: hidden; text-overflow: clip;
+  pointer-events: none; z-index: 1;
+}
+
+/* --- モバイルロゴ "LOPO" = Share Tech Mono ステンシル (PC wordmark .milspec-wm-main 1002 と同系) --- */
+.theme-military [data-milspec-mobile-logo] {
+  font-family: var(--ms-font-mono);
+  letter-spacing: 0.26em;
+  color: var(--ms-stencil);
+}
+
+/* --- モバイルの行 (MobileTimelineRow) = 数値ステンシル + 区切り線 hairline。色/フォントのみ・軽く。
+       Phase 2.5 (B) の PC 行装飾 (@media min-width:768px) と対になる mobile 専用ブロック。
+       ⚠ 行の height / 描画スキップ最適化系 / 効果バー進捗プロパティ は触らない。 --- */
+@media (max-width: 767px) {
+  .theme-military [data-milspec-scroll] [data-time-row] .font-mono {
+    font-family: var(--ms-font-mono);
+  }
+  /* 時刻・元ダメージ・軽減率 (.font-black でない数値) を stencil 色へ。
+     軽減後ダメージ (.font-mono.font-black = AnimatedDamage) は緑/赤のまま除外。 */
+  .theme-military [data-milspec-scroll] [data-time-row] .font-mono:not(.font-black) {
+    color: var(--ms-stencil);
+  }
+  /* 行下辺の区切り線 (MobileTimelineRow の .h-px.bg-app-text/[0.06]) → hairline */
+  .theme-military [data-milspec-scroll] [data-time-row] .h-px {
+    background-color: var(--ms-hairline);
+  }
+}
+
+/* --- Controller carry-in (Task 2.7 レビュー): [data-milspec-modal] は viewport gate 無しのため、
+   モバイルの bottom sheet / near-fullscreen 表示でも Phase 2.7 の「角 3px + 四隅 L ブラケット」が出る
+   (端末端に密着する sheet でブラケットが不自然)。モバイルだけ角ばり + ブラケットを打ち消す。
+   Phase 2.7 のルール自体には触れず、この節が後勝ち (同 specificity・source order) で上書きする。
+   border-radius はテーマ標準の rounded-2xl 相当へ戻す = Tailwind v4 では var(--radius-2xl)
+   (Phase 1.2 で 8px に remap 済。旧ブリーフの "1rem" は Tailwind v3 想定の値で、このテーマの
+   rounded-2xl は 8px = var(--radius-2xl) が正しい)。不透明メタル bg 自体はモバイルでも維持。 --- */
+@media (max-width: 767px) {
+  .theme-military [data-milspec-modal] {
+    border-radius: var(--radius-2xl);
+  }
+  .theme-military [data-milspec-modal]::before,
+  .theme-military [data-milspec-modal]::after {
+    display: none;
+  }
+}
