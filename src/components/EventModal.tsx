@@ -94,6 +94,7 @@ export const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, onSave,
                 ref={modalRef}
                 data-tutorial-modal
                 data-lenis-prevent
+                data-milspec-modal
                 onClick={(e) => e.stopPropagation()}
                 className={clsx(
                     "flex flex-col overflow-hidden shadow-sm ring-1 ring-inset pointer-events-auto",

@@ -1740,3 +1740,77 @@
   border-color: var(--ms-hairline);
   border-radius: 2px;
 }
+
+/* ============================================================
+ * Phase 2.7 — モーダル / ポップオーバー / ドロップダウン = 金属ダイアログ
+ * 正典: docs/.private/theme-refs/milspec-mockup.html (§8 モーダル指針 + プリミティブ: 角/ブラケット/Orbitron)
+ * 本番: 全 .glass-tier{1,2,3} サーフェス (モーダル / ポップオーバー / ドロップダウン ~50 種) を
+ *   「不透明な金属プレート・blur 皆無」に。個別フックは大型フローティングモーダルの root 要素へ
+ *   data-milspec-modal 属性のみ (角を立てる + 四隅 L ブラケット + 見出し Orbitron)。
+ * 方針 (masaya「使えるように・どんどん」): トークン優先・フック最小。中身レイアウト / ロジックは不変。
+ *
+ * ⚠ ヘッダー / サイドバー / フッター / 進捗ドロワーは .glass-frame を持ち、Task 2.1 / 2.2 / 2.4 / 2.6 が
+ *   :has() / 属性セレクタ (0,3,0) で自前 bg を設定済。下の土台ルールは :not(.glass-frame) で
+ *   それらを除外する = 構造クロームには一切触れない。
+ * ⚠ Phase 1.2 が .theme-military.theme-{dark,light} で同じ --glass-tier*-* を設定済 (全 tier が継承)。
+ *   下は「.glass-frame 内にネストした popover が祖先の上書き値を継承する」経路を要素直指定で断つ保険。
+ *   現状の全モーダル / popover / dropdown は portal to document.body なので既に金属化されるが、
+ *   将来 .glass-frame 配下にマウントされても透けないようにする。
+ * ⚠ MitigationSheet (みんなの軽減表シート本体) は spec スコープ外 = 一切触らない。
+ * ⚠ 全ルール .theme-military 前置 = standard は完全不変。!important は不使用。
+ * ============================================================ */
+
+/* --- 土台: 全 glass tier を金属プレートへ (要素直指定・!important 不使用) ---
+   index.css の .glass-tier3{ background: var(--glass-tier3-bg) !important } が変数を読むので
+   変数側を差し替える。:not(.glass-frame) で構造クロームの自前 bg (Task 2.1 / 2.4 / 2.6) は無傷。 */
+.theme-military .glass-tier3:not(.glass-frame) {
+  --glass-tier3-bg:     var(--ms-raised-grad);
+  --glass-tier3-blur:   0px;
+  --glass-tier3-border: var(--ms-hairline-2);
+  --glass-tier3-shadow: var(--ms-shadow-raised);
+  --glass-tier3-inset:  inset 0 1px 0 var(--ms-edge-hi);
+}
+.theme-military .glass-tier2:not(.glass-frame) {
+  --glass-tier2-bg:     var(--ms-plate-grad);
+  --glass-tier2-blur:   0px;
+  --glass-tier2-border: var(--ms-hairline);
+  --glass-tier2-shadow: var(--ms-shadow-panel);
+}
+.theme-military .glass-tier1:not(.glass-frame) {
+  --glass-tier1-bg:     var(--ms-plate-grad);
+  --glass-tier1-blur:   0px;
+  --glass-tier1-border: var(--ms-hairline);
+}
+
+/* --- 大型フローティングモーダルのフック — root 要素に data-milspec-modal (bare) ---
+   角を 3px に立てる + 四隅 L ブラケット + 見出しを Orbitron へ。
+   中身のレイアウト / 機能には触れない。root は relative / absolute / fixed 既定なので
+   position は据置 (::before/::after の containing block は既に存在)。 */
+.theme-military [data-milspec-modal] {
+  border-radius: 3px;
+}
+.theme-military [data-milspec-modal] :is(h1, h2, h3) {
+  font-family: var(--ms-font-display);
+  letter-spacing: 0.04em;
+}
+/* 四隅 L ブラケット — overflow:hidden な root でもクリップされない位置 (inset 5px)。
+   ::before = 上 2 隅 / ::after = 下 2 隅。各コーナー 10px の L 字 (--ms-bracket)。 */
+.theme-military [data-milspec-modal]::before,
+.theme-military [data-milspec-modal]::after {
+  content: ""; position: absolute; left: 5px; right: 5px; height: 10px;
+  pointer-events: none; z-index: 4;
+  background:
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) left  top / 10px 1px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) left  top / 1px 10px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) right top / 10px 1px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) right top / 1px 10px no-repeat;
+}
+.theme-military [data-milspec-modal]::before { top: 5px; }
+.theme-military [data-milspec-modal]::after {
+  bottom: 5px;
+  background:
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) left  bottom / 10px 1px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) left  bottom / 1px 10px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) right bottom / 10px 1px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) right bottom / 1px 10px no-repeat;
+}

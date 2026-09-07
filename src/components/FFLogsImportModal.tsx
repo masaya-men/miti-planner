@@ -237,6 +237,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
                         className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
                     />
                     <motion.div
+                        data-milspec-modal
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -516,6 +517,7 @@ export const FFLogsImportModal: React.FC<FFLogsImportModalProps> = ({ isOpen, on
 
                 {/* ─── Desktop: Centered Modal (unchanged) ─── */}
                 <motion.div
+                    data-milspec-modal
                     initial={{ opacity: 0, scale: 0.95, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 10 }}

@@ -40,7 +40,9 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                 onClick={onCancel}
             />
             {/* Dialog */}
-            <div className={clsx(
+            <div
+                data-milspec-modal
+                className={clsx(
                 "relative w-[360px] max-w-[90vw] rounded-2xl glass-tier3",
                 "animate-[dialogIn_200ms_cubic-bezier(0.2,0.8,0.2,1)]"
             )}
