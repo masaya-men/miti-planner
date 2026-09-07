@@ -143,8 +143,10 @@ grid-template-areas:
 ```
 
 - 列: サイドバー 285 / 溝 22 / 本体 1fr
-- 行: ヘッダー 90 / ツールバー上段 72 / ツールバー下段 52 / ワークスペース 1fr / フッター 82
+- 行: ヘッダー 90 / ツールバー 72 / コントロールバー 52 / ワークスペース 1fr / フッター 82
 - `header` は全幅。`sidebar` と `seam` は 2〜5 行を縦断。
+
+> **SP1 の行構成**: モックの `.subtoolbar`（コントロールバー・52px）は独立ゾーンにしない。理由: AA モード（`isAaModeEnabled`）・リキャスト行表示（`recastRowVisible`）は `Timeline.tsx` のローカル state で外から触れず、SP1 で埋め込む `Timeline` が自前のコントロールバーを持つため、独立ゾーン化すると二重になる。**SP1 のグリッドは 4 行**（`header 90 / toolbar 72 / workspace 1fr / footer 82`）。`Timeline` 自身のコントロールバーがワークスペース（装甲板）内の上端に乗る。**SP2 で表を作り直すとき `MilspecControlBar` を 5 行目として復活**させる。
 
 ### 4.2 SP1 の流動グリッド（Q2 = A）
 
@@ -254,9 +256,13 @@ props: `{ isSidebarOpen, onToggleSidebar, onCloseSidebar }`
 props: `{ onImportLogs, partySortOrder, setPartySortOrder, statusOpen, setStatusOpen }`
 依存: `usePartyStore` / 既存の設定・パーティ編成モーダル起動関数 / `navigate`
 
-### 5.5 `MilspecControlBar` — `grid-area: subtoolbar`（モックの `.subtoolbar`）
+### 5.5 `MilspecControlBar` — **SP2 へ移動**（SP1 では作らない）
 
 モック: `milspec-mockup.html:2089-2119`（`<div class="subtoolbar">` — 「表の直上に細く乗る操作列」）
+
+**SP1 では作らない。** §4.1 の注記の通り、AA モード（`isAaModeEnabled`・Timeline ローカル state）・リキャスト行表示（`recastRowVisible`・同）は外から触れず、埋め込んだ `Timeline` が自前のコントロールバー（`controlBarRef` — 横スクロール同期 `#timeline-controls-inner` と `paddingRight` 補正の一部）を持つ。SP1 で独立ゾーン化すると二重になり、スクロール同期も壊す。**SP2 で表グリッドと操作モデルを作り直すときに `MilspecControlBar` を 5 行目として実装**し、そのとき AA/リキャストの state を持ち上げる（or Timeline から公開する）。
+
+以下は SP2 の配線メモ（参考・SP1 では未使用）:
 
 | モックのグループ | ボタン | 配線先 |
 |---|---|---|
@@ -427,6 +433,7 @@ Phase 2（Task 2.1〜2.8）で標準コンポーネントに入れた以下を�
 ## 12. SP1 がやらないこと
 
 - タイムライン表の中身の作り直し（列グリッド・軽減バー座標・スクロール同期・行間引き）→ **SP2**。SP1 は既存 `Timeline` を埋め込むだけ。
+- `MilspecControlBar`（モック `.subtoolbar`・折りたたむ/AA追加/メモ/罫線/リキャスト行/元に戻す・やり直し/軽減クリア/ジョブチップ）→ **SP2**（§5.5・§4.1 注記）。SP1 では埋め込んだ `Timeline` 自身のコントロールバーがそのまま動く。
 - スマホの軍事レイアウト → **SP3**。SP1 は 768px 未満で標準にフォールバック。
 - パーティ編成・ステータス設定・イベント追加・軽減追加モーダルの軍事化 → **SP4**。
 - 折りたたみ/集中モードの凝った軍事デザイン → SP1 後の追加作業（Q4）。
@@ -456,7 +463,7 @@ SP1 内の想定タスク順（各タスクにローカル実機確認ゲート�
 3. **`MilspecWorkspace`** — 装甲板の枠・ビス・刻印・スクリーン面。既存 Timeline がその中で従来通り動く。
 4. **`MilspecHeader`** — ロゴ/メタ/遭遇名/銘板/共有/ツール。配線 + 実機確認。
 5. **`MilspecSidebar`** — シナリオ/プラン一覧/フェーズ/バックアップ/DEPLOYMENT。配線 + 実機確認。
-6. **`MilspecToolbar` + `MilspecControlBar`** — 2 段の操作列。配線 + 実機確認。
+6. **`MilspecToolbar`** — モック `.toolbar`（CREW: パーティ編成/設定/ログ取込/その他・VIEW: みんなの軽減表/表示メンバー・SORT: ライト/ロール）。配線 + 実機確認。（`MilspecControlBar` は SP2）
 7. **`MilspecFooter`** — 情報プレート/PCB ハーネス/計器。配線 + 実機確認。
 8. **`MilspecSeam` + `MilspecChrome` 統合 + 折りたたみ挙動** — 溝/導管/外枠、S/H/F の機能的な畳み。
 9. **サイズ詰め**（§4.2 の係数を 3 ケースで）+ i18n 5 言語 + push 前ゲート + whole-branch レビュー。
