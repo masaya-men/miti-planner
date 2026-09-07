@@ -1133,7 +1133,12 @@
   color: var(--ms-text-muted);
 }
 .theme-military .milspec-seg button:active { transform: none; box-shadow: none; }
-/* スライドインジケータ (bg-app-toggle) = シアンタブ */
+/* スライドインジケータ (bg-app-toggle) = 暗いシアンtintタブ (mockup .tool-seg .tool-btn.active 959–962)。
+   明るいシアン地だとラベル(muted)が読めない → 暗タブ + 左シアンエッジ + 上ハイライト + 発光。 */
 .theme-military .milspec-seg .bg-app-toggle {
-  box-shadow: inset 3px 0 0 var(--ms-cyan), 0 0 9px var(--ms-cyan-glow);
+  background: linear-gradient(rgba(130,204,223,0.14), rgba(130,204,223,0.14)), #26333d;
+  box-shadow: inset 3px 0 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 9px var(--ms-cyan-glow);
+}
+.theme-military.theme-light .milspec-seg .bg-app-toggle {
+  background: linear-gradient(rgba(17,131,176,0.12), rgba(17,131,176,0.12)), #d4e6ee;
 }
