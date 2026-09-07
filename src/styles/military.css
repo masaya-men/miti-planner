@@ -1665,3 +1665,77 @@
     text-shadow: 0 0 6px rgba(211,59,63,0.45);
   }
 }
+
+/* ============================================================
+ * Phase 2.6 — フッター帯 = MIL-SPEC 金属ストリップ (Controller 補足 2026-09-07 · 縮小版)
+ * 正典: docs/.private/theme-refs/milspec-mockup.html フッター (帯部分のみ・計器/PCB は Phase 3)
+ * 本番: AppFooter.tsx (h-6=24px 帯・Layout.tsx に 1 回マウント・hidden md:flex)
+ *   [data-milspec-footer] = <footer> 本体 (glass-tier3 glass-frame・= glass-frame 要素そのもの)
+ *   [data-milspec-chrome]  = decal 2 枚 (左コード / 右 "Operational" + .milspec-lamp)。
+ *                            Task 2.1 の base-hide [data-milspec-chrome]{display:none} で standard は不可視。
+ *   <p> = © / disclaimer / legal ドロップダウン / Discord / X / <PulseSettings/>
+ * ⚠ h-6・pointer-events 構造 (外 none / <p> auto) は不変。全ルール .theme-military 前置。
+ * ⚠ .glass-shadow-none {box-shadow:none!important} が付くので帯の陰影は擬似要素で描く。
+ * ============================================================ */
+
+/* --- 帯本体 = 浮いた raised 金属プレート ---
+   .glass-tier3 が background:var(--glass-tier3-bg)!important で塗るため変数ごと差し替える
+   (Task 2.4 サイドバー / Task 2.1 ヘッダーと同型)。index.css .theme-light .glass-frame が
+   --glass-tier3-bg:transparent へ戻すのを (0,2,0) 後勝ちで打ち消す。 */
+.theme-military [data-milspec-footer].glass-frame {
+  --glass-tier3-bg: var(--ms-raised-grad);
+  --glass-tier3-border: var(--ms-hairline);
+  --ms-behind: var(--ms-raised-lo);
+}
+.theme-military [data-milspec-footer] {
+  position: relative;
+}
+
+/* 立体陰影 (raised band) — element の box-shadow は殺されているので擬似要素で。
+   上 inset ハイライト + 下 沈み込み (mockup の raised 帯共通式)。 */
+.theme-military [data-milspec-footer]::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -2px 5px rgba(0,0,0,0.4);
+}
+
+/* 上端シアン線 (筐体天面・ヘッダー [data-milspec-header]::before と同作法の破線) */
+.theme-military [data-milspec-footer]::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  z-index: 1; pointer-events: none;
+  background: repeating-linear-gradient(90deg,
+    rgba(130,204,223, calc(0.18 + 0.04 * var(--ms-tune-glow))) 0 3px, transparent 3px 26px);
+}
+
+/* --- 装飾クローム = decal 2 枚。Task 2.1 の base-hide をフッター配下だけ display:block で戻す
+       (ヘッダー [data-milspec-header] [data-milspec-chrome] と同作法)。standard では隠れたまま。 --- */
+.theme-military [data-milspec-footer] [data-milspec-chrome] {
+  display: block; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+}
+.theme-military [data-milspec-footer] [data-milspec-chrome] > * { position: absolute; }
+/* .milspec-lamp は既定 position:absolute → flex 内の gap に乗せるため relative へ (ヘッダー LED と同じ) */
+.theme-military [data-milspec-footer] [data-milspec-chrome] .milspec-lamp { position: relative; }
+
+/* --- 権利表記テキスト --- */
+.theme-military [data-milspec-footer] p {
+  position: relative; z-index: 3;
+  color: var(--ms-text-muted);
+  letter-spacing: 0.05em;
+}
+.theme-military [data-milspec-footer] p a,
+.theme-military [data-milspec-footer] p button {
+  color: var(--ms-text-sec);
+  transition: color .15s ease;
+}
+.theme-military [data-milspec-footer] p a:hover,
+.theme-military [data-milspec-footer] p button:hover {
+  color: var(--ms-cyan);
+}
+
+/* --- legal ドロップダウン (bg-app-surface border-app-border rounded-lg の div) = 沈んだプレート。深追い不要。 --- */
+.theme-military [data-milspec-footer] div[class*="min-w-"] {
+  background: var(--ms-plate-grad);
+  border-color: var(--ms-hairline);
+  border-radius: 2px;
+}
