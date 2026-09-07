@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Home } from 'lucide-react';
 import { useReducedMotion } from '../../../lib/housing/useReducedMotion';
@@ -44,6 +44,8 @@ const HOUSE_SIZE = BALL_PEAK_HEIGHT / (1 - roofHitY / ICON_VIEWBOX);
 const IMPACT_X = TOTAL_SLOTS * BAR_STRIDE;
 const HOUSE_LEFT_X = IMPACT_X - (roofHitX / ICON_VIEWBOX) * HOUSE_SIZE;
 const TRACK_WIDTH = HOUSE_LEFT_X + HOUSE_SIZE + 8;
+/** `.housing-allmarks-wave-loader-track` の CSS height と一致させる (採寸フィットの縦寸に使う)。 */
+const TRACK_HEIGHT = 150;
 
 interface WaveFrames {
   barHeights: string[][];
@@ -134,6 +136,27 @@ export const AllmarksWaveLoader: React.FC = () => {
   const reducedMotion = useReducedMotion();
   const frames = useMemo(buildWaveFrames, []);
 
+  // トラックは固定幅 (TRACK_WIDTH ≈ 394px)。スマホのモーダル (実効 ~320px) では右端の家が
+  // 見切れていた (2026-09-04 masaya 実機報告)。利用可能幅を採寸し、収まらなければ縮小率を
+  // かけてトラック全体 (バー往復 + 家のバウンド) を最後まで見せる。物理演算の定数
+  // (NUM_VISIBLE_BARS 等) には触れず、見た目だけ transform: scale で縮める
+  // (定数の再スケール禁止 = 上のコメント参照)。
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const measure = () => {
+      const avail = el.clientWidth;
+      setScale(avail > 0 ? Math.min(1, avail / TRACK_WIDTH) : 1);
+    };
+    measure();
+    const observer =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    observer?.observe(el);
+    return () => observer?.disconnect();
+  }, []);
+
   // transition/animate オブジェクトを毎レンダー新規生成すると、進捗テキストの更新等で
   // 親が再レンダーされるたびに framer-motion がループアニメーションを最初からやり直して
   // しまい、家への到達(xFrac=1)まで辿り着けない事故になる(2026-08-19 ユーザー指摘:
@@ -151,35 +174,47 @@ export const AllmarksWaveLoader: React.FC = () => {
   }, [frames, reducedMotion]);
 
   return (
-    <div className="housing-allmarks-wave-loader" aria-hidden>
-      <div className="housing-allmarks-wave-loader-track" style={{ width: TRACK_WIDTH }}>
-        {frames.barHeights.map((_, i) => (
-          <div key={i} className="housing-allmarks-wave-bar-wrap" style={{ width: BAR_WIDTH }}>
-            <div className="housing-allmarks-wave-bar-base" />
-            <motion.div
-              className="housing-allmarks-wave-bar-glow"
-              animate={anim?.bars[i]}
-              transition={anim?.transition}
-              style={anim ? undefined : { height: BASE_BAR_H, opacity: 0 }}
-            />
-          </div>
-        ))}
-
-        <motion.div
-          className="housing-allmarks-wave-house"
-          style={{ left: HOUSE_LEFT_X }}
-          animate={anim?.house}
-          transition={anim?.transition}
+    <div className="housing-allmarks-wave-loader" aria-hidden ref={wrapRef}>
+      <div
+        className="housing-allmarks-wave-loader-fit"
+        style={{ width: TRACK_WIDTH * scale, height: TRACK_HEIGHT * scale }}
+      >
+        <div
+          className="housing-allmarks-wave-loader-track"
+          style={{
+            width: TRACK_WIDTH,
+            transform: scale < 1 ? `scale(${scale})` : undefined,
+            transformOrigin: 'top left',
+          }}
         >
-          <Home size={HOUSE_SIZE} />
-        </motion.div>
+          {frames.barHeights.map((_, i) => (
+            <div key={i} className="housing-allmarks-wave-bar-wrap" style={{ width: BAR_WIDTH }}>
+              <div className="housing-allmarks-wave-bar-base" />
+              <motion.div
+                className="housing-allmarks-wave-bar-glow"
+                animate={anim?.bars[i]}
+                transition={anim?.transition}
+                style={anim ? undefined : { height: BASE_BAR_H, opacity: 0 }}
+              />
+            </div>
+          ))}
 
-        <motion.div
-          className="housing-allmarks-wave-ball"
-          animate={anim?.ball}
-          transition={anim?.transition}
-          style={anim ? undefined : { transform: 'translate(0, -44px)' }}
-        />
+          <motion.div
+            className="housing-allmarks-wave-house"
+            style={{ left: HOUSE_LEFT_X }}
+            animate={anim?.house}
+            transition={anim?.transition}
+          >
+            <Home size={HOUSE_SIZE} />
+          </motion.div>
+
+          <motion.div
+            className="housing-allmarks-wave-ball"
+            animate={anim?.ball}
+            transition={anim?.transition}
+            style={anim ? undefined : { transform: 'translate(0, -44px)' }}
+          />
+        </div>
       </div>
     </div>
   );

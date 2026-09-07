@@ -9,7 +9,7 @@ import { initAdmin, getAdminFirestore } from '../../src/lib/adminAuth.js';
 import { buildTourInviteOgCardParams } from '../../src/lib/ogpTourInviteCard.js';
 import { computeOgCardImageHash } from '../../src/lib/ogpImageHash.js';
 import { SHARED_TOUR_NAME_MAX_LENGTH } from '../../src/types/sharedTour.js';
-import { escapeHtml, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
+import { escapeHtml, metaContent, injectSeoSnapshot } from '../../src/lib/ogpPageShell.js';
 
 const DEFAULT_OG_TITLE = 'LoPo Housing Tour';
 const DEFAULT_OG_DESCRIPTION = 'FF14のハウジングを巡るツアーに招待されました。リンクを開くと幹事と同じ景色を一緒に見られます。';
@@ -85,13 +85,13 @@ export default async function handler(req: any, res: any) {
     if (indexRes.ok) {
       let html = await indexRes.text();
       html = html
-        .replace(/<title>[^<]*<\/title>/, `<title>${escapeHtml(ogTitle)}</title>`)
-        .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${escapeHtml(ogTitle)}" />`)
-        .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${escapeHtml(ogDescription)}" />`)
+        .replace(/<title>[^<]*<\/title>/, `<title>${metaContent(ogTitle)}</title>`)
+        .replace(/<meta property="og:title"[^>]*>/, `<meta property="og:title" content="${metaContent(ogTitle)}" />`)
+        .replace(/<meta property="og:description"[^>]*>/, `<meta property="og:description" content="${metaContent(ogDescription)}" />`)
         .replace(/<meta property="og:url"[^>]*>/, `<meta property="og:url" content="${escapeHtml(canonicalUrl)}" />`)
         .replace(/<meta property="og:image"[^>]*>/, `<meta property="og:image" content="${escapeHtml(ogImageUrl)}" />`)
-        .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${escapeHtml(ogTitle)}" />`)
-        .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${escapeHtml(ogDescription)}" />`)
+        .replace(/<meta name="twitter:title"[^>]*>/, `<meta name="twitter:title" content="${metaContent(ogTitle)}" />`)
+        .replace(/<meta name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${metaContent(ogDescription)}" />`)
         .replace(/<meta name="twitter:image"[^>]*>/, `<meta name="twitter:image" content="${escapeHtml(ogImageUrl)}" />`);
       if (seoSnapshotHtml) html = injectSeoSnapshot(html, seoSnapshotHtml);
 
@@ -104,8 +104,8 @@ export default async function handler(req: any, res: any) {
     console.error('Tour invite page index.html fetch error:', err);
   }
 
-  const safeTitle = escapeHtml(ogTitle);
-  const safeDesc = escapeHtml(ogDescription);
+  const safeTitle = metaContent(ogTitle);
+  const safeDesc = metaContent(ogDescription);
   const safeImg = escapeHtml(ogImageUrl);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.status(httpStatus);

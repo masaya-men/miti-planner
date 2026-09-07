@@ -16,28 +16,23 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 1. **軍事SF(MIL-SPEC)テーマ + スプシモード = 1つの大型アップデート(ユーザー本命)**。**worktree で隔離**して両方作り、揃ったらまとめて main へ1本化・push(2026-09-02 masaya 決定)。
    - **① MIL-SPEC テーマ**: brainstorm済み・**設計書=`docs/superpowers/specs/2026-09-02-military-theme-design.md`** / **実装計画=`docs/superpowers/plans/2026-09-02-military-theme.md`**。`using-git-worktrees` → Phase 0 Task 0.1 から `subagent-driven-development`。Phase 0 Task 0.7 が masaya の見た目承認ゲート。参考画像=`docs/.private/theme-refs/`。論点 memory [[project_sf_military_theme]]。
    - **② 軽減表スプシモード**(①の後・同じ worktree)。全テーマにトークン経由。要 brainstorm→spec→plan。議論=`docs/.private/2026-08-05-collab-header-and-spreadsheet-mode.md`。WIP中は両方 dev ガード(`localStorage 'milspec-preview'`)、マージ時に公開。
-2. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming)。ブレスト中断。実機で**タイムライン画面のDOMキャプチャがハングする不具合**発見・原因未特定で保留。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
-3. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
+2. **🆕 スケジュール管理 + ロット管理(固定PT運営)** — ①②の直後(masaya 2026-09-04)。要brainstorming。形態 A(軽減表collab内の1機能)or B(別アプリ+プラン紐付け)未定。日程調整アイデア(2026-06-16)を吸収検討。詳細=`docs/.private/2026-09-04-schedule-and-loot-management-idea.md`。
+3. **軽減編集タイムラプスのSNS投稿**(大物・要brainstorming・中断)。実機で**タイムラインDOMキャプチャがハング**・原因未特定で保留。詳細=`docs/.private/2026-08-27-mitigation-timelapse-sns-share-design.md`。
+4. **Wiki型タイムライン共同編集**(大物)。着手前にアイデア⑧「攻撃ID保持で任意言語翻訳」を先に。詳細=`docs/.private/2026-06-16-wiki-collaborative-timeline.md`。
 
 ## 現在の状態 (次セッションはここから読む)
-### ✅ 2026-09-02 ハウジング物件OGPカード = 本番済(`1bf9f2d2`)・X確認OK → [TODO_COMPLETED.md](./TODO_COMPLETED.md)。follow-up(急がない): `/og/` MISS応答の1年TTL短縮 / カードPNG→JPEG化 / HMAC三重複製統合 / `/og/*` CF Cache Rule明示 / `listingRepresentativeImages`をsrc/libへ / update warm画像変更時のみ / `og_image_meta`存在時skip。
-### 🔴 次セッション最優先 = MIL-SPEC テーマ **v1 実装完了・masaya レビュー反映で v2 本格実装**。
-  - worktree `.claude/worktrees/milspec-theme`(branch `milspec-theme`)。commit `2851d258` まで。build/tsc 緑・standard 不変。
-  - v1: Phase 0(2軸store/フォント/切替ボタン/調整パネル) + ヘッダー/サイドバー/表/フッターを軍事化。data 属性フック多数。
-  - **masaya レビュー結果: 色味が参照画像に全然合っていない・傷/汚れが不十分・hover 不具合(修正済)**。
-  - **次 = `docs/superpowers/specs/2026-09-02-military-theme-visual-spec-v2.md` を読んで §11「進め方」から**。①パレット修正(参照採色・最優先) ②`.milspec-panel` を3層weatheringで完成品化 ③ヘッダー再構築(赤チェブロン) ④サイドバー(黄黒ハザード/パネル化) ⑤表 ⑥フッターHUD新規 → masaya確認 → 引き算。
-  - その後 ② スプシモード(同 worktree)→ 敵対レビュー → main へ1本化・push。
-  - SDD ledger=`.superpowers/sdd/2026-09-02-military-theme/progress.md`。参照画像 crop=`<scratchpad>/ref-*.png`(再生成コマンド spec-v2 §11)。
+### 🟢 2026-09-04 X OGPカード不具合 = デプロイ済(`280da74d`)。診断=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`。**残=実機確認のみ**: 次の新規登録ツイートで一発で出るか(出なければ登録→通知の間隔を空ける方向)。既存壊れは `?x=1` で貼り直し。⚠フロント変更デプロイ後は CF「すべてパージ」必須([[reference_cf_cache_housing_ogp_pages]])。
+### 🔴 次セッション最優先 = MIL-SPEC テーマ 本番移植。worktree `milspec-theme`。
+  **正典=`docs/.private/theme-refs/milspec-mockup.html`**(GITIGNORE・CSS1846行+DOM+JS。一週間かけ作り込んだ削り出し金属・C面・タービン遊びボタン・ロールカウンター計器・導管・フッターHUD)。経緯=`docs/.private/2026-09-03-milspec-trace-workflow.md`追記1〜25。material=memory `reference_milspec_material_language`。
+  **2026-09-07 masaya 方針**: モックアップの全部(見た目・遊びボタン・計器・フッターHUD)を**取りこぼしなく本番へ**・**ライト同時**・**完成までユーザー非公開**(`localStorage 'milspec-preview'`)・本番編集機能は全稼働・standard 1バイト不変。
+  **✅ プラン v2 = `docs/superpowers/plans/2026-09-02-military-theme.md`**(モックアップ準拠に全面改訂)。Phase 0(worktree済・main取込+ノブ差替+military.css骨組化) → 1 土台(--ms-*トークン/意味トークンリマップ/共通プリミティブ/背景/MilspecChrome) → 2 ゾーン別リスキン8タスク → 3 新規クローム(タービンrig/ロールカウンター/導管/シーム/デカール React化) → 4 仕上げ。本番DOM構造マップ(Layout/Sidebar/Timeline/ConsolidatedHeader 全ツリー)は survey 済でプラン内に。
+  **次 = masaya がプラン構成を確認 → OK なら subagent-driven-development で Task 0.R1 から着手**。masaya実機ゲート: 1.6(マテリアル方向性)/3.2(座標計器の採否=マウス追従ルール例外)/4.1(レスポンシブ)/4.2(light)/4.5(tuneパネル)/4.6(最終+リリース単位: スプシモードとセットか単独か)。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
-### 🟡 2026-08-31 (本番済・残=実機確認のみ) カード画像最適化Phase1(「?」消えたか+スクロール体感→Phase2要否) / スマホボトムナビ「トップ」再タップで先頭スクロール(iPhone確認)。
-### ✅ 2026-08-20〜24 ハウジング一括(3機能+スキル2件/YouTube×X画像共存/NEWリボン手動固定)= 全て本番反映・実機確認済み (詳細=TODO_COMPLETED.md)
-**残**: Discord告知 = 2026-08-20分は投稿済み確認。8/24〜9/1分の下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)。/ Allmarksのリージョン混在ケースは実リンクが無く未検証。
-### 🟡 SEOソフト404対策(2026-08-17本番反映済)のデプロイ後インフラ設定が未着手: Cloudflare Cache Rule(`/housing/housinger/*` `/share/*` `/housing/tour/*` `/housing/listing/*`)/ Search Console 再検査+インデックス登録。
-**🟡 優先度低・後回し確定**: ハウジンガーページが全物件共通の1個のversionカウンタ参照 → 他人の物件編集で自分のハウジンガーCDNキャッシュが割れる。改善案=専用versionカウンタ分離。
-**ハウジンガーOGPカード**: 完成扱い(2026-08-17)。`.claude/worktrees/housinger-ogp-card-redesign` の未コミット3差分は不採用確定・**触らない**。残プロセスにロックされ `git worktree remove` 失敗中(実害なし)。
-### ✅ 直近の本番反映・棚卸し: マイページ/複数投稿URL Batch2/編集ページ画像管理/探すページランダム化+初心者タグ/コストハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所ゲート強化/旧UI意匠掃除、全て本番反映・確認済み(詳細=TODO_COMPLETED.md)。
-
+### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
+### 🟡 SEOソフト404対策: CF Cache Rule は `/housing/(listing|housinger|tour)/` `/h/` 追加済(2026-09-04)。**残**: `/share/*` の CF ルール検討 / Search Console 再検査+インデックス登録。
+**🟡 優先度低**: ハウジンガーページが全物件共通の1個のversionカウンタ参照 → 他人の物件編集で自分のハウジンガーCDNキャッシュが割れる。改善案=専用versionカウンタ分離。／ **ハウジンガーOGPカード**=完成扱い(2026-08-17)、`.claude/worktrees/housinger-ogp-card-redesign` の未コミット3差分は不採用・**触らない**(worktree remove ロック中・実害なし)。
+### ✅ 直近の本番反映・確認済み: マイページ/複数投稿URL Batch2/編集画像管理/探すランダム化+初心者タグ/コストハードニング+実機FB9件/P0-P3耐性+住所非公開/big3(7-13)+競合コピー修正/D住所ゲート/旧UI掃除/ツアースマホ#1#2#3(`68e13644`+`482e9a94`・iPhone確認OK)。詳細=TODO_COMPLETED.md。
 ### 🟡 ハウジング中期タスク(2026-07-20 棚卸し)
 - 🎨 詳細ページ紹介文レイアウト改善(ブレスト保留・未実装): 設計書=`docs/superpowers/specs/2026-07-20-housing-detail-description-hover-reveal-design.md`(3行クランプ+ホバー全文)。/ e PF レイアウト調整(共有ボタンのみ実装済・admin タグ生ID軽微残)。
 - 🏠 公開前 残タスク(網羅=`docs/.private/2026-07-15-housing-release-remaining-tasks.md`): ブロッカー=①モデレ判断待ち(要brainstorming)②Discord告知③中韓後追い(用語CSV=`docs/.private/2026-07-17-housing-terms-ja-en-ko-zh.csv`)。忘れず=最初の家でもDCテレポ案内/30日物理削除cron(listing用)/GCPコスト実測→G5。
@@ -69,6 +64,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ---
 
 ## バグ・不具合 (要修正)
+
+- **✅ 2026-09-04 ハウジングツアー スマホ実機観察(masaya)**: #1 Allmarks見切れ / #2 開始ボタン押せない / #3 住所消失・PC見た目 = 全て修正・デプロイ・実機OK(`68e13644`+`482e9a94`)。#4 スレッドツイート読取=却下(API必須)。**残**=Safari タブ破棄耐性(Layer2 = store persist・別判断)。詳細=`docs/.private/2026-09-04-housing-tour-mobile-observations.md`。
 
 - **🆕 2026-08-14実機報告2件(未調査)**: ①メモ機能(表中に自由記述)がスマホの共同編集表で表示されている(`MemoOverlay`にモバイル非表示条件が無い、新規作成操作のみモバイル無効化されていた可能性)。②モバイル軽減表「連動」エフェクト表示、指を離す前に(スクロール中のはずなのに)アイコン表示へ勝手に戻ることがある(スクロール重さ起因の取りこぼしの可能性、要検証)。
 - **🔮 8.0スキル大幅変更の改修準備**(リボーン/エボルブモード追加予定→スキルシステム改修・大物・情報出揃い次第。着手時brainstorming。詳細=docs/.private/2026-06-20-skill-modeling-notes.md)。**🔵将来=スキル効果解決の窓口統一**=level+mode→正効果に解決する関数1つに集約し全~30箇所を通す(同id版違いバグの真の根治・コードのきれい。2026-06-22`_base`化が第一歩。競合resourceTracker/CD recastRow/計算calculator 未配線・autoPlanner配線済)。**ここに畳む候補(2026-06-30判断・価値低)**=スプシ取込で技名をコンテンツlevelの版に解決(例 シャドウヴィジル→Lv80はシャドウウォール)。単発実装は非推奨(スキル線リンクがデータに無く窓口統一が前提・発動はユーザーの取り違えのみ)。※リビデ正確モデル化①と表展開トグル③は2026-06-20完了(COMPLETED)。

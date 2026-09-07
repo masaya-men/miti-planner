@@ -51,6 +51,7 @@ vi.mock('firebase-admin/storage', () => ({
 
 vi.mock('../../src/lib/ogpPageShell.js', () => ({
   escapeHtml: (s: string) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+  metaContent: (s: string) => String(s).replace(/\s+/g, ' ').trim().replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'),
   injectSeoSnapshot: vi.fn((html: string) => html),
 }));
 

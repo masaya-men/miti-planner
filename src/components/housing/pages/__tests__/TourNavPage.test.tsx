@@ -155,6 +155,35 @@ describe('TourNavPage', () => {
     expect(useEphemeralListingsStore.getState().ephemeralListings).toHaveLength(1);
   });
 
+  // bug #3 (2026-09-04): 空状態の「住所から追加」はページローカル state ではなく
+  // useTourTrayStore に積む。 でないと探す等へ遷移した瞬間に消え、trayIds が 0 のままで
+  // PC 計画ビューにも切り替わらなかった (「PC 用の見た目にならない」)。
+  function addOneJpAddress() {
+    fireEvent.click(screen.getByRole('button', { name: '住所から追加' }));
+    fireEvent.change(screen.getByLabelText('データセンター'), { target: { value: 'Elemental' } });
+    fireEvent.change(screen.getByLabelText('サーバー'), { target: { value: 'Aegis' } });
+    fireEvent.change(screen.getByLabelText('エリア'), { target: { value: 'Mist' } });
+    fireEvent.change(screen.getByLabelText('区'), { target: { value: '3' } });
+    fireEvent.click(screen.getByRole('radio', { name: '個人宅・FCハウス' }));
+    fireEvent.change(screen.getByLabelText('番地'), { target: { value: '15' } });
+    fireEvent.click(screen.getByRole('button', { name: 'ツアーに追加' }));
+  }
+
+  it('空状態: 住所から追加した家は useTourTrayStore.trayIds に積まれる (bug #3)', () => {
+    renderPage();
+    addOneJpAddress();
+    const eph = useEphemeralListingsStore.getState().ephemeralListings;
+    expect(eph).toHaveLength(1);
+    expect(useTourTrayStore.getState().trayIds).toEqual([eph[0].id]);
+  });
+
+  it('空状態: 住所から追加すると PC 計画ビュー(蛇行グリッド)に切り替わる (bug #3)', () => {
+    renderPage();
+    addOneJpAddress();
+    expect(screen.queryByText('ツアーがまだ始まっていません')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /開始/ })).toBeInTheDocument();
+  });
+
   // ツアー計画画面: listingIds は空 (未開始) でもトレイに行き先があれば、空状態ではなく
   // 計画画面 (PC=詳細+蛇行グリッド / スマホ=縦一覧) を出す。
   it('listingIdsは空だがtrayIdsに1件以上あれば計画画面(PC・蛇行グリッド)を表示する', () => {

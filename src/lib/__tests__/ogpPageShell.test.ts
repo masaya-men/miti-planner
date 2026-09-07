@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { escapeHtml, injectSeoSnapshot } from '../ogpPageShell';
+import { escapeHtml, metaContent, injectSeoSnapshot } from '../ogpPageShell';
 
 describe('escapeHtml', () => {
   it('& " < > をエスケープする', () => {
@@ -10,6 +10,26 @@ describe('escapeHtml', () => {
 
   it('特殊文字が無ければそのまま返す', () => {
     expect(escapeHtml('ミスト・ヴィレッジ 23-6')).toBe('ミスト・ヴィレッジ 23-6');
+  });
+});
+
+describe('metaContent', () => {
+  it('改行を単一スペースに畳む (meta content 属性に生の改行を残さない)', () => {
+    // 実バグ: 物件説明文の末尾改行が content="...🙇\n" を作り、緩いパーサがタグ境界を誤認しうる
+    const desc = 'ここでジャンプして入ります。\n落ちたら「客室のドアに移動」で戻れます。\n';
+    expect(metaContent(desc)).toBe('ここでジャンプして入ります。 落ちたら「客室のドアに移動」で戻れます。');
+  });
+
+  it('連続する空白・タブも1つに畳んで前後を trim する', () => {
+    expect(metaContent('  A   B\t\tC  ')).toBe('A B C');
+  });
+
+  it('畳んだ後に HTML エスケープも行う', () => {
+    expect(metaContent('a\n<b> & "c"')).toBe('a &lt;b&gt; &amp; &quot;c&quot;');
+  });
+
+  it('改行が無ければ escapeHtml と同じ結果 (前後空白のみ trim)', () => {
+    expect(metaContent('ミスト・ヴィレッジ 23-6')).toBe('ミスト・ヴィレッジ 23-6');
   });
 });
 
