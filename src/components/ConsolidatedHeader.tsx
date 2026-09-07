@@ -174,29 +174,19 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     data-milspec-header
                     className="flex flex-col w-full h-[96px] pt-[5px]"
                 >
-                    {/* MIL-SPEC 装飾クローム層: PCB シルクスクリーン風のコード・計器・レジストレーションマーク
-                        （aria-hidden・standard は CSS 非表示） */}
+                    {/* MIL-SPEC 装飾クローム層: 銘板・ステンシル・ハザード・稼働 LED（aria-hidden・standard は CSS 非表示・
+                        絶対配置でヘッダーの空き帯に載る。正典 milspec-mockup.html .hp-fill 相当） */}
                     <div data-milspec-chrome aria-hidden="true">
-                        <span className="milspec-decal milspec-c-topcode">A.R.D // Combat Analysis System</span>
-                        <span className="milspec-barcode milspec-c-barcode" />
-                        <span className="milspec-decal milspec-c-serial">AR-2409-NT // LP-OPT-02</span>
-                        <span className="milspec-decal milspec-decal--accent milspec-decal--lg milspec-c-sec">Sector 01 — Command</span>
-                        <span className="milspec-hash-strip milspec-c-hash" />
-                        <span className="milspec-c-caution">
-                            <span className="milspec-tri" />
-                            <span className="milspec-decal">Mitigation Loop Optimizer</span>
-                            <span className="milspec-tri" />
+                        <span className="milspec-nameplate milspec-c-nameplate">
+                            DEFENSIVE COOLDOWN PLANNING TERMINAL<br />PARTY SURVIVABILITY OPTIMIZER · MK.II
                         </span>
-                        <span className="milspec-ruler milspec-c-ruler" />
-                        <span className="milspec-decal milspec-c-seq">01 02 03 04 05 06</span>
+                        <span className="milspec-decal milspec-c-topcode">A.R.D-07 // COOLANT</span>
+                        <span className="milspec-decal milspec-c-sec">Sector 01 — Command</span>
+                        <span className="milspec-hazard milspec-c-hazard" />
                         <span className="milspec-c-status">
-                            <span className="milspec-decal milspec-decal--accent">Sys Online</span>
-                            <span className="milspec-led" />
+                            <span className="milspec-decal">Sys Online</span>
+                            <span className="milspec-lamp lit cyan" />
                         </span>
-                        <span className="milspec-regmark milspec-c-reg1" />
-                        <span className="milspec-regmark milspec-c-reg2" />
-                        <span className="milspec-decal milspec-c-unit">Unit LP // Rev 2.0.0</span>
-                        <span className="milspec-decal milspec-c-grid">Grid 40 · Scale 1:1</span>
                     </div>
 
                     {/* Layer A（上段）: 左=ナビ+タイトル / 右=共有+チュートリアル+設定（固定） */}
@@ -204,7 +194,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         {/* ── 左グループ（余ったスペースを使う） ── */}
                         <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                             <Tooltip content={t('app.return_home')}>
-                                <div className="shrink-0">
+                                <div className="shrink-0" data-milspec-logoplate>
                                     <LoPoButton size="sm" onClick={() => navigate('/')} />
                                 </div>
                             </Tooltip>
@@ -212,8 +202,12 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {/* MIL-SPEC のみ: ロゴ脇のステンシル副題（装飾・standard では CSS で非表示） */}
                             <div data-milspec-wordmark aria-hidden="true" className="shrink-0">
                                 <span className="milspec-wm-main">Combat Analysis System</span>
-                                <span className="milspec-wm-sub">Ver 2.0.0 // Loop Optimizer</span>
+                                <span className="milspec-wm-sub">Loop Optimizer · Fire-Plan Unit</span>
+                                <span className="milspec-wm-model">MDL. LP-2 / STD ISSUE</span>
                             </div>
+
+                            {/* MIL-SPEC のみ: LoPo プレートとタイトルの斜め継ぎ目（装飾・standard では非表示） */}
+                            <span data-milspec-seam aria-hidden="true" className="shrink-0" />
 
                             {/* viewer モード: 部屋の contentId からコンテンツ名を表示（ownerLabel があればタイトルも） */}
                             {readOnly && (contentLabel || viewer!.ownerLabel) && (
@@ -369,7 +363,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     </div>
 
                     {/* Layer B（下段・表に近い）: ツールボタン群 */}
-                    <div data-milspec-toolbar className="milspec-hash h-12 flex items-center justify-between px-6 shrink-0">
+                    <div data-milspec-toolbar className="h-12 flex items-center justify-between px-6 shrink-0">
                         <div className="flex items-center gap-1.5">
                             {/* Party Comp */}
                             <NotAllowed on={readOnly}>

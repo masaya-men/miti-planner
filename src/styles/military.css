@@ -937,3 +937,181 @@
 .theme-military.theme-light .milspec-wthr-ao { opacity: calc(0.4 * var(--ms-tune-weather)); }
 
 /* Phase 2.x: ゾーン別リスキン — ここに追記 */
+
+/* ============================================================
+ * Phase 2.1 — ヘッダー (Layer A / Layer B / wordmark / seam / chrome)
+ * 正典: docs/.private/theme-refs/milspec-mockup.html 768–964
+ * 本番: ConsolidatedHeader.tsx の [data-milspec-*] フック + Layer A/B の実ボタン。
+ *   レイアウト(折りたたみ/レスポンシブ)は不変。全ルール .theme-military 前置。
+ * ============================================================ */
+
+/* --- 0.R3 の骨組化で消えた「standard で装飾フックを不活性化」する base hide を復元。
+       .theme-military が付いた時だけ各ゾーンが display を戻す。 --- */
+[data-milspec-chrome],
+[data-milspec-wordmark],
+[data-milspec-seam],
+[data-milspec-deployment] { display: none; }
+
+/* --- ヘッダー筐体 --- */
+/* wrapper motion.div は glass-tier3 glass-frame。index.css の .theme-{dark,light} .glass-frame が
+   --glass-tier3-bg:transparent を再セットするので military で金属プレートに戻す。 */
+.theme-military .glass-frame {
+  --glass-tier3-bg: var(--ms-raised-grad);
+  --glass-tier3-blur: 0px;
+  --glass-tier3-border: var(--ms-hairline);
+  --glass-tier3-shadow: var(--ms-shadow-raised);
+}
+.theme-military [data-milspec-header] {
+  position: relative;
+  background: var(--ms-well);
+  --ms-behind: var(--ms-well);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -2px 6px rgba(0,0,0,0.5);
+}
+.theme-military [data-milspec-header]::before {   /* 筐体天面の破線シアン (mockup 784) */
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; z-index: 3; pointer-events: none;
+  background: repeating-linear-gradient(90deg,
+    rgba(130,204,223, calc(0.30 + 0.10 * var(--ms-tune-glow))) 0 3px, transparent 3px 30px);
+}
+
+/* --- Layer A (titlebar) --- */
+.theme-military [data-milspec-titlebar] {
+  border-bottom-color: var(--ms-hairline);
+  background: linear-gradient(180deg, var(--ms-panel-lo), var(--ms-well) 94%);
+}
+
+/* LoPo プレート = 沈んだ Orbitron プレート (mockup .logo-text 799–805) */
+.theme-military .lopo-capsule-path { display: none; }
+.theme-military [data-milspec-logoplate] {
+  position: relative; border-radius: 3px; padding: 2px 10px 3px;
+  background: linear-gradient(180deg, #0f141a, #1a212a);
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.75), inset 0 -1px 0 rgba(255,255,255,0.06);
+}
+.theme-military.theme-light [data-milspec-logoplate] {
+  background: linear-gradient(180deg, #e3e9f0, #f2f5f9);
+  box-shadow: inset 0 1px 3px rgba(40,80,120,0.2), inset 0 -1px 0 rgba(255,255,255,0.8);
+}
+
+/* wordmark = logo-meta ステンシルブロック (mockup 806–810) */
+.theme-military [data-milspec-wordmark] {
+  display: flex; flex-direction: column; gap: 1px; line-height: 1.18; padding-left: 2px;
+}
+.theme-military [data-milspec-wordmark] .milspec-wm-main {
+  font: 400 12px/1 var(--ms-font-mono); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ms-heading);
+}
+.theme-military [data-milspec-wordmark] .milspec-wm-sub {
+  font: 400 8px/1 var(--ms-font-mono); letter-spacing: 0.15em; text-transform: uppercase; color: var(--ms-text-muted); margin-top: 1px;
+}
+.theme-military [data-milspec-wordmark] .milspec-wm-model {
+  font: 400 8px/1 var(--ms-font-mono); letter-spacing: 0.13em; text-transform: uppercase; color: var(--ms-text-muted); opacity: 0.7; margin-top: 2px;
+}
+
+/* seam-diag = LoPo とタイトルの斜め継ぎ目 (mockup 815–841・赤 rgb(158,56,50)・57.5°=CSS 123deg) */
+.theme-military [data-milspec-seam] {
+  display: block; position: relative; width: 44px; align-self: stretch; flex: none;
+  margin: 0 -6px; overflow: hidden; z-index: 1; background: var(--ms-well);
+  clip-path: polygon(23px 0, 44px 0, 21px 100%, 0 100%);
+}
+.theme-military [data-milspec-seam]::before {
+  content: ""; position: absolute; inset: -28px;
+  background-image: repeating-linear-gradient(123deg,
+    transparent 0 1px, rgba(96,102,108,0.5) 1px 2px, transparent 2px 3px,
+    rgba(140,148,156,0.22) 3px 3.5px, transparent 3.5px 7px);
+}
+.theme-military [data-milspec-seam]::after {
+  content: ""; position: absolute; inset: -28px;
+  background-image: repeating-linear-gradient(123deg,
+    transparent 0 34px, rgba(158,56,50,0.85) 34px 36px, transparent 36px 90px);
+}
+
+/* タイトル = 沈んだ recess プレート (mockup .hp-title.recess 843–858) */
+.theme-military [data-milspec-title] {
+  position: relative; padding: 3px 12px 4px 16px; border-radius: 2px;
+  color: var(--ms-heading);
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.04);
+}
+.theme-military [data-milspec-title]::before {   /* 左端の赤/グレー縦ティック */
+  content: ""; position: absolute; left: 5px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 24px; border-radius: 1px; opacity: 0.85;
+  background: linear-gradient(180deg, rgb(158,56,50) 0 30%, transparent 30% 46%,
+    var(--ms-text-muted) 46% 70%, transparent 70% 84%, var(--ms-text-muted) 84% 100%);
+}
+
+/* --- MIL-SPEC 装飾クローム (mockup .hp-fill 銘板・ステンシル・ハザード・LED) --- */
+.theme-military [data-milspec-chrome] {
+  display: block; position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden;
+}
+.theme-military [data-milspec-chrome] > * { position: absolute; }
+.theme-military .milspec-c-nameplate { left: 45%; top: 11px; transform: none; padding: 4px 16px; }
+.theme-military .milspec-c-topcode { left: 45%; bottom: 12px; font-size: 7px; opacity: 0.5; }
+.theme-military .milspec-c-sec { right: 210px; top: 9px; font-size: 7px; opacity: 0.42; }
+.theme-military .milspec-c-hazard { right: 190px; top: 6px; width: 58px; height: 3px; opacity: 0.5; }
+.theme-military .milspec-c-status { right: 190px; bottom: 9px; display: flex; align-items: center; gap: 6px; }
+.theme-military .milspec-c-status .milspec-lamp { position: relative; }
+
+/* --- Layer A 右グループ = HUD 金属タイル (mockup .hud-btn 867–886) --- */
+.theme-military [data-milspec-titlebar] button {
+  border-radius: 1px;
+  border: 1px solid var(--ms-frame);
+  border-top-color: var(--ms-edge-hi);
+  border-bottom-color: rgba(0,0,0,0.55);
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  box-shadow: var(--ms-btn-body), 0 1px 0 rgba(0,0,0,0.5);
+  filter: var(--ms-btn-cast);
+  color: var(--ms-text);
+}
+.theme-military [data-milspec-titlebar] button:hover { filter: var(--ms-btn-cast) brightness(1.1); }
+.theme-military [data-milspec-titlebar] button:active {
+  transform: translateY(2px); filter: none;
+  box-shadow: inset 0 3px 7px rgba(0,0,0,0.62), inset 0 1px 2px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.4);
+}
+.theme-military [data-milspec-titlebar] button svg { color: var(--ms-stencil); }
+.theme-military [data-milspec-titlebar] button:hover svg { color: var(--ms-cyan); }
+.theme-military [data-milspec-titlebar] .w-px {
+  background: linear-gradient(90deg,
+    rgba(255,255,255, calc(0.09 * var(--ms-tune-panelline))) 0 1px,
+    var(--ms-pl-dark) 1px 2px, rgba(0,0,0,0.5) 2px 3px) !important;
+  width: 3px;
+}
+
+/* --- Layer B (toolbar) = 浮いた raised 棚 (mockup .toolbar 891–907) --- */
+.theme-military [data-milspec-toolbar] {
+  background: linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised) 55%, var(--ms-raised-lo));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -2px 5px rgba(0,0,0,0.4), var(--ms-zone-edge);
+}
+.theme-military [data-milspec-toolbar]::before {
+  content: ""; position: absolute; left: 8px; right: 8px; top: 3px; height: 1px;
+  background: var(--ms-hairline); z-index: 2; pointer-events: none;
+}
+.theme-military [data-milspec-toolbar]::after {
+  content: ""; position: absolute; left: 8px; right: 8px; bottom: 2px; height: 3px; z-index: 2; pointer-events: none;
+  background: linear-gradient(180deg, #8b9197, #6d7379 42%, #33393f 72%, #1c2126);
+  box-shadow: 0 2px 7px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.28);
+}
+.theme-military.theme-light [data-milspec-toolbar]::after {
+  background: linear-gradient(180deg, #c8ced4, #aab2ba 50%, #8b939c);
+}
+.theme-military [data-milspec-toolbar] button {
+  border-radius: 1px;
+  border: 1px solid var(--ms-frame);
+  border-top-color: var(--ms-edge-hi);
+  border-bottom-color: rgba(0,0,0,0.6);
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  box-shadow: var(--ms-btn-body), 0 1px 0 rgba(0,0,0,0.5);
+  filter: var(--ms-btn-cast);
+  color: var(--ms-text);
+}
+.theme-military [data-milspec-toolbar] button:hover { filter: var(--ms-btn-cast) brightness(1.12); }
+.theme-military [data-milspec-toolbar] button:hover svg,
+.theme-military [data-milspec-toolbar] button:hover span { color: var(--ms-cyan); }
+.theme-military [data-milspec-toolbar] button:active {
+  transform: translateY(2px); filter: none;
+  box-shadow: inset 0 3px 7px rgba(0,0,0,0.62), inset 0 1px 2px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.4);
+}
+.theme-military [data-milspec-toolbar] button svg { color: var(--ms-stencil); }
+.theme-military [data-milspec-toolbar] .w-px {
+  background: linear-gradient(90deg,
+    rgba(255,255,255, calc(0.09 * var(--ms-tune-panelline))) 0 1px,
+    var(--ms-pl-dark) 1px 2px, rgba(0,0,0,0.5) 2px 3px) !important;
+  width: 3px;
+}
