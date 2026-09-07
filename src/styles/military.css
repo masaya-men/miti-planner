@@ -1186,3 +1186,119 @@
   color: var(--ms-red); filter: drop-shadow(0 0 4px currentColor);
 }
 .theme-military [data-milspec-sync] span { color: var(--ms-red); }   /* エラーラベル (isError 時のみ描画) */
+
+/* ============================================================
+ * Phase 2.3 — コントロールバー = 沈んだ計器列
+ * 正典: docs/.private/theme-refs/milspec-mockup.html 966–1032
+ *   (.subtoolbar / .cb-div / .cb-tgl ロッカー / .cb-ico キートップ / .cj ジョブチップ)。
+ *   ※ プレート地はコントローラ指示 (brief) で recess グラデ = ヘッダー/ツールバーより沈める「計器列」。
+ * 本番: Timeline.tsx controlBarRef div = [data-milspec-controlbar] (既存 relative/overflow-hidden は不変)。
+ *   Area A/B トグル (bg-app-toggle active) = [data-milspec-tgl] ロッカースイッチ。
+ *   Area C/D 小アイコン (罫線/PiP/リキャスト/Undo/Redo/クリア) = [data-milspec-ico] キートップ。
+ *   JobPickerRow のジョブセル内側 = [data-milspec-cj] 金属チップ (実ジョブ <img> は不変)。
+ *   #timeline-controls-inner の translateX / will-change / handleScrollSync は一切触らない
+ *   (position/overflow を変えない・内側ボタンの border は box-border なので inner 幅不変)。
+ * ============================================================ */
+
+.theme-military [data-milspec-controlbar] {
+  position: relative;
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow:
+    inset 0 2px 5px rgba(0,0,0,0.5),
+    inset 0 -1px 0 rgba(255,255,255,0.05),
+    inset 0 0 0 1.5px var(--ms-channel-col);
+  border-bottom-color: var(--ms-hairline);
+}
+.theme-military [data-milspec-controlbar]::after {   /* 底の細ライン (mockup .subtoolbar::after 975) */
+  content: ""; position: absolute; left: 4px; right: 4px; bottom: 2px; height: 1px; z-index: 2; pointer-events: none;
+  background: rgba(150,190,205,0.22);
+}
+/* 列境界の短い仕切り (.w-[1px]) = V 溝。
+   ※ ここは #timeline-controls-inner の内側なので width は 1px のまま (拡げると header との
+   横スクロール同期がズレる)。V 断面は background の暗線 + box-shadow の右エッジ光で表現 (mockup .cb-div)。 */
+.theme-military [data-milspec-controlbar] .w-\[1px\] {
+  background: var(--ms-pl-dark);
+  box-shadow: 1px 0 0 rgba(255,255,255, calc(0.09 * var(--ms-tune-panelline)));
+  border-radius: 0;
+}
+
+/* --- Area A/B トグル = 沈んだロッカースイッチ (mockup .cb-tgl) --- */
+.theme-military [data-milspec-controlbar] [data-milspec-tgl] {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.055) 0 44%, rgba(255,255,255,0.13) 45% 46.5%,
+      rgba(0,0,0,0.14) 48% 51%, rgba(0,0,0,0.33) 55% 100%),
+    linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  border-style: solid;
+  border-width: var(--ms-cham-sm) var(--ms-cham-sm) 1px;
+  border-top-color: var(--ms-cs-t); border-left-color: var(--ms-cs-l);
+  border-right-color: var(--ms-cs-r); border-bottom-color: rgba(0,0,0,0.45);
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 2px 3px rgba(0,0,0,0.5);
+}
+.theme-military [data-milspec-controlbar] [data-milspec-tgl],
+.theme-military [data-milspec-controlbar] [data-milspec-tgl] button,
+.theme-military [data-milspec-controlbar] [data-milspec-tgl] span,
+.theme-military [data-milspec-controlbar] [data-milspec-tgl] svg { color: var(--ms-text-sec); }
+/* Area B は外側 div がトグル・内側 button は素通し (Area A は button 自身がトグル → 子 button 無し) */
+.theme-military [data-milspec-controlbar] [data-milspec-tgl] button {
+  background: transparent; border: 0; box-shadow: none;
+}
+/* active (bg-app-toggle) = シアン発光ロッカー (mockup .cb-tgl.on) */
+.theme-military [data-milspec-controlbar] [data-milspec-tgl].bg-app-toggle {
+  border-bottom-color: var(--ms-cyan);
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.34) 0 44%, rgba(150,215,232,0.22) 45.5% 47%,
+      rgba(0,0,0,0.04) 49% 52%, rgba(120,200,220,0.17) 56% 100%),
+    linear-gradient(180deg, var(--ms-recess-lo), var(--ms-recess-hi));
+  box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 2px 3px rgba(0,0,0,0.5), 0 1px 7px var(--ms-cyan-glow);
+}
+.theme-military [data-milspec-controlbar] [data-milspec-tgl].bg-app-toggle,
+.theme-military [data-milspec-controlbar] [data-milspec-tgl].bg-app-toggle button,
+.theme-military [data-milspec-controlbar] [data-milspec-tgl].bg-app-toggle span,
+.theme-military [data-milspec-controlbar] [data-milspec-tgl].bg-app-toggle svg { color: var(--ms-cyan); }
+
+/* --- Area C/D 小アイコン = 押せるキートップ (mockup .cb-ico) --- */
+.theme-military [data-milspec-controlbar] [data-milspec-ico] {
+  border: 1px solid var(--ms-frame);
+  border-top-color: var(--ms-edge-hi);
+  border-bottom-color: rgba(0,0,0,0.55);
+  border-radius: 1px;
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 2px rgba(0,0,0,0.36), 0 1px 0 rgba(0,0,0,0.5);
+  filter: var(--ms-btn-cast);
+}
+.theme-military [data-milspec-controlbar] [data-milspec-ico] svg { color: var(--ms-stencil); }
+.theme-military [data-milspec-controlbar] [data-milspec-ico]:hover { filter: var(--ms-btn-cast) brightness(1.12); }
+.theme-military [data-milspec-controlbar] [data-milspec-ico]:hover svg { color: var(--ms-cyan); }
+.theme-military [data-milspec-controlbar] [data-milspec-ico]:active {
+  transform: translateY(1.5px); filter: none;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,0,0,0.4);
+}
+/* トグル ON (罫線=showRowBorders / PiP=pipWindow||menu / リキャスト=recastRowVisible → 本体の text-* クラスで判定)
+   = 左シアンエッジ + シアンアイコン (mockup .cb-ico.on) */
+.theme-military [data-milspec-controlbar] [data-milspec-ico="tgl"].text-app-text,
+.theme-military [data-milspec-controlbar] [data-milspec-ico="tgl"].text-app-blue {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -2px 2px rgba(0,0,0,0.36), inset 2px 0 0 var(--ms-cyan), 0 1px 0 rgba(0,0,0,0.5);
+}
+.theme-military [data-milspec-controlbar] [data-milspec-ico="tgl"].text-app-text svg,
+.theme-military [data-milspec-controlbar] [data-milspec-ico="tgl"].text-app-blue svg { color: var(--ms-cyan); }
+/* クリア = hover で赤 (mockup .cb-ico.danger:hover) */
+.theme-military [data-milspec-controlbar] [data-milspec-ico="danger"]:hover svg { color: var(--ms-red); }
+
+/* --- JobPickerRow ジョブチップ = 小さい金属タイル (mockup .cj) --- */
+.theme-military [data-milspec-controlbar] [data-milspec-cj] {
+  background: linear-gradient(180deg, #3a444f, #2a323c);
+  border: 1px solid;
+  border-top-color: var(--ms-cr-t); border-left-color: var(--ms-cr-l);
+  border-right-color: var(--ms-cr-r); border-bottom-color: var(--ms-cr-b);
+  border-radius: 1px;
+  box-shadow: 0 0 0 1px var(--ms-cham-silhouette);
+}
+.theme-military.theme-light [data-milspec-controlbar] [data-milspec-cj] {
+  background: linear-gradient(180deg, #e8edf2, #d2dae1);
+}
+/* 空スロット (Plus 丸を直下に持つ) = 沈んだ地 (mockup .cj.add) */
+.theme-military [data-milspec-controlbar] [data-milspec-cj]:has(> .rounded-full) {
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow: inset 0 2px 3px rgba(0,0,0,0.4);
+}
