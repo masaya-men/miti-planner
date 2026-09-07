@@ -32,6 +32,7 @@ import clsx from 'clsx';
 import { MobileHeader } from './MobileHeader';
 import { MobileFAB } from './MobileFab';
 import { GridOverlay } from './GridOverlay';
+import { MilspecChrome } from './military/MilspecChrome';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 import { AstrologianDrawChainPromptModal } from './AstrologianDrawChainPromptModal';
@@ -589,6 +590,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             {/* 背景エフェクト — ParticleBackgroundは一時的に無効化 */}
             {/* <ParticleBackground /> */}
             <GridOverlay />
+            <MilspecChrome />
 
             {/* サイドバー — on PC: normal flow; on mobile: overlay drawer */}
 {/* PC sidebar */}
