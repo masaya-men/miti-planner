@@ -185,7 +185,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                         <span className="milspec-hazard milspec-c-hazard" />
                         <span className="milspec-c-status">
                             <span className="milspec-decal">Sys Online</span>
-                            <span className="milspec-lamp lit cyan" />
+                            <span className="milspec-lamp milspec-lit cyan" />
                         </span>
                     </div>
 
@@ -461,6 +461,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {/* Sort */}
                             <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
                             <SegmentButton
+                                className="milspec-seg"
                                 options={[
                                     { value: 'light_party', label: t('ui.sort_light_party') },
                                     { value: 'role', label: t('ui.sort_role') },
