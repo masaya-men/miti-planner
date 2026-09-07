@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useThemeStore } from '../../store/useThemeStore';
 
-/** 調整対象の --milspec-tune-* 変数。military.css の初期値と一致させる。 */
-const TUNABLES: { key: string; label: string; min: number; max: number; step: number; unit?: string }[] = [
-  { key: '--milspec-tune-glow', label: '発光の強さ', min: 0, max: 1, step: 0.01 },
-  { key: '--milspec-tune-accent-hue', label: 'シアン色相回転', min: -60, max: 60, step: 1, unit: 'deg' },
-  { key: '--milspec-tune-accent-sat', label: 'アクセント彩度', min: 0.5, max: 1.5, step: 0.01 },
-  { key: '--milspec-tune-corner', label: '切り欠き角サイズ', min: 0, max: 16, step: 1, unit: 'px' },
-  { key: '--milspec-tune-scanline', label: '走査線 不透明度', min: 0, max: 0.06, step: 0.002 },
-  { key: '--milspec-tune-grid', label: '背景グリッド 不透明度', min: 0, max: 0.12, step: 0.005 },
-  { key: '--milspec-tune-panel-line', label: 'パネルライン太さ', min: 0, max: 3, step: 0.5, unit: 'px' },
-  { key: '--milspec-tune-decal', label: 'デカール 不透明度', min: 0, max: 1, step: 0.02 },
-  { key: '--milspec-tune-hazard', label: 'ハザード帯 不透明度', min: 0, max: 1, step: 0.02 },
+/** 調整対象の --ms-tune-* 変数。military.css の初期値・モックアップの #tune と一致させる。 */
+const TUNABLES: { key: string; label: string; min: number; max: number; step: number }[] = [
+  { key: '--ms-tune-grain-all',  label: '全面グレイン(粒状感)',            min: 0, max: 1.2, step: 0.02 },
+  { key: '--ms-tune-frame',      label: '枠線・ブラケットの明るさ',        min: 0, max: 4,   step: 0.05 },
+  { key: '--ms-tune-relief',     label: '★パネルの厚み・ベベル(立体感)',  min: 0, max: 6,   step: 0.05 },
+  { key: '--ms-tune-shadow',     label: 'パネル背後のボケ落ち影',          min: 0, max: 8,   step: 0.05 },
+  { key: '--ms-tune-glow',       label: 'アクセントの発光',                min: 0, max: 4,   step: 0.05 },
+  { key: '--ms-tune-panelline',  label: 'スジ彫りの濃さ',                  min: 0, max: 5,   step: 0.05 },
+  { key: '--ms-tune-channel',    label: 'ゾーン間の溝の深さ',              min: 0, max: 3,   step: 0.05 },
+  { key: '--ms-tune-weather',    label: 'ウェザリング(汚れ)',              min: 0, max: 3,   step: 0.05 },
+  { key: '--ms-tune-wear',       label: '摩耗(手置きの傷・チップ・雨だれ)', min: 0, max: 3,   step: 0.05 },
 ];
 
 /** 開発専用。?tune クエリ or localStorage 'milspec-tune'==='1' かつ DEV かつ military のときだけ出る。
- *  --milspec-tune-* を実機でドラッグ調整するためのパネル。Phase 3 で撤去。 */
+ *  --ms-tune-* を実機でドラッグ調整するためのパネル。Phase 3 で撤去。 */
 export const MilspecTunePanel: React.FC = () => {
   const themeStyle = useThemeStore((s) => s.themeStyle);
   const [open, setOpen] = useState(true);
@@ -37,14 +37,14 @@ export const MilspecTunePanel: React.FC = () => {
 
   if (!enabled) return null;
 
-  const set = (key: string, v: number, unit?: string) => {
+  const set = (key: string, v: number) => {
     setVals((p) => ({ ...p, [key]: v }));
-    document.documentElement.style.setProperty(key, unit ? `${v}${unit}` : String(v));
+    document.documentElement.style.setProperty(key, String(v));
   };
 
   const copyCss = () => {
-    const body = TUNABLES.map((t) => `  ${t.key}: ${vals[t.key]}${t.unit ?? ''};`).join('\n');
-    navigator.clipboard.writeText(`.theme-military {\n${body}\n}`);
+    const body = TUNABLES.map((t) => `  ${t.key}: ${vals[t.key]};`).join('\n');
+    navigator.clipboard.writeText(`.theme-military.theme-dark {\n${body}\n}`);
   };
 
   return (
@@ -62,11 +62,11 @@ export const MilspecTunePanel: React.FC = () => {
           {TUNABLES.map((t) => (
             <label key={t.key} style={{ display: 'block', marginTop: 6 }}>
               <span style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{t.label}</span><span>{vals[t.key]}{t.unit ?? ''}</span>
+                <span>{t.label}</span><span>{vals[t.key]}</span>
               </span>
               <input type="range" min={t.min} max={t.max} step={t.step}
                      value={vals[t.key] ?? 0}
-                     onChange={(e) => set(t.key, parseFloat(e.target.value), t.unit)}
+                     onChange={(e) => set(t.key, parseFloat(e.target.value))}
                      style={{ width: '100%' }} />
             </label>
           ))}
