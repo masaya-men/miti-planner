@@ -27,6 +27,194 @@
 }
 
 /* Phase 1.1: --ms-* パレット (.theme-military.theme-{dark,light}) — ここに追記 */
+
+/* ---------- トークン: Dark (実サンプリング値) ---------- */
+.theme-military.theme-dark {
+  --ms-bg:          #141b23;   /* 黒い筐体(パネルはこの上に浮く) */
+  --ms-well:        #05080b;   /* 凹地(パネル間の暗いチャンネル)・レベル差を拡大 */
+  --ms-sb-bg:       #232a33;   /* サイドバー面(手本実測・ほぼフラットなクールスレート) */
+  --ms-recess-hi:   #262e37;   /* 沈んだプレート 上辺 */
+  --ms-recess-lo:   #131a21;   /* 沈んだプレート 下辺・より深く */
+  --ms-panel:       #2c3742;   /* 面(支配色・筐体よりハッキリ明るい) */
+  --ms-panel-hi:    #34404c;   /* 面 上辺(トップライト) */
+  --ms-panel-lo:    #222b34;   /* 面 下辺 */
+  --ms-raised:      #434f5c;   /* 浮いた面(ツールバー/フッター/thead)・より明るく */
+  --ms-raised-hi:   #505d6a;
+  --ms-raised-lo:   #2c343e;
+
+  /* ===== C面(面取り)= パネルを「削り出した金属の塊」として描くための斜面 =====
+     太い4色ボーダーが4枚の斜面になり、角は 45° で留め継がれる。光源 = 左上。
+     幅は --tune-relief で伸縮(小部品は cham-sm、装甲板は cham-lg)。 */
+  --ms-cham-lg:  min(calc(1.6px + 1.9px * var(--ms-tune-relief)), 10px);   /* 装甲板・構造パネルの面取り幅(上限10px) */
+  --ms-cham-sm:  min(calc(0.8px + 1.1px * var(--ms-tune-relief)), 5px);    /* ボタン・タイル・小部品の面取り幅(上限5px) */
+  /* raised(手前に出る面)の面取り4面 — 上=最明 / 左=明 / 右=暗 / 下=最暗 */
+  --ms-cr-t: #6a7783;  --ms-cr-l: #56626e;  --ms-cr-r: #272f38;  --ms-cr-b: #10151b;
+  /* recess(沈んだ面)の面取り4面 — 見えるのは斜面の裏側なので反転: 上=最暗 / 下=最明 */
+  --ms-cs-t: #090d12;  --ms-cs-l: #141b23;  --ms-cs-r: #3d4854;  --ms-cs-b: #55616e;
+  --ms-cham-silhouette: rgba(0,0,0,0.6);   /* 面取りの外側の輪郭線(シルエット) */
+  --ms-cham-ridge:      rgba(255,255,255,0.16);  /* 面取りと天面の稜線(内側) */
+
+  /* ===== パネルの形(MGEX ユニコーン: 角を落とす/斜めに切る/切り欠く。長方形にしない) =====
+     大きめの装甲板 = 大きい落とし / ボタン・タイル = 小さい落とし。パネルごとに違う形を割り当てる。 */
+  --ms-n1: 18px;  --ms-n2: 28px;  --ms-nb: 7px;   /* 落とし量: 中 / 大 / 小 */
+  --ms-sh-tr:    polygon(0 0, calc(100% - var(--ms-n1)) 0, 100% var(--ms-n1), 100% 100%, 0 100%);
+  --ms-sh-br:    polygon(0 0, 100% 0, 100% calc(100% - var(--ms-n1)), calc(100% - var(--ms-n1)) 100%, 0 100%);
+  --ms-sh-bl:    polygon(0 0, 100% 0, 100% 100%, var(--ms-n1) 100%, 0 calc(100% - var(--ms-n1)));
+  --ms-sh-tl:    polygon(var(--ms-n1) 0, 100% 0, 100% 100%, 0 100%, 0 var(--ms-n1));
+  --ms-sh-tr-br: polygon(0 0, calc(100% - var(--ms-n1)) 0, 100% var(--ms-n1), 100% calc(100% - var(--ms-nb)), calc(100% - var(--ms-nb)) 100%, 0 100%);
+  --ms-sh-tl-br: polygon(var(--ms-n1) 0, 100% 0, 100% calc(100% - var(--ms-n1)), calc(100% - var(--ms-n1)) 100%, 0 100%, 0 var(--ms-n1));
+  --ms-sh-slab:  polygon(0 0, 100% 0, 100% calc(100% - var(--ms-n2)), calc(100% - var(--ms-n2)) 100%, 0 100%);  /* 右下を大きく斜め切り */
+  --ms-sh-tl-tr: polygon(var(--ms-n1) 0, calc(100% - var(--ms-n1)) 0, 100% var(--ms-n1), 100% 100%, 0 100%, 0 var(--ms-n1));
+  --ms-shb-tr:   polygon(0 0, calc(100% - var(--ms-nb)) 0, 100% var(--ms-nb), 100% 100%, 0 100%);
+  --ms-shb-bl:   polygon(0 0, 100% 0, 100% 100%, var(--ms-nb) 100%, 0 calc(100% - var(--ms-nb)));
+  --ms-shb-tl:   polygon(var(--ms-nb) 0, 100% 0, 100% 100%, 0 100%, 0 var(--ms-nb));
+
+  --ms-edge-hi:     rgba(255,255,255, calc(0.22 * var(--ms-tune-frame) + 0.10 * var(--ms-tune-relief)));   /* 上辺のハイライト(厚みノブでも増す) */
+  --ms-edge-lo:     rgba(0,0,0,0.85);          /* 下辺の墨 */
+  --ms-frame:       rgba(172,194,210, calc(0.18 * var(--ms-tune-frame)));   /* パネルの細枠 */
+  --ms-hairline:    rgba(165,190,208, calc(0.26 * var(--ms-tune-frame)));   /* 1px フレーム線 */
+  --ms-hairline-2:  rgba(175,200,218, calc(0.42 * var(--ms-tune-frame)));   /* 強めのフレーム線 */
+  --ms-bracket:     rgba(150,218,236, calc(0.62 * var(--ms-tune-frame)));   /* 隅ブラケット */
+
+  --ms-cyan:        #82ccdf;
+  --ms-cyan-bright: #a9e1ef;
+  --ms-cyan-glow:   rgba(130,204,223, calc(0.55 * var(--ms-tune-glow)));
+  --ms-cyan-dim:    rgba(130,204,223,0.13);
+  --ms-orange:      #f6a23e;
+  --ms-orange-glow: rgba(246,162,62, calc(0.6 * var(--ms-tune-glow)));
+  --ms-red:         #ef5a5f;
+  --ms-red-glow:    rgba(239,90,95, calc(0.5 * var(--ms-tune-glow)));
+  --ms-green:       #59d089;
+  --ms-green-glow:  rgba(89,208,137, calc(0.5 * var(--ms-tune-glow)));
+  --ms-purple:      #b58ce0;
+  --ms-yellow:      #e3b32a;
+
+  --ms-text:        #e8eef3;
+  --ms-text-sec:    #adbdc9;
+  --ms-text-muted:  #7a8c9c;
+  --ms-heading:     #f3f7fa;
+  --ms-stencil:     #c8dae5;
+
+  /* R = --tune-relief がベベル/せり出し/内墨の "厚み" を、--tune-shadow が背後のボケ落ち影を担当 */
+  --ms-shadow-panel:
+    0 calc(2px + 2px * var(--ms-tune-relief)) 0 rgba(0,0,0,0.8),
+    0 calc(4px * var(--ms-tune-relief)) calc(7px * var(--ms-tune-relief)) rgba(0,0,0,0.55),
+    0 calc(14px * var(--ms-tune-relief)) calc(30px * var(--ms-tune-relief)) rgba(0,0,0, calc(0.5 * var(--ms-tune-shadow))),
+    0 8px 16px rgba(0,0,0, calc(0.4 * var(--ms-tune-shadow))),
+    inset 0 calc(1px * var(--ms-tune-relief)) 0 var(--ms-edge-hi),
+    inset 0 calc(-2px - 2px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.62);
+  --ms-shadow-raised:
+    0 calc(2px + 3px * var(--ms-tune-relief)) 0 rgba(0,0,0,0.72),
+    0 calc(5px * var(--ms-tune-relief)) calc(9px * var(--ms-tune-relief)) rgba(0,0,0,0.5),
+    0 calc(16px * var(--ms-tune-relief)) calc(30px * var(--ms-tune-relief)) rgba(0,0,0, calc(0.5 * var(--ms-tune-shadow))),
+    inset 0 calc(1.2px * var(--ms-tune-relief)) 0 var(--ms-edge-hi),
+    inset 0 calc(-2px - 3px * var(--ms-tune-relief)) calc(8px * var(--ms-tune-relief)) rgba(0,0,0,0.55);
+  --ms-shadow-inset:
+    inset 0 calc(4px + 5px * var(--ms-tune-relief)) calc(14px * var(--ms-tune-relief)) rgba(0,0,0,0.85),
+    inset 0 calc(2px * var(--ms-tune-relief)) 3px rgba(0,0,0,0.75),
+    inset 0 1px 0 rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.05);
+  --ms-scanline:      rgba(130,204,223,0.014);
+  --ms-grid-line:     rgba(130,204,223,0.055);
+  --ms-plate-grad:    linear-gradient(180deg, var(--ms-panel-hi), var(--ms-panel-lo));
+  --ms-raised-grad:   linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised-lo));
+
+  /* ゾーン間チャンネル(黒い溝)・パネルライン(スジ彫り) */
+  --ms-channel-col:   #05070a;
+  --ms-pl-dark:       rgba(0,0,0,       calc(0.82 * var(--ms-tune-panelline)));
+  --ms-pl-lite:       rgba(255,255,255, calc(0.13 * var(--ms-tune-panelline)));
+  --ms-zone-edge:
+    inset 0 0 0 2.5px var(--ms-channel-col),
+    inset 0 0 0 4px rgba(255,255,255,0.06),
+    inset 0 7px 20px rgba(0,0,0, calc(0.6 * var(--ms-tune-channel))),
+    inset 0 -5px 14px rgba(0,0,0, calc(0.42 * var(--ms-tune-channel)));
+
+  /* 手置き摩耗の色 */
+  --ms-wear-lip:       rgba(255,255,255,0.20);
+  --ms-wear-ao:        rgba(0,0,0,0.5);
+
+  /* masaya 2026-09-06「ボタンがまったく物理ボタンに見えません」への対応:
+     ボタンは clip-path で面取りしているため box-shadow の外側落ち影が切り取られて「浮いている」感が出ない。
+     → filter: drop-shadow(面取りシルエットに追従・clip の外へ出る)でパネルへの接地影を常時付ける
+       (--tune-shadow=0 に依存しない)。押下時は filter:none にして「パネルへ沈んだ」ように見せる。 */
+  --ms-btn-cast: drop-shadow(0 1px 1px rgba(0,0,0,0.6)) drop-shadow(0 3px 5px rgba(0,0,0,0.34));
+  /* キャップ天面の艶(ドーム状に光を拾う金属の頭) — 各ボタンの background 先頭に重ねる */
+  --ms-btn-sheen: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 26%, transparent 52%, rgba(0,0,0,0.06) 100%);
+  /* キャップの厚み(側壁の暗がり)+ 天面の稜線 — box-shadow に足す */
+  --ms-btn-body:
+    inset 0 1.5px 0 rgba(255,255,255,0.24),
+    inset 0 -2px 2px rgba(0,0,0,0.4),
+    inset 0 -4px 0 -1px rgba(0,0,0,0.3);
+}
+
+/* ---------- トークン: Light ---------- */
+.theme-military.theme-light {
+  --ms-btn-cast: drop-shadow(0 1px 1px rgba(40,80,120,0.28)) drop-shadow(0 3px 5px rgba(40,80,120,0.2));
+  --ms-btn-sheen: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 26%, transparent 52%, rgba(40,80,120,0.05) 100%);
+  --ms-btn-body:
+    inset 0 1.5px 0 rgba(255,255,255,0.95),
+    inset 0 -2px 2px rgba(40,80,120,0.16),
+    inset 0 -4px 0 -1px rgba(40,80,120,0.12);
+
+  --ms-bg:          #dde4ec;
+  --ms-well:        #c6d0db;
+  --ms-sb-bg:       #e3e9ef;
+  --ms-recess-hi:   #e2e8ef;
+  --ms-recess-lo:   #f0f4f9;
+  --ms-panel:       #f6f9fc;
+  --ms-panel-hi:    #ffffff;
+  --ms-panel-lo:    #eaf0f6;
+  --ms-raised:      #ffffff;
+  --ms-raised-hi:   #ffffff;
+  --ms-raised-lo:   #eef4f9;
+  /* C面(面取り)— light: 光源左上。raised は上=白/下=影、recess は反転 */
+  --ms-cr-t: #ffffff;  --ms-cr-l: #f4f8fc;  --ms-cr-r: #c3d0dc;  --ms-cr-b: #a7b7c6;
+  --ms-cs-t: #b2c0cd;  --ms-cs-l: #c6d2dd;  --ms-cs-r: #eef3f8;  --ms-cs-b: #ffffff;
+  --ms-cham-silhouette: rgba(40,80,120,0.28);
+  --ms-cham-ridge:      rgba(255,255,255,0.9);
+  --ms-edge-hi:     rgba(255,255,255,0.95);
+  --ms-edge-lo:     rgba(30,62,96,0.10);
+  --ms-frame:       rgba(40,84,120,0.20);
+  --ms-hairline:    rgba(40,84,120,0.24);
+  --ms-hairline-2:  rgba(40,84,120,0.40);
+  --ms-bracket:     rgba(17,131,176,0.58);
+  --ms-cyan:        #1183b0;
+  --ms-cyan-bright: #0d6d94;
+  --ms-cyan-glow:   rgba(17,131,176,0.28);
+  --ms-cyan-dim:    rgba(17,131,176,0.09);
+  --ms-orange:      #c26f1c;
+  --ms-orange-glow: rgba(194,111,28,0.28);
+  --ms-red:         #d33b3f;
+  --ms-red-glow:    rgba(211,59,63,0.22);
+  --ms-green:       #1f9d57;
+  --ms-green-glow:  rgba(31,157,87,0.2);
+  --ms-purple:      #7a52a8;
+  --ms-yellow:      #c99a1c;
+  --ms-text:        #17232f;
+  --ms-text-sec:    #45596b;
+  --ms-text-muted:  #6b7c8c;
+  --ms-heading:     #10202c;
+  --ms-stencil:     #2a3f4f;
+  --ms-shadow-panel:  0 2px 0 rgba(40,80,120,0.22), 0 14px 30px rgba(40,80,120,0.22), 0 5px 12px rgba(40,80,120,0.18), inset 0 1px 0 var(--ms-edge-hi), inset 0 -2px 4px rgba(40,80,120,0.14);
+  --ms-shadow-raised: 0 3px 0 rgba(40,80,120,0.18), 0 8px 18px rgba(40,80,120,0.2), inset 0 1px 0 var(--ms-edge-hi), inset 0 -3px 6px rgba(40,80,120,0.14);
+  --ms-shadow-inset:  inset 0 4px 12px rgba(40,80,120,0.24), inset 0 1px 0 rgba(40,80,120,0.2);
+  --ms-scanline:      transparent;
+  --ms-grain-alpha:   0.04;
+  --ms-grid-line:     rgba(17,131,176,0.08);
+  --ms-plate-grad:    linear-gradient(180deg, var(--ms-panel-hi), var(--ms-panel-lo));
+  --ms-raised-grad:   linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  --ms-channel-col:   #8394a4;
+  --ms-pl-dark:       rgba(40,84,120,   calc(0.44 * var(--ms-tune-panelline)));
+  --ms-pl-lite:       rgba(255,255,255, calc(0.85 * var(--ms-tune-panelline)));
+  --ms-zone-edge:
+    inset 0 0 0 2px var(--ms-channel-col),
+    inset 0 0 0 3.5px rgba(255,255,255,0.6),
+    inset 0 6px 16px rgba(40,80,120, calc(0.24 * var(--ms-tune-channel))),
+    inset 0 -4px 11px rgba(40,80,120, calc(0.16 * var(--ms-tune-channel)));
+  --ms-wear-substrate: #aeb9c4;
+  --ms-wear-lip:       rgba(255,255,255,0.9);
+  --ms-wear-ao:        rgba(40,80,120,0.26);
+}
+
 /* Phase 1.2: 意味トークンリマップ — ここに追記 */
 /* Phase 1.3: 共通プリミティブ — ここに追記 */
 /* Phase 1.4: 背景 + 走査線 + フォント適用 — ここに追記 */
