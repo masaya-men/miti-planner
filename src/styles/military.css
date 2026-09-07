@@ -1684,11 +1684,12 @@
    --glass-tier3-bg:transparent へ戻すのを (0,2,0) 後勝ちで打ち消す。 */
 .theme-military [data-milspec-footer].glass-frame {
   --glass-tier3-bg: var(--ms-raised-grad);
-  --glass-tier3-border: var(--ms-hairline);
-  --ms-behind: var(--ms-raised-lo);
 }
+/* 擬似要素の containing block だけ欲しい。z-index は auto に固定して
+   standard(static)との挙動差(休眠 z-50 クラスの起動 = 新規スタッキングコンテキスト)を消す。 */
 .theme-military [data-milspec-footer] {
   position: relative;
+  z-index: auto;
 }
 
 /* 立体陰影 (raised band) — element の box-shadow は殺されているので擬似要素で。
@@ -1711,7 +1712,7 @@
 /* --- 装飾クローム = decal 2 枚。Task 2.1 の base-hide をフッター配下だけ display:block で戻す
        (ヘッダー [data-milspec-header] [data-milspec-chrome] と同作法)。standard では隠れたまま。 --- */
 .theme-military [data-milspec-footer] [data-milspec-chrome] {
-  display: block; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  display: block; position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden;
 }
 .theme-military [data-milspec-footer] [data-milspec-chrome] > * { position: absolute; }
 /* .milspec-lamp は既定 position:absolute → flex 内の gap に乗せるため relative へ (ヘッダー LED と同じ) */
