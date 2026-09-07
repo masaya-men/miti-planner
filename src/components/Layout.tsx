@@ -33,6 +33,7 @@ import { MobileHeader } from './MobileHeader';
 import { MobileFAB } from './MobileFab';
 import { GridOverlay } from './GridOverlay';
 import { MilspecChrome } from './military/MilspecChrome';
+import { MilspecLayout } from './military/MilspecLayout';
 import { MobilePartyWithTabs, MobileAccountMenu } from './MobilePartySettings';
 import { AetherflowChainPromptModal } from './AetherflowChainPromptModal';
 import { AstrologianDrawChainPromptModal } from './AstrologianDrawChainPromptModal';
@@ -569,6 +570,34 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             setIsAuthRedirecting(false);
         }
     }, [justLoggedInUser]);
+
+    // MIL-SPEC 専用シェル分岐: themeStyle==='military' かつ PC のときだけ標準 JSX の代わりに
+    // MilspecLayout を返す。全フックはこの上で実行済 (実行時ホスト=自動保存/collab/データ復旧は
+    // 分岐前に持つ)。標準モード (themeStyle 未設定 / 'standard') は完全不変。
+    const themeStyle = useThemeStore(s => s.themeStyle);
+
+    if (themeStyle === 'military' && !isMobile) {
+        return (
+            <MilspecLayout
+                isSidebarOpen={isSidebarOpen}
+                onToggleSidebar={handleToggleSidebar}
+                onCloseSidebar={() => { setIsSidebarOpen(false); localStorage.setItem('lopo_sidebar_open', 'false'); }}
+                isHeaderCollapsed={isHeaderCollapsed}
+                setIsHeaderCollapsed={setIsHeaderCollapsed}
+                theme={theme}
+                onToggleTheme={() => runTransition(() => setTheme(theme === 'dark' ? 'light' : 'dark'), 'theme')}
+                partySortOrder={timelineSortOrder}
+                setPartySortOrder={setTimelineSortOrder}
+                onAutoPlan={() => window.dispatchEvent(new CustomEvent('timeline:autoplan'))}
+                onImportLogs={() => window.dispatchEvent(new CustomEvent('timeline:import'))}
+                statusOpen={mobileStatusOpen}
+                setStatusOpen={setMobileStatusOpen}
+                localImportProps={{ isOpen: localImportOpen, plans: localImportPlans, onImport: handleLocalImport, onClose: handleLocalImportClose }}
+            >
+                {children}
+            </MilspecLayout>
+        );
+    }
 
     return (
         <div data-app-shell className={`flex min-h-[100dvh] h-[100dvh] overflow-hidden font-sans text-app-text selection:bg-app-accent/20 md:max-w-[var(--container-max)] md:mx-auto ${bgClass} relative`}>

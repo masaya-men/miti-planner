@@ -1895,3 +1895,48 @@
     display: none;
   }
 }
+
+/* ============================================================
+ * SP1: 構造リビルド — レイアウトシェル (2026-09-08)
+ * 正典 = docs/.private/theme-refs/milspec-mockup.html
+ * すべて .theme-military 前置 or .milspec-* クラス経由。
+ * ============================================================ */
+
+.theme-military .milspec-app {
+  position: relative;
+  display: grid;
+  width: 100%;
+  max-width: var(--container-max, 1489px);
+  margin: 0 auto;
+  height: 100dvh;
+  overflow: hidden;
+  /* mockup .app: columns 285 / 22 / 1fr。SP1 は subtoolbar 行を持たない 4 行構成。 */
+  grid-template-columns:
+    clamp(232px, 19.1vw, 285px)
+    clamp(16px, 1.5vw, 22px)
+    1fr;
+  grid-template-rows:
+    clamp(76px, 6vw, 90px)   /* header */
+    clamp(60px, 4.8vw, 72px) /* toolbar */
+    1fr                       /* workspace */
+    clamp(64px, 5.5vw, 82px); /* footer */
+  grid-template-areas:
+    "header  header header"
+    "sidebar seam   toolbar"
+    "sidebar seam   workspace"
+    "sidebar seam   footer";
+  background: var(--ms-bg, #141b23);
+  color: var(--ms-text);
+  font-family: var(--ms-font-ui, system-ui, sans-serif);
+}
+.theme-military .milspec-zone-header    { grid-area: header;    position: relative; }
+.theme-military .milspec-zone-sidebar   { grid-area: sidebar;   position: relative; overflow: hidden; }
+.theme-military .milspec-zone-seam      { grid-area: seam;      position: relative; }
+.theme-military .milspec-zone-toolbar   { grid-area: toolbar;   position: relative; }
+.theme-military .milspec-zone-workspace { grid-area: workspace; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.theme-military .milspec-zone-footer    { grid-area: footer;    position: relative; }
+
+/* サイドバー畳み: 列幅 0 へ。列は .milspec-app 側で制御(:has で). */
+.theme-military .milspec-app:has(.milspec-zone-sidebar:not([data-open])) {
+  grid-template-columns: 0 clamp(16px, 1.5vw, 22px) 1fr;
+}
