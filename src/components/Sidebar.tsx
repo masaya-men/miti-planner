@@ -194,6 +194,7 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                         }}
                         disabled={isDisabled}
                         {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
+                        data-milspec-selected={isActive && !multiSelect.isEnabled ? '' : undefined}
                         className={clsx(
                             "sidebar-item w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px] active:scale-[0.98]",
                             isActive && !multiSelect.isEnabled
@@ -1269,7 +1270,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             value={activeTab}
                             onChange={setActiveTab}
                             size="sm"
-                            className="shadow-sm"
+                            className="shadow-sm milspec-seg"
                         />
                     </div>
 

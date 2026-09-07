@@ -1302,3 +1302,191 @@
   background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
   box-shadow: inset 0 2px 3px rgba(0,0,0,0.4);
 }
+
+/* ============================================================
+ * Phase 2.4 — サイドバー = 作戦ボード
+ * 正典: docs/.private/theme-refs/milspec-mockup.html 1302–1412
+ *   (.sidebar / .sidebar::before / .scenario / .s-hd / .s-btn / .phases / .pi.sel / .dock / .deployment)
+ * 本番: Sidebar.tsx
+ *   - <motion.aside data-milspec-sidebar> (glass-tier3 glass-frame・width animate 300/24/100%)
+ *   - <SegmentButton className="shadow-sm milspec-seg"> タブ → Task 2.1 の .milspec-seg 規則が効く
+ *   - [data-milspec-dock] ボタンバー / [data-milspec-sect] シリーズ見出し (savage のみ)
+ *   - .custom-scrollbar 各タブのリストパネル / .sidebar-item[data-milspec-selected] 選択中の行
+ *   - [data-milspec-backup] BACKUP/RESTORE / [data-milspec-deployment] (Task 2.1 の base hide を解除)
+ *   - 折りたたみレール (.group/btn の ChevronLeft)
+ * ⚠ width spring と内側 motion.div の overflow:hidden は一切触らない。全ルール .theme-military 前置。
+ * ⚠ 全高の黄帯は作らない (mockup 1303)。標準の scrollbar 幅プロパティは付けない (Chrome 121+ 対策)。
+ * ============================================================ */
+
+/* --- サイドバー本体 = クールスレートの筐体面 (mockup .sidebar 1305) ---
+   .glass-tier3 が background を !important で var(--glass-tier3-bg) に固定し、
+   index.css の .theme-{dark,light} .glass-frame がそれを raised-grad / transparent へ回す。
+   → [data-milspec-sidebar].glass-frame (0,3,0) で変数ごと --ms-sb-bg へ差し替える (Task 2.1 header と同型)。 */
+.theme-military [data-milspec-sidebar].glass-frame {
+  --glass-tier3-bg: var(--ms-sb-bg);
+  --ms-behind: var(--ms-sb-bg);
+}
+.theme-military [data-milspec-sidebar]::before {   /* 最上部だけ斜めハッチの小 greeble (mockup .sidebar::before 1313) */
+  content: ""; position: absolute; left: 0; top: 0; width: 7px; height: 118px;
+  background-image: repeating-linear-gradient(-52deg, var(--ms-text-muted) 0 1px, transparent 1px 5px);
+  opacity: 0.3; pointer-events: none;
+}
+.theme-military [data-milspec-sidebar]::after {   /* 右端 hairline — glass-border-r-0 !important と戦わず擬似要素で描く */
+  content: ""; position: absolute; top: 0; bottom: 0; right: 0; width: 1px;
+  background: var(--ms-hairline-2); opacity: 0.9; pointer-events: none;
+}
+
+/* --- ボタンバー = 浅い凹みのドック枠 (mockup .scenario 1321) ---
+   ⚠ padding / margin / border-width は足さない (rect を動かさない)。枠は inset box-shadow で描く。 */
+.theme-military [data-milspec-dock] {
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow:
+    inset 0 0 0 1px var(--ms-frame),
+    inset 0 2px 4px rgba(0,0,0,0.5),
+    inset 0 -1px 0 rgba(255,255,255,0.04);
+}
+/* ドックの各ボタン = 独立金属タイル (mockup .s-btn 1328・Task 2.1 ヘッダーボタンと同じ語彙) */
+.theme-military [data-milspec-dock] button {
+  border: 1px solid var(--ms-frame);
+  border-top-color: var(--ms-edge-hi);
+  border-bottom-color: rgba(0,0,0,0.6);
+  border-radius: 1px;
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  box-shadow: var(--ms-btn-body), 0 1px 0 rgba(0,0,0,0.5);
+  filter: var(--ms-btn-cast);
+  color: var(--ms-text);
+}
+.theme-military [data-milspec-dock] button svg { color: var(--ms-stencil); }
+.theme-military [data-milspec-dock] button:hover { filter: var(--ms-btn-cast) brightness(1.12); }
+.theme-military [data-milspec-dock] button:hover svg { color: var(--ms-cyan); }
+.theme-military [data-milspec-dock] button:active {
+  transform: translateY(2px); filter: none;
+  box-shadow: inset 0 3px 7px rgba(0,0,0,0.62), inset 0 1px 2px rgba(0,0,0,0.7), 0 0 0 1px rgba(0,0,0,0.4);
+}
+/* active (bg-app-toggle = 共有/削除の複数選択モード ON) = シアン発光タイル (mockup .tool-btn.active) */
+.theme-military [data-milspec-dock] button.bg-app-toggle {
+  background:
+    linear-gradient(rgba(130,204,223,0.16), rgba(130,204,223,0.16)),
+    linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  border-color: var(--ms-cyan);
+  box-shadow: var(--ms-btn-body), inset 3px 0 0 var(--ms-cyan), 0 0 9px var(--ms-cyan-glow);
+  color: var(--ms-cyan);
+}
+.theme-military [data-milspec-dock] button.bg-app-toggle svg { color: var(--ms-cyan); }
+
+/* --- シリーズ見出し (savage タブのみ) = ステンシル見出し (mockup .s-hd 1322) ---
+   ※ ultimate/other/archive には data-milspec-sect が無い → 深追いしない (plan「無理に作らない」)。 */
+.theme-military [data-milspec-sect] {
+  position: relative;
+  padding-left: 20px;
+  font-family: var(--ms-font-mono);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ms-stencil);
+}
+.theme-military [data-milspec-sect]::before {   /* 左のハッチマーカー (mockup .s-decal 1326・グリフに依存しない) */
+  content: ""; position: absolute; left: 2px; top: 50%; transform: translateY(-50%);
+  width: 10px; height: 8px;
+  background: repeating-linear-gradient(-56deg, var(--ms-text-muted) 0 1px, transparent 1px 4px);
+  opacity: 0.5;
+}
+
+/* --- タブ別リストパネル = 沈んだ枠 (mockup .phases 1356) ---
+   ref (savageListRef 等) は class で拾えないので .custom-scrollbar で拾う。
+   ⚠ overflow / position / margin / border-width は不変。枠は inset box-shadow で描く。 */
+.theme-military [data-milspec-sidebar] .custom-scrollbar {
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow:
+    inset 0 0 0 1px var(--ms-frame),
+    inset 0 2px 5px rgba(0,0,0,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.04);
+}
+/* スクロールバー = 最小の計器意匠 (フル意匠は Task 2.5)。
+   ⚠ 標準の scrollbar 幅プロパティは付けない — Chrome 121+ が ::-webkit-scrollbar 意匠を無効化する。 */
+.theme-military [data-milspec-sidebar] .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.theme-military [data-milspec-sidebar] .custom-scrollbar::-webkit-scrollbar-track { background: var(--ms-recess-lo); }
+.theme-military [data-milspec-sidebar] .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--ms-raised);
+  border-radius: 1px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), inset 0 -1px 0 rgba(0,0,0,0.4);
+}
+.theme-military [data-milspec-sidebar] .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--ms-raised-hi); }
+
+/* --- コンテンツ行 (.sidebar-item) の選択中 = 角丸 pill + シアン左エッジ + 左外の菱形 (mockup .pi.sel 1378) ---
+   フックは ContentTreeItem の button に付けた data-milspec-selected (isActive && !multiSelect)。 */
+.theme-military .sidebar-item[data-milspec-selected] {
+  margin-left: 6px;
+  padding-left: 12px;
+  border-radius: 13px;
+  background: linear-gradient(177deg, #2c4a61, #21374a 74%);
+  box-shadow:
+    inset 3px 0 0 var(--ms-cyan),
+    0 0 0 1px rgba(130,204,223,0.16),
+    0 3px 9px rgba(0,0,0,0.28);
+  color: #eef8fc;
+}
+.theme-military.theme-light .sidebar-item[data-milspec-selected] {
+  background: linear-gradient(177deg, #dcecf4, #cee3ee 74%);
+  box-shadow:
+    inset 3px 0 0 var(--ms-cyan),
+    0 0 0 1px rgba(17,131,176,0.2),
+    0 2px 6px rgba(40,80,120,0.16);
+  color: var(--ms-heading);
+}
+.theme-military .sidebar-item[data-milspec-selected]::before {   /* 左外の菱形マーカー (mockup .pi.sel::after 1384) */
+  content: ""; position: absolute; left: -11px; top: 50%;
+  width: 7px; height: 7px; transform: translateY(-50%) rotate(45deg);
+  background: var(--ms-cyan); opacity: 0.9;
+  box-shadow: 0 0 6px var(--ms-cyan-glow);
+}
+.theme-military .sidebar-item[data-milspec-selected]::after { display: none; }   /* hover アンダーライン (index.css 1055) を消す */
+
+/* --- BACKUP / RESTORE = 下端ドック (mockup .dock 1395)。上の border-t は既に --ms-hairline (Phase 1.2 remap) --- */
+.theme-military [data-milspec-backup] button,
+.theme-military [data-milspec-backup] button svg { color: var(--ms-text-sec); }
+.theme-military [data-milspec-backup] button:hover,
+.theme-military [data-milspec-backup] button:hover svg { color: var(--ms-cyan); }
+
+/* --- DEPLOYMENT = 下端の展開支援ブロック (mockup .deployment 1404)。Task 2.1 の base hide を解除 ---
+   実 DOM に .milspec-drip (雨だれ) は無い → 追加しない (構造変更しない)。 */
+.theme-military [data-milspec-deployment] {
+  display: block;
+  position: relative;
+  overflow: visible;
+}
+.theme-military [data-milspec-deployment] [data-milspec-deployment-hazard] {
+  position: relative; height: 9px;
+  background-image: repeating-linear-gradient(-45deg, #c19730 0 8px, #16191e 8px 16px);
+}
+.theme-military [data-milspec-deployment] [data-milspec-deployment-hazard]::after {   /* 上辺の明線 */
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: rgba(255,255,255,0.14);
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-body {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 10px;
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-mark {
+  width: 38px; height: 38px; flex: none;
+  color: rgba(150,190,205,0.3);
+  filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5));
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-text {
+  display: flex; flex-direction: column; line-height: 1.45;
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-en {
+  font: 400 14px/1 var(--ms-font-mono);
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--ms-text-sec);
+}
+.theme-military [data-milspec-deployment] .milspec-deployment-jp {
+  font-size: 10px; color: var(--ms-text-muted); margin-top: 3px;
+}
+
+/* --- 折りたたみレール = ステンシルの ChevronLeft / hover cyan (mockup .sb-collapse 1318) ---
+   固定ライン (.bg-app-border) は既に --ms-hairline (Phase 1.2 remap)。group/btn は Sidebar.tsx で1回のみ。 */
+.theme-military [data-milspec-sidebar] .group\/btn svg { color: var(--ms-stencil); }
+.theme-military [data-milspec-sidebar] .group\/btn:hover svg { color: var(--ms-cyan); }
