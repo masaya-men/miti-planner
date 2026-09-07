@@ -449,8 +449,8 @@
  * ============================================================ */
 
 /* ---------- フォントユーティリティ (mockup 318-319) ---------- */
-.theme-military .milspec-mono { font-family: 'Share Tech Mono', ui-monospace, monospace; }
-.theme-military .milspec-disp { font-family: 'Orbitron', 'Rajdhani', sans-serif; }
+.theme-military .milspec-mono { font-family: var(--ms-font-mono); }        /* Task 1.4: 直書き → トークン */
+.theme-military .milspec-disp { font-family: var(--ms-font-display); }     /* Task 1.4: 直書き → トークン */
 
 /* ---------- HP — ハードサーフェス装甲プレート語彙 (mockup 356-435) ----------
    立体感の本体 = 太い4色ボーダー(= C面/面取りの斜面。角は 45° で留め継がれる)。 */
@@ -860,4 +860,80 @@
 .theme-military.theme-light .milspec-lamp { background: radial-gradient(circle at 40% 34%, #c2ccd4, #9aa6b0 60%, #7f8b95); }
 
 /* Phase 1.4: 背景 + 走査線 + フォント適用 — ここに追記 */
+
+/* ============================================================
+ * Phase 1.4: 背景(グレイン) + 走査線 + フォント適用範囲
+ * 正典: milspec-mockup.html 268-316 (.stage::after / .wthr-* / body::before)
+ * 変換: .stage        → [data-app-shell] (Layout.tsx:573・position:relative; overflow:hidden)
+ *       .wthr-*       → .milspec-wthr-*
+ *       private var   → --ms-* (--tune-weather → --ms-tune-weather 等)
+ *       走査線 z-9999  → z-55 (本番モーダル層 z-[9999]/[99999] より十分下・grain 60 の直下)
+ *       .stage.trace  → 移植しない (モックアップ開発用スキャフォールド)
+ * ============================================================ */
+
+/* ---------- フォントトークン (spec §6)。.milspec-disp / .milspec-mono が参照。
+   ⚠ body や広域セレクタに Orbitron を掛けない (旧 Phase 0 の教訓)。
+      見出し・ロゴ・大きい数字への適用は Phase 2。 ---------- */
+.theme-military {
+  --ms-font-display: 'Orbitron', 'Rajdhani', 'M PLUS 1', system-ui, sans-serif;
+  --ms-font-mono: 'Share Tech Mono', ui-monospace, monospace;
+}
+
+/* ---------- 全面グレイン (筐体〜パネル横断の金属粒状感・mockup 268-272) ----------
+   grain タイルは public/textures/milspec-grain.png (65KB・data URI 化しない)。
+   url() は .theme-military 配下のみ = standard では fetch されず自然遅延。 */
+.theme-military [data-app-shell]::after {
+  content: ""; position: absolute; inset: 0; z-index: 60; pointer-events: none;
+  background: url('/textures/milspec-grain.png') 0 0 / 256px 256px repeat;
+  opacity: calc(var(--ms-tune-grain-all) + 0.06); mix-blend-mode: overlay;
+}
+
+/* ---------- 走査線 (Dark のみ・mockup 313-316) ----------
+   --ms-scanline は dark rgba(130,204,223,0.014) / light transparent (Task 1.1)。 */
+.theme-military.theme-dark [data-app-shell]::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 55;
+  background: repeating-linear-gradient(0deg, var(--ms-scanline) 0 1px, transparent 1px 3px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-military [data-app-shell]::before { display: none; }
+}
+
+/* ---------- ウェザリング: CSS 定義のみ (mockup 273-312) ----------
+   --ms-tune-weather:0 (既定) で opacity calc = 0 → 全て不可視。
+   background: url() は書かない・画像も置かない → Task 4.2 が必要と判断したら追加。
+   DOM マウントは Task 1.5 の MilspecChrome が担当 (1.4 では CSS の器のみ)。 */
+.theme-military .milspec-wthr-grime,
+.theme-military .milspec-wthr-scratch { position: absolute; inset: 0; pointer-events: none; }
+.theme-military .milspec-wthr-grime {
+  z-index: 46;
+  mix-blend-mode: multiply; opacity: calc(0.44 * var(--ms-tune-weather));
+}
+.theme-military .milspec-wthr-scratch { z-index: 47; }
+.theme-military .milspec-wthr-scratch::before,
+.theme-military .milspec-wthr-scratch::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+}
+.theme-military .milspec-wthr-scratch::before { opacity: calc(0.92 * var(--ms-tune-weather)); }
+.theme-military .milspec-wthr-scratch::after {
+  filter: invert(1);
+  transform: translate(-1.5px, -1.4px);
+  mix-blend-mode: screen;
+  opacity: calc(0.5 * var(--ms-tune-weather));
+}
+.theme-military .milspec-wthr-ao {
+  position: absolute; inset: 0; pointer-events: none; z-index: 45;
+  background:
+    radial-gradient(90% 70% at 0% 0%,   rgba(0,0,0,0.42), transparent 22%),
+    radial-gradient(90% 70% at 100% 0%, rgba(0,0,0,0.42), transparent 22%),
+    radial-gradient(90% 70% at 0% 100%, rgba(0,0,0,0.42), transparent 22%),
+    radial-gradient(90% 70% at 100% 100%,rgba(0,0,0,0.42), transparent 22%),
+    linear-gradient(180deg, rgba(0,0,0,0.28), transparent 6%, transparent 94%, rgba(0,0,0,0.34)),
+    linear-gradient(90deg, rgba(0,0,0,0.26), transparent 4%, transparent 96%, rgba(0,0,0,0.26));
+  mix-blend-mode: multiply; opacity: calc(0.7 * var(--ms-tune-weather));
+}
+.theme-military.theme-light .milspec-wthr-grime { opacity: calc(0.4 * var(--ms-tune-weather)); }
+.theme-military.theme-light .milspec-wthr-scratch::before { opacity: calc(0.5 * var(--ms-tune-weather)); }
+.theme-military.theme-light .milspec-wthr-scratch::after  { opacity: calc(0.28 * var(--ms-tune-weather)); }
+.theme-military.theme-light .milspec-wthr-ao { opacity: calc(0.4 * var(--ms-tune-weather)); }
+
 /* Phase 2.x: ゾーン別リスキン — ここに追記 */
