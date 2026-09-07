@@ -25,8 +25,8 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 ### 🔴 次セッション最優先 = MIL-SPEC テーマ 本番移植。worktree `milspec-theme`。
   **正典=`docs/.private/theme-refs/milspec-mockup.html`**(GITIGNORE・CSS1846行+DOM+JS。一週間かけ作り込んだ削り出し金属・C面・タービン遊びボタン・ロールカウンター計器・導管・フッターHUD)。経緯=`docs/.private/2026-09-03-milspec-trace-workflow.md`追記1〜25。material=memory `reference_milspec_material_language`。
   **2026-09-07 masaya 方針**: モックアップの全部(見た目・遊びボタン・計器・フッターHUD)を**取りこぼしなく本番へ**・**ライト同時**・**完成までユーザー非公開**(`localStorage 'milspec-preview'`)・本番編集機能は全稼働・standard 1バイト不変。
-  **✅ プラン v2 = `docs/superpowers/plans/2026-09-02-military-theme.md`**(モックアップ準拠に全面改訂)。Phase 0(worktree済・main取込+ノブ差替+military.css骨組化) → 1 土台(--ms-*トークン/意味トークンリマップ/共通プリミティブ/背景/MilspecChrome) → 2 ゾーン別リスキン8タスク → 3 新規クローム(タービンrig/ロールカウンター/導管/シーム/デカール React化) → 4 仕上げ。本番DOM構造マップ(Layout/Sidebar/Timeline/ConsolidatedHeader 全ツリー)は survey 済でプラン内に。
-  **次 = masaya がプラン構成を確認 → OK なら subagent-driven-development で Task 0.R1 から着手**。masaya実機ゲート: 1.6(マテリアル方向性)/3.2(座標計器の採否=マウス追従ルール例外)/4.1(レスポンシブ)/4.2(light)/4.5(tuneパネル)/4.6(最終+リリース単位: スプシモードとセットか単独か)。
+  **2026-09-08 方針転換(masaya)**: 再スキンでは無理 → **構造から作り直す**。themeStyle==='military'&&PC で専用ツリー `MilspecLayout` を描画、既存ストア配線で編集機能全維持、標準は Layout 分岐1か所のみで不変。**SP1〜SP4 に分割**(SP1=外側シェル / SP2=タイムライン表 / SP3=スマホ / SP4=編集モーダル軍事化)。Phase1土台(--ms-*/プリミティブ/フォント)は残し、Phase2の皮(data-milspec-*)は撤去。旧プラン v2 と旧spec §8/9/13/16 は失効。Q1〜Q6 確定。
+  **✅ SP1 設計書 = `docs/superpowers/specs/2026-09-08-milspec-structural-rebuild-sp1-shell-design.md`**(`ed047f9b`)。**次 = masaya が設計書レビュー → OK なら writing-plans で SP1 プラン化 → subagent-driven-development**。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
 ①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
 ### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
