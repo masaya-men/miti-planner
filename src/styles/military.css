@@ -216,6 +216,227 @@
 }
 
 /* Phase 1.2: 意味トークンリマップ — ここに追記 */
+/* ============================================================
+ * Phase 1.2 — 本番の意味トークンを MIL-SPEC パレットへリマップ
+ * ------------------------------------------------------------
+ * 本番の意味トークン (--color-* / --glass-* / --radius-*) を military.css 32-216 の
+ * --ms-* へ差し替える。これで --color-app-* 経由の Tailwind ユーティリティ
+ * (bg-app-bg / text-app-text / border-app-border / bg-app-toggle / text-app-blue …)
+ * と .glass-tier1/2/3 が MIL-SPEC パレットに全自動追従し、「半 themed で取り残される
+ * コンポーネント」を防ぐ (spec §3.1)。
+ *   - binding = spec §3.1 のカテゴリ表。値ソースは既存の --ms-* のみ (spec §5 hex は superseded)。
+ *   - すべて .theme-military.theme-{dark,light} 前置 = standard (theme-military 無し) は一切不変。
+ *   - 機能色の役割は不変: 青=進む/OK → シアン, 赤=危険/削除 → レッド, 黄=警告 → オレンジ。
+ * ============================================================ */
+
+/* --- Phase 1.1 に無い補助トークン (dim / border) ---
+ * --ms-cyan-dim (line 82) と同じ「rgba + 既に file 内にある rgb 三つ組」方式で red / orange 版を用意。
+ * --ms-*-glow は tune-glow=4 で alpha が 1 に張り付き不透明化するため、薄い塗り/枠には使えない。 */
+.theme-military.theme-dark {
+  --ms-red-dim:       rgba(239, 90, 95, 0.13);    /* #ef5a5f = --ms-red */
+  --ms-red-border:    rgba(239, 90, 95, 0.32);
+  --ms-orange-dim:    rgba(246, 162, 62, 0.13);   /* #f6a23e = --ms-orange */
+  --ms-orange-border: rgba(246, 162, 62, 0.32);
+}
+.theme-military.theme-light {
+  --ms-red-dim:       rgba(211, 59, 63, 0.09);    /* #d33b3f = --ms-red */
+  --ms-red-border:    rgba(211, 59, 63, 0.26);
+  --ms-orange-dim:    rgba(194, 111, 28, 0.09);   /* #c26f1c = --ms-orange */
+  --ms-orange-border: rgba(194, 111, 28, 0.26);
+}
+
+/* ==================== 意味トークン: Dark ==================== */
+.theme-military.theme-dark {
+  /* 背景 */
+  --color-bg-primary:   var(--ms-bg);
+  --color-bg-secondary: var(--ms-bg);
+  --color-bg-tertiary:  var(--ms-panel);
+
+  /* アクセント (白 → シアン・役割不変) */
+  --color-accent-primary:   var(--ms-cyan);
+  --color-accent-secondary: var(--ms-cyan);
+  --color-accent-dim:       var(--ms-cyan-dim);
+  --app-accent-rgb: 130, 204, 223;   /* #82ccdf の r,g,b リテラル (rgba(var(--app-accent-rgb),a) で使用・var() 不可) */
+
+  /* 文字 */
+  --color-text-primary:   var(--ms-text);
+  --color-text-secondary: var(--ms-text-sec);
+  --color-text-muted:     var(--ms-text-muted);
+  --color-text-on-accent: #06090c;   /* シアン地の上に載る文字 (--ms-* に該当なし) */
+
+  /* トグル */
+  --color-toggle-bg:   var(--ms-cyan);
+  --color-toggle-text: #06090c;
+
+  /* 罫線 */
+  --color-border:         var(--ms-hairline);
+  --color-border-accent:  var(--ms-hairline-2);
+  --row-hover-line-color: var(--ms-hairline-2);
+
+  /* 機能色: 青 = 進む/OK → シアン */
+  --color-blue:        var(--ms-cyan);
+  --color-blue-hover:  var(--ms-cyan-bright);
+  --color-blue-dim:    var(--ms-cyan-dim);
+  --color-blue-border: var(--ms-hairline-2);
+
+  /* 機能色: 赤 = 危険/削除 */
+  --color-red:        var(--ms-red);
+  --color-red-hover:  var(--ms-red);   /* --ms-* に hover 用の明色なし → base と同色 */
+  --color-red-dim:    var(--ms-red-dim);
+  --color-red-border: var(--ms-red-border);
+
+  /* 機能色: 黄 = 警告 → オレンジ */
+  --color-amber:        var(--ms-orange);
+  --color-amber-hover:  var(--ms-orange);
+  --color-amber-dim:    var(--ms-orange-dim);
+  --color-amber-border: var(--ms-orange-border);
+
+  /* 進捗トースト: dark はほぼ現状で MIL-SPEC 準拠。数値のみシアンへ寄せる (spec: 深追い不要) */
+  --progress-toast-num: var(--ms-cyan-bright);
+
+  /* ガラス tier3 (モーダル) = 金属プレート化・blur 0 */
+  --glass-tier3-bg:     var(--ms-raised-grad);
+  --glass-tier3-blur:   0px;
+  --glass-tier3-border: var(--ms-hairline-2);
+  --glass-tier3-shadow: var(--ms-shadow-raised);
+  --glass-tier3-inset:  inset 0 1px 0 var(--ms-edge-hi);
+  --share-modal-bg:     var(--ms-raised-grad);   /* 多数のモーダルが style で --glass-tier3-bg にこれを流す (ConfirmDialog 等) */
+
+  /* ガラス tier2 / tier1 = パネルプレート化 */
+  --glass-tier2-bg:     var(--ms-plate-grad);
+  --glass-tier2-blur:   0px;
+  --glass-tier2-border: var(--ms-hairline);
+  --glass-tier2-shadow: var(--ms-shadow-panel);
+  --glass-tier1-bg:     var(--ms-plate-grad);
+  --glass-tier1-blur:   0px;
+  --glass-tier1-border: var(--ms-hairline);
+
+  /* ガラス旧: bg-* は土台据置 (Phase 2 でゾーン別リスキン)・線 / ホバーのみ MIL-SPEC 化 */
+  --glass-bg-header: transparent;
+  --glass-bg-panel:  transparent;
+  --glass-bg-card:   transparent;
+  --glass-border:    var(--ms-hairline);
+  --glass-hover:     var(--ms-cyan-dim);
+  --glass-active:    var(--ms-cyan-dim);
+
+  /* glass-panel (タイムライン枠) */
+  --glass-panel-border: var(--ms-hairline);
+  --glass-panel-inset:  none;
+  --glass-panel-shadow: var(--ms-shadow-panel);
+
+  /* モバイル UI */
+  --color-sheet-bg:    var(--ms-panel);
+  --color-nav-bg:      var(--ms-well);
+  --color-nav-border:  var(--ms-hairline);
+  --color-overlay:     rgba(2, 5, 8, 0.62);    /* スクリム (--ms-* に該当なし) */
+  --color-fab-overlay: rgba(2, 5, 8, 0.78);
+  --color-fab-bg:      var(--ms-plate-grad);
+  --color-fab-border:  var(--ms-hairline-2);
+
+  /* 角丸: 全体的に立てる (index.css に --radius-* 定義なし → Tailwind @theme 既定を上書き) */
+  --radius-sm:  2px;
+  --radius-md:  3px;
+  --radius-lg:  4px;
+  --radius-xl:  6px;
+  --radius-2xl: 8px;
+}
+
+/* ==================== 意味トークン: Light ==================== */
+.theme-military.theme-light {
+  /* 背景 */
+  --color-bg-primary:   var(--ms-bg);
+  --color-bg-secondary: var(--ms-bg);
+  --color-bg-tertiary:  var(--ms-panel);
+
+  /* アクセント (黒 → シアン・役割不変) */
+  --color-accent-primary:   var(--ms-cyan);
+  --color-accent-secondary: var(--ms-cyan);
+  --color-accent-dim:       var(--ms-cyan-dim);
+  --app-accent-rgb: 17, 131, 176;   /* #1183b0 の r,g,b リテラル */
+
+  /* 文字 */
+  --color-text-primary:   var(--ms-text);
+  --color-text-secondary: var(--ms-text-sec);
+  --color-text-muted:     var(--ms-text-muted);
+  --color-text-on-accent: #ffffff;
+
+  /* トグル */
+  --color-toggle-bg:   var(--ms-cyan);
+  --color-toggle-text: #ffffff;
+
+  /* 罫線 */
+  --color-border:         var(--ms-hairline);
+  --color-border-accent:  var(--ms-hairline-2);
+  --row-hover-line-color: var(--ms-hairline-2);
+
+  /* 機能色: 青 = 進む/OK → シアン */
+  --color-blue:        var(--ms-cyan);
+  --color-blue-hover:  var(--ms-cyan-bright);
+  --color-blue-dim:    var(--ms-cyan-dim);
+  --color-blue-border: var(--ms-hairline-2);
+
+  /* 機能色: 赤 = 危険/削除 */
+  --color-red:        var(--ms-red);
+  --color-red-hover:  var(--ms-red);
+  --color-red-dim:    var(--ms-red-dim);
+  --color-red-border: var(--ms-red-border);
+
+  /* 機能色: 黄 = 警告 → オレンジ */
+  --color-amber:        var(--ms-orange);
+  --color-amber-hover:  var(--ms-orange);
+  --color-amber-dim:    var(--ms-orange-dim);
+  --color-amber-border: var(--ms-orange-border);
+
+  /* 進捗トースト */
+  --progress-toast-num: var(--ms-cyan-bright);
+
+  /* ガラス tier3 (モーダル): light は raised-hi=#ffffff なので白パネルになる ([reference_modal_light_mode_white_bg]) */
+  --glass-tier3-bg:     var(--ms-raised-grad);
+  --glass-tier3-blur:   0px;
+  --glass-tier3-border: var(--ms-hairline-2);
+  --glass-tier3-shadow: var(--ms-shadow-raised);
+  --glass-tier3-inset:  inset 0 1px 0 var(--ms-edge-hi);
+  --share-modal-bg:     var(--ms-raised-grad);
+
+  /* ガラス tier2 / tier1 */
+  --glass-tier2-bg:     var(--ms-plate-grad);
+  --glass-tier2-blur:   0px;
+  --glass-tier2-border: var(--ms-hairline);
+  --glass-tier2-shadow: var(--ms-shadow-panel);
+  --glass-tier1-bg:     var(--ms-plate-grad);
+  --glass-tier1-blur:   0px;
+  --glass-tier1-border: var(--ms-hairline);
+
+  /* ガラス旧 */
+  --glass-bg-header: transparent;
+  --glass-bg-panel:  transparent;
+  --glass-bg-card:   transparent;
+  --glass-border:    var(--ms-hairline);
+  --glass-hover:     var(--ms-cyan-dim);
+  --glass-active:    var(--ms-cyan-dim);
+
+  /* glass-panel (タイムライン枠) */
+  --glass-panel-border: var(--ms-hairline);
+  --glass-panel-inset:  none;
+  --glass-panel-shadow: var(--ms-shadow-panel);
+
+  /* モバイル UI */
+  --color-sheet-bg:    var(--ms-panel);
+  --color-nav-bg:      var(--ms-well);
+  --color-nav-border:  var(--ms-hairline);
+  --color-overlay:     rgba(10, 30, 45, 0.35);   /* スクリム (--ms-* に該当なし) */
+  --color-fab-overlay: rgba(10, 30, 45, 0.55);
+  --color-fab-bg:      var(--ms-raised-grad);
+  --color-fab-border:  var(--ms-hairline-2);
+
+  /* 角丸: 全体的に立てる */
+  --radius-sm:  2px;
+  --radius-md:  3px;
+  --radius-lg:  4px;
+  --radius-xl:  6px;
+  --radius-2xl: 8px;
+}
+
 /* Phase 1.3: 共通プリミティブ — ここに追記 */
 /* Phase 1.4: 背景 + 走査線 + フォント適用 — ここに追記 */
 /* Phase 2.x: ゾーン別リスキン — ここに追記 */
