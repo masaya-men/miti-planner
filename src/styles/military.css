@@ -1142,3 +1142,47 @@
 .theme-military.theme-light .milspec-seg .bg-app-toggle {
   background: linear-gradient(rgba(17,131,176,0.12), rgba(17,131,176,0.12)), #d4e6ee;
 }
+
+/* ============================================================
+ * Phase 2.2 — 折りたたみハンドル + SyncButton LED
+ * 正典にハンドルは無い (workflow 追記 18: 本番にあるがモック未反映) → MIL-SPEC 語彙で新規
+ *   = 沈んだレバースロット + 中央ハザードグリップ。
+ * SyncButton = mecha 語彙の LED インジケータ: 保存済(idle/synced)=緑 / 同期中=シアン / エラー=赤。
+ * 本番:
+ *   - ConsolidatedHeader.tsx [data-progress-drawer-anchor] (24px 領域・既存フック) 内の
+ *     .glass-frame ハンドル本体 + .bg-app-border 1px ライン 2本 + ChevronUp/Down svg。
+ *   - SyncButton.tsx が返す <button> の data-milspec-sync + data-sync-status={_cloudStatus}
+ *     (Header プラン名後 / 折りたたみハンドル左 / Layout.tsx フォーカスモード右レール の 3 箇所に自動追従)。
+ * レイアウトは不変・全ルール .theme-military 前置。
+ * ============================================================ */
+
+/* ハンドル本体 = 沈んだレバースロット (glass-tier3-bg を recess グラデへ・要素直指定で継承値に勝つ) */
+.theme-military [data-progress-drawer-anchor] .glass-frame {
+  --glass-tier3-bg: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+}
+/* 上下端の固定ライン 2本 (.bg-app-border の 1px div) = シアン寄り hairline / hover で点灯 */
+.theme-military [data-progress-drawer-anchor] .bg-app-border { background-color: var(--ms-hairline-2); }
+.theme-military [data-progress-drawer-anchor] button:hover .bg-app-border { background-color: var(--ms-cyan); }
+/* 中央のハザードグリップ = 「ここを掴む」レバータブ (mockup .hazard-yellow の -45deg 反復) */
+.theme-military [data-progress-drawer-anchor] .glass-frame::before {
+  content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 40px; height: 3px; z-index: 1; pointer-events: none; opacity: 0.5;
+  background: repeating-linear-gradient(-45deg, var(--ms-yellow) 0 7px, #14181c 7px 14px);
+}
+/* ChevronUp/Down = ステンシル色 / hover でシアン (wiggle の motion.div は standard 共通なので不変) */
+.theme-military [data-progress-drawer-anchor] button:not([data-milspec-sync]) svg { color: var(--ms-stencil); }
+.theme-military [data-progress-drawer-anchor] button:not([data-milspec-sync]):hover svg { color: var(--ms-cyan); }
+
+/* SyncButton = LED インジケータ。_cloudStatus: 'idle' | 'syncing' | 'synced' | 'error' */
+.theme-military [data-milspec-sync] svg { color: var(--ms-text-muted); transition: color .2s, filter .2s; }
+.theme-military [data-milspec-sync][data-sync-status="idle"] svg,
+.theme-military [data-milspec-sync][data-sync-status="synced"] svg {
+  color: var(--ms-green); filter: drop-shadow(0 0 3px currentColor);
+}
+.theme-military [data-milspec-sync][data-sync-status="syncing"] svg {
+  color: var(--ms-cyan); filter: drop-shadow(0 0 3px currentColor);
+}
+.theme-military [data-milspec-sync][data-sync-status="error"] svg {
+  color: var(--ms-red); filter: drop-shadow(0 0 4px currentColor);
+}
+.theme-military [data-milspec-sync] span { color: var(--ms-red); }   /* エラーラベル (isError 時のみ描画) */
