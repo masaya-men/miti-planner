@@ -3083,6 +3083,7 @@ const Timeline: React.FC = () => {
                     <RecordModeAttrBridge targetRef={scrollContainerRef} />
                     <div
                         ref={scrollContainerRef}
+                        data-milspec-scroll=""
                         className={clsx(
                             "timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-white dark:bg-[var(--color-bg-primary)] duration-200",
                             // 通常アプリ: モバイルでプラン未選択なら空状態のため隠す。

@@ -1490,3 +1490,178 @@
    固定ライン (.bg-app-border) は既に --ms-hairline (Phase 1.2 remap)。group/btn は Sidebar.tsx で1回のみ。 */
 .theme-military [data-milspec-sidebar] .group\/btn svg { color: var(--ms-stencil); }
 .theme-military [data-milspec-sidebar] .group\/btn:hover svg { color: var(--ms-cyan); }
+
+/* ============================================================
+ * Phase 2.5 — タイムライン表 = 戦術スクリーン
+ * 正典: docs/.private/theme-refs/milspec-mockup.html 1034–1300
+ *   (.workspace / .ws-screen / .table / .thead / .th / .tbody / .trow(+lethal/4n/hover)
+ *    / .td-* / .recast-row / .rc-*)。実アプリは 1 枚テーブル構成なので
+ *    [data-milspec-table] = 浮いた大装甲板・[data-milspec-scroll] = 沈んだスクリーン と読み替える。
+ * 本番 DOM:
+ *   - Timeline.tsx [data-milspec-table] (~2694 · relative flex-1 glass-panel overflow-hidden)
+ *   - Timeline.tsx [data-milspec-thead] (~2957 headerRef · h-10=40px · bg-app-surface2 border-b)
+ *       内 #timeline-header-inner (will-change-transform · 触らない) → 列見出し div (.border-r)
+ *       + <RecastRow> の .recast-cell (member 列見出し領域)
+ *   - Timeline.tsx [data-milspec-scroll] 属性 (このタスクで追加・scrollContainerRef ~3085)
+ *   - TimelineRow.tsx 行 = div[data-time-row] (行は本番で off-screen 描画スキップの最適化つき)
+ *       セル = .border-r / 時刻&数値 = .font-mono / 軽減後ダメージ = .dmg-slot (+ .lethal)
+ *   - RecastRow.tsx .recast-cell / RecastIcon.tsx .recast-icon .recast-num (DOM 不変・CSS のみ)
+ * ⚠ 絶対に触らない: #timeline-header-inner / #timeline-controls-inner の transform/will-change/translateX、
+ *   handleScrollSync / syncPadding / headerRef.paddingRight、--col-* 列幅、
+ *   行の描画スキップ最適化系プロパティ・行 height、scrollContainerRef の overflow、
+ *   MitigationItem / TimelineRow の絶対配置座標。
+ * ⚠ webkit スクロールバー疑似要素の意匠も標準の幅プロパティも書かない (Ruling: 計器化は今回見送り・
+ *   index.css の縦バー width:0 隠し + syncPadding=0 前提を維持)。
+ * 全ルール .theme-military 前置。行/セル (B) は @media (min-width:768px) 限定
+ *   (モバイル MobileTimelineRow も [data-time-row] を持つため・波及回避)。
+ * ============================================================ */
+
+/* ---------- (A) フレーム ---------- */
+
+/* 表コンテナ = 浮いた raised 大装甲板 (mockup .workspace 1048–1055)。
+   .glass-panel は position:relative のみ・bg 無し → 直接 background/影を与える。padding は足さない。 */
+.theme-military [data-milspec-table] {
+  background:
+    linear-gradient(158deg, rgba(255,255,255,0.05), transparent 42%, rgba(0,0,0,0.13)),
+    linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised) 55%, var(--ms-raised-lo));
+  box-shadow:
+    inset 0 1px 0 var(--ms-cham-ridge),
+    inset 0 -1px 0 rgba(0,0,0,0.5),
+    0 1px 0 rgba(0,0,0,0.35);
+}
+
+/* thead = 浮いた raised プレート帯 + 下端シアン線 (mockup .thead 1077–1086)。bg-app-surface2 を上書き。
+   h-10(40px) / padding は不変。overflow:hidden は ::after を内側 (bottom:0) に置けば問題なし。 */
+.theme-military [data-milspec-thead] {
+  position: relative;
+  background:
+    linear-gradient(158deg, rgba(255,255,255,0.05), transparent 40%, rgba(0,0,0,0.12)),
+    linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised) 55%, var(--ms-raised-lo));
+  box-shadow:
+    inset 0 1px 0 var(--ms-cham-ridge),
+    inset 0 -1px 0 rgba(0,0,0,0.5),
+    0 2px 6px rgba(0,0,0,0.3);
+}
+.theme-military [data-milspec-thead]::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  z-index: 2; pointer-events: none;
+  background: rgba(150,190,205,0.28);
+}
+
+/* 列見出し div (#timeline-header-inner 内の .border-r 群) = .th 風 raised パネル (mockup .th 1087–1103)。
+   幅・--col-* は触らない (position:relative は flex 配置・親 translateX に影響しない)。 */
+.theme-military [data-milspec-thead] .border-r {
+  position: relative;
+  background: linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset -1px 0 0 rgba(0,0,0,0.3);
+}
+.theme-military [data-milspec-thead] .border-r::before,
+.theme-military [data-milspec-thead] .border-r::after {
+  content: ""; position: absolute; width: 5px; height: 5px;
+  border: 1px solid var(--ms-bracket); pointer-events: none;
+}
+.theme-military [data-milspec-thead] .border-r::before { top: 2px; left: 2px; border-right: 0; border-bottom: 0; }
+.theme-military [data-milspec-thead] .border-r::after  { bottom: 2px; right: 2px; border-left: 0; border-top: 0; }
+
+/* member 列見出し領域 = RecastRow の .recast-cell (headerRef 内・スクロールしない固定行)。
+   沈んだ recess 帯へ (mockup .recast-row 1280–1285)。border-right は --ms-hairline に remap 済み。 */
+.theme-military [data-milspec-thead] .recast-cell {
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.4), inset 0 -1px 0 rgba(255,255,255,0.04);
+}
+
+/* スクロールコンテナ = 沈んだスクリーン (mockup .tbody 1122–1126)。bg-white / dark:bg-[--color-bg-primary] を上書き。
+   overflow は触らない。inset 影は border box 固定 = 上端に「筐体に嵌め込まれた画面」の陰。 */
+.theme-military.theme-dark [data-milspec-scroll] {
+  background: linear-gradient(180deg, #141b22, #0e141a);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.7),
+    inset 0 8px 22px rgba(0,0,0,0.6),
+    inset 0 2px 3px rgba(0,0,0,0.85);
+}
+.theme-military.theme-light [data-milspec-scroll] {
+  background: linear-gradient(180deg, #dbe3ec, #eef3f8);
+  box-shadow:
+    inset 0 0 0 1px rgba(40,80,120,0.25),
+    inset 0 8px 20px rgba(40,80,120,0.18),
+    inset 0 2px 3px rgba(40,80,120,0.22);
+}
+
+/* RecastIcon = 金属リング (mockup .rc-icon 1291–1300)。DOM は変えず CSS のみ。
+   .recast-icon は border-radius:4px / overflow:hidden / 24×24 (不変) → 円形リングに読み替え。 */
+.theme-military .recast-icon {
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 28%, #454f5a, #1c232a 60%, #0a0d11 90%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.6),
+    inset 0 1.5px 3px rgba(0,0,0,0.7),
+    0 1px 0 rgba(255,255,255,0.07);
+}
+.theme-military.theme-light .recast-icon {
+  background: radial-gradient(circle at 34% 28%, #f4f7fa, #cdd8e1 60%, #aeb9c4 90%);
+  box-shadow:
+    inset 0 0 0 1px rgba(40,80,120,0.3),
+    inset 0 1.5px 3px rgba(40,80,120,0.2),
+    0 1px 0 rgba(255,255,255,0.8);
+}
+/* 残秒 = シアン化 (mockup .rc-num)。位置は inset:0 中央のまま (.recast-icon overflow:hidden のため動かせない)。 */
+.theme-military .recast-num {
+  color: var(--ms-cyan-bright);
+  font-family: var(--ms-font-mono);
+}
+
+/* ---------- (B) 行・セル — @media 768px 限定・box-shadow / background のみ ----------
+   ⚠ 行は off-screen 描画スキップ最適化つき。box-shadow / background は paint プロパティで
+   レイアウト封じ込めを誘発しない。封じ込め系プロパティ・行 height は絶対に足さない。 */
+@media (min-width: 768px) {
+  /* 行 = 薄い横スラット (mockup .trow 1127–1135) */
+  .theme-military [data-milspec-scroll] [data-time-row] {
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.028), rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.14));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.5);
+  }
+  .theme-military [data-milspec-scroll] [data-time-row]:nth-child(even) {
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.16));
+  }
+  .theme-military [data-milspec-scroll] [data-time-row]:nth-child(4n) {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -3px 0 -1px var(--ms-pl-dark), 0 1px 0 rgba(255,255,255,0.04);
+  }
+  /* hover = 発光シアンバー (mockup .trow:hover 1135)。行本体の hover:bg-app-surface2 を上書き。 */
+  .theme-military [data-milspec-scroll] [data-time-row]:hover {
+    box-shadow: inset 3px 0 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.08);
+    background-color: rgba(130,204,223,0.06);
+  }
+  /* 各セルの hover:bg-app-surface2 (opaque panel) → 行と同じ淡いシアンに寄せる (mockup は cell 個別 hover 無し) */
+  .theme-military [data-milspec-scroll] [data-time-row] .hover\:bg-app-surface2:hover {
+    background-color: rgba(130,204,223,0.06);
+  }
+
+  /* セル境界 = --ms-hairline (remap 済) + 左端インセットのハイライト (mockup .td-* 1145) */
+  .theme-military [data-milspec-scroll] [data-time-row] .border-r {
+    box-shadow: inset 1px 0 0 rgba(255,255,255,0.045);
+  }
+
+  /* 数値セル (時刻 / RAW / 軽減後) = Share Tech Mono (mockup .td-time/.td-orig/.td-mit) */
+  .theme-military [data-milspec-scroll] [data-time-row] .font-mono {
+    font-family: var(--ms-font-mono);
+  }
+  /* 時刻セルだけ (.font-black 無し) を stencil 色に寄せる (mockup .td-time #c4d0d9) */
+  .theme-military [data-milspec-scroll] [data-time-row] .font-mono:not(.font-black) {
+    color: var(--ms-stencil);
+    letter-spacing: 0.03em;
+  }
+
+  /* 軽減後ダメージ = 緑グロー / 致命 (.dmg-slot.lethal) = 赤グロー (mockup .td-mit / .td-mit.red)。
+     AnimatedDamage の DOM は変えない。text-shadow (.dmg-slot overflow:hidden で上下は一部 clip されるが可)。 */
+  .theme-military [data-milspec-scroll] .dmg-slot {
+    text-shadow: 0 0 6px rgba(89,208,137,0.5);
+  }
+  .theme-military [data-milspec-scroll] .dmg-slot.lethal {
+    text-shadow: 0 0 7px rgba(239,90,95,0.65);
+  }
+  .theme-military.theme-light [data-milspec-scroll] .dmg-slot {
+    text-shadow: 0 0 5px rgba(31,157,87,0.4);
+  }
+  .theme-military.theme-light [data-milspec-scroll] .dmg-slot.lethal {
+    text-shadow: 0 0 6px rgba(211,59,63,0.45);
+  }
+}
