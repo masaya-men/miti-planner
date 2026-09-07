@@ -26,9 +26,9 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
   **正典=`docs/.private/theme-refs/milspec-mockup.html`**(GITIGNORE・CSS1846行+DOM+JS。一週間かけ作り込んだ削り出し金属・C面・タービン遊びボタン・ロールカウンター計器・導管・フッターHUD)。経緯=`docs/.private/2026-09-03-milspec-trace-workflow.md`追記1〜25。material=memory `reference_milspec_material_language`。
   **2026-09-07 masaya 方針**: モックアップの全部(見た目・遊びボタン・計器・フッターHUD)を**取りこぼしなく本番へ**・**ライト同時**・**完成までユーザー非公開**(`localStorage 'milspec-preview'`)・本番編集機能は全稼働・standard 1バイト不変。
   **✅ プラン v2 = `docs/superpowers/plans/2026-09-02-military-theme.md`**(モックアップ準拠に全面改訂)。Phase 0(worktree済・main取込+ノブ差替+military.css骨組化) → 1 土台(--ms-*トークン/意味トークンリマップ/共通プリミティブ/背景/MilspecChrome) → 2 ゾーン別リスキン8タスク → 3 新規クローム(タービンrig/ロールカウンター/導管/シーム/デカール React化) → 4 仕上げ。本番DOM構造マップ(Layout/Sidebar/Timeline/ConsolidatedHeader 全ツリー)は survey 済でプラン内に。
-  **次 = masaya がプラン構成を確認 → OK なら subagent-driven-development で Task 0.R1 から着手**。masaya実機ゲート: 1.6(マテリアル方向性)/3.2(座標計器の採否=マウス追従ルール例外)/4.1(レスポンシブ)/4.2(light)/4.5(tuneパネル)/4.6(最終+リリース単位: スプシモードとセットか単独か)。
-### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = 実装・全テスト緑・push/デプロイ済み(本番確認待ち)
-①住所非公開は新着Discord通知を出さない(`visibility==='public'`のみ) ②登録画面「公開」選択時に「LoPo 運営による X での紹介を許可する」トグル(既定ON)。OFFで通知スキップ+doc に `allowPromoTweet:false`。i18n 5言語・設計書2026-08-28更新。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。
+  **進捗 (2026-09-07 subagent-driven-development 開始)**: ✅ Phase 0 全部(0.R1 main取込マージ / 0.R2 調整ノブ9個 / 0.R3 military.css 骨組化) + ✅ Task 1.1(`--ms-*` パレット移植・全レビュー通過)。worktree HEAD `2ed6abcd`・ledger=worktree `.superpowers/sdd/2026-09-02-military-theme/progress.md`。
+  **次セッション = ledger + プラン読んで Task 1.2 から再開**(1.2 意味トークンリマップ → 1.3 共通プリミティブ[大] → 1.4 背景+走査線+フォント → 1.5 MilspecChrome[TDD] → **1.6 = masaya マテリアル承認ゲート**で一度止める)。masaya実機ゲート: 1.6/3.2(座標計器の採否=マウス追従ルール例外)/4.1(レスポンシブ)/4.2(light)/4.5(tuneパネル)/4.6(最終+リリース単位: スプシモードとセットか単独か)。
+### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = デプロイ済。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。設計書2026-08-28。
 ### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
 ### 🟡 SEOソフト404対策: CF Cache Rule は `/housing/(listing|housinger|tour)/` `/h/` 追加済(2026-09-04)。**残**: `/share/*` の CF ルール検討 / Search Console 再検査+インデックス登録。
 **🟡 優先度低**: ハウジンガーページが全物件共通の1個のversionカウンタ参照 → 他人の物件編集で自分のハウジンガーCDNキャッシュが割れる。改善案=専用versionカウンタ分離。／ **ハウジンガーOGPカード**=完成扱い(2026-08-17)、`.claude/worktrees/housinger-ogp-card-redesign` の未コミット3差分は不採用・**触らない**(worktree remove ロック中・実害なし)。
