@@ -8,14 +8,10 @@ export const AppFooter: React.FC = () => {
     const [footerLegalOpen, setFooterLegalOpen] = React.useState(false);
 
     return (
-        <footer data-milspec-footer className={clsx(
+        <footer className={clsx(
             "h-6 shrink-0 hidden md:flex items-center justify-center z-50 pointer-events-none",
             "glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-border-r-0 glass-shadow-none"
         )}>
-            <span data-milspec-chrome aria-hidden="true">
-                <span className="milspec-decal" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }}>A.R.D // AR-2409 · Combat Simulation Dept</span>
-                <span className="milspec-decal" style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 5 }}>Operational<span className="milspec-lamp milspec-lit green" /></span>
-            </span>
             <p className="text-app-xs text-app-text-muted tracking-wide pointer-events-auto flex items-center gap-0">
                 {t('footer.copyright')}{' · '}{t('footer.disclaimer')}
                 {' · '}

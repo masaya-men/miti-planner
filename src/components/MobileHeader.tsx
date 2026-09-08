@@ -31,7 +31,6 @@ export const MobileHeader: React.FC<{
 
     return (
         <header
-            data-milspec-mobile-header
             className="shrink-0 flex md:hidden flex-col justify-center px-3 z-40 fixed top-0 left-0 right-0 backdrop-blur-md"
             style={{
                 minHeight: MOBILE_TOKENS.header.compactHeight,
@@ -51,7 +50,7 @@ export const MobileHeader: React.FC<{
                             letterSpacing: MOBILE_TOKENS.header.logoLetterSpacing,
                         }}
                     >
-                        <span data-milspec-mobile-logo className="text-app-text-muted font-bold uppercase tracking-widest">
+                        <span className="text-app-text-muted font-bold uppercase tracking-widest">
                             LOPO
                         </span>
                     </button>

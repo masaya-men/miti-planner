@@ -2691,7 +2691,7 @@ const Timeline: React.FC = () => {
             <div data-timeline-root className="flex flex-col h-full w-full bg-transparent overflow-hidden relative z-[1]">
                 <div className="absolute inset-0 pointer-events-none"></div>
 
-                <div data-milspec-table className={clsx(
+                <div className={clsx(
                     "relative flex-1 flex flex-col pt-0 glass-panel overflow-hidden transition-all duration-300 ease-out",
                     "h-full z-[1]",
                     isMobileTimeline
@@ -2719,7 +2719,6 @@ const Timeline: React.FC = () => {
                     </div>
                     <div
                         ref={controlBarRef}
-                        data-milspec-controlbar=""
                         className={clsx(
                             "flex-shrink-0 z-[51] h-7 relative border-b select-none overflow-hidden",
                             "bg-app-surface2 border-app-border",
@@ -2730,7 +2729,6 @@ const Timeline: React.FC = () => {
                             {/* Area A: PHASE+LABEL+TIME — テーブルカラムと幅を揃える (var(--col-header-chunk-w) - 1px divider) */}
                             <div className="w-[calc(var(--col-header-chunk-w)-1px)] min-w-[calc(var(--col-header-chunk-w)-1px)] flex-none flex items-center px-1 md:px-2 h-full">
                                 <button
-                                    data-milspec-tgl=""
                                     onClick={() => useMitigationStore.getState().setHideEmptyRows(!useMitigationStore.getState().hideEmptyRows)}
                                     className={clsx(
                                         "flex items-center justify-center gap-2 px-1 md:px-3 py-0.5 my-auto rounded-md text-app-base font-black transition-all duration-300 group/btn cursor-pointer relative overflow-hidden h-6 w-full",
@@ -2755,7 +2753,7 @@ const Timeline: React.FC = () => {
                             {/* Area B: MECHANIC — 敵の攻撃カラムと揃う (var(--col-mechanic-w) - 1px divider)。 AA 追加 + メモを 50/50 で並列配置、 トンマナ統一 */}
                             <div className="flex-1 md:flex-none md:w-[calc(var(--col-mechanic-w)-1px)] md:min-w-[calc(var(--col-mechanic-w)-1px)] flex items-center gap-1 px-1 md:px-2 h-full">
                                 {/* AA 追加ボタン (Area B の左半分) */}
-                                <div data-milspec-tgl="" className={clsx(
+                                <div className={clsx(
                                     "flex-1 flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 min-w-0",
                                     isAaModeEnabled && "bg-app-toggle text-app-toggle-text"
                                 )}>
@@ -2793,7 +2791,7 @@ const Timeline: React.FC = () => {
                                 {/* メモモード切替 (Area B の右半分、 AA と完全同じ構造: 外側 div > Tooltip > button)。
                                     外側 div は AA と同形 (h-6 で白い箱の高さ固定)。 Tooltip は button だけをラップし、
                                     default の w-fit/h-fit を最小限の !w-full !h-full で打ち消す。 */}
-                                <div data-milspec-tgl="" className={clsx(
+                                <div className={clsx(
                                     "flex-1 hidden md:flex items-center gap-0 relative rounded-md transition-all duration-300 overflow-hidden h-6 min-w-0",
                                     isMemoMode && "bg-app-toggle text-app-toggle-text"
                                 )}>
@@ -2825,7 +2823,6 @@ const Timeline: React.FC = () => {
                             <div className="flex-none md:w-[calc(var(--col-counter-w)-1px)] md:min-w-[calc(var(--col-counter-w)-1px)] flex items-center justify-center gap-1 h-full">
                                 <Tooltip content={t('timeline.row_borders')}>
                                     <button
-                                        data-milspec-ico="tgl"
                                         onClick={() => useMitigationStore.getState().setShowRowBorders(!showRowBorders)}
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
@@ -2846,7 +2843,6 @@ const Timeline: React.FC = () => {
                                         onMouseLeave={scheduleClosePipMenu}
                                     >
                                         <button
-                                            data-milspec-ico="tgl"
                                             onClick={() => { if (pipWindow) handleClosePip(); }}
                                             className={clsx(
                                                 "p-1 rounded transition-all duration-150 cursor-pointer",
@@ -2862,7 +2858,6 @@ const Timeline: React.FC = () => {
                                 {/* リキャスト行 ON/OFF (セッション 18 案 C1) */}
                                 <Tooltip content={recastRowVisible ? t('timeline.recast_row.hide', 'リキャスト非表示') : t('timeline.recast_row.show', 'リキャスト表示')}>
                                     <button
-                                        data-milspec-ico="tgl"
                                         onClick={handleToggleRecastRowVisible}
                                         className={clsx(
                                             "p-1 rounded transition-all duration-150 cursor-pointer",
@@ -2883,7 +2878,6 @@ const Timeline: React.FC = () => {
                             <div className="flex-none md:w-[calc(var(--col-counter-w)-1px)] md:min-w-[calc(var(--col-counter-w)-1px)] flex items-center justify-center gap-0.5 h-full">
                                 <Tooltip content={t('timeline.undo')}>
                                     <button
-                                        data-milspec-ico=""
                                         onClick={() => useMitigationStore.getState().undo()}
                                         disabled={!canUndo || readOnly}
                                         className={clsx(
@@ -2898,7 +2892,6 @@ const Timeline: React.FC = () => {
                                 </Tooltip>
                                 <Tooltip content={t('timeline.redo')}>
                                     <button
-                                        data-milspec-ico=""
                                         onClick={() => useMitigationStore.getState().redo()}
                                         disabled={!canRedo || readOnly}
                                         className={clsx(
@@ -2915,7 +2908,6 @@ const Timeline: React.FC = () => {
                                     <Tooltip content={t('timeline.clear_mitigations')}>
                                         <button
                                             ref={clearMenuButtonRef}
-                                            data-milspec-ico="danger"
                                             onClick={() => { if (readOnly) return; setClearMenuOpen(!clearMenuOpen); }}
                                             className="flex items-center gap-0.5 p-1 rounded transition-all duration-150 cursor-pointer text-app-text hover:bg-red-500/10 hover:text-red-400"
                                         >
@@ -2955,7 +2947,6 @@ const Timeline: React.FC = () => {
 
                     <div
                         ref={headerRef}
-                        data-milspec-thead
                         className={clsx(
                             "flex-shrink-0 z-50 bg-app-surface2 border-b border-app-border text-app-md font-barlow font-medium text-app-text uppercase tracking-wider text-center h-10 select-none overflow-hidden",
                             isMobileTimeline && "hidden"
@@ -3083,7 +3074,6 @@ const Timeline: React.FC = () => {
                     <RecordModeAttrBridge targetRef={scrollContainerRef} />
                     <div
                         ref={scrollContainerRef}
-                        data-milspec-scroll=""
                         className={clsx(
                             "timeline-scroll-container flex-1 overflow-y-auto overflow-x-hidden md:overflow-x-auto relative custom-scrollbar bg-white dark:bg-[var(--color-bg-primary)] duration-200",
                             // 通常アプリ: モバイルでプラン未選択なら空状態のため隠す。

@@ -194,7 +194,6 @@ const ContentTreeItem = React.memo<ContentTreeItemProps>(({
                         }}
                         disabled={isDisabled}
                         {...(highlightFirst ? { "data-tutorial-first-item": "true" } : {})}
-                        data-milspec-selected={isActive && !multiSelect.isEnabled ? '' : undefined}
                         className={clsx(
                             "sidebar-item w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 text-left group relative cursor-pointer min-h-[32px] active:scale-[0.98]",
                             isActive && !multiSelect.isEnabled
@@ -1241,7 +1240,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
     return (<>
         <motion.aside
             initial={false}
-            data-milspec-sidebar
             animate={{ width: fullWidth ? '100%' : isOpen ? 300 : 24 }}
             transition={fullWidth ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 22 }}
             className={clsx("h-full flex z-40 relative group/sidebar glass-tier3 glass-frame glass-border-t-0 glass-border-r-0 glass-shadow-none", !fullWidth && "shadow-sm")}
@@ -1270,12 +1268,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                             value={activeTab}
                             onChange={setActiveTab}
                             size="sm"
-                            className="shadow-sm milspec-seg"
+                            className="shadow-sm"
                         />
                     </div>
 
                     {/* ボタンバー */}
-                    <div data-milspec-dock className="px-3 shrink-0 my-2">
+                    <div className="px-3 shrink-0 my-2">
                         <div className="flex items-center gap-1 flex-wrap">
                         <button
                             onClick={() => {
@@ -1347,7 +1345,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                         : seriesName;
                                     return (
                                         <div key={sid}>
-                                            <div data-milspec-sect className="text-app-base font-bold text-app-text px-2.5 pt-3 pb-1">
+                                            <div className="text-app-base font-bold text-app-text px-2.5 pt-3 pb-1">
                                                 {sectionLabel}
                                             </div>
                                             {contents.map((content, idx) => (
@@ -1584,7 +1582,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
 
                     {/* バックアップ/復元ボタン */}
                     {!multiSelect.isEnabled && (
-                        <div data-milspec-backup className="shrink-0 px-3 pt-1 pb-0">
+                        <div className="shrink-0 px-3 pt-1 pb-0">
                             <div className="border-t border-glass-border w-full mb-1" />
                             <div className="flex gap-1">
                                 <button
@@ -1601,23 +1599,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onClose, ful
                                     <Download size={11} />
                                     {isOpen ? t('backup.restore_button') : null}
                                 </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* MIL-SPEC テーマ専用: DEPLOYMENT ブロック (standard では CSS で display:none) */}
-                    {!multiSelect.isEnabled && isOpen && (
-                        <div data-milspec-deployment aria-hidden="true" className="shrink-0 mx-3 mt-2">
-                            <div data-milspec-deployment-hazard />
-                            <div className="milspec-deployment-body">
-                                <svg className="milspec-deployment-mark" viewBox="0 0 40 40">
-                                    <path d="M7 7 L33 33 M33 7 L7 33" stroke="currentColor" strokeWidth="5" strokeLinecap="square" />
-                                    <path d="M4 13 L4 4 L13 4 M27 4 L36 4 L36 13 M36 27 L36 36 L27 36 M13 36 L4 36 L4 27" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                                </svg>
-                                <div className="milspec-deployment-text">
-                                    <span className="milspec-deployment-en">DEPLOYMENT</span>
-                                    <span className="milspec-deployment-jp">展開を支援する</span>
-                                </div>
                             </div>
                         </div>
                     )}

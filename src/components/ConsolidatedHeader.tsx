@@ -33,7 +33,6 @@ import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';
 import { HeaderToolsMenu } from './HeaderToolsMenu';
 import { ImportMenu } from './ImportMenu';
 import { PartyVisibilityMenu } from './PartyVisibilityMenu';
-import { MilspecStyleToggle } from './military/MilspecStyleToggle';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -171,50 +170,23 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                 className="w-full overflow-hidden pointer-events-auto glass-tier3 glass-frame glass-border-b-0 glass-border-l-0 glass-shadow-none"
             >
                 <div
-                    data-milspec-header
                     className="flex flex-col w-full h-[96px] pt-[5px]"
                 >
-                    {/* MIL-SPEC 装飾クローム層: 銘板・ステンシル・ハザード・稼働 LED（aria-hidden・standard は CSS 非表示・
-                        絶対配置でヘッダーの空き帯に載る。正典 milspec-mockup.html .hp-fill 相当） */}
-                    <div data-milspec-chrome aria-hidden="true">
-                        <span className="milspec-nameplate milspec-c-nameplate">
-                            DEFENSIVE COOLDOWN PLANNING TERMINAL<br />PARTY SURVIVABILITY OPTIMIZER · MK.II
-                        </span>
-                        <span className="milspec-decal milspec-c-topcode">A.R.D-07 // COOLANT</span>
-                        <span className="milspec-decal milspec-c-sec">Sector 01 — Command</span>
-                        <span className="milspec-hazard milspec-c-hazard" />
-                        <span className="milspec-c-status">
-                            <span className="milspec-decal">Sys Online</span>
-                            <span className="milspec-lamp milspec-lit cyan" />
-                        </span>
-                    </div>
-
                     {/* Layer A（上段）: 左=ナビ+タイトル / 右=共有+チュートリアル+設定（固定） */}
-                    <div data-milspec-titlebar className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-x-hidden overflow-y-visible">
+                    <div className="h-12 flex items-center px-6 border-b border-app-border shrink-0 overflow-x-hidden overflow-y-visible">
                         {/* ── 左グループ（余ったスペースを使う） ── */}
                         <div className="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                             <Tooltip content={t('app.return_home')}>
-                                <div className="shrink-0" data-milspec-logoplate>
+                                <div className="shrink-0">
                                     <LoPoButton size="sm" onClick={() => navigate('/')} />
                                 </div>
                             </Tooltip>
-
-                            {/* MIL-SPEC のみ: ロゴ脇のステンシル副題（装飾・standard では CSS で非表示） */}
-                            <div data-milspec-wordmark aria-hidden="true" className="shrink-0">
-                                <span className="milspec-wm-main">Combat Analysis System</span>
-                                <span className="milspec-wm-sub">Loop Optimizer · Fire-Plan Unit</span>
-                                <span className="milspec-wm-model">MDL. LP-2 / STD ISSUE</span>
-                            </div>
-
-                            {/* MIL-SPEC のみ: LoPo プレートとタイトルの斜め継ぎ目（装飾・standard では非表示） */}
-                            <span data-milspec-seam aria-hidden="true" className="shrink-0" />
 
                             {/* viewer モード: 部屋の contentId からコンテンツ名を表示（ownerLabel があればタイトルも） */}
                             {readOnly && (contentLabel || viewer!.ownerLabel) && (
                                 <div className="flex items-baseline gap-2" style={{ minWidth: 0, overflow: 'hidden', flex: '1 1 0%' }}>
                                     {contentLabel && (
                                         <span
-                                            data-milspec-title
                                             className={clsx(
                                                 "text-app-text leading-tight whitespace-nowrap shrink-0",
                                                 i18n.language.startsWith('ja') ? "text-app-4xl" : "text-app-5xl"
@@ -250,7 +222,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 <div className="flex items-baseline gap-2" style={{ minWidth: 0, overflow: 'hidden', flex: '1 1 0%' }}>
                                     {contentLabel && (
                                         <span
-                                            data-milspec-title
                                             className={clsx(
                                                 "text-app-text leading-tight whitespace-nowrap shrink-0",
                                                 i18n.language.startsWith('ja') ? "text-app-4xl" : "text-app-5xl"
@@ -334,11 +305,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                 </button>
                             </Tooltip>
 
-                            {/* MIL-SPEC スタイル切替（WIP: DEV か ?milspec-preview 相当でのみ表示。Task 3.6 でガード撤去）*/}
-                            {(import.meta.env.DEV || (typeof localStorage !== 'undefined' && localStorage.getItem('milspec-preview') === '1')) && (
-                              <MilspecStyleToggle className={clsx(iconBtnBase, iconBtnDefault)} />
-                            )}
-
                             {/* 言語切替 */}
                             <LanguageSwitcher />
 
@@ -363,7 +329,7 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                     </div>
 
                     {/* Layer B（下段・表に近い）: ツールボタン群 */}
-                    <div data-milspec-toolbar className="h-12 flex items-center justify-between px-6 shrink-0">
+                    <div className="h-12 flex items-center justify-between px-6 shrink-0">
                         <div className="flex items-center gap-1.5">
                             {/* Party Comp */}
                             <NotAllowed on={readOnly}>
@@ -461,7 +427,6 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                             {/* Sort */}
                             <span className="text-app-base font-black text-app-text uppercase tracking-[0.15em]">{t('ui.sort')}</span>
                             <SegmentButton
-                                className="milspec-seg"
                                 options={[
                                     { value: 'light_party', label: t('ui.sort_light_party') },
                                     { value: 'role', label: t('ui.sort_role') },

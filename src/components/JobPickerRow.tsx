@@ -72,7 +72,6 @@ export const JobPickerRow: React.FC<JobPickerRowProps> = ({
                 >
                     <Tooltip content={member.jobId ? `${member.id} — ${t('ui.change_job_tooltip')}` : `${member.id} (${t('ui.change_job')})`} position="bottom" wrapperClassName="w-full h-full">
                         <div
-                            data-milspec-cj=""
                             className={clsx(
                                 "flex items-center justify-center w-full h-full rounded cursor-pointer transition-all duration-300 relative"
                             )}

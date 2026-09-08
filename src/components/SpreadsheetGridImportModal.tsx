@@ -577,7 +577,6 @@ export const SpreadsheetGridImportModal: React.FC<Props> = ({ isOpen, onClose, o
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
         <motion.div
-          data-milspec-modal
           initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.97 }}
           className="relative z-[201] w-[96vw] max-w-[1280px] h-[88dvh] glass-tier3 rounded-2xl overflow-hidden flex flex-col"
           style={{ '--glass-tier3-bg': 'var(--share-modal-bg)' } as React.CSSProperties}

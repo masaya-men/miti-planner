@@ -75,8 +75,6 @@ export const SyncButton: React.FC<{ size?: number; className?: string; showLabel
         <button
             onClick={handleSync}
             disabled={isSyncing}
-            data-milspec-sync=""
-            data-sync-status={cloudStatus}
             aria-label={isError ? labelText : t('app.sync_saved')}
             className={clsx(
                 "flex items-center gap-1.5 rounded transition-all duration-200 disabled:pointer-events-none",
