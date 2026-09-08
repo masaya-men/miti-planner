@@ -980,3 +980,31 @@
 .theme-military .milspec-app:has(.milspec-zone-sidebar:not([data-open])) {
   grid-template-columns: 0 clamp(16px, 1.5vw, 22px) 1fr;
 }
+
+/* ---------- Task 3: workspace — 装甲板本体 + 沈んだスクリーン
+   正典: mockup .workspace(1048-1057) / .ws-screen(1063-1068) / DOM(2123-2213)。
+   .milspec-zone-workspace(Task 1・display:flex; flex-direction:column)の唯一の子として
+   .milspec-ws を fill させる。.milspec-ws-screen は children(実 Timeline.tsx の
+   `flex flex-col h-full` → `flex-1 overflow-auto`)が高さを解決できるよう定高さの
+   flex column コンテナにする。overflow は hidden — スクロールは内側の Timeline 自身が持つので
+   二重スクロールコンテナにしない(SP2 で MilspecTable に差し替わっても同じ契約)。 ---------- */
+.theme-military .milspec-ws {
+  position: relative; display: flex; align-items: stretch;
+  flex: 1; min-width: 0; min-height: 0;
+  padding: 13px 14px 15px;
+  background:
+    linear-gradient(158deg, rgba(255,255,255,0.05), transparent 42%, rgba(0,0,0,0.13)),
+    linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised) 55%, var(--ms-raised-lo));
+  box-shadow: inset 0 1px 0 var(--ms-cham-ridge), inset 0 -1px 0 rgba(0,0,0,0.5), 0 1px 0 rgba(0,0,0,0.35);
+}
+/* モックの sc(隅ステンシル) 既定オフセット(left/right:6px・Phase 1.3)を workspace の実測値
+   (left/right:16px・mockup DOM 2125-2126)へ上書き。.tl/.br と併記の複合セレクタで specificity
+   (0,4,0) にし、既存 .milspec-sc.tl/.br(0,3,0)より確実に勝つ(ソース順に依存しない)。 */
+.theme-military .milspec-sc.tl.milspec-ws-code-l { left: 16px; }
+.theme-military .milspec-sc.br.milspec-ws-code-r { right: 16px; }
+.theme-military .milspec-ws-screen {
+  position: relative; display: flex; flex-direction: column;
+  flex: 1; min-width: 0; min-height: 0; overflow: hidden;
+  background: linear-gradient(180deg, #0d1319, #080c11);
+  box-shadow: inset 0 8px 26px rgba(0,0,0,0.78), inset 0 2px 3px rgba(0,0,0,0.9), 0 0 0 1px rgba(0,0,0,0.65);
+}

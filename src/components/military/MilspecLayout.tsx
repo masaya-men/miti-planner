@@ -1,5 +1,6 @@
 import React from 'react';
 import { MilspecChrome } from './MilspecChrome';
+import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
 import { AetherflowChainPromptModal } from '../AetherflowChainPromptModal';
@@ -39,7 +40,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
       <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined} />
       <div data-ms-zone="seam" className="milspec-zone-seam" />
       <div data-ms-zone="toolbar" className="milspec-zone-toolbar" />
-      <div data-ms-zone="workspace" className="milspec-zone-workspace">{children}</div>
+      <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace></div>
       <div data-ms-zone="footer" className="milspec-zone-footer" />
 
       {/* PC グローバルオーバーレイ(自己ゲート型・非アクティブ時 null)。標準 JSX からは移動しない。 */}
