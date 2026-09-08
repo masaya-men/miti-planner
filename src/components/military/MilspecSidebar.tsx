@@ -12,6 +12,7 @@ import { getContentById } from '../../data/contentRegistry';
 import { getPhaseName } from '../../types';
 import type { SavedPlan } from '../../types';
 import { loadPlanDataIntoStore } from '../../lib/planLoad';
+import { setLastOpened } from '../../utils/lastOpenedStore';
 import { formatTime } from '../../utils/templateConversions';
 import { showToast } from '../Toast';
 import { BackupExportModal } from '../BackupExportModal';
@@ -93,25 +94,45 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
     setEditingPlanId(null);
   };
 
-  // プラン選択: 標準 Sidebar.tsx(:369-378)と同じ「現在プランのスナップショットを保存 →
-  // 切替先プランのデータを作業ストアへロード → currentPlanId 切替」の順序を踏む。
-  // 順序が重要な理由: Layout.tsx の自動保存 subscribe(:344-349)は「500ms 後に currentPlanId が
-  // 変わっていたら保存をスキップ」する防御を持つため、作業ストアの中身が新プランに切り替わって
-  // いない間に currentPlanId だけ進めると保存が空振りする。loadPlanDataIntoStore は非圧縮プラン
-  // (通常運用の大半)では await 無しに同期的に loadSnapshot まで完了するため、続けて
-  // setCurrentPlanId を同一 tick で呼んでも順序は保たれる。圧縮プラン(アーカイブ由来)の
-  // 非同期解凍は SP1 のフラット一覧では対象外(アーカイブタブ相当 UI は punch-list)。
-  const handleSelectPlan = (plan: SavedPlan) => {
-    const ps = usePlanStore.getState();
-    if (plan.id === ps.currentPlanId) return;
-    if (ps.currentPlanId) {
-      ps.updatePlan(ps.currentPlanId, { data: useMitigationStore.getState().getSnapshot() });
+  // プラン選択: 標準 Sidebar.tsx(:355-381 相当)と全く同じ手順を移植。
+  // 【Fix round 1】以前の実装は loadPlanDataIntoStore を await せず setCurrentPlanId を
+  // 同一 tick で呼んでいたが、これは非圧縮プラン限定でしか安全ではなかった。
+  // silentCompressStale()(usePlanStore.ts)は「7日以上開いていない非アーカイブプラン」を
+  // archived フラグを変えずに compressedData 化するため、通常のフラットなプラン一覧にも
+  // 圧縮プランが普通に混在しうる(アーカイブタブ限定のエッジケースではない)。圧縮プランの
+  // 解凍は本当に非同期(DecompressionStream)なので、await せず setCurrentPlanId を呼ぶと
+  // 「作業ストアは旧プランのデータのまま・currentPlanId だけ新プランを指す」瞬間が生まれ、
+  // その間に自動保存(500ms デバウンス)が発火すると旧データが新プランIDの下に誤って
+  // 保存されるおそれがある。標準と同じ「保存→再圧縮判定→await 解凍→書き戻し→
+  // エラーハンドリング→ID切替→lastOpened更新」を丸ごと踏襲して解消する。
+  // runTransition(オーバーレイ演出)はラップしない — Task4 で発生した Provider ネストの
+  // 副作用(ロック分裂)をこれ以上増やさないため、データ安全性の手順のみ移植する。
+  const handleSelectPlan = async (plan: SavedPlan) => {
+    const store = usePlanStore.getState();
+    if (store.currentPlanId === plan.id) return;
+
+    const snap = useMitigationStore.getState().getSnapshot();
+    if (store.currentPlanId) {
+      store.updatePlan(store.currentPlanId, { data: snap });
+      // 離れるプランがアーカイブ/サイレント圧縮対象なら再圧縮(標準 Sidebar.tsx と同じ)。
+      const currentPlan = store.plans.find((p) => p.id === store.currentPlanId);
+      if (currentPlan?.archived || currentPlan?.compressedData) {
+        store.archivePlan(store.currentPlanId);
+      }
     }
-    // data が空({} 相当・実運用では発生しない新規プラン相当のみ)なら loadSnapshot を
-    // 呼ばない(未整形データを作業ストアへ流し込んで壊さないための防御)。
-    const hasLoadableData = (plan.data && Object.keys(plan.data).length > 0) || !!plan.compressedData;
-    if (hasLoadableData) void loadPlanDataIntoStore(plan);
-    ps.setCurrentPlanId(plan.id);
+
+    try {
+      const loaded = await loadPlanDataIntoStore(plan);
+      if (loaded && plan.compressedData) {
+        store.updatePlan(plan.id, { data: loaded, compressedData: undefined });
+      }
+    } catch {
+      showToast(t('app.decompress_error') || 'データの読み込みに失敗しました。ページを更新してください。ログインしていない場合、データが復元できないことがあります。', 'error');
+      return;
+    }
+
+    store.setCurrentPlanId(plan.id);
+    setLastOpened(plan.id, Date.now());
   };
 
   const handleDuplicate = async (planId: string) => {
@@ -212,9 +233,9 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
               role="button"
               tabIndex={0}
               className={clsx('milspec-pi', plan.id === currentPlanId && 'sel')}
-              onClick={() => handleSelectPlan(plan)}
+              onClick={() => { void handleSelectPlan(plan); }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelectPlan(plan); }
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); void handleSelectPlan(plan); }
               }}
             >
               <span className="bl" />
