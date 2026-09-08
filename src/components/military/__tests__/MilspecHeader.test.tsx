@@ -4,14 +4,13 @@ import { render, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { MilspecHeader } from '../MilspecHeader';
 import { useThemeStore } from '../../../store/useThemeStore';
-import { TransitionOverlayProvider } from '../../ui/TransitionOverlay';
 
 beforeEach(() => { useThemeStore.setState({ theme: 'dark', themeStyle: 'military' }); localStorage.setItem('milspec-preview', '1'); });
 const props = { theme: 'dark' as const, onToggleTheme: vi.fn(), isHeaderCollapsed: false, setIsHeaderCollapsed: vi.fn() };
-// LanguageSwitcher / MilspecStyleToggle は useTransitionOverlay() に依存(本番は App 直下の
-// TransitionOverlayProvider が既に包んでいる)。MilspecStyleToggle.test.tsx と同じくテストでも provider が必要。
+// MilspecHeader 自身が TransitionOverlayProvider を内包して自己完結しているため、
+// テスト側で外側から重ねてラップする必要は無い(MemoryRouter のみで十分)。
 const r = () => render(
-  <MemoryRouter><TransitionOverlayProvider><MilspecHeader {...props} /></TransitionOverlayProvider></MemoryRouter>
+  <MemoryRouter><MilspecHeader {...props} /></MemoryRouter>
 );
 
 describe('MilspecHeader', () => {

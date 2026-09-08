@@ -7,6 +7,7 @@ import { LanguageSwitcher } from '../LanguageSwitcher';
 import { LoginModal } from '../LoginModal';
 import { ShareButtons } from '../ShareButtons';
 import { SyncButton } from '../SyncButton';
+import { TransitionOverlayProvider } from '../ui/TransitionOverlay';
 import { MilspecStyleToggle } from './MilspecStyleToggle';
 import { useThemeStore } from '../../store/useThemeStore';
 import { usePlanStore } from '../../store/usePlanStore';
@@ -58,6 +59,11 @@ export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
   const [spinning, setSpinning] = React.useState(false);
 
   return (
+    // LanguageSwitcher / MilspecStyleToggle が内部で useTransitionOverlay() を無条件に呼ぶため、
+    // MilspecHeader 自身を自己完結させる(controller確認済み: runTransition は document.body 操作 +
+    // provider インスタンス毎の lockRef のみで、標準/軍事レイアウトは Layout.tsx の分岐で排他マウント
+    // されるため App.tsx ルートの Provider とネストしても衝突しない)。
+    <TransitionOverlayProvider>
     <header className="milspec-hdr milspec-chan" data-collapsed={isHeaderCollapsed ? '' : undefined}>
       {/* ロゴプレート — mockup .hp-logo(DOM 1922-1932)。ブランド視覚は MIL-SPEC 金属プレートに
           作り直し(標準 LoPoButton のカプセル+スキャンライン意匠は世界観が異なるため非採用)。
@@ -199,5 +205,6 @@ export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
 
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </header>
+    </TransitionOverlayProvider>
   );
 };
