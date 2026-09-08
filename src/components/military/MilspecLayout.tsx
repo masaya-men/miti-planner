@@ -1,6 +1,7 @@
 import React from 'react';
 import { MilspecChrome } from './MilspecChrome';
 import { MilspecHeader } from './MilspecHeader';
+import { MilspecSidebar } from './MilspecSidebar';
 import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
@@ -36,7 +37,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecChrome />
-      {/* ゾーン: header(Task 4)/workspace(Task 3)は実装済。sidebar/seam/toolbar/footer は Task 5–8 でプレースホルダのまま。 */}
+      {/* ゾーン: header(Task 4)/sidebar(Task 5)/workspace(Task 3)は実装済。seam/toolbar/footer は Task 6–8 でプレースホルダのまま。 */}
       <div data-ms-zone="header" className="milspec-zone-header">
         <MilspecHeader
           theme={props.theme}
@@ -45,7 +46,13 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
           setIsHeaderCollapsed={props.setIsHeaderCollapsed}
         />
       </div>
-      <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined} />
+      <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined}>
+        <MilspecSidebar
+          isSidebarOpen={props.isSidebarOpen}
+          onToggleSidebar={props.onToggleSidebar}
+          onCloseSidebar={props.onCloseSidebar}
+        />
+      </div>
       <div data-ms-zone="seam" className="milspec-zone-seam" />
       <div data-ms-zone="toolbar" className="milspec-zone-toolbar" />
       <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace></div>

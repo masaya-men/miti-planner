@@ -1226,3 +1226,142 @@
 }
 .theme-military .milspec-hdr-collapse:hover { color: var(--ms-cyan); }
 .theme-military .milspec-hdr-collapse:active { transform: translateY(1px); }
+
+/* ============================================================
+ * SP1 Task 5: サイドバー — SCENARIO / PLANS / PHASES / DOCK / DEPLOYMENT
+ * 正典: mockup DOM 1982-2060(<aside class="sidebar chan">) /
+ *       CSS .sidebar 1305- / .scenario .s-hd .s-btns 1320- / .enc-name 1341- /
+ *       .phases .phase .phase-h .phase-tag .pi 1352- / .dock 1394- / .deployment 1403-。
+ * ⚠ .milspec-plans(プラン一覧)はモックアップに専用スロットが無い新規セクション
+ *   (controller訂正#1: .hp.phases は useMitigationStore.phases の表示専用に限定されたため、
+ *   プラン一覧は別枠が必要。詳細は task-5-report.md 参照・Step 9 で masaya に確認)。
+ *   `.pi`/`.pi.sel` の視覚語彙(ドット+連結線・選択時ピル+シアン菱形)はモック 1373-1392 を
+ *   そのまま転用(プラン行の選択/複製/改名に意味的に合致するため)。
+ * ============================================================ */
+
+/* ---------- サイドバー本体(mockup .sidebar 1305-1318) ---------- */
+.theme-military .milspec-sb {
+  position: relative;
+  background: var(--ms-sb-bg);
+  border-right: 1px solid var(--ms-hairline-2);
+  display: flex; flex-direction: column; gap: 9px;
+  padding: 10px 12px 11px 13px;
+  overflow: hidden; min-height: 0; height: 100%;
+}
+.theme-military .milspec-sb::before {
+  content: ""; position: absolute; left: 0; top: 0; width: 7px; height: 118px;
+  background-image: repeating-linear-gradient(-52deg, var(--ms-text-muted) 0 1px, transparent 1px 5px);
+  opacity: 0.3; pointer-events: none;
+}
+.theme-military .milspec-sb-collapse {
+  position: absolute; right: 8px; top: 45%; z-index: 5;
+  width: 18px; height: 22px; padding: 0; border: 0; background: none;
+  color: var(--ms-text-muted); font: 400 15px/1 'Share Tech Mono', monospace;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.theme-military .milspec-sb-collapse:hover { color: var(--ms-cyan); }
+.theme-military .milspec-sb-collapse:active { transform: translateY(1px); }
+
+/* ---------- SCENARIO(mockup .scenario .s-hd .s-btns .s-btn 1320-1339) ---------- */
+.theme-military .milspec-scenario { padding: 10px 13px 13px; flex: none; }
+.theme-military .milspec-s-hd { position: relative; display: flex; align-items: baseline; gap: 7px; margin-bottom: 11px; }
+.theme-military .milspec-s-hd .en { font: 400 12px/1 'Share Tech Mono', monospace; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ms-stencil); }
+.theme-military .milspec-s-hd .jp { font-size: 9px; color: var(--ms-text-muted); }
+.theme-military .milspec-s-decal { position: absolute; right: 0; top: 1px; width: 36px; height: 7px; opacity: 0.4; }
+.theme-military .milspec-s-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.theme-military .milspec-s-btn {
+  position: relative; overflow: hidden; font-family: inherit; padding: 0;
+  border: 1px solid var(--ms-frame); border-radius: 1px;
+  border-top-color: var(--ms-edge-hi); border-bottom-color: rgba(0,0,0,0.6);
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  box-shadow: var(--ms-btn-body), 0 1px 0 rgba(0,0,0,0.5);
+  filter: var(--ms-btn-cast);
+}
+.theme-military .milspec-s-btn:hover { border-color: var(--ms-bracket); filter: var(--ms-btn-cast) brightness(1.1); }
+.theme-military .milspec-s-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.theme-military .milspec-s-btn .en { display: block; padding: 5px 1px 3px; font: 400 7px/1 'Share Tech Mono', monospace; letter-spacing: 0; text-transform: uppercase; color: var(--ms-heading); text-align: center; border-bottom: 1px solid var(--ms-frame); white-space: nowrap; overflow: hidden; }
+.theme-military .milspec-s-btn .jp { display: block; padding: 3px 1px 2px; font-size: 8px; color: var(--ms-text-sec); text-align: center; white-space: nowrap; overflow: hidden; }
+.theme-military .milspec-s-btn.imp .en, .theme-military .milspec-s-btn.imp .jp { color: var(--ms-green); }
+.theme-military .milspec-s-btn.danger .en, .theme-military .milspec-s-btn.danger .jp { color: #ff6b7a; }
+.theme-military .milspec-s-btn.armed { border-color: #ff6b7a; }
+
+/* ---------- 遭遇名(mockup .enc-name 1341-1350) ---------- */
+.theme-military .milspec-enc-name {
+  flex: none; position: relative;
+  font: 700 14px/1.2 'Rajdhani','M PLUS 1',sans-serif; color: var(--ms-heading);
+  letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin: 0 2px; padding: 6px 11px;
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  border: 1px solid var(--ms-frame); border-top-color: rgba(0,0,0,0.4);
+  box-shadow: inset 0 calc(2px + 2px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.5), inset 0 calc(1px * var(--ms-tune-relief)) 2px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.05);
+}
+
+/* ---------- プラン一覧(新規セクション。視覚語彙は mockup .pi を転用) ---------- */
+.theme-military .milspec-plans { flex: 1; min-height: 60px; padding: 11px 12px 8px; margin: 0 7px 0 15px; }
+.theme-military .milspec-plans-list { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.theme-military .milspec-plans-empty { color: var(--ms-text-muted); font-size: 11px; padding: 4px 8px; }
+
+/* ---------- プラン行 / ラベル行 共通(mockup .pi 1373-1392) ---------- */
+.theme-military .milspec-pi { position: relative; display: flex; align-items: center; gap: 9px; padding: 6px 8px; font-size: 13px; color: var(--ms-text-sec); margin-left: 10px; background: none; border: 0; width: calc(100% - 10px); text-align: left; font-family: inherit; }
+.theme-military .milspec-pi::before { content: ""; position: absolute; left: 10px; top: -6px; height: 15px; width: 1px; background: var(--ms-frame); }
+.theme-military .milspec-pi:first-child::before, .theme-military .milspec-pi.sel::before { display: none; }
+.theme-military .milspec-pi .bl { width: 5px; height: 5px; border-radius: 50%; background: var(--ms-text-muted); flex: none; z-index: 1; }
+.theme-military .milspec-pi .lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.theme-military .milspec-pi.sel {
+  color: #eef8fc; margin-left: 16px; padding-left: 12px; border-radius: 13px;
+  background: linear-gradient(177deg, #2c4a61, #21374a 74%);
+  box-shadow: inset 3px 0 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.06),
+    0 0 0 1px rgba(130,204,223,0.16), 0 3px 9px rgba(0,0,0,0.28), 0 0 11px rgba(130,204,223,0.09);
+}
+.theme-military .milspec-pi.sel::after {
+  content: ""; position: absolute; left: -15px; top: 50%;
+  width: 7px; height: 7px; transform: translateY(-50%) rotate(45deg);
+  background: var(--ms-cyan); opacity: 0.9; box-shadow: 0 0 6px var(--ms-cyan-glow);
+}
+.theme-military .milspec-pi .ac { margin-left: auto; display: flex; gap: 8px; opacity: 0.6; flex: none; }
+.theme-military .milspec-pi .ac button { display: flex; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; }
+.theme-military .milspec-pi .ac button:hover { color: var(--ms-cyan); }
+.theme-military .milspec-pi .ac svg { width: 13px; height: 13px; }
+.theme-military .milspec-pi-rename-input {
+  flex: 1; min-width: 0; background: rgba(0,0,0,0.3); color: var(--ms-heading);
+  border: 1px solid var(--ms-bracket); border-radius: 3px; padding: 2px 6px; font: inherit;
+}
+
+/* ---------- PHASES(表示専用・mockup .phases .phase .phase-h .phase-tag 1352-1371) ---------- */
+.theme-military .milspec-phases { flex: none; max-height: 152px; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 11px 12px 8px; margin: 0 7px 0 15px; }
+.theme-military .milspec-phase {
+  position: relative; padding: 8px 8px 10px; margin-bottom: 7px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.34));
+  border: 1px solid rgba(0,0,0,0.38); border-top-color: rgba(255,255,255,0.04);
+  box-shadow: inset 0 calc(1px + 2.5px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.5), inset 0 calc(1px * var(--ms-tune-relief)) 2px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,255,255,0.035), 0 1px 0 rgba(255,255,255,0.035);
+}
+.theme-military .milspec-phase:last-child { margin-bottom: 0; }
+.theme-military .milspec-phase-h { display: flex; align-items: baseline; gap: 2px; cursor: default; }
+.theme-military .milspec-phase-h .num { font: 700 25px/1 'Rajdhani',sans-serif; color: var(--ms-heading); letter-spacing: -0.02em; }
+.theme-military .milspec-phase-h .cv { color: var(--ms-text-sec); font-size: 17px; }
+.theme-military .milspec-phase-h .cv.dn { color: var(--ms-text-sec); font-size: 16px; margin-left: 7px; opacity: 0.5; }
+.theme-military .milspec-phase-tag { display: flex; align-items: center; gap: 8px; margin: 9px 0 3px; padding-left: 2px; }
+.theme-military .milspec-phase-tag .t { font: 400 10px/1 'Share Tech Mono', monospace; letter-spacing: 0.18em; text-transform: uppercase; color: #7590a4; white-space: nowrap; }
+.theme-military .milspec-phase-tag .sub { font-size: 10px; color: var(--ms-text-sec); letter-spacing: 0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.theme-military .milspec-phase-tag .ln { flex: 1; height: 2px; min-width: 8px; background: linear-gradient(180deg, var(--ms-pl-dark) 0 1px, var(--ms-pl-lite) 1px 2px); }
+.theme-military .milspec-phase-tag .milspec-phase-time { font: 400 9px/1 'Share Tech Mono', monospace; letter-spacing: 0.06em; color: var(--ms-text-muted); flex: none; }
+.theme-military .milspec-phases-empty { color: var(--ms-text-muted); font-size: 11px; padding: 4px 8px; }
+
+/* ---------- DOCK: BACKUP / RESTORE(mockup .dock 1394-1401) ---------- */
+.theme-military .milspec-dock { flex: none; padding: 10px 13px; display: flex; gap: 10px; }
+.theme-military .milspec-dock button { flex: 1; display: flex; align-items: center; gap: 10px; padding: 3px 2px; cursor: pointer; background: none; border: 0; font-family: inherit; }
+.theme-military .milspec-dock button .tx { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
+.theme-military .milspec-dock button .en { font: 400 12px/1 'Share Tech Mono', monospace; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ms-heading); }
+.theme-military .milspec-dock button .jp { font-size: 9px; color: var(--ms-text-muted); letter-spacing: 0.02em; margin-top: 3px; }
+.theme-military .milspec-dock button svg { width: 20px; height: 20px; flex: none; color: var(--ms-text-sec); }
+.theme-military .milspec-dock button:hover svg, .theme-military .milspec-dock button:hover .en { color: var(--ms-cyan); }
+
+/* ---------- DEPLOYMENT(完全装飾・mockup .deployment 1403-1412) ---------- */
+.theme-military .milspec-deployment { flex: none; display: block; padding: 0; overflow: visible; }
+.theme-military .milspec-deployment-hz { position: relative; height: 9px; }
+.theme-military .milspec-deployment-hz::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: rgba(255,255,255,0.14); }
+.theme-military .milspec-deployment-bd { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 12px; }
+.theme-military .milspec-deployment-bd .mk { width: 38px; height: 38px; flex: none; color: rgba(150,190,205,0.3); filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5)); }
+.theme-military .milspec-deployment-bd .tx { display: flex; flex-direction: column; line-height: 1.45; }
+.theme-military .milspec-deployment-bd .en { font: 400 14px/1 'Share Tech Mono', monospace; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ms-text-sec); }
+.theme-military .milspec-deployment-bd .jp { font-size: 10px; color: var(--ms-text-muted); }
