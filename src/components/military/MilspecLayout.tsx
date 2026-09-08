@@ -5,6 +5,7 @@ import { MilspecSidebar } from './MilspecSidebar';
 import { MilspecToolbar } from './MilspecToolbar';
 import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecFooter } from './MilspecFooter';
+import { MilspecSeam } from './MilspecSeam';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
 import { AetherflowChainPromptModal } from '../AetherflowChainPromptModal';
@@ -39,7 +40,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecChrome />
-      {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)は実装済。seam は Task 8 でプレースホルダのまま。 */}
+      {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)/seam(Task 8)は実装済。 */}
       <div data-ms-zone="header" className="milspec-zone-header">
         <MilspecHeader
           theme={props.theme}
@@ -55,7 +56,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
           onCloseSidebar={props.onCloseSidebar}
         />
       </div>
-      <div data-ms-zone="seam" className="milspec-zone-seam" />
+      <div data-ms-zone="seam" className="milspec-zone-seam"><MilspecSeam /></div>
       <div data-ms-zone="toolbar" className="milspec-zone-toolbar">
         <MilspecToolbar
           partySortOrder={props.partySortOrder}

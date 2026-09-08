@@ -1579,3 +1579,64 @@
   font: 400 9.5px/12px 'Share Tech Mono', monospace; color: #737f89; text-shadow: 0 1px 0 rgba(0,0,0,0.55);
 }
 .theme-military.theme-light .milspec-rc-digits { background: linear-gradient(180deg, #dfe6ec, #edf2f6); color: #2b3a48; text-shadow: 0 1px 0 rgba(255,255,255,0.55); }
+
+/* ============================================================
+ * SP1 Task 8: 構造シーム — サイドバー(可変ハル)と本体(固定ハル)を隔てる溝 + 動力導管
+ * 正典: mockup CSS .seam(254-263)/ .conduit(1710-1789) / DOM(1909 <div class="conduit">)。
+ * ============================================================ */
+
+/* ---------- 溝本体(mockup .seam 254-263)。.milspec-zone-seam(Task 1)を書き換えず、
+   自身を position:absolute; inset:0 で満たす(他ゾーンと同じ手法)。
+   溝の左右の壁のリベットは各ゾーン自身の .milspec-chan::after が担当済み(mockup 側コメント同旨)
+   のため、ここは溝底のグラデーションのみ。 ---------- */
+.theme-military .milspec-seam {
+  position: absolute; inset: 0; z-index: 3;
+  background: linear-gradient(90deg, #04060a 0%, var(--ms-well) 30%, var(--ms-well) 70%, #04060a 100%);
+  box-shadow: inset 7px 0 12px rgba(0,0,0,0.65), inset -7px 0 12px rgba(0,0,0,0.65);
+}
+.theme-military.theme-light .milspec-seam {
+  background: linear-gradient(90deg, #7c8ea0 0%, var(--ms-well) 30%, var(--ms-well) 70%, #7c8ea0 100%);
+}
+
+/* ---------- 動力導管(mockup .conduit 1710-1736)。mockup は `.app` グリッド全体基準の
+   絶対 px 配置(left:296px)だが、SP1 は clamp() ベースの流動幅グリッドのためその値が
+   意味を持たない → `.milspec-seam`(position:relative の親を持つ seam 列自身)を基準にした
+   列内中央寄せ(left:50%; transform:translateX(-50%))に変更する(Task 7 の PCB ハーネスを
+   `.app` 全体基準の絶対配置から専用列内配置へ変更したのと同じ考え方の延長・MilspecSeam.tsx
+   冒頭コメント参照)。蛇腹リング + 円筒シェーディングの3層グラデーションはモック値をそのまま移植、
+   バルクヘッド継手(cd-fit)/P クリップ(cd-clip)/冷却バンド(cd-band)等の付帯装飾サブパーツは
+   凝りすぎない範囲という brief の指示に従い今回は非実装(自己申告・punch-list 候補)。 ---------- */
+.theme-military .milspec-seam-conduit {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 15px;
+  transform: translateX(-50%); z-index: 4; pointer-events: none;
+  background:
+    linear-gradient(90deg,
+      rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.13) 17%, transparent 36%,
+      transparent 52%, rgba(0,0,0,0.17) 68%, rgba(0,0,0,0.64) 100%),
+    repeating-linear-gradient(0deg,
+      rgba(255,255,255,0.15) 0 1.5px,
+      rgba(255,255,255,0.03) 1.5px 3px,
+      rgba(0,0,0,0.07) 3px 4px,
+      rgba(0,0,0,0.4) 4px 5.5px,
+      rgba(0,0,0,0.13) 5.5px 6.5px,
+      rgba(0,0,0,0.02) 6.5px 8px),
+    linear-gradient(90deg,
+      #04070a 0%, #0d131a 8%, #26303a 22%, #454f5a 33%,
+      #626d79 40%, #4b555f 49%, #343d46 63%, #141a20 84%, #04070a 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.35),
+    inset 0 2px 4px rgba(0,0,0,0.6),
+    inset 0 -2px 4px rgba(0,0,0,0.6);
+  filter: drop-shadow(2px 0 3px rgba(0,0,0,0.48)) drop-shadow(-1px 0 2px rgba(0,0,0,0.42));
+}
+.theme-military.theme-light .milspec-seam-conduit {
+  background:
+    linear-gradient(90deg,
+      rgba(40,60,80,0.4) 0%, rgba(40,60,80,0.1) 17%, transparent 36%,
+      transparent 52%, rgba(40,60,80,0.12) 68%, rgba(40,60,80,0.42) 100%),
+    repeating-linear-gradient(0deg,
+      rgba(255,255,255,0.55) 0 1.5px, rgba(255,255,255,0.12) 1.5px 3px,
+      rgba(40,60,80,0.08) 3px 4px, rgba(40,60,80,0.34) 4px 5.5px,
+      rgba(40,60,80,0.12) 5.5px 6.5px, transparent 6.5px 8px),
+    linear-gradient(90deg, #8b98a3 0%, #aab5bf 8%, #cbd4dc 22%, #e9eff3 38%, #f3f6f9 40%, #d6dee4 52%, #b0bbc3 78%, #8b98a3 100%);
+}

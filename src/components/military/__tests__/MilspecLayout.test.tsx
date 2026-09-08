@@ -42,4 +42,27 @@ describe('MilspecLayout', () => {
     const root = container.querySelector('[data-app-shell]') as HTMLElement;
     expect(root.className).toMatch(/milspec-app/); // グリッドは .milspec-app クラス経由（military.css）
   });
+
+  // Task 8: 折りたたみ挙動 + MilspecSeam 配線
+  it('サイドバー畳み時: sidebar ゾーンから data-open が外れる', () => {
+    const { container } = render(
+      <MemoryRouter><MilspecLayout {...baseProps} isSidebarOpen={false}><div /></MilspecLayout></MemoryRouter>
+    );
+    const sb = container.querySelector('[data-ms-zone="sidebar"]')!;
+    expect(sb.hasAttribute('data-open')).toBe(false);
+  });
+
+  it('ヘッダー畳み時: header ゾーンの子孫 .milspec-hdr に data-collapsed が付く', () => {
+    // controller 訂正: data-collapsed は [data-ms-zone="header"] 自身ではなく、
+    // その子孫の MilspecHeader.tsx ルート要素(.milspec-hdr)に付与される(実装確認済み)。
+    const { container } = render(
+      <MemoryRouter><MilspecLayout {...baseProps} isHeaderCollapsed><div /></MilspecLayout></MemoryRouter>
+    );
+    expect(container.querySelector('[data-ms-zone="header"] .milspec-hdr[data-collapsed]')).not.toBeNull();
+  });
+
+  it('seam ゾーンに MilspecSeam が入る', () => {
+    const { container } = renderIt();
+    expect(container.querySelector('[data-ms-zone="seam"] .milspec-seam')).not.toBeNull();
+  });
 });
