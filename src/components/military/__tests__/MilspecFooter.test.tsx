@@ -10,7 +10,7 @@ import { useThemeStore } from '../../../store/useThemeStore';
 beforeEach(() => useThemeStore.setState({ themeStyle: 'military' }));
 
 describe('MilspecFooter', () => {
-  it('著作権・免責・法的リンク・Discord・X・PulseSettings を描画', () => {
+  it('著作権・免責・法的リンク・Discord・X を描画', () => {
     const { container } = render(<MilspecFooter />);
     expect(container.querySelector('a[href="/privacy"]')).toBeNull(); // ドロップダウン閉時は非表示
     expect(container.textContent).toMatch(/SQUARE ENIX/);

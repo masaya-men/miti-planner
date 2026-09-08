@@ -593,6 +593,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 statusOpen={mobileStatusOpen}
                 setStatusOpen={setMobileStatusOpen}
                 localImportProps={{ isOpen: localImportOpen, plans: localImportPlans, onImport: handleLocalImport, onClose: handleLocalImportClose }}
+                isNewUser={isNewUser}
+                showAuthRedirecting={isAuthRedirecting && !justLoggedInUser}
             >
                 {children}
             </MilspecLayout>

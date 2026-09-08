@@ -976,9 +976,12 @@
 .theme-military .milspec-zone-workspace { grid-area: workspace; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
 .theme-military .milspec-zone-footer    { grid-area: footer;    position: relative; }
 
-/* サイドバー畳み: 列幅 0 へ。列は .milspec-app 側で制御(:has で). */
+/* サイドバー畳み: 列幅を 0 ではなく 28px の「レール」に。列は .milspec-app 側で制御(:has で)。
+ * whole-branch レビュー Important#1: 0 にすると折りたたみハンドル(.milspec-sb-collapse・
+ * width:18px; right:8px = 18+8=26px 必要)ごと画面から消え、復元手段が無い「行き止まり」になる。
+ * 28px はハンドルの必要幅に余裕を足した値(標準 Sidebar.tsx の isOpen?300:24 と同じ二層構造)。 */
 .theme-military .milspec-app:has(.milspec-zone-sidebar:not([data-open])) {
-  grid-template-columns: 0 clamp(16px, 1.5vw, 22px) 1fr;
+  grid-template-columns: 28px clamp(16px, 1.5vw, 22px) 1fr;
 }
 
 /* ---------- Task 3: workspace — 装甲板本体 + 沈んだスクリーン
@@ -1247,6 +1250,11 @@
   display: flex; flex-direction: column; gap: 9px;
   padding: 10px 12px 11px 13px;
   overflow: hidden; min-height: 0; height: 100%;
+}
+/* 折りたたみ時(28px レール): 通常の左右パディング(12px/13px)だけでハンドル(18px)が
+ * 収まらないため縮小する(whole-branch レビュー Important#1)。 */
+.theme-military .milspec-zone-sidebar:not([data-open]) .milspec-sb {
+  padding: 10px 4px;
 }
 .theme-military .milspec-sb::before {
   content: ""; position: absolute; left: 0; top: 0; width: 7px; height: 118px;

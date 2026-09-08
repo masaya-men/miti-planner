@@ -1,4 +1,6 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Loader2 } from 'lucide-react';
 import { MilspecChrome } from './MilspecChrome';
 import { MilspecHeader } from './MilspecHeader';
 import { MilspecSidebar } from './MilspecSidebar';
@@ -14,6 +16,7 @@ import { LocalImportDialog } from '../LocalImportDialog';
 import { ShareImportSheet } from '../ShareImportSheet';
 import { LocalDataSafetyAutoPrompt } from '../LocalDataSafetyAutoPrompt';
 import { LimitResolutionSheet } from '../LimitResolutionSheet';
+import { WelcomeSetup } from '../WelcomeSetup';
 
 export interface MilspecLayoutProps {
   children: React.ReactNode;
@@ -31,12 +34,19 @@ export interface MilspecLayoutProps {
   statusOpen: boolean;
   setStatusOpen: (open: boolean) => void;
   localImportProps: { isOpen: boolean; plans: unknown[]; onImport: unknown; onClose: () => void };
+  /** 初回ログイン: ウェルカムセットアップ画面(標準 Layout.tsx:606 と同じ条件で表示)。 */
+  isNewUser: boolean;
+  /** リダイレクト認証中オーバーレイの表示可否。呼び出し側で
+   *  `isAuthRedirecting && !justLoggedInUser` を計算済みの値として渡す
+   *  (justLoggedInUser 自体は型を簡潔にするため MilspecLayout へ渡さない・標準 Layout.tsx:610)。 */
+  showAuthRedirecting: boolean;
 }
 
 /** themeStyle==='military' && PC のときだけ Layout が返す専用シェル。
  *  実行時ホスト(自動保存/collab/データ復旧)は Layout が分岐前に持つ。ここは見た目 + 配線のみ。 */
 export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   const { children, localImportProps } = props;
+  const { t } = useTranslation();
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecChrome />
@@ -79,6 +89,19 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
       <LocalDataSafetyAutoPrompt />
       <LimitResolutionSheet />
       <MilspecTunePanel />
+
+      {/* whole-branch レビュー Important#4: 標準 Layout.tsx:606,610-617 にあった2つの
+          グローバルオーバーレイ(初回ログイン / リダイレクト認証中)が MilspecLayout に
+          無かった不具合の修正。実装は標準 JSX をそのまま再利用。 */}
+      {props.isNewUser && <WelcomeSetup />}
+      {props.showAuthRedirecting && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-app-bg">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 size={28} className="animate-spin text-app-text-muted" />
+            <p className="text-app-2xl font-medium text-app-text-muted">{t('login.authenticating')}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

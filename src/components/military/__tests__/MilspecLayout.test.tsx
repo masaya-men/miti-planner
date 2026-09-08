@@ -13,6 +13,7 @@ const baseProps = {
   onAutoPlan: vi.fn(), onImportLogs: vi.fn(),
   statusOpen: false, setStatusOpen: vi.fn(),
   localImportProps: { isOpen: false, plans: [], onImport: vi.fn(), onClose: vi.fn() },
+  isNewUser: false, showAuthRedirecting: false,
 };
 
 const renderIt = () => render(

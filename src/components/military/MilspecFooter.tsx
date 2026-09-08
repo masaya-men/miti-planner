@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { PulseSettings } from '../PulseSettings';
 import { MilspecHarness } from './svg/MilspecHarness';
 // 副作用 import: i18next の初期化(MilspecSidebar.tsx/MilspecToolbar.tsx と同じ理由 —
 // useTranslation() は initReactI18next 済みインスタンスが無いとキー文字列をそのまま返す)。
@@ -41,10 +40,35 @@ function useCursorCoords() {
 }
 
 /**
+ * カーソル座標の読み取り表示のみを担う小さな子コンポーネント。
+ * whole-branch レビュー Important#3: useCursorCoords はマウス移動中 最大60fps で setState する。
+ * これを MilspecFooter 本体に置いたままだと、約35ノードの MilspecHarness SVG や
+ * フッター全体が毎フレーム再レンダリングされ、Timeline のドラッグ操作と競合してフレーム予算を
+ * 圧迫する。座標を読む状態をこの独立コンポーネントに閉じ込め、再レンダリング範囲をここだけに限定する。
+ */
+const MilspecCursorReadout: React.FC = () => {
+  const coords = useCursorCoords();
+  return (
+    <div className="milspec-rollbank">
+      <div className="milspec-rc">
+        <span className="milspec-rc-k">X</span>
+        <span className="milspec-rc-digits">{Math.round(coords.x).toString().padStart(4, '0')}</span>
+      </div>
+      <div className="milspec-rc">
+        <span className="milspec-rc-k">Y</span>
+        <span className="milspec-rc-digits">{Math.round(coords.y).toString().padStart(4, '0')}</span>
+      </div>
+    </div>
+  );
+};
+
+/**
  * フッター — 情報プレート(fp-info) / PCB ハーネス / 計器プレート(fp-inst)。
  * 正典: docs/.private/theme-refs/milspec-mockup.html DOM 2216-2284+(<footer class="footer chan">) /
  *       CSS .footer 1417- 。
- * 標準の出典: AppFooter.tsx(著作権/免責/法的ドロップダウン/Discord/X/PulseSettings を無変更で再利用)。
+ * 標準の出典: AppFooter.tsx(著作権/免責/法的ドロップダウン/Discord/X を無変更で再利用。
+ * PulseSettings は whole-branch レビュー Important#2 で撤去 — 対象の GridOverlay が
+ * MilspecLayout にマウントされておらず、全操作が無効化された「トリガーだけの空パネル」だったため)。
  *
  * レイアウト上の判断: mockup は grid-template-columns: 2.05fr 1fr(gap 9px)+ ハーネス SVG を
  * 絶対座標(left:876px 等)でプレート間の隙間に重ねる固定 px 技法。SP1 は clamp() ベースの
@@ -79,8 +103,6 @@ export const MilspecFooter: React.FC = () => {
     setLegalOpen((v) => !v);
   };
 
-  const coords = useCursorCoords();
-
   return (
     <div ref={ftrRef} className="milspec-ftr milspec-chan">
       {/* 左: 情報プレート — mockup .fp.fp-info(DOM 2218-2228) */}
@@ -111,8 +133,6 @@ export const MilspecFooter: React.FC = () => {
             <a href="https://x.com/lopoly_app" target="_blank" rel="noopener noreferrer">
               {t('footer.x_official')}
             </a>
-            <span className="sep">·</span>
-            <PulseSettings />
           </div>
         </div>
       </div>
@@ -133,16 +153,7 @@ export const MilspecFooter: React.FC = () => {
         <span className="milspec-sc tr">TLM-04 · REV.C</span>
         <span className="milspec-hazard" style={{ position: 'absolute', left: 0, bottom: 0, width: 16, height: 5, opacity: 0.4 }} />
         <div className="milspec-fp-inst-body">
-          <div className="milspec-rollbank">
-            <div className="milspec-rc">
-              <span className="milspec-rc-k">X</span>
-              <span className="milspec-rc-digits">{Math.round(coords.x).toString().padStart(4, '0')}</span>
-            </div>
-            <div className="milspec-rc">
-              <span className="milspec-rc-k">Y</span>
-              <span className="milspec-rc-digits">{Math.round(coords.y).toString().padStart(4, '0')}</span>
-            </div>
-          </div>
+          <MilspecCursorReadout />
         </div>
       </div>
 

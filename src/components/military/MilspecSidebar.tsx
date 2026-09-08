@@ -177,10 +177,16 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
       >
         {isSidebarOpen ? '‹' : '›'}
       </button>
-      <span className="milspec-sc" style={{ top: 3, right: 14, opacity: 0.35 }}>ENCOUNTER PHASE INDEX · RETRACTABLE</span>
+      {/* whole-branch レビュー Important#1: 折りたたみ時は列幅が 28px の「レール」になり
+          (military.css)、ハンドル以外を描画すると収まらない/はみ出す。標準 Sidebar.tsx の
+          二層構造(外側は閉じても残す・内側の中身はゼロにする)に合わせ、ハンドル以外の
+          全コンテンツを isSidebarOpen のときだけ描画する。 */}
+      {isSidebarOpen && (
+        <>
+          <span className="milspec-sc" style={{ top: 3, right: 14, opacity: 0.35 }}>ENCOUNTER PHASE INDEX · RETRACTABLE</span>
 
-      {/* SCENARIO — mockup .scenario(DOM 1986-2001) */}
-      <div className="milspec-hp milspec-scenario recess stack" style={{ '--ms-sh': 'var(--ms-sh-br)' } as React.CSSProperties}>
+          {/* SCENARIO — mockup .scenario(DOM 1986-2001) */}
+          <div className="milspec-hp milspec-scenario recess stack" style={{ '--ms-sh': 'var(--ms-sh-br)' } as React.CSSProperties}>
         <span className="milspec-ao-mark" /><span className="milspec-grime-mark" />
         <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
         <span className="milspec-sc bl">SCN-01</span>
@@ -343,8 +349,10 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
         </div>
       </div>
 
-      <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />
-      <BackupRestoreModal isOpen={backupRestoreOpen} onClose={() => setBackupRestoreOpen(false)} />
+          <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />
+          <BackupRestoreModal isOpen={backupRestoreOpen} onClose={() => setBackupRestoreOpen(false)} />
+        </>
+      )}
     </aside>
   );
 };

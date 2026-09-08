@@ -9,8 +9,10 @@ import React from 'react';
  * 色は概ねモックの実値のまま。通電トレース起点の circle 2 点のみ、値が --ms-cyan(#82ccdf)と
  * 完全一致するためトークン参照に置換(判断: brief で明示許可された任意置換)。
  * id は他 SVG との衝突を避けるため milspec 接頭に変更(モックは harnessShadow/traceGrad)。
+ * whole-branch レビュー Important#3: props を受け取らない/内容が変わらない純装飾 SVG なので
+ * React.memo でラップし、親(MilspecFooter)の再レンダリング(カーソル座標更新等)から独立させる。
  */
-export const MilspecHarness: React.FC = () => (
+const MilspecHarnessImpl: React.FC = () => (
   <svg
     className="milspec-harness"
     width="92"
@@ -71,3 +73,5 @@ export const MilspecHarness: React.FC = () => (
     </g>
   </svg>
 );
+
+export const MilspecHarness = React.memo(MilspecHarnessImpl);
