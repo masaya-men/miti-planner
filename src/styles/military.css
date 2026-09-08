@@ -1365,3 +1365,115 @@
 .theme-military .milspec-deployment-bd .tx { display: flex; flex-direction: column; line-height: 1.45; }
 .theme-military .milspec-deployment-bd .en { font: 400 14px/1 'Share Tech Mono', monospace; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ms-text-sec); }
 .theme-military .milspec-deployment-bd .jp { font-size: 10px; color: var(--ms-text-muted); }
+
+/* ============================================================
+ * SP1 Task 6: ツールバー — CREW(パーティ編成/設定/ログ取込/その他) /
+ * VIEW(みんなの軽減表/表示メンバー) / SORT(ライト/ロール)
+ * 正典: mockup DOM 2063-2086(<div class="toolbar">) / CSS .toolbar 891-965。
+ * ============================================================ */
+
+/* ---------- ツールバー本体(mockup .toolbar 891-907) ----------
+   .milspec-zone-toolbar(Task 1)を書き換えず、自身を position:absolute; inset:0 で満たす
+   (MilspecHeader.tsx の .milspec-hdr と同じ手法)。 */
+.theme-military .milspec-tb {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; align-items: stretch; gap: 6px; padding: 6px 12px 9px;
+  background: linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised) 55%, var(--ms-raised-lo));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -2px 5px rgba(0,0,0,0.4), var(--ms-zone-edge);
+}
+.theme-military .milspec-tb::before { /* 棚天面の細ヘアライン */
+  content: ""; position: absolute; left: 4px; right: 4px; top: 4px; height: 1px; background: var(--ms-hairline); z-index: 2;
+}
+.theme-military .milspec-tb::after { /* 棚の底: 明るい金属ベベル(mockup #81868b 相当) */
+  content: ""; position: absolute; left: 4px; right: 4px; bottom: 3px; height: 3px;
+  background: linear-gradient(180deg, #8b9197, #6d7379 42%, #33393f 72%, #1c2126);
+  box-shadow: 0 2px 7px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.28); z-index: 2;
+}
+.theme-military .milspec-tb-decal {
+  position: absolute; right: 12px; top: 3px; width: 40px; height: 7px; z-index: 3; pointer-events: none;
+  background-image: repeating-linear-gradient(56deg, var(--ms-stencil) 0 2px, transparent 2px 6px);
+  opacity: 0.4;
+}
+
+/* ---------- 機能クラスタ = 沈んだトレイ(mockup .tb-cluster 908-924) ---------- */
+.theme-military .milspec-tb-cluster {
+  position: relative; display: flex; align-items: stretch; gap: 4px; padding: 5px 7px;
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  border: 1px solid var(--ms-frame); border-top-color: rgba(0,0,0,0.42);
+  box-shadow:
+    inset 0 calc(2px + 3px * var(--ms-tune-relief)) calc(8px * var(--ms-tune-relief)) rgba(0,0,0,0.55),
+    inset 0 calc(1.5px * var(--ms-tune-relief)) 2px rgba(0,0,0,0.55),
+    inset 0 -1px 0 rgba(255,255,255,0.05);
+}
+.theme-military .milspec-tb-cluster::after { /* トレイ底面のスジ彫り(全クラスタ共通・mockup 919-924) */
+  content: ""; position: absolute; left: 6px; right: 6px; bottom: 2px; height: 3px; pointer-events: none; z-index: 1;
+  background: linear-gradient(180deg,
+    rgba(0,0,0,0.5) 0 1px, var(--ms-pl-dark) 1px 2px, rgba(255,255,255, calc(0.09 * var(--ms-tune-panelline))) 2px 3px);
+}
+
+/* ---------- ツールボタン(mockup .tool-btn 925-946)。Party/Config/Popular(みんなの軽減表)は
+   自前ボタンのためモック DOM(bolt tl/br + lamp + icf + lbl en/jp)をそのまま再現する。 ---------- */
+.theme-military .milspec-tool-btn {
+  position: relative; display: flex; align-items: center; gap: 8px; padding: 5px 9px 6px 7px;
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  border: 1px solid var(--ms-frame); border-top-color: var(--ms-edge-hi); border-bottom-color: rgba(0,0,0,0.6);
+  box-shadow: var(--ms-btn-body), 0 1px 0 rgba(0,0,0,0.5);
+  filter: var(--ms-btn-cast);
+}
+.theme-military .milspec-tool-btn .icf { position: relative; width: 22px; height: 22px; flex: none; display: grid; place-items: center; }
+.theme-military .milspec-tool-btn .icf::before,
+.theme-military .milspec-tool-btn .icf::after { content: ""; position: absolute; width: 7px; height: 7px; border: 1.5px solid var(--ms-bracket); }
+.theme-military .milspec-tool-btn .icf::before { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.theme-military .milspec-tool-btn .icf::after  { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+.theme-military .milspec-tool-btn .ico { width: 17px; height: 17px; color: #c3d1dc; }
+.theme-military .milspec-tool-btn .lbl { display: flex; flex-direction: column; line-height: 1.15; max-width: 92px; }
+.theme-military .milspec-tool-btn .lbl .en {
+  font: 700 10px/1 'Rajdhani', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ms-heading);
+}
+.theme-military .milspec-tool-btn .lbl .jp {
+  font-size: 7px; letter-spacing: 0.02em; color: var(--ms-text-muted);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.theme-military .milspec-tool-btn:hover .ico,
+.theme-military .milspec-tool-btn:hover .lbl .en { color: var(--ms-cyan); }
+.theme-military .milspec-tool-btn.active .ico,
+.theme-military .milspec-tool-btn.active .lbl .en { color: var(--ms-cyan); }
+
+/* Import(ImportMenu)/その他(HeaderToolsMenu)/View(PartyVisibilityMenu) — 標準コンポーネント
+   自身が <button> を保有しラベル span を追加できないため、アイコンのみ中央寄せの簡易版で寄せる
+   (MilspecHeader.tsx の LanguageSwitcher ラップと同じ判断。コンポーネント本体は無変更)。 */
+.theme-military .milspec-tool-btn-icon { width: 38px; justify-content: center; padding: 0; }
+.theme-military .milspec-tool-btn-icon svg { width: 17px; height: 17px; color: #c3d1dc; }
+.theme-military .milspec-tool-btn-icon:hover svg { color: var(--ms-cyan); }
+.theme-military .milspec-tool-btn-icon.active svg { color: var(--ms-cyan); }
+
+/* ---------- 中央の装飾スペーサー(mockup .tool-spacer 947-953)。文言は
+   .milspec-sc(Phase 1.3 既存プリミティブ)をそのまま利用、位置は JSX の inline style で指定。 ---------- */
+.theme-military .milspec-tb-spacer { flex: 1; position: relative; }
+.theme-military .milspec-tb-spacer::before {
+  content: ""; position: absolute; left: 6%; right: 6%; top: 50%; height: 1px;
+  background-image: repeating-linear-gradient(90deg, var(--ms-cyan) 0 3px, transparent 3px 8px);
+  opacity: 0.22;
+}
+
+/* ---------- SORT セグメント(mockup .tool-seg 956-964)。milspec-seg クラスは Task 2 で除去済のため、
+   標準 SegmentButton(src/components/ui/SegmentButton.tsx・無変更)自身の Tailwind クラス付き DOM に
+   子孫セレクタで直接寄せる。スライド式インジケーター(内側の絶対配置 div)は不使用にし、
+   アクティブ判定は SegmentButton が付ける 'text-app-toggle-text' クラスの有無で判定する。 ---------- */
+.theme-military .milspec-tb-sort { gap: 3px; align-items: center; }
+.theme-military .milspec-tb-sort > div { position: relative; display: flex; padding: 0; gap: 3px; background: none; border: 0; box-shadow: none; }
+.theme-military .milspec-tb-sort > div > div { display: none; }
+.theme-military .milspec-tb-sort button {
+  padding: 4px 12px; margin: 0; border-radius: 0;
+  font: 700 11px/1.15 'Rajdhani', sans-serif; letter-spacing: 0.04em;
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  border: 1px solid var(--ms-frame); border-top-color: var(--ms-edge-hi); border-bottom-color: rgba(0,0,0,0.6);
+  box-shadow: var(--ms-btn-body), 0 1px 0 rgba(0,0,0,0.5);
+  color: var(--ms-text-sec);
+}
+.theme-military .milspec-tb-sort button[class*="text-app-toggle-text"] {
+  background: linear-gradient(rgba(113,191,227,0.14), rgba(113,191,227,0.14)), #26333d;
+  border-color: var(--ms-cyan);
+  box-shadow: inset 3px 0 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 9px var(--ms-cyan-glow);
+  color: var(--ms-cyan);
+}

@@ -2,6 +2,7 @@ import React from 'react';
 import { MilspecChrome } from './MilspecChrome';
 import { MilspecHeader } from './MilspecHeader';
 import { MilspecSidebar } from './MilspecSidebar';
+import { MilspecToolbar } from './MilspecToolbar';
 import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
@@ -37,7 +38,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecChrome />
-      {/* ゾーン: header(Task 4)/sidebar(Task 5)/workspace(Task 3)は実装済。seam/toolbar/footer は Task 6–8 でプレースホルダのまま。 */}
+      {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)は実装済。seam/footer は Task 7–8 でプレースホルダのまま。 */}
       <div data-ms-zone="header" className="milspec-zone-header">
         <MilspecHeader
           theme={props.theme}
@@ -54,7 +55,16 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
         />
       </div>
       <div data-ms-zone="seam" className="milspec-zone-seam" />
-      <div data-ms-zone="toolbar" className="milspec-zone-toolbar" />
+      <div data-ms-zone="toolbar" className="milspec-zone-toolbar">
+        <MilspecToolbar
+          partySortOrder={props.partySortOrder}
+          setPartySortOrder={props.setPartySortOrder}
+          onAutoPlan={props.onAutoPlan}
+          onImportLogs={props.onImportLogs}
+          statusOpen={props.statusOpen}
+          setStatusOpen={props.setStatusOpen}
+        />
+      </div>
       <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace></div>
       <div data-ms-zone="footer" className="milspec-zone-footer" />
 
