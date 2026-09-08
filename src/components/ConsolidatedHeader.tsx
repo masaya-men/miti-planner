@@ -33,6 +33,7 @@ import { ProgressTrackingHUD } from './progress/ProgressTrackingHUD';
 import { HeaderToolsMenu } from './HeaderToolsMenu';
 import { ImportMenu } from './ImportMenu';
 import { PartyVisibilityMenu } from './PartyVisibilityMenu';
+import { MilspecStyleToggle } from './military/MilspecStyleToggle';
 
 interface ConsolidatedHeaderProps {
     onAutoPlan: () => void;
@@ -304,6 +305,13 @@ export const ConsolidatedHeader: React.FC<ConsolidatedHeaderProps> = ({
                                     }
                                 </button>
                             </Tooltip>
+
+                            {/* MIL-SPEC スタイル切替（WIP: DEV か ?milspec-preview 相当でのみ表示。
+                                SP1 では military 側の入口がこれ1つしか無い — 標準UIから欠けると
+                                誰も MIL-SPEC モードに入れなくなるため撤去しないこと） */}
+                            {(import.meta.env.DEV || (typeof localStorage !== 'undefined' && localStorage.getItem('milspec-preview') === '1')) && (
+                                <MilspecStyleToggle className={clsx(iconBtnBase, iconBtnDefault)} />
+                            )}
 
                             {/* 言語切替 */}
                             <LanguageSwitcher />
