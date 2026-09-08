@@ -7,6 +7,7 @@ import { MitigationSheet } from '../MitigationSheet';
 import { ImportMenu } from '../ImportMenu';
 import { HeaderToolsMenu } from '../HeaderToolsMenu';
 import { PartyVisibilityMenu } from '../PartyVisibilityMenu';
+import { PartyStatusPopover } from '../PartyStatusPopover';
 import type { MilspecLayoutProps } from './MilspecLayout';
 // 副作用 import: i18next の初期化(MilspecSidebar.tsx と同じ理由 — useTranslation() は
 // initReactI18next 済みインスタンスが無いとキー文字列をそのまま返す/依存先が未初期化例外を出す)。
@@ -149,6 +150,11 @@ export const MilspecToolbar: React.FC<MilspecToolbarProps> = (props) => {
         onClose={() => setIsMitiSheetOpen(false)}
         currentContentId={currentContentId}
       />
+
+      {/* 設定(Config)ボタンの開閉対象。Fix round 1: トリガーだけでなく開閉先の UI も完成させる
+          (Popular ボタンの isMitiSheetOpen + MitigationSheet と同じ「trigger + content」判断基準)。
+          createPortal で document.body 直下へレンダリングされるため、JSX 上の位置は表示に影響しない。 */}
+      <PartyStatusPopover isOpen={statusOpen} onClose={() => setStatusOpen(false)} />
     </div>
   );
 };

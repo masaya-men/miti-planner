@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
+import { useState } from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, fireEvent, within } from '@testing-library/react';
+import { render, fireEvent, within, waitFor } from '@testing-library/react';
 import { MilspecToolbar } from '../MilspecToolbar';
 
 const props = {
@@ -8,6 +9,14 @@ const props = {
   onAutoPlan: vi.fn(), onImportLogs: vi.fn(), statusOpen: false, setStatusOpen: vi.fn(),
 };
 beforeEach(() => vi.clearAllMocks());
+
+// Fix round 1: statusOpen は MilspecToolbar 内部 state ではなく親から渡される制御 prop のため、
+// 実クリック→実際に PartyStatusPopover が開くことを検証するには本物の state を持つラッパーが要る
+// (setStatusOpen が vi.fn() のままだと再レンダリングが起きず、見た目上「開かない」ため)。
+function ToolbarWithRealState() {
+  const [statusOpen, setStatusOpen] = useState(false);
+  return <MilspecToolbar {...props} statusOpen={statusOpen} setStatusOpen={setStatusOpen} />;
+}
 
 // CREW クラスタ(1つ目の .milspec-tb-cluster)に絞って探す。brief記載のテストコードに対する
 // 必要な補正(MilspecSidebar.test.tsx の MemoryRouter 追加と同種): VIEW クラスタの
@@ -32,5 +41,13 @@ describe('MilspecToolbar', () => {
     const { getByText } = render(<MilspecToolbar {...props} />);
     fireEvent.click(getByText(/ロール/));
     expect(props.setPartySortOrder).toHaveBeenCalledWith('role');
+  });
+  it('【Fix round 1】設定ボタンクリックで PartyStatusPopover が実際に開く', async () => {
+    const { container } = render(<ToolbarWithRealState />);
+    expect(document.body.textContent).not.toContain('コンテンツ挑戦当時のステータス');
+    fireEvent.click(crewOf(container).getByRole('button', { name: /設定|config/i }));
+    await waitFor(() => {
+      expect(document.body.textContent).toContain('コンテンツ挑戦当時のステータス');
+    });
   });
 });
