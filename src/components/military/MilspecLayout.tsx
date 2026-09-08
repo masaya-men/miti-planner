@@ -1,5 +1,6 @@
 import React from 'react';
 import { MilspecChrome } from './MilspecChrome';
+import { MilspecHeader } from './MilspecHeader';
 import { MilspecWorkspace } from './MilspecWorkspace';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
@@ -35,8 +36,15 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecChrome />
-      {/* ゾーン: Task 3–8 で中身を実装。今はプレースホルダ。 */}
-      <div data-ms-zone="header" className="milspec-zone-header" />
+      {/* ゾーン: header(Task 4)/workspace(Task 3)は実装済。sidebar/seam/toolbar/footer は Task 5–8 でプレースホルダのまま。 */}
+      <div data-ms-zone="header" className="milspec-zone-header">
+        <MilspecHeader
+          theme={props.theme}
+          onToggleTheme={props.onToggleTheme}
+          isHeaderCollapsed={props.isHeaderCollapsed}
+          setIsHeaderCollapsed={props.setIsHeaderCollapsed}
+        />
+      </div>
       <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined} />
       <div data-ms-zone="seam" className="milspec-zone-seam" />
       <div data-ms-zone="toolbar" className="milspec-zone-toolbar" />

@@ -4,6 +4,7 @@ import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { MilspecLayout } from '../MilspecLayout';
 import { useThemeStore } from '../../../store/useThemeStore';
+import { TransitionOverlayProvider } from '../../ui/TransitionOverlay';
 
 const baseProps = {
   isSidebarOpen: true, onToggleSidebar: vi.fn(), onCloseSidebar: vi.fn(),
@@ -15,8 +16,10 @@ const baseProps = {
   localImportProps: { isOpen: false, plans: [], onImport: vi.fn(), onClose: vi.fn() },
 };
 
+// Task 4: MilspecHeader が LanguageSwitcher / MilspecStyleToggle 経由で useTransitionOverlay() に
+// 依存するようになった(本番は App.tsx 直下の TransitionOverlayProvider が既に包んでいる)。
 const renderIt = () => render(
-  <MemoryRouter><MilspecLayout {...baseProps}><div data-testid="child">TIMELINE</div></MilspecLayout></MemoryRouter>
+  <MemoryRouter><TransitionOverlayProvider><MilspecLayout {...baseProps}><div data-testid="child">TIMELINE</div></MilspecLayout></TransitionOverlayProvider></MemoryRouter>
 );
 
 describe('MilspecLayout', () => {
