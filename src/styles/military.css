@@ -1477,3 +1477,105 @@
   box-shadow: inset 3px 0 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 9px var(--ms-cyan-glow);
   color: var(--ms-cyan);
 }
+
+/* ============================================================
+ * SP1 Task 7: フッター — 情報プレート(fp-info) / PCB ハーネス / 計器プレート(fp-inst)
+ * 正典: mockup DOM 2216-2284+(<footer class="footer chan">) / CSS .footer 1417- 。
+ * ============================================================ */
+
+/* ---------- フッター本体(mockup .footer 1417-1425)。.milspec-zone-footer(Task 1)を
+   書き換えず、自身を position:absolute; inset:0 で満たす(他ゾーンと同じ手法)。
+   列構成: mockup は 2.05fr / 1fr(gap 9px)+ ハーネス SVG を絶対座標でプレート間の隙間へ
+   重ねる固定 px 技法。SP1 の clamp() ベース流動幅グリッドではその px 値が意味を持たないため、
+   ハーネス専用の固定 92px 中央列を足した 3 列グリッドに置き換える(MilspecFooter.tsx 冒頭コメント参照)。 ---------- */
+.theme-military .milspec-ftr {
+  position: absolute; inset: 0; z-index: 5;
+  display: grid; grid-template-columns: 2.05fr 92px 1fr; gap: 9px;
+  padding: 8px 13px 9px;
+  background: linear-gradient(180deg, #1b232d, #131a22);
+  box-shadow: 0 -6px 16px rgba(0,0,0,0.3), inset 0 3px 12px rgba(0,0,0,0.5), var(--ms-zone-edge);
+}
+.theme-military .milspec-ftr::before {
+  content: ""; position: absolute; left: 5px; right: 5px; top: 3px; height: 1px;
+  background: rgba(150,190,205,0.22); z-index: 2;
+}
+
+/* ---------- フッタープレート = .milspec-hp(Phase1.3 共通プリミティブ)を列方向に切り替える
+   薄い修飾クラス(mockup .fp 1428-1444。.hp とほぼ同一の見た目のため独自ルールセットを
+   複製せず、レイアウト差分(縦積み)だけ上書きする)。 ---------- */
+.theme-military .milspec-fp {
+  flex-direction: column; align-items: stretch; justify-content: center; gap: 5px;
+  padding: 8px 16px; overflow: hidden;
+}
+.theme-military .milspec-fp-info .milspec-grime-mark { z-index: 1; }
+
+/* --- 情報プレート中身(mockup .fp-title/.fp-rule/.finfo 1448-1457) --- */
+.theme-military .milspec-fp-title { display: flex; align-items: baseline; gap: 10px; }
+.theme-military .milspec-fp-title b { font: 700 12px/1 'Orbitron', sans-serif; letter-spacing: 0.08em; color: var(--ms-text-sec); }
+.theme-military .milspec-fp-title span { font: 400 6.5px/1 'Share Tech Mono', monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ms-text-muted); opacity: 0.75; }
+.theme-military .milspec-fp-rule { height: 2px; margin: 1px 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.5) 0 1px, rgba(255,255,255,0.05) 1px 2px); opacity: 0.7; }
+.theme-military .milspec-finfo { display: flex; flex-direction: column; gap: 2px; font: 400 7.5px/1.95 'Share Tech Mono', monospace; color: var(--ms-text-muted); letter-spacing: 0.02em; }
+.theme-military .milspec-finfo .c { color: var(--ms-text-sec); }
+.theme-military .milspec-finfo a,
+.theme-military .milspec-finfo button {
+  color: var(--ms-text-sec); text-decoration: none; opacity: 0.85; background: none; border: 0; padding: 0;
+  font: inherit; letter-spacing: inherit; cursor: pointer;
+}
+.theme-military .milspec-finfo a:hover,
+.theme-military .milspec-finfo button:hover { color: var(--ms-stencil); opacity: 1; }
+.theme-military .milspec-finfo .sep { opacity: 0.3; margin: 0 6px; }
+
+/* --- 法的ドロップダウンパネル — fp-info(clip-path 持ち)の外(.milspec-ftr 直下)に置く
+   (MilspecFooter.tsx 冒頭コメント参照)。トリガーボタンの実測位置を反映した left/bottom を
+   インライン style で受け取る。 --- */
+.theme-military .milspec-fp-legal {
+  position: absolute; z-index: 999; min-width: 200px; padding: 6px 0;
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  border: 1px solid var(--ms-frame); border-top-color: var(--ms-edge-hi);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.theme-military .milspec-fp-legal a {
+  display: block; padding: 7px 14px; white-space: nowrap;
+  font: 400 10px/1.3 'Share Tech Mono', monospace; letter-spacing: 0.04em;
+  color: var(--ms-text-sec); text-decoration: none;
+}
+.theme-military .milspec-fp-legal a:hover { color: var(--ms-cyan); background: var(--ms-cyan-dim); }
+
+/* ---------- 中央: PCB ハーネス列(MilspecHarness.tsx) ---------- */
+.theme-military .milspec-fp-harness {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  pointer-events: none; z-index: 6;
+}
+
+/* ---------- 右: 計器プレート(mockup .fp-inst 1461- / .ilbl 1462-1468 / .ticks 1561-1562) ----------
+   タービン/ファンクラスタ・トラッキングレティクル・スキャン数値等の純装飾サブパーツは
+   spec §5.7 が要求する要素(Telemetry 計器 + カーソル座標)の範囲外として本タスクでは未実装
+   (自己申告・punch-list 候補。理由は MilspecFooter.tsx 内コメント参照)。 ---------- */
+.theme-military .milspec-fp-inst { justify-content: center; align-items: center; gap: 0; padding: 6px 14px 6px 16px; }
+.theme-military .milspec-ilbl {
+  position: absolute; top: 6px; bottom: 6px; left: 5px; z-index: 3;
+  display: flex; align-items: center; justify-content: center;
+  writing-mode: vertical-rl; text-orientation: mixed;
+  font: 400 5.5px/1 'Share Tech Mono', monospace; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--ms-text-muted); opacity: 0.4; border-right: 1px solid rgba(255,255,255,0.04);
+}
+.theme-military .milspec-ticks { position: absolute; right: 12px; top: 10px; bottom: 10px; width: 5px; opacity: 0.5;
+  background-image: repeating-linear-gradient(180deg, rgba(160,195,210,0.28) 0 1px, transparent 1px 5px); }
+.theme-military .milspec-fp-inst-body { display: flex; align-items: center; gap: 14px; margin-left: 12px; }
+
+/* --- 座標計器(rollbank)。mockup 側はアナログ回転ドラム(.rc-digits/.rc-d/.rc-strip)だが、
+   カーソル座標の値は「動いた時だけ・低頻度」で更新する契約(brief 指定)のため、
+   回転物理演出までは実装せず沈んだデジタル窓の見た目のみ再現する(自己申告の簡略化判断)。 --- */
+.theme-military .milspec-rollbank { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.theme-military .milspec-rc { display: flex; align-items: center; gap: 7px; }
+.theme-military .milspec-rc-k { width: 8px; flex: none; text-align: right;
+  font: 400 7px/1 'Share Tech Mono', monospace; letter-spacing: 0.06em; color: var(--ms-text-muted); opacity: 0.42; }
+.theme-military .milspec-rc-digits {
+  display: inline-block; padding: 2px 5px; min-width: 34px; text-align: right;
+  background: linear-gradient(180deg, #04070a, #090d12);
+  border: 1px solid; border-color: var(--ms-cs-t) var(--ms-cs-r) var(--ms-cs-b) var(--ms-cs-l);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.85), inset 0 -1px 2px rgba(0,0,0,0.7), 0 1px 0 rgba(255,255,255,0.04);
+  font: 400 9.5px/12px 'Share Tech Mono', monospace; color: #737f89; text-shadow: 0 1px 0 rgba(0,0,0,0.55);
+}
+.theme-military.theme-light .milspec-rc-digits { background: linear-gradient(180deg, #dfe6ec, #edf2f6); color: #2b3a48; text-shadow: 0 1px 0 rgba(255,255,255,0.55); }

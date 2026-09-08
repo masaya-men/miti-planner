@@ -4,6 +4,7 @@ import { MilspecHeader } from './MilspecHeader';
 import { MilspecSidebar } from './MilspecSidebar';
 import { MilspecToolbar } from './MilspecToolbar';
 import { MilspecWorkspace } from './MilspecWorkspace';
+import { MilspecFooter } from './MilspecFooter';
 import { MilspecTunePanel } from '../dev/MilspecTunePanel';
 import { RenderPendingIndicator } from '../RenderPendingIndicator';
 import { AetherflowChainPromptModal } from '../AetherflowChainPromptModal';
@@ -38,7 +39,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
   return (
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecChrome />
-      {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)は実装済。seam/footer は Task 7–8 でプレースホルダのまま。 */}
+      {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)は実装済。seam は Task 8 でプレースホルダのまま。 */}
       <div data-ms-zone="header" className="milspec-zone-header">
         <MilspecHeader
           theme={props.theme}
@@ -66,7 +67,7 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
         />
       </div>
       <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace></div>
-      <div data-ms-zone="footer" className="milspec-zone-footer" />
+      <div data-ms-zone="footer" className="milspec-zone-footer"><MilspecFooter /></div>
 
       {/* PC グローバルオーバーレイ(自己ゲート型・非アクティブ時 null)。標準 JSX からは移動しない。 */}
       <RenderPendingIndicator />
