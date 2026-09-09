@@ -394,3 +394,80 @@ fixture では inner 幅 1432 > outer 1155 = 内容が横あふれ（scroll 同�
 - **light**: recess トグルとプレートのコントラストが低い（mockup light `--recess-*` も同傾向）。
   「破綻しない」レベル確認済・最終調整は SP2 後。dark 固定 hex（ランプ 3 色・ON グラデの重い黒）は
   `.theme-military.theme-light` で上書き済。
+
+---
+
+## Task 6 — 軽減バー（工業パイプ） + アイコンチップ + ジョブチップ `.cj`（zone: `mitbar` / `jobchips`）
+
+### 製品コード変更（inert フックのみ・spec §3.3(c)）
+
+`MitigationItem`（`Timeline.tsx`）に **値なし** `data-*` を 2 個:
+- 効果棒 div（`mitigation.duration > 1` の `<div className="absolute top-3 w-1.5 ... border-x pointer-events-auto cursor-pointer" + colors.bg/border/shadow>`・~620）→ `data-mit-bar=""`
+- 24px アイコン枠の **内側** div（`<div className="w-full h-full bg-black/50 overflow-hidden rounded border border-app-border ...">`・~569。虚アイテム時は `bg-transparent border-none shadow-none` が付く）→ `data-mit-icon=""`
+
+`MitigationItem` は **非 export**（`const MitigationItem = React.memo(...)`）→ vitest は `<Timeline>` を happy-dom で実 render し、fixture（プラン選択済 + war ジョブ MT + `duration>1` の軽減 1 個）で `[data-mit-bar]` / `[data-mit-icon]` を `querySelector`（`src/components/__tests__/MitigationItem.milspec.test.tsx`）。firebase/auth・firestore・app-check は最小スタブ（Proxy）でモック、i18n はスタブ。実 `MitigationItem` の出力を検証（コンポーネント自体はモックしない）。
+
+### 標準不変（`standard-invariance.mjs`）
+
+`data-mit-bar` / `data-mit-icon` は骨格正規化が data 属性名を拾うため **ベースライン差分あり**。
+差分の内訳（`--save` 前に確認・quote は task-6-report.md）:
+- 骨格 **2620 行 → 2620 行**（不変）・`rows 31` / `vScrollbar 0` 不変・rect 差分 0・class/順序 変化なし。
+- 変わった行 = fixture の軽減 7 個ぶんの `div` → `div [data-mit-icon=]`（icon 枠）と `div` → `div [data-mit-bar=]`（効果棒）**のみ**（dark/light 各 14 行）。
+→ spec §3.3(c)「inert な `data-*`（標準 CSS が拾わない）」に該当 → `--save` で再ベースライン。
+
+### ロール色マップ（`getMitigationColorClasses` Timeline.tsx:140-203 の実戻り値）
+
+| ロール / 状況 | `colors.bg` クラス | `--ms-mb-col` |
+|---|---|---|
+| tank（pld/war/drk/gnb） | `bg-blue-500/80` | `--ms-cyan` |
+| healer（whm/sch/ast/sge） | `bg-green-500/80` | `--ms-green` |
+| melee dps（mnk/drg/nin/sam/rpr/vpr） | `bg-red-500/80` | `--ms-orange` |
+| ranged dps（brd/mch/dnc/blm/smn/rdm/pct） | `bg-orange-500/80` | `--ms-orange` |
+| light_party MT グループ（MT/H1/D1/D3） | `bg-cyan-500/80` | `--ms-cyan` |
+| light_party OT グループ | `bg-amber-500/80` | `--ms-orange` |
+| ジョブ無し / 不明 | `bg-slate-400/80` | `--ms-text-muted`（glow なし） |
+
+属性 2 個セレクタ `[data-mit-bar][class~="bg-blue-500/80"]`（`[class~=]` = escape 不要・Task 5 `.cb-div` と同方式）で `--ms-mb-col` / `--ms-mb-glow` を分岐。棒の `colors.bg` 実色は base ルール `.theme-military .milspec-app [data-mit-bar]`（specificity (0,3,0) > utility (0,1,0)）が `background` 上書きで隠す。**`!important` 不使用**（Task 5 と同じ）。
+
+### `.cj` を実測対象に触れずに適用
+
+`JobPickerRow.tsx:47-58` の外側 `[data-member-id]` は `useMeasuredMemberLayout`（`Timeline.layoutHooks.ts:38`）が `offsetLeft + computed(paddingLeft)` と `offsetWidth` を読んで**全軽減バーの列 x**を決める → 幅・padding・border 幅は不変。
+- 内側の `<div className="flex items-center justify-center w-full h-full rounded cursor-pointer ...">`（`:74`）を `[class~="cursor-pointer"]` で拾い、`border: 1px` の 4 色面取り + 金属グラデ + `0 0 0 1px --ms-cham-silhouette`。`box-sizing:border-box` + `w-full h-full` なので **外側の box は不変**（内側の content が 2px 縮むだけ・24px 固定アイコンには影響なし）。
+- 外側 `[data-member-id]` は既存 `border-r` の**色のみ** `--ms-cham-silhouette` へ（幅不変）。
+- `military-smoke` step 8（横スクロール同期）/ step 2（ドラッグ）で列 x 不変を確認（PASS）。
+
+### 視覚突き合わせ（`compare.mjs mitbar` / `compare.mjs jobchips` + 4x DPR 接写）
+
+`compare.mjs` ZONES 更新: `mitbar` app = `[data-mit-bar]`（`captureApp` が hideEmptyRows OFF にして背の高い棒 1 本の container を clip 接写）/ `jobchips` app = `#timeline-controls-inner [data-member-id]`（8 セルを束ねた矩形を clip）。
+
+反復:
+1. スターター CSS（プラン Step 5/6/7 の値）→ 効果棒の金属管シェーディングが 6px 幅 + dark-on-dark で埋没、ID 帯の glow だけが見える。
+2. 是正: 棒グラデを明るく強コントラストへ（`#10151a → #505c68 → #10151a`）+ `inset 1px 0 0 rgba(255,255,255,0.12)`（左受光）/ `inset -1px 0 0 rgba(0,0,0,0.6)`（右陰）で管の丸みを出す。border-x の色を `#05080b` に。フランジを 12×5px・上辺ハイライト付きに。light も同構造で淡色化。
+3. 4x DPR 接写で確認: icon チップ枠（面取り + 影 + 角丸 1px）✓ / 効果棒 = 左受光 + 右陰 + シアン発光コア ✓ / 下端フランジ（小さい金属キャップ・上辺明）✓ / ジョブチップ = 4 色面取り + 金属グラデ + 実ジョブアイコン ✓（computed style で `--ms-cr-t/l/r/b` の 4 色を確認）。
+
+最終所見（4 チェック）:
+| # | チェック | 判定 |
+|---|---|---|
+| 1 | 効果棒 = 工業パイプ（金属管シェーディング + 中心ロール色 ID 帯 + 下端フランジ） | ✓ 3 要素とも描画。管シェーディングは 8px 幅ゆえ控えめ（mockup の 6px も同傾向） |
+| 2 | アイコン = 金属チップ枠（面取り + 影） | ✓ `--ms-cr-*` の上下左右ベベル + `--ms-cham-silhouette` + `0 1px 2px` 落ち影・角丸 1px |
+| 3 | 競合中の軽減は琥珀リング（機能色・不変） | ✓ リング（`ring-2 ring-amber-400`）は **外側** div にあり CSS は内側 `[data-mit-icon]` のみ触るので不変（fixture に競合無し・構造で確認） |
+| 4 | ジョブチップ = 面取り 4 色ボーダー + 実ジョブアイコン | ✓ 内側 `.cursor-pointer` div に 4 色面取り + 金属グラデ・実 FFXIV アイコン維持 |
+
+### 残差（→ Task 10 masaya / SP2 後の統一調整）
+
+- **`.mit-lbl` のジョブコードテキストは不採用**（spec §13・SP2 後判断）。実 DOM は 24px スキルアイコン +
+  ターゲットジョブバッジ。mockup の「小さい dark ラベルチップ + テキスト」は入れず、既存アイコンを
+  金属チップ枠化するに留めた。
+- **効果棒の実効幅 8px（`w-1.5` 6px + `border-x` 1px×2）vs mockup 6px**: `border-x` を消すと棒自身の
+  中央寄せ計算（`transform: translateX(-50%)` + `left: calc(50% + overlapOffset)`）がずれるため撤去不可
+  （Global Constraint）。金属管シェーディングは幅ぶん控えめ。
+- **ジョブチップが列幅いっぱい（53〜151px）vs mockup 27×17 の小チップ**: 外側 `[data-member-id]` は
+  実測対象で幅を変えられない。内側 `.cursor-pointer`（`w-full h-full`）に面取り + グラデを載せた結果、
+  隣接チップの境界が密着し「連続した縞バー」寄りに見える（Task 4 のヘッダータイルと同じ密度感）。
+  `--ms-cham-silhouette` の外側 1px 影で個々のタイルは分離して読める。masaya が「チップ間ギャップ」を
+  望むなら Task 10（内側に margin を付けると `w-full` で右にオーバーフローするので別手法が要る）。
+- **ジョブチップ上端の細い青線**: 外側セルの既存 `shadow-[inset_0_1px_0_rgba(37,99,235,0.5)]`
+  （tank=青 / healer=緑 / dps=赤・ロールインジケータ）。mockup の `.role-tag` と同種の機能色なので残置。
+- **light**: 金属グラデ / 重い黒 rgba を淡い金属グレー（`#7c8794`〜`#d4dce3` 等）へ上書き済。
+  「破綻しない」レベル・最終調整は SP2 後。`--ms-cr-*` / `--ms-cham-silhouette` は dark/light 両定義済で
+  面取りは自動追従。

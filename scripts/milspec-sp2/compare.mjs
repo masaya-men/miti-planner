@@ -38,9 +38,12 @@ const ZONES = {
   header: { mock: '.thead', app: '#timeline-header-inner', outer: true },
   recast: { mock: '.recast-row', app: '[data-milspec-recast-band]' },
   tbody: { mock: '.tbody', app: '.timeline-scroll-container' },
-  mitbar: { mock: '.tbody', app: '.timeline-scroll-container' },
+  // Task 6: mit-bar/mit-icon の意匠は 6px 幅の細片なので、全体表ではなく MitigationItem 1 個
+  // (icon チップ + 効果棒パイプ) を接写する。captureApp が clip を自前計算する。
+  mitbar: { mock: '.tbody', app: '[data-mit-bar]' },
   workspace: { mock: '.workspace', app: '.milspec-ws' },
-  jobchips: { mock: '.subtoolbar .cb-e', app: '#timeline-controls-inner' },
+  // Task 6: ジョブチップ .cj = JobPickerRow の各セル。8 セルを束ねた矩形を clip で撮る。
+  jobchips: { mock: '.subtoolbar .cb-e', app: '#timeline-controls-inner [data-member-id]' },
   scrollbar: { mock: '.tbody', app: '.timeline-scroll-container' },
   // Task 2: 端末キャップ + ROSTER ノート。cap/note は右端に絶対配置された小片なので、
   // 位置・帯幅・文字サイズ・不透明度を「表に対して」評価できるよう装甲板ごと撮る
@@ -130,6 +133,74 @@ async function captureApp(zone, cfg) {
       });
     }
     await page.waitForTimeout(300);
+
+    // Task 6: mitbar / jobchips は「対象要素群を束ねた矩形」を clip で撮る接写。
+    if (zone === 'mitbar' || zone === 'jobchips') {
+      const outPath = join(COMPARE_DIR, `${zone}-app.png`);
+      if (zone === 'mitbar') {
+        // mockup .tbody は非コンパクト(全行展開)で効果棒が effect 時間ぶんの高さで伸びる。
+        // 実アプリの既定は hideEmptyRows=true で棒が 24px に潰れるため、突き合わせ用に展開する。
+        await page.evaluate(async () => {
+          const { useMitigationStore } = await import('/src/store/useMitigationStore.ts');
+          const s = useMitigationStore.getState();
+          if (s.hideEmptyRows) s.setHideEmptyRows(false);
+          await new Promise((r) => setTimeout(r, 400));
+        });
+        // いちばん背の高い効果棒(vengeance 等)を選び、その MitigationItem container 上端が
+        // viewport 上部に来るよう縦スクロール(fixture の軽減は全て fold 下)。
+        await page.evaluate(async () => {
+          const sc = document.querySelector('.timeline-scroll-container');
+          const bars = Array.from(document.querySelectorAll('[data-mit-bar]'));
+          let best = null;
+          let bestH = -1;
+          for (const b of bars) {
+            const h = parseFloat(b.style.height || '0') || b.getBoundingClientRect().height;
+            if (h > bestH) { bestH = h; best = b; }
+          }
+          const cont = best && best.parentElement;
+          const top = cont ? parseFloat(cont.style.top || '0') || 0 : 0;
+          if (cont) cont.setAttribute('data-mitbar-probe', '1');
+          if (sc) sc.scrollTo({ top: Math.max(0, top - 24), left: 0 });
+          await new Promise((r) => setTimeout(r, 500));
+        });
+      }
+      const clip = await page.evaluate((z) => {
+        if (z === 'mitbar') {
+          const cont = document.querySelector('[data-mitbar-probe]');
+          const bar = cont && cont.querySelector('[data-mit-bar]');
+          if (!cont || !bar) return null;
+          const cb = cont.getBoundingClientRect();
+          const bb = bar.getBoundingClientRect();
+          const padX = 20;
+          const x = Math.max(0, Math.min(cb.left, bb.left) - padX);
+          const y = Math.max(0, cb.top - 16);
+          const right = Math.max(cb.right, bb.right) + padX;
+          const bottom = Math.min(bb.bottom + 12, 892); // viewport(900) 内にクランプ
+          return { x, y, width: right - x, height: Math.max(2, bottom - y) };
+        }
+        const nodes = Array.from(document.querySelectorAll('#timeline-controls-inner [data-member-id]'));
+        if (!nodes.length) return null;
+        const rects = nodes.map((n) => n.getBoundingClientRect());
+        const pad = 4;
+        const x = Math.max(0, Math.min(...rects.map((r) => r.left)) - pad);
+        const y = Math.max(0, Math.min(...rects.map((r) => r.top)) - pad);
+        const right = Math.max(...rects.map((r) => r.right)) + pad;
+        const bottom = Math.max(...rects.map((r) => r.bottom)) + pad;
+        return { x, y, width: right - x, height: bottom - y };
+      }, zone);
+      if (!clip || clip.width < 2 || clip.height < 2) {
+        console.warn(`  ! ${zone}: clip 矩形を計算できない — スキップ`);
+        return null;
+      }
+      await page.screenshot({ path: outPath, clip });
+      console.log(`  ✓ ${outPath}  (${Math.round(clip.width)}x${Math.round(clip.height)} clip)`);
+      if (rec.fatal.length) {
+        console.warn(`  ! アプリ側で非 whitelist の console/pageerror ${rec.fatal.length} 件 (compare は継続):`);
+        for (const l of rec.fatal.slice(0, 5)) console.warn('    ' + l);
+      }
+      return outPath;
+    }
+
     const out = await shot(page, cfg.app, join(COMPARE_DIR, `${zone}-app.png`), { outer: cfg.outer });
     if (rec.fatal.length) {
       console.warn(`  ! アプリ側で非 whitelist の console/pageerror ${rec.fatal.length} 件 (compare は継続):`);
