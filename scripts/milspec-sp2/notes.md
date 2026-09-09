@@ -614,9 +614,26 @@ Task 7 で deps を `[isMilspecTable]` 化済）が新規マウントで発火�
     paddingRight が ±1.5px で一致することを hard assert。
 - `npm run build`: exit 0。
 
-### 視覚突き合わせ（Step 8）
+### 視覚突き合わせ（Step 8・headed 実 Chrome）
 
-（下記「視覚突き合わせ結果」に追記）
+`compare.mjs scrollbar` を **headed 実 Chrome**（`_fixture.mjs launch({ headed:true })` →
+`chromium.launch({ headless:false, channel:'chrome' })`）で撮影。
+**この環境では headed Chrome が `::-webkit-scrollbar` を描画した**（実測縦バー幅 14px）。
+= 「実機確認待ち・Task 10 で必ず確認」ではなく、headed で意匠を確認できた。
+
+- ゾーン矩形: ヘッダー外枠 top 〜 scroll container bottom の右端 60px を縦ストリップ clip
+  （mock は `.table` の右端 60px）。
+- app 側スクショ（`scrollbar-app.png`）で確認:
+  1. **縦バー = 目盛り（minor 6px シアン細線 + major 24px 明線）+ ブラシメタルの thumb**。
+     thumb は上部に金属の照りの帯として描画。hover でシアン（スクショは非hover）。→ mock `.tbody` と一致。
+  2. **横バー = 同意匠を 90°**。strip 下端にシアンの縦目盛り + 金属 thumb。→ mock `.ws-screen` と一致。
+  3. **ヘッダー / リキャスト帯の右端キャップとバー目盛りが縦に連続**。シアンの目盛りが
+     ヘッダー帯（上 40px）→ リキャスト帯（次 38px）→ 稼働バーへ切れ目なく続く。
+     ピッチは `--ms-gauge-ticks` 共有で一致。位相の微差は Task 10（下記残差）。
+  4. **サイドバー**（`_probe-sidebar` で `.milspec-tree-scroll` を 160px に絞り headed 撮影）:
+     10px 幅・同じブラシメタル thumb + 目盛り。→ mock `.phases` と一致。
+- mock 側の目盛りは app よりやや淡く見えるが、rgba 値（0.22 / 0.42）は同一。
+  app の track 背面（`.timeline-scroll-container` の濃い金属地）で目盛りが映えているだけ。破綻なし。
 
 ### 残差（→ Task 10 masaya / SP2 後）
 

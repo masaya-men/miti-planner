@@ -44,7 +44,10 @@ const ZONES = {
   workspace: { mock: '.workspace', app: '.milspec-ws' },
   // Task 6: ジョブチップ .cj = JobPickerRow の各セル。8 セルを束ねた矩形を clip で撮る。
   jobchips: { mock: '.subtoolbar .cb-e', app: '#timeline-controls-inner [data-member-id]' },
-  scrollbar: { mock: '.tbody', app: '.timeline-scroll-container' },
+  // Task 8: 計器スクロールバー。::-webkit-scrollbar は headless 非描画 → headed 実 Chrome で撮る。
+  // 「ヘッダー目盛りキャップ → リキャスト帯キャップ → 稼働バー」が縦に連続する右端の柱を
+  // 縦ストリップで clip する。captureMock/captureApp が専用ロジックで矩形を計算する。
+  scrollbar: { mock: '.table', app: '.timeline-scroll-container', headed: true },
   // Task 2: 端末キャップ + ROSTER ノート。cap/note は右端に絶対配置された小片なので、
   // 位置・帯幅・文字サイズ・不透明度を「表に対して」評価できるよう装甲板ごと撮る
   // (mock .workspace / app .milspec-ws)。要素単体だと 14px の帯や極小テキストしか写らない。
@@ -74,7 +77,7 @@ async function shot(page, selector, outPath, { outer = false } = {}) {
 }
 
 async function captureMock(zone, cfg) {
-  const { browser, page } = await launch({ theme: 'dark' });
+  const { browser, page } = await launch({ theme: 'dark', headed: !!cfg.headed });
   try {
     await page.goto(pathToFileURL(MOCKUP_PATH).href, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(600);
@@ -89,6 +92,27 @@ async function captureMock(zone, cfg) {
       document.getElementById('stage')?.classList.remove('trace');
     });
     await page.waitForTimeout(150);
+    // Task 8: 計器スクロールバー — .table(thead + recast-row + tbody)の右端 72px を
+    // 縦ストリップで clip。目盛りキャップ → 稼働バーが縦に連続するかを見る。
+    if (zone === 'scrollbar') {
+      const clip = await page.evaluate(() => {
+        const t = document.querySelector('.table');
+        if (!t) return null;
+        const b = t.getBoundingClientRect();
+        const w = 60;
+        return {
+          x: Math.max(0, b.right - w),
+          y: Math.max(0, b.top),
+          width: w,
+          height: Math.min(b.height, 900 - Math.max(0, b.top)),
+        };
+      });
+      if (!clip) { console.warn('  ! scrollbar mock: .table が無い'); return null; }
+      const outPath = join(COMPARE_DIR, `${zone}-mock.png`);
+      await page.screenshot({ path: outPath, clip });
+      console.log(`  ✓ ${outPath}  (${Math.round(clip.width)}x${Math.round(clip.height)} clip)`);
+      return outPath;
+    }
     // モック側は cfg.outer を渡さない (= セレクタ要素そのものを撮る)。モックのゾーン
     // セレクタは既にアプリ側の外側ラッパ相当の粒度で選んであるため、揃える必要がない。
     return await shot(page, cfg.mock, join(COMPARE_DIR, `${zone}-mock.png`));
@@ -107,7 +131,7 @@ const LETHAL_ZONES = new Set(['tbody', 'mitbar', 'scrollbar']);
 const CONTROLBAR_ON_ZONES = new Set(['controlbar', 'jobchips']);
 
 async function captureApp(zone, cfg) {
-  const { browser, page } = await launch({ theme: 'dark' });
+  const { browser, page } = await launch({ theme: 'dark', headed: !!cfg.headed });
   const rec = attachConsoleRecorder(page);
   try {
     await gotoMiti(page);
@@ -160,6 +184,37 @@ async function captureApp(zone, cfg) {
     }
 
     await page.waitForTimeout(300);
+
+    // Task 8: 計器スクロールバー — ヘッダー外枠 top から scroll container bottom までの
+    // 右端 72px を縦ストリップで clip。ヘッダー目盛りキャップ → リキャスト帯キャップ →
+    // 稼働バーが縦に連続しているかを見る。headed 実 Chrome でのみ ::-webkit-scrollbar が描画される。
+    if (zone === 'scrollbar') {
+      const clip = await page.evaluate(() => {
+        const sc = document.querySelector('.timeline-scroll-container');
+        const headerOuter = document.querySelector('#timeline-header-inner')?.parentElement;
+        if (!sc) return null;
+        const scB = sc.getBoundingClientRect();
+        const topB = (headerOuter || sc).getBoundingClientRect();
+        const w = 60;
+        return {
+          x: Math.max(0, scB.right - w),
+          y: Math.max(0, topB.top),
+          width: w,
+          height: Math.min(scB.bottom - topB.top, 900 - Math.max(0, topB.top)),
+          barWidth: sc.offsetWidth - sc.clientWidth,
+        };
+      });
+      if (!clip) { console.warn('  ! scrollbar app: .timeline-scroll-container が無い'); return null; }
+      console.log(`  · 実測縦バー幅(offsetWidth-clientWidth) = ${clip.barWidth}px ${clip.barWidth > 0 ? '(描画されている)' : '(!! 0 = このブラウザは ::-webkit-scrollbar 非描画)'}`);
+      const outPath = join(COMPARE_DIR, `${zone}-app.png`);
+      await page.screenshot({ path: outPath, clip: { x: clip.x, y: clip.y, width: clip.width, height: clip.height } });
+      console.log(`  ✓ ${outPath}  (${Math.round(clip.width)}x${Math.round(clip.height)} clip)`);
+      if (rec.fatal.length) {
+        console.warn(`  ! アプリ側で非 whitelist の console/pageerror ${rec.fatal.length} 件:`);
+        for (const l of rec.fatal.slice(0, 5)) console.warn('    ' + l);
+      }
+      return outPath;
+    }
 
     // Task 6: mitbar / jobchips は「対象要素群を束ねた矩形」を clip で撮る接写。
     if (zone === 'mitbar' || zone === 'jobchips') {

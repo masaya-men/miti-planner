@@ -83,8 +83,12 @@ export function attachConsoleRecorder(page) {
  * 標準/軍事共通のブラウザ起動。theme = 'dark' | 'light'。
  * themeStyle は常に 'standard' で書き込む (= 未設定と描画上等価; 軍事は setThemeStyle で入る)。
  */
-export async function launch({ theme = 'dark' } = {}) {
-  const browser = await chromium.launch();
+export async function launch({ theme = 'dark', headed = false } = {}) {
+  // headed=true: 実 Chrome を GUI 起動する。::-webkit-scrollbar は headless では描画されない
+  // (project_sf_military_theme 追記11) ため、compare.mjs の scrollbar ゾーンだけ true にする。
+  const browser = headed
+    ? await chromium.launch({ headless: false, channel: 'chrome' })
+    : await chromium.launch();
   const context = await browser.newContext({
     viewport: VIEWPORT,
     deviceScaleFactor: 1,
