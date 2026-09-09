@@ -98,3 +98,6 @@ tmp/
 
 # vitest 出力 (memory reference_vitest_vmthreads_hang の安全手順用)
 /.vt.txt
+
+# SP2 視覚突き合わせスクショ (*-mock.png は非公開モックアップ由来 = コミット禁止)
+scripts/milspec-sp2/.compare/
