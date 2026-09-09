@@ -1380,12 +1380,63 @@
   box-shadow: inset 0 calc(2px + 2px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.5), inset 0 calc(1px * var(--ms-tune-relief)) 2px rgba(0,0,0,0.5), inset 0 -1px 0 rgba(255,255,255,0.05);
 }
 
-/* ---------- プラン一覧(新規セクション。視覚語彙は mockup .pi を転用) ---------- */
-/* プラン一覧はコンテンツ追従(空〜数件で高さが決まる)。伸びるのは PHASES 側だけにする
-   (以前 flex:1 で空でもサイドバー高の 4 割を占有していた)。多すぎたら自前スクロール。 */
-.theme-military .milspec-plans { flex: 0 1 auto; min-height: 0; max-height: clamp(84px, 24vh, 200px); padding: 11px 12px 8px; margin: 0 7px 0 15px; }
-.theme-military .milspec-plans-list { min-height: 0; overflow-y: auto; overflow-x: hidden; }
-.theme-military .milspec-plans-empty { color: var(--ms-text-muted); font-size: 11px; padding: 4px 8px; }
+/* ---------- コンテンツツリー(タブ + コンテンツ名 + プラン行) ----------
+   2026-09-09 masaya 指摘で作り直し。標準 Sidebar と同じ木を mockup の .enc-name / .pi 意匠で。 */
+.theme-military .milspec-tree {
+  flex: 1; min-height: 60px; display: flex; flex-direction: column;
+  padding: 9px 8px 8px; margin: 0 7px 0 15px;
+}
+.theme-military .milspec-tree-tabs { display: flex; gap: 3px; margin-bottom: 8px; flex: none; }
+.theme-military .milspec-tree-tab {
+  flex: 1; padding: 4px 1px; cursor: pointer; font-family: inherit;
+  font: 700 8px/1.1 'Rajdhani', sans-serif; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--ms-text-muted); border-radius: 1px;
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
+  border: 1px solid var(--ms-frame); border-top-color: var(--ms-edge-hi); border-bottom-color: rgba(0,0,0,0.6);
+  box-shadow: var(--ms-btn-body), 0 1px 0 rgba(0,0,0,0.5);
+}
+.theme-military .milspec-tree-tab:hover { color: var(--ms-text-sec); }
+.theme-military .milspec-tree-tab.active {
+  color: var(--ms-cyan); border-color: var(--ms-cyan);
+  box-shadow: inset 0 -2px 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 7px var(--ms-cyan-glow);
+}
+.theme-military .milspec-tree-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.theme-military .milspec-tree-list { display: flex; flex-direction: column; gap: 4px; }
+.theme-military .milspec-tree-series { display: flex; flex-direction: column; gap: 3px; }
+.theme-military .milspec-tree-series-hd {
+  font: 700 9px/1.3 'Rajdhani', sans-serif; letter-spacing: 0.02em; color: var(--ms-text-sec);
+  padding: 7px 2px 2px;
+}
+.theme-military .milspec-tree-empty { color: var(--ms-text-muted); font-size: 11px; padding: 10px 8px; text-align: center; }
+
+/* コンテンツ名 = .milspec-enc-name(へこんだプレート)をボタン化。ツリー内なので少し詰める。 */
+.theme-military .milspec-tree-head {
+  display: flex; align-items: center; gap: 7px; width: 100%; cursor: pointer;
+  text-align: left; font: 700 12px/1.2 'Rajdhani','M PLUS 1',sans-serif;
+  padding: 5px 10px; margin: 0;
+}
+.theme-military .milspec-tree-head:hover { border-color: var(--ms-bracket); }
+.theme-military .milspec-tree-head-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.theme-military .milspec-tree-head-count {
+  flex: none; font: 400 8px/1 'Share Tech Mono', monospace; color: var(--ms-text-muted);
+  padding: 1px 4px; border: 1px solid var(--ms-frame); border-radius: 2px;
+}
+.theme-military .milspec-tree-head-cv { flex: none; color: var(--ms-text-muted); font-size: 13px; transition: transform 0.15s ease; }
+.theme-military .milspec-tree-head-cv.open { transform: rotate(90deg); color: var(--ms-cyan); }
+.theme-military .milspec-tree-group.current .milspec-tree-head { color: var(--ms-cyan); }
+.theme-military .milspec-tree-group.current .milspec-tree-head-name { color: var(--ms-cyan); }
+
+.theme-military .milspec-tree-plans {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 4px 0 7px; margin: 3px 0 0 7px; border-left: 1px solid var(--ms-frame);
+}
+.theme-military .milspec-tree-plans .milspec-pi { margin-left: 4px; width: calc(100% - 10px); padding-right: 4px; }
+.theme-military .milspec-tree-plans .milspec-pi.sel { margin-left: 9px; width: calc(100% - 15px); }
+.theme-military .milspec-tree-plans .milspec-pi::before { display: none; }
+.theme-military .milspec-pi.add { color: var(--ms-text-muted); cursor: pointer; }
+.theme-military .milspec-pi.add:hover { color: var(--ms-cyan); }
+.theme-military .milspec-pi.add .bl { background: transparent; box-shadow: inset 0 0 0 1px var(--ms-text-muted); }
+.theme-military .milspec-pi .ac button.armed { color: #ff6b7a; }
 
 /* ---------- プラン行 / ラベル行 共通(mockup .pi 1373-1392) ---------- */
 .theme-military .milspec-pi { position: relative; display: flex; align-items: center; gap: 9px; padding: 6px 8px; font-size: 13px; color: var(--ms-text-sec); margin-left: 10px; background: none; border: 0; width: calc(100% - 10px); text-align: left; font-family: inherit; }
@@ -1404,36 +1455,15 @@
   width: 7px; height: 7px; transform: translateY(-50%) rotate(45deg);
   background: var(--ms-cyan); opacity: 0.9; box-shadow: 0 0 6px var(--ms-cyan-glow);
 }
-.theme-military .milspec-pi .ac { margin-left: auto; display: flex; gap: 8px; opacity: 0.6; flex: none; }
+.theme-military .milspec-pi .ac { margin-left: auto; display: flex; gap: 5px; opacity: 0.55; flex: none; }
+.theme-military .milspec-pi:hover .ac, .theme-military .milspec-pi.sel .ac { opacity: 0.9; }
 .theme-military .milspec-pi .ac button { display: flex; background: none; border: 0; padding: 0; color: inherit; cursor: pointer; }
 .theme-military .milspec-pi .ac button:hover { color: var(--ms-cyan); }
-.theme-military .milspec-pi .ac svg { width: 13px; height: 13px; }
+.theme-military .milspec-pi .ac svg { width: 12px; height: 12px; }
 .theme-military .milspec-pi-rename-input {
   flex: 1; min-width: 0; background: rgba(0,0,0,0.3); color: var(--ms-heading);
   border: 1px solid var(--ms-bracket); border-radius: 3px; padding: 2px 6px; font: inherit;
 }
-
-/* ---------- PHASES(表示専用・mockup .phases .phase .phase-h .phase-tag 1352-1371) ---------- */
-/* PHASES がサイドバーの伸縮スクロール領域(mockup .phases 1356: flex:1)。
-   プラン一覧をコンテンツ追従に変えたぶん、余白はここが吸う。 */
-.theme-military .milspec-phases { flex: 1; min-height: 60px; overflow-y: auto; overflow-x: hidden; padding: 11px 12px 8px; margin: 0 7px 0 15px; }
-.theme-military .milspec-phase {
-  position: relative; padding: 8px 8px 10px; margin-bottom: 7px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.34));
-  border: 1px solid rgba(0,0,0,0.38); border-top-color: rgba(255,255,255,0.04);
-  box-shadow: inset 0 calc(1px + 2.5px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.5), inset 0 calc(1px * var(--ms-tune-relief)) 2px rgba(0,0,0,0.45), inset 0 -1px 0 rgba(255,255,255,0.035), 0 1px 0 rgba(255,255,255,0.035);
-}
-.theme-military .milspec-phase:last-child { margin-bottom: 0; }
-.theme-military .milspec-phase-h { display: flex; align-items: baseline; gap: 2px; cursor: default; }
-.theme-military .milspec-phase-h .num { font: 700 25px/1 'Rajdhani',sans-serif; color: var(--ms-heading); letter-spacing: -0.02em; }
-.theme-military .milspec-phase-h .cv { color: var(--ms-text-sec); font-size: 17px; }
-.theme-military .milspec-phase-h .cv.dn { color: var(--ms-text-sec); font-size: 16px; margin-left: 7px; opacity: 0.5; }
-.theme-military .milspec-phase-tag { display: flex; align-items: center; gap: 8px; margin: 9px 0 3px; padding-left: 2px; }
-.theme-military .milspec-phase-tag .t { font: 400 10px/1 'Share Tech Mono', monospace; letter-spacing: 0.18em; text-transform: uppercase; color: #7590a4; white-space: nowrap; }
-.theme-military .milspec-phase-tag .sub { font-size: 10px; color: var(--ms-text-sec); letter-spacing: 0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.theme-military .milspec-phase-tag .ln { flex: 1; height: 2px; min-width: 8px; background: linear-gradient(180deg, var(--ms-pl-dark) 0 1px, var(--ms-pl-lite) 1px 2px); }
-.theme-military .milspec-phase-tag .milspec-phase-time { font: 400 9px/1 'Share Tech Mono', monospace; letter-spacing: 0.06em; color: var(--ms-text-muted); flex: none; }
-.theme-military .milspec-phases-empty { color: var(--ms-text-muted); font-size: 11px; padding: 4px 8px; }
 
 /* ---------- DOCK: BACKUP / RESTORE(mockup .dock 1394-1401) ---------- */
 .theme-military .milspec-dock { flex: none; padding: 10px 13px; display: flex; gap: 10px; }

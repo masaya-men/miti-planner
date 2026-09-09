@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
     CATEGORY_LABELS,
+    getContentById,
 } from '../data/contentRegistry';
 import { hasContentRegistry, getFilteredBosses, deriveContentId } from '../lib/contentSelection';
 import type { ContentLevel, ContentCategory, ContentDefinition } from '../types';
@@ -22,12 +23,15 @@ import clsx from 'clsx';
 interface NewPlanModalProps {
     isOpen: boolean;
     onClose: (created?: { contentId: string | null; level: ContentLevel; category: ContentCategory }) => void;
+    /** 指定時: 開いた瞬間にこのコンテンツ(零式/絶)をレベル・カテゴリ・ボス込みで選択済みにし、
+        タイトル入力にフォーカスする。MIL-SPEC のコンテンツツリー「＋追加」用。 */
+    initialContentId?: string | null;
 }
 
 const LEVEL_OPTIONS: ContentLevel[] = [100, 90, 80, 70];
 const CATEGORY_OPTIONS: ContentCategory[] = ['savage', 'ultimate', 'dungeon', 'raid', 'custom'];
 
-export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) => {
+export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose, initialContentId }) => {
     useEscapeClose(isOpen, () => onClose());
     const { t, i18n } = useTranslation();
     const lang = i18n.language === 'en' ? 'en' : 'ja';
@@ -48,22 +52,32 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
     const [boss, setBoss] = useState<ContentDefinition | null>(null);
     const [title, setTitle] = useState('');
     const [mounted, setMounted] = useState(false);
+    const skipCategoryResetRef = useRef(false);
 
     useEffect(() => {
         setMounted(true);
         return () => setMounted(false);
     }, []);
 
-    // モーダルが開くたびにリセット
+    // モーダルが開くたびにリセット。initialContentId があればそのコンテンツを選択済みにする。
     useEffect(() => {
         if (isOpen) {
             useTutorialStore.getState().completeEvent('create:modal-opened');
-            setLevel(null);
-            setCategory(null);
-            setBoss(null);
-            setTitle('');
+            const seed = initialContentId ? getContentById(initialContentId) : null;
+            if (seed && (seed.category === 'savage' || seed.category === 'ultimate')) {
+                skipCategoryResetRef.current = true; // 直後の [category] リセットを 1 回だけ無視
+                setLevel(seed.level);
+                setCategory(seed.category);
+                setBoss(seed);
+                setTitle(seed.shortName.en || seed.shortName.ja || '');
+            } else {
+                setLevel(null);
+                setCategory(null);
+                setBoss(null);
+                setTitle('');
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, initialContentId]);
 
     const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -81,8 +95,13 @@ export const NewPlanModal: React.FC<NewPlanModalProps> = ({ isOpen, onClose }) =
         }
     }, [filteredBosses, boss]);
 
-    // カテゴリ変更時にbossとタイトルをリセット
+    // カテゴリ変更時にbossとタイトルをリセット。
+    // ただし initialContentId でシード中(open 直後の1回)はスキップ — シードした boss/title を消さない。
     useEffect(() => {
+        if (skipCategoryResetRef.current) {
+            skipCategoryResetRef.current = false;
+            return;
+        }
         setBoss(null);
         setTitle('');
         ;
