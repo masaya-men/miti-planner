@@ -1402,21 +1402,35 @@
   box-shadow: inset 0 -2px 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 7px var(--ms-cyan-glow);
 }
 .theme-military .milspec-tree-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
-.theme-military .milspec-tree-list { display: flex; flex-direction: column; gap: 4px; }
-.theme-military .milspec-tree-series { display: flex; flex-direction: column; gap: 3px; }
+.theme-military .milspec-tree-list { display: flex; flex-direction: column; gap: 6px; }
+.theme-military .milspec-tree-series { display: flex; flex-direction: column; gap: 6px; }
 .theme-military .milspec-tree-series-hd {
   font: 700 9px/1.3 'Rajdhani', sans-serif; letter-spacing: 0.02em; color: var(--ms-text-sec);
-  padding: 7px 2px 2px;
+  padding: 7px 2px 1px;
 }
 .theme-military .milspec-tree-empty { color: var(--ms-text-muted); font-size: 11px; padding: 10px 8px; text-align: center; }
 
-/* コンテンツ名 = .milspec-enc-name(へこんだプレート)をボタン化。ツリー内なので少し詰める。 */
+/* コンテンツ 1 件 = 沈んだサブプレート(mockup .phase 相当)。名前 + プランが 1 つの「くぼみ」に
+   まとまり、コンテンツごとに物理的に分かれて見える(masaya 2026-09-09 指定)。 */
+.theme-military .milspec-tree-group {
+  position: relative; padding: 3px 8px 4px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.36));
+  border: 1px solid rgba(0,0,0,0.4); border-top-color: rgba(255,255,255,0.04);
+  box-shadow:
+    inset 0 calc(1px + 2.5px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.5),
+    inset 0 calc(1px * var(--ms-tune-relief)) 2px rgba(0,0,0,0.45),
+    inset 0 -1px 0 rgba(255,255,255,0.035), 0 1px 0 rgba(255,255,255,0.04);
+}
+.theme-military .milspec-tree-group.open { padding-bottom: 7px; }
+.theme-military .milspec-tree-group.current { border-color: rgba(130,204,223,0.32); box-shadow: inset 0 0 0 1px rgba(130,204,223,0.14),
+  inset 0 calc(1px + 2.5px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.5); }
+
 .theme-military .milspec-tree-head {
   display: flex; align-items: center; gap: 7px; width: 100%; cursor: pointer;
-  text-align: left; font: 700 12px/1.2 'Rajdhani','M PLUS 1',sans-serif;
-  padding: 5px 10px; margin: 0;
+  text-align: left; font: 700 12px/1.25 'Rajdhani','M PLUS 1',sans-serif; color: var(--ms-heading);
+  padding: 5px 2px; background: none; border: 0;
 }
-.theme-military .milspec-tree-head:hover { border-color: var(--ms-bracket); }
+.theme-military .milspec-tree-head:hover .milspec-tree-head-name { color: var(--ms-cyan); }
 .theme-military .milspec-tree-head-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .theme-military .milspec-tree-head-count {
   flex: none; font: 400 8px/1 'Share Tech Mono', monospace; color: var(--ms-text-muted);
@@ -1424,15 +1438,14 @@
 }
 .theme-military .milspec-tree-head-cv { flex: none; color: var(--ms-text-muted); font-size: 13px; transition: transform 0.15s ease; }
 .theme-military .milspec-tree-head-cv.open { transform: rotate(90deg); color: var(--ms-cyan); }
-.theme-military .milspec-tree-group.current .milspec-tree-head { color: var(--ms-cyan); }
 .theme-military .milspec-tree-group.current .milspec-tree-head-name { color: var(--ms-cyan); }
 
 .theme-military .milspec-tree-plans {
   display: flex; flex-direction: column; gap: 2px;
-  padding: 4px 0 7px; margin: 3px 0 0 7px; border-left: 1px solid var(--ms-frame);
+  padding: 3px 0 2px; margin: 2px 0 0 4px; border-left: 1px solid rgba(255,255,255,0.06);
 }
-.theme-military .milspec-tree-plans .milspec-pi { margin-left: 4px; width: calc(100% - 10px); padding-right: 4px; }
-.theme-military .milspec-tree-plans .milspec-pi.sel { margin-left: 9px; width: calc(100% - 15px); }
+.theme-military .milspec-tree-plans .milspec-pi { margin-left: 4px; width: calc(100% - 8px); padding-right: 2px; }
+.theme-military .milspec-tree-plans .milspec-pi.sel { margin-left: 8px; width: calc(100% - 12px); }
 .theme-military .milspec-tree-plans .milspec-pi::before { display: none; }
 .theme-military .milspec-pi.add { color: var(--ms-text-muted); cursor: pointer; }
 .theme-military .milspec-pi.add:hover { color: var(--ms-cyan); }

@@ -4,10 +4,8 @@ import { useShallow } from 'zustand/react/shallow';
 import clsx from 'clsx';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useThemeStore } from '../../store/useThemeStore';
 import { useLocalImportDialog } from '../../store/useLocalImportDialog';
 import { getContentById } from '../../data/contentRegistry';
-import { getPhaseName } from '../../types';
 import { BackupExportModal } from '../BackupExportModal';
 import { BackupRestoreModal } from '../BackupRestoreModal';
 import { MilspecContentTree, useMilspecTreeTabs, tabForPlanCategory, type MilspecTreeTab } from './MilspecContentTree';
@@ -27,14 +25,12 @@ export type MilspecSidebarProps = Pick<MilspecLayoutProps, 'isSidebarOpen' | 'on
  */
 export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, onToggleSidebar }) => {
   const { t } = useTranslation();
-  const contentLanguage = useThemeStore((s) => s.contentLanguage);
 
   const { plans, currentPlanId } = usePlanStore(
     useShallow((s) => ({ plans: s.plans, currentPlanId: s.currentPlanId })),
   );
   const currentPlan = plans.find((p) => p.id === currentPlanId) ?? null;
   const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
-  const encName = contentDef ? getPhaseName(contentDef.name, contentLanguage) : '';
 
   const [confirmScenarioDelete, setConfirmScenarioDelete] = React.useState(false);
   const [backupExportOpen, setBackupExportOpen] = React.useState(false);
@@ -145,11 +141,8 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
             </div>
           </div>
 
-          {/* 遭遇名 — mockup .enc-name(DOM 2003)。現在開いているコンテンツを大きく表示。 */}
-          <div className="milspec-enc-name"><span className="milspec-rub-mark" />{encName || t('sidebar.no_content')}</div>
-
-          {/* コンテンツツリー(コンテンツ名 + プラン)= mockup .phases/.phase/.pi 意匠を流用。
-              タブは上の CONTENT パネル側。 */}
+          {/* コンテンツツリー(コンテンツごとの沈んだサブプレート = 名前 + プラン)。
+              タブは上の CONTENT パネル側。単独の遭遇名表示はタブがあれば冗長なので撤去(masaya)。 */}
           <MilspecContentTree tab={tab} />
 
           {/* DOCK: BACKUP / RESTORE — mockup .dock(DOM 2038-2045) */}

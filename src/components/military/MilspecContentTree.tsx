@@ -229,9 +229,8 @@ const MilspecContentGroup: React.FC<{
   };
 
   return (
-    <div className={clsx('milspec-tree-group', isCurrent && 'current')}>
-      <button type="button" className="milspec-enc-name milspec-tree-head" onClick={onHeadClick}>
-        <span className="milspec-rub-mark" />
+    <div className={clsx('milspec-tree-group', isCurrent && 'current', expanded && plans.length > 0 && 'open')}>
+      <button type="button" className="milspec-tree-head" onClick={onHeadClick}>
         <span className="milspec-tree-head-name">{displayName || content.id}</span>
         {plans.length > 0 && <span className="milspec-tree-head-count">{plans.length}</span>}
         {plans.length > 0 && <span className={clsx('milspec-tree-head-cv', expanded && 'open')}>›</span>}
