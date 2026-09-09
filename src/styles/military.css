@@ -1658,7 +1658,7 @@
   font: 700 8px/1 'Share Tech Mono', ui-monospace, monospace;
   letter-spacing: 0.2em;
   color: var(--ms-text-muted);
-  opacity: 0.55;
+  opacity: 0.62;
   white-space: nowrap;
   overflow: hidden;
 }
@@ -1667,18 +1667,23 @@
    "Recast / リキャスト" と同じ二言語の見え方になる。element 側に text-transform は
    掛けない(en ロケールで "RECAST / RECAST" と重複表示になるため)。 */
 .theme-military .milspec-app .milspec-rc-label::before {
-  content: "RECAST / ";
+  content: "RECAST /";
+  /* 末尾スペースは生成コンテンツだと詰まるので padding で確実に空ける(mockup の
+     "Recast / リキャスト" と同じ「スラッシュの左右に空き」を再現) */
+  padding-right: 0.5em;
   opacity: 0.7;
   letter-spacing: 0.24em;
 }
 
 /* セル(mockup .rc-cell 1291)。gap だけ mockup に寄せる。padding / justify-content は
-   上記のとおり実アプリの列整合を優先して不変。仕切りは彫り込みの縦線に recolor。 */
+   上記のとおり実アプリの列整合を優先して不変。
+   mockup の .recast-row は「1 枚の綺麗な沈みプレート」で列仕切りを一切描かない
+   (列の手掛かりは上のヘッダーのブラケットタイルが担う)ので、index.css の
+   border-right(1px)は幅を保ったまま色だけ透明に落とす = レイアウト不変。 */
 .theme-military .milspec-app [data-milspec-recast-band] .recast-cell {
   gap: 4px;
   background: transparent;
-  border-right-color: rgba(0,0,0,0.5);
-  box-shadow: inset 1px 0 0 rgba(255,255,255,0.05);
+  border-right-color: transparent;
 }
 
 /* アイコン = 円形の金属ソケットに沈んだレンズ(mockup .rc-icon 1292-1296)。
@@ -1730,10 +1735,6 @@
     inset 0 2px 4px rgba(40,80,120,0.2),
     inset 0 -1px 0 rgba(255,255,255,0.7),
     0 1px 0 rgba(40,80,120,0.18);
-}
-.theme-military.theme-light .milspec-app [data-milspec-recast-band] .recast-cell {
-  border-right-color: rgba(40,80,120,0.28);
-  box-shadow: inset 1px 0 0 rgba(255,255,255,0.7);
 }
 .theme-military.theme-light .milspec-app [data-milspec-recast-band] .recast-icon {
   background: radial-gradient(circle at 34% 28%, #ffffff, #ccd6df 60%, #a8b5c1 90%);

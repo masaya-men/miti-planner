@@ -132,6 +132,33 @@ async function captureApp(zone, cfg) {
         await new Promise((r) => setTimeout(r, 300));
       });
     }
+    // Task 7: リキャスト帯はスクロール位置 = 現在時刻。scrollTop 0(戦闘開始前)では
+    // どの軽減もリキャスト中でないため --cd-display:none で全アイコンが消え、
+    // モック(7 セルにアイコン)と突き合わせられない。可視アイコン数が最大になる
+    // スクロール位置を走査してからそこで撮る(store・製品コード不変)。
+    if (zone === 'recast') {
+      const info = await page.evaluate(async () => {
+        const sc = document.querySelector('.timeline-scroll-container');
+        if (!sc) return null;
+        const visible = () =>
+          Array.from(document.querySelectorAll('[data-milspec-recast-band] .recast-icon')).filter(
+            (el) => getComputedStyle(el).display !== 'none',
+          ).length;
+        let bestTop = 0;
+        let bestN = -1;
+        for (let top = 0; top <= sc.scrollHeight - sc.clientHeight; top += 50) {
+          sc.scrollTo({ top, left: 0 });
+          await new Promise((r) => setTimeout(r, 40));
+          const n = visible();
+          if (n > bestN) { bestN = n; bestTop = top; }
+        }
+        sc.scrollTo({ top: bestTop, left: 0 });
+        await new Promise((r) => setTimeout(r, 350));
+        return { bestTop, bestN, total: document.querySelectorAll('[data-milspec-recast-band] .recast-icon').length };
+      });
+      if (info) console.log(`  · リキャスト最大可視位置: scrollTop ${info.bestTop} → アイコン ${info.bestN}/${info.total} 個`);
+    }
+
     await page.waitForTimeout(300);
 
     // Task 6: mitbar / jobchips は「対象要素群を束ねた矩形」を clip で撮る接写。

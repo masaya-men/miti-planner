@@ -471,3 +471,75 @@ fixture では inner 幅 1432 > outer 1155 = 内容が横あふれ（scroll 同�
 - **light**: 金属グラデ / 重い黒 rgba を淡い金属グレー（`#7c8794`〜`#d4dce3` 等）へ上書き済。
   「破綻しない」レベル・最終調整は SP2 後。`--ms-cr-*` / `--ms-cham-silhouette` は dark/light 両定義済で
   面取りは自動追従。
+
+---
+
+## Task 7: リキャスト行の独立（軍事モード限定の構造変更）
+
+### 実装の要点
+
+PC 軍事モード（`isMilspecTable = themeStyle === 'military' && !isMobileTimeline`）のときだけ
+`<RecastRow>` を `#timeline-header-inner` の外へ出し、列見出しと表本体の間の独立した帯
+`[data-milspec-recast-band] > #timeline-recast-inner`（+ 左ラベル `.milspec-rc-label`）にマウントする。
+`RecastRow.tsx` / `RecastIcon.tsx` / `syncRecastRow` / 座標計算は**一切変更なし**。
+
+- 左ラベルは `width: var(--col-member-start)`（= PHASE+LABEL+TIME+MECHANIC+RAW+TAKEN）で 6 列ぶんを
+  占有するので、続く `.recast-cell` が自動的にメンバー列と同じ x に並ぶ。
+  実測（`military-smoke` step 11）で **8 メンバー全て dx 0.0px**。
+- `padding-left` は mockup の固定 151px ではなく `calc(var(--col-header-chunk-w) + 8px)`。
+  mockup の 151px は「機工列の始まり（142px）+ 9px」なので、実アプリでも機工列ヘッダー（`pl-2` = 8px）の
+  文字左端に揃う式にした（可変列幅に追従する）。
+
+### スターター仕様からの是正（ブリーフのバグ）
+
+ブリーフの雛形は `recastBandInnerRef` を **内側の `#timeline-recast-inner` 自身**に付けていたが、
+`handleScrollSync` は `ref.current.querySelector('#' + id)` で内側を探す契約（`headerRef` / `controlBarRef` は
+どちらも**外枠**）。内側要素に ref を付けると自分自身を見つけられず `firstElementChild`
+（= `.milspec-rc-label`）にフォールバックし、**ラベルだけが translateX される**（帯の中身は追従しない）。
+→ `recastBandRef` を**外枠**に付け替えて解消。`syncPadding` も外枠に当てる形で header/controls と統一。
+`military-smoke` step 11 の transform 一致 assert がこの回帰を捕捉した（初回 FAIL → 修正後 PASS）。
+
+### 視覚突き合わせ（`compare.mjs recast`）
+
+`compare.mjs` に `recast` ゾーン用フックを追加: リキャスト帯は**スクロール位置 = 現在時刻**なので
+`scrollTop 0`（戦闘開始前）では全アイコンが `--cd-display:none` で消え、モック（7 セルにアイコン）と
+突き合わせられない。可視アイコン数が最大になる scrollTop を 50px 刻みで走査してから撮る（store 不変）。
+
+反復:
+1. 初回 → アイコン 0 個（上記のスクロール問題）。フック追加で 4/7 個可視の位置（scrollTop 450）で再撮影。
+2. 是正 A: デカール `content: "RECAST / "` の**末尾スペースが生成コンテンツで詰まる** → `"RECAST /"` +
+   `padding-right: 0.5em` に変更（mockup の「スラッシュの左右に空き」を再現）。
+3. 是正 B: `.recast-cell` の `border-right`（`index.css` 由来）で**縦の仕切り線が出ていた**が、
+   mockup の `.recast-row` は仕切りを一切描かない「1 枚の綺麗な沈みプレート」→ 幅は保ったまま
+   `border-right-color: transparent`（レイアウト不変）。
+4. 是正 C: ラベルの体感輝度がモックより暗い → `opacity: 0.55 → 0.62`。
+
+最終所見（3 チェック）:
+| # | チェック | 判定 |
+|---|---|---|
+| 1 | 列見出しの下・表本体の上の独立した帯（沈んだ recess プレート） | ✓ 実測 band top 241.8（header inner bottom 240.8 / body top 279.8）。縦グラデを 1px 刻みで採取し mock と一致（上 rgb(38,46,55) → 下 rgb(19,26,33)・中央がやや明るい金属の照り） |
+| 2 | 左「RECAST / リキャスト」ラベルが 6 列ぶんを占有・メンバーセルが表の列に揃う | ✓ label 実測 w=570px = `--col-member-start`。8 メンバー全て `[data-member-id]` と dx 0.0px |
+| 3 | 各アイコンが円形 + クールダウン円グラフ（clockswipe）+ 残秒 | ✓ 円形金属ソケット（radial-gradient + inset ベゼル）/ `--cd-angle` の conic 暗幕を円形化 + mockup 色 rgba(4,6,9,0.84) / 残秒をアイコン外・下へ（シアン + glow） |
+
+### 残差（→ Task 10 masaya / SP2 後の統一調整）
+
+- **`.recast-cell` の `padding-left` / `justify-content: flex-start` は mockup 非追従（意図的）**。
+  mockup `.rc-cell` は `justify-content: center` だが、実アプリの
+  `padding-left: calc(var(--col-member-pad-x) + 2px)`（`index.css:1656`）は
+  「リキャストアイコンの x = `MitigationItem` の絶対配置 left」を成立させている実測値。中央寄せにすると
+  本文の軽減バーと縦のラインが揃わなくなるため**列整合を優先**した。結果、アイコンはセル左寄せ。
+- **帯の高さ 38px vs mockup 34px**: 実アイコンが 24px（mockup は 19px）で、残秒をアイコン外・下に
+  出す（mockup `.rc-num { bottom: -7px }`）ぶんの余白が要るため。比率はほぼ同じ（34/19 vs 38/24）。
+- **撮影上の 1px 明線**: `recast-app.png` の row 0 が rgb(70,88,100) と明るいが、これは帯自身ではなく
+  **ヘッダー外枠の `border-bottom: 1px rgba(150,190,205,0.28)`**。帯の top が 241.797 と端数のため
+  スクリーンショットの clip が y=241 に丸められて 1px 混ざる撮影アーティファクト
+  （帯の `border-top-width` は computed で `0px`・背景は rgb(38,46,55) から始まることを実機で確認済）。
+- **列折りたたみ時（Shift+P / Shift+L）**: ラベル幅 `--col-member-start` は非折りたたみ前提の式なので、
+  フェーズ/ラベル列を折りたたむとヘッダーのメンバー列だけが左へ寄り、帯とはズレる。ただし
+  コントロールバー（`--col-header-chunk-w` 固定）と本文（`[data-member-id]` 実測）も同じ前提なので、
+  **帯はコントロールバー/本文と一致する側**に揃っている（＝ズレるのはヘッダーのみ・既存挙動）。
+- **`text-transform: uppercase` は要素に掛けていない**: mockup `.rc-label` は uppercase だが、
+  en ロケールでは i18n ラベルが `Recast` なので掛けると「RECAST / RECAST」と重複表示になる。
+  デカール側の `content` を大英字リテラルにして ja では mockup と同一表示（RECAST / リキャスト）にした。
+- **light**: 帯の地色は `--ms-recess-*`（dark/light 両定義済）で自動追従。dark 固定 hex を使う
+  アイコンのソケット/暗幕だけ淡色へ上書き済。最終調整は SP2 後。
