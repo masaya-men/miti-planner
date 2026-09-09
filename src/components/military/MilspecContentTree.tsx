@@ -22,7 +22,27 @@ import { showToast } from '../Toast';
 import { NewPlanModal } from '../NewPlanModal';
 import '../../i18n';
 
-type Tab = 'savage' | 'ultimate' | 'other' | 'archive';
+export type MilspecTreeTab = 'savage' | 'ultimate' | 'other' | 'archive';
+type Tab = MilspecTreeTab;
+
+/** タブ一覧(ラベルは i18n)。MilspecSidebar 側のタブバーと共有。 */
+export function useMilspecTreeTabs(): { id: Tab; label: string }[] {
+  const { t } = useTranslation();
+  return [
+    { id: 'savage', label: t('sidebar.tab_savage') },
+    { id: 'ultimate', label: t('sidebar.tab_ultimate') },
+    { id: 'other', label: t('sidebar.tab_other') },
+    { id: 'archive', label: t('sidebar.tab_archive') },
+  ];
+}
+
+/** プランのコンテンツ種別からタブを決める(標準 Sidebar と同じ)。 */
+export function tabForPlanCategory(cat: string | null | undefined): Tab {
+  if (cat === 'ultimate') return 'ultimate';
+  if (cat === 'savage') return 'savage';
+  if (cat) return 'other';
+  return 'savage';
+}
 
 /**
  * サイドバー中央 = コンテンツツリー。masaya 2026-09-09 の指定:
@@ -36,74 +56,28 @@ type Tab = 'savage' | 'ultimate' | 'other' | 'archive';
  *  - 削除: usePlanStore.deleteFromFirestore / deletePlan
  * 見た目だけ mockup の .enc-name(コンテンツ名) / .pi(プラン行) 意匠に寄せる。
  */
-export const MilspecContentTree: React.FC = () => {
-  const { t } = useTranslation();
+export const MilspecContentTree: React.FC<{ tab: Tab }> = ({ tab }) => {
   const contentLanguage = useThemeStore((s) => s.contentLanguage);
   const { plans, currentPlanId } = usePlanStore(
     useShallow((s) => ({ plans: s.plans, currentPlanId: s.currentPlanId })),
   );
-
   const currentPlan = plans.find((p) => p.id === currentPlanId) ?? null;
-  const currentContentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
-
-  const [tab, setTab] = React.useState<Tab>(() => {
-    const cat = currentContentDef?.category;
-    if (cat === 'ultimate') return 'ultimate';
-    if (cat === 'savage') return 'savage';
-    if (cat) return 'other';
-    return 'savage';
-  });
-
-  // currentPlanId が変わったらタブを追従(標準 Sidebar と同じ・plans 配列変化では追従しない)
-  const prevPlanIdRef = React.useRef(currentPlanId);
-  React.useEffect(() => {
-    if (currentPlanId && currentPlanId !== prevPlanIdRef.current) {
-      const p = usePlanStore.getState().plans.find((x) => x.id === currentPlanId);
-      const cat = p?.contentId ? getContentById(p.contentId)?.category : (p?.category ?? null);
-      if (cat === 'ultimate') setTab('ultimate');
-      else if (cat === 'savage') setTab('savage');
-      else if (cat) setTab('other');
-    }
-    prevPlanIdRef.current = currentPlanId;
-  }, [currentPlanId]);
 
   const [newPlanContentId, setNewPlanContentId] = React.useState<string | null | undefined>(undefined);
   const openNewPlan = (contentId?: string | null) => setNewPlanContentId(contentId ?? null);
 
-  // SCENARIO パネルの NEW ボタン(MilspecSidebar)からの合図でコンテンツ未指定の新規作成モーダルを開く。
+  // CONTENT パネルの NEW ボタン(MilspecSidebar)からの合図でコンテンツ未指定の新規作成モーダルを開く。
   React.useEffect(() => {
     const h = () => setNewPlanContentId(null);
     window.addEventListener('milspec:new-plan', h);
     return () => window.removeEventListener('milspec:new-plan', h);
   }, []);
 
-  const TABS: { id: Tab; label: string }[] = [
-    { id: 'savage', label: t('sidebar.tab_savage') },
-    { id: 'ultimate', label: t('sidebar.tab_ultimate') },
-    { id: 'other', label: t('sidebar.tab_other') },
-    { id: 'archive', label: t('sidebar.tab_archive') },
-  ];
-
   return (
     <div className="milspec-hp milspec-tree recess stack" style={{ '--ms-sh': 'var(--ms-sh-tl)' } as React.CSSProperties}>
       <span className="milspec-ao-mark" /><span className="milspec-grime-mark" />
       <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
       <span className="milspec-sc tr" style={{ right: 22 }}>IDX-BLK</span>
-
-      <div className="milspec-tree-tabs" role="tablist">
-        {TABS.map((tb) => (
-          <button
-            key={tb.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === tb.id}
-            className={clsx('milspec-tree-tab', tab === tb.id && 'active')}
-            onClick={() => setTab(tb.id)}
-          >
-            {tb.label}
-          </button>
-        ))}
-      </div>
 
       <div className="milspec-tree-body">
         {tab === 'savage' && <SavageTree lang={contentLanguage} currentContentId={currentPlan?.contentId ?? null} onAdd={openNewPlan} />}

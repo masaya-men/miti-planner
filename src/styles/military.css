@@ -1346,9 +1346,10 @@
 .theme-military .milspec-sb-collapse:hover { color: var(--ms-cyan); }
 .theme-military .milspec-sb-collapse:active { transform: translateY(1px); }
 
-/* ---------- SCENARIO(mockup .scenario .s-hd .s-btns .s-btn 1320-1339) ---------- */
-.theme-military .milspec-scenario { padding: 10px 13px 13px; flex: none; }
-.theme-military .milspec-s-hd { position: relative; display: flex; align-items: baseline; gap: 7px; margin-bottom: 11px; }
+/* ---------- CONTENT(旧 SCENARIO・mockup .scenario 1320-1339)。タブ + プラン操作ボタン ---------- */
+.theme-military .milspec-scenario { padding: 10px 13px 12px; flex: none; }
+.theme-military .milspec-scenario .milspec-tree-tabs { margin: 0 0 9px; }
+.theme-military .milspec-s-hd { position: relative; display: flex; align-items: baseline; gap: 7px; margin-bottom: 9px; }
 .theme-military .milspec-s-hd .en { font: 400 12px/1 'Share Tech Mono', monospace; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ms-stencil); }
 .theme-military .milspec-s-hd .jp { font-size: 9px; color: var(--ms-text-muted); }
 .theme-military .milspec-s-decal { position: absolute; right: 0; top: 1px; width: 36px; height: 7px; opacity: 0.4; }

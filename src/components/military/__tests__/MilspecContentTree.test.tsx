@@ -22,13 +22,12 @@ beforeEach(() => {
 });
 afterEach(() => { vi.restoreAllMocks(); });
 
-const r = () => render(<MemoryRouter><MilspecContentTree /></MemoryRouter>);
+const r = (tab: 'savage' | 'ultimate' | 'other' | 'archive' = 'ultimate') =>
+  render(<MemoryRouter><MilspecContentTree tab={tab} /></MemoryRouter>);
 
 describe('MilspecContentTree', () => {
-  it('現在プランのコンテンツ種別(絶)のタブが選択され、そのグループが展開されてプランが並ぶ', () => {
-    const { container, getByText } = r();
-    const activeTab = container.querySelector('.milspec-tree-tab.active');
-    expect(activeTab?.textContent).toMatch(/絶|Ultimate/);
+  it('現在プランのコンテンツグループが展開されてプランが並ぶ', () => {
+    const { getByText } = r('ultimate');
     expect(getByText('A')).toBeTruthy();
     expect(getByText('B')).toBeTruthy();
   });

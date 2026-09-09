@@ -10,7 +10,7 @@ import { getContentById } from '../../data/contentRegistry';
 import { getPhaseName } from '../../types';
 import { BackupExportModal } from '../BackupExportModal';
 import { BackupRestoreModal } from '../BackupRestoreModal';
-import { MilspecContentTree } from './MilspecContentTree';
+import { MilspecContentTree, useMilspecTreeTabs, tabForPlanCategory, type MilspecTreeTab } from './MilspecContentTree';
 import type { MilspecLayoutProps } from './MilspecLayout';
 // 副作用 import: i18next の初期化(標準 Sidebar.tsx:35 と同じ理由)。
 import '../../i18n';
@@ -39,6 +39,22 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
   const [confirmScenarioDelete, setConfirmScenarioDelete] = React.useState(false);
   const [backupExportOpen, setBackupExportOpen] = React.useState(false);
   const [backupRestoreOpen, setBackupRestoreOpen] = React.useState(false);
+
+  // コンテンツツリーのタブ(零式/絶/その他/アーカイブ)。CONTENT パネル内に置く(masaya 指定)。
+  const tabs = useMilspecTreeTabs();
+  const [tab, setTab] = React.useState<MilspecTreeTab>(() =>
+    tabForPlanCategory(contentDef?.category ?? currentPlan?.category ?? null),
+  );
+  // currentPlanId が変わったらタブを追従(標準 Sidebar と同じ・plans 配列変化では追従しない)
+  const prevPlanIdRef = React.useRef(currentPlanId);
+  React.useEffect(() => {
+    if (currentPlanId && currentPlanId !== prevPlanIdRef.current) {
+      const p = usePlanStore.getState().plans.find((x) => x.id === currentPlanId);
+      const cat = p?.contentId ? getContentById(p.contentId)?.category : (p?.category ?? null);
+      if (cat) setTab(tabForPlanCategory(cat));
+    }
+    prevPlanIdRef.current = currentPlanId;
+  }, [currentPlanId]);
 
   React.useEffect(() => {
     if (!confirmScenarioDelete) return;
@@ -77,15 +93,29 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
         <>
           <span className="milspec-sc" style={{ top: 3, right: 14, opacity: 0.35 }}>ENCOUNTER INDEX · RETRACTABLE</span>
 
-          {/* SCENARIO — mockup .scenario(DOM 1986-2001) */}
+          {/* CONTENT — コンテンツ選択(タブ 零式/絶/… + プラン操作ボタン)。
+              mockup .scenario の位置。見出しは masaya 指定で「シナリオ」→「コンテンツ」。 */}
           <div className="milspec-hp milspec-scenario recess stack" style={{ '--ms-sh': 'var(--ms-sh-br)' } as React.CSSProperties}>
             <span className="milspec-ao-mark" /><span className="milspec-grime-mark" />
             <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
-            <span className="milspec-sc bl">SCN-01</span>
-            <span className="milspec-pl h" style={{ left: 10, right: 10, top: 36, opacity: 0.6 }} />
+            <span className="milspec-sc bl">CNT-01</span>
             <div className="milspec-s-hd">
-              <span className="en">Scenario</span><span className="jp">シナリオ</span>
+              <span className="en">Content</span><span className="jp">コンテンツ</span>
               <span className="milspec-hash milspec-s-decal" style={{ top: 1, right: 0, left: 'auto', width: 36, height: 7 }} />
+            </div>
+            <div className="milspec-tree-tabs" role="tablist">
+              {tabs.map((tb) => (
+                <button
+                  key={tb.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === tb.id}
+                  className={clsx('milspec-tree-tab', tab === tb.id && 'active')}
+                  onClick={() => setTab(tb.id)}
+                >
+                  {tb.label}
+                </button>
+              ))}
             </div>
             <div className="milspec-s-btns">
               <button type="button" className="milspec-s-btn" onClick={handleNew}>
@@ -118,8 +148,9 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
           {/* 遭遇名 — mockup .enc-name(DOM 2003)。現在開いているコンテンツを大きく表示。 */}
           <div className="milspec-enc-name"><span className="milspec-rub-mark" />{encName || t('sidebar.no_content')}</div>
 
-          {/* コンテンツツリー(タブ + コンテンツ名 + プラン)= mockup .phases/.phase/.pi 意匠を流用 */}
-          <MilspecContentTree />
+          {/* コンテンツツリー(コンテンツ名 + プラン)= mockup .phases/.phase/.pi 意匠を流用。
+              タブは上の CONTENT パネル側。 */}
+          <MilspecContentTree tab={tab} />
 
           {/* DOCK: BACKUP / RESTORE — mockup .dock(DOM 2038-2045) */}
           <div className="milspec-hp milspec-dock recess" style={{ '--ms-sh': 'var(--ms-sh-slab)' } as React.CSSProperties}>

@@ -23,12 +23,13 @@ const props = { isSidebarOpen: true, onToggleSidebar: vi.fn(), onCloseSidebar: v
 const r = () => render(<MemoryRouter><MilspecSidebar {...props} /></MemoryRouter>);
 
 describe('MilspecSidebar', () => {
-  it('SCENARIO / コンテンツツリー(タブ) / DOCK / DEPLOYMENT を描画', () => {
+  it('CONTENT パネル(見出し+タブ) / コンテンツツリー / DOCK / DEPLOYMENT を描画', () => {
     const { container } = r();
-    expect(container.textContent).toMatch(/シナリオ|Scenario/);
+    expect(container.textContent).toMatch(/コンテンツ|Content/);
     expect(container.textContent).toMatch(/バックアップ|Backup/);
-    // タブ(零式/絶/その他/アーカイブ)
-    expect(container.querySelectorAll('.milspec-tree-tab').length).toBe(4);
+    // タブ(零式/絶/その他/アーカイブ)は CONTENT パネル内
+    const tabs = container.querySelectorAll('.milspec-scenario .milspec-tree-tab');
+    expect(tabs.length).toBe(4);
     // フェーズ表示パネルは撤去済み
     expect(container.querySelector('.milspec-phase')).toBeNull();
   });
