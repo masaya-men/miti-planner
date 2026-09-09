@@ -42,7 +42,10 @@ const ZONES = {
   workspace: { mock: '.workspace', app: '.milspec-ws' },
   jobchips: { mock: '.subtoolbar .cb-e', app: '#timeline-controls-inner' },
   scrollbar: { mock: '.tbody', app: '.timeline-scroll-container' },
-  wscap: { mock: '.ws-cap', app: '.milspec-ws-code-r' },
+  // Task 2: 端末キャップ + ROSTER ノート。cap/note は右端に絶対配置された小片なので、
+  // 位置・帯幅・文字サイズ・不透明度を「表に対して」評価できるよう装甲板ごと撮る
+  // (mock .workspace / app .milspec-ws)。要素単体だと 14px の帯や極小テキストしか写らない。
+  wscap: { mock: '.workspace', app: '.milspec-ws' },
 };
 
 async function shot(page, selector, outPath, { outer = false } = {}) {

@@ -1013,6 +1013,43 @@
 }
 
 /* ============================================================
+ * SP2: TIMELINE TABLE — タイムライン表の軍事化
+ * 正典: docs/.private/theme-refs/milspec-mockup.html
+ *   .subtoolbar(2088-2119/966-1032) / .workspace(2121-2213/1034-1071)
+ *   .table/.thead/.th(2130-2149/1076-1120) / .recast-row(2151-2168/1277-1300)
+ *   .tbody/.trow/.td(2170-2208/1122-1162) / .mit-bar/.mit-lbl(2175-2188/1164-1190)
+ *   .ws-cap/.ws-note(2210-2211/1191-1198) / scrollbar(1200-1275) / .cj(1023-1032)
+ * 全ルール .theme-military 前置。モックの --raised-hi 等は --ms-raised-hi へ読み替え。
+ * ============================================================ */
+
+/* ---------- Task 2: 端末キャップ + ROSTER ノート（mockup .ws-cap/.ws-note 1191-1198） ----------
+   mockup .ws-cap は固定キャンバス前提の left:1192px（列の終端 = 未充填メンバー枠の直前）。
+   実アプリは表幅が可変なので .milspec-ws(position:relative・padding box)の right:0 に貼る
+   = .milspec-ws-screen の右端に一致。表が screen 幅いっぱいなら右端のベゼル帯として、
+   狭ければその空きを埋める端末キャップとして機能する（空白を放置しない）。
+   グラデーション方向は mockup 準拠: ハードな暗線を左（表の内容側）に置き、金属の照りを
+   経て右へフェード。 */
+.theme-military .milspec-ws-cap {
+  position: absolute; top: 0; bottom: 0; right: 0;
+  width: 14px; pointer-events: none; z-index: 3;
+  background: linear-gradient(90deg, #05070a 0 2px, var(--ms-raised-lo) 3px, var(--ms-raised) 45% 55%, var(--ms-raised-lo), transparent);
+  opacity: 0.55;
+}
+.theme-military .milspec-ws-note {
+  position: absolute; right: 20px; top: 10px; z-index: 3;
+  pointer-events: none; white-space: nowrap;
+  font: 400 7px/1.7 'Share Tech Mono', ui-monospace, monospace;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ms-text-muted); opacity: 0.38;
+}
+/* light: スクリーン自体は常時ダーク(#0d1319)。キャップの金属面は raised 変数が白で浮くので
+   帯の芯を鈍い金属グレーに落とし、外縁のベゼル影(#05070a)だけ残す。 */
+.theme-military.theme-light .milspec-ws-cap {
+  background: linear-gradient(90deg, #05070a 0 2px, rgba(120,140,158,0.42) 3px, rgba(150,168,184,0.5) 45% 55%, rgba(120,140,158,0.42), transparent);
+  opacity: 0.5;
+}
+
+/* ============================================================
  * SP1 Task 4: ヘッダー — ハードサーフェス パネルアセンブリ
  * 正典: milspec-mockup.html DOM 1920-1979 / CSS .header 771-886, タービン 1580-1699。
  * 全セレクタ .theme-military 前置。ロゴ本体は標準 LoPoButton(カプセル+スキャンライン意匠)を
