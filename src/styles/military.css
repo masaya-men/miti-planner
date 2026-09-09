@@ -1675,13 +1675,19 @@
   letter-spacing: 0.24em;
 }
 
-/* セル(mockup .rc-cell 1291)。gap だけ mockup に寄せる。padding / justify-content は
-   上記のとおり実アプリの列整合を優先して不変。
+/* セル(mockup .rc-cell 1291)。padding / justify-content は上記のとおり
+   実アプリの列整合を優先して不変。
    mockup の .recast-row は「1 枚の綺麗な沈みプレート」で列仕切りを一切描かない
    (列の手掛かりは上のヘッダーのブラケットタイルが担う)ので、index.css の
-   border-right(1px)は幅を保ったまま色だけ透明に落とす = レイアウト不変。 */
+   border-right(1px)は幅を保ったまま色だけ透明に落とす = レイアウト不変。
+   ⚠ gap は index.css:1644 の 0 のまま**触らない**。T/H セルは
+     --col-th-w(151px) - padding-left(--col-member-pad-x + 2px = 4.9px) = 146.1px の内幅に
+     RecastRow.tsx:29 の LIMIT_TH = 6 個ぶん(6 × 24px = 144px)がギリギリ収まる設計で、
+     gap を 4px 入れると 164px となり flex-wrap:wrap で 2 行目に折り返す
+     → 帯は overflow:hidden + min-height:38px なので 2 行目のアイコンが切れて消える。
+     mockup のアイコン間隔を採りたい場合は gap ではなくアイコン側の寸法調整
+     (Task 10 のアイコンサイズ調整)で行うこと。 */
 .theme-military .milspec-app [data-milspec-recast-band] .recast-cell {
-  gap: 4px;
   background: transparent;
   border-right-color: transparent;
 }

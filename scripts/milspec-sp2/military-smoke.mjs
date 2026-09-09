@@ -397,6 +397,103 @@ async function main() {
       );
     });
 
+    // ── step 12: リキャスト帯 — T/H セルに 6 アイコンが折り返さない ──
+    // RecastRow.tsx:29 の LIMIT_TH = 6。T/H 列の内幅は
+    //   --col-th-w(151px) - padding-left(--col-member-pad-x + 2px)
+    // しかなく、24px アイコン 6 個(144px)がギリギリ収まる設計。帯側の CSS で
+    // flex gap を足すと折り返し、帯は overflow:hidden なので 2 行目が切れて消える。
+    // 「6 個同時可視」はクールダウンのタイミング依存なので、レイアウト検証としては
+    // DOM 側で --cd-display を強制 flex にして測る(計測専用・製品コード不変・測定後に戻す)。
+    await step('リキャスト帯: T/H セルで 6 アイコンが 1 行に収まる (折り返しクリップ回帰)', async () => {
+      const r = await page.evaluate(async () => {
+        const { useMitigationStore } = await import('/src/store/useMitigationStore.ts');
+        const s = useMitigationStore.getState();
+        const tank = s.partyMembers.find((m) => m.role === 'tank');
+        if (!tank) return { err: 'tank メンバーが居ない' };
+
+        // T/H の上限 6 種ぶん「過去に一度でも置いた」状態を作る = セルに 6 アイコンが mount される。
+        // id はハードコードせず実マスターデータから採る(EXCLUDED_FROM_RECAST_ROW は除外)。
+        const { useMasterDataStore } = await import('/src/store/useMasterDataStore.ts');
+        const mod = await import('/src/data/mockData.ts');
+        const defs = useMasterDataStore.getState().skills?.mitigations ?? mod.MITIGATIONS;
+        const { EXCLUDED_FROM_RECAST_ROW } = await import('/src/utils/recastRow.ts');
+        const species = defs
+          .map((d) => d.id)
+          .filter((id) => !EXCLUDED_FROM_RECAST_ROW.has(id))
+          .slice(0, 6);
+        if (species.length < 6) return { err: `軽減マスターから 6 種を採れない (${species.length} 種)` };
+        const extra = species.map((mid, i) => ({
+          id: `wrapprobe-${i}`,
+          mitigationId: mid,
+          ownerId: tank.id,
+          time: 300 + i * 5,
+        }));
+        useMitigationStore.setState({ timelineMitigations: [...s.timelineMitigations, ...extra] });
+        await new Promise((res) => setTimeout(res, 500));
+
+        const cell = document.querySelector(`[data-milspec-recast-band] .recast-cell[data-member="${tank.id}"]`);
+        if (!cell) return { err: '帯の中に tank の .recast-cell が無い' };
+        const icons = Array.from(cell.querySelectorAll('.recast-icon'));
+        if (icons.length < 6) return { err: `tank セルのアイコンが ${icons.length} 個しか mount されていない (6 個必要)` };
+
+        // 計測のためだけに 6 個を強制表示 (RecastRow.update() が書く --cd-display と同じ値)
+        const probe = icons.slice(0, 6);
+        for (const el of probe) el.style.setProperty('--cd-display', 'flex');
+        await new Promise((res) => setTimeout(res, 150));
+
+        const cs = getComputedStyle(cell);
+        const cellRect = cell.getBoundingClientRect();
+        const tops = probe.map((el) => Math.round(el.getBoundingClientRect().top));
+        const rects = probe.map((el) => el.getBoundingClientRect());
+        const rowCount = new Set(tops).size;
+        const maxBottom = Math.max(...rects.map((x) => x.bottom));
+        const band = document.querySelector('[data-milspec-recast-band]');
+        const bandRect = band.getBoundingClientRect();
+
+        // 後片付け: 強制表示を解除して store も元に戻す (以降のステップに影響させない)
+        for (const el of probe) el.style.removeProperty('--cd-display');
+        useMitigationStore.setState({ timelineMitigations: s.timelineMitigations });
+        await new Promise((res) => setTimeout(res, 200));
+
+        return {
+          gap: cs.gap,
+          columnGap: cs.columnGap,
+          flexWrap: cs.flexWrap,
+          cellWidth: cellRect.width,
+          cellPaddingLeft: cs.paddingLeft,
+          iconW: rects[0].width,
+          rowCount,
+          iconBottomOverflow: maxBottom - bandRect.bottom,
+          scrollOverflow: cell.scrollWidth - cell.clientWidth,
+        };
+      });
+
+      if (r.err) fail(r.err);
+
+      // 6 個が 1 行 = top が全て同じ
+      if (r.rowCount !== 1) {
+        fail(
+          `T/H セルで 6 アイコンが ${r.rowCount} 行に折り返している ` +
+            `(gap=${r.gap} / flex-wrap=${r.flexWrap} / セル幅 ${r.cellWidth.toFixed(1)}px ` +
+            `padding-left ${r.cellPaddingLeft} / アイコン ${r.iconW}px) — 帯は overflow:hidden なので 2 行目が切れる`,
+        );
+      }
+      // 帯の下端から溢れていない
+      if (r.iconBottomOverflow > 0.5) {
+        fail(`アイコンが帯の下端から ${r.iconBottomOverflow.toFixed(1)}px 溢れている (クリップされる)`);
+      }
+      // 横方向にも溢れていない
+      if (r.scrollOverflow > 1) {
+        fail(`T/H セルが横に ${r.scrollOverflow}px 溢れている (アイコンが隠れる)`);
+      }
+
+      return (
+        `6 アイコン × ${r.iconW}px が 1 行 (gap=${r.gap} / flex-wrap=${r.flexWrap}) / ` +
+        `セル幅 ${r.cellWidth.toFixed(1)}px - padding-left ${r.cellPaddingLeft} / ` +
+        `帯下端の溢れ ${r.iconBottomOverflow.toFixed(1)}px / 横溢れ ${r.scrollOverflow}px`
+      );
+    });
+
     // ── 最終判定 ─────────────────────────────────────────────
     console.log('');
     if (rec.whitelisted.length) {
