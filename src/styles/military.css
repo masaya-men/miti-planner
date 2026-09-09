@@ -1052,14 +1052,14 @@
    銘板がタービンに潰れる)。 */
 .theme-military .milspec-hp-logo { width: 338px; flex: none; gap: 11px; padding: 0 15px; clip-path: var(--ms-sh-br); }
 .theme-military .milspec-logo-text {
-  font: 900 22px/1 'Orbitron', sans-serif; letter-spacing: -0.01em; color: var(--ms-heading);
+  font: 900 18px/1 'Orbitron', sans-serif; letter-spacing: 0; color: var(--ms-heading);
   padding: 6px 12px 7px; border: 0; border-radius: 3px; cursor: pointer;
   background: linear-gradient(180deg, #0f141a, #1a212a);
   box-shadow: inset 0 1px 4px rgba(0,0,0,0.75), inset 0 -1px 0 rgba(255,255,255,0.06);
 }
 .theme-military.theme-light .milspec-logo-text { background: linear-gradient(180deg, #e3e9f0, #f2f5f9); }
 .theme-military .milspec-logo-meta { display: flex; flex-direction: column; gap: 2px; line-height: 1.18; flex: 1; }
-.theme-military .milspec-logo-meta .l1 { font: 400 12px/1 'Share Tech Mono', monospace; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ms-heading); }
+.theme-military .milspec-logo-meta .l1 { font: 400 10px/1 'Share Tech Mono', monospace; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ms-heading); }
 .theme-military .milspec-logo-meta .l2 { font: 400 8px/1 'Share Tech Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ms-text-muted); margin-top: 1px; }
 .theme-military .milspec-logo-meta .l3 { display: flex; align-items: center; gap: 8px; font: 400 8px/1 'Share Tech Mono', monospace; letter-spacing: 0.14em; color: var(--ms-text-muted); margin-top: 3px; }
 .theme-military .milspec-logo-meta .l3 .d { width: 60px; height: 6px; background-image: repeating-linear-gradient(58deg, var(--ms-text-muted) 0 1px, transparent 1px 4px); opacity: 0.5; }
@@ -1091,7 +1091,7 @@
 .theme-military .milspec-hp-title { flex: 0 1 auto; min-width: 250px; gap: 12px; padding: 0 20px; clip-path: var(--ms-sh-tl); }
 .theme-military .milspec-hp-title > div { min-width: 0; overflow: hidden; }
 .theme-military .milspec-hp-title .jp { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.theme-military .milspec-hp-title .jp { font: 700 19px/1.1 'Rajdhani','M PLUS 1',sans-serif; color: var(--ms-heading); }
+.theme-military .milspec-hp-title .jp { font: 700 12px/1.2 'Rajdhani','M PLUS 1',sans-serif; letter-spacing: 0.02em; color: var(--ms-heading); }
 .theme-military .milspec-hp-title .en { font: 400 8px/1 'Share Tech Mono', monospace; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ms-text-muted); margin-top: 4px; }
 .theme-military .milspec-hp-title .tick {
   position: absolute; left: 6px; top: 50%; transform: translateY(-50%); width: 3px; height: 30px; border-radius: 1px;
@@ -1117,7 +1117,7 @@
   flex: none; width: 148px; flex-direction: column; align-items: flex-start; justify-content: center;
   padding: 0 16px; gap: 2px; clip-path: var(--ms-shb-bl);
 }
-.theme-military .milspec-hp-share .jp { font-size: 13px; color: var(--ms-text-sec); }
+.theme-military .milspec-hp-share .jp { font-size: 10px; color: var(--ms-text-sec); }
 .theme-military .milspec-hp-share .en {
   font: 400 8px/1 'Share Tech Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ms-text-muted);
 }
@@ -1340,7 +1340,7 @@
 .theme-military .milspec-sb-collapse {
   position: absolute; right: 8px; top: 45%; z-index: 5;
   width: 18px; height: 22px; padding: 0; border: 0; background: none;
-  color: var(--ms-text-muted); font: 400 15px/1 'Share Tech Mono', monospace;
+  color: var(--ms-text-muted); font: 400 13px/1 'Share Tech Mono', monospace;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 .theme-military .milspec-sb-collapse:hover { color: var(--ms-cyan); }
@@ -1350,8 +1350,8 @@
 .theme-military .milspec-scenario { padding: 10px 13px 12px; flex: none; }
 .theme-military .milspec-scenario .milspec-tree-tabs { margin: 0 0 9px; }
 .theme-military .milspec-s-hd { position: relative; display: flex; align-items: baseline; gap: 7px; margin-bottom: 9px; }
-.theme-military .milspec-s-hd .en { font: 400 12px/1 'Share Tech Mono', monospace; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ms-stencil); }
-.theme-military .milspec-s-hd .jp { font-size: 9px; color: var(--ms-text-muted); }
+.theme-military .milspec-s-hd .en { font: 400 9px/1 'Share Tech Mono', monospace; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ms-stencil); }
+.theme-military .milspec-s-hd .jp { font-size: 8px; color: var(--ms-text-muted); }
 .theme-military .milspec-s-decal { position: absolute; right: 0; top: 1px; width: 36px; height: 7px; opacity: 0.4; }
 .theme-military .milspec-s-btns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .theme-military .milspec-s-btn {
@@ -1405,10 +1405,10 @@
   box-shadow: inset 0 -2px 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 7px var(--ms-cyan-glow);
 }
 .theme-military .milspec-tree-series-hd {
-  font: 700 9px/1.3 'Rajdhani', sans-serif; letter-spacing: 0.02em; color: var(--ms-text-sec);
-  padding: 5px 2px 0; flex: none;
+  font: 600 8px/1.35 'Rajdhani','M PLUS 1',sans-serif; letter-spacing: 0.06em; color: var(--ms-text-muted);
+  padding: 6px 2px 2px; flex: none;
 }
-.theme-military .milspec-tree-empty { color: var(--ms-text-muted); font-size: 11px; padding: 10px 8px; text-align: center; }
+.theme-military .milspec-tree-empty { color: var(--ms-text-muted); font-size: 10px; padding: 10px 8px; text-align: center; }
 
 /* コンテンツ 1 件 = 独立した .milspec-hp くぼみ(CONTENT / BACKUP パネルと同じ意匠)。
    .milspec-hp.recess の枠・面取り・落ち影はそのまま使い、ここでは中身の余白だけ足す。 */
@@ -1418,7 +1418,7 @@
 
 .theme-military .milspec-tree-head {
   display: flex; align-items: center; gap: 7px; width: 100%; cursor: pointer;
-  text-align: left; font: 700 12px/1.25 'Rajdhani','M PLUS 1',sans-serif; color: var(--ms-heading);
+  text-align: left; font: 700 10px/1.3 'Rajdhani','M PLUS 1',sans-serif; letter-spacing: 0.03em; color: var(--ms-heading);
   padding: 4px 2px; background: none; border: 0;
 }
 .theme-military .milspec-tree-head:hover .milspec-tree-head-name { color: var(--ms-cyan); }
@@ -1427,7 +1427,7 @@
   flex: none; font: 400 8px/1 'Share Tech Mono', monospace; color: var(--ms-text-muted);
   padding: 1px 4px; border: 1px solid var(--ms-frame); border-radius: 2px;
 }
-.theme-military .milspec-tree-head-cv { flex: none; color: var(--ms-text-muted); font-size: 13px; transition: transform 0.15s ease; }
+.theme-military .milspec-tree-head-cv { flex: none; color: var(--ms-text-muted); font-size: 11px; transition: transform 0.15s ease; }
 .theme-military .milspec-tree-head-cv.open { transform: rotate(90deg); color: var(--ms-cyan); }
 .theme-military .milspec-tree-group.current .milspec-tree-head-name { color: var(--ms-cyan); }
 
@@ -1444,7 +1444,7 @@
 .theme-military .milspec-pi .ac button.armed { color: #ff6b7a; }
 
 /* ---------- プラン行 / ラベル行 共通(mockup .pi 1373-1392) ---------- */
-.theme-military .milspec-pi { position: relative; display: flex; align-items: center; gap: 9px; padding: 6px 8px; font-size: 13px; color: var(--ms-text-sec); margin-left: 10px; background: none; border: 0; width: calc(100% - 10px); text-align: left; font-family: inherit; }
+.theme-military .milspec-pi { position: relative; display: flex; align-items: center; gap: 9px; padding: 6px 8px; font-size: 10px; letter-spacing: 0.02em; color: var(--ms-text-sec); margin-left: 10px; background: none; border: 0; width: calc(100% - 10px); text-align: left; font-family: inherit; }
 .theme-military .milspec-pi::before { content: ""; position: absolute; left: 10px; top: -6px; height: 15px; width: 1px; background: var(--ms-frame); }
 .theme-military .milspec-pi:first-child::before, .theme-military .milspec-pi.sel::before { display: none; }
 .theme-military .milspec-pi .bl { width: 5px; height: 5px; border-radius: 50%; background: var(--ms-text-muted); flex: none; z-index: 1; }
@@ -1474,8 +1474,8 @@
 .theme-military .milspec-dock { flex: none; padding: 10px 13px; display: flex; gap: 10px; }
 .theme-military .milspec-dock button { flex: 1; display: flex; align-items: center; gap: 10px; padding: 3px 2px; cursor: pointer; background: none; border: 0; font-family: inherit; }
 .theme-military .milspec-dock button .tx { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
-.theme-military .milspec-dock button .en { font: 400 12px/1 'Share Tech Mono', monospace; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ms-heading); }
-.theme-military .milspec-dock button .jp { font-size: 9px; color: var(--ms-text-muted); letter-spacing: 0.02em; margin-top: 3px; }
+.theme-military .milspec-dock button .en { font: 400 9px/1.1 'Share Tech Mono', monospace; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ms-heading); }
+.theme-military .milspec-dock button .jp { font-size: 8px; color: var(--ms-text-muted); letter-spacing: 0.02em; margin-top: 3px; }
 .theme-military .milspec-dock button svg { width: 20px; height: 20px; flex: none; color: var(--ms-text-sec); }
 .theme-military .milspec-dock button:hover svg, .theme-military .milspec-dock button:hover .en { color: var(--ms-cyan); }
 
@@ -1489,9 +1489,9 @@
 .theme-military .milspec-deployment-bd .mk { width: 38px; height: 38px; flex: none; color: rgba(150,190,205,0.3); filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5)); transition: color 0.15s ease; }
 .theme-military .milspec-deployment-bd:hover .mk { color: var(--ms-cyan); }
 .theme-military .milspec-deployment-bd .tx { display: flex; flex-direction: column; line-height: 1.45; min-width: 0; }
-.theme-military .milspec-deployment-bd .en { font: 400 13px/1.15 'Share Tech Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ms-text-sec); transition: color 0.15s ease; }
+.theme-military .milspec-deployment-bd .en { font: 400 9px/1.2 'Share Tech Mono', monospace; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ms-text-sec); transition: color 0.15s ease; }
 .theme-military .milspec-deployment-bd:hover .en { color: var(--ms-cyan); }
-.theme-military .milspec-deployment-bd .jp { font-size: 10px; color: var(--ms-text-muted); }
+.theme-military .milspec-deployment-bd .jp { font-size: 8px; color: var(--ms-text-muted); }
 
 /* ============================================================
  * SP1 Task 6: ツールバー — CREW(パーティ編成/設定/ログ取込/その他) /
@@ -1561,7 +1561,7 @@
 .theme-military .milspec-tool-btn .ico { width: 17px; height: 17px; color: #c3d1dc; }
 .theme-military .milspec-tool-btn .lbl { display: flex; flex-direction: column; line-height: 1.15; max-width: 92px; }
 .theme-military .milspec-tool-btn .lbl .en {
-  font: 700 10px/1 'Rajdhani', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ms-heading);
+  font: 700 9px/1 'Rajdhani', sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ms-heading);
 }
 .theme-military .milspec-tool-btn .lbl .jp {
   font-size: 7px; letter-spacing: 0.02em; color: var(--ms-text-muted);
@@ -1633,7 +1633,7 @@
 
 /* --- 情報プレート中身(mockup .fp-title/.fp-rule/.finfo 1448-1457) --- */
 .theme-military .milspec-fp-title { display: flex; align-items: baseline; gap: 10px; }
-.theme-military .milspec-fp-title b { font: 700 12px/1 'Orbitron', sans-serif; letter-spacing: 0.08em; color: var(--ms-text-sec); }
+.theme-military .milspec-fp-title b { font: 700 10px/1 'Orbitron', sans-serif; letter-spacing: 0.1em; color: var(--ms-text-sec); }
 .theme-military .milspec-fp-title span { font: 400 6.5px/1 'Share Tech Mono', monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ms-text-muted); opacity: 0.75; }
 .theme-military .milspec-fp-rule { height: 2px; margin: 1px 0;
   background: linear-gradient(180deg, rgba(0,0,0,0.5) 0 1px, rgba(255,255,255,0.05) 1px 2px); opacity: 0.7; }

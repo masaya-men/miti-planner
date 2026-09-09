@@ -22,15 +22,11 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
 
 ## 現在の状態 (次セッションはここから読む)
 ### 🟢 2026-09-04 X OGPカード不具合 = デプロイ済(`280da74d`)。診断=`docs/.private/2026-09-04-housing-ogp-card-x-timing-fix.md`。**残=実機確認のみ**: 次の新規登録ツイートで一発で出るか(出なければ登録→通知の間隔を空ける方向)。既存壊れは `?x=1` で貼り直し。⚠フロント変更デプロイ後は CF「すべてパージ」必須([[reference_cf_cache_housing_ogp_pages]])。
-### 🔴 次セッション最優先 = MIL-SPEC テーマ 本番移植。worktree `milspec-theme`。
-  **正典=`docs/.private/theme-refs/milspec-mockup.html`**(GITIGNORE・CSS1846行+DOM+JS。一週間かけ作り込んだ削り出し金属・C面・タービン遊びボタン・ロールカウンター計器・導管・フッターHUD)。経緯=`docs/.private/2026-09-03-milspec-trace-workflow.md`追記1〜25。material=memory `reference_milspec_material_language`。
-  **2026-09-07 masaya 方針**: モックアップの全部(見た目・遊びボタン・計器・フッターHUD)を**取りこぼしなく本番へ**・**ライト同時**・**完成までユーザー非公開**(`localStorage 'milspec-preview'`)・本番編集機能は全稼働・standard 1バイト不変。
-  **2026-09-08 方針転換(masaya)**: 再スキンでは無理 → **構造から作り直す**。themeStyle==='military'&&PC で専用ツリー `MilspecLayout` を描画、既存ストア配線で編集機能全維持、標準は Layout 分岐1か所のみで不変。**SP1〜SP4 に分割**(SP1=外側シェル / SP2=タイムライン表 / SP3=スマホ / SP4=編集モーダル軍事化)。Phase1土台(--ms-*/プリミティブ/フォント)は残し、Phase2の皮(data-milspec-*)は撤去。旧プラン v2 と旧spec §8/9/13/16 は失効。Q1〜Q6 確定。
-  **✅ SP1 設計書 = `docs/superpowers/specs/2026-09-08-milspec-structural-rebuild-sp1-shell-design.md`**(`ed047f9b`)。
-  **⚠ SP1 マージ済み(`b820358e`)・本番実機で品質却下(2026-09-08夜)→ 是正中(未コミット変更あり)**。要求:「モックそのまま・妥協なし」。punch-list=`docs/.private/2026-09-08-milspec-sp1-punch-list.md`。
-  - ✅ ①入口ボタン ②「層」→絶で非表示 ③フッター排熱ファン一式(`useTurbineCluster.ts`) ④ヘッダータービン起動シーケンス ⑤ヘッダー幅リバランス(銘板潰れ解消・hud-btn 78・プレビュートグル退避) ⑥再利用コンポーネントを `children` prop で全部モックタイル化(`MilspecTileInner`)・SORT 自前化・hp-share 銘板化 ⑦**サイドバー中央を作り直し**: SP1 のフェーズ表示は誤り → 標準と同じコンテンツツリー(`MilspecContentTree.tsx` 新規・タブ+コンテンツ名+プラン・NewPlanModal に `initialContentId` 追加) ⑧DEPLOYMENT 枠を `/support` へ配線+文言を `footer.support` に統一(旧「展開を支援する」誤訳を撤去) — 全スクショ突合済・build+test green・**ブランチ `milspec-sp1-quality`(未push・未マージ)**。
-  - **残**: 見た目の詰め全般(masaya「まだまったくよくない」)/ ロールカウンター回転ドラム / SCENARIO パネルとツリーの役割二重 / フッター fp-inst 幅 / DEPLOYMENT の X アイコン+「DPL-X」デカールが支援リンクと不整合(任意)。
-  - **次回=masaya と 1 件ずつ見た目を詰める(金属質感の適用・メニュー位置/幅の調整)。各件モック突合。素材ファイルは masaya 支給あり得る。**
+### 🔴 次セッション最優先 = MIL-SPEC SP2(タイムライン表の軍事化)を設計から。brainstorm→設計書→計画→subagent。SP1 spec §12・§5.5 参照(14列グリッド作り直し/軽減バー座標/横スクロール同期/行間引き/`MilspecControlBar` 5行目復活)。実装まで数セッション規模。
+  正典=`docs/.private/theme-refs/milspec-mockup.html`(GITIGNORE)。material=[[reference_milspec_material_language]]。経緯=`docs/.private/2026-09-03-milspec-trace-workflow.md`。方針(masaya)=モック全部取りこぼしなく・ライト同時・完成まで非公開(`localStorage 'milspec-preview'`)・編集機能全稼働・standard 不変・再スキンでなく構造から(`themeStyle==='military'&&PC`→`MilspecLayout`・既存ストア配線・標準は分岐1か所)。SP1〜SP4 分割(シェル/表/スマホ/編集モーダル)。旧プラン v2・旧spec §8/9/13/16 失効。
+  **✅ SP1 設計書=`docs/superpowers/specs/2026-09-08-milspec-structural-rebuild-sp1-shell-design.md`**・SP1 マージ済(`b820358e`)・是正8件完了(入口ボタン/「層」絶非表示/排熱ファン/タービン起動/幅リバランス/`children`タイル化/サイドバー中央=`MilspecContentTree.tsx`/DEPLOYMENT→`/support`)。punch-list=`docs/.private/2026-09-08-milspec-sp1-punch-list.md`。
+  **🔵 2026-09-09(masaya): SP1 の細かい見た目詰めは SP2 の後にまとめて**(理由=中央の標準UI表が統一感の主因・SP2 で外枠を合わせ直す二度手間)。順序: SP2実装 → 外枠+表を1回で見た目調整(フォント/余白/立体感/ロールカウンター/fp-inst幅/SCENARIO・ツリー役割) → 文字スケールを CSS 変数で固定。今日の文字調整(Plan B・シェル 8〜10px 帯)はブランチ `milspec-sp1-quality` にコミット済。
+  - 未決: ブランチ `milspec-sp1-quality`(CSS 19行)を main マージ or SP2 まで保留 = masaya 判断待ち。
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = デプロイ済。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。設計書2026-08-28。
 ### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
 ### 🟡 SEOソフト404対策: CF Cache Rule は `/housing/(listing|housinger|tour)/` `/h/` 追加済(2026-09-04)。**残**: `/share/*` の CF ルール検討 / Search Console 再検査+インデックス登録。
