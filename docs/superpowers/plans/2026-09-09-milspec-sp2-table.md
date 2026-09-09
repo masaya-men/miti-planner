@@ -10,6 +10,8 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-09-milspec-sp2-table-design.md`（このプランは spec から論証する。executor は両方読む）
 
+**実行方式（2026-09-09 masaya 合意）:** subagent-driven-development。専用ブランチ `milspec-sp2-table`（worktree でなく通常ブランチ・SP2 はプレビューゲート裏で一般ユーザー影響ゼロ・SP1 の worktree remove トラブル回避）。**per-task の masaya ゲートは行わない** — 各タスクで実装者が視覚忠実度プロトコル（§テスト戦略）を自分で完遂し、親（司令塔）が作業ツリーの `.compare/` と機械検証を検収して次タスクへ。masaya のレビューは Task 10 の最終 1 回のみ。push は SP2 完了 + masaya 承認後にまとめて。
+
 ## Global Constraints
 
 spec §14 から逐語コピー。**全タスクの要件に暗黙で含まれる。**
@@ -147,7 +149,7 @@ spec §14 から逐語コピー。**全タスクの要件に暗黙で含まれ�
 
 ## テスト戦略
 
-CSS の視覚忠実度は自動化しない（spec §10）。各タスクの機械検証は:
+各タスクの機械検証:
 
 - **標準不変**: `node scripts/milspec-sp2/standard-invariance.mjs`（Task 1 で作る）が PASS。
 - **軍事スモーク**: `node scripts/milspec-sp2/military-smoke.mjs` が PASS（コンソールエラー 0 + 操作が動く）。
@@ -155,9 +157,30 @@ CSS の視覚忠実度は自動化しない（spec §10）。各タスクの機�
 - **ジオメトリ**: Playwright で列 x 整列・リキャスト帯位置・スクロールバー幅を実測 assert。
 - **ビルド**: `npm run build`（tsc -b 厳密）exit 0。
 
-**各タスクの最後に masaya がローカル実機でモックとスクリーンショット突き合わせ承認**（`feedback_visual_fidelity_requires_screenshot_diff` = SP1 品質却下の直接の教訓）。機能検証だけで「完了」と報告しない。`reference_dev_editor_hmr_hardreload`: useEffect 変更後はハードリロード。
+Playwright は `playwright-skill` の作法（dev サーバー自動検出・スクリプトは `/tmp` でなく `scripts/milspec-sp2/`）。軍事モードに入れるショートカット = `localStorage` 直書き は SP1 punch-list で「実際の入口ボタンを踏まないと入口不在に気づけない」教訓あり → **スモークは標準UIのスタイル切替ボタン（`[data-milspec-style-toggle]` = `ConsolidatedHeader` のゲート付きトグル・DEV では常時表示）経由で軍事に入る経路も 1 回通す**。
 
-Playwright は `playwright-skill` の作法（dev サーバー自動検出・スクリプトは `/tmp` でなく `scripts/milspec-sp2/`）。軍事モードに入れるショートカット = `localStorage.setItem('theme-storage', JSON.stringify({ state: { theme:'dark', themeStyle:'military', ... }, version: 2 }))` は SP1 punch-list で「実際の入口ボタンを踏まないと入口不在に気づけない」教訓あり → **スモークは標準UIのスタイル切替ボタン（`MilspecStyleToggle` / `ConsolidatedHeader` のゲート付きトグル）経由で軍事に入る経路も 1 回通す**。
+### 視覚忠実度プロトコル（全タスク共通・最重要）
+
+**SP1 品質却下の直接の教訓（`feedback_visual_fidelity_requires_screenshot_diff` / `project_sf_military_theme` 追記 14）= 「モックと一度も目視で見比べないまま『完成』と報告し続けた」。SP2 では masaya の per-task レビューを行わない（2026-09-09 masaya 指示）ぶん、実装者（executor / subagent）が各タスクで自分でスクショ突き合わせを完遂してから次に進む。機能が動くだけで「完了」と報告してはならない。**
+
+各タスクに `scripts/milspec-sp2/compare.mjs <zone>` を使った突き合わせ Step を必ず入れる（Task 1 で作る）。手順:
+
+1. Playwright で **2 枚**スクショを撮る:
+   - **モック側**: `file://c:/Users/masay/Desktop/FF14Sim/docs/.private/theme-refs/milspec-mockup.html` を開き、対象ゾーンの要素（例 `.subtoolbar` / `.thead` / `.recast-row` / `.tbody` / `.mit-bar` 群 / `.workspace`）を `element.screenshot()`。mock は固定 1666×944・`#ctl` の FIT/TRACE ボタンは触らない（等倍で撮る）。
+   - **アプリ側**: dev で軍事モード `/miti`（プラン選択済・8 人パーティ・軽減を数個配置した fixture 状態）を開き、対応する実要素（`#timeline-controls-inner` の外側 / `#timeline-header-inner` / `[data-milspec-recast-band]` / `.timeline-scroll-container` / `[data-mit-bar]` 群 / `.milspec-ws`）を `element.screenshot()`。viewport 1489×900。
+2. 2 枚を `scripts/milspec-sp2/.compare/<zone>-mock.png` と `<zone>-app.png` に保存。
+3. **実装者が両方の PNG を Read して目視比較する。** 一致基準:
+   - パネルの分割線・面取り・ビス・ブラケット・スジ彫り・ステンシルの**位置と有無**がモックと対応している。
+   - 色（金属グレーの階調・シアン/緑/オレンジ/赤の機能色）がモックと同系。
+   - 立体感（せり出し・落ち影・inset の深さ）がモックと同程度（フラットになっていない）。
+   - モックにある要素で**欠けているものが無い**（SP1 のタービン欠落と同じミスを防ぐ = モック DOM を要素単位で数えて突き合わせる）。
+4. ずれていたら CSS を直して 1〜3 を繰り返す（最大 3〜4 反復）。それでも詰めきれない差は `scripts/milspec-sp2/notes.md` に「残差」として記録し、Task 10 の masaya 最終レビューに回す。
+
+**⚠ `.compare/*.png` は git にコミットしない**（`*-mock.png` は gitignore 済の非公開モックアップ由来 = パブリックリポに載せると流出。`scripts/milspec-sp2/.compare/` は Task 1 で `.gitignore` に追加する）。突き合わせは作業ツリー内で完結する — 実装者が Read で比較、親も同じ作業ツリーの `.compare/` を Read で検収。コミットするのは `notes.md`（残差の文章記録・非公開情報を含めない）と CSS の修正だけ。
+
+**subagent-driven-development の各タスク後、親（司令塔）も作業ツリーの `.compare/` の 2 枚を Read して突き合わせ、OK でなければ差し戻す。** masaya の視覚レビューは Task 10 の最終 1 回のみ。
+
+`reference_dev_editor_hmr_hardreload`: useEffect 変更後はハードリロード。`feedback_no_video_capability`: 動画は読めない（スクショで判断）。
 
 ---
 
@@ -219,18 +242,35 @@ Expected: `.baseline/standard-dark.json` と `standard-light.json` が作られ�
 Run: `node scripts/milspec-sp2/standard-invariance.mjs && node scripts/milspec-sp2/military-smoke.mjs`
 Expected: 両方 exit 0。standard は Step 3 のベースラインと一致（当然・まだ何も変えていない）。military-smoke は全操作でエラー 0。
 
-- [ ] **Step 6: README を書く**
+- [ ] **Step 6: `compare.mjs` を書く（視覚忠実度プロトコル用）**
 
-`scripts/milspec-sp2/README.md` に: 目的 / 実行方法 / `.baseline/` の意味 / 「標準不変が壊れたら SP2 の分岐の入れ方が誤り」/ masaya の視覚ゲートは別（自動化しない）。
+`scripts/milspec-sp2/compare.mjs <zone>` — 引数の zone に対し:
+- モック側: `file://c:/Users/masay/Desktop/FF14Sim/docs/.private/theme-refs/milspec-mockup.html` を開き、zone→セレクタ表（`controlbar`→`.subtoolbar` / `header`→`.thead` / `recast`→`.recast-row` / `tbody`→`.tbody` / `mitbar`→`.tbody`（軽減バーが写る範囲） / `workspace`→`.workspace` / `jobchips`→`.subtoolbar .cb-e` / `scrollbar`→`.tbody`（右端）/ `wscap`→`.ws-cap` 周辺）でその要素を `element.screenshot({ path: '.compare/<zone>-mock.png' })`。`#ctl` / `#tune` パネルは `display:none` にしてから撮る。
+- アプリ側: dev で軍事モード `/miti`（fixture 状態 = プラン選択済・8 人・軽減 5〜10 個配置）を開き、対応する実要素（`controlbar`→`#timeline-controls-inner` の外側 div / `header`→`#timeline-header-inner` / `recast`→`[data-milspec-recast-band]` / `tbody`→`.timeline-scroll-container` / `workspace`→`.milspec-ws` / ...）を `element.screenshot({ path: '.compare/<zone>-app.png' })`。viewport 1489×900。
+- fixture: military-smoke.mjs のセットアップ関数を再利用（プラン選択 + 軽減配置）。エクスポートして共有。
+- 出力: 2 枚のパスを print して終了（画像比較の判断は実装者が Read で行う）。
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 6b: `.compare/` を gitignore**
+
+リポジトリ直下 `.gitignore` に追記:
+```
+# SP2 視覚突き合わせスクショ（*-mock.png は非公開モックアップ由来 = コミット禁止）
+scripts/milspec-sp2/.compare/
+```
+`scripts/milspec-sp2/.baseline/`（標準モードの構造 JSON・非公開情報なし）は**コミットする**（gitignore しない）。
+
+- [ ] **Step 7: README を書く**
+
+`scripts/milspec-sp2/README.md` に: 目的 / 各スクリプトの実行方法 / `.baseline/`（コミット・標準不変の契約）と `.compare/`（gitignore・作業ツリー内でのみ Read）の意味 / 「標準不変が壊れたら SP2 の分岐の入れ方が誤り」/ 視覚忠実度プロトコル（プラン §テスト戦略）は実装者が完遂・masaya レビューは Task 10 の 1 回のみ。
+
+- [ ] **Step 8: Commit**
 
 ```bash
 git add scripts/milspec-sp2/
-git commit -m "test(milspec-sp2): 標準不変ハーネス + 軍事スモーク"
+git commit -m "test(milspec-sp2): 標準不変ハーネス + 軍事スモーク + 視覚突き合わせ compare.mjs"
 ```
 
-- [ ] **Step 8: masaya ゲート** — このタスクは見た目を変えないので視覚確認は不要。「ハーネス整備完了・ベースライン取得」を 1 行報告（`feedback_close_review_loops_visibly`）。
+- [ ] **Step 9: 報告** — このタスクは見た目を変えないので視覚突き合わせは不要。「ハーネス + compare.mjs 整備完了・標準ベースライン取得」を 1 行報告（`feedback_close_review_loops_visibly`）。
 
 ---
 
@@ -334,9 +374,17 @@ git add src/components/military/MilspecWorkspace.tsx src/styles/military.css src
 git commit -m "feat(milspec-sp2): ワークスペース端末キャップ + ROSTER ノート + SP2 CSS 節新設"
 ```
 
-- [ ] **Step 9: masaya ゲート**
+- [ ] **Step 9: 視覚突き合わせ（自己・視覚忠実度プロトコル）**
 
-「Task 2 完了。ワークスペース右端の端末キャップ + `ROSTER n / 8` ノートを追加。DEV で軍事モードにして `/miti` を開き、モック `.ws-cap` / `.ws-note`（右端の細帯 + 極小テレメトリ文字）と見比べて。ハードリロード必須。」
+Run: `node scripts/milspec-sp2/compare.mjs wscap`
+`.compare/wscap-mock.png` と `.compare/wscap-app.png` を Read して比較。確認: モック `.ws-cap`（右端の細い金属帯・`.ws-note` の `ROSTER 08 / 08` 極小テレメトリ文字）と、アプリの `.milspec-ws-cap` / `.milspec-ws-note` の位置・帯幅・文字サイズ・不透明度が対応しているか。ずれていれば CSS を直して再撮影（最大 3〜4 反復）。残差は `notes.md` へ。
+
+- [ ] **Step 10: Commit（視覚突き合わせ分）**
+
+```bash
+git add scripts/milspec-sp2/notes.md src/styles/military.css
+git commit -m "chore(milspec-sp2): Task 2 視覚突き合わせ（wscap）"
+```
 
 ---
 
@@ -426,9 +474,17 @@ git add src/styles/military.css scripts/milspec-sp2/notes.md
 git commit -m "feat(milspec-sp2): 表本体 — 沈みスクリーン + 金属スラット行 + セル仕切り"
 ```
 
-- [ ] **Step 7: masaya ゲート**
+- [ ] **Step 7: 視覚突き合わせ（自己・視覚忠実度プロトコル）**
 
-「Task 3 完了。表本体を沈んだスクリーン + 各行を浮いた金属スラット + セル間の彫り込み仕切りに。ゼブラ/4n 溝は [採用した / 見送った（理由）]。致命行の赤セルは [実装した / 判定クラスが特定できず Task 10 で相談]。モック `.tbody` / `.trow`（2170-2208）と見比べて。」
+Run: `node scripts/milspec-sp2/compare.mjs tbody`
+`.compare/tbody-{mock,app}.png` を Read して比較。確認: (1) 表全体が「深く沈んだスクリーン」に見える（フラットでない・上端に内影）。(2) 各行が「浮いた薄い金属スラット」= 上ハイライト / 下墨。(3) セル間に彫り込みの縦仕切り（左明・右影の V 断面）。(4) ホバー行にシアンの左バー。(5) ゼブラ / 4n 溝を採用したなら 4 行目・8 行目に濃い溝。(6) 致命行の「軽減後」セルが赤発光の凹み。モック `.tbody` / `.trow`（2170-2208）を要素単位で数えて欠けが無いか。ずれは CSS 修正 → 再撮影（最大 3〜4 反復）。残差は `notes.md`。
+
+- [ ] **Step 8: Commit（視覚突き合わせ分）**
+
+```bash
+git add scripts/milspec-sp2/notes.md src/styles/military.css
+git commit -m "chore(milspec-sp2): Task 3 視覚突き合わせ（tbody）"
+```
 
 ---
 
@@ -513,9 +569,17 @@ git add src/styles/military.css scripts/milspec-sp2/notes.md
 git commit -m "feat(milspec-sp2): 表ヘッダー — ブラケットタイル列見出し + 交互切り欠き"
 ```
 
-- [ ] **Step 7: masaya ゲート**
+- [ ] **Step 7: 視覚突き合わせ（自己・視覚忠実度プロトコル）**
 
-「Task 4 完了。列見出しをブラケット枠の金属タイル + 交互の切り欠き（隣同士でV字溝が繋がる）+ 隅ブラケット + 下端の渋い鋼ライン。Time 見出しの下線 / hd-hash 斜線束は [実装 / 見送り]。折りたたみ列も確認済み。モック `.thead`（2130-2149）と見比べて。」
+Run: `node scripts/milspec-sp2/compare.mjs header`
+`.compare/header-{mock,app}.png` を Read して比較。確認: (1) 各列見出しが独立した金属タイル（raised グラデ + 硬ベベル）。(2) 隣同士の切り欠きが継ぎ目で V 字溝として繋がる。(3) 各タイルに隅ブラケット（L 字）。(4) ヘッダー下端に渋い鋼ライン（シアン発光でない）。(5) Time 見出しの下線・hd-hash（採用したもの）。(6) メンバー列見出しのジョブアイコン + ロールタグ。折りたたみ状態でも撮って細い列が潰れていないか。モック `.thead`（2130-2149）を要素単位で数える。ずれは修正 → 再撮影。残差は `notes.md`。
+
+- [ ] **Step 8: Commit（視覚突き合わせ分）**
+
+```bash
+git add scripts/milspec-sp2/notes.md src/styles/military.css
+git commit -m "chore(milspec-sp2): Task 4 視覚突き合わせ（header）"
+```
 
 ---
 
@@ -580,9 +644,17 @@ git add src/styles/military.css scripts/milspec-sp2/notes.md src/components/Time
 git commit -m "feat(milspec-sp2): コントロールバー — .subtoolbar 意匠（ロッカートグル + キートップ + ランプ）"
 ```
 
-- [ ] **Step 8: masaya ゲート**
+- [ ] **Step 8: 視覚突き合わせ（自己・視覚忠実度プロトコル）**
 
-「Task 5 完了。コントロールバーを raised プレート化。折りたたむ / AA / メモ = ロッカートグル（ON でシアン下線 + ランプ点灯）、罫線 / リキャスト / Undo / Redo / クリア = 極小キートップ。ボタンの位置・動作は一切変えていない。モック `.subtoolbar`（2088-2119）と見比べて。全ボタンが押せることも確認済み。」
+Run: `node scripts/milspec-sp2/compare.mjs controlbar`
+`.compare/controlbar-{mock,app}.png` を Read して比較。確認: (1) バー全体が raised プレート（下端に渋い鋼ライン）。(2) 折りたたむ / AA / メモ = ロッカートグル意匠、ON のものだけシアン下線 + 左端ランプ点灯。(3) 罫線 / リキャスト / Undo / Redo / クリア = 押せる極小キートップ（枠なしでない）、ON のものは左端シアン inset。(4) divider が V 断面スジ彫り。(5) 右側の空きにステンシルデカール。（ジョブチップ `.cj` は Task 6。）モック `.subtoolbar`（2088-2119）を要素単位で数える。ずれは修正 → 再撮影。残差は `notes.md`。
+
+- [ ] **Step 9: Commit（視覚突き合わせ分）**
+
+```bash
+git add scripts/milspec-sp2/notes.md src/styles/military.css
+git commit -m "chore(milspec-sp2): Task 5 視覚突き合わせ（controlbar / jobchips）"
+```
 
 ---
 
@@ -695,9 +767,17 @@ git add src/components/Timeline.tsx src/styles/military.css <test file> scripts/
 git commit -m "feat(milspec-sp2): 軽減バーを工業パイプ意匠に + ジョブチップ .cj 化（inert フック追加）"
 ```
 
-- [ ] **Step 10: masaya ゲート**
+- [ ] **Step 10: 視覚突き合わせ（自己・視覚忠実度プロトコル）**
 
-「Task 6 完了。軽減の効果棒を工業パイプ（中心ロール色の ID 帯 + 下端フランジ）、アイコンを金属チップ枠、コントロールバーのジョブチップを面取りタイルに。ドラッグ・競合の琥珀リング・画面外矢印・バークリックは一切変えていない（実機で配置/移動/削除を確認済み）。モック `.mit-bar` / `.mit-lbl`（2175-2188）・`.cj`（2117）と見比べて。」
+Run: `node scripts/milspec-sp2/compare.mjs mitbar` および `node scripts/milspec-sp2/compare.mjs jobchips`
+各 `.compare/*-{mock,app}.png` を Read して比較。確認: (1) 効果棒が「工業パイプの一区間」= 金属管の丸み + 中心にロール色の ID 帯（tank シアン / healer 緑 / dps オレンジ）+ 下端の小フランジ。(2) アイコンが金属チップ枠（面取り + 影）。(3) 競合中の軽減は琥珀リング（機能色・変えていない）。(4) ジョブチップ = 面取り 4 色ボーダー + 実ジョブアイコン。モック `.mit-bar` / `.mit-lbl`（2175-2188）・`.cj`（1023-1032）と要素単位で。ずれは修正 → 再撮影。残差は `notes.md`。
+
+- [ ] **Step 11: Commit（視覚突き合わせ分）**
+
+```bash
+git add scripts/milspec-sp2/notes.md src/styles/military.css
+git commit -m "chore(milspec-sp2): Task 6 視覚突き合わせ（mitbar / jobchips）"
+```
 
 ---
 
@@ -870,9 +950,17 @@ git add src/components/Timeline.tsx src/styles/military.css src/components/__tes
 git commit -m "feat(milspec-sp2): リキャスト行を軍事モード限定で独立帯に切り出し（左ラベル + スクロール同期）"
 ```
 
-- [ ] **Step 13: masaya ゲート**
+- [ ] **Step 13: 視覚突き合わせ（自己・視覚忠実度プロトコル）**
 
-「Task 7 完了。軍事モードのとき、リキャストアイコンを列見出しの中から出して「左に RECAST / リキャスト ラベル + 1 行ぶんの帯」に独立させた。中身（アイコンの常駐・クールダウン円グラフ・残秒）は一切変えていない。標準モードは従来どおり見出し内同居。横スクロール・縦スクロールでの追従、リキャスト表示トグルでの開閉を実機確認済み。モック `.recast-row`（2151-2168）と見比べて。」
+Run: `node scripts/milspec-sp2/compare.mjs recast`
+`.compare/recast-{mock,app}.png` を Read して比較。確認: (1) リキャストが列見出しの下・表本体の上の独立した帯（沈んだ recess プレート）。(2) 左に「RECAST / リキャスト」ラベル（大英字 + 小実ラベル）が 6 列ぶんを占め、メンバーセルが表の列に揃っている。(3) 各アイコンが円形 + クールダウン円グラフ（clockswipe）+ 残秒。モック `.recast-row` / `.rc-label` / `.rc-icon`（2151-2168 / 1277-1300）を要素単位で。ずれは修正 → 再撮影。残差は `notes.md`。
+
+- [ ] **Step 14: Commit（視覚突き合わせ分）**
+
+```bash
+git add scripts/milspec-sp2/notes.md src/styles/military.css
+git commit -m "chore(milspec-sp2): Task 7 視覚突き合わせ（recast）"
+```
 
 ---
 
@@ -984,9 +1072,16 @@ git add src/styles/military.css src/components/Timeline.tsx src/components/milit
 git commit -m "feat(milspec-sp2): 計器スクロールバー — 軍事モードで縦バー可視化 + 目盛り意匠 + サイドバー共有"
 ```
 
-- [ ] **Step 8: masaya ゲート**
+- [ ] **Step 8: 視覚突き合わせ（自己・視覚忠実度プロトコル・headed Chrome）**
 
-「Task 8 完了。軍事モードのとき、隠していたタイムライン縦スクロールバーを目盛り + ブラシメタルの計器バーとして表示。横バーも同意匠。ヘッダー/リキャスト帯の右端に静的な目盛りキャップを置いて「1 本貫通する計器」に。同じ意匠を MIL-SPEC サイドバーにも。⚠ 私の環境（headless）ではスクロールバーの実描画が確認できないので、**実機 Chrome で**モック（`.tbody::-webkit-scrollbar` の目盛り + スライダー）と見比べて。`scrollbar-width` の残存が無いことは確認済み。標準モードは隠れたまま。」
+`compare.mjs scrollbar` は **headed の実 Chrome** で撮る（`chromium.launch({ headless: false, channel: 'chrome' })`・`::-webkit-scrollbar` は headless では描画されない）。`.compare/scrollbar-{mock,app}.png` を Read して比較。確認: (1) 縦バーが目盛り（細ライン + 主目盛）+ ブラシメタルのスライダー。(2) 横バーが同意匠を 90°。(3) ヘッダー / リキャスト帯の右端の静的目盛りキャップとバーの目盛りが縦に連続。(4) MIL-SPEC サイドバーのスクロール領域も同意匠。モック `.tbody::-webkit-scrollbar` / `.gauge-cap` / `.phases::-webkit-scrollbar`（1200-1275）と。headed でも環境依存で描画されない場合は `notes.md` に「実機確認待ち」と記録し **Task 10 の masaya 最終レビューで必ず確認する項目**として明示。ずれは修正 → 再撮影。標準モードで縦バーが隠れたままなことは `standard-invariance.mjs` で機械確認済み。
+
+- [ ] **Step 9: Commit（視覚突き合わせ分）**
+
+```bash
+git add scripts/milspec-sp2/notes.md src/styles/military.css
+git commit -m "chore(milspec-sp2): Task 8 視覚突き合わせ（scrollbar・headed Chrome）"
+```
 
 ---
 
@@ -1028,9 +1123,19 @@ git add src/components/military/MilspecWorkspace.tsx src/styles/military.css
 git commit -m "feat(milspec-sp2): ワークスペース外装スジ彫り + フェーズ/ラベルオーバーレイ意匠"
 ```
 
-- [ ] **Step 6: masaya ゲート**
+- [ ] **Step 6: 視覚突き合わせ（自己・視覚忠実度プロトコル）+ 全ゾーン最終突き合わせ**
 
-「Task 9 完了。装甲板上端のスジ彫り、フェーズ/ラベルの帯を金属バンドに。モック `.workspace`（2123-2128）+ フェーズ帯と見比べて。」
+Run: `node scripts/milspec-sp2/compare.mjs workspace`
+`.compare/workspace-{mock,app}.png` を Read して比較。確認: 装甲板の四隅ビス・`WKS-07` / `RAID OPERATIONS PLOT` ステンシル・上端スジ彫り・左下 `.hash` 斜線束・右端の端末キャップ・フェーズ/ラベル帯の金属バンド。モック `.workspace`（2123-2128）を要素単位で。
+
+その後、**全ゾーンを通しで 1 枚に撮って最終確認**: `node scripts/milspec-sp2/compare.mjs full`（`.workspace` 全体 vs `.milspec-ws` 全体）。`.compare/full-{mock,app}.png` を Read。モックにある要素で欠けているものが 1 つも無いか、SP1 のタービン欠落と同じミスをしていないか、モック DOM（2088-2213）を頭から要素単位で照合。残差リストを `notes.md` に確定。
+
+- [ ] **Step 7: Commit（視覚突き合わせ分）**
+
+```bash
+git add scripts/milspec-sp2/notes.md src/styles/military.css src/components/military/MilspecWorkspace.tsx
+git commit -m "chore(milspec-sp2): Task 9 視覚突き合わせ（workspace / full）"
+```
 
 ---
 
@@ -1101,11 +1206,18 @@ git add src/locales/ docs/TODO.md docs/superpowers/specs/2026-09-09-milspec-sp2-
 git commit -m "chore(milspec-sp2): i18n 5言語補完 + 3ビューポート検証 + spec 未確定の決着"
 ```
 
-- [ ] **Step 8: masaya 最終ゲート**
+- [ ] **Step 8: masaya 最終ゲート（SP2 で唯一の masaya レビュー）**
 
-全ゾーン（ワークスペース外装 / コントロールバー / ヘッダー / リキャスト帯 / 表本体・行・セル / 軽減バー / ジョブチップ / スクロールバー）をモックと突き合わせて最終承認。dark / light 両方。英 / 中 / 韓の表示崩れが無いか。
+親（司令塔）が masaya に渡すもの:
+- `scripts/milspec-sp2/notes.md` の「残差」リスト（実装者が詰めきれなかった差・SP2 後の統一調整に回す候補）。
+- 作業ツリーの `.compare/*-{mock,app}.png`（コミットはしない・masaya がローカルで開いて確認できるようパスを案内）。
+- 「スクロールバーの実描画は実機 Chrome で要確認」の項目（Task 8）。
+- masaya は自分の環境で軍事モード `/miti` を開き、モックアップ（`docs/.private/theme-refs/milspec-mockup.html`）と直接見比べるのが最終判断。
 
-「SP2 完了報告: 軍事版の表が構造として立ち上がり、全編集機能（配置/移動/削除・共同編集・折りたたむ・AA・メモ・リキャスト・フェーズジャンプ・横スクロール）が動く。標準モードは `main` と完全一致（自動検証済）。フォント・余白・立体感の最終数値は次の統一調整フェーズ。マージするか、SP3（スマホ）着手まで branch 保持か指示ください。」
+報告文例:
+> 「SP2 完了報告。軍事版の表をモックの全ゾーン（ワークスペース外装 / コントロールバー / ヘッダー / リキャスト帯 / 表本体・行・セル / 軽減バー / ジョブチップ / 計器スクロールバー）に再現。各ゾーンはモックと開発画面をスクショで突き合わせて一致まで詰めた（`.compare/` に証拠）。全編集機能（配置/移動/削除・共同編集・折りたたむ・AA・メモ・リキャスト・フェーズジャンプ・横スクロール）動作確認済み。標準モードは main と完全一致（自動検証）。dark / light 両方・英中韓の崩れなし。**残差 N 件**（下記・SP2 後の統一調整候補）。スクロールバーの実描画だけ実機 Chrome での確認をお願いしたい。この後: マージ / SP3 着手まで branch 保持 / 残差を今詰める、のどれにするか指示ください。」
+
+masaya が「削り出した金属の塊に見えるか」の最終判断 → 直しが出れば追加タスクとして対応（SP1 の教訓: ここで妥協して「完了」にしない）。
 
 ---
 
@@ -1126,7 +1238,7 @@ git commit -m "chore(milspec-sp2): i18n 5言語補完 + 3ビューポート検�
 | 9 ワークスペース外装デカール | Task 2（`.ws-cap`/`.ws-note`）+ Task 9（スジ彫り/オーバーレイ） |
 | 10 i18n 5 言語 | Task 7（キー追加）+ Task 10（全数検証） |
 | spec §10 標準不変検証 | Task 1（ハーネス）+ 全タスクで再実行 + Task 10（最終）+ Task 10 Step 4（敵対レビュー） |
-| spec §10 視覚忠実度 masaya ゲート | 全タスクの最終 Step |
+| spec §10 視覚忠実度 | **各タスクで実装者が `compare.mjs` によるモック突き合わせを完遂**（§視覚忠実度プロトコル）+ 親が `.compare/` を検収 + Task 10 Step 8 で masaya が最終 1 回（2026-09-09 masaya 指示で per-task の masaya ゲートは廃止） |
 
 漏れなし。
 
