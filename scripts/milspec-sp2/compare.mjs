@@ -80,6 +80,8 @@ async function captureMock(zone, cfg) {
       }
     });
     await page.waitForTimeout(150);
+    // モック側は cfg.outer を渡さない (= セレクタ要素そのものを撮る)。モックのゾーン
+    // セレクタは既にアプリ側の外側ラッパ相当の粒度で選んであるため、揃える必要がない。
     return await shot(page, cfg.mock, join(COMPARE_DIR, `${zone}-mock.png`));
   } finally {
     await browser.close();

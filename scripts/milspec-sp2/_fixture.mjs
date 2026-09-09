@@ -19,8 +19,9 @@ export const BASE_URL = process.env.SP2_BASE_URL || 'http://localhost:5173';
 export const VIEWPORT = { width: 1489, height: 900 };
 
 /** dev で無害な console/pageerror の部分一致 whitelist (小文字化して比較)。
+ *  対象は「403 / App Check / permission-denied」の sanctioned set のみ。
  *  マスターデータ (jobs / mitigations) は別経路でロードされ 403 でも動作する。
- *  実バグ (他の error / pageerror) だけを検出するため、既知の無害文言のみ許可する。 */
+ *  実バグ (他の error / pageerror) は絶対に握り潰さないよう、文言は具体形に限定する。 */
 export const HARMLESS_CONSOLE = [
   'http 403',
   '403 (forbidden)',
@@ -34,19 +35,30 @@ export const HARMLESS_CONSOLE = [
   'permission-denied',
   'permission_denied',
   'missing or insufficient permissions',
-  'firebaseerror',
   'firebase installations',
   'installations/request-failed',
-  'fetchingtoken',
-  'analytics',
-  'gtag',
-  'failed to load resource', // dev: analytics/appcheck 403 + 任意の欠損アセット
+  'fetchingtoken', // App Check トークン取得の内部ノイズ
+  'gtag/js', // analytics スクリプト URL (bare 'analytics'/'gtag' は使わない)
+  'google-analytics',
+  'googletagmanager',
+];
+
+/** 単独では無害と判定しない語。同一メッセージ内に文脈語が同居するときのみ無害扱い。
+ *  (bare 'failed to load resource' は失敗したチャンク fetch 等の実回帰シグナルを隠すため、
+ *   bare 'firebaseerror' は権限系以外の Firebase 例外を隠すため) */
+export const HARMLESS_CONDITIONAL = [
+  { needle: 'failed to load resource', context: ['403', 'appcheck', 'app-check', 'installations'] },
+  { needle: 'firebaseerror', context: ['permission-denied', 'app-check', 'appcheck', 'installations'] },
 ];
 
 /** メッセージが whitelist に載っているか (dev で無害) */
 export function isHarmless(text) {
   const t = String(text || '').toLowerCase();
-  return HARMLESS_CONSOLE.some((s) => t.includes(s));
+  if (HARMLESS_CONSOLE.some((s) => t.includes(s))) return true;
+  for (const { needle, context } of HARMLESS_CONDITIONAL) {
+    if (t.includes(needle) && context.some((c) => t.includes(c))) return true;
+  }
+  return false;
 }
 
 /**

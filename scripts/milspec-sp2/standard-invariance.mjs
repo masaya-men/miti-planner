@@ -37,9 +37,12 @@ const SAVE = process.argv.includes('--save');
 function collectInPage(args) {
   const { rectSelectors } = args;
 
-  // 非決定的 / 状態依存で骨格から除外する class 接頭辞。
-  // (Tailwind の hover:/focus: 等の variant は静的文字列なので実際は決定的だが、
-  //  将来のリファクタ耐性のため描画状態に依存しうるものは落とす)
+  // 骨格から除外する class 接頭辞。Tailwind の variant utility は className 文字列に
+  // 常時含まれる静的クラスなので本来は決定的。この list は「マウント時アニメ系」と
+  // 「レイアウトに効かない hover/focus 系」を将来リファクタ耐性のために落とすもの。
+  // 注: group-hover/name (スラッシュ) は入れているが bare group-hover: (コロン) は
+  // 入れていない。両者を揃えると採取結果が変わり .baseline/ の撮り直しが必要になるため、
+  // この round では現状維持 (list を変えるなら必ず --save でベースライン更新)。
   const DROP_CLASS =
     /^(hover:|focus:|focus-visible:|focus-within:|active:|group-hover\/|group-focus\/|peer-|will-change-|animate-in|animate-out|fade-in|fade-out|zoom-in|zoom-out|slide-in|slide-out|spin|pulse|duration-\[|delay-\[)/;
   // React useId 等で生成される不安定な id を除外
@@ -55,10 +58,11 @@ function collectInPage(args) {
     const out = [];
     for (const name of el.getAttributeNames()) {
       if (name === 'class' || name === 'style') continue;
+      // 採取するのは以下の allowlist の属性のみ。aria-describedby / aria-labelledby は
+      // allowlist に無いので自動的に不採取 (tooltip の生成 id を指し非決定的なため、あえて入れない)。
       if (name.startsWith('data-') || name === 'id' || name === 'role' || name === 'type' || name === 'aria-hidden' || name === 'disabled' || name === 'hidden') {
         let v = el.getAttribute(name);
         if (name === 'id' && v && UNSTABLE_ID.test(v)) continue;
-        // aria-describedby/labelledby は tooltip の生成 id を指すので落とす
         out.push(`${name}=${v}`);
       }
     }

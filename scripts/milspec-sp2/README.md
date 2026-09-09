@@ -62,23 +62,30 @@ node scripts/milspec-sp2/military-smoke.mjs      # exit 0 = 全操作 OK + conso
 2. 以下を順に実行し、各ステップ後に非 whitelist の `console.error` / `pageerror` が
    0 件であることを確認（1 件でも exit 1）:
    1. 入口 assert + 軍事モード + fixture 投入
-   2. 配置済み軽減バーを**実マウス pointer 列でドラッグ**して別時刻へ（store の `time` が変化）
+   2. 配置済み軽減バーを**実マウス pointer 列でドラッグ**して別時刻へ
+      （対象が viewport 内で見つかりドラッグ列を実行したのに store の `time` が変わらない →
+      **hard fail**。対象が見つからない / 画面外のときだけ WARN）
    3. 折りたたむボタン (Area A) ON/OFF → `hideEmptyRows` トグル
    4. AA 追加ボタン → ポップオーバー表示 → Esc で閉じる
    5. メモボタン ON/OFF → `toolMode` `idle → memo → idle`
    6. リキャスト行トグル (Area C) OFF/ON
-   7. フェーズヘッダー click → ドロップダウン → フェーズジャンプ（`scrollTop` 変化）
+   7. フェーズヘッダー click → ドロップダウン → フェーズジャンプ
+      （ドロップダウンが開きフェーズ 1 ボタンを click したのに `scrollTop` が変わらない →
+      **hard fail**。フェーズが無い / ドロップダウンが開かないときだけ WARN）
    8. `.timeline-scroll-container` を `scrollBy({left:300})` →
       `#timeline-header-inner` / `#timeline-controls-inner` の `transform` が
       コンテナ実 `scrollLeft` と一致（±2px）
    9. `scrollBy({top:400})` → `.recast-num` が変化 or 例外なし（Task 7 以降で本実装）
    10. 配置した軽減を右クリックで削除
 
-**console エラー whitelist**（`_fixture.mjs` の `HARMLESS_CONSOLE`）: dev では
-App Check / Firebase `permission-denied` / Firestore の権限不足 / analytics / HTTP 403 /
-`Failed to load resource` が無害に出る（マスターデータは別経路でロードされ動作する）。
-部分一致（小文字化）で判定し、それ以外の `console.error` / `pageerror` だけを失敗扱いにする。
-whitelist に載ったものは `[info]` として件数と代表例を print する。
+**console エラー whitelist**（`_fixture.mjs` の `HARMLESS_CONSOLE` / `HARMLESS_CONDITIONAL`）:
+sanctioned set =「HTTP 403 / App Check / Firebase `permission-denied` / Firestore の権限不足」のみ。
+小文字化した部分一致で判定。ただし
+`failed to load resource` は同一メッセージ内に `403` / `appcheck` / `installations` が同居する
+ときだけ無害扱い（bare では失敗チャンク fetch 等の回帰シグナルを隠すため）。
+`firebaseerror` も `permission-denied` / `app-check` / `installations` が同居するときだけ。
+analytics は `gtag/js` / `google-analytics` / `googletagmanager` の具体形のみ（bare `analytics`/`gtag` は不使用）。
+それ以外の `console.error` / `pageerror` は失敗扱い。whitelist ヒットは `[info]` で件数と代表例を print。
 
 ## `compare.mjs` — 視覚忠実度プロトコル用スクショ採取
 

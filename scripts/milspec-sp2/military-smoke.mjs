@@ -106,9 +106,15 @@ async function main() {
         .locator('.timeline-scroll-container .cursor-grab')
         .filter({ has: page.locator('img[src*="Holos"]') })
         .first();
-      if ((await handle.count()) === 0) fail('ドラッグ対象の軽減バー (Holos) が見つからない');
+      // ここまでの分岐 (対象が無い / 画面外) は fixture の行配置ずれ由来 = WARN 許容。
+      // ドラッグ「列を実行したのに time が変わらない」場合はドラッグ機構の回帰 = hard fail。
+      if ((await handle.count()) === 0) return 'WARN: ドラッグ対象 (Holos) が見つからない — fixture の行配置が変わった可能性';
       const box = await handle.boundingBox();
-      if (!box) fail('軽減バーの boundingBox が取れない');
+      if (!box) return 'WARN: Holos バーの boundingBox が取れない (画面外)';
+      const vp = page.viewportSize();
+      if (box.y < 0 || box.y + box.height > vp.height - 130) {
+        return `WARN: Holos バーがドラッグ余地のある viewport 内に無い (y=${Math.round(box.y)})`;
+      }
       const cx = box.x + box.width / 2;
       const cy = box.y + box.height / 2;
       const before = await getState(MITI_STORE, 'timelineMitigations');
@@ -129,8 +135,10 @@ async function main() {
         await page.waitForTimeout(150);
       }
       if (afterTime === beforeTime) {
-        // 配置不可でスナップバックした場合も「ドラッグ列が例外なく完了」= 許容 (WARN)
-        return `WARN: time 変化なし (${beforeTime}s のまま) — pointer 列は完走`;
+        fail(
+          `ドラッグ列 (down → move×N → up) を実行したが timelineMitigations['sp2-m4'].time が ` +
+            `${beforeTime}s のまま変化しない — ドラッグ機構の回帰`,
+        );
       }
       return `time ${beforeTime}s → ${afterTime}s`;
     });
@@ -205,6 +213,9 @@ async function main() {
         .locator('#timeline-header-inner > div > div')
         .filter({ hasText: 'フェーズ' })
         .first();
+      // ここまでの分岐 (ヘッダー無し / ドロップダウン開かず / フェーズ項目無し) は WARN 許容。
+      // 「ドロップダウンが開き、フェーズ 1 ボタンを click した」のに scrollTop が動かない
+      // 場合はフェーズジャンプの回帰 = hard fail。
       if ((await phaseCell.count()) === 0) return 'WARN: フェーズヘッダーセルが見つからない';
       await phaseCell.click();
       await page.waitForTimeout(350);
@@ -215,12 +226,17 @@ async function main() {
       const phaseBtn = dd.locator('button').filter({ hasText: /フェーズ|Phase/ }).first();
       if ((await phaseBtn.count()) === 0) {
         await page.keyboard.press('Escape');
-        return 'WARN: フェーズ項目ボタンが無い';
+        return 'WARN: フェーズ項目ボタンが無い (fixture にフェーズが入っていない?)';
       }
       await phaseBtn.click();
       await page.waitForTimeout(600);
       const topAfter = await sc.evaluate((el) => el.scrollTop);
-      if (topAfter === topBefore) return `WARN: scrollTop 不変 (${Math.round(topBefore)}) — ジャンプ実行済`;
+      if (topAfter === topBefore) {
+        fail(
+          `フェーズドロップダウンを開きフェーズ 1 ボタンを click したが .timeline-scroll-container の ` +
+            `scrollTop が ${Math.round(topBefore)} のまま変化しない — フェーズジャンプの回帰`,
+        );
+      }
       return `scrollTop ${Math.round(topBefore)} → ${Math.round(topAfter)} (フェーズ 1 へジャンプ)`;
     });
 
