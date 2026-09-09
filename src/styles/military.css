@@ -1382,10 +1382,13 @@
 }
 
 /* ---------- コンテンツツリー(タブ + コンテンツ名 + プラン行) ----------
-   2026-09-09 masaya 指摘で作り直し。標準 Sidebar と同じ木を mockup の .enc-name / .pi 意匠で。 */
-.theme-military .milspec-tree {
-  flex: 1; min-height: 60px; display: flex; flex-direction: column;
-  padding: 9px 8px 8px; margin: 0 7px 0 15px;
+   2026-09-09 masaya 指摘で作り直し。コンテンツ 1 件ずつを、他のサイドバーパネル
+   (CONTENT / BACKUP / DEPLOYMENT)と同じ独立した .milspec-hp くぼみとして縦に積む。
+   ここ(.milspec-tree-scroll)はスクロール枠のみ。 */
+.theme-military .milspec-tree-scroll {
+  flex: 1; min-height: 60px; overflow-y: auto; overflow-x: hidden;
+  display: flex; flex-direction: column; gap: 9px;
+  padding: 1px 2px 1px 0; margin: 0;
 }
 .theme-military .milspec-tree-tabs { display: flex; gap: 3px; margin-bottom: 8px; flex: none; }
 .theme-military .milspec-tree-tab {
@@ -1401,52 +1404,22 @@
   color: var(--ms-cyan); border-color: var(--ms-cyan);
   box-shadow: inset 0 -2px 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 7px var(--ms-cyan-glow);
 }
-/* ツリー本体は暗い「凹地(well)」。この上にコンテンツ 1 件ずつを浮いた金属タイルとして置く
-   → タイルの間に暗い溝が見えて「物理的に別部品」に読める(masaya 2026-09-09)。 */
-.theme-military .milspec-tree-body {
-  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
-  padding: 7px 6px; background: var(--ms-well);
-  box-shadow: inset 0 3px 8px rgba(0,0,0,0.6), inset 0 -2px 5px rgba(0,0,0,0.4);
-}
-.theme-military .milspec-tree-list { display: flex; flex-direction: column; gap: 8px; }
-.theme-military .milspec-tree-series { display: flex; flex-direction: column; gap: 8px; }
 .theme-military .milspec-tree-series-hd {
   font: 700 9px/1.3 'Rajdhani', sans-serif; letter-spacing: 0.02em; color: var(--ms-text-sec);
-  padding: 6px 2px 0;
+  padding: 5px 2px 0; flex: none;
 }
 .theme-military .milspec-tree-empty { color: var(--ms-text-muted); font-size: 11px; padding: 10px 8px; text-align: center; }
 
-/* コンテンツ 1 件 = 浮いた金属タイル(mockup .hp/.fp と同じ面取り + 落ち影)。
-   名前 + プランが 1 枚のタイルにまとまり、タイル間の暗い溝で物理的に分かれて見える。 */
-.theme-military .milspec-tree-group {
-  position: relative; padding: 4px 9px 5px;
-  background:
-    linear-gradient(161deg, rgba(255,255,255,0.04), transparent 42%, rgba(0,0,0,0.18)),
-    linear-gradient(178deg, var(--ms-raised-hi), var(--ms-raised) 48%, var(--ms-raised-lo));
-  background-clip: padding-box;
-  border-style: solid; border-width: var(--ms-cham-sm);
-  border-top-color: var(--ms-cr-t); border-left-color: var(--ms-cr-l);
-  border-right-color: var(--ms-cr-r); border-bottom-color: var(--ms-cr-b);
-  box-shadow:
-    inset 0 1px 0 var(--ms-cham-ridge), inset 1px 0 0 rgba(255,255,255,0.04),
-    inset -1px 0 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(0,0,0,0.5);
-  filter:
-    drop-shadow(0 0 0.5px var(--ms-cham-silhouette))
-    drop-shadow(0 1px 0 rgba(0,0,0,0.55))
-    drop-shadow(0 3px 6px rgba(0,0,0,0.4));
-}
+/* コンテンツ 1 件 = 独立した .milspec-hp くぼみ(CONTENT / BACKUP パネルと同じ意匠)。
+   .milspec-hp.recess の枠・面取り・落ち影はそのまま使い、ここでは中身の余白だけ足す。 */
+.theme-military .milspec-tree-group { flex: none; padding: 4px 10px 5px; }
 .theme-military .milspec-tree-group.open { padding-bottom: 8px; }
-.theme-military .milspec-tree-group.current {
-  border-top-color: var(--ms-cyan); border-left-color: rgba(130,204,223,0.5);
-  box-shadow:
-    inset 0 1px 0 var(--ms-cham-ridge), inset 2px 0 0 var(--ms-cyan),
-    inset -1px 0 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(0,0,0,0.5), 0 0 10px var(--ms-cyan-glow);
-}
+.theme-military .milspec-tree-group.current { border-left-color: var(--ms-cyan); box-shadow: inset 3px 0 0 var(--ms-cyan), 0 0 9px var(--ms-cyan-glow); }
 
 .theme-military .milspec-tree-head {
   display: flex; align-items: center; gap: 7px; width: 100%; cursor: pointer;
   text-align: left; font: 700 12px/1.25 'Rajdhani','M PLUS 1',sans-serif; color: var(--ms-heading);
-  padding: 5px 2px; background: none; border: 0;
+  padding: 4px 2px; background: none; border: 0;
 }
 .theme-military .milspec-tree-head:hover .milspec-tree-head-name { color: var(--ms-cyan); }
 .theme-military .milspec-tree-head-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1460,7 +1433,7 @@
 
 .theme-military .milspec-tree-plans {
   display: flex; flex-direction: column; gap: 2px;
-  padding: 3px 0 2px; margin: 2px 0 0 4px; border-left: 1px solid rgba(255,255,255,0.06);
+  padding: 3px 0 2px; margin: 2px 0 0 4px; border-left: 1px solid rgba(0,0,0,0.35);
 }
 .theme-military .milspec-tree-plans .milspec-pi { margin-left: 4px; width: calc(100% - 8px); padding-right: 2px; }
 .theme-military .milspec-tree-plans .milspec-pi.sel { margin-left: 8px; width: calc(100% - 12px); }

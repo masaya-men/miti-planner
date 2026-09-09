@@ -74,29 +74,21 @@ export const MilspecContentTree: React.FC<{ tab: Tab }> = ({ tab }) => {
   }, []);
 
   return (
-    <div className="milspec-hp milspec-tree recess stack" style={{ '--ms-sh': 'var(--ms-sh-tl)' } as React.CSSProperties}>
-      <span className="milspec-ao-mark" /><span className="milspec-grime-mark" />
-      <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
-      <span className="milspec-sc tr" style={{ right: 22 }}>IDX-BLK</span>
-
-      <div className="milspec-tree-body">
-        {tab === 'savage' && <SavageTree lang={contentLanguage} currentContentId={currentPlan?.contentId ?? null} onAdd={openNewPlan} />}
-        {tab === 'ultimate' && (
-          <div className="milspec-tree-list">
-            {getAllUltimates().map((c) => (
-              <MilspecContentGroup
-                key={c.id}
-                content={c}
-                displayName={getPhaseName(c.name, contentLanguage)}
-                currentContentId={currentPlan?.contentId ?? null}
-                onAdd={openNewPlan}
-              />
-            ))}
-          </div>
-        )}
-        {tab === 'other' && <OtherTree lang={contentLanguage} currentContentId={currentPlan?.contentId ?? null} onAdd={openNewPlan} />}
-        {tab === 'archive' && <ArchiveList lang={contentLanguage} />}
-      </div>
+    // 他のサイドバーパネル(CONTENT / BACKUP / DEPLOYMENT)と同じ縦フローに、コンテンツ 1 件ずつを
+    // 独立した .milspec-hp パネル(くぼみ)として積む。ここはスクロール枠のみ(自身は装飾なし)。
+    <div className="milspec-tree-scroll">
+      {tab === 'savage' && <SavageTree lang={contentLanguage} currentContentId={currentPlan?.contentId ?? null} onAdd={openNewPlan} />}
+      {tab === 'ultimate' && getAllUltimates().map((c) => (
+        <MilspecContentGroup
+          key={c.id}
+          content={c}
+          displayName={getPhaseName(c.name, contentLanguage)}
+          currentContentId={currentPlan?.contentId ?? null}
+          onAdd={openNewPlan}
+        />
+      ))}
+      {tab === 'other' && <OtherTree lang={contentLanguage} currentContentId={currentPlan?.contentId ?? null} onAdd={openNewPlan} />}
+      {tab === 'archive' && <ArchiveList lang={contentLanguage} />}
 
       <NewPlanModal
         isOpen={newPlanContentId !== undefined}
@@ -112,7 +104,7 @@ const SavageTree: React.FC<{ lang: string; currentContentId: string | null; onAd
   const contents = getSavageForCurrentExpansion();
   const seriesIds = [...new Set(contents.map((c) => c.seriesId))];
   return (
-    <div className="milspec-tree-list">
+    <>
       {seriesIds.map((sid) => {
         const inSeries = contents.filter((c) => c.seriesId === sid);
         if (!inSeries.length) return null;
@@ -121,7 +113,7 @@ const SavageTree: React.FC<{ lang: string; currentContentId: string | null; onAd
         const proj = getProjectLabel(inSeries[0].level, 'savage');
         const sectionLabel = proj ? `${proj[lang as keyof typeof proj] || proj.ja}：${seriesName}` : String(seriesName);
         return (
-          <div key={sid} className="milspec-tree-series">
+          <React.Fragment key={sid}>
             <div className="milspec-tree-series-hd">{sectionLabel}</div>
             {inSeries.map((c) => (
               <MilspecContentGroup
@@ -132,10 +124,10 @@ const SavageTree: React.FC<{ lang: string; currentContentId: string | null; onAd
                 onAdd={onAdd}
               />
             ))}
-          </div>
+          </React.Fragment>
         );
       })}
-    </div>
+    </>
   );
 };
 
@@ -158,15 +150,16 @@ const OtherTree: React.FC<{ lang: string; currentContentId: string | null; onAdd
     return <div className="milspec-tree-empty">{t('sidebar.no_content')}</div>;
   }
   return (
-    <div className="milspec-tree-list">
+    <>
       {[...byContent.entries()].map(([key, list]) => {
         if (key === '__free__') {
           return (
-            <div className="milspec-tree-series" key={key}>
-              <div className="milspec-tree-series-hd">{t('sidebar.custom_plans')}</div>
-              {list.map((p) => (
-                <FreePlanRow key={p.id} plan={p} />
-              ))}
+            <div className="milspec-hp milspec-tree-group recess stack" style={{ '--ms-sh': 'var(--ms-sh-tl-tr)' } as React.CSSProperties} key={key}>
+              <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
+              <div className="milspec-tree-head" aria-hidden><span className="milspec-tree-head-name">{t('sidebar.custom_plans')}</span></div>
+              <div className="milspec-tree-plans">
+                {list.map((p) => (<PlanRow key={p.id} plan={p} />))}
+              </div>
             </div>
           );
         }
@@ -181,7 +174,7 @@ const OtherTree: React.FC<{ lang: string; currentContentId: string | null; onAdd
           />
         );
       })}
-    </div>
+    </>
   );
 };
 
@@ -191,10 +184,11 @@ const ArchiveList: React.FC<{ lang: string }> = () => {
   const archived = plans.filter((p) => p.archived);
   if (!archived.length) return <div className="milspec-tree-empty">{t('sidebar.archive_empty')}</div>;
   return (
-    <div className="milspec-tree-list">
-      {archived.map((p) => (
-        <FreePlanRow key={p.id} plan={p} />
-      ))}
+    <div className="milspec-hp milspec-tree-group recess stack" style={{ '--ms-sh': 'var(--ms-sh-slab)' } as React.CSSProperties}>
+      <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
+      <div className="milspec-tree-plans">
+        {archived.map((p) => (<PlanRow key={p.id} plan={p} />))}
+      </div>
     </div>
   );
 };
@@ -228,14 +222,19 @@ const MilspecContentGroup: React.FC<{
     else onAdd(content.id);
   };
 
+  const open = expanded && plans.length > 0;
   return (
-    <div className={clsx('milspec-tree-group', isCurrent && 'current', expanded && plans.length > 0 && 'open')}>
+    <div
+      className={clsx('milspec-hp milspec-tree-group recess stack', isCurrent && 'current', open && 'open')}
+      style={{ '--ms-sh': 'var(--ms-sh-tl)' } as React.CSSProperties}
+    >
+      <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
       <button type="button" className="milspec-tree-head" onClick={onHeadClick}>
         <span className="milspec-tree-head-name">{displayName || content.id}</span>
         {plans.length > 0 && <span className="milspec-tree-head-count">{plans.length}</span>}
         {plans.length > 0 && <span className={clsx('milspec-tree-head-cv', expanded && 'open')}>›</span>}
       </button>
-      {expanded && plans.length > 0 && (
+      {open && (
         <div className="milspec-tree-plans">
           {plans.map((p) => (
             <PlanRow key={p.id} plan={p} />
@@ -355,6 +354,3 @@ const PlanRow: React.FC<{ plan: SavedPlan }> = ({ plan }) => {
     </div>
   );
 };
-
-// アーカイブ / フリープラン用の軽い行(展開グループ無し)
-const FreePlanRow: React.FC<{ plan: SavedPlan }> = ({ plan }) => <PlanRow plan={plan} />;
