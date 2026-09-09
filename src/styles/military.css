@@ -1186,8 +1186,9 @@
    ⚠ #timeline-header-inner > * の box を変えない(margin / 幅を足す border / padding は列がずれる)。
      タイル分離は「中央寄せ ::before(絶対配置・固定高 34px・左右 2.5px inset)」で box を一切変えずに
      再現。追加する幾何は position:relative だけ([5][6] が static のため・レイアウト影響ゼロ)。
-     .recast-cell は :not(.recast-cell) で除外(Task 7 で別要素化。標準モードは recast をヘッダーに
-     残すため除外は恒久 — Task 7 後は軍事で no-op 化)。
+     Task 7 完了後: 軍事モードでは recast は [data-milspec-recast-band] へ移動したので
+     [7..14] は存在せず :not(.recast-cell) は no-op。標準モードでは recast はヘッダー同居のまま
+     (この規則自体が .theme-military 前置で不活性)。どちらでも害が無く意図が明示されるので除外は維持する。
    スコープは .theme-military .milspec-app(Task 3 と同じ・モバイル軍事へ漏らさない)。 ---------- */
 
 /* thead 面 = せり出した金属(mockup .thead 1077-1085)。#timeline-header-inner は md:w-max で
@@ -1243,7 +1244,8 @@
    light だと消えるため・値は --ms-shb-tr/tl と同一 = --ms-nb 7px)。
    odd=右上カット / even=左上カット → odd|even の継ぎ目が V 字通気溝になる。
    契約: 先頭6セル(phase/label/time/mechanic/RAW/TAKEN)は固定・phase が child 1。
-   ここに列を挿入すると面取り/ハッチがズレる。recast セルは末尾・:not(.recast-cell) で除外。 */
+   ここに列を挿入すると面取り/ハッチがズレる。recast セルは末尾・:not(.recast-cell) で除外
+   (Task 7 で軍事は帯へ移動 → 軍事では no-op / standard ではヘッダー同居のため除外を維持)。 */
 .theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell):nth-child(odd) {
   --ms-th-notch: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
 }
@@ -1617,6 +1619,137 @@
 .theme-military.theme-light .milspec-app #timeline-controls-inner [data-member-id] [class~="cursor-pointer"] {
   background: linear-gradient(180deg, #d9e0e7, #c0c9d2);
   box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+/* ---------- Task 7: リキャスト帯 — 列見出しと表本体の間の独立した沈みプレート
+   正典: mockup .recast-row / .rc-label / .rc-cell / .rc-icon / .rc-num(CSS 1277-1300 / DOM 2151-2168)。
+   実 DOM(Timeline.tsx・軍事 PC 限定 = isMilspecTable のときだけ mount):
+     [data-milspec-recast-band]              … 帯の外枠(flex-shrink-0・overflow:hidden)
+       └ #timeline-recast-inner              … 横スクロール同期対象(translateX)・w-max
+           ├ .milspec-rc-label               … 左ラベル(width: var(--col-member-start) = 6 列ぶん)
+           └ .recast-cell × メンバー数        … RecastRow.tsx がそのまま返す Fragment
+   ⚠ .recast-cell の padding-left / justify-content(index.css 1639-1658)は触らない。
+     これは「アイコン x = MitigationItem の絶対配置 left」を成立させている実測値で、
+     mockup の中央寄せ(.rc-cell justify-content:center)を真似ると本文の軽減バーと列がズレる。
+     = 意図的なモック非追従(notes.md に残差として記録)。
+   ⚠ --cd-display / --cd-order / --cd-angle は RecastRow.update() が書く動作契約。
+     ここでは色・形(円形化 + clockswipe の色)だけを skin する。
+   スコープは .theme-military .milspec-app(Task 3/4/5/6 と同じ)。 ---------- */
+
+/* 帯そのもの = 沈んだ recess プレート(mockup .recast-row 1281-1286)。
+   実アイコンが 24px(mockup は 19px)なので min-height は 38px に取り、
+   アイコン下の残秒(.recast-num)を mockup と同じ「アイコン外・下」に置ける高さを確保する。 */
+.theme-military .milspec-app [data-milspec-recast-band] {
+  min-height: 38px;
+  z-index: 2;
+  background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.55),
+    inset 0 -1px 0 rgba(255,255,255,0.04),
+    0 1px 0 rgba(0,0,0,0.4);
+}
+.theme-military .milspec-app #timeline-recast-inner { min-height: 38px; }
+
+/* 左ラベル(mockup .rc-label 1289-1290)。padding-left は mockup の固定 151px ではなく
+   実列 var(--col-header-chunk-w)(= PHASE+LABEL+TIME)+ 8px(機工列ヘッダーの pl-2)にして
+   「敵の攻撃」列見出しの文字と左端を揃える。 */
+.theme-military .milspec-app .milspec-rc-label {
+  padding-left: calc(var(--col-header-chunk-w) + 8px);
+  font: 700 8px/1 'Share Tech Mono', ui-monospace, monospace;
+  letter-spacing: 0.2em;
+  color: var(--ms-text-muted);
+  opacity: 0.55;
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* 大英字 "RECAST" のステンシル装飾(固定英字・翻訳外 = i18n キーにしない)。
+   後続は i18n の localized ラベル(ja「リキャスト」)なので mockup の
+   "Recast / リキャスト" と同じ二言語の見え方になる。element 側に text-transform は
+   掛けない(en ロケールで "RECAST / RECAST" と重複表示になるため)。 */
+.theme-military .milspec-app .milspec-rc-label::before {
+  content: "RECAST / ";
+  opacity: 0.7;
+  letter-spacing: 0.24em;
+}
+
+/* セル(mockup .rc-cell 1291)。gap だけ mockup に寄せる。padding / justify-content は
+   上記のとおり実アプリの列整合を優先して不変。仕切りは彫り込みの縦線に recolor。 */
+.theme-military .milspec-app [data-milspec-recast-band] .recast-cell {
+  gap: 4px;
+  background: transparent;
+  border-right-color: rgba(0,0,0,0.5);
+  box-shadow: inset 1px 0 0 rgba(255,255,255,0.05);
+}
+
+/* アイコン = 円形の金属ソケットに沈んだレンズ(mockup .rc-icon 1292-1296)。
+   padding:2px(border-box なので 24px 幅は不変)で img を内側に落とし、
+   外周 2px を金属ベゼルとして見せる。overflow を visible に戻して残秒を下へ出す。 */
+.theme-military .milspec-app [data-milspec-recast-band] .recast-icon {
+  padding: 2px;
+  border-radius: 50%;
+  overflow: visible;
+  background: radial-gradient(circle at 34% 28%, #454f5a, #1c232a 60%, #0a0d11 90%);
+  box-shadow:
+    inset 0 0 0 1px rgba(0,0,0,0.6),
+    inset 0 1.5px 3px rgba(0,0,0,0.7),
+    0 1px 0 rgba(255,255,255,0.07);
+}
+.theme-military .milspec-app [data-milspec-recast-band] .recast-icon img {
+  border-radius: 50%;
+  object-fit: cover;
+  filter: saturate(0.82) brightness(0.86);
+}
+/* clockswipe(mockup .rc-icon::after 1297-1299)。実アプリの ::before は
+   「transparent 0→--cd-angle / 暗幕 --cd-angle→360deg」という向きの契約なので
+   向きは変えず、円形化と暗幕の色だけ mockup(rgba(4,6,9,0.84))へ寄せる。 */
+.theme-military .milspec-app [data-milspec-recast-band] .recast-icon::before {
+  inset: 2px;
+  border-radius: 50%;
+  background: conic-gradient(
+    transparent 0 var(--cd-angle, 0deg),
+    rgba(4,6,9,0.84) var(--cd-angle, 0deg) 360deg
+  );
+}
+/* 残秒(mockup .rc-num 1300)= アイコンの下にシアンの小数字。
+   実アプリの inset:0 中央配置(アイコン絵柄の上に白字)を解除して下へ出す。 */
+.theme-military .milspec-app [data-milspec-recast-band] .recast-num {
+  inset: auto auto -7px 50%;
+  transform: translateX(-50%);
+  display: block;
+  width: auto;
+  white-space: nowrap;
+  font: 700 7px/1 'Share Tech Mono', ui-monospace, monospace;
+  color: var(--ms-cyan);
+  text-shadow: 0 0 3px var(--ms-cyan-glow);
+}
+
+/* light: dark 固定 hex / 重い黒 rgba を淡い金属色へ(Task 3/4/5/6 と同じ作法)。
+   --ms-recess-* / --ms-text-muted / --ms-cyan* は light 定義済 → 帯の地色は上書き不要。 */
+.theme-military.theme-light .milspec-app [data-milspec-recast-band] {
+  box-shadow:
+    inset 0 2px 4px rgba(40,80,120,0.2),
+    inset 0 -1px 0 rgba(255,255,255,0.7),
+    0 1px 0 rgba(40,80,120,0.18);
+}
+.theme-military.theme-light .milspec-app [data-milspec-recast-band] .recast-cell {
+  border-right-color: rgba(40,80,120,0.28);
+  box-shadow: inset 1px 0 0 rgba(255,255,255,0.7);
+}
+.theme-military.theme-light .milspec-app [data-milspec-recast-band] .recast-icon {
+  background: radial-gradient(circle at 34% 28%, #ffffff, #ccd6df 60%, #a8b5c1 90%);
+  box-shadow:
+    inset 0 0 0 1px rgba(40,80,120,0.3),
+    inset 0 1.5px 3px rgba(40,80,120,0.28),
+    0 1px 0 rgba(255,255,255,0.8);
+}
+.theme-military.theme-light .milspec-app [data-milspec-recast-band] .recast-icon img {
+  filter: saturate(0.9) brightness(0.98);
+}
+.theme-military.theme-light .milspec-app [data-milspec-recast-band] .recast-icon::before {
+  background: conic-gradient(
+    transparent 0 var(--cd-angle, 0deg),
+    rgba(70,95,120,0.55) var(--cd-angle, 0deg) 360deg
+  );
 }
 
 /* ============================================================

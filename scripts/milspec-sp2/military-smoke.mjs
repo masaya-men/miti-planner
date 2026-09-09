@@ -304,6 +304,99 @@ async function main() {
       return `timelineMitigations ${before.length} → ${after.length}`;
     });
 
+    // ── step 11: リキャスト帯 (Task 7) のジオメトリ ─────────────
+    await step('リキャスト帯 [data-milspec-recast-band] の位置・列整合・スクロール同期', async () => {
+      const r = await page.evaluate(async () => {
+        const sc = document.querySelector('.timeline-scroll-container');
+        sc.scrollTo({ top: 0, left: 0 });
+        await new Promise((res) => setTimeout(res, 250));
+
+        const band = document.querySelector('[data-milspec-recast-band]');
+        if (!band) return { err: '[data-milspec-recast-band] が存在しない (軍事 PC で帯が mount されていない)' };
+        const header = document.querySelector('#timeline-header-inner');
+        const inner = document.querySelector('#timeline-recast-inner');
+        const label = band.querySelector('.milspec-rc-label');
+        if (!header) return { err: '#timeline-header-inner が無い' };
+        if (!inner) return { err: '#timeline-recast-inner が無い' };
+        if (!label) return { err: '.milspec-rc-label が無い' };
+
+        const bandR = band.getBoundingClientRect();
+        const headR = header.getBoundingClientRect();
+        const scR = sc.getBoundingClientRect();
+
+        // (b) 先頭 .recast-cell の left が、対応するメンバー列 (JobPickerRow の
+        //     [data-member-id] = MitigationItem が実測に使う正典) と一致するか。
+        const cells = Array.from(band.querySelectorAll('.recast-cell'));
+        const cols = Array.from(document.querySelectorAll('#timeline-controls-inner [data-member-id]'));
+        const pairs = [];
+        for (let i = 0; i < Math.min(cells.length, cols.length); i += 1) {
+          const cellId = cells[i].getAttribute('data-member');
+          const colId = cols[i].getAttribute('data-member-id');
+          pairs.push({
+            i,
+            cellId,
+            colId,
+            dx: cells[i].getBoundingClientRect().left - cols[i].getBoundingClientRect().left,
+          });
+        }
+
+        // (c) 横スクロール後の transform 一致
+        sc.scrollBy({ left: 300 });
+        await new Promise((res) => setTimeout(res, 250));
+        const tf = (el) => (el && el.style ? el.style.transform : '');
+
+        return {
+          bandTop: bandR.top,
+          bandBottom: bandR.bottom,
+          bandHeight: bandR.height,
+          headerBottom: headR.bottom,
+          scTop: scR.top,
+          labelWidth: label.getBoundingClientRect().width,
+          cellCount: cells.length,
+          colCount: cols.length,
+          pairs,
+          headerTf: tf(header),
+          recastTf: tf(inner),
+          scrollLeft: sc.scrollLeft,
+        };
+      });
+
+      if (r.err) fail(r.err);
+
+      // (a) 帯は列見出しの下・表本体の上
+      if (r.bandTop < r.headerBottom - 1) {
+        fail(`帯の top (${r.bandTop.toFixed(1)}) が #timeline-header-inner の bottom (${r.headerBottom.toFixed(1)}) より上`);
+      }
+      if (r.bandBottom > r.scTop + 1) {
+        fail(`帯の bottom (${r.bandBottom.toFixed(1)}) が .timeline-scroll-container の top (${r.scTop.toFixed(1)}) より下`);
+      }
+
+      // (b) メンバー列との x 整合 (±3px)
+      if (r.pairs.length === 0) fail('.recast-cell / [data-member-id] のどちらかが 0 件で列整合を検証できない');
+      const bad = r.pairs.filter((p) => Math.abs(p.dx) > 3);
+      if (bad.length) {
+        fail(
+          `リキャストセルがメンバー列と ±3px で揃っていない: ` +
+            bad.map((p) => `#${p.i}(${p.cellId}/${p.colId}) dx=${p.dx.toFixed(1)}px`).join(', '),
+        );
+      }
+      const maxDx = Math.max(...r.pairs.map((p) => Math.abs(p.dx)));
+
+      // (c) 横スクロール同期
+      if (r.headerTf !== r.recastTf) {
+        fail(`横スクロール後の transform 不一致: header "${r.headerTf}" / recast "${r.recastTf}"`);
+      }
+      if (!/translateX\(-\d/.test(r.recastTf)) {
+        fail(`リキャスト帯が translateX で追従していない: "${r.recastTf}" (scrollLeft=${r.scrollLeft})`);
+      }
+
+      return (
+        `帯 top ${r.bandTop.toFixed(1)} (header bottom ${r.headerBottom.toFixed(1)} / body top ${r.scTop.toFixed(1)}) ` +
+        `h=${r.bandHeight.toFixed(1)} / label w=${r.labelWidth.toFixed(1)} / ` +
+        `列整合 ${r.pairs.length} 組 最大 dx ${maxDx.toFixed(1)}px (±3px) / transform ${r.recastTf} 一致`
+      );
+    });
+
     // ── 最終判定 ─────────────────────────────────────────────
     console.log('');
     if (rec.whitelisted.length) {
