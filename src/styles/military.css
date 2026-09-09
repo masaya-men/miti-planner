@@ -1479,14 +1479,18 @@
 .theme-military .milspec-dock button svg { width: 20px; height: 20px; flex: none; color: var(--ms-text-sec); }
 .theme-military .milspec-dock button:hover svg, .theme-military .milspec-dock button:hover .en { color: var(--ms-cyan); }
 
-/* ---------- DEPLOYMENT(完全装飾・mockup .deployment 1403-1412) ---------- */
+/* ---------- DEPLOYMENT(開発支援リンク → /support・意匠は mockup .deployment 1403-1412) ---------- */
 .theme-military .milspec-deployment { flex: none; display: block; padding: 0; overflow: visible; }
 .theme-military .milspec-deployment-hz { position: relative; height: 9px; }
 .theme-military .milspec-deployment-hz::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: rgba(255,255,255,0.14); }
-.theme-military .milspec-deployment-bd { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 12px; }
-.theme-military .milspec-deployment-bd .mk { width: 38px; height: 38px; flex: none; color: rgba(150,190,205,0.3); filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5)); }
-.theme-military .milspec-deployment-bd .tx { display: flex; flex-direction: column; line-height: 1.45; }
-.theme-military .milspec-deployment-bd .en { font: 400 14px/1 'Share Tech Mono', monospace; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ms-text-sec); }
+.theme-military .milspec-deployment-bd { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 12px; background: none; border: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; transition: background 0.15s ease; }
+.theme-military .milspec-deployment-bd:hover { background: rgba(130,204,223,0.06); }
+.theme-military .milspec-deployment-bd:focus-visible { outline: 1px solid var(--ms-cyan); outline-offset: -2px; }
+.theme-military .milspec-deployment-bd .mk { width: 38px; height: 38px; flex: none; color: rgba(150,190,205,0.3); filter: drop-shadow(0 1px 0 rgba(0,0,0,0.5)); transition: color 0.15s ease; }
+.theme-military .milspec-deployment-bd:hover .mk { color: var(--ms-cyan); }
+.theme-military .milspec-deployment-bd .tx { display: flex; flex-direction: column; line-height: 1.45; min-width: 0; }
+.theme-military .milspec-deployment-bd .en { font: 400 13px/1.15 'Share Tech Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ms-text-sec); transition: color 0.15s ease; }
+.theme-military .milspec-deployment-bd:hover .en { color: var(--ms-cyan); }
 .theme-military .milspec-deployment-bd .jp { font-size: 10px; color: var(--ms-text-muted); }
 
 /* ============================================================

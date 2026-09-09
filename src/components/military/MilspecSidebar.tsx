@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useShallow } from 'zustand/react/shallow';
 import clsx from 'clsx';
@@ -16,7 +17,7 @@ import '../../i18n';
 export type MilspecSidebarProps = Pick<MilspecLayoutProps, 'isSidebarOpen' | 'onToggleSidebar' | 'onCloseSidebar'>;
 
 /**
- * サイドバー — SCENARIO(プラン操作) / 遭遇名 / コンテンツツリー / DOCK(BACKUP・RESTORE) / DEPLOYMENT(装飾)。
+ * サイドバー — CONTENT(コンテンツ選択) / コンテンツツリー / DOCK(BACKUP・RESTORE) / DEPLOYMENT(開発支援リンク)。
  * 正典: docs/.private/theme-refs/milspec-mockup.html DOM 1982-2060。
  *
  * 2026-09-09 masaya 指摘で作り直し: 中央は「今開いてるプランのフェーズ一覧」ではなく
@@ -25,6 +26,7 @@ export type MilspecSidebarProps = Pick<MilspecLayoutProps, 'isSidebarOpen' | 'on
  */
 export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, onToggleSidebar }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const { plans, currentPlanId } = usePlanStore(
     useShallow((s) => ({ plans: s.plans, currentPlanId: s.currentPlanId })),
@@ -167,7 +169,9 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
             </button>
           </div>
 
-          {/* DEPLOYMENT — 完全装飾。mockup .deployment(DOM 2047-2059) */}
+          {/* DEPLOYMENT — 開発支援リンク(標準 Sidebar.tsx:1610-1615 の「☕ 開発を支援する」→ /support 相当)。
+              意匠は mockup .deployment(DOM 2047-2059)。文言は footer.support に統一(旧「展開を支援する」は
+              "Deployment" の誤訳だった)。 */}
           <div className="milspec-hp milspec-deployment recess" style={{ '--ms-sh': 'var(--ms-sh-tr)' } as React.CSSProperties}>
             <span className="milspec-bolt bl" />
             <span className="milspec-sc br">DPL-X · DO NOT REMOVE</span>
@@ -175,13 +179,21 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
             <span className="milspec-drip" style={{ left: 26, top: 9, height: 17 }} />
             <span className="milspec-drip" style={{ left: '62%', top: 9, height: 11 }} />
             <span className="milspec-drip" style={{ right: 34, top: 9, height: 14 }} />
-            <div className="milspec-deployment-bd">
+            <button
+              type="button"
+              className="milspec-deployment-bd"
+              onClick={() => navigate('/support')}
+              aria-label={t('footer.support')}
+            >
               <svg className="mk" viewBox="0 0 40 40">
                 <path d="M8 8 L32 32 M32 8 L8 32" stroke="currentColor" strokeWidth="5" strokeLinecap="square" />
                 <path d="M4 13 L4 4 L13 4 M27 4 L36 4 L36 13 M36 27 L36 36 L27 36 M13 36 L4 36 L4 27" fill="none" stroke="currentColor" strokeWidth="1.5" />
               </svg>
-              <div className="tx"><span className="en">Deployment</span><span className="jp">展開を支援する</span></div>
-            </div>
+              <div className="tx">
+                <span className="en">{t('footer.support', { lng: 'en' })}</span>
+                <span className="jp">{t('footer.support', { lng: 'ja' })}</span>
+              </div>
+            </button>
           </div>
 
           <BackupExportModal isOpen={backupExportOpen} onClose={() => setBackupExportOpen(false)} />

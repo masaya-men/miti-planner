@@ -40,6 +40,14 @@ describe('MilspecSidebar', () => {
     expect(props.onToggleSidebar).toHaveBeenCalled();
   });
 
+  it('DEPLOYMENT パネルが /support への開発支援リンク(旧「展開を支援する」は撤去)', () => {
+    const { container } = r();
+    expect(container.textContent).not.toMatch(/展開を支援/);
+    const btn = container.querySelector('button.milspec-deployment-bd');
+    expect(btn).toBeTruthy();
+    expect(btn?.textContent).toMatch(/開発を支援する|Support Development/);
+  });
+
   it('SCENARIO の NEW ボタンが milspec:new-plan を dispatch する', () => {
     const listener = vi.fn();
     window.addEventListener('milspec:new-plan', listener);

@@ -28,9 +28,9 @@ DEV変更後はハードリロード([[reference_dev_editor_hmr_hardreload]])。
   **2026-09-08 方針転換(masaya)**: 再スキンでは無理 → **構造から作り直す**。themeStyle==='military'&&PC で専用ツリー `MilspecLayout` を描画、既存ストア配線で編集機能全維持、標準は Layout 分岐1か所のみで不変。**SP1〜SP4 に分割**(SP1=外側シェル / SP2=タイムライン表 / SP3=スマホ / SP4=編集モーダル軍事化)。Phase1土台(--ms-*/プリミティブ/フォント)は残し、Phase2の皮(data-milspec-*)は撤去。旧プラン v2 と旧spec §8/9/13/16 は失効。Q1〜Q6 確定。
   **✅ SP1 設計書 = `docs/superpowers/specs/2026-09-08-milspec-structural-rebuild-sp1-shell-design.md`**(`ed047f9b`)。
   **⚠ SP1 マージ済み(`b820358e`)・本番実機で品質却下(2026-09-08夜)→ 是正中(未コミット変更あり)**。要求:「モックそのまま・妥協なし」。punch-list=`docs/.private/2026-09-08-milspec-sp1-punch-list.md`。
-  - ✅ ①入口ボタン ②「層」→絶で非表示 ③フッター排熱ファン一式(`useTurbineCluster.ts`) ④ヘッダータービン起動シーケンス ⑤ヘッダー幅リバランス(銘板潰れ解消・hud-btn 78・プレビュートグル退避) ⑥再利用コンポーネントを `children` prop で全部モックタイル化(`MilspecTileInner`)・SORT 自前化・hp-share 銘板化 ⑦**サイドバー中央を作り直し**: SP1 のフェーズ表示は誤り → 標準と同じコンテンツツリー(`MilspecContentTree.tsx` 新規・タブ+コンテンツ名+プラン・NewPlanModal に `initialContentId` 追加) — 全スクショ突合済・build+test green・**ブランチ `milspec-sp1-quality`(未push・未マージ)**。
-  - **残**: 見た目の詰め全般(masaya「まだまったくよくない」)/ ロールカウンター回転ドラム / SCENARIO パネルとツリーの役割二重 / フッター fp-inst 幅。
-  - **次回=masaya が本番で確認しつつ見た目を詰める。**
+  - ✅ ①入口ボタン ②「層」→絶で非表示 ③フッター排熱ファン一式(`useTurbineCluster.ts`) ④ヘッダータービン起動シーケンス ⑤ヘッダー幅リバランス(銘板潰れ解消・hud-btn 78・プレビュートグル退避) ⑥再利用コンポーネントを `children` prop で全部モックタイル化(`MilspecTileInner`)・SORT 自前化・hp-share 銘板化 ⑦**サイドバー中央を作り直し**: SP1 のフェーズ表示は誤り → 標準と同じコンテンツツリー(`MilspecContentTree.tsx` 新規・タブ+コンテンツ名+プラン・NewPlanModal に `initialContentId` 追加) ⑧DEPLOYMENT 枠を `/support` へ配線+文言を `footer.support` に統一(旧「展開を支援する」誤訳を撤去) — 全スクショ突合済・build+test green・**ブランチ `milspec-sp1-quality`(未push・未マージ)**。
+  - **残**: 見た目の詰め全般(masaya「まだまったくよくない」)/ ロールカウンター回転ドラム / SCENARIO パネルとツリーの役割二重 / フッター fp-inst 幅 / DEPLOYMENT の X アイコン+「DPL-X」デカールが支援リンクと不整合(任意)。
+  - **次回=masaya と 1 件ずつ見た目を詰める(金属質感の適用・メニュー位置/幅の調整)。各件モック突合。素材ファイルは masaya 支給あり得る。**
 ### 🟢 2026-09-01 ハウジング新着通知の絞り込み + 登録時トグル = デプロイ済。**残=本番で: トグル表示/デフォルトON / ON登録→通知来る / OFF・住所非公開→来ない を確認 → テスト物件削除**。設計書2026-08-28。
 ### 🟡 8/20〜9/1 ハウジング一括=本番反映済(詳細 COMPLETED)。**残**: Discord告知下書き `docs/.private/2026-09-01-discord-update-draft.md` を masaya が投稿予定(v2確定)/ Allmarksリージョン混在は未検証 / カード最適化Phase1・「トップ」再タップスクロール=実機確認のみ。
 ### 🟡 SEOソフト404対策: CF Cache Rule は `/housing/(listing|housinger|tour)/` `/h/` 追加済(2026-09-04)。**残**: `/share/*` の CF ルール検討 / Search Console 再検査+インデックス登録。
