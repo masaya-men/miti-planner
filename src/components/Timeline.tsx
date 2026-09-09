@@ -566,7 +566,9 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     onTouchMove={handleTouchMove}
                 >
                     <Tooltip content={`${nameStr || t('timeline.mitigation')} ${mitigation.targetId ? `(→ ${mitigation.targetId})` : ''} ${t('timeline.mitigation_drag_hint')}`} wrapperClassName="w-full h-full">
-                        <div className={clsx(
+                        <div
+                            data-mit-icon=""
+                            className={clsx(
                             "w-full h-full bg-black/50 overflow-hidden rounded border border-app-border flex items-center justify-center",
                             isVirtual && "bg-transparent border-none shadow-none"
                         )}>
@@ -616,6 +618,7 @@ const MitigationItem: React.FC<MitigationItemProps> = React.memo((props) => {
                     棒に吸われてしまうため、handleBarClickでonCellClickへ明示的に転送している。 */}
                 {mitigation.duration > 1 && (
                     <div
+                        data-mit-bar=""
                         data-myjob-dim={isNotMine ? 'bar' : undefined}
                         onClick={handleBarClick}
                         className={clsx(

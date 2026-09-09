@@ -1512,6 +1512,105 @@
   box-shadow: 1px 0 0 rgba(255,255,255,0.7);
 }
 
+/* ---------- Task 6: 軽減バー(工業パイプ) + アイコンチップ + ジョブチップ .cj
+   正典: mockup .mit-bar/.mit-lbl(CSS 1164-1190 / DOM 2175-2188) ・ .cj(CSS 1023-1032 / DOM 2117)。
+   実 DOM フック(Timeline.tsx MitigationItem・inert・値なし):
+     効果棒 div            → [data-mit-bar]   (mitigation.duration > 1 のとき描画・.absolute w-1.5 border-x)
+     24px アイコン枠の内側 → [data-mit-icon]  (.bg-black/50 div。虚アイテムは .bg-transparent が付く)
+   JS 色クラス(getMitigationColorClasses の colors.bg/border/shadow)は不変で、ここで属性セレクタ
+   経由に上書きする(specificity のみ・!important 不使用・Task 5 と同じ作法)。
+   ⚠ [data-mit-bar] に pointer-events / cursor は書かない(mockup の pointer-events:none を真似ると
+     handleBarClick 転送が死ぬ)。疑似要素だけ pointer-events:none。
+   ⚠ JobPickerRow の外側 [data-member-id] は useMeasuredMemberLayout が offsetLeft/offsetWidth/
+     paddingLeft を実測して全軽減バーの列 x を決める → 幅・padding・border 幅を変えない。意匠は
+     内側の .cursor-pointer div(box-sizing:border-box・w-full h-full)に載せ、外側の border-r は
+     色だけ recolor(幅不変)。
+   スコープは .theme-military .milspec-app(Task 3/4/5 と同じ)。 ---------- */
+
+/* 効果棒 = 動力パイプの一区間(mockup .mit-bar 1166-1170)。border-x(1px)は幅に効くので残し色だけ。 */
+.theme-military .milspec-app [data-mit-bar] {
+  border-radius: 0;
+  border-color: rgba(0,0,0,0.55);
+  background: linear-gradient(90deg, #0a0e12 0%, #1c232a 22%, #2e363f 48%, #1c232a 76%, #0a0e12 100%);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.35);
+}
+/* 中心の ID 帯 = ロール色(mockup .mit-bar::before 1171-1174)。--ms-mb-col は下のクラスマップで決まる。 */
+.theme-military .milspec-app [data-mit-bar]::before {
+  content: ""; position: absolute; left: 50%; top: 3px; bottom: 3px; width: 2px;
+  transform: translateX(-50%); pointer-events: none;
+  background: var(--ms-mb-col, var(--ms-cyan));
+  box-shadow: 0 0 3px var(--ms-mb-glow, var(--ms-cyan-glow));
+}
+/* 下端の小フランジ(mockup .mit-bar::after 1175-1178) */
+.theme-military .milspec-app [data-mit-bar]::after {
+  content: ""; position: absolute; left: 50%; bottom: -2px; width: 11px; height: 4px;
+  transform: translateX(-50%); pointer-events: none;
+  background: linear-gradient(180deg, #4a545e, #2a323a);
+  border-radius: 1px; box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+/* ロール色: getMitigationColorClasses(Timeline.tsx:140-203) が棒に付ける colors.bg クラスで分岐。
+   tank=bg-blue-500/80 / healer=bg-green-500/80 / melee=bg-red-500/80 / ranged=bg-orange-500/80 /
+   light-party MT群=bg-cyan-500/80 / light-party OT群=bg-amber-500/80 / ジョブ無し=bg-slate-400/80。
+   [class~=] でトークン一致(mockup .cb-div と同じ escape 不要方式・属性 2 個で Tailwind 実色に勝つ)。 */
+.theme-military .milspec-app [data-mit-bar][class~="bg-blue-500/80"]   { --ms-mb-col: var(--ms-cyan);      --ms-mb-glow: var(--ms-cyan-glow); }
+.theme-military .milspec-app [data-mit-bar][class~="bg-cyan-500/80"]   { --ms-mb-col: var(--ms-cyan);      --ms-mb-glow: var(--ms-cyan-glow); }
+.theme-military .milspec-app [data-mit-bar][class~="bg-green-500/80"]  { --ms-mb-col: var(--ms-green);     --ms-mb-glow: var(--ms-green-glow); }
+.theme-military .milspec-app [data-mit-bar][class~="bg-red-500/80"]    { --ms-mb-col: var(--ms-orange);    --ms-mb-glow: var(--ms-orange-glow); }
+.theme-military .milspec-app [data-mit-bar][class~="bg-orange-500/80"] { --ms-mb-col: var(--ms-orange);    --ms-mb-glow: var(--ms-orange-glow); }
+.theme-military .milspec-app [data-mit-bar][class~="bg-amber-500/80"]  { --ms-mb-col: var(--ms-orange);    --ms-mb-glow: var(--ms-orange-glow); }
+.theme-military .milspec-app [data-mit-bar][class~="bg-slate-400/80"]  { --ms-mb-col: var(--ms-text-muted); --ms-mb-glow: rgba(0,0,0,0); }
+
+/* 24px アイコン枠 = 面取りした金属チップ(mockup .mit-lbl 1182-1189 の枠語彙)。
+   内側 .bg-black/50 div。虚アイテム(isVirtual → .bg-transparent)は素通しでゴースト表現を残す。 */
+.theme-military .milspec-app [data-mit-icon]:not(.bg-transparent) {
+  border-radius: 1px;
+  border: 1px solid var(--ms-cr-r);
+  border-top-color: var(--ms-cr-t);
+  border-left-color: var(--ms-cr-l);
+  background: linear-gradient(180deg, #3a434c, #262d34);
+  box-shadow:
+    0 0 0 1px var(--ms-cham-silhouette),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* ジョブチップ .cj(mockup .cj 1024-1031)。外側 [data-member-id](実測対象)は border-r の色のみ。
+   内側 .cursor-pointer div(w-full h-full・border-box)に 4 色面取り + 金属グラデ + シルエット。 */
+.theme-military .milspec-app #timeline-controls-inner [data-member-id] {
+  border-right-color: var(--ms-cham-silhouette);
+}
+.theme-military .milspec-app #timeline-controls-inner [data-member-id] [class~="cursor-pointer"] {
+  border-radius: 1px;
+  border: 1px solid var(--ms-cr-r);
+  border-top-color: var(--ms-cr-t);
+  border-left-color: var(--ms-cr-l);
+  border-bottom-color: var(--ms-cr-b);
+  background: linear-gradient(180deg, #3a444f, #2a323c);
+  box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* light: dark 固定 hex / 重い黒 rgba を淡い金属色へ(Task 3/4/5 と同じ作法・最終調整は SP2 後)。 */
+.theme-military.theme-light .milspec-app [data-mit-bar] {
+  border-color: rgba(40,80,120,0.4);
+  background: linear-gradient(90deg, #8b97a2 0%, #aeb9c3 22%, #c8d1d9 48%, #aeb9c3 76%, #8b97a2 100%);
+  box-shadow: inset 0 0 0 1px rgba(40,80,120,0.28), 0 0 0 1px rgba(40,80,120,0.2);
+}
+.theme-military.theme-light .milspec-app [data-mit-bar]::after {
+  background: linear-gradient(180deg, #cfd7de, #9fa9b3);
+  box-shadow: 0 1px 2px rgba(40,80,120,0.3);
+}
+.theme-military.theme-light .milspec-app [data-mit-icon]:not(.bg-transparent) {
+  background: linear-gradient(180deg, #d7dee5, #bcc5ce);
+  box-shadow:
+    0 0 0 1px var(--ms-cham-silhouette),
+    inset 0 1px 0 rgba(255,255,255,0.7),
+    0 1px 2px rgba(40,80,120,0.25);
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner [data-member-id] [class~="cursor-pointer"] {
+  background: linear-gradient(180deg, #d9e0e7, #c0c9d2);
+  box-shadow: 0 0 0 1px var(--ms-cham-silhouette), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
 /* ============================================================
  * SP1 Task 4: ヘッダー — ハードサーフェス パネルアセンブリ
  * 正典: milspec-mockup.html DOM 1920-1979 / CSS .header 771-886, タービン 1580-1699。
