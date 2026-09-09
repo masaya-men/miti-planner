@@ -1,5 +1,5 @@
 // src/components/ImportMenu.tsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Download, FileSpreadsheet } from 'lucide-react';
@@ -12,6 +12,8 @@ interface ImportMenuProps {
     onImportLogs: () => void;
     /** ジョイナー読み取り専用時は取り込み自体を無効化 */
     readOnly: boolean;
+    /** 指定時はボタンの中身を差し替える（MIL-SPEC タイル markup 用・標準UIは未指定=無変更）。 */
+    children?: ReactNode;
 }
 
 /**
@@ -21,7 +23,7 @@ interface ImportMenuProps {
  *
  * ドロップダウンの作法は HeaderToolsMenu と統一（Portal で body 直下・外側クリックで閉じる）。
  */
-export function ImportMenu({ btnClassName, onImportLogs, readOnly }: ImportMenuProps) {
+export function ImportMenu({ btnClassName, onImportLogs, readOnly, children }: ImportMenuProps) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const btnRef = useRef<HTMLButtonElement>(null);
@@ -63,7 +65,9 @@ export function ImportMenu({ btnClassName, onImportLogs, readOnly }: ImportMenuP
                     className={btnClassName}
                     aria-label={t('importMenu.tooltip')}
                 >
-                    <Download size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
+                    {children ?? (
+                        <Download size={16} className="group-hover:translate-y-0.5 transition-transform duration-300" />
+                    )}
                 </button>
             </Tooltip>
 

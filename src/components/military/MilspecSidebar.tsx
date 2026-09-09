@@ -50,6 +50,17 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
   const contentDef = currentPlan?.contentId ? getContentById(currentPlan.contentId) : null;
   const encName = contentDef ? getPhaseName(contentDef.name, contentLanguage) : '';
 
+  // PHASES パネルの各フェーズ見出しに付く単位ラベル(mockup .phase-h .cv)。
+  // mockup のデモデータがフロア制の零式だったため「層」固定で作られていたが、絶(ULTIMATE)等
+  // フロア概念の無いコンテンツでは無意味なので、コンテンツ種別が層で数えるもの(零式・レイド)の
+  // ときだけ表示し、それ以外(絶・ダンジョン・カスタム・未選択)は出さない。
+  // 単位文字は contentRegistry.ts の shortName 生成(`floor + '層'` 等)と揃える。
+  const FLOOR_UNIT: Record<string, string> = { ja: '層', zh: '层', 'zh-Hant': '層', ko: '층' };
+  const floorUnit =
+    contentDef && (contentDef.category === 'savage' || contentDef.category === 'raid')
+      ? FLOOR_UNIT[contentLanguage] ?? ''
+      : '';
+
   const phases = useMitigationStore((s) => s.phases);
 
   const [editingPlanId, setEditingPlanId] = React.useState<string | null>(null);
@@ -296,7 +307,7 @@ export const MilspecSidebar: React.FC<MilspecSidebarProps> = ({ isSidebarOpen, o
             <div className="milspec-phase" key={phase.id}>
               <div className="milspec-phase-h">
                 <span className="num disp">{idx + 1}</span>
-                <span className="cv">層</span>
+                {floorUnit && <span className="cv">{floorUnit}</span>}
                 <span className="cv dn">⌄</span>
               </div>
               <div className="milspec-phase-tag">

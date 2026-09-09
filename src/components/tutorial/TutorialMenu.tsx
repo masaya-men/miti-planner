@@ -9,13 +9,16 @@ import clsx from 'clsx';
 
 interface TutorialMenuProps {
   btnClassName: string;
+  /** 指定時はボタンの中身を差し替える(デフォルトのアイコン+文言の代わり)。
+      MIL-SPEC テーマがモック準拠のタイル markup を流し込むために使う。標準UIは未指定=無変更。 */
+  children?: React.ReactNode;
 }
 
 /**
  * 「チュートリアルを見る」ボタン + ドロップダウンメニュー。
  * ヘッダーのoverflow-hiddenを回避するためPortalでbody直下にレンダリング。
  */
-export function TutorialMenu({ btnClassName }: TutorialMenuProps) {
+export function TutorialMenu({ btnClassName, children }: TutorialMenuProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -53,10 +56,14 @@ export function TutorialMenu({ btnClassName }: TutorialMenuProps) {
         onClick={() => setOpen(prev => !prev)}
         className={btnClassName}
       >
-        <HelpCircle size={14} className="group-hover:rotate-12 transition-transform duration-300 shrink-0" />
-        <span className="text-app-base font-black uppercase tracking-[0.1em]">
-          {t('app.view_tutorial')}
-        </span>
+        {children ?? (
+          <>
+            <HelpCircle size={14} className="group-hover:rotate-12 transition-transform duration-300 shrink-0" />
+            <span className="text-app-base font-black uppercase tracking-[0.1em]">
+              {t('app.view_tutorial')}
+            </span>
+          </>
+        )}
       </button>
 
       {open && createPortal(

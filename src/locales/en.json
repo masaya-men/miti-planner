@@ -141,6 +141,7 @@
         "fab_sync": "Sync",
         "fab_language": "Language",
         "fab_theme": "Theme",
+        "fab_tutorial": "Tutorial",
         "fab_party_visibility": "Show Members",
         "fab_effect_mode_icon": "Icon Only",
         "fab_effect_mode_scroll": "Scroll Effect",

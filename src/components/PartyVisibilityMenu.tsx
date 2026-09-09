@@ -18,6 +18,8 @@ interface PartyVisibilityMenuProps {
     btnActiveClassName: string;
     sortOrder: 'light_party' | 'role';
     readOnly: boolean;
+    /** 指定時はボタンの中身を差し替える（MIL-SPEC タイル markup 用・標準UIは未指定=無変更）。 */
+    children?: React.ReactNode;
 }
 
 const CELL = 36;
@@ -65,7 +67,7 @@ const cellVariants = {
  * 閉じない)。クリック/フォーカスでも開けるため、キーボード操作でも迷子にならない。
  * パネルはトリガーの中央下に出し、画面端では左右クランプ・上下反転で画面内に収める。
  */
-export function PartyVisibilityMenu({ btnClassName, btnActiveClassName, sortOrder, readOnly }: PartyVisibilityMenuProps) {
+export function PartyVisibilityMenu({ btnClassName, btnActiveClassName, sortOrder, readOnly, children }: PartyVisibilityMenuProps) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const btnRef = useRef<HTMLButtonElement>(null);
@@ -175,18 +177,20 @@ export function PartyVisibilityMenu({ btnClassName, btnActiveClassName, sortOrde
                     className={clsx(hasHidden ? btnActiveClassName : btnClassName, readOnly && 'opacity-50 pointer-events-none', 'group/eye')}
                     aria-label={t('ui.party_visibility')}
                 >
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                        <g
-                            className="group-hover/eye:animate-gear-spin-once"
-                            style={{ transformOrigin: 'center center' }}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="1.5"
-                        >
-                            <path stroke="currentColor" d="M5.262 15.329l.486.842a1.49 1.49 0 002.035.55 1.486 1.486 0 012.036.529c.128.216.197.463.2.714a1.493 1.493 0 001.493 1.536h.979a1.486 1.486 0 001.485-1.493 1.493 1.493 0 011.493-1.471c.252.002.498.071.714.2a1.493 1.493 0 002.036-.55l.521-.857a1.493 1.493 0 00-.542-2.036 1.493 1.493 0 010-2.586c.71-.41.952-1.318.543-2.028l-.493-.85a1.493 1.493 0 00-2.036-.579 1.479 1.479 0 01-2.029-.543 1.428 1.428 0 01-.2-.714c0-.825-.668-1.493-1.492-1.493h-.98c-.82 0-1.488.664-1.492 1.486a1.485 1.485 0 01-1.493 1.493 1.521 1.521 0 01-.714-.2 1.493 1.493 0 00-2.036.542l-.514.858a1.486 1.486 0 00.543 2.035 1.486 1.486 0 01.543 2.036c-.13.226-.317.413-.543.543a1.493 1.493 0 00-.543 2.028v.008z" />
-                            <path stroke="currentColor" d="M12.044 10.147a1.853 1.853 0 100 3.706 1.853 1.853 0 000-3.706z" />
-                        </g>
-                    </svg>
+                    {children ?? (
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                            <g
+                                className="group-hover/eye:animate-gear-spin-once"
+                                style={{ transformOrigin: 'center center' }}
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="1.5"
+                            >
+                                <path stroke="currentColor" d="M5.262 15.329l.486.842a1.49 1.49 0 002.035.55 1.486 1.486 0 012.036.529c.128.216.197.463.2.714a1.493 1.493 0 001.493 1.536h.979a1.486 1.486 0 001.485-1.493 1.493 1.493 0 011.493-1.471c.252.002.498.071.714.2a1.493 1.493 0 002.036-.55l.521-.857a1.493 1.493 0 00-.542-2.036 1.493 1.493 0 010-2.586c.71-.41.952-1.318.543-2.028l-.493-.85a1.493 1.493 0 00-2.036-.579 1.479 1.479 0 01-2.029-.543 1.428 1.428 0 01-.2-.714c0-.825-.668-1.493-1.492-1.493h-.98c-.82 0-1.488.664-1.492 1.486a1.485 1.485 0 01-1.493 1.493 1.521 1.521 0 01-.714-.2 1.493 1.493 0 00-2.036.542l-.514.858a1.486 1.486 0 00.543 2.035 1.486 1.486 0 01.543 2.036c-.13.226-.317.413-.543.543a1.493 1.493 0 00-.543 2.028v.008z" />
+                                <path stroke="currentColor" d="M12.044 10.147a1.853 1.853 0 100 3.706 1.853 1.853 0 000-3.706z" />
+                            </g>
+                        </svg>
+                    )}
                 </button>
             </Tooltip>
 

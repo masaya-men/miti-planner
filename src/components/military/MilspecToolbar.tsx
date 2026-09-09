@@ -2,12 +2,12 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useTutorialStore } from '../../store/useTutorialStore';
-import { SegmentButton } from '../ui/SegmentButton';
 import { MitigationSheet } from '../MitigationSheet';
 import { ImportMenu } from '../ImportMenu';
 import { HeaderToolsMenu } from '../HeaderToolsMenu';
 import { PartyVisibilityMenu } from '../PartyVisibilityMenu';
 import { PartyStatusPopover } from '../PartyStatusPopover';
+import { MilspecTileInner } from './MilspecTileInner';
 import type { MilspecLayoutProps } from './MilspecLayout';
 // 副作用 import: i18next の初期化(MilspecSidebar.tsx と同じ理由 — useTranslation() は
 // initReactI18next 済みインスタンスが無いとキー文字列をそのまま返す/依存先が未初期化例外を出す)。
@@ -87,16 +87,28 @@ export const MilspecToolbar: React.FC<MilspecToolbarProps> = (props) => {
           </span>
         </button>
 
-        <ImportMenu
-          btnClassName="milspec-tool-btn milspec-tool-btn-icon"
-          onImportLogs={onImportLogs}
-          readOnly={false}
-        />
-        <HeaderToolsMenu
-          btnClassName="milspec-tool-btn milspec-tool-btn-icon"
-          onAutoPlan={onAutoPlan}
-          readOnly={false}
-        />
+        <ImportMenu btnClassName="milspec-tool-btn" onImportLogs={onImportLogs} readOnly={false}>
+          <MilspecTileInner
+            en={t('nav.import', { lng: 'en' })}
+            jp={t('nav.import', { lng: 'ja' })}
+            icon={
+              <svg className="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <path d="M12 3v12M8 11l4 4 4-4M4 21h16" />
+              </svg>
+            }
+          />
+        </ImportMenu>
+        <HeaderToolsMenu btnClassName="milspec-tool-btn" onAutoPlan={onAutoPlan} readOnly={false}>
+          <MilspecTileInner
+            en={t('ui.more', { lng: 'en' })}
+            jp={t('ui.more', { lng: 'ja' })}
+            icon={
+              <svg className="ico" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
+              </svg>
+            }
+          />
+        </HeaderToolsMenu>
       </div>
 
       {/* 中央: 装飾テキスト(mockup .tool-spacer 2072-2075)。軍事英字の装飾文言は翻訳対象外(constraint 8)。 */}
@@ -110,39 +122,58 @@ export const MilspecToolbar: React.FC<MilspecToolbarProps> = (props) => {
         <span className="milspec-sc tl">VIEW</span>
 
         <button type="button" className="milspec-tool-btn" onClick={() => setIsMitiSheetOpen(true)}>
-          <span className="milspec-bolt tl" /><span className="milspec-bolt br" />
-          <span className="milspec-lamp" />
-          <span className="icf">
-            <svg className="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-              <path d="M4 6h16M4 12h16M4 18h10" /><circle cx="18" cy="18" r="3" />
-            </svg>
-          </span>
-          <span className="lbl">
-            <span className="en">{t('popular.open_popular', { lng: 'en' })}</span>
-            <span className="jp">{t('popular.open_popular', { lng: 'ja' })}</span>
-          </span>
+          {/* mockup は短い「Popular / みんなの軽減表」。popular.open_popular は宣伝文言なので
+              クリーンな popular.title を使う(en: "Popular Sheets" / ja: "みんなの軽減表")。 */}
+          <MilspecTileInner
+            en={t('popular.title', { lng: 'en' })}
+            jp={t('popular.title', { lng: 'ja' })}
+            icon={
+              <svg className="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <path d="M4 6h16M4 12h16M4 18h10" /><circle cx="18" cy="18" r="3" />
+              </svg>
+            }
+          />
         </button>
 
         <PartyVisibilityMenu
-          btnClassName="milspec-tool-btn milspec-tool-btn-icon"
-          btnActiveClassName="milspec-tool-btn milspec-tool-btn-icon active"
+          btnClassName="milspec-tool-btn"
+          btnActiveClassName="milspec-tool-btn active"
           sortOrder={partySortOrder}
           readOnly={false}
-        />
+        >
+          <MilspecTileInner
+            en={t('app.fab_party_visibility', { lng: 'en' })}
+            jp={t('app.fab_party_visibility', { lng: 'ja' })}
+            icon={
+              <svg className="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                <circle cx="12" cy="12" r="3" /><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" />
+              </svg>
+            }
+          />
+        </PartyVisibilityMenu>
       </div>
 
-      {/* SORT — mockup .tb-cluster.tool-seg(DOM 2081-2085)。milspec-seg は Task2 で除去済のため
-          外観は SP1 CSS 側で .milspec-tb-sort 経由に寄せる(controller訂正)。 */}
+      {/* SORT — mockup .tb-cluster.tool-seg(DOM 2081-2085)。ランプ + EN/JP 2 段の自前タイル 2 つ
+          (SegmentButton だと単一 label 文字列で bilingual にできないため・active はシアンランプ点灯)。 */}
       <div className="milspec-tb-cluster milspec-tb-sort">
         <span className="milspec-sc tl">SORT</span>
-        <SegmentButton
-          options={[
-            { value: 'light_party', label: t('ui.sort_light_party') },
-            { value: 'role', label: t('ui.sort_role') },
-          ]}
-          value={partySortOrder}
-          onChange={setPartySortOrder}
-        />
+        {([
+          ['light_party', 'ui.sort_light_party'],
+          ['role', 'ui.sort_role'],
+        ] as const).map(([value, key]) => (
+          <button
+            key={value}
+            type="button"
+            className={`milspec-tool-btn milspec-sort-btn${partySortOrder === value ? ' active' : ''}`}
+            onClick={() => setPartySortOrder(value)}
+          >
+            <span className={`milspec-lamp cyan${partySortOrder === value ? ' milspec-lit' : ''}`} />
+            <span className="lbl">
+              <span className="en">{t(key, { lng: 'en' })}</span>
+              <span className="jp">{t(key, { lng: 'ja' })}</span>
+            </span>
+          </button>
+        ))}
       </div>
 
       <MitigationSheet

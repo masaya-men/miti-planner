@@ -9,6 +9,8 @@ import { ShareButtons } from '../ShareButtons';
 import { SyncButton } from '../SyncButton';
 import { TransitionOverlayProvider } from '../ui/TransitionOverlay';
 import { MilspecStyleToggle } from './MilspecStyleToggle';
+import { useTurbineCluster } from './useTurbineCluster';
+import { MilspecTileInner } from './MilspecTileInner';
 import { useThemeStore } from '../../store/useThemeStore';
 import { usePlanStore } from '../../store/usePlanStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -55,8 +57,8 @@ export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
   const profileAvatarUrl = useAuthStore((s) => s.profileAvatarUrl);
   const [showLoginModal, setShowLoginModal] = React.useState(false);
 
-  // タービン(遊び・データ非依存)。ローカル state のみ、ストアは一切触らない。
-  const [spinning, setSpinning] = React.useState(false);
+  // タービン(遊び・データ非依存)。rAF で回転を駆動する専用フック。ストアは一切触らない。
+  const turbine = useTurbineCluster(1);
 
   return (
     // LanguageSwitcher / MilspecStyleToggle が内部で useTransitionOverlay() を無条件に呼ぶため、
@@ -110,45 +112,62 @@ export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
         <span className="milspec-sc bl" style={{ left: 14 }}>A.R.D-07 · COOLANT</span>
         <span className="milspec-hazard" style={{ position: 'absolute', right: 6, top: 4, width: 64, height: 3, opacity: 0.5 }} />
         <span className="milspec-sc" style={{ top: 8, right: 6, textAlign: 'right' }}>⚠ ROTATING</span>
-        <span className="milspec-nameplate" style={{ left: 150, top: '50%', transform: 'translateY(-50%)' }}>
+        <span className="milspec-nameplate" style={{ left: 90, top: '50%', transform: 'translateY(-50%)' }}>
           DEFENSIVE COOLDOWN PLANNING TERMINAL<br />PARTY SURVIVABILITY OPTIMIZER · MK.II
         </span>
-        <span className="milspec-pl h" style={{ left: 150, right: 150, top: 14, opacity: 0.5 }} />
-        <span className="milspec-pl h" style={{ left: 150, right: 150, bottom: 12, opacity: 0.4 }} />
+        <span className="milspec-pl h" style={{ left: 90, right: 96, top: 14, opacity: 0.5 }} />
+        <span className="milspec-pl h" style={{ left: 90, right: 96, bottom: 12, opacity: 0.4 }} />
 
-        {/* タービン(遊び) — mockup #tb-switch-header。実用機能ゼロ・ローカル state のみ。 */}
+        {/* タービン(遊び) — mockup #tb-switch-header + .tb-frame。実用機能ゼロ。
+            起動シーケンス(スピンアップ→火花→蒸気)は useTurbineCluster が rAF で駆動。 */}
         <div className="milspec-tb-cluster2">
           <button
             type="button"
-            className="milspec-tb-switch"
+            className={`milspec-tb-switch${turbine.active ? ' milspec-tb-active' : ''}`}
             aria-label="タービン起動"
             title="タービン起動(遊び)"
-            onClick={() => setSpinning((v) => !v)}
+            onClick={turbine.start}
+            disabled={turbine.active}
           >
-            <span className={`milspec-lamp amber${spinning ? ' milspec-lit' : ''}`} />
+            <span className="milspec-tb-lamp" />
             <span className="milspec-tb-switch-lbl">TRB</span>
           </button>
-          <div className="milspec-tb-frame">
+          <div className="milspec-tb-frame" ref={turbine.frameRefs[0]}>
             <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
             <span className="milspec-bolt bl" /><span className="milspec-bolt br" />
-            <span className="milspec-turbine" data-spin={spinning ? '' : undefined}>
-              <span className="milspec-tb-vanes" />
+            <span className="milspec-turbine milspec-turbine-hdr">
+              <span className="milspec-tb-vanes" ref={turbine.vaneRefs[0]} />
               <span className="milspec-tb-hub" />
             </span>
           </div>
         </div>
       </div>
 
-      {/* 共有プレート — mockup .hp-share(DOM 1967)。実際の共有起動は標準 ShareButtons を再利用
-          (SP1 では標準テーマの共有モーダルが開く)。currentPlan が無ければ非表示(標準と同じ条件)。 */}
+      {/* 共有プレート — mockup .hp-share(DOM 1967)。mockup は「共有 / // Share」の銘板。
+          実際の共有起動は標準 ShareButtons + SyncButton を銘板の下に小さく置く(標準テーマの共有モーダルが開く)。 */}
       <div className="milspec-hp milspec-hp-share">
-        {currentPlan && <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />}
-        {!isHeaderCollapsed && <SyncButton size={14} />}
+        <span className="milspec-sc br">SHR</span>
+        <span className="jp">{t('app.share', { lng: 'ja' })}</span>
+        <span className="en">// {t('app.share', { lng: 'en' })}</span>
+        <div className="milspec-hp-share-actions">
+          {currentPlan && <ShareButtons contentLabel={contentLabel} currentPlan={currentPlan} />}
+          {!isHeaderCollapsed && <SyncButton size={13} />}
+        </div>
       </div>
 
       {/* ツールプレート群 — mockup .hp-tools(DOM 1968-1978) */}
       <div className="milspec-hp-tools">
-        <TutorialMenu btnClassName="milspec-hud-btn" />
+        <TutorialMenu btnClassName="milspec-hud-btn">
+          <MilspecTileInner
+            en={t('app.fab_tutorial', { lng: 'en' })}
+            jp={t('app.fab_tutorial', { lng: 'ja' })}
+            icon={
+              <svg className="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 4v4M4 12h4M20 12h-4M12 20v-4" /><circle cx="12" cy="12" r="3" />
+              </svg>
+            }
+          />
+        </TutorialMenu>
 
         <button type="button" className="milspec-hud-btn" onClick={onToggleTheme}>
           <span className="milspec-bolt tl" /><span className="milspec-bolt br" />
@@ -162,7 +181,17 @@ export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
           </span>
         </button>
 
-        <span className="milspec-hud-btn-slot"><LanguageSwitcher /></span>
+        <LanguageSwitcher btnClassName="milspec-hud-btn">
+          <MilspecTileInner
+            en={t('app.fab_language', { lng: 'en' })}
+            jp={t('app.fab_language', { lng: 'ja' })}
+            icon={
+              <svg className="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" />
+              </svg>
+            }
+          />
+        </LanguageSwitcher>
 
         <button type="button" className="milspec-hud-btn" onClick={() => setShowLoginModal(true)}>
           <span className="milspec-bolt tl" /><span className="milspec-bolt br" />
@@ -184,12 +213,15 @@ export const MilspecHeader: React.FC<MilspecHeaderProps> = (props) => {
           </span>
         </button>
 
-        {showStyleToggle && (
-          <span data-milspec-style-toggle className="milspec-hud-btn-slot">
-            <MilspecStyleToggle compact className="milspec-hud-btn" />
-          </span>
-        )}
       </div>
+
+      {/* MilspecStyleToggle は mockup に無い暫定スキャフォールド。ツール列(mockup 準拠の 4 タイル)に
+          混ぜず、ヘッダー左下隅に小さく絶対配置する(CSS: .milspec-style-toggle-mount)。 */}
+      {showStyleToggle && (
+        <span data-milspec-style-toggle className="milspec-style-toggle-mount">
+          <MilspecStyleToggle compact className="milspec-hud-btn" />
+        </span>
+      )}
 
       {/* ヘッダー折りたたみ — mockup 側には対応 DOM が無い(サイドバー上部の sb-collapse とは別物)。
           Task 5(Sidebar)未実装の SP1 時点ではヘッダー自身が担う。凝った意匠は不要(brief 指示通り)。 */}

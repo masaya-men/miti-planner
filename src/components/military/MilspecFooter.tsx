@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MilspecHarness } from './svg/MilspecHarness';
+import { useTurbineCluster } from './useTurbineCluster';
 // 副作用 import: i18next の初期化(MilspecSidebar.tsx/MilspecToolbar.tsx と同じ理由 —
 // useTranslation() は initReactI18next 済みインスタンスが無いとキー文字列をそのまま返す)。
 import '../../i18n';
@@ -86,6 +87,8 @@ const MilspecCursorReadout: React.FC = () => {
  */
 export const MilspecFooter: React.FC = () => {
   const { t } = useTranslation();
+  // 排熱ファン(遊び)— mockup #tb-switch-footer。専属 rig 2 基、起動を最大 550ms ずらす。
+  const fans = useTurbineCluster(2);
   const ftrRef = React.useRef<HTMLDivElement>(null);
   const legalBtnRef = React.useRef<HTMLButtonElement>(null);
   const [legalOpen, setLegalOpen] = React.useState(false);
@@ -142,9 +145,8 @@ export const MilspecFooter: React.FC = () => {
         <MilspecHarness />
       </div>
 
-      {/* 右: 計器プレート — mockup .fp.fp-inst(DOM 2278-2303 相当)。タービン/ファン・
-          トラッキングレティクル等の純装飾サブパーツは spec §5.7 が要求する要素
-          (Telemetry 計器 + カーソル座標)の範囲外として今回は対象外(自己申告・punch-list 候補)。 */}
+      {/* 右: 計器プレート — mockup .fp.fp-inst(DOM 2278-2331)。カーソル座標計器 +
+          排熱ファン・クラスタ(スイッチ1個 + PC冷却ファン型フレーム2基)+ 回転注意プラカード。 */}
       <div className="milspec-hp milspec-fp milspec-fp-inst" style={{ '--ms-sh': 'var(--ms-sh-tl-tr)' } as React.CSSProperties}>
         <span className="milspec-bolt bl" />
         <span className="milspec-bolt br" />
@@ -154,6 +156,52 @@ export const MilspecFooter: React.FC = () => {
         <span className="milspec-hazard" style={{ position: 'absolute', left: 0, bottom: 0, width: 16, height: 5, opacity: 0.4 }} />
         <div className="milspec-fp-inst-body">
           <MilspecCursorReadout />
+        </div>
+
+        {/* トラッキングレティクル + スキャンデータ(意味のない図形/数字で密度を埋める)— mockup 2288-2297 */}
+        <svg className="milspec-fp-reticle" viewBox="0 0 60 60" width="40" height="40" aria-hidden="true">
+          <path d="M30 5 L55 30 L30 55 L5 30 Z" fill="none" stroke="var(--ms-cyan)" strokeWidth="0.7" />
+          <line x1="30" y1="0" x2="30" y2="11" stroke="var(--ms-cyan)" strokeWidth="0.7" />
+          <line x1="30" y1="49" x2="30" y2="60" stroke="var(--ms-cyan)" strokeWidth="0.7" />
+          <line x1="0" y1="30" x2="11" y2="30" stroke="var(--ms-cyan)" strokeWidth="0.7" />
+          <line x1="49" y1="30" x2="60" y2="30" stroke="var(--ms-cyan)" strokeWidth="0.7" />
+          <circle cx="30" cy="30" r="2" fill="none" stroke="var(--ms-cyan)" strokeWidth="0.6" />
+        </svg>
+        <div className="milspec-fp-scan">
+          <span>ACW <b>0.22</b></span><span>ECW <b>0.05</b></span><span>PCW <b>0.02</b></span>
+        </div>
+        <span className="milspec-fp-dash" />
+
+        {/* 回転注意プラカード(mecha-language §1)— mockup 2308-2311 */}
+        <span
+          className="milspec-hazard"
+          style={{ position: 'absolute', right: 4, top: 2, width: 126, height: 3, opacity: 0.55 }}
+        />
+        <span className="milspec-sc" style={{ top: 6, right: 4, textAlign: 'right' }}>⚠ ROTATING PARTS · 回転注意</span>
+
+        {/* 排熱ファン・クラスタ — mockup .tb-cluster2 / #tb-switch-footer(DOM 2312-2331) */}
+        <div className="milspec-tb-cluster2">
+          <button
+            type="button"
+            className={`milspec-tb-switch${fans.active ? ' milspec-tb-active' : ''}`}
+            aria-label="排熱ファン起動"
+            title="排熱ファン起動(遊び)"
+            onClick={fans.start}
+            disabled={fans.active}
+          >
+            <span className="milspec-tb-lamp" />
+            <span className="milspec-tb-switch-lbl">FAN</span>
+          </button>
+          {[0, 1].map((i) => (
+            <div className="milspec-tb-frame" key={i} ref={fans.frameRefs[i]}>
+              <span className="milspec-bolt tl" /><span className="milspec-bolt tr" />
+              <span className="milspec-bolt bl" /><span className="milspec-bolt br" />
+              <span className="milspec-turbine">
+                <span className="milspec-tb-vanes" ref={fans.vaneRefs[i]} />
+                <span className="milspec-tb-hub" />
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 

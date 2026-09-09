@@ -15,7 +15,14 @@ const LANGUAGES: { code: ContentLanguage; label: string }[] = [
     { code: 'ko', label: '한국어' },
 ];
 
-export const LanguageSwitcher: React.FC = () => {
+interface LanguageSwitcherProps {
+    /** 指定時はトリガーボタンの className を差し替える（MIL-SPEC タイル用・標準UIは未指定=無変更）。 */
+    btnClassName?: string;
+    /** 指定時はトリガーボタンの中身を差し替える（同上）。 */
+    children?: React.ReactNode;
+}
+
+export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ btnClassName, children }) => {
     const { t, i18n } = useTranslation();
     const { setContentLanguage } = useThemeStore();
     const { runTransition } = useTransitionOverlay();
@@ -60,9 +67,9 @@ export const LanguageSwitcher: React.FC = () => {
                 <button
                     ref={globeRef}
                     onClick={() => setOpen(prev => !prev)}
-                    className="group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95 bg-transparent border-app-border text-app-text hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text"
+                    className={btnClassName ?? "group w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-95 bg-transparent border-app-border text-app-text hover:bg-app-toggle hover:border-app-toggle hover:text-app-toggle-text"}
                 >
-                    <Globe size={16} className="group-hover:rotate-45 transition-transform duration-500" />
+                    {children ?? <Globe size={16} className="group-hover:rotate-45 transition-transform duration-500" />}
                 </button>
             </Tooltip>
 

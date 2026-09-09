@@ -1,5 +1,5 @@
 // src/components/HeaderToolsMenu.tsx
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -16,6 +16,8 @@ interface HeaderToolsMenuProps {
     onAutoPlan: () => void;
     /** ジョイナー読み取り専用時は自動組み立て/ハイライトを無効化 */
     readOnly: boolean;
+    /** 指定時はボタンの中身を差し替える（MIL-SPEC タイル markup 用・標準UIは未指定=無変更）。 */
+    children?: ReactNode;
 }
 
 /**
@@ -27,7 +29,7 @@ interface HeaderToolsMenuProps {
  * ヘッダーの overflow を回避するため Portal で body 直下にレンダリング (TutorialMenu と同方式)。
  * ⋯ アイコンはホバーで 90°回転 (横→縦) してメニューを予告する (framer spring)。
  */
-export function HeaderToolsMenu({ btnClassName, onAutoPlan, readOnly }: HeaderToolsMenuProps) {
+export function HeaderToolsMenu({ btnClassName, onAutoPlan, readOnly, children }: HeaderToolsMenuProps) {
     const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     // ⋯ アイコンの 90°回転は「ボタン全体」のホバーで発火させる。
@@ -77,14 +79,16 @@ export function HeaderToolsMenu({ btnClassName, onAutoPlan, readOnly }: HeaderTo
                     className={btnClassName}
                     aria-label={t('ui.more')}
                 >
-                    {/* ボタン上ホバー中 or 開いている間は 90°回転 (横三点→縦三点) */}
-                    <motion.span
-                        className="flex items-center justify-center"
-                        animate={{ rotate: (open || hovered) ? 90 : 0 }}
-                        transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                    >
-                        <MoreHorizontal size={16} />
-                    </motion.span>
+                    {children ?? (
+                        /* ボタン上ホバー中 or 開いている間は 90°回転 (横三点→縦三点) */
+                        <motion.span
+                            className="flex items-center justify-center"
+                            animate={{ rotate: (open || hovered) ? 90 : 0 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+                        >
+                            <MoreHorizontal size={16} />
+                        </motion.span>
+                    )}
                 </button>
             </Tooltip>
 
