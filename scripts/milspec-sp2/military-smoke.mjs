@@ -494,6 +494,69 @@ async function main() {
       );
     });
 
+    // ── step 13: 計器スクロールバー (Task 8) ──────────────────
+    // 軍事 PC では src/index.css:1629 の「縦バー width:0」を .theme-military .milspec-app で
+    // 上書きし 14px の計器バーを可視化する。syncPadding がその幅を header/controls/recast 帯の
+    // paddingRight に反映する。
+    // ⚠ headless Chromium は overlay 型で ::-webkit-scrollbar を幅0で返す環境がある
+    //   (project_sf_military_theme 追記11)。その場合 offsetWidth-clientWidth も paddingRight も
+    //   0 になる → WARN スキップ (実機 Chrome / headed で確認)。
+    //   機械確認できるのは「CSS 構文が通り目盛りキャップ ::after が生成される」ことと
+    //   「syncPadding が header/controls/recast を同じ値で揃える」の2点。
+    await step('計器スクロールバー: 縦バー可視化 + syncPadding + 目盛りキャップ ::after', async () => {
+      const r = await page.evaluate(async () => {
+        const sc = document.querySelector('.timeline-scroll-container');
+        sc.scrollTo({ top: 0, left: 0 });
+        await new Promise((res) => setTimeout(res, 200));
+        const headerOuter = document.querySelector('#timeline-header-inner')?.parentElement;
+        const controlsOuter = document.querySelector('#timeline-controls-inner')?.parentElement;
+        const band = document.querySelector('[data-milspec-recast-band]');
+        const px = (v) => parseFloat(v) || 0;
+        const capOf = (el) => {
+          if (!el) return null;
+          const cs = getComputedStyle(el, '::after');
+          return { w: px(cs.width), hasTicks: /repeating-linear-gradient/.test(cs.backgroundImage), pos: getComputedStyle(el).position };
+        };
+        return {
+          barWidth: sc.offsetWidth - sc.clientWidth,
+          scrollable: sc.scrollHeight > sc.clientHeight,
+          headerPadR: headerOuter ? px(getComputedStyle(headerOuter).paddingRight) : null,
+          controlsPadR: controlsOuter ? px(getComputedStyle(controlsOuter).paddingRight) : null,
+          bandPadR: band ? px(getComputedStyle(band).paddingRight) : null,
+          headerCap: capOf(headerOuter),
+          bandCap: capOf(band),
+        };
+      });
+
+      // (1) 目盛りキャップ ::after — headless でも計算される (通常の疑似要素)。CSS 構文/セレクタの機械確認。
+      for (const [name, cap] of [['header', r.headerCap], ['recast-band', r.bandCap]]) {
+        if (!cap) fail(`${name} の外枠が見つからない`);
+        if (cap.pos !== 'relative') fail(`${name} 外枠が position:relative でない (${cap.pos}) — ::after の基準が壊れる`);
+        if (!(cap.w >= 12 && cap.w <= 16)) fail(`${name} の目盛りキャップ ::after 幅が 14px 近傍でない (${cap.w}px)`);
+        if (!cap.hasTicks) fail(`${name} の目盛りキャップ ::after に repeating-linear-gradient (目盛り) が無い`);
+      }
+
+      // (2) 縦バー幅 + syncPadding。headless で 0 なら WARN スキップ。
+      if (r.barWidth <= 0) {
+        return (
+          `WARN: headless で縦スクロールバー幅 = ${r.barWidth} (overlay 型・::-webkit-scrollbar 非描画)。` +
+          `実機 Chrome / headed で 14px + paddingRight 一致を要確認。` +
+          `目盛りキャップ ::after は生成確認済 (header ${r.headerCap.w}px / band ${r.bandCap.w}px)`
+        );
+      }
+      if (!(r.barWidth >= 10 && r.barWidth <= 20)) {
+        fail(`縦スクロールバー幅が 14px 近傍でない (${r.barWidth}px)`);
+      }
+      // syncPadding: header / controls / recast 帯が同じバー幅で揃う (±1.5px)
+      for (const [name, v] of [['header', r.headerPadR], ['controls', r.controlsPadR], ['recast', r.bandPadR]]) {
+        if (v === null) continue;
+        if (Math.abs(v - r.barWidth) > 1.5) {
+          fail(`${name} の paddingRight (${v}px) がスクロールバー幅 (${r.barWidth}px) と一致しない — syncPadding 未反映`);
+        }
+      }
+      return `縦バー幅 ${r.barWidth}px / paddingRight header ${r.headerPadR} controls ${r.controlsPadR} recast ${r.bandPadR} / 目盛りキャップ ::after OK`;
+    });
+
     // ── 最終判定 ─────────────────────────────────────────────
     console.log('');
     if (rec.whitelisted.length) {

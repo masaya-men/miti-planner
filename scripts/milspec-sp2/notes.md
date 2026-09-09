@@ -543,3 +543,85 @@ PC 軍事モード（`isMilspecTable = themeStyle === 'military' && !isMobileTim
   デカール側の `content` を大英字リテラルにして ja では mockup と同一表示（RECAST / リキャスト）にした。
 - **light**: 帯の地色は `--ms-recess-*`（dark/light 両定義済）で自動追従。dark 固定 hex を使う
   アイコンのソケット/暗幕だけ淡色へ上書き済。最終調整は SP2 後。
+
+---
+
+## Task 8: 計器スクロールバー（表 + サイドバー共有）
+
+### Step 1 の実測（重要）
+
+- **`grep -rn "scrollbar-width" src/`**: ヒットは `src/index.css:537`（`.no-scrollbar`・スコープ外）と
+  `src/styles/housing.css` 7 箇所（全てスコープ外）のみ。
+  **`.timeline-scroll-container` にも `.milspec-tree-scroll`（MIL-SPEC サイドバーのスクロール枠・
+  `MilspecContentTree.tsx:79`）にも `scrollbar-width` / `.no-scrollbar` は付いていない**
+  → Chrome の `::-webkit-scrollbar` スタイリングは両方で有効。除去作業は不要。
+- **「33px スクロールバー」ミステリー（Task 1 の申し送り）は再現せず**。
+  fixture ハーネス（headless）+ headed 実 Chrome の両方で計測した現状:
+  - 標準モード: `.timeline-scroll-container` の `offsetWidth - clientWidth`（縦バー幅）= **0**
+    （`src/index.css:1629` の `::-webkit-scrollbar:vertical { width:0; display:none }` が効いている）
+  - 軍事モード（Task 8 前）: **同じく 0**。military.css には `::-webkit-scrollbar` ルールが 1 個も無かった
+    （`grep webkit-scrollbar src/styles/military.css` はコメント 1 行のみ）。
+  - `.custom-scrollbar`（`Timeline.tsx:3135` のクラス）は **CSS 定義が存在しない**（`.custom-scrollbar-thin` だけ実在）。
+  結論: `index.css:1629` を上書きしているものは無く、Task 1 の「33px」は環境アーティファクトか別要素の誤計測。
+  END 状態の設計（軍事 PC = 14px / 標準 = 0 / モバイル = 不変）はそのまま成立。
+- **headless Chromium は overlay 型スクロールバーで `::-webkit-scrollbar` を幅0で返す**（既知）。
+  headed 実 Chrome（`channel: 'chrome'`）は描画する（横バー実測 `hDiff` = 8px → Task 8 後 14px）。
+
+### 実装（CSS のみ・`src/styles/military.css` SP2 節末尾に追記）
+
+- `src/index.css:1629` は**変更せず**、`.theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar:vertical`
+  （詳細度 0-4-1 vs 0-2-1）で `width:14px; display:block` に上書き。横バーも 14px。
+- track/thumb は mockup `.tbody` / `.ws-screen::-webkit-scrollbar`（1220-1257）準拠。
+  縦=目盛り 180deg、横=目盛り 90deg。thumb は `border:3px solid transparent` + `background-clip:padding-box`
+  でブラシメタルの中央帯を作る。hover でシアン発光。
+- **目盛りピッチ一致**: `--ms-gauge-ticks`（`repeating-linear-gradient` 6px minor / 24px major・180deg）を
+  `.theme-military .milspec-app` に 1 箇所定義し、**縦 track + ヘッダー cap + 帯 cap の 3 箇所で共有** →
+  ピッチが構造的に drift しない。
+- **静的目盛りキャップ**（mockup `.gauge-cap` 1208-1215）:
+  `div:has(> #timeline-header-inner)::after` と `[data-milspec-recast-band]::after`。
+  どちらの `::after` も Task 4（`div:has(> #timeline-header-inner)` は `border-bottom-color` のみ）/
+  Task 7（`[data-milspec-recast-band]` は直接指定のみ）とも**未使用**だったのでそのまま使えた。
+  新規 `<span>` 追加は不要。両外枠に `position: relative` を CSS で付与（Timeline.tsx は触らない）。
+  これらの外枠は `overflow:hidden` かつ `syncPadding` が `paddingRight = バー幅` を当てる非スクロール域
+  なので、`right:0; width:14px` の cap はちょうどスクロールバー溝の真上に載る。
+- サイドバー共有: `.theme-military .milspec-app .milspec-tree-scroll::-webkit-scrollbar`（mockup `.phases` 1260-1275・
+  やや細身 10px・thumb border 2px）。`.milspec-tree-scroll` は `.milspec-app` 配下
+  （`MilspecLayout.tsx:51` の `<div class="milspec-app">` → sidebar zone）なので同じスコープで届く。
+- light: `--ms-gauge-tick-minor/major` / `--ms-gauge-track-fill` / `--ms-gauge-thumb-fill` を
+  `.theme-military.theme-light .milspec-app` で淡い金属グレーへ再定義（縦 track・corner・cap は自動追従）。
+  横 track・thumb:horizontal・hover・サイドバー track だけ個別上書き。corner は `var(--ms-recess-lo)`（両定義済）。
+  最終トーン調整は SP2 後（Task 3-7 と同じ「破綻しない」レベル）。
+
+### Step 4（`themeStyle` 変化時の `syncPadding` 再実行）— Timeline.tsx 変更は**不要**
+
+headed 実 Chrome で標準 → `useThemeStore.setThemeStyle('military')` トグルを実測:
+`#timeline-header-inner` 外枠 / `#timeline-controls-inner` 外枠 / `[data-milspec-recast-band]` の
+`paddingRight` が **3 つとも 14px** に更新された（トグル前は縦バー 0px なので 0px）。
+理由 = `Layout.tsx:579` が `themeStyle==='military' && !isMobile` で標準 JSX ↔ `MilspecLayout` を
+丸ごと差し替える → Timeline が**再マウント**し `syncPadding` の `useEffect`（`Timeline.tsx:1526-1541`・
+Task 7 で deps を `[isMilspecTable]` 化済）が新規マウントで発火して測り直す。
+→ **新しい `useEffect` は追加しない**（ブリーフの「Task 7 が既にカバーしているなら追加するな」に該当）。
+
+### ハーネス
+
+- `standard-invariance.mjs`: exit 0。**標準の `vScrollbarWidth` = 0 を維持**（`.theme-military .milspec-app`
+  スコープが標準に漏れていない）。skeleton / rects もベースライン一致。
+- `military-smoke.mjs`: step 13 を追加。
+  - 機械確認（headless 可）: ヘッダー/帯の外枠が `position:relative`・目盛りキャップ `::after` が
+    幅 14px 近傍 + `repeating-linear-gradient`（目盛り）を持つ。→ **PASS**
+  - 縦バー幅 + `syncPadding` の `paddingRight` 一致: headless は overlay で幅0のため **WARN スキップ**
+    （「実機 Chrome / headed で確認」とログ）。非0の環境では 14px 近傍 + header/controls/recast の
+    paddingRight が ±1.5px で一致することを hard assert。
+- `npm run build`: exit 0。
+
+### 視覚突き合わせ（Step 8）
+
+（下記「視覚突き合わせ結果」に追記）
+
+### 残差（→ Task 10 masaya / SP2 後）
+
+- **目盛りの位相連続**: ヘッダー高 40px・リキャスト帯 38px はどちらも 6px の倍数でないため、
+  ヘッダー cap → 帯 cap → track の境界で minor/major 目盛りの位相が飛ぶ。ピッチ（間隔）は
+  `--ms-gauge-ticks` 共有で厳密一致しているが、位相合わせ（`background-position` の実 px 調整）は
+  高さが確定している実機で詰める。mockup も位相までは合わせていない。
+- **`::-webkit-scrollbar` の実描画確認は実機 Chrome 必須**（headless 非対応）。→ 下記。
