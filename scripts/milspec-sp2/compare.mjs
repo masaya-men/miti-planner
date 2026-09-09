@@ -91,12 +91,28 @@ async function captureMock(zone, cfg) {
   }
 }
 
+/** 表を写す zone は「致命行」を 1 本作る。fixture の被ダメ(120k)は H1 HP(≈187k)未満で
+ *  .dmg-slot.lethal が 1 つも出ないため、mockup .trow.lethal .td-mit(赤発光の凹み)を
+ *  突き合わせられない。1 イベントだけ被ダメを HP 超へ引き上げる(store 注入・製品コード不変)。 */
+const LETHAL_ZONES = new Set(['tbody', 'mitbar', 'scrollbar']);
+
 async function captureApp(zone, cfg) {
   const { browser, page } = await launch({ theme: 'dark' });
   const rec = attachConsoleRecorder(page);
   try {
     await gotoMiti(page);
     await applyFixture(page, { military: true });
+    if (LETHAL_ZONES.has(zone)) {
+      const lethal = await page.evaluate(async () => {
+        const { useMitigationStore } = await import('/src/store/useMitigationStore.ts');
+        const s = useMitigationStore.getState();
+        const evs = s.timelineEvents.map((e, i) => (i === 1 ? { ...e, damageAmount: 900000 } : e));
+        useMitigationStore.setState({ timelineEvents: evs });
+        await new Promise((r) => setTimeout(r, 400));
+        return document.querySelectorAll('.dmg-slot.lethal').length;
+      });
+      console.log(`  · 致命行注入: .dmg-slot.lethal ×${lethal}`);
+    }
     await page.waitForTimeout(300);
     const out = await shot(page, cfg.app, join(COMPARE_DIR, `${zone}-app.png`), { outer: cfg.outer });
     if (rec.fatal.length) {

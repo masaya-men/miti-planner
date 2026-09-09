@@ -88,3 +88,47 @@ Playwright で確認: `[data-time-row]:nth-child(4)` = time 69（4 行目）/ `:
 
 （もし将来 `MobileEffectBarLayer` 等が PC でも行より前に入るようになったら nth-child がずれる。
 その場合は行内完結の意匠（スラット上下シャドウ）だけ残しゼブラ/溝を落とす。現状は安全。）
+
+### 視覚突き合わせ（`compare.mjs tbody`・mockup `.tbody` 1122-1162 / DOM 2170-2208）
+
+`compare.mjs` の `tbody` zone は既に `.timeline-scroll-container` を指しており placeholder ではない
+（Task 1 で設定済）。致命行が fixture に無いため、`tbody`/`mitbar`/`scrollbar` zone で 1 イベントの
+被ダメを 900,000 に引き上げる store 注入を `captureApp` に追加（`.dmg-slot.lethal` ×1 を確認）。
+
+反復:
+1. スターター CSS 適用（mockup `.tbody`/`.trow`/`.td-*` の値をそのまま `--ms-*` 読み替えで移植）。
+   `.compare/tbody-{mock,app}.png` + 640×330 の接写クロップ（dark / dark-hover / light）を Read。
+   所見: 致命セル（赤発光の凹み）は mockup と強一致。沈みスクリーンの上端内影・セル縦仕切りは出て
+   いるが、行が「積層した金属スラット」に見える分離感が mockup より弱い（行高 50px > mockup 48px の
+   密度差 + レンダリングのマイクロコントラスト差）。
+2. 是正（tuning・mockup 語彙の範囲内）:
+   - `.trow` box-shadow に `inset 0 -7px 11px -7px rgba(0,0,0,0.32)`（各スラット下端の
+     アンビエントオクルージョン）を追加 → 行が独立したバーに見える。
+   - `:nth-child(4n)` に `inset 0 -9px 12px -8px rgba(0,0,0,0.4)` を足して 4 行溝を深く。
+   - セル縦仕切り: `border-color` 0.42→0.5、左内側ハイライト 0.045→0.06。
+   - ホバー左バー 3px→4px。
+   - メンバー列セルに照準ドット `::after`（mockup `.td-mem::after`）を追加（`:nth-child(n+7)`）。
+   再撮影 → 6 チェックすべて視認可能。
+
+最終所見（6 チェック）:
+| # | チェック | 判定 |
+|---|---|---|
+| 1 | 深く沈んだスクリーン（上端内影） | ✓ 上端の暗帯 + `#141b22→#0e141a` グラデで凹みが出る |
+| 2 | 各行 = 浮いた金属スラット | ✓ 上ハイライト + 下墨 + 下端 AO で積層バーに見える |
+| 3 | 彫り込みの縦仕切り | ✓ 既存 border-r を暗色化 + 左内側白 1px で V 断面 |
+| 4 | ホバー行のシアン左バー | ✓ シアンバー + `--ms-cyan-dim` の行ティント。※下記残差 |
+| 5 | 4n 溝 | ✓ 4/8/12 行目に深い溝（`--ms-pl-dark` + AO） |
+| 6 | 致命行「軽減後」セルの赤発光の凹み | ✓ mockup と強一致（赤枠 + 赤グロー + 内影 + 数字も赤発光） |
+
+残差（→ Task 10 masaya / SP2 後の統一調整）:
+- **ホバー左バーの起点**: mockup は `.trow` 左端（＝フェーズ列も透過セル）に 3px バー。実アプリは
+  `[data-phase-overlay]` が sticky な不透明バンドでフェーズ列（≈54px）を覆うため、シアンバー/ティントは
+  その右から始まる。Task 2 の cap 位置差と同種の構造差（実アプリにあって mockup 相当粒度に無い
+  凍結フェーズ列）。機能影響なし。
+- **行高**: 実 50px（`pixelsPerSecond`・JS 座標計算駆動）vs mockup 48px。変更不可（Global Constraint 2/7・
+  Task 1 smoke fixture の drag/clamp 前提）。密度が mockup よりわずかに低い。
+- **縦グリッド / フェーズ線**（mockup `.pl.v` 2172-2173）: Task 3 スコープ外（グリッド/プレイヘッド =
+  Task 5）。`.mit-bar`/`.mit-lbl` の意匠は Task 6。
+- **ゼブラ**: `:nth-child(even)` の差は極小（mockup も 0.013 alpha 差）。意図どおり「見えすぎない」。
+- **light**: dark 固定 hex 3 箇所（`.timeline-scroll-container` bg / 致命セル rgba / `.dmg-slot.lethal`
+  text-shadow）に `.theme-military.theme-light` 上書きを付与。値は「破綻しない」レベル、最終調整は SP2 後。
