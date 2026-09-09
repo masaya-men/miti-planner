@@ -1401,29 +1401,47 @@
   color: var(--ms-cyan); border-color: var(--ms-cyan);
   box-shadow: inset 0 -2px 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 7px var(--ms-cyan-glow);
 }
-.theme-military .milspec-tree-body { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
-.theme-military .milspec-tree-list { display: flex; flex-direction: column; gap: 6px; }
-.theme-military .milspec-tree-series { display: flex; flex-direction: column; gap: 6px; }
+/* ツリー本体は暗い「凹地(well)」。この上にコンテンツ 1 件ずつを浮いた金属タイルとして置く
+   → タイルの間に暗い溝が見えて「物理的に別部品」に読める(masaya 2026-09-09)。 */
+.theme-military .milspec-tree-body {
+  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+  padding: 7px 6px; background: var(--ms-well);
+  box-shadow: inset 0 3px 8px rgba(0,0,0,0.6), inset 0 -2px 5px rgba(0,0,0,0.4);
+}
+.theme-military .milspec-tree-list { display: flex; flex-direction: column; gap: 8px; }
+.theme-military .milspec-tree-series { display: flex; flex-direction: column; gap: 8px; }
 .theme-military .milspec-tree-series-hd {
   font: 700 9px/1.3 'Rajdhani', sans-serif; letter-spacing: 0.02em; color: var(--ms-text-sec);
-  padding: 7px 2px 1px;
+  padding: 6px 2px 0;
 }
 .theme-military .milspec-tree-empty { color: var(--ms-text-muted); font-size: 11px; padding: 10px 8px; text-align: center; }
 
-/* コンテンツ 1 件 = 沈んだサブプレート(mockup .phase 相当)。名前 + プランが 1 つの「くぼみ」に
-   まとまり、コンテンツごとに物理的に分かれて見える(masaya 2026-09-09 指定)。 */
+/* コンテンツ 1 件 = 浮いた金属タイル(mockup .hp/.fp と同じ面取り + 落ち影)。
+   名前 + プランが 1 枚のタイルにまとまり、タイル間の暗い溝で物理的に分かれて見える。 */
 .theme-military .milspec-tree-group {
-  position: relative; padding: 3px 8px 4px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.36));
-  border: 1px solid rgba(0,0,0,0.4); border-top-color: rgba(255,255,255,0.04);
+  position: relative; padding: 4px 9px 5px;
+  background:
+    linear-gradient(161deg, rgba(255,255,255,0.04), transparent 42%, rgba(0,0,0,0.18)),
+    linear-gradient(178deg, var(--ms-raised-hi), var(--ms-raised) 48%, var(--ms-raised-lo));
+  background-clip: padding-box;
+  border-style: solid; border-width: var(--ms-cham-sm);
+  border-top-color: var(--ms-cr-t); border-left-color: var(--ms-cr-l);
+  border-right-color: var(--ms-cr-r); border-bottom-color: var(--ms-cr-b);
   box-shadow:
-    inset 0 calc(1px + 2.5px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.5),
-    inset 0 calc(1px * var(--ms-tune-relief)) 2px rgba(0,0,0,0.45),
-    inset 0 -1px 0 rgba(255,255,255,0.035), 0 1px 0 rgba(255,255,255,0.04);
+    inset 0 1px 0 var(--ms-cham-ridge), inset 1px 0 0 rgba(255,255,255,0.04),
+    inset -1px 0 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(0,0,0,0.5);
+  filter:
+    drop-shadow(0 0 0.5px var(--ms-cham-silhouette))
+    drop-shadow(0 1px 0 rgba(0,0,0,0.55))
+    drop-shadow(0 3px 6px rgba(0,0,0,0.4));
 }
-.theme-military .milspec-tree-group.open { padding-bottom: 7px; }
-.theme-military .milspec-tree-group.current { border-color: rgba(130,204,223,0.32); box-shadow: inset 0 0 0 1px rgba(130,204,223,0.14),
-  inset 0 calc(1px + 2.5px * var(--ms-tune-relief)) calc(5px * var(--ms-tune-relief)) rgba(0,0,0,0.5); }
+.theme-military .milspec-tree-group.open { padding-bottom: 8px; }
+.theme-military .milspec-tree-group.current {
+  border-top-color: var(--ms-cyan); border-left-color: rgba(130,204,223,0.5);
+  box-shadow:
+    inset 0 1px 0 var(--ms-cham-ridge), inset 2px 0 0 var(--ms-cyan),
+    inset -1px 0 0 rgba(0,0,0,0.4), inset 0 -1px 0 rgba(0,0,0,0.5), 0 0 10px var(--ms-cyan-glow);
+}
 
 .theme-military .milspec-tree-head {
   display: flex; align-items: center; gap: 7px; width: 100%; cursor: pointer;
