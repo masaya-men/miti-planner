@@ -249,3 +249,148 @@ Playwright で確認: 折りたたみ時の phase/label は「チェブロンだ
   最終調整は SP2 後（plan 準拠）。dark 固定の重い黒 rgba は `.theme-military.theme-light` で青み淡色へ上書き済。
 - **`::before` clip-path が外側落ち影を切る**: notch のある角では `::after` 落ち影の一部が欠ける
   （mockup `.th` も同じ挙動）。タイル分離は暗チャンネル + ギャップ inset で担保しているので実害なし。
+
+---
+
+## Task 5 — コントロールバー（`.subtoolbar` 意匠・zone: `controlbar`）
+
+### Step 1 — `#timeline-controls-inner` 直下の実 DOM（軍事 PC 1489px・Playwright 実測）
+
+`#timeline-controls-inner`（`flex items-center gap-0 shrink-0 h-full w-full md:w-max md:min-w-max
+will-change-transform`・実測 h27・**position:static**・`will-change:transform` で常時 containing block・
+横スクロール同期対象）。外枠 `controlBarRef` = `flex-shrink-0 z-[51] h-7 relative border-b
+select-none overflow-hidden bg-app-surface2 border-app-border hidden md:block`（幅 1155・**scroll しない**）。
+fixture では inner 幅 1432 > outer 1155 = 内容が横あふれ（scroll 同期が効く）。
+
+直下の並び（実測）:
+| # | 要素 | 中身 |
+|---|---|---|
+| 0 | Area A `div.w-[calc(var(--col-header-chunk-w)-1px)]`（w169） | 折りたたむ button（`h-6 w-full`） |
+| 1 | `div.w-[1px].h-3`（divider） | — |
+| 2 | Area B `div.md:w-[calc(var(--col-mechanic-w)-1px)]`（w199） | AA wrapper `div` + `div.w-[1px].h-3` + メモ wrapper `div` |
+| 3 | `div.w-[1px].h-3` | — |
+| 4 | Area C `div.md:w-[calc(var(--col-counter-w)-1px)]`（w99） | 罫線 / PiP / リキャスト button |
+| 5 | `div.w-[1px].h-3` | — |
+| 6 | Area D `div.md:w-[calc(var(--col-counter-w)-1px)]`（w99） | Undo / Redo / クリア button |
+| 7 | `div.w-[1px].h-3` | — |
+| 8.. | `JobPickerRow` = `[data-member-id]` div ×8（Task 6 の `.cj`） | — |
+
+**button の実クラス / ON 状態フック**（`aria-pressed` / `data-state` は**全て無い**）:
+| ボタン | セレクタ手掛かり | OFF | ON（軍事ランプ点灯条件） |
+|---|---|---|---|
+| 折りたたむ | `button:has(> svg.lucide-text-align-justify)`（`h-6 w-full rounded-md`） | `text-app-text` | **button 自身に `bg-app-toggle text-app-toggle-text`**（`!hideEmptyRows`） |
+| AA 追加 | `button:has(> svg.lucide-sword)`（`flex-1 h-full`） | 親 div `text-app-text` | **button の親 div に `bg-app-toggle`** + button `text-app-bg`（`isAaModeEnabled`）※単クリックはポップオーバーを開くだけで ON にならない |
+| メモ | `button:has(> svg.lucide-pencil)`（`flex flex-1 h-full`・親は Tooltip ラッパ） | — | **button の祖父 div に `bg-app-toggle`** + button `text-app-bg`（`isMemoMode`） |
+| 罫線 | `button.p-1.rounded:has(> svg.lucide-rows-3)` | `text-app-text-muted` | **button に `text-app-text`**（`showRowBorders`）※`bg-app-toggle` 無し |
+| リキャスト | `button.p-1.rounded:has(> svg.lucide-clock)` | `text-app-text-muted` | **button に `text-app-text`**（`recastRowVisible`・既定 ON） |
+| Undo/Redo | `button.p-1.rounded:has(> svg.lucide-undo-2 / -redo-2)` | `text-app-text-muted cursor-default` + `disabled` | `text-app-text`（実行可能時） |
+| クリア | `button.p-1.rounded:has(> svg.lucide-trash-2)`（`flex gap-0.5`・中に ChevronDown も） | 常時 `text-app-text` + `hover:text-red-400` | — |
+| PiP | `button.p-1.rounded:has(> svg.lucide-picture-in-picture-2)`（`pipSupported` 時のみ） | `text-app-text-muted` | `text-app-blue`（本タスクの ON セレクタ対象外） |
+
+- キートップ 6 個の共通フック = **`button.p-1.rounded`**（トグルは `rounded-md` なので当たらない）。
+- 罫線 / リキャスト の ON フックは `.text-app-text`（OFF = `.text-app-text-muted`）だが **Undo/クリアも
+  `.text-app-text` を持つ** → ON 意匠のセレクタは必ず `:has(> svg.lucide-rows-3 / -clock)` で絞る。
+- divider は `div[class~="w-[1px]"][class~="h-3"]`（`bg-app-text` / `dark:bg-app-text/25` を持つ 1px 片・
+  計 5 本。うち 1 本は Area B 内の AA\|メモ 間）。
+
+### プレート背景のアプローチ — `#timeline-controls-inner` を直接 + 外枠も `:has()`
+
+- **`#timeline-controls-inner` に本体グラデ**（`--ms-raised-hi → --ms-raised 60% → --ms-raised-lo`）+
+  inset 影。`md:w-max` で内容幅ぴったり・scroll で translateX されるが、fixture では inner 幅 > outer 幅で
+  常に可視域を覆う。
+- **外枠 `controlBarRef` にも同グラデ** = `div:has(> #timeline-controls-inner)`（`#timeline-controls-inner`
+  は id 一意 → このセレクタも一意。Task 4 の `div:has(> #timeline-header-inner)` と同じ堅牢性）。
+  内容が狭い時に inner の右に出る素の `bg-app-surface2` を潰す保険 + 下端 `border-b` を鋼色へ recolor
+  （mockup `.subtoolbar::after` の渋い鋼ライン相当）。
+- **`Timeline.tsx` は無改変**。`data-milspec-controlbar` は不要と判断（外枠の `border-b` は recolor で
+  済み、`div:has(> #timeline-controls-inner)` が既存パターンで十分安定）。ブリーフが禁じた
+  `[data-timeline-root] > div:has(...)` の子結合子つき脆弱版は使っていない。
+
+### box model を変えずに各ボタン群を restyle
+
+- **Area div の幅・button の box は一切不変**。追加した幾何は 3 トグル button の `position: relative`
+  （ランプ `::before` の基準・AA/メモ button は素で static・offset なし = レイアウト影響ゼロ・Task 4 の
+  RAW/TAKEN と同じ作法）と `border-radius: 1px`（面取り角・box に不影響）のみ。
+- **面取り / 枠は `box-shadow: inset 0 0 0 1px …` の擬似リング**で表現（border 追加は auto 幅ボタンを
+  太らせるため不可）。
+- **ロッカートグル（折りたたむ/AA/メモ）** = 沈んだスロット: 2 レイヤー背景（スペキュラ帯 +
+  `--ms-recess-hi → -lo`）+ `inset` 面取りリング + `inset 0 2px 3px` の凹み影。左端に SP1 `.milspec-lamp`
+  複製の `::before`（既定は暗いレンズ）。ON（`.bg-app-toggle` 有）= シアン地 + `inset 0 -2px 0
+  var(--ms-cyan)` の下線 + `inset` シアングロー + ランプ点灯 + `color: var(--ms-cyan)`（span / lucide
+  currentColor も追従）。
+  ※基底ルールが `:has(> svg…)` で詳細度 (0,1,3,2) を持つので **ON セレクタにも `:has(> svg…)` を付けて
+  (0,1,4,2) で上回らせる**（当初これを怠って ON が基底に負けた — 反復 1 で修正）。
+- **キートップ（罫線/PiP/リキャスト/Undo/Redo/クリア）** = `button.p-1.rounded` に `--ms-btn-sheen` +
+  `linear-gradient(177deg, --ms-raised-hi, --ms-raised 45%, --ms-raised-lo)` + `inset` フレームリング +
+  `inset 0 1.5px 0 var(--ms-edge-hi)`（上辺の明ルーフ）+ `inset` 下墨 + 外側 `0 1px 0` 接地影 +
+  `filter: var(--ms-btn-cast)`。`:hover` = `brightness(1.12)` + シアン、`:active` = `filter:none` +
+  沈み影、`:disabled` = `opacity:0.4` + フラット。
+  ON（罫線/リキャスト・`.text-app-text` + アイコン絞り）= `inset 2px 0 0 var(--ms-cyan)` の左バー +
+  シアンアイコン。クリア `:hover` = `--ms-red` の左バー + 赤アイコン。
+- **divider** = `div[class~="w-[1px]"][class~="h-3"]` を `background: rgba(0,0,0,0.5)` +
+  `box-shadow: 1px 0 0 rgba(255,255,255,0.07)`（溝の受光側の右壁・box-shadow はレイアウト不変）。
+  1px 幅では mockup の `linear-gradient(90deg, …0 1px, …1px 2px)` は明側 1px しか描画されないため、
+  暗線 + 隣接ハイライトの構成に読み替え。
+- **ステンシルデカール** = `div:has(> #timeline-controls-inner)` の `::before`（`.hash` 斜線束・
+  `repeating-linear-gradient(-58deg…)`・右上・opacity 0.4）と `::after`（`.sc` 固定英字
+  "ENGAGEMENT TIMELINE CONTROL · SEC-2"・7px Share Tech Mono・右下・opacity 0.32）。外枠に置くので
+  scroll しても貼り付く。
+
+### Task 4 レビュー Minor の fold-in（コントローラー承認済）
+
+- **#1**: `.theme-military .milspec-app #timeline-header-inner` ルールに **`isolation: isolate;` を追加**。
+  Task 4 のタイル面 `::before { z-index:-1 }` が `will-change-transform`（Tailwind）由来の stacking
+  context に暗黙依存していたのを CSS 側で自己完結化。
+- **#3**: Task 4 の `#timeline-header-inner > *:nth-child(odd/even)` 切り欠きルールのコメントに
+  **契約行を追記**（「先頭6セル固定・phase が child 1・ここに列挿入で面取り/ハッチがズレる・recast は
+  末尾で `:not(.recast-cell)` 除外」）。
+
+### ハーネス / compare.mjs の改善（本タスクで実施）
+
+- `compare.mjs captureMock`: `#stage.trace` クラスを除去してから撮るように（`.stage.trace .app` が
+  `opacity: 0.72` で参照写真 `allagan-dark.png` を透かし、旧アプリ UI の文字がゴーストで写り込んでいた
+  = Task 2〜4 の mock スクショも汚染されていた既知外バグ）。
+- `compare.mjs captureApp`: zone が `controlbar` / `jobchips` のとき **折りたたむ ON + 罫線 ON** に
+  しておく（mockup が `.cb-tgl.on` / `.cb-ico.on` を描いているため・store 注入・製品コード不変）。
+- `ZONES.controlbar` は既に `{ mock:'.subtoolbar', app:'#timeline-controls-inner', outer:true }`
+  = placeholder ではないので変更不要。
+
+### 視覚突き合わせ（`compare.mjs controlbar` + 自前 iterate スクリプト・dark/light + scrolled）
+
+反復（compare PNG + 4〜7x nearest 接写を Read）:
+1. スターター CSS → ON トグル（折りたたむ）が基底ルールの `:has()` 詳細度に負けてシアン化せず。
+   → ON セレクタに `:has(> svg…)` を付与して修正。
+2. キートップが recessed トグルと同トーンで「浮いた」感が弱い（mock は上辺が明るく強く浮く）。
+   → `inset 0 1.5px 0 var(--ms-edge-hi)` の明ルーフ + raised グラデ 3 stop + 下墨強化。再撮影 → キートップが浮く。
+3. divider が明側 1px しか出ず不可視気味 → 暗線 + `box-shadow` の隣接ハイライトに変更。
+4. ステンシルがジョブセル（Task 6・現状は broken-image）に被る → opacity 0.5→0.32 / 0.4 に落として「etch」に。
+5. light: 折りたたむ ON ランプが light 基底 `::before`（灰）にソース順で負けて点灯しない
+   → light 用 ON `::before` 上書きを追加。
+
+5 チェック最終:
+| # | チェック | 判定 |
+|---|---|---|
+| 1 | バー全体 = raised プレート + 下端に渋い鋼ライン | ✓ inner + 外枠に raised グラデ・`border-b` を鋼色 recolor |
+| 2 | 折りたたむ/AA/メモ = ロッカートグル、ON のものだけシアン下線 + 左ランプ点灯 | ✓ 沈んだスロット + 面取りリング・折りたたむ ON でシアン下線 + `.milspec-lamp` 相当点灯・AA/メモ OFF は暗レンズ |
+| 3 | 罫線/リキャスト/Undo/Redo/クリア = 押せるキートップ（枠なしでない）、ON はシアン inset | ✓ `--ms-btn-sheen` + フレームリング + 明ルーフ + 接地影・罫線/リキャスト ON で `inset 2px 0 0` シアンバー |
+| 4 | divider = V 断面スジ彫り | △ 1px 幅制約（mockup も同じ）で「暗線 + 右隣ハイライト」に読み替え。深い V ではないが溝として読める |
+| 5 | 右側の空きにステンシルデカール | △ 実アプリは表が幅いっぱいで mockup のような右空きが無い → 外枠右端に opacity 0.32 で etch（ジョブセルに薄く重なる） |
+
+### 残差（→ Task 10 masaya / SP2 後 / Task 6）
+
+- **ステンシル / hash がジョブセルに重なる**: mockup は固定キャンバスで `.cb-e` の右に空きがあり
+  そこに `.sc` / `.hash` が載る。実アプリは `#timeline-controls-inner` が `w-max` で
+  JobPickerRow の右に空きが出ない（8 人時は横あふれ）。Task 2/3 の「表が幅いっぱい」構造差と同種。
+  外枠固定 + opacity 0.32 で「金属に薄くエッチ」として最小化。masaya が「空きが出る狭幅時だけ表示」等を
+  望むなら Task 10。
+- **バー高 27px vs mockup 46px**: `controlBarRef` の `h-7` は不変（レイアウト契約）。キートップ・
+  トグルの立体感が mockup より圧縮される。CSS だけでは不可。
+- **ジョブチップ `.cj`（JobPickerRow）は未着手** = Task 6。現状は素の role グラデ + broken-image
+  アイコン（dev は `VITE_MEDIA_PROXY_BASE_URL` 無しでアイコン 404）。
+- **divider が深い V にならない**: 1px 幅の制約（mockup `.cb-div` も width:1px で同じ）。
+- **AA/メモの ON 実機確認**: AA は単クリックがポップオーバーを開くだけで `isAaModeEnabled` に
+  ならないため、視覚突き合わせでは 折りたたむ ON でトグル ON 意匠を代表確認。CSS セレクタ
+  （`.bg-app-toggle button:has(> svg.lucide-sword/pencil)`）は 折りたたむ と同じ機構で配線済み。
+- **light**: recess トグルとプレートのコントラストが低い（mockup light `--recess-*` も同傾向）。
+  「破綻しない」レベル確認済・最終調整は SP2 後。dark 固定 hex（ランプ 3 色・ON グラデの重い黒）は
+  `.theme-military.theme-light` で上書き済。
