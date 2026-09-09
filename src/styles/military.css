@@ -1194,6 +1194,11 @@
    横スクロールと一緒に translateX される(内容幅ぴったり)ので bg はそのまま追従する。 */
 .theme-military .milspec-app #timeline-header-inner {
   position: relative;
+  /* Task 4 レビュー Minor #1(Task 5 で fold-in): タイル面 ::before { z-index:-1 } は
+     #timeline-header-inner が stacking context を作ることに依存する。現状それは
+     will-change-transform(Tailwind)由来だけ = perf リファクタで class が消えると
+     軍事ヘッダーのタイルが無音で消える。isolation で CSS 側を自己完結させる。 */
+  isolation: isolate;
   /* mockup の .thead はせり出した金属だが、実アプリでは #timeline-header-inner が
      40px のヘッダー帯そのものを占める(上下に余白が無い)。せり出しリップとしては
      読めないので、暗い凹チャンネルにして「独立した金属タイルが浮く」を優先(check 1)。 */
@@ -1236,7 +1241,9 @@
 /* 交互の切り欠き(mockup .th:nth-child(odd/even) 1097-1098)。
    polygon は幾何のみ = テーマ非依存でインライン定義(--ms-shb-* は .theme-dark 限定で
    light だと消えるため・値は --ms-shb-tr/tl と同一 = --ms-nb 7px)。
-   odd=右上カット / even=左上カット → odd|even の継ぎ目が V 字通気溝になる。 */
+   odd=右上カット / even=左上カット → odd|even の継ぎ目が V 字通気溝になる。
+   契約: 先頭6セル(phase/label/time/mechanic/RAW/TAKEN)は固定・phase が child 1。
+   ここに列を挿入すると面取り/ハッチがズレる。recast セルは末尾・:not(.recast-cell) で除外。 */
 .theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell):nth-child(odd) {
   --ms-th-notch: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
 }
@@ -1296,6 +1303,213 @@
 .theme-military.theme-light .milspec-app #timeline-header-inner > *:not(.recast-cell),
 .theme-military.theme-light .milspec-app #timeline-header-inner > *:not(.recast-cell) > * {
   border-color: rgba(40,80,120,0.32);
+}
+
+/* ---------- Task 5: コントロールバー — .subtoolbar 意匠(ロッカートグル + キートップ + ランプ)
+   正典: mockup .subtoolbar / .cb-*(CSS 966-1032)+ DOM .subtoolbar(2088-2119)。
+   実 DOM(Step 1 実測・軍事 PC 1489px)= #timeline-controls-inner
+     (flex・items-center・実測 h27・will-change:transform で常時 containing block・横スクロール同期対象):
+     直下 = Area A(折りたたむ btn) / div.w-[1px].h-3 / Area B(AA btn + div.w-[1px].h-3 + メモ btn) /
+            div.w-[1px].h-3 / Area C(罫線・PiP・リキャスト) / div.w-[1px].h-3 /
+            Area D(Undo・Redo・クリア) / div.w-[1px].h-3 / JobPickerRow([data-member-id]×8 — Task 6)
+   ⚠ Area div の幅(w-[calc(var(--col-*)-1px)])は変えない。button の box(margin / 幅を足す border /
+     padding)も変えない = 列がずれ & 横スクロール同期(military-smoke step 8)が壊れる。意匠は
+     background / box-shadow(inset リングで面取りを擬似) / border-radius / filter / 疑似要素だけで作る。
+   ON 状態フック(Step 1 実測・aria-pressed / data-state は無い):
+     折りたたむ(!hideEmptyRows)  → button 自身に .bg-app-toggle
+     AA(isAaModeEnabled)         → button の親 div に .bg-app-toggle
+     メモ(isMemoMode)            → button の祖父 div に .bg-app-toggle
+     罫線(showRowBorders)        → button に .text-app-text(OFF = .text-app-text-muted)
+     リキャスト(recastRowVisible) → 同上(.text-app-text / .text-app-text-muted)
+       ※ Undo/クリアも .text-app-text を持つ → ON セレクタは必ず svg アイコンで絞る。
+   スコープは .theme-military .milspec-app(Task 3/4 と同じ)。 ---------- */
+
+/* プレート = せり出した金属(mockup .subtoolbar 969-976)。#timeline-controls-inner(md:w-max・
+   内容幅ぴったり・scroll で translateX)に本体グラデを、外枠 controlBarRef(h-7・relative・
+   overflow-hidden・full width)にも同グラデ + 下端の鋼ライン + ステンシルデカール(固定 =
+   scroll しない)を載せる。#timeline-controls-inner は id 一意 → div:has(> #timeline-controls-inner)
+   も一意(Task 4 の div:has(> #timeline-header-inner) と同じ堅牢性)。 */
+.theme-military .milspec-app div:has(> #timeline-controls-inner) {
+  background: linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised) 60%, var(--ms-raised-lo));
+  border-bottom-color: rgba(150,190,205,0.3); /* mockup .subtoolbar::after の渋い鋼ライン相当 */
+}
+.theme-military .milspec-app #timeline-controls-inner {
+  position: relative;
+  background: linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised) 60%, var(--ms-raised-lo));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -2px 5px rgba(0,0,0,0.38);
+}
+/* 右上のハッシュ束(mockup .hash 2092)= 外枠 ::before(scroll 非同期 = バーに貼り付く)。 */
+.theme-military .milspec-app div:has(> #timeline-controls-inner)::before {
+  content: ""; position: absolute; right: 14px; top: 4px; width: 20px; height: 6px;
+  z-index: 2; pointer-events: none;
+  background: repeating-linear-gradient(-58deg, var(--ms-text-muted) 0 1px, transparent 1px 4px);
+  opacity: 0.4;
+}
+/* ステンシルデカール(mockup .sc "ENGAGEMENT TIMELINE CONTROL · SEC-2" 2093・固定英字)。
+   実アプリは表が幅いっぱいで mockup のような右空きが無い → バー右端に淡く etch(残差 notes.md)。 */
+.theme-military .milspec-app div:has(> #timeline-controls-inner)::after {
+  content: "ENGAGEMENT TIMELINE CONTROL \00B7 SEC-2";
+  position: absolute; right: 14px; bottom: 2px; z-index: 2; pointer-events: none;
+  font: 400 7px/1 'Share Tech Mono', ui-monospace, monospace;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ms-text-muted); opacity: 0.32;
+}
+
+/* ロッカートグル(折りたたむ / AA / メモ)= 沈んだスロット意匠(mockup .cb-tgl 987-1002)。
+   border は足せない(box が動く)ので inset box-shadow リングで面取りを擬似。position:relative は
+   ランプ ::before の基準(AA/メモ button は素で static)・レイアウト影響ゼロ。 */
+.theme-military .milspec-app #timeline-controls-inner button:has(> svg.lucide-text-align-justify),
+.theme-military .milspec-app #timeline-controls-inner button:has(> svg.lucide-sword),
+.theme-military .milspec-app #timeline-controls-inner button:has(> svg.lucide-pencil) {
+  position: relative;
+  border-radius: 1px;
+  color: var(--ms-text-sec);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05) 0 44%, rgba(255,255,255,0.12) 45% 46.5%, rgba(0,0,0,0.14) 48% 51%, rgba(0,0,0,0.3) 55% 100%),
+    linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow:
+    inset 0 0 0 1px var(--ms-cham-silhouette),
+    inset 0 2px 3px rgba(0,0,0,0.5),
+    inset 0 -1px 0 rgba(255,255,255,0.04);
+}
+/* 左端ランプ(mockup .cb-tgl .lamp・既定は消灯 = 暗いレンズ)。SP1 .milspec-lamp の複製
+   (DOM を足せないため ::before で)。 */
+.theme-military .milspec-app #timeline-controls-inner button:has(> svg.lucide-text-align-justify)::before,
+.theme-military .milspec-app #timeline-controls-inner button:has(> svg.lucide-sword)::before,
+.theme-military .milspec-app #timeline-controls-inner button:has(> svg.lucide-pencil)::before {
+  content: ""; position: absolute; left: 4px; top: 50%; margin-top: -2.5px;
+  width: 5px; height: 5px; border-radius: 50%; z-index: 2; pointer-events: none;
+  background: radial-gradient(circle at 40% 34%, #39424b, #20272e 60%, #0f141a);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.6), inset 0 1px 1px rgba(0,0,0,0.6);
+}
+/* ON(mockup .cb-tgl.on 1003-1008)= シアン下線 + ランプ点灯 + シアン文字。
+   折りたたむ = button 自身に .bg-app-toggle / AA・メモ = 祖先 div に .bg-app-toggle。
+   ※ 基底ルールが :has() で詳細度 (0,1,3,2) を持つので ON 側も :has() を付けて上回らせる。 */
+.theme-military .milspec-app #timeline-controls-inner button.bg-app-toggle:has(> svg.lucide-text-align-justify),
+.theme-military .milspec-app #timeline-controls-inner .bg-app-toggle button:has(> svg.lucide-sword),
+.theme-military .milspec-app #timeline-controls-inner .bg-app-toggle button:has(> svg.lucide-pencil) {
+  color: var(--ms-cyan);
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.34) 0 44%, rgba(150,215,232,0.22) 45.5% 47%, rgba(0,0,0,0.04) 49% 52%, rgba(120,200,220,0.16) 56% 100%),
+    linear-gradient(180deg, var(--ms-recess-lo), var(--ms-recess-hi));
+  box-shadow:
+    inset 0 0 0 1px var(--ms-cham-silhouette),
+    inset 0 2px 3px rgba(0,0,0,0.5),
+    inset 0 -2px 0 var(--ms-cyan),
+    inset 0 -7px 8px -5px var(--ms-cyan-glow);
+}
+.theme-military .milspec-app #timeline-controls-inner button.bg-app-toggle:has(> svg.lucide-text-align-justify)::before,
+.theme-military .milspec-app #timeline-controls-inner .bg-app-toggle button:has(> svg.lucide-sword)::before,
+.theme-military .milspec-app #timeline-controls-inner .bg-app-toggle button:has(> svg.lucide-pencil)::before {
+  background: radial-gradient(circle at 38% 32%, #e0f6fc, #63bad0 52%, #1b3a44 92%);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.5), inset 0 0 1px rgba(255,255,255,0.45), 0 0 3px rgba(130,204,223,0.55);
+}
+
+/* キートップ(罫線 / PiP / リキャスト / Undo / Redo / クリア)= 押せる極小ボタン(mockup .cb-ico 1009-1022)。
+   p-1 rounded を持つ 6 個(トグルは rounded-md なので当たらない)。box 不変(bg / shadow / filter / radius のみ)。 */
+.theme-military .milspec-app #timeline-controls-inner button.p-1.rounded {
+  border-radius: 1px;
+  color: var(--ms-text-sec);
+  background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised) 45%, var(--ms-raised-lo));
+  box-shadow:
+    inset 0 0 0 1px var(--ms-frame),
+    inset 0 1.5px 0 var(--ms-edge-hi),
+    inset 0 -3px 3px -1px rgba(0,0,0,0.4),
+    0 1px 0 rgba(0,0,0,0.55);
+  filter: var(--ms-btn-cast);
+}
+.theme-military .milspec-app #timeline-controls-inner button.p-1.rounded:hover {
+  color: var(--ms-cyan);
+  filter: var(--ms-btn-cast) brightness(1.12);
+}
+.theme-military .milspec-app #timeline-controls-inner button.p-1.rounded:active {
+  filter: none;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(0,0,0,0.4);
+}
+.theme-military .milspec-app #timeline-controls-inner button.p-1.rounded:disabled {
+  filter: none; opacity: 0.4;
+  box-shadow: inset 0 0 0 1px var(--ms-frame), inset 0 1px 2px rgba(0,0,0,0.4);
+}
+/* ON(罫線 ON / リキャスト ON)= 左端シアン inset(mockup .cb-ico.on 1022)。 */
+.theme-military .milspec-app #timeline-controls-inner button.p-1.rounded.text-app-text:has(> svg.lucide-rows-3),
+.theme-military .milspec-app #timeline-controls-inner button.p-1.rounded.text-app-text:has(> svg.lucide-clock) {
+  color: var(--ms-cyan);
+  box-shadow:
+    inset 0 0 0 1px var(--ms-frame),
+    inset 0 1.5px 0 var(--ms-edge-hi),
+    inset 0 -3px 3px -1px rgba(0,0,0,0.4),
+    inset 2px 0 0 var(--ms-cyan),
+    0 1px 0 rgba(0,0,0,0.55);
+}
+/* クリアは hover で赤(mockup .cb-ico.danger:hover 1021) */
+.theme-military .milspec-app #timeline-controls-inner button.p-1.rounded:has(> svg.lucide-trash-2):hover {
+  color: var(--ms-red);
+  box-shadow:
+    inset 0 0 0 1px var(--ms-red-glow),
+    inset 0 1.5px 0 var(--ms-edge-hi),
+    inset 0 -3px 3px -1px rgba(0,0,0,0.4),
+    inset 2px 0 0 var(--ms-red),
+    0 1px 0 rgba(0,0,0,0.55);
+}
+
+/* V 断面スジ彫りの仕切り(mockup .cb-div 984-986)。既存 w-[1px] h-3 の bg を V グルーヴへ。
+   [class~=] で class トークン一致(escape 不要)・#id + 2 class で Tailwind ユーティリティに勝つ。 */
+.theme-military .milspec-app #timeline-controls-inner div[class~="w-[1px]"][class~="h-3"] {
+  background: rgba(0,0,0,0.5);
+  box-shadow: 1px 0 0 rgba(255,255,255,0.07); /* 溝の右壁 = 受光側(box-shadow はレイアウト不変) */
+  border-radius: 0;
+}
+
+/* light: dark 固定の重い黒 rgba / 冷たい鋼色を青みの淡色へ(Task 3/4 と同じ作法・最終調整は SP2 後)。 */
+.theme-military.theme-light .milspec-app div:has(> #timeline-controls-inner) {
+  border-bottom-color: rgba(40,80,120,0.3);
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -2px 5px rgba(40,80,120,0.16);
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner button:has(> svg.lucide-text-align-justify),
+.theme-military.theme-light .milspec-app #timeline-controls-inner button:has(> svg.lucide-sword),
+.theme-military.theme-light .milspec-app #timeline-controls-inner button:has(> svg.lucide-pencil) {
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.04) 0 44%, rgba(255,255,255,0.55) 45% 47%, rgba(0,0,0,0.04) 49% 52%, rgba(40,80,120,0.12) 56% 100%),
+    linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+  box-shadow:
+    inset 0 0 0 1px var(--ms-cham-silhouette),
+    inset 0 2px 3px rgba(40,80,120,0.18),
+    inset 0 -1px 0 rgba(255,255,255,0.6);
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner button:has(> svg.lucide-text-align-justify)::before,
+.theme-military.theme-light .milspec-app #timeline-controls-inner button:has(> svg.lucide-sword)::before,
+.theme-military.theme-light .milspec-app #timeline-controls-inner button:has(> svg.lucide-pencil)::before {
+  background: radial-gradient(circle at 40% 34%, #c2ccd4, #9aa6b0 60%, #7f8b95);
+  box-shadow: 0 0 0 1px rgba(40,80,120,0.3), inset 0 1px 1px rgba(40,80,120,0.3);
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner button.bg-app-toggle:has(> svg.lucide-text-align-justify),
+.theme-military.theme-light .milspec-app #timeline-controls-inner .bg-app-toggle button:has(> svg.lucide-sword),
+.theme-military.theme-light .milspec-app #timeline-controls-inner .bg-app-toggle button:has(> svg.lucide-pencil) {
+  background:
+    linear-gradient(180deg, rgba(17,131,176,0.06) 0 45%, rgba(17,131,176,0.16) 46% 48%, rgba(17,131,176,0.04) 50% 100%),
+    linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner button.bg-app-toggle:has(> svg.lucide-text-align-justify)::before,
+.theme-military.theme-light .milspec-app #timeline-controls-inner .bg-app-toggle button:has(> svg.lucide-sword)::before,
+.theme-military.theme-light .milspec-app #timeline-controls-inner .bg-app-toggle button:has(> svg.lucide-pencil)::before {
+  background: radial-gradient(circle at 38% 32%, #d6f2fb, #3aa7c9 55%, #10404f 92%);
+  box-shadow: 0 0 0 1px rgba(40,80,120,0.35), 0 0 3px rgba(17,131,176,0.5);
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner button.p-1.rounded {
+  box-shadow:
+    inset 0 0 0 1px var(--ms-frame),
+    inset 0 1px 0 rgba(255,255,255,0.8),
+    inset 0 -2px 2px rgba(40,80,120,0.16),
+    0 1px 0 rgba(40,80,120,0.2);
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner button.p-1.rounded:active {
+  box-shadow: inset 0 2px 5px rgba(40,80,120,0.3), inset 0 0 0 1px rgba(40,80,120,0.25);
+}
+.theme-military.theme-light .milspec-app #timeline-controls-inner div[class~="w-[1px]"][class~="h-3"] {
+  background: rgba(40,80,120,0.35);
+  box-shadow: 1px 0 0 rgba(255,255,255,0.7);
 }
 
 /* ============================================================

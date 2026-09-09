@@ -75,12 +75,15 @@ async function captureMock(zone, cfg) {
   try {
     await page.goto(pathToFileURL(MOCKUP_PATH).href, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(600);
-    // dev コントロールパネルを隠す
+    // dev コントロールパネルを隠す + トレース下敷き(allagan-*.png)を無効化。
+    // #stage.trace は .app を opacity:0.72 にして参照写真を透かす(=旧アプリUIの文字が
+    // ゴーストで写り込む)。突き合わせでは自レイヤーのみ 100% で撮る。
     await page.evaluate(() => {
       for (const id of ['ctl', 'tune']) {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
       }
+      document.getElementById('stage')?.classList.remove('trace');
     });
     await page.waitForTimeout(150);
     // モック側は cfg.outer を渡さない (= セレクタ要素そのものを撮る)。モックのゾーン
@@ -95,6 +98,10 @@ async function captureMock(zone, cfg) {
  *  .dmg-slot.lethal が 1 つも出ないため、mockup .trow.lethal .td-mit(赤発光の凹み)を
  *  突き合わせられない。1 イベントだけ被ダメを HP 超へ引き上げる(store 注入・製品コード不変)。 */
 const LETHAL_ZONES = new Set(['tbody', 'mitbar', 'scrollbar']);
+
+/** コントロールバー系 zone は mockup が「折りたたむ ON / 罫線 ON」を描いている(.cb-tgl.on / .cb-ico.on)。
+ *  突き合わせのため実アプリも同じ ON 状態にしてから撮る(store・製品コード不変)。 */
+const CONTROLBAR_ON_ZONES = new Set(['controlbar', 'jobchips']);
 
 async function captureApp(zone, cfg) {
   const { browser, page } = await launch({ theme: 'dark' });
@@ -112,6 +119,15 @@ async function captureApp(zone, cfg) {
         return document.querySelectorAll('.dmg-slot.lethal').length;
       });
       console.log(`  · 致命行注入: .dmg-slot.lethal ×${lethal}`);
+    }
+    if (CONTROLBAR_ON_ZONES.has(zone)) {
+      await page.evaluate(async () => {
+        const { useMitigationStore } = await import('/src/store/useMitigationStore.ts');
+        const s = useMitigationStore.getState();
+        if (s.hideEmptyRows) s.setHideEmptyRows(false); // 折りたたむ = ON (!hideEmptyRows)
+        if (!s.showRowBorders) s.setShowRowBorders(true); // 罫線 = ON
+        await new Promise((r) => setTimeout(r, 300));
+      });
     }
     await page.waitForTimeout(300);
     const out = await shot(page, cfg.app, join(COMPARE_DIR, `${zone}-app.png`), { outer: cfg.outer });
