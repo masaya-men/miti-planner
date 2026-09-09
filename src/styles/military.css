@@ -1059,18 +1059,20 @@
      3=機工(攻撃) / 4=元ダメージ(U.Dmg・素の数値) / 5=軽減後(Dmg・中に AnimatedDamage → .dmg-slot[.lethal]) /
      6+=メンバー列。
    ⚠ 行高(h-[50px]=pixelsPerSecond)・--col-*-w は変えない。既存 border-r(width:1px) は色のみ差し替え
-     = レイアウト完全不変。全ルール .theme-military 前置 → 標準モードでは不活性。 ---------- */
+     = レイアウト完全不変。全ルール .theme-military .milspec-app 前置(Task 3 レビュー Minor #1 で
+     bare .theme-military から改修 — .milspec-app は PC 軍事レイアウト時のみ mount。bare だと
+     モバイル軍事= SP3 領域に漏れて崩れる)。標準モードでは不活性。 ---------- */
 
 /* 表全体 = 深く沈んだスクリーン(mockup .tbody 1122-1126)。SP1 .milspec-ws-screen の内側で
    もう一段沈める。inset シャドウはスクロール時も枠に貼り付く → 上端内影が常時「窪み」を描く。 */
-.theme-military .timeline-scroll-container {
+.theme-military .milspec-app .timeline-scroll-container {
   background: linear-gradient(180deg, #141b22, #0e141a);
   box-shadow:
     inset 0 8px 24px rgba(0,0,0,0.82), inset 0 2px 2px rgba(0,0,0,0.9),
     inset 0 0 0 1px rgba(0,0,0,0.7), inset 0 0 0 2px rgba(255,255,255,0.03);
 }
 /* dark 固定 hex の light 上書き(Global Constraint 11・SP1 と同じ作法)。最終調整は SP2 後。 */
-.theme-military.theme-light .timeline-scroll-container {
+.theme-military.theme-light .milspec-app .timeline-scroll-container {
   background: linear-gradient(180deg, #dfe7ee, #ccd6df);
   box-shadow:
     inset 0 8px 24px rgba(40,80,120,0.22), inset 0 2px 2px rgba(40,80,120,0.18),
@@ -1079,7 +1081,7 @@
 
 /* 各行 = 浮いた薄い金属スラット: 上ハイライト / 下墨(mockup .trow 1127-1132)。
    行は position:absolute の実要素なので background / inset box-shadow はレイアウト不変。 */
-.theme-military [data-time-row] {
+.theme-military .milspec-app [data-time-row] {
   background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(0,0,0,0.05) 55%, rgba(0,0,0,0.16));
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.055), inset 0 -1px 0 rgba(0,0,0,0.55),
@@ -1088,17 +1090,17 @@
 /* ゼブラ + 4 行ごとの溝(mockup .trow:nth-child(even)/(4n) 1133-1134)。
    Step 1 実測: sheetContainer 直下は「先頭に [data-time-row] が連続・兄弟は全 div」
    → :nth-child(4)=4 行目(time 69) / :nth-child(8)=8 行目(time 141) と可視行順に一致。安全。 */
-.theme-military [data-time-row]:nth-child(even) {
+.theme-military .milspec-app [data-time-row]:nth-child(even) {
   background-image: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(0,0,0,0.05) 60%, rgba(0,0,0,0.16));
 }
-.theme-military [data-time-row]:nth-child(4n) {
+.theme-military .milspec-app [data-time-row]:nth-child(4n) {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -3px 0 -1px var(--ms-pl-dark),
     inset 0 -9px 12px -8px rgba(0,0,0,0.4), 0 2px 0 rgba(255,255,255,0.05);
 }
 /* ホバー行 = シアンの左バー(mockup .trow:hover 1135)。--ms-cyan / --ms-cyan-dim は dark/light 両定義済。
    :hover は :nth-child(4n) の後に置き同 specificity をソース順で勝たせる。 */
-.theme-military [data-time-row]:hover {
+.theme-military .milspec-app [data-time-row]:hover {
   box-shadow: inset 4px 0 0 var(--ms-cyan), inset 0 1px 0 rgba(255,255,255,0.08);
   background-color: var(--ms-cyan-dim);
 }
@@ -1106,41 +1108,41 @@
 /* セル間の彫り込み縦仕切り(mockup .td-* border-left + inset 1145-1146)。
    既存 border-r(1px) の色だけ落とし、左内側に微ハイライト → 隣接境界が V 断面に見える。
    width 不変 = レイアウト不変。 */
-.theme-military [data-time-row] > * {
+.theme-military .milspec-app [data-time-row] > * {
   border-color: rgba(0,0,0,0.5);
   box-shadow: inset 1px 0 0 rgba(255,255,255,0.06);
 }
-.theme-military.theme-light [data-time-row] > * {
+.theme-military.theme-light .milspec-app [data-time-row] > * {
   border-color: rgba(40,80,120,0.32);
   box-shadow: inset 1px 0 0 rgba(255,255,255,0.7);
 }
 /* 先頭(フェーズ列)は仕切り無し(mockup .td-phase border-left:0 1146)。
    phase 折りたたみ時の素の div も含めて first-child で拾う。 */
-.theme-military [data-time-row] > *:first-child {
+.theme-military .milspec-app [data-time-row] > *:first-child {
   box-shadow: none;
 }
 /* メンバー列セル(cell 7+・配置クリック対象)にかすかな照準ドット(mockup .td-mem::after 1156-1162)。
    実セルは既に position:relative。ドットは pointer-events:none で当たり判定に影響しない。 */
-.theme-military [data-time-row] > *:nth-child(n+7)::after {
+.theme-military .milspec-app [data-time-row] > *:nth-child(n+7)::after {
   content: ""; position: absolute; left: 50%; top: 50%;
   width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px;
   border-radius: 50%; background: rgba(150,190,205,0.14); pointer-events: none;
 }
-.theme-military [data-time-row]:hover > *:nth-child(n+7)::after {
+.theme-military .milspec-app [data-time-row]:hover > *:nth-child(n+7)::after {
   background: rgba(130,204,223,0.45);
 }
 
 /* 致命セル = 「軽減後」列(cell 5)が赤発光の凹み(mockup .trow.lethal .td-mit 1136-1139)。
    row レベルの lethal クラスは無い → AnimatedDamage.tsx:92 が出す .dmg-slot.lethal を :has() で
    拾い、その親セルを狙う(:has() は SP1 サイドバー/ヘッダー折りたたみで既に本ファイルで使用)。 */
-.theme-military [data-time-row] > *:has(.dmg-slot.lethal) {
+.theme-military .milspec-app [data-time-row] > *:has(.dmg-slot.lethal) {
   background: linear-gradient(180deg, rgba(239,90,95,0.18), rgba(239,90,95,0.05));
   box-shadow:
     inset 2px 0 0 rgba(0,0,0,0.4), inset 3px 0 0 rgba(255,255,255,0.04),
     inset 0 3px 9px rgba(180,20,20,0.4), inset 0 -2px 5px rgba(180,20,20,0.25),
     inset 0 0 0 1px rgba(239,90,95,0.3);
 }
-.theme-military.theme-light [data-time-row] > *:has(.dmg-slot.lethal) {
+.theme-military.theme-light .milspec-app [data-time-row] > *:has(.dmg-slot.lethal) {
   background: linear-gradient(180deg, rgba(211,59,63,0.16), rgba(211,59,63,0.05));
   box-shadow:
     inset 2px 0 0 rgba(0,0,0,0.15), inset 3px 0 0 rgba(255,255,255,0.5),
@@ -1148,25 +1150,152 @@
     inset 0 0 0 1px rgba(211,59,63,0.4);
 }
 /* 数字自体も赤発光(AnimatedDamage.css の .dmg-slot.lethal は font-weight のみ・色は親任せ)。 */
-.theme-military .dmg-slot.lethal {
+.theme-military .milspec-app .dmg-slot.lethal {
   color: var(--ms-red);
   text-shadow: 0 0 9px rgba(239,90,95,0.6);
 }
-.theme-military.theme-light .dmg-slot.lethal { text-shadow: 0 0 8px rgba(211,59,63,0.45); }
+.theme-military.theme-light .milspec-app .dmg-slot.lethal { text-shadow: 0 0 8px rgba(211,59,63,0.45); }
 
 /* フェーズ / ラベルオーバーレイ(sticky 帯・Timeline.tsx:3435/3486)= 沈みスクリーン上で
    構造バンドとして読ませる。SP1 サイドバー phase-tag と同じ「削り出した金属面」語彙。
    --ms-recess-* は dark/light 両定義済 → 追加の hex 上書き不要。 */
-.theme-military [data-phase-overlay],
-.theme-military [data-label-overlay] {
+.theme-military .milspec-app [data-phase-overlay],
+.theme-military .milspec-app [data-label-overlay] {
   background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
   border-color: rgba(0,0,0,0.5);
   box-shadow: inset -1px 0 0 rgba(255,255,255,0.04), inset 1px 0 0 rgba(255,255,255,0.03);
 }
-.theme-military.theme-light [data-phase-overlay],
-.theme-military.theme-light [data-label-overlay] {
+.theme-military.theme-light .milspec-app [data-phase-overlay],
+.theme-military.theme-light .milspec-app [data-label-overlay] {
   border-color: rgba(40,80,120,0.24);
   box-shadow: inset -1px 0 0 rgba(255,255,255,0.7), inset 1px 0 0 rgba(255,255,255,0.5);
+}
+
+/* ---------- Task 4: 表ヘッダー — ブラケットタイル列見出し + 交互切り欠き
+   正典: mockup .thead / .th / .th-mini / .th-mem(CSS 1076-1120)+ DOM .thead(2130-2149)。
+   実 DOM(Step 1 実測・軍事 PC 1489px)= #timeline-header-inner
+     (flex・items-center・h39・will-change:transform で常時 containing block・横スクロール同期対象):
+     直下 14 子 —
+       [1] phase   : Tooltip ラッパ div(.relative.w-fit.h-fit・h≈18・border 無 / 内側 div が border-r 保持)
+       [2] label   : 同上(折りたたみ時は内側 div が w-[--col-label-collapsed-w]=16px)
+       [3] time    : 同上(h≈16。実 DOM に .time クラスは無い → nth-child(3) で特定)
+       [4] mechanic: Tooltip ラッパ(wrapperClassName に h-full → h39・position:relative)
+       [5] RAW(元ダメージ) : 素の div(h39・position:static・border-r 1px hairline)
+       [6] TAKEN(軽減後)   : 素の div(h39・position:static・border-r 1px hairline)
+       [7..14] .recast-cell ×8 = メンバー列見出し(position:static・border-r 1px)
+   ⚠ #timeline-header-inner > * の box を変えない(margin / 幅を足す border / padding は列がずれる)。
+     タイル分離は「中央寄せ ::before(絶対配置・固定高 32px・左右 3px inset)」で box を一切変えずに
+     再現。追加する幾何は position:relative だけ([5][6] が static のため・レイアウト影響ゼロ)。
+     .recast-cell は :not(.recast-cell) で除外(Task 7 で別要素化。標準モードは recast をヘッダーに
+     残すため除外は恒久 — Task 7 後は軍事で no-op 化)。
+   スコープは .theme-military .milspec-app(Task 3 と同じ・モバイル軍事へ漏らさない)。 ---------- */
+
+/* thead 面 = せり出した金属(mockup .thead 1077-1085)。#timeline-header-inner は md:w-max で
+   横スクロールと一緒に translateX される(内容幅ぴったり)ので bg はそのまま追従する。 */
+.theme-military .milspec-app #timeline-header-inner {
+  position: relative;
+  /* mockup の .thead はせり出した金属だが、実アプリでは #timeline-header-inner が
+     40px のヘッダー帯そのものを占める(上下に余白が無い)。せり出しリップとしては
+     読めないので、暗い凹チャンネルにして「独立した金属タイルが浮く」を優先(check 1)。 */
+  background: linear-gradient(180deg, var(--ms-panel-lo), var(--ms-recess-lo));
+  box-shadow:
+    inset 0 1px 0 rgba(0,0,0,0.45), inset 0 7px 12px -7px rgba(0,0,0,0.6),
+    inset 0 -1px 0 rgba(150,190,205,0.22);
+}
+/* 下端 = 渋い鋼ライン(mockup .thead::after 1086・シアン発光でなく鋼色)。
+   ヘッダー枠(headerRef div)の既存 border-b を鋼色へ recolor(id は一意 = セレクタも一意)。 */
+.theme-military .milspec-app div:has(> #timeline-header-inner) {
+  border-bottom-color: rgba(150,190,205,0.28);
+}
+
+/* 各列見出し = ブラケット枠の金属タイル(mockup .th 1087-1094)。
+   face は ::before(絶対配置)= host の box は不変。[5][6] のために position:relative のみ付与。 */
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell) {
+  position: relative;
+}
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell)::before {
+  content: ""; position: absolute; left: 2.5px; right: 2.5px; top: 50%;
+  height: 34px; margin-top: -17px; z-index: -1; pointer-events: none;
+  clip-path: var(--ms-th-notch, none);
+  background: linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised) 46%, var(--ms-raised-lo));
+  border: 1px solid var(--ms-frame);
+  border-top-color: var(--ms-edge-hi);
+  border-bottom-color: rgba(0,0,0,0.6);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.14),
+    inset 0 -6px 9px -7px rgba(0,0,0,0.6),
+    0 1px 2px rgba(0,0,0,0.55);
+}
+/* 既存 border-r(1px hairline)をタイル継ぎ目の暗色へ(width 不変 = レイアウト不変)。
+   [1..4] は内側 div が、[5][6] は host 自身が border-r 保持者なので両方狙う。 */
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell),
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell) > * {
+  border-color: rgba(0,0,0,0.5);
+}
+
+/* 交互の切り欠き(mockup .th:nth-child(odd/even) 1097-1098)。
+   polygon は幾何のみ = テーマ非依存でインライン定義(--ms-shb-* は .theme-dark 限定で
+   light だと消えるため・値は --ms-shb-tr/tl と同一 = --ms-nb 7px)。
+   odd=右上カット / even=左上カット → odd|even の継ぎ目が V 字通気溝になる。 */
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell):nth-child(odd) {
+  --ms-th-notch: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
+}
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell):nth-child(even) {
+  --ms-th-notch: polygon(7px 0, 100% 0, 100% 100%, 0 100%, 0 7px);
+}
+
+/* 隅ブラケット(mockup .th::before/::after 1099-1101)= ::after 1 個に左上 L + 右下 L を
+   4 背景レイヤーで集約(::before は face・::after は brackets で疑似要素 2 枠を使い切る)。 */
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell)::after {
+  content: ""; position: absolute; left: 2.5px; right: 2.5px; top: 50%;
+  height: 34px; margin-top: -17px; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) 0 0 / 7px 1px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) 0 0 / 1px 7px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) 100% 100% / 7px 1px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) 100% 100% / 1px 7px no-repeat;
+}
+/* hd-hash(mockup .hd-hash 1104-1105・右上の斜線束)は data 3 タイル
+   (mechanic[4] / RAW[5] / TAKEN[6]・:not(.recast-cell) が [7..] を除外)にだけ 5 レイヤー目で足す。
+   PH/LB/Time(.th-mini 相当)には付けない(mockup 同様)。 */
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell):nth-child(n+4)::after {
+  background:
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) 0 0 / 7px 1px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) 0 0 / 1px 7px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) 100% 100% / 7px 1px no-repeat,
+    linear-gradient(var(--ms-bracket), var(--ms-bracket)) 100% 100% / 1px 7px no-repeat,
+    repeating-linear-gradient(-56deg, var(--ms-text-muted) 0 1px, transparent 1px 4px) calc(100% - 5px) 4px / 16px 6px no-repeat;
+}
+
+/* 折りたたみ列(--col-*-collapsed-w = 16px)= 切り欠き/ブラケットが潰れるので簡略化。
+   内側 div の class に "collapsed-w" を含む host を :has() で拾う(:has は本ファイル使用実績あり)。 */
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell):has(> [class*="collapsed-w"])::before {
+  clip-path: none; left: 1px; right: 1px;
+}
+.theme-military .milspec-app #timeline-header-inner > *:not(.recast-cell):has(> [class*="collapsed-w"])::after {
+  display: none;
+}
+
+/* light: dark 固定の重い黒 rgba / 冷たい鋼色を青みの淡色へ(Task 3 と同じ作法・最終調整は SP2 後)。 */
+.theme-military.theme-light .milspec-app div:has(> #timeline-header-inner) {
+  border-bottom-color: rgba(40,80,120,0.28);
+}
+.theme-military.theme-light .milspec-app #timeline-header-inner {
+  background: linear-gradient(180deg, var(--ms-panel-lo), var(--ms-recess-hi));
+  box-shadow:
+    inset 0 1px 0 rgba(40,80,120,0.14), inset 0 7px 12px -7px rgba(40,80,120,0.22),
+    inset 0 -1px 0 rgba(40,80,120,0.28);
+}
+.theme-military.theme-light .milspec-app #timeline-header-inner > *:not(.recast-cell)::before {
+  border-bottom-color: rgba(40,80,120,0.35);
+  box-shadow:
+    inset 0 1.5px 0 rgba(255,255,255,0.85),
+    inset 0 -6px 9px -7px rgba(40,80,120,0.28),
+    0 1px 2px rgba(40,80,120,0.2);
+}
+.theme-military.theme-light .milspec-app #timeline-header-inner > *:not(.recast-cell),
+.theme-military.theme-light .milspec-app #timeline-header-inner > *:not(.recast-cell) > * {
+  border-color: rgba(40,80,120,0.32);
 }
 
 /* ============================================================

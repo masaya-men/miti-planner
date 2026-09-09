@@ -132,3 +132,117 @@ Playwright で確認: `[data-time-row]:nth-child(4)` = time 69（4 行目）/ `:
 - **ゼブラ**: `:nth-child(even)` の差は極小（mockup も 0.013 alpha 差）。意図どおり「見えすぎない」。
 - **light**: dark 固定 hex 3 箇所（`.timeline-scroll-container` bg / 致命セル rgba / `.dmg-slot.lethal`
   text-shadow）に `.theme-military.theme-light` 上書きを付与。値は「破綻しない」レベル、最終調整は SP2 後。
+
+---
+
+## Task 4 — 表ヘッダー（ブラケットタイル列見出し・zone: `header`）
+
+### Step 1 — `#timeline-header-inner` 直下の実構成（軍事 PC 1489px・Playwright 実測）
+
+`#timeline-header-inner`（flex・items-center・h39・`will-change:transform` で**常時** containing block／
+offsetParent・横スクロール同期対象）直下は **14 子**:
+
+| # | 正体 | 実測 | border-r 保持者 |
+|---|---|---|---|
+| 1 | phase 見出し = `Tooltip` ラッパ `div.relative.flex.items-center.justify-center.w-fit.h-fit` | w60・**h≈18**（`h-fit`＋内側 `h-full` が潰れて text 高） | 内側 div |
+| 2 | label 見出し = 同上 | w50・h≈18（折りたたみ時は内側 div が `w-[--col-label-collapsed-w]`=16px） | 内側 div |
+| 3 | **time 見出し** = 同上（実 DOM に `.time` クラス無し → `:nth-child(3)` で特定） | w60・h≈16 | 内側 div |
+| 4 | mechanic（敵の攻撃）= `Tooltip` ラッパ（`wrapperClassName` に `h-full` → **h39**） | w200・position:relative | 内側 div |
+| 5 | **RAW（元ダメージ）** = 素の `div` | w100・h39・**position:static** | host 自身（1px hairline） |
+| 6 | **TAKEN（軽減後）** = 素の `div` | w100・h39・**position:static** | host 自身 |
+| 7..14 | `.recast-cell` ×8 = メンバー列見出し（`RecastRow` Fragment） | position:static・1px hairline | host 自身 |
+
+- `.recast-cell` 数 = **8**（可視パーティ 8 人）。折りたたみでも 14 子・recast 8 のまま。
+- 折りたたみ時（Shift+P / Shift+L）: phase/label ラッパ幅が 16px に、内側 div の class に `collapsed-w` が入る。
+- **列エッジは header ⇔ body row 0 で 0.0px 一致**（14 列全部・実測）。box を一切変えていない証拠。
+
+### Step 2-4 — box を変えずにタイル分離を作る方法
+
+`#timeline-header-inner > *` に **margin / 幅を足す border / padding は一切足していない**（列がずれるため）。
+代わりに:
+- **タイル面 = `::before`（絶対配置・`left/right:2.5px`・`top:50%;height:34px;margin-top:-17px`）**。
+  host の box に依存しない固定高なので [1..3]（h≈17）と [4..6]（h39）で**同じ見た目のタイル**になる。
+  `z-index:-1` で host の text より奥（`#timeline-header-inner` に stacking context があるので負 z が効く）。
+  面: `linear-gradient(177deg, --ms-raised-hi, --ms-raised 46%, --ms-raised-lo)` ＋ 1px `--ms-frame` 枠
+  （上辺 `--ms-edge-hi` / 下辺 `rgba(0,0,0,.6)`）＋ inset ハイライト/下墨 + 外側 1px 落ち影。
+- **タイル間ギャップ** = `::before` の左右 2.5px inset で host の素地（＝暗い凹チャンネル bg）が覗く。
+  加えて `#timeline-header-inner` の bg を `linear-gradient(--ms-panel-lo → --ms-recess-lo)` の**暗い凹**に
+  して（mockup の raised thead は 40px 帯では読めないため意図的アダプト）タイルを浮かせた。
+- **既存 border-r（1px hairline）は色だけ `rgba(0,0,0,.5)` へ**（width 不変）。[1..4] は内側 div、
+  [5][6] は host が保持者なので両方セレクタに入れた。
+- **交互切り欠き** = `--ms-th-notch`（`:nth-child(odd)` 右上 7px カット / `(even)` 左上）を `::before` に
+  `clip-path`。**polygon はインライン定義**（`--ms-shb-tr/tl` は `.theme-dark` 限定で light で消えるため。
+  値は同一 = `--ms-nb` 7px）。odd|even の継ぎ目が V 字通気溝（＝ mockup と同じく 1 つおきの継ぎ目だけ）。
+- **RAW/TAKEN に `position:relative` を付与**（static のため疑似要素の基準に必要）。
+  幾何影響ゼロ（offset なしの relative・`will-change:transform` で offsetParent は元から inner）。
+
+### 隅ブラケット + hd-hash の疑似要素解決（`::before`/`::after` 各 1 個の制約）
+
+必要: 隅ブラケット 2 個 + hd-hash = 3。`::before` は面で使用済 → **`::after` 1 個に集約**:
+- `::after` の `background` を **4 レイヤーの linear-gradient** で「左上 L（7×1 + 1×7）＋ 右下 L」に。
+  `clip-path` を持たない（`::before` だけが notch）ので常に矩形フレーム。
+- **hd-hash** は `:nth-child(n+4):not(.recast-cell)`（= mechanic[4] / RAW[5] / TAKEN[6]・[7..] は
+  `:not(.recast-cell)` が除外）の `::after` に **5 レイヤー目**（`repeating-linear-gradient(-56deg …)` を
+  右上に 16×6）として足す。PH/LB/Time（`.th-mini` 相当）には付けない = mockup 同様。
+- **Time 見出しの下線（mockup `.th.time .en` 1106）は不採用**（hd-hash を採用 = check 5 は充足）。
+  中央寄せの「時間 ⌄」の下に線を引くと語の下線ではなく宙に浮いた線に見えるため。→ 残差。
+
+### `:not(.recast-cell)` の扱い（Task 7 との契約）
+
+タイル意匠ルールは全て `:not(.recast-cell)` 付き。**Task 7 でリキャストがヘッダーから別要素へ移動しても
+この除外は恒久で残す**（標準モードは recast をヘッダー内に残すため）。Task 7 完了後、軍事モードでは
+ヘッダーに `.recast-cell` が居なくなるので `:not(.recast-cell)` は軍事側で **no-op** 化する（害なし）。
+
+### 折りたたみ列
+
+`--col-*-collapsed-w`=16px の細い列は `::before` の notch 7px / ブラケットが潰れる →
+`:has(> [class*="collapsed-w"])` で `::before { clip-path:none; left/right:1px }` ＋ `::after { display:none }`。
+Playwright で確認: 折りたたみ時の phase/label は「チェブロンだけの素のミニタイル」になり破綻しない。
+
+### Task 3 の `.milspec-app` リトロフィット（Task 3 レビュー Minor #1）
+
+`military.css` SP2 節の Task 3 ルール（bare `.theme-military …`）に `.milspec-app` を前置:
+`.timeline-scroll-container`（dark/light）・`[data-time-row]`（bare / `:nth-child(even)` / `:nth-child(4n)` /
+`:hover` / `> *`（dark/light）/ `> *:first-child` / `> *:nth-child(n+7)::after`（＋:hover）/
+`> *:has(.dmg-slot.lethal)`（dark/light））・`.dmg-slot.lethal`（dark/light）・
+`[data-phase-overlay],[data-label-overlay]`（dark/light）。
+`.milspec-app` は PC 軍事レイアウト時のみ mount（`MilspecLayout.tsx:51`）→ bare だとモバイル軍事
+（`<html>` に `theme-military`・レイアウトは SP3 領域）へ漏れて崩れるのを塞ぐ。
+`standard-invariance` exit 0 維持（元から `.theme-military` スコープで標準は不変）／
+`military-smoke` exit 0 維持（PC 軍事では `.milspec-app` あり = 行意匠は従来どおり）。
+
+### 視覚突き合わせ（`compare.mjs header` = mock `.thead` / app `#timeline-header-inner` [outer]）
+
+反復 2 ラウンド（compare PNG + 3x DPR 接写クロップ A/B を Read）:
+1. スターター CSS（mockup .th 値を `--ms-*` 読み替え・`::before` 面 h32）→ タイルが `#timeline-header-inner`
+   の bg（= `--ms-raised-grad`）と**同色で埋没**、ベベル弱い。
+2. 是正: header bg を暗い凹チャンネル（`--ms-panel-lo → --ms-recess-lo`）へ / `::before` 面 h32→h34・
+   上ハイライト 0.08→0.14・下端 inset AO 追加・下辺墨 0.5→0.6 / `::after` も h34 に追従 /
+   raised グラデを 3 stop 化。再撮影 → タイルが浮き、ベベル・ブラケット・hd-hash・V 溝すべて視認。
+   （3 ラウンド目に「せり出し thead bg」も試作したが埋没が戻るため凹チャンネルを採用。）
+
+7 チェック最終:
+| # | チェック | 判定 |
+|---|---|---|
+| 1 | 各列見出し = 独立金属タイル（raised グラデ + 硬ベベル） | ✓ 暗チャンネルに浮く・上辺ハイライト/下墨 |
+| 2 | 隣の切り欠きが継ぎ目で V 溝に | ✓ odd\|even の継ぎ目（phase\|label, time\|mechanic, RAW\|TAKEN）に V。mockup も 1 つおき |
+| 3 | 各タイルに隅 L ブラケット | ✓ `::after` 4 レイヤーで左上 + 右下 L（シアン） |
+| 4 | ヘッダー下端 = 渋い鋼ライン（シアン発光でない） | ✓ headerRef の border-b を `rgba(150,190,205,0.28)` へ recolor・glow なし |
+| 5 | Time 下線 / hd-hash（採用したもの） | ✓ hd-hash を mechanic/RAW/TAKEN の `::after` 右上に。Time 下線は不採用（下記残差） |
+| 6 | メンバー列見出しのジョブアイコン + ロールタグ | ✗ **構造差**（下記残差） |
+| 7 | ヘッダー列が本文と縦一致（横ドリフト無し） | ✓ 14 列の x/right が body row 0 と **0.0px 一致**（実測）・smoke step 8 同期 ±0 |
+
+### 残差（→ Task 10 masaya / SP2 後）
+
+- **メンバー列見出し（check 6）**: mockup `.th-mem` はジョブアイコン + EN + `.role-tag` カラーバー。
+  実アプリの該当要素は `.recast-cell`（`RecastRow`）でリキャストアイコン専用（過去配置がある時だけ表示）。
+  `:not(.recast-cell)` で除外中 = 右 ≈40% はタイル無しの素の凹面。**Task 7** がリキャストをヘッダーから
+  分離する際に、この列見出し帯の意匠（アイコン + ロールタグ）を設計する想定。Task 4 スコープ外。
+- **Time 見出し下線**: 不採用（中央寄せ「時間 ⌄」に下線を引くと宙に浮く）。hd-hash 採用で check 5 充足。
+- **thead bg のアダプト**: mockup はせり出した明るい金属リップ。実アプリは `#timeline-header-inner` が
+  40px 帯そのもので上下余白が無くリップとして読めない → 暗い凹チャンネル + 浮くタイルに翻案。
+  check 1（独立タイル感）を優先した判断。
+- **light**: タイル面（白）と凹チャンネル（淡グレー）のコントラストが低い。「破綻しない」レベルは確認済、
+  最終調整は SP2 後（plan 準拠）。dark 固定の重い黒 rgba は `.theme-military.theme-light` で青み淡色へ上書き済。
+- **`::before` clip-path が外側落ち影を切る**: notch のある角では `::after` 落ち影の一部が欠ける
+  （mockup `.th` も同じ挙動）。タイル分離は暗チャンネル + ギャップ inset で担保しているので実害なし。
