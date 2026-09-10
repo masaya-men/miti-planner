@@ -749,13 +749,16 @@ mockup 2128（`<span class="pl h" style="left:16px; right:16px; top:6px; opacity
 **(a) Task 9 スコープ内で直せるもの: 0 件**
 （`.pl.h` は追加済。外装デカール 7 要素は全数 present。フェーズ/ラベルオーバーレイは Task 3 で十分。）
 
-**(b) Task 10 masaya へ繰り越し（設計判断・複数タスク領域にまたがる）:**
-- **#17 `.table` 中間金属フレーム欠落**: mockup は ws-screen(沈み黒) と本文の間に中トーン鋼 `#212a33` の `.table` 層 + 全体 1px inset フレーム。app は `.timeline-scroll-container`(`#141b22`) が沈み黒に直接乗る（より暗い）+ ヘッダー/帯/本文を束ねる枠が無い。Task 3 残差「スラットの分離感が mockup より弱い」と同根。トーン調整 or 中間層の追加は masaya 判断。
-- **#21/#31/#32 縦パネルライン（`.pl.v` / `.pl.bead.v`）欠落**: mockup は機工列開始(x142) と メンバー列開始(x530) に縦のスジ彫り／ビード溝を入れ、表を「時刻・機工｜ダメージ数値｜メンバーグリッド」の 3 ゾーンに構造分割している。app の軍事表には縦の意匠グリッドが 1 本も無い。**SP2 のどのタスクにも縦グリッド/プレイヘッドの担当が無い**（Task 3 は「Task 5 で」と書いたが Task 5 は実際にはコントロールバーだった）。実装には列 x の実測（Task 6/7 と同種）が要り Task 9 の小改修ではない。
-- **#25 メンバー列見出しの意匠欠落**: mockup `.th-mem` はジョブアイコン + EN + `.role-tag` カラーバー。軍事は recast 分離で `.recast-cell` 不在 → ヘッダー右 ≈40% が素の凹面。Task 4/7 いずれも「別タスクで設計」としたまま未担当。
-- **#9 ジョブチップ `.cj` の幅**: 列幅いっぱい（53-151px）vs mockup 27×17 小チップ。内側要素に margin を付けると `w-full` でオーバーフロー。別手法要（Task 6 残差）。
-- **#44 `.ws-note` ゼロ埋め**: "ROSTER 8 / 8" → mockup は "ROSTER 08 / 08"。`MilspecWorkspace.tsx` の文字列 1 箇所だが、本タスクの tsx 変更は pl.h の 1 行に限定というブリーフ制約のため未対応。極小。
-- **Step 3 フェーズ回転テキストの Share Tech Mono 化**: プラン Step 3 が要求。ただし他のコンテンツテキストとの整合を崩すため見送り。masaya が「フェーズ名だけステンシル体」を望むなら Task 10。
+**(b) プラン取りこぼし — Task 10 whole-branch fix wave で必ず対応**
+（plan §1.1 coverage table に項目が無く、SP2 のどのタスクもオーナーでない = SP1 のタービン欠落と同クラス。masaya 判断待ちではなく実装する）:
+- **#17 `.table` 中間金属フレーム欠落**: mockup は ws-screen(沈み黒) と本文の間に中トーン鋼 `#212a33` の `.table` 層 + 全体 1px inset フレーム。app は `.timeline-scroll-container`(`#141b22`) が沈み黒に直接乗る（より暗い）+ ヘッダー/帯/本文を束ねる枠が無い。Task 3 残差「スラットの分離感が mockup より弱い」と同根。**owning task 無し**。
+- **#21/#31/#32 縦パネルライン（`.pl.v` / `.pl.bead.v`）欠落**: mockup は機工列開始(x142) と メンバー列開始(x530) に縦のスジ彫り／ビード溝を入れ、表を「時刻・機工｜ダメージ数値｜メンバーグリッド」の 3 ゾーンに構造分割している。app の軍事表には縦の意匠グリッドが 1 本も無い。**SP2 のどのタスクにも縦グリッド/プレイヘッドの担当が無い**（Task 3 は「Task 5 で」と書いたが Task 5 は実際にはコントロールバーだった）。primitive は `military.css:575/582` に存在・instance 未配置。実装には列 x の実測（Task 6/7 と同種）が要る。
+- **#25 メンバー列見出しの意匠欠落**: mockup `.th-mem` はジョブアイコン + EN + `.role-tag` カラーバー。軍事は recast 分離で `.recast-cell` 不在 → ヘッダー右 ≈40% が素の凹面。Task 4/7 いずれも「別タスクで設計」としたまま**未担当**。
+- **#44 `.ws-note` ゼロ埋め "8 / 8" → "08 / 08"**: mockup は "ROSTER 08 / 08"。`MilspecWorkspace.tsx` の文字列 1 箇所（`String(visibleCount).padStart(2,'0')` + "/ 08"）。Task 2 の実 fidelity miss（設計トレードオフではない）。trivial fix。
+
+**(b') per-task 残差 — 設計トレードオフあり・fix wave or masaya 判断:**
+- **#9 ジョブチップ `.cj` の幅**: 列幅いっぱい（53-151px）vs mockup 27×17 小チップ。外側 `[data-member-id]` は `useMeasuredMemberLayout` の実測対象で幅変更不可。内側要素に margin を付けると `w-full` でオーバーフロー。別手法要（Task 6 残差）。
+- **Step 3 フェーズ回転テキストの Share Tech Mono 化**: プラン Step 3 が要求。ただし他のコンテンツテキスト（攻撃名・数値）との整合を崩すため見送り。masaya が「フェーズ名だけステンシル体」を望むなら対応。
 
 **(c) SP2 後の統一トーン調整へ（各タスクの既知残差と同じ扱い・破綻はしていない）:**
 - #2/#5/#18/#19/#23/#28/#33/#34/#37/#40 — 各タスクの notes 既載の翻案・トーン差。
