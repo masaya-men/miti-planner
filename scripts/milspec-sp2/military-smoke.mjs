@@ -442,10 +442,70 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
         fail(`リキャスト帯が translateX で追従していない: "${r.recastTf}" (scrollLeft=${r.scrollLeft})`);
       }
 
+      // ── (d) 列折りたたみ (Shift+P / Shift+L) 後も帯がチップ陣営に留まる (C1 の回帰検知) ──
+      // Task 10 の実測 (report §C1): 軍事 PC で列を折りたたむと「表の実セル」だけが左へ動き
+      // (1489px で -78px)、チップ / 軽減バー / リキャスト帯は静的 x に留まる。これは SP2 以前から
+      // ある「チップ側 vs 表セル側」の分裂 (軽減バーが既にそう) で、SP2 は recast を表セル側から
+      // チップ側へ移籍させただけ = 帯はバー/チップと揃っているのが正しい。
+      // ここでは「折りたたんでも帯がチップ陣営 (= 軽減バーと同じ x) に留まる」ことを assert する。
+      // 帯が誤って collapse-aware になる / 逆に表セルが静的になる、どちらの回帰も dx で捕捉できる。
+      await page.evaluate(() => document.querySelector('.timeline-scroll-container').scrollTo({ top: 0, left: 0 }));
+      await page.waitForTimeout(200);
+      await page.keyboard.press('Shift+P');
+      await page.waitForTimeout(250);
+      await page.keyboard.press('Shift+L');
+      await page.waitForTimeout(450);
+      const rc = await page.evaluate(() => {
+        const cells = Array.from(document.querySelectorAll('[data-milspec-recast-band] .recast-cell'));
+        const cols = Array.from(document.querySelectorAll('#timeline-controls-inner [data-member-id]'));
+        const bar = document.querySelector('[data-mit-bar]');
+        const tableCell = document.querySelector('[data-time-row]:first-child > *:nth-child(7)');
+        const pairs = [];
+        for (let i = 0; i < Math.min(cells.length, cols.length); i += 1) {
+          pairs.push({
+            i,
+            cellId: cells[i].getAttribute('data-member'),
+            colId: cols[i].getAttribute('data-member-id'),
+            dx: cells[i].getBoundingClientRect().left - cols[i].getBoundingClientRect().left,
+          });
+        }
+        return {
+          collapsed:
+            localStorage.getItem('lopo-phase-col-collapsed') === 'true' &&
+            localStorage.getItem('lopo-label-col-collapsed') === 'true',
+          pairs,
+          firstCellLeft: cells[0] ? cells[0].getBoundingClientRect().left : null,
+          firstColLeft: cols[0] ? cols[0].getBoundingClientRect().left : null,
+          barLeft: bar ? bar.getBoundingClientRect().left : null,
+          tableCellLeft: tableCell ? tableCell.getBoundingClientRect().left : null,
+        };
+      });
+      // 復帰 (以降のステップを展開状態で回す)
+      await page.keyboard.press('Shift+P');
+      await page.waitForTimeout(200);
+      await page.keyboard.press('Shift+L');
+      await page.waitForTimeout(400);
+
+      if (!rc.collapsed) fail('Shift+P / Shift+L で列折りたたみ state が true にならない (ショートカットの回帰)');
+      if (rc.pairs.length === 0) fail('折りたたみ後に .recast-cell / [data-member-id] が 0 件');
+      const badC = rc.pairs.filter((p) => Math.abs(p.dx) > 3);
+      if (badC.length) {
+        fail(
+          `列折りたたみ後にリキャストセルがメンバー列 (チップ) と ±3px で揃っていない: ` +
+            badC.map((p) => `#${p.i}(${p.cellId}/${p.colId}) dx=${p.dx.toFixed(1)}px`).join(', '),
+        );
+      }
+      const maxDxC = Math.max(...rc.pairs.map((p) => Math.abs(p.dx)));
+
       return (
         `帯 top ${r.bandTop.toFixed(1)} (header bottom ${r.headerBottom.toFixed(1)} / body top ${r.scTop.toFixed(1)}) ` +
         `h=${r.bandHeight.toFixed(1)} / label w=${r.labelWidth.toFixed(1)} / ` +
-        `列整合 ${r.pairs.length} 組 最大 dx ${maxDx.toFixed(1)}px (±3px) / transform ${r.recastTf} 一致`
+        `列整合 ${r.pairs.length} 組 最大 dx ${maxDx.toFixed(1)}px (±3px) / transform ${r.recastTf} 一致 / ` +
+        `折りたたみ後も最大 dx ${maxDxC.toFixed(1)}px ` +
+        `(帯 ${rc.firstCellLeft === null ? '-' : rc.firstCellLeft.toFixed(1)} / ` +
+        `チップ ${rc.firstColLeft === null ? '-' : rc.firstColLeft.toFixed(1)} / ` +
+        `バー ${rc.barLeft === null ? '-' : rc.barLeft.toFixed(1)} / ` +
+        `表セル ${rc.tableCellLeft === null ? '-' : rc.tableCellLeft.toFixed(1)} = 既知の陣営分裂)`
       );
     });
 

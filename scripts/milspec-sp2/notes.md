@@ -778,3 +778,40 @@ mockup 2128（`<span class="pl h" style="left:16px; right:16px; top:6px; opacity
 - `scripts/milspec-sp2/compare.mjs` — ZONES に `full` 追加 + `LETHAL_ZONES` に `'full'`
 - `scripts/milspec-sp2/notes.md` — 本節
 - `src/styles/military.css` — **無改変**（`.milspec-pl.h` プリミティブは SP1 実装済・フェーズオーバーレイは Task 3 で十分）
+
+---
+
+## Task 10: whole-branch fix wave（C1 / A1-A4 / M1-M9 / ハーネス）
+
+### C1 — 列折りたたみ時のリキャスト帯: 実測して「変更しない」を確定
+
+**実測**（軍事 PC dark・1489×900・fixture 8 人 + 軽減 7・Playwright / `getBoundingClientRect().left`）:
+
+| 要素 | 展開 | Shift+P + Shift+L 後 | Δ |
+|---|---|---|---|
+| 表の最初のメンバーセル `[data-time-row]:first-child > *:nth-child(7)` | 890.4 | 812.4 | **−78.0** |
+| コントロールバーのジョブチップ `#timeline-controls-inner [data-member-id]` | 890.4 | 890.4 | 0.0 |
+| リキャスト帯セル `[data-milspec-recast-band] .recast-cell` | 890.4 | 890.4 | 0.0 |
+| 軽減バー `[data-mit-bar]` | 904.3 | 904.3 | 0.0 |
+| `.milspec-rc-label`（幅） | 570 | 570 | 0.0 |
+
+−78px = `(--col-phase-w 60 − 16) + (--col-label-w 50 − 16)` = レビュー C1 の予測と一致。
+
+**判定 = レビューの (likely) 分岐**。折りたたみで動くのは**表の実セルだけ**で、チップ / 軽減バー /
+リキャスト帯は静的 x に留まる。つまり「チップ側 vs 表セル側」の分裂は **SP2 以前から存在**し
+（軽減バーの絶対配置 left が `[data-member-id]` の実測値由来 = `Timeline.tsx:3832`）、SP2 は
+recast を「表セル側」から「チップ側」へ移籍させたので**ズレる陣営が変わっただけ**。
+帯は軽減バー / チップと整合している側にいる = **現状 (`--col-member-start` 固定) が正しい**。
+
+→ **`Timeline.tsx` の帯 width calc は変更しない**（`.milspec-rc-label` の `padding-left` も同様）。
+既存の分裂そのものは SP2 スコープ外 = masaya の目視ゲートで実機確認 → 別チケット判断。
+
+**回帰検知**: `military-smoke.mjs` step 11 に (d) を追加。Shift+P / Shift+L を実 keydown で送り、
+折りたたみ後も `.recast-cell` の left が `#timeline-controls-inner [data-member-id]` と ±3px 一致する
+ことを hard assert（測定後は再度トグルして展開に戻す）。帯が誤って collapse-aware になる回帰も、
+表セルが静的化する回帰も、この dx で捕捉できる。実測ログ例:
+`折りたたみ後も最大 dx 0.0px (帯 890.4 / チップ 890.4 / バー 904.3 / 表セル 812.4 = 既知の陣営分裂)`。
+
+**A1 への波及**: 上記により、縦パネルライン（A1）も**静的 col 変数**（`--col-header-chunk-w` /
+`--col-member-start`）にアンカーする = バー / チップ / 帯と同じ「静的 x 陣営」。折りたたみ時に
+collapse-aware な表セルとはズレるが、それは上記の既存分裂と同じで SP2 スコープ外。
