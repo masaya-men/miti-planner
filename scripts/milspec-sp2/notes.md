@@ -642,3 +642,136 @@ Task 7 で deps を `[isMilspecTable]` 化済）が新規マウントで発火�
   `--ms-gauge-ticks` 共有で厳密一致しているが、位相合わせ（`background-position` の実 px 調整）は
   高さが確定している実機で詰める。mockup も位相までは合わせていない。
 - **`::-webkit-scrollbar` の実描画確認は実機 Chrome 必須**（headless 非対応）。→ 下記。
+
+---
+
+## Task 9: ワークスペース外装デカール + フェーズ/ラベルオーバーレイ + 全ゾーン最終突き合わせ
+
+### Step 2 — `.milspec-pl.h`（上端スジ彫り）追加
+
+`MilspecWorkspace.tsx`・`.milspec-ws` の子として **1 行だけ**追加（`.milspec-hash` の直後・`.milspec-ws-screen` の直前 = mockup DOM 2127→2128→2129 と同順）:
+
+```tsx
+<span className="milspec-pl h" style={{ left: 16, right: 16, top: 6, opacity: 0.5 }} aria-hidden />
+```
+
+mockup 2128（`<span class="pl h" style="left:16px; right:16px; top:6px; opacity:.5">`）と一字一致。
+`.milspec-pl.h` は SP1 実装済プリミティブ（`military.css:571-574`・V 溝: 上壁影 1px + 溝底 `--ms-pl-dark` + 下壁受光）→ **`military.css` は無改変**（ブリーフ指定どおり `.h` variant は既存）。
+
+実測（軍事 `/miti` fixture・Playwright、computed style）:
+- `position:absolute; left:16px; right:16px; top:6px; height:3px; opacity:0.5; z-index:2`
+- `rect` = `.milspec-ws` 基準で x16 / y6 / w1151 / h3・`visibility:visible`・`aria-hidden="true"`
+- DOM 子順 index 7（bolt×4 → sc.tl → sc.br → hash → **pl.h** → ws-screen → ws-cap → ws-note）
+- 3x DPR 接写（`.compare/ext-TLzoom3x-app.png`）: WKS-07 デカールの下に細いスジ彫り溝が横断、コントロールバー天面との境界に「彫った線」として読める。mockup と同一プリミティブ・同一 inline 値なので構造的に一致。
+
+### Step 3 — フェーズ/ラベルオーバーレイ意匠 → **Task 3 で十分・追加ポリッシュなし**
+
+`compare.mjs` + Playwright（`.compare/ext-phaseoverlay-app.png` / dark・light）で `[data-phase-overlay]`（"Phase 1 / フェーズ1" の -90° 回転帯）を撮り mockup と突き合わせ。
+
+**判定: Task 3（`military.css:1162-1172`）の militarize で十分。ブリーフの「本当のギャップがある時だけポリッシュ」に該当せず。**
+- 帯そのものは Task 3 で `linear-gradient(--ms-recess-hi → --ms-recess-lo)` の**沈み金属面** + 枠 recolor + inset 影 = 「削り出した金属バンド」として読める。ブリーフが例示した「標準の青いフェーズタグのまま」には**なっていない**。
+- 回転テキスト "Phase 1 / フェーズ1" はアプリ既定フォント。これは軍事表の**他のコンテンツテキスト全部**（攻撃名「キラーボイス」「ハードコア」、数値）と同じ扱い。ここだけ Share Tech Mono にすると兄弟のコンテンツテキストと不整合になる（デカール `WKS-07` / `RECAST /` / `RAID OPERATIONS PLOT` だけが Share Tech Mono = 意匠として正しい分離）。
+- mockup の表本体にはこの「フェーズオーバーレイ帯」の対応要素が**無い**（mockup は `.td-phase` の数字セル "1"/"2"）。プラン Step 3 が言う `phase-tag` 語彙は mockup の**サイドバー**（`.phase-tag` 1368-1371）のパターンで、表本体に写すべき正典がない。
+- → `military.css` 追記なし。Share Tech Mono + `--ms-stencil` 化は content-text の意匠変更なので **Task 10 masaya ゲート**に回す（下記残差 c）。
+
+### Step 6 — 視覚突き合わせ
+
+#### (a) `compare.mjs workspace`（mock `.workspace` / app `.milspec-ws`）
+
+`.compare/workspace-{mock,app}.png` + 4 隅 + 上端ストリップの 1x/3x 接写（`.compare/ext-*`）+ DOM/occlusion 実測（`selfOrDescTop` / `elementFromPoint`）。
+
+| 外装要素（mockup DOM 2124-2128） | app | 実測 | 判定 |
+|---|---|---|---|
+| `.bolt` tl/tr/bl/br | `.milspec-bolt` ×4 | 4 隅 5px・7×7・z4・`selfOrDescTop:true`（非遮蔽） | ✓ |
+| `.sc.tl` "WKS-07"（left:16） | `.milspec-sc.tl.milspec-ws-code-l` | x16/y3・Share Tech Mono・opacity 0.5・`#7a8c9c` | ✓ |
+| `.sc.br` "RAID OPERATIONS PLOT · MITIGATION ARRAY"（right:16） | `.milspec-sc.br.milspec-ws-code-r` | 右下 x1003/y648/w164・opacity 0.5 | ✓ |
+| `.hash`（bottom:8 left:16） | `.milspec-hash` | 左下 x16/y643/w22・"////" 斜線束・opacity 0.5 | ✓ |
+| `.pl.h`（上端スジ彫り） | `.milspec-pl.h` | **本タスクで追加**・x16/y6/w1151/h3 | ✓ |
+| `.ws-cap`（右端端末キャップ） | `.milspec-ws-cap` | x1169/w14/フル高・opacity 0.55 | ✓（Task 2） |
+| `.ws-note` "ROSTER 08 / 08 / FULL PARTY" | `.milspec-ws-note` | x1105/y10・Share Tech Mono・opacity 0.38・**表示は "ROSTER 8 / 8"**（ゼロ埋めなし） | △ 下記 c |
+
+#### (b) `compare.mjs full` — 全ゾーン最終突き合わせ（mockup DOM 2088-2213 を要素単位で照合）
+
+`compare.mjs` の ZONES に `full`（mock `.workspace` / app `.milspec-ws`・lethal 行注入）を追加。`.compare/full-{mock,app}.png`（+ `full-app-light.png`）を Read し、以下を頭から全数照合。
+
+**注: 構造差の大前提** — mockup は `.subtoolbar` が `.workspace` の**兄弟**（別要素）。アプリは `MilspecWorkspace` が Timeline 全体（コントロールバー・ヘッダー・帯・本文）を `.milspec-ws-screen` に内包する。よって app の `.milspec-ws` 撮影にはコントロールバーも写る（mockup `.workspace` には写らない）。これは Task 2-7 で既知・機能影響なし。
+
+| # | mockup 要素（行） | app の対応処理 | タスク | 状態 | 処分 |
+|---|---|---|---|---|---|
+| 1 | `.subtoolbar`（2089） | `#timeline-controls-inner` + `div:has(> #timeline-controls-inner)` raised プレート | T5 | ✓ | — |
+| 2 | `.subtoolbar > .hash`（2092） | 外枠 `::before` 斜線束デカール | T5 | ✓（△ ジョブセルに薄重なり・既知） | c |
+| 3 | `.subtoolbar > .sc` "ENGAGEMENT TIMELINE CONTROL · SEC-2"（2093） | 外枠 `::after` デカール | T5 | ✓ | — |
+| 4 | `.cb-a > .cb-tgl.on` "折りたたむ" + `.lamp.lit.cyan`（2096） | ロッカートグル + `.milspec-lamp` 点灯 + シアン下線 | T5 | ✓ | — |
+| 5 | `.cb-div` ×4（2098/2104/2109…） | `div[class~="w-[1px]"][class~="h-3"]` 暗線 + 隣接ハイライト | T5 | △（1px 幅で深い V 不可・mockup も同幅） | c |
+| 6 | `.cb-b > .cb-tgl` "AA追加" / "メモ" + `.lamp`（2100-2102） | ロッカートグル（OFF 時暗レンズ） | T5 | ✓ | — |
+| 7 | `.cb-c > .cb-ico.on` "行の罫線" / `.cb-ico` "リキャスト行"（2106-2107） | キートップ + ON シアン左バー | T5 | ✓ | — |
+| 8 | `.cb-d > .cb-ico` 元に戻す/やり直し/`.cb-ico.danger` クリア（2111-2113） | キートップ + danger 赤 hover | T5 | ✓ | — |
+| 9 | `.cb-e > .cj` ×8（2117） | `[data-member-id]` 内側 `.cursor-pointer` 4 色面取り + 実ジョブアイコン | T6 | ✓（△ 列幅いっぱい vs 小チップ・既知） | b |
+| 10 | `.workspace.chan`（2123） | `.milspec-ws.milspec-chan` raised 装甲板 | T3 | ✓ | — |
+| 11 | `.workspace > .bolt` ×4（2124） | `.milspec-bolt` ×4 | SP1/T3 | ✓ | — |
+| 12 | `.workspace > .sc.tl` "WKS-07"（2125） | `.milspec-sc.tl.milspec-ws-code-l` | T3 | ✓ | — |
+| 13 | `.workspace > .sc.br` "RAID OPERATIONS PLOT…"（2126） | `.milspec-sc.br.milspec-ws-code-r` | T3 | ✓ | — |
+| 14 | `.workspace > .hash`（2127） | `.milspec-hash`（inline bottom/left） | T3 | ✓ | — |
+| 15 | `.workspace > .pl.h`（2128） | `.milspec-pl.h` | **T9** | ✓ **本タスク追加** | — |
+| 16 | `.ws-screen`（2129） | `.milspec-ws-screen`（沈み黒スクリーン `#0d1319→#080c11`） | T3/SP1 | ✓ | — |
+| 17 | `.table`（2130・width 1192・`bg #212a33→#1d252d`・`inset 0 0 0 1px`） | **対応する中間金属フレーム無し**。app は ws-screen（沈み黒）の上に `.timeline-scroll-container`（`#141b22→#0e141a`）が直接乗る。header+帯+本文を束ねる 1px フレームも無い | — | ✗ | b |
+| 18 | `.thead`（2131） | `#timeline-header-inner` + `div:has(>…)` = 暗チャンネル + 浮くタイル | T4 | ✓（mockup のせり出しリップは 40px 帯では読めず翻案・既知） | c |
+| 19 | `.thead > .bolt` ×4（2132） | **パネル隅ビス無し**。Task 4 は**タイル単位の L ブラケット**（`::after` 4 レイヤー）で「組立ハードウェア」を表現。40px 帯の隅にビス 4 個は極小になるため翻案 | T4 | △（意図的翻案） | c |
+| 20 | `.thead > .gauge-cap`（2133） | `div:has(> #timeline-header-inner)::after` 目盛りキャップ | T8 | ✓ | — |
+| 21 | `.thead > .pl.bead.v`（2134・left:530px・TAKEN\|メンバー境界の縦ビード） | **無し** | — | ✗ | b |
+| 22 | `.th.th-mini` "PH" / "LB"（2135-2136） | ヘッダータイル（折りたたみ簡略あり） | T4 | ✓ | — |
+| 23 | `.th.time` "Time"（2137） | ヘッダータイル（Time 下線は不採用・hd-hash 採用） | T4 | ✓（下線は残差 c） | c |
+| 24 | `.th` "Enemy Action"/"Orig. Dmg"/"Mit. Dmg" + `.hd-hash`（2138-2140） | ヘッダータイル + `:nth-child(n+4)::after` の hd-hash 斜線束 | T4 | ✓ | — |
+| 25 | `.th.th-mem.role-*` ×8（jico img + EN + `.role-tag`）（2141-2148） | **メンバー列見出しの意匠無し**。軍事は recast がヘッダーから分離（T7）→ `.recast-cell` 不在・`:not(.recast-cell)` で除外 → 右 ≈40% は素の凹面。ジョブアイコン + ロールタグ帯は未設計 | T4/T7 | ✗ | b |
+| 26 | `.recast-row`（2154） | `[data-milspec-recast-band] > #timeline-recast-inner` 独立沈みプレート | T7 | ✓ | — |
+| 27 | `.rc-label` "Recast / リキャスト"（2155） | `.milspec-rc-label`（6 列占有・Share Tech Mono） | T7 | ✓ | — |
+| 28 | `.rc-cell > .rc-icon`（--rc-angle clockswipe + img + `.rc-num`）×8（2156-2166） | `RecastIcon` 円形金属ソケット + conic 暗幕 + アイコン外下の残秒 | T7 | ✓（帯高 38 vs 34・アイコン左寄せ = 列整合優先・既知） | c |
+| 29 | `.recast-row > .gauge-cap`（2167） | `[data-milspec-recast-band]::after` 目盛りキャップ | T8 | ✓ | — |
+| 30 | `.tbody`（2171） | `.timeline-scroll-container` 深い沈みスクリーン | T3 | ✓ | — |
+| 31 | `.tbody > .pl.v`（2172・left:142px・機工列開始の縦溝） | **無し** | — | ✗ | b |
+| 32 | `.tbody > .pl.bead.v`（2173・left:530px・縦ビード） | **無し** | — | ✗ | b |
+| 33 | `.mit-bar.role-*` ×12（2177-2188） | `[data-mit-bar]` 工業パイプ（金属管 + ロール色コア + 下端フランジ） | T6 | ✓（実効幅 8px vs 6px・既知） | c |
+| 34 | `.mit-lbl` ×12（img + ジョブコードテキスト）（2177-2188） | `[data-mit-icon]` 24px 金属チップ枠 + ターゲットジョブバッジ。**mockup の「dark ラベルチップ + テキスト」は不採用**（spec §13） | T6 | △（意図的） | c |
+| 35 | `.trow` ×N（2190-2207） | `[data-time-row]` 金属スラット行（ゼブラ + 4n 溝 + 下端 AO） | T3 | ✓ | — |
+| 36 | `.trow.lethal .td-mit.red`（2192） | `> *:has(.dmg-slot.lethal)` 赤発光の凹み + 数字も赤 | T3 | ✓（強一致） | — |
+| 37 | `.td.td-phase`（数字 "1"/"2"）（2190/2198） | `[data-phase-col]` + 別途 `[data-phase-overlay]` 回転帯（Task 3 で沈み金属化） | T3 | ✓（構造差: mockup は数字セル / app は凍結オーバーレイ帯・既知） | c |
+| 38 | `.td.td-lbl`（2190…） | `[data-label-col]` / `[data-label-overlay]`（fixture では 0） | T3 | ✓（規則配線済） | — |
+| 39 | `.td.td-time`（2190…） | 時刻セル（border-r + font-mono・Task 3 で仕切り暗色化） | T3 | ✓ | — |
+| 40 | `.td.td-act`（svg atk + 名前 + svg bf）（2191…） | 機工セル。app は独自の攻撃タイプ表示（紫アイコン等）。mockup の atk/bf シールド svg は mockup 固有の装飾 | T3 | △（app 既存の攻撃表示を維持） | c |
+| 41 | `.td.td-orig` / `.td.td-mit` + `.pct` span（2191…） | 元ダメ / 軽減後セル + `▼%` 表示（AnimatedDamage） | T3 | ✓ | — |
+| 42 | `.td.td-mem` ×8（2190…） | メンバー列セル + `:nth-child(n+7)::after` 照準ドット | T3 | ✓ | — |
+| 43 | `.ws-cap`（2210） | `.milspec-ws-cap` | T2 | ✓ | — |
+| 44 | `.ws-note` "ROSTER 08 / 08 / FULL PARTY"（2211） | `.milspec-ws-note`（"ROSTER {n} / 8" + FULL/SLOTS 行） | T2 | △ 文字列 "8 / 8"（mockup は "08 / 08" ゼロ埋め）。ブリーフ制約で本タスクの tsx 変更は pl.h の 1 行のみ | b |
+| 45 | `.tbody::-webkit-scrollbar` / `.ws-screen::-webkit-scrollbar`（1220-1257） | `.timeline-scroll-container::-webkit-scrollbar`（縦横・目盛り + ブラシメタル thumb） | T8 | ✓（実描画は headed Chrome で確認済） | — |
+
+### 全ゾーン最終突き合わせ (Task 9) — 残差リスト
+
+**(a) Task 9 スコープ内で直せるもの: 0 件**
+（`.pl.h` は追加済。外装デカール 7 要素は全数 present。フェーズ/ラベルオーバーレイは Task 3 で十分。）
+
+**(b) Task 10 masaya へ繰り越し（設計判断・複数タスク領域にまたがる）:**
+- **#17 `.table` 中間金属フレーム欠落**: mockup は ws-screen(沈み黒) と本文の間に中トーン鋼 `#212a33` の `.table` 層 + 全体 1px inset フレーム。app は `.timeline-scroll-container`(`#141b22`) が沈み黒に直接乗る（より暗い）+ ヘッダー/帯/本文を束ねる枠が無い。Task 3 残差「スラットの分離感が mockup より弱い」と同根。トーン調整 or 中間層の追加は masaya 判断。
+- **#21/#31/#32 縦パネルライン（`.pl.v` / `.pl.bead.v`）欠落**: mockup は機工列開始(x142) と メンバー列開始(x530) に縦のスジ彫り／ビード溝を入れ、表を「時刻・機工｜ダメージ数値｜メンバーグリッド」の 3 ゾーンに構造分割している。app の軍事表には縦の意匠グリッドが 1 本も無い。**SP2 のどのタスクにも縦グリッド/プレイヘッドの担当が無い**（Task 3 は「Task 5 で」と書いたが Task 5 は実際にはコントロールバーだった）。実装には列 x の実測（Task 6/7 と同種）が要り Task 9 の小改修ではない。
+- **#25 メンバー列見出しの意匠欠落**: mockup `.th-mem` はジョブアイコン + EN + `.role-tag` カラーバー。軍事は recast 分離で `.recast-cell` 不在 → ヘッダー右 ≈40% が素の凹面。Task 4/7 いずれも「別タスクで設計」としたまま未担当。
+- **#9 ジョブチップ `.cj` の幅**: 列幅いっぱい（53-151px）vs mockup 27×17 小チップ。内側要素に margin を付けると `w-full` でオーバーフロー。別手法要（Task 6 残差）。
+- **#44 `.ws-note` ゼロ埋め**: "ROSTER 8 / 8" → mockup は "ROSTER 08 / 08"。`MilspecWorkspace.tsx` の文字列 1 箇所だが、本タスクの tsx 変更は pl.h の 1 行に限定というブリーフ制約のため未対応。極小。
+- **Step 3 フェーズ回転テキストの Share Tech Mono 化**: プラン Step 3 が要求。ただし他のコンテンツテキストとの整合を崩すため見送り。masaya が「フェーズ名だけステンシル体」を望むなら Task 10。
+
+**(c) SP2 後の統一トーン調整へ（各タスクの既知残差と同じ扱い・破綻はしていない）:**
+- #2/#5/#18/#19/#23/#28/#33/#34/#37/#40 — 各タスクの notes 既載の翻案・トーン差。
+- light: 装甲板の白タイルと沈み黒スクリーンのコントラスト（Task 3-8 共通残差）。
+
+### ハーネス（Step 4）
+
+| コマンド | 結果 |
+|---|---|
+| `node scripts/milspec-sp2/standard-invariance.mjs` | **exit 0**（skeleton 2620 行 / rows 31 / vScrollbar 0・dark/light ベースライン一致。`.milspec-pl.h` は軍事のみ mount = 標準不変） |
+| `node scripts/milspec-sp2/military-smoke.mjs` | **exit 0**（13 ステップ完走・非 whitelist console エラー 0・WARN 1 = headless の `::-webkit-scrollbar` 非描画のみ） |
+| `npm run build` | **exit 0**（tsc -b + tsc api + vite build + PWA 231 entries） |
+
+### 変更ファイル
+
+- `src/components/military/MilspecWorkspace.tsx` — `.milspec-pl.h` の `<span>` を 1 行追加（+ 説明コメント 1 行）
+- `scripts/milspec-sp2/compare.mjs` — ZONES に `full` 追加 + `LETHAL_ZONES` に `'full'`
+- `scripts/milspec-sp2/notes.md` — 本節
+- `src/styles/military.css` — **無改変**（`.milspec-pl.h` プリミティブは SP1 実装済・フェーズオーバーレイは Task 3 で十分）

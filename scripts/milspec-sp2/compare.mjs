@@ -52,6 +52,9 @@ const ZONES = {
   // 位置・帯幅・文字サイズ・不透明度を「表に対して」評価できるよう装甲板ごと撮る
   // (mock .workspace / app .milspec-ws)。要素単体だと 14px の帯や極小テキストしか写らない。
   wscap: { mock: '.workspace', app: '.milspec-ws' },
+  // Task 9: 全ゾーン最終突き合わせ。workspace 全体を 1 枚で撮り、モック DOM(2088-2213)を
+  // 要素単位で app と照合する(SP1 タービン欠落の再発防止)。lethal 行注入で致命セルも入れる。
+  full: { mock: '.workspace', app: '.milspec-ws' },
 };
 
 async function shot(page, selector, outPath, { outer = false } = {}) {
@@ -124,7 +127,7 @@ async function captureMock(zone, cfg) {
 /** 表を写す zone は「致命行」を 1 本作る。fixture の被ダメ(120k)は H1 HP(≈187k)未満で
  *  .dmg-slot.lethal が 1 つも出ないため、mockup .trow.lethal .td-mit(赤発光の凹み)を
  *  突き合わせられない。1 イベントだけ被ダメを HP 超へ引き上げる(store 注入・製品コード不変)。 */
-const LETHAL_ZONES = new Set(['tbody', 'mitbar', 'scrollbar']);
+const LETHAL_ZONES = new Set(['tbody', 'mitbar', 'scrollbar', 'full']);
 
 /** コントロールバー系 zone は mockup が「折りたたむ ON / 罫線 ON」を描いている(.cb-tgl.on / .cb-ico.on)。
  *  突き合わせのため実アプリも同じ ON 状態にしてから撮る(store・製品コード不変)。 */
