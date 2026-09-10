@@ -22,6 +22,8 @@ export const MilspecWorkspace: React.FC<{ children: React.ReactNode }> = ({ chil
       <span className="milspec-sc tl milspec-ws-code-l">WKS-07</span>
       <span className="milspec-sc br milspec-ws-code-r">RAID OPERATIONS PLOT · MITIGATION ARRAY</span>
       <span className="milspec-hash" style={{ bottom: 8, top: 'auto', left: 16, right: 'auto' }} />
+      {/* モック .workspace 2128: 上端スジ彫り（水平パネルライン）。.milspec-pl.h は SP1 実装済プリミティブ。 */}
+      <span className="milspec-pl h" style={{ left: 16, right: 16, top: 6, opacity: 0.5 }} aria-hidden />
       <div className="milspec-ws-screen">{children}</div>
       {/* モック .ws-cap/.ws-note — 表の右端(埋まっていないメンバー枠の分)の空白を機能的に締める
           端末キャップ + テレメトリ。固定英字デカール(i18n 外・SP1 Q6)。 */}
