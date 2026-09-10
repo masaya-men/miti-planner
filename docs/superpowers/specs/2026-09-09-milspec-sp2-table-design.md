@@ -62,7 +62,7 @@ SP1 §9 で `Timeline.tsx` / `TimelineRow.tsx` から撤去した Phase 2 スキ
 |---|---|---|
 | B1 | 再現度 | **モック完全再現**（masaya「よくわかりませんが、モックの見た目を再現してください」2026-09-09）。エンジニアリング上の判断（どこを CSS で・どこを構造変更で・コントロールバーの扱い）は実装側で引き取る。正典はモック。 |
 | B2 | 実装方式 | **埋め込んだ本番 `Timeline` の見た目レイヤー化**。表のロジックは丸ごと再利用。SP1 の `MilspecLayout` のような並行コンポーネントツリーは表には作らない（データ事故リスク回避 = `feedback_dataloss_exhaustive_audit`）。 |
-| B3 | サイズ | SP1 Q2 = A（流動フィット）を踏襲。列幅は `--col-*-w` の clamp を MIL-SPEC 用に上書き（max=base=1489 基準）。モックの固定 px（44/40/58/200/90/98/100/62）は「比率の目標」であって固定値ではない。 |
+| B3 | サイズ | SP1 Q2 = A（流動フィット）を踏襲。**列幅トークン `--col-*-w` は据え置き**（実装で決着 — Constraint 7 参照）。モックの固定 px（44/40/58/200/90/98/100/62）は「比率の目標」の参考値だが、`--col-th-w` / `--col-dps-w` は機能制約のため変更せず、既存の clamp をそのまま使い CSS のみで militarize。 |
 | B4 | コントロールバー | グリッド行に昇格させない。埋め込みのまま CSS で `.subtoolbar` の見た目に。状態の持ち上げ不要。 |
 | B5 | リキャスト行 | モックの「独立した帯 + 左ラベル」を再現する。これは軍事モード限定の構造変更（§4）。標準モードは今のまま（ヘッダー内同居）。 |
 | B6 | 計器スクロールバー | 本番で隠している縦バーを軍事モード限定で可視化。表とサイドバーで意匠を共有。標準モードは隠れたまま。 |
@@ -125,9 +125,10 @@ SP1 §9 で `Timeline.tsx` / `TimelineRow.tsx` から撤去した Phase 2 スキ
 **3 層で当てる:**
 
 1. **`military.css` の SP2 節（主役・全体の 8 割）** — 全ルール `.theme-military` 前置。既存の安定したセレクタ（クラス・id・data 属性）を狙って見た目を差し替える。狙えるフック（既存・SP2 で追加しない）:
-   - `.theme-military .timeline-scroll-container` / `.theme-military #timeline-header-inner` / `.theme-military #timeline-controls-inner`
-   - `.theme-military [data-timeline-root]` / `.theme-military [data-time-row]` / `.theme-military [data-phase-col]` / `.theme-military [data-label-col]`
-   - `.theme-military .recast-cell` / `.theme-military [data-phase-overlay]` / `.theme-military [data-label-overlay]`
+   （すべて `.theme-military .milspec-app` 前置 — §3.3(d) / Constraint 5 の standing ruling。以下は末尾のフック部分のみ列挙）
+   - `.milspec-app .timeline-scroll-container` / `.milspec-app #timeline-header-inner` / `.milspec-app #timeline-controls-inner`
+   - `.milspec-app [data-timeline-root]` / `.milspec-app [data-time-row]` / `.milspec-app [data-phase-col]` / `.milspec-app [data-label-col]`
+   - `.milspec-app .recast-cell` / `.milspec-app [data-phase-overlay]` / `.milspec-app [data-label-overlay]`
    - Tailwind ユーティリティで組まれた要素（コントロールバーのボタン等）は、親（`#timeline-controls-inner`）からの子孫セレクタ + 構造位置で狙う。狙いづらい箇所のみ 2 の対象。
 
 2. **軍事モード限定の構造変更（§4 で詳述・最小限）** — `themeStyle === 'military' && !isMobileTimeline` のときだけ分岐:
@@ -147,7 +148,7 @@ SP1 §9 で `Timeline.tsx` / `TimelineRow.tsx` から撤去した Phase 2 スキ
 - (a) `Timeline.tsx` に `themeStyle` の購読 1 行（既に `useThemeStore` は import 済）。
 - (b) `themeStyle === 'military' && !isMobileTimeline` を条件にした分岐（リキャスト帯の器・スクロール同期対象への追加）。条件が false のとき従来と同一パス。
 - (c) `MitigationItem` / リキャスト帯ルート等への inert な `data-*` 属性 or 安定クラスの付与（標準 CSS が拾わない）。
-- (d) `military.css` の SP2 節追加（`.theme-military` 前置のみ・`.theme-military` クラスが `<html>` に無いとき不活性）。
+- (d) `military.css` の SP2 節追加（`.theme-military .milspec-app` 前置・`.milspec-app` は PC 軍事レイアウト時のみ mount（`Layout.tsx` の `!isMobile` ゲート）。`.theme-military` は `<html>` にモバイルでも付くため、bare 前置だとモバイル軍事（SP3 領域）に skin が漏れて zebra/nth がズレる → 実装中の standing ruling で全 SP2 ルールを `.theme-military .milspec-app` に scope した。例外は `.milspec-ws-cap` / `.milspec-ws-note` のみ（class 自体が `MilspecWorkspace` にしか存在せず漏洩経路なし）。
 
 上記以外は `Timeline.tsx` / `TimelineRow.tsx` / `RecastRow.tsx` / `MitigationItem` の実装に手を入れない。§10 で `main` との一致を機械検証する。
 
@@ -164,7 +165,8 @@ SP1 §9 で `Timeline.tsx` / `TimelineRow.tsx` から撤去した Phase 2 スキ
 **SP2 の実装**（軍事モード限定）:
 - `themeStyle === 'military' && !isMobileTimeline` のとき、`<RecastRow>` を `headerRef` の中から出し、`headerRef` の**直後**・`scrollContainerRef` の**直前**に新しい器 `[data-milspec-recast-band]` としてマウントする。
   - 器の内側は横スクロール同期用の inner（`#timeline-recast-inner` 等）+ 左の `.rc-label`（i18n）+ 既存 `<RecastRow>`（メンバーセルの Fragment・**中身は完全に不変**）。
-  - 列の左端（PH〜TAKEN の 6 列ぶん）はラベルが占有。`RecastRow` の各 `.recast-cell` は幅 = `getColumnCssVar(role)` なので、ラベルの幅 = 6 列合計（`var(--col-header-chunk-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2`）に固定すればメンバーセルが自動で正しい x に揃う。
+  - 列の左端（PH〜TAKEN の 6 列ぶん）はラベルが占有。`RecastRow` の各 `.recast-cell` は幅 = `getColumnCssVar(role)` なので、ラベルの幅 = 6 列合計（`var(--col-member-start)` = `var(--col-phase-w) + var(--col-label-w) + var(--col-time-w) + var(--col-mechanic-w) + var(--col-counter-w) * 2`）にすればメンバーセルが正しい x に揃う。
+  - **⚠ 実装後の訂正（whole-branch review C1）**: 上の式は**展開時固定**。フェーズ/ラベル列を折りたたむと表セル・行は `--col-*-collapsed-w` で最大 78px 左へ動くが、コントロールバーのジョブチップ（`--col-header-chunk-w` 静的）と、そこから実測される `MitigationItem` の軽減バーは動かない。= 「チップ側 vs 表セル側」の分裂は SP2 以前から存在（軽減バーが既にそう）。SP2 でリキャストを「表セル側（ヘッダー内）」→「チップ側（独立帯・`--col-member-start` 静的）」へ移籍した結果、帯は**軽減バーと整合する陣営**に入った。実装は帯の幅を静的（`--col-member-start`）のまま据え置き、`military-smoke` step 11 に折りたたみケースの assert（帯セル left = チップ left ±3px）を追加した。既存の「軽減バー vs 折りたたみ表セル」不整合は SP2 スコープ外・別途 masaya 判断。
 - 標準モードでは `<RecastRow>` は従来どおり `headerRef` 内に置く（分岐の else 側 = 現状のまま）。
 - `recastRowVisible`（Timeline local state・トグルボタンは `.cb-c` の 2 個目）の挙動:
   - ON: 帯を表示。`syncRecastRow` が `update()` を呼ぶ（現状どおり）。
@@ -180,14 +182,14 @@ SP1 §9 で `Timeline.tsx` / `TimelineRow.tsx` から撤去した Phase 2 スキ
 **現状**: `src/index.css:1629` が `.timeline-scroll-container::-webkit-scrollbar:vertical { width: 0; display: none; }`。横バーは `::-webkit-scrollbar { width: 8px; height: 8px }`（グローバル 520 行）+ `.custom-scrollbar` で薄いグレー。
 
 **SP2 の実装**:
-- `military.css` SP2 節に:
+- `military.css` SP2 節に（全ルール `.theme-military .milspec-app` 前置 — §3.3(d) の standing ruling）:
   ```css
-  .theme-military .timeline-scroll-container::-webkit-scrollbar:vertical { width: 14px; display: block; }
-  .theme-military .timeline-scroll-container::-webkit-scrollbar-track { /* モック .tbody::-webkit-scrollbar-track の目盛り意匠 */ }
-  .theme-military .timeline-scroll-container::-webkit-scrollbar-thumb { /* ブラシメタルスライダー */ }
-  .theme-military .timeline-scroll-container::-webkit-scrollbar:horizontal { height: 14px; /* 同意匠を 90° */ }
+  .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar:vertical { width: 14px; display: block; }
+  .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar-track { /* モック .tbody::-webkit-scrollbar-track の目盛り意匠 */ }
+  .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar-thumb { /* ブラシメタルスライダー */ }
+  .theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar:horizontal { height: 14px; /* 同意匠を 90° */ }
   ```
-- `.custom-scrollbar` クラスがコンテナに付いているが、`::-webkit-scrollbar` の疑似要素は最も詳細度の高いセレクタが勝つので `.theme-military .timeline-scroll-container::-webkit-scrollbar` で上書き可能。
+- `.custom-scrollbar` クラスがコンテナに付いているが、`::-webkit-scrollbar` の疑似要素は最も詳細度の高いセレクタが勝つので `.theme-military .milspec-app .timeline-scroll-container::-webkit-scrollbar` で上書き可能。
 - **⚠ `scrollbar-width` チェック**: Chrome 121+ は要素に `scrollbar-width`（標準プロパティ）が指定されていると `::-webkit-scrollbar` 系を無視する（trace-workflow 追記 16 の既知ハマり）。`.timeline-scroll-container` および MIL-SPEC サイドバーのスクロール要素に `scrollbar-width` が残っていないか実装前に grep 確認。`.no-scrollbar` クラス（`scrollbar-width: none`・536 行）が付いていないことも確認。
 - **`syncPadding` の再実行**: 現状は `resize` とマウントのみ。`themeStyle` 変化でバーが出現/消滅するので、`themeStyle` を deps に含む `useEffect` で `syncPadding()` を 1 回呼ぶ（rAF 1 フレーム後 = レイアウト確定後）。標準 → 軍事、軍事 → 標準の両方向。
 - **非スクロール域の静的キャップ**: ヘッダー（`#timeline-header-inner` の右端）とリキャスト帯の右端に、モック `.gauge-cap`（目盛りだけの静的縦帯 + 縦書き "SCR"）を疑似要素 or 小要素で置く。ヘッダー〜表で目盛りが縦に連続して「1 本の計器」に見えるよう、目盛りピッチをスクロールバー track と揃える。
@@ -244,7 +246,7 @@ SP1 §9 で `Timeline.tsx` / `TimelineRow.tsx` から撤去した Phase 2 スキ
 - 時刻セル（`td-time` 相当）→ `Share Tech Mono` + シアン寄りグレー。
 - 元ダメージ → 白等幅右寄せ。軽減後 → 緑発光等幅 + `%` は小さく muted。
 - **致命行**（`.trow.lethal` 相当・実 DOM の lethal 判定を確認して該当クラス/属性を特定）→「軽減後」セルが赤発光の凹みセル（`inset` の赤 shadow + `rgba(239,90,95,0.3)` リング）。
-- TIME レール（`.pl.v` @ mechanic 列の左）と 成績仕切り（`.pl.bead.v` @ counter|member 境界）→ `military.css` の絶対配置デカール（`scrollContainerRef` 内 relative div 基準）。列 x はトークンから算出（`calc(var(--col-header-chunk-w) + ...)`）。
+- TIME レール（`.pl.v` @ mechanic 列の左・x = `var(--col-header-chunk-w)`）と 成績仕切り（`.pl.bead.v` @ TAKEN|member 境界・x = `var(--col-member-start)`）→ `military.css` の絶対配置デカール。**アンカー要素 = sheetContainer（`.timeline-scroll-container > div:has(> [data-time-row])`）の疑似要素**（sheet は native h-scroll で動くので線も一緒にスクロールする）。列 x は静的トークンにアンカー（軽減バー / チップと同じ「静的 x 陣営」・列折りたたみ時は collapse-aware な表セルとはズレるが §4.1 の C1 注記どおり SP2 スコープ外）。**実装 = whole-branch review の fix wave（plan §1.1 coverage table が縦線を落としていた取りこぼし・SP1 タービン欠落と同型）。**
 
 ### 6.3 軽減バー（`MitigationItem`）
 
@@ -356,16 +358,16 @@ writing-plans で以下を機械判定タスクに落とす:
 
 ---
 
-## 13. 未確定（実装時 or SP2 後の統一調整で詰める）
+## 13. 未確定 → 実装で決着（SP2 完了時に追記）
 
-- 表本体・行・ヘッダーの最終的なフォント px・gap・relief・色 hex（SP2 後の「シェル + 表まとめて調整」フェーズ）。
-- `.trow:nth-child` が行以外の兄弟要素（オーバーレイ・軽減バー）を数えてしまう問題の最終的な当て方（`nth-of-type` / データ属性セレクタ / 実装時 geometry 検証）。
-- `MitigationItem` の効果棒のロール色をどこから引くか（`MitigationItem` の props / store から確認）。
-- モック `.mit-lbl` のジョブコードテキスト併記を SP2 で入れるか（アイコン + バッジの実 DOM に対し）。
-- `.gauge-cap` の目盛りピッチをスクロールバー track とどう厳密に揃えるか。
-- `recastRowVisible` OFF 時にリキャスト帯を完全非表示にするか、ラベルだけ残すか（第一候補 = 完全非表示）。
-- `RecastRow.tsx` を据え置きにするか `variant` prop を足すか（第一候補 = 据え置き・Timeline 側で器を組む）。
-- `military.css` の肥大（punch-list: 現状 103KB・`themeStyle==='military'` 条件の動的 import 検討）→ SP2 でさらに増えるため、動的 import 化を SP2 のどこかで判断（別タスク化も可）。
+- **表本体・行・ヘッダーの最終フォント px・gap・relief・色 hex** → 未決着のまま。SP2 後の「シェル + 表まとめて統一調整」フェーズへ。各タスクの残差は `scripts/milspec-sp2/notes.md` に記録済（light コントラスト、行高 50px vs mock 48px 等）。
+- **`[data-time-row]:nth-child` が行以外の兄弟を数える問題** → 決着: `[data-time-row]:nth-child(even)`（ゼブラ）+ `:nth-child(4n)`（4 行溝）を採用。コミット済ベースライン DOM で「sheetContainer 直下は先頭 31 個が連続した `[data-time-row]`・兄弟は全 `<div>`」を実測検証（Task 3）。`military-smoke` に sheetContainer 先頭連続性の assert を追加（fix wave M8）。
+- **`MitigationItem` 効果棒のロール色の引き元** → 決着: `getMitigationColorClasses`（`Timeline.tsx:140-203`）が返す Tailwind クラス（`bg-blue-500/80` = tank 等）を属性セレクタ `[data-mit-bar][class~="bg-blue-500/80"]` で拾い `--ms-mb-col` へ分岐（Task 6）。`!important` 不使用。
+- **モック `.mit-lbl` のジョブコードテキスト併記** → 決着: **入れない**。実 DOM の 24px スキルアイコン + ターゲットジョブバッジを金属チップ枠化するに留めた（Task 6）。
+- **`.gauge-cap` の目盛りピッチ** → 決着: `--ms-gauge-ticks`（6px minor / 24px major）をヘッダー・帯・track で共有。位相合わせ（`background-position` の実 px 調整）はヘッダー高 40px・帯 38px が 6 の倍数でないため実機で詰める（notes.md Task 8 残差）。
+- **`recastRowVisible` OFF 時のリキャスト帯** → 決着: **完全非表示**（`hidden`・第一候補どおり）。付随: 帯の `::after` gauge cap も一緒に消えるので OFF 時はヘッダー→帯→track の計器連続が途切れる（whole-branch review M10・masaya ゲートで OFF 状態も 1 枚確認）。
+- **`RecastRow.tsx` の variant prop** → 決着: **据え置き**（Fragment を返す現状のまま・Timeline 側で `[data-milspec-recast-band]` の器を組む・第一候補どおり）。
+- **`military.css` の肥大 / 動的 import 化** → **決着（whole-branch review I1/A5・merge 前の必須判断）**: **SP2 では静的 import のまま据え置く**（`main.tsx:8`）。SP2 で `military.css` は 113KB → 172KB（+59KB 生・gzip 約 +10-12KB）に増加し、これは preview gate 越しの機能なのに標準モードの全ユーザーがダウンロード・パースするコストになる。しかし動的 import 化は `main.tsx` のブートストラップ + `<html>` の `.theme-military` 付与タイミングとの FOUC 競合 + 専用テストを要する**横断的変更**であり、SP2 の最終 fix wave にラストミニッツで乗せるべきではない。→ **MIL-SPEC 一式が安定する SP4 完了後に専用の小改修として実施**（`themeStyle==='military'` 監視で `import('./styles/military.css')`・`.theme-military` が localStorage から同期復元されるタイミングで preload）。それまでの +59KB は許容する。この判断は whole-branch review で署名済。
 
 ---
 
@@ -375,9 +377,9 @@ writing-plans で以下を機械判定タスクに落とす:
 2. **既存の編集機能を壊さない。** 座標計算・`handleScrollSync`・`syncRecastRow`・`hideEmptyRows`・collab・競合判定・`MitigationItem` のドラッグ/リサイズ・Undo/Redo・AA/メモモード・フェーズ/ラベル編集・折りたたみが両モードで動く。
 3. **`Timeline.tsx` / `TimelineRow.tsx` / `RecastRow.tsx` / `MitigationItem` のロジックに手を入れない。** SP2 が触るのは (a) 見た目 CSS、(b) リキャスト帯の器と配置、(c) スクロール同期対象への条件付き追加、(d) inert な `data-*` フック のみ。
 4. **正典はモックアップ**（`docs/.private/theme-refs/milspec-mockup.html`・絶対パスで実装者に渡す）。デザインの疑問はモックの CSS/DOM を引く。
-5. すべての MIL-SPEC CSS ルールは `.theme-military` 前置（`military.css` の SP2 節に集約）。
+5. すべての MIL-SPEC CSS ルールは **`.theme-military .milspec-app` 前置**（`military.css` の SP2 節に集約）。bare `.theme-military` は不可 — `.theme-military` は `<html>` にモバイルでも付くが `.milspec-app` は PC 軍事レイアウト時のみ mount するため、bare だとモバイル軍事（SP3）に漏れる。例外は `.milspec-ws-cap` / `.milspec-ws-note`（class が `MilspecWorkspace` にしか存在しない）。詳細は §3.3(d)。
 6. `.claude/rules/css-rules.md` 遵守（`backdrop-filter: blur()` リテラル禁止 → `--tw-backdrop-blur` 変数 / `clip-path: path()` 禁止・`polygon()` 可 / 回転 `::before` は `200vmax`）。
-7. sizing はリポジトリ標準（`design-philosophy-sizing.md`）: 全 text px 固定・`clamp(MIN, N vw, BASE)` で max=base=1489・html font-size 16px。列幅は `--col-*-w` の clamp を MIL-SPEC 用に上書き。
+7. sizing はリポジトリ標準（`design-philosophy-sizing.md`）: 全 text px 固定・`clamp(MIN, N vw, BASE)` で max=base=1489・html font-size 16px。**列幅トークン `--col-*-w` は変更しない**（実装で決着 / plan GC7）: モックの固定 px（44/40/58/200/…）は「比率の目標」だが、`--col-th-w`（=151px）/ `--col-dps-w`（=53px）はリキャストアイコン（`LIMIT_TH=6` × 24px）の折返し防止の**機能制約**で、狭めると `flex-wrap` で 2 行目が `overflow:hidden` に消える（コミット 082ae353 で実発生）。SP2 は `src/index.css` の列幅を一切触らず（`git diff -- src/index.css` は空）、見た目だけ `military.css` で militarize した。3 viewport（1489/1920/2560）で列整合・スクロール同期が不変であることを `military-smoke --viewport` で検証済。§B3 の「MIL-SPEC 用に上書き」は撤回。
 8. i18n は最初から 5 言語（ja/en/zh/zh-Hant/ko）。機能ラベルの用語は変えない（「軽減後」「元ダメージ」「敵の攻撃」等）。軍事英字は装飾として重ねるだけ・翻訳対象外。
 9. push は worktree から行わない（最終マージ時のみ）。push 前ゲート = `npm run build` + 対象 vitest。
 10. `src/components/MobileFab.tsx` は小文字 `ab` で参照（本番ビルド保護）。
