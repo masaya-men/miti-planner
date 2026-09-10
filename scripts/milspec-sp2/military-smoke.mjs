@@ -38,6 +38,15 @@ let page;
 /** @type {{fatal:string[], whitelisted:string[]}} */
 let rec;
 
+/** viewport ごとにモジュールレベル状態をリセット (複数幅で回すと stepNum が累積し
+ *  results も混ざって出力が読みにくくなるため、各幅の実行前に必ず呼ぶ)。 */
+function resetState() {
+  stepNum = 0;
+  results.length = 0;
+  page = undefined;
+  rec = undefined;
+}
+
 function fail(msg) {
   throw new Error(msg);
 }
@@ -77,8 +86,51 @@ const getState = (store, path) =>
 const MITI = './_fixture.mjs'; // not used directly; store paths below
 const MITI_STORE = '/src/store/useMitigationStore.ts';
 
-async function main() {
-  const launched = await launch({ theme: 'dark' });
+/** width から 16:9 の height を導出 (--width=N 単一指定時)。
+ *  既知幅は実解像度、それ以外は width*9/16 を丸め・下限 800。 */
+function heightForWidth(w) {
+  if (w === 1920) return 1080;
+  if (w === 2560) return 1440;
+  return Math.max(800, Math.round((w * 9) / 16));
+}
+
+/**
+ * process.argv から実行する viewport 群を決める。
+ *   --viewport   : [1489×900, 1920×1080, 2560×1440] を順に (3 幅)
+ *   --width=N    : [N×heightForWidth(N)] のみ (単一)
+ *   (引数なし)   : [1489×900] のみ (従来挙動を厳密に維持)
+ * @returns {{ width: number, height: number }[]}
+ */
+function parseViewports(argv) {
+  const args = argv.slice(2);
+  if (args.includes('--viewport')) {
+    return [
+      { width: 1489, height: 900 },
+      { width: 1920, height: 1080 },
+      { width: 2560, height: 1440 },
+    ];
+  }
+  const wArg = args.find((a) => /^--width=\d+$/.test(a));
+  if (wArg) {
+    const w = parseInt(wArg.slice('--width='.length), 10);
+    return [{ width: w, height: heightForWidth(w) }];
+  }
+  return [{ width: 1489, height: 900 }];
+}
+
+/**
+ * 1 つの viewport で全ステップを実行する。旧 main() の中身をそのまま切り出したもの
+ * (ステップロジック・しきい値・座標計算は一切不変)。process.exit せず結果オブジェクトを
+ * 返す — 最終的な exit code は main() が全幅の結果を集約して決める。
+ *
+ * @param {{ width: number, height: number }} viewport
+ * @param {{ tagOutput?: boolean }} [opts] tagOutput: PASS/FAIL 行に [W×H] を付ける (複数幅実行時)
+ * @returns {Promise<{ viewport: {width:number,height:number}, ok: boolean, steps: number, warns?: number, reason?: string, results: any[] }>}
+ */
+async function runOnce(viewport, { tagOutput = false } = {}) {
+  resetState();
+  const tag = tagOutput ? ` [${viewport.width}×${viewport.height}]` : '';
+  const launched = await launch({ theme: 'dark', viewport });
   page = launched.page;
   rec = attachConsoleRecorder(page);
 
@@ -557,7 +609,7 @@ async function main() {
       return `縦バー幅 ${r.barWidth}px / paddingRight header ${r.headerPadR} controls ${r.controlsPadR} recast ${r.bandPadR} / 目盛りキャップ ::after OK`;
     });
 
-    // ── 最終判定 ─────────────────────────────────────────────
+    // ── 最終判定 (この viewport) ──────────────────────────────
     console.log('');
     if (rec.whitelisted.length) {
       console.log(`[info] whitelist 済み (dev で無害) の console/pageerror ${rec.whitelisted.length} 件:`);
@@ -566,16 +618,22 @@ async function main() {
       console.log('');
     }
     if (rec.fatal.length) {
-      console.error(`FAIL: 非 whitelist の console/pageerror ${rec.fatal.length} 件:`);
+      console.error(`FAIL${tag}: 非 whitelist の console/pageerror ${rec.fatal.length} 件:`);
       for (const l of rec.fatal) console.error('  ' + l);
-      process.exit(1);
+      return {
+        viewport,
+        ok: false,
+        steps: stepNum,
+        reason: `非 whitelist console/pageerror ${rec.fatal.length} 件`,
+        results: results.slice(),
+      };
     }
 
     const warns = results.filter((r) => r.ok && r.note.startsWith('WARN')).length;
-    console.log(`PASS: ${stepNum} ステップ完走 / 非 whitelist console エラー 0 件${warns ? ` / WARN ${warns} 件 (Task 1 時点で未実装の挙動)` : ''}`);
-    process.exit(0);
+    console.log(`PASS${tag}: ${stepNum} ステップ完走 / 非 whitelist console エラー 0 件${warns ? ` / WARN ${warns} 件 (Task 1 時点で未実装の挙動)` : ''}`);
+    return { viewport, ok: true, steps: stepNum, warns, results: results.slice() };
   } catch (err) {
-    console.error('\n──────── FAIL ────────');
+    console.error(`\n──────── FAIL${tag} ────────`);
     console.error(String(err && err.stack ? err.stack : err));
     console.error('\nステップ結果:');
     for (const r of results) console.error(`  ${r.ok ? '✓' : '✗'} ${r.tag}${r.note ? ` — ${r.note}` : ''}`);
@@ -583,10 +641,53 @@ async function main() {
       console.error('\n収集した console/pageerror:');
       for (const l of rec.fatal) console.error('  ' + l);
     }
-    process.exit(1);
+    const failed = results.find((r) => !r.ok);
+    return {
+      viewport,
+      ok: false,
+      steps: stepNum,
+      reason: failed ? `${failed.tag} — ${failed.note}` : String(err && err.message ? err.message : err),
+      results: results.slice(),
+    };
   } finally {
     await launched.browser.close();
   }
 }
 
-main();
+async function main() {
+  const viewports = parseViewports(process.argv);
+  const multi = viewports.length > 1;
+  /** @type {Awaited<ReturnType<typeof runOnce>>[]} */
+  const summary = [];
+
+  for (const vp of viewports) {
+    if (multi) console.log(`\n=== viewport ${vp.width}×${vp.height} ===\n`);
+    summary.push(await runOnce(vp, { tagOutput: multi }));
+  }
+
+  if (multi) {
+    console.log('\n──────── viewport 集計 ────────');
+    for (const r of summary) {
+      const v = `${r.viewport.width}×${r.viewport.height}`;
+      console.log(
+        r.ok
+          ? `  ✓ ${v}: ${r.steps}/13 pass${r.warns ? ` (WARN ${r.warns})` : ''}`
+          : `  ✗ ${v}: ${r.reason}`,
+      );
+    }
+  }
+
+  const failed = summary.filter((r) => !r.ok);
+  if (failed.length) {
+    console.error(
+      `\nFAIL: ${failed.map((r) => `${r.viewport.width}×${r.viewport.height}`).join(', ')} で失敗 (詳細は上記)`,
+    );
+    process.exit(1);
+  }
+  process.exit(0);
+}
+
+main().catch((err) => {
+  console.error('\n[military-smoke] ERROR:', err && err.stack ? err.stack : err);
+  process.exit(1);
+});

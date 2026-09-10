@@ -82,15 +82,23 @@ export function attachConsoleRecorder(page) {
 /**
  * 標準/軍事共通のブラウザ起動。theme = 'dark' | 'light'。
  * themeStyle は常に 'standard' で書き込む (= 未設定と描画上等価; 軍事は setThemeStyle で入る)。
+ *
+ * @param {{ theme?: 'dark'|'light', headed?: boolean, viewport?: { width: number, height?: number } }} [opts]
+ *   viewport: 渡すと newContext の viewport に使う ({ width, height }・height 省略時 900)。
+ *   未指定なら VIEWPORT (1489×900)。deviceScaleFactor は常に 1 固定 (比較安定優先・
+ *   design-philosophy-sizing.md。多数派 DSR 再現ではない)。
  */
-export async function launch({ theme = 'dark', headed = false } = {}) {
+export async function launch({ theme = 'dark', headed = false, viewport } = {}) {
   // headed=true: 実 Chrome を GUI 起動する。::-webkit-scrollbar は headless では描画されない
   // (project_sf_military_theme 追記11) ため、compare.mjs の scrollbar ゾーンだけ true にする。
   const browser = headed
     ? await chromium.launch({ headless: false, channel: 'chrome' })
     : await chromium.launch();
+  const vp = viewport
+    ? { width: viewport.width, height: viewport.height ?? 900 }
+    : VIEWPORT;
   const context = await browser.newContext({
-    viewport: VIEWPORT,
+    viewport: vp,
     deviceScaleFactor: 1,
     colorScheme: theme === 'light' ? 'light' : 'dark',
     reducedMotion: 'reduce',
