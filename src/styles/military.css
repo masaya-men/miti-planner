@@ -950,29 +950,34 @@
   margin: 0 auto;
   height: 100dvh;
   overflow: hidden;
-  /* mockup .app: columns 285 / 22 / 1fr。SP1 は subtoolbar 行を持たない 4 行構成。 */
+  /* mockup .app: columns 285 / 22 / 1fr。SP1 は subtoolbar 行を持たない 3 行構成。
+     2026-09-14 masaya 確定その1: header 行の高さ(clamp 76-90px)は据え置きのまま、その中に
+     MilspecHeader(上段・少し薄く)と MilspecToolbar(下段・薄い帯)を縦積みする。
+     2026-09-14 masaya 確定その2: サイドバーは標準 Layout.tsx(data-app-shell = display:flex)と
+     同じく画面の最上段から最下段まで独立した1列として通す(標準は Sidebar がヘッダーの左に
+     並ぶ flex 兄弟・ヘッダーはサイドバーの右側だけを占める)。旧: header 行がサイドバー列も
+     跨いで最上段を占めていた(標準とズレていた・masaya 指摘で訂正)。 */
   grid-template-columns:
     clamp(232px, 19.1vw, 285px)
     clamp(16px, 1.5vw, 22px)
     1fr;
   grid-template-rows:
-    clamp(76px, 6vw, 90px)   /* header */
-    clamp(60px, 4.8vw, 72px) /* toolbar */
+    clamp(76px, 6vw, 90px)   /* header(MilspecHeader + MilspecToolbar を縦積み) */
     1fr                       /* workspace */
     clamp(64px, 5.5vw, 82px); /* footer */
   grid-template-areas:
-    "header  header header"
-    "sidebar seam   toolbar"
+    "sidebar seam   header"
     "sidebar seam   workspace"
     "sidebar seam   footer";
   background: var(--ms-bg, #141b23);
   color: var(--ms-text);
   font-family: var(--ms-font-ui, system-ui, sans-serif);
 }
-.theme-military .milspec-zone-header    { grid-area: header;    position: relative; }
+/* header ゾーン = MilspecHeader(上段・flex:1 1 auto で残り高さを取る)+
+   MilspecToolbar(下段・.milspec-tb 自身の中身なりの薄い高さ)の縦積み。 */
+.theme-military .milspec-zone-header    { grid-area: header;    position: relative; display: flex; flex-direction: column; overflow: hidden; }
 .theme-military .milspec-zone-sidebar   { grid-area: sidebar;   position: relative; overflow: hidden; }
 .theme-military .milspec-zone-seam      { grid-area: seam;      position: relative; }
-.theme-military .milspec-zone-toolbar   { grid-area: toolbar;   position: relative; }
 .theme-military .milspec-zone-workspace { grid-area: workspace; position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
 .theme-military .milspec-zone-footer    { grid-area: footer;    position: relative; }
 
@@ -2029,9 +2034,12 @@
  * ============================================================ */
 
 /* ---------- ヘッダー本体(mockup .header 771-786) ----------
-   .milspec-zone-header(Task 1)を書き換えず、自身を position:absolute; inset:0 で満たす。 */
+   2026-09-14 masaya 確定: .milspec-zone-header は上下 2 段の縦積み(flex-direction:column)。
+   .milspec-hdr はその上段として残り高さを取る(flex:1 1 auto)。ゾーン自体の高さ(clamp 76-90px)
+   は変えない = 下段の .milspec-tb が使う分だけこちらが薄くなる(旧: position:absolute; inset:0 で
+   ゾーンを独占)。 */
 .theme-military .milspec-hdr {
-  position: absolute; inset: 0; z-index: 6;
+  position: relative; flex: 1 1 auto; min-height: 0; z-index: 6;
   display: flex; align-items: stretch; gap: 5px; padding: 6px 8px;
   background: var(--ms-well); --ms-behind: var(--ms-well);
   box-shadow: 0 10px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -2px 5px rgba(0,0,0,0.55);
@@ -2049,9 +2057,15 @@
 .theme-military.theme-light .milspec-hdr .milspec-hp.recess { background: linear-gradient(180deg, #dbe3ec, #eef3f8); }
 
 /* ヘッダー折りたたみ: グリッド行高を細帯へ(brief 指示通り凝った意匠は不要)。
-   :has() は Task 1 の sidebar 折りたたみと同じ手法(既存 .milspec-app ルールは書き換えず追記)。 */
+   :has() は Task 1 の sidebar 折りたたみと同じ手法(既存 .milspec-app ルールは書き換えず追記)。
+   header 行が 1 本だけになった(2026-09-14・上下 2 段を縦積み)ので、この行を 26px にするだけで
+   両方まとめて畳まれる。.milspec-tb は 26px の細帯には収まらないので丸ごと隠す
+   (標準 ConsolidatedHeader の height:0 と同じ扱い)。 */
 .theme-military .milspec-app:has(.milspec-hdr[data-collapsed]) {
-  grid-template-rows: 26px clamp(60px, 4.8vw, 72px) 1fr clamp(64px, 5.5vw, 82px);
+  grid-template-rows: 26px 1fr clamp(64px, 5.5vw, 82px);
+}
+.theme-military .milspec-app:has(.milspec-hdr[data-collapsed]) .milspec-tb {
+  display: none;
 }
 
 /* ---------- LoPo ロゴプレート(mockup .hp-logo 798-810) ----------
@@ -2508,11 +2522,13 @@
  * ============================================================ */
 
 /* ---------- ツールバー本体(mockup .toolbar 891-907) ----------
-   .milspec-zone-toolbar(Task 1)を書き換えず、自身を position:absolute; inset:0 で満たす
-   (MilspecHeader.tsx の .milspec-hdr と同じ手法)。 */
+   2026-09-14 masaya 確定: .milspec-zone-header の下段として横幅いっぱい・中身なりの薄い帯
+   (旧: position:absolute; inset:0 で専用ゾーンを占有)。高さはボタン側の縮小(2026-09-14 指摘)で
+   決まる = 上段の .milspec-hdr(flex:1 1 auto)がその分だけ薄くなる。折りたたみは
+   isHeaderCollapsed と連動(下記 display:none)。 */
 .theme-military .milspec-tb {
-  position: absolute; inset: 0; z-index: 5;
-  display: flex; align-items: stretch; gap: 6px; padding: 6px 12px 9px;
+  position: relative; flex: none; z-index: 5;
+  display: flex; align-items: stretch; gap: 6px; padding: 2px 10px 3px;
   background: linear-gradient(180deg, var(--ms-raised-hi), var(--ms-raised) 55%, var(--ms-raised-lo));
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -2px 5px rgba(0,0,0,0.4), var(--ms-zone-edge);
 }
@@ -2532,7 +2548,7 @@
 
 /* ---------- 機能クラスタ = 沈んだトレイ(mockup .tb-cluster 908-924) ---------- */
 .theme-military .milspec-tb-cluster {
-  position: relative; display: flex; align-items: stretch; gap: 4px; padding: 5px 7px;
+  position: relative; display: flex; align-items: stretch; gap: 4px; padding: 2px 6px;
   background: linear-gradient(180deg, var(--ms-recess-hi), var(--ms-recess-lo));
   border: 1px solid var(--ms-frame); border-top-color: rgba(0,0,0,0.42);
   box-shadow:
@@ -2555,19 +2571,19 @@
 /* ---------- ツールボタン(mockup .tool-btn 925-946)。Party/Config/Popular(みんなの軽減表)は
    自前ボタンのためモック DOM(bolt tl/br + lamp + icf + lbl en/jp)をそのまま再現する。 ---------- */
 .theme-military .milspec-tool-btn {
-  position: relative; display: flex; align-items: center; gap: 8px; padding: 5px 9px 6px 7px;
+  position: relative; display: flex; align-items: center; gap: 6px; padding: 2px 8px 2px 6px;
   background: var(--ms-btn-sheen), linear-gradient(177deg, var(--ms-raised-hi), var(--ms-raised-lo));
   border: 1px solid var(--ms-frame); border-top-color: var(--ms-edge-hi); border-bottom-color: rgba(0,0,0,0.6);
   box-shadow: var(--ms-btn-body), 0 1px 0 rgba(0,0,0,0.5);
   filter: var(--ms-btn-cast);
 }
-.theme-military .milspec-tool-btn .icf { position: relative; width: 22px; height: 22px; flex: none; display: grid; place-items: center; }
+.theme-military .milspec-tool-btn .icf { position: relative; width: 15px; height: 15px; flex: none; display: grid; place-items: center; }
 .theme-military .milspec-tool-btn .icf::before,
-.theme-military .milspec-tool-btn .icf::after { content: ""; position: absolute; width: 7px; height: 7px; border: 1.5px solid var(--ms-bracket); }
+.theme-military .milspec-tool-btn .icf::after { content: ""; position: absolute; width: 5px; height: 5px; border: 1.5px solid var(--ms-bracket); }
 .theme-military .milspec-tool-btn .icf::before { top: 0; left: 0; border-right: 0; border-bottom: 0; }
 .theme-military .milspec-tool-btn .icf::after  { bottom: 0; right: 0; border-left: 0; border-top: 0; }
-.theme-military .milspec-tool-btn .ico { width: 17px; height: 17px; color: #c3d1dc; }
-.theme-military .milspec-tool-btn .lbl { display: flex; flex-direction: column; line-height: 1.15; max-width: 92px; }
+.theme-military .milspec-tool-btn .ico { width: 11px; height: 11px; color: #c3d1dc; }
+.theme-military .milspec-tool-btn .lbl { display: flex; flex-direction: column; line-height: 1.05; max-width: 92px; }
 .theme-military .milspec-tool-btn .lbl .en {
   font: 700 9px/1 'Rajdhani', sans-serif; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ms-heading);
 }
@@ -2598,7 +2614,7 @@
    .milspec-tool-btn 基本形はそのまま使い(枠・hover/active カラー・立体感)、
    アイコン枠が無いぶんの詰めだけ .milspec-sort-btn で上書き。 ---------- */
 .theme-military .milspec-tb-sort { gap: 3px; align-items: center; }
-.theme-military .milspec-sort-btn { padding: 5px 11px 6px; gap: 7px; }
+.theme-military .milspec-sort-btn { padding: 2px 10px 2px; gap: 6px; }
 .theme-military .milspec-sort-btn > .milspec-lamp { position: relative; left: auto; top: auto; }
 .theme-military .milspec-sort-btn .lbl .en { font-size: 9px; }
 .theme-military .milspec-sort-btn.active {

@@ -113,8 +113,8 @@ export const MilspecToolbar: React.FC<MilspecToolbarProps> = (props) => {
 
       {/* 中央: 装飾テキスト(mockup .tool-spacer 2072-2075)。軍事英字の装飾文言は翻訳対象外(constraint 8)。 */}
       <div className="milspec-tb-spacer">
-        <span className="milspec-sc" style={{ top: 8, left: '6%' }}>DEFENSIVE COOLDOWN SCHEDULING SUITE</span>
-        <span className="milspec-sc" style={{ bottom: 8, right: '6%', textAlign: 'right' }}>DMG-REDUCTION FIRE PLAN · REV.C</span>
+        <span className="milspec-sc" style={{ top: 2, left: '6%' }}>DEFENSIVE COOLDOWN SCHEDULING SUITE</span>
+        <span className="milspec-sc" style={{ bottom: 2, right: '6%', textAlign: 'right' }}>DMG-REDUCTION FIRE PLAN · REV.C</span>
       </div>
 
       {/* VIEW — mockup 2つめの .tb-cluster(DOM 2077-2080) */}

@@ -23,12 +23,16 @@ const renderIt = () => render(
 describe('MilspecLayout', () => {
   beforeEach(() => { useThemeStore.setState({ theme: 'dark', themeStyle: 'military' }); window.innerWidth = 1489; });
 
-  it('data-app-shell ルートと 6 ゾーン + chrome を描画する', () => {
+  it('data-app-shell ルートと 5 ゾーン + chrome を描画する', () => {
+    // 2026-09-14 masaya 確定: toolbar(パーティ編成等)専用ゾーンは無く、header ゾーンの中に
+    // MilspecHeader(上段)/ MilspecToolbar(下段)を縦積みする(ゾーンの高さは header 側のまま)。
     const { container } = renderIt();
     expect(container.querySelector('[data-app-shell]')).not.toBeNull();
-    for (const z of ['header', 'sidebar', 'seam', 'toolbar', 'workspace', 'footer']) {
+    for (const z of ['header', 'sidebar', 'seam', 'workspace', 'footer']) {
       expect(container.querySelector(`[data-ms-zone="${z}"]`)).not.toBeNull();
     }
+    expect(container.querySelector('[data-ms-zone="toolbar"]')).toBeNull();
+    expect(container.querySelector('[data-ms-zone="header"] .milspec-tb')).not.toBeNull();
     expect(container.querySelector('.milspec-console-frame')).not.toBeNull(); // MilspecChrome
   });
 

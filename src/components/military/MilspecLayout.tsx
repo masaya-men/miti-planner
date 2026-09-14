@@ -51,12 +51,24 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
     <div data-app-shell className="milspec-app" data-theme-military>
       <MilspecChrome />
       {/* ゾーン: header(Task 4)/sidebar(Task 5)/toolbar(Task 6)/workspace(Task 3)/footer(Task 7)/seam(Task 8)は実装済。 */}
+      {/* masaya 2026-09-14 確定: header ゾーンの高さは今までどおり(clamp 76-90px)据え置きで、
+          その中を縦に 2 段(上=MilspecHeader を少し薄く/下=MilspecToolbar を薄い帯で)に積む。
+          標準 ConsolidatedHeader の Layer A(h-12)+ Layer B(h-12)を 1 つの折りたたみ容器に
+          収めているのと同じ形(横に並べるのではなく縦積み・合計高さを増やさない)。 */}
       <div data-ms-zone="header" className="milspec-zone-header">
         <MilspecHeader
           theme={props.theme}
           onToggleTheme={props.onToggleTheme}
           isHeaderCollapsed={props.isHeaderCollapsed}
           setIsHeaderCollapsed={props.setIsHeaderCollapsed}
+        />
+        <MilspecToolbar
+          partySortOrder={props.partySortOrder}
+          setPartySortOrder={props.setPartySortOrder}
+          onAutoPlan={props.onAutoPlan}
+          onImportLogs={props.onImportLogs}
+          statusOpen={props.statusOpen}
+          setStatusOpen={props.setStatusOpen}
         />
       </div>
       <div data-ms-zone="sidebar" className="milspec-zone-sidebar" data-open={props.isSidebarOpen ? '' : undefined}>
@@ -67,16 +79,6 @@ export const MilspecLayout: React.FC<MilspecLayoutProps> = (props) => {
         />
       </div>
       <div data-ms-zone="seam" className="milspec-zone-seam"><MilspecSeam /></div>
-      <div data-ms-zone="toolbar" className="milspec-zone-toolbar">
-        <MilspecToolbar
-          partySortOrder={props.partySortOrder}
-          setPartySortOrder={props.setPartySortOrder}
-          onAutoPlan={props.onAutoPlan}
-          onImportLogs={props.onImportLogs}
-          statusOpen={props.statusOpen}
-          setStatusOpen={props.setStatusOpen}
-        />
-      </div>
       <div data-ms-zone="workspace" className="milspec-zone-workspace"><MilspecWorkspace>{children}</MilspecWorkspace></div>
       <div data-ms-zone="footer" className="milspec-zone-footer"><MilspecFooter /></div>
 
