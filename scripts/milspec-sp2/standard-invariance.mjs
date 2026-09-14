@@ -40,11 +40,13 @@ function collectInPage(args) {
   // 骨格から除外する class 接頭辞。Tailwind の variant utility は className 文字列に
   // 常時含まれる静的クラスなので本来は決定的。この list は「マウント時アニメ系」と
   // 「レイアウトに効かない hover/focus 系」を将来リファクタ耐性のために落とすもの。
-  // 注: group-hover/name (スラッシュ) は入れているが bare group-hover: (コロン) は
-  // 入れていない。両者を揃えると採取結果が変わり .baseline/ の撮り直しが必要になるため、
-  // この round では現状維持 (list を変えるなら必ず --save でベースライン更新)。
+  // group-hover は **コロン形とスラッシュ形の両方**を落とす ([:/])。
+  // 以前はスラッシュ形 (group-hover/btn:…) しか落としておらず、bare な group-hover:text-app-text 等が
+  // 素通しでベースラインに入っていた = Tailwind の variant 記法が変わると偽陽性になる
+  // (レビュー T1 #4)。Task 10 の fix wave で I3 (rect セレクタ追加) / T1 #3 (tol 0.5) と
+  // まとめて 1 回だけ --save し直している。
   const DROP_CLASS =
-    /^(hover:|focus:|focus-visible:|focus-within:|active:|group-hover\/|group-focus\/|peer-|will-change-|animate-in|animate-out|fade-in|fade-out|zoom-in|zoom-out|slide-in|slide-out|spin|pulse|duration-\[|delay-\[)/;
+    /^(hover:|focus:|focus-visible:|focus-within:|active:|group-hover[:/]|group-focus[:/]|peer-|will-change-|animate-in|animate-out|fade-in|fade-out|zoom-in|zoom-out|slide-in|slide-out|spin|pulse|duration-\[|delay-\[)/;
   // React useId 等で生成される不安定な id を除外
   const UNSTABLE_ID = /[:_]r[0-9a-z]+[:_]?|^radix-|^headlessui-|^«/i;
 
@@ -117,6 +119,12 @@ const RECT_SELECTORS = [
   '.timeline-scroll-container',
   '[data-time-row]', // 先頭 5 個 (collectInPage が 6 個までに丸める → 下で 5 に切る)
   '.recast-cell', // 先頭 3 個
+  // ↓ SP2 のリスク #2「チップの box model が変わって全軽減バーの列 x がズレる」を直接見る 2 座標
+  //   (レビュー I3)。骨格 (class 文字列) は CSS 由来の box 変化を拾えないので rect で押さえる。
+  //   [data-member-id] = useMeasuredMemberLayout(Timeline.layoutHooks.ts:29-44) が読む実測の正典。
+  //   [data-mit-bar]   = その実測結果として絶対配置される効果棒 (duration>1 の軽減・軍事非依存)。
+  '#timeline-controls-inner [data-member-id]', // 先頭 6 個
+  '[data-mit-bar]', // 先頭 6 個 (fixture の軽減 7 個のうち duration>1 のもの)
 ];
 
 async function captureTheme(theme) {
@@ -161,7 +169,9 @@ function diffSkeleton(baseSkel, curSkel) {
   return out;
 }
 
-function diffRects(base, cur, tol = 1.0) {
+/** 許容 0.5px (レビュー T1 #3 で 1.0 → 0.5 へ。1px の枠追加やサブピクセルのズレを見逃さない。
+ *  0.1px 丸めで採取しているので 0.5 でも丸め起因の偽陽性は出ない)。 */
+function diffRects(base, cur, tol = 0.5) {
   const out = [];
   for (const sel of Object.keys(base)) {
     const ba = base[sel] || [];
@@ -188,7 +198,7 @@ function compareOne(theme, baseline, current) {
   if (sk.length) problems.push(`[${theme}] DOM 骨格が変化:\n${sk.join('\n')}`);
 
   const rd = diffRects(baseline.rects, current.rects);
-  if (rd.length) problems.push(`[${theme}] getBoundingClientRect が変化 (許容 ±1.0px):\n${rd.join('\n')}`);
+  if (rd.length) problems.push(`[${theme}] getBoundingClientRect が変化 (許容 ±0.5px):\n${rd.join('\n')}`);
 
   for (const k of ['vScrollbarWidth', 'timeRowCount', 'recastCellCount', 'grabHandleCount', 'htmlClass']) {
     if (JSON.stringify(baseline[k]) !== JSON.stringify(current[k])) {
