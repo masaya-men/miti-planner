@@ -815,3 +815,91 @@ recast を「表セル側」から「チップ側」へ移籍させたので**�
 **A1 への波及**: 上記により、縦パネルライン（A1）も**静的 col 変数**（`--col-header-chunk-w` /
 `--col-member-start`）にアンカーする = バー / チップ / 帯と同じ「静的 x 陣営」。折りたたみ時に
 collapse-aware な表セルとはズレるが、それは上記の既存分裂と同じで SP2 スコープ外。
+
+### A2 — `.table` 中間金属フレーム層
+
+**アンカー実測**: `[data-timeline-root] > .glass-panel`（`Timeline.tsx:2714`）。
+DOM 上 **1 個**・rect が `.milspec-ws-screen` と完全一致（x320.4 / y173.8 / 1154.6×629.3）・
+`background` / `box-shadow` / `::before` / `::after` とも**未使用**。直下に
+コントロールバー / ヘッダー外枠 / リキャスト帯 / `.timeline-scroll-container` を束ねている
+= mockup `.table`(1076) と同じ役割。
+（ブリーフが例示した `.milspec-ws-screen > div` は Timeline ページ側のラッパ 2 段ぶん外側で、
+表以外も含むため不採用。`.glass-panel` は `index.css:1025` で `position: relative` のみ = 衝突なし。）
+
+**「background だけでは 1px も見えない」問題**: 実測で子の高さは
+バー 28 + ヘッダー 40 + 帯 38 + 本文 flex-1 = 親高 629.3 にぴったり一致し、全て幅 100% かつ不透明。
+よって `.table` 相当の面は通常状態で完全に隠れる（mockup の `.table` も同じく children に覆われる）。
+→ mockup の `inset 0 0 0 1px rgba(0,0,0,0.45)` は「表ブロック全体を締める枠」が主眼なので、
+**`::before`（`inset:0` / `z-index:60` / `pointer-events:none`）に載せて実際に読めるようにした**
+（子より上・ポップオーバー z-9999 より下）。`background` 自体は層構造の明示と、
+子が消える/透ける場合（`recastRowVisible` OFF 等）の保険として残す。
+これは「mockup 意図の可視化アダプト」＝ mockup の値そのままでは no-op になるための翻案。
+
+### A1 — 縦パネルライン（`.pl.v` / `.pl.bead.v`）
+
+| 線 | mockup | app アンカー | 実装 |
+|---|---|---|---|
+| 機工列開始の V 溝 3px | `.pl.v`(2172・left:142) | `var(--col-header-chunk-w)` = **170px** | sheetContainer `::before` |
+| TAKEN\|メンバー境界の隆起ビード 5px（tbody・opacity .55） | `.pl.bead.v`(2173・left:530) | `var(--col-member-start)` = **570px** | sheetContainer `::after` |
+| 同（thead・top/bottom 5px・opacity .7） | `.pl.bead.v`(2134) | `var(--col-member-start)` | `#timeline-header-inner::after` |
+
+- **tbody のアンカー** = `.timeline-scroll-container > div:has(> [data-time-row])`（実測 1 個・
+  `position:relative`・高さ 2000px・`::before`/`::after` とも未使用）。sheet は native の h-scroll で
+  動く（transform ではない）ので線もコンテンツと一緒にスクロールする = 正。
+- **thead のアンカー** = `#timeline-header-inner::after`。外枠（`div:has(> #timeline-header-inner)`）の
+  `::after` は Task 8 の目盛りキャップで埋まっており、かつ外枠は横スクロールで動かないので使えない。
+  inner は `will-change:transform` で translateX されるため、**tbody の線と一緒にスクロールする**。
+  `display:flex` の疑似要素は本来 flex item になるが `position:absolute` なので flex item から外れる
+  = 列レイアウト影響ゼロ（実測: ヘッダー 6 列・本文 14 列の left が全て変化なし）。
+- **アンカーは静的 col 変数**（ruling・上記 §C1）。`left:100%`（＝ inner の実幅 = 折りたたみ追従）に
+  すると thead だけ collapse-aware になり、折りたたみ時に tbody の線（静的 570）と 78px の段差が
+  できて「縦 1 本の構造線」が折れるため採用しない。折りたたみ時は thead のビードが空きベイの
+  内側 78px に立つが、パネルの継ぎ目として破綻はしない。
+- primitive（`military.css:571-583` の `.milspec-pl.v` / `.milspec-pl.milspec-bead.v`）は
+  **bare `.theme-military`** なのでクラスは使わず、background 式だけ `--ms-pl-v` / `--ms-pl-bead-v` に
+  移植した（light は `--ms-pl-dark` が light 定義済なので `.pl.v` は自動追従・bead だけ light 上書き）。
+
+### A3 — thead メンバー列領域（「素の面」→「計器の空きベイ」）
+
+**実測**: 軍事モードの `#timeline-header-inner` は **6 子のみ**（phase/label/time/mechanic/RAW/TAKEN）で
+幅 570px = `--col-member-start`。`#timeline-header-inner > *:nth-child(7)` は **null**
+（`<RecastRow>` は Task 7 で帯へ移動）。外枠は 1154.6px なので右 ≈50% が外枠の素の raised プレート
+（`rgb(44,55,66)`）のまま露出していた。
+
+**実装**: `#timeline-header-inner::before`（`left:100%` / `width:300vw`）に
+`#timeline-header-inner` 自身と**同一の**暗い凹チャンネル（`--ms-panel-lo → --ms-recess-lo`）+
+同一の inset 影 + ごく淡い機械加工ハッチ（`repeating-linear-gradient(-58deg …)`・`--ms-bay-hatch`）。
+`left:100%` にしたのは折りたたみ時でも inner の右端と**継ぎ目ゼロ**になるため
+（静的 `--col-member-start` だと折りたたみ時に 78px の素地が残る）。外枠は `overflow:hidden` なので
+300vw はクリップされ、ページ横スクロールは発生しない。
+⚠ 面と影の値は `military.css` の `#timeline-header-inner`（Task 4）と**同値で固定**している。
+SP2 後のトーン調整でどちらかを触るときは必ず両方揃えること。
+
+**意図的に入れなかったもの**:
+- **ジョブアイコン + ロールタグ（mockup `.th-mem`）**: メンバー列の識別情報はこのアプリでは
+  コントロールバーのジョブチップ `.cj` が担っている（セッション 18 でヘッダーからチップへ移設済）。
+  thead に再現するとチップと二重になる。→ コントローラー ruling により見送り。
+- **メンバー列の仕切りティック**: 実測でメンバー列幅は**不均一**
+  （tank/healer = `--col-th-w` 151 + pad 5.8 = **156.8px** / dps = `--col-dps-w` 53 + 5.8 = **58.8px**。
+  合計 4×156.8 + 4×58.8 = 862.4 で `sheetScrollWidth` 1432 − 570 と一致）かつ並び順は
+  `partySortOrder` 依存。`repeating-linear-gradient` の一定ピッチ（ブリーフの代案 = `--col-th-w` 151px）
+  では必ずズレて「間違った列線」になるため**引かない**。ハッチだけの「ブランキングパネル」にした。
+
+### M6 — `.milspec-rc-label` のステンシル語
+
+`::before { content: "RECAST /" }` は **en ロケールだけ** "RECAST / Recast" の同語反復になっていた。
+→ **`content: "CD /"`**（cooldown の軍事略語）を採用。5 ロケールすべてで重複しない:
+ja「CD / リキャスト」/ en "CD / Recast" / zh「CD / 技能冷却」/ zh-Hant「CD / 技能冷卻」/
+ko「CD / 리캐스트」。mockup の `Recast /` 表記からは離れるが、i18n ラベルと二重にしないことを優先。
+
+### Task 10 の残差（→ masaya 目視ゲート）
+
+- **列折りたたみ時の「チップ側 vs 表セル側」分裂**（§C1）: SP2 以前から存在。実機確認して
+  別チケット化するか判断が要る。帯 / バー / チップは揃っており、ズレるのは表セルのみ。
+- **A3 の空きベイ**: mockup のジョブアイコン + ロールタグ帯は入れていない（チップと二重になるため）。
+  「空きベイでよいか / thead にも何か識別を置きたいか」は目視ゲートの判断項目。
+- **A2 のフレームを子より上（z-index:60）に出した**判断: mockup の値どおり下に敷くと不可視。
+  1px の暗いヘアラインが表ブロック外周に乗るので、濃さ（`--ms-table-frame-edge`）は目視で調整可。
+- レビュー M5（`[data-mit-bar]::after` フランジの隣接接触）/ M10（リキャスト OFF 時に目盛りキャップも
+  消える）/ M12（本 notes.md が非公開モックの markup 抜粋と hex を public repo に載せている件の
+  意図確認）は**未対応**＝目視ゲート/masaya 判断へ。
