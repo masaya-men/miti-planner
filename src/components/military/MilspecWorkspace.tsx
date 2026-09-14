@@ -14,6 +14,10 @@ export const MilspecWorkspace: React.FC<{ children: React.ReactNode }> = ({ chil
     useShallow((s) => ({ partyMembers: s.partyMembers, hiddenPartyMemberIds: s.hiddenPartyMemberIds })),
   );
   const visibleCount = partyMembers.filter((m) => !hiddenPartyMemberIds.includes(m.id)).length;
+  // 分母はパーティ定員そのもの(現状 8 人固定でも「定員」の意図が式で読める形にする・レビュー M9)。
+  const rosterTotal = partyMembers.length;
+  // mockup .ws-note は "ROSTER 08 / 08" のゼロ埋め(計器のテレメトリ表記・レビュー A4)。
+  const pad2 = (n: number) => String(n).padStart(2, '0');
 
   return (
     <div className="milspec-ws milspec-chan">
@@ -29,9 +33,9 @@ export const MilspecWorkspace: React.FC<{ children: React.ReactNode }> = ({ chil
           端末キャップ + テレメトリ。固定英字デカール(i18n 外・SP1 Q6)。 */}
       <span className="milspec-ws-cap" aria-hidden />
       <div className="milspec-ws-note" aria-hidden>
-        {`ROSTER ${visibleCount} / 8`}
+        {`ROSTER ${pad2(visibleCount)} / ${pad2(rosterTotal)}`}
         <br />
-        {visibleCount >= 8 ? 'FULL PARTY' : `SLOTS ${8 - visibleCount} OPEN`}
+        {visibleCount >= rosterTotal ? 'FULL PARTY' : `SLOTS ${pad2(rosterTotal - visibleCount)} OPEN`}
       </div>
     </div>
   );

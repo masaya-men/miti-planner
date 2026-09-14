@@ -33,21 +33,21 @@ describe('MilspecWorkspace', () => {
     expect(container.querySelector('.milspec-ws-cap')).not.toBeNull();
     const note = container.querySelector('.milspec-ws-note');
     expect(note).not.toBeNull();
-    expect(note!.textContent).toMatch(/ROSTER\s+\d\s*\/\s*8/);
+    expect(note!.textContent).toMatch(/ROSTER\s+\d{2}\s*\/\s*\d{2}/);
   });
 
   it('ROSTER の人数は可視パーティメンバー数(hiddenPartyMemberIds を反映)', () => {
     useMitigationStore.setState({ partyMembers: mkMembers(8) as never, hiddenPartyMemberIds: ['M0', 'M1'] });
     const { container } = render(<MilspecWorkspace><span /></MilspecWorkspace>);
     const note = container.querySelector('.milspec-ws-note');
-    expect(note!.textContent).toMatch(/ROSTER\s+6\s*\/\s*8/);
-    expect(note!.textContent).toMatch(/SLOTS\s+2\s+OPEN/);
+    expect(note!.textContent).toMatch(/ROSTER\s+06\s*\/\s*08/);
+    expect(note!.textContent).toMatch(/SLOTS\s+02\s+OPEN/);
   });
 
   it('可視 8 人なら FULL PARTY', () => {
     const { container } = render(<MilspecWorkspace><span /></MilspecWorkspace>);
     const note = container.querySelector('.milspec-ws-note');
-    expect(note!.textContent).toMatch(/ROSTER\s+8\s*\/\s*8/);
+    expect(note!.textContent).toMatch(/ROSTER\s+08\s*\/\s*08/);
     expect(note!.textContent).toMatch(/FULL PARTY/);
   });
 
