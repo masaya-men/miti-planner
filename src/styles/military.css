@@ -1029,13 +1029,13 @@
    狭ければその空きを埋める端末キャップとして機能する（空白を放置しない）。
    グラデーション方向は mockup 準拠: ハードな暗線を左（表の内容側）に置き、金属の照りを
    経て右へフェード。 */
-.theme-military .milspec-ws-cap {
+.theme-military .milspec-app .milspec-ws-cap {
   position: absolute; top: 0; bottom: 0; right: 0;
   width: 14px; pointer-events: none; z-index: 3;
   background: linear-gradient(90deg, #05070a 0 2px, var(--ms-raised-lo) 3px, var(--ms-raised) 45% 55%, var(--ms-raised-lo), transparent);
   opacity: 0.55;
 }
-.theme-military .milspec-ws-note {
+.theme-military .milspec-app .milspec-ws-note {
   position: absolute; right: 20px; top: 10px; z-index: 3;
   pointer-events: none; white-space: nowrap;
   font: 400 7px/1.7 'Share Tech Mono', ui-monospace, monospace;
@@ -1044,7 +1044,7 @@
 }
 /* light: スクリーン自体は常時ダーク(#0d1319)。キャップの金属面は raised 変数が白で浮くので
    帯の芯を鈍い金属グレーに落とし、外縁のベゼル影(#05070a)だけ残す。 */
-.theme-military.theme-light .milspec-ws-cap {
+.theme-military.theme-light .milspec-app .milspec-ws-cap {
   background: linear-gradient(90deg, #05070a 0 2px, rgba(120,140,158,0.42) 3px, rgba(150,168,184,0.5) 45% 55%, rgba(120,140,158,0.42), transparent);
   opacity: 0.5;
 }
@@ -1350,7 +1350,9 @@
 /* ステンシルデカール(mockup .sc "ENGAGEMENT TIMELINE CONTROL · SEC-2" 2093・固定英字)。
    実アプリは表が幅いっぱいで mockup のような右空きが無い → バー右端に淡く etch(残差 notes.md)。 */
 .theme-military .milspec-app div:has(> #timeline-controls-inner)::after {
-  content: "ENGAGEMENT TIMELINE CONTROL \00B7 SEC-2";
+  /* ⚠ \00B7 の直後のスペースは CSS エスケープの終端として消費される (6 桁まで読む仕様) ため
+     "CONTROL·SEC-2" と詰まる。区切りスペースは \0020 で明示する (レビュー M2)。 */
+  content: "ENGAGEMENT TIMELINE CONTROL \00B7\0020SEC-2";
   position: absolute; right: 14px; bottom: 2px; z-index: 2; pointer-events: none;
   font: 400 7px/1 'Share Tech Mono', ui-monospace, monospace;
   letter-spacing: 0.16em; text-transform: uppercase;
@@ -1662,12 +1664,14 @@
   white-space: nowrap;
   overflow: hidden;
 }
-/* 大英字 "RECAST" のステンシル装飾(固定英字・翻訳外 = i18n キーにしない)。
-   後続は i18n の localized ラベル(ja「リキャスト」)なので mockup の
-   "Recast / リキャスト" と同じ二言語の見え方になる。element 側に text-transform は
-   掛けない(en ロケールで "RECAST / RECAST" と重複表示になるため)。 */
+/* ステンシル装飾(固定英字・翻訳外 = i18n キーにしない)。後続は i18n の localized ラベル
+   (ja「リキャスト」/ en "Recast" / zh「技能冷却」/ zh-Hant「技能冷卻」/ ko「리캐스트」)。
+   ⚠ mockup は "Recast / リキャスト" だが、デカール側を "RECAST" にすると **en ロケールだけ**
+     "RECAST / Recast" の同語反復になる(レビュー M6。text-transform を掛けなくても重複する)。
+     → cooldown の軍事略語 "CD" に変更。全 5 ロケールで重複せず自然に読める
+     (CD / リキャスト・CD / Recast・CD / 技能冷却 …)。 */
 .theme-military .milspec-app .milspec-rc-label::before {
-  content: "RECAST /";
+  content: "CD /";
   /* 末尾スペースは生成コンテンツだと詰まるので padding で確実に空ける(mockup の
      "Recast / リキャスト" と同じ「スラッシュの左右に空き」を再現) */
   padding-right: 0.5em;
@@ -1894,6 +1898,12 @@
 .theme-military.theme-light .milspec-app .timeline-scroll-container::-webkit-scrollbar-thumb:hover,
 .theme-military.theme-light .milspec-app .milspec-tree-scroll::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(90deg, #c8d2da, #8996a3 45%, var(--ms-cyan) 50%, #8996a3 55%, #c8d2da);
+}
+/* ⚠ 上の light hover は詳細度 (0,5,0) で dark の :horizontal:hover(1826 相当)と同点 → ソース順で
+   勝ってしまい light の横 thumb hover が縦向き(90deg)のままになる(レビュー M3)。
+   :horizontal を足した (0,6,0) で横だけ 180deg に戻す。stop 構成は dark 横 hover と同一。 */
+.theme-military.theme-light .milspec-app .timeline-scroll-container::-webkit-scrollbar-thumb:horizontal:hover {
+  background: linear-gradient(180deg, #c8d2da, #8996a3 45%, var(--ms-cyan) 50%, #8996a3 55%, #c8d2da);
 }
 
 /* ---------- Task 10 (A2 / A1 / A3): 表フレーム層 + 縦パネルライン + thead メンバー列面
