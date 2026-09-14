@@ -96,6 +96,9 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   useThemeStore.setState({ themeStyle: 'standard' });
+  // モバイル幅ケース (SP3 境界テスト) の後始末。beforeEach でも戻すが、
+  // 同一ワーカーの後続ファイルへ 500px を漏らさないためここでも戻す。
+  (window as unknown as { innerWidth: number }).innerWidth = 1489;
   vi.clearAllTimers();
 });
 
@@ -129,5 +132,23 @@ describe('リキャスト帯（MIL-SPEC SP2 Task 7）', () => {
 
     expect(container.querySelector('[data-milspec-recast-band]')).toBeNull();
     expect(container.querySelector('#timeline-header-inner .recast-cell')).not.toBeNull();
+  });
+
+  // SP2 の CSS は全て `.theme-military .milspec-app` スコープだが、`.milspec-app` は
+  // PC 軍事レイアウト (Layout.tsx:579 の `!isMobile` ゲート) でしか mount しない。一方
+  // `.theme-military` は **モバイルでも `<html>` に付く** (useThemeStore.ts:71-73)。
+  // よって `isMilspecTable` のモバイル条件が将来外れると「CSS が 1 行も当たらない素の帯」が
+  // モバイル軍事 (= SP3 の領域) に出る。このテストが JS 側の最後の砦 (レビュー I2)。
+  it('モバイル幅では軍事でも帯を出さない (SP3 境界)', () => {
+    (window as unknown as { innerWidth: number }).innerWidth = 500;
+    useThemeStore.setState({ themeStyle: 'military' });
+
+    const { container } = render(
+      <MemoryRouter>
+        <Timeline />
+      </MemoryRouter>,
+    );
+
+    expect(container.querySelector('[data-milspec-recast-band]')).toBeNull();
   });
 });

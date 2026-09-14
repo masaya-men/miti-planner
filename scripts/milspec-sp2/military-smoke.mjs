@@ -8,28 +8,38 @@
  * Task 1 時点: 軍事モードの「見た目」は未実装。ここで見るのは
  *   「入口が残っている」「操作が壊れていない」「エラーを吐かない」だけ。
  *
- * 手順:
- *   0. 標準ヘッダーに MIL-SPEC 切替ボタン (button[aria-label*="MIL-SPEC"]) が
- *      表示されていることを assert (SP1 の失敗 = この入口を消したこと)。
- *      以降は実アクション useThemeStore.setThemeStyle('military') で確実に軍事へ。
- *   1. 軽減を store 経由で配置済 (fixture)。追加でセル経由 UI もう 1 個は
- *      store 注入 fixture に含む。ここでは配置済みバーを操作する。
+ * 手順 (step 番号は実行順・全 15 ステップ):
+ *   1. 標準ヘッダーに MIL-SPEC 切替ボタン (button[aria-label*="MIL-SPEC"]) が
+ *      表示されていることを assert (SP1 の失敗 = この入口を消したこと) →
+ *      useThemeStore.setThemeStyle('military') で軍事へ + store 注入 fixture
+ *      (プラン選択済 + 8 人 + 軽減 7 個)。
  *   2. 配置済み軽減バーをドラッグして別時刻へ移動 (実マウス pointer 列)。
- *   3. 折りたたむボタン (Area A) を ON/OFF → hideEmptyRows がトグル。
- *   4. AA 追加ボタンを押してポップオーバー表示 → Esc で閉じる。
- *   5. メモボタン ON/OFF → toolMode が 'memo'→'idle'。
- *   6. リキャスト行トグル (Area C) を OFF/ON。
- *   7. フェーズヘッダー click → ドロップダウン → フェーズジャンプ。
- *   8. .timeline-scroll-container を scrollBy({left:300}) →
+ *   3. Undo / Redo (Ctrl+Z → Ctrl+Y) が 1 往復する (GC2・レビュー I5)。
+ *   4. 折りたたむボタン (Area A) を ON/OFF → hideEmptyRows がトグル。
+ *   5. AA 追加ボタンを押してポップオーバー表示 → Esc で閉じる。
+ *   6. メモボタン ON/OFF → toolMode が 'memo'→'idle'。
+ *   7. リキャスト行トグル (Area C) を OFF/ON。
+ *   8. フェーズヘッダー click → ドロップダウン → フェーズジャンプ。
+ *   9. .timeline-scroll-container を scrollBy({left:300}) →
  *      #timeline-header-inner / #timeline-controls-inner の transform が
  *      コンテナ実 scrollLeft と一致 (±2px)。
- *   9. scrollBy({top:400}) → .recast-num が変化 or 例外なし (Task 7 以降で本実装)。
- *  10. 配置した軽減を右クリックで削除。
+ *  10. scrollBy({top:400}) → .recast-num が変化 or 例外なし。
+ *  11. 配置した軽減を右クリックで削除。
+ *  12. リキャスト帯 (Task 7) の位置・列整合・横スクロール同期 +
+ *      (d) 列折りたたみ (Shift+P / Shift+L) 後も帯がチップ/バー陣営に留まる (C1 の回帰検知)。
+ *  13. リキャスト帯: T/H セルで 6 アイコンが 1 行に収まる (折り返しクリップ回帰)。
+ *  14. 計器スクロールバー (Task 8): 縦バー可視化 + syncPadding + 目盛りキャップ ::after。
+ *      (headless は ::-webkit-scrollbar 非描画のため幅の hard assert は WARN スキップ)
+ *  15. CSS 構造前提の自己防衛 (レビュー M8 / T4 #4): sheetContainer 先頭の
+ *      [data-time-row] 連続性 + :has() アンカーの一意性。
  *
  * 各ステップ後に console エラー 0 を確認。1 件でも exit 1。
  */
 
 import { launch, gotoMiti, applyFixture, attachConsoleRecorder, MITIGATION_FIXTURE } from './_fixture.mjs';
+
+/** 実装済みステップ総数 (ファイル頭の手順コメントと一致させること)。 */
+const TOTAL_STEPS = 15;
 
 let stepNum = 0;
 const results = [];
@@ -196,6 +206,29 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
     });
 
     // ── step 3: 折りたたむボタン (Area A) ON/OFF ────────────────
+    await step('Undo / Redo が軍事モードでも 1 往復する (Ctrl+Z / Ctrl+Y)', async () => {
+      // GC2 が名指ししている「編集機能を壊さない」項目のうち Undo/Redo は本ブランチで
+      // 一度も踏まれていなかった (レビュー I5)。直前の step 2 のドラッグ移動を 1 往復する。
+      // 前ステップが WARN でドラッグしていなくても成立するよう、特定 id の time ではなく
+      // timelineMitigations のスナップショット全体で比較する (= 何であれ 1 手戻って 1 手進む)。
+      // 往復後は必ず元の状態へ戻るので後続ステップ (削除 / tank セル) に影響しない。
+      const snap0 = JSON.stringify(await getState(MITI_STORE, 'timelineMitigations'));
+      await page.keyboard.press('Control+z');
+      await page.waitForTimeout(350);
+      const snap1 = JSON.stringify(await getState(MITI_STORE, 'timelineMitigations'));
+      if (snap1 === snap0) fail('Ctrl+Z で timelineMitigations が変化しない — Undo の回帰');
+      await page.keyboard.press('Control+y');
+      await page.waitForTimeout(350);
+      const snap2 = JSON.stringify(await getState(MITI_STORE, 'timelineMitigations'));
+      if (snap2 !== snap0) {
+        fail(
+          `Ctrl+Y で Undo 前の状態に戻らない — Redo の回帰 ` +
+            `(${JSON.parse(snap0).length} → ${JSON.parse(snap1).length} → ${JSON.parse(snap2).length} 件)`,
+        );
+      }
+      return `Undo で変化 (${JSON.parse(snap0).length} → ${JSON.parse(snap1).length} 件) → Redo で完全復帰`;
+    });
+
     await step('折りたたむボタン (Area A) を ON/OFF', async () => {
       const btn = page.locator('#timeline-controls-inner button').filter({ has: page.locator('svg.lucide-text-align-justify') }).first();
       if ((await btn.count()) === 0) fail('折りたたむボタン (lucide-text-align-justify) が見つからない');
@@ -669,6 +702,49 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
       return `縦バー幅 ${r.barWidth}px / paddingRight header ${r.headerPadR} controls ${r.controlsPadR} recast ${r.bandPadR} / 目盛りキャップ ::after OK`;
     });
 
+    // ── step 15: CSS セレクタの構造前提を自己防衛 (レビュー M8 / T4 #4) ──
+    // (a) ゼブラ (:nth-child(even)) と 4n 溝 (:nth-child(4n)) は「sheetContainer の先頭に
+    //     [data-time-row] が連続している」ことに依存する。将来ここに 1 個何かを挿すと
+    //     ゼブラが 1 行ずれるだけで、テストも既存の smoke も落ちない = 無音の破綻。
+    // (b) Task 4/5/8 と Task 10(A1/A3) が使う `div:has(> #timeline-header-inner)` /
+    //     `.timeline-scroll-container > div:has(> [data-time-row])` は「直親/直子が一意」
+    //     という前提に立っている。どちらも件数を数えて固定する。
+    await step('CSS 構造前提: sheetContainer 先頭の行連続性 + :has() アンカーの一意性', async () => {
+      const r = await page.evaluate(() => {
+        const sheets = document.querySelectorAll('.timeline-scroll-container > div:has(> [data-time-row])');
+        if (sheets.length !== 1) return { err: `sheetContainer アンカーが ${sheets.length} 個 (期待 1 個)` };
+        const sheet = sheets[0];
+        const kids = Array.from(sheet.children);
+        const isRow = (el) => el.hasAttribute('data-time-row');
+        let lead = 0;
+        while (lead < kids.length && isRow(kids[lead])) lead += 1;
+        const rowAfterNonRow = kids.slice(lead).some(isRow);
+        const headerOuters = document.querySelectorAll('div:has(> #timeline-header-inner)');
+        return {
+          firstIsRow: kids.length > 0 && isRow(kids[0]),
+          childCount: kids.length,
+          leadRun: lead,
+          totalRows: kids.filter(isRow).length,
+          rowAfterNonRow,
+          headerOuterCount: headerOuters.length,
+        };
+      });
+      if (r.err) fail(r.err);
+      if (!r.firstIsRow) {
+        fail(`sheetContainer の先頭子が [data-time-row] ではない — :nth-child(even)/(4n) のゼブラ・溝が 1 行ずれる`);
+      }
+      if (r.rowAfterNonRow) {
+        fail(
+          `[data-time-row] が先頭の連続ランになっていない (先頭 ${r.leadRun} 個の後にも行がある / 全 ${r.totalRows} 行) ` +
+            `— 行の間に非行要素が挟まると :nth-child の行番号がずれる`,
+        );
+      }
+      if (r.headerOuterCount !== 1) {
+        fail(`div:has(> #timeline-header-inner) が ${r.headerOuterCount} 個 (期待 1 個) — Task 4/5/8/10 のアンカーが曖昧になる`);
+      }
+      return `sheetContainer 直下 ${r.childCount} 子 / 先頭から ${r.leadRun} 個連続で行 (全 ${r.totalRows} 行・行後に行なし) / ヘッダー外枠アンカー 1 個`;
+    });
+
     // ── 最終判定 (この viewport) ──────────────────────────────
     console.log('');
     if (rec.whitelisted.length) {
@@ -689,8 +765,13 @@ async function runOnce(viewport, { tagOutput = false } = {}) {
       };
     }
 
+    if (stepNum !== TOTAL_STEPS) {
+      console.error(`FAIL${tag}: 実行ステップ数 ${stepNum} が TOTAL_STEPS (${TOTAL_STEPS}) と一致しない — ファイル頭の手順コメントを更新すること`);
+      return { viewport, ok: false, steps: stepNum, reason: `step 数不一致 ${stepNum}/${TOTAL_STEPS}`, results: results.slice() };
+    }
+
     const warns = results.filter((r) => r.ok && r.note.startsWith('WARN')).length;
-    console.log(`PASS${tag}: ${stepNum} ステップ完走 / 非 whitelist console エラー 0 件${warns ? ` / WARN ${warns} 件 (Task 1 時点で未実装の挙動)` : ''}`);
+    console.log(`PASS${tag}: ${stepNum} ステップ完走 / 非 whitelist console エラー 0 件${warns ? ` / WARN ${warns} 件 (headless で確認できない項目)` : ''}`);
     return { viewport, ok: true, steps: stepNum, warns, results: results.slice() };
   } catch (err) {
     console.error(`\n──────── FAIL${tag} ────────`);
@@ -731,7 +812,7 @@ async function main() {
       const v = `${r.viewport.width}×${r.viewport.height}`;
       console.log(
         r.ok
-          ? `  ✓ ${v}: ${r.steps}/13 pass${r.warns ? ` (WARN ${r.warns})` : ''}`
+          ? `  ✓ ${v}: ${r.steps}/${TOTAL_STEPS} pass${r.warns ? ` (WARN ${r.warns})` : ''}`
           : `  ✗ ${v}: ${r.reason}`,
       );
     }
